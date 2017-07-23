@@ -132,5 +132,4 @@ void HeapBase<IMPL, H, T, C>::merge(IMPL &/*other*/) {
 	throw std::runtime_error("Merging two binary heaps is not supported");
 }
 
-
-} // end namespace ogdf
+}

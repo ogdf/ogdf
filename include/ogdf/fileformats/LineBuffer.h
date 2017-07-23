@@ -104,9 +104,7 @@ public:
 
 	/** Assignment */
 	LineBufferPosition &operator=(const LineBufferPosition &position);
-
-}; // LineBufferPosition
-
+};
 
 /** This class maintains the input file and provides a
  *  convenient interface to handle it.
@@ -116,7 +114,7 @@ class OGDF_EXPORT LineBuffer {
 private:
 
 	//! Handle to the input file
-	istream *m_pIs;
+	std::istream *m_pIs;
 
 	//! Contains for each line of the line buffer its update count
 	ArrayBuffer<int> m_lineUpdateCountArray;
@@ -140,7 +138,7 @@ private:
 public:
 
 	//! Construction
-	explicit LineBuffer(istream &is);
+	explicit LineBuffer(std::istream &is);
 
 	//! Destruction
 	~LineBuffer();
@@ -203,7 +201,6 @@ private:
 
 	//! Checks wether the given \p position is valid
 	bool isValidPosition(const LineBufferPosition &position) const;
+};
 
-}; // class LineBuffer
-
-} // end namespace ogdf
+}

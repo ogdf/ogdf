@@ -17,7 +17,7 @@ int main()
 	  GraphAttributes::nodeStyle |
 	  GraphAttributes::nodeTemplate);
 	if (!GraphIO::read(GA, G, "unix-history.gml", GraphIO::readGML)) {
-		cerr << "Could not load unix-history.gml" << endl;
+		std::cerr << "Could not load unix-history.gml" << std::endl;
 		return 1;
 	}
 

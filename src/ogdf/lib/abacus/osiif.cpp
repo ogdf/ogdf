@@ -260,7 +260,7 @@ void OsiIF::_loadBasis(
 	if (status == 0) {
 		Logger::ifout()
 			<< "OsiIF::_loadBasis(): loading the new basis has failed. Status "
-			<< status << endl;
+			<< status << std::endl;
 		// FIXME loadBasis
 		return;
 	} else
@@ -415,7 +415,7 @@ void OsiIF::_changeUBound(int i, double newUb)
 
 int OsiIF::_pivotSlackVariableIn(ArrayBuffer<int> &rows)
 {
-	Logger::ifout() << "OsiIF:::_pivotSlackVariableIn(): currently not implemented" << endl;
+	Logger::ifout() << "OsiIF:::_pivotSlackVariableIn(): currently not implemented" << std::endl;
 	return 1;
 }
 
@@ -493,8 +493,8 @@ LP::OPTSTAT OsiIF::_barrier(bool doCrossover)
 {
 	// The barrier method is not implemented in Osi.
 	// We use the primal simplex method instead
-	Logger::ifout() << "OsiIF::_barrier: Sorry, Osi implements no barrier method." << endl;
-	Logger::ifout() << "Using primal simplex method instead." << endl;
+	Logger::ifout() << "OsiIF::_barrier: Sorry, Osi implements no barrier method." << std::endl;
+	Logger::ifout() << "Using primal simplex method instead." << std::endl;
 	return _primalSimplex();
 }
 
@@ -528,7 +528,7 @@ LP::OPTSTAT OsiIF::_approx()
 	if (osiLP_->isIterationLimitReached()) return LimitReached;
 	else {
 		Logger::ifout() << "OsiIF::_approx(): ";
-		Logger::ifout() << "unable to determine status of LP, assume the solution is optimal..." << endl;
+		Logger::ifout() << "unable to determine status of LP, assume the solution is optimal..." << std::endl;
 		return Optimal;
 	}
 }
@@ -615,19 +615,19 @@ double OsiIF::_slack(int i) const
 void OsiIF::getSol()
 {
 #ifdef OSIDEBUG
-	Logger::ifout() << "<> isProvenOptimal: " << osiLP_->isProvenOptimal() << endl
-	 << "<> isProvenDualInfeasible: " << osiLP_->isProvenDualInfeasible() << endl
-	 << "<> isProvenPrimalInfeasible: " << osiLP_->isProvenPrimalInfeasible() << endl
-	 << "<> isProvenDualInfeasible: " << osiLP_->isProvenDualInfeasible() << endl
-	 << "<> isAbandoned: " << osiLP_->isAbandoned() << endl
-	 << "<> isPrimalObjetiveLimitReached: " << osiLP_->isPrimalObjectiveLimitReached() << endl
-	 << "<> isDualObjetiveLimitReached: " << osiLP_->isDualObjectiveLimitReached() << endl
-	 << "<> isIterationLimitReached: " << osiLP_->isIterationLimitReached() << endl;
+	Logger::ifout() << "<> isProvenOptimal: " << osiLP_->isProvenOptimal() << std::endl
+	 << "<> isProvenDualInfeasible: " << osiLP_->isProvenDualInfeasible() << std::endl
+	 << "<> isProvenPrimalInfeasible: " << osiLP_->isProvenPrimalInfeasible() << std::endl
+	 << "<> isProvenDualInfeasible: " << osiLP_->isProvenDualInfeasible() << std::endl
+	 << "<> isAbandoned: " << osiLP_->isAbandoned() << std::endl
+	 << "<> isPrimalObjetiveLimitReached: " << osiLP_->isPrimalObjectiveLimitReached() << std::endl
+	 << "<> isDualObjetiveLimitReached: " << osiLP_->isDualObjectiveLimitReached() << std::endl
+	 << "<> isIterationLimitReached: " << osiLP_->isIterationLimitReached() << std::endl;
 	double POL;
 	osiLP_->getDblParam(OsiPrimalObjectiveLimit, POL);
-	Logger::ifout() << "<> PrimalObjectiveLimit: " << POL << endl
-	 << "<> ObjectiveSense: " << osiLP_->getObjSense() << endl
-	 << "<> ObjectiveValue: " << osiLP_->getObjValue() << endl;
+	Logger::ifout() << "<> PrimalObjectiveLimit: " << POL << std::endl
+	 << "<> ObjectiveSense: " << osiLP_->getObjSense() << std::endl
+	 << "<> ObjectiveValue: " << osiLP_->getObjValue() << std::endl;
 #endif
 
 	lpSolverTime_.start();
@@ -726,14 +726,14 @@ void OsiIF::getSol()
 void OsiIF::_rowRealloc(int newSize)
 {
 	// Memory management is completely handled by Osi
-	//Logger::ifout() << "OsiIF::_rowRealloc : This function does not do anything. Memory management is completely handled by Osi." << endl;
+	//Logger::ifout() << "OsiIF::_rowRealloc : This function does not do anything. Memory management is completely handled by Osi." << std::endl;
 }
 
 
 void OsiIF::_colRealloc(int newSize)
 {
 	// Memory management is completely handled by Osi
-	//Logger::ifout() << "OsiIF::_colRealloc : This function does not do anything. Memory management is completely handled by Osi." << endl;
+	//Logger::ifout() << "OsiIF::_colRealloc : This function does not do anything. Memory management is completely handled by Osi." << std::endl;
 }
 
 
@@ -1012,4 +1012,4 @@ void OsiIF::loadDummyRow(OsiSolverInterface* s2, const double* lbounds, const do
 
 	return;
 }
-} //namespace abacus
+}

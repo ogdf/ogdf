@@ -6,13 +6,10 @@
 
 #pragma once
 
-#include <bandit/bandit.h>
-#include <tinydir.h>
 #include <vector>
-
 #include <ogdf/fileformats/GraphIO.h>
-
-namespace ogdf {
+#include <tinydir.h>
+#include <testing.h>
 
 const string RESOURCE_DIR = "test/resources";
 
@@ -74,10 +71,8 @@ inline void for_each_graph_it(const string &title, const std::vector<string> &fi
 	for(const string filename : filenames) {
 		bandit::it(string(title + " [" + filename.c_str() + "] "), [&](){
 			Graph graph;
-			AssertThat(GraphIO::read(graph, (RESOURCE_DIR + "/" + filename).c_str(), reader), IsTrue());
+			AssertThat(GraphIO::read(graph, (RESOURCE_DIR + "/" + filename).c_str(), reader), snowhouse::IsTrue());
 			testFunc(graph, filename);
 		});
 	}
-}
-
 }

@@ -10086,6 +10086,7 @@ PUGI__NS_BEGIN
 					return _data.variable->get_boolean();
 
 				// fallthrough to type conversion
+				OGDF_CASE_FALLTHROUGH;
 			}
 
 			default:
@@ -10222,6 +10223,7 @@ PUGI__NS_BEGIN
 					return _data.variable->get_number();
 
 				// fallthrough to type conversion
+				OGDF_CASE_FALLTHROUGH;
 			}
 
 			default:
@@ -10506,6 +10508,7 @@ PUGI__NS_BEGIN
 					return xpath_string::from_const(_data.variable->get_string());
 
 				// fallthrough to type conversion
+				OGDF_CASE_FALLTHROUGH;
 			}
 
 			default:
@@ -10656,6 +10659,7 @@ PUGI__NS_BEGIN
 				}
 
 				// fallthrough to type conversion
+				OGDF_CASE_FALLTHROUGH;
 			}
 
 			default:

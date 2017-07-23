@@ -58,7 +58,6 @@ void Layout::computePolyline(GraphCopy &GC, edge eOrig, DPolyline &dpl) const
 
 		// ... and polyline of e
 		const DPolyline &segment = m_bends[e];
-		ListConstIterator<DPoint> itSeg;
 
 		for (const DPoint &dp : segment)
 			dpl.pushBack(dp);
@@ -132,7 +131,6 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 
 				const DPolyline &dpl = bends(e);
 
-				ListConstIterator<DPoint> it;
 				for(const DPoint &dp : dpl)
 				{
 					if (dp.m_x > maxWidth ) maxWidth  = dp.m_x;
@@ -145,5 +143,4 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 	return DPoint(maxWidth,maxHeight);
 }
 
-
-} // end namespace ogdf
+}

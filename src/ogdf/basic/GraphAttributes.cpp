@@ -250,10 +250,10 @@ DRect GraphAttributes::boundingBox() const
 		for(node v : G.nodes) {
 			double lw = has(GraphAttributes::nodeStyle) ? 0.5*strokeWidth(v) : 0;
 
-			minx = min(minx, x(v) - width(v) / 2 - lw);
-			maxx = max(maxx, x(v) + width(v) / 2 + lw);
-			miny = min(miny, y(v) - height(v) / 2 - lw);
-			maxy = max(maxy, y(v) + height(v) / 2 + lw);
+			Math::updateMin(minx, x(v) - width(v) / 2 - lw);
+			Math::updateMax(maxx, x(v) + width(v) / 2 + lw);
+			Math::updateMin(miny, y(v) - height(v) / 2 - lw);
+			Math::updateMax(maxy, y(v) + height(v) / 2 + lw);
 		}
 	}
 
@@ -263,10 +263,10 @@ DRect GraphAttributes::boundingBox() const
 			double lw = has(GraphAttributes::edgeStyle) ? 0.5*strokeWidth(e) : 0;
 
 			for (const DPoint &p : dpl) {
-				minx = min(minx, p.m_x - lw);
-				maxx = max(maxx, p.m_x + lw);
-				miny = min(miny, p.m_y - lw);
-				maxy = max(maxy, p.m_y + lw);
+				Math::updateMin(minx, p.m_x - lw);
+				Math::updateMax(maxx, p.m_x + lw);
+				Math::updateMin(miny, p.m_y - lw);
+				Math::updateMax(maxy, p.m_y + lw);
 			}
 		}
 	}
@@ -425,76 +425,72 @@ void GraphAttributes::removeUnnecessaryBendsHV()
 
 void GraphAttributes::addNodeCenter2Bends(int mode)
 {
-	for(edge e : m_pGraph->edges) {
+	OGDF_ASSERT(mode >= 0);
+	OGDF_ASSERT(mode <= 2);
+	for (edge e : m_pGraph->edges) {
 		node v = e->source();
 		node w = e->target();
 		DPolyline &bendpoints = bends(e);
-		switch (mode) {
-		case 0 : // push center to the bends and return
+		if (mode <= 1) {
+			// push center to the bends
 			bendpoints.pushFront(DPoint(x(v), y(v)));
 			bendpoints.pushBack (DPoint(x(w), y(w)));
-			break;
-		case 1 : // determine intersection with node and [center, last-bend-point]
-			bendpoints.pushFront(DPoint(x(v), y(v)));
-			bendpoints.pushBack (DPoint(x(w), y(w)));
-		case 2 : // determine intersection between node and last bend-segment
-			{
-				DPoint sp1(x(v) - width(v)/2, y(v) - height(v)/2);
-				DPoint sp2(x(v) - width(v)/2, y(v) + height(v)/2);
-				DPoint sp3(x(v) + width(v)/2, y(v) + height(v)/2);
-				DPoint sp4(x(v) + width(v)/2, y(v) - height(v)/2);
-				DLine sourceRect[4] = {
-					DLine(sp1, sp2),
-					DLine(sp2, sp3),
-					DLine(sp3, sp4),
-					DLine(sp4, sp1)
-				};
+		}
+		if (mode >= 1) {
+			// determine intersection between node and last bend-segment
+			DPoint sp1(x(v) - width(v)/2, y(v) - height(v)/2);
+			DPoint sp2(x(v) - width(v)/2, y(v) + height(v)/2);
+			DPoint sp3(x(v) + width(v)/2, y(v) + height(v)/2);
+			DPoint sp4(x(v) + width(v)/2, y(v) - height(v)/2);
+			DSegment sourceRect[4] = {
+				DSegment(sp1, sp2),
+				DSegment(sp2, sp3),
+				DSegment(sp3, sp4),
+				DSegment(sp4, sp1)
+			};
 
-				DPoint tp1(x(w) - width(w)/2, y(w) - height(w)/2);
-				DPoint tp2(x(w) - width(w)/2, y(w) + height(w)/2);
-				DPoint tp3(x(w) + width(w)/2, y(w) + height(w)/2);
-				DPoint tp4(x(w) + width(w)/2, y(w) - height(w)/2);
-				DLine targetRect[4] = {
-					DLine(tp1, tp2),
-					DLine(tp2, tp3),
-					DLine(tp3, tp4),
-					DLine(tp4, tp1)
-				};
+			DPoint tp1(x(w) - width(w)/2, y(w) - height(w)/2);
+			DPoint tp2(x(w) - width(w)/2, y(w) + height(w)/2);
+			DPoint tp3(x(w) + width(w)/2, y(w) + height(w)/2);
+			DPoint tp4(x(w) + width(w)/2, y(w) - height(w)/2);
+			DSegment targetRect[4] = {
+				DSegment(tp1, tp2),
+				DSegment(tp2, tp3),
+				DSegment(tp3, tp4),
+				DSegment(tp4, tp1)
+			};
 
-				DRect source(sp1, sp3);
-				DRect target(tp1, tp3);
+			DRect source(sp1, sp3);
+			DRect target(tp1, tp3);
 
-				DPoint c1 = bendpoints.popFrontRet();
-				DPoint c2 = bendpoints.popBackRet();
+			DPoint c1 = bendpoints.popFrontRet();
+			DPoint c2 = bendpoints.popBackRet();
 
-				while (!bendpoints.empty() && source.contains(bendpoints.front()))
-					c1 = bendpoints.popFrontRet();
-				while (!bendpoints.empty() && target.contains(bendpoints.back()))
-					c2 = bendpoints.popBackRet();
+			while (!bendpoints.empty() && source.contains(bendpoints.front()))
+				c1 = bendpoints.popFrontRet();
+			while (!bendpoints.empty() && target.contains(bendpoints.back()))
+				c2 = bendpoints.popBackRet();
 
-				DPoint a1, a2;
-				int i;
-				if (bendpoints.size() == 0) {
-					DLine cross(c1, c2);
-					for (i = 0; i < 4; i++)
-						if (cross.intersection(sourceRect[i], a1)) break;
-					for (i = 0; i < 4; i++)
-						if (cross.intersection(targetRect[i], a2)) break;
-				}
-				else {
-					DLine cross1(c1, bendpoints.front());
-					for (i = 0; i < 4; i++)
-						if (cross1.intersection(sourceRect[i], a1)) break;
-					DLine cross2(bendpoints.back(), c2);
-					for (i = 0; i < 4; i++)
-						if (cross2.intersection(targetRect[i], a2)) break;
-				}
-				bendpoints.pushFront(a1);
-				bendpoints.pushBack(a2);
-				break;
+			DPoint a1, a2;
+			int i;
+			// TODO: What to do when IntersectionType::Overlapping is returned?
+			if (bendpoints.size() == 0) {
+				DSegment cross(c1, c2);
+				for (i = 0; i < 4; i++)
+					if (cross.intersection(sourceRect[i], a1) == IntersectionType::SinglePoint) break;
+				for (i = 0; i < 4; i++)
+					if (cross.intersection(targetRect[i], a2) == IntersectionType::SinglePoint) break;
 			}
-		default:
-			OGDF_ASSERT(false);
+			else {
+				DSegment cross1(c1, bendpoints.front());
+				for (i = 0; i < 4; i++)
+					if (cross1.intersection(sourceRect[i], a1) == IntersectionType::SinglePoint) break;
+				DSegment cross2(bendpoints.back(), c2);
+				for (i = 0; i < 4; i++)
+					if (cross2.intersection(targetRect[i], a2) == IntersectionType::SinglePoint) break;
+			}
+			bendpoints.pushFront(a1);
+			bendpoints.pushBack(a2);
 		}
 		bendpoints.normalize();
 	}
@@ -642,7 +638,7 @@ void GraphAttributes::rotateRight90()
 			m_x[v] = -y;
 			m_y[v] = x;
 
-			swap(m_width[v], m_height[v]);
+			std::swap(m_width[v], m_height[v]);
 		}
 	}
 
@@ -666,7 +662,7 @@ void GraphAttributes::rotateLeft90()
 			m_x[v] = y;
 			m_y[v] = -x;
 
-			swap(m_width[v], m_height[v]);
+			std::swap(m_width[v], m_height[v]);
 		}
 	}
 
@@ -681,4 +677,4 @@ void GraphAttributes::rotateLeft90()
 	}
 }
 
-} // end namespace ogdf
+}

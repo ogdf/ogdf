@@ -549,4 +549,4 @@ private:
 	const OsiIF &operator=(const OsiIF &rhs);
 };
 
-} //namespace abacus
+}

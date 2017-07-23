@@ -148,9 +148,8 @@ public:
 
 	//! Swaps the contents.
 	void swap(PriorityQueue &other) {
-		using std::swap;
-		swap(m_size, other.m_size);
-		swap(m_impl, other.m_impl);
+		std::swap(m_size, other.m_size);
+		std::swap(m_impl, other.m_impl);
 	}
 
 	//! Swaps the contents.
@@ -450,7 +449,7 @@ protected:
 	Map m_handles;
 };
 
-} // end namespace pq_internal
+}
 
 //! Prioritized queue interface wrapper for heaps.
 /**
@@ -593,4 +592,4 @@ public:
 };
 
 
-} // end namespace ogdf
+}

@@ -100,5 +100,4 @@ private:
 	ATYPE m_sep;
 };
 
-
-} // end namespace ogdf
+}

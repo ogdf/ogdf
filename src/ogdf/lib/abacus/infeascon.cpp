@@ -55,4 +55,4 @@ bool InfeasCon::goodVar(const Variable *v) const
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::InfeasCon);
 	}
 }
-} //namespace abacus
+}

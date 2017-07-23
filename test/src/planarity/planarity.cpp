@@ -31,31 +31,20 @@
 
 #include <random>
 
-#include <bandit/bandit.h>
-#include <resources.h>
-
-#include <ogdf/basic/graph_generators.h>
 #include <ogdf/planarity/BoothLueker.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarity/NonPlanarCore.h>
 #include <ogdf/planarity/PlanarizationLayout.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/graphalg/MaxFlowSTPlanarItaiShiloach.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <graphs.h>
+
 using std::minstd_rand;
 using std::uniform_int_distribution;
 using ReturnType = CrossingMinimizationModule::ReturnType;
-
-const int MIN_N = 500;
-const int MAX_N = 2500;
-const int STEP_N = 50;
-const int STEPS = (MAX_N - MIN_N) / STEP_N;
-bool toogle;
 
 template<typename T>
 void testNPCWeighted(string description, string alg, bool useDijkstra) {
@@ -87,13 +76,6 @@ void testNPCWeighted(string description, string alg, bool useDijkstra) {
 	});
 }
 
-void removeEdges(Graph &G, const List<edge> &delEdges){
-	ListConstIterator<edge> it;
-	for(it = delEdges.begin(); it.valid(); ++it){
-		G.delEdge(*it);
-	}
-}
-
 void randomizeAdjLists(Graph G, minstd_rand &rng){
 	for(node v : G.nodes){
 		List<adjEntry> L;
@@ -103,147 +85,22 @@ void randomizeAdjLists(Graph G, minstd_rand &rng){
 	}
 }
 
-void addRandomEdges(Graph &G, int m, minstd_rand &rng){
-	const int n = G.numberOfNodes();
-
-	Array<node> nodes(n);
-	int i = 0;
-	for(node v : G.nodes){
-		nodes[i++] = v;
-	}
-
-	uniform_int_distribution<> dist_0(0, n - 1), dist_1(1, n - 1);
-	for(i = 0; i < m; ++i){
-		int rand1 = dist_0(rng);
-		int rand2 = dist_1(rng);
-		G.newEdge(nodes[rand1], nodes[(rand1 + rand2) % n]);
-	}
-}
-
-void addRandomLoops(Graph &G, int m, minstd_rand &rng){
-	const int n = G.numberOfNodes();
-
-	Array<node> nodes(n);
-	int i = 0;
-	for(node v : G.nodes){
-		nodes[i++] = v;
-	}
-
-	uniform_int_distribution<> dist(0, n - 1);
-	for(i = 0; i < m; ++i){
-		node v = nodes[dist(rng)];
-		G.newEdge(v, v);
-	}
-}
-
-void addRandomMultiEdges(Graph &G, int add, minstd_rand &rng){
-	const int m = G.numberOfEdges();
-
-	Array<edge> edges(m);
-	int i = 0;
-	for(edge e : G.edges){
-		edges[i++] = e;
-	}
-
-	uniform_int_distribution<> dist(0, m - 1);
-	for(i = 0; i < add; ++i){
-		edge e = edges[dist(rng)];
-		G.newEdge(e->source(), e->target());
-	}
-}
-
-
 void describeModule(const std::string &name, PlanarityModule &pm){
 describe(name, [&](){
 	minstd_rand rng(42);
 	srand(4711);
 
-	Graph G;
-
-	it("recognizes planar biconnected graphs", [&](){
-		int64_t time = 0, T;
-
-		for(int n = MIN_N; n <= MAX_N; n += STEP_N){
-			int mValues[] = {3 * n / 2, 2 * n, 5 * n / 2};
-			for(auto m : mValues){
-				planarBiconnectedGraph(G, n, m);
-				addRandomLoops(G, 10, rng);
-				randomizeAdjLists(G, rng);
-
-				System::usedRealTime(T);
-				AssertThat(pm.isPlanar(G), Equals(true));
-				time += System::usedRealTime(T);
-			}
-		}
-		cout << endl << "      average time was " << time / STEPS / 3 << "ms" << endl;
+	forEachGraphItWorks({GraphProperty::planar}, [&](Graph G) {
+		randomizeAdjLists(G, rng);
+		AssertThat(pm.isPlanar(G), IsTrue());
+		AssertThat(pm.planarEmbed(G), IsTrue());
+		AssertThat(G.representsCombEmbedding(), IsTrue());
 	});
 
-	it("recognizes planar connected graphs", [&](){
-		int64_t time = 0, T;
-
-		for(int n = MIN_N; n <= MAX_N; n += STEP_N){
-			int nb = n / 10;
-			int mValues[] = {3 * nb / 2, 2 * nb, 5 * nb / 2};
-			for(auto m : mValues){
-				planarCNBGraph(G, nb, m, 10);
-				addRandomLoops(G, 10, rng);
-				randomizeAdjLists(G, rng);
-
-				System::usedRealTime(T);
-				AssertThat(pm.isPlanar(G), Equals(true));
-				time += System::usedRealTime(T);
-			}
-		}
-		cout << endl << "      average time was " << time / STEPS / 3 << "ms" << endl;
-	});
-
-	it("creates a planar embedding on biconnected graphs", [&](){
-		int64_t time = 0, T;
-
-		for(int n = MIN_N; n <= MAX_N; n += STEP_N){
-			int nb = n / 10;
-			int mValues[] = {3 * nb / 2 + 1, 2 * nb + 1, 5 * nb / 2 + 1};
-			for(auto m : mValues){
-				planarBiconnectedGraph(G, n, m);
-				addRandomLoops(G, 10, rng);
-				addRandomMultiEdges(G, 50, rng);
-				randomizeAdjLists(G, rng);
-
-				System::usedRealTime(T);
-				pm.planarEmbed(G);
-				time += System::usedRealTime(T);
-				AssertThat(G.representsCombEmbedding(), Equals(true));
-			}
-		}
-		cout << endl << "      average time was " << time / STEPS / 3 << "ms" << endl;
-	});
-
-	it("works on connected graphs", [&](){
-		int64_t time = 0, T;
-
-		for(int n = MIN_N; n <= MAX_N; n += STEP_N){
-			int nb = n / 10;
-			int mValues[] = {3 * nb / 2 + 1, 2 * nb + 1, 5 * nb / 2 + 1};
-			for(auto m : mValues){
-				int addEdges = randomNumber(0, 4);
-				planarCNBGraph(G, nb, m, 10);
-				addRandomEdges(G, addEdges, rng);
-				addRandomMultiEdges(G, 50, rng);
-				randomizeAdjLists(G, rng);
-
-				System::usedRealTime(T);
-				time += System::usedRealTime(T);
-				AssertThat(pm.isPlanar(G), Equals(isPlanar(G)));
-			}
-		}
-		cout << endl << "      average time was " << time / STEPS / 3 << "ms" << endl;
-	});
-
-	it("detects non-planarity in small complete graphs", [&](){
-		for(int i = 5; i < 50; i++){
-			completeGraph(G, i);
-			AssertThat(pm.isPlanar(G), Equals(i < 5));
-		}
+	forEachGraphItWorks({GraphProperty::nonPlanar}, [&](Graph G) {
+		randomizeAdjLists(G, rng);
+		AssertThat(pm.isPlanar(G), IsFalse());
+		AssertThat(pm.planarEmbed(G), IsFalse());
 	});
 });
 }
@@ -407,7 +264,7 @@ void testNonPlanarCore()
 			int before(*componentList.rbegin());
 			for(int i : componentList){
 				if(i != before){
-					AssertThat((before + 1) % stComponentCounter, Equals(i))
+					AssertThat((before + 1) % stComponentCounter, Equals(i));
 					before = i;
 				}
 			}

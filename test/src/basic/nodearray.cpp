@@ -31,6 +31,7 @@
 #include "array_helper.h"
 
 using namespace ogdf;
+using namespace snowhouse;
 using namespace bandit;
 
 go_bandit([]() {

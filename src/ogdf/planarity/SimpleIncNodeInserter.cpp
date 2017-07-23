@@ -46,7 +46,7 @@ SimpleIncNodeInserter::SimpleIncNodeInserter(PlanRepInc &PG)
 : IncNodeInserter(PG), m_incidentEdges(PG, nullptr), m_forbidCrossings(true)
 {
 
-}//SimpleNodeInserter
+}
 
 SimpleIncNodeInserter::~SimpleIncNodeInserter()
 {
@@ -54,8 +54,7 @@ SimpleIncNodeInserter::~SimpleIncNodeInserter()
 	{
 		delete m_incidentEdges[v];
 	}
-}//destuctor
-
+}
 
 //insert a copy for original node v
 void SimpleIncNodeInserter::insertCopyNode(node v, Graph::NodeType vTyp)
@@ -83,11 +82,10 @@ void SimpleIncNodeInserter::insertCopyNode(node v, Graph::NodeType vTyp)
 				/* eCopy = */ m_planRep->newCopy(wCopy, vCopy->firstAdj(), e);
 
 			//TODO: update component number in planrepinc
-
-		}//if edge to be inserted
+		}
 		adjOrig = adjOrig->cyclicSucc();
 	} while (adjOrig != v->firstAdj());
-}//insertCopyNode
+}
 
 //insert a copy for original node v respecting the given
 //embedding, i.e. inserting crossings at adjacent edges
@@ -149,7 +147,7 @@ void SimpleIncNodeInserter::insertCopyNode(
 	if (adExternal)
 	{
 		E.setExternalFace(E.rightFace(adExternal));
-	}//if external face
+	}
 
 	//then we insert the edges leading to nodes outside
 	//face f
@@ -159,9 +157,7 @@ void SimpleIncNodeInserter::insertCopyNode(
 	insertCrossingEdges(v, vCopy, E, adExternal);
 
 	//TODO: remove reinsert for cross edges? Not necessary
-
-}//insertcopynode
-
+}
 
 //protected members
 
@@ -214,8 +210,7 @@ face SimpleIncNodeInserter::getInsertionFace(node v, CombinatorialEmbedding &E)
 	}
 
 	return bestFace;
-}//getInsertionFace
-
+}
 
 void SimpleIncNodeInserter::updateComponentNumber(node vCopy, node wCopy, CombinatorialEmbedding &E, adjEntry adExternal)
 {
@@ -291,12 +286,12 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 					m_planRep->newCopy(vCopy, behindAdj, e, E);
 					behindAdj = behindAdj->cyclicSucc();
 				}
-			}//if adjacent to v
-		}//Foralladjedges
+			}
+		}
 
 		//we don't have to care about the external face, just set one
 		return;
-	}//if f == 0
+	}
 
 	List<adjEntry> faceAdj;
 	adjEntry adFace = f->firstAdj();
@@ -348,9 +343,9 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 
 				updateComponentNumber(vCopy, u, E, adExternal);
 				++it;
-			}//while edges incident to u
+			}
 
-		}//if u incident to edges at v
+		}
 
 		++itAd;
 	}
@@ -360,8 +355,7 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 	edge e;
 	bool *completed = new bool[v->degree()];
 #endif
-}//insertfaceedges
-
+}
 
 //insert edge copies at vCopy for edges at v that cannot be
 //inserted without crossings in the current embedding
@@ -413,9 +407,9 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 
 		insertEdge(E, e, crossedEdges, m_forbidCrossings);
 		updateComponentNumber(vCopy, wCopy, E, adExternal);
-	}//foralladjedges
+	}
 
-}//insertCrossingEdges
+}
 
 void SimpleIncNodeInserter::constructDual(const Graph &G,
 	const CombinatorialEmbedding &E,
@@ -452,9 +446,7 @@ void SimpleIncNodeInserter::constructDual(const Graph &G,
 	// when searching for a shortest path in the dual graph.
 	m_vS = m_dual.newNode();
 	m_vT = m_dual.newNode();
-
-}//constructdual
-
+}
 
 // finds a shortest path in the dual graph augmented by s and t (represented
 // by m_vS and m_vT); returns list of crossed adjacency entries (corresponding
@@ -469,7 +461,7 @@ void SimpleIncNodeInserter::findShortestPath(
 {
 	OGDF_ASSERT(s != t);
 #if 0
-	if (!isConnected(m_dual)) cout<<"Not connected\n"<<flush;
+	if (!isConnected(m_dual)) std::cout<<"Not connected\n"<<std::flush;
 #endif
 
 	NodeArray<edge> spPred(m_dual,nullptr);
@@ -544,7 +536,7 @@ void SimpleIncNodeInserter::findShortestPath(
 		m_dual.delEdge(adj->theEdge());
 
 	m_dual.resetEdgeIdCount(oldIdCount);
-}//findshortestpath
+}
 
 // inserts edge e according to insertion path crossed.
 // updates embedding and dual graph
@@ -621,6 +613,6 @@ void SimpleIncNodeInserter::insertEdge(
 		}
 		while((adj = adj->faceCycleSucc()) != adj1);
 	}
-}//insertedge
+}
 
-}//namespace ogdf
+}

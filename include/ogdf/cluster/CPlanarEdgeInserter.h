@@ -46,7 +46,7 @@ namespace ogdf {
  */
 class OGDF_EXPORT CPlanarEdgeInserter
 {
-	//postprocessing options
+	//! Postprocessing options
 	enum class PostProcessType {None, RemoveReinsert};
 
 public:
@@ -58,9 +58,8 @@ public:
 	void call(
 		ClusterPlanRep& CPR,
 		CombinatorialEmbedding& E,
-		Graph& G,
-		const List<NodePair>& origEdges,
-		List<edge>& newEdges);
+		const Graph& G,
+		const List<edge>& origEdges);
 
 	void setPostProcessing(PostProcessType p)
 	{
@@ -89,10 +88,10 @@ protected:
 		SList<adjEntry> &crossed,
 		FaceArray<node>& nodeOfFace);
 
-	edge insertEdge(
+	void insertEdge(
 		ClusterPlanRep &CPR,
 		CombinatorialEmbedding &E,
-		const NodePair& np,
+		edge insertMe,
 		FaceArray<node>& nodeOfFace,
 		EdgeArray<edge>& arcRightToLeft,
 		EdgeArray<edge>& arcLeftToRight,
@@ -108,18 +107,18 @@ protected:
 		NodeArray<cluster>& clusterOfFaceNode,
 		EdgeArray<edge>& arcTwin);
 
-	//use heuristics to improve the result if possible
+	//! Use heuristics to improve the result if possible.
 	void postProcess();
 
 private:
 
-	Graph* m_originalGraph;
+	const Graph* m_originalGraph = nullptr;
 	Graph m_dualGraph;
-	EdgeArray<int> m_eStatus; //status of dual graph arcs
-	EdgeArray<adjEntry> m_arcOrig; //original edges adj entry
-	PostProcessType m_ppType; //defines which kind of postprocessing to use
+	EdgeArray<int> m_eStatus; //!< Status of dual graph arcs.
+	EdgeArray<adjEntry> m_arcOrig; //!< Original edges adj entry.
+	PostProcessType m_ppType = PostProcessType::None; //!< Defines which kind of postprocessing to use.
 
-	//compute for every face the cluster that surrounds it
+	//! Compute for every face the cluster that surrounds it.
 	void deriveFaceCluster(
 		ClusterPlanRep& CPR,
 		CombinatorialEmbedding& E,
@@ -130,7 +129,7 @@ private:
 
 	//debug
 	void writeDual(const char *fileName);
-	void writeGML(ostream &os, const Layout &drawing);
-};//class CPlanarEdgeInserter
+	void writeGML(std::ostream &os, const Layout &drawing);
+};
 
-} // end namespace ogdf
+}

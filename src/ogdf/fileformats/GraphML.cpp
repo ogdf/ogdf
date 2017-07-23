@@ -196,7 +196,5 @@ Graph::EdgeType toEdgeType(const std::string &str)
 		static_cast<Graph::EdgeType>(0), Graph::EdgeType::dependency, Graph::EdgeType::association);
 }
 
-
-} // end namespace graphml
-
-} // end namespace ogdf
+}
+}

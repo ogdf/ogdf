@@ -32,7 +32,6 @@
 
 #include <ogdf/upward/ExpansionGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/NodeSet.h>
 
 
 namespace ogdf {
@@ -58,26 +57,24 @@ ExpansionGraph::ExpansionGraph(const Graph &G) :
 		m_component[m_compNum[e]].pushBack(e);
 
 	// for each vertex v, build list of components containing v
-	NodeSetSimple contained(G);
 	for(int i = 0; i < numComp; ++i)
 	{
-		SListConstIterator<edge> it;
+		NodeArray<bool> isContained(G, false);
+
 		for(edge e : m_component[i])
 		{
 			node v = e->source();
-			if (!contained.isMember(v)) {
-				contained.insert(v);
+			if (!isContained[v]) {
+				isContained[v] = true;
 				m_adjComponents[v].pushBack(i);
 			}
 
 			v = e->target();
-			if (!contained.isMember(v)) {
-				contained.insert(v);
+			if (!isContained[v]) {
+				isContained[v];
 				m_adjComponents[v].pushBack(i);
 			}
 		}
-
-		contained.clear();
 	}
 }
 
@@ -164,5 +161,4 @@ void ExpansionGraph::init(const Graph &G)
 	}
 }
 
-
-} // end namespace ogdf
+}

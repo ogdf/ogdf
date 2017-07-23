@@ -35,7 +35,6 @@
 #include <ogdf/layered/BlockOrder.h>
 #include <ogdf/module/LayeredCrossMinModule.h>
 
-
 namespace ogdf {
 
 /**
@@ -50,13 +49,8 @@ namespace ogdf {
  * This class implements the interface LayeredCrossMinModule and should be
  * used as a part of the Sugiyama algorithm for drawing layered graphs.
  */
-class OGDF_EXPORT GlobalSifting : public LayeredCrossMinModule {
-
-
+class GlobalSifting : public LayeredCrossMinModule {
 public:
-	//! Creates a new instance of the global sifting heuristic.
-	GlobalSifting() : m_nRepeats(10) { }
-
 	/**
 	 * \brief Returns the current setting of option nRepeats.
 	 *
@@ -70,17 +64,15 @@ public:
 	void nRepeats( int num ) { m_nRepeats = num; }
 
 	//! Implementation of interface LateredCrossMinModule.
-	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings)
-	{
+	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) {
 		BlockOrder *pBlockOrder = new BlockOrder(H,true);
-
 		pBlockOrder -> globalSifting( sugi.runs(), m_nRepeats, &nCrossings );
 
 		return pBlockOrder;
 	}
 
 private:
-	int m_nRepeats;
+	int m_nRepeats = 10;
 };
 
 /**
@@ -99,19 +91,16 @@ private:
  *
  *
  */
-class OGDF_EXPORT GridSifting : public LayeredCrossMinModule {
-
+class GridSifting : public LayeredCrossMinModule {
 public:
-	//! Creates a new instance of the global sifting heuristic.
-	GridSifting() { }
-
-	//! implementation of interface LayeredCrossMinModule.
-	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H)
-	{
+	/**
+	 * @copydoc LayeredCrossMinModule::reduceCrossings
+	 *
+	 * \warning \p nCrossings is not set by this implementation!
+	 */
+	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) override {
 		BlockOrder *pBlockOrder = new BlockOrder(H,false);
-
-		pBlockOrder -> m_verticalStepsBound = 10;
-
+		pBlockOrder -> m_verticalStepsBound = m_verticalStepsBound;
 		pBlockOrder -> gridSifting( sugi.runs() );
 
 		return pBlockOrder;
@@ -129,8 +118,7 @@ public:
 	void verticalStepsBound( int b ) { m_verticalStepsBound = b; }
 
 private:
-	int m_verticalStepsBound;
+	int m_verticalStepsBound = 10;
 };
 
-
-} // end namespace ogdf
+}

@@ -68,6 +68,6 @@ public:
 	}
 };
 
-OGDF_EXPORT ostream & operator<<(ostream &os, const Module::ReturnType &r);
+OGDF_EXPORT std::ostream & operator<<(std::ostream &os, const Module::ReturnType &r);
 
-} // end namespace ogdf
+}

@@ -33,7 +33,6 @@
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/basic/BoundedStack.h>
 
 namespace ogdf {
 
@@ -96,7 +95,7 @@ OGDF_EXPORT void makeLoopFree(Graph &G);
 OGDF_EXPORT void parallelFreeSort(const Graph &G, SListPure<edge> &edges);
 
 
-//! Returns true iff \p G contains no paralle edges.
+//! Returns true iff \p G contains no parallel edges.
 /**
  * @ingroup ga-multi
  *
@@ -131,7 +130,7 @@ OGDF_EXPORT int numParallelEdges(const Graph &G);
  *
  * A parallel edge is an edge e1=(v,w) such that there exists another edge e2=(v,w) in
  * the graph. Reversal edges (e.g. (v,w) and (w,v)) are not multi-edges. If you want to
- * remove parallel and reversal edges, use makeParallelFreeUndirected(Graph&,EDGELIST&).
+ * remove parallel and reversal edges, use ogdf::makeParallelFreeUndirected().
  *
  * @tparam EDGELIST      is the type of edge list that will be assigned the list of parallel edges.
  * @param  G             is the input graph.
@@ -168,7 +167,7 @@ void makeParallelFree(Graph &G, EDGELIST &parallelEdges)
  *
  * A parallel edge is an edge e1=(v,w) such that there exists another edge e2=(v,w) in
  * the graph. Reversal edges (e.g. (v,w) and (w,v)) are not parallel edges. If you want to
- * remove parallel and reversal edges, use makeParallelFreeUndirected(Graph&).
+ * remove parallel and reversal edges, use ogdf::makeParallelFreeUndirected().
  *
  * @param G is the input graph.
  */
@@ -225,120 +224,6 @@ OGDF_EXPORT bool isParallelFreeUndirected(const Graph &G);
 OGDF_EXPORT int numParallelEdgesUndirected(const Graph &G);
 
 
-//! Removes all but one of each bundle of undirected parallel edges.
-/**
- * @ingroup ga-multi
- *
- * An undirected parallel edges is an edge e1=(v,w) such that there exists another edge e2=(v,w) or (w,v)
- * in the graph. The function removes unordered pair {v,w} of nodes all but one of the edges with
- * endpoints v and w (in any order).
- *
- * @tparam EDGELIST      is the type of edge list that will be assigned the list of edges.
- * @param  G             is the input graph.
- * @param  parallelEdges is assigned the list of remaining edges that were part of a bundle
- *                       of undirected parallel edges in the input graph.
- */
-template <class EDGELIST>
-void makeParallelFreeUndirected(Graph &G, EDGELIST &parallelEdges)
-{
-	parallelEdges.clear();
-	if (G.numberOfEdges() <= 1) return;
-
-	SListPure<edge> edges;
-	EdgeArray<int> minIndex(G), maxIndex(G);
-	parallelFreeSortUndirected(G,edges,minIndex,maxIndex);
-
-	SListConstIterator<edge> it = edges.begin();
-	edge ePrev = *it++, e;
-	bool bAppend = true;
-	while(it.valid()) {
-		e = *it++;
-		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]) {
-			G.delEdge(e);
-			if (bAppend) { parallelEdges.pushBack(ePrev); bAppend = false; }
-		} else {
-			ePrev = e; bAppend = true;
-		}
-	}
-}
-
-
-//! Removes all but one of each bundle of undirected parallel edges.
-/**
- * @ingroup ga-multi
- *
- * An undirected parallel edges is an edge e1=(v,w) such that there exists another edge e2=(v,w) or (w,v)
- * in the graph. The function removes unordered pair {v,w} of nodes all but one of the edges with
- * endpoints v and w (in any order).
- *
- * @param G is the input graph.
- */
-inline void makeParallelFreeUndirected(Graph &G) {
-	List<edge> parallelEdges;
-	makeParallelFreeUndirected(G,parallelEdges);
-}
-
-
-//! Removes all but one of each bundle of undirected parallel edges.
-/**
- * @ingroup ga-multi
- *
- * An undirected parallel edges is an edge e1=(v,w) such that there exists another edge e2=(v,w) or (w,v)
- * in the graph. The function removes unordered pair {v,w} of nodes all but one of the edges with
- * endpoints v and w (in any order).
- *
- * @tparam EDGELIST      is the type of edge list that is assigned the list of edges.
- * @param  G             is the input graph.
- * @param  parallelEdges is assigned the list of remaining edges that were
- *                       part of a bundle of undirected parallel edges in the input graph.
- * @param  cardPositive  contains for each edge the number of removed undirected parallel edges
- *                       pointing in the same direction.
- * @param  cardNegative  contains for each edge the number of removed undirected parallel edges
- *                       pointing in the opposite direction.
- */
-template <class EDGELIST>
-void makeParallelFreeUndirected(
-	Graph &G,
-	EDGELIST &parallelEdges,
-	EdgeArray<int> &cardPositive,
-	EdgeArray<int> &cardNegative)
-{
-	parallelEdges.clear();
-	cardPositive.fill(0);
-	cardNegative.fill(0);
-	if (G.numberOfEdges() <= 1) return;
-
-	SListPure<edge> edges;
-	EdgeArray<int> minIndex(G), maxIndex(G);
-	parallelFreeSortUndirected(G,edges,minIndex,maxIndex);
-
-	SListConstIterator<edge> it = edges.begin();
-	edge ePrev = *it++, e;
-	bool bAppend = true;
-	while(it.valid())
-	{
-		e = *it++;
-		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e])
-		{
-			if (ePrev->source() == e->source() && ePrev->target() == e->target())
-				cardPositive[ePrev]++;
-			else if (ePrev->source() == e->target() && ePrev->target() == e->source())
-				cardNegative[ePrev]++;
-			G.delEdge(e);
-			if (bAppend)
-			{
-				parallelEdges.pushBack(ePrev);
-				bAppend = false;
-			}
-		}
-		else
-		{
-			ePrev = e; bAppend = true;
-		}
-	}
-}
-
-
 //! Computes the bundles of undirected parallel edges in \p G.
 /**
  * @ingroup ga-multi
@@ -354,7 +239,9 @@ void makeParallelFreeUndirected(
 template <class EDGELIST>
 void getParallelFreeUndirected(const Graph &G, EdgeArray<EDGELIST> &parallelEdges)
 {
-	if (G.numberOfEdges() <= 1) return;
+	if (G.numberOfEdges() <= 1) {
+		return;
+	}
 
 	SListPure<edge> edges;
 	EdgeArray<int> minIndex(G), maxIndex(G);
@@ -362,14 +249,89 @@ void getParallelFreeUndirected(const Graph &G, EdgeArray<EDGELIST> &parallelEdge
 
 	SListConstIterator<edge> it = edges.begin();
 	edge ePrev = *it++, e;
-	while(it.valid())
-	{
+	while (it.valid()) {
 		e = *it++;
-		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e])
+		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]) {
 			parallelEdges[ePrev].pushBack(e);
-		else
+		} else {
 			ePrev = e;
+		}
 	}
+}
+
+
+//! Removes all but one edge of each bundle of undirected parallel edges.
+/**
+ * @ingroup ga-multi
+ *
+ * An undirected parallel edge is an edge e1=(v,w) such that there exists
+ * another edge e2=(v,w) or (w,v) in the graph. This function removes all but
+ * one of the edges with endpoints v and w for each unordered pair of nodes
+ * {v,w}.
+ *
+ * @tparam EDGELIST      is the type of edge list that will be assigned the list of edges.
+ * @param  G             is the input graph.
+ * @param  parallelEdges is assigned the list of remaining edges that were part of a bundle
+ *                       of undirected parallel edges in the input graph.
+ * @param  cardPositive  contains for each edge the number of removed undirected parallel edges
+ *                       pointing in the same direction.
+ * @param  cardNegative  contains for each edge the number of removed undirected parallel edges
+ *                       pointing in the opposite direction.
+ */
+template <class EDGELIST = SListPure<edge>>
+void makeParallelFreeUndirected(
+	Graph &G,
+	EDGELIST *parallelEdges = nullptr,
+	EdgeArray<int> *cardPositive = nullptr,
+	EdgeArray<int> *cardNegative = nullptr)
+{
+	if (parallelEdges != nullptr) { parallelEdges->clear(); }
+	if (cardPositive  != nullptr) { cardPositive->fill(0);  }
+	if (cardNegative  != nullptr) { cardNegative->fill(0);  }
+
+	if (G.numberOfEdges() <= 1) {
+		return;
+	}
+
+	EdgeArray<SListPure<edge>> parEdges(G);
+	getParallelFreeUndirected(G, parEdges);
+
+	for (edge e : G.edges) {
+		for (edge parEdge : parEdges(e)) {
+			if (cardPositive != nullptr && e->source() == parEdge->source()) {
+				(*cardPositive)[e]++;
+			}
+			if (cardNegative != nullptr && e->source() == parEdge->target()) {
+				(*cardNegative)[e]++;
+			}
+			G.delEdge(parEdge);
+			if (parallelEdges != nullptr) {
+				parallelEdges->pushBack(e);
+			}
+		}
+	}
+}
+
+
+/**
+ * @ingroup ga-multi
+ */
+template <class EDGELIST>
+OGDF_DEPRECATED("The pointer-based makeParallelFreeUndirected() should be used instead.")
+void makeParallelFreeUndirected(Graph &G, EDGELIST &parallelEdges) {
+	makeParallelFreeUndirected(G, &parallelEdges);
+}
+
+/**
+ * @ingroup ga-multi
+ */
+template <class EDGELIST>
+OGDF_DEPRECATED("The pointer-based makeParallelFreeUndirected() should be used instead.")
+void makeParallelFreeUndirected(Graph &G,
+		EDGELIST &parallelEdges,
+		EdgeArray<int> &cardPositive,
+		EdgeArray<int> &cardNegative) {
+	makeParallelFreeUndirected(G, &parallelEdges, &cardPositive, &cardNegative);
 }
 
 //! @}
@@ -460,37 +422,35 @@ inline void makeConnected(Graph &G) {
 }
 
 
-//! Computes the connected components of \p G.
+//! Computes the connected components of \p G and optionally generates a list of
+//! isolated nodes.
 /**
  * @ingroup ga-connectivity
  *
- * Assigns component numbers (0, 1, ...) to the nodes of \p G. The component number of each
- * node is stored in the node array \p component.
+ * Assigns component numbers (0, 1, ...) to the nodes of \p G. The component
+ * number of each node is stored in the node array \p component.
  *
  * @param G         is the input graph.
  * @param component is assigned a mapping from nodes to component numbers.
+ * @param isolated  is assigned the list of isolated nodes. An isolated node is
+ *                  a node without incident edges.
  * @return the number of connected components.
  */
-OGDF_EXPORT int connectedComponents(const Graph &G, NodeArray<int> &component);
+OGDF_EXPORT int connectedComponents(const Graph &G,
+		NodeArray<int> &component,
+		List<node> *isolated = nullptr);
 
 
-//! Computes the connected components of \p G and returns the list of isolated nodes.
+OGDF_DEPRECATED("connectedComponents() should be used instead.")
 /**
  * @ingroup ga-connectivity
- *
- * Assigns component numbers (0, 1, ...) to the nodes of \p G. The component number of each
- * node is stored in the node array \p component.
- *
- * @param G         is the input graph.
- * @param isolated  is assigned the list of isolated nodes. An isolated
- *                  node is a node without incident edges.
- * @param component is assigned a mapping from nodes to component numbers.
- * @return the number of connected components.
+ * @copydoc ogdf::connectedComponents(const Graph&, NodeArray<int>&, List<node>*);
  */
-OGDF_EXPORT int connectedIsolatedComponents(
-	const Graph &G,
-	List<node> &isolated,
-	NodeArray<int> &component);
+inline int connectedIsolatedComponents(const Graph &G,
+		List<node> &isolated,
+		NodeArray<int> &component) {
+	return connectedComponents(G, component, &isolated);
+}
 
 
 //! Returns true iff \p G is biconnected.
@@ -563,6 +523,32 @@ OGDF_EXPORT int biconnectedComponents(const Graph &G, EdgeArray<int> &component,
 inline int biconnectedComponents(const Graph &G, EdgeArray<int> &component) {
 	int doNotNeedTheValue;
 	return biconnectedComponents(G, component, doNotNeedTheValue);
+}
+
+
+/**
+ * @copydoc ogdf::isTwoEdgeConnected(const Graph&)
+ * @param bridge If false is returned and \p graph is connected, \p bridge is assigned a bridge in \p graph,
+ * else it is assigned \c nullptr
+ */
+OGDF_EXPORT bool isTwoEdgeConnected(const Graph &graph, edge &bridge);
+
+/**
+ * Returns true iff \p graph is 2-edge-connected.
+ * @ingroup ga-connectivity
+ *
+ * Implementation of the algorithm to determine 2-edge-connectivity from the following publication:
+ *
+ * Jens M. Schmidt: <i>A Simple Test on 2-Vertex- and 2-Edge-Connectivity</i>.
+ * Information Processing Letters (2013)
+ *
+ * It runs in O(|E|+|V|) as it relies on two DFS.
+ *
+ * @param graph is the input graph.
+ */
+inline bool isTwoEdgeConnected(const Graph &graph) {
+	edge bridge;
+	return isTwoEdgeConnected(graph, bridge);
 }
 
 
@@ -856,14 +842,15 @@ inline void makeBimodal(Graph &G) {
 //! \name Methods for trees and forests
 //! @{
 
-//! Returns true iff \p G is a forest, i.e. contains no undirected cycle.
+OGDF_DEPRECATED("isAcyclicUndirected() should be used instead.")
 /**
  * @ingroup ga-tree
- *
- * @param G is the input graph.
- * @return true if \p G contains no undirected cycle, false otherwise.
+ * @copydoc ogdf::isAcyclicUndirected(const Graph &G)
  */
-OGDF_EXPORT bool isFreeForest(const Graph &G);
+inline bool isFreeForest(const Graph &G) {
+	return isAcyclicUndirected(G);
+}
+
 
 //! Returns true iff \p G is a tree, i.e. contains no undirected cycle and is connected
 /**
@@ -878,49 +865,68 @@ inline bool isTree(const Graph &G)
 }
 
 
-//! Returns true iff \p G represents a forest, i.e., a collection of arborescences.
-/**
- * @ingroup ga-tree
- *
- * @param G     is the input graph.
- * @param roots is assigned the list of root nodes of the arborescences in the forest.
- * If false is returned, \p roots is undefined.
- * @return true if \p G represents a forest, false otherwise.
- */
-OGDF_EXPORT bool isForest(const Graph& G, List<node> &roots);
-
-
-//! Returns true iff \p G represents a forest, i.e. a collection of arborescences.
+//! Returns true iff \p G is a forest consisting only of arborescences.
 /**
  * @ingroup ga-tree
  *
  * @param G is the input graph.
- * @return true if \p G represents a forest, false otherwise.
+ * @param roots is assigned the list of root nodes of the arborescences in the forest.
+ * If false is returned, \p roots is undefined.
+ * @return true if \p G represents an arborescence forest, false otherwise.
  */
-inline bool isForest(const Graph &G)
-{
+OGDF_EXPORT bool isArborescenceForest(const Graph& G, List<node> &roots);
+
+
+//! Returns true iff \p G is a forest consisting only of arborescences.
+/**
+ * @ingroup ga-tree
+ *
+ * @param G is the input graph.
+ * @return true if \p G represents an arborescence forest, false otherwise.
+ */
+inline bool isArborescenceForest(const Graph &G) {
 	List<node> roots;
-	return isForest(G,roots);
+	return isArborescenceForest(G,roots);
 }
 
 
-//! Returns true iff \p G represents a tree
+OGDF_DEPRECATED("isArborescenceForest() should be used instead.")
+/**
+ * @ingroup ga-tree
+ * @copydoc ogdf::isArborescenceForest(const Graph& G, List<node> &roots)
+ */
+inline bool isForest(const Graph& G, List<node> &roots) {
+	return isArborescenceForest(G, roots);
+}
+
+
+OGDF_DEPRECATED("isArborescenceForest() should be used instead.")
+/**
+ * @ingroup ga-tree
+ * @copydoc ogdf::isArborescenceForest(const Graph& G)
+ */
+inline bool isForest(const Graph &G) {
+	return isArborescenceForest(G);
+}
+
+
+//! Returns true iff \p G represents an arborescence.
 /**
  * @ingroup ga-tree
  *
  * @param G    is the input graph.
  * @param root is assigned the root node (if true is returned).
- * @return true if \p G represents a tree, false otherwise.
+ * @return true if \p G represents an arborescence, false otherwise.
  */
-OGDF_EXPORT bool isArborescence (const Graph& G, node &root);
+OGDF_EXPORT bool isArborescence(const Graph& G, node &root);
 
 
-//! Returns true iff \p G represents an arborescence
+//! Returns true iff \p G represents an arborescence.
 /**
  * @ingroup ga-tree
  *
  * @param G  is the input graph.
- * @return true if \p G represents a arborescence, false otherwise.
+ * @return true if \p G represents an arborescence, false otherwise.
  */
 inline bool isArborescence(const Graph &G) {
 	node root;
@@ -988,4 +994,4 @@ inline void degreeDistribution(const Graph& G, Array<int> &degdist) {
 	});
 }
 
-} // end namespace ogdf
+}

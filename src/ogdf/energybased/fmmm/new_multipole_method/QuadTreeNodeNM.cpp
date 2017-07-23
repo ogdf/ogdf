@@ -39,7 +39,7 @@ namespace fmmm {
 
 using std::complex;
 
-ostream &operator<< (ostream & output, const QuadTreeNodeNM & A)
+std::ostream &operator<< (std::ostream & output, const QuadTreeNodeNM & A)
 {
 	output <<" Sm_level: "<<A.Sm_level<<" Sm_downleftcorner: "<<A.Sm_downleftcorner
 		<<" Sm boxlength: "<<A.Sm_boxlength<<" Sm_center: "<<A.Sm_center
@@ -138,7 +138,7 @@ ostream &operator<< (ostream & output, const QuadTreeNodeNM & A)
 }
 
 
-istream &operator>> (istream & input,  QuadTreeNodeNM & A)
+std::istream &operator>> (std::istream & input,  QuadTreeNodeNM & A)
 {
 	input >> A.Sm_level;
 	return input;

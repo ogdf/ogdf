@@ -102,7 +102,7 @@ public:
 	iterator end() const { return iterator(); }
 };
 
-} // end namespace internal
+}
 
 
 /**
@@ -168,8 +168,7 @@ public:
 	OGDF_AUGMENT_COMPARER(FaceElement)
 
 		OGDF_NEW_DELETE
-}; // class FaceElement
-
+};
 
 class FaceArrayBase;
 template<class T>class FaceArray;
@@ -334,11 +333,11 @@ public:
 	//! Computes the list of faces.
 	void computeFaces();
 
-
-	/** @} @{
-	 * \brief Checks the consistency of the data structure.
-	 */
-	bool consistencyCheck();
+#ifdef OGDF_DEBUG
+	//! @} @{
+	//! Asserts that this embedding is consistent.
+	void consistencyCheck() const;
+#endif
 
 
 	/** @} @{
@@ -392,10 +391,7 @@ protected:
 
 	//! Reinitialize associated face arrays.
 	void reinitArrays();
-
-}; // class ConstCombinatorialEmbedding
-
-
+};
 
 /**
  * \brief Combinatorial embeddings of planar graphs with modification functionality.
@@ -606,6 +602,6 @@ private:
 	 * \return The new edge.
 	 */
 	edge addEdgeToIsolatedNode(adjEntry adj, node v, bool adjSrc);
-}; // class CombinatorialEmbedding
+};
 
-} // end namespace ogdf
+}

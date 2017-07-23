@@ -342,13 +342,13 @@ bool Hypergraph::consistency() const
 	return true;
 }
 
-ostream & operator<<(ostream &os, ogdf::hypernode v)
+std::ostream & operator<<(std::ostream &os, ogdf::hypernode v)
 {
 	if (v) os << v->index(); else os << "nil";
 	return os;
 }
 
-ostream & operator<<(ostream &os, ogdf::hyperedge e)
+std::ostream & operator<<(std::ostream &os, ogdf::hyperedge e)
 {
 	if (e) {
 		os << e->index() << " " << e->cardinality() << " ";
@@ -362,25 +362,25 @@ ostream & operator<<(ostream &os, ogdf::hyperedge e)
 	return os;
 }
 
-ostream & operator<<(ostream &os, ogdf::Hypergraph &H)
+std::ostream & operator<<(std::ostream &os, ogdf::Hypergraph &H)
 {
-	os << H.m_nHypernodes << " " << H.m_hypernodeIdCount << endl;
+	os << H.m_nHypernodes << " " << H.m_hypernodeIdCount << std::endl;
 
 	hypernode v;
 	forall_hypernodes (v, H)
-		os << v << endl;
+		os << v << std::endl;
 
-	os << H.m_nHyperedges << " " << H.m_hyperedgeIdCount << endl;
+	os << H.m_nHyperedges << " " << H.m_hyperedgeIdCount << std::endl;
 
 	hyperedge e;
 	forall_hyperedges (e, H) {
-		os << e << endl;
+		os << e << std::endl;
 	}
 
 	return os;
 }
 
-istream & operator>>(istream &is, ogdf::Hypergraph &H)
+std::istream & operator>>(std::istream &is, ogdf::Hypergraph &H)
 {
 	int nHypernodes, nHyperedges, hypernodeIdCount, hyperedgeIdCount;
 
@@ -413,7 +413,7 @@ istream & operator>>(istream &is, ogdf::Hypergraph &H)
 	return is;
 }
 
-void Hypergraph::readBenchHypergraph(istream &is)
+void Hypergraph::readBenchHypergraph(std::istream &is)
 {
 	// The map from identifiers to hypernodes.
 	HashArray<string, hypernode> map(nullptr);
@@ -495,7 +495,7 @@ void Hypergraph::readBenchHypergraph(istream &is)
 
 void Hypergraph::readBenchHypergraph(const char *filename)
 {
-	ifstream is(filename);
+	std::ifstream is(filename);
 
 	if(!is.good())
 		return;
@@ -540,4 +540,4 @@ HypernodeElement::Type Hypergraph::gateType(string gate)
 	return HypernodeElement::Type::normal;
 }
 
-} // end namespace ogdf
+}

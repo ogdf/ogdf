@@ -63,20 +63,17 @@ void outputPG(const PlanRepExpansion &PG, int i)
 
 void MMVariableEmbeddingInserter::writeEip(const List<Crossing> &eip)
 {
-	ListConstIterator<Crossing> it;
-	for(it = eip.begin(); it.valid(); ++it) {
-		const MMVariableEmbeddingInserter::Crossing &cr = *it;
-
+	for (const auto &cr : eip) {
 		if(cr.m_adj == nullptr) {
-			cout << "nil {";
-			cout << cr.m_partitionLeft;
-			cout << "} {";
-			cout << cr.m_partitionRight;
-			cout << "}";
+			std::cout << "nil {";
+			std::cout << cr.m_partitionLeft;
+			std::cout << "} {";
+			std::cout << cr.m_partitionRight;
+			std::cout << "}";
 
 		} else
-			cout << cr.m_adj;
-		cout << endl;
+			std::cout << cr.m_adj;
+		std::cout << std::endl;
 	}
 }
 
@@ -105,8 +102,8 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			rrEdges.pushBack(eOrig);
 	}
 
-	m_pSources = new NodeSet(PG);
-	m_pTargets = new NodeSet(PG);
+	m_pSources = new NodeSet<>(PG);
+	m_pTargets = new NodeSet<>(PG);
 
 #ifdef MMC_OUTPUT
 	outputPG(PG,0);
@@ -114,15 +111,12 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 #endif
 
 	// insertion of edges
-	ListConstIterator<edge> it;
-	for(it = origEdges.begin(); it.valid(); ++it)
-	{
-		edge eOrig = *it;
+	for (edge eOrig : origEdges) {
 		node srcOrig = eOrig->source();
 		node tgtOrig = eOrig->target();
 
 #ifdef MMC_OUTPUT
-		cout << "insert " << srcOrig << " -> " << tgtOrig << endl;
+		std::cout << "insert " << srcOrig << " -> " << tgtOrig << std::endl;
 #endif
 
 		node oldSrc = (PG.splittableOrig(srcOrig) && PG.expansion(srcOrig).size() == 1) ?
@@ -148,13 +142,13 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			preprocessInsertionPath(vStart,vEnd,srcOrig,tgtOrig,src,tgt,eExtraSrc,eExtraTgt);
 
 #ifdef MMC_OUTPUT
-			cout << "from: " << src << "  to: " << tgt << endl;
+			std::cout << "from: " << src << "  to: " << tgt << std::endl;
 #endif
 
 		} else {
 			insertWithCommonDummy(eOrig, vDummy, src, tgt);
 #ifdef MMC_OUTPUT
-			cout << "(direct) from: " << src << "  to: " << tgt << endl;
+			std::cout << "(direct) from: " << src << "  to: " << tgt << std::endl;
 #endif
 		}
 
@@ -162,7 +156,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 
 #ifdef MMC_OUTPUT
 		++ii;
-		cout << endl;
+		std::cout << std::endl;
 		outputPG(PG,ii);
 #endif
 
@@ -175,7 +169,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			contractSplitIfReq(oldTgt);
 
 #if 0
-		OGDF_ASSERT(PG.consistencyCheck());
+		PG.consistencyCheck();
 		OGDF_ASSERT(isPlanar(PG));
 #endif
 	}
@@ -191,10 +185,8 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 		case RemoveReinsertType::MostCrossed:
 			{
 				const List<node> &origInCC = PG.nodesInCC();
-				ListConstIterator<node> itV;
 
-				for(itV = origInCC.begin(); itV.valid(); ++itV) {
-					node vG = *itV;
+				for (node vG : origInCC) {
 					for(adjEntry adj : vG->adjEntries) {
 						if ((adj->index() & 1) == 0) continue;
 						edge eG = adj->theEdge();
@@ -206,9 +198,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 
 		case RemoveReinsertType::Inserted:
 			{
-				ListConstIterator<edge> it;
-				for(it = origEdges.begin(); it.valid(); ++it)
-					rrEdges.pushBack(*it);
+				for (edge eOrig : origEdges) {
+					rrEdges.pushBack(eOrig);
+				}
 			}
 			break;
 		}
@@ -243,7 +235,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 
 				node oldSrc = nullptr, oldTgt = nullptr;
 				PG.removeEdgePath(eOrig,nullptr,oldSrc,oldTgt);
-				//OGDF_ASSERT(PG.consistencyCheck());
+				// PG.consistencyCheck();
 
 				// try to find a better insertion path
 				anchorNodes(eOrig->source(), *m_pSources);
@@ -267,7 +259,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 
 				OGDF_ASSERT(isPlanar(PG));
 				PG.insertEdgePath(eOrig, nullptr, src, tgt, eip, eExtraSrc, eExtraTgt);
-				OGDF_ASSERT(PG.consistencyCheck());
+#ifdef OGDF_DEBUG
+				PG.consistencyCheck();
+#endif
 				OGDF_ASSERT(isPlanar(PG));
 
 				m_pSources->clear();
@@ -278,7 +272,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 				if(PG.splittable(oldTgt))
 					contractSplitIfReq(oldTgt);
 
-				OGDF_ASSERT(PG.consistencyCheck());
+#ifdef OGDF_DEBUG
+				PG.consistencyCheck();
+#endif
 				OGDF_ASSERT(isPlanar(PG));
 
 				//int newPathLength = PG.chain(eOrig).size() - 1;
@@ -310,7 +306,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 
 					node oldSrc = nullptr, oldTgt = nullptr;
 					PG.removeEdgePath(nullptr,ns,oldSrc,oldTgt);
-					OGDF_ASSERT(PG.consistencyCheck());
+#ifdef OGDF_DEBUG
+					PG.consistencyCheck();
+#endif
 
 					// try to find a better insertion path
 					findSourcesAndTargets(oldSrc,oldTgt,*m_pSources,*m_pTargets);
@@ -327,7 +325,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 						preprocessInsertionPath(vStart,vEnd,vOrig,vOrig,src,tgt,eExtraSrc,eExtraTgt);
 						PG.insertEdgePath(nullptr, ns, src, tgt, eip, eExtraSrc, eExtraTgt);
 
-						OGDF_ASSERT(PG.consistencyCheck());
+#ifdef OGDF_DEBUG
+						PG.consistencyCheck();
+#endif
 
 						m_pSources->clear();
 						m_pTargets->clear();
@@ -337,7 +337,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 						if(PG.splittable(oldTgt))
 							contractSplitIfReq(oldTgt);
 
-						OGDF_ASSERT(PG.consistencyCheck());
+#ifdef OGDF_DEBUG
+						PG.consistencyCheck();
+#endif
 						OGDF_ASSERT(isPlanar(PG));
 
 						//int newCrossings = ns->m_path.size() - 1;
@@ -360,7 +362,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 						itSNext = itS.succ();
 
 						convertDummy(vCommon,vOrig,ns);
-						OGDF_ASSERT(PG.consistencyCheck());
+#ifdef OGDF_DEBUG
+						PG.consistencyCheck();
+#endif
 						OGDF_ASSERT(isPlanar(PG));
 					}
 				}
@@ -410,11 +414,7 @@ void MMVariableEmbeddingInserter::insert(
 
 	int i;
 	for(i = 0; i < c; ++i) {
-		SListConstIterator<edge> itEdge;
-		for(itEdge = m_edgeB[i].begin(); itEdge.valid(); ++itEdge)
-		{
-			edge e = *itEdge;
-
+		for (edge e : m_edgeB[i]) {
 			if (!mark[e->source()]) {
 				mark[e->source()] = true;
 				m_nodeB[i].pushBack(e->source());
@@ -425,10 +425,7 @@ void MMVariableEmbeddingInserter::insert(
 			}
 		}
 
-		SListConstIterator<node> itNode;
-		for(itNode = m_nodeB[i].begin(); itNode.valid(); ++itNode)
-		{
-			node v = *itNode;
+		for (node v : m_nodeB[i]) {
 			m_compV[v].pushBack(i);
 			mark[v] = false;
 		}
@@ -707,9 +704,9 @@ void MMVariableEmbeddingInserter::insertWithCommonDummy(
 		findPseudos(vDummy,adjSrc,infoSrc,pseudos);
 		findPseudos(vDummy,adjTgt,infoTgt,pseudos);
 
-		SListConstIterator<node> it;
-		for(it = pseudos.begin(); it.valid(); ++it)
-			PG.resolvePseudoCrossing(*it);
+		for (auto pseudo : pseudos) {
+			PG.resolvePseudoCrossing(pseudo);
+		}
 
 		edge eExtra = nullptr;
 		src = infoSrc.m_adj_1->theNode();
@@ -1019,9 +1016,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 	// insert a node in the dual graph for each splittable node in PG
 	NodeArray<node> dualOfNode(m_exp,nullptr);
 
-	ListConstIterator<node> itV;
-	for(itV = m_nodesG.begin(); itV.valid(); ++itV) {
-		node vBC = *itV;
+	for(node vBC : m_nodesG) {
 		node v = m_GtoExp[vBC];
 
 		bool addDualNode = m_BC.m_isSplittable[vBC];
@@ -1094,9 +1089,9 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 
 	} else {
 		m_startSource = m_startTarget = nullptr;
-		SListConstIterator<node> it;
-		for(it = sources.begin(); it.valid(); ++it)
-			m_dual.newEdge(m_startEdge, dualOfNode[*it]);
+		for (node source : sources) {
+			m_dual.newEdge(m_startEdge, dualOfNode[source]);
+		}
 	}
 
 	m_endEdge = m_dual.newNode();
@@ -1109,9 +1104,9 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 
 	} else {
 		m_endSource = m_endTarget = nullptr;
-		SListConstIterator<node> it;
-		for(it = targets.begin(); it.valid(); ++it)
-			m_dual.newEdge(dualOfNode[*it], m_endEdge);
+		for (node target : targets) {
+			m_dual.newEdge(dualOfNode[target], m_endEdge);
+		}
 	}
 }
 
@@ -1374,11 +1369,7 @@ bool MMVariableEmbeddingInserter::dfsVertex(
 	AnchorNodeInfo &vEnd)
 {
 	// forall biconnected components containing v (except predecessor parent)
-	SListConstIterator<int> itI;
-	for(itI = m_compV[v].begin(); itI.valid(); ++itI)
-	{
-		int i = *itI;
-
+	for (int i : m_compV[v]) {
 		if (i == parent) continue;
 
 		node repS; // representative of s in B(i)
@@ -1389,11 +1380,7 @@ bool MMVariableEmbeddingInserter::dfsVertex(
 			SList<node> nodesG;
 			Block BC(*m_pPG);
 
-			SListConstIterator<edge> itE;
-			for(itE = m_edgeB[i].begin(); itE.valid(); ++itE)
-			{
-				edge e = *itE;
-
+			for (edge e : m_edgeB[i]) {
 				node vSrc = e->source();
 				if (m_GtoBC[vSrc] == nullptr) {
 					BC.m_vBCtoG[m_GtoBC[vSrc] = BC.newNode()] = vSrc;
@@ -1445,19 +1432,22 @@ bool MMVariableEmbeddingInserter::dfsVertex(
 					tgtInfo.m_adj_2 = BC.m_adjBCtoG[tgtInfo.m_adj_2];
 
 				// transform crossed edges to edges in G
-				ListIterator<Crossing> it;
-				for(it = L.begin(); it.valid(); ++it) {
-					Crossing &cr = *it;
-					if(cr.m_adj != nullptr) cr.m_adj = BC.m_adjBCtoG[cr.m_adj];
-					SListIterator<adjEntry> itAdj;
-					for(itAdj = cr.m_partitionLeft.begin(); itAdj.valid(); ++itAdj)
-						*itAdj = BC.m_adjBCtoG[*itAdj];
-					for(itAdj = cr.m_partitionRight.begin(); itAdj.valid(); ++itAdj)
-						*itAdj = BC.m_adjBCtoG[*itAdj];
+				for (Crossing &cr : L) {
+					if (cr.m_adj != nullptr) {
+						cr.m_adj = BC.m_adjBCtoG[cr.m_adj];
+					}
+					for (adjEntry &adj : cr.m_partitionLeft) {
+						adj = BC.m_adjBCtoG[adj];
+					}
+					for (adjEntry &adj : cr.m_partitionRight) {
+						adj = BC.m_adjBCtoG[adj];
+					}
 
-					//adjEntry adj1 = BC.m_BCtoG[(*it).m_adj1];
-					//adjEntry adj2 = ((*it).m_adj1 == 0) ? 0 : BC.m_BCtoG[(*it).m_adj1];
-					//eip.pushBack(Crossing(adj1,adj2));
+#if 0
+					adjEntry adj1 = BC.m_BCtoG[cr.m_adj1];
+					adjEntry adj2 = (cr.m_adj1 == 0) ? 0 : BC.m_BCtoG[cr.m_adj1];
+					eip.pushBack(Crossing(adj1, adj2));
+#endif
 				}
 				eip.conc(L);
 			}
@@ -1472,9 +1462,9 @@ bool MMVariableEmbeddingInserter::dfsVertex(
 
 			// set entries of GtoBC back to nil (GtoBC allocated only once
 			// in insert()!)
-			SListConstIterator<node> itV;
-			for(itV = nodesG.begin(); itV.valid(); ++itV)
-				m_GtoBC[*itV] = nullptr;
+			for (node w : nodesG) {
+				m_GtoBC[w] = nullptr;
+			}
 
 			return true; // path found
 		}
@@ -1492,11 +1482,8 @@ bool MMVariableEmbeddingInserter::dfsBlock(int i,
 	AnchorNodeInfo &vEnd)
 {
 	// forall nodes in biconected component B(i) (except predecessor parent)
-	SListConstIterator<node> it;
-	for(it = m_nodeB[i].begin(); it.valid(); ++it)
-	{
-		repS = *it;
-
+	for (node rep : m_nodeB[i]) {
+		repS = rep;
 		if (repS == parent) continue;
 		if (m_pSources->isMember(repS)) { // s found?
 			return true;
@@ -1603,9 +1590,7 @@ void MMVariableEmbeddingInserter::blockInsert(
 	}
 
 	node v = v1;
-	ListConstIterator<edge> it;
-	for(it = path.begin(); it.valid(); ++it)
-	{
+	for (ListConstIterator<edge> it = path.begin(); it.valid(); ++it) {
 		edge e = *it;
 		v = e->opposite(v);
 
@@ -1726,7 +1711,7 @@ void MMVariableEmbeddingInserter::contractSplitIfReq(node u)
 		edge eContract = u->firstAdj()->theEdge();
 		edge eExpand   = u->lastAdj ()->theEdge();
 		if(m_pPG->nodeSplitOf(eContract) == nullptr)
-			swap(eContract,eExpand);
+			std::swap(eContract, eExpand);
 
 		if(m_pPG->nodeSplitOf(eContract) != nullptr) {
 			edge e = m_pPG->unsplitExpandNode(u,eContract,eExpand);
@@ -1754,7 +1739,7 @@ void MMVariableEmbeddingInserter::convertDummy(
 
 void MMVariableEmbeddingInserter::collectAnchorNodes(
 	node v,
-	NodeSet &nodes,
+	NodeSet<> &nodes,
 	const PlanRepExpansion::NodeSplit *nsParent) const
 {
 	if(m_pPG->original(v) != nullptr)
@@ -1784,8 +1769,8 @@ void MMVariableEmbeddingInserter::collectAnchorNodes(
 
 void MMVariableEmbeddingInserter::findSourcesAndTargets(
 	node src, node tgt,
-	NodeSet &sources,
-	NodeSet &targets) const
+	NodeSet<> &sources,
+	NodeSet<> &targets) const
 {
 	collectAnchorNodes(src, sources, nullptr);
 	collectAnchorNodes(tgt, targets, nullptr);
@@ -1794,7 +1779,7 @@ void MMVariableEmbeddingInserter::findSourcesAndTargets(
 
 void MMVariableEmbeddingInserter::anchorNodes(
 	node vOrig,
-	NodeSet &nodes) const
+	NodeSet<> &nodes) const
 {
 	node vFirst = m_pPG->expansion(vOrig).front();
 	if(m_pPG->splittableOrig(vOrig))
@@ -1805,17 +1790,16 @@ void MMVariableEmbeddingInserter::anchorNodes(
 
 
 node MMVariableEmbeddingInserter::commonDummy(
-	NodeSet &sources,
-	NodeSet &targets)
+	NodeSet<> &sources,
+	NodeSet<> &targets)
 {
-	ListConstIterator<node> it;
-	for(it = sources.nodes().begin(); it.valid(); ++it)
-		if(targets.isMember(*it))
-			return *it;
+	for (node v : sources.nodes()) {
+		if (targets.isMember(v)) {
+			return v;
+		}
+	}
 
 	return nullptr;
 }
 
-
-
-} // end namespace ogdf
+}

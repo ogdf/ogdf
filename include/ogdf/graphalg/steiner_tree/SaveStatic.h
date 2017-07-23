@@ -159,5 +159,5 @@ private:
 	NodeArray<node> m_cTerminals;
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

@@ -129,4 +129,4 @@ private:
 	const FixCand &operator=(const FixCand &rhs);
 };
 
-} //namespace abacus
+}

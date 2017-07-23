@@ -58,5 +58,4 @@ void PlanRepLight::initCC(int cc)
 	initByCC(m_ccInfo, cc, m_eAuxCopy);
 }
 
-
-} // end namespace ogdf
+}

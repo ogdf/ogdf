@@ -41,7 +41,7 @@ namespace fmmm {
 class PackingRowInfo
 {
 	//! Outputstream for PackingRowInfo
-	friend ostream &operator<< (ostream & output, const PackingRowInfo & A)
+	friend std::ostream &operator<< (std::ostream & output, const PackingRowInfo & A)
 	{
 		output <<" max_height "<<A.max_height<<" total_width "<<A.total_width<<" row_index "
 			<< A.row_index;
@@ -49,7 +49,7 @@ class PackingRowInfo
 	}
 
 	//! Inputstream for PackingRowInfo
-	friend istream &operator>> (istream & input,  PackingRowInfo & A)
+	friend std::istream &operator>> (std::istream & input,  PackingRowInfo & A)
 	{
 		input >>A.max_height>>A.total_width>>A.row_index;
 		return input;
@@ -63,8 +63,6 @@ public:
 		max_height = 0;
 		row_index = 0;
 	}
-
-	~PackingRowInfo() { } //!< destructor
 
 	void set_max_height(double h) { max_height = h; }
 	void set_total_width(double w) { total_width = w; }

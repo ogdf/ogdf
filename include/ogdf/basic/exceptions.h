@@ -39,6 +39,10 @@ namespace ogdf {
 //! @name Throwing exceptions
 //! @{
 
+//! Flushes some output streams
+#define OGDF_FLUSH_OUTPUTS \
+	std::cout << std::flush, ::ogdf::Logger::sfout() << std::flush
+
 /**
  * Replacement for \c throw.
  * This macro is used to throw an exception and pass the file name
@@ -48,7 +52,8 @@ namespace ogdf {
  *        by the exception calls.
  * @ingroup macros
  */
-#define OGDF_THROW_PARAM(CLASS, PARAM) cout<<flush,Logger::sfout()<<flush,throw CLASS ( PARAM )
+#define OGDF_THROW_PARAM(CLASS, PARAM) \
+	OGDF_FLUSH_OUTPUTS, throw CLASS(PARAM)
 
 /**
  * Replacement for \c throw.
@@ -57,13 +62,16 @@ namespace ogdf {
  * @param CLASS is the name of the exception class.
  * @ingroup macros
  */
-#define OGDF_THROW(CLASS)              cout<<flush,Logger::sfout()<<flush,throw CLASS ( )
+#define OGDF_THROW(CLASS) \
+	OGDF_FLUSH_OUTPUTS, throw CLASS()
 
 #ifdef OGDF_DEBUG
 # undef OGDF_THROW_PARAM
-# define OGDF_THROW_PARAM(CLASS, PARAM) cout<<flush,Logger::sfout()<<flush,throw CLASS ( PARAM , __FILE__ , __LINE__ )
+# define OGDF_THROW_PARAM(CLASS, PARAM) \
+	OGDF_FLUSH_OUTPUTS, throw CLASS(PARAM, __FILE__, __LINE__)
 # undef OGDF_THROW
-# define OGDF_THROW(CLASS)              cout<<flush,Logger::sfout()<<flush,throw CLASS ( __FILE__ , __LINE__ )
+# define OGDF_THROW(CLASS) \
+	OGDF_FLUSH_OUTPUTS, throw CLASS(__FILE__, __LINE__)
 #endif
 
 //! @}
@@ -91,8 +99,7 @@ enum class PreconditionViolatedCode {
 	Biconnected,       //!< graph is not twoconnected
 	Full,         	   //!< datastructure is already full
 	STOP               // INSERT NEW CODES BEFORE pvcSTOP!
-}; // enum PreconditionViolatedCode
-
+};
 
 //! Code for an internal failure condition
 /**
@@ -160,9 +167,7 @@ enum class AlgorithmFailureCode {
 	InfeasCon,
 
 	STOP              // INSERT NEW CODES BEFORE afcSTOP!
-}; // enum AlgorithmFailureCode
-
-
+};
 
 //! Code for the library which was intended to get used, but its use is not supported.
 /**
@@ -176,9 +181,7 @@ enum class LibraryNotSupportedCode {
 	FunctionNotImplemented,        //!< the used library doesn't support that function
 	MissingCallbackImplementation, //
 	STOP                           // INSERT NEW CODES BEFORE nscSTOP!
-}; // enum AlgorithmFailureCode
-
-
+};
 
 //! Base class of all ogdf exceptions.
 /**
@@ -297,9 +300,7 @@ public:
 
 private:
 	PreconditionViolatedCode m_exceptionCode; //!< The error code specifying the exception.
-}; // class PreconditionViolatedException
-
-
+};
 
 //! %Exception thrown when an algorithm realizes an internal bug that prevents it from continuing.
 /**
@@ -330,9 +331,7 @@ public:
 
 private:
 	AlgorithmFailureCode m_exceptionCode; //!< The error code specifying the exception.
-}; // class AlgorithmFailureException
-
-
+};
 
 //! %Exception thrown when an external library shall be used which is not supported.
 /**
@@ -361,6 +360,6 @@ class OGDF_EXPORT LibraryNotSupportedException : public Exception {
 
 private:
 	LibraryNotSupportedCode m_exceptionCode; //!< The error code specifying the exception.
-}; // class LibraryNotSupportedException
+};
 
-} // end namespace ogdf
+}

@@ -47,21 +47,21 @@ UmlModelGraph::~UmlModelGraph(){
 	// ??? Destroy arrays
 }
 
-ostream &operator<<(ostream &os, const UmlModelGraph &modelGraph)
+std::ostream &operator<<(std::ostream &os, const UmlModelGraph &modelGraph)
 {
 	// Header
-	os << "\n--- UmlModelGraph ---\n" << endl;
+	os << "\n--- UmlModelGraph ---\n" << std::endl;
 
 	// Traverse graph
 
 	// Nodes
-	os << "Classes/Interfaces:\n" << endl;
+	os << "Classes/Interfaces:\n" << std::endl;
 	for(node v : modelGraph.nodes) {
-		os << "\t" << modelGraph.getNodeLabel(v) << endl;
+		os << "\t" << modelGraph.getNodeLabel(v) << std::endl;
 	}
 
 	// Edges
-	os << "\nRelations:\n" << endl;
+	os << "\nRelations:\n" << std::endl;
 	for(edge e : modelGraph.edges) {
 		os << "\t";
 
@@ -76,11 +76,10 @@ ostream &operator<<(ostream &os, const UmlModelGraph &modelGraph)
 		}
 
 		os << modelGraph.getNodeLabel(e->source()) << " and "
-			<< modelGraph.getNodeLabel(e->target()) << endl;
+			<< modelGraph.getNodeLabel(e->target()) << std::endl;
 	}
 
 	return os;
+}
 
-} // <<
-
-} // namespace ogdf
+}

@@ -94,7 +94,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend OGDF_EXPORT ostream &operator<<(ostream& out, const LPVARSTAT &rhs);
+	friend OGDF_EXPORT std::ostream &operator<<(std::ostream& out, const LPVARSTAT &rhs);
 
 	//! Returns the LP-status.
 	STATUS status() const { return status_; }
@@ -130,4 +130,4 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} //namespace abacus
+}

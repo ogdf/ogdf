@@ -57,5 +57,4 @@ protected:
 	static int workOn(GridLayout &gl, node v);
 };
 
-
-} // end namespace ogdf
+}

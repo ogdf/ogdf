@@ -31,7 +31,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const ConClass &rhs)
+std::ostream &operator<<(std::ostream &out, const ConClass &rhs)
 {
 	bool classified = false;
 
@@ -60,4 +60,4 @@ ostream &operator<<(ostream &out, const ConClass &rhs)
 
 	return out;
 }
-} //namespace abacus
+}

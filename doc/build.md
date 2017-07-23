@@ -8,7 +8,7 @@ The OGDF build configuration is generated using [CMake](http://www.cmake.org/).
 
  * CMake 3.1+
  * C++11 compliant compiler
-   * gcc 4.8+
+   * gcc 4.9.2+
    * clang 3.5+
    * Microsoft Visual C++ 2015+
  * GNU Make (in most cases)
@@ -83,6 +83,15 @@ Scanning dependencies of target OGDF
 ...
 ```
 
+If the compilation of your code results in an error containing `-Werror` or `C2220`,
+change the default configuration using
+
+```
+$ cmake -DOGDF_WARNING_ERRORS=OFF .
+```
+
+and retry building the project.
+
 ### Out-of-Source Build
 
 An out-of-source build does not modify the source directory.
@@ -126,6 +135,7 @@ $ ccmake .
  OGDF_MEMORY_MANAGER              POOL_TS
  OGDF_SEPARATE_TESTS              OFF
  OGDF_USE_ASSERT_EXCEPTIONS       OFF
+ OGDF_WARNING_ERRORS              ON
 
 BUILD_SHARED_LIBS: Whether to build shared libraries instead of static ones.
 Press [enter] to edit option
@@ -146,6 +156,7 @@ Press [t] to toggle advanced mode (Currently Off)
  OGDF_SEPARATE_TESTS              OFF
  OGDF_USE_ASSERT_EXCEPTIONS       ON
  OGDF_USE_ASSERT_EXCEPTIONS_WIT   ON_LIBDW
+ OGDF_WARNING_ERRORS              ON
 
 OGDF_MEMORY_MANAGER: Memory manager to be used.
 Press [enter] to edit option
@@ -158,7 +169,7 @@ Press [t] to toggle advanced mode (Currently Off)
 
 OGDF code has a lot of extra assertions in its code, partly adding running time.
 These assertions are only activated in debug mode and if the advanced option
-`OGDF_DEBUG` is activated (it is by default).
+`OGDF_DEBUG_MODE` is either set to `REGULAR` (it is by default) or `HEAVY` (even more assertions).
 The assertions (plus a backtrace of the calls) might be very valuable and
 helpful for debugging (user) code.
 

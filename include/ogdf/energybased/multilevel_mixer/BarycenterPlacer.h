@@ -52,4 +52,4 @@ public:
 	void weightedPositionPriority(bool on);
 };
 
-} // namespace ogdf
+}

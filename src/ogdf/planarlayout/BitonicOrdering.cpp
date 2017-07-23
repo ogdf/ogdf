@@ -323,100 +323,89 @@ void BitonicOrdering::handleRigidCase(node v_T)
 					handleCase(w_T);
 				}
 			}
-		} // end of for all adjacent
+		}
 
 		//now we are ready to label v
 		if ((w != t) && (w != s)) assignLabel(v_T, w);
 	}
 }
 
-// debug consistency check
-bool BitonicOrdering::consistencyCheck(GraphAttributes& GA)
+#ifdef OGDF_DEBUG
+void BitonicOrdering::consistencyCheck(GraphAttributes& GA) const
 {
 	GA.init(m_graph, GraphAttributes::nodeLabel);
 	bool allBitonic = true;
 
-	for (node v = m_graph.firstNode(); v; v = v->succ()) {
+	for (node v : m_graph.nodes) {
 		std::stringstream str;
-		str << v<<"("<<m_orderIndex[v]<<")";
+		str << v << "(" << m_orderIndex[v] << ")";
 		GA.label(v) = str.str();
-		if (m_orderIndex[v] < 0)
-			std::cout << "Node not assigned"<< std::endl;
-	}
-	// for all nodes we check now for bitonic indices
-	for (node v = m_graph.firstNode(); v; v = v->succ()) {
 
+		if (m_orderIndex[v] < 0) {
+			Logger::slout() << "Node not assigned" << std::endl;
+		}
+	}
+
+	// for all nodes we check now for bitonic indices
+	for (node v : m_graph.nodes) {
 		bool isNodeBitonic = true;
 		// we skip t and s though
-		if (m_orderIndex[v] == 0)
-			continue;
-
-		// we skip t and s though
-		if (m_orderIndex[v] == m_graph.numberOfNodes()-1)
-			continue;
-
-		adjEntry adj_first_succ = nullptr;
-		adjEntry adj_last_succ = nullptr;
+		if (m_orderIndex[v] != 0 && m_orderIndex[v] != m_graph.numberOfNodes() - 1) {
+			adjEntry adj_first_succ = nullptr;
+			adjEntry adj_last_succ = nullptr;
 
 
-		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
-			// and its cyclic succ
-			node w_prev = adj->cyclicPred()->twinNode();
-			// the other node
-			node w = adj->twinNode();
-			// and its cyclic succ
-			node w_next = adj->cyclicSucc()->twinNode();
+			for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
+				// and its cyclic succ
+				node w_prev = adj->cyclicPred()->twinNode();
+				// the other node
+				node w = adj->twinNode();
+				// and its cyclic succ
+				node w_next = adj->cyclicSucc()->twinNode();
 
-			if ((m_orderIndex[v] > m_orderIndex[w_prev]) && (m_orderIndex[v] < m_orderIndex[w]))
-				adj_first_succ = adj;
+				if ((m_orderIndex[v] > m_orderIndex[w_prev]) && (m_orderIndex[v] < m_orderIndex[w]))
+					adj_first_succ = adj;
 
-			if ((m_orderIndex[v] > m_orderIndex[w_next]) && (m_orderIndex[v] < m_orderIndex[w]))
-				adj_last_succ = adj;
+				if ((m_orderIndex[v] > m_orderIndex[w_next]) && (m_orderIndex[v] < m_orderIndex[w]))
+					adj_last_succ = adj;
 
-		}
-
-
-		// we are going to look for bitonic succ lists
-		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
-			// and its cyclic succ
-			node w_prev = adj->cyclicPred()->twinNode();
-			// the other node
-			node w = adj->twinNode();
-			// and its cyclic succ
-			node w_next = adj->cyclicSucc()->twinNode();
-
-			// not a succ
-			if (m_orderIndex[v] > m_orderIndex[w_prev])
-				continue;
-
-			// not a succ
-			if (m_orderIndex[v] > m_orderIndex[w])
-				continue;
-
-			// not a succ
-			if (m_orderIndex[v] > m_orderIndex[w_next])
-				continue;
-
-			// all succs, lets check for bitonic indices
-
-			if ((m_orderIndex[w_prev] >= m_orderIndex[w]) && (m_orderIndex[w_next] >= m_orderIndex[w]) && (m_orderIndex[v] > 0)) {
-				isNodeBitonic = false;
-				std::cout
-				  << "[BitonicOrder:] " << "NOT BITONIC SUCC LIST " << v << "(" << m_orderIndex[v] << ")" << std::endl
-				  << "[BitonicOrder:] " << w_prev << "("<< m_orderIndex[w_prev] << ") "
-				                        << w << "(" << m_orderIndex[w] << ") "
-				                        << w_next << "(" << m_orderIndex[w_next] << ")" << std::endl
-				  << std::endl;
-			};
-		}
-
-		if (!isNodeBitonic) {
-			for (adjEntry adj = adj_first_succ; adj != adj_last_succ->cyclicSucc(); adj = adj->cyclicSucc()) {
-				std::cout << "("<< m_orderIndex[adj->twinNode()] << ") ";
 			}
-		}
 
-		allBitonic = allBitonic && isNodeBitonic;
+
+			// we are going to look for bitonic succ lists
+			for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
+				// and its cyclic succ
+				node w_prev = adj->cyclicPred()->twinNode();
+				// the other node
+				node w = adj->twinNode();
+				// and its cyclic succ
+				node w_next = adj->cyclicSucc()->twinNode();
+
+				if (m_orderIndex[v] <= max(m_orderIndex[w_prev], max(m_orderIndex[w], m_orderIndex[w_next]))) {
+					// all succs, lets check for bitonic indices
+
+					if ((m_orderIndex[w_prev] >= m_orderIndex[w]) && (m_orderIndex[w_next] >= m_orderIndex[w]) &&
+						(m_orderIndex[v] > 0)) {
+						isNodeBitonic = false;
+						Logger::slout()
+								<< "[BitonicOrder:] " << "NOT BITONIC SUCC LIST " << v << "(" << m_orderIndex[v] << ")"
+								<< std::endl
+								<< "[BitonicOrder:] " << w_prev << "(" << m_orderIndex[w_prev] << ") "
+								<< w << "(" << m_orderIndex[w] << ") "
+								<< w_next << "(" << m_orderIndex[w_next] << ")" << std::endl
+								<< std::endl;
+					};
+				}
+			}
+
+			if (!isNodeBitonic) {
+				for (adjEntry adj = adj_first_succ; adj != adj_last_succ->cyclicSucc(); adj = adj->cyclicSucc()) {
+					Logger::slout() << "(" << m_orderIndex[adj->twinNode()] << ") ";
+				}
+			}
+
+			OGDF_ASSERT(allBitonic && isNodeBitonic);
+		}
 	}
-	return allBitonic;
 }
+#endif

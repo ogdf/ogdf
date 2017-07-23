@@ -133,15 +133,7 @@ GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
 
 	// array of nodes for sorting them by sunweight
 	Array<node> sortedOrder(m_pGraph->numberOfNodes());
-
-	// the universal index counter
-	int currIndex = 0;
-
-	// put the nodes in the order
-	for (node v = m_pGraph->firstNode(); v; v = v->succ()) {
-		// just use the initial order here
-		sortedOrder[currIndex++] = v;
-	}
+	m_pGraph->allNodes(sortedOrder);
 
 	// shuffle them to avoid artifacts from the initial order
 	std::random_shuffle(sortedOrder.begin(), sortedOrder.end());

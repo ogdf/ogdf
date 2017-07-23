@@ -1,5 +1,5 @@
 /** \file
- * \brief Implementation of Tutte's Algorithm
+ * \brief Definition of ogdf::TutteLayout.
  *
  * \author David Alberts \and Andrea Wagner
  *
@@ -33,6 +33,7 @@
 
 
 #include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
 
@@ -116,7 +117,7 @@ void TutteLayout::setFixedNodes(
 
 	for(node w : maxNodes) {
 		if(addMe[w]) {
-			nodes.pushBack(w);
+			nodes.pushBack(GC.original(w));
 			addMe[w] = false;
 		}
 	}
@@ -139,16 +140,11 @@ void TutteLayout::setFixedNodes(
 {
 	GraphCopy GC(G);
 
-	// delete possible old entries in nodes and pos
-	nodes.clear();
+	// delete possible old entries
 	pos.clear();
 
 	// set nodes and pos
-
-	for(node theOrig : givenNodes) {
-		node theCopy = GC.copy(theOrig);
-		nodes.pushBack(theCopy);
-	}
+	nodes = givenNodes;
 
 	double step  = 2.0 * Math::pi / (double)(nodes.size());
 	double alpha = 0.0;
@@ -257,17 +253,19 @@ bool TutteLayout::doCall(
 	const List<node> &fixedNodes,
 	List<DPoint> &fixedPositions)
 {
-	//node v, w;
-	//edge e;
-
 	const Graph &G = AG.constGraph();
+
+	OGDF_ASSERT(isTriconnected(G));
+
 	GraphCopy GC(G);
 	GraphCopyAttributes AGC(GC, AG);
 
 	// mark fixed nodes and set their positions in a
 	NodeArray<bool> fixed(GC, false);
-	for (node v : fixedNodes) {
+	for (node w : fixedNodes) {
+		node v = GC.copy(w);
 		fixed[v] = true;
+
 		DPoint p = fixedPositions.popFrontRet();   // slightly dirty...
 		fixedPositions.pushBack(p);          // ...
 
@@ -365,4 +363,4 @@ bool TutteLayout::doCall(
 	return true;
 }
 
-} // end namespace ogdf
+}

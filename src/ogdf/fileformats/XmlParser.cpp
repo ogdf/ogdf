@@ -50,8 +50,7 @@ void XmlParser::reportError(
 	if (inputFileLine != -1) {
 		Logger::slout() << "\tCurrent line of input file: " << inputFileLine;
 	}
-} // reportError
-
+}
 
 bool XmlTagObject::isLeaf() const {
 	if(this->m_pFirstSon)	return false;
@@ -143,7 +142,7 @@ bool XmlTagObject::isAttributeLess() const {
 }
 
 
-XmlParser::XmlParser(istream &is) :
+XmlParser::XmlParser(std::istream &is) :
 	m_pRootTag(nullptr),
 	m_hashTableInfoIndex(0),
 	m_recursionDepth(0),
@@ -177,8 +176,7 @@ bool XmlParser::createParseTree()
 	}
 
 	return !m_parseError;
-
-} // createParseTree
+}
 
 void XmlParser::destroyParseTree(XmlTagObject *root)
 {
@@ -200,9 +198,7 @@ void XmlParser::destroyParseTree(XmlTagObject *root)
 
 	// Destroy root itself
 	delete root;
-
-} // destroyParseTree
-
+}
 
 // Take a look at the state machine of parse() to understand
 // what is going on here.
@@ -259,8 +255,7 @@ XmlTagObject *XmlParser::parse()
 
 			// Go to start state of the state machine
 			continue;
-
-		} // end of Read "?"
+		}
 
 		// Read "!", i.e. we have a XML comment <!-- bla -->
 		if (token == XmlToken::exclamationMark){
@@ -300,13 +295,11 @@ XmlTagObject *XmlParser::parse()
 				{
 					endOfCommentFound = true;
 				}
-
-			} // while
+			}
 
 			// Go to start state of the state machine
 			continue;
-
-		} // end of Read "!"
+		}
 
 		// We have found an identifier, i.e. a tag name
 		if (token == XmlToken::identifier){
@@ -377,16 +370,13 @@ XmlTagObject *XmlParser::parse()
 
 					// Get next token
 					token = m_pScanner->getNextToken();
-
 				}
 				while (token == XmlToken::identifier);
-
-			} // Found an identifier of an attribute
+			}
 
 			// Read "/", i.e. the tag is ended immeadiately, e.g.
 			// <A ... /> without a closing tag </A>
 			if (token == XmlToken::slash){
-
 				// Consume ">", otherwise failure
 				token = m_pScanner->getNextToken();
 				if (token != XmlToken::closingBracket)
@@ -399,16 +389,14 @@ XmlTagObject *XmlParser::parse()
 				}
 
 				// The tag is closed and ended so we return
-				string s = m_tagObserver.pop();
+				string s = m_tagObserver.popRet();
 				--m_recursionDepth;
 				return currentTagObject;
-
-			} // end of Read "/"
+			}
 
 			// Read ">", i.e. the tag is closed and we
 			// expect some content
 			if (token == XmlToken::closingBracket){
-
 				// We read something different from "<", so we have to
 				// deal with a tag value now, i.e. a string inbetween the
 				// opening and the closing tag, e.g. <A ...> lalala </A>
@@ -453,7 +441,7 @@ XmlTagObject *XmlParser::parse()
 					// next token is the closing tag
 					string nextTag(m_pScanner->getCurrentToken());
 					// pop corresponding tag from stack
-					string s = m_tagObserver.pop();
+					string s = m_tagObserver.popRet();
 					// compare the two tags
 					if (s != nextTag)
 					{
@@ -478,8 +466,7 @@ XmlTagObject *XmlParser::parse()
 					// The tag is closed so we return
 					--m_recursionDepth;
 					return currentTagObject;
-
-				} // end of read something different from "<"
+				}
 
 				// Found "<", so a (series of) new tag begins and we have to perform
 				// recursive invocation of parse()
@@ -529,19 +516,16 @@ XmlTagObject *XmlParser::parse()
 							{
 								endOfCommentFound = true;
 							}
-
-						} // while
+						}
 
 						// Proceed with outer while loop
 						continue;
-
-					} // Ignore comments
+					}
 
 					// The new tag object is a son of the current tag object
 					XmlTagObject *sonTagObject = parse();
 					appendSonTagObject(currentTagObject, sonTagObject);
-
-				} // while
+				}
 
 				// Now we have found all tags.
 				// We expect a closing tag now, i.e. </id>
@@ -578,7 +562,7 @@ XmlTagObject *XmlParser::parse()
 				// next token is the closing tag
 				string nextTag(m_pScanner->getCurrentToken());
 				// pop corresponding tag from stack
-				string s = m_tagObserver.pop();
+				string s = m_tagObserver.popRet();
 				// compare the two tags
 				if (s != nextTag)
 				{
@@ -615,21 +599,17 @@ XmlTagObject *XmlParser::parse()
 				}
 
 				return currentTagObject;
-
-			} // end of Read ">"
+			}
 
 			OGDF_ASSERT(false);
 #if 0
 			continue;
 #endif
-
-		} // end of found identifier
+		}
 
 		OGDF_ASSERT(false);
-
-	} // end of while (true)
-
-} // parse
+	}
+}
 
 void XmlParser::appendAttributeObject(
 	XmlTagObject *tagObject,
@@ -654,8 +634,7 @@ void XmlParser::appendAttributeObject(
 		currentAttribute->m_pNextAttribute = attributeObject;
 
 	}
-
-} // appendAttributeObject
+}
 
 void XmlParser::appendSonTagObject(
 	XmlTagObject *currentTagObject,
@@ -678,8 +657,7 @@ void XmlParser::appendSonTagObject(
 		// Append given son
 		currentSon->m_pBrother = sonTagObject;
 	}
-
-} // appendSonTagObject
+}
 
 HashedString *XmlParser::hashString(const string &str)
 {
@@ -695,8 +673,7 @@ HashedString *XmlParser::hashString(const string &str)
 	}
 
 	return key;
-
-} // hashString
+}
 
 bool XmlParser::traversePath(
 	const XmlTagObject &startTag,
@@ -716,12 +693,11 @@ bool XmlParser::traversePath(
 		// Found
 		currentTag = sonTag;
 
-	} // for
+	}
 
 	targetTag = currentTag;
 	return true;
-
-} // traversePath
+}
 
 bool XmlParser::findSonXmlTagObject(const XmlTagObject &father,
 										int sonInfoIndex,
@@ -744,8 +720,7 @@ bool XmlParser::findSonXmlTagObject(const XmlTagObject &father,
 	// Not found
 	son = nullptr;
 	return false;
-
-} // findSonXmlTagObject
+}
 
 bool XmlParser::findBrotherXmlTagObject(const XmlTagObject &currentTag,
 											int brotherInfoIndex,
@@ -768,8 +743,7 @@ bool XmlParser::findBrotherXmlTagObject(const XmlTagObject &currentTag,
 	// Not found
 	brother = nullptr;
 	return false;
-
-} // findBrotherXmlTagObject
+}
 
 bool XmlParser::findXmlAttributeObject(
 	const XmlTagObject &currentTag,
@@ -792,26 +766,24 @@ bool XmlParser::findXmlAttributeObject(
 	// Not found
 	attribute = nullptr;
 	return false;
+}
 
-} // findXmlAttributeObject
-
-void XmlParser::printHashTable(ostream &os)
+void XmlParser::printHashTable(std::ostream &os)
 {
 	// Header
-	os << "\n--- Content of Hash table: m_hashTable ---\n" << endl;
+	os << "\n--- Content of Hash table: m_hashTable ---\n" << std::endl;
 
 	// Get iterator
 	HashConstIterator<string, int> it;
 
 	// Traverse table
 	for( it = m_hashTable.begin(); it.valid(); ++it){
-		os << "\"" << it.key() << "\" has index " << it.info() << endl;
+		os << "\"" << it.key() << "\" has index " << it.info() << std::endl;
 	}
-
-} // printHashTable
+}
 
 void XmlParser::printXmlTagObjectTree(
-	ostream &outs,
+	std::ostream &outs,
 	const XmlTagObject &rootObject,
 	int indent) const
 {
@@ -832,51 +804,43 @@ void XmlParser::printXmlTagObjectTree(
 
 		// Next attribute
 		currentAttribute = currentAttribute->m_pNextAttribute;
-
-	} // while
+	}
 
 	// Closing bracket
-	outs << ">" << endl;
+	outs << ">" << std::endl;
 
 	// Children
 	const XmlTagObject *currentChild = rootObject.m_pFirstSon;
 	while (currentChild != nullptr){
-
 		// Proceed recursively
 		printXmlTagObjectTree(outs, *currentChild, indent + 2);
 
 		// Next child
 		currentChild = currentChild->m_pBrother;
-
-	} // while
+	}
 
 	// Content
 	if (rootObject.m_pTagValue != nullptr){
-
 		printSpaces(outs, indent + 2);
 
-		outs << rootObject.m_pTagValue->key() << endl;
-
+		outs << rootObject.m_pTagValue->key() << std::endl;
 	}
 
 	// Closing tag
 	printSpaces(outs, indent);
-	outs << "</" << rootObject.m_pTagName->key() << ">" << endl;
+	outs << "</" << rootObject.m_pTagName->key() << ">" << std::endl;
+}
 
-} // printXmlTagObjectTree
-
-void XmlParser::printSpaces(ostream &outs, int nOfSpaces) const
+void XmlParser::printSpaces(std::ostream &outs, int nOfSpaces) const
 {
 	for (int i = 0; i < nOfSpaces; i++){
 		outs << " ";
 	}
+}
 
-} // printSpaces
-
-ostream &operator<<(ostream &os, const XmlParser &parser)
+std::ostream &operator<<(std::ostream &os, const XmlParser &parser)
 {
 	parser.printXmlTagObjectTree(os, parser.getRootTag(), 0);
 	return os;
 }
-
-} // namespace ogdf
+}

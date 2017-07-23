@@ -84,7 +84,5 @@ NodeAttribute toNodeAttribute(const std::string &str);
 EdgeAttribute toEdgeAttribute(const std::string &str);
 Shape toShape(const std::string &str);
 
-
-} // end namespace gdf
-
-} // end namespace ogdf
+}
+}

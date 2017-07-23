@@ -51,7 +51,7 @@ GraphIO::SVGSettings::SVGSettings()
 	m_height = "";
 }
 
-bool SvgPrinter::draw(ostream &os)
+bool SvgPrinter::draw(std::ostream &os)
 {
 	pugi::xml_document doc;
 	pugi::xml_node rootNode = writeHeader(doc);
@@ -310,19 +310,7 @@ void SvgPrinter::drawNodes(pugi::xml_node xmlNode)
 	m_attr.constGraph().allNodes(nodes);
 
 	if (m_attr.has(GraphAttributes::nodeGraphics | GraphAttributes::threeD)) {
-		class NodeComparer {
-		private:
-			const GraphAttributes *m_attr;
-		public:
-			NodeComparer(const GraphAttributes &attr) : m_attr(&attr) {}
-			double compare(const node &v, const node &w) const {
-				return m_attr->z(v) - m_attr->z(w);
-			}
-
-			OGDF_AUGMENT_COMPARER(node);
-		};
-
-		nodes.quicksort(NodeComparer(m_attr));
+		nodes.quicksort(GenericComparer<node, double>([&](node v) { return m_attr.z(v); }));
 	}
 
 	for(node v : nodes) {
@@ -390,9 +378,15 @@ pugi::xml_node SvgPrinter::drawPolygon(pugi::xml_node xmlNode, const std::list<d
 }
 
 double SvgPrinter::getArrowSize(edge e, node v) {
-	const double minSize = (m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeWidth(e) : 1) * 3;
-	node w = e->opposite(v);
-	return std::max(minSize, (m_attr.width(v) + m_attr.height(v) + m_attr.width(w) + m_attr.height(w)) / 16.0);
+	double result = 0;
+
+	if(m_attr.has(GraphAttributes::edgeArrow) || m_attr.directed()) {
+		const double minSize = (m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeWidth(e) : 1) * 3;
+		node w = e->opposite(v);
+		result = std::max(minSize, (m_attr.width(v) + m_attr.height(v) + m_attr.width(w) + m_attr.height(w)) / 16.0);
+	}
+
+	return result;
 }
 
 bool SvgPrinter::isCoveredBy(const DPoint &point, edge e, node v) {
@@ -419,6 +413,7 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 			break;
 		case EdgeArrow::Both:
 			drawTargetArrow = true;
+			OGDF_CASE_FALLTHROUGH;
 		case EdgeArrow::First:
 			drawSourceArrow = true;
 			break;
@@ -492,7 +487,7 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 	}
 
 	if(points.size() < 2) {
-		GraphIO::logger.lout() << "Could not draw edge since nodes are overlapping: " << e << endl;
+		GraphIO::logger.lout() << "Could not draw edge since nodes are overlapping: " << e << std::endl;
 	} else {
 		drawCurve(xmlNode, e, points);
 	}

@@ -69,7 +69,7 @@ void PoolSlot<BaseType, CoType>::insert(BaseType *convar)
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Poolslot);
 	}
 
-	if (version_ == numeric_limits<unsigned long>::max()) {
+	if (version_ == std::numeric_limits<unsigned long>::max()) {
 		Logger::ifout() << "PoolSlot::insert(): insertion failed, maximum version number ULONG_MAX reached\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Poolslot);
 	}
@@ -78,4 +78,4 @@ void PoolSlot<BaseType, CoType>::insert(BaseType *convar)
 	++version_;
 }
 
-} //namespace abacus
+}

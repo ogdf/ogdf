@@ -67,4 +67,4 @@ public:
 	void setFactor(double factor);
 };
 
-} // namespace ogdf
+}

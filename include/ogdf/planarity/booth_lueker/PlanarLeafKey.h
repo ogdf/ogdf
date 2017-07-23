@@ -45,7 +45,7 @@ public:
 
 	virtual ~PlanarLeafKey() { }
 
-	ostream &print(ostream &os)
+	std::ostream &print(std::ostream &os)
 	{
 		int sId = this->m_userStructKey->source()->index();
 		int tId = this->m_userStructKey->target()->index();

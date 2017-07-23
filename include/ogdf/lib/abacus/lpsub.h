@@ -374,4 +374,4 @@ inline LpSub::LpSub (Master *master, const Sub *sub)
 	infeasCons_(sub->maxCon(),false)
 { }
 
-} //namespace abacus
+}

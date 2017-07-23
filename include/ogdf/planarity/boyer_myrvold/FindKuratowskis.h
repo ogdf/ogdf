@@ -37,8 +37,10 @@
 namespace ogdf {
 
 
-//! List of externally active nodes strictly between x and y for minortypes \a B and \a E
-/** In case of extracting without bundles, all external paths and lists of their start-
+/**
+ * %List of externally active nodes strictly between x and y for minortypes \a B and \a E
+ *
+ * In case of extracting without bundles, all external paths and lists of their start-
  * and endnodes are added.
  */
 struct ExternE {
@@ -52,7 +54,6 @@ struct ExternE {
 /** In particular links to appropriate highest-XY-Path and z-nodes are maintained
  */
 struct WInfo {
-public:
 	node w;
 
 	//!  All possible base minortypes on w
@@ -65,8 +66,8 @@ public:
 	};
 	int minorType;
 
-	SListPure<adjEntry>* highestXYPath;
-	SListPure<adjEntry>* zPath;
+	ArrayBuffer<adjEntry>* highestXYPath;
+	ArrayBuffer<adjEntry>* zPath;
 
 	bool pxAboveStopX;
 	bool pyAboveStopY;
@@ -139,10 +140,10 @@ protected:
 	 * edges on the external face. The highestFacePath is the path starting at the
 	 * first external edge along the unique face back to \a V.
 	 */
-	ListPure<adjEntry> highestFacePath;
+	ArrayBuffer<adjEntry> highestFacePath;
 
 	//! The appropriate paths of the highestFacePath for each wNode
-	SListPure<SListPure<adjEntry> > highestXYPaths;
+	SListPure<ArrayBuffer<adjEntry>> highestXYPaths;
 
 	//! External face path of bicomp containing \a V in direction CCW
 	SListPure<adjEntry> externalFacePath;
@@ -156,7 +157,7 @@ protected:
 	//! A path from the \a zNode in minortype \a D to node \a V for each highest XY-Path
 	/** zNodes are cut-vertices not contained in the external face path
 	 */
-	SListPure<SListPure<adjEntry> > zPaths;
+	SListPure<ArrayBuffer<adjEntry>> zPaths;
 
 	//! List of externally active nodes strictly between x and y for minortypes \a B and \a E
 	SListPure<ExternE> externE;
@@ -290,15 +291,15 @@ protected:
 	NodeArray<SListPure<node> >& m_pertinentRoots;
 
 	//! Finds root node of the bicomp containing the stopping node \p stopX
-	node findRoot(node stopX);
+	node findRoot(node stopX) const;
 
 	//! Extracts the highestFace Path of the bicomp containing both stopping nodes
-	void extractHighestFacePath(ListPure<adjEntry>& highestFacePath, int marker);
+	void extractHighestFacePath(ArrayBuffer<adjEntry>& highestFacePath, int marker);
 
 	//! Extracts externalFacePath in direction CCW and splits highestFacePath in highestXYPaths
 	void extractExternalFacePath(
 				SListPure<adjEntry>& externalFacePath,
-				const ListPure<adjEntry>& highestFacePath,
+				const ArrayBuffer<adjEntry>& highestFacePath,
 				int marker,
 				int highMarker);
 

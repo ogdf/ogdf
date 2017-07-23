@@ -39,9 +39,7 @@ void SimDrawCreator::clearESG()
 {
 	for(edge e : m_G->edges)
 		m_GA->subGraphBits(e) = 0;
-
-}//end clearESG
-
+}
 
 //gives each edge in m_G a random edgeSubGraphs value
 //works with two graphs
@@ -70,9 +68,7 @@ void SimDrawCreator::randomESG2(int doubleESGProbability)
 			m_GA->addSubGraph(e, singleESGRandom);
 		}
 	}
-
-}//end randomESG2
-
+}
 
 //gives each edge in m_G a random edgeSubGraphs value
 //works with three graphs
@@ -111,9 +107,7 @@ void SimDrawCreator::randomESG3(int doubleESGProbability, int tripleESGProbabili
 			m_GA->addSubGraph(e, singleESGRandom);
 		}
 	}
-
-}//end randomESG3
-
+}
 
 //gives each edge a random edgeSubgraph value
 //works with graphNumber number of graphs
@@ -128,9 +122,7 @@ void SimDrawCreator::randomESG(int graphNumber)
 		int randomESGValue = 1 + rand() % max;
 		m_GA->subGraphBits(e) = randomESGValue;
 	}
-
-}//end randomESG
-
+}
 
 void SimDrawCreator::createRandom(int numberOfNodes,
 	int numberOfEdges,
@@ -140,8 +132,6 @@ void SimDrawCreator::createRandom(int numberOfNodes,
 	OGDF_ASSERT(numberOfBasicGraphs < 32);
 	randomSimpleGraph(*m_G, numberOfNodes, numberOfEdges);
 	randomESG(numberOfBasicGraphs);
+}
 
-}//end createRandom
-
-
-} // end namespace ogdf
+}

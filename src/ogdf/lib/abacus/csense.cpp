@@ -54,7 +54,7 @@ CSense::CSense(char s)
 }
 
 
-ostream &operator<<(ostream &out, const CSense &rhs)
+std::ostream &operator<<(std::ostream &out, const CSense &rhs)
 {
 	switch (rhs.sense_) {
 	case CSense::Less:
@@ -92,4 +92,4 @@ void CSense::sense(char s)
 		break;
 	}
 }
-} //namespace abacus
+}

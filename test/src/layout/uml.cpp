@@ -1,7 +1,7 @@
 /** \file
- * \brief Uses Fruchtermann Rheingold and Fast Multipole Embedder for faster and better FR results.
+ * \brief Tests for UML layout algorithms.
  *
- * \author Gereon Bartel
+ * \author Tilo Wiedera
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -29,38 +29,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/MixedForceLayout.h>
-#include <ogdf/energybased/SpringEmbedderGridVariant.h>
-#include <ogdf/energybased/FastMultipoleEmbedder.h>
+#include <ogdf/uml/PlanarizationLayoutUML.h>
 
-namespace ogdf {
+#include "layout_helpers.h"
 
-MixedForceLayout::MixedForceLayout()
-{
-	SpringEmbedderGridVariant * FR = new SpringEmbedderGridVariant();
-	FR->scaling(SpringEmbedderGridVariant::Scaling::input);
-	m_FR = FR;
+class PLUMock : public LayoutModule {
+	PlanarizationLayoutUML layout;
 
-	FastMultipoleEmbedder * FME = new FastMultipoleEmbedder();
-	FME->setNumIterations(1000);
-	FME->setRandomize(false);
-	FME->setNumberOfThreads(2);
+public:
+	virtual void call(GraphAttributes &attr) override {
+		const Graph& G = attr.constGraph();
+		GraphCopy copyG(G);
+		UMLGraph umlGraph(copyG, attr.attributes());
 
-	m_FME = FME;
-}
+		layout.call(umlGraph);
 
+		for (node v : G.nodes) {
+			node w = copyG.copy(v);
+			attr.x(v) = umlGraph.x(w);
+			attr.y(v) = umlGraph.y(w);
+		}
 
-void MixedForceLayout::call(GraphAttributes &GA)
-{
-	m_FME->call(GA);
-	m_FR->call(GA);
-}
+		for (edge e : G.edges) {
+			attr.bends(e) = umlGraph.bends(copyG.copy(e));
+		}
+	}
+};
 
-
-void MixedForceLayout::call(MultilevelGraph &MLG)
-{
-	m_FME->call(MLG.getGraphAttributes());
-	m_FR->call(MLG.getGraphAttributes());
-}
-
-} // namespace ogdf
+go_bandit([] {
+	describeLayout<PLUMock>("PlanarizationLayoutUML", GraphAttributes::edgeType | GraphAttributes::nodeType, {GraphProperty::simple, GraphProperty::sparse}, true);
+});

@@ -153,7 +153,8 @@ public:
 	void setPertubation(bool b) {m_usePerturbation = b;}
 	void setHeuristicFractionalBound(double b) {m_heuristicFractionalBound = b;}
 	void setHeuristicPermutationLists(int n) {m_nHeuristicPermutationLists = n;}
-	void setMPHeuristic(bool b) {m_mpHeuristic = b;}//!< Switches use of lower bound heuristic
+	//! Switches use of lower bound heuristic
+	void setMPHeuristic(bool b) {m_mpHeuristic = b;}
 	void setNumAddVariables(int i) {m_numAddVariables=i;}
 	void setStrongConstraintViolation(double d) { m_strongConstraintViolation=d;}
 	void setStrongVariableViolation(double d) { m_strongVariableViolation=d;}
@@ -181,7 +182,7 @@ public:
 
 #ifdef OGDF_DEBUG
 	bool m_solByHeuristic; //solution computed by heuristic or ILP
-		// Simple output function to print the given graph to the console.
+	// Simple output function to print the given graph to the console.
 	// Used for debugging only.
 	void printGraph(const Graph &G);
 #endif
@@ -296,10 +297,12 @@ private:
 	//! part of the solution
 	bool m_checkCPlanar;
 
-	//!
 	double m_delta;
 	double m_deltaCount;
-	double nextConnectCoeff() { return (m_checkCPlanar ? -1 : -m_epsilon) + m_deltaCount--*m_delta; } // TODO-TESTING
+	double nextConnectCoeff() {
+		// TODO: Test whether this implementation is working.
+		return (m_checkCPlanar ? -1 : -m_epsilon) + m_deltaCount--*m_delta;
+	}
 	EdgeVar* createVariable(ListIterator<NodePair>& it) {
 		++m_varsAdded;
 		EdgeVar* v = new EdgeVar(this, nextConnectCoeff(), EdgeVar::EdgeType::Connect, (*it).source, (*it).target);

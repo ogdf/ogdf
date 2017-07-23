@@ -44,8 +44,8 @@ namespace fmmm {
 class OGDF_EXPORT FruchtermanReingold
 {
 public:
-	FruchtermanReingold();          //!< constructor
-	~FruchtermanReingold() { }      //!< destructor
+	//! Constructor
+	FruchtermanReingold();
 
 	//! Calculate exact rep. forces for each node.
 	void calculate_exact_repulsive_forces(
@@ -75,9 +75,6 @@ private:
 	int max_gridindex; //!< maximum index of a grid row/column
 	double boxlength;  //!< length of drawing box
 	DPoint down_left_corner;//!< down left corner of drawing box
-
-	//! Returns the repulsing force_function_value of scalar d.
-	double f_rep_scalar (double d);
 
 	//! The number k of rows and colums of the grid is sqrt(|V|) / frGridQuotient()
 	//! (Note that in [FrRe] frGridQuotient() is 2.)

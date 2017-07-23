@@ -44,7 +44,7 @@ namespace fmmm {
 class Rectangle
 {
 	//! Outputstream for Rectangle.
-	friend ostream &operator<< (ostream & output, const Rectangle & A)
+	friend std::ostream &operator<< (std::ostream & output, const Rectangle & A)
 	{
 		output <<"width: "<< A.width<<" height: "<<A.height<<" old dlc_position: "
 			<<A.old_down_left_corner_position<<" new dlc_position: "
@@ -55,7 +55,7 @@ class Rectangle
 	}
 
 	//! Inputstream for Rectangle.
-	friend istream &operator>> (istream & input,  Rectangle & A)
+	friend std::istream &operator>> (std::istream & input,  Rectangle & A)
 	{
 		input >>A.width;
 		return input;
@@ -74,8 +74,6 @@ public:
 		component_index = -1;
 		tipped_over = false;
 	}
-
-	~Rectangle() { }    //!< destructor
 
 	void set_rectangle (double w, double h, double old_dlc_x_pos,double
 		old_dlc_y_pos,int comp_index)
@@ -117,71 +115,6 @@ private:
 	bool tipped_over;     //!< indicates if this rectangle has been tipped over in the
 	//! packing step
 
-};
-
-
-//! Needed for sorting algorithms in ogdf/List and ogdf/Array.
-class RectangleComparerHeight
-{
-public:
-	RectangleComparerHeight() { }
-	~RectangleComparerHeight() { }
-
-	bool less(const Rectangle& A,const Rectangle & B) const
-	{
-		if(A.get_height() > B.get_height() )
-			return  true;
-		else
-			return false;
-	}
-
-	bool leq(const Rectangle& A,const Rectangle & B) const
-	{
-		if(A.get_height() >= B.get_height() )
-			return  true;
-		else
-			return false;
-	}
-
-	bool equal(const Rectangle& A,const Rectangle & B) const
-	{
-		if(A.get_height() == B.get_height() )
-			return  true;
-		else
-			return false;
-	}
-};
-
-
-class RectangleComparerWidth
-{
-public:
-	RectangleComparerWidth() { }
-	~RectangleComparerWidth() { }
-
-	bool less(const Rectangle& A,const Rectangle & B) const
-	{
-		if(A.get_width() > B.get_width() )
-			return  true;
-		else
-			return false;
-	}
-
-	bool leq(const Rectangle& A,const Rectangle & B) const
-	{
-		if(A.get_width() >= B.get_width() )
-			return  true;
-		else
-			return false;
-	}
-
-	bool equal(const Rectangle& A,const Rectangle & B) const
-	{
-		if(A.get_width() == B.get_width() )
-			return  true;
-		else
-			return false;
-	}
 };
 
 }

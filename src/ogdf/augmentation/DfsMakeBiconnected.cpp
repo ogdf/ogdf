@@ -43,5 +43,4 @@ void DfsMakeBiconnected::doCall(Graph &G, List<edge> &L)
 	makeBiconnected(G,L);
 }
 
-
-} // end namespace ogdf
+}

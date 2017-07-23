@@ -1,18 +1,14 @@
 #include <random>
 
-#include <bandit/bandit.h>
-#include <resources.h>
-
 #include <ogdf/planarity/PlanarSubgraphBoyerMyrvold.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #include <ogdf/planarity/MaximumPlanarSubgraph.h>
 #include <ogdf/planarity/PlanarSubgraphCactus.h>
 #include <ogdf/planarity/PlanarSubgraphTree.h>
-#include <ogdf/basic/graph_generators.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <graphs.h>
+
 using std::minstd_rand;
 
 template <typename TCost>
@@ -41,7 +37,7 @@ void testSubgraphInstance(Graph &graph, PlanarSubgraphModule<TCost> &psm, Planar
 		psm.call(graph, removedEdges);
 	}
 
-	cout << std::endl << "      removed " << removedEdges.size() << " edges" << std::endl;
+	std::cout << std::endl << "      removed " << removedEdges.size() << " edges" << std::endl;
 	bool connected = isConnected(graph);
 
 	Graph::HiddenEdgeSet set(graph);
@@ -93,76 +89,14 @@ void testSubgraphInstanceForIntAndDouble(Graph &graph, PlanarSubgraphModule<int>
 
 void performGenericTests(const string &name, bool optimal, bool respectsEdgeWeight, bool skip, std::function<void(Graph &, bool)> callFunc) {
 	describe(name, [&]() {
-		BoothLueker bl;
-		minstd_rand rng(42);
-
-		for(int n = 4; n <= (optimal ? 10 : 30); n+=2) {
-			int m = n*(n-1)/3;
-			it(string("works on a dense random graph with " + to_string(n) + " nodes and " + to_string(m) + " edges"), [&]() {
-				Graph graph;
-				randomGraph(graph, n, m);
-				callFunc(graph, false);
-			});
-		}
-
-		for(int n = 30; n <= (optimal ? 0 : 50); n+=5) {
-			int m = 4*n;
-			it(string("works on a sparse random graph with " + to_string(n) + " nodes and " + to_string(m) + " edges"), [&]() {
-				Graph graph;
-				randomGraph(graph, n, m);
-				callFunc(graph, false);
-			});
-		}
-
-		auto testOnComplete = [&callFunc](std::initializer_list<int> vertices) {
-			for (int n : vertices) {
-				it(string("works on a K" + to_string(n) + " with weighted edges"), [&]() {
-					Graph graph;
-					completeGraph(graph, n);
-					callFunc(graph, true);
-				});
-			}
+		auto doTest = [&](bool weighted) {
+			forEachGraphItWorks({GraphProperty::sparse}, [&](Graph G) { callFunc(G, weighted); }, optimal ? GraphSizes(10) : GraphSizes());
 		};
+
+		doTest(false);
 
 		if(respectsEdgeWeight) {
-			if (optimal) {
-				testOnComplete({5, 6});
-			} else {
-				testOnComplete({5, 7, 9, 11, 13, 15, 17, 19});
-			}
-
-			for (int n = 10; n <= (optimal ? 12 : 50); n+= (optimal ? 1 : 5)) {
-				int m = 3 * n;
-				it(string(
-					"works on a sparse weighted random graph with " + to_string(n) + " nodes and " + to_string(m) +
-						" edges"), [&]() {
-					Graph graph;
-					randomGraph(graph, n, m);
-					callFunc(graph, true);
-				});
-			}
-		}
-
-		std::vector<string> instances = {
-			"north/g.61.11.gml",
-			"rome/grafo3703.45.lgr.gml.pun",
-			"rome/grafo5745.50.lgr.gml.pun"
-		};
-
-		for(int i = 0; i < (optimal ? 0 : 2); i++) {
-			string tags = "";
-			bool weighted = i;
-
-			if(weighted) {
-				tags += " weighted";
-			}
-
-			if(!weighted || respectsEdgeWeight) {
-				for_each_graph_it(("works on" + tags), instances,
-				                  [&](Graph &graph, const string &filename) {
-					callFunc(graph, weighted);
-				});
-			}
+			describe("weighted", [&] { doTest(true); });
 		}
 	}, skip);
 }

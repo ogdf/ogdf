@@ -108,7 +108,7 @@ void randomRegularGraph(Graph &G, int n, int d)
 					G.newEdge(v, w);
 
 					if (idV < idW) {
-						swap(idV, idW);
+						std::swap(idV, idW);
 					}
 
 					pairs.erase(pairs.begin() + idV);
@@ -178,8 +178,24 @@ constexpr int getEdgeIndex(int a, int b, int n, int max)
 	return max - getMaxNumberEdges(n - a) + b - a - 1;
 }
 
-bool randomSimpleGraph(Graph &G, int n, int m)
+/**
+ * Auxiliary function for ogdf::randomSimpleGraph and ogdf::randomSimpleConnectedGraph
+ *
+ * @param G the graph to be generated
+ * @param n the number of nodes
+ * @param m the number of edges
+ * @param mask
+ *   An array mask containing booleans for each edge (given by its unique computed index).
+ *   If an edge's value is true, it will (not) be contained in \p G.
+ *   After the generation, all (not) contained edges will be set to true.
+ *   The "not" applies iff \p negate is true.
+ * @param masked The number of masked edges. (Must equal the number of true values in \p mask.)
+ * @param negate True iff the meaning of the mask should be negated (see \p mask).
+ */
+static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& mask, int masked = 0, bool negate = false)
 {
+	OGDF_ASSERT(mask.low() == 0);
+
 	G.clear();
 
 	if (n == 0 && m == 0)
@@ -188,7 +204,10 @@ bool randomSimpleGraph(Graph &G, int n, int m)
 	if (n < 1)
 		return false;
 
-	int max = getMaxNumberEdges(n);
+	const int max = mask.size();
+	OGDF_ASSERT(max == getMaxNumberEdges(n));
+	OGDF_ASSERT(max == mask.high() + 1);
+
 	if (m > max)
 		return false;
 
@@ -201,21 +220,15 @@ bool randomSimpleGraph(Graph &G, int n, int m)
 	if (m == 0)
 		return true;
 
-	bool remove;
-	if (m > max /2) {
+	minstd_rand rng(randomSeed());
+	uniform_int_distribution<> dist_a(0, n-1);
+	uniform_int_distribution<> dist_b(0, n-2);
+
+	if (negate) {
 		m = max - m;
-		remove = true;
-	} else {
-		remove = false;
 	}
 
-	Array<bool> used(max);
-	for (i = max; i-- > 0;)
-		used[i] = remove;
-
-	minstd_rand rng(randomSeed());
-	uniform_int_distribution<> dist_a(0,n-1);
-	uniform_int_distribution<> dist_b(0,n-2);
+	m -= masked;
 
 	while (m > 0) {
 		int a = dist_a(rng);
@@ -227,18 +240,53 @@ bool randomSimpleGraph(Graph &G, int n, int m)
 			a = b;
 			b = c;
 		}
-		if (used[i = getEdgeIndex(a,b,n,max)] == remove) {
-			used[i] = !remove;
+		if (mask[i = getEdgeIndex(a, b, n, max)] == false) {
+			mask[i] = true;
 			m--;
 		}
 	}
 
-	for (int a = 0; a < n; a++)
-		for (int b = a+1; b < n; b++)
-			if (used[getEdgeIndex(a,b,n,max)])
-				G.newEdge(v[a],v[b]);
+	for (int a = 0; a < n; a++) {
+		for (int b = a + 1; b < n; b++) {
+			if (mask[getEdgeIndex(a, b, n, max)] == !negate) {
+				G.newEdge(v[a], v[b]);
+			}
+		}
+	}
 
 	return true;
+}
+
+bool randomSimpleGraph(Graph &G, int n, int m)
+{
+	// save some running time by exploiting addition/removal symmetry
+	bool negate = false;
+	const int max = getMaxNumberEdges(n);
+	if (m > max / 2) {
+		negate = true;
+	}
+
+	Array<bool> mask(0, max-1, false);
+	return randomSimpleGraphByMask(G, n, m, mask, 0, negate);
+}
+
+bool randomSimpleConnectedGraph(Graph &G, int n, int m)
+{
+	if (m < n - 1) {
+		G.clear();
+		return false;
+	}
+
+	Graph tree;
+	randomTree(tree, n);
+
+	const int max = getMaxNumberEdges(n);
+	Array<bool> used(0, max - 1, false);
+	for (edge e : tree.edges) {
+		used[getEdgeIndex(e->source()->index(), e->target()->index(), n, max)] = true;
+	}
+
+	return randomSimpleGraphByMask(G, n, m, used, tree.numberOfEdges());
 }
 
 
@@ -529,9 +577,8 @@ void planarTriconnectedGraph(Graph &G, int n, int m)
 
 		adjEntry adj2 = v->firstAdj();
 		int r = dist_0_2(rng);
-		switch(r) {
-			case 2: adj2 = adj2->succ(); // fall through to next case
-			case 1: adj2 = adj2->succ();
+		while (r--) { // continue to r-th successor
+			adj2 = adj2->succ();
 		}
 		adjEntry adj1 = adj2->cyclicSucc();
 
@@ -821,14 +868,17 @@ void planarCNBGraph(Graph &G, int n, int m, int b)
 	G.clear();
 	if (b <= 0) b = 1;
 	if (n <= 0) n = 1;
-	if ((m <= 0) || (m > 3*n-6)) m = 3*n-6;
+	if ((m <= 0) || (m > 3*n-6)) m = std::max(0, 3*n-6);
+
+	OGDF_ASSERT(n >= 0);
+	OGDF_ASSERT(m >= 0);
 
 	G.newNode();
 
 	minstd_rand rng(randomSeed());
-	uniform_int_distribution<> dist_1_n(1,n);
-	uniform_int_distribution<> dist_1_m(1,m);
-	uniform_int_distribution<> dist_1_2(1,2);
+	uniform_int_distribution<> dist_1_n(1, n);
+	uniform_int_distribution<> dist_1_m(n > 2 ? 1 : 0, m);
+	uniform_int_distribution<> dist_1_2(1, 2);
 
 	for (int nB=1; nB<=b; nB++){
 		node cutv = G.chooseNode();
@@ -1009,7 +1059,9 @@ void randomClusterGraph(ClusterGraph &C,Graph &G,int cNum)
 	for (int i = 0; i < cNum; i++)
 		constructCluster( numNode[dist(rng)], C );
 
-	OGDF_ASSERT(C.consistencyCheck());
+#ifdef OGDF_DEBUG
+	C.consistencyCheck();
+#endif
 
 }
 
@@ -1050,11 +1102,13 @@ void randomClusterPlanarGraph(ClusterGraph &C,Graph &G,int cNum)
 	}
 	if ((C.rootCluster()->cCount() == 1) && (C.rootCluster()->nCount() == 0))
 	{
-		cluster cl = (*C.rootCluster()->cBegin());
+		cluster cl = *C.rootCluster()->cBegin();
 		C.delCluster(cl);
 	}
 
-	OGDF_ASSERT(C.consistencyCheck());
+#ifdef OGDF_DEBUG
+	C.consistencyCheck();
+#endif
 }
 
 
@@ -1090,9 +1144,9 @@ static void constructCluster(node v,ClusterGraph &C)
 
 	// store the cluster nodes for random selection
 	// we could just randomly select by running up the list
-	for (ListConstIterator<node> it = C.clusterOf(v)->nBegin(); it.valid(); ++it) {
-		if (*it != v && dist(rng) > 65) {
-			newCluster.pushBack(*it);
+	for (node u : C.clusterOf(v)->nodes) {
+		if (u != v && dist(rng) > 65) {
+			newCluster.pushBack(u);
 		}
 	}
 
@@ -1136,10 +1190,16 @@ static void bfs(node v, SList<node> &newCluster, NodeArray<bool> &visited, Clust
 void randomTree(Graph& G, int n)
 {
 	G.clear();
-	G.newNode();
-	for(int i=1; i<n; i++) {
-		node on = G.chooseNode();
-		G.newEdge(on, G.newNode());
+	if (n > 0) {
+		minstd_rand rng(randomSeed());
+		Array<node> nodes(n);
+		nodes[0] = G.newNode();
+		for(int i=1; i<n; i++) {
+			uniform_int_distribution<> dist(0, i-1);
+			node on = nodes[dist(rng)];
+			nodes[i] = G.newNode();
+			G.newEdge(on, nodes[i]);
+		}
 	}
 }
 
@@ -1533,4 +1593,4 @@ void emptyGraph(Graph &G, int nodes)
 	}
 }
 
-} // end namespace ogdf
+}

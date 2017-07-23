@@ -108,7 +108,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend OGDF_EXPORT ostream &operator<<(ostream& out, const FSVarStat &rhs);
+	friend OGDF_EXPORT std::ostream &operator<<(std::ostream& out, const FSVarStat &rhs);
 
 	//! Returns the status of fixing or setting.
 	STATUS status() const { return status_; }
@@ -201,4 +201,4 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} // namespace abacus
+}

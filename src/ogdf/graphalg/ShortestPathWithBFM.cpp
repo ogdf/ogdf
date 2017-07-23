@@ -74,4 +74,4 @@ bool ShortestPathWithBFM::call
 	return true;
 }
 
-} // end namespace ogdf
+}

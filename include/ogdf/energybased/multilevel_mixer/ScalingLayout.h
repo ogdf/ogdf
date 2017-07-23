@@ -148,4 +148,4 @@ private:
 	ScalingType m_scalingType;
 };
 
-} // namespace ogdf
+}

@@ -30,6 +30,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>
 #include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
 
@@ -77,7 +78,9 @@ Module::ReturnType FixEdgeInserterCore::call(
 	Module::ReturnType retValue = Module::ReturnType::Feasible;
 	m_runsPostprocessing = 0;
 
-	if(!keepEmbedding) m_pr.embed();
+	if(!keepEmbedding) {
+		planarEmbed(m_pr);
+	}
 	OGDF_ASSERT(m_pr.representsCombEmbedding());
 
 	if (origEdges.size() == 0)
@@ -92,11 +95,11 @@ Module::ReturnType FixEdgeInserterCore::call(
 	// m_delFaces and m_newFaces are used by removeEdge()
 	// if we can't allocate memory for them, we throw an exception
 	if (rrPost != RemoveReinsertType::None) {
-		m_delFaces = new FaceSetSimple(E);
+		m_delFaces = new FaceSet<false>(E);
 		if (m_delFaces == nullptr)
 			OGDF_THROW(InsufficientMemoryException);
 
-		m_newFaces = new FaceSetPure(E);
+		m_newFaces = new FaceSet<false>(E);
 		if (m_newFaces == nullptr) {
 			delete m_delFaces;
 			OGDF_THROW(InsufficientMemoryException);

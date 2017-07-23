@@ -283,7 +283,7 @@ void LP::colRangeCheck(int i)const
 }
 
 
-ostream&operator<<(ostream&out, const LP&rhs)
+std::ostream&operator<<(std::ostream&out, const LP&rhs)
 {
 	// LP: \a operator<<: local variables
 	char sign;
@@ -315,13 +315,13 @@ ostream&operator<<(ostream&out, const LP&rhs)
 			j++;
 		}
 		if( j && (j % 10 == 0) ) {
-			out << endl;
+			out << std::endl;
 			j = 1;
 		}
 	}
-	out << endl;
+	out << std::endl;
 
-	out << "s.t." << endl;
+	out << "s.t." << std::endl;
 
 	// output the constraints
 	/* The constraints of the LP are output row by row.
@@ -330,17 +330,17 @@ ostream&operator<<(ostream&out, const LP&rhs)
 
 	for(int i = 0; i < rhs.nRow(); i++) {
 		rhs.row(i,row);
-		out << "(" << i << "): " << row << endl;
+		out << "(" << i << "): " << row << std::endl;
 	}
 
 	// output the bounds
 	/* The bounds are written in the form {\tt 0 <= x0 <= 2.3}. *//*:55*/
 
-	out << "Bounds" << endl;
+	out << "Bounds" << std::endl;
 	for(int i = 0; i < rhs.nCol(); i++)
-		out << rhs.lBound(i) << " <= x" << i << " <= " << rhs.uBound(i) << endl;
+		out << rhs.lBound(i) << " <= x" << i << " <= " << rhs.uBound(i) << std::endl;
 
-	out << "End" << endl;
+	out << "End" << std::endl;
 	// output the solution of the linear program
 	/* Finally the status of optimization of the LP is output, together
 	*   with the value of the optimal solution if it is available.
@@ -368,7 +368,7 @@ ostream&operator<<(ostream&out, const LP&rhs)
 		Logger::ifout() << "operator<<(AbaOStream&, const LP&): Unknown LP::Status!\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpStatus);
 	}
-	out << endl;
+	out << std::endl;
 
 	return out;
 }
@@ -380,7 +380,7 @@ int LP::writeBasisMatrix(const char*fileName)
 		return 1;
 
 	// open the file for writing the basis
-	ofstream file(fileName);
+	std::ofstream file(fileName);
 	if(!file) return 0;
 
 	// mark the basic variables
@@ -419,7 +419,7 @@ int LP::writeBasisMatrix(const char*fileName)
 	}
 
 	// write the basis row by row
-	file << nRow() << endl;
+	file << nRow() << std::endl;
 
 	Row sparseRow(master_,nCol());
 
@@ -443,9 +443,9 @@ int LP::writeBasisMatrix(const char*fileName)
 		}
 		if(slackStat(i) == SlackStat::Basic)
 			file << basisIndexRow[i] << " 1";
-		file << endl;
+		file << std::endl;
 	}
 
 	return 0;
 }
-} //namespace abacus
+}

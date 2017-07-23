@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/graphalg/MinimumCut.h>
+#include <ogdf/basic/Math.h>
 
 //used solely for efficiency and correctness checks of priority
 //queue usage
@@ -236,7 +237,7 @@ double MinCut::minimumCutPhase() {
 			pq.decrease(a->twinNode(), pq.priority(a->twinNode()) - m_w[a->theEdge()]);
 		}
 #endif
-	}// end of loop while(markedNodes.size()...)
+	}
 
 	// Computing value \a cutOfThePhase
 	cutOfThePhase = 0.0;
@@ -279,7 +280,7 @@ double MinCut::minimumCut() {
 	 */
 
 	for (int i=m_GC.numberOfNodes(); i>1; --i) {
-		m_minCut = min(m_minCut,minimumCutPhase());
+		Math::updateMin(m_minCut, minimumCutPhase());
 		if (m_minCut == 0.0) return m_minCut;
 	}
 	return m_minCut;
@@ -289,7 +290,6 @@ double MinCut::minimumCut() {
 void MinCut::partition(List<node> &nodes) {
 
 	nodes.clear();
-	ListConstIterator<node> it;
 	for (node v : m_partition) {
 		nodes.pushBack(v);
 	}

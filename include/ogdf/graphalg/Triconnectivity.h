@@ -36,7 +36,6 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/BoundedStack.h>
 #include <ogdf/basic/GraphCopy.h>
 
 namespace ogdf {
@@ -192,12 +191,11 @@ private:
 	NodeArray<List<int> > m_HIGHPT;	//!< list of fronds entering v in the order they are visited
 	EdgeArray<ListIterator<edge> > m_IN_ADJ;	//!< pointer to element in adjacency list containing e
 	EdgeArray<ListIterator<int> >  m_IN_HIGH;	//!< pointer to element in HIGHPT list containing e
-	BoundedStack<edge> m_ESTACK; //!< stack of currently active edges
+	ArrayBuffer<edge> m_ESTACK; //!< stack of currently active edges
 
 	node m_start;     //!< start node of dfs traversal
 	int  m_numCount;  //!< counter for dfs-traversal
 	bool m_newPath;   //!< true iff we start a new path
 };
 
-
-} // end namespace ogdf
+}

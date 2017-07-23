@@ -81,4 +81,4 @@ private:
 	void doInit(const NodeArray<int> &rank);
 };
 
-} // end namespace ogdf
+}

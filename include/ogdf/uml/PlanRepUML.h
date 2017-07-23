@@ -137,11 +137,11 @@ public:
 
 	//! Writes attributed graph in GML format to output stream \p os (for debugging only)
 	//! @{
-	void writeGML(ostream &os, const Layout &drawing);
+	void writeGML(std::ostream &os, const Layout &drawing);
 	void writeGML(const char *fileName, const OrthoRep &OR, const Layout &drawing);
-	void writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing);
+	void writeGML(std::ostream &os, const OrthoRep &OR, const Layout &drawing);
 	void writeGML(const char *fileName, const OrthoRep &OR, const GridLayoutMapped &drawing);
-	void writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMapped &drawing);
+	void writeGML(std::ostream &os, const OrthoRep &OR, const GridLayoutMapped &drawing);
 	//! @}
 
 	//! @}
@@ -165,4 +165,4 @@ private:
 	Array<SList<node>>  m_incMergers; //!< Stores all incremental mergers in CC
 };
 
-} // end namespace ogdf
+}

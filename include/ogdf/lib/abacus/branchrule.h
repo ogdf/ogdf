@@ -133,4 +133,4 @@ protected:
 	OGDF_NEW_DELETE
 };
 
-} //namespace abacus
+}

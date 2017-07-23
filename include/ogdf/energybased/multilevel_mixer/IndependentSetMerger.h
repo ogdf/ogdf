@@ -55,4 +55,4 @@ public:
 	IndependentSetMerger();
 };
 
-} // namespace ogdf
+}

@@ -378,4 +378,4 @@ void BinaryHeap<T, C>::siftDown(int pos)
 	}
 }
 
-} // end namespace ogdf
+}

@@ -34,7 +34,6 @@
 
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>
-#include <ogdf/basic/Stack.h>
 
 namespace ogdf {
 
@@ -78,7 +77,7 @@ public:
 	SListPure<edge> edgeList;
 };
 
-OGDF_EXPORT ostream &operator<<(ostream &os, const KuratowskiWrapper::SubdivisionType &obj);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const KuratowskiWrapper::SubdivisionType &obj);
 
 //! Extracts multiple Kuratowski Subdivisions
 /**

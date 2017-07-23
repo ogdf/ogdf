@@ -129,30 +129,30 @@ public:
 	}
 
 	void output(){
-		cout << "ComputeTricOrder::output():" << endl;
-		cout << "nodes: " << endl;
+		std::cout << "ComputeTricOrder::output():" << std::endl;
+		std::cout << "nodes: " << std::endl;
 		for (node n : m_pGraph->nodes){
-			cout << " node " << n << ": ";
-			cout << "m_visited == " << m_visited[n] << ", ";
-			cout << "m_sepf == " << m_sepf[n] << endl;
+			std::cout << " node " << n << ": ";
+			std::cout << "m_visited == " << m_visited[n] << ", ";
+			std::cout << "m_sepf == " << m_sepf[n] << std::endl;
 		}
 
-		cout << "faces: " << endl;
+		std::cout << "faces: " << std::endl;
 		for (face f : m_pEmbedding->faces){
-			cout << " face " << f->index() << ": ";
-			cout << "  outv == " << m_outv[f] << ", ";
-			cout << "  oute == " << m_oute[f] << ", ";
-			cout << "  isSpearationFace == " << m_isSeparationFace[f] << endl;
-			cout << "  nodes in outerNodes: ";
+			std::cout << " face " << f->index() << ": ";
+			std::cout << "  outv == " << m_outv[f] << ", ";
+			std::cout << "  oute == " << m_oute[f] << ", ";
+			std::cout << "  isSpearationFace == " << m_isSeparationFace[f] << std::endl;
+			std::cout << "  nodes in outerNodes: ";
 			for (node n : m_outerNodes[f]) {
-				cout << " " << n << ", ";
+				std::cout << " " << n << ", ";
 			}
-			cout << ". " << endl;
-			cout << "  edges in outerNodes: ";
+			std::cout << ". " << std::endl;
+			std::cout << "  edges in outerNodes: ";
 			for (edge e : m_outerEdges[f]) {
-				cout << " " << e << ", ";
+				std::cout << " " << e << ", ";
 			}
-			cout << ". " << endl;
+			std::cout << ". " << std::endl;
 		}
 	}
 
@@ -406,7 +406,7 @@ void ComputeTricOrder::doUpdate()
 				// decrease of sepf is done before in main function
 				m_isSeparationFace[f] = false;
 		}
-	}// while (!m_updateFaces.empty())
+	}
 
 	// now update nodes
 	while (!m_updateNodes.empty()) {
@@ -429,7 +429,7 @@ void ComputeTricOrder::doUpdate()
 				m_nodesLink[v] = nullptr;
 			}
 		}
-	}// while (!m_updateNodes.empty())
+	}
 }
 
 void TriconnectedShellingOrder::doCall(
@@ -442,10 +442,10 @@ void TriconnectedShellingOrder::doCall(
 	bool preferNodes = false;
 
 	#ifdef OUTPUT_TSO
-		cout << "Graph G is planar         == " << isPlanar(G)  << endl;
-		cout << "Graph G has no self loops == " << isLoopFree(G) 		<< endl;
-		cout << "Graph G is connected      == " << isConnected(G) 		<< endl;
-		cout << "Graph G is triconnected   == " << isTriconnected(G) 	<< endl;
+		std::cout << "Graph G is planar         == " << isPlanar(G)  << std::endl;
+		std::cout << "Graph G has no self loops == " << isLoopFree(G) 		<< std::endl;
+		std::cout << "Graph G is connected      == " << isConnected(G) 		<< std::endl;
+		std::cout << "Graph G is triconnected   == " << isTriconnected(G) 	<< std::endl;
 	#endif
 
 	OGDF_ASSERT(isPlanar(G) == true);
@@ -458,26 +458,26 @@ void TriconnectedShellingOrder::doCall(
 	// set outerFace so adj is on it or to face with maximal size
 	face outerFace = (adj != nullptr) ? E.rightFace(adj) : E.maximalFace();
 
-	#ifdef OUTPUT_TSO
-		cout << "faces:" << endl;
-		for(face fh : E.faces) {
-			if (fh == outerFace)
-				cout << "  face *" << fh->index() << ":";
-			else
-				cout << "  face  " << fh->index() << ":";
-			for(adjEntry adj : fh->entries)
-				cout << " " << adj;
-			cout << endl;
-		}
+#ifdef OUTPUT_TSO
+	std::cout << "faces:" << std::endl;
+	for(face fh : E.faces) {
+		if (fh == outerFace)
+			std::cout << "  face *" << fh->index() << ":";
+		else
+			std::cout << "  face  " << fh->index() << ":";
+		for (adjEntry fhAdj : fh->entries)
+			std::cout << " " << fhAdj;
+		std::cout << std::endl;
+	}
 
-		cout << "adjacency lists:" << endl;
-		for(node vh : G.nodes) {
-			cout << "  node " << vh << ":";
-			for(adjEntry adj : vh->adjEntries)
-				cout << " " << adj;
-			cout << endl;
-		}
-	#endif
+	std::cout << "adjacency lists:" << std::endl;
+	for(node vh : G.nodes) {
+		std::cout << "  node " << vh << ":";
+		for(adjEntry vhAdj : vh->adjEntries)
+			std::cout << " " << vhAdj;
+		std::cout << std::endl;
+	}
+#endif
 
 	adjEntry firstAdj = outerFace->firstAdj();
 	// set firstAdj that the outer face is on the left of firstAdj
@@ -513,11 +513,11 @@ void TriconnectedShellingOrder::doCall(
 
 	// init the first possible node as the node in the middle of v_1
 	//   and v_2 on the outer face
-	int l = (outerFace->size() -2)/2;
-	if (l == 0)
-		l = 1;
+	int mid = (outerFace->size() -2)/2;
+	if (mid == 0)
+		mid = 1;
 	adjRun = firstAdj;
-	for (int i=1; i <= l; i++)
+	for (int i = 1; i <= mid; i++)
 		adjRun = adjRun->twin()->cyclicSucc();
 
 	cto.initPossible(adjRun->theNode());
@@ -532,15 +532,15 @@ void TriconnectedShellingOrder::doCall(
 	// further auxiliary variables
 
 	#ifdef OUTPUT_TSO
-		cout << "finished initialization of cto, adjSucc, adjPred." << endl << flush;
-		cout << "v1 = " << v1 << ", v2 = " << v2 << ", first possible node = " << adjRun->theNode() << endl;
+		std::cout << "finished initialization of cto, adjSucc, adjPred." << std::endl << std::flush;
+		std::cout << "v1 = " << v1 << ", v2 = " << v2 << ", first possible node = " << adjRun->theNode() << std::endl;
 
 		for(adjEntry adj1 : outerFace->entries) {
-			cout << " node " << adj1->theNode() << ": adjPred=(" << adjPred[adj1->theNode()]
-				 << "), adjSucc=" << adjSucc[adj1->theNode()] << endl;
+			std::cout << " node " << adj1->theNode() << ": adjPred=(" << adjPred[adj1->theNode()]
+				 << "), adjSucc=" << adjSucc[adj1->theNode()] << std::endl;
 		}
 		cto.output();
-		cout << "starting main loop" << endl;
+		std::cout << "starting main loop" << std::endl;
 	#endif
 
 	// main loop
@@ -553,7 +553,7 @@ void TriconnectedShellingOrder::doCall(
 		if (cto.isNode()){
 
 			#ifdef OUTPUT_TSO
-				cout << " nextPossible is node " << vk << endl << flush;
+				std::cout << " nextPossible is node " << vk << std::endl << std::flush;
 			#endif
 
 			// current item is a node
@@ -567,7 +567,7 @@ void TriconnectedShellingOrder::doCall(
 		else{
 
 			#ifdef OUTPUT_TSO
-				cout << " nextPossible is face " << Fk->index() << endl << flush;
+				std::cout << " nextPossible is face " << Fk->index() << std::endl << std::flush;
 			#endif
 
 			// current item is a face
@@ -600,12 +600,12 @@ void TriconnectedShellingOrder::doCall(
 			V.rightAdj((adjSucc[cl])->twin());
 			// insert actual nodeset to the front of the shelling order
 			partition.pushFront(V);
-		}// current item is a face
+		}
 
-		#ifdef OUTPUT_TSO
-			cout << "  set cl = " << cl << endl;
-			cout << "  set cr = " << cr << endl;
-		#endif
+#ifdef OUTPUT_TSO
+		std::cout << "  set cl = " << cl << std::endl;
+		std::cout << "  set cr = " << cr << std::endl;
+#endif
 
 		// update adjSucc[cl] and adjPred[cr]
 		adjSucc[cl] = adjSucc[cl]->cyclicSucc();
@@ -655,10 +655,10 @@ void TriconnectedShellingOrder::doCall(
 		// update cto
 		cto.doUpdate();
 
-		#ifdef OUTPUT_TSO
-			cto.output();
-		#endif
-	}// while (cto.isPossible())
+#ifdef OUTPUT_TSO
+		cto.output();
+#endif
+	}
 
 	// finally push the base (v1,v2) to the order
 	V = ShellingOrderSet(2);
@@ -667,17 +667,16 @@ void TriconnectedShellingOrder::doCall(
 	partition.pushFront(V);
 
 	#ifdef OUTPUT_TSO
-		cout << "output of the computed partition:" << endl;
+		std::cout << "output of the computed partition:" << std::endl;
 		int k = 1;
 		for (const ShellingOrderSet &S : partition) {
 			int size = S.len();
-			cout << "nodeset with nr " << k << ":" << endl;
+			std::cout << "nodeset with nr " << k << ":" << std::endl;
 			for (int j=1; j<=size; j++)
-				cout << " node " << S[j] <<", ";
-			cout << "." << endl;
+				std::cout << " node " << S[j] <<", ";
+			std::cout << "." << std::endl;
 		}
 	#endif
-}// void TriconnectedShellingOrder::doCall
+}
 
-
-} // end namespace ogdf
+}

@@ -1,5 +1,5 @@
 /** \file
- * \brief Interface of Minimum Steiner Tree Algorithms
+ * \brief Declaration of ogdf::MinSteinerTreeModule
  *
  * \author Matthias Woste, Stephan Beyer
  *
@@ -44,26 +44,30 @@
 
 namespace ogdf {
 
-/*!
- * \brief This class serves as an interface for various methods to compute minimum
- * or approximations of minimum Steiner trees.
+/**
+ * Serves as an interface for various methods to
+ * compute or approximate minimum Steiner trees
+ * on undirected graphs with edge costs.
  *
- * Furthermore it supplies some helping methods.
+ * Furthermore it supplies some auxiliary methods.
+ *
+ * @tparam T The type of the edge costs of the Steiner tree instance
  */
 template<typename T>
 class MinSteinerTreeModule {
 public:
-	MinSteinerTreeModule() { }
-
+	//! Do nothing on destruction
 	virtual ~MinSteinerTreeModule() { }
 
-	/*!
-	 * \brief Builds a minimum Steiner tree given a weighted graph and a list of terminals
+	/**
+	 * Calls the Steiner tree algorithm for nontrivial cases
+	 * but handles trivial cases directly.
+	 *
 	 * @param G The weighted input graph
 	 * @param terminals The list of terminal nodes
 	 * @param isTerminal A bool array of terminals
 	 * @param finalSteinerTree The final Steiner tree
-	 * @return The objective value (sum of edge costs) of the final Steiner tree
+	 * @return The total cost of the final Steiner tree
 	 */
 	virtual T call(const EdgeWeightedGraph<T> &G,
 			const List<node> &terminals,
@@ -71,55 +75,127 @@ public:
 			EdgeWeightedGraphCopy<T> *&finalSteinerTree
 			);
 
-	/*!
-	 * \brief Prune Steiner nodes with degree 1 and their paths to terminal or branching nodes
+	//! @name Auxiliary post-processing functions
+	//! @{
+
+	/**
+	 * Prunes nonterminal leaves and their paths to terminal or branching nodes
+	 *
 	 * @param steinerTree The given Steiner tree
 	 * @param isTerminal Incidence vector indicating terminal nodes
-	 * @return The edge weights of the removed edges (achieved improvement)
+	 * @return The total cost of the removed edges (achieved improvement)
 	 */
 	static T pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal);
 
-	/*!
-	 * \brief Prune dangling Steiner paths beginning at given nodes only
-	 */
-	static T pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const List<node> &start);
-
-	/*!
-	 * \brief Prune the dangling Steiner path beginning at a given node only
+	/**
+	 * Prunes the dangling Steiner path beginning at a given nonterminal leaf only
+	 *
+	 * @param steinerTree The given Steiner tree
+	 * @param isTerminal Incidence vector indicating terminals
+	 * @param start A nonterminal leaf to start pruning at
+	 * @return The total cost of the removed edges (achieved improvement)
 	 */
 	static T pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, node start);
 
-	/*!
-	 * \brief Remove remaining cycles from an Steiner "almost" tree
+	/**
+	 * Prunes dangling Steiner paths beginning at given nonterminal leaves only
+	 *
+	 * @see pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, node start)
+	 */
+	static T pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const List<node> &start);
+
+	/**
+	 * Remove remaining cycles from a Steiner "almost" tree
+	 *
 	 * @return The edge weights of the removed edges (achieved improvement)
 	 */
 	static T removeCyclesFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal);
 
-	/*!
-	 * \brief Undirected Single-source-shortest-paths (Dijkstra) over non-terminal nodes of G.
-	 * @param G The graph
-	 * @param source The start terminal
+	//! @}
+	//! @name Special SSSP and APSP algorithms used in component-based approximation algorithms
+	//! @{
+
+	/**
+	 * Modified single-source-shortest-paths (%Dijkstra)
+	 * with heuristic to prefer paths over terminals
+	 *
+	 * A shortest path over a terminal will mark the nodes that
+	 * come after that terminal as unreachable by setting the predecessor
+	 * to \c nullptr.
+	 * Nevertheless, the distance will be set correctly.
+	 *
+	 * @param G Input graph
+	 * @param source Start terminal
 	 * @param isTerminal Incidence vector indicating terminal nodes
-	 * @param distance The distance matrix result
-	 * @param pred The resulting shortest-path last edge of a path
+	 * @param distance Distance matrix result
+	 * @param pred Resulting shortest path such that \p pred[s][t] contains last edge of an s-t-path
 	 */
-	static void singleSourceShortestPaths(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred);
 	static void singleSourceShortestPathsStrict(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred);
+
+	/**
+	 * Modified single-source-shortest-paths (%Dijkstra)
+	 * with heuristic to avoid paths over terminals
+	 *
+	 * Avoiding terminals results in paths with detours.
+	 * If a node is only reachable over a terminal, there is no path to it in the solution, i.e.,
+	 * there is no predecessor and the distance is \c std::numeric_limits<T>::max().
+	 */
 	static void singleSourceShortestPathsDetour(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred);
 
-	/*!
-	 * \brief Undirected All-pair-shortest-paths (Floyd-Warshall) over non-terminal nodes of G.
-	 * @param G The graph
-	 * @param nonterminals List of non-terminals (APSP is only computed over non-terminal nodes)
-	 * @param distance The distance matrix result
-	 * @param pred The resulting shortest-path last edge of a path
-	 */
-	static void allPairShortestPaths(const EdgeWeightedGraph<T> &G, const List<node> &nonterminals, NodeArray< NodeArray<T> > &distance, NodeArray< NodeArray<edge> > &pred);
-	static void allPairShortestPathsStrict(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, NodeArray< NodeArray<T> > &distance, NodeArray< NodeArray<edge> > &pred);
-	static void allPairShortestPathsDetour(const EdgeWeightedGraph<T> &G, const List<node> &nonterminals, NodeArray< NodeArray<T> > &distance, NodeArray< NodeArray<edge> > &pred);
+	//! Runs #singleSourceShortestPathsDetour from all terminals
+	static void allTerminalShortestPathsDetour(
+			const EdgeWeightedGraph<T> &G,
+			const List<node> &terminals,
+			const NodeArray<bool> &isTerminal,
+			NodeArray<NodeArray<T>> &distance,
+			NodeArray<NodeArray<edge>> &pred)
+	{
+		allTerminalShortestPaths(G, terminals, isTerminal, distance, pred, singleSourceShortestPathsDetour);
+	}
 
-	/*!
-	 * \brief Writes an SVG file of a minimum Steiner tree in the original graph
+	//! Runs #singleSourceShortestPathsStrict from all terminals
+	static void allTerminalShortestPathsStrict(
+			const EdgeWeightedGraph<T> &G,
+			const List<node> &terminals,
+			const NodeArray<bool> &isTerminal,
+			NodeArray<NodeArray<T>> &distance,
+			NodeArray<NodeArray<edge>> &pred)
+	{
+		allTerminalShortestPaths(G, terminals, isTerminal, distance, pred, singleSourceShortestPathsStrict);
+	}
+
+	/**
+	 * Modified all-pair-shortest-paths algorithm (%Floyd-Warshall) over nonterminals
+	 * with heuristic to prefer paths over terminals
+	 *
+	 * @param G Input graph
+	 * @param isTerminal Incidence vector indicating terminal nodes
+	 * @param distance Distance matrix result
+	 * @param pred Resulting shortest path such that \p pred[s][t] contains last edge of an s-t-path
+	 */
+	static void allPairShortestPathsStrict(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred);
+
+	/**
+	 * Modified all-pair-shortest-paths algorithm (%Floyd-Warshall) over nonterminals
+	 * with heuristic to avoid paths over terminals
+	 * and hence accepting detours
+	 *
+	 * @param G Input graph
+	 * @param nonterminals Container of nonterminals
+	 * @param distance Distance matrix result
+	 * @param pred Resulting shortest path such that \p pred[s][t] contains last edge of an s-t-path
+	 * @tparam CONTAINER Container
+	 */
+	template<typename CONTAINER>
+	static void allPairShortestPathsDetour(const EdgeWeightedGraph<T> &G, const CONTAINER &nonterminals, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred);
+
+	//! @}
+	//! @name Drawings for debugging
+	//! @{
+
+	/**
+	 * Writes an SVG file of a minimum Steiner tree in the original graph
+	 *
 	 * @param G The original weighted graph
 	 * @param isTerminal Incidence vector indicating terminal nodes
 	 * @param steinerTree The Steiner tree of the given graph
@@ -127,16 +203,20 @@ public:
 	 */
 	static void drawSVG(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const EdgeWeightedGraphCopy<T> &steinerTree, const char *filename);
 
-	/*!
-	 * \brief Writes a SVG that shows only the given Steiner tree
+	/**
+	 * Writes a SVG that shows only the given Steiner tree
+	 *
 	 * @param steinerTree The Steiner tree to be drawn
 	 * @param isTerminal Incidence vector indicating terminal nodes
 	 * @param filename The name of the output file
 	 */
 	static void drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const char *filename);
 
-	/*!
-	 * \brief Checks in O(n) time if a given tree is acually a Steiner Tree
+	//! @}
+
+	/**
+	 * Checks in O(n) time if a given tree is acually a Steiner Tree
+	 *
 	 * @param G The original graph
 	 * @param terminals The list of terminal nodes
 	 * @param isTerminal A bool array of terminals
@@ -145,20 +225,101 @@ public:
 	 */
 	static bool isSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, const EdgeWeightedGraphCopy<T> &steinerTree);
 
-	/*!
-	 * \brief Checks in O(n + m) time if a given Steiner tree problem instance is quasi-bipartite
+	/**
+	 * Checks in O(n + m) time if a given Steiner tree problem instance is quasi-bipartite
+	 *
 	 * @param G The original graph
 	 * @param isTerminal A bool array of terminals
 	 * @return true iff the given Steiner tree problem instance is quasi-bipartite
 	 */
 	static bool isQuasiBipartite(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal);
 
+	/**
+	 * Generates a list (as List<node>) of all terminals
+	 *
+	 * @param terminals The returned list (terminals are appended)
+	 * @param G The weighted input graph
+	 * @param isTerminal A bool array of terminals
+	 */
+	static inline void getTerminals(List<node> &terminals, const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal)
+	{
+		for (node v : G.nodes) {
+			if (isTerminal[v]) {
+				terminals.pushBack(v);
+			}
+		}
+	}
+
+	//! Sort terminals by index
+	static inline void sortTerminals(List<node> &terminals)
+	{
+		terminals.quicksort(GenericComparer<node, int>([](node v) { return v->index(); }));
+	}
+
+	/**
+	 * Generates a list (as ArrayBuffer<node>) of all nonterminals
+	 *
+	 * @param nonterminals The returned list (nonterminals are appended)
+	 * @param G The weighted input graph
+	 * @param isTerminal A bool array of terminals
+	 */
+	static inline void getNonterminals(ArrayBuffer<node> &nonterminals, const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal)
+	{
+		for (node v : G.nodes) {
+			if (!isTerminal[v]) {
+				nonterminals.push(v);
+			}
+		}
+	}
+
 protected:
+	/**
+	 * Computes the actual Steiner tree
+	 *
+	 * @return The total cost of the final Steiner tree
+	 */
 	virtual T computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	    const List<node> &terminals,
 	    const NodeArray<bool> &isTerminal,
 	    EdgeWeightedGraphCopy<T> *&finalSteinerTree
 	  ) = 0;
+
+	//! Runs a given single-source-shortest-paths function from all terminals
+	static void allTerminalShortestPaths(
+			const EdgeWeightedGraph<T> &G,
+			const List<node> &terminals,
+			const NodeArray<bool> &isTerminal,
+			NodeArray<NodeArray<T>> &distance,
+			NodeArray<NodeArray<edge>> &pred,
+			std::function<void(const EdgeWeightedGraph<T> &, node, const NodeArray<bool> &, NodeArray<T> &, NodeArray<edge> &)> ssspFunc)
+	{
+		distance.init(G);
+		pred.init(G);
+		for (node u : terminals) {
+			ssspFunc(G, u, isTerminal, distance[u], pred[u]);
+		}
+	}
+
+private:
+	//! Common initialization routine for APSP algorithms
+	static void apspInit(const EdgeWeightedGraph<T> &G, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred);
+	//! Common initialization routine for SSSP algorithms
+	static void ssspInit(const EdgeWeightedGraph<T> &G, node source, PrioritizedMapQueue<node, T> &queue, NodeArray<T> &distance, NodeArray<edge> &pred);
+
+	//! The inner loop for APSP algorithm to avoid code duplication
+	inline static void apspInnerLoop(node v, const EdgeWeightedGraph<T> &G, NodeArray<NodeArray<T>> &distance, std::function<void(node, node, T)> func)
+	{
+		for (node u : G.nodes) {
+			const T duv = distance[u][v];
+			if (duv < std::numeric_limits<T>::max()) {
+				for (node w = u->succ(); w != nullptr; w = w->succ()) {
+					if (distance[v][w] < std::numeric_limits<T>::max()) {
+						func(u, w, duv + distance[v][w]);
+					}
+				}
+			}
+		}
+	}
 };
 
 template<typename T>
@@ -174,29 +335,27 @@ T MinSteinerTreeModule<T>::call(const EdgeWeightedGraph<T> &G,
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
 	finalSteinerTree->createEmpty(G);
-	switch (terminals.size()) {
-	case 1:
-		finalSteinerTree->newNode(terminals.front());
-	case 0:
-		return 0;
-	case 2:
-		T cost(0);
-		AStarSearch<T> astar;
-		NodeArray<edge> pred;
-		NodeArray<T> dist;
-		astar.call(G, G.edgeWeights(), terminals.front(), terminals.back(), pred);
-		if(pred[terminals.back()] != nullptr) {
-			finalSteinerTree->newNode(terminals.back());
-			for (node t = terminals.back(); t != terminals.front(); t = pred[t]->opposite(t)) {
-				const edge e = pred[t];
-				finalSteinerTree->newNode(e->opposite(t));
-				finalSteinerTree->newEdge(e, G.weight(e));
-				cost += G.weight(e);
-			}
-			return cost;
-		}
+	if (!terminals.empty()) {
+		finalSteinerTree->newNode(terminals.back());
 	}
-	return -1; // unreachable
+	if (terminals.size() <= 1) {
+		return 0;
+	}
+
+	OGDF_ASSERT(terminals.size() == 2);
+	T cost(0);
+	AStarSearch<T> astar;
+	NodeArray<edge> pred;
+	NodeArray<T> dist;
+	astar.call(G, G.edgeWeights(), terminals.front(), terminals.back(), pred);
+	OGDF_ASSERT(pred[terminals.back()] != nullptr); // connected
+	for (node t = terminals.back(); t != terminals.front(); t = pred[t]->opposite(t)) {
+		const edge e = pred[t];
+		finalSteinerTree->newNode(e->opposite(t));
+		finalSteinerTree->newEdge(e, G.weight(e));
+		cost += G.weight(e);
+	}
+	return cost;
 }
 
 template<typename T>
@@ -315,55 +474,27 @@ T MinSteinerTreeModule<T>::removeCyclesFrom(EdgeWeightedGraphCopy<T> &steinerTre
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::singleSourceShortestPaths(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred)
+void MinSteinerTreeModule<T>::ssspInit(const EdgeWeightedGraph<T> &G, node source, PrioritizedMapQueue<node, T> &queue, NodeArray<T> &distance, NodeArray<edge> &pred)
 {
-	PrioritizedMapQueue<node, T> queue(G);
-	distance.init(G, numeric_limits<T>::max());
-	pred.init(G, nullptr);
-
-	// initialization
+	distance.init(G, std::numeric_limits<T>::max());
 	distance[source] = 0;
+
 	for (node v : G.nodes) {
 		queue.push(v, distance[v]);
 	}
 
-	while (!queue.empty()) {
-		node v = queue.topElement();
-		queue.pop();
-
-		if (isTerminal[v] && v != source) { // v is a terminal, ignore
-			continue;
-		}
-		if (distance[v] == numeric_limits<T>::max()) { // min is unreachable, finished
-			break;
-		}
-		for (adjEntry adj : v->adjEntries) {
-			edge e = adj->theEdge();
-			node w = adj->twinNode();
-			if (distance[w] > distance[v] + G.weight(e)) {
-				queue.decrease(w, (distance[w] = distance[v] + G.weight(e)));
-				pred[w] = e;
-			}
-		}
-	}
+	pred.init(G, nullptr);
 }
 
 template<typename T>
 void MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred)
 {
 	PrioritizedMapQueue<node, T> queue(G);
-	distance.init(G, numeric_limits<T>::max());
-	pred.init(G, nullptr);
+	ssspInit(G, source, queue, distance, pred);
 
-	// initialization
-	distance[source] = 0;
-	for (node v : G.nodes) {
-		queue.push(v, distance[v]);
-	}
-
+	// we must handle the source explicitly because it is a terminal
 	node v = queue.topElement();
 	queue.pop();
-
 	OGDF_ASSERT(v == source);
 	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
@@ -374,11 +505,15 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(const EdgeWeighted
 		}
 	}
 
+	auto setPredecessor = [&](node w, edge e) {
+		bool wOnPathWithTerminal = isTerminal[v] || pred[v] == nullptr;
+		pred[w] = wOnPathWithTerminal ? nullptr : e;
+	};
 	while (!queue.empty()) {
 		v = queue.topElement();
 		queue.pop();
 
-		if (distance[v] == numeric_limits<T>::max()) { // min is unreachable, finished
+		if (distance[v] == std::numeric_limits<T>::max()) { // min is unreachable, finished
 			break;
 		}
 		for (adjEntry adj : v->adjEntries) {
@@ -387,19 +522,11 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(const EdgeWeighted
 			T dist = distance[v] + G.weight(e);
 			if (distance[w] > dist) {
 				queue.decrease(w, (distance[w] = dist));
-				if (isTerminal[v] || pred[v] == nullptr) { // w is on a path with terminal
-					pred[w] = nullptr;
-				} else {
-					pred[w] = e;
-				}
+				setPredecessor(w, e);
 			} else
 			if (distance[w] == dist
 			 && pred[w] != nullptr) { // tie
-				if (isTerminal[v] || pred[v] == nullptr) { // w is on a path with terminal
-					pred[w] = nullptr;
-				} else {
-					pred[w] = e;
-				}
+				setPredecessor(w, e);
 			}
 		}
 	}
@@ -409,14 +536,7 @@ template<typename T>
 void MinSteinerTreeModule<T>::singleSourceShortestPathsDetour(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred)
 {
 	PrioritizedMapQueue<node, T> queue(G);
-	distance.init(G, numeric_limits<T>::max());
-	pred.init(G, nullptr);
-
-	// initialization
-	distance[source] = 0;
-	for (node v : G.nodes) {
-		queue.push(v, distance[v]);
-	}
+	ssspInit(G, source, queue, distance, pred);
 
 	while (!queue.empty()) {
 		node v = queue.topElement();
@@ -425,7 +545,7 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsDetour(const EdgeWeighted
 		if (isTerminal[v] && v != source) { // v is a terminal, ignore
 			continue;
 		}
-		if (distance[v] == numeric_limits<T>::max()) { // min is unreachable, finished
+		if (distance[v] == std::numeric_limits<T>::max()) { // min is unreachable, finished
 			break;
 		}
 		for (adjEntry adj : v->adjEntries) {
@@ -440,46 +560,40 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsDetour(const EdgeWeighted
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::allPairShortestPaths(const EdgeWeightedGraph<T> &G, const List<node> &nonterminals, NodeArray< NodeArray<T> > &distance, NodeArray< NodeArray<edge> > &pred)
+void MinSteinerTreeModule<T>::allPairShortestPathsStrict(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred)
 {
-	// initialization
-	for (node u = G.firstNode(); u; u = u->succ()) {
-		distance[u].init(G, numeric_limits<T>::max());
-		pred[u].init(G, nullptr);
-	}
-	for (edge e = G.firstEdge(); e; e = e->succ()) {
-		const node u = e->source(), v = e->target();
-		distance[u][v] = G.weight(e);
-		distance[v][u] = G.weight(e);
-		pred[u][v] = e;
-		pred[v][u] = e;
-	}
+	apspInit(G, distance, pred);
 
-	// main loop
-	for(node v : nonterminals) {
-		for (node u : G.nodes) {
-			const T duv = distance[u][v];
-			if (duv < numeric_limits<T>::max()) {
-				for (node w = u->succ(); w; w = w->succ()) {
-					const T dvw = distance[v][w];
-					if (dvw < numeric_limits<T>::max()
-					 && duv + dvw < distance[u][w]) {
-						distance[w][u] = distance[u][w] = duv + dvw;
-						pred[u][w] = pred[v][w];
-						pred[w][u] = pred[v][u];
-					}
+	for (node v : G.nodes) {
+		if (isTerminal[v]) { // v is a terminal
+			apspInnerLoop(v, G, distance, [&distance, &pred](node u, node w, T duvw) {
+				if (duvw <= distance[u][w]) { // prefer terminals
+					distance[w][u] = distance[u][w] = duvw;
+					pred[w][u] = pred[u][w] = nullptr;
 				}
-			}
+			});
+		} else { // v is not a terminal
+			apspInnerLoop(v, G, distance, [&v, &distance, &pred](node u, node w, T duvw) {
+				if (duvw < distance[u][w]) { // do not prefer nonterminals
+					distance[w][u] = distance[u][w] = duvw;
+					pred[u][w] = (pred[u][v] ? pred[v][w] : nullptr);
+					pred[w][u] = (pred[w][v] ? pred[v][u] : nullptr);
+				}
+			});
 		}
+	}
+	for (node u : G.nodes) {
+		distance[u][u] = 0;
 	}
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::allPairShortestPathsStrict(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, NodeArray< NodeArray<T> > &distance, NodeArray< NodeArray<edge> > &pred)
+void MinSteinerTreeModule<T>::apspInit(const EdgeWeightedGraph<T> &G, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred)
 {
-	// initialization
+	distance.init(G);
+	pred.init(G);
 	for (node u : G.nodes) {
-		distance[u].init(G, numeric_limits<T>::max());
+		distance[u].init(G, std::numeric_limits<T>::max());
 		pred[u].init(G, nullptr);
 	}
 	for (edge e : G.edges) {
@@ -487,76 +601,25 @@ void MinSteinerTreeModule<T>::allPairShortestPathsStrict(const EdgeWeightedGraph
 		distance[u][v] = distance[v][u] = G.weight(e);
 		pred[u][v] = pred[v][u] = e;
 	}
-
-	// main loop
-	for (node v : G.nodes) {
-		if (isTerminal[v]) { // v is a terminal
-			for (node u : G.nodes) {
-				const T duv = distance[u][v];
-				if (duv < numeric_limits<T>::max()) {
-					for (node w = u->succ(); w; w = w->succ()) {
-						const T dvw = distance[v][w];
-						const T duvw = duv + dvw;
-						if (dvw < numeric_limits<T>::max()
-						 && duvw <= distance[u][w]) { // prefer terminals
-							distance[w][u] = distance[u][w] = duvw;
-							pred[w][u] = pred[u][w] = nullptr;
-						}
-					}
-				}
-			}
-		} else { // v is not a terminal
-			for (node u : G.nodes) {
-				const T duv = distance[u][v];
-				if (duv < numeric_limits<T>::max()) {
-					for (node w = u->succ(); w; w = w->succ()) {
-						const T dvw = distance[v][w];
-						const T duvw = duv + dvw;
-						if (dvw < numeric_limits<T>::max()
-						 && duvw < distance[u][w]) { // do not prefer nonterminals
-							distance[w][u] = distance[u][w] = duvw;
-							pred[u][w] = (pred[u][v] ? pred[v][w] : nullptr);
-							pred[w][u] = (pred[w][v] ? pred[v][u] : nullptr);
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::allPairShortestPathsDetour(const EdgeWeightedGraph<T> &G, const List<node> &nonterminals, NodeArray< NodeArray<T> > &distance, NodeArray< NodeArray<edge> > &pred)
+template<typename CONTAINER>
+void MinSteinerTreeModule<T>::allPairShortestPathsDetour(const EdgeWeightedGraph<T> &G, const CONTAINER &nonterminals, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred)
 {
-	// initialization
-	for (node u = G.firstNode(); u; u = u->succ()) {
-		distance[u].init(G, numeric_limits<T>::max());
-		pred[u].init(G, nullptr);
-	}
-	for (edge e = G.firstEdge(); e; e = e->succ()) {
-		const node u = e->source(), v = e->target();
-		distance[u][v] = G.weight(e);
-		distance[v][u] = G.weight(e);
-		pred[u][v] = e;
-		pred[v][u] = e;
-	}
+	apspInit(G, distance, pred);
 
-	// main loop
 	for (node v : nonterminals) {
-		for (node u : G.nodes) {
-			const T duv = distance[u][v];
-			if (duv < numeric_limits<T>::max()) {
-				for (node w = u->succ(); w; w = w->succ()) {
-					const T dvw = distance[v][w];
-					if (dvw < numeric_limits<T>::max()
-					 && duv + dvw < distance[u][w]) {
-						distance[w][u] = distance[u][w] = duv + dvw;
-						pred[u][w] = pred[v][w];
-						pred[w][u] = pred[v][u];
-					}
-				}
+		apspInnerLoop(v, G, distance, [&v, &distance, &pred](node u, node w, T duvw) {
+			if (duvw < distance[u][w]) {
+				distance[w][u] = distance[u][w] = duvw;
+				pred[u][w] = pred[v][w];
+				pred[w][u] = pred[v][u];
 			}
-		}
+		});
+	}
+	for (node u : G.nodes) {
+		distance[u][u] = 0;
 	}
 }
 
@@ -599,7 +662,7 @@ void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> 
 	fmmm.qualityVersusSpeed(FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
 
 	fmmm.call(GA);
-	ofstream writeStream(filename, std::ofstream::out);
+	std::ofstream writeStream(filename, std::ofstream::out);
 	GraphIO::drawSVG(GA, writeStream);
 }
 
@@ -658,8 +721,8 @@ void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T> &G, const NodeA
 
 	fmmm.call(GA);
 
-	ofstream writeStream(filename, std::ofstream::out);
+	std::ofstream writeStream(filename, std::ofstream::out);
 	GraphIO::drawSVG(GA, writeStream);
 }
 
-} // end namespace ogdf
+}

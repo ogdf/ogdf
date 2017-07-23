@@ -37,7 +37,7 @@ using std::istringstream;
 
 namespace ogdf {
 
-static bool read_next_line(istream &is, string &buffer)
+static bool read_next_line(std::istream &is, string &buffer)
 {
 	while(std::getline(is,buffer)) {
 		if(!buffer.empty() && buffer[0] != '#')
@@ -57,7 +57,7 @@ static bool buffer_equal(const string &buffer, const char *str)
 }
 
 
-bool GraphIO::readLEDA(Graph &G, istream &is)
+bool GraphIO::readLEDA(Graph &G, std::istream &is)
 {
 	G.clear();
 
@@ -80,11 +80,11 @@ bool GraphIO::readLEDA(Graph &G, istream &is)
 		if(!read_next_line(is,buffer))
 			return false;
 
-		int n = stoi(buffer);
+		int n = std::stoi(buffer);
 		if(n < 0) {
 			if(!read_next_line(is,buffer))
 				return false;
-			n = stoi(buffer);
+			n = std::stoi(buffer);
 		}
 		if(n < 0) return false; // makes no sense
 
@@ -100,7 +100,7 @@ bool GraphIO::readLEDA(Graph &G, istream &is)
 		if(!read_next_line(is,buffer))
 			return false;
 
-		int m = stoi(buffer);
+		int m = std::stoi(buffer);
 		if(m < 0) return false; // makes no sense
 
 		for(int i = 1; i <= m; ++i) {
@@ -127,7 +127,7 @@ bool GraphIO::readLEDA(Graph &G, istream &is)
 }
 
 
-bool GraphIO::writeLEDA(const Graph &G, ostream &os)
+bool GraphIO::writeLEDA(const Graph &G, std::ostream &os)
 {
 	bool result = os.good();
 

@@ -51,5 +51,4 @@ void MixedModelCrossingsBeautifierModule::call(const PlanRep &PG, GridLayout &gl
 	gl.compactAllBends();
 }
 
-
-} // end namespace ogdf
+}

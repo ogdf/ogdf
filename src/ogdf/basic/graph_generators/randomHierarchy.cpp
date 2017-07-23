@@ -51,27 +51,8 @@ public:
 using bEdge = BEdge*;
 
 
-int cmpId(const bEdge &a, const bEdge &b) {
-	return (a->id < b->id ? -1 : (a->id > b->id ? 1 : 0));
-}
-
-
-class CmpTail {
-public:
-	static int compare(const bEdge &a, const bEdge &b) {
-		return (a->tail < b->tail ? -1 : (a->tail > b->tail ? 1 : cmpId(a,b)));
-	}
-	OGDF_AUGMENT_STATICCOMPARER(bEdge)
-};
-
-
-class CmpHead {
-public:
-	static int compare(const bEdge &a, const bEdge &b) {
-		return (a->head < b->head ? -1 : (a->head > b->head ? 1 : cmpId(a,b)));
-	}
-	OGDF_AUGMENT_STATICCOMPARER(bEdge)
-};
+OGDF_DECLARE_COMPARER(CmpTail, bEdge, int, x->tail);
+OGDF_DECLARE_COMPARER(CmpHead, bEdge, int, x->head);
 
 
 void randomHierarchy(
@@ -114,29 +95,29 @@ void randomHierarchy(
 
 	Array<int> leftN (totNumber);
 	Array<int> rightN(totNumber);
-	for(int l = 1; l < numberOfLayers; l++)
+	for(int layer = 1; layer < numberOfLayers; layer++)
 	{
 		if(planar) {
-			int n1 = fst[l-1];
-			int n2 = fst[l];
+			int n1 = fst[layer-1];
+			int n2 = fst[layer];
 			leftN[n2] = n1;
-			while(n1 < fst[l] && n2 < fst[l+1]) {
+			while(n1 < fst[layer] && n2 < fst[layer+1]) {
 				double r = dist_0_1(rng);
-				if(n1 != fst[l]-1 &&
-					(n2 == fst[l+1]-1 ||
-					r < (double)(fst[l]-fst[l-1])/(double)(fst[l+1]-fst[l-1])))
+				if(n1 != fst[layer]-1 &&
+					(n2 == fst[layer+1]-1 ||
+					r < (double)(fst[layer]-fst[layer-1])/(double)(fst[layer+1]-fst[layer-1])))
 					n1++;
 				else {
 					rightN[n2] = n1;
-					if(++n2 < fst[l+1])
+					if(++n2 < fst[layer+1])
 						leftN[n2] = n1;
 				}
 			}
 		}
 		else
-			for(int n2 = fst[l]; n2 < fst[l+1]; n2++) {
-				leftN [n2] = fst[l-1];
-				rightN[n2] = fst[l]-1;
+			for(int n2 = fst[layer]; n2 < fst[layer+1]; n2++) {
+				leftN [n2] = fst[layer-1];
+				rightN[n2] = fst[layer]-1;
 			}
 	}
 
@@ -216,4 +197,4 @@ void randomHierarchy(
 }
 
 
-} // end namespace ogdf
+}

@@ -143,7 +143,7 @@ public:
 	 *  @param is The input stream of the xml file which contains the data
 	 *                  of the uml model to be converted into the graph format.
 	 */
-	explicit UmlToGraphConverter(istream &is);
+	explicit UmlToGraphConverter(std::istream &is);
 
 	/** Destructor.
 	 *  The destructor destroys:
@@ -177,12 +177,12 @@ public:
 	/** Prints the content of each diagram to \p os.
 	 *  @param os The output stream where to direct the output to.
 	 */
-	void printDiagramsInUMLGraphFormat(ofstream &os);
+	void printDiagramsInUMLGraphFormat(std::ofstream &os);
 
 	/** Print hash table which maps the ids to the nodes.
 	 *  @param os The output stream where to direct the output to.
 	 */
-	void printIdToNodeMappingTable(ofstream &os);
+	void printIdToNodeMappingTable(std::ofstream &os);
 
 private:
 	/**
@@ -300,6 +300,6 @@ private:
 	 * @return Returns true if conversion was successful, false otherwise.
 	 */
 	bool createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &diagramGraphsInUMLGraphFormat);
-}; // class UmlToGraphConverter
+};
 
-} // end namespace ogdf
+}

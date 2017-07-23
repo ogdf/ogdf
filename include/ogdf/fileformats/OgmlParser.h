@@ -42,7 +42,7 @@
 
 namespace ogdf {
 
-//! Objects of this class represent a validating parser for files in Ogml.
+//! Objects of this class represent a validating parser for files in %Ogml.
 class OgmlParser
 {
 private:
@@ -60,8 +60,8 @@ private:
 	class OgmlAttribute;
 	class OgmlTag;
 
-	friend ostream& operator<<(ostream& os, const OgmlParser::OgmlAttribute& oa);
-	friend ostream& operator<<(ostream& os, const OgmlParser::OgmlTag& ot);
+	friend std::ostream& operator<<(std::ostream& os, const OgmlParser::OgmlAttribute& oa);
+	friend std::ostream& operator<<(std::ostream& os, const OgmlParser::OgmlTag& ot);
 
 	Hashing<int, OgmlTag>            *m_tags;       //!< Hashtable for saving all ogml tags.
 	Hashing<int, OgmlAttribute>      *m_attributes; //!< Hashtable for saving all ogml attributes.
@@ -216,7 +216,7 @@ private:
 
 	//! Unified read method for graphs.
 	bool doRead(
-		istream &is,
+		std::istream &is,
 		Graph &G,
 		ClusterGraph *pCG,
 		GraphAttributes *pGA,
@@ -230,28 +230,28 @@ public:
 	~OgmlParser();
 
 
-	//! Reads a graph \p G from istream \p is in OGML format.
+	//! Reads a graph \p G from std::istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
 	 * @param G is the graph to be build from the OGML file.
 	 * @return true if succesfull, false otherwise.
 	 */
-	bool read(istream &is, Graph &G) {
+	bool read(std::istream &is, Graph &G) {
 		return doRead(is, G, nullptr, nullptr, nullptr);
 	}
 
-	//! Reads a cluster graph \p CG from istream \p is in OGML format.
+	//! Reads a cluster graph \p CG from std::istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
 	 * @param G is the graph to be build from the OGML file; must be the graph associated with \p CG.
 	 * @param CG is the cluster graph to be build from the OGML file.
 	 * @return true if succesfull, false otherwise.
 	 */
-	bool read(istream &is, Graph &G, ClusterGraph &CG) {
+	bool read(std::istream &is, Graph &G, ClusterGraph &CG) {
 		return doRead(is, G, &CG, nullptr, nullptr);
 	}
 
-	//! Reads a graph \p G with attributes \p GA from istream \p is in OGML format.
+	//! Reads a graph \p G with attributes \p GA from std::istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
 	 * @param G is the graph to be build from the OGML file.
@@ -259,14 +259,14 @@ public:
 	 * @return true if succesfull, false otherwise.
 	 */
 	bool read(
-		istream &is,
+		std::istream &is,
 		Graph &G,
 		GraphAttributes &GA)
 	{
 		return doRead(is, G, nullptr, &GA, nullptr);
 	}
 
-	//! Reads a cluster graph \p CG with attributes \p CGA from istream \p is in OGML format.
+	//! Reads a cluster graph \p CG with attributes \p CGA from std::istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
 	 * @param G is the graph to be build from the OGML file; must be the graph associated with \p CG.
@@ -275,13 +275,13 @@ public:
 	 * @return true if succesfull, false otherwise.
 	 */
 	bool read(
-		istream &is,
+		std::istream &is,
 		Graph &G,
 		ClusterGraph &CG,
 		ClusterGraphAttributes &CGA)
 	{
 		return doRead(is, G, &CG, &CGA, &CGA);
 	}
-};//end class OGMLParser
+};
 
-}//end namespace ogdf
+}

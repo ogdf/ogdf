@@ -97,4 +97,4 @@ private:
 	double m_fMapping;           // mapping factor
 };
 
-} // end namespace ogdf
+}

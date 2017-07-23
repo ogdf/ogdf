@@ -192,7 +192,7 @@ void MinSteinerTreeDualAscent<T>::init()
 	updateComponents();
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "directed graph has " << m_diGraph.numberOfNodes() << " nodes "
+	std::cout << "directed graph has " << m_diGraph.numberOfNodes() << " nodes "
 	     << "and " << m_diGraph.numberOfEdges() << " edges." << std::endl
 	     << "root terminal is node " << m_rootTerminal << "." << std::endl;
 #endif
@@ -227,7 +227,7 @@ int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 	int result = -1;
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "  searching for active component.." << std::endl;
+	std::cout << "  searching for active component.." << std::endl;
 #endif
 
 	HashArray<int, bool> checked(false);
@@ -243,7 +243,7 @@ int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 					result = candidate;
 					*terminal = *it;
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-					cout << "  active component found: component " << result << ", terminal " << *terminal << std::endl;
+					std::cout << "  active component found: component " << result << ", terminal " << *terminal << std::endl;
 #endif
 				}
 			}
@@ -252,7 +252,7 @@ int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 	if(result == -1) {
-		cout << "  could not find an active component" << std::endl;
+		std::cout << "  could not find an active component" << std::endl;
 	}
 #endif
 
@@ -313,8 +313,8 @@ bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
 	bool hasTerminal = false;
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "    checking whether component of node " << source << " is active.. " << std::endl;
-	cout << "      component has id " << comp << std::endl;
+	std::cout << "    checking whether component of node " << source << " is active.. " << std::endl;
+	std::cout << "      component has id " << comp << std::endl;
 #endif
 
 	List<node> queue;
@@ -340,9 +340,9 @@ bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
 	}
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	if(hasTerminal) { cout << "      component includes a terminal" << std::endl; }
-	if(danglingTerminalFound) { cout << "      component has dangling terminal" << std::endl; }
-	if(hasTerminal && !danglingTerminalFound) { cout << "      component is active!" << std::endl; }
+	if(hasTerminal) { std::cout << "      component includes a terminal" << std::endl; }
+	if(danglingTerminalFound) { std::cout << "      component has dangling terminal" << std::endl; }
+	if(hasTerminal && !danglingTerminalFound) { std::cout << "      component is active!" << std::endl; }
 #endif
 	return hasTerminal && !danglingTerminalFound;
 }
@@ -355,13 +355,13 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 	EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "MinSteinerTreeDualAscent called." << std::endl;
-	cout << "terminals are: ";
+	std::cout << "MinSteinerTreeDualAscent called." << std::endl;
+	std::cout << "terminals are: ";
 
 	for(node v : terminals) {
-		cout << v << " ";
+		std::cout << v << " ";
 	}
-	cout << std::endl;
+	std::cout << std::endl;
 #endif
 	m_pOrigGraph = &G;
 	m_pTerminals = &terminals;
@@ -378,7 +378,7 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 	node terminal = nullptr;
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "main loop starting.." << endl;
+	std::cout << "main loop starting.." << std::endl;
 #endif
 	while((comp = findActiveComponent(&terminal)) != -1) {
 		// if active comonents exists we
@@ -390,11 +390,11 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 		edge minEdge = nullptr;
 		T minSlack = MAX_VALUE;
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-		cout << "  cut edges:";
+		std::cout << "  cut edges:";
 #endif
 		for(edge e : *cutEdges) {
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-			cout << " " << e;
+			std::cout << " " << e;
 #endif
 			if(m_edgeSlacks[e] < MAX_VALUE || minEdge == nullptr) {
 				minEdge = e;
@@ -402,7 +402,7 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 			}
 		}
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-		cout << std::endl << "  next edge: " << minEdge << std::endl;
+		std::cout << std::endl << "  next edge: " << minEdge << std::endl;
 #endif
 		OGDF_ASSERT(minEdge != nullptr);
 
@@ -426,13 +426,13 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 	}
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "removing expendable edges" << std::endl;
+	std::cout << "removing expendable edges" << std::endl;
 #endif
 	result -= this->pruneAllDanglingSteinerPaths(*finalSteinerTree, *m_pIsTerminal);
 	result -= this->removeCyclesFrom(*finalSteinerTree, *m_pIsTerminal);
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	cout << "algorithm terminated." << std::endl;
+	std::cout << "algorithm terminated." << std::endl;
 #endif
 	return result;
 }

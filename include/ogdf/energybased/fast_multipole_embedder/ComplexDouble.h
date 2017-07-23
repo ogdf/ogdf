@@ -103,7 +103,7 @@ public:
 		// | a0*b0 - a1*b1 | a0*b1 + a1*b0 |
 		// ---------------------------------
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, OGDF_MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, _MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, other.reg);
 		// right = | a0*b1 | a1*b0 |
@@ -120,7 +120,7 @@ public:
 		// bt = | b0 | -b1 |
 		__m128d conj_reg = _mm_mul_pd(other.reg, _mm_setr_pd(1.0, -1.0) ) ;
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, OGDF_MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, _MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, conj_reg);
 		// right = | a0*b1 | a1*b0 |
@@ -130,12 +130,12 @@ public:
 		// left = | a0*b0 + (-a1*b1) | a0*b1 + a1*b0 |
 		__m128d product = _mm_hadd_pd ( left, right ) ;
 		// product = reg*other.reg.conj
-		// l = b0*b0 | b1*b1
-		__m128d l = _mm_mul_pd(conj_reg, conj_reg );
-		// l = b0*b0 + b1*b1 | b0*b0 + b1*b1
-		l = _mm_hadd_pd(l, l);
-		// l = length^2 | length^2
-		return ComplexDouble( _mm_div_pd(product, l));
+		// ell = b0*b0 | b1*b1
+		__m128d ell = _mm_mul_pd(conj_reg, conj_reg );
+		// ell = b0*b0 + b1*b1 | b0*b0 + b1*b1
+		ell = _mm_hadd_pd(ell, ell);
+		// ell = length^2 | length^2
+		return ComplexDouble( _mm_div_pd(product, ell));
 	}
 
 	inline ComplexDouble operator*(double scalar) const
@@ -167,7 +167,7 @@ public:
 	inline void operator*=(const ComplexDouble& other)
 	{
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, OGDF_MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, _MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, other.reg);
 		// right = | a0*b1 | a1*b0 |
@@ -190,7 +190,7 @@ public:
 		// bt = | b0 | -b1 |
 		__m128d conj_reg = _mm_mul_pd(other.reg, _mm_setr_pd(1.0, -1.0) ) ;
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, OGDF_MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, _MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, conj_reg);
 		// right = | a0*b1 | a1*b0 |
@@ -199,12 +199,12 @@ public:
 		left = _mm_mul_pd(left, _mm_setr_pd(1.0, -1.0) ) ;
 		// left = | a0*b0 + (-a1*b1) | a0*b1 + a1*b0 |
 		__m128d product = _mm_hadd_pd ( left, right ) ;
-		// l = b0*b0 | b1*b1
-		__m128d l = _mm_mul_pd(conj_reg, conj_reg );
-		// l = b0*b0 + b1*b1 | b0*b0 + b1*b1
-		l = _mm_hadd_pd(l, l);
-		// l = length^2 | length^2
-		reg = _mm_div_pd(product, l);
+		// ell = b0*b0 | b1*b1
+		__m128d ell = _mm_mul_pd(conj_reg, conj_reg );
+		// ell = b0*b0 + b1*b1 | b0*b0 + b1*b1
+		ell = _mm_hadd_pd(ell, ell);
+		// ell = length^2 | length^2
+		reg = _mm_div_pd(product, ell);
 	}
 
 	//! @}
@@ -462,4 +462,4 @@ public:
 #endif
 }
 
-} // end of namespace ogdf::sse
+}

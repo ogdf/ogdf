@@ -167,5 +167,4 @@ private:
 		const Array<POINT> &offset);
 };
 
-
-} // end namespace ogdf
+}

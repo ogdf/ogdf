@@ -44,7 +44,7 @@ public:
 	// construction
 
 	// Creates a UML graph for no associated graph (default constructor).
-	UMLGraph() : GraphAttributes(), m_pG(nullptr) { }
+	UMLGraph() : GraphAttributes(), m_pG(nullptr), m_hiddenEdges(nullptr) { }
 
 	// Creates a UML graph associated with graph \p G.
 	/**
@@ -162,7 +162,7 @@ public:
 	void writeGML(const char *fileName);
 
 	//! Writes attributed graph in GML format to output stream os
-	void writeGML(ostream &os);
+	void writeGML(std::ostream &os);
 
 	//! Adjusts the parent field for all nodes after insertion of
 	//! mergers. If insertion is done per node via doinsert, adjust
@@ -227,7 +227,7 @@ public:
 		{
 			modelAssociationClass((*it));
 			++it;
-		}//while
+		}
 	}
 	node modelAssociationClass(AssociationClass* ac)
 	{
@@ -248,7 +248,7 @@ public:
 		{
 			undoAssociationClass((*it));
 			++it;
-		}//while
+		}
 	}
 
 	//! Removes the modeling of the association class without removing the information
@@ -277,7 +277,7 @@ public:
 		OGDF_ASSERT(v->degree() == 0);
 
 		m_pG->unsplit(dummy);
-	}//undoAssociationClass
+	}
 
 protected:
 	//! \name Cliques
@@ -340,5 +340,4 @@ private:
 	Graph::HiddenEdgeSet *m_hiddenEdges;
 };
 
-
-} // end namespace ogdf
+}

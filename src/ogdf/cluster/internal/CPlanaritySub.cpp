@@ -45,8 +45,7 @@
 #include <ogdf/lib/abacus/setbranchrule.h>
 
 //output intermediate results when new sons are generated
-//#define IM_OUTPUT
-#ifdef IM_OUTPUT
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 #include <ogdf/basic/GraphAttributes.h>
 #endif
 
@@ -121,7 +120,7 @@ Sub *CPlanaritySub::generateSon(BranchRule *rule) {
 						slk = 0.0;
 					}
 					if(slk > 0.0) {
-						Logger::slout() << "ohoh..." << slk << " "; var->printMe(Logger::slout()); Logger::slout()<<flush;
+						Logger::slout() << "ohoh..." << slk << " "; var->printMe(Logger::slout()); Logger::slout()<<std::flush;
 					}
 					OGDF_ASSERT(slk <= 0.0);
 					double zeroSlack = slk+xVal(varidx)*coeff;
@@ -145,7 +144,7 @@ Sub *CPlanaritySub::generateSon(BranchRule *rule) {
 				}
 			}
 		}
-	}//pricing
+	}
 
 	return new CPlanaritySub(master_, this, rule, criticalConstraints);
 }
@@ -244,7 +243,7 @@ double CPlanaritySub::heuristicImprovePrimalBound(
 int CPlanaritySub::improve(double &primalValue) {
 	if (master()->feasibleFound())
 	{
-		cout << "Setting bounds due to feasibility\n";
+		std::cout << "Setting bounds due to feasibility\n";
 		master()->dualBound(master()->primalBound());
 		master()->primalBound(0);
 	}
@@ -339,7 +338,7 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 	if (num == 0) return 0;
 
 #if 0
-	cout << "#Starting clusterBags with cluster of size " << num << "\n";
+	std::cout << "#Starting clusterBags with cluster of size " << num << "\n";
 #endif
 
 	//now we store the iterators
@@ -349,7 +348,7 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 		listPointer[*it] = it;
 		inCluster[*it] = true;
 		++it;
-	}//while
+	}
 
 	int count = 0;
 
@@ -369,7 +368,7 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 			node v = activeNodes.pop(); //running node
 			parent[v] = start; //representative points to itself
 #if 0
-			cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
+			std::cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
 #endif
 			count++;
 
@@ -387,11 +386,11 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 					nodesInCluster.del(listPointer[w]);
 				}
 			}
-		}//while
-	}//while
+		}
+	}
 
 #if 0
-	cout << "Number of chunks: " << numChunks << "\n";
+	std::cout << "Number of chunks: " << numChunks << "\n";
 #endif
 	//Now all node parents point to the representative of their chunk (start node in search)
 	numBags = numChunks; //We count backwards if chunks are connected by subcluster
@@ -406,19 +405,19 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 		const List<node> &nodesInChild = static_cast<CPlanarityMaster*>(master_)->getClusterNodes(cc);
 #if 0
 		cc->getClusterNodes(nodesInChild);
-		cout << nodesInChild.size() << "\n";
+		std::cout << nodesInChild.size() << "\n";
 #endif
 		ListConstIterator<node> itN = nodesInChild.begin();
-		node bagRep; //stores the representative for the whole bag
+		node bagRep = nullptr; //stores the representative for the whole bag
 		if (itN.valid()) bagRep = getRepresentative(*itN, parent);
 #if 0
-		cout << " bagRep is " << bagRep->index() << "\n";
+		std::cout << " bagRep is " << bagRep->index() << "\n";
 #endif
 		while (itN.valid())
 		{
 			node w = getRepresentative(*itN, parent);
 #if 0
-			cout << "  Rep is: " << w->index() << "\n";
+			std::cout << "  Rep is: " << w->index() << "\n";
 #endif
 			if (w != bagRep)
 			{
@@ -426,18 +425,18 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 				parent[w] = bagRep;
 				parent[*itN] = bagRep; //shorten search path
 #if 0
-				cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
+				std::cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
 #endif
 			}
 			++itN;
-		}//While all nodes in subcluster
-	}//for all child clusters
+		}
+	}
 
 	return numBags;
 #if 0
-	cout << "#Number of bags: " << numBags << "\n";
+	std::cout << "#Number of bags: " << numBags << "\n";
 #endif
-}//clusterBags
+}
 
 
 //! returns connectivity status for complete connectivity
@@ -511,7 +510,7 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 					isVisited[w] = true;
 				}
 			}
-		}//while
+		}
 		//check if we reached all nodes
 		//we assume that the graph is connected, otherwise check
 		//fails for root cluster anyway
@@ -521,8 +520,8 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 		set1Connected = (startState ? (count == num) : (count == G.numberOfNodes() - num));
 
 #if 0
-		cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << " Cluster size: "<< num <<", have: "<< count <<"\n";
-		cout << "Root:" << (CG.rootCluster() == c) << "\n";
+		std::cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << " Cluster size: "<< num <<", have: "<< count <<"\n";
+		std::cout << "Root:" << (CG.rootCluster() == c) << "\n";
 #endif
 
 		if (!set1Connected) return false;
@@ -557,7 +556,7 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 					isVisited[w] = true;
 				}
 			}
-		}//while
+		}
 		//Check if we reached all nodes
 		if (ccount + count != G.numberOfNodes())
 			return false;
@@ -633,7 +632,7 @@ bool CPlanaritySub::checkCConnectivityOld(const GraphCopy& support)
 
 bool CPlanaritySub::feasible() {
 #if 0
-	cout << "Checking feasibility\n";
+	std::cout << "Checking feasibility\n";
 #endif
 
 	if (!integerFeasible()) {
@@ -649,14 +648,16 @@ bool CPlanaritySub::feasible() {
 		bool cc = checkCConnectivity(support);
 #ifdef OGDF_DEBUG
 		bool ccOld = checkCConnectivityOld(support);
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 		if (cc != ccOld)
 		{
-			cout << "CC: "<<cc<<" CCOLD: "<<ccOld<<"\n";
+			std::cout << "CC: "<<cc<<" CCOLD: "<<ccOld<<"\n";
 			GraphIO::write(support, "DifferingCC.gml", GraphIO::writeGML);
 
 		}
 #endif
 		OGDF_ASSERT (cc == ccOld);
+#endif
 		if (!cc) return false;
 
 		// Checking if the solution induced graph is planar.
@@ -671,7 +672,7 @@ bool CPlanaritySub::feasible() {
 			// If so, the solution induced graph is updated.
 			// We only got integer costs here.
 #ifdef OGDF_DEBUG
-			cout << "***Found valid Solution, check for improvement***\n";
+			std::cout << "***Found valid Solution, check for improvement***\n";
 #endif
 
 			double primalBoundValue = lp_->value();
@@ -685,7 +686,7 @@ bool CPlanaritySub::feasible() {
 			return false;
 		}
 	}
-}//feasible
+}
 
 #if 0
 static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
@@ -727,7 +728,7 @@ bool CPlanaritySub::fastfeasible()
 					// Next cluster
 					c = c->succ();
 					continue;
-				}//if root cluster
+				}
 				// Determining the nodes of current cluster
 				List<node> clusterNodes;
 				c->getClusterNodes(clusterNodes);
@@ -814,7 +815,7 @@ bool CPlanaritySub::fastfeasible()
 			return false;
 		}
 	}
-}//fastfeasible
+}
 #endif
 
 //Adds all connection edges represented by value 1 variables to the input (original) graph.
@@ -870,9 +871,8 @@ void CPlanaritySub::kuratowskiSupportGraph(GraphCopy &support, double low, doubl
 				if (!support.searchEdge(cv,cw)) support.newEdge(cv,cw);
 			}
 		}
-	} // end for(int i=0; i<nVar(); ++i)
+	}
 }
-
 
 void CPlanaritySub::connectivitySupportGraph(GraphCopy &support, EdgeArray<double> &weight) {
 
@@ -1026,9 +1026,9 @@ int CPlanaritySub::separateReal(double minViolate) {
 
 #ifdef OGDF_DEBUG
 				Logger::slout() << "Search space graph in subproblem, original size: \n";
-				cout << "Search space graph in subproblem, original size: \n";
-				cout << "\t" << ssg.numberOfNodes() << " " << ssg.numberOfEdges() << static_cast<CPlanarityMaster*>(master())->searchSpaceGraph()->numberOfEdges() << "\n";
-				cout << "\t" << ssg.original().numberOfNodes() << " " << ssg.original().numberOfEdges() << "\n";
+				std::cout << "Search space graph in subproblem, original size: \n";
+				std::cout << "\t" << ssg.numberOfNodes() << " " << ssg.numberOfEdges() << static_cast<CPlanarityMaster*>(master())->searchSpaceGraph()->numberOfEdges() << "\n";
+				std::cout << "\t" << ssg.original().numberOfNodes() << " " << ssg.original().numberOfEdges() << "\n";
 				Logger::slout() << "\t" << ssg.numberOfNodes() << " " << ssg.numberOfEdges() << "\n";
 				Logger::slout() << "\t" << ssg.original().numberOfNodes() << " " << ssg.original().numberOfEdges() << "\n";
 #endif
@@ -1046,18 +1046,18 @@ int CPlanaritySub::separateReal(double minViolate) {
 						node supv = support.copy(ssg.original(sno));
 						if (isDeleted[supv]) continue;
 #ifdef OGDF_DEBUG
-						cout <<"sn graph (should be ssg) "<<sn->graphOf()<<"\n";
-						cout << "ssg: "<<&ssg<<" "<<"\n";
-						cout << "support: "<<&support<<"\n";
-						cout << "csupport: "<<&(*c_support)<<"\n";
-						cout << "sno "<<sno <<" "<<sno->graphOf()<<" "<<(sno->graphOf())<<"\n";
-						cout  <<ssg.original(sno)<<" "<<ssg.original(sno)->graphOf()<<"\n";
+						std::cout <<"sn graph (should be ssg) "<<sn->graphOf()<<"\n";
+						std::cout << "ssg: "<<&ssg<<" "<<"\n";
+						std::cout << "support: "<<&support<<"\n";
+						std::cout << "csupport: "<<&(*c_support)<<"\n";
+						std::cout << "sno "<<sno <<" "<<sno->graphOf()<<" "<<(sno->graphOf())<<"\n";
+						std::cout  <<ssg.original(sno)<<" "<<ssg.original(sno)->graphOf()<<"\n";
 #endif
 						//node might be from cluster, ie deleted in c_support, this doesnt work
 						if (! c_support->copy( supv) ) continue;
 
 #ifdef OGDF_DEBUG
-						cout << ssg.original(sno) << "\n"
+						std::cout << ssg.original(sno) << "\n"
 						     << support.copy(ssg.original(sno)) << "\n"
 						     << "Inpart query: " << c_support->copy(support.copy(ssg.original(sno)))
 						     << " " << c_support->copy(support.copy(ssg.original(sno)))->graphOf() << "\n"
@@ -1067,13 +1067,13 @@ int CPlanaritySub::separateReal(double minViolate) {
 						     << "csupport copy" << c_support->copy(support.copy(ssg.original(sno)))->graphOf() << "\n";
 #if 0
 						for(node vw : c_support->nodes) {
-							cout << "c_s node and original + graphs: " << vw
+							std::cout << "c_s node and original + graphs: " << vw
 							     << " " << vw->graphOf()
 							     << " : " << c_support->original(vw)
 							     << " " << c_support->original(vw)->graphOf() << "\n";
 						}
 						for(node vw : support.nodes) {
-							cout << "s node and original + graphs: " << vw
+							std::cout << "s node and original + graphs: " << vw
 							     << " " << vw->graphOf()
 							     << " : " << support.original(vw)
 							     << " " << support.original(vw)->graphOf() << "\n";
@@ -1110,9 +1110,7 @@ int CPlanaritySub::separateReal(double minViolate) {
 				bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutNodePairs));
 				count++;
 			}
-
-		}//end Graph is connected
-		else {
+		} else {
 			// Variables may be set to zero, leading to missing edges
 			NodeArray<int> comp(*c_support);
 			connectedComponents(*c_support,comp);
@@ -1175,8 +1173,7 @@ int CPlanaritySub::separateReal(double minViolate) {
 			// Create cut-constraint
 			bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutEdges)); // always violated enough
 			count++;
-
-		}//end Graph is not connected
+		}
 		delete c_support;
 
 	}
@@ -1306,8 +1303,7 @@ int CPlanaritySub::separateReal(double minViolate) {
 				bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutNodePairs));
 				count++;
 			}
-		}//end Graph is connected
-		else {
+		} else {
 			// Variables may be set to zero, leading to missing edges
 			NodeArray<int> comp(*c_support);
 			connectedComponents(*c_support,comp);
@@ -1360,7 +1356,7 @@ int CPlanaritySub::separateReal(double minViolate) {
 			bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutEdges)); // always violated enough.
 
 			count++;
-		}//end Graph is not connected
+		}
 		delete c_support;
 	}
 
@@ -1379,7 +1375,7 @@ int CPlanaritySub::separateReal(double minViolate) {
 			OGDF_ASSERT( nGenerated == count );
 			master()->updateAddedCCons(nGenerated);
 #ifdef OGDF_DEBUG
-			cout << "Added "<<count<<" cuts\n";
+			std::cout << "Added "<<count<<" cuts\n";
 #endif
 		}
 		m_constraintsFound = true;
@@ -1437,7 +1433,6 @@ int CPlanaritySub::separateReal(double minViolate) {
 			// Performance should be improved somehow!!!
 			// KK Todo Why is this code divided into first kura and the remainder?
 			SListConstIterator<KuratowskiWrapper> kw = kuratowskis.begin();
-			SListConstIterator<KuratowskiWrapper> succ;
 
 			SListPure<NodePair> subDivOrig; //stores nodepairs for contained connection edges
 
@@ -1450,11 +1445,11 @@ int CPlanaritySub::separateReal(double minViolate) {
 
 				violatedFound = true;
 #ifdef OGDF_DEBUG
-				cout << "Violated Kura found \n";
-				cout << "K5?  " << (*kw).isK5() << "\n";
+				std::cout << "Violated Kura found \n";
+				std::cout << "K5?  " << (*kw).isK5() << "\n";
 				for(edge e : (*kw).edgeList)
 				{
-					cout << "Edge between " << e->source() << "-" << e->target() << " in supportgraph\n";
+					std::cout << "Edge between " << e->source() << "-" << e->target() << " in supportgraph\n";
 				}
 				NodeArray<int> potDeg(support, 0); //number of potential additionial edges
 				for (int j = 0; j < nVar(); ++j) {
@@ -1464,10 +1459,10 @@ int CPlanaritySub::separateReal(double minViolate) {
 					node cw = support.copy(wTarget);
 					potDeg[cv]++;
 					potDeg[cw]++;
-					cout << "Variable " << j << " v,w " << v->index() << " " << wTarget->index() << " cv,cw " << cv->index() << " " << cw->index() << "\n";
+					std::cout << "Variable " << j << " v,w " << v->index() << " " << wTarget->index() << " cv,cw " << cv->index() << " " << cw->index() << "\n";
 				}
 				for (node v : support.nodes){
-					cout << "Additional potential degree of: " << v->index() << " is " << potDeg[v] << "\n";
+					std::cout << "Additional potential degree of: " << v->index() << " is " << potDeg[v] << "\n";
 				}
 #endif
 				// Buffer for new Kuratowski constraints
@@ -1498,7 +1493,7 @@ int CPlanaritySub::separateReal(double minViolate) {
 				}
 				nGenerated += addKuraCons(kConstraints);
 				if (nGenerated != count)
-				cerr << "Number of added constraints doesn't match number of created constraints" << endl;
+				std::cerr << "Number of added constraints doesn't match number of created constraints" << std::endl;
 				break;
 
 			} else {
@@ -1612,18 +1607,18 @@ int CPlanaritySub::repair() {
 		<< " var="<< infeasVar_
 		<< " con="<< infeasCon_<< "\n";
 	for(int i=0; i<nCon(); ++i)
-		Logger::slout() << bInvRow_[i] << " " << flush;
-	Logger::slout() << "\n" << flush;
+		Logger::slout() << bInvRow_[i] << " " << std::flush;
+	Logger::slout() << "\n" << std::flush;
 	for(int i=0; i<nCon(); ++i) {
 		if(bInvRow_[i]!=0) {
-			Logger::slout() << bInvRow_[i] << ": " << flush;
+			Logger::slout() << bInvRow_[i] << ": " << std::flush;
 			ChunkConnection* chc = dynamic_cast<ChunkConnection*>(constraint(i));
 			if(chc) chc->printMe(Logger::slout());
 			CutConstraint* cuc = dynamic_cast<CutConstraint*>(constraint(i));
 			if(cuc) cuc->printMe(Logger::slout());
 			ClusterKuratowskiConstraint* kc = dynamic_cast<ClusterKuratowskiConstraint*>(constraint(i));
 			if(kc) kc->printMe(Logger::slout());
-			Logger::slout() << "\n" << flush;
+			Logger::slout() << "\n" << std::flush;
 		}
 	}
 	// only output end
@@ -1668,7 +1663,7 @@ int CPlanaritySub::solveLp() {
 		OGDF_ASSERT(addMe >=0 );
 		if(addMe) {
 			Logger::slout() << "A problem ocurred\n";
-			Logger::slout() << nVar() << " variables of " << vp->number() << " in model. Fetching " << addMe << ".\n" << flush;
+			Logger::slout() << nVar() << " variables of " << vp->number() << " in model. Fetching " << addMe << ".\n" << std::flush;
 #if 0
 			master()->activeVars->loadIndices(this); // current indexing scheme
 #endif
@@ -1762,7 +1757,7 @@ int CPlanaritySub::solveLp() {
 		master()->clearActiveRepairs();
 #if 0
 		dualBound_ = +master()->infinity();
-		cout <<"**Set dualbound to minus infinity\n";
+		std::cout <<"**Set dualbound to minus infinity\n";
 #endif
 
 #ifdef OGDF_DEBUG
@@ -1797,7 +1792,7 @@ int CPlanaritySub::solveLp() {
 	dualBound_=master()->infinity();//666
 #endif
 	Logger::slout() << "\t\tLP-relaxation: " <<  lp_->value() << "\n";
-	Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << endl;
+	Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << std::endl;
 	realDualBound = lp_->value();
 
 	//KK Is there a way to find a better corresponding shortcut here?
@@ -1820,18 +1815,18 @@ int CPlanaritySub::solveLp() {
 		m_sepFirst = !m_sepFirst;
 		if(m_sepFirst) {
 			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< std::endl; return 1; }
 			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
 			if( (m_reportCreation = separateRealO(minViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< std::endl; return 1; }
 			m_reportCreation = -pricingRealO(minViolation);
 		} else {
 			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
 			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< std::endl; return 1; }
 			if( (m_reportCreation = -pricingRealO(minViolation)) ) return 0;
 			m_reportCreation = separateRealO(minViolation);
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< std::endl; return 1; }
 		}
 #endif
 	}

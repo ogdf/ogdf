@@ -98,7 +98,7 @@ LpSolution<BaseType, CoType>::~LpSolution()
 
 
 template <class BaseType, class CoType>
-ostream &operator<<(ostream &os, const LpSolution<BaseType, CoType> &rhs)
+std::ostream &operator<<(std::ostream &os, const LpSolution<BaseType, CoType> &rhs)
 {
 	double machEps=rhs.master_->machineEps();
 	os << rhs.idSub_ << " ";
@@ -109,7 +109,7 @@ ostream &operator<<(ostream &os, const LpSolution<BaseType, CoType> &rhs)
 			os << "0.0 ";
 		else
 			os << rhs.zVal_[i] << " " ;
-	os << endl;
+	os << std::endl;
 	return os;
 }
 
@@ -148,4 +148,4 @@ int LpSolution<BaseType, CoType>::idLp() const
 	return idLp_;
 }
 
-} // namespace abacus
+}

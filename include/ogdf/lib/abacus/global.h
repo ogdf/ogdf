@@ -60,7 +60,7 @@ public:
 	//! The constructor.
 	/**
 	 * Initializes our filtered output and error stream with the standard output
-	 * stream \a cout  and the standard error stream \a cerr.
+	 * stream \a std::cout  and the standard error stream \a std::cerr.
 	 *
 	 * \param eps        The zero-tolerance used within all member functions of objects
 	 *                   which have a pointer to this global object (default value 1.0e-4).
@@ -93,7 +93,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend OGDF_EXPORT ostream &operator<<(ostream &out, const AbacusGlobal &rhs);
+	friend OGDF_EXPORT std::ostream &operator<<(std::ostream &out, const AbacusGlobal &rhs);
 
 #if 0
 	//! Writes \a nTab tabs to the output stream.
@@ -422,4 +422,4 @@ private:
 	const AbacusGlobal &operator=(const AbacusGlobal &rhs);
 };
 
-} //namespace abacus
+}

@@ -52,7 +52,7 @@ public:
 
 private:
 
-	bool isUpwardPlanar(Graph &G)
+	bool isUpwardPlanar(Graph &G) const
 	{
 		return UpwardPlanarity::isUpwardPlanar_singleSource(G);
 	}
@@ -141,8 +141,6 @@ private:
 							List<edge> &origEdges,
 							edge e_orig,
 							SList<adjEntry> &path);
-
-
 };
 
-} // end namespace ogdf
+}

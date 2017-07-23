@@ -76,16 +76,16 @@ public:
 	*/
 	void add(Internal::Var signedVar)
 	{
-		Internal::Lit l;
+		Internal::Lit lit;
 		if ( signedVar >= 0 )
 		{
-			l = Internal::mkLit(signedVar-1, true);
+			lit = Internal::mkLit(signedVar-1, true);
 		}
 		else
 		{
-			l = Internal::mkLit(-(signedVar+1), false);
+			lit = Internal::mkLit(-(signedVar+1), false);
 		}
-		m_ps.push(l);
+		m_ps.push(lit);
 	}
 
 	//! add multiple literals to the clause
@@ -135,9 +135,9 @@ public:
 	}
 
 	//! converts the sign of a lit into char
-	static char convertLitSign(Internal::Lit l)
+	static char convertLitSign(Internal::Lit lit)
 	{
-		if ( sign(l) == 0 )
+		if ( sign(lit) == 0 )
 			return '-';
 		else
 			return ' ';
@@ -325,9 +325,9 @@ bool solve( Model &ReturnModel );
  */
 bool solve( Model &ReturnModel, double& timeLimit );
 
-Internal::Var getVarFromLit(const Internal::Lit &l)
+Internal::Var getVarFromLit(const Internal::Lit &lit)
 {
-	return Internal::var(l);
+	return Internal::var(lit);
 }
 
 //! adds a literal to a clause and

@@ -94,5 +94,4 @@ private:
 		const POINT &rect);
 };
 
-
-} // end namespace ogdf
+}

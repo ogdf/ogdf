@@ -115,5 +115,4 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 	return ReturnType::Feasible;
 }
 
-
-} // namspace ogdf
+}

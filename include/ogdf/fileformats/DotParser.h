@@ -467,7 +467,5 @@ struct SubgraphData {
 		std::set<node> &newNodes) const;
 };
 
-
-} // end namespace dot
-
-} // end namespace ogdf
+}
+}

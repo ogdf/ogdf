@@ -47,8 +47,8 @@ public:
 	//! the main build call
 	void build();
 
-	//! prepares the node and leaf layer at position l where r is the next position
-	void prepareNodeAndLeaf(LinearQuadtree::PointID l, LinearQuadtree::PointID r);
+	//! prepares the node and leaf layer at position \p leafPos where \p nextLeafPos is the next position
+	void prepareNodeAndLeaf(LinearQuadtree::PointID leafPos, LinearQuadtree::PointID nextLeafPos);
 
 	//! prepares the node and leaf layer from position begin until end (excluding end)
 	void prepareTree(LinearQuadtree::PointID begin,  LinearQuadtree::PointID end);

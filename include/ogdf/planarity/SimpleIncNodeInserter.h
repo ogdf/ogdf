@@ -96,4 +96,4 @@ private:
 	node m_vT; //!< sink in the dual graph for edge insertion
 };
 
-} //end namespace ogdf
+}

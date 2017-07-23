@@ -74,7 +74,7 @@ public:
 	virtual ~NonDuplPool() {
 #ifdef OGDF_DEBUG
 		Logger::ifout() << "Number of duplicated constraints: " <<
-			nDuplications_ << endl;
+			nDuplications_ << std::endl;
 #endif
 	}
 
@@ -179,6 +179,6 @@ private:
 	const NonDuplPool &operator=(const NonDuplPool &rhs);
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/nonduplpool.inc>

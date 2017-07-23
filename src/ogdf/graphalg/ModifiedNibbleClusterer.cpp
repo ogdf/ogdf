@@ -116,7 +116,7 @@ long ModifiedNibbleClusterer::call(Graph &G, NodeArray<long> &clusterNum)
 #endif
 	// Delete GraphCopy
 	delete m_pGC;
-	cout << "Created " << cnum << "clusters\n";
+	std::cout << "Created " << cnum << "clusters\n";
 	return cnum;
 }
 
@@ -157,7 +157,7 @@ double ModifiedNibbleClusterer::findBestCluster(NodeArray<bool> &isActive, std::
 	int volume = 0;
 	long cutSize = 0;
 	long bestindex = 0;
-	double bestConductance = numeric_limits<double>::max();
+	double bestConductance = std::numeric_limits<double>::max();
 	long bestindexaband = -1;
 	for (int run = 0; run < maxSize; ++run) {
 		//Check the conductance of the current set
@@ -233,7 +233,7 @@ double ModifiedNibbleClusterer::findBestCluster(NodeArray<bool> &isActive, std::
 		cluster.push_back(abandoned.at(run));
 	}
 #if 0
-	cout << "Cluster found "<<cluster.size()<< " " << bestConductance<<"\n";
+	std::cout << "Cluster found "<<cluster.size()<< " " << bestConductance<<"\n";
 #endif
 #ifdef OGDF_DEBUG
 	NodeArray<bool> test(*m_pGC, false);
@@ -270,7 +270,7 @@ void ModifiedNibbleClusterer::modifiedNibble(node snode, std::vector<node> & bes
 	isActive[m_startNode] = true;
 	int batchi = 0;
 	bool finished = false;
-	double bestCon = numeric_limits<double>::max();
+	double bestCon = std::numeric_limits<double>::max();
 	while (!finished) {
 		int t_i = aPGP(batchi);
 		long batchsteps = ((t_i > maxSteps ? maxSteps : t_i) - m_steps);
@@ -294,12 +294,12 @@ void ModifiedNibbleClusterer::modifiedNibble(node snode, std::vector<node> & bes
 			//bestCluster = cluster;
 			if (t_i >= maxSteps) finished = true;
 			else m_steps = t_i;
-		}
-		else {//if we could not improve in a larger active node set, we (can safely) stop (?)!
+		} else {
+			// if we could not improve in a larger active node set, we (can safely) stop (?)!
 			finished = true;
 		}
 	}
-	cout << "Final cluster "<< bestCluster.size() << "  " << bestCon <<"\n";
+	std::cout << "Final cluster "<< bestCluster.size() << "  " << bestCon <<"\n";
 }
 
 void ModifiedNibbleClusterer::spreadValues(NodeArray<bool> &isActive, std::vector<node> &activeNodes, NodeArray<double> &probUpdate) {
@@ -348,7 +348,7 @@ node ModifiedNibbleClusterer::selectStartNode() {
 		switch (m_sns) {
 			case StartNodeStrategy::MaxDeg: if (v->degree() > start->degree()) start = v; break;
 			case StartNodeStrategy::MinDeg: if (v->degree() < start->degree()) start = v; break;
-			case StartNodeStrategy::Random: cerr << "Unknown strategy\n";
+			case StartNodeStrategy::Random: std::cerr << "Unknown strategy\n";
 		}
 	}
 	return start;

@@ -42,37 +42,16 @@ namespace ogdf {
 namespace topology_module {
 
 //! Sorts EdgeLegs according to their xp distance to a reference point.
-class PointComparer {
+class PointComparer : public GenericComparer<ListIterator<EdgeLeg*>, double> {
 public:
-	explicit PointComparer(DPoint refPoint) : m_refPoint(refPoint) {}
+	explicit PointComparer(DPoint refPoint) : GenericComparer([&](const ListIterator<EdgeLeg*>& it) {
+		const DPoint& p = (*it)->m_xp;
 
-	//compares the crossing points stored in the EdgeLeg
-	//is independent of y-axis flipping
-	int compare(const ListIterator<EdgeLeg*> &ep1, const ListIterator<EdgeLeg*> &ep2) const
-	{
-		DPoint p1 = (*ep1)->m_xp;
-		DPoint p2 = (*ep2)->m_xp;
-		//we compute the distance of the two points to
-		//our reference and return the corresponding ordering
-		//-1 if p1 closer than p2
-		double xdiff1 = p1.m_x - m_refPoint.m_x;
-		double xdiff2 = p2.m_x - m_refPoint.m_x;
-		double ydiff1 = p1.m_y - m_refPoint.m_y;
-		double ydiff2 = p2.m_y - m_refPoint.m_y;
-		double dist1 = sqrt(xdiff1*xdiff1 + ydiff1*ydiff1);
-		double dist2 = sqrt(xdiff2*xdiff2 + ydiff2*ydiff2);
+		double xDiff = p.m_x - refPoint.m_x;
+		double yDiff = p.m_y - refPoint.m_y;
 
-		if (dist1 == dist2) return 0;
-		return (dist1 < dist2 ? -1 : 1); //original: -1 1
-	}
-
-	OGDF_AUGMENT_COMPARER(ListIterator<EdgeLeg*>)
-
-	// undefined methods to avoid automatic creation
-	PointComparer &operator=(const PointComparer &);
-
-private:
-	const DPoint m_refPoint;
+		return xDiff*xDiff + yDiff*yDiff;
+	}) {}
 };
 
 }
@@ -119,14 +98,14 @@ bool TopologyModule::setEmbeddingFromGraph(
 			for(adjEntry ae : v->adjEntries)
 			{
 				adjList[v].pushBack(ae);
-			}//forall adjacency edges
+			}
 			//sort the entries
 			adjList[v].quicksort(*ec);
 			PG.sort(v, adjList[v]);
-		}//forall nodes
+		}
 
 		delete ec;
-	}//if not reuse
+	}
 
 	//now insert necessary crossings
 	//efficient check, if any crossings are necessary
@@ -202,7 +181,7 @@ bool TopologyModule::setEmbeddingFromGraph(
 //adjExternal = fExternal->firstAdj();
 //debug
 #ifdef OGDF_DEBUG
-	ofstream f("AdjSortCopy.txt");
+	std::ofstream f("AdjSortCopy.txt");
 	for(node v : PG.nodes)
 	{
 		if (PG.original(v))
@@ -215,13 +194,12 @@ bool TopologyModule::setEmbeddingFromGraph(
 					f << "  Eintrag: " << w->index() << "\n";
 				else f <<"No original\n";
 
-			}//adjs
+			}
 		}
 	}
 #endif
 	return true;
-}//setEmbeddingFromGraph
-
+}
 
 //we handle and correct cases were imprecision occurs, e.g.
 //double computations for mergers and crossings
@@ -258,7 +236,7 @@ void TopologyModule::handleImprecision(PlanRep &PG)
 				}
 				adRun = adNext;
 			} while (adRun != adFirst);
-		}//iscrossing
+		}
 	}
 	ListIterator<node> it = problems.begin();
 	while (it.valid())
@@ -266,12 +244,11 @@ void TopologyModule::handleImprecision(PlanRep &PG)
 		//hier entweder switchen oder Kreuzung entfernen
 		//PG.removeCrossing((*it));
 		++it;
-	}//while
+	}
 
 	//TODO: take care not to handle crossing cascades
 	//leading to multiple
-}//handleimprecision
-
+}
 
 void TopologyModule::postProcess(PlanRep &PG)
 {
@@ -324,8 +301,8 @@ void TopologyModule::postProcess(PlanRep &PG)
 		{
 			PG.removeCrossing((*it));
 			++it;
-		}//while obsolete crossings
-	}//if oploop
+		}
+	}
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
 
@@ -355,12 +332,10 @@ void TopologyModule::postProcess(PlanRep &PG)
 			checkFlipCrossing(PG, (*itFlip), true);
 			++itFlip;
 		}
-	}//if opcrossflip
+	}
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
-
-}//postprocess after planarization
-
+}
 
 void TopologyModule::planarizeFromLayout(PlanRep &PG,
                                          GraphAttributes &GA)
@@ -405,11 +380,11 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 			//TODO: this doesnt seem to be correct anymore, was it?
 			//e = e->succ();
 			continue;
-		}//if not in CC
+		}
 		//guarantee that there are no bends or crossings yet
 		OGDF_ASSERT((PG.chain(e)).size() == 1);
 
-			m_eLegs[e].clear();
+		m_eLegs[e].clear();
 
 		const DPolyline &bends1 = GA.bends(e);
 		int legNumber = 0; //start legcount at 0
@@ -542,10 +517,9 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				//gives the correct value, but we flip
 					(*runIt)->m_topDown = false; //depends on y-axis direction
 				else (*runIt)->m_topDown = true;
-
-			}//if crossing detected
+			}
 			++runIt;
-		}//while running over all edgeLegs
+		}
 		if (iterList.size() > 0)
 		{
 			// first sort the crossings corresponding to the
@@ -645,11 +619,9 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 
 				//itXp++;
 				++it;
-			}//while valid crossings
-
-		}//if crossings
-
-	}//while all edgeLegs
+			}
+		}
+	}
 
 	//delete the created edgeLegs
 	ListIterator<EdgeLeg*> legIt = legList.begin();
@@ -658,21 +630,23 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 		EdgeLeg* el = (*legIt);
 		delete el;
 		++legIt;
-	}//while all edgeLegs
+	}
 
-	//debug
 #ifdef OGDF_DEBUG
+#ifdef OGDF_TOPOLOGY_MODULE_DEBUG_OUTPUT
 	((PlanRepInc&)PG).genusLayout(xy);
 	((PlanRepInc&)PG).writeGML("planarisiert.gml", xy);
 #endif
-}//planarizefromlayout
-
+#endif
+}
 
 //compute sum of angles in face
 double TopologyModule::faceSum(PlanRep &PG,
 	const GraphAttributes &GA, face f)
 {
-	DPolyline l; double rho = 0; DPolyline B;
+	DPolyline pl;
+	double rho = 0;
+	DPolyline B;
 
 	//Run through the faces and count the angles.
 	//we can't run over original edges because segments
@@ -709,7 +683,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			B.pushFront(DPoint(GA.x(srcNode), GA.y(srcNode)));
 
 			B.conc(dp);
-			l.conc(B);
+			pl.conc(B);
 
 			iti = f->nextFaceEdge(iti);
 			continue;
@@ -724,7 +698,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			else
 				dp1 = DPoint(m_crossPosition[(iti)->theNode()]);
 
-			l.pushBack(dp1);
+			pl.pushBack(dp1);
 
 			iti = f->nextFaceEdge(iti);
 			continue;
@@ -767,7 +741,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 				//Searchloop
 				ListIterator<DPoint> it = dp.begin();
 				DPoint tNode = (*it);
-				DLine dl(sNode, tNode);
+				DSegment dl(sNode, tNode);
 				while(!(dl.contains(p1)))
 				{
 					B.pushBack(tNode);
@@ -776,13 +750,12 @@ double TopologyModule::faceSum(PlanRep &PG,
 					if (it.valid())
 					{
 						tNode = (*it);
-						dl = DLine(sNode, tNode);
+						dl = DSegment(sNode, tNode);
 					}
 					else break;
-				}//while
-
-			}//if bends
-		}//case1
+				}
+			}
+		}
 
 		//case 2: segment from crossing to original node
 		if (case2)
@@ -800,7 +773,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			//Searchloop
 			ListIterator<DPoint> it = dp.begin();
 			DPoint tNode = (*it);
-			DLine dl(sNode, tNode);
+			DSegment dl(sNode, tNode);
 			while(!(dl.contains(dp1)))
 			{
 				it = it.succ();
@@ -808,17 +781,16 @@ double TopologyModule::faceSum(PlanRep &PG,
 				if (it.valid())
 				{
 					tNode = (*it);
-					dl = DLine(sNode, tNode);
+					dl = DSegment(sNode, tNode);
 				}
 				else break;
-			}//while
+			}
 			while (it.valid())
 			{
 				B.pushBack((*it));
 				++it;
-			}//while valid
-
-		}//case2
+			}
+		}
 		if (case3)
 		{
 			//first, we search for the position of the first crossing,
@@ -834,7 +806,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			//Searchloop1
 			ListIterator<DPoint> it = dp.begin();
 			DPoint tNode = (*it);
-			DLine dl(sNode, tNode);
+			DSegment dl(sNode, tNode);
 			while (!(dl.contains(dp1)))
 			{
 				it = it.succ();
@@ -842,10 +814,10 @@ double TopologyModule::faceSum(PlanRep &PG,
 				if (it.valid())
 				{
 					tNode = (*it);
-					dl = DLine(sNode, tNode);
+					dl = DSegment(sNode, tNode);
 				}
 				else break;
-			}//while
+			}
 			//are there any bends after crossing 1?
 			if (it.valid())
 			{
@@ -858,33 +830,28 @@ double TopologyModule::faceSum(PlanRep &PG,
 					if (it.valid())
 					{
 						tNode = (*it);
-						dl = DLine(sNode, tNode);
+						dl = DSegment(sNode, tNode);
 					}
 					else break;
 				}
-			}//if still bends after crossing1
-
+			}
 		}
 
-		l.conc(B);
+		pl.conc(B);
 		//it++;
 		iti = f->nextFaceEdge(iti);
 	}
-	ListIterator<DPoint> it = l.begin();
 
-	while (it.valid())
-	{
-#if 0
-		DPoint p = (*it), r = (*( l.cyclicPred(it) )), q = (*( l.cyclicSucc(it) ));
-#endif
-		DPoint p = (*it), r = (*( l.cyclicSucc(it) )), q = (*( l.cyclicPred(it) ));
+	for (ListIterator<DPoint> it = pl.begin(); it.valid(); ++it) {
+		DPoint p = *it;
+		DPoint r = *pl.cyclicSucc(it);
+		DPoint q = *pl.cyclicPred(it);
+		// XXX: swap r, q?
 		rho += p.angle(r, q) - Math::pi;
-		++it;
 	}
 
 	return rho;
-}//faceSum
-
+}
 
 face TopologyModule::getExternalFace(
 	PlanRep &PG,
@@ -928,7 +895,7 @@ bool TopologyModule::skipable(EdgeLeg* legA, EdgeLeg* legB)
 	double yB2 = legB->end().m_y;
 	DPoint s1(x1, y1), t1(x2, y2),
 		s2(xB1, yB1), t2(xB2, yB2);
-	DLine l1(s1,t1), l2(s2,t2);
+	DSegment l1(s1,t1), l2(s2,t2);
 	if (l1.contains(s2) || l1.contains(t2) ||
 		l2.contains(s1) || l2.contains(t1))
 		return true;
@@ -977,9 +944,10 @@ bool TopologyModule::hasCrossing(EdgeLeg* legA, EdgeLeg* legB, DPoint& xp)
 		// if really necessary
 		DPoint s1(x1, y1), t1(x2, y2),
 			s2(xB1, yB1), t2(xB2, yB2);
-		DLine l1(s1,t1), l2(s2,t2);
+		DSegment l1(s1,t1), l2(s2,t2);
 
-		bool result = l1.intersection(l2, xp, false);
+		// TODO: What to do when IntersectionType::Overlapping is returned?
+		bool result = l1.intersection(l2, xp, false) == IntersectionType::SinglePoint;
 		//due to the false parameter, this might not be the case:
 		//OGDF_ASSERT(result);
 		return result;
@@ -1060,7 +1028,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 						PG.moveAdj(a1->twin(), Direction::after, b1);
 					}
 				}
-		}//if va1
+		}
 		if (PG.original(va2))
 		{
 			if (va2 == vb1)
@@ -1091,16 +1059,13 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 						OGDF_ASSERT(a1 == b1->cyclicSucc());
 						PG.moveAdj(a1, Direction::before,b1);
 					}
-
 				}
-
-		}//if va2
+		}
 		return crossing;
-	}//if iscrossingtype
+	}
 
 	return false;
-}//checkflipcrossing
-
+}
 
 ///*copied back from umlgraph
 //sorts the edges around all nodes of GA corresponding to the
@@ -1120,13 +1085,11 @@ void TopologyModule::sortEdgesFromLayout(Graph &G, GraphAttributes& GA)
 		for(adjEntry ae : v->adjEntries)
 		{
 			adjList[v].pushBack(ae);
-		}//forall adjacency edges
+		}
 		//sort the entries
 		adjList[v].quicksort(ec);
 		G.sort(v, adjList[v]);
+	}
+}
 
-	}//forall nodes
-}//sortedgesfromlayout
-//*/
-
-} // end namespace ogdf
+}

@@ -239,7 +239,7 @@ void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr)
 {
 	if(node_ptr != nullptr)
 	{
-		cout<< *node_ptr <<endl;
+		std::cout<< *node_ptr <<std::endl;
 		if(node_ptr->get_child_lt_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_lt_ptr());
 		if(node_ptr->get_child_rt_ptr() != nullptr)
@@ -258,15 +258,15 @@ void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr, int precision)
 	{
 		complex<double>* L = node_ptr->get_local_exp();
 		complex<double>* M = node_ptr->get_multipole_exp();
-		cout << *node_ptr << endl;
-		cout << " ME: ";
+		std::cout << *node_ptr << std::endl;
+		std::cout << " ME: ";
 		for (int i = 0; i <= precision; i++)
-			cout << M[i] << " ";
-		cout << endl;
-		cout << " LE: ";
+			std::cout << M[i] << " ";
+		std::cout << std::endl;
+		std::cout << " LE: ";
 		for (int i = 0; i <= precision; i++)
-			cout << L[i] << " ";
-		cout << endl << endl;
+			std::cout << L[i] << " ";
+		std::cout << std::endl << std::endl;
 
 		if (node_ptr->get_child_lt_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_lt_ptr(), precision);

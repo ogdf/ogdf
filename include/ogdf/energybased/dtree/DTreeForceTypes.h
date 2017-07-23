@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include <type_traits>
 #include <ogdf/basic/basic.h>
 
 namespace ogdf {
@@ -35,7 +36,8 @@ namespace energybased {
 namespace dtree {
 
 template<int Dim>
-inline double computeDeltaAndDistance(const double a[Dim], const double b[Dim], double delta[Dim])
+inline typename std::enable_if<Dim != 2, double>::type
+computeDeltaAndDistance(const double a[Dim], const double b[Dim], double delta[Dim])
 {
 	// distance var
 	double dist = 0;
@@ -53,8 +55,9 @@ inline double computeDeltaAndDistance(const double a[Dim], const double b[Dim], 
 	return sqrt(dist);
 }
 
-template<>
-inline double computeDeltaAndDistance<2>(const double a[2], const double b[2], double delta[2])
+template<int Dim>
+inline typename std::enable_if<Dim == 2, double>::type
+computeDeltaAndDistance(const double a[Dim], const double b[Dim], double delta[Dim])
 {
 	// delta in d dim
 	delta[0] = a[0] - b[0];
@@ -65,7 +68,8 @@ inline double computeDeltaAndDistance<2>(const double a[2], const double b[2], d
 }
 
 template<int Dim, int K>
-inline void RepForceFunctionNewton(double dist, double &force, double& force_prime)
+inline typename std::enable_if<Dim != 2 || (K != 1 && K != 2), void>::type
+RepForceFunctionNewton(double dist, double &force, double& force_prime)
 {
 	// distance square root
 	dist = dist + 0.1;
@@ -79,8 +83,9 @@ inline void RepForceFunctionNewton(double dist, double &force, double& force_pri
 	force_prime  =  (double)(K) / (t * dist);
 }
 
-template<>
-inline void RepForceFunctionNewton<2,2>(double dist, double &force, double& force_prime)
+template<int Dim, int K>
+inline typename std::enable_if<Dim == 2 && K == 2, void>::type
+RepForceFunctionNewton(double dist, double &force, double& force_prime)
 {
 	// distance square root
 	dist = dist + 0.1;
@@ -88,8 +93,9 @@ inline void RepForceFunctionNewton<2,2>(double dist, double &force, double& forc
 	force        = force_prime * dist * 0.5;
 }
 
-template<>
-inline void RepForceFunctionNewton<2,1>(double dist, double &force, double& force_prime)
+template<int Dim, int K>
+inline typename std::enable_if<Dim == 2 && K == 1, void>::type
+RepForceFunctionNewton(double dist, double &force, double& force_prime)
 {
 	// distance square root
 	dist = dist + 0.1;
@@ -108,7 +114,8 @@ inline void AttrForceFunctionLog(double dist, double &force, double& force_prime
 
 
 template<int Dim, int K>
-inline void AttrForceFunctionPow(double dist, double &force, double& force_prime)
+inline typename std::enable_if<Dim != 2 || (K != 1 && K != 2), void>::type
+AttrForceFunctionPow(double dist, double &force, double& force_prime)
 {
 	// distance square root
 	dist = dist + 0.1;
@@ -122,8 +129,9 @@ inline void AttrForceFunctionPow(double dist, double &force, double& force_prime
 	force_prime  =  (double)(K) * (t / dist);
 }
 
-template<>
-inline void AttrForceFunctionPow<2,2>(double dist, double &force, double& force_prime)
+template<int Dim, int K>
+inline typename std::enable_if<Dim == 2 && K == 2, void>::type
+AttrForceFunctionPow(double dist, double &force, double& force_prime)
 {
 	// distance square root
 	dist = dist + 0.1;
@@ -133,8 +141,9 @@ inline void AttrForceFunctionPow<2,2>(double dist, double &force, double& force_
 }
 
 
-template<>
-inline void AttrForceFunctionPow<2,1>(double dist, double &force, double& force_prime)
+template<int Dim, int K>
+inline typename std::enable_if<Dim == 2 && K == 1, void>::type
+AttrForceFunctionPow(double dist, double &force, double& force_prime)
 {
 	// distance square root
 	dist = dist + 0.1;

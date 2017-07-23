@@ -70,5 +70,4 @@ private:
 	CrossingsMatrix *m_crossingMatrix;
 };
 
-
-} // end namespace ogdf
+}

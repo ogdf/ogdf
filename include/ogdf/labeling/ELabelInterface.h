@@ -119,7 +119,7 @@ public:
 			m_xSize[i] = rhs.m_xSize[i];
 			m_ySize[i] = rhs.m_ySize[i];
 		}
-	}//copy con
+	}
 
 	~EdgeLabel() { }
 
@@ -140,7 +140,7 @@ public:
 			}
 		}
 		return *this;
-	}//assignment
+	}
 
 	EdgeLabel& operator|=(const EdgeLabel& rhs)
 	{
@@ -208,10 +208,7 @@ private:
 #if 0
 	string m_string;
 #endif
-
-
-};//edgelabel
-
+};
 
 //Interface to algorithm
 template <class coordType>
@@ -278,7 +275,6 @@ private:
 
 	coordType m_distDefault; //default distance label/edge for positioner
 	coordType m_minFeatDist; //min Distance label/feature in candidate posit.
-};//ELabelInterface
+};
 
-
-}//end namespace
+}

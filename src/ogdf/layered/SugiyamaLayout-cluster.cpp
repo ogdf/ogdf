@@ -41,7 +41,7 @@ using std::tuple;
 
 namespace ogdf {
 
-ostream& operator<<(ostream &os, const RCCrossings &cr)
+std::ostream& operator<<(std::ostream &os, const RCCrossings &cr)
 {
 	os << "(" << cr.m_cnClusters << "," << cr.m_cnEdges << ")";
 	return os;
@@ -72,7 +72,7 @@ void LHTreeNode::removeAuxChildren()
 }
 
 
-ostream &operator<<(ostream &os, const LHTreeNode *n)
+std::ostream &operator<<(std::ostream &os, const LHTreeNode *n)
 {
 	if(n->isCompound()) {
 		os << "C" << n->originalCluster();
@@ -377,7 +377,7 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 
 		// e was reversed?
 		if(m_copyEdge[e].front()->source() != m_copy[e->source()])
-			swap(u,v);
+			std::swap(u, v);
 
 		if(CG.clusterOf(u) != CG.clusterOf(v)) {
 			cluster c = lca(u, v);
@@ -452,8 +452,8 @@ void ExtendedNestingGraph::computeRanking()
 	// adjust ranks of top / bottom node
 	for(cluster c = m_CGC.firstPostOrderCluster(); c != nullptr; c = c->pSucc())
 	{
-		int t = numeric_limits<int>::max();
-		int b = numeric_limits<int>::min();
+		int t = std::numeric_limits<int>::max();
+		int b = std::numeric_limits<int>::min();
 
 		ListConstIterator<node> itV;
 		for(itV = c->nBegin(); itV.valid();  ++itV) {
@@ -480,7 +480,7 @@ void ExtendedNestingGraph::computeRanking()
 		OGDF_ASSERT(m_rank[top(cOrig)] <= t);
 		OGDF_ASSERT(b <= m_rank[bottom(cOrig)]);
 
-		if(t < numeric_limits<int>::max()) {
+		if(t < std::numeric_limits<int>::max()) {
 			m_rank[top   (cOrig)] = t;
 			m_rank[bottom(cOrig)] = b;
 		}
@@ -521,7 +521,6 @@ void ExtendedNestingGraph::computeRanking()
 		if(L.empty())
 			continue;
 
-		SListConstIterator<node> it;
 		for(node v : L)
 			m_rank[v] = currentRank;
 
@@ -829,7 +828,6 @@ void ExtendedNestingGraph::buildLayers()
 			activeClusters.insert(cActive);
 
 		// create compound tree nodes
-		//ListConstIterator<cluster> itC;
 		for(cluster cl : activeClusters.clusters()) {
 			clusterToTreeNode[cl] = new LHTreeNode(cl, clusterToTreeNode[cl]);
 			if(cl != m_CGC.rootCluster())
@@ -1028,15 +1026,15 @@ void ExtendedNestingGraph::permute()
 
 RCCrossings ExtendedNestingGraph::reduceCrossings(int i, bool dirTopDown)
 {
-	//cout << "Layer " << i << ":\n";
+	//std::cout << "Layer " << i << ":\n";
 	LHTreeNode *root = m_layer[i].root();
 
-	Stack<LHTreeNode*> S;
+	ArrayBuffer<LHTreeNode*> S;
 	S.push(root);
 
 	RCCrossings numCrossings;
 	while(!S.empty()) {
-		LHTreeNode *cNode = S.pop();
+		LHTreeNode *cNode = S.popRet();
 		numCrossings += reduceCrossings(cNode, dirTopDown);
 
 		for(int j = 0; j < cNode->numberOfChildren(); ++j) {
@@ -1133,7 +1131,6 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 			int posJ = m_pos[(adjJ).m_u];
 
 			for(int k = j+1; k < n; ++k) {
-				//ListConstIterator<LHTreeNode::Adjacency> itK;
 				for (const LHTreeNode::Adjacency &adjK : adj[k]) {
 					int posK   = m_pos[adjK.m_u];
 					int weight = adjJ.m_weight * adjK.m_weight;
@@ -1153,7 +1150,7 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 		cNode->m_upperClusterCrossing.begin() : cNode->m_lowerClusterCrossing.begin();
 		itCC.valid(); ++itCC)
 	{
-		/*cout << "crossing: C" << m_CGC.clusterOf((*itCC).m_edgeCluster->source()) <<
+		/*std::cout << "crossing: C" << m_CGC.clusterOf((*itCC).m_edgeCluster->source()) <<
 			" e=" << (*itCC).m_edgeCluster << "  with edge " << (*itCC).m_edge <<
 			" cluster: C" << m_CGC.clusterOf((*itCC).m_edge->source()) <<
 			", C" << m_CGC.clusterOf((*itCC).m_edge->target()) << "\n";*/
@@ -1328,11 +1325,11 @@ void ExtendedNestingGraph::removeTopBottomEdges()
 	{
 		LHTreeNode *root = m_layer[i].root();
 
-		Stack<LHTreeNode*> S;
+		ArrayBuffer<LHTreeNode*> S;
 		S.push(root);
 
 		while(!S.empty()) {
-			LHTreeNode *cNode = S.pop();
+			LHTreeNode *cNode = S.popRet();
 
 			cNode->setPos();
 			for (const LHTreeNode::ClusterCrossing &cc : cNode->m_upperClusterCrossing) {
@@ -1375,7 +1372,6 @@ cluster ExtendedNestingGraph::lca(node u, node v) const
 {
 	const ClusterGraph &CG = getOriginalClusterGraph();
 
-	SListConstIterator<cluster> it;
 	for(cluster c : m_markedClustersTree)
 		m_mark[c] = nullptr;
 	m_markedClustersTree.clear();
@@ -1425,7 +1421,6 @@ LHTreeNode *ExtendedNestingGraph::lca(
 	OGDF_ASSERT(uNode->isCompound() == false);
 	OGDF_ASSERT(vNode->isCompound() == false);
 
-	SListConstIterator<cluster> it;
 	for(cluster c : m_markedClusters)
 		m_markTree[c] = nullptr;
 	m_markedClusters.clear();
@@ -1564,7 +1559,7 @@ void ExtendedNestingGraph::moveDown(node v, const SListPure<node> &successors, N
 			node t = e->target();
 
 			if (s != w) {
-				maxLevel = max(maxLevel, level[s]);
+				Math::updateMax(maxLevel, level[s]);
 			}
 			if (t != w && --m_auxDeg[t] == 0) {
 				Q.pushBack(t);
@@ -1605,15 +1600,15 @@ edge ExtendedNestingGraph::addEdge(node u, node v, bool addAlways)
 void SugiyamaLayout::call(ClusterGraphAttributes &AG)
 {
 #if 0
-	ofstream os("C:\\temp\\sugi.txt");
-	freopen("c:\\work\\GDE\\cout.txt", "w", stdout);
+	std::ofstream os("C:\\temp\\sugi.txt");
+	freopen("c:\\work\\GDE\\std::cout.txt", "w", stdout);
 
 	const Graph &G = AG.constGraph();
 #endif
 	const ClusterGraph &CG = AG.constClusterGraph();
 #if 0
 	if (G.numberOfNodes() == 0) {
-		os << "Empty graph." << endl;
+		os << "Empty graph." << std::endl;
 		return;
 	}
 #endif
@@ -1844,5 +1839,4 @@ void SugiyamaLayout::reduceCrossings(ExtendedNestingGraph &H)
 	m_nCrossings = m_nCrossingsCluster.m_cnEdges;
 }
 
-
-} // end namespace ogdf
+}

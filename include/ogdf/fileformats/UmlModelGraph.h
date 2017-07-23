@@ -86,9 +86,9 @@ public:
 	/** Returns a reference to the type of the given node. */
 	Graph::NodeType &type(node v) { return m_vType[v]; }
 
-}; // class UmlModelGraph
+};
 
 /** Output operator for UmlModelGraph. */
-ostream &operator<<(ostream &os, const UmlModelGraph &modelGraph);
+std::ostream &operator<<(std::ostream &os, const UmlModelGraph &modelGraph);
 
-} // end namespace ogdf
+}

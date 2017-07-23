@@ -1,5 +1,5 @@
 /** \file
- * \brief planar biconnected augmentation approximation algorithm
+ * \brief Declaration of ogdf::PlanarAugmentation
  *
  * \author Bernd Zey
  *
@@ -39,7 +39,7 @@
 namespace ogdf {
 
 /**
- * \brief The algorithm for planar biconnectivity augmentation (Mutzel, Fialko).
+ * The algorithm for planar biconnectivity augmentation (Mutzel, Fialko).
  *
  * @ingroup ga-augment
  *
@@ -67,102 +67,80 @@ public:
 
 protected:
 	/**
-	 * \brief The implementation of the algorithm call.
+	 * The implementation of the algorithm call.
 	 *
 	 * \param G is the working graph.
-	 * \param L is the list of all new edges.
+	 * \param list is the list of all new edges.
 	 */
-	virtual void doCall(Graph& G, List<edge>& L) override;
+	virtual void doCall(Graph& G, List<edge>& list) override;
 
 
 private:
-	/**
-	 * \brief Counts the number of planarity tests.
-	 */
-	int m_nPlanarityTests;
+	//! The number of planarity tests.
+	int m_nPlanarityTests = 0;
 
-	/**
-	 * \brief The working graph.
-	 */
-	Graph* m_pGraph;
-	/**
-	 * \brief The corresponding BC-Tree.
-	 */
-	DynamicBCTree* m_pBCTree;
+	//! The working graph.
+	Graph* m_pGraph = nullptr;
 
-	/**
-	 * \brief The inserted edges by the algorithm.
-	 */
-	List<edge>* m_pResult;
+	//! The corresponding BC-Tree.
+	DynamicBCTree* m_pBCTree = nullptr;
 
-	/**
-	 * \brief The list of all labels, sorted by size (decreasing).
-	 */
+	//! The inserted edges by the algorithm.
+	List<edge>* m_pResult = nullptr;
+
+	//! The list of all labels, sorted by size (decreasing).
 	List<pa_label> m_labels;
-	/**
-	 * \brief The list of all pendants (leaves in the BC-Tree).
-	 */
+
+	//! The list of all pendants (leaves in the BC-Tree).
 	List<node> m_pendants;
 
-	/**
-	 * \brief The list of pendants that has to be deleted after each reduceChain.
-	 */
+	//! The list of pendants that has to be deleted after each reduceChain.
 	List<node> m_pendantsToDel;
 
-	/**
-	 * \brief The label a BC-Node belongs to.
-	 */
+	//! The label a BC-Node belongs to.
 	NodeArray<pa_label> m_belongsTo;
-	/**
-	 * \brief The list iterator in m_labels if the node in the BC-Tree is a label.
-	 */
-	NodeArray< ListIterator<pa_label> > m_isLabel;
+
+	//! The list iterator in #m_labels if the node in the BC-Tree is a label.
+	NodeArray<ListIterator<pa_label>> m_isLabel;
 
 	/**
-	 * \brief Stores for each node of the bc-tree the children that have an adjacent bc-node
-	 * 		  that doesn't belong to the same parent-node.
+	 * Stores for each node of the bc-tree the children that have an adjacent bc-node
+	 * that doesn't belong to the same parent-node.
 	 *
 	 * This is necessary because the bc-tree uses an union-find-data-structure to store
 	 * dependencies between bc-nodes. The adjacencies in the bc-tree won't be updated.
 	 */
-	NodeArray< SList<adjEntry> > m_adjNonChildren;
-
+	NodeArray<SList<adjEntry>> m_adjNonChildren;
 
 private:
-
-	/**
-	 * \brief The main function for planar augmentation.
-	 */
+	//! The main function for planar augmentation.
 	void augment();
 
-	/**
-	 * \brief Makes the graph connected by new edges between pendants of
-	 *  	  the connected components
-	 */
+	//! Makes the graph connected by new edges between pendants of the connected components
 	void makeConnectedByPendants();
 
 	/**
-	 * \brief Is called for every pendant-node. It traverses to the
-	 * 		  root and creates a label or updates one.
+	 * Traverses to the root and creates a label or updates one.
+	 * Is called for every pendant node.
 	 *
-	 * \param p is a pendant in the BC-Tree.
-	 * \param labelOld is the old label of \p p.
+	 * \param pendant is a pendant in the BC-Tree.
+	 * \param labelOld is the old label of \p pendant.
 	 */
-	void reduceChain(node p, pa_label labelOld = nullptr);
+	void reduceChain(node pendant, pa_label labelOld = nullptr);
 
 	/**
-	 * \brief Is called in reduceChain. It traverses to the root and checks
-	 * 		  several stop conditions.
+	 * Traverses to the root and checks several stop conditions.
+	 * Is called by #reduceChain.
 	 *
 	 * \param v is a node of the BC-Tree.
 	 * \param last is the last found C-vertex in the BC-Tree, is modified by
-	 * 		  the method.
+	 *        the method.
 	 * \return the stop-cause.
 	 */
 	PALabel::StopCause followPath(node v, node& last);
 
 	/**
-	 * \brief Checks planarity for a new edge (v1,v2) in the original graph.
+	 * Checks planarity for a new edge (\p v1, \p v2) in the original graph.
 	 *
 	 * \param v1 is a node in the original graph.
 	 * \param v2 is a node in the original graph.
@@ -171,117 +149,94 @@ private:
 	bool planarityCheck(node v1, node v2);
 
 	/**
-	 * \brief Returns a node that belongs to bc-node v and is adjacent to the cutvertex.
+	 * Returns a node that belongs to bc-node \p v and is adjacent to \p cutvertex.
 	 *
 	 * \param v is a node in the BC-Tree.
-	 * \param cutvertex is the last cutvertex found.
+	 * \param cutvertex is the last cut-vertex found.
 	 * \return a node of the original graph.
 	 */
 	node adjToCutvertex(node v, node cutvertex = nullptr);
 
-	/**
-	 * \brief Traverses from pendant to ancestor and returns the
-	 *  	  last node before ancestor on the path.
-	 */
+	//! Traverses from \p pendant to \p ancestor and returns the last node before ancestor on the path.
 	node findLastBefore(node pendant, node ancestor);
 
-	/**
-	 * \brief Deletes the pendant p, removes it from the corresponding label
-	 * 		  and updates the label-order.
-	 */
-	void deletePendant(node p, bool removeFromLabel = true);
-	/**
-	 * \brief Adds a pendant p to the label l and updates the label-order.
-	 */
-	void addPendant(node p, pa_label& l);
+	//! Deletes the pendant \p pendant, and, if \p removeFromLabel is true,
+	//! removes it from the corresponding label and updates the label-order.
+	void deletePendant(node pendant, bool removeFromLabel = true);
+
+	//! Adds \p pendant to \p label and updates the label-order.
+	void addPendant(node pendant, pa_label& label);
 
 	/**
-	 * \brief Connects two pendants.
+	 * Connects two pendants.
 	 *
 	 * \return the new edge in the original graph.
 	 */
 	edge connectPendants(node pendant1, node pendant2);
-	/**
-	 * \brief Removes all pendants of a label.
-	 */
-	void removeAllPendants(pa_label& l);
+
+	//! Removes all pendants of \p label.
+	void removeAllPendants(pa_label& label);
+
+	//! Connects all pendants of \p label with new edges.
+	void joinPendants(pa_label& label);
+
+	//! Connects the only pendant of \p label with a computed ancestor.
+	void connectInsideLabel(pa_label& label);
 
 	/**
-	 * \brief Connects all pendants of label \p l with new edges.
-	 */
-	void joinPendants(pa_label& l);
-
-	/**
-	 * \brief Connects the only pendant of l with a computed ancestor.
-	 */
-	void connectInsideLabel(pa_label& l);
-
-	/**
-	 * \brief Inserts label l into m_labels by decreasing order.
+	 * Inserts \p label into #m_labels by decreasing order.
 	 *
 	 * \return the corresponding list iterator.
 	 */
-	ListIterator<pa_label> insertLabel(pa_label l);
+	ListIterator<pa_label> insertLabel(pa_label label);
+
+	//! Deletes \p label.
+	void deleteLabel(pa_label& label, bool removePendants = true);
 
 	/**
-	 * \brief deletes label \p l.
-	 */
-	void deleteLabel(pa_label& l, bool removePendants = true);
-
-	/**
-	 * \brief Inserts edges between pendants of label first and second.
-	 * 		  first.size() is gerater than second.size() or equal.
+	 * Inserts edges between pendants of label \p first and \p second.
+	 *
+	 * @pre \c first.size() is greater than \c second.size() or equal.
 	 */
 	void connectLabels(pa_label first, pa_label second);
 
-	/**
-	 * \brief Creates a new label and inserts it into m_labels.
-	 */
-	pa_label newLabel(node cutvertex, node p, PALabel::StopCause whyStop);
+	//! Creates a new label and inserts it into #m_labels.
+	pa_label newLabel(node cutvertex, node pendant, PALabel::StopCause whyStop);
 
 	/**
-	 * \brief Finds two matching labels, so all pendants can be connected
-	 * 		  without losing planarity.
+	 * Finds two matching labels, so all pendants can be connected
+	 * without losing planarity.
 	 *
 	 * \param first is the label with maximum size, modified by the function.
 	 * \param second is the matching label, modified by the function:
-	 * 		  0 if no matching is found.
+	 *        0 if no matching is found.
 	 * \return true iff a matching label is found.
 	 */
 	bool findMatching(pa_label& first, pa_label& second);
 
-	/**
-	 * \brief Checks if the pendants of label a and label b can be connected
-	 * 		  without creating a new pendant.
-	 */
+	//! Checks if the pendants of label \p a and label \p b can be connected without creating a new pendant.
 	bool connectCondition(pa_label a, pa_label b);
 
 	/**
-	 * \brief Updates the adjNonChildren-data.
+	 * Updates #m_adjNonChildren.
 	 *
 	 * \param newBlock is a new created block of the BC-Tree.
 	 * \param path is the path in the BC-Tree between the two connected nodes.
 	 */
 	void updateAdjNonChildren(node newBlock, SList<node>& path);
 
-	/**
-	 * \brief Modifies the root of the BC-Tree that newRoot replaces oldRoot.
-	 */
+	//! Modifies the root of the BC-Tree that \p newRoot replaces \p oldRoot.
 	void modifyBCRoot(node oldRoot, node newRoot);
 
 	/**
-	 * \brief Major updates caused by the new edges.
+	 * Major updates caused by the new edges.
 	 *
 	 * \param newEdges is a list of all new edges.
 	 */
 	void updateNewEdges(const SList<edge> &newEdges);
 
-	/**
-	 * \brief Cleanup.
-	 */
+	//! Cleanup.
 	void terminate();
+};
 
-};	// class PlanarAugmentation
-
-
-} // namespace ogdf
+}

@@ -61,10 +61,6 @@ TreeLayout::TreeLayout(const TreeLayout &tl)
 { }
 
 
-TreeLayout::~TreeLayout()
-{ }
-
-
 TreeLayout &TreeLayout::operator=(const TreeLayout &tl)
 {
 	m_siblingDistance  = tl.m_siblingDistance;
@@ -76,30 +72,6 @@ TreeLayout &TreeLayout::operator=(const TreeLayout &tl)
 	m_selectRoot       = tl.m_selectRoot;
 	return *this;
 }
-
-
-// comparer class used for sorting adjacency entries according to their angle
-class TreeLayout::AdjComparer
-{
-public:
-	explicit AdjComparer(const AdjEntryArray<double> &angle) {
-		m_pAngle = &angle;
-	}
-
-	int compare(const adjEntry &adjX, const adjEntry &adjY) const {
-		if ((*m_pAngle)[adjX] < (*m_pAngle)[adjY])
-			return -1;
-		else
-			if ((*m_pAngle)[adjX] > (*m_pAngle)[adjY])
-				return 1;
-		else
-			return 0;
-	}
-	OGDF_AUGMENT_COMPARER(adjEntry)
-
-private:
-	const AdjEntryArray<double> *m_pAngle;
-};
 
 
 struct TreeLayout::TreeStructure {
@@ -255,7 +227,7 @@ struct TreeLayout::TreeStructure {
 void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reversedEdges)
 {
 	NodeArray<bool> visited(tree,false);
-	StackPure<node> S;
+	ArrayBuffer<node> S;
 
 	for(node v : tree.nodes)
 	{
@@ -267,7 +239,7 @@ void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reve
 
 		while(!S.empty())
 		{
-			node x = S.pop();
+			node x = S.popRet();
 			visited[x] = true;
 
 			if(!root) {
@@ -339,7 +311,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 {
 	OGDF_ASSERT(&tree == &(AG.constGraph()));
 
-	if (!isFreeForest(tree))
+	if (!isAcyclicUndirected(tree))
 		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
 
 	SListPure<edge> reversedEdges;
@@ -348,7 +320,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 	// stores angle of adjacency entry
 	AdjEntryArray<double> angle(tree);
 
-	AdjComparer cmp(angle);
+	GenericComparer<adjEntry, double> cmp(angle);
 
 	for(node v : tree.nodes)
 	{
@@ -372,7 +344,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 			}
 
 			if(m_orientation == Orientation::leftToRight || m_orientation == Orientation::rightToLeft)
-				swap(dx,dy);
+				std::swap(dx, dy);
 			if(m_orientation == Orientation::topToBottom || m_orientation == Orientation::rightToLeft)
 				dy = -dy;
 
@@ -416,7 +388,7 @@ void TreeLayout::call(GraphAttributes &AG)
 	const Graph &tree = AG.constGraph();
 	if(tree.numberOfNodes() == 0) return;
 
-	if (!isForest(tree))
+	if (!isArborescenceForest(tree))
 		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
 
 	OGDF_ASSERT(m_siblingDistance > 0);
@@ -527,12 +499,12 @@ void TreeLayout::undoReverseEdges(GraphAttributes &AG, Graph &tree, SListPure<ed
 
 void TreeLayout::findMinX(GraphAttributes &AG, node root, double &minX)
 {
-	Stack<node> S;
+	ArrayBuffer<node> S;
 	S.push(root);
 
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 
 		double left = AG.x(v) - AG.width(v)/2;
 		if(left < minX) minX = left;
@@ -547,12 +519,12 @@ void TreeLayout::findMinX(GraphAttributes &AG, node root, double &minX)
 
 void TreeLayout::findMinY(GraphAttributes &AG, node root, double &minY)
 {
-	Stack<node> S;
+	ArrayBuffer<node> S;
 	S.push(root);
 
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 
 		double left = AG.y(v) - AG.height(v)/2;
 		if(left < minY) minY = left;
@@ -568,11 +540,11 @@ void TreeLayout::findMinY(GraphAttributes &AG, node root, double &minY)
 
 void TreeLayout::shiftTreeX(GraphAttributes &AG, node root, double shift)
 {
-	Stack<node> S;
+	ArrayBuffer<node> S;
 	S.push(root);
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 
 		AG.x(v) += shift;
 
@@ -591,11 +563,11 @@ void TreeLayout::shiftTreeX(GraphAttributes &AG, node root, double shift)
 
 void TreeLayout::shiftTreeY(GraphAttributes &AG, node root, double shift)
 {
-	Stack<node> S;
+	ArrayBuffer<node> S;
 	S.push(root);
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 
 		AG.y(v) += shift;
 
@@ -615,11 +587,11 @@ void TreeLayout::shiftTreeY(GraphAttributes &AG, node root, double shift)
 
 void TreeLayout::findMaxX(GraphAttributes &AG, node root, double &maxX)
 {
-	Stack<node> S;
+	ArrayBuffer<node> S;
 	S.push(root);
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 
 		double right = AG.x(v) + AG.width(v)/2;
 		if(right > maxX) maxX = right;
@@ -634,11 +606,11 @@ void TreeLayout::findMaxX(GraphAttributes &AG, node root, double &maxX)
 
 void TreeLayout::findMaxY(GraphAttributes &AG, node root, double &maxY)
 {
-	Stack<node> S;
+	ArrayBuffer<node> S;
 	S.push(root);
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 
 		double right = AG.y(v) + AG.height(v)/2;
 		if(right > maxY) maxY = right;
@@ -990,5 +962,4 @@ void TreeLayout::computeXCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 	}
 }
 
-
-} // end namespace ogdf
+}

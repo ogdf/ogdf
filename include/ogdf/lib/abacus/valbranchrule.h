@@ -63,7 +63,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const ValBranchRule &rhs);
+	friend std::ostream &operator<<(std::ostream &out, const ValBranchRule &rhs);
 
 
 	//! Modifies a subproblem by setting the branching variable.
@@ -105,4 +105,4 @@ private:
 	double oldLpUBound_;
 };
 
-} //namespace abacus
+}

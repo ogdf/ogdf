@@ -108,10 +108,10 @@ void BertaultLayout::call(GraphAttributes &AG)
 			int i;
 			for(i=1;i<9;i++)
 			{
-				cout << sect[v].R[i];
-				cout << " ";
+				std::cout << sect[v].R[i];
+				std::cout << " ";
 			}
-			cout << "\n";
+			std::cout << "\n";
 #endif
 		}
 
@@ -158,30 +158,30 @@ void BertaultLayout::call(GraphAttributes &AG)
 		for(node v : G.nodes)
 		{
 #if 0
-			cout << "F_x : ";
-			cout << F_x[v];
+			std::cout << "F_x : ";
+			std::cout << F_x[v];
 
-			cout << "   F_y : ";
-			cout << F_y[v];
-			cout << "\n";
+			std::cout << "   F_y : ";
+			std::cout << F_y[v];
+			std::cout << "\n";
 #endif
 			//moves the nodes according to forces
 			move(&v,AG);
 #if 0
-			cout << "move_x : ";
-			cout << F_x[v];
+			std::cout << "move_x : ";
+			std::cout << F_x[v];
 
-			cout << "   move_y : ";
-			cout << F_y[v];
-			cout << "\n";
+			std::cout << "   move_y : ";
+			std::cout << F_y[v];
+			std::cout << "\n";
 
 			int i;
 			for(i=1;i<9;i++)
 			{
-				cout << sect[v].R[i];
-				cout << " ";
+				std::cout << sect[v].R[i];
+				std::cout << " ";
 			}
-			cout << "\n\n";
+			std::cout << "\n\n";
 #endif
 		}
 	}
@@ -293,7 +293,7 @@ void BertaultLayout::r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG)
 	double max_radius=(sqrt(x_diff*x_diff+y_diff*y_diff))/3;
 
 #if 0
-	cout << "node:" << (*v)->index() << "edge:" << (*e)->index()
+	std::cout << "node:" << (*v)->index() << "edge:" << (*e)->index()
 	     << "between" << a->index() << "and" << b->index()
 	     << "INSIDE\nsection:" << s
 	     << "x_a:" << AG.x(a)
@@ -315,15 +315,15 @@ void BertaultLayout::r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG)
 			num=1+((r-1)%8);
 			if(num<=0)
 				num+=8;
-			(sect)[*v].R[num]=min((sect)[*v].R[num],max_radius);
+			Math::updateMin(sect[*v].R[num], max_radius);
 		}
 		for(r=s+2;r<=(s+6);r++)
 		{
 			num=1+((r-1)%8);
 			if(num<=0)
 				num+=8;
-			(sect)[a].R[num]=min((sect)[a].R[num],max_radius);
-			(sect)[b].R[num]=min((sect)[b].R[num],max_radius);
+			Math::updateMin(sect[a].R[num], max_radius);
+			Math::updateMin(sect[b].R[num], max_radius);
 		}
 #if 0
 	}
@@ -332,10 +332,10 @@ void BertaultLayout::r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG)
 	int i;
 	for(i=1;i<9;i++)
 	{
-		cout << sect[*v].R[i];
-		cout << " ";
+		std::cout << sect[*v].R[i];
+		std::cout << " ";
 	}
-	cout << "\n";
+	std::cout << "\n";
 #endif
 }
 
@@ -347,25 +347,25 @@ void BertaultLayout::r_Calc_Outside_Edge(node *v, edge *e, GraphAttributes &AG)
 	double dav=sqrt((AG.x(*v)-AG.x(a))*(AG.x(*v)-AG.x(a))+(AG.y(*v)-AG.y(a))*(AG.y(*v)-AG.y(a)));
 	double dbv=sqrt((AG.x(*v)-AG.x(b))*(AG.x(*v)-AG.x(b))+(AG.y(*v)-AG.y(b))*(AG.y(*v)-AG.y(b)));
 #if 0
-	cout << "node:" << (*v)->index() << "edge:" << (*e)->index() << "between" << a->index() << "and" << b->index() << "OUTSIDE\ndist_v_a:" << dav << "dist_v_b:" << dbv << "\n\n" ;
+	std::cout << "node:" << (*v)->index() << "edge:" << (*e)->index() << "between" << a->index() << "and" << b->index() << "OUTSIDE\ndist_v_a:" << dav << "dist_v_b:" << dbv << "\n\n" ;
 #endif
 
 	int r;
 	for(r=1;r<=8;r++)
 	{
-		(sect)[*v].R[r]=min((sect)[*v].R[r],min(dav,dbv)/3);
-		(sect)[a].R[r]=min((sect)[a].R[r],dav/3);
-		(sect)[b].R[r]=min((sect)[b].R[r],dbv/3);
+		Math::updateMin(sect[*v].R[r], min(dav, dbv) / 3);
+		Math::updateMin(sect[a].R[r], dav / 3);
+		Math::updateMin(sect[b].R[r], dbv / 3);
 	}
 
 #if 0
 	int i;
 	for(i=1;i<9;i++)
 	{
-		cout << sect[*v].R[i];
-		cout << " ";
+		std::cout << sect[*v].R[i];
+		std::cout << " ";
 	}
-	cout << "\n";
+	std::cout << "\n";
 #endif
 }
 
@@ -495,8 +495,8 @@ void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 #if 0
 						if((AG.x(v)*AG.x(v)+AG.y(v)*AG.y(v))!=r*r)
 						{
-							cout << (AG.x(v)*AG.x(v)+AG.y(v)*AG.y(v))-(r*r);
-							cout << "\n";
+							std::cout << (AG.x(v)*AG.x(v)+AG.y(v)*AG.y(v))-(r*r);
+							std::cout << "\n";
 						}
 #endif
 					}
@@ -571,7 +571,7 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 	GraphAttributes PAG(PG, GraphAttributes::nodeGraphics|GraphAttributes::edgeGraphics);
 	List< node > list;
 
-	cout << numCC <<"\n";
+	std::cout << numCC <<"\n";
 #endif
 
 	List<CCElement*> forest;
@@ -591,13 +591,13 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 			{
 #if 0
 				CCElement *Croot=&(**(forest.get(rootnum)));
-				cout << "Children of " << (**(forest.get(rootnum))).num <<"bfor calling :\n";
+				std::cout << "Children of " << (**(forest.get(rootnum))).num <<"bfor calling :\n";
 				int k;
 				for(k=0;k<(**(forest.get(rootnum))).child.size();k++)
 				{
-					cout << (*((**(forest.get(rootnum))).child.get(k)))->num << "\n";
+					std::cout << (*((**(forest.get(rootnum))).child.get(k)))->num << "\n";
 				}
-				cout << "Inserting " << (*new1).num << " into " << (**(forest.get(rootnum))).num << "\n";
+				std::cout << "Inserting " << (*new1).num << " into " << (**(forest.get(rootnum))).num << "\n";
 #endif
 
 				int retv=insert(new1,&(**(forest.get(rootnum))),AG1,PG);
@@ -609,10 +609,6 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 				else if(retv==1)
 				{
 					(**(forest.get(rootnum))).root=false;
-#if 0
-					ListIterator<CCElement> l((*(forest.get(rootnum))));
-					cout << (**forest.get(rootnum)).num << " deleted\n";
-#endif
 					forest.del(forest.get(rootnum));
 					rootnum--;
 				}
@@ -626,11 +622,11 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 
 			forest.pushBack(&(*new1));
 #if 0
-			cout << (*new1).num << " is a root now " << "\nChildren of " << (*new1).num << ":\n";
+			std::cout << (*new1).num << " is a root now " << "\nChildren of " << (*new1).num << ":\n";
 			int j;
 			for(j=0;j<(*new1).child.size();j++)
 			{
-				cout << (*((*new1).child.get(j)))->num << "\n";
+				std::cout << (*((*new1).child.get(j)))->num << "\n";
 			}
 #endif
 		}
@@ -638,10 +634,10 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 
 	// Uncomment below statements to see output... for debugging use
 #if 0
-	cout << "forest size : " << forest.size();
+	std::cout << "forest size : " << forest.size();
 	for(int i=0;i<forest.size();i++)
 	{
-		cout << "\nRoot : " << i <<"\n";
+		std::cout << "\nRoot : " << i <<"\n";
 		compute(*forest.get(i),PG,AG1,G1);
 	}
 
@@ -695,7 +691,7 @@ void BertaultLayout::crossingPlanarize(GraphAttributes &AG)
 				if(xinc*yinc<0&&ainc*binc<0)
 				{
 #if 0
-					cout << "edge " << e->index()
+					std::cout << "edge " << e->index()
 					     << " and edge " << i->index()
 					     << " between nodes " << a->index()
 					     << " and " << b->index()
@@ -728,10 +724,10 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 	{
 		int flag=0;
 #if 0
-		cout << "Children of " << (*element).num <<"bfor :\n";
+		std::cout << "Children of " << (*element).num <<"bfor :\n";
 		for(int i=0;i<(*element).child.size();i++)
 		{
-			cout << (*((*element).child.get(i)))->num << "\n";
+			std::cout << (*((*element).child.get(i)))->num << "\n";
 		}
 #endif
 		if((*element).child.size()!=0)
@@ -743,7 +739,7 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 				if (child->faceNum == contface)
 				{
 #if 0
-					cout << "Gonna insert " << (*new1).num << " in " << child->num << "\n";
+					std::cout << "Gonna insert " << (*new1).num << " in " << child->num << "\n";
 #endif
 
 					int retv = insert(new1, child, PAG, PG);
@@ -766,16 +762,16 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 			(*new1).faceNum=contface;
 			(*element).child.pushBack(&(*new1));
 #if 0
-			cout << (*new1).num << " is child of " << new1->parent->num << "\nChildren of " << (*element).num << ":\n";
+			std::cout << (*new1).num << " is child of " << new1->parent->num << "\nChildren of " << (*element).num << ":\n";
 			for(i=0;i<(*element).child.size();i++)
 			{
-				cout << (*((*element).child.get(i)))->num << "\n";
+				std::cout << (*((*element).child.get(i)))->num << "\n";
 			}
 
-			cout << "Children of " << (*new1).num <<" ("<< (*new1).child.size() <<"):\n";
+			std::cout << "Children of " << (*new1).num <<" ("<< (*new1).child.size() <<"):\n";
 			for(i=0;i<(*new1).child.size();i++)
 			{
-				cout << (*((*new1).child.get(i)))->num << "\n";
+				std::cout << (*((*new1).child.get(i)))->num << "\n";
 			}
 #endif
 
@@ -786,9 +782,6 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 	{
 		contface=contained(element,new1,PAG,PG);
 		if (contface!=-1) {
-#if 0
-			ListIterator<CCElement*> l;
-#endif
 			if (!(*element).root) { // delete from children list
 				(*element).parent->child.removeFirst(element);
 			}
@@ -797,14 +790,14 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 			(*new1).child.pushBack(element);
 
 #if 0
-			cout << "Pushed " << (*element).num << " into " << (*new1).num << "\n";
+			std::cout << "Pushed " << (*element).num << " into " << (*new1).num << "\n";
 
-			cout << (*new1).num << " is parent of " << (*element).num << "\nChildren of " << (*new1).num << ":\n";
+			std::cout << (*new1).num << " is parent of " << (*element).num << "\nChildren of " << (*new1).num << ":\n";
 
 			int i;
 			for(i=0;i<(*new1).child.size();i++)
 			{
-				cout << (**((*new1).child.get(i))).num << "\n";
+				std::cout << (**((*new1).child.get(i))).num << "\n";
 			}
 #endif
 			return 1;
@@ -831,13 +824,13 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 	double xc=PAG.x(PG.original(v));
 
 #if 0
-	cout << "Number of edges in " << new1->num << " is " << PG.numberOfEdges() << "\n";
+	std::cout << "Number of edges in " << new1->num << " is " << PG.numberOfEdges() << "\n";
 #endif
 
 	PG.initCC(element->num);
 #if 0
-	cout << "Number of edges in " << element->num << " is " << PG.numberOfEdges() << "\n";
-	cout << "Chosen " << xc;
+	std::cout << "Number of edges in " << element->num << " is " << PG.numberOfEdges() << "\n";
+	std::cout << "Chosen " << xc;
 #endif
 	ConstCombinatorialEmbedding E(PG);
 	E.computeFaces();
@@ -868,7 +861,7 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 		if (crossings % 2 != 0)
 		{
 #if 0
-			cout << "yo";
+			std::cout << "yo";
 #endif
 			return f->index();
 		}
@@ -889,7 +882,7 @@ void BertaultLayout::compute(CCElement* element, PlanRep &PG, GraphAttributes &A
 	for (face f : E.faces)
 	{
 #if 0
-		cout<<"yeah";
+		std::cout<<"yeah";
 #endif
 		for (adjEntry adj : f->entries)
 		{
@@ -905,12 +898,12 @@ void BertaultLayout::compute(CCElement* element, PlanRep &PG, GraphAttributes &A
 			node v2 = G1.original(PG.original(ver2));
 
 #if 0
-			cout << v->index() << "\n";
+			std::cout << v->index() << "\n";
 #endif
 			adjEntry adj1 = f->firstAdj(), adj3 = adj1;
 			do {
 #if 0
-				cout<<"lala\n";
+				std::cout<<"lala\n";
 #endif
 				if (!dum)
 					surr(v->index(), AG1.intWeight(PG.original(adj3->theEdge()))) = true;
@@ -973,7 +966,7 @@ void BertaultLayout::compute(CCElement* element, PlanRep &PG, GraphAttributes &A
 		}
 	}
 #if 0
-	cout << num <<" Done\n";
+	std::cout << num <<" Done\n";
 #endif
 
 	int i;
@@ -1015,7 +1008,7 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 				if (((xinc*yinc < 0 && ainc*binc < 0) || (xinc*yinc == 0 && ainc*binc < 0) || (xinc*yinc < 0 && ainc*binc == 0)))
 				{
 #if 0
-					cout << "edge " << e->index()
+					std::cout << "edge " << e->index()
 					     << " and edge " << i->index()
 					     << " between nodes " << a->index()
 					     << " and " << b->index()
@@ -1029,7 +1022,7 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 					if (m == m2&&c == c2&&distax < d&&distay < d&&distbx < d&&distby < d)
 					{
 #if 0
-						cout << "edge " << e->index()
+						std::cout << "edge " << e->index()
 						     << " and edge " << i->index()
 						     << " between nodes " << a->index()
 						     << " and " << b->index()
@@ -1048,7 +1041,7 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 			       || (a != y && a != x && b != x)))
 			{
 #if 0
-				cout << "edge " << e->index()
+				std::cout << "edge " << e->index()
 				     << " and edge " << i->index()
 				     << " between nodes " << a->index()
 				     << " and " << b->index()
@@ -1084,10 +1077,10 @@ double BertaultLayout::edgelength(GraphAttributes &AG)
 	}
 	stdev = sqrt(stdev / (G.numberOfEdges())) / mean;
 #if 0
-	cout << "\n";
-	cout << "mean : ";
-	cout << mean;
-	cout << "\n";
+	std::cout << "\n";
+	std::cout << "mean : ";
+	std::cout << mean;
+	std::cout << "\n";
 #endif
 	return stdev;
 }
@@ -1140,19 +1133,18 @@ double BertaultLayout::nodeDistribution(GraphAttributes &AG)
 		for (j = 0; j < columns; j++)
 		{
 #if 0
-			cout << box(i,j);
+			std::cout << box(i,j);
 #endif
 			stdev += ((double) (box(i, j)) - mean)*((double) (box(i, j)) - mean);
 		}
 
 #if 0
-		cout << "\n";
+		std::cout << "\n";
 #endif
 		stdev = sqrt(stdev / (rows*columns)) / mean;
 		return stdev;
 	}
-	else
-		return -1;
+	return -1;
 }
 
-}//namespace ogdf
+}

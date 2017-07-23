@@ -216,5 +216,4 @@ void OrthoLayout::computeBoundingBox(
 	m_boundingBox = DPoint(maxX+deltaX+m_margin, maxY+deltaY+m_margin);
 }
 
-
-} // end namespace ogdf
+}

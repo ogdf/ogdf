@@ -140,7 +140,5 @@ public:
 	const std::vector<Token> &tokens() const;
 };
 
-
-} // end namespace dot
-
-} // end namespace ogdf
+}
+}

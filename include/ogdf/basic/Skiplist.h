@@ -129,7 +129,7 @@ public:
 	int size() const { return m_lSize; }
 
 	//! Returns true if the skiplist contains no elements
-	int empty() const { return m_lSize==0; }
+	bool empty() const { return m_lSize == 0; }
 
 	//! Clears the current skiplist
 	/**
@@ -152,6 +152,9 @@ public:
 
 	//! returns an (forward) iterator for the skiplist
 	const SkiplistIterator<X> begin() const { return m_start[0]; }
+
+	//! returns an invalid iterator
+	const SkiplistIterator<X> end() const { return nullptr; }
 
 private:
 	int m_lSize;
@@ -214,6 +217,14 @@ public:
 	SkiplistIterator<X> &operator=(const SkiplistIterator<X> &it) {
 		el = it.el;
 		return *this;
+	}
+
+	bool operator==(const SkiplistIterator<X> other) const {
+		return el == other.el;
+	}
+
+	bool operator!=(const SkiplistIterator<X> other) const {
+		return !operator==(other);
 	}
 };
 

@@ -72,7 +72,7 @@ public:
 	 * \pre \p vT is a node in \a T
 	 * Returns 1 if \p vT is a S-node, 2 if \p vT is a R-node, and (number of edges in the sekeleton - 1)! if \p vT is a P-node.
 	 */
-	long long numberOfNodeEmbeddings(node vT);
+	long long numberOfNodeEmbeddings(node vT) const;
 
 	//
 	// b) Update operations
@@ -166,8 +166,6 @@ protected:
 	bool nextEmbedding(ListIterator<node> it);
 
 	bool m_finished;
+};
 
-}; // class PlanarSPQRTree
-
-
-} // end namespace ogdf
+}

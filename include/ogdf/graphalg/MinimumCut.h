@@ -99,7 +99,6 @@ private:
 	// The edge (if existing) between \p s and \t s is deleted. Edges incident to \p s are redirected to \t.
 	// If parallel edges occur, one of them is deleted and its weight is added to the other one.
 	void contraction(node t, node s);
-
 };
 
-}// end namespace
+}

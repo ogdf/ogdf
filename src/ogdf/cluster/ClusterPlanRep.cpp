@@ -65,8 +65,7 @@ ClusterPlanRep::ClusterPlanRep(
 	//cluster numbers don't need to be consecutive
 	for(cluster ci : clusterGraph.clusters)
 		m_clusterOfIndex[ci->index()] = ci; //numbers are unique
-}//constructor
-
+}
 
 void ClusterPlanRep::initCC(int i)
 {
@@ -92,8 +91,7 @@ void ClusterPlanRep::initCC(int i)
 		if (ClusterID(e->source()) == ClusterID(e->target()))
 			m_edgeClusterID[e] = ClusterID(e->source());
 	}
-
-}//initCC
+}
 
 /**
  * Inserts edge eOrig
@@ -147,7 +145,7 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 			OGDF_ASSERT(m_nodeClusterID[v1] != -1);
 			m_nodeClusterID[dummy] = m_nodeClusterID[v1];
 			continue;
-		}//if two originals
+		}
 		if (orV1 || orV2) //a dummy (crossing/boundary) and an original
 		{
 			node orV = (orV1 ? orV1 : orV2);
@@ -164,7 +162,7 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 			else if (orC == dC->parent()) m_nodeClusterID[dummy] = orC->index();
 			else OGDF_THROW (AlgorithmFailureException);
 			continue;
-		}//if one original
+		}
 		//no originals, only crossings/boundaries
 		c1 = clusterOfDummy(v1);
 		c2 = clusterOfDummy(v2);
@@ -183,10 +181,9 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 			m_nodeClusterID[dummy] = c1->parent()->index();
 		continue;
 
+	}
 
-	}//for
-
-}//insertEdgePathEmbedded
+}
 
 //use cluster structure to insert edges representing the cluster boundaries
 void ClusterPlanRep::ModelBoundaries()
@@ -219,27 +216,19 @@ void ClusterPlanRep::convertClusterGraph(cluster act,
 		m_rootAdj = firstEdge()->adjSource(); //only root cluster present
 	//check if leaf cluster in cluster tree (most inner)
 	bool isLeaf = false;
-	if ((!act->cBegin().valid()) && (!isRoot)) isLeaf = true;
-	// Test children first
-	ListConstIterator<cluster> it;
-	for (it = act->cBegin(); it.valid();)
-	{
-		ListConstIterator<cluster> succ = it.succ();
-		convertClusterGraph((*it), currentEdge, outEdge);
-
-		it = succ;
+	if (!act->cBegin().valid() && !isRoot) {
+		isLeaf = true;
 	}
+	// Test children first
+	safeForEach(act->children, [&](cluster child) {
+		convertClusterGraph(child, currentEdge, outEdge);
+	});
+
 	//do not convert root cluster
 	if (isRoot) return;
 
-		OGDF_ASSERT(this->representsCombEmbedding());
-
 	insertBoundary(act, currentEdge, outEdge, isLeaf);
-
-	OGDF_ASSERT(this->representsCombEmbedding());
-
-
-}//convertclustergraph
+}
 
 //inserts Boundary for a single cluster, needs the cluster and updates a
 //hashtable linking splitted original edges (used in clusteradjlist) to the
@@ -320,14 +309,12 @@ void ClusterPlanRep::insertBoundary(cluster C,
 
 			m_nodeClusterID[newEdge->source()] = C->index();
 				//m_nodeClusterID[splitEdge->source()];
-		}//if outgoing
-		else
-		{
+		} else {
 			sourceEntries.pushBack(splitEdge->adjTarget());
 			targetEntries.pushBack(newEdge->adjSource());
 
 			m_nodeClusterID[newEdge->source()] = C->index();
-		}//else outgoing
+		}
 
 		//always set some rootAdj for external face
 		if ( (C->parent() == m_pClusterGraph->rootCluster()) && !(it.succ().valid()))
@@ -335,13 +322,11 @@ void ClusterPlanRep::insertBoundary(cluster C,
 			//save the adjentry corresponding to new splitresult edge
 			m_rootAdj = currentEdge[(*it)]->adjSource();
 			OGDF_ASSERT(m_rootAdj != nullptr);
-		}//if
+		}
 
 		//go on with next edge
 		++it;
-
-	}//while outedges
-
+	}
 
 	//we need pairs of adjEntries
 	OGDF_ASSERT(targetEntries.size() == sourceEntries.size());
@@ -363,8 +348,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 	}
 
 	OGDF_ASSERT(this->representsCombEmbedding());
-
-}//insertBoundary
+}
 
 
 
@@ -380,7 +364,7 @@ void ClusterPlanRep::expand(bool lowDegreeExpand)
 			m_nodeClusterID[v] = m_nodeClusterID[expandedNode(v)];
 		}
 	}
-}//expand
+}
 
 void ClusterPlanRep::expandLowDegreeVertices(OrthoRep &OR)
 {
@@ -394,14 +378,13 @@ void ClusterPlanRep::expandLowDegreeVertices(OrthoRep &OR)
 			m_nodeClusterID[v] = m_nodeClusterID[expandedNode(v)];
 		}
 	}
-}//expandlowdegree
-
+}
 
 //file output
 
 void ClusterPlanRep::writeGML(const char *fileName, const Layout &drawing)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,drawing);
 }
 
@@ -409,19 +392,19 @@ void ClusterPlanRep::writeGML(const char *fileName, const Layout &drawing)
 void ClusterPlanRep::writeGML(const char *fileName)
 {
 	Layout drawing(*this);
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,drawing);
 }
 
 
-void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
+void ClusterPlanRep::writeGML(std::ostream &os, const Layout &drawing)
 {
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -529,7 +512,7 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 			else
 				os << "      fill \"#00000F\"\n";
 			os << "      width 1.0\n";
-		}//else generalization
+		}
 		os << "    ]\n"; // graphics
 
 		os << "  ]\n"; // edge
@@ -538,5 +521,4 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 	os << "]\n"; // graph
 }
 
-
-}//namespace
+}

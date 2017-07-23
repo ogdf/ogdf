@@ -145,8 +145,8 @@ public:
 	//! Copy constructor.
 	RadialTreeLayout(const RadialTreeLayout &tl);
 
-	// destructor
-	~RadialTreeLayout();
+	//! Destructor.
+	~RadialTreeLayout() = default;
 
 	//! Assignment operator.
 	RadialTreeLayout &operator=(const RadialTreeLayout &tl);
@@ -202,4 +202,4 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} // end namespace ogdf
+}

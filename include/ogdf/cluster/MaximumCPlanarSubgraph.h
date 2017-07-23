@@ -57,36 +57,42 @@ public:
 	using MaxCPlanarMaster = cluster_planarity::MaxCPlanarMaster;
 
 	//! Construction
-	MaximumCPlanarSubgraph() : m_heuristicLevel(1),
-	                           m_heuristicRuns(1),
-	                           m_heuristicOEdgeBound(0.4),
-	                           m_heuristicNPermLists(5),
-	                           m_kuratowskiIterations(10),
-	                           m_subdivisions(10),
-	                           m_kSupportGraphs(10),
-	                           m_kuratowskiHigh(0.8),
-	                           m_kuratowskiLow(0.8),
-	                           m_perturbation(false),
-	                           m_branchingGap(0.4),
-	                           m_time("00:20:00"),
-	                           m_pricing(false),
-	                           m_checkCPlanar(false),
-	                           m_numAddVariables(15),
-	                           m_strongConstraintViolation(0.3),
-	                           m_strongVariableViolation(0.3),
-	                           m_totalTime(-1.0),
-	                           m_heurTime(-1.0),
-	                           m_lpTime(-1.0),
-	                           m_lpSolverTime(-1.0),
-	                           m_sepTime(-1.0),
-	                           m_totalWTime(-1.0),
-	                           m_numCCons(-1),
-	                           m_numKCons(-1),
-	                           m_numLPs(-1),
-	                           m_numBCs(-1),
-	                           m_numSubSelected(-1),
-	                           m_portaOutput(false),
-	                           m_defaultCutPool(true) {}
+	MaximumCPlanarSubgraph()
+	: m_heuristicLevel(1)
+	, m_heuristicRuns(1)
+	, m_heuristicOEdgeBound(0.4)
+	, m_heuristicNPermLists(5)
+	, m_kuratowskiIterations(10)
+	, m_subdivisions(10)
+	, m_kSupportGraphs(10)
+	, m_kuratowskiHigh(0.8)
+	, m_kuratowskiLow(0.8)
+	, m_perturbation(false)
+	, m_branchingGap(0.4)
+	, m_time("00:20:00")
+	, m_pricing(false)
+	, m_checkCPlanar(false)
+	, m_numAddVariables(15)
+	, m_strongConstraintViolation(0.3)
+	, m_strongVariableViolation(0.3)
+	, m_totalTime(-1.0)
+	, m_heurTime(-1.0)
+	, m_lpTime(-1.0)
+	, m_lpSolverTime(-1.0)
+	, m_sepTime(-1.0)
+	, m_totalWTime(-1.0)
+	, m_numCCons(-1)
+	, m_numKCons(-1)
+	, m_numLPs(-1)
+	, m_numBCs(-1)
+	, m_numSubSelected(-1)
+	, m_numVars(-1)
+	, m_portaOutput(false)
+	, m_defaultCutPool(true)
+#ifdef OGDF_DEBUG
+	, m_solByHeuristic(false)
+#endif
+	{ }
 	//destruction
 	~MaximumCPlanarSubgraph() {}
 
@@ -203,7 +209,7 @@ protected:
 	{
 		int64_t tempo = act.centiSeconds()+100*act.seconds()+6000*act.minutes()+360000*act.hours();
 		return  ((double) tempo)/ 100.0;
-	}//getdoubletime
+	}
 
 	//! Stores clusters in subtree at c in bottom up order in theList
 	void getBottomUpClusterList(const cluster c, List< cluster > & theList);
@@ -236,7 +242,7 @@ private:
 	{
 		return 1024;
 	}
-	void outputCons(ofstream &os,
+	void outputCons(std::ofstream &os,
 			abacus::StandardPool<abacus::Constraint, abacus::Variable> *connCon,
 			abacus::StandardPool<abacus::Variable, abacus::Constraint> *stdVar);
 
@@ -258,7 +264,6 @@ private:
 #ifdef OGDF_DEBUG
 	bool m_solByHeuristic;
 #endif
-
 };
 
-} //end namespace ogdf
+}

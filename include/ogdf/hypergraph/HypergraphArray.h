@@ -84,8 +84,7 @@ public:
 
 	//! Disconnetion from the hypergraph.
 	virtual void disconnect() = 0;
-
-}; // class HypergraphArrayBase
+};
 
 //! Dynamic arrays indexed with hypernodes.
 template<class T> class HypernodeArray :
@@ -181,8 +180,7 @@ private:
 	}
 
 	OGDF_NEW_DELETE;
-
-}; // class HypernodeArray<T>
+};
 
 //! Dynamic arrays indexed with nodes.
 template<class T> class HyperedgeArray :
@@ -288,7 +286,6 @@ private:
 	}
 
 	OGDF_NEW_DELETE;
+};
 
-}; // class HyperedgeArray<T>
-
-} // end namespace ogdf
+}

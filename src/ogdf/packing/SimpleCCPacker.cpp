@@ -1,8 +1,5 @@
 /** \file
- * \brief Splits and packs the components of a Graph.
- *
- * Simple proxy class that uses the TileToRowsCCPacker.
- * Use it for layouts that do not support disconnected graphs.
+ * \brief Definition of ogdf::SimpleCCPacker.
  *
  * \author Martin Gronemann
  *
@@ -38,8 +35,7 @@
 
 using namespace ogdf;
 
-void SimpleCCPackerModule::computeBoundingBox(const GraphAttributes& graphAttributes,
-                                              DPoint& min_coord, DPoint& max_coord )
+void SimpleCCPacker::computeBoundingBox(const GraphAttributes& graphAttributes, DPoint& min_coord, DPoint& max_coord )
 {
 	// make access easy
 	const Graph& graph = graphAttributes.constGraph();
@@ -73,7 +69,7 @@ void SimpleCCPackerModule::computeBoundingBox(const GraphAttributes& graphAttrib
 }
 
 
-void SimpleCCPackerModule::call(GraphAttributes& graphAttributes)
+void SimpleCCPacker::call(GraphAttributes& graphAttributes)
 {
 	// the graph to decompose
 	const Graph& graph = graphAttributes.constGraph();

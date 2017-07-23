@@ -1,9 +1,6 @@
 /** \file
  * \brief Implementation of EdgeComparer.
  *
- * Compare edges on base of node layout position,
- * clockwise ordering
- *
  * \author Karsten Klein
  *
  * \par License:
@@ -32,9 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/basic/EdgeComparer.h>
-
 
 namespace ogdf {
 
@@ -161,7 +156,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 				//stop searching at both endpoints
 				if (end1) break;
 			}
-		}//while same endpoints
+		}
 	}
 
 	//now we have all the points necessary to sort
@@ -175,7 +170,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 
 #if 0
 	//debug
-	ofstream f("c:\\Temp\\Karsten\\ASorting.txt", ios::app);
+	std::ofstream f("c:\\Temp\\Karsten\\ASorting.txt", std::ios::app);
 
 	f << "\nEntries at node: " << s1->index() <<"\n";
 	f << "Compare " << s1->index() <<"->"<<t1->index() << " " <<m_AG->type(ed1)<<" , \n"
@@ -234,9 +229,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 					--itb;
 					dp = (*itb);
 				}
-			}//if >= 2 bends, e.g. merger
-			else
-			{
+			} else {
 				if (s1->firstAdj()==ed3->adjSource())
 					dp = bends3.front();
 				else dp = bends3.back();
@@ -261,7 +254,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 		// debug stuff
 		if (output)
 		{
-			ofstream fout("c:\\temp\\ogdl\\EComp.txt",ios::app);
+			std::ofstream fout("c:\\temp\\ogdl\\EComp.txt", std::ios::app);
 			fout << "Knoten an Position "<<x1a<<"/"<<y1a<<"\n\n";
 			fout << "Positionen: \n" << "DPReferenz: "<<dp.m_x<<"/"<<dp.m_y<<"\n";
 			fout << "Punkt 1: "<<x1b<<"/"<<y1b<<" Typ "<<m_AG->type(ed1)<<
@@ -269,20 +262,17 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 			fout << "Punkt 2: "<<x2b<<"/"<<y2b<<" Typ "<<m_AG->type(ed2)<<
 				" Winkel: "<<w2<<"\n";
 			fout << "1 vor 2? " << (w1<w2? "JA" :(w1>w2?"NEIN":"Vielleicht")) <<"\n";
-
-		}//output
+		}
 #endif
 
 		if (w1 < w2)
 			return 1;
 		else if (w1 > w2) return -1;
 		else return 0;
+	} else {
+		return orientation(DPoint(x1a, y1a), DPoint(x1b, y1b), DPoint(x2b, y2b));
 	}
-	else return orientation(DPoint(x1a, y1a),
-		DPoint(x1b, y1b),
-		DPoint(x2b, y2b)) ;
-}//compare
-
+}
 
 bool EdgeComparer::before(const DPoint &u, const DPoint &v, const DPoint &w) const
 {
@@ -298,10 +288,6 @@ bool EdgeComparer::before(const DPoint &u, const DPoint &v, const DPoint &w) con
 #endif
 }
 
-//orientation of two vectors uv, uw:
-//does v lie to the left of the line through u and w?
-//returns 1 if v lies to the left, -1 if to the right
-//and 0 if the points are colinear
 //Is based on the sign of the determinant of a matrix
 //defined by the point coordinates
 //respects the flipping of y axis!!
@@ -323,7 +309,6 @@ int EdgeComparer::orientation(
 	if ( E > 0 ) return 1;
 	if ( E < 0 ) return -1;
 	return 0;
+}
 
-}//orientation
-
-}//namespace ogdf
+}

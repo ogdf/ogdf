@@ -144,8 +144,8 @@ public:
 
 		//! sets the color component arrays according to colorschemeXS
 		void assignColScm(int numberOfGraphs);
-	}; // SimDrawColorScheme
+	};
 
-}; // SimDrawColorizer
+};
 
 }

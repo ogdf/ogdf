@@ -1177,4 +1177,4 @@ private:
 	//! @}
 };
 
-} //end namespace ogdf
+}

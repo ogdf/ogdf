@@ -85,8 +85,8 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const NumCon &rhs) {
-		return out << "number = " << rhs.number_ << "  rhs = " << rhs.rhs_ << endl;
+	friend std::ostream &operator<<(std::ostream &out, const NumCon &rhs) {
+		return out << "number = " << rhs.number_ << "  rhs = " << rhs.rhs_ << std::endl;
 	}
 
 	//! Returns the coefficient of the variable \a v.
@@ -102,7 +102,7 @@ public:
 	 *
 	 * \param out The output stream.
 	 */
-	virtual void print(ostream &out) const {
+	virtual void print(std::ostream &out) const {
 		out << *this;
 	}
 
@@ -126,4 +126,4 @@ inline double NumCon::coeff(const Variable *v) const
 	return colvar->coeff(number_);
 }
 
-} //namespace abacus
+}

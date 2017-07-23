@@ -64,9 +64,9 @@ public:
 		bool resize = false;
 		DIntersectableRect ir;
 		computeGridGeometry(v,p,ir);
-		double l = max(ir.width(),ir.height());
-		l /= m_edgeMultiplier*(m_graph).numberOfEdges();
-		if(l <= m_CellSize/2.0 || l >= m_CellSize*2.0) resize = true;
+		double size = max(ir.width(), ir.height());
+		size /= m_edgeMultiplier*(m_graph).numberOfEdges();
+		if(size <= m_CellSize/2.0 || size >= m_CellSize*2.0) resize = true;
 		return resize;
 	}
 
@@ -100,7 +100,7 @@ private:
 	// checks if a double number is an integer
 	bool isInt(double d) const {
 		if(d - floor(d) > 0) return false;
-		if(d < numeric_limits<int>::min() || d > numeric_limits<int>::max())
+		if(d < std::numeric_limits<int>::min() || d > std::numeric_limits<int>::max())
 			return false;
 		return true;
 	}
@@ -137,7 +137,7 @@ private:
 			       && intervalIntersect(A.m_y, B.m_y, ylow, yhigh);
 		} else { // line segment not vertical
 			if (A.m_x > B.m_x) {
-				swap(A, B);
+				std::swap(A, B);
 			}
 			double m = (B.m_y - A.m_y) / (B.m_x - A.m_x);
 			double c = A.m_y - A.m_x * m;
@@ -158,7 +158,7 @@ private:
 	void checkBresenham(DPoint, DPoint) const;
 	void checkBresenham(IPoint, IPoint) const;
 	bool intervalIntersect(double,double,double,double) const;
-	friend ostream& operator<<(ostream &,const UniformGrid&);
+	friend std::ostream& operator<<(std::ostream &,const UniformGrid&);
 	int m_crossingTests;
 	int m_maxEdgesPerCell;
 	double m_time;

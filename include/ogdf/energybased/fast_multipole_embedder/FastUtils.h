@@ -33,14 +33,19 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 
+#ifdef OGDF_SYSTEM_UNIX
+#include <sys/time.h>
+#endif
+
+#ifdef OGDF_FME_KERNEL_USE_SSE
+#include <ogdf/basic/internal/intrinsics.h>
+#endif
+
 namespace ogdf {
 namespace fast_multipole_embedder {
 
 // use SSE for Multipole computations
 //#define OGDF_FME_KERNEL_USE_SSE
-
-// use special thread affinity (works only for unix and scatters the threads)
-//#define OGDF_FME_THREAD_AFFINITY
 
 // simple parallel quadtree sort
 //#define OGDF_FME_PARALLEL_QUADTREE_SORT
@@ -53,9 +58,6 @@ inline void OGDF_FME_Print_Config()
 #ifdef OGDF_FME_KERNEL_USE_SSE
 	std::cout << "OGDF_FME_KERNEL_USE_SSE" << std::endl;
 #endif
-#ifdef OGDF_FME_THREAD_AFFINITY
-	std::cout << "OGDF_FME_THREAD_AFFINITY" << std::endl;
-#endif
 #ifdef OGDF_FME_PARALLEL_QUADTREE_SORT
 	std::cout << "OGDF_FME_PARALLEL_QUADTREE_SORT" << std::endl;
 #endif
@@ -63,11 +65,6 @@ inline void OGDF_FME_Print_Config()
 	std::cout << "OGDF_FME_KERNEL_USE_SSE_DIRECT" << std::endl;
 #endif
 }
-
-#ifdef OGDF_FME_KERNEL_USE_SSE
-#include <emmintrin.h>
-#include <pmmintrin.h>
-#endif
 
 using MortonNR = uint64_t;
 using CoordInt = uint32_t;
@@ -91,7 +88,6 @@ inline T* align_16_next_ptr(T* t)
 }
 
 #ifdef OGDF_SYSTEM_UNIX
-#include <sys/time.h>
 inline timeval GetDiffTime(timeval _then, double& dtime)
 {
 	timeval then = (timeval) _then;
@@ -210,7 +206,7 @@ public:
 		int i = m_nodeIndex[v];
 		int j = m_numNodesChoosen;
 		node w = m_array[j];
-		swap(m_array[i], m_array[j]);
+		std::swap(m_array[i], m_array[j]);
 		m_nodeIndex[w] = i;
 		m_nodeIndex[v] = j;
 		m_numNodesChoosen++;

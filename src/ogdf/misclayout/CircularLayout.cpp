@@ -30,7 +30,7 @@
  */
 
 
-//#define OUTPUT
+//#define OGDF_CIRCULAR_LAYOUT_LOGGING
 
 #include <ogdf/misclayout/CircularLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -38,7 +38,9 @@
 #include <ogdf/basic/tuples.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
 
-
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+#include <ogdf/fileformats/GraphIO.h>
+#endif
 
 namespace ogdf {
 
@@ -111,7 +113,7 @@ struct ClusterStructure
 
 	int numberOfCluster() const { return m_nodesIn.size(); }
 
-	void resetNodes(int cluster, const List<node> &nodes);
+	void resetNodes(int clusterIdx, const List<node> &nodes);
 
 	const Graph &m_G;
 	Array<SList<node> > m_nodesIn;
@@ -126,17 +128,17 @@ struct ClusterStructure
 };
 
 
-void ClusterStructure::resetNodes(int cluster, const List<node> &nodes)
+void ClusterStructure::resetNodes(int clusterIdx, const List<node> &nodes)
 {
-	OGDF_ASSERT(m_nodesIn[cluster].size() == nodes.size());
+	OGDF_ASSERT(m_nodesIn[clusterIdx].size() == nodes.size());
 
-	SList<node> &L = m_nodesIn[cluster];
+	SList<node> &list = m_nodesIn[clusterIdx];
 
-	L.clear();
+	list.clear();
 
 	ListConstIterator<node> it;
 	for(it = nodes.begin(); it.valid(); ++it)
-		L.pushBack(*it);
+		list.pushBack(*it);
 }
 
 
@@ -204,12 +206,12 @@ void ClusterStructure::sortChildren(
 		} else {
 			// Achtung: Dieser Teil ist noch nicht richtig ausgetestet,da
 			// bei Bic.comp. immer nur ein Knoten benachbart ist
-			const List<int> &L = posList[child];
-			int gapEnd    = L.front();
-			int gapLength = L.front() - L.back() + n;
+			const List<int> &list = posList[child];
+			int gapEnd    = list.front();
+			int gapLength = list.front() - list.back() + n;
 
-			int posPred = L.front();
-			for(int j: L) {
+			int posPred = list.front();
+			for(int j: list) {
 				if (j - posPred > gapLength) {
 					gapEnd    = j;
 					gapLength = j - posPred;
@@ -220,7 +222,7 @@ void ClusterStructure::sortChildren(
 			int x = (n - gapEnd) % n;
 
 			int sum = 0;
-			for(int j: L)
+			for(int j: list)
 				sum += ((j + x) % n);
 
 			double w = double(sum)/double(size);
@@ -232,19 +234,10 @@ void ClusterStructure::sortChildren(
 		}
 	}
 
-	class {
-		using TheWeight = Tuple2<int,double>;
-		static int compare(const TheWeight &x, const TheWeight &y)
-		{
-			if (x.x2() < y.x2()) return -1;
-			else if (x.x2() > y.x2()) return 1;
-			else return 0;
-		}
-		OGDF_AUGMENT_STATICCOMPARER(TheWeight)
-	} weightComparer;
-	weights.quicksort(weightComparer);
-#ifdef OUTPUT
-	cout << "weights after: " << weights << endl;
+	using TheWeight = Tuple2<int, double>;
+	weights.quicksort(GenericComparer<TheWeight, double>([](const TheWeight& w) { return w.x2(); }));
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+	std::cout << "weights after: " << weights << std::endl;
 #endif
 
 	m_childCluster[i].clear();
@@ -491,8 +484,8 @@ void CircleGraph::swapping(List<node> &nodeList, int maxIterations)
 
 				if(improvementCrosings > 0) {
 					improvement = true;
-					swap(*it,*itNext);
-					swap(pos[u],pos[v]);
+					std::swap(*it, *itNext);
+					std::swap(pos[u], pos[v]);
 				}
 			}
 		} while(improvement && ++iterations <= maxIterations);
@@ -572,10 +565,10 @@ void CircularLayout::call(GraphAttributes &AG)
 			AG.x(v) = AGC.x(vCopy);
 			AG.y(v) = AGC.y(vCopy);
 
-			if(AG.x(v)-AG.width (v)/2 < minX) minX = AG.x(v)-AG.width(v) /2;
-			if(AG.x(v)+AG.width (v)/2 > maxX) maxX = AG.x(v)+AG.width(v) /2;
-			if(AG.y(v)-AG.height(v)/2 < minY) minY = AG.y(v)-AG.height(v)/2;
-			if(AG.y(v)+AG.height(v)/2 > maxY) maxY = AG.y(v)+AG.height(v)/2;
+			Math::updateMin(minX, AG.x(v) - AG.width(v)/2);
+			Math::updateMax(maxX, AG.x(v) + AG.width(v)/2);
+			Math::updateMin(minY, AG.y(v) - AG.height(v)/2);
+			Math::updateMax(maxY, AG.y(v) + AG.height(v)/2);
 		}
 
 		minX -= m_minDistCC;
@@ -600,17 +593,11 @@ void CircularLayout::call(GraphAttributes &AG)
 
 	for(i = 0; i < numCC; ++i)
 	{
-		const List<node> &nodes = nodesInCC[i];
-
 		const double dx = offset[i].m_x;
 		const double dy = offset[i].m_y;
 
-		// iterate over all nodes in ith CC
-		ListConstIterator<node> it;
-		for(it = nodes.begin(); it.valid(); ++it)
+		for(node v : nodesInCC[i])
 		{
-			node v = *it;
-
 			AG.x(v) += dx;
 			AG.y(v) += dy;
 		}
@@ -624,12 +611,12 @@ struct QueuedCirclePosition
 	double m_minDist;
 	double m_sectorStart, m_sectorEnd;
 
-	QueuedCirclePosition(int cluster,
+	QueuedCirclePosition(int clusterIdx,
 		double minDist,
 		double sectorStart,
 		double sectorEnd)
 	{
-		m_cluster = cluster;
+		m_cluster = clusterIdx;
 		m_minDist = minDist;
 		m_sectorStart = sectorStart;
 		m_sectorEnd = sectorEnd;
@@ -653,7 +640,7 @@ struct ClusterRegion
 
 struct SuperCluster
 {
-	SuperCluster(SList<int> &cluster,
+	SuperCluster(SList<int> &clusters,
 		double direction,
 		double length,
 		double scaleFactor = 1.0)
@@ -661,7 +648,7 @@ struct SuperCluster
 		m_direction   = direction;
 		m_length      = length;
 		m_scaleFactor = scaleFactor;
-		m_cluster.conc(cluster);  // cluster is emtpy afterwards!
+		m_cluster.conc(clusters);  // cluster is emtpy afterwards!
 	}
 
 	double m_direction, m_length, m_scaleFactor;
@@ -670,11 +657,11 @@ struct SuperCluster
 
 
 using PtrSuperCluster = SuperCluster*;
-ostream &operator<<(ostream &os, const PtrSuperCluster &sc)
+std::ostream &operator<<(std::ostream &os, const PtrSuperCluster &sc)
 {
-	const double fac = 180 / Math::pi;
-
-	os << "{" << fac*sc->m_direction << "," << fac*sc->m_length << "," << sc->m_scaleFactor << ":" << sc->m_cluster << "}";
+	os << "{" << Math::radiansToDegrees(sc->m_direction) << ","
+	          << Math::radiansToDegrees(sc->m_length) << ","
+	          << sc->m_scaleFactor << ":" << sc->m_cluster << "}";
 	return os;
 }
 
@@ -693,14 +680,13 @@ struct SCRegion
 
 void outputRegions(List<SCRegion> &regions)
 {
-	const double fac = 180 / Math::pi;
-
-	cout << "regions:\n";
+	std::cout << "regions:\n";
 	ListIterator<SCRegion> it;
 	for(it = regions.begin(); it.valid(); ++it)
 	{
-		cout << "[" << (*it).m_superClusters << ", " <<
-			fac*(*it).m_start << ", " << fac*(*it).m_length << "]" << endl;
+		std::cout << "[" << (*it).m_superClusters << ", " <<
+			Math::radiansToDegrees((*it).m_start) << ", " <<
+			Math::radiansToDegrees((*it).m_length) << "]" << std::endl;
 	}
 }
 
@@ -716,10 +702,6 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 	const int nCluster = C.numberOfCluster();
 	Array<double> radius     (nCluster);
 	Array<double> outerRadius(nCluster);
-
-#ifdef OUTPUT
-	const double fac = 360/(2*Math::pi);
-#endif
 
 	int i;
 	for(i = 0; i < nCluster; ++i)
@@ -748,9 +730,9 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			outerRadius[i] = radius[i] + maxR;
 		}
 
-#ifdef OUTPUT
-		cout << "radius of       " << i << " = " << radius[i] << endl;
-		cout << "outer radius of " << i << " = " << outerRadius[i] << endl;
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+		std::cout << "radius of       " << i << " = " << radius[i] << std::endl;
+		std::cout << "outer radius of " << i << " = " << outerRadius[i] << std::endl;
 #endif
 	}
 
@@ -769,27 +751,27 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 
 	while(!queue.empty())
 	{
-		int cluster = queue.pop();
+		int clusterIdx = queue.pop();
 
-		CircleGraph GC(C, toCircle, cluster);
+		CircleGraph GC(C, toCircle, clusterIdx);
 
 		// order nodes on circle
 		List<node> nodes;
 		GC.order(nodes);
 		GC.swapping(nodes,50);
-		C.resetNodes(cluster, nodes);
-#ifdef OUTPUT
-		cout << "after swapping of " << cluster << ": " << nodes << endl;
+		C.resetNodes(clusterIdx, nodes);
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+		std::cout << "after swapping of " << clusterIdx << ": " << nodes << std::endl;
 #endif
 
-		C.sortChildren(cluster,nodes,posList,parentWeight,dirFromParent,mainSiteWeights);
-#ifdef OUTPUT
-		cout << "child cluster of " << cluster << ": " << C.m_childCluster[cluster] << endl;
+		C.sortChildren(clusterIdx, nodes, posList, parentWeight, dirFromParent, mainSiteWeights);
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+		std::cout << "child cluster of " << clusterIdx << ": " << C.m_childCluster[clusterIdx] << std::endl;
 #endif
 
 		// append all children of cluster to queue
 		ListConstIterator<int> itC;
-		for(itC = C.m_childCluster[cluster].begin(); itC.valid(); ++itC)
+		for(itC = C.m_childCluster[clusterIdx].begin(); itC.valid(); ++itC)
 			queue.append(*itC);
 	}
 
@@ -857,7 +839,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		regions.pushBack(SCRegion(*itSC));
 	}
 
-#ifdef OUTPUT
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
 	outputRegions(regions);
 #endif
 
@@ -1012,7 +994,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				if(left < center) {
 					double minLeft = (*iter)->m_direction-maxHalfAngle;
 					if(angleSmaller(left, minLeft)) {
-						scaleFactor = min(scaleFactor,
+						Math::updateMin(scaleFactor,
 							tmpScaleFactor * angleDistance(minLeft,center) / angleDistance(left,center));
 					}
 					OGDF_ASSERT(scaleFactor > 0);
@@ -1023,7 +1005,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				if(right > center) {
 					double maxRight = (*iter)->m_direction+maxHalfAngle;
 					if(angleSmaller(maxRight, right)) {
-						scaleFactor = min(scaleFactor,
+						Math::updateMin(scaleFactor,
 							tmpScaleFactor * angleDistance(maxRight,center) / angleDistance(right,center));
 					}
 					OGDF_ASSERT(scaleFactor > 0);
@@ -1032,7 +1014,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				double currentLength = right-left;
 				if(currentLength < 0) currentLength += 2*Math::pi;
 				if(currentLength > 2*maxHalfAngle)
-					scaleFactor = min(scaleFactor, 2*maxHalfAngle/currentLength);
+					Math::updateMin(scaleFactor, 2*maxHalfAngle/currentLength);
 
 				left = right;
 			}
@@ -1124,7 +1106,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 
 			regions.del(itR1);
 
-#ifdef OUTPUT
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
 			outputRegions(regions);
 #endif
 		}
@@ -1196,7 +1178,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				if((*itR1).m_start > 2*Math::pi)
 					(*itR1).m_start -= 2*Math::pi;
 
-#ifdef OUTPUT
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
 				outputRegions(regions);
 #endif
 
@@ -1312,13 +1294,13 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 	while(!circleQueue.empty())
 	{
 		QueuedCirclePosition qcp = circleQueue.pop();
-		int cluster = qcp.m_cluster;
+		int clusterIdx = qcp.m_cluster;
 
-#ifdef OUTPUT
-		cout << "cluster = " << cluster << ", start = " << fac*qcp.m_sectorStart <<
-			", end = " << fac*qcp.m_sectorEnd << endl;
-		cout << "  minDist = " << qcp.m_minDist <<
-			", angle = " << fac*circleAngle[cluster] << endl;
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+		std::cout << "cluster = " << clusterIdx << ", start = " << Math::radiansToDegrees(qcp.m_sectorStart) <<
+			", end = " << Math::radiansToDegrees(qcp.m_sectorEnd) << std::endl;
+		std::cout << "  minDist = " << qcp.m_minDist <<
+			", angle = " << Math::radiansToDegrees(circleAngle[clusterIdx]) << std::endl;
 #endif
 
 		double delta = qcp.m_sectorEnd - qcp.m_sectorStart;
@@ -1328,41 +1310,41 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		if (delta <= Math::pi)
 #endif
 		{
-			circleDistance[cluster] = qcp.m_minDist + outerRadius[cluster];
+			circleDistance[clusterIdx] = qcp.m_minDist + outerRadius[clusterIdx];
 
 		} else {
-			double rMin = (outerRadius[cluster] + m_minDistSibling/2) /
+			double rMin = (outerRadius[clusterIdx] + m_minDistSibling/2) /
 				(sin(delta/2));
 
-			circleDistance[cluster] = max(rMin,qcp.m_minDist+outerRadius[cluster]);
+			circleDistance[clusterIdx] = max(rMin,qcp.m_minDist+outerRadius[clusterIdx]);
 		}
 
-		if(C.m_childCluster[cluster].empty())
+		if(C.m_childCluster[clusterIdx].empty())
 			continue;
 
-		minDist = circleDistance[cluster] + outerRadius[cluster] + m_minDistLevel;
+		minDist = circleDistance[clusterIdx] + outerRadius[clusterIdx] + m_minDistLevel;
 #if 0
-		double alpha = acos((circleDistance[cluster]-outerRadius[cluster])/minDist);
+		double alpha = acos((circleDistance[clusterIdx]-outerRadius[clusterIdx])/minDist);
 
-		if(circleAngle[cluster]-alpha > qcp.m_sectorStart)
-			qcp.m_sectorStart = circleAngle[cluster]-alpha;
-		if(circleAngle[cluster]+alpha < qcp.m_sectorEnd)
-			qcp.m_sectorEnd = circleAngle[cluster]+alpha;
+		if(circleAngle[clusterIdx]-alpha > qcp.m_sectorStart)
+			qcp.m_sectorStart = circleAngle[clusterIdx]-alpha;
+		if(circleAngle[clusterIdx]+alpha < qcp.m_sectorEnd)
+			qcp.m_sectorEnd = circleAngle[clusterIdx]+alpha;
 #endif
 		delta = qcp.m_sectorEnd - qcp.m_sectorStart;
 
 		sumPrefAngles = 0;
-		for(itC = C.m_childCluster[cluster].begin(); itC.valid(); ++itC)
+		for(itC = C.m_childCluster[clusterIdx].begin(); itC.valid(); ++itC)
 		{
 			sumPrefAngles += preferedAngle[*itC];
 
 			// computing prefered directions
-			double r = circleDistance[cluster];
+			double r = circleDistance[clusterIdx];
 			double a = minDist + outerRadius[*itC];
 			double gamma = dirFromParent[*itC];
 
-#ifdef OUTPUT
-			cout << "    gamma of " << *itC << " = " << gamma/(2*Math::pi)*360 << endl;
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+			std::cout << "    gamma of " << *itC << " = " << Math::radiansToDegrees(gamma) << std::endl;
 #endif
 			if(gamma <= Math::pi/2)
 				preferedDirection[*itC] = qcp.m_sectorStart;
@@ -1372,7 +1354,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			else if(gamma == Math::pi) // Achtung! nicht Gleichheit ohne Toleranz testen!
 #endif
 			else if(OGDF_GEOM_ET.equal(gamma,Math::pi))
-				preferedDirection[*itC] = circleAngle[cluster];
+				preferedDirection[*itC] = circleAngle[clusterIdx];
 			else {
 				double gamma2 = (gamma < Math::pi) ? Math::pi - gamma : gamma - Math::pi;
 				double K = 1 + 1 /(tan(gamma2)*tan(gamma2));
@@ -1381,19 +1363,19 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 
 				double beta = asin(C2-newC);
 				if (gamma < Math::pi)
-					preferedDirection[*itC] = circleAngle[cluster]-beta;
+					preferedDirection[*itC] = circleAngle[clusterIdx]-beta;
 				else
-					preferedDirection[*itC] = circleAngle[cluster]+beta;
+					preferedDirection[*itC] = circleAngle[clusterIdx]+beta;
 			}
-#ifdef OUTPUT
-			cout << "    dir. of  " << *itC << ": " << fac*preferedDirection[*itC] << endl;
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+			std::cout << "    dir. of  " << *itC << ": " << Math::radiansToDegrees(preferedDirection[*itC]) << std::endl;
 #endif
 		}
 
 		if(sumPrefAngles >= delta)
 		{
 			double angle = qcp.m_sectorStart;
-			for(itC = C.m_childCluster[cluster].begin(); itC.valid(); ++itC)
+			for(itC = C.m_childCluster[clusterIdx].begin(); itC.valid(); ++itC)
 			{
 				double deltaChild = delta * preferedAngle[*itC] / sumPrefAngles;
 
@@ -1404,7 +1386,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 
 		} else {
 			List<ClusterRegion> clusterRegions;
-			for(itC = C.m_childCluster[cluster].begin(); itC.valid(); ++itC)
+			for(itC = C.m_childCluster[clusterIdx].begin(); itC.valid(); ++itC)
 			{
 				double start  = preferedDirection[*itC]-preferedAngle[*itC]/2;
 				double length = preferedAngle[*itC];
@@ -1493,13 +1475,13 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		}
 	}
 
-#ifdef OUTPUT
-	cout << "\ncircle positions:\n";
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+	std::cout << "\ncircle positions:\n";
 #endif
 	for(i = 0; i < nCluster; ++i) {
-#ifdef OUTPUT
-		cout << i << ": dist  \t" << circleDistance[i] << endl;
-		cout << "    angle \t" << circleAngle[i] << endl;
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+		std::cout << i << ": dist  \t" << circleDistance[i] << std::endl;
+		std::cout << "    angle \t" << circleAngle[i] << std::endl;
 #endif
 
 		// determine gamma and M
@@ -1619,13 +1601,13 @@ void CircularLayout::computePreferedAngles(
 
 	ListConstIterator<int> it;
 	for(it = C.m_childCluster[mainSite].begin(); it.valid(); ++it)
-		assignPrefAngle(C,outerRadius,preferedAngle,
-			*it,1,outerRadius[mainSite]+m_minDistLevel);
+		assignPrefAngle(C, outerRadius, preferedAngle,
+			*it, outerRadius[mainSite]+m_minDistLevel);
 
-#ifdef OUTPUT
-	cout << "\nprefered angles:" << endl;
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+	std::cout << "\nprefered angles:" << std::endl;
 	for(int i = 0; i < nCluster; ++i)
-		cout << i << ": " << 360*preferedAngle[i]/(2*Math::pi) << endl;
+		std::cout << i << ": " << Math::radiansToDegrees(preferedAngle[i]) << std::endl;
 #endif
 }
 
@@ -1633,15 +1615,14 @@ void CircularLayout::assignPrefAngle(ClusterStructure &C,
 	const Array<double> &outerRadius,
 	Array<double> &preferedAngle,
 	int c,
-	int l,
 	double r1)
 {
 	double maxPrefChild = 0;
 
 	ListConstIterator<int> it;
 	for(it = C.m_childCluster[c].begin(); it.valid(); ++it) {
-		assignPrefAngle(C,outerRadius,preferedAngle,
-			*it,l+1,r1 + m_minDistLevel + 2*outerRadius[c]);
+		assignPrefAngle(C, outerRadius, preferedAngle,
+			*it, r1 + m_minDistLevel + 2*outerRadius[c]);
 #if 0
 		if(preferedAngle[*it] > maxPrefChild)
 			maxPrefChild = preferedAngle[*it];
@@ -1831,19 +1812,19 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		}
 	}
 
-#ifdef OUTPUT
-	cout << "bic. comp.\n";
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+	std::cout << "bic. comp.\n";
 	for(i = 0; i < k; ++i)
-		cout << i << ": " << nodeB[i] << endl;
+		std::cout << i << ": " << nodeB[i] << std::endl;
 
-	cout << "\nBC-Tree:\n";
+	std::cout << "\nBC-Tree:\n";
 	for(node v : BCTree.nodes) {
-		cout << v << " [" << componentOf[v] << "," << cutVertexOf[v] << "]: ";
+		std::cout << v << " [" << componentOf[v] << "," << cutVertexOf[v] << "]: ";
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
-			cout << e->opposite(v) << " ";
+			std::cout << e->opposite(v) << " ";
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 	GraphIO::writeGML(BCTree, "BC-Tree.gml");
 #endif
@@ -1931,13 +1912,13 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 	// in this case, the main-site cluster is always the first created
 	C.m_mainSiteCluster.pushBack(0);
 
-#ifdef OUTPUT
-	cout << "\ncluster:\n";
+#ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
+	std::cout << "\ncluster:\n";
 	for(i = 0; i < currentCluster; ++i) {
-		cout << i << ": " << C.m_nodesIn[i] << endl;
-		cout << "   parent = " << C.m_parentCluster[i] << ", children " << C.m_childCluster[i] << endl;
+		std::cout << i << ": " << C.m_nodesIn[i] << std::endl;
+		std::cout << "   parent = " << C.m_parentCluster[i] << ", children " << C.m_childCluster[i] << std::endl;
 	}
-	cout << "main-site cluster: " << C.m_mainSiteCluster << endl;
+	std::cout << "main-site cluster: " << C.m_mainSiteCluster << std::endl;
 #endif
 }
 
@@ -1950,7 +1931,4 @@ int CircularLayout::sizeBC(node vB)
 	return sum;
 }
 
-
-
-
-} // end namespace ogdf
+}

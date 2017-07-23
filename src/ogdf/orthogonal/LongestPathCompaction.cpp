@@ -89,7 +89,7 @@ void LongestPathCompaction::improvementHeuristics(
 
 	int costs, lastCosts;
 	int steps = 0, maxSteps = m_maxImprovementSteps;
-	if (maxSteps == 0) maxSteps = numeric_limits<int>::max();
+	if (maxSteps == 0) maxSteps = std::numeric_limits<int>::max();
 
 	// OPTIMIZATION POTENTIAL:
 	// update constraint graphs "incrementally" by only re-inserting
@@ -179,7 +179,7 @@ void LongestPathCompaction::applyLongestPaths(
 	m_component.init(Gd);
 
 	NodeArray<int> indeg(Gd);
-	StackPure<node> sources;
+	ArrayBuffer<node> sources;
 
 	for(node v : Gd.nodes) {
 		indeg[v] = v->indeg();
@@ -189,7 +189,7 @@ void LongestPathCompaction::applyLongestPaths(
 
 	while(!sources.empty())
 	{
-		node v = sources.pop();
+		node v = sources.popRet();
 
 		int predComp = -1; // means "unset"
 		bool isPseudoSource = true;
@@ -259,10 +259,10 @@ void LongestPathCompaction::moveComponents(
 		// list of outgoing/incoming edges of pseudo-component C(v)
 		SListPure<edge> outCompV, inCompV;
 
-		//cout << "component " << c << endl;
+		//std::cout << "component " << c << std::endl;
 		for(node w : nodesInComp[c])
 		{
-			//cout << " " << w;
+			//std::cout << " " << w;
 			for(adjEntry adj : w->adjEntries) {
 				edge e = adj->theEdge();
 				if(m_component[e->target()] != c) {
@@ -271,7 +271,7 @@ void LongestPathCompaction::moveComponents(
 					inCompV.pushBack(e);
 			}
 		}
-		//cout << endl;
+		//std::cout << std::endl;
 
 		if(outCompV.empty())
 			continue;
@@ -289,7 +289,7 @@ void LongestPathCompaction::moveComponents(
 				delta = d;
 		}
 
-		//cout << "  delta = " << delta << ", costOut = " << costOut << endl;
+		//std::cout << "  delta = " << delta << ", costOut = " << costOut << std::endl;
 
 		// if all outgoing edges have cost 0, we wouldn't save any cost!
 		if (costOut == 0) continue;
@@ -313,7 +313,7 @@ void LongestPathCompaction::computeCoords(
 	const Graph &Gd = D.getGraph();
 
 	NodeArray<int> indeg(Gd);
-	StackPure<node> sources;
+	ArrayBuffer<node> sources;
 
 	for(node v : Gd.nodes) {
 		indeg[v] = v->indeg();
@@ -323,7 +323,7 @@ void LongestPathCompaction::computeCoords(
 
 	while(!sources.empty())
 	{
-		node v = sources.pop();
+		node v = sources.popRet();
 
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
@@ -341,5 +341,4 @@ void LongestPathCompaction::computeCoords(
 }
 #endif
 
-
-} // end namespace ogdf
+}

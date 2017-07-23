@@ -149,7 +149,7 @@ private:
 	 */
 	void collectAnchorNodes(
 		node v,
-		NodeSet &nodes,
+		NodeSet<> &nodes,
 		const PlanRepExpansion::NodeSplit *nsParent) const;
 
 	/**
@@ -162,8 +162,8 @@ private:
 	 */
 	void findSourcesAndTargets(
 		node src, node tgt,
-		NodeSet &sources,
-		NodeSet &targets) const;
+		NodeSet<> &sources,
+		NodeSet<> &targets) const;
 
 	/**
 	 * \brief Returns all anchor nodes of \p vOrig in n\p nodes.
@@ -173,11 +173,11 @@ private:
 	 */
 	void anchorNodes(
 		node vOrig,
-		NodeSet &nodes) const;
+		NodeSet<> &nodes) const;
 
 	static node commonDummy(
-		NodeSet &sources,
-		NodeSet &targets);
+		NodeSet<> &sources,
+		NodeSet<> &targets);
 
 	/**
 	 * \brief Computes insertion path \p eip.
@@ -295,8 +295,8 @@ private:
 
 	PlanRepExpansion *m_pPG; //!< Pointer to the planarized expansion.
 
-	NodeSet *m_pSources; //!< The set of possible start nodes of an insertion path.
-	NodeSet *m_pTargets; //!< The set of possible end nodes of an insertion path.
+	NodeSet<> *m_pSources; //!< The set of possible start nodes of an insertion path.
+	NodeSet<> *m_pTargets; //!< The set of possible end nodes of an insertion path.
 
 	NodeArray<SList<int> > m_compV; //!< The list of blocks containing a node \a v.
 	Array<SList<node> >    m_nodeB; //!< The list of nodes in block \a i.
@@ -307,4 +307,4 @@ private:
 	const EdgeArray<bool> *m_forbiddenEdgeOrig;
 };
 
-} // end namespace ogdf
+}

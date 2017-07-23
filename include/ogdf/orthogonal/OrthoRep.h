@@ -34,7 +34,6 @@
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/tuples.h>
-#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
@@ -213,7 +212,7 @@ public:
 
 	// output operator
 	// example output: "001101001" or ""
-	friend ostream &operator<<(ostream &os, const BendString &bs) {
+	friend std::ostream &operator<<(std::ostream &os, const BendString &bs) {
 		if (bs.size() == 0)
 			os << "\"\"";
 		else
@@ -262,7 +261,7 @@ public:
 
 
 		// output operator for debugging
-		friend ostream &operator<<(ostream &os, const SideInfoUML &si)
+		friend std::ostream &operator<<(std::ostream &os, const SideInfoUML &si)
 		{
 			os << "{ " << si.m_nAttached[0] <<
 				", " << si.m_adjGen <<
@@ -446,7 +445,7 @@ public:
 		return static_cast<OrthoDir>((static_cast<int>(d) + 3) & 3);
 	}
 
-	friend ostream &operator<<(ostream &os, const OrthoRep &op) {
+	friend std::ostream &operator<<(std::ostream &os, const OrthoRep &op) {
 		const Graph& E = op;
 		for(edge e : E.edges)
 		{
@@ -484,7 +483,7 @@ private:
 	EdgeArray<bool> m_alignmentEdge; // = true iff alignment edge
 	// contains all nodes created by splitting non-dissection edges while
 	// dissect()
-	StackPure<node> m_splitNodes;
+	ArrayBuffer<node> m_splitNodes;
 	// stores adjacency entry on external face for restoring in undissect()
 	adjEntry m_adjExternal;
 	// stores adjacency entry on preliminary external face in alignment case
@@ -495,5 +494,4 @@ private:
 	bool m_pattern2;
 };
 
-
-} // end namespace ogdf
+}

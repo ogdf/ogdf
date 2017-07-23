@@ -34,7 +34,7 @@ namespace abacus {
 
 
 template <class BaseType, class CoType>
-ostream &operator<<(ostream &out, const PoolSlotRef<BaseType, CoType> &slot)
+std::ostream &operator<<(std::ostream &out, const PoolSlotRef<BaseType, CoType> &slot)
 {
 	if (slot.conVar())
 		slot.conVar()->print(out);
@@ -46,7 +46,7 @@ template<class BaseType, class CoType>
 void PoolSlotRef<BaseType, CoType>::printDifferentVersionError() const
 {
 	Logger::ilout(Logger::Level::Minor) << "PoolSlotRef::con: Version of reference to slot " << version_
-	 << " and version of slot " << slot_->version() << " differ." << endl;
+	 << " and version of slot " << slot_->version() << " differ." << std::endl;
 }
 
 
@@ -67,4 +67,4 @@ void PoolSlotRef<BaseType, CoType>::slot(PoolSlot<BaseType, CoType> *s)
 	if(cv) cv->addReference();
 }
 
-} // namespace abacus
+}

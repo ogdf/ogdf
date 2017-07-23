@@ -55,11 +55,11 @@ AbaBHeap<Type, Key>::AbaBHeap(
 
 
 template<class Type, class Key>
-ostream& operator<<(ostream& out, const AbaBHeap<Type, Key>& rhs)
+std::ostream& operator<<(std::ostream& out, const AbaBHeap<Type, Key>& rhs)
 {
 	for(int i = 0; i < rhs.n_; i ++)
 		out << rhs.heap_[i] << " (" << rhs.keys_[i] << ")  ";
-	out << endl;
+	out << std::endl;
 	return out;
 }
 
@@ -245,4 +245,4 @@ void AbaBHeap<Type, Key>::heapify(int i)
 	}
 }
 
-} // namespace abacus
+}

@@ -36,8 +36,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
-//#define writefeasiblegraphs
-#ifdef OGDF_DEBUG
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 #include <ogdf/fileformats/GraphIO.h>
 #endif
 
@@ -85,7 +84,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, NodePairs &addedE
 		const int numIndyBags = ca.numberOfIndyBags();
 		std::vector<GraphCopy*> theGraphs(numIndyBags); //Stores copies for the bag graphs.
 #ifdef OGDF_DEBUG
-		cout << "Number of IndyBags "<<numIndyBags<<"\n";
+		std::cout << "Number of IndyBags "<<numIndyBags<<"\n";
 #endif
 		Logger::slout() << "Number of IndyBags "<<numIndyBags<<"\n";
 		Array<List<node> > nodesInBag(numIndyBags); //Stores vertices for the bag graphs.
@@ -177,8 +176,10 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, NodePairs &addedE
 				ccnt++;
 			}
 			OGDF_ASSERT(ccnt == bagCG.numberOfClusters());
-			string filename = string("IndySubcgraph") + to_string(i) + ".gml";
+#endif
 
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
+			string filename = string("IndySubcgraph") + to_string(i) + ".gml";
 			ClusterGraphAttributes CGA(bagCG);
 			GraphIO::write(CGA, filename, GraphIO::writeGML);
 #endif
@@ -209,7 +210,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, NodePairs &addedE
 				Logger::slout() << "IndyBag number "<<i<<" skipped due to size\n";
 			}
 #endif
-		}//for indy bags
+		}
 
 		// We test consistency by summing up the number of vertices.
 	}
@@ -255,7 +256,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 	// not done, we do not allow this.
 	OGDF_ASSERT(isParallelFreeUndirected(G)); // Graph has to be simple
 #ifdef OGDF_DEBUG
-	cout << "Creating new Masterproblem for clustergraph with "<<G.constGraph().numberOfNodes()<<" nodes\n";
+	std::cout << "Creating new Masterproblem for clustergraph with "<<G.constGraph().numberOfNodes()<<" nodes\n";
 #endif
 	CP_MasterBase* cplanMaster;
 	cplanMaster = new CPlanarityMaster(G,
@@ -280,7 +281,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 	cplanMaster->setPortaFile(m_portaOutput);
 	cplanMaster->useDefaultCutPool() = m_defaultCutPool;
 #ifdef OGDF_DEBUG
-	cout << "Starting Optimization\n";
+	std::cout << "Starting Optimization\n";
 #endif
 	Master::STATUS abastatus;
 	try {
@@ -289,7 +290,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 	catch (...)
 	{
 		#ifdef OGDF_DEBUG
-		cerr << "ABACUS Optimization failed...\n";
+		std::cerr << "ABACUS Optimization failed...\n";
 		#endif
 	}
 
@@ -312,7 +313,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 #ifdef OGDF_DEBUG
 	if(cplanMaster->pricing())
 		Logger::slout() << "Pricing was ON\n";
-	Logger::slout()<<"ABACUS returned with status '"<< Master::STATUS_[abastatus] <<"'\n"<<flush;
+	Logger::slout()<<"ABACUS returned with status '"<< Master::STATUS_[abastatus] <<"'\n"<<std::flush;
 #endif
 
 	cplanMaster->getConnectionOptimalSolutionEdges(addedEdges);
@@ -321,7 +322,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 #endif
 
 #ifdef OGDF_DEBUG
-	cout<<"-Number of added edges "<< addedEdges.size()<<"\n";
+	std::cout<<"-Number of added edges "<< addedEdges.size()<<"\n";
 #endif
 
 	if (m_portaOutput)
@@ -337,12 +338,11 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 	case CP_MasterBase::solutionState::CPlanar: return true; break;
 	//Todo: catch and publish errors here
 	case CP_MasterBase::solutionState::NonCPlanar: return false; break;
-	default: cerr<<"** Undefined optimization result for c-planarity computation **\n"; break;
-	}//switch
+	default: std::cerr<<"** Undefined optimization result for c-planarity computation **\n"; break;
+	}
 
 	return false; //Todo: Throw error here if eg outofmemory etc
-}//doTest
-
+}
 
 //returns list of all clusters in subtree at c in bottom up order
 void ClusterPlanarity::getBottomUpClusterList(const cluster c, List< cluster > & theList)
@@ -413,7 +413,7 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 			{
 				if (component[v] != component[w])
 				{
-					cout <<"Indizes: "<<v->index()<<":"<<w->index()<<"\n";
+					std::cout <<"Indizes: "<<v->index()<<":"<<w->index()<<"\n";
 					node vg = gcopy.original(v);
 					node wg = gcopy.original(w);
 					bool newConn = !((vg->index() < wg->index()) ? potConn[vg][wg] : potConn[wg][vg]);
@@ -427,11 +427,11 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 							potConn[wg][vg] = true;
 					}
 				}
-			}//nodes
-		}//nodes
+			}
+		}
 	}
 
-	cout << "Number of potential connection edges: "<< connPairs.size()<<"\n";
+	std::cout << "Number of potential connection edges: "<< connPairs.size()<<"\n";
 
 	//we run through our candidates and save them in an array
 	//that can be used for dynamic graph updates
@@ -464,7 +464,7 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	EdgeArray<edge> origEdges(CG.constGraph());
 	ClusterGraph testCopy(CG, G2, origCluster, origNodes, origEdges);
 
-	ofstream os(filename);
+	std::ofstream os(filename);
 
 	// Output dimension of the LP (number of variables)
 	os << "DIM = " << connPairs.size() << "\n";
@@ -486,8 +486,8 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 
 	os << "CONV_SECTION\n";
 
-#ifdef writefeasiblegraphs
-	int j = 0; //debug
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
+	int writeCount = 0; //debug
 #endif
 
 	if (connPairs.size() > 0)
@@ -502,11 +502,11 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 			OGDF_ASSERT(cons[i].e != nullptr);
 			G2.delEdge(cons[i].e);
 			i++;
-		}//while
+		}
 		if (i >= connPairs.size()) break;
 #if 0
-		cout<<"v1graph: "<<&(*(cons[i].v1->graphOf()))<<"\n";
-		cout<<"origNodesgraph: "<<&(*(origNodes.graphOf()))<<"\n";
+		std::cout<<"v1graph: "<<&(*(cons[i].v1->graphOf()))<<"\n";
+		std::cout<<"origNodesgraph: "<<&(*(origNodes.graphOf()))<<"\n";
 #endif
 		cons[i].connected = true; //i.e., (false) will never be a feasible solution
 		cons[i].e = G2.newEdge(origNodes[cons[i].v1], origNodes[cons[i].v2]);
@@ -520,23 +520,23 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 		if (cplanar)
 		{
 #ifdef OGDF_DEBUG
-			cout << "Feasible solution found\n";
+			std::cout << "Feasible solution found\n";
 #endif
 			for (int j = 0; j < connPairs.size(); j++)
 			{
 				char ch = (cons[j].connected ? '1' : '0');
-				cout << ch;
+				std::cout << ch;
 				os << ch << " ";
 			}
-			cout << "\n";
+			std::cout << "\n";
 			os << "\n";
-#ifdef writefeasiblegraphs
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 			string fn = "cGraph";
-			fn += to_string(j++) + ".gml";
+			fn += to_string(writeCount++) + ".gml";
 			GraphIO::writeGML(testCopy, fn);
 #endif
 		}
-	}//while counting
+	}
 
 	delete[] cons;
 
@@ -577,10 +577,10 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	os << "\nINEQUALITIES_SECTION\n";
 	//we first read the standard constraint that are written
 	//into a text file by the optimization master
-	ifstream isf(master.getStdConstraintsFileName());
+	std::ifstream isf(master.getStdConstraintsFileName());
 	if (!isf)
 	{
-		cerr << "Could not open optimization master's standard constraint file\n";
+		std::cerr << "Could not open optimization master's standard constraint file\n";
 		os << "#No standard constraints read\n";
 	}
 	else
@@ -609,11 +609,11 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 					}
 					count++;
 				}
-			}//while chars
+			}
 			os <<"\n";
 		}
 		delete[] fileLine;
-	}//ifstream
+	}
 	//now we read the cut pools from the master
 	if (master.useDefaultCutPool())
 	{
@@ -629,57 +629,57 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 		StandardPool<Variable, Constraint> *stdVar = master.varPool();
 		OGDF_ASSERT(connCon != nullptr);
 		OGDF_ASSERT(kuraCon != nullptr);
-		cout << connCon->number() << " Constraints im MasterConnpool \n";
-		cout << kuraCon->number() << " Constraints im MasterKurapool \n";
-		cout << connCon->size() << " Größe ConnPool"<<"\n";
+		std::cout << connCon->number() << " Constraints im MasterConnpool \n";
+		std::cout << kuraCon->number() << " Constraints im MasterKurapool \n";
+		std::cout << connCon->size() << " Größe ConnPool"<<"\n";
 		outputCons(os, connCon, stdVar);
 		outputCons(os, kuraCon, stdVar);
-	}//else
+	}
 	os << "\nEND" <<"\n";
 	os.close();
-	cout << "Cutting is set: "<<master.cutting()<<"\n";
+	std::cout << "Cutting is set: "<<master.cutting()<<"\n";
 #if 0
-	cout <<"Bounds for the variables:\n";
+	std::cout <<"Bounds for the variables:\n";
 	Sub &theSub = *(master.firstSub());
 	for ( i = 0; i < theSub.nVar(); i++)
 	{
-		cout << i << ": " << theSub.lBound(i) << " - " << theSub.uBound(i) << "\n";
+		std::cout << i << ": " << theSub.lBound(i) << " - " << theSub.uBound(i) << "\n";
 	}
 #endif
 #if 0
 	// OLD CRAP
-	cout << "Constraints: \n";
+	std::cout << "Constraints: \n";
 	StandardPool< Constraint, Variable > *spool = master.conPool();
 	StandardPool< Constraint, Variable > *cpool = master.cutPool();
 
-	cout << spool->size() << " Constraints im Masterpool \n";
-	cout << cpool->size() << " Constraints im Mastercutpool \n";
+	std::cout << spool->size() << " Constraints im Masterpool \n";
+	std::cout << cpool->size() << " Constraints im Mastercutpool \n";
 
-	cout << "ConPool Constraints \n";
+	std::cout << "ConPool Constraints \n";
 	for ( i = 0; i < spool->size(); i++)
 	{
 		PoolSlot< Constraint, Variable > * sloty = spool->slot(i);
 		Constraint *mycon = sloty->conVar();
 		switch (mycon->sense()->sense())
 		{
-			case CSense::Less: cout << "<" << "\n"; break;
-			case CSense::Greater: cout << ">" << "\n"; break;
-			case CSense::Equal: cout << "=" << "\n"; break;
-			default: cout << "Inequality sense doesn't make any sense \n"; break;
-		}//switch
+			case CSense::Less: std::cout << "<" << "\n"; break;
+			case CSense::Greater: std::cout << ">" << "\n"; break;
+			case CSense::Equal: std::cout << "=" << "\n"; break;
+			default: std::cout << "Inequality sense doesn't make any sense \n"; break;
+		}
 	}
-	cout << "CutPool Constraints \n";
+	std::cout << "CutPool Constraints \n";
 	for ( i = 0; i < cpool->size(); i++)
 	{
 		PoolSlot< Constraint, Variable > * sloty = cpool->slot(i);
 		Constraint *mycon = sloty->conVar();
 		switch (mycon->sense()->sense())
 		{
-			case CSense::Less: cout << "<" << "\n"; break;
-			case CSense::Greater: cout << ">" << "\n"; break;
-			case CSense::Equal: cout << "=" << "\n"; break;
-			default: cout << "Inequality sense doesn't make any sense \n"; break;
-		}//switch
+			case CSense::Less: std::cout << "<" << "\n"; break;
+			case CSense::Greater: std::cout << ">" << "\n"; break;
+			case CSense::Equal: std::cout << "=" << "\n"; break;
+			default: std::cout << "Inequality sense doesn't make any sense \n"; break;
+		}
 	}
 	for ( i = 0; i < theSub.nCon(); i++)
 	{
@@ -689,27 +689,27 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 		{
 			double c = theCon.coeff(theSub.variable(i));
 			if (c != 0)
-				cout << c;
-			else cout << "  ";
+				std::cout << c;
+			else std::cout << "  ";
 		}
 		switch (theCon.sense()->sense())
 		{
-			case CSense::Less: cout << "<" << "\n"; break;
-			case CSense::Greater: cout << ">" << "\n"; break;
-			case CSense::Equal: cout << "=" << "\n"; break;
-			default: cout << "doesn't make any sense \n"; break;
-		}//switch
+			case CSense::Less: std::cout << "<" << "\n"; break;
+			case CSense::Greater: std::cout << ">" << "\n"; break;
+			case CSense::Equal: std::cout << "=" << "\n"; break;
+			default: std::cout << "doesn't make any sense \n"; break;
+		}
 		float fl;
 		while(!(std::cin >> fl))
 		{
 			std::cin.clear();
-			std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
+			std::cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
 		}
 	}
 #endif
-}//writeportaieq
+}
 
-void ClusterPlanarity::outputCons(ofstream &os,
+void ClusterPlanarity::outputCons(std::ofstream &os,
 	StandardPool<Constraint, Variable> *connCon,
 	StandardPool<Variable, Constraint> *stdVar)
 {
@@ -729,7 +729,7 @@ void ClusterPlanarity::outputCons(ofstream &os,
 				{
 					os <<"+"<< d <<"x"<<count+1;
 				}
-			}//for
+			}
 			switch (mycon->sense()->sense())
 			{
 				case CSense::Less: os << " <= "; break;
@@ -737,9 +737,9 @@ void ClusterPlanarity::outputCons(ofstream &os,
 				case CSense::Equal: os << " = "; break;
 				default:
 					os << "Inequality sense doesn't make any sense \n";
-					cerr << "Inequality sense unknown \n";
+					std::cerr << "Inequality sense unknown \n";
 					break;
-			}//switch
+			}
 			os << mycon->rhs();
 			os << "\n";
 		}

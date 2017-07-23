@@ -31,10 +31,9 @@
 
 
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/tuples.h>
-
+#include <ogdf/basic/Math.h>
 
 namespace ogdf {
 
@@ -70,26 +69,8 @@ void parallelFreeSort(const Graph &G, SListPure<edge> &edges)
 	edges.bucketSort(0,G.maxNodeIndex(),bucketTgt);
 }
 
-bool isParallelFree(const Graph &G)
-{
-	if (G.numberOfEdges() <= 1) return true;
-
-	SListPure<edge> edges;
-	parallelFreeSort(G,edges);
-
-	SListConstIterator<edge> it = edges.begin();
-	edge ePrev = *it, e;
-	for(it = ++it; it.valid(); ++it, ePrev = e) {
-		e = *it;
-		if (ePrev->source() == e->source() && ePrev->target() == e->target())
-			return false;
-	}
-
-	return true;
-}
-
-int numParallelEdges(const Graph &G)
-{
+template <bool ONLY_ONCE = false>
+int numParallelEdges(const Graph &G) {
 	if (G.numberOfEdges() <= 1) return 0;
 
 	SListPure<edge> edges;
@@ -100,11 +81,19 @@ int numParallelEdges(const Graph &G)
 	edge ePrev = *it, e;
 	for(it = ++it; it.valid(); ++it, ePrev = e) {
 		e = *it;
-		if (ePrev->source() == e->source() && ePrev->target() == e->target())
+		if (ePrev->source() == e->source() && ePrev->target() == e->target()) {
 			++num;
+			if (ONLY_ONCE) {
+				return num;
+			}
+		}
 	}
 
 	return num;
+}
+
+bool isParallelFree(const Graph &G) {
+	return numParallelEdges<true>(G) == 0;
 }
 
 // Functions related to undirected parallel edges
@@ -130,27 +119,7 @@ void parallelFreeSortUndirected(const Graph &G,
 	edges.bucketSort(0,G.maxNodeIndex(),bucketMax);
 }
 
-
-bool isParallelFreeUndirected(const Graph &G)
-{
-	if (G.numberOfEdges() <= 1) return true;
-
-	SListPure<edge> edges;
-	EdgeArray<int> minIndex(G), maxIndex(G);
-	parallelFreeSortUndirected(G,edges,minIndex,maxIndex);
-
-	SListConstIterator<edge> it = edges.begin();
-	edge ePrev = *it, e;
-	for(it = ++it; it.valid(); ++it, ePrev = e) {
-		e = *it;
-		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e])
-			return false;
-	}
-
-	return true;
-}
-
-
+template <bool ONLY_ONCE = false>
 int numParallelEdgesUndirected(const Graph &G)
 {
 	if (G.numberOfEdges() <= 1) return 0;
@@ -164,13 +133,20 @@ int numParallelEdgesUndirected(const Graph &G)
 	edge ePrev = *it, e;
 	for(it = ++it; it.valid(); ++it, ePrev = e) {
 		e = *it;
-		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e])
+		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]) {
 			++num;
+			if (ONLY_ONCE) {
+				return num;
+			}
+		}
 	}
 
 	return num;
 }
 
+bool isParallelFreeUndirected(const Graph &G) {
+	return numParallelEdgesUndirected<true>(G) == 0;
+}
 
 // Testing and establishing connectivity
 
@@ -181,12 +157,12 @@ bool isConnected(const Graph &G)
 
 	int count = 0;
 	NodeArray<bool> visited(G,false);
-	BoundedStack<node> S(G.numberOfNodes());
+	ArrayBuffer<node> S(G.numberOfNodes());
 
 	S.push(v);
 	visited[v] = true;
 	while(!S.empty()) {
-		v = S.pop();
+		v = S.popRet();
 		++count;
 
 		for(adjEntry adj : v->adjEntries) {
@@ -207,7 +183,7 @@ void makeConnected(Graph &G, List<edge> &added)
 	added.clear();
 	if (G.numberOfNodes() == 0) return;
 	NodeArray<bool> visited(G,false);
-	BoundedStack<node> S(G.numberOfNodes());
+	ArrayBuffer<node> S(G.numberOfNodes());
 
 	node pred = nullptr;
 	for(node u : G.nodes)
@@ -222,7 +198,7 @@ void makeConnected(Graph &G, List<edge> &added)
 
 		while(!S.empty())
 		{
-			node v = S.pop();
+			node v = S.popRet();
 
 			for(adjEntry adj : v->adjEntries) {
 				node w = adj->twinNode();
@@ -246,21 +222,26 @@ void makeConnected(Graph &G, List<edge> &added)
 }
 
 
-int connectedComponents(const Graph &G, NodeArray<int> &component)
+int connectedComponents(const Graph &G,
+		NodeArray<int> &component,
+		List<node> *isolated)
 {
 	int nComponent = 0;
 	component.fill(-1);
 
-	StackPure<node> S;
+	ArrayBuffer<node> S;
 
 	for(node v : G.nodes) {
 		if (component[v] != -1) continue;
 
+		if (isolated != nullptr && v->degree() == 0) {
+			isolated->pushBack(v);
+		}
 		S.push(v);
 		component[v] = nComponent;
 
 		while(!S.empty()) {
-			node w = S.pop();
+			node w = S.popRet();
 			for(adjEntry adj : w->adjEntries) {
 				node x = adj->twinNode();
 				if (component[x] == -1) {
@@ -275,40 +256,6 @@ int connectedComponents(const Graph &G, NodeArray<int> &component)
 
 	return nComponent;
 }
-
-//return the isolated nodes too, is used in incremental layout
-int connectedIsolatedComponents(const Graph &G, List<node> &isolated,
-								NodeArray<int> &component)
-{
-	int nComponent = 0;
-	component.fill(-1);
-
-	StackPure<node> S;
-
-	for(node v : G.nodes) {
-		if (component[v] != -1) continue;
-
-		S.push(v);
-		component[v] = nComponent;
-
-		while(!S.empty()) {
-			node w = S.pop();
-			if (w->degree() == 0) isolated.pushBack(w);
-			for(adjEntry adj : w->adjEntries) {
-				node x = adj->twinNode();
-				if (component[x] == -1) {
-					component[x] = nComponent;
-					S.push(x);
-				}
-			}
-		}
-
-		++nComponent;
-	}
-
-	return nComponent;
-}//connectedIsolated
-
 
 // Testing and establishing biconnectivity
 
@@ -674,6 +621,125 @@ int biconnectedComponents(const Graph &G, EdgeArray<int> &component, int &nCompo
 	return nComponent + nIsolated;
 }
 
+/**
+ * Helper function for ogdf::isTwoEdgeConnected
+ * Fills up the output parameters \p dfsOrder, \p prev and \p backEdges, by doing a dfs on the \p graph.
+ *
+ * @param graph input graph
+ * @param dfsOrder the nodes of the graph get pushed into this list
+ * in the order in which they appear in the DFS
+ * @param prev maps to the edge from which a node was entered in the DFS
+ * @param backEdges list all backedges of a node
+ * @return false, if the \p graph is not connected, true otherwise
+ */
+static bool dfsTwoEdgeConnected(const Graph &graph,
+                                List<node> &dfsOrder,
+                                NodeArray<edge> &prev,
+                                NodeArray<ArrayBuffer<edge>> &backEdges)
+{
+	dfsOrder.clear();
+	prev.init(graph, nullptr);
+	backEdges.init(graph, ArrayBuffer<edge>());
+	EdgeArray<bool> visited(graph, false);
+
+	struct StackElement {
+		node v;
+		edge e; // edge to v
+	};
+	ArrayBuffer<StackElement> stack;
+	int visitCounter = 0;
+
+	auto push = [&](node vPush, edge ignoredEdge){
+		visitCounter++;
+		dfsOrder.pushBack(vPush);
+		for(adjEntry adj : vPush->adjEntries) {
+			if(adj->theEdge() != ignoredEdge && !visited[adj->theEdge()]) {
+				stack.push(StackElement{adj->twinNode(), adj->theEdge()});
+			}
+		}
+	};
+	push(graph.firstNode(), nullptr);
+
+	while(stack.size() != 0) {
+		StackElement currentElem = stack.popRet();
+		node current = currentElem.v;
+		edge prevEdge = currentElem.e;
+		if(visited[prevEdge]) {
+			continue;
+		}
+		visited[prevEdge] = true;
+		if(prev[current] != nullptr || current == graph.firstNode()) {
+			backEdges[current].push(prevEdge);
+		} else {
+			prev[current] = prevEdge;
+			push(current, prevEdge);
+		}
+	}
+
+	return visitCounter == graph.numberOfNodes();
+}
+
+/**
+ * Helper function for ogdf::isTwoEdgeConnected
+ *
+ * @copydetails dfsTwoEdgeConnected
+ * @param bridge same as in ogdf::isTwoEdgeConnected
+ */
+static bool chainsTwoEdgeConnected(const Graph &graph,
+                                   edge &bridge,
+                                   List<node> &dfsOrder,
+                                   const NodeArray<edge> &prev,
+                                   const NodeArray<ArrayBuffer<edge>> &backEdges)
+{
+	NodeArray<bool> visited(graph, false);
+	EdgeArray<bool> inAChain(graph, false);
+
+	while(!dfsOrder.empty()) {
+		node current = dfsOrder.popFrontRet();
+		for(edge e : backEdges[current]) {
+			inAChain[e] = true;
+			visited[current] = true;
+			node v = e->opposite(current);
+			while(!visited[v]) {
+				visited[v] = true;
+				edge prevEdge = prev[v];
+				if(prevEdge != nullptr) {
+					v = prevEdge->opposite(v);
+					inAChain[prevEdge] = true;
+				}
+			}
+		}
+	}
+
+	for(edge e : graph.edges) {
+		if(!inAChain[e]){
+			bridge = e;
+			// bridge found
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool isTwoEdgeConnected(const Graph &graph, edge &bridge) {
+	bridge = nullptr;
+	NodeArray<edge> prev(graph, nullptr);
+	NodeArray<ArrayBuffer<edge>> backEdges(graph, ArrayBuffer<edge>());
+	List<node> dfsOrder;
+
+	if(graph.numberOfNodes() <= 1) {
+		// empty and single-node graphs are defined to be 2-edge-connected
+		return true;
+	}
+
+	if(!dfsTwoEdgeConnected(graph, dfsOrder, prev, backEdges)) {
+		// not connected
+		return false;
+	}
+
+	return chainsTwoEdgeConnected(graph, bridge, dfsOrder, prev, backEdges);
+}
 
 // Testing triconnectivity
 
@@ -717,7 +783,6 @@ bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 
 		// restore deleted node with adjacent edges
 		vC = GC.newNode(v);
-		SListConstIterator<node> it;
 		for(node uC : adjacentNodes)
 			GC.newEdge(vC,uC);
 	}
@@ -734,7 +799,9 @@ void triangulate(Graph &G)
 
 	CombinatorialEmbedding E(G);
 
-	OGDF_ASSERT(E.consistencyCheck());
+#ifdef OGDF_DEBUG
+	E.consistencyCheck();
+#endif
 
 	adjEntry succ, succ2, succ3;
 	NodeArray<int> marked(E.getGraph(), 0);
@@ -987,7 +1054,7 @@ bool isStGraph(const Graph &G, node &s, node &t, edge &st)
 
 void topologicalNumbering(const Graph &G, NodeArray<int> &num)
 {
-	BoundedStack<node> S(G.numberOfNodes());
+	ArrayBuffer<node> S(G.numberOfNodes());
 	NodeArray<int> indeg(G);
 
 	for(node v : G.nodes)
@@ -996,7 +1063,7 @@ void topologicalNumbering(const Graph &G, NodeArray<int> &num)
 
 	int count = 0;
 	while(!S.empty()) {
-		node v = S.pop();
+		node v = S.popRet();
 		num[v] = count++;
 
 		for(adjEntry adj : v->adjEntries) {
@@ -1019,7 +1086,7 @@ int strongComponents(const Graph &graph, NodeArray<int> &components)
 	// A node v is on the stack set iff index[v] > -1 and lowLinks[v] < nNodes.
 	NodeArray<int> lowLinks(graph, -1);
 	NodeArray<int> index(graph, -1);
-	BoundedStack<node> set(nNodes);
+	ArrayBuffer<node> set(nNodes);
 	int nextIndex = 0;
 	int result = 0;
 
@@ -1032,12 +1099,12 @@ int strongComponents(const Graph &graph, NodeArray<int> &components)
 				node v;
 				ListPure<edge> *outEdges;
 
-				StackElem() {}
-				StackElem(node vertex) : v(vertex) {
+				StackElem() = default;
+				explicit StackElem(node vertex) : v(vertex) {
 					outEdges = new ListPure<edge>;
 					vertex->outEdges(*outEdges);
 				}
-			} initElem = {u};
+			} initElem = StackElem(u);
 
 			// Start a depth-first search at u.
 			ArrayBuffer<StackElem> stack;
@@ -1060,7 +1127,7 @@ int strongComponents(const Graph &graph, NodeArray<int> &components)
 				} else {
 					// If backtracking, update v's lowlink using its child w.
 					node w = outEdges->popFrontRet()->target();
-					lowLinks[v] = min(lowLinks[w], lowLinks[v]);
+					Math::updateMin(lowLinks[v], lowLinks[w]);
 				}
 
 				// For all direct successors w of v:
@@ -1074,7 +1141,7 @@ int strongComponents(const Graph &graph, NodeArray<int> &components)
 						restartLoop = true;
 					} else {
 						// Else update v's lowlink.
-						lowLinks[v] = min(lowLinks[w], lowLinks[v]);
+						Math::updateMin(lowLinks[v], lowLinks[w]);
 						outEdges->popFront();
 					}
 				}
@@ -1087,7 +1154,7 @@ int strongComponents(const Graph &graph, NodeArray<int> &components)
 				if (lowLinks[v] == index[v]) {
 					node w;
 					do {
-						w = set.pop();
+						w = set.popRet();
 						components[w] = result;
 						lowLinks[w] = nNodes;
 					} while (w != v);
@@ -1141,48 +1208,9 @@ void makeBimodal(Graph &G, List<edge> &newEdge)
 	}
 }
 
-// testing if graph represents a free forest
-bool isFreeForest(const Graph &G)
-{
-	NodeArray<bool> visited(G,false);
-
-	for(node vFirst : G.nodes) {
-		if (visited[vFirst]) continue;
-
-		StackPure<Tuple2<node,node> > S;
-		S.push(Tuple2<node,node>(vFirst,nullptr));
-
-		while (!S.empty()) {
-			Tuple2<node,node> t = S.pop();
-			node v      = t.x1();
-			node parent = t.x2();
-
-			visited[v] = true;
-
-			for(adjEntry adj : v->adjEntries) {
-				node w = adj->twinNode();
-
-				// skip edge to parent, but only once!
-				if(w == parent) {
-					parent = nullptr;
-					continue;
-				}
-
-				if(visited[w] == true)
-					return false;
-
-				S.push(Tuple2<node,node>(w,v));
-			}
-		}
-	}
-
-	return true;
-}
-
-
 // Forest and arborescence testing
 
-bool isForest(const Graph& G, List<node> &roots)
+bool isArborescenceForest(const Graph& G, List<node> &roots)
 {
 	roots.clear();
 	if (G.empty()) {
@@ -1231,7 +1259,7 @@ bool isArborescence (const Graph& G, node &root)
 {
 	List<node> roots;
 
-	if (isForest(G,roots) && roots.size() == 1) {
+	if (isArborescenceForest(G,roots) && roots.size() == 1) {
 		root = roots.front(); return true;
 	}
 	return false;
@@ -1263,8 +1291,8 @@ void nodeDistribution(const Graph& G, Array<int> &dist, std::function<int(node)>
 	}
 
 	for (node v : G.nodes) {
-		maxval = max(maxval, func(v));
-		minval = min(minval, func(v));
+		Math::updateMax(maxval, func(v));
+		Math::updateMin(minval, func(v));
 	}
 
 	dist.init(minval, maxval, 0);
@@ -1273,4 +1301,4 @@ void nodeDistribution(const Graph& G, Array<int> &dist, std::function<int(node)>
 	}
 }
 
-} // end namespace ogdf
+}

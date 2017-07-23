@@ -104,5 +104,4 @@ protected:
 	virtual void doCall(const PlanRep &, GridLayout &, const List<node> &) override { }
 };
 
-
-} // end namespace ogdf
+}

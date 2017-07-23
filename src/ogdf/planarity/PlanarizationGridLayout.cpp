@@ -140,4 +140,4 @@ void PlanarizationGridLayout::doCall(
 	bb.m_y -= 1;
 }
 
-} // end namespace ogdf
+}

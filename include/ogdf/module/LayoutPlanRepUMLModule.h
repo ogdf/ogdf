@@ -74,10 +74,12 @@ public:
 	}
 
 	//! Sets the (generic) options; derived classes have to cope with the interpretation)
-	virtual void setOptions(int /* optionField */) { } //don't make it abstract
+	virtual void setOptions(int /* optionField */) { }
+	// don't make it abstract!
 
 	//! Returns the (generic) options.
-	virtual int getOptions() { return 0; } //don't make it abstract
+	virtual int getOptions() { return 0; }
+	// don't make it abstract!
 
 	//! Returns the minimal allowed distance between edges and vertices.
 	virtual double separation() const = 0;
@@ -104,5 +106,4 @@ protected:
 	OGDF_MALLOC_NEW_DELETE
 };
 
-
-} // end namespace ogdf
+}

@@ -55,9 +55,9 @@ IPolyline GridLayout::polyline(edge e) const
 
 struct OGDF_EXPORT GridPointInfo
 {
-	GridPointInfo() : m_v(nullptr), m_e(nullptr) { }
-	explicit GridPointInfo(node v) : m_v(v), m_e(nullptr) { }
-	explicit GridPointInfo(edge e) : m_v(nullptr), m_e(e) { }
+	GridPointInfo() = default;
+	explicit GridPointInfo(node v) : m_v(v) { }
+	explicit GridPointInfo(edge e) : m_e(e) { }
 
 	bool operator==(const GridPointInfo &i) const {
 		return (m_v == i.m_v && m_e == i.m_e);
@@ -67,11 +67,11 @@ struct OGDF_EXPORT GridPointInfo
 		return !operator==(i);
 	}
 
-	node m_v;
-	edge m_e;
+	node m_v = nullptr;
+	edge m_e = nullptr;
 };
 
-ostream &operator<<(ostream &os, const GridPointInfo &i)
+std::ostream &operator<<(std::ostream &os, const GridPointInfo &i)
 {
 	if(i.m_v == nullptr && i.m_e == nullptr)
 		os << "{}";
@@ -102,7 +102,7 @@ bool GridLayout::checkLayout()
 		IPoint ip = IPoint(m_x[v],m_y[v]);
 		GridPointInfo i = H[ip];
 		if(i != GridPointInfo()) {
-			cout << "conflict of " << v << " with " << H[ip] << endl;
+			std::cout << "conflict of " << v << " with " << H[ip] << std::endl;
 			return false;
 		}
 
@@ -113,11 +113,10 @@ bool GridLayout::checkLayout()
 	{
 		const IPolyline &bends = m_bends[e];
 
-		ListConstIterator<IPoint> it;
 		for(const IPoint &ip : bends) {
 			GridPointInfo i = H[ip];
 			if(i != GridPointInfo()) {
-				cout << "conflict of bend point " << ip << " of edge " << e << " with " << H[ip] << endl;
+				std::cout << "conflict of bend point " << ip << " of edge " << e << " with " << H[ip] << std::endl;
 				return false;
 			}
 
@@ -220,8 +219,8 @@ void GridLayout::computeBoundingBox(int &xmin, int &xmax, int &ymin, int &ymax)
 		return;
 	}
 
-	xmin = ymin = numeric_limits<int>::max();
-	xmax = ymax = numeric_limits<int>::min();
+	xmin = ymin = std::numeric_limits<int>::max();
+	xmax = ymax = std::numeric_limits<int>::min();
 
 	for(node v : pG->nodes) {
 		int x = m_x[v];
@@ -234,7 +233,6 @@ void GridLayout::computeBoundingBox(int &xmin, int &xmax, int &ymin, int &ymax)
 	}
 
 	for(edge e : pG->edges) {
-		ListConstIterator<IPoint> it;
 		for(const IPoint &ip : m_bends[e]) {
 			int x = ip.m_x;
 			if(x < xmin) xmin = x;
@@ -280,7 +278,7 @@ int GridLayout::maxManhattanEdgeLength() const
 	int length = 0;
 
 	for(edge e : pG->edges)
-		length = max( length, manhattanEdgeLength(e) );
+		Math::updateMax(length, manhattanEdgeLength(e));
 
 	return length;
 }
@@ -357,19 +355,18 @@ GridLayoutMapped::GridLayoutMapped(
 			if(si.m_adjGen) {
 				int k = max(si.m_nAttached[0],si.m_nAttached[1]);
 				if (k == 0)
-					minDelta = min(minDelta, size/2);
+					Math::updateMin(minDelta, size/2);
 				else
-					minDelta = min(minDelta, size / (2*(k + cOverhang)));
+					Math::updateMin(minDelta, size / (2*(k + cOverhang)));
 
 			} else {
 				if (si.m_nAttached[0] == 0)
-					minDelta = min(minDelta, size);
+					Math::updateMin(minDelta, size);
 
 				else if ( !((si.m_nAttached[0] == 1) && (cOverhang == 0.0)) ) //hier cov= 0 abfangen
-					minDelta =  min(minDelta,
-						size / (si.m_nAttached[0] - 1 + 2*cOverhang));
+					Math::updateMin(minDelta, size / (si.m_nAttached[0] - 1 + 2*cOverhang));
 				else
-					minDelta = min(minDelta, size/2);
+					Math::updateMin(minDelta, size/2);
 			}
 
 		}
@@ -411,5 +408,4 @@ void GridLayoutMapped::remap(Layout &drawing)
 	}
 }
 
-
-} // end namespace ogdf
+}

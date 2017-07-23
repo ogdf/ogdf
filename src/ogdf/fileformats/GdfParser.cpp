@@ -67,7 +67,7 @@ static inline bool readDef(
 
 		Attr attrib = toAttribute(name);
 		if(attrib == a_unknown) {
-			GraphIO::logger.lout(Logger::Level::Minor) << "attribute \"" << name << "\"" << " not supported. Ignoring." << endl;
+			GraphIO::logger.lout(Logger::Level::Minor) << "attribute \"" << name << "\"" << " not supported. Ignoring." << std::endl;
 		}
 		attrs.push_back(attrib);
 	}
@@ -118,7 +118,7 @@ static bool split(
 			if(quoted) {
 				i += quoted;
 			} else {
-				GraphIO::logger.lout() << "Unescaped quote." << endl;
+				GraphIO::logger.lout() << "Unescaped quote." << std::endl;
 				return false;
 			}
 		} else if(str[i] == ',') {
@@ -145,7 +145,7 @@ bool Parser::readNodeStmt(
 
 	if(values.size() != m_nodeAttrs.size()) {
 		GraphIO::logger.lout() << "node definition does not match the header "
-		          << "(line " << line << ")." << endl;
+		          << "(line " << line << ")." << std::endl;
 		return false;
 	}
 
@@ -169,7 +169,7 @@ bool Parser::readEdgeStmt(
 
 	if(values.size() != m_edgeAttrs.size()) {
 		GraphIO::logger.lout() << "edge definition does not match the header "
-		          << "(line " << line << ")." << endl;
+		          << "(line " << line << ")." << std::endl;
 		return false;
 	}
 
@@ -185,7 +185,7 @@ bool Parser::readEdgeStmt(
 				directed = false;
 			} else {
 				GraphIO::logger.lout() << "edge direction must be a boolean "
-				          << "(line " << line << ")." << endl;
+				          << "(line " << line << ")." << std::endl;
 			}
 			break;
 		case EdgeAttribute::Source:
@@ -202,7 +202,7 @@ bool Parser::readEdgeStmt(
 	// Then, we can create edge(s) and read attributes (if needed).
 	if(!source || !target) {
 		GraphIO::logger.lout() << "source or target for edge not found "
-		          << "(line " << line << ")." << endl;
+		          << "(line " << line << ")." << std::endl;
 		return false;
 	}
 
@@ -470,7 +470,7 @@ bool gdf::Parser::readGraph(
 			}
 		} else {
 			GraphIO::logger.lout() << "Expected node or edge definition header "
-			          << "(line " << line << ")." << endl;
+			          << "(line " << line << ")." << std::endl;
 			return false;
 		}
 	}
@@ -478,7 +478,5 @@ bool gdf::Parser::readGraph(
 	return true;
 }
 
-
-} // end namespace gdf
-
-} // end namespace ogdf
+}
+}

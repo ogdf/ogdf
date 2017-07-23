@@ -35,7 +35,7 @@ namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-ostream &operator<< (ostream & output, const NodeAttributes & A)
+std::ostream &operator<< (std::ostream & output, const NodeAttributes & A)
 {
 	output <<"width: "<< A.width<<" height: "<<A.height<<" position: "<<A.position ;
 	output<<" index of lower level node ";
@@ -70,8 +70,8 @@ ostream &operator<< (ostream & output, const NodeAttributes & A)
 	if(A.lambda.empty())
 		output<<" is empty";
 	else {
-		for(double l : A.lambda) {
-			output<<l<<" ";
+		for(double lambda : A.lambda) {
+			output << lambda << " ";
 		}
 	}
 	output<<" neighbour_sun_node_List ";
@@ -84,12 +84,12 @@ ostream &operator<< (ostream & output, const NodeAttributes & A)
 		output<<" is placed";
 	else
 		output<<" is not placed";
-	cout<<" angle_1 "<<A.angle_1<<" angle_2 "<<A.angle_2<<endl;
+	std::cout<<" angle_1 "<<A.angle_1<<" angle_2 "<<A.angle_2<<std::endl;
 	return output;
 }
 
 
-istream &operator>> (istream & input,  NodeAttributes & /* A */)
+std::istream &operator>> (std::istream & input,  NodeAttributes & /* A */)
 {
 	//input >> A.l;
 	return input;

@@ -1,13 +1,16 @@
 #ifndef BANDIT_FAILURE_FORMATTER_H
 #define BANDIT_FAILURE_FORMATTER_H
 
-namespace bandit { namespace detail {
+#include <memory>
+#include <bandit/assertion_exception.h>
 
-  struct failure_formatter
-  {
-    virtual std::string format(const assertion_exception&) const = 0;
-  };
-  typedef std::unique_ptr<failure_formatter> failure_formatter_ptr;
-}}
+namespace bandit {
+  namespace detail {
+    struct failure_formatter {
+      virtual std::string format(const assertion_exception&) const = 0;
+    };
 
+    typedef std::unique_ptr<failure_formatter> failure_formatter_ptr;
+  }
+}
 #endif

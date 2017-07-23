@@ -31,12 +31,9 @@
 
 #include <regex>
 #include <ogdf/lib/pugixml/pugixml.h>
-#include <bandit/bandit.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/basic/graph_generators.h>
-
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 void createDocument(GraphAttributes attr, pugi::xml_document &doc, GraphIO::SVGSettings *settings = nullptr, bool reassignPositions = true) {
 	std::ostringstream write;
@@ -62,16 +59,12 @@ void createDocument(GraphAttributes attr, pugi::xml_document &doc, GraphIO::SVGS
 go_bandit([](){
 describe("GraphIO", []() {
 describe("SVG", []() {
-	Graph *graph;
+	std::unique_ptr<Graph> graph;
 	int numberOfNodes = 42;
 
 	before_each([&](){
-		graph = new Graph;
+		graph.reset(new Graph);
 		randomBiconnectedGraph(*graph, numberOfNodes, 3*numberOfNodes);
-	});
-
-	after_each([&](){
-		delete graph;
 	});
 
 	it("is well-formed", [&]() {

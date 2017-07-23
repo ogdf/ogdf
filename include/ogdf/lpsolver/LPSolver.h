@@ -94,7 +94,7 @@ public:
 		const Array<double> &lowerBound,    // lower bound of x[i]
 		const Array<double> &upperBound,    // upper bound of x[i]
 		const Array<double> &x              // x-vector of optimal solution (if result is Optimal)
-	);
+	) const;
 
 private:
 	OsiSolverInterface* osi;

@@ -90,5 +90,4 @@ void MixedModelLayout::doCall(
 	gridLayout.computeBoundingBox(xmin,boundingBox.m_x,ymin,boundingBox.m_y);
 }
 
-
-} // end namespace ogdf
+}

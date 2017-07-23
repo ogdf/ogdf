@@ -73,10 +73,6 @@ private:
 	//min grid distance
 	int m_grid_dist;
 
-	Graph D; // the dual graph of the UPR
-	node s_D; // super source of D
-	node t_D; // super sink f D
-
 	//node segment of the visibility representation
 	struct NodeSegment {
 		int y; //y coordinate
@@ -97,20 +93,20 @@ private:
 	//mapping edge to edge segment of visibility presentation
 	EdgeArray<EdgeSegment> edgeToVis;
 
-	FaceArray<node> faceToNode;
-	NodeArray<face> leftFace_node;
-	NodeArray<face> rightFace_node;
-	EdgeArray<face> leftFace_edge;
-	EdgeArray<face> rightFace_edge;
-
 	std::unique_ptr<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
 
-	void constructDualGraph(UpwardPlanRep &UPR);
+	void constructDualGraph(
+			const UpwardPlanRep& UPR,
+			Graph& D,
+			node& s_D,
+			node& t_D,
+			FaceArray<node>& faceToNode,
+			NodeArray<face>& leftFace_node,
+			NodeArray<face>& rightFace_node,
+			EdgeArray<face>& leftFace_edge,
+			EdgeArray<face>& rightFace_edge);
 
-	void constructVisibilityRepresentation(UpwardPlanRep &UPR);
-
-
+	void constructVisibilityRepresentation(const UpwardPlanRep& UPR);
 };
 
-
-}//namespace
+}

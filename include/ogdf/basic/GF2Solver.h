@@ -43,19 +43,29 @@ class GF2Solver {
 	static constexpr int chunkSize = 13;
 	static constexpr int chunkSize2 = 9;
 
-	struct Chunk {
-		int m_x[chunkSize];
+	template<int Dim, typename Next>
+	struct ChunkBase {
+		int m_x[Dim];
 		int m_max;
-		Chunk *m_next;
-
-		Chunk() {
-			m_max = -1;
-			m_next = nullptr;
-		}
+		Next* m_next;
 
 		bool full() const {
-			return m_max == chunkSize-1;
+			return m_max == Dim - 1;
 		}
+
+		ChunkBase() {
+			m_max = -1;
+			m_next = nullptr;
+			for (int i = 0; i < Dim; i++) {
+				m_x[i] = 0;
+			}
+		}
+
+		OGDF_NEW_DELETE
+	};
+
+	struct Chunk : public ChunkBase<chunkSize, Chunk> {
+		Chunk() : ChunkBase<chunkSize, Chunk>() {}
 
 		void add(int x) {
 			m_x[++m_max] = x;
@@ -64,20 +74,10 @@ class GF2Solver {
 		OGDF_NEW_DELETE
 	};
 
-	struct Chunk2 {
-		int               m_x [chunkSize2];
+	struct Chunk2 : public ChunkBase<chunkSize2, Chunk2> {
 		ListIterator<int> m_it[chunkSize2];
-		int m_max;
-		Chunk2 *m_next;
 
-		Chunk2() {
-			m_max = -1;
-			m_next = nullptr;
-		}
-
-		bool full() const {
-			return m_max == chunkSize2-1;
-		}
+		Chunk2() : ChunkBase<chunkSize2, Chunk2>() { }
 
 		void add(int x, ListIterator<int> it) {
 			++m_max;
@@ -194,7 +194,7 @@ public:
 		Equation() { }
 
 		void print() {
-			cout << m_objects << endl;
+			std::cout << m_objects << std::endl;
 		}
 
 		ListConstIterator<int> begin() const { return m_objects.begin(); }
@@ -313,7 +313,7 @@ public:
 
 		void print() const {
 			for(int i = 0; i < m_numRows; ++i) {
-				cout << std::setw(4) << i << ": ";
+				std::cout << std::setw(4) << i << ": ";
 				m_equations[i]->print();
 			}
 		}

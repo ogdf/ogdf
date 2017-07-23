@@ -31,15 +31,14 @@
 
 #include <string>
 #include <sstream>
-#include <bandit/bandit.h>
 
 #include <ogdf/graphalg/SteinerTreePreprocessing.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
 
+#include <testing.h>
+
 using namespace std;
-using namespace bandit;
-using namespace ogdf;
 
 template<typename T>
 static void
@@ -48,14 +47,11 @@ putRandomTerminals(const EdgeWeightedGraph<T> &wg, List<node> &terminals, NodeAr
 	isTerminal.init(wg, false);
 
 	Array<node> nodes(wg.numberOfNodes());
-	int i = 0;
-	for (node v : wg.nodes) {
-		nodes[i++] = v;
-	}
+	wg.allNodes(nodes);
 	nodes.permute();
 
-	numberOfTerminals = min(numberOfTerminals, wg.numberOfNodes() - 1);
-	for (i = 0; i < numberOfTerminals; ++i) {
+	Math::updateMin(numberOfTerminals, wg.numberOfNodes() - 1);
+	for (int i = 0; i < numberOfTerminals; ++i) {
 		const node v = nodes[i];
 		terminals.pushBack(v);
 		isTerminal[v] = true;

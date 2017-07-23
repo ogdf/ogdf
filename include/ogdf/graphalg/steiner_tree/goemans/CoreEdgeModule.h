@@ -1,7 +1,7 @@
 /** \file
- * \brief useable example of the Modular Multilevel Mixer
+ * \brief Definition of ogdf::steiner_tree::goemans::CoreEdgeModule class template
  *
- * \author Gereon Bartel
+ * \author Stephan Beyer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -31,34 +31,24 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/basic/EdgeArray.h>
 
 namespace ogdf {
+namespace steiner_tree {
+namespace goemans {
 
-/** \brief An example Layout using the Modular Mutlievel Mixer
- *
- * This example is tuned for nice drawings for most types of graphs.
- * EdgeCoverMerger and BarycenterPlacer are used as merging and placement
- * strategies. The FastMultipoleEmbedder is for force calculation.
- *
- * For an easy variation of the Modular Multilevel Mixer copy the code in call.
- */
-class OGDF_EXPORT MMMExampleNiceLayout : public LayoutModule
+//! Interface for core edge finder algorithms
+template<typename T>
+class CoreEdgeModule
 {
 public:
-
-	//! Constructor
-	MMMExampleNiceLayout();
-
-	//! calculates a drawing for the Graph GA
-	void call(GraphAttributes &GA) override;
-
-	//! calculates a drawing for the Graph MLG
-	void call(MultilevelGraph &MLG);
-
-private:
-
+	//! Compute a set of core edges
+	//! @param graph The input graph
+	//! @param terminals The terminals of the given graph
+	//! @param isInTree The resulting EdgeArray where an edge is true iff it is not a core edge
+	virtual void call(const Graph &graph, const List<node> &terminals, EdgeArray<bool> &isInTree) const = 0;
 };
 
-} // namespace ogdf
+}
+}
+}

@@ -79,7 +79,7 @@ Active<BaseType, CoType>::~Active()
 
 
 template <class BaseType, class CoType>
-ostream &operator<<(ostream &out, const Active<BaseType, CoType> &rhs)
+std::ostream &operator<<(std::ostream &out, const Active<BaseType, CoType> &rhs)
 {
 	for (int i = 0; i < rhs.n_; i++) {
 		out << i << ": ";
@@ -87,7 +87,7 @@ ostream &operator<<(ostream &out, const Active<BaseType, CoType> &rhs)
 		if (cv != 0)
 			cv->print(out);
 		else
-			out << "void" << endl;
+			out << "void" << std::endl;
 	}
 	return out;
 }
@@ -135,4 +135,4 @@ void Active<BaseType, CoType>::realloc(int newSize)
 	redundantAge_.resize(newSize);
 }
 
-} // namespace abacus
+}

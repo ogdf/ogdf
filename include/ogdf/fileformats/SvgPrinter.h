@@ -83,7 +83,7 @@ public:
 	 *
 	 * @param os The stream to print to
 	 */
-	bool draw(ostream &os);
+	bool draw(std::ostream &os);
 
 private:
 	//! attributes of the graph to be visualized

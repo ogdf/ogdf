@@ -64,6 +64,5 @@ Attribute toAttribute(const std::string &str);
 Shape toShape(const std::string &str);
 EdgeArrow toArrow(const std::string &str);
 
-} // end namespace dot
-
-} // end namespace ogdf
+}
+}

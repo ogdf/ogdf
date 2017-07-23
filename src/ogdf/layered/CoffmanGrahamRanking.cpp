@@ -185,7 +185,6 @@ void CoffmanGrahamRanking::dfs(node v)
 
 	while (!stack.empty()) {
 		node w = stack.popRet();
-		m_visited->push(w);
 		m_mark[w] |= 1; // Mark w as visited.
 
 		// Set 4-bit for every successor u of w with set 2-bit.
@@ -211,7 +210,7 @@ void CoffmanGrahamRanking::removeTransitiveEdges(Graph& G)
 	List<edge> vout;
 
 	m_mark.init(G,0);
-	StackPure<node> visited;
+	ArrayBuffer<node> visited;
 
 	for (node v : G.nodes) {
 		v->outEdges<List<edge>>(vout);
@@ -240,11 +239,11 @@ void CoffmanGrahamRanking::removeTransitiveEdges(Graph& G)
 
 		// Reset mark-bits for all visited nodes.
 		while (!visited.empty()) {
-			m_mark[visited.pop()] = 0;
+			m_mark[visited.popRet()] = 0;
 		}
 	}
 
 	m_mark.init();
 }
 
-} //namespace ogdf
+}

@@ -51,9 +51,6 @@ RadialTreeLayout::RadialTreeLayout(const RadialTreeLayout &tl)
 	 m_selectRoot(tl.m_selectRoot)
 { }
 
-RadialTreeLayout::~RadialTreeLayout()
-{ }
-
 RadialTreeLayout &RadialTreeLayout::operator=(const RadialTreeLayout &tl)
 {
 	m_levelDistance              = tl.m_levelDistance;
@@ -138,7 +135,7 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 	m_leaves.init(G,0);
 
 	Queue<node> Q;
-	Stack<node> S;
+	ArrayBuffer<node> S;
 
 	Q.append(m_root);
 	m_parent[m_root] = nullptr;
@@ -176,7 +173,7 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 	// compute number of leaves in subtree (already computed for leaves)
 	while(!S.empty())
 	{
-		node v = S.pop();
+		node v = S.popRet();
 		node p = m_parent[v];
 
 		if(p != nullptr)

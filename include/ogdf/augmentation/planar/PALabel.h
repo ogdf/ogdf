@@ -146,11 +146,8 @@ private:
 	List<node> m_pendants; //!< list with all pendants of the label
 
 	StopCause m_stopCause;  //!< the stop cause that occurs when traversing from the pendants to the bc-tree-root computed in PlanarAugmentation::followPath()
-
-}; // class PALabel
-
+};
 
 using pa_label = PALabel*;
 
-
-} // namespace ogdf
+}

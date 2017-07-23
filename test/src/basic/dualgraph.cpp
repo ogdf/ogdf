@@ -29,13 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
 #include <ogdf/basic/DualGraph.h>
 #include <ogdf/basic/graph_generators.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 //! Runs all tests on a single randomly generated graph with \c n nodes and \c m edges.
 void performIteration(int n, int m) {

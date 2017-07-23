@@ -149,11 +149,13 @@ public:
 	void setPertubation(bool b) {m_usePerturbation = b;}
 	void setHeuristicFractionalBound(double b) {m_heuristicFractionalBound = b;}
 	void setHeuristicPermutationLists(int n) {m_nHeuristicPermutationLists = n;}
-	void setMPHeuristic(bool b) {m_mpHeuristic = b;}//!< Switches use of lower bound heuristic
+	//! Switches use of lower bound heuristic
+	void setMPHeuristic(bool b) {m_mpHeuristic = b;}
 	void setNumAddVariables(int i) {m_numAddVariables=i;}
 	void setStrongConstraintViolation(double d) { m_strongConstraintViolation=d;}
 	void setStrongVariableViolation(double d) { m_strongVariableViolation=d;}
-	void setSearchSpaceShrinking(bool b) {m_shrink = b;}//!< Toggles reduction of search space (using only some bag/satchel connections) on/off
+	//! Toggles reduction of search space (using only some bag/satchel connections) on/off
+	void setSearchSpaceShrinking(bool b) {m_shrink = b;}
 
 #if 0
 	//! Updating global constraint counter
@@ -176,9 +178,6 @@ public:
 #endif
 
 #ifdef OGDF_DEBUG
-	//! Solution computed by heuristic or ILP
-	bool m_solByHeuristic;
-
 	//! Simple output function to print the given graph to the console.
 	//! Used for debugging only.
 	void printGraph(const Graph &G);
@@ -229,8 +228,13 @@ protected:
 	//! only in the bag-reduced search space.
 	void addExternalConnections(cluster c, List<CPlanarEdgeVar*>& connectVars);
 
-
-	bool isCP() override {return feasibleFound();}//(dualBound()!=-infinity());}
+	bool isCP() override {
+#if 1
+		return feasibleFound();
+#else
+		return dualBound() != -infinity();
+#endif
+	}
 
 	//! Node pair is potential candidate for new edge variable
 	bool goodVar(node a, node b) override;

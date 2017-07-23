@@ -219,4 +219,4 @@ void IndependentSetMerger::setSearchDepthBase( float base )
 	m_base = base;
 }
 
-} // namespace ogdf
+}

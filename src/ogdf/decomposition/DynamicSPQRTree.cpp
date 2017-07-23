@@ -100,7 +100,7 @@ DynamicSkeleton& DynamicSPQRTree::createSkeleton(node vT) const
 
 	SList<node> inMapV;
 
-	for (edge eH : m_tNode_hEdges[vT])
+	for (edge eH : *m_tNode_hEdges[vT])
 	{
 		node sH = eH->source();
 		node tH = eH->target();
@@ -213,7 +213,7 @@ edge DynamicSPQRTree::updateInsertedEdge(edge eG)
 			else if (!m_hEdge_twinEdge[fH]) {
 				DynamicSPQRForest::updateInsertedEdge(eG);
 				if (m_sk[vT]) {
-					edge gH = m_hEdge_twinEdge[m_tNode_hEdges[m_hEdge_tNode[fH]].front()];
+					edge gH = m_hEdge_twinEdge[m_tNode_hEdges[m_hEdge_tNode[fH]]->front()];
 					m_skelEdge[gH] = m_skelEdge[fH];
 					m_sk[vT]->m_origEdge[m_skelEdge[gH]] = gH;
 				}
@@ -273,7 +273,7 @@ node DynamicSPQRTree::updateInsertedNode(edge eG, edge fG)
 	else {
 		DynamicSPQRForest::updateInsertedNode(eG, fG);
 		if (m_sk[vT]) {
-			edge gH = m_hEdge_twinEdge[m_tNode_hEdges[spqrproper(eH)].front()];
+			edge gH = m_hEdge_twinEdge[m_tNode_hEdges[spqrproper(eH)]->front()];
 			edge gM = m_skelEdge[gH] = m_skelEdge[eH];
 			m_sk[vT]->m_origEdge[gM] = gH;
 		}
@@ -281,5 +281,4 @@ node DynamicSPQRTree::updateInsertedNode(edge eG, edge fG)
 	return fG->source();
 }
 
-
-} // end namespace ogdf
+}

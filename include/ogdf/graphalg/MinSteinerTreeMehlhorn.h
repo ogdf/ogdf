@@ -297,4 +297,4 @@ void MinSteinerTreeMehlhorn<T>::insertPath(node u,
 	}
 }
 
-} // end namespace ogdf
+}

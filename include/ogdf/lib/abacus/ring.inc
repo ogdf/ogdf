@@ -41,7 +41,7 @@ inline AbaRing<Type>::AbaRing(int size)
 
 
 template <class Type>
-ostream &operator<<(ostream &out, const AbaRing<Type> &rhs)
+std::ostream &operator<<(std::ostream &out, const AbaRing<Type> &rhs)
 {
 	if(rhs.filled_) {
 		const int s = rhs.size();
@@ -53,7 +53,7 @@ ostream &operator<<(ostream &out, const AbaRing<Type> &rhs)
 	for (int i = 0; i < rhs.head_; i++)
 		out << rhs.ring_[i] << " ";
 
-	out << endl;
+	out << std::endl;
 
 	return out;
 }
@@ -218,4 +218,4 @@ void AbaRing<Type>::realloc(int newSize)
 	}
 }
 
-} // namespace abacus
+}

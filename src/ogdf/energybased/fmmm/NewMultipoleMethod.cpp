@@ -31,17 +31,9 @@
 
 
 #include <ogdf/energybased/fmmm/NewMultipoleMethod.h>
-#include <ogdf/energybased/fmmm/numexcept.h>
-
+#include <ogdf/energybased/fmmm/common.h>
 
 #define MIN_BOX_LENGTH   1e-300
-
-#ifdef __BORLANDC__
-	using _STL::log;
-#else
-	using std::log;
-#endif
-
 
 namespace ogdf {
 namespace energybased {
@@ -49,12 +41,69 @@ namespace fmmm {
 
 using std::complex;
 
+// Error-Handling for complex logarithm
+static inline complex<double> log(complex<double> z)
+{
+	if (std::real(z) <= 0 && std::imag(z) == 0) { // no cont. compl. log fct exists
+		return std::log(z + 0.0000001);
+	}
+	return std::log(z);
+}
+
+//! Returned state for traverse()
+struct ParticleListState {
+	//! Left particle list is empty
+	bool leftEmpty;
+	//! Right particle list is empty
+	bool rightEmpty;
+	//! Left particle list is larger
+	bool leftLarger;
+	//! Last left item
+	ListIterator<ParticleInfo> lastLeft;
+};
+
+static ParticleListState traverse(List<ParticleInfo> &relevantList, double mid_coord)
+{
+	auto l_item = relevantList.begin();
+	auto r_item = relevantList.rbegin();
+	bool last_left_item_found = false;
+	ParticleListState state{false, false, true, nullptr};
+
+	// traverse *act_ptr->get_x(y)_List_ptr() from left and right
+	while (!last_left_item_found) {
+		double l_coord = (*l_item).get_x_y_coord();
+		double r_coord = (*r_item).get_x_y_coord();
+		if (l_coord >= mid_coord) {
+			state.leftLarger = false;
+			last_left_item_found = true;
+			if (l_item != relevantList.begin()) {
+				state.lastLeft = relevantList.cyclicPred(l_item);
+			} else {
+				state.leftEmpty = true;
+			}
+		} else if (r_coord < mid_coord) {
+			last_left_item_found = true;
+			if (r_item != relevantList.rbegin()) {
+				state.lastLeft = r_item;
+			} else {
+				state.rightEmpty = true;
+			}
+		}
+		if (!last_left_item_found) {
+			l_item = relevantList.cyclicSucc(l_item);
+			r_item = relevantList.cyclicPred(r_item);
+		}
+	}
+
+	return state;
+}
+
 NewMultipoleMethod::NewMultipoleMethod()
   : MIN_NODE_NUMBER(175)
   , using_NMM(true)
   , max_power_of_2_index(30)
 {
-	//setting predefined parameters
+	// setting predefined parameters
 	precision(4); particles_in_leaves(25);
 	tree_construction_way(FMMMOptions::ReducedTreeConstruction::SubtreeBySubtree);
 	find_sm_cell(FMMMOptions::SmallestCellFinding::Iteratively);
@@ -66,10 +115,11 @@ void NewMultipoleMethod::calculate_repulsive_forces(
 	NodeArray <NodeAttributes>& A,
 	NodeArray<DPoint>& F_rep)
 {
-	if(using_NMM) //use NewMultipoleMethod
+	if (using_NMM) { // use NewMultipoleMethod
 		calculate_repulsive_forces_by_NMM(G,A,F_rep);
-	else //used the exact naive way
+	} else { // use the exact naive way
 		calculate_repulsive_forces_by_exact_method(G,A,F_rep);
+	}
 }
 
 
@@ -79,16 +129,15 @@ void NewMultipoleMethod::calculate_repulsive_forces_by_NMM(
 	NodeArray<DPoint>& F_rep)
 {
 	QuadTreeNM T;
-	DPoint nullpoint (0,0);
 	NodeArray<DPoint> F_direct(G);
 	NodeArray<DPoint> F_local_exp(G);
 	NodeArray<DPoint> F_multipole_exp(G);
 	List<QuadTreeNodeNM*> quad_tree_leaves;
 
-	//initializations
-
-	for(node v : G.nodes)
-		F_direct[v]=F_local_exp[v]=F_multipole_exp[v]=nullpoint;
+	// initializations
+	for (node v : G.nodes) {
+		F_direct[v] = F_local_exp[v] = F_multipole_exp[v] = DPoint(0, 0);
+	}
 
 	quad_tree_leaves.clear();
 	switch (tree_construction_way()) {
@@ -128,8 +177,7 @@ void NewMultipoleMethod::make_initialisations(
 	FMMMOptions::ReducedTreeConstruction t_c_w,
 	FMMMOptions::SmallestCellFinding f_s_c)
 {
-	if(G.numberOfNodes() >= MIN_NODE_NUMBER) //using_NMM
-	{
+	if (G.numberOfNodes() >= MIN_NODE_NUMBER) { // using_NMM
 		using_NMM = true; //indicate that NMM is used for force calculation
 
 		particles_in_leaves(p_i_l);
@@ -139,9 +187,7 @@ void NewMultipoleMethod::make_initialisations(
 		down_left_corner = d_l_c; //Export this two values from FMMM
 		boxlength = bl;
 		init_binko(2* precision());
-	}
-	else //use exact method
-	{
+	} else { // use exact method
 		using_NMM = false; //indicate that exact method is used for force calculation
 		ExactMethod.make_initialisations(bl,d_l_c,0);
 	}
@@ -161,9 +207,9 @@ void NewMultipoleMethod::update_boxlength_and_cornercoordinate(double b_l, DPoin
 	if(using_NMM) {
 		boxlength = b_l;
 		down_left_corner = d_l_c;
-	}
-	else
+	} else {
 		ExactMethod.update_boxlength_and_cornercoordinate(b_l,d_l_c);
+	}
 }
 
 
@@ -178,8 +224,8 @@ inline int NewMultipoleMethod::power_of_two(int i)
 inline int NewMultipoleMethod::maxboxindex (int level)
 {
 	if (level < 0) {
-		cout <<"Failure NewMultipoleMethod::maxboxindex :wrong level "<<endl;
-		cout <<"level" <<level<<endl;
+		std::cout <<"Failure NewMultipoleMethod::maxboxindex :wrong level "<<std::endl;
+		std::cout <<"level" <<level<<std::endl;
 		return -1;
 
 	} else
@@ -238,8 +284,7 @@ void NewMultipoleMethod::make_copy_and_init_Lists(
 	L_y_copy.clear();
 
 	origin_x_item = L_x_orig.begin();
-	while(!L_x_orig_traversed)
-	{
+	while (!L_x_orig_traversed) {
 		//reset values
 		P_x_orig = *origin_x_item;
 		P_x_orig.set_subList_ptr(nullptr); //clear subList_ptr
@@ -262,8 +307,7 @@ void NewMultipoleMethod::make_copy_and_init_Lists(
 	}
 
 	origin_y_item = L_y_orig.begin();
-	while(!L_y_orig_traversed)
-	{
+	while (!L_y_orig_traversed) {
 		//reset values
 		P_y_orig = *origin_y_item;
 		P_y_orig.set_subList_ptr(nullptr); //clear subList_ptr
@@ -317,9 +361,8 @@ void NewMultipoleMethod::create_sorted_coordinate_Lists(
 	ParticleInfo P_x,P_y;
 	ListIterator<ParticleInfo> x_item,y_item;
 
-	//build up L_x,L_y and link the Lists
-	for(node v : G.nodes)
-	{
+	// build up L_x,L_y and link the Lists
+	for (node v : G.nodes) {
 		P_x.set_x_y_coord(A[v].get_x());
 		P_y.set_x_y_coord(A[v].get_y());
 		P_x.set_vertex(v);
@@ -331,7 +374,6 @@ void NewMultipoleMethod::create_sorted_coordinate_Lists(
 		*L_x.rbegin() = P_x;
 		*L_y.rbegin() = P_y;
 	}
-
 
 	//sort L_x and update the links of L_y
 	ParticleInfoComparer comp;
@@ -366,7 +408,6 @@ void NewMultipoleMethod::decompose_subtreenode(
 {
 	QuadTreeNodeNM* act_ptr = T.get_act_ptr();
 	int act_particle_number = act_ptr->get_x_List_ptr()->size();
-	double x_min,x_max,y_min,y_max;
 	List<ParticleInfo> *L_x_l_ptr,*L_x_r_ptr,*L_x_lb_ptr,*L_x_rb_ptr,*L_x_lt_ptr,
 		*L_x_rt_ptr;
 	List<ParticleInfo> *L_y_l_ptr,*L_y_r_ptr,*L_y_lb_ptr,*L_y_rb_ptr,*L_y_lt_ptr,
@@ -375,558 +416,268 @@ void NewMultipoleMethod::decompose_subtreenode(
 	L_x_l_ptr = L_x_r_ptr = L_x_lb_ptr = L_x_lt_ptr = L_x_rb_ptr = L_x_rt_ptr = nullptr;
 	L_y_l_ptr = L_y_r_ptr = L_y_lb_ptr = L_y_lt_ptr = L_y_rb_ptr = L_y_rt_ptr = nullptr;
 
-	calculate_boundaries_of_act_node(T.get_act_ptr(),x_min,x_max,y_min,y_max);
-	find_small_cell(T.get_act_ptr(), x_min, x_max, y_min, y_max);
+	DPoint min, max;
+	calculate_boundaries_of_act_node(T.get_act_ptr(), min, max);
+	find_small_cell(T.get_act_ptr(), DPoint(min.m_x, min.m_y), DPoint(max.m_x, max.m_y));
 
-	if( (act_particle_number > particles_in_leaves()) &&
-		((x_max-x_min >=MIN_BOX_LENGTH) || (y_max-y_min >= MIN_BOX_LENGTH )))
-	{//if0
+	if (act_particle_number > particles_in_leaves()
+	 && (max.m_x - min.m_x >= MIN_BOX_LENGTH
+	  || max.m_y - min.m_y >= MIN_BOX_LENGTH)) {
+		// recursive calls for the half of the quad that contains the most particles
 
-		//recursive calls for the half of the quad that contains the most particles
-
-		split_in_x_direction(act_ptr,L_x_l_ptr,L_y_l_ptr,
-			L_x_r_ptr,L_y_r_ptr);
-		if((L_x_r_ptr == nullptr) ||
-			(L_x_l_ptr != nullptr && L_x_l_ptr->size() > L_x_r_ptr->size()))
-		{//if1 left half contains more particles
-			split_in_y_direction(act_ptr,L_x_lb_ptr,
-				L_y_lb_ptr,L_x_lt_ptr,L_y_lt_ptr);
-			if((L_x_lt_ptr == nullptr)||
-				(L_x_lb_ptr != nullptr && L_x_lb_ptr->size() > L_x_lt_ptr->size()))
-			{//if2
+		split(act_ptr, L_x_l_ptr, L_y_l_ptr, L_x_r_ptr, L_y_r_ptr, true);
+		if ((L_x_r_ptr == nullptr)
+		 || (L_x_l_ptr != nullptr && L_x_l_ptr->size() > L_x_r_ptr->size())) { // left half contains more particles
+			split(act_ptr, L_x_lb_ptr, L_y_lb_ptr, L_x_lt_ptr, L_y_lt_ptr, false);
+			if ((L_x_lt_ptr == nullptr)
+			 || (L_x_lb_ptr != nullptr && L_x_lb_ptr->size() > L_x_lt_ptr->size())) {
 				T.create_new_lb_child(L_x_lb_ptr,L_y_lb_ptr);
 				T.go_to_lb_child();
-				decompose_subtreenode(T,act_x_List_copy,act_y_List_copy,new_leaf_List);
-				T.go_to_father();
-			}//if2
-			else //L_x_lt_ptr != nullptr &&  L_x_lb_ptr->size() <= L_x_lt_ptr->size()
-			{//else1
+			} else {
 				T.create_new_lt_child(L_x_lt_ptr,L_y_lt_ptr);
 				T.go_to_lt_child();
-				decompose_subtreenode(T,act_x_List_copy,act_y_List_copy,new_leaf_List);
-				T.go_to_father();
-			}//else1
-		}//if1
-		else //L_x_r_ptr != nullptr && (L_x_l_ptr->size() <= L_x_r_ptr->size())
-		{//else2 right half contains more particles
-			split_in_y_direction(act_ptr,L_x_rb_ptr,
-				L_y_rb_ptr,L_x_rt_ptr,L_y_rt_ptr);
-			if ((L_x_rt_ptr == nullptr) ||
-				(L_x_rb_ptr != nullptr && L_x_rb_ptr->size() > L_x_rt_ptr->size()))
-			{//if3
+			}
+		} else { // right half contains more particles
+			split(act_ptr, L_x_rb_ptr, L_y_rb_ptr, L_x_rt_ptr, L_y_rt_ptr, false);
+			if ((L_x_rt_ptr == nullptr)
+			 || (L_x_rb_ptr != nullptr && L_x_rb_ptr->size() > L_x_rt_ptr->size())) {
 				T.create_new_rb_child(L_x_rb_ptr,L_y_rb_ptr);
 				T.go_to_rb_child();
-				decompose_subtreenode(T,act_x_List_copy,act_y_List_copy,new_leaf_List);
-				T.go_to_father();
-			}//if3
-			else// L_x_rt_ptr != nullptr && L_x_rb_ptr->size() <= L_x_rt_ptr->size()
-			{//else3
+			} else {
 				T.create_new_rt_child(L_x_rt_ptr,L_y_rt_ptr);
 				T.go_to_rt_child();
-				decompose_subtreenode(T,act_x_List_copy,act_y_List_copy,new_leaf_List);
-				T.go_to_father();
-			}//else3
-		}//else2
+			}
+		}
+		decompose_subtreenode(T, act_x_List_copy, act_y_List_copy, new_leaf_List);
+		T.go_to_father();
 
-		//build up the rest of the quad-subLists
+		// build up the rest of the quad-subLists
+		if (L_x_l_ptr != nullptr
+		 && L_x_lb_ptr == nullptr
+		 && L_x_lt_ptr == nullptr
+		 && !act_ptr->child_lb_exists()
+		 && !act_ptr->child_lt_exists()) {
+			split_in_y_direction(act_ptr, L_x_l_ptr, L_x_lb_ptr, L_x_lt_ptr, L_y_l_ptr, L_y_lb_ptr, L_y_lt_ptr);
+		} else
+		if (L_x_r_ptr != nullptr
+		 && L_x_rb_ptr == nullptr
+		 && L_x_rt_ptr == nullptr
+		 && !act_ptr->child_rb_exists()
+		 && !act_ptr->child_rt_exists()) {
+			split_in_y_direction(act_ptr, L_x_r_ptr, L_x_rb_ptr, L_x_rt_ptr, L_y_r_ptr, L_y_rb_ptr, L_y_rt_ptr);
+		}
 
-		if( L_x_l_ptr != nullptr && L_x_lb_ptr == nullptr && L_x_lt_ptr == nullptr &&
-			!act_ptr->child_lb_exists() && !act_ptr->child_lt_exists() )
-			split_in_y_direction(act_ptr,L_x_l_ptr,L_x_lb_ptr,L_x_lt_ptr,L_y_l_ptr,
-			L_y_lb_ptr,L_y_lt_ptr);
-		else if( L_x_r_ptr != nullptr && L_x_rb_ptr == nullptr && L_x_rt_ptr == nullptr &&
-			!act_ptr->child_rb_exists() && !act_ptr->child_rt_exists() )
-			split_in_y_direction(act_ptr,L_x_r_ptr,L_x_rb_ptr,L_x_rt_ptr,L_y_r_ptr,
-			L_y_rb_ptr,L_y_rt_ptr);
-
-		//create rest of the childnodes
-		if((!act_ptr->child_lb_exists()) && (L_x_lb_ptr != nullptr))
-		{
-			T.create_new_lb_child(L_x_lb_ptr,L_y_lb_ptr);
+		// create rest of the childnodes
+		auto add_leaf = [&] {
+			new_leaf_List.pushBack(T.get_act_ptr());
+			T.go_to_father();
+		};
+		if (!act_ptr->child_lb_exists() && L_x_lb_ptr != nullptr) {
+			T.create_new_lb_child(L_x_lb_ptr, L_y_lb_ptr);
 			T.go_to_lb_child();
-			new_leaf_List.pushBack(T.get_act_ptr());
-			T.go_to_father();
+			add_leaf();
 		}
-		if((!act_ptr->child_lt_exists()) && (L_x_lt_ptr != nullptr))
-		{
-			T.create_new_lt_child(L_x_lt_ptr,L_y_lt_ptr);
+		if (!act_ptr->child_lt_exists() && L_x_lt_ptr != nullptr) {
+			T.create_new_lt_child(L_x_lt_ptr, L_y_lt_ptr);
 			T.go_to_lt_child();
-			new_leaf_List.pushBack(T.get_act_ptr());
-			T.go_to_father();
+			add_leaf();
 		}
-		if((!act_ptr->child_rb_exists()) && (L_x_rb_ptr != nullptr))
-		{
-			T.create_new_rb_child(L_x_rb_ptr,L_y_rb_ptr);
+		if (!act_ptr->child_rb_exists() && L_x_rb_ptr != nullptr) {
+			T.create_new_rb_child(L_x_rb_ptr, L_y_rb_ptr);
 			T.go_to_rb_child();
-			new_leaf_List.pushBack(T.get_act_ptr());
-			T.go_to_father();
+			add_leaf();
 		}
-		if((!act_ptr->child_rt_exists()) && (L_x_rt_ptr != nullptr))
-		{
-			T.create_new_rt_child(L_x_rt_ptr,L_y_rt_ptr);
+		if (!act_ptr->child_rt_exists() && L_x_rt_ptr != nullptr) {
+			T.create_new_rt_child(L_x_rt_ptr, L_y_rt_ptr);
 			T.go_to_rt_child();
-			new_leaf_List.pushBack(T.get_act_ptr());
-			T.go_to_father();
+			add_leaf();
 		}
-		//reset  act_ptr->set_x(y)_List_ptr to avoid multiple deleting of dynamic memory;
-		//(only if *act_ptr is a leaf of T the reserved space is freed (and this is
-		//sufficient !!!))
+
+		// reset act_ptr->set_x(y)_List_ptr to avoid multiple deleting of dynamic memory;
+		// (only if *act_ptr is a leaf of T the reserved space is freed (and this is
+		// sufficient !!!))
 		act_ptr->set_x_List_ptr(nullptr);
 		act_ptr->set_y_List_ptr(nullptr);
-	}//if0
-	else
-	{ //else a leaf or machineprecision is reached:
-		//The List contained_nodes is set for *act_ptr and the information of
-		//act_x_List_copy and act_y_List_copy is used to insert particles into the
-		//shorter Lists of previous touched treenodes;additionaly the dynamical allocated
-		//space for *act_ptr->get_x(y)_List_ptr() is freed.
+	} else { // a leaf or machine precision is reached:
+		// The List contained_nodes is set for *act_ptr and the information of
+		// act_x_List_copy and act_y_List_copy is used to insert particles into the
+		// shorter Lists of previous touched treenodes;additionaly the dynamical allocated
+		// space for *act_ptr->get_x(y)_List_ptr() is freed.
 
-		//set List contained nodes
-		List<node> L;
+		// set List contained nodes
+		List<node> list;
 
-		for(const ParticleInfo &pi : *act_ptr->get_x_List_ptr())
-			L.pushBack(pi.get_vertex());
-		T.get_act_ptr()->set_contained_nodes(L);
+		for (const ParticleInfo &pi : *act_ptr->get_x_List_ptr()) {
+			list.pushBack(pi.get_vertex());
+		}
+		T.get_act_ptr()->set_contained_nodes(list);
 
-		//insert particles into previous touched Lists
-
+		// insert particles into previous touched Lists
 		build_up_sorted_subLists(act_x_List_copy,act_y_List_copy);
 
-		//free allocated space for *act_ptr->get_x(y)_List_ptr()
-		act_ptr->get_x_List_ptr()->clear();//free used space for old L_x,L_y Lists
+		// free allocated space for *act_ptr->get_x(y)_List_ptr()
+		act_ptr->get_x_List_ptr()->clear(); // free used space for old L_x,L_y Lists
 		act_ptr->get_y_List_ptr()->clear();
-	}//else
-}
-
-
-inline void NewMultipoleMethod::calculate_boundaries_of_act_node(
-	QuadTreeNodeNM* act_ptr,
-	double& x_min,
-	double& x_max,
-	double& y_min,
-	double& y_max)
-{
-	List<ParticleInfo>* L_x_ptr =  act_ptr->get_x_List_ptr();
-	List<ParticleInfo>* L_y_ptr =  act_ptr->get_y_List_ptr();
-
-	x_min = (*L_x_ptr->begin()).get_x_y_coord();
-	x_max = (*L_x_ptr->rbegin()).get_x_y_coord();
-	y_min = (*L_y_ptr->begin()).get_x_y_coord();
-	y_max = (*L_y_ptr->rbegin()).get_x_y_coord();
-}
-
-
-bool NewMultipoleMethod::quadHelper(double x_min, double x_max, double y_min, double y_max,
-                                    double l, double r, double b, double t, QuadTreeNodeNM* act_ptr) {
-	l += act_ptr->get_Sm_downleftcorner().m_x;
-	r += act_ptr->get_Sm_downleftcorner().m_x;
-	b += act_ptr->get_Sm_downleftcorner().m_y;
-	t += act_ptr->get_Sm_downleftcorner().m_y;
-	return (l <= x_min && x_max < r && b <= y_min && y_max < t)
-	    || (x_min == x_max && y_min == y_max && l == r && t == b && x_min == r && y_min == b);
-}
-
-
-bool NewMultipoleMethod::in_lt_quad(
-	QuadTreeNodeNM* act_ptr,
-	double x_min,
-	double x_max,
-	double y_min,
-	double y_max)
-{
-	double l = 0.0;
-	double r = act_ptr->get_Sm_boxlength()/2;
-	double b = r;
-	double t = act_ptr->get_Sm_boxlength();
-
-	return quadHelper(x_min, x_max, y_min, y_max, l, r, b, t, act_ptr);
-}
-
-
-bool NewMultipoleMethod::in_rt_quad(
-	QuadTreeNodeNM* act_ptr,
-	double x_min,
-	double x_max,
-	double y_min,
-	double y_max)
-{
-	double l = act_ptr->get_Sm_boxlength()/2;
-	double r = act_ptr->get_Sm_boxlength();
-	double b = l;
-	double t = r;
-
-	return quadHelper(x_min, x_max, y_min, y_max, l, r, b, t, act_ptr);
-}
-
-
-bool NewMultipoleMethod::in_lb_quad(
-	QuadTreeNodeNM* act_ptr,
-	double x_min,
-	double x_max,
-	double y_min,
-	double y_max)
-{
-	double l = 0.0;
-	double r = act_ptr->get_Sm_boxlength()/2;
-	double b = l;
-	double t = r;
-
-	return quadHelper(x_min, x_max, y_min, y_max, l, r, b, t, act_ptr);
-}
-
-
-bool NewMultipoleMethod::in_rb_quad(
-	QuadTreeNodeNM* act_ptr,
-	double x_min,
-	double x_max,
-	double y_min,
-	double y_max)
-{
-	double l = act_ptr->get_Sm_boxlength()/2;
-	double r = act_ptr->get_Sm_boxlength();
-	double b = 0.0;
-	double t = l;
-
-	return quadHelper(x_min, x_max, y_min, y_max, l, r, b, t, act_ptr);
-}
-
-
-void NewMultipoleMethod::split_in_x_direction(
-	QuadTreeNodeNM* act_ptr,
-	List <ParticleInfo>*& L_x_left_ptr,
-	List<ParticleInfo>*& L_y_left_ptr,
-	List <ParticleInfo>*& L_x_right_ptr,
-	List<ParticleInfo>*& L_y_right_ptr)
-{
-	ListIterator<ParticleInfo> l_item = act_ptr->get_x_List_ptr()->begin();
-	ListIterator<ParticleInfo> r_item = act_ptr->get_x_List_ptr()->rbegin();
-	ListIterator<ParticleInfo> last_left_item;
-	double act_Sm_boxlength_half = act_ptr->get_Sm_boxlength()/2;
-	double x_mid_coord = act_ptr->get_Sm_downleftcorner().m_x+ act_Sm_boxlength_half;
-	bool last_left_item_found = false;
-	bool left_particleList_empty = false;
-	bool right_particleList_empty = false;
-	bool left_particleList_larger = true;
-
-	//traverse *act_ptr->get_x_List_ptr() from left and right
-
-	while(!last_left_item_found)
-	{//while
-		double l_xcoord = (*l_item).get_x_y_coord();
-		double r_xcoord = (*r_item).get_x_y_coord();
-		if(l_xcoord >= x_mid_coord)
-		{
-			left_particleList_larger = false;
-			last_left_item_found = true;
-			if(l_item != act_ptr->get_x_List_ptr()->begin())
-				last_left_item = act_ptr->get_x_List_ptr()->cyclicPred(l_item);
-			else
-				left_particleList_empty = true;
-		}
-		else if(r_xcoord < x_mid_coord)
-		{
-			last_left_item_found = true;
-			if(r_item != act_ptr->get_x_List_ptr()->rbegin())
-				last_left_item = r_item;
-			else
-				right_particleList_empty = true;
-		}
-		if(!last_left_item_found)
-		{
-			l_item = act_ptr->get_x_List_ptr()->cyclicSucc(l_item);
-			r_item = act_ptr->get_x_List_ptr()->cyclicPred(r_item);
-		}
-	}//while
-
-	//get the L_x(y) Lists of the bigger half (from *act_ptr->get_x(y)_List_ptr))
-	//and make entries in L_x_copy,L_y_copy for the smaller halfs
-
-	if(left_particleList_empty)
-	{
-		L_x_left_ptr = nullptr;
-		L_y_left_ptr = nullptr;
-		L_x_right_ptr = act_ptr->get_x_List_ptr();
-		L_y_right_ptr = act_ptr->get_y_List_ptr();
 	}
-	else if(right_particleList_empty)
-	{
-		L_x_left_ptr = act_ptr->get_x_List_ptr();
-		L_y_left_ptr = act_ptr->get_y_List_ptr();
-		L_x_right_ptr = nullptr;
-		L_y_right_ptr = nullptr;
-	}
-	else if(left_particleList_larger)
-		x_delete_right_subLists(act_ptr,L_x_left_ptr,L_y_left_ptr,
-			L_x_right_ptr,L_y_right_ptr,last_left_item);
-	else //left particleList is smaller or equal to right particleList
-		x_delete_left_subLists(act_ptr,L_x_left_ptr,L_y_left_ptr,
-			L_x_right_ptr,L_y_right_ptr,last_left_item);
 }
 
+inline void NewMultipoleMethod::calculate_boundaries_of_act_node(QuadTreeNodeNM* act_ptr, DPoint &min, DPoint &max)
+{
+	List<ParticleInfo>* L_x_ptr = act_ptr->get_x_List_ptr();
+	List<ParticleInfo>* L_y_ptr = act_ptr->get_y_List_ptr();
 
-void NewMultipoleMethod::split_in_y_direction(
+	min = DPoint((*L_x_ptr->begin()).get_x_y_coord(), (*L_y_ptr->begin()).get_x_y_coord());
+	max = DPoint((*L_x_ptr->rbegin()).get_x_y_coord(), (*L_y_ptr->rbegin()).get_x_y_coord());
+}
+
+bool NewMultipoleMethod::quadHelper(DPoint min, DPoint max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr) {
+	bottomleft += act_ptr->get_Sm_downleftcorner();
+	topright += act_ptr->get_Sm_downleftcorner();
+	return (bottomleft.m_x <= min.m_x && max.m_x < topright.m_x && bottomleft.m_y <= min.m_y && max.m_y < topright.m_y)
+	    || (min == max && max == topright && topright == bottomleft);
+}
+
+bool NewMultipoleMethod::in_lt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+	double lo = act_ptr->get_Sm_boxlength() / 2;
+	double hi = act_ptr->get_Sm_boxlength();
+	return quadHelper(min, max, DPoint(0, lo), DPoint(lo, hi), act_ptr);
+}
+
+bool NewMultipoleMethod::in_rt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+	double lo = act_ptr->get_Sm_boxlength() / 2;
+	double hi = act_ptr->get_Sm_boxlength();
+	return quadHelper(min, max, DPoint(lo, lo), DPoint(hi, hi), act_ptr);
+}
+
+bool NewMultipoleMethod::in_lb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+	double lo = act_ptr->get_Sm_boxlength() / 2;
+	return quadHelper(min, max, DPoint(0, 0), DPoint(lo, lo), act_ptr);
+}
+
+bool NewMultipoleMethod::in_rb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+	double lo = act_ptr->get_Sm_boxlength() / 2;
+	double hi = act_ptr->get_Sm_boxlength();
+	return quadHelper(min, max, DPoint(lo, 0), DPoint(hi, lo), act_ptr);
+}
+
+void NewMultipoleMethod::split(
 	QuadTreeNodeNM* act_ptr,
 	List<ParticleInfo>*& L_x_left_ptr,
 	List<ParticleInfo>*& L_y_left_ptr,
 	List<ParticleInfo>*& L_x_right_ptr,
-	List<ParticleInfo>*& L_y_right_ptr)
+	List<ParticleInfo>*& L_y_right_ptr,
+	bool isHorizontal)
 {
-	ListIterator<ParticleInfo> l_item = act_ptr->get_y_List_ptr()->begin();
-	ListIterator<ParticleInfo> r_item = act_ptr->get_y_List_ptr()->rbegin();
-	ListIterator<ParticleInfo> last_left_item;
-	double act_Sm_boxlength_half = act_ptr->get_Sm_boxlength()/2;
-	double y_mid_coord = act_ptr->get_Sm_downleftcorner().m_y+ act_Sm_boxlength_half;
-	bool last_left_item_found = false;
-	bool left_particleList_empty = false;
-	bool right_particleList_empty = false;
-	bool left_particleList_larger = true;
-	//traverse *act_ptr->get_y_List_ptr() from left and right
+	double mid_coord;
+	List<ParticleInfo>* this_ptr;
+	if (isHorizontal) {
+		this_ptr = act_ptr->get_x_List_ptr();
+		mid_coord = act_ptr->get_Sm_downleftcorner().m_x;
+	} else {
+		this_ptr = act_ptr->get_y_List_ptr();
+		mid_coord = act_ptr->get_Sm_downleftcorner().m_y;
+	}
+	mid_coord += act_ptr->get_Sm_boxlength() / 2;
 
-	while(!last_left_item_found)
-	{//while
-		double l_ycoord = (*l_item).get_x_y_coord();
-		double r_ycoord = (*r_item).get_x_y_coord();
-		if(l_ycoord >= y_mid_coord)
-		{
-			left_particleList_larger = false;
-			last_left_item_found = true;
-			if(l_item != act_ptr->get_y_List_ptr()->begin())
-				last_left_item = act_ptr->get_y_List_ptr()->cyclicPred(l_item);
-			else
-				left_particleList_empty = true;
-		}
-		else if(r_ycoord < y_mid_coord)
-		{
-			last_left_item_found = true;
-			if(r_item != act_ptr->get_y_List_ptr()->rbegin())
-				last_left_item = r_item;
-			else
-				right_particleList_empty = true;
-		}
-		if(!last_left_item_found)
-		{
-			l_item = act_ptr->get_y_List_ptr()->cyclicSucc(l_item);
-			r_item = act_ptr->get_y_List_ptr()->cyclicPred(r_item);
-		}
-	}//while
+	auto state = traverse(*this_ptr, mid_coord);
 
 	//get the L_x(y) Lists of the bigger half (from *act_ptr->get_x(y)_List_ptr))
 	//and make entries in L_x_copy,L_y_copy for the smaller halfs
 
-	if(left_particleList_empty)
-	{
+	if (state.leftEmpty) {
 		L_x_left_ptr = nullptr;
 		L_y_left_ptr = nullptr;
 		L_x_right_ptr = act_ptr->get_x_List_ptr();
 		L_y_right_ptr = act_ptr->get_y_List_ptr();
-	}
-	else if(right_particleList_empty)
-	{
+	} else if (state.rightEmpty) {
 		L_x_left_ptr = act_ptr->get_x_List_ptr();
 		L_y_left_ptr = act_ptr->get_y_List_ptr();
 		L_x_right_ptr = nullptr;
 		L_y_right_ptr = nullptr;
+	} else {
+		delete_subLists(act_ptr, L_x_left_ptr, L_y_left_ptr, L_x_right_ptr, L_y_right_ptr, state.lastLeft, state.leftLarger, isHorizontal);
 	}
-	else if(left_particleList_larger)
-		y_delete_right_subLists(act_ptr,L_x_left_ptr,L_y_left_ptr,
-			L_x_right_ptr,L_y_right_ptr,last_left_item);
-	else //left particleList is smaller or equal to right particleList
-		y_delete_left_subLists(act_ptr,L_x_left_ptr,L_y_left_ptr,
-			L_x_right_ptr,L_y_right_ptr,last_left_item);
 }
 
-
-void NewMultipoleMethod::x_delete_right_subLists(
-	QuadTreeNodeNM* act_ptr,
-	List <ParticleInfo>*& L_x_left_ptr,
-	List<ParticleInfo>*& L_y_left_ptr,
-	List <ParticleInfo>*& L_x_right_ptr,
-	List<ParticleInfo>*& L_y_right_ptr,
-	ListIterator<ParticleInfo> last_left_item)
-{
-	ParticleInfo act_p_info,p_in_L_x_info,p_in_L_y_info,del_p_info;
-	ListIterator<ParticleInfo> act_item,p_in_L_x_item,p_in_L_y_item,del_item;
-	bool last_item_reached =false;
-
-	L_x_left_ptr = act_ptr->get_x_List_ptr();
-	L_y_left_ptr = act_ptr->get_y_List_ptr();
-	L_x_right_ptr = new List<ParticleInfo>;
-	L_y_right_ptr = new List<ParticleInfo>;
-
-	act_item = L_x_left_ptr->cyclicSucc(last_left_item);
-
-	while(!last_item_reached)
-	{//while
-		act_p_info = *act_item;
-		del_item = act_item;
-		del_p_info = act_p_info;
-
-		//save references for *L_x(y)_right_ptr in L_x(y)_copy
-		p_in_L_x_item = act_p_info.get_copy_item();
-		p_in_L_x_info = *p_in_L_x_item;
-		p_in_L_x_info.set_subList_ptr(L_x_right_ptr);
-		*p_in_L_x_item = p_in_L_x_info;
-
-		p_in_L_y_item = (*act_p_info.get_cross_ref_item()).get_copy_item();
-		p_in_L_y_info = *p_in_L_y_item;
-		p_in_L_y_info.set_subList_ptr(L_y_right_ptr);
-		*p_in_L_y_item = p_in_L_y_info;
-
-		if(act_item != L_x_left_ptr->rbegin())
-			act_item = L_x_left_ptr->cyclicSucc(act_item);
-		else
-			last_item_reached = true;
-
-		//create *L_x(y)_left_ptr
-		L_y_left_ptr->del(del_p_info.get_cross_ref_item());
-		L_x_left_ptr->del(del_item);
-	}//while
-}
-
-
-void NewMultipoleMethod::x_delete_left_subLists(
-	QuadTreeNodeNM* act_ptr,
-	List <ParticleInfo>*& L_x_left_ptr,
-	List<ParticleInfo>*& L_y_left_ptr,
-	List <ParticleInfo>*& L_x_right_ptr,
-	List<ParticleInfo>*& L_y_right_ptr,
-	ListIterator<ParticleInfo> last_left_item)
-{
-	ParticleInfo act_p_info,p_in_L_x_info,p_in_L_y_info,del_p_info;
-	ListIterator<ParticleInfo> act_item,p_in_L_x_item,p_in_L_y_item,del_item;
-	bool last_item_reached =false;
-
-	L_x_right_ptr = act_ptr->get_x_List_ptr();
-	L_y_right_ptr = act_ptr->get_y_List_ptr();
-	L_x_left_ptr = new List<ParticleInfo>;
-	L_y_left_ptr = new List<ParticleInfo>;
-
-	act_item = L_x_right_ptr->begin();
-
-	while(!last_item_reached)
-	{//while
-		act_p_info = *act_item;
-		del_item = act_item;
-		del_p_info = act_p_info;
-
-		//save references for *L_x(y)_right_ptr in L_x(y)_copy
-		p_in_L_x_item = act_p_info.get_copy_item();
-		p_in_L_x_info = *p_in_L_x_item;
-		p_in_L_x_info.set_subList_ptr(L_x_left_ptr);
-		*p_in_L_x_item = p_in_L_x_info;
-
-		p_in_L_y_item =(*act_p_info.get_cross_ref_item()).get_copy_item();
-		p_in_L_y_info = *p_in_L_y_item;
-		p_in_L_y_info.set_subList_ptr(L_y_left_ptr);
-		*p_in_L_y_item = p_in_L_y_info;
-
-		if(act_item != last_left_item)
-			act_item = L_x_right_ptr->cyclicSucc(act_item);
-		else
-			last_item_reached = true;
-
-		//create *L_x(y)_right_ptr
-		L_y_right_ptr->del(del_p_info.get_cross_ref_item());
-		L_x_right_ptr->del(del_item);
-	}//while
-}
-
-
-void NewMultipoleMethod::y_delete_right_subLists(
-	QuadTreeNodeNM* act_ptr,
-	List <ParticleInfo>*& L_x_left_ptr,
-	List<ParticleInfo>*& L_y_left_ptr,
-	List <ParticleInfo>*& L_x_right_ptr,
-	List<ParticleInfo>*& L_y_right_ptr,
-	ListIterator<ParticleInfo> last_left_item)
-{
-	ParticleInfo act_p_info,p_in_L_x_info,p_in_L_y_info,del_p_info;
-	ListIterator<ParticleInfo> act_item,p_in_L_x_item,p_in_L_y_item,del_item;
-	bool last_item_reached =false;
-
-	L_x_left_ptr = act_ptr->get_x_List_ptr();
-	L_y_left_ptr = act_ptr->get_y_List_ptr();
-	L_x_right_ptr = new List<ParticleInfo>;
-	L_y_right_ptr = new List<ParticleInfo>;
-
-	act_item = L_y_left_ptr->cyclicSucc(last_left_item);
-
-	while(!last_item_reached)
-	{//while
-		act_p_info = *act_item;
-		del_item = act_item;
-		del_p_info = act_p_info;
-
-		//save references for *L_x(y)_right_ptr in L_x(y)_copy
-		p_in_L_y_item = act_p_info.get_copy_item();
-		p_in_L_y_info = *p_in_L_y_item;
-		p_in_L_y_info.set_subList_ptr(L_y_right_ptr);
-		*p_in_L_y_item = p_in_L_y_info;
-
-		p_in_L_x_item = (*act_p_info.get_cross_ref_item()).get_copy_item();
-		p_in_L_x_info = *p_in_L_x_item;
-		p_in_L_x_info.set_subList_ptr(L_x_right_ptr);
-		*p_in_L_x_item = p_in_L_x_info;
-
-		if(act_item != L_y_left_ptr->rbegin())
-			act_item = L_y_left_ptr->cyclicSucc(act_item);
-		else
-			last_item_reached = true;
-
-		//create *L_x(y)_left_ptr
-		L_x_left_ptr->del(del_p_info.get_cross_ref_item());
-		L_y_left_ptr->del(del_item);
-	}//while
-}
-
-
-void NewMultipoleMethod::y_delete_left_subLists(
+void NewMultipoleMethod::delete_subLists(
 	QuadTreeNodeNM* act_ptr,
 	List<ParticleInfo>*& L_x_left_ptr,
 	List<ParticleInfo>*& L_y_left_ptr,
-	List <ParticleInfo>*& L_x_right_ptr,
+	List<ParticleInfo>*& L_x_right_ptr,
 	List<ParticleInfo>*& L_y_right_ptr,
-	ListIterator<ParticleInfo> last_left_item)
+	ListIterator<ParticleInfo> last_left_item,
+	bool deleteRight,
+	bool isHorizontal)
 {
-	ParticleInfo act_p_info,p_in_L_x_info,p_in_L_y_info,del_p_info;
-	ListIterator<ParticleInfo> act_item,p_in_L_x_item,p_in_L_y_item,del_item;
-	bool last_item_reached =false;
+	ParticleInfo act_p_info, p_in_L_x_info, p_in_L_y_info, del_p_info;
+	ListIterator<ParticleInfo> act_item, p_in_L_x_item, p_in_L_y_item, del_item;
 
+	// figure out the right settings if we want to delete right/left
+	// and if we go horizontal/vertical
 	L_x_right_ptr = act_ptr->get_x_List_ptr();
 	L_y_right_ptr = act_ptr->get_y_List_ptr();
 	L_x_left_ptr = new List<ParticleInfo>;
 	L_y_left_ptr = new List<ParticleInfo>;
 
-	act_item = L_y_right_ptr->begin();
+	List<ParticleInfo>** x_ptr = &L_x_left_ptr;
+	List<ParticleInfo>** y_ptr = &L_y_left_ptr;
+	List<ParticleInfo>** x_opposite_ptr = &L_x_right_ptr;
+	List<ParticleInfo>** y_opposite_ptr = &L_y_right_ptr;
+	if (deleteRight) {
+		std::swap(L_x_left_ptr, L_x_right_ptr);
+		std::swap(L_y_left_ptr, L_y_right_ptr);
+		std::swap(x_ptr, x_opposite_ptr);
+		std::swap(y_ptr, y_opposite_ptr);
+	}
 
-	while(!last_item_reached)
-	{//while
+	List<ParticleInfo>** this_dir_ptr = y_opposite_ptr;
+	List<ParticleInfo>** that_dir_ptr = x_opposite_ptr;
+	std::function<ListIterator<ParticleInfo>(const ParticleInfo &)>
+	  xIter = [](const ParticleInfo &info) { return (*info.get_cross_ref_item()).get_copy_item(); },
+	  yIter = [](const ParticleInfo &info) { return info.get_copy_item(); };
+	if (isHorizontal) {
+		std::swap(this_dir_ptr, that_dir_ptr);
+		std::swap(xIter, yIter);
+	}
+
+	std::function<ListIterator<ParticleInfo>()> last_iter;
+	if (deleteRight) {
+		act_item = (*this_dir_ptr)->cyclicSucc(last_left_item);
+		last_iter = [&] { return (*this_dir_ptr)->rbegin(); };
+	} else {
+		act_item = (*this_dir_ptr)->begin();
+		last_iter = [&] { return last_left_item; };
+	}
+
+	// the actual loop
+	bool last_item_reached = false;
+	while (!last_item_reached) {
 		act_p_info = *act_item;
 		del_item = act_item;
 		del_p_info = act_p_info;
 
-		//save references for *L_x(y)_right_ptr in L_x(y)_copy
-		p_in_L_y_item = act_p_info.get_copy_item();
-		p_in_L_y_info = *p_in_L_y_item;
-		p_in_L_y_info.set_subList_ptr(L_y_left_ptr);
-		*p_in_L_y_item = p_in_L_y_info;
-
-		p_in_L_x_item = (*act_p_info.get_cross_ref_item()).get_copy_item();
+		// save references for *L_x(y)_right(left)_ptr in L_x(y)_copy
+		p_in_L_x_item = xIter(act_p_info);
 		p_in_L_x_info = *p_in_L_x_item;
-		p_in_L_x_info.set_subList_ptr(L_x_left_ptr);
+		p_in_L_x_info.set_subList_ptr(*x_ptr);
 		*p_in_L_x_item = p_in_L_x_info;
 
-		if(act_item != last_left_item)
-			act_item = L_y_right_ptr->cyclicSucc(act_item);
-		else
+		p_in_L_y_item = yIter(act_p_info);
+		p_in_L_y_info = *p_in_L_y_item;
+		p_in_L_y_info.set_subList_ptr(*y_ptr);
+		*p_in_L_y_item = p_in_L_y_info;
+
+		if (act_item != last_iter()) {
+			act_item = (*this_dir_ptr)->cyclicSucc(act_item);
+		} else {
 			last_item_reached = true;
+		}
 
-		//create *L_x(y)_right_ptr
-		L_x_right_ptr->del(del_p_info.get_cross_ref_item());
-		L_y_right_ptr->del(del_item);
-	}//while
+		// create *L_x(y)_left(right)_ptr
+		(*that_dir_ptr)->del(del_p_info.get_cross_ref_item());
+		(*this_dir_ptr)->del(del_item);
+	}
 }
-
 
 void NewMultipoleMethod::split_in_y_direction(
 	QuadTreeNodeNM* act_ptr,
@@ -937,220 +688,120 @@ void NewMultipoleMethod::split_in_y_direction(
 	List<ParticleInfo>*& L_y_b_ptr,
 	List<ParticleInfo>*& L_y_t_ptr)
 {
-	ListIterator<ParticleInfo> l_item = L_y_ptr->begin();
-	ListIterator<ParticleInfo> r_item = L_y_ptr->rbegin();
-	ListIterator<ParticleInfo> last_left_item;
-	double act_Sm_boxlength_half = act_ptr->get_Sm_boxlength()/2;
-	double y_mid_coord = act_ptr->get_Sm_downleftcorner().m_y+ act_Sm_boxlength_half;
-	bool last_left_item_found = false;
-	bool left_particleList_empty = false;
-	bool right_particleList_empty = false;
-	bool left_particleList_larger = true;
-
 	//traverse *L_y_ptr from left and right
+	auto state = traverse(*L_y_ptr, act_ptr->get_Sm_downleftcorner().m_y + act_ptr->get_Sm_boxlength() / 2);
 
-	while(!last_left_item_found)
-	{//while
-		double l_ycoord = (*l_item).get_x_y_coord();
-		double r_ycoord = (*r_item).get_x_y_coord();
-		if(l_ycoord >= y_mid_coord)
-		{
-			left_particleList_larger = false;
-			last_left_item_found = true;
-			if(l_item != L_y_ptr->begin())
-				last_left_item = L_y_ptr->cyclicPred(l_item);
-			else
-				left_particleList_empty = true;
-		}
-		else if(r_ycoord < y_mid_coord)
-		{
-			last_left_item_found = true;
-			if(r_item != L_y_ptr->rbegin())
-				last_left_item = r_item;
-			else
-				right_particleList_empty = true;
-		}
-		if(!last_left_item_found)
-		{
-			l_item = L_y_ptr->cyclicSucc(l_item);
-			r_item = L_y_ptr->cyclicPred(r_item);
-		}
-	}//while
-
- //create *L_x_l(b)_ptr
-
-	if(left_particleList_empty)
-	{
+	if (state.leftEmpty) {
 		L_x_b_ptr = nullptr;
 		L_y_b_ptr = nullptr;
 		L_x_t_ptr = L_x_ptr;
 		L_y_t_ptr = L_y_ptr;
-	}
-	else if(right_particleList_empty)
-	{
+	} else if (state.rightEmpty) {
 		L_x_b_ptr = L_x_ptr;
 		L_y_b_ptr = L_y_ptr;
 		L_x_t_ptr = nullptr;
 		L_y_t_ptr = nullptr;
+	} else {
+		move_subLists_vertical(L_x_ptr, L_x_b_ptr, L_x_t_ptr, L_y_ptr, L_y_b_ptr, L_y_t_ptr, state.lastLeft, state.leftLarger);
 	}
-	else if(left_particleList_larger)
-		y_move_right_subLists(L_x_ptr,L_x_b_ptr,L_x_t_ptr,L_y_ptr,L_y_b_ptr,L_y_t_ptr,
-			last_left_item);
-	else //left particleList is smaller or equal to right particleList
-		y_move_left_subLists(L_x_ptr,L_x_b_ptr,L_x_t_ptr,L_y_ptr,L_y_b_ptr,L_y_t_ptr,
-			last_left_item);
 }
 
 
-void NewMultipoleMethod::y_move_left_subLists(
+void NewMultipoleMethod::move_subLists_vertical(
 	List<ParticleInfo>*& L_x_ptr,
-	List <ParticleInfo>*& L_x_l_ptr,
+	List<ParticleInfo>*& L_x_l_ptr,
 	List<ParticleInfo>*& L_x_r_ptr,
 	List<ParticleInfo>*& L_y_ptr,
-	List <ParticleInfo>*& L_y_l_ptr,
+	List<ParticleInfo>*& L_y_l_ptr,
 	List<ParticleInfo>*& L_y_r_ptr,
-	ListIterator<ParticleInfo> last_left_item)
+	ListIterator<ParticleInfo> last_left_item,
+	bool moveRight)
 {
-	ParticleInfo p_in_L_x_info,p_in_L_y_info;
-	ListIterator<ParticleInfo> p_in_L_x_item,p_in_L_y_item,del_item;
-	bool last_item_reached =false;
+	ParticleInfo p_in_L_x_info, p_in_L_y_info;
+	ListIterator<ParticleInfo> p_in_L_x_item, p_in_L_y_item, del_item;
+	bool last_item_reached = false;
 
-	L_x_r_ptr = L_x_ptr;
-	L_y_r_ptr = L_y_ptr;
 	L_x_l_ptr = new List<ParticleInfo>;
 	L_y_l_ptr = new List<ParticleInfo>;
+	L_x_r_ptr = L_x_ptr;
+	L_y_r_ptr = L_y_ptr;
 
-	p_in_L_y_item = L_y_r_ptr->begin();
+	List<ParticleInfo>** this_ptr = &L_y_l_ptr;
+	List<ParticleInfo>** that_ptr = &L_y_r_ptr;
 
-	//build up the L_y_Lists and update crossreferences in *L_x_l_ptr
-	while(!last_item_reached)
-	{//while
+	std::function<ListIterator<ParticleInfo>()> last_iter;
+	if (moveRight) {
+		std::swap(L_x_l_ptr, L_x_r_ptr);
+		std::swap(L_y_l_ptr, L_y_r_ptr);
+		std::swap(this_ptr, that_ptr);
+
+		last_iter = [&] { return L_y_l_ptr->rbegin(); };
+		p_in_L_y_item = L_y_l_ptr->cyclicSucc(last_left_item);
+	} else {
+		last_iter = [&] { return last_left_item; };
+		p_in_L_y_item = L_y_r_ptr->begin();
+	}
+
+	// build up the L_y_Lists and update crossreferences in *L_x_l_ptr / *L_x_r_ptr
+	while (!last_item_reached) {
 		p_in_L_y_info = *p_in_L_y_item;
 		del_item = p_in_L_y_item;
 
-		//create *L_x(y)_l_ptr
-		L_y_l_ptr->pushBack(p_in_L_y_info);
+		// create *L_x(y)_l_ptr / *L_x(y)_r_ptr
+		(*this_ptr)->pushBack(p_in_L_y_info);
 		p_in_L_x_item = p_in_L_y_info.get_cross_ref_item();
 		p_in_L_x_info = *p_in_L_x_item;
-		p_in_L_x_info.set_cross_ref_item(L_y_l_ptr->rbegin());
+		p_in_L_x_info.set_cross_ref_item((*this_ptr)->rbegin());
+
 		p_in_L_x_info.mark(); //mark this element of the List
 		*p_in_L_x_item = p_in_L_x_info;
 
-		if(p_in_L_y_item != last_left_item)
-			p_in_L_y_item = L_y_r_ptr->cyclicSucc(p_in_L_y_item);
-		else
+		if (p_in_L_y_item != last_iter()) {
+			p_in_L_y_item = (*that_ptr)->cyclicSucc(p_in_L_y_item);
+		} else {
 			last_item_reached = true;
+		}
 
-		//create *L_y_r_ptr
-		L_y_r_ptr->del(del_item);
-	}//while
+		//create *L_y_l_ptr / *L_y_r_ptr
+		(*that_ptr)->del(del_item);
+	}
 
-	//build up the L_x Lists and update crossreferences in *L_y_l_ptr
-
+	// build up the L_x Lists and update crossreferences in *L_y_l_ptr / *L_y_r_ptr
 	last_item_reached = false;
-	p_in_L_x_item = L_x_r_ptr->begin();
+	this_ptr = &L_x_l_ptr;
+	that_ptr = &L_x_r_ptr;
+	if (moveRight) {
+		std::swap(this_ptr, that_ptr);
+		p_in_L_x_item = L_x_l_ptr->begin();
+	} else {
+		p_in_L_x_item = L_x_r_ptr->begin();
+	}
 
-	while(!last_item_reached)
-	{//while
+	while (!last_item_reached) {
 		del_item = p_in_L_x_item;
 
-		if((*del_item).is_marked())
-		{
+		if ((*del_item).is_marked()) {
 			p_in_L_x_info = *p_in_L_x_item;
 			p_in_L_x_info.unmark();
-			L_x_l_ptr->pushBack(p_in_L_x_info);
+			(*this_ptr)->pushBack(p_in_L_x_info);
 			p_in_L_y_item = p_in_L_x_info.get_cross_ref_item();
 			p_in_L_y_info = *p_in_L_y_item;
-			p_in_L_y_info.set_cross_ref_item(L_x_l_ptr->rbegin());
+			p_in_L_y_info.set_cross_ref_item((*this_ptr)->rbegin());
 			*p_in_L_y_item = p_in_L_y_info;
 		}
 
-		if(p_in_L_x_item != L_x_r_ptr->rbegin())
-			p_in_L_x_item = L_x_r_ptr->cyclicSucc(p_in_L_x_item);
-		else
+		if (p_in_L_x_item != (*that_ptr)->rbegin()) {
+			p_in_L_x_item = (*that_ptr)->cyclicSucc(p_in_L_x_item);
+		} else {
 			last_item_reached = true;
-
-		//create *L_x_r_ptr
-		if((*del_item).is_marked())
-			L_x_r_ptr->del(del_item);
-	}//while
-}
-
-
-void NewMultipoleMethod::y_move_right_subLists(
-	List<ParticleInfo>*& L_x_ptr,
-	List <ParticleInfo>*& L_x_l_ptr,
-	List<ParticleInfo>*& L_x_r_ptr,
-	List<ParticleInfo>*& L_y_ptr,
-	List <ParticleInfo>*& L_y_l_ptr,
-	List<ParticleInfo>*& L_y_r_ptr,
-	ListIterator<ParticleInfo> last_left_item)
-{
-	ParticleInfo p_in_L_x_info,p_in_L_y_info;
-	ListIterator<ParticleInfo> p_in_L_x_item,p_in_L_y_item,del_item;
-	bool last_item_reached =false;
-
-	L_x_l_ptr = L_x_ptr;
-	L_y_l_ptr = L_y_ptr;
-	L_x_r_ptr = new List<ParticleInfo>;
-	L_y_r_ptr = new List<ParticleInfo>;
-
-	p_in_L_y_item = L_y_l_ptr->cyclicSucc(last_left_item);
-
-	//build up the L_y_Lists and update crossreferences in *L_x_r_ptr
-	while(!last_item_reached)
-	{//while
-		p_in_L_y_info = *p_in_L_y_item;
-		del_item = p_in_L_y_item;
-
-		//create *L_x(y)_r_ptr
-		L_y_r_ptr->pushBack(p_in_L_y_info);
-		p_in_L_x_item = p_in_L_y_info.get_cross_ref_item();
-		p_in_L_x_info = *p_in_L_x_item;
-		p_in_L_x_info.set_cross_ref_item(L_y_r_ptr->rbegin());
-		p_in_L_x_info.mark(); //mark this element of the List
-		*p_in_L_x_item = p_in_L_x_info;
-
-		if(p_in_L_y_item != L_y_l_ptr->rbegin())
-			p_in_L_y_item = L_y_l_ptr->cyclicSucc(p_in_L_y_item);
-		else
-			last_item_reached = true;
-
-		//create *L_y_l_ptr
-		L_y_l_ptr->del(del_item);
-	}//while
-
-	//build up the L_x Lists and update crossreferences in *L_y_r_ptr
-
-	last_item_reached = false;
-	p_in_L_x_item = L_x_l_ptr->begin();
-
-	while(!last_item_reached)
-	{//while
-		del_item = p_in_L_x_item;
-
-		if((*del_item).is_marked())
-		{
-			p_in_L_x_info = *p_in_L_x_item;
-			p_in_L_x_info.unmark();
-			L_x_r_ptr->pushBack(p_in_L_x_info);
-			p_in_L_y_item = p_in_L_x_info.get_cross_ref_item();
-			p_in_L_y_info = *p_in_L_y_item;
-			p_in_L_y_info.set_cross_ref_item(L_x_r_ptr->rbegin());
-			*p_in_L_y_item = p_in_L_y_info;
 		}
 
-		if(p_in_L_x_item != L_x_l_ptr->rbegin())
-			p_in_L_x_item = L_x_l_ptr->cyclicSucc(p_in_L_x_item);
-		else
-			last_item_reached = true;
-
-		//create *L_x_r_ptr
-		if((*del_item).is_marked())
-			L_x_l_ptr->del(del_item);
-	}//while
+		// create *L_x_r_ptr
+		if ((*del_item).is_marked()) {
+			(*that_ptr)->del(del_item);
+		}
+	}
 }
-
 
 void NewMultipoleMethod::build_up_sorted_subLists(
 	List<ParticleInfo>& L_x_copy,
@@ -1261,8 +912,7 @@ void NewMultipoleMethod::construct_subtree(
 		maxindex *= 2;
 	double subtree_min_boxlength = subtree_root_ptr->get_Sm_boxlength()/maxindex;
 
-	if(subtree_min_boxlength >=  MIN_BOX_LENGTH)
-	{
+	if (subtree_min_boxlength >=  MIN_BOX_LENGTH) {
 		Array2D<QuadTreeNodeNM*> leaf_ptr(0,maxindex-1,0,maxindex-1);
 		T.set_act_ptr(subtree_root_ptr);
 		if (find_smallest_quad(A,T)) //not all nodes have the same position
@@ -1286,8 +936,7 @@ void NewMultipoleMethod::construct_complete_subtree(
 	int act_x_index,
 	int act_y_index)
 {
-	if(act_depth < subtree_depth)
-	{
+	if (act_depth < subtree_depth) {
 		T.create_new_lt_child();
 		T.create_new_rt_child();
 		T.create_new_lb_child();
@@ -1312,13 +961,11 @@ void NewMultipoleMethod::construct_complete_subtree(
 		construct_complete_subtree(T,subtree_depth,leaf_ptr,act_depth+1,2*act_x_index+1,
 						2*act_y_index);
 		T.go_to_father();
-	}
-	else if (act_depth == subtree_depth)
-	{
+	} else if (act_depth == subtree_depth) {
 		leaf_ptr(act_x_index,act_y_index) = T.get_act_ptr();
+	} else {
+		std::cout<<"Error NewMultipoleMethod::construct_complete_subtree()"<<std::endl;
 	}
-	else
-		cout<<"Error NewMultipoleMethod::construct_complete_subtree()"<<endl;
 }
 
 
@@ -1346,8 +993,7 @@ void NewMultipoleMethod::set_contained_nodes_for_leaves(
 
 void NewMultipoleMethod::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 {
-	if(!T.get_act_ptr()->is_leaf())
-	{//if
+	if (!T.get_act_ptr()->is_leaf()) {
 		T.get_act_ptr()->set_particlenumber_in_subtree(0);
 
 		if (T.get_act_ptr()->child_lt_exists())
@@ -1386,9 +1032,8 @@ void NewMultipoleMethod::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 			T.get_act_ptr()->set_particlenumber_in_subtree(child_nr + T.get_act_ptr()->
 				get_particlenumber_in_subtree());
 		}
-	}//if
+	}
 }
-
 
 void NewMultipoleMethod::construct_reduced_subtree(
 	NodeArray<NodeAttributes>& A,
@@ -1409,46 +1054,35 @@ void NewMultipoleMethod::construct_reduced_subtree(
 		delete_sparse_subtree(T,T.get_act_ptr());
 	}
 
-	//push leaves that contain many particles
-	if(T.get_act_ptr()->is_leaf() && T.get_act_ptr()->
-		get_particlenumber_in_subtree() > particles_in_leaves())
+	if(T.get_act_ptr()->is_leaf() && T.get_act_ptr()->get_particlenumber_in_subtree() > particles_in_leaves()) {
+		// push leaves that contain many particles
 		new_subtree_root_List.pushBack(T.get_act_ptr());
-
-	//find smallest quad for leaves of T
-	else if(T.get_act_ptr()->is_leaf() && T.get_act_ptr()->
-		get_particlenumber_in_subtree() <= particles_in_leaves())
+	} else if (T.get_act_ptr()->is_leaf() && T.get_act_ptr()->get_particlenumber_in_subtree() <= particles_in_leaves()) {
+		// find smallest quad for leaves of T
 		find_smallest_quad(A,T);
-
-	//recursive calls
-	else if(!T.get_act_ptr()->is_leaf())
-	{//else
-		if(T.get_act_ptr()->child_lt_exists())
-		{
+	} else if (!T.get_act_ptr()->is_leaf()) { // recursive calls
+		if (T.get_act_ptr()->child_lt_exists()) {
 			T.go_to_lt_child();
 			construct_reduced_subtree(A,T,new_subtree_root_List);
 			T.go_to_father();
 		}
-		if(T.get_act_ptr()->child_rt_exists())
-		{
+		if (T.get_act_ptr()->child_rt_exists()) {
 			T.go_to_rt_child();
 			construct_reduced_subtree(A,T,new_subtree_root_List);
 			T.go_to_father();
 		}
-		if(T.get_act_ptr()->child_lb_exists())
-		{
+		if (T.get_act_ptr()->child_lb_exists()) {
 			T.go_to_lb_child();
 			construct_reduced_subtree(A,T,new_subtree_root_List);
 			T.go_to_father();
 		}
-		if(T.get_act_ptr()->child_rb_exists())
-		{
+		if (T.get_act_ptr()->child_rb_exists()) {
 			T.go_to_rb_child();
 			construct_reduced_subtree(A,T,new_subtree_root_List);
 			T.go_to_father();
 		}
-	}//else
+	}
 }
-
 
 void NewMultipoleMethod::delete_empty_subtrees(QuadTreeNM& T)
 {
@@ -1509,121 +1143,105 @@ bool NewMultipoleMethod::check_and_delete_degenerated_node(QuadTreeNM& T)
 	bool rb_child = T.get_act_ptr()->child_rb_exists();
 	bool is_degenerated = false;
 
-	if(lt_child && !rt_child && !lb_child && !rb_child)
-	{//if1
+	if (lt_child && !rt_child && !lb_child && !rb_child) {
 		is_degenerated = true;
 		delete_ptr = T.get_act_ptr();
 		child_ptr = T.get_act_ptr()->get_child_lt_ptr();
-		if(T.get_act_ptr() == T.get_root_ptr())//special case
-		{
+		if (T.get_act_ptr() == T.get_root_ptr()) { // special case
 			T.set_root_ptr(child_ptr);
 			T.set_act_ptr(T.get_root_ptr());
-		}
-		else//usual case
-		{
+		} else { // usual case
 			father_ptr = T.get_act_ptr()->get_father_ptr();
 			child_ptr->set_father_ptr(father_ptr);
-			if(father_ptr->get_child_lt_ptr() == T.get_act_ptr())
+			if (father_ptr->get_child_lt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lt_ptr(child_ptr);
-			else if(father_ptr->get_child_rt_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rt_ptr(child_ptr);
-			else if(father_ptr->get_child_lb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_lb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lb_ptr(child_ptr);
-			else if(father_ptr->get_child_rb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rb_ptr(child_ptr);
-			else
-				cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<endl;
+			} else {
+				std::cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<std::endl;
+			}
 			T.set_act_ptr(child_ptr);
 		}
 		delete delete_ptr;
-	}//if1
-	else  if(!lt_child && rt_child && !lb_child && !rb_child)
-	{//if2
+	} else if (!lt_child && rt_child && !lb_child && !rb_child) {
 		is_degenerated = true;
 		delete_ptr = T.get_act_ptr();
 		child_ptr = T.get_act_ptr()->get_child_rt_ptr();
-		if(T.get_act_ptr() == T.get_root_ptr())//special case
-		{
+		if (T.get_act_ptr() == T.get_root_ptr()) { // special case
 			T.set_root_ptr(child_ptr);
 			T.set_act_ptr(T.get_root_ptr());
-		}
-		else//usual case
-		{
+		} else { // usual case
 			father_ptr = T.get_act_ptr()->get_father_ptr();
 			child_ptr->set_father_ptr(father_ptr);
-			if(father_ptr->get_child_lt_ptr() == T.get_act_ptr())
+			if (father_ptr->get_child_lt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lt_ptr(child_ptr);
-			else if(father_ptr->get_child_rt_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rt_ptr(child_ptr);
-			else if(father_ptr->get_child_lb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_lb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lb_ptr(child_ptr);
-			else if(father_ptr->get_child_rb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rb_ptr(child_ptr);
-			else
-				cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<endl;
+			} else {
+				std::cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<std::endl;
+			}
 			T.set_act_ptr(child_ptr);
 		}
 		delete delete_ptr;
-	}//if2
-	else  if(!lt_child && !rt_child && lb_child && !rb_child)
-	{//if3
+	} else if (!lt_child && !rt_child && lb_child && !rb_child) {
 		is_degenerated = true;
 		delete_ptr = T.get_act_ptr();
 		child_ptr = T.get_act_ptr()->get_child_lb_ptr();
-		if(T.get_act_ptr() == T.get_root_ptr())//special case
-		{
+		if (T.get_act_ptr() == T.get_root_ptr()) { // special case
 			T.set_root_ptr(child_ptr);
 			T.set_act_ptr(T.get_root_ptr());
-		}
-		else//usual case
-		{
+		} else { // usual case
 			father_ptr = T.get_act_ptr()->get_father_ptr();
 			child_ptr->set_father_ptr(father_ptr);
-			if(father_ptr->get_child_lt_ptr() == T.get_act_ptr())
+			if (father_ptr->get_child_lt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lt_ptr(child_ptr);
-			else if(father_ptr->get_child_rt_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rt_ptr(child_ptr);
-			else if(father_ptr->get_child_lb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_lb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lb_ptr(child_ptr);
-			else if(father_ptr->get_child_rb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rb_ptr(child_ptr);
-			else
-				cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<endl;
+			} else {
+				std::cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<std::endl;
+			}
 			T.set_act_ptr(child_ptr);
 		}
 		delete delete_ptr;
-	}//if3
-	else  if(!lt_child && !rt_child && !lb_child && rb_child)
-	{//if4
+	} else if(!lt_child && !rt_child && !lb_child && rb_child) {
 		is_degenerated = true;
 		delete_ptr = T.get_act_ptr();
 		child_ptr = T.get_act_ptr()->get_child_rb_ptr();
-		if(T.get_act_ptr() == T.get_root_ptr())//special case
-		{
+		if (T.get_act_ptr() == T.get_root_ptr()) { // special case
 			T.set_root_ptr(child_ptr);
 			T.set_act_ptr(T.get_root_ptr());
-		}
-		else//usual case
-		{
+		} else { // usual case
 			father_ptr = T.get_act_ptr()->get_father_ptr();
 			child_ptr->set_father_ptr(father_ptr);
-			if(father_ptr->get_child_lt_ptr() == T.get_act_ptr())
+			if (father_ptr->get_child_lt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lt_ptr(child_ptr);
-			else if(father_ptr->get_child_rt_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rt_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rt_ptr(child_ptr);
-			else if(father_ptr->get_child_lb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_lb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_lb_ptr(child_ptr);
-			else if(father_ptr->get_child_rb_ptr() == T.get_act_ptr())
+			} else if (father_ptr->get_child_rb_ptr() == T.get_act_ptr()) {
 				father_ptr->set_child_rb_ptr(child_ptr);
-			else
-				cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<endl;
+			} else {
+				std::cout<<"Error NewMultipoleMethod::delete_degenerated_node"<<std::endl;
+			}
 			T.set_act_ptr(child_ptr);
 		}
 		delete delete_ptr;
-	}//if4
+	}
 	return is_degenerated;
 }
-
 
 void NewMultipoleMethod::delete_sparse_subtree(QuadTreeNM& T, QuadTreeNodeNM* new_leaf_ptr)
 {
@@ -1689,265 +1307,178 @@ bool NewMultipoleMethod::find_smallest_quad(NodeArray<NodeAttributes>& A, QuadTr
 	OGDF_ASSERT(!T.get_act_ptr()->contained_nodes_empty());
 #if 0
 	if(T.get_act_ptr()->contained_nodes_empty())
-		cout<<"Error NewMultipoleMethod :: find_smallest_quad()"<<endl;
+		std::cout<<"Error NewMultipoleMethod :: find_smallest_quad()"<<std::endl;
 #endif
-	List<node>L;
-	T.get_act_ptr()->get_contained_nodes(L);
-	node v = L.popFrontRet();
-	double x_min = A[v].get_x();
-	double x_max = x_min;
-	double y_min = A[v].get_y();
-	double y_max = y_min;
+	List<node> list;
+	T.get_act_ptr()->get_contained_nodes(list);
+	node v = list.popFrontRet();
+	DPoint min(A[v].get_x(), A[v].get_y());
+	DPoint max(min);
 
-	while(! L.empty())
-	{
-		v = L.popFrontRet();
-		if(A[v].get_x() < x_min)
-			x_min = A[v].get_x();
-		if(A[v].get_x() > x_max)
-			x_max = A[v].get_x();
-		if(A[v].get_y() < y_min)
-			y_min = A[v].get_y();
-		if(A[v].get_y() > y_max)
-			y_max = A[v].get_y();
+	while (!list.empty()) {
+		v = list.popFrontRet();
+		Math::updateMin(min.m_x, A[v].get_x());
+		Math::updateMax(max.m_x, A[v].get_x());
+		Math::updateMin(min.m_y, A[v].get_y());
+		Math::updateMax(max.m_y, A[v].get_y());
 	}
-	if(x_min != x_max || y_min != y_max) //nodes are not all at the same position
-	{
-		find_small_cell(T.get_act_ptr(), x_min, x_max, y_min, y_max);
+	if (min != max) {
+		find_small_cell(T.get_act_ptr(), min, max);
 		return true;
 	}
-	else
-		return false;
+	return false;
 }
 
 
-void NewMultipoleMethod::find_small_cell_iteratively(
-	QuadTreeNodeNM* act_ptr,
-	double x_min,
-	double x_max,
-	double y_min,
-	double y_max)
+void NewMultipoleMethod::find_small_cell_iteratively(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max)
 {
-	int new_level;
-	double new_boxlength;
-	DPoint new_dlc;
-	bool Sm_cell_found = false;
+	while (max.m_x - min.m_x >= MIN_BOX_LENGTH
+	    || max.m_y - min.m_y >= MIN_BOX_LENGTH) {
+		double new_boxlength = act_ptr->get_Sm_boxlength() / 2;
+		DPoint new_dlc(act_ptr->get_Sm_downleftcorner());
+		if (in_lt_quad(act_ptr, min, max)) {
+			new_dlc.m_y += new_boxlength;
+		} else if (in_rt_quad(act_ptr, min, max)) {
+			new_dlc.m_x += new_boxlength;
+			new_dlc.m_y += new_boxlength;
+		} else if (in_lb_quad(act_ptr, min, max)) {
+			// keep downleftcorner
+		} else if (in_rb_quad(act_ptr, min, max)) {
+			new_dlc.m_x += new_boxlength;
+		} else {
+			return; // Sm cell found
+		}
 
-	while ( !Sm_cell_found && ((x_max-x_min >=MIN_BOX_LENGTH) ||
-		(y_max-y_min >=MIN_BOX_LENGTH)) )
-	{
-		if(in_lt_quad(act_ptr,x_min,x_max,y_min,y_max))
-		{
-			new_level = act_ptr->get_Sm_level()+1;
-			new_boxlength = act_ptr->get_Sm_boxlength()/2;
-			new_dlc.m_x = act_ptr->get_Sm_downleftcorner().m_x;
-			new_dlc.m_y = act_ptr->get_Sm_downleftcorner().m_y+new_boxlength;
-			act_ptr->set_Sm_level(new_level);
-			act_ptr->set_Sm_boxlength(new_boxlength);
-			act_ptr->set_Sm_downleftcorner(new_dlc);
-		}
-		else if(in_rt_quad(act_ptr,x_min,x_max,y_min,y_max))
-		{
-			new_level = act_ptr->get_Sm_level()+1;
-			new_boxlength = act_ptr->get_Sm_boxlength()/2;
-			new_dlc.m_x = act_ptr->get_Sm_downleftcorner().m_x+new_boxlength;
-			new_dlc.m_y = act_ptr->get_Sm_downleftcorner().m_y+new_boxlength;
-			act_ptr->set_Sm_level(new_level);
-			act_ptr->set_Sm_boxlength(new_boxlength);
-			act_ptr->set_Sm_downleftcorner(new_dlc);
-		}
-		else if(in_lb_quad(act_ptr,x_min,x_max,y_min,y_max))
-		{
-			new_level = act_ptr->get_Sm_level()+1;
-			new_boxlength = act_ptr->get_Sm_boxlength()/2;
-			act_ptr->set_Sm_level(new_level);
-			act_ptr->set_Sm_boxlength(new_boxlength);
-		}
-		else if(in_rb_quad(act_ptr,x_min,x_max,y_min,y_max))
-		{
-			new_level = act_ptr->get_Sm_level()+1;
-			new_boxlength = act_ptr->get_Sm_boxlength()/2;
-			new_dlc.m_x = act_ptr->get_Sm_downleftcorner().m_x+new_boxlength;
-			new_dlc.m_y = act_ptr->get_Sm_downleftcorner().m_y;
-			act_ptr->set_Sm_level(new_level);
-			act_ptr->set_Sm_boxlength(new_boxlength);
-			act_ptr->set_Sm_downleftcorner(new_dlc);
-		}
-		else Sm_cell_found = true;
+		act_ptr->set_Sm_level(act_ptr->get_Sm_level() + 1);
+		act_ptr->set_Sm_boxlength(new_boxlength);
+		act_ptr->set_Sm_downleftcorner(new_dlc);
 	}
 }
 
-
-void NewMultipoleMethod::find_small_cell_by_formula(
-	QuadTreeNodeNM* act_ptr,
-	double x_min,
-	double x_max,
-	double y_min,
-	double y_max)
+void NewMultipoleMethod::find_small_cell_by_formula(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max)
 {
-	numexcept N;
 	int level_offset = act_ptr->get_Sm_level();
-	DPoint nullpoint (0,0);
-	IPoint Sm_position;
-	double Sm_dlc_x_coord,Sm_dlc_y_coord;
 	double Sm_boxlength;
-	int Sm_level;
-	DPoint Sm_downleftcorner;
 	int j_x = max_power_of_2_index+1;
 	int j_y = max_power_of_2_index+1;
 	bool rectangle_is_horizontal_line = false;
 	bool rectangle_is_vertical_line = false;
 	bool rectangle_is_point = false;
 
-	//shift boundaries to the origin for easy calculations
-	double x_min_old = x_min;
-	double x_max_old = x_max;
-	double y_min_old = y_min;
-	double y_max_old = y_max;
+	// shift boundaries to the origin for easy calculations
+	DPoint min_old(min);
+	DPoint max_old(max);
 
 	Sm_boxlength = act_ptr->get_Sm_boxlength();
-	Sm_dlc_x_coord = act_ptr->get_Sm_downleftcorner().m_x;
-	Sm_dlc_y_coord = act_ptr->get_Sm_downleftcorner().m_y;
+	DPoint Sm_dlc(act_ptr->get_Sm_downleftcorner());
 
-	x_min -= Sm_dlc_x_coord;
-	x_max -= Sm_dlc_x_coord;
-	y_min -= Sm_dlc_y_coord;
-	y_max -= Sm_dlc_y_coord;
+	min -= Sm_dlc;
+	max -= Sm_dlc;
 
-	//check if iterative way has to be used
-	if (x_min == x_max && y_min == y_max)
+	// check if iterative way has to be used
+	if (min == max) {
 		rectangle_is_point = true;
-	else if(x_min == x_max && y_min != y_max)
+	} else if (min.m_x == max.m_x && min.m_y != max.m_y) {
 		rectangle_is_vertical_line = true;
-	else //x_min != x_max
-		j_x = static_cast<int>(ceil(std::log2(Sm_boxlength/(x_max-x_min))));
-
-	if(x_min != x_max && y_min == y_max)
-		rectangle_is_horizontal_line = true;
-	else //y_min != y_max
-		j_y = static_cast<int>(ceil(std::log2(Sm_boxlength/(y_max-y_min))));
-
-	if(rectangle_is_point)
-	{
-		;//keep the old values
+	} else { // min.m_x != max.m_x
+		j_x = static_cast<int>(ceil(std::log2(Sm_boxlength / (max.m_x - min.m_x))));
 	}
-	else if ( !N.nearly_equal((x_min_old - x_max_old),(x_min-x_max)) ||
-		!N.nearly_equal((y_min_old - y_max_old),(y_min-y_max)) ||
-		x_min/Sm_boxlength < MIN_BOX_LENGTH || x_max/Sm_boxlength < MIN_BOX_LENGTH ||
-		y_min/Sm_boxlength < MIN_BOX_LENGTH || y_max/Sm_boxlength < MIN_BOX_LENGTH )
-		find_small_cell_iteratively(act_ptr,x_min_old,x_max_old,y_min_old,y_max_old);
-	else if ( ((j_x > max_power_of_2_index) && (j_y > max_power_of_2_index)) ||
-		((j_x > max_power_of_2_index) && !rectangle_is_vertical_line) ||
-		((j_y > max_power_of_2_index) && !rectangle_is_horizontal_line) )
-		find_small_cell_iteratively(act_ptr,x_min_old,x_max_old,y_min_old,y_max_old);
-	else //idea of Aluru et al.
-	{//else
-		int k,a1,a2,A,j_minus_k;
-		double h1,h2;
-		int Sm_x_level, Sm_y_level;
-		int Sm_x_position, Sm_y_position;
 
-		if(x_min != x_max)
-		{//if1
-			//calculate Sm_x_level and Sm_x_position
-			a1 = static_cast<int>(ceil((x_min/Sm_boxlength)*power_of_two(j_x)));
-			a2 = static_cast<int>(floor((x_max/Sm_boxlength)*power_of_two(j_x)));
-			h1 = (Sm_boxlength/power_of_two(j_x))* a1;
-			h2 = (Sm_boxlength/power_of_two(j_x))* a2;
+	if (min.m_x != max.m_x && min.m_y == max.m_y) {
+		rectangle_is_horizontal_line = true;
+	} else { // min.m_y != max.m_y
+		j_y = static_cast<int>(ceil(std::log2(Sm_boxlength / (max.m_y - min.m_y))));
+	}
 
-			//special cases: two tangents or left tangent and righ cutline
-			if(((h1 == x_min)&&(h2 == x_max)) || ((h1 == x_min) && (h2 != x_max)) )
-				A = a2;
-			else if (a1 == a2)  //only one cutline
-				A = a1;
-			else  //two cutlines or a right tangent and a left cutline (usual case)
-			{
-				if((a1 % 2) == 0)
-					A = a1;
-				else
+	if (!rectangle_is_point) {
+		if (!numexcept::nearly_equal(min_old.m_x - max_old.m_x, min.m_x - max.m_x)
+		 || !numexcept::nearly_equal(min_old.m_y - max_old.m_y, min.m_y - max.m_y)
+		 || min.m_x / Sm_boxlength < MIN_BOX_LENGTH
+		 || max.m_x / Sm_boxlength < MIN_BOX_LENGTH
+		 || min.m_y / Sm_boxlength < MIN_BOX_LENGTH
+		 || max.m_y / Sm_boxlength < MIN_BOX_LENGTH
+		 || (j_x > max_power_of_2_index && j_y > max_power_of_2_index)
+		 || (j_x > max_power_of_2_index && !rectangle_is_vertical_line)
+		 || (j_y > max_power_of_2_index && !rectangle_is_horizontal_line)) {
+			find_small_cell_iteratively(act_ptr, min_old, max_old);
+		} else { // idea of Aluru et al.
+			int k, a1, a2, A, j_minus_k;
+			double h1;
+			int Sm_x_level, Sm_y_level;
+			int Sm_x_position, Sm_y_position;
+
+			if (min.m_x != max.m_x) {
+				// calculate Sm_x_level and Sm_x_position
+				a1 = static_cast<int>(ceil((min.m_x / Sm_boxlength) * power_of_two(j_x)));
+				a2 = static_cast<int>(floor((max.m_x / Sm_boxlength) * power_of_two(j_x)));
+				h1 = (Sm_boxlength / power_of_two(j_x)) * a1;
+
+				// special cases: two tangents or left tangent and righ cutline
+				// or only one cutline
+				if (h1 == min.m_x || a1 == a2) {
 					A = a2;
+				} else { // two cutlines or a right tangent and a left cutline (usual case)
+					A = a1 % 2 != 0 ? a2 : a1;
+				}
+
+				j_minus_k = static_cast<int>(std::log2(1 + (A ^ (A - 1))) - 1);
+				k = j_x - j_minus_k;
+				Sm_x_level = k - 1;
+				Sm_x_position = a1 / power_of_two(j_x - Sm_x_level);
 			}
 
-			j_minus_k = static_cast<int>(std::log2(1+(A ^ (A-1)))-1);
-			k = j_x - j_minus_k;
-			Sm_x_level = k-1;
-			Sm_x_position = a1/ power_of_two(j_x - Sm_x_level);
-		}//if1
+			if (min.m_y != max.m_y) {
+				// calculate Sm_y_level and Sm_y_position
+				a1 = static_cast<int>(ceil((min.m_y / Sm_boxlength) * power_of_two(j_y)));
+				a2 = static_cast<int>(floor((max.m_y / Sm_boxlength) * power_of_two(j_y)));
+				h1 = (Sm_boxlength / power_of_two(j_y)) * a1;
 
-		if(y_min != y_max)
-		{//if2
-			//calculate Sm_y_level and Sm_y_position
-			a1 = static_cast<int>(ceil((y_min/Sm_boxlength)*power_of_two(j_y)));
-			a2 = static_cast<int>(floor((y_max/Sm_boxlength)*power_of_two(j_y)));
-			h1 = (Sm_boxlength/power_of_two(j_y))* a1;
-			h2 = (Sm_boxlength/power_of_two(j_y))* a2;
-
-			//special cases: two tangents or bottom tangent and top cutline
-			if(((h1 == y_min)&&(h2 == y_max)) || ((h1 == y_min) && (h2 != y_max)) )
-				A = a2;
-			else if (a1 == a2)  //only one cutline
-				A = a1;
-			else  //two cutlines or a top tangent and a bottom cutline (usual case)
-			{
-				if((a1 % 2) == 0)
-					A = a1;
-				else
+				// special cases: two tangents or bottom tangent and top cutline
+				if (h1 == min.m_y) {
 					A = a2;
+				} else if (a1 == a2) { // only one cutline
+					A = a1;
+				} else { // two cutlines or a top tangent and a bottom cutline (usual case)
+					A = a1 % 2 != 0 ? a2 : a1;
+				}
+
+				j_minus_k = static_cast<int>(std::log2(1 + (A ^ (A - 1))) - 1);
+				k = j_y - j_minus_k;
+				Sm_y_level = k - 1;
+				Sm_y_position = a1 / power_of_two(j_y - Sm_y_level);
 			}
 
-			j_minus_k = static_cast<int>(std::log2(1+(A ^ (A-1)))-1);
-			k = j_y - j_minus_k;
-			Sm_y_level = k-1;
-			Sm_y_position = a1/ power_of_two(j_y - Sm_y_level);
-		}//if2
-
-		if((x_min != x_max) &&(y_min != y_max))//a box with area > 0
-		{//if3
-			if (Sm_x_level == Sm_y_level)
-			{
-				Sm_level = Sm_x_level;
-				Sm_position.m_x = Sm_x_position;
-				Sm_position.m_y = Sm_y_position;
-			}
-			else if (Sm_x_level < Sm_y_level)
-			{
-				Sm_level = Sm_x_level;
-				Sm_position.m_x = Sm_x_position;
-				Sm_position.m_y = Sm_y_position/power_of_two(Sm_y_level-Sm_x_level);
-			}
-			else //Sm_x_level > Sm_y_level
-			{
+			IPoint Sm_position(Sm_x_position, Sm_y_position);
+			int Sm_level;
+			if (min.m_x != max.m_x && min.m_y != max.m_y) { // a box with area > 0
+				if (Sm_x_level == Sm_y_level) {
+					Sm_level = Sm_x_level;
+				} else if (Sm_x_level < Sm_y_level) {
+					Sm_level = Sm_x_level;
+					Sm_position.m_y /= power_of_two(Sm_y_level - Sm_x_level);
+				} else { // Sm_x_level > Sm_y_level
+					Sm_level = Sm_y_level;
+					Sm_position.m_x /= power_of_two(Sm_x_level - Sm_y_level);
+				}
+			} else if (min.m_x == max.m_x) { // a vertical line
+				OGDF_ASSERT(min.m_y != max.m_y); // otherwise Sm_y_{level,position} is undefined
 				Sm_level = Sm_y_level;
-				Sm_position.m_x = Sm_x_position/power_of_two(Sm_x_level-Sm_y_level);
-				Sm_position.m_y = Sm_y_position;
+				Sm_position.m_x = static_cast<int>(floor((min.m_x * power_of_two(Sm_level)) / Sm_boxlength));
+			} else { // min.m_y == max.m_y (a horizontal line)
+				OGDF_ASSERT(min.m_x != max.m_x); // otherwise Sm_x_{level,position} is undefined
+				Sm_level = Sm_x_level;
+				Sm_position.m_y = static_cast<int>(floor((min.m_y * power_of_two(Sm_level)) / Sm_boxlength));
 			}
-		}//if3
-		else if(x_min == x_max) //a vertical line
-		{//if4
-			OGDF_ASSERT(y_min != y_max); // otherwise Sm_y_{level,position} is undefined
-			Sm_level = Sm_y_level;
-			Sm_position.m_x = static_cast<int> (floor((x_min*power_of_two(Sm_level))/
-				Sm_boxlength));
-			Sm_position.m_y = Sm_y_position;
-		}//if4
-		else //y_min == y_max (a horizontal line)
-		{//if5
-			OGDF_ASSERT(x_min != x_max); // otherwise Sm_x_{level,position} is undefined
-			Sm_level = Sm_x_level;
-			Sm_position.m_x = Sm_x_position;
-			Sm_position.m_y = static_cast<int> (floor((y_min*power_of_two(Sm_level))/
-				Sm_boxlength));
-		}//if5
 
-		Sm_boxlength = Sm_boxlength/power_of_two(Sm_level);
-		Sm_downleftcorner.m_x = Sm_dlc_x_coord + Sm_boxlength * Sm_position.m_x;
-		Sm_downleftcorner.m_y = Sm_dlc_y_coord + Sm_boxlength * Sm_position.m_y;
-		act_ptr->set_Sm_level(Sm_level+level_offset);
-		act_ptr->set_Sm_boxlength(Sm_boxlength);
-		act_ptr->set_Sm_downleftcorner(Sm_downleftcorner);
-	}//else
+			Sm_boxlength = Sm_boxlength / power_of_two(Sm_level);
+			act_ptr->set_Sm_level(Sm_level + level_offset);
+			act_ptr->set_Sm_boxlength(Sm_boxlength);
+			DPoint Sm_downleftcorner(Sm_dlc.m_x + Sm_boxlength * Sm_position.m_x,
+			                         Sm_dlc.m_y + Sm_boxlength * Sm_position.m_y);
+			act_ptr->set_Sm_downleftcorner(Sm_downleftcorner);
+		}
+	}
 }
-
 
 inline void NewMultipoleMethod::delete_red_quad_tree_and_count_treenodes(QuadTreeNM& T)
 {
@@ -1973,42 +1504,35 @@ void NewMultipoleMethod::form_multipole_expansion_of_subtree(
 	init_expansion_Lists(T.get_act_ptr());
 	set_center(T.get_act_ptr());
 
-	if(T.get_act_ptr()->is_leaf()) //form expansions for leaf nodes
-	{//if
+	if (T.get_act_ptr()->is_leaf()) { // form expansions for leaf nodes
 		quad_tree_leaves.pushBack(T.get_act_ptr());
 		form_multipole_expansion_of_leaf_node(A,T.get_act_ptr());
-	}//if
-	else //rekursive calls and add shifted expansions
-	{//else
-		if(T.get_act_ptr()->child_lt_exists())
-		{
+	} else { // recursive calls and add shifted expansions
+		if (T.get_act_ptr()->child_lt_exists()) {
 			T.go_to_lt_child();
 			form_multipole_expansion_of_subtree(A,T,quad_tree_leaves);
 			add_shifted_expansion_to_father_expansion(T.get_act_ptr());
 			T.go_to_father();
 		}
-		if(T.get_act_ptr()->child_rt_exists())
-		{
+		if (T.get_act_ptr()->child_rt_exists()) {
 			T.go_to_rt_child();
 			form_multipole_expansion_of_subtree(A,T,quad_tree_leaves);
 			add_shifted_expansion_to_father_expansion(T.get_act_ptr());
 			T.go_to_father();
 		}
-		if(T.get_act_ptr()->child_lb_exists())
-		{
+		if (T.get_act_ptr()->child_lb_exists()) {
 			T.go_to_lb_child();
 			form_multipole_expansion_of_subtree(A,T,quad_tree_leaves);
 			add_shifted_expansion_to_father_expansion(T.get_act_ptr());
 			T.go_to_father();
 		}
-		if(T.get_act_ptr()->child_rb_exists())
-		{
+		if (T.get_act_ptr()->child_rb_exists()) {
 			T.go_to_rb_child();
 			form_multipole_expansion_of_subtree(A,T,quad_tree_leaves);
 			add_shifted_expansion_to_father_expansion(T.get_act_ptr());
 			T.go_to_father();
 		}
-	}//else
+	}
 }
 
 
@@ -2054,7 +1578,6 @@ void NewMultipoleMethod::form_multipole_expansion_of_leaf_node(
 {
 	complex<double> Q(0, 0);
 	complex<double> z_0 = act_ptr->get_Sm_center();//center of actual box
-	complex<double> nullpoint(0, 0);
 	Array<complex<double> > coef(precision() + 1);
 	complex<double> z_v_minus_z_0_over_k;
 	List<node> nodes_in_box;
@@ -2064,8 +1587,9 @@ void NewMultipoleMethod::form_multipole_expansion_of_leaf_node(
 	Q += nodes_in_box.size();
 	coef[0] = Q;
 
-	for (int i = 1; i <= precision(); i++)
-		coef[i] = nullpoint;
+	for (int i = 1; i <= precision(); i++) {
+		coef[i] = complex<double>(0, 0);
+	}
 
 	for (node v : nodes_in_box)
 	{
@@ -2146,115 +1670,112 @@ void NewMultipoleMethod::calculate_local_expansions_and_WSPRLS(
 		I.clear();
 	}
 
-
-	while (!E.empty())
-	{//while
+	while (!E.empty()) {
 		selected_node_ptr = E.popFrontRet();
-		if (well_separated(act_node_ptr,selected_node_ptr))
+		if (well_separated(act_node_ptr,selected_node_ptr)) {
 			L.pushBack(selected_node_ptr);
-		else if (act_node_ptr->get_Sm_level() < selected_node_ptr->get_Sm_level())
+		} else if (act_node_ptr->get_Sm_level() < selected_node_ptr->get_Sm_level()) {
 			I.pushBack(selected_node_ptr);
-		else if(!selected_node_ptr->is_leaf())
-		{
-			if(selected_node_ptr->child_lt_exists())
+		} else if (!selected_node_ptr->is_leaf()) {
+			if (selected_node_ptr->child_lt_exists()) {
 				E.pushBack(selected_node_ptr->get_child_lt_ptr());
-			if(selected_node_ptr->child_rt_exists())
+			}
+			if (selected_node_ptr->child_rt_exists()) {
 				E.pushBack(selected_node_ptr->get_child_rt_ptr());
-			if(selected_node_ptr->child_lb_exists())
+			}
+			if (selected_node_ptr->child_lb_exists()) {
 				E.pushBack(selected_node_ptr->get_child_lb_ptr());
-			if(selected_node_ptr->child_rb_exists())
+			}
+			if (selected_node_ptr->child_rb_exists()) {
 				E.pushBack(selected_node_ptr->get_child_rb_ptr());
-		}
-		else if(bordering(act_node_ptr,selected_node_ptr))
+			}
+		} else if (bordering(act_node_ptr, selected_node_ptr)) {
 			D1.pushBack(selected_node_ptr);
-		else if( (selected_node_ptr != act_node_ptr)&&(act_node_ptr->is_leaf()))
+		} else if (selected_node_ptr != act_node_ptr && act_node_ptr->is_leaf()) {
 			D2.pushBack(selected_node_ptr); //direct calculation (no errors produced)
-		else if((selected_node_ptr != act_node_ptr)&&!(act_node_ptr->is_leaf()))
+		} else if (selected_node_ptr != act_node_ptr && !act_node_ptr->is_leaf()) {
 			L2.pushBack(selected_node_ptr);
-	}//while
+		}
+	}
 
 	act_node_ptr->set_I(I);
 	act_node_ptr->set_D1(D1);
 	act_node_ptr->set_D2(D2);
 
-	//Step 2: add local expansions from father(act_node_ptr) and calculate locale
-	//expansions for all nodes in L
-	if(!act_node_ptr->is_root())
+	// Step 2: add local expansions from father(act_node_ptr) and calculate locale
+	// expansions for all nodes in L
+	if (!act_node_ptr->is_root()) {
 		add_shifted_local_exp_of_parent(act_node_ptr);
+	}
 
 	for (QuadTreeNodeNM *ptr : L)
 		add_local_expansion(ptr,act_node_ptr);
 
-	//Step 3: calculate locale expansions for all nodes in D2 (simpler than in Step 2)
+	// Step 3: calculate locale expansions for all nodes in D2 (simpler than in Step 2)
 
 	for (QuadTreeNodeNM *ptr : L2)
 		add_local_expansion_of_leaf(A,ptr,act_node_ptr);
 
-	//Step 4: recursive calls if act_node is not a leaf
-	if(!act_node_ptr->is_leaf())
-	{
-		if(act_node_ptr->child_lt_exists())
+	// Step 4: recursive calls if act_node is not a leaf
+	if (!act_node_ptr->is_leaf()) {
+		if(act_node_ptr->child_lt_exists()) {
 			calculate_local_expansions_and_WSPRLS(A,act_node_ptr->get_child_lt_ptr());
-		if(act_node_ptr->child_rt_exists())
+		}
+		if(act_node_ptr->child_rt_exists()) {
 			calculate_local_expansions_and_WSPRLS(A,act_node_ptr->get_child_rt_ptr());
-		if(act_node_ptr->child_lb_exists())
+		}
+		if(act_node_ptr->child_lb_exists()) {
 			calculate_local_expansions_and_WSPRLS(A,act_node_ptr->get_child_lb_ptr());
-		if(act_node_ptr->child_rb_exists())
+		}
+		if(act_node_ptr->child_rb_exists()) {
 			calculate_local_expansions_and_WSPRLS(A,act_node_ptr->get_child_rb_ptr());
-	}
-
-	//Step 5: WSPRLS(Well Separateness Preserving Refinement of leaf surroundings)
-	//if act_node is a leaf than calculate the list D1,D2 and M from I and D1
-	else // *act_node_ptr is a leaf
-	{//else
+		}
+	} else { // *act_node_ptr is a leaf
+		// Step 5: WSPRLS(Well Separateness Preserving Refinement of leaf surroundings)
+		// if act_node is a leaf then calculate the list D1,D2 and M from I and D1
 		act_node_ptr->get_D1(D1);
 		act_node_ptr->get_D2(D2);
 
-		while(!I.empty())
-		{//while
+		while (!I.empty()) {
 			selected_node_ptr = I.popFrontRet();
-			if(selected_node_ptr->is_leaf())
-			{
+			if (selected_node_ptr->is_leaf()) {
 				//here D1 contains larger AND smaller bordering leaves!
-				if(bordering(act_node_ptr,selected_node_ptr))
+				if (bordering(act_node_ptr, selected_node_ptr)) {
 					D1.pushBack(selected_node_ptr);
-				else
+				} else {
 					D2.pushBack(selected_node_ptr);
-			}
-			else //!selected_node_ptr->is_leaf()
-			{
-				if(bordering(act_node_ptr,selected_node_ptr))
-				{
-					if(selected_node_ptr->child_lt_exists())
-						I.pushBack(selected_node_ptr->get_child_lt_ptr());
-					if(selected_node_ptr->child_rt_exists())
-						I.pushBack(selected_node_ptr->get_child_rt_ptr());
-					if(selected_node_ptr->child_lb_exists())
-						I.pushBack(selected_node_ptr->get_child_lb_ptr());
-					if(selected_node_ptr->child_rb_exists())
-						I.pushBack(selected_node_ptr->get_child_rb_ptr());
 				}
-				else
-					M.pushBack(selected_node_ptr);
+			} else if (bordering(act_node_ptr, selected_node_ptr)) {
+				if (selected_node_ptr->child_lt_exists()) {
+					I.pushBack(selected_node_ptr->get_child_lt_ptr());
+				}
+				if (selected_node_ptr->child_rt_exists()) {
+					I.pushBack(selected_node_ptr->get_child_rt_ptr());
+				}
+				if (selected_node_ptr->child_lb_exists()) {
+					I.pushBack(selected_node_ptr->get_child_lb_ptr());
+				}
+				if (selected_node_ptr->child_rb_exists()) {
+					I.pushBack(selected_node_ptr->get_child_rb_ptr());
+				}
+			} else {
+				M.pushBack(selected_node_ptr);
 			}
-		}//while
+		}
 		act_node_ptr->set_D1(D1);
 		act_node_ptr->set_D2(D2);
 		act_node_ptr->set_M(M);
-	}//else
+	}
 }
-
 
 bool NewMultipoleMethod::well_separated(QuadTreeNodeNM* node_1_ptr, QuadTreeNodeNM* node_2_ptr)
 {
-	numexcept N;
 	double boxlength_1 = node_1_ptr->get_Sm_boxlength();
 	double boxlength_2 = node_2_ptr->get_Sm_boxlength();
 	double x1_min,x1_max,y1_min,y1_max,x2_min,x2_max,y2_min,y2_max;
 	bool x_overlap,y_overlap;
 
-	if(boxlength_1 <= boxlength_2)
-	{
+	if (boxlength_1 <= boxlength_2) {
 		x1_min = node_1_ptr->get_Sm_downleftcorner().m_x;
 		x1_max = node_1_ptr->get_Sm_downleftcorner().m_x+boxlength_1;
 		y1_min = node_1_ptr->get_Sm_downleftcorner().m_y;
@@ -2265,9 +1786,7 @@ bool NewMultipoleMethod::well_separated(QuadTreeNodeNM* node_1_ptr, QuadTreeNode
 		x2_max = node_2_ptr->get_Sm_downleftcorner().m_x+2*boxlength_2;
 		y2_min = node_2_ptr->get_Sm_downleftcorner().m_y-boxlength_2;
 		y2_max = node_2_ptr->get_Sm_downleftcorner().m_y+2*boxlength_2;
-	}
-	else //boxlength_1 > boxlength_2
-	{
+	} else {
 		//blow the box up
 		x1_min = node_1_ptr->get_Sm_downleftcorner().m_x-boxlength_1;
 		x1_max = node_1_ptr->get_Sm_downleftcorner().m_x+2*boxlength_1;
@@ -2281,8 +1800,8 @@ bool NewMultipoleMethod::well_separated(QuadTreeNodeNM* node_1_ptr, QuadTreeNode
 	}
 
 	//test if boxes overlap
-	x_overlap = !(x1_max <= x2_min || N.nearly_equal(x1_max, x2_min) || x2_max <= x1_min || N.nearly_equal(x2_max,x1_min));
-	y_overlap = !(y1_max <= y2_min || N.nearly_equal(y1_max, y2_min) || y2_max <= y1_min || N.nearly_equal(y2_max,y1_min));
+	x_overlap = !(x1_max <= x2_min || numexcept::nearly_equal(x1_max, x2_min) || x2_max <= x1_min || numexcept::nearly_equal(x2_max,x1_min));
+	y_overlap = !(y1_max <= y2_min || numexcept::nearly_equal(y1_max, y2_min) || y2_max <= y1_min || numexcept::nearly_equal(y2_max,y1_min));
 
 	return !(x_overlap && y_overlap);
 }
@@ -2301,12 +1820,11 @@ bool NewMultipoleMethod::bordering(QuadTreeNodeNM* node_1_ptr,QuadTreeNodeNM* no
 	double y2_min = node_2_ptr->get_Sm_downleftcorner().m_y;
 	double y2_max = node_2_ptr->get_Sm_downleftcorner().m_y+boxlength_2;
 
-	numexcept N;
 	auto boxIsContained = [&](double x1min, double x2min, double x1max, double x2max,
 	                          double y1min, double y2min, double y1max, double y2max)
 	{
 		auto leq = [&](double a, double b) {
-			return a <= b || N.nearly_equal(a,b);
+			return a <= b || numexcept::nearly_equal(a,b);
 		};
 		return (leq(x2min, x1min) && leq(x1max, x2max) && leq(y2min, y1min) && leq(y1max, y2max))
 			|| (leq(x1min, x2min) && leq(x2max, x1max) && leq(y1min, y2min) && leq(y2max, y1max));
@@ -2350,12 +1868,12 @@ void NewMultipoleMethod::add_shifted_local_exp_of_parent(QuadTreeNodeNM* node_pt
 		z_1_minus_z_0_over[i] = z_1_minus_z_0_over[i-1] * (z_1 - z_0);
 
 
-	for(int l = 0; l <= precision();l++)
+	for(int k = 0; k <= precision(); k++)
 	{
 		complex<double> sum (0,0);
-		for(int k = l;k<=precision();k++)
-			sum += binko(k,l)*father_ptr->get_local_exp()[k]*z_1_minus_z_0_over[k-l];
-		node_ptr->get_local_exp()[l] += sum;
+		for(int n = k; n <= precision(); n++)
+			sum += binko(n, k) * father_ptr->get_local_exp()[n] * z_1_minus_z_0_over[n-k];
+		node_ptr->get_local_exp()[k] += sum;
 	}
 }
 
@@ -2371,15 +1889,7 @@ void NewMultipoleMethod::add_local_expansion(QuadTreeNodeNM* ptr_0, QuadTreeNode
 	complex<double> pow_minus_1_s_plus_1;
 	complex<double> pow_minus_1_s;
 
-	//Error-Handling for complex logarithm
-	if ((std::real(z_1-z_0) <=0) && (std::imag(z_1-z_0) == 0)) //no cont. compl. log fct exists !!!
-	{
-		z_error = log(z_1 -z_0 + 0.0000001);
-		sum = ptr_0->get_multipole_exp()[0] * z_error;
-	}
-	else
-		sum = ptr_0->get_multipole_exp()[0]* log(z_1-z_0);
-
+	sum = ptr_0->get_multipole_exp()[0] * log(z_1 - z_0);
 
 	z_1_minus_z_0_over_k = z_1 - z_0;
 	for(int k = 1; k<=precision(); k++)
@@ -2425,22 +1935,12 @@ void NewMultipoleMethod::add_local_expansion_of_leaf(
 
 	ptr_0->get_contained_nodes(contained_nodes);
 
-	for(node v : contained_nodes)
-	{//forall
+	for (node v : contained_nodes) {
 		//set position of v as center ( (1,0,....,0) are the multipole coefficients at v)
 		complex<double> z_0  (A[v].get_x(),A[v].get_y());
 
 		//now transform multipole_0_of_v to the locale expansion around z_1
-
-		//Error-Handling for complex logarithm
-		if ((std::real(z_1-z_0) <=0) && (std::imag(z_1-z_0) == 0)) //no cont. compl. log fct exists!
-		{
-			z_error = log(z_1 -z_0 + 0.0000001);
-			ptr_1->get_local_exp()[0] += multipole_0_of_v * z_error;
-		}
-		else
-			ptr_1->get_local_exp()[0] +=  multipole_0_of_v * log(z_1-z_0);
-
+		ptr_1->get_local_exp()[0] += multipole_0_of_v * log(z_1 - z_0);
 		z_1_minus_z_0_over_s = z_1 - z_0;
 		for (int s = 1;s <= precision();s++)
 		{
@@ -2449,9 +1949,8 @@ void NewMultipoleMethod::add_local_expansion_of_leaf(
 				(z_1_minus_z_0_over_s * double(s));
 			z_1_minus_z_0_over_s *= z_1-z_0;
 		}
-	}//forall
+	}
 }
-
 
 void NewMultipoleMethod::transform_local_exp_to_forces(
 	NodeArray <NodeAttributes>&A,
@@ -2547,61 +2046,18 @@ void NewMultipoleMethod::calculate_neighbourcell_forces(
 	List <QuadTreeNodeNM*>& quad_tree_leaves,
 	NodeArray<DPoint>& F_direct)
 {
-	numexcept N;
 	List<node> act_contained_nodes,neighbour_contained_nodes,non_neighbour_contained_nodes;
 	List<QuadTreeNodeNM*> neighboured_leaves;
 	List<QuadTreeNodeNM*> non_neighboured_leaves;
 	double act_leaf_boxlength,neighbour_leaf_boxlength;
 	DPoint act_leaf_dlc,neighbour_leaf_dlc;
-	DPoint f_rep_u_on_v;
-	DPoint vector_v_minus_u;
-	DPoint nullpoint(0,0);
-	DPoint pos_u,pos_v;
-	double norm_v_minus_u,scalar;
-	int length;
 
-	for(QuadTreeNodeNM *act_leaf : quad_tree_leaves)
-	{//forall
+	for (QuadTreeNodeNM *act_leaf : quad_tree_leaves) {
 		act_leaf->get_contained_nodes(act_contained_nodes);
 
-		if(act_contained_nodes.size() <= particles_in_leaves())
-		{//if (usual case)
-
-			//Step1:calculate forces inside act_contained_nodes
-
-			length = act_contained_nodes.size();
-			Array<node> numbered_nodes (length+1);
-			int k = 1;
-			for(node v : act_contained_nodes)
-			{
-				numbered_nodes[k]= v;
-				k++;
-			}
-
-			for(k = 1; k<length; k++)
-			{
-				for(int l = k+1; l<=length; l++)
-				{
-					node u = numbered_nodes[k];
-					node v = numbered_nodes[l];
-					pos_u = A[u].get_position();
-					pos_v = A[v].get_position();
-					if (pos_u == pos_v)
-					{//if2  (Exception handling if two nodes have the same position)
-						pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
-					}//if2
-					vector_v_minus_u = pos_v - pos_u;
-					norm_v_minus_u = vector_v_minus_u.norm();
-					if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
-					{
-						scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
-						f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
-						f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
-					}
-					F_direct[v] = F_direct[v] + f_rep_u_on_v;
-					F_direct[u] = F_direct[u] - f_rep_u_on_v;
-				}
-			}
+		if (act_contained_nodes.size() <= particles_in_leaves()) { // usual case
+			// Step 1: calculate forces inside act_contained_nodes
+			calculate_forces_inside_contained_nodes(F_direct, A, act_contained_nodes);
 
 			//Step 2: calculated forces to nodes in act_contained_nodes() of
 			//leaf_ptr->get_D1()
@@ -2610,93 +2066,46 @@ void NewMultipoleMethod::calculate_neighbourcell_forces(
 			act_leaf_boxlength = act_leaf->get_Sm_boxlength();
 			act_leaf_dlc = act_leaf->get_Sm_downleftcorner();
 
-			for(const QuadTreeNodeNM *neighbour_leaf : neighboured_leaves)
-			{//forall2
+			for (const QuadTreeNodeNM *neighbour_leaf : neighboured_leaves) {
 				//forget boxes that have already been looked at
 
 				neighbour_leaf_boxlength = neighbour_leaf->get_Sm_boxlength();
 				neighbour_leaf_dlc = neighbour_leaf->get_Sm_downleftcorner();
 
-				if( (act_leaf_boxlength > neighbour_leaf_boxlength) ||
-					(act_leaf_boxlength == neighbour_leaf_boxlength &&
-					act_leaf_dlc.m_x < neighbour_leaf_dlc.m_x)
-					|| (act_leaf_boxlength == neighbour_leaf_boxlength &&
-					act_leaf_dlc.m_x ==  neighbour_leaf_dlc.m_x &&
-					act_leaf_dlc.m_y < neighbour_leaf_dlc.m_y) )
-				{//if
+				if ((act_leaf_boxlength > neighbour_leaf_boxlength)
+				 || (act_leaf_boxlength == neighbour_leaf_boxlength && act_leaf_dlc < neighbour_leaf_dlc)) {
 					neighbour_leaf->get_contained_nodes(neighbour_contained_nodes);
 
 					for(node v : act_contained_nodes)
 					{
 						for(node u : neighbour_contained_nodes)
 						{
-							pos_u = A[u].get_position();
-							pos_v = A[v].get_position();
-							if (pos_u == pos_v)
-							{//if2  (Exception handling if two nodes have the same position)
-								pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
-							}//if2
-							vector_v_minus_u = pos_v - pos_u;
-							norm_v_minus_u = vector_v_minus_u.norm();
-							if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
-							{
-								scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
-								f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
-								f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
-							}
-							F_direct[v] = F_direct[v] + f_rep_u_on_v;
-							F_direct[u] = F_direct[u] - f_rep_u_on_v;
+							DPoint f_rep_u_on_v = numexcept::f_rep_u_on_v(A[u].get_position(), A[v].get_position());
+							F_direct[v] += f_rep_u_on_v;
+							F_direct[u] -= f_rep_u_on_v;
 						}
 					}
-				}//if
-			}//forall2
+				}
+			}
 
 			//Step 3: calculated forces to nodes in act_contained_nodes() of
 			//leaf_ptr->get_D2()
 
 			act_leaf->get_D2(non_neighboured_leaves);
-			for(const QuadTreeNodeNM *non_neighbour_leaf : non_neighboured_leaves)
-			{//forall3
+			for (const QuadTreeNodeNM *non_neighbour_leaf : non_neighboured_leaves) {
 				non_neighbour_leaf->get_contained_nodes(non_neighbour_contained_nodes);
-				for(node v : act_contained_nodes)
-					for(node u : non_neighbour_contained_nodes)
-					{//for
-						pos_u = A[u].get_position();
-						pos_v = A[v].get_position();
-						if (pos_u == pos_v)
-						{//if2  (Exception handling if two nodes have the same position)
-							pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
-						}//if2
-						vector_v_minus_u = pos_v - pos_u;
-						norm_v_minus_u = vector_v_minus_u.norm();
-						if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
-						{
-							scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
-							f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
-							f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
-						}
-						F_direct[v] = F_direct[v] + f_rep_u_on_v;
-					}//for
-			}//forall3
-		}//if(usual case)
-		else //special case (more then particles_in_leaves() particles in this leaf)
-		{//else
-			for(node v : act_contained_nodes)
-			{
-				pos_v = A[v].get_position();
-				pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_v);
-				vector_v_minus_u = pos_v - pos_u;
-				norm_v_minus_u = vector_v_minus_u.norm();
-				if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
-				{
-					scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
-					f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
-					f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
+				for (node v : act_contained_nodes) {
+					for (node u : non_neighbour_contained_nodes) {
+						F_direct[v] += numexcept::f_rep_u_on_v(A[u].get_position(), A[v].get_position());
+					}
 				}
-				F_direct[v] =  F_direct[v] + f_rep_u_on_v;
 			}
-		}//else
-	}//forall
+		} else { // special case (more than particles_in_leaves() particles in this leaf)
+			for (node v : act_contained_nodes) {
+				F_direct[v] += numexcept::f_rep_u_on_v(A[v].get_position(), A[v].get_position());
+			}
+		}
+	}
 }
 
 
@@ -2713,31 +2122,15 @@ inline void NewMultipoleMethod::add_rep_forces(
 	}
 }
 
-
-inline double NewMultipoleMethod::f_rep_scalar(double d)
-{
-	if (d > 0)
-	{
-		return 1/d;
-	}
-	else
-	{
-		cout<<"Error NewMultipoleMethod:: f_rep_scalar nodes at same position"<<endl;
-		return 0;
-	}
-}
-
-
 void NewMultipoleMethod::init_binko(int t)
 {
 	using double_ptr = double*;
 
 	BK = new double_ptr[t+1];
 
-	for(int i = 0; i<= t ; i++)
-	{//for
+	for (int i = 0; i<= t ; i++) {
 		BK[i] = new double[i+1];
-	}//for
+	}
 
 	//Pascal's triangle
 

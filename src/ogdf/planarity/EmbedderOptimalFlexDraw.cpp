@@ -119,7 +119,7 @@ void EmbedderOptimalFlexDraw::createNetwork(
 	for (face f: skeletonEmbedding.faces) {
 		for (adjEntry adj = f->firstAdj(); adj != nullptr; adj = adj->succ()) {
 			edge e = N.newEdge(edgeNode[adj->theEdge()], faceNode[f]);
-			upper[e] = numeric_limits<int>::max();
+			upper[e] = std::numeric_limits<int>::max();
 			perUnitCost[e] = 0;
 		}
 	}
@@ -174,7 +174,7 @@ void EmbedderOptimalFlexDraw::optimizeOverEmbeddings(
 	NodeArray<int> cost[],
 	NodeArray<long long> embedding[])
 {
-	cost[bends][mu] = numeric_limits<int>::max();
+	cost[bends][mu] = std::numeric_limits<int>::max();
 	long long embeddingsCount = T.numberOfNodeEmbeddings(mu);
 	for (long long currentEmbedding = 0; currentEmbedding < embeddingsCount; ++currentEmbedding) {
 
@@ -250,7 +250,7 @@ void EmbedderOptimalFlexDraw::doCall(Graph &G, adjEntry &adjExternal)
 		embedding[bends].init(T.tree());
 	}
 
-	int minCost = numeric_limits<int>::max();
+	int minCost = std::numeric_limits<int>::max();
 	node minCostRoot = nullptr;
 	long long minCostEmbedding = 0;
 
@@ -323,4 +323,4 @@ void EmbedderOptimalFlexDraw::doCall(Graph &G, adjEntry &adjExternal)
 	adjExternal = graphEmbedding.externalFace()->firstAdj();
 }
 
-} // end namespace ogdf
+}

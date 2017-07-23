@@ -32,16 +32,14 @@
 
 #pragma once
 
-#include <ogdf/decomposition/StaticSPQRTree.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/graphalg/ShortestPathWithBFM.h>
-
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 
 namespace ogdf {
 
-//! Computes an embedding of a biconnected graph with maximum external face (plus layers approach).
+//! Embedder that maximizes the external face (plus layers approach).
 /**
+ * \pre Input graphs need to be biconnected.
+ *
  * See the paper "Graph Embedding with Minimum Depth and
  * Maximum External Face" by C. Gutwenger and P. Mutzel (2004) for
  * details.
@@ -49,25 +47,13 @@ namespace ogdf {
  * algorithm for maximum external layers which defines how to embed
  * blocks into inner faces. See diploma thesis "Algorithmen zur
  * Bestimmung von guten Graph-Einbettungen für orthogonale
- * Zeichnungen" (in german) by Thorsten Kerkhof (2007) for details.
+ * Zeichnungen" (in German) by Thorsten Kerkhof (2007) for details.
  */
 template<class T>
-class EmbedderMaxFaceBiconnectedGraphsLayers
+class EmbedderMaxFaceBiconnectedGraphsLayers : private EmbedderMaxFaceBiconnectedGraphs<T>
 {
 public:
-	//! Creates an embedder.
-	EmbedderMaxFaceBiconnectedGraphsLayers() { }
-
-	/**
-	 * \brief Embeds \p G by computing and extending a maximum face in \p G
-	 *   containg \p n.
-	 * \param G is the original graph.
-	 * \param adjExternal is assigned an adjacency entry of the external face.
-	 * \param nodeLength stores for each vertex in \p G its length.
-	 * \param edgeLength stores for each edge in \p G its length.
-	 * \param n is a node of the original graph. If n is given, a maximum face
-	 *   containing n is computed, otherwise any maximum face.
-	 */
+	//! @copydoc EmbedderMaxFaceBiconnectedGraphs::embed
 	static void embed(
 		Graph& G,
 		adjEntry& adjExternal,
@@ -75,172 +61,12 @@ public:
 		const EdgeArray<T>& edgeLength,
 		const node& n = nullptr);
 
-	/**
-	 * \brief Computes the component lengths of all virtual edges in spqrTree.
-	 * \param G is the original graph.
-	 * \param nodeLength is saving for each vertex in \p G its length.
-	 * \param edgeLength is saving for each edge in \p G its length.
-	 * \param spqrTree is the SPQR-tree of \p G.
-	 * \param edgeLengthSkel is saving for each skeleton graph of the SPQR-tree
-	 *   all edge lengths.
-	 */
-	static void compute(
-		const Graph& G,
-		const NodeArray<T>& nodeLength,
-		const EdgeArray<T>& edgeLength,
-		StaticSPQRTree *spqrTree,
-		NodeArray< EdgeArray<T> >& edgeLengthSkel);
-
-	/**
-	 * \brief Returns the size of a maximum external face in \p G containing the node \p n.
-	 * \param G is the original graph.
-	 * \param n is a node of the original graph.
-	 * \param nodeLength is saving for each vertex in \p G its length.
-	 * \param edgeLength is saving for each edge in \p G its length.
-	 * \return The size of a maximum external face in \p G containing the node \p n.
-	 */
-	static T computeSize(
-		const Graph& G,
-		const node& n,
-		const NodeArray<T>& nodeLength,
-		const EdgeArray<T>& edgeLength);
-
-	/**
-	 * \brief Returns the size of a maximum external face in \p G containing
-	 *   the node \p n.
-	 *
-	 * \param G is the original graph.
-	 * \param n is a node of the original graph.
-	 * \param nodeLength is saving for each vertex in \p G its length.
-	 * \param edgeLength is saving for each edge in \p G its length.
-	 * \param spqrTree is the SPQR-tree of G.
-	 * \return The size of a maximum external face in \p G containing the node \p n.
-	 */
-	static T computeSize(
-		const Graph& G,
-		const node& n,
-		const NodeArray<T>& nodeLength,
-		const EdgeArray<T>& edgeLength,
-		StaticSPQRTree *spqrTree);
-
-	/**
-	 * \brief Returns the size of a maximum external face in \p G containing
-	 *   the node \p n.
-	 *
-	 * \param G is the original graph.
-	 * \param n is a node of the original graph.
-	 * \param nodeLength is saving for each vertex in \p G its length.
-	 * \param edgeLength is saving for each edge in \p G its length.
-	 * \param spqrTree is the SPQR-tree of G.
-	 * \param edgeLengthSkel is saving for each skeleton graph the length
-	 *   of each edge.
-	 * \return The size of a maximum external face in \p G containing the node \p n.
-	 */
-	static T computeSize(
-		const Graph& G,
-		const node& n,
-		const NodeArray<T>& nodeLength,
-		const EdgeArray<T>& edgeLength,
-		StaticSPQRTree *spqrTree,
-		const NodeArray< EdgeArray<T> >& edgeLengthSkel);
-
-	/**
-	 * \brief Returns the size of a maximum external face in \p G.
-	 * \param G is the original graph.
-	 * \param nodeLength is saving for each vertex in \p G its length.
-	 * \param edgeLength is saving for each edge in \p G its length.
-	 * \return The size of a maximum external face in \p G.
-	 */
-	static T computeSize(
-		const Graph& G,
-		const NodeArray<T>& nodeLength,
-		const EdgeArray<T>& edgeLength);
-
-	/**
-	 * \brief Returns the size of a maximum external face in \p G.
-	 *   The SPQR-tree is given. The computed component lengths are
-	 *   computed and returned.
-	 *
-	 * \param G is the original graph.
-	 * \param nodeLength is saving for each vertex in \p G its length.
-	 * \param edgeLength is saving for each edge in \p G its length.
-	 * \param spqrTree is the SPQR-tree of G.
-	 * \param edgeLengthSkel is saving for each skeleton graph the length
-	 *   of each edge.
-	 * \return The size of a maximum external face in \p G.
-	 */
-	static T computeSize(
-		const Graph& G,
-		const NodeArray<T>& nodeLength,
-		const EdgeArray<T>& edgeLength,
-		StaticSPQRTree *spqrTree,
-		NodeArray< EdgeArray<T> >& edgeLengthSkel);
+	using EmbedderMaxFaceBiconnectedGraphs<T>::compute;
+	using EmbedderMaxFaceBiconnectedGraphs<T>::computeSize;
 
 private:
-	/**
-	 * \brief Bottom up traversal of SPQR-tree computing the component length of
-	 *   all non-reference edges.
-	 * \param spqrTree is the SPQR-tree of \p G.
-	 * \param mu is the SPQR-tree node treated in this function call.
-	 * \param nodeLength is saving for each node of the original graph \p G its
-	 *   length.
-	 * \param edgeLength is saving for each skeleton graph the length of each
-	 *   edge.
-	 */
-	static void bottomUpTraversal(
-		StaticSPQRTree& spqrTree,
-		const node& mu,
-		const NodeArray<T>& nodeLength,
-		NodeArray< EdgeArray<T> >& edgeLength);
-
-	/**
-	 * \brief Top down traversal of SPQR-tree computing the component length of
-	 *   all reference edges.
-	 * \param spqrTree is the SPQR-tree of \p G.
-	 * \param mu is the SPQR-tree node treated in this function call.
-	 * \param nodeLength is saving for each node of the original graph \p G its
-	 *   length.
-	 * \param edgeLength is saving for each skeleton graph the length of each
-	 *   edge.
-	 */
-	static void topDownTraversal(
-		StaticSPQRTree& spqrTree,
-		const node& mu,
-		const NodeArray<T>& nodeLength,
-		NodeArray< EdgeArray<T> >& edgeLength);
-
-	/**
-	 * \brief Computes the size of a maximum face in the skeleton graph of \p mu
-	 *   containing \p n.
-	 * \param spqrTree is the SPQR-tree of \p G.
-	 * \param mu is the SPQR-tree node treated in this function call.
-	 * \param n is a node of the original graph \p G.
-	 * \param nodeLength is saving for each node of the original graph \p G its
-	 *   length.
-	 * \param edgeLength is saving for each skeleton graph the length of each
-	 *   edge.
-	 */
-	static T largestFaceContainingNode(
-		const StaticSPQRTree& spqrTree,
-		const node& mu,
-		const node& n,
-		const NodeArray<T>& nodeLength,
-		const NodeArray< EdgeArray<T> >& edgeLength);
-
-	/**
-	 * \brief Computes the size of a maximum face in the skeleton graph of \p mu.
-	 * \param spqrTree is the SPQR-tree of \p G.
-	 * \param mu is the SPQR-tree node treated in this function call.
-	 * \param nodeLength is saving for each node of the original graph \p G its
-	 *   length.
-	 * \param edgeLength is saving for each skeleton graph the length of each
-	 *   edge.
-	 */
-	static T largestFaceInSkeleton(
-		const StaticSPQRTree& spqrTree,
-		const node& mu,
-		const NodeArray<T>& nodeLength,
-		const NodeArray< EdgeArray<T> >& edgeLength);
+	using EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceContainingNode;
+	using EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceInSkeleton;
 
 	/* \brief Computes recursively the thickness of the skeleton graph of all
 	 *   nodes in the SPQR-tree.
@@ -641,7 +467,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::adjEntryForNode(
 				nodeLength, edgeLength, thickness, newOrder,
 				adjBeforeNodeArraySource, adjBeforeNodeArrayTarget,
 				delta_u, delta_d, adjExternal);
-		} //if (!treeNodeTreated[twinNT])
+		}
 
 		if (ae->theEdge() == referenceEdge)
 		{
@@ -685,7 +511,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::adjEntryForNode(
 			else
 				before = newOrder[origNode].insertBefore(origEdge->adjTarget(), before);
 		}
-	} //else //!(S.isVirtual(ae->theEdge()))
+	}
 }
 
 
@@ -1400,8 +1226,8 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeRNode(
 				buffer[aeN->theEdge()] = newOrder[orig_aeN_twin_theNode];
 				newOrder[orig_aeN_twin_theNode].clear();
 			}
-		} //for (adjEntry aeN = m_start_ae; [...]
-	} //for (adjEntry ae = start_ae; [...]
+		}
+	}
 
 	//Copy of not treated node's adjacency lists (internal nodes). Setting
 	//of left node depending on minimal distance to external face of the
@@ -1526,7 +1352,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeRNode(
 									f_ref_id = f1_id;
 							}
 							i++;
-						} //for (ListIterator< List<adjEntry> > it = faces.begin(); it.valid(); it++)
+						}
 
 						//compute shortest path from every face to the external face:
 						node f_ext_DG = fPG_to_nDG[f_ext_id];
@@ -1537,7 +1363,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeRNode(
 							dist_f_ref.init(DG);
 							sssp(DG, f_ref_DG, edgeLengthDG, dist_f_ref);
 						}
-					} //if (!DGcomputed)
+					}
 
 					//choose face with minimal shortest path:
 					T min1, min2;
@@ -1685,587 +1511,6 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeRNode(
 		}
 	}
 }
-
-
-template<class T>
-void EmbedderMaxFaceBiconnectedGraphsLayers<T>::compute(
-	const Graph& G,
-	const NodeArray<T>& nodeLength,
-	const EdgeArray<T>& edgeLength,
-	StaticSPQRTree *spqrTree,
-	NodeArray< EdgeArray<T> >& edgeLengthSkel)
-{
-	//base cases (SPQR-tree implementation would crash for such graphs):
-	if (G.numberOfNodes() <= 1 || G.numberOfEdges() <= 2)
-		return;
-
-	//set length for all real edges in skeletons to length of the original edge
-	//and initialize edge lengths for virtual edges with 0:
-	edgeLengthSkel.init(spqrTree->tree());
-	for(node v : spqrTree->tree().nodes)
-	{
-		edgeLengthSkel[v].init(spqrTree->skeleton(v).getGraph());
-		for(edge e : spqrTree->skeleton(v).getGraph().edges)
-		{
-			if (spqrTree->skeleton(v).isVirtual(e))
-				edgeLengthSkel[v][e] = 0;
-			else
-				edgeLengthSkel[v][e] = edgeLength[spqrTree->skeleton(v).realEdge(e)];
-		}
-	}
-
-	//set component-length for all non-reference edges:
-	bottomUpTraversal(*spqrTree, spqrTree->rootNode(), nodeLength, edgeLengthSkel);
-	//set component length for all reference edges:
-	topDownTraversal(*spqrTree, spqrTree->rootNode(), nodeLength, edgeLengthSkel);
-}
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
-	const Graph& G,
-	const NodeArray<T>& nodeLength,
-	const EdgeArray<T>& edgeLength)
-{
-	//base cases (SPQR-tree implementation would crash for such graphs):
-	OGDF_ASSERT(G.numberOfNodes() >= 2);
-	if (G.numberOfEdges() == 1)
-	{
-		edge e = G.firstEdge();
-		return edgeLength[e] + nodeLength[e->source()]+ nodeLength[e->target()];
-	}
-	else if (G.numberOfEdges() == 2)
-	{
-		edge e1 = G.firstEdge();
-		edge e2 = e1->succ();
-		return edgeLength[e1] + edgeLength[e2] + nodeLength[e1->source()] + \
-			nodeLength[e1->target()];
-	}
-	StaticSPQRTree spqrTree(G);
-	NodeArray< EdgeArray<T> > edgeLengthSkel;
-	return computeSize(G, nodeLength, edgeLength, spqrTree, edgeLengthSkel);
-}
-
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
-	const Graph& G,
-	const NodeArray<T>& nodeLength,
-	const EdgeArray<T>& edgeLength,
-	StaticSPQRTree *spqrTree,
-	NodeArray< EdgeArray<T> >& edgeLengthSkel)
-{
-	//base cases (SPQR-tree implementation would crash for such graphs):
-	OGDF_ASSERT(G.numberOfNodes() >= 2);
-	if (G.numberOfEdges() == 1)
-	{
-		edge e = G.firstEdge();
-		return edgeLength[e] + nodeLength[e->source()]+ nodeLength[e->target()];
-	}
-	else if (G.numberOfEdges() == 2)
-	{
-		edge e1 = G.firstEdge();
-		edge e2 = e1->succ();
-		return edgeLength[e1] + edgeLength[e2] + nodeLength[e1->source()] + \
-			nodeLength[e1->target()];
-	}
-
-	//set length for all real edges in skeletons to length of the original edge
-	//and initialize edge lengths for virtual edges with 0:
-	edgeLengthSkel.init(spqrTree->tree());
-	for(node v : spqrTree->tree().nodes)
-	{
-		edgeLengthSkel[v].init(spqrTree->skeleton(v).getGraph());
-		for(edge e : spqrTree->skeleton(v).getGraph().edges)
-		{
-			if (spqrTree->skeleton(v).isVirtual(e))
-				edgeLengthSkel[v][e] = 0;
-			else
-				edgeLengthSkel[v][e] = edgeLength[spqrTree->skeleton(v).realEdge(e)];
-		}
-	}
-
-	//set component-length for all non-reference edges:
-	bottomUpTraversal(*spqrTree, spqrTree->rootNode(), nodeLength, edgeLengthSkel);
-	//set component length for all reference edges:
-	topDownTraversal(*spqrTree, spqrTree->rootNode(), nodeLength, edgeLengthSkel);
-
-	T biggestFace = -1;
-	for(node mu : spqrTree->tree().nodes)
-	{
-		//Expand all faces in skeleton(mu) and get size of the largest of them:
-		T sizeMu = largestFaceInSkeleton(*spqrTree, mu, nodeLength, edgeLengthSkel);
-		if (sizeMu > biggestFace)
-			biggestFace = sizeMu;
-	}
-
-	return biggestFace;
-}
-
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
-	const Graph& G,
-	const node& n,
-	const NodeArray<T>& nodeLength,
-	const EdgeArray<T>& edgeLength)
-{
-	//base cases (SPQR-tree implementation would crash for such graphs):
-	OGDF_ASSERT(G.numberOfNodes() >= 2);
-	if (G.numberOfEdges() == 1)
-	{
-		edge e = G.firstEdge();
-		return edgeLength[e] + nodeLength[e->source()] + nodeLength[e->target()];
-	}
-	else if (G.numberOfEdges() == 2)
-	{
-		edge e1 = G.firstEdge();
-		edge e2 = e1->succ();
-		return edgeLength[e1] + edgeLength[e2] + nodeLength[e1->source()] + \
-			nodeLength[e1->target()];
-	}
-
-	StaticSPQRTree spqrTree(G);
-	NodeArray< EdgeArray<T> > edgeLengthSkel;
-	compute(G, nodeLength, edgeLength, &spqrTree, edgeLengthSkel);
-	return computeSize(G, n, nodeLength, edgeLength, &spqrTree, edgeLengthSkel);
-}
-
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
-	const Graph& G,
-	const node& n,
-	const NodeArray<T>& nodeLength,
-	const EdgeArray<T>& edgeLength,
-	StaticSPQRTree *spqrTree)
-{
-	NodeArray< EdgeArray<T> > edgeLengthSkel;
-	compute(G, nodeLength, edgeLength, spqrTree, edgeLengthSkel);
-	return computeSize(G, n, nodeLength, edgeLength, spqrTree, edgeLengthSkel);
-}
-
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
-	const Graph& G,
-	const node& n,
-	const NodeArray<T>& nodeLength,
-	const EdgeArray<T>& edgeLength,
-	StaticSPQRTree *spqrTree,
-	const NodeArray< EdgeArray<T> >& edgeLengthSkel)
-{
-	//base cases (SPQR-tree implementation would crash for such graphs):
-	OGDF_ASSERT(G.numberOfNodes() >= 2);
-	if (G.numberOfEdges() == 1)
-	{
-		edge e = G.firstEdge();
-		return edgeLength[e] + nodeLength[e->source()] + nodeLength[e->target()];
-	}
-	else if (G.numberOfEdges() == 2)
-	{
-		edge e1 = G.firstEdge();
-		edge e2 = e1->succ();
-		return edgeLength[e1] + edgeLength[e2] + nodeLength[e1->source()] + \
-			nodeLength[e1->target()];
-	}
-
-	node* mus = new node[n->degree()];
-	int i = 0;
-	T biggestFace = -1;
-	for(adjEntry adj : n->adjEntries) {
-		mus[i] = spqrTree->skeletonOfReal(adj->theEdge()).treeNode();
-		bool alreadySeenMu = false;
-		for (int j = 0; j < i && !alreadySeenMu; j++)
-		{
-			if (mus[i] == mus[j])
-				alreadySeenMu = true;
-		}
-		if (alreadySeenMu)
-		{
-			i++;
-			continue;
-		}
-		else
-		{
-			//Expand all faces in skeleton(mu) containing n and get size of the largest of them:
-			T sizeInMu = largestFaceContainingNode(*spqrTree, mus[i], n, nodeLength, edgeLengthSkel);
-			if (sizeInMu > biggestFace)
-				biggestFace = sizeInMu;
-
-			i++;
-		}
-	}
-	delete[] mus;
-
-	return biggestFace;
-}
-
-
-template<class T>
-void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpTraversal(
-	StaticSPQRTree& spqrTree,
-	const node& mu,
-	const NodeArray<T>& nodeLength,
-	NodeArray< EdgeArray<T> >& edgeLength)
-{
-	//Recursion:
-	for(adjEntry adj : mu->adjEntries)
-	{
-		edge ed = adj->theEdge();
-		if (ed->source() == mu)
-			bottomUpTraversal(spqrTree, ed->target(), nodeLength, edgeLength);
-	}
-
-	for(edge e : spqrTree.skeleton(mu).getGraph().edges)
-	{
-		//do not treat real edges here and do not treat reference edges:
-		if (!spqrTree.skeleton(mu).isVirtual(e) || e == spqrTree.skeleton(mu).referenceEdge())
-			continue;
-
-		//pertinent node of e in the SPQR-tree:
-		node nu = spqrTree.skeleton(mu).twinTreeNode(e);
-		//reference edge of nu (virtual edge in nu associated with mu):
-		edge er = spqrTree.skeleton(nu).referenceEdge();
-		//sum of the lengths of the two poles of mu:
-		node refEdgeSource = spqrTree.skeleton(nu).referenceEdge()->source();
-		node origRefEdgeSource = spqrTree.skeleton(nu).original(refEdgeSource);
-		node refEdgeTarget = spqrTree.skeleton(nu).referenceEdge()->target();
-		node origRefEdgeTarget = spqrTree.skeleton(nu).original(refEdgeTarget);
-		T ell = nodeLength[origRefEdgeSource] + nodeLength[origRefEdgeTarget];
-
-		if (spqrTree.typeOf(nu) == SPQRTree::NodeType::SNode)
-		{
-			//size of a face in skeleton(nu) minus ell
-			T sizeOfFace = 0;
-			for(node nS : spqrTree.skeleton(nu).getGraph().nodes)
-				sizeOfFace += nodeLength[spqrTree.skeleton(nu).original(nS)];
-
-			for(edge eS : spqrTree.skeleton(nu).getGraph().edges)
-				sizeOfFace += edgeLength[nu][eS];
-
-			edgeLength[mu][e] = sizeOfFace - ell;
-		}
-		else if (spqrTree.typeOf(nu) == SPQRTree::NodeType::PNode)
-		{
-			//length of the longest edge different from er in skeleton(nu)
-			edge longestEdge = nullptr;
-			for(edge ed : spqrTree.skeleton(nu).getGraph().edges)
-			{
-				if (ed != er && ( longestEdge == nullptr || edgeLength[nu][ed] > edgeLength[nu][longestEdge]))
-				{
-					longestEdge = ed;
-				}
-			}
-			edgeLength[mu][e] = edgeLength[nu][longestEdge];
-		}
-		else if (spqrTree.typeOf(nu) == SPQRTree::NodeType::RNode)
-		{
-			//size of the largest face containing er in skeleton(nu) minus ell
-			//Calculate an embedding of the graph (it exists only two which are
-			//mirror-symmetrical):
-			planarEmbed(spqrTree.skeleton(nu).getGraph());
-			CombinatorialEmbedding combinatorialEmbedding(spqrTree.skeleton(nu).getGraph());
-			T biggestFaceSize = -1;
-			for(face f : combinatorialEmbedding.faces)
-			{
-				T sizeOfFace = 0;
-				bool containsEr = false;
-				for(adjEntry ae : f->entries)
-				{
-					if (ae->theEdge() == er)
-						containsEr = true;
-					sizeOfFace += edgeLength[nu][ae->theEdge()]
-						+  nodeLength[spqrTree.skeleton(nu).original(ae->theNode())];
-				}
-
-				if (containsEr && sizeOfFace > biggestFaceSize)
-					biggestFaceSize = sizeOfFace;
-			}
-
-			edgeLength[mu][e] = biggestFaceSize - ell;
-		}
-		else //should never happen
-			edgeLength[mu][e] = 1;
-	}
-}
-
-
-template<class T>
-void EmbedderMaxFaceBiconnectedGraphsLayers<T>::topDownTraversal(
-	StaticSPQRTree& spqrTree,
-	const node& mu,
-	const NodeArray<T>& nodeLength,
-	NodeArray< EdgeArray<T> >& edgeLength)
-{
-	//S: skeleton of mu
-	Skeleton& S = spqrTree.skeleton(mu);
-
-	//Get all reference edges of the children nu of mu and set their component length:
-	for(adjEntry adj : mu->adjEntries) {
-		edge ed = adj->theEdge();
-		if (ed->source() != mu)
-			continue;
-
-		node nu = ed->target();
-		edge referenceEdgeOfNu = spqrTree.skeleton(nu).referenceEdge();
-		edge eSnu = spqrTree.skeleton(nu).twinEdge(referenceEdgeOfNu);
-		if (spqrTree.typeOf(mu) == SPQRTree::NodeType::SNode)
-		{
-			//Let L be the sum of the length of all vertices and edges in S. The component
-			//length of the reference edge of nu is L minus the length of e_{S, nu} minus
-			//the lengths of the two vertices incident to e_{S, nu}.
-			T L = 0;
-			for(edge ed2 : S.getGraph().edges)
-				L += edgeLength[mu][ed2];
-			for(node no : S.getGraph().nodes)
-				L += nodeLength[S.original(no)];
-
-			edgeLength[nu][referenceEdgeOfNu] =   L - edgeLength[mu][eSnu]
-				- nodeLength[S.original(eSnu->source())]
-				- nodeLength[S.original(eSnu->target())];
-		}
-		else if (spqrTree.typeOf(mu) == SPQRTree::NodeType::PNode)
-		{
-			//The component length of the reference edge of nu is the length of the longest
-			//edge in S different from e_{S, nu}.
-			edge longestEdge = nullptr;
-			for(edge ed2 : S.getGraph().edges)
-			{
-				if (ed2 != eSnu
-				 && (!longestEdge || edgeLength[mu][ed2] > edgeLength[mu][longestEdge])) {
-					longestEdge = ed2;
-				}
-			}
-			edgeLength[nu][referenceEdgeOfNu] = edgeLength[mu][longestEdge];
-		}
-		else if (spqrTree.typeOf(mu) == SPQRTree::NodeType::RNode)
-		{
-			//Let f be the largest face in S containing e_{S, nu}. The component length of
-			//the reference edge of nu is the size of f minus the length of e_{S, nu} minus
-			//the lengths of the two vertices incident to e_{S, nu}.
-
-			//Calculate an embedding of the graph (it exists only two which are
-			//mirror-symmetrical):
-			planarEmbed(S.getGraph());
-			CombinatorialEmbedding combinatorialEmbedding(S.getGraph());
-			T biggestFaceSize = -1;
-			for(face f : combinatorialEmbedding.faces)
-			{
-				T sizeOfFace = 0;
-				bool containsESnu = false;
-				for(adjEntry ae : f->entries)
-				{
-					if (ae->theEdge() == eSnu)
-						containsESnu = true;
-					sizeOfFace += edgeLength[mu][ae->theEdge()]
-						+  nodeLength[S.original(ae->theNode())];
-				}
-				if (containsESnu && sizeOfFace > biggestFaceSize)
-					biggestFaceSize = sizeOfFace;
-			}
-			edgeLength[nu][referenceEdgeOfNu] = biggestFaceSize - edgeLength[mu][eSnu]
-				- nodeLength[S.original(eSnu->source())]
-				- nodeLength[S.original(eSnu->target())];
-		}
-		else //should never happen
-			edgeLength[nu][referenceEdgeOfNu] = 0;
-
-		//Recursion:
-		topDownTraversal(spqrTree, ed->target(), nodeLength, edgeLength);
-	}
-}
-
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::largestFaceContainingNode(
-	const StaticSPQRTree& spqrTree,
-	const node& mu,
-	const node& n,
-	const NodeArray<T>& nodeLength,
-	const NodeArray< EdgeArray<T> >& edgeLength)
-{
-	bool containsARealEdge = false;
-	if (spqrTree.typeOf(mu) == SPQRTree::NodeType::RNode)
-	{
-		//The largest face containing n is the largest face containg n in any embedding of S.
-		planarEmbed(spqrTree.skeleton(mu).getGraph());
-		CombinatorialEmbedding combinatorialEmbedding(spqrTree.skeleton(mu).getGraph());
-		T biggestFaceSize = -1;
-		for(face f : combinatorialEmbedding.faces)
-		{
-			T sizeOfFace = 0;
-			bool containingN = false;
-			bool m_containsARealEdge = false;
-			for(adjEntry ae : f->entries)
-			{
-				if (spqrTree.skeleton(mu).original(ae->theNode()) == n)
-					containingN = true;
-				if (!spqrTree.skeleton(mu).isVirtual(ae->theEdge()))
-					m_containsARealEdge = true;
-				sizeOfFace += edgeLength[mu][ae->theEdge()];
-				sizeOfFace += nodeLength[spqrTree.skeleton(mu).original(ae->theNode())];
-			}
-			if (containingN && sizeOfFace > biggestFaceSize)
-			{
-				biggestFaceSize = sizeOfFace;
-				containsARealEdge = m_containsARealEdge;
-			}
-		}
-
-		if (!containsARealEdge)
-			return -1;
-		return biggestFaceSize;
-	}
-	else if (spqrTree.typeOf(mu) == SPQRTree::NodeType::PNode)
-	{
-		//Find the two longest edges, they define the largest face containg n.
-		edge longestEdges[2] = {nullptr, nullptr};
-		for(edge edgeWalker : spqrTree.skeleton(mu).getGraph().edges)
-		{
-			if ( longestEdges[1] == nullptr
-				|| edgeLength[mu][edgeWalker] > edgeLength[mu][longestEdges[1]])
-			{
-				if ( longestEdges[0] == nullptr
-					|| edgeLength[mu][edgeWalker] > edgeLength[mu][longestEdges[0]])
-				{
-					longestEdges[1] = longestEdges[0];
-					longestEdges[0] = edgeWalker;
-				}
-				else
-					longestEdges[1] = edgeWalker;
-			}
-		}
-
-		if (!spqrTree.skeleton(mu).isVirtual(longestEdges[0])
-		 || !spqrTree.skeleton(mu).isVirtual(longestEdges[1])) {
-			containsARealEdge = true;
-		}
-
-		if (!containsARealEdge)
-			return -1;
-
-		return edgeLength[mu][longestEdges[0]] + edgeLength[mu][longestEdges[1]];
-	}
-	else if (spqrTree.typeOf(mu) == SPQRTree::NodeType::SNode)
-	{
-		//The largest face containing n is any face in the single existing embedding of S.
-		T sizeOfFace = 0;
-		for(node nS : spqrTree.skeleton(mu).getGraph().nodes)
-			sizeOfFace += nodeLength[spqrTree.skeleton(mu).original(nS)];
-
-		for(edge eS : spqrTree.skeleton(mu).getGraph().edges)
-		{
-			if (!spqrTree.skeleton(mu).isVirtual(eS))
-				containsARealEdge = true;
-			sizeOfFace += edgeLength[mu][eS];
-		}
-
-		if (!containsARealEdge)
-			return -1;
-
-		return sizeOfFace;
-	}
-
-	//should never end here...
-	return 42;
-}
-
-
-template<class T>
-T EmbedderMaxFaceBiconnectedGraphsLayers<T>::largestFaceInSkeleton
-	(const StaticSPQRTree& spqrTree,
-	 const node& mu,
-	 const NodeArray<T>& nodeLength,
-	 const NodeArray< EdgeArray<T> >& edgeLength)
-{
-	bool containsARealEdge = false;
-	if (spqrTree.typeOf(mu) == SPQRTree::NodeType::RNode)
-	{
-		//The largest face is a largest face in any embedding of S.
-		planarEmbed(spqrTree.skeleton(mu).getGraph());
-		CombinatorialEmbedding combinatorialEmbedding(spqrTree.skeleton(mu).getGraph());
-		T biggestFaceSize = -1;
-		for(face f : combinatorialEmbedding.faces)
-		{
-			bool m_containsARealEdge = false;
-			T sizeOfFace = 0;
-			for(adjEntry ae : f->entries)
-			{
-#if 0
-				node originalNode = spqrTree.skeleton(mu).original(ae->theNode());
-#endif
-				if (!spqrTree.skeleton(mu).isVirtual(ae->theEdge()))
-					m_containsARealEdge = true;
-				sizeOfFace += edgeLength[mu][ae->theEdge()]
-					+  nodeLength[spqrTree.skeleton(mu).original(ae->theNode())];
-			}
-
-			if (sizeOfFace > biggestFaceSize)
-			{
-				biggestFaceSize = sizeOfFace;
-				containsARealEdge = m_containsARealEdge;
-			}
-		}
-
-		if (!containsARealEdge)
-			return -1;
-
-		return biggestFaceSize;
-	}
-	else if (spqrTree.typeOf(mu) == SPQRTree::NodeType::PNode)
-	{
-		//Find the two longest edges, they define the largest face.
-		edge longestEdges[2] = {nullptr, nullptr};
-		for(edge edgeWalker : spqrTree.skeleton(mu).getGraph().edges)
-		{
-			if (   longestEdges[1] == nullptr
-				|| edgeLength[mu][edgeWalker] > edgeLength[mu][longestEdges[1]])
-			{
-				if ( longestEdges[0] == nullptr
-					|| edgeLength[mu][edgeWalker] > edgeLength[mu][longestEdges[0]])
-				{
-					longestEdges[1] = longestEdges[0];
-					longestEdges[0] = edgeWalker;
-				}
-				else
-					longestEdges[1] = edgeWalker;
-			}
-		}
-
-		if (!spqrTree.skeleton(mu).isVirtual(longestEdges[0])
-		 || !spqrTree.skeleton(mu).isVirtual(longestEdges[1])) {
-			containsARealEdge = true;
-		}
-
-		if (!containsARealEdge)
-			return -1;
-
-		return edgeLength[mu][longestEdges[0]] + edgeLength[mu][longestEdges[1]];
-	}
-	else if (spqrTree.typeOf(mu) == SPQRTree::NodeType::SNode)
-	{
-		//The largest face is any face in the single existing embedding of S.
-		T sizeOfFace = 0;
-		for(node nS : spqrTree.skeleton(mu).getGraph().nodes)
-			sizeOfFace += nodeLength[spqrTree.skeleton(mu).original(nS)];
-
-		for(edge eS : spqrTree.skeleton(mu).getGraph().edges)
-		{
-			if (!spqrTree.skeleton(mu).isVirtual(eS))
-				containsARealEdge = true;
-			sizeOfFace += edgeLength[mu][eS];
-		}
-
-		if (!containsARealEdge)
-			return -1;
-
-		return sizeOfFace;
-	}
-
-	//should never end here...
-	return 42;
-}
-
 
 template<class T>
 void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpThickness(
@@ -2474,9 +1719,9 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpThickness(
 						f_ext_id = f1_id;
 					if (*it2 == ae_f_ref)
 						f_ref_id = f1_id;
-				} //for (ListIterator<adjEntry> it2 = (*it).begin(); it2.valid(); it2++)
+				}
 				i++;
-			} //for (ListIterator< List<adjEntry> > it = faces.begin(); it.valid(); it++)
+			}
 
 			//the faces sharing at least one edge with f_ref:
 			node nDG_f_ref = fPG_to_nDG[f_ref_id];
@@ -2545,5 +1790,4 @@ bool EmbedderMaxFaceBiconnectedGraphsLayers<T>::sssp(
 	return true;
 }
 
-
-} // end namespace ogdf
+}

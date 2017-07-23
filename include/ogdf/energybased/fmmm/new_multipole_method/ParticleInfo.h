@@ -42,7 +42,7 @@ namespace fmmm {
 class OGDF_EXPORT ParticleInfo
 {
 	//! Output stream for ParticleInfo.
-	friend ostream &operator<< (ostream & output, const ParticleInfo & A)
+	friend std::ostream &operator<< (std::ostream & output, const ParticleInfo & A)
 	{
 		output <<" node_index "<<A.vertex->index()<<" x_y_coord "<<A.x_y_coord;
 		if(A.marked == true)
@@ -59,7 +59,7 @@ class OGDF_EXPORT ParticleInfo
 
 #if 0
 	//! inputstream for ParticleInfo
-	friend istream &operator>> (istream & input,  ParticleInfo & A)
+	friend std::istream &operator>> (std::istream & input,  ParticleInfo & A)
 	{
 		input >> A;
 		return input;
@@ -78,8 +78,6 @@ public:
 		marked(false),
 		tmp_item(nullptr)
 	{ }
-
-	~ParticleInfo() { }   //!< destructor
 
 	void set_vertex(node v) { vertex = v; }
 	void set_x_y_coord(double c) { x_y_coord = c; }
@@ -120,22 +118,7 @@ private:
 	ListIterator<ParticleInfo> tmp_item;
 };
 
-
-//! Needed for sorting algorithms in ogdf/List and ogdf/Array.
-class ParticleInfoComparer {
-public:
-	//! Returns -1(1) if height of a <(>) height of b. If they are equal 0 is
-	//! returned.
-	static int compare(const ParticleInfo& a,const ParticleInfo & b)
-	{
-		double p = a.get_x_y_coord();
-		double q = b.get_x_y_coord();
-		if(p < q ) return  -1;
-		else if(p > q ) return 1;
-		else return 0;
-	}
-	OGDF_AUGMENT_STATICCOMPARER(ParticleInfo)
-};
+OGDF_DECLARE_COMPARER(ParticleInfoComparer, ParticleInfo, double, x.get_x_y_coord());
 
 }
 }

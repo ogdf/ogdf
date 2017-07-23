@@ -40,30 +40,25 @@ namespace ogdf {
 // Methods for clustered graphs. By S.Leipert and K. Klein
 
 // Recursive call for testing C-connectivity.
-bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
+bool cConnectTest(ClusterGraph &C, const cluster act, NodeArray<bool> &mark, Graph &G)
 {
-
-	ListConstIterator<cluster> it;
-	for (it = act->cBegin(); it.valid();)
-	{
-		ListConstIterator<cluster> succ = it.succ();
-		cluster next = (*it);
-		if (!cConnectTest(C,next,mark,G))
-			return false;
-		it = succ;
+	bool childOk = safeTestForEach(act->children, [&](cluster child) {
+		return cConnectTest(C, child, mark, G);
+	});
+	if (!childOk) {
+		return false;
 	}
 
-	ListConstIterator<node> its;
-	for (its = act->nBegin(); its.valid(); ++its)
-		mark[*its] = true;
+	for (auto s : act->nodes) {
+		mark[s] = true;
+	}
 
 	node v = *(act->nBegin());
 	SListPure<node> bfs;
 	bfs.pushBack(v);
 	mark[v] = false;
 
-	while (!bfs.empty())
-	{
+	while (!bfs.empty()) {
 		v = bfs.popFrontRet();
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
@@ -81,16 +76,18 @@ bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
 		}
 	}
 
-	for (its = act->nBegin(); its.valid(); ++its)
-		if (mark[*its])
+	for (auto s : act->nodes) {
+		if (mark[s]) {
 			return false;
+		}
+	}
 
-	SListPure<node> collaps;
-	for (its = act->nBegin(); its.valid(); ++its)
-		collaps.pushBack(*its);
+	SListPure<node> nodesToCollapse;
+	for (auto s : act->nodes) {
+		nodesToCollapse.pushBack(s);
+	}
 
-
-	C.collaps(collaps,G);
+	C.collapse(nodesToCollapse, G);
 
 	if (act != C.rootCluster())
 		C.delCluster(act);
@@ -122,16 +119,16 @@ node collapseCluster(ClusterGraph& CG, cluster c, Graph& G)
 {
 	OGDF_ASSERT(c->cCount() == 0);
 
-	ListConstIterator<node> its;
-	SListPure<node> collaps;
+	SListPure<node> nodesToCollapse;
 
 	//we should check here if not empty
 	node robinson = (*(c->nBegin()));
 
-	for (its = c->nBegin(); its.valid(); ++its)
-		collaps.pushBack(*its);
+	for (node s : c->nodes) {
+		nodesToCollapse.pushBack(s);
+	}
 
-	CG.collaps(collaps, G);
+	CG.collapse(nodesToCollapse, G);
 
 	if (c != CG.rootCluster())
 		CG.delCluster(c);
@@ -148,9 +145,9 @@ node getRepresentationNode(cluster c)
 	//improvement potential: use specific nodes that optimize connection
 	//process
 	if (c->nCount() > 0)
-		return *(c->nBegin());
+		return *c->nBegin();
 
-	return getRepresentationNode(*(c->cBegin()));
+	return getRepresentationNode(*c->cBegin());
 }
 
 
@@ -167,17 +164,9 @@ void recursiveConnect(
 	//for non-cc clusters, add edges to make them connected
 	//recursively search for connection nodes (simple version:
 	//use first node/first node of first child (recursive)
-
-	ListConstIterator<cluster> it;
-	for (it = act->cBegin(); it.valid();)
-	{
-		ListConstIterator<cluster> succ = it.succ();
-		cluster next = (*it);
-		recursiveConnect(CG, next, origCluster, oCcluster, origNode, G, newEdges);
-
-		it = succ;
-	}
-
+	safeForEach(act->children, [&](cluster child) {
+		recursiveConnect(CG, child, origCluster, oCcluster, origNode, G, newEdges);
+	});
 
 	//We construct a copy of the current cluster
 	OGDF_ASSERT(act->cCount() == 0);
@@ -185,20 +174,14 @@ void recursiveConnect(
 	NodeArray<node> vOrig(cG, nullptr);
 	NodeArray<node> vCopy(CG, nullptr); //larger than necessary, hashingarray(index)?
 
-	ListConstIterator<node> its;
-	for (its = act->nBegin(); its.valid(); ++its)
-	{
-		node vo = (*its);
+	for (node vo : act->nodes) {
 		node v = cG.newNode();
 		vOrig[v] = vo;
 		vCopy[vo] = v;
-
-	}//for
+	}
 
 	NodeArray<bool> processed(CG, false);
-	for (its = act->nBegin(); its.valid(); ++its)
-	{
-		node vo = (*its);
+	for (node vo : act->nodes) {
 		processed[vo] = true;
 		for(adjEntry adj : vo->adjEntries) {
 			edge e = adj->theEdge();
@@ -207,8 +190,8 @@ void recursiveConnect(
 			if (vCopy[e->opposite(vo)] && !processed[e->opposite(vo)])
 				//we don't care about the edge direction
 				cG.newEdge(vCopy[vo], vCopy[e->opposite(vo)]);
-		}//foralladjedges
-	}//for
+		}
+	}
 
 	//connect the copy (should use improved version of makeconnected later)
 	List<edge> added;
@@ -232,8 +215,7 @@ void recursiveConnect(
 		np.source = (origCluster[v1] ? getRepresentationNode(origCluster[v1]) : origNode[v1]);
 		np.target = (origCluster[v2] ? getRepresentationNode(origCluster[v2]) : origNode[v2]);
 		newEdges.pushBack(np);
-
-	}//if cluster was not connected
+	}
 
 	//collapse cluster in copy and save information on the
 	//collapsed cluster in the nodes
@@ -241,8 +223,7 @@ void recursiveConnect(
 	node vNew = collapseCluster(CG, act, G);
 	//update info if cluster collapsed
 	origCluster[vNew] = cOrig;
-}//recursiveConnect
-
+}
 
 //planarity  checking version
 
@@ -284,8 +265,7 @@ static void dfsMakeCConnected(node v,
 					kPlanar =  true;
 
 				fullGraph.delEdge(eP); //only keep if finally chosen
-
-			}//if source
+			}
 
 			better = ((better || kPlanar) && !keepsPlanarity) || (kPlanar && better);
 
@@ -297,8 +277,7 @@ static void dfsMakeCConnected(node v,
 				fullGraph, fullGraphCopy, keepsPlanarity, vMinDeg);
 		}
 	}
-}//dfsMakeCConnected
-
+}
 
 //connect cluster represented by graph G,  observe fullGraph planarity
 //in nodepair selection, try to avoid badnodes
@@ -333,8 +312,7 @@ void cMakeConnected(
 			pred = vMinDeg;
 		}
 	}
-}//cMakeConnected
-
+}
 
 void recursiveCConnect(
 	ClusterGraph& CG,
@@ -353,17 +331,9 @@ void recursiveCConnect(
 	//for non-cc clusters, add edges to make them connected
 	//recursively search for connection nodes (simple version:
 	//use first node/first node of first child (recursive)
-
-	ListConstIterator<cluster> it;
-	for (it = act->cBegin(); it.valid();)
-	{
-		ListConstIterator<cluster> succ = it.succ();
-		cluster next = (*it);
-		recursiveCConnect(CG, next, origCluster, oCcluster, origNode, G, fullCopy,
-			copyNode, badNode, newEdges);
-
-		it = succ;
-	}
+	safeForEach(act->children, [&](cluster child) {
+		recursiveCConnect(CG, child, origCluster, oCcluster, origNode, G, fullCopy, copyNode, badNode, newEdges);
+	});
 
 	//We construct a graph copy of the current cluster subgraph
 	OGDF_ASSERT(act->cCount() == 0);
@@ -373,23 +343,17 @@ void recursiveCConnect(
 
 	NodeArray<node> vFullCopy(cG, nullptr);//node in planarity tested full copy
 
-	ListConstIterator<node> its;
-	for (its = act->nBegin(); its.valid(); ++its)
-	{
-		node vo = (*its);
+	for (node vo : act->nodes) {
 		node v = cG.newNode();
 		vOrig[v] = vo;
 		vCopy[vo] = v;
 
-		vFullCopy[v] = copyNode[vo]; //save the corresponding node in working copy
-									 //to check planarity after edge insertion
-
-	}//for
+		// save the corresponding node in working copy to check planarity after edge insertion
+		vFullCopy[v] = copyNode[vo];
+	}
 
 	NodeArray<bool> processed(CG, false);
-	for (its = act->nBegin(); its.valid(); ++its)
-	{
-		node vo = (*its);
+	for (node vo : act->nodes) {
 		processed[vo] = true;
 		for(adjEntry adj : vo->adjEntries) {
 			edge e = adj->theEdge();
@@ -398,8 +362,8 @@ void recursiveCConnect(
 			if (vCopy[e->opposite(vo)] && !processed[e->opposite(vo)])
 				//we don't care about the edge direction
 				cG.newEdge(vCopy[vo], vCopy[e->opposite(vo)]);
-		}//foralladjedges
-	}//for
+		}
+	}
 
 	//connect the copy (should use improved version of makeconnected later)
 	List<edge> added;
@@ -426,8 +390,7 @@ void recursiveCConnect(
 		np.source = (origCluster[v1] ? getRepresentationNode(origCluster[v1]) : origNode[v1]);
 		np.target = (origCluster[v2] ? getRepresentationNode(origCluster[v2]) : origNode[v2]);
 		newEdges.pushBack(np);
-
-	}//if cluster was not connected
+	}
 
 	//collapse cluster in copy and save information on the
 	//collapsed cluster in the nodes
@@ -435,8 +398,7 @@ void recursiveCConnect(
 	node vNew = collapseCluster(CG, act, G);
 	//update info if cluster collapsed
 	origCluster[vNew] = cOrig;
-}//recursiveCConnect
-
+}
 
 //second version for advanced connectivity
 void cconnect(
@@ -487,9 +449,7 @@ void cconnect(
 		fullCopyNode,		//corresponding nodes in fullCopy
 		badNode,			//fullCopy node attribute
 		newEdges);			//inserted edges
-
-}//cconnect
-
+}
 
 //make a cluster graph cconnected by adding edges
 //simple: just make the cluster subgraph connected
@@ -530,17 +490,14 @@ void makeCConnected(ClusterGraph& C, Graph& GG, List<edge>& addedEdges, bool sim
 	{
 		edge nedge = GG.newEdge(np.source, np.target);
 #if 0
-		cout << "Adding edge: " << np.m_src << "-" << np.m_tgt << "\n" << flush;
+		std::cout << "Adding edge: " << np.m_src << "-" << np.m_tgt << "\n" << std::flush;
 #endif
 		addedEdges.pushBack(nedge);
 	}
 
 #if 0
-	cout << "added " << addedEdges.size() << "edges\n";
+	std::cout << "added " << addedEdges.size() << "edges\n";
 #endif
-}//makeCConnected
+}
 
-
-
-
-} // end namespace ogdf
+}

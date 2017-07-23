@@ -100,14 +100,13 @@ const char *UmlDiagramGraph::getDiagramTypeString() const
 	default:
 		return "";
 	}
+}
 
-} // getDiagramTypeString
-
-ostream &operator<<(ostream &os, const UmlDiagramGraph &diagramGraph)
+std::ostream &operator<<(std::ostream &os, const UmlDiagramGraph &diagramGraph)
 {
 	// Header with diagram name and type
 	os << "\n--- " << diagramGraph.getDiagramTypeString()
-		<< " \"" << diagramGraph.m_diagramName << "\" ---\n" << endl;
+		<< " \"" << diagramGraph.m_diagramName << "\" ---\n" << std::endl;
 
 	// Nodes
 
@@ -125,7 +124,7 @@ ostream &operator<<(ostream &os, const UmlDiagramGraph &diagramGraph)
 			<< *xIt << ", "
 			<< *yIt << ", "
 			<< *wIt << ", "
-			<< *hIt << ")." << endl;
+			<< *hIt << ")." << std::endl;
 
 		++xIt;
 		++yIt;
@@ -142,12 +141,10 @@ ostream &operator<<(ostream &os, const UmlDiagramGraph &diagramGraph)
 			<< diagramGraph.m_modelGraph.getNodeLabel(e->source())
 			<< " and "
 			<< diagramGraph.m_modelGraph.getNodeLabel(e->target())
-			<< endl;
+			<< std::endl;
 	}
 
 	return os;
+}
 
-} // <<
-
-
-} // namespace ogdf
+}

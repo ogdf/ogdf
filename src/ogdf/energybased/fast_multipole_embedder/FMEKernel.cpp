@@ -85,11 +85,11 @@ inline void eval_direct_aligned_SSE(
 				fx_sum_shuffled = _mm_sub_ps(fx_sum_shuffled, fx);
 				fy_sum_shuffled = _mm_sub_ps(fy_sum_shuffled, fy);
 				// shuffle everything for the next pairing
-				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
-				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
-				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
-				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
-				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
+				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  _MM_SHUFFLE(0,3,2,1));
+				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  _MM_SHUFFLE(0,3,2,1));
+				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  _MM_SHUFFLE(0,3,2,1));
+				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
+				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
 			}
 			// note: after shuffling 4 times we are back to original order
 			_mm_store_ps(ptr_fx2 + j, fx_sum_shuffled);
@@ -113,14 +113,14 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fy_A = _mm_load_ps( ptr_fy );
 
 	// B = (b, c, d, a) (1x left rotate)
-	__m128 x_B = _mm_shuffle_ps( x_A, x_A, OGDF_MM_SHUFFLE(0,3,2,1) );
-	__m128 y_B = _mm_shuffle_ps( y_A, y_A, OGDF_MM_SHUFFLE(0,3,2,1) );
-	__m128 s_B = _mm_shuffle_ps( s_A, s_A, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 x_B = _mm_shuffle_ps( x_A, x_A, _MM_SHUFFLE(0,3,2,1) );
+	__m128 y_B = _mm_shuffle_ps( y_A, y_A, _MM_SHUFFLE(0,3,2,1) );
+	__m128 s_B = _mm_shuffle_ps( s_A, s_A, _MM_SHUFFLE(0,3,2,1) );
 
 	// C = (c, d, a, b) (2x left rotate)
-	__m128 x_C = _mm_shuffle_ps( x_B, x_B, OGDF_MM_SHUFFLE(0,3,2,1) );
-	__m128 y_C = _mm_shuffle_ps( y_B, y_B, OGDF_MM_SHUFFLE(0,3,2,1) );
-	__m128 s_C = _mm_shuffle_ps( s_B, s_B, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 x_C = _mm_shuffle_ps( x_B, x_B, _MM_SHUFFLE(0,3,2,1) );
+	__m128 y_C = _mm_shuffle_ps( y_B, y_B, _MM_SHUFFLE(0,3,2,1) );
+	__m128 s_C = _mm_shuffle_ps( s_B, s_B, _MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,b), f(b,c), f(c,d), f(d,a) )
 	__m128 x_AB = _mm_sub_ps( x_A, x_B ); // dx = Ax - Bx
@@ -131,8 +131,8 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fx_AB = _mm_mul_ps( x_AB, f_AB ); 	// fx(a,b), fx(b,c), fx(c,d), fx(d,a)
 	__m128 fy_AB = _mm_mul_ps( y_AB, f_AB );	// fy(a,b), fy(b,c), fy(c,d), fy(d,a)
 	// unshuffle
-	__m128 fx_AB_shuffled = _mm_shuffle_ps( fx_AB, fx_AB, OGDF_MM_SHUFFLE(2,1,0,3) ); // fx(d,a), fx(a,b), fx(b,c), fx(c,d)
-	__m128 fy_AB_shuffled = _mm_shuffle_ps( fy_AB, fy_AB, OGDF_MM_SHUFFLE(2,1,0,3) ); // fy(d,a), fy(a,b), fy(b,c), fy(c,d)
+	__m128 fx_AB_shuffled = _mm_shuffle_ps( fx_AB, fx_AB, _MM_SHUFFLE(2,1,0,3) ); // fx(d,a), fx(a,b), fx(b,c), fx(c,d)
+	__m128 fy_AB_shuffled = _mm_shuffle_ps( fy_AB, fy_AB, _MM_SHUFFLE(2,1,0,3) ); // fy(d,a), fy(a,b), fy(b,c), fy(c,d)
 
 	// A x C = ( f(a,c), f(b,d), f(c,a), f(d,b) )
 	__m128 x_AC = _mm_sub_ps( x_A, x_C ); // dx = Ax - Cx
@@ -169,9 +169,9 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fy_sum = _mm_load_ps( ptr_fy );
 
 	// B = (b, c, d, a) (1x left rotate)
-	__m128 x_shuffled = _mm_shuffle_ps( x, x, OGDF_MM_SHUFFLE(0,3,2,1) );
-	__m128 y_shuffled = _mm_shuffle_ps( y, y, OGDF_MM_SHUFFLE(0,3,2,1) );
-	__m128 s_shuffled = _mm_shuffle_ps( s, s, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 x_shuffled = _mm_shuffle_ps( x, x, _MM_SHUFFLE(0,3,2,1) );
+	__m128 y_shuffled = _mm_shuffle_ps( y, y, _MM_SHUFFLE(0,3,2,1) );
+	__m128 s_shuffled = _mm_shuffle_ps( s, s, _MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,b), f(b,c), f(c,d), f(d,a) )
 	__m128 dx	= _mm_sub_ps( x, x_shuffled );								// dx = x_A - x_B
@@ -185,13 +185,13 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fx	= _mm_mul_ps( dx, f ); 	// ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
 	__m128 fy	= _mm_mul_ps( dy, f );	// ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
 
-	fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
-	fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
+	fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
+	fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
 
 	// B = (c, d, a, b) (2x left rotate)
-	x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
-	y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
-	s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
+	x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, _MM_SHUFFLE(0,3,2,1) );
+	y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, _MM_SHUFFLE(0,3,2,1) );
+	s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, _MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,c), f(b,d), f(c,a), f(d,b) )
 	dx = _mm_sub_ps( x, x_shuffled );										// dx = x_A - x_B
@@ -229,9 +229,9 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 		__m128 fy_sum = _mm_load_ps( ptr_fy+ i );
 
 		// register for j, first we need to deal with Block(i,i)
-		__m128 x_shuffled = _mm_shuffle_ps( x, x, OGDF_MM_SHUFFLE(0,3,2,1) );
-		__m128 y_shuffled = _mm_shuffle_ps( y, y, OGDF_MM_SHUFFLE(0,3,2,1) );
-		__m128 s_shuffled = _mm_shuffle_ps( s, s, OGDF_MM_SHUFFLE(0,3,2,1) );
+		__m128 x_shuffled = _mm_shuffle_ps( x, x, _MM_SHUFFLE(0,3,2,1) );
+		__m128 y_shuffled = _mm_shuffle_ps( y, y, _MM_SHUFFLE(0,3,2,1) );
+		__m128 s_shuffled = _mm_shuffle_ps( s, s, _MM_SHUFFLE(0,3,2,1) );
 		__m128 fx_sum_shuffled;
 		__m128 fy_sum_shuffled;
 
@@ -247,12 +247,12 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 		__m128 fx	= _mm_mul_ps( dx, f ); 	// ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
 		__m128 fy	= _mm_mul_ps( dy, f );	// ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
 
-		fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
-		fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
+		fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
+		fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
 
-		x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
-		y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
-		s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
+		x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, _MM_SHUFFLE(0,3,2,1) );
+		y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, _MM_SHUFFLE(0,3,2,1) );
+		s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, _MM_SHUFFLE(0,3,2,1) );
 
 		dx = _mm_sub_ps( x, x_shuffled );										// dx = x_A - x_B
 		dy = _mm_sub_ps( y, y_shuffled );										// dy = y_A - y_B
@@ -296,11 +296,11 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 				fx_sum_shuffled = _mm_sub_ps(fx_sum_shuffled, fx);
 				fy_sum_shuffled = _mm_sub_ps(fy_sum_shuffled, fy);
 				// shuffle everything for the next pairing
-				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
-				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
-				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
-				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
-				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
+				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  _MM_SHUFFLE(0,3,2,1));
+				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  _MM_SHUFFLE(0,3,2,1));
+				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  _MM_SHUFFLE(0,3,2,1));
+				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
+				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
 			}
 			// note: after shuffling 4 times we are back to original order
 			_mm_store_ps(ptr_fx + j, fx_sum_shuffled);
@@ -366,7 +366,7 @@ void eval_direct_fast(float* x1, float* y1, float* s1, float* fx1, float* fy1, s
 		const size_t numB2 = fence22 - fence21;
 		const size_t numC1 = (ptr1+n1) - fence12;
 		const size_t numC2 = (ptr2+n2) - fence22;
-		const size_t numAB1 = fence12 - ptr1;
+		// unused:   numAB1 = fence12 - ptr1;
 		const size_t numAB2 = fence22 - ptr2;
 
 		// eval A1 x ALL2

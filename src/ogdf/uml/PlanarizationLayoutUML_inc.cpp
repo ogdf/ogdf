@@ -179,11 +179,11 @@ void PlanarizationLayoutUML::callIncremental(
 				//with layout given in umlGraph
 				embedded = TM.setEmbeddingFromGraph(PG, umlGraph,
 					adjExternal, false, umlMerge);
-			}//try
+			}
 			catch(...)
 			{
 				embedded = false;
-			}//catch
+			}
 
 			//returns true if connnectivity edges introduced
 			//TODO: hierhin oder eins nach unten?
@@ -249,11 +249,13 @@ void PlanarizationLayoutUML::callIncremental(
 					}
 
 					++itAdd;
-				}//while
+				}
 
 				if (!umlMerge)
 					PG.setupIncremental(i, E);
-				OGDF_ASSERT(E.consistencyCheck());
+#ifdef OGDF_DEBUG
+				E.consistencyCheck();
+#endif
 
 					//we now have a complete representation of the
 					//original CC
@@ -295,8 +297,7 @@ void PlanarizationLayoutUML::callIncremental(
 
 						drawing.computePolylineClear(PG,eG,umlGraph.bends(eG));
 					}
-				}//for orig nodes
-
+				}
 
 				if (!umlMerge)
 				{
@@ -384,7 +385,7 @@ void PlanarizationLayoutUML::callIncremental(
 									if (eUp)
 										dpUp = umlGraph.bends(eUp);
 									break;
-								}//if
+								}
 							}
 
 							for(adjEntry adjVMerger : vMerger->adjEntries)
@@ -399,34 +400,28 @@ void PlanarizationLayoutUML::callIncremental(
 											drawing.y(vMerger)));
 
 										//was there an original edge?
-										if (dpUp.size()>0)
+										if (!dpUp.empty())
 										{
 											ListConstIterator<DPoint> itDp;
 											for(itDp = dpUp.begin(); itDp.valid(); ++itDp)
 												umlGraph.bends(eOrig).pushBack(*itDp);
-										}//if
-										else
-										{
+										} else {
 											if (adjUp)
 												umlGraph.bends(eOrig).pushBack(DPoint(drawing.x(adjUp->twinNode()),
 												drawing.y(adjUp->twinNode())));
-										}//else
-									}//if
-
+										}
+									}
 								}
 							}
-						}//else
+						}
 						++itMerger;
-					}//while merger nodes
-				}//if !umlMerge
+					}
+				}
 
 				// the width/height of the layout has been computed by the planar
 				// layout algorithm; required as input to packing algorithm
 				boundingBox[i] = m_planarLayouter->getBoundingBox();
-			}//if #edges > 0
-
-			else
-			{
+			} else {
 				//TODO: what if there are no edges but the insertion edges
 				//DONE: we make the CC treeConnected
 				//Nonetheless we have to compute a layout here
@@ -439,8 +434,7 @@ void PlanarizationLayoutUML::callIncremental(
 #if 0
 			m_nCrossings += PG.numberOfNodes() - numOrigNodes;
 #endif
-
-		}//for connected components
+		}
 
 		//TODO: check shifting to new place
 
@@ -454,14 +448,13 @@ void PlanarizationLayoutUML::callIncremental(
 
 		//new position after adding clique process, check if correct
 		postProcess(umlGraph);
-	}//try
+	}
 	catch (...)
 	{
 		call(umlGraph);
 		return;
 	}
-}//callIncremental
-
+}
 
 //Insertion order of added nodes:
 //sorting strategy: we count all adjacent nodes that are in
@@ -513,18 +506,15 @@ void PlanarizationLayoutUML::getFixationDistance(node startNode,
 					{
 						distance[ind] = max(-1, distance[ind]);
 						OGDF_ASSERT(false);
-					}
-					else
-					{
+					} else {
 						if (distance[ind] == 0) distance[ind] = min(-1, distance[topNode->index()] - 1);
 						else distance[ind] = min(-1, max(distance[ind], distance[topNode->index()] - 1));
-					}//else
-				}//if node without contact to fixed nodes
-			}//if distance (is an addnode)
+					}
+				}
+			}
 		}
-	}//while
-
-}//getFixationDistance
+	}
+}
 
 //Attention: changing this behavior makes it necessary to check
 //the call procedure for the case where one of the addnodes is
@@ -564,7 +554,7 @@ void PlanarizationLayoutUML::sortIncrementalNodes(List<node> &addNodes,
 		indexToDegree[(*it)->index()] = vDegree;
 
 		++it;
-	}//while
+	}
 	//for all nodes that are not connected to the fixed part we have to guarantee
 	//that they are not inserted before one of their neighbours is inserted
 	//therefore we set negative values for all nodes corresponding to their distance
@@ -575,29 +565,11 @@ void PlanarizationLayoutUML::sortIncrementalNodes(List<node> &addNodes,
 	getFixationDistance(someFixedNode,indexToDegree, fixedNodes);
 
 	// we sort the nodes in decreasing vDegree value order
-	class AddNodeComparer {
-		HashArray<int, int> *m_indToDeg;
-
-	public:
-		explicit AddNodeComparer(HashArray<int, int> &ha) : m_indToDeg(&ha) { }
-
-		int compare(const node &v1, const node &v2) const {
-			if ((*m_indToDeg)[v1->index()] < (*m_indToDeg)[v2->index()]) {
-				return 1;
-			} else if ((*m_indToDeg)[v1->index()] > (*m_indToDeg)[v2->index()]) {
-				return -1;
-			} else {
-				return 0;
-			}
-		}
-
-		OGDF_AUGMENT_COMPARER(node)
-	} comp(indexToDegree);
-
-	addNodes.quicksort(comp);
-
-}//sortincrementalnodes
-
+	struct AddNodeComparer : public GenericComparer<node, int> {
+		AddNodeComparer(HashArray<int, int> &ha) : GenericComparer([&](node v) { return -ha[v->index()]; }) {}
+	};
+	addNodes.quicksort(AddNodeComparer(indexToDegree));
+}
 
 void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 	bool /* l_gensExist */)
@@ -620,7 +592,7 @@ void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 	{
 		pr.removeCrossing((*it));
 		++it;
-	}//while
+	}
 
 	// first phase: Compute a planar subgraph
 
@@ -645,8 +617,7 @@ void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 				)
 				)
 				costOrig[ori] = 10;
-
-		}//generalization
+		}
 	}
 
 	int cr;
@@ -697,8 +668,6 @@ void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 #endif
 	}
 #endif
-}//reembed
+}
 
-
-
-} // end namespace ogdf
+}

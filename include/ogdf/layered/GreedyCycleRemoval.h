@@ -61,5 +61,4 @@ private:
 	NodeArray<bool> m_visited;
 };
 
-
-} // end namespace ogdf
+}

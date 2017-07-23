@@ -57,7 +57,7 @@ private:
 			node v = queue.popFrontRet();
 			if (v == *this->m_t) {
 				// find minimum residual capacity value on s-t-path
-				TCap augmentVal = numeric_limits<TCap>::max();
+				TCap augmentVal = std::numeric_limits<TCap>::max();
 				for (node w = v; pred[w]; w = pred[w]->theNode()) {
 					const adjEntry adj = pred[w];
 					const edge e = adj->theEdge();
@@ -157,4 +157,4 @@ public:
 	using MaxFlowModule<TCap>::init;
 };
 
-}// namespace ogdf
+}

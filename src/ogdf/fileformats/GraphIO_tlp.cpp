@@ -223,12 +223,12 @@ static void writeProperties(
 
 static void getClusterChildren(cluster c, std::vector<node> &nodes)
 {
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-		nodes.push_back(*nit);
+	for(node v : c->nodes) {
+		nodes.push_back(v);
 	}
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		getClusterChildren(*cit, nodes);
+	for(cluster child : c->children) {
+		getClusterChildren(child, nodes);
 	}
 }
 
@@ -279,8 +279,8 @@ static void writeCluster(
 	}
 	os << ")";
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		writeCluster(os, depth + 1, G, C, *cit);
+	for(cluster child : c->children) {
+		writeCluster(os, depth + 1, G, C, child);
 	}
 
 	os << ")";
@@ -306,8 +306,8 @@ static void writeGraph(
 		}
 
 		const cluster c = C->rootCluster();
-		for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-			writeCluster(os, 1, G, *C, *cit);
+		for(cluster child : c->children) {
+			writeCluster(os, 1, G, *C, child);
 		}
 	}
 
@@ -323,8 +323,7 @@ static void writeGraph(
 	os << ")\n";
 }
 
-
-} // end namespace tlp
+}
 
 
 bool GraphIO::writeTLP(const Graph &G, std::ostream &os)
@@ -374,5 +373,4 @@ bool GraphIO::writeTLP(const ClusterGraphAttributes &CA, std::ostream &os)
 	return result;
 }
 
-
-} // end namespace ogdf
+}

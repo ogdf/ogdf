@@ -325,4 +325,4 @@ private:
 	void findPlacement();
 };
 
-} // end namespace ogdf
+}

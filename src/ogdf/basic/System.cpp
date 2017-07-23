@@ -306,7 +306,7 @@ size_t System::memoryUsedByProcess()
 	int pid = getpid();
 	string filename = string("/proc/") + to_string(pid) + "/statm";
 
-	ifstream is(filename.c_str());
+	std::ifstream is(filename.c_str());
 	if(!is) OGDF_THROW(Exception);
 
 	//	size:      total program size (in pages)
@@ -436,5 +436,4 @@ int System::getProcessID()
 
 #endif
 
-
-} // namespace ogdf
+}

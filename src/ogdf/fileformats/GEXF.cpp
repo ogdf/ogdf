@@ -68,7 +68,6 @@ Shape toShape(const std::string &str)
 	}
 }
 
+}
 
-} // end namespace gexf
-
-} // end namespace ogdf
+}

@@ -106,15 +106,13 @@ void MAARPacking::pack_rectangles_using_Best_Fit_strategy(
 
 inline void MAARPacking::presort_rectangles_by_height(List<Rectangle>& R)
 {
-	RectangleComparerHeight comp_height;
-	R.quicksort(comp_height);
+	R.quicksort(GenericComparer<Rectangle, double>([&](const Rectangle& x) { return -x.get_height(); }));
 }
 
 
 inline void MAARPacking::presort_rectangles_by_width(List<Rectangle>& R)
 {
-	RectangleComparerWidth comp_width;
-	R.quicksort(comp_width);
+	R.quicksort(GenericComparer<Rectangle, double>([&](const Rectangle& x) { return -x.get_width(); }));
 }
 
 
@@ -136,7 +134,7 @@ void MAARPacking::B_F_insert_rectangle_in_new_row(
 	row_of_rectangle.pushBack(P.rbegin());
 
 	//update area_height,area_width
-	area_width = max(r.get_width(),area_width);
+	Math::updateMax(area_width, r.get_width());
 	area_height += r.get_height();
 
 
@@ -152,7 +150,6 @@ ListIterator<PackingRowInfo> MAARPacking::find_Best_Fit_insert_position(
 	double& aspect_ratio_area,
 	PQueue& total_width_of_row)
 {
-	numexcept N;
 	double area_2;
 	int best_try_index,index_2;
 	Rectangle r = *rect_item;
@@ -170,7 +167,7 @@ ListIterator<PackingRowInfo> MAARPacking::find_Best_Fit_insert_position(
 	else
 		index_2 = 3;
 
-	if((area_2 <= aspect_ratio_area) || N.nearly_equal(aspect_ratio_area,area_2))
+	if((area_2 <= aspect_ratio_area) || numexcept::nearly_equal(aspect_ratio_area,area_2))
 	{
 		aspect_ratio_area = area_2;
 		best_try_index = index_2;
@@ -219,8 +216,8 @@ void MAARPacking::B_F_insert_rectangle(
 		row_of_rectangle.pushBack(B_F_item);
 
 		//update area_height,area_width
-		area_width = max(area_width,p.get_total_width());
-		area_height = max(area_height,area_height-old_max_height+r.get_height());
+		Math::updateMax(area_width, p.get_total_width());
+		Math::updateMax(area_height, area_height - old_max_height + r.get_height());
 
 		//update total_width_of_row
 
@@ -369,6 +366,7 @@ bool MAARPacking::better_tipp_rectangle_in_this_row(
 		if (r.get_width() > B_F_row.get_max_height()) {
 			break;
 		}
+		OGDF_CASE_FALLTHROUGH;
 	case FMMMOptions::TipOver::Always:
 		width = max(area_width, B_F_row.get_total_width() + r.get_height());
 		height = max(area_height, area_height - B_F_row.get_max_height() + r.get_width());

@@ -76,4 +76,4 @@ private:
 	int m_bigM; // is set to some big number in both constructors
 };
 
-}// end namespace ogdf
+}

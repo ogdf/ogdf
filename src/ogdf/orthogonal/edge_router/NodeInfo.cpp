@@ -91,7 +91,7 @@ void NodeInfo::get_data(
 }
 
 
-ostream& operator<<(ostream& O, const NodeInfo& inf)
+std::ostream& operator<<(std::ostream& O, const NodeInfo& inf)
 {
 	O.precision(5);
 #if 0
@@ -118,7 +118,7 @@ ostream& operator<<(ostream& O, const NodeInfo& inf)
 		<< "num edges:                  " << inf.num_edges(OrthoDir(0)) << "/" << inf.num_edges(OrthoDir(1)) << "/" << inf.num_edges(OrthoDir(2))
 		<< "/" << inf.num_edges(OrthoDir(3)) << "\n"
 		<< "num bendfree edges:         " << inf.num_bend_free(OrthoDir(0)) << "/" << inf.num_bend_free(OrthoDir(1)) << "/" << inf.num_bend_free(OrthoDir(2))
-		<< "/" << inf.num_bend_free(OrthoDir(3)) << endl;
+		<< "/" << inf.num_bend_free(OrthoDir(3)) << std::endl;
 
 	return O;
 }

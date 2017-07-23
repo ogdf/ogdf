@@ -258,4 +258,4 @@ inline void RadixHeap<V, P>::insert(RadixHeapNode<V, P> *heapNode)
 	}
 }
 
-} // end namespace ogdf
+}

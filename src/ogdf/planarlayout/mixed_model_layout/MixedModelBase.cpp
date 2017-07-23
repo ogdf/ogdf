@@ -804,9 +804,9 @@ void MixedModelBase::computeYCoords()
 
 void MixedModelBase::setBends ()
 {
-	//printMMOrder(cout);
-	//printInOutPoints(cout);
-	//cout.flush();
+	//printMMOrder(std::cout);
+	//printInOutPoints(std::cout);
+	//std::cout.std::flush();
 
 	NodeArray<int> &x = m_gridLayout.x(), &y = m_gridLayout.y();
 	EdgeArray<IPolyline> &bends = m_gridLayout.bends();
@@ -946,7 +946,7 @@ void MixedModelBase::postprocessing2()
 	}
 }
 
-void MixedModelBase::printMMOrder(ostream &os)
+void MixedModelBase::printMMOrder(std::ostream &os)
 {
 	int k, i;
 
@@ -962,13 +962,13 @@ void MixedModelBase::printMMOrder(ostream &os)
 		if (k >= 2)
 			os << " cl = " << m_mmo.m_left[k] <<
 				", cr = " << m_mmo.m_right[k];
-		os << endl;
+		os << std::endl;
 
 	}
 	os.flush();
 }
 
-void MixedModelBase::printInOutPoints(ostream &os)
+void MixedModelBase::printInOutPoints(std::ostream &os)
 {
 	os << "\n\nin- and outpoint lists:\n";
 	for(node v : m_PG.nodes) {
@@ -987,10 +987,10 @@ void MixedModelBase::printInOutPoints(ostream &os)
 			os << " ";
 		}
 	}
-	os << endl;
+	os << std::endl;
 }
 
-void MixedModelBase::print(ostream &os, const InOutPoint &iop)
+void MixedModelBase::print(std::ostream &os, const InOutPoint &iop)
 {
 	if(iop.m_adj)
 		os << "[(" << m_PG.original(iop.m_adj->theNode()) << "," <<
@@ -1000,11 +1000,11 @@ void MixedModelBase::print(ostream &os, const InOutPoint &iop)
 		os << "[ ]";
 }
 
-void MixedModelBase::printNodeCoords(ostream &os)
+void MixedModelBase::printNodeCoords(std::ostream &os)
 {
 	os << "\nx- and y-coordinates:\n\n";
 	for(node v : m_PG.nodes)
 		os << v << ": (" << m_gridLayout.x(v) << "," << m_gridLayout.y(v) << ")\n";
 }
 
-} // end namespace ogdf
+}

@@ -96,9 +96,7 @@ public:
 		if (m_pEmbedding != nullptr)
 			m_pEmbedding->moveRegisterArray(m_it, this);
 	}
-
-}; // class FaceArrayBase
-
+};
 
 //! Dynamic arrays indexed with faces of a combinatorial embedding.
 /**
@@ -352,8 +350,6 @@ private:
 	}
 
 	OGDF_NEW_DELETE
+};
 
-}; // class FaceArray<T>
-
-
-} // end namespace ogdf
+}

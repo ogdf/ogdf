@@ -47,10 +47,6 @@ namespace fmmm {
 class Multilevel
 {
 public:
-
-	Multilevel() { }     //!< constructor
-	~Multilevel() { }    //!< destructor
-
 	//! The multilevel representations *G_mult_ptr/*A_mult_ptr/*E_mult_ptr for
 	//! G/A/E are created. The maximum multilevel is calculated, too.
 	void create_multilevel_representations(Graph& G,NodeArray<NodeAttributes>& A,

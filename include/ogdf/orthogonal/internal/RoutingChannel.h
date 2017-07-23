@@ -130,5 +130,4 @@ private:
 	double m_cOverhang;
 };
 
-
-} // end namespace ogdf
+}

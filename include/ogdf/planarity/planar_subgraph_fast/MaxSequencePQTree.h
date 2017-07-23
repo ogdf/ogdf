@@ -285,7 +285,7 @@ private:
 	 * of pointers to PQLeafKey, describing the leaves that have to be removed.
 	 */
 	void findMinWHASequence(
-		StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
+		ArrayBuffer<PQNode<T,whaInfo*,Y>*> &archiv,
 		SList<PQLeafKey<T,whaInfo*,Y>*>  &eliminatedKeys);
 
 	/**
@@ -571,7 +571,7 @@ int MaxSequencePQTree<T,Y>::determineMinRemoveSequence(
 
 	// A stack storing all nodes where a $[w,h,a]$-number
 	// has been computed. This is necessary for a valid cleanup.
-	StackPure<PQNode<T,whaInfo*,Y>*>	archiv;
+	ArrayBuffer<PQNode<T,whaInfo*,Y>*>	archiv;
 
 	// Compute a valid parent pointer for every pertinent node.
 	Bubble(leafKeys);
@@ -692,7 +692,7 @@ int MaxSequencePQTree<T,Y>::determineMinRemoveSequence(
 
 template<class T, class Y>
 void MaxSequencePQTree<T, Y>::findMinWHASequence(
-	StackPure<PQNode<T, whaInfo*, Y>*> &archiv,
+	ArrayBuffer<PQNode<T, whaInfo*, Y>*> &archiv,
 	SList<PQLeafKey<T, whaInfo*, Y>*> &eliminatedKeys)
 {
 	//a pointer to the first child of type $h$ of [[nodePtr]].
@@ -713,7 +713,7 @@ void MaxSequencePQTree<T, Y>::findMinWHASequence(
 		int childCount = 0;
 
 		//a pointer to a pertinent node of the $PQ$-tree that is currently examined.
-		PQNode<T, whaInfo*, Y> *nodePtr = archiv.pop();
+		PQNode<T, whaInfo*, Y> *nodePtr = archiv.popRet();
 
 		/*
 		Check if [[nodePtr]] is a full node whose delete type is either of

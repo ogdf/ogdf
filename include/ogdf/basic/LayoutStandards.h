@@ -185,4 +185,4 @@ public:
 	//@}
 };
 
-} // end namespace ogdf
+}

@@ -44,7 +44,7 @@ class Node
 {
 	friend int value(const Node& A) { return A.value; }
 
-	friend ostream &operator<< (ostream & output,const Node & A)
+	friend std::ostream &operator<< (std::ostream & output,const Node & A)
 	{
 		output <<"node index ";
 		if(A.vertex == nullptr)
@@ -55,15 +55,14 @@ class Node
 		return output;
 	}
 
-	friend istream &operator>> (istream & input,Node & A) {
+	friend std::istream &operator>> (std::istream & input,Node & A) {
 		input >> A.value;
 		return input;
 	}
 
 public:
-	Node() { vertex = nullptr; value = 0; }        //!< constructor
-	~Node() { }    //!< destructor
-
+	//! Constructor
+	Node() { vertex = nullptr; value = 0; }
 
 	void set_Node(node v,int a) { vertex = v; value = a; }
 	int  get_value() const { return value; }

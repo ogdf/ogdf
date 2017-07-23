@@ -61,5 +61,4 @@ bool UMLCrossingMinimizationModule::checkCrossingGens(const PlanRepUML &prUML)
 	return true;
 }
 
-
-} // end namespace ogdf
+}

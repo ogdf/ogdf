@@ -92,4 +92,4 @@ static void operator delete(void *, void *) { }
 
 //! @}
 
-} // namespace ogdf
+}

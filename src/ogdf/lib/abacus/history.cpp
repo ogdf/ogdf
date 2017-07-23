@@ -34,7 +34,7 @@ using std::setw;
 namespace abacus {
 
 
-ostream& operator<<(ostream& out, const History &rhs)
+std::ostream& operator<<(std::ostream& out, const History &rhs)
 {
 	int64_t   min;       //!< total minutes
 	int64_t   rmin;      //!< total minutes modulo 60
@@ -52,7 +52,7 @@ ostream& operator<<(ostream& out, const History &rhs)
 	const int w5 = 12;   //!< width of fifth column
 	const int w6 = 12;   //!< width of sixth column
 
-	out << "Solution History" << endl << endl;
+	out << "Solution History" << std::endl << std::endl;
 
 	if (rhs.n_) {
 
@@ -83,7 +83,7 @@ ostream& operator<<(ostream& out, const History &rhs)
 		out << setw(w4) << "Guarantee";
 		out << setw(w5) << "Quality";
 		out << setw(w6) << "Time";
-		out << endl;
+		out << std::endl;
 
 		// has the optimum solution been proved?
 		/* If the optimum solution has been proved we can also output the
@@ -205,11 +205,11 @@ ostream& operator<<(ostream& out, const History &rhs)
 			if(rsec < 10) out << '0';
 			out << rsec;
 
-			out << endl;
+			out << std::endl;
 		}
 	}
 	else
-		out << "no solution history available" << endl;
+		out << "no solution history available" << std::endl;
 	return out;
 }
 
@@ -231,4 +231,4 @@ void History::realloc()
 	dualBound_.grow(100);
 	time_.grow(100);
 }
-} //namespace abacus
+}

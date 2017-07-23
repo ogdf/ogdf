@@ -122,7 +122,7 @@ SubgraphPlanarizer::ThreadMaster::ThreadMaster(
 	int perms,
 	int64_t stopTime)
 	:
-	m_pCS(nullptr), m_bestCR(numeric_limits<int>::max()), m_pr(pr), m_cc(cc),
+	m_pCS(nullptr), m_bestCR(std::numeric_limits<int>::max()), m_pr(pr), m_cc(cc),
 	m_pCost(pCost), m_pForbid(pForbid), m_pEdgeSubGraph(pEdgeSubGraphs),
 	m_delEdges(delEdges), m_seed(seed), m_perms(perms), m_stopTime(stopTime)
 { }
@@ -428,5 +428,4 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 	return ReturnType::Feasible;
 }
 
-
-} // namspace ogdf
+}

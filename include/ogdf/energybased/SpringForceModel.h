@@ -46,4 +46,4 @@ enum class SpringForceModel {
 	Gronemann				//!< the force model proposed by Gronemann (FastMultipoleEmbedder).
 };
 
-} // end namespace ogdf
+}

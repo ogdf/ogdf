@@ -1,5 +1,5 @@
 /** \file
- * \brief IndexComparer definition
+ * \brief Definition of ogdf::steiner_tree::Full2ComponentGenerator class template
  *
  * \author Stephan Beyer
  *
@@ -31,29 +31,40 @@
 
 #pragma once
 
-#include <ogdf/basic/comparer.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 
 namespace ogdf {
+namespace steiner_tree {
 
 /**
- * @brief The IndexComparer compares entities like nodes, edges, adjacency entries, based on their index.
+ * Trivial full 2-component generation by lookups of shortest paths between terminal pairs
  *
- * @ingroup comparer
+ * A full 2-component is a path that starts and ends with a terminal
+ * but has no terminal in between.
  */
 template<typename T>
-class IndexComparer
+class Full2ComponentGenerator
 {
 public:
-	IndexComparer()
+	//! Generate full 2-components and call \p generateFunction for each full 2-component
+	inline void call(
+	  const EdgeWeightedGraph<T> &G,
+	  const List<node> &terminals,
+	  const NodeArray<NodeArray<T>> &distance,
+	  const NodeArray<NodeArray<edge>> &pred,
+	  std::function<void(node, node, T)> generateFunction) const
 	{
+		for (ListConstIterator<node> it_u = terminals.begin(); it_u.valid(); ++it_u) {
+			const node u = *it_u;
+			for (ListConstIterator<node> it_v = it_u.succ(); it_v.valid(); ++it_v) {
+				const node v = *it_v;
+				if (pred[u][v]) {
+					generateFunction(u, v, distance[u][v]);
+				}
+			}
+		}
 	}
-
-	int compare(const T &a, const T &b) const
-	{
-		return a->index() - b->index();
-	}
-
-	OGDF_AUGMENT_COMPARER(T)
 };
 
+}
 }

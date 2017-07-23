@@ -57,7 +57,7 @@ node buildHeaviestEdgeInComponentTree(
 		Graph &outputTree) //!< the output arborescence
 {
 	// sort edges by weight
-	Array< Prioritized<edge, T> > sortEdges(inputTree.numberOfEdges());
+	Array<Prioritized<edge, T>> sortEdges(inputTree.numberOfEdges());
 	int i = 0;
 	for(edge e : inputTree.edges) {
 		sortEdges[i] = Prioritized<edge,T>(e, inputTree.weight(e));
@@ -167,17 +167,13 @@ template<typename T>
 T obtainFinalSteinerTree(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const NodeArray<bool> &isOriginalTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
 	List<node> terminals;
-	for (node v : G.nodes) {
-		if (isTerminal[v]) {
-			terminals.pushBack(v);
-		}
-	}
+	MinSteinerTreeModule<T>::getTerminals(terminals, G, isTerminal);
 
 	finalSteinerTree = nullptr;
 	MinSteinerTreeTakahashi<T> mstt;
 #ifdef OGDF_COMMON_ALG_FIND_BEST_TAKAHASHI_ROOT
 	// find minimum Steiner tree of G among Takahashi approximations for each start node
-	T bestMstWeight = numeric_limits<T>::max();
+	T bestMstWeight = std::numeric_limits<T>::max();
 	for (node v : terminals) {
 		EdgeWeightedGraphCopy<T> *tmpSteinerTree;
 		T tmpMstWeight = mstt.call(G, terminals, isTerminal, isOriginalTerminal, tmpSteinerTree, v);
@@ -195,5 +191,5 @@ T obtainFinalSteinerTree(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &i
 #endif
 }
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

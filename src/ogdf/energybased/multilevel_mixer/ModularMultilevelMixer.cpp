@@ -144,7 +144,7 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 			s = s + "_placed.gml";
 			MLG.writeGML(s.c_str());
 #endif
-		} //while level
+		}
 	}
 
 	//Final level
@@ -161,5 +161,4 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 	time = clock() - time;
 }
 
-
-} // namespace ogdf
+}

@@ -98,9 +98,7 @@ public:
 		if (m_pGraph != nullptr)
 			m_pGraph->moveRegisterArray(m_it, this);
 	}
-
-}; // class AdjEntryArrayBase
-
+};
 
 //! Dynamic arrays indexed with adjacency entries.
 /**
@@ -399,8 +397,6 @@ private:
 	}
 
 	OGDF_NEW_DELETE
+};
 
-}; // class AdjEntryArray<T>
-
-
-} // end namespace ogdf
+}

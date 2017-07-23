@@ -76,13 +76,13 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 
 	NodeArray<node> align(GC);
 
-#ifdef DEBUG_OUTPUT
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
 	for(int i = 0; i <= levels.high(); ++i) {
-		cout << "level " << i << ": ";
-		const LevelBase &L = levels[i];
-		for(int j = 0; j <= L.high(); ++j)
-			cout << L[j] << " ";
-		cout << endl;
+		std::cout << "level " << i << ": ";
+		const LevelBase &level = levels[i];
+		for(int j = 0; j <= level.high(); ++j)
+			std::cout << level[j] << " ";
+		std::cout << std::endl;
 	}
 #endif
 
@@ -98,8 +98,8 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 
 		// initializing
 		for (int i = 0; i < 4; i++) {
-			min[i] =  numeric_limits<double>::max();
-			max[i] = -numeric_limits<double>::max();
+			min[i] =  std::numeric_limits<double>::max();
+			max[i] = -std::numeric_limits<double>::max();
 		}
 
 		// calc the layout for down/up and leftToRight/rightToLeft
@@ -189,9 +189,9 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 	Array<double> height(0,k-1,0.0);
 
 	for(int i = 0; i < k; ++i) {
-		const LevelBase &L = levels[i];
-		for(int j = 0; j < L.size(); ++j) {
-			double h = AGC.getHeight(L[j]);
+		const LevelBase &level = levels[i];
+		for(int j = 0; j < level.size(); ++j) {
+			double h = AGC.getHeight(level[j]);
 			if(h > height[i])
 				height[i] = h;
 		}
@@ -202,9 +202,9 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 
 	for(int i = 0; ; ++i)
 	{
-		const LevelBase &L = levels[i];
-		for(int j = 0; j < L.size(); ++j)
-			AGC.y(L[j]) = yPos;
+		const LevelBase &level = levels[i];
+		for(int j = 0; j < level.size(); ++j)
+			AGC.y(level[j]) = yPos;
 
 		if(i == k-1)
 			break;
@@ -248,7 +248,7 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 		for (int i = lower; (downward && i <= upper) || (!downward && i >= upper); i = downward ? i + 1 : i - 1)
 		{
 			int k0 = 0;
-			int l = 0; 			// index of first node on layer
+			int firstIndex = 0; // index of first node on layer
 			const LevelBase &currentLevel = levels[i];
 			const LevelBase &nextLevel = downward ? levels[i+1] : levels[i-1];
 
@@ -263,7 +263,7 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 						k1 = levels.pos(virtualTwin);
 					}
 
-					for (; l <= l1; l++) {
+					for (; firstIndex <= l1; firstIndex++) {
 						const Array<node> &upperNeighbours = levels.adjNodes(nextLevel[l1], relupward);
 
 						for (auto currentNeighbour : upperNeighbours) {
@@ -309,7 +309,7 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 		i = downward ? i + 1 : i - 1)
 	{
 		const LevelBase &currentLevel = levels[i];
-		int r = leftToRight ? -1 : numeric_limits<int>::max();
+		int r = leftToRight ? -1 : std::numeric_limits<int>::max();
 
 		// for all nodes on Level i (with direction leftToRight)
 		for (int j = leftToRight ? 0 : currentLevel.high();
@@ -343,9 +343,12 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 		}
 	}
 
-#ifdef DEBUG_OUTPUT
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
 	for(node v : GC.nodes) {
-		cout << "node: " << GC.original(v) << "/" << v << ", root: " << GC.original(root[v]) << "/" << root[v] << ", alignment: " << GC.original(align[v]) << "/" << align[v] << endl;
+		std::cout
+		  << "node: " << GC.original(v) << "/" << v
+		  << ", root: " << GC.original(root[v]) << "/" << root[v]
+		  << ", alignment: " << GC.original(align[v]) << "/" << align[v] << std::endl;
 	}
 #endif
 }
@@ -373,16 +376,16 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 	NodeArray<double> &x,
 	const bool leftToRight, bool downward)
 {
-#ifdef DEBUG_OUTPUT
-	cout << "-------- Horizontal Compactation --------" << endl;
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+	std::cout << "-------- Horizontal Compactation --------" << std::endl;
 #endif
 
 	const GraphCopy& GC = levels.hierarchy();
 
 	NodeArray<node> sink(GC);
-	NodeArray<double> shift(GC, numeric_limits<double>::max());
+	NodeArray<double> shift(GC, std::numeric_limits<double>::max());
 
-	x.init(GC, -numeric_limits<double>::max());
+	x.init(GC, -std::numeric_limits<double>::max());
 
 	for(node v : GC.nodes) {
 		sink[v] = v;
@@ -417,7 +420,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 
 		if(v == sink[root[v]]) {
 			double oldShift = shift[v];
-			if(oldShift < numeric_limits<double>::max()) {
+			if(oldShift < std::numeric_limits<double>::max()) {
 				shift[v] += d;
 				d += oldShift;
 			} else
@@ -425,17 +428,17 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 		}
 	}
 
-#ifdef DEBUG_OUTPUT
-	cout << "------- Sinks ----------" << endl;
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+	std::cout << "------- Sinks ----------" << std::endl;
 #endif
 	// apply root coordinates for all aligned nodes
 	// (place block did this only for the roots)
 	for(node v : GC.nodes) {
-#ifdef DEBUG_OUTPUT
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
 		if (sink[root[v]] == v) {
-			cout << "Topmost Root von Senke!: " << GC.original(v) << endl;
-			cout << "-> Shift: " << shift[v] << endl;
-			cout << "-> x: " << x[v] << endl;
+			std::cout << "Topmost Root von Senke!: " << GC.original(v) << std::endl;
+			std::cout << "-> Shift: " << shift[v] << std::endl;
+			std::cout << "-> x: " << x[v] << std::endl;
 		}
 #endif
 		x[v] = x[root[v]];
@@ -461,15 +464,15 @@ void FastSimpleHierarchyLayout::placeBlock(
 {
 	const Hierarchy &H = levels.hierarchy();
 
-#ifdef DEBUG_OUTPUT
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
 	const GraphCopy& GC = H;
 #endif
 
-	if (x[v] == -numeric_limits<double>::max()) {
+	if (x[v] == -std::numeric_limits<double>::max()) {
 		x[v] = 0;
 		node w = v;
-#ifdef DEBUG_OUTPUT
-		cout << "---placeblock: " << GC.original(v) << " ---" << endl;
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+		std::cout << "---placeblock: " << GC.original(v) << " ---" << std::endl;
 #endif
 		do {
 			// if not first node on layer
@@ -480,16 +483,16 @@ void FastSimpleHierarchyLayout::placeBlock(
 					sink[v] = sink[u];
 				}
 				if (sink[v] != sink[u]) {
-#ifdef DEBUG_OUTPUT
-					cout << "old shift " << GC.original(sink[u]) << ": " << shift[sink[u]] << "<>" << x[v] - x[u] - m_minXSep << endl;
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+					std::cout << "old shift " << GC.original(sink[u]) << ": " << shift[sink[u]] << "<>" << x[v] - x[u] - m_minXSep << std::endl;
 #endif
 					if (leftToRight) {
 						shift[sink[u]] = min<double>(shift[sink[u]], x[v] - x[u] - m_minXSep - 0.5 * (blockWidth[u] + blockWidth[v]));
 					} else {
 						shift[sink[u]] = max<double>(shift[sink[u]], x[v] - x[u] + m_minXSep + 0.5 * (blockWidth[u] + blockWidth[v]));
 					}
-#ifdef DEBUG_OUTPUT
-					cout << "-> new shift: " << shift[sink[u]] << endl;
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+					std::cout << "-> new shift: " << shift[sink[u]] << std::endl;
 #endif
 				}
 				else {
@@ -499,19 +502,19 @@ void FastSimpleHierarchyLayout::placeBlock(
 						x[v] = min<double>(x[v], x[u] - m_minXSep - 0.5 * (blockWidth[u] + blockWidth[v]));
 					}
 				}
-#ifdef DEBUG_OUTPUT
-				cout << "placing w: " << GC.original(w) << "; predecessor: " << GC.original(pred(w, levels, leftToRight)) <<
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+				std::cout << "placing w: " << GC.original(w) << "; predecessor: " << GC.original(pred(w, levels, leftToRight)) <<
 					"; root(w)=v: " << GC.original(v) << "; root(pred(u)): " << GC.original(u) <<
-					"; sink(v): " << GC.original(sink[v]) << "; sink(u): " << GC.original(sink[u]) << endl;
-				cout << "x(v): " << x[v] << endl;
+					"; sink(v): " << GC.original(sink[v]) << "; sink(u): " << GC.original(sink[u]) << std::endl;
+				std::cout << "x(v): " << x[v] << std::endl;
 			} else {
-				cout << "not placing w: " << GC.original(w) << " because at beginning of layer" << endl;
+				std::cout << "not placing w: " << GC.original(w) << " because at beginning of layer" << std::endl;
 #endif
 			}
 			w = align[w];
 		} while (w != v);
-#ifdef DEBUG_OUTPUT
-		cout << "---END placeblock: " << GC.original(v) << " ---" << endl;
+#ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING
+		std::cout << "---END placeblock: " << GC.original(v) << " ---" << std::endl;
 #endif
 	}
 }
@@ -545,9 +548,7 @@ node FastSimpleHierarchyLayout::pred(const node v, const HierarchyLevelsBase &le
 	if ((leftToRight && pos != 0) || (!leftToRight && pos != level.high())) {
 		return level[leftToRight ? pos - 1 : pos + 1];
 	}
-	else {
-		return nullptr;
-	}
+	return nullptr;
 }
 
-} // end namespace ogdf
+}

@@ -35,7 +35,7 @@
 
 namespace ogdf {
 
-ostream& operator<<(ostream& os, const Stopwatch &stopwatch)
+std::ostream& operator<<(std::ostream& os, const Stopwatch &stopwatch)
 {
 	int64_t centiSeconds = stopwatch.centiSeconds();
 

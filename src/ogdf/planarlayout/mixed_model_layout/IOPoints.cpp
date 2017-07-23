@@ -55,7 +55,7 @@ ListConstIterator<InOutPoint> IOPoints::searchRealBackward(
 }
 
 
-void IOPoints::restoreDeg1Nodes(PlanRep &PG, Stack<PlanRep::Deg1RestoreInfo> &S)
+void IOPoints::restoreDeg1Nodes(PlanRep &PG, ArrayBuffer<PlanRep::Deg1RestoreInfo> &S)
 {
 	List<node> deg1s;
 
@@ -147,5 +147,4 @@ InOutPoint IOPoints::middleNeighbor(node z1) const
 	return *itFound;
 }
 
-
-} // end namespace ogdf
+}

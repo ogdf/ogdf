@@ -90,7 +90,7 @@ void ScalingLayout::call(MultilevelGraph &MLG)
 		{
 			MLG.moveToZero();
 #ifdef OGDF_DEBUG
-			cout << "Fix Scaling:  " << scalingFactor << " \n";
+			std::cout << "Fix Scaling:  " << scalingFactor << " \n";
 #endif
 			// scale to scaling
 			for (node v : G.nodes) {
@@ -127,7 +127,7 @@ void ScalingLayout::call(MultilevelGraph &MLG)
 					else //st_relativeToAvgLength
 						scaling = scalingFactor * avgDesiredEdgeLength / avgEdgeLength;
 #ifdef OGDF_DEBUG
-					cout << "Scaling: F/s " << scalingFactor << " " << scaling << "\n";
+					std::cout << "Scaling: F/s " << scalingFactor << " " << scaling << "\n";
 #endif
 				}
 
@@ -139,7 +139,7 @@ void ScalingLayout::call(MultilevelGraph &MLG)
 					MLG.y(v, MLG.y(v) * scaling);
 				}
 			}
-		}//no fix scaling
+		}
 
 		if (m_secondaryLayoutModule) {
 			for (unsigned int j = 1; j <= m_layoutRepeats; j++) {
@@ -190,4 +190,4 @@ void ScalingLayout::setDesiredEdgeLength(double eLength)
 	m_desEdgeLength = eLength;
 }
 
-} // namespace ogdf
+}

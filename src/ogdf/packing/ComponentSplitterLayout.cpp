@@ -112,10 +112,8 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 
 		// rotate component drawings and call the packer
 		reassembleDrawings(GA, nodesInCC);
-
-	}//if valid
+	}
 }
-
 
 // geometry helpers
 
@@ -217,7 +215,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		// calculate convex hull
 		DPolygon hull = CH.call(points);
 
-		double best_area = numeric_limits<double>::max();
+		double best_area = std::numeric_limits<double>::max();
 		DPoint best_normal;
 		double best_width = 0.0;
 		double best_height = 0.0;
@@ -249,8 +247,8 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 			}
 			double width = left - right;
 
-			dist = max(dist, 1.0);
-			width = max(width, 1.0);
+			Math::updateMax(dist, 1.0);
+			Math::updateMax(width, 1.0);
 
 			double area = dist * width;
 
@@ -304,7 +302,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		int w = static_cast<int>(best_width);
 		int h = static_cast<int>(best_height);
 		box.grow(1, IPoint(w + m_border, h + m_border));
-	}// components
+	}
 
 	offset.init(box.size());
 
@@ -336,11 +334,10 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 
 			GA.x(v) = x;
 			GA.y(v) = y;
-
-		}// while nodes in component
+		}
 
 		index++;
-	} // for components
+	}
 
 	//now we center the whole graph again
 	//TODO: why?
@@ -351,5 +348,4 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 #endif
 }
 
-
-} // namespace ogdf
+}

@@ -41,9 +41,7 @@ SimDraw::SimDraw()
 	m_GA.init(m_G, GraphAttributes::edgeSubGraphs);
 	m_compareBy = CompareBy::index;
 	m_isDummy.init(m_G, false);
-
-} // end constructor
-
+}
 
 // calls GraphAttributes::readGML
 void SimDraw::readGML(const char *fileName)
@@ -72,9 +70,7 @@ bool SimDraw::isProperDummy(node v) const
 	}
 
 	return sgb != 0;
-
-} // end isProperDummy
-
+}
 
 // returns number of dummies
 int SimDraw::numberOfDummyNodes() const
@@ -84,9 +80,7 @@ int SimDraw::numberOfDummyNodes() const
 		if(isDummy(v))
 			counter++;
 	return counter;
-
-} // end numberOfDummyNodes
-
+}
 
 // returns number of phantom dummies
 int SimDraw::numberOfPhantomDummyNodes() const
@@ -96,9 +90,7 @@ int SimDraw::numberOfPhantomDummyNodes() const
 		if(isPhantomDummy(v))
 			counter++;
 	return counter;
-
-} // end numberOfProperDummyNodes
-
+}
 
 // returns number of proper dummies
 int SimDraw::numberOfProperDummyNodes() const
@@ -108,24 +100,17 @@ int SimDraw::numberOfProperDummyNodes() const
 		if(isProperDummy(v))
 			counter++;
 	return counter;
+}
 
-} // end numberOfNonProperDummyNodes
-
-
-// checks whether graph and graphattributes belong to each other
-// checks whether all edges have nonzero edgesubgraph value
-// returns true if instance is ok
-bool SimDraw::consistencyCheck() const
+#ifdef OGDF_DEBUG
+void SimDraw::consistencyCheck() const
 {
-	if(&m_G != &(m_GA.constGraph()))
-		return false;
-	for(edge e : m_G.edges)
-		if(m_GA.subGraphBits(e) == 0)
-			return false;
-	return true;
-
-} // end consistencyCheck
-
+	OGDF_ASSERT(&m_G == &(m_GA.constGraph()));
+	for(edge e : m_G.edges) {
+		OGDF_ASSERT(m_GA.subGraphBits(e) != 0);
+	}
+}
+#endif
 
 // calculates maximum number of input graphs
 //
@@ -139,9 +124,7 @@ int SimDraw::maxSubGraph() const
 				max = i;
 	}
 	return max;
-
-} // end maxSubGraph
-
+}
 
 //returns number of basic graphs
 //
@@ -150,9 +133,7 @@ int SimDraw::numberOfBasicGraphs() const
 	if(m_G.empty())
 		return 0;
 	return maxSubGraph()+1;
-
-}//end numberOfBasicGraphs
-
+}
 
 // returns Graph consisting of all edges and nodes from SubGraph i
 //
@@ -176,9 +157,7 @@ const Graph SimDraw::getBasicGraph(int i) const
 			GC.delNode(v);
 
 	return GC;
-
-}//end getBasicGraph
-
+}
 
 // returns GraphAttributes associated with basic graph i
 //
@@ -271,8 +250,7 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 	for (node v : LN)
 		if (v->degree() == 0)
 			G.delNode(v);
-}//end getBasicGraphAttributes
-
+}
 
 //adds new GraphAttributes to m_G if maxSubgraph() < 32
 bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
@@ -327,9 +305,7 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 		}
 	}
 	return true;
-
-}// end addGraphAttributes
-
+}
 
 //adds the new Graph G to the instance m_G if maxSubGraph < 32
 //and CompareMode = index.
@@ -342,9 +318,7 @@ bool SimDraw::addGraph(const Graph & G)
 		GraphAttributes newGA(G);
 		return addGraphAttributes(newGA);
 	}
-
-}//end addGraph
-
+}
 
 //compares two nodes depending on the mode in m_CompareBy
 bool SimDraw::compare(const GraphAttributes & vGA, node v,
@@ -359,7 +333,6 @@ bool SimDraw::compare(const GraphAttributes & vGA, node v,
 		OGDF_ASSERT( false ); // m_compareBy is not set correctly
 		return false;
 	}
+}
 
-} // end compare
-
-} // end namespace ogdf
+}

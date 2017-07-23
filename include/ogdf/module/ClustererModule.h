@@ -72,7 +72,7 @@ private:
 	SimpleCluster* m_parent;
 	int m_index; //index of the constructed cluster
 
-};//class SimpleCluster
+};
 
 /**
  * \brief Interface for algorithms that compute a clustering for a
@@ -138,9 +138,6 @@ protected:
 	const Graph* m_pGraph; //the graph to be clustered
 
 	OGDF_MALLOC_NEW_DELETE
+};
 
-};//class ClustererModule
-
-
-
-} //end namespace ogdf
+}

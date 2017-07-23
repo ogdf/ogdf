@@ -210,12 +210,9 @@ protected:
 		return vP;
 	}
 
-
 	// auxiliary members used for computing pertinent graphs
 	mutable NodeArray<node> *m_cpV;       //!< node in pertinent graph corresponding to an original node (auxiliary member)
 	mutable SList<node>      m_cpVAdded;  //!< list of added nodes (auxiliary member)
+};
 
-}; // class SPQRTree
-
-
-} // end namespace ogdf
+}

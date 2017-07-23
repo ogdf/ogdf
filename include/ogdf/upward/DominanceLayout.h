@@ -55,7 +55,7 @@ public:
 		// set default module
 		m_upPlanarizer.reset(new SubgraphUpwardPlanarizer());
 
-		m_angle = 45.0 / 180.0 * Math::pi;
+		m_angle = Math::degreesToRadians(45.0);
 
 	}
 
@@ -108,8 +108,6 @@ private:
 	void compact(const UpwardPlanRep &UPR, GraphAttributes &GA);
 
 	void findTransitiveEdges(const UpwardPlanRep &UPR, List<edge> &edges);
-
 };
 
-
-}//namespace
+}

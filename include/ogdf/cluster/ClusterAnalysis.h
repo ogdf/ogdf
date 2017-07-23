@@ -69,11 +69,11 @@ public:
 	// Quantitative
 	//! Returns number of outeractive vertices of cluster c.
 	// @param c is the cluster for which the active vertices are counted
-	int outerActive(cluster c);
+	int outerActive(cluster c) const;
 
 	//! Returns number of inneractive vertices of cluster c.
 	// @param c is the cluster for which the active vertices are counted
-	int innerActive(cluster c);
+	int innerActive(cluster c) const;
 
 	//! Returns the highest (smallest) level depth for which a vertex
 	//! is inner or outer active.
@@ -97,8 +97,8 @@ public:
 	*  @param c is the cluster for which vertex v's activity status is stored.
 	*  @param v is the vertex for which the activity status is returned.
 	*/
-	bool isOuterActive(node v, cluster c);
-	bool isInnerActive(node v, cluster c);
+	bool isOuterActive(node v, cluster c) const;
+	bool isInnerActive(node v, cluster c) const;
 
 	//! Returns list of edges for cluster c with lca c.
 	List<edge>& lcaEdges(cluster c);
@@ -111,7 +111,7 @@ public:
 	int bagIndex(node v, cluster c);
 
 	//! Returns number of bags for cluster \p c.
-	int numberOfBags(cluster c);
+	int numberOfBags(cluster c) const;
 
 #if 0
 	//TODO

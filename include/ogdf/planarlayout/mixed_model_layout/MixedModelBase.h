@@ -101,7 +101,7 @@ private:
 
 	MMOrder  m_mmo;
 	IOPoints m_iops;
-	Stack<PlanRep::Deg1RestoreInfo> m_deg1RestoreStack;
+	ArrayBuffer<PlanRep::Deg1RestoreInfo> m_deg1RestoreStack;
 
 	Array<int> m_dyl, m_dyr;
 	Array<ListConstIterator<InOutPoint> > m_leftOp, m_rightOp;
@@ -126,5 +126,4 @@ private:
 	bool isRedundant(int x1, int y1, int x2, int y2, int x3, int y3);
 };
 
-
-} // end namespace ogdf
+}

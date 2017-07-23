@@ -257,5 +257,4 @@ void FPPLayout::computeCoordinates(const GraphCopy &G, IPoint &boundingBox, Grid
 	boundingBox = IPoint(xr, yt);
 }
 
-
-} //namespace ogdf
+}

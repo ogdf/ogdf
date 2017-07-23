@@ -43,10 +43,10 @@ template <class KeyType, class ItemType>
 class  AbaHash;
 
 template <class KeyType, class ItemType>
-ostream &operator<< (ostream &out, const AbaHashItem<KeyType, ItemType> &rhs);
+std::ostream &operator<< (std::ostream &out, const AbaHashItem<KeyType, ItemType> &rhs);
 
 template <class KeyType, class ItemType>
-ostream &operator<< (ostream &out, const AbaHash<KeyType, ItemType> &hash);
+std::ostream &operator<< (std::ostream &out, const AbaHash<KeyType, ItemType> &hash);
 
 
 //! Items in hash tables.
@@ -71,7 +71,7 @@ public:
 	/**
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<< <> (ostream &,
+	friend std::ostream &operator<< <> (std::ostream &,
 		const AbaHashItem<KeyType, ItemType> &);
 
 	//! Returns a pointer to the next hash-item stored in the linked list corresponding to the slot of this item.
@@ -148,7 +148,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<< <> (ostream &out,
+	friend std::ostream &operator<< <> (std::ostream &out,
 		const AbaHash<KeyType, ItemType> &hash);
 
 	//! Adds an item to the hash table.
@@ -336,6 +336,6 @@ public:
 	AbaHash &operator=(const AbaHash &rhs);
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/hash.inc>

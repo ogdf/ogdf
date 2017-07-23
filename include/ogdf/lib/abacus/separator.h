@@ -197,6 +197,6 @@ private:
 		&operator=(const Separator<BaseType, CoType> & rhs);
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/separator.inc>

@@ -226,5 +226,4 @@ public:
 	//@}
 };
 
-
-} // end namespace ogdf
+}

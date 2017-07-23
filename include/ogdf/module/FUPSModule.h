@@ -93,4 +93,4 @@ protected:
 
 };
 
-} // end namespace ogdf
+}

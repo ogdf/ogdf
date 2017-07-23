@@ -146,5 +146,4 @@ protected:
 	Graph m_M;              //!< actual skeleton graph
 };
 
-
-} // end namespace ogdf
+}

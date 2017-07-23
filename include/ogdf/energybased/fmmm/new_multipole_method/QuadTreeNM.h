@@ -43,8 +43,8 @@ class QuadTreeNM
 {
 
 public:
-	QuadTreeNM();      //!< constructor
-	~QuadTreeNM() { }  //!< destructor
+	//! Constructor
+	QuadTreeNM();
 
 	//! Deletes the tree starting at node_ptr.
 	void delete_tree(QuadTreeNodeNM* node_ptr);
@@ -75,7 +75,7 @@ public:
 		if (act_ptr->get_father_ptr() != nullptr)
 			act_ptr = act_ptr->get_father_ptr();
 		else
-			cout<<"Error QuadTreeNM: No father Node exists";
+			std::cout << "Error QuadTreeNM: No father Node exists";
 	}
 
 	//! Sets act_ptr to the left_top_child_ptr.
@@ -119,8 +119,8 @@ public:
 	void create_new_rb_child();
 
 	//! Returns the actual/root node pointer of the tree.
-	QuadTreeNodeNM*  get_act_ptr() { return act_ptr; }
-	QuadTreeNodeNM*  get_root_ptr() { return root_ptr; }
+	QuadTreeNodeNM* get_act_ptr() const { return act_ptr; }
+	QuadTreeNodeNM* get_root_ptr() const { return root_ptr; }
 
 	//! Sets root_ptr to r_ptr.
 	void set_root_ptr(QuadTreeNodeNM* r_ptr) { root_ptr = r_ptr; }

@@ -222,4 +222,4 @@ void EdgeStandardRep::hyperedgeToTree(hyperedge e, int degree)
 	}
 }
 
-} // end namespace ogdf
+}

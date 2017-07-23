@@ -1,7 +1,7 @@
 /** \file
  * \brief Test helpers for layout algorithms
  *
- * \author Carsten Gutwenger, Tilo Wiedera
+ * \author Tilo Wiedera
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -31,80 +31,30 @@
 
 #pragma once
 
-#include <set>
+#include <iomanip>
 #include <random>
-#include <bandit/bandit.h>
-#include <resources.h>
+#include <regex>
 
+#include <ogdf/basic/DisjointSets.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/module/LayoutModule.h>
-#include <ogdf/module/GridLayoutModule.h>
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/LayoutStatistics.h>
 
-namespace ogdf {
+#include <ogdf/planarity/PlanarSubgraphCactus.h>
+#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 
-constexpr int MAX_NODES = 200;
-constexpr int MIN_NODES = 25;
-constexpr int STEP_SIZE = 50;
+#include <graphs.h>
 
-enum class GraphRequirement {
-	planar,
-	triconnected,
-	connected
-};
+//#define OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 
-inline void insertGraph(Graph &g, const Graph &g2)
-{
-	NodeArray<node> map(g2);
+#define TEST_LAYOUT(TYPE, ...) describeLayout<TYPE>(string(#TYPE), 0, {__VA_ARGS__})
 
-	for(node v : g2.nodes)
-		map[v] = g.newNode();
-
-	for(edge e: g2.edges)
-		g.newEdge(map[e->source()], map[e->target()]);
+#ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
+namespace layout_helpers {
+	int drawingCounter = 0;
 }
-
-inline void createDisconnectedGraph(
-	Graph &G,
-	int n_max,
-	double density_min,
-	double density_max,
-	int cc)
-{
-	int n = randomNumber(3,n_max);
-	int m = randomNumber((int)(density_min*n),(int)(density_max*n));
-	int b = n/25+1;
-	planarCNBGraph(G, n/b+1, m/b+1, b);
-
-	for(int i = cc-1; i > 0; --i) {
-		Graph g2;
-		n = randomNumber(3,n);
-		m = randomNumber((int)(density_min*n),(int)(density_max*n));
-		b = n/25+1;
-		planarCNBGraph(g2, n/b+1, m/b+1, b);
-		insertGraph(G,g2);
-	}
-}
-
-inline void createAlmostPlanarGraph(Graph &G, int n, int m, int add_m)
-{
-	planarBiconnectedGraph(G, n, m);
-
-	Array<node> table(n);
-
-	int i = 0;
-	for(node v : G.nodes) {
-		OGDF_ASSERT(i < n);
-		table[i++] = v;
-	}
-
-	for(i = 0; i < add_m; ++i) {
-		G.newEdge(table[randomNumber(0, n-1)], table[randomNumber(0, n-1)]);
-	}
-
-	makeSimpleUndirected(G);
-}
+#endif
 
 inline void getRandomLayout(GraphAttributes &GA)
 {
@@ -122,33 +72,98 @@ inline void getRandomLayout(GraphAttributes &GA)
 	}
 }
 
-inline int64_t callLayout(const Graph &G, LayoutModule &L, bool isGridLayout, long extraAttributes)
+//! Calls the layout algorithm \p L on \p G.
+/**
+ * Executes the layout algorithm, prints statistics and performs several assertions.
+ *
+ * @param name Name of the instance. Used only for debug output.
+ * @param G Input graph.
+ * @param L Algorithm to execute.
+ * @param extraAttributes GraphAttribute flags that this algorithm requires (besides graphics and style).
+ * @param algoPlanarizes Whether the algorithm planarizes non-planar graphs internally (i.e., produces drawings with a reasonable crossing number).
+ * @param algoRequiresPlanar Whether the algorithm requires planar graphs (not necessarily embeddings) as input.
+ * @param instanceIsPlanar Whether \p L is a planar graph.
+ *
+ **/
+inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, long extraAttributes, bool algoPlanarizes, bool algoRequiresPlanar, bool instanceIsPlanar)
 {
-	int64_t T;
+	GraphAttributes GA(G, extraAttributes | GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
+	getRandomLayout(GA);
 
-	if(isGridLayout) {
-		GridLayout gl;
-		System::usedRealTime(T);
-		((GridLayoutModule*)&L)->callGrid(G, gl);
-	}
-	else {
-		extraAttributes |= GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics;
-		GraphAttributes GA(G, extraAttributes);
-		getRandomLayout(GA);
-		System::usedRealTime(T);
-		L.call(GA);
-	}
-	return System::usedRealTime(T);
-}
+	int64_t result;
+	int64_t time;
+	System::usedRealTime(time);
+	L.call(GA);
+	result = System::usedRealTime(time);
 
-inline bool doesNotInclude(const std::set<GraphRequirement> &req, std::initializer_list<GraphRequirement> values) {
-	for(auto v : values) {
-		if(req.find(v) != req.end()) {
-			return false;
+#ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
+	double sumWidths = 0;
+	double sumHeights = 0;
+
+	GA.addAttributes(GraphAttributes::nodeLabel | GraphAttributes::edgeArrow);
+
+	for (node v : G.nodes) {
+		sumWidths += GA.width(v);
+		sumHeights += GA.height(v);
+
+		GA.fillColor(v) = Color::Name::Red;
+		GA.strokeColor(v) = Color::Name::Black;
+		GA.label(v) = to_string(v->index());
+	}
+
+	for(edge e : G.edges) {
+		GA.strokeWidth(e) = 1;
+		GA.strokeColor(e) = Color::Name::Blue;
+		GA.arrowType(e) = EdgeArrow::Last;
+	}
+
+	GA.scale(sumWidths / GA.boundingBox().width(), sumHeights / GA.boundingBox().height(), false);
+	GA.scale(1.5, false);
+
+	std::regex reg("\\W+");
+	string filename = name;
+	std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+	std::ofstream of("drawing-" + std::regex_replace(filename, reg, "_")
+	               + "-n=" + to_string(G.numberOfNodes()) + "-m=" + to_string(G.numberOfEdges())
+	               + "-" + to_string(layout_helpers::drawingCounter) + ".svg");
+	GraphIO::drawSVG(GA, of);
+	layout_helpers::drawingCounter++;
+#endif
+
+	string indent = "        ";
+	std::cout << std::endl;
+	double resolution = (LayoutStatistics::angularResolution(GA)*100)/(2*Math::pi);
+	std::cout << indent << "angular resolution: " << std::setw(9) << std::setprecision(2) << std::fixed << resolution << " %" << std::endl;
+	std::cout << indent << "average edge length: " << std::setw(8) << LayoutStatistics::edgeLengths(GA) / (1.0 * G.numberOfEdges()) << std::endl;
+	std::cout << indent << "average bends per edge: " << std::setw(5) << LayoutStatistics::numberOfBends(GA) / (1.0 * G.numberOfEdges()) << std::endl;
+
+	// Assert that we do not have any needless bendpoints
+	for(edge e : G.edges) {
+		auto toPoint = [&](node v) { return DPoint(GA.x(v), GA.y(v)); };
+		DPolyline bends = GA.bends(e);
+
+		if(!bends.empty()) {
+			AssertThat(bends.front(), !Equals(toPoint(e->source())));
+			AssertThat(bends.back(), !Equals(toPoint(e->target())));
+		}
+
+		int size = bends.size();
+		bends.normalize();
+		AssertThat(bends.size(), Equals(size));
+	}
+
+	// Assume that any layout algorithm that requires planar graphs or planarize produces planar drawings
+	if(algoPlanarizes || algoRequiresPlanar) {
+		int crossingNumber = LayoutStatistics::numberOfCrossings(GA);
+
+		std::cout << indent << "crossing number: " << std::setw(9) << crossingNumber << std::endl;
+
+		if(instanceIsPlanar) {
+			AssertThat(crossingNumber, Equals(0));
 		}
 	}
 
-	return true;
+	return result;
 }
 
 /**
@@ -163,146 +178,40 @@ inline bool doesNotInclude(const std::set<GraphRequirement> &req, std::initializ
  * \param extraAttributes
  *  init attributes for GraphAttributes
  * \param req
- * 	the requirements for graphs to be drawn, see GraphRequirementFlags for details
- * \param maxNodes
- * 	the maximum number of nodes the algorithm should be tested on
- * \param isGridLayout
- * 	set this to true if the layout module is a grid layout module
- * \param skipTreeWithProbablyNegativeCoordinates
- *  set this to true if the file negative_coordinates_tree.gml should be skipped
+ * 	the requirements for graphs to be drawn, see GraphPropertyFlags for details
+ * \param sizes
+ * 	determines the approximate number of nodes (and instances) of randomly generated graphs
+ * \param planarizes
+ * 	whether the layout computes a planarization (i.e., we can expect few crossings for non-planar graphs)
  * \param skipMe
  *  set this to true to skip the entire test
  */
-inline void describeLayoutModule(
+inline void describeLayout(
   const std::string name,
   LayoutModule &L,
   long extraAttributes = 0,
-  std::set<GraphRequirement> req = {},
-  int maxNodes = MAX_NODES,
-  bool isGridLayout = false,
+  std::set<GraphProperty> req = {},
+  bool planarizes = false,
+  const GraphSizes& sizes = GraphSizes(),
   bool skipMe = false)
 {
-	maxNodes = max(maxNodes, MIN_NODES+1);
-	int steps = static_cast<int>(ceil((maxNodes-MIN_NODES) / static_cast<double>(STEP_SIZE)));
-	auto performTest = [&](){
-		auto call = [&](const Graph &G) {
-			return callLayout(G, L, isGridLayout, extraAttributes);
-		};
-
-		if(doesNotInclude(req, {GraphRequirement::triconnected})) {
-			bandit::it("works on trees", [&](){
-				int64_t time = 0;
-				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-					Graph G;
-					randomTree(G, n);
-					time += call(G);
-				}
-				cout << endl << "      average time was " << time/steps << "ms" << endl;
-			});
-
-			for_each_graph_it("works on a tree with probably negative coordinates",
-			                  { "misc/negative_coordinates_tree.gml" },
-			                  [&](Graph &G, const string &filename) { call(G); });
-
-			bandit::it("works on planar connected graphs", [&](){
-				int64_t time = 0;
-				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-					Graph G;
-					planarConnectedGraph(G, n, randomNumber(n, 2*n));
-					makeSimpleUndirected(G);
-					time += call(G);
-				}
-				cout << endl << "      average time was " << time/steps << "ms" << endl;
-			});
-
-			bandit::it("works on planar biconnected graphs", [&](){
-				int64_t time = 0;
-				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-					Graph G;
-					planarBiconnectedGraph(G, n, randomNumber(3*n/2, 2*n));
-					time += call(G);
-				}
-				cout << endl << "      average time was " << time/steps << "ms" << endl;
-			});
-		}
-
-		bandit::it("works on planar triconnected graphs", [&](){
-			int64_t time = 0;
-			for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-				Graph G;
-				planarTriconnectedGraph(G, n, .5, .5);
-				time += call(G);
-			}
-			cout << endl << "      average time was " << time/steps << "ms" << endl;
-		});
-
-		if(doesNotInclude(req, {GraphRequirement::planar, GraphRequirement::triconnected})) {
-			bandit::it("works on almost planar graphs", [&](){
-				int64_t time = 0;
-				for(int n = MIN_NODES; n < MAX_NODES; n += STEP_SIZE) {
-					Graph G;
-					createAlmostPlanarGraph(G, n, 2*n, 10);
-					time += call(G);
-				}
-				cout << endl << "      average time was " << time/steps << "ms" << endl;
-			});
-
-			bandit::it("works on biconnected graphs", [&](){
-				int64_t time = 0;
-				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-					Graph G;
-					randomBiconnectedGraph(G, n, n*(n-1)/6);
-					makeSimpleUndirected(G);
-					time += call(G);
-				}
-				cout << endl << "      average time was " << time/steps << "ms" << endl;
-			});
-
-			if(doesNotInclude(req, {GraphRequirement::connected})) {
-				bandit::it("works on disconnected graphs", [&](){
-					int64_t time = 0;
-					for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-						Graph G;
-						createDisconnectedGraph(G, n/7, 1.4, 2.6, 7);
-						time += call(G);
-					}
-					cout << endl << "      average time was " << time/steps << "ms" << endl;
-				});
-			}
-		}
-	};
-
-	if(skipMe) {
-		bandit::describe_skip(name, performTest);
-	} else {
-		bandit::describe(name, performTest);
-	}
+	describe(name, [&] {
+		forEachGraphItWorks(req, [&](const Graph& G, const std::string& graphName, const std::set<GraphProperty>& props) {
+			callLayout(graphName, G, L, extraAttributes, planarizes,
+					doesInclude({GraphProperty::planar}, req),
+					doesInclude({GraphProperty::planar}, props));
+		}, sizes);
+	}, skipMe);
 }
 
-/**
- * Runs several tests for a given layout module.
- * The layout algorithm is executed for different graphs.
- * There are no assertions yet.
- *
- * \param name
- * 	the name to be used for describing this module
- * \param L
- * 	the module to be tested
- * \param req
- * 	the requirements for graphs to be drawn, see GraphRequirementFlags for details
- * \param maxNodes
- * 	the maximum number of nodes the algorithm should be tested on
- * \param isGridLayout
- * 	set this to true if the layout module is a grid layout module
- **/
-inline void describeGridLayoutModule(
-  const std::string name,
-  GridLayoutModule &L,
-  std::initializer_list<GraphRequirement> req = {},
-  int maxNodes = MAX_NODES,
-  bool skipMe = false)
-{
-	describeLayoutModule(name, L, 0, req, maxNodes, true, skipMe);
-}
-
+template<typename T>
+inline void describeLayout(
+  const string &name,
+  int extraAttr = 0,
+  std::set<GraphProperty> req = {},
+  bool planarizes = false,
+  const GraphSizes& sizes = GraphSizes(),
+  bool skipMe = false) {
+	T layout;
+	describeLayout(name, layout, extraAttr, req, planarizes, sizes, skipMe);
 }

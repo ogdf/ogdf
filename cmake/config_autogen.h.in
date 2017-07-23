@@ -2,6 +2,7 @@
 
 #ifndef NDEBUG
   #cmakedefine OGDF_DEBUG
+  #cmakedefine OGDF_HEAVY_DEBUG
 #endif
 
 #ifdef OGDF_DEBUG
@@ -30,3 +31,4 @@
 #endif
 
 #cmakedefine OGDF_SSE3_EXTENSIONS @OGDF_SSE3_EXTENSIONS@
+#cmakedefine OGDF_HAS_LINUX_CPU_MACROS

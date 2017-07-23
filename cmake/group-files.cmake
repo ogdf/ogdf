@@ -2,7 +2,7 @@
 function(group_files SOURCES)
   foreach(SOURCE_FILE ${${SOURCES}})
     get_filename_component(GROUP "${SOURCE_FILE}" PATH)
-    string(REPLACE "${CMAKE_SOURCE_DIR}" "" GROUP "${GROUP}")
+    string(REPLACE "${PROJECT_SOURCE_DIR}" "" GROUP "${GROUP}")
     string(REPLACE "/" "\\" GROUP "${GROUP}")
 
     set(GROUP "${GROUP}\\")

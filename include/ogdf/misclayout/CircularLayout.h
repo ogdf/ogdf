@@ -148,10 +148,7 @@ private:
 		const Array<double> &outerRadius,
 		Array<double> &preferedAngle,
 		int c,
-		int l,
 		double r1);
-
 };
 
-
-} // end namespace ogdf
+}

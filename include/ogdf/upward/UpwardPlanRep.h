@@ -141,20 +141,20 @@ public:
 
 	// debug
 	void outputFaces(const CombinatorialEmbedding &embedding) const {
-		cout << endl << "Face UPR " << endl;
+		std::cout << std::endl << "Face UPR " << std::endl;
 		for (face f : embedding.faces) {
-			cout << "face " << f->index() << ": ";
+			std::cout << "face " << f->index() << ": ";
 			adjEntry adjNext = f->firstAdj();
 			do {
-				cout << adjNext->theEdge() << "; ";
+				std::cout << adjNext->theEdge() << "; ";
 				adjNext = adjNext->faceCycleSucc();
 			} while (adjNext != f->firstAdj());
-			cout << endl;
+			std::cout << std::endl;
 		}
 		if (embedding.externalFace() != nullptr)
-			cout << "ext. face of the graph is: " << embedding.externalFace()->index() << endl;
+			std::cout << "ext. face of the graph is: " << embedding.externalFace()->index() << std::endl;
 		else
-			cout << "no ext. face set." << endl;
+			std::cout << "no ext. face set." << std::endl;
 	}
 
 
@@ -195,7 +195,6 @@ private:
 	void removeSinkArcs(SList<adjEntry> &crossedEdges);
 
 	void constructSinkArcs(face f, node t);
+};
 
-};//UpwardPlanRep
-
-} // end namespace ogdf
+}

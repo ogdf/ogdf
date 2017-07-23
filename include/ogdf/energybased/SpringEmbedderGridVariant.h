@@ -1,5 +1,5 @@
 /** \file
- * \brief Declaration of Spring-Embedder Grid Variant algorithm.
+ * \brief Declaration of ogdf::SpringEmbedderGridVariant.
  *
  * \author Carsten Gutwenger
  *
@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/energybased/SpringForceModel.h>
 #include <ogdf/basic/GraphCopyAttributes.h>
@@ -78,187 +78,15 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT SpringEmbedderGridVariant : public LayoutModule
+class OGDF_EXPORT SpringEmbedderGridVariant : public spring_embedder::SpringEmbedderBase
 {
 public:
-	//! The scaling method used by the algorithm.
-	enum class Scaling {
-		input,             //!< bounding box of input is used.
-		userBoundingBox,   //!< bounding box set by userBoundingBox() is used.
-		scaleFunction,     //!< automatic scaling is used with parameter set by scaleFunctionFactor() (larger factor, larger b-box).
-		useIdealEdgeLength //!< use the given ideal edge length to scale the layout suitably.
-	};
-
-
-	//! Creates an instance of Fruchterman/Reingold layout.
-	SpringEmbedderGridVariant();
-
-	// destructor
-	~SpringEmbedderGridVariant() { }
-
-
-	//! Calls the layout algorithm for graph attributes \p GA.
-	virtual void call(GraphAttributes &GA) override;
-
-#if 0
-	void call_mt(GraphAttributes &GA);
-#endif
-
-	//! Returns the currently used force model.
-	SpringForceModel forceModel() const {
-		return m_forceModel;
+	SpringEmbedderGridVariant() {
+		m_forceLimitStep = .5;
 	}
 
-	//! Sets the used force model to \p fm.
-	void forceModel(SpringForceModel fm) {
-		m_forceModel = fm;
-	}
-
-	//! Returns the currently used force model for the improvement step.
-	SpringForceModel forceModelImprove() const {
-		return m_forceModelImprove;
-	}
-
-	//! Sets the used force model for the improvement step to \p fm.
-	void forceModelImprove(SpringForceModel fm) {
-		m_forceModelImprove = fm;
-	}
-
-	//! Returns the currently used <i>average convergence factor</i>.
-	/**
-	 * This factor is used for detecting convergence of the energy system.
-	 * With respect to the average displacement of a node in a single step, we assume
-	 * to have convergence if it is at most #m_avgConvergenceFactor * #m_idealEdgeLength.
-	 */
-	double avgConvergenceFactor() const {
-		return m_avgConvergenceFactor;
-	}
-
-	//! Sets the <i>average convergence factor</i> to \p f.
-	void avgConvergenceFactor(double f) {
-		if(f >= 0)
-			m_avgConvergenceFactor = f;
-	}
-
-	//! Returns the currently used <i>maximum</i> convergence factor.
-	/**
-	 * This factor is used for detecting convergence of the energy system.
-	 * With respect to the maximum displacement of a node in a single step, we assume
-	 * to have convergence if it is at most #m_maxConvergenceFactor * #m_idealEdgeLength.
-	 */
-	double maxConvergenceFactor() const {
-		return m_maxConvergenceFactor;
-	}
-
-	//! Sets the <i>maximum</i> convergence factor to \p f.
-	void maxConvergenceFactor(double f) {
-		if(f >= 0)
-			m_maxConvergenceFactor = f;
-	}
-
-	//! Returns the current setting of iterations.
-	/**
-	 * This setting limits the number of optimization rounds. If convergence (with respect to node displacement)
-	 * is detected, the optimization process is immediately finished.
-	 */
-	int iterations() const {
-		return m_iterations;
-	}
-
-	//! Sets the number of iterations to \p i.
-	void iterations(int i) {
-		if (i >= 0)
-			m_iterations = i;
-	}
-
-	//! Returns the current setting of iterations for the improvement phase.
-	int iterationsImprove() const {
-		return m_iterationsImprove;
-	}
-
-	//! Sets the number of iterations for the improvement phase to \p i.
-	void iterationsImprove(int i) {
-		if (i >= 0)
-			m_iterationsImprove = i;
-	}
-
-	//! Returns the current setting of ideal edge length.
-	double idealEdgeLength() const {
-		return m_idealEdgeLength;
-	}
-
-	double coolDownFactor() const {
-		return m_coolDownFactor;
-	}
-
-	double forceLimitStep() const {
-		return m_forceLimitStep;
-	}
-
-	//! Sets the ideal edge length to \p len.
-	/**
-	 * Edge lengths are measured between the centers of the two nodes, i.e.,
-	 * node sizes are not taken into account.
-	 */
-	void idealEdgeLength(double len) {
-		m_idealEdgeLength = len;
-	}
-
-	//! Returns the current setting of noise.
-	bool noise() const {
-		return m_noise;
-	}
-
-	//! Sets the parameter noise to \p on.
-	void noise(bool on) {
-		m_noise = on;
-	}
-
-	//! Returns the minimum distance between connected components.
-	double minDistCC() const { return m_minDistCC; }
-
-	//! Sets the minimum distance between connected components to \p x.
-	void minDistCC(double x) { m_minDistCC = x; }
-
-	//! Returns the page ratio.
-	double pageRatio() { return m_pageRatio; }
-
-	//! Sets the page ration to \p x.
-	void pageRatio(double x) { m_pageRatio = x; }
-
-	//! Returns the current scaling method.
-	Scaling scaling() const {
-		return m_scaling;
-	}
-
-	//! Sets the method for scaling the inital layout to \p sc.
-	void scaling(Scaling sc) {
-		m_scaling = sc;
-	}
-
-	//! Returns the current scale function factor.
-	double scaleFunctionFactor() const {
-		return m_scaleFactor;
-	}
-
-	//! Sets the scale function factor to \p f.
-	void scaleFunctionFactor(double f) {
-		m_scaleFactor = f;
-	}
-
-	//! Sets the user bounding box (used if scaling method is scUserBoundingBox).
-	void userBoundingBox(double xmin, double ymin, double xmax, double ymax) {
-		m_bbXmin = xmin;
-		m_bbYmin = ymin;
-		m_bbXmax = xmax;
-		m_bbYmax = ymax;
-	}
-
-	//! Returns the maximal number of used threads.
-	unsigned int maxThreads() const { return m_maxThreads; }
-
-	//! Sets the maximal number of used threads to \p n.
-	void maxThreads(unsigned int n) { m_maxThreads = n; }
+protected:
+	void callMaster(const GraphCopy& copy, GraphAttributes& attr, DPoint& box) override;
 
 private:
 	struct NodeInfo
@@ -274,7 +102,6 @@ private:
 		ListIterator<int> m_lit;
 	};
 
-
 	class ForceModelBase;
 	class ForceModelFR;
 	class ForceModelFRModAttr;
@@ -285,38 +112,6 @@ private:
 
 	class Master;
 	class Worker;
-
-	int    m_iterations;         //!< The number of iterations.
-	int    m_iterationsImprove;  //!< The number of iterations for the improvement phase.
-	double m_idealEdgeLength;    //!< The ideal edge length.
-	double m_coolDownFactor;
-	double m_forceLimitStep;
-
-	double m_xleft;       //!< Bounding box (minimal x-coordinate).
-	double m_xright;      //!< Bounding box (maximal x-coordinate).
-	double m_ysmall;      //!< Bounding box (minimal y-coordinate).
-	double m_ybig;        //!< Bounding box (maximal y-coordinate).
-
-	SpringForceModel m_forceModel; //! The used force model.
-	SpringForceModel m_forceModelImprove; //! The used force model for the improvement phase.
-	bool m_noise;            //!< Perform random perturbations?
-
-	Scaling m_scaling;    //!< The scaling method.
-	double m_scaleFactor; //!< The factor used if scaling type is scScaleFunction.
-
-	double m_bbXmin; //!< User bounding box (minimal x-coordinate).
-	double m_bbYmin; //!< User bounding box (maximal x-coordinate).
-	double m_bbXmax; //!< User bounding box (minimal y-coordinate).
-	double m_bbYmax; //!< User bounding box (maximal y-coordinate).
-
-	double m_minDistCC; //!< The minimal distance between connected components.
-	double m_pageRatio; //!< The page ratio.
-
-	double m_avgConvergenceFactor; //!< convergence if avg. displacement is at most this factor times ideal edge length
-	double m_maxConvergenceFactor; //!< convergence if max. displacement is at most this factor times ideal edge length
-
-	unsigned int m_maxThreads;	//!< The maximal number of used threads.
 };
 
-
-} // end namespace ogdf
+}

@@ -61,7 +61,7 @@ public:
 	}
 
 	//! Initializes a planar subgraph module (copy constructor).
-	PlanarSubgraphModule(const PlanarSubgraphModule &psm) : Timeouter(psm) {
+	PlanarSubgraphModule(const PlanarSubgraphModule<TCost> &psm) : Timeouter(psm) {
 		m_maxThreads = psm.m_maxThreads;
 	}
 
@@ -209,9 +209,7 @@ protected:
 		const EdgeArray<TCost>  *pCost = nullptr,
 		bool preferredImplyPlanar = false) = 0;
 
-
-
 	OGDF_MALLOC_NEW_DELETE
 };
 
-} // end namespace ogdf
+}

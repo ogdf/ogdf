@@ -58,7 +58,7 @@ void LineBufferPosition::set(int lineNumber, int lineUpdateCount, int linePositi
 	m_lineUpdateCount = lineUpdateCount;
 	m_linePosition = linePosition;
 
-} // set
+}
 
 void LineBufferPosition::incrementPosition()
 {
@@ -66,7 +66,7 @@ void LineBufferPosition::incrementPosition()
 
 	OGDF_ASSERT(m_linePosition >= 0);
 
-} // increasePosition
+}
 
 bool LineBufferPosition::operator!=(const LineBufferPosition &position) const
 {
@@ -74,7 +74,7 @@ bool LineBufferPosition::operator!=(const LineBufferPosition &position) const
 	    || m_lineUpdateCount != position.m_lineUpdateCount
 	    || m_linePosition != position.m_linePosition;
 
-} // operator!=
+}
 
 LineBufferPosition &
 LineBufferPosition::operator=(const LineBufferPosition &position)
@@ -89,10 +89,9 @@ LineBufferPosition::operator=(const LineBufferPosition &position)
 
 	return *this;
 
-} // operator=
+}
 
-
-LineBuffer::LineBuffer(istream &is) :
+LineBuffer::LineBuffer(std::istream &is) :
 	m_pIs(&is),
 	m_numberOfMostRecentlyReadLine(0),
 	m_inputFileLineCounter(0)
@@ -116,20 +115,18 @@ LineBuffer::LineBuffer(istream &is) :
 
 		// Increase updateCount
 		++(m_lineUpdateCountArray[0]);
-
 	}
 
 	// Set position
 	m_currentPosition.set(0, m_lineUpdateCountArray[0], 0);
 
-} // LineBuffer::LineBuffer
+}
 
 LineBuffer::~LineBuffer()
 {
-} // LineBuffer::~LineBuffer
+}
 
 char LineBuffer::moveToNextCharacter(){
-
 	// Return if end of file is reached
 	if (getCurrentCharacter() == EOF){
 		return EOF;
@@ -173,8 +170,7 @@ char LineBuffer::moveToNextCharacter(){
 				m_linBuf.push("");
 				std::getline(*m_pIs, m_linBuf[m_numberOfMostRecentlyReadLine]);
 			}
-
-		} // Current line is equal to most recently read line
+		}
 
 		// Current line is NOT equal to most recently read line, i.e.
 		// it is not necessary to read a new line from the file but to
@@ -184,17 +180,13 @@ char LineBuffer::moveToNextCharacter(){
 			// Set current position
 			const int newLine = m_currentPosition.getLineNumber() + 1;
 			m_currentPosition.set(newLine, m_lineUpdateCountArray[newLine], 0);
-
-		} // Current line is NOT equal to most recently read line
-
-	} // End of line is reached
+		}
+	}
 
 	return getCurrentCharacter();
-
-} // moveToNextCharacter
+}
 
 bool LineBuffer::setCurrentPosition(const LineBufferPosition &newPosition){
-
 	// Given positon is not valid
 	if (!isValidPosition(newPosition))
 	{
@@ -204,12 +196,10 @@ bool LineBuffer::setCurrentPosition(const LineBufferPosition &newPosition){
 	m_currentPosition = newPosition;
 
 	return true;
-
-} // setCurrentPosition
+}
 
 void LineBuffer::skipWhitespace()
 {
-
 	if (getCurrentCharacter() == EOF) {
 		return;
 	}
@@ -218,8 +208,7 @@ void LineBuffer::skipWhitespace()
 	{
 		moveToNextCharacter();
 	}
-
-} // skipWhitespace
+}
 
 bool LineBuffer::extractString(
 	const LineBufferPosition &startPosition,
@@ -256,25 +245,21 @@ bool LineBuffer::extractString(
 
 		// Move to next character
 		moveToNextCharacter();
-
-	} // Copy characters to tempString
+	}
 
 	// Set back the original current position
 	setCurrentPosition(originalCurrentPosition);
 
 	return true;
-
-} // extractString
+}
 
 bool LineBuffer::isValidPosition(const LineBufferPosition &position) const
 {
-
 	// We can assume that the position is valid according to
 	// array ranges since these things are checked in constructor and set of
 	// class LineBufferPosition
 
 	return position.getLineUpdateCount() == m_lineUpdateCountArray[position.getLineNumber()];
+}
 
-} // isValidPosition
-
-} // namespace ogdf
+}

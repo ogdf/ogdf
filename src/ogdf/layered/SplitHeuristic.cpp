@@ -109,4 +109,4 @@ void SplitHeuristic::recCall(Level &L, int low, int high)
 	recCall(L,up+1,high);
 }
 
-} // end namespace ogdf
+}

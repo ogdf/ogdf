@@ -223,7 +223,7 @@ protected:
 	void cpRec (node v, PertinentGraph& Gp) const override
 	{
 		v = findSPQR(v);
-		for (ListConstIterator<edge> i=m_tNode_hEdges[v].begin(); i.valid(); ++i) {
+		for (ListConstIterator<edge> i=m_tNode_hEdges[v]->begin(); i.valid(); ++i) {
 			edge e = m_hEdge_gEdge[*i];
 			if (e) cpAddEdge(e,Gp);
 			else if (*i!=m_tNode_hRefEdge[v]) cpRec(spqrproper(*i),Gp);
@@ -237,7 +237,6 @@ protected:
 	mutable EdgeArray<edge>             m_skelEdge;  //!< copies of real and virtual edges in their skeleton graphs (invalid, if the skeleton does not actually exist)
 	mutable NodeArray<node>             m_mapV;      //!< temporary array used by \a createSkeleton()
 
-}; // class DynamicSPQRTree
+};
 
-
-} // end namespace ogdf
+}

@@ -119,15 +119,6 @@ bool prefixIgnoreCase(const string &prefix, const string &str)
 		std::equal(prefix.begin(), prefix.end(), str.begin(), charCompareIgnoreCase));
 }
 
-// debug level (in debug build only)
-#ifdef OGDF_DEBUG
-DebugLevel debugLevel;
-
-bool debugLevelIsAtLeast(const DebugLevel& dl) {
-	return static_cast<int>(ogdf::debugLevel) >= static_cast<int>(dl);
-}
-#endif
-
 static std::mt19937 s_random;
 
 #ifndef OGDF_MEMORY_POOL_NTS
@@ -196,4 +187,4 @@ double usedTime(double& T)
 	return T - t;
 }
 
-} // end namespace ogdf
+}

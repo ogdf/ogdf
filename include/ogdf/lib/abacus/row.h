@@ -126,7 +126,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream& out, const Row &rhs);
+	friend std::ostream &operator<<(std::ostream& out, const Row &rhs);
 
 	//! Returns the right hand side stored in the row format.
 	double rhs() const { return rhs_; }
@@ -181,4 +181,4 @@ protected:
 };
 
 
-} //namespace abacus
+}

@@ -291,8 +291,6 @@ public:
 	cluster clusterOf(node v) { return m_pClusterGraph->clusterOf(v); }
 
 	//@}
-
 };
 
-
-} // end namespace ogdf
+}

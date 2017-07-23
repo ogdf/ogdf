@@ -89,7 +89,6 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 					tgt.pushBack(v);
 			}
 		}
-		//NodePair *st =
 		insertShell(gc, src, tgt, fixedShell);
 	}
 
@@ -205,7 +204,7 @@ void HypergraphLayoutES::packAllCC(const PlanRep &planarRep,
 }
 
 
-NodePair * HypergraphLayoutES::insertShell
+void HypergraphLayoutES::insertShell
 	(GraphCopySimple &G, List<node> &src, List<node> &tgt, List<edge> &fixedShell)
 {
 	OGDF_ASSERT(src.size() > 0);
@@ -220,8 +219,6 @@ NodePair * HypergraphLayoutES::insertShell
 		fixedShell.pushBack(G.newEdge(*it, t));
 
 	G.newEdge(s, t);
-
-	return new NodePair(s, t);
 }
 
 
@@ -257,4 +254,4 @@ void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 	}
 }
 
-} // end namespace ogdf
+}

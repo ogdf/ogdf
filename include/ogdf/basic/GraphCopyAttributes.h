@@ -91,5 +91,4 @@ public:
 	void transform();
 };
 
-
-} // end namespace ogdf
+}

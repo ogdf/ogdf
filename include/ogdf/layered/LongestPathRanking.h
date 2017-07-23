@@ -231,5 +231,4 @@ private:
 	void dfsAdd(node v, NodeArray<int> &rank);
 };
 
-
-} // end namespace ogdf
+}

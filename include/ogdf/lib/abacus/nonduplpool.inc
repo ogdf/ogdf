@@ -119,4 +119,4 @@ void NonDuplPool<BaseType, CoType>::hardDeleteConVar(
 	Pool<BaseType, CoType>::hardDeleteConVar(slot);
 }
 
-} // namespace abacus
+}

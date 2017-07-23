@@ -130,7 +130,7 @@ public:
 		}
 
 #if 0
-		cout<<"   Cost/pbc: "<<cost<<"/"<<pbc<<"\n";
+		std::cout << "   Cost/pbc: " << cost << "/" << pbc << "\n";
 #endif
 
 		return cost;
@@ -158,9 +158,7 @@ public:
 		}
 
 		return cost;
-	}//clusterTradBendCost
-
-
+	}
 
 private:
 	bool m_distributeEdges; // distribute edges among all sides if degree > 4
@@ -214,8 +212,7 @@ private:
 				lowB[e2] = 0;
 			}
 		}
-	}//setAngleBound
+	}
 };
 
-
-} // end namespace ogdf
+}

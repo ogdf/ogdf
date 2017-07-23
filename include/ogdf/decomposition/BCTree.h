@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/BoundedStack.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
@@ -283,7 +282,7 @@ protected:
 	 * It is needed for the generation of the BC-tree by DFS method. It has to be a
 	 * member of class BCTree due to recursive calls to biComp().
 	 */
-	BoundedStack<adjEntry> m_eStack;
+	ArrayBuffer<adjEntry> m_eStack;
 
 	/**
 	 * Temporary array.
@@ -362,9 +361,12 @@ public:
 	 * \param callInitConnected decides which init is called, default call is init()
 	 */
 	explicit BCTree (Graph& G, bool callInitConnected = false) : m_G(G), m_eStack(G.numberOfEdges()) {
-		if (!callInitConnected)
+		if (!callInitConnected) {
 			init(G.firstNode());
-		else initNotConnected(G.firstNode());
+		}
+		else {
+			initNotConnected(G.firstNode());
+		}
 	}
 
 	/**
@@ -595,6 +597,9 @@ private:
 
 	//! Assignment operator is undefined!
 	BCTree &operator=(const BCTree &) = delete;
+
+	void initBasic(node vG);
+	void initEdges();
 };
 
 }

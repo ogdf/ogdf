@@ -29,22 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
+#include <typeinfo>
+
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/EpsilonTest.h>
 
-using namespace bandit;
-using namespace ogdf;
+#include <testing.h>
 
 template<typename T>
 static void testGcdAndLcm(const char *type)
 {
 	it(string("computes gcd of large numbers of type ") + string(type), []() {
-		T big = numeric_limits<T>::max();
+		T big = std::numeric_limits<T>::max();
 		AssertThat(Math::gcd(big, big), Equals(big));
 	});
 	it(string("computes lcm of large numbers of type ") + string(type), []() {
-		T big = numeric_limits<T>::max();
+		T big = std::numeric_limits<T>::max();
 		AssertThat(Math::lcm(big, big), Equals(big));
 	});
 }
@@ -76,6 +76,43 @@ static void testHarmonic()
 	});
 }
 
+namespace next_power_2 {
+
+template<typename T>
+void testSingle(T input, T expected) {
+	AssertThat(Math::nextPower2(input), Equals(expected));
+}
+
+template<typename T>
+void testJump(int exponent) {
+	const T value = static_cast<T>(1) << exponent;
+
+	testSingle<T>(value - 1, value);
+	testSingle<T>(value, value);
+	testSingle<T>(value + 1, value * 2);
+}
+
+template<typename T>
+void test(const string &name, int maxExponent = sizeof(T)*8 - 1) {
+	it("works with " + name, [&] {
+		testSingle<T>(0, 0);
+		testSingle<T>(1, 1);
+		testSingle<T>(2, 2);
+
+		for (int i = 2; i < maxExponent; i++) {
+			testJump<T>(i);
+		}
+	});
+}
+
+template<typename T>
+void testUnSigned(string name) {
+	test<typename std::make_signed<T>::type>(name, sizeof(T)* 8 - 2);
+	test<typename std::make_unsigned<T>::type>("unsigned " + name);
+}
+
+}
+
 go_bandit([]() {
 	describe("Math.h", []() {
 		it("computes gcd with two arguments", []() {
@@ -95,5 +132,13 @@ go_bandit([]() {
 		testGcdAndLcm<unsigned long long>("unsigned long long");
 
 		testHarmonic();
+
+		describe("nextPower2", [] {
+			next_power_2::test<char>("char");
+			next_power_2::testUnSigned<short>("short");
+			next_power_2::testUnSigned<int>("int");
+			next_power_2::testUnSigned<long>("long");
+			next_power_2::testUnSigned<long long>("long long");
+		});
 	});
 });

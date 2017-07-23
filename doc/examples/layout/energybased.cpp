@@ -8,7 +8,7 @@ int main()
 	Graph G;
 	GraphAttributes GA(G);
 	if (!GraphIO::read(G, "sierpinski_04.gml")) {
-		cerr << "Could not load sierpinski_04.gml" << endl;
+		std::cerr << "Could not load sierpinski_04.gml" << std::endl;
 		return 1;
 	}
 

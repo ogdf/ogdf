@@ -33,11 +33,11 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const AbacusGlobal &rhs)
+std::ostream &operator<<(std::ostream &out, const AbacusGlobal &rhs)
 {
-	out << "zero tolerance:         " << rhs.eps_ << endl;
-	out << "machine zero tolerance: " << rhs.machineEps_ << endl;
-	out << "infinity:               " << rhs.infinity_ << endl;
+	out << "zero tolerance:         " << rhs.eps_ << std::endl;
+	out << "machine zero tolerance: " << rhs.machineEps_ << std::endl;
+	out << "infinity:               " << rhs.infinity_ << std::endl;
 	return out;
 }
 
@@ -73,8 +73,7 @@ void AbacusGlobal::readParameters(const string &fileName)
 	string value;
 
 	// open the parameter file \a fileName
-	/* CHANGED  ifstream paramFile(fileName, ios::in \a  ios::nocreate);*/
-	ifstream paramFile(fileName, ios::in);
+	std::ifstream paramFile(fileName, std::ios::in); // XXX: removed ios::nocreate
 
 	if (!paramFile) {
 		Logger::ifout() << "AbacusGlobal::readParameters(): opening file " << fileName << " failed\n";
@@ -336,7 +335,7 @@ int AbacusGlobal::findParameter(const char *name, unsigned nFeasible, const int 
 {
 	unsigned i;
 	int param;
-	assignParameter(param, name, numeric_limits<int>::min(), numeric_limits<int>::max());
+	assignParameter(param, name, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 	for(i = 0; i < nFeasible; i++)
 		if(feasible[i] == param)
 			break;
@@ -406,7 +405,7 @@ int AbacusGlobal::getParameter(const char *name, int &parameter) const
 		return 1;
 	else {
 		//parameter = s->ascii2int();
-		parameter = stoi(*s);
+		parameter = std::stoi(*s);
 		return 0;
 	}
 }
@@ -421,7 +420,7 @@ int AbacusGlobal::getParameter(const char *name, unsigned int &parameter) const
 		return 1;
 	else {
 		//parameter = s->ascii2unsignedint();
-		parameter = (unsigned int)stoul(*s);
+		parameter = (unsigned int)std::stoul(*s);
 		return 0;
 	}
 }
@@ -436,7 +435,7 @@ int AbacusGlobal::getParameter(const char *name, double &parameter) const
 		return 1;
 	else {
 		//parameter = s->ascii2double();
-		parameter = stod(*s);
+		parameter = std::stod(*s);
 		return 0;
 	}
 }
@@ -482,4 +481,4 @@ int AbacusGlobal::getParameter(const char *name, char &parameter) const
 		return 0;
 	}
 }
-} //namespace abacus
+}

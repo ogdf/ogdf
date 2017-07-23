@@ -1,5 +1,5 @@
 /** \file
- * \brief Implementation of Spring-Embedder algorithm
+ * \brief Implementation of ogdf::SpringEmbedderGridVariant.
  *
  * \author Carsten Gutwenger
  *
@@ -31,83 +31,37 @@
 
 #include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>
 #include <ogdf/energybased/spring_embedder/MasterBase.h>
+#include <ogdf/energybased/spring_embedder/WorkerBase.h>
 
 #include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Thread.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 using std::minstd_rand;
 using std::uniform_real_distribution;
-
+using ogdf::Math::updateMax;
+using ogdf::Math::updateMin;
 
 namespace ogdf {
 
-template<typename T>
-inline void updateMin(T &var, T val)
-{
-	if(val < var) var = val;
-}
-
-template<typename T>
-inline void updateMax(T &var, T val)
-{
-	if(val > var) var = val;
-}
-
-
-SpringEmbedderGridVariant::SpringEmbedderGridVariant()
-{
-	// default parameters
-	m_iterations        = 400;
-	m_iterationsImprove = 200;
-	m_coolDownFactor    = 0.999;
-	m_forceLimitStep    = 0.5;
-
-	m_xleft = m_ysmall = 0.0;
-	m_xright = m_ybig = 250.0;
-	m_noise = true;
-
-	m_forceModel        = SpringForceModel::FruchtermanReingold;
-	m_forceModelImprove = SpringForceModel::FruchtermanReingoldModRep;
-
-	m_avgConvergenceFactor = 0.1;
-	m_maxConvergenceFactor = 0.2;
-
-	m_scaling = Scaling::scaleFunction;
-	m_scaleFactor = 4.0;
-	m_bbXmin = 0.0;
-	m_bbXmax = 100.0;
-	m_bbYmin = 0.0;
-	m_bbYmax = 100.0;
-
-	double def_nw = LayoutStandards::defaultNodeWidth();
-	double def_nh = LayoutStandards::defaultNodeHeight();
-	m_idealEdgeLength = LayoutStandards::defaultNodeSeparation() + sqrt( def_nw*def_nw + def_nh*def_nh);
-	m_minDistCC = LayoutStandards::defaultCCSeparation();
-	m_pageRatio = 1.0;
-
-	m_maxThreads = System::numberOfProcessors();
-}
-
-
-class SpringEmbedderGridVariant::Master : public spring_embedder::MasterBase<SpringEmbedderGridVariant, NodeInfo, ForceModelBase> {
-	Array<Worker*>  m_worker;
-
+class SpringEmbedderGridVariant::Master : public spring_embedder::MasterBase<NodeInfo, ForceModelBase> {
+	Array<Worker*> m_worker;
 	Array2D<ListPure<int>> m_gridCell;
 
 	double m_k2;
 
-	double m_xleft;
-	double m_xright;
-	double m_ysmall;
-	double m_ybig;
+	double m_xmin;
+	double m_xmax;
+	double m_ymin;
+	double m_ymax;
 
 public:
 	Master(const SpringEmbedderGridVariant &spring, const GraphCopy &gc, GraphAttributes &ga, DPoint &boundingBox);
 
-	double xleft () const { return m_xleft;  }
-	double ysmall() const { return m_ysmall; }
+	double xmin() const { return m_xmin; }
+	double ymin() const { return m_ymin; }
 
 	double boxLength() const { return m_k2; }
 	Array2D<ListPure<int>> &gridCell() { return m_gridCell; }
@@ -119,45 +73,19 @@ public:
 };
 
 
-class SpringEmbedderGridVariant::Worker {
-
-	friend class Master;
-
-	unsigned int m_id;
-	Master  &m_master;
-
-	int  m_vStartIndex;
-	int  m_vStopIndex;
-	node m_vStart;
-	node m_vStop;
-	int  m_eStartIndex;
-
-	double m_wsum;
-	double m_hsum;
-	double m_xmin;
-	double m_xmax;
-	double m_ymin;
-	double m_ymax;
-
-	double m_sumForces;
-	double m_maxForce;
-	double m_sumLengths;
+class SpringEmbedderGridVariant::Worker : spring_embedder::WorkerBase<Master, NodeInfo> {
+	friend class SpringEmbedderGridVariant;
+private:
+	int m_eStartIndex;
 
 public:
 	Worker(unsigned int id, Master &master, int vStartIndex, int vStopIndex, node vStart, node vStop, int eStartIndex)
-		: m_id(id), m_master(master), m_vStartIndex(vStartIndex), m_vStopIndex(vStopIndex), m_vStart(vStart), m_vStop(vStop), m_eStartIndex(eStartIndex) { }
-
-	void operator()();
-
-private:
-	double sumUpLengths(Array<NodeInfo> &vInfo, const Array<int> &adjLists);
-	void scaling(Array<NodeInfo> &vInfo, const Array<int> &adjLists);
-	void finalScaling(Array<NodeInfo> &vInfo, const Array<int> &adjLists);
+		: WorkerBase(id, master, vStartIndex, vStopIndex, vStart, vStop), m_eStartIndex(eStartIndex) {}
+	void operator()() override;
 };
 
-
 SpringEmbedderGridVariant::Master::Master(const SpringEmbedderGridVariant &spring, const GraphCopy &gc, GraphAttributes &ga, DPoint &boundingBox)
-  : spring_embedder::MasterBase<SpringEmbedderGridVariant, NodeInfo, ForceModelBase>(spring, gc, ga, boundingBox)
+  : spring_embedder::MasterBase<NodeInfo, ForceModelBase>(spring, gc, ga, boundingBox)
 {
 	const unsigned int minNodesPerThread = 64;
 	const unsigned int n = gc.numberOfNodes();
@@ -176,8 +104,8 @@ SpringEmbedderGridVariant::Master::Master(const SpringEmbedderGridVariant &sprin
 		unsigned int nodesPerThread = 4*((n/4) / nThreads);
 
 		Array<node> startNode(nThreads+1);
-		Array<int>  startIndex(nThreads+1);
-		Array<int>  eStartIndex(nThreads+1);
+		Array<int> startIndex(nThreads+1);
+		Array<int> eStartIndex(nThreads+1);
 
 		int nextIndex = 0, j = 0, t = 0;
 		for(node v : gc.nodes) {
@@ -215,9 +143,7 @@ SpringEmbedderGridVariant::Master::Master(const SpringEmbedderGridVariant &sprin
 	delete m_worker[0];
 }
 
-
-void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, double xmin, double xmax, double ymin, double ymax)
-{
+void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, double xmin, double xmax, double ymin, double ymax) {
 	const int n = m_gc.numberOfNodes();
 
 	for(int t = 1; t <= m_worker.high(); ++t) {
@@ -229,26 +155,26 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 		hsum += m_worker[t]->m_hsum;
 	}
 
-	Scaling scaling = m_spring.m_scaling;
-	m_idealEdgeLength = m_spring.m_idealEdgeLength;
+	Scaling scaling = m_spring.scaling();
+	m_idealEdgeLength = m_spring.idealEdgeLength();
 
 	// handle special case of zero area bounding box
 	if(xmin == xmax || ymin == ymax) {
 		if(scaling == Scaling::userBoundingBox) {
-			m_xleft  = m_spring.m_bbXmin;
-			m_xright = m_spring.m_bbXmax;
-			m_ysmall = m_spring.m_bbYmin;
-			m_ybig   = m_spring.m_bbYmax;
-
+			const DRect& box = m_spring.userBoundingBox();
+			m_xmin = box.p1().m_x;
+			m_xmax = box.p2().m_x;
+			m_ymin = box.p1().m_y;
+			m_ymax = box.p2().m_y;
 		} else {
-			m_idealEdgeLength = max(1e-3, m_spring.m_idealEdgeLength);
-			m_xleft  = m_ysmall = 0;
-			m_xright = m_ybig   = m_idealEdgeLength * sqrt(double(n));
+			m_idealEdgeLength = max(1e-3, m_spring.idealEdgeLength());
+			m_xmin = m_ymin = 0;
+			m_xmax = m_ymax = m_idealEdgeLength * sqrt(double(n));
 		}
 
 		minstd_rand rng(randomSeed());
-		uniform_real_distribution<> rand_x(m_xleft ,m_xright);
-		uniform_real_distribution<> rand_y(m_ysmall,m_ybig  );
+		uniform_real_distribution<> rand_x(m_xmin ,m_xmax);
+		uniform_real_distribution<> rand_y(m_ymin,m_ymax);
 
 		for(int j = 0; j < n; ++j) {
 			m_vInfo[j].m_pos.m_x = rand_x(rng);
@@ -256,14 +182,14 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 		}
 
 	} else {
-		double scaleFactor = m_spring.m_scaleFactor;
+		double scaleFactor = m_spring.scaleFunctionFactor();
 
 		switch(scaling) {
 		case Scaling::input:
-			m_xleft  = xmin;
-			m_xright = xmax;
-			m_ysmall = ymin;
-			m_ybig   = ymax;
+			m_xmin = xmin;
+			m_xmax = xmax;
+			m_ymin = ymin;
+			m_ymax = ymax;
 			break;
 
 		case Scaling::userBoundingBox:
@@ -271,39 +197,39 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 		case Scaling::useIdealEdgeLength:
 
 			if(scaling == Scaling::userBoundingBox) {
-				m_xleft  = m_spring.m_bbXmin;
-				m_xright = m_spring.m_bbXmax;
-				m_ysmall = m_spring.m_bbYmin;
-				m_ybig   = m_spring.m_bbYmax;
-
+				const DRect& box = m_spring.userBoundingBox();
+				m_xmin = box.p1().m_x;
+				m_xmax = box.p2().m_x;
+				m_ymin = box.p1().m_y;
+				m_ymax = box.p2().m_y;
 			} else if(scaling == Scaling::scaleFunction) {
 				double sqrt_n = sqrt((double)n);
-				m_xleft  = m_ysmall = 0;
-				m_xright = (wsum > 0) ? scaleFactor * wsum / sqrt_n : 1;
-				m_ybig   = (hsum > 0) ? scaleFactor * hsum / sqrt_n : 1;
+				m_xmin = m_ymin = 0;
+				m_xmax = (wsum > 0) ? scaleFactor * wsum / sqrt_n : 1;
+				m_ymax = (hsum > 0) ? scaleFactor * hsum / sqrt_n : 1;
 			} else {
-				m_idealEdgeLength = max(1e-3, m_spring.m_idealEdgeLength);
+				m_idealEdgeLength = max(1e-3, m_spring.idealEdgeLength());
 				double w = xmax - xmin;
 				double h = ymax - ymin;
 				double r = (w > 0) ? h / w : 1.0;
-				m_xleft = m_ysmall = 0;
-				m_xright = m_idealEdgeLength * sqrt(double(n) / r);
-				m_ybig   = r * m_xright;
+				m_xmin = m_ymin = 0;
+				m_xmax = m_idealEdgeLength * sqrt(double(n) / r);
+				m_ymax = r * m_xmax;
 			}
 			// Compute scaling such that layout coordinates fit into used bounding box
-			double fx = (xmax == xmin) ? 1.0 : m_xright / (xmax - xmin);
-			double fy = (ymax == ymin) ? 1.0 : m_ybig   / (ymax - ymin);
+			double fx = (xmax == xmin) ? 1.0 : m_xmax / (xmax - xmin);
+			double fy = (ymax == ymin) ? 1.0 : m_ymax / (ymax - ymin);
 
 			// Adjust coordinates accordingly
 			for(int j = 0; j < n; ++j) {
-				m_vInfo[j].m_pos.m_x = m_xleft  + (m_vInfo[j].m_pos.m_x - xmin) * fx;
-				m_vInfo[j].m_pos.m_y = m_ysmall + (m_vInfo[j].m_pos.m_y - ymin) * fy;
+				m_vInfo[j].m_pos.m_x = m_xmin + (m_vInfo[j].m_pos.m_x - xmin) * fx;
+				m_vInfo[j].m_pos.m_y = m_ymin + (m_vInfo[j].m_pos.m_y - ymin) * fy;
 			}
 		}
 	}
 
-	double width  = m_xright - m_xleft;
-	double height = m_ybig - m_ysmall;
+	double width = m_xmax - m_xmin;
+	double height = m_ymax - m_ymin;
 
 	OGDF_ASSERT(width >= 0);
 	OGDF_ASSERT(height >= 0);
@@ -316,7 +242,7 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 	if(scaling != Scaling::useIdealEdgeLength)
 		m_idealEdgeLength = k;
 
-	switch(m_spring.m_forceModel) {
+	switch(m_spring.forceModel()) {
 	case SpringForceModel::FruchtermanReingold:
 		m_forceModel = new ForceModelFR(m_vInfo, m_adjLists, m_gridCell, m_idealEdgeLength);
 		break;
@@ -337,7 +263,7 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 		break;
 	}
 
-	switch(m_spring.m_forceModelImprove) {
+	switch(m_spring.forceModelImprove()) {
 	case SpringForceModel::FruchtermanReingold:
 		m_forceModelImprove = new ForceModelFR(m_vInfo, m_adjLists, m_gridCell, m_idealEdgeLength);
 		break;
@@ -358,17 +284,16 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 		break;
 	}
 
-	// build  grid cells
+	// build grid cells
 	int xA = int(width / m_k2 + 2);
 	int yA = int(height / m_k2 + 2);
 	m_gridCell.init(-1,xA,-1,yA);
 
-	for(int j = 0; j < n; ++j)
-	{
+	for(int j = 0; j < n; ++j) {
 		NodeInfo &vj = m_vInfo[j];
 
-		vj.m_gridX = int((vj.m_pos.m_x - m_xleft ) / m_k2);
-		vj.m_gridY = int((vj.m_pos.m_y - m_ysmall) / m_k2);
+		vj.m_gridX = int((vj.m_pos.m_x - m_xmin ) / m_k2);
+		vj.m_gridY = int((vj.m_pos.m_y - m_ymin) / m_k2);
 
 		OGDF_ASSERT(vj.m_gridX < xA);
 		OGDF_ASSERT(vj.m_gridX > -1);
@@ -379,16 +304,14 @@ void SpringEmbedderGridVariant::Master::initialize(double wsum, double hsum, dou
 	}
 }
 
-
-void SpringEmbedderGridVariant::Master::updateGridAndMoveNodes()
-{
+void SpringEmbedderGridVariant::Master::updateGridAndMoveNodes() {
 	const Worker &worker = *m_worker[0];
 
 	double xmin = worker.m_xmin;
 	double xmax = worker.m_xmax;
 	double ymin = worker.m_ymin;
 	double ymax = worker.m_ymax;
-	double maxForce  = worker.m_maxForce;
+	double maxForce = worker.m_maxForce;
 	double sumForces = worker.m_sumForces;
 
 	for(int t = 1; t <= m_worker.high(); ++t) {
@@ -410,12 +333,12 @@ void SpringEmbedderGridVariant::Master::updateGridAndMoveNodes()
 	double vMargin = 0.5 * max(0.0, m_idealEdgeLength * yA - (ymax-ymin));
 
 	// set new values
-	m_xleft  = xmin - hMargin;
-	m_xright = xmax + hMargin;
-	m_ysmall = ymin - vMargin;
-	m_ybig   = ymax + vMargin;
+	m_xmin = xmin - hMargin;
+	m_xmax = xmax + hMargin;
+	m_ymin = ymin - vMargin;
+	m_ymax = ymax + vMargin;
 
-	m_k2 = max( (m_xright-m_xleft) / (xA-1), (m_ybig-m_ysmall) / (yA-1) );
+	m_k2 = max( (m_xmax-m_xmin) / (xA-1), (m_ymax-m_ymin) / (yA-1) );
 
 	// move nodes
 	for(int j = 0; j <= m_vInfo.high(); ++j) {
@@ -425,8 +348,8 @@ void SpringEmbedderGridVariant::Master::updateGridAndMoveNodes()
 		vj.m_pos += m_disp[j];
 
 		// new cell
-		int grid_x = int((vj.m_pos.m_x - m_xleft ) / m_k2);
-		int grid_y = int((vj.m_pos.m_y - m_ysmall) / m_k2);
+		int grid_x = int((vj.m_pos.m_x - m_xmin ) / m_k2);
+		int grid_y = int((vj.m_pos.m_y - m_ymin) / m_k2);
 
 		OGDF_ASSERT(grid_x >= 0);
 		OGDF_ASSERT(grid_x < m_gridCell.high1());
@@ -442,8 +365,7 @@ void SpringEmbedderGridVariant::Master::updateGridAndMoveNodes()
 	}
 }
 
-void SpringEmbedderGridVariant::Master::computeFinalBB()
-{
+void SpringEmbedderGridVariant::Master::computeFinalBB() {
 	double xmin = m_worker[0]->m_xmin;
 	double xmax = m_worker[0]->m_xmax;
 	double ymin = m_worker[0]->m_ymin;
@@ -456,16 +378,15 @@ void SpringEmbedderGridVariant::Master::computeFinalBB()
 		updateMax(ymax, m_worker[t]->m_ymax);
 	}
 
-	xmin -= m_spring.m_minDistCC;
-	ymin -= m_spring.m_minDistCC;
+	xmin -= m_spring.minDistCC();
+	ymin -= m_spring.minDistCC();
 	m_boundingBox = DPoint(xmax - xmin, ymax - ymin);
 
-	m_xleft  = xmin;
-	m_ysmall = ymin;
+	m_xmin = xmin;
+	m_ymin = ymin;
 }
 
-void SpringEmbedderGridVariant::Master::scaleLayout(double sumLengths)
-{
+void SpringEmbedderGridVariant::Master::scaleLayout(double sumLengths) {
 	for(int t = 1; t <= m_worker.high(); ++t)
 		sumLengths += m_worker[t]->m_sumLengths;
 
@@ -473,195 +394,33 @@ void SpringEmbedderGridVariant::Master::scaleLayout(double sumLengths)
 	m_scaleFactor = m_idealEdgeLength / sumLengths * m;
 
 	// set new values
-	m_xleft  *= m_scaleFactor;
-	m_xright *= m_scaleFactor;
-	m_ysmall *= m_scaleFactor;
-	m_ybig   *= m_scaleFactor;
+	m_xmin *= m_scaleFactor;
+	m_xmax *= m_scaleFactor;
+	m_ymin *= m_scaleFactor;
+	m_ymax *= m_scaleFactor;
 
-	m_k2 = max( (m_xright-m_xleft) / (m_gridCell.high1()-1), (m_ybig-m_ysmall) / (m_gridCell.high2()-1) );
+	m_k2 = max( (m_xmax-m_xmin) / (m_gridCell.high1()-1), (m_ymax-m_ymin) / (m_gridCell.high2()-1) );
 }
 
-void SpringEmbedderGridVariant::call(GraphAttributes &AG)
-{
-#if 0
-	static int i = 0;
-
-	string inputfilename = "input_" + to_string(i) + ".gml";
-	string outputfilename = "output_" + to_string(i++) + ".gml";
-
-	GraphIO::writeGML(AG, inputfilename);
-#endif
-
-	const Graph &G = AG.constGraph();
-	if(G.empty())
-		return;
-
-	// all edges straight-line
-	AG.clearAllBends();
-
-	GraphCopy GC;
-	GC.createEmpty(G);
-
-	// compute connected component of G
-	NodeArray<int> component(G);
-	int numCC = connectedComponents(G,component);
-
-	// intialize the array of lists of nodes contained in a CC
-	Array<List<node> > nodesInCC(numCC);
-
-	for(node v : G.nodes)
-		nodesInCC[component[v]].pushBack(v);
-
-	EdgeArray<edge> auxCopy(G);
-	Array<DPoint> boundingBox(numCC);
-
-	for(int i = 0; i < numCC; ++i)
-	{
-		GC.initByNodes(nodesInCC[i],auxCopy);
-		makeSimpleUndirected(GC);
-
-		const int n = GC.numberOfNodes();
-
-		// special case: just one node
-		if(n == 1) {
-			node vOrig = GC.original(GC.firstNode());
-			AG.x(vOrig) = AG.y(vOrig) = 0;
-			boundingBox[i] = DPoint(0,0);
-			continue;
-		}
-
-		Master master(*this, GC, AG, boundingBox[i]);
-	}
-
-	Array<DPoint> offset(numCC);
-	TileToRowsCCPacker packer;
-	packer.call(boundingBox,offset,m_pageRatio);
-
-	// The arrangement is given by offset to the origin of the coordinate
-	// system. We still have to shift each node and edge by the offset
-	// of its connected component.
-
-	for(int i = 0; i < numCC; ++i)
-	{
-		const List<node> &nodes = nodesInCC[i];
-
-		const double dx = offset[i].m_x;
-		const double dy = offset[i].m_y;
-
-		// iterate over all nodes in ith CC
-		ListConstIterator<node> it;
-		for(node v : nodes) {
-			AG.x(v) += dx;
-			AG.y(v) += dy;
-		}
-	}
-
-	//GraphIO::writeGML(AG, outputfilename);
+void SpringEmbedderGridVariant::callMaster(const GraphCopy& copy, GraphAttributes& attr, DPoint& box) {
+	Master(*this, copy, attr, box);
 }
 
-
-double SpringEmbedderGridVariant::Worker::sumUpLengths(Array<NodeInfo> &vInfo, const Array<int> &adjLists)
-{
-	double sumLengths = 0.0;
-	for(int j = m_vStartIndex; j < m_vStopIndex; ++j)
-	{
-		const NodeInfo &vj = vInfo[j];
-		for(int l = vj.m_adjBegin; l != vj.m_adjStop; ++l) {
-			int u = adjLists[l];
-			if(u < j) {
-				DPoint dist = vj.m_pos - vInfo[u].m_pos;
-				sumLengths += dist.norm();
-			}
-		}
-	}
-
-	return sumLengths;
-}
-
-
-void SpringEmbedderGridVariant::Worker::scaling(Array<NodeInfo> &vInfo, const Array<int> &adjLists)
-{
-	m_sumLengths = sumUpLengths(vInfo, adjLists);
-
-	m_master.syncThreads();
-
-	if(m_id == 0)
-		m_master.scaleLayout(m_sumLengths);
-
-	m_master.syncThreads();
-
-	double s = m_master.scaleFactor();
-	for(int j = m_vStartIndex; j < m_vStopIndex; ++j)
-		vInfo[j].m_pos *= s;
-
-	if(m_id == 0)
-		m_master.initImprovementPhase();
-
-	m_master.syncThreads();
-}
-
-
-void SpringEmbedderGridVariant::Worker::finalScaling(Array<NodeInfo> &vInfo, const Array<int> &adjLists)
-{
-	m_sumLengths = sumUpLengths(vInfo, adjLists);
-
-	m_master.syncThreads();
-
-	if(m_id == 0)
-		m_master.scaleLayout(m_sumLengths);
-
-	m_master.syncThreads();
-
-	double s = m_master.scaleFactor();
-
-	const GraphCopy &gc = m_master.getGraph();
-	GraphAttributes &ga = m_master.getAttributes();
-
-	double xmin = numeric_limits<double>::max(), xmax = -numeric_limits<double>::max();
-	double ymin = numeric_limits<double>::max(), ymax = -numeric_limits<double>::max();
-
-	node v = m_vStart;
-	for(int j = m_vStartIndex; j < m_vStopIndex; ++j) {
-		node vOrig = gc.original(v);
-		NodeInfo &vj = vInfo[j];
-
-		double xv = s * vj.m_pos.m_x;
-		double yv = s * vj.m_pos.m_y;
-		vj.m_pos.m_x = xv;
-		vj.m_pos.m_y = yv;
-
-		double wv = ga.width(vOrig);
-		double hv = ga.height(vOrig);
-
-		updateMin(xmin, xv-0.5*wv);
-		updateMax(xmax, xv+0.5*wv);
-		updateMin(ymin, yv-0.5*hv);
-		updateMax(ymax, yv+0.5*hv);
-	}
-
-	m_xmin = xmin; m_xmax = xmax;
-	m_ymin = ymin; m_ymax = ymax;
-
-	m_master.syncThreads();
-}
-
-
-void SpringEmbedderGridVariant::Worker::operator()()
-{
+void SpringEmbedderGridVariant::Worker::operator()() {
 	const double forceScaleFactor = 0.1; //0.05;
 
 	const GraphCopy &gc = m_master.getGraph();
 	GraphAttributes &ga = m_master.getAttributes();
 
-	const NodeArray<int>  &index    = m_master.index();
-	Array<NodeInfo>       &vInfo    = m_master.vInfo();
-	Array<int>            &adjLists = m_master.adjLists();
+	const NodeArray<int> &index = m_master.index();
+	Array<NodeInfo> &vInfo = m_master.vInfo();
+	Array<int> &adjLists = m_master.adjLists();
 
 	// Initialize
 
 	double wsum = 0, hsum = 0;
-	double xmin = numeric_limits<double>::max(), xmax = -numeric_limits<double>::max();
-	double ymin = numeric_limits<double>::max(), ymax = -numeric_limits<double>::max();
+	double xmin = std::numeric_limits<double>::max(), xmax = -std::numeric_limits<double>::max();
+	double ymin = std::numeric_limits<double>::max(), ymax = -std::numeric_limits<double>::max();
 
 	int adjCounter = m_eStartIndex;
 	int runnerIndex = m_vStartIndex;
@@ -710,15 +469,14 @@ void SpringEmbedderGridVariant::Worker::operator()()
 	const ForceModelBase &forceModel = m_master.forceModel();
 
 	const int numIter = m_master.numberOfIterations();
-	for(int iter = 1; m_master.hasConverged() == false && iter <= numIter; ++iter)
-	{
+	for(int iter = 1; m_master.hasConverged() == false && iter <= numIter; ++iter) {
 		double boxLength = m_master.boxLength();
 
-		xmin = numeric_limits<double>::max(); xmax = -numeric_limits<double>::max();
-		ymin = numeric_limits<double>::max(); ymax = -numeric_limits<double>::max();
+		xmin = std::numeric_limits<double>::max(); xmax = -std::numeric_limits<double>::max();
+		ymin = std::numeric_limits<double>::max(); ymax = -std::numeric_limits<double>::max();
 
 		double sumForces = 0.0;
-		double maxForce  = 0.0;
+		double maxForce = 0.0;
 
 		double t = m_master.maxForceLength();
 		double f = m_master.coolingFactor() * forceScaleFactor;
@@ -757,7 +515,7 @@ void SpringEmbedderGridVariant::Worker::operator()()
 		m_xmin = xmin; m_xmax = xmax;
 		m_ymin = ymin; m_ymax = ymax;
 		m_sumForces = sumForces;
-		m_maxForce  = maxForce;
+		m_maxForce = maxForce;
 
 		m_master.syncThreads();
 
@@ -773,22 +531,20 @@ void SpringEmbedderGridVariant::Worker::operator()()
 	// --- Improvement Phase ---
 
 	const int numIterImp = m_master.numberOfIterationsImprove();
-	if(numIterImp > 0)
-	{
+	if(numIterImp > 0) {
 		// scaling to ideal edge length
 		scaling(vInfo,adjLists);
 
 		const ForceModelBase &forceModelImprove = m_master.forceModelImprove();
 
-		for(int iter = 1; !m_master.hasConverged() && iter <= numIterImp; ++iter)
-		{
+		for(int iter = 1; !m_master.hasConverged() && iter <= numIterImp; ++iter) {
 			double boxLength = m_master.boxLength();
 
-			xmin = numeric_limits<double>::max(); xmax = -numeric_limits<double>::max();
-			ymin = numeric_limits<double>::max(); ymax = -numeric_limits<double>::max();
+			xmin = std::numeric_limits<double>::max(); xmax = -std::numeric_limits<double>::max();
+			ymin = std::numeric_limits<double>::max(); ymax = -std::numeric_limits<double>::max();
 
 			double sumForces = 0.0;
-			double maxForce  = 0.0;
+			double maxForce = 0.0;
 
 			double t = m_master.maxForceLength();
 			double f = m_master.coolingFactor() * forceScaleFactor;
@@ -827,7 +583,7 @@ void SpringEmbedderGridVariant::Worker::operator()()
 			m_xmin = xmin; m_xmax = xmax;
 			m_ymin = ymin; m_ymax = ymax;
 			m_sumForces = sumForces;
-			m_maxForce  = maxForce;
+			m_maxForce = maxForce;
 
 			m_master.syncThreads();
 
@@ -859,8 +615,8 @@ void SpringEmbedderGridVariant::Worker::operator()()
 
 	m_master.syncThreads();
 
-	xmin = m_master.xleft();
-	ymin = m_master.ysmall();
+	xmin = m_master.xmin();
+	ymin = m_master.ymin();
 
 	node v = m_vStart;
 	for(int j = m_vStartIndex; j < m_vStopIndex; v = v->succ(), ++j) {
@@ -871,5 +627,4 @@ void SpringEmbedderGridVariant::Worker::operator()()
 	}
 }
 
-
-} // end namespace ogdf
+}

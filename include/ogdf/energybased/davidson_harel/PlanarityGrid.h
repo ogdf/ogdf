@@ -59,6 +59,6 @@ private:
 	const GraphAttributes &m_layout; //The current layout
 	UniformGrid *m_currentGrid; //stores grid for current layout
 	UniformGrid *m_candidateGrid; //stores grid for candidate layout
-}; // class Planarity
+};
 
 }}

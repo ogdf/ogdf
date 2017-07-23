@@ -92,7 +92,7 @@ struct OGDF_EXPORT RCCrossings
 	}
 
 	RCCrossings &setInfinity() {
-		m_cnClusters = m_cnEdges = numeric_limits<int>::max();
+		m_cnClusters = m_cnEdges = std::numeric_limits<int>::max();
 		return *this;
 	}
 
@@ -108,7 +108,7 @@ struct OGDF_EXPORT RCCrossings
 	int m_cnEdges;
 };
 
-OGDF_EXPORT ostream& operator<<(ostream &os, const RCCrossings &cr);
+OGDF_EXPORT std::ostream& operator<<(std::ostream &os, const RCCrossings &cr);
 
 class OGDF_EXPORT LHTreeNode
 {
@@ -416,5 +416,4 @@ private:
 	mutable ClusterArray<LHTreeNode*> m_markTree;
 };
 
-
-} // end namespace ogdf
+}

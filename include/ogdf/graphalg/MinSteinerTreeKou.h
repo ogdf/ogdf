@@ -80,7 +80,7 @@ protected:
 	 * @param predecessor stores for each edge in the complete terminal graph the according path in the original graph
 	 * @param completeTerminalGraph the resulting complete terminal graph
 	 */
-	void calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, EdgeArray<List<edge> > &predecessor,
+	void calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, EdgeArray<List<edge>> &predecessor,
 			EdgeWeightedGraphCopy<T> &completeTerminalGraph);
 
 	/*!
@@ -91,7 +91,7 @@ protected:
 	 * @param finalSteinerTree the resulting Steiner tree
 	 * @param wG the original graph
 	 */
-	void reinsertShortestPaths(const EdgeWeightedGraphCopy<T> &completeTerminalGraph, const EdgeArray<List<edge> > &ssspPred,
+	void reinsertShortestPaths(const EdgeWeightedGraphCopy<T> &completeTerminalGraph, const EdgeArray<List<edge>> &ssspPred,
 			const NodeArray<edge> &mstPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG);
 
 	/*!
@@ -114,7 +114,7 @@ T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const 
 	}
 
 	List<edge> steinerTreeEdges;
-	EdgeArray<List<edge> > ssspPred(completeTerminalGraph);
+	EdgeArray<List<edge>> ssspPred(completeTerminalGraph);
 
 	calculateCompleteGraph(G, terminals, ssspPred, completeTerminalGraph);
 
@@ -133,7 +133,7 @@ T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const 
 }
 
 template<typename T>
-void MinSteinerTreeKou<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, EdgeArray<List<edge> > &predecessor, EdgeWeightedGraphCopy<T> &completeTerminalGraph)
+void MinSteinerTreeKou<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, EdgeArray<List<edge>> &predecessor, EdgeWeightedGraphCopy<T> &completeTerminalGraph)
 {
 	Dijkstra<T> sssp;
 	for (node u = completeTerminalGraph.firstNode(); u->succ(); u = u->succ()) {
@@ -192,4 +192,4 @@ void MinSteinerTreeKou<T>::insertPath(const List<edge> &ssspPred, EdgeWeightedGr
 	}
 }
 
-} // end namespace ogdf
+}

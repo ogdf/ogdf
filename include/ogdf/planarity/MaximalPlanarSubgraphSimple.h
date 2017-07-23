@@ -35,31 +35,17 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Math.h>
 #include <type_traits>
 
 namespace ogdf {
 
-/// @cond
-
-namespace MaximalPlanarSubgraphSimpleInternal {
-template<typename TCost>
-class EdgeComparer {
-private:
-	const EdgeArray<TCost> &m_weight;
-public:
-	explicit EdgeComparer(const EdgeArray<TCost> &weight) : m_weight(weight) { }
-
-	bool less(const edge &x, const edge &y) const {
-		return m_weight[x] < m_weight[y];
-	}
-};
-}
-
+//! @cond
 
 template<typename TCost, class Enable = void>
 class MaximalPlanarSubgraphSimple {};
 
-/// @endcond
+//! @endcond
 
 //! Naive maximal planar subgraph approach that extends a configurable non-maximal subgraph heuristic.
 /**
@@ -126,8 +112,7 @@ protected:
 			result = m_heuristic.call(graph, preferredEdges, heuDelEdges, preferredImplyPlanar);
 		} else {
 			result = m_heuristic.call(graph, *pCost, preferredEdges, heuDelEdges, preferredImplyPlanar);
-			MaximalPlanarSubgraphSimpleInternal::EdgeComparer<TCost> cmp(*pCost);
-			heuDelEdges.quicksort(cmp);
+			heuDelEdges.quicksort(GenericComparer<edge, TCost>(*pCost));
 		}
 		if(Module::isSolution(result)) {
 			GraphCopy copy(graph);
@@ -182,7 +167,10 @@ public:
 		, m_deleteHeuristic(false)
 		, m_randomness(randomness)
 		, m_randomGenerator()
-		, m_runs(runs) { }
+		, m_runs(runs)
+	{
+		OGDF_ASSERT( runs > 0 );
+	}
 
 	//! Destructor
 	virtual ~MaximalPlanarSubgraphSimple() {
@@ -226,7 +214,7 @@ protected:
 		const EdgeArray<TCost>  *pCost,
 		bool preferredImplyPlanar) override
 	{
-		Module::ReturnType result;
+		Module::ReturnType result = Module::ReturnType::Error;
 		delEdges.clear();
 
 		// scale the costs and do multiple runs (if needed)
@@ -246,8 +234,8 @@ protected:
 				TCost maxCost = (*pCost)[graph.firstEdge()];
 				TCost minCost = (*pCost)[graph.firstEdge()];
 				for (edge e: graph.edges) {
-					maxCost = max(maxCost, (*pCost)[e]);
-					minCost = min(minCost, (*pCost)[e]);
+					Math::updateMax(maxCost, (*pCost)[e]);
+					Math::updateMin(minCost, (*pCost)[e]);
 				}
 				for (edge e: graph.edges) {
 					// do not merge with first FOR !
@@ -263,7 +251,7 @@ protected:
 				GraphCopy copy(graph);
 
 				if (pCost != nullptr) {
-					MaximalPlanarSubgraphSimpleInternal::EdgeComparer<TCost> cmp(normalizedCost);
+					GenericComparer<edge, TCost> cmp(normalizedCost);
 					heuDelEdges.quicksort(cmp);
 				}
 

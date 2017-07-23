@@ -209,23 +209,21 @@ void OrthoShaper::call(PlanRepUML &PG,
 		}
 	}
 
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		//check the supply sum
-		checksum = 0;
-		for(node v : Network.nodes)
-			checksum += supply[v];
-		OGDF_ASSERT(checksum == 0);
+#ifdef OGDF_HEAVY_DEBUG
+	//check the supply sum
+	checksum = 0;
+	for(node v : Network.nodes)
+		checksum += supply[v];
+	OGDF_ASSERT(checksum == 0);
 
-		for(node v : PG.nodes)
-			cout << " v = " << v << " corresponds to "
-			     << networkNode[v] << endl;
-		for (face f : E.faces) {
-			cout << " face = " << f->index() << " corresponds to " << F[f];
-			if (f == E.externalFace())
-				cout<<" (Outer Face)";
-			cout << endl;
-		}
+	for(node v : PG.nodes)
+		Logger::slout() << " v = " << v << " corresponds to "
+			 << networkNode[v] << std::endl;
+	for (face f : E.faces) {
+		Logger::slout() << " face = " << f->index() << " corresponds to " << F[f];
+		if (f == E.externalFace())
+			Logger::slout() << " (Outer Face)";
+		Logger::slout() << std::endl;
 	}
 #endif
 
@@ -242,14 +240,12 @@ void OrthoShaper::call(PlanRepUML &PG,
 			adjF[adj] = f;
 	}
 
-#ifdef OGDF_DEBUG
-	if(debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		for(face f : E.faces) {
-			cout << "Face " << f->index() << " : ";
-			for(adjEntry adj : f->entries)
-				cout << adj << "; ";
-			cout<<endl;
-		}
+#ifdef OGDF_HEAVY_DEBUG
+	for(face f : E.faces) {
+		Logger::slout() << "Face " << f->index() << " : ";
+		for(adjEntry adj : f->entries)
+			Logger::slout() << adj << "; ";
+		Logger::slout() << std::endl;
 	}
 #endif
 
@@ -330,8 +326,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 					else gen2 = adj;
 				}
 			}
-		}// if not generalization
-
+		}
 
 		for(adjEntry adj : v->adjEntries)
 		{
@@ -370,8 +365,8 @@ void OrthoShaper::call(PlanRepUML &PG,
 				faceCor   [e3] = adjF[adj];
 				angleBackArc[adj] = e3;
 
-			}//progressive
-		}//initialize
+			}
+		}
 
 		//second run to have all angleArcs already initialized
 		//set the flow boundaries for special cases
@@ -430,10 +425,8 @@ void OrthoShaper::call(PlanRepUML &PG,
 											lowerBound[eA] = 0;
 											upperBound[eA] = 2;
 										}
-									}//if progressive
-								}
-								else
-								{
+									}
+								} else {
 									//entweder run2 != adj->theEdge oder
 									if (PG.typeOf(run2->theEdge()) != Graph::EdgeType::generalization)
 									{
@@ -446,10 +439,10 @@ void OrthoShaper::call(PlanRepUML &PG,
 											if (eA) {
 												lowerBound[eA] = 0;
 												upperBound[eA] = upperBackAngleFlow;
-											}//if backarc
-										}//if progressive
-									}//if not generalization
-								}//else brother
+											}
+										}
+									}
+								}
 								//angles: guarantee lower < upper even if stepwise flow computation
 								if (m_traditional)
 									upperBound[e2] = flowBound;
@@ -474,9 +467,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 									}
 									//angles: guarantee lower < upper even if stepwise flow computation
 									upperBound[e2] = flowBound;
-								}//if traditional
-								else
-								{
+								} else {
 									//there may be brothers on both sides, so allow zero degree
 									if (upperBound[e2] == 0)
 									{
@@ -501,15 +492,13 @@ void OrthoShaper::call(PlanRepUML &PG,
 												lowerBound[eA] = 0;
 												upperBound[eA] = 0;
 											}
-										}//degree 1-2
-									}//if >= 180 degree
-								}//progressive
+										}
+									}
+								}
 								PG.setUserType(adj->theEdge(),1);
 								fixedVal[e2->source()] = true;
-							}//if inner hierarchy gen
-						}//if gen
-						else
-						{
+							}
+						} else {
 							//from left side to gen
 							//search for next real edge entries
 							adjEntry run2 = adj->faceCyclePred();
@@ -542,7 +531,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 									if (PG.isBrother(adj->theEdge())) upperBound[e2] = halfPiAngleFlow;
 									//180 degree min
 									else upperBound[e2] = 0;
-								}//progressive
+								}
 
 								OGDF_ASSERT(lowerBound[e2] <= upperBound[e2]);
 								adjEntry nextAE = adj->twin()->faceCycleSucc();
@@ -566,15 +555,11 @@ void OrthoShaper::call(PlanRepUML &PG,
 
 								PG.setUserType(adj->theEdge(),1);
 								fixedVal[e2->source()] = true;
-
-							}//if inner hierarchy gen
-						}//if not gen
-					}//srcadj
-
-				}//if alignupward edge
-				else
+							}
+						}
+					}
+				} else {
 					//search backwards for non-brother edges in hierarchies
-				{
 					//first guarantee that this is only a non-expanded vertex
 					if (PG.isVertex(adj->theNode())
 					 // outer gen right of hierarchy level
@@ -630,9 +615,8 @@ void OrthoShaper::call(PlanRepUML &PG,
 							}
 						}
 					}
-
-				}//else alignupward
-			}//if align
+				}
+			}
 
 			//hier muss man fuer die Kanten, die rechts ansetzen noch lowerbound 2 setzen
 
@@ -653,11 +637,9 @@ void OrthoShaper::call(PlanRepUML &PG,
 			{
 				edge e3 = angleTwin[e2];
 				upperBound[e3] = lowerBound[e3] = 0;
-			}//if not traditional
-
-		}//if association class
+			}
+		}
 	}
-
 
 	// Reset upper and lower Bounds for network arcs that
 	// correspond to edges of generalizationmerger faces
@@ -746,8 +728,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 					if (e->target() != secFace)
 						//maybe we have to jump one step further
 						e = ae->cyclicSucc()->theEdge();
-
-				}//progressive mode
+				}
 
 				if (e->target() == secFace) {
 					setBoundsEqually(e, piAngleFlow, piAngleFlow);
@@ -759,14 +740,11 @@ void OrthoShaper::call(PlanRepUML &PG,
 				{
 					upperBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()]] = 1;
 					lowerBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()]] = 1;
-				}
-				else
-				{
+				} else {
 					//progressive mode: bends are in opposite direction
 					upperBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()->twin()]] = 1;
 					lowerBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()->twin()]] = 1;
-				}//progressive
-
+				}
 
 				// Set the upper and lower bound for the last node in
 				// clockwise order of the mergeexpander face to
@@ -803,8 +781,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 					if (e->target() != secFace)
 						//maybe we have to jump one step further
 						e = ae->cyclicPred()->theEdge();
-
-				}//progressive mode
+				}
 
 				if (e->target() == secFace) {
 					setBoundsEqually(e, piAngleFlow, piAngleFlow);
@@ -851,13 +828,10 @@ void OrthoShaper::call(PlanRepUML &PG,
 										upperBound[backAdjCor[adj]] = flowBound;
 											max(1, upperBound[backAdjCor[adj]]);
 #endif
-									}//if right of generalization
-
+									}
 
 									noBendEdge[backAdjCor[tgtadj]] = true;
-								}//if is brother
-								else
-								{
+								} else {
 									//hier: falls brother src, gen tgt
 									//nonbrother src, gn tgt
 
@@ -873,16 +847,12 @@ void OrthoShaper::call(PlanRepUML &PG,
 											lowerBound[backAdjCor[adj]]= 2;
 											//angles: guarantee lower < upper even if stepwise flow computation
 											upperBound[backAdjCor[adj]] = flowBound;
-										}//if traditional
-										else
-										{
+										} else {
 											lowerBound[backAdjCor[adj->twin()]]= 2;
 											//angles: guarantee lower < upper even if stepwise flow computation
 											upperBound[backAdjCor[adj->twin()]] = flowBound;
-										}//progressive
-									}
-									else //check if we are left from gen
-									{
+										}
+									} else { // check if we are left from gen
 										if (PG.isGeneralization(tgtadj->theEdge()) &&
 											(tgtadj == tgtadj->theEdge()->adjSource())
 											//recent test change, maybe delete again
@@ -895,41 +865,36 @@ void OrthoShaper::call(PlanRepUML &PG,
 												if (m_traditional) lowerBound[backAdjCor[adj]]= 1;
 												else lowerBound[backAdjCor[adj->twin()]]= 1;
 												noBendEdge[backAdjCor[srcadj]] = true;
-											}//if
-											else
-											{
+											} else {
 												bendCount += 2;
 												if (m_traditional)
 												{
 													lowerBound[backAdjCor[adj]]= 2;
 													upperBound[backAdjCor[adj]] = flowBound;
-												}
-												else
-												{
+												} else {
 													lowerBound[backAdjCor[adj->twin()]]= 2;
 													upperBound[backAdjCor[adj->twin()]] = flowBound;
 												}
-											}//else
-
-										}//if to gen
-
-
-									}//not right from gen
-								}//no brother
-							}//if not splitter
-							else splitter = adj;
-						}//forallfaceadj
+											}
+										}
+									}
+								}
+							} else {
+								splitter = adj;
+							}
+						}
 						if (splitter && (expansionFace == f))
 						{
 							adjEntry adj = splitter->twin();
 							// Get the corresponding face in the original embedding.
 							expansionFace = adjF[adj];
 							splitter = splitter->twin();
-						}//if
-						else expansionFace = nullptr;
+						} else {
+							expansionFace = nullptr;
+						}
 					} while (expansionFace);
 					OGDF_ASSERT(bendCount <= 4);
-				}//if align
+				}
 
 				// Set upperBound to 1 for all edges, allowing maximal one
 				// 90 degree bend.
@@ -983,11 +948,11 @@ void OrthoShaper::call(PlanRepUML &PG,
 									isMulti[adj->twin()] = true;
 								}
 								multis++;
-							}//multi edge
-							else allMulti = false;
-						}//if outer boundary
-
-					}//forallfaceadj count multis
+							} else {
+								allMulti = false;
+							}
+						}
+					}
 					//multi edge correction: only multi edges => one edge needs 360 degree
 					if (allMulti)
 					{
@@ -1041,12 +1006,11 @@ void OrthoShaper::call(PlanRepUML &PG,
 									upperBound[backAdjCor[adj]] = 4; //4 bends for 360
 									break;
 								}
-							}//forall expansion adj
-						}//if
-					}//if allMulti
+							}
+						}
+					}
 					//End multi edge correction
-				}//if multialign
-
+				}
 
 				//now set the upper Bounds
 				for(adjEntry adj : f->entries)
@@ -1108,10 +1072,8 @@ void OrthoShaper::call(PlanRepUML &PG,
 										max(2, lowerBound[backAdjCor[adj]]);
 									//nur zum Testen der Faelle
 									OGDF_ASSERT(oldBound >= upperBound[backAdjCor[adj]]);
-								}// if not multi
-							}//traditional
-							else
-							{
+								}
+							} else {
 								//preliminary set the bound in all cases
 
 								if (!isMulti[adj]) //m_multiAlign???
@@ -1122,10 +1084,10 @@ void OrthoShaper::call(PlanRepUML &PG,
 										max(1, lowerBound[backAdjCor[adj->twin()]]);
 									else upperBound[backAdjCor[adj->twin()]] =
 										max(2, lowerBound[backAdjCor[adj->twin()]]);
-								}// if not multi
-							}//progressive
-						}//distributeedges
-					}// else no face splitter
+								}
+							}
+						}
+					}
 
 					// Node w is in Network
 					node w = networkNode[adj->twinNode()];
@@ -1142,13 +1104,12 @@ void OrthoShaper::call(PlanRepUML &PG,
 							}
 						}
 					}
-				}// forallfaceadj
+				}
 
 				// In case a face splitter was used, we need to update the
 				// second face of the cage.
 				if (splitter)
 				{
-
 					// Get the corresponding face in the original embedding.
 					face f2 = adjF[splitter->twin()];
 
@@ -1175,15 +1136,12 @@ void OrthoShaper::call(PlanRepUML &PG,
 								if (e->target() == F[f2]) {
 									setBoundsEqually(e, piAngleFlow, piAngleFlow);
 								}
-							}//forall adjacent edges
-						}//if not preset
+							}
+						}
 					}
 				}
 			}
-		}//if expanded
-
-		else
-		{
+		} else {
 			//non-expanded (low degree) nodes
 			//check for alignment and for multi edges
 
@@ -1227,23 +1185,17 @@ void OrthoShaper::call(PlanRepUML &PG,
 							//we forbid bends between incident multi edges
 							//or is it angle?
 							setBoundsEqually(e, zeroAngleFlow, zeroBackAngleFlow);
-						}//multi edge
-						else
-						{
-
-
+						} else {
 							//CHECK
 							//to be done: only if multiedges
 							if (!genshift[v]) upperBound[e] = upperAngleFlow;
 							allMulti = false;
 						}
-					}//multiAlign
-				}//foralladjedges
-
+					}
+				}
 
 				if (m_multiAlign && allMulti  && (v->degree()>1))
 				{
-
 					fixedVal[w] = true;
 
 					//find an edge that allows 360 degree without bends
@@ -1291,8 +1243,8 @@ void OrthoShaper::call(PlanRepUML &PG,
 								}
 								twoNodeCC = false;
 								break;
-							}//if not 2nodeCC
-						}//if
+							}
+						}
 					}
 					//if only two nodes with multiedges are in current CC,
 					//assign 360 degree to first edge
@@ -1314,12 +1266,11 @@ void OrthoShaper::call(PlanRepUML &PG,
 									setProgressiveBoundsEqually(e, lowerAngleFlow, maxBackFlow);
 								}
 								break;
-							}//if
-						}//forall
-					}//if
-				}//if allMulti
-			}//replaces vertex
-
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -1364,9 +1315,9 @@ void OrthoShaper::call(PlanRepUML &PG,
 								fixAssignment = true;
 								break;
 							}
-						}//if no angle back arc in progressive mode
+						}
 					}
-				}//deg4free
+				}
 
 				//CHECK
 				//now set the angles at degree 4 nodes to distribute edges
@@ -1388,9 +1339,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 							lowerBound[te] = halfPiAngleFlow;
 							upperBound[te] = halfPiAngleFlow;
 						}
-					}//if no angle back arc in progressive mode
-					else
-					{
+					} else {
 						if (fixedVal[tv]) continue; //if already special values set
 
 						if (!fixAssignment)
@@ -1405,9 +1354,9 @@ void OrthoShaper::call(PlanRepUML &PG,
 							lowerBound[te] = 0; //1
 							upperBound[te] = 0; //halfPiAngleFlow; //1
 						}
-					}//back angle arc
+					}
 				}
-			}//degree 4 node
+			}
 			int lowsum = 0, upsum = 0;
 			for(adjEntry adj : tv->adjEntries) {
 				edge te = adj->theEdge();
@@ -1420,7 +1369,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 				OGDF_ASSERT(lowsum <= supply[tv]);
 				OGDF_ASSERT(upsum >= supply[tv]);
 			}
-		}//if node, no faces
+		}
 	}
 	for(node tv : Network.nodes)
 	{
@@ -1446,9 +1395,8 @@ void OrthoShaper::call(PlanRepUML &PG,
 		{
 			capacityBoundedEdges.pushBack(e);
 			isBounded[e] = true;
-		}//if bounded
+		}
 	}
-
 
 	int currentUpperBound;
 	if (m_startBoundBendsPerEdge > 0)
@@ -1464,7 +1412,6 @@ void OrthoShaper::call(PlanRepUML &PG,
 		isFlow = flowModule.call(Network,lowerBound,upperBound,cost,supply,flow);
 
 #if 0
-#ifdef foutput
 		if (isFlow)
 		{
 #if 0
@@ -1475,14 +1422,14 @@ void OrthoShaper::call(PlanRepUML &PG,
 					fout << "e = " << e << " flow = " << flow[e];
 					if(nodeCor[e] == 0 && adjCor[e])
 						fout << " real edge = " << adjCor[e]->theEdge();
-					fout << endl;
+					fout << std::endl;
 				}
 				for(edge e : Network.edges) {
 					if(nodeCor[e] == 0 && adjCor[e] != 0 && flow[e] > 0) {
 						fout << "Bends " << flow[e] << " on edge "
 							<< adjCor[e]->theEdge()
 							<< " between faces " << adjF[adjCor[e]]->index() << " - "
-							<< adjF[adjCor[e]->twin()]->index() << endl;
+							<< adjF[adjCor[e]->twin()]->index() << std::endl;
 					}
 				}
 				for(edge e : Network.edges) {
@@ -1490,7 +1437,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 						fout << "Angle " << (flow[e])*90 << "\tdegree   on node "
 							<< nodeCor[e] << " at face " << faceCor[e]->index()
 							<< "\tbetween edge " << adjCor[e]->faceCyclePred()
-							<< "\tand " << adjCor[e] << endl;
+							<< "\tand " << adjCor[e] << std::endl;
 					}
 				}
 				if (startBoundBendsPerEdge> 0) {
@@ -1498,19 +1445,16 @@ void OrthoShaper::call(PlanRepUML &PG,
 						<< currentUpperBound;
 					if(isFlow)
 						fout << " ... Successful";
-					fout << endl;
+					fout << std::endl;
 				}
 			}
 		}
-#endif
 #endif
 
 		OGDF_ASSERT(m_startBoundBendsPerEdge >= 1 || isFlow);
 
 		currentUpperBound++;
-
-	}// while (!isflow)
-
+	}
 
 	if (m_startBoundBendsPerEdge && !isFlow)
 		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::NoFlow);
@@ -1541,7 +1485,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 			{
 				OGDF_ASSERT((int)OR.bend(adjCor[e]).size() <= currentUpperBound);
 				OGDF_ASSERT((int)OR.bend(adjCor[e]->twin()).size() <= currentUpperBound);
-			}//if bounded
+			}
 #endif
 		}
 		else if (nodeCor[e] != nullptr && faceCor[e] != nullptr)
@@ -1564,24 +1508,20 @@ void OrthoShaper::call(PlanRepUML &PG,
 					OGDF_ASSERT(twinFlow == 0);
 					OR.angle(adjCor[e]) = 2 - flow[e];
 				}
-			}//progressive mode
-		}//if angle arc
-	}
-
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		cout << "\n\nTotal Number of Bends : "<< totalNumBends << endl << endl;
-
-		string error;
-		if (OR.check(error) == false) {
-			cout << error << endl;
-			OGDF_ASSERT(false);
+			}
 		}
 	}
+
+#ifdef OGDF_HEAVY_DEBUG
+	Logger::slout() << "\n\nTotal Number of Bends : " << totalNumBends << std::endl << std::endl;
+
+	string error;
+	if (OR.check(error) == false) {
+		Logger::slout() << error << std::endl;
+		OGDF_ASSERT(false);
+	}
 #endif
-
-}//call
-
+}
 
 //call function: compute a flow in a dual network and interpret
 //result as bends and angles (representation shape)
@@ -1750,23 +1690,21 @@ void OrthoShaper::call(PlanRep &PG,
 		}
 	}
 
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		//check the supply sum
-		checksum = 0;
-		for(node v : Network.nodes)
-			checksum += supply[v];
-		OGDF_ASSERT(checksum == 0);
+#ifdef OGDF_HEAVY_DEBUG
+	//check the supply sum
+	checksum = 0;
+	for(node v : Network.nodes)
+		checksum += supply[v];
+	OGDF_ASSERT(checksum == 0);
 
-		for(node v : PG.nodes)
-			cout << " v = " << v << " corresponds to "
-				<< networkNode[v] << endl;
-		for (face f : E.faces) {
-			cout << " face = " << f->index() << " corresponds to " << F[f];
-			if (f == E.externalFace())
-				cout<<" (Outer Face)";
-			cout << endl;
-		}
+	for(node v : PG.nodes)
+		Logger::slout() << " v = " << v << " corresponds to "
+			<< networkNode[v] << std::endl;
+	for (face f : E.faces) {
+		Logger::slout() << " face = " << f->index() << " corresponds to " << F[f];
+		if (f == E.externalFace())
+			Logger::slout() << " (Outer Face)";
+		Logger::slout() << std::endl;
 	}
 #endif
 
@@ -1783,14 +1721,12 @@ void OrthoShaper::call(PlanRep &PG,
 			adjF[adj] = f;
 	}
 
-#ifdef OGDF_DEBUG
-	if(debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		for(face f : E.faces) {
-			cout << "Face " << f->index() << " : ";
-			for(adjEntry adj : f->entries)
-				cout << adj << "; ";
-			cout<<endl;
-		}
+#ifdef OGDF_HEAVY_DEBUG
+	for(face f : E.faces) {
+		Logger::slout() << "Face " << f->index() << " : ";
+		for(adjEntry adj : f->entries)
+			Logger::slout() << adj << "; ";
+		Logger::slout() << std::endl;
 	}
 #endif
 
@@ -1864,8 +1800,7 @@ void OrthoShaper::call(PlanRep &PG,
 					else gen2 = adj;
 				}
 			}
-		}// if not generalization
-
+		}
 
 		for(adjEntry adj : v->adjEntries)
 		{
@@ -1903,9 +1838,8 @@ void OrthoShaper::call(PlanRep &PG,
 				adjCor    [e3] = adj;
 				faceCor   [e3] = adjF[adj];
 				angleBackArc[adj] = e3;
-
-			}//progressive
-		}//initialize
+			}
+		}
 
 		//second run to have all angleArcs already initialized
 		//set the flow boundaries for special cases
@@ -1943,11 +1877,9 @@ void OrthoShaper::call(PlanRep &PG,
 			{
 				edge e3 = angleTwin[e2];
 				upperBound[e3] = lowerBound[e3] = 0;
-			}//if not traditional
-
-		}//if association class
+			}
+		}
 	}
-
 
 	// Reset upper and lower Bounds for network arcs that
 	// correspond to edges of generalizationmerger faces
@@ -2035,8 +1967,7 @@ void OrthoShaper::call(PlanRep &PG,
 					if (e->target() != secFace)
 						//maybe we have to jump one step further
 						e = ae->cyclicSucc()->theEdge();
-
-				}//progressive mode
+				}
 
 				if (e->target() == secFace) {
 					setBoundsEqually(e, piAngleFlow, piAngleFlow, piAngleFlow);
@@ -2048,14 +1979,11 @@ void OrthoShaper::call(PlanRep &PG,
 				{
 					upperBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()]] = 1;
 					lowerBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()]] = 1;
-				}
-				else
-				{
+				} else {
 					//progressive mode: bends are in opposite direction
 					upperBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()->twin()]] = 1;
 					lowerBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()->twin()]] = 1;
-				}//progressive
-
+				}
 
 				// Set the upper and lower bound for the last node in
 				// clockwise order of the mergeexpander face to
@@ -2092,8 +2020,7 @@ void OrthoShaper::call(PlanRep &PG,
 					if (e->target() != secFace)
 						//maybe we have to jump one step further
 						e = ae->cyclicPred()->theEdge();
-
-				}//progressive mode
+				}
 
 				if (e->target() == secFace) {
 					setBoundsEqually(e, piAngleFlow, piAngleFlow, piAngleFlow);
@@ -2155,9 +2082,10 @@ void OrthoShaper::call(PlanRep &PG,
 								isMulti[adj->twin()] = true;
 							}
 							multis++;
-						}//multi edge
-						else allMulti = false;
-					}//forallfaceadj count multis
+						} else {
+							allMulti = false;
+						}
+					}
 					//multi edge correction: only multi edges => one edge needs 360 degree
 					if (allMulti)
 					{
@@ -2212,12 +2140,11 @@ void OrthoShaper::call(PlanRep &PG,
 									upperBound[backAdjCor[adj]] = 4; //4 bends for 360
 									break;
 								}
-							}//forall expansion adj
-					}//if
-					}//if allMulti
+							}
+						}
+					}
 				//End multi edge correction
-				}//if multialign
-
+				}
 
 				//now set the upper Bounds
 				for(adjEntry adj : f->entries)
@@ -2267,10 +2194,8 @@ void OrthoShaper::call(PlanRep &PG,
 									}
 									//nur zum Testen der Faelle
 									OGDF_ASSERT(oldBound >= upperBound[backAdjCor[adj]]);
-								}// if not multi
-							}//traditional
-							else
-							{
+								}
+							} else {
 								//preliminary set the bound in all cases
 
 								if (!isMulti[adj]) //m_multiAlign???
@@ -2290,10 +2215,10 @@ void OrthoShaper::call(PlanRep &PG,
 										upperBound[backAdjCor[adj]] = max(2, lowerBound[backAdjCor[adj]]);
 #endif
 									}
-								}// if not multi
-							}//progressive
-						}//distributeedges
-					}// else no face splitter
+								}
+							}
+						}
+					}
 
 					// Node w is in Network
 					node w = networkNode[adj->twinNode()];
@@ -2310,7 +2235,7 @@ void OrthoShaper::call(PlanRep &PG,
 							}
 						}
 					}
-				}// forallfaceadj
+				}
 
 				// In case a face splitter was used, we need to update the
 				// second face of the cage.
@@ -2342,12 +2267,12 @@ void OrthoShaper::call(PlanRep &PG,
 								if (e->target() == F[f2]) {
 									setBoundsEqually(e, piAngleFlow, piAngleFlow, piAngleFlow);
 								}
-							}//forall adjacent edges
-						}//if not preset
+							}
+						}
 					}
 				}
 			}
-		}//if expanded
+		}
 
 		else
 		{
@@ -2398,23 +2323,17 @@ void OrthoShaper::call(PlanRep &PG,
 							//we forbid bends between incident multi edges
 							//or is it angle?
 							setBoundsEqually(e, zeroAngleFlow, zeroAngleFlow, zeroBackAngleFlow);
-						}//multi edge
-						else
-						{
-
-
+						} else {
 							//CHECK
 							//to be done: only if multiedges
 							if (!genshift[v]) upperBound[e] = upperAngleFlow;
 							allMulti = false;
 						}
-					}//multiAlign
-				}//foralladjedges
-
+					}
+				}
 
 				if (m_multiAlign && allMulti  && (v->degree()>1))
 				{
-
 					fixedVal[w] = true;
 
 					//find an edge that allows 360 degree without bends
@@ -2462,8 +2381,8 @@ void OrthoShaper::call(PlanRep &PG,
 								}
 								twoNodeCC = false;
 								break;
-							}//if not 2nodeCC
-						}//if
+							}
+						}
 					}
 					//if only two nodes with multiedges are in current CC,
 					//assign 360 degree to first edge
@@ -2485,12 +2404,11 @@ void OrthoShaper::call(PlanRep &PG,
 									setProgressiveBoundsEqually(e, lowerAngleFlow, maxBackFlow);
 								}
 								break;
-							}//if
-						}//forall
-					}//if
-				}//if allMulti
-			}//replaces vertex
-
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -2534,9 +2452,9 @@ void OrthoShaper::call(PlanRep &PG,
 							fixAssignment = true;
 							break;
 						}
-					}//if no angle back arc in progressive mode
+					}
 				}
-			}//deg4free
+			}
 
 			//CHECK
 			//now set the angles at degree 4 nodes to distribute edges
@@ -2558,9 +2476,7 @@ void OrthoShaper::call(PlanRep &PG,
 						lowerBound[te] = halfPiAngleFlow;
 						upperBound[te] = halfPiAngleFlow;
 					}
-				}//if no angle back arc in progressive mode
-				else
-				{
+				} else {
 					if (fixedVal[tv]) continue; //if already special values set
 
 					if (!fixAssignment)
@@ -2575,9 +2491,9 @@ void OrthoShaper::call(PlanRep &PG,
 						lowerBound[te] = 0; //1
 						upperBound[te] = 0; //halfPiAngleFlow; //1
 					}
-				}//back angle arc
+				}
 			}
-		}//degree 4 node
+		}
 		int lowsum = 0, upsum = 0;
 		for(adjEntry adj : tv->adjEntries) {
 			edge te = adj->theEdge();
@@ -2590,7 +2506,7 @@ void OrthoShaper::call(PlanRep &PG,
 			OGDF_ASSERT(lowsum <= supply[tv]);
 			OGDF_ASSERT(upsum >= supply[tv]);
 		}
-		}//if node, no faces
+		}
 	}
 
 	for(node tv : Network.nodes)
@@ -2611,14 +2527,13 @@ void OrthoShaper::call(PlanRep &PG,
 	//but some edges are no longer capacitybounded, therefore save their status
 	EdgeArray<bool> isBounded(Network, false);
 
-	for(edge e : Network.edges)
-
+	for (edge e : Network.edges) {
 		if (upperBound[e] == infinity)
 		{
 			capacityBoundedEdges.pushBack(e);
 			isBounded[e] = true;
-		}//if bounded
-
+		}
+	}
 
 	int currentUpperBound;
 	if (m_startBoundBendsPerEdge > 0)
@@ -2634,21 +2549,20 @@ void OrthoShaper::call(PlanRep &PG,
 		isFlow = flowModule.call(Network,lowerBound,upperBound,cost,supply,flow);
 
 #if 0
-#ifdef foutput
 		if (isFlow)
 		{ //if (int(ogdf::debugLevel) >= int(dlHeavyChecks)) {
 			for(edge e : Network.edges) {
 				fout << "e = " << e << " flow = " << flow[e];
 				if(nodeCor[e] == 0 && adjCor[e])
 					fout << " real edge = " << adjCor[e]->theEdge();
-				fout << endl;
+				fout << std::endl;
 			}
 			for(edge e : Network.edges) {
 				if(nodeCor[e] == 0 && adjCor[e] != 0 && flow[e] > 0) {
 					fout << "Bends " << flow[e] << " on edge "
 						<< adjCor[e]->theEdge()
 						<< " between faces " << adjF[adjCor[e]]->index() << " - "
-						<< adjF[adjCor[e]->twin()]->index() << endl;
+						<< adjF[adjCor[e]->twin()]->index() << std::endl;
 				}
 			}
 			for(edge e : Network.edges) {
@@ -2656,7 +2570,7 @@ void OrthoShaper::call(PlanRep &PG,
 					fout << "Angle " << (flow[e])*90 << "\tdegree   on node "
 						<< nodeCor[e] << " at face " << faceCor[e]->index()
 						<< "\tbetween edge " << adjCor[e]->faceCyclePred()
-						<< "\tand " << adjCor[e] << endl;
+						<< "\tand " << adjCor[e] << std::endl;
 				}
 			}
 			if (startBoundBendsPerEdge> 0) {
@@ -2664,22 +2578,19 @@ void OrthoShaper::call(PlanRep &PG,
 					<< currentUpperBound;
 				if(isFlow)
 					fout << " ... Successful";
-				fout << endl;
+				fout << std::endl;
 			}
-		} //}
-#endif
+		}
 #endif
 
 		OGDF_ASSERT(m_startBoundBendsPerEdge >= 1 || isFlow);
 
 		currentUpperBound++;
 
-	}// while (!isflow)
-
+	}
 
 	if (m_startBoundBendsPerEdge && !isFlow)
 		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::NoFlow);
-
 
 	int totalNumBends = 0;
 
@@ -2710,7 +2621,7 @@ void OrthoShaper::call(PlanRep &PG,
 			{
 				OGDF_ASSERT((int)OR.bend(adjCor[e]).size() <= currentUpperBound);
 				OGDF_ASSERT((int)OR.bend(adjCor[e]->twin()).size() <= currentUpperBound);
-			}//if bounded
+			}
 #endif
 		}
 		else if (nodeCor[e] != nullptr && faceCor[e] != nullptr)
@@ -2733,23 +2644,20 @@ void OrthoShaper::call(PlanRep &PG,
 					OGDF_ASSERT(twinFlow == 0);
 					OR.angle(adjCor[e]) = 2 - flow[e];
 				}
-			}//progressive mode
-		}//if angle arc
+			}
+		}
 	}
 
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		cout << "\n\nTotal Number of Bends : "<< totalNumBends << endl << endl;
+#ifdef OGDF_HEAVY_DEBUG
+		Logger::slout() << "\n\nTotal Number of Bends : " << totalNumBends << std::endl << std::endl;
 
-		string error;
-		if (OR.check(error) == false) {
-			cout << error << endl;
-			OGDF_ASSERT(false);
-		}
+	string error;
+	if (OR.check(error) == false) {
+		Logger::slout() << error << std::endl;
+		OGDF_ASSERT(false);
 	}
 #endif
 
-}//call simple PG
+}
 
-
-} // end namespace ogdf
+}

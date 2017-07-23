@@ -132,7 +132,7 @@ public:
 
 	bool transpose(node v);
 
-	void print(ostream &os) const;
+	void print(std::ostream &os) const;
 
 	void buildAdjNodes(int i);
 	void buildAdjNodes();
@@ -159,4 +159,4 @@ void HierarchyLevels::permute(RNG &rng)
 	buildAdjNodes();
 }
 
-} // end namespace ogdf
+}

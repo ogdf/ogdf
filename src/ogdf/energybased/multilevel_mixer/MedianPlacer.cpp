@@ -70,4 +70,4 @@ void MedianPlacer::placeOneNode(MultilevelGraph &MLG)
 	MLG.y(merged, y + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
 }
 
-} // namespace ogdf
+}

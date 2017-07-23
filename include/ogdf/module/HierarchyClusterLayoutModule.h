@@ -77,5 +77,4 @@ protected:
 	OGDF_MALLOC_NEW_DELETE
 };
 
-
-} // end namespace ogdf
+}

@@ -89,7 +89,7 @@ class PlanarSubgraphFast : public PlanarSubgraphModule<TCost> {
 		{
 			for(int i = 0; i < m_nBlocks; ++i) {
 				m_bestDelEdges[i] = nullptr;
-				m_bestSolution[i] = (m_block[i].first != nullptr) ? numeric_limits<int>::max() : 0;
+				m_bestSolution[i] = (m_block[i].first != nullptr) ? std::numeric_limits<int>::max() : 0;
 			}
 		}
 
@@ -291,7 +291,7 @@ private:
 
 		for(int i = 0; i < nBlocks; ++i) {
 			bestDelEdges[i] = nullptr;
-			bestSolution[i] = (block[i].first != nullptr) ? numeric_limits<TCost>::max() : 0;
+			bestSolution[i] = (block[i].first != nullptr) ? std::numeric_limits<TCost>::max() : 0;
 		}
 
 		for(int run = 0; run < nRuns; ++run) {

@@ -66,7 +66,7 @@ public:
 		  bool directed = false) //!< True iff G should be interpreted as directed graph
 	{
 		PrioritizedMapQueue<node, T, std::less<T>, H> queue(G);
-		distance.init(G, numeric_limits<T>::max());
+		distance.init(G, std::numeric_limits<T>::max());
 		predecessor.init(G, nullptr);
 
 		// initialization
@@ -97,7 +97,7 @@ public:
 					continue;
 				}
 				if (m_eps.greater(distance[w], distance[v] + weight[e])) {
-					OGDF_ASSERT(numeric_limits<T>::max() - weight[e] >= distance[v]);
+					OGDF_ASSERT(std::numeric_limits<T>::max() - weight[e] >= distance[v]);
 					queue.decrease(w, (distance[w] = distance[v] + weight[e]));
 					predecessor[w] = e;
 				}
@@ -122,4 +122,4 @@ public:
 	}
 };
 
-} // end namespace ogdf
+}

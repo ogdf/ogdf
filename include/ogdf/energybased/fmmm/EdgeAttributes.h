@@ -43,23 +43,23 @@ namespace fmmm {
 class OGDF_EXPORT EdgeAttributes
 {
 	//! outputstream for EdgeAttributes
-	friend OGDF_EXPORT ostream &operator<< (ostream &, const EdgeAttributes &);
+	friend OGDF_EXPORT std::ostream &operator<< (std::ostream &, const EdgeAttributes &);
 
 	//! inputstream for EdgeAttributes
-	friend OGDF_EXPORT istream &operator>> (istream &, EdgeAttributes &);
+	friend OGDF_EXPORT std::istream &operator>> (std::istream &, EdgeAttributes &);
 
 public:
-	EdgeAttributes();       //!< constructor
-	~EdgeAttributes() { }   //!< destructor
+	//! Constructor
+	EdgeAttributes();
 
-	void set_EdgeAttributes(double l, edge e_orig, edge e_sub)
+	void set_EdgeAttributes(double len, edge e_orig, edge e_sub)
 	{
-		length = l;
+		length = len;
 		e_original = e_orig;
 		e_subgraph = e_sub;
 	}
 
-	void set_length(double l) { length = l; }
+	void set_length(double len) { length = len; }
 	double get_length() const { return length; }
 
 	//! \name for the divide et impera step in FMMM @{

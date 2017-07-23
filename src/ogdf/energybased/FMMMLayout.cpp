@@ -38,6 +38,8 @@
 
 namespace ogdf {
 
+using energybased::fmmm::numexcept;
+
 FMMMLayout::FMMMLayout()
 {
 	initialize_all_options();
@@ -219,13 +221,12 @@ void FMMMLayout::call_FORCE_CALCULATION_step(
 		set_average_ideal_edgelength(G,E);//needed for easy scaling of the forces
 		make_initialisations_for_rep_calc_classes(G);
 
-		while (running(iter, max_mult_iter, actforcevectorlength))
-		{//while
+		while (running(iter, max_mult_iter, actforcevectorlength)) {
 			calculate_forces(G,A,E,F,F_attr,F_rep,last_node_movement,iter,0);
 			if(stopCriterion() != FMMMOptions::StopCriterion::FixedIterations)
 				actforcevectorlength = get_average_forcevector_length(G,F);
 			iter++;
-		}//while
+		}
 
 		if(act_level == 0)
 			call_POSTPROCESSING_step(G,A,E,F,F_attr,F_rep,last_node_movement);
@@ -546,14 +547,12 @@ void FMMMLayout::delete_parallel_edges(
 
 	//now parallel edges are consecutive in sorted_edges
 	bool firstEdge = true;
-	for (const auto &ei : sorted_edges)
-	{//for
+	for (const auto &ei : sorted_edges) {
 		edge e_act = ei.get_edge();
 		int act_s_index = e_act->source()->index();
 		int act_t_index = e_act->target()->index();
 
-		if(!firstEdge)
-		{//if
+		if (!firstEdge) {
 			if( (act_s_index == save_s_index && act_t_index == save_t_index) ||
 				(act_s_index == save_t_index && act_t_index == save_s_index) )
 			{
@@ -581,15 +580,13 @@ void FMMMLayout::delete_parallel_edges(
 				save_t_index = act_t_index;
 				e_save = e_act;
 			}
-		}//if
-		else //first edge
-		{
+		} else {
 			firstEdge = false;
 			save_s_index = act_s_index;
 			save_t_index = act_t_index;
 			e_save = e_act;
 		}
-	}//for
+	}
 
 	//treat special case (last edges were multiple edges)
 	if(counter >1)
@@ -646,33 +643,34 @@ void FMMMLayout::adjust_positions(const Graph& G, NodeArray<NodeAttributes>& A)
 			DPoint rt(max_integer_position, max_integer_position);
 			DPoint lb(max_integer_position * (-1.0), max_integer_position * (-1.0));
 			DPoint rb(max_integer_position, max_integer_position * (-1.0));
-			DLine s(nullpoint, old_pos);
-			DLine left_bound(lb, lt);
-			DLine right_bound(rb, rt);
-			DLine top_bound(lt, rt);
-			DLine bottom_bound(lb, rb);
+			DSegment s(nullpoint, old_pos);
+			DSegment left_bound(lb, lt);
+			DSegment right_bound(rb, rt);
+			DSegment top_bound(lt, rt);
+			DSegment bottom_bound(lb, rb);
 
-			if (s.intersection(left_bound, cross_point))
+			// TODO: What to do when IntersectionType::Overlapping is returned?
+			if (s.intersection(left_bound, cross_point) == IntersectionType::SinglePoint)
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else if (s.intersection(right_bound, cross_point))
+			else if (s.intersection(right_bound, cross_point) == IntersectionType::SinglePoint)
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else if (s.intersection(top_bound, cross_point))
+			else if (s.intersection(top_bound, cross_point) == IntersectionType::SinglePoint)
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else if (s.intersection(bottom_bound, cross_point))
+			else if (s.intersection(bottom_bound, cross_point) == IntersectionType::SinglePoint)
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else cout << "Error FMMMLayout:: adjust_positions()" << endl;
+			else std::cout << "Error FMMMLayout:: adjust_positions()" << std::endl;
 		}
 	}
 	//make positions integer
@@ -698,9 +696,10 @@ void FMMMLayout::adjust_positions(const Graph& G, NodeArray<NodeAttributes>& A)
 
 void FMMMLayout::create_postscript_drawing(GraphAttributes& AG, char* ps_file)
 {
-	ofstream out_fmmm(ps_file, ios::out);
-	if (!ps_file)
-		cout << ps_file << " could not be opened !" << endl;
+	std::ofstream out_fmmm(ps_file, std::ios::out);
+	if (!out_fmmm.good()) {
+		std::cout << ps_file << " could not be opened !" << std::endl;
+	}
 
 	const Graph& G = AG.constGraph();
 	double x_min = AG.x(G.firstNode());
@@ -724,60 +723,60 @@ void FMMMLayout::create_postscript_drawing(GraphAttributes& AG, char* ps_file)
 	max_dist = max(x_max - x_min, y_max - y_min);
 	scale_factor = 500.0 / max_dist;
 
-	out_fmmm << "%!PS-Adobe-2.0 " << endl;
-	out_fmmm << "%%Pages:  1 " << endl;
-	out_fmmm << "% %BoundingBox: " << x_min << " " << x_max << " " << y_min << " " << y_max << endl;
-	out_fmmm << "%%EndComments " << endl;
-	out_fmmm << "%%" << endl;
-	out_fmmm << "%% Circle" << endl;
-	out_fmmm << "/ellipse_dict 4 dict def" << endl;
-	out_fmmm << "/ellipse {" << endl;
-	out_fmmm << "  ellipse_dict" << endl;
-	out_fmmm << "  begin" << endl;
-	out_fmmm << "   newpath" << endl;
-	out_fmmm << "   /yrad exch def /xrad exch def /ypos exch def /xpos exch def" << endl;
-	out_fmmm << "   matrix currentmatrix" << endl;
-	out_fmmm << "   xpos ypos translate" << endl;
-	out_fmmm << "   xrad yrad scale" << endl;
-	out_fmmm << "  0 0 1 0 360 arc" << endl;
-	out_fmmm << "  setmatrix" << endl;
-	out_fmmm << "  closepath" << endl;
-	out_fmmm << " end" << endl;
-	out_fmmm << "} def" << endl;
-	out_fmmm << "%% Nodes" << endl;
-	out_fmmm << "/v { " << endl;
-	out_fmmm << " /y exch def" << endl;
-	out_fmmm << " /x exch def" << endl;
-	out_fmmm << "1.000 1.000 0.894 setrgbcolor" << endl;
-	out_fmmm << "x y 10.0 10.0 ellipse fill" << endl;
-	out_fmmm << "0.000 0.000 0.000 setrgbcolor" << endl;
-	out_fmmm << "x y 10.0 10.0 ellipse stroke" << endl;
-	out_fmmm << "} def" << endl;
-	out_fmmm << "%% Edges" << endl;
-	out_fmmm << "/e { " << endl;
-	out_fmmm << " /b exch def" << endl;
-	out_fmmm << " /a exch def" << endl;
-	out_fmmm << " /y exch def" << endl;
-	out_fmmm << " /x exch def" << endl;
-	out_fmmm << "x y moveto a b lineto stroke" << endl;
-	out_fmmm << "} def" << endl;
-	out_fmmm << "%% " << endl;
-	out_fmmm << "%% INIT " << endl;
-	out_fmmm << "20  200 translate" << endl;
-	out_fmmm << scale_factor << "  " << scale_factor << "  scale " << endl;
-	out_fmmm << "1 setlinewidth " << endl;
-	out_fmmm << "%%BeginProgram " << endl;
+	out_fmmm << "%!PS-Adobe-2.0 " << std::endl;
+	out_fmmm << "%%Pages:  1 " << std::endl;
+	out_fmmm << "% %BoundingBox: " << x_min << " " << x_max << " " << y_min << " " << y_max << std::endl;
+	out_fmmm << "%%EndComments " << std::endl;
+	out_fmmm << "%%" << std::endl;
+	out_fmmm << "%% Circle" << std::endl;
+	out_fmmm << "/ellipse_dict 4 dict def" << std::endl;
+	out_fmmm << "/ellipse {" << std::endl;
+	out_fmmm << "  ellipse_dict" << std::endl;
+	out_fmmm << "  begin" << std::endl;
+	out_fmmm << "   newpath" << std::endl;
+	out_fmmm << "   /yrad exch def /xrad exch def /ypos exch def /xpos exch def" << std::endl;
+	out_fmmm << "   matrix currentmatrix" << std::endl;
+	out_fmmm << "   xpos ypos translate" << std::endl;
+	out_fmmm << "   xrad yrad scale" << std::endl;
+	out_fmmm << "  0 0 1 0 360 arc" << std::endl;
+	out_fmmm << "  setmatrix" << std::endl;
+	out_fmmm << "  closepath" << std::endl;
+	out_fmmm << " end" << std::endl;
+	out_fmmm << "} def" << std::endl;
+	out_fmmm << "%% Nodes" << std::endl;
+	out_fmmm << "/v { " << std::endl;
+	out_fmmm << " /y exch def" << std::endl;
+	out_fmmm << " /x exch def" << std::endl;
+	out_fmmm << "1.000 1.000 0.894 setrgbcolor" << std::endl;
+	out_fmmm << "x y 10.0 10.0 ellipse fill" << std::endl;
+	out_fmmm << "0.000 0.000 0.000 setrgbcolor" << std::endl;
+	out_fmmm << "x y 10.0 10.0 ellipse stroke" << std::endl;
+	out_fmmm << "} def" << std::endl;
+	out_fmmm << "%% Edges" << std::endl;
+	out_fmmm << "/e { " << std::endl;
+	out_fmmm << " /b exch def" << std::endl;
+	out_fmmm << " /a exch def" << std::endl;
+	out_fmmm << " /y exch def" << std::endl;
+	out_fmmm << " /x exch def" << std::endl;
+	out_fmmm << "x y moveto a b lineto stroke" << std::endl;
+	out_fmmm << "} def" << std::endl;
+	out_fmmm << "%% " << std::endl;
+	out_fmmm << "%% INIT " << std::endl;
+	out_fmmm << "20  200 translate" << std::endl;
+	out_fmmm << scale_factor << "  " << scale_factor << "  scale " << std::endl;
+	out_fmmm << "1 setlinewidth " << std::endl;
+	out_fmmm << "%%BeginProgram " << std::endl;
 
 	for (edge e : G.edges)
 		out_fmmm << AG.x(e->source()) << " " << AG.y(e->source()) << " "
-		<< AG.x(e->target()) << " " << AG.y(e->target()) << " e" << endl;
+		<< AG.x(e->target()) << " " << AG.y(e->target()) << " e" << std::endl;
 
 	for (node v : G.nodes)
-		out_fmmm << AG.x(v) << " " << AG.y(v) << " v" << endl;
+		out_fmmm << AG.x(v) << " " << AG.y(v) << " v" << std::endl;
 
-	out_fmmm << "%%EndProgram " << endl;
-	out_fmmm << "showpage " << endl;
-	out_fmmm << "%%EOF " << endl;
+	out_fmmm << "%%EndProgram " << std::endl;
+	out_fmmm << "showpage " << std::endl;
+	out_fmmm << "%%EOF " << std::endl;
 }
 
 
@@ -1008,10 +1007,8 @@ void FMMMLayout::rotate_components_and_calculate_bounding_rectangles(
 		for (node v_sub : G_sub[i].nodes)
 			A_sub[i][v_sub].set_position(best_coords[i][v_sub]);
 		R.pushBack(r_best);
-
-	}//allcomponents
+	}
 }
-
 
 void FMMMLayout::export_node_positions(
 	NodeArray<NodeAttributes>& A,
@@ -1133,15 +1130,11 @@ void FMMMLayout::create_initial_placement_uniform_grid(const Graph& G, NodeArray
 	OGDF_ASSERT(level < 31);
 	int m = (1 << level) - 1;
 	double blall = boxlength / (m + 1); //boxlength for boxes at the lowest level (depth)
-	Array<node> all_nodes(G.numberOfNodes());
+	Array<node> all_nodes;
+	G.allNodes(all_nodes);
 
 	int k = 0;
-	for (node v : G.nodes) {
-		all_nodes[k] = v;
-		k++;
-	}
 	node v = all_nodes[0];
-	k = 0;
 	for (int i = 0; i <= m; ++i) {
 		for (int j = 0; j <= m; ++j) {
 			A[v].set_x(boxlength*i / (m + 1) + blall / 2);
@@ -1223,7 +1216,6 @@ void FMMMLayout::calculate_attractive_forces(
 	EdgeArray<EdgeAttributes> & E,
 	NodeArray<DPoint>& F_attr)
 {
-	energybased::fmmm::numexcept N;
 	DPoint f_u;
 	DPoint nullpoint (0,0);
 
@@ -1239,7 +1231,7 @@ void FMMMLayout::calculate_attractive_forces(
 		double norm_v_minus_u = vector_v_minus_u.norm();
 		if(vector_v_minus_u == nullpoint)
 			f_u = nullpoint;
-		else if(!N.f_near_machine_precision(norm_v_minus_u,f_u))
+		else if(!numexcept::f_near_machine_precision(norm_v_minus_u,f_u))
 		{
 			double scalar = f_attr_scalar(norm_v_minus_u,E[e].get_length())/norm_v_minus_u;
 			f_u.m_x = scalar * vector_v_minus_u.m_x;
@@ -1280,7 +1272,7 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 			break;
 		}
 	default:
-		cerr << "Error FMMMLayout::f_attr_scalar" << endl;
+		std::cerr << "Error FMMMLayout::f_attr_scalar" << std::endl;
 		OGDF_ASSERT(false);
 	}
 
@@ -1296,7 +1288,6 @@ void FMMMLayout::add_attr_rep_forces(
 	int iter,
 	int fine_tuning_step)
 {
-	energybased::fmmm::numexcept N;
 	DPoint nullpoint(0, 0);
 
 	//set cool_factor
@@ -1351,7 +1342,7 @@ void FMMMLayout::add_attr_rep_forces(
 		DPoint force;
 		if (f == nullpoint)
 			force = nullpoint;
-		else if (N.f_near_machine_precision(norm_f, force))
+		else if (numexcept::f_near_machine_precision(norm_f, force))
 			restrict_force_to_comp_box(force);
 		else
 		{
@@ -1525,5 +1516,4 @@ void FMMMLayout::adapt_drawing_to_ideal_average_edgelength(
 	}
 }
 
-
-} //end namespace ogdf
+}

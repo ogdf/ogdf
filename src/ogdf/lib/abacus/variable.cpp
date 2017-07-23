@@ -122,7 +122,7 @@ bool Variable::useful(
 
 
 void Variable::printCol(
-	ostream &out,
+	std::ostream &out,
 	Active<Constraint, Variable> *constraints) const
 {
 	Column col(master_, constraints->number());
@@ -132,4 +132,4 @@ void Variable::printCol(
 	out << col;
 }
 
-} //namespace abacus
+}

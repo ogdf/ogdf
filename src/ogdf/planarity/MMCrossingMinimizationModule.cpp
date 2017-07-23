@@ -176,5 +176,4 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 	return ReturnType::Feasible;
 }
 
-
-} // namspace ogdf
+}

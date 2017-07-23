@@ -245,7 +245,6 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 		}
 
 		for(node v : GC.nodes) {
-			SListConstIterator<node> it;
 			for(node u : toJoin[v])
 				join(GC,superNode,joinedNodes,v,u);
 		}
@@ -286,7 +285,6 @@ void LongestPathRanking::join(
 {
 	OGDF_ASSERT(v != w);
 
-	SListConstIterator<node> it;
 	for(node vi : joinedNodes[w])
 		superNode[vi] = v;
 
@@ -416,7 +414,7 @@ void LongestPathRanking::getTmpRank(node v, NodeArray<int> &rank)
 
 			m_ingoing[u]--;
 			if (m_finished[u])
-				m_offset = min(m_offset, rank[u] - rank[w]-p.x2());
+				Math::updateMin(m_offset, rank[u] - rank[w] - p.x2());
 
 			else {
 				if (m_ingoing[u] == 0) {
@@ -441,6 +439,4 @@ void LongestPathRanking::dfsAdd(node v, NodeArray<int> &rank)
 	}
 }
 
-
-
-} // end namespace ogdf
+}

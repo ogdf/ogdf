@@ -255,7 +255,7 @@ public:
 	 * \param out         The output stream.
 	 * \param constraints The constraints for which the column should be written.
 	 */
-	void printCol(ostream &out,
+	void printCol(std::ostream &out,
 		Active<Constraint, Variable> *constraints) const;
 
 protected:
@@ -276,4 +276,4 @@ inline bool Variable::valid(const Sub *sub) const
 
 
 
-} //namespace abacus
+}

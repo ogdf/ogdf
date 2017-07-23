@@ -56,7 +56,7 @@ namespace ogdf {
 
 	int CPXPUBLIC CPX_CutCallback(CPXCENVptr xenv, void *cbdata,
 			int wherefrom, void *cbhandle, int *useraction_p) {
-//		cout << "Entering CPX Callback\n" << flush;
+//		std::cout << "Entering CPX Callback\n" << std::flush;
 		CPXLPptr nodelp;
 		CPXgetcallbacknodelp(xenv, cbdata, wherefrom, &nodelp);
 
@@ -90,7 +90,7 @@ namespace ogdf {
 				cuts->eraseRowCut(i);
 			}
 			if(cuts->sizeColCuts() > 0) {
-				cerr << "ColCuts currently not supported...\n";
+				std::cerr << "ColCuts currently not supported...\n";
 				OGDF_THROW_PARAM(LibraryNotSupportedException, lnscFunctionNotImplemented);
 			}
 		}
@@ -100,7 +100,7 @@ namespace ogdf {
 				( ret == CoinCallbacks::CutReturn::AddCuts ) ? CPX_CALLBACK_SET : CPX_CALLBACK_DEFAULT;
 		delete cuts;
 		delete[] solution;
-//		cout << "Leaving CPX Callback\n" << flush;
+//		std::cout << "Leaving CPX Callback\n" << std::flush;
 		return 0; // success
 	}
 

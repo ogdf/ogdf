@@ -231,8 +231,6 @@ protected:
 
 	EdgeArray<StaticSkeleton *> m_skOf;    //!< skeleton containing real edge \a e
 	EdgeArray<edge>             m_copyOf;  //!< skeleton edge corresponding to real edge \a e
+};
 
-}; // class StaticSPQRTree
-
-
-} // end namespace ogdf
+}

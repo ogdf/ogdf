@@ -66,4 +66,4 @@ public:
 	virtual void outputLpStatistics() const override { }
 };
 
-} //namespace abacus
+}

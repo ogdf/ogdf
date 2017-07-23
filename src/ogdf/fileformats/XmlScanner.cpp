@@ -34,16 +34,16 @@
 
 namespace ogdf {
 
-XmlScanner::XmlScanner(istream &is) {
+XmlScanner::XmlScanner(std::istream &is) {
 	// Create line buffer
 	m_pLineBuffer = new LineBuffer(is);
-} // XmlScanner::XmlScanner
+}
 
 
 XmlScanner::~XmlScanner() {
 	// Destroy line buffer
 	delete m_pLineBuffer;
-} // XmlScanner::~XmlScanner
+}
 
 // Take a look at the state machine of getNextToken() to understand
 // what is going on here.
@@ -121,14 +121,12 @@ XmlToken XmlScanner::getNextToken(){
 			return XmlToken::equalSign;
 		}
 		break;
-
-	} // end of switch
+	}
 
 	// Now we handle more complex token
 
 	// Identifier
 	if (isalpha(currentCharacter)){
-
 		// Put a pointer to the beginning of the identifier
 		LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
 
@@ -148,8 +146,7 @@ XmlToken XmlScanner::getNextToken(){
 
 		// Return identifier token
 		return XmlToken::identifier;
-
-	} // end of identifier
+	}
 
 	// Quoted characters " ... " or ' ... '
 	if ((currentCharacter == '\"') ||
@@ -179,8 +176,7 @@ XmlToken XmlScanner::getNextToken(){
 
 		// Return token for quoted value
 		return XmlToken::quotedValue;
-
-	} // end of quoted characters
+	}
 
 	// An atributeValue, i.e. a sequence of characters, digits, minus - or dot .
 	if ((isalnum(currentCharacter)) ||
@@ -204,17 +200,14 @@ XmlToken XmlScanner::getNextToken(){
 
 		// Return token for attribute value
 		return XmlToken::attributeValue;
-
-	} // end of an attributeValue
+	}
 
 	// No valid token
 	m_pLineBuffer->moveToNextCharacter();
 	return XmlToken::invalidToken;
-
-} // getNextToken
+}
 
 XmlToken XmlScanner::testNextToken(){
-
 	// Save pointer to the current position
 	LineBufferPosition originalPosition = m_pLineBuffer->getCurrentPosition();
 
@@ -226,8 +219,7 @@ XmlToken XmlScanner::testNextToken(){
 
 	// Return token
 	return returnToken;
-
-} // testNextToken
+}
 
 XmlToken XmlScanner::testNextNextToken(){
 
@@ -245,13 +237,10 @@ XmlToken XmlScanner::testNextNextToken(){
 
 	// Return token
 	return returnToken;
-
-} // testNextNextToken
+}
 
 bool XmlScanner::skipUntil(char searchCharacter, bool skipOverSearchCharacter){
-
 	while (m_pLineBuffer->getCurrentCharacter() != EOF){
-
 		// Search character has been found!
 		if (m_pLineBuffer->getCurrentCharacter() == searchCharacter){
 
@@ -261,20 +250,16 @@ bool XmlScanner::skipUntil(char searchCharacter, bool skipOverSearchCharacter){
 			}
 
 			return true;
-
-		} // Search character has been found!
+		}
 
 		// Move to next character and proceed
 		m_pLineBuffer->moveToNextCharacter();
-
-	} // while (!EOF)
+	}
 
 	return false;
-
-} // skipUntil
+}
 
 bool XmlScanner::skipUntilMatchingClosingBracket(){
-
 	// We assume that the opening bracket has already been read
 	int bracketParity = 1;
 
@@ -295,15 +280,13 @@ bool XmlScanner::skipUntilMatchingClosingBracket(){
 
 		// Move to next character and proceed
 		m_pLineBuffer->moveToNextCharacter();
-
-	} // while
+	}
 
 	if (bracketParity != 0 )
 		return false;
 	else
 		return true;
-
-} // skipUntilMatchingClosingBracket
+}
 
 bool XmlScanner::readStringUntil(char searchCharacter,
                                  bool includeSearchCharacter) {
@@ -323,61 +306,56 @@ bool XmlScanner::readStringUntil(char searchCharacter,
 	else{
 		return false;
 	}
-
-} // getStringUntil
+}
 
 void XmlScanner::test(){
-
 	bool terminate = false;
 	XmlToken currentToken;
 
 	while (!terminate){
 
-		cout << "Line " << getInputFileLineCounter() << ": ";
+		std::cout << "Line " << getInputFileLineCounter() << ": ";
 		currentToken = getNextToken();
 
 		switch (currentToken){
 		case XmlToken::openingBracket:
-			cout << "<" << endl;
+			std::cout << "<" << std::endl;
 			break;
 		case XmlToken::closingBracket:
-			cout << ">" << endl;
+			std::cout << ">" << std::endl;
 			break;
 		case XmlToken::questionMark:
-			cout << "?" << endl;
+			std::cout << "?" << std::endl;
 			break;
 		case XmlToken::exclamationMark:
-			cout << "!" << endl;
+			std::cout << "!" << std::endl;
 			break;
 		case XmlToken::minus:
-			cout << "-" << endl;
+			std::cout << "-" << std::endl;
 			break;
 		case XmlToken::slash:
-			cout << "/" << endl;
+			std::cout << "/" << std::endl;
 			break;
 		case XmlToken::equalSign:
-			cout << "<" << endl;
+			std::cout << "<" << std::endl;
 			break;
 		case XmlToken::identifier:
-			cout << "Identifier: " << m_currentToken << endl;
+			std::cout << "Identifier: " << m_currentToken << std::endl;
 			break;
 		case XmlToken::attributeValue:
-			cout << "Attribute value: " << m_currentToken << endl;
+			std::cout << "Attribute value: " << m_currentToken << std::endl;
 			break;
 		case XmlToken::quotedValue:
-			cout << "Quoted value: \"" << m_currentToken << "\"" << endl;
+			std::cout << "Quoted value: \"" << m_currentToken << "\"" << std::endl;
 			break;
 		case XmlToken::endOfFile:
-			cout << "EOF" << endl;
+			std::cout << "EOF" << std::endl;
 			terminate = true;
 			break;
 		default:
-			cout << "Invalid token!" << endl;
+			std::cout << "Invalid token!" << std::endl;
+		}
+	}
+}
 
-		} // switch
-
-	} // while
-
-} // testScanner
-
-} // namespace ogdf
+}

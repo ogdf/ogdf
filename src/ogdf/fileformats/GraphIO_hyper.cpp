@@ -79,7 +79,7 @@ static string::size_type findOpen(const string &from, int line)
 }
 
 
-bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, istream &is)
+bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, std::istream &is)
 {
 	G.clear();
 	hypernodes.clear();
@@ -159,7 +159,7 @@ bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, ist
 }
 
 
-bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, istream &is)
+bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, std::istream &is)
 {
 	G.clear();
 	hypernodes.clear();

@@ -35,12 +35,12 @@
 namespace ogdf {
 
 
-GraphMLParser::GraphMLParser(istream &in) : m_error(false)
+GraphMLParser::GraphMLParser(std::istream &in) : m_error(false)
 {
 	pugi::xml_parse_result result = m_xml.load(in);
 
 	if (!result) {
-		GraphIO::logger.lout() << "XML parser error: " << result.description() << endl;
+		GraphIO::logger.lout() << "XML parser error: " << result.description() << std::endl;
 		m_error = true;
 		return;
 	}
@@ -48,7 +48,7 @@ GraphMLParser::GraphMLParser(istream &in) : m_error(false)
 	pugi::xml_node root = m_xml.child("graphml");
 
 	if(!root) {
-		GraphIO::logger.lout() << "File root tag is not a <graphml>." << endl;
+		GraphIO::logger.lout() << "File root tag is not a <graphml>." << std::endl;
 		m_error = true;
 		return;
 	}
@@ -56,7 +56,7 @@ GraphMLParser::GraphMLParser(istream &in) : m_error(false)
 	m_graphTag = root.child("graph");
 
 	if (!m_graphTag) {
-		GraphIO::logger.lout() << "<graph> tag not found." << endl;
+		GraphIO::logger.lout() << "<graph> tag not found." << std::endl;
 		m_error = true;
 		return;
 	}
@@ -66,12 +66,12 @@ GraphMLParser::GraphMLParser(istream &in) : m_error(false)
 		pugi::xml_attribute nameAttr = keyTag.attribute("attr.name");
 
 		if (!idAttr) {
-			GraphIO::logger.lout() << "Key does not have an id attribute." << endl;
+			GraphIO::logger.lout() << "Key does not have an id attribute." << std::endl;
 			m_error = true;
 			return;
 		}
 		if (!nameAttr) {
-			GraphIO::logger.lout() << "Key does not have an attr.name attribute." << endl;
+			GraphIO::logger.lout() << "Key does not have an attr.name attribute." << std::endl;
 			m_error = true;
 			return;
 		}
@@ -94,7 +94,7 @@ bool GraphMLParser::readData(
 	pugi::xml_attribute keyId = nodeData.attribute("key");
 
 	if (!keyId) {
-		GraphIO::logger.lout() << "Node data does not have a key." << endl;
+		GraphIO::logger.lout() << "Node data does not have a key." << std::endl;
 		return false;
 	}
 
@@ -192,7 +192,7 @@ bool GraphMLParser::readData(
 		}
 		break;
 	default:
-		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown node attribute: \"" << keyId.value() << "\"." << endl;
+		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown node attribute: \"" << keyId.value() << "\"." << std::endl;
 	}
 
 	return true;
@@ -206,7 +206,7 @@ bool GraphMLParser::readData(
 {
 	pugi::xml_attribute keyId = edgeData.attribute("key");
 	if (!keyId) {
-		GraphIO::logger.lout() << "Edge data does not have a key." << endl;
+		GraphIO::logger.lout() << "Edge data does not have a key." << std::endl;
 		return false;
 	}
 
@@ -244,7 +244,7 @@ bool GraphMLParser::readData(
 	default:
 		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown edge attribute with \""
 		             << keyId.value()
-		             << "\"." << endl;
+		             << "\"." << std::endl;
 	}
 
 	return true;
@@ -258,7 +258,7 @@ bool GraphMLParser::readData(
 {
 	auto keyId = clusterData.attribute("key");
 	if (!keyId) {
-		GraphIO::logger.lout() << "Cluster data does not have a key." << endl;
+		GraphIO::logger.lout() << "Cluster data does not have a key." << std::endl;
 		return false;
 	}
 
@@ -286,6 +286,7 @@ bool GraphMLParser::readData(
 		if (CA.width(c) == CA.height(c)) {
 			CA.width(c) = CA.height(c) = text.as_double();
 		}
+		break;
 	case Attribute::R:
 		if (!GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { CA.fillColor(c).red(val); })) {
 			return false;
@@ -308,7 +309,7 @@ bool GraphMLParser::readData(
 		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown cluster attribute with \""
 		             << keyId.value()
 		             << "--enum: " << m_attrName[keyId.value()] << "--"
-		             << "\"." << endl;
+		             << "\"." << std::endl;
 	}
 
 	return true;
@@ -323,7 +324,7 @@ bool GraphMLParser::readNodes(
 	for(pugi::xml_node nodeTag : rootTag.children("node")) {
 		pugi::xml_attribute idAttr = nodeTag.attribute("id");
 		if(!idAttr) {
-			GraphIO::logger.lout() << "Node is missing id attribute." << endl;
+			GraphIO::logger.lout() << "Node is missing id attribute." << std::endl;
 			return false;
 		}
 
@@ -337,7 +338,7 @@ bool GraphMLParser::readNodes(
 
 		pugi::xml_node clusterTag = nodeTag.child("graph");
 		if (clusterTag) {
-			GraphIO::logger.lout(Logger::Level::Minor) << "Nested graphs are not fully supported." << endl;
+			GraphIO::logger.lout(Logger::Level::Minor) << "Nested graphs are not fully supported." << std::endl;
 			return readNodes(G, GA, clusterTag);
 		}
 	}
@@ -356,11 +357,11 @@ bool GraphMLParser::readEdges(
 		pugi::xml_attribute targetId = edgeTag.attribute("target");
 
 		if (!sourceId) {
-			GraphIO::logger.lout() << "Edge is missing source node." << endl;
+			GraphIO::logger.lout() << "Edge is missing source node." << std::endl;
 			return false;
 		}
 		if (!targetId) {
-			GraphIO::logger.lout() << "Edge is missing target node." << endl;
+			GraphIO::logger.lout() << "Edge is missing target node." << std::endl;
 			return false;
 		}
 
@@ -368,7 +369,7 @@ bool GraphMLParser::readEdges(
 		if (sourceIt == std::end(m_nodeId)) {
 			GraphIO::logger.lout() << "Edge source node \""
 			           << sourceId.value()
-			           << "\" is incorrect.\n" << endl;
+			           << "\" is incorrect.\n" << std::endl;
 			return false;
 		}
 
@@ -376,7 +377,7 @@ bool GraphMLParser::readEdges(
 		if (targetIt == std::end(m_nodeId)) {
 			GraphIO::logger.lout() << "Edge source node \""
 			           << targetId.value()
-			           << "\" is incorrect.\n" << endl;
+			           << "\" is incorrect.\n" << std::endl;
 			return false;
 		}
 
@@ -406,7 +407,7 @@ bool GraphMLParser::readClusters(
 		if (clusterTag == nullptr) {
 			// Got normal node then, add it to the graph - id is required.
 			if (!idAttr) {
-				GraphIO::logger.lout() << "Node is missing id attribute." << endl;
+				GraphIO::logger.lout() << "Node is missing id attribute." << std::endl;
 				return false;
 			}
 
@@ -495,5 +496,4 @@ bool GraphMLParser::read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA)
 	return readClusters(G, C, &CA, C.rootCluster(), m_graphTag);
 }
 
-
-} // end namespace ogdf
+}

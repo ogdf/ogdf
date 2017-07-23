@@ -93,9 +93,7 @@ struct FMEGlobalOptions
 //! forward decl of local context struct
 struct FMELocalContext;
 
-/*!
- * Global Context
-*/
+//! Global Context
 struct FMEGlobalContext
 {
 	FMELocalContext** pLocalContext;		//!< all local contexts
@@ -117,10 +115,7 @@ struct FMEGlobalContext
 	double currAvgEdgeLength;
 };
 
-
-/*!
- * Local Thread Context
-*/
+//! Local thread Context
 struct FMELocalContext
 {
 	FMEGlobalContext* pGlobalContext;		//!< pointer to the global context
@@ -145,7 +140,6 @@ struct FMELocalContext
 	LinearQuadtree::NodeID lastLeaf;		  //!< last leaves the thread prepared
 	uint32_t numLeaves;						  //!< number of leaves the thread prepared
 };
-
 
 //! creates a min max functor for the x coords of the node
 static inline min_max_functor<float> min_max_x_function(FMELocalContext* pLocalContext)
@@ -380,11 +374,12 @@ class LQPartitioner
 {
 public:
 	explicit LQPartitioner( FMELocalContext* pLocalContext )
-	{
-		numThreads = pLocalContext->pGlobalContext->numThreads;
-		tree = pLocalContext->pGlobalContext->pQuadtree;
-		localContexts = pLocalContext->pGlobalContext->pLocalContext;
-	}
+	: numPointsPerThread(0)
+	, numThreads(pLocalContext->pGlobalContext->numThreads)
+	, currThread(0)
+	, tree(pLocalContext->pGlobalContext->pQuadtree)
+	, localContexts(pLocalContext->pGlobalContext->pLocalContext)
+	{ }
 
 	void partitionNodeChains()
 	{

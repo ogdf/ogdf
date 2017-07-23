@@ -1,5 +1,5 @@
 /** \file
- * \brief Implements class ProcrustesSubLayout
+ * \brief Defines ogdf::ProcrustesSubLayout.
  *
  * \author Martin Gronemann
  *
@@ -33,11 +33,7 @@
 
 namespace ogdf {
 
-//! Creates an instance of circular layout.
-ProcrustesSubLayout::ProcrustesSubLayout(LayoutModule* pSubLayout) : m_pSubLayout(pSubLayout), m_scaleToInitialLayout(true)
-{
-	// nothing
-}
+ProcrustesSubLayout::ProcrustesSubLayout(LayoutModule* pSubLayout) : m_pSubLayout(pSubLayout), m_scaleToInitialLayout(true) { }
 
 void ProcrustesSubLayout::copyFromGraphAttributes(const GraphAttributes& graphAttributes, ProcrustesPointSet& pointSet)
 {
@@ -91,7 +87,6 @@ void ProcrustesSubLayout::flipY(GraphAttributes& graphAttributes)
 	}
 }
 
-//! Computes a circular layout for graph attributes \p graphAttributes.
 void ProcrustesSubLayout::call(GraphAttributes& graphAttributes)
 {
 	// any layout?
@@ -170,7 +165,6 @@ ProcrustesPointSet::~ProcrustesPointSet()
 
 void ProcrustesPointSet::normalize(bool flip)
 {
-	// upppppps
 	if (!m_numPoints)
 		return;
 
@@ -263,4 +257,4 @@ double ProcrustesPointSet::compare(const ProcrustesPointSet& other) const
 	return result;
 }
 
-} // end of namespace ogdf
+}

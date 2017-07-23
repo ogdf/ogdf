@@ -60,13 +60,14 @@ void GridLayoutModule::mapGridLayout(const Graph &G,
 	GridLayout &gridLayout,
 	GraphAttributes &AG)
 {
-	double maxWidth = 0; // maximum width of columns and rows;
+	// maximum width of columns and rows
+	double maxWidth = 0;
 	double yMax = 0;
 
 	for(node v : G.nodes) {
-		if (AG.width (v) > maxWidth) maxWidth = AG.width (v);
-		if (AG.height(v) > maxWidth) maxWidth = AG.height(v);
-		if (gridLayout.y(v) > yMax) yMax = gridLayout.y(v);
+		Math::updateMax<double>(maxWidth, AG.width(v));
+		Math::updateMax<double>(maxWidth, AG.height(v));
+		Math::updateMax<double>(yMax, gridLayout.y(v));
 	}
 
 	maxWidth += m_separation;
@@ -79,13 +80,26 @@ void GridLayoutModule::mapGridLayout(const Graph &G,
 
 	// transform bend points of edges
 	for(edge e : G.edges) {
+		IPolyline ipl = gridLayout.polyline(e);
+
+		// Remove superfluous bendpoints
+		node v = e->source();
+		while(!ipl.empty() && ipl.front() == IPoint(gridLayout.x(v), gridLayout.y(v))) {
+			ipl.popFront();
+		}
+		v = e->target();
+		while(!ipl.empty() && ipl.back() == IPoint(gridLayout.x(v), gridLayout.y(v))) {
+			ipl.popBack();
+		}
+
 		DPolyline &dpl = AG.bends(e);
 		dpl.clear();
 
-		IPolyline ipl = gridLayout.polyline(e);
 		for (const IPoint &ip : ipl) {
 			dpl.pushBack(DPoint(ip.m_x*maxWidth, (yMax-ip.m_y)*maxWidth));
 		}
+
+		dpl.normalize();
 	}
 }
 
@@ -197,5 +211,4 @@ void GridLayoutPlanRepModule::doCall(
 	}
 }
 
-
-} // end namespace ogdf
+}

@@ -110,7 +110,6 @@ public:
 	*  No layout is calculated. The result is a planar graph.
 	*/
 	int callSubgraphPlanarizer(int cc = 0, int numberOfPermutations = 1);
-
 };
 
-} // end namespace ogdf
+}

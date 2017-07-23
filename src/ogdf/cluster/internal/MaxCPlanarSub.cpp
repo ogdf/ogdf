@@ -45,10 +45,8 @@
 
 #include <ogdf/lib/abacus/setbranchrule.h>
 
-//output intermediate results when new sons are generated
-//#define IM_OUTPUT
-#ifdef IM_OUTPUT
-#include <ogdf/basic/GraphAttributes.h>
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
+#include <ogdf/fileformats/GraphIO.h>
 #endif
 
 using namespace ogdf;
@@ -126,50 +124,46 @@ Sub *MaxCPlanarSub::generateSon(BranchRule *rule) {
 #endif
 
 	const double minViolation = 0.001; // value fixed from abacus...
-	#ifdef IM_OUTPUT
-		if (father() == 0)
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
+	if (father() == 0)
+	{
+		std::ofstream output("Intermediate.txt", std::ios::app);
+		if (!output) std::cerr<<"Could not open file for intermediate results!\n";
+
+		output << "Intermediate Results at branching in Root Node\n";
+		output << "Number of  graph nodes: " << ((MaxCPlanarMaster*)master_)->getGraph()->numberOfNodes() <<"\n";
+		output << "Number of  graph edges: " << ((MaxCPlanarMaster*)master_)->getGraph()->numberOfEdges() <<"\n";
+
+		output << "Current number of active variables: " << nVar() << "\n";
+		output << "Current number of active constraints: " << nCon() << "\n";
+
+		output << "Current lower bound: " << lowerBound()<<"\n";
+		output << "Current upper bound: " << upperBound()<<"\n";
+
+		output << "Global primal bound: " << ((MaxCPlanarMaster*)master_)->getPrimalBound()<<"\n";
+		output << "Global dual bound: " << ((MaxCPlanarMaster*)master_)->getDualBound()<<"\n";
+
+		output << "Added K cons: " << ((MaxCPlanarMaster*)master_)->addedKConstraints()<<"\n";
+		output << "Added C cons: " << ((MaxCPlanarMaster*)master_)->addedCConstraints()<<"\n";
+		output.close();
+
+		GraphAttributes GA(*(((MaxCPlanarMaster*)master_)->getGraph()), GraphAttributes::edgeStyle |
+			GraphAttributes::edgeDoubleWeight | GraphAttributes::edgeStyle |
+			GraphAttributes::edgeGraphics);
+
+		for (int i = 0; i < nVar(); ++i)
 		{
-			ofstream output("Intermediate.txt",ios::app);
-			if (!output) cerr<<"Could not open file for intermediate results!\n";
-
-			output << "Intermediate Results at branching in Root Node\n";
-			output << "Number of  graph nodes: " << ((MaxCPlanarMaster*)master_)->getGraph()->numberOfNodes() <<"\n";
-			output << "Number of  graph edges: " << ((MaxCPlanarMaster*)master_)->getGraph()->numberOfEdges() <<"\n";
-
-			output << "Current number of active variables: " << nVar() << "\n";
-			output << "Current number of active constraints: " << nCon() << "\n";
-
-			output << "Current lower bound: " << lowerBound()<<"\n";
-			output << "Current upper bound: " << upperBound()<<"\n";
-
-			output << "Global primal bound: " << ((MaxCPlanarMaster*)master_)->getPrimalBound()<<"\n";
-			output << "Global dual bound: " << ((MaxCPlanarMaster*)master_)->getDualBound()<<"\n";
-
-			output << "Added K cons: " << ((MaxCPlanarMaster*)master_)->addedKConstraints()<<"\n";
-			output << "Added C cons: " << ((MaxCPlanarMaster*)master_)->addedCConstraints()<<"\n";
-			output.close();
-
-			GraphAttributes GA(*(((MaxCPlanarMaster*)master_)->getGraph()), GraphAttributes::edgeStyle |
-				GraphAttributes::edgeDoubleWeight | GraphAttributes::edgeColor |
-				GraphAttributes::edgeGraphics);
-
-#if 1
-			for (int i=0; i<((MaxCPlanarMaster*)master_)->nVar(); ++i)
-#else
-			for(edge e : (((MaxCPlanarMaster*)master_)->getGraph()->edges)
-#endif
+			EdgeVar *e = (EdgeVar*)variable(i);
+			if (e->theEdgeType() == EdgeVar::EdgeType::Original)
 			{
-				EdgeVar *e = (EdgeVar*)variable(i);
-				if (e->theEdgeType() == EdgeVar::EdgeType::Original)
-				{
-					GA.doubleWeight(e->theEdge()) = xVal(i);
-					GA.strokeWidth(e->theEdge()) = 10.0*xVal(i);
-					if (xVal(i) == 1.0) GA.strokeColor(e->theEdge()) = "#FF0000";
-				}//if real edge
-			}//forall variables
-			GraphIO::writeGML(GA, "WeightedIntermediateGraph.gml");
+				GA.doubleWeight(e->theEdge()) = xVal(i);
+				GA.strokeWidth(e->theEdge()) = 10.0*xVal(i);
+				if (xVal(i) == 1.0) GA.strokeColor(e->theEdge()) = "#FF0000";
+			}
 		}
-	#endif
+		GraphIO::writeGML(GA, "WeightedIntermediateGraph.gml");
+	}
+#endif
 
 	List< Constraint* > criticalConstraints;
 	if (master()->pricing())
@@ -207,11 +201,11 @@ Sub *MaxCPlanarSub::generateSon(BranchRule *rule) {
 					{
 						slk = 0.0;
 #ifdef OGDF_DEBUG
-						cout << "Set slack to 0.0\n";
+						std::cout << "Set slack to 0.0\n";
 #endif
 					}
 					if(slk > 0.0) {
-						Logger::slout() << "ohoh..." << slk << " "; var->printMe(Logger::slout()); Logger::slout()<<flush;
+						Logger::slout() << "ohoh..." << slk << " "; var->printMe(Logger::slout()); Logger::slout()<<std::flush;
 					}
 					OGDF_ASSERT(slk <= 0.0);
 					double zeroSlack = slk+xVal(varidx)*coeff;
@@ -235,7 +229,7 @@ Sub *MaxCPlanarSub::generateSon(BranchRule *rule) {
 				}
 			}
 		}
-	}//pricing
+	}
 
 	return new MaxCPlanarSub(master_, this, rule, criticalConstraints);
 }
@@ -255,9 +249,9 @@ int MaxCPlanarSub::selectBranchingVariable(int &variable) {
 	if (found == 0) {
 #if 0
 		Edge *e = (Edge*)(this->variable(variableABA));
-		cout << "Branching variable is: " << (e->theEdgeType()==Original ? "Original" : "Connect") << " Edge (";
-		cout << e->sourceNode()->index() << "," << e->targetNode()->index() << ") having value: ";
-		cout << xVal(variableABA) << " and coefficient " << ((Edge*)this->variable(variableABA))->objCoeff() << endl;
+		std::cout << "Branching variable is: " << (e->theEdgeType()==Original ? "Original" : "Connect") << " Edge (";
+		std::cout << e->sourceNode()->index() << "," << e->targetNode()->index() << ") having value: ";
+		std::cout << xVal(variableABA) << " and coefficient " << ((Edge*)this->variable(variableABA))->objCoeff() << std::endl;
 #endif
 		variable = variableABA;
 		return 0;
@@ -354,7 +348,6 @@ double MaxCPlanarSub::subdivisionLefthandSide(SListConstIterator<KuratowskiWrapp
 		EdgeVar *e = static_cast<EdgeVar*>(variable(i));
 		node v = e->sourceNode();
 		node w = e->targetNode();
-		SListConstIterator<edge> it;
 		for (edge ei : (*kw).edgeList) {
 			if ((ei->source() == gc->copy(v) && ei->target() == gc->copy(w)) ||
 				(ei->source() == gc->copy(w) && ei->target() == gc->copy(v))) {
@@ -494,7 +487,7 @@ void MaxCPlanarSub::childClusterSpanningTree(
 	}
 
 	//Todo: What is happening here? Do we have to abort?
-	if (!isConnected(GC)) cerr << "Error. For some reason no spanning tree could be computed" << endl << flush;
+	if (!isConnected(GC)) std::cerr << "Error. For some reason no spanning tree could be computed" << std::endl << std::flush;
 	return;
 }
 
@@ -797,7 +790,7 @@ double MaxCPlanarSub::heuristicImprovePrimalBound(
 				origEdges.pushBack(np);
 			}
 		}
-	} // All leftover permlists have been checked
+	}
 
 	// If the Graph created so far contains all original edges, the Graph is c-planar.
 	// Todo: And we are finished...
@@ -867,9 +860,8 @@ void MaxCPlanarSub::recursiveMinimumSpanningTree(
 	//node forwarding
 	//nodes corresponding to cluster \a c are added to given list \a clusterNodes
 	//necessary, to have quick access to the relevant nodes for building up the GraphCopy for the cluster
-	ListConstIterator<node> it;
-	for (it=c->nBegin(); it.valid(); ++it) {
-		clusterNodes.pushBack(*it);
+	for (node v : c->nodes) {
+		clusterNodes.pushBack(v);
 	}
 
 	GraphCopy *cG;
@@ -911,39 +903,36 @@ void MaxCPlanarSub::recursiveMinimumSpanningTree(
 	}
 
 	//If cluster \a c has further children, they have to be processed first
-	ListConstIterator<cluster> cit;
 	List<node> nodes;
-	for (cit=c->cBegin(); cit.valid(); ++cit) {
-
-		recursiveMinimumSpanningTree(C,(*cit),treeEdges,edgesByIncLPValue,nodes);
+	for (auto child : c->children) {
+		recursiveMinimumSpanningTree(C, child, treeEdges, edgesByIncLPValue, nodes);
 
 		//computed treeEdges for the child clusters have to be added to treeEdges for current cluster
-		ListConstIterator<NodePair> it;
-		for (it=treeEdges[(*cit)].begin(); it.valid(); ++it) {
-			treeEdges[c].pushBack(*it);
+		for (auto treeEdge : treeEdges[child].begin()) {
+			treeEdges[c].pushBack(treeEdge);
 		}
 	}
 	//The MSTs of all children of cluster \a c have been computed
 	//So MST for \a c can now be computed
 
 	//updating node lists
-	for (it=nodes.begin(); it.valid(); ++it) {
-		clusterNodes.pushBack(*it);
+	for (auto v : nodes) {
+		clusterNodes.pushBack(v);
 	}
-	for (it=c->nBegin(); it.valid(); ++it) {
-		nodes.pushBack(*it);
+	for (auto v : c->nodes) {
+		nodes.pushBack(v);
 	}
 	//now list \a nodes contains all nodes belonging to cluster \a c
 
 	//create GraphCopy induced by nodes in \a nodes
 	cG = new GraphCopy(C.getGraph());
 	NodeArray<bool> isInCluster(*cG,false);
-	for (it=nodes.begin(); it.valid(); ++it) {
-		isInCluster[cG->copy(*it)] = true;
+	for (node v : nodes) {
+		isInCluster[cG->copy(v)] = true;
 	}
 	node v = cG->firstNode();
 	node v_succ;
-	while (v!=0) {
+	while (v != nullptr) {
 		v_succ = v->succ();
 		if (!isInCluster[v]) {
 			cG->delNode(v);
@@ -952,7 +941,7 @@ void MaxCPlanarSub::recursiveMinimumSpanningTree(
 	}
 	edge e = cG->firstEdge();
 	edge e_succ;
-	while (e!=0) {
+	while (e != nullptr) {
 		e_succ = e->succ();
 		cG->delEdge(e);
 		e = e_succ;
@@ -1139,17 +1128,17 @@ double MaxCPlanarSub::heuristicImprovePrimalBoundDet(
 	//if the Graph created so far contains all original edges, the Graph is c-planar.
 	if (originalEdgeCounter == ((MaxCPlanarMaster*)master_)->getGraph()->numberOfEdges()) {
 #if 0
-		cout << "Graph is c-planar! Heuristic has computed a solution that contains all original edges" << endl;
+		std::cout << "Graph is c-planar! Heuristic has computed a solution that contains all original edges" << std::endl;
 #endif
 		((MaxCPlanarMaster*)master_)->updateBestSubGraph(origEdges,conEdges,delEdges);
 #if 0
-		cout << "value of solution is: " << oEdgeObjValue << endl;
+		std::cout << "value of solution is: " << oEdgeObjValue << std::endl;
 #endif
 		master_->primalBound(oEdgeObjValue+0.79);
 	}
 
 
-	cout << "the objective function value of heuristically computed ILP-solution is: " << (oEdgeObjValue + cEdgeObjValue) << endl;
+	std::cout << "the objective function value of heuristically computed ILP-solution is: " << (oEdgeObjValue + cEdgeObjValue) << std::endl;
 
 	return (oEdgeObjValue+0.79);
 }
@@ -1244,7 +1233,7 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 	if (num == 0) return 0;
 
 #if 0
-	cout << "#Starting clusterBags with cluster of size " << num << "\n";
+	std::cout << "#Starting clusterBags with cluster of size " << num << "\n";
 #endif
 
 	//now we store the  iterators
@@ -1254,7 +1243,7 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 		listPointer[*it] = it;
 		inCluster[*it] = true;
 		++it;
-	}//while
+	}
 
 	int count = 0;
 
@@ -1274,7 +1263,7 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 			node v = activeNodes.pop(); //running node
 			parent[v] = start; //representative points to itself
 #if 0
-			cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
+			std::cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
 #endif
 			count++;
 
@@ -1292,11 +1281,11 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 					nodesInCluster.del(listPointer[w]);
 				}
 			}
-		}//while
-	}//while
+		}
+	}
 
 #if 0
-	cout << "Number of chunks: " << numChunks << "\n";
+	std::cout << "Number of chunks: " << numChunks << "\n";
 #endif
 	//Now all node parents point to the representative of their chunk (start node in search)
 	numBags = numChunks; //We count backwards if chunks are connected by subcluster
@@ -1310,18 +1299,18 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 	{
 		List<node> nodesInChild;
 		cc->getClusterNodes(nodesInChild);
-		cout << nodesInChild.size() << "\n";
+		std::cout << nodesInChild.size() << "\n";
 		ListConstIterator<node> itN = nodesInChild.begin();
-		node bagRep; //stores the representative for the whole bag
+		node bagRep = nullptr; //stores the representative for the whole bag
 		if (itN.valid()) bagRep = getRepresentative(*itN, parent);
 #if 0
-		cout << " bagRep is " << bagRep->index() << "\n";
+		std::cout << " bagRep is " << bagRep->index() << "\n";
 #endif
 		while (itN.valid())
 		{
 			node w = getRepresentative(*itN, parent);
 #if 0
-			cout << "  Rep is: " << w->index() << "\n";
+			std::cout << "  Rep is: " << w->index() << "\n";
 #endif
 			if (w != bagRep)
 			{
@@ -1329,18 +1318,18 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 				parent[w] = bagRep;
 				parent[*itN] = bagRep; //shorten search path
 #if 0
-				cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
+				std::cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
 #endif
 			}
 			++itN;
-		}//While all nodes in subcluster
-	}//while all child clusters
+		}
+	}
 
 	return numBags;
 #if 0
-	cout << "#Number of bags: " << numBags << "\n";
+	std::cout << "#Number of bags: " << numBags << "\n";
 #endif
-}//clusterBags
+}
 
 
 //! returns connectivity status for complete connectivity
@@ -1414,7 +1403,7 @@ bool MaxCPlanarSub::checkCConnectivity(const GraphCopy& support)
 					isVisited[w] = true;
 				}
 			}
-		}//while
+		}
 		//check if we reached all nodes
 		//we assume that the graph is connected, otherwise check
 		//fails for root cluster anyway
@@ -1423,7 +1412,7 @@ bool MaxCPlanarSub::checkCConnectivity(const GraphCopy& support)
 		//condition depends on the checked set, cluster or complement
 		set1Connected = (startState ? (count == num) : (count == G.numberOfNodes() - num));
 #if 0
-		cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << "\n";
+		std::cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << "\n";
 #endif
 
 		if (!set1Connected) return false;
@@ -1458,7 +1447,7 @@ bool MaxCPlanarSub::checkCConnectivity(const GraphCopy& support)
 					isVisited[w] = true;
 				}
 			}
-		}//while
+		}
 		//Check if we reached all nodes
 		if (ccount + count != G.numberOfNodes())
 			return false;
@@ -1533,7 +1522,7 @@ bool MaxCPlanarSub::checkCConnectivityOld(const GraphCopy& support)
 
 bool MaxCPlanarSub::feasible() {
 #if 0
-	cout << "Checking feasibility\n";
+	std::cout << "Checking feasibility\n";
 #endif
 
 	if (!integerFeasible()) {
@@ -1550,7 +1539,7 @@ bool MaxCPlanarSub::feasible() {
 		bool ccOld = checkCConnectivityOld(support);
 		if (cc != ccOld)
 		{
-			cout << "CC: "<<cc<<" CCOLD: "<<ccOld<<"\n";
+			std::cout << "CC: "<<cc<<" CCOLD: "<<ccOld<<"\n";
 
 		}
 		OGDF_ASSERT (cc == ccOld);
@@ -1575,7 +1564,7 @@ bool MaxCPlanarSub::feasible() {
 			return false;
 		}
 	}
-}//feasible
+}
 
 #if 0
 static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
@@ -1618,7 +1607,7 @@ bool MaxCPlanarSub::fastfeasible() {
 					// Next cluster
 					c = c->succ();
 					continue;
-				}//if root cluster
+				}
 				// Determining the nodes of current cluster
 				List<node> clusterNodes;
 				c->getClusterNodes(clusterNodes);
@@ -1705,7 +1694,7 @@ bool MaxCPlanarSub::fastfeasible() {
 			return false;
 		}
 	}
-}//fastfeasible
+}
 #endif
 
 void MaxCPlanarSub::intSolutionInducedGraph(GraphCopy &support) {
@@ -1783,7 +1772,7 @@ void MaxCPlanarSub::kuratowskiSupportGraph(GraphCopy &support, double low, doubl
 				}
 			}
 		}
-	} // end for(int i=0; i<nVar(); ++i)
+	}
 }
 
 
@@ -1866,7 +1855,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 	{
 #ifdef OGDF_DEBUG
 #if 0
-	cout<<"Connectivity Regeneration did not work\n";
+	std::cout<<"Connectivity Regeneration did not work\n";
 #endif
 #endif
 		GraphCopy support(*static_cast<MaxCPlanarMaster*>(master())->getGraph());
@@ -1935,10 +1924,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 					bufferedForCreation.push(new CutConstraint(static_cast<MaxCPlanarMaster*>(master()), this, cutNodePairs));
 					count++;
 				}
-
-			}//end Graph is connected
-
-			else {
+			} else {
 				NodeArray<int> comp(*c_support);
 				connectedComponents(*c_support,comp);
 				List<node> partition;
@@ -1970,8 +1956,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 				// Create cut-constraint
 				bufferedForCreation.push(new CutConstraint(static_cast<MaxCPlanarMaster*>(master()), this, cutEdges)); // always violated enough
 				count++;
-
-			}//end Graph is not connected
+			}
 			delete c_support;
 
 		}
@@ -2039,7 +2024,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 					bufferedForCreation.push(new CutConstraint(static_cast<MaxCPlanarMaster*>(master()), this, cutNodePairs));
 					count++;
 				}
-			}//end Graph is connected
+			}
 
 			else {
 				NodeArray<int> comp(*c_support);
@@ -2073,7 +2058,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 				bufferedForCreation.push(new CutConstraint(static_cast<MaxCPlanarMaster*>(master()), this, cutEdges)); // always violated enough.
 
 				count++;
-			}//end Graph is not connected
+			}
 			delete c_support;
 		}
 
@@ -2095,7 +2080,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 			m_constraintsFound = true;
 			return nGenerated;
 		}
-	}//if no regeneration of connectivity cuts was possible
+	}
 
 	// KURATOWSKI SEPARATION
 
@@ -2148,7 +2133,6 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 			// Checking if first subdivision is violated by current solution
 			// Performance should be improved somehow!!!
 			SListConstIterator<KuratowskiWrapper> kw = kuratowskis.begin();
-			SListConstIterator<KuratowskiWrapper> succ;
 			double leftHandSide = subdivisionLefthandSide(kw,kSupport);
 
 			// Only violated constraints are created and added
@@ -2214,7 +2198,7 @@ int MaxCPlanarSub::separateReal(double minViolate) {
 				}
 				nGenerated += addKuraCons(kConstraints);
 				if (nGenerated != count)
-				cerr << "Number of added constraints doesn't match number of created constraints" << endl;
+				std::cerr << "Number of added constraints doesn't match number of created constraints" << std::endl;
 				break;
 
 			} else {
@@ -2329,18 +2313,18 @@ int MaxCPlanarSub::repair() {
 		<< " var="<< infeasVar_
 		<< " con="<< infeasCon_<< "\n";
 	for(int i=0; i<nCon(); ++i)
-		Logger::slout() << bInvRow_[i] << " " << flush;
-	Logger::slout() << "\n" << flush;
+		Logger::slout() << bInvRow_[i] << " " << std::flush;
+	Logger::slout() << "\n" << std::flush;
 	for(int i=0; i<nCon(); ++i) {
 		if(bInvRow_[i]!=0) {
-			Logger::slout() << bInvRow_[i] << ": " << flush;
+			Logger::slout() << bInvRow_[i] << ": " << std::flush;
 			ChunkConnection* chc = dynamic_cast<ChunkConnection*>(constraint(i));
 			if(chc) chc->printMe(Logger::slout());
 			CutConstraint* cuc = dynamic_cast<CutConstraint*>(constraint(i));
 			if(cuc) cuc->printMe(Logger::slout());
 			ClusterKuratowskiConstraint* kc = dynamic_cast<ClusterKuratowskiConstraint*>(constraint(i));
 			if(kc) kc->printMe(Logger::slout());
-			Logger::slout() << "\n" << flush;
+			Logger::slout() << "\n" << std::flush;
 		}
 	}
 	// only output end
@@ -2385,7 +2369,7 @@ int MaxCPlanarSub::solveLp() {
 		OGDF_ASSERT(addMe >=0 );
 		if(addMe) {
 			Logger::slout() << "ARRRGGGG!!!! ABACUS SUCKS!!\n";
-			Logger::slout() << nVar() << " variables of " << vp->number() << " in model. Fetching " << addMe << ".\n" << flush;
+			Logger::slout() << nVar() << " variables of " << vp->number() << " in model. Fetching " << addMe << ".\n" << std::flush;
 #if 0
 			master()->activeVars->loadIndices(this); // current indexing scheme
 #endif
@@ -2528,7 +2512,7 @@ int MaxCPlanarSub::solveLp() {
 	if(master()->m_checkCPlanar) // was: master()->pricing()
 		dualBound_=master()->infinity();//666
 	Logger::slout() << "\t\tLP-relaxation: " <<  lp_->value() << "\n";
-	Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << endl;
+	Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << std::endl;
 	realDualBound = lp_->value();
 
 #if 0
@@ -2550,18 +2534,18 @@ int MaxCPlanarSub::solveLp() {
 		m_sepFirst = !m_sepFirst;
 		if(m_sepFirst) {
 			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< std::endl; return 1; }
 			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
 			if( (m_reportCreation = separateRealO(minViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< std::endl; return 1; }
 			m_reportCreation = -pricingRealO(minViolation);
 		} else {
 			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
 			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< std::endl; return 1; }
 			if( (m_reportCreation = -pricingRealO(minViolation)) ) return 0;
 			m_reportCreation = separateRealO(minViolation);
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< endl; return 1; }
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< std::endl; return 1; }
 		}
 #endif
 	}

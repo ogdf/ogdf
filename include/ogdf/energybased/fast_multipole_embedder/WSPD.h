@@ -37,7 +37,7 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-//! Class for the Well-Separated-Pairs-Decomposition (WSPD)
+//! Class for the Well-Separated-Pairs-Decomposition (%WSPD)
 class WSPD
 {
 public:

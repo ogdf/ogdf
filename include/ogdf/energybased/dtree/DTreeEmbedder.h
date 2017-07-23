@@ -522,7 +522,7 @@ double DTreeEmbedder<Dim>::moveNodesByForcePrime()
 			maxDispl = displ_sq;
 		}
 	}
-	std::cout << sqrt(maxDispl) << std::endl;
+	Logger::slout() << "sqrt(maxDispl)=" << sqrt(maxDispl) << std::endl;
 	return sqrt(maxDispl);
 }
 
@@ -548,7 +548,7 @@ double DTreeEmbedder<Dim>::moveNodes(double timeStep)
 		}
 	}
 
-	std::cout << sqrt(maxDispl) << std::endl;
+	Logger::slout() << "sqrt(maxDispl)=" << sqrt(maxDispl) << std::endl;
 	return sqrt(maxDispl);
 }
 
@@ -644,10 +644,10 @@ void DTreeEmbedder<Dim>::doIterationsAdaptive(int numIterations, double epsilon,
 		lastMaxDisplacement = maxDisplacement;
 		iterationsUsed++;
 #if 0
-		std::cout << maxDisplacement << std::endl;
+		Logger::slout() << maxDisplacement << std::endl;
 #endif
 	}
-	std::cout << "IterationsUsed: " << iterationsUsed << " of " << numIterations << " energy: " << lastMaxDisplacement << std::endl;
+	Logger::slout() << "IterationsUsed: " << iterationsUsed << " of " << numIterations << " energy: " << lastMaxDisplacement << std::endl;
 }
 
 template<int Dim>
@@ -669,7 +669,7 @@ void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations,
 	}
 
 	int numIterationsUsed = 0;
-	std::cout << "doIterationsNewton: V = " << m_graph.numberOfNodes() << " E = " << m_graph.numberOfEdges() << " Iterations " << numIterations << std::endl;
+	Logger::slout() << "doIterationsNewton: V = " << m_graph.numberOfNodes() << " E = " << m_graph.numberOfEdges() << " Iterations " << numIterations << std::endl;
 
 	// init the error with epsilon
 	double maxDisplacement = 10000.0;
@@ -694,7 +694,7 @@ void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations,
 		}
 	}
 
-	std::cout << "Needed " << numIterationsUsed << " of " << numIterations << std::endl;
+	Logger::slout() << "Needed " << numIterationsUsed << " of " << numIterations << std::endl;
 }
 
 template<int Dim>

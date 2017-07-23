@@ -285,4 +285,4 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} // end namespace ogdf
+}

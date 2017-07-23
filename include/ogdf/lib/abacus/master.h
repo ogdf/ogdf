@@ -1346,7 +1346,7 @@ private:
 	VBCMODE VbcLog_;
 
 	//! A pointer to the log stream for the VBC-Tool.
-	ostream *treeStream_;
+	std::ostream *treeStream_;
 
 	//! The guarantee in percent which should be reached when the optimization stops.
 	/**
@@ -1533,4 +1533,4 @@ inline double Master::upperBound() const
 	else                 return primalBound_;
 }
 
-} //namespace abacus
+}

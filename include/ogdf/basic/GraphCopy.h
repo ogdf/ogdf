@@ -39,7 +39,7 @@
 
 namespace ogdf {
 
-class FaceSetPure;
+template<bool b> class FaceSet;
 
 
 /**
@@ -208,8 +208,7 @@ public:
 private:
 	void initGC(const GraphCopySimple &GC, NodeArray<node> &vCopy,
 		EdgeArray<edge> &eCopy);
-}; // class GraphCopySimple
-
+};
 
 /**
  * \brief Copies of graphs supporting edge splitting
@@ -470,6 +469,7 @@ public:
 	void setEdge(edge eOrig, edge eCopy);
 
 	//! Embeds the graph copy.
+	OGDF_DEPRECATED("Use ogdf::planarEmbed() instead.")
 	bool embed();
 
 	//! Removes all crossing nodes which are actually only two "touching" edges.
@@ -584,7 +584,7 @@ public:
 	void removeEdgePathEmbedded(
 		CombinatorialEmbedding &E,
 		edge                    eOrig,
-		FaceSetPure            &newFaces);
+		FaceSet<false>         &newFaces);
 
 
 	//@}
@@ -593,8 +593,10 @@ public:
 	 */
 	//@{
 
-	//! Checks the consistency of the data structure (for debugging only).
-	bool consistencyCheck() const;
+#ifdef OGDF_DEBUG
+	//! Asserts that this copy is consistent.
+	void consistencyCheck() const;
+#endif
 
 	//! Re-initializes the copy using the graph \p G.
 	/**
@@ -711,8 +713,6 @@ protected:
 private:
 	void initGC(const GraphCopy &GC,
 		NodeArray<node> &vCopy, EdgeArray<edge> &eCopy);
+};
 
-}; // class GraphCopy
-
-
-} // end namespace ogdf
+}

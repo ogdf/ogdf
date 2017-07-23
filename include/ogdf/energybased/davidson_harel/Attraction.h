@@ -50,8 +50,8 @@ public:
 	//Initializes data structures to speed up later computations
 	explicit Attraction(GraphAttributes &AG);
 	~Attraction() {}
-	//! set the preferred edge length to the absolute value l
-	void setPreferredEdgelength(double l) {m_preferredEdgeLength = l;}
+	//! set the preferred edge length
+	void setPreferredEdgelength(double length) {m_preferredEdgeLength = length;}
 	//! set multiplier for the edge length with repspect to node size to multi
 	void reinitializeEdgeLength(double multi);
 #ifdef OGDF_DEBUG

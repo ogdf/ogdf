@@ -44,18 +44,14 @@ void SimDrawCaller::updateESG()
 {
 	for(edge e : m_G->edges)
 		(*m_esg)[e] = m_GA->subGraphBits(e);
-
-} // end updateESG
-
+}
 
 // Constructor
 SimDrawCaller::SimDrawCaller(SimDraw &SD) : SimDrawManipulatorModule(SD)
 {
 	m_esg = new EdgeArray<uint32_t>(*m_G);
 	updateESG();
-
-} // end constructor
-
+}
 
 // call for SugiyamaLayout
 void SimDrawCaller::callSugiyamaLayout()
@@ -72,9 +68,7 @@ void SimDrawCaller::callSugiyamaLayout()
 	SugiyamaLayout SL;
 	SL.setSubgraphs(m_esg); // needed to call SimDraw mode
 	SL.call(*m_GA);
-
-} // end callSugiyamaLayout
-
+}
 
 // call for PlanarizationLayoutUML
 void SimDrawCaller::callPlanarizationLayout()
@@ -86,13 +80,10 @@ void SimDrawCaller::callPlanarizationLayout()
 	for(node v : m_G->nodes)
 		m_GA->height(v) = m_GA->width(v) = 5.0;
 
-
 	// actual call on PlanarizationLayout
 	PlanarizationLayout PL;
 	PL.callSimDraw(*m_GA);
-
-} // end callPlanarizationLayout
-
+}
 
 // call for SubgraphPlanarizer
 // returns crossing number
@@ -168,7 +159,6 @@ int SimDrawCaller::callSubgraphPlanarizer(int cc, int numberOfPermutations)
 	}
 
 	return crossNum;
+}
 
-} // end callSubgraphPlanarizer
-
-} // end namespace ogdf
+}

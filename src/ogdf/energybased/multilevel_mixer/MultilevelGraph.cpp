@@ -140,7 +140,7 @@ MultilevelGraph::MultilevelGraph(GraphAttributes &GA, Graph &G)
 }
 
 
-MultilevelGraph::MultilevelGraph(istream &is)
+MultilevelGraph::MultilevelGraph(std::istream &is)
 :m_createdGraph(true)
 {
 	m_G = new Graph();
@@ -572,8 +572,9 @@ bool MultilevelGraph::changeEdge(NodeMerge * NM, edge theEdge, double newWeight,
 		NM->m_target[index] = theEdge->target()->index();
 	}
 	m_G->delEdge(theEdge);
-	m_reverseEdgeIndex[index] = m_G->newEdge(newSource, newTarget, index);
-	m_weight[theEdge] = newWeight;
+	edge newEdge = m_G->newEdge(newSource, newTarget, index);
+	m_reverseEdgeIndex[index] = newEdge;
+	m_weight[newEdge] = newWeight;
 
 	return true;
 }
@@ -766,7 +767,7 @@ void MultilevelGraph::updateReverseIndizes()
 }
 
 
-void MultilevelGraph::writeGML(ostream &os)
+void MultilevelGraph::writeGML(std::ostream &os)
 {
 	GraphAttributes GA(*m_G);
 	exportAttributesSimple(GA);
@@ -777,7 +778,7 @@ void MultilevelGraph::writeGML(ostream &os)
 
 void MultilevelGraph::writeGML(const char *fileName)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os);
 }
 
@@ -799,5 +800,4 @@ void MultilevelGraph::moveToZero()
 	}
 }
 
-
-} // namespace ogdf
+}

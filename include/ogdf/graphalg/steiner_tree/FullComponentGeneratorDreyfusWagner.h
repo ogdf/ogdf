@@ -1,6 +1,5 @@
 /** \file
- * \brief Definition and implementation of a full component generator
- *   based on the Dreyfus-Wagner algorithm
+ * \brief Definition of the ogdf::steiner_tree::FullComponentGeneratorDreyfusWagner class template
  *
  * \author Stephan Beyer
  *
@@ -34,22 +33,15 @@
 
 #include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/SubsetEnumerator.h>
-#include <ogdf/basic/IndexComparer.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 namespace ogdf {
 namespace steiner_tree {
 
-//! Sort terminals by index
-static void sortTerminals(List<node> &terminals)
-{
-	IndexComparer<node> idx;
-	terminals.quicksort(idx);
-}
-
-//! A generator for full components (for Steiner tree approximations) based on the Dreyfus-Wagner algorithm
+//! A generator for restricted full components (for Steiner tree approximations)
+//! based on the Dreyfus-Wagner algorithm
 template<typename T>
-class DreyfusWagnerFullComponentGenerator
+class FullComponentGeneratorDreyfusWagner
 {
 	const EdgeWeightedGraph<T> &m_G; //!< A reference to the graph instance
 	const List<node> &m_terminals; //!< A reference to the index-sorted list of terminals
@@ -65,7 +57,7 @@ class DreyfusWagnerFullComponentGenerator
 		{
 		}
 		DWMData()
-		 : cost(numeric_limits<T>::max())
+		 : cost(std::numeric_limits<T>::max())
 		 , nodepairs()
 		{
 		}
@@ -79,7 +71,9 @@ class DreyfusWagnerFullComponentGenerator
 		OGDF_ASSERT(key.size() > 1);
 		if (key.size() == 2) {
 			NodePairs nodepairs(0, 0, NodePair(key.front(), key.back()));
-			return DWMData(m_distance[key.front()][key.back()], nodepairs);
+			return DWMData(
+			  m_distance[key.front()][key.back()],
+			  nodepairs);
 		}
 		return m_map.lookup(key)->info(); // copy
 	}
@@ -94,7 +88,7 @@ class DreyfusWagnerFullComponentGenerator
 		return m_map.lookup(key)->info().cost;
 	}
 
-	void insertSorted(List<node> &list, node v) const
+	static void insertSorted(List<node> &list, node v)
 	{
 		for (ListIterator<node> it = list.begin(); it.valid(); ++it) {
 			OGDF_ASSERT((*it)->index() != v->index());
@@ -108,9 +102,9 @@ class DreyfusWagnerFullComponentGenerator
 
 public:
 	/** The constructor
-	 * \pre The list of terminals has to be sorted by index (use sortTerminals)
+	 * \pre The list of terminals has to be sorted by index (use MinSteinerTreeModule<T>::sortTerminals)
 	 */
-	DreyfusWagnerFullComponentGenerator(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<NodeArray<T>> &distance)
+	FullComponentGeneratorDreyfusWagner(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<NodeArray<T>> &distance)
 	  : m_G(G)
 	  , m_terminals(terminals)
 	  , m_distance(distance)
@@ -207,7 +201,7 @@ public:
 	}
 
 	//! Construct a Steiner tree for the given set of terminals
-	T getSteinerTreeFor(const List<node> &terminals, EdgeWeightedGraphCopy<T> &tree)
+	T getSteinerTreeFor(const List<node> &terminals, EdgeWeightedGraphCopy<T> &tree) const
 	{
 		T cost(0);
 		DWMData data = dataOf(terminals);
@@ -230,10 +224,33 @@ public:
 		OGDF_ASSERT(isTree(tree));
 		return cost;
 	}
+
+	/** \brief Check if a given (sub)graph is a valid full component
+	  * @param graph The graph to check (a subgraph copy of an original graph)
+	  * @param pred The predecessor matrix of the original graph
+	  * @param isTerminal The NodeArray that is true for each terminal of the original graph
+	  */
+	static bool isValidComponent(const EdgeWeightedGraphCopy<T> &graph, const NodeArray<NodeArray<edge>> &pred, const NodeArray<bool> &isTerminal)
+	{
+		for (edge e : graph.edges) {
+			const node u = graph.original(e->source());
+			const node v = graph.original(e->target());
+			if (pred[u][v] == nullptr) {
+				return false;
+			}
+		}
+		for (node v : graph.nodes) {
+			if (isTerminal[graph.original(v)] // is a terminal
+			 && v->degree() > 1) { // but not a leaf
+				return false;
+			}
+		}
+		return true;
+	}
 };
 
 template<typename T>
-class DreyfusWagnerFullComponentGenerator<T>::SortedNodeListHashFunc
+class FullComponentGeneratorDreyfusWagner<T>::SortedNodeListHashFunc
 {
 	static const int c_prime = 0x7fffffff; // mersenne prime 2**31 - 1
 	// would be nicer: 0x1fffffffffffffff; // mersenne prime 2**61 - 1
@@ -247,14 +264,13 @@ public:
 
 	int hash(const List<node> &key) const
 	{
-		ListConstIterator<node> it = key.begin();
-		int hash = (*it)->index();
-		for (; it.valid(); ++it) {
-			hash = (hash * m_random + (*it)->index()) % c_prime;
+		int hash = 0;
+		for (node v : key) {
+			hash = (hash * m_random + v->index()) % c_prime;
 		}
 		return hash;
 	}
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

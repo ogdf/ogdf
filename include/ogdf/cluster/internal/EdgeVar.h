@@ -61,7 +61,7 @@ public:
 	double objCoeff() const {return m_objCoeff;}
 #endif
 
-	virtual void printMe(ostream& out) {
+	virtual void printMe(std::ostream& out) {
 		out << "[Var: " << sourceNode() << "->" << targetNode() << " (" << ((theEdgeType()==EdgeVar::EdgeType::Original)?"original":"connect") << ") ZF=" << obj() << "]";
 	}
 

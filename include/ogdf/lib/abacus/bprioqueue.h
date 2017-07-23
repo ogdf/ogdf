@@ -122,6 +122,6 @@ private:
 	AbaBHeap<Type, Key>  heap_;
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/bprioqueue.inc>

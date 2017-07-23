@@ -36,7 +36,7 @@
 
 namespace ogdf {
 
-ostream &operator<<(ostream &os, const StrokeType &st) {
+std::ostream &operator<<(std::ostream &os, const StrokeType &st) {
 	switch (st) {
 		case StrokeType::None:       os << "None";       break;
 		case StrokeType::Solid:      os << "Solid";      break;
@@ -68,7 +68,7 @@ StrokeType intToStrokeType(int i)
 	}
 }
 
-ostream &operator<<(ostream &os, const FillPattern &fp) {
+std::ostream &operator<<(std::ostream &os, const FillPattern &fp) {
 	switch (fp) {
 		case FillPattern::None:             os << "None";             break;
 		case FillPattern::Solid:            os << "Solid";            break;
@@ -127,7 +127,7 @@ FillPattern intToFillPattern(int i)
 	}
 }
 
-ostream &operator<<(ostream &os, const EdgeArrow &ea) {
+std::ostream &operator<<(std::ostream &os, const EdgeArrow &ea) {
 	switch (ea) {
 		case EdgeArrow::None:      os << "None";      break;
 		case EdgeArrow::Last:      os << "Last";      break;
@@ -288,7 +288,6 @@ uint8_t rgbOfColor[][3] = {
 	{ 154, 205,  50 }   // Yellowgreen
 };
 
-
 Color::Color(Color::Name name) :
 	m_red  (rgbOfColor[static_cast<int>(name)][0]),
 	m_green(rgbOfColor[static_cast<int>(name)][1]),
@@ -358,4 +357,4 @@ bool Color::fromString(const string &str)
 	return true;
 }
 
-} // end namespace ogdf
+}

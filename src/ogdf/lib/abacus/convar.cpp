@@ -36,7 +36,7 @@ void ConVar::_expand() const
 {
 	if(expanded_) {
 		Logger::ifout() << "WARNING: ConVar::_expand(): ";
-		Logger::ifout() << "constraint already expanded" << endl;
+		Logger::ifout() << "constraint already expanded" << std::endl;
 		return;
 	}
 	expand();
@@ -48,7 +48,7 @@ void ConVar::_compress() const
 {
 	if(!expanded_) {
 		Logger::ifout() << "WARNING: ConVar::_compress(): ";
-		Logger::ifout() << "constraint already compressed" << endl;
+		Logger::ifout() << "constraint already compressed" << std::endl;
 		return;
 	}
 	compress();
@@ -56,9 +56,9 @@ void ConVar::_compress() const
 }
 
 
-void ConVar::print(ostream &out) const
+void ConVar::print(std::ostream &out) const
 {
-	out << "ConVar::print() is only a dummy." << endl;
+	out << "ConVar::print() is only a dummy." << std::endl;
 }
 
 
@@ -81,4 +81,4 @@ bool ConVar::equal(const ConVar * /* cv */) const
 	Logger::ifout() << "ConVar::equal() must be defined in derived class.\n";
 	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Convar);
 }
-} //namespace abacus
+}

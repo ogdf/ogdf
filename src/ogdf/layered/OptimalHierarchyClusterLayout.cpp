@@ -178,11 +178,11 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 		int last = -1;
 
 		// Process nodes on layer i from left to right
-		Stack<const LHTreeNode*> S;
+		ArrayBuffer<const LHTreeNode*> S;
 		S.push(H.layerHierarchyTree(i));
 		while(!S.empty())
 		{
-			const LHTreeNode *vNode = S.pop();
+			const LHTreeNode *vNode = S.popRet();
 
 			if(vNode->isCompound()) {
 				for(int j = vNode->numberOfChildren()-1; j >= 0; --j)
@@ -235,11 +235,11 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 	int nSpacingConstraints = 0;
 	for(i = 0; i < k; ++i)
 	{
-		Stack<const LHTreeNode*> S;
+		ArrayBuffer<const LHTreeNode*> S;
 		S.push(H.layerHierarchyTree(i));
 		while(!S.empty())
 		{
-			const LHTreeNode *vNode = S.pop();
+			const LHTreeNode *vNode = S.popRet();
 
 			if(vNode->isCompound()) {
 				cluster c = vNode->originalCluster();
@@ -345,11 +345,11 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 	for(int jj = 0; jj < k; ++jj) {
 		const LHTreeNode *layerRoot = H.layerHierarchyTree(jj);
 
-		Stack<const LHTreeNode*> S;
+		ArrayBuffer<const LHTreeNode*> S;
 		S.push(layerRoot);
 		while(!S.empty())
 		{
-			const LHTreeNode *vNode = S.pop();
+			const LHTreeNode *vNode = S.popRet();
 
 			if(vNode->isCompound()) {
 				i = m_cIndex[vNode->originalCluster()];
@@ -756,11 +756,11 @@ void OptimalHierarchyClusterLayout::computeYCoordinates(
 		double height = 0;               // height[i]
 		double dy     = m_layerDistance; // dy[i]
 
-		Stack<const LHTreeNode*> S;
+		ArrayBuffer<const LHTreeNode*> S;
 		S.push(H.layerHierarchyTree(i));
 		while(!S.empty())
 		{
-			const LHTreeNode *vNode = S.pop();
+			const LHTreeNode *vNode = S.popRet();
 
 			if(vNode->isCompound()) {
 				for(int j = vNode->numberOfChildren()-1; j >= 0; --j)
@@ -817,8 +817,8 @@ void OptimalHierarchyClusterLayout::computeYCoordinates(
 		if(c == CG.rootCluster())
 			continue;
 
-		double contentMin =  numeric_limits<double>::max();
-		double contentMax = -numeric_limits<double>::max();
+		double contentMin =  std::numeric_limits<double>::max();
+		double contentMax = -std::numeric_limits<double>::max();
 
 		ListConstIterator<node> itV;
 		for(itV = c->nBegin(); itV.valid(); ++itV) {
@@ -843,7 +843,7 @@ void OptimalHierarchyClusterLayout::computeYCoordinates(
 		double currentTop    = y[H.rank(H.top(c))];
 		double currentBottom = y[H.rank(H.bottom(c))];
 
-		if(contentMin != numeric_limits<double>::max())
+		if(contentMin != std::numeric_limits<double>::max())
 		{
 			int kt = int(((contentMin-m_layerDistance) - currentTop) / yUnit);
 			if(kt >= 1)

@@ -39,12 +39,11 @@
 
 namespace ogdf {
 
-
 class OGDF_EXPORT OrthoShaper
 {
 public:
-
-	enum class NetworkNodeType { low, high, inner, outer }; //types of network nodes: nodes and faces
+	//! Types of network nodes: nodes and faces
+	enum class NetworkNodeType { low, high, inner, outer };
 
 	OrthoShaper() {
 		setDefaultSettings();
@@ -190,8 +189,7 @@ private:
 				lowB[e2] = 0;
 			}
 		}
-	}//setAngleBound
+	}
 };
 
-
-} // end namespace ogdf
+}

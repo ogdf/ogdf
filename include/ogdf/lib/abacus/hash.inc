@@ -42,7 +42,7 @@ key_(key),
 
 
 template <class KeyType, class ItemType>
-ostream &operator<<(ostream &out, const AbaHashItem<KeyType, ItemType> &rhs)
+std::ostream &operator<<(std::ostream &out, const AbaHashItem<KeyType, ItemType> &rhs)
 {
 	return out << '(' << rhs.key_ << ',' << rhs.item_ << ')';
 }
@@ -87,7 +87,7 @@ AbaHash<KeyType, ItemType>::~AbaHash()
 
 
 template <class KeyType, class ItemType>
-ostream &operator<<(ostream &out, const AbaHash<KeyType, ItemType> &hash)
+std::ostream &operator<<(std::ostream &out, const AbaHash<KeyType, ItemType> &hash)
 {
 	AbaHashItem<KeyType, ItemType> *h;
 	const int s = hash.size();
@@ -100,7 +100,7 @@ ostream &operator<<(ostream &out, const AbaHash<KeyType, ItemType> &hash)
 				out << *h << ' ';
 				h = h->next();
 			}
-			out << endl;
+			out << std::endl;
 		}
 	}
 	return out;
@@ -412,4 +412,4 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 	table_ = newTable;
 }
 
-} // namespace abacus
+}

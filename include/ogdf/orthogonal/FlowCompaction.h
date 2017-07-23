@@ -143,10 +143,8 @@ private:
 	int m_scalingSteps; //!< number of improvement steps with decreasing separation
 	bool m_align; //!< toggle if brother nodes in hierarchies should be aligned
 
-
 	EdgeArray<edge> m_dualEdge;
 	EdgeArray<int>  m_flow;
 };
 
-
-} // end namespace ogdf
+}

@@ -35,6 +35,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/DisjointSets.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/Math.h>
 
 namespace ogdf {
 
@@ -63,7 +64,7 @@ protected:
 			TCost maxCost = std::numeric_limits<TCost>::min();
 
 			for (edge e : graph.edges) {
-				maxCost = max(maxCost, (*pCost)[e]);
+				Math::updateMax(maxCost, (*pCost)[e]);
 			}
 
 			for (edge e : copy.edges) {

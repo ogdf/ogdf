@@ -493,17 +493,17 @@ void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
 	}
 
 #if 0
-	cout << endl;
-	cout << "switche (FaceSinkGraph::sinkSwitches) : " << endl;
+	std::cout << std::endl;
+	std::cout << "switche (FaceSinkGraph::sinkSwitches) : " << std::endl;
 	for(face f : m_pE->faces) {
-		cout << "face : " << f->index() << endl;
+		std::cout << "face : " << f->index() << std::endl;
 		const List<adjEntry> &adjList = faceSwitches[f];
 		for(adjEntry adj : adjList) {
-			cout << adj->theNode() << ";   ";
+			std::cout << adj->theNode() << ";   ";
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 #endif
 }
 
-} // end namespace ogdf
+}

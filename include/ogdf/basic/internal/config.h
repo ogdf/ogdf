@@ -38,19 +38,9 @@
 
 namespace ogdf {
 
-// generally used <iostream> members
-using std::ios;
-using std::istream;
-using std::ostream;
-using std::cin;
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::flush;
-using std::swap;
-
 // generally used <string> members
 using std::string;
+using std::to_string;
 
 // detection of the system
 
@@ -87,6 +77,12 @@ using std::string;
 
 #endif
 
+#ifdef __has_cpp_attribute
+# define OGDF_HAS_CPP_ATTRIBUTE(x) (__has_cpp_attribute(x) && __cplusplus >= __has_cpp_attribute(x))
+#else
+# define OGDF_HAS_CPP_ATTRIBUTE(x) 0
+#endif
+
 //! @name Important when compiling OGDF as DLL
 //! @ingroup macros
 //! @{
@@ -117,7 +113,7 @@ using std::string;
 //! @ingroup macros
 #define OGDF_DEPRECATED(reason)
 
-#if __cplusplus >= 201402L
+#if OGDF_HAS_CPP_ATTRIBUTE(deprecated)
 # undef OGDF_DEPRECATED
 # define OGDF_DEPRECATED(reason) [[deprecated(reason)]]
 #elif defined(_MSC_VER)
@@ -164,6 +160,16 @@ using std::string;
 #endif
 
 //! @}
+
+//! An attribute to mark cases (in switch) that fall through to the next case
+#define OGDF_CASE_FALLTHROUGH
+#if OGDF_HAS_CPP_ATTRIBUTE(fallthrough)
+# undef OGDF_CASE_FALLTHROUGH
+# define OGDF_CASE_FALLTHROUGH [[fallthrough]]
+#elif defined(__GNUC__) && __GNUC__ >= 7
+# undef OGDF_CASE_FALLTHROUGH
+# define OGDF_CASE_FALLTHROUGH __attribute__((fallthrough))
+#endif
 
 // compiler adaptions
 
@@ -312,21 +318,21 @@ public:
 
 
 //! Output operator for Configuration::System (uses Configuration::toString(Configuration::System)).
-inline ostream &operator<<(ostream &os, Configuration::System sys)
+inline std::ostream &operator<<(std::ostream &os, Configuration::System sys)
 {
 	os << Configuration::toString(sys);
 	return os;
 }
 
 //! Output operator for Configuration::LPSolver (uses Configuration::toString(Configuration::LPSolver)).
-inline ostream &operator<<(ostream &os, Configuration::LPSolver lps)
+inline std::ostream &operator<<(std::ostream &os, Configuration::LPSolver lps)
 {
 	os << Configuration::toString(lps);
 	return os;
 }
 
 //! Output operator for Configuration::MemoryManager (uses Configuration::toString(Configuration::MemoryManager)).
-inline ostream &operator<<(ostream &os, Configuration::MemoryManager mm)
+inline std::ostream &operator<<(std::ostream &os, Configuration::MemoryManager mm)
 {
 	os << Configuration::toString(mm);
 	return os;

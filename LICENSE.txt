@@ -51,11 +51,15 @@ This distribution integrates source code from
   - the Bandit unit testing framework, licensed under MIT license
     (see test/include/bandit/LICENSE.md).
     The files are located in test/include/bandit.
+    The current version is commit 49693bfa1 from
+    https://github.com/ogdf/bandit
 
   - the Snowhouse assertion framework, licensed under the Boost
     Software License 1.0.  The files are located in
     test/include/bandit/assertion_frameworks/snowhouse.
     See LICENSE_1_0.txt in that directory for more information.
+    The current version is the one used in commit 49693bfa1 from
+    https://github.com/ogdf/bandit
 
   - the COIN-OR project, licensed under the Eclipse Public License 1.0
     (see http://www.eclipse.org/legal/epl-v10.html).

@@ -31,7 +31,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream& out, const Row &rhs)
+std::ostream &operator<<(std::ostream& out, const Row &rhs)
 {
 	double eps = rhs.glob_->machineEps();
 	const int rhsNnz = rhs.nnz();
@@ -53,7 +53,7 @@ ostream &operator<<(ostream& out, const Row &rhs)
 			out << c << ' ';
 		out << 'x' << s << ' ';
 
-		if (i && !(i % 10)) out << endl;
+		if (i && !(i % 10)) out << std::endl;
 	}
 
 	return out << rhs.sense_ << ' ' << rhs.rhs();
@@ -67,4 +67,4 @@ void Row::copy(const Row &row)
 
 	SparVec::copy(row);
 }
-} //namespace abacus
+}

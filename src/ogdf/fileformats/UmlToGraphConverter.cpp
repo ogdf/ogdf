@@ -35,7 +35,7 @@
 
 namespace ogdf {
 
-UmlToGraphConverter::UmlToGraphConverter(istream &is)
+UmlToGraphConverter::UmlToGraphConverter(std::istream &is)
 {
 	// Create parser and get reference to hash table
 	m_xmlParser = new XmlParser(is);
@@ -45,29 +45,29 @@ UmlToGraphConverter::UmlToGraphConverter(istream &is)
 
 	// Create the parse tree
 	if (m_xmlParser->createParseTree() == false) {
-		GraphIO::logger.lout() << "Could not create XML parse tree!" << endl;
+		GraphIO::logger.lout() << "Could not create XML parse tree!" << std::endl;
 		return; // parse error
 	}
 
 	// Create the uml model graph
 	m_modelGraph = new UmlModelGraph();
 	if (!createModelGraph(*m_modelGraph)) {
-		GraphIO::logger.lout() << "Could not create UML model graph." << endl;
+		GraphIO::logger.lout() << "Could not create UML model graph." << std::endl;
 		return;
 	}
 
 	// Create the uml diagram graphs
 	if (!createDiagramGraphs()){
-		GraphIO::logger.lout() << "Could not create UML diagram graphs." << endl;
+		GraphIO::logger.lout() << "Could not create UML diagram graphs." << std::endl;
 		return;
 	}
 
 	// Create the diagram graph in UMLGraph format
 	if (!createDiagramGraphsInUMLGraphFormat(m_diagramGraphsInUMLGraphFormat)) {
-		GraphIO::logger.lout() << "Could not create diagram graph in UML graph format." << endl;
+		GraphIO::logger.lout() << "Could not create diagram graph in UML graph format." << std::endl;
 		return;
 	}
-} // UmlToGraphConverter
+}
 
 UmlToGraphConverter::~UmlToGraphConverter()
 {
@@ -123,13 +123,12 @@ void UmlToGraphConverter::initializePredefinedInfoIndices()
 	m_xmlParser->addNewHashElement("ClassDiagram",			     static_cast<int>(PredefinedInfoIndex::classDiagram));
 	m_xmlParser->addNewHashElement("ModuleDiagram",			     static_cast<int>(PredefinedInfoIndex::moduleDiagram));
 
-} // initializePredefinedInfoIndices
+}
 
-
-void UmlToGraphConverter::printIdToNodeMappingTable(ofstream &os)
+void UmlToGraphConverter::printIdToNodeMappingTable(std::ofstream &os)
 {
 	// Header
-	os << "\n--- Content of Hash table: m_m_idToNode ---\n" << endl;
+	os << "\n--- Content of Hash table: m_m_idToNode ---\n" << std::endl;
 
 	// Get iterator
 	HashConstIterator<int, node> it;
@@ -137,12 +136,11 @@ void UmlToGraphConverter::printIdToNodeMappingTable(ofstream &os)
 	// Traverse table
 	for( it = m_idToNode.begin(); it.valid(); ++it){
 		os << "\"" << it.key() << "\" has index "
-			<< m_modelGraph->getNodeLabel(it.info()) << endl;
+			<< m_modelGraph->getNodeLabel(it.info()) << std::endl;
 	}
+}
 
-} // printIdToNodeMappingTable
-
-void UmlToGraphConverter::printDiagramsInUMLGraphFormat(ofstream &os)
+void UmlToGraphConverter::printDiagramsInUMLGraphFormat(std::ofstream &os)
 {
 	// Traverse diagrams
 	for (UMLGraph *diagram : m_diagramGraphsInUMLGraphFormat)
@@ -152,7 +150,7 @@ void UmlToGraphConverter::printDiagramsInUMLGraphFormat(ofstream &os)
 		const GraphAttributes &AG = *diagram;
 
 		// Nodes
-		os << "Classes:" << endl;
+		os << "Classes:" << std::endl;
 		for(node v : G.nodes)
 		{
 			os << "\t" << AG.label(v);
@@ -163,11 +161,11 @@ void UmlToGraphConverter::printDiagramsInUMLGraphFormat(ofstream &os)
 				 << AG.width(v) << ", "
 				 << AG.height(v) << ")";
 
-			os << endl;
+			os << std::endl;
 		}
 
 		// Edges
-		os << "Relations:" << endl;
+		os << "Relations:" << std::endl;
 		for(edge e : G.edges)
 		{
 			os << "\t";
@@ -178,24 +176,20 @@ void UmlToGraphConverter::printDiagramsInUMLGraphFormat(ofstream &os)
 				os << "Generalization between ";
 
 			os << AG.label(e->source()) << " and "
-				 << AG.label(e->target()) << endl;
+				 << AG.label(e->target()) << std::endl;
 		}
 
-		os << "---------------------------------------------------------------\n\n" << endl;
-
-	} // Traverse diagrams
-
-} // printDiagramsInUMLGraphFormat
-
+		os << "---------------------------------------------------------------\n\n" << std::endl;
+	}
+}
 
 bool UmlToGraphConverter::createModelGraph(UmlModelGraph &modelGraph){
-
 	// Message
-	//cout << "Creating model graph..." << endl;
+	//std::cout << "Creating model graph..." << std::endl;
 
 	// Check root element (must be <XMI>)
 	if (m_xmlParser->getRootTag().m_pTagName->info() != static_cast<int>(PredefinedInfoIndex::xmi)) {
-		GraphIO::logger.lout() << "Root tag is not <XMI>" << endl;
+		GraphIO::logger.lout() << "Root tag is not <XMI>" << std::endl;
 		return false;
 	}
 
@@ -207,7 +201,7 @@ bool UmlToGraphConverter::createModelGraph(UmlModelGraph &modelGraph){
 	const XmlTagObject *fatherTag;
 	string rootPackageName("");
 	if (!m_xmlParser->traversePath(m_xmlParser->getRootTag(), path, fatherTag)) {
-		GraphIO::logger.lout() << "Path xmiContent, umlModel, umlNamespaceOwnedElement not found!" << endl;
+		GraphIO::logger.lout() << "Path xmiContent, umlModel, umlNamespaceOwnedElement not found!" << std::endl;
 		return false;
 	}
 
@@ -245,9 +239,7 @@ bool UmlToGraphConverter::createModelGraph(UmlModelGraph &modelGraph){
 	}
 
 	return true;
-
-} // createModelGraph
-
+}
 
 bool UmlToGraphConverter::traversePackagesAndInsertClassifierNodes(
 	const XmlTagObject &currentRootTag,
@@ -294,13 +286,11 @@ bool UmlToGraphConverter::traversePackagesAndInsertClassifierNodes(
 				// Something went wrong
 				return false;
 			}
-
 		}
 
 		// Next package (will be put into packageSon)
 		m_xmlParser->findBrotherXmlTagObject(*packageSon, static_cast<int>(PredefinedInfoIndex::umlPackage), packageSon);
-
-	} // while
+	}
 
 	// Identify contained classes (<UML:Class>)
 	if (!insertSpecificClassifierNodes(currentRootTag, currentPackageName, static_cast<int>(PredefinedInfoIndex::umlClass), modelGraph))
@@ -318,8 +308,7 @@ bool UmlToGraphConverter::traversePackagesAndInsertClassifierNodes(
 
 	return true;
 
-} // traversePackagesAndInsertClassifierNodes
-
+}
 
 bool UmlToGraphConverter::insertSpecificClassifierNodes(const XmlTagObject &currentRootTag,
 															const string currentPackageName,
@@ -337,7 +326,7 @@ bool UmlToGraphConverter::insertSpecificClassifierNodes(const XmlTagObject &curr
 
 		// Did not find attribute xmi.id of classifier
 		if (!m_xmlParser->findXmlAttributeObject(*classifierSon, static_cast<int>(PredefinedInfoIndex::xmiId), xmiIdAttr)) {
-			GraphIO::logger.lout() << "Did not find attribute xmi.id of classifier." << endl;
+			GraphIO::logger.lout() << "Did not find attribute xmi.id of classifier." << std::endl;
 			return false;
 		}
 
@@ -349,7 +338,7 @@ bool UmlToGraphConverter::insertSpecificClassifierNodes(const XmlTagObject &curr
 
 		// Did not find name attribute
 		if (!m_xmlParser->findXmlAttributeObject(*classifierSon, static_cast<int>(PredefinedInfoIndex::name), nameAttr)) {
-			GraphIO::logger.lout() << "Did not find name attribute of classifier." << endl;
+			GraphIO::logger.lout() << "Did not find name attribute of classifier." << std::endl;
 			return false;
 		}
 
@@ -365,7 +354,7 @@ bool UmlToGraphConverter::insertSpecificClassifierNodes(const XmlTagObject &curr
 
 		// Check if node already exists
 		if (m_idToNode.lookup(nodeId) != nullptr) {
-			GraphIO::logger.lout() << "Node already exists." << endl;
+			GraphIO::logger.lout() << "Node already exists." << std::endl;
 			return false;
 		}
 
@@ -379,12 +368,10 @@ bool UmlToGraphConverter::insertSpecificClassifierNodes(const XmlTagObject &curr
 
 		// Proceed with next class (will be put into classifierSon)
 		m_xmlParser->findBrotherXmlTagObject(*classifierSon, desiredClassifier, classifierSon);
-
-	} // while (classifierSon != 0)
+	}
 
 	return true;
-
-} // insertSpecificClassifierNodes
+}
 
 bool UmlToGraphConverter::traversePackagesAndInsertAssociationEdges(const XmlTagObject &currentRootTag,
 																		UmlModelGraph &modelGraph)
@@ -408,13 +395,11 @@ bool UmlToGraphConverter::traversePackagesAndInsertAssociationEdges(const XmlTag
 			{
 				return false;
 			}
-
 		}
 
 		// Next package
 		m_xmlParser->findBrotherXmlTagObject(*packageSon, static_cast<int>(PredefinedInfoIndex::umlPackage), packageSon);
-
-	} // while
+	}
 
 	// Find all associations (<UML:Association>)
 	const XmlTagObject *associationSon;
@@ -438,7 +423,7 @@ bool UmlToGraphConverter::traversePackagesAndInsertAssociationEdges(const XmlTag
 
 		// Something wrong
 		if (!end1) {
-			GraphIO::logger.lout(Logger::Level::Minor) << "Current association tag does not contain both end tags!" << endl;
+			GraphIO::logger.lout(Logger::Level::Minor) << "Current association tag does not contain both end tags!" << std::endl;
 			// Next association
 			m_xmlParser->findBrotherXmlTagObject(*associationSon, static_cast<int>(PredefinedInfoIndex::umlAssociation), associationSon);
 			continue;
@@ -449,7 +434,7 @@ bool UmlToGraphConverter::traversePackagesAndInsertAssociationEdges(const XmlTag
 
 		// Something wrong
 		if (!end2) {
-			GraphIO::logger.lout(Logger::Level::Minor) << "Current association tag does not contain both end tags!" << endl;
+			GraphIO::logger.lout(Logger::Level::Minor) << "Current association tag does not contain both end tags!" << std::endl;
 			// Next association
 			m_xmlParser->findBrotherXmlTagObject(*associationSon, static_cast<int>(PredefinedInfoIndex::umlAssociation), associationSon);
 			continue;
@@ -486,12 +471,10 @@ bool UmlToGraphConverter::traversePackagesAndInsertAssociationEdges(const XmlTag
 
 		// Next association
 		m_xmlParser->findBrotherXmlTagObject(*associationSon, static_cast<int>(PredefinedInfoIndex::umlAssociation), associationSon);
-
-	} // while (associationSon != 0)
+	}
 
 	return true;
-
-} // traversePackagesAndInsertAssociationEdges
+}
 
 bool UmlToGraphConverter::traversePackagesAndInsertGeneralizationEdges(
 	const XmlTagObject &currentRootTag,
@@ -516,13 +499,11 @@ bool UmlToGraphConverter::traversePackagesAndInsertGeneralizationEdges(
 			{
 				return false;
 			}
-
 		}
 
 		// Next package
 		m_xmlParser->findBrotherXmlTagObject(*packageSon, static_cast<int>(PredefinedInfoIndex::umlPackage), packageSon);
-
-	} // while
+	}
 
 	// Find all classes (<UML:Class>)
 	const XmlTagObject *classSon;
@@ -551,7 +532,7 @@ bool UmlToGraphConverter::traversePackagesAndInsertGeneralizationEdges(
 			// Something wrong
 			if (!childAttr || !parentAttr){
 
-				GraphIO::logger.lout(Logger::Level::Minor) << "Current dependency tag does not contain both attributes child and parent." << endl;
+				GraphIO::logger.lout(Logger::Level::Minor) << "Current dependency tag does not contain both attributes child and parent." << std::endl;
 
 				// Next class
 				m_xmlParser->findBrotherXmlTagObject(*classSon, static_cast<int>(PredefinedInfoIndex::umlClass), classSon);
@@ -581,16 +562,16 @@ bool UmlToGraphConverter::traversePackagesAndInsertGeneralizationEdges(
 			// If condition above does not hold: Error!
 			// At least one node is not contained in the node hashtable
 
-		} // Found generalization tag
+		}
 
 		// Next class
 		m_xmlParser->findBrotherXmlTagObject(*classSon, static_cast<int>(PredefinedInfoIndex::umlClass), classSon);
 
-	} // while (classSon != 0)
+	}
 
 	return true;
 
-} // traversePackagesAndInsertGeneralizationEdges
+}
 
 bool UmlToGraphConverter::insertDependencyEdges(const XmlTagObject &currentRootTag,
 													UmlModelGraph &modelGraph)
@@ -616,7 +597,7 @@ bool UmlToGraphConverter::insertDependencyEdges(const XmlTagObject &currentRootT
 		// Something wrong
 		if (!clientAttr || !supplierAttr){
 
-			GraphIO::logger.lout(Logger::Level::Minor) << "Current dependency tag does not contain both attributes client and supplier." << endl;
+			GraphIO::logger.lout(Logger::Level::Minor) << "Current dependency tag does not contain both attributes client and supplier." << std::endl;
 
 			// Next dependency
 			m_xmlParser->findBrotherXmlTagObject(*currentDependencyTag, static_cast<int>(PredefinedInfoIndex::umlDependency), currentDependencyTag);
@@ -648,12 +629,10 @@ bool UmlToGraphConverter::insertDependencyEdges(const XmlTagObject &currentRootT
 
 		// Next dependency
 		m_xmlParser->findBrotherXmlTagObject(*currentDependencyTag, static_cast<int>(PredefinedInfoIndex::umlDependency), currentDependencyTag);
-
-	} // while (currentDependecyTag != 0)
+	}
 
 	return true;
-
-} // insertDependencyEdges
+}
 
 // Extracts the single values of string str with format
 // "x, y, width, height," and puts them into doubleArray
@@ -688,10 +667,8 @@ static void stringToDoubleArray(const string &str, Array<double> &doubleArray)
 
 		// Put double value into array
 		doubleArray[i] = atof(tempString);
-
-	} // for
-
-} // stringToDoubleArray
+	}
+}
 
 bool UmlToGraphConverter::createDiagramGraphs()
 {
@@ -704,11 +681,11 @@ bool UmlToGraphConverter::createDiagramGraphs()
 	OGDF_ASSERT(m_modelGraph != nullptr);
 
 	// Message
-	//cout << "Creating diagram graph(s)..." << endl;
+	//std::cout << "Creating diagram graph(s)..." << std::endl;
 
 	// Check root element (must be <XMI>)
 	if (m_xmlParser->getRootTag().m_pTagName->info() != static_cast<int>(PredefinedInfoIndex::xmi)){
-		GraphIO::logger.lout() << "Root tag is not <XMI>" << endl;
+		GraphIO::logger.lout() << "Root tag is not <XMI>" << std::endl;
 		return false;
 	}
 
@@ -755,8 +732,7 @@ bool UmlToGraphConverter::createDiagramGraphs()
 		default:
 			diagramType = UmlDiagramGraph::UmlDiagramType::unknownDiagram;
 			break;
-
-		} // switch
+		}
 
 		// Currently we only allow class diagrams; in all other cases
 		// we continue with the next diagram
@@ -841,11 +817,7 @@ bool UmlToGraphConverter::createDiagramGraphs()
 					geometryArray[1],
 					geometryArray[2],
 					geometryArray[3]);
-
-			} // Node exists
-			// Node does not exist
-			else{
-
+			} else {
 				// Edge exists for that reference
 				if (m_idToEdge.lookup(elementId) != nullptr){
 
@@ -857,27 +829,21 @@ bool UmlToGraphConverter::createDiagramGraphs()
 
 					// Add edge to diagram graph
 					diagramGraph->addEdge(geometricEdge);
-
-				} // Edge exists
-
-			} // else
+				}
+			}
 
 			// Next diagram element
 			m_xmlParser->findBrotherXmlTagObject(*currentDiagramElementTag,
 			                                     static_cast<int>(PredefinedInfoIndex::umlDiagramElement),
 			                                     currentDiagramElementTag);
-
-		} // while (currentDiagramElementTag != 0)
+		}
 
 		// Next diagram
 		m_xmlParser->findBrotherXmlTagObject(*currentDiagramTag, static_cast<int>(PredefinedInfoIndex::umlDiagram), currentDiagramTag);
-
-
-	} // while (currentDiagramTag != 0)
+	}
 
 	return true;
-
-} // createDiagramGraphs
+}
 
 bool UmlToGraphConverter::createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &diagramGraphsInUMLGraphFormat)
 {
@@ -889,7 +855,7 @@ bool UmlToGraphConverter::createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &
 	// We use as key the unique index of the node resp. edge.
 
 	// Message
-	//cout << "Creating diagram graph(s) in UMLGraph format..." << endl;
+	//std::cout << "Creating diagram graph(s) in UMLGraph format..." << std::endl;
 
 	// Traverse list of diagram graphs
 	for (UmlDiagramGraph *diagramGraph : m_diagramGraphs)
@@ -913,8 +879,7 @@ bool UmlToGraphConverter::createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &
 			// Insert mapping from index of the existing node to the pendant node
 			// into hashtable
 			indexToNewNode.fastInsert(n->index(), newNode);
-
-		} // Traverse list of nodes contained in the diagram
+		}
 
 		// Traverse list of edges contained in the diagram
 		const SList<edge> &diagramEdges = diagramGraph->getEdges();
@@ -938,8 +903,7 @@ bool UmlToGraphConverter::createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &
 			// Insert mapping from index of the existing edgeto the pendant edge
 			// into hashtable
 			indexToNewEdge.fastInsert(e->index(), newEdge);
-
-		} // Traverse list of edges contained in the diagram
+		}
 
 		// Create instance of class UMLGraph
 		UMLGraph *umlGraph = new UMLGraph(*graph, GraphAttributes::nodeLabel);
@@ -978,8 +942,7 @@ bool UmlToGraphConverter::createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &
 			++yIt;
 			++wIt;
 			++hIt;
-
-		} // Traverse node list and geometry lists synchronously
+		}
 
 		// Traverse list of edges contained in the diagram
 		for (edge e : diagramEdges)
@@ -991,15 +954,13 @@ bool UmlToGraphConverter::createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &
 
 			// Insert type information into umlGraph
 			umlGraph->type(pendantEdge) = m_modelGraph->type(e);
-
-		} // Traverse edge list and insert type information for the new edges.
+		}
 
 		// Add new umlGraph to list
 		diagramGraphsInUMLGraphFormat.pushBack(umlGraph);
-
-	} // Traverse list of diagram graphs
+	}
 
 	return true;
-} // createDiagramGraphsInUMLGraphFormat
+}
 
-} // namespace ogdf
+}

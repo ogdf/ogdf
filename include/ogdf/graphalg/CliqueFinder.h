@@ -118,7 +118,7 @@ protected:
 		EdgeArray<bool> &usableEdge);
 
 	//check if node v is adjacent to all nodes in node list
-	bool allAdjacent(node v, List<node>* vList);
+	bool allAdjacent(node v, List<node>* vList) const;
 	void writeGraph(Graph &G, NodeArray<int> &cliqueNumber,
 		const char *fileName);
 
@@ -130,7 +130,7 @@ protected:
 #ifdef OGDF_DEBUG
 	void checkCliques(List< List<node>* > &cliqueList, bool sizeCheck = true);
 #endif
-	bool cliqueOK(List<node> *clique);
+	bool cliqueOK(List<node> *clique) const;
 	void findClique(node v, List<node> &neighbours,
 						int numRandom = 0);
 
@@ -152,6 +152,6 @@ private:
 					//subgraphs need to be, is not directly related to any
 					//measure (degree, ...) but translated into a constraint
 					//based on the heuristical search of the subgraphs
-};//CliqueFinder
+};
 
-}//end namespace ogdf
+}

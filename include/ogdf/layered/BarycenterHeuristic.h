@@ -69,5 +69,4 @@ private:
 	NodeArray<double> m_weight; //!< The  barycenter weight of the nodes.
 };
 
-
-} // end namespace ogdf
+}

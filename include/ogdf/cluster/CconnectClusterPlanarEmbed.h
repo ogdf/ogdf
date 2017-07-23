@@ -35,7 +35,6 @@
 
 #include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
 #include <ogdf/cluster/ClusterArray.h>
-#include <ogdf/basic/Stack.h>
 #include <ogdf/cluster/internal/ClusterPQContainer.h>
 
 namespace ogdf {
@@ -69,16 +68,16 @@ public:
 private:
 	using EmbedPQTree = booth_lueker::EmbedPQTree;
 
-	bool planarityTest(ClusterGraph &C, cluster &act, Graph &G);
+	bool planarityTest(ClusterGraph &C, const cluster act, Graph &G);
 
 	bool preProcess(ClusterGraph &Ccopy,Graph &Gcopy);
 
-	bool preparation(Graph &subGraph,cluster &origCluster,node superSink);
+	bool preparation(Graph &subGraph, const cluster origCluster, node superSink);
 
 	bool doEmbed(
 		Graph			*biconComp,
 		NodeArray<int>  &numbering,
-		cluster			&origCluster,
+		const cluster origCluster,
 		node			superSink,
 		Graph			&subGraph,
 		EdgeArray<edge> &tableEdgesBiComp2SubGraph,
@@ -205,8 +204,8 @@ private:
 	NodeArray<node>			m_nodeTableOrig2Copy;
 
 
-	EdgeArray<Stack<edge>*> m_outgoingEdgesAnker;
-	ClusterArray<EdgeArray<Stack<edge>*>*> m_clusterOutgoingEdgesAnker;
+	EdgeArray<ArrayBuffer<edge>*> m_outgoingEdgesAnker;
+	ClusterArray<EdgeArray<ArrayBuffer<edge>*>*> m_clusterOutgoingEdgesAnker;
 
 	// Stores for every original cluster all information on
 	// the PQ-Tree that is necessary to construct the embedding.
@@ -215,7 +214,7 @@ private:
 	// Stores the clusters in calling order of the testing algorithm
 	// The stack stores the clusters of the original graph.
 	// Needed for recursive embed.
-	Stack<cluster> m_callStack;
+	ArrayBuffer<cluster> m_callStack;
 
 	// Is true for every original cluster, if the cluster does not
 	// have a correspondand in the copy of the cluster graph.
@@ -230,4 +229,4 @@ private:
 	//! @}
 };
 
-} // end namespace ogdf
+}

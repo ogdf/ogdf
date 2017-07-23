@@ -92,10 +92,10 @@ public:
 	void setMaxClusterNum(int i) {maxClusterNum = i;}
 	void setMaxClusterSize(long i) {m_maxClusterSize = i;}
 	// Smaller clusters are joint with a neighbor (non-recursive) as a postprocessing
-	void setClusterSizeThreshold(int l)
+	void setClusterSizeThreshold(int threshold)
 	{
-		if (l > 0) {
-			m_clusterThreshold = l;
+		if (threshold > 0) {
+			m_clusterThreshold = threshold;
 		}
 	}
 
@@ -160,4 +160,4 @@ private:
 	}
 };
 
-} // end namespace ogdf
+}

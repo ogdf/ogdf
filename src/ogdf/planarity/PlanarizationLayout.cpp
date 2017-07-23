@@ -187,8 +187,8 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 			// if the boundary does not exist (connected component is clique), we
 			// only run over the nodes adjacent to centerNode
 			double minx, maxx, miny, maxy;
-			minx = miny =  numeric_limits<double>::max();
-			maxx = maxy = -numeric_limits<double>::max();
+			minx = miny =  std::numeric_limits<double>::max();
+			maxx = maxy = -std::numeric_limits<double>::max();
 			if (adjBoundary)
 			{
 				adjEntry adjRunner = adjBoundary;
@@ -210,9 +210,7 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 						adjRunner = adjRunner->faceCycleSucc();
 					else adjRunner = adjRunner->faceCycleSucc()->cyclicPred();
 				} while (adjRunner != adjBoundary);
-			}//if boundary exists
-			else
-			{
+			} else {
 				for(adjEntry adjCenterNode : centerNode->adjEntries)
 				{
 					node w = adjCenterNode->twinNode();
@@ -407,7 +405,7 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 					potKill = ek;
 					splitter = potKill->source();
 				}
-			}//while
+			}
 
 			adjURun = adjURun->cyclicPred(); //counterclockwise, Succ clockwise
 		} while (adjURun != uCopy->firstAdj());
@@ -514,7 +512,6 @@ void PlanarizationLayout::arrangeCCs(PlanRep &pr, GraphAttributes &ga, Array<DPo
 				edge e = adj->theEdge();
 
 				DPolyline &dpl = ga.bends(e);
-				ListIterator<DPoint> it;
 				for(DPoint &dp : dpl) {
 					dp.m_x += dx;
 					dp.m_y += dy;
@@ -524,4 +521,4 @@ void PlanarizationLayout::arrangeCCs(PlanRep &pr, GraphAttributes &ga, Array<DPo
 	}
 }
 
-} // end namespace ogdf
+}

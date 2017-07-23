@@ -31,7 +31,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const OptSense &rhs)
+std::ostream &operator<<(std::ostream &out, const OptSense &rhs)
 {
 	switch (rhs.sense_) {
 	case OptSense::Min:
@@ -46,4 +46,4 @@ ostream &operator<<(ostream &out, const OptSense &rhs)
 	}
 	return out;
 }
-} //namespace abacus
+}

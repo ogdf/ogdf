@@ -70,4 +70,4 @@ private:
 	const LpSubOsi &operator=(const LpSubOsi &rhs);
 };
 
-} //namespace abacus
+}

@@ -158,7 +158,7 @@ bool Lexer::tokenizeLine()
 		return tokenizeIdentifier() && tokenizeLine();
 	}
 
-	GraphIO::logger.lout() << "Unexpected character \"" << *m_begin << "\" at (" << line() << ", " << column() << ")." << endl;
+	GraphIO::logger.lout() << "Unexpected character \"" << *m_begin << "\" at (" << line() << ", " << column() << ")." << std::endl;
 	return false;
 }
 
@@ -172,7 +172,7 @@ bool Lexer::tokenizeString()
 	for(;;) {
 		// Check whether we need to refill the buffer.
 		if(m_begin == m_end && !fetchBuffer()) {
-			GraphIO::logger.lout() << "End of input while parsing a string at (" << token.line << ", " << token.column << ")." << endl;
+			GraphIO::logger.lout() << "End of input while parsing a string at (" << token.line << ", " << token.column << ")." << std::endl;
 			return false;
 		}
 
@@ -209,7 +209,5 @@ bool Lexer::tokenizeIdentifier()
 	return true;
 }
 
-
-} // end namespace tlp
-
-} // end namespace ogdf
+}
+}

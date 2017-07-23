@@ -1,7 +1,7 @@
 /** \file
- * \brief Uses Fruchtermann Rheingold and Fast Multipole Embedder for faster and better FR results.
+ * \brief Auxiliary functions for FMMM to reduce code duplication
  *
- * \author Gereon Bartel
+ * \author Stephan Beyer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -31,25 +31,33 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
+#include <ogdf/energybased/fmmm/numexcept.h>
 
 namespace ogdf {
+namespace energybased {
+namespace fmmm {
 
-class OGDF_EXPORT MixedForceLayout : public LayoutModule
-{
-public:
+inline void calculate_forces_inside_contained_nodes(NodeArray<DPoint> &F_rep, const NodeArray<NodeAttributes> &A, const List<node> &contained_nodes) {
+	int length = contained_nodes.size();
+	Array<node> numbered_nodes(length+1);
+	int i = 1;
+	for (node v : contained_nodes) {
+		numbered_nodes[i] = v;
+		++i;
+	}
 
-	MixedForceLayout();
+	for (i = 1; i < length; i++) {
+		for (int j = i + 1; j <= length; j++) {
+			node u = numbered_nodes[i];
+			node v = numbered_nodes[j];
+			DPoint f_rep_u_on_v = numexcept::f_rep_u_on_v(A[u].get_position(), A[v].get_position());
+			F_rep[v] += f_rep_u_on_v;
+			F_rep[u] -= f_rep_u_on_v;
+		}
+	}
+}
 
-	void call(GraphAttributes &GA) override;
-	void call(MultilevelGraph &MLG);
-
-private:
-
-	LayoutModule * m_FR;
-	LayoutModule * m_FME;
-
-};
-
-} // namespace ogdf
+}
+}
+}

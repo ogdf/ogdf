@@ -103,9 +103,9 @@ edge firstOutGen(UMLGraph& UG, node v, EdgeArray<bool>& /* used */)
 			return e;
 		}
 		else continue;
-	}//forall
+	}
 	return nullptr;
-}//firstOutGen
+}
 
 bool dfsGenTree(
 	UMLGraph& UG,
@@ -158,4 +158,4 @@ bool dfsGenTree(
 	return true;
 }
 
-}//end namespace ogdf
+}

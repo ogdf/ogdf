@@ -35,7 +35,6 @@
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
@@ -81,9 +80,9 @@ private:
 	//tests whether a flow of power r is possible in the flow-network by executing augmentation steps
 	bool isFlow(EdgeArray<int> &capacity, EdgeArray<int> &flow, const int r);
 	//returns a feasible augmentation path
-	void getPath(Stack<node> &st, EdgeArray<int> &capacity, EdgeArray<int> &flow);
+	void getPath(ArrayBuffer<node> &st, EdgeArray<int> &capacity, EdgeArray<int> &flow);
 	//returns the value for one augmentation step
-	int getMin(Stack<node> stack, EdgeArray<int> &capacity, EdgeArray<int> &flow);
+	int getMin(ArrayBuffer<node> stack, EdgeArray<int> &capacity, EdgeArray<int> &flow);
 };
 
-} // end namespace ogdf
+}

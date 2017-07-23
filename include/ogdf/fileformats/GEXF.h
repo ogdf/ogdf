@@ -39,12 +39,10 @@
 
 
 namespace ogdf {
-
 namespace gexf {
 
 std::string toString(const Shape &shape);
 Shape toShape(const std::string &str);
 
-} // end namespace gexf
-
-} // end namespace ogdf
+}
+}

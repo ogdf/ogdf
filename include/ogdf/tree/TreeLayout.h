@@ -116,9 +116,8 @@ public:
 	//! Copy constructor.
 	TreeLayout(const TreeLayout &tl);
 
-	// destructor
-	~TreeLayout();
-
+	//! Destructor.
+	~TreeLayout() = default;
 
 	/**
 	 *  @name Algorithm call
@@ -245,4 +244,4 @@ private:
 	void shiftTreeY(GraphAttributes &AG, node root, double shift);
 };
 
-} // end namespace ogdf
+}

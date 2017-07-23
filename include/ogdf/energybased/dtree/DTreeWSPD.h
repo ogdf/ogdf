@@ -101,7 +101,7 @@ public:
 	void setSeparationFactor(double s) { m_wspdSeparationFactor = s; };
 
 protected:
-	IWSPD* m_pIWSPD;
+	IWSPD* m_pIWSPD = nullptr;
 
 	//! returns the data for a quadtree
 	NodeData& node(int i) { return m_nodeData[i]; };
@@ -137,19 +137,19 @@ protected:
 	int m_numPoints;
 
 	//! the separation factor for the ws predicate
-	double  m_wspdSeparationFactor;
+	double m_wspdSeparationFactor;
 
 	//! a cached value for the ws test
-	double  m_wspdSeparationFactorPlus2Squared_cached;
+	double m_wspdSeparationFactorPlus2Squared_cached;
 
 	//! the quadtree this wspd is working on
-	Tree* m_pTree;
+	Tree* m_pTree = nullptr;
 
 	//! geometry for the quadtree nodes
-	NodeData* m_nodeData;
+	NodeData* m_nodeData = nullptr;
 
 	//! point data
-	PointData* m_pointData;
+	PointData* m_pointData = nullptr;
 
 	//! the bounding box min coord of the point set
 	double m_bboxMin[Dim];
@@ -160,13 +160,18 @@ protected:
 
 //! constructs a new WSPD for numPoints
 template<int Dim>
-DTreeWSPD<Dim>::DTreeWSPD(int numPoints) : m_numPoints(numPoints)
+DTreeWSPD<Dim>::DTreeWSPD(int numPoints)
+: m_numPoints(numPoints)
+, m_wspdSeparationFactor(1.0)
+, m_wspdSeparationFactorPlus2Squared_cached(9.0)
 {
-	// initial value for the wspd predicate
-	m_wspdSeparationFactor = 1.0;
-
 	// get the memory
 	allocate();
+
+	// init arrays
+	for (int i = 0; i < Dim; i++) {
+		m_bboxMin[i] = m_bboxMax[i] = 0.0;
+	}
 }
 
 //! destructor

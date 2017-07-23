@@ -71,4 +71,4 @@ void RandomPlacer::placeOneNode(MultilevelGraph &MLG, double radius)
 	MLG.y(merged, sin(angle) * randRadius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
 }
 
-} // namespace ogdf
+}

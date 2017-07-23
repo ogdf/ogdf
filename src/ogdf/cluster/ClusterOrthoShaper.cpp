@@ -205,17 +205,15 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 #endif
 
 
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		for(node v : PG.nodes)
-			cout << " v = " << v << " corresponds to "
-			<< networkNode[v] << endl;
-		for (face f : E.faces) {
-			cout << " face = " << f->index() << " corresponds to " << F[f];
-			if (f == E.externalFace())
-				cout<<" (Outer Face)";
-			cout << endl;
-		}
+#ifdef OGDF_HEAVY_DEBUG
+	for(node v : PG.nodes)
+		Logger::slout() << " v = " << v << " corresponds to "
+		<< networkNode[v] << std::endl;
+	for (face f : E.faces) {
+		Logger::slout() << " face = " << f->index() << " corresponds to " << F[f];
+		if (f == E.externalFace())
+			Logger::slout() << " (Outer Face)";
+		Logger::slout() << std::endl;
 	}
 #endif
 
@@ -232,14 +230,12 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 			adjF[adj] = f;
 	}
 
-#ifdef OGDF_DEBUG
-	if(debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-		for(face f : E.faces) {
-			cout << "Face " << f->index() << " : ";
-			for(adjEntry adj : f->entries)
-				cout << adj << "; ";
-			cout<<endl;
-		}
+#ifdef OGDF_HEAVY_DEBUG
+	for(face f : E.faces) {
+		Logger::slout() << "Face " << f->index() << " : ";
+		for(adjEntry adj : f->entries)
+			Logger::slout() << adj << "; ";
+		Logger::slout() << std::endl;
 	}
 #endif
 
@@ -315,8 +311,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					else gen2 = adj;
 				}
 			}
-		}// if not generalization
-
+		}
 
 		for(adjEntry adj : v->adjEntries)
 		{
@@ -361,8 +356,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				faceCor   [e3] = adjF[adj];
 				angleBackArc[adj] = e3;
 
-			}//progressive
-		}//initialize
+			}
+		}
 
 		//second run to have all angleArcs already initialized
 		//set the flow boundaries
@@ -479,7 +474,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 						//maybe we have to jump one step further
 						e = ae->cyclicSucc()->theEdge();
 
-				}//progressive mode
+				}
 
 				if (e->target() == secFace) {
 					setBoundsEqually(e, piAngleFlow, piAngleFlow);
@@ -497,8 +492,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					//progressive mode: bends are in opposite direction
 					upperBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()->twin()]] = 1;
 					lowerBound[backAdjCor[PG.expandAdj(v)->faceCyclePred()->twin()]] = 1;
-				}//progressive
-
+				}
 
 				// Set the upper and lower bound for the last node in
 				// clockwise order of the mergeexpander face to
@@ -535,8 +529,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					if (e->target() != secFace)
 						//maybe we have to jump one step further
 						e = ae->cyclicPred()->theEdge();
-
-				}//progressive mode
+				}
 
 				if (e->target() == secFace) {
 					setBoundsEqually(e, piAngleFlow, piAngleFlow);
@@ -601,11 +594,11 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 									isMulti[adj->twin()] = true;
 								}
 								multis++;
-							}//multi edge
-							else allMulti = false;
-						}//if outer boundary
-
-					}//forallfaceadj count multis
+							} else {
+								allMulti = false;
+							}
+						}
+					}
 					//multi edge correction: only multi edges => one edge needs 360 degree
 					if (allMulti)
 					{
@@ -660,11 +653,10 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 									break;
 								}
 							}
-						}//if
-					}//if allMulti
+						}
+					}
 					//End multi edge correction
-				}//if multialign
-
+				}
 
 				//now set the upper Bounds
 				for(adjEntry adj : f->entries)
@@ -726,10 +718,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 										max(2, lowerBound[backAdjCor[adj]]);
 									//nur zum Testen der Faelle
 									OGDF_ASSERT(oldBound >= upperBound[backAdjCor[adj]]);
-								}// if not multi
-							}//traditional
-							else
-							{
+								}
+							} else {
 								//preliminary set the bound in all cases
 
 								if (!isMulti[adj])
@@ -742,11 +732,10 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 									else upperBound[backAdjCor[adj->twin()]] =
 										max(2, lowerBound[backAdjCor[adj->twin()]]);
 
-								}// if not multi
-							}//progressive
-						}//distributeedges
-
-					}// else no face splitter
+								}
+							}
+						}
+					}
 
 					// Node w is in Network
 					node w = networkNode[adj->twinNode()];
@@ -763,7 +752,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 							}
 						}
 					}
-				}// forallfaceadj
+				}
 
 				// In case a face splitter was used, we need to update the
 				// second face of the cage.
@@ -793,15 +782,12 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 								if (e->target() == F[f2]) {
 									setBoundsEqually(e, piAngleFlow, piAngleFlow);
 								}
-							}//forall adjacent edges
-						}//if not preset
+							}
+						}
 					}
 				}
 			}
-		}//if expanded
-
-		else
-		{
+		} else {
 			//non-expanded (low degree) nodes
 			//check for alignment and for multi edges
 
@@ -845,21 +831,17 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 							// we forbid bends between incident multi edges
 							// or is it angle?
 							setBoundsEqually(e, zeroAngleFlow, zeroBackAngleFlow);
-						}//multi edge
-						else
-						{
+						} else {
 							//CHECK
 							//to be done: only if multiedges
 							if (!genshift[v]) upperBound[e] = upperAngleFlow;
 							allMulti = false;
 						}
-					}//multiAlign
-				}//foralladjedges
-
+					}
+				}
 
 				if (m_multiAlign && allMulti  && (v->degree()>1))
 				{
-
 					fixedVal[w] = true;
 
 					//find an edge that allows 360 degree without bends
@@ -903,8 +885,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 								}
 								twoNodeCC = false;
 								break;
-							}//if not 2nodeCC
-						}//if
+							}
+						}
 					}
 					//if only two nodes with multiedges are in current CC,
 					//assign 360 degree to first edge
@@ -926,11 +908,11 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 									setProgressiveBoundsEqually(e, lowerAngleFlow, maxBackFlow);
 								}
 								break;
-							}//if
-						}//forall
-					}//if
-				}//if allMulti
-			}//replaces vertex
+							}
+						}
+					}
+				}
+			}
 
 		}
 	}
@@ -976,9 +958,9 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 								fixAssignment = true;
 								break;
 							}
-						}//if no angle back arc in progressive mode
+						}
 					}
-				}//deg4free
+				}
 
 				//CHECK
 				//now set the angles at degree 4 nodes to distribute edges
@@ -1000,9 +982,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 							lowerBound[te] = halfPiAngleFlow;
 							upperBound[te] = halfPiAngleFlow;
 						}
-					}//if no angle back arc in progressive mode
-					else
-					{
+					} else {
 						if (fixedVal[tv]) continue; //if already special values set
 
 						if (!fixAssignment)
@@ -1017,9 +997,9 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 							lowerBound[te] = 0; //1
 							upperBound[te] = 0; //halfPiAngleFlow; //1
 						}
-					}//back angle arc
+					}
 				}
-			}//degree 4 node
+			}
 			int lowsum = 0, upsum = 0;
 			for(adjEntry adj : tv->adjEntries) {
 				edge te = adj->theEdge();
@@ -1032,7 +1012,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				OGDF_ASSERT(lowsum <= supply[tv]);
 				OGDF_ASSERT(upsum >= supply[tv]);
 			}
-		}//if node, no faces
+		}
 	}
 	for(node tv : Network.nodes)
 	{
@@ -1057,7 +1037,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 		{
 			capacityBoundedEdges.pushBack(e);
 			isBounded[e] = true;
-		}//if bounded
+		}
 	}
 
 	int currentUpperBound;
@@ -1075,21 +1055,20 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 		isFlow = flowModule.call(Network,lowerBound,upperBound,cost,supply,flow);
 
 #if 0
-#ifdef foutput
 		if (isFlow)
 		{
 			for(edge e : Network.edges) {
 				fout << "e = " << e << " flow = " << flow[e];
 				if(nodeCor[e] == 0 && adjCor[e])
 					fout << " real edge = " << adjCor[e]->theEdge();
-				fout << endl;
+				fout << std::endl;
 			}
 			for(edge e : Network.edges) {
 				if(nodeCor[e] == 0 && adjCor[e] != 0 && flow[e] > 0) {
 					fout << "Bends " << flow[e] << " on edge "
 						<< adjCor[e]->theEdge()
 						<< " between faces " << adjF[adjCor[e]]->index() << " - "
-						<< adjF[adjCor[e]->twin()]->index() << endl;
+						<< adjF[adjCor[e]->twin()]->index() << std::endl;
 				}
 			}
 			for(edge e : Network.edges) {
@@ -1097,7 +1076,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					fout << "Angle " << (flow[e])*90 << "\tdegree   on node "
 						<< nodeCor[e] << " at face " << faceCor[e]->index()
 						<< "\tbetween edge " << adjCor[e]->faceCyclePred()
-						<< "\tand " << adjCor[e] << endl;
+						<< "\tand " << adjCor[e] << std::endl;
 				}
 			}
 			if (startBoundBendsPerEdge> 0) {
@@ -1105,18 +1084,15 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					<< currentUpperBound;
 				if(isFlow)
 					fout << " ... Successful";
-				fout << endl;
+				fout << std::endl;
 			}
 		}
-#endif
 #endif
 
 		OGDF_ASSERT(startBoundBendsPerEdge >= 1 || isFlow);
 
 		currentUpperBound++;
-
-	}// while (!isflow)
-
+	}
 
 	if (startBoundBendsPerEdge && !isFlow)
 	{
@@ -1150,7 +1126,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 			{
 				OGDF_ASSERT((int)OR.bend(adjCor[e]).size() <= currentUpperBound);
 				OGDF_ASSERT((int)OR.bend(adjCor[e]->twin()).size() <= currentUpperBound);
-			}//if bounded
+			}
 		}
 		else if (nodeCor[e] != nullptr && faceCor[e] != nullptr)
 		{
@@ -1172,25 +1148,23 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					OGDF_ASSERT(twinFlow == 0);
 					OR.angle(adjCor[e]) = 2 - flow[e];
 				}
-			}//progressive mode
-		}//if angle arc
+			}
+		}
 	}
 
 
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::HeavyChecks))
-		cout << "\n\nTotal Number of Bends : "<< totalNumBends << endl << endl;
+#ifdef OGDF_HEAVY_DEBUG
+	Logger::slout() << "\n\nTotal Number of Bends : "<< totalNumBends << std::endl << std::endl;
 #endif
 
 #ifdef OGDF_DEBUG
 	string error;
 	if (!OR.check(error)) {
-		cout << error << endl;
+		Logger::slout() << error << std::endl;
 		OGDF_ASSERT(false);
 	}
 #endif
 
-}//call
+}
 
-
-} // end namespace ogdf
+}

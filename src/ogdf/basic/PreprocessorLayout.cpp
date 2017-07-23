@@ -107,5 +107,4 @@ void PreprocessorLayout::call(Graph &G, MultilevelGraph &MLG)
 	}
 }
 
-
-} // namespace ogdf
+}

@@ -73,21 +73,19 @@ private:
 	                                       cluster c)
 	{
 
-		//insert nodes for all child clusters
+		// insert nodes for all child clusters
 		ListConstIterator<cluster> it;
-		for (it = c->cBegin(); it.valid(); ++it)
-		{
+		for (auto child : c->children) {
 			node v = g.newNode();
-			m_cRepNode[*it] = v;
-		}//for
-		//insert nodes for all node entries in c
+			m_cRepNode[child] = v;
+		}
+		// insert nodes for all node entries in c
 		ListConstIterator<node> itn;
-		for (itn = c->nBegin(); itn.valid(); ++itn)
-		{
+		for (auto u : c->nodes) {
 			node v = g.newNode();
-			m_vRepNode[*itn] = v;
-		}//for
-	}//constructRepresentationGraphNodes
+			m_vRepNode[u] = v;
+		}
+	}
 
 	//! insert rep edges for all edges in clustergraph
 	void constructRepresentationGraphEdges(const ClusterGraph& CG,
@@ -112,9 +110,7 @@ private:
 			{
 				m_repEdge[e] = RepGraph[uAncestor]->newEdge(
 								m_vRepNode[u], m_vRepNode[v]);
-			}//if
-			else
-			{
+			} else {
 				OGDF_ASSERT(uAncestor != CG.rootCluster()
 				         || vAncestor != CG.rootCluster());
 				//now only one node can be directly in rootcluster
@@ -123,14 +119,10 @@ private:
 				{
 					m_repEdge[e] = RepGraph[uAncestor]->newEdge(
 								m_vRepNode[u], m_cRepNode[vAncestor]);
-				}//if u in rootcluster
-				else if (vAncestor == CG.rootCluster())
-				{
+				} else if (vAncestor == CG.rootCluster()) {
 					m_repEdge[e] = RepGraph[vAncestor]->newEdge(
 								m_cRepNode[uAncestor], m_vRepNode[v]);
-				}//if v in rootcluster
-				else
-				{
+				} else {
 					OGDF_ASSERT(allocCluster != nullptr);
 					//now create edge in lowest common cluster
 					node v1, v2;
@@ -140,11 +132,9 @@ private:
 								m_cRepNode[vAncestor]);
 					m_repEdge[e] = RepGraph[allocCluster]->newEdge(v1, v2);
 				}
-			}//else
-
-		}//foralledges
-		//m_repEdge
-	}//constructRepresentationGraphEdges
+			}
+		}
+	}
 
 	//! Computes representation graphs used for spanning tree computation
 	void computeRepresentationGraphs(const ClusterGraph& CG,
@@ -155,7 +145,7 @@ private:
 			constructRepresentationGraphNodes(CG, *RepGraph[c], c);
 		}
 		constructRepresentationGraphEdges(CG, RepGraph);
-	}//computeRepresentationGraphs
+	}
 
 	void deleteRepresentationGraphs(const ClusterGraph& CG,
 	                                ClusterArray<Graph*>& RepGraph)
@@ -163,8 +153,7 @@ private:
 		for(cluster c : CG.clusters) {
 			delete RepGraph[c];
 		}
-
-	}//deleteRepresentationGraphs
+	}
 
 	//! Initializes some internally used members on CG
 	void initialize(const ClusterGraph& CG);

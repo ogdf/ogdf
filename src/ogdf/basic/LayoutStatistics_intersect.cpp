@@ -58,7 +58,7 @@ public:
 		m_id = s_idCount++;
 	}
 
-	~DPointRep() { }
+	~DPointRep() = default;
 };
 
 
@@ -75,7 +75,7 @@ public:
 	DPointHandle(double x, double y) : m_pRep(new DPointRep(x,y)) { }
 	DPointHandle(const DPointHandle &p) : m_pRep(p.m_pRep) { }
 
-	~DPointHandle() { }
+	~DPointHandle() = default;
 
 	DPointHandle &operator=(const DPointHandle &p) {
 		m_pRep = p.m_pRep;
@@ -140,7 +140,7 @@ public:
 		m_id = s_idCount++;
 	}
 
-	~DSegmentRep() { }
+	~DSegmentRep() = default;
 };
 
 
@@ -159,7 +159,7 @@ public:
 
 	DSegmentHandle(const DSegmentHandle &seg) : m_pRep(seg.m_pRep) { }
 
-	~DSegmentHandle() { }
+	~DSegmentHandle() = default;
 
 	DSegmentHandle &operator=(const DSegmentHandle &seg) {
 		m_pRep = seg.m_pRep;
@@ -178,8 +178,8 @@ public:
 	double dx() const { return end().xcoord() - start().xcoord(); }
 	double dy() const { return end().ycoord() - start().ycoord(); }
 
-	double slope() const { return (dx() == 0) ? numeric_limits<double>::max() : dy()/dx(); }
-	double yAbs() const { return (dx() == 0) ? numeric_limits<double>::max() : start().ycoord() - (slope() * start().xcoord()); }
+	double slope() const { return (dx() == 0) ? std::numeric_limits<double>::max() : dy()/dx(); }
+	double yAbs() const { return (dx() == 0) ? std::numeric_limits<double>::max() : start().ycoord() - (slope() * start().xcoord()); }
 
 	bool isVertical() const { return start().xcoord() == end().xcoord(); }
 
@@ -456,9 +456,9 @@ void LayoutStatistics::intersectionGraph(const GraphAttributes &ga, Graph &H, No
 		DPoint q = DPoint(x2,y2);
 
 		x1 = abs(x1);
-		x1 = max(x1, abs(x2));
-		x1 = max(x1, abs(y1));
-		x1 = max(x1, abs(y2));
+		Math::updateMax(x1, abs(x2));
+		Math::updateMax(x1, abs(y1));
+		Math::updateMax(x1, abs(y2));
 
 		while(x1 >= infinity)
 			infinity *= 2;
@@ -521,7 +521,6 @@ void LayoutStatistics::intersectionGraph(const GraphAttributes &ga, Graph &H, No
 				sit = sit.succ();
 
 			sitSucc = sit.succ();
-			YSequence::iterator sitLast = sit;
 
 			// walk down
 			bool overlapping;
@@ -626,4 +625,4 @@ void LayoutStatistics::intersectionGraph(const GraphAttributes &ga, Graph &H, No
 	}
 }
 
-} // end namespace ogdf
+}

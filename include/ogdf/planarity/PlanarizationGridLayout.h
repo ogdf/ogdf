@@ -190,5 +190,4 @@ private:
 	int m_nCrossings; //!< The number of crossings in the computed layout.
 };
 
-
-} // end namespace ogdf
+}

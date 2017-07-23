@@ -1,6 +1,5 @@
 /** \file
- * \brief Implementation of Spring-Embedder (Fruchterman,Reingold)
- *        algorithm with exact force computations.
+ * \brief Implementation of ogdf::SpringEmbedderFRExact.
  *
  * \author Carsten Gutwenger
  *
@@ -243,10 +242,10 @@ void SpringEmbedderFRExact::initialize(ArrayGraph &component)
 
 	for(int v = 0; v < component.numberOfNodes(); ++v)
 	{
-		xmin = min(xmin, component.m_x[v]);
-		xmax = max(xmax, component.m_x[v]);
-		ymin = min(ymin, component.m_y[v]);
-		ymax = max(ymax, component.m_y[v]);
+		Math::updateMin(xmin, component.m_x[v]);
+		Math::updateMax(xmax, component.m_x[v]);
+		Math::updateMin(ymin, component.m_y[v]);
+		Math::updateMax(ymax, component.m_y[v]);
 	}
 
 	double w = xmax-xmin+m_idealEdgeLength;
@@ -379,15 +378,14 @@ void SpringEmbedderFRExact::mainStep(ArrayGraph &C)
 		}
 
 		cool(tx,ty,cF);
-	//}//if
+	//}
 		itCount++;
 		converged = (itCount > m_iterations || converged);
-	}//while not converged
+	}
 
 	System::alignedMemoryFree(disp_x);
 	System::alignedMemoryFree(disp_y);
-}//mainstep
-
+}
 
 void SpringEmbedderFRExact::mainStep_sse3(ArrayGraph &C)
 {
@@ -465,7 +463,7 @@ void SpringEmbedderFRExact::mainStep_sse3(ArrayGraph &C)
 #ifndef OGDF_SPRINGEMBEDDERFREXACT_USE_KSQUARE
 					  _mm_div_sd(_mm_load_sd(&C.m_nodeWeight[u]), mm_distSquare);
 #else
-					  _mm_div_sd(mm_kSquare, mm_distSquare)
+					  _mm_div_sd(mm_kSquare, mm_distSquare);
 #endif
 					mm_disp_xv = _mm_add_sd(mm_disp_xv, _mm_mul_sd(mm_delta_x, mm_t));
 					mm_disp_yv = _mm_add_sd(mm_disp_yv, _mm_mul_sd(mm_delta_y, mm_t));
@@ -481,7 +479,9 @@ void SpringEmbedderFRExact::mainStep_sse3(ArrayGraph &C)
 					compute_sd(u);
 				}
 
-				for (u = uStart; u < n; u += 2) {
+				// TODO do we need u+1 here?
+				//      GCC's leak sanitizer reports a heap buffer overflow when using just u.
+				for (u = uStart; u + 1 < n; u += 2) {
 					compute_pd(u);
 				}
 				if (u < n) {
@@ -562,5 +562,4 @@ void SpringEmbedderFRExact::mainStep_sse3(ArrayGraph &C)
 #endif
 }
 
-
-} // end namespace ogdf
+}

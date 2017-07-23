@@ -139,7 +139,7 @@ public:
 		else m_useScalingCompaction = false;
 		if (optionField & UMLOpt::OpProg) m_orthoStyle = 1;
 		else m_orthoStyle = 0; //traditional
-	}//setOptions
+	}
 
 	virtual int getOptions() override
 	{
@@ -149,8 +149,7 @@ public:
 		if (m_orthoStyle == 1) result += UMLOpt::OpProg;
 
 		return result;
-	}//getOptions
-
+	}
 
 protected:
 	void classifyEdges(PlanRepUML &PG, adjEntry &adjExternal);
@@ -179,5 +178,4 @@ private:
 	int m_bendBound; //!< bounds number of bends per edge in ortho shaper
 };
 
-
-} // end namespace ogdf
+}

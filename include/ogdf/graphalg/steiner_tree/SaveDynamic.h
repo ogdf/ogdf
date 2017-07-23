@@ -168,25 +168,25 @@ public:
 		while (v0) {
 			// bubble pointers such that level(v0) >= level(v1) >= level(v2)
 			if (v1level < v2level) {
-				swap(v1, v2);
-				swap(v1level, v2level);
+				std::swap(v1, v2);
+				std::swap(v1level, v2level);
 			}
 			if (v0level < v1level) {
-				swap(v0, v1);
-				swap(v0level, v1level);
+				std::swap(v0, v1);
+				std::swap(v0level, v1level);
 			}
 			if (v1level < v2level) {
-				swap(v1, v2);
-				swap(v1level, v2level);
+				std::swap(v1, v2);
+				std::swap(v1level, v2level);
 			}
 			// bubble pointers such that weight(v0) <= weight(v1), weight(v2)
 			if (weight(v1) > weight(v2)) {
-				swap(v1, v2);
-				swap(v1level, v2level);
+				std::swap(v1, v2);
+				std::swap(v1level, v2level);
 			}
 			if (weight(v0) > weight(v1)) {
-				swap(v0, v1);
-				swap(v0level, v1level);
+				std::swap(v0, v1);
+				std::swap(v0level, v1level);
 			}
 			// now v0 is the node with the least weight... if equal, with the highest level.
 
@@ -279,5 +279,5 @@ private:
 	LCA *m_lca; //!< Data structure for calculating the LCAs
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

@@ -191,15 +191,11 @@ private:
 	               HypergraphAttributesES &pHA,
 	               Array<DPoint> &bounding);
 
-	NodePair *insertShell(GraphCopySimple &planarRep,
-	                                  List<node> &src,
-	                                  List<node> &tgt,
-	                                  List<edge> &fixedShell);
+	void insertShell(GraphCopySimple &planarRep, List<node> &src, List<node> &tgt, List<edge> &fixedShell);
 
 	void removeShell(PlanRep &planarRep, NodePair &st);
 
 	void applyProfile(HypergraphAttributesES &HA);
-
 };
 
-} // end namespace ogdf
+}

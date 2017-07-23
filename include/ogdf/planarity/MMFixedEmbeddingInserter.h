@@ -258,7 +258,7 @@ private:
 	 */
 	void collectAnchorNodes(
 		node v,
-		NodeSet &nodes,
+		NodeSet<> &nodes,
 		const PlanRepExpansion::NodeSplit *nsParent,
 		const PlanRepExpansion &PG) const;
 
@@ -271,7 +271,7 @@ private:
 	 */
 	void anchorNodes(
 		node vOrig,
-		NodeSet &nodes,
+		NodeSet<> &nodes,
 		const PlanRepExpansion &PG) const;
 
 	/**
@@ -285,8 +285,8 @@ private:
 	 */
 	void findSourcesAndTargets(
 		node src, node tgt,
-		NodeSet &sources,
-		NodeSet &targets,
+		NodeSet<> &sources,
+		NodeSet<> &targets,
 		const PlanRepExpansion &PG) const;
 
 	/**
@@ -296,14 +296,13 @@ private:
 	 * @param targets is a set of anchor nodes.
 	 */
 	node commonDummy(
-		NodeSet &sources,
-		NodeSet &targets);
+		NodeSet<> &sources,
+		NodeSet<> &targets);
 
 	//! Performs several consistency checks on the seach network.
 	bool checkDualGraph(PlanRepExpansion &PG, const CombinatorialEmbedding &E) const;
 
-	bool checkSplitDeg(
-		PlanRepExpansion &PG);
+	bool checkSplitDeg(PlanRepExpansion &PG) const;
 
 	bool origOfDualForbidden(
 		edge e,
@@ -328,7 +327,7 @@ private:
 		if(eOrig != nullptr) {
 #if 0
 			if((*forbiddenEdgeOrig)[eOrig] == true)
-				cout << "forbidden: " << eOrig << ", dual: " << e << endl;
+				std::cout << "forbidden: " << eOrig << ", dual: " << e << std::endl;
 #endif
 			return (*forbiddenEdgeOrig)[eOrig];
 		} else return false;
@@ -353,9 +352,9 @@ private:
 	node m_vT; //!< Represents the end node for the path search.
 	int m_maxCost; //!< The maximal cost of an edge in the search network + 1.
 
-	FaceSetSimple      *m_delFaces;
-	FaceSetPure        *m_newFaces;
-	NodeSetPure        *m_mergedNodes;
+	FaceSet<false> *m_delFaces;
+	FaceSet<false> *m_newFaces;
+	NodeSet<false> *m_mergedNodes;
 };
 
-} // end namespace ogdf
+}

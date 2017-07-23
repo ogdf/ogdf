@@ -69,5 +69,4 @@ private:
 
 };
 
-
-} // end namespace ogdf
+}

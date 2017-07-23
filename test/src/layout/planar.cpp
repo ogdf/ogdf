@@ -29,11 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
-#include <ogdf/planarlayout/PlanarStraightLayout.h>
-#include <ogdf/planarlayout/PlanarDrawLayout.h>
+#include <ogdf/planarlayout/FPPLayout.h>
 #include <ogdf/planarlayout/MixedModelLayout.h>
+#include <ogdf/planarlayout/PlanarDrawLayout.h>
+#include <ogdf/planarlayout/PlanarStraightLayout.h>
+#include <ogdf/planarlayout/SchnyderLayout.h>
 #include <ogdf/planarity/EmbedderMaxFace.h>
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
 #include <ogdf/planarity/EmbedderMinDepth.h>
@@ -47,53 +47,60 @@
 
 #include "layout_helpers.h"
 
-using namespace ogdf;
-
 template<typename Layout>
-static void describeForAllEmbedders(Layout &layout, string name, std::initializer_list<GraphRequirement> requirements) {
+static void describeForAllEmbedders(string name, Layout &layout, std::set<GraphProperty> requirements = {}, bool skipMe = false) {
 	name += " and ";
 
+	requirements.insert({GraphProperty::planar, GraphProperty::simple});
+
 	layout.setEmbedder(new SimpleEmbedder);
-	describeGridLayoutModule(name + " SimpleEmbedder", layout, requirements);
+
+	describeLayout(name + "SimpleEmbedder", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMaxFace);
-	describeGridLayoutModule(name + " EmbedderMaxFace", layout, requirements);
+	describeLayout(name + "EmbedderMaxFace", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMaxFaceLayers);
-	describeGridLayoutModule(name + "EmbedderMaxFaceLayers", layout, requirements);
+	describeLayout(name + "EmbedderMaxFaceLayers", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMinDepth);
-	describeGridLayoutModule(name + "EmbedderMinDepth", layout, requirements);
+	describeLayout(name + "EmbedderMinDepth", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMinDepthMaxFace);
-	describeGridLayoutModule(name + "EmbedderMinDepthMaxFace", layout, requirements);
+	describeLayout(name + "EmbedderMinDepthMaxFace", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMinDepthMaxFaceLayers);
-	describeGridLayoutModule(name + "EmbedderMinDepthMaxFaceLayers", layout, requirements);
+	describeLayout(name + "EmbedderMinDepthMaxFaceLayers", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	// the two embedders below are currently disabled since they cause failures
 
 	layout.setEmbedder(new EmbedderMinDepthPiTa);
-	describeGridLayoutModule(name + "EmbedderMinDepthPiTa", layout, requirements, MAX_NODES, true);
+	describeLayout(name + "EmbedderMinDepthPiTa", layout, 0, requirements, false, GraphSizes(), true);
 
 	layout.setEmbedder(new EmbedderOptimalFlexDraw);
-	describeGridLayoutModule(name + "EmbedderOptimalFlexDraw", layout, requirements, MAX_NODES, true);
+	describeLayout(name + "EmbedderOptimalFlexDraw", layout, 0, requirements, false, GraphSizes(), true);
 }
 
 template<typename Layout>
-static void describePlanarLayout(string name) {
+static void describePlanarLayout(string name, std::set<GraphProperty> requirements = {}) {
 	Layout layout;
 	name += " with ";
 
 	layout.setShellingOrder(new BiconnectedShellingOrder);
-	describeForAllEmbedders(layout, name + "BiconnectedShellingOrder", {GraphRequirement::planar});
+	describeForAllEmbedders(name + "BiconnectedShellingOrder", layout, requirements);
 
+	requirements.insert(GraphProperty::triconnected);
 	layout.setShellingOrder(new TriconnectedShellingOrder);
-	describeForAllEmbedders(layout, name + "TriconnectedShellingOrder", {GraphRequirement::planar, GraphRequirement::triconnected});
+	describeForAllEmbedders(name + "TriconnectedShellingOrder", layout, requirements);
 }
 
-go_bandit([] { bandit::describe("Planar layouts", [] {
+go_bandit([] { describe("Planar layouts", [] {
 	describePlanarLayout<PlanarStraightLayout>("PlanarStraightLayout");
 	describePlanarLayout<PlanarDrawLayout>("PlanarDrawLayout");
-	describePlanarLayout<MixedModelLayout>("MixedModelLayout");
+
+	describePlanarLayout<MixedModelLayout>("MixedModelLayout", {GraphProperty::connected});
+
+	describeLayout<FPPLayout>("FPPLayout", 0, {GraphProperty::planar, GraphProperty::simple, GraphProperty::connected}, false, GraphSizes());
+
+	describeLayout<SchnyderLayout>("SchnyderLayout", 0, {GraphProperty::planar, GraphProperty::simple, GraphProperty::connected}, false, GraphSizes());
 }); });

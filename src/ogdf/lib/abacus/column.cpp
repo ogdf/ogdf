@@ -32,14 +32,14 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const Column &rhs)
+std::ostream &operator<<(std::ostream &out, const Column &rhs)
 {
-	out << "objective function coefficient: " << rhs.obj() << endl
-	 << "bounds: " << rhs.lBound_ << " <= x <= " << rhs.uBound_ << endl
-	 << "nonzero rows of column :" << endl;
+	out << "objective function coefficient: " << rhs.obj() << std::endl
+	 << "bounds: " << rhs.lBound_ << " <= x <= " << rhs.uBound_ << std::endl
+	 << "nonzero rows of column :" << std::endl;
 
 	for (int i = 0; i < rhs.nnz_; i++)
-		out << 'r' << rhs.support_[i] << ": " << rhs.coeff_[i] << endl;
+		out << 'r' << rhs.support_[i] << ": " << rhs.coeff_[i] << std::endl;
 
 	return out;
 }
@@ -53,4 +53,4 @@ void Column::copy(const Column &col)
 	lBound_ = col.lBound_;
 	uBound_ = col.uBound_;
 }
-} //namespace abacus
+}

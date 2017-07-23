@@ -320,13 +320,16 @@ bool SolarMerger::buildOneLevel(MultilevelGraph &MLG)
 	findInterSystemPaths(G, MLG);
 
 	for (node v : suns) {
-		if (!collapsSolarSystem(MLG, v, level)) {
+		if (!collapseSolarSystem(MLG, v, level)) {
 			return false;
 		}
 	}
 
 	NodeMerge * lastMerge = MLG.getLastMerge();
-	for (edge e : G.edges) {
+
+	List<edge> edges;
+	G.allEdges(edges);
+	for (edge e : edges) {
 		node source = e->source();
 		node target = e->target();
 		if (target->index() < source->index())
@@ -346,7 +349,7 @@ bool SolarMerger::buildOneLevel(MultilevelGraph &MLG)
 }
 
 
-bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
+bool SolarMerger::collapseSolarSystem(MultilevelGraph &MLG, node sun, int level)
 {
 	bool retVal = false;
 
@@ -419,4 +422,4 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 	return retVal;
 }
 
-} // namespace ogdf
+}

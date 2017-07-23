@@ -39,17 +39,16 @@ namespace ogdf {
 
 // copy pointer of class Kuratowski
 void KuratowskiStructure::copyPointer(const KuratowskiStructure& orig, SListPure<WInfo>& list) {
-	SListConstIterator<SListPure<adjEntry> > itHighOrig=orig.highestXYPaths.begin();
-	SListIterator<SListPure<adjEntry> > itHigh=highestXYPaths.begin();
-	SListConstIterator<SListPure<adjEntry> > itZOrig=orig.zPaths.begin();
-	SListIterator<SListPure<adjEntry> > itZ=zPaths.begin();
-	SListConstIterator<ExternE> itExternStartOrig=orig.externE.begin();
-	SListIterator<ExternE> itExternStart=externE.begin();
-	SListConstIterator<ExternE> itExternEndOrig=orig.externE.begin();
-	SListIterator<ExternE> itExternEnd=externE.begin();
-	SListIterator<WInfo> it;
-	for (it=list.begin(); it.valid(); ++it) {
-		WInfo& info(*it);
+	auto itHighOrig = orig.highestXYPaths.begin();
+	auto itZOrig = orig.zPaths.begin();
+	auto itExternStartOrig = orig.externE.begin();
+	auto itExternEndOrig = orig.externE.begin();
+	auto itZ = zPaths.begin();
+	auto itHigh = highestXYPaths.begin();
+	auto itExternStart = externE.begin();
+	auto itExternEnd = externE.begin();
+
+	for (WInfo &info : list) {
 		if (info.highestXYPath!=nullptr) {
 			// go to referenced object
 			while (info.highestXYPath != &(*itHighOrig)) {
@@ -168,7 +167,7 @@ FindKuratowskis::FindKuratowskis(BoyerMyrvoldPlanar* bm) :
 }
 
 // finds root node of the bicomp containing the stopping node stopX
-node FindKuratowskis::findRoot(node stopX) {
+node FindKuratowskis::findRoot(node stopX) const {
 	int dir = BoyerMyrvoldPlanar::DirectionCCW;
 	while (m_realVertex[stopX]==nullptr)
 		stopX = pBM->successorWithoutShortCircuit(stopX,dir);
@@ -177,7 +176,7 @@ node FindKuratowskis::findRoot(node stopX) {
 
 // extracts highest face path (contains all highest xy-paths)
 void FindKuratowskis::extractHighestFacePath(
-				ListPure<adjEntry>& highestFacePath,
+				ArrayBuffer<adjEntry>& highestFacePath,
 				int marker) {
 	adjEntry adj = pBM->beforeShortCircuitEdge(k.R,BoyerMyrvoldPlanar::DirectionCCW);
 	adjEntry end = pBM->beforeShortCircuitEdge(k.R,BoyerMyrvoldPlanar::DirectionCW);
@@ -188,11 +187,11 @@ void FindKuratowskis::extractHighestFacePath(
 		if (m_wasHere[x] >= marker) {
 			// node is already visited on facepath: pop until duplicate node found
 			OGDF_ASSERT(!highestFacePath.empty());
-			while (highestFacePath.back()->theNode()!=x) highestFacePath.popBack();
+			while (highestFacePath.top()->theNode() != x) highestFacePath.pop();
 			// sign cut-vertex with marker+1
 			m_wasHere[x] = marker+1;
 		} else {
-			highestFacePath.pushBack(adj);
+			highestFacePath.push(adj);
 			// sign visited nodes with marker
 			m_wasHere[x] = marker;
 		}
@@ -214,7 +213,7 @@ void FindKuratowskis::extractHighestFacePath(
 // highMarker+1 identifies the nodes that are zNodes.
 void FindKuratowskis::extractExternalFacePath(
 				SListPure<adjEntry>& externalFacePath,
-				const ListPure<adjEntry>& highestFacePath,
+				const ArrayBuffer<adjEntry>& highestFacePath,
 				int marker,
 				int highMarker)
 {
@@ -232,10 +231,10 @@ void FindKuratowskis::extractExternalFacePath(
 
 	dir = BoyerMyrvoldPlanar::DirectionCCW;
 	x = pBM->successorWithoutShortCircuit(k.R,dir);
-	ListConstIterator<adjEntry> highIt = highestFacePath.begin();
+	auto highIt = highestFacePath.begin();
 	OGDF_ASSERT(x == (*highIt)->theNode());
-	SListPure<adjEntry> XYPathList;
-	SListPure<adjEntry> zList;
+	ArrayBuffer<adjEntry> XYPathList;
+	ArrayBuffer<adjEntry> zList;
 	WInfo info;
 	adjEntry adj = pBM->beforeShortCircuitEdge(k.R,BoyerMyrvoldPlanar::DirectionCCW);
 	adjEntry temp;
@@ -267,20 +266,19 @@ void FindKuratowskis::extractExternalFacePath(
 					m_wasHere[pBM->constSuccessorWithoutShortCircuit(x,dir)] != marker) {
 			// traverse highFacePath to x
 			while ((*highIt)->theNode() != x) ++highIt;
-			OGDF_ASSERT(highIt.valid());
-			XYPathList.pushBack(adj);
-			OGDF_ASSERT((*highIt.succ())->theNode() !=
-						pBM->constSuccessorWithoutShortCircuit(x,dir));
+			OGDF_ASSERT(highIt != highestFacePath.end());
+			XYPathList.push(adj);
+			OGDF_ASSERT((*(highIt + 1))->theNode() != pBM->constSuccessorWithoutShortCircuit(x, dir));
 
 			// traverse highFacePath to next marker
 			do {
 				++highIt;
-				if (!highIt.valid()) break;
+				if (highIt == highestFacePath.end()) break;
 				temp = *highIt;
-				XYPathList.pushBack(temp);
+				XYPathList.push(temp);
 				// check, if node is z-node and push one single z-node
 				if (m_wasHere[temp->theNode()]==highMarker+1 && zList.empty())
-					zList.pushBack(temp);
+					zList.push(temp);
 			} while (m_wasHere[temp->theNode()] != marker);
 
 			// save highestXY-Path
@@ -291,7 +289,7 @@ void FindKuratowskis::extractExternalFacePath(
 			// compute path from zNode to V and save it
 			if (!zList.empty()) {
 				OGDF_ASSERT(zList.size()==1); // just one zNode for now
-				temp = zList.back();
+				temp = zList.top();
 				do {
 					do {
 						temp = temp->cyclicSucc();
@@ -299,7 +297,7 @@ void FindKuratowskis::extractExternalFacePath(
 									m_dfi[temp->twinNode()]>=m_dfi[k.RReal]);
 					} while (m_edgeType[temp->theEdge()]==BoyerMyrvoldEdgeType::BackDeleted);
 					temp = temp->twin();
-					zList.pushBack(temp);
+					zList.push(temp);
 				} while (temp->theNode() != k.R);
 				k.zPaths.pushBack(zList);
 				info.zPath = &k.zPaths.back();
@@ -321,16 +319,13 @@ void FindKuratowskis::splitInMinorTypes(
 	// all extern nodes strictly between stopX and stopY to list
 	// externE for minor E (pertinent nodes are considered because of the
 	// position of z left or right of w)
-	SListConstIterator<adjEntry> itExtern;
 	SListIterator<WInfo> it = k.wNodes.begin();
-	node x;
 	bool between = false;
 	SListPure<WInfo*> infoList;
-	SListIterator<WInfo*> itList;
 	ExternE externEdummy;
 	// compute list of externE nodes
-	for (itExtern=externalFacePath.begin(); itExtern.valid(); ++itExtern) {
-		x = (*itExtern)->theNode();
+	for (auto adj : externalFacePath) {
+		node x = adj->theNode();
 		if (x==k.stopX || x==k.stopY) {
 			between = !between;
 		} else {
@@ -364,11 +359,10 @@ void FindKuratowskis::splitInMinorTypes(
 
 					// save for each wNode the first externally active successor
 					// on the external face
-					for (itList = infoList.begin(); itList.valid(); ++itList)
-						(*itList)->firstExternEAfterW = x;
+					for (auto info : infoList) {
+						info->firstExternEAfterW = x;
+					}
 					infoList.clear();
-
-
 				}
 
 				// get appropriate WInfo
@@ -382,20 +376,18 @@ void FindKuratowskis::splitInMinorTypes(
 
 	// divide wNodes in different minor types
 	// avoids multiple computation of the externE range
-	itExtern = externalFacePath.begin();
+	SListConstIterator<adjEntry> itExtern = externalFacePath.begin();
 	SListIterator<ExternE> itExternE = k.externE.begin();
 	WInfo* oldInfo = nullptr;
-	for (it=k.wNodes.begin(); it.valid(); ++it) {
-		WInfo& info(*it);
-
+	for (WInfo& info : k.wNodes) {
 		// checking minor type A
 		if (k.RReal!=k.V) info.minorType |= WInfo::MinorType::A;
 
 		// if a XYPath exists
 		if (info.highestXYPath!=nullptr) {
-			if (m_wasHere[info.highestXYPath->front()->theNode()]==marker)
+			if (m_wasHere[(*info.highestXYPath)[0]->theNode()] == marker)
 				info.pxAboveStopX = true;
-			if (m_wasHere[info.highestXYPath->back()->theNode()]==marker)
+			if (m_wasHere[info.highestXYPath->top()->theNode()] == marker)
 				info.pyAboveStopY = true;
 
 			// checking minor type C
@@ -418,11 +410,17 @@ void FindKuratowskis::splitInMinorTypes(
 				} else {
 					// compute range of a new highestXYPath
 					node px;
-					if (info.pxAboveStopX) px = k.stopX;
-						else px = info.highestXYPath->front()->theNode();
+					if (info.pxAboveStopX) {
+						px = k.stopX;
+					} else {
+						px = (*info.highestXYPath)[0]->theNode();
+					}
 					node py;
-					if (info.pyAboveStopY) py = k.stopY;
-						else py = info.highestXYPath->back()->theNode();
+					if (info.pyAboveStopY) {
+						py = k.stopY;
+					} else {
+						py = info.highestXYPath->top()->theNode();
+					}
 					while ((*itExtern)->theNode() != px) ++itExtern;
 					t = (*(++itExtern))->theNode();
 					node start = nullptr;
@@ -457,32 +455,33 @@ void FindKuratowskis::splitInMinorTypes(
 		// use this to find special kuratowski-structures
 		if ((info.minorType & (WInfo::A|WInfo::B|WInfo::C|WInfo::D|WInfo::E)) ==
 			(WInfo::A|WInfo::B|WInfo::C|WInfo::D|WInfo::E)) {
-			char t; cin >> t;
+			char t; std::cin >> t;
 		}
 #endif
 	}
 
 	// extract the externalSubgraph of all saved externally active nodes
 	// exclude the already extracted minor b-types
-	#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 	int visited = m_nodeMarker+1;
-	#endif
-	for (itExternE=k.externE.begin(); itExternE.valid(); ++itExternE) {
-		if ((*itExternE).startnodes.empty()) continue;
+#endif
+	for (ExternE& externE : k.externE) {
+		if (externE.startnodes.empty()) continue;
 
-		ExternE& externE(*itExternE);
 		externE.startnodes.clear();
 		if (m_bundles) {
 			OGDF_ASSERT(m_wasHere[externE.theNode] < visited);
-			extractExternalSubgraphBundles(externE.theNode,k.V_DFI,
-										k.externalSubgraph,++m_nodeMarker);
+			extractExternalSubgraphBundles(externE.theNode, k.V_DFI, k.externalSubgraph, ++m_nodeMarker);
 		} else {
-			extractExternalSubgraph(externE.theNode,k.V_DFI,externE.startnodes,
-															externE.endnodes);
-			SListIterator<int> itInt;
+			extractExternalSubgraph(externE.theNode, k.V_DFI, externE.startnodes, externE.endnodes);
+
+			// Add externE.startnodes.size() many dummy elements.
+			// It is done this way because size() takes linear time and
+			// a range-based for-loop needs an unused variable.
 			SListPure<edge> dummy;
-			for (itInt = externE.startnodes.begin(); itInt.valid(); ++itInt)
+			for (auto itInt = externE.startnodes.begin(); itInt.valid(); ++itInt) {
 				externE.externalPaths.pushBack(dummy);
+			}
 		}
 	}
 }
@@ -495,16 +494,13 @@ void FindKuratowskis::extractExternalSubgraph(
 			SListPure<int>& externalStartnodes,
 			SListPure<node>& externalEndnodes)
 {
-	ListConstIterator<node> it;
-
 	if (m_leastAncestor[stop] < root) {
 		externalStartnodes.pushBack(m_dfi[stop]);
 		externalEndnodes.pushBack(m_nodeFromDFI[m_leastAncestor[stop]]);
 	}
 
-	for (it = m_separatedDFSChildList[stop].begin(); it.valid(); ++it) {
+	for (node temp : m_separatedDFSChildList[stop]) {
 		// descent to external active child bicomps of stopnode
-		node temp = *it;
 		int lowpoint = m_lowPoint[temp];
 		if (lowpoint >= root) break;
 
@@ -526,10 +522,10 @@ void FindKuratowskis::extractExternalSubgraphBundles(
 		OGDF_ASSERT(m_wasHere[v] != nodeMarker);
 #endif
 
-	StackPure<node> stack; // stack for dfs-traversal
+	ArrayBuffer<node> stack; // stack for dfs-traversal
 	stack.push(stop);
 	while (!stack.empty()) {
-		node v = stack.pop();
+		node v = stack.popRet();
 		if (m_wasHere[v] == nodeMarker) continue;
 		// mark visited nodes
 		m_wasHere[v] = nodeMarker;
@@ -543,8 +539,7 @@ void FindKuratowskis::extractExternalSubgraphBundles(
 			if (m_dfi[temp] < root && m_dfi[temp] > 0) {
 				OGDF_ASSERT(m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Back);
 				externalSubgraph.pushBack(adj->theEdge());
-			}
-			else if (v != stop && m_dfi[temp] >= m_dfi[v]) {
+			} else if (v != stop && m_dfi[temp] >= m_dfi[v]) {
 				// set flag and push unvisited nodes
 				OGDF_ASSERT(m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Back ||
 					m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Dfs ||
@@ -569,13 +564,13 @@ void FindKuratowskis::extractPertinentSubgraph(
 	SListPure<WInfo>& W_All)
 {
 	SListPure<edge> path;
-	SListIterator<WInfo> it;
 	int minDFI = -m_dfi[k.R];
 	int maxDFI = m_highestSubtreeDFI[m_nodeFromDFI[minDFI]];
 
 	// create links from pertinent nodes to WInfo
-	for (it = W_All.begin(); it.valid(); ++it)
-		m_getWInfo[(*it).w] = &(*it);
+	for (WInfo &info : W_All) {
+		m_getWInfo[info.w] = &info;
+	}
 
 	// add all pertinent paths to WInfo
 	for (adjEntry adj : k.V->adjEntries) {
@@ -612,8 +607,9 @@ void FindKuratowskis::extractPertinentSubgraph(
 	}
 
 	// delete links from pertinent nodes to WInfo
-	for (it = W_All.begin(); it.valid(); ++it)
-		m_getWInfo[(*it).w] = nullptr;
+	for (const WInfo &info : W_All) {
+		m_getWInfo[info.w] = nullptr;
+	}
 }
 
 
@@ -629,7 +625,7 @@ void FindKuratowskis::extractPertinentSubgraphBundles(
 		OGDF_ASSERT(m_wasHere[w] != nodeMarker);
 #endif
 
-	StackPure<node> stack; // stack for dfs-traversal
+	ArrayBuffer<node> stack; // stack for dfs-traversal
 	// for all w-nodes
 	for (const WInfo &info : W_All) {
 		node currentWNode = info.w;
@@ -638,7 +634,7 @@ void FindKuratowskis::extractPertinentSubgraphBundles(
 		// until stack is empty, do dfs-traversal in bicomps and descent to
 		// pertinent child bicomps
 		while (!stack.empty()) {
-			node w = stack.pop();
+			node w = stack.popRet();
 			if (m_wasHere[w] == nodeMarker) continue;
 			// mark visited nodes
 			m_wasHere[w] = nodeMarker;
@@ -659,9 +655,7 @@ void FindKuratowskis::extractPertinentSubgraphBundles(
 					--m_visitedWithBackedge[m_pointsToRoot[e]];
 					OGDF_ASSERT(m_visitedWithBackedge[m_pointsToRoot[e]] >= 0);
 					pertinentSubgraph.pushBack(e);
-
-				}
-				else if (w != currentWNode && m_dfi[x] >= m_dfi[w]) {
+				} else if (w != currentWNode && m_dfi[x] >= m_dfi[w]) {
 					OGDF_ASSERT(m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Dfs ||
 						m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Back ||
 						m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::BackDeleted);

@@ -315,7 +315,7 @@ void PlanRepExpansion::insertEdgePathEmbedded(
 		adjEntry adjSrcNext = adjTgt->succ();
 
 		if (adjTgt != adj->twin())
-			swap(adjTgt,adjSrcNext);
+			std::swap(adjTgt, adjSrcNext);
 
 		OGDF_ASSERT(adjTgt == adj->twin());
 
@@ -350,8 +350,8 @@ void PlanRepExpansion::removeEdgePathEmbedded(
 	CombinatorialEmbedding &E,
 	edge eOrig,
 	nodeSplit ns,
-	FaceSetPure &newFaces,
-	NodeSetPure &mergedNodes,
+	FaceSet<false> &newFaces,
+	NodeSet<false> &mergedNodes,
 	node &oldSrc,
 	node &oldTgt)
 {
@@ -378,7 +378,7 @@ void PlanRepExpansion::removeEdgePathEmbedded(
 		edge eIn = u->firstAdj()->theEdge();
 		edge eOut = u->lastAdj()->theEdge();
 		if (eIn->target() != u)
-			swap(eIn,eOut);
+			std::swap(eIn, eOut);
 
 		E.unsplit(eIn,eOut);
 
@@ -435,7 +435,7 @@ void PlanRepExpansion::removeEdgePath(
 		edge eIn = u->firstAdj()->theEdge();
 		edge eOut = u->lastAdj()->theEdge();
 		if (eIn->target() != u)
-			swap(eIn,eOut);
+			std::swap(eIn, eOut);
 
 		unsplit(eIn,eOut);
 
@@ -819,7 +819,7 @@ void PlanRepExpansion::removeSelfLoop(
 
 	edge eIn  = u->firstAdj()->theEdge();
 	edge eOut = u->lastAdj ()->theEdge();
-	if(eIn->target() != u) swap(eIn,eOut);
+	if(eIn->target() != u) std::swap(eIn, eOut);
 
 	OGDF_ASSERT(ns == m_eNodeSplit[eOut]);
 	OGDF_ASSERT(eOrig == m_eOrig[eOut]);
@@ -841,7 +841,7 @@ void PlanRepExpansion::removeSelfLoop(edge e)
 
 	edge eIn  = u->firstAdj()->theEdge();
 	edge eOut = u->lastAdj ()->theEdge();
-	if(eIn->target() != u) swap(eIn,eOut);
+	if(eIn->target() != u) std::swap(eIn, eOut);
 
 	OGDF_ASSERT(ns == m_eNodeSplit[eOut]);
 	OGDF_ASSERT(eOrig == m_eOrig[eOut]);
@@ -850,24 +850,22 @@ void PlanRepExpansion::removeSelfLoop(edge e)
 }
 
 
-bool PlanRepExpansion::consistencyCheck() const
+#ifdef OGDF_DEBUG
+void PlanRepExpansion::consistencyCheck() const
 {
-	if(Graph::consistencyCheck() == false)
-		return false;
+	Graph::consistencyCheck();
 
-	if(isLoopFree(*this) == false)
-		return false;
+	OGDF_ASSERT(isLoopFree(*this));
 
 	for(edge eOrig : m_pGraph->edges) {
 		const List<edge> &path = m_eCopy[eOrig];
-		ListConstIterator<edge> it;
-		for(it = path.begin(); it.valid(); ++it) {
+
+		for(ListConstIterator<edge> it = path.begin(); it.valid(); ++it) {
 			edge e = *it;
+
 			if(it != path.begin()) {
-				if(e->source()->degree() != 4)
-					return false;
-				if(e->source() != (*it.pred())->target())
-					return false;
+				OGDF_ASSERT(e->source()->degree() == 4);
+				OGDF_ASSERT(e->source() == (*it.pred())->target());
 			}
 		}
 	}
@@ -875,64 +873,51 @@ bool PlanRepExpansion::consistencyCheck() const
 	for(node vOrig : m_pGraph->nodes) {
 		const List<node> &nodeList = m_vCopy[vOrig];
 
-		if (nodeList.size() == 1
-		 && m_splittable[nodeList.front()] != m_splittableOrig[vOrig]) {
-			return false;
+		if (nodeList.size() == 1) {
+			OGDF_ASSERT(m_splittable[nodeList.front()] != m_splittableOrig[vOrig]);
 		}
 
-		if(nodeList.size() <= 1) continue;
+		if(nodeList.size() > 1) {
+			OGDF_ASSERT(m_splittableOrig[vOrig]);
 
-		if(m_splittableOrig[vOrig] == false)
-			return false;
-
-		ListConstIterator<node> it;
-		for(it = nodeList.begin(); it.valid(); ++it) {
-			node v = *it;
-			if(v->degree() < 2)
-				return false;
+			for (node v : nodeList) {
+				OGDF_ASSERT(v->degree() >= 2);
+			}
 		}
 	}
 
-	EdgeArray<const NodeSplit *> nso(*this,nullptr);
+	EdgeArray<const NodeSplit*> nso(*this, nullptr);
 
-	ListConstIterator<NodeSplit> it;
-	for(it = m_nodeSplits.begin(); it.valid(); ++it) {
-		const NodeSplit &ns = *it;
+	for(const NodeSplit &ns : m_nodeSplits) {
+		if(ns.m_path.size() != 0) {
+			node v = ns.source();
+			node w = ns.target();
+			node vOrig = m_vOrig[v];
 
-		if(ns.m_path.size() == 0)
-			continue;
+			OGDF_ASSERT(vOrig != nullptr);
+			OGDF_ASSERT(vOrig == m_vOrig[w]);
+			OGDF_ASSERT(m_splittable[v]);
+			OGDF_ASSERT(m_splittable[w]);
 
-		node v = ns.source();
-		node w = ns.target();
+			const List<edge> &path = ns.m_path;
 
-		node vOrig = m_vOrig[v];
-		if(vOrig == nullptr || vOrig != m_vOrig[w])
-			return false;
+			for(ListConstIterator<edge> itE = path.begin(); itE.valid(); ++itE) {
+				edge e = *itE;
+				nso[e] = &ns;
 
-		if(m_splittable[v] == false || m_splittable[w] == false)
-			return false;
-
-		const List<edge> &path = ns.m_path;
-		ListConstIterator<edge> itE;
-		for(itE = path.begin(); itE.valid(); ++itE) {
-			edge e = *itE;
-			nso[e] = &ns;
-			if(itE != path.begin()) {
-				if(e->source()->degree() != 4)
-					return false;
-				if(e->source() != (*itE.pred())->target())
-					return false;
+				if (itE != path.begin()) {
+					OGDF_ASSERT(e->source()->degree() == 4);
+					OGDF_ASSERT(e->source() == (*itE.pred())->target());
+				}
 			}
 		}
 	}
 
 	for(edge e : edges) {
-		if(nso[e] != m_eNodeSplit[e])
-			return false;
+		OGDF_ASSERT(nso[e] == m_eNodeSplit[e]);
 	}
-
-	return true;
 }
+#endif
 
 
 List<edge> &PlanRepExpansion::setOrigs(edge e, edge &eOrig, nodeSplit &ns)
@@ -1183,6 +1168,4 @@ void PlanRepExpansion::resolvePseudoCrossing(node v)
 	}
 }
 
-
-
-} // end namespace ogdf
+}

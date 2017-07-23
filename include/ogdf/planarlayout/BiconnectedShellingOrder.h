@@ -60,5 +60,4 @@ protected:
 		List<ShellingOrderSet> &partition) override;
 };
 
-
-} // end namespace ogdf
+}

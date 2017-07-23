@@ -48,10 +48,7 @@ namespace ogdf {
 class OGDF_EXPORT EmbedderOptimalFlexDraw : public EmbedderModule
 {
 public:
-
 	EmbedderOptimalFlexDraw();
-
-	~EmbedderOptimalFlexDraw() { }
 
 	virtual void doCall(Graph &G, adjEntry &adjExternal) override;
 
@@ -99,4 +96,4 @@ private:
 		node mu);
 };
 
-} // end namespace ogdf
+}

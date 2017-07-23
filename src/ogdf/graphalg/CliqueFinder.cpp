@@ -34,7 +34,6 @@
 #include <ogdf/graphalg/CliqueFinder.h>
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/NodeComparer.h>
 #include <ogdf/basic/geometry.h>
 
 #ifdef OGDF_DEBUG
@@ -63,7 +62,7 @@ CliqueFinder::CliqueFinder(const Graph &G) : m_pGraph(&G), m_pCopy(nullptr),
 	{
 		OGDF_THROW(InsufficientMemoryException);
 	}
-}//constructor
+}
 
 CliqueFinder::~CliqueFinder()
 {
@@ -76,7 +75,7 @@ CliqueFinder::~CliqueFinder()
 
 		delete m_pCopy;
 	}
-}//destructor
+}
 
 
 
@@ -91,8 +90,7 @@ void CliqueFinder::call(NodeArray<int> &cliqueNumber)
 	doCall(m_minDegree);
 	//Then set the result: setResults(cliqueNumber);
 	setResults(cliqueNumber);
-
-}//call
+}
 
 //call with list of node lists, on return these lists contain
 //the nodes in each clique that is found
@@ -107,7 +105,7 @@ void CliqueFinder::call(List< List<node> > &cliqueLists)
 	//setresult is called in doCall for every treated component
 
 	m_pList = nullptr;
-}//call
+}
 
 
 //minDegree default 2, all other nodes are skipped
@@ -161,16 +159,14 @@ void CliqueFinder::doCall(int minDegree)
 					m_copyCliqueNumber[w] = 0;
 					w = w->succ();
 					m_copyCliqueNumber[w] = 1;
-				}//if no mindegree
-
+				}
 			}
-		}//if two nodes
-		else if ( (nodeNum == 1) && (minDegree <= 0)) {
+		} else if ( (nodeNum == 1) && (minDegree <= 0)) {
 			m_copyCliqueNumber[m_pCopy->firstNode()] = 0;
 		}
 
 		return;
-	}//graph too small
+	}
 
 	OGDF_ASSERT(m_pCopy != nullptr);
 
@@ -202,9 +198,8 @@ void CliqueFinder::doCall(int minDegree)
 				if (adRun->twinNode()->degree() >= minDegree)
 					relDegree[v]++;
 				adRun = succ;
-			}//while
-		}//if not isolated
-
+			}
+		}
 	}
 
 	makeBiconnected(*m_pCopy, added);
@@ -227,7 +222,7 @@ void CliqueFinder::doCall(int minDegree)
 		//each triangle for mindegree 2?
 
 		return;
-	}//if
+	}
 
 	//the degree of the original node
 	//within the triconnected component
@@ -277,15 +272,13 @@ void CliqueFinder::doCall(int minDegree)
 						ccDegree[vOrig]++;
 						usableEdge[goodEdge] = true;
 					}
-				}//foralladjedges
+				}
 
 				sortList.pushBack(vOrig);
-
 			}
 
 			//sort the nodes corresponding to their degree
-			NodeComparer<int> ncomp(ccDegree, false);
-			sortList.quicksort(ncomp);
+			sortList.quicksort(GenericComparer<node, int, false>(ccDegree));
 
 			ListIterator<node> itNode = sortList.begin();
 
@@ -306,7 +299,7 @@ void CliqueFinder::doCall(int minDegree)
 				{
 					++itNode;
 					continue;
-				}//if already used
+				}
 
 				//if there are only "small" degree nodes left, we stop
 #if 0
@@ -348,8 +341,7 @@ void CliqueFinder::doCall(int minDegree)
 						setFound = true;
 						m_usedNode[*itNode] = true;
 
-						// bubble sort the clique after insertion of the node
-						// while size > predsize swap positions
+						// sort the clique after insertion of the node
 						auto itSearch = itCand.pred();
 						if (itSearch.valid()) {
 							while (itSearch.valid()
@@ -368,7 +360,7 @@ void CliqueFinder::doCall(int minDegree)
 					// XXX: if list is always sorted, you can break here if not isCand
 
 					++itCand;
-				}//while clique candidates
+				}
 
 				//create a new candidate if necessary
 				if (!setFound)
@@ -379,10 +371,10 @@ void CliqueFinder::doCall(int minDegree)
 					cliqueCandidate->pushBack(*itNode);
 					m_usedNode[*itNode] = true;
 
-				}//if no candidate yet
+				}
 
 				++itNode;
-			}//while valid
+			}
 
 			//TODO: cliquelist vielleicht durch einen member ersetzen
 			//und nicht das delete vergessen!
@@ -416,12 +408,12 @@ void CliqueFinder::doCall(int minDegree)
 			}
 			if (nodeNum2 > nodeNum)
 			{
-				cout<<"\nAnzahl Cliquen vor PP: "<<numC1<<"\n";
-				cout<<"Anzahl Cliquen nach PP: "<<cliqueList.size()<<"\n";
-				cout<<"Anzahl Knoten in grossen Cliquen: "<<nodeNum<<"\n";
-				cout<<"Anzahl Knoten danach in grossen Cliquen: "<<nodeNum2<<"\n\n";
+				std::cout << "\nAnzahl Cliquen vor PP: " << numC1 << "\n";
+				std::cout << "Anzahl Cliquen nach PP: " << cliqueList.size() << "\n";
+				std::cout << "Anzahl Knoten in grossen Cliquen: " << nodeNum << "\n";
+				std::cout << "Anzahl Knoten danach in grossen Cliquen: " << nodeNum2 << "\n\n";
 			}
-			cout << "Used postprocessing time: " << realTime << "\n" << flush;
+			std::cout << "Used postprocessing time: " << realTime << "\n" << std::flush;
 #endif
 			checkCliques(cliqueList, false);
 #endif
@@ -436,7 +428,7 @@ void CliqueFinder::doCall(int minDegree)
 				{
 					OGDF_ASSERT(m_copyCliqueNumber[u] == -1);
 					m_copyCliqueNumber[u] = m_numberOfCliques;
-				}//for clique nodes
+				}
 				m_numberOfCliques++;
 			}
 			//TODO: only set numbers if return value is not a list
@@ -448,11 +440,9 @@ void CliqueFinder::doCall(int minDegree)
 			{
 				delete pCl;
 			}
-
-		}//if
+		}
 	}
-
-}//docall
+}
 
 //revisits cliques that are bad candidates and rearranges them,
 //using only edges with usableeEdge == true
@@ -498,7 +488,7 @@ void CliqueFinder::postProcessCliques(
 							adCount++;
 						}
 						adE = adE->cyclicSucc();
-					}//for
+					}
 
 					//now delete nodes if connectivity too small
 					if (OGDF_GEOM_ET.less(adCount, (int) ceil((pCand->size() - 1)*m_density / 100.0)))
@@ -512,10 +502,10 @@ void CliqueFinder::postProcessCliques(
 						continue;
 					}
 					++itNode;
-				}//while
-
-			}//if
-			else break;
+				}
+			} else {
+				break;
+			}
 		}
 	}
 
@@ -531,30 +521,28 @@ void CliqueFinder::postProcessCliques(
 				m_usedNode[v] = false;
 				OGDF_ASSERT(!m_usedNode[v]);
 				OGDF_ASSERT(m_copyCliqueNumber[v] == -1);
-			}//while nodes
+			}
 			ListIterator< List<node>* > itDel = itCand;
 			delete *itDel;
 			++itCand;
 			cliqueList.del(itDel);//del
 			//Todo: remove empty lists here
 			continue;
-		}//if
+		}
 
 		++itCand;
-	}//while lists
+	}
 
 	//now we have all left over nodes in list leftOver
 	//vorsicht:  wenn wir hier evaluate benutzen, duerfen wir
 	//nicht Knoten hinzunehmen, die schon in Cliquen benutzt sind
 	NodeArray<int> value(*m_pCopy);
-	NodeComparer<int> cmp(value, false);
 	for(node u : leftOver)
 	{
 		node vVal = (u);
 		value[vVal] = evaluate(vVal, usableEdge);
 	}
-
-	leftOver.quicksort(cmp);
+	leftOver.quicksort(GenericComparer<node, int, false>(value));
 
 	//now start a new search at the most qualified nodes
 	//TODO: Option: wieviele?
@@ -566,7 +554,7 @@ void CliqueFinder::postProcessCliques(
 		{
 			++itNode;
 			continue;
-		}//if already used
+		}
 
 		//TODO: hier an dense subgraphs anpassen
 
@@ -616,15 +604,14 @@ void CliqueFinder::postProcessCliques(
 				if (neighbour[u])
 				{
 					neighbourDegree[w]++;
-				}//if
+				}
 			}
 		}
 
 		//now we have a (dense) set of nodes and we can
 		//delete the nodes with the smallest degree up
 		//to a TODO certain amount
-		cmp.init(neighbourDegree);
-		neighbours->quicksort(cmp);
+		neighbours->quicksort(GenericComparer<node, int, false>(neighbourDegree));
 
 #if 0
 		neighbours->clear();
@@ -640,9 +627,8 @@ void CliqueFinder::postProcessCliques(
 			if (neighbourDegree[*itDense] < neighbours->size())
 				neighbours->del(itDense);
 
-
 			itDense--;
-		}//while
+		}
 #endif
 
 		//hier noch usenode setzen und startknoten hinzufuegen
@@ -662,9 +648,7 @@ void CliqueFinder::postProcessCliques(
 #ifdef OGDF_DEBUG
 			OGDF_ASSERT(cliqueOK(neighbours));
 #endif
-		}//if
-		else
-		{
+		} else {
 			ListIterator<node> itUsed = neighbours->begin();
 			while (itUsed.valid())
 			{
@@ -677,7 +661,7 @@ void CliqueFinder::postProcessCliques(
 #if 0
 				neighbours->remove(itDel);
 #endif
-			}//while
+			}
 #if 0
 			neighbours->clear();
 #endif
@@ -685,11 +669,10 @@ void CliqueFinder::postProcessCliques(
 		}
 
 		++itNode;
-	}//while
+	}
 
 	cliqueList.conc(cliqueAdd);
-
-}//postprocess
+}
 
 int CliqueFinder::evaluate(node v, EdgeArray<bool> &usableEdge)
 {
@@ -728,7 +711,7 @@ int CliqueFinder::evaluate(node v, EdgeArray<bool> &usableEdge)
 		}
 	}
 	return value;
-}//evaluate
+}
 
 //searchs for a clique around node v in list neighbours
 //runs through list and performs numRandom additional
@@ -772,19 +755,16 @@ void CliqueFinder::findClique(
 			++itNode;
 			neighbours.del(itDel);
 		}
-
-	}//while
+	}
 	//we can stop if the degree is smaller than the clique size
+#if 0
 	int k;
 	for (k = 0; k <numRandom; k++)
 	{
 		//TODO
-	}//for
-
-
-
-}//findclique
-
+	}
+#endif
+}
 
 void CliqueFinder::setResults(NodeArray<int> & cliqueNum)
 {
@@ -799,7 +779,7 @@ void CliqueFinder::setResults(NodeArray<int> & cliqueNum)
 		cliqueNum[v] = m_copyCliqueNumber[w];
 
 	}
-}//setresults
+}
 
 //set results values from copy node lists to original node
 void CliqueFinder::setResults(List< List<node>* > &cliqueLists)
@@ -822,7 +802,7 @@ void CliqueFinder::setResults(List< List<node>* > &cliqueLists)
 
 		m_pList->pushBack(l_list);
 	}
-}//setresults
+}
 
 //same as above
 void CliqueFinder::setResults(List< List<node> > &cliqueLists)
@@ -836,11 +816,11 @@ void CliqueFinder::setResults(List< List<node> > &cliqueLists)
 	}
 #endif
 	// FIXME: does not do anything, hence commented out
-}//setresults
+}
 
 //Graph must be parallelfree
 //checks if v is adjacent to (min. m_density percent of) all nodes in vList
-inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
+inline bool CliqueFinder::allAdjacent(node v, List<node>* vList) const
 {
 	int threshold = int(ceil(max(1.0, ceil((vList->size()*m_density/100.0)))));
 	//we do not want to run into some rounding error if m_density == 100
@@ -862,7 +842,7 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 		if (inList[adE->twinNode()])
 			adCount++;
 		adE = adE->cyclicSucc();
-	}//for
+	}
 
 	//we do not want to run into some rounding error if m_density == 100
 	if (m_density == 100) { if (adCount == vList->size()) return true;}
@@ -870,9 +850,7 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 		return true;
 
 	return false;
-}//allAdjacent
-
-//Debug
+}
 
 //check
 
@@ -886,10 +864,10 @@ void CliqueFinder::checkCliques(List< List<node>* > &cliqueList, bool sizeCheck)
 		}
 		OGDF_ASSERT(cliqueOK(pL));
 	}
-}//checkCliques
+}
 #endif
 
-bool CliqueFinder::cliqueOK(List<node> *clique)
+bool CliqueFinder::cliqueOK(List<node> *clique) const
 {
 	bool result = true;
 	NodeArray<int> connect(*m_pCopy, 0);
@@ -922,7 +900,7 @@ bool CliqueFinder::cliqueOK(List<node> *clique)
 	}
 
 	return result;
-}//cliqueOK
+}
 
 
 //output
@@ -948,9 +926,9 @@ void CliqueFinder::writeGraph(Graph &G, NodeArray<int> &cliqueNumber, const char
 
 	}
 
-	ofstream of(fileName);
+	std::ofstream of(fileName);
 	GraphIO::writeGML(GA, of);
 }
 #endif
 
-}//namespace ogdf
+}

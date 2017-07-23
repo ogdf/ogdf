@@ -69,11 +69,10 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	adjEntry adjExternal,
 	Layout &drawing)
 {
-	List<NodePair> npEdges; //is empty
-	List<edge> newEdges;    //is empty
+	List<edge> origEdges; //is empty
 	Graph G;
-	call(PG, adjExternal, drawing, npEdges, newEdges, G);
-}//call c-planar
+	call(PG, adjExternal, drawing, origEdges, G);
+}
 
 // calling function taking the planar representation, the
 // external face (adjentry), the layout to be filled,
@@ -82,8 +81,7 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	adjEntry adjExternal,
 	Layout &drawing,
-	List<NodePair>& npEdges,
-	List<edge>& newEdges,
+	List<edge>& origEdges,
 	Graph& originalGraph)
 {
 	// We don't care about UML hierarchies and therefore do not allow alignment
@@ -110,11 +108,11 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	// insert non-planar edges
 	CombinatorialEmbedding* CE = new CombinatorialEmbedding(PG);
-	if (!npEdges.empty())
+	if (!origEdges.empty())
 	{
 		CPlanarEdgeInserter CEI;
-		CEI.call(PG, *CE, originalGraph, npEdges, newEdges);
-	}//if
+		CEI.call(PG, *CE, originalGraph, origEdges);
+	}
 
 	// now we set the external face, currently to the largest face
 	adjEntry extAdj = nullptr;
@@ -138,10 +136,8 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 				maximum = atSize;
 				extAdj = e->adjTarget();
 			}
-
-		}//if root edge
-
-	}//for
+		}
+	}
 
 	delete CE;
 
@@ -158,7 +154,7 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	{
 		double scaleFactor = double(int(1 << m_scalingSteps));
 		m_separation = scaleFactor*m_separation; //reduce this step by step in compaction
-	}//if scaling
+	}
 
 	// PHASE 1: determine orthogonal shape
 
@@ -278,9 +274,7 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	//set the separation again to the input value
 	m_separation = l_orsep;
-}//call
-
-
+}
 
 // compute bounding box and move final drawing such that it is 0 aligned
 // respecting margins
@@ -316,5 +310,4 @@ void ClusterOrthoLayout::computeBoundingBox(
 	m_boundingBox = DPoint(maxX+deltaX+m_margin, maxY+deltaY+m_margin);
 }
 
-
-} // end namespace ogdf
+}

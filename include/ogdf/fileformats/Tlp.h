@@ -48,11 +48,8 @@ enum class Attribute {
 	unknown
 };
 
-
 std::string toString(const Attribute &attr);
 Attribute toAttribute(const std::string &str);
 
-
-} // end namespace tlp
-
-} // end namespace ogdf
+}
+}

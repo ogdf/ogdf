@@ -139,11 +139,11 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 		{
 			// Compute st-numbering
 			NodeArray<int> numbering(G,0);
-#ifdef OGDF_DEBUG
+#ifdef OGDF_HEAVY_DEBUG
 			int n =
 #endif
 			computeSTNumbering(G, numbering);
-			OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(G, numbering, n));
+			OGDF_HEAVY_ASSERT(isSTNumbering(G, numbering, n));
 
 			EdgeArray<edge> backTableEdges(G,nullptr);
 			for(edge e : G.edges)
@@ -189,11 +189,11 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 			{
 				// Compute st-numbering
 				NodeArray<int> numbering(C,0);
-#ifdef OGDF_DEBUG
+#ifdef OGDF_HEAVY_DEBUG
 				int n =
 #endif
 				computeSTNumbering(C, numbering);
-				OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(C, numbering, n));
+				OGDF_HEAVY_ASSERT(isSTNumbering(C, numbering, n));
 
 				if (embed)
 					planar = doEmbed(C,numbering,backTableEdges,tableEdges);
@@ -234,7 +234,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 		G.newEdge(v,v);
 	}
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, !planar || !embed || G.representsCombEmbedding());
+	OGDF_HEAVY_ASSERT(!planar || !embed || G.representsCombEmbedding());
 
 	return planar;
 }

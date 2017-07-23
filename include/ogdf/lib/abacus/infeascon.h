@@ -95,4 +95,4 @@ private:
 	INFEAS infeas_;
 };
 
-} //namespace abacus
+}

@@ -52,4 +52,4 @@ public:
 	void selectByNodeMass(bool on);
 };
 
-} // namespace ogdf
+}

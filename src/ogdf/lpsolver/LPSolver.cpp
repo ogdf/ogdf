@@ -57,7 +57,7 @@ bool LPSolver::checkFeasibility(
 	const Array<double> &lowerBound,    // lower bound of x[i]
 	const Array<double> &upperBound,    // upper bound of x[i]
 	const Array<double> &x              // x-vector of optimal solution (if result is Optimal)
-)
+) const
 {
 	const int numRows = rightHandSide.size();
 	const int numCols = x.size();
@@ -67,7 +67,7 @@ bool LPSolver::checkFeasibility(
 
 	for(int i = 0; i < numCols; ++i) {
 		if(x[i]+eps < lowerBound[i] || x[i]-eps > upperBound[i]) {
-			cerr << "column " << i << " out of range" << endl;
+			std::cerr << "column " << i << " out of range" << std::endl;
 			return false;
 		}
 	}
@@ -85,27 +85,27 @@ bool LPSolver::checkFeasibility(
 		switch(equationSense[i]) {
 			case 'G':
 				if(leftHandSide+eps < rightHandSide[i]) {
-					cerr << "row " << i << " violated " << endl;
-					cerr << leftHandSide << " > " << rightHandSide[i] << endl;
+					std::cerr << "row " << i << " violated " << std::endl;
+					std::cerr << leftHandSide << " > " << rightHandSide[i] << std::endl;
 					return false;
 				}
 				break;
 			case 'L':
 				if(leftHandSide-eps > rightHandSide[i]) {
-					cerr << "row " << i << " violated " << endl;
-					cerr << leftHandSide << " < " << rightHandSide[i] << endl;
+					std::cerr << "row " << i << " violated " << std::endl;
+					std::cerr << leftHandSide << " < " << rightHandSide[i] << std::endl;
 					return false;
 				}
 				break;
 			case 'E':
 				if(leftHandSide+eps < rightHandSide[i] || leftHandSide-eps > rightHandSide[i]) {
-					cerr << "row " << i << " violated " << endl;
-					cerr << leftHandSide << " = " << rightHandSide[i] << endl;
+					std::cerr << "row " << i << " violated " << std::endl;
+					std::cerr << leftHandSide << " = " << rightHandSide[i] << std::endl;
 					return false;
 				}
 				break;
 			default:
-				cerr << "unexpected equation sense " << equationSense[i] << endl;
+				std::cerr << "unexpected equation sense " << equationSense[i] << std::endl;
 				return false;
 		}
 	}
@@ -186,8 +186,7 @@ LPSolver::Status LPSolver::optimize(
 		for(i = numCols; i-- > 0;)
 			x[i]=sol[i];
 		status = Status::Optimal;
-		OGDF_ASSERT_IF(DebugLevel::ExtendedChecking,
-			checkFeasibility(matrixBegin,matrixCount,matrixIndex,matrixValue,
+		OGDF_HEAVY_ASSERT(checkFeasibility(matrixBegin,matrixCount,matrixIndex,matrixValue,
 			rightHandSide,equationSense,lowerBound,upperBound,x));
 
 	} else if(osi->isProvenPrimalInfeasible())
@@ -200,4 +199,4 @@ LPSolver::Status LPSolver::optimize(
 	return status;
 }
 
-} // end namespace ogdf
+}

@@ -101,7 +101,7 @@ m_g(g),
 // is active in relation to the node with dfi v
 // in the special case of degree-one nodes the direction is not changed
 // info returns the dynamic nodetype of the endnode
-node BoyerMyrvoldPlanar::activeSuccessor(node w, int& direction, int v, int& info)
+node BoyerMyrvoldPlanar::activeSuccessor(node w, int& direction, int v, int& info) const
 {
 	OGDF_ASSERT(w!=nullptr);
 	OGDF_ASSERT(w->degree()>0);
@@ -127,43 +127,48 @@ node BoyerMyrvoldPlanar::activeSuccessor(node w, int& direction, int v, int& inf
 	return next;
 }
 
-
 // merges adjEntries of virtual node w and associated real vertex x according to
 // given outgoing directions x_dir and w_dir.
-// j is the outgoing traversal direction of the current embedded node.
-void BoyerMyrvoldPlanar::mergeBiconnectedComponent(StackPure<int>& stack, const int /* j */)
-{
-	const int w_dir = stack.pop(); // outgoing direction of w
-	const int x_dir = stack.pop(); // outgoing direction of x
-	int tmp = stack.pop();
+void BoyerMyrvoldPlanar::mergeBiconnectedComponent(ArrayBuffer<int>& stack) {
+	bool doEmbed = m_embeddingGrade != EmbeddingGrade::doNotEmbed;
+
+	const int w_dir = stack.popRet(); // outgoing direction of w
+	const int x_dir = stack.popRet(); // outgoing direction of x
+	int tmp = stack.popRet();
 	const node w = m_nodeFromDFI[tmp]; // virtual DFS-Successor of x
 	const node w_child = m_nodeFromDFI[-tmp]; // real unique DFS-Child of bicomp with root w
 	const node x = m_realVertex[w];
 
 	// set new external face neighbors and save adjEntry, where edges will be merged
-	adjEntry mergeEntry;
-	Direction dir = (x_dir == BoyerMyrvoldPlanar::DirectionCCW) ? Direction::before : Direction::after;
-	mergeEntry = beforeShortCircuitEdge(x,!x_dir)->twin();
+	adjEntry mergeEntry = nullptr;
+	Direction dir;
+	if (doEmbed) {
+		dir = (x_dir == BoyerMyrvoldPlanar::DirectionCCW) ? Direction::before : Direction::after;
+		mergeEntry = beforeShortCircuitEdge(x, !x_dir)->twin();
+	}
 	m_link[!x_dir][x] = m_link[!w_dir][w];
 	m_beforeSCE[!x_dir][x] = m_beforeSCE[!w_dir][w];
 
 	// merge real and virtual nodes, flip biconnected component root if neccesary
+	// not neccesary if onlyPlanar
 	OGDF_ASSERT(!m_flipped[w_child]);
 	adjEntry adj = w->firstAdj();
-	if (x_dir==w_dir) {
-		// if not flipped
-		if (dir==Direction::after) {
-			mergeEntry=mergeEntry->cyclicSucc();
-			dir=Direction::before;
-		}
-	} else {
-		// if flipped:
-		// set unique DFS-child of associated bicomp root node to "flipped"
-		m_flipped[w_child] = true;
-		++m_flippedNodes;
-		if (dir==Direction::before) {
-			mergeEntry = mergeEntry->cyclicPred();
-			dir = Direction::after;
+	if (doEmbed) {
+		if (x_dir == w_dir) {
+			// if not flipped
+			if (dir == Direction::after) {
+				mergeEntry = mergeEntry->cyclicSucc();
+				dir = Direction::before;
+			}
+		} else {
+			// if flipped:
+			// set unique DFS-child of associated bicomp root node to "flipped"
+			m_flipped[w_child] = true;
+			++m_flippedNodes;
+			if (dir == Direction::before) {
+				mergeEntry = mergeEntry->cyclicPred();
+				dir = Direction::after;
+			}
 		}
 	}
 
@@ -176,193 +181,100 @@ void BoyerMyrvoldPlanar::mergeBiconnectedComponent(StackPure<int>& stack, const 
 		OGDF_ASSERT(e->target() != x);
 		// this allows also self-loops when moving adjacency entries
 		if (e->source() == w) {
-			m_g.moveSource(e,mergeEntry,dir);
-		} else m_g.moveTarget(e,mergeEntry,dir);
+			if (!doEmbed) { m_g.moveSource(e, x); }
+			else { m_g.moveSource(e, mergeEntry, dir); }
+		} else {
+			if (!doEmbed) { m_g.moveTarget(e, x); }
+			else { m_g.moveTarget(e, mergeEntry, dir); }
+		}
 		adj = temp;
 	}
 
 	// remove w from pertinent roots of x
-	OGDF_ASSERT(!m_pertinentRoots[x].empty());
-	OGDF_ASSERT(m_pertinentRoots[x].front() == w);
+	OGDF_ASSERT( !doEmbed || !m_pertinentRoots[x].empty() );
+	OGDF_ASSERT( m_pertinentRoots[x].front() == w );
 	m_pertinentRoots[x].popFront();
 
 	// consider x's unique dfs-successor in pertinent bicomp:
 	// remove this successor from separatedChildList of x using
 	// saved pointer pNodeInParent in constant time
-	OGDF_ASSERT(!m_separatedDFSChildList[x].empty());
-	OGDF_ASSERT(m_pNodeInParent[w_child].valid());
+	OGDF_ASSERT( !doEmbed || !m_separatedDFSChildList[x].empty() );
+	OGDF_ASSERT( m_pNodeInParent[w_child].valid() );
 	m_separatedDFSChildList[x].del(m_pNodeInParent[w_child]);
 
 	// delete virtual vertex, it must not contain any edges any more
-	OGDF_ASSERT(w->firstAdj()==nullptr);
-	m_nodeFromDFI[m_dfi[w]]=nullptr;
+	OGDF_ASSERT( w->firstAdj() == nullptr );
+	m_nodeFromDFI[m_dfi[w]] = nullptr;
 	m_g.delNode(w);
 }
 
-
-// the same as mergeBiconnectedComponent, but without any embedding-related
-// operations
-void BoyerMyrvoldPlanar::mergeBiconnectedComponentOnlyPlanar(
-	StackPure<int>& stack,
-	const int /* j */)
-{
-	const int w_dir = stack.pop(); // outgoing direction of w
-	const int x_dir = stack.pop(); // outgoing direction of x
-	int tmp = stack.pop();
-	const node w = m_nodeFromDFI[tmp]; // virtual DFS-Successor of x
-	const node w_child = m_nodeFromDFI[-tmp]; // real unique DFS-Child of bicomp with root w
-	const node x = m_realVertex[w];
-
-	// set new external face neighbors and save adjEntry, where edges will be merged
-	m_link[!x_dir][x] = m_link[!w_dir][w];
-	m_beforeSCE[!x_dir][x] = m_beforeSCE[!w_dir][w];
-
-	// merge real and virtual nodes, flipping is not necessary here
-	OGDF_ASSERT(!m_flipped[w_child]);
-	adjEntry adj = w->firstAdj();
-	adjEntry temp;
-	while (adj != nullptr) {
-		temp = adj->succ();
-		edge e = adj->theEdge();
-		OGDF_ASSERT(e->source() != x);
-		OGDF_ASSERT(e->target() != x);
-		// this allows also self-loops when moving adjacency entries
-		if (e->source() == w) {
-			m_g.moveSource(e,x);
-		} else m_g.moveTarget(e,x);
-		adj = temp;
-	}
-
-	// remove w from pertinent roots of x
-	OGDF_ASSERT(m_pertinentRoots[x].front() == w);
-	m_pertinentRoots[x].popFront();
-
-	// consider x's unique dfs-successor in pertinent bicomp:
-	// remove this successor from separatedChildList of x using
-	// saved pointer pNodeInParent in constant time
-	OGDF_ASSERT(m_pNodeInParent[w_child].valid());
-	m_separatedDFSChildList[x].del(m_pNodeInParent[w_child]);
-
-	// delete virtual vertex, it must not contain any edges any more
-	OGDF_ASSERT(w->firstAdj()==nullptr);
-	m_nodeFromDFI[m_dfi[w]]=nullptr;
-	m_g.delNode(w);
-}
-
-
-// embeds backedges from node v with direction v_dir to node w
-// with direction w_dir. i is the current embedded node.
 void BoyerMyrvoldPlanar::embedBackedges(
 	const node v,
 	const int v_dir,
 	const node w,
-	const int w_dir,
-	const int /* i */)
+	const int w_dir)
 {
-	OGDF_ASSERT(!m_backedgeFlags[w].empty());
-	OGDF_ASSERT(v!=nullptr);
-	OGDF_ASSERT(w!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][v]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][v]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][w]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][w]!=nullptr);
+	OGDF_ASSERT( v != nullptr );
+	OGDF_ASSERT( w != nullptr );
+	OGDF_ASSERT( !m_backedgeFlags[w].empty() );
+	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCCW][v] != nullptr );
+	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCW][v] != nullptr );
+	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCCW][w] != nullptr );
+	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCW][w] != nullptr );
 
-	// if one edge is a short circuit edge, compute the former underlying adjEntry
-	// the adjEntry of v, used for inserting backedges
-	adjEntry mergeEntryV = beforeShortCircuitEdge(v,v_dir)->twin();
-	Direction insertv = (v_dir==BoyerMyrvoldPlanar::DirectionCCW) ? Direction::after : Direction::before;
-	// the adjEntry of w, used for inserting backedges
-	adjEntry mergeEntryW = beforeShortCircuitEdge(w,!w_dir)->twin();
-	Direction insertw = (w_dir==BoyerMyrvoldPlanar::DirectionCCW) ? Direction::before : Direction::after;
+	bool doEmbed = m_embeddingGrade != EmbeddingGrade::doNotEmbed;
 
-	// the first backedge in the backedgeFlags-list will be
-	// the new external face adjEntry
-#if 0
-	edge e;
-	SListConstIterator<adjEntry> it;
-#endif
-	// save first BackedgeEntry
-	adjEntry firstBack = m_backedgeFlags[w].front();
-	for (adjEntry adj : m_backedgeFlags[w]) {
-		// embed this backedge
+	adjEntry mergeEntryV, mergeEntryW;
+	Direction insertv, insertw;
+	if (doEmbed) {
+		// if one edge is a short circuit edge, compute the former underlying adjEntry
+		// the adjEntry of v, used for inserting backedges
+		mergeEntryV = beforeShortCircuitEdge(v, v_dir)->twin();
+		insertv = (v_dir == BoyerMyrvoldPlanar::DirectionCCW) ? Direction::after : Direction::before;
+		// the adjEntry of w, used for inserting backedges
+		mergeEntryW = beforeShortCircuitEdge(w, !w_dir)->twin();
+		insertw = (w_dir == BoyerMyrvoldPlanar::DirectionCCW) ? Direction::before : Direction::after;
+
+	}
+
+	// the first/last (last iff !doEmbed) backedge in the backedgeFlags-list will be the new external face adjEntry
+	adjEntry saveBack = doEmbed ? m_backedgeFlags[w].front() : m_backedgeFlags[w].back();
+	for (adjEntry adj: m_backedgeFlags[w]) {
+		// embed backedge
 		edge e = adj->theEdge();
+		OGDF_ASSERT( e->isIncident(w) );
 
-		OGDF_ASSERT(w==e->source() || w==e->target());
-		//OGDF_ASSERT((*it)->theNode()==m_nodeFromDFI[i]);
-
+		// insert backedge to v (and backedge to w iff doEmbed)
 		if (e->source() == w) {
-			// insert backedge to v
-			m_g.moveTarget(e,mergeEntryV,insertv);
-			// insert backedge to w
-			m_g.moveSource(e,mergeEntryW,insertw);
+			if (doEmbed) {
+				m_g.moveTarget(e, mergeEntryV, insertv);
+				m_g.moveSource(e, mergeEntryW, insertw);
+			} else {
+				m_g.moveTarget(e, v);
+			}
 		} else {
-			// insert backedge to v
-			m_g.moveSource(e,mergeEntryV,insertv);
-			// insert backedge to w
-			m_g.moveTarget(e,mergeEntryW,insertw);
+			if (doEmbed) {
+				m_g.moveSource(e, mergeEntryV, insertv);
+				m_g.moveTarget(e, mergeEntryW, insertw);
+			} else {
+				m_g.moveSource(e, v);
+			}
 		}
 	}
 
 	// set external face link for this backedge and delete out-dated short
 	// circuit links
-	m_link[v_dir][v] = firstBack->twin();
-	m_beforeSCE[v_dir][v]=nullptr;
-	m_link[!w_dir][w] = firstBack;
-	m_beforeSCE[!w_dir][w]=nullptr;
+	m_link[v_dir][v] = saveBack->twin();
+	m_beforeSCE[v_dir][v] = nullptr;
+	m_link[!w_dir][w] = saveBack;
+	m_beforeSCE[!w_dir][w] = nullptr;
 
 	// decrease counter of backedges per bicomp
 	if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
 		node bicompRoot = m_pointsToRoot[m_backedgeFlags[w].front()->theEdge()];
 		m_visitedWithBackedge[bicompRoot] -= m_backedgeFlags[w].size();
-		OGDF_ASSERT(m_extractSubgraph || m_visitedWithBackedge[bicompRoot] >= 0);
+		OGDF_ASSERT( m_extractSubgraph || m_visitedWithBackedge[bicompRoot] >= 0 );
 	}
-
-	// delete BackedgeFlags
-	m_backedgeFlags[w].clear();
-}
-
-
-// the same as embedBackedges, but for the planar check without returned embedding
-void BoyerMyrvoldPlanar::embedBackedgesOnlyPlanar(
-	const node v,
-	const int v_dir,
-	const node w,
-	const int w_dir,
-	const int /* i */)
-{
-	OGDF_ASSERT(!m_backedgeFlags[w].empty());
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][v]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][v]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][w]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][w]!=nullptr);
-
-	// the last backedge in the backedgeFlags-list will be
-	// the new external face adjEntry
-	SListIterator<adjEntry> it;
-	// save last BackedgeEntry
-	adjEntry lastBack = m_backedgeFlags[w].back();
-	for(it=m_backedgeFlags[w].begin();it.valid();++it) {
-		// embed backedge
-		edge e = (*it)->theEdge();
-
-		//OGDF_ASSERT((*it)->theNode()==m_nodeFromDFI[i]);
-		OGDF_ASSERT(w==e->source() || w==e->target());
-
-		if (e->source() == w) {
-			// insert backedge to v
-			m_g.moveTarget(e,v);
-		} else {
-			// insert backedge to v
-			m_g.moveSource(e,v);
-		}
-	}
-
-	// set external face link for this backedge and delete out-dated short
-	// circuit links
-	m_link[v_dir][v] = lastBack->twin();
-	m_beforeSCE[v_dir][v]=nullptr;
-	m_link[!w_dir][w] = lastBack;
-	m_beforeSCE[!w_dir][w]=nullptr;
 
 	// delete BackedgeFlags
 	m_backedgeFlags[w].clear();
@@ -459,14 +371,14 @@ int BoyerMyrvoldPlanar::walkdown(
 	const node v, // v is virtual node of v'
 	FindKuratowskis *findKuratowskis)
 {
-	StackPure<int> stack;
+	ArrayBuffer<int> stack;
 	node stopX = nullptr;
 
 	bool stoppingNodesFound = 0; // 0=false,1=true,2=break
 
 	// in both directions
 	// j=current outgoing direction of current embedded node v
-	for (int j = BoyerMyrvoldPlanar::DirectionCCW; j <= BoyerMyrvoldPlanar::DirectionCW; ++j) {
+	for (int j: {BoyerMyrvoldPlanar::DirectionCCW, BoyerMyrvoldPlanar::DirectionCW}) {
 		int w_dir = j; // direction of traversal of node w
 
 		node w = successorOnExternalFace(v,w_dir); // current node
@@ -477,17 +389,10 @@ int BoyerMyrvoldPlanar::walkdown(
 
 			// if backedgeFlag is set
 			if (!m_backedgeFlags[w].empty()) {
-				if (m_embeddingGrade != EmbeddingGrade::doNotEmbed) {
-					// compute entire embedding
-					while (!stack.empty()) mergeBiconnectedComponent(stack,j);
-					// embed the backedge
-					embedBackedges(v,j,w,w_dir,i);
-				} else {
-					// compute only planarity, not the entire embedding
-					while (!stack.empty()) mergeBiconnectedComponentOnlyPlanar(stack,j);
-					// embed the backedge
-					embedBackedgesOnlyPlanar(v,j,w,w_dir,i);
+				while (!stack.empty()) {
+					mergeBiconnectedComponent(stack);
 				}
+				embedBackedges(v, j, w, w_dir);
 			}
 
 			// if pertinentRoots of w is not empty
@@ -544,7 +449,7 @@ int BoyerMyrvoldPlanar::walkdown(
 
 						// go to the pertinent starting node on father bicomp
 						stack.pop(); // delete new w_dir from stack
-						w = m_realVertex[m_nodeFromDFI[stack.pop()]]; // x itself
+						w = m_realVertex[m_nodeFromDFI[stack.popRet()]]; // x itself
 						// refresh pertinentRoots information
 						m_pertinentRoots[w].popFront();
 
@@ -556,8 +461,8 @@ int BoyerMyrvoldPlanar::walkdown(
 
 							// not in V-bicomp:
 							// go to the unvisited active node on father bicomp
-							w_dir = stack.pop(); // outgoing direction of w
-							x_dir = stack.pop(); // outgoing direction of x
+							w_dir = stack.popRet(); // outgoing direction of w
+							x_dir = stack.popRet(); // outgoing direction of x
 							w = m_nodeFromDFI[stack.top()]; // w, virtual node
 
 							node otherActiveNode = m_link[!w_dir][w]->theNode();
@@ -659,13 +564,12 @@ int BoyerMyrvoldPlanar::walkdown(
 						}
 					}
 				}
-
-				break; // while
+				break;
 			}
-		} // while
+		}
 
 		stack.clear();
-	} // for
+	}
 
 	return stoppingNodesFound;
 }
@@ -801,7 +705,7 @@ void BoyerMyrvoldPlanar::flipBicomp(
 		return;
 	}
 
-	StackPure<int> stack; // stack for dfs-traversal
+	ArrayBuffer<int> stack; // stack for dfs-traversal
 
 	if (wholeGraph) {
 		mergeUnprocessedNodes();
@@ -813,7 +717,7 @@ void BoyerMyrvoldPlanar::flipBicomp(
 	bool flip;
 	stack.push(-c); // negative numbers: flip=false, otherwise flip=true
 	while (!stack.empty()) {
-		int stackTop = stack.pop();
+		int stackTop = stack.popRet();
 		node v;
 		if (stackTop < 0) {
 			flip = false;
@@ -869,7 +773,7 @@ void BoyerMyrvoldPlanar::flipBicomp(
 // are flipped, if necessary and parallel edges and self-loops are embedded.
 void BoyerMyrvoldPlanar::postProcessEmbedding()
 {
-	StackPure<int> stack; // stack for dfs-traversal
+	ArrayBuffer<int> stack; // stack for dfs-traversal
 	node v,w;
 	adjEntry adj;
 	int temp;
@@ -884,7 +788,7 @@ void BoyerMyrvoldPlanar::postProcessEmbedding()
 		stack.push(-i); // negative numbers: flip=false, otherwise flip=true
 
 		while (!stack.empty()) {
-			temp = stack.pop();
+			temp = stack.popRet();
 			if (temp < 0) {
 				flip=false;
 				v = m_nodeFromDFI[-temp];

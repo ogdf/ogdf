@@ -152,7 +152,7 @@ public:
 	int size() const { return m_size; }
 
 	//! Returns true if the sequence is empty, false otherwise.
-	int empty() const { return m_size == 0; }
+	bool empty() const { return m_size == 0; }
 
 	//! Returns an iterator pointing to the first element.
 	iterator begin();
@@ -379,10 +379,16 @@ public:
 		: m_pElement(it.m_pElement) { }
 
 	//! Returns the key of the sequence element pointed to.
-	const KEY &key() const { return m_pElement->m_key; }
+	const KEY &key() const {
+		OGDF_ASSERT(valid());
+		return m_pElement->m_key;
+	}
 
 	//! Returns the info of the sequence element pointed to.
-	INFO &info() const { return m_pElement->m_info; }
+	INFO &info() const {
+		OGDF_ASSERT(valid());
+		return m_pElement->m_info;
+	}
 
 
 	//! Returns true if the iterator points to an element.
@@ -442,10 +448,12 @@ public:
 
 private:
 	typename SortedSequence<KEY,INFO,CMP>::Element *succElement() const {
+		OGDF_ASSERT(valid());
 		return (m_pElement->m_next[0]->m_height > 0) ? m_pElement->m_next[0] : nullptr;
 	}
 
 	typename SortedSequence<KEY,INFO,CMP>::Element *predElement() const {
+		OGDF_ASSERT(valid());
 		return (m_pElement->m_prev[0]->m_height > 0) ? m_pElement->m_prev[0] : nullptr;
 	}
 };
@@ -475,10 +483,16 @@ public:
 		: m_pElement(it.m_pElement) { }
 
 	//! Returns the key of the sequence element pointed to.
-	const KEY &key() const { return m_pElement->m_key; }
+	const KEY &key() const {
+		OGDF_ASSERT(valid());
+		return m_pElement->m_key;
+	}
 
 	//! Returns the info of the sequence element pointed to.
-	const INFO &info() const { return m_pElement->m_info; }
+	const INFO &info() const {
+		OGDF_ASSERT(valid());
+		return m_pElement->m_info;
+	}
 
 
 	//! Returns true if the iterator points to an element.
@@ -538,10 +552,12 @@ public:
 
 private:
 	typename SortedSequence<KEY,INFO,CMP>::Element *succElement() const {
+		OGDF_ASSERT(valid());
 		return (m_pElement->m_next[0]->m_height > 0) ? m_pElement->m_next[0] : 0;
 	}
 
 	typename SortedSequence<KEY,INFO,CMP>::Element *predElement() const {
+		OGDF_ASSERT(valid());
 		return (m_pElement->m_prev[0]->m_height > 0) ? m_pElement->m_prev[0] : 0;
 	}
 };
@@ -895,5 +911,4 @@ inline typename SortedSequence<KEY,INFO,CMP>::const_iterator
 	return SortedSequence<KEY,INFO,CMP>::const_iterator();
 }
 
-
-} // end namespace ogdf
+}

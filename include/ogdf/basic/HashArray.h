@@ -70,13 +70,13 @@ namespace ogdf {
  *   H["Katze"] = "cat";
  *   H["Maus"]  = "mouse";
  *
- *   cout << "Katze:   " << Hc["Katze"]   << endl;
- *   cout << "Hamster: " << Hc["Hamster"] << endl;
+ *   std::cout << "Katze:   " << Hc["Katze"]   << std::endl;
+ *   std::cout << "Hamster: " << Hc["Hamster"] << std::endl;
  *
- *   cout << "\nAll elements:" << endl;
+ *   std::cout << "\nAll elements:" << std::endl;
  *   HashConstIterator<string,string> it;
  *   for(it = Hc.begin(); it.valid(); ++it)
- *     cout << it.key() << " -> " << it.info() << endl;
+ *     std::cout << it.key() << " -> " << it.info() << std::endl;
  * \endcode
  *
  * The produced output is as follows:
@@ -154,5 +154,4 @@ public:
 	void clear() { Hashing<I,E,H>::clear(); }
 };
 
-
-} // end namespace ogdf
+}

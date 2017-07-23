@@ -93,7 +93,7 @@ public:
 			costs[dg.dualEdge(copyG.copy(e))] = cap[e];
 		}
 		createBackArcs(dg, costs);
-		costs[dg.dualEdge(ts_edge)] = numeric_limits<TCap>::max();
+		costs[dg.dualEdge(ts_edge)] = std::numeric_limits<TCap>::max();
 
 		Dijkstra<TCap> dij;
 		NodeArray<edge> preds(dg, nullptr);
@@ -137,4 +137,4 @@ public:
 	using MaxFlowModule<TCap>::MaxFlowModule;
 };
 
-}  // namespace
+}

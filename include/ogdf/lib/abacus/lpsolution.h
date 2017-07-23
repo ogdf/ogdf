@@ -43,7 +43,7 @@ template <class BaseType, class CoType>
 class  LpSolution;
 
 template <class BaseType, class CoType>
-ostream &operator<< (ostream &out, const LpSolution<BaseType, CoType> &rhs);
+std::ostream &operator<< (std::ostream &out, const LpSolution<BaseType, CoType> &rhs);
 
 
 //! LP solutions.
@@ -101,7 +101,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<< <> (ostream &out, const LpSolution<BaseType, CoType> &rhs);
+	friend std::ostream &operator<< <> (std::ostream &out, const LpSolution<BaseType, CoType> &rhs);
 
 	//! Returns the number of variables (if \a BaseType is Variable) or the number of constraints (if \a BaseType is Constraint).
 	int nVarCon() const;
@@ -138,6 +138,6 @@ private:
 };
 
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/lpsolution.inc>

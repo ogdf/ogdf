@@ -147,12 +147,12 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 	for (k = 2; k <= n; ++k)
 	{
 		const ShellingOrderSet &Vk = lmc[k]; // Vk = { z_1,...,z_l }
-		int l = Vk.len();
+		int len = Vk.len();
 		node z1 = Vk[1];
 		node cl = Vk.left();  // left vertex
 		node cr = Vk.right(); // right vertex
 
-		// compute relative x-distance from c_i to cl for i = l+1, ..., r
+		// compute relative x-distance from c_i to cl for i = len+1, ..., r
 		int x_cr = 0;
 		node v;
 		for (v = next[cl]; v != cr; v = next[v])
@@ -173,7 +173,7 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 			// to left with slope -1, then offset must be at least 2
 			offset = (y[cl] < y[next[cl]] || y[cr] < y[prev[cr]]) ? 2 : 0;
 
-			// y_max = max { y[c_i] | l <= i <= r }
+			// y_max = max { y[c_i] | len <= i <= r }
 			for (v = cl; v != cr; v = next[v]) {
 				if (y[v] > yMax)
 					yMax = y[v];
@@ -181,25 +181,25 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 
 			// offset must be at least so large, such that
 			// y[z_i] > y_max for all i
-			offset = max (offset, 2*(yMax+l) - x_cr - y[cl] - y[cr]);
+			offset = max (offset, 2*(yMax+len) - x_cr - y[cl] - y[cr]);
 
 		} else // no size optimization
-			offset = 2*l;
+			offset = 2*len;
 
 		x_cr += offset;
 
-		// compute insert coordinates of z_i for 1 <= i <= l
-		x[z1] = (x_cr + y[cr] - y[cl]) / 2 - l + 1;
-		y[z1] = (x_cr + y[cr] + y[cl]) / 2 - l + 1;
+		// compute insert coordinates of z_i for 1 <= i <= len
+		x[z1] = (x_cr + y[cr] - y[cl]) / 2 - len + 1;
+		y[z1] = (x_cr + y[cr] + y[cl]) / 2 - len + 1;
 
-		for (i = 2; i <= l; i++) {
+		for (i = 2; i <= len; i++) {
 			x[Vk[i]] = 2;
 			y[Vk[i]] = y[z1];
 		}
 
 		// Compute shift values for cl,...,cr and relative x-coord. to a node
 		// upper[v] for inner nodes
-		// Let l <= c_alpha <= c_beta <= r max. with
+		// Let len <= c_alpha <= c_beta <= r max. with
 		//		y[cl] > ... > y[c_alpha] and y[c_beta] < ... < y[cr]
 		// Shift c_alpha,...,c_beta by offset/2 (c_alpha,c_beta only if != cl,
 		// cr)
@@ -248,20 +248,20 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 				upper[v]  = z1;
 			}
 
-		x[cr] = x_cr - (x[z1] + 2*(l-1));
+		x[cr] = x_cr - (x[z1] + 2*(len-1));
 
 		// update contour after insertion of z_1,...,z_l
-		for (i = 1; i <= l; i++)
+		for (i = 1; i <= len; i++)
 		{
-			if (i < l)
+			if (i < len)
 				next[Vk[i]] = Vk[i+1];
 			if (i > 1)
 				prev[Vk[i]] = Vk[i-1];
 		}
-		next [cl]    = z1;
-		next [Vk[l]] = cr;
-		prev [cr]    = Vk[l];
-		prev [z1]    = cl;
+		next [cl] = z1;
+		next [Vk[len]] = cr;
+		prev [cr] = Vk[len];
+		prev [z1] = cl;
 	}
 
 	// compute final x-coordinates for the nodes on the (final) contour
@@ -282,4 +282,4 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 	}
 }
 
-} // end namespace ogdf
+}

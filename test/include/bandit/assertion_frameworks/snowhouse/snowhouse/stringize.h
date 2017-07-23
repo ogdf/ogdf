@@ -1,29 +1,34 @@
-
 //          Copyright Joakim Karlsson & Kim Gräsman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef IGLOO_STRINGIZE_H
-#define IGLOO_STRINGIZE_H
+#ifndef SNOWHOUSE_STRINGIZE_H
+#define SNOWHOUSE_STRINGIZE_H
 
-#include <cstddef>
+#include <iostream>
+#include <sstream>
 
-namespace snowhouse {
-  namespace detail {
+#include "macros.h"
 
+namespace snowhouse
+{
+  namespace typing
+  {
     // This type soaks up any implicit conversions and makes the following operator<<
     // less preferred than any other such operator found via ADL.
     struct any
     {
       // Conversion constructor for any type.
-      template <class T>
+      template<typename T>
       any(T const&);
     };
 
     // A tag type returned by operator<< for the any struct in this namespace
     // when T does not support <<.
-    struct tag {};
+    struct tag
+    {
+    };
 
     // Fallback operator<< for types T that don't support <<.
     tag operator<<(std::ostream&, any const&);
@@ -38,16 +43,27 @@ namespace snowhouse {
 
     no check(tag);
 
-    template <class T>
+    template<typename T>
     yes check(T const&);
 
-    template <class T>
+    template<typename T>
     struct is_output_streamable
     {
       static const T& x;
       static const bool value = sizeof(check(std::cout << x)) == sizeof(yes);
     };
 
+#ifdef SNOWHOUSE_HAS_NULLPTR
+    template<>
+    struct is_output_streamable<std::nullptr_t>
+    {
+      static const bool value = false;
+    };
+#endif
+  }
+
+  namespace detail
+  {
     template<typename T, bool type_is_streamable>
     struct DefaultStringizer
     {
@@ -69,7 +85,7 @@ namespace snowhouse {
     };
   }
 
-  template<typename T>
+  template<typename T, typename = typing::yes>
   struct Stringizer;
 
   template<typename T>
@@ -79,15 +95,16 @@ namespace snowhouse {
   }
 
   // NOTE: Specialize snowhouse::Stringizer to customize assertion messages
-  template<typename T>
+  template<typename T, typename>
   struct Stringizer
   {
     static std::string ToString(const T& value)
     {
-      return detail::DefaultStringizer< T, detail::is_output_streamable<T>::value >::ToString(value);
+      return detail::DefaultStringizer<T, typing::is_output_streamable<T>::value>::ToString(value);
     }
   };
 
+#ifdef SNOWHOUSE_HAS_NULLPTR
   // We need this because nullptr_t has ambiguous overloads of operator<< in the standard library.
   template<>
   struct Stringizer<std::nullptr_t>
@@ -97,6 +114,7 @@ namespace snowhouse {
       return "nullptr";
     }
   };
+#endif
 }
 
 #endif

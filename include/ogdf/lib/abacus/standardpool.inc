@@ -66,7 +66,7 @@ StandardPool<BaseType, CoType>::~StandardPool()
 
 
 template<class BaseType, class CoType>
-ostream &operator<<(ostream &out, const StandardPool<BaseType, CoType> &rhs)
+std::ostream &operator<<(std::ostream &out, const StandardPool<BaseType, CoType> &rhs)
 {
 	const int s = rhs.size();
 
@@ -74,7 +74,7 @@ ostream &operator<<(ostream &out, const StandardPool<BaseType, CoType> &rhs)
 		if (rhs.pool_[i]->conVar()) {
 			out << i << ": ";
 			rhs.pool_[i]->conVar()->print(out);
-			out << endl;
+			out << std::endl;
 		}
 	}
 
@@ -147,7 +147,7 @@ int StandardPool<BaseType, CoType>::cleanup()
 		}
 	}
 
-	Logger::ilout(Logger::Level::Minor) << "StandardPool::cleanup(): " << nDeleted << " items removed." << endl;
+	Logger::ilout(Logger::Level::Minor) << "StandardPool::cleanup(): " << nDeleted << " items removed." << std::endl;
 	return nDeleted;
 
 }
@@ -183,7 +183,7 @@ int StandardPool<BaseType, CoType>::removeNonActive(int maxRemove)
 		nRemoved++;
 	}
 
-	Logger::ilout(Logger::Level::Minor) << nRemoved << " inactive items removed from pool." << endl;
+	Logger::ilout(Logger::Level::Minor) << nRemoved << " inactive items removed from pool." << std::endl;
 
 	return nRemoved;
 }
@@ -230,8 +230,8 @@ int StandardPool<BaseType, CoType>::separate(
 			}
 	}
 
-	Logger::ilout(Logger::Level::Minor) << " generated = " << cutBuffer->number() - oldSep << endl;
+	Logger::ilout(Logger::Level::Minor) << " generated = " << cutBuffer->number() - oldSep << std::endl;
 	return cutBuffer->number() - oldSep;
 }
 
-} // namespace abacus
+}

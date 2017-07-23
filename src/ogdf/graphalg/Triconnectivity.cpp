@@ -58,8 +58,8 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	const int m = GC.numberOfEdges();
 
 #ifdef TRIC_COMP_OUTPUT
-	cout << "Dividing G into triconnected components.\n" << endl;
-	cout << "n = " << n << ", m = " << m << endl << endl;
+	std::cout << "Dividing G into triconnected components.\n" << std::endl;
+	std::cout << "n = " << n << ", m = " << m << std::endl << std::endl;
 #endif
 
 	m_component = Array<CompStruct>(3*m-6);
@@ -67,7 +67,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 
 	// special cases
 	OGDF_ASSERT(n >= 2);
-	OGDF_ASSERT_IF(DebugLevel::ExtendedChecking, isBiconnected(G));
+	OGDF_HEAVY_ASSERT(isBiconnected(G));
 
 	if (n <= 2) {
 		OGDF_ASSERT(m >= 3);
@@ -99,12 +99,12 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	}
 
 #ifdef TRIC_COMP_OUTPUT
-	cout << "\nnode\tNUMBER\tFATHER\tLOWPT1\tLOWPT2\tND" << endl;
+	std::cout << "\nnode\tNUMBER\tFATHER\tLOWPT1\tLOWPT2\tND" << std::endl;
 	for (node v : GC.nodes) {
-		cout << GC.original(v) << ":  \t" << m_NUMBER[v] << "   \t";
-		if (m_FATHER[v] == 0) cout << "nil \t";
-		else cout << GC.original(m_FATHER[v]) << "   \t";
-		cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t" << m_ND[v] << endl;
+		std::cout << GC.original(v) << ":  \t" << m_NUMBER[v] << "   \t";
+		if (m_FATHER[v] == 0) std::cout << "nil \t";
+		else std::cout << GC.original(m_FATHER[v]) << "   \t";
+		std::cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t" << m_ND[v] << std::endl;
 	}
 #endif
 
@@ -113,30 +113,29 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	buildAcceptableAdjStruct(GC);
 
 #ifdef TRIC_COMP_OUTPUT
-	cout << "\nadjaceny lists:" << endl;
+	std::cout << "\nadjaceny lists:" << std::endl;
 	for (node v : GC.nodes) {
-		cout << v << "\t";
+		std::cout << v << "\t";
 		for(edge ei : m_A[v]) {
 			printOs(ei);
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 #endif
 
 	DFS2(GC);
 
 #ifdef TRIC_COMP_OUTPUT
-	cout << "\nnode\tNEWNUM\tLOWPT1\tLOWPT2\tHIGHPT" << endl;
+	std::cout << "\nnode\tNEWNUM\tLOWPT1\tLOWPT2\tHIGHPT" << std::endl;
 	for (node v : GC.nodes) {
-		cout << GC.original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
-		cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t";
-		ListConstIterator<int> itH;
+		std::cout << GC.original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
+		std::cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t";
 		for(int i : m_HIGHPT[v])
-			cout << i << " ";
-		cout << endl;
+			std::cout << i << " ";
+		std::cout << std::endl;
 	}
 
-	cout << "\nedges starting a path:" << endl;
+	std::cout << "\nedges starting a path:" << std::endl;
 	for (edge e : GC.edges) {
 		if (m_START[e]) {
 			printOs(e);
@@ -155,7 +154,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	// last split component
 	CompStruct &C = newComp();
 	while(!m_ESTACK.empty()) {
-		C << m_ESTACK.pop();
+		C << m_ESTACK.popRet();
 	}
 	C.m_type = (C.m_edges.size() > 4) ? CompType::triconnected : CompType::polygon;
 
@@ -186,21 +185,20 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 #endif
 
 #ifdef TRIC_COMP_OUTPUT
-	cout << "\n\nTriconnected components:\n";
+	std::cout << "\n\nTriconnected components:\n";
 	for (int i = 0; i < m_numComp; i++) {
 		const List<edge> &L = m_component[i].m_edges;
 		if (L.size() == 0) continue;
-		cout << "[" << i << "] ";
+		std::cout << "[" << i << "] ";
 		switch(m_component[i].m_type) {
-		case bond: cout << "bond "; break;
-		case polygon: cout << "polygon "; break;
-		case triconnected: cout << "triconnected "; break;
+			case CompType::bond: std::cout << "bond "; break;
+			case CompType::polygon: std::cout << "polygon "; break;
+			case CompType::triconnected: std::cout << "triconnected "; break;
 		}
 
-		ListConstIterator<edge> itE;
 		for(edge ei : L)
 			printOs(ei);
-		cout << "\n";
+		std::cout << "\n";
 	}
 #endif
 }
@@ -340,7 +338,7 @@ bool Triconnectivity::checkComp()
 
 	if (!isLoopFree(GC)) {
 		ok = false;
-		cout << "GC contains loops!" << endl;
+		std::cout << "GC contains loops!" << std::endl;
 	}
 
 	EdgeArray<int> count(GC,0);
@@ -353,25 +351,25 @@ bool Triconnectivity::checkComp()
 		if (GC.original(e) == nullptr) {
 			if (count[e] != 2) {
 				ok = false;
-				cout << "virtual edge contained " << count[e];
-				printOs(e); cout << endl;
+				std::cout << "virtual edge contained " << count[e];
+				printOs(e); std::cout << std::endl;
 			}
 			if (checkSepPair(e) == false) {
 				ok = false;
-				cout << "virtual edge"; printOs(e);
-				cout << " does not correspond to a sep. pair." << endl;
+				std::cout << "virtual edge"; printOs(e);
+				std::cout << " does not correspond to a sep. pair." << std::endl;
 			}
 
 		} else {
 			if (count[e] != 1) {
 				ok = false;
-				cout << "real edge contained " << count[e];
-				printOs(e); cout << endl;
+				std::cout << "real edge contained " << count[e];
+				printOs(e); std::cout << std::endl;
 			}
 		}
 	}
 
-	NodeSet S(GC);
+	NodeSet<> S(GC);
 	NodeArray<node> map(GC);
 
 	for(int i = 0; i < m_numComp; i++) {
@@ -392,19 +390,19 @@ bool Triconnectivity::checkComp()
 		case CompType::bond:
 			if (n != 2) {
 				ok = false;
-				cout << "bond [" << i << "] with " << n << " nodes!" << endl;
+				std::cout << "bond [" << i << "] with " << n << " nodes!" << std::endl;
 			}
 			break;
 
 		case CompType::polygon:
 			if (n < 3) {
 				ok = false;
-				cout << "polygon [" << i << "] with " << n << " nodes!" << endl;
+				std::cout << "polygon [" << i << "] with " << n << " nodes!" << std::endl;
 			}
 
 			if (L.size() != n) {
 				ok = false;
-				cout << "polygon [" << i << "] with " << n << " vertices and " << L.size() << " edges!" << endl;
+				std::cout << "polygon [" << i << "] with " << n << " vertices and " << L.size() << " edges!" << std::endl;
 
 			} else {
 				Graph Gp;
@@ -416,12 +414,12 @@ bool Triconnectivity::checkComp()
 				for (node v : Gp.nodes) {
 					if (v->degree() != 2) {
 						ok = false;
-						cout << "polygon [" << i << "] contains node with degree " << v->degree() << endl;
+						std::cout << "polygon [" << i << "] contains node with degree " << v->degree() << std::endl;
 					}
 				}
 				if (!isConnected(Gp)) {
 					ok = false;
-					cout << "polygon [" << i << "] not connected." << endl;
+					std::cout << "polygon [" << i << "] not connected." << std::endl;
 				}
 			}
 			break;
@@ -429,12 +427,11 @@ bool Triconnectivity::checkComp()
 		case CompType::triconnected:
 			if (n < 4) {
 				ok = false;
-				cout << "triconnected component [" << i << "] with " << n << " nodes!" << endl;
+				std::cout << "triconnected component [" << i << "] with " << n << " nodes!" << std::endl;
 			}
 
 			{
 			Graph Gp;
-			ListConstIterator<node> itV;
 			for(node v : S.nodes())
 				map[v] = Gp.newNode();
 			for(edge e : L)
@@ -442,18 +439,18 @@ bool Triconnectivity::checkComp()
 
 			if (!isTriconnectedPrimitive(Gp)) {
 				ok = false;
-				cout << "component [" << i << "] not triconnected!" << endl;
+				std::cout << "component [" << i << "] not triconnected!" << std::endl;
 			}
 			if (!isSimple(Gp)) {
 				ok = false;
-				cout << "triconnected component [" << i << "] not simple!" << endl;
+				std::cout << "triconnected component [" << i << "] not simple!" << std::endl;
 			}
 			}
 			break;
 
 		default:
 			ok = false;
-			cout << "component [" << i << "] with undefined type!" << endl;
+			std::cout << "component [" << i << "] with undefined type!" << std::endl;
 		}
 	}
 
@@ -781,13 +778,13 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 
 					if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
 #ifdef TRIC_COMP_OUTPUT
-						cout << endl << "\nfound type-2 separation pair " <<
+						std::cout << std::endl << "\nfound type-2 separation pair " <<
 							m_pGC->original(v) << ", " <<
 							m_pGC->original(m_A[w].front()->target());
 #endif
 
-						edge e1 = m_ESTACK.pop();
-						edge e2 = m_ESTACK.pop();
+						edge e1 = m_ESTACK.popRet();
+						edge e2 = m_ESTACK.popRet();
 						m_A[w].del(m_IN_ADJ[e2]);
 
 						x = e2->target();
@@ -802,7 +799,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 						if (!m_ESTACK.empty()) {
 							e1 = m_ESTACK.top();
 							if (e1->source() == x && e1->target() == v) {
-								e_ab = m_ESTACK.pop();
+								e_ab = m_ESTACK.popRet();
 								m_A[x].del(m_IN_ADJ[e_ab]);
 								delHigh(e_ab);
 							}
@@ -810,7 +807,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 
 					} else {
 #ifdef TRIC_COMP_OUTPUT
-						cout << "\nfound type-2 separation pair " <<
+						std::cout << "\nfound type-2 separation pair " <<
 							m_pGC->original(m_NODEAT[a]) << ", " <<
 							m_pGC->original(m_NODEAT[b]);
 #endif
@@ -828,12 +825,12 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 							if ((m_NEWNUM[x] == a && m_NEWNUM[xyTarget] == b) ||
 								(m_NEWNUM[xyTarget] == a && m_NEWNUM[x] == b))
 							{
-								e_ab = m_ESTACK.pop();
+								e_ab = m_ESTACK.popRet();
 								m_A[e_ab->source()].del(m_IN_ADJ[e_ab]);
 								delHigh(e_ab);
 
 							} else {
-								edge eh = m_ESTACK.pop();
+								edge eh = m_ESTACK.popRet();
 								if (it != m_IN_ADJ[eh]) {
 									m_A[eh->source()].del(m_IN_ADJ[eh]);
 									delHigh(eh);
@@ -874,7 +871,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 			if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[v] != m_start || outv >= 2))
 			{
 #ifdef TRIC_COMP_OUTPUT
-				cout << "\nfound type-1 separation pair " <<
+				std::cout << "\nfound type-1 separation pair " <<
 					m_pGC->original(m_NODEAT[m_LOWPT1[w]]) << ", " <<
 					m_pGC->original(v);
 #endif
@@ -890,7 +887,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 					if (!((wnum <= xx && xx < wnum+m_ND[w]) || (wnum <= y && y < wnum+m_ND[w])))
 						break;
 
-					C << m_ESTACK.pop();
+					C << m_ESTACK.popRet();
 					delHigh(xy);
 					m_DEGREE[m_NODEAT[xx]]--; m_DEGREE[m_NODEAT[y]]--;
 				}
@@ -900,7 +897,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 
 				if ((xx == vnum && y == m_LOWPT1[w]) || (y == vnum && xx == m_LOWPT1[w])) {
 					CompStruct &compBond = newComp(CompType::bond);
-					edge eh = m_ESTACK.pop();
+					edge eh = m_ESTACK.popRet();
 					if (m_IN_ADJ[eh] != it) {
 						m_A[eh->source()].del(m_IN_ADJ[eh]);
 					}
@@ -1089,26 +1086,26 @@ bool isTriconnected(const Graph &G, node &s1, node &s2)
 void Triconnectivity::printOs(edge e)
 {
 #ifdef TRIC_COMP_OUTPUT
-	cout << " (" << m_pGC->original(e->source()) << "," <<
+	std::cout << " (" << m_pGC->original(e->source()) << "," <<
 		m_pGC->original(e->target()) << "," << e->index() << ")";
-	if (m_pGC->original(e) == 0) cout << "v";
+	if (m_pGC->original(e) == 0) std::cout << "v";
 #endif
 }
 
 void Triconnectivity::printStacks()
 {
 #ifdef TRIC_COMP_OUTPUT
-	cout << "\n\nTSTACK:" << endl;
+	std::cout << "\n\nTSTACK:" << std::endl;
 
 	for (int i = m_top; i >= 0; i--)
-		cout << "(" << m_TSTACK_h[i] << "," << m_TSTACK_a[i] << "," << m_TSTACK_b[i] << ")\n";
+		std::cout << "(" << m_TSTACK_h[i] << "," << m_TSTACK_a[i] << "," << m_TSTACK_b[i] << ")\n";
 
-	cout << "\nESTACK\n";
+	std::cout << "\nESTACK\n";
 	while(!m_ESTACK.empty()) {
-		printOs(m_ESTACK.pop()); cout << endl;
+		printOs(m_ESTACK.popRet());
+		std::cout << std::endl;
 	}
 #endif
 }
 
-
-} // end namespace ogdf
+}

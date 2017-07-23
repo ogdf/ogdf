@@ -55,7 +55,7 @@ public:
 	// Computes and returns the coefficient for the given variable
 	virtual double coeff(const abacus::Variable *v) const override;
 
-	void printMe(ostream& out) const {
+	void printMe(std::ostream& out) const {
 		out << "[KuraCon: ";
 		for(const NodePair &p : m_subdivision) {
 			out << p << ",";

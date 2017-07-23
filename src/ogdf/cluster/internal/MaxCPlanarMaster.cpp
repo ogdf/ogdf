@@ -54,9 +54,9 @@ using namespace abacus;
 #ifdef OGDF_DEBUG
 void MaxCPlanarMaster::printGraph(const Graph &G) {
 	int i=0;
-	Logger::slout() << "The Given Graph" << endl;
+	Logger::slout() << "The Given Graph" << std::endl;
 	for(edge e : G.edges) {
-		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << endl;
+		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << std::endl;
 	}
 }
 #endif
@@ -82,6 +82,9 @@ MaxCPlanarMaster::MaxCPlanarMaster(
 	double strongConstraintViolation,
 	double strongVariableViolation) : 	Master("MaxCPlanar", true, dopricing, OptSense::Max),
 	m_pCost(pCost),
+#ifdef OGDF_DEBUG
+	m_solByHeuristic(false),
+#endif
 	m_numAddVariables(numAddVariables),
 	m_strongConstraintViolation(strongConstraintViolation),
 	m_strongVariableViolation(strongVariableViolation),
@@ -218,7 +221,7 @@ void MaxCPlanarMaster::updateBestSubGraph(List<NodePair> &original, List<NodePai
 		m_deletedOriginalEdges.pushBack(ed);
 	}
 
-#ifdef OGDF_DEBUG
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 	GraphIO::write(*m_solutionGraph, "UpdateSolutionGraph.gml", GraphIO::writeGML);
 	//Just for special debugging purposes:
 	ClusterArray<cluster> ca(*m_C);
@@ -237,8 +240,10 @@ void MaxCPlanarMaster::updateBestSubGraph(List<NodePair> &original, List<NodePai
 			GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
 	for(edge ei : le)
 	{
-		cout << ei->graphOf() << "\n";
-		cout << &GG << "\n";
+#ifdef OGDF_DEBUG
+		std::cout << ei->graphOf() << "\n";
+		std::cout << &GG << "\n";
+#endif
 		CGA.strokeColor(ei) = Color::Name::Red;
 	}
 	GraphIO::write(CGA, "PlanarExtensionMCPSP.gml", GraphIO::writeGML);
@@ -359,7 +364,7 @@ void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upper
 			upperBoundC -= (nCC-1)*m_largestConnectionCoeff;
 		}
 	}
-}//clusterConnection
+}
 
 double MaxCPlanarMaster::heuristicInitialLowerBound()
 {
@@ -413,9 +418,9 @@ double MaxCPlanarMaster::heuristicInitialLowerBound()
 		}
 
 		if (!isConnected(*m_G)) lbound = lbound-1.0; //#edges*epsilon
-	}//if heuristics used
+	}
 	return lbound;
-}//heuristicInitialLowerBound
+}
 
 double MaxCPlanarMaster::heuristicInitialUpperBound() {
 
@@ -486,7 +491,7 @@ double MaxCPlanarMaster::heuristicInitialUpperBound() {
 				{
 					coverStatus[sdRep] = true;
 					upperBoundO--;
-				}//not yet covered, independent
+				}
 			}
 		}
 	}
@@ -665,8 +670,8 @@ void MaxCPlanarMaster::initializeOptimization() {
 				// Avoiding duplicates if cluster consists of 2 chunks
 				if (nCC == 2) break;
 
-			}//connected component has been processed
-		}//end if(nCC > 1)
+			}
+		}
 	}
 	if(pricing())
 		generateVariablesForFeasibility(constraintsCC, connectVars);
@@ -711,7 +716,7 @@ void MaxCPlanarMaster::initializeOptimization() {
 						}
 					}
 				}
-				Logger::slout() << "mcc_edges: " << mcc_edges.size() << endl;
+				Logger::slout() << "mcc_edges: " << mcc_edges.size() << std::endl;
 				//create new constraint and put it into list \a constraintsMCC
 				constraintsMCC.pushBack(new MinimalClusterConnection(this,mcc_edges));
 				mcc_edges.clear();
@@ -758,7 +763,6 @@ void MaxCPlanarMaster::initializeOptimization() {
 	// Adding constraints to the standardpool
 	ArrayBuffer<Constraint *> initConstraints(constraintsCC.size()/*+constraintsMCC.size()*/+constraintsMPE.size(),false);
 
-	ListConstIterator<ChunkConnection*> ccIt;
 	updateAddedCCons(constraintsCC.size());
 	for (ChunkConnection *cc : constraintsCC) {
 		initConstraints.push(cc);
@@ -776,8 +780,8 @@ void MaxCPlanarMaster::initializeOptimization() {
 	if (m_porta)
 	{
 
-		ofstream ofs(getStdConstraintsFileName());
-		if (!ofs) cerr << "Could not open output stream for PORTA constraints file\n";
+		std::ofstream ofs(getStdConstraintsFileName());
+		if (!ofs) std::cerr << "Could not open output stream for PORTA constraints file\n";
 		else
 		{
 			ofs << "# Chunkconnection constraints\n";
@@ -803,7 +807,7 @@ void MaxCPlanarMaster::initializeOptimization() {
 				{
 					ofs << (*dIt) << " ";
 					dIt++;
-				}//while
+				}
 				ofs << "<= " << (*mccIt)->rhs();
 				ofs << "\n";
 			}

@@ -29,8 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MaxFlowSTPlanarDigraph.h>
@@ -43,8 +41,6 @@
 // if defined will print the first failed instance
 #define PRINT_FIRST_FAIL
 
-using namespace bandit;
-using namespace ogdf;
 using std::string;
 using std::endl;
 
@@ -114,16 +110,16 @@ bool printInstance(const Graph &graph, const EdgeArray<T> caps, const node s, co
 	if(!printedFailedInstance) {
 		printedFailedInstance = true;
 
-		cout << endl << "Graph consists of " << graph.numberOfNodes() << " nodes:" << endl;
+		std::cout << std::endl << "Graph consists of " << graph.numberOfNodes() << " nodes:" << std::endl;
 		for(node v : graph.nodes) {
-			cout << "  " << v;
-			if(v == s) { cout << " [source]"; }
-			if(v == t) { cout << " [sink]"; }
-			cout << endl;
+			std::cout << "  " << v;
+			if(v == s) { std::cout << " [source]"; }
+			if(v == t) { std::cout << " [sink]"; }
+			std::cout << std::endl;
 		}
-		cout << "Graph has " << graph.numberOfEdges() << " edges:" << endl;
+		std::cout << "Graph has " << graph.numberOfEdges() << " edges:" << std::endl;
 		for(edge e : graph.edges) {
-			cout << "  " << e << " " << flows[e] << " / " << caps[e] << endl;
+			std::cout << "  " << e << " " << flows[e] << " / " << caps[e] << std::endl;
 		}
 	}
 	return false;
@@ -223,7 +219,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 				EdgeArray<VALUE_TYPE> caps(graph, 0);
 				node s;
 				node t;
-				ifstream is(filename);
+				std::ifstream is(filename);
 				AssertThat(GraphIO::readDMF(graph, caps, s, t, is), IsTrue());
 				MaxFlowRequirement props = determineProperties(graph, s, t);
 

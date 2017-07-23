@@ -813,9 +813,9 @@ void MaxAdjOrdering::visualize(GraphAttributes *GA,
 	List<node> nodes;
 	G.allNodes(nodes);
 
-	LinearLayout l(600,*MAO);
-	l.setCustomOrder(1);
-	l.call(*GA);
+	LinearLayout layout(600,*MAO);
+	layout.setCustomOrder(1);
+	layout.call(*GA);
 
 	int k = 1;
 	for (auto& n : *MAO) {
@@ -836,9 +836,9 @@ void MaxAdjOrdering::visualize(GraphAttributes *GA,
 	List<node> nodes;
 	G.allNodes(nodes);
 
-	LinearLayout l(140*nodes.size(),*MAO);
-	l.setCustomOrder(1);
-	l.call(*GA);
+	LinearLayout layout(140*nodes.size(),*MAO);
+	layout.setCustomOrder(1);
+	layout.call(*GA);
 
 	int k = 1;
 	for (auto& n : *MAO) {
@@ -859,4 +859,5 @@ void MaxAdjOrdering::visualize(GraphAttributes *GA,
 		k++;
 	}
 }
-} // end namespace ogdf
+
+}

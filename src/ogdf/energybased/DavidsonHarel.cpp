@@ -175,10 +175,10 @@ void DavidsonHarel::computeFirstRadius(const GraphAttributes &AG)
 	double maxX = minX;
 	double maxY = minY;
 	for(node v : G.nodes) {
-		minX = min(minX,AG.x(v));
-		maxX = max(maxX,AG.x(v));
-		minY = min(minY,AG.y(v));
-		maxY = max(maxY,AG.y(v));
+		Math::updateMin(minX, AG.x(v));
+		Math::updateMax(maxX, AG.x(v));
+		Math::updateMin(minY, AG.y(v));
+		Math::updateMax(maxY, AG.y(v));
 	}
 	// compute bounding box of current layout
 	// make values nonzero
@@ -190,7 +190,7 @@ void DavidsonHarel::computeFirstRadius(const GraphAttributes &AG)
 	double W = sqrt(G.numberOfNodes() / ratio);
 
 	m_diskRadius = W / 5.0;//allow to move by a significant part of current layout size
-	m_diskRadius=max(m_diskRadius,max(maxX-minX,maxY-minY)/5.0);
+	Math::updateMax(m_diskRadius, max(maxX-minX, maxY-minY) / 5.0);
 
 	//TODO: also use node sizes
 #if 0
@@ -217,7 +217,7 @@ void DavidsonHarel::computeFirstRadius(const GraphAttributes &AG)
 		divo = 15.0;
 	}
 #if 0
-	m_diskRadius=max(m_diskRadius,max(maxX-minX,maxY-minY));
+	Math::updateMax(m_diskRadius, max(maxX-minX,maxY-minY));
 #endif
 	m_diskRadius = max(maxX-minX,maxY-minY);
 	m_diskRadius /= divo;
@@ -279,7 +279,6 @@ void DavidsonHarel::placeIsolatedNodes(GraphAttributes &AG) const {
 	double commonYCoord = minY - (1.5*maxHeight);
 	double XCenterOfDrawing = minX + ((maxX - minX) / 2.0);
 	double startXCoord = XCenterOfDrawing - 0.5*(isolated.size()*boxWidth);
-	ListIterator<node> it;
 	double xcoord = startXCoord;
 	for (node v : isolated) {
 		AG.x(v) = xcoord;
@@ -347,4 +346,4 @@ void DavidsonHarel::call(GraphAttributes &AG)
 		placeIsolatedNodes(AG);
 }
 
-} //namespace
+}

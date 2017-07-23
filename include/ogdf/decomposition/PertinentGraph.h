@@ -142,6 +142,4 @@ protected:
 	EdgeArray<edge> m_origE; //!< corresp. original edge
 };
 
-
-
-} // end namespace ogdf
+}

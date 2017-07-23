@@ -118,7 +118,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 	// maximal rank of a neighbour
 	NodeArray<int> maxNeighbour(G,0);
 	// internal nodes (nodes not on contour)
-	BoundedStack<node> internals(G.numberOfNodes());
+	ArrayBuffer<node> internals(G.numberOfNodes());
 
 	for(node v : G.nodes)
 	{
@@ -152,7 +152,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 	{
 		// Referenz auf aktuelle Menge Vk (als Abk?rzung)
 		const ShellingOrderSet &Vk = order[k]; // Vk = { z_1,...,z_l }
-		int l = Vk.len();
+		int len = Vk.len();
 
 		node z1 = Vk[1];
 		node cl = Vk.left();  // left vertex
@@ -162,11 +162,11 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 		if (m_sideOptimization && cr == rightSide && maxNeighbour[cr] <= k)
 		{
 			isOuter   = true;
-			rightSide = Vk[l];
+			rightSide = Vk[len];
 		} else
 			isOuter = false;
 
-		// compute relative x-distance from c_i to cl for i = l+1, ..., r
+		// compute relative x-distance from c_i to cl for i = len+1, ..., r
 		int sum = 0;
 		for (node v = next[cl]; v != cr; v = next[v]) {
 			sum += x[v];
@@ -200,19 +200,19 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 						break;
 					}
 				}
-				x_cr = max(x[cr]-eps-l+1, (y[cr] == yMax) ? 1 : 0);
+				x_cr = max(x[cr]-eps-len+1, (y[cr] == yMax) ? 1 : 0);
 				y_z  = yMax;
 
 			} else {
-				// yMax = max { y[c_i] | l <= i <= r }
+				// yMax = max { y[c_i] | len <= i <= r }
 				yMax = y[cl] - eps;
 				for (node v = cr; v != cl; v = prev[v]) {
 					if (y[v] > yMax)
 						yMax = y[v];
 				}
-				int offset = max (yMax-x[cr]+l+eps-y[cr],
+				int offset = max (yMax-x[cr]+len+eps-y[cr],
 					(y[prev[cr]] > y[cr]) ? 1 : 0);
-				y_z  = y[cr] + x[cr] + offset - l + 1 - eps;
+				y_z  = y[cr] + x[cr] + offset - len + 1 - eps;
 				x_cr = y_z - y[cr];
 			}
 
@@ -243,7 +243,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 				break;
 		}
 
-		for (i = 1; i <= l; ++i) {
+		for (i = 1; i <= len; ++i) {
 			x[Vk[i]] = 1;
 			y[Vk[i]] = y_z;
 		}
@@ -267,16 +267,16 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 		x[cr] = x_cr;
 
 		// update contour after insertion of z_1,...,z_l
-		for (i = 1; i <= l; i++) {
-			if (i < l)
+		for (i = 1; i <= len; i++) {
+			if (i < len)
 				next[Vk[i]] = Vk[i+1];
 			if (i > 1)
 				prev[Vk[i]] = Vk[i-1];
 		}
-		next [cl]    = z1;
-		next [Vk[l]] = cr;
-		prev [cr]    = Vk[l];
-		prev [z1]    = cl;
+		next [cl] = z1;
+		next [Vk[len]] = cr;
+		prev [cr] = Vk[len];
+		prev [z1] = cl;
 	}
 
 	// compute final x-coordinates for the nodes on the (final) contour
@@ -286,10 +286,9 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 
 	// compute final x-coordinates for the internal nodes
 	while (!internals.empty()) {
-		node v     = internals.pop();
+		node v = internals.popRet();
 		x[v] += x[upper[v]];
 	}
 }
 
-
-} // end namespace ogdf
+}

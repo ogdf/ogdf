@@ -218,8 +218,8 @@ void StressMinimization::minimizeStress(
 	const Graph& G = GA.constGraph();
 	int numberOfPerformedIterations = 0;
 
-	double prevStress = numeric_limits<double>::max();
-	double curStress = numeric_limits<double>::max();
+	double prevStress = std::numeric_limits<double>::max();
+	double curStress = std::numeric_limits<double>::max();
 
 	if (m_terminationCriterion == TerminationCriterion::Stress) {
 		curStress = calcStress(GA, shortestPathMatrix, weightMatrix);
@@ -249,7 +249,7 @@ void StressMinimization::minimizeStress(
 	} while (!finished(GA, ++numberOfPerformedIterations, newX, newY, prevStress, curStress));
 
 	Logger::slout() << "Iteration count:\t" << numberOfPerformedIterations
-		<< "\tStress:\t" << calcStress(GA, shortestPathMatrix, weightMatrix) << endl;
+		<< "\tStress:\t" << calcStress(GA, shortestPathMatrix, weightMatrix) << std::endl;
 }
 
 

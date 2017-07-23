@@ -1,22 +1,25 @@
-
 //          Copyright Joakim Karlsson & Kim Gräsman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef IGLOO_CONSTRAINTADAPTER_H
-#define IGLOO_CONSTRAINTADAPTER_H
+#ifndef SNOWHOUSE_CONSTRAINTADAPTER_H
+#define SNOWHOUSE_CONSTRAINTADAPTER_H
 
-namespace snowhouse {
+#include "../stringize.h"
+#include "constraintlist.h"
 
-  template <typename ConstraintType>
+namespace snowhouse
+{
+  template<typename ConstraintType>
   struct ConstraintAdapter
   {
-    ConstraintAdapter(const ConstraintType& constraint) : m_constraint(constraint)
+    explicit ConstraintAdapter(const ConstraintType& constraint)
+        : m_constraint(constraint)
     {
     }
 
-    template <typename ConstraintListType, typename ActualType>
+    template<typename ConstraintListType, typename ActualType>
     void Evaluate(ConstraintListType& list, ResultStack& result, OperatorStack& operators, const ActualType& actual)
     {
       result.push(m_constraint(actual));
@@ -27,7 +30,7 @@ namespace snowhouse {
   };
 
   template<typename ConstraintType>
-  struct Stringizer< ConstraintAdapter<ConstraintType> >
+  struct Stringizer<ConstraintAdapter<ConstraintType> >
   {
     static std::string ToString(const ConstraintAdapter<ConstraintType>& constraintAdapter)
     {

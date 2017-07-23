@@ -133,7 +133,7 @@ private:
 	NodeArray<node>         m_vOrig;     // original vertex of copy
 	NodeArray<node>         m_vRep;
 	EdgeArray<edge>         m_eOrig;     // original edge of copy
-}; // class ExpansionGraph
+};
 
 
-} // end namespace ogdf
+}

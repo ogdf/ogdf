@@ -133,4 +133,4 @@ void Master::_outputLpStatistics() const
 	lpMasterOsi_->outputLpStatistics();
 #endif
 }
-} //namespace abacus
+}

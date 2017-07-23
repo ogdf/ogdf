@@ -1,5 +1,5 @@
 /** \file
- * \brief Implementation of Kamada-Kawai layout algorithm.
+ * \brief Implementation of ogdf::SpringEmbedderKK.
  *
  * \author Karsten Klein
  *
@@ -36,10 +36,10 @@
 #endif
 
 namespace ogdf {
-const double SpringEmbedderKK::startVal = numeric_limits<double>::max() - 1.0;
+const double SpringEmbedderKK::startVal = std::numeric_limits<double>::max() - 1.0;
 const double SpringEmbedderKK::minVal = DBL_MIN;
 const double SpringEmbedderKK::desMinLength = 0.0001;
-const int SpringEmbedderKK::maxVal = numeric_limits<int>::max();
+const int SpringEmbedderKK::maxVal = std::numeric_limits<int>::max();
 
 void SpringEmbedderKK::initialize(
 	GraphAttributes& GA,
@@ -61,7 +61,7 @@ void SpringEmbedderKK::initialize(
 
 	//the shortest path lengths
 	for(node v : G.nodes)
-		oLength[v].init(G, numeric_limits<double>::max());
+		oLength[v].init(G, std::numeric_limits<double>::max());
 
 	//computes shortest path distances d_ij
 	if (simpleBFS)
@@ -79,7 +79,7 @@ void SpringEmbedderKK::initialize(
 #if 0
 #ifdef OGDF_DEBUG
 		timeUsed = usedTime(timeUsed);
-		cout << "\n******APSP BFS runtime: \n";
+		std::cout << "\n******APSP BFS runtime: \n";
 #endif
 #endif
 	}
@@ -89,7 +89,7 @@ void SpringEmbedderKK::initialize(
 		adaptLengths(G, GA, eLength, adaptedLength);
 		//we use simply the BFM n times or Floyd instead, leading to cubic runtime
 		//TODO experimentally compare speed, also with bintree dijkstra
-		maxDist = allpairssp(G, adaptedLength, oLength, numeric_limits<double>::max());
+		maxDist = allpairssp(G, adaptedLength, oLength, std::numeric_limits<double>::max());
 	}
 	//computes original spring length l_ij
 
@@ -128,7 +128,7 @@ void SpringEmbedderKK::initialize(
 		//test for multilevel
 		Lzero = max(max(maxX-minX, maxY-minY), 2.0*Lzero);
 #if 0
-		cout << "Lzero: "<<Lzero<<"\n";
+		std::cout << "Lzero: "<<Lzero<<"\n";
 #endif
 
 
@@ -136,10 +136,10 @@ void SpringEmbedderKK::initialize(
 
 #if 0
 #ifdef OGDF_DEBUG
-		cout << "Desirable edge length computed: "<<L<<"\n";
+		std::cout << "Desirable edge length computed: "<<L<<"\n";
 #endif
 #endif
-	}//set L != 0
+	}
 	// Having L we can compute the original lengths l_ij
 	// Computes spring strengths k_ij
 	double dij;
@@ -149,7 +149,7 @@ void SpringEmbedderKK::initialize(
 		for(node w : G.nodes)
 		{
 			dij = oLength[v][w];
-			if (dij == numeric_limits<double>::max())
+			if (dij == std::numeric_limits<double>::max())
 			{
 				sstrength[v][w] = minVal;
 			}
@@ -159,14 +159,10 @@ void SpringEmbedderKK::initialize(
 				if (v==w) sstrength[v][w] = 1.0;
 				else
 				sstrength[v][w] = m_K / (dij * dij);
-
-
-
 			}
 		}
 	}
-}//initialize
-
+}
 
 void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 								NodeArray<dpair>& partialDer,
@@ -290,9 +286,8 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 				delta_m = delta;
 			}
 		}
-	}//while
-}//mainStep
-
+	}
+}
 
 void SpringEmbedderKK::doCall(GraphAttributes& GA, const EdgeArray<double>& eLength, bool simpleBFS)
 {
@@ -322,7 +317,7 @@ void SpringEmbedderKK::call(GraphAttributes& GA)
 
 	EdgeArray<double> eLength(G);//, 1.0);is not used
 	doCall(GA, eLength, true);
-}//call
+}
 
 void SpringEmbedderKK::call(GraphAttributes& GA,  const EdgeArray<double>& eLength)
 {
@@ -331,8 +326,7 @@ void SpringEmbedderKK::call(GraphAttributes& GA,  const EdgeArray<double>& eLeng
 		return;
 
 	doCall(GA, eLength, false);
-}//call with edge lengths
-
+}
 
 //changes given edge lengths (interpreted as weight factors)
 //according to additional parameters like node size etc.
@@ -353,16 +347,13 @@ void SpringEmbedderKK::adaptLengths(
 			adaptedLengths[e] = (1 + eLengths[e])*(smax + tmax);///2.0);
 		else adaptedLengths[e] = 5.0*eLengths[e];
 	}
-}//adaptLengths
-
+}
 
 void SpringEmbedderKK::shufflePositions(GraphAttributes& GA)
 {
 //first check if degenerated or
 //just position all on a circle or random layout?
-}//shufflePositions
-
-
+}
 
 // Compute contribution of vertex u to the first partial
 // derivatives (dE/dx_m, dE/dy_m) (for vertex m) (eq. 7 and 8 in paper)
@@ -444,13 +435,13 @@ double SpringEmbedderKK::allpairssp(const Graph& G, const EdgeArray<double>& eLe
 			{
 				if ((distance[u][v] < threshold) && (distance[v][w] < threshold))
 				{
-					distance[u][w] = min( distance[u][w], distance[u][v] + distance[v][w] );
+					Math::updateMin(distance[u][w], distance[u][v] + distance[v][w]);
 #if 0
 					distance[w][u] = distance[u][w]; //is done anyway afterwards
 #endif
 				}
 				if (distance[u][w] < threshold)
-					maxDist = max(maxDist,distance[u][w]);
+					Math::updateMax(maxDist, distance[u][w]);
 			}
 		}
 	}
@@ -458,23 +449,22 @@ double SpringEmbedderKK::allpairssp(const Graph& G, const EdgeArray<double>& eLe
 #ifdef OGDF_DEBUG
 	for(node v : G.nodes)
 	{
-		if (distance[v][v] < 0.0) cerr << "\n###Error in shortest path computation###\n\n";
+		if (distance[v][v] < 0.0) std::cerr << "\n###Error in shortest path computation###\n\n";
 	}
-	cout << "Maxdist: "<<maxDist<<"\n";
+	std::cout << "Maxdist: "<<maxDist<<"\n";
 	for(node u : G.nodes)
 	{
 	for(node w : G.nodes)
 	{
 #if 0
-		cout << "Distance " << u->index() << " -> "<<w->index()<<" "<<distance[u][w]<<"\n";
+		std::cout << "Distance " << u->index() << " -> "<<w->index()<<" "<<distance[u][w]<<"\n";
 #endif
 	}
 	}
 #endif
 #endif
 	return maxDist;
-}//allpairssp
-
+}
 
 //the same without weights, i.e. all pairs shortest paths with BFS
 //Runs in time |V|²
@@ -510,33 +500,32 @@ double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<doub
 					mark[u] = false;
 					bfs.pushBack(u);
 					distance[v][u] = d;
-					maxDist = max(maxDist,d);
+					Math::updateMax(maxDist, d);
 				}
 			}
-		}//while
-	}//while
+		}
+	}
 	//check for negative cycles
 	for(node v : G.nodes)
 	{
 		if (distance[v][v] < 0.0)
-			cerr << "\n###Error in shortest path computation###\n\n";
+			std::cerr << "\n###Error in shortest path computation###\n\n";
 	}
 
 #if 0
 #ifdef OGDF_DEBUG
-	cout << "Maxdist: "<<maxDist<<"\n";
+	std::cout << "Maxdist: "<<maxDist<<"\n";
 	for(node u : G.nodes)
 	{
 	for(node w : G.nodes)
 	{
-		cout << "Distance " << u->index() << " -> "<<w->index()<<" "<<distance[u][w]<<"\n";
+		std::cout << "Distance " << u->index() << " -> "<<w->index()<<" "<<distance[u][w]<<"\n";
 	}
 	}
 #endif
 #endif
 	return maxDist;
-}//allpairsspBFS
-
+}
 
 void SpringEmbedderKK::scale(GraphAttributes& GA)
 {
@@ -558,9 +547,12 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 		double yt = GA.y(e->target());
 		double xdist = xs - xt;
 		double ydist = ys - yt;
-		if ((fabs(xs) > (numeric_limits<double>::max() / 2.0) - 1) || (fabs(xt) > (numeric_limits<double>::max() / 2.0) - 1) ||
-			(fabs(ys) > (numeric_limits<double>::max() / 2.0) - 1) || (fabs(yt) > (numeric_limits<double>::max() / 2.0) - 1))
+		if ((fabs(xs) > (std::numeric_limits<double>::max() / 2.0) - 1) ||
+		    (fabs(xt) > (std::numeric_limits<double>::max() / 2.0) - 1) ||
+		    (fabs(ys) > (std::numeric_limits<double>::max() / 2.0) - 1) ||
+		    (fabs(yt) > (std::numeric_limits<double>::max() / 2.0) - 1)) {
 			scale = false; //never scale with huge numbers
+		}
 		//(even though the drawing may be small and could be shifted to origin)
 		double elength = sqrt(xdist*xdist + ydist*ydist);
 
@@ -575,7 +567,7 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 	}
 
 
-	if (maxFac > 1.0 && (maxFac < (numeric_limits<double>::max() / 2.0) - 1) && scale) //only scale to increase distance
+	if (maxFac > 1.0 && (maxFac < (std::numeric_limits<double>::max() / 2.0) - 1) && scale) //only scale to increase distance
 	{
 		//if maxFac is large, we scale in steps until we reach a threshold
 		if (maxFac > 2048)
@@ -590,7 +582,7 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 				{
 					GA.x(v) = GA.x(v)*base;
 					GA.y(v) = GA.y(v)*base;
-					if (GA.x(v) >(numeric_limits<double>::max() / base) - 1 || GA.y(v) > (numeric_limits<double>::max() / base) - 1)
+					if (GA.x(v) >(std::numeric_limits<double>::max() / base) - 1 || GA.y(v) > (std::numeric_limits<double>::max() / base) - 1)
 						scale = false;
 				}
 				maxFac *= base;
@@ -606,10 +598,10 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 		}
 #if 0
 #ifdef OGDF_DEBUG
-		cout << "Scaled by factor "<<maxFac<<"\n";
+		std::cout << "Scaled by factor "<<maxFac<<"\n";
 #endif
 #endif
 	}
-}//Scale
+}
 
-}//namespace
+}

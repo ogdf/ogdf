@@ -64,7 +64,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const SetBranchRule &rhs);
+	friend std::ostream &operator<<(std::ostream &out, const SetBranchRule &rhs);
 
 
 	//! Modifies a subproblem by setting the branching variable.
@@ -123,4 +123,4 @@ private:
 	double oldLpBound_;  //!< The previous LP bound.
 };
 
-} //namespace abacus
+}

@@ -1,6 +1,5 @@
 /** \file
- * \brief Declaration of min-cost-flow algorithm (class
- *        MinCostFlowReinelt)
+ * \brief Definition of ogdf::MinCostFlowReinelt class template
  *
  * \author Carsten Gutwenger and Gerhard Reinelt
  *
@@ -78,7 +77,7 @@ public:
 		EdgeArray<int> &flow,			  // computed flow
 		NodeArray<TCost> &dual) override;   // computed dual variables
 
-	int infinity() const { return numeric_limits<int>::max(); }
+	int infinity() const { return std::numeric_limits<int>::max(); }
 
 private:
 
@@ -133,29 +132,28 @@ private:
 	Array<arctype> arcs;       /* arc space */
 	//Array<nodetype *> p;    /*used for starting procedure*/
 
-	nodetype *root;         /*->root of basis tree*/
+	nodetype *root = nullptr;         /*->root of basis tree*/
 	nodetype rootStruct;
 
-	arctype *last_n1;       /*->start for search for entering arc in N' */
-	arctype *last_n2;       /*->start for search for entering arc in N''*/
-	arctype *start_arc;     /* -> initial arc list*/
-	arctype *start_b;       /* -> first basic arc*/
-	arctype *start_n1;      /* -> first nonbasic arc in n'*/
-	arctype *start_n2;      /* -> first nonbasic arc in n''*/
-	arctype *startsearch;   /* ->start of search for basis entering arc */
-	arctype *searchend;     /* ->end of search for entering arc in bea */
-	arctype *searchend_n1;  /*->end of search for entering arc in N' */
-	arctype *searchend_n2;  /*->end of search for entering arc in N''*/
+	arctype *last_n1 = nullptr;       /*->start for search for entering arc in N' */
+	arctype *last_n2 = nullptr;       /*->start for search for entering arc in N''*/
+	arctype *start_arc = nullptr;     /* -> initial arc list*/
+	arctype *start_b = nullptr;       /* -> first basic arc*/
+	arctype *start_n1 = nullptr;      /* -> first nonbasic arc in n'*/
+	arctype *start_n2 = nullptr;      /* -> first nonbasic arc in n''*/
+	arctype *startsearch = nullptr;   /* ->start of search for basis entering arc */
+	arctype *searchend = nullptr;     /* ->end of search for entering arc in bea */
+	arctype *searchend_n1 = nullptr;  /*->end of search for entering arc in N' */
+	arctype *searchend_n2 = nullptr;  /*->end of search for entering arc in N''*/
 
 	//int artvalue;          /*cost and upper_bound of artificial arc */
-	TCost m_maxCost;         // maximum of the cost of all input arcs
+	TCost m_maxCost = std::numeric_limits<TCost>::lowest(); // maximum of the cost of all input arcs
 
-	int nn;                /*number of original nodes*/
-	int mm;                /*number of original arcs*/
+	int nn = 0;                /*number of original nodes*/
+	int mm = 0;                /*number of original arcs*/
 };
 
-
-} // end namespace ogdf
+}
 
 // Implementation
 
@@ -676,13 +674,13 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 	arctype *e = start_arc;
 
-	int l; // lower bound (input)
-	for (l = 2; l <= mm; ++l) {
-		from = mcfTail[l-1];
-		toh = mcfHead[l-1];
-		low = mcfLb[l-1];
-		up = mcfUb[l-1];
-		c = mcfCost[l-1];
+	int lower; // lower bound (input)
+	for (lower = 2; lower <= mm; ++lower) {
+		from = mcfTail[lower-1];
+		toh = mcfHead[lower-1];
+		low = mcfLb[lower-1];
+		up = mcfUb[lower-1];
+		c = mcfCost[lower-1];
 		if (from <= 0 || from > nn || toh <= 0 || toh > nn || up < 0 || low > up || low < 0) {
 			return 4;
 		}
@@ -691,13 +689,13 @@ int MinCostFlowReinelt<TCost>::mcf(
 			m_maxCost = abs_c;
 		}
 
-		arctype *ep = &arcs[l];
+		arctype *ep = &arcs[lower];
 		e->next_arc = ep;
 		ep->tail = &nodes[from];
 		ep->head = &nodes[toh];
 		ep->cost = c;
 		ep->upper_bound = up - low;
-		ep->arcnum = l-1;
+		ep->arcnum = lower-1;
 		supply[from-1] -= low;
 		supply[toh-1] += low;
 		lb_cost += ep->cost * low;
@@ -1188,5 +1186,4 @@ int MinCostFlowReinelt<TCost>::mcf(
 	return retValue;
 }
 
-
-} // end namespace ogdf
+}

@@ -43,12 +43,12 @@ inline void Parser::tokenError(const char *str, bool got)
 {
 #ifdef OGDF_DEBUG
 	if(m_begin == m_end) {
-		GraphIO::logger.lout() << str << "." << endl;
+		GraphIO::logger.lout() << str << "." << std::endl;
 	} else {
 		if (got) {
-			GraphIO::logger.lout() << str << " at " << m_begin->line << ", " << m_begin->column << " (got " << *m_begin << ")." << endl;
+			GraphIO::logger.lout() << str << " at " << m_begin->line << ", " << m_begin->column << " (got " << *m_begin << ")." << std::endl;
 		} else {
-			GraphIO::logger.lout() << str << " at " << m_begin->line << ", " << m_begin->column << "." << endl;
+			GraphIO::logger.lout() << str << " at " << m_begin->line << ", " << m_begin->column << "." << std::endl;
 		}
 	}
 #endif
@@ -100,12 +100,12 @@ bool Parser::readEdge(Graph &G)
 
 	node source = m_idNode[sid], target = m_idNode[tid];
 	if(!source || !target) {
-		GraphIO::logger.lout() << "Node with id " << sid << " or " << tid << " is not declared." << endl;
+		GraphIO::logger.lout() << "Node with id " << sid << " or " << tid << " is not declared." << std::endl;
 		return false;
 	}
 
 	if (m_idEdge[id] != nullptr) {
-		GraphIO::logger.lout() << "Encountered duplicate edge id: " + to_string(id) << endl;
+		GraphIO::logger.lout() << "Encountered duplicate edge id: " + to_string(id) << std::endl;
 		return false;
 	}
 
@@ -218,7 +218,7 @@ bool Parser::readCluster(Graph &G, ClusterGraph *C, cluster root)
 		++m_begin;
 		if(!readClusterStatement(G, C, root)) {
 			if (!G.empty()) {
-				GraphIO::logger.lout() << "Encountered duplicate node section" << endl;
+				GraphIO::logger.lout() << "Encountered duplicate node section" << std::endl;
 				return false;
 			}
 
@@ -530,7 +530,7 @@ bool Parser::readStatement(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 
 	if(head == "nodes") {
 		if (!G.empty()) {
-			GraphIO::logger.lout() << "Encountered duplicate node section" << endl;
+			GraphIO::logger.lout() << "Encountered duplicate node section" << std::endl;
 			return false;
 		}
 
@@ -577,7 +577,7 @@ bool Parser::readStatement(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 		}
 		++m_begin;
 	} else {
-		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown statement \"" << head << "\", ignoring.\n" << endl;
+		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown statement \"" << head << "\", ignoring.\n" << std::endl;
 		// We got unknown statement, so we ignore until ending paren.
 		int opened = 1;
 		while(m_begin != m_end && opened != 0) {
@@ -616,14 +616,14 @@ bool Parser::readGraph(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 	Lexer lexer(m_istream);
 
 	if(!lexer.tokenize()) {
-		GraphIO::logger.lout() << "Lexical analysis failed." << endl;
+		GraphIO::logger.lout() << "Lexical analysis failed." << std::endl;
 		return false;
 	}
 	m_begin = lexer.tokens().begin();
 	m_end = lexer.tokens().end();
 
 	if(m_begin == m_end || !m_begin->leftParen()) {
-		GraphIO::logger.lout() << "Expected \"(\"." << endl;
+		GraphIO::logger.lout() << "Expected \"(\"." << std::endl;
 		return false;
 	}
 	++m_begin;
@@ -663,7 +663,5 @@ bool Parser::readGraph(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 	return true;
 }
 
-
-} // end namespace tlp
-
-} // end namespace ogdf
+}
+}

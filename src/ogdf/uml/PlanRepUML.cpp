@@ -72,17 +72,17 @@ void PlanRepUML::initCC(int i)
 				if (m_pUmlGraph->upwards(original(e)->adjSource()))
 				{
 					m_alignUpward[e->adjSource()] = true;
-				}//if upwards
-				else m_alignUpward[e->adjSource()] = false;
+				} else {
+					m_alignUpward[e->adjSource()] = false;
+				}
 
 				//maybe it's enough to set gen/ass without extra array
 				//due to planarization we have to assure that no types are lost
 				oriEdgeTypes(original(e)) = edgeTypes(e);
-			}//if ori
+			}
 		}
 	}
-}//initCC
-
+}
 
 void PlanRepUML::expand(bool lowDegreeExpand)
 {
@@ -623,17 +623,16 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 				edge eNew = newEdge(connect,vCenter);
 				m_eOrig[eNew] = eOrig;
 				m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
-
 			} else {
 				node connect = m_eCopy[eOrig].front()->source();
 				edge eNew = newEdge(vCenter,connect);
 				m_eOrig[eNew] = eOrig;
 				m_eIterator[eNew] = m_eCopy[eOrig].pushFront(eNew);
-			}//else
+			}
 			++itEdge;
-		}//while / forall adjacent edges
-	}//forall nodes
-}//collapsevertices
+		}
+	}
+}
 
 void PlanRepUML::setupIncremental(int indexCC, CombinatorialEmbedding &E)
 {
@@ -666,7 +665,7 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 		while ( ad1->cyclicPred() != stopAdj && ad1->theEdge()->target() == v && isGeneralization(ad1->theEdge()) )
 		{
 			ad1 = ad1->cyclicPred();
-		}//while search start
+		}
 		adjEntry ad = ad1->cyclicSucc();
 		while (ad != ad1)
 		{
@@ -699,13 +698,11 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 
 					maxSeq = maxSeqRun;
 					maxSeqAdj = runSeqAdj;
-				}
-				else
-				{
+				} else {
 					//change edge types for weaker sequence
 					if (maxSeqRun != 0)
 						changeAdj = runSeqAdj;
-				}//else, no new sequence
+				}
 
 				//Change types for a sequence
 				//invariant: on every pass of the loop, if a sequence
@@ -721,16 +718,16 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 						setAssociation(eRGA);
 						runGenAdj = runGenAdj->cyclicSucc();
 						eRGA = runGenAdj->theEdge();
-					}//while
+					}
 #if 0
 					changeAdj = 0;
 #endif
 				}
 				maxSeqRun = 0;
-			}//else
+			}
 
 			ad = ad->cyclicSucc();
-		}//while
+		}
 
 		//now we insert mergers for all edges in best sequence
 		//do not use maxSeq to count, may be 0 if only incoming gens
@@ -749,7 +746,7 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 				//maybe only one sequence around v
 				if (runAdj == maxSeqAdj)
 					break;
-			}//while generalizations
+			}
 
 			//insert the merger for v
 			OGDF_ASSERT(representsCombEmbedding());
@@ -757,17 +754,13 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 			OGDF_ASSERT(representsCombEmbedding());
 			if (newMerger)
 				m_incMergers[indexCC].pushBack(newMerger);
-		}//if sequence of generalizations
-
+		}
 	}
 
 #if 0
 	uml.adjustHierarchyParents();
 #endif
-
-}//prepareIncrementalMergers
-
-
+}
 
 //inserts a merger node for generalizations hanging at v, respecting
 //embedding E
@@ -811,20 +804,16 @@ node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens, Combin
 		//now we update the combinatorial embedding to represent the new situation
 		//first, update the face information at the inserted edge
 		E.updateMerger(eMerge, fRight, fLeft);
-
-	}//if ingen >= 2
+	}
 
 	return u;
-}//InsertGenMerger
-
-
+}
 
 // Same as in GraphAttributes. Except: Writes colors to new nodes and
 // to generalizations. For debugging only
-
 void PlanRepUML::writeGML(const char *fileName, const Layout &drawing)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,drawing);
 }
 
@@ -832,7 +821,7 @@ void PlanRepUML::writeGML(const char *fileName, const Layout &drawing)
 void PlanRepUML::writeGML(const char *fileName)
 {
 	Layout drawing(*this);
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,drawing);
 }
 
@@ -851,20 +840,18 @@ void PlanRepUML::writeGML(const char *fileName, GraphAttributes &AG)
 		}
 	}
 
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os, drawing);
+}
 
-}//writegml with AG layout
-
-
-void PlanRepUML::writeGML(ostream &os, const Layout &drawing)
+void PlanRepUML::writeGML(std::ostream &os, const Layout &drawing)
 {
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -967,7 +954,7 @@ void PlanRepUML::writeGML(ostream &os, const Layout &drawing)
 			else
 				os << "      fill \"#00000F\"\n";
 			os << "      width 1.0\n";
-		}//else generalization
+		}
 		os << "    ]\n"; // graphics
 
 		os << "  ]\n"; // edge
@@ -981,18 +968,18 @@ void PlanRepUML::writeGML(ostream &os, const Layout &drawing)
 
 void PlanRepUML::writeGML(const char *fileName, const OrthoRep &OR, const Layout &drawing)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,OR,drawing);
 }
 
-void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing)
+void PlanRepUML::writeGML(std::ostream &os, const OrthoRep &OR, const Layout &drawing)
 {
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -1115,7 +1102,7 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 			if (isHalfBrother(e))
 				os << "      fill \"#0F00AF\"\n";
 			os << "      width 1.0\n";
-		}//else generalization
+		}
 
 		os << "    ]\n"; // graphics
 
@@ -1128,18 +1115,18 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 
 void PlanRepUML::writeGML(const char *fileName, const OrthoRep &OR, const GridLayoutMapped &drawing)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,OR,drawing);
 }
 
-void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMapped &drawing)
+void PlanRepUML::writeGML(std::ostream &os, const OrthoRep &OR, const GridLayoutMapped &drawing)
 {
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -1297,7 +1284,7 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 				os << "      arrow \"none\"\n";
 
 			os << "      width 1.0\n";
-		}//else generalization
+		}
 
 		os << "    ]\n"; // graphics
 
@@ -1307,5 +1294,4 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 	os << "]\n"; // graph
 }
 
-
-} // end namespace ogdf
+}

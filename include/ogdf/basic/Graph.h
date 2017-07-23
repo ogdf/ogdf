@@ -38,12 +38,12 @@
 namespace ogdf {
 
 //! Output operator for nodes; prints node index (or "nil").
-OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::node v);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::node v);
 
 //! Output operator for edges; prints source and target indices (or "nil").
-OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::edge e);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::edge e);
 
 //! Output operator for adjacency entries; prints node and twin indices (or "nil").
-OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::adjEntry adj);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::adjEntry adj);
 
-} // end namespace ogdf
+}

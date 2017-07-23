@@ -84,8 +84,8 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 #if 0
 		GraphAttributes AG(FUPS, GraphAttributes::nodeGraphics |
 		                         GraphAttributes::edgeGraphics |
-		                         GraphAttributes::nodeColor |
-		                         GraphAttributes::edgeColor |
+		                         GraphAttributes::nodeStyle |
+		                         GraphAttributes::edgeStyle |
 		                         GraphAttributes::nodeLabel |
 		                         GraphAttributes::edgeLabel);
 		// label the nodes with their index
@@ -115,20 +115,20 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 
 
 #if 0
-			cout << endl << "FUPS : " << endl;
+			std::cout << std::endl << "FUPS : " << std::endl;
 			for(face ff : Beta.faces) {
-				cout << "face " << ff->index() << ": ";
+				std::cout << "face " << ff->index() << ": ";
 				adjEntry adjNext = ff->firstAdj();
 				do {
-					cout << adjNext->theEdge() << "; ";
+					std::cout << adjNext->theEdge() << "; ";
 					adjNext = adjNext->faceCycleSucc();
 				} while(adjNext != ff->firstAdj());
-				cout << endl;
+				std::cout << std::endl;
 			}
 			if (Beta.externalFace() != 0)
-				cout << "ext. face of the graph is: " << Beta.externalFace()->index() << endl;
+				std::cout << "ext. face of the graph is: " << Beta.externalFace()->index() << std::endl;
 			else
-				cout << "no ext. face set." << endl;
+				std::cout << "no ext. face set." << std::endl;
 #endif
 
 			GraphCopy M((const GraphCopy &) FUPSCopy); // use a identical copy of FUPSCopy to construct the merge graph of FUPSCopy
@@ -193,13 +193,13 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 	}
 
 	// delete all non tree edgesEdges to obtain a span tree
-	List<edge> l;
+	List<edge> list;
 	for(edge e : GC.edges) {
 		if (!isTreeEdge[e])
-			l.pushBack(e);
+			list.pushBack(e);
 	}
-	while (!l.empty()) {
-		edge e = l.popFrontRet();
+	while (!list.empty()) {
+		edge e = list.popFrontRet();
 		delEdges.pushBack(GC.original(e));
 		GC.delEdge(e);
 	}
@@ -240,20 +240,20 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 	Beta.setExternalFace(Beta.rightFace(ext_adj));
 
 #if 0
-	cout << endl << "FUPS : " << endl;
+	std::cout << std::endl << "FUPS : " << std::endl;
 	for(face ff : Beta.faces) {
-		cout << "face " << ff->index() << ": ";
+		std::cout << "face " << ff->index() << ": ";
 		adjEntry adjNext = ff->firstAdj();
 		do {
-			cout << adjNext->theEdge() << "; ";
+			std::cout << adjNext->theEdge() << "; ";
 			adjNext = adjNext->faceCycleSucc();
 		} while(adjNext != ff->firstAdj());
-		cout << endl;
+		std::cout << std::endl;
 	}
 	if (Beta.externalFace() != 0)
-		cout << "ext. face of the graph is: " << Beta.externalFace()->index() << endl;
+		std::cout << "ext. face of the graph is: " << Beta.externalFace()->index() << std::endl;
 	else
-		cout << "no ext. face set." << endl;
+		std::cout << "no ext. face set." << std::endl;
 #endif
 
 	FaceSinkGraph fsg(Beta, M.copy(adj_orig->theNode()));
@@ -269,10 +269,10 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 
 #if 0
 	GraphAttributes AG(M, GraphAttributes::nodeGraphics|
-						GraphAttributes::edgeGraphics|
-						GraphAttributes::nodeColor|
-						GraphAttributes::edgeColor|
-						GraphAttributes::nodeLabel|
+						GraphAttributes::edgeGraphics |
+						GraphAttributes::nodeStyle |
+						GraphAttributes::edgeStyle |
+						GraphAttributes::nodeLabel |
 						GraphAttributes::edgeLabel
 						);
 	// label the nodes with their index
@@ -293,4 +293,4 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 	return isAcyclic(M);
 }
 
-} // end namespace ogdf
+}

@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/basic/NearestRectangleFinder.h>
-#include <ogdf/basic/BoundedStack.h>
 
 namespace ogdf {
 
@@ -42,9 +41,9 @@ struct OGDF_EXPORT NearestRectangleFinder::PairCoordId
 		m_index = index;
 	}
 
-	PairCoordId() { }
+	PairCoordId() = default;
 
-	friend ostream &operator<<(ostream &os, const PairCoordId &p) {
+	friend std::ostream &operator<<(std::ostream &os, const PairCoordId &p) {
 		os << "(" << p.m_coord << "," << p.m_index << ")";
 		return os;
 	}
@@ -52,47 +51,6 @@ struct OGDF_EXPORT NearestRectangleFinder::PairCoordId
 	double m_coord;
 	int m_index;
 };
-
-
-//! Comparer class for sorting PairCoordId according to decreasing coordinate
-class NearestRectangleFinder::CoordComparer
-{
-public:
-	bool less (const PairCoordId &x, const PairCoordId &y) const {
-		return x.m_coord > y.m_coord;
-	}
-	bool leq  (const PairCoordId &x, const PairCoordId &y) const {
-		return x.m_coord >= y.m_coord;
-	}
-	bool equal(const PairCoordId &x, const PairCoordId &y) const {
-		return x.m_coord == y.m_coord;
-	}
-};
-
-
-//! Comparer class for sorting points (given by index) by decreasing y-coordinate
-class NearestRectangleFinder::YCoordComparer
-{
-public:
-	YCoordComparer(const Array<DPoint> &point) {
-		m_point = &point;
-	}
-
-	bool less (int x, int y) const {
-		return (*m_point)[x].m_y > (*m_point)[y].m_y;
-	}
-	bool leq  (int x, int y) const {
-		return (*m_point)[x].m_y >= (*m_point)[y].m_y;
-	}
-	bool equal(int x, int y) const {
-		return (*m_point)[x].m_y == (*m_point)[y].m_y;
-	}
-
-private:
-	const Array<DPoint> *m_point;
-};
-
-
 
 void NearestRectangleFinder::find(
 	const Array<RectRegion> &region,
@@ -114,7 +72,7 @@ void NearestRectangleFinder::find(
 	}
 
 	// ... and sort them by decreasing coordinates
-	CoordComparer comparer;
+	GenericComparer<PairCoordId, double> comparer([&](const PairCoordId& x) { return -x.m_coord; });
 	listTop   .quicksort(comparer);
 	listBottom.quicksort(comparer);
 
@@ -124,8 +82,7 @@ void NearestRectangleFinder::find(
 		sortedPoints[i] = i;
 
 	// ... and sort them by decreasing y-coordinate
-	YCoordComparer yCoordComparer(point);
-	sortedPoints.quicksort(yCoordComparer);
+	sortedPoints.quicksort(GenericComparer<int, double>([&](int x) { return -point[x].m_y; }));
 
 
 	ListPure<int> active;	// list of rectangles such that y-coord. of current
@@ -142,7 +99,7 @@ void NearestRectangleFinder::find(
 	// position of a rectangle in active
 	Array<ListIterator<int> > posInActive(n);
 	// list of rectangles visited for current point
-	BoundedStack<int> visitedRectangles(n);
+	ArrayBuffer<int> visitedRectangles(n);
 	// distance of rectangle to current point (if contained in visitedRectangles)
 	Array<double> distance(n);
 
@@ -278,7 +235,7 @@ void NearestRectangleFinder::find(
 			double max = minDist + m_toleranceDistance;
 			while(!visitedRectangles.empty())
 			{
-				int index = visitedRectangles.pop();
+				int index = visitedRectangles.popRet();
 				if(distance[index] <= max)
 					nearest[nextPoint].pushBack(PairRectDist(index,distance[index]));
 			}
@@ -301,7 +258,7 @@ void NearestRectangleFinder::findSimple(
 	for(int i = 0; i < m; ++i)
 	{
 		const DPoint &p = point[i];
-		double minDist = numeric_limits<double>::max();
+		double minDist = std::numeric_limits<double>::max();
 		int minDistIndex = -1;
 
 		for(int j = 0; j < n; ++j)
@@ -344,7 +301,4 @@ void NearestRectangleFinder::findSimple(
 	}
 }
 
-
-
-
-} // end namespace ogdf
+}

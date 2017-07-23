@@ -19,7 +19,7 @@ int main()
 	PlanRep PR(G);
 	SP.call(PR, 0, crossNum);
 
-	cout << crossNum << " crossings" << endl;
+	std::cout << crossNum << " crossings" << std::endl;
 	GraphIO::write(PR, "output-plan.gml", GraphIO::writeGML);
 
 	return 0;

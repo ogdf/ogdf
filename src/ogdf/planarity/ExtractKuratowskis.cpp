@@ -35,7 +35,7 @@
 
 namespace ogdf {
 
-ostream &operator<<(ostream &os, const KuratowskiWrapper::SubdivisionType &obj) {
+std::ostream &operator<<(std::ostream &os, const KuratowskiWrapper::SubdivisionType &obj) {
 	switch (obj) {
 		case KuratowskiWrapper::SubdivisionType::A:   os << "A";       break;
 		case KuratowskiWrapper::SubdivisionType::AB:  os << "AB";      break;
@@ -55,6 +55,16 @@ ostream &operator<<(ostream &os, const KuratowskiWrapper::SubdivisionType &obj) 
 		case KuratowskiWrapper::SubdivisionType::E5:  os << "E5";      break;
 	}
 	return os;
+}
+
+//! Copy paths to subdivision (auxiliary method)
+template<typename TPath, typename TEdges>
+inline void copyPathsToSubdivision(std::initializer_list<TPath> paths, TEdges &edges) {
+	for (const auto &path : paths) {
+		for (edge e : path) {
+			edges.pushBack(e);
+		}
+	}
 }
 
 //! Extracts all possible paths with backtracking using given edges and special constraints
@@ -135,7 +145,7 @@ protected:
 	NodeArray<adjEntry> m_parent;
 
 	//! Backtracking stack. A nullptr-element indicates a return from a child node
-	StackPure<adjEntry> stack;
+	ArrayBuffer<adjEntry> stack;
 };
 
 inline int operator & (int lhs, DynamicBacktrack::KuratowskiFlag rhs) {
@@ -185,8 +195,7 @@ void DynamicBacktrack::init(
 				stack.push(adj);
 			}
 		}
-	}
-	else {
+	} else {
 		for (adjEntry adj : start->adjEntries) {
 			if (adj->theEdge() == startInclude &&
 				(m_flags[adj->theEdge()] & startFlag) == startFlag) {
@@ -207,16 +216,15 @@ void DynamicBacktrack::init(
 // endnode returns the last traversed node.
 bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 	node v = nullptr;
-	node temp;
 
 	while (!stack.empty()) {
 		// backtrack
-		adjEntry adj = stack.pop();
+		adjEntry adj = stack.popRet();
 
 		// return from a child node: delete parent
 		if (adj==nullptr) {
 			// go to parent and delete visited flag
-			temp = v;
+			node temp = v;
 			v = m_parent[temp]->theNode();
 			m_parent[temp] = nullptr;
 			continue;
@@ -242,7 +250,7 @@ bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 			// state, therefore delete the last nullptrs and visited flags on stack
 			while (!stack.empty() && stack.top()==nullptr) {
 				stack.pop();
-				temp = v;
+				node temp = v;
 				v = m_parent[temp]->theNode();
 				m_parent[temp] = nullptr;
 			}
@@ -275,16 +283,15 @@ bool DynamicBacktrack::addNextPathExclude(
 				int exclude,
 				int exceptOnEdge) {
 	node v = nullptr;
-	node temp;
 
 	while (!stack.empty()) {
 		// backtrack
-		adjEntry adj = stack.pop();
+		adjEntry adj = stack.popRet();
 
 		// return from a child node: delete parent
 		if (adj==nullptr) {
 			// go to parent and delete visited flag
-			temp = v;
+			node temp = v;
 			v = m_parent[temp]->theNode();
 			m_parent[temp] = nullptr;
 			continue;
@@ -318,7 +325,7 @@ bool DynamicBacktrack::addNextPathExclude(
 			// state, therefore delete the last nullptrs and visited flags on stack
 			while (!stack.empty() && stack.top()==nullptr) {
 				stack.pop();
-				temp = v;
+				node temp = v;
 				v = m_parent[temp]->theNode();
 				m_parent[temp] = nullptr;
 			}
@@ -378,9 +385,7 @@ ExtractKuratowskis::KuratowskiType ExtractKuratowskis::whichKuratowski(
 	EdgeArray<int> edgenumber(m_g,0);
 
 	// count edges
-	SListConstIterator<edge> it;
-	for (it = list.begin(); it.valid(); ++it) {
-		edge e = *it;
+	for (edge e : list) {
 		if (edgenumber[e] == 1) {
 			return ExtractKuratowskis::KuratowskiType::none;
 		}
@@ -407,7 +412,6 @@ ExtractKuratowskis::KuratowskiType ExtractKuratowskis::whichKuratowskiArray(
 #endif
 
 	// count incident nodes
-	SListConstIterator<edge> it;
 	int allEdges = 0;
 	for (edge e : m_g.edges) {
 		if (edgenumber[e] == 1) {
@@ -432,8 +436,7 @@ ExtractKuratowskis::KuratowskiType ExtractKuratowskis::whichKuratowskiArray(
 		if (nodenumber[v] == 3) {
 			K33Nodes[degree3nodes] = v;
 			++degree3nodes;
-		}
-		else if (nodenumber[v] == 4) {
+		} else if (nodenumber[v] == 4) {
 			K5Nodes[degree4nodes] = v;
 			++degree4nodes;
 		}
@@ -484,25 +487,17 @@ ExtractKuratowskis::KuratowskiType ExtractKuratowskis::whichKuratowskiArray(
 						if (K33Partition[ii] == -1) K33Partition[ii] = !K33Partition[i];
 						if (!K33Links[i][ii]) {
 							K33Links[i][ii] = true;
-						}
-						else {
+						} else {
 							return ExtractKuratowskis::KuratowskiType::none;
 						}
-					}
-					else {
+					} else {
 						return ExtractKuratowskis::KuratowskiType::none;
 					}
 				}
 			}
 		}
-		if (paths == 9) {
-			return ExtractKuratowskis::KuratowskiType::K33;
-		}
-		else {
-			return ExtractKuratowskis::KuratowskiType::none;
-		}
-	}
-	else if (degree4nodes == 5) {
+		return paths == 9 ? ExtractKuratowskis::KuratowskiType::K33 : ExtractKuratowskis::KuratowskiType::none;
+	} else if (degree4nodes == 5) {
 		// check on K5
 		if (degree3nodes > 0) {
 			return ExtractKuratowskis::KuratowskiType::none;
@@ -530,16 +525,9 @@ ExtractKuratowskis::KuratowskiType ExtractKuratowskis::whichKuratowskiArray(
 				}
 			}
 		}
-		if (paths == 10) {
-			return ExtractKuratowskis::KuratowskiType::K5;
-		}
-		else {
-			return ExtractKuratowskis::KuratowskiType::none;
-		}
+		return paths == 10 ? ExtractKuratowskis::KuratowskiType::K5 : ExtractKuratowskis::KuratowskiType::none;
 	}
-	else {
-		return ExtractKuratowskis::KuratowskiType::none;
-	}
+	return ExtractKuratowskis::KuratowskiType::none;
 }
 
 
@@ -551,18 +539,16 @@ bool ExtractKuratowskis::isANewKuratowski(
 		const EdgeArray<int>& test,
 		const SList<KuratowskiWrapper>& output)
 {
-	SListConstIterator<KuratowskiWrapper> itW;
-	SListConstIterator<edge> it;
-	for (itW = output.begin(); itW.valid(); ++itW) {
+	for (auto kw : output) {
 		bool differentEdgeFound = false;
-		for (it = (*itW).edgeList.begin(); it.valid(); ++it) {
-			if (!test[*it]) {
+		for (edge e : kw.edgeList) {
+			if (!test[e]) {
 				differentEdgeFound = true;
 				break;
 			}
 		}
 		if (!differentEdgeFound) {
-			Logger::slout() << "Kuratowski is already in list as subdivisiontype " << (*itW).subdivisionType << endl;
+			Logger::slout() << "Kuratowski is already in list as subdivisiontype " << kw.subdivisionType << std::endl;
 			return false;
 		}
 	}
@@ -576,8 +562,7 @@ bool ExtractKuratowskis::isANewKuratowski(
 		const SList<KuratowskiWrapper>& output)
 {
 	EdgeArray<int> test(g,0);
-	SListConstIterator<edge> it;
-	for (it = kuratowski.begin(); it.valid(); ++it) test[*it] = 1;
+	for (edge e : kuratowski) test[e] = 1;
 	return isANewKuratowski(/*g,*/test,output);
 }
 
@@ -594,10 +579,7 @@ inline adjEntry ExtractKuratowskis::adjToLowestNodeBelow(node high, int low)
 			resultAdj = adj->twin();
 		}
 	}
-	if (result == 0) {
-		return nullptr;
-	}
-	else return resultAdj;
+	return result == 0 ? nullptr : resultAdj;
 }
 
 // add DFS-path from node bottom to node top to edgelist
@@ -670,13 +652,11 @@ void ExtractKuratowskis::extractMinorA(
 	// add the path from v to u, this is only possible after computation of pathX and pathY
 	if (m_dfi[endnodeX] < m_dfi[endnodeY]) {
 		addDFSPath(A.edgeList,k.V,endnodeX);
-	} else addDFSPath(A.edgeList,k.V,endnodeY);
+	} else {
+		addDFSPath(A.edgeList,k.V,endnodeY);
+	}
 
-	// copy other paths to subdivision
-	SListConstIterator<edge> it;
-	for(it = pathX.begin(); it.valid(); ++it) A.edgeList.pushBack(*it);
-	for(it = pathY.begin(); it.valid(); ++it) A.edgeList.pushBack(*it);
-	for(it = pathW.begin(); it.valid(); ++it) A.edgeList.pushBack(*it);
+	copyPathsToSubdivision({pathX, pathY, pathW}, A.edgeList);
 	OGDF_ASSERT(whichKuratowski(m_g,m_dfi,A.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 	OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,A.edgeList,output));
 	A.subdivisionType = KuratowskiWrapper::SubdivisionType::A;
@@ -708,9 +688,10 @@ void ExtractKuratowskis::extractMinorB(
 	KuratowskiWrapper B;
 
 	// find ExternE-struct suitable for wNode
-	SListIterator<ExternE> itExternW;
-	for (itExternW = info.externEStart; (*itExternW).theNode != info.w; ++itExternW)
-		;
+	SListIterator<ExternE> itExternW = info.externEStart;
+	while ((*itExternW).theNode != info.w) {
+		++itExternW;
+	}
 	OGDF_ASSERT(itExternW.valid());
 	OGDF_ASSERT((*itExternW).theNode == info.w);
 	ExternE& externE(*itExternW);
@@ -718,12 +699,10 @@ void ExtractKuratowskis::extractMinorB(
 				externE.theNode == pathW.front()->target());
 
 	// check, if a external path sharing the first pathW-edge exists
-	SListIterator<int> itStart;
 	SListIterator<node> itEnd = externE.endnodes.begin();
 	SListIterator<SListPure<edge> > itPath = externE.externalPaths.begin();
-	SListIterator<edge> itEdge;
-	for (itStart = externE.startnodes.begin(); itStart.valid(); ++itStart) {
-		if (*itStart != m_dfi[pathW.front()->opposite(info.w)]) {
+	for (int start : externE.startnodes) {
+		if (start != m_dfi[pathW.front()->opposite(info.w)]) {
 			++itEnd;
 			++itPath;
 			continue;
@@ -736,7 +715,7 @@ void ExtractKuratowskis::extractMinorB(
 		} else {
 			// else traverse external Path starting with z. forbid edges starting at W,
 			// that are different from the edge w->z.
-			adjEntry adj = adjToLowestNodeBelow(endnodeWExtern,*itStart);
+			adjEntry adj = adjToLowestNodeBelow(endnodeWExtern, start);
 			B.edgeList.pushFront(adj->theEdge());
 			addDFSPathReverse(B.edgeList,adj->theNode(),info.w);
 
@@ -768,16 +747,14 @@ void ExtractKuratowskis::extractMinorB(
 		}
 		addDFSPath(B.edgeList,max,min);
 
-		// copy other paths to subdivision
-		SListConstIterator<edge> it;
-		for (it = pathX.begin(); it.valid(); ++it) B.edgeList.pushBack(*it);
-		for (it = pathY.begin(); it.valid(); ++it) B.edgeList.pushBack(*it);
-		for (it = pathW.begin(); it.valid(); ++it) B.edgeList.pushBack(*it);
+		copyPathsToSubdivision({pathX, pathY, pathW}, B.edgeList);
 		OGDF_ASSERT(whichKuratowski(m_g,m_dfi,B.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 		OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,B.edgeList,output));
 		if (info.minorType & WInfo::MinorType::A) {
 			B.subdivisionType = KuratowskiWrapper::SubdivisionType::AB;
-		} else B.subdivisionType = KuratowskiWrapper::SubdivisionType::B;
+		} else {
+			B.subdivisionType = KuratowskiWrapper::SubdivisionType::B;
+		}
 		B.V = k.V;
 		output.pushBack(B);
 		B.edgeList.clear();
@@ -809,11 +786,10 @@ void ExtractKuratowskis::extractMinorBBundles(
 
 	// mark single pathW in flags, so that pathW and the externalPath
 	// don't interfere later
-	SListConstIterator<edge> itE;
-	for (itE = pathW.begin(); itE.valid(); ++itE) {
-		flags[*itE] |= DynamicBacktrack::KuratowskiFlag::singlePath;
-		nodeflags[(*itE)->source()] = nodemarker;
-		nodeflags[(*itE)->target()] = nodemarker;
+	for (edge e : pathW) {
+		flags[e] |= DynamicBacktrack::KuratowskiFlag::singlePath;
+		nodeflags[e->source()] = nodemarker;
+		nodeflags[e->target()] = nodemarker;
 	}
 
 	// traverse all possible external Paths out of z. forbid edges starting at W,
@@ -846,28 +822,29 @@ void ExtractKuratowskis::extractMinorBBundles(
 			min = endnodeY;
 			max = endnodeX;
 		}
-		if (m_dfi[endnodeWExtern] < m_dfi[min]) min = endnodeWExtern;
-			else if (m_dfi[endnodeWExtern] > m_dfi[max]) max = endnodeWExtern;
+		if (m_dfi[endnodeWExtern] < m_dfi[min]) {
+			min = endnodeWExtern;
+		} else if (m_dfi[endnodeWExtern] > m_dfi[max]) {
+			max = endnodeWExtern;
+		}
 		addDFSPath(B.edgeList,max,min);
 
-		// copy other paths to subdivision
-		SListConstIterator<edge> it;
-		for (it = pathX.begin(); it.valid(); ++it) B.edgeList.pushBack(*it);
-		for (it = pathY.begin(); it.valid(); ++it) B.edgeList.pushBack(*it);
-		for (it = pathW.begin(); it.valid(); ++it) B.edgeList.pushBack(*it);
+		copyPathsToSubdivision({pathX, pathY, pathW}, B.edgeList);
 		OGDF_ASSERT(whichKuratowski(m_g,m_dfi,B.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 		OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,B.edgeList,output));
 		if (info.minorType & WInfo::MinorType::A) {
 			B.subdivisionType = KuratowskiWrapper::SubdivisionType::AB;
-		} else B.subdivisionType = KuratowskiWrapper::SubdivisionType::B;
+		} else {
+			B.subdivisionType = KuratowskiWrapper::SubdivisionType::B;
+		}
 		B.V = k.V;
 		output.pushBack(B);
 		B.edgeList.clear();
 	}
 
 	// delete marked single pathW
-	for (itE = pathW.begin(); itE.valid(); ++itE) {
-		flags[*itE] &= ~DynamicBacktrack::KuratowskiFlag::singlePath;
+	for (edge e : pathW) {
+		flags[e] &= ~DynamicBacktrack::KuratowskiFlag::singlePath;
 	}
 }
 
@@ -893,17 +870,18 @@ void ExtractKuratowskis::extractMinorC(
 
 	// the case, that px is above stopX
 	OGDF_ASSERT(info.pxAboveStopX || info.pyAboveStopY);
-	SListConstIterator<adjEntry> itE;
 
 	// add the path from v to u, this is only possible after computation
 	// of pathX and pathY
 	if (m_dfi[endnodeX] < m_dfi[endnodeY]) {
 		addDFSPath(tempC,k.V,endnodeX);
-	} else addDFSPath(tempC,k.V,endnodeY);
+	} else {
+		addDFSPath(tempC,k.V,endnodeY);
+	}
 
 	// add highestFacePath of wNode
 	OGDF_ASSERT(info.highestXYPath->size() >= 2);
-	for (itE=info.highestXYPath->begin().succ(); itE.valid(); ++itE) {
+	for (auto itE = info.highestXYPath->begin() + 1; itE != info.highestXYPath->end(); ++itE) {
 		tempC.pushBack((*itE)->theEdge());
 	}
 
@@ -914,23 +892,23 @@ void ExtractKuratowskis::extractMinorC(
 		// add the external face path edges except the path from py/stopY to R
 		node end;
 		if (info.pyAboveStopY) {
-			end = info.highestXYPath->back()->theNode();
-		} else end = k.stopY;
-		for (itE=k.externalFacePath.begin(); itE.valid(); ++itE) {
-			C.edgeList.pushBack((*itE)->theEdge());
-			if ((*itE)->theNode() == end) break;
+			end = info.highestXYPath->top()->theNode();
+		} else {
+			end = k.stopY;
+		}
+		for (auto adj : k.externalFacePath) {
+			C.edgeList.pushBack(adj->theEdge());
+			if (adj->theNode() == end) break;
 		}
 
-		// copy other paths to subdivision
-		SListConstIterator<edge> it;
-		for (it = pathX.begin(); it.valid(); ++it) C.edgeList.pushBack(*it);
-		for (it = pathY.begin(); it.valid(); ++it) C.edgeList.pushBack(*it);
-		for (it = pathW.begin(); it.valid(); ++it) C.edgeList.pushBack(*it);
+		copyPathsToSubdivision({pathX, pathY, pathW}, C.edgeList);
 		OGDF_ASSERT(whichKuratowski(m_g,m_dfi,C.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 		OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,C.edgeList,output));
 		if (info.minorType & WInfo::MinorType::A) {
 			C.subdivisionType = KuratowskiWrapper::SubdivisionType::AC;
-		} else C.subdivisionType = KuratowskiWrapper::SubdivisionType::C;
+		} else {
+			C.subdivisionType = KuratowskiWrapper::SubdivisionType::C;
+		}
 		C.V = k.V;
 		output.pushBack(C);
 		C.edgeList.clear();
@@ -948,25 +926,27 @@ void ExtractKuratowskis::extractMinorC(
 		// add the external face path edges except the path from px/stopX to R
 		node start;
 		if (info.pxAboveStopX) {
-			start = info.highestXYPath->front()->theNode();
-		} else start = k.stopX;
+			start = (*info.highestXYPath)[0]->theNode();
+		} else {
+			start = k.stopX;
+		}
 		bool after = false;
-		for (itE=k.externalFacePath.begin(); itE.valid(); ++itE) {
+		for (auto adj : k.externalFacePath) {
 			if (after) {
-				C.edgeList.pushBack((*itE)->theEdge());
-			} else if ((*itE)->theNode() == start) after = true;
+				C.edgeList.pushBack(adj->theEdge());
+			} else if (adj->theNode() == start) {
+				after = true;
+			}
 		}
 
-		// copy other paths to subdivision
-		SListConstIterator<edge> it;
-		for (it = pathX.begin(); it.valid(); ++it) C.edgeList.pushBack(*it);
-		for (it = pathY.begin(); it.valid(); ++it) C.edgeList.pushBack(*it);
-		for (it = pathW.begin(); it.valid(); ++it) C.edgeList.pushBack(*it);
+		copyPathsToSubdivision({pathX, pathY, pathW}, C.edgeList);
 		OGDF_ASSERT(whichKuratowski(m_g,m_dfi,C.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 		OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,C.edgeList,output));
 		if (info.minorType & WInfo::MinorType::A) {
 			C.subdivisionType = KuratowskiWrapper::SubdivisionType::AC;
-		} else C.subdivisionType = KuratowskiWrapper::SubdivisionType::C;
+		} else {
+			C.subdivisionType = KuratowskiWrapper::SubdivisionType::C;
+		}
 		C.V = k.V;
 		output.pushBack(C);
 	}
@@ -994,50 +974,55 @@ void ExtractKuratowskis::extractMinorD(
 	// add the path from v to u, this is only possible after computation of pathX and pathY
 	if (m_dfi[endnodeX] < m_dfi[endnodeY]) {
 		addDFSPath(D.edgeList,k.V,endnodeX);
-	} else addDFSPath(D.edgeList,k.V,endnodeY);
+	} else {
+		addDFSPath(D.edgeList,k.V,endnodeY);
+	}
 
 	// add the external face path edges except the part from R to the nearest of
 	// the two nodes stopX and px resp. the part to stopY/py
 	node start;
 	if (info.pxAboveStopX) {
-		start = info.highestXYPath->front()->theNode();
-	} else start = k.stopX;
+		start = (*info.highestXYPath)[0]->theNode();
+	} else {
+		start = k.stopX;
+	}
 	node end;
 	if (info.pyAboveStopY) {
-		end = info.highestXYPath->back()->theNode();
-	} else end = k.stopY;
-	SListConstIterator<adjEntry> itE;
+		end = info.highestXYPath->top()->theNode();
+	} else {
+		end = k.stopY;
+	}
 	bool between = false;
-	for (itE=k.externalFacePath.begin(); itE.valid(); ++itE) {
-		node temp = (*itE)->theNode();
-		if (between) D.edgeList.pushBack((*itE)->theEdge());
+	for (auto adj : k.externalFacePath) {
+		node temp = adj->theNode();
+		if (between) D.edgeList.pushBack(adj->theEdge());
 		if (temp == start) {
 			between = true;
-		} else if (temp == end) between = false;
+		} else if (temp == end) {
+			between = false;
+		}
 	}
 
 	// add highestFacePath of wNode
 	OGDF_ASSERT(info.highestXYPath->size() >= 2);
-	for (itE=info.highestXYPath->begin().succ(); itE.valid(); ++itE) {
+	for (auto itE = info.highestXYPath->begin() + 1; itE != info.highestXYPath->end(); ++itE) {
 		D.edgeList.pushBack((*itE)->theEdge());
 	}
 
 	// add path from first zNode to R
 	OGDF_ASSERT(!info.zPath->empty());
-	for (itE=info.zPath->begin().succ(); itE.valid(); ++itE) {
+	for (auto itE = info.zPath->begin() + 1; itE != info.zPath->end(); ++itE) {
 		D.edgeList.pushBack((*itE)->theEdge());
 	}
 
-	// copy other paths to subdivision
-	SListConstIterator<edge> it;
-	for (it = pathX.begin(); it.valid(); ++it) D.edgeList.pushBack(*it);
-	for (it = pathY.begin(); it.valid(); ++it) D.edgeList.pushBack(*it);
-	for (it = pathW.begin(); it.valid(); ++it) D.edgeList.pushBack(*it);
+	copyPathsToSubdivision({pathX, pathY, pathW}, D.edgeList);
 	OGDF_ASSERT(whichKuratowski(m_g,m_dfi,D.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 	OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,D.edgeList,output));
-		if (info.minorType & WInfo::MinorType::A) {
-			D.subdivisionType = KuratowskiWrapper::SubdivisionType::AD;
-		} else D.subdivisionType = KuratowskiWrapper::SubdivisionType::D;
+	if (info.minorType & WInfo::MinorType::A) {
+		D.subdivisionType = KuratowskiWrapper::SubdivisionType::AD;
+	} else {
+		D.subdivisionType = KuratowskiWrapper::SubdivisionType::D;
+	}
 	D.V = k.V;
 	output.pushBack(D);
 }
@@ -1069,33 +1054,35 @@ void ExtractKuratowskis::extractMinorE1(
 
 	OGDF_ASSERT(before == -1 || before == 1);
 	KuratowskiWrapper E1;
-	SListConstIterator<edge> itE;
 
 	// add highestFacePath of wNode
-	SListConstIterator<adjEntry> it;
-	for (it=info.highestXYPath->begin().succ(); it.valid(); ++it)
+	for (auto it = info.highestXYPath->begin() + 1; it != info.highestXYPath->end(); ++it) {
 		E1.edgeList.pushBack((*it)->theEdge());
+	}
 
 	if (before == -1) {
 		// z is before w on external face path
 
-		// add pathY
-		for (itE = pathY.begin(); itE.valid(); ++itE) E1.edgeList.pushBack(*itE);
+		copyPathsToSubdivision({pathY}, E1.edgeList);
 
 		// add the path from v to u, this is only possible after computation of
 		// pathX and pathY
 		if (m_dfi[endnodeZ] < m_dfi[endnodeY]) {
 			addDFSPath(E1.edgeList,k.V,endnodeZ);
-		} else addDFSPath(E1.edgeList,k.V,endnodeY);
+		} else {
+			addDFSPath(E1.edgeList,k.V,endnodeY);
+		}
 
 		// add the external face path edges except the part from stopY/py to R
 		node stop;
 		if (info.pyAboveStopY) {
 			stop = py;
-		} else stop = k.stopY;
-		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			E1.edgeList.pushBack((*it)->theEdge());
-			if ((*it)->theNode() == stop) break;
+		} else {
+			stop = k.stopY;
+		}
+		for (auto adj : k.externalFacePath) {
+			E1.edgeList.pushBack(adj->theEdge());
+			if (adj->theNode() == stop) break;
 		}
 	} else {
 		// z is after w on external face path
@@ -1104,37 +1091,42 @@ void ExtractKuratowskis::extractMinorE1(
 		// involved because of removing pathY
 		if (k.RReal != k.V) addDFSPath(E1.edgeList,k.RReal,k.V);
 
-		// add pathX
-		for (itE = pathX.begin(); itE.valid(); ++itE) E1.edgeList.pushBack(*itE);
+		copyPathsToSubdivision({pathX}, E1.edgeList);
 
 		// add the path from v to u, this is only possible after computation of
 		// pathX and pathY
 		if (m_dfi[endnodeZ] < m_dfi[endnodeX]) {
 			addDFSPath(E1.edgeList,k.V,endnodeZ);
-		} else addDFSPath(E1.edgeList,k.V,endnodeX);
+		} else {
+			addDFSPath(E1.edgeList,k.V,endnodeX);
+		}
 
 		// add the external face path edges except the part from stopX/px to R
 		node start;
 		if (info.pxAboveStopX) {
 			start = px;
-		} else start = k.stopX;
+		} else {
+			start = k.stopX;
+		}
 		bool after = false;
-		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
+		for (auto adj : k.externalFacePath) {
 			if (after) {
-				E1.edgeList.pushBack((*it)->theEdge());
-			} else if ((*it)->theNode() == start) after = true;
+				E1.edgeList.pushBack(adj->theEdge());
+			} else if (adj->theNode() == start) {
+				after = true;
+			}
 		}
 	}
 
-	// add pathW and pathZ
-	for (itE = pathW.begin(); itE.valid(); ++itE) E1.edgeList.pushBack(*itE);
-	for (itE = pathZ.begin(); itE.valid(); ++itE) E1.edgeList.pushBack(*itE);
+	copyPathsToSubdivision({pathW, pathZ}, E1.edgeList);
 	// push this subdivision to kuratowskilist
 	OGDF_ASSERT(whichKuratowski(m_g,m_dfi,E1.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 	OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,E1.edgeList,output));
 	if (info.minorType & WInfo::MinorType::A) {
 		E1.subdivisionType = KuratowskiWrapper::SubdivisionType::AE1;
-	} else E1.subdivisionType = KuratowskiWrapper::SubdivisionType::E1;
+	} else {
+		E1.subdivisionType = KuratowskiWrapper::SubdivisionType::E1;
+	}
 	E1.V = k.V;
 	output.pushBack(E1);
 }
@@ -1172,24 +1164,24 @@ void ExtractKuratowskis::extractMinorE2(
 	// add the path from v to u
 	if (m_dfi[endnodeX] < m_dfi[endnodeY]) {
 		addDFSPath(E2.edgeList,k.V,endnodeX);
-	} else addDFSPath(E2.edgeList,k.V,endnodeY);
+	} else {
+		addDFSPath(E2.edgeList,k.V,endnodeY);
+	}
 
 	// add the external face path edges
-	SListConstIterator<adjEntry> it;
-	for (it=k.externalFacePath.begin(); it.valid(); ++it)
-		E2.edgeList.pushBack((*it)->theEdge());
+	for (auto adj : k.externalFacePath) {
+		E2.edgeList.pushBack(adj->theEdge());
+	}
 
-	// add pathX, pathY and pathZ
-	SListConstIterator<edge> itE;
-	for (itE = pathX.begin(); itE.valid(); ++itE) E2.edgeList.pushBack(*itE);
-	for (itE = pathY.begin(); itE.valid(); ++itE) E2.edgeList.pushBack(*itE);
-	for (itE = pathZ.begin(); itE.valid(); ++itE) E2.edgeList.pushBack(*itE);
+	copyPathsToSubdivision({pathX, pathY, pathZ}, E2.edgeList);
 	// push this subdivision to kuratowskilist
 	OGDF_ASSERT(whichKuratowski(m_g,m_dfi,E2.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 	OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,E2.edgeList,output));
 	if (info.minorType & WInfo::MinorType::A) {
 		E2.subdivisionType = KuratowskiWrapper::SubdivisionType::AE2;
-	} else E2.subdivisionType = KuratowskiWrapper::SubdivisionType::E2;
+	} else {
+		E2.subdivisionType = KuratowskiWrapper::SubdivisionType::E2;
+	}
 	E2.V = k.V;
 	output.pushBack(E2);
 }
@@ -1220,14 +1212,12 @@ void ExtractKuratowskis::extractMinorE3(
 	KuratowskiWrapper E3;
 	OGDF_ASSERT(endnodeX != endnodeY);
 
-	// add pathZ
-	SListConstIterator<edge> itE;
-	for (itE = pathZ.begin(); itE.valid(); ++itE) E3.edgeList.pushBack(*itE);
+	copyPathsToSubdivision({pathZ}, E3.edgeList);
 
 	// add highestFacePath px <-> py
-	SListConstIterator<adjEntry> it;
-	for (it=info.highestXYPath->begin().succ(); it.valid(); ++it)
+	for (auto it = info.highestXYPath->begin() + 1; it != info.highestXYPath->end(); ++it) {
 		E3.edgeList.pushBack((*it)->theEdge());
+	}
 
 	// check, if endnodeX or endnodeY is descendant
 	if (m_dfi[endnodeX] < m_dfi[endnodeY]) {
@@ -1236,26 +1226,38 @@ void ExtractKuratowskis::extractMinorE3(
 		// add the path from v to u
 		if (m_dfi[endnodeX] < m_dfi[endnodeZ]) {
 			addDFSPath(E3.edgeList,k.V,endnodeX);
-		} else addDFSPath(E3.edgeList,k.V,endnodeZ);
+		} else {
+			addDFSPath(E3.edgeList,k.V,endnodeZ);
+		}
 
 		// add the external face path edges except max(px,stopX)<->min(z,w) and v<->nearest(py,stopY)
 		node start1,end1,start2;
 		if (info.pxAboveStopX) {
 			start1 = k.stopX;
-		} else start1 = px;
+		} else {
+			start1 = px;
+		}
 		if (before<=0) {
 			end1 = z;
-		} else end1 = info.w;
+		} else {
+			end1 = info.w;
+		}
 		if (info.pyAboveStopY) {
 			start2 = py;
-		} else start2 = k.stopY;
+		} else {
+			start2 = k.stopY;
+		}
 		bool between = false;
-		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			node temp = (*it)->theNode();
-			if (!between) E3.edgeList.pushBack((*it)->theEdge());
-			if (temp == start1) between = true;
-				else if (temp == start2) break;
-				else if (temp == end1) between = false;
+		for (auto adj : k.externalFacePath) {
+			node temp = adj->theNode();
+			if (!between) E3.edgeList.pushBack(adj->theEdge());
+			if (temp == start1) {
+				between = true;
+			} else if (temp == start2) {
+				break;
+			} else if (temp == end1) {
+				between = false;
+			}
 		}
 	} else {
 		OGDF_ASSERT(m_dfi[endnodeZ] < m_dfi[endnodeX]);
@@ -1263,39 +1265,50 @@ void ExtractKuratowskis::extractMinorE3(
 		// add the path from v to u
 		if (m_dfi[endnodeY] < m_dfi[endnodeZ]) {
 			addDFSPath(E3.edgeList,k.V,endnodeY);
-		} else addDFSPath(E3.edgeList,k.V,endnodeZ);
+		} else {
+			addDFSPath(E3.edgeList,k.V,endnodeZ);
+		}
 
 		// add the external face path edges except v<->min(px,stopX) and max(w,z)<->nearest(py,stopY)
 		node end1,start2,end2;
 		if (info.pxAboveStopX) {
 			end1 = px;
-		} else end1 = k.stopX;
+		} else {
+			end1 = k.stopX;
+		}
 		if (before>0) {
 			start2 = z;
-		} else start2 = info.w;
+		} else {
+			start2 = info.w;
+		}
 		if (info.pyAboveStopY) {
 			end2 = k.stopY;
-		} else end2 = py;
+		} else {
+			end2 = py;
+		}
 		bool between = true;
-		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			node temp = (*it)->theNode();
-			if (!between) E3.edgeList.pushBack((*it)->theEdge());
-			if (temp == end1) between = false;
-				else if (temp == start2) between = true;
-				else if (temp == end2) between = false;
+		for (auto adj : k.externalFacePath) {
+			node temp = adj->theNode();
+			if (!between) E3.edgeList.pushBack(adj->theEdge());
+			if (temp == end1) {
+				between = false;
+			} else if (temp == start2) {
+				between = true;
+			} else if (temp == end2) {
+				between = false;
+			}
 		}
 	}
 
-	// add pathX, pathY and pathW
-	for (itE = pathX.begin(); itE.valid(); ++itE) E3.edgeList.pushBack(*itE);
-	for (itE = pathY.begin(); itE.valid(); ++itE) E3.edgeList.pushBack(*itE);
-	for (itE = pathW.begin(); itE.valid(); ++itE) E3.edgeList.pushBack(*itE);
+	copyPathsToSubdivision({pathX, pathY, pathW}, E3.edgeList);
 	// push this subdivision to kuratowskilist
 	OGDF_ASSERT(whichKuratowski(m_g,m_dfi,E3.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 	OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,E3.edgeList,output));
 	if (info.minorType & WInfo::MinorType::A) {
 		E3.subdivisionType = KuratowskiWrapper::SubdivisionType::AE3;
-	} else E3.subdivisionType = KuratowskiWrapper::SubdivisionType::E3;
+	} else {
+		E3.subdivisionType = KuratowskiWrapper::SubdivisionType::E3;
+	}
 	E3.V = k.V;
 	output.pushBack(E3);
 }
@@ -1328,14 +1341,12 @@ void ExtractKuratowskis::extractMinorE4(
 	OGDF_ASSERT((px != k.stopX && !info.pxAboveStopX) ||
 				(py != k.stopY && !info.pyAboveStopY));
 
-	// add pathZ
-	SListConstIterator<edge> itE;
-	for (itE = pathZ.begin(); itE.valid(); ++itE) tempE4.pushBack(*itE);
+	copyPathsToSubdivision({pathZ}, tempE4);
 
 	// add highestFacePath px <-> py
-	SListConstIterator<adjEntry> it;
-	for (it = info.highestXYPath->begin().succ(); it.valid(); ++it)
+	for (auto it = info.highestXYPath->begin() + 1; it != info.highestXYPath->end(); ++it) {
 		tempE4.pushBack((*it)->theEdge());
+	}
 
 	// compute dfi-minimum and maximum of all three paths to node Ancestor u
 	// add the dfs-path from minimum to maximum
@@ -1347,8 +1358,11 @@ void ExtractKuratowskis::extractMinorE4(
 		min = endnodeY;
 		max = endnodeX;
 	}
-	if (m_dfi[endnodeZ] < m_dfi[min]) min = endnodeZ;
-		else if (m_dfi[endnodeZ] > m_dfi[max]) max = endnodeZ;
+	if (m_dfi[endnodeZ] < m_dfi[min]) {
+		min = endnodeZ;
+	} else if (m_dfi[endnodeZ] > m_dfi[max]) {
+		max = endnodeZ;
+	}
 	addDFSPath(tempE4,max,min);
 
 	if (px != k.stopX && !info.pxAboveStopX) {
@@ -1358,28 +1372,34 @@ void ExtractKuratowskis::extractMinorE4(
 		node start,end;
 		if (before<=0) {
 			start = info.w;
-		} else start = z;
+		} else {
+			start = z;
+		}
 		if (info.pyAboveStopY) {
 			end = k.stopY;
-		} else end = py;
+		} else {
+			end = py;
+		}
 		bool between = false;
-		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			node temp = (*it)->theNode();
-			if (!between) E4.edgeList.pushBack((*it)->theEdge());
-			if (temp == start) between = true;
-				else if (temp == end) between = false;
+		for (auto adj : k.externalFacePath) {
+			node temp = adj->theNode();
+			if (!between) E4.edgeList.pushBack(adj->theEdge());
+			if (temp == start) {
+				between = true;
+			} else if (temp == end) {
+				between = false;
+			}
 		}
 
-		// add pathX, pathY and pathW
-		for (itE = pathX.begin(); itE.valid(); ++itE) E4.edgeList.pushBack(*itE);
-		for (itE = pathY.begin(); itE.valid(); ++itE) E4.edgeList.pushBack(*itE);
-		for (itE = pathW.begin(); itE.valid(); ++itE) E4.edgeList.pushBack(*itE);
+		copyPathsToSubdivision({pathX, pathY, pathW}, E4.edgeList);
 		// push this subdivision to kuratowski-list
 		OGDF_ASSERT(whichKuratowski(m_g,m_dfi,E4.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 		OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,E4.edgeList,output));
 		if (info.minorType & WInfo::MinorType::A) {
 			E4.subdivisionType = KuratowskiWrapper::SubdivisionType::AE4;
-		} else E4.subdivisionType = KuratowskiWrapper::SubdivisionType::E4;
+		} else {
+			E4.subdivisionType = KuratowskiWrapper::SubdivisionType::E4;
+		}
 		E4.V = k.V;
 		output.pushBack(E4);
 	}
@@ -1396,29 +1416,35 @@ void ExtractKuratowskis::extractMinorE4(
 		node start,end;
 		if (info.pxAboveStopX) {
 			start = k.stopX;
-		} else start = px;
+		} else {
+			start = px;
+		}
 		if (before <= 0) {
 			end = z;
-		} else end = info.w;
-
-		bool between = false;
-		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			node temp = (*it)->theNode();
-			if (!between) E4.edgeList.pushBack((*it)->theEdge());
-			if (temp == start) between = true;
-				else if (temp == end) between = false;
+		} else {
+			end = info.w;
 		}
 
-		// add pathX, pathY and pathW
-		for (itE = pathX.begin(); itE.valid(); ++itE) E4.edgeList.pushBack(*itE);
-		for (itE = pathY.begin(); itE.valid(); ++itE) E4.edgeList.pushBack(*itE);
-		for (itE = pathW.begin(); itE.valid(); ++itE) E4.edgeList.pushBack(*itE);
+		bool between = false;
+		for (auto adj : k.externalFacePath) {
+			node temp = adj->theNode();
+			if (!between) E4.edgeList.pushBack(adj->theEdge());
+			if (temp == start) {
+				between = true;
+			} else if (temp == end) {
+				between = false;
+			}
+		}
+
+		copyPathsToSubdivision({pathX, pathY, pathW}, E4.edgeList);
 		// push this subdivision to kuratowski-list
 		OGDF_ASSERT(whichKuratowski(m_g,m_dfi,E4.edgeList) == ExtractKuratowskis::KuratowskiType::K33);
 		OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,E4.edgeList,output));
 		if (info.minorType & WInfo::MinorType::A) {
 			E4.subdivisionType = KuratowskiWrapper::SubdivisionType::AE4;
-		} else E4.subdivisionType = KuratowskiWrapper::SubdivisionType::E4;
+		} else {
+			E4.subdivisionType = KuratowskiWrapper::SubdivisionType::E4;
+		}
 		E4.V = k.V;
 		output.pushBack(E4);
 	}
@@ -1470,24 +1496,18 @@ void ExtractKuratowskis::extractMinorE5(
 	}
 	addDFSPath(E5.edgeList,k.V,min);
 
-	// add pathZ
-	SListConstIterator<edge> itE;
-	for (itE = pathZ.begin(); itE.valid(); ++itE) E5.edgeList.pushBack(*itE);
+	copyPathsToSubdivision({pathZ}, E5.edgeList);
 
 	// add highestFacePath px <-> py
-	SListConstIterator<adjEntry> it;
-	for (it=info.highestXYPath->begin().succ(); it.valid(); ++it)
+	for (auto it = info.highestXYPath->begin() + 1; it != info.highestXYPath->end(); ++it)
 		E5.edgeList.pushBack((*it)->theEdge());
 
 	// add the external face path edges
-	for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-		E5.edgeList.pushBack((*it)->theEdge());
+	for (auto adj : k.externalFacePath) {
+		E5.edgeList.pushBack(adj->theEdge());
 	}
 
-	// add pathX, pathY and pathW
-	for (itE = pathX.begin(); itE.valid(); ++itE) E5.edgeList.pushBack(*itE);
-	for (itE = pathY.begin(); itE.valid(); ++itE) E5.edgeList.pushBack(*itE);
-	for (itE = pathW.begin(); itE.valid(); ++itE) E5.edgeList.pushBack(*itE);
+	copyPathsToSubdivision({pathX, pathY, pathW}, E5.edgeList);
 	// push this subdivision to kuratowski-list
 	OGDF_ASSERT(whichKuratowski(m_g,m_dfi,E5.edgeList) == ExtractKuratowskis::KuratowskiType::K5);
 	OGDF_ASSERT(!m_avoidE2Minors || isANewKuratowski(m_g,E5.edgeList,output));
@@ -1517,20 +1537,16 @@ void ExtractKuratowskis::extractMinorE(
 	OGDF_ASSERT(info.externEEnd.valid());
 
 	int before = -1; // -1= before, 0=equal, 1=after
-	SListConstIterator<edge> itW;
-	SListConstIterator<ExternE> it;
-	node px = info.highestXYPath->front()->theNode();
-	node py = info.highestXYPath->back()->theNode();
+	node px = (*info.highestXYPath)[0]->theNode();
+	node py = info.highestXYPath->top()->theNode();
 
-	adjEntry temp;
 	SListPure<edge> pathZ;
-	node endnodeZ;
 	SListConstIterator<node> itZEndnode;
 	SListConstIterator<int> itZStartnode;
 	SListConstIterator<SListPure<edge> > itEPath;
 
 	// consider only the nodes between px and py
-	for (it = info.externEStart; it.valid(); ++it) {
+	for (SListConstIterator<ExternE> it = info.externEStart; it.valid(); ++it) {
 		const ExternE& externE(*it);
 		node z = externE.theNode;
 
@@ -1542,15 +1558,15 @@ void ExtractKuratowskis::extractMinorE(
 			itZStartnode = externE.startnodes.begin();
 			itEPath = externE.externalPaths.begin();
 			for (itZEndnode = externE.endnodes.begin(); itZEndnode.valid();
-											++itZEndnode,++itZStartnode,++itEPath) {
-				endnodeZ = *itZEndnode;
+			     ++itZEndnode, ++itZStartnode, ++itEPath) {
+				node endnodeZ = *itZEndnode;
 				SListPure<edge>& externalPath(const_cast<SListPure<edge>& >(*itEPath));
 
 				if (!externalPath.empty()) {
 					// get preprocessed path
 					pathZ = externalPath;
 				} else {
-					temp = adjToLowestNodeBelow(endnodeZ,*itZStartnode);
+					adjEntry temp = adjToLowestNodeBelow(endnodeZ,*itZStartnode);
 					pathZ.clear();
 					pathZ.pushFront(temp->theEdge());
 					addDFSPathReverse(pathZ,temp->theNode(),z);
@@ -1599,9 +1615,9 @@ void ExtractKuratowskis::extractMinorE(
 			for (itZEndnode = externE.endnodes.begin();
 			     itZEndnode.valid();
 			     ++itZEndnode, ++itZStartnode) {
-				endnodeZ = *itZEndnode;
+				node endnodeZ = *itZEndnode;
 
-				temp = adjToLowestNodeBelow(endnodeZ,*itZStartnode);
+				adjEntry temp = adjToLowestNodeBelow(endnodeZ,*itZStartnode);
 				pathZ.clear();
 				pathZ.pushFront(temp->theEdge());
 				addDFSPathReverse(pathZ,temp->theNode(),z);
@@ -1662,22 +1678,20 @@ void ExtractKuratowskis::extractMinorEBundles(
 	SListPure<edge> pathZ;
 	node endnodeZ;
 	int before = -1; // -1= before, 0=equal to wNode, 1=after
-	SListConstIterator<edge> itW;
-	SListConstIterator<ExternE> it;
-	node px = info.highestXYPath->front()->theNode();
-	node py = info.highestXYPath->back()->theNode();
+	node px = (*info.highestXYPath)[0]->theNode();
+	node py = info.highestXYPath->top()->theNode();
 	DynamicBacktrack backtrackZ(m_g,m_dfi,flags);
 
 	// mark all nodes of the single pathW in flags, so that pathW and
 	// the externalPath don't interfere later
-	for (itW = pathW.begin(); itW.valid(); ++itW) {
-		flags[*itW] |= DynamicBacktrack::KuratowskiFlag::singlePath;
-		nodeflags[(*itW)->source()] = nodemarker;
-		nodeflags[(*itW)->target()] = nodemarker;
+	for (edge e : pathW) {
+		flags[e] |= DynamicBacktrack::KuratowskiFlag::singlePath;
+		nodeflags[e->source()] = nodemarker;
+		nodeflags[e->target()] = nodemarker;
 	}
 
 	// consider only the nodes between px and py
-	for (it = info.externEStart; it.valid(); ++it) {
+	for (auto it = info.externEStart; it.valid(); ++it) {
 		node z = (*it).theNode;
 
 		if (z == info.w) {
@@ -1768,8 +1782,8 @@ void ExtractKuratowskis::extractMinorEBundles(
 	}
 
 	// delete marked single pathW
-	for (itW = pathW.begin(); itW.valid(); ++itW) {
-		flags[*itW] &= ~DynamicBacktrack::KuratowskiFlag::singlePath;
+	for (edge e : pathW) {
+		flags[e] &= ~DynamicBacktrack::KuratowskiFlag::singlePath;
 	}
 }
 
@@ -1778,38 +1792,22 @@ void ExtractKuratowskis::extract(
 				const SListPure<KuratowskiStructure>& allKuratowskis,
 				SList<KuratowskiWrapper>& output)
 {
-	SListConstIterator<KuratowskiStructure> itAll;
-	SListConstIterator<WInfo> itInfo;
-	SListConstIterator<edge> itS;
-	SListConstIterator<SListPure<edge> > itL;
-
 	SListPure<edge> pathX,pathY;
-	node endnodeX,endnodeY;
-	adjEntry temp;
-
-	SListConstIterator<node> itXEndnode;
-	SListConstIterator<node> itYEndnode;
-	SListConstIterator<int> itXStartnode;
-	SListConstIterator<int> itYStartnode;
 
 	// consider all different kuratowski structures
-	for (itAll=allKuratowskis.begin(); itAll.valid(); ++itAll) {
-		const KuratowskiStructure& k(*itAll);
-
+	for (const KuratowskiStructure& k : allKuratowskis) {
 		// compute all possible external paths of stopX and stopY (pathX,pathY)
 		bool firstXPath = true;
-		itXStartnode = k.stopXStartnodes.begin();
-		for (itXEndnode = k.stopXEndnodes.begin(); itXEndnode.valid(); ++itXEndnode) {
-			endnodeX = *itXEndnode;
+		auto itXStartnode = k.stopXStartnodes.begin();
+		for (node endnodeX : k.stopXEndnodes) {
 			pathX.clear();
-			temp = adjToLowestNodeBelow(endnodeX,*(itXStartnode++));
+			adjEntry temp = adjToLowestNodeBelow(endnodeX,*(itXStartnode++));
 			pathX.pushBack(temp->theEdge());
 			addDFSPath(pathX,temp->theNode(),k.stopX);
 
 			bool firstYPath = true;
-			itYStartnode = k.stopYStartnodes.begin();
-			for (itYEndnode = k.stopYEndnodes.begin(); itYEndnode.valid(); ++itYEndnode) {
-				endnodeY = *itYEndnode;
+			auto itYStartnode = k.stopYStartnodes.begin();
+			for (node endnodeY : k.stopYEndnodes) {
 				pathY.clear();
 				temp = adjToLowestNodeBelow(endnodeY,*(itYStartnode++));
 				pathY.pushBack(temp->theEdge());
@@ -1820,14 +1818,11 @@ void ExtractKuratowskis::extract(
 				if (k.RReal != k.V) addDFSPath(pathY,k.RReal,k.V);
 
 				// consider all possible wNodes
-				SListPure<adjEntry>* oldHighestXYPath = nullptr;
-				for (itInfo = k.wNodes.begin(); itInfo.valid(); ++itInfo) {
-					const WInfo& info(*itInfo);
-
+				ArrayBuffer<adjEntry>* oldHighestXYPath = nullptr;
+				for (const WInfo &info : k.wNodes) {
 					// compute all possible internal paths of this wNode
 					bool firstWPath = true; // avoid multiple identical subdivisions in E2
-					for (itL = info.pertinentPaths.begin(); itL.valid(); ++itL) {
-						const SListPure<edge>& pathW(*itL);
+					for (const auto &pathW : info.pertinentPaths) {
 						OGDF_ASSERT(!pathX.empty());
 						OGDF_ASSERT(!pathY.empty());
 						OGDF_ASSERT(!pathW.empty());
@@ -1883,10 +1878,6 @@ void ExtractKuratowskis::extractBundles(
 				const SListPure<KuratowskiStructure>& allKuratowskis,
 				SList<KuratowskiWrapper>& output)
 {
-	SListConstIterator<KuratowskiStructure> itAll;
-	SListConstIterator<WInfo> itInfo;
-	SListConstIterator<edge> itS;
-
 	SListPure<edge> pathX,pathY,pathW;
 	node endnodeX,endnodeY;
 
@@ -1896,14 +1887,14 @@ void ExtractKuratowskis::extractBundles(
 	DynamicBacktrack backtrackW(m_g,m_dfi,flags);
 
 	// consider all different kuratowski structures
-	for (itAll=allKuratowskis.begin(); itAll.valid(); ++itAll) {
-		const KuratowskiStructure& k(*itAll);
-
+	for (const KuratowskiStructure& k : allKuratowskis) {
 		// create pertinent and external flags
-		for (itS = k.pertinentSubgraph.begin(); itS.valid(); ++itS)
-			flags[*itS] |= DynamicBacktrack::KuratowskiFlag::pertinentPath;
-		for (itS = k.externalSubgraph.begin(); itS.valid(); ++itS)
-			flags[*itS] |= DynamicBacktrack::KuratowskiFlag::externalPath;
+		for (edge s : k.pertinentSubgraph) {
+			flags[s] |= DynamicBacktrack::KuratowskiFlag::pertinentPath;
+		}
+		for (edge s : k.externalSubgraph) {
+			flags[s] |= DynamicBacktrack::KuratowskiFlag::externalPath;
+		}
 
 		// compute all possible external paths of stopX and stopY (pathX,pathY)
 		bool firstXPath = true;
@@ -1920,10 +1911,8 @@ void ExtractKuratowskis::extractBundles(
 				if (k.RReal != k.V) addDFSPath(pathY,k.RReal,k.V);
 
 				// consider all possible wNodes
-				SListPure<adjEntry>* oldHighestXYPath = nullptr;
-				for (itInfo = k.wNodes.begin(); itInfo.valid(); ++itInfo) {
-					const WInfo& info(*itInfo);
-
+				ArrayBuffer<adjEntry>* oldHighestXYPath = nullptr;
+				for (const WInfo& info : k.wNodes) {
 					// compute all possible internal paths of this wNode
 					bool firstWPath = true; // avoid multiple identical subdivisions in E2
 					backtrackW.init(info.w,k.V,false, static_cast<int>(DynamicBacktrack::KuratowskiFlag::pertinentPath),
@@ -1978,10 +1967,12 @@ void ExtractKuratowskis::extractBundles(
 		}
 
 		// delete pertinent and external flags
-		for (itS = k.pertinentSubgraph.begin(); itS.valid(); ++itS)
-			flags[*itS] = 0;
-		for (itS = k.externalSubgraph.begin(); itS.valid(); ++itS)
-			flags[*itS] = 0;
+		for (edge s : k.pertinentSubgraph) {
+			flags[s] = 0;
+		}
+		for (edge s : k.externalSubgraph) {
+			flags[s] = 0;
+		}
 	}
 }
 

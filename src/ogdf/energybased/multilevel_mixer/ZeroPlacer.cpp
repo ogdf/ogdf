@@ -64,4 +64,4 @@ void ZeroPlacer::placeOneNode(MultilevelGraph &MLG)
 	MLG.y(merged, MLG.y(parent) + ((m_randomOffset)?(float)randomDouble(-m_randomRange, m_randomRange):0.f));
 }
 
-} // namespace ogdf
+}

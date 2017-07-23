@@ -46,6 +46,8 @@
 
 // we use these data structures from the stdlib
 using std::map;
+using std::ifstream;
+using std::ofstream;
 using std::istringstream;
 
 namespace ogdf {
@@ -55,8 +57,7 @@ int  GraphIO::s_indentWidth = 2;
 Logger GraphIO::logger;
 
 //! Supported formats for automated detection
-const int NUMBER_OF_READERS = 11;
-const GraphIO::ReaderFunc readers[NUMBER_OF_READERS] = {
+const std::vector<GraphIO::ReaderFunc> readers = {
 	GraphIO::readDOT,
 	GraphIO::readGML,
 	GraphIO::readTLP,
@@ -67,10 +68,11 @@ const GraphIO::ReaderFunc readers[NUMBER_OF_READERS] = {
 	GraphIO::readGraphML,
 	GraphIO::readGEXF,
 	GraphIO::readOGML,
-	GraphIO::readSTP
+	GraphIO::readSTP,
+	GraphIO::readGraph6WithForcedHeader
 };
 
-ostream &GraphIO::indent(ostream &os, int depth)
+std::ostream &GraphIO::indent(std::ostream &os, int depth)
 {
 	int n = s_indentWidth * depth;
 	for( ; n > 0; --n)
@@ -79,7 +81,7 @@ ostream &GraphIO::indent(ostream &os, int depth)
 	return os;
 }
 
-bool GraphIO::read(Graph &G, istream &is)
+bool GraphIO::read(Graph &G, std::istream &is)
 {
 	for(auto &reader : readers) {
 		if(reader(G, is)) {
@@ -87,7 +89,7 @@ bool GraphIO::read(Graph &G, istream &is)
 		} else {
 			G.clear();
 			is.clear();
-			is.seekg(0, ios::beg);
+			is.seekg(0, std::ios::beg);
 		}
 	}
 
@@ -100,7 +102,7 @@ bool GraphIO::readGML(Graph &G, const string &filename)
 	return readGML(G, is);
 }
 
-bool GraphIO::readGML(Graph &G, istream &is)
+bool GraphIO::readGML(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 	GmlParser parser(is);
@@ -119,7 +121,7 @@ bool GraphIO::readOGML(Graph &G, const string &filename)
 	return readOGML(G, is);
 }
 
-bool GraphIO::readOGML(Graph &G, istream &is)
+bool GraphIO::readOGML(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 	OgmlParser parser;
@@ -138,7 +140,7 @@ bool GraphIO::readRome(Graph &G, const string &filename)
 	return readRome(G, is);
 }
 
-bool GraphIO::readRome(Graph &G, istream &is)
+bool GraphIO::readRome(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -197,7 +199,7 @@ bool GraphIO::writeRome(const Graph &G, const string &filename)
 	return writeRome(G, os);
 }
 
-bool GraphIO::writeRome(const Graph &G, ostream &os)
+bool GraphIO::writeRome(const Graph &G, std::ostream &os)
 {
 	if(!os.good()) return false;
 
@@ -240,7 +242,7 @@ bool GraphIO::readChaco(Graph &G, const string &filename)
 	return readChaco(G, is);
 }
 
-bool GraphIO::readChaco(Graph &G, istream &is)
+bool GraphIO::readChaco(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -303,7 +305,7 @@ bool GraphIO::writeChaco(const Graph &G, const string &filename)
 	return writeChaco(G, os);
 }
 
-bool GraphIO::writeChaco(const Graph &G, ostream &os)
+bool GraphIO::writeChaco(const Graph &G, std::ostream &os)
 {
 	if(!os.good()) return false;
 
@@ -330,7 +332,7 @@ bool GraphIO::readYGraph(Graph &G, const string &filename)
 	return readYGraph(G, is);
 }
 
-bool GraphIO::readYGraph(Graph &G, istream &is)
+bool GraphIO::readYGraph(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -387,7 +389,7 @@ bool GraphIO::readPMDissGraph(Graph &G, const string &filename)
 	return readPMDissGraph(G, is);
 }
 
-bool GraphIO::readPMDissGraph(Graph &G, istream &is)
+bool GraphIO::readPMDissGraph(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -473,7 +475,7 @@ bool GraphIO::writePMDissGraph(const Graph &G, const string &filename)
 	return writePMDissGraph(G, os);
 }
 
-bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
+bool GraphIO::writePMDissGraph(const Graph &G, std::ostream &os)
 {
 	if(!os.good()) return false;
 
@@ -495,7 +497,7 @@ bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 }
 
 bool
-GraphIO::readGraph6(Graph &G, istream &is)
+GraphIO::readGraph6(Graph &G, std::istream &is, bool forceHeader)
 {
 	if (!is.good()) {
 		return false;
@@ -532,6 +534,14 @@ GraphIO::readGraph6(Graph &G, istream &is)
 		state = State::Triangle;
 	};
 	int remainingBits;
+	if (forceHeader) {
+		string header;
+		header.resize(10);
+		is.read(&header[0], 10);
+		if (header != ">>graph6<<") {
+			return false;
+		}
+	}
 	for (unsigned char readbyte; is >> readbyte;) {
 		int byte = readbyte;
 		switch (state) {
@@ -593,13 +603,18 @@ GraphIO::readGraph6(Graph &G, istream &is)
 	return numberOfNodes == G.numberOfNodes();
 }
 
-bool GraphIO::readGraph6(Graph &G, const string &filename)
+bool GraphIO::readGraph6WithForcedHeader(Graph &G, std::istream &is)
 {
-	ifstream is(filename);
-	return readGraph6(G, is);
+	return readGraph6(G, is, true);
 }
 
-bool GraphIO::writeGraph6(const Graph &G, ostream &os)
+bool GraphIO::readGraph6(Graph &G, const string &filename, bool forceHeader)
+{
+	ifstream is(filename);
+	return readGraph6(G, is, forceHeader);
+}
+
+bool GraphIO::writeGraph6(const Graph &G, std::ostream &os)
 {
 	if (!os.good()) {
 		return false;
@@ -671,7 +686,7 @@ bool GraphIO::readGML(ClusterGraph &C, Graph &G, const string &filename)
 	return readGML(C, G, is);
 }
 
-bool GraphIO::readGML(ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readGML(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -694,7 +709,7 @@ bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const string &filename)
 	return readOGML(C, G, is);
 }
 
-bool GraphIO::readOGML(ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readOGML(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	OgmlParser parser;
 	return parser.read(is, G, C);
@@ -712,7 +727,7 @@ bool GraphIO::readGML(GraphAttributes &A, Graph &G, const string &filename)
 	return readGML(A, G, is);
 }
 
-bool GraphIO::readGML(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readGML(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if (!is.good()) return false;
 	GmlParser parser(is);
@@ -732,7 +747,7 @@ bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const string &filename)
 	return readOGML(A, G, is);
 }
 
-bool GraphIO::readOGML(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readOGML(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 	OgmlParser parser;
@@ -751,7 +766,7 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const string &filename)
 	return readRudy(A, G, is);
 }
 
-bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readRudy(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -799,12 +814,12 @@ bool GraphIO::writeRudy(const GraphAttributes &A, const string &filename)
 	return writeRudy(A, os);
 }
 
-bool GraphIO::writeRudy(const GraphAttributes &A, ostream &os)
+bool GraphIO::writeRudy(const GraphAttributes &A, std::ostream &os)
 {
 	if(!os.good()) return false;
 
 	const Graph &G = A.constGraph();
-	os << G.numberOfNodes() << " " << G.numberOfEdges() << endl;
+	os << G.numberOfNodes() << " " << G.numberOfEdges() << std::endl;
 
 	// assign indices 1, 2, 3, ... to nodes
 	NodeArray<int> index(G);
@@ -829,7 +844,7 @@ bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, cons
 	return readGML(A, C, G, is);
 }
 
-bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -855,7 +870,7 @@ bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, con
 	return readOGML(A, C, G, is);
 }
 
-bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
 	OgmlParser parser;
@@ -868,7 +883,7 @@ bool GraphIO::writeOGML(const ClusterGraphAttributes &A, const string &filename)
 	return writeOGML(A, os);
 }
 
-bool GraphIO::readMatrixMarket(Graph& G, istream &inStream)
+bool GraphIO::readMatrixMarket(Graph& G, std::istream &inStream)
 {
 	// check if the stream is good
 	if (!inStream.good())
@@ -994,7 +1009,7 @@ bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const string &filenam
 	return readChallengeGraph(G, gl, is);
 }
 
-bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, istream &is)
+bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -1075,7 +1090,7 @@ bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, const st
 	return writeChallengeGraph(G, gl, os);
 }
 
-bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, ostream &os)
+bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, std::ostream &os)
 {
 	if(!os.good()) return false;
 
@@ -1108,7 +1123,7 @@ bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string 
 	return readEdgeListSubgraph(G, delEdges, is);
 }
 
-bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, istream &is)
+bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, std::istream &is)
 {
 	if(!is.good()) return false;
 
@@ -1159,7 +1174,7 @@ bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, 
 	return writeEdgeListSubgraph(G, delEdges, os);
 }
 
-bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, ostream &os)
+bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, std::ostream &os)
 {
 	if(!os.good()) return false;
 
@@ -1200,13 +1215,13 @@ bool GraphIO::drawSVG(const ClusterGraphAttributes &A, const string &filename, c
 	return drawSVG(A, os, settings);
 }
 
-bool GraphIO::drawSVG(const GraphAttributes &attr, ostream &os, const SVGSettings &settings)
+bool GraphIO::drawSVG(const GraphAttributes &attr, std::ostream &os, const SVGSettings &settings)
 {
 	SvgPrinter printer(attr, settings);
 	return printer.draw(os);
 }
 
-bool GraphIO::drawSVG(const ClusterGraphAttributes &attr, ostream &os, const SVGSettings &settings)
+bool GraphIO::drawSVG(const ClusterGraphAttributes &attr, std::ostream &os, const SVGSettings &settings)
 {
 	SvgPrinter printer(attr, settings);
 	return printer.draw(os);
@@ -1218,7 +1233,7 @@ bool GraphIO::readGraphML(Graph &G, const string &filename)
 	return readGraphML(G, is);
 }
 
-bool GraphIO::readGraphML(Graph &G, istream &is)
+bool GraphIO::readGraphML(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1239,7 +1254,7 @@ bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const string &filename)
 	return readGraphML(C, G, is);
 }
 
-bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1260,7 +1275,7 @@ bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const string &filename)
 	return readGraphML(A, G, is);
 }
 
-bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1281,7 +1296,7 @@ bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, 
 	return is.is_open() && readGraphML(A, C, G, is);
 }
 
-bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	GraphMLParser parser(is);
 	return parser.read(G, C, A);
@@ -1299,7 +1314,7 @@ bool GraphIO::readDOT(Graph &G, const string &filename)
 	return readDOT(G, is);
 }
 
-bool GraphIO::readDOT(Graph &G, istream &is)
+bool GraphIO::readDOT(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1320,7 +1335,7 @@ bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const string &filename)
 	return readDOT(C, G, is);
 }
 
-bool GraphIO::readDOT(ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readDOT(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1341,7 +1356,7 @@ bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const string &filename)
 	return readDOT(A, G, is);
 }
 
-bool GraphIO::readDOT(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readDOT(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1362,7 +1377,7 @@ bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, cons
 	return readDOT(A, C, G, is);
 }
 
-bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1383,7 +1398,7 @@ bool GraphIO::readGEXF(Graph &G, const string &filename)
 	return readGEXF(G, is);
 }
 
-bool GraphIO::readGEXF(Graph &G, istream &is)
+bool GraphIO::readGEXF(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1404,7 +1419,7 @@ bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const string &filename)
 	return readGEXF(C, G, is);
 }
 
-bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1425,7 +1440,7 @@ bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const string &filename)
 	return readGEXF(A, G, is);
 }
 
-bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1446,7 +1461,7 @@ bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, con
 	return readGEXF(A, C, G, is);
 }
 
-bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1467,7 +1482,7 @@ bool GraphIO::readGDF(Graph &G, const string &filename)
 	return readGDF(G, is);
 }
 
-bool GraphIO::readGDF(Graph &G, istream &is)
+bool GraphIO::readGDF(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1488,7 +1503,7 @@ bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const string &filename)
 	return readGDF(A, G, is);
 }
 
-bool GraphIO::readGDF(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readGDF(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1509,7 +1524,7 @@ bool GraphIO::readTLP(Graph &G, const string &filename)
 	return readTLP(G, is);
 }
 
-bool GraphIO::readTLP(Graph &G, istream &is)
+bool GraphIO::readTLP(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1530,7 +1545,7 @@ bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const string &filename)
 	return readTLP(C, G, is);
 }
 
-bool GraphIO::readTLP(ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readTLP(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1551,7 +1566,7 @@ bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const string &filename)
 	return readTLP(A, G, is);
 }
 
-bool GraphIO::readTLP(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readTLP(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1572,7 +1587,7 @@ bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, cons
 	return readTLP(A, C, G, is);
 }
 
-bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
+bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1593,7 +1608,7 @@ bool GraphIO::readDL(Graph &G, const string &filename)
 	return readDL(G, is);
 }
 
-bool GraphIO::readDL(Graph &G, istream &is)
+bool GraphIO::readDL(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1614,7 +1629,7 @@ bool GraphIO::readDL(GraphAttributes &A, Graph &G, const string &filename)
 	return readDL(A, G, is);
 }
 
-bool GraphIO::readDL(GraphAttributes &A, Graph &G, istream &is)
+bool GraphIO::readDL(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
 		return false;
@@ -1629,4 +1644,4 @@ bool GraphIO::writeDL(const GraphAttributes &A, const string &filename)
 	return writeDL(A, os);
 }
 
-} // end namespace ogdf
+}

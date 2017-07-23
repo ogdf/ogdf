@@ -133,19 +133,19 @@ void LinearQuadtreeExpansion::M2M(uint32_t source, uint32_t receiver)
 	ComplexDouble b(receiv_coeff);
 	b += a;
 	b.store(receiv_coeff);
-	for (uint32_t l=1;l<m_numCoeff;l++)
+	for (uint32_t j = 1; j < m_numCoeff; j++)
 	{
-		b.load(receiv_coeff+(l<<1));
+		b.load(receiv_coeff + (j << 1));
 		ComplexDouble delta_k(1.0,0.0);
-		for (uint32_t k=0;k<l;k++)
+		for (uint32_t k = 0; k < j; k++)
 		{
-			a.load(source_coeff+((l-k)<<1));
-			b += a*delta_k*binCoef.value(l-1, k);
+			a.load(source_coeff + ((j - k) << 1));
+			b += a*delta_k * binCoef.value(j - 1, k);
 			delta_k *= delta;
 		}
 		a.load(source_coeff);
-		b -= a*delta_k*(1/(double)l);
-		b.store(receiv_coeff+(l<<1));
+		b -= a * delta_k * (1/(double)j);
+		b.store(receiv_coeff + (j << 1));
 	}
 }
 
@@ -164,17 +164,17 @@ void LinearQuadtreeExpansion::L2L(uint32_t source, uint32_t receiver)
 	ComplexDouble center_source(center_x_source, center_y_source);
 	ComplexDouble delta(center_source - center_receiver);
 
-	for (uint32_t l=0;l<m_numCoeff;l++)
+	for (uint32_t j = 0; j < m_numCoeff; j++)
 	{
-		ComplexDouble b(receiv_coeff+(l<<1));
+		ComplexDouble b(receiv_coeff + (j << 1));
 		ComplexDouble delta_k(1.0,0.0);
-		for (uint32_t k=l;k<m_numCoeff;k++)
+		for (uint32_t k = j; k < m_numCoeff; k++)
 		{
 			ComplexDouble a(source_coeff+(k<<1));
-			b += a*delta_k*binCoef.value(k, l);
+			b += a * delta_k * binCoef.value(k, j);
 			delta_k *= delta;
 		}
-		b.store(receiv_coeff+(l<<1));
+		b.store(receiv_coeff + (j << 1));
 	}
 }
 
@@ -199,20 +199,20 @@ void LinearQuadtreeExpansion::M2L(uint32_t source, uint32_t receiver)
 	ComplexDouble a0(source_coeff);
 	ComplexDouble b;
 	ComplexDouble sum;
-	for (uint32_t l=1;l<m_numCoeff;l++)
+	for (uint32_t j = 1; j < m_numCoeff; j++)
 	{
-		b.load(receiv_coeff+(l<<1));
-		sum = a0*(-1/(double)l);
+		b.load(receiv_coeff + (j << 1));
+		sum = a0 * (-1 / (double)j);
 		ComplexDouble delta0_k(delta0);
 		for (uint32_t k=1;k<m_numCoeff;k++)
 		{
 			a.load(source_coeff+(k<<1));
-			sum += (a*binCoef.value(l+k-1, k-1)) / delta0_k;
+			sum += (a * binCoef.value(j + k - 1, k - 1)) / delta0_k;
 			delta0_k *= delta0;
 		}
 
 		b += sum/delta1_l;
-		b.store(receiv_coeff+(l<<1));
+		b.store(receiv_coeff + (j << 1));
 		delta1_l *= delta1;
 	}
 

@@ -92,7 +92,7 @@ void GalaxyMultilevelBuilder::labelSystem(node u, node v, int d, float df)
 					m_nodeState[w].edgeLengthFromSun = currDistFromSun;
 				}
 				// finally relabel it
-				m_nodeState[w].edgeLengthFromSun = min(m_nodeState[w].edgeLengthFromSun, currDistFromSun);
+				Math::updateMin(m_nodeState[w].edgeLengthFromSun, currDistFromSun);
 				m_nodeState[w].label = d;
 				labelSystem(u, w, d-1, currDistFromSun /*+(*m_pNodeInfo)[w].radius*/);
 			}
@@ -174,7 +174,7 @@ void GalaxyMultilevelBuilder::createResult(GalaxyMultilevel* pMultiLevelResult)
 		node uSunResult = toResultNode[uSun];
 		(*m_pNodeInfo)[u].parent = uSunResult;
 		(*m_pNodeInfoResult)[uSunResult].mass +=((*m_pNodeInfo)[u].mass);
-		(*m_pNodeInfoResult)[uSunResult].radius = max( (*m_pNodeInfoResult)[uSunResult].radius, m_nodeState[u].edgeLengthFromSun);
+		Math::updateMax((*m_pNodeInfoResult)[uSunResult].radius, m_nodeState[u].edgeLengthFromSun);
 		// or = m_nodeState[u].edgeLengthFromSun;?
 	}
 

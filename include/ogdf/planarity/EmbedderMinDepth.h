@@ -1,5 +1,5 @@
 /** \file
- * \brief Computes an embedding of a graph with minimum depth.
+ * \brief Declares ogdf::EmbedderMinDepth.
  *
  * \author Thorsten Kerkhof
  *
@@ -31,25 +31,22 @@
 
 #pragma once
 
-#include <ogdf/module/EmbedderModule.h>
-#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 #include <ogdf/decomposition/StaticSPQRTree.h>
 
 namespace ogdf {
 
-//! Planar graph embedding with minimum block-nesting depth.
+//! Embedder that minimizes block-nesting depth.
 /**
  * @ingroup ga-planembed
  *
- * See paper "Graph Embedding with Minimum Depth and Maximum External
- * Face" by C. Gutwenger and P. Mutzel (2004) for details.
+ * See paper "Graph Embedding with Minimum Depth and Maximum External Face"
+ * by C. Gutwenger and P. Mutzel (2004) for details.
  */
-class OGDF_EXPORT EmbedderMinDepth : public EmbedderModule
+class OGDF_EXPORT EmbedderMinDepth : public embedder::EmbedderBCTreeBase<false>
 {
 public:
-	//constructor
-	EmbedderMinDepth() { }
-
 	/**
 	 * \brief Computes an embedding of \p G with minimum depth.
 	 *
@@ -113,12 +110,6 @@ private:
 	void embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after);
 
 private:
-	/** BC-tree of the original graph */
-	BCTree* pBCTree;
-
-	/** an adjacency entry on the external face */
-	adjEntry* pAdjExternal;
-
 	/** all blocks */
 	NodeArray<Graph> blockG;
 
@@ -167,4 +158,4 @@ private:
 	NodeArray<StaticSPQRTree*> spqrTrees;
 };
 
-} // end namespace ogdf
+}

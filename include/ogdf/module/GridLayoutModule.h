@@ -312,5 +312,4 @@ protected:
 	using PlanarGridLayoutModule::doCall;
 };
 
-
-} // end namespace ogdf
+}

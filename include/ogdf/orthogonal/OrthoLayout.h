@@ -143,5 +143,4 @@ private:
 	int m_scalingSteps;				//!< number of scaling steps (NOT REALLY USED!)
 };
 
-
-} // end namespace ogdf
+}

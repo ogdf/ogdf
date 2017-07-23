@@ -33,9 +33,12 @@ has also changed.
 ### Global namespace
 
 In former versions of the OGDF some symbols were added to the global namespace.
-This includes but isn't limited to `ifstream`, `ofstream`, `min`, `max`, and `numeric_limits`.
-Thus, you may be required to explicitly use the OGDF namesapce in some places.
+This includes but is not limited to `ifstream`, `ofstream`, `cout`, `ios`, `endl`,
+and `numeric_limits`. Thus, you may be required to explicitly use the `std` namespace.
 
+Also many `std` functions and classes that were also available in the `ogdf` namespace are now
+*only* available in the `std` namespace. For example, string-to-number conversion functions
+like `std::stoul` cannot be called using `ogdf::stoul` any longer.
 
 ### Exceptions
 
@@ -84,7 +87,9 @@ should be replaced by
 for(node v : G.nodes) { ... }
 ```
 
-There must now be a semicolon after usage of the macro `OGDF_ASSERT` and `OGDF_ASSERT_IF`.
+`OGDF_ASSERT_IF` was replaced by `OGDF_HEAVY_ASSERT`. The debug level argument was dropped.
+
+There must now be a semicolon after usage of the macro `OGDF_ASSERT` and `OGDF_HEAVY_ASSERT`.
 
 ## Changed class, function, header names
 
@@ -108,6 +113,12 @@ because it is not internal.
 
 Its internal header files however have moved to
 `include/ogdf/energybased/dtree`.
+
+### MixedForceLayout
+
+The class `MixedForceLayout` was removed.
+Instead of calling this layout algorithm, call the `FastMultipoleEmbedder`
+directly followed by a call to the `SpringEmbedderGridVariant`.
 
 ### TricComp
 
@@ -162,6 +173,11 @@ All edges are restored by `hiddenSet.restore()` or automatically by the `HiddenE
 
 The method `collaps` has been renamed to `collapse`.
 
+### Method to compute the next Power of 2
+
+The static method `nextPower2` was slightly changed and moved to `Math`.
+The computed result is no longer strictly larger than the second parameter.
+`nextPower2(0)` is now `0` instead of `1`.
 
 ## GraphCopy class
 
@@ -170,6 +186,12 @@ have been removed from `GraphCopy`.
 You can instead use the respective `newEdge()` function inherited from `Graph`,
 followed by `GraphCopy::setEdge()`.
 
+## Stack & StackPure & BoundedStack classes
+
+The classes `Stack`, `StackPure` and `BoundedStack` are deleted.
+Use `ArrayBuffer` instead (which provides the functionality of all three
+classes (and more) and outperforms all implementations). Change
+`pop()` in your implementations to `popRet()`.
 
 ## List & ListPure class
 
@@ -197,6 +219,19 @@ All other implementations of the module inherit from `PlanarSubgraphModule<int>`
 `MaximumCPlanarSubgraph` supports advanced calls that also return the edges required to connect the input graph.
 To avoid conflicts with the method defined by `CPlanarSubgraphModule`, `MaximumCPlanarSubgraph::call` was renamed to
 `MaximumCPlanarSubgraph::callAndConnect`.
+
+## LayoutClusterPlanRepModule
+
+The signature of `call()` changed. The last two parameters `List<NodePair>& npEdges` and `List<edge>& newEdges`
+became the single parameter `List<edge>& origEdges` that contains all edges in the original that still need to be inserted.
+The original graph must now contain all edges prior to the call.
+This also means that the input graph is no longer modified (except for embedding it).
+
+## Comparers
+
+`NodeComparer` was removed. Instead of `NodeComparer<T> foo(array, asc)` use `GenericComparer<node, T, asc> foo(array)`.
+`IndexComparer` also was removed. Use `GenericComparer<node, int>([](node v) { return v->index(); });` instead.
+If you need a default constructor you may use `OGDF_DECLARE_COMPARER`.
 
 ## Heaps and Priority Queues
 
@@ -298,9 +333,9 @@ For example, instead of using
 you have to create the streams manually, i.e.,
 
 ```c++
-	ifstream is("circulant.lgr");
+	std::ifstream is("circulant.lgr");
 	GraphIO::readLEDA(G, is);
-	ofstream os("circulant.gml");
+	std::ofstream os("circulant.gml");
 	GraphIO::writeGML(G, os);
 ```
 
@@ -396,19 +431,18 @@ direction of the edge, i.e. indicates if the edge goes from s to t or the other 
 Furthermore the `NonPlanarCore` can now handle weighted edges and therefore is templated with
 the type of the weights.
 
+## MMMExample layouts
+
+Some very simple example layout algorithms (using the `ModularMultilevelMixer`) were removed.
+This includes `MMMExampleFast`, `MMMExampleNice`, and `MMMExampleNoTwist`.
+The respective code can still be found in `doc/examples/layout/multilevelmixer.cpp`.
+
 ## FMMMLayout
 
 The enumerators from `FMMMLayout` are now in a new class `FMMMOptions`.
 Hence, for example,
 `FMMMLayout::apInteger` became `FMMMOptions::AllowedPositions::Integer` and
 `FMMMLayout::gcNonUniformProbLowerMass` became `FMMMLayout::GalaxyChoice::NonUniformProbLowerMass`.
-
-## Optimal Crossing Minimizers
-
-The enumerators `Minimal` and `Few` of `PricingMode`
-in the crossing minimizers are now merged to `Few`.
-Use `Few` also in `OptimalSimultaneousCrossingMinimizer`
-instead of `Minimal` (which was previously unused).
 
 ## DisjointSets
 
@@ -439,10 +473,26 @@ are removed:
  * `compressionOptionNames`
  * `interleavingOptionNames`
 
-## isForest()
+## isForest() and isFreeForest()
 
-The function `isForest()` in `basic/simple_graph_alg.h` formerly returned `true` even when the graph contained multi-edges or self-loops.
-This is no longer the case.
+The function `isForest()` in `basic/simple_graph_alg.h` has been deprecated in favor of `isArborescenceForest()`.
+`isForest()` formerly returned `true` even when the graph contained multi-edges or self-loops.
+This is no longer the case for `isArborescenceForest()`.
+
+Furthermore, `isFreeForest()` has been deprecated in favor of `isAcyclicUndirected()`.
+
+## connectedIsolatedComponents()
+
+The function `connectedIsolatedComponents()` in `basic/simple_graph_alg.h` has been deprecated in favor of `connectedComponents()`.
+`connectedIsolatedComponents(graph, isolatedNodes, component)` can be rewritten as `connectedComponents(graph, component, &isolatedNodes)`.
+
+## makeParallelFreeUndirected()
+
+The overloaded functions of `makeParallelFreeUndirected()` in
+`basic/simple_graph_alg.h` have been deprecated in favor of a single function
+that takes pointers as parameters (their default being `nullptr`).
+`makeParallelFreeUndirected(graph, parEdges, cardPositive, cardNegative)` can be rewritten as
+`makeParallelFreeUndirected(graph, &parEdges, &cardPositive, &cardNegative)`.
 
 ## doDestruction()
 
@@ -457,3 +507,52 @@ The methods `setDirected`, `setStrokeType`, and `setFillPattern` have been remov
 Use the respective getters (`directed`, `strokeType`, and `fillPattern`) instead to obtain a non-const reference to the underlying value.
 
 The method `initAttributes` was renamed to `addAttributes` as it does not disable previously enabled attributes.
+
+## Sets of faces and nodes
+
+Some set classes were removed / renamed.
+
+| Former          | New                                       |
+|-----------------|-------------------------------------------|
+| `FaceSetSimple` | `FaceSet<false>`                          |
+| `FaceSetPure`   | `FaceSet<false>`                          |
+| `FaceSet`       | `FaceSet<>` (defaults to `FaceSet<true>`) |
+| `NodeSetSimple` | `NodeSet<false>`                          |
+| `NodeSetPure`   | `NodeSet<false>`                          |
+| `NodeSet`       | `NodeSet<>` (defaults to `FaceSet<true>`) |
+
+## Math class
+
+`Math` is no longer a class with static methods but a namespace.
+
+## Geometry
+
+The classes `DPoint` and `DVector` are now merged. Note that `DVector::length()` is now `DPoint::norm()`.
+Furthermore, `DVector::operator^` is now `DPoint::determinant`.
+
+The class `DScaler` and the methods `ogdf::DRound` and `DPolyline::convertToInt` were deleted.
+
+The classes `DLine` and `DSegment` were rewritten in such a way that `DLine`
+represents infinite lines and `DSegment` represents finite line segments with
+start and end points. The methods to access the sides of a `DRect` now return
+`DSegment`s instead of `DLine`s, and they were renamed appropriately.
+
+| Former                            | New                             |
+|-----------------------------------|---------------------------------|
+| `DLine::intersectionOfLines()`    | `DLine::intersection()`         |
+| `DSegment::intersectionOfLines()` | `DLine::intersection()`         |
+| `DRect::bottomLine()`             | `DRect::bottom()`               |
+| `DRect::leftLine()`               | `DRect::left()`                 |
+| `DRect::rightLine()`              | `DRect::right()`                |
+| `DRect::topLine()`                | `DRect::top()`                  |
+
+The methods `intersection()`, `verIntersection()` and `horIntersection()` of
+`DLine` and `DSegment` now return an `IntersectionType` instead of a `bool`.
+
+## HyperGraph
+
+The class `HyperGraph` was removed. Use `Hypergraph` instead.
+
+## EFreeList, EList, and EStack
+
+The classes `EFreeList`, `EList` and `EStack` were removed. Use `List` and `Stack` instead.

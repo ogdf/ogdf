@@ -151,7 +151,9 @@ public:
 
 		// establish s-t-planarity
 		ConstCombinatorialEmbedding embedding(*this->m_G);
-		OGDF_ASSERT(embedding.consistencyCheck());
+#ifdef OGDF_DEBUG
+		embedding.consistencyCheck();
+#endif
 		adjEntry secondCommonAdj;
 		m_commonFaceAdj = embedding.findCommonFace(*this->m_s, *this->m_t, secondCommonAdj);
 		OGDF_ASSERT(m_commonFaceAdj != nullptr);
@@ -217,22 +219,20 @@ private:
 	 */
 	bool findUppermostPath(const edge saturatedEdge)
 	{
-		node v, u;
+		node v;
 		adjEntry initialAdj;
 
 		if (saturatedEdge == nullptr) {
 			v = *this->m_s;
-			u = *this->m_t;
 			initialAdj = m_commonFaceAdj;
 		} else {
+			OGDF_ASSERT(!saturatedEdge->isSelfLoop());
+			OGDF_ASSERT(saturatedEdge->target() != *this->m_s);
 			v = saturatedEdge->source();
-			u = saturatedEdge->target();
 			initialAdj = saturatedEdge->adjSource()->cyclicSucc();
 		}
 
-		OGDF_ASSERT(u != v);
 		OGDF_ASSERT(v != *this->m_t);
-		OGDF_ASSERT(u != *this->m_s);
 
 		for(adjEntry adj = initialAdj;
 			m_edgeCounter[v] < v->degree();
@@ -289,7 +289,6 @@ private:
 					dropEdge(e);
 					adj = e->adjSource();
 					v = e->source();
-					u = e->target();
 				}
 			}
 		}

@@ -1,11 +1,6 @@
 /** \file
  * \brief Declares EdgeComparerSimple class.
  *
- * The EdgeComparerSimple compares incident edges of a node
- * based on the position of the last bend point or the position
- * of the adjacent node given by the layout information of the
- * graph.
- *
  * \author Bernd Zey
  *
  * \par License:
@@ -41,21 +36,24 @@
 
 namespace ogdf {
 
-
-
+/**
+ * Compares incident edges of a node based on the position of
+ * the last bend point or the position of the adjacent node
+ * given by the layout information of the graph.
+ */
 class OGDF_EXPORT EdgeComparerSimple : public VComparer<adjEntry>
 {
 public:
-
-	EdgeComparerSimple(const GraphAttributes& AG, const node v) : basis(v), m_AG(&AG) { }
+	EdgeComparerSimple(const GraphAttributes& AG, const node v, bool useBends = true)
+	: m_basis(v), m_AG(&AG), m_useBends(useBends) { }
 
 	int compare(const adjEntry &e1, const adjEntry &e2) const override;
 
 private:
-	node basis;
+	node m_basis;
 	const GraphAttributes *m_AG;
+	bool m_useBends; //!< \c true iff the algorithm should consider the bend-points
 
-};//EdgeComparerSimple
+};
 
-
-}//namespace ogdf
+}

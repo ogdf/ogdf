@@ -353,5 +353,4 @@ void SchnyderLayout::prefixSum(
 	}
 }
 
-
-} //namespace ogdf
+}

@@ -143,4 +143,4 @@ public:
 		double *x) const override;
 };
 
-} //namespace abacus
+}

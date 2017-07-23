@@ -29,13 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/external/Minisat.h>
 #include <resources.h>
-
-using namespace bandit;
-using namespace ogdf;
 
 static void satisfiableTest()
 {
@@ -62,8 +58,8 @@ static void satisfiableTest()
 
 	AssertThat(satisfiable, IsTrue());
 #if 0
-	cout << "#vars = " << F.getVariableCount() << endl;
-	cout << "#clauses = " << F.getClauseCount() << endl;
+	std::cout << "#vars = " << F.getVariableCount() << std::endl;
+	std::cout << "#clauses = " << F.getClauseCount() << std::endl;
 	if (val) {
 		model.printModel();
 	}

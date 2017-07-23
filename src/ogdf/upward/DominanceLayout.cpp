@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/upward/DominanceLayout.h>
+#include <ogdf/basic/simple_graph_alg.h>
 
 
 namespace ogdf {
@@ -39,6 +40,7 @@ void DominanceLayout::call(GraphAttributes &GA)
 	if (GA.constGraph().numberOfNodes() <= 1)
 		return;
 
+	OGDF_ASSERT(isSimpleUndirected(GA.constGraph()));
 	//call upward planarizer
 	UpwardPlanRep UPR;
 	UPR.createEmpty(GA.constGraph());
@@ -283,5 +285,4 @@ void DominanceLayout::findTransitiveEdges(const UpwardPlanRep &UPR, List<edge> &
 	}
 }
 
-
-}//namespace
+}

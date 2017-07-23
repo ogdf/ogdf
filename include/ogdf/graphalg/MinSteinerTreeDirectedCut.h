@@ -76,7 +76,7 @@ protected:
 #ifdef OGDF_STP_EXACT_LOGGING
 	Logger::Level m_outputLevel;
 #endif
-	std::unique_ptr< MaxFlowModule<double> > m_maxFlowModuleOption;
+	std::unique_ptr<MaxFlowModule<double>> m_maxFlowModuleOption;
 	bool m_addDegreeConstraints;
 	bool m_addIndegreeEdgeConstraints;
 	bool m_addGSEC2Constraints;
@@ -225,7 +225,7 @@ protected:
 			EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
 };
 
-//! Master problem of Steiner tree branch&cut algorithm
+//! %Master problem of Steiner tree branch&cut algorithm
 template<typename T>
 class MinSteinerTreeDirectedCut<T>::Master : public abacus::Master, public Logger
 {
@@ -365,7 +365,7 @@ public:
 		m_primalHeuristic.reset(pMinSteinerTreeModule);
 	}
 	//! the primal heuristic module
-	std::unique_ptr< MinSteinerTreeModule<double> > &getPrimalHeuristic() {return m_primalHeuristic;}
+	std::unique_ptr<MinSteinerTreeModule<double>> &getPrimalHeuristic() {return m_primalHeuristic;}
 
 	//! the non-duplicate cutpool for the separated Steiner cuts
 	abacus::NonDuplPool<abacus::Constraint, abacus::Variable> *cutPool() {return m_pCutPool;}
@@ -399,8 +399,6 @@ public:
 	int nTerminals() const {return m_nTerminals;}
 	//! terminals in an array
 	const node *terminals() const {return m_terminals;}
-	//! list of terminals
-	const List<node> &terminalsList() const {return m_terminalsList;}
 	//! get terminal with index i
 	node terminal(int i) const {return m_terminals[i];}
 	//! true if n is a terminal
@@ -540,7 +538,7 @@ private:
 	const char *m_configfile;
 
 	//! Algorithm used for the primal heuristic
-	std::unique_ptr< MinSteinerTreeModule<double> > m_primalHeuristic;
+	std::unique_ptr<MinSteinerTreeModule<double>> m_primalHeuristic;
 
 	//! parameter: indicates whether we solve the relaxed problem (LP) or the ILP
 	bool m_relaxed;
@@ -588,8 +586,6 @@ private:
 	int m_nTerminals;
 	//! terminal index -> terminal node
 	node *m_terminals;
-	//! list of terminals
-	List<node> m_terminalsList;
 
 	 //! the virtual root of our graph. This node is a terminal.
 	node m_root;
@@ -957,7 +953,7 @@ public:
 		, m_name("")
 	{
 #ifdef OGDF_STP_EXACT_LOGGING
-		cout << "Creating new DirectedCutConstraint: " << std::endl;
+		std::cout << "Creating new DirectedCutConstraint: " << std::endl;
 #endif
 		m_hashKey = 0;
 		m_marked.init(g);
@@ -967,7 +963,7 @@ public:
 #ifdef OGDF_STP_EXACT_LOGGING
 				if(m_marked[n]) {
 					// TODO: Use lout instead
-					cout << "  marked node " << n << std::endl;
+					std::cout << "  marked node " << n << std::endl;
 				}
 #endif
 			} else {
@@ -981,16 +977,16 @@ public:
 		}
 		m_hashKey += m_nMarkedNodes*g.numberOfNodes()*g.numberOfNodes();
 #ifdef OGDF_STP_EXACT_LOGGING
-		cout << "  front cut edges:" << std::endl;
+		std::cout << "  front cut edges:" << std::endl;
 		for (edge e : g.edges) {
 			if(minSTCut->isFrontCutEdge(e)) {
-				cout << "    " << e << std::endl;
+				std::cout << "    " << e << std::endl;
 			}
 		}
-		cout << "  back cut edges:" << std::endl;
+		std::cout << "  back cut edges:" << std::endl;
 		for (edge e : g.edges) {
 			if(minSTCut->isBackCutEdge(e)) {
-				cout << "    " << e << std::endl;
+				std::cout << "    " << e << std::endl;
 			}
 		}
 #endif
@@ -1073,12 +1069,13 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 #ifdef OGDF_STP_EXACT_LOGGING
 	lout(Level::Default)
 		<< "Master::Master(): default LP solver: "
-		<< this->OSISOLVER_[this->defaultLpSolver()] << endl;
+		<< this->OSISOLVER_[this->defaultLpSolver()] << std::endl;
 #endif
 	m_pGraph = new Graph();
 
 	edge e1, e2;
 	int i = 0;
+	int t = 0;
 
 	m_nodes = new node[m_wG.numberOfNodes()];
 	m_nodeIDs.init(*m_pGraph);
@@ -1087,11 +1084,13 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 	m_root = nullptr;
 
 #ifdef OGDF_STP_EXACT_LOGGING
-		lout(Level::Default) << "Master::Master(): nTerminals="
-					   << m_nTerminals << flush;
-		lout(Level::Minor) << " terminals: " << flush;
+	lout(Level::Default)
+	  << "Master::Master(): nTerminals="
+	  << m_nTerminals << std::flush;
+	lout(Level::Minor) << " terminals: " << std::flush;
 #endif
 	NodeArray<node> nodeMapping(m_wG);
+	m_terminals = new node[m_nTerminals];
 
 	for (node nOrig : m_wG.nodes) {
 		node n = m_pGraph->newNode();
@@ -1101,20 +1100,15 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 		m_isTerminal[n] = isTerminal[nOrig];
 		if (m_isTerminal[n]) {
 #ifdef OGDF_STP_EXACT_LOGGING
-			lout(Level::Minor) << n << "," << flush;
+			lout(Level::Minor) << n << "," << std::flush;
 #endif
-			m_terminalsList.pushBack(n);
+			m_terminals[t++] = n;
 		}
 		i++;
 	}
 #ifdef OGDF_STP_EXACT_LOGGING
-	lout(Level::Minor) << endl << "Master::Master(): edges: ";
+	lout(Level::Minor) << std::endl << "Master::Master(): edges: ";
 #endif
-	m_terminals = new node[m_nTerminals];
-	i = 0;
-	for (ListIterator<node> tIt = m_terminalsList.begin(); tIt.valid(); tIt++) {
-		m_terminals[i++] = *tIt;
-	}
 
 	m_nEdgesU = m_wG.numberOfEdges();
 	m_capacities.init(*m_pGraph);
@@ -1143,11 +1137,11 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 		m_mapToBidirectedGraph1[eOrig] = e1;
 		m_mapToBidirectedGraph2[eOrig] = e2;
 #ifdef OGDF_STP_EXACT_LOGGING
-		lout(Level::Minor) << " " << eOrig << "[" << e1 << ", " << e2 << "]" << flush;
+		lout(Level::Minor) << " " << eOrig << "[" << e1 << ", " << e2 << "]" << std::flush;
 #endif
 	}
 #ifdef OGDF_STP_EXACT_LOGGING
-	lout(Level::Default) << endl;
+	lout(Level::Default) << std::endl;
 #endif
 	for (node n : m_pGraph->nodes) {
 		if (m_isTerminal[n]) {
@@ -1163,7 +1157,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 	}
 
 #ifdef OGDF_STP_EXACT_LOGGING
-	lout(Level::Medium) << "Master::Master(): m_root=" << m_root << endl;
+	lout(Level::Medium) << "Master::Master(): m_root=" << m_root << std::endl;
 #endif
 
 	m_isSolutionEdge.init(*m_pGraph, false);
@@ -1212,7 +1206,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeParameters()
 #ifdef OGDF_STP_EXACT_LOGGING
 			lout(Level::Alarm)
 				<< "Master::initializeParameters(): Error reading parameters."
-				<< "Using default values." << endl;
+				<< "Using default values." << std::endl;
 #endif
 		}
 #ifdef OGDF_STP_EXACT_LOGGING
@@ -1241,28 +1235,28 @@ MinSteinerTreeDirectedCut<T>::Master::initializeParameters()
 
 #ifdef OGDF_STP_EXACT_LOGGING
 	lout(Level::High)
-		<< "Master::initializeParameters(): parameters:"<< endl
-		<< "\tLP-Solver                  " << OSISOLVER_[this->defaultLpSolver()] << endl
-		<< "\tOutputLevel                " << this->localLogLevel() << endl
-		<< "\tAddDegreeConstraints       " << m_addDegreeConstraints << endl
-		<< "\tAddIndegreeEdgeConstraints " << m_addIndegreeEdgeConstraints << endl
-		<< "\tAddGSEC2Constraints        " << m_addGSEC2Constraints << endl
-		<< "\tAddFlowBalanceConstraints  " << m_addFlowBalanceConstraints << endl
-		<< "\tMaxNrCuttingPlanes         " << m_maxNrAddedCuttingPlanes << endl
-		<< "\tShuffleTerminals           " << m_shuffleTerminals << endl
-		<< "\tBackCutComputation         " << m_backCutComputation << endl
-		<< "\tMinCardinalityCuts         " << m_minCardinalityCuts << endl
-		<< "\tNestedCutComputation       " << m_nestedCutComputation << endl;
+		<< "Master::initializeParameters(): parameters:" << std::endl
+		<< "\tLP-Solver                  " << OSISOLVER_[this->defaultLpSolver()] << std::endl
+		<< "\tOutputLevel                " << this->localLogLevel() << std::endl
+		<< "\tAddDegreeConstraints       " << m_addDegreeConstraints << std::endl
+		<< "\tAddIndegreeEdgeConstraints " << m_addIndegreeEdgeConstraints << std::endl
+		<< "\tAddGSEC2Constraints        " << m_addGSEC2Constraints << std::endl
+		<< "\tAddFlowBalanceConstraints  " << m_addFlowBalanceConstraints << std::endl
+		<< "\tMaxNrCuttingPlanes         " << m_maxNrAddedCuttingPlanes << std::endl
+		<< "\tShuffleTerminals           " << m_shuffleTerminals << std::endl
+		<< "\tBackCutComputation         " << m_backCutComputation << std::endl
+		<< "\tMinCardinalityCuts         " << m_minCardinalityCuts << std::endl
+		<< "\tNestedCutComputation       " << m_nestedCutComputation << std::endl;
 	if (m_nestedCutComputation) {
 		lout(Level::High)
-			<< "\t   SeparationStrategy      " << m_separationStrategy << endl
-			<< "\t   SaturationStrategy      " << m_saturationStrategy << endl;
+			<< "\t   SeparationStrategy      " << m_separationStrategy << std::endl
+			<< "\t   SaturationStrategy      " << m_saturationStrategy << std::endl;
 	}
 	lout(Level::High)
-		<< "\tPrimalHeuristic            " << m_callPrimalHeuristic << endl
-		<< "\tPoolSizeInitFactor         " << m_poolSizeInitFactor << endl
-		<< "\tObjective integer          " << this->objInteger() << endl
-		<< endl;
+		<< "\tPrimalHeuristic            " << m_callPrimalHeuristic << std::endl
+		<< "\tPoolSizeInitFactor         " << m_poolSizeInitFactor << std::endl
+		<< "\tObjective integer          " << this->objInteger() << std::endl
+		<< std::endl;
 #endif
 	setMaxNumberAddedCuttingPlanes(m_maxNrAddedCuttingPlanes);
 }
@@ -1273,12 +1267,12 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 {
 #ifdef OGDF_STP_EXACT_LOGGING
 	lout(Level::High)
-		<< "Master::initializeOptimization(): Instance properties:" << endl
+		<< "Master::initializeOptimization(): Instance properties:" << std::endl
 		<< "\t(nNodes,nEdges)     : (" << m_pGraph->numberOfNodes()
-									   << ", " << m_nEdgesU << ")" << endl
-		<< "\tNumber of terminals : " << m_nTerminals << endl
-		<< "\tRoot node           : " << m_root << endl
-		<< endl;
+									   << ", " << m_nEdgesU << ")" << std::endl
+		<< "\tNumber of terminals : " << m_nTerminals << std::endl
+		<< "\tRoot node           : " << m_root << std::endl
+		<< std::endl;
 #endif
 	int i;
 
@@ -1300,7 +1294,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 		 && !e->isSelfLoop()) {
 			eVar = new EdgeVariable(this, i, e, m_capacities[e], 0.0, 1.0, vartype);
 #ifdef OGDF_STP_EXACT_LOGGING
-			lout(Level::Minor) << "\tadding variable x_" << i << ", edge " << e << endl;
+			lout(Level::Minor) << "\tadding variable x_" << i << ", edge " << e << std::endl;
 #endif
 		}
 		else {
@@ -1308,7 +1302,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 			OGDF_ASSERT(m_capacities[e] >= 0);
 			eVar = new EdgeVariable(this, i, e, m_capacities[e], 0.0, 0.0, vartype);
 #ifdef OGDF_STP_EXACT_LOGGING
-			lout(Level::Minor) << "\tmuting variable x_" << i << ", edge " << e << endl;
+			lout(Level::Minor) << "\tmuting variable x_" << i << ", edge " << e << std::endl;
 #endif
 		}
 		variables.push(eVar);
@@ -1341,7 +1335,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 				marked[m_twin[e]] = true;
 
 #ifdef OGDF_STP_EXACT_LOGGING
-				lout(Level::Minor) << "\tadding constraint " << i++ << " GSEC2: edge " << e << endl;
+				lout(Level::Minor) << "\tadding constraint " << i++ << " GSEC2: edge " << e << std::endl;
 #endif
 			}
 		}
@@ -1372,7 +1366,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 			basicConstraints.push(newCon);
 
 #ifdef OGDF_STP_EXACT_LOGGING
-			lout(Level::Minor) << "\tadding constraint " << i++ << " Degree: node " << n << endl;
+			lout(Level::Minor) << "\tadding constraint " << i++ << " Degree: node " << n << std::endl;
 #endif
 		}
 	}
@@ -1385,7 +1379,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 				basicConstraints.push(newCon);
 
 #ifdef OGDF_STP_EXACT_LOGGING
-				lout(Level::Minor) << "\tadding constraint " << i++ << " Indegree: edge " << e << endl;
+				lout(Level::Minor) << "\tadding constraint " << i++ << " Indegree: edge " << e << std::endl;
 #endif
 			}
 		}
@@ -1399,7 +1393,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 				basicConstraints.push(newCon);
 
 #ifdef OGDF_STP_EXACT_LOGGING
-				lout(Level::Minor) << "\tadding constraint " << i++ << " Flow-Balance: node " << n << endl;
+				lout(Level::Minor) << "\tadding constraint " << i++ << " Flow-Balance: node " << n << std::endl;
 #endif
 			}
 		}
@@ -1418,7 +1412,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 			true);
 
 #ifdef OGDF_STP_EXACT_LOGGING
-	lout(Level::Minor) << "Master::initializeOptimization() done." << endl;
+	lout(Level::Minor) << "Master::initializeOptimization() done." << std::endl;
 #endif
 }
 
@@ -1436,56 +1430,56 @@ MinSteinerTreeDirectedCut<T>::Master::terminateOptimization()
 	}
 
 #ifdef OGDF_STP_EXACT_LOGGING
-	lout(Level::High) << endl;
+	lout(Level::High) << std::endl;
 	if (is_lout(Level::Medium)) {
-		lout(Level::Medium) << "\toptimum solution edges:" << endl;
+		lout(Level::Medium) << "\toptimum solution edges:" << std::endl;
 		for (edge e : m_pGraph->edges) {
 			if (m_isSolutionEdge[e])
-				lout(Level::Medium) << "\t" << e << endl;
+				lout(Level::Medium) << "\t" << e << std::endl;
 		}
 	}
-	lout(Level::Medium) << endl;
+	lout(Level::Medium) << std::endl;
 
 	lout(Level::High)
-		<< "Finished optimization. Statistics:" << endl
-		<< "Solution               " << endl
-		<< "   value               " << this->primalBound() << endl
-		<< "   rounded sol. value  " << ((int)this->primalBound()) << endl
-		<< "   nr edges            " << nOnesInSol << endl
-		<< "Status                 " << this->STATUS_[this->status()] << endl
-		<< "Primal/dual bound      " << this->primalBound() << "/" << this->dualBound() << endl
-		<< "Relaxed solution value " << this->m_relaxedSolValue << endl
-		<< "Nr subproblems         " << this->nSub() << endl
-		<< "Nr solved LPs          " << this->nLp() << endl
-		<< "nr solved LPs in root  " << m_nIterRoot << endl
-		<< endl
+		<< "Finished optimization. Statistics:" << std::endl
+		<< "Solution               " << std::endl
+		<< "   value               " << this->primalBound() << std::endl
+		<< "   rounded sol. value  " << ((int)this->primalBound()) << std::endl
+		<< "   nr edges            " << nOnesInSol << std::endl
+		<< "Status                 " << this->STATUS_[this->status()] << std::endl
+		<< "Primal/dual bound      " << this->primalBound() << "/" << this->dualBound() << std::endl
+		<< "Relaxed solution value " << this->m_relaxedSolValue << std::endl
+		<< "Nr subproblems         " << this->nSub() << std::endl
+		<< "Nr solved LPs          " << this->nLp() << std::endl
+		<< "nr solved LPs in root  " << m_nIterRoot << std::endl
+		<< std::endl
 
-		<< "LP Solver              " << this->OSISOLVER_[this->defaultLpSolver()] << endl
-		<< "Enumeration strategy   " << this->ENUMSTRAT_[this->enumerationStrategy()] << endl
-		<< "Branching strategy     " << this->BRANCHINGSTRAT_[this->branchingStrategy()] << endl
-		<< "Objective integer      " << (this->objInteger()? "true":"false") << endl
-		<< endl
+		<< "LP Solver              " << this->OSISOLVER_[this->defaultLpSolver()] << std::endl
+		<< "Enumeration strategy   " << this->ENUMSTRAT_[this->enumerationStrategy()] << std::endl
+		<< "Branching strategy     " << this->BRANCHINGSTRAT_[this->branchingStrategy()] << std::endl
+		<< "Objective integer      " << (this->objInteger()? "true":"false") << std::endl
+		<< std::endl
 
-		<< "Total time (centi sec) " << this->totalTime()->centiSeconds() << endl
-		<< "Total time             " << *this->totalTime() << endl
-		<< "Total cow-time         " << *this->totalCowTime() << endl
-		<< "LP time                " << *this->lpTime() << endl
-		<< "LP solver time         " << *this->lpSolverTime() << endl
-		<< "Separation time        " << this->m_separationTimer << endl
-		<< "Minimum Cut time       " << this->m_timerMinSTCut << endl
-		<< "Primal heuristic time  " << this->m_primalHeuristicTimer << endl
-		<< endl
+		<< "Total time (centi sec) " << this->totalTime()->centiSeconds() << std::endl
+		<< "Total time             " << *this->totalTime() << std::endl
+		<< "Total cow-time         " << *this->totalCowTime() << std::endl
+		<< "LP time                " << *this->lpTime() << std::endl
+		<< "LP solver time         " << *this->lpSolverTime() << std::endl
+		<< "Separation time        " << this->m_separationTimer << std::endl
+		<< "Minimum Cut time       " << this->m_timerMinSTCut << std::endl
+		<< "Primal heuristic time  " << this->m_primalHeuristicTimer << std::endl
+		<< std::endl
 
-		<< "Initial cutpool size   " << this->m_poolSizeInit << endl
-		<< "Maximum cutpool size   " << this->m_poolSizeMax << endl
-		<< "Nr separated cuts      " << m_nrCutsTotal << endl;
+		<< "Initial cutpool size   " << this->m_poolSizeInit << std::endl
+		<< "Maximum cutpool size   " << this->m_poolSizeMax << std::endl
+		<< "Nr separated cuts      " << m_nrCutsTotal << std::endl;
 
 	int nDuplicates, nCollisions;
 	m_pCutPool->statistics(nDuplicates, nCollisions);
 	lout(Level::High)
-		<< "Cutpool duplications   " << nDuplicates << endl
-		<< "Cutpool collisions     " << nCollisions << endl
-		<< endl;
+		<< "Cutpool duplications   " << nDuplicates << std::endl
+		<< "Cutpool collisions     " << nCollisions << std::endl
+		<< std::endl;
 #endif
 }
 
@@ -1547,7 +1541,7 @@ MinSteinerTreeDirectedCut<T>::Sub::Sub(abacus::Master *master, abacus::Sub *fath
 	m_pMaster->lout(Logger::Level::High)
 		<< std::setw(7)  << this->id()
 		<< std::setw(7)  << this->nIter_
-		<< " new subproblem, parent=" << father->id() << endl;
+		<< " new subproblem, parent=" << father->id() << std::endl;
 #endif
 	m_computeNestedCuts  = m_pMaster->computeNestedCuts();
 	m_computeBackCuts 	 = m_pMaster->computeBackCuts();
@@ -1567,7 +1561,7 @@ MinSteinerTreeDirectedCut<T>::Sub::printMainInfosInFeasible(bool header) const
 	if (header) {
 		// print header
 		m_pMaster->lout(Logger::Level::High)
-			<< endl
+			<< std::endl
 			<< std::setw(7)  << "id"
 			<< std::setw(7)  << "iter"
 			<< std::setw(10) << "lp value"
@@ -1575,7 +1569,7 @@ MinSteinerTreeDirectedCut<T>::Sub::printMainInfosInFeasible(bool header) const
 			<< std::setw(10) << "gl. UB"
 			<< std::setw(10) << "nSub"
 			<< std::setw(10) << "nOpenSub"
-			<< endl;
+			<< std::endl;
 	}
 	else {
 		m_pMaster->lout(Logger::Level::High)
@@ -1593,11 +1587,11 @@ MinSteinerTreeDirectedCut<T>::Sub::printMainInfosInFeasible(bool header) const
 		m_pMaster->lout(Logger::Level::High)
 			<< std::setw(10) << master_->nSub()
 			<< std::setw(10) << master_->openSub()->number()
-			<< endl;
+			<< std::endl;
 		m_pMaster->lout(Logger::Level::Minor)
-			<< "\tcurrent LP:" << endl;
+			<< "\tcurrent LP:" << std::endl;
 		m_pMaster->lout(Logger::Level::Minor) << *lp_;
-		m_pMaster->lout(Logger::Level::Minor) << endl;
+		m_pMaster->lout(Logger::Level::Minor) << std::endl;
 	}
 }
 #endif
@@ -1646,7 +1640,7 @@ MinSteinerTreeDirectedCut<T>::Sub::feasible()
 
 #ifdef OGDF_STP_EXACT_LOGGING
 				m_pMaster->lout(Logger::Level::Default)
-					<< "\tsolution is fractional -> Branching." << endl;
+					<< "\tsolution is fractional -> Branching." << std::endl;
 #endif
 				return false;
 			}
@@ -1660,11 +1654,11 @@ MinSteinerTreeDirectedCut<T>::Sub::feasible()
 			<< std::setw(7)  << this->nIter_
 			<< " found better integer solution with value " << lp_->value();
 		if (m_pMaster->is_lout(Logger::Level::Medium)) {
-			m_pMaster->lout(Logger::Level::Medium) << ", variables > 0:" << endl;
+			m_pMaster->lout(Logger::Level::Medium) << ", variables > 0:" << std::endl;
 			printCurrentSolution();
 		}
 		else
-			m_pMaster->lout(Logger::Level::High) << endl;
+			m_pMaster->lout(Logger::Level::High) << std::endl;
 #endif
 		m_pMaster->primalBound(lp_->value());
 		m_pMaster->updateBestSolution(xVal_);
@@ -1684,22 +1678,22 @@ MinSteinerTreeDirectedCut<T>::Sub::printCurrentSolution(bool onlyNonZeros)
 	for (int i = 0; i < nVar(); i++) {
 		if ((xVal_[i] > -eps) && (xVal_[i] < eps)) {
 			if (!onlyNonZeros) {
-				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=0" << flush;
-				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]"<< endl;
+				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=0" << std::flush;
+				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
 			}
 		}
 		else
 			if ((xVal_[i] > oneMinusEps) && (xVal_[i] < 1+eps)) {
-				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=1" << flush;
-				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]"<< endl;
+				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=1" << std::flush;
+				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
 				nOnesInSol++;
 			}
 			else {
-				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=" << xVal_[i] << flush;
-				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]"<< endl;
+				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=" << xVal_[i] << std::flush;
+				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
 			}
 	}
-	m_pMaster->lout(Logger::Level::Medium) << "\tnEdges=" << nOnesInSol << endl << flush;
+	m_pMaster->lout(Logger::Level::Medium) << "\tnEdges=" << nOnesInSol << std::endl << std::flush;
 }
 #endif
 
@@ -1710,7 +1704,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 #ifdef OGDF_STP_EXACT_LOGGING
 	m_pMaster->lout(Logger::Level::Medium)
 		<< "Sub::mySeparate(): id="
-		<< this->id() << ", iter=" << this->nIter_ << endl;
+		<< this->id() << ", iter=" << this->nIter_ << std::endl;
 #endif
 	m_pMaster->separationTimer()->start();
 	double eps = master_->eps();
@@ -1746,7 +1740,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			<< "Sub::mySeparate(): considered terminal ordering: ";
 		for (int i = 0; i < nTerminals; i++)
 			m_pMaster->lout(Logger::Level::Medium) << terminal[i] << " ";
-		m_pMaster->lout(Logger::Level::Medium) << endl;
+		m_pMaster->lout(Logger::Level::Medium) << std::endl;
 	}
 #endif
 
@@ -1760,10 +1754,10 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 #ifdef OGDF_STP_EXACT_LOGGING
 	m_pMaster->lout(Logger::Level::Minor)
-			<< "Sub::mySeparate(): current capacities (>0) for mincut computation:" << endl;
+			<< "Sub::mySeparate(): current capacities (>0) for mincut computation:" << std::endl;
 	for (edge e : g.edges) {
 		if (capacities[e] >= 2*cardEps) {
-			m_pMaster->lout(Logger::Level::Minor) << "\tcapacity[" << e << "]=" << capacities[e] << endl;
+			m_pMaster->lout(Logger::Level::Minor) << "\tcapacity[" << e << "]=" << capacities[e] << std::endl;
 		}
 	}
 #endif
@@ -1802,7 +1796,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 		if (t != r) {
 #ifdef OGDF_STP_EXACT_LOGGING
 			m_pMaster->lout(Logger::Level::Medium)
-				<< "Sub::mySeparate(): computing minimum cut between root " << r << " and " << t << flush;
+				<< "Sub::mySeparate(): computing minimum cut between root " << r << " and " << t << std::flush;
 #endif
 			// /compute the minimum r-t-cut
 			/*
@@ -1820,11 +1814,11 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			mf->useEpsilonTest(cardEps / 100);
 			cutValue = mf->computeFlow(capacities, r, t, flow);
 #ifdef OGDF_STP_EXACT_LOGGING
-			m_pMaster->lout(Logger::Level::Medium) << "  Calculated flow:" << endl;
+			m_pMaster->lout(Logger::Level::Medium) << "  Calculated flow:" << std::endl;
 			for (edge flowEdge : g.edges) {
 				m_pMaster->lout(Logger::Level::Medium)
 				  << "    " << flowEdge << " : "
-				  << flow[flowEdge] << " / " << capacities[flowEdge] << endl;
+				  << flow[flowEdge] << " / " << capacities[flowEdge] << std::endl;
 			}
 #endif
 
@@ -1836,7 +1830,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			cutValueBack = 0;
 
 #ifdef OGDF_STP_EXACT_LOGGING
-			m_pMaster->lout(Logger::Level::Medium) << ", cutvalue=" << cutValue << flush;
+			m_pMaster->lout(Logger::Level::Medium) << ", cutvalue=" << cutValue << std::flush;
 #endif
 
 			// min cardinality
@@ -1873,7 +1867,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			if (m_computeBackCuts)
 				m_pMaster->lout(Logger::Level::Medium)
 					<< ", actual cutValueBack=" << cutValueBack;
-			m_pMaster->lout(Logger::Level::Medium) << endl;
+			m_pMaster->lout(Logger::Level::Medium) << std::endl;
 #endif
 			nOtherNodes = 0;
 
@@ -1887,7 +1881,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 #ifdef OGDF_STP_EXACT_LOGGING
 				m_pMaster->lout(Logger::Level::Medium)
-					<< "Sub::mySeparate(): found violated cut:" << endl;
+					<< "Sub::mySeparate(): found violated cut:" << std::endl;
 				printConstraint(newCut, Logger::Level::Medium);
 #endif
 				if ((m_computeBackCuts)
@@ -1902,10 +1896,10 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 #ifdef OGDF_STP_EXACT_LOGGING
 					m_pMaster->lout(Logger::Level::Medium)
-						<< "Sub::mySeparate(): found violated cut (backcut):" << endl;
+						<< "Sub::mySeparate(): found violated cut (backcut):" << std::endl;
 					printConstraint(newBackCut, Logger::Level::Medium);
 #endif
-				} // if (m_computeBackCuts)
+				}
 
 				// saturate cut edges in case of nested cut computation
 				if (m_computeNestedCuts)
@@ -1935,9 +1929,9 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 							}
 						}
 					}
-				} // if (m_computeNestedCuts)
-			} // if (cutValue < oneMinusEps)
-		} // if (t != r)
+				}
+			}
+		}
 
 		if (!m_computeNestedCuts)
 		{
@@ -1957,7 +1951,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 				}
 			}
 		}
-	} // while ((cutsFound < m_maxNrCuttingPlanes) && (ti < nTerminals))
+	}
 
 	delete[] terminal;
 
@@ -1978,12 +1972,12 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 	m_pMaster->lout(Logger::Level::Medium)
 		<< "Sub::mySeparate(): id="
 		<< this->id() << ", iter=" << this->nIter_
-		<< " separated " << cutsFound << " directed cuts" << endl;
+		<< " separated " << cutsFound << " directed cuts" << std::endl;
 #endif
 	m_pMaster->separationTimer()->stop();
 
 	return cutsFound;
-} // Sub::mySeparate()
+}
 
 template<typename T>
 void
@@ -1994,7 +1988,7 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 #ifdef OGDF_STP_EXACT_LOGGING
 	m_pMaster->lout(Logger::Level::Minor)
 		<< "Sub::myImprove(): id="
-		<< this->id() << ", iter=" << this->nIter_ << endl;
+		<< this->id() << ", iter=" << this->nIter_ << std::endl;
 #endif
 	double eps = master_->eps();
 	const Graph &g = m_pMaster->graph();
@@ -2003,11 +1997,11 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 #ifdef OGDF_STP_EXACT_LOGGING
 	if (m_pMaster->ilout(Logger::Level::Minor)) {
 		m_pMaster->lout(Logger::Level::Minor)
-			<< "Sub::myImprove(): current solution:" << endl;
+			<< "Sub::myImprove(): current solution:" << std::endl;
 		for(edge e : g.edges) {
 			m_pMaster->lout(Logger::Level::Minor)
 				<< "\tx" << m_pMaster->edgeID(e) << "=" << xVal_[m_pMaster->edgeID(e)]
-				<< ", edge " << e << endl;
+				<< ", edge " << e << std::endl;
 		}
 	}
 #endif
@@ -2029,10 +2023,10 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 #ifdef OGDF_STP_EXACT_LOGGING
 	if (m_pMaster->ilout(Logger::Level::Minor)) {
 		m_pMaster->lout(Logger::Level::Minor)
-			<< "Sub::myImprove(): edge weights:" << endl;
+			<< "Sub::myImprove(): edge weights:" << std::endl;
 		for (edge e : g.edges) {
 			m_pMaster->lout(Logger::Level::Minor)
-				<< "\tweight[" << e << "]=" << ewg.weight(m_pMaster->edgeGToWgPH(e)) << endl;
+				<< "\tweight[" << e << "]=" << ewg.weight(m_pMaster->edgeGToWgPH(e)) << std::endl;
 		}
 	}
 #endif
@@ -2064,7 +2058,7 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 #ifdef OGDF_STP_EXACT_LOGGING
 	m_pMaster->lout(Logger::Level::Default)
 		<< "Sub::myImprove(): primal heuristic algorithm returned solution with "
-		<< "value " << tmpHeuristicSolutionValue << ", isSteinerTree=" << isSteinerTree << endl;
+		<< "value " << tmpHeuristicSolutionValue << ", isSteinerTree=" << isSteinerTree << std::endl;
 #endif
 
 	if (isSteinerTree) {
@@ -2079,39 +2073,38 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 			heuristicSolutionValue +=  m_pMaster->capacities(e2);
 #ifdef OGDF_STP_EXACT_LOGGING
 			m_pMaster->lout(Logger::Level::Minor)
-				<< "\t" << e << " -> " << e2 << " c=" << m_pMaster->capacities(e2) << endl;
+				<< "\t" << e << " -> " << e2 << " c=" << m_pMaster->capacities(e2) << std::endl;
 #endif
 		}
 
 #ifdef OGDF_STP_EXACT_LOGGING
 		m_pMaster->lout(Logger::Level::Default)
 			<< "Sub::myImprove(): found integer solution with value "
-			<< heuristicSolutionValue << endl;
+			<< heuristicSolutionValue << std::endl;
 #endif
 		if (m_pMaster->betterPrimal(heuristicSolutionValue)) {
 #ifdef OGDF_STP_EXACT_LOGGING
 			m_pMaster->lout(Logger::Level::High)
 				<< std::setw(7)  << this->id()
 				<< std::setw(7)  << this->nIter_
-				<< " primal heuristic founds better integer solution with value " << heuristicSolutionValue << endl;
+				<< " primal heuristic founds better integer solution with value " << heuristicSolutionValue << std::endl;
 #endif
 			m_pMaster->primalBound(heuristicSolutionValue);
 			m_pMaster->updateBestSolutionByEdges(solutionEdges);
 		}
-	} // if (isSteinerTree)
+	}
 #ifdef OGDF_STP_EXACT_LOGGING
 	else {
 		m_pMaster->lout(Logger::Level::High)
 			<< "Sub::myImprove(): id="
 			<< this->id() << ", iter=" << this->nIter_
-			<< ": computed solution is no Steiner tree!" << endl;
+			<< ": computed solution is no Steiner tree!" << std::endl;
 	}
 #endif
 
 	delete heuristicSolutionWg;
 	m_pMaster->primalHeuristicTimer()->stop();
-} // Sub::myImprove
-
+}
 
 #ifdef OGDF_STP_EXACT_LOGGING
 template<typename T>
@@ -2156,11 +2149,9 @@ MinSteinerTreeDirectedCut<T>::Sub::printConstraint(abacus::Constraint *constrain
 	}
 	m_pMaster->lout(level)
 		<< " " << *(constraint->sense()) << " "
-		<< constraint->rhs() << endl;
-} // Sub::printConstraint
+		<< constraint->rhs() << std::endl;
+}
 #endif
-
-
 
 template<typename T>
 bool
@@ -2252,5 +2243,4 @@ T MinSteinerTreeDirectedCut<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G
 	return weight;
 }
 
-
-} // end namespace ogdf
+}

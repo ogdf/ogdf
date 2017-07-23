@@ -51,7 +51,9 @@ bool CconnectClusterPlanar::call(const ClusterGraph &C)
 {
 	Graph G;
 	ClusterGraph Cp(C,G);
-	OGDF_ASSERT(Cp.consistencyCheck());
+#ifdef OGDF_DEBUG
+	Cp.consistencyCheck();
+#endif
 	OGDF_ASSERT(&G == &Cp.constGraph());
 
 	m_clusterPQTree.init(Cp,nullptr);
@@ -113,18 +115,14 @@ bool CconnectClusterPlanar::preProcess(ClusterGraph &C,Graph &G)
 // that is induced by cluster act
 bool CconnectClusterPlanar::planarityTest(
 	ClusterGraph &C,
-	cluster &act,
+	const cluster act,
 	Graph &G)
 {
 	// Test children first
-	ListConstIterator<cluster> it;
-	for (it = act->cBegin(); it.valid();)
-	{
-		ListConstIterator<cluster> succ = it.succ();
-		cluster next = (*it);
-		if (!planarityTest(C,next,G))
-			return false;
-		it = succ;
+	if (!safeTestForEach(act->children, [&](cluster child) {
+		return planarityTest(C, child, G);
+	})) {
+		return false;
 	}
 
 	// Get induced subgraph of cluster act and test it for planarity
@@ -191,21 +189,18 @@ bool CconnectClusterPlanar::planarityTest(
 		if (superSink && m_clusterPQTree[act])
 			constructWheelGraph(C,G,parent,m_clusterPQTree[act],outgoingTable);
 
-		C.delCluster(act);
 		if (m_clusterPQTree[act] != nullptr) // if query necessary for clusters with just one child
 		{
 			m_clusterPQTree[act]->emptyAllPertinentNodes();
 			delete m_clusterPQTree[act];
 		}
+		C.delCluster(act);
 
+	} else if (!cPlanar) {
+		m_errorCode = ErrorCode::nonCPlanar;
 	}
-	else if (!cPlanar)
-		{
-			m_errorCode = ErrorCode::nonCPlanar;
-		}//if not cplanar
 
 	return cPlanar;
-
 }
 
 void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
@@ -376,7 +371,9 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 		}
 	}
 
-	OGDF_ASSERT(C.consistencyCheck());
+#ifdef OGDF_DEBUG
+	C.consistencyCheck();
+#endif
 }
 
 //
@@ -384,7 +381,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 //
 bool CconnectClusterPlanar::preparation(
 	Graph  &G,
-	cluster &cl,
+	const cluster cl,
 	node superSink)
 {
 	int  bcIdSuperSink = -1; // ID of biconnected component that contains superSink
@@ -446,12 +443,12 @@ bool CconnectClusterPlanar::preparation(
 	{
 		// Compute st-numbering
 		NodeArray<int> numbering(G,0);
-#ifdef OGDF_DEBUG
+#ifdef OGDF_HEAVY_DEBUG
 		int n =
 #endif
 		(superSink) ? computeSTNumbering(G, numbering, nullptr, superSink)
 		            : computeSTNumbering(G, numbering);
-		OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(G, numbering, n));
+		OGDF_HEAVY_ASSERT(isSTNumbering(G, numbering, n));
 
 		EdgeArray<edge> backTableEdges(G,nullptr);
 		for(edge e : G.edges)
@@ -463,11 +460,10 @@ bool CconnectClusterPlanar::preparation(
 	{
 		for (int i = 0; i < bcCount; i++)
 		{
-			#ifdef OGDF_DEBUG
-			if(debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
-				cout<<endl<<endl<<"-----------------------------------";
-				cout<<endl<<endl<<"Component "<<i<<endl;}
-			#endif
+#ifdef OGDF_HEAVY_DEBUG
+			Logger::slout() << std::endl << std::endl << "-----------------------------------";
+			Logger::slout() << std::endl << std::endl << "Component " << i <<std::endl;
+#endif
 
 			Graph C;
 
@@ -476,10 +472,8 @@ bool CconnectClusterPlanar::preparation(
 				node w = C.newNode();
 				tableNodes[v] = w;
 
-#ifdef OGDF_DEBUG
-				if(debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
-					cout << "Original: " << v << " New: " << w << endl;
-				}
+#ifdef OGDF_HEAVY_DEBUG
+			Logger::slout() << "Original: " << v << " New: " << w << std::endl;
 #endif
 			}
 
@@ -498,18 +492,18 @@ bool CconnectClusterPlanar::preparation(
 			// Compute st-numbering
 			NodeArray<int> numbering(C,0);
 			if (bcIdSuperSink == i) {
-#ifdef OGDF_DEBUG
+#ifdef OGDF_HEAVY_DEBUG
 				int n =
 #endif
 				computeSTNumbering(C, numbering, nullptr, tableNodes[superSink]);
-				OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(C ,numbering, n));
+				OGDF_HEAVY_ASSERT(isSTNumbering(C ,numbering, n));
 				cPlanar = doTest(C,numbering,cl,tableNodes[superSink],backTableEdges);
 			} else {
-#ifdef OGDF_DEBUG
+#ifdef OGDF_HEAVY_DEBUG
 				int n =
 #endif
 				computeSTNumbering(C, numbering);
-				OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(C, numbering, n));
+				OGDF_HEAVY_ASSERT(isSTNumbering(C, numbering, n));
 				cPlanar = doTest(C,numbering,cl,nullptr,backTableEdges);
 			}
 
@@ -527,7 +521,7 @@ bool CconnectClusterPlanar::preparation(
 bool CconnectClusterPlanar::doTest(
 	Graph &G,
 	NodeArray<int> &numbering,
-	cluster &cl,
+	const cluster cl,
 	node superSink,
 	EdgeArray<edge> &edgeTable)
 {
@@ -635,4 +629,4 @@ void CconnectClusterPlanar::prepareParallelEdges(Graph &G)
 	}
 }
 
-} // end namespace ogdf
+}

@@ -80,5 +80,4 @@ private:
 		NodeArray<adjEntry> &e_wq );
 };
 
-
-} // end namespace ogdf
+}

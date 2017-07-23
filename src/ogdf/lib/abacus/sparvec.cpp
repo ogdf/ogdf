@@ -160,10 +160,10 @@ SparVec& SparVec::operator=(const SparVec& rhs)
 }
 
 
-ostream& operator<<(ostream &out, const SparVec &rhs)
+std::ostream& operator<<(std::ostream &out, const SparVec &rhs)
 {
 	for (int i = 0; i < rhs.nnz_; i++)
-		out << rhs.support_[i] << " " << rhs.coeff_[i] << endl;
+		out << rhs.support_[i] << " " << rhs.coeff_[i] << std::endl;
 	return out;
 }
 
@@ -176,9 +176,9 @@ double SparVec::origCoeff(int i) const
 		if (support_[k-1]>support_[k])
 			break;
 	if (k==nnz_)
-		cout << "SparVec::origCoeff vector is in order.\n";
+		std::cout << "SparVec::origCoeff vector is in order.\n";
 	else
-		cout << "SparVec::origCoeff vector is not in order.\n";
+		std::cout << "SparVec::origCoeff vector is not in order.\n";
 	}
 #endif
 	for (int k = 0; k < nnz_; k++)
@@ -306,4 +306,4 @@ void SparVec::rangeCheck(int i) const
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::SparVec);
 	}
 }
-} //namespace abacus
+}

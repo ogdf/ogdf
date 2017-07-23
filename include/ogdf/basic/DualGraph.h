@@ -107,6 +107,6 @@ protected:
 	FaceArray<node> m_dualNode; //!< The corresponding node in the dual graph.
 	NodeArray<face> m_dualFace; //!< The corresponding face in embedding of the dual graph.
 	EdgeArray<edge> m_dualEdge; //!< The corresponding edge in the dual graph.
-}; // class DualGraph
+};
 
-} // end namespace ogdf
+}

@@ -1,16 +1,15 @@
 #ifndef BANDIT_ALWAYS_RUN_POLICY_H
 #define BANDIT_ALWAYS_RUN_POLICY_H
 
-namespace bandit { namespace detail {
+#include <bandit/run_policies/run_policy.h>
 
-  struct always_run_policy : public run_policy
-  {
-    bool should_run(const char* /* it_name */, const contextstack_t& /* contexts */) const
-    {
-      return true;
-    }
-  };
-
-}}
-
+namespace bandit {
+  namespace detail {
+    struct always_run_policy : public run_policy {
+      bool should_run(const std::string&, const contextstack_t&) const override {
+        return true;
+      }
+    };
+  }
+}
 #endif

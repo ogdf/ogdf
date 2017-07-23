@@ -103,4 +103,4 @@ void RandomMerger::setFactor(double factor)
 	m_levelSizeFactor = factor;
 }
 
-} // namespace ogdf
+}

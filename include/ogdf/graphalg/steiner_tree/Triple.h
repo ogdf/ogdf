@@ -114,5 +114,5 @@ private:
 	double m_win; //!< the win of the triple at some point of time (used as cache)
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

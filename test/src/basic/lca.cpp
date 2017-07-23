@@ -30,13 +30,10 @@
  */
 
 #include <sstream>
-#include <bandit/bandit.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/tree/LCA.h>
 #include <ogdf/basic/graph_generators.h>
-
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 static void trivial() {
 	it("constructs LCA data structure on an empty graph", [] {

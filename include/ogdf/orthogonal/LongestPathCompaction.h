@@ -126,5 +126,4 @@ private:
 	NodeArray<int> m_component;     //!< The pseudo component of a node.
 };
 
-
-} // end namespace ogdf
+}

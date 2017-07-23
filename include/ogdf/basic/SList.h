@@ -36,7 +36,6 @@
 namespace ogdf {
 
 template<class E> class SListPure;
-template<class E> class StackPure;
 template<class E, bool isConst> class SListIteratorBase;
 template<class E> using SListConstIterator = SListIteratorBase<E, true>;
 template<class E> using SListIterator = SListIteratorBase<E, false>;
@@ -45,7 +44,6 @@ template<class E> using SListIterator = SListIteratorBase<E, false>;
 template<class E>
 class SListElement {
 	friend class SListPure<E>;
-	friend class StackPure<E>;
 	friend class SListIteratorBase<E, true>;
 	friend class SListIteratorBase<E, false>;
 
@@ -619,7 +617,7 @@ public:
 			p->m_next = pPred;
 			pPred = p;
 		}
-		swap(m_head,m_tail);
+		std::swap(m_head,m_tail);
 	}
 
 	//@}
@@ -1055,7 +1053,7 @@ void SListPure<E>::permute(const int n, RNG &rng)
 
 //! Prints list \p L to output stream \p os using delimiter \p delim.
 template<class E>
-void print(ostream &os, const SListPure<E> &L, char delim = ' ')
+void print(std::ostream &os, const SListPure<E> &L, char delim = ' ')
 {
 	SListConstIterator<E> pX = L.begin();
 	if (pX.valid()) {
@@ -1067,14 +1065,14 @@ void print(ostream &os, const SListPure<E> &L, char delim = ' ')
 
 //! Prints list \p L to output stream \p os using delimiter \p delim.
 template<class E>
-void print(ostream &os, const SList<E> &L, char delim = ' ')
+void print(std::ostream &os, const SList<E> &L, char delim = ' ')
 {
 	print(os, L.getSListPure(), delim);
 }
 
 //! Output operator.
 template<class E>
-ostream &operator<<(ostream &os, const SListPure<E> &L)
+std::ostream &operator<<(std::ostream &os, const SListPure<E> &L)
 {
 	print(os,L);
 	return os;
@@ -1082,7 +1080,7 @@ ostream &operator<<(ostream &os, const SListPure<E> &L)
 
 //! Output operator.
 template<class E>
-ostream &operator<<(ostream &os, const SList<E> &L)
+std::ostream &operator<<(std::ostream &os, const SList<E> &L)
 {
 	return operator<<(os,L.getSListPure());
 }

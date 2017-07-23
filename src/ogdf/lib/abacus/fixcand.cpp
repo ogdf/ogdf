@@ -80,7 +80,7 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 {
 	if (candidates_ == nullptr) return;
 
-	Logger::ilout(Logger::Level::Minor) << endl << "Fixing Variables by Reduced Costs:     ";
+	Logger::ilout(Logger::Level::Minor) << std::endl << "Fixing Variables by Reduced Costs:     ";
 
 	const int nCandidates = candidates_->size();
 
@@ -145,7 +145,7 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 	fsVarStat_->leftShift(fixed);
 	lhs_->leftShift(fixed);
 
-	Logger::ilout(Logger::Level::Minor) << "\t" << fixed.size() << " variables fixed" << endl;
+	Logger::ilout(Logger::Level::Minor) << "\t" << fixed.size() << " variables fixed" << std::endl;
 }
 
 
@@ -182,4 +182,4 @@ void FixCand::allocate(int nCand)
 	fsVarStat_  = new ArrayBuffer<FSVarStat*>(nCand,false);
 	lhs_        = new ArrayBuffer<double>(nCand,false);
 }
-} //namespace abacus
+}

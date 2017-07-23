@@ -205,7 +205,7 @@ bool Formula::readDimacs(std::istream &in)
 		if (lit) {
 			if (lit > numVars
 			 || -lit > numVars) {
-				ogdf::Logger::slout() << "Literal does not represent a valid variable (index too high)" << endl;
+				ogdf::Logger::slout() << "Literal does not represent a valid variable (index too high)" << std::endl;
 				return false;
 			}
 			literals.push(lit);
@@ -216,11 +216,11 @@ bool Formula::readDimacs(std::istream &in)
 		}
 	}
 	if (!literals.empty()) {
-		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Last clause is not terminated by 0 marker, but we accept it nonetheless" << endl;
+		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Last clause is not terminated by 0 marker, but we accept it nonetheless" << std::endl;
 		addClause(literals);
 	}
 	if(clauseCount != numClauses) {
-		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Number of clauses differs from file header" << endl;
+		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Number of clauses differs from file header" << std::endl;
 	}
 
 	return true;
@@ -260,4 +260,4 @@ bool Formula::writeDimacs(std::ostream &f)
 	return true;
 }
 
-} // MinisatAdvanced
+}

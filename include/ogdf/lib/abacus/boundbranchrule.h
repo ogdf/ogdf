@@ -66,7 +66,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const BoundBranchRule &rhs);
+	friend std::ostream &operator<<(std::ostream &out, const BoundBranchRule &rhs);
 
 
 	//! Modifies a subproblem by changing the lower and the upper bound of the branching variable.
@@ -130,9 +130,9 @@ private:
 };
 
 
-inline ostream &operator<<(ostream &out, const BoundBranchRule &rhs)
+inline std::ostream &operator<<(std::ostream &out, const BoundBranchRule &rhs)
 {
 	return out << rhs.lBound_ << " <= x" << rhs.variable_ << " <= " << rhs.uBound_;
 }
 
-} //namespace abacus
+}

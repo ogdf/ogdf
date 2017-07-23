@@ -1,13 +1,10 @@
-#include <bandit/bandit.h>
-
 #include <set>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 /**
  * Assert that there is a one-to-one mapping of values in assignedVals to values
@@ -207,6 +204,87 @@ void describeIsAcyclic(bool directed)
 
 go_bandit([]() {
 	describe("Simple Graph Algorithms", [](){
+		describe("isTwoEdgeConnected", [](){
+			it("works on an empty graph", [&](){
+				Graph G;
+				AssertThat(isTwoEdgeConnected(G), IsTrue());
+			});
+
+			it("works on a graph with one node", [&](){
+				Graph G;
+				G.newNode();
+				AssertThat(isTwoEdgeConnected(G), IsTrue());
+			});
+
+			it("works on a graph with two nodes", [&](){
+				Graph G;
+				customGraph(G, 2, {{0,1}});
+				AssertThat(isTwoEdgeConnected(G), IsFalse());
+			});
+
+			it("works on a disconnected graph", [&](){
+				Graph G;
+				customGraph(G, 5, {{0,1},{0,2},{1,2},{3,4}});
+				edge bridge = G.chooseEdge();
+				AssertThat(isTwoEdgeConnected(G, bridge), IsFalse());
+				AssertThat(bridge, Equals(nullptr));
+			});
+
+			it("works on a tree", [&](){
+				Graph G;
+				customGraph(G, 5, {{0,1},{1,2},{1,3},{3,4}});
+				edge bridge = nullptr;
+				AssertThat(isTwoEdgeConnected(G, bridge), IsFalse());
+				AssertThat(bridge, !Equals(nullptr));
+			});
+
+			it("works on a connected but not two-edge-connected graph", [&](){
+				Graph G;
+				Array<node> nodes;
+				customGraph(G, 7, {
+					{0,1},{0,2},{1,2},{3,4},{4,5},{5,6},{6,2},{6,3}
+				}, nodes);
+				node v = nodes[6];
+				node u = nodes[2];
+				edge e = G.searchEdge(u,v);
+				edge bridge = nullptr;
+				AssertThat(isTwoEdgeConnected(G, bridge), IsFalse());
+				AssertThat(bridge, Equals(e));
+			});
+
+			it("works on a triangle", [&](){
+				Graph G;
+				customGraph(G, 3, {{0,1},{1,2},{2,0}});
+				edge bridge = G.chooseEdge();
+				AssertThat(isTwoEdgeConnected(G, bridge), IsTrue());
+				AssertThat(bridge, Equals(nullptr));
+			});
+
+			it("works on an extremely large tree", [&](){
+				Graph G;
+				randomTree(G, 250000);
+				AssertThat(isTwoEdgeConnected(G), IsFalse());
+			});
+
+			it("works on an extremely large 2-edge-connected graph", [&](){
+				Graph G;
+				randomBiconnectedGraph(G, 250000, 500000);
+				AssertThat(isTwoEdgeConnected(G), IsTrue());
+			});
+
+			it("works with selfloops", [&](){
+				Graph G;
+				customGraph(G, 1, {{0,0}});
+				AssertThat(isTwoEdgeConnected(G), IsTrue());
+			});
+
+			it("works with multiedges", [&](){
+				Graph G;
+				customGraph(G, 2, {{0,1},{0,1}});
+				AssertThat(isTwoEdgeConnected(G), IsTrue());
+			});
+		});
+
 		describe("isBiconnected", [](){
 			Graph G;
 			node cutVertex;
@@ -214,6 +292,20 @@ go_bandit([]() {
 			before_each([&](){
 				G.clear();
 				cutVertex = nullptr;
+			});
+
+			it("works on an empty graph", [&](){
+				AssertThat(isTwoEdgeConnected(G), IsTrue());
+			});
+
+			it("works on a graph with one node", [&](){
+				G.newNode();
+				AssertThat(isBiconnected(G), IsTrue());
+			});
+
+			it("works on a path of two nodes", [&](){
+				customGraph(G, 2, {{0,1}});
+				AssertThat(isBiconnected(G), IsTrue());
 			});
 
 			it("works on a disconnected graph", [&](){
@@ -234,7 +326,12 @@ go_bandit([]() {
 				AssertThat(cutVertex, Equals(nullptr));
 			});
 
-			it("works on an extremely large graph", [&](){
+			it("works on an extremely large tree", [&](){
+				randomTree(G, 250000);
+				AssertThat(isBiconnected(G), IsFalse());
+			});
+
+			it("works on an extremely large biconnected graph", [&](){
 				randomBiconnectedGraph(G, 250000, 500000);
 				AssertThat(isBiconnected(G), IsTrue());
 			});
@@ -458,7 +555,7 @@ go_bandit([]() {
 			describeIsAcyclic(false);
 		});
 
-		describe("isForest", [](){
+		describe("isArborescenceForest", [](){
 			Graph G;
 			List<node> roots;
 
@@ -469,68 +566,68 @@ go_bandit([]() {
 
 			it("works on an empty graph", [&](){
 				emptyGraph(G, 0);
-				AssertThat(isForest(G, roots), IsTrue());
+				AssertThat(isArborescenceForest(G, roots), IsTrue());
 				AssertThat(roots.empty(), IsTrue());
 			});
 
 			it("works on a graph with a single node", [&](){
 				G.newNode();
-				AssertThat(isForest(G, roots), IsTrue());
+				AssertThat(isArborescenceForest(G, roots), IsTrue());
 				AssertThat(roots.size(), Equals(1));
 				AssertThat(roots.front(), Equals(G.firstNode()));
 			});
 
 			it("works on a graph with a self-loop", [&](){
 				customGraph(G, 2, {{0,1}, {1,1}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on a graph with parallel edges", [&](){
 				customGraph(G, 2, {{0,1}, {0,1}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on a graph without a source", [&](){
 				customGraph(G, 2, {{0,0}, {0,1}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on a cyclic graph", [&](){
 				customGraph(G, 3, {{0,1}, {0,2}, {1,2}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on a cyclic graph with different edge order", [&](){
 				customGraph(G, 3, {{0,2}, {0,1}, {1,2}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on an arborescence", [&](){
 				customGraph(G, 4, {{0,1}, {0,2}, {1,3}});
-				AssertThat(isForest(G, roots), IsTrue());
+				AssertThat(isArborescenceForest(G, roots), IsTrue());
 				AssertThat(roots.size(), Equals(1));
 				AssertThat(roots.front(), Equals(G.firstNode()));
 			});
 
 			it("works on a disconnected forest", [&](){
 				customGraph(G, 3, {{0,1}});
-				AssertThat(isForest(G, roots), IsTrue());
+				AssertThat(isArborescenceForest(G, roots), IsTrue());
 				AssertThat(roots.size(), Equals(2));
 			});
 
 			it("works on a graph with one tree and one cyclic subgraph", [&](){
 				customGraph(G, 5, {{0,1}, {2,3}, {3,4}, {4,2}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on a directed tree that is not an arborescence", [&](){
 				customGraph(G, 4, {{0,1}, {1,2}, {3,1}});
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on an extremely large biconnected graph", [&](){
 				randomBiconnectedGraph(G, 250000, 500000);
-				AssertThat(isForest(G, roots), IsFalse());
+				AssertThat(isArborescenceForest(G, roots), IsFalse());
 			});
 
 			it("works on an extremely large arborescence", [&](){
@@ -542,7 +639,7 @@ go_bandit([]() {
 					nodes[i] = G.newNode();
 					G.newEdge(nodes[randomNumber(0, i-1)], nodes[i]);
 				}
-				AssertThat(isForest(G, roots), IsTrue());
+				AssertThat(isArborescenceForest(G, roots), IsTrue());
 				AssertThat(roots.size(), Equals(1));
 				AssertThat(roots.front(), Equals(G.firstNode()));
 			});
@@ -554,7 +651,7 @@ go_bandit([]() {
 					G.newEdge(v, w);
 					v = w;
 				}
-				AssertThat(isForest(G, roots), IsTrue());
+				AssertThat(isArborescenceForest(G, roots), IsTrue());
 				AssertThat(roots.size(), Equals(1));
 				AssertThat(roots.front(), Equals(G.firstNode()));
 			});

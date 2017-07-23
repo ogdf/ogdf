@@ -194,7 +194,6 @@ void UpwardPlanRep::augment()
 
 	OGDF_ASSERT(hasSingleSource(*this));
 
-	List< Tuple2<adjEntry, adjEntry> > l;
 	List<adjEntry> switches;
 
 	hasSingleSource(*this, s_hat);
@@ -209,6 +208,7 @@ void UpwardPlanRep::augment()
 	fsg.sinkSwitches(sinkSwitches);
 	m_sinkSwitchOf.init(*this, nullptr);
 
+	List<Tuple2<adjEntry, adjEntry>> list;
 	for(face f : m_Gamma.faces) {
 		adjEntry adj_top;
 		switches = sinkSwitches[f];
@@ -220,7 +220,7 @@ void UpwardPlanRep::augment()
 		while (!switches.empty()) {
 			adjEntry adj = switches.popFrontRet();
 			Tuple2<adjEntry, adjEntry> pair(adj, adj_top);
-			l.pushBack(pair);
+			list.pushBack(pair);
 		}
 	}
 	// construct sink arcs
@@ -258,9 +258,8 @@ void UpwardPlanRep::augment()
 	m_Gamma.setExternalFace(m_Gamma.rightFace(extFaceHandle));
 
 	//for int. faces
-	while (!l.empty()) {
-		Tuple2<adjEntry, adjEntry> pair = l.popFrontRet();
-
+	while (!list.empty()) {
+		Tuple2<adjEntry, adjEntry> pair = list.popFrontRet();
 
 		edge e_new = nullptr;
 		if (pair.x2()->theNode()->degree() == 0 ) {
@@ -350,8 +349,7 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 		adjEntry adjSrcNext = adjTgt->succ();
 
 		if (adjTgt != adj->twin())
-			swap(adjTgt,adjSrcNext);
-
+			std::swap(adjTgt, adjSrcNext);
 
 		edge e_split = adjTgt->theEdge(); // the new split edge
 		if (e_split->source() != u)
@@ -393,7 +391,6 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 	fsg.sinkSwitches(sinkSwitches);
 
 	//construct sinkArc for the dirty faces
-	List< Tuple2<adjEntry, adjEntry> > l;
 	for(adjEntry adj : dirtyList) {
 		face fLeft = m_Gamma.leftFace(adj);
 		face fRight = m_Gamma.rightFace(adj);

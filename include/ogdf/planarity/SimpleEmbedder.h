@@ -38,8 +38,10 @@
 
 namespace ogdf {
 
-//! Planar graph embedding by using default planarEmbed.
+//! Embedder that chooses a largest face as the external one.
 /**
+ * Uses ogdf::planarEmbed() to compute an embedding.
+ *
  * @ingroup ga-planarembed
  */
 class OGDF_EXPORT SimpleEmbedder : public EmbedderModule
@@ -67,4 +69,4 @@ private:
 
 };
 
-} // end namespace ogdf
+}

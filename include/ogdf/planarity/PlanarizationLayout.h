@@ -190,4 +190,4 @@ private:
 	int m_cliqueSize;      //!< The minimum size of cliques to search for.
 };
 
-} // end namespace ogdf
+}

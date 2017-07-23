@@ -1,6 +1,5 @@
 /** \file
- * \brief Declaration of interface for embedder for
- * graphs.
+ * \brief Defines ogdf::EmbedderModule.
  *
  * \author Thorsten Kerkhof (thorsten.kerkhof@udo.edu)
  *
@@ -41,8 +40,9 @@ namespace ogdf {
 /**
  * \brief Base class for embedder algorithms.
  *
- * An embedder algorithm computes a planar embedding of a planar
- * graph.
+ * An embedder algorithm computes a planar embedding of a planar graph.
+ * Usually, such an algorithm optimizes some properties of the embedding.
+ * for example, it might maximize the number of nodes incident with the outer face.
  *
  * \see PlanarizationLayout, PlanarizationGridLayout
  */
@@ -61,8 +61,12 @@ public:
 	 *        external face of \p G.
 	 */
 	void call(Graph& G, adjEntry& adjExternal) {
-		OGDF_ASSERT(isPlanar(G));
-		doCall(G, adjExternal);
+		if (G.numberOfNodes() > 1 && G.numberOfEdges() > 1) {
+			OGDF_ASSERT(isPlanar(G));
+			doCall(G, adjExternal);
+		} else if (G.numberOfEdges() == 1) {
+			adjExternal = G.firstEdge()->adjSource();
+		}
 	};
 
 	//! Calls the embedder algorithm for graph \p G.
@@ -79,4 +83,4 @@ protected:
 	virtual void doCall(Graph& G, adjEntry& adjExternal) = 0;
 };
 
-} // end namespace ogdf
+}

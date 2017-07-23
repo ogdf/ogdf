@@ -51,9 +51,9 @@ using namespace abacus;
 #ifdef OGDF_DEBUG
 void CPlanarityMaster::printGraph(const Graph &G) {
 	int i=0;
-	Logger::slout() << "The Given Graph" << endl;
+	Logger::slout() << "The Given Graph" << std::endl;
 	for(edge e : G.edges) {
-		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << endl;
+		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << std::endl;
 	}
 }
 #endif
@@ -183,7 +183,7 @@ void CPlanarityMaster::updateBestSubGraph(List<NodePair> &connection) {
 		m_connectionOneEdges.pushBack(np);
 	}
 
-#ifdef OGDF_DEBUG
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 	GraphIO::write(*m_solutionGraph, "UpdateSolutionGraph.gml", GraphIO::writeGML);
 	//Just for special debugging purposes:
 	ClusterArray<cluster> ca(*m_C);
@@ -204,8 +204,10 @@ void CPlanarityMaster::updateBestSubGraph(List<NodePair> &connection) {
 	ClusterGraphAttributes CGA(CG, GraphAttributes::edgeType | GraphAttributes::nodeType |
 		GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
 	for(edge e : le) {
-		cout << e->graphOf() << "\n";
-		cout << &GG << "\n";
+#ifdef OGDF_DEBUG
+		std::cout << e->graphOf() << "\n";
+		std::cout << &GG << "\n";
+#endif
 		CGA.strokeColor(e) = Color::Name::Red;
 	}
 	GraphIO::write(CGA, "PlanarExtension.gml", GraphIO::writeGML);
@@ -307,7 +309,7 @@ double CPlanarityMaster::clusterConnection(cluster c, GraphCopy &gc) {
 		delete inducedC;
 	}
 	return connectNum;
-}//clusterConnection
+}
 
 double CPlanarityMaster::heuristicInitialLowerBound()
 {
@@ -336,7 +338,7 @@ double CPlanarityMaster::heuristicInitialLowerBound()
 #endif
 
 	return cconn;
-}//heuristicInitialLowerBound
+}
 
 double CPlanarityMaster::heuristicInitialUpperBound() {
 
@@ -344,7 +346,7 @@ double CPlanarityMaster::heuristicInitialUpperBound() {
 	//Can we just use the number of edges needed
 	//to make both the clusters and their complement connected independently?
 	return 3*m_G->numberOfNodes() - 6 - m_G->numberOfEdges();//m_nMaxVars;
-}//heuristicInitialUpperBound
+}
 
 void CPlanarityMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 
@@ -423,7 +425,7 @@ void CPlanarityMaster::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 		node v = e->target();
 		initVars.pushBack(createVariable(oriNode[u], oriNode[v]));
 #ifdef OGDF_DEBUG
-		cout << "Added var " << oriNode[u]->index() << ":" << oriNode[v]->index() << "\n";
+		std::cout << "Added var " << oriNode[u]->index() << ":" << oriNode[v]->index() << "\n";
 #endif
 	}
 
@@ -592,10 +594,10 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 										}
 									}
 								}
-							}// if cluster qualified
-						}// if new satchel vertex
+							}
+						}
 					}
-				}//while connected component
+				}
 #ifdef OGDF_DEBUG
 				Logger::slout()<<"Found a satchel CC with size "<< satchel.size()<<"\n";
 #endif
@@ -619,7 +621,7 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 								}
 								++m_varsMax;
 							}
-						}//for satchel vertices
+						}
 					}
 				}
 
@@ -627,10 +629,10 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 				for(node sn : satchel) {
 					inActiveSatchel[sn] = false;
 				}
-			}// if new satchel
+			}
 		}
 	}
-}//addexternalconnections
+}
 
 //! Create variables for inner cluster connections in case we search
 //! only in the bag-reduced search space.
@@ -698,7 +700,7 @@ void CPlanarityMaster::generateVariablesForFeasibility(
 			} else
 				++ccit;
 		}
-	}//for connect vars
+	}
 
 	ArrayBuffer<ListIterator<NodePair> > creationBuffer(ccons.size());
 	for (ListIterator<NodePair> npit = m_inactiveVariables.begin(); npit.valid(); ++npit) {
@@ -729,7 +731,7 @@ void CPlanarityMaster::generateVariablesForFeasibility(
 	for(int i = creationBuffer.size(); i-- > 0;) {
 	  connectVars.pushBack( createVariable( creationBuffer[i] ) );
 	}
-}//generateVariablesForFeasability
+}
 
 void CPlanarityMaster::initializeOptimization() {
 	m_nSep = 0;
@@ -767,7 +769,7 @@ void CPlanarityMaster::initializeOptimization() {
 	createInitialVariables(connectVars);
 
 #ifdef OGDF_DEBUG
-	cout << "Creating "<<connectVars.size()<<" initial variables\n";
+	std::cout << "Creating "<<connectVars.size()<<" initial variables\n";
 #endif
 
 	int nComplete = (m_G->numberOfNodes()*(m_G->numberOfNodes()-1))/2;
@@ -882,8 +884,8 @@ void CPlanarityMaster::initializeOptimization() {
 				// Avoiding duplicates if cluster consists of 2 chunks
 				if (nCC == 2) break;
 
-			}//connected component has been processed
-		}//end if(nCC > 1)
+			}
+		}
 	}
 	if(pricing())
 		generateVariablesForFeasibility(constraintsCC, connectVars);
@@ -965,7 +967,7 @@ void CPlanarityMaster::initializeOptimization() {
 	m_ssg = new GraphCopy(*m_G); //note that we don't care about clusters here
 #ifdef OGDF_DEBUG
 	Logger::slout() << "SSG creation size: "<<m_ssg->numberOfNodes()<<" "<<m_ssg->numberOfEdges()<<"\n";
-	cout << "SSG creation size: "<<m_ssg->numberOfNodes()<<" "<<m_ssg->numberOfEdges()<<"\n";
+	std::cout << "SSG creation size: "<<m_ssg->numberOfNodes()<<" "<<m_ssg->numberOfEdges()<<"\n";
 #endif
 	// Adding Variables to the Pool
 
@@ -984,7 +986,7 @@ void CPlanarityMaster::initializeOptimization() {
 
 	// We check if we added enough variables: Is the graph with all potential edges compconn?
 	//TODO
-#ifdef OGDF_DEBUG
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 	//Just for special debugging purposes:
 	ClusterArray<cluster> ca(*m_C);
 	Graph GG;
@@ -1006,8 +1008,8 @@ void CPlanarityMaster::initializeOptimization() {
 
 	for (edge e : le) {
 #if 0
-		cout << (*it)->graphOf() << "\n";
-		cout << &GG << "\n";
+		std::cout << (*it)->graphOf() << "\n";
+		std::cout << &GG << "\n";
 #endif
 		CGA.strokeColor(e) = Color::Name::Red;
 	}
@@ -1017,7 +1019,7 @@ void CPlanarityMaster::initializeOptimization() {
 		CGA.width(cc) = 10;
 		CGA.strokeWidth(cc) = 1.0;
 	}
-	ofstream of("CompleteExtension.gml");
+	std::ofstream of("CompleteExtension.gml");
 	GraphIO::writeGML(CGA, of);
 	GraphIO::write(CG, "CompleteExtensionCG.gml", GraphIO::writeGML);
 #endif
@@ -1048,8 +1050,8 @@ void CPlanarityMaster::initializeOptimization() {
 #endif
 
 #ifdef OGDF_DEBUG
-		cout << "Dualbound: "<<dualBound()<<"\n";
-		cout << "Infinity:"  <<infinity()<<"\n";
+		std::cout << "Dualbound: "<<dualBound()<<"\n";
+		std::cout << "Infinity:"  <<infinity()<<"\n";
 #endif
 	// Initialize Upper Bound
 	//TODO: Should be working here but abacus wont work if set

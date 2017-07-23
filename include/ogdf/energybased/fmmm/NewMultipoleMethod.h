@@ -47,8 +47,8 @@ namespace fmmm {
 class OGDF_EXPORT NewMultipoleMethod
 {
 public:
-	NewMultipoleMethod();          //!< constructor
-	~NewMultipoleMethod() { }      //!< destructor
+	//! Constructor
+	NewMultipoleMethod();
 
 	//! Calculate rep. forces for each node.
 	void calculate_repulsive_forces(const Graph &G,
@@ -146,84 +146,48 @@ private:
 		List<QuadTreeNodeNM*>& new_leaf_List);
 
 	//! The extreme coordinates of the particles contained in *act_ptr are calculated.
-	void calculate_boundaries_of_act_node(QuadTreeNodeNM* act_ptr,
-		double& x_min,
-		double& x_max,
-		double& y_min,
-		double& y_max);
+	void calculate_boundaries_of_act_node(QuadTreeNodeNM* act_ptr, DPoint &min, DPoint &max);
 
-	//! Returns true if the rectangle defined by x_min,...,y_max lies within the
+	//! Returns true if the rectangle defined by min and max lies within the
 	//! left(right)_top(bottom) quad of the small cell of *act_ptr.
-	bool in_lt_quad(QuadTreeNodeNM* act_ptr, double x_min,double x_max, double y_min, double y_max);
-	bool in_rt_quad(QuadTreeNodeNM* act_ptr, double x_min,double x_max, double y_min, double y_max);
-	bool in_lb_quad(QuadTreeNodeNM* act_ptr, double x_min,double x_max, double y_min, double y_max);
-	bool in_rb_quad(QuadTreeNodeNM* act_ptr, double x_min,double x_max, double y_min, double y_max);
-	bool quadHelper(double x_min, double x_max, double y_min, double y_max, double l, double r, double b, double t, QuadTreeNodeNM* act_ptr);
+	bool in_lt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
+	bool in_rt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
+	bool in_lb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
+	bool in_rb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
+	bool quadHelper(DPoint min, DPoint max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr);
 
 	//! The Lists *act_ptr->get_x(y)_List_ptr() are split into two sublists containing
 	//! the particles in the left and right half of the actual quad. The list that is
 	//! larger is constructed from *act_ptr->get_x(y)_List_ptr() by deleting the other
 	//! elements; The smaller List stays empty at this point, but the corresponding
 	//! elements in L_x(y)_copy contain a pointer to the x(y) List, where they belong to.
-	void split_in_x_direction(
+	//! If \p isHorizontal is true, we are talking about the respective x lists,
+	//! otherwise about the y lists.
+	void split(
 		QuadTreeNodeNM* act_ptr,
 		List<ParticleInfo>*& L_x_left_ptr,
 		List<ParticleInfo>*& L_y_left_ptr,
 		List<ParticleInfo>*& L_x_right_ptr,
-		List <ParticleInfo>*& L_y_right_ptr);
-
-	//! The Lists *act_ptr->get_x(y)_List_ptr() are split into two subLists containing
-	//! the particles in the top /bottom half ...
-	void split_in_y_direction(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_bottom_ptr,
-		List<ParticleInfo>*& L_y_bottom_ptr,
-		List<ParticleInfo>*& L_x_top_ptr,
-		List<ParticleInfo>*& L_y_top_ptr);
-
+		List<ParticleInfo>*& L_y_right_ptr,
+		bool isHorizontal);
 
 	//! The Lists *L_x(y)_left_ptr are constructed from *act_ptr->get_x(y)_List_ptr()
-	//! by deleting all elements right from last_left_item in *act_ptr->get_x_List_ptr()
-	//! the corresponding values in  *act_ptr->get_y_List_ptr() are deleted as well.
+	//! by deleting all elements right (if \p deleteRight is true, otherwise left)
+	//! from last_left_item in *act_ptr->get_x_List_ptr() the corresponding values
+	//! in *act_ptr->get_y_List_ptr() are deleted as well.
 	//! The corresponding List-elements of the deleted elements in the Lists L_x(y)_copy
 	//! hold the information, that they belong to the Lists *L_x(y)_left_ptr.
-	void x_delete_right_subLists(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_left_ptr,
-		List <ParticleInfo>*& L_y_left_ptr,
-		List<ParticleInfo>*& L_x_right_ptr,
-		List <ParticleInfo>*& L_y_right_ptr,
-		ListIterator<ParticleInfo> last_left_item);
-
-	//! See #x_delete_right_subLists
-	void x_delete_left_subLists(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_left_ptr,
-		List <ParticleInfo>*& L_y_left_ptr,
-		List<ParticleInfo>*& L_x_right_ptr,
-		List <ParticleInfo>*& L_y_right_ptr,
-		ListIterator<ParticleInfo> last_left_item);
-
-	//! The Lists *L_x(y)_left_ptr are constructed from *act_ptr->get_x(y)_List_ptr()
-	//! by deleting all elements right from last_left_item in *act_ptr->get_y_List_ptr()
-	//! the ...
-	void y_delete_right_subLists(
+	//! If \p isHorizontal is true, we are talking about the respective x lists,
+	//! otherwise about the y lists.
+	void delete_subLists(
 		QuadTreeNodeNM* act_ptr,
 		List<ParticleInfo>*& L_x_left_ptr,
 		List<ParticleInfo>*& L_y_left_ptr,
 		List<ParticleInfo>*& L_x_right_ptr,
-		List <ParticleInfo>*& L_y_right_ptr,
-		ListIterator<ParticleInfo> last_left_item);
-
-	//! See #y_delete_right_subLists
-	void y_delete_left_subLists(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_left_ptr,
-		List<ParticleInfo>*& L_y_left_ptr,
-		List<ParticleInfo>*& L_x_right_ptr,
-		List <ParticleInfo>*& L_y_right_ptr,
-		ListIterator<ParticleInfo> last_left_item);
-
+		List<ParticleInfo>*& L_y_right_ptr,
+		ListIterator<ParticleInfo> last_left_item,
+		bool deleteRight,
+		bool isHorizontal);
 
 	//! The Lists *L_x(y)_b_ptr and *L_x(y)_t_ptr are constructed from the Lists
 	//!  *L_x(y)_ptr.
@@ -238,24 +202,18 @@ private:
 
 	//! The Lists *L_x(y)_b(t)_ptr are constructed from the Lists *L_x(y)_ptr by
 	//! moving all List elements from *L_x(y)_ptr that belong to *L_x(y)_l_ptr
-	//! to this List. the L_x(y)_right_ptr point  to the reduced Lists L_x(y)_ptr
-	//! afterwards.
-	void y_move_left_subLists(List<ParticleInfo>*& L_x_ptr,
+	//! (\p moveRight false) or *L_x(y)_r_ptr (\p moveRight true) to this List.
+	//! The L_x(y)_right_ptr point to the reduced Lists L_x(y)_ptr afterwards
+	//! but the elements that belong to *&L_x(y)_right_ptr are moved.
+	void move_subLists_vertical(
+		List<ParticleInfo>*& L_x_ptr,
 		List<ParticleInfo>*& L_x_b_ptr,
 		List<ParticleInfo>*& L_x_t_ptr,
 		List<ParticleInfo>*& L_y_ptr,
-		List <ParticleInfo>*& L_y_b_ptr,
+		List<ParticleInfo>*& L_y_b_ptr,
 		List<ParticleInfo>*& L_y_t_ptr,
-		ListIterator<ParticleInfo> last_left_item);
-
-	//! Same as #y_move_left_subLists but the elements that belong to *&L_x(y)_right_ptr are moved.
-	void y_move_right_subLists(List<ParticleInfo>*& L_x_ptr,
-		List<ParticleInfo>*& L_x_b_ptr,
-		List<ParticleInfo>*& L_x_t_ptr,
-		List<ParticleInfo>*&L_y_ptr,
-		List <ParticleInfo>*& L_y_b_ptr,
-		List<ParticleInfo>*& L_y_t_ptr,
-		ListIterator<ParticleInfo> last_left_item);
+		ListIterator<ParticleInfo> last_left_item,
+		bool moveRight);
 
 	//! The sorted subLists, that can be accesssed by the entries in L_x(y)_copy->get_subList_ptr()
 	//! are constructed.
@@ -353,31 +311,21 @@ private:
 
 	//! Finds the small cell of the actual Node of T iteratively,and updates
 	//! Sm_downleftcorner, Sm_boxlength, and level of *act_ptr.
-	void find_small_cell_iteratively(QuadTreeNodeNM* act_ptr,
-		double x_min,
-		double x_max,
-		double y_min,
-		double y_max);
+	void find_small_cell_iteratively(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
 
 	//! Finds the small cell of the actual Node of T by Aluru's Formula, and updates
 	//! Sm_downleftcorner, Sm_boxlength, and level of *act_ptr.
-	void find_small_cell_by_formula(QuadTreeNodeNM* act_ptr,
-		double x_min,
-		double x_max,
-		double y_min,
-		double y_max);
+	void find_small_cell_by_formula(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
 
 	//! Finds the small cell of the actual node
 	//! using the selected algorithm
-	inline void find_small_cell(QuadTreeNodeNM* act_ptr,
-	                            double x_min, double x_max,
-	                            double y_min, double y_max) {
+	void find_small_cell(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
 		switch (find_sm_cell()) {
 		case FMMMOptions::SmallestCellFinding::Iteratively:
-			find_small_cell_iteratively(act_ptr, x_min, x_max, y_min, y_max);
+			find_small_cell_iteratively(act_ptr, min, max);
 			break;
 		case FMMMOptions::SmallestCellFinding::Aluru:
-			find_small_cell_by_formula(act_ptr, x_min, x_max, y_min, y_max);
+			find_small_cell_by_formula(act_ptr, min, max);
 			break;
 		}
 	}
@@ -463,9 +411,6 @@ private:
 		NodeArray<DPoint>& F_multipole_exp,
 		NodeArray<DPoint>& F_local_exp,
 		NodeArray<DPoint>& F_rep);
-
-	//! Returns the repulsing force_function_value of scalar d.
-	double f_rep_scalar (double d);
 
 	//! Init BK -matrix for values n, k in 0 to t.
 	void init_binko(int t);

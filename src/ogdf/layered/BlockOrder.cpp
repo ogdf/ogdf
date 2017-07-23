@@ -40,8 +40,8 @@ BlockOrder::BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly)
   , m_currentPerm()
   , m_bestPerm()
   , m_currentPermInv()
-  , m_storedCrossings(numeric_limits<int>::max())
-  , m_bestCrossings(numeric_limits<int>::max())
+  , m_storedCrossings(std::numeric_limits<int>::max())
+  , m_bestCrossings(std::numeric_limits<int>::max())
   , m_Blocks()
   , m_NodeBlocks(m_GC,nullptr)
   , m_EdgeBlocks(m_GC,nullptr)
@@ -49,6 +49,7 @@ BlockOrder::BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly)
   , m_activeBlocksCount(0)
   , m_hierarchy(hierarchy)
   , m_levels(0,-1,nullptr)
+  , m_verticalStepsBound(0)
 {
 	doInit(longEdgesOnly);
 }
@@ -137,26 +138,24 @@ void BlockOrder::doInit(bool longEdgesOnly)
 
 
 Block::Block(edge e)
-  :
-  m_NeighboursIncoming(1)
-  , m_InvertedIncoming(1)
-  , m_NeighboursOutgoing(1)
-  , m_InvertedOutgoing(1)
-  , m_Edge(e)
-  , m_isEdgeBlock(true)
-  , m_isNodeBlock(false)
+: m_NeighboursIncoming(1)
+, m_InvertedIncoming(1)
+, m_NeighboursOutgoing(1)
+, m_InvertedOutgoing(1)
+, m_Edge(e)
+, m_isEdgeBlock(true)
+, m_isNodeBlock(false)
 { }
 
 
 Block::Block(node v)
-  :
-  m_NeighboursIncoming(v->indeg())
-  , m_InvertedIncoming(v->indeg())
-  , m_NeighboursOutgoing(v->outdeg())
-  , m_InvertedOutgoing(v->outdeg())
-  , m_Node(v)
-  , m_isEdgeBlock(false)
-  , m_isNodeBlock(true)
+: m_NeighboursIncoming(v->indeg())
+, m_InvertedIncoming(v->indeg())
+, m_NeighboursOutgoing(v->outdeg())
+, m_InvertedOutgoing(v->outdeg())
+, m_Node(v)
+, m_isEdgeBlock(false)
+, m_isNodeBlock(true)
 { }
 
 
@@ -282,7 +281,7 @@ void BlockOrder::sortAdjacencies()
 					}
 				}
 			}
-		} // if (processedBlock->isVertexBlock())
+		}
 
 		if (processedBlock->isEdgeBlock()) {
 
@@ -312,7 +311,7 @@ void BlockOrder::sortAdjacencies()
 					blockOfU->m_InvertedOutgoing[j] = p[e];
 					processedBlock->m_InvertedIncoming[p[e]] = j;
 				}
-			}// end of first foreach loop
+			}
 
 			// second foreach loop
 			// edge outgoing from block
@@ -331,11 +330,10 @@ void BlockOrder::sortAdjacencies()
 					blockOfX->m_InvertedIncoming[j] = longEdgeP[e];
 					processedBlock->m_InvertedOutgoing[longEdgeP[e]] = j;
 				}
-			}//end of second foreach loop
+			}
 		}
 	}
 }
-
 
 void BlockOrder::deconstruct()
 {
@@ -706,10 +704,9 @@ void BlockOrder::buildLevels()
 			lvl[itemsOnLevelCtr[level]] = b->m_nodes[level];
 			m_pos[b->m_nodes[level]] = itemsOnLevelCtr[level];
 			++itemsOnLevelCtr[level];
-		} //foreach level in block
-	} // forall blocks
+		}
+	}
 }
-
 
 // copied from HierarchyLevels
 void BlockOrder::buildAdjNodes()
@@ -799,10 +796,10 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 		} else {
 			edge currentEdge = block->m_Edge;
 			Block *targetBlock = m_NodeBlocks[currentEdge->target()];
-			for (int l = levels.low(); l <= levels.high(); ++l) {
-				if (block->m_upper <= levels[l] && levels[l] <= block->m_lower && targetBlock->m_nodes[levels[l]] == nullptr) {
-					itemsOnLevelCtr[l] += 1;
-					targetBlock->m_nodes[levels[l]] = G.newNode();
+			for (int level = levels.low(); level <= levels.high(); ++level) {
+				if (block->m_upper <= levels[level] && levels[level] <= block->m_lower && targetBlock->m_nodes[levels[level]] == nullptr) {
+					itemsOnLevelCtr[level] += 1;
+					targetBlock->m_nodes[levels[level]] = G.newNode();
 				}
 			}
 		}
@@ -910,7 +907,7 @@ int BlockOrder::verticalSwap(Block *b, int level)
 	m_nNodesOnLvls[level] += 1;
 
 	Array<int> nextExistingLvl(m_nNodesOnLvls.low(), m_nNodesOnLvls.high(), -1);
-	int last = numeric_limits<int>::max();
+	int last = std::numeric_limits<int>::max();
 	for (int i = nextExistingLvl.high(); i >= nextExistingLvl.low(); --i) {
 		nextExistingLvl[i] = last;
 		if (m_nNodesOnLvls[i] > 0)
@@ -1261,4 +1258,4 @@ void BlockOrder::gridSifting(int nRepeats)
 	return;
 }
 
-} // end namespace ogdf
+}

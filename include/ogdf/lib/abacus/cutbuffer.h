@@ -183,6 +183,6 @@ private:
 		&operator=(const CutBuffer<BaseType, CoType> &rhs);
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/cutbuffer.inc>

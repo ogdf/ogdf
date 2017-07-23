@@ -1,21 +1,22 @@
-
 //          Copyright Joakim Karlsson & Kim Gräsman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef IGLOO_STARTSWITHCONSTRAINT_H
-#define IGLOO_STARTSWITHCONSTRAINT_H
+#ifndef SNOWHOUSE_STARTSWITHCONSTRAINT_H
+#define SNOWHOUSE_STARTSWITHCONSTRAINT_H
 
-#include "./expressions/expression.h"
+#include "expressions/expression.h"
 
-namespace snowhouse {
-
-  template <typename ExpectedType>
-  struct StartsWithConstraint : Expression< StartsWithConstraint<ExpectedType> >
+namespace snowhouse
+{
+  template<typename ExpectedType>
+  struct StartsWithConstraint : Expression<StartsWithConstraint<ExpectedType> >
   {
     StartsWithConstraint(const ExpectedType& expected)
-      : m_expected(expected) {}
+        : m_expected(expected)
+    {
+    }
 
     bool operator()(const std::string& actual) const
     {
@@ -25,7 +26,7 @@ namespace snowhouse {
     ExpectedType m_expected;
   };
 
-  template< typename ExpectedType >
+  template<typename ExpectedType>
   inline StartsWithConstraint<ExpectedType> StartsWith(const ExpectedType& expected)
   {
     return StartsWithConstraint<ExpectedType>(expected);
@@ -36,13 +37,13 @@ namespace snowhouse {
     return StartsWithConstraint<std::string>(expected);
   }
 
-  template< typename ExpectedType >
-  struct Stringizer< StartsWithConstraint< ExpectedType > >
+  template<typename ExpectedType>
+  struct Stringizer<StartsWithConstraint<ExpectedType> >
   {
     static std::string ToString(const StartsWithConstraint<ExpectedType>& constraint)
     {
       std::ostringstream builder;
-	  builder << "starts with " << snowhouse::Stringize(constraint.m_expected);
+      builder << "starts with " << snowhouse::Stringize(constraint.m_expected);
 
       return builder.str();
     }

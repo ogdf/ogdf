@@ -217,5 +217,5 @@ private:
 
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

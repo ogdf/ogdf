@@ -185,7 +185,6 @@ private:
 	void hyperedgeToClique(hyperedge e);
 
 	void cloneHypernodes();
-
 };
 
-} // end namespace ogdf
+}

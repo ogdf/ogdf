@@ -340,8 +340,7 @@ T computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<edg
 	OGDF_ASSERT(rootcount == 1); // is connected
 
 	return treeWeight;
-}//computeMinST
-
+}
 
 //! Reduce a graph to its minimum spanning tree (MST) using Kruskal's algorithm
 /**
@@ -356,21 +355,22 @@ template<typename T>
 T makeMinimumSpanningTree(Graph &G, const EdgeArray<T> &weight)
 {
 	T total(0);
-	List< Prioritized<edge, T> > sortEdges;
-	for (edge e = G.firstEdge(); e; e = e->succ()) {
-		sortEdges.pushBack(Prioritized<edge,T>(e, weight[e]));
+	Array<Prioritized<edge, T>> sortEdges(G.numberOfEdges());
+	int i = 0;
+	for (edge e : G.edges) {
+		sortEdges[i++] = Prioritized<edge,T>(e, weight[e]);
 	}
 	sortEdges.quicksort();
 
 	// now let's do Kruskal's algorithm
 	NodeArray<int> setID(G);
 	DisjointSets<> uf(G.numberOfNodes());
-	for (node v = G.firstNode(); v; v = v->succ()) {
+	for (node v : G.nodes) {
 		setID[v] = uf.makeSet();
 	}
 
-	for (ListConstIterator< Prioritized<edge,T> > it = sortEdges.begin(); it.valid(); ++it) {
-		const edge e = (*it).item();
+	for (auto prioEdge : sortEdges) {
+		const edge e = prioEdge.item();
 		const int v = setID[e->source()];
 		const int w = setID[e->target()];
 		if (uf.find(v) != uf.find(w)) {
@@ -473,5 +473,4 @@ inline bool planarEmbedPlanarGraph(Graph &G) {
 	return BoyerMyrvold().planarEmbedPlanarGraph(G);
 }
 
-
-} // end namespace ogdf
+}

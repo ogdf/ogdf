@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/AdjEntryArray.h>
 #include <ogdf/fileformats/GmlParser.h>
@@ -47,11 +48,12 @@ using std::lock_guard;
 
 namespace ogdf {
 
+using Math::nextPower2;
+
 Graph::Graph()
 {
 	m_nodeIdCount = m_edgeIdCount = 0;
-	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
-	m_edgeArrayTableSize = MIN_EDGE_TABLE_SIZE;
+	resetTableSizes();
 }
 
 
@@ -59,8 +61,7 @@ Graph::Graph(const Graph &G)
 {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
+	resetTableSizes();
 }
 
 
@@ -90,11 +91,11 @@ Graph &Graph::operator=(const Graph &G)
 {
 	clear();
 	copy(G);
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return *this;
 }
@@ -105,8 +106,6 @@ void Graph::assign(const Graph &G, NodeArray<node> &mapNode,
 {
 	clear();
 	copy(G,mapNode,mapEdge);
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 }
 
@@ -115,15 +114,14 @@ void Graph::construct(const Graph &G, NodeArray<node> &mapNode,
 	EdgeArray<edge> &mapEdge)
 {
 	copy(G,mapNode,mapEdge);
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
+	resetTableSizes();
 }
 
 
 void Graph::copy(const Graph &G, NodeArray<node> &mapNode,
 	EdgeArray<edge> &mapEdge)
 {
-	if (G.nodes.size() == 0) return;
+	if (G.nodes.empty()) return;
 
 	mapNode.init(G,nullptr);
 
@@ -133,7 +131,7 @@ void Graph::copy(const Graph &G, NodeArray<node> &mapNode,
 		v->m_outdeg = vG->m_outdeg;
 	}
 
-	if (G.edges.size() == 0) return;
+	if (G.edges.empty()) return;
 
 	mapEdge.init(G,nullptr);
 
@@ -171,7 +169,9 @@ void Graph::copy(const Graph &G)
 	EdgeArray<edge> mapEdge;
 	copy(G,mapNode,mapEdge);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -242,11 +242,11 @@ void Graph::constructInitByCC(
 		}
 	}
 
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -329,11 +329,11 @@ void Graph::constructInitByNodes(
 
 	// set size of associated arrays and reinitialize all (we have now a
 	// completely new graph)
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -376,10 +376,10 @@ void Graph::constructInitByActiveNodes(
 				if ((adjG->m_id & 1) == 0)
 				{
 					adjEdges.pushBack(adjG->m_edge);
-				}//if one time
+				}
 				if (adjG->m_edge->source() == vG) outCount++;
 					else inCount++;
-			}//if opposite active
+			}
 		}
 		v->m_indeg = inCount;
 		v->m_outdeg = outCount;
@@ -412,13 +412,12 @@ void Graph::constructInitByActiveNodes(
 
 	// set size of associated arrays and reinitialize all (we have now a
 	// completely new graph)
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
-}//constructinitbyactivenodes
-
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
+}
 
 node Graph::newNode()
 {
@@ -448,10 +447,10 @@ node Graph::newNode()
 node Graph::newNode(int index)
 {
 	if(index >= m_nodeIdCount) {
-		m_nodeIdCount = index+1;
+		m_nodeIdCount = index + 1;
 
 		if(index >= m_nodeArrayTableSize) {
-			m_nodeArrayTableSize = nextPower2(m_nodeArrayTableSize,index);
+			m_nodeArrayTableSize = nextPower2(m_nodeArrayTableSize, index + 1);
 			for(NodeArrayBase *nab : m_regNodeArrays)
 				nab->enlargeTable(m_nodeArrayTableSize);
 		}
@@ -541,10 +540,10 @@ edge Graph::newEdge(node v, node w, int index)
 	adjTgt->m_twin = adjSrc;
 
 	if(index >= m_edgeIdCount) {
-		m_edgeIdCount = index+1;
+		m_edgeIdCount = index + 1;
 
 		if(index >= m_edgeArrayTableSize) {
-			m_edgeArrayTableSize = nextPower2(m_edgeArrayTableSize,index);
+			m_edgeArrayTableSize = nextPower2(m_edgeArrayTableSize, index + 1);
 
 			for(EdgeArrayBase *eab : m_regEdgeArrays)
 				eab->enlargeTable(m_edgeArrayTableSize);
@@ -648,7 +647,7 @@ edge Graph::newEdge(node v, adjEntry adjEnd)
 	edge e = createEdgeElement(v,w,adjSrc,adjTgt);
 
 	return adjSrc->m_edge = adjTgt->m_edge = e;
-}//newedge
+}
 
 //copy of above function with edge ending at v
 edge Graph::newEdge(adjEntry adjStart, node v)
@@ -676,8 +675,7 @@ edge Graph::newEdge(adjEntry adjStart, node v)
 	edge e = createEdgeElement(w,v,adjSrc,adjTgt);
 
 	return adjSrc->m_edge = adjTgt->m_edge = e;
-}//newedge
-
+}
 
 void Graph::move(edge e,
 	adjEntry adjSrc,
@@ -807,7 +805,7 @@ void Graph::unsplit(node u)
 	edge eOut = u->lastAdj()->theEdge();
 
 	if (eIn->target() != u)
-		swap(eIn,eOut);
+		std::swap(eIn,eOut);
 
 	unsplit(eIn,eOut);
 }
@@ -911,9 +909,11 @@ void Graph::clear()
 
 	m_nodeIdCount = m_edgeIdCount = 0;
 	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
-	reinitArrays();
+	reinitArrays(false);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -923,8 +923,8 @@ void Graph::reverseEdge(edge e)
 	OGDF_ASSERT(e->graphOf() == this);
 	node &src = e->m_src, &tgt = e->m_tgt;
 
-	swap(src,tgt);
-	swap(e->m_adjSrc,e->m_adjTgt);
+	std::swap(src,tgt);
+	std::swap(e->m_adjSrc,e->m_adjTgt);
 	src->m_outdeg++; src->m_indeg--;
 	tgt->m_outdeg--; tgt->m_indeg++;
 }
@@ -935,7 +935,9 @@ void Graph::reverseAllEdges()
 	for (edge e = edges.head(); e; e = e->succ())
 		reverseEdge(e);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -973,7 +975,7 @@ edge Graph::searchEdge(node v, node w) const
 	OGDF_ASSERT(w != nullptr);
 	OGDF_ASSERT(w->graphOf() == this);
 	if (w->degree() < v->degree()) {
-		swap(v,w);
+		std::swap(v,w);
 	}
 
 	for(adjEntry adj : v->adjEntries) {
@@ -1100,34 +1102,18 @@ void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const
 	m_regStructures.del(it);
 }
 
-
-void Graph::moveRegisterArray(ListIterator<NodeArrayBase*> it, NodeArrayBase *pNodeArray) const
+void Graph::resetTableSizes()
 {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	*it = pNodeArray;
+	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE, m_nodeIdCount + 1);
+	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE, m_edgeIdCount + 1);
 }
 
-void Graph::moveRegisterArray(ListIterator<EdgeArrayBase*> it, EdgeArrayBase *pEdgeArray) const
+void Graph::reinitArrays(bool doResetTableSizes)
 {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	*it = pEdgeArray;
-}
+	if(doResetTableSizes) {
+		resetTableSizes();
+	}
 
-void Graph::moveRegisterArray(ListIterator<AdjEntryArrayBase*> it, AdjEntryArrayBase *pAdjArray) const
-{
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	*it = pAdjArray;
-}
-
-
-void Graph::reinitArrays()
-{
 	for(NodeArrayBase *nab : m_regNodeArrays)
 		nab->reinit(m_nodeArrayTableSize);
 
@@ -1154,99 +1140,63 @@ void Graph::resetAdjEntryIndex(int newIndex, int oldIndex)
 }
 
 
-int Graph::nextPower2(int start, int idCount)
-{
-	while (start <= idCount)
-		start <<= 1;
-
-	return start;
-}
-
-
-bool Graph::consistencyCheck() const
+#ifdef OGDF_DEBUG
+void Graph::consistencyCheck() const
 {
 	int n = 0;
 	for(node v : nodes) {
-#ifdef OGDF_DEBUG
-		if (v->graphOf() != this)
-			return false;
-#endif
+		OGDF_ASSERT(v->graphOf() == this);
 
 		n++;
 		int in = 0, out = 0;
 
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->m_edge;
-			if (adj->m_twin->m_edge != e)
-				return false;
+			OGDF_ASSERT(adj->m_twin->m_edge == e);
 
-			if (e->m_adjSrc == adj)
+			if (e->m_adjSrc == adj) {
 				out++;
-			else if (e->m_adjTgt == adj)
+			} else {
+				OGDF_ASSERT(e->m_adjTgt == adj);
 				in++;
-			else
-				return false;
+			}
 
-			if (adj->m_node != v)
-				return false;
-
-#ifdef OGDF_DEBUG
-			if (adj->graphOf() != this)
-				return false;
-#endif
+			OGDF_ASSERT(adj->m_node == v);
+			OGDF_ASSERT(adj->graphOf() == this);
 		}
 
-		if (v->m_indeg != in)
-			return false;
-
-		if (v->m_outdeg != out)
-			return false;
+		OGDF_ASSERT(v->m_indeg == in);
+		OGDF_ASSERT(v->m_outdeg == out);
 	}
 
-	if (n != nodes.size())
-		return false;
+	OGDF_ASSERT(n == nodes.size());
 
 	int m = 0;
 	for(edge e : edges) {
-#ifdef OGDF_DEBUG
-		if (e->graphOf() != this)
-			return false;
-#endif
-
 		m++;
-		if (e->m_adjSrc == e->m_adjTgt)
-			return false;
-
-		if (e->m_adjSrc->m_edge != e)
-			return false;
-
-		if (e->m_adjTgt->m_edge != e)
-			return false;
-
-		if (e->m_adjSrc->m_node != e->m_src)
-			return false;
-
-		if (e->m_adjTgt->m_node != e->m_tgt)
-			return false;
+		OGDF_ASSERT(e->graphOf() == this);
+		OGDF_ASSERT(e->m_adjSrc != e->m_adjTgt);
+		OGDF_ASSERT(e->m_adjSrc->m_edge == e);
+		OGDF_ASSERT(e->m_adjTgt->m_edge == e);
+		OGDF_ASSERT(e->m_adjSrc->m_node == e->m_src);
+		OGDF_ASSERT(e->m_adjTgt->m_node == e->m_tgt);
 	}
 
-	return m == edges.size();
+	OGDF_ASSERT(m == edges.size());
 }
+#endif
 
 
 void Graph::resetEdgeIdCount(int maxId)
 {
 	m_edgeIdCount = maxId+1;
 
-#ifdef OGDF_DEBUG
-	if (debugLevelIsAtLeast(DebugLevel::ConsistencyChecks)) {
-		for(edge e : edges)
-		{
-			// if there is an edge with higer index than maxId, we cannot
-			// set the edge id count to maxId+1
-			if (e->index() > maxId)
-				OGDF_ASSERT(false);
-		}
+#ifdef OGDF_HEAVY_DEBUG
+	for(edge e : edges)
+	{
+		// if there is an edge with higer index than maxId, we cannot
+		// set the edge id count to maxId+1
+		OGDF_ASSERT(e->index() <= maxId);
 	}
 #endif
 }
@@ -1322,20 +1272,20 @@ void Graph::moveAdj(adjEntry adj, node w)
 }
 
 
-ostream &operator<<(ostream &os, ogdf::node v)
+std::ostream &operator<<(std::ostream &os, ogdf::node v)
 {
 	if (v) os << v->index(); else os << "nil";
 	return os;
 }
 
-ostream &operator<<(ostream &os, ogdf::edge e)
+std::ostream &operator<<(std::ostream &os, ogdf::edge e)
 {
 	if (e) os << "(" << e->source() << "," << e->target() << ")";
 	else os << "nil";
 	return os;
 }
 
-ostream &operator<<(ostream &os, ogdf::adjEntry adj)
+std::ostream &operator<<(std::ostream &os, ogdf::adjEntry adj)
 {
 	if (adj) {
 		ogdf::edge e = adj->theEdge();
@@ -1353,7 +1303,7 @@ Graph::CCsInfo::CCsInfo(const Graph& G)
 {
 	NodeArray<int> component(G,-1);
 
-	StackPure<node> S;
+	ArrayBuffer<node> S;
 	SListPure<int> startNodes;
 	SListPure<int> startEdges;
 	int nComponent = 0, n = 0, m = 0;
@@ -1365,7 +1315,7 @@ Graph::CCsInfo::CCsInfo(const Graph& G)
 		component[v] = nComponent;
 
 		while(!S.empty()) {
-			node w = S.pop();
+			node w = S.popRet();
 			m_nodes[n++] = w;
 
 			for(adjEntry adj : w->adjEntries) {
@@ -1454,7 +1404,7 @@ int Graph::HiddenEdgeSet::size()
 	return m_edges.size();
 }
 
-ostream &operator<<(ostream &os, const Graph::EdgeType &et) {
+std::ostream &operator<<(std::ostream &os, const Graph::EdgeType &et) {
 	switch (et) {
 		case Graph::EdgeType::association:    os << "association";    break;
 		case Graph::EdgeType::generalization: os << "generalization"; break;
@@ -1463,4 +1413,4 @@ ostream &operator<<(ostream &os, const Graph::EdgeType &et) {
 	return os;
 }
 
-} // end namespace ogdf
+}

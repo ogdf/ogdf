@@ -31,7 +31,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const VarType &rhs)
+std::ostream &operator<<(std::ostream &out, const VarType &rhs)
 {
 	switch (rhs.type_)
 	{
@@ -48,4 +48,4 @@ ostream &operator<<(ostream &out, const VarType &rhs)
 	return out;
 }
 
-} //namespace abacus
+}

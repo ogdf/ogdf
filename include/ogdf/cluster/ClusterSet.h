@@ -314,5 +314,4 @@ private:
 	List<cluster> m_clusters;
 };
 
-
-} // end namespace ogdf
+}

@@ -292,4 +292,4 @@ void RMHeap<T, C>::release(RMHeapNode<T> *heapNode)
 	delete heapNode;
 }
 
-} // end namespace ogdf
+}

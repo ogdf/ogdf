@@ -68,13 +68,13 @@ public:
 	explicit GraphObserver(const Graph* G) : m_pGraph(G)
 	{
 		m_itGList = G->registerStructure(this);
-	}//constructor
+	}
 
 	//! Destroys the instance, unregisters it from watched graph
 	virtual ~GraphObserver()
 	{
 		if (m_pGraph) m_pGraph->unregisterStructure(m_itGList);
-	}//destructor
+	}
 
 	//! Associates observer instance with graph \p G
 	void reregister(const Graph *pG) {
@@ -112,8 +112,6 @@ public:
 protected:
 	const Graph* m_pGraph; //! watched graph
 	ListIterator<GraphObserver*> m_itGList; //! List entry in graphs list of all registered graphobservers
-
-
 };
 
-} //end namespace ogdf
+}

@@ -71,19 +71,19 @@ private:
 	using PlanarPQTree = booth_lueker::PlanarPQTree;
 
 	//! Recursive planarity test for clustered graph induced by \p act.
-	bool planarityTest(ClusterGraph &C, cluster &act, Graph &G);
+	bool planarityTest(ClusterGraph &C, const cluster act, Graph &G);
 
 	//! Preprocessing that initializes data structures, used in call.
 	bool preProcess(ClusterGraph &C,Graph &G);
 
 	//! Prepares the planarity test for one cluster.
-	bool preparation(Graph  &G,cluster &C,node superSink);
+	bool preparation(Graph &G, const cluster C, node superSink);
 
 	//! Performs a planarity test on a biconnected component.
 	bool doTest(
 		Graph &G,
 		NodeArray<int> &numbering,
-		cluster &cl,
+		const cluster cl,
 		node superSink,
 		EdgeArray<edge> &edgeTable);
 
@@ -107,4 +107,4 @@ private:
 	ErrorCode m_errorCode;
 };
 
-} // end namespace ogdf
+}

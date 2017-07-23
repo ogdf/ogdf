@@ -340,4 +340,4 @@ private:
 	bool m_fakeTree;
 };
 
-} // end namespace ogdf
+}

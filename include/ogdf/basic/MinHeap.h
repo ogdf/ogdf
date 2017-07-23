@@ -289,4 +289,4 @@ public:
 	}
 };
 
-} // end namespace ogdf
+}

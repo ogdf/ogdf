@@ -222,5 +222,4 @@ bool UpwardPlanarity::upwardPlanarAugment_singleSource_embedded(
 	}
 }
 
-
- } // end namespace ogdf
+ }

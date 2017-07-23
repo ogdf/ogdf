@@ -36,7 +36,7 @@ namespace ogdf {
 
 
 // begin of OGML file
-static void write_ogml_header(ostream &os)
+static void write_ogml_header(std::ostream &os)
 {
 	// XML declaration and OGML tag
 	os << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"; // Latin-1
@@ -46,14 +46,14 @@ static void write_ogml_header(ostream &os)
 
 
 // end of OGML file
-static void write_ogml_footer(ostream &os)
+static void write_ogml_footer(std::ostream &os)
 {
 	GraphIO::indent(os,1) << "</graph>\n";
 	os << "</ogml>\n";
 }
 
 
-static void write_ogml_graph_edges(const Graph &G, ostream &os)
+static void write_ogml_graph_edges(const Graph &G, std::ostream &os)
 {
 	for(edge e : G.edges) {
 		GraphIO::indent(os,3) << "<edge id=\"e" << e->index() << "\">\n";
@@ -64,7 +64,7 @@ static void write_ogml_graph_edges(const Graph &G, ostream &os)
 }
 
 // write graph structure
-static void write_ogml_graph(const Graph &G, ostream &os)
+static void write_ogml_graph(const Graph &G, std::ostream &os)
 {
 	GraphIO::indent(os,2) << "<structure>\n";
 
@@ -80,7 +80,7 @@ static void write_ogml_graph(const Graph &G, ostream &os)
 
 
 // recursively write clusters and nodes
-static void write_ogml_graph(cluster c, int level, ostream &os)
+static void write_ogml_graph(cluster c, int level, std::ostream &os)
 {
 	if(level > 0) {
 		GraphIO::indent(os,2+level) << "<node id=\"c" << c->index() << "\">\n";
@@ -102,7 +102,7 @@ static void write_ogml_graph(cluster c, int level, ostream &os)
 
 
 // write cluster graph structure with clusters
-static void write_ogml_graph(const ClusterGraph &C, ostream &os)
+static void write_ogml_graph(const ClusterGraph &C, std::ostream &os)
 {
 	GraphIO::indent(os,2) << "<structure>\n";
 
@@ -137,7 +137,7 @@ static string formatLabel(const string& labelText)
 }
 
 
-static void write_ogml_graph_edges(const GraphAttributes &A, ostream &os)
+static void write_ogml_graph_edges(const GraphAttributes &A, std::ostream &os)
 {
 	const Graph &G = A.constGraph();
 
@@ -156,7 +156,7 @@ static void write_ogml_graph_edges(const GraphAttributes &A, ostream &os)
 
 
 // write graph structure with attributes
-static void write_ogml_graph(const GraphAttributes &A, ostream &os)
+static void write_ogml_graph(const GraphAttributes &A, std::ostream &os)
 {
 	const Graph &G = A.constGraph();
 
@@ -179,7 +179,7 @@ static void write_ogml_graph(const GraphAttributes &A, ostream &os)
 
 
 // recursively write clusters and nodes
-static void write_ogml_graph(const ClusterGraphAttributes &A, cluster c, int level, ostream &os)
+static void write_ogml_graph(const ClusterGraphAttributes &A, cluster c, int level, std::ostream &os)
 {
 	if(level > 0) {
 		GraphIO::indent(os,2+level) << "<node id=\"c" << c->index() << "\">\n";
@@ -213,7 +213,7 @@ static void write_ogml_graph(const ClusterGraphAttributes &A, cluster c, int lev
 
 
 // write cluster structure with attributes
-static void write_ogml_graph(const ClusterGraphAttributes &A, ostream &os)
+static void write_ogml_graph(const ClusterGraphAttributes &A, std::ostream &os)
 {
 	GraphIO::indent(os,2) << "<structure>\n";
 
@@ -264,7 +264,7 @@ static const char *fillPatternToOGML(FillPattern brushPattern)
 
 
 
-static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
+static void write_ogml_layout_nodes_edges(const GraphAttributes &A, std::ostream &os)
 {
 	const Graph &G = A.constGraph();
 
@@ -420,7 +420,7 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 
 
 // write graph layout with attributes
-static void write_ogml_layout(const GraphAttributes &A, ostream &os)
+static void write_ogml_layout(const GraphAttributes &A, std::ostream &os)
 {
 	GraphIO::indent(os,2) << "<layout>\n";
 	GraphIO::indent(os,3) << "<styles>\n";
@@ -433,7 +433,7 @@ static void write_ogml_layout(const GraphAttributes &A, ostream &os)
 
 
 // write cluster layout with attributes
-static void write_ogml_layout(const ClusterGraphAttributes &A, ostream &os)
+static void write_ogml_layout(const ClusterGraphAttributes &A, std::ostream &os)
 {
 	const ClusterGraph &C = A.constClusterGraph();
 
@@ -464,7 +464,7 @@ static void write_ogml_layout(const ClusterGraphAttributes &A, ostream &os)
 
 
 // write Graph
-bool GraphIO::writeOGML(const Graph &G, ostream &os)
+bool GraphIO::writeOGML(const Graph &G, std::ostream &os)
 {
 	bool result = os.good();
 
@@ -479,7 +479,7 @@ bool GraphIO::writeOGML(const Graph &G, ostream &os)
 
 
 // write ClusterGraph
-bool GraphIO::writeOGML(const ClusterGraph &C, ostream &os)
+bool GraphIO::writeOGML(const ClusterGraph &C, std::ostream &os)
 {
 	bool result = os.good();
 
@@ -494,7 +494,7 @@ bool GraphIO::writeOGML(const ClusterGraph &C, ostream &os)
 
 
 // write GraphAttributes
-bool GraphIO::writeOGML(const GraphAttributes &A, ostream &os)
+bool GraphIO::writeOGML(const GraphAttributes &A, std::ostream &os)
 {
 	bool result = os.good();
 
@@ -510,7 +510,7 @@ bool GraphIO::writeOGML(const GraphAttributes &A, ostream &os)
 
 
 // write ClusterGraphAttributes
-bool GraphIO::writeOGML(const ClusterGraphAttributes &A, ostream &os)
+bool GraphIO::writeOGML(const ClusterGraphAttributes &A, std::ostream &os)
 {
 	bool result = os.good();
 

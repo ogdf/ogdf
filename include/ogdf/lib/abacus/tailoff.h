@@ -96,7 +96,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const TailOff &rhs);
+	friend std::ostream &operator<<(std::ostream &out, const TailOff &rhs);
 
 	//! Checks whether there is a tailing-off effect.
 	/**
@@ -161,4 +161,4 @@ protected:
 	AbaRing<double> *lpHistory_;
 };
 
-} //namespace abacus
+}

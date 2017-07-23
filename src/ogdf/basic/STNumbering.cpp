@@ -31,7 +31,6 @@
 
 
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/STNumbering.h>
 
@@ -66,7 +65,7 @@ static void stSearch(const Graph &G, node v, int &count,
 	}
 }
 
-static bool stPath(StackPure<node> &path, node v, adjEntry &adj,
+static bool stPath(ArrayBuffer<node> &path, node v, adjEntry &adj,
                    NodeArray<bool> &markedNode, EdgeArray<bool> &markedEdge,
                    NodeArray<int> &dfn, NodeArray<edge> &dfsInEdge,
                    NodeArray<edge> &followLowPath)
@@ -148,13 +147,13 @@ int computeSTNumbering(const Graph &G,
 	NodeArray<edge> dfsInEdge(G,nullptr);
 
 	// Stores a path of vertices that have not been visited.
-	StackPure<node> path;
+	ArrayBuffer<node> path;
 
 	//Stores for every node the outgoing, first edge on the
 	// path that defines the low number of the node.
 	NodeArray<edge> followLowPath(G,nullptr);
 
-	edge st;
+	edge st = nullptr;
 
 	if (s && t)
 	{
@@ -205,6 +204,8 @@ int computeSTNumbering(const Graph &G,
 	if (!s || !t)
 		return 0;
 
+	OGDF_ASSERT(st != nullptr);
+
 	// Compute the DFN and LOW numbers
 	// of the block.
 	dfn[t] = count++;
@@ -217,12 +218,12 @@ int computeSTNumbering(const Graph &G,
 	markedNode[t] = true;
 	markedEdge[st] = true;
 
-	StackPure<node> nodeStack;	// nodeStack stores the vertices during the
+	ArrayBuffer<node> nodeStack;	// nodeStack stores the vertices during the
 								// computation of the st-numbering.
 	nodeStack.push(t);
 	nodeStack.push(s);
 	count = 1;
-	node v = nodeStack.pop();
+	node v = nodeStack.popRet();
 	adjEntry adj = nullptr;
 	while (v != t)
 	{
@@ -235,9 +236,9 @@ int computeSTNumbering(const Graph &G,
 		else
 		{
 			while (!path.empty())
-				nodeStack.push(path.pop());
+				nodeStack.push(path.popRet());
 		}
-		v = nodeStack.pop();
+		v = nodeStack.popRet();
 	}
 	numbering[t] = count;
 	return count;

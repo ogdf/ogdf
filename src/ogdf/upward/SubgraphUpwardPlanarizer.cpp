@@ -55,7 +55,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	EdgeArray<int> cost_GC(GC);
 	for(edge e : GC.edges) {
 		if (forbid[GC.original(e)])
-			cost_GC[e] = numeric_limits<int>::max();
+			cost_GC[e] = std::numeric_limits<int>::max();
 		else
 			cost_GC[e] = cost[GC.original(e)];
 	}
@@ -75,8 +75,8 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 #if 0
 	GraphAttributes AG_GC(GC, GraphAttributes::nodeGraphics |
 	                          GraphAttributes::edgeGraphics |
-	                          GraphAttributes::nodeColor |
-	                          GraphAttributes::edgeColor |
+	                          GraphAttributes::nodeStyle |
+	                          GraphAttributes::edgeStyle |
 	                          GraphAttributes::nodeLabel |
 	                          GraphAttributes::edgeLabel);
 	AG_GC.setAllHeight(30.0);
@@ -157,11 +157,11 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 				upr_bug.s_hat = s_upr_bug;
 				upr_bug.augment();
 
-				GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics|
-						GraphAttributes::edgeGraphics|
-						GraphAttributes::nodeColor|
-						GraphAttributes::edgeColor|
-						GraphAttributes::nodeLabel|
+				GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics |
+						GraphAttributes::edgeGraphics |
+						GraphAttributes::nodeStyle |
+						GraphAttributes::edgeStyle |
+						GraphAttributes::nodeLabel |
 						GraphAttributes::edgeLabel
 						);
 				GA_UPR_tmp.setAllHeight(30.0);
@@ -184,7 +184,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 					}
 				}
 				GA_UPR_tmp.writeGML("c:/temp/UPR_tmp_fups.gml");
-				cout << "UPR_tmp/fups faces:";
+				std::cout << "UPR_tmp/fups faces:";
 				UPR_tmp.outputFaces(UPR_tmp.getEmbedding());
 #endif
 
@@ -194,16 +194,15 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 				if (i != 0) {
 					if (UPR_tmp.numberOfCrossings() < bestUPR.numberOfCrossings()) {
 #if 0
-						cout << endl << "new cr_nr:" << UPR_tmp.numberOfCrossings() << " old  cr_nr : " << bestUPR.numberOfCrossings() << endl;
+						std::cout << std::endl << "new cr_nr:" << UPR_tmp.numberOfCrossings() << " old  cr_nr : " << bestUPR.numberOfCrossings() << std::endl;
 #endif
 						bestUPR = UPR_tmp;
 					}
 				}
 				else
 					bestUPR = UPR_tmp;
-			}//for
-		}
-		else { //block is upward planar
+			}
+		} else { // block is upward planar
 			CombinatorialEmbedding Gamma(block);
 			FaceSinkGraph fsg((const CombinatorialEmbedding &) Gamma, s_block);
 			SList<face> faceList;
@@ -224,11 +223,11 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 			bestUPR = UPR_tmp;
 
 #if 0
-			GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics|
-					GraphAttributes::edgeGraphics|
-					GraphAttributes::nodeColor|
-					GraphAttributes::edgeColor|
-					GraphAttributes::nodeLabel|
+			GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics |
+					GraphAttributes::edgeGraphics |
+					GraphAttributes::nodeStyle |
+					GraphAttributes::edgeStyle |
+					GraphAttributes::nodeLabel |
 					GraphAttributes::edgeLabel
 					);
 			GA_UPR_tmp.setAllHeight(30.0);
@@ -249,7 +248,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 				}
 			}
 			GA_UPR_tmp.writeGML("c:/temp/UPR_tmp_fups.gml");
-			cout << "UPR_tmp/fups faces:";
+			std::cout << "UPR_tmp/fups faces:";
 			UPR_tmp.outputFaces(UPR_tmp.getEmbedding());
 #endif
 		}
@@ -286,8 +285,8 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	upr_bug.augment();
 	GraphAttributes AG(UPR, GraphAttributes::nodeGraphics |
 	                        GraphAttributes::edgeGraphics |
-	                        GraphAttributes::nodeColor |
-	                        GraphAttributes::edgeColor |
+	                        GraphAttributes::nodeStyle |
+	                        GraphAttributes::edgeStyle |
 	                        GraphAttributes::nodeLabel |
 	                        GraphAttributes::edgeLabel);
 	AG.setAllHeight(30.0);
@@ -323,12 +322,12 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	}
 	AG.writeGML("c:/temp/upr_res.gml");
 #if 0
-	cout << "UPR_RES";
+	std::cout << "UPR_RES";
 	UPR.outputFaces(UPR.getEmbedding());
-	cout << "Mapping :" << endl;
+	std::cout << "Mapping :" << std::endl;
 	for(node v : UPR.nodes) {
 		if (UPR.original(v) != 0) {
-			cout << "node UPR  " << v << "   node G  " << UPR.original(v) << endl;
+			std::cout << "node UPR  " << v << "   node G  " << UPR.original(v) << std::endl;
 		}
 	}
 #endif
@@ -342,7 +341,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 #if 0
 	for(edge eee : UPR.original().edges) {
 		if (UPR.isReversed(eee))
-			cout << endl << eee << endl;
+			std::cout << std::endl << eee << std::endl;
 	}
 #endif
 	return Module::ReturnType::Feasible;
@@ -537,16 +536,17 @@ void SubgraphUpwardPlanarizer::merge(
 			adj_UPR_res.pushBack(adj_res);
 		}
 
-		UPR_res.sort(v_UPR_res, adj_UPR_res);
+		if(v_UPR_res) // old sort code seems to not have done anything if first argument was nullptr. -- so this fixes up the old (weird) use
+			UPR_res.sort(v_UPR_res, adj_UPR_res);
 	}
 
 #if 0
 	if (!UPR_res.empty()) {
-		GraphAttributes GA_UPR_res(UPR_res, GraphAttributes::nodeGraphics|
-				GraphAttributes::edgeGraphics|
-				GraphAttributes::nodeColor|
-				GraphAttributes::edgeColor|
-				GraphAttributes::nodeLabel|
+		GraphAttributes GA_UPR_res(UPR_res, GraphAttributes::nodeGraphics |
+				GraphAttributes::edgeGraphics |
+				GraphAttributes::nodeStyle |
+				GraphAttributes::edgeStyle |
+				GraphAttributes::nodeLabel |
 				GraphAttributes::edgeLabel
 				);
 		GA_UPR_res.setAllHeight(30.0);
@@ -556,15 +556,15 @@ void SubgraphUpwardPlanarizer::merge(
 			GA_UPR_res.label(z) = to_string(z->index());
 		}
 		GA_UPR_res.writeGML("c:/temp/UPR_res_tmp.gml");
-		cout << "UPR_res_tmp faces:";
+		std::cout << "UPR_res_tmp faces:";
 		UPR_res.outputFaces(UPR_res.getEmbedding());
 	}
 
-	GraphAttributes GA_UPR(UPR, GraphAttributes::nodeGraphics|
-				GraphAttributes::edgeGraphics|
-				GraphAttributes::nodeColor|
-				GraphAttributes::edgeColor|
-				GraphAttributes::nodeLabel|
+	GraphAttributes GA_UPR(UPR, GraphAttributes::nodeGraphics |
+				GraphAttributes::edgeGraphics |
+				GraphAttributes::nodeStyle |
+				GraphAttributes::edgeStyle |
+				GraphAttributes::nodeLabel |
 				GraphAttributes::edgeLabel
 				);
 	GA_UPR.setAllHeight(30.0);
@@ -574,7 +574,7 @@ void SubgraphUpwardPlanarizer::merge(
 		GA_UPR.label(z) = to_string(z->index());
 	}
 	GA_UPR.writeGML("c:/temp/UPR_tmp.gml");
-	cout << "UPR_tmp faces:";
+	std::cout << "UPR_tmp faces:";
 	UPR.outputFaces(UPR.getEmbedding());
 #endif
 

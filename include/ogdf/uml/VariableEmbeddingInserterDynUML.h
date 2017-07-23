@@ -113,4 +113,4 @@ private:
 	double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
 };
 
-} // end namespace ogdf
+}

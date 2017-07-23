@@ -56,7 +56,7 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 	NodeArray< ListIterator<node> > m_activeLabelListPosition; // holds the iterator of every active node in the corresp. list of m_labeList
 	Array< List<node> > m_activeLabelList; // array indexed by label, contains list of active nodes with that label
-	int m_maxLabel; // the maximum label among all active nodes
+	int m_maxLabel = 0; // the maximum label among all active nodes
 #endif
 #ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 	NodeArray< ListIterator<node> > m_labelListPosition; // holds the iterator of every node in the corresp. list of m_labeList
@@ -460,4 +460,4 @@ public:
 	using MaxFlowModule<TCap>::MaxFlowModule;
 };
 
-} // namespace ogdf
+}

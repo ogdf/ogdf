@@ -357,4 +357,4 @@ void HotQueue<V, P, H>::decrease(
 	}
 }
 
-} // end namespace ogdf
+}

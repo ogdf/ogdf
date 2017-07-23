@@ -58,7 +58,7 @@ public:
 	inline int coeff(const NodePair& n) const override { return coeff(n.source,n.target); }
 	int coeff(node n1, node n2) const;
 
-	void printMe(ostream& out) const {
+	void printMe(std::ostream& out) const {
 		out << "[CutCon: ";
 		for(const NodePair &p : m_cutEdges) {
 			out << p << ",";

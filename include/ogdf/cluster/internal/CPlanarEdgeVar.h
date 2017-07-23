@@ -56,7 +56,7 @@ public:
 
 	virtual ~CPlanarEdgeVar() {}
 
-	void printMe(ostream& out) override {
+	void printMe(std::ostream& out) override {
 		out << "[Var: " << sourceNode() << "->" << targetNode() << " (" << "connect" << ") ZF=" << obj() << "]";
 	}
 

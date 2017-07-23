@@ -32,7 +32,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream& out, const FSVarStat &rhs)
+std::ostream &operator<<(std::ostream& out, const FSVarStat &rhs)
 {
 	switch (rhs.status_)
 	{
@@ -153,4 +153,4 @@ bool FSVarStat::contradiction(STATUS status, double value) const
 		return false;
 	}
 }
-} //namespace abacus
+}

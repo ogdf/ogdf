@@ -127,14 +127,14 @@ void NodePairEnergy::compCandEnergy()
 void NodePairEnergy::printInternalData() const
 {
 	for (node v : m_nonIsolated) {
-		cout << "\nNode: " << (*m_nodeNums)[v];
-		cout << " CandidatePairEnergy: " << m_candPairEnergy[v];
+		std::cout << "\nNode: " << (*m_nodeNums)[v];
+		std::cout << " CandidatePairEnergy: " << m_candPairEnergy[v];
 	}
-	cout << "\nPair energies:";
+	std::cout << "\nPair energies:";
 	for (int i = 1; i < m_nonIsolated.size(); i++)
 	for (int j = i + 1; j <= m_nonIsolated.size(); j++)
 	if ((*m_pairEnergy)(i, j) != 0.0)
-		cout << "\nEnergy(" << i << ',' << j << ") = " << (*m_pairEnergy)(i, j);
+		std::cout << "\nEnergy(" << i << ',' << j << ") = " << (*m_pairEnergy)(i, j);
 }
 #endif
 

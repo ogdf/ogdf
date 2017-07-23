@@ -245,7 +245,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		// the width/height of the layout has been computed by the planar
 		// layout algorithm; required as input to packing algorithm
 		boundingBox[i] = m_planarLayouter->getBoundingBox();
-	}//for cc's
+	}
 
 	// Arrange layouts of connected components
 	arrangeCCs(pr, umlGraph, boundingBox);
@@ -286,9 +286,7 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 			++itE;
 		}
 	}
-}//assureDrawability
-
-
+}
 
 void PlanarizationLayoutUML::preProcess(UMLGraph &UG)
 {
@@ -301,8 +299,7 @@ void PlanarizationLayoutUML::preProcess(UMLGraph &UG)
 		UG.modelAssociationClass((*it));
 		++it;
 	}
-}//preprocess
-
+}
 
 void PlanarizationLayoutUML::postProcess(UMLGraph& UG)
 {
@@ -318,8 +315,7 @@ void PlanarizationLayoutUML::postProcess(UMLGraph& UG)
 	}
 
 	UG.undoAssociationClasses();
-}//postProcess
-
+}
 
 // find best suited external face according to certain criteria
 face PlanarizationLayoutUML::findBestExternalFace(
@@ -478,19 +474,18 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 		TopologyModule TM;
 		try {
 			embedded = TM.setEmbeddingFromGraph(PG, umlGraph, adjExternal, umlMerge);
-		}//try
+		}
 		catch (...)
 		{
 			//TODO: check for graph changes that are not undone
 			embedded = false;
 		}
 
-
 		//if not embedded correctly
 		if (!embedded)
 		{
 			reembed(PG, i, l_align, l_gensExist);
-		}//if !embedded
+		}
 
 		CombinatorialEmbedding E(PG);
 
@@ -612,18 +607,17 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 								//incoming merger edges always have an original here!
 								umlGraph.bends(eOrig).pushBack(DPoint(drawing.x(vMerger),
 								drawing.y(vMerger)));
-
 						}
 					}
 				}
 				itMerger++;
-			}//while merger nodes
+			}
 		}
 
 		// the width/height of the layout has been computed by the planar
 		// layout algorithm; required as input to packing algorithm
 		boundingBox[i] = m_planarLayouter->getBoundingBox();
-	}//for cc's
+	}
 
 	postProcess(umlGraph);
 
@@ -632,8 +626,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 
 	umlGraph.undoGenMergers();
 	umlGraph.removeUnnecessaryBendsHV();
-}//callfixembed
-
+}
 #endif
 
-} // end namespace ogdf
+}

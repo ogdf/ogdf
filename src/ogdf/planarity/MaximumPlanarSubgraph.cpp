@@ -153,6 +153,6 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 		}
 	}
 	return mr;
-}//docall for graph
+}
 
-} //end namespace ogdf
+}

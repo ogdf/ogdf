@@ -62,6 +62,8 @@ void GraphCopyAttributes::transform()
 		}
 	}
 
+	auto toPoint = [&](node v) { return DPoint(m_x[v], m_y[v]); };
+
 	for(edge e : m_pGC->edges)
 	{
 		edge eG = m_pGC->original(e);
@@ -76,24 +78,27 @@ void GraphCopyAttributes::transform()
 		DPolyline &dpl = m_pAG->bends(eG);
 		dpl.clear();
 
-		ListConstIterator<edge> itE = m_pGC->chain(eG).begin();
-		node v      = (*itE)->source();
-		node vAfter = (*itE)->target();
+		const List<edge> &chain = m_pGC->chain(eG);
+		if(!chain.empty()) {
+			DPoint pLast = toPoint(e->source());
 
-		for (++itE; itE.valid(); ++itE)
-		{
-			node vBefore = v;
-			v      = vAfter;
-			vAfter = (*itE)->target();
+			for(edge f : chain) {
+				DPoint p = toPoint(f->source());
+				if(p != pLast) {
+					dpl.pushBack(p);
+				}
+			}
 
-			// filter real bend points
-			if((m_x[v] != m_x[vBefore] || m_x[v] != m_x[vAfter]) &&
-				(m_y[v] != m_y[vBefore] || m_y[v] != m_y[vAfter]))
-				dpl.pushBack(DPoint(m_x[v],m_y[v]));
+			if(!dpl.empty()) {
+				dpl.popBack();
+			}
 		}
 
-		if (m_pGC->isReversed(eG))
+		dpl.normalize();
+
+		if (m_pGC->isReversed(eG)) {
 			dpl.reverse();
+		}
 	}
 }
 
@@ -473,20 +478,20 @@ int HierarchyLevels::calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t> 
 {
 	const int maxGraphs = 32;
 
-	const Level &L = *m_pLevel[i];             // level i
+	const Level &level = *m_pLevel[i];             // level i
 	const GraphCopy &GC = m_H;
 
 	int nc = 0; // number of crossings
 
-	for(int j = 0; j < L.size(); ++j)
+	for(int j = 0; j < level.size(); ++j)
 	{
-		node v = L[j];
+		node v = level[j];
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if (e->source() == v){
 				int pos_adj_e = pos(e->target());
-				for (int k = j+1; k < L.size(); k++) {
-					node w = L[k];
+				for (int k = j+1; k < level.size(); k++) {
+					node w = level[k];
 					for(adjEntry adjW : w->adjEntries) {
 						edge f = adjW->theEdge();
 						if (f->source() == w) {
@@ -547,23 +552,23 @@ bool HierarchyLevels::transpose(node v)
 }
 
 
-void HierarchyLevels::print(ostream &os) const
+void HierarchyLevels::print(std::ostream &os) const
 {
 	for(int i = 0; i <= m_pLevel.high(); ++i) {
 		os << i << ": ";
 		const Level &level = *m_pLevel[i];
 		for(int j = 0; j < level.size(); ++j)
 			os << level[j] << " ";
-		os << endl;
+		os << std::endl;
 	}
 
-	os << endl;
+	os << std::endl;
 
 	const GraphCopy &GC = m_H;
 
 	for(node v : GC.nodes) {
 		os << v << ": lower: " << (m_lowerAdjNodes[v]) <<
-			", upper: " << (m_upperAdjNodes[v]) << endl;
+			", upper: " << (m_upperAdjNodes[v]) << std::endl;
 	}
 
 }
@@ -573,13 +578,13 @@ void HierarchyLevels::check() const
 {
 	int i, j;
 	for(i = 0; i <= high(); ++i) {
-		Level &L = *m_pLevel[i];
-		for(j = 0; j <= L.high(); ++j) {
-			if (m_pos[L[j]] != j) {
-				cerr << "m_pos[" << L[j] << "] wrong!" << endl;
+		Level &level = *m_pLevel[i];
+		for(j = 0; j <= level.high(); ++j) {
+			if (m_pos[level[j]] != j) {
+				std::cerr << "m_pos[" << level[j] << "] wrong!" << std::endl;
 			}
-			if (m_H.rank(L[j]) != i) {
-				cerr << "m_rank[" << L[j] << "] wrong!" << endl;
+			if (m_H.rank(level[j]) != i) {
+				std::cerr << "m_rank[" << level[j] << "] wrong!" << std::endl;
 			}
 		}
 	}
@@ -651,7 +656,7 @@ LayerByLayerSweep::CrossMinMaster::CrossMinMaster(
 	const SugiyamaLayout &sugi,
 	const Hierarchy &H,
 	int runs)
-	: m_pBestPos(nullptr), m_bestCR(numeric_limits<int>::max()), m_sugi(sugi), m_H(H), m_runs(runs) { }
+	: m_pBestPos(nullptr), m_bestCR(std::numeric_limits<int>::max()), m_sugi(sugi), m_H(H), m_runs(runs) { }
 
 
 bool LayerByLayerSweep::CrossMinMaster::postNewResult(int cr, NodeArray<int> *pPos)
@@ -691,10 +696,10 @@ bool LayerByLayerSweep::CrossMinMaster::transposeLevel(int i, HierarchyLevels &l
 	bool improved = false;
 
 	if (levelChanged[i] || levelChanged[i-1] || levelChanged[i+1]) {
-		Level &L = levels[i];
+		Level &level = levels[i];
 
-		for (int j = 0; j < L.high(); j++) {
-			if (levels.transpose(L[j])) improved = true;
+		for (int j = 0; j < level.high(); j++) {
+			if (levels.transpose(level[j])) improved = true;
 		}
 	}
 
@@ -992,7 +997,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		for(int i = 0; i < m_numCC; ++i)
 		{
 			// adjust ranks in cc to start with 0
-			int minRank = numeric_limits<int>::max();
+			int minRank = std::numeric_limits<int>::max();
 			for(node v : nodesInCC[i])
 				if(rank[v] < minRank)
 					minRank = rank[v];
@@ -1015,10 +1020,10 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			m_layout->call(levels,AG);
 
 			double
-				minX =  numeric_limits<double>::max(),
-				maxX = -numeric_limits<double>::max(),
-				minY =  numeric_limits<double>::max(),
-				maxY = -numeric_limits<double>::max();
+				minX =  std::numeric_limits<double>::max(),
+				maxX = -std::numeric_limits<double>::max(),
+				minY =  std::numeric_limits<double>::max(),
+				maxY = -std::numeric_limits<double>::max();
 
 			for(node vCopy : GC.nodes)
 			{
@@ -1035,9 +1040,9 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			if(optimizeHorizEdges)
 			{
 				for(int k = 0; k < levels.size(); ++k) {
-					const LevelBase &L = levels[k];
-					for(int j = 0; j < L.size(); ++j) {
-						node v = L[j];
+					const LevelBase &level = levels[k];
+					for(int j = 0; j < level.size(); ++j) {
+						node v = level[j];
 						if(!GC.isDummy(v)) continue;
 						edge e = GC.original(v->firstAdj()->theEdge());
 						if(e == nullptr) continue;
@@ -1085,10 +1090,10 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			boundingBox[i] = DPoint(maxX - minX, maxY - minY);
 			offset1    [i] = DPoint(minX,minY);
 
-			m_numLevels = max(m_numLevels, levels.size());
+			Math::updateMax(m_numLevels, levels.size());
 			for(int iter = 0; iter <= levels.high(); iter++) {
-				const LevelBase &l = levels[iter];
-				m_maxLevelSize = max(m_maxLevelSize, l.size());
+				const LevelBase &level = levels[iter];
+				Math::updateMax(m_maxLevelSize, level.size());
 			}
 			delete pLevels;
 		}
@@ -1131,7 +1136,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		}
 
 	} else {
-		int minRank = numeric_limits<int>::max();
+		int minRank = std::numeric_limits<int>::max();
 		for(node v : G.nodes)
 			if(rank[v] < minRank)
 				minRank = rank[v];
@@ -1170,9 +1175,9 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		{
 			NodeArray<bool> mark(GC,false);
 			for(int i = 0; i < levels.size(); ++i) {
-				const LevelBase &L = levels[i];
-				for(int j = 0; j < L.size(); ++j) {
-					node v = L[j];
+				const LevelBase &level = levels[i];
+				for(int j = 0; j < level.size(); ++j) {
+					node v = level[j];
 					if(!GC.isDummy(v)) continue;
 					edge e = GC.original(v->firstAdj()->theEdge());
 					if(e == nullptr) continue;
@@ -1202,11 +1207,15 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		m_numLevels = levels.size();
 		m_maxLevelSize = 0;
 		for(int i = 0; i <= levels.high(); i++) {
-			const LevelBase &l = levels[i];
-			if (l.size() > m_maxLevelSize)
-				m_maxLevelSize = l.size();
+			const LevelBase &level = levels[i];
+			if (level.size() > m_maxLevelSize)
+				m_maxLevelSize = level.size();
 		}
 		delete pLevels;
+	}
+
+	for(edge e : G.edges) {
+		AG.bends(e).normalize();
 	}
 }
 
@@ -1357,4 +1366,4 @@ const HierarchyLevelsBase *SugiyamaLayout::reduceCrossings(Hierarchy &H)
 	return pLevels;
 }
 
-} // end namespace ogdf
+}

@@ -76,10 +76,9 @@ BarycenterPlacer::BarycenterPlacer()
 {
 }
 
-
 void BarycenterPlacer::weightedPositionPriority( bool on )
 {
 	m_weightedPositions = on;
 }
 
-} // namespace ogdf
+}

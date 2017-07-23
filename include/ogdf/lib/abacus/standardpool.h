@@ -39,7 +39,7 @@ template<class BaseType, class CoType>
 class StandardPool;
 
 template<class BaseType, class CoType>
-ostream& operator<< (ostream &out, const StandardPool<BaseType,CoType> &rhs);
+std::ostream& operator<< (std::ostream &out, const StandardPool<BaseType,CoType> &rhs);
 
 
 //! Standard pools.
@@ -85,7 +85,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream& operator<< <> (ostream &out, const StandardPool &rhs);
+	friend std::ostream& operator<< <> (std::ostream &out, const StandardPool &rhs);
 
 	//! Tries to insert a constraint/variable in the pool.
 	/**
@@ -209,6 +209,6 @@ private:
 	const StandardPool&operator= (const StandardPool&rhs);
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/standardpool.inc>

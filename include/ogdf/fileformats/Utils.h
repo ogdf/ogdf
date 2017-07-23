@@ -74,5 +74,4 @@ static inline E toEnum(
 	return map.find(str) == map.end() ? def : map[str];
 }
 
-
-} // end namespace ogdf
+}

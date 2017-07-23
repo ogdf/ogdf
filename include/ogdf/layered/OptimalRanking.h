@@ -150,5 +150,4 @@ private:
 		const EdgeArray<int> &cost);
 };
 
-
-} // end namespace ogdf
+}

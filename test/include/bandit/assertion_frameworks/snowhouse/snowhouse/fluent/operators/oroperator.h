@@ -1,17 +1,18 @@
-
 //          Copyright Joakim Karlsson & Kim Gräsman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef IGLOO_OROPERATOR_H
-#define IGLOO_OROPERATOR_H
+#ifndef SNOWHOUSE_OROPERATOR_H
+#define SNOWHOUSE_OROPERATOR_H
 
-namespace snowhouse {
+#include "constraintoperator.h"
 
+namespace snowhouse
+{
   struct OrOperator : public ConstraintOperator
   {
-    template <typename ConstraintListType, typename ActualType>
+    template<typename ConstraintListType, typename ActualType>
     void Evaluate(ConstraintListType& list, ResultStack& result, OperatorStack& operators, const ActualType& actual)
     {
       EvaluateOperatorsWithLessOrEqualPrecedence(*this, operators, result);
@@ -23,7 +24,7 @@ namespace snowhouse {
 
     void PerformOperation(ResultStack& result)
     {
-      if(result.size() < 2)
+      if (result.size() < 2)
       {
         throw InvalidExpressionException("The expression contains an or operator with too few operands");
       }

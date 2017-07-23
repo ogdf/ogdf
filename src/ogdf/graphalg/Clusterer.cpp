@@ -32,7 +32,6 @@
 
 #include <ogdf/graphalg/Clusterer.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
@@ -145,7 +144,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 				//vertices within a connected component are always part
 				//of the same cluster which then will be parent of the new clusters
 
-				StackPure<node> S;
+				ArrayBuffer<node> S;
 				NodeArray<bool> done(GC, false);
 				for(node v : GC.nodes)
 				{
@@ -159,7 +158,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 
 					while(!S.empty())
 					{
-						node w = S.pop();
+						node w = S.popRet();
 						compNodes.pushFront(w);
 						for(adjEntry adj : w->adjEntries) {
 							node x = adj->twinNode();
@@ -169,7 +168,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 								S.push(x);
 							}
 						}
-					}//While
+					}
 					//run over nodes and set cluster info
 					//do not construct trivial clusters
 					if ( (parent->m_size > compNodes.size()) &&
@@ -189,11 +188,9 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 						}
 					}
 				}
-			}//if thresholds
-		}//stop criterion
-	}
-	else //fall 2
-	{
+			}
+		}
+	} else { // case 2
 		//we compute the edge strengths
 		EdgeArray<double> strengths(*m_pGraph,0.0);
 		computeEdgeStrengths(strengths);
@@ -223,7 +220,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 			//vertices within a connected component are always part
 			//of the same cluster which then will be parent of the new clusters
 
-			StackPure<node> S;
+			ArrayBuffer<node> S;
 			NodeArray<bool> done(GC, false);
 			for(node v : GC.nodes)
 			{
@@ -239,7 +236,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 				//vertices, then test if the cluster fits some constraints, e.g. size
 				while(!S.empty())
 				{
-					node w = S.pop();
+					node w = S.popRet();
 					compNodes.pushFront(w);
 					for(adjEntry adj : w->adjEntries) {
 						node x = adj->twinNode();
@@ -249,7 +246,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 							S.push(x);
 						}
 					}
-				}//While
+				}
 
 				//run over nodes and set cluster info
 				//do not construct trivial clusters
@@ -271,11 +268,11 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 						s->m_size++;
 					}
 				}
-			}//while thresholds
+			}
 
 			++it;
-		}//while
-	}//case 2
+		}
+	}
 
 	clustering.pushFront(root);
 	//we now have the clustering and know for each vertex, to which cluster
@@ -285,7 +282,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 	{
 		vCluster[v]->pushBackVertex(v);
 	}
-}//computeClustering
+}
 
 void Clusterer::computeEdgeStrengths(EdgeArray<double> &strength)
 {
@@ -390,13 +387,9 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 #endif
 						case 2: rMvWvw++; break;
 						case 3: rMvMw++; break;
-						}//switch
-
+						}
 					}
-
-				}
-				else
-				{
+				} else {
 					//vertex in Wvw, nba == 2
 					OGDF_ASSERT(nba[u] == 2);
 					sizeWvw++;
@@ -411,12 +404,10 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 #endif
 						case 2: rWvw++; break;
 						case 3: rMwWvw++; break;
-						}//switch
-
+						}
 					}
-
-				}//else
-			}//if not w
+				}
+			}
 		}
 
 		//Now compute the ratio of existing edges to maximal number
@@ -449,15 +440,15 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		}
 
 #if 0
-		cout<<"sWerte: "<<sMvWvw<<"/"<<sMwWvw<<"/"<<sWvw<<"/"<<sMvMw<<"\n";
-		cout << "CycleProportion "<<cycleProportion<<"\n";
-		cout << "EdgeStrength "<<edgeStrength<<"\n";
+		std::cout<<"sWerte: "<<sMvWvw<<"/"<<sMwWvw<<"/"<<sWvw<<"/"<<sMvMw<<"\n";
+		std::cout << "CycleProportion "<<cycleProportion<<"\n";
+		std::cout << "EdgeStrength "<<edgeStrength<<"\n";
 #endif
 		strength[e] = edgeStrength;
 
 		//true neighbours are not adjacent to v
 #if 0
-		cout << "Checking true neighbours of w\n";
+		std::cout << "Checking true neighbours of w\n";
 #endif
 
 	}
@@ -467,7 +458,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		if (maxStrength > minStrength)
 		{
 #if 0
-			cout << "Max: "<<maxStrength<< " Min: "<<minStrength<<"\n";
+			std::cout << "Max: "<<maxStrength<< " Min: "<<minStrength<<"\n";
 #endif
 			double step = (maxStrength-minStrength)/((double)m_autoThreshNum+1.0);
 			double val = minStrength+step;
@@ -476,8 +467,9 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 				m_autoThresholds.pushBack(val);
 				val += step;
 			}
-		}//if interval
-		else m_autoThresholds.pushBack(maxStrength); //Stops computation
+		} else {
+			m_autoThresholds.pushBack(maxStrength); // Stops computation
+		}
 	}
 }
 
@@ -519,7 +511,7 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 		//vertices within a connected component are always part
 		//of the same cluster which then will be parent of the new clusters
 
-		StackPure<node> S;
+		ArrayBuffer<node> S;
 		NodeArray<bool> done(GC, false);
 		for(node v : GC.nodes)
 		{
@@ -531,7 +523,7 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 
 			while(!S.empty())
 			{
-				node w = S.pop();
+				node w = S.popRet();
 				theCluster.pushFront(GC.original(w));
 				for(adjEntry adj : w->adjEntries) {
 					node x = adj->twinNode();
@@ -541,16 +533,13 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 						S.push(x);
 					}
 				}
-			}//While
+			}
 			//create the cluster
 			C.createCluster(theCluster, parent);
-
 		}
 
 		++it;
-	}//while
-
-
+	}
 }
 
 void Clusterer::setClusteringThresholds(const List<double> &threshs)
@@ -562,4 +551,4 @@ void Clusterer::setClusteringThresholds(const List<double> &threshs)
 		m_thresholds.pushFront(x);
 }
 
-}//namespace ogdf
+}

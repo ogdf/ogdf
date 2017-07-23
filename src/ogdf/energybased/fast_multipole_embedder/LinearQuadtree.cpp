@@ -74,9 +74,6 @@ LinearQuadtree::~LinearQuadtree(void)
 
 void LinearQuadtree::allocate(uint32_t n)
 {
-	// prevent call to malloc(0)
-	OGDF_ASSERT( n >= 1 );
-
 	m_numPoints = n;
 	m_maxNumNodes = 2 * n;
 	m_tree = static_cast<LQNode*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(LQNode)));

@@ -194,7 +194,7 @@ public:
 	void clear() { m_pStart = m_pEnd = m_pFirst; }
 
 	//! Prints the queue to output stream \p os with the seperator \p delim.
-	void print(ostream &os, char delim = ' ') const
+	void print(std::ostream &os, char delim = ' ') const
 	{
 		for (const E *pX = m_pStart; pX != m_pEnd; ) {
 			if (pX != m_pStart) os << delim;
@@ -215,15 +215,14 @@ private:
 			if (pX == Q.m_pStop) pX = Q.m_pFirst;
 		}
 	}
-}; // class BoundedQueue
-
+};
 
 //! Prints BoundedQueue \p Q to output stream \p os.
 template<class E, class INDEX>
-ostream &operator<<(ostream &os, const BoundedQueue<E,INDEX> &Q)
+std::ostream &operator<<(std::ostream &os, const BoundedQueue<E,INDEX> &Q)
 {
 	Q.print(os);
 	return os;
 }
 
-} // end namespace ogdf
+}

@@ -1,5 +1,5 @@
 /** \file
- * \brief Implementation of ostream operator for ReturnType
+ * \brief Implementation of std::ostream operator for ReturnType
  *
  * \author Ivo Hedtke
  *

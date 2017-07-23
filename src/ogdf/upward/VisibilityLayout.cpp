@@ -141,6 +141,9 @@ void VisibilityLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 		}
 
 		DPolyline &poly = GA.bends(e);
+		if(GA.y(e->source()) > GA.y(e->target())) {
+			poly.reverse();
+		}
 		DPoint pSrc(GA.x(e->source()), GA.y(e->source()));
 		DPoint pTgt(GA.x(e->target()), GA.y(e->target()));
 		poly.normalize(pSrc, pTgt);
@@ -148,9 +151,17 @@ void VisibilityLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 }
 
 
-void VisibilityLayout::constructDualGraph(UpwardPlanRep &UPR)
-{
-	CombinatorialEmbedding &gamma = UPR.getEmbedding();
+void VisibilityLayout::constructDualGraph(
+		const UpwardPlanRep& UPR,
+		Graph& D,
+		node& s_D,
+		node& t_D,
+		FaceArray<node>& faceToNode,
+		NodeArray<face>& leftFace_node,
+		NodeArray<face>& rightFace_node,
+		EdgeArray<face>& leftFace_edge,
+		EdgeArray<face>& rightFace_edge) {
+	const CombinatorialEmbedding& gamma = UPR.getEmbedding();
 
 	faceToNode.init(gamma, nullptr);
 	leftFace_node.init(UPR, nullptr);
@@ -224,9 +235,19 @@ void VisibilityLayout::constructDualGraph(UpwardPlanRep &UPR)
 }
 
 
-void VisibilityLayout::constructVisibilityRepresentation(UpwardPlanRep &UPR)
+void VisibilityLayout::constructVisibilityRepresentation(const UpwardPlanRep& UPR)
 {
-	constructDualGraph(UPR);
+	FaceArray<node> faceToNode;
+	NodeArray<face> leftFace_node;
+	NodeArray<face> rightFace_node;
+	EdgeArray<face> leftFace_edge;
+	EdgeArray<face> rightFace_edge;
+
+	Graph D; // the dual graph of the UPR
+	node s_D; // super source of D
+	node t_D; // super sink f D
+
+	constructDualGraph(UPR, D, s_D, t_D, faceToNode, leftFace_node, rightFace_node, leftFace_edge, rightFace_edge);
 #if 0
 	makeSimple(D);
 	if (t_D->degree() <= 1)
@@ -251,7 +272,7 @@ void VisibilityLayout::constructVisibilityRepresentation(UpwardPlanRep &UPR)
 	for(node v : UPR.nodes) {
 		NodeSegment vVis;
 
-		//cout << "node : " << v << " stNum: " << topNumberUPR[v] << endl;
+		//std::cout << "node : " << v << " stNum: " << topNumberUPR[v] << std::endl;
 
 		if (v == UPR.getSuperSource() || v == UPR.getSuperSink()) {
 			vVis.y = topNumberUPR[v];
@@ -282,4 +303,4 @@ void VisibilityLayout::constructVisibilityRepresentation(UpwardPlanRep &UPR)
 	}
 }
 
-}// namespace
+}

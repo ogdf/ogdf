@@ -85,4 +85,4 @@ inline int operator << (UMLNodeTypeConstants lhs, UMLNodeTypeOffsets rhs) {
 	return static_cast<int>(lhs) << static_cast<int>(rhs);
 }
 
-} //end namespace ogdf
+}

@@ -117,18 +117,18 @@ private:
 	void createResult(GalaxyMultilevel* pMultiLevelResult);
 	void labelSystem(node u, node v, int d, float df);
 	void labelSystem();
-	Graph* m_pGraph;
-	Graph* m_pGraphResult;
+	Graph* m_pGraph = nullptr;
+	Graph* m_pGraphResult = nullptr;
 	List<node> m_sunNodeList;
 	List<edge> m_interSystemEdges;
-	NodeArray<GalaxyMultilevel::LevelNodeInfo>* m_pNodeInfo;
-	EdgeArray<GalaxyMultilevel::LevelEdgeInfo>* m_pEdgeInfo;
-	NodeArray<GalaxyMultilevel::LevelNodeInfo>* m_pNodeInfoResult;
-	EdgeArray<GalaxyMultilevel::LevelEdgeInfo>* m_pEdgeInfoResult;
+	NodeArray<GalaxyMultilevel::LevelNodeInfo>* m_pNodeInfo = nullptr;
+	EdgeArray<GalaxyMultilevel::LevelEdgeInfo>* m_pEdgeInfo = nullptr;
+	NodeArray<GalaxyMultilevel::LevelNodeInfo>* m_pNodeInfoResult = nullptr;
+	EdgeArray<GalaxyMultilevel::LevelEdgeInfo>* m_pEdgeInfoResult = nullptr;
 	NodeArray<LevelNodeState> m_nodeState;
-	NodeOrderInfo* m_nodeMassOrder;
-	RandomNodeSet* m_pRandomSet;
-	int m_dist;
+	NodeOrderInfo* m_nodeMassOrder = nullptr;
+	RandomNodeSet* m_pRandomSet = nullptr;
+	int m_dist = 0;
 };
 
 

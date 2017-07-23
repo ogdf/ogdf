@@ -33,10 +33,7 @@
 #include <iostream>
 #include <ogdf/basic/memory.h>
 #include <ogdf/basic/System.h>
-#include <bandit/bandit.h>
-
-using namespace bandit;
-using namespace ogdf;
+#include <testing.h>
 
 template<size_t size>
 class OGDFObject {

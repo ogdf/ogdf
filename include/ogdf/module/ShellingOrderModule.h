@@ -86,8 +86,6 @@ protected:
 		List<ShellingOrderSet> &partition) = 0;
 
 	double m_baseRatio; //! The option <i>base ratio</i>.
-
 };
 
-
-} // end namespace ogdf
+}

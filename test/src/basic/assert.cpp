@@ -29,10 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
 #include <ogdf/basic/basic.h>
-
-using namespace bandit;
+#include <testing.h>
 
 static void assert_positive(int);
 
@@ -50,14 +48,14 @@ go_bandit([] {
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
 		it("throws an AssertionFailed exception if the condition does not hold", [] {
-			AssertThrows(ogdf::AssertionFailed, assert_positive(-1));
+			AssertThrows(AssertionFailed, assert_positive(-1));
 		});
 
 		it("throws an exception with an explanatory what()", [] {
 			int fails = false;
 			try {
 				assert_positive(-1);
-			} catch (ogdf::AssertionFailed &e) {
+			} catch (AssertionFailed &e) {
 				fails = true;
 				std::string what(e.what());
 				AssertThat(what, Contains("a > 0"));
@@ -74,7 +72,7 @@ go_bandit([] {
 			int fails = false;
 			try {
 				assert_positive(-1);
-			} catch (ogdf::AssertionFailed &e) {
+			} catch (AssertionFailed &e) {
 				fails = true;
 				AssertThat(std::string(e.what()), Contains("Stack trace"));
 			}

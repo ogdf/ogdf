@@ -39,4 +39,4 @@ namespace ogdf {
 
 class OGDF_EXPORT KuratowskiSubdivision : public Array<List<edge> > { };
 
-} // end namespace ogdf
+}

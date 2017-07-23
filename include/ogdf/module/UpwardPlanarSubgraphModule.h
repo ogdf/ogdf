@@ -73,11 +73,7 @@ public:
 	 */
 	void callAndDelete(GraphCopy &GC, List<edge> &delOrigEdges);
 
-
-
 	OGDF_MALLOC_NEW_DELETE
-}; // class UpwardPlanarSubgraph
+};
 
-
-
-} // end namespace ogdf
+}

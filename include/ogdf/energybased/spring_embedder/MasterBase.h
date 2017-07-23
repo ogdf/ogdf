@@ -1,5 +1,5 @@
 /** \file
- * \brief A base class for SpringEmbedderGridVariant::Master
+ * \brief Declaration and definition of ogdf::spring_embedder::MasterBase.
  *
  * \author Carsten Gutwenger, Stephan Beyer
  *
@@ -34,14 +34,16 @@
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Barrier.h>
+#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 
 namespace ogdf {
 namespace spring_embedder {
 
-template<typename SpringEmbedderTYPE, typename NodeInfo, typename ForceModelBase>
+//! Base class for ogdf::SpringEmbedderGridVariant::Master.
+template<typename NodeInfo, typename ForceModelBase>
 class MasterBase {
 protected:
-	const SpringEmbedderTYPE &m_spring;
+	const SpringEmbedderBase &m_spring;
 	const GraphCopy &m_gc;
 	GraphAttributes &m_ga;
 	DPoint &m_boundingBox;
@@ -68,7 +70,7 @@ protected:
 	double m_scaleFactor;
 
 public:
-	MasterBase(const SpringEmbedderTYPE &spring, const GraphCopy &gc, GraphAttributes &ga, DPoint &boundingBox)
+	MasterBase(const SpringEmbedderBase &spring, const GraphCopy &gc, GraphAttributes &ga, DPoint &boundingBox)
 	  : m_spring(spring)
 	  , m_gc(gc)
 	  , m_ga(ga)
@@ -80,8 +82,8 @@ public:
 	  , m_forceModel(nullptr)
 	  , m_forceModelImprove(nullptr)
 	  , m_barrier(nullptr)
-	  , m_avgDisplacement(numeric_limits<double>::max())
-	  , m_maxDisplacement(numeric_limits<double>::max())
+	  , m_avgDisplacement(std::numeric_limits<double>::max())
+	  , m_maxDisplacement(std::numeric_limits<double>::max())
 	{
 	}
 
@@ -104,8 +106,8 @@ public:
 		m_coolingFactor = m_spring.coolDownFactor();
 
 		// convergence
-		m_avgDisplacement = numeric_limits<double>::max();
-		m_maxDisplacement = numeric_limits<double>::max();
+		m_avgDisplacement = std::numeric_limits<double>::max();
+		m_maxDisplacement = std::numeric_limits<double>::max();
 	}
 
 	void initImprovementPhase()
@@ -116,8 +118,8 @@ public:
 		m_coolingFactor = m_spring.coolDownFactor();
 
 		// convergence
-		m_avgDisplacement = numeric_limits<double>::max();
-		m_maxDisplacement = numeric_limits<double>::max();
+		m_avgDisplacement = std::numeric_limits<double>::max();
+		m_maxDisplacement = std::numeric_limits<double>::max();
 	}
 
 	void coolDown()

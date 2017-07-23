@@ -56,10 +56,10 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 		globalContext->max_y = globalContext->pLocalContext[0]->max_y;
 		for (uint32_t j=1; j < numThreads(); j++)
 		{
-			globalContext->min_x = min(globalContext->min_x, globalContext->pLocalContext[j]->min_x);
-			globalContext->min_y = min(globalContext->min_y, globalContext->pLocalContext[j]->min_y);
-			globalContext->max_x = max(globalContext->max_x, globalContext->pLocalContext[j]->max_x);
-			globalContext->max_y = max(globalContext->max_y, globalContext->pLocalContext[j]->max_y);
+			Math::updateMin(globalContext->min_x, globalContext->pLocalContext[j]->min_x);
+			Math::updateMin(globalContext->min_y, globalContext->pLocalContext[j]->min_y);
+			Math::updateMax(globalContext->max_x, globalContext->pLocalContext[j]->max_x);
+			Math::updateMax(globalContext->max_y, globalContext->pLocalContext[j]->max_y);
 		}
 		tree.init(globalContext->min_x, globalContext->min_y, globalContext->max_x, globalContext->max_y);
 		globalContext->coolDown *= 0.999f;
@@ -573,7 +573,7 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 		{
 			double maxForceSq = 0.0;
 			for (uint32_t j=0; j < numThreads(); j++)
-				maxForceSq = max(globalContext->pLocalContext[j]->maxForceSq, maxForceSq);
+				Math::updateMax(maxForceSq, globalContext->pLocalContext[j]->maxForceSq);
 
 			// if we are allowed to quit and the max force sq falls under the threshold tell all threads we are done
 			if ((currNumIteration >= minNumIterations) && (maxForceSq < globalContext->pOptions->stopCritForce ))

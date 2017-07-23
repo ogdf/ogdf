@@ -126,4 +126,4 @@ void SiftingHeuristic::call(Level &L)
 	}
 }
 
-} // namespace ogdf
+}

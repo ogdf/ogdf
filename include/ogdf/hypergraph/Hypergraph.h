@@ -149,8 +149,7 @@ public:
 	adjHypergraphEntry cyclicPred() const;
 
 	OGDF_NEW_DELETE;
-
-}; // class AdjHypegraphElement
+};
 
 //! Class for the representation of hyperedges.
 class OGDF_EXPORT HyperedgeElement : private internal::GraphElement
@@ -255,11 +254,10 @@ public:
 		return e->index() == m_index && e->hypergraph() == m_hypergraph;
 	}
 
-	friend ostream & operator<<(ostream &os, ogdf::hyperedge e);
+	friend std::ostream & operator<<(std::ostream &os, ogdf::hyperedge e);
 
 	OGDF_NEW_DELETE;
-
-}; // class EdgeElement
+};
 
 //! Class for the representation of hypernodes.
 class OGDF_EXPORT HypernodeElement : private internal::GraphElement
@@ -397,8 +395,7 @@ public:
 	}
 
 	OGDF_NEW_DELETE;
-
-}; // class HypernodeElement
+};
 
 class HypergraphArrayBase;
 template<class T> class HypernodeArray;
@@ -590,13 +587,13 @@ public:
 	}
 
 	//! Reads hypergraph in bench format from the input stream.
-	void readBenchHypergraph(istream &is);
+	void readBenchHypergraph(std::istream &is);
 
 	//! Reads hypergraph in bench format from the file.
 	void readBenchHypergraph(const char *filename);
 
 	//! Reads hypergraph in pla format from the input stream.
-	void readPlaHypergraph(istream &is);
+	void readPlaHypergraph(std::istream &is);
 
 	//! Reads hypergraph in pla format from the file.
 	void loadPlaHypergraph(const char *fileName);
@@ -626,9 +623,9 @@ public:
 
 	Hypergraph &operator=(const Hypergraph &H);
 
-	friend ostream & operator<<(ostream &os, ogdf::Hypergraph &H);
+	friend std::ostream & operator<<(std::ostream &os, ogdf::Hypergraph &H);
 
-	friend istream & operator>>(istream &is, ogdf::Hypergraph &H);
+	friend std::istream & operator>>(std::istream &is, ogdf::Hypergraph &H);
 
 	OGDF_MALLOC_NEW_DELETE;
 
@@ -641,7 +638,6 @@ private:
 	int nextEntry(char *buffer, int from, string stop);
 
 	HypernodeElement::Type gateType(string gate);
+};
 
-}; // class Hypergraph
-
-} // end of namespace ogdf
+}

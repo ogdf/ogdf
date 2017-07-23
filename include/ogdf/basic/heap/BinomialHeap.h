@@ -350,4 +350,4 @@ inline void BinomialHeap<T, C>::link(
 	parent->rank++;
 }
 
-} // end namespace ogdf
+}

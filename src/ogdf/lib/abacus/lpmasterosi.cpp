@@ -64,4 +64,4 @@ void LpMasterOsi::initializeLpParameters()
 #endif
 #endif //OSI_CPLEX
 }
-} //namespace abacus
+}

@@ -83,12 +83,11 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 		return;
 	}
 
-
 	//classify brother-to-brother hierarchy edges to allow alignment
 	if (m_align)
 	{
 		classifyEdges(PG, adjExternal);
-	}//if align
+	}
 	//compaction with scaling: help node cages to pass by each other
 	double l_orsep = m_separation;
 	if (m_useScalingCompaction)
@@ -96,8 +95,7 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 		m_scalingSteps = 6;
 		double scaleFactor = double(int(1 << m_scalingSteps));
 		m_separation = scaleFactor*m_separation; //reduce this step by step in compaction
-	}//if scaling
-
+	}
 
 	// PHASE 1: determine orthogonal shape
 
@@ -229,9 +227,7 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 	computeBoundingBox(PG,drawing);
 
 	m_separation = l_orsep;
-}//call
-
-
+}
 
 void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 {
@@ -267,7 +263,7 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 					stop++;
 					runAE = runAE->cyclicSucc();
 					run = runAE->theEdge();
-				}//while
+				}
 				OGDF_ASSERT(stop <= v->degree());
 
 				//now we have the outgoing generalization (to the merger) at v
@@ -288,7 +284,7 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 					stop++;
 					runAE = runAE->cyclicSucc();
 					run = runAE->theEdge();
-				}//while
+				}
 				OGDF_ASSERT(stop <= w->degree());
 
 				//now we have the outgoing generalization (to the merger) at w
@@ -322,7 +318,7 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 							}
 							PG.moveAdj(e->adjSource(), Direction::after, gen1->adjSource());
 						}
-					}//if gen 1 left of gen 2
+					}
 					if (rtl)
 					{
 						//there are edges between e and gen2 at target
@@ -340,17 +336,14 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 						{
 							PG.moveAdj(e->adjSource(), Direction::before, gen1->adjSource());
 						}
-
-					}//if gen 2 left of gen 1
-				}//if
-				else PG.setHalfBrother(e);
-
-			}//if upward edge
-		}//if not generalization
-	}//for
-}//classifyedges
-
-
+					}
+				} else {
+					PG.setHalfBrother(e);
+				}
+			}
+		}
+	}
+}
 
 // compute bounding box and move final drawing such that it is 0 aligned
 // respecting margins
@@ -386,5 +379,4 @@ void OrthoLayoutUML::computeBoundingBox(
 	m_boundingBox = DPoint(maxX+deltaX+m_margin, maxY+deltaY+m_margin);
 }
 
-
-} // end namespace ogdf
+}

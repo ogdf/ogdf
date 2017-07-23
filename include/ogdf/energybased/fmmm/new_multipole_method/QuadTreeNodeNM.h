@@ -46,32 +46,32 @@ namespace fmmm {
 class QuadTreeNodeNM
 {
 	//! Outputstream for QuadTreeNodeNM.
-	friend ostream &operator<< (ostream &,const QuadTreeNodeNM &);
+	friend std::ostream &operator<< (std::ostream &,const QuadTreeNodeNM &);
 
 	//! Inputstream for QuadTreeNodeNM.
-	friend istream &operator>> (istream &,QuadTreeNodeNM &);
+	friend std::istream &operator>> (std::istream &,QuadTreeNodeNM &);
 
 public:
 
 	QuadTreeNodeNM();     //!< constructor
 	~QuadTreeNodeNM();    //!< destructor
 
-	void set_Sm_level(int l) { Sm_level = l;}
+	void set_Sm_level(int level) { Sm_level = level;}
 	void set_Sm_downleftcorner(DPoint dlc) {Sm_downleftcorner = dlc;}
-	void set_Sm_boxlength(double l) {Sm_boxlength = l;}
+	void set_Sm_boxlength(double len) {Sm_boxlength = len;}
 	void set_x_List_ptr(List<ParticleInfo>* x_ptr) {L_x_ptr = x_ptr;}
 	void set_y_List_ptr(List<ParticleInfo>* y_ptr) {L_y_ptr = y_ptr;}
 	void set_particlenumber_in_subtree(int p){ subtreeparticlenumber = p;}
 	void set_Sm_center(std::complex<double> c) {Sm_center = c;}
-	void set_contained_nodes(List<node>&  L) {contained_nodes = L;}
+	void set_contained_nodes(List<node>& list) {contained_nodes = list;}
 	void pushBack_contained_nodes(node v) {contained_nodes.pushBack(v);}
 	node pop_contained_nodes() {return contained_nodes.popFrontRet();}
 	bool contained_nodes_empty() {return contained_nodes.empty();}
 
-	void set_I(List<QuadTreeNodeNM*>& l) {I = l;}
-	void set_D1(List<QuadTreeNodeNM*>& l)  {D1 = l;}
-	void set_D2(List<QuadTreeNodeNM*>& l)  {D2 = l;}
-	void set_M(List<QuadTreeNodeNM*>& l)  {M = l;}
+	void set_I(List<QuadTreeNodeNM*>& list) {I = list;}
+	void set_D1(List<QuadTreeNodeNM*>& list) {D1 = list;}
+	void set_D2(List<QuadTreeNodeNM*>& list) {D2 = list;}
+	void set_M(List<QuadTreeNodeNM*>& list) {M = list;}
 
 	//! LE[i] is set to local[i] for i = 0 to precision and space for LE is reserved.
 	void set_locale_exp(Array<std::complex<double> > &local,int precision)
@@ -123,11 +123,11 @@ public:
 	std::complex<double> get_Sm_center() const {return Sm_center;}
 	std::complex<double>* get_local_exp () const {return LE;}
 	std::complex<double>* get_multipole_exp () const {return ME;}
-	void get_contained_nodes(List<node>& L) const {L =  contained_nodes;}
-	void get_I (List <QuadTreeNodeNM*>& l) const {l = I;}
-	void get_D1 (List <QuadTreeNodeNM*>& l) const {l = D1;}
-	void get_D2 (List <QuadTreeNodeNM*>& l) const {l = D2;}
-	void get_M (List <QuadTreeNodeNM*>& l) const {l = M;}
+	void get_contained_nodes(List<node>& list) const {list = contained_nodes;}
+	void get_I(List<QuadTreeNodeNM*>& list) const {list = I;}
+	void get_D1(List<QuadTreeNodeNM*>& list) const {list = D1;}
+	void get_D2(List<QuadTreeNodeNM*>& list) const {list = D2;}
+	void get_M(List<QuadTreeNodeNM*>& list) const {list = M;}
 
 	QuadTreeNodeNM* get_father_ptr ()   const {return father_ptr;}
 	QuadTreeNodeNM* get_child_lt_ptr () const {return child_lt_ptr;}

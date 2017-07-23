@@ -424,4 +424,4 @@ inline void FibonacciHeap<T, C>::restore(FibonacciHeapNode<T> *heapNode)
 	}
 }
 
-} // end namespace ogdf
+}

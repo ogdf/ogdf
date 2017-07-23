@@ -121,4 +121,4 @@ void BasicPageRank::call(
 	// result is now between 0 and 1
 }
 
-} // end of namespace ogdf
+}

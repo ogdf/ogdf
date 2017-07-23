@@ -94,4 +94,4 @@ void LinearLayout::setCustomOrder(bool o) {
 	m_customOrder = o;
 }
 
-} // end namespace ogdf
+}

@@ -53,9 +53,6 @@ public:
 	//! Constructor
 	MultilevelLayout();
 
-	//! Destructor
-	virtual ~MultilevelLayout() {delete m_pp;}
-
 	//! Calculates a drawing for the Graph GA.
 	virtual void call(GraphAttributes &GA) override;
 
@@ -68,10 +65,8 @@ public:
 	void setPlacer(InitialPlacer* P);
 
 private:
-	ModularMultilevelMixer* m_mmm;
-	ScalingLayout* m_sc;
-	ComponentSplitterLayout* m_cs;
-	PreprocessorLayout* m_pp;
+	ModularMultilevelMixer* m_mixer;
+	PreprocessorLayout m_preproc;
 };
 
-} //end namespace ogdf
+}

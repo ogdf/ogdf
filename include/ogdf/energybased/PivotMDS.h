@@ -152,5 +152,4 @@ private:
 		Array<double>& eVals);
 };
 
-
-} // end namespace ogdf
+}

@@ -1,5 +1,5 @@
 /** \file
- * \brief Computes an embedding of a graph with maximum external face.
+ * \brief Declares ogdf::EmbedderMaxFace.
  *
  * \author Thorsten Kerkhof
  *
@@ -31,26 +31,22 @@
 
 #pragma once
 
-#include <ogdf/module/EmbedderModule.h>
-#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 #include <ogdf/decomposition/StaticSPQRTree.h>
 
 namespace ogdf {
 
-//! Planar graph embedding with maximum external face.
+//! Embedder that maximizes the external face.
 /**
  * @ingroup ga-planembed
  *
- * See the paper "Graph Embedding with Minimum Depth and Maximum External
- * Face" by C. Gutwenger and P. Mutzel (2004) for details.
+ * See the paper "Graph Embedding with Minimum Depth and Maximum External Face"
+ * by C. Gutwenger and P. Mutzel (2004) for details.
  */
-class OGDF_EXPORT EmbedderMaxFace : public EmbedderModule
+class OGDF_EXPORT EmbedderMaxFace : public embedder::EmbedderBCTreeBase<false>
 {
 public:
-	//constructor and destructor
-	EmbedderMaxFace() { }
-	~EmbedderMaxFace() { }
-
 	/**
 	 * \brief Computes an embedding of \p G with maximum external face.
 	 * \param G is the original graph. Its adjacency list has to be  changed by the embedder.
@@ -58,7 +54,211 @@ public:
 	 */
 	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
-private:
+protected:
+	//! Calls \p fun for every ingoing edge (\a w,\p v).
+	void forEachIngoingNeighbor(node v, std::function<void(node)> fun) {
+		for (adjEntry adj : v->adjEntries) {
+			if (adj->theEdge()->target() == v) {
+				fun(adj->twinNode());
+			}
+		}
+	}
+
+	void computeNodeLength(node bT, std::function<int &(node)> setter) {
+		forEachIngoingNeighbor(bT, [&](node vT) {
+			node vH = pBCTree->cutVertex(vT, bT);
+			int length_v_in_block = 0;
+
+			// set length of vertex v in block graph of bT:
+			forEachIngoingNeighbor(vT, [&](node bT2) {
+				node cutVertex = pBCTree->cutVertex(vT, bT2);
+				length_v_in_block += constraintMaxFace(bT2, cutVertex);
+			});
+
+			setter(vH) = length_v_in_block;
+		});
+	}
+
+	void internalMaximumFaceRec(
+			const node& bT,
+			node& bT_opt,
+			int& ell_opt,
+			Graph &blockGraph,
+			NodeArray<int> &paramNodeLength,
+			StaticSPQRTree *spqrTree,
+			std::function<node &(node)> getBENode,
+			std::function<int &(node, node)> getCstrLength,
+			std::function<int &(node, node)> getNodeLength,
+			int * const maxFaceSizeToUpdate = nullptr) {
+		node tmp_bT_opt = bT;
+		NodeArray<EdgeArray<int>> edgeLengthSkel;
+		EdgeArray<int> edgeLengthForEllOpt(blockGraph, 1);
+
+		int tmp_ell_opt = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
+				blockGraph,
+				paramNodeLength,
+				edgeLengthForEllOpt,
+				spqrTree,
+				edgeLengthSkel);
+
+		if (maxFaceSizeToUpdate != nullptr) {
+			*maxFaceSizeToUpdate = tmp_ell_opt;
+		}
+
+		forEachIngoingNeighbor(bT, [&](node cT) {
+			node cH = pBCTree->cutVertex(cT, bT);
+
+			EdgeArray<int> uniformLengths;
+
+			if (maxFaceSizeToUpdate == nullptr) {
+				uniformLengths.init(blockGraph, 1);
+			}
+
+			getCstrLength(bT, cH) = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
+					blockGraph,
+					getBENode(cH),
+					paramNodeLength,
+					maxFaceSizeToUpdate == nullptr ? uniformLengths : edgeLengthForEllOpt,
+					spqrTree,
+					edgeLengthSkel);
+
+			int L = 0;
+
+			// L := \sum_{(B', c) \in bcTree} cstrLength(B', c)
+			forEachIngoingNeighbor(cT, [&](node bT2) {
+				// get partner vertex of c in the block graph of B'=e->target() and add cstrLength(B', c) to L:
+				L += getCstrLength(bT2, pBCTree->cutVertex(cT, bT2));
+			});
+
+			forEachIngoingNeighbor(cT, [&](node pT) {
+				if (pT != bT) {
+					// get partner vertex of c in the block graph of B'=e->source():
+					node partnerV = pBCTree->cutVertex(cT, pT);
+					getNodeLength(pT, partnerV) = L - getCstrLength(pT, partnerV);
+
+					// pBCTree->originalGraph().chooseNode() just to get rid of warning:
+					node thisbT_opt = pBCTree->originalGraph().chooseNode();
+					int thisell_opt = 0;
+					maximumFaceRec(pT, thisbT_opt, thisell_opt);
+
+					if (thisell_opt > tmp_ell_opt) {
+						tmp_bT_opt = thisbT_opt;
+						tmp_ell_opt = thisell_opt;
+					}
+				}
+			});
+		});
+
+		// return (B*, \ell*):
+		bT_opt = tmp_bT_opt;
+		ell_opt = tmp_ell_opt;
+	}
+
+	template<typename T>
+	void internalEmbedBlock(
+			const node bT,
+			const node cT,
+			ListIterator<adjEntry>& after,
+			Graph &blockGraph,
+			NodeArray<T> &paramNodeLength,
+			EdgeArray<T> &paramEdgeLength,
+			NodeArray<node> &mapNodeToH,
+			EdgeArray<edge> &mapEdgeToH,
+			const node nodeInBlock) {
+		// 1. Compute embedding of block
+		adjEntry m_adjExternal = nullptr;
+		EmbedderMaxFaceBiconnectedGraphs<T>::embed(blockGraph, m_adjExternal, paramNodeLength, paramEdgeLength, nodeInBlock);
+
+		// 2. Copy block embedding into graph embedding and call recursively
+		//    embedBlock for all cut vertices in bT
+		CombinatorialEmbedding CE(blockGraph);
+		face f = CE.leftFace(m_adjExternal);
+
+		if (*pAdjExternal == nullptr) {
+			node on = pBCTree->original(mapNodeToH[m_adjExternal->theNode()]);
+
+			for (adjEntry ae : on->adjEntries) {
+				if (ae->theEdge() == pBCTree->original(mapEdgeToH[m_adjExternal->theEdge()])) {
+					*pAdjExternal = ae->twin();
+					break;
+				}
+			}
+		}
+
+		for (node nSG : blockGraph.nodes) {
+			node nH = mapNodeToH[nSG];
+			node nG = pBCTree->original(nH);
+			adjEntry ae = nSG->firstAdj();
+			ListIterator<adjEntry>* pAfter = pBCTree->bcproper(nG) == cT ? &after : new ListIterator<adjEntry>;
+
+			if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex) {
+				node cT2 = pBCTree->bcproper(nG);
+				bool doRecurse = true;
+
+				if (cT2 == cT) {
+					node parent_bT_of_cT2 = nullptr;
+
+					for (adjEntry adj : cT2->adjEntries) {
+						if (adj->theEdge()->source() == cT2) {
+							parent_bT_of_cT2 = adj->twinNode();
+							break;
+						}
+					}
+
+					OGDF_ASSERT(parent_bT_of_cT2 != nullptr);
+
+					if (treeNodeTreated[parent_bT_of_cT2]) {
+						doRecurse = false;
+					}
+				}
+
+				// (if exists) find adjacency entry of nSG which lies on external face f:
+				for (adjEntry aeFace : f->entries) {
+					if (aeFace->theNode() == nSG) {
+						ae = aeFace->succ() == nullptr ? nSG->firstAdj() : aeFace->succ();
+						break;
+					}
+
+				}
+
+				if (doRecurse) {
+					for (adjEntry adj : cT2->adjEntries) {
+						node bT2 = adj->theEdge()->opposite(cT2);
+
+						if (!treeNodeTreated[bT2]) {
+							embedBlock(bT2, cT2, *pAfter);
+						}
+					}
+				}
+			}
+
+			// embed all edges of block bT:
+			bool after_ae = true;
+			for (adjEntry aeNode = ae; after_ae || aeNode != ae; aeNode = aeNode->succ() == nullptr ? nSG->firstAdj() : aeNode->succ()) {
+				edge e = pBCTree->original(mapEdgeToH[aeNode->theEdge()]);
+				if (nG == e->source()) {
+					if (pAfter->valid()) {
+						*pAfter = newOrder[nG].insertAfter(e->adjSource(), *pAfter);
+					} else {
+						*pAfter = newOrder[nG].pushBack(e->adjSource());
+					}
+				} else {
+					if (pAfter->valid()) {
+						*pAfter = newOrder[nG].insertAfter(e->adjTarget(), *pAfter);
+					} else {
+						*pAfter = newOrder[nG].pushBack(e->adjTarget());
+					}
+				}
+
+				after_ae &= aeNode->succ() != nullptr;
+			}
+
+			if (*pAfter != after) {
+				delete pAfter;
+			}
+		}
+	}
+
 	/**
 	 * \brief Computes recursively the block graph for every block.
 	 *
@@ -74,7 +274,7 @@ private:
 	 * \param cH is the block node which is related to the cut vertex which is
 	 *   parent of bT in BC-tree.
 	 */
-	int constraintMaxFace(const node& bT, const node& cH);
+	virtual int constraintMaxFace(const node& bT, const node& cH);
 
 	/**
 	 * \brief Top down traversal of BC-tree.
@@ -84,7 +284,7 @@ private:
 	 *   cann be expanded to a maximum face.
 	 * \param ell_opt is the size of a maximum face.
 	 */
-	void maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt);
+	virtual void maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt);
 
 	/**
 	 * \brief Computes the adjacency list for all nodes in a block and calls
@@ -104,14 +304,7 @@ private:
 	 * \param after is the adjacency entry of the cut vertex, after which bT has to
 	 *   be inserted.
 	 */
-	void embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after);
-
-private:
-	/** BC-tree of the original graph */
-	BCTree* pBCTree;
-
-	/** an adjacency entry on the external face */
-	adjEntry* pAdjExternal;
+	virtual void embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after);
 
 	/** all blocks */
 	NodeArray<Graph> blockG;
@@ -145,4 +338,4 @@ private:
 	NodeArray<StaticSPQRTree*> spqrTrees;
 };
 
-} // end namespace ogdf
+}

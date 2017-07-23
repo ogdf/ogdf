@@ -56,4 +56,4 @@ public:
 	void setTimelimit(int timelimit)   { m_timelimit = timelimit; }
 };
 
-} // end namespace ogdf
+}

@@ -29,8 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
 #include <ogdf/planarity/PlanarizationLayout.h>
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
@@ -42,9 +40,7 @@
 
 #include "layout_helpers.h"
 
-using namespace ogdf;
-
-go_bandit([](){ bandit::describe("Planarization layouts", [](){
+go_bandit([] { describe("Planarization layouts", [] {
 	PlanarizationLayout pl, plFixed;
 	PlanarizationGridLayout pgl, pglMM;
 
@@ -68,8 +64,11 @@ go_bandit([](){ bandit::describe("Planarization layouts", [](){
 	pMml->setCrossingsBeautifier(new MMCBLocalStretch);
 	pglMM.setPlanarLayouter(pMml);
 
-	describeLayoutModule("planarization layout", pl, GraphAttributes::edgeType | GraphAttributes::nodeType, {}, 50);
-	describeLayoutModule("planarization layout with fixed inserter", plFixed, GraphAttributes::edgeType | GraphAttributes::nodeType, {}, 50);
-	describeGridLayoutModule("planarization grid layout", pgl, {}, 50);
-	describeGridLayoutModule("planarization grid layout with mixed model", pglMM, {}, 50);
+	GraphSizes smallSizes = GraphSizes(16, 48, 16);
+
+	describeLayout("PlanarizationLayout", pl, GraphAttributes::edgeType | GraphAttributes::nodeType, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+	describeLayout("PlanarizationLayout with fixed inserter", plFixed, GraphAttributes::edgeType | GraphAttributes::nodeType, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+
+	describeLayout("PlanarizationGridLayout", pgl, 0, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+	describeLayout("PlanarizationGridLayout with mixed model", pglMM, 0, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
 }); });

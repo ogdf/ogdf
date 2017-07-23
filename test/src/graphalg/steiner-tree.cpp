@@ -32,7 +32,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include <bandit/bandit.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
@@ -46,75 +45,7 @@
 #include <ogdf/graphalg/MinSteinerTreeGoemans139.h>
 #include <resources.h>
 
-using namespace ogdf;
-using namespace bandit;
-
 template<typename T> using ModuleTuple = std::tuple<std::string, MinSteinerTreeModule<T>*, double>;
-
-// Test MinSteinerTreeModule<T>::isSteinerTree()
-template<typename T>
-static void testIsSteinerTree()
-{
-	EdgeWeightedGraph<T> graph;
-	EdgeWeightedGraphCopy<T> *tree;
-	NodeArray<bool> isTerminal;
-	List<node> terminals;
-
-	before_each([&]() {
-		node v0 = graph.newNode();
-		node v1 = graph.newNode();
-		node v2 = graph.newNode();
-		graph.newEdge(v0, v1, 2);
-		graph.newEdge(v1, v2, 3);
-		edge eCycle = graph.newEdge(v2, v0, 7);
-
-		isTerminal.init(graph, false);
-		isTerminal[v0] = isTerminal[v2] = true;
-
-		for (auto v : graph.nodes) {
-			if (isTerminal[v]) {
-				terminals.pushBack(v);
-			}
-		}
-
-		tree = new EdgeWeightedGraphCopy<T>(graph);
-		tree->delEdge(tree->copy(eCycle));
-	});
-
-	after_each([&]() {
-		delete tree;
-		graph.clear();
-		terminals.clear();
-	});
-
-	it("recognizes a valid Steiner tree", [&]() {
-		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsTrue());
-	});
-
-	it("recognizes a disconnected Steiner tree", [&]() {
-		tree->delEdge(tree->chooseEdge());
-
-		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsFalse());
-	});
-
-	it("recognizes a Steiner tree with extra nodes", [&]() {
-		node v = graph.newNode();
-		isTerminal[v] = true;
-		terminals.pushFront(v);
-
-		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsFalse());
-	});
-
-	it("recognizes a Steiner tree with redundant Steiner node", [&]() {
-		node u = terminals.front();
-		node v = graph.newNode();
-		edge e = graph.newEdge(u, v, 1);
-		tree->newNode(v);
-		tree->newEdge(e, 1);
-
-		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsFalse());
-	});
-}
 
 /**
  * Generates a new graph with an optimal Steiner tree.
@@ -223,7 +154,7 @@ void testModuleOnRandomGraph(MinSteinerTreeModule<T> &alg, int n, double factor 
 		List<node> terminals;
 
 		T cost = randomOptimalSteiner<T>(n, graph, terminals, isTerminal, tree);
-		cout << endl << "        graph has " << terminals.size() << " terminals" << endl;
+		std::cout << std::endl << "        graph has " << terminals.size() << " terminals" << std::endl;
 
 		EdgeWeightedGraphCopy<T> *algTree;
 		T algCost = alg.call(graph, terminals, isTerminal, algTree);
@@ -285,7 +216,7 @@ void testModule(const std::string &moduleName, MinSteinerTreeModule<T> &alg, dou
 				List<node> terminals;
 				NodeArray<bool> isTerminal(graph);
 
-				ifstream is(filename);
+				std::ifstream is(filename);
 				GraphIO::readSTP(graph, terminals, isTerminal, is);
 
 				EdgeWeightedGraphCopy<T> *algTree;
@@ -504,7 +435,7 @@ registerGoemans139Variants(std::vector<ModuleTuple<T>*> &modules)
 	// Goemans139 for different maximum component sizes
 	for(int i = 2; i < 6; i++) {
 		// and for standard and stronger LP relaxation
-		for (int strongerLP = 0; strongerLP < 2; ++strongerLP) {
+		for (int strongerLP = 0; strongerLP < 1; ++strongerLP) { // XXX: strongerLP = 1 is temporarily disabled
 			for (int use2approx = 0; use2approx < 2; ++use2approx) {
 				MinSteinerTreeGoemans139<T> *alg = new MinSteinerTreeGoemans139<T>();
 				int maxCompSize = i;
@@ -541,12 +472,6 @@ void registerSuite(const std::string typeName)
 	auto typeString = [&typeName](std::string str) {
 		return str + string(" [") + typeName + string("]");
 	};
-
-	describe(typeString("MinSteinerTreeModule"), [&]() {
-		describe(typeString("isSteinerTree"), []() {
-			testIsSteinerTree<T>();
-		});
-	});
 
 	std::vector<ModuleTuple<T>*> modules = {
 		new ModuleTuple<T>("DirectedCut default", new MinSteinerTreeDirectedCut<T>(), 1),

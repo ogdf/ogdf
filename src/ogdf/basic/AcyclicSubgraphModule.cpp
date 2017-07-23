@@ -61,5 +61,4 @@ void AcyclicSubgraphModule::callAndDelete(Graph &G)
 		G.delEdge(e);
 }
 
-
-} // end namespace ogdf
+}

@@ -73,11 +73,11 @@ class OGDF_EXPORT Block {
 
 	friend class BlockOrder;
 private:
-	int m_index; //!< The index of this block in BlockOrder.
+	int m_index = 0; //!< The index of this block in BlockOrder.
 
-	int m_upper; //!< The top level of this block.
+	int m_upper = 0; //!< The top level of this block.
 
-	int m_lower; //!< The bottom level of this block.
+	int m_lower = 0; //!< The bottom level of this block.
 
 	Array<node> m_nodes; //!< Vertices from the proper hierarchy corresponding to this block
 
@@ -90,8 +90,8 @@ private:
 	Array<int> m_InvertedOutgoing;  //!< Positions of this block in m_NeighboursIncoming of neighbours.
 
 	// exactly one of those below is non null!
-	node m_Node; //!< The node for which this block was created.
-	edge m_Edge; //!< The edge for which this block was created.
+	node m_Node = nullptr; //!< The node for which this block was created.
+	edge m_Edge = nullptr; //!< The edge for which this block was created.
 
 	bool m_isEdgeBlock;
 	bool m_isNodeBlock;
@@ -321,10 +321,6 @@ public:
 	void gridSifting( int nRepeats = 10 );
 
 	//! @}
-
-
-
 };
 
-
-} // end namespace ogdf
+}

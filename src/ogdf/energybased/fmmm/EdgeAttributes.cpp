@@ -35,7 +35,7 @@ namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-ostream &operator<< (ostream & output, const EdgeAttributes & A)
+std::ostream &operator<< (std::ostream & output, const EdgeAttributes & A)
 {
 	output <<"length: "<< A.length;
 	output<<"  index of original edge ";
@@ -57,7 +57,7 @@ ostream &operator<< (ostream & output, const EdgeAttributes & A)
 }
 
 
-istream &operator>> (istream & input,  EdgeAttributes & A)
+std::istream &operator>> (std::istream & input,  EdgeAttributes & A)
 {
 	input >> A.length;
 	return input;

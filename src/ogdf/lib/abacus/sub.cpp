@@ -284,23 +284,23 @@ int Sub::optimize()
 
 	// output a banner for the subproblem
 	if(Logger::is_ilout(Logger::Level::Medium)) {
-		Logger::ifout() << endl << "************************************************" << endl
-		 << "Subproblem " << id_ << " on Level " << level_ << ":" << endl << endl;
+		Logger::ifout() << std::endl << "************************************************" << std::endl
+		 << "Subproblem " << id_ << " on Level " << level_ << ":" << std::endl << std::endl;
 
 		if (master_->optSense()->max()) {
-			Logger::ifout() << "\tGlobal Lower Bound: " << lowerBound()       << endl
-			 << "\tLocal  Upper Bound: " << upperBound()       << endl
-			 << "\tGlobal Upper Bound: " << master_->upperBound() << endl;
+			Logger::ifout() << "\tGlobal Lower Bound: " << lowerBound()       << std::endl
+			 << "\tLocal  Upper Bound: " << upperBound()       << std::endl
+			 << "\tGlobal Upper Bound: " << master_->upperBound() << std::endl;
 		}
 		else {
-			Logger::ifout() << "\tLocal  Lower Bound: " << lowerBound()       << endl
-			 << "\tGlobal Lower Bound: " << master_->lowerBound() << endl
-			 << "\tGlobal Upper Bound: " << upperBound()       << endl;
+			Logger::ifout() << "\tLocal  Lower Bound: " << lowerBound()       << std::endl
+			 << "\tGlobal Lower Bound: " << master_->lowerBound() << std::endl
+			 << "\tGlobal Upper Bound: " << upperBound()       << std::endl;
 		}
 
 		Logger::ifout() << "\tCurrent Guarantee : ";
 		master_->printGuarantee();
-		Logger::ifout() << endl << endl;
+		Logger::ifout() << std::endl << std::endl;
 	}
 
 	++nOpt_;
@@ -338,14 +338,14 @@ int Sub::optimize()
 			Logger::ifout() << setw(10) << dualBound() << " ";
 		Logger::ifout() << setw(10) << master_->dualBound() << " ";
 		if (master_->feasibleFound())
-			Logger::ifout() << setw(10) << master_->primalBound() << endl;
+			Logger::ifout() << setw(10) << master_->primalBound() << std::endl;
 		else
-			Logger::ifout() << setw(10) << "---" << endl;
+			Logger::ifout() << setw(10) << "---" << std::endl;
 
 	} else {
-		Logger::ilout(Logger::Level::Default) << "Enumeration Tree" << endl
-		 << "\tNumber of Subproblems:   " << master_->nSub() << endl
-		 << "\tNumber of Open Problems: " << master_->openSub()->number() << endl;
+		Logger::ilout(Logger::Level::Default) << "Enumeration Tree" << std::endl
+		 << "\tNumber of Subproblems:   " << master_->nSub() << std::endl
+		 << "\tNumber of Open Problems: " << master_->openSub()->number() << std::endl;
 	}
 
 	return 0;
@@ -444,7 +444,7 @@ Sub::PHASE Sub::_activate()
 	}
 
 	if (removeVars.size()) {
-		Logger::ilout(Logger::Level::Medium) << removeVars.size() << " variables missing for initialization" << endl;
+		Logger::ilout(Logger::Level::Medium) << removeVars.size() << " variables missing for initialization" << std::endl;
 
 		actVar_->remove(removeVars);
 		fsVarStat_->leftShift(removeVars);
@@ -464,7 +464,7 @@ Sub::PHASE Sub::_activate()
 		}
 	}
 	if (removeCons.size())
-		Logger::ilout(Logger::Level::Medium) << removeCons.size() << " constraints missing for initialization" << endl;
+		Logger::ilout(Logger::Level::Medium) << removeCons.size() << " constraints missing for initialization" << std::endl;
 
 	actCon_->remove(removeCons);
 	slackStat_->leftShift(removeCons);
@@ -542,12 +542,12 @@ Sub::PHASE Sub::_activate()
 			if ((*fsVarStat_)[i]->fixed()) ++nFixed;
 			else if ((*fsVarStat_)[i]->set()) ++nSet;
 
-		Logger::ifout() << endl
-		 << "Subproblem Size" << endl
-		 << "\tNumber of Active Constraints : " << nCon() << endl
-		 << "\tNumber of Active Variables   : " << nVar() << endl
-		 << "\tNumber of Fixed Variables    : " << nFixed << endl
-		 << "\tNumber of Set Variables      : " << nSet   << endl;
+		Logger::ifout() << std::endl
+		 << "Subproblem Size" << std::endl
+		 << "\tNumber of Active Constraints : " << nCon() << std::endl
+		 << "\tNumber of Active Variables   : " << nVar() << std::endl
+		 << "\tNumber of Fixed Variables    : " << nFixed << std::endl
+		 << "\tNumber of Set Variables      : " << nSet   << std::endl;
 
 	}
 
@@ -655,7 +655,7 @@ void Sub::_deactivate()
 
 int Sub::_setByLogImp(bool &newValues)
 {
-	Logger::ilout(Logger::Level::Minor) << "Setting Variables by Logical Implications: " << flush;
+	Logger::ilout(Logger::Level::Minor) << "Setting Variables by Logical Implications: " << std::flush;
 	// call the virtual function to set variables by logical implications
 	ArrayBuffer<int>        variables(nVar(),false);
 	ArrayBuffer<FSVarStat*> status(nVar(),false);
@@ -681,9 +681,9 @@ int Sub::_setByLogImp(bool &newValues)
 		delete status[i];
 
 	if (contra)
-		Logger::ilout(Logger::Level::Minor) << "contradiction found" << endl;
+		Logger::ilout(Logger::Level::Minor) << "contradiction found" << std::endl;
 	else
-		Logger::ilout(Logger::Level::Minor) << nVariables << " variables set" << endl;
+		Logger::ilout(Logger::Level::Minor) << nVariables << " variables set" << std::endl;
 
 	return contra;
 }
@@ -724,22 +724,22 @@ Sub::PHASE Sub::cutting ()
 		*/
 
 		if (addVarBuffer_->number() && addConBuffer_->number()) {
-			Logger::ilout(Logger::Level::Minor) << "Sub::cutting(): WARNING: adding variables and constraints" << endl
-			 << "                         basis might become infeasible" << endl;
+			Logger::ilout(Logger::Level::Minor) << "Sub::cutting(): WARNING: adding variables and constraints" << std::endl
+			 << "                         basis might become infeasible" << std::endl;
 		}
 
 		if (removeVarBuffer_->size() && removeConBuffer_->size()) {
-			Logger::ilout(Logger::Level::Minor) << "Sub::cutting(): WARNING: removing variables and constraints" << endl
-			 << "                         basis might become infeasible" << endl;
+			Logger::ilout(Logger::Level::Minor) << "Sub::cutting(): WARNING: removing variables and constraints" << std::endl
+			 << "                         basis might become infeasible" << std::endl;
 		}
 
-		Logger::ilout(Logger::Level::Medium) << endl << "Update the Problem:" << endl;
+		Logger::ilout(Logger::Level::Medium) << std::endl << "Update the Problem:" << std::endl;
 
 		// remove all buffered constraints
 		if (removeConBuffer_->size()) {
 			nConRemoved = _removeCons(*removeConBuffer_);
 			removeConBuffer_->clear();
-			Logger::ilout(Logger::Level::Medium) << "\tremoved constraints: " << nConRemoved << endl;
+			Logger::ilout(Logger::Level::Medium) << "\tremoved constraints: " << nConRemoved << std::endl;
 		}
 		else
 			nConRemoved = 0;
@@ -748,7 +748,7 @@ Sub::PHASE Sub::cutting ()
 		if (removeVarBuffer_->size()) {
 			nVarRemoved = _removeVars(*removeVarBuffer_);
 			removeVarBuffer_->clear();
-			Logger::ilout(Logger::Level::Medium) << "\tremoved variables:   " << nVarRemoved << endl;
+			Logger::ilout(Logger::Level::Medium) << "\tremoved variables:   " << nVarRemoved << std::endl;
 		}
 		else
 			nVarRemoved = 0;
@@ -764,7 +764,7 @@ Sub::PHASE Sub::cutting ()
 			_selectCons(newCons);
 			nConAdded = addCons(newCons);
 			lastIterConAdd_ = nIter_;
-			Logger::ilout(Logger::Level::Medium) << "\tadded constraints:   " << nConAdded << endl;
+			Logger::ilout(Logger::Level::Medium) << "\tadded constraints:   " << nConAdded << std::endl;
 		}
 		else
 			nConAdded = 0;
@@ -780,15 +780,14 @@ Sub::PHASE Sub::cutting ()
 			/* If variables are added but non-liftable constraints are present, then
 			*   we cannot generate the columns correctly.
 			*/
-#ifdef OGDF_DEBUG
-			if(debugLevelIsAtLeast(DebugLevel::HeavyChecks)) {
-				const int nConstraints = nCon();
+#ifdef OGDF_HEAVY_DEBUG
+			const int nConstraints = nCon();
 
-				for (int i = 0; i < nConstraints; i++)
-					if (!constraint(i)->liftable()) {
-						Logger::ifout() << "Sub::cutting(): adding variables, where constraint ";
-						Logger::ifout() << i << " cannot be lifted" << endl;
-					}
+			for (int i = 0; i < nConstraints; i++) {
+				if (!constraint(i)->liftable()) {
+					Logger::ifout() << "Sub::cutting(): adding variables, where constraint ";
+					Logger::ifout() << i << " cannot be lifted" << std::endl;
+				}
 			}
 #endif
 
@@ -797,7 +796,7 @@ Sub::PHASE Sub::cutting ()
 			_selectVars(newVars);
 			nVarAdded = addVars(newVars);
 			lastIterVarAdd_ = nIter_;
-			Logger::ilout(Logger::Level::Medium) << "\tadded variables:     " << nVarAdded << endl;
+			Logger::ilout(Logger::Level::Medium) << "\tadded variables:     " << nVarAdded << std::endl;
 		}
 		else
 			nVarAdded = 0;
@@ -843,9 +842,9 @@ Sub::PHASE Sub::cutting ()
 				<< setw(10) << lp_->value() << " "
 				<< setw(10) << master_->dualBound() << " ";
 			if (master_->feasibleFound())
-				Logger::ifout() << setw(10) << master_->primalBound() << endl;
+				Logger::ifout() << setw(10) << master_->primalBound() << std::endl;
 			else
-				Logger::ifout() << setw(10) << "---" << endl;
+				Logger::ifout() << setw(10) << "---" << std::endl;
 
 		}
 
@@ -880,7 +879,7 @@ Sub::PHASE Sub::cutting ()
 			}
 		}
 
-		Logger::ilout(Logger::Level::Minor)  << endl << "\t" << nFractional << " of " << nDiscrete << " discrete variables are fractional" << endl;
+		Logger::ilout(Logger::Level::Minor)  << std::endl << "\t" << nFractional << " of " << nDiscrete << " discrete variables are fractional" << std::endl;
 
 
 		// make a feasibility test
@@ -893,7 +892,7 @@ Sub::PHASE Sub::cutting ()
 		*   fathom the subproblem, otherwise we continue the cutting plane algorithm.
 		*/
 		if (feasible()) {
-			Logger::ilout(Logger::Level::Medium) << "LP-solution is feasible" << endl;
+			Logger::ilout(Logger::Level::Medium) << "LP-solution is feasible" << std::endl;
 			if (master_->betterPrimal(lp_->value()))
 				master_->primalBound(lp_->value());
 
@@ -958,7 +957,7 @@ Sub::PHASE Sub::cutting ()
 		/* The default implementation of \a exceptionBranch() returns always \a false.
 		*/
 		if (exceptionBranch()) {
-			Logger::ilout(Logger::Level::Medium) << "exceptionBranch(): try branching." << endl;
+			Logger::ilout(Logger::Level::Medium) << "exceptionBranch(): try branching." << std::endl;
 			terminate = true;
 		}
 
@@ -966,8 +965,8 @@ Sub::PHASE Sub::cutting ()
 		if (!terminate &&
 			master_->totalTime_.exceeds(master_->maxCpuTime()))
 		{
-			Logger::ilout(Logger::Level::Medium) << "Maximal CPU time " << master_->maxCpuTimeAsString() << " exceeded" << endl
-			 << "Stop subproblem optimization." << endl;
+			Logger::ilout(Logger::Level::Medium) << "Maximal CPU time " << master_->maxCpuTimeAsString() << " exceeded" << std::endl
+			 << "Stop subproblem optimization." << std::endl;
 			master_->status(Master::MaxCpuTime);
 			terminate = true;
 			forceFathom = true;
@@ -978,8 +977,8 @@ Sub::PHASE Sub::cutting ()
 			master_->totalCowTime_.exceeds(master_->maxCowTime()))
 		{
 			Logger::ilout(Logger::Level::Medium) << "Maximal elapsed time "
-				<< master_->maxCowTimeAsString() << " exceeded" << endl
-				<< "Stop subproblem optimization." << endl;
+				<< master_->maxCowTimeAsString() << " exceeded" << std::endl
+				<< "Stop subproblem optimization." << std::endl;
 			master_->status(Master::MaxCowTime);
 			terminate = true;
 			forceFathom = true;
@@ -987,23 +986,23 @@ Sub::PHASE Sub::cutting ()
 
 		// check if there is a tailing-off effect
 		if (tailOff_->tailOff()) {
-			Logger::ilout(Logger::Level::Medium) << "Try to tail off subproblem processing" << endl;
+			Logger::ilout(Logger::Level::Medium) << "Try to tail off subproblem processing" << std::endl;
 			terminate = tailingOff();
 			if (!terminate) {
-				Logger::ilout(Logger::Level::Medium) << "problem specific resolution: no branching enforced" << endl;
+				Logger::ilout(Logger::Level::Medium) << "problem specific resolution: no branching enforced" << std::endl;
 				tailOff_->reset();
 			}
 		}
 
 		// should we pause the subproblem
 		if (!terminate && pausing()) {
-			Logger::ilout(Logger::Level::Medium) << "Try to pause subproblem" << endl;
+			Logger::ilout(Logger::Level::Medium) << "Try to pause subproblem" << std::endl;
 			terminate = true;
 		}
 
 		// check if the iteration limit is reached
 		if (!terminate && (maxIterations_ > 0) && (nIter_ >= maxIterations_)) {
-			Logger::ilout(Logger::Level::Medium) << "Iteration limit reached in subproblem: enforce branching" << endl;
+			Logger::ilout(Logger::Level::Medium) << "Iteration limit reached in subproblem: enforce branching" << std::endl;
 			terminate = true;
 		}
 
@@ -1092,7 +1091,7 @@ Sub::PHASE Sub::cutting ()
 
 		}
 
-	}   //!< while
+	}
 }
 
 
@@ -1115,11 +1114,11 @@ int Sub::solveLp ()
 	/* The "true" number of nonzeros is the number of nonzeros not including
 	*   the coefficients of the eliminated variables.
 	*/
-	Logger::ilout(Logger::Level::Minor) << endl << "Solving LP " << nIter_ << endl
-	 << "\tNumber of Constraints:  " <<  nCon() << endl
+	Logger::ilout(Logger::Level::Minor) << std::endl << "Solving LP " << nIter_ << std::endl
+	 << "\tNumber of Constraints:  " <<  nCon() << std::endl
 	 << "\tNumber of Variables  :  " <<  nVar() << "   (not eliminated "
-	 << lp_->trueNCol() << ")" << endl
-	 << "\tTrue nonzeros        :  " << lp_->trueNnz() << endl;
+	 << lp_->trueNCol() << ")" << std::endl
+	 << "\tTrue nonzeros        :  " << lp_->trueNnz() << std::endl;
 
 	// optimize the linear program
 	LP::OPTSTAT status;
@@ -1142,7 +1141,7 @@ int Sub::solveLp ()
 #ifdef TTT1
 	string fileName = master_->problemName() + "." + to_string(master_->nLp()) + ".bas";
 	if(lp_->writeBasisMatrix(fileName.c_str())) {
-		Logger::ifout() << "Writing basis to file " << fileName << " failed." << endl;
+		Logger::ifout() << "Writing basis to file " << fileName << " failed." << std::endl;
 	}
 #endif
 
@@ -1181,8 +1180,8 @@ int Sub::solveLp ()
 		*   \a ingnoreInTailingOff() such that the current LP solution is not
 		*   considered in the tailing off analysis.
 		*/
-		Logger::ilout(Logger::Level::Medium) << endl << "\tLP-solution            : " << lp_->value() << endl
-		 << "\tBest feasible solution : " << master_->primalBound()  << endl;
+		Logger::ilout(Logger::Level::Medium) << std::endl << "\tLP-solution            : " << lp_->value() << std::endl
+		 << "\tBest feasible solution : " << master_->primalBound()  << std::endl;
 
 		if (ignoreInTailingOff_)
 			ignoreInTailingOff_ = false;
@@ -1224,7 +1223,7 @@ int Sub::_makeFeasible()
 {
 	if (!master_->pricing()) return 1;
 
-	Logger::ilout(Logger::Level::Minor) << "Sub::_makeFeasible()" << endl;
+	Logger::ilout(Logger::Level::Minor) << "Sub::_makeFeasible()" << std::endl;
 
 	// make the current basis global dual feasible
 	/* If the variables are added we return and solve the linear program again
@@ -1337,7 +1336,7 @@ int Sub::_pricing(bool &newValues, bool doFixSet)
 
 		if (!removeNonLiftableCons()) return 2;
 
-		Logger::ilout(Logger::Level::Minor) << endl << "Price out Inactive Variables" << endl;
+		Logger::ilout(Logger::Level::Minor) << std::endl << "Price out Inactive Variables" << std::endl;
 
 		localTimer_.start(true);
 		nNew = pricing();
@@ -1402,7 +1401,7 @@ bool Sub::guaranteed() const
 	}
 
 	if (guarantee() + master_->machineEps() < master_->requiredGuarantee()) {
-		Logger::ilout(Logger::Level::Medium) << "Subproblem guarantee reached" << endl;
+		Logger::ilout(Logger::Level::Medium) << "Subproblem guarantee reached" << std::endl;
 		master_->status(Master::Guaranteed);
 		return true;
 	}
@@ -1459,7 +1458,7 @@ bool Sub::removeNonLiftableCons()
 	genNonLiftCons_ = false;
 
 	if (nNonLiftable) {
-		Logger::ilout(Logger::Level::Medium) << "Removing " << nNonLiftable << " non-liftable constraints" << endl;
+		Logger::ilout(Logger::Level::Medium) << "Removing " << nNonLiftable << " non-liftable constraints" << std::endl;
 		lpMethod_ = LP::Primal;
 		return false;
 	}
@@ -1567,7 +1566,7 @@ int Sub::addCons(
 
 	// delete the constraints that could be not inserted into the pool
 	if (lastInserted < nConstraints) {
-		Logger::ilout(Logger::Level::Medium) << "Sub::addCons(): pool too small, deleting " << nConstraints - lastInserted << " constraints." << endl;
+		Logger::ilout(Logger::Level::Medium) << "Sub::addCons(): pool too small, deleting " << nConstraints - lastInserted << " constraints." << std::endl;
 
 		for (int i = lastInserted + 1; i < nConstraints; i++)
 			delete constraints[i];
@@ -1609,7 +1608,7 @@ int Sub::addCons(
 
 		averageDistance /= nNewCons;
 
-		Logger::ilout(Logger::Level::Minor) << "\taverage distance of cuts: " << averageDistance << endl;
+		Logger::ilout(Logger::Level::Minor) << "\taverage distance of cuts: " << averageDistance << std::endl;
 	}
 
 	// add the constraints to the active constraints and the LP
@@ -1669,7 +1668,7 @@ int Sub::addVars(
 
 	// delete the variables that could be not inserted into the pool
 	if (lastInserted < nVariables) {
-		Logger::ilout(Logger::Level::Medium) << "Sub::addVars(): pool too small, deleting " << nVariables - lastInserted << " variables." << endl;
+		Logger::ilout(Logger::Level::Medium) << "Sub::addVars(): pool too small, deleting " << nVariables - lastInserted << " variables." << std::endl;
 
 		for (int i = lastInserted + 1; i < nVariables; i++)
 			delete variables[i];
@@ -1734,7 +1733,7 @@ bool Sub::objAllInteger() const
 			return false;
 	}
 
-	Logger::ilout(Logger::Level::Medium) << "objective function values of feasible solutions are integer" << endl;
+	Logger::ilout(Logger::Level::Medium) << "objective function values of feasible solutions are integer" << std::endl;
 
 	return true;
 }
@@ -1760,18 +1759,18 @@ bool Sub::integerFeasible()
 
 void Sub::ignoreInTailingOff()
 {
-	Logger::ilout(Logger::Level::Minor) << "\tnext LP solution ignored in tailing off" << endl;
+	Logger::ilout(Logger::Level::Minor) << "\tnext LP solution ignored in tailing off" << std::endl;
 	ignoreInTailingOff_ = true;
 }
 
 
 Sub::PHASE Sub::branching()
 {
-	Logger::ilout(Logger::Level::Medium) << endl << "Branching Phase" << endl << endl;
+	Logger::ilout(Logger::Level::Medium) << std::endl << "Branching Phase" << std::endl << std::endl;
 
 	// check if the maximum enumeration level is reached
 	if (level_ == master_->maxLevel()) {
-		Logger::ilout(Logger::Level::Medium) << "Maximum enumeration level " << master_->maxLevel() << " reached, no branching" << endl;
+		Logger::ilout(Logger::Level::Medium) << "Maximum enumeration level " << master_->maxLevel() << " reached, no branching" << std::endl;
 		master_->status(Master::MaxLevel);
 		return Fathoming;
 	}
@@ -1798,7 +1797,7 @@ Sub::PHASE Sub::branching()
 	*/
 	if (pausing() || master_->delayedBranching(nOpt_))
 		if (!master_->openSub()->empty()) {
-			Logger::ilout(Logger::Level::Medium) << "making node dormant" << endl;
+			Logger::ilout(Logger::Level::Medium) << "making node dormant" << std::endl;
 			master_->openSub()->insert(this);
 			status_ = Dormant;
 			nDormantRounds_ = 0;
@@ -1825,7 +1824,7 @@ Sub::PHASE Sub::branching()
 
 	const int nRules = rules.size();
 
-	Logger::ilout(Logger::Level::Medium) << "Number of new problems : " << nRules << endl;
+	Logger::ilout(Logger::Level::Medium) << "Number of new problems : " << nRules << std::endl;
 
 	sons_ = new ArrayBuffer<Sub*>(nRules,false);
 
@@ -1850,16 +1849,16 @@ int Sub::branchingOnVariable(ArrayBuffer<BranchRule*> &rules)
 	int status = selectBranchingVariable(branchVar);
 
 	if (status) {
-		Logger::ilout(Logger::Level::Medium) << "no branching variable found" << endl;
+		Logger::ilout(Logger::Level::Medium) << "no branching variable found" << std::endl;
 		return 1;
 	}
 
-	if (variable(branchVar)->binary()) Logger::ilout(Logger::Level::Minor) << endl << "Binary ";
-	else                               Logger::ilout(Logger::Level::Minor) << endl << "Integer ";
+	if (variable(branchVar)->binary()) Logger::ilout(Logger::Level::Minor) << std::endl << "Binary ";
+	else                               Logger::ilout(Logger::Level::Minor) << std::endl << "Integer ";
 
 	Logger::ilout(Logger::Level::Minor) << "Branching Variable     : "
 	 << branchVar << " (value: " << xVal_[branchVar]
-	 << ", cost: " << variable(branchVar)->obj() << ") " << endl;
+	 << ", cost: " << variable(branchVar)->obj() << ") " << std::endl;
 
 	// generate the two rules for the branching variable
 	/* A binary branching variable is set to 0 in one of the
@@ -1920,7 +1919,7 @@ int Sub::selectBranchingVariable(int &variable)
 	double *down  = new double[candidates.number()];
 	double *up    = new double[candidates.number()];
 
-	Logger::ilout(Logger::Level::Minor) << "\t" << candidates.number() << " candidates" << endl;
+	Logger::ilout(Logger::Level::Minor) << "\t" << candidates.number() << " candidates" << std::endl;
 
 	for (int i = 0; i < candidates.number(); i++)
 		goodlist[i] = candidates[i];
@@ -1934,7 +1933,7 @@ int Sub::selectBranchingVariable(int &variable)
 	}
 
 	for (int i = 0; i < candidates.number(); i++)
-		Logger::ilout(Logger::Level::Minor) << "\t" << down[i] << ' ' << up[i] << endl;
+		Logger::ilout(Logger::Level::Minor) << "\t" << down[i] << ' ' << up[i] << std::endl;
 
 	int bestCand = 0;
 	double bestVal;
@@ -1971,7 +1970,7 @@ int Sub::selectBranchingVariable(int &variable)
 		delete [] up;
 		delete [] down;
 
-		Logger::ilout(Logger::Level::Minor) << "\t" << "selecting sample " << bestCand << endl;
+		Logger::ilout(Logger::Level::Minor) << "\t" << "selecting sample " << bestCand << std::endl;
 
 		variable = candidates[bestCand];
 		return 0;
@@ -2266,7 +2265,7 @@ int Sub::selectBestBranchingSample(
 		rank[i] = new Array<double>(samples[i]->size());
 
 	// compute the ranks and select the best sample
-	Logger::ilout(Logger::Level::Minor) << "Computing ranks of branching samples: "<< endl;
+	Logger::ilout(Logger::Level::Minor) << "Computing ranks of branching samples: "<< std::endl;
 	int best = 0;
 
 	for (int i = 0; i < nSamples; i++) {
@@ -2274,12 +2273,12 @@ int Sub::selectBestBranchingSample(
 		Logger::ilout(Logger::Level::Minor) << "\tSample " << i << ": ";
 		for (int j = 0; j < samples[i]->size(); j++)
 			Logger::ilout(Logger::Level::Minor) << (*(rank[i]))[j] << ' ';
-		Logger::ilout(Logger::Level::Minor) << endl;
+		Logger::ilout(Logger::Level::Minor) << std::endl;
 		if (i > 0 && compareBranchingSampleRanks(*(rank[best]), *(rank[i])) == -1)
 			best = i;
 	}
 
-	Logger::ilout(Logger::Level::Minor) << endl << "Selecting branching sample " << best << "." << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "Selecting branching sample " << best << "." << std::endl;
 
 	// delete memory (Sub::selectBestBranchingSample())
 	for (int i = 0; i < nSamples; i++)
@@ -2312,7 +2311,7 @@ double Sub::lpRankBranchingRule(BranchRule *branchRule, int iterLimit)
 			Logger::ifout() << "WARNING: ";
 			Logger::ifout() << "Sub::lpRankBranchingRule(): ";
 			Logger::ifout() << "getting the iteration limit of the LP-solver failed.";
-			Logger::ifout() << endl;
+			Logger::ifout() << std::endl;
 			oldIterLimit = -1;
 		}
 		else {
@@ -2320,7 +2319,7 @@ double Sub::lpRankBranchingRule(BranchRule *branchRule, int iterLimit)
 				Logger::ifout() << "WARNING: ";
 				Logger::ifout() << "Sub::lpRankBranchingRule(): ";
 				Logger::ifout() << "setting the iteration limit of the LP-solver failed.";
-				Logger::ifout() << endl;
+				Logger::ifout() << std::endl;
 				oldIterLimit = -1;
 			}
 		}
@@ -2420,7 +2419,7 @@ int Sub::compareBranchingSampleRanks(
 
 Sub::PHASE Sub::fathoming()
 {
-	Logger::ilout(Logger::Level::Minor) << endl << "Fathoming Phase" << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "Fathoming Phase" << std::endl;
 
 	fathom(true);
 
@@ -2431,7 +2430,7 @@ Sub::PHASE Sub::fathoming()
 void Sub::fathom(bool reoptimize)
 {
 	// Sub::fathom(): output some infos
-	Logger::ilout(Logger::Level::Minor) << "\tnode " << id_ << " fathomed" << endl;
+	Logger::ilout(Logger::Level::Minor) << "\tnode " << id_ << " fathomed" << std::endl;
 
 	// reset the flags of the active variables and constraints
 	/* If an active subproblem is fathomed, then the active variables
@@ -2533,7 +2532,7 @@ void Sub::fathom(bool reoptimize)
 
 	// check if the root node is fathomed
 	if (this == master_->root()) {
-		Logger::ilout(Logger::Level::Medium) << "\t\troot node fathomed" << endl;
+		Logger::ilout(Logger::Level::Medium) << "\t\troot node fathomed" << std::endl;
 		return;
 	}
 
@@ -2684,9 +2683,9 @@ int Sub::_fixByLogImp(bool &newValues)
 		delete status[i];
 
 	if (contra)
-		Logger::ilout(Logger::Level::Minor) << "contradiction" << endl;
+		Logger::ilout(Logger::Level::Minor) << "contradiction" << std::endl;
 	else
-		Logger::ilout(Logger::Level::Minor) << nVariables << " variables fixed" << endl;
+		Logger::ilout(Logger::Level::Minor) << nVariables << " variables fixed" << std::endl;
 
 	return contra;
 }
@@ -2772,7 +2771,7 @@ int Sub::setByRedCost()
 			}
 	}
 
-	Logger::ilout(Logger::Level::Minor) << nSet << " variables set" << endl;
+	Logger::ilout(Logger::Level::Minor) << nSet << " variables set" << std::endl;
 	return 0;
 }
 
@@ -2783,23 +2782,23 @@ void Sub::reoptimize()
 
 	// output a banner for the subproblem
 	if(Logger::is_ilout(Logger::Level::Medium)) {
-		Logger::ifout() << endl << "************************************************" << endl
-		 << "Subproblem " << id_ << " on Level " << level_ << ":" << endl << endl;
+		Logger::ifout() << std::endl << "************************************************" << std::endl
+		 << "Subproblem " << id_ << " on Level " << level_ << ":" << std::endl << std::endl;
 
 		if (master_->optSense()->max()) {
-			Logger::ifout() << "\tGlobal Lower Bound: " << lowerBound()       << endl
-			 << "\tLocal  Upper Bound: " << upperBound()       << endl
-			 << "\tGlobal Upper Bound: " << master_->upperBound() << endl;
+			Logger::ifout() << "\tGlobal Lower Bound: " << lowerBound()       << std::endl
+			 << "\tLocal  Upper Bound: " << upperBound()       << std::endl
+			 << "\tGlobal Upper Bound: " << master_->upperBound() << std::endl;
 		}
 		else {
-			Logger::ifout() << "\tLocal  Lower Bound: " << lowerBound()       << endl
-			 << "\tGlobal Lower Bound: " << master_->lowerBound() << endl
-			 << "\tGlobal Upper Bound: " << upperBound()       << endl;
+			Logger::ifout() << "\tLocal  Lower Bound: " << lowerBound()       << std::endl
+			 << "\tGlobal Lower Bound: " << master_->lowerBound() << std::endl
+			 << "\tGlobal Upper Bound: " << upperBound()       << std::endl;
 		}
 
 		Logger::ifout() << "\tCurrent Guarantee : ";
 		master_->printGuarantee();
-		Logger::ifout() << endl << endl << "reoptimization starts" << endl;
+		Logger::ifout() << std::endl << std::endl << "reoptimization starts" << std::endl;
 	}
 
 	phase = _activate ();
@@ -2827,16 +2826,16 @@ void Sub::dualBound(double x)
 	if (master_->optSense()->max()) {
 		if (x > dualBound_) {
 			Logger::ifout() << "Warning: Sub::dualBound(): worse dual ";
-			Logger::ifout() << "bound " << x << "ignored." << endl;
-			Logger::ifout() << "Keeping old dual bound " << dualBound_ << "." << endl;
+			Logger::ifout() << "bound " << x << "ignored." << std::endl;
+			Logger::ifout() << "Keeping old dual bound " << dualBound_ << "." << std::endl;
 			return;
 		}
 	}
 	else {
 		if (x < dualBound_) {
 			Logger::ifout() << "Warning: Sub::dualBound(): worse dual ";
-			Logger::ifout() << "bound " << x << "ignored." << endl;
-			Logger::ifout() << "Keeping old dual bound " << dualBound_ << "." << endl;
+			Logger::ifout() << "bound " << x << "ignored." << std::endl;
+			Logger::ifout() << "Keeping old dual bound " << dualBound_ << "." << std::endl;
 			return;
 		}
 	}
@@ -2860,7 +2859,7 @@ void Sub::dualBound(double x)
 
 void Sub::maxIterations(int max)
 {
-	Logger::ilout(Logger::Level::Minor) << "Setting maximal number of iterations in the cutting plane phase to " << max << endl;
+	Logger::ilout(Logger::Level::Minor) << "Setting maximal number of iterations in the cutting plane phase to " << max << std::endl;
 	maxIterations_ = max;
 }
 
@@ -3042,7 +3041,7 @@ int Sub::_conEliminate()
 
 	removeCons(eliminate);
 
-	Logger::ilout(Logger::Level::Minor) << eliminate.size() << " constraints eliminated" << endl;
+	Logger::ilout(Logger::Level::Minor) << eliminate.size() << " constraints eliminated" << std::endl;
 
 	return eliminate.size();
 }
@@ -3111,7 +3110,7 @@ int Sub::_varEliminate()
 
 	removeVars(eliminate);
 
-	Logger::ilout(Logger::Level::Minor) << eliminate.size() << " variables eliminated" << endl;
+	Logger::ilout(Logger::Level::Minor) << eliminate.size() << " variables eliminated" << std::endl;
 
 	return eliminate.size();
 }
@@ -3159,7 +3158,7 @@ void Sub::redCostVarEliminate(ArrayBuffer<int> &remove)
 
 void Sub::fathomTheSubTree()
 {
-	Logger::ilout(Logger::Level::Medium) << "fathom complete subtree" << endl;
+	Logger::ilout(Logger::Level::Medium) << "fathom complete subtree" << std::endl;
 
 	if (status_ != Fathomed) {
 		if (status_ == Dormant || status_ == Unprocessed)
@@ -3184,7 +3183,7 @@ int Sub::_separate()
 	// separate cuts
 	int nCuts;
 
-	Logger::ilout(Logger::Level::Minor) << endl << "Separation of Cutting Planes" << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "Separation of Cutting Planes" << std::endl;
 
 	localTimer_.start(true);
 	nCuts = separate();
@@ -3196,7 +3195,7 @@ int Sub::_separate()
 
 int Sub::separate()
 {
-	Logger::ilout(Logger::Level::Minor) << endl << "no separation implemented" << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "no separation implemented" << std::endl;
 	return 0;
 }
 
@@ -3204,7 +3203,7 @@ int Sub::separate()
 int Sub::_improve(double &primalValue)
 {
 	if (master_->pbMode() != Master::NoPrimalBound) return 0;
-	Logger::ilout(Logger::Level::Minor) << endl << "Apply Primal Heuristic" << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "Apply Primal Heuristic" << std::endl;
 
 	localTimer_.start(true);
 
@@ -3218,14 +3217,14 @@ int Sub::_improve(double &primalValue)
 
 int Sub::improve(double & /* primalValue */)
 {
-	Logger::ilout(Logger::Level::Minor) << endl << "no primal heuristic implemented" << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "no primal heuristic implemented" << std::endl;
 	return 0;
 }
 
 
 void Sub::infeasibleSub()
 {
-	Logger::ilout(Logger::Level::Medium) << "infeasible subproblem" << endl;
+	Logger::ilout(Logger::Level::Medium) << "infeasible subproblem" << std::endl;
 
 	if (master_->optSense()->max())
 		dualBound_ = -master_->infinity();
@@ -3529,4 +3528,4 @@ int Sub::_initMakeFeas()
 	return 0;
 }
 
-} //namespace abacus
+}

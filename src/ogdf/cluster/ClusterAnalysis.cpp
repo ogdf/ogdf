@@ -56,7 +56,7 @@ namespace ogdf {
 
 //Needs to be the largest int allowed, as it is used as default,
 //and an update is done for smaller values
-const int ClusterAnalysis::IsNotActiveBound = numeric_limits<int>::max();
+const int ClusterAnalysis::IsNotActiveBound = std::numeric_limits<int>::max();
 const int ClusterAnalysis::DefaultIndex = -1;
 
 //Constructor
@@ -107,19 +107,19 @@ void ClusterAnalysis::cleanUp()
 	if (m_indyBags) delete m_indyBagRoots;
 }
 
-int ClusterAnalysis::outerActive(cluster c) {return (*m_oanum)[c];}
-int ClusterAnalysis::innerActive(cluster c) {return (*m_ianum)[c];}
-int ClusterAnalysis::numberOfBags(cluster c) {return (*m_bags)[c];}
+int ClusterAnalysis::outerActive(cluster c) const {return (*m_oanum)[c];}
+int ClusterAnalysis::innerActive(cluster c) const {return (*m_ianum)[c];}
+int ClusterAnalysis::numberOfBags(cluster c) const {return (*m_bags)[c];}
 List<node>& ClusterAnalysis::oaNodes(cluster c) {
 	OGDF_ASSERT(m_storeoalists);
 	return (*m_oalists)[c];
 }
 
-bool ClusterAnalysis::isOuterActive(node v, cluster c)
+bool ClusterAnalysis::isOuterActive(node v, cluster c) const
 {
 	return (*m_oactive[v])[c] > 0;
 }
-bool ClusterAnalysis::isInnerActive(node v, cluster c)
+bool ClusterAnalysis::isInnerActive(node v, cluster c) const
 {
 	return (*m_iactive[v])[c] > 0;
 }
@@ -266,7 +266,7 @@ void ClusterAnalysis::init() {
 				visited[e] = true;
 
 #ifdef OGDF_DEBUG
-				cout << "Edge "<< v << " " << w <<"\n";
+				std::cout << "Edge "<< v << " " << w <<"\n";
 #endif
 			}
 		}
@@ -275,7 +275,7 @@ void ClusterAnalysis::init() {
 #ifdef OGDF_DEBUG
 	for(node v : G.nodes)
 	{
-		cout << "Knoten "<<v<<" ist";
+		std::cout << "Knoten "<<v<<" ist";
 		List<cluster> ol;
 		List<cluster> il;
 		for(cluster c : m_C->clusters)
@@ -283,16 +283,16 @@ void ClusterAnalysis::init() {
 			if ((*m_iactive[v])[c]>0) il.pushBack(c);
 			if ((*m_oactive[v])[c]>0) ol.pushBack(c);
 		}
-		cout << " inneractive for ";
+		std::cout << " inneractive for ";
 		for (cluster ci : il) {
-			cout << ci << ", ";
+			std::cout << ci << ", ";
 		}
-		cout << "\n";
-		cout << " outeractive for ";
+		std::cout << "\n";
+		std::cout << " outeractive for ";
 		for (cluster ci : ol) {
-			cout << ci << ", ";
+			std::cout << ci << ", ";
 		}
-		cout << "\n";
+		std::cout << "\n";
 	}
 
 #endif
@@ -341,14 +341,14 @@ void ClusterAnalysis::partitionCluster(ListConstIterator<node> & nodeIt, cluster
 	// vertices (mark them).
 
 #if 0
-	cout << "Checking skiplist\n";
+	std::cout << "Checking skiplist\n";
 #endif
 	SkiplistIterator<int*> its = indexNumbers.begin();
 	while (its.valid())
 	{
 		int bind = *(*its);
 #if 0
-		cout << "Found index "<< bind <<"\n";
+		std::cout << "Found index "<< bind <<"\n";
 #endif
 		if (indyBag[bind])
 		{
@@ -367,7 +367,8 @@ void ClusterAnalysis::partitionCluster(ListConstIterator<node> & nodeIt, cluster
 		delete *its;
 		++its;
 	}
-}//partitionCluster
+}
+
 // For each cluster we check if we can identify an independent
 // bag, which might be useful for clustered planarity testing.
 // compute independent bag affiliation for all vertices,
@@ -458,7 +459,7 @@ void ClusterAnalysis::computeIndyBags() {
 			c->getClusterNodes(nodes);
 
 #if 0
-			cout <<"Processing cluster with "<<nodes.size()<<"\n";
+			std::cout <<"Processing cluster with "<<nodes.size()<<"\n";
 #endif
 
 			it = nodes.begin();
@@ -474,7 +475,7 @@ void ClusterAnalysis::computeIndyBags() {
 			unprocessedChildren[c->parent()]--;
 			if (unprocessedChildren[c->parent()] == 0) ccleafs.pushBack(c->parent());
 		}
-	}//while clusters
+	}
 	// Copying into smaller array is a bit slower than just reserving the whole #v array,
 	// but we do it anyway.
 	m_indyBagRoots = new cluster[m_numIndyBags];
@@ -489,8 +490,8 @@ void ClusterAnalysis::computeIndyBags() {
 	m_C->rootCluster()->getClusterNodes(rnodes);
 
 	for(node v : rnodes) {
-		cout << "Root bag index: "<<bagIndex(v, m_C->rootCluster())<<"\n";
-		cout << "Indy bag index: "<<m_indyBagNumber[v]<<"\n";
+		std::cout << "Root bag index: "<<bagIndex(v, m_C->rootCluster())<<"\n";
+		std::cout << "Indy bag index: "<<m_indyBagNumber[v]<<"\n";
 	}
 #endif
 
@@ -502,7 +503,7 @@ void ClusterAnalysis::computeIndyBags() {
 		{
 			ibind.add(new int(i));
 		}
-		cout << "numIndyBags: "<<m_numIndyBags<<" i: "<<i<<"\n";
+		std::cout << "numIndyBags: "<<m_numIndyBags<<" i: "<<i<<"\n";
 		OGDF_ASSERT(i != DefaultIndex);
 		OGDF_ASSERT(i >= 0);
 		OGDF_ASSERT(i < m_numIndyBags);
@@ -673,7 +674,7 @@ void ClusterAnalysis::computeBags() {
 			unprocessedChildren[c->parent()]--;
 			if (unprocessedChildren[c->parent()] == 0) ccleafs.pushBack(c->parent());
 		}
-	}//while cluster
+	}
 
 	// clean up
 	delete[] clists;

@@ -95,7 +95,7 @@ struct OgmlParser::OgmlSegment
 };
 
 
-//! Objects of this class represent a value set of an attribute in Ogml.
+//! Objects of this class represent a value set of an attribute in %Ogml.
 class OgmlParser::OgmlAttributeValue
 {
 	int id; //!< Id of the attribute value; for possible ones see Ogml.h.
@@ -189,10 +189,9 @@ public:
 						}
 						else
 							return Ogml::av_string;
-					} // else... (input[0] == '-')
+					}
 				}
-			}
-			else{
+			} else {
 				if (!isdigit(actChar)){
 					isInt = false;
 					isNum = false;
@@ -220,18 +219,16 @@ public:
 					}
 					else
 						isNum = false;
-				}// if (actChar == '.')
-				else {
+				} else {
 					if (!(isdigit(actChar))){
 						isInt = false;
 						isNum = false;
 					}
 					if (!(isxdigit(actChar)))
 						isHex = false;
-				}//else... (actChar != '.')
-			}//for
-		}//if (input.length() > 0)
-		else{
+				}
+			}
+		} else {
 			// input.length() == 0
 			return Ogml::av_none;
 		}
@@ -241,9 +238,7 @@ public:
 		if (isHex) return Ogml::av_hex;
 		// if all bool values are false return av_string
 		return Ogml::av_string;
-
-	}//getTypeOfString
-
+	}
 
 	/**
 	 * According to id this method proofs whether s is a valid value
@@ -335,10 +330,9 @@ public:
 		return Ogml::vs_attValueErr;
 	}
 
-};//class OgmlAttributeValue
+};
 
-
-//! Objects of this class represent an attribute and its value set in Ogml.
+//! Objects of this class represent an attribute and its value set in %Ogml.
 class OgmlParser::OgmlAttribute
 {
 	/**
@@ -391,7 +385,7 @@ public:
 	}
 
 	// Prints the value set of the attribute.
-	void print(ostream &os) const {
+	void print(std::ostream &os) const {
 		os << "\"" << getName() << "\"={ ";
 		for (OgmlAttributeValue *val : values) {
 			os << val->getValue() << " ";
@@ -420,10 +414,9 @@ public:
 		}
 		return Ogml::vs_valid;
 	}
-};//class OgmlAttribute
+};
 
-
-//! Objects of this class represent a tag in Ogml with attributes.
+//! Objects of this class represent a tag in %Ogml with attributes.
 class OgmlParser::OgmlTag
 {
 	int id; //!< Integer identifier of object; for possible ids see Ogml.h.
@@ -445,7 +438,7 @@ class OgmlParser::OgmlTag
 	List<OgmlTag*> choiceTags;
 	List<OgmlTag*> optionalTags;
 
-	void printOwnedTags(ostream &os, Mode mode) const
+	void printOwnedTags(std::ostream &os, Mode mode) const
 	{
 		if(mode < 0 || mode > 2)
 			return;  // unsupported mode
@@ -477,7 +470,7 @@ class OgmlParser::OgmlTag
 		}
 	}
 
-	void printOwnedAttributes(ostream &os, Mode mode) const
+	void printOwnedAttributes(std::ostream &os, Mode mode) const
 	{
 		if(mode < 0 || mode > 2)
 			return;  // unsupported mode
@@ -540,7 +533,7 @@ public:
 	OgmlTag()
 	 : id(Ogml::t_none)
 	 , minOccurs(0)
-	 , maxOccurs(numeric_limits<int>::max())
+	 , maxOccurs(std::numeric_limits<int>::max())
 	 , ignoreContent(0)
 	{
 	}
@@ -548,7 +541,7 @@ public:
 	OgmlTag(int identifier)
 	 : id(Ogml::t_none)
 	 , minOccurs(0)
-	 , maxOccurs(numeric_limits<int>::max())
+	 , maxOccurs(std::numeric_limits<int>::max())
 	 , ignoreContent(0)
 	{
 		if (identifier >= 0
@@ -573,13 +566,13 @@ public:
 	}
 
 
-	void printOwnedTags(ostream& os) const {
+	void printOwnedTags(std::ostream& os) const {
 		printOwnedTags(os, compMode);
 		printOwnedTags(os, choiceMode);
 		printOwnedTags(os, optMode);
 	}
 
-	void printOwnedAttributes(ostream& os) const {
+	void printOwnedAttributes(std::ostream& os) const {
 		printOwnedAttributes(os, compMode);
 		printOwnedAttributes(os, choiceMode);
 		printOwnedAttributes(os, optMode);
@@ -745,9 +738,7 @@ public:
 		}
 		return Ogml::vs_valid;
 	}
-
-};//class OgmlTag
-
+};
 
 OgmlParser::~OgmlParser()
 {
@@ -1378,7 +1369,7 @@ int OgmlParser::validate(const XmlTagObject * xmlTag, int ogmlTagId)
 
 	OgmlTag *ogmlTag = &m_tags->lookup(ogmlTagId)->info();
 	if (!ogmlTag) {
-		cerr << "Did not find tag with id \"" << ogmlTagId << "\" in hashtable in OgmlParser::validate! Aborting.\n";
+		std::cerr << "Did not find tag with id \"" << ogmlTagId << "\" in hashtable in OgmlParser::validate! Aborting.\n";
 		return Ogml::vs_unexpTag;
 	}
 
@@ -1525,13 +1516,13 @@ int OgmlParser::validate(const XmlTagObject * xmlTag, int ogmlTagId)
 	return Ogml::vs_valid;
 }
 
-ostream& operator<<(ostream& os, const OgmlParser::OgmlAttribute& oa)
+std::ostream& operator<<(std::ostream& os, const OgmlParser::OgmlAttribute& oa)
 {
 	oa.print(os);
 	return os;
 }
 
-ostream& operator<<(ostream& os, const OgmlParser::OgmlTag& ot)
+std::ostream& operator<<(std::ostream& os, const OgmlParser::OgmlTag& ot)
 {
 	ot.printOwnedTags(os);
 	ot.printOwnedAttributes(os);
@@ -1547,65 +1538,65 @@ void OgmlParser::printValidityInfo(const OgmlTag & ot, const XmlTagObject & xto,
 
 	case Ogml::vs_tagEmptIncl:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" expects tag(s) to include! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		ot.printOwnedTags(GraphIO::logger.lout());
 		break;
 
 	case Ogml::vs_idNotUnique:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" owns already assigned id! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		break;
 
 	case Ogml::vs_idRefErr:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" references unknown or wrong id! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		break;
 
 	case Ogml::vs_unexpTag:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" owns unexpected tag! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		ot.printOwnedTags(GraphIO::logger.lout());
 		break;
 
 	case Ogml::vs_unexpAtt:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" owns unexpected attribute(s)! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		ot.printOwnedAttributes(GraphIO::logger.lout());
 		break;
 
 	case Ogml::vs_expTagNotFound:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" does not own compulsive tag(s)! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		ot.printOwnedTags(GraphIO::logger.lout());
 		break;
 
 	case Ogml::vs_expAttNotFound:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" does not own compulsive attribute(s)! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		ot.printOwnedAttributes(GraphIO::logger.lout());
 		break;
 
 	case Ogml::vs_attValueErr:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" owns attribute with wrong value! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		ot.printOwnedAttributes(GraphIO::logger.lout());
 		break;
 
 	case Ogml::vs_cardErr:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" occurence exceeds the number of min. ("
 		  << ot.getMinOccurs() << ") or max. (" << ot.getMaxOccurs() << ") occurences in its context! "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		break;
 
 	case Ogml::vs_invalid:
 		GraphIO::logger.lout() << "Tag \"<" << ogmlTagName << ">\" is invalid! No further information available. "
-		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << endl;
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")" << std::endl;
 		GraphIO::logger.lout() << ot;
 		break;
 
 	case Ogml::vs_valid:
-		//cout << "INFO: tag \"<" << ogmlTagName << ">\" is valid :-) ";
-		//cout << "(Input source line: " << xto.
+		//std::cout << "INFO: tag \"<" << ogmlTagName << ">\" is valid :-) ";
+		//std::cout << "(Input source line: " << xto.
 		//	getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
 		break;
 	}
@@ -1645,7 +1636,7 @@ bool OgmlParser::isNodeHierarchical(const XmlTagObject *xmlTag) const
 bool OgmlParser::checkGraphType(const XmlTagObject *xmlTag) const
 {
 	if(xmlTag->getName() != Ogml::s_tagNames[Ogml::t_ogml]) {
-		GraphIO::logger.lout() << "Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml] << "\" in OgmlParser::checkGraphType!" << endl;
+		GraphIO::logger.lout() << "Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml] << "\" in OgmlParser::checkGraphType!" << std::endl;
 		return false;
 	}
 
@@ -1927,7 +1918,7 @@ bool OgmlParser::getIdFromString(string str, int &id)
 		return false;
 
 	// transform str to int
-	id = stoi(strId);
+	id = std::stoi(strId);
 	return true;
 }
 
@@ -1941,7 +1932,7 @@ bool OgmlParser::addAttributes(
 	HashConstIterator<string, const XmlTagObject*> it;
 
 	if(!root) {
-		GraphIO::logger.lout(Logger::Level::Minor) << "Cannot determine layout information, no parse tree available!" << endl;
+		GraphIO::logger.lout(Logger::Level::Minor) << "Cannot determine layout information, no parse tree available!" << std::endl;
 	} else {
 		// root tag isn't a nullptr pointer... let's start...
 		XmlTagObject* son = root->m_pFirstSon;
@@ -1953,8 +1944,8 @@ bool OgmlParser::addAttributes(
 					// wrong rootTag given or graph tag wasn't found
 					return false;
 				}
-			} //while
-		} //if
+			}
+		}
 
 		// now son is the graph tag which first child is structure
 		XmlTagObject* structure = son->m_pFirstSon;
@@ -1993,7 +1984,7 @@ bool OgmlParser::addAttributes(
 							}
 						}
 					}
-				}// "normal" nodes
+				}
 				else
 				{
 					// get the id of the actual cluster
@@ -2029,8 +2020,8 @@ bool OgmlParser::addAttributes(
 							hierSon = hierSon->m_pBrother;
 						}
 					}
-				}//cluster nodes
-			}// node labels
+				}
+			}
 
 			//Set labels of edges
 			if ((son->getName() == Ogml::s_tagNames[Ogml::t_edge]) && GA.has(GraphAttributes::edgeLabel))
@@ -2059,7 +2050,7 @@ bool OgmlParser::addAttributes(
 						}
 					}
 				}
-			}// edge labels
+			}
 
 			// Labels
 #if 0
@@ -2080,12 +2071,12 @@ bool OgmlParser::addAttributes(
 						GA.labelLabel(actLabel) = labelStr;
 					}
 				}
-			}// Labels
+			}
 #endif
 
 			// go to the next brother
 			son = son->m_pBrother;
-		}// while(son) // son <=> children of structure
+		}
 
 		// get the layout tag
 		XmlTagObject* layout = nullptr;
@@ -2143,14 +2134,14 @@ bool OgmlParser::addAttributes(
 													actTemplate->m_id = actId;
 												}
 											}
-										}// template inheritance
+										}
 
 #if 0
 										// data
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
 											// found data for nodeStyleTemplate
 											// no implementation required for ogdf
-										}// data
+										}
 #endif
 
 										// shape tag
@@ -2165,17 +2156,17 @@ bool OgmlParser::addAttributes(
 											}
 											// width
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-												actTemplate->m_width = stod(actAtt->getValue());
+												actTemplate->m_width = std::stod(actAtt->getValue());
 											// height
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_height], actAtt))
-												actTemplate->m_height = stod(actAtt->getValue());
+												actTemplate->m_height = std::stod(actAtt->getValue());
 											// uri
 											//ACTUALLY NOT SUPPORTED
 #if 0
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
 												GA.uri(actNode) = actAtt->getValue();
 #endif
-										}// shape
+										}
 
 										// fill tag
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_fill], actTag))
@@ -2192,7 +2183,7 @@ bool OgmlParser::addAttributes(
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_patternColor], actAtt));
 												actTemplate->m_patternColor = actAtt->getValue());
 #endif
-										}// fill
+										}
 
 										// line tag
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_line], actTag))
@@ -2202,16 +2193,16 @@ bool OgmlParser::addAttributes(
 												actTemplate->m_lineType = getStrokeType(actAtt->getValue());
 											// width
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-												actTemplate->m_lineWidth = stof(actAtt->getValue());
+												actTemplate->m_lineWidth = std::stof(actAtt->getValue());
 											// color
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_color], actAtt))
 												actTemplate->m_lineColor = actAtt->getValue();
-										}// line
+										}
 
 										//insert actual template into hash table
 										m_ogmlNodeTemplates.fastInsert(actKey, actTemplate);
 									}
-								}//nodeStyleTemplate
+								}
 
 								// edgeStyleTemplate
 								if (styleTemplatesSon->getName() == Ogml::s_tagNames[Ogml::t_edgeStyleTemplate])
@@ -2238,14 +2229,14 @@ bool OgmlParser::addAttributes(
 													actTemplate->m_id = actId;
 												}
 											}
-										}// template inheritance
+										}
 
 #if 0
 										// data
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
 											// found data for edgeStyleTemplate
 											// no implementation required for ogdf
-										}// data
+										}
 #endif
 
 										// line tag
@@ -2256,11 +2247,11 @@ bool OgmlParser::addAttributes(
 												actTemplate->m_lineType = getStrokeType(actAtt->getValue());
 											// width
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-												actTemplate->m_lineWidth = stof(actAtt->getValue());
+												actTemplate->m_lineWidth = std::stof(actAtt->getValue());
 											// color
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_color], actAtt))
 												actTemplate->m_color = actAtt->getValue();
-										}// line
+										}
 
 										// sourceStyle tag
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_sourceStyle], actTag))
@@ -2301,17 +2292,17 @@ bool OgmlParser::addAttributes(
 										m_ogmlEdgeTemplates.fastInsert(actKey, actTemplate);
 									}
 
-								}//edgeStyleTemplate
+								}
 
 								// labelStyleTemplate
 								if (styleTemplatesSon->getName() == Ogml::s_tagNames[Ogml::t_labelStyleTemplate]){
 									// ACTUALLY NOT SUPPORTED
-								}//labelStyleTemplate
+								}
 
 								styleTemplatesSon = styleTemplatesSon->m_pBrother;
 							}
 						}
-					}// styleTemplates
+					}
 
 					//STYLES
 					if (layoutSon->getName() == Ogml::s_tagNames[Ogml::t_styles])
@@ -2339,7 +2330,7 @@ bool OgmlParser::addAttributes(
 										if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
 											// found data for graphStyle
 											// no implementation required for ogdf
-										}// data
+										}
 #endif
 
 										// set values for ALL nodes
@@ -2362,7 +2353,7 @@ bool OgmlParser::addAttributes(
 												GA.strokeColor(v) = actTemplate->m_lineColor;
 											}
 										}
-									}// defaultNodeTemplate
+									}
 
 #if 0
 									// defaultClusterTemplate
@@ -2389,7 +2380,7 @@ bool OgmlParser::addAttributes(
 												CGA.clusterColor(c) = actTemplate->m_lineColor;
 											}
 										}
-									}// defaultClusterTemplate
+									}
 #endif
 
 									// defaultEdgeTemplate
@@ -2429,9 +2420,9 @@ bool OgmlParser::addAttributes(
 														GA.arrowType(e) = EdgeArrow::Both;
 													}
 												}
-											}//edgeArrow
+											}
 										}
-									}//defaultEdgeTemplate
+									}
 
 									// defaultLabelTemplate
 #if 0
@@ -2442,9 +2433,9 @@ bool OgmlParser::addAttributes(
 										forall_labels(l, G){
 											// ...
 										}
-									}//defaultLabelTemplate
+									}
 #endif
-								}// graphStyle
+								}
 
 								// NODESTYLE
 								if (stylesSon->getName() == Ogml::s_tagNames[Ogml::t_nodeStyle])
@@ -2468,7 +2459,7 @@ bool OgmlParser::addAttributes(
 											if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
 												// found data for nodeStyle
 												// no implementation required for ogdf
-											}// data
+											}
 #endif
 
 											// check if actual nodeStyle references a template
@@ -2496,7 +2487,7 @@ bool OgmlParser::addAttributes(
 														GA.strokeColor(actNode) = actTemplate->m_lineColor;
 													}
 												}
-											}//template
+											}
 
 											// Graph::nodeType
 											//TODO: COMPLETE, IF NECESSARY
@@ -2510,16 +2501,16 @@ bool OgmlParser::addAttributes(
 												// set location of node
 												// x
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_x], actAtt))
-													GA.x(actNode) = stod(actAtt->getValue());
+													GA.x(actNode) = std::stod(actAtt->getValue());
 												// y
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_y], actAtt))
-													GA.y(actNode) = stod(actAtt->getValue());
+													GA.y(actNode) = std::stod(actAtt->getValue());
 												// z
 #if 0
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_x], actAtt))
 													GA.z(actNode) = atof(actAtt->getValue());
 #endif
-											}// location
+											}
 
 											// shape tag
 											if ((stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_shape], actTag))
@@ -2535,12 +2526,12 @@ bool OgmlParser::addAttributes(
 												}
 												// width
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt)) {
-													GA.width(actNode) = stod(actAtt->getValue());
+													GA.width(actNode) = std::stod(actAtt->getValue());
 													GA.x(actNode) += 0.5 * GA.width(actNode);
 												}
 												// height
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_height], actAtt)) {
-													GA.height(actNode) = stod(actAtt->getValue());
+													GA.height(actNode) = std::stod(actAtt->getValue());
 													GA.y(actNode) += 0.5 * GA.height(actNode);
 												}
 												// uri
@@ -2549,7 +2540,7 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
 													GA.uri(actNode) = actAtt->getValue();
 #endif
-											}// shape
+											}
 
 											// fill tag
 											if ((stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_fill], actTag))
@@ -2567,7 +2558,7 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_patternColor], actAtt))
 													GA.nodePatternColor(actNode) = actAtt->getValue());
 #endif
-											}// fill
+											}
 
 											// line tag
 											if ((stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_line], actTag))
@@ -2578,11 +2569,11 @@ bool OgmlParser::addAttributes(
 													GA.strokeType(actNode) = getStrokeType(actAtt->getValue());
 												// width
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-													GA.strokeWidth(actNode) = stof(actAtt->getValue());
+													GA.strokeWidth(actNode) = std::stof(actAtt->getValue());
 												// color
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_color], actAtt))
 													GA.strokeColor(actNode) = actAtt->getValue();
-											}// line
+											}
 #if 0
 											// ports
 											// go through all ports with dummy tagObject port
@@ -2615,7 +2606,7 @@ bool OgmlParser::addAttributes(
 												if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
 													// found data for nodeStyle (CLuster/Compound)
 													// no implementation required for ogdf
-												}// data
+												}
 #endif
 
 												// check if actual nodeStyle (equal to cluster) references a template
@@ -2644,7 +2635,7 @@ bool OgmlParser::addAttributes(
 															pCGA->strokeColor(actCluster) = actTemplate->m_lineColor;
 														}
 													}
-												}//template
+												}
 
 												// Graph::nodeType
 												//TODO: COMPLETE, IF NECESSARY
@@ -2658,16 +2649,16 @@ bool OgmlParser::addAttributes(
 													// set location of node
 													// x
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_x], actAtt))
-														pCGA->x(actCluster) = stod(actAtt->getValue());
+														pCGA->x(actCluster) = std::stod(actAtt->getValue());
 													// y
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_y], actAtt))
-														pCGA->y(actCluster) = stod(actAtt->getValue());
+														pCGA->y(actCluster) = std::stod(actAtt->getValue());
 													// z
 #if 0
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_x], actAtt))
 														CGA.clusterZPos(actCluster) = atof(actAtt->getValue());
 #endif
-												}// location
+												}
 
 												// shape tag
 												if ((stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_shape], actTag))
@@ -2682,17 +2673,17 @@ bool OgmlParser::addAttributes(
 													}
 													// width
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-														pCGA->width(actCluster) = stod(actAtt->getValue());
+														pCGA->width(actCluster) = std::stod(actAtt->getValue());
 													// height
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_height], actAtt))
-														pCGA->height(actCluster) = stod(actAtt->getValue());
+														pCGA->height(actCluster) = std::stod(actAtt->getValue());
 													// uri
 #if 0
 													// ACTUALLY NOT SUPPORTED
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
 														CGA.uriCluster(actCluster) = actAtt->getValue();
 #endif
-												}// shape
+												}
 
 												// fill tag
 												if ((stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_fill], actTag))
@@ -2707,7 +2698,7 @@ bool OgmlParser::addAttributes(
 													// fill patternColor
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_patternColor], actAtt))
 														pCGA->fillBgColor(actCluster) = actAtt->getValue();
-												}// fill
+												}
 
 												// line tag
 												if ((stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_line], actTag))
@@ -2718,11 +2709,11 @@ bool OgmlParser::addAttributes(
 														pCGA->setStrokeType(actCluster, getStrokeType(actAtt->getValue()));
 													// width
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-														pCGA->strokeWidth(actCluster) = stof(actAtt->getValue());
+														pCGA->strokeWidth(actCluster) = std::stof(actAtt->getValue());
 													// color
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_color], actAtt))
 														pCGA->strokeColor(actCluster) = actAtt->getValue();
-												}// line
+												}
 
 #if 0
 												// ports
@@ -2738,11 +2729,10 @@ bool OgmlParser::addAttributes(
 													port = port->m_pBrother;
 												}
 #endif
-											}//nodeIdRef (with cluster)
-										}// nodeStyle for cluster
-									}//nodeIdRef
-
-								}//nodeStyle
+											}
+										}
+									}
+								}
 
 								// EDGESTYLE
 								if (stylesSon->getName() == Ogml::s_tagNames[Ogml::t_edgeStyle])
@@ -2763,7 +2753,7 @@ bool OgmlParser::addAttributes(
 										if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
 											// found data for edgeStyle
 											// no implementation required for ogdf
-										}// data
+										}
 #endif
 
 										// check if actual edgeStyle references a template
@@ -2803,10 +2793,9 @@ bool OgmlParser::addAttributes(
 															GA.arrowType(actEdge) = EdgeArrow::Both;
 														}
 													}
-												}//edgeArrow
-
+												}
 											}
-										}//template
+										}
 
 										// Graph::edgeType
 										//TODO: COMPLETE, IF NECESSARY
@@ -2822,12 +2811,12 @@ bool OgmlParser::addAttributes(
 												GA.strokeType(actEdge) = getStrokeType(actAtt->getValue());
 											// width
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_width], actAtt))
-												GA.strokeWidth(actEdge) = stof(actAtt->getValue());
+												GA.strokeWidth(actEdge) = std::stof(actAtt->getValue());
 											// color
 											if ((actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_color], actAtt))
 												&& GA.has(GraphAttributes::edgeType))
 												GA.strokeColor(actEdge) = actAtt->getValue();
-										}// line
+										}
 
 										// mapping of arrows
 										if (GA.has(GraphAttributes::edgeArrow))
@@ -2853,7 +2842,7 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
 													;
 #endif
-											}// sourceStyle
+											}
 
 											// targetStyle tag
 											if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_targetStyle], actTag))
@@ -2871,7 +2860,7 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
 													;
 #endif
-											}// targetStyle
+											}
 
 											// map edge arrows
 											if ((sourceInt != -1) || (targetInt != -1))
@@ -2897,7 +2886,7 @@ bool OgmlParser::addAttributes(
 													}
 												}
 											}
-										}//arrow
+										}
 
 										// points & segments
 										// bool value for checking if segments exist
@@ -2919,10 +2908,10 @@ bool OgmlParser::addAttributes(
 														DPoint dp;
 														// here we have a point
 														if (pointTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_x], actAtt)) {
-															dp.m_x = stod(actAtt->getValue());
+															dp.m_x = std::stod(actAtt->getValue());
 														}
 														if (pointTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_y], actAtt)) {
-															dp.m_y = stod(actAtt->getValue());
+															dp.m_y = std::stod(actAtt->getValue());
 														}
 #if 0
 														if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_z], actAtt))
@@ -2938,7 +2927,7 @@ bool OgmlParser::addAttributes(
 												}
 												// go to next tag
 												pointTag = pointTag->m_pBrother;
-											}// while (pointTag)
+											}
 											//concatenate polyline
 											if (!segmentsExist) {
 												GA.bends(actEdge).conc(dpl);
@@ -2977,16 +2966,16 @@ bool OgmlParser::addAttributes(
 																endpointsSet++;
 															}
 															endpointTag = endpointTag->m_pBrother;
-														}// while
+														}
 														// now we created a segment
 														// we can insert this easily into in segmentsUnsorted
 														if (actSeg.point1 != actSeg.point2) {
 															segmentsUnsorted.pushBack(actSeg);
-														} // point1 != point2
-													}// if (segment)
+														}
+													}
 													// go to next tag
 													segmentTag = segmentTag->m_pBrother;
-												}// while (segmentTag)
+												}
 												// now are the segments stored in the segmentsUnsorted list
 												//  but we have to sort it in segments list while inserting
 												List<OgmlSegment> segments;
@@ -3043,7 +3032,7 @@ bool OgmlParser::addAttributes(
 																inserted = true;
 															}
 															++segIt;
-														} //while
+														}
 														if (!inserted) {
 															// segment doesn't found matching segment,
 															//  so insert it again into unsorted segments list
@@ -3051,14 +3040,14 @@ bool OgmlParser::addAttributes(
 															segmentsUnsorted.pushBack(actSeg);
 															checkNumOfSegReInserts--;
 														}
-													}//else
-												}//while segmentsUnsorted.size() > 0
+													}
+												}
 
 
 												if (checkNumOfSegReInserts==0) {
-													GraphIO::logger.lout(Logger::Level::Minor) << "Segment definition is not correct!" << endl
-													  << "  Not able to work with #" << segmentsUnsorted.size() << " segments" << endl
-													  << "  Please check connection and sorting of segments!" << endl;
+													GraphIO::logger.lout(Logger::Level::Minor) << "Segment definition is not correct!" << std::endl
+													  << "  Not able to work with #" << segmentsUnsorted.size() << " segments" << std::endl
+													  << "  Please check connection and sorting of segments!" << std::endl;
 #if 0
 													// inserting the bends although there might be an error
 													// I commented this, because in this case in ogdf the edge will
@@ -3129,26 +3118,26 @@ bool OgmlParser::addAttributes(
 													dpl.unify();
 													// finally concatenate/set the bends
 													GA.bends(actEdge).conc(dpl);
-												}// else (checkNumOfSegReInserts==0)
-											}// else (segments exist)
-										}// points & segments
+												}
+											}
+										}
 
-									}//edgeIdRef
+									}
 
-								}// edgeStyle
+								}
 #if 0
 								// LABELSTYLE
 								if (stylesSon->getName() == Ogml::s_tagNames[t_labelStyle]){
 									// labelStyle
 									// ACTUALLY NOT SUPPORTED
-								}// labelStyle
+								}
 #endif
 
 								stylesSon = stylesSon->m_pBrother;
-							} // while
+							}
 
 						}
-					} //styles
+					}
 
 					// CONSTRAINTS
 					if (layoutSon->getName() == Ogml::s_tagNames[Ogml::t_constraints]) {
@@ -3162,71 +3151,69 @@ bool OgmlParser::addAttributes(
 						//  to the constraints tag later
 						m_constraintsTag = layoutSon;
 
-					}// constraints
+					}
 
 
 					// go to next brother
 					layoutSon = layoutSon->m_pBrother;
-				}// while(layoutSon)
-			}//if (layout->m_pFirstSon)
-		}// if ((layout) && (layout->getName() == Ogml::s_tagNames[t_layout]))
-	}// else
+				}
+			}
+		}
+	}
 
 #if 0
-	cout << "buildAttributedClusterGraph COMPLETE. Check... " << endl << flush;
+	std::cout << "buildAttributedClusterGraph COMPLETE. Check... " << std::endl << std::flush;
 	for(edge e : G.edges) {
-		//cout << "CGA.label    " << e << " = " << CGA.label(e) << endl << flush;
-		cout << "CGA.arrowType" << e << "   = " << CGA.arrowType(e) << endl << flush;
-		cout << "CGA.styleEdge" << e << "   = " << CGA.styleEdge(e) << endl << flush;
-		cout << "CGA.edgeWidth" << e << "   = " << CGA.strokeWidth(e) << endl << flush;
-		cout << "CGA.strokeColor" << e << " = " << CGA.strokeColor(e) << endl << flush;
-		cout << "CGA.type     " << e << "   = " << CGA.type(e) << endl << flush;
+		//std::cout << "CGA.label    " << e << " = " << CGA.label(e) << std::endl << std::flush;
+		std::cout << "CGA.arrowType" << e << "   = " << CGA.arrowType(e) << std::endl << std::flush;
+		std::cout << "CGA.styleEdge" << e << "   = " << CGA.styleEdge(e) << std::endl << std::flush;
+		std::cout << "CGA.edgeWidth" << e << "   = " << CGA.strokeWidth(e) << std::endl << std::flush;
+		std::cout << "CGA.strokeColor" << e << " = " << CGA.strokeColor(e) << std::endl << std::flush;
+		std::cout << "CGA.type     " << e << "   = " << CGA.type(e) << std::endl << std::flush;
 		ListConstIterator<DPoint> it;
 		for(it = CGA.bends(e).begin(); it!=CGA.bends(e).end(); ++it) {
-			cout << "point " << " x=" << (*it).m_x << " y=" << (*it).m_y << endl << flush;
+			std::cout << "point " << " x=" << (*it).m_x << " y=" << (*it).m_y << std::endl << std::flush;
 		}
 
 	}
 
 	for(node n : G.nodes) {
-		cout << "CGA.label(" << n << ")         = " << CGA.label(n) << endl << flush;
-		cout << "CGA.templateNode(" << n << ")  = " << CGA.templateNode(n) << endl << flush;
-		cout << "CGA.shapeNode(" << n << ")     = " << CGA.shapeNode(n) << endl << flush;
-		cout << "CGA.width(" << n << ")         = " << CGA.width(n) << endl << flush;
-		cout << "CGA.height(" << n << ")        = " << CGA.height(n) << endl << flush;
-		cout << "CGA.fillColor(" << n << ")     = " << CGA.fillColor(n) << endl << flush;
-		cout << "CGA.nodePattern(" << n << ")   = " << CGA.nodePattern(n) << endl << flush;
-		cout << "CGA.styleNode(" << n << ")     = " << CGA.styleNode(n) << endl << flush;
-		cout << "CGA.strokeWidth(" << n << ")   = " << CGA.strokeWidth(n) << endl << flush;
-		cout << "CGA.strokeColor(" << n << ")   = " << CGA.strokeColor(n) << endl << flush;
-		cout << "CGA.x(" << n << ")             = " << CGA.x(n) << endl << flush;
-		cout << "CGA.y(" << n << ")             = " << CGA.y(n) << endl << flush;
-		cout << "CGA.type(" << n << ")          = " << CGA.type(n) << endl << flush;
+		std::cout << "CGA.label(" << n << ")         = " << CGA.label(n) << std::endl << std::flush;
+		std::cout << "CGA.templateNode(" << n << ")  = " << CGA.templateNode(n) << std::endl << std::flush;
+		std::cout << "CGA.shapeNode(" << n << ")     = " << CGA.shapeNode(n) << std::endl << std::flush;
+		std::cout << "CGA.width(" << n << ")         = " << CGA.width(n) << std::endl << std::flush;
+		std::cout << "CGA.height(" << n << ")        = " << CGA.height(n) << std::endl << std::flush;
+		std::cout << "CGA.fillColor(" << n << ")     = " << CGA.fillColor(n) << std::endl << std::flush;
+		std::cout << "CGA.nodePattern(" << n << ")   = " << CGA.nodePattern(n) << std::endl << std::flush;
+		std::cout << "CGA.styleNode(" << n << ")     = " << CGA.styleNode(n) << std::endl << std::flush;
+		std::cout << "CGA.strokeWidth(" << n << ")   = " << CGA.strokeWidth(n) << std::endl << std::flush;
+		std::cout << "CGA.strokeColor(" << n << ")   = " << CGA.strokeColor(n) << std::endl << std::flush;
+		std::cout << "CGA.x(" << n << ")             = " << CGA.x(n) << std::endl << std::flush;
+		std::cout << "CGA.y(" << n << ")             = " << CGA.y(n) << std::endl << std::flush;
+		std::cout << "CGA.type(" << n << ")          = " << CGA.type(n) << std::endl << std::flush;
 	}
 
 	for(cluster c : CGA.constClusterGraph().clusters){
-		cout << "CGA.templateCluster(" << c << ")    = " << CGA.templateCluster(c) << endl << flush;
-		cout << "CGA.width(" << c << ")       = " << CGA.width(c) << endl << flush;
-		cout << "CGA.height(" << c << ")      = " << CGA.height(c) << endl << flush;
-		cout << "CGA.clusterFillColor(" << c << ")   = " << CGA.clusterFillColor(c) << endl << flush;
-		cout << "CGA.clusterFillPattern(" << c << ") = " << CGA.clusterFillPattern(c) << endl << flush;
-		cout << "CGA.clusterBackColor(" << c << ")   = " << CGA.clusterBackColor(c) << endl << flush;
-		cout << "CGA.clusterLineStyle(" << c << ")   = " << CGA.clusterLineStyle(c) << endl << flush;
-		cout << "CGA.clusterLineWidth(" << c << ")   = " << CGA.clusterLineWidth(c) << endl << flush;
-		cout << "CGA.clusterColor(" << c << ")       = " << CGA.clusterColor(c) << endl << flush;
-		cout << "CGA.x(" << c << ")        = " << CGA.x(c) << endl << flush;
-		cout << "CGA.y(" << c << ")        = " << CGA.y(c) << endl << flush;
+		std::cout << "CGA.templateCluster(" << c << ")    = " << CGA.templateCluster(c) << std::endl << std::flush;
+		std::cout << "CGA.width(" << c << ")       = " << CGA.width(c) << std::endl << std::flush;
+		std::cout << "CGA.height(" << c << ")      = " << CGA.height(c) << std::endl << std::flush;
+		std::cout << "CGA.clusterFillColor(" << c << ")   = " << CGA.clusterFillColor(c) << std::endl << std::flush;
+		std::cout << "CGA.clusterFillPattern(" << c << ") = " << CGA.clusterFillPattern(c) << std::endl << std::flush;
+		std::cout << "CGA.clusterBackColor(" << c << ")   = " << CGA.clusterBackColor(c) << std::endl << std::flush;
+		std::cout << "CGA.clusterLineStyle(" << c << ")   = " << CGA.clusterLineStyle(c) << std::endl << std::flush;
+		std::cout << "CGA.clusterLineWidth(" << c << ")   = " << CGA.clusterLineWidth(c) << std::endl << std::flush;
+		std::cout << "CGA.clusterColor(" << c << ")       = " << CGA.clusterColor(c) << std::endl << std::flush;
+		std::cout << "CGA.x(" << c << ")        = " << CGA.x(c) << std::endl << std::flush;
+		std::cout << "CGA.y(" << c << ")        = " << CGA.y(c) << std::endl << std::flush;
 	}
 
-	cout << "buildAttributedClusterGraph COMPLETE... Check COMPLETE... Let's have fun in GDE ;) " << endl << flush;
+	std::cout << "buildAttributedClusterGraph COMPLETE... Check COMPLETE... Let's have fun in GDE ;) " << std::endl << std::flush;
 #endif
 
 	// building terminated, so return true
 	return true;
 
-}//buildAttributedClusterGraph
-
-
+}
 
 // sets the labels of hierarchical nodes => cluster
 bool OgmlParser::setLabelsRecursive(Graph &G, GraphAttributes &GA, ClusterGraphAttributes *pCGA, XmlTagObject *root)
@@ -3255,9 +3242,7 @@ bool OgmlParser::setLabelsRecursive(Graph &G, GraphAttributes &GA, ClusterGraphA
 					}
 				}
 			}
-		}// "normal" nodes
-		else
-		{
+		} else {
 			// get the id of the actual cluster
 			XmlAttributeObject *att;
 			if(pCGA != nullptr && root->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_id], att))
@@ -3291,12 +3276,10 @@ bool OgmlParser::setLabelsRecursive(Graph &G, GraphAttributes &GA, ClusterGraphA
 				}
 			}
 
-		}//cluster nodes
+		}
 	}
 	return true;
-}// setLabelsRecursive
-
-
+}
 
 bool OgmlParser::buildGraph(Graph &G)
 {
@@ -3330,7 +3313,7 @@ bool OgmlParser::buildGraph(Graph &G)
 			m_nodes.fastInsert(it.key(), G.newNode(id));
 			m_nodeIds.fastInsert(id, idAtt->getValue());
 		}
-	}//for nodes
+	}
 
 	id = 0;
 
@@ -3340,7 +3323,7 @@ bool OgmlParser::buildGraph(Graph &G)
 		if( it.info()->getName() == Ogml::s_tagNames[Ogml::t_edge] )
 		{
 			//Check sources/targets
-			Stack<node> srcTgt;
+			ArrayBuffer<node> srcTgt;
 			const XmlTagObject* son = it.info()->m_pFirstSon;
 			while(son) {
 				if( son->getName() == Ogml::s_tagNames[Ogml::t_source] ||
@@ -3350,7 +3333,7 @@ bool OgmlParser::buildGraph(Graph &G)
 					son->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_nodeIdRef], att);
 					//Validate if source/target is really a node
 					if (m_ids.lookup(att->getValue())->info()->getName() != Ogml::s_tagNames[Ogml::t_node]) {
-						GraphIO::logger.lout(Logger::Level::Minor) << "Edge relation between graph elements of type not node are temporarily not supported!" << endl;
+						GraphIO::logger.lout(Logger::Level::Minor) << "Edge relation between graph elements of type not node are temporarily not supported!" << std::endl;
 					}
 					else {
 						srcTgt.push(m_nodes.lookup(att->getValue())->info());
@@ -3359,7 +3342,7 @@ bool OgmlParser::buildGraph(Graph &G)
 				son = son->m_pBrother;
 			}
 			if (srcTgt.size() != 2) {
-				GraphIO::logger.lout(Logger::Level::Minor) << "Hyperedges are temporarily not supported! Discarding edge." << endl;
+				GraphIO::logger.lout(Logger::Level::Minor) << "Hyperedges are temporarily not supported! Discarding edge." << std::endl;
 			}
 			else {
 				// create edge
@@ -3378,15 +3361,15 @@ bool OgmlParser::buildGraph(Graph &G)
 					// default id setting
 					id = G.maxEdgeIndex() + 1;
 				}
-				m_edges.fastInsert(it.key(), G.newEdge(srcTgt.pop(), srcTgt.pop(), id));
+				m_edges.fastInsert(it.key(), G.newEdge(srcTgt.popRet(), srcTgt.popRet(), id));
 				m_edgeIds.fastInsert(id, idAtt->getValue());
 			}
 		}
-	}//for edges
+	}
 
 	//Structure data determined, so building the graph was successfull.
 	return true;
-}//buildGraph
+}
 
 bool OgmlParser::buildClusterRecursive(
 	const XmlTagObject *xmlTag,
@@ -3439,10 +3422,10 @@ bool OgmlParser::buildClusterRecursive(
 		}
 
 		son = son->m_pBrother;
-	}//while
+	}
 
 	return true;
-}//buildClusterRecursive
+}
 
 
 
@@ -3454,7 +3437,7 @@ bool OgmlParser::buildCluster(
 	CG.init(G);
 
 	if (rootTag->getName() != Ogml::s_tagNames[Ogml::t_ogml]) {
-		GraphIO::logger.lout() << "Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml] << "\" in OgmlParser::buildCluster!" << endl;
+		GraphIO::logger.lout() << "Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml] << "\" in OgmlParser::buildCluster!" << std::endl;
 		return false;
 	}
 
@@ -3475,7 +3458,7 @@ bool OgmlParser::buildCluster(
 	}
 
 	return true;
-}//buildCluster
+}
 
 //Commented out due to missing graphconstraints in OGDF
 #if 0
@@ -3487,13 +3470,13 @@ bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 		return true;
 
 	if (m_constraintsTag->getName() != Ogml::s_tagNames[t_constraints]){
-		cerr << "Error: constraints tag is not the required tag!" << endl;
+		std::cerr << "Error: constraints tag is not the required tag!" << std::endl;
 		return false;
 	}
 
 	XmlTagObject* constraintTag;
 	if(! m_constraintsTag->findSonXmlTagObjectByName(Ogml::s_tagNames[t_constraint], constraintTag) ) {
-		cerr << "Error: no constraint block in constraints block of valid parse tree found!" << endl;
+		std::cerr << "Error: no constraint block in constraints block of valid parse tree found!" << std::endl;
 		return false;
 	}
 
@@ -3504,7 +3487,7 @@ bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 //		if (constraintTag->getName() == Ogml::s_tagNames[t_data]){
 //			// found data for constraints in general
 //			// no implementation required for ogdf
-//		}//data
+//		}
 
 		if(constraintTag->getName() == Ogml::s_tagNames[t_constraint]) {
 
@@ -3519,7 +3502,7 @@ bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 			if (constraintTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_type], actAtt))
 				cType = actAtt->getValue();
 			else {
-				cerr << "Error: constraint doesn't own compulsive attribute \'type\' in valid parse tree!" << endl;
+				std::cerr << "Error: constraint doesn't own compulsive attribute \'type\' in valid parse tree!" << std::endl;
 				return false;
 			}
 			// now we need a constraint manager to create a constraint
@@ -3535,16 +3518,16 @@ bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 					GC.addConstraint(c);
 				}
 				else
-					cerr << "Error while building constraint with name \""<<cType<<"\"!" << endl;
+					std::cerr << "Error while building constraint with name \""<<cType<<"\"!" << std::endl;
 			}
 			else
-				cerr << "Error: constraint type \""<<cType<<"\" is unknown!" << endl;
+				std::cerr << "Error: constraint type \""<<cType<<"\" is unknown!" << std::endl;
 
-		}//constraint
+		}
 
 		// go to next constraint tag
 		constraintTag = constraintTag->m_pBrother;
-	}//while
+	}
 
 	// terminated, so return true
 	return true;
@@ -3553,7 +3536,7 @@ bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 #endif
 
 bool OgmlParser::doRead(
-	istream &is,
+	std::istream &is,
 	Graph &G,
 	ClusterGraph *pCG,
 	GraphAttributes *pGA,
@@ -3592,12 +3575,11 @@ bool OgmlParser::doRead(
 		}
 
 	} catch(const char *error) {
-		Logger::slout() << error << endl << flush;
+		Logger::slout() << error << std::endl << std::flush;
 		return false;
 	}
 
 	return true;
 }
 
-
-}//namespace ogdf
+}

@@ -59,12 +59,12 @@ public:
 	explicit ClusterGraphObserver(const ClusterGraph* CG) : m_pClusterGraph(CG)
 	{
 		m_itCGList = CG->registerObserver(this);
-	}//constructor
+	}
 
 	virtual ~ClusterGraphObserver()
 	{
 		if (m_pClusterGraph) m_pClusterGraph->unregisterObserver(m_itCGList);
-	}//destructor
+	}
 
 	// associates structure with different graph
 	void reregister(const ClusterGraph *pCG) {
@@ -89,4 +89,4 @@ protected:
 	ListIterator<ClusterGraphObserver*> m_itCGList;
 };
 
-} // end of namespace
+}

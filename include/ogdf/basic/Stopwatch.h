@@ -148,7 +148,7 @@ public:
 	 * \param stopwatch The stopwatch whose elapsed time shall be written.
 	 * \return A reference to the output stream \p os.
 	 */
-	friend OGDF_EXPORT ostream& operator<<(ostream& os, const Stopwatch &stopwatch);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Stopwatch &stopwatch);
 
 protected:
 

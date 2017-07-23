@@ -96,9 +96,7 @@ public:
 		if (m_pGraph != nullptr)
 			m_pGraph->moveRegisterArray(m_it, this);
 	}
-
-}; // class EdgeArrayBase
-
+};
 
 //! Dynamic arrays indexed with edges.
 /**
@@ -389,9 +387,7 @@ private:
 	}
 
 	OGDF_NEW_DELETE
-
-}; // class EdgeArray<T>
-
+};
 
 //! Bucket function for edges.
 /**
@@ -414,5 +410,4 @@ public:
 	int getBucket(const edge &e) override { return (*m_pEdgeArray)[e]; }
 };
 
-
-} // end namespace ogdf
+}

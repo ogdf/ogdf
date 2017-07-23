@@ -113,4 +113,4 @@ private:
 	double m_threshold;
 };
 
-} // end of namespace ogdf
+}

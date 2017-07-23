@@ -66,7 +66,6 @@ public:
 	DPolygon call(std::vector<DPoint> points) const;
 	DPolygon call(GraphAttributes &GA) const;
 	DPolygon call(MultilevelGraph &MLG) const;
-
 };
 
-} // namespace ogdf
+}

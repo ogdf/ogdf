@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/Array.h>
 
@@ -174,7 +173,7 @@ public:
 	//! The function writeGML() prints the PQ-tree in the GML fileformat.
 	//! @{
 	void writeGML(const char *fileName);
-	void writeGML(ostream &os);
+	void writeGML(std::ostream &os);
 	//! @}
 
 protected:
@@ -1144,7 +1143,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 	int numBlocked       = 0;
 	int offTheTop        = 0;
 	PQNode<T,X,Y>* checkSib = nullptr;
-	Stack<PQNode<T,X,Y>*> blockedNodes;
+	ArrayBuffer<PQNode<T,X,Y>*> blockedNodes;
 
 	while ((processNodes.size() + blockCount + offTheTop) > 1)
 	{
@@ -1297,8 +1296,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 							//Blocked node as endmost child of a QNode.
 					}
 				}
-			}// if (blockedSiblings > 0)
-
+			}
 
 			/*
 			Process parent of [[checkNode]]
@@ -1332,11 +1330,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 
 			blockCount -= blockedSiblings;
 			blockedSiblings = 0;
-
-		}//if (checkNode->mark() == Unblocked)
-
-		else
-		{
+		} else {
 			/*
 			Process blocked [[checkNode]]
 			Since [[checkNode]] is [[Blocked]], we cannot continue
@@ -1347,8 +1341,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 			blockCount += 1 - blockedSiblings;
 			numBlocked++;
 		}
-
-	}//while ((processNodes.size() + blockCount + offTheTop) > 1)
+	}
 
 	if (blockCount == 1)
 	{
@@ -1372,7 +1365,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 		*/
 		while (!blockedNodes.empty())
 		{
-			PQNode<T,X,Y>* checkNode = blockedNodes.pop();
+			PQNode<T,X,Y>* checkNode = blockedNodes.popRet();
 			if (checkNode->mark() == PQNodeRoot::PQNodeMark::Blocked)
 			{
 				checkNode->mark(PQNodeRoot::PQNodeMark::Unblocked);
@@ -2095,12 +2088,12 @@ void PQTree<T,X,Y>::linkChildrenOfQnode(
 template<class T,class X,class Y>
 void PQTree<T,X,Y>::writeGML(const char *fileName)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os);
 }
 
 template<class T,class X,class Y>
-void PQTree<T,X,Y>::writeGML(ostream &os)
+void PQTree<T,X,Y>::writeGML(std::ostream &os)
 {
 	Array<int> id(0,m_identificationNumber,0);
 	int nextId = 0;
@@ -2108,7 +2101,7 @@ void PQTree<T,X,Y>::writeGML(ostream &os)
 	SListPure<PQNode<T,X,Y>*> helpQueue;
 	SListPure<PQNode<T,X,Y>*> secondTrace;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::PQTree::writeGML\"\n";
@@ -3059,7 +3052,7 @@ void PQTree<T,X,Y>::sortExceptions(int Exceptions[],int arraySize)
 		{
 			if (Exceptions[i] > Exceptions[i+1])
 			{
-				swap(Exceptions[i],Exceptions[i+1]);
+				std::swap(Exceptions[i], Exceptions[i+1]);
 				changed = true;
 			}
 		}

@@ -49,9 +49,9 @@ using namespace abacus;
 #ifdef OGDF_DEBUG
 void CP_MasterBase::printGraph(const Graph &G) {
 	int i=0;
-	Logger::slout() << "The Given Graph" << endl;
+	Logger::slout() << "The Given Graph" << std::endl;
 	for(edge e : G.edges) {
-		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << endl;
+		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << std::endl;
 	}
 }
 #endif
@@ -72,6 +72,9 @@ CP_MasterBase::CP_MasterBase(
 	double branchingGap,
 	const char *time) :
 	Master("CPlanarity", true, false, OptSense::Min), //no pricing so far
+#ifdef OGDF_DEBUG
+	m_solByHeuristic(false),
+#endif
 	m_solState(solutionState::Undefined),
 	m_cutConnPool(nullptr),
 	m_cutKuraPool(nullptr),
@@ -172,7 +175,7 @@ void CP_MasterBase::updateBestSubGraph(List<NodePair> &connection) {
 		m_connectionOneEdges.pushBack(np);
 	}
 
-#ifdef OGDF_DEBUG
+#ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 	GraphIO::write(*m_solutionGraph, "UpdateSolutionGraph.gml", GraphIO::writeGML);
 #endif
 }
@@ -268,7 +271,7 @@ double CP_MasterBase::clusterConnection(cluster c, GraphCopy &gc) {
 		delete inducedC;
 	}
 	return connectNum;
-}//clusterConnection
+}
 
 double CP_MasterBase::heuristicInitialLowerBound()
 {
@@ -289,7 +292,7 @@ double CP_MasterBase::heuristicInitialLowerBound()
 	cluster c = m_C->rootCluster();
 
 	return clusterConnection(c, gcc);
-}//heuristicInitialLowerBound
+}
 
 double CP_MasterBase::heuristicInitialUpperBound() {
 
@@ -297,7 +300,7 @@ double CP_MasterBase::heuristicInitialUpperBound() {
 	//Can we just use the number of edges needed
 	//to make both the clusters and their complement connected?
 	return m_nMaxVars;
-}//heuristicInitialUpperBound
+}
 
 void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 
@@ -358,7 +361,7 @@ void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 		node v = e->target();
 		initVars.pushBack(createVariable(oriNode[u], oriNode[v]));
 #ifdef OGDF_DEBUG
-		cout << "Added var " << oriNode[u]->index() << ":" << oriNode[v]->index() << "\n";
+		std::cout << "Added var " << oriNode[u]->index() << ":" << oriNode[v]->index() << "\n";
 #endif
 	}
 
@@ -405,7 +408,7 @@ void CP_MasterBase::generateVariablesForFeasibility(
 				++ccit;
 		}
 		itev++;
-	}//while connect vars
+	}
 
 	ArrayBuffer<ListIterator<nodePair> > creationBuffer(ccons.size());
 	for(ListIterator<nodePair> npit = m_inactiveVariables.begin(); npit.valid(); ++npit) {
@@ -434,7 +437,7 @@ void CP_MasterBase::generateVariablesForFeasibility(
 	for(int i = creationBuffer.size(); i-- > 0;) {
 		connectVars.pushBack( createVariable( creationBuffer[i] ) );
 	}
-}//generateVariablesForFeasability
+}
 #endif
 
 // returns coefficients of all variables in connect in constraint con

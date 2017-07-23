@@ -105,9 +105,10 @@ bool Planarity::lowLevelIntersect(
 	const DPoint &e2t) const
 {
 	DPoint s1(e1s),t1(e1t),s2(e2s),t2(e2t);
-	DLine l1(s1,t1), l2(s2,t2);
+	DSegment l1(s1,t1), l2(s2,t2);
 	DPoint dummy;
-	return l1.intersection(l2,dummy);
+	// TODO: What to do when IntersectionType::Overlapping is returned?
+	return l1.intersection(l2,dummy) == IntersectionType::SinglePoint;
 }
 
 
@@ -163,18 +164,18 @@ void Planarity::internalCandidateTaken() {
 
 #ifdef OGDF_DEBUG
 void Planarity::printInternalData() const {
-	cout << "\nCrossing Matrix:";
+	std::cout << "\nCrossing Matrix:";
 	int e_num = m_nonSelfLoops.size();
 	for(int i = 1; i < e_num; i++) {
-		cout << "\n Edge " << i << " crosses: ";
+		std::cout << "\n Edge " << i << " crosses: ";
 		for(int j = i+1; j <= e_num; j++)
-			if((*m_crossingMatrix)(i,j)) cout << j << " ";
+			if((*m_crossingMatrix)(i,j)) std::cout << j << " ";
 	}
-	cout << "\nChanged crossings:";
-	if(testNode() == nullptr) cout << " None.";
+	std::cout << "\nChanged crossings:";
+	if(testNode() == nullptr) std::cout << " None.";
 	else {
 		for(const ChangedCrossing &cc : m_crossingChanges) {
-			cout << " (" << cc.edgeNum1 << "," << cc.edgeNum2 << ")" << cc.cross;
+			std::cout << " (" << cc.edgeNum1 << "," << cc.edgeNum2 << ")" << cc.cross;
 		}
 	}
 }

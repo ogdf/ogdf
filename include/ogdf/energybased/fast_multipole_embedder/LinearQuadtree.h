@@ -581,8 +581,8 @@ public:
 		float dx = nodeX(a) - nodeX(b);
 		float dy = nodeY(a) - nodeY(b);
 		float d_sq = dx*dx+dy*dy;
-		float l = max(nodeSize(a), nodeSize(b));
-		return d_sq > (s * 0.5 + 1) * (s * 0.5 + 1) * 2 * l * l;
+		float size = max(nodeSize(a), nodeSize(b));
+		return d_sq > (s * 0.5 + 1) * (s * 0.5 + 1) * 2 * size * size;
 	}
 
 	void computeWSPD();

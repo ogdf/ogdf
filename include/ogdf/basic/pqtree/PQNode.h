@@ -118,7 +118,7 @@ public:
 	 * or #m_sibRight is 0. If the node is endmost child of a Q-node,
 	 * then it has a valid parent pointer.
 	 */
-	bool endmostChild() {
+	bool endmostChild() const {
 		return (m_sibLeft == nullptr || m_sibRight == nullptr);
 	}
 

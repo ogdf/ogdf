@@ -29,23 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-#include <resources.h>
+#include <set>
 
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
-
 #include <ogdf/energybased/FMMMLayout.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <set>
 
-using namespace ogdf;
-using namespace bandit;
+#include <resources.h>
 
 constexpr edge none = nullptr;
 
@@ -243,9 +239,7 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 
 			it("aborts if the graph isn't biconnected", [&](){
 				completeGraph(graph, 5);
-
-				node v = graph.chooseNode();
-				List<node> nodes = {v};
+				List<node> nodes = { graph.chooseNode() };
 
 				for(int i = 0; i < 4; i++) {
 					nodes.pushBack(graph.newNode());
@@ -347,7 +341,7 @@ void testSubgraphPlanarizer() {
 		testSPEdgeInserter(new FixedEmbeddingInserter, "FixedEmbedding");
 		testSPEdgeInserter(new MultiEdgeApproxInserter, "MultiEdgeApprox");
 		testSPEdgeInserter(new VariableEmbeddingInserter, "VariableEmbedding");
-		testSPEdgeInserter(new VariableEmbeddingInserterDyn, "VariableEmbeddingDyn", true);
+		testSPEdgeInserter(new VariableEmbeddingInserterDyn, "VariableEmbeddingDyn");
 	});
 }
 

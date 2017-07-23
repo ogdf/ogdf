@@ -1,16 +1,5 @@
 /** \file
- * \brief Declaration of Tutte's algorithm
- *
- * The class TutteLayout represents the layout algorithm by
- * Tutte.
- *
- * \par
- * This algorithm draws a planar graph \a G straight-line
- * without crossings. It can also draw non-planar graphs.
- *
- * \par
- * The idea of the algorithm is to place every vertex into the
- * center of gravity by its neighbours.
+ * \brief Declaration of ogdf::TutteLayout.
  *
  * \author David Alberts and Andrea Wagner
  *
@@ -50,16 +39,24 @@
 
 namespace ogdf {
 
-//! Tutte's method for graph layout.
+//! Tutte's layout algorithm.
 /**
  * @ingroup gd-energy
+ *
+ * This algorithm draws a planar graph straight-line
+ * without crossings.
+ *
+ * The idea of the algorithm is to place every vertex into the
+ * center of gravity by its neighbours.
+ *
+ * See "How to draw a graph" by W. T. Tutte (1962) for details.
+ *
+ * \pre Input graphs need to be triconnected.
  */
 class OGDF_EXPORT TutteLayout : public LayoutModule
 {
 public:
-
 	TutteLayout();
-	~TutteLayout() { }
 
 	DRect bbox () const {
 		return m_bbox;
@@ -73,7 +70,6 @@ public:
 	void call(GraphAttributes &AG, const List<node> &givenNodes);
 
 private:
-
 	static bool solveLP(
 		int cols,
 		const CoinPackedMatrix &Matrix,
@@ -82,16 +78,14 @@ private:
 
 	void setFixedNodes(const Graph &G, List<node> &nodes,
 		List<DPoint> &pos, double radius = 1.0);
+
 	/*! sets the positions of the nodes in a largest face of $G$ in the
 	*  form of a regular $k$-gon with the prescribed radius. The
 	*  corresponding nodes and their positions are stored in nodes
 	*  and pos, respectively. $G$ does not have to be planar!
 	*/
-
 	void setFixedNodes(const Graph &G, List<node> &nodes, const List<node> &givenNodes,
 		List<DPoint> &pos, double radius = 1.0);
-	/*! the method is overloaded for a given set of nodes.
-	*/
 
 	bool doCall(GraphAttributes &AG,
 		const List<node> &fixedNodes,
@@ -100,4 +94,4 @@ private:
 	DRect m_bbox;
 };
 
-} // end namespace ogdf
+}

@@ -70,7 +70,5 @@ Attribute toAttribute(const std::string &str)
 	return Attribute::unknown;
 }
 
-
-} // end namespace tlp
-
-} // end namespace ogdf
+}
+}

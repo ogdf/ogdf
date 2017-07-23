@@ -137,7 +137,7 @@ bool Lexer::tokenizeLine()
 				// Get a new line if a current one has ended.
 				if(m_col >= m_buffer.size()) {
 					if(!m_input.good()) {
-						GraphIO::logger.lout() << "Unclosed comment at" << column << ", " << row << endl;
+						GraphIO::logger.lout() << "Unclosed comment at" << column << ", " << row << std::endl;
 						return false;
 					}
 					std::getline(m_input, m_buffer);
@@ -187,7 +187,7 @@ bool Lexer::tokenizeLine()
 		} else if(identifier(token)) {
 			token.type = Token::Type::identifier;
 		} else {
-			GraphIO::logger.lout() << "Unknown token at: " << m_row << "; " << m_col << endl;
+			GraphIO::logger.lout() << "Unknown token at: " << m_row << "; " << m_col << std::endl;
 			return false;
 		}
 
@@ -237,7 +237,7 @@ bool Lexer::identifier(Token &token)
 			// Get a new line if a current one has ended.
 			if(m_col >= m_buffer.size()) {
 				if(!m_input.good()) {
-					GraphIO::logger.lout() << "Unclosed string at " << token.row << ", " << token.column << endl;
+					GraphIO::logger.lout() << "Unclosed string at " << token.row << ", " << token.column << std::endl;
 					return false;
 				}
 				std::getline(m_input, m_buffer);
@@ -283,7 +283,6 @@ bool Lexer::identifier(Token &token)
 	return false;
 }
 
+}
 
-} // end namespace dot
-
-} // end namespace ogdf
+}

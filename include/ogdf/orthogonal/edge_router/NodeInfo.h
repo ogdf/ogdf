@@ -72,7 +72,7 @@ public:
 			m_ccoord[i] = 0;
 		}
 		lu = ll = ru = rl = tl = tr = bl = br = 0;
-	}//init
+	}
 
 	//Constructor, adj holds entry for inner face edge
 	NodeInfo(
@@ -130,11 +130,12 @@ public:
 		}
 	}
 
-
 	virtual ~NodeInfo() { }
 
-	int coord(OrthoDir bs) const { return m_coord[static_cast<int>(bs)]; }//nodeboxside coordinates (real size)
-	int cageCoord(OrthoDir bs) const { return m_ccoord[static_cast<int>(bs)]; }//nodecageside coordinates (expanded size)
+	//! Returns nodeboxside coordinates (real size)
+	int coord(OrthoDir bs) const { return m_coord[static_cast<int>(bs)]; }
+	//! Returns nodecageside coordinates (expanded size)
+	int cageCoord(OrthoDir bs) const { return m_ccoord[static_cast<int>(bs)]; }
 
 	//return distance between Node and  Cage coord
 	int coordDistance(OrthoDir bs)
@@ -151,25 +152,28 @@ public:
 		case OrthoDir::West:
 			result =  m_coord[bsi] - m_ccoord[bsi];
 			break;
-		default: cout<<"unknown direction in coordDistance"<<flush;
+		default: std::cout<<"unknown direction in coordDistance"<<std::flush;
 			OGDF_THROW(AlgorithmFailureException);
-		}//switch
+		}
 		OGDF_ASSERT(result >= 0);
 		return result;
-	}//coordDistance
+	}
 
-	int node_xsize() const { return box_x_size; }//original box sizes, fake
+	// original box sizes, fake
+	int node_xsize() const { return box_x_size; }
 	int node_ysize() const { return box_y_size; }
 
 	int nodeSize(OrthoDir od) const { return (static_cast<int>(od) % 2 == 0) ? box_y_size : box_x_size; }
 	int cageSize(OrthoDir od) const { return (static_cast<int>(od) % 2 == 0) ? cage_y_size : cage_x_size; }
-	int rc(OrthoDir od) const { return m_rc[static_cast<int>(od)]; } //routing channel size
+	//! Returns routing channel size
+	int rc(OrthoDir od) const { return m_rc[static_cast<int>(od)]; }
 
 	List<edge>& inList(OrthoDir bs) { return in_edges[static_cast<int>(bs)]; }
 	List<bool>& inPoint(OrthoDir bs) { return point_in[static_cast<int>(bs)]; }
 
 	//these values are computed dependant on the nodes placement
-	int l_upper_unbend() { return lu; } //position of first and last unbend edge on every side
+	// position of first and last unbend edge on every side
+	int l_upper_unbend() { return lu; }
 	int l_lower_unbend() { return ll; }
 	int r_upper_unbend() { return ru; }
 	int r_lower_unbend() { return rl; }
@@ -191,7 +195,8 @@ public:
 	//number of edges flipped from s1 to s2 to save one bend
 	int& flips(OrthoDir s1, OrthoDir s2) { return m_flips[static_cast<int>(s1)][static_cast<int>(s2)]; }
 
-	int num_bend_free(OrthoDir s) const { return m_nbf[static_cast<int>(s)]; } //number of edges routed bendfree
+	// number of edges routed bendfree
+	int num_bend_free(OrthoDir s) const { return m_nbf[static_cast<int>(s)]; }
 	void num_bend_free_increment(OrthoDir s) { ++m_nbf[static_cast<int>(s)]; }
 
 	int num_edges(OrthoDir od) const {
@@ -228,7 +233,7 @@ public:
 			} break;
 		default:
 			OGDF_ASSERT(false);
-		}//switch
+		}
 		m_delta[bsidei][bneighbouri] = dval;
 	}
 
@@ -283,11 +288,12 @@ public:
 		RoutingChannel<int>& rc,
 		NodeArray<int>& nw,
 		NodeArray<int>& nh); //check input parameter
-	int num_routable(OrthoDir s_from, OrthoDir s_to) const { return m_routable[static_cast<int>(s_from)][static_cast<int>(s_to)]; } //card. of paper E^_s1,s2
+	// card. of paper E^_s1,s2
+	int num_routable(OrthoDir s_from, OrthoDir s_to) const { return m_routable[static_cast<int>(s_from)][static_cast<int>(s_to)]; }
 	int vDegree() { return m_vdegree; }
 	adjEntry& firstAdj() { return m_firstAdj; }
 
-	friend ostream& operator<<(ostream& O, const NodeInfo& inf);
+	friend std::ostream& operator<<(std::ostream& O, const NodeInfo& inf);
 
 private:
 	std::array<int,4> m_rc;
@@ -315,7 +321,7 @@ private:
 	int m_vdegree;
 };
 
-ostream& operator<<(ostream& O, const NodeInfo& inf);
+std::ostream& operator<<(std::ostream& O, const NodeInfo& inf);
 
 }
-} //end namespace
+}

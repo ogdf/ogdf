@@ -237,7 +237,7 @@ int HananiTutteCPlanarity::CLinearSystem::numCond(const Object *eo1, const Objec
 	int o1num = numOx(*eo1);
 	int o2num = numOx(*eo2);
 	if(o2num < o1num)
-		swap(o1num,o2num);
+		std::swap(o1num, o2num);
 
 	std::pair<int,int> pnum(o1num,o2num);
 	auto it = m_cx.find(pnum);
@@ -265,7 +265,7 @@ int HananiTutteCPlanarity::CLinearSystem::numeomove(const Object *eo, const Obje
 	int c = m_matrix.addColumn();
 	m_mx[p] = c;
 #if 0
-	cout << "(" << p.first << "," << p.second << ") : " << c << endl;
+	std::cout << "(" << p.first << "," << p.second << ") : " << c << std::endl;
 #endif
 
 	return c;
@@ -295,8 +295,8 @@ class HananiTutteCPlanarity::CGraph {
 
 	const ClusterGraph &m_cg;
 
-	ClusterArray<SList<edge>> m_cbe; // edges crossing the cluster boundary
-	ClusterArray<List<edge>> m_cbeRot; // order in which edges in m_cbe cross cluster boundary
+	ClusterArray<ArrayBuffer<edge>> m_cbe; // edges crossing the cluster boundary
+	ClusterArray<ArrayBuffer<edge>> m_cbeRot; // order in which edges in m_cbe cross cluster boundary
 	ClusterArray<SList<const CLinearSystem::Object*>> m_ce2;  // object edges lying in a region (or crossing into it)
 	map<const CLinearSystem::Object*,SList<std::pair<const CLinearSystem::Object*,CLinearSystem::Object>>> m_aff;
 
@@ -357,9 +357,9 @@ HananiTutteCPlanarity::CGraph::CGraph(const ClusterGraph &C)
 		cluster lca = C.commonCluster(u,v);
 
 		for(cluster c = C.clusterOf(u); c != lca; c = c->parent())
-			m_cbe[c].pushBack(e);
+			m_cbe[c].push(e);
 		for(cluster c = C.clusterOf(v); c != lca; c = c->parent())
-			m_cbe[c].pushBack(e);
+			m_cbe[c].push(e);
 	}
 }
 
@@ -404,13 +404,13 @@ HananiTutteCPlanarity::Verification HananiTutteCPlanarity::CGraph::cpcheck(int &
 
 	for(cluster c : m_cg.clusters) {
 		if(!m_cbe[c].empty())
-			m_cbeRot[c].pushBack(m_cbe[c].front());
+			m_cbeRot[c].push(m_cbe[c][0]);
 	}
 
 	for(cluster c : m_cg.clusters) {
 		List<edge> remainingEdges;
 		for(edge e : m_cbe[c]) {
-			if(e != m_cbeRot[c].front())
+			if(e != m_cbeRot[c][0])
 				remainingEdges.pushBack(e);
 		}
 
@@ -418,7 +418,7 @@ HananiTutteCPlanarity::Verification HananiTutteCPlanarity::CGraph::cpcheck(int &
 			bool findNext = false;
 
 			for(edge e : remainingEdges) {
-				m_cbeRot[c].pushBack(e);
+				m_cbeRot[c].push(e);
 				if(m_cbeRot[c].size() == m_cbe[c].size()) {
 					findNext = true;
 					break;
@@ -431,7 +431,7 @@ HananiTutteCPlanarity::Verification HananiTutteCPlanarity::CGraph::cpcheck(int &
 					break;
 
 				} else {
-					m_cbeRot[c].popBack();
+					m_cbeRot[c].pop();
 				}
 			}
 
@@ -535,7 +535,7 @@ void HananiTutteCPlanarity::CGraph::ends(const CLinearSystem::Object *eo, CLinea
 			SubType st = SubType::stInnerCluster;
 
 			if(c2->parent() == c1)
-				swap(c1,c2);
+				std::swap(c1, c2);
 			else if(c1->parent() != c1)
 				st = SubType::stOuterCluster;
 
@@ -600,7 +600,7 @@ bool HananiTutteCPlanarity::CGraph::fixed(const CLinearSystem::Object *eo)
 	if(!(eo->m_t == Type::tEdge && (eo->m_st == SubType::stInnerCluster || eo->m_st == SubType::stOuterCluster) ))
 		return false;
 
-	return m_cbeRot[eo->m_c].search(eo->m_e).valid();
+	return m_cbeRot[eo->m_c].linearSearch(eo->m_e) != -1;
 }
 
 bool HananiTutteCPlanarity::CGraph::incident(const CLinearSystem::Object &vo, const CLinearSystem::Object *eo) const
@@ -615,7 +615,7 @@ bool HananiTutteCPlanarity::CGraph::bdbefore(edge e1, edge e2, cluster c) const
 	// TODO for given Rot: add code for case c in CBErot! [DONE]
 
 	if(!m_cbeRot.valid()) {  // no rotation system given?
-		const SList<edge> &cbe_c = m_cbe[c];
+		const auto &cbe_c = m_cbe[c];
 		int p1 = searchPos(cbe_c, e1);
 		int p2 = searchPos(cbe_c, e2);
 		OGDF_ASSERT(p1 != -1);
@@ -624,7 +624,7 @@ bool HananiTutteCPlanarity::CGraph::bdbefore(edge e1, edge e2, cluster c) const
 		return p1 > p2;
 	}
 
-	const List<edge> &rot_c = m_cbeRot[c];
+	const auto &rot_c = m_cbeRot[c];
 	int p1 = searchPos(rot_c, e1);
 	int p2 = searchPos(rot_c, e2);
 
@@ -638,7 +638,7 @@ bool HananiTutteCPlanarity::CGraph::bdbefore(edge e1, edge e2, cluster c) const
 		return false;
 
 	else {
-		const SList<edge> &cbe_c = m_cbe[c];
+		const auto &cbe_c = m_cbe[c];
 		p1 = searchPos(cbe_c, e1);
 		p2 = searchPos(cbe_c, e2);
 		OGDF_ASSERT(p1 != -1);
@@ -740,9 +740,9 @@ bool HananiTutteCPlanarity::CGraph::iD(const CLinearSystem::Object *eo1, const C
 	ends(eo2, uo2, vo2);
 
 	if(before(vo1,uo1))
-		swap(vo1,uo1);
+		std::swap(vo1, uo1);
 	if(before(vo2,uo2))
-		swap(vo2,uo2);
+		std::swap(vo2, uo2);
 
 	return ((before(uo1,uo2) && before(uo2,vo1) && before(vo1,vo2)) || (before(uo2,uo1) && before(uo1,vo2) && before(vo2,vo1)));
 }
@@ -1082,7 +1082,7 @@ HananiTutteCPlanarity::Verification HananiTutteCPlanarity::isCPlanar(const Clust
 static bool areAdjacent(node v, node w)
 {
 	if(v->degree() > w->degree())
-		swap(v,w);
+		std::swap(v, w);
 
 	for(adjEntry adj : v->adjEntries) {
 		if(w == adj->twinNode())
@@ -1139,7 +1139,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 	if(!toRemove.empty()) {
 #ifdef PRINT_INFO
-		cout << "Remove " << toRemove.size() << " deg-0/1 vertices" << endl;
+		std::cout << "Remove " << toRemove.size() << " deg-0/1 vertices" << std::endl;
 #endif
 		modified = true;
 		for(node vDel : toRemove)
@@ -1181,7 +1181,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 	if(!toRemove.empty()) {
 #ifdef PRINT_INFO
-		cout << "Unsplit " << toUnsplit.size() << " deg-2 vertices" << endl;
+		std::cout << "Unsplit " << toRemove.size() << " deg-2 vertices" << std::endl;
 #endif
 		modified = true;
 		for(node vDel : toRemove) {
@@ -1223,7 +1223,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 		if(replaceByStar) {
 #ifdef PRINT_INFO
-			cout << "Replace cluster by star" << endl;
+			std::cout << "Replace cluster by star" << std::endl;
 #endif
 			modified = true;
 			if(w == nullptr)
@@ -1257,7 +1257,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 	if(!toRemoveC.empty()) {
 #ifdef PRINT_INFO
-		cout << "Remove " << toRemoveC.size() << " 2-node clusters" << endl;
+		std::cout << "Remove " << toRemoveC.size() << " 2-node clusters" << std::endl;
 #endif
 		modified = true;
 		for(cluster cDel : toRemoveC)
@@ -1277,7 +1277,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 	if(!toRemoveC.empty()) {
 #ifdef PRINT_INFO
-		cout << "Remove " << toRemoveC.size() << " singleton clusters" << endl;
+		std::cout << "Remove " << toRemoveC.size() << " singleton clusters" << std::endl;
 #endif
 		modified = true;
 		for(cluster cDel : toRemoveC)
@@ -1294,7 +1294,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 	if(!toRemoveC.empty()) {
 #ifdef PRINT_INFO
-		cout << "Remove " << toRemoveC.size() << " empty clusters" << endl;
+		std::cout << "Remove " << toRemoveC.size() << " empty clusters" << std::endl;
 #endif
 		modified = true;
 		for(cluster cDel : toRemoveC)

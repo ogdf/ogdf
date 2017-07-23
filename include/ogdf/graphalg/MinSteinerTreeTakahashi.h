@@ -175,9 +175,9 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 		const NodeArray<bool> &isTerminal)
 {
 	NodeArray<edge> predecessor(wG, nullptr);
-	NodeArray<T> distance(wG, numeric_limits<T>::max());
+	NodeArray<T> distance(wG, std::numeric_limits<T>::max());
 	distance[s] = 0;
-	NodeArray<T> bestDistance(wG, numeric_limits<T>::max());
+	NodeArray<T> bestDistance(wG, std::numeric_limits<T>::max());
 	bestDistance[s] = 0;
 	NodeArray<bool> isInQueue(wG, true);
 
@@ -241,4 +241,4 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 	return mstWeight;
 }
 
-} // end namespace ogdf
+}

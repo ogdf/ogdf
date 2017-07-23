@@ -37,7 +37,7 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT EpsilonTest {
+class EpsilonTest {
 private:
 	const double eps; //!< Epsilon for floating point comparisons.
 
@@ -184,7 +184,6 @@ public:
 	{
 			return x > (y + eps);
 	}
-
 };
 
-} // namespace
+}

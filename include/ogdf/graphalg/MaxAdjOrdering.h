@@ -234,7 +234,6 @@ public:
 	               ListPure<node> *MAO,
 	               ListPure<ListPure<edge>> *F
 	              );
-
 	};
 
-} // end namespace ogdf
+}

@@ -66,7 +66,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend OGDF_EXPORT ostream& operator<<(ostream& out, const History &rhs);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& out, const History &rhs);
 
 	//! Adds an additional line to the history table.
 	/**
@@ -105,4 +105,4 @@ private:
 	int n_;
 };
 
-} //namespace abacus
+}

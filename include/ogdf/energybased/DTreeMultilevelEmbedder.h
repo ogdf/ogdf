@@ -90,7 +90,7 @@ private:
 class DTreeMultilevelEmbedder2D : public DTreeMultilevelEmbedder<2>, public LayoutModule
 {
 public:
-	void call(GraphAttributes& GA)
+	void call(GraphAttributes& GA) override
 	{
 		// the graph
 		const Graph& G = GA.constGraph();
@@ -112,7 +112,7 @@ public:
 class DTreeMultilevelEmbedder3D : public DTreeMultilevelEmbedder<3>, public LayoutModule
 {
 public:
-	void call(GraphAttributes& GA)
+	void call(GraphAttributes& GA) override
 	{
 		// assert 3d
 		OGDF_ASSERT(GA.has(GraphAttributes::threeD));
@@ -149,10 +149,10 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 	OGDF_ASSERT(isConnected(graph));
 
 	// setup the multilevel step
-	GalaxyLevel* pLevelBegin = new GalaxyLevel(graph);
+	GalaxyLevel levelBegin(graph);
 
 	// this is the coarsest level with at most m_levelMaxNumNodes
-	GalaxyLevel* pLevelEnd = pLevelBegin->buildLevelsUntil(m_levelMaxNumNodes);
+	GalaxyLevel* pLevelEnd = levelBegin.buildLevelsUntil(m_levelMaxNumNodes);
 
 	// this array will hold the layout information of the parent node in the coarser level.
 	// furthermore this will keep the final result.
@@ -163,7 +163,7 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 
 	int numLevels = 0;
 	// loop from the coarsest to the finest level
-	for (GalaxyLevel* pCurrLevel = pLevelBegin; pCurrLevel; pCurrLevel = pCurrLevel->nextCoarser()) {
+	for (GalaxyLevel* pCurrLevel = &levelBegin; pCurrLevel != nullptr; pCurrLevel = pCurrLevel->nextCoarser()) {
 		numLevels++;
 		currNumIterations *= m_numIterationsFactorPerLevel;
 		currThreshold *= m_thresholdFactorPerLevel;
@@ -176,7 +176,7 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 		currThreshold /= m_thresholdFactorPerLevel;
 
 		// new embedder instance for the current level
-		Embedder* pEmbedder = new Embedder(pCurrLevel->graph());
+		Embedder embedder(pCurrLevel->graph());
 
 		// if this is coarsest one
 		if (pCurrLevel->isCoarsestLevel()) {
@@ -185,7 +185,7 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 				// for all dims
 				for (int d = 0; d < Dim; d++) {
 					// set the position to some random value
-					pEmbedder->setPosition(v, d, randomDouble(-1.0, 1.0));
+					embedder.setPosition(v, d, randomDouble(-1.0, 1.0));
 				}
 			}
 		} else { // if we have a parent level
@@ -200,29 +200,30 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 					double offset = parentPosition[v_parent].coords[d] * m_scaleFactorPerLevel;
 
 					// set v's position to the parents pos with some random
-					pEmbedder->setPosition(v, d, offset + randomDouble(-1.0, 1.0));
+					embedder.setPosition(v, d, offset + randomDouble(-1.0, 1.0));
 				}
 			}
-		} // we have some proper initial coordinates for the nodes
+		}
+		// we have some proper initial coordinates for the nodes
 
 		if (m_useMultilevelWeights) {
 			// we cannot init from the parent level, do it random
 			for (node v = pCurrLevel->graph().firstNode(); v; v = v->succ()) {
-				pEmbedder->setMass(v, pCurrLevel->weight(v));
+				embedder.setMass(v, pCurrLevel->weight(v));
 			}
 
 			for (edge e = pCurrLevel->graph().firstEdge(); e; e = e->succ()) {
-				pEmbedder->setEdgeWeight(e, pCurrLevel->edgeWeight(e));
+				embedder.setEdgeWeight(e, pCurrLevel->edgeWeight(e));
 			}
 		}
 
 		const int numIterationsMaybe = pCurrLevel->isCoarsestLevel() ? m_numIterationsCoarsestLevel : currNumIterations;
 		const int numIterations = std::min(std::max(m_minIterationsPerLevel, numIterationsMaybe), m_maxIterationsPerLevel);
 
-		pEmbedder->scaleNodes(3.0);
-		pEmbedder->doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 1>, AttrForceFunctionPow<Dim, 2>);
-		pEmbedder->scaleNodes(1.0 / 3.0);
-		pEmbedder->doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 2>, AttrForceFunctionPow<Dim, 2>);
+		embedder.scaleNodes(3.0);
+		embedder.doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 1>, AttrForceFunctionPow<Dim, 2>);
+		embedder.scaleNodes(1.0 / 3.0);
+		embedder.doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 2>, AttrForceFunctionPow<Dim, 2>);
 		// run the layout
 
 		// we now have to backup the positions before getting rid of the embedder
@@ -232,13 +233,11 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 		for (node v = pCurrLevel->graph().firstNode(); v; v = v->succ()) {
 			// for all coords
 			for (int d = 0; d < Dim; d++) {
-				parentPosition[v].coords[d] = pEmbedder->position(v, d);
+				parentPosition[v].coords[d] = embedder.position(v, d);
 			}
 		}
 
 		currLevelIndex--;
-		// now we can free the embedder instance
-		delete pEmbedder;
 	}
 
 	// we are done with the layout. It is saved now in the parentposition nodearray.

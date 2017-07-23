@@ -43,7 +43,7 @@ template<class BaseType,class CoType>
 class Active;
 
 template<class BaseType,class CoType>
-ostream&operator<< (ostream &out, const Active<BaseType, CoType> &rhs);
+std::ostream&operator<< (std::ostream &out, const Active<BaseType, CoType> &rhs);
 
 
 //! Implements the sets of active constraints and variables which are associated with each subproblem.
@@ -100,7 +100,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<< <> (ostream &out, const Active<BaseType, CoType> &rhs);
+	friend std::ostream &operator<< <> (std::ostream &out, const Active<BaseType, CoType> &rhs);
 
 	//! Returns the current number of active items.
 	int number() const { return n_; }
@@ -216,7 +216,6 @@ private:
 	OGDF_NEW_DELETE
 };
 
-
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/active.inc>

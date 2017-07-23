@@ -36,14 +36,12 @@
 #include <ogdf/basic/tuples.h>
 #include <ogdf/basic/SList.h>
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/NodeSet.h>
+
 
 namespace ogdf {
-
-
-class OGDF_EXPORT CombinatorialEmbedding;
-class OGDF_EXPORT FaceSetPure;
-class OGDF_EXPORT NodeSetPure;
-
 
 /**
  * \brief Planarized representations (of a connected component) of a graph.
@@ -64,7 +62,7 @@ public:
 		SList<adjEntry> m_partitionLeft;
 		SList<adjEntry> m_partitionRight;
 
-		friend ostream &operator<<(ostream &os, const Crossing &c) {
+		friend std::ostream &operator<<(std::ostream &os, const Crossing &c) {
 			os << "(" << c.m_adj << ")";
 			return os;
 		}
@@ -295,8 +293,8 @@ public:
 		CombinatorialEmbedding &E,
 		edge eOrig,
 		nodeSplit ns,
-		FaceSetPure &newFaces,
-		NodeSetPure &mergedNodes,
+		FaceSet<false> &newFaces,
+		NodeSet<false> &mergedNodes,
 		node &oldSrc,
 		node &oldTgt);
 
@@ -452,10 +450,9 @@ public:
 	 */
 	//@{
 
-	/**
-	 * \brief Performs various consistency checks on the data structure.
-	 */
-	bool consistencyCheck() const;
+#ifdef OGDF_DEBUG
+	void consistencyCheck() const;
+#endif
 
 	//@}
 
@@ -486,5 +483,4 @@ private:
 	EdgeArray<edge>     m_eAuxCopy; // auxiliary
 };
 
-
-} // end namespace ogdf
+}

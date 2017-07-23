@@ -105,8 +105,7 @@ public:
 		m_nodeClusterID[eNew->source()] = m_edgeClusterID[e];
 
 		return eNew;
-	}//split
-
+	}
 
 	/**
 	 * Returns cluster of edge \p e
@@ -134,7 +133,7 @@ public:
 
 		OGDF_ASSERT(false);
 		OGDF_THROW(AlgorithmFailureException);
-	}//clusterOfEdge
+	}
 
 	inline int ClusterID(node v) const {return m_nodeClusterID[v];}
 	inline int ClusterID(edge e) const {return m_edgeClusterID[e];}
@@ -153,7 +152,7 @@ public:
 	//output functions
 	void writeGML(const char *fileName, const Layout &drawing);
 	void writeGML(const char *fileName);
-	void writeGML(ostream &os, const Layout &drawing);
+	void writeGML(std::ostream &os, const Layout &drawing);
 
 protected:
 	//! Insert boundaries for all given clusters

@@ -147,7 +147,12 @@ class OGDF_EXPORT FastMultipoleMultilevelEmbedder : public LayoutModule
 
 public:
 	//! Constructor, just sets number of maximum threads
-	FastMultipoleMultilevelEmbedder() : m_iMaxNumThreads(1) {}
+	FastMultipoleMultilevelEmbedder()
+	: m_iMaxNumThreads(1)
+	, m_iNumLevels(0)
+	, m_multiLevelNumNodesBound(10)
+	, m_iCurrentLevelNr(-1)
+	{ }
 	//! Calls the algorithm for graph \p GA and returns the layout information in \p GA.
 	void call(GraphAttributes &GA) override;
 
@@ -196,20 +201,20 @@ private:
 	int				  m_iNumLevels;
 	int				  m_multiLevelNumNodesBound;
 
-	GalaxyMultilevel* m_pCurrentLevel;
-	GalaxyMultilevel* m_pFinestLevel;
-	GalaxyMultilevel* m_pCoarsestLevel;
+	GalaxyMultilevel* m_pCurrentLevel = nullptr;
+	GalaxyMultilevel* m_pFinestLevel = nullptr;
+	GalaxyMultilevel* m_pCoarsestLevel = nullptr;
 
-	Graph*			  m_pCurrentGraph;
-	NodeArray<float>* m_pCurrentNodeXPos;
-	NodeArray<float>* m_pCurrentNodeYPos;
-	EdgeArray<float>* m_pCurrentEdgeLength;
-	NodeArray<float>* m_pCurrentNodeSize;
+	Graph*			  m_pCurrentGraph = nullptr;
+	NodeArray<float>* m_pCurrentNodeXPos = nullptr;
+	NodeArray<float>* m_pCurrentNodeYPos = nullptr;
+	EdgeArray<float>* m_pCurrentEdgeLength = nullptr;
+	NodeArray<float>* m_pCurrentNodeSize = nullptr;
 	NodeArray<float>  m_adjustedNodeSize;
 	int				  m_iCurrentLevelNr;
 
-	NodeArray<float>* m_pLastNodeXPos;
-	NodeArray<float>* m_pLastNodeYPos;
+	NodeArray<float>* m_pLastNodeXPos = nullptr;
+	NodeArray<float>* m_pLastNodeYPos = nullptr;
 };
 
-} // end of namespace ogdf
+}

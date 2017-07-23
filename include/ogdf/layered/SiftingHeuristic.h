@@ -91,5 +91,4 @@ private:
 	Strategy m_strategy;
 };
 
-
-} // end namespace ogdf
+}

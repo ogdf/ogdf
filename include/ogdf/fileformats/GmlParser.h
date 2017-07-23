@@ -131,7 +131,7 @@ class OGDF_EXPORT GmlParser {
 	Hashing<string,int> m_hashTable; // hash table for tags
 	int m_num;
 
-	istream *m_is;
+	std::istream *m_is;
 	bool m_error;
 	string m_errorString;
 
@@ -152,7 +152,7 @@ class OGDF_EXPORT GmlParser {
 public:
 	// construction: creates object tree
 	// sets m_error flag if an error occured
-	explicit GmlParser(istream &is, bool doCheck = false);
+	explicit GmlParser(std::istream &is, bool doCheck = false);
 
 	//! Destruction: destroys object tree
 	~GmlParser();
@@ -197,7 +197,7 @@ protected:
 		ClusterGraphAttributes& ACG);
 
 private:
-	void createObjectTree(istream &is, bool doCheck);
+	void createObjectTree(std::istream &is, bool doCheck);
 	void initPredefinedKeys();
 	void setError(const char *errorString);
 
@@ -212,10 +212,8 @@ private:
 
 	void destroyObjectList(GmlObject *object);
 
-	void indent(ostream &os, int d);
-	void output(ostream &os, GmlObject *object, int d);
-
+	void indent(std::ostream &os, int d);
+	void output(std::ostream &os, GmlObject *object, int d);
 };
 
-
-} // end namespace ogdf
+}

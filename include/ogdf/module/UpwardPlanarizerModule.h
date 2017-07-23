@@ -47,7 +47,7 @@ class OGDF_EXPORT UpwardPlanarizerModule : public Module
 public:
 
 	//! Initializes an upward planarizer module.
-	UpwardPlanarizerModule() { }
+	UpwardPlanarizerModule() : m_useCost(false), m_useForbid(false) { }
 
 	// destruction
 	virtual ~UpwardPlanarizerModule() { }
@@ -129,10 +129,8 @@ protected:
 	OGDF_MALLOC_NEW_DELETE
 
 private:
-
 	bool m_useCost; //!< True iff edge costs are given.
 	bool m_useForbid; //!< True iff forbidden edges are given.
-
 };
 
-} // end namespace ogdf
+}

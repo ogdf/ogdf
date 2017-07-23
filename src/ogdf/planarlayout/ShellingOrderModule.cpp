@@ -57,5 +57,4 @@ void ShellingOrderModule::callLeftmost(const Graph &G,
 	order.initLeftmost(G,partition);
 }
 
-
-} // end namespace ogdf
+}

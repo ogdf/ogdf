@@ -48,25 +48,11 @@ struct TileToRowsCCPacker::RowInfo {
 
 
 template<class POINT>
-class DecrIndexComparer
-{
-	const Array<POINT> &m_box;
-
+class DecrIndexComparer : public GenericComparer<int, int> {
 public:
-	explicit DecrIndexComparer(const Array<POINT> &box) : m_box(box) { }
-
-	int compare(const int &i, const int &j) const
-	{
-		typename POINT::numberType y1 = m_box[i].m_y, y2 = m_box[j].m_y;
-
-		if (y1 > y2) return -1;
-		else if (y1 < y2) return 1;
-		else return 0;
-	}
-
-	DecrIndexComparer<POINT> &operator=(const DecrIndexComparer<POINT> &) = delete;
-
-	OGDF_AUGMENT_COMPARER(int)
+	explicit DecrIndexComparer(const Array<POINT> &box) : GenericComparer([&](int i) {
+		return -box[i].m_y;
+	}) {}
 };
 
 
@@ -116,7 +102,7 @@ int TileToRowsCCPacker::findBestRow(
 	// We store the index of the row minimizing the area in bestRow and return
 	// it.
 	int bestRow = -1;  // we start with the case of a new row
-	totalWidth = max(totalWidth,rect.m_x);
+	Math::updateMax(totalWidth, rect.m_x);
 	totalHeight += rect.m_y;
 
 	// note: the area has to take into account the desired page ratio!
@@ -127,8 +113,8 @@ int TileToRowsCCPacker::findBestRow(
 	{
 		const RowInfo<POINT> &r = row[i];
 
-		typename POINT::numberType w = r.m_width + rect.m_x;
-		typename POINT::numberType h = max(r.m_maxHeight,rect.m_y);
+		auto w = r.m_width + rect.m_x;
+		auto h = max(r.m_maxHeight,rect.m_y);
 
 		double area = max(pageRatio*h*h, w*w/pageRatio);
 
@@ -187,7 +173,7 @@ void TileToRowsCCPacker::callGeneric(Array<POINT> &box,
 		} else {
 			struct RowInfo<POINT> &r = row[bestRow];
 			r.m_boxes.pushBack(sortedIndex);
-			r.m_maxHeight = max(r.m_maxHeight,box[sortedIndex].m_y);
+			Math::updateMax(r.m_maxHeight, box[sortedIndex].m_y);
 			r.m_width += box[sortedIndex].m_x;
 		}
 	}
@@ -210,8 +196,7 @@ void TileToRowsCCPacker::callGeneric(Array<POINT> &box,
 		y += r.m_maxHeight;
 	}
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, checkOffsets(box,offset));
+	OGDF_HEAVY_ASSERT(checkOffsets(box,offset));
 }
 
-
-} // end namespace ogdf
+}

@@ -1,5 +1,5 @@
 /** \file
- * \brief Module for planarity testing and planar embeddings.
+ * \brief Declaration of PlanarityModule
  *
  * \author Markus Chimani
  *
@@ -35,7 +35,7 @@
 
 namespace ogdf {
 
-//! Module for planarity testing and planar embeddings.
+//! %Module for planarity testing and planar embeddings.
 /**
  * This is a module defining functions to test planarity of graphs, and to embed planar graphs (i.e., find
  * a rotation scheme of the edges around their incident vertices defining a plane graph).

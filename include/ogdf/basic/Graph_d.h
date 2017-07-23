@@ -160,8 +160,7 @@ public:
 	OGDF_AUGMENT_STATICCOMPARER(AdjElement)
 
 	OGDF_NEW_DELETE
-}; // class AdjElement
-
+};
 
 //! Class for the representation of nodes.
 class OGDF_EXPORT NodeElement : private internal::GraphElement {
@@ -272,8 +271,7 @@ public:
 	OGDF_AUGMENT_STATICCOMPARER(NodeElement)
 
 	OGDF_NEW_DELETE
-}; // class NodeElement
-
+};
 
 inline adjEntry AdjElement::cyclicSucc() const
 {
@@ -369,8 +367,7 @@ public:
 private:
 	bool m_hidden = false;
 #endif
-}; // class EdgeElement
-
+};
 
 #ifdef OGDF_DEBUG
 inline const Graph *AdjElement::graphOf() const {
@@ -424,6 +421,11 @@ template<class T> class NodeArray;
 template<class T> class EdgeArray;
 template<class T> class AdjEntryArray;
 class OGDF_EXPORT GraphObserver;
+
+namespace internal {
+template<typename CONTAINER> inline void getAllNodes(const Graph& G, CONTAINER& nodes);
+template<typename CONTAINER> inline void getAllEdges(const Graph& G, CONTAINER& edges);
+}
 
 //! Data type for general directed graphs (adjacency list representation).
 /**
@@ -519,7 +521,7 @@ public:
 		association = 0,
 		generalization = 1,
 		dependency = 2
-	}; // should be more flexible, standard, dissect, expand
+	};
 
 	//! The type of nodes.
 	enum class NodeType {
@@ -622,30 +624,25 @@ public:
 	 */
 	edge chooseEdge(std::function<bool(edge)> includeEdge = [](edge) { return true; }, bool isFastTest = true) const;
 
-	//! Returns a list with all nodes of the graph.
+	//! Returns a container with all nodes of the graph.
 	/**
-	 * @tparam NODELIST is the type of node list, which is returned.
-	 * @param  nodeList is assigned the list of all nodes.
+	 * @tparam CONTAINER is the type of node container which is returned.
+	 * @param nodeContainer is assigned the container of all nodes.
 	 */
-	template<class NODELIST>
-	void allNodes(NODELIST &nodeList) const {
-		nodeList.clear();
-		for (node v = nodes.head(); v; v = v->succ())
-			nodeList.pushBack(v);
+	template<class CONTAINER>
+	void allNodes(CONTAINER& nodeContainer) const {
+		internal::getAllNodes<CONTAINER>(*this, nodeContainer);
 	}
 
-	//! Returns a list with all edges of the graph.
+	//! Returns a container with all edges of the graph.
 	/**
-	 * @tparam EDGELIST is the type of edge list, which is returned.
-	 * @param  edgeList is assigned the list of all edges.
+	 * @tparam CONTAINER is the type of the edge container which is returned.
+	 * @param edgeContainer is assigned the list of all edges.
 	 */
-	template<class EDGELIST>
-	void allEdges(EDGELIST &edgeList) const {
-		edgeList.clear();
-		for (edge e = edges.head(); e; e = e->succ())
-			edgeList.pushBack(e);
+	template<class CONTAINER>
+	void allEdges(CONTAINER &edgeContainer) const {
+		internal::getAllEdges<CONTAINER>(*this, edgeContainer);
 	}
-
 
 	//@}
 	/**
@@ -747,6 +744,8 @@ public:
 
 	//! Removes all nodes and all edges from the graph.
 	virtual void clear();
+
+	//@}
 
 	/**
 	 * @brief Functionality for temporarily hiding edges in constant time.
@@ -1133,14 +1132,10 @@ public:
 		return genus() == 0;
 	}
 
-	//! Checks the consistency of the data structure.
-	/**
-	 * \remark This method is meant for debugging purposes only.
-	 *
-	 * @return true if everything is ok, false if the data structure is inconsistent.
-	 */
-	bool consistencyCheck() const;
-
+#ifdef OGDF_DEBUG
+	//! Asserts that this graph is consistent.
+	void consistencyCheck() const;
+#endif
 
 	//@}
 	/**
@@ -1218,14 +1213,14 @@ public:
 	 */
 	void unregisterStructure(ListIterator<GraphObserver*> it) const;
 
-	//! Move the registration \p it of a node array to \p pNodeArray (used with move semantics for node arrays).
-	void moveRegisterArray(ListIterator<NodeArrayBase*> it, NodeArrayBase *pNodeArray) const;
-
-	//! Move the registration \p it of an edge array to \p pEdgeArray (used with move semantics for edge arrays).
-	void moveRegisterArray(ListIterator<EdgeArrayBase*> it, EdgeArrayBase *pEdgeArray) const;
-
-	//! Move the registration \p it of an adjEntry array to \p pAdjArray (used with move semantics for adjEntry arrays).
-	void moveRegisterArray(ListIterator<AdjEntryArrayBase*> it, AdjEntryArrayBase *pAdjArray) const;
+	//! Move the registration \p it of an graph element array to \p pArray (used with move semantics for graph element arrays).
+	template<class ArrayBase>
+	void moveRegisterArray(ListIterator<ArrayBase*> it, ArrayBase *pArray) const {
+#ifndef OGDF_MEMORY_POOL_NTS
+		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
+#endif
+		*it = pArray;
+	}
 
 	//! Resets the edge id count to \p maxId.
 	/**
@@ -1277,10 +1272,6 @@ public:
 	//@}
 
 public:
-
-	//! Returns the smallest power of 2 which is >= 2^\p start and > \p idCount.
-	static int nextPower2(int start, int idCount);
-
 
 	//! Info structure for maintaining connected components.
 	class OGDF_EXPORT CCsInfo {
@@ -1371,7 +1362,14 @@ private:
 	// moves adjacency entry to node w
 	void moveAdj(adjEntry adj, node w);
 
-	void reinitArrays();
+	//! Sets the sizes of registered node and edge arrays to the
+	//! next power of two that is no less than the current id counts.
+	//! Respects the minimum table size constants.
+	void resetTableSizes();
+
+	//! Re-initializes registed arrays with respect to the current sizes.
+	//! Calls #resetTableSizes() if \p doResetTableSizes is \c true (default).
+	void reinitArrays(bool doResetTableSizes = true);
 	void reinitStructures();
 	void resetAdjEntryIndex(int newIndex, int oldIndex);
 
@@ -1379,8 +1377,7 @@ private:
 	 * Used to restore all hidden edges upon deleting the graph.
 	 */
 	void restoreAllEdges();
-
-}; // class Graph
+};
 
 OGDF_EXPORT std::ostream & operator<<(std::ostream &os, const Graph::EdgeType &et);
 
@@ -1398,6 +1395,44 @@ public:
 	int getBucket(const edge &e) override { return e->target()->index(); }
 };
 
+namespace internal {
+
+template<typename CONTAINER>
+inline void getAllNodes(const Graph& G, CONTAINER& nodes) {
+	nodes.clear();
+	for (node v : G.nodes) {
+		nodes.pushBack(v);
+	}
+}
+
+template<>
+inline void getAllNodes(const Graph& G, Array<node>& nodes) {
+	nodes.init(G.numberOfNodes());
+	int i = 0;
+	for (node v : G.nodes) {
+		nodes[i++] = v;
+	}
+}
+
+template<typename CONTAINER>
+inline void getAllEdges(const Graph& G, CONTAINER& edges) {
+	edges.clear();
+	for (edge v : G.edges) {
+		edges.pushBack(v);
+	}
+}
+
+template<>
+inline void getAllEdges(const Graph& G, Array<edge>& edges) {
+	edges.init(G.numberOfEdges());
+	int i = 0;
+	for (edge v : G.edges) {
+		edges[i++] = v;
+	}
+}
+
+}
+
 struct NodePair {
 	node source = nullptr;
 	node target = nullptr;
@@ -1405,9 +1440,9 @@ struct NodePair {
 	NodePair(node src, node tgt) : source(src), target(tgt) {}
 };
 
-inline ostream &operator<<(ostream &os, const NodePair& np) {
+inline std::ostream &operator<<(std::ostream &os, const NodePair& np) {
 	os << "(" << np.source << "," << np.target << ")";
 	return os;
 }
 
-} //namespace
+}

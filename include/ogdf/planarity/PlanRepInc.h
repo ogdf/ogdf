@@ -139,17 +139,17 @@ public:
 	void writeGML(const char *fileName)
 	{
 		const GraphAttributes &AG = getUMLGraph();
-		ofstream os(fileName);
+		std::ofstream os(fileName);
 		writeGML(os, AG);//getUMLGraph());//l);
 	}
 	void writeGML(const char *fileName, const Layout &drawing)
 	{
-		ofstream os(fileName);
+		std::ofstream os(fileName);
 		writeGML(os, drawing);
 	}
 
-	void writeGML(ostream &os, const GraphAttributes &AG);
-	void writeGML(ostream &os, const Layout &drawing, bool colorEmbed = true);
+	void writeGML(std::ostream &os, const GraphAttributes &AG);
+	void writeGML(std::ostream &os, const Layout &drawing, bool colorEmbed = true);
 
 	//outputs a drawing if genus != 0
 	int genusLayout(Layout &drawing) const;
@@ -171,4 +171,4 @@ private:
 	bool m_treeInit; //!< check if the tree edge Array2D was initialized
 };
 
-}//namespace ogdf
+}

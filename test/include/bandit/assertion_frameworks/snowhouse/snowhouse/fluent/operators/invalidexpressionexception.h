@@ -1,17 +1,19 @@
-
 //          Copyright Joakim Karlsson & Kim Gräsman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef IGLOO_INVALUDEXPRESSIONEXCEPTION_H
-#define IGLOO_INVALUDEXPRESSIONEXCEPTION_H
+#ifndef SNOWHOUSE_INVALIDEXPRESSIONEXCEPTION_H
+#define SNOWHOUSE_INVALIDEXPRESSIONEXCEPTION_H
 
-namespace snowhouse {
+#include <string>
 
+namespace snowhouse
+{
   struct InvalidExpressionException
   {
-    InvalidExpressionException(const std::string& message) : m_message(message)
+    explicit InvalidExpressionException(const std::string& message)
+        : m_message(message)
     {
     }
 
@@ -22,7 +24,6 @@ namespace snowhouse {
 
     std::string m_message;
   };
-
 }
 
-#endif // IGLOO_INVALUDEXPRESSIONEXCEPTION_H
+#endif

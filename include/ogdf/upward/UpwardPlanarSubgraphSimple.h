@@ -64,8 +64,6 @@ private:
 		node v,
 		SListPure<edge> &treeEdges,
 		NodeArray<bool> &visited);
-
 };
 
-
-} // end namespace ogdf
+}

@@ -49,7 +49,7 @@ ELabelPosSimple::~ELabelPosSimple()
 
 // returns the segment of the polyline containing the point
 // that is fraction*bends.length() away from the start
-static DLine segment(DPolyline &bends, double fraction)
+static DSegment segment(DPolyline &bends, double fraction)
 {
 	double targetpos = bends.length()*fraction;
 	double pos = 0.0;
@@ -58,28 +58,28 @@ static DLine segment(DPolyline &bends, double fraction)
 	for (iter = next = bends.begin(), ++next; next.valid(); ++iter, ++next) {
 		pos += (*iter).distance(*next);
 		if (pos >= targetpos)
-			return DLine(*iter, *next);
+			return DSegment(*iter, *next);
 	}
 
-	return DLine(*--iter, bends.back());
+	return DSegment(*--iter, bends.back());
 }
 
 
 // liefert den Punkt neben dem Segment (links oder rechts, siehe 'left'), der orthogonal von
 // 'p' die Entfernung 'newLen' von diesem Segment hat.
-static DPoint leftOfSegment(const DLine &segment, const DPoint &p, double newLen, bool left = true)
+static DPoint leftOfSegment(const DSegment &segment, const DPoint &p, double newLen, bool left = true)
 {
-	DVector v;
+	DPoint v;
 	if (p == segment.start())
 		v = segment.end() - p;
 	else
 		v = p - segment.start();
 
-	DVector newPos(v.orthogonal());
+	DPoint newPos(v.orthogonal());
 	if (!left) newPos *= -1;
 
 	// newPos has nonzero length
-	newPos = (newPos * newLen) / newPos.length();
+	newPos = (newPos * newLen) / newPos.norm();
 
 	return p + newPos;
 }
@@ -124,9 +124,9 @@ void ELabelPosSimple::call(GraphAttributes &ug, ELabelInterface<double> &eli)
 		DPoint endPoint   = bends.position(endFrac);
 
 		// hole die beteiligten Segmente
-		DLine midLine   = segment(bends, midFrac);
-		DLine startLine = segment(bends, startFrac);
-		DLine endLine   = segment(bends, endFrac);
+		DSegment midLine   = segment(bends, midFrac);
+		DSegment startLine = segment(bends, startFrac);
+		DSegment endLine   = segment(bends, endFrac);
 
 		// berechne die Labelpositionen
 		if (el.usedLabel(LabelType::End1)) {

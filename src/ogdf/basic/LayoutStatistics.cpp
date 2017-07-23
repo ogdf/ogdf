@@ -45,7 +45,7 @@ double LayoutStatistics::edgeLengths(
 	const Graph &G = ga.constGraph();
 	int m = G.numberOfEdges();
 
-	double totalLength = 0, minLength = numeric_limits<double>::max(), maxLength = -numeric_limits<double>::max();
+	double totalLength = 0, minLength = std::numeric_limits<double>::max(), maxLength = -std::numeric_limits<double>::max();
 
 	EdgeArray<double> len(G);
 	int nSelfLoops = 0;
@@ -57,19 +57,20 @@ double LayoutStatistics::edgeLengths(
 		}
 
 		const DPolyline &dpl = ga.bends(e);
+		DPoint pv = DPoint(ga.x(e->source()),ga.y(e->source()));
+		DPoint pw = DPoint(ga.x(e->target()),ga.y(e->target()));
 
 		if(!dpl.empty()) {
 			len[e] = dpl.length();
-
+			len[e] += pv.distance(dpl.front());
+			len[e] += pw.distance(dpl.back());
 		} else {
-			DPoint pv = DPoint(ga.x(e->source()),ga.y(e->source()));
-			DPoint pw = DPoint(ga.x(e->target()),ga.y(e->target()));
 			len[e] = pv.distance(pw);
 		}
 
 		totalLength += len[e];
-		minLength = min(minLength, len[e]);
-		maxLength = max(maxLength, len[e]);
+		Math::updateMin(minLength, len[e]);
+		Math::updateMax(maxLength, len[e]);
 	}
 
 	m -= nSelfLoops;
@@ -106,7 +107,7 @@ int LayoutStatistics::numberOfBends(
 	const Graph &G = ga.constGraph();
 	int m = G.numberOfEdges();
 
-	int totalBends = 0, minBends = numeric_limits<int>::max(), maxBends = 0;
+	int totalBends = 0, minBends = std::numeric_limits<int>::max(), maxBends = 0;
 
 	EdgeArray<int> bends(G);
 	int nSelfLoops = 0;
@@ -119,11 +120,11 @@ int LayoutStatistics::numberOfBends(
 
 		const DPolyline &dpl = ga.bends(e);
 
-		bends[e] = max(0, dpl.size() - 2);
+		bends[e] = dpl.size();
 
 		totalBends += bends[e];
-		minBends = min(minBends, bends[e]);
-		maxBends = max(maxBends, bends[e]);
+		Math::updateMin(minBends, bends[e]);
+		Math::updateMax(maxBends, bends[e]);
 	}
 
 	m -= nSelfLoops;
@@ -192,12 +193,19 @@ double LayoutStatistics::angularResolution(
 		double lastAngle = angles.back();
 		for (double psi : angles) {
 			double alpha = psi - lastAngle;
+
+			// happens in the first iteration only
+			if(alpha < 0) {
+				OGDF_ASSERT(psi == angles.front());
+				alpha += 2*Math::pi;
+			}
+
 			if (pStdDeviation)
 				allAngles.pushBack(alpha);
 
 			sumAngles += alpha;
-			minAngle = min(minAngle, alpha);
-			maxAngle = max(maxAngle, alpha);
+			Math::updateMin(minAngle, alpha);
+			Math::updateMax(maxAngle, alpha);
 
 			lastAngle = psi;
 		}
@@ -228,8 +236,8 @@ double LayoutStatistics::angularResolution(
 					alpha -= Math::pi;
 
 				sumAngles += 2 * Math::pi;
-				minAngle = min(minAngle, alpha);
-				maxAngle = max(maxAngle, alpha + Math::pi);
+				Math::updateMin(minAngle, alpha);
+				Math::updateMin(maxAngle, alpha + Math::pi);
 
 				if (pStdDeviation) {
 					numAngles += 2;
@@ -279,4 +287,4 @@ int LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
 	return ncr;
 }
 
-} // end namespace ogdf
+}

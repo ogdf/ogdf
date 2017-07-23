@@ -109,22 +109,22 @@ public:
 	NonPlanarCore(const Graph &G, const EdgeArray<TCost> &weight, MinSTCutModule<TCost> *minSTCutModule,
 	              bool nonPlanarityGuaranteed = false);
 
-	//!  Returns the non-planar core
+	//! Returns the non-planar core
 	const Graph &core() const {
 		return m_graph;
 	}
 
-	//!  Returns the original graph
+	//! Returns the original graph
 	const Graph &originalGraph() const {
 		return *m_pOriginal;
 	}
 
-	//!  Returns the node of the original graph, which is represented by \p v in the core
+	//! Returns the node of the original graph, which is represented by \p v in the core
 	node original(node v) const {
 		return m_orig[v];
 	}
 
-	//!  Returns the edges of the original graph, which are represented by \p e in the core
+	//! Returns the edges of the original graph, which are represented by \p e in the core
 	List<edge> original(edge e) const {
 		List<edge> res;
 		if (isVirtual(e)) {
@@ -140,12 +140,12 @@ public:
 		return res;
 	}
 
-	//!  True iff the edge \p e in the core represents more than one orginal edge and therefore is virtual
+	//! True iff the edge \p e in the core represents more than one orginal edge and therefore is virtual
 	bool isVirtual(edge e) const {
 		return m_real[e] == nullptr;
 	}
 
-	//!  Returns the edge of the orginal graph, which is represented by \p e or nullptr iff \p e is virtual
+	//! Returns the edge of the orginal graph, which is represented by \p e or nullptr iff \p e is virtual
 	edge realEdge(edge e) const {
 		return m_real[e];
 	}
@@ -189,7 +189,7 @@ public:
 		return m_cost[e];
 	}
 
-	//!  Returns the mincut of the st-component represented by \p e
+	//! Returns the mincut of the st-component represented by \p e
 	const List<CutEdge> &mincut(edge e) const {
 		return m_mincut[e];
 	}
@@ -315,10 +315,10 @@ protected:
 	 */
 	void glueMincuts(edge eWinner, edge eLoser);
 
-	//!  The core
+	//! The core
 	Graph m_graph;
 
-	//!  The original graph.
+	//! The original graph.
 	const Graph *m_pOriginal;
 
 	/**
@@ -480,13 +480,13 @@ protected:
 
 	template<typename Cost>
 	NonPlanarCore<Cost>::~NonPlanarCore() {
-		for(auto pointer : m_mapE) {
+		for (auto pointer : m_mapE) {
 			delete pointer;
 		}
-		for(auto pointer : m_mapV) {
+		for (auto pointer : m_mapV) {
 			delete pointer;
 		}
-		for(auto pointer : m_underlyingGraphs) {
+		for (auto pointer : m_underlyingGraphs) {
 			delete pointer;
 		}
 	}
@@ -494,8 +494,7 @@ protected:
 	template<typename Cost>
 	void NonPlanarCore<Cost>::call(const Graph &G, const EdgeArray<Cost> *weight, MinSTCutModule<Cost> *minSTCutModule,
 								bool nonPlanarityGuaranteed) {
-		if (!nonPlanarityGuaranteed
-		 && isPlanar(G)) {
+		if (!nonPlanarityGuaranteed && isPlanar(G)) {
 			return;
 		}
 		OGDF_ASSERT(!isPlanar(G));
@@ -509,33 +508,33 @@ protected:
 		NodeArray<node> mapAux(G, nullptr);
 		const Graph &tree = m_T.tree();
 
-		for(node v : tree.nodes){
-			if(mark[v] == false){
+		for (node v : tree.nodes) {
+			if (!mark[v]) {
 				continue;
 			}
 
 			Skeleton &S = m_T.skeleton(v);
 
-			for(edge e : S.getGraph().edges){
+			for (edge e : S.getGraph().edges) {
 				node src = S.original(e->source());
 				node tgt = S.original(e->target());
 
-				if(tgt == src){
+				if (tgt == src) {
 					continue;
 				}
 
-				if(map[src] == nullptr){
+				if (map[src] == nullptr) {
 					m_orig[map[src] = m_graph.newNode()] = S.original(e->source());
 				}
 
-				if(map[tgt] == nullptr){
+				if (map[tgt] == nullptr) {
 					m_orig[map[tgt] = m_graph.newNode()] = S.original(e->target());
 				}
 
-				if(S.isVirtual(e)){
+				if (S.isVirtual(e)) {
 					node w = S.twinTreeNode(e);
 
-					if(mark[w] == false){
+					if (!mark[w]) {
 						// new virtual edge in core graph
 						edge lastCreatedEdge = m_graph.newEdge(map[src], map[tgt]);
 						m_real[lastCreatedEdge] = nullptr;
@@ -552,20 +551,16 @@ protected:
 			}
 		}
 
-		if(weight != nullptr)
-		{
-			for(edge e : m_graph.edges)
-			{
+		if (weight != nullptr) {
+			for (edge e : m_graph.edges) {
 				Cost cost(0);
-				for(auto cutEdge : m_mincut[e])
-				{
+				for (auto cutEdge : m_mincut[e]) {
 					cost += (*weight)[cutEdge.e];
 				}
 				m_cost[e] = cost;
 			}
 		} else {
-			for(edge e : m_graph.edges)
-			{
+			for (edge e : m_graph.edges) {
 				m_cost[e] = m_mincut[e].size();
 			}
 		}
@@ -577,13 +572,13 @@ protected:
 		List<edge> winningMultiEdges;
 		List<edge> losingMultiEdges;
 		getAllMultiedges(winningMultiEdges, losingMultiEdges);
-		while(!winningMultiEdges.empty() && !losingMultiEdges.empty()){
+		while (!winningMultiEdges.empty() && !losingMultiEdges.empty()) {
 			edge winningMultiEdge = winningMultiEdges.popFrontRet();
 			edge losingMultiEdge = losingMultiEdges.popFrontRet();
-	#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 			int sizeOfWinCut = m_mincut[winningMultiEdge].size();
 			int sizeOfLosCut = m_mincut[losingMultiEdge].size();
-	#endif
+#endif
 
 			glue(winningMultiEdge, losingMultiEdge);
 			glueMincuts(winningMultiEdge, losingMultiEdge);
@@ -597,16 +592,15 @@ protected:
 			m_graph.delEdge(losingMultiEdge);
 		}
 		// The for loop is used to eliminate deg 2 nodes from the core. We're pruning S-Nodes.
-		for(node v : allNodes){
-			if(v->degree() != 2){
+		for (node v : allNodes) {
+			if (v->degree() != 2) {
 				continue;
 			}
 			edge outEdge = v->firstAdj()->theEdge();
 			edge inEdge = v->lastAdj()->theEdge();
 
-			if(m_cost[inEdge] > m_cost[outEdge])
-			{
-				swap(inEdge, outEdge);
+			if (m_cost[inEdge] > m_cost[outEdge]) {
+				std::swap(inEdge, outEdge);
 			}
 			// We join the embeddings of the underlying embeddings/graphs of both edges
 			// so that outEdge gets integrated into inEdge
@@ -618,7 +612,7 @@ protected:
 			adjEntry adjSource = inEdge->adjSource()->cyclicSucc();
 			adjEntry adjTarget = (outEdge->target() == v ? outEdge->adjSource()->cyclicSucc()
 			                                             : outEdge->adjTarget()->cyclicSucc());
-			if(inEdge->target() != v){
+			if (inEdge->target() != v) {
 				adjSource = adjTarget;
 				adjTarget = inEdge->adjTarget()->cyclicSucc();
 			}
@@ -630,48 +624,47 @@ protected:
 		}
 
 
-		if(nonPlanarityGuaranteed){
+		if (nonPlanarityGuaranteed) {
 			OGDF_ASSERT(!isPlanar(m_graph));
 		}
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::markCore(NodeArray<bool> &mark){
+	void NonPlanarCore<Cost>::markCore(NodeArray<bool> &mark) {
 		const Graph &tree = m_T.tree();
 
 		// We mark every tree node that belongs to the core
-		mark.init(tree, true);  // start with all nodes and unmark planar leaves
+		mark.init(tree, true); // start with all nodes and unmark planar leaves
 		NodeArray<int> degree(tree);
 
 		Queue<node> Q;
 
-		for(node v : tree.nodes){
+		for (node v : tree.nodes) {
 			degree[v] = v->degree();
-			if(degree[v] <= 1){ // also append deg-0 node (T has only one node)
+			if (degree[v] <= 1) { // also append deg-0 node (T has only one node)
 				Q.append(v);
 			}
 		}
 
-		while(!Q.empty()){
+		while (!Q.empty()) {
 			node v = Q.pop();
 
 			// if v has a planar skeleton
-			if(m_T.typeOf(v) != SPQRTree::NodeType::RNode ||
-				isPlanar(m_T.skeleton(v).getGraph())){
+			if (m_T.typeOf(v) != SPQRTree::NodeType::RNode || isPlanar(m_T.skeleton(v).getGraph())) {
 				mark[v] = false; // unmark this leaf
 
 				node w = nullptr;
-				for(adjEntry adj : v->adjEntries){
+				for (adjEntry adj : v->adjEntries) {
 					node x = adj->twinNode();
-					if(mark[x] == true){
+					if (mark[x]) {
 						w = x;
 						break;
 					}
 				}
 
-				if(w != nullptr){
+				if (w != nullptr) {
 					--degree[w];
-					if(degree[w] == 1){
+					if (degree[w] == 1) {
 						Q.append(w);
 					}
 				}
@@ -680,7 +673,7 @@ protected:
 	}
 
 	struct QueueEntry {
-		QueueEntry(node p, node v) : m_parent(p), m_current(v){ }
+		QueueEntry(node p, node v) : m_parent(p), m_current(v) { }
 
 		node m_parent;
 		node m_current;
@@ -705,30 +698,30 @@ protected:
 		SListPure<node> nodes;
 		SListPure<edge> multedges;
 
-		if(Sv.isVirtual(eS)){
+		if (Sv.isVirtual(eS)) {
 			Queue<QueueEntry> Q;
 			Q.append(QueueEntry(Sv.treeNode(), Sv.twinTreeNode(eS)));
 
-			while(!Q.empty()){
+			while (!Q.empty()) {
 				QueueEntry x = Q.pop();
 				node parent = x.m_parent;
 				node current = x.m_current;
 
 				const Skeleton &S = m_T.skeleton(current);
-				for(edge e : S.getGraph().edges){
-					if(S.isVirtual(e)){
+				for (edge e : S.getGraph().edges) {
+					if (S.isVirtual(e)) {
 						continue;
 					}
 
 					node src = S.original(e->source());
 					node tgt = S.original(e->target());
 
-					if(mapV[src] == nullptr){
+					if (mapV[src] == nullptr) {
 						nodes.pushBack(src);
 						mapV[src] = H.newNode();
 						mapV_src[mapV[src]] = src;
 					}
-					if(mapV[tgt] == nullptr){
+					if (mapV[tgt] == nullptr) {
 						nodes.pushBack(tgt);
 						mapV[tgt] = H.newNode();
 						mapV_src[mapV[tgt]] = tgt;
@@ -739,9 +732,9 @@ protected:
 					OGDF_ASSERT(mapE_src[e_new]->source() != nullptr);
 				}
 
-				for(adjEntry adj : current->adjEntries){
+				for (adjEntry adj : current->adjEntries) {
 					node w = adj->twinNode();
-					if(w != parent){
+					if (w != parent) {
 						Q.append(QueueEntry(current, w));
 					}
 				}
@@ -761,10 +754,10 @@ protected:
 		m_tNode[coreEdge] = mapV[Sv.original(eS->target())];
 
 		// Compute planar embedding of H
-	#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 		bool ok =
-	#endif
-				planarEmbed(H);
+#endif
+		planarEmbed(H);
 		OGDF_ASSERT(ok);
 		CombinatorialEmbedding E(H);
 
@@ -772,22 +765,22 @@ protected:
 		List<adjEntry> adjListFront;
 		List<adjEntry> adjListBack;
 		e_st->source()->allAdjEntries(adjListFront);
-		if(adjListFront.front() != e_st->adjSource()){
+		if (adjListFront.front() != e_st->adjSource()) {
 			adjListFront.split(adjListFront.search(e_st->adjSource()), adjListFront, adjListBack);
 			adjListFront.concFront(adjListBack);
 			H.sort(e_st->source(), adjListFront);
 		}
 
 		e_st->target()->allAdjEntries(adjListFront);
-		if(adjListFront.front() != e_st->adjTarget()){
+		if (adjListFront.front() != e_st->adjTarget()) {
 			adjListFront.split(adjListFront.search(e_st->adjTarget()), adjListFront, adjListBack, ogdf::Direction::before);
 			adjListFront.concFront(adjListBack);
 			H.sort(e_st->target(), adjListFront);
 		}
 
-		if(Sv.isVirtual(eS)){
+		if (Sv.isVirtual(eS)) {
 			List<edge> edgeList;
-			if(weight_src != nullptr) {
+			if (weight_src != nullptr) {
 				EdgeArray<Cost> weight(H);
 				for (edge e : H.edges) {
 					if (e != e_st) {
@@ -799,7 +792,7 @@ protected:
 				minSTCutModule->call(H, e_st->source(), e_st->target(), edgeList, e_st);
 			}
 			auto it = edgeList.begin();
-			for(;it != edgeList.end(); it++) {
+			for (;it != edgeList.end(); it++) {
 				currPath.pushBack(CutEdge(mapE_src[*it], minSTCutModule->direction(*it)));
 			}
 		}
@@ -815,21 +808,21 @@ protected:
 		m_mapE[coreEdge] = mapE_src_pointer;
 		OGDF_ASSERT(m_mapV[coreEdge] == nullptr);
 		m_mapV[coreEdge] = mapV_src_pointer;
-	#ifdef OGDF_DEBUG
-		for(node v : H.nodes){
+#ifdef OGDF_DEBUG
+		for (node v : H.nodes) {
 			OGDF_ASSERT(mapV_src[v] != nullptr);
 		}
-		for(edge e : H.edges){
+		for (edge e : H.edges) {
 			OGDF_ASSERT(mapE_src[e] != nullptr); }
-	#endif
+#endif
 
-		for(node v : nodes){
+		for (node v : nodes) {
 			mapV[v] = nullptr;
 		}
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::getAllMultiedges(List<edge> &winningEdges, List<edge> &losingEdges){
+	void NonPlanarCore<Cost>::getAllMultiedges(List<edge> &winningEdges, List<edge> &losingEdges) {
 		winningEdges.clear();
 		losingEdges.clear();
 		SListPure<edge> edges;
@@ -838,9 +831,9 @@ protected:
 
 		SListConstIterator<edge> it = edges.begin();
 		edge ePrev = *it, e;
-		for(it = ++it; it.valid(); ++it, ePrev = e){
+		for (it = ++it; it.valid(); ++it, ePrev = e) {
 			e = *it;
-			if(minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]){
+			if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]) {
 				winningEdges.pushFront(ePrev);
 				losingEdges.pushFront(e);
 			}
@@ -848,13 +841,13 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::glue(edge eWinner, edge eLoser){
+	void NonPlanarCore<Cost>::glue(edge eWinner, edge eLoser) {
 		GlueMap<Cost> map(eWinner, eLoser, *this);
 
 		// true iff this glueing is about a PNode (so a glueing at two common nodes)
 		bool thisIsAboutAPNode = false;
-		if((eLoser->source() == eWinner->source() && eLoser->target() == eWinner->target()) ||
-		   (eLoser->target() == eWinner->source() && eLoser->source() == eWinner->target())){
+		if ((eLoser->source() == eWinner->source() && eLoser->target() == eWinner->target()) ||
+		    (eLoser->target() == eWinner->source() && eLoser->source() == eWinner->target())) {
 			thisIsAboutAPNode = true;
 		}
 
@@ -870,48 +863,48 @@ protected:
 		List<node> allNodesButSt;
 		map.getLoserGraph().allNodes(allNodesButSt);
 
-	#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 		bool ok = true;
-	#endif
+#endif
 
 		// for both s and t of eLoser we check if it's either the s or the t node of eWinner
 		// if one of it is, we delete it from the list of nodes, that are to be added
 		// otherwise it stays in 'allNodesButSt' to be added later
-		if(eLoser->source() == eWinner->source() || eLoser->source() == eWinner->target()){
-	#ifdef OGDF_DEBUG
+		if (eLoser->source() == eWinner->source() || eLoser->source() == eWinner->target()) {
+#ifdef OGDF_DEBUG
 			ok =
-	#endif
-					allNodesButSt.removeFirst(sLoser);
+#endif
+			allNodesButSt.removeFirst(sLoser);
 			OGDF_ASSERT(ok);
-			if(eLoser->source() == eWinner->source()){
+			if (eLoser->source() == eWinner->source()) {
 				map.mapLoserToWinnerNode(sLoser, sWinner);
 			} else {
 				map.mapLoserToWinnerNode(sLoser, tWinner);
 			}
-			OGDF_ASSERT(!allNodesButSt.removeFirst(sLoser));
+			OGDF_ASSERT(!allNodesButSt.search(sLoser).valid());
 		}
-		if(eLoser->target() == eWinner->source() || eLoser->target() == eWinner->target()){
-	#ifdef OGDF_DEBUG
+		if (eLoser->target() == eWinner->source() || eLoser->target() == eWinner->target()) {
+#ifdef OGDF_DEBUG
 			ok =
-	#endif
-					allNodesButSt.removeFirst(tLoser);
+#endif
+			allNodesButSt.removeFirst(tLoser);
 			OGDF_ASSERT(ok);
-			if(eLoser->target() == eWinner->source()){
+			if (eLoser->target() == eWinner->source()) {
 				map.mapLoserToWinnerNode(tLoser, sWinner);
 			} else {
 				map.mapLoserToWinnerNode(tLoser, tWinner);
 			}
-			OGDF_ASSERT(!allNodesButSt.removeFirst(tLoser));
+			OGDF_ASSERT(!allNodesButSt.search(tLoser).valid());
 		}
 
 
 		// insert the remaining nodes of the loser graph into the winner graph
-		for(node v : allNodesButSt){
+		for (node v : allNodesButSt) {
 			map.mapLoserToNewWinnerNode(v);
 		}
 
 		// insert all edges of the loser graph into the the winner graph
-		for(edge e : map.getLoserGraph().edges){
+		for (edge e : map.getLoserGraph().edges) {
 			map.mapLoserToNewWinnerEdge(e);
 		}
 
@@ -920,32 +913,32 @@ protected:
 		List<node> allNodes = allNodesButSt;
 		allNodes.pushBack(sLoser);
 		allNodes.pushBack(tLoser);
-		for(node v : allNodes){
+		for (node v : allNodes) {
 			map.reorder(v, sameDirection, (tLoser == v && thisIsAboutAPNode));
 		}
-		if(!thisIsAboutAPNode){
-			if(eWinner->source() == eLoser->source()){
+		if (!thisIsAboutAPNode) {
+			if (eWinner->source() == eLoser->source()) {
 				m_sNode[eWinner] = map.getWinnerNodeOfLoserNode(tLoser);
 			}
-			if(eWinner->target() == eLoser->source()){
+			if (eWinner->target() == eLoser->source()) {
 				m_tNode[eWinner] = map.getWinnerNodeOfLoserNode(tLoser);
 			}
-			if(eWinner->source() == eLoser->target()){
+			if (eWinner->source() == eLoser->target()) {
 				m_sNode[eWinner] = map.getWinnerNodeOfLoserNode(sLoser);
 			}
-			if(eWinner->target() == eLoser->target()){
+			if (eWinner->target() == eLoser->target()) {
 				m_tNode[eWinner] = map.getWinnerNodeOfLoserNode(sLoser);
 			}
 		}
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::retransform(const GraphCopy &planarCore, GraphCopy &planarGraph, bool pCisPlanar){
-	#ifdef OGDF_DEBUG
+	void NonPlanarCore<Cost>::retransform(const GraphCopy &planarCore, GraphCopy &planarGraph, bool pCisPlanar) {
+#ifdef OGDF_DEBUG
 		GraphCopy copyCore(planarCore);
 		copyCore.removePseudoCrossings();
 		OGDF_ASSERT(copyCore.numberOfNodes() == planarCore.numberOfNodes());
-	#endif
+#endif
 		m_endGraph = &planarGraph;
 		m_planarCore = &planarCore;
 		OGDF_ASSERT(!pCisPlanar || m_planarCore->genus() == 0);
@@ -956,18 +949,18 @@ protected:
 		EdgeArray<edge> eCopy(*m_pOriginal, nullptr);
 		m_endGraph->initByNodes(allNodes, eCopy);
 
-	#ifdef OGDF_DEBUG
-		for(node v : m_endGraph->nodes){
+#ifdef OGDF_DEBUG
+		for (node v : m_endGraph->nodes) {
 			List<adjEntry> adjEntries;
 			v->allAdjEntries(adjEntries);
 			OGDF_ASSERT(v->degree() == adjEntries.size());
 		}
-	#endif
+#endif
 
 		// For every node of the core we rearrange the adjacency order of the corresponding endGraph node
 		// according to the planarized core.
-		for(node v : m_planarCore->nodes){
-			if(m_planarCore->isDummy(v)){
+		for (node v : m_planarCore->nodes) {
+			if (m_planarCore->isDummy(v)) {
 				continue;
 			}
 			List<adjEntry> pcOrder;
@@ -975,14 +968,14 @@ protected:
 			List<adjEntry> newOrder;
 			node coreNode = m_planarCore->original(v);
 			OGDF_ASSERT(coreNode != nullptr);
-			for(adjEntry adjPC : v->adjEntries) {
+			for (adjEntry adjPC : v->adjEntries) {
 				edge coreEdge = m_planarCore->original(adjPC->theEdge());
 				EdgeArray<edge> &mapE = *m_mapE[coreEdge];
 				NodeArray<node> &mapV = *m_mapV[coreEdge];
 				node stNode = (mapV[m_sNode[coreEdge]] == original(coreNode) ? m_sNode[coreEdge] : m_tNode[coreEdge]);
 				// find the node of emb which represents the same node v represents
-				for(adjEntry adjEmb : stNode->adjEntries){
-					if(adjEmb->theEdge()->source() == adjEmb->theNode()){
+				for (adjEntry adjEmb : stNode->adjEntries) {
+					if (adjEmb->theEdge()->source() == adjEmb->theNode()) {
 						newOrder.pushBack(m_endGraph->copy(mapE[adjEmb->theEdge()])->adjSource());
 					} else {
 						newOrder.pushBack(m_endGraph->copy(mapE[adjEmb->theEdge()])->adjTarget());
@@ -991,8 +984,8 @@ protected:
 			}
 			m_endGraph->sort(m_endGraph->copy(original(coreNode)), newOrder);
 		}
-		if(!pCisPlanar) {
-			for(edge e: m_graph.edges) {
+		if (!pCisPlanar) {
+			for (edge e: m_graph.edges) {
 				importEmbedding(e);
 			}
 			return;
@@ -1026,10 +1019,10 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::normalizeCutEdgeDirection(edge coreEdge){
-		for(auto cutE : m_mincut[coreEdge]) {
-			if(!cutE.dir) {
-				for(edge e : m_endGraph->chain(cutE.e)) {
+	void NonPlanarCore<Cost>::normalizeCutEdgeDirection(edge coreEdge) {
+		for (auto cutE : m_mincut[coreEdge]) {
+			if (!cutE.dir) {
+				for (edge e : m_endGraph->chain(cutE.e)) {
 					m_endGraph->reverseEdge(e);
 				}
 			}
@@ -1037,11 +1030,11 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::removeSplitdummies(List<node> &splitdummies){
-		for(node v : splitdummies){
+	void NonPlanarCore<Cost>::removeSplitdummies(List<node> &splitdummies) {
+		for (node v : splitdummies) {
 			edge eIn = v->firstAdj()->theEdge();
 			edge eOut = v->lastAdj()->theEdge();
-			if(eIn->target() == v){
+			if (eIn->target() == v) {
 				m_endGraph->unsplit(eIn, eOut);
 			} else {
 				m_endGraph->unsplit(eOut, eIn);
@@ -1050,29 +1043,29 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::splitEdgeIntoSections(edge e, List<node> &splitdummies){
+	void NonPlanarCore<Cost>::splitEdgeIntoSections(edge e, List<node> &splitdummies) {
 		List<edge> chain = m_planarCore->chain(e);
 		int chainSize = chain.size();
-		while(chainSize > 2){
-			for(CutEdge cutEdge : mincut(e)){
+		while (chainSize > 2) {
+			for (CutEdge cutEdge : mincut(e)) {
 				splitdummies.pushBack(m_endGraph->split(m_endGraph->copy(cutEdge.e))->source());
 			}
 			chainSize--;
 		}
-	#ifdef OGDF_DEBUG
-		for(CutEdge cutEdge : mincut(e)){
-			if(chain.size() < 3){
+#ifdef OGDF_DEBUG
+		for (CutEdge cutEdge : mincut(e)) {
+			if (chain.size() < 3) {
 				OGDF_ASSERT(m_endGraph->chain(cutEdge.e).size() == 1);
 			} else {
 				OGDF_ASSERT(m_endGraph->chain(cutEdge.e).size() == chain.size() - 1);
 			}
 			OGDF_ASSERT(m_endGraph->original(m_endGraph->chain(cutEdge.e).front()) == cutEdge.e);
 		}
-	#endif
+#endif
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::importEmbedding(edge e){
+	void NonPlanarCore<Cost>::importEmbedding(edge e) {
 		const Graph &embG = *m_underlyingGraphs[e];
 		// a map from the nodes of the emb to those in the end graph
 		const EdgeArray<edge> &mapE_toOrig = *m_mapE[e];
@@ -1082,7 +1075,7 @@ protected:
 		// to AdjEntries in the end graph
 		const NodeArray<node> &mapV_toOrig = *m_mapV[e];
 		AdjEntryArray<adjEntry> mapA_toFinal(embG, nullptr);
-		for(auto it = mapE_toOrig.begin(); it != mapE_toOrig.end(); it++){
+		for (auto it = mapE_toOrig.begin(); it != mapE_toOrig.end(); it++) {
 			OGDF_ASSERT(it.key() != nullptr);
 			OGDF_ASSERT((*it) != nullptr);
 			OGDF_ASSERT((*it)->graphOf() == m_pOriginal);
@@ -1094,12 +1087,12 @@ protected:
 		embG.allNodes(nodesOfEmb);
 		// for every node of emb we order the adjEntries of the corresponding node
 		// in the end graph, so that both match
-		for(node v : nodesOfEmb){
-			if(v == s || v == t){
+		for (node v : nodesOfEmb) {
+			if (v == s || v == t) {
 				continue;
 			}
 			List<adjEntry> rightAdjOrder;
-			for(adjEntry adj = v->firstAdj(); adj; adj = adj->succ()){
+			for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
 				rightAdjOrder.pushBack(mapA_toFinal[adj]);
 			}
 			m_endGraph->sort(m_endGraph->copy(mapV_toOrig[v]), rightAdjOrder);
@@ -1107,7 +1100,7 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::inflateCrossing(node v){
+	void NonPlanarCore<Cost>::inflateCrossing(node v) {
 		// we want e1 and e2 to be these two edges
 		//      ^
 		//      |
@@ -1116,14 +1109,14 @@ protected:
 		//      |
 		//      e1
 		edge e1 = v->firstAdj()->theEdge();
-		while(e1->target() != v){
+		while (e1->target() != v) {
 			e1 = e1->adjSource()->succ()->theEdge();
 		}
 		edge e2 = e1->adjTarget()->succ()->theEdge();
-		while(e2->target() != v){
+		while (e2->target() != v) {
 			e2 = e2->adjSource()->cyclicSucc()->theEdge();
 		}
-		if(e1 == e2->adjTarget()->cyclicSucc()->theEdge()){
+		if (e1 == e2->adjTarget()->cyclicSucc()->theEdge()) {
 			edge help = e1;
 			e1 = e2;
 			e2 = help;
@@ -1138,10 +1131,10 @@ protected:
 		OGDF_ASSERT(e2cut.size() > 0);
 		// the actual crossing insertion
 		// for (auto it1 = e1cut.begin(); it1.valid(); it1++)
-		for(int i = 0; i < e1cut.size(); i++){
+		for (int i = 0; i < e1cut.size(); i++) {
 			auto it1 = e1cut.get(i);
 			edge crossingEdge = *it1;
-			for(int j = 0; j < e2cut.size(); j++){
+			for (int j = 0; j < e2cut.size(); j++) {
 				auto it2 = e2cut.get(j);
 				edge crossedEdge = *it2;
 				m_endGraph->insertCrossing(*it1, crossedEdge, true);
@@ -1156,7 +1149,7 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::getMincut(edge e, List<edge> &cut){
+	void NonPlanarCore<Cost>::getMincut(edge e, List<edge> &cut) {
 		OGDF_ASSERT(e->graphOf() == m_planarCore);
 
 		cut.clear();
@@ -1166,14 +1159,14 @@ protected:
 		// as we know, the cut edges are split by splitdummies to partition the edge,
 		// such that every crossing on the edge has its own section to be inserted into (denoted by pos)
 		// cut_pre stores the first section for every cut edge
-		for(CutEdge eCut : mincut(m_planarCore->original(e))) {
+		for (CutEdge eCut : mincut(m_planarCore->original(e))) {
 			OGDF_ASSERT(m_endGraph->chain(eCut.e).size() + 1 >= chain.size());
 			// while iterating we have to differentiate between already inserted crossings and splitdummies
 			// we can do that, by only counting the deg 2 nodes we pass while iterating through the chain of the cut edge
 			auto it = m_endGraph->chain(eCut.e).begin();
-			for(int i = 0; i < chain.pos(chain.search(e)); i++){
+			for (int i = 0; i < chain.pos(chain.search(e)); i++) {
 				it++;
-				while((*it)->source()->degree() == 4){
+				while ((*it)->source()->degree() == 4) {
 					it++;
 					OGDF_ASSERT(it.valid());
 				}
@@ -1184,9 +1177,9 @@ protected:
 	}
 
 	template<typename Cost>
-	void NonPlanarCore<Cost>::glueMincuts(edge eWinner, edge eLoser){
-	#ifdef OGDF_DEBUG
-		if(eWinner->adjSource()->theNode() == eLoser->adjSource()->theNode()){
+	void NonPlanarCore<Cost>::glueMincuts(edge eWinner, edge eLoser) {
+#ifdef OGDF_DEBUG
+		if (eWinner->adjSource()->theNode() == eLoser->adjSource()->theNode()) {
 			OGDF_ASSERT(eWinner->adjSource()->theNode() == eLoser->adjSource()->theNode());
 			OGDF_ASSERT(eWinner->adjTarget()->theNode() == eLoser->adjTarget()->theNode());
 		}
@@ -1194,14 +1187,14 @@ protected:
 			OGDF_ASSERT(eWinner->adjSource()->theNode() == eLoser->adjTarget()->theNode());
 			OGDF_ASSERT(eWinner->adjTarget()->theNode() == eLoser->adjSource()->theNode());
 		}
-	#endif
+#endif
 		List<CutEdge> wincut = m_mincut[eWinner];
 
 		List<CutEdge> losecut = m_mincut[eLoser];
 
-		if(eWinner->source() == eLoser->target()) {
+		if (eWinner->source() == eLoser->target()) {
 			List<CutEdge> newLosecut;
-			for(auto cutEit = losecut.begin(); cutEit != losecut.end(); cutEit++) {
+			for (auto cutEit = losecut.begin(); cutEit != losecut.end(); cutEit++) {
 				newLosecut.pushBack(CutEdge((*cutEit).e, !(*cutEit).dir));
 			}
 			losecut = newLosecut;
@@ -1213,8 +1206,9 @@ protected:
 	}
 
 	template<typename Cost>
-	GlueMap<Cost>::GlueMap(edge eWinner, edge eLoser, NonPlanarCore<Cost> &npc) : m_npc(npc), m_eWinner(eWinner),
-																		 m_eLoser(eLoser){
+	GlueMap<Cost>::GlueMap(edge eWinner, edge eLoser, NonPlanarCore<Cost> &npc)
+	: m_npc(npc), m_eWinner(eWinner), m_eLoser(eLoser)
+	{
 		OGDF_ASSERT(m_eWinner != m_eLoser);
 
 		OGDF_ASSERT(m_npc.m_underlyingGraphs[m_eLoser] != nullptr);
@@ -1248,27 +1242,27 @@ protected:
 	}
 
 	template<typename Cost>
-	void GlueMap<Cost>::mapLoserToNewWinnerEdge(edge loser){
+	void GlueMap<Cost>::mapLoserToNewWinnerEdge(edge loser) {
 		edge newEdge = m_gWinner->newEdge(m_mapV_l2w[loser->source()], m_mapV_l2w[loser->target()]);
 		m_mapE_l2w[loser] = newEdge;
 		(*m_mapEwinner)[newEdge] = (*m_mapEloser)[loser];
 	}
 
 	template<typename Cost>
-	void GlueMap<Cost>::mapLoserToWinnerNode(node loser, node winner){
+	void GlueMap<Cost>::mapLoserToWinnerNode(node loser, node winner) {
 		m_mapV_l2w[loser] = winner;
 		(*m_mapVwinner)[winner] = (*m_mapVloser)[loser];
 	}
 
 	template<typename Cost>
-	void GlueMap<Cost>::mapLoserToNewWinnerNode(node loser){
+	void GlueMap<Cost>::mapLoserToNewWinnerNode(node loser) {
 		node newNode = m_gWinner->newNode();
 		m_mapV_l2w[loser] = newNode;
 		(*m_mapVwinner)[newNode] = (*m_mapVloser)[loser];
 	}
 
 	template<typename Cost>
-	void GlueMap<Cost>::reorder(node vLoser, bool sameDirection, bool isTNodeOfPNode){
+	void GlueMap<Cost>::reorder(node vLoser, bool sameDirection, bool isTNodeOfPNode) {
 		node vWinner = m_mapV_l2w[vLoser];
 		List<adjEntry> rightAdjOrder;
 		List<adjEntry> wrongAdjOrder;
@@ -1278,7 +1272,7 @@ protected:
 		OGDF_ASSERT(vLoser->degree() <= vWinner->degree());
 		// for every adjEntry of v in the "right" graph (the embedding which we want to get into the "wrong" graph)
 		// we search for the corresponding adjEntry in the list of adjEntries of the "wrong" v
-		for(adjEntry adj : vLoser->adjEntries){
+		for (adjEntry adj : vLoser->adjEntries) {
 			OGDF_ASSERT(m_mapE_l2w[adj->theEdge()] != nullptr);
 			edge edgeInWinner = m_mapE_l2w[adj->theEdge()];
 			adjEntry adj_in = (adj->theEdge()->adjSource() == adj ? edgeInWinner->adjSource() : edgeInWinner->adjTarget());
@@ -1287,15 +1281,15 @@ protected:
 		List<adjEntry> adjOrder;
 		vWinner->allAdjEntries(adjOrder);
 		OGDF_ASSERT(vLoser->degree() <= adjOrder.size());
-		if(!sameDirection){
+		if (!sameDirection) {
 			rightAdjOrder.reverse();
 		}
-		if(adjOrder.size() == rightAdjOrder.size()){
+		if (adjOrder.size() == rightAdjOrder.size()) {
 			adjOrder = rightAdjOrder;
 		} else {
 			List<adjEntry> helpList;
 			adjOrder.split(adjOrder.get(adjOrder.size() - rightAdjOrder.size()), adjOrder, helpList);
-			if(isTNodeOfPNode){
+			if (isTNodeOfPNode) {
 				adjOrder.concFront(rightAdjOrder);
 			} else {
 				adjOrder.conc(rightAdjOrder);
@@ -1303,4 +1297,4 @@ protected:
 		}
 		m_gWinner->sort(vWinner, adjOrder);
 	}
-} // end namespace ogdf
+}

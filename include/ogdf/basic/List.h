@@ -1282,12 +1282,12 @@ public:
 		return *this;
 	}
 
-	//! @copydoc ListPure::operator==
+	//! @copydoc ogdf::ListPure::operator==
 	bool operator==(const List<E> &L) const {
 		return (m_count == L.m_count) && ListPure<E>::operator==(L);
 	}
 
-	//! @copydoc ListPure::operator!=
+	//! @copydoc ogdf::ListPure::operator!=
 	bool operator!=(const List<E> &L) const {
 		return !operator==(L);
 	}
@@ -1299,45 +1299,45 @@ public:
 	 */
 	//@{
 
-	//! @copydoc ListPure::pushFront
+	//! @copydoc ogdf::ListPure::pushFront
 	iterator pushFront(const E &x) {
 		++m_count;
 		return ListPure<E>::pushFront(x);
 	}
 
-	//! @copydoc ListPure::emplaceFront
+	//! @copydoc ogdf::ListPure::emplaceFront
 	template<class ... Args>
 	iterator emplaceFront(Args && ... args) {
 		++m_count;
 		return ListPure<E>::emplaceFront(std::forward<Args>(args)...);
 	}
 
-	//! @copydoc ListPure::pushBack
+	//! @copydoc ogdf::ListPure::pushBack
 	iterator pushBack(const E &x) {
 		++m_count;
 		return ListPure<E>::pushBack(x);
 	}
 
-	//! @copydoc ListPure::emplaceBack
+	//! @copydoc ogdf::ListPure::emplaceBack
 	template<class ... Args>
 	iterator emplaceBack(Args && ... args) {
 		++m_count;
 		return ListPure<E>::emplaceBack(std::forward<Args>(args)...);
 	}
 
-	//! @copydoc ListPure::insert
+	//! @copydoc ogdf::ListPure::insert
 	iterator insert(const E &x, iterator it, Direction dir = Direction::after) {
 		++m_count;
 		return ListPure<E>::insert(x,it,dir);
 	}
 
-	//! @copydoc ListPure::insertBefore
+	//! @copydoc ogdf::ListPure::insertBefore
 	iterator insertBefore(const E &x, iterator it) {
 		++m_count;
 		return ListPure<E>::insertBefore(x,it);
 	}
 
-	//! @copydoc ListPure::insertAfter
+	//! @copydoc ogdf::ListPure::insertAfter
 	iterator insertAfter(const E &x, iterator it) {
 		++m_count;
 		return ListPure<E>::insertAfter(x,it);
@@ -1350,39 +1350,39 @@ public:
 	 */
 	//@{
 
-	//! @copydoc ListPure::popFront
+	//! @copydoc ogdf::ListPure::popFront
 	void popFront() {
 		--m_count;
 		ListPure<E>::popFront();
 	}
 
-	//! @copydoc ListPure::popFrontRet
+	//! @copydoc ogdf::ListPure::popFrontRet
 	E popFrontRet() {
 		E el = front();
 		popFront();
 		return el;
 	}
 
-	//! @copydoc ListPure::popBack
+	//! @copydoc ogdf::ListPure::popBack
 	void popBack() {
 		--m_count;
 		ListPure<E>::popBack();
 	}
 
-	//! @copydoc ListPure::popBackRet
+	//! @copydoc ogdf::ListPure::popBackRet
 	E popBackRet() {
 		E el = back();
 		popBack();
 		return el;
 	}
 
-	//! @copydoc ListPure::del
+	//! @copydoc ogdf::ListPure::del
 	void del(iterator it) {
 		--m_count;
 		ListPure<E>::del(it);
 	}
 
-	//! @copydoc ListPure::removeFirst
+	//! @copydoc ogdf::ListPure::removeFirst
 	bool removeFirst(const E &x) {
 		bool hasRemoved = ListPure<E>::removeFirst(x);
 		if(hasRemoved)
@@ -1390,7 +1390,7 @@ public:
 		return hasRemoved;
 	}
 
-	//! @copydoc ListPure::clear
+	//! @copydoc ogdf::ListPure::clear
 	void clear() {
 		m_count = 0;
 		ListPure<E>::clear();
@@ -1403,51 +1403,51 @@ public:
 	 */
 	//@{
 
-	//! @copydoc ListPure::moveToFront
+	//! @copydoc ogdf::ListPure::moveToFront
 	void moveToFront(iterator it, List<E> &L2) {
 		ListPure<E>::moveToFront(it,L2);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc ListPure::moveToBack
+	//! @copydoc ogdf::ListPure::moveToBack
 	void moveToBack(iterator it, List<E> &L2) {
 		ListPure<E>::moveToBack(it,L2);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc ListPure::moveToSucc
+	//! @copydoc ogdf::ListPure::moveToSucc
 	void moveToSucc(iterator it, List<E> &L2, iterator itBefore) {
 		ListPure<E>::moveToSucc(it,L2,itBefore);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc ListPure::moveToPrec
+	//! @copydoc ogdf::ListPure::moveToPrec
 	void moveToPrec(iterator it, List<E> &L2, iterator itAfter) {
 		ListPure<E>::moveToPrec(it,L2,itAfter);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc ListPure::conc
+	//! @copydoc ogdf::ListPure::conc
 	void conc(List<E> &L2) {
 		ListPure<E>::conc(L2);
 		m_count += L2.m_count;
 		L2.m_count = 0;
 	}
 
-	//! @copydoc ListPure::concFront
+	//! @copydoc ogdf::ListPure::concFront
 	void concFront(List<E> &L2) {
 		ListPure<E>::concFront(L2);
 		m_count += L2.m_count;
 		L2.m_count = 0;
 	}
 
-	//! @copydoc ListPure::swap
+	//! @copydoc ogdf::ListPure::swap
 	void swap(List<E> &other) {
 		ListPure<E>::swap(other);
 		std::swap(m_count, other.m_count);
 	}
 
-	//! @copydoc ListPure::split
+	//! @copydoc ogdf::ListPure::split
 	void split(iterator it, List<E> &L1, List<E> &L2, Direction dir = Direction::before) {
 		ListPure<E>::split(it,L1,L2,dir);
 		int countL = m_count, countL1 = 0;
@@ -1551,7 +1551,7 @@ void ListPure<E>::permute(const int n, RNG &rng)
 
 //! Prints list \p L to output stream \p os using delimiter \p delim.
 template<class E>
-void print(ostream &os, const ListPure<E> &L, char delim = ' ')
+void print(std::ostream &os, const ListPure<E> &L, char delim = ' ')
 {
 	typename ListPure<E>::const_iterator pX = L.begin();
 	if (pX.valid()) {
@@ -1563,14 +1563,14 @@ void print(ostream &os, const ListPure<E> &L, char delim = ' ')
 
 //! Prints list \p L to output stream \p os using delimiter \p delim.
 template<class E>
-void print(ostream &os, const List<E> &L, char delim = ' ')
+void print(std::ostream &os, const List<E> &L, char delim = ' ')
 {
 	print(os, L.getListPure(), delim);
 }
 
 //! Prints list \p L to output stream \p os.
 template<class E>
-ostream &operator<<(ostream &os, const ListPure<E> &L)
+std::ostream &operator<<(std::ostream &os, const ListPure<E> &L)
 {
 	print(os,L);
 	return os;
@@ -1578,7 +1578,7 @@ ostream &operator<<(ostream &os, const ListPure<E> &L)
 
 //! Prints list \p L to output stream \p os.
 template<class E>
-ostream &operator<<(ostream &os, const List<E> &L)
+std::ostream &operator<<(std::ostream &os, const List<E> &L)
 {
 	return os << L.getListPure();
 }

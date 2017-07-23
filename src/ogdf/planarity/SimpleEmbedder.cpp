@@ -49,14 +49,11 @@ void SimpleEmbedder::doCall(Graph& G, adjEntry& adjExternal)
 	if(!G.representsCombEmbedding())
 		planarEmbed(G);
 
-	if (G.numberOfEdges() > 0)
-	{
-		CombinatorialEmbedding CE(G);
-		PlanRep PR(G);
-		//face fExternal = E.maximalFace();
-		face fExternal = findBestExternalFace(PR, CE);
-		adjExternal = fExternal->firstAdj();
-	}
+	CombinatorialEmbedding CE(G);
+	PlanRep PR(G);
+	//face fExternal = E.maximalFace();
+	face fExternal = findBestExternalFace(PR, CE);
+	adjExternal = fExternal->firstAdj();
 }
 
 
@@ -114,4 +111,4 @@ face SimpleEmbedder::findBestExternalFace(
 	return fBest;
 }
 
-} // end namespace ogdf
+}

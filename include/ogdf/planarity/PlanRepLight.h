@@ -85,4 +85,4 @@ public:
 	void initCC(int cc);
 };
 
-} // end namespace ogdf
+}

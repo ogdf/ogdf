@@ -64,8 +64,7 @@ public:
 		ClusterPlanRep &PG,
 		adjEntry adjExternal,
 		Layout &drawing,
-		List<NodePair>& npEdges,
-		List<edge>& newEdges,
+		List<edge>& origEdges,
 		Graph& originalGraph) override;
 
 
@@ -174,5 +173,4 @@ private:
 	int m_orthoStyle;   //!< Type of style (traditional/progressive) used for shape step.
 };
 
-
-} // end namespace ogdf
+}

@@ -49,8 +49,10 @@ public:
 	// Requires G to be planar, embedded, biconnected
 	BitonicOrdering(Graph& G, adjEntry adj_st_edge);
 
-	// debug consistency check
-	bool consistencyCheck(GraphAttributes& GA);
+#ifdef OGDF_DEBUG
+	//! Asserts that this ordering is consistent.
+	void consistencyCheck(GraphAttributes& GA) const;
+#endif
 
 	// returns the index in the st order of v
 	int getIndex(node v) const
@@ -139,6 +141,6 @@ private:
 
 	// the SPQR tree
 	StaticPlanarSPQRTree m_tree;
-}; // end of BitonicOrdering
+};
 
-} // end of namespace ogdf
+}

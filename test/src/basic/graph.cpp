@@ -29,14 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators.h>
 #include <resources.h>
-
-using namespace ogdf;
-using namespace bandit;
 
 /**
  * Returns an arbitrary edge where both nodes have at least \c minDegree incident edges.

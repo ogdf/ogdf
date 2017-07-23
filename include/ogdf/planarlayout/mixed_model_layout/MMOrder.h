@@ -74,5 +74,4 @@ private:
 	ShellingOrder m_lmc;
 };
 
-
-} // end namespace ogdf
+}

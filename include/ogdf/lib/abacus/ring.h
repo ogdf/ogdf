@@ -38,7 +38,7 @@ template <class Type>
 class  AbaRing;
 
 template <class Type>
-ostream &operator<< (ostream &out, const AbaRing<Type> &ring);
+std::ostream &operator<< (std::ostream &out, const AbaRing<Type> &ring);
 
 
 //! Bounded circular lists.
@@ -70,7 +70,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<< <> (ostream &out, const AbaRing<Type> &ring);
+	friend std::ostream &operator<< <> (std::ostream &out, const AbaRing<Type> &ring);
 
 	//! Returns the <i>i</i>-th element of the ring.
 	/**
@@ -164,6 +164,6 @@ private:
 	bool filled_;
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/ring.inc>

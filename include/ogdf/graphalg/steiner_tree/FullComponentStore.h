@@ -33,8 +33,6 @@
 #pragma once
 
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/IndexComparer.h>
-#include <ogdf/basic/BoundedStack.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 namespace ogdf {
@@ -121,8 +119,7 @@ public:
 				data.terminals.grow(1, vO);
 			}
 		}
-		IndexComparer<node> idx;
-		data.terminals.quicksort(idx);
+		data.terminals.quicksort(GenericComparer<node, int>([](node v) { return v->index(); }));
 
 		// add all edges of comp to m_graph
 		// and find start adjEntry
@@ -156,11 +153,11 @@ public:
 		if (comp.terminals.size() == 2) {
 			m_graph.delEdge(comp.start->theEdge());
 		} else {
-			BoundedStack<node> stack(2 * comp.terminals.size() - 3);
+			ArrayBuffer<node> stack(2 * comp.terminals.size() - 3);
 			stack.push(comp.start->twinNode());
 			m_graph.delEdge(comp.start->theEdge());
 			while (!stack.empty()) {
-				const node v = stack.pop();
+				const node v = stack.popRet();
 				if (!isTerminal(v)) {
 					for (adjEntry adj : v->adjEntries) {
 						stack.push(adj->twinNode());
@@ -246,10 +243,10 @@ public:
 			return;
 		}
 		// size >= 3: do DFS over nonterminals (terminals are only leaves)
-		BoundedStack<adjEntry> stack(2*size - 2);
+		ArrayBuffer<adjEntry> stack(2*size - 2);
 		stack.push(start);
 		while (!stack.empty()) {
-			const adjEntry back = stack.pop()->twin();
+			const adjEntry back = stack.popRet()->twin();
 			f(back);
 			if (!this->isTerminal(back->theNode())) {
 				for (adjEntry adj = back->cyclicSucc(); adj != back; adj = adj->cyclicSucc()) {
@@ -443,5 +440,5 @@ public:
 	}
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

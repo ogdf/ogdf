@@ -320,12 +320,12 @@ static void writeGraphMLCluster(
 
 	clusterId++;
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		writeGraphMLCluster(graph, C, *cit, clusterId);
+	for(cluster child : c->children) {
+		writeGraphMLCluster(graph, C, child, clusterId);
 	}
 
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-		writeGraphMLNode(graph, *nit);
+	for(node v : c->nodes) {
+		writeGraphMLNode(graph, v);
 	}
 }
 
@@ -354,12 +354,12 @@ static void writeGraphMLCluster(
 
 	clusterId++;
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		writeGraphMLCluster(graph, CA, *cit, clusterId);
+	for(cluster child : c->children) {
+		writeGraphMLCluster(graph, CA, child, clusterId);
 	}
 
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-		writeGraphMLNode(graph, CA, *nit);
+	for(node v : c->nodes) {
+		writeGraphMLNode(graph, CA, v);
 	}
 
 	// There should be no attributes for root cluster.

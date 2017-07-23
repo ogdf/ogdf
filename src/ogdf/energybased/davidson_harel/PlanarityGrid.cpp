@@ -87,11 +87,11 @@ void PlanarityGrid::internalCandidateTaken() {
 
 #ifdef OGDF_DEBUG
 void PlanarityGrid::printInternalData() const {
-	cout << "\nCurrent grid: " << *m_currentGrid;
-	cout << "\nCandidate grid: ";
+	std::cout << "\nCurrent grid: " << *m_currentGrid;
+	std::cout << "\nCandidate grid: ";
 	if(m_candidateGrid != nullptr)
-		cout << *m_candidateGrid;
-	else cout << "empty.";
+		std::cout << *m_candidateGrid;
+	else std::cout << "empty.";
 }
 #endif
 

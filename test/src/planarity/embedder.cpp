@@ -1,6 +1,3 @@
-#include <bandit/bandit.h>
-#include <resources.h>
-
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/planarity/EmbedderMaxFace.h>
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
@@ -11,10 +8,9 @@
 #include <ogdf/planarity/EmbedderOptimalFlexDraw.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 
-using namespace bandit;
-using namespace ogdf;
+#include <graphs.h>
 
-constexpr int numberOfNodes = 42;
+#define TEST_EMBEDDER(NAME) describeEmbedder<NAME>(#NAME)
 
 void validateCopy(const Graph &graph, const GraphCopy &copy) {
 	AssertThat(graph.numberOfNodes(), Equals(copy.numberOfNodes()));
@@ -63,45 +59,23 @@ void testEmbedder(EmbedderModule &embedder, const Graph &graph, bool repeat = tr
 	}
 }
 
-void describeEmbedder(const string &title, EmbedderModule &embedder) {
-	describe(title, [&]() {
-		Graph graph;
+void describeEmbedder(const string &title, EmbedderModule &embedder, std::set<GraphProperty> requirements = {}, bool doSkip = false) {
+	describe(title, [&] {
+		requirements.insert(GraphProperty::connected);
+		requirements.insert(GraphProperty::planar);
+		requirements.insert(GraphProperty::simple);
 
-		before_each([&]() {
-			graph.clear();
-		});
-
-		it("works on a tree", [&]() {
-			randomTree(graph, numberOfNodes);
-			testEmbedder(embedder, graph);
-		});
-
-		it("works on a fully triangulated graph", [&]() {
-			planarConnectedGraph(graph, numberOfNodes, 3*numberOfNodes - 6);
-			testEmbedder(embedder, graph);
-		});
-
-		for(int n = numberOfNodes; n < numberOfNodes + 10; n++) {
-			it("works on a random planar graph containing " + to_string(n) + " nodes", [&]() {
-				planarTriconnectedGraph(graph, n, randomNumber(int(1.5*n), 3*n-6));
-				testEmbedder(embedder, graph);
-			});
-		}
+		forEachGraphItWorks(requirements, [&](const Graph& G) { testEmbedder(embedder, G); });
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
-		it("fails on a K5", [&]() {
+		it("fails on a K5", [&] {
 			adjEntry adjExternal;
-			completeGraph(graph, 5);
-			AssertThrows(AssertionFailed, embedder(graph, adjExternal));
-		});
-
-		it("fails on a random non-planar graph", [&]() {
-			adjEntry adjExternal;
-			randomGraph(graph, numberOfNodes, 3*numberOfNodes-5);
-			AssertThrows(AssertionFailed, embedder(graph, adjExternal));
+			Graph G;
+			completeGraph(G, 5);
+			AssertThrows(AssertionFailed, embedder(G, adjExternal));
 		});
 #endif
-	});
+	}, doSkip);
 }
 
 template<typename EmbedderType>
@@ -114,25 +88,31 @@ template<>
 void describeEmbedder<EmbedderMinDepthPiTa>(const string &title) {
 	EmbedderMinDepthPiTa embedder;
 	bool extendedDD = embedder.useExtendedDepthDefinition();
-	describeEmbedder(title + " [extendedDD=" + to_string(extendedDD) + "]", embedder);
+
+	// TODO Why does this embedder require biconnectivity?
+	//      A BC-tree is used internally...
+	std::initializer_list<GraphProperty> reqs = {GraphProperty::biconnected};
+	describeEmbedder(title + " [extendedDD=" + to_string(extendedDD) + "]", embedder, reqs);
 	embedder.useExtendedDepthDefinition(!extendedDD);
-	describeEmbedder(title + " [extendedDD=" + to_string(!extendedDD) + "]", embedder);
+	describeEmbedder(title + " [extendedDD=" + to_string(!extendedDD) + "]", embedder, reqs);
 }
 
+// TODO currently skipped since these tests are failing.
 template<>
 void describeEmbedder<EmbedderOptimalFlexDraw>(const string &title) {
-	describe(title, [](){
+	describe(title, [] {
 		EmbedderOptimalFlexDraw embedder;
-		describeEmbedder("Non-Weighted Version", embedder);
+		describeEmbedder("Non-Weighted Version", embedder, {}, true);
 
-		describe("Weighted Edges", [&](){
-			it("works on a random graph", [&](){
+		describe_skip("Weighted Edges", [&] {
+			it("works on a random graph", [&] {
 				Graph graph;
-				planarConnectedGraph(graph, numberOfNodes, 2*numberOfNodes);
+				constexpr int n = 42;
+				planarConnectedGraph(graph, n, 2*n);
 				EdgeArray<int> costs(graph);
 
 				for(edge e : graph.edges) {
-					costs[e] = randomNumber(1, numberOfNodes);
+					costs[e] = randomNumber(1, n);
 				}
 
 				testEmbedder(embedder, graph);
@@ -143,15 +123,13 @@ void describeEmbedder<EmbedderOptimalFlexDraw>(const string &title) {
 
 go_bandit([]() {
 	describe("Embedders", []() {
-		describeEmbedder<EmbedderMaxFace>("EmbedderMaxFace");
-		describeEmbedder<EmbedderMaxFaceLayers>("EmbedderMaxFaceLayers");
-		describeEmbedder<EmbedderMinDepth>("EmbedderMinDepth");
-		describeEmbedder<EmbedderMinDepthMaxFace>("EmbedderMinDepthMaxFace");
-		describeEmbedder<EmbedderMinDepthMaxFaceLayers>("EmbedderMinDepthMaxFaceLayers");
-#if 0
-		describeEmbedder<EmbedderMinDepthPiTa>("EmbedderMinDepthPiTa");
-		describeEmbedder<EmbedderOptimalFlexDraw>("EmbedderOptimalFlexDraw");
-#endif
-		describeEmbedder<SimpleEmbedder>("SimpleEmbedder");
+		TEST_EMBEDDER(EmbedderMaxFace);
+		TEST_EMBEDDER(EmbedderMaxFaceLayers);
+		TEST_EMBEDDER(EmbedderMinDepth);
+		TEST_EMBEDDER(EmbedderMinDepthMaxFace);
+		TEST_EMBEDDER(EmbedderMinDepthMaxFaceLayers);
+		TEST_EMBEDDER(EmbedderMinDepthPiTa);
+		TEST_EMBEDDER(EmbedderOptimalFlexDraw);
+		TEST_EMBEDDER(SimpleEmbedder);
 	});
 });

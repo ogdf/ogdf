@@ -340,6 +340,4 @@ float Array2D<E>::det() const
 	return determinant;
 }
 
-
-
-} // end namespace ogdf
+}

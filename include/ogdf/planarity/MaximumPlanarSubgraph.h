@@ -72,4 +72,4 @@ protected:
 		bool preferredImplyPlanar) override;
 };
 
-} //end namespace ogdf
+}

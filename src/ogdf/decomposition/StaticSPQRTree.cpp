@@ -90,7 +90,7 @@ void StaticSPQRTree::init(edge eRef, Triconnectivity &tricComp)
 	m_skEdgeTgt.init(m_tree,nullptr);
 
 	NodeArray<node> mapV(GC,nullptr);
-	BoundedStack<node> inMapV(GC.numberOfNodes());
+	ArrayBuffer<node> inMapV(GC.numberOfNodes());
 
 	EdgeArray<node> partnerNode(GC,nullptr);
 	EdgeArray<edge> partnerEdge(GC,nullptr);
@@ -141,7 +141,7 @@ void StaticSPQRTree::init(edge eRef, Triconnectivity &tricComp)
 
 			// normalize direction of virtual edges
 			if(eG == nullptr && GC.original(vGC) < GC.original(uGC))
-				swap(uM,vM);
+				std::swap(uM, vM);
 
 			edge eM  = S.m_M.newEdge(uM,vM);
 
@@ -168,7 +168,7 @@ void StaticSPQRTree::init(edge eRef, Triconnectivity &tricComp)
 		}
 
 		while(!inMapV.empty())
-			mapV[inMapV.pop()] = nullptr;
+			mapV[inMapV.popRet()] = nullptr;
 	}
 
 	rootTreeAt(eRef);
@@ -233,7 +233,7 @@ void StaticSPQRTree::rootRec(node v, edge eFather)
 		node w = e->target();
 		if (w == v) {
 			m_tree.reverseEdge(e);
-			swap(m_skEdgeSrc[e],m_skEdgeTgt[e]);
+			std::swap(m_skEdgeSrc[e], m_skEdgeTgt[e]);
 			w = e->target();
 		}
 
@@ -242,5 +242,4 @@ void StaticSPQRTree::rootRec(node v, edge eFather)
 	}
 }
 
-
-} // end namespace ogdf
+}

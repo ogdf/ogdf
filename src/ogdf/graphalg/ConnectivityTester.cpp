@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/graphalg/ConnectivityTester.h>
+#include <ogdf/basic/Math.h>
 
 namespace ogdf {
 
@@ -119,11 +120,11 @@ int ConnectivityTester::computeConnectivity(NodeArray<NodeArray<int>> &Connectiv
 
 		for (node u = v->succ(); u != nullptr; u = u->succ()) {
 			Connectivity[v][u] = computeConnectivity(copyOf(v, true), copyOf(u));
-			result = min(result, Connectivity[v][u]);
+			Math::updateMin(result, Connectivity[v][u]);
 
 			if (m_directed) {
 				Connectivity[u][v] = computeConnectivity(copyOf(u, true), copyOf(v));
-				result = min(result, Connectivity[u][v]);
+				Math::updateMin(result, Connectivity[u][v]);
 			} else {
 				Connectivity[u][v] = Connectivity[v][u];
 			}

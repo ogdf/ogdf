@@ -53,5 +53,4 @@ void UpwardPlanarSubgraphModule::callAndDelete(
 	}
 }
 
-
-} // end namespace ogdf
+}

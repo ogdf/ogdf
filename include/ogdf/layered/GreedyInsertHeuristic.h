@@ -73,5 +73,4 @@ private:
 	NodeArray<double> m_weight;
 };
 
-
-} // end namespace ogdf
+}

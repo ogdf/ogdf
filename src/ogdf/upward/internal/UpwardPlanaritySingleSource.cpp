@@ -83,7 +83,7 @@ public:
 	// which the SPQR-tree can be rooted, otherwise 0 is returned
 	edge findRooting();
 
-	void outputConstraints(ostream &os);
+	void outputConstraints(std::ostream &os);
 
 	ConstraintRooting &operator=(const ConstraintRooting &) = delete;
 
@@ -140,7 +140,7 @@ UpwardPlanaritySingleSource::ConstraintRooting::ConstraintRooting(const SPQRTree
 
 
 // output for debugging
-void UpwardPlanaritySingleSource::ConstraintRooting::outputConstraints(ostream &os)
+void UpwardPlanaritySingleSource::ConstraintRooting::outputConstraints(std::ostream &os)
 {
 	const Graph &G  = m_T.originalGraph();
 	const Graph &GT = m_T.tree();
@@ -162,7 +162,7 @@ void UpwardPlanaritySingleSource::ConstraintRooting::outputConstraints(ostream &
 				os << " " << e->target() << "->" << e->source();
 		}
 	}
-	os << endl;
+	os << std::endl;
 }
 
 
@@ -309,7 +309,9 @@ void UpwardPlanaritySingleSource::embedAndAugment(
 	}
 
 	// the following tests check if the assigned embedding is upward planar
-	OGDF_ASSERT(G.consistencyCheck());
+#ifdef OGDF_DEBUG
+	G.consistencyCheck();
+#endif
 	OGDF_ASSERT(G.representsCombEmbedding());
 
 #ifdef OGDF_DEBUG
@@ -401,7 +403,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 		// pertinent digraph of e contains the source
 		computeDegreesInPertinent(T,s,skInfo,T.rootNode());
 
-		OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, checkDegrees(T,s,skInfo));
+		OGDF_HEAVY_ASSERT(checkDegrees(T,s,skInfo));
 
 		// For each R-node vT:
 		//   compute its sT-skeleton, test whether the sT-skeleton is upward-
@@ -424,7 +426,9 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 		if (eRoot == nullptr)
 			return false;
 
-		OGDF_ASSERT(exp.consistencyCheck());
+#ifdef OGDF_DEBUG
+		exp.consistencyCheck();
+#endif
 
 		if(embed)
 		{
@@ -433,7 +437,9 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 			embedSkeleton(exp,T,skInfo,T.rootNode(),true);
 
 			T.embed(exp);
-			OGDF_ASSERT(exp.consistencyCheck());
+#ifdef OGDF_DEBUG
+			exp.consistencyCheck();
+#endif
 
 			OGDF_ASSERT(exp.representsCombEmbedding());
 			CombinatorialEmbedding E(exp);
@@ -492,7 +498,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 					adjacentEdges[vG].pushBack(
 						exp.original(adj->theEdge())->adjSource());
 				}
-			} // iterate over internal vertices (associated expansion edge)
+			}
 
 			// handle sinks
 			for(node v : exp.nodes)
@@ -517,9 +523,8 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 					adjacentEdges[vG].pushBack(
 						exp.original(adj->theEdge())->adjTarget());
 				}
-			} // iterate over sinks
-		} // embed
-
+			}
+		}
 
 		// for each cut-vertex, process all components different from i
 		SListPure<node> origNodes;
@@ -927,10 +932,10 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 	// determine whether T can be rooted at a Q-node in such a way that
 	// orienting edges from children to parents satisfies the constraints
 	// above
-	//rooting.outputConstraints(cout);
+	//rooting.outputConstraints(std::cout);
 	edge eRoot = rooting.findRooting();
 
-	//cout << "\nroot edge: " << eRoot << endl;
+	//std::cout << "\nroot edge: " << eRoot << std::endl;
 
 	return eRoot;
 }
@@ -1098,14 +1103,14 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 
 		// recursive call
 		embedSkeleton(G,T,skInfo,wT,eExtFaceLeft);
-
-	} // traverse SPQR-tree
-
+	}
 
 	if(mirrorEmbedding)
 		T.reverse(vT);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks,M.consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	M.consistencyCheck();
+#endif
 
 
 	// We have to unsplit all peaks in skeleton S again, since the embedding
@@ -1196,6 +1201,4 @@ node UpwardPlanaritySingleSource::dfsAssignSinks(
 	return vf;
 }
 
-
-
-} // end namespace ogdf
+}

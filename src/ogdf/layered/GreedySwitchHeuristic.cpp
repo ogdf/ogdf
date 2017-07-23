@@ -42,6 +42,7 @@ void GreedySwitchHeuristic::init(const HierarchyLevels &levels)
 void GreedySwitchHeuristic::cleanup()
 {
 	delete m_crossingMatrix;
+	m_crossingMatrix = nullptr;
 }
 
 void GreedySwitchHeuristic::call(Level &L)

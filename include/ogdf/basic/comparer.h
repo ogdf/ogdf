@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
@@ -266,8 +268,7 @@ public:
 	virtual bool equal(const E &x, const E &y) const {
 		return compare(x,y) == 0;
 	}
-}; // class VComparer
-
+};
 
 //! Augments any data elements of type \a X with keys of type \a Priority. This class is also its own Comparer
 /**
@@ -333,6 +334,8 @@ public:
 /**
  * Template for converting any StdComparer into a STL compatible compare functor.
  * Utilizes the comparators less method.
+ *
+ * @ingroup comparer
  */
 template<typename TYPE, class COMPARER = StdComparer<TYPE>>
 class StlLess {
@@ -346,6 +349,8 @@ public:
 /**
  * Template for converting any StdComparer into a STL compatible compare functor.
  * Utilizes the comparators greater method.
+ *
+ * @ingroup comparer
  */
 template<typename TYPE, class COMPARER = StdComparer<TYPE>>
 class StlGreater {
@@ -355,5 +360,56 @@ public:
 	}
 };
 
+/**
+ * Compare elements based on a single comparable attribute.
+ *
+ * @ingroup comparer
+ *
+ * Defines a non-static OGDF comparer (see macro \c OGDF_AUGMENT_COMPARER) that
+ * compares values of type \c NUM to compare elements of type \c ELEM.
+ *
+ * One must provide a function that maps each element to its value.
+ */
+template<typename ELEM, typename NUM, bool ascending = true>
+struct GenericComparer {
+	using OrderFunction = std::function<NUM(const ELEM&)>;
 
-} //namespace
+	//! Construct a comparer with mapping \p mapToValue.
+	GenericComparer(const OrderFunction& mapToValue) : m_mapToValue(mapToValue) {}
+
+	//! See \c OGDF_AUGMENT_COMPARER
+	int compare(const ELEM& x, const ELEM& y) const {
+		NUM a = m_mapToValue(x);
+		NUM b = m_mapToValue(y);
+
+		return a == b ? 0 : ((a < b) == ascending ? -1 : 1);
+	}
+
+	OGDF_AUGMENT_COMPARER(ELEM)
+
+private:
+	const OrderFunction m_mapToValue;
+};
+
+/**
+ * Declares a class \p NAME that extends from ogdf::GenericComparer.
+ *
+ * @ingroup comparer
+ *
+ * The type of compared elements is \c TYPE, the returned scalar is of type \c NUMBER.
+ * \c GET_X_ATTR contains the actual element to scalar conversion for any element (denoted by \a x).
+ *
+ * Example use to sort edges by index:
+ * \code
+ * List<edge> edges;
+ * ...
+ * OGDF_DECLARE_COMPARER(EdgeIndexCmp, edge, int, x->index());
+ * edges.quicksort(EdgeIndexCmp());
+ * \endcode
+ */
+#define OGDF_DECLARE_COMPARER(NAME, TYPE, NUMBER, GET_X_ATTR) \
+struct NAME : public GenericComparer<TYPE, NUMBER> { \
+	NAME() : GenericComparer([&](const TYPE& x) { return GET_X_ATTR; }) {} \
+}
+
+}

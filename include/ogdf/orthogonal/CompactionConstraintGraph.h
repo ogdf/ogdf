@@ -34,41 +34,17 @@
 
 #pragma once
 
-#include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
+#include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
-//! Types of edges in the constraint graph
-enum class ConstraintEdgeType {
-	BasicArc,
-	VertexSizeArc,
-	VisibilityArc,
-	FixToZeroArc, //!< can be compacted to zero length, can be fixed
-	ReducibleArc, //!< can be compacted to zero length
-	MedianArc //!< inserted to replace some reducible in fixzerolength
-};
-
-//! Base class implementing common behaviour of ogdf::CompactionConstraintGraph.
-class CompactionConstraintGraphBase : protected Graph
+//! Class implementing template-parameter-independent behaviour of ogdf::CompactionConstraintGraph.
+class CompactionConstraintGraphBase : public CommonCompactionConstraintGraphBase
 {
 public:
-	//! \name Output for debugging only
-	//! @{
-	void writeGML(const char *fileName) const ;
-	void writeGML(ostream &os) const;
-	//output edges on external face
-	void writeGML(const char *fileName, NodeArray<bool> one) const ;
-	void writeGML(ostream &os, NodeArray<bool> one) const;
-	// @}
-
-	//! Returns constraint arc representing input edge e in constraint graph
-	edge basicArc(edge e) const {
-		return m_edgeToBasicArc[e];
-	}
-
 	//! \name Edge property getters
 	//! @{
 
@@ -79,12 +55,6 @@ public:
 	//! @pre e is arc in the constraint graph
 	bool verticalArc(edge e) const {return m_verticalArc[e];}
 
-	//! Returns true if edge lies on cage border
-	bool onBorder(edge e) const {return m_border[e]>0;}
-
-	//! Returns true  if edge is subject to length fixation if length < sep
-	bool fixOnBorder(edge e) const {return m_border[e] == 2;}
-
 	//! @}
 
 	//! Triggers alignment (=>some special edge handling to support al.)
@@ -93,8 +63,6 @@ public:
 	//! Returns if arc is important for alignment.
 	//! These are the arcs representing node to gen. merger edges
 	bool alignmentArc(edge e) const {return m_alignmentArc[e];}
-
-	const PlanRep& getPlanRep() const {return *m_pPR;}
 
 	edge pathToOriginal(node v) {return m_pathToEdge[v];}
 
@@ -106,42 +74,16 @@ protected:
 		int costGen = 1,
 		int costAssoc = 1, bool align = false);
 
-	//! Computes topological numbering on the segments of the constraint graph.
-	void computeTopologicalSegmentNum(NodeArray<int> &topNum);
-
-	//! Removes "arcs" from visibArcs which we already have in the constraint graph
-	//! (as basic arcs)
-	void removeRedundantVisibArcs(SListPure<Tuple2<node,node> > &visibArcs);
-
-	const OrthoRep *m_pOR;
-	const PlanRep *m_pPR;
-	OrthoDir m_arcDir;
-	OrthoDir m_oppArcDir;
-
 	int m_edgeCost[2];
-
-	NodeArray<SListPure<node> > m_path; //!< list of nodes contained in a segment
-	NodeArray<node> m_pathNode;         //!< segment containing a node in PG
-	EdgeArray<edge> m_edgeToBasicArc;   //!< basic arc representing an edge in PG
-
-	EdgeArray<int> m_cost; //!< cost of an edge
-	EdgeArray<ConstraintEdgeType> m_type;
 
 	//test fuer vorkomp. der Generalisierungen
 	EdgeArray<bool> m_verticalGen; //!< generalization that runs vertical relative to hierarchy
 	EdgeArray<bool> m_verticalArc; //!< arc corresponding to such an edge
-	EdgeArray<int> m_border; //!< only used for cage precompaction in flowcompaction computecoords
 
 	//! Basic arcs that have to be short for alignment (node to gen expander)
 	EdgeArray<bool> m_alignmentArc;
 
 	NodeArray<edge> m_pathToEdge; //!< save the (single!) edge (segment) for a pathNode
-	NodeArray<edge> m_originalEdge; //!< save edge for the basic arcs
-
-	//! Embeds constraint graph such that all sources and sinks lie in a common face
-	void embed();
-
-	virtual void writeLength(ostream &os, edge e) const = 0;
 
 private:
 	//set special costs for node to merger generalizations
@@ -155,9 +97,6 @@ private:
 		const NodeArray<node> &genOpposite);
 
 	void insertBasicArcs(const PlanRep &PG);
-
-	SList<node> m_sources;
-	SList<node> m_sinks;
 };
 
 
@@ -188,7 +127,6 @@ public:
 		OGDF_ASSERT(&(const Graph &)PG == &(const Graph &)OR);
 
 		m_length   .init((Graph&)*this, sep);
-		m_extraNode.init((Graph&)*this, false);
 		m_extraOfs .init((Graph&)*this, 0);
 		m_extraRep .init((Graph&)*this, nullptr);
 
@@ -200,66 +138,15 @@ public:
 		initializeCosts();
 	}
 
-	//! Output for debugging only
-	//! @{
-	void writeGML(const char *fileName) const ;
-	void writeGML(ostream &os) const;
-	//! @}
-
-	//! Returns underlying graph
-	//! @{
-	const Graph &getGraph() const { return (const Graph&)*this; }
-	Graph &getGraph() { return (Graph&)*this; }
-	//! @{
-
-	//! Returns underlying OrthoRep
-	const OrthoRep &getOrthoRep() const {
-		return *m_pOR;
-	}
-
-	//! Returns list of nodes contained in segment \p v
-	//! @pre \p v is in the constraint graph
-	const SListPure<node> &nodesIn(node v) const {
-		return m_path[v];
-	}
-
-	//! Returns the segment (path node in constraint graph) containing \p v
-	//! @pre \p v is a node in the associated planarized representation
-	node pathNodeOf(node v) const {
-		return m_pathNode[v];
-	}
-
 	//! Returns length of edge \p e
 	//! @pre \p e is an edge in the constraint graph
 	ATYPE length(edge e) const {
 		return m_length[e];
 	}
 
-	//! Returns cost of edge \p e
-	//! @pre \p e is an edge in the constraint graph
-	int cost(edge e) const {
-		return m_cost[e];
-	}
-
-	//! Returns type of edge \p e
-	//! @pre \p e is an edge in the constraint graph
-	ConstraintEdgeType typeOf(edge e) const {
-		return m_type[e];
-	}
-
-	//! Returns node status
-	bool extraNode(node v) const {
-		return m_extraNode[v];
-	}
-
 	//! Returns extraNode position, change to save mem, only need some entries
 	ATYPE extraOfs(node v) const {
 		return m_extraOfs[v];
-	}
-
-	//! Returns extraNode existing anchor representant
-	node extraRep(node v) const {
-		return m_extraRep[v];
 	}
 
 	//! Gets centerPriority (center single edges?)
@@ -310,11 +197,6 @@ public:
 		const NodeArray<int> &coord,
 		const MinimumEdgeDistances<ATYPE> &minDist);
 
-	//! Embeds constraint graph such that all sources and sinks lie in a common face
-	void embed() {
-		CompactionConstraintGraphBase::embed();
-	}
-
 	//! Performs feasibility test for position assignment pos, i.e., checks if
 	//! the segment positions given by pos fulfill the constraints in the
 	//! compaction constraint graph
@@ -341,14 +223,13 @@ private:
 		node m_pathNode;     //!< corresponding segment
 
 		//! output operator
-		friend ostream &operator<<(ostream &os,
+		friend std::ostream &operator<<(std::ostream &os,
 			const Interval &interval)
 		{
 			os << "[" << interval.m_low << "," << interval.m_high <<
 				";" << interval.m_pathNode << "]";
 			return os;
 		}
-
 	};
 
 	//! Comparer class used for sorting segments by increasing position
@@ -380,25 +261,21 @@ private:
 		const NodeArray<int>    *m_pSec;
 	};
 
-	virtual void writeLength(ostream &os, edge e) const override {
-		os << m_length[e];
+	virtual string getLengthString(edge e) const override {
+		return to_string(m_length[e]);
 	}
 
 	void setBasicArcsZeroLength(const PlanRep &PG);
 	void resetGenMergerLengths(const PlanRep &PG, adjEntry adjFirst);
 	void setBoundaryCosts(adjEntry cornerDir,adjEntry cornerOppDir);
 
-	bool checkSweepLine(const List<Interval> &sweepLine);
+	bool checkSweepLine(const List<Interval> &sweepLine) const;
 
 	ATYPE m_sep;
 
 	EdgeArray<ATYPE> m_length; //!< length of an edge
 
-	//! Node does not represent drawing node as we dont have positions
-	//! we save a drawing representant and an offset
-	NodeArray<bool> m_extraNode;
 	NodeArray<ATYPE> m_extraOfs; //!< offset of extra node to its rep, should change this
-	NodeArray<node> m_extraRep; //!< existing representant of extranodes position anchor
 
 	//! \name Cost settings
 	//! @{
@@ -448,7 +325,7 @@ protected:
 		//addition value should be < gen cost!!!
 		m_MedianArcCost = c_MedianFactor*m_vertexArcCost;
 		m_doubleBendCost = c_doubleBendFactor*m_vertexArcCost;
-	}//initializeCosts
+	}
 };
 
 //initialization of static members
@@ -687,13 +564,10 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					m_cost  [e2] = m_vertexArcCost;
 					m_type  [e2] = ConstraintEdgeType::VertexSizeArc;
 				}
-
 			}
-
-		} // high/lowDegreeExpander
+		}
 	}
 }
-
 
 template<class ATYPE>
 void CompactionConstraintGraph<ATYPE>::setBasicArcsZeroLength(
@@ -849,7 +723,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						m_cost[eFromOut] = 0; // XXX
 						m_length[eFromOut] = minDist.epsilon(v,m_arcDir,1);
 #endif
-					}//if sDir case
+					}
 					if ( sOppDir.totalAttached() == 1 && m_pathNode[cornerOppDir->twinNode()] != vMin )
 					{
 
@@ -883,18 +757,14 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						m_cost[eFromOut] = 0; // XXX
 						m_length[eFromOut] = minDist.epsilon(v,m_oppArcDir,0);
 #endif
-					}//if sOppDir case
-				}//if special case
-				else
-				{
+					}
+				} else {
 					// no, only one arc for vertex size + routing channels
 					edge e = newEdge(vMin,vMax);
 					m_length[e] = size;
 					m_cost[e]   = 2*m_vertexArcCost;
 					m_type[e]   = ConstraintEdgeType::VertexSizeArc;
-				}//else special case
-
-
+				}
 			} else {
 				// yes, then two arcs for each side with an attached generalization
 				ATYPE lenMin = size/2;
@@ -955,8 +825,8 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						m_cost[eBungeeOut] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeOut] = 0;
 
-					}//if sDir case
-				}//else, only oppdir
+					}
+				}
 				if (sOppDir.m_adjGen != nullptr) {
 					node vCenter = m_pathNode[sOppDir.m_adjGen->theNode()];
 					edge e1 = newEdge(vMin,vCenter);
@@ -1007,16 +877,13 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						m_type[eBungeeOut] = ConstraintEdgeType::MedianArc;
 						m_cost[eBungeeOut] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeOut] = 0;
-
-					}//if sOppDir case
-				}//else only dir gen
-
+					}
+				}
 			}
 
 			// set cost of edges on the cage boundary to 0
 			setBoundaryCosts(cornerDir,cornerOppDir);
-
-		} // high/lowDegreeExpander
+		}
 	}
 #if 0
 	if (m_arcDir == OrthoDir::East) writeGML("eastvertexsizeinserted.gml");
@@ -1045,7 +912,7 @@ ATYPE CompactionConstraintGraph<ATYPE>::computeTotalCosts(
 
 // checks if intervals on the sweep line are in correct order
 template<class ATYPE>
-bool CompactionConstraintGraph<ATYPE>::checkSweepLine(const List<Interval> &sweepLine)
+bool CompactionConstraintGraph<ATYPE>::checkSweepLine(const List<Interval> &sweepLine) const
 {
 	if (sweepLine.empty())
 		return true;
@@ -1272,13 +1139,13 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 
 						low[sNext] = lowReal[sNext];  //?
 						s = sNext;
-					}//while
-				}//if
+					}
+				}
 
 				adjTwin = adjCross->twin(); // update of twin for while
 				//check if we have to stop
 				if (runDir != m_pOR->direction(adjCross)) break;
-			}//while dummy bend
+			}
 		}
 
 		i = 0;
@@ -1370,13 +1237,13 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 						low[sNext] = lowReal[sNext];//was: low[s]
 						s = sNext;
 					}
-				}//if lowreal != low
+				}
 
 				adjTwin = adjCross->twin(); // update of twin for while
 
 				//check if we have to stop
 				if (runDir != m_pOR->direction(adjCross)) break;
-			}//while dummy
+			}
 		}
 	}
 
@@ -1400,7 +1267,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	{
 		//special case nodes
 		if (m_path[*itV].empty()) continue;
-		OGDF_ASSERT_IF(DebugLevel::ExtendedChecking,checkSweepLine(sweepLine));
+		OGDF_HEAVY_ASSERT(checkSweepLine(sweepLine));
 
 		node v = *itV;
 		ListIterator<Interval> it;
@@ -1529,11 +1396,8 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 		}
 	}
 
-	OGDF_ASSERT_IF(DebugLevel::ExtendedChecking,checkSweepLine(sweepLine));
-
-}//insertvisibilityarcs
-
-
+	OGDF_HEAVY_ASSERT(checkSweepLine(sweepLine));
+}
 
 // performs feasibility test for position assignment pos, i.e., checks if
 // the segment positions given by pos fulfill the constraints in the
@@ -1546,23 +1410,23 @@ bool CompactionConstraintGraph<ATYPE>::isFeasible(
 		node v = m_path[e->source()].front();
 		node w = m_path[e->target()].front();
 		if (pos[w] - pos[v] < length(e)) {
-			cout << "feasibility check failed for edge " << e << endl;
-			cout << "  representatives: " << v << ", " << w << endl;
-			cout << "  length: " << length(e) << endl;
-			cout << "  actual distance: " << pos[w] - pos[v] << endl;
-			cout << "  type of " << e << ": ";
+			std::cout << "feasibility check failed for edge " << e << std::endl;
+			std::cout << "  representatives: " << v << ", " << w << std::endl;
+			std::cout << "  length: " << length(e) << std::endl;
+			std::cout << "  actual distance: " << pos[w] - pos[v] << std::endl;
+			std::cout << "  type of " << e << ": ";
 			switch(m_type[e]) {
-			case ConstraintEdgeType::BasicArc: cout << "basic arc" << endl;
+			case ConstraintEdgeType::BasicArc: std::cout << "basic arc" << std::endl;
 				break;
-			case ConstraintEdgeType::VertexSizeArc: cout << "vertex-size arc" << endl;
+			case ConstraintEdgeType::VertexSizeArc: std::cout << "vertex-size arc" << std::endl;
 				break;
-			case ConstraintEdgeType::VisibilityArc: cout << "visibility arc" << endl;
+			case ConstraintEdgeType::VisibilityArc: std::cout << "visibility arc" << std::endl;
 				break;
-			case ConstraintEdgeType::MedianArc: cout << "median arc" << endl;
+			case ConstraintEdgeType::MedianArc: std::cout << "median arc" << std::endl;
 				break;
-			case ConstraintEdgeType::ReducibleArc: cout << "reducible arc" <<endl;
+			case ConstraintEdgeType::ReducibleArc: std::cout << "reducible arc" <<std::endl;
 				break;
-			case ConstraintEdgeType::FixToZeroArc: cout << "fixtozero arc" <<endl;
+			case ConstraintEdgeType::FixToZeroArc: std::cout << "fixtozero arc" <<std::endl;
 
 			}
 			return false;
@@ -1572,106 +1436,4 @@ bool CompactionConstraintGraph<ATYPE>::isFeasible(
 	return true;
 }
 
-//colouring for extranode
-template<class ATYPE>
-void CompactionConstraintGraph<ATYPE>::writeGML(const char *filename) const
-{
-	ofstream os(filename);
-	writeGML(os);
 }
-
-template<class ATYPE>
-void CompactionConstraintGraph<ATYPE>::writeGML(ostream &os) const
-{
-	const Graph &G = *this;
-
-	NodeArray<int> id(getGraph());
-	int nextId = 0;
-
-	os.setf(ios::showpoint);
-	os.precision(10);
-
-	os << "Creator \"ogdf::CompactionConstraintGraphBase::writeGML\"\n";
-	os << "graph [\n";
-	os << "  directed 1\n";
-
-	for(node v : G.nodes) {
-		os << "  node [\n";
-		os << "    id " << (id[v] = nextId++) << "\n";
-
-		if (m_extraNode[v]) {
-			os << "    label \"" << "0" << "\"\n";
-		} else {
-			os << "    label \"" << m_pPR->expandedNode(m_path[v].front()) << "\"\n";
-		}
-
-		os << "    graphics [\n";
-		os << "      x 0.0\n";
-		os << "      y 0.0\n";
-		os << "      w 30.0\n";
-		os << "      h 30.0\n";
-		if (m_extraNode[v])
-			os << "      fill \"#00FFFF\"\n";
-		else
-			os << "      fill \"#FFFF00\"\n";
-		os << "    ]\n"; // graphics
-
-		os << "  ]\n"; // node
-	}
-
-	for(edge e : G.edges) {
-		os << "  edge [\n";
-		os << "    source " << id[e->source()] << "\n";
-		os << "    target " << id[e->target()] << "\n";
-
-#if 0
-		// show edge lengths as edge lables (not yet supported)
-		os << "    label \"";
-		writeLength(os, e);
-		os << "\"\n";
-#endif
-
-		os << "    graphics [\n";
-
-		os << "      type \"line\"\n";
-		os << "      arrow \"last\"\n";
-		switch(m_type[e])
-		{
-		case ConstraintEdgeType::BasicArc: // red
-			os << "      fill \"#FF0000\"\n";
-			break;
-		case ConstraintEdgeType::VertexSizeArc: // blue
-			os << "      fill \"#0000FF\"\n";
-			break;
-		case ConstraintEdgeType::VisibilityArc: // green
-			os << "      fill \"#00FF00\"\n";
-			break;
-		case ConstraintEdgeType::ReducibleArc: // red
-			os << "      fill \"#FF0000\"\n";
-			break;
-		case ConstraintEdgeType::FixToZeroArc: // violett
-			os << "      fill \"#AF00FF\"\n";
-			break;
-		case ConstraintEdgeType::MedianArc: // rose
-			os << "      fill \"#FF00FF\"\n";
-			break;
-		}
-
-		os << "    ]\n"; // graphics
-
-#if 0
-		os << "    LabelGraphics [\n";
-		os << "      type \"text\"\n";
-		os << "      fill \"#000000\"\n";
-		os << "      anchor \"w\"\n";
-		os << "    ]\n";
-#endif
-
-		os << "  ]\n"; // edge
-	}
-
-	os << "]\n"; // graph
-}
-
-
-} // end namespace ogdf

@@ -34,18 +34,18 @@ namespace abacus {
 
 void BranchRule::extract(LpSub * /* lp */)
 {
-	Logger::ifout() << "WARNING:" << endl;
+	Logger::ifout() << "WARNING:" << std::endl;
 	Logger::ifout() << "  virtual dummy function extract() of base class ";
-	Logger::ifout() << "BranchRule is called." << endl;
-	Logger::ifout() << "  Redefinition in derived class is missing." << endl;
+	Logger::ifout() << "BranchRule is called." << std::endl;
+	Logger::ifout() << "  Redefinition in derived class is missing." << std::endl;
 }
 
 
 void BranchRule::unExtract(LpSub * /* lp */)
 {
-	Logger::ifout() << "WARNING:" << endl;
+	Logger::ifout() << "WARNING:" << std::endl;
 	Logger::ifout() << "  virtual dummy function unExtract() of base class ";
-	Logger::ifout() << "BranchRule is called." << endl;
-	Logger::ifout() << "  Redefinition in derived class is missing." << endl;
+	Logger::ifout() << "BranchRule is called." << std::endl;
+	Logger::ifout() << "  Redefinition in derived class is missing." << std::endl;
 }
-} //namespace abacus
+}

@@ -44,15 +44,14 @@ namespace fmmm {
 class OGDF_EXPORT NodeAttributes
 {
 	//! outputstream for NodeAttributes
-	friend OGDF_EXPORT ostream &operator<< (ostream &, const NodeAttributes &);
+	friend OGDF_EXPORT std::ostream &operator<< (std::ostream &, const NodeAttributes &);
 
 	//! inputstream for NodeAttributes
-	friend OGDF_EXPORT istream &operator>> (istream &, NodeAttributes &);
+	friend OGDF_EXPORT std::istream &operator>> (std::istream &, NodeAttributes &);
 
 public:
-
-	NodeAttributes();       //!< constructor
-	~NodeAttributes() { }   //!< destructor
+	//! Constructor
+	NodeAttributes();
 
 	void set_NodeAttributes(double w, double h, DPoint pos,node v_low,node
 		v_high)

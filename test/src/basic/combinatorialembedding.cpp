@@ -29,17 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/FaceArray.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
-constexpr int NUMBER_OF_ITERATIONS = 100;
+constexpr int NUMBER_OF_ITERATIONS = 17;
 constexpr int NUMBER_OF_NODES = 100;
 constexpr int NUMBER_OF_EDGES = 200;
 
@@ -85,7 +83,7 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 	it("returns a maximal face", [&] {
 		int maxSize = -1;
 		for(face f : emb.faces) {
-			maxSize = max(maxSize, f->size());
+			Math::updateMax(maxSize, f->size());
 		}
 
 		AssertThat(emb.maximalFace()->size(), Equals(maxSize));
@@ -291,7 +289,7 @@ void testConstCombinatorialEmbedding() {
 
 	it("returns a sane size of its face array", [&] {
 		Graph graph;
-		planarTriconnectedGraph(graph, NUMBER_OF_NODES*100, NUMBER_OF_EDGES*100);
+		planarTriconnectedGraph(graph, NUMBER_OF_NODES*10, NUMBER_OF_EDGES*10);
 		T emb(graph);
 		AssertThat(emb.faceArrayTableSize(), IsGreaterThan(emb.numberOfFaces() - 1));
 	});

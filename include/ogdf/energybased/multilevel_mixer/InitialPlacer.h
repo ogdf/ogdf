@@ -55,7 +55,6 @@ public:
 	{
 		m_randomOffset = on;
 	}
-
 };
 
-} // namespace ogdf
+}

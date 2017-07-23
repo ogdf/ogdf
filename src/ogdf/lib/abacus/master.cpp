@@ -128,8 +128,8 @@ Master::Master(
 	VbcLog_(NoVbc),
 	treeStream_(nullptr),
 	requiredGuarantee_(0.0),
-	maxLevel_(numeric_limits<int>::max()),
-	maxNSub_(numeric_limits<int>::max()),
+	maxLevel_(std::numeric_limits<int>::max()),
+	maxNSub_(std::numeric_limits<int>::max()),
 	maxCpuTime_(int64_t(999999)*3600+59*60+59),
 	maxCowTime_(int64_t(999999)*3600+59*60+59),
 	objInteger_(false),
@@ -147,7 +147,7 @@ Master::Master(
 	maxConBuffered_(100),
 	maxVarAdd_(100),
 	maxVarBuffered_(100),
-	maxIterations_(numeric_limits<int>::max()),
+	maxIterations_(std::numeric_limits<int>::max()),
 	eliminateFixedSet_(false),
 	newRootReOptimize_(false),
 	showAverageCutDistance_(false),
@@ -185,7 +185,7 @@ Master::Master(
 
 Master::~Master()
 {
-	if (treeStream_ != &cout)
+	if (treeStream_ != &std::cout)
 		delete treeStream_;
 	delete history_;
 	delete conPool_;
@@ -221,15 +221,15 @@ Master::STATUS Master::optimize()
 	*/
 	if (VbcLog_ == File) {
 		string treeStreamName = problemName_ + "." + to_string(ogdf::System::getProcessID()) + ".tree";
-		treeStream_ = new ofstream(treeStreamName);
+		treeStream_ = new std::ofstream(treeStreamName);
 	}
 	else if (VbcLog_ == Pipe)
 	{
 		string pipeName;
 		if (getParameter("VbcPipeName", pipeName)==0)
-			treeStream_ = new ofstream(pipeName.c_str());
+			treeStream_ = new std::ofstream(pipeName.c_str());
 		else
-			treeStream_ = &cout;
+			treeStream_ = &std::cout;
 	}
 
 	// initialize the primal and the dual bound
@@ -278,7 +278,7 @@ Master::STATUS Master::optimize()
 
 	printParameters();
 
-	Logger::ilout(Logger::Level::Minor) << endl << "   #sub   #open   current   #iter         LP       dual     primal" << endl;
+	Logger::ilout(Logger::Level::Minor) << std::endl << "   #sub   #open   current   #iter         LP       dual     primal" << std::endl;
 
 	// perform the branch and bound algorithm
 	// initialize the root node
@@ -321,40 +321,40 @@ Master::STATUS Master::optimize()
 	*/
 
 	// output the solution history
-	Logger::ilout(Logger::Level::Default) << endl << *history_ << endl;
+	Logger::ilout(Logger::Level::Default) << std::endl << *history_ << std::endl;
 
 	// output information on the tree, variables, constraints, etc.
 	const int w = 6;
 
-	Logger::ilout(Logger::Level::Default) << "Miscellaneous Statistics" << endl << endl
+	Logger::ilout(Logger::Level::Default) << "Miscellaneous Statistics" << std::endl << std::endl
 	 << "  Dual bound of the root node       : "
-	 << setw(w) << rootDualBound_     << endl
+	 << setw(w) << rootDualBound_     << std::endl
 	 << "  Number of subproblems             : "
-	 << setw(w) << nSubSelected_     << endl
+	 << setw(w) << nSubSelected_     << std::endl
 	 << "  Number of solved LPs              : "
-	 << setw(w) << nLp_      << endl
+	 << setw(w) << nLp_      << std::endl
 	 << "  Highest level in tree             : "
-	 << setw(w) << highestLevel_   << endl
+	 << setw(w) << highestLevel_   << std::endl
 	 << "  Number of fixed variables         : "
-	 << setw(w) << nFixed_   << endl
-	 << endl
+	 << setw(w) << nFixed_   << std::endl
+	 << std::endl
 	 << "  Number of added constraints       : "
-	 << setw(w) << nAddCons_ << endl
+	 << setw(w) << nAddCons_ << std::endl
 	 << "  Number of removed constraints     : "
-	 << setw(w) << nRemCons_ << endl
+	 << setw(w) << nRemCons_ << std::endl
 	 << "  Number of added variables         : "
-	 << setw(w) << nAddVars_ << endl
+	 << setw(w) << nAddVars_ << std::endl
 	 << "  Number of removed variables       : "
-	 << setw(w) << nRemVars_ << endl
-	 << endl
+	 << setw(w) << nRemVars_ << std::endl
+	 << std::endl
 	 << "  Number of root changes            : "
-	 << setw(w) << nNewRoot_ << endl;
+	 << setw(w) << nNewRoot_ << std::endl;
 
 	_outputLpStatistics();
 
 	output();
 
-	Logger::ilout(Logger::Level::Default) << endl << endl;
+	Logger::ilout(Logger::Level::Default) << std::endl << std::endl;
 
 	// output the timing statistics
 	/* The cpu time for branching may include time for linear programming.
@@ -388,31 +388,31 @@ Master::STATUS Master::optimize()
 
 	const int wpc = 7;
 
-	Logger::ilout(Logger::Level::Default) << "Timing Statistics" << endl << endl
-	 << "  Elapsed time           : " << totalCowTime_ << endl
-	 << "  Total cpu time         : " << totalTime_   << endl
+	Logger::ilout(Logger::Level::Default) << "Timing Statistics" << std::endl << std::endl
+	 << "  Elapsed time           : " << totalCowTime_ << std::endl
+	 << "  Total cpu time         : " << totalTime_   << std::endl
 	 << "  LP cpu time            : " << lpTime_
-	 << "  (" << setw(wpc) <<  lpPercent << "%)" << endl
-	 << "  LP solver cpu time     : " << lpSolverTime_ << endl
+	 << "  (" << setw(wpc) <<  lpPercent << "%)" << std::endl
+	 << "  LP solver cpu time     : " << lpSolverTime_ << std::endl
 	 << "  Separation cpu time    : " << separationTime_
-	 << "  (" << setw(wpc) <<  sepPercent << "%)" << endl
+	 << "  (" << setw(wpc) <<  sepPercent << "%)" << std::endl
 	 << "  Heuristics cpu time    : " << improveTime_
-	 << "  (" << setw(wpc) << heuPercent << "%)" << endl
+	 << "  (" << setw(wpc) << heuPercent << "%)" << std::endl
 	 << "  Pricing cpu time       : " << pricingTime_
-	 << "  (" << setw(wpc) << priPercent << "%)" << endl
-	 << "  Branching cpu time     : " << branchingTime_ << endl
+	 << "  (" << setw(wpc) << priPercent << "%)" << std::endl
+	 << "  Branching cpu time     : " << branchingTime_ << std::endl
 	 << "  Miscellaneous cpu time : " << misTimer
-	 << "  (" << setw(wpc) << misPercent << "%)" << endl << endl;
+	 << "  (" << setw(wpc) << misPercent << "%)" << std::endl << std::endl;
 
 	// output the value of the best solution
 	if (feasibleFound())
-		Logger::ilout(Logger::Level::Default) << "Best solution: " << primalBound_ << endl;
+		Logger::ilout(Logger::Level::Default) << "Best solution: " << primalBound_ << std::endl;
 	else
-		Logger::ilout(Logger::Level::Default) << "No feasible solution found." << endl;
+		Logger::ilout(Logger::Level::Default) << "No feasible solution found." << std::endl;
 
 	// output the status of the optimization
-	Logger::ilout(Logger::Level::Default) << endl << "ABACUS optimization terminated with status "
-	 << STATUS_[status_] << "." << endl;
+	Logger::ilout(Logger::Level::Default) << std::endl << "ABACUS optimization terminated with status "
+	 << STATUS_[status_] << "." << std::endl;
 
 	// Master::optimize(): clean up and return
 	/* Before cleaning up we call the virtual function \a terminateOptimization().
@@ -536,34 +536,34 @@ Sub* Master::select()
 	*   stop the optimization.
 	*/
 	if (totalTime_.exceeds(maxCpuTime())) {
-		Logger::ilout(Logger::Level::Default) << "Maximal CPU time " << maxCpuTimeAsString() << " exceeded." << endl
-		 << "Stop optimization." << endl;
+		Logger::ilout(Logger::Level::Default) << "Maximal CPU time " << maxCpuTimeAsString() << " exceeded." << std::endl
+		 << "Stop optimization." << std::endl;
 		root_->fathomTheSubTree();
 		status_ = MaxCpuTime;
 		return nullptr;
 	}
 
 	if (totalCowTime_.exceeds(maxCowTime())) {
-		Logger::ilout(Logger::Level::Default) << "Maximal elapsed time " << maxCowTimeAsString() << " exceeded." << endl
-		 << "Stop optimization." << endl;
+		Logger::ilout(Logger::Level::Default) << "Maximal elapsed time " << maxCowTimeAsString() << " exceeded." << std::endl
+		 << "Stop optimization." << std::endl;
 		root_->fathomTheSubTree();
 		status_ = MaxCowTime;
 		return nullptr;
 	}
 
 	if (guaranteed()) {
-		Logger::ilout(Logger::Level::Default) << endl
-		 << "Guarantee " << requiredGuarantee() << " % reached." << endl
-		 << "Terminate optimization." << endl;
+		Logger::ilout(Logger::Level::Default) << std::endl
+		 << "Guarantee " << requiredGuarantee() << " % reached." << std::endl
+		 << "Terminate optimization." << std::endl;
 		status_ = Guaranteed;
 		root_->fathomTheSubTree();
 		return nullptr;
 	}
 
 	if (nSubSelected_ >= maxNSub()) {
-		Logger::ilout(Logger::Level::Default) << endl
-		 << "Maximal number of subproblems reached: " << maxNSub() << endl
-		 << "Terminate optimization." << endl;
+		Logger::ilout(Logger::Level::Default) << std::endl
+		 << "Maximal number of subproblems reached: " << maxNSub() << std::endl
+		 << "Terminate optimization." << std::endl;
 		status_ = MaxNSub;
 		root_->fathomTheSubTree();
 		return nullptr;
@@ -780,7 +780,7 @@ void Master::rRoot(Sub *newRoot, bool /* reoptimize */)
 
 	rRoot_ = newRoot;
 
-	Logger::ilout(Logger::Level::Default) << "\t" << "subproblem " << newRoot->id() << " is now root of remaining tree" << endl;
+	Logger::ilout(Logger::Level::Default) << "\t" << "subproblem " << newRoot->id() << " is now root of remaining tree" << std::endl;
 
 	if ((newRoot->status() == Sub::Processed ||
 		newRoot->status() == Sub::Dormant     ) && newRootReOptimize_)
@@ -847,7 +847,7 @@ bool Master::check() const
 bool Master::knownOptimum(double &optVal) const
 {
 	// open the file storing the optimum solutions
-	ifstream optimumFile(optimumFileName_.c_str(), ios::in );
+	std::ifstream optimumFile(optimumFileName_.c_str(), std::ios::in);
 
 	if (!optimumFile) return false;
 
@@ -878,7 +878,7 @@ void Master::writeTreeInterface(const string &info, bool time) const
 
 	if (VbcLog_ == Pipe) *treeStream_ << '$';
 	if (VbcLog_ == File && time) *treeStream_ << totalTime_ << ' ';
-	*treeStream_ << info << endl;
+	*treeStream_ << info << std::endl;
 }
 
 
@@ -932,18 +932,18 @@ void Master::treeInterfaceNodeBounds(int id, double lb, double ub)
 			info << "I " << id << " \\iLower Bound: ---\\nUpper Bound:  ---\\i";
 		else
 			info << "I " << id << " \\iLower Bound: ---\\nUpper Bound:  "
-				<< ios::fixed << std::setprecision(2) << std::setw(6) << ub << "\\i";
+				<< std::ios::fixed << std::setprecision(2) << std::setw(6) << ub << "\\i";
 	}
 	else {
 		if (isInfinity(fabs(ub)))
 			info << "I " << id << " \\iLower Bound: "
-				<< ios::fixed << std::setprecision(2) << std::setw(6) << lb
+				<< std::ios::fixed << std::setprecision(2) << std::setw(6) << lb
 				<< "\\nUpper Bound:  ---\\i";
 		else
 			info << "I " << id << " \\iLower Bound: "
-				<< ios::fixed << std::setprecision(2) << std::setw(6) << lb
+				<< std::ios::fixed << std::setprecision(2) << std::setw(6) << lb
 				<< "\\nUpper Bound:  "
-				<< ios::fixed << std::setprecision(2) << std::setw(6) << ub
+				<< std::ios::fixed << std::setprecision(2) << std::setw(6) << ub
 				<< "\\i";
 	}
 
@@ -1077,20 +1077,20 @@ void Master::assignParameters()
 		findParameter("BranchingStrategy",2,BRANCHINGSTRAT_);
 
 	// get the number of tested candidates for branching variables
-	assignParameter(nBranchingVariableCandidates_, "NBranchingVariableCandidates",0, numeric_limits<int>::max());
+	assignParameter(nBranchingVariableCandidates_, "NBranchingVariableCandidates",0, std::numeric_limits<int>::max());
 
 	// get the number of simplex iterations to perform when testing
 	// branching candidates within strong branching
-	assignParameter(nStrongBranchingIterations_, "NStrongBranchingIterations",-1, numeric_limits<int>::max());
+	assignParameter(nStrongBranchingIterations_, "NStrongBranchingIterations",-1, std::numeric_limits<int>::max());
 
 	// get the solution guarantee
 	assignParameter(requiredGuarantee_,"Guarantee",0.0,infinity());
 
 	// get the maximal level in the enumeration tree
-	assignParameter(maxLevel_, "MaxLevel", 1, numeric_limits<int>::max());
+	assignParameter(maxLevel_, "MaxLevel", 1, std::numeric_limits<int>::max());
 
 	// get the maximal level in the enumeration tree
-	assignParameter(maxNSub_, "MaxNSub", 1, numeric_limits<int>::max());
+	assignParameter(maxNSub_, "MaxNSub", 1, std::numeric_limits<int>::max());
 
 	// get the maximal cpu time
 	assignParameter(stringVal,"MaxCpuTime",0);
@@ -1104,16 +1104,16 @@ void Master::assignParameters()
 	assignParameter(objInteger_,"ObjInteger" );
 
 	// get the number of linear programs for the tailing off analysis
-	assignParameter(tailOffNLp_, "TailOffNLps", numeric_limits<int>::min(), numeric_limits<int>::max());
+	assignParameter(tailOffNLp_, "TailOffNLps", std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 
 	// get the minimal improvement for the tailing off analysis
 	assignParameter(tailOffPercent_, "TailOffPercent", 0.0, infinity());
 
 	// get the threshold for delayed branching
-	assignParameter(dbThreshold_, "DelayedBranchingThreshold", 0, numeric_limits<int>::max());
+	assignParameter(dbThreshold_, "DelayedBranchingThreshold", 0, std::numeric_limits<int>::max());
 
 	// get the minimal number of rounds a subproblem should stay dormant
-	assignParameter(minDormantRounds_,  "MinDormantRounds", 1, numeric_limits<int>::max());
+	assignParameter(minDormantRounds_,  "MinDormantRounds", 1, std::numeric_limits<int>::max());
 
 	//initializeParameters();
 
@@ -1121,10 +1121,10 @@ void Master::assignParameters()
 	pbMode_ = (PRIMALBOUNDMODE) findParameter("PrimalBoundInitMode", 3, PRIMALBOUNDMODE_);
 
 	// get the pricing frequency
-	assignParameter(pricingFreq_, "PricingFrequency", 0, numeric_limits<int>::max());
+	assignParameter(pricingFreq_, "PricingFrequency", 0, std::numeric_limits<int>::max());
 
 	// get the skip factor
-	assignParameter(skipFactor_, "SkipFactor", 0, numeric_limits<int>::max());
+	assignParameter(skipFactor_, "SkipFactor", 0, std::numeric_limits<int>::max());
 
 	// get the skipping mode
 
@@ -1137,19 +1137,19 @@ void Master::assignParameters()
 	assignParameter(printLP_, "PrintLP");
 
 	// get the maximal number of added constraints
-	assignParameter(maxConAdd_, "MaxConAdd", 0, numeric_limits<int>::max());
+	assignParameter(maxConAdd_, "MaxConAdd", 0, std::numeric_limits<int>::max());
 
 	// get the size of the buffer for constraints
-	assignParameter(maxConBuffered_, "MaxConBuffered", 0, numeric_limits<int>::max());
+	assignParameter(maxConBuffered_, "MaxConBuffered", 0, std::numeric_limits<int>::max());
 
 	// get the maximal number of added variables
-	assignParameter(maxVarAdd_, "MaxVarAdd", 0, numeric_limits<int>::max());
+	assignParameter(maxVarAdd_, "MaxVarAdd", 0, std::numeric_limits<int>::max());
 
 	// get the size of the buffer for variables
-	assignParameter(maxVarBuffered_, "MaxVarBuffered", 0, numeric_limits<int>::max());
+	assignParameter(maxVarBuffered_, "MaxVarBuffered", 0, std::numeric_limits<int>::max());
 
 	// get the maximal number of iterations in the cutting plane phase
-	assignParameter(maxIterations_, "MaxIterations", -1, numeric_limits<int>::max());
+	assignParameter(maxIterations_, "MaxIterations", -1, std::numeric_limits<int>::max());
 
 	// should fixed or set variables be eliminated from the LP?
 	assignParameter(eliminateFixedSet_, "EliminateFixedSet");
@@ -1179,10 +1179,10 @@ void Master::assignParameters()
 	assignParameter(conElimEps_, "ConElimEps", 0.0, infinity());
 
 	// get the age for constraint elimination
-	assignParameter(conElimAge_, "ConElimAge", 1, numeric_limits<int>::max());
+	assignParameter(conElimAge_, "ConElimAge", 1, std::numeric_limits<int>::max());
 
 	// get the age for variable elimination
-	assignParameter(varElimAge_, "VarElimAge", 1, numeric_limits<int>::max());
+	assignParameter(varElimAge_, "VarElimAge", 1, std::numeric_limits<int>::max());
 
 	// should a log-file of the enumeration tree be generated?
 	VbcLog_ = (VBCMODE) findParameter("VbcLog", 3, VBCMODE_);
@@ -1195,91 +1195,91 @@ void Master::assignParameters()
 
 void Master::printParameters() const
 {
-	Logger::ilout(Logger::Level::Default) << "Branch and Cut Parameters:" << endl << endl
+	Logger::ilout(Logger::Level::Default) << "Branch and Cut Parameters:" << std::endl << std::endl
 
 	 << "  Enumeration strategy                   : "
 	 << ENUMSTRAT_[enumerationStrategy_]
-	 << endl
+	 << std::endl
 
 	 << "  Branching Strategy                     : "
 	 << BRANCHINGSTRAT_[branchingStrategy_]
-	 << endl
+	 << std::endl
 	 << "  Tested candidates for branching var.   : "
-	 << nBranchingVariableCandidates_ << endl
-	 << "  Simplex iterations when testing" << endl
+	 << nBranchingVariableCandidates_ << std::endl
+	 << "  Simplex iterations when testing" << std::endl
 	 << "         candidates for branching var.   : "
-	 << nStrongBranchingIterations_ << endl
+	 << nStrongBranchingIterations_ << std::endl
 	 << "  Guarantee                              : "
-	 << requiredGuarantee_ << " %" << endl
+	 << requiredGuarantee_ << " %" << std::endl
 	 << "  Maximal enumeration level              : "
-	 << maxLevel_ << endl
+	 << maxLevel_ << std::endl
 	 << "  Maximal number of subproblems          : "
-	 << maxNSub_ << endl
+	 << maxNSub_ << std::endl
 	 << "  CPU time limit                         : "
-	 << maxCpuTimeAsString() << endl
+	 << maxCpuTimeAsString() << std::endl
 	 << "  Wall-clock time limit                  : "
-	 << maxCowTimeAsString() << endl
+	 << maxCowTimeAsString() << std::endl
 	 << "  Objective function values integer      : "
-	 << onOff(objInteger_) << endl
-	 << "  Tailing Off Parameters" << endl
+	 << onOff(objInteger_) << std::endl
+	 << "  Tailing Off Parameters" << std::endl
 	 << "                    Number of LPs        : "
-	 << tailOffNLp_ << endl
+	 << tailOffNLp_ << std::endl
 	 << "                    Minimal improvement  :    "
-	 << tailOffPercent_ << '%' << endl
+	 << tailOffPercent_ << '%' << std::endl
 	 << "  Delayed branching threshold            : "
-	 << dbThreshold_ << endl
+	 << dbThreshold_ << std::endl
 	 << "  Maximal number of dormant rounds       : "
-	 << minDormantRounds_ << endl
+	 << minDormantRounds_ << std::endl
 
 	 << "  Primal Bound Initialization            : "
 	 << PRIMALBOUNDMODE_[pbMode_]
-	 << endl
+	 << std::endl
 	 << "  Frequency of additional pricing        : "
-	 << pricingFreq_ << " LPs" << endl
+	 << pricingFreq_ << " LPs" << std::endl
 	 << "  Cutting skip factor                    : "
-	 << skipFactor_ << endl
+	 << skipFactor_ << std::endl
 	 << "  Skipping mode                          : "
-	 << ((skippingMode_ == SkipByNode)? "by node": "by tree") << endl
+	 << ((skippingMode_ == SkipByNode)? "by node": "by tree") << std::endl
 
 	<< "  Fix/set by reduced costs               : "
-	 << onOff(fixSetByRedCost_) << endl
+	 << onOff(fixSetByRedCost_) << std::endl
 	 << "  Output of the linear program           : "
-	 << onOff(printLP_) << endl
+	 << onOff(printLP_) << std::endl
 	 << "  Maximal number of added constraints    : "
-	 << maxConAdd_ << endl
+	 << maxConAdd_ << std::endl
 	 << "  Maximal number of buffered constraints : "
-	 << maxConBuffered_ << endl
+	 << maxConBuffered_ << std::endl
 	 << "  Maximal number of added variables      : "
-	 << maxVarAdd_ << endl
+	 << maxVarAdd_ << std::endl
 	 << "  Maximal number of buffered variables   : "
-	 << maxVarBuffered_ << endl
-	 << "  Maximal number of iterations per" << endl
+	 << maxVarBuffered_ << std::endl
+	 << "  Maximal number of iterations per" << std::endl
 	 << "                     cutting plane phase : "
-	 << maxIterations_ << endl
+	 << maxIterations_ << std::endl
 	 << "  Elimination of fixed and set variables : "
-	 << onOff(eliminateFixedSet_) << endl
+	 << onOff(eliminateFixedSet_) << std::endl
 	 << "  Reoptimization after a root change     : "
-	 << onOff(newRootReOptimize_) << endl
+	 << onOff(newRootReOptimize_) << std::endl
 	 << "  File storing optimum solutions         : "
-	 << optimumFileName_ << endl
+	 << optimumFileName_ << std::endl
 	 << "  Show average distance of added cuts    : "
-	 << onOff(showAverageCutDistance_) << endl
+	 << onOff(showAverageCutDistance_) << std::endl
 	 << "  Elimination of constraints             : "
-	 << CONELIMMODE_[conElimMode_] << endl
+	 << CONELIMMODE_[conElimMode_] << std::endl
 	 << "  Elimination of variables               : "
-	 << VARELIMMODE_[varElimMode_] << endl
+	 << VARELIMMODE_[varElimMode_] << std::endl
 	 << "  Tolerance for constraint elimination   : "
-	 << conElimEps_ << endl
+	 << conElimEps_ << std::endl
 	 << "  Tolerance for variable elimination     : "
-	 << varElimEps_ << endl
+	 << varElimEps_ << std::endl
 	 << "  Age for constraint elimination         : "
-	 << conElimAge_ << endl
+	 << conElimAge_ << std::endl
 	 << "  Age for variable elimination           : "
-	 << varElimAge_ << endl
+	 << varElimAge_ << std::endl
 	 << "  Default LP-solver                      : "
-	 << OSISOLVER_[defaultLpSolver_] << endl
+	 << OSISOLVER_[defaultLpSolver_] << std::endl
 	 << "  Usage of approximate solver            : "
-	 << onOff(solveApprox_) << endl;
+	 << onOff(solveApprox_) << std::endl;
 	_printLpParameters();
 }
 
@@ -1410,7 +1410,7 @@ static int64_t getSecondsFromString(const string &str)
 	int pos = (int)str.size() - 1;
 	while (pos >= 0 && str[pos] != ':')
 		pos--;
-	s = stoi(str.substr(pos+1));
+	s = std::stoi(str.substr(pos+1));
 
 	int posStop = pos;
 
@@ -1425,7 +1425,7 @@ static int64_t getSecondsFromString(const string &str)
 		pos--;
 		while (pos >= 0 && str[pos] != ':')
 			pos--;
-		m = stoi(str.substr(pos+1, posStop-(pos+1)));
+		m = std::stoi(str.substr(pos+1, posStop-(pos+1)));
 
 		posStop = pos;
 	}
@@ -1438,7 +1438,7 @@ static int64_t getSecondsFromString(const string &str)
 	*/
 	if (pos >= 0) {
 		if (--pos >= 0)
-			h = stoi(str.substr(0, posStop));
+			h = std::stoi(str.substr(0, posStop));
 	}
 
 	return s + 60*m + 3600*h;
@@ -1497,4 +1497,4 @@ string Master::maxCpuTimeAsString() const
 
 	return str;
 }
-} //namespace abacus
+}

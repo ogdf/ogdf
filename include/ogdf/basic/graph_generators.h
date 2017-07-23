@@ -72,6 +72,14 @@ OGDF_EXPORT void randomGraph(Graph &G, int n, int m);
  */
 OGDF_EXPORT bool randomSimpleGraph(Graph &G, int n, int m);
 
+//! Creates a random simple and connected graph.
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes of the generated graph.
+ * @param m is the number of edges of the generated graph.
+ */
+OGDF_EXPORT bool randomSimpleConnectedGraph(Graph &G, int n, int m);
+
 //! Creates a random biconnected graph.
 /**
  * @param G is assigned the generated graph.

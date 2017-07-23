@@ -1,10 +1,6 @@
 /** \file
  * \brief Declares EdgeComparer class.
  *
- * The EdgeComparer compares adjacency entries on base of
- * the position of the nodes given by an Attributed Graph's
- * layout information.
- *
  * \author Karsten Klein
  *
  * \par License:
@@ -40,49 +36,56 @@
 
 namespace ogdf {
 
-//! The EdgeComparer compares adjacency entries on base of the position of the nodes given by an Attributed Graph's layout information
 /**
+ * Compares adjacency entries based on the position of the nodes
+ * given by GraphAttribute layout information. An adjacency entry
+ * considered greater than another if it comes after the other
+ * in a clockwise manner.
+ *
  * @ingroup comparer
- *
- * helper function for ordering / sorting
- * assumes that PG is a planrep on original AG and that PG is
- * not normalized, i.e., if there are bends in AG, they do not
- * have a counterpart in PG (all nodes in PG have an original)
- * temporary: we assume that we have two adjentries
- * at a common point, so we leave the check for now
- * if they meet and at which point
- *
- * \todo check if sorting order fits adjacency list
+ * @todo Check if sorting order fits adjacency list.
  */
 class OGDF_EXPORT EdgeComparer : public VComparer<adjEntry>
 {
 public:
-	//order: clockwise
-
+	/**
+	 * Constructor for a given PlanRep and given GraphAttributes
+	 *
+	 * Assumes that \p PR is a PlanRep on original \p AG and that \p PR is
+	 * not normalized, i.e., if there are bends in \p AG, they do not have
+	 * a counterpart in \p PR (all nodes in \p PR have an original) temporary:
+	 * we assume that we have two adjacency entries at a common point, so we
+	 * leave the check for now if they meet and at which point.
+	 */
 	EdgeComparer(const GraphAttributes& AG, const PlanRep& PR) : m_AG(&AG), m_PR(&PR) { }
 
-	//! compare the edges directly in AG
+	/**
+	 * Constructor for given GraphAttributes
+	 *
+	 * Compares the edges directly in \p AG.
+	 */
 	explicit EdgeComparer(const GraphAttributes &AG) : m_AG(&AG), m_PR(nullptr) {}
 
 	int compare(const adjEntry &e1, const adjEntry &e2) const override;
 
-	//! check if vector u->v lies within 180degree halfcircle before vector u->w in clockwise order (i.e. twelve o'clock lies before 1)
+	/**
+	 * Checks if vector from \p u to \p v lies within the 180-degree halfcircle before
+	 * the vector from \p u to \p w in clockwise order (i.e. twelve o'clock lies before 1).
+	 */
 	bool before(const DPoint &u, const DPoint &v, const DPoint &w) const;
 
 private:
-
-	//! returns a value > 0, if vector uv lies "before" vector uw
+	/**
+	 * Returns 1 if \p v lies to the left of the line through \p u and \p w,
+	 * -1 if it lies to the right, and 0 if it lies on that line.
+	 */
 	int orientation(
 		const DPoint &u,
 		const DPoint &v,
 		const DPoint &w) const;
 
-	//! computes angle between vectors p->q, p->r
-	double angle(DPoint p, DPoint q, DPoint r) const;
-
 	const GraphAttributes *m_AG;
 	const PlanRep *m_PR;
-};//EdgeComparer
+};
 
-
-}//namespace ogdf
+}

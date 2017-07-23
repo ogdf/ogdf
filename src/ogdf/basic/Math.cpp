@@ -32,13 +32,9 @@
 #include <ogdf/basic/Math.h>
 
 namespace ogdf {
+namespace Math {
 
-const double Math::pi     = 3.14159265358979323846;
-const double Math::pi_2   = 1.57079632679489661923;
-const double Math::gamma  = 0.57721566490153286061;
-const double Math::log_of_4 = log(4.0);
-
-int Math::binomial(int n, int k)
+int binomial(int n, int k)
 {
 	if(k>n/2) k = n-k;
 	if(k == 0) return 1;
@@ -48,7 +44,7 @@ int Math::binomial(int n, int k)
 	return r;
 }
 
-double Math::binomial_d(int n, int k)
+double binomial_d(int n, int k)
 {
 	if(k>n/2) k = n-k;
 	if(k == 0) return 1.0;
@@ -58,7 +54,7 @@ double Math::binomial_d(int n, int k)
 	return r;
 }
 
-static constexpr double compiletimeHarmonic(unsigned n)
+constexpr double compiletimeHarmonic(unsigned n)
 {
 	return n <= 1 ? 1.0 : (compiletimeHarmonic(n-1) + 1.0 / n);
 }
@@ -71,19 +67,19 @@ struct rec_seq : rec_seq<N-1, N-1, Is...> { };
 template<unsigned... Is>
 struct rec_seq<0, Is...> : seq<Is...> { };
 
-static constexpr unsigned compiletimeLimit = 128;
+constexpr unsigned compiletimeLimit = 128;
 
 struct compiletimeTable {
 	double value[compiletimeLimit];
 };
 
 template<unsigned... Is>
-static constexpr compiletimeTable generateCompiletimeHarmonics(seq<Is...>)
+constexpr compiletimeTable generateCompiletimeHarmonics(seq<Is...>)
 {
 	return {{compiletimeHarmonic(Is)...}};
 }
 
-double Math::harmonic(unsigned n)
+double harmonic(unsigned n)
 {
 	if (n < compiletimeLimit) {
 		return generateCompiletimeHarmonics(rec_seq<compiletimeLimit>{}).value[n];
@@ -102,4 +98,4 @@ double Math::harmonic(unsigned n)
 	return n8_term - n6_term + n4_term - n2_term + n_term + gamma + std::log(n);
 }
 
-} // namespace ogdf
+}}

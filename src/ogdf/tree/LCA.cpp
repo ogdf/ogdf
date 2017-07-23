@@ -77,16 +77,16 @@ void LCA::dfs(const Graph &G, node root)
 {
 	OGDF_ASSERT(isSimple(G));
 	OGDF_ASSERT(isArborescence(G));
-	List< std::pair<node,int> > todo;
-	List< adjEntry > adjStack;
+	ArrayBuffer<std::pair<node,int>> todo;
+	ArrayBuffer<adjEntry> adjStack;
 	int dfscounter = 0;
-	todo.pushBack(std::pair<node,int>(root, 0));
-	adjStack.pushBack(root->firstAdj());
+	todo.push(std::make_pair(root, 0));
+	adjStack.push(root->firstAdj());
 
 	while (!todo.empty()) {
-		const node u = todo.back().first;
-		const int level = todo.back().second;
-		adjEntry adj = adjStack.popBackRet();
+		const node u = todo.top().first;
+		const int level = todo.top().second;
+		adjEntry adj = adjStack.popRet();
 
 		m_euler[dfscounter] = u;
 		m_level[dfscounter] = level;
@@ -97,11 +97,11 @@ void LCA::dfs(const Graph &G, node root)
 		}
 		if (adj) {
 			node v = adj->twinNode();
-			adjStack.pushBack(adj->succ());
-			todo.pushBack(std::pair<node,int>(v, level + 1));
-			adjStack.pushBack(v->firstAdj());
+			adjStack.push(adj->succ());
+			todo.push(std::pair<node,int>(v, level + 1));
+			adjStack.push(v->firstAdj());
 		} else {
-			todo.popBack();
+			todo.pop();
 		}
 		++dfscounter;
 	}
@@ -139,7 +139,7 @@ void LCA::buildTable()
 
 int LCA::rmq(int i, int j) const
 {
-	if (i > j) swap(i, j);
+	if (i > j) std::swap(i, j);
 	if (j - i <= 1) {
 		if (m_level[i] < m_level[j]) {
 			return i;
@@ -159,5 +159,4 @@ int LCA::rmq(int i, int j) const
 	return (m_level[interval1] < m_level[interval2] ? interval1 : interval2);
 }
 
-
-} // end namespace ogdf
+}

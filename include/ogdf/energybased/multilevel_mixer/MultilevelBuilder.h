@@ -1,5 +1,5 @@
 /** \file
- * \brief Abstract MultilevelBuilder builds all Levels
+ * \brief Declaration of MultilevelBuilder
  *
  * \author Gereon Bartel
  *
@@ -51,7 +51,7 @@ private:
 	 *
 	 * @param MLG is the MultilevelGraph for which a new gevel will be built.
 	 *
-	 * @return true if the Graph was changed or false if no Level can be built.
+	 * @return true if the Graph was changed or false if no level can be built.
 	 */
 	virtual bool buildOneLevel(MultilevelGraph &MLG) = 0;
 
@@ -79,7 +79,6 @@ public:
 
 	void setEdgeLengthAdjustment(int factor) { m_adjustEdgeLengths = factor; }
 	int getNumLevels() {return m_numLevels;}
-
 };
 
-} // namespace ogdf
+}

@@ -231,4 +231,4 @@ void StressMinimization::useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
 	m_hasEdgeCostsAttribute = useEdgeCostsAttribute;
 }
 
-} // end namespace
+}

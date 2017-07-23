@@ -282,5 +282,4 @@ bool UpwardPlanarSubgraphSimple::checkAcyclic(
 	return acyclic;
 }
 
-
-} // end namespace ogdf
+}

@@ -81,5 +81,5 @@ public:
 	virtual void update(const Triple<T> &t) = 0;
 };
 
-} // end namespace steiner_tree
-} // end namespace ogdf
+}
+}

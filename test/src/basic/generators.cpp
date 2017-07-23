@@ -29,13 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "bandit/bandit.h"
 #include "ogdf/basic/Graph.h"
 #include "ogdf/basic/graph_generators.h"
 #include "ogdf/basic/simple_graph_alg.h"
-
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 /**
  * Checks for a given graph \p G and a given list of
@@ -255,6 +252,38 @@ static void testRandomGenerators() {
 		}
 	});
 
+	describe("randomSimpleConnectedGraph", []() {
+		itClearsGraph([](Graph &G) {
+			randomSimpleConnectedGraph(G, 0, 0);
+		});
+
+		it("fails if it cannot be simple", []() {
+			Graph G;
+			AssertThat(randomSimpleConnectedGraph(G, 1, 1), IsFalse());
+			AssertThat(randomSimpleConnectedGraph(G, 2, 2), IsFalse());
+			AssertThat(randomSimpleConnectedGraph(G, 3, 4), IsFalse());
+		});
+
+		it("fails if it cannot be connected", []() {
+			Graph G;
+			AssertThat(randomSimpleConnectedGraph(G, 2, 0), IsFalse());
+			AssertThat(randomSimpleConnectedGraph(G, 3, 1), IsFalse());
+		});
+
+		for (int n = 0; n < 100; n++) {
+			int m = randomNumber(max(0, n-1), (n*(n-1))/2);
+			it("generates a graph with " + to_string(n) + " nodes and " + to_string(m) + " edges", [&]() {
+				Graph G;
+				bool ret = randomSimpleConnectedGraph(G, n, m);
+				AssertThat(ret, IsTrue());
+				AssertThat(G.numberOfNodes(), Equals(n));
+				AssertThat(G.numberOfEdges(), Equals(m));
+				AssertThat(isSimple(G), IsTrue());
+				AssertThat(isConnected(G), IsTrue());
+			});
+		}
+	});
+
 	describe("randomBiconnectedGraph", [](){
 		for(int n = 3; n < 100; n++) {
 			int m = randomNumber(n, (n*(n-1))/2);
@@ -280,7 +309,11 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomTree", [](){
-		for(int n = 1; n < 100; n++) {
+		itClearsGraph([](Graph &G) {
+			randomTree(G, 0);
+		});
+
+		for(int n = 0; n < 100; n++) {
 			it(string("generates a graph with " + to_string(n) + " nodes"), [&](){
 				Graph G;
 				randomTree(G, n);

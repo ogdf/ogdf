@@ -260,7 +260,7 @@ private:
 			markCut(target, false, origNode);
 		}
 
-		StackPure<edge> stack;
+		ArrayBuffer<edge> stack;
 		EdgeArray<bool> visited(graph, false);
 		node startNode = (m_primaryCut ? source : target);
 		adjEntry startAdj = startNode->firstAdj();
@@ -276,7 +276,7 @@ private:
 			}
 		}
 		while (!stack.empty()) {
-			edge e = stack.pop();
+			edge e = stack.popRet();
 			if (visited[origEdge(e)]) {
 				continue;
 			}

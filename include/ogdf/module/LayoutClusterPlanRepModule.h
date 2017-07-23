@@ -58,16 +58,14 @@ public:
 	 * @param PG is the input cluster planarized representation which may be modified.
 	 * @param adjExternal is an adjacenty entry on the external face.
 	 * @param drawing is the computed layout of \p PG.
-	 * @param npEdges are pairs of nodes in the original graph that shall be connected.
-	 * @param newEdges are assigned the inserted edges.
+	 * @param origEdges are edges in the original graph.
 	 * @param originalGraph must be the original graph of \p PG.
 	 */
 	virtual void call(
 		ClusterPlanRep &PG,
 		adjEntry adjExternal,
 		Layout &drawing,
-		List<NodePair>& npEdges,
-		List<edge>& newEdges,
+		List<edge>& origEdges,
 		Graph& originalGraph) = 0;
 
 
@@ -77,10 +75,12 @@ public:
 	}
 
 	//! Sets the (generic) options; derived classes have to cope with the interpretation)
-	virtual void setOptions(int /* optionField */) { } //don't make it abstract
+	virtual void setOptions(int /* optionField */) { }
+	// don't make it abstract!
 
 	//! Returns the (generic) options.
-	virtual int getOptions() { return 0; } //don't make it abstract
+	virtual int getOptions() { return 0; }
+	// don't make it abstract!
 
 	//! Returns the minimal allowed distance between edges and vertices.
 	virtual double separation() const = 0;
@@ -95,9 +95,7 @@ protected:
 	 */
 	DPoint m_boundingBox;
 
-
 	OGDF_MALLOC_NEW_DELETE
 };
 
-
-} // end namespace ogdf
+}

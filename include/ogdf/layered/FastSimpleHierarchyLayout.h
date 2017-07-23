@@ -277,4 +277,4 @@ private:
 	node pred(const node v, const HierarchyLevelsBase &levels, const bool leftToRight);
 };
 
-} // end namespace ogdf
+}

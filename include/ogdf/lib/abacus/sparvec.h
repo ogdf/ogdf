@@ -141,7 +141,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream& operator<<(ostream& out, const SparVec& rhs);
+	friend std::ostream& operator<<(std::ostream& out, const SparVec& rhs);
 
 	/**
 	 * \param i The number of the nonzero element.
@@ -283,4 +283,4 @@ protected:
 	double *coeff_;
 };
 
-} //namespace abacus
+}

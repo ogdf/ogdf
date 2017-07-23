@@ -52,4 +52,4 @@ public:
 	void setRandomRange(double range);
 };
 
-} // namespace ogdf
+}

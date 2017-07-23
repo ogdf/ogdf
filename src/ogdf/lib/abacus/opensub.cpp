@@ -111,4 +111,4 @@ void OpenSub::updateDualBound()
 		}
 	}
 }
-} //namespace abacus
+}

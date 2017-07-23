@@ -33,7 +33,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const SetBranchRule &rhs)
+std::ostream &operator<<(std::ostream &out, const SetBranchRule &rhs)
 {
 	return out << "x" << rhs.variable_ << " = " << (int) rhs.status_;
 }
@@ -69,4 +69,4 @@ void SetBranchRule::unExtract(LpSub *lp)
 	else
 		lp->changeLBound(variable_, oldLpBound_);
 }
-} //namespace abacus
+}

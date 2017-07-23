@@ -140,7 +140,7 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 			GA.x(v) = coord[0][i];
 			GA.y(v) = coord[1][i];
 			if (use3D){
-				GA.z(v) = coord[2][i];//cout << coord[2][i] << "\n";
+				GA.z(v) = coord[2][i];//std::cout << coord[2][i] << "\n";
 			}
 			++i;
 		}
@@ -233,7 +233,7 @@ void PivotMDS::eigenValueDecomposition(
 			if (tmp < 0) {
 				tmp *= -1;
 			}
-			r = min(r, tmp);
+			Math::updateMin(r, tmp);
 		}
 	}
 }
@@ -285,7 +285,7 @@ void PivotMDS::getPivotDistanceMatrix(
 		minDistances[pivNode] = 0;
 		for(node v : G.nodes)
 		{
-			minDistances[v] = min(minDistances[v], shortestPathSingleSource[v]);
+			Math::updateMin(minDistances[v], shortestPathSingleSource[v]);
 			if (minDistances[v] > minDistances[pivNode]) {
 				pivNode = v;
 			}
@@ -397,18 +397,18 @@ void PivotMDS::singularValueDecomposition(
 	Array<Array<double> >& eVecs,
 	Array<double>& eVals)
 {
-	const int l = pivDistMatrix.size();
+	const int size = pivDistMatrix.size();
 	const int n = pivDistMatrix[0].size();
-	Array<Array<double> > K(l);
-	for (int i = 0; i < l; i++) {
-		K[i].init(l);
+	Array<Array<double> > K(size);
+	for (int i = 0; i < size; i++) {
+		K[i].init(size);
 	}
 	// calc C^TC
 	selfProduct(pivDistMatrix, K);
 
 	Array<Array<double> > tmp(DIMENSION_COUNT);
 	for (int i = 0; i < DIMENSION_COUNT; i++) {
-		tmp[i].init(l);
+		tmp[i].init(size);
 	}
 
 	eigenValueDecomposition(K, tmp, eVals);
@@ -418,7 +418,7 @@ void PivotMDS::singularValueDecomposition(
 		eVals[i] = sqrt(eVals[i]);
 		for (int j = 0; j < n; j++) { // node j
 			eVecs[i][j] = 0;
-			for (int k = 0; k < l; k++) { // pivot k
+			for (int k = 0; k < size; k++) { // pivot k
 				eVecs[i][j] += pivDistMatrix[k][j] * tmp[i][k];
 			}
 		}
@@ -428,4 +428,4 @@ void PivotMDS::singularValueDecomposition(
 	}
 }
 
-} /* namespace ogdf */
+}

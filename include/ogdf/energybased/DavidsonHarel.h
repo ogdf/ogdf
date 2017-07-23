@@ -115,4 +115,4 @@ private:
 	DavidsonHarel(const DavidsonHarel &) { }
 };
 
-} //end namespace
+}

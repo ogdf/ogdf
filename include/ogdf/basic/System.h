@@ -294,5 +294,4 @@ public:
 	static void init();
 };
 
-
-} // end namespace ogdf
+}

@@ -674,6 +674,11 @@ public:
 
 	//! Returns the list of bend points of edge \p e.
 	/**
+	 * Note that bend points should not be co-linear.
+	 * This can always be achieved by calling DPolyline::normalize().
+	 * Similarly, bend points should never include the point of the
+	 * edge's source or target node, even though the poly-line for the entire edge formally includes them.
+	 *
 	 * \pre #edgeGraphics is enabled
 	 */
 	const DPolyline &bends(edge e) const {
@@ -683,6 +688,8 @@ public:
 
 	//! Returns the list of bend points of edge \p e.
 	/**
+	 * @see bends(edge e) const
+	 *
 	 * \pre #edgeGraphics is enabled
 	 */
 	DPolyline &bends(edge e) {

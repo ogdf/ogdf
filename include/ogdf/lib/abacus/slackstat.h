@@ -80,7 +80,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream  &operator<<(ostream& out, const SlackStat &rhs);
+	friend std::ostream  &operator<<(std::ostream& out, const SlackStat &rhs);
 
 	//! Returns the status of the slack variable.
 	STATUS status() const { return status_; }
@@ -107,4 +107,4 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} //namespace abacus
+}

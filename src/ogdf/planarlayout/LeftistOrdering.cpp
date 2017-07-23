@@ -43,18 +43,15 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 	int currPartIndex = 0;
 
 	// init for all partitions the array
-	for (List<List<node> >::const_iterator lit = lco.begin(); lit.valid(); ++lit) {
-		// the list of nodes
-		const List<node>& l = *lit;
-
+	for (const List<node>& list : lco) {
 		// array for the path
 		Array<adjEntry>& ear = m_ears[currPartIndex];
 
 		// reserve for all adjEntries from left->v1, ... v_k->right some space
-		ear.init(l.size()+1);
+		ear.init(list.size()+1);
 
 		// just for safety ;)
-		for (int i = 0; i < l.size()+1; ++i) {
+		for (int i = 0; i < list.size()+1; ++i) {
 			// reset the array
 			ear[i] = nullptr;
 		}
@@ -70,15 +67,9 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 	currPartIndex = 0;
 
 	// for all partitions
-	for (List<List<node> >::const_iterator lit = lco.begin(); lit.valid(); ++lit) {
-		// the list of nodes
-		const List<node>& l = *lit;
-
+	for (const List<node>& list : lco) {
 		// for all nodes of that partition
-		for (List<node>::const_iterator it = l.begin(); it.valid(); it++) {
-			// the node
-			node v = *it;
-
+		for (node v : list) {
 			// set the index
 			partIndex[v] = currPartIndex;
 		}
@@ -90,10 +81,7 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 	// reset the part counter
 	currPartIndex = 0;
 
-	for (List<List<node> >::const_iterator lit = lco.begin(); lit.valid(); ++lit) {
-		// the list of nodes
-		const List<node>& l = *lit;
-
+	for (const List<node>& list : lco) {
 		// the array
 		Array<adjEntry>& ear = m_ears[currPartIndex];
 
@@ -101,10 +89,7 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 		int i = 1;
 
 		// for all nodes of that partition
-		for (List<node>::const_iterator it = l.begin(); it.valid(); it++) {
-			// the node
-			node v = *it;
-
+		for (node v : list) {
 			// for all adj Entries
 			for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
 				// the other node
@@ -131,7 +116,7 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 					// if the prev one is in G / G_k this must be the right leg
 					if (partIndex[w_prev] > partIndex[v]) {
 						// last element of the path
-						ear[l.size()] = adj;
+						ear[list.size()] = adj;
 					}
 				} else
 				if (partIndex[w] == partIndex[v]
@@ -143,12 +128,11 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 			}
 			// increment the counter
 			i++;
-		}// end of for all nodes in part
+		}
 
 		// next one
 		currPartIndex++;
-
-	} // end of for all parts
+	}
 
 	// we are fine except for the last guy v_n sitting on top of this mess.
 	// that one has no left or right leg yet.
@@ -161,8 +145,7 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 	// the end is then the next edge cw
 	// notice that this last guy is a singleton anyway
 	m_ears[numPartitions()-1][1] = adj_v1n->twin()->cyclicSucc();
-
-} // end of function
+}
 
 // computes the leftist canonical order. Requires that G is simple, triconnected and embedded.
 // adj_v1n is the adjEntry at v_1 looking towards v_n, the outerface is choosen such that v_2 is the cyclic pred
@@ -276,9 +259,8 @@ bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result)
 				for (List<adjEntry>::const_iterator it = candidate.chain.begin(); it.valid(); ++it) {
 					m_marked[(*it)->twin()] = true;
 				}
-			} // end of found something
-
-		} // end of z[0] != z[p+1]
+			}
+		}
 
 		// we havent found anything here
 		if (!found) {

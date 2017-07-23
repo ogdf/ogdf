@@ -88,7 +88,7 @@ private:
 	bool m_error;
 
 public:
-	explicit GraphMLParser(istream &in);
+	explicit GraphMLParser(std::istream &in);
 	~GraphMLParser();
 
 	bool read(Graph &G);
@@ -97,5 +97,4 @@ public:
 	bool read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA);
 };
 
-
-} // end namespace ogdf
+}

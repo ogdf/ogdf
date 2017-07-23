@@ -35,7 +35,6 @@
 #include <random>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
 
@@ -106,9 +105,6 @@ public:
 	: BoyerMyrvoldPlanar(g, bundles, static_cast<int>(embeddingGrade), limitStructures, output, randomness, avoidE2Minors, extractSubgraph, edgeCosts)
 	{}
 
-	//! Destructor
-	~BoyerMyrvoldPlanar() { }
-
 	//! Starts the embedding algorithm
 	bool start();
 
@@ -143,19 +139,19 @@ protected:
 	//! @{
 
 	//! Checks whether node \p w is pertinent. \p w has to be non-virtual.
-	inline bool pertinent(node w) {
+	inline bool pertinent(node w) const {
 		OGDF_ASSERT(w!=nullptr);
 		return m_dfi[w] > 0 && (!m_backedgeFlags[w].empty() || !m_pertinentRoots[w].empty());
 	}
 
 	//! Checks whether real node \p w is internally active while embedding node with DFI \p v
-	inline bool internallyActive(node w, int v) {
+	inline bool internallyActive(node w, int v) const {
 		OGDF_ASSERT(w!=nullptr);
 		return m_dfi[w] > 0 && pertinent(w) && !externallyActive(w, v);
 	}
 
 	//! Checks whether real node \p w is externally active while embedding node with DFI \p v
-	inline bool externallyActive(node w, int v) {
+	inline bool externallyActive(node w, int v) const {
 		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return false;
 		if (m_leastAncestor[w] < v) return true;
@@ -179,7 +175,7 @@ protected:
 	 *   - 2 = pertinent and externallyActive
 	 *   - 3 = externallyActive and not pertinent
 	 */
-	inline int infoAboutNode(node w, int v) {
+	inline int infoAboutNode(node w, int v) const {
 		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return 0;
 		if (!m_pertinentRoots[w].empty() || !m_backedgeFlags[w].empty()) {
@@ -201,7 +197,7 @@ protected:
 	 * been changed due to flipped components. If this occurs, the
 	 * traversaldirection is flipped.
 	 */
-	inline node successorOnExternalFace(node w, int& direction) {
+	inline node successorOnExternalFace(node w, int& direction) const {
 		OGDF_ASSERT(w!=nullptr);
 		OGDF_ASSERT(w->degree()>0);
 		OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][w]!=nullptr);
@@ -242,7 +238,7 @@ protected:
 	//! Walks upon external face in \p direction avoiding short circuit edges
 	/** \p direction is not changed.
 	 */
-	inline node constSuccessorWithoutShortCircuit(node v, int direction) {
+	inline node constSuccessorWithoutShortCircuit(node v, int direction) const {
 		OGDF_ASSERT(v!=nullptr);
 		OGDF_ASSERT(v->degree()>0);
 		return beforeShortCircuitEdge(v,direction)->theNode();
@@ -252,7 +248,7 @@ protected:
 	/** Otherwise the common edge is returned. In every case the returned adjEntry
 	 * points to the targetnode.
 	 */
-	inline adjEntry beforeShortCircuitEdge(node v, int direction) {
+	inline adjEntry beforeShortCircuitEdge(node v, int direction) const {
 		OGDF_ASSERT(v!=nullptr);
 		return (m_beforeSCE[direction][v]==nullptr) ? m_link[direction][v] : m_beforeSCE[direction][v];
 	}
@@ -260,19 +256,19 @@ protected:
 	//! Walks upon external face in the given \p direction starting at \p w until an active vertex is reached
 	/** Returns dynamical typeinformation \p info of that endvertex.
 	 */
-	node activeSuccessor(node w, int& direction, int v, int& info);
+	node activeSuccessor(node w, int& direction, int v, int& info) const;
 
 	//! Walks upon external face in the given \p direction (without changing it) until an active vertex is reached
 	/** Returns dynamical typeinformation \p info of that endvertex. But does not change the \p direction.
 	 */
-	inline node constActiveSuccessor(node w, int direction, int v, int& info) {
+	inline node constActiveSuccessor(node w, int direction, int v, int& info) const {
 		return activeSuccessor(w,direction,v,info);
 	}
 
 	//! Checks, if one ore more wNodes exist between the two stopping vertices \p stopx and \p stopy
 	/** The node \p root is root of the bicomp containing the stopping vertices
 	 */
-	inline bool wNodesExist(node root, node stopx, node stopy) {
+	inline bool wNodesExist(node root, node stopx, node stopy) const {
 		OGDF_ASSERT(root != stopx);
 		OGDF_ASSERT(root != stopy);
 		OGDF_ASSERT(stopx != stopy);
@@ -295,39 +291,26 @@ protected:
 
 	//! Prints informations about node \p v
 	inline void printNodeInfo(node v) {
-		cout << "\nprintNodeInfo(" << m_dfi[v] << "): ";
-		cout << "CCW=" << m_dfi[constSuccessorOnExternalFace(v,BoyerMyrvoldPlanar::DirectionCCW)];
-		cout << ",CW=" << m_dfi[constSuccessorOnExternalFace(v,BoyerMyrvoldPlanar::DirectionCW)];
-		cout << "\tCCWBefore=" << m_dfi[constSuccessorWithoutShortCircuit(v,BoyerMyrvoldPlanar::DirectionCCW)];
-		cout << ",CWBefore=" << m_dfi[constSuccessorWithoutShortCircuit(v,BoyerMyrvoldPlanar::DirectionCW)];
-		cout << "\tadjList: ";
+		std::cout
+		  << "\nprintNodeInfo(" << m_dfi[v] << "): "
+		  << "CCW=" << m_dfi[constSuccessorOnExternalFace(v, BoyerMyrvoldPlanar::DirectionCCW)]
+		  << ",CW=" << m_dfi[constSuccessorOnExternalFace(v, BoyerMyrvoldPlanar::DirectionCW)]
+		  << "\tCCWBefore=" << m_dfi[constSuccessorWithoutShortCircuit(v, BoyerMyrvoldPlanar::DirectionCCW)]
+		  << ",CWBefore=" << m_dfi[constSuccessorWithoutShortCircuit(v, BoyerMyrvoldPlanar::DirectionCW)]
+		  << "\tadjList: ";
 		adjEntry adj;
 		for (adj = v->firstAdj(); adj; adj = adj->succ()) {
-			cout << adj->twinNode() << " ";
+			std::cout << adj->twinNode() << " ";
 		}
 	}
 
-	//! Merges the last two biconnected components saved in \p stack while embedding them
-	/** \p j is the outgoing traversal direction of the current node to embed
-	 */
-	void mergeBiconnectedComponent(StackPure<int>& stack, const int j);
+	//! Merges the last two biconnected components saved in \p stack.
+	//! Embeds them iff #m_embeddingGrade != EmbeddingGrade::doNotEmbed.
+	void mergeBiconnectedComponent(ArrayBuffer<int>& stack);
 
-	//! Merges the last two biconnected components saved in \p stack without embedding them
-	/** \p j is the outgoing traversal direction of the current node to embed
-	 */
-	void mergeBiconnectedComponentOnlyPlanar(StackPure<int>& stack, const int j);
-
-	//! Embeds backedges from node \p v with direction \p v_dir to node \p w with direction \p w_dir
-	/** \p i is the DFI of current embedded node.
-	 */
-	void embedBackedges(const node v, const int v_dir,
-						const node w, const int w_dir, const int i);
-
-	//! Links (not embed) backedges from node \p v with direction \p v_dir to node \p w with direction \p w_dir
-	/** \p i is the DFI of current embedded node.
-	 */
-	void embedBackedgesOnlyPlanar(const node v, const int v_dir,
-								const node w, const int w_dir, const int i);
+	//! Links (and embeds iff #m_embeddingGrade != EmbeddingGrade::doNotEmbed) backedges from node
+	//! \p v with direction \p v_dir to node \p w with direction \p w_dir.
+	void embedBackedges(const node v, const int v_dir, const node w, const int w_dir);
 
 	//! Creates a short circuit edge from node \p v with direction \p v_dir to node \p w with direction \p w_dir
 	void createShortCircuitEdge(const node v, const int v_dir,

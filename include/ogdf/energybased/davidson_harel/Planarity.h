@@ -83,6 +83,6 @@ private:
 	List<ChangedCrossing> m_crossingChanges;
 
 	List<edge> m_nonSelfLoops; //!< list of edges that are not slef loops
-}; // class Planarity
+};
 
 }}

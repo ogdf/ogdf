@@ -1,21 +1,20 @@
-
 //          Copyright Joakim Karlsson & Kim Gräsman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef FULFILLSCONSTRAINT_H
-#define FULFILLSCONSTRAINT_H
+#ifndef SNOWHOUSE_FULFILLSCONSTRAINT_H
+#define SNOWHOUSE_FULFILLSCONSTRAINT_H
 
-#include "./expressions/expression.h"
+#include "expressions/expression.h"
 
-namespace snowhouse {
-
-  template< typename MatcherType >
-  struct FulfillsConstraint : Expression< FulfillsConstraint<MatcherType> >
+namespace snowhouse
+{
+  template<typename MatcherType>
+  struct FulfillsConstraint : Expression<FulfillsConstraint<MatcherType> >
   {
     FulfillsConstraint(const MatcherType& matcher)
-      : m_matcher(matcher)
+        : m_matcher(matcher)
     {
     }
 
@@ -28,14 +27,14 @@ namespace snowhouse {
     MatcherType m_matcher;
   };
 
-  template< typename MatcherType >
+  template<typename MatcherType>
   inline FulfillsConstraint<MatcherType> Fulfills(const MatcherType& matcher)
   {
     return FulfillsConstraint<MatcherType>(matcher);
   }
 
-  template< typename MatcherType >
-  struct Stringizer< FulfillsConstraint< MatcherType > >
+  template<typename MatcherType>
+  struct Stringizer<FulfillsConstraint<MatcherType> >
   {
     static std::string ToString(const FulfillsConstraint<MatcherType>& constraint)
     {
@@ -45,7 +44,6 @@ namespace snowhouse {
       return builder.str();
     }
   };
-
 }
 
 #endif

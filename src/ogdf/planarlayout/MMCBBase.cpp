@@ -357,7 +357,6 @@ void MMCBDoubleGrid::doCall(const PlanRep &PG, GridLayout &gl, const List<node> 
 		y *= 2;
 	});
 
-	ListConstIterator<node> itV;
 	for (node v : L)
 		workOn(gl, v);
 }
@@ -375,10 +374,10 @@ void MMCBLocalStretch::doCall(const PlanRep &PG, GridLayout &gl, const List<node
 	int min_x = 0, min_y = 0;
 
 	doForEachCoordinate(PG, gl, [&](int &x, int &y) {
-		max_x = max(max_x, x);
-		min_x = min(min_x, x);
-		max_y = max(max_y, y);
-		min_y = min(min_y, y);
+		Math::updateMax(max_x, x);
+		Math::updateMin(min_x, x);
+		Math::updateMax(max_y, y);
+		Math::updateMin(min_y, y);
 		x *= 2;
 		y *= 2;
 	});
@@ -421,5 +420,4 @@ void MMCBLocalStretch::doCall(const PlanRep &PG, GridLayout &gl, const List<node
 	});
 }
 
-
-} // end namespace ogdf
+}

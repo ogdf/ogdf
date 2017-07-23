@@ -50,7 +50,7 @@ class OGDF_EXPORT DavidsonHarelLayout : public LayoutModule
 {
 public:
 	//! Easy way to set fixed costs
-	enum class SettingsParameter {Standard, Repulse, Planar}; //tuning of costs
+	enum class SettingsParameter {Standard, Repulse, Planar};
 
 	//! Easy way to set temperature and iterations
 	enum class SpeedParameter {Fast, Medium, HQ};

@@ -31,15 +31,14 @@
 
 #include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
 
+#ifdef OGDF_HAS_LINUX_CPU_MACROS
+#include <sched.h>
+#endif
+
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-#if defined(OGDF_SYSTEM_UNIX) && defined(OGDF_FME_THREAD_AFFINITY)
-#include <sys/types.h>
-#include <sys/sysinfo.h>
-#include <sys/mman.h>
-#include <sched.h>
-
+#ifdef OGDF_HAS_LINUX_CPU_MACROS
 //! helper function for setting the affinity on the test machine.
 void CPU_SET_ordered_dual_quad(int cpu, cpu_set_t* set)
 {

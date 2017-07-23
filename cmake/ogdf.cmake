@@ -4,8 +4,9 @@
 option(BUILD_SHARED_LIBS "Whether to build shared libraries instead of static ones." OFF)
 set(OGDF_MEMORY_MANAGER "POOL_TS" CACHE STRING "Memory manager to be used.")
 set_property(CACHE OGDF_MEMORY_MANAGER PROPERTY STRINGS POOL_TS POOL_NTS MALLOC_TS)
-option(OGDF_DEBUG "Whether to include OGDF assertions in Debug mode (increased runtime)." ON)
-mark_as_advanced(OGDF_DEBUG)
+set(OGDF_DEBUG_MODE "REGULAR" CACHE STRING "Whether to use (heavy) OGDF assertions in debug mode.")
+set_property(CACHE OGDF_DEBUG_MODE PROPERTY STRINGS NONE REGULAR HEAVY)
+mark_as_advanced(OGDF_DEBUG_MODE)
 option(OGDF_USE_ASSERT_EXCEPTIONS "Whether to throw an exception on failed assertions." OFF)
 set(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE "OFF" CACHE
     STRING "Which library (libdw, libbdf, libunwind) to use in case a stack trace should be written \
@@ -15,10 +16,19 @@ if(OGDF_USE_ASSERT_EXCEPTIONS)
 else()
   unset(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE CACHE)
 endif()
+option(OGDF_WARNING_ERRORS "Whether to treat compiler warnings as errors." ON)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND OGDF_MEMORY_MANAGER STREQUAL MALLOC_TS)
   option(OGDF_LEAK_CHECK "Whether to use the address sanitizer for the MALLOC_TS memory manager." OFF)
 else()
   unset(OGDF_LEAK_CHECK CACHE)
+endif()
+
+# set debug mode
+if(OGDF_DEBUG_MODE STREQUAL HEAVY)
+  set(OGDF_HEAVY_DEBUG ON)
+endif()
+if(OGDF_HEAVY_DEBUG OR OGDF_DEBUG_MODE STREQUAL REGULAR)
+  set(OGDF_DEBUG ON)
 endif()
 
 # find available packages for stack traces
@@ -63,22 +73,25 @@ if(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES)
   target_include_directories(OGDF SYSTEM PUBLIC ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
 endif()
 
-function (addOgdfExtraFlags TARGET_NAME)
+function (add_ogdf_extra_flags TARGET_NAME)
   set(extra_flags ${OGDF_EXTRA_CXX_FLAGS})
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(extra_flags  "${extra_flags} ${OGDF_EXTRA_CXX_FLAGS_DEBUG}")
   else()
     set(extra_flags  "${extra_flags} ${OGDF_EXTRA_CXX_FLAGS_RELEASE}")
   endif()
+  if(OGDF_WARNING_ERRORS)
+    set(extra_flags "${warnings_as_errors_flag} ${extra_flags}")
+  endif()
   if(OGDF_LEAK_CHECK)
     set(leak_flags "-fsanitize=address -fno-omit-frame-pointer")
-    set(extra_flags  "${extra_flags} ${leak_flags}")
+    set(extra_flags "${extra_flags} ${leak_flags}")
     set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY LINK_FLAGS " ${leak_flags} ")
   endif()
   set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY COMPILE_FLAGS " ${extra_flags} ")
 endfunction()
 
-addOgdfExtraFlags(OGDF)
+add_ogdf_extra_flags(OGDF)
 
 # set OGDF_INSTALL for shared libraries
 if(BUILD_SHARED_LIBS)
@@ -119,6 +132,12 @@ elseif(has_sse3_pmmintrin)
   set(OGDF_SSE3_EXTENSIONS <pmmintrin.h>)
 else()
   message(STATUS "SSE3 could not be activated")
+endif()
+
+# autogen header variables for Linux-specific CPU_SET, etc.
+include(check-cpu-macros)
+if(has_linux_cpu_macros)
+  set(OGDF_HAS_LINUX_CPU_MACROS 1)
 endif()
 
 # add stack trace include paths

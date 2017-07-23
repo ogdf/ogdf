@@ -92,20 +92,18 @@ void DavidsonHarelLayout::fixSettings(SettingsParameter sp)
 		break;
 	default:
 		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::IllegalParameter);
-	}//switch
+	}
 	setRepulsionWeight(r);
 	setAttractionWeight(a);
 	setNodeOverlapWeight(o);
 	setPlanarityWeight(p);
-}//fixSettings
-
+}
 
 void DavidsonHarelLayout::setSpeed(SpeedParameter sp)
 {
 	m_speed = sp;
 	m_numberOfIterations = 0;
-}//setSpeed
-
+}
 
 void DavidsonHarelLayout::setRepulsionWeight(double w)
 {
@@ -206,10 +204,8 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 			break;
 		default:
 			OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::IllegalParameter);
-		}//switch
-	}//if
-	else
-	{
+		}
+	} else {
 		if (m_itAsFactor)
 			dh.setNumberOfIterations(200+m_numberOfIterations*G.numberOfNodes());
 		else
@@ -219,4 +215,4 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 	dh.call(AG);
 }
 
-} // namespace ogdf
+}

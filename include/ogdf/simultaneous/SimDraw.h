@@ -126,8 +126,10 @@ public:
 	//! returns number of proper dummy nodes
 	int numberOfProperDummyNodes() const;
 
-	//! checks whether instance is a consistent SimDraw instance
-	bool consistencyCheck() const;
+#ifdef OGDF_DEBUG
+	//! Asserts that this SimDraw instance is consistent.
+	void consistencyCheck() const;
+#endif
 
 	//! calculates maximum number of input graphs
 	/**

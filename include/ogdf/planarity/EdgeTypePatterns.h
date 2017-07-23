@@ -48,7 +48,7 @@ enum class UMLEdgeTypePatterns : edgeType {
 	Fourth    = 0x0000f000,
 	User      = 0xff000000,
 	All       = 0xffffffff
-}; //!!!attention sign, 7fffffff
+}; // attention sign, 7fffffff
 
 inline edgeType operator & (edgeType lhs, UMLEdgeTypePatterns rhs) {
 	return lhs & static_cast<edgeType>(rhs);
@@ -113,4 +113,4 @@ inline edgeType operator << (UMLEdgeTypeConstants lhs, UMLEdgeTypeOffsets rhs) {
 	return static_cast<edgeType>(lhs) << static_cast<edgeType>(rhs);
 }
 
-} //end namespace ogdf
+}

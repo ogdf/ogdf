@@ -98,9 +98,7 @@ public:
 		if (m_pClusterGraph != nullptr)
 			m_pClusterGraph->moveRegisterArray(m_it, this);
 	}
-
-}; // class ClusterArrayBase
-
+};
 
 //! Dynamic arrays indexed with clusters.
 /**
@@ -380,7 +378,6 @@ private:
 
 	OGDF_NEW_DELETE
 
-}; // class ClusterArray<T>
+};
 
-
-} // end namespace ogdf
+}

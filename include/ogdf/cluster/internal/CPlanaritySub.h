@@ -59,14 +59,15 @@ public:
 
 protected:
 
-
 	// Checks if the current solution of the LP relaxation is also a feasible solution to the ILP,
 	// i.e. Integer-feasible + satisfying all Kuratowski- and Cut-constraints.
 	virtual bool feasible() override;
 
-	virtual int makeFeasible() override { return 0; }  // to trick Sub::solveLp...
+	// to trick Sub::solveLp...
+	virtual int makeFeasible() override { return 0; }
 #if 0
-	virtual int removeNonLiftableCons() { return 0; } // to trick Sub::solveLp into returning 2
+	// to trick Sub::solveLp into returning 2
+	virtual int removeNonLiftableCons() { return 0; }
 #endif
 	int repair();
 
@@ -162,11 +163,12 @@ protected:
 	inline int addPoolCons(ArrayBuffer<abacus::Constraint *> &cons, abacus::StandardPool<abacus::Constraint, abacus::Variable> *pool)
 	{
 		return (master()->useDefaultCutPool()) ? addCons(cons) : addCons(cons, pool);
-	}//addPoolCons
+	}
+
 	inline int separateCutPool(abacus::StandardPool<abacus::Constraint, abacus::Variable> *pool, double minViolation)
 	{
 		return (master()->useDefaultCutPool()) ? 0 : constraintPoolSeparation(0, pool, minViolation);
-	}//separateCutPool
+	}
 
 private:
 	CPlanarityMaster* master() { return static_cast<CPlanarityMaster*>(master_); }

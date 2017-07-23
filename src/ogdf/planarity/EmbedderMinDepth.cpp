@@ -31,6 +31,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <limits>
+
 #include <ogdf/planarity/EmbedderMinDepth.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 #include <ogdf/planarity/embedder/ConnectedSubgraph.h>
@@ -41,47 +43,13 @@ void EmbedderMinDepth::doCall(Graph& G, adjEntry& adjExternal)
 {
 	adjExternal = nullptr;
 	pAdjExternal = &adjExternal;
+	node rootBlockNode = initBCTree(G);
 
-	//simple base cases:
-	if (G.numberOfNodes() <= 1)
-		return;
-
-	if (G.numberOfEdges() == 1)
-	{
-		edge e = G.firstEdge();
-		adjExternal = e->adjSource();
+	if(rootBlockNode == nullptr) {
 		return;
 	}
-
-	//HINT: Edges are directed from child to parent in BC-trees
-	pBCTree = new BCTree(G);
-
-	//base case of biconnected graph:
-	if (pBCTree->bcTree().numberOfNodes() == 1)
-	{
-		NodeArray<int> m_nodeLength(G, 0);
-		EdgeArray<int> m_edgeLength(G, 0);
-		adjEntry m_adjExternal;
-		EmbedderMaxFaceBiconnectedGraphs<int>::embed(G, m_adjExternal, m_nodeLength, m_edgeLength);
-		adjExternal = m_adjExternal->twin();
-
-		delete pBCTree;
-		return;
-	}
-
 
 	//First step: calculate min depth and node lengths
-
-	//Find root Block (only node with out-degree of 0):
-	node rootBlockNode = nullptr;
-	for(node n : pBCTree->bcTree().nodes)
-	{
-		if (n->outdeg() == 0) {
-			rootBlockNode = n;
-			break;
-		}
-	}
-	OGDF_ASSERT(rootBlockNode != nullptr);
 
 	//compute block graphs:
 	blockG.init(pBCTree->bcTree());
@@ -119,7 +87,7 @@ void EmbedderMinDepth::doCall(Graph& G, adjEntry& adjExternal)
 
 	//Top-down traversal: (set m_cB for all {B, c} \in bcTree and get min depth
 	//for each block)
-	int maxint = 2147483647;
+	int maxint = std::numeric_limits<int>::max();
 	minDepth.init(pBCTree->bcTree(), maxint);
 	M_B.init(pBCTree->bcTree());
 	M2.init(pBCTree->bcTree());
@@ -453,9 +421,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 			nodeLength[bT][nH_to_nBlockEmbedding[bT][*(M_B[bT].begin())]] = 0;
 			for (ListIterator<node> iterator = M2[bT].begin(); iterator.valid(); ++iterator)
 				nodeLength[bT][nH_to_nBlockEmbedding[bT][*iterator]] = 1;
-		} //if (calculateNewNodeLengths
-		else if (M_B[bT].size() == 1)
-		{
+		} else if (M_B[bT].size() == 1) {
 			//Compute M2 = {c \in V_B \ {v} | m_B(c) = m2} with
 			//m2 = max_{v \in V_B, v != c} m_B(v).
 			int m2 = 0;
@@ -766,11 +732,11 @@ void EmbedderMinDepth::embedBlock(
 				else
 					*pAfter = newOrder[nG].insertAfter(eG->adjTarget(), *pAfter);
 			}
-		} //for (adjEntry aeNode = ae; aeNode; aeNode = aeNode->succ())
+		}
 
 		if (!(*pAfter == after))
 			delete pAfter;
 	}
 }
 
-} // end namespace ogdf
+}

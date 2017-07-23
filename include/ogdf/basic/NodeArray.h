@@ -96,9 +96,7 @@ public:
 		if (m_pGraph != nullptr)
 			m_pGraph->moveRegisterArray(m_it, this);
 	}
-
-}; // class NodeArrayBase
-
+};
 
 //! Dynamic arrays indexed with nodes.
 /**
@@ -361,8 +359,6 @@ private:
 	}
 
 	OGDF_NEW_DELETE
+};
 
-}; // class NodeArray<T>
-
-
-} // end namespace ogdf
+}

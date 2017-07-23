@@ -1,6 +1,5 @@
 /** \file
- * \brief Declaration of Spring-Embedder (Fruchterman,Reingold)
- *        algorithm with exact force computations.
+ * \brief Declaration of ogdf::SpringEmbedderFRExact.
  *
  * \author Carsten Gutwenger
  *
@@ -38,6 +37,7 @@
 
 namespace ogdf {
 
+//! Fruchterman-Reingold algorithm with (exact) layout.
 class OGDF_EXPORT SpringEmbedderFRExact : public ForceLayoutModule
 {
 public:
@@ -46,13 +46,8 @@ public:
 	//! Creates an instance of Fruchterman/Reingold (exact) layout.
 	SpringEmbedderFRExact();
 
-	// destructor
-	~SpringEmbedderFRExact() { }
-
-
 	//! Calls the layout algorithm for graph attributes \p GA.
 	virtual void call(GraphAttributes &GA) override;
-
 
 	//! Returns the current setting of iterations.
 	int iterations() const {
@@ -147,12 +142,12 @@ private:
 
 	double log2(double x) { return log(x) / log(2.0); }
 	double mylog2(int x) {
-		double l = 0.0;
+		double result = 0.0;
 		while(x > 0) {
-			l++;
+			result++;
 			x >>= 1;
 		}
-		return l/2;
+		return result/2;
 	}
 
 	void initialize(ArrayGraph &component);
@@ -199,5 +194,4 @@ private:
 	double m_convTolerance; //<! Fraction of ideal edge length below which convergence is achieved
 };
 
-
-} // end namespace ogdf
+}

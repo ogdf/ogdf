@@ -59,4 +59,4 @@ protected:
 	Master *master_;
 };
 
-} //namespace abacus
+}

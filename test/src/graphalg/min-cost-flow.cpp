@@ -29,11 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "bandit/bandit.h"
 #include "ogdf/graphalg/MinCostFlowReinelt.h"
-
-using namespace bandit;
-using namespace ogdf;
+#include <testing.h>
 
 template<typename TCost>
 void testModule(const char *name, MinCostFlowModule<TCost> *alg, TCost base)

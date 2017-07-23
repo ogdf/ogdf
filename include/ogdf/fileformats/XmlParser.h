@@ -32,7 +32,6 @@
 
 #pragma once
 
-#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/fileformats/XmlScanner.h>
@@ -98,7 +97,7 @@ struct OGDF_EXPORT XmlAttributeObject {
 	// Overloaded new and delete operators
 	OGDF_NEW_DELETE
 
-}; // struct XmlAttributeObject
+};
 
 //! This struct represents a node in the XML parse tree.
 struct OGDF_EXPORT XmlTagObject {
@@ -258,8 +257,7 @@ public:
 	// Overloaded new and delete operators
 	OGDF_NEW_DELETE
 
-}; // struct XmlTagObject
-
+};
 
 /** This class parses the XML input file and builds up a
  *  parse tree with linked elements XMLTagObject and
@@ -268,7 +266,7 @@ public:
  */
 class OGDF_EXPORT XmlParser {
 
-	friend OGDF_EXPORT ostream &operator<<(ostream&, const XmlParser &);
+	friend OGDF_EXPORT std::ostream &operator<<(std::ostream&, const XmlParser &);
 
 private:
 	/** Pointer to the root element of the parse tree. */
@@ -293,7 +291,7 @@ private:
 	/** Recursion depth of parse(). */
 	int m_recursionDepth;
 	/** stack for checking correctness of correspondent closing tags */
-	Stack<string> m_tagObserver;
+	ArrayBuffer<string> m_tagObserver;
 
 	bool m_parseError;
 
@@ -301,7 +299,7 @@ public:
 	/** Constructor.
 	 *  Inside the constructor the scanner is generated.
 	 */
-	explicit XmlParser(istream &is);
+	explicit XmlParser(std::istream &is);
 
 	/** Destructor; destroys the parse tree. */
 	~XmlParser();
@@ -377,7 +375,7 @@ public:
 	}
 
 	/** Prints the content of the hash table to os. */
-	void printHashTable(ostream &os);
+	void printHashTable(std::ostream &os);
 
 private:
 	/** Destroys the parse tree appended to root. */
@@ -412,19 +410,18 @@ private:
 	 *  The parameter indent is used as indentation value.
 	 */
 	void printXmlTagObjectTree(
-		ostream &os,
+		std::ostream &os,
 		const XmlTagObject &rootObject,
 		int indent = 0) const;
 
 	/** Little helper that prints nOfSpaces space characters. */
-	void printSpaces(ostream &os, int nOfSpaces) const;
+	void printSpaces(std::ostream &os, int nOfSpaces) const;
 
 	void reportError(
 		const char *functionName,
 		int sourceLine,
 		const char *message,
 		int inputFileLine = -1);
+};
 
-}; // class XmlParser
-
-} // end namespace ogdf
+}

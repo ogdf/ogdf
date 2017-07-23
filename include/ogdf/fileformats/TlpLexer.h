@@ -120,7 +120,5 @@ public:
 	}
 };
 
-
-} // end namespace tlp
-
-} // end namespace ogdf
+}
+}

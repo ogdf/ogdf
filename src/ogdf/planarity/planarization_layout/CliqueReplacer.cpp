@@ -63,11 +63,11 @@ void CliqueReplacer::replaceByStar(List< List<node> > &cliques)
 		{
 			cliqueNum[*itNode] = num;
 			++itNode;
-		}//while
+		}
 
 		++num;
 		++it;
-	}//while
+	}
 
 	//now replace each list
 	it = cliques.begin();
@@ -80,10 +80,8 @@ void CliqueReplacer::replaceByStar(List< List<node> > &cliques)
 		//and save its size and the node positions
 		m_cliqueCircleSize[newCenter] = circularBound(newCenter);
 		++it;
-	}//while
-
-}//replacebystar
-
+	}
+}
 
 node CliqueReplacer::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 {
@@ -125,7 +123,7 @@ node CliqueReplacer::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum
 		m_replacementEdge[inserted] = true;
 
 		++it;
-	}//while
+	}
 
 	//now delete all edges
 	ListIterator<edge>	itEdge = delEdges.begin();
@@ -134,11 +132,10 @@ node CliqueReplacer::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum
 		//m_pG->delEdge((*itEdge));
 		m_hiddenEdges.hide(*itEdge);
 		++itEdge;
-	}//while
+	}
 
 	return center;
-}//replaceByStar
-
+}
 
 //compute a drawing of the clique around node center and save its size
 //the call to circular will later be replaced by an dedicated computation
@@ -183,8 +180,7 @@ DRect CliqueReplacer::circularBound(node center)
 	bb = AG.boundingBox();
 
 	return bb;
-}//circularBound
-
+}
 
 void CliqueReplacer::undoStars()
 {
@@ -193,14 +189,12 @@ void CliqueReplacer::undoStars()
 	{
 		undoStar(*it, false);
 		++it;
-	}//while
+	}
 
 	m_hiddenEdges.restore();
 	m_centerNodes.clear();
 	m_replacementEdge.init();
-
-}//undostars
-
+}
 
 //remove the center node and reinsert the deleted edges
 void CliqueReplacer::undoStar(node center, bool restoreAllEdges)
@@ -213,9 +207,7 @@ void CliqueReplacer::undoStar(node center, bool restoreAllEdges)
 
 	//remove center node
 	m_G.delNode(center);
-
-}//undostar
-
+}
 
 //computes relative positions of all nodes around center on a circle
 //keeping the topological ordering of the nodes, letting the opposite
@@ -232,8 +224,7 @@ void CliqueReplacer::computeCliquePosition(node center, double rectMin)
 		ae = ae->cyclicPred();
 	} while (ae != center->firstAdj());
 	computeCliquePosition(adjNodes, center, rectMin);
-}//computeCliquePosition
-
+}
 
 // computes relative positions of all nodes in List cList on a minimum size
 // circle (needed to compute positions with different ordering than given in *this).
@@ -275,14 +266,14 @@ void CliqueReplacer::computeCliquePosition(List<node> &adjNodes, node center, do
 			if (d > maxSize) maxSize = d;
 
 			++itNode;
-		}//while
+		}
 		double totalSum = pureSumDiameters+(center->degree()-1)*minDist;
 		//TODO: scaling, not just counting
 		while (totalSum/Math::pi < rectBound*0.75)
 		{
 			minDist = minDist + 1.0;
 			totalSum += (center->degree()-1.0);
-		}//while
+		}
 		if (minDist > 1.1) minDist -= 1.0;
 		//do not use larger value than cliquecentersize (used with separation)
 		//if (minDist > m_cliqueCenterSize) minDist = m_cliqueCenterSize;
@@ -324,7 +315,7 @@ void CliqueReplacer::computeCliquePosition(List<node> &adjNodes, node center, do
 		lastDiameter = d/2.0; //its only half diameter...
 
 		++itNode;
-	}//while
+	}
 
 	OGDF_ASSERT(adjNodes.size() == angles.size());
 
@@ -344,13 +335,13 @@ void CliqueReplacer::computeCliquePosition(List<node> &adjNodes, node center, do
 			{
 				(*it) = (*it)*360.0/perimeter;
 				node w = *itNode;
-				double angle = Math::pi*(*it)/180.0;
+				double angle = Math::degreesToRadians(*it);
 				m_cliqueCirclePos[w].m_x = radius*cos(angle);
 				m_cliqueCirclePos[w].m_y = radius*sin(angle);
 				++itNode;
 				++it;
-			}//while
-		}//if n>2
+			}
+		}
 
 		//now we normalize the values (start with 0.0) and
 		//derive the bounding box
@@ -375,22 +366,22 @@ void CliqueReplacer::computeCliquePosition(List<node> &adjNodes, node center, do
 		minX -= minCCDist;
 		minY -= minCCDist;
 		//normalize
-		//cout<<"\n";
+		//std::cout << "\n";
 
 		itNode = adjNodes.begin();
 		while (itNode.valid())
 		{
 			node w = *itNode;
-			//cout<<"x1:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+			//std::cout << "x1:" << m_cliqueCirclePos[w].m_x << ":y:" << m_cliqueCirclePos[w].m_y << "\n";
 			m_cliqueCirclePos[w].m_x -= minX;
 			m_cliqueCirclePos[w].m_y -= minY;
-			//cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+			//std::cout << "x:" << m_cliqueCirclePos[w].m_x << ":y:" << m_cliqueCirclePos[w].m_y << "\n";
 			++itNode;
 		}
 
 		//reassign the size, this time it is the final value
 		m_cliqueCircleSize[center] = DRect(0.0, 0.0, maxX-minX, maxY-minY);
-}//computecliqueposition
+}
 
 }
 }

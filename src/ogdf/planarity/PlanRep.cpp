@@ -87,8 +87,7 @@ PlanRep::PlanRep(const GraphAttributes& AG) :
 	GraphCopy::createEmpty(G);
 
 	m_currentCC = -1;  // not yet initialized
-}//PlanRep
-
+}
 
 void PlanRep::initCC(int cc)
 {
@@ -124,8 +123,7 @@ void PlanRep::initCC(int cc)
 			setAssClass(e);
 		}
 	}
-}//initCC
-
+}
 
 //inserts Boundary for a given group of nodes
 //can e.g. be used to split clique replacements from the rest of the graph
@@ -177,21 +175,20 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 					adjExternal = adjExternal->faceCycleSucc();
 				} while ( (adjExternal->theNode() == center) ||
 					(adjExternal->twinNode() == center));
-			}//if degree 1
-			else
+			} else {
 				adjExternal = adjExternal->faceCycleSucc()->faceCycleSucc();
+			}
 		}
-		if  (adjExternal == adj->twin()) //incoming
-		{
+		if (adjExternal == adj->twin()) { // incoming
 			if (adj->twinNode()->degree() == 1)
 			{
 				do {
 					adjExternal = adjExternal->faceCycleSucc();
 				} while ( (adjExternal->theNode() == center) ||
 					(adjExternal->twinNode() == center));
-			}//if degree 1
-			else
+			} else {
 				adjExternal = adjExternal->faceCyclePred()->faceCyclePred();
+			}
 		}
 		adjEntry stopper = adj->twin();
 		adjEntry runner = stopper->cyclicSucc();
@@ -199,8 +196,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 		{
 			outAdj.pushBack(runner);
 			runner = runner->cyclicSucc();
-		}//while
-
+		}
 	}
 
 	//we do not insert a boundary if the subgraph is not
@@ -248,17 +244,13 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 			targetEntries.pushBack(splitEdge->adjTarget());
 			if (splitOuter) adjExternal = newEdge->adjSource();
 			if (splitInner) adjExternal = newEdge->adjTarget();
-		}//if outgoing
-		else
-		{
+		} else {
 			sourceEntries.pushBack(splitEdge->adjTarget());
 			targetEntries.pushBack(newEdge->adjSource());
 			if (splitOuter) adjExternal = splitEdge->adjTarget();
 			if (splitInner) adjExternal = splitEdge->adjSource();
-		}//else outgoing
-
-	}//for outedges
-
+		}
+	}
 
 	//we need pairs of adjEntries
 	OGDF_ASSERT(targetEntries.size() == sourceEntries.size());
@@ -268,7 +260,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 	targetEntries.pushBack(flipper);
 
 	edge e;
-
+	OGDF_ASSERT( !targetEntries.empty() ); // otherwise e is not well defined (inside the loop)
 	//connect the new nodes to form the boundary
 	while (!targetEntries.empty())
 	{
@@ -284,9 +276,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 	//we have to save at the original, the copy may be replaced
 	OGDF_ASSERT(m_boundaryAdj[original(center)] == nullptr);
 	m_boundaryAdj[original(center)] = e->adjSource();
-
-}//insertBoundary
-
+}
 
 #if 0
 void PlanRep::removePseudoCrossings()
@@ -398,11 +388,7 @@ void PlanRep::removeCrossing(node v)
 	adjEntry b2 = a2->cyclicSucc();
 
 	removeUnnecessaryCrossing(a1, a2, b1, b2);
-
-
-}//removeCrossing
-
-
+}
 
 void PlanRep::expand(bool lowDegreeExpand)
 {
@@ -472,10 +458,10 @@ void PlanRep::expand(bool lowDegreeExpand)
 			// forming the border of the merge face. Keep the embedding.
 			adjEntry adjPrev = v->firstAdj();
 
-//			cout <<endl << "INTRODUCING CIRCULAR EDGES" << endl;
+//			std::cout <<std::endl << "INTRODUCING CIRCULAR EDGES" << std::endl;
 			for (node n : expander)
 			{
-//				cout << adjPrev << " " << (*itn)->firstAdj() << endl;
+//				std::cout << adjPrev << " " << (*itn)->firstAdj() << std::endl;
 				e = Graph::newEdge(adjPrev,n->firstAdj());
 				setExpansionEdge(e, 2);//can be removed if edgetypes work properly
 
@@ -494,8 +480,7 @@ void PlanRep::expand(bool lowDegreeExpand)
 			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);//can be removed if edgetypes work properly
 			setAssociation(e);
-
-		}//highdegree
+		}
 
 		// Replace all vertices with degree > 2 by cages.
 		else if (v->degree() >= 2
@@ -576,11 +561,8 @@ void PlanRep::expand(bool lowDegreeExpand)
 			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);
 		}
-
 	}
-
-}//expand
-
+}
 
 void PlanRep::expandLowDegreeVertices(OrthoRep &OR)
 {
@@ -656,9 +638,8 @@ void PlanRep::expandLowDegreeVertices(OrthoRep &OR)
 		OR.angle(adjPrev) = 1;
 		OR.angle(e->adjSource()) = 2;
 		OR.angle(e->adjTarget()) = 1;
-
 	}
-}//expandlowdegreevertices
+}
 
 void PlanRep::collapseVertices(const OrthoRep &OR, Layout &drawing)
 {
@@ -757,12 +738,11 @@ void PlanRep::setCopyType(edge eCopy, edge eOrig)
 			case Graph::EdgeType::generalization: setGeneralization(eCopy); break;
 			case Graph::EdgeType::association: setAssociation(eCopy); break;
 			case Graph::EdgeType::dependency: setDependency(eCopy); break;
-		}//switch
-	}//if original
-}//setCopyType
+		}
+	}
+}
 
-
-void PlanRep::removeDeg1Nodes(Stack<Deg1RestoreInfo> &S, const NodeArray<bool> &mark)
+void PlanRep::removeDeg1Nodes(ArrayBuffer<Deg1RestoreInfo> &S, const NodeArray<bool> &mark)
 {
 	for(node v = firstNode(); v != nullptr; v = v->succ())
 	{
@@ -799,11 +779,11 @@ void PlanRep::removeDeg1Nodes(Stack<Deg1RestoreInfo> &S, const NodeArray<bool> &
 }
 
 
-void PlanRep::restoreDeg1Nodes(Stack<Deg1RestoreInfo> &S, List<node> &deg1s)
+void PlanRep::restoreDeg1Nodes(ArrayBuffer<Deg1RestoreInfo> &S, List<node> &deg1s)
 {
 	while(!S.empty())
 	{
-		Deg1RestoreInfo info = S.pop();
+		Deg1RestoreInfo info = S.popRet();
 		adjEntry adjRef = info.m_adjRef;
 		node     vOrig  = info.m_deg1Original;
 		edge     eOrig  = info.m_eOriginal;
@@ -855,7 +835,7 @@ edge PlanRep::newCopy(node v, adjEntry adAfter, edge eOrig)
 		node w = copy(eOrig->opposite(original(v)));
 		OGDF_ASSERT(w);
 		e = Graph::newEdge(v, w);
-	}//else
+	}
 	m_eOrig[e] = eOrig;
 	m_eIterator[e] = m_eCopy[eOrig].pushBack(e);
 	//set type of copy
@@ -901,18 +881,18 @@ edge PlanRep::split(edge e)
 
 void PlanRep::writeGML(const char *fileName, const OrthoRep &OR, const GridLayout &drawing)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os,OR,drawing);
 }
 
-void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawing)
+void PlanRep::writeGML(std::ostream &os, const OrthoRep &OR, const GridLayout &drawing)
 {
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -1035,7 +1015,7 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 			if (isHalfBrother(e))
 				os << "      fill \"#0F00AF\"\n";
 			os << "      width 1.0\n";
-		}//else generalization
+		}
 
 		os << "    ]\n"; // graphics
 
@@ -1045,6 +1025,4 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 	os << "]\n"; // graph
 }
 
-
-
-} // end namespace ogdf
+}

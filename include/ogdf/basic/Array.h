@@ -304,8 +304,37 @@ public:
 		return *this;
 	}
 
+	//! @}
+	//! @name Comparison
+	//! @{
 
-	//@}
+	//! Equality operator.
+	bool operator==(const Array<E, INDEX> &L) const {
+		if (size() != L.size()) {
+			return false;
+		}
+
+		auto thisIterator = begin();
+		auto thatIterator = L.begin();
+
+		while (thisIterator != end() && thatIterator != L.end()) {
+			if (*thisIterator != *thatIterator) {
+				return false;
+			}
+			++thisIterator;
+			++thatIterator;
+		}
+
+		OGDF_ASSERT(thisIterator == end() && thatIterator == L.end());
+		return true;
+	}
+
+	//! Inequality operator.
+	bool operator!=(const Array<E, INDEX> &L) const {
+		return !operator==(L);
+	}
+
+	//! @}
 	/**
 	 * @name Reordering
 	 * These following methods change the order of elements in the array.
@@ -348,7 +377,9 @@ public:
 	 */
 	template<class RNG>
 	void permute(RNG &rng) {
-		permute(low(), high(), rng);
+		if(!empty()) {
+			permute(low(), high(), rng);
+		}
 	}
 
 
@@ -560,8 +591,7 @@ private:
 	}
 
 	OGDF_NEW_DELETE
-}; // class Array
-
+};
 
 // enlarges storage for array and moves old entries
 template<class E, class INDEX>
@@ -750,7 +780,7 @@ void Array<E,INDEX>::permute (INDEX l, INDEX r, RNG &rng)
 
  //! Prints array \p a to output stream \p os using delimiter \p delim.
 template<class E, class INDEX>
-void print(ostream &os, const Array<E,INDEX> &a, char delim = ' ')
+void print(std::ostream &os, const Array<E,INDEX> &a, char delim = ' ')
 {
 	for (int i = a.low(); i <= a.high(); i++) {
 		if (i > a.low()) os << delim;
@@ -761,7 +791,7 @@ void print(ostream &os, const Array<E,INDEX> &a, char delim = ' ')
 
 //! Prints array \p a to output stream \p os.
 template<class E, class INDEX>
-ostream &operator<<(ostream &os, const ogdf::Array<E,INDEX> &a)
+std::ostream &operator<<(std::ostream &os, const ogdf::Array<E,INDEX> &a)
 {
 	print(os,a);
 	return os;
@@ -803,4 +833,4 @@ Array<E,INDEX>::Array(const ArrayBuffer<E, INDEX> &A) {
 	A.compactCopy(*this);
 }
 
-} // end namespace ogdf
+}

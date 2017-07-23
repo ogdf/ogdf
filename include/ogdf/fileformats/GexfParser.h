@@ -84,7 +84,5 @@ public:
 	bool read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA);
 };
 
-
 }
-
-} // end namespace ogdf
+}

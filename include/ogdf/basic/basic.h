@@ -39,14 +39,15 @@
 //! Assert condition \p expr. See doc/build.md for more information.
 //! @ingroup macros
 #define OGDF_ASSERT(expr)
-//! Assert condition \p expr if debug level is at least \p minLevel.
+//! Assert condition \p expr when using heavy debugging. See OGDF_ASSERT.
 //! @ingroup macros
-#define OGDF_ASSERT_IF(minLevel,expr)
-//! Set debug level to \p level.
-//! @ingroup macros
-#define OGDF_SET_DEBUG_LEVEL(level)
+#define OGDF_HEAVY_ASSERT(expr)
 
 #ifdef OGDF_DEBUG
+# ifdef OGDF_HEAVY_DEBUG
+#  undef OGDF_HEAVY_ASSERT
+#  define OGDF_HEAVY_ASSERT(expr) OGDF_ASSERT(expr)
+# endif
 # undef OGDF_ASSERT
 # ifndef OGDF_USE_ASSERT_EXCEPTIONS
 #  include <cassert>
@@ -76,13 +77,6 @@ class AssertionFailed : public std::runtime_error {
 		throw ogdf::AssertionFailed(ogdf_assert_ss.str()); \
 	} } while (false)
 # endif
-# undef OGDF_ASSERT_IF
-# define OGDF_ASSERT_IF(minLevel,expr) do { \
-	if (int(ogdf::debugLevel) >= int(minLevel)) { \
-		OGDF_ASSERT(expr); \
-	} } while (false)
-# undef OGDF_SET_DEBUG_LEVEL
-# define OGDF_SET_DEBUG_LEVEL(level) ogdf::debugLevel = level
 #endif
 
 //! @}
@@ -97,12 +91,9 @@ class AssertionFailed : public std::runtime_error {
 //! The namespace for all OGDF objects.
 namespace ogdf {
 
-using std::ifstream;		// from <fstream>
-using std::ofstream;		// from <fstream>
-using std::min;				// from <algorithm>
-using std::max;				// from <algorithm>
-using std::numeric_limits;	// from <limits>
-
+// generally used <algorithm> members
+using std::min;
+using std::max;
 
 /**
  *  The class Initialization is used for initializing global variables.
@@ -223,29 +214,6 @@ int searchPos(const CONTAINER &C, const T &x)
 
 //! @}
 
-
-#ifdef OGDF_DEBUG
-/** We maintain a debug level in debug versions indicating how many
- *  internal checks (usually assertions) are done.
- *  Usage: Set the variable ogdf::debugLevel using the macro
- *   OGDF_SET_DEBUG_LEVEL(level) to the desired level
- *   in the calling code (e.g. main()). The debugLevel can be set
- *   to a higher level for critical parts (e.g., where you assume a bug)
- *   ensuring that other parts are not too slow.
- */
-enum class DebugLevel {
-	Minimal,
-	ExtendedChecking,
-	ConsistencyChecks,
-	HeavyChecks
-};
-extern DebugLevel debugLevel;
-
-//! Checks if \c int(ogdf::debugLevel) >= \c int(\p dl)
-bool debugLevelIsAtLeast(const DebugLevel& dl);
-#endif
-
-
 //! Abstract base class for bucket functions.
 /**
  * The parameterized class BucketFunc<E> is an abstract base class
@@ -261,15 +229,4 @@ public:
 	virtual int getBucket(const E &x) = 0;
 };
 
-using std::stoi;
-using std::stoll;
-using std::stoul;
-using std::stoull;
-
-using std::stof;
-using std::stod;
-using std::stold;
-
-using std::to_string;
-
-} // end namespace ogdf
+}

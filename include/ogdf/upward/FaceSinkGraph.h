@@ -189,9 +189,6 @@ private:
 	//!  2) all other trees contain exactly one internal vertex of G
 	//! a node in tree T is returned as representative
 	node checkForest();
+};
 
-
-}; // class FaceSinkGraph
-
-
-} // end namespace ogdf
+}

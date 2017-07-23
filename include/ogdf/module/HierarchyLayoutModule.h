@@ -112,5 +112,4 @@ protected:
 
 };
 
-
-} // end namespace ogdf
+}

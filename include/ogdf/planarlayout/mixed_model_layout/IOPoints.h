@@ -145,7 +145,7 @@ public:
 		(*it).m_dx = dx;
 	}
 
-	void restoreDeg1Nodes(PlanRep &PG, Stack<PlanRep::Deg1RestoreInfo> &S);
+	void restoreDeg1Nodes(PlanRep &PG, ArrayBuffer<PlanRep::Deg1RestoreInfo> &S);
 
 	void changeEdge(node v, adjEntry adj_new) {
 		m_out[v].popBack();
@@ -219,6 +219,4 @@ private:
 	ListConstIterator<InOutPoint> searchRealBackward(ListConstIterator<InOutPoint> it) const;
 };
 
-
-
-} // end namespace ogdf
+}

@@ -54,8 +54,6 @@ protected:
 		const Graph &G,
 		adjEntry adj,
 		List<ShellingOrderSet> &partition) override;
-
 };
 
-
-} // end namespace ogdf
+}

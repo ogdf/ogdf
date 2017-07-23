@@ -219,7 +219,6 @@ void FastMultipoleMultilevelEmbedder::call(GraphAttributes &GA)
 {
 	EdgeArray<float> edgeLengthAuto(GA.constGraph());
 	computeAutoEdgeLength(GA, edgeLengthAuto);
-	m_multiLevelNumNodesBound = 10; //10
 	const Graph& t = GA.constGraph();
 	if (t.numberOfNodes() <= 25)
 	{
@@ -410,12 +409,12 @@ void FastMultipoleMultilevelEmbedder::layoutCurrentLevel()
 
 void FastMultipoleMultilevelEmbedder::deleteMultiLevelGraphs()
 {
-	GalaxyMultilevel* l = m_pCoarsestLevel;
+	GalaxyMultilevel* level = m_pCoarsestLevel;
 	GalaxyMultilevel* toDelete;
-	while (l)
+	while (level)
 	{
-		toDelete = l;
-		l = l->m_pFinerMultiLevel;
+		toDelete = level;
+		level = level->m_pFinerMultiLevel;
 		delete toDelete->m_pNodeInfo;
 		delete toDelete->m_pEdgeInfo;
 		if (toDelete != m_pFinestLevel)
@@ -429,5 +428,4 @@ uint32_t FastMultipoleMultilevelEmbedder::numberOfIterationsByLevelNr(uint32_t l
 	return 200*(levelNr+1)*(levelNr+1);
 }
 
-
-} // end of namespace
+}

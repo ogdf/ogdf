@@ -575,7 +575,7 @@ void UpSAT::embedFromModel(const Model &model, adjEntry& externalToItsRight)
 bool UpSAT::testUpwardPlanarity(NodeArray<int> *nodeOrder/* = NULL*/) { return FPSS(nodeOrder); }
 bool UpSAT::embedUpwardPlanar(adjEntry& externalToItsRight, NodeArray<int> *nodeOrder/* = NULL*/)   { return HL(true, externalToItsRight, nodeOrder);   }
 
-class Comp {
+class UpSAT::Comp {
 public:
 	Comp(const Model &MM, const NodeArray<int> &NN, const std::vector<std::vector<int>> &ttau)
 	  : N(NN)
@@ -595,13 +595,13 @@ public:
 
 void UpSAT::writeNodeOrder(const Model &model, NodeArray<int> *nodeOrder)
 {
-	List<node> L;
-	m_G.allNodes(L);
+	List<node> list;
+	m_G.allNodes(list);
 	Comp CC(model, N, tau);
-	L.quicksort(CC);
+	list.quicksort(CC);
 	int i = 0;
-	for (auto l : L) {
-		(*nodeOrder)[l] = i++;
+	for (auto v : list) {
+		(*nodeOrder)[v] = i++;
 	}
 }
 

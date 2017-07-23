@@ -34,7 +34,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const ValBranchRule &rhs)
+std::ostream &operator<<(std::ostream &out, const ValBranchRule &rhs)
 {
 	return out << "x" << rhs.variable_ << " = " << rhs.value_;
 }
@@ -65,4 +65,4 @@ void ValBranchRule::unExtract(LpSub *lp)
 	lp->changeLBound(variable_, oldLpLBound_);
 	lp->changeUBound(variable_, oldLpUBound_);
 }
-} //namespace abacus
+}

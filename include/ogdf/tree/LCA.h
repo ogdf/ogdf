@@ -121,4 +121,4 @@ private:
 	int rmq(int u, int v) const;
 };
 
-} // end namespace ogdf
+}

@@ -201,5 +201,4 @@ private:
 	node                        m_vS, m_vT;
 };
 
-
-} // end namespace ogdf
+}

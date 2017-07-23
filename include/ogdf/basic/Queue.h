@@ -198,8 +198,7 @@ public:
 	void clear() { SListPure<E>::clear(); }
 
 	OGDF_NEW_DELETE
-}; // class QueuePure
-
+};
 
 //! The parameterized class Queue<E> implements list-based queues.
 /**
@@ -366,32 +365,30 @@ public:
 	//@{
 
 	OGDF_NEW_DELETE
-}; // class Queue
-
+};
 
 // prints queue to output stream os using delimiter delim
 template<class E>
-void print(ostream &os, const QueuePure<E> &Q, char delim = ' ')
+void print(std::ostream &os, const QueuePure<E> &Q, char delim = ' ')
 { print(os,Q.getListPure(),delim); }
 
 // prints queue to output stream os using delimiter delim
 template<class E>
-void print(ostream &os, const Queue<E> &Q, char delim = ' ')
+void print(std::ostream &os, const Queue<E> &Q, char delim = ' ')
 { print(os,Q.getList(),delim); }
 
 
 // output operator
 template<class E>
-ostream &operator<<(ostream &os, const QueuePure<E> &Q)
+std::ostream &operator<<(std::ostream &os, const QueuePure<E> &Q)
 {
 	print(os,Q); return os;
 }
 
 template<class E>
-ostream &operator<<(ostream &os, const Queue<E> &Q)
+std::ostream &operator<<(std::ostream &os, const Queue<E> &Q)
 {
 	print(os,Q); return os;
 }
 
-
-} // end namespace ogdf
+}

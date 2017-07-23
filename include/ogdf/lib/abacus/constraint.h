@@ -208,7 +208,7 @@ public:
 	 * \param out The output stream.
 	 * \param var The variables for which the row format should be written.
 	 */
-	void printRow(ostream &out, Active<Variable, Constraint> *var) const;
+	void printRow(std::ostream &out, Active<Variable, Constraint> *var) const;
 
 	//! Returns the Euclidean distance of \a x associated with variable set \a actVar to the hyperplane induced by the constraint.
 	/**
@@ -312,4 +312,4 @@ inline bool Constraint::valid(Sub *sub) const {
 	return (!local_ || sub_->ancestor(sub));
 }
 
-} //namespace abacus
+}

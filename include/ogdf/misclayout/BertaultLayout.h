@@ -150,12 +150,12 @@ private:
 	public:
 		double R[9];					//! Ri is radius of ith section
 
-		//! Radii are initialised to numeric_limits<double>::max() at the start
+		//! Radii are initialised to std::numeric_limits<double>::max() at the start
 		void initialize()
 		{
 			int i;
 			for(i=0;i<9;i++)
-				R[i] = numeric_limits<double>::max();
+				R[i] = std::numeric_limits<double>::max();
 		}
 	};
 
@@ -196,7 +196,6 @@ private:
 	Array2D<bool> surr;					//! stores the indices of the surrounding edges for each node
 
 	OGDF_NEW_DELETE
-}; //class BertaultLayout
+};
 
-
-}//end namespace ogdf
+}

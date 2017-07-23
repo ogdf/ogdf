@@ -135,5 +135,4 @@ bool GraphIO::writeDL(const GraphAttributes &GA, std::ostream &os)
 	return writeGraph(os, GA.constGraph(), &GA);
 }
 
-
-} // end namespace ogdf
+}

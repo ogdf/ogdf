@@ -75,7 +75,7 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 
 		std::vector<node> candNeighbors;
 		std::vector<edge> candEdges;
-		unsigned int minMass = numeric_limits<unsigned int>::max();
+		unsigned int minMass = std::numeric_limits<unsigned int>::max();
 		for(adjEntry adj : one->adjEntries) {
 			node cand = adj->twinNode();
 			if (!nodeMarks[cand] && (!m_selectByMass || m_mass[cand] <= minMass))
@@ -134,4 +134,4 @@ void MatchingMerger::selectByNodeMass( bool on )
 	m_selectByMass = on;
 }
 
-} // namespace ogdf
+}

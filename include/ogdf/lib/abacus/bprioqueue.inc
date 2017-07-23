@@ -108,4 +108,4 @@ void AbaPrioQueue<Type, Key>::realloc(int newSize)
 	heap_.realloc(newSize);
 }
 
-} // namespace abacus
+}

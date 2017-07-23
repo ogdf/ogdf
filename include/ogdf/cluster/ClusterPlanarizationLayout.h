@@ -167,5 +167,4 @@ private:
 	int m_nCrossings;//!< The number of crossings (not yet used!).
 };
 
-
-} // end namespace ogdf
+}

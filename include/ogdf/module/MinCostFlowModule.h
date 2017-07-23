@@ -1,5 +1,5 @@
 /** \file
- * \brief Template of base class of min-cost-flow algorithms.
+ * \brief Definition of ogdf::MinCostFlowModule class template
  *
  * Includes some useful functions dealing with min-cost flow
  * (problem generator, problem checker).
@@ -168,11 +168,11 @@ public:
 	 */
 	static bool checkComputedFlow(
 		const Graph &G,
-		EdgeArray<int> &lowerBound,
-		EdgeArray<int> &upperBound,
-		EdgeArray<TCost> &cost,
-		NodeArray<int> &supply,
-		EdgeArray<int> &flow,
+		const EdgeArray<int> &lowerBound,
+		const EdgeArray<int> &upperBound,
+		const EdgeArray<TCost> &cost,
+		const NodeArray<int> &supply,
+		const EdgeArray<int> &flow,
 		TCost &value);
 
 	/**
@@ -195,13 +195,13 @@ public:
 	 */
 	static bool checkComputedFlow(
 		const Graph &G,
-		EdgeArray<int> &lowerBound,
-		EdgeArray<int> &upperBound,
-		EdgeArray<TCost> &cost,
-		NodeArray<int> &supply,
-		EdgeArray<int> &flow)
+		const EdgeArray<int> &lowerBound,
+		const EdgeArray<int> &upperBound,
+		const EdgeArray<TCost> &cost,
+		const NodeArray<int> &supply,
+		const EdgeArray<int> &flow)
 	{
-		int value;
+		TCost value;
 		return checkComputedFlow(
 			G,lowerBound,upperBound,cost,supply,flow,value);
 	}
@@ -277,11 +277,11 @@ bool MinCostFlowModule<TCost>::checkProblem(
 template<typename TCost>
 bool MinCostFlowModule<TCost>::checkComputedFlow(
 	const Graph &G,
-	EdgeArray<int> &lowerBound,
-	EdgeArray<int> &upperBound,
-	EdgeArray<TCost> &cost,
-	NodeArray<int> &supply,
-	EdgeArray<int> &flow,
+	const EdgeArray<int> &lowerBound,
+	const EdgeArray<int> &upperBound,
+	const EdgeArray<TCost> &cost,
+	const NodeArray<int> &supply,
+	const EdgeArray<int> &flow,
 	TCost &value)
 {
 	value = 0;
@@ -318,5 +318,4 @@ bool MinCostFlowModule<TCost>::checkComputedFlow(
 	return true;
 }
 
-
-} // end namespace ogdf
+}

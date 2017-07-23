@@ -62,17 +62,14 @@ void LpSub::initialize()
 	/* After the generation of the row format we allocate a row of
 	*   the correct length and make a copy in order to safe memory.
 	*/
-	int nRow = 0;
-
 	const int nCon = sub_->nCon();
 
 	for (c = 0; c < nCon; c++) {
 		// number of nonzeros of constraint \a c
 		int conNnz  = sub_->constraint(c)->genRow(sub_->actVar(), row);
-		rows[nRow] = new Row(master_, conNnz);
-		rows[nRow]->copy(row);
-		slackStat[nRow] = sub_->slackStat(c)->status();
-		++nRow;
+		rows[c] = new Row(master_, conNnz);
+		rows[c]->copy(row);
+		slackStat[c] = sub_->slackStat(c)->status();
 		row.clear();
 	}
 
@@ -172,7 +169,7 @@ void LpSub::initialize()
 	}
 
 	// initialize the LP-solver and clean up
-	LP::initialize(*master_->optSense(), nRow, sub_->maxCon(), nCol,
+	LP::initialize(*master_->optSense(), nCon, sub_->maxCon(), nCol,
 		sub_->maxVar(), obj, lBound, uBound, rows,
 		lpVarStat, slackStat);
 
@@ -682,4 +679,4 @@ void LpSub::conRealloc(int newSize)
 	LP::rowRealloc(newSize);
 	infeasCons_.setCapacity(newSize);
 }
-} //namespace abacus
+}

@@ -28,15 +28,11 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include <bandit/bandit.h>
 
 #include <ogdf/basic/DualGraph.h>
 #include <ogdf/basic/graph_generators.h>
-#include <resources.h>
 #include <ogdf/basic/extended_graph_alg.h>
-
-using namespace ogdf;
-using namespace bandit;
+#include <resources.h>
 
 using GA = GraphAttributes;
 
@@ -123,7 +119,6 @@ go_bandit([] {
 describe("graph attributes", [] {
 	it("initializes with no attributes by default", [] {
 		GraphAttributes attr;
-		AssertThat(&attr.constGraph(), IsNull());
 		AssertThat(attr.attributes(), Equals(0));
 	});
 

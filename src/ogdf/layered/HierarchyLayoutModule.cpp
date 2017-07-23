@@ -92,7 +92,7 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				if (AGC.x(v) > AGC.x(w))
 					swap(nodeLeft, nodeRight);
 
-				DLine line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
+				DSegment line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
 
 				//iterate over all node of lvl_cur and find out wether line_v2w overlap a node or not
 				for(int k = 0; k <= lvl_cur.high(); k++) {
@@ -108,9 +108,7 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 
 					if (ci > 0)
 						bendMe.pushBack(e);
-
-				} // for k
-
+				}
 			}
 		}
 
@@ -261,11 +259,12 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 					else
 						bendX = a + edgeNum * delta;
 				}
-				if (levels.pos(v) % 2 != 0)
-						bendX = bendX + delta/2;
-			}// else x coord
+				if (levels.pos(v) % 2 != 0) {
+					bendX += delta/2;
+				}
+			}
 
-			DLine segment1, segment2;
+			DSegment segment1, segment2;
 
 			//replace v if it is a bend point
 			double oldPosX = AGC.x(v);
@@ -301,10 +300,10 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				edge e1 = v->firstAdj()->theEdge();
 				edge e2 = v->lastAdj()->theEdge();
 
-				segment1 = DLine( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
+				segment1 = DSegment( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
 							DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
 
-				segment2 = DLine( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
+				segment2 = DSegment( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
 							DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
 
 				dirty[v] = true;
@@ -327,10 +326,10 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				/*
 					compute edges which crossed the two new segment of the bended edge
 				*/
-				segment1 = DLine( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
+				segment1 = DSegment( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
 								DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
 
-				segment2 =DLine( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
+				segment2 = DSegment( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
 								DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
 			}
 
@@ -340,21 +339,19 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				for(adjEntry adj : uu->adjEntries) {
 					edge ee = adj->theEdge();
 
-					DLine line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
+					DSegment line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
 
+					// TODO: What to do when IntersectionType::Overlapping is returned?
 					DPoint dummy;
-					if (line_ee.intersection(segment1, dummy) && line_ee.intersection(segment2, dummy))
+					if (line_ee.intersection(segment1, dummy) == IntersectionType::SinglePoint &&
+						line_ee.intersection(segment2, dummy) == IntersectionType::SinglePoint)
 						bendMe.pushBack(ee);
 				}
 			}
-		} // while
-
-	}//for i (all level)
+		}
+	}
 }
 #endif
-
-
-
 
 void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, HierarchyLevelsBase &levels)
 {
@@ -437,7 +434,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 				if (w == v)
 					continue; // only incoming edges
 
-				DLine line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
+				DSegment line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
 				if (line_v2w.length()>3*(y_cur - y_low))
 					numEdge++;
 			}
@@ -482,7 +479,7 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 	const Hierarchy &H = levels.hierarchy();
 
 	const LevelBase &lvl_cur = levels[i];
-	DLine line(DPoint(AGC.x(s), AGC.y(s)), DPoint(AGC.x(t), AGC.y(t)));
+	DSegment line(DPoint(AGC.x(s), AGC.y(s)), DPoint(AGC.x(t), AGC.y(t)));
 
 	//iterate over all node of level lvl_cur
 	for(int k = 0; k <= lvl_cur.high(); k++) {
@@ -495,14 +492,15 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 		double b = AGC.getWidth(u);
 
 		//bounding box of the node u
-		DLine left(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)-b/2, AGC.y(u)+h/2));
-		DLine right(DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)+h/2));
-		DLine bottom(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2));
+		DSegment left(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)-b/2, AGC.y(u)+h/2));
+		DSegment right(DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)+h/2));
+		DSegment bottom(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2));
 
 		DPoint ipoint;
-		bool intersecLeft = line.intersection(left, ipoint);
-		bool intersecRight = line.intersection(right, ipoint);
-		bool intersectBottom = line.intersection(bottom, ipoint);
+		// TODO: What to do when IntersectionType::Overlapping is returned?
+		bool intersecLeft = line.intersection(left, ipoint) == IntersectionType::SinglePoint;
+		bool intersecRight = line.intersection(right, ipoint) == IntersectionType::SinglePoint;
+		bool intersectBottom = line.intersection(bottom, ipoint) == IntersectionType::SinglePoint;
 
 		if (intersecLeft || intersecRight || intersectBottom)
 			ci++;
@@ -523,14 +521,15 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 			double b = AGC.getWidth(u);
 
 			//bounding box of the node u
-			DLine left(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)-b/2, AGC.y(u)+h/2));
-			DLine right(DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)+h/2));
-			DLine bottom(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2));
+			DSegment left(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)-b/2, AGC.y(u)+h/2));
+			DSegment right(DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)+h/2));
+			DSegment bottom(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)+b/2, AGC.y(u)-h/2));
 
 			DPoint ipoint;
-			bool intersecLeft = line.intersection(left, ipoint);
-			bool intersecRight = line.intersection(right, ipoint);
-			bool intersectBottom = line.intersection(bottom, ipoint);
+			// TODO: What to do when IntersectionType::Overlapping is returned?
+			bool intersecLeft = line.intersection(left, ipoint) == IntersectionType::SinglePoint;
+			bool intersecRight = line.intersection(right, ipoint) == IntersectionType::SinglePoint;
+			bool intersectBottom = line.intersection(bottom, ipoint) == IntersectionType::SinglePoint;
 
 			if (intersecLeft || intersecRight || intersectBottom)
 				cj++;

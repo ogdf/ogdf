@@ -35,9 +35,6 @@
 #include <algorithm>
 #include <numeric>
 
-#include <bandit/bandit.h>
-using namespace bandit;
-
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/PriorityQueue.h>
@@ -50,7 +47,7 @@ using namespace bandit;
 #include <ogdf/basic/heap/RadixHeap.h>
 #include <ogdf/basic/heap/HotQueue.h>
 
-using namespace ogdf;
+#include <testing.h>
 
 static std::vector<int> randomVector(size_t n)
 {
@@ -514,23 +511,19 @@ void radixHeapSortingTest(std::size_t n)
 	std::string desc = "sorting test on " + std::to_string(n) + " rands";
 	describe(desc.data(), [&]() {
 		using RadixHeapType = RadixHeap<std::string, std::size_t>;
-		RadixHeapType *heap;
+		std::unique_ptr<RadixHeapType> heap;
 
 		before_each([&](){
 			std::default_random_engine rng(n);
 			std::uniform_int_distribution<std::size_t> size_dist(1, 100);
 			std::uniform_int_distribution<char> char_dist('a', 'z');
 
-			heap = new RadixHeapType();
+			heap.reset(new RadixHeapType());
 
 			for(std::size_t i = 0; i < n; i++) {
 				std::string str(size_dist(rng), char_dist(rng));
 				heap->push(str, str.length());
 			}
-		});
-
-		after_each([&](){
-			delete heap;
 		});
 
 		it("has correct size after insertions", [&]() {

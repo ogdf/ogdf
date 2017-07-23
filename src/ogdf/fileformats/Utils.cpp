@@ -42,4 +42,4 @@ std::istream &operator >>(std::istream &is, TokenIgnorer token)
 }
 
 
-} // end namespace ogdf
+}

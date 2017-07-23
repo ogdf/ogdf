@@ -32,14 +32,11 @@
 #include <iomanip>
 #include <chrono>
 
-#include <bandit/bandit.h>
-
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/AStarSearch.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
-using namespace bandit;
-using namespace ogdf;
+#include <testing.h>
 
 template<typename T>
 void validatePath(
@@ -117,7 +114,7 @@ void performSingleTest(
 
 template<typename T>
 void performTests(const bool directed, const double maxGap, const bool pathLike) {
-	const int NUMBER_OF_GRAPHS = 100;
+	const int NUMBER_OF_GRAPHS = 10;
 	const int MIN_NODES = 100;
 	const int MAX_NODES = 200;
 
@@ -170,11 +167,11 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 				ticksDijkstra, ticksUninformedAStar, ticksAStarHeuristic);
 	}
 
-	cout << endl;
-	cout << std::left << "    Dijkstra              : " << std::right << std::setw(16) << ticksDijkstra << endl;
-	cout << std::left << "    A* uninformed         : " << std::right << std::setw(16) << ticksUninformedAStar << endl;
-	cout << std::left << "    A* perfect heuristic  : " << std::right << std::setw(16) << ticksAStarHeuristic << endl;
-	cout << std::left;
+	std::cout << std::endl;
+	std::cout << std::left << "    Dijkstra              : " << std::right << std::setw(16) << ticksDijkstra << std::endl;
+	std::cout << std::left << "    A* uninformed         : " << std::right << std::setw(16) << ticksUninformedAStar << std::endl;
+	std::cout << std::left << "    A* perfect heuristic  : " << std::right << std::setw(16) << ticksAStarHeuristic << std::endl;
+	std::cout << std::left;
 }
 
 template<typename T>

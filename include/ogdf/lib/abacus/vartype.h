@@ -69,7 +69,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const VarType &rhs);
+	friend std::ostream &operator<<(std::ostream &out, const VarType &rhs);
 
 	//! Returns the type of the variable.
 	TYPE type() const { return type_; }
@@ -98,4 +98,4 @@ private:
 	TYPE type_; //!< The type of the variable.
 };
 
-} //namespace abacus
+}

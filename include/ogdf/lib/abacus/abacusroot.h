@@ -47,13 +47,17 @@
 
 namespace abacus {
 
-using std::ws;
-using std::ostringstream;
-using std::endl;
-using std::flush;
-using std::setw;
+using ogdf::AlgorithmFailureException;
+using ogdf::ArrayBuffer;
+using ogdf::Array;
+using ogdf::Logger;
 
-using namespace ogdf;
+using std::ostream;
+using std::ostringstream;
+using std::setw;
+using std::string;
+using std::to_string;
+using std::ws;
 
 //! Base class of all other classes of ABACUS.
 /**
@@ -98,4 +102,4 @@ public:
 	static bool endsWith(const string &str, const string &end);
 };
 
-} //namespace abacus
+}

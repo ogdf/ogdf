@@ -97,7 +97,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend OGDF_EXPORT ostream& operator<<(ostream &out, const Column &rhs);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream &out, const Column &rhs);
 
 	//! Returns the objective function coefficient of the column.
 	double obj() const { return obj_; }
@@ -148,4 +148,4 @@ private:
 	double uBound_;  //!< The upper bound of the column.
 };
 
-} //namespace abacus
+}

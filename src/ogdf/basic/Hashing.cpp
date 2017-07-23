@@ -204,5 +204,4 @@ size_t DefHashFunc<string>::hash(const string &key) const
 	return hashValue;
 }
 
-
-} // end namespace ogdf
+}

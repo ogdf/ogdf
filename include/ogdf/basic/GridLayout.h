@@ -166,9 +166,7 @@ private:
 	static bool isRedundant(IPoint &p1, IPoint &p2, IPoint &p3);
 	static void compact(IPolyline &ip);
 
-
 	OGDF_MALLOC_NEW_DELETE
-}; // class GridLayout
+};
 
-
-} // end namespace ogdf
+}

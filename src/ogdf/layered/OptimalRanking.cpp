@@ -196,5 +196,4 @@ void OptimalRanking::doCall(
 	}
 }
 
-
-} // end namespace ogdf
+}

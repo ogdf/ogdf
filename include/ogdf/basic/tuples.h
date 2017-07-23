@@ -86,7 +86,7 @@ bool operator!=(const Tuple2<E1,E2> &t1, const Tuple2<E1,E2> &t2)
 
 //! Output operator for 2-tuples.
 template<class E1, class E2>
-ostream &operator<<(ostream &os, const Tuple2<E1,E2> &t2)
+std::ostream &operator<<(std::ostream &os, const Tuple2<E1,E2> &t2)
 {
 	os << "(" << t2.x1() << " " << t2.x2() << ")";
 	return os;
@@ -114,4 +114,4 @@ private:
 	Hash2_ m_hash2;
 };
 
-} // namespace ogdf
+}

@@ -58,7 +58,7 @@ bool DLParser::initGraph(Graph &G)
 	G.clear();
 
 	if(m_nodes < 0) {
-		GraphIO::logger.lout() << "Node count not specified or incorrect." << endl;
+		GraphIO::logger.lout() << "Node count not specified or incorrect." << std::endl;
 		return false;
 	}
 
@@ -83,7 +83,7 @@ static inline bool readMatrixRow(
 	for(node u : G.nodes) {
 		double weight;
 		if(!(is >> weight)) {
-			GraphIO::logger.lout() << "Expected matrix value." << endl;
+			GraphIO::logger.lout() << "Expected matrix value." << std::endl;
 			return false;
 		}
 
@@ -113,7 +113,7 @@ bool DLParser::readMatrix(Graph &G, GraphAttributes *GA)
 
 	std::string extra;
 	if(m_istream >> extra) {
-		GraphIO::logger.lout() << "Expected EOF, but \"" << extra << "\" found." << endl;
+		GraphIO::logger.lout() << "Expected EOF, but \"" << extra << "\" found." << std::endl;
 		return false;
 	}
 
@@ -127,7 +127,7 @@ bool DLParser::readEmbeddedMatrix(Graph &G, GraphAttributes *GA)
 	for(node v : G.nodes) {
 		std::string label;
 		if(!(m_istream >> label)) {
-			GraphIO::logger.lout() << "Expected node embedded label." << endl;
+			GraphIO::logger.lout() << "Expected node embedded label." << std::endl;
 			return false;
 		}
 		toLower(label);
@@ -142,14 +142,14 @@ bool DLParser::readEmbeddedMatrix(Graph &G, GraphAttributes *GA)
 	for(int i = 0; i < G.numberOfNodes(); i++) {
 		std::string label;
 		if(!(m_istream >> label)) {
-			GraphIO::logger.lout() << "Expected node embedded label." << endl;
+			GraphIO::logger.lout() << "Expected node embedded label." << std::endl;
 			return false;
 		}
 		toLower(label);
 
 		node v = m_nodeLabel[label];
 		if(!v) {
-			GraphIO::logger.lout() << "Node with given label." << label << "\" not found." << endl;
+			GraphIO::logger.lout() << "Node with given label." << label << "\" not found." << std::endl;
 			return false;
 		}
 
@@ -171,7 +171,7 @@ static inline bool readEdgeListRow(
 	double weight;
 	is >> weight;
 	if(GA && !is.bad()) {
-		cout << endl << weight << endl;
+		std::cout << std::endl << weight << std::endl;
 		if(GA->has(GraphAttributes::edgeDoubleWeight)) {
 			GA->doubleWeight(e) = weight;
 		} else if(GA->has(GraphAttributes::edgeIntWeight)) {
@@ -180,7 +180,7 @@ static inline bool readEdgeListRow(
 	}
 
 	if (is.rdbuf()->in_avail()) {
-		GraphIO::logger.lout() << "Could not parse entire row of edge list." << endl;
+		GraphIO::logger.lout() << "Could not parse entire row of edge list." << std::endl;
 			return false;
 	}
 
@@ -197,7 +197,7 @@ inline node DLParser::requestLabel(
 	if(!v) {
 		if(nextFree == nullptr) {
 			GraphIO::logger.lout() << "Cannot assign label \"" << label << "\", "
-			          << "node count in the graph is too low." << endl;
+			          << "node count in the graph is too low." << std::endl;
 			return nullptr;
 		}
 		m_nodeLabel[label] = v = nextFree;
@@ -228,7 +228,7 @@ bool DLParser::readEdgeList(Graph &G, GraphAttributes *GA)
 		if(!(is >> vid >> uid) || !fineId(vid) || !fineId(uid)) {
 			GraphIO::logger.lout() << "Node id incorrect (data line "
 					  << line << "), maximum value is "
-					  << m_nodeId.size() - 1 << "." << endl;
+					  << m_nodeId.size() - 1 << "." << std::endl;
 			return false;
 		}
 
@@ -257,7 +257,7 @@ bool DLParser::readEmbeddedEdgeList(Graph &G, GraphAttributes *GA)
 		std::string vlabel, ulabel;
 		if(!(is >> vlabel >> ulabel)) {
 			GraphIO::logger.lout() << "Expected embedded node labels (data line "
-					  << line << "), got \"" << is.str() << "\"." << endl;
+					  << line << "), got \"" << is.str() << "\"." << std::endl;
 			return false;
 		}
 
@@ -290,7 +290,7 @@ bool DLParser::readNodeList(Graph &G)
 
 		if(!fineId(vid)) {
 			GraphIO::logger.lout() << "Node id incorrect (data line "
-					  << line << "." << endl;
+					  << line << "." << std::endl;
 			return false;
 		}
 		node v = m_nodeId[vid];
@@ -299,7 +299,7 @@ bool DLParser::readNodeList(Graph &G)
 		while(is >> uid) {
 			if(!fineId(uid)) {
 				GraphIO::logger.lout() << "Node id incorrect (data line "
-						  << line << ")." << endl;
+						  << line << ")." << std::endl;
 				return false;
 			}
 
@@ -346,7 +346,7 @@ bool DLParser::readEmbeddedNodeList(Graph &G, GraphAttributes *GA)
 bool DLParser::readData(Graph &G, GraphAttributes *GA)
 {
 	if(m_nodes < 0) {
-		GraphIO::logger.lout() << "Number of nodes not specified or incorret." << endl;
+		GraphIO::logger.lout() << "Number of nodes not specified or incorret." << std::endl;
 		return false;
 	}
 
@@ -380,7 +380,7 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 	initGraph(G);
 	for(node v = G.firstNode(); v;) {
 		if(!(m_istream >> buffer)) {
-			GraphIO::logger.lout() << "Expected node labels." << endl;
+			GraphIO::logger.lout() << "Expected node labels." << std::endl;
 			return false;
 		}
 		toLower(buffer); // Labels should be lowercase.
@@ -394,7 +394,7 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 			toLower(buffer);
 			if(buffer != "embedded:" && buffer != "embedded") {
 				GraphIO::logger.lout() << "Expected embedded keyword, got \""
-						  << buffer << "\"." << endl;
+						  << buffer << "\"." << std::endl;
 				return false;
 			}
 
@@ -422,7 +422,7 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 		toUpper(buffer);
 		if(buffer != "EMBEDDED:" && buffer != "EMBEDDED") {
 			GraphIO::logger.lout() << "Expected \"EMBEDDED\" keyword, got \""
-					  << buffer << "\"." << endl;
+					  << buffer << "\"." << std::endl;
 			return false;
 		}
 
@@ -433,7 +433,7 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 
 	if(buffer != "DATA:") {
 		GraphIO::logger.lout() << "Expected \"DATA:\" statement, got \""
-				  << buffer << "\"." << endl;
+				  << buffer << "\"." << std::endl;
 		return false;
 	}
 
@@ -449,7 +449,7 @@ bool DLParser::readAssignment(
 	if(lhs == "N") {
 		std::istringstream is(rhs);
 		if(!(is >> m_nodes)) {
-			GraphIO::logger.lout() << "Incorrect number of nodes." << endl;
+			GraphIO::logger.lout() << "Incorrect number of nodes." << std::endl;
 			return false;
 		}
 	} else if(lhs == "FORMAT") {
@@ -460,12 +460,12 @@ bool DLParser::readAssignment(
 		} else if(rhs == "NODELIST1") {
 			m_format = Format::NodeList;
 		} else {
-			GraphIO::logger.lout() << "Unknown data format \"" << rhs << "\"." << endl;
+			GraphIO::logger.lout() << "Unknown data format \"" << rhs << "\"." << std::endl;
 			return false;
 		}
 	} else {
 		GraphIO::logger.lout() << "Unkown assignment statement: "
-				  << "\"" << lhs << "\"." << endl;
+				  << "\"" << lhs << "\"." << std::endl;
 		return false;
 	}
 
@@ -478,7 +478,7 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 	std::string buffer;
 
 	if(!(m_istream >> buffer)) {
-		GraphIO::logger.lout() << "Expected statement." << endl;
+		GraphIO::logger.lout() << "Expected statement." << std::endl;
 		return false;
 	}
 	toUpper(buffer);
@@ -497,7 +497,7 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 		if(buffer != "EMBEDDED" && buffer != "EMBEDDED:") {
 			GraphIO::logger.lout() << "Unknown statement "
 					  << "\"LABELS " << buffer << "\". "
-					  << "Did you mean \"LABELS:\" or \"LABELS EMBEDDED\"?" << endl;
+					  << "Did you mean \"LABELS:\" or \"LABELS EMBEDDED\"?" << std::endl;
 			return false;
 		}
 
@@ -516,18 +516,18 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 		char c;
 		if(!(m_istream >> c) || c != '=') {
 			GraphIO::logger.lout() << "Expected definition or assignment "
-					  << "statement, got: \"" << lhs << "\"." << endl;
+					  << "statement, got: \"" << lhs << "\"." << std::endl;
 			return false;
 		}
 
 		if(!(m_istream >> rhs)) {
-			GraphIO::logger.lout() << "Expected assignment right side." << endl;
+			GraphIO::logger.lout() << "Expected assignment right side." << std::endl;
 			return false;
 		}
 	} else if(eq == buffer.size() - 1) {
 		// 'lhs= rhs' case.
 		if(!(m_istream >> rhs)) {
-			GraphIO::logger.lout() << "Expected assignment right side." << endl;
+			GraphIO::logger.lout() << "Expected assignment right side." << std::endl;
 			return false;
 		}
 		lhs = buffer.substr(0, eq);
@@ -554,11 +554,11 @@ bool DLParser::readGraph(Graph &G, GraphAttributes *GA)
 
 	if(buffer != "DL") {
 		GraphIO::logger.lout() << "Expected the \"DL\" header, got: \""
-				  << buffer << "\"." << endl;
+				  << buffer << "\"." << std::endl;
 	}
 
 	return readStatements(G, GA);
 }
 
 
-} // end namespace ogdf
+}

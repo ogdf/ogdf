@@ -41,8 +41,7 @@ ClusterGraphAttributes::ClusterGraphAttributes(ClusterGraph& cg, long initAttrib
 	m_pClusterGraph(&cg), m_clusterInfo(cg), m_clusterTemplate(cg)
 {
 	//should we always fill the cluster infos here?
-}//constructor
-
+}
 
 //reinitialize graph
 void ClusterGraphAttributes::init(ClusterGraph &cg, long initAttributes)
@@ -70,10 +69,10 @@ DRect ClusterGraphAttributes::boundingBox() const
 		if (c != m_pClusterGraph->rootCluster()) {
 			double lw = 0.5*strokeWidth(c);
 
-			minx = min(minx, x(c) - lw);
-			maxx = max(maxx, x(c) + width(c) + lw);
-			miny = min(miny, y(c) - lw);
-			maxy = max(maxy, y(c) + height(c) + lw);
+			Math::updateMin(minx, x(c) - lw);
+			Math::updateMax(maxx, x(c) + width(c) + lw);
+			Math::updateMin(miny, y(c) - lw);
+			Math::updateMax(maxy, y(c) + height(c) + lw);
 		}
 	}
 
@@ -205,12 +204,4 @@ void ClusterGraphAttributes::flipHorizontal(const DRect &box)
 	}
 }
 
-
-ostream &operator<<(ostream &os, ogdf::cluster c)
-{
-	if (c) os << c->index(); else os << "nil";
-	return os;
 }
-
-
-} // end namespace ogdf

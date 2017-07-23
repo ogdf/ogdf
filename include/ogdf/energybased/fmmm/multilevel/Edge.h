@@ -43,7 +43,7 @@ class Edge
 {
 
 	//! outputstream for Edge
-	friend ostream &operator<< (ostream & output, const Edge & E)
+	friend std::ostream &operator<< (std::ostream & output, const Edge & E)
 	{
 		output <<"edge_index " << E.e->index() << " Graph_ptr " << E.Graph_ptr << " angle"
 			<< E.angle << " cut vertex " << E.cut_vertex->index();
@@ -52,7 +52,7 @@ class Edge
 
 #if 0
 	//! inputstream for Edge
-	friend istream &operator>> (istream & input,  Edge & E)
+	friend std::istream &operator>> (std::istream & input,  Edge & E)
 	{
 		input >> E;//.e>>E.Graph_ptr;
 		return input;
@@ -67,8 +67,6 @@ public:
 		angle = 0;
 		cut_vertex = nullptr;
 	}
-
-	~Edge() { } //!< destructor
 
 	void set_Edge (edge f,Graph* g_ptr) {
 		Graph_ptr = g_ptr;

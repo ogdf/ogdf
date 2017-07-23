@@ -135,7 +135,6 @@ protected:
 	bool m_autoThresholds; //compute thresholds according to edge strengths
 #endif
 	int m_autoThreshNum; //number of thresholds to be computed
+};
 
-};//class Clusterer
-
-} //end namespace ogdf
+}

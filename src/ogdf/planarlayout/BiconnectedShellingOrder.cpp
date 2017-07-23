@@ -288,24 +288,24 @@ private:
 
 void ComputeBicOrder::print()
 {
-	cout << "contour:\n";
+	std::cout << "contour:\n";
 	for(node v = m_vLeft; v != nullptr; v = m_next[v])
-		cout << " " << v << "[" << m_prev[v] << "," << m_prevPred[v] <<
+		std::cout << " " << v << "[" << m_prev[v] << "," << m_prevPred[v] <<
 			" : " << m_next[v] << "," << m_nextSucc[v] <<
 			"; " << m_virtEdge[v] << "]\n";
 
-	cout << "node infos:\n";
+	std::cout << "node infos:\n";
 	for(node v : m_pGraph->nodes)
-		cout << v << ": deg = " << m_deg[v] << ", cutf = " << m_cutf[v] <<
-			", numsf = " << m_numsf[v] << endl;
+		std::cout << v << ": deg = " << m_deg[v] << ", cutf = " << m_cutf[v] <<
+			", numsf = " << m_numsf[v] << std::endl;
 
-	cout << "face infos:\n";
+	std::cout << "face infos:\n";
 	for(face f : m_pEmbedding->faces) {
-		cout << f->index() << ": outv = " << m_outv[f] << ", oute = " <<
+		std::cout << f->index() << ": outv = " << m_outv[f] << ", oute = " <<
 			m_oute[f] << ", seqp = " << m_seqp[f] << ", isSF = " <<
-			m_isSf[f] << ", virtSrc = " << m_virtSrc[f] << endl;
+			m_isSf[f] << ", virtSrc = " << m_virtSrc[f] << std::endl;
 	}
-	cout << endl;
+	std::cout << std::endl;
 }
 
 
@@ -318,20 +318,20 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	m_pEmbedding = &E;
 
 #ifdef OUTPUT_BSO
-	cout << "faces:" << endl;
+	std::cout << "faces:" << std::endl;
 	for(face fh : E.faces) {
-		cout << fh->index() << ":";
+		std::cout << fh->index() << ":";
 		for(adjEntry adj : fh->entries)
-			cout << " " << adj;
-		cout << endl;
+			std::cout << " " << adj;
+		std::cout << std::endl;
 	}
 
-	cout << "adjacency lists:" << endl;
+	std::cout << "adjacency lists:" << std::endl;
 	for(node vh : G.nodes) {
-		cout << vh << ":";
+		std::cout << vh << ":";
 		for(adjEntry adj : vh->adjEntries)
-			cout << " " << adj;
-		cout << endl;
+			std::cout << " " << adj;
+		std::cout << std::endl;
 	}
 #endif
 
@@ -341,7 +341,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	m_extFace = extFace;
 
 #ifdef OUTPUT_BSO
-	cout << "external face = " << extFace->index() << endl;
+	std::cout << "external face = " << extFace->index() << std::endl;
 #endif
 
 	m_baseLength = getBaseChain(E, m_extFace, baseRatio, m_adjLeft, m_adjRight);
@@ -349,7 +349,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	m_vRight     = m_adjRight->twinNode();
 
 #ifdef OUTPUT_BSO
-	cout << "vLeft = " << m_vLeft << ", " << "vRight = " << m_vRight << endl;
+	std::cout << "vLeft = " << m_vLeft << ", " << "vRight = " << m_vRight << std::endl;
 #endif
 
 	// initialization of node and face variables
@@ -623,11 +623,13 @@ bool ComputeBicOrder::getPossible()
 	if (!m_possFaces.empty()) {
 		m_nextType = CandidateType::Face;
 		m_nextF = m_possFaces.popFrontRet();
+		m_fLink[m_nextF] = ListIterator<face>();
 		return true;
 
 	} else if (!m_possNodes.empty()) {
 		m_nextType = CandidateType::Node;
 		m_nextV = m_possNodes.popFrontRet();
+		m_vLink[m_nextV] = ListIterator<node>();
 		return true;
 
 	} else if (!m_possVirt.empty()) {
@@ -775,7 +777,7 @@ void ComputeBicOrder::setSeqp(node cl, node cr)
 void ComputeBicOrder::removeNextFace(ShellingOrderSet &V)
 {
 #ifdef OUTPUT_BSO
-	cout << "remove next face: " << m_nextF->index() << endl;
+	std::cout << "remove next face: " << m_nextF->index() << std::endl;
 #endif
 
 	node cl = getFaceCl(m_nextF), cr, v;
@@ -841,7 +843,7 @@ void ComputeBicOrder::removeNextFace(ShellingOrderSet &V)
 void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 {
 #ifdef OUTPUT_BSO
-	cout << "remove next node: " << m_nextV << endl;
+	std::cout << "remove next node: " << m_nextV << std::endl;
 #endif
 
 	node cl = prev(m_nextV);
@@ -1009,7 +1011,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 void ComputeBicOrder::removeNextVirt(ShellingOrderSet &V)
 {
 #ifdef OUTPUT_BSO
-	cout << "remove next virt: " << m_nextE << endl;
+	std::cout << "remove next virt: " << m_nextE << std::endl;
 #endif
 
 	node v, cl = m_nextE, cr = next(m_nextE);
@@ -1256,7 +1258,7 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 	cpo.initPossibles();
 
 #ifdef OUTPUT_BSO
-	cout << "after initialization:\n";
+	std::cout << "after initialization:\n";
 	cpo.print();
 #endif
 
@@ -1283,7 +1285,7 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 		cpo.doUpdate();
 
 #ifdef OUTPUT_BSO
-		cout << "after update:\n";
+		std::cout << "after update:\n";
 		cpo.print();
 #endif
 	}
@@ -1292,5 +1294,4 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 	cpo.setV1(partition.front());
 }
 
-
-} // end namespace ogdf
+}

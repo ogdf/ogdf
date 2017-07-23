@@ -190,7 +190,7 @@ public:
 	 *
 	 * \param out The output stream.
 	 */
-	virtual void print(ostream &out) const;
+	virtual void print(std::ostream &out) const;
 
 	//! Returns a const pointer to the subproblem associated with the constraint/variable.
 	/**
@@ -432,4 +432,4 @@ inline void ConVar::unlock()
 }
 
 
-} //namespace abacus
+}

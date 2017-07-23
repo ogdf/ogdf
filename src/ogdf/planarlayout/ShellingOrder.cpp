@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/planarlayout/ShellingOrder.h>
-#include <ogdf/basic/BoundedStack.h>
 #include <ogdf/basic/SList.h>
 
 
@@ -63,7 +62,7 @@ void ShellingOrder::initLeftmost(
 	m_rank.init(G);
 
 	NodeArray<SListPure<const ShellingOrderSet *> > crSets(G);
-	BoundedStack<node> outerfaceStack(G.numberOfNodes());
+	ArrayBuffer<node> outerfaceStack(G.numberOfNodes());
 
 	int i, j;
 
@@ -100,5 +99,4 @@ void ShellingOrder::initLeftmost(
 	}
 }
 
-
-} // end namespace ogdf
+}

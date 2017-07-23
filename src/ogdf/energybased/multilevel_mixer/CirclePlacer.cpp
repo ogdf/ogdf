@@ -100,4 +100,4 @@ void CirclePlacer::placeOneLevel(MultilevelGraph &MLG)
 	}
 }
 
-} // namespace ogdf
+}

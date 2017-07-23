@@ -449,12 +449,12 @@ void EmbedPQTree::front(
 	PQNode<edge,IndInfo*,bool>* nodePtr,
 	SListPure<PQBasicKey<edge,IndInfo*,bool>*> &keys)
 {
-	Stack<PQNode<edge,IndInfo*,bool>*> S;
+	ArrayBuffer<PQNode<edge,IndInfo*,bool>*> S;
 	S.push(nodePtr);
 
 	while (!S.empty())
 	{
-		PQNode<edge,IndInfo*,bool> *checkNode = S.pop();
+		PQNode<edge,IndInfo*,bool> *checkNode = S.popRet();
 
 		if (checkNode->type() == PQNodeRoot::PQNodeType::Leaf)
 			keys.pushBack((PQBasicKey<edge,IndInfo*,bool>*) checkNode->getKey());
@@ -518,12 +518,12 @@ void EmbedPQTree::getFront(
 	PQNode<edge,IndInfo*,bool>* nodePtr,
 	SListPure<PQBasicKey<edge,IndInfo*,bool>*> &keys)
 {
-	Stack<PQNode<edge,IndInfo*,bool>*> S;
+	ArrayBuffer<PQNode<edge,IndInfo*,bool>*> S;
 	S.push(nodePtr);
 
 	while (!S.empty())
 	{
-		PQNode<edge,IndInfo*,bool> *checkNode = S.pop();
+		PQNode<edge,IndInfo*,bool> *checkNode = S.popRet();
 
 		if (checkNode->type() == PQNodeRoot::PQNodeType::Leaf)
 			keys.pushBack((PQBasicKey<edge,IndInfo*,bool>*) checkNode->getKey());

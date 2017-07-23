@@ -37,9 +37,12 @@
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 
 
-//#define foutputRC
-//#define foutputMD
+//#define OGDF_FLOW_COMPACTION_OUTPUT_RC
+//#define OGDF_FLOW_COMPACTION_OUTPUT_MD
 
+#if defined(OGDF_FLOW_COMPACTION_OUTPUT_RC) || defined(OGDF_FLOW_COMPACTION_OUTPUT_MD)
+#include <ogdf/uml/PlanRepUML.h>
+#endif
 
 namespace ogdf {
 
@@ -59,10 +62,10 @@ void printCCGy(const char *filename,
 
 void writeGridDrawing(const char *name, PlanRep &PG, GridLayoutMapped &drawing)
 {
-	ofstream os(name);
+	std::ofstream os(name);
 
 	for(node v : PG.nodes) {
-		os << v->index() << ": " << drawing.x(v) << ", " << drawing.y(v) << endl;
+		os << v->index() << ": " << drawing.x(v) << ", " << drawing.y(v) << std::endl;
 	}
 }
 
@@ -125,9 +128,9 @@ void FlowCompaction::improvementHeuristics(
 {
 	OGDF_ASSERT(OR.isOrientated());
 
-	double costs = double(numeric_limits<int>::max()), lastCosts;
+	double costs = double(std::numeric_limits<int>::max()), lastCosts;
 	int steps = 0, maxSteps = m_maxImprovementSteps;
-	if (maxSteps == 0) maxSteps = numeric_limits<int>::max();
+	if (maxSteps == 0) maxSteps = std::numeric_limits<int>::max();
 
 	// OPTIMIZATION POTENTIAL:
 	// update constraint graphs "incrementally" by only re-inserting
@@ -159,7 +162,7 @@ void FlowCompaction::improvementHeuristics(
 		}
 
 
-#ifdef foutputRC
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_RC
 		string fileName = string("Dx_") + to_string(steps) + ".gml";
 		printCCGx(fileName.c_str(),Dx,drawing);
 #endif
@@ -173,7 +176,7 @@ void FlowCompaction::improvementHeuristics(
 		}
 
 
-#ifdef foutputRC
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_RC
 		fileName = string("Gx_") + to_string(steps) + ".gml";
 		PlanRepUML &PGUml = (PlanRepUML&)PG;
 		PGUml.writeGML(fileName.c_str(),OR,drawing);
@@ -199,7 +202,7 @@ void FlowCompaction::improvementHeuristics(
 				yDy[w] = drawing.y(Dy.extraRep(w)) + Dy.extraOfs(w);
 		}
 
-#ifdef foutputRC
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_RC
 		fileName = string("Dy_") + to_string(steps) + ".gml";
 		printCCGy(fileName.c_str(),Dy,drawing);
 #endif
@@ -211,7 +214,7 @@ void FlowCompaction::improvementHeuristics(
 			drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 		}
 
-#ifdef foutputRC
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_RC
 		fileName = string("Gy_") + to_string(steps) + ".gml";
 		PGUml.writeGML(fileName.c_str(),OR,drawing);
 #endif
@@ -236,9 +239,9 @@ void FlowCompaction::improvementHeuristics(
 {
 	OGDF_ASSERT(OR.isOrientated());
 
-	double costs = double(numeric_limits<int>::max()), lastCosts;
+	double costs = double(std::numeric_limits<int>::max()), lastCosts;
 	int steps = 0, maxSteps = m_maxImprovementSteps;
-	if (maxSteps == 0) maxSteps = numeric_limits<int>::max();
+	if (maxSteps == 0) maxSteps = std::numeric_limits<int>::max();
 
 	// OPTIMIZATION POTENTIAL:
 	// update constraint graphs "incrementally" by only re-inserting
@@ -258,7 +261,7 @@ void FlowCompaction::improvementHeuristics(
 		Dx.insertVertexSizeArcs(PG, drawing.width(), minDist);
 		Dx.insertVisibilityArcs(PG, drawing.x(), drawing.y(), minDist);
 
-#ifdef foutputMD
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_MD
 		string fileName = string("Dx_") + to_string(steps) + ".gml";
 		printCCGx(fileName.c_str(),Dx,drawing);
 #endif
@@ -283,7 +286,7 @@ void FlowCompaction::improvementHeuristics(
 			drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		}
 
-#ifdef foutputMD
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_MD
 		fileName = string("Gx_") + to_string(steps) + ".txt";
 		writeGridDrawing(fileName.c_str(), PG, drawing);
 
@@ -312,16 +315,16 @@ void FlowCompaction::improvementHeuristics(
 				yDy[w] = drawing.y(Dy.extraRep(w)) + Dy.extraOfs(w);
 		}
 
-#ifdef foutputMD
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_MD
 		fileName = string("Dy_") + to_string(steps) + ".gml";
 		printCCGy(fileName.c_str(),Dy,drawing);
 
 		fileName = string("c-edges y ") + to_string(steps) + ".txt";
-		ofstream os(fileName.c_str());
+		std::ofstream os(fileName.c_str());
 		const Graph &Gd = Dy.getGraph();
 		for(edge ee : Gd.edges)
 			os << (yDy[ee->target()] - yDy[ee->source()]) << "   " <<
-				ee->source()->index() << " -> " << ee->target()->index() << endl;
+				ee->source()->index() << " -> " << ee->target()->index() << std::endl;
 		os.close();
 #endif
 
@@ -333,7 +336,7 @@ void FlowCompaction::improvementHeuristics(
 			drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 		}
 
-#ifdef foutputMD
+#ifdef OGDF_FLOW_COMPACTION_OUTPUT_MD
 		fileName = string("Gy_") + to_string(steps) + ".txt";
 		writeGridDrawing(fileName.c_str(), PG, drawing);
 
@@ -464,7 +467,7 @@ void FlowCompaction::computeCoords(
 			upperBound[eDual] = infinity;
 		}
 
-	}//forall Gd edges
+	}
 
 	if (fixVertexSize) {
 		for(edge e : Gd.edges) {
@@ -536,13 +539,13 @@ void writeCcgGML(const CompactionConstraintGraph<int> &D,
 	const GraphAttributes &AG,
 	const char *filename)
 {
-	ofstream os(filename);
+	std::ofstream os(filename);
 	const Graph &G = D.getGraph();
 
 	NodeArray<int> id(G);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::writeCcgGML\"\n";
@@ -724,6 +727,4 @@ void printCCGy(const char *filename,
 	writeCcgGML(D,AG,filename);
 }
 
-
-
-} // end namespace ogdf
+}

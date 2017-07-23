@@ -74,8 +74,7 @@ public:
 	}
 };
 
-} // end namespace steiner_tree
-
+}
 
 /** \brief This class implements preprocessing strategies for the Steiner tree problem.
  *
@@ -783,7 +782,7 @@ T SteinerTreePreprocessing<T>::computeBottleneckDistance(node x, node y,
                                                          const HeavyPathDecomposition &tprimeHPD,
                                                          const NodeArray<List<std::pair<node, T>>> &closestTerminals) const
 {
-	T bottleneckDistance = numeric_limits<T>::max();
+	T bottleneckDistance = std::numeric_limits<T>::max();
 
 	for (auto &xCloseTerminalDistancePair : closestTerminals[x]) {
 		for (auto &yCloseTerminalDistancePair : closestTerminals[y]) {
@@ -793,7 +792,7 @@ T SteinerTreePreprocessing<T>::computeBottleneckDistance(node x, node y,
 			node yTprimeCopy = tprime.copy(yCloseTerminalDistancePair.first);
 			possibleBottleneckDistance += tprimeHPD.getBottleneckSteinerDistance(xTprimeCopy, yTprimeCopy);
 
-			bottleneckDistance = min(bottleneckDistance, possibleBottleneckDistance);
+			Math::updateMin(bottleneckDistance, possibleBottleneckDistance);
 		}
 	}
 
@@ -863,10 +862,10 @@ private:
 
 		T maxValue(0);
 		if (queryLeft <= middleIndex) {
-			maxValue = max(maxValue, getMaxSegmentTree(segmentTree, leftNodeIndex, left, middleIndex, queryLeft, queryRight));
+			Math::updateMax(maxValue, getMaxSegmentTree(segmentTree, leftNodeIndex, left, middleIndex, queryLeft, queryRight));
 		}
 		if (queryRight > middleIndex) {
-			maxValue = max(maxValue, getMaxSegmentTree(segmentTree, rightNodeIndex, middleIndex+1, right, queryLeft, queryRight));
+			Math::updateMax(maxValue, getMaxSegmentTree(segmentTree, rightNodeIndex, middleIndex+1, right, queryLeft, queryRight));
 		}
 
 		return maxValue;
@@ -897,7 +896,7 @@ private:
 			for (int j = 0; j < (int)chains[i].size(); ++j) {
 				longestDistToSteinerAncestorOnChain[i][j] = distanceToAncestor(chains[i][j], closestSteinerAncestor[chains[i][j]]);
 				if (j > 0) {
-					longestDistToSteinerAncestorOnChain[i][j] = max(longestDistToSteinerAncestorOnChain[i][j], longestDistToSteinerAncestorOnChain[i][j-1]);
+					Math::updateMax(longestDistToSteinerAncestorOnChain[i][j], longestDistToSteinerAncestorOnChain[i][j-1]);
 				}
 			}
 		}
@@ -1011,7 +1010,7 @@ private:
 		node upmostTerminal = x;
 		while (closestSteinerAncestor[chains[chainOfNode[x]][0]] != nullptr
 		    && nodeLevel[closestSteinerAncestor[chains[chainOfNode[x]][0]]] >= nodeLevel[ancestor]) {
-			longestPathDistance = max(longestPathDistance, longestDistToSteinerAncestorOnChain[chainOfNode[x]][positionOnChain[x]]);
+			Math::updateMax(longestPathDistance, longestDistToSteinerAncestorOnChain[chainOfNode[x]][positionOnChain[x]]);
 
 			if (!chainsOfTerminals[chainOfNode[x]].empty()
 			 && nodeLevel[chainsOfTerminals[chainOfNode[x]][0]] <= nodeLevel[x]) {
@@ -1030,7 +1029,7 @@ private:
 		}
 
 		if (upmostTerminalLastChain != nullptr) {
-			longestPathDistance = max(longestPathDistance,
+			Math::updateMax(longestPathDistance,
 			  getMaxSegmentTree(longestDistToSteinerAncestorSegTree[chainOfNode[x]], 0, 0,
 			                    static_cast<int>(chains[chainOfNode[x]].size()) - 1,
 			                    positionOnChain[upmostTerminalLastChain] + 1,
@@ -1108,7 +1107,7 @@ public:
 		computeBottleneckOnBranch(y, xyLowestCommonAncestor, yLongestPathDistance, yFromLowestToLCA);
 
 		T maxValue = max(xLongestPathDistance, yLongestPathDistance);
-		maxValue = max(maxValue, xFromLowestToLCA+yFromLowestToLCA);
+		Math::updateMax(maxValue, xFromLowestToLCA+yFromLowestToLCA);
 
 		return maxValue;
 	}
@@ -1238,12 +1237,12 @@ void SteinerTreePreprocessing<T>::floydWarshall(NodeArray<NodeArray<T>> &shortes
 	for (node pivot : m_copyGraph.nodes) {
 		for (node v1 : m_copyGraph.nodes) {
 			for (node v2 : m_copyGraph.nodes) {
-				if (shortestPath[v1][pivot] == numeric_limits<T>::max()
-				 || shortestPath[pivot][v2] == numeric_limits<T>::max()) {
+				if (shortestPath[v1][pivot] == std::numeric_limits<T>::max()
+				 || shortestPath[pivot][v2] == std::numeric_limits<T>::max()) {
 					continue;
 				}
 
-				shortestPath[v1][v2] = min(shortestPath[v1][v2], shortestPath[v1][pivot] + shortestPath[pivot][v2]);
+				Math::updateMin(shortestPath[v1][v2], shortestPath[v1][pivot] + shortestPath[pivot][v2]);
 			}
 		}
 	}
@@ -1254,7 +1253,7 @@ inline void SteinerTreePreprocessing<T>::computeShortestPathMatrix(NodeArray<Nod
 {
 	shortestPath.init(m_copyGraph);
 	for (node v : m_copyGraph.nodes) {
-		shortestPath[v].init(m_copyGraph, numeric_limits<T>::max());
+		shortestPath[v].init(m_copyGraph, std::numeric_limits<T>::max());
 	}
 
 	floydWarshall(shortestPath);
@@ -1323,7 +1322,7 @@ bool SteinerTreePreprocessing<T>::deleteComponentsWithoutTerminals()
 		for (node v : m_copyTerminals) {
 			if (componentWithTerminals != -1
 			 && hisConnectedComponent[v] != componentWithTerminals) {
-				cerr << "terminals in different connected components!\n";
+				std::cerr << "terminals in different connected components!\n";
 				OGDF_ASSERT(false);
 			}
 			componentWithTerminals = hisConnectedComponent[v];
@@ -1348,7 +1347,7 @@ bool SteinerTreePreprocessing<T>::terminalDistanceTest()
 	EdgeWeightedGraphCopy<T> *tprime = initializeTPrime();
 	T maxBottleneck(0);
 	for (edge e : tprime->edges) {
-		maxBottleneck = max(maxBottleneck, tprime->weight(e));
+		Math::updateMax(maxBottleneck, tprime->weight(e));
 	}
 	delete tprime;
 
@@ -1410,8 +1409,8 @@ template<typename T>
 bool SteinerTreePreprocessing<T>::longEdgesTest()
 {
 	bool changed = false;
-	NodeArray<T> xDistance(m_copyGraph, numeric_limits<T>::max()),
-	             yDistance(m_copyGraph, numeric_limits<T>::max());
+	NodeArray<T> xDistance(m_copyGraph, std::numeric_limits<T>::max()),
+	             yDistance(m_copyGraph, std::numeric_limits<T>::max());
 
 	for (edge e = m_copyGraph.firstEdge(), nextE; e; e = nextE) {
 		nextE = e->succ();
@@ -1421,7 +1420,7 @@ bool SteinerTreePreprocessing<T>::longEdgesTest()
 		findClosestNonTerminals(e->target(), yReachedNodes, yDistance, m_copyGraph.weight(e), 200);
 
 		for (node commonNode : xReachedNodes) {
-			if (yDistance[commonNode] == numeric_limits<T>::max()) { // is not common
+			if (yDistance[commonNode] == std::numeric_limits<T>::max()) { // is not common
 				continue;
 			}
 			if (m_eps.less(xDistance[commonNode] + yDistance[commonNode], m_copyGraph.weight(e))) {
@@ -1432,10 +1431,10 @@ bool SteinerTreePreprocessing<T>::longEdgesTest()
 		}
 
 		for (node reachedNode : xReachedNodes) {
-			xDistance[reachedNode] = numeric_limits<T>::max();
+			xDistance[reachedNode] = std::numeric_limits<T>::max();
 		}
 		for (node reachedNode : yReachedNodes) {
-			yDistance[reachedNode] = numeric_limits<T>::max();
+			yDistance[reachedNode] = std::numeric_limits<T>::max();
 		}
 	}
 	return changed;
@@ -1730,7 +1729,7 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 	}
 
 	// compute for every terminal the distance to the closest terminal
-	NodeArray<T> distanceToClosestTerminal(m_copyGraph, numeric_limits<T>::max());
+	NodeArray<T> distanceToClosestTerminal(m_copyGraph, std::numeric_limits<T>::max());
 	for (edge e : m_copyGraph.edges) {
 		node x = e->source(), y = e->target();
 		node seedX = voronoiRegions.seed(x), seedY = voronoiRegions.seed(y);
@@ -1739,10 +1738,10 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 			T distanceThroughE = voronoiRegions.distance(x) + m_copyGraph.weight(e) + voronoiRegions.distance(y);
 
 			if (isSuccessorOfMinCostEdge[x]) {
-				distanceToClosestTerminal[seedX] = min(distanceToClosestTerminal[seedX],distanceThroughE);
+				Math::updateMin(distanceToClosestTerminal[seedX], distanceThroughE);
 			}
 			if (isSuccessorOfMinCostEdge[y]) {
-				distanceToClosestTerminal[seedY] = min(distanceToClosestTerminal[seedY],distanceThroughE);
+				Math::updateMin(distanceToClosestTerminal[seedY], distanceThroughE);
 			}
 		}
 	}
@@ -1834,7 +1833,7 @@ void SteinerTreePreprocessing<T>::computeRadiusOfTerminals(NodeArray<T> &termina
 	Voronoi<T> voronoiRegions(m_copyGraph, m_copyGraph.edgeWeights(), m_copyTerminals);
 
 	// compute the radius for each terminal
-	terminalRadius.init(m_copyGraph, numeric_limits<T>::max());
+	terminalRadius.init(m_copyGraph, std::numeric_limits<T>::max());
 	for (node v : m_copyGraph.nodes) {
 		node seedV = voronoiRegions.seed(v);
 		T distanceToSeedV = voronoiRegions.distance(v);
@@ -1844,7 +1843,7 @@ void SteinerTreePreprocessing<T>::computeRadiusOfTerminals(NodeArray<T> &termina
 			node adjacentNode = e->opposite(v);
 
 			if (voronoiRegions.seed(adjacentNode) != seedV) {
-				terminalRadius[seedV] = min(terminalRadius[seedV], distanceToSeedV + m_copyGraph.weight(e));
+				Math::updateMin(terminalRadius[seedV], distanceToSeedV + m_copyGraph.weight(e));
 			}
 		}
 	}
@@ -1869,7 +1868,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 {
 	OGDF_ASSERT(isConnected(m_copyGraph));
 
-	NodeArray<T> lowerBoundWithNode(m_copyGraph, numeric_limits<T>::lowest());
+	NodeArray<T> lowerBoundWithNode(m_copyGraph, std::numeric_limits<T>::lowest());
 
 	NodeArray<List<std::pair<node, T>>> closestTerminals;
 	computeClosestKTerminals(3, closestTerminals);
@@ -1883,14 +1882,14 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 		}
 
 		if (closestTerminals[v].size() < 2) {
-			lowerBoundWithNode[v] = numeric_limits<T>::max();
+			lowerBoundWithNode[v] = std::numeric_limits<T>::max();
 			continue;
 		}
 
 		std::pair<node, T> closestTerminalPair1 = *(closestTerminals[v].get(0)), closestTerminalPair2 = *(closestTerminals[v].get(1));
 		T distanceToClosestTerminal1 = closestTerminalPair1.second, distanceToClosestTerminal2 = closestTerminalPair2.second;
 
-		lowerBoundWithNode[v] = max(lowerBoundWithNode[v], distanceToClosestTerminal1 + distanceToClosestTerminal2 + radiusSum);
+		Math::updateMax(lowerBoundWithNode[v], distanceToClosestTerminal1 + distanceToClosestTerminal2 + radiusSum);
 	}
 
 	// Update the lowerbound of the cost of a Steiner tree containing one particular node
@@ -1909,7 +1908,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 	Voronoi<T> voronoiRegions(m_copyGraph, initialEdgeWeight, m_copyTerminals);
 
 	std::unordered_map<NodePair, edge, steiner_tree::UnorderedNodePairHasher, steiner_tree::UnorderedNodePairEquality> edgeBetweenNodes;
-	EdgeArray<T> edgeWeight(auxiliaryGraph, numeric_limits<T>::max());
+	EdgeArray<T> edgeWeight(auxiliaryGraph, std::numeric_limits<T>::max());
 	for (edge e : m_copyGraph.edges) {
 		node x = e->source(), y = e->target();
 		node seedX = voronoiRegions.seed(x), seedY = voronoiRegions.seed(y);
@@ -1922,15 +1921,15 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 			edgeBetweenNodes[pair] = auxiliaryGraph.newEdge(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY]);
 		}
 		edge auxiliaryEdge = edgeBetweenNodes[pair];
-		edgeWeight[auxiliaryEdge] = min(edgeWeight[auxiliaryEdge], min(voronoiRegions.distance(x), voronoiRegions.distance(y)) + m_copyGraph.weight(e));
+		Math::updateMin(edgeWeight[auxiliaryEdge], min(voronoiRegions.distance(x), voronoiRegions.distance(y)) + m_copyGraph.weight(e));
 	}
 
 	EdgeArray<bool> isInTree(auxiliaryGraph, false);
 	T minimumSpanningTreeCost = computeMinST(auxiliaryGraph, edgeWeight, isInTree);
-	T longestEdgeCost = numeric_limits<T>::lowest();
+	T longestEdgeCost = std::numeric_limits<T>::lowest();
 	for (edge e : auxiliaryGraph.edges) {
 		if (isInTree[e]) {
-			longestEdgeCost = max(longestEdgeCost, edgeWeight[e]);
+			Math::updateMax(longestEdgeCost, edgeWeight[e]);
 		}
 	}
 
@@ -1942,7 +1941,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 		std::pair<node, T> closestTerminalPair1 = *(closestTerminals[v].get(0)), closestTerminalPair2 = *(closestTerminals[v].get(1));
 		T distanceToClosestTerminal1 = closestTerminalPair1.second, distanceToClosestTerminal2 = closestTerminalPair2.second;
 
-		lowerBoundWithNode[v] = max(lowerBoundWithNode[v], minimumSpanningTreeCost - longestEdgeCost + distanceToClosestTerminal1 + distanceToClosestTerminal2);
+		Math::updateMax(lowerBoundWithNode[v], minimumSpanningTreeCost - longestEdgeCost + distanceToClosestTerminal1 + distanceToClosestTerminal2);
 	}
 
 	return deleteNodesAboveUpperBound(lowerBoundWithNode, computeMinSteinerTreeUpperBound());
@@ -1970,7 +1969,7 @@ T SteinerTreePreprocessing<T>::computeRadiusSum() const
 
 	// instead of sorting, we can simply ignore the two largest radii
 	T radiusSum = T();
-	T largestRadius1 = numeric_limits<T>::lowest(), largestRadius2 = numeric_limits<T>::lowest();
+	T largestRadius1 = std::numeric_limits<T>::lowest(), largestRadius2 = std::numeric_limits<T>::lowest();
 	for (node terminal : m_copyTerminals) {
 		radiusSum += terminalRadius[terminal];
 
@@ -2004,7 +2003,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedEdgeTest()
 		T distanceToClosestTerminalX = (*closestTerminals[x].begin()).second;
 		T distanceToClosestTerminalY = (*closestTerminals[y].begin()).second;
 
-		lowerBoundWithEdge[e] = max(lowerBoundWithEdge[e], m_copyGraph.weight(e) + distanceToClosestTerminalX + distanceToClosestTerminalY + radiusSum);
+		Math::updateMax(lowerBoundWithEdge[e], m_copyGraph.weight(e) + distanceToClosestTerminalX + distanceToClosestTerminalY + radiusSum);
 	}
 
 	return deleteEdgesAboveUpperBound(lowerBoundWithEdge, computeMinSteinerTreeUpperBound());
@@ -2056,8 +2055,8 @@ bool SteinerTreePreprocessing<T>::reachabilityTest(int maxDegreeTest, const int 
 		// compute first, second nearest terminals and farthest terminal
 		node farthestTerminal = nullptr;
 		T distanceToFarthestTerminal(0);
-		T distanceToClosestTerminal1 = numeric_limits<T>::max(),
-		  distanceToClosestTerminal2 = numeric_limits<T>::max();
+		T distanceToClosestTerminal1 = std::numeric_limits<T>::max(),
+		  distanceToClosestTerminal2 = std::numeric_limits<T>::max();
 		for (node terminal : m_copyTerminals) {
 			if (distanceToFarthestTerminal < distance[terminal]) {
 				farthestTerminal = terminal;
@@ -2075,12 +2074,12 @@ bool SteinerTreePreprocessing<T>::reachabilityTest(int maxDegreeTest, const int 
 		}
 
 		if (predecessor[farthestTerminal] == nullptr // is not in the same component with the terminals
-		 || distanceToClosestTerminal2 == numeric_limits<T>::max() // cannot reach at least 2 terminals, must be deleted
+		 || distanceToClosestTerminal2 == std::numeric_limits<T>::max() // cannot reach at least 2 terminals, must be deleted
 		 || m_eps.geq(distanceToFarthestTerminal + distanceToClosestTerminal1 + distanceToClosestTerminal2, upperBoundCost)) {
 			changed = true;
 			// delete the node
 			if (predecessor[farthestTerminal] != nullptr
-			 && distanceToClosestTerminal2 != numeric_limits<T>::max()
+			 && distanceToClosestTerminal2 != std::numeric_limits<T>::max()
 			 && m_eps.less(distanceToFarthestTerminal + distanceToClosestTerminal1, upperBoundCost)) {
 				// the deleted node has degree 2 -> replace it with edges
 				deleteSteinerDegreeTwoNode(v, *tprime, tprimeHPD, closestTerminals);
@@ -2146,10 +2145,10 @@ bool SteinerTreePreprocessing<T>::cutReachabilityTest()
 	delete approximatedSteinerTree;
 
 	T cK = T();
-	NodeArray<T> minCostOfAdjacentEdge(m_copyGraph, numeric_limits<T>::max());
+	NodeArray<T> minCostOfAdjacentEdge(m_copyGraph, std::numeric_limits<T>::max());
 	for (node terminal : m_copyTerminals) {
 		for (adjEntry adj : terminal->adjEntries) {
-			minCostOfAdjacentEdge[terminal] = min(minCostOfAdjacentEdge[terminal], m_copyGraph.weight(adj->theEdge()));
+			Math::updateMin(minCostOfAdjacentEdge[terminal], m_copyGraph.weight(adj->theEdge()));
 		}
 		cK += minCostOfAdjacentEdge[terminal];
 	}
@@ -2218,4 +2217,4 @@ bool SteinerTreePreprocessing<T>::cutReachabilityTest()
 	return changed;
 }
 
-} // ends namespace ogdf
+}

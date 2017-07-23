@@ -78,4 +78,4 @@ void SolarPlacer::placeOneNode(MultilevelGraph &MLG)
 	MLG.y(merged, (y / static_cast<double>(i)));
 }
 
-} // namespace ogdf
+}

@@ -62,8 +62,7 @@ protected:
 	GraphElement *m_prev; //!< The predecessor in the list.
 
 	OGDF_NEW_DELETE
-
-}; // class GraphElement
+};
 
 //! Base class for GraphElement lists.
 class OGDF_EXPORT GraphListBase {
@@ -180,8 +179,8 @@ public:
 
 		}
 		else {
-			ogdf::swap(pX->m_next, pY->m_next);
-			ogdf::swap(pX->m_prev, pY->m_prev);
+			std::swap(pX->m_next, pY->m_next);
+			std::swap(pX->m_prev, pY->m_prev);
 		}
 
 		if (pX->m_prev)
@@ -202,48 +201,39 @@ public:
 		else
 			m_tail = pY;
 
-		OGDF_ASSERT(consistencyCheck());
+#ifdef OGDF_DEBUG
+		consistencyCheck();
+#endif
 	}
 
-	//! Checks consistency of graph list.
-	bool consistencyCheck() {
-		if (m_head == nullptr) {
-			return m_tail == nullptr;
-		}
-		else if (m_tail == nullptr) {
-			return false;
+#ifdef OGDF_DEBUG
+	//! Asserts consistency of this list.
+	void consistencyCheck() const {
+		OGDF_ASSERT((m_head == nullptr) == (m_tail == nullptr));
 
-		}
-		else {
-			if (m_head->m_prev != nullptr)
-				return false;
-			if (m_tail->m_next != nullptr)
-				return false;
+		if (m_head != nullptr) {
+			OGDF_ASSERT(m_head->m_prev == nullptr);
+			OGDF_ASSERT(m_tail->m_next == nullptr);
 
-			GraphElement *pX = m_head;
-			for (; pX; pX = pX->m_next) {
+			for (GraphElement *pX = m_head; pX; pX = pX->m_next) {
 				if (pX->m_prev) {
-					if (pX->m_prev->m_next != pX)
-						return false;
+					OGDF_ASSERT(pX->m_prev->m_next == pX);
+				} else {
+					OGDF_ASSERT(pX == m_head);
 				}
-				else if (pX != m_head)
-					return false;
 
 				if (pX->m_next) {
-					if (pX->m_next->m_prev != pX)
-						return false;
+					OGDF_ASSERT(pX->m_next->m_prev == pX);
+				} else {
+					OGDF_ASSERT(pX == m_tail);
 				}
-				else if (pX != m_tail)
-					return false;
 			}
 		}
-
-		return true;
 	}
+#endif
 
 	OGDF_NEW_DELETE
-
-}; // class GraphListBase
+};
 
 //! Lists of graph objects (like nodes, edges, etc.).
 /**
@@ -353,16 +343,12 @@ public:
 		GraphListBase::swap(pX, pY);
 	}
 
-
-	//! Checks consistency of graph list; returns true if ok.
-	bool consistencyCheck() {
-		return GraphListBase::consistencyCheck();
-	}
+#ifdef OGDF_DEBUG
+	using GraphListBase::consistencyCheck;
+#endif
 
 	OGDF_NEW_DELETE
-
-}; // class GraphList<T>
-
+};
 
 template<class GraphObject>
 class GraphObjectContainer : private GraphList<GraphObject> {
@@ -399,5 +385,5 @@ public:
 	using GraphList<GraphObject>::tail;
 };
 
-} // end namespace internal
-} // end namespace ogdf
+}
+}

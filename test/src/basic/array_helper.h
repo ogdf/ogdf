@@ -28,17 +28,11 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#pragma once
-#ifdef _MSC_VER
-#pragma once
-#endif
 
+#pragma once
 
-#include <bandit/bandit.h>
 #include <ogdf/basic/graph_generators.h>
-
-namespace ogdf
-{
+#include <testing.h>
 
 /**
  * Perform basic tests for a map of graph elements to values.
@@ -66,21 +60,16 @@ void describeArray(
 	using const_iterator = typename MyArrayType::const_iterator;
 	using iterator = typename MyArrayType::iterator;
 
-	bandit::describe(title.c_str(),[&]() {
-		MyArrayType *array;
+	describe(title.c_str(), [&]() {
+		std::unique_ptr<MyArrayType> array;
 		Graph graph;
-		graph = Graph();
 		randomGraph(graph, 42, 168);
 
-		bandit::before_each([&](){
-			array = new MyArrayType();
+		before_each([&]() {
+			array.reset(new MyArrayType());
 		});
 
-		bandit::after_each([&](){
-			delete array;
-		});
-
-		bandit::it("handles nested arrays well", [&]() {
+		it("handles nested arrays well", [&]() {
 			Graph G;
 			G.newEdge(G.newNode(), G.newNode());
 
@@ -93,8 +82,8 @@ void describeArray(
 			}
 		});
 
-		bandit::describe("init",[&](){
-			bandit::it("initializes w/o a graph",[&](){
+		describe("init", [&]() {
+			it("initializes w/o a graph", [&]() {
 				AssertThat(array->graphOf(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				array->init();
@@ -102,35 +91,33 @@ void describeArray(
 				AssertThat(array->valid(), IsFalse());
 			});
 
-			bandit::it("initializes w a graph",[&](){
+			it("initializes w a graph", [&]() {
 				array->init(graph);
 				AssertThat(array->graphOf(), Equals(&graph));
 				AssertThat(array->valid(), IsTrue());
 			});
 
-			bandit::it("initializes w a graph and filled",[&](){
+			it("initializes w a graph and filled", [&]() {
 				array->init(graph, fillElement);
 				AssertThat(array->graphOf(), Equals(&graph));
 				AssertThat(array->valid(), IsTrue());
 				AssertThat((*array)[chooseKey(graph)], Equals(fillElement));
 			});
 
-			bandit::it("is constructed w a graph",[&](){
-				delete array;
-				array = new MyArrayType(graph);
+			it("is constructed w a graph", [&]() {
+				array.reset(new MyArrayType(graph));
 				AssertThat(array->graphOf(), Equals(&graph));
 				AssertThat(array->valid(), IsTrue());
 			});
 
-			bandit::it("is constructed w a graph and filled",[&](){
-				delete array;
-				array = new MyArrayType(graph, fillElement);
+			it("is constructed w a graph and filled", [&]() {
+				array.reset(new MyArrayType(graph, fillElement));
 				AssertThat(array->graphOf(), Equals(&graph));
 				AssertThat(array->valid(), IsTrue());
 				AssertThat((*array)[chooseKey(graph)], Equals(fillElement));
 			});
 
-			bandit::it("supports copy-construction",[&](){
+			it("supports copy-construction", [&]() {
 				array->init(graph, fillElement);
 				MyArrayType copiedArray(*array);
 				AssertThat(copiedArray.graphOf(), Equals(array->graphOf()));
@@ -140,7 +127,7 @@ void describeArray(
 				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
 			});
 
-			bandit::it("implements the assignment-operator",[&](){
+			it("implements the assignment-operator", [&]() {
 				array->init(graph, fillElement);
 				MyArrayType copiedArray = *array;
 				AssertThat(copiedArray.graphOf(), Equals(array->graphOf()));
@@ -148,7 +135,7 @@ void describeArray(
 				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
 			});
 
-			bandit::it("supports move-construction",[&](){
+			it("supports move-construction", [&]() {
 				array->init(graph, fillElement);
 				MyArrayType copiedArray = std::move(*array);
 				AssertThat(copiedArray.graphOf(), Equals(&graph));
@@ -158,7 +145,7 @@ void describeArray(
 				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
 			});
 
-			bandit::it("moves an array using the assignment operator",[&](){
+			it("moves an array using the assignment operator", [&]() {
 				array->init(graph, fillElement);
 				MyArrayType copiedArray;
 				copiedArray = (std::move(*array));
@@ -169,26 +156,26 @@ void describeArray(
 				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
 			});
 
-			bandit::it("assigns the default value to a newly created key", [&](){
+			it("assigns the default value to a newly created key", [&]() {
 				array->init(graph, fillElement);
 				KeyType key = createKey(graph);
 				AssertThat((*array)[key], Equals(fillElement));
 			});
 		});
 
-		bandit::describe("access",[&](){
-			bandit::it("distinguishes between a valid and an invalid array",[&](){
+		describe("access", [&]() {
+			it("distinguishes between a valid and an invalid array", [&]() {
 				AssertThat(array->valid(), IsFalse());
 				array->init(graph);
 				AssertThat(array->valid(), IsTrue());
 			});
 
-			bandit::it("knows its graph",[&](){
+			it("knows its graph", [&]() {
 				array->init(graph);
 				AssertThat(array->graphOf(), Equals(&graph));
 			});
 
-			bandit::it("allows access with the subscript operator",[&](){
+			it("allows access with the subscript operator", [&]() {
 				array->init(graph, fillElement);
 				KeyType k = chooseKey(graph);
 				AssertThat((*array)[k], Equals(fillElement));
@@ -199,7 +186,7 @@ void describeArray(
 				AssertThat(cAccessArray[k], Equals(fillElement));
 			});
 
-			bandit::it("allows access with the () operator",[&](){
+			it("allows access with the () operator", [&]() {
 				array->init(graph, fillElement);
 				KeyType k = chooseKey(graph);
 				AssertThat((*array)(k), Equals(fillElement));
@@ -211,12 +198,12 @@ void describeArray(
 			});
 		});
 
-		bandit::describe("iterators",[&](){
-			bandit::before_each([&](){
+		describe("iterators", [&]() {
+			before_each([&]() {
 				array->init(graph, fillElement);
 			});
 
-			bandit::it("iterates over the array",[&](){
+			it("iterates over the array", [&]() {
 				List<KeyType> list;
 				getAllKeys(graph, list);
 
@@ -240,7 +227,7 @@ void describeArray(
 				AssertThat(counter, Equals(list.size()));
 			});
 
-			bandit::it("iterates over the array backwards",[&](){
+			it("iterates over the array backwards", [&]() {
 				List<KeyType> list;
 				getAllKeys(graph, list);
 
@@ -265,6 +252,4 @@ void describeArray(
 			});
 		});
 	});
-
-}
 }

@@ -50,13 +50,13 @@ public:
 		m_leftAdj    = m_rightAdj    = nullptr;
 	}
 
-	//! Creates a shelling order set for \p l nodes.
+	//! Creates a shelling order set for \p n nodes.
 	/**
-	 * @param l is the number of nodes in the set.
+	 * @param n is the number of nodes in the set.
 	 * @param adjL points to the left-node of the set.
 	 * @param adjR points to the right-node of the set.
 	 */
-	ShellingOrderSet(int l, adjEntry adjL = nullptr, adjEntry adjR = nullptr) : Array<node>(1,l)
+	ShellingOrderSet(int n, adjEntry adjL = nullptr, adjEntry adjR = nullptr) : Array<node>(1, n)
 	{
 		m_leftVertex  = (adjL != nullptr) ? adjL->twinNode() : nullptr;
 		m_rightVertex = (adjR != nullptr) ? adjR->twinNode() : nullptr;
@@ -237,6 +237,4 @@ private:
 	NodeArray<int>          m_rank;   //!< the rank of nodes.
 };
 
-
-
-} // end namespace ogdf
+}

@@ -155,7 +155,7 @@ void GEMLayout::call(GraphAttributes &AG)
 
 		// main loop
 		int counter = m_numberOfRounds;
-		while(OGDF_GEOM_ET.greater(m_globalTemperature,m_minimalTemperature) && counter--) {
+		while(OGDF_GEOM_ET.greater(m_globalTemperature,m_minimalTemperature) && counter-- > 0) {
 
 			// choose nodes by random permutations
 			if(permutation.empty()) {
@@ -182,10 +182,10 @@ void GEMLayout::call(GraphAttributes &AG)
 			AG.x(v) = AGC.x(vCopy);
 			AG.y(v) = AGC.y(vCopy);
 
-			if(AG.x(v)-AG.width (v)/2 < minX) minX = AG.x(v)-AG.width(v) /2;
-			if(AG.x(v)+AG.width (v)/2 > maxX) maxX = AG.x(v)+AG.width(v) /2;
-			if(AG.y(v)-AG.height(v)/2 < minY) minY = AG.y(v)-AG.height(v)/2;
-			if(AG.y(v)+AG.height(v)/2 > maxY) maxY = AG.y(v)+AG.height(v)/2;
+			Math::updateMin(minX, AG.x(v) - AG.width(v)/2);
+			Math::updateMax(maxX, AG.x(v) + AG.width(v)/2);
+			Math::updateMin(minY, AG.y(v) - AG.height(v)/2);
+			Math::updateMax(maxY, AG.y(v) + AG.height(v)/2);
 		}
 
 		minX -= m_minDistCC;
@@ -208,17 +208,11 @@ void GEMLayout::call(GraphAttributes &AG)
 	// system. We still have to shift each node and edge by the offset
 	// of its connected component.
 
-	for(i = 0; i < numCC; ++i)
-	{
-		const List<node> &nodes = nodesInCC[i];
-
+	for(i = 0; i < numCC; ++i) {
 		const double dx = offset[i].m_x;
 		const double dy = offset[i].m_y;
 
-		// iterate over all nodes in ith CC
-		ListConstIterator<node> it;
-		for(node v : nodes)
-		{
+		for(node v : nodesInCC[i]) {
 			AG.x(v) += dx;
 			AG.y(v) += dy;
 		}
@@ -234,9 +228,6 @@ void GEMLayout::call(GraphAttributes &AG)
 
 
 void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
-#if 0
-	const Graph &G = AG.constGraph();
-#endif
 	int n = G.numberOfNodes();
 
 	double deltaX,deltaY,delta,deltaSqu;
@@ -290,9 +281,6 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 
 
 void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
-#if 0
-	const Graph &G = AG.constGraph();
-#endif
 	int n = G.numberOfNodes();
 	double impulseLength;
 
@@ -350,4 +338,4 @@ void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	}
 }
 
-} // end namespace ogdf
+}

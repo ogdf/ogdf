@@ -256,8 +256,8 @@ static bool writeCluster(
 
 		// Recursively export all subclusters.
 		whitespace = false;
-		for (ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-			writeCluster(out, depth, edgeMap, C, CA, *cit, clusterId);
+		for (cluster child : c->children) {
+			writeCluster(out, depth, edgeMap, C, CA, child, clusterId);
 			whitespace = true;
 		}
 
@@ -267,8 +267,8 @@ static bool writeCluster(
 
 		// Then, print all nodes whithout an adjacent edge.
 		whitespace = false;
-		for (ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-			whitespace |= writeNode(out, depth, CA, *nit);
+		for (node v : c->nodes) {
+			whitespace |= writeNode(out, depth, CA, v);
 		}
 
 		if (whitespace) {
@@ -327,8 +327,7 @@ static bool writeGraph(
 	return result;
 }
 
-
-} // end namespace dot
+}
 
 
 bool GraphIO::writeDOT(const Graph &G, std::ostream &out)
@@ -379,5 +378,4 @@ bool GraphIO::writeDOT(const ClusterGraphAttributes &CA, std::ostream &out)
 	return dot::writeCluster(out, 0, edgeMap, C, &CA, C.rootCluster(), id);
 }
 
-
-} // end namespace ogdf
+}

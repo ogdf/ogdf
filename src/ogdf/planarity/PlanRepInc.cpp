@@ -39,13 +39,12 @@
 #include <ogdf/planarity/PlanRepInc.h>
 #include <ogdf/basic/TopologyModule.h>
 
-
 namespace ogdf {
 
 PlanRepInc::PlanRepInc(const UMLGraph &UG) : PlanRepUML(UG)
 {
 	initMembers(UG);
-}//constructor
+}
 
 PlanRepInc::PlanRepInc(const UMLGraph &UG, const NodeArray<bool> &fixed)
 : PlanRepUML(UG)
@@ -59,8 +58,7 @@ PlanRepInc::PlanRepInc(const UMLGraph &UG, const NodeArray<bool> &fixed)
 		m_activeNodes[v] = fixed[v];
 	}
 
-}//constructor
-
+}
 
 void PlanRepInc::initMembers(const UMLGraph &UG)
 {
@@ -116,8 +114,8 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 				m_eCopy[eG].clear();
 			}
 		}
-	}//for originals
-	//}//if non-empty
+	}
+	//}
 
 	// now we check if we have to activate a single node
 	if (minNode && activeOrigCCNodes.empty()) {
@@ -146,8 +144,8 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 					case Graph::EdgeType::generalization: setGeneralization(e); break;
 					case Graph::EdgeType::association: setAssociation(e); break;
 					default: OGDF_ASSERT(false);
-				}//switch
-			}//if original
+				}
+			}
 		}
 
 	if (m_pGraphAttributes->has(GraphAttributes::nodeType))
@@ -156,8 +154,7 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 	//TODO:check only in CCs or global?
 	m_treeInit = false;
 	return minActive;
-
-}//initActiveCC
+}
 
 //node activation automatically activates all
 //adjacent edges
@@ -167,8 +164,7 @@ void PlanRepInc::activateNode(node v)
 	if (m_activeNodes[v]) return;
 
 	m_activeNodes[v] = true;
-
-}//activateNode
+}
 
 //Connect parts of partial active current CC.
 //Note that this only makes sense when the CC parts are
@@ -194,8 +190,7 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 	//in the dual graph
 
 	List<node> isolatedNodes;
-	const int numPartialCC = connectedIsolatedComponents(*this,
-		isolatedNodes, m_component);
+	const int numPartialCC = connectedComponents(*this, m_component, &isolatedNodes);
 
 	//CombinatorialEmbedding can cope with unconnected graphs
 	//but does not provide faces for isolated nodes
@@ -210,10 +205,10 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 			extAdjs.pushBack(f->firstAdj());
 
 #ifdef OGDF_DEBUG
-		cout << "FaceSum in Face " << f->index() << " Groesse " << f->size()
-			<< " ist: " << tm.faceSum(*this, *m_pGraphAttributes, f) <<"\n" << flush;
+		std::cout << "FaceSum in Face " << f->index() << " Groesse " << f->size()
+			<< " ist: " << tm.faceSum(*this, *m_pGraphAttributes, f) <<"\n" << std::flush;
 #endif
-	}//forallfaces
+	}
 
 	//now we have faces for all partial CCs that are not isolated nodes
 
@@ -252,10 +247,10 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 			m_eTreeArray(componentNumber(adj->theNode()), componentNumber(adj2->theNode())) =
 				m_eTreeArray(m_component[adj2->theNode()], m_component[adj->theNode()])
 				= eTree;
-		}//if CCs left to connect
+		}
 
 		++it;
-	}//while
+	}
 	while (!isolatedNodes.empty())
 	{
 		node uvw = isolatedNodes.popFrontRet();
@@ -287,9 +282,8 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 				m_eTreeArray(m_component[uvw], m_component[secv])
 				= eTree;
 			lastAdj = eTree->adjSource();
-
 		}
-	}//while isolated nodes
+	}
 
 	OGDF_ASSERT(isConnected(*this));
 
@@ -298,14 +292,12 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 	getExtAdjs(extAdjs);
 #endif
 
-
 	return true;
-}//makeStarConnected
+}
 
 //is only called when CC not connected => m_eTreeArray is initialized
 void PlanRepInc::deleteTreeConnection(int i, int j)
 {
-
 	edge e = m_eTreeArray(i, j);
 	if (e == nullptr) return;
 	edge nexte = nullptr;
@@ -326,8 +318,7 @@ void PlanRepInc::deleteTreeConnection(int i, int j)
 	m_eTreeArray(j, i) = nullptr;
 
 	OGDF_ASSERT(isConnected(*this));
-
-}//deleteTreeConnection
+}
 
 //is only called when CC not connected => m_eTreeArray is initialized
 void PlanRepInc::deleteTreeConnection(int i, int j, CombinatorialEmbedding &E)
@@ -353,9 +344,7 @@ void PlanRepInc::deleteTreeConnection(int i, int j, CombinatorialEmbedding &E)
 	m_eTreeArray(j, i) = nullptr;
 
 	OGDF_ASSERT(isConnected(*this));
-
-}//deleteTreeConnection
-
+}
 
 //use the layout information in the umlgraph to find nodes in
 //unconnected active parts of a CC that can be connected without
@@ -409,22 +398,20 @@ void PlanRepInc::getExtAdjs(List<adjEntry> & /* extAdjs */)
 		{
 		}
 #endif
-	}//for
-}//getextadj
-
+	}
+}
 
 //return one adjEntry on the outer face of GC where GC
 //is a partial copy of this PlanRepInc
 adjEntry PlanRepInc::getExtAdj(GraphCopy & /* GC */, CombinatorialEmbedding & /* E */)
 {
 	return adjEntry();
-}//getextadj
+}
 
 //structure updates of underlying graph
 //signaled by graph structure
 void PlanRepInc::nodeDeleted(node /* v */)
 {
-
 }
 void PlanRepInc::nodeAdded(node /* v */)   {}
 void PlanRepInc::edgeDeleted(edge /* e */) {}
@@ -479,7 +466,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 			AG.fillColor(u) = col;
 			AG.strokeColor(u) = Color::Name::Red;
 			AG.strokeWidth(u) = 8;
-		}//if
+		}
 
 		for(adjEntry adj1 : v->adjEntries) {
 			bool handled = visited[adj1];
@@ -494,7 +481,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 					AG.x(u1) = drawing.x(z);
 					AG.y(u1) = drawing.y(z);
 					AG.fillColor(u1) = col;
-				}//if not yet inserted in the copy
+				}
 				if (!finished[adj->theEdge()])
 				{
 					node w = adj->theEdge()->opposite(z);
@@ -548,7 +535,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 }
 //#endif
 
-void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
+void PlanRepInc::writeGML(std::ostream &os, const GraphAttributes &AG)
 {
 	OGDF_ASSERT(m_pGraphAttributes == &(AG));
 	const Graph &G = *this;
@@ -556,7 +543,7 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::PlanRepInc::writeGML\"\n";
@@ -655,7 +642,7 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 			else
 				os << "      fill \"#00000F\"\n";
 			os << "      width 1.0\n";
-		}//else generalization
+		}
 
 		if (original(e) != nullptr)
 		{
@@ -673,8 +660,8 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 					AG.y(original(e->target())) << " ]\n";
 
 				os << "      ]\n"; // Line
-			}//bends
-		}//original
+			}
+		}
 
 		os << "    ]\n"; // graphics
 
@@ -686,14 +673,14 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 //#endif
 
 
-void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
+void PlanRepInc::writeGML(std::ostream &os, const Layout &drawing, bool colorEmbed)
 {
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -796,9 +783,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 				tNum++;
 				adf = adf->cyclicSucc();
 			}
-
-
-		}//colorembed
+		}
 
 			if (typeOf(e) == Graph::EdgeType::generalization)
 			{
@@ -858,7 +843,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 				}
 
 				os << "      width 1.0\n";
-			}//else generalization
+			}
 
 			//insert a bend at each end corresponding to the
 			//adjacency order
@@ -918,7 +903,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 					double testAngleS = refAngleS-angleS;
 
 					//---
-					double dTS = testAngleS*2*Math::pi/360.0;
+					double dTS = Math::degreesToRadians(testAngleS);
 					//--
 					sx = xs + rad*cos(dTS);//testAngleS);
 					sy = ys + rad*sin(dTS);//testAngleS);
@@ -940,7 +925,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 					double testAngleT = refAngleT-angleT;
 
 					//--
-					double dTT = testAngleT*2*Math::pi/360.0;
+					double dTT = Math::degreesToRadians(testAngleT);
 					//--
 
 					tx = xt + rad*cos(dTT);//testAngleT);
@@ -955,8 +940,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 				os << "        point [ x " << xt << " y " << yt << " ]\n";
 
 				os << "      ]\n"; // Line
-
-			}//if colorembed
+			}
 			os << "    ]\n"; // graphics
 
 		os << "  ]\n"; // edge
@@ -964,9 +948,6 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 
 	os << "]\n"; // graph
 }
-
-
 #endif
 
-
-}//end namespace ogdf
+}

@@ -194,4 +194,4 @@ protected:
 	int number_; //!< The current number of constraints in the pool.
 };
 
-} //namespace abacus
+}

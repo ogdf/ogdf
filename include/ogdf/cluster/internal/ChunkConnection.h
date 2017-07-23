@@ -74,7 +74,7 @@ public:
 	inline int coeff(const NodePair& n) const override { return coeff(n.source ,n.target); }
 	int coeff(node v1, node v2) const;
 
-	void printMe(ostream& out) const {
+	void printMe(std::ostream& out) const {
 		out << "[ChunkCon: (";
 		for(node v : m_chunk) {
 			Logger::slout() << v << ",";

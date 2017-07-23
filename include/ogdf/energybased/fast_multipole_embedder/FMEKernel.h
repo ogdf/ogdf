@@ -85,7 +85,7 @@ inline double move_nodes(float* x, float* y, const uint32_t begin, const uint32_
 		double dsq = fx[i]*fx[i] + fy[i]*fy[i];
 		x[i] += fx[i]*t;
 		y[i] += fy[i]*t;
-		dsq_max = max(dsq_max, dsq);
+		Math::updateMax(dsq_max, dsq);
 	}
 	return dsq_max;
 }

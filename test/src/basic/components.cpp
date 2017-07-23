@@ -29,13 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
 
-using namespace bandit;
-using namespace ogdf;
+#include <testing.h>
 
 /** Checks wheter a path from source to target
  *  does exist by traversing the graph.

@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Math.h>
 
 using std::mutex;
 using std::lock_guard;
@@ -138,10 +139,12 @@ void ConstCombinatorialEmbedding::computeFaces()
 		}
 	}
 
-	m_faceArrayTableSize = Graph::nextPower2(MIN_FACE_TABLE_SIZE,m_faceIdCount);
+	m_faceArrayTableSize = Math::nextPower2(MIN_FACE_TABLE_SIZE, m_faceIdCount + 1);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -177,7 +180,9 @@ edge CombinatorialEmbedding::split(edge e)
 	m_rightFace[e->adjTarget()] = m_rightFace[e2->adjTarget()] = f2;
 	f2->m_size++;
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return e2;
 }
@@ -215,7 +220,9 @@ node CombinatorialEmbedding::splitNode(adjEntry adjStartLeft, adjEntry adjStartR
 	m_rightFace[adj->twin()] = fR;
 	++fR->m_size;
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return u;
 }
@@ -246,7 +253,9 @@ node CombinatorialEmbedding::contract(edge e)
 	--fSrc->m_size;
 	--fTgt->m_size;
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return v;
 }
@@ -273,7 +282,9 @@ edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
 	f1->m_size += (2 - f2->m_size);
 	m_rightFace[e->adjSource()] = f1;
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return e;
 }
@@ -298,7 +309,9 @@ edge CombinatorialEmbedding::addEdgeToIsolatedNode(adjEntry adj, node v, bool ad
 	f->m_size += 2;
 	m_rightFace[e->adjTarget()] = f;
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return e;
 }
@@ -316,18 +329,17 @@ void CombinatorialEmbedding::updateMerger(edge e, face fRight, face fLeft)
 	{
 		fRight->entries.m_adjFirst = e->adjSource();
 		fLeft->entries.m_adjFirst = e->adjTarget();
-	}//if
-}//updateMerger
-
-//--
-
+	}
+}
 
 face CombinatorialEmbedding::joinFaces(edge e)
 {
 	face f = joinFacesPure(e);
 	m_pGraph->delEdge(e);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return f;
 }
@@ -344,7 +356,7 @@ face CombinatorialEmbedding::joinFacesPure(edge e)
 
 	// we will reuse the largest face and delete the other one
 	if (f2->m_size > f1->m_size)
-		swap(f1,f2);
+		std::swap(f1,f2);
 
 	// the size of the joined face is the sum of the sizes of the two faces
 	// f1 and f2 minus the two adjacency entries of e
@@ -373,7 +385,9 @@ void CombinatorialEmbedding::reverseEdge(edge e)
 	// reverse edge in graph
 	m_pGraph->reverseEdge(e);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -405,7 +419,9 @@ void CombinatorialEmbedding::moveBridge(adjEntry adjBridge, adjEntry adjBefore)
 	else
 		m_pGraph->moveTarget(e, adjBefore, Direction::after);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -422,7 +438,9 @@ void CombinatorialEmbedding::removeDeg1(node v)
 
 	m_pGraph->delNode(v);
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -438,7 +456,9 @@ void CombinatorialEmbedding::clear()
 
 	reinitArrays();
 
-	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 }
 
 
@@ -507,23 +527,18 @@ void ConstCombinatorialEmbedding::reinitArrays()
 		fab->reinit(m_faceArrayTableSize);
 }
 
-
-bool ConstCombinatorialEmbedding::consistencyCheck()
+#ifdef OGDF_DEBUG
+void ConstCombinatorialEmbedding::consistencyCheck() const
 {
-	if(!m_cpGraph->consistencyCheck())
-		return false;
+	m_cpGraph->consistencyCheck();
 
-	if(!m_cpGraph->representsCombEmbedding())
-		return false;
+	OGDF_ASSERT(m_cpGraph->representsCombEmbedding());
 
-	AdjEntryArray<bool> visited(*m_cpGraph,false);
+	AdjEntryArray<bool> visited(*m_cpGraph, false);
 	int nF = 0;
 
 	for(face f : faces) {
-#ifdef OGDF_DEBUG
-		if (f->embeddingOf() != this)
-			return false;
-#endif
+		OGDF_ASSERT(f->embeddingOf() == this);
 
 		nF++;
 
@@ -531,33 +546,24 @@ bool ConstCombinatorialEmbedding::consistencyCheck()
 		int sz = 0;
 		do {
 			sz++;
-			if (visited[adj2] == true)
-				return false;
-
+			OGDF_ASSERT(!visited[adj2]);
 			visited[adj2] = true;
-
-			if (m_rightFace[adj2] != f)
-				return false;
-
+			OGDF_ASSERT(m_rightFace[adj2] == f);
 			adj2 = adj2->faceCycleSucc();
 		} while(adj2 != adj);
 
-		if (f->size() != sz)
-			return false;
+		OGDF_ASSERT(f->size() == sz);
 	}
 
-	if (nF != faces.size())
-		return false;
+	OGDF_ASSERT(nF == faces.size());
 
 	for(node v : m_cpGraph->nodes) {
 		for(adjEntry adj : v->adjEntries) {
-			if (visited[adj] == false)
-				return false;
+			OGDF_ASSERT(visited[adj]);
 		}
 	}
-
-	return true;
 }
+#endif
 
 adjEntry ConstCombinatorialEmbedding::findCommonFace(const node v, const node w, adjEntry &adjW, bool left) const {
 	OGDF_ASSERT(v != w);
@@ -573,4 +579,4 @@ adjEntry ConstCombinatorialEmbedding::findCommonFace(const node v, const node w,
 	return nullptr;
 }
 
-} // end namespace ogdf
+}

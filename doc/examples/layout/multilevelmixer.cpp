@@ -98,7 +98,7 @@ static void configureNoTwistLayout(ScalingLayout *sl, MultilevelBuilder *&merger
 int main(int argc, const char *argv[])
 {
 	if (argc != 2) {
-		cout << "Usage: " << argv[0] << " (0|1|2)" << endl;
+		std::cout << "Usage: " << argv[0] << " (0|1|2)" << std::endl;
 		return 255;
 	}
 
@@ -107,7 +107,7 @@ int main(int argc, const char *argv[])
 	Graph g;
 	GraphAttributes ga(g);
 	if (!GraphIO::read(ga, g, "uk_Pack_Bary_EC_FRENC.gml", GraphIO::readGML)) {
-		cerr << "Could not load Graph" << endl;
+		std::cerr << "Could not load Graph" << std::endl;
 		return 1;
 	}
 

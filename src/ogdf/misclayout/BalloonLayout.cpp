@@ -54,18 +54,7 @@ BalloonLayout::BalloonLayout() :
 	m_childOrder(ChildOrder::Fixed),    //how to arrange the children
 	m_treeComputation(BalloonLayout::TreeComputation::Bfs),  //spanning tree by...
 	m_evenAngles(false)
-{
-#ifdef OGDF_DEBUG
-	m_treeEdge = nullptr;
-#endif
-}
-
-BalloonLayout::~BalloonLayout()
-{
-#ifdef OGDF_DEBUG
-	delete m_treeEdge;
-#endif
-}
+{ }
 
 BalloonLayout &BalloonLayout::operator=(const BalloonLayout &bl)
 {
@@ -86,9 +75,7 @@ void BalloonLayout::call(GraphAttributes &AG)
 
 	OGDF_ASSERT(isConnected(G));
 #ifdef OGDF_DEBUG
-	delete m_treeEdge;
-	m_treeEdge = new EdgeArray<bool>();
-	m_treeEdge->init(G, false);
+	m_treeEdge.init(G, false);
 #endif
 
 	m_rootSelection = RootSelection::Center;
@@ -98,7 +85,7 @@ void BalloonLayout::call(GraphAttributes &AG)
 	computeTree(G);
 #ifdef OGDF_DEBUG
 	AG.fillColor(m_treeRoot) = Color::Name::Mediumblue;
-	cout << "Treeroot is blue\n";
+	Logger::slout() << "Treeroot is blue\n";
 #endif
 
 	// determine root of tree (m_root)
@@ -108,7 +95,7 @@ void BalloonLayout::call(GraphAttributes &AG)
 	AG.fillColor(m_root) = Color(0xaa, 0x00, 0xaa);
 	for(edge e : G.edges)
 	{
-		if ((*m_treeEdge)[e])
+		if (m_treeEdge[e])
 			AG.strokeColor(e) = Color(0xaa, 0x00, 0xaa);
 	}
 #endif
@@ -175,7 +162,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 						leaves.append(*it);
 					++it;
 				}
-			}//while leaves
+			}
 
 			m_root = v;
 			//we swap the parent relationship on the path
@@ -192,7 +179,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 					//may change the child order
 					m_childCount[v]++;
 					m_childList[v].pushBack(u);
-				}//if v
+				}
 				if (w != nullptr)
 				{
 					m_childCount[w]--;
@@ -205,21 +192,21 @@ void BalloonLayout::selectRoot(const Graph &G)
 							break;
 						}
 						++it;
-					}//while children
-				}//if w
+					}
+				}
 				v = u;
 				u = w;
-			}//while
+			}
 		}
 		break;
-	default: {cout << m_rootSelection << "\n";
+	default: {Logger::slout() << m_rootSelection << "\n";
 		throw AlgorithmFailureException(AlgorithmFailureCode::Unknown);} break;
-	}//switch
+	}
 
 #ifdef OGDF_DEBUG
 	checkTree(G, false);
 #endif
-}//selectroot
+}
 
 #ifdef OGDF_DEBUG
 void BalloonLayout::computeRadii(GraphAttributes &AG)
@@ -288,16 +275,17 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 							//we processed all children of p
 							//and can derive the radius value
 							level.append(p);
-						}//if children == 0
-					}//if parent
+						}
+					}
 					//inner radius estimate
 					m_radius[v] =  m_oRadius[v];
-					//cout <<"Child-Radius: "<<m_radius[v]<<"\n";
-				}//while
+
+					//Logger::slout() << "Child-Radius: " << m_radius[v] << std::endl;
+				}
 				while(!level.empty())
 				{
 #ifdef OGDF_DEBUG
-					cout << "Non-leaf node processed\n";
+					Logger::slout() << "Non-leaf node processed\n";
 #endif
 					node v = level.pop();
 
@@ -312,7 +300,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 									m_estimateFactor*2.0*(m_childCount[v]*m_maxChildRadius[v]))/
 									(2*Math::pi), 2.0*m_size[v]);
 #ifdef OGDF_DEBUG
-						cout <<"Even angles \n";
+						Logger::slout() <<"Even angles \n";
 #endif
 					}
 					else
@@ -323,7 +311,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 #ifdef OGDF_DEBUG
 							AG.fillColor(v) = Color(0x33, 0x00, 0x00);
 
-							cout << "Radien mit einem Kind: "<< v->degree() <<" : "<<m_radius[v] << " "<< (m_maxChildRadius[v]/max(m_childCount[v], 4) +
+							Logger::slout() << "Radii with single child: "<< v->degree() <<" : "<<m_radius[v] << " "<< (m_maxChildRadius[v]/max(m_childCount[v], 4) +
 									m_estimateFactor*2.0*m_estimate[v])/
 									(2.0*Math::pi)<<" "<< 1.1*m_maxChildRadius[v]<<"\n";
 
@@ -336,7 +324,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 									m_estimateFactor*2.0*m_estimate[v])/
 									(2.0*Math::pi), 2*m_size[v]), 1.1*m_maxChildRadius[v]);
 #ifdef OGDF_DEBUG
-							cout << "Radien: "<< v->degree() <<" : "<<m_radius[v] << " "<< (m_maxChildRadius[v]/max(m_childCount[v], 4) +
+							Logger::slout() << "Radii: "<< v->degree() <<" : "<<m_radius[v] << " "<< (m_maxChildRadius[v]/max(m_childCount[v], 4) +
 									m_estimateFactor*2.0*m_estimate[v])/
 									(2.0*Math::pi)<<" "<< 1.1*m_maxChildRadius[v]<<"\n";
 #endif
@@ -347,7 +335,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 									(2.0*Math::pi), 2*m_size[v]);
 #endif
 						}
-					}//if even angles
+					}
 
 					//outer radius is inner radius + radius of largest child
 					double t;
@@ -361,7 +349,9 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 					{
 						t = max(m_radius[v], m_maxChildRadius[v]);
 #ifdef OGDF_DEBUG
-						if (m_radius[v]< m_maxChildRadius[v]) cout<<"\n\nParent radius is smaller!!\n";
+						if (m_radius[v]< m_maxChildRadius[v]) {
+							Logger::slout() << "\n\nParent radius is smaller!" << std::endl;
+						}
 #endif
 					}
 					else
@@ -385,18 +375,18 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 							//we processed all children of p
 							//and can derive the radius value
 							level.append(p);
-						}//if children == 0
-					}//if parent
+						}
+					}
 					m_oRadius[v] = t;
 				}
-			}//if more than one node
+			}
 		}
 		break;
-	}//switch childorder
+	}
 #ifdef OGDF_DEBUG
 	checkTree(G, false);
 #endif
-}//computeRadii
+}
 
 void BalloonLayout::computeTree(const Graph &G)
 {
@@ -416,10 +406,8 @@ void BalloonLayout::computeTree(const Graph &G)
 			computeBFSTree(G, v);
 		}
 		break;
-
-	}//switch
-}//computeTree
-
+	}
+}
 
 void BalloonLayout::computeBFSTree(const Graph &G, node v)
 {
@@ -451,15 +439,15 @@ void BalloonLayout::computeBFSTree(const Graph &G, node v)
 
 				marked[u] = true;
 #ifdef OGDF_DEBUG
-				(*m_treeEdge)[e] = true;
+				m_treeEdge[e] = true;
 #endif
 			}
 		}
-	}//while
+	}
 #ifdef OGDF_DEBUG
 	checkTree(G, true);
 #endif
-}//computeBFSTree
+}
 
 #ifdef OGDF_DEBUG
 void BalloonLayout::checkTree(const Graph &G, bool treeRoot)
@@ -480,8 +468,8 @@ void BalloonLayout::checkTree(const Graph &G, bool treeRoot)
 			listchecker++;
 			testqueue.pushBack((*it));
 			++it;
-		}//while
-	}//while
+		}
+	}
 	OGDF_ASSERT(G.numberOfNodes() == testchecker);
 }
 #endif
@@ -537,8 +525,9 @@ void BalloonLayout::computeAngles(const Graph &G)
 						if (m_oRadius[*it2]/m_estimate[p]>0.501)
 						{
 #ifdef OGDF_DEBUG
-							if (checkMulti)
-								cout << "More than one large child vertex!\n";
+							if (checkMulti) {
+								Logger::slout() << "More than one large child vertex!\n";
+							}
 							checkMulti = true;
 #endif
 							pestimate = pestimate - m_oRadius[*it2];
@@ -583,28 +572,30 @@ void BalloonLayout::computeAngles(const Graph &G)
 						if (ratio > 0.501) anglesum = Math::pi;
 						else anglesum = fullAngle*m_oRadius[v]/pestimate;
 #if 0
-						cout<<"\nAnteil : "<<m_oRadius[v]/m_estimate[p]<<" bei Kindern: "<<m_childCount[p]<<"\n";
+						Logger::slout() << std::endl << "Amount: " << m_oRadius[v]/m_estimate[p] << " at children: " << m_childCount[p] << std::endl;
 #endif
 
 						m_angle[v] = anglesum;
 #ifdef OGDF_DEBUG
-						if (anglesum >Math::pi) cout << "Angle large than pi!!"<<anglesum<<"children"<< m_childCount[p]<<" full: "<<fullAngle<<"\n";
+						if (anglesum >Math::pi) {
+							Logger::slout() << "Angle larger than pi!" << anglesum << "children" << m_childCount[p] << " full: "<< fullAngle << std::endl;
+						}
 #endif
 #if 0
-						cout <<"Set angle at "<<v->index()<<" "<<m_angle[v]<<"\n";
+						Logger::slout() << "Set angle at " << v->index() << " " << m_angle[v] << std::endl;
 #endif
-					}//else
+					}
 
 #if 0
 					it++;
 #endif
-				}//while children
-			}//else
-		}//if children
-	}//while queue
-	#ifdef OGDF_DEBUG
-	cout << "Checker computeAngles: "<<checker<<" Non: "<<G.numberOfNodes()<<"\n";
-	#endif
+				}
+			}
+		}
+	}
+#ifdef OGDF_DEBUG
+	Logger::slout() << "Checker computeAngles: " << checker << " Non: " << G.numberOfNodes() << std::endl;
+#endif
 
 	return;
 }
@@ -624,11 +615,11 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 	SListPure<node> queue;
 	queue.pushBack(v);
 #ifdef OGDF_DEBUG
-	cout<<"Processing queue \n";
+	Logger::slout() << "Processing queue" << std::endl;
 #if 0
 	for(node v : G.nodes)
 	{
-		cout<<"Angle "<<v<<" "<<m_angle[v]<<"\n";
+		Logger::slout() << "Angle " << v << " " << m_angle[v] << std::endl;
 	}
 #endif
 #endif
@@ -640,7 +631,7 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 		//process children
 
 #if 0
-		cout <<"Pop Queue\n";
+		Logger::slout() << "Pop Queue" << std::endl;
 #endif
 		if (m_childCount[p] > 0)
 		{
@@ -650,7 +641,7 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 				m_angle[*m_childList[p].begin()]/2.0, 2.0*Math::pi);//0.0;
 #if 0
 			double sumchecker = 0.0;// debug value
-			cout<<"Angle start offset: "<<anglesum<<"\n";
+			Logger::slout() << "Angle start offset: " << anglesum << std::endl;
 #endif
 			ListConstIterator<node> it = m_childList[p].begin();
 			#ifdef OGDF_DEBUG
@@ -673,7 +664,7 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 			while (it.valid())
 			{
 #if 0
-				cout<<"Next child\n";
+				Logger::slout() << "Next child" << std::endl;
 #endif
 				node w = (*it);
 				queue.pushBack(w);
@@ -685,8 +676,8 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 				else z =  (*m_childList[p].begin());
 
 #if 0
-				cout <<w<<" "<< w->degree()<<" Winkel: "<<m_angle[w]<<" anglesum "<<anglesum <<"\n";
-				cout<<"angles..."<<anglesum<<"\n";
+				Logger::slout() << w << " " << w->degree() << " Angle: " << m_angle[w] << " anglesum " << anglesum << std::endl;
+				Logger::slout() << "angles..." << anglesum << std::endl;
 #endif
 
 				AG.x(w) = x+cos(anglesum)*m_radius[p];
@@ -703,19 +694,18 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 				//z's value is the required angle, not the direction
 				anglesum = fmod((anglesum + (s+m_angle[z])/2.0), 2.0*Math::pi);
 #if 0
-				cout <<"Finished...\n";
+				Logger::slout() << "Finished..." << std::endl;
 #endif
-
-			}//while children
+			}
 #if 0
-			cout<<"\nWinkelgesamtsumme: "<<sumchecker<<" Anzahl Kinder: "<<m_childCount[p] <<"\n\n";
+			Logger::slout() << std::endl << "Angle total sum: " << sumchecker << " Number of children: " << m_childCount[p] << std::endl << std::endl;
 #endif
-		}//if children
-	}//while queue
-	#ifdef OGDF_DEBUG
+		}
+	}
+#ifdef OGDF_DEBUG
 	AG.fillColor(m_treeRoot) = Color::Name::Mediumblue;
 	//AG.fillColor(m_root) = "#BBCC00";
-	#endif
+#endif
 	AG.clearAllBends();
 }
 
@@ -724,10 +714,10 @@ void BalloonLayout::check(Graph &G)
 {
 	checkTree(G, true);
 	//TODO: check angle
-}//Check
+}
 #endif
 
-ostream &operator<<(ostream &os, const BalloonLayout::RootSelection &rs) {
+std::ostream &operator<<(std::ostream &os, const BalloonLayout::RootSelection &rs) {
 	switch (rs) {
 		case BalloonLayout::RootSelection::Center:        os << "Center";        break;
 		case BalloonLayout::RootSelection::HighestDegree: os << "HighestDegree"; break;
@@ -735,4 +725,4 @@ ostream &operator<<(ostream &os, const BalloonLayout::RootSelection &rs) {
 	return os;
 }
 
-}//namespace ogdf
+}

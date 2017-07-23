@@ -33,7 +33,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const ConBranchRule &rhs)
+std::ostream &operator<<(std::ostream &out, const ConBranchRule &rhs)
 {
 	return out << rhs.poolSlotRef_;
 }
@@ -78,7 +78,7 @@ void ConBranchRule::unExtract(LpSub *lp)
 	if (status) {
 		Logger::ifout() << "WARNING: ";
 		Logger::ifout() << "ConBranchRule::unExtract(): pivoting in ";
-		Logger::ifout() << "slack variable failed." << endl;
+		Logger::ifout() << "slack variable failed." << std::endl;
 	}
 
 	lp->removeCons(remove);
@@ -94,4 +94,4 @@ void ConBranchRule::initialize(Sub* sub)
 
 	poolSlotRef_.conVar()->sub(sub);
 }
-} //namespace abacus
+}

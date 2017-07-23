@@ -35,18 +35,17 @@
 
 namespace ogdf {
 
-
-void BCTree::init (node vG)
+void BCTree::initBasic(node vG)
 {
 	m_numB = 0;
 	m_numC = 0;
 
-	m_gNode_isMarked.init(m_G,false);
-	m_gNode_hNode.init(m_G,nullptr);
+	m_gNode_isMarked.init(m_G, false);
+	m_gNode_hNode.init(m_G, nullptr);
 	m_gEdge_hEdge.init(m_G);
 
 	m_bNode_type.init(m_B);
-	m_bNode_isMarked.init(m_B);
+	m_bNode_isMarked.init(m_B, false);
 	m_bNode_hRefNode.init(m_B);
 	m_bNode_hParNode.init(m_B);
 	m_bNode_hEdges.init(m_B);
@@ -58,71 +57,51 @@ void BCTree::init (node vG)
 	m_hEdge_gEdge.init(m_H);
 
 	m_count = 0;
-	m_number.init(m_G,0);
+	m_number.init(m_G, 0);
 	m_lowpt.init(m_G);
 	m_gtoh.init(m_G);
 
-	biComp(nullptr,vG);
+	biComp(nullptr, vG);
+}
 
+void BCTree::initEdges()
+{
+	// first clear temporaries
 	m_number.init();
 	m_lowpt.init();
 	m_eStack.clear();
 	m_gtoh.init();
 
-	for(node uB : m_B.nodes) {
+	// now add edges
+	for (node uB : m_B.nodes) {
 		node vB = parent(uB);
-		if (vB) m_B.newEdge(uB,vB);
+		if (vB) {
+			m_B.newEdge(uB, vB);
+		}
 	}
+}
+
+void BCTree::init (node vG)
+{
+	initBasic(vG);
+	initEdges();
 }
 
 
 void BCTree::initNotConnected (node vG)
 {
-	m_numB = 0;
-	m_numC = 0;
-
-	m_gNode_isMarked.init(m_G,false);
-	m_gNode_hNode.init(m_G,nullptr);
-	m_gEdge_hEdge.init(m_G);
-
-	m_bNode_type.init(m_B);
-	m_bNode_isMarked.init(m_B);
-	m_bNode_hRefNode.init(m_B);
-	m_bNode_hParNode.init(m_B);
-	m_bNode_hEdges.init(m_B);
-	m_bNode_numNodes.init(m_B);
-
-	m_hNode_bNode.init(m_H);
-	m_hEdge_bNode.init(m_H);
-	m_hNode_gNode.init(m_H);
-	m_hEdge_gEdge.init(m_H);
-
-	m_count = 0;
-	m_number.init(m_G,0);
-	m_lowpt.init(m_G);
-	m_gtoh.init(m_G);
-
-	biComp(nullptr,vG);
-#if 0
-	cout << m_count << endl << flush;
-#endif
+	initBasic(vG);
 
 	// call biComp for all nodes that are not in the
 	//  first connected component
-	for(node v : m_G.nodes)
-		if (m_number[v] == 0){
+	for (node v : m_G.nodes) {
+		if (m_number[v] == 0) {
 			m_eStack.clear();
 			biComp(nullptr, v);
 		}
-
-	m_lowpt.init();
-	m_eStack.clear();
-	m_gtoh.init();
-
-	for(node uB : m_B.nodes) {
-		node vB = parent(uB);
-		if (vB) m_B.newEdge(uB,vB);
 	}
+
+	initEdges();
 }
 
 
@@ -150,7 +129,7 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 				m_numB++;
 				adjEntry adjfG;
 				do {
-					adjfG = m_eStack.pop();
+					adjfG = m_eStack.popRet();
 					edge fG = adjfG->theEdge();
 					for (int i=0; i<=1; ++i) {
 						node xG = i ? fG->target() : fG->source();

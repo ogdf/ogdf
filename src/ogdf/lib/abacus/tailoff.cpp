@@ -33,13 +33,13 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const TailOff &rhs)
+std::ostream &operator<<(std::ostream &out, const TailOff &rhs)
 {
-	out << "LP-history:" << endl;
+	out << "LP-history:" << std::endl;
 	if (rhs.lpHistory_)
 		out << *(rhs.lpHistory_);
 	else
-		out << "no LP-history available" << endl;
+		out << "no LP-history available" << std::endl;
 
 	return out;
 }
@@ -73,4 +73,4 @@ int TailOff::diff(int nLps, double &d) const
 
 	return 0;
 }
-} //namespace abacus
+}

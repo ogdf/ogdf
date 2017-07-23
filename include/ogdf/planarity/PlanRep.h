@@ -42,7 +42,6 @@
 #include <ogdf/planarity/NodeTypePatterns.h>
 #include <ogdf/basic/Layout.h>
 #include <ogdf/basic/GridLayout.h>
-#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
@@ -191,7 +190,7 @@ public:
 	void setCliqueBoundary(edge e) {
 		setEdgeTypeOf(e, edgeTypeOf(e) | cliquePattern());
 	}
-	bool isCliqueBoundary(edge e) {
+	bool isCliqueBoundary(edge e) const {
 		return (edgeTypeOf(e) & cliquePattern()) == cliquePattern();
 	}
 
@@ -226,7 +225,7 @@ public:
 	 * with semantic types (class, interface,...) within GraphAttributes;
 	 * we then can return to vertex only.
 	 */
-	inline bool isVertex(node v)
+	inline bool isVertex(node v) const
 	{
 		return ( (typeOf(v) == Graph::NodeType::vertex) ||
 			(typeOf(v) == Graph::NodeType::associationClass));
@@ -254,9 +253,9 @@ public:
 	 * \brief Returns true iff node \p v is classified as a crossing.
 	 * @param v is a node in the planarized representation.
 	 */
-	bool isCrossingType(node v)
+	bool isCrossingType(node v) const
 	{
-		return (m_nodeTypes[v] &= (UMLNodeTypeConstants::TerCrossing << UMLNodeTypeOffsets::Tertiary)) != 0;
+		return (m_nodeTypes[v] & (UMLNodeTypeConstants::TerCrossing << UMLNodeTypeOffsets::Tertiary)) != 0;
 	}
 
 	//@}
@@ -294,7 +293,7 @@ public:
 	 * \brief Returns the new type field of \p e.
 	 * @param e is an edge in the planarized representation.
 	 */
-	edgeType edgeTypeOf(edge e)
+	edgeType edgeTypeOf(edge e) const
 	{
 		return m_edgeTypes[e];
 	}
@@ -345,7 +344,7 @@ public:
 	// primary level types
 
 	//! Returns true iff edge \p e is classified as generalization.
-	bool isGeneralization(edge e) {
+	bool isGeneralization(edge e) const {
 		bool check = (((m_edgeTypes[e] & UMLEdgeTypePatterns::Primary) & UMLEdgeTypeConstants::PrimGeneralization) == UMLEdgeTypeConstants::PrimGeneralization);
 		return check;
 	}
@@ -359,7 +358,7 @@ public:
 	}
 
 	//! Returns true iff edge \p e is classified as dependency.
-	bool isDependency(edge e) {
+	bool isDependency(edge e) const {
 		bool check = (((m_edgeTypes[e] & UMLEdgeTypePatterns::Primary) & UMLEdgeTypeConstants::PrimDependency) == UMLEdgeTypeConstants::PrimDependency);
 		return check;
 	}
@@ -393,15 +392,16 @@ public:
 	}
 
 	//! Returns true iff edge \p e is classified as expansion edge.
-	bool isExpansion(edge e) {
+	bool isExpansion(edge e) const {
 		return (m_edgeTypes[e] & expansionPattern()) == expansionPattern();
 	}
 
 	//should add things like cluster and clique boundaries that need rectangle shape
 
 	//! Returns true iff edge \p e is a clique boundary.
-	bool isBoundary(edge e) {
-		return isCliqueBoundary(e); }
+	bool isBoundary(edge e) const {
+		return isCliqueBoundary(e);
+	}
 
 	//tertiary types
 
@@ -412,7 +412,7 @@ public:
 	}
 
 	//! Returns true iff edge \p e is classified as connection at an association class.
-	bool isAssClass(edge e)
+	bool isAssClass(edge e) const
 	{
 		return (m_edgeTypes[e] & assClassPattern()) == assClassPattern();
 	}
@@ -430,12 +430,12 @@ public:
 	}
 
 	//! Returns true if edge \p e is classified as brother.
-	bool isBrother(edge e) {
+	bool isBrother(edge e) const {
 		return ( (m_edgeTypes[e] & UMLEdgeTypePatterns::Fourth & brotherPattern()) >> UMLEdgeTypeOffsets::Fourth) == UMLEdgeTypeConstants::Brother;
 	}
 
 	//! Returns true if edge \p e is classified as half-brother.
-	bool isHalfBrother(edge e) {
+	bool isHalfBrother(edge e) const {
 		return ( (m_edgeTypes[e] & UMLEdgeTypePatterns::Fourth & halfBrotherPattern()) >> UMLEdgeTypeOffsets::Fourth) == UMLEdgeTypeConstants::HalfBrother;
 	}
 
@@ -478,7 +478,7 @@ public:
 	}
 
 	//! Returns user defined type.
-	bool isUserType(edge e, edgeType et)
+	bool isUserType(edge e, edgeType et) const
 	{
 		OGDF_ASSERT( et < 147);
 		return (m_edgeTypes[e] & (et << UMLEdgeTypeOffsets::User)) == (et << UMLEdgeTypeOffsets::User);
@@ -658,7 +658,7 @@ public:
 	 */
 	void removeEdgePathEmbedded(CombinatorialEmbedding &E,
 		edge eOrig,
-		FaceSetPure &newFaces) {
+		FaceSet<false> &newFaces) {
 		GraphCopy::removeEdgePathEmbedded(E,eOrig,newFaces);
 	}
 
@@ -696,18 +696,18 @@ public:
 	 *        <I>mark</I>[<I>a</I>]=<B>true</B> are removed.
 	 * \pre Only nodes with degree 1 may be marked.
 	 */
-	void removeDeg1Nodes(Stack<Deg1RestoreInfo> &S, const NodeArray<bool> &mark);
+	void removeDeg1Nodes(ArrayBuffer<Deg1RestoreInfo> &S, const NodeArray<bool> &mark);
 
 	/**
 	 * \brief Restores degree-1 nodes previously removed with removeDeg1Nodes().
 	 * @param S contains the restore information.
 	 * @param deg1s returns the list of newly created nodes in the copy.
 	 */
-	void restoreDeg1Nodes(Stack<Deg1RestoreInfo> &S, List<node> &deg1s);
+	void restoreDeg1Nodes(ArrayBuffer<Deg1RestoreInfo> &S, List<node> &deg1s);
 
 	//@}
 	void writeGML(const char *fileName, const OrthoRep &OR, const GridLayout &drawing);
-	void writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawing);
+	void writeGML(std::ostream &os, const OrthoRep &OR, const GridLayout &drawing);
 
 protected:
 
@@ -726,14 +726,13 @@ protected:
 	void setCopyType(edge eCopy, edge eOrig);
 
 	//helper to cope with the edge types, shifting to the right place
-	edgeType generalizationPattern() {return static_cast<edgeType>(UMLEdgeTypeConstants::PrimGeneralization);}
-	edgeType associationPattern()    {return static_cast<edgeType>(UMLEdgeTypeConstants::PrimAssociation);}
-	edgeType expansionPattern()      {return UMLEdgeTypeConstants::SecExpansion << UMLEdgeTypeOffsets::Secondary;}
-	edgeType assClassPattern()       {return UMLEdgeTypeConstants::AssClass << UMLEdgeTypeOffsets::Tertiary;}
-	edgeType brotherPattern()        {return UMLEdgeTypeConstants::Brother << UMLEdgeTypeOffsets::Fourth;}
-	edgeType halfBrotherPattern()    {return UMLEdgeTypeConstants::HalfBrother << UMLEdgeTypeOffsets::Fourth;}
-	edgeType cliquePattern()         {return UMLEdgeTypeConstants::SecClique << UMLEdgeTypeOffsets::Secondary;} //boundary
-
+	edgeType generalizationPattern() const {return static_cast<edgeType>(UMLEdgeTypeConstants::PrimGeneralization);}
+	edgeType associationPattern() const    {return static_cast<edgeType>(UMLEdgeTypeConstants::PrimAssociation);}
+	edgeType expansionPattern() const      {return UMLEdgeTypeConstants::SecExpansion << UMLEdgeTypeOffsets::Secondary;}
+	edgeType assClassPattern() const       {return UMLEdgeTypeConstants::AssClass << UMLEdgeTypeOffsets::Tertiary;}
+	edgeType brotherPattern() const        {return UMLEdgeTypeConstants::Brother << UMLEdgeTypeOffsets::Fourth;}
+	edgeType halfBrotherPattern() const    {return UMLEdgeTypeConstants::HalfBrother << UMLEdgeTypeOffsets::Fourth;}
+	edgeType cliquePattern() const         {return UMLEdgeTypeConstants::SecClique << UMLEdgeTypeOffsets::Secondary;} //boundary
 
 	NodeArray<NodeType> m_vType; //!< Simple node types.
 
@@ -764,7 +763,6 @@ protected:
 	EdgeArray<edgeType> m_oriEdgeTypes;
 
 	EdgeArray<edge>     m_eAuxCopy; // auxiliary (GraphCopy::initByNodes())
+};
 
-};//PlanRep
-
-} // end namespace ogdf
+}

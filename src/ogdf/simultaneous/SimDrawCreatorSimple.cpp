@@ -67,9 +67,7 @@ void SimDrawCreatorSimple::createTrees_GKV05(int n)
 				m_GA->addSubGraph(e,1);
 			}
 	}
-
-} // end createGKV
-
+}
 
 // creates simultaneous graph given by a path and a planar graph
 // see Erten, Kobourov (GD'04) for description of instance
@@ -155,9 +153,7 @@ void SimDrawCreatorSimple::createPathPlanar_EK04()
 	e = m_G->newEdge(v[8],v[9]);
 	m_GA->addSubGraph(e,0);
 	m_GA->addSubGraph(e,1);
-
-}//end createPathPlanar_EK04
-
+}
 
 // creates simultaneous graph given by a colored K5
 // see Erten, Kobourov (GD'04) for description of instance
@@ -181,9 +177,7 @@ void SimDrawCreatorSimple::createK5_EK04()
 				m_GA->addSubGraph(e,1);
 		}
 	}
-
-}//end createK5_EK04
-
+}
 
 // creates simultaneous graph given by a colored K5
 // see Gassner, Juenger, Percan, Schaefer, Schulz (WG'06) for description of instance
@@ -217,9 +211,7 @@ void SimDrawCreatorSimple::createK5_GJPSS06()
 				m_GA->addSubGraph(e,1);
 		}
 	}
-
-}//end createK5_GJPSS06
-
+}
 
 // creates simultaneous graph given by two outerplanar graphs
 // see Brass et al. (WADS '03) for description of instance
@@ -257,9 +249,7 @@ void SimDrawCreatorSimple::createOuterplanar_BCDEEIKLM03()
 	e = m_G->newEdge(v[1],v[4]);
 	m_GA->addSubGraph(e,0);
 	m_GA->addSubGraph(e,1);
-
-}// end createOuterplanar_BCDEEIKLM03
-
+}
 
 // creates simultaneous graph with crossing number 0 but
 // with multicrossings of adjacent edges in mincross drawing
@@ -424,9 +414,7 @@ void SimDrawCreatorSimple::createKrat98(int N, int nodeNumber)
 	m_GA->addSubGraph(e,0);
 	m_GA->addSubGraph(e,1);
 	m_GA->addSubGraph(e,2);
-
-}// end createKrat
-
+}
 
 // creates Graph with numberofBasic*2 outer, numberOfParallels*numberOfBasic
 // inner Nodes and one Root.
@@ -474,9 +462,7 @@ void SimDrawCreatorSimple::createWheel(int numberOfParallels, int numberOfBasic 
 			}
 		}
 	}
-
-}//end createWheel
-
+}
 
 // creates simultaneously planar simulatenous graph with n+1 basic graphs.
 void SimDrawCreatorSimple::createExpo(int n)
@@ -592,7 +578,6 @@ void SimDrawCreatorSimple::createExpo(int n)
 	for(int j = 0; j < 4; j++)
 		if(j != 1)
 			m_GA->addSubGraph(e,j);
+}
 
-}//end createExpo
-
-} // end namespace ogdf
+}

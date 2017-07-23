@@ -122,7 +122,7 @@ public:
 
 	void recalcPos();
 
-	friend ostream &operator<<(ostream &os, const Level &L) {
+	friend std::ostream &operator<<(std::ostream &os, const Level &L) {
 		os << L.m_nodes;
 		return os;
 	}
@@ -134,4 +134,4 @@ private:
 	OGDF_MALLOC_NEW_DELETE
 };
 
-} // end namespace ogdf
+}

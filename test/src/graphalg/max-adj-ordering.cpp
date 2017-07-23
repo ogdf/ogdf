@@ -1,10 +1,7 @@
-#include <bandit/bandit.h>
-
 #include <ogdf/graphalg/MaxAdjOrdering.h>
 #include <ogdf/basic/graph_generators.h>
 
-using namespace bandit;
-using namespace ogdf;
+#include <testing.h>
 
 go_bandit([](){
 	describe("Maximum Adjacency Orderings", [](){

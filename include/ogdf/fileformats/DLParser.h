@@ -104,5 +104,4 @@ public:
 	}
 };
 
-
-} // end namespace ogdf
+}

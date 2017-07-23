@@ -39,7 +39,7 @@ namespace ogdf {
 
 //! A-Star informed search algorithm.
 /**
- * The algorithm is a generalization the the shortest path algorithm by Dijkstra.
+ * The algorithm is a generalization the the shortest path algorithm by %Dijkstra.
  * It was first described in "A Formal Basis for the Heuristic Determination of Minimum Cost Paths" by Hart, Nilsson and Raphael in 1968.
  *
  * The algorithm yields an optimal solution to the single pair shortest pair problem.
@@ -58,11 +58,11 @@ private:
 	EpsilonTest m_et;
 
 	NodeArray<bool> m_folded;
-	const EdgeArray<T> *m_cost;
+	const EdgeArray<T> *m_cost = nullptr;
 	std::function<T(node)> m_heuristic;
-	NodeArray<edge> *m_predecessor;
+	NodeArray<edge> *m_predecessor = nullptr;
 	NodeArray<T> m_distance;
-	NodeQueue *m_queue;
+	NodeQueue *m_queue = nullptr;
 
 public:
 
@@ -75,7 +75,10 @@ public:
 	 * @param et The ::ogdf::EpsilonTest to be used for comparing edge costs
 	 */
 	explicit AStarSearch(const bool directed = false, const double maxGap = 1, const EpsilonTest &et = EpsilonTest())
-		: m_directed(directed), m_maxGap(maxGap), m_et(et) {
+	: m_directed(directed)
+	, m_maxGap(maxGap)
+	, m_et(et)
+	{
 		OGDF_ASSERT(m_et.geq(maxGap, 1.0));
 	}
 
@@ -142,7 +145,7 @@ public:
 private:
 
 #ifdef OGDF_DEBUG
-	bool validatePath(const node source, const node target) {
+	bool validatePath(const node source, const node target) const {
 		NodeArray<bool> visited(*m_predecessor->graphOf(), false);
 
 		OGDF_ASSERT(m_et.equal(m_distance[source], T(0)));

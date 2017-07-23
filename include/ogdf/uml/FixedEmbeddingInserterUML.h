@@ -118,4 +118,4 @@ private:
 	bool m_keepEmbedding;
 };
 
-} // end namespace ogdf
+}

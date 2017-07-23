@@ -1,13 +1,11 @@
-#include <bandit/bandit.h>
-
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 #include <ogdf/graphalg/MinSTCutDijkstra.h>
 #include <ogdf/graphalg/MinSTCutBFS.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
+
 using std::string;
 
 template<typename T>

@@ -49,4 +49,4 @@ Fill   LayoutStandards::s_defClusterFill(Color::Name::White, FillPattern::None);
 double LayoutStandards::s_defNodeSeparation = 20.0;
 double LayoutStandards::s_defCCSeparation = 30.0;
 
-} // end namespace ogdf
+}

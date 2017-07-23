@@ -215,8 +215,7 @@ static void writeGraph(
 	}
 }
 
-
-} // end namespace gdf
+}
 
 
 bool GraphIO::writeGDF(const Graph &G, std::ostream &os)
@@ -242,5 +241,4 @@ bool GraphIO::writeGDF(const GraphAttributes &GA, std::ostream &os)
 	return result;
 }
 
-
-} // end namespace ogdf
+}

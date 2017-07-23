@@ -69,5 +69,4 @@ private:
 	NodeArray<int> m_weight; //!< The median weight of a node.
 };
 
-
-} // end namespace ogdf
+}

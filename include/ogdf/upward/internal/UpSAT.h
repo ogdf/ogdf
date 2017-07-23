@@ -50,6 +50,7 @@ public:
 	explicit UpSAT(Graph &G);
 	UpSAT(GraphCopy &G, bool feasibleOriginalEdges);
 private:
+	class Comp;
 	//FLAGS
 	bool feasibleOriginalEdges;
 	//copy of the input graph
@@ -93,4 +94,4 @@ private:
 	void writeNodeOrder(const Minisat::Model &model, NodeArray<int> *nodeOrder);
 };
 
-} // end namespace ogdf
+}

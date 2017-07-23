@@ -238,7 +238,7 @@ UniformGrid::UniformGrid(const GraphAttributes &AG) :
 	m_crossNum(0)
 {
 #if 0
-	cout<<"New grid \n";
+	std::cout<<"New grid \n";
 #endif
 	node v = m_graph.firstNode();
 	DPoint pos(m_layout.x(v),m_layout.y(v));
@@ -251,9 +251,9 @@ UniformGrid::UniformGrid(const GraphAttributes &AG) :
 	computeGridGeometry(v,pos,ir);
 	double maxLength = max(ir.height(),ir.width());
 	m_CellSize = maxLength/(m_edgeMultiplier*(m_graph).numberOfEdges());
-	List<edge> L;
-	m_graph.allEdges(L);
-	computeCrossings(L,v,pos);
+	List<edge> list;
+	m_graph.allEdges(list);
+	computeCrossings(list, v, pos);
 #ifdef OGDF_DEBUG
 	m_time = usedTime(m_time);
 #endif
@@ -282,9 +282,9 @@ UniformGrid::UniformGrid(
 	computeGridGeometry(v,newPos,ir);
 	double maxLength = max(ir.height(),ir.width());
 	m_CellSize = maxLength/(m_edgeMultiplier*(m_graph).numberOfEdges());
-	List<edge> L;
-	m_graph.allEdges(L);
-	computeCrossings(L,v,newPos);
+	List<edge> list;
+	m_graph.allEdges(list);
+	computeCrossings(list, v, newPos);
 #ifdef OGDF_DEBUG
 	m_time = usedTime(m_time);
 #endif
@@ -311,10 +311,10 @@ UniformGrid::UniformGrid(
 	usedTime(m_time);
 	DIntersectableRect ir;
 	computeGridGeometry(v,newPos,ir);
-	double l = max(ir.width(),ir.height());
-	l/=(m_graph.numberOfEdges()*m_edgeMultiplier);
-	OGDF_ASSERT(l > 0.5*m_CellSize);
-	OGDF_ASSERT(l < 2.0*m_CellSize);
+	double size = max(ir.width(),ir.height());
+	size /= m_graph.numberOfEdges() * m_edgeMultiplier;
+	OGDF_ASSERT(size > 0.5*m_CellSize);
+	OGDF_ASSERT(size < 2.0*m_CellSize);
 #endif
 	//compute the list of edge incident to v
 	List<edge> incident;
@@ -344,7 +344,8 @@ UniformGrid::UniformGrid(
 			while(*it2 != e) ++it2;
 			eList.del(it2);
 		}
-	}// at this point, all the data structures look as if the edges in the
+	}
+	// at this point, all the data structures look as if the edges in the
 	//list incident where not present. Now we reinsert the edges into the
 	//grid with their new positions and update the crossings
 	computeCrossings(incident,v,newPos);
@@ -361,10 +362,10 @@ void UniformGrid::computeGridGeometry(
 {
 	//first we compute the resolution and size of the grid
 	double
-		minX =  numeric_limits<double>::max(),
-		minY =  numeric_limits<double>::max(),
-		maxX = -numeric_limits<double>::max(),
-		maxY = -numeric_limits<double>::max();
+		minX =  std::numeric_limits<double>::max(),
+		minY =  std::numeric_limits<double>::max(),
+		maxX = -std::numeric_limits<double>::max(),
+		maxY = -std::numeric_limits<double>::max();
 
 	//find lower left and upper right vertex
 	for(node v : m_graph.nodes) {
@@ -460,12 +461,13 @@ bool UniformGrid::crossingTest(
 		else ps2 = newPos;
 		if(t2 != moved) pt2 = DPoint(m_layout.x(t2),m_layout.y(t2));
 		else pt2 = newPos;
-		DLine l1(ps1,pt1),l2(ps2,pt2);
+		DSegment l1(ps1,pt1),l2(ps2,pt2);
 		DPoint crossPoint;
 #ifdef OGDF_DEBUG
 		m_crossingTests++;
 #endif
-		if (l1.intersection(l2,crossPoint)
+		// TODO: What to do when IntersectionType::Overlapping is returned?
+		if (l1.intersection(l2,crossPoint) == IntersectionType::SinglePoint
 		 && crossPoint.m_x >= xLeft
 		 && crossPoint.m_x < xRight
 		 && crossPoint.m_y >= xBottom
@@ -499,14 +501,14 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 	Array2D<bool> cells(ibl.m_x,itr.m_x+1,ibl.m_y,itr.m_y+1,false);
 	SList<IPoint> result;
 	DoubleModifiedBresenham(p1,p2,result);
-	cout << "\nList computed by Bresenham:\n";
+	std::cout << "\nList computed by Bresenham:\n";
 
 	for(const IPoint &p : result) {
-		cout << computeRealPoint(p) << " ";
+		std::cout << computeRealPoint(p) << " ";
 	}
 
 	markCells(result,cells);
-	cout << "\nCrossed cells:\n";
+	std::cout << "\nCrossed cells:\n";
 	if(p1.m_x == p2.m_x) { //vertical segment
 		int cellXcoord = (int)floor(p1.m_x/m_CellSize);
 		double b = floor(min(p1.m_y,p2.m_y)/m_CellSize);
@@ -517,9 +519,9 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 		for(int i = int(b); i < intT; i++) {
 			crossed++;
 			IPoint p(cellXcoord,i);
-			cout << computeRealPoint(p) << " ";
+			std::cout << computeRealPoint(p) << " ";
 			if(!cells(p.m_x,p.m_y)) {
-				cout << "\nCell " << computeRealPoint(p) << " is not marked!";
+				std::cout << "\nCell " << computeRealPoint(p) << " is not marked!";
 				OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 			}
 		}
@@ -529,17 +531,17 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 			double tmp = floor(p1.m_y/m_CellSize);
 			OGDF_ASSERT(isInt(tmp));
 			int cellYcoord = (int)tmp;
-			double l = floor(min(p1.m_x,p2.m_x)/m_CellSize);
-			double r = ceil(max(p1.m_x,p2.m_x)/m_CellSize);
-			OGDF_ASSERT(isInt(l));
-			OGDF_ASSERT(isInt(r));
-			int intR = (int)r;
-			for(int i = int(l); i < intR; i++) {
+			double left = floor(min(p1.m_x,p2.m_x)/m_CellSize);
+			double right = ceil(max(p1.m_x,p2.m_x)/m_CellSize);
+			OGDF_ASSERT(isInt(left));
+			OGDF_ASSERT(isInt(right));
+			int intR = int(right);
+			for(int i = int(left); i < intR; i++) {
 				crossed++;
 				IPoint p(i,cellYcoord);
-				cout << computeRealPoint(p) << " ";
+				std::cout << computeRealPoint(p) << " ";
 				if(!cells(p.m_x,p.m_y)) {
-					cout << "\nCell " << computeRealPoint(p) << " is not marked!";
+					std::cout << "\nCell " << computeRealPoint(p) << " is not marked!";
 					OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 				}
 			}
@@ -550,9 +552,9 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 					IPoint p(i,j);
 					if(crossesCell(p1,p2,p)) {
 						crossed++;
-						cout << computeRealPoint(p) << " ";
+						std::cout << computeRealPoint(p) << " ";
 						if(!cells(p.m_x,p.m_y)) {
-							cout << "\n Cell " << computeRealPoint(p) << " is not marked!";
+							std::cout << "\n Cell " << computeRealPoint(p) << " is not marked!";
 							OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 						}
 					}
@@ -562,10 +564,10 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 		}
 	}
 	if(crossed < max(fabs(p1.m_x-p2.m_x)/m_CellSize,fabs(p1.m_y-p2.m_y)/m_CellSize)) {
-		cout << "\nNot enough crossed cells for " << p1 << " " << p2 << "\n";
+		std::cout << "\nNot enough crossed cells for " << p1 << " " << p2 << "\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 	}
-	cout << "\n";
+	std::cout << "\n";
 
 }
 
@@ -580,16 +582,16 @@ void UniformGrid::checkBresenham(IPoint p1, IPoint p2) const
 	Array2D<bool> cells(left,right,bottom,top,false);
 	SList<IPoint> result;
 	ModifiedBresenham(p1,p2,result);
-	cout << "\nList computed by Bresenham:\n" << result;
+	std::cout << "\nList computed by Bresenham:\n" << result;
 	markCells(result,cells);
-	cout << "\nCrossed cells:\n";
+	std::cout << "\nCrossed cells:\n";
 	if(p1.m_x == p2.m_x) { //vertical segment
 		for(int i = min(p1.m_y,p2.m_y); i < max(p1.m_y,p2.m_y); i++) {
 			crossed++;
 			IPoint p(p1.m_x,i);
-			cout << p << " ";
+			std::cout << p << " ";
 			if(!cells(p.m_x,p.m_y)) {
-				cout << "\nCell " << p << " is not marked!";
+				std::cout << "\nCell " << p << " is not marked!";
 				OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 			}
 		}
@@ -599,9 +601,9 @@ void UniformGrid::checkBresenham(IPoint p1, IPoint p2) const
 			for(int i = min(p1.m_x,p2.m_x); i < max(p1.m_x,p2.m_x); i++) {
 				crossed++;
 				IPoint p(i,p1.m_y);
-				cout << p << " ";
+				std::cout << p << " ";
 				if(!cells(i,p1.m_y)) {
-					cout << "\nCell " << p <<" is not marked!";
+					std::cout << "\nCell " << p <<" is not marked!";
 					OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 				}
 			}
@@ -612,9 +614,9 @@ void UniformGrid::checkBresenham(IPoint p1, IPoint p2) const
 					IPoint p(i,j);
 					if(crossesCell(p1,p2,p)) {
 						crossed++;
-						cout << p << " ";
+						std::cout << p << " ";
 						if(!cells(p.m_x,p.m_y)) {
-							cout << "\n Cell " << p << " is not marked!";
+							std::cout << "\n Cell " << p << " is not marked!";
 							OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 						}
 					}
@@ -624,10 +626,10 @@ void UniformGrid::checkBresenham(IPoint p1, IPoint p2) const
 		}
 	}
 	if(crossed < max(abs(p1.m_x-p2.m_x),abs(p1.m_y-p2.m_y))) {
-		cout << "\nNot enough crossed cells for " << p1 << " " << p2 << "\n";
+		std::cout << "\nNot enough crossed cells for " << p1 << " " << p2 << "\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Unknown);
 	}
-	cout << "\n";
+	std::cout << "\n";
 
 }
 
@@ -672,7 +674,7 @@ bool UniformGrid::intervalIntersect(
 }
 
 
-ostream &operator<<(ostream &out, const UniformGrid &ug)
+std::ostream &operator<<(std::ostream &out, const UniformGrid &ug)
 {
 	out << "\nGrid Size: " << ug.m_CellSize;
 	out << "\nEpsilon: " << ug.m_epsilon;
@@ -685,8 +687,8 @@ ostream &operator<<(ostream &out, const UniformGrid &ug)
 	DIntersectableRect ir;
 	node v = ug.m_graph.firstNode();
 	ug.computeGridGeometry(v,DPoint(ug.m_layout.x(v),ug.m_layout.y(v)),ir);
-	double l = max(ir.width(),ir.height());
-	cout << "\nPreferred Cell Size: " << l/(ug.m_graph.numberOfEdges()*ug.m_edgeMultiplier);
+	double size = max(ir.width(),ir.height());
+	std::cout << "\nPreferred Cell Size: " << size / (ug.m_graph.numberOfEdges()*ug.m_edgeMultiplier);
 #endif
 	return out;
 }

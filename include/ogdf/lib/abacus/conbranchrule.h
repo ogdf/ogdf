@@ -67,7 +67,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend OGDF_EXPORT ostream &operator<<(ostream &out, const ConBranchRule &rhs);
+	friend OGDF_EXPORT std::ostream &operator<<(std::ostream &out, const ConBranchRule &rhs);
 
 
 	//! Adds the branching constraint to the subproblem.
@@ -115,4 +115,4 @@ private:
 	const ConBranchRule &operator=(const ConBranchRule &rhs);
 };
 
-} //namespace abacus
+}

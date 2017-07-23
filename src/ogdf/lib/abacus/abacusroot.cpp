@@ -58,4 +58,4 @@ bool AbacusRoot::endsWith(const string &str, const string &end)
 
 	return std::equal(str.begin()+(l1-l2), str.end(), end.begin());
 }
-} //namespace abacus
+}

@@ -32,7 +32,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream& out, const LPVARSTAT &rhs)
+std::ostream &operator<<(std::ostream& out, const LPVARSTAT &rhs)
 {
 	switch (rhs.status_)
 	{
@@ -60,4 +60,4 @@ ostream &operator<<(ostream& out, const LPVARSTAT &rhs)
 	}
 	return out;
 }
-} //namespace abacus
+}

@@ -31,6 +31,7 @@
  */
 
 
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/lpsolver/LPSolver.h>
 
@@ -70,6 +71,8 @@ void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphCopyA
 	// trivial cases
 	const GraphCopy &GC = levels.hierarchy();
 	const int n = GC.numberOfNodes();
+
+	OGDF_ASSERT(isSimpleUndirected(GC));
 
 	if(n == 0)
 		return; // nothing to do
@@ -497,7 +500,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 	// output problem
 #if 0
-	ofstream os("c:\\work\\GDE\\out.txt");
+	std::ofstream os("c:\\work\\GDE\\out.txt");
 	os << "nRows = " << nRows << "\n";
 	os << "nCols = " << nCols << "\n";
 	os << "nNonZeroes = " << nNonZeroes << "\n";
@@ -511,7 +514,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	for(i = 0; i < nRows; ++i)
 		os << " [" << i << "]  " << equationSense[i] << ", " << rightHandSide[i] << "\n";
 
-	os.flush();
+	os.std::flush();
 #endif
 
 	// solve LP

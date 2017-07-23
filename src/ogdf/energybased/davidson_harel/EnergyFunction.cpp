@@ -69,18 +69,18 @@ double EnergyFunction::computeCandidateEnergy(const node v, const DPoint &testPo
 
 #ifdef OGDF_DEBUG
 void EnergyFunction::printStatus() const{
-	cout << "\nEnergy function name: " << m_name;
-	cout << "\nCurrent energy: " << m_energy;
-	cout << "\nPosition of nodes in current solution:";
+	std::cout << "\nEnergy function name: " << m_name;
+	std::cout << "\nCurrent energy: " << m_energy;
+	std::cout << "\nPosition of nodes in current solution:";
 	NodeArray<int> num(m_G);
 	int count = 1;
 	for (node v : m_G.nodes)
 		num[v] = count++;
 	for (node v : m_G.nodes) {
-		cout << "\nNode: " << num[v] << " Position: " << currentPos(v);
+		std::cout << "\nNode: " << num[v] << " Position: " << currentPos(v);
 	}
-	cout << "\nTest Node: " << m_testNode << " New coordinates: " << m_testPos;
-	cout << "\nCandidate energy: " << m_candidateEnergy;
+	std::cout << "\nTest Node: " << m_testNode << " New coordinates: " << m_testPos;
+	std::cout << "\nCandidate energy: " << m_candidateEnergy;
 	printInternalData();
 }
 #endif

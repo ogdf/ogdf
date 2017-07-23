@@ -95,5 +95,4 @@ private:
 		adjEntry adjExternal);
 };
 
-
-} // end namespace ogdf
+}

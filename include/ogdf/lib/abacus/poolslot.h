@@ -176,6 +176,6 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/poolslot.inc>

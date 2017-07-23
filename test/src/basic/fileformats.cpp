@@ -34,15 +34,13 @@
 #include <string>
 #include <regex>
 #include <unordered_map>
-#include <bandit/bandit.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <resources.h>
 
-using namespace ogdf;
-using namespace bandit;
+using std::ifstream;
 
 bool seemsEqual(const Graph &G1, const Graph &G2)
 {
@@ -320,7 +318,7 @@ void describeFormat(const std::string name, GraphIO::ReaderFunc reader, GraphIO:
 	auto errorTest = [&](const string &filename){
 		it(string("detects errors in " + filename), [&](){
 			Graph graph;
-			std::ifstream input(filename);
+			ifstream input(filename);
 			AssertThat(reader(graph, input), IsFalse());
 		});
 	};
@@ -329,7 +327,7 @@ void describeFormat(const std::string name, GraphIO::ReaderFunc reader, GraphIO:
 		for_each_file("fileformats/" + lowerCaseName + "/valid", [&](const string &filename){
 			it(string("successfully parses " + filename), [&](){
 				Graph graph;
-				std::ifstream input(filename);
+				ifstream input(filename);
 				AssertThat(reader(graph, input), IsTrue());
 				AssertThat(graph.numberOfNodes(), IsGreaterThan(0));
 				AssertThat(graph.numberOfEdges(), IsGreaterThan(0));
@@ -346,7 +344,7 @@ void describeFormat(const std::string name, GraphIO::ReaderFunc reader, GraphIO:
 
 		it("returns false if the files does not exist", [&](){
 			Graph graph;
-			std::ifstream input;
+			ifstream input;
 			input.close();
 			AssertThat(reader(graph, input), IsFalse());
 		});
@@ -450,26 +448,55 @@ describe("GraphIO", [](){
 	describeFormat("GDF", GraphIO::readGDF, GraphIO::writeGDF, false);
 	describeFormat("TLP", GraphIO::readTLP, GraphIO::writeTLP, false);
 	describeFormat("DL", GraphIO::readDL, GraphIO::writeDL, false);
-	describeFormat("Graph6", GraphIO::readGraph6, GraphIO::writeGraph6, false);
+	describeFormat("Graph6", GraphIO::readGraph6WithForcedHeader, GraphIO::writeGraph6, false);
 
 	describe("generic reader", []() {
-		std::function<void (const string&)> genericTest = [](const string &filename) {
-			it(string("parses " + filename), [&]() {
+		std::function<void (const string&)> genericTestTrue = [](const string &filename) {
+			it("parses " + filename, [&]() {
 				Graph graph;
 				AssertThat(GraphIO::read(graph, filename, GraphIO::read), IsTrue());
 			});
 		};
 
-		for_each_file("fileformats/gml/valid", genericTest);
-		for_each_file("fileformats/chaco/valid", genericTest);
-		for_each_file("fileformats/dl/valid", genericTest);
-		for_each_file("fileformats/dot/valid", genericTest);
-		for_each_file("fileformats/gdf/valid", genericTest);
-		for_each_file("fileformats/gexf/valid", genericTest);
-		for_each_file("fileformats/graphml/valid", genericTest);
-		for_each_file("fileformats/leda/valid", genericTest);
-		for_each_file("fileformats/ogml/valid", genericTest);
-		for_each_file("fileformats/tlp/valid", genericTest);
+		std::function<void (const string&)> genericTestFalse = [](const string &filename) {
+			it("does not recognize " + filename, [&]() {
+				Graph graph;
+				AssertThat(GraphIO::read(graph, filename, GraphIO::read), IsFalse());
+			});
+		};
+
+		for_each_file("fileformats/gml/valid", genericTestTrue);
+		for_each_file("fileformats/gml/invalid", genericTestFalse);
+
+		for_each_file("fileformats/chaco/valid", genericTestTrue);
+		for_each_file("fileformats/chaco/invalid", genericTestFalse);
+
+		for_each_file("fileformats/dl/valid", genericTestTrue);
+		for_each_file("fileformats/dl/invalid", genericTestFalse);
+
+		for_each_file("fileformats/dot/valid", genericTestTrue);
+		for_each_file("fileformats/dot/invalid", genericTestFalse);
+
+		for_each_file("fileformats/gdf/valid", genericTestTrue);
+
+		for_each_file("fileformats/gexf/valid", genericTestTrue);
+
+		for_each_file("fileformats/graphml/valid", genericTestTrue);
+
+		for_each_file("fileformats/leda/valid", genericTestTrue);
+		for_each_file("fileformats/leda/invalid", genericTestFalse);
+
+		for_each_file("fileformats/ogml/valid", genericTestTrue);
+		for_each_file("fileformats/ogml/invalid", genericTestFalse);
+
+		for_each_file("fileformats/tlp/valid", genericTestTrue);
+		for_each_file("fileformats/tlp/invalid", genericTestFalse);
+
+		for_each_file("fileformats/stp/valid", genericTestTrue);
+
+		for_each_file("fileformats/graph6/valid", genericTestTrue);
+
+		for_each_file("fileformats/dmf/invalid", genericTestFalse);
 	});
 });
 });

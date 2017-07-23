@@ -183,6 +183,34 @@ public:
 		return *this;
 	}
 
+	//! Equality operator.
+	bool operator==(const ArrayBuffer<E, INDEX> &L) const {
+		if (size() != L.size()) {
+			return false;
+		}
+
+		auto thisIterator = begin();
+		auto thatIterator = L.begin();
+
+		while (thisIterator != end() && thatIterator != L.end()) {
+			if (*thisIterator != *thatIterator) {
+				return false;
+			}
+			++thisIterator;
+			++thatIterator;
+		}
+
+		OGDF_ASSERT(thisIterator == end() && thatIterator == L.end());
+		return true;
+	}
+
+	//! Inequality operator.
+	bool operator!=(const ArrayBuffer<E, INDEX> &L) const {
+		return !operator==(L);
+	}
+
+	//! @}
+
 
 	//! Generates a compact copy holding the current elements.
 	/**
@@ -254,7 +282,7 @@ public:
 	/**
 	 * Warning: linear running time!
 	 * Note that the linear search runs from back to front.
-	 * \return the index of the found element, and low()-1 if not found.
+	 * \return the index of the found element, and -1 if not found.
 	 */
 	INDEX linearSearch (const E& x) const {
 		INDEX i;
@@ -267,7 +295,7 @@ public:
 	/**
 	 * Warning: linear running time!
 	 * Note that the linear search runs from back to front.
-	 * \return the index of the found element, and low()-1 if not found.
+	 * \return the index of the found element, and -1 if not found.
 	 */
 	template<class COMPARER>
 	INDEX linearSearch (const E& x, const COMPARER &comp) const {
@@ -300,7 +328,7 @@ public:
 	//! Performs a binary search for element \p e.
 	/**
 	 * \pre The buffer must be sorted!
-	 * \return the index of the found element, and low()-1 if not found.
+	 * \return the index of the found element, and -1 if not found.
 	 */
 	inline INDEX binarySearch (const E& e) const {
 		return Array<E,INDEX>::binarySearch(0, num-1, e, StdComparer<E>());
@@ -309,16 +337,34 @@ public:
 	//! Performs a binary search for element \p e with comparer \p comp.
 	/**
 	 * \pre The buffer must be sorted according to \p comp!
-	 * \return the index of the found element, and low()-1 if not found.
+	 * \return the index of the found element, and -1 if not found.
 	 */
 	template<class COMPARER>
 	inline INDEX binarySearch(const E& e, const COMPARER &comp) const {
 		return Array<E,INDEX>::binarySearch(0, num-1, e, comp);
 	}
 
-	//! Randomly permutes the array.
+	//! @copydoc Array::permute(INDEX l, INDEX r, RNG &rng)
+	template<class RNG>
+	void permute(INDEX l, INDEX r, RNG &rng) {
+		Array<E,INDEX>::permute(l, r, rng);
+	}
+
+	//! @copydoc Array::permute(RNG &rng)
+	template<class RNG>
+	void permute(RNG &rng) {
+		permute(0, num - 1, rng);
+	}
+
+	//! @copydoc Array::permute(INDEX l, INDEX r)
+	void permute(INDEX l, INDEX r) {
+		std::minstd_rand rng(randomSeed());
+		permute(l, r, rng);
+	}
+
+	//! @copydoc Array::permute()
 	void permute() {
-		Array<E,INDEX>::permute(0, num-1);
+		permute(0, num-1);
 	}
 
 	//! Removes the components listed in the buffer \p ind by shifting the remaining components to the left.
@@ -373,7 +419,7 @@ public:
 
 //! Prints ArrayBuffer \p a to output stream \p os using delimiter \p delim.
 template<class E, class INDEX>
-void print(ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
+void print(std::ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
 {
 	for (int i = 0; i < a.size(); i++) {
 		if (i > 0) os << delim;
@@ -384,10 +430,10 @@ void print(ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
 
 //! Prints ArrayBuffer \p a to output stream \p os.
 template<class E, class INDEX>
-ostream &operator<<(ostream &os, const ogdf::ArrayBuffer<E,INDEX> &a)
+std::ostream &operator<<(std::ostream &os, const ogdf::ArrayBuffer<E,INDEX> &a)
 {
 	print(os,a);
 	return os;
 }
 
-} // end namespace ogdf
+}

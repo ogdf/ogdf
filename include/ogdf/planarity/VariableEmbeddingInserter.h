@@ -91,4 +91,4 @@ private:
 		const EdgeArray<uint32_t> *pEdgeSubgraphs);
 };
 
-} // end namespace ogdf
+}

@@ -182,7 +182,7 @@ public:
 		return num;
 	}
 
-	//@{
+	//@}
 	/**
 	* @name Iteration over tree structure
 	* Alternatively you can use the containers ClusterElement::nodes, ClusterElement::children and ClusterElement::adjEntries directly.
@@ -219,7 +219,7 @@ public:
 
 	OGDF_NEW_DELETE
 
-};// class ClusterElement
+};
 
 //! \name Iteration macros
 //! @{
@@ -502,7 +502,7 @@ public:
 
 	//! Collapses all nodes in the list \p nodes to the first node; multi-edges are removed.
 	template<class NODELIST>
-	void collaps(NODELIST &nodes, Graph &G) {
+	void collapse(NODELIST &nodes, Graph &G) {
 		OGDF_ASSERT(&G == m_pGraph);
 		m_adjAvailable = false;
 
@@ -692,13 +692,10 @@ public:
 	//! Checks the combinatorial cluster planar embedding.
 	bool representsCombEmbedding() const;
 
-	//! Checks the consistency of the data structure.
-	/**
-	* \remark This method is meant for debugging purposes only.
-	*
-	* @return true if everything is ok, false if the data structure is inconsistent.
-	*/
-	bool consistencyCheck() const;
+#ifdef OGDF_DEBUG
+	//! Asserts consistency of this cluster graph.
+	void consistencyCheck() const;
+#endif
 
 	//@}
 	/**
@@ -802,7 +799,7 @@ protected:
 		//we don't want a complete clear, as the graph still exists
 		//and can be updated from input stream
 		clear();
-	}//Graph cleared
+	}
 
 	//! @}
 
@@ -820,6 +817,21 @@ private:
 			}
 		}
 	}
+
+	//! Clears children of a cluster, used by recursive #clearClusterTree
+	void recurseClearClusterTreeOnChildren(cluster c, List<node> &attached) {
+		m_adjAvailable = false;
+		for (auto child : c->getChildren()) {
+			clearClusterTree(child, attached);
+		}
+	}
+
+	//! Constructs a cluster tree
+	void constructClusterTree(
+			const ClusterGraph &C,
+			const Graph &G,
+			ClusterArray<cluster> &originalClusterTable,
+			std::function<node(node)> nodeMap = [](node v) { return v; });
 
 	//! Assigns node \p v to cluster \p C (\p v not yet assigned!).
 	void assignNode(node v, cluster C);
@@ -890,9 +902,6 @@ private:
 	void reinitArrays();
 };
 
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, cluster c);
 
-
-OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::cluster c);
-
-
-} // end namespace ogdf
+}

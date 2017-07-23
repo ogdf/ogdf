@@ -41,6 +41,7 @@ UMLGraph::UMLGraph(
 	long initAttributes) :
 	GraphAttributes(G, initAttributes | edgeType | nodeType | nodeGraphics | edgeGraphics), m_pG(&G), m_cliqueCenterSize(10)
 {
+	m_hiddenEdges = new Graph::HiddenEdgeSet(G);
 	m_upwardEdge.init(G, false);
 	m_hierarchyParent.init(G,nullptr);
 	m_assClass.init(G, nullptr);
@@ -57,9 +58,8 @@ UMLGraph::~UMLGraph()
 	{
 		delete *it;
 		++it;
-	}//while
-}//destructor
-
+	}
+}
 
 void UMLGraph::insertGenMergers()
 {
@@ -84,11 +84,10 @@ void UMLGraph::insertGenMergers()
 
 		if (v == vLast) break;
 		v = v->succ();
-	}//while
+	}
 
 	adjustHierarchyParents();
 }
-
 
 void UMLGraph::adjustHierarchyParents()
 {
@@ -104,8 +103,7 @@ void UMLGraph::adjustHierarchyParents()
 
 		}
 	}
-}//adjustHierarchyParents
-
+}
 
 // inserts a merger node for generalizations hanging at v
 node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
@@ -141,18 +139,17 @@ node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
 			m_hierarchyParent[u] = v;
 			m_upwardEdge[(*it)->adjSource()] = true;//set status at source node
 		}
-	}//if ingen >= 2
-	else
+	} else {
 		if (inGens.size() == 1)
 		{   //they are not needed yet
 #if 0
 			m_hierarchyParent[inGens.front()->source()] = v;
 			m_upwardEdge[inGens.front()->adjSource()] = true;//set status at source node
 #endif
-		}//if
+		}
+	}
 	return u;
-}//doInsertMergers
-
+}
 
 void UMLGraph::undoGenMergers()
 {
@@ -210,11 +207,10 @@ void UMLGraph::sortEdgesFromLayout()
 		//sort the entries
 		adjList[v].quicksort(*ec);
 		m_pG->sort(v, adjList[v]);
-
 	}
 
 	delete ec;
-}//sortedgesfromlayout
+}
 #endif
 
 // replace each node set in cliques by a star connecting
@@ -244,11 +240,11 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 		{
 			cliqueNum[*itNode] = num;
 			++itNode;
-		}//while
+		}
 
 		num++;
 		++it;
-	}//while
+	}
 
 	//now replace each list
 	it = cliques.begin();
@@ -261,10 +257,8 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 		//and save its size and the node positions
 		m_cliqueCircleSize[newCenter] = circularBound(newCenter);
 		++it;
-	}//while
-
-}//replacebystar
-
+	}
+}
 
 //compute a drawing of the clique around node center and save its size
 //the call to circular will later be replaced by an dedicated computation
@@ -310,8 +304,7 @@ DRect UMLGraph::circularBound(node center)
 	bb = AG.boundingBox();
 
 	return bb;
-}//circularBound
-
+}
 
 #if 0
 //computes relative positions of all nodes around center on a circle
@@ -329,9 +322,8 @@ void UMLGraph::computeCliquePosition(node center, double rectMin)
 		ae = ae->cyclicPred();
 	} while (ae != center->firstAdj());
 	computeCliquePosition(adjNodes, center, rectMin);
-}//computeCliquePosition
+}
 #endif
-
 
 //computes relative positions of all nodes in List cList on a minimum size
 //circle (needed to compute positions with different ordering than given in *this).
@@ -373,14 +365,14 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 			if (d > maxSize) maxSize = d;
 
 			++itNode;
-		}//while
+		}
 		double totalSum = pureSumDiameters+(center->degree()-1)*minDist;
 		//TODO: scling, not just counting
 		while (totalSum/Math::pi < rectBound*0.75)
 		{
 			minDist = minDist + 1.0;
 			totalSum += (center->degree()-1.0);
-		}//while
+		}
 		if (minDist > 1.1) minDist -= 1.0;
 		//do not use larger value than cliquecentersize (used with separation)
 		//if (minDist > m_cliqueCenterSize) minDist = m_cliqueCenterSize;
@@ -422,7 +414,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 		lastDiameter = d/2.0; //its only half diameter...
 
 		++itNode;
-	}//while
+	}
 
 	OGDF_ASSERT(adjNodes.size() == angles.size());
 
@@ -440,13 +432,13 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 		{
 			(*it) = (*it)*360.0/perimeter;
 			node w = *itNode;
-			double angle = Math::pi*(*it)/180.0;
+			double angle = Math::degreesToRadians(*it);
 			m_cliqueCirclePos[w].m_x = radius*cos(angle);
 			m_cliqueCirclePos[w].m_y = radius*sin(angle);
 			++itNode;
 			++it;
-		}//while
-	}//if n>2
+		}
+	}
 
 	//now we normalize the values (start with 0.0) and
 	//derive the bounding box
@@ -472,7 +464,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 	minY -= minCCDist;
 	//normalize
 #if 0
-	cout<<"\n";
+	std::cout << "\n";
 #endif
 
 	itNode = adjNodes.begin();
@@ -480,20 +472,19 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 	{
 		node w = *itNode;
 #if 0
-		cout<<"x1:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+		std::cout << "x1:" << m_cliqueCirclePos[w].m_x << ":y:" << m_cliqueCirclePos[w].m_y << "\n";
 #endif
 		m_cliqueCirclePos[w].m_x -= minX;
 		m_cliqueCirclePos[w].m_y -= minY;
 #if 0
-		cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+		std::cout << "x:" << m_cliqueCirclePos[w].m_x << ":y:" << m_cliqueCirclePos[w].m_y << "\n";
 #endif
 		++itNode;
 	}
 
 	//reassign the size, this time it is the final value
 	m_cliqueCircleSize[center] = DRect(0.0, 0.0, maxX-minX, maxY-minY);
-}//computecliqueposition
-
+}
 
 node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 {
@@ -504,14 +495,14 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	width(center) = m_cliqueCenterSize;
 	height(center) = m_cliqueCenterSize;
 #ifdef OGDF_DEBUG
-//should ask for attributes
+	//should ask for attributes
 	if(has(nodeStyle))
 		fillColor(center) = Color(0x55,0x55,0x55);
 #endif
 	//we delete all edges inzident to two clique nodes
 	//store all of them first in delEdges
 	List<edge> delEdges;
-//TODO: Store edge type for all deleted edges
+	//TODO: Store edge type for all deleted edges
 	ListIterator<node> it = clique.begin();
 	while (it.valid())
 	{
@@ -530,7 +521,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 #endif
 					delEdges.pushBack(ad->theEdge());
 				}
-			}//if
+			}
 		}
 
 		//connect center node to clique node
@@ -539,7 +530,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 		m_replacementEdge[inserted] = true;
 
 		++it;
-	}//while
+	}
 
 	//now delete all edges
 	ListIterator<edge>	itEdge = delEdges.begin();
@@ -550,11 +541,10 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 #endif
 		m_hiddenEdges->hide(*itEdge);
 		++itEdge;
-	}//while
+	}
 
 	return center;
-}//replaceByStar
-
+}
 
 void UMLGraph::undoStars()
 {
@@ -563,14 +553,12 @@ void UMLGraph::undoStars()
 	{
 		undoStar(*it, false);
 		++it;
-	}//while
+	}
 
 	m_hiddenEdges->restore();
 	m_centerNodes.clear();
 	m_replacementEdge.init();
-
-}//undostars
-
+}
 
 //remove the center node and reinsert the deleted edges
 void UMLGraph::undoStar(node center, bool restoreAllEdges)
@@ -583,28 +571,25 @@ void UMLGraph::undoStar(node center, bool restoreAllEdges)
 
 	//remove center node
 	m_pG->delNode(center);
-
-}//undostar
-
-
+}
 
 // Same as in GraphAttributes. Except: Writes red color to generalizations
 
 void UMLGraph::writeGML(const char *fileName)
 {
-	ofstream os(fileName);
+	std::ofstream os(fileName);
 	writeGML(os);
 }
 
 
-void UMLGraph::writeGML(ostream &os)
+void UMLGraph::writeGML(std::ostream &os)
 {
 	const Graph &G = constGraph();
 
 	NodeArray<int> id(G);
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	os << "Creator \"ogdf::GraphAttributes::writeGML\"\n";
@@ -635,16 +620,16 @@ void UMLGraph::writeGML(ostream &os)
 				os << "      fill \"#0000A0\"\n";
 			else if (type(v) == Graph::NodeType::generalizationExpander)
 				os << "      fill \"#00FF00\"\n";
-			else
-			{
+			else {
 				if (has(nodeStyle))
 				{
 					os << "      fill \"" << fillColor(v) << "\"\n";
 					os << "      line \"" << strokeColor(v) << "\"\n";
-				}//color
-				else
-					if (v->degree() > 4)
+				} else {
+					if (v->degree() > 4) {
 						os << "      fill \"#FFFF00\"\n";
+					}
+				}
 			}
 			os << "    ]\n"; // graphics
 		}
@@ -718,5 +703,4 @@ void UMLGraph::writeGML(ostream &os)
 	os << "]\n"; // graph
 }
 
-
-} // end namespace ogdf
+}

@@ -36,7 +36,8 @@
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/SubsetEnumerator.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
-#include <ogdf/graphalg/steiner_tree/DreyfusWagnerFullComponentGenerator.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
+#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 #include <ogdf/graphalg/steiner_tree/SaveStatic.h>
@@ -134,23 +135,8 @@ protected:
 		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
 
 private:
-	bool isValidComponent(const EdgeWeightedGraphCopy<T> &graph)
-	{
-		for (edge e : graph.edges) {
-			const node u = graph.original(e->source());
-			const node v = graph.original(e->target());
-			if (m_pred[u][v] == nullptr) {
-				return false;
-			}
-		}
-		for (node v : graph.nodes) {
-			if ((*m_isTerminal)[graph.original(v)] // is a terminal
-			 && v->degree() > 1) { // but not a leaf
-				return false;
-			}
-		}
-		return true;
-	}
+	//! Compute m_distance and m_pred
+	void computeDistanceMatrix();
 
 	/*!
 	 * \brief Finds all k-restricted full components (except 2-components).
@@ -158,8 +144,7 @@ private:
 	 * @param save Data structure for calculating save edges
 	 */
 	void findFullComponents(const EdgeWeightedGraphCopy<T> &tree, const SaveStatic<T> &save);
-	void findFull3Components(SubsetEnumerator<node> &terminalSubset,
-			const EdgeWeightedGraphCopy<T> &tree, const SaveStatic<T> &save);
+	void findFull3Components(const EdgeWeightedGraphCopy<T> &tree, const SaveStatic<T> &save);
 
 	/*!
 	 * \brief Builds a minimum terminal spanning tree (via a MST call on the complete terminal graph)
@@ -204,12 +189,12 @@ private:
 	const EdgeWeightedGraph<T> *m_originalGraph; //!< The original edge-weighted graph
 	const NodeArray<bool> *m_isTerminal; //!< Incidence vector for terminal nodes
 	List<node> m_terminals; //!< List of terminal nodes (will be copied and sorted)
-	List<node> m_nonterminals; //!< List of Steiner (non-terminal) nodes
+	ArrayBuffer<node> m_nonterminals; //!< Container of Steiner (non-terminal) nodes
 	int m_restricted; //!< Parameter for the number of terminals in a full component
 	steiner_tree::FullComponentWithLossStore<T> *m_fullCompStore; //!< All generated full components
 	bool m_ssspDistances; //!< True iff we only compute SSSP from terminals instead of APSP for full component construction
-	NodeArray< NodeArray<T> > m_distance;
-	NodeArray< NodeArray<edge> > m_pred;
+	NodeArray<NodeArray<T>> m_distance;
+	NodeArray<NodeArray<edge>> m_pred;
 
 	long m_componentsGenerated; //!< Number of generated components
 	long m_componentsContracted; //!< Number of contracted components
@@ -220,30 +205,15 @@ template<typename T>
 T MinSteinerTreeRZLoss<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
 	m_originalGraph = &G;
-	m_restricted = min(m_restricted, terminals.size());
+	Math::updateMin(m_restricted, terminals.size());
 	m_terminals = terminals; // copy
-	steiner_tree::sortTerminals(m_terminals); // sort
+	MinSteinerTreeModule<T>::sortTerminals(m_terminals);
 	m_isTerminal = &isTerminal;
 	m_fullCompStore = new steiner_tree::FullComponentWithLossStore<T>(G, m_terminals, isTerminal);
 
-	for (node u : G.nodes) {
-		if (!isTerminal[u]) {
-			m_nonterminals.pushBack(u);
-		}
-	}
+	MinSteinerTreeModule<T>::getNonterminals(m_nonterminals, G, *m_isTerminal);
 
-	m_distance.init(G);
-	m_pred.init(G);
-	if (m_ssspDistances
-	 && m_restricted <= 3) {
-		// for 2- and 3-restricted computations, it is ok to use SSSP from all terminals
-		for (node u : terminals) {
-			MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(*m_originalGraph, u, *m_isTerminal, m_distance[u], m_pred[u]);
-		}
-	} else {
-		m_ssspDistances = false;
-		MinSteinerTreeModule<T>::allPairShortestPathsStrict(*m_originalGraph, *m_isTerminal, m_distance, m_pred);
-	}
+	computeDistanceMatrix();
 
 	NodeArray<bool> isNewTerminal(G, false);
 	for (node v : terminals) {
@@ -299,86 +269,67 @@ void MinSteinerTreeRZLoss<T>::generateInitialTerminalSpanningTree(EdgeWeightedGr
 }
 
 template<typename T>
-void MinSteinerTreeRZLoss<T>::findFull3Components(SubsetEnumerator<node> &terminalSubset,
-		const EdgeWeightedGraphCopy<T> &tree,
-		const SaveStatic<T> &save)
+void MinSteinerTreeRZLoss<T>::computeDistanceMatrix()
 {
-	// compute special case of 3-components (3-stars)
-	for (terminalSubset.begin(3); terminalSubset.valid(); terminalSubset.next()) {
-		const node t0 = terminalSubset[0];
-		const node t1 = terminalSubset[1];
-		const node t2 = terminalSubset[2];
-		OGDF_ASSERT(m_distance[t0][t1] < numeric_limits<T>::max());
-		OGDF_ASSERT(m_distance[t0][t2] < numeric_limits<T>::max());
-		OGDF_ASSERT(m_distance[t1][t2] < numeric_limits<T>::max());
-		T minCost = // bounded by the sum of the 2-components
-		   min(m_distance[t0][t1] + m_distance[t0][t2],
-		   min(m_distance[t1][t0] + m_distance[t1][t2],
-		       m_distance[t2][t0] + m_distance[t2][t1]));
-		node minCenter = nullptr;
-		for (node center : m_nonterminals) {
-			OGDF_ASSERT(m_distance[t0][center] < numeric_limits<T>::max());
-			OGDF_ASSERT(m_distance[t1][center] < numeric_limits<T>::max());
-			OGDF_ASSERT(m_distance[t2][center] < numeric_limits<T>::max());
-			const T cost = m_distance[t0][center] + m_distance[t1][center] + m_distance[t2][center];
-			if (cost < minCost) {
-				minCenter = center;
-				minCost = cost;
-			}
-		}
-		if (minCenter
-		 && m_pred[t0][minCenter]
-		 && m_pred[t1][minCenter]
-		 && m_pred[t2][minCenter]) {
-			// create a full 3-component
-			EdgeWeightedGraphCopy<T> minComp;
-			minComp.createEmpty(*m_originalGraph);
-			node minCenterC = minComp.newNode(minCenter);
-			minComp.newEdge(minComp.newNode(t0), minCenterC, m_distance[t0][minCenter]);
-			minComp.newEdge(minComp.newNode(t1), minCenterC, m_distance[t1][minCenter]);
-			minComp.newEdge(minComp.newNode(t2), minCenterC, m_distance[t2][minCenter]);
-			OGDF_ASSERT(isTree(minComp));
-#ifdef OGDF_STEINERTREE_RZLOSS_REDUCE_ON
-			Array<node> terminals;
-			terminalSubset.array(terminals);
-			if (gain(terminals, tree, save) > minCost) { // reduction
-				m_fullCompStore->insert(minComp);
-			}
-#else
-			m_fullCompStore->insert(minComp);
-#endif
-		}
+	if (m_ssspDistances
+	 && m_restricted <= 3) {
+		// for 2- and 3-restricted computations, it is ok to use SSSP from all terminals
+		MinSteinerTreeModule<T>::allTerminalShortestPathsStrict(*m_originalGraph, m_terminals, *m_isTerminal, m_distance, m_pred);
+	} else {
+		m_ssspDistances = false;
+		MinSteinerTreeModule<T>::allPairShortestPathsStrict(*m_originalGraph, *m_isTerminal, m_distance, m_pred);
 	}
 }
 
 template<typename T>
-void MinSteinerTreeRZLoss<T>::findFullComponents(
-		const EdgeWeightedGraphCopy<T> &tree,
-		const SaveStatic<T> &save)
+void MinSteinerTreeRZLoss<T>::findFull3Components(const EdgeWeightedGraphCopy<T> &tree, const SaveStatic<T> &save)
 {
-	SubsetEnumerator<node> terminalSubset(m_terminals);
+	steiner_tree::Full3ComponentGeneratorVoronoi<T> fcg;
+	fcg.call(*m_originalGraph, m_terminals, *m_isTerminal, m_distance, m_pred,
+	  [&](node t0, node t1, node t2, node minCenter, T minCost) {
+		// create a full 3-component
+		EdgeWeightedGraphCopy<T> minComp;
+		minComp.createEmpty(*m_originalGraph);
+		node minCenterC = minComp.newNode(minCenter);
+		minComp.newEdge(minComp.newNode(t0), minCenterC, m_distance[t0][minCenter]);
+		minComp.newEdge(minComp.newNode(t1), minCenterC, m_distance[t1][minCenter]);
+		minComp.newEdge(minComp.newNode(t2), minCenterC, m_distance[t2][minCenter]);
+		OGDF_ASSERT(isTree(minComp));
+#ifdef OGDF_STEINERTREE_RZLOSS_REDUCE_ON
+		if (gain(std::vector<node>{t0, t1, t2}, tree, save) > minCost) { // reduction
+			m_fullCompStore->insert(minComp);
+		}
+#else
+		m_fullCompStore->insert(minComp);
+#endif
+	});
+}
+
+template<typename T>
+void MinSteinerTreeRZLoss<T>::findFullComponents(const EdgeWeightedGraphCopy<T> &tree, const SaveStatic<T> &save)
+{
 	if (m_restricted >= 4) { // use Dreyfus-Wagner based full component generation
-		steiner_tree::DreyfusWagnerFullComponentGenerator<T> fcg(*m_originalGraph, m_terminals, m_distance);
+		SubsetEnumerator<node> terminalSubset(m_terminals);
+		steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(*m_originalGraph, m_terminals, m_distance);
 		fcg.call(m_restricted);
 		for (terminalSubset.begin(3, m_restricted); terminalSubset.valid(); terminalSubset.next()) {
 			EdgeWeightedGraphCopy<T> component;
 			List<node> terminals;
 			terminalSubset.list(terminals);
 #ifdef OGDF_STEINERTREE_RZLOSS_REDUCE_ON
-			T cost = fcg.getSteinerTreeFor(terminals, component);
-			if (gain(terminals, tree, save) > cost
-			 && isValidComponent(component)) {
-				m_fullCompStore->insert(component);
-			}
-#else
-			fcg.getSteinerTreeFor(terminals, component);
-			if (isValidComponent(component)) {
-				m_fullCompStore->insert(component);
-			}
+			T cost =
 #endif
+			    fcg.getSteinerTreeFor(terminals, component);
+			if (
+#ifdef OGDF_STEINERTREE_RZLOSS_REDUCE_ON
+			    gain(terminals, tree, save) > cost &&
+#endif
+			    steiner_tree::FullComponentGeneratorDreyfusWagner<T>::isValidComponent(component, m_pred, *m_isTerminal)) {
+				m_fullCompStore->insert(component);
+			}
 		}
 	} else {
-		findFull3Components(terminalSubset, tree, save);
+		findFull3Components(tree, save);
 	}
 }
 

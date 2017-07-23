@@ -129,7 +129,7 @@ public:
 	 * This function is used by hash iterators for iterating over all elements
 	 * in the hash table.
 	 * @param pList is assigned the list containing the first element.
-	 * \return a pointer to the first element or 0 if hash table is empty.
+	 * \return a pointer to the first element or \c nullptr if hash table is empty.
 	 */
 	HashElementBase *firstElement(HashElementBase ***pList) const;
 
@@ -140,7 +140,7 @@ public:
 	 * in the hash table.
 	 * @param pList is assigned the list containing the first element.
 	 * @param pElement points to an element in the has table.
-	 * \return a pointer to the first element or 0 if hash table is empty.
+	 * \return a pointer to the first element or \c nullptr if hash table is empty.
 	 */
 	HashElementBase *nextElement(HashElementBase ***pList,
 		HashElementBase *pElement) const;
@@ -232,7 +232,7 @@ template<> class DefHashFunc<double> {
 public:
 	size_t hash(const double &key) const {
 		int dummy;
-		return (size_t)((double)numeric_limits<size_t>::max() * frexp(key,&dummy));
+		return (size_t)((double)std::numeric_limits<size_t>::max() * frexp(key,&dummy));
 	}
 };
 
@@ -292,7 +292,7 @@ public:
 	//! Returns an hash iterator to the first element in the list of all elements.
 	HashConstIterator<K,I,H> begin() const;
 
-	//! Returns the hash element with key \p key in the hash table; returns 0 if no such element.
+	//! Returns the hash element with key \p key in the hash table; returns \c nullptr if no such element exists.
 	HashElement<K,I> *lookup(const K &key) const {
 		HashElement<K,I> *pElement =
 			(HashElement<K,I> *)firstListElement(m_hashFunc.hash(key));
@@ -375,7 +375,7 @@ protected:
 	 * This function is used by hash iterators for iterating over all elements
 	 * in the hash table.
 	 * @param pList is assigned the list containing the first element.
-	 * \return a pointer to the first element or 0 if hash table is empty.
+	 * \return a pointer to the first element or \c nullptr if hash table is empty.
 	 */
 	HashElement<K,I> *firstElement(HashElement<K,I> ***pList) const {
 		return (HashElement<K,I> *)(HashingBase::firstElement((HashElementBase ***)pList));
@@ -388,7 +388,7 @@ protected:
 	 * in the hash table.
 	 * @param pList is assigned the list containing the first element.
 	 * @param pElement points to an element in the has table.
-	 * \return a pointer to the first element or 0 if hash table is empty.
+	 * \return a pointer to the first element or \c nullptr if hash table is empty.
 	 */
 	HashElement<K,I> *nextElement(HashElement<K,I> ***pList,
 		HashElement<K,I> *pElement) const
@@ -431,7 +431,7 @@ private:
  *
  *   HashConstIterator<string,string> it;
  *   for(it = H.begin(); it.valid(); ++it)
- *     cout << it.key() << " -> " << it.info() << endl;
+ *     std::cout << it.key() << " -> " << it.info() << std::endl;
  * \endcode
  */
 template<class K, class I, class H = DefHashFunc<K> >
@@ -494,5 +494,4 @@ inline HashConstIterator<K,I,H> Hashing<K,I,H>::begin() const
 	return HashConstIterator<K,I,H>(pElement,pList,this);
 }
 
-
-} // end namespace ogdf
+}

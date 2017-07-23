@@ -33,7 +33,8 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/graphalg/Voronoi.h>
+#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
+#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorEnumeration.h>
 #include <ogdf/graphalg/steiner_tree/SaveStatic.h>
 #include <ogdf/graphalg/steiner_tree/SaveEnum.h>
 #include <ogdf/graphalg/steiner_tree/SaveDynamic.h>
@@ -244,79 +245,48 @@ protected:
 	void computeDistanceMatrix();
 
 	/*!
-	 * \brief Mark unreachable nodes in distance matrix by setting their distance to infinity (numeric_limits<T>::max())
-	 */
-	inline void markUnreachablesInDistanceMatrix(NodeArray<T> &dist, const NodeArray<edge> &pred) {
-		for (node u : m_originalGraph->nodes) {
-			if (pred[u] == nullptr) {
-				dist[u] = numeric_limits<T>::max();
-			}
-		}
-	}
-
-	/*!
-	 * \brief Update center node if it is the best so far. (Just a helper to avoid code duplication.)
-	 * @param x The node to test
-	 * @param center The returned best center node
-	 * @param minCost The returned cost of the component with that node
-	 * @param dist1 SSSP distance vector of the first terminal
-	 * @param dist2 SSSP distance vector of the second terminal
-	 * @param dist3 SSSP distance vector of the third terminal
-	 */
-	inline void updateBestCenter(node x, node &center, T &minCost, const NodeArray<T> &dist1, const NodeArray<T> &dist2, const NodeArray<T> &dist3) const
-	{
-		const T tmp = dist1[x] + dist2[x] + dist3[x];
-		if (minCost > tmp
-		 && dist1[x] != numeric_limits<T>::max()
-		 && dist2[x] != numeric_limits<T>::max()
-		 && dist3[x] != numeric_limits<T>::max()) {
-			center = x;
-			minCost = tmp;
-		}
-	}
-
-	/*!
 	 * \brief Add a found triple to the triples list. (Just a helper to avoid code duplication.)
 	 */
 	inline void generateTriple(node u, node v, node w, node center, const T &minCost, const Save<T> &save)
 	{
-		if (center // center found
-		 && !(*m_isTerminal)[center]) { // cheapest center is not a terminal
-			const double gain = save.gain(u, v, w);
-			const double win = calcWin(gain, minCost);
-			if (tripleReduction() == TripleReduction::off
-			 || win > 0) {
-				++m_triplesGenerated;
-				OGDF_ASSERT(center);
-				Triple<T> triple(u, v, w, center, minCost, win);
-				m_triples.pushBack(triple);
-			}
+		const double gain = save.gain(u, v, w);
+		const double win = calcWin(gain, minCost);
+		if (tripleReduction() == TripleReduction::off
+		 || win > 0) {
+			++m_triplesGenerated;
+			OGDF_ASSERT(center);
+			Triple<T> triple(u, v, w, center, minCost, win);
+			m_triples.pushBack(triple);
 		}
 	}
 
 	/*!
-	 * \brief Generates triples according to voronoi regions
+	 * \brief Generates triples using the given full 3-component generator
 	 * @param save data structure for calculation save edges
+	 * @param fcg the chosen full 3-component generator
 	 */
-	void generateVoronoiTriples(const Save<T> &save);
-
-	/*!
-	 * \brief Generates all possible triples
-	 * @param save data structure for determining save edges
-	 */
-	void generateExhaustiveTriples(const Save<T> &save);
+	inline void generateTriples(const Save<T> &save, const steiner_tree::Full3ComponentGeneratorModule<T> &fcg)
+	{
+		fcg.call(*m_originalGraph, *m_terminals, *m_isTerminal, m_distance, m_pred,
+		  [this, &save](node u, node v, node w, node center, T minCost) {
+			generateTriple(u, v, w, center, minCost, save);
+		});
+	}
 
 	/*!
 	 * \brief Generates triples according to the chosen option \see TripleGeneration
 	 * @param save data structure for calculation save edges
 	 */
-	void generateTriples(const Save<T> &save)
+	inline void generateTriples(const Save<T> &save)
 	{
+		OGDF_ASSERT(tripleGeneration() != TripleGeneration::ondemand);
 		if (tripleGeneration() == TripleGeneration::voronoi) {
-			generateVoronoiTriples(save);
-		} else
-		if (tripleGeneration() == TripleGeneration::exhaustive) {
-			generateExhaustiveTriples(save);
+			steiner_tree::Full3ComponentGeneratorVoronoi<T> fcg;
+			generateTriples(save, fcg);
+		} else {
+			OGDF_ASSERT(tripleGeneration() == TripleGeneration::exhaustive);
+			steiner_tree::Full3ComponentGeneratorEnumeration<T> fcg;
+			generateTriples(save, fcg);
 		}
 	}
 
@@ -339,6 +309,81 @@ protected:
 	 * @param isNewTerminal true for nodes to be interpreted as terminals
 	 */
 	void tripleOnDemand(Save<T> &save, NodeArray<bool> &isNewTerminal);
+
+	/**
+	 * \brief Find the best triple for a given nonterminal center
+	 * @param center the center node we want to find a better triple for
+	 * @param save save data structure
+	 * @param maxTriple the improved triple (output parameter)
+	 * @return True iff maxTriple is updated
+	 */
+	bool findBestTripleForCenter(node center, const Save<T> &save, Triple<T> &maxTriple) const
+	{
+		bool updated = false; // return value
+
+		// find s0, nearest terminal to center
+		T best = std::numeric_limits<T>::max();
+		node s0 = nullptr;
+		for (node s : *m_terminals) {
+			T tmp = m_distance[s][center];
+			if (best > tmp) {
+				best = tmp;
+				s0 = s;
+			}
+		}
+		OGDF_ASSERT(s0);
+		OGDF_ASSERT(m_pred[s0][center]);
+
+		// find s1 maximizing save(s0, s1) - d(center, s1)
+		node s1 = nullptr;
+		T save1Val(0);
+		for (node s : *m_terminals) {
+			if (s != s0
+			 && m_pred[s][center] != nullptr) {
+				OGDF_ASSERT(m_distance[s][center] != std::numeric_limits<T>::max());
+				T tmpVal = save.saveWeight(s, s0);
+				T tmp = tmpVal - m_distance[s][center];
+				if (!s1 || best < tmp) {
+					best = tmp;
+					s1 = s;
+					save1Val = tmpVal;
+				}
+			}
+		}
+		if (s1) {
+			OGDF_ASSERT(m_pred[s1][center]);
+			node s2 = nullptr;
+			T save2Val(0);
+			const edge save1 = save.saveEdge(s0, s1);
+			for (node s : *m_terminals) {
+				if (s != s0
+				 && s != s1
+				 && m_pred[s][center] != nullptr) {
+					OGDF_ASSERT(m_distance[s][center] != std::numeric_limits<T>::max());
+					const edge tmp = save.saveEdge(s0, s);
+					save2Val = save.saveWeight(tmp == save1 ? s1 : s0, s);
+					T tmpWin = save1Val + save2Val - m_distance[s0][center] - m_distance[s1][center] - m_distance[s][center];
+					if (!s2 || best < tmpWin) {
+						best = tmpWin;
+						s2 = s;
+					}
+				}
+			}
+
+			if (s2 // it may happen that s2 does not exist
+			 && best > maxTriple.win()) { // best win is better than previous best; also positive
+				OGDF_ASSERT(m_pred[s2][center]);
+				maxTriple.s0(s0);
+				maxTriple.s1(s1);
+				maxTriple.s2(s2);
+				maxTriple.z(center);
+				maxTriple.win(best);
+				//maxTriple.cost(save1Val + save2Val - win); not needed
+				updated = true;
+			}
+		}
+		return updated;
+	}
 
 	/*!
 	 * \brief Contraction phase for the original version of the algorithm \see MinSteinerTreeZelikovsky::multi
@@ -396,6 +441,7 @@ private:
 	const NodeArray<bool> *m_isTerminal; //!< Incidence vector for terminal nodes
 	const List<node> *m_terminals; //!< List of terminal nodes
 	NodeArray<NodeArray<T>> m_distance; //!< The distance matrix
+	NodeArray<NodeArray<edge>> m_pred; //!< The predecessor matrix
 	List<Triple<T>> m_triples; //!< The list of triples during the algorithm
 
 	long m_triplesGenerated; //!< Number of generated triples
@@ -423,7 +469,6 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	}
 
 	if (terminals.size() >= 3) {
-		m_distance.init(G); // the distance matrix
 		computeDistanceMatrix();
 
 		// init terminal-spanning tree and its save-edge data structure
@@ -477,74 +522,9 @@ template<typename T>
 void MinSteinerTreeZelikovsky<T>::computeDistanceMatrix()
 {
 	if (m_ssspDistances) {
-		NodeArray<edge> pred;
-		for (node u : *m_terminals) {
-			MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(*m_originalGraph, u, *m_isTerminal, m_distance[u], pred);
-			markUnreachablesInDistanceMatrix(m_distance[u], pred);
-		}
+		MinSteinerTreeModule<T>::allTerminalShortestPathsStrict(*m_originalGraph, *m_terminals, *m_isTerminal, m_distance, m_pred);
 	} else {
-		NodeArray<NodeArray<edge>> pred(*m_originalGraph);
-		MinSteinerTreeModule<T>::allPairShortestPathsStrict(*m_originalGraph, *m_isTerminal, m_distance, pred);
-		for (node u : *m_terminals) {
-			markUnreachablesInDistanceMatrix(m_distance[u], pred[u]);
-		}
-	}
-}
-
-template<typename T>
-void MinSteinerTreeZelikovsky<T>::generateVoronoiTriples(const Save<T> &save)
-{
-	Voronoi<T> voronoi(*m_originalGraph, m_originalGraph->edgeWeights(), *m_terminals);
-	for (ListConstIterator<node> it_u = m_terminals->begin(); it_u.valid(); ++it_u) {
-		const node u = *it_u;
-		const NodeArray<T> &uDistance = m_distance[u];
-		for (ListConstIterator<node> it_v = it_u.succ(); it_v.valid(); ++it_v) {
-			const node v = *it_v;
-			const NodeArray<T> &vDistance = m_distance[v];
-			for (ListConstIterator<node> it_w = it_v.succ(); it_w.valid(); ++it_w) {
-				const node w = *it_w;
-				const NodeArray<T> &wDistance = m_distance[w];
-
-				node center = nullptr;
-				T minCost = numeric_limits<T>::max();
-				// look in all Voronoi regions for the best center node
-				for (node x : voronoi.nodesInRegion(u)) {
-					updateBestCenter(x, center, minCost, uDistance, vDistance, wDistance);
-				}
-				for (node x : voronoi.nodesInRegion(v)) {
-					updateBestCenter(x, center, minCost, uDistance, vDistance, wDistance);
-				}
-				for (node x : voronoi.nodesInRegion(w)) {
-					updateBestCenter(x, center, minCost, uDistance, vDistance, wDistance);
-				}
-				generateTriple(u, v, w, center, minCost, save);
-			}
-		}
-	}
-}
-
-
-template<typename T>
-void MinSteinerTreeZelikovsky<T>::generateExhaustiveTriples(const Save<T> &save)
-{
-	for (ListConstIterator<node> it_u = m_terminals->begin(); it_u.valid(); ++it_u) {
-		const node u = *it_u;
-		const NodeArray<T> &uDistance = m_distance[u];
-		for (ListConstIterator<node> it_v = it_u.succ(); it_v.valid(); ++it_v) {
-			const node v = *it_v;
-			const NodeArray<T> &vDistance = m_distance[v];
-			for (ListConstIterator<node> it_w = it_v.succ(); it_w.valid(); ++it_w) {
-				const node w = *it_w;
-				const NodeArray<T> &wDistance = m_distance[w];
-
-				node center = nullptr;
-				T minCost = numeric_limits<T>::max();
-				for (node x : m_originalGraph->nodes) {
-					updateBestCenter(x, center, minCost, uDistance, vDistance, wDistance);
-				}
-				generateTriple(u, v, w, center, minCost, save);
-			}
-		}
+		MinSteinerTreeModule<T>::allPairShortestPathsStrict(*m_originalGraph, *m_isTerminal, m_distance, m_pred);
 	}
 }
 
@@ -552,77 +532,13 @@ template<typename T>
 void MinSteinerTreeZelikovsky<T>::tripleOnDemand(Save<T> &save, NodeArray<bool> &isNewTerminal)
 {
 	Triple<T> maxTriple;
+	ArrayBuffer<node> nonterminals;
+	MinSteinerTreeModule<T>::getNonterminals(nonterminals, *m_originalGraph, *m_isTerminal);
 	do {
 		maxTriple.win(0);
-		for (node v : m_originalGraph->nodes) {
-			if (!(*m_isTerminal)[v]) { // for each non-terminal v
-				// find s0, nearest terminal to v
-				T best = numeric_limits<T>::max();
-				node s0 = nullptr;
-				for (node s : *m_terminals) {
-					T tmp = m_distance[s][v];
-					if (best > tmp) {
-						best = tmp;
-						s0 = s;
-					}
-				}
-				OGDF_ASSERT(s0);
-
-				// find s1 maximizing save(s0, s1) - d(v, s1)
-				node s1 = nullptr;
-				T save1Val(0);
-				for (node s : *m_terminals) {
-					if (s == s0
-					 || m_distance[s][v] == numeric_limits<T>::max()) {
-						continue;
-					}
-					T tmpVal = save.saveWeight(s, s0);
-					T tmp = tmpVal - m_distance[s][v];
-					if (!s1 || best < tmp) {
-						best = tmp;
-						s1 = s;
-						save1Val = tmpVal;
-					}
-				}
-				if (!s1) { // it may happen that s1 does not exist
-					continue;
-				}
-
-				node s2 = nullptr;
-				T save2Val(0);
-				const edge save1 = save.saveEdge(s0, s1);
-				for (node s : *m_terminals) {
-					if (s == s0
-					 || s == s1
-					 || m_distance[s][v] == numeric_limits<T>::max()) {
-						continue;
-					}
-					const edge tmp = save.saveEdge(s0, s);
-					if (tmp == save1) {
-						save2Val = save.saveWeight(s1, s);
-					} else {
-						save2Val = save.saveWeight(s0, s);
-					}
-					T tmpWin = save1Val + save2Val - m_distance[s0][v] - m_distance[s1][v] - m_distance[s][v];
-					if (!s2 || best < tmpWin) {
-						best = tmpWin;
-						s2 = s;
-					}
-				}
-				if (!s2) { // it may happen that s2 does not exist
-					continue;
-				}
-
-				if (s2 // it may happen that s2 does not exist
-				 && best > maxTriple.win()) { // best win is better than previous best; also positive
-					++m_triplesGenerated;
-					maxTriple.s0(s0);
-					maxTriple.s1(s1);
-					maxTriple.s2(s2);
-					maxTriple.z(v);
-					maxTriple.win(best);
-					//maxTriple.cost(save1Val + save2Val - win); not needed
-				}
+		for (node center : nonterminals) {
+			if (findBestTripleForCenter(center, save, maxTriple)) {
+				++m_triplesGenerated;
 			}
 		}
 
@@ -636,14 +552,7 @@ void MinSteinerTreeZelikovsky<T>::tripleOnDemand(Save<T> &save, NodeArray<bool> 
 template<typename T>
 void MinSteinerTreeZelikovsky<T>::onePass(Save<T> &save, NodeArray<bool> &isNewTerminal)
 {
-	class TripleComparer {
-	public:
-		static double compare(const Triple<T> &x1, const Triple<T> &x2) {
-			return x2.win() - x1.win();
-		}
-		OGDF_AUGMENT_STATICCOMPARER(Triple<T>)
-	} tc;
-	m_triples.quicksort(tc);
+	m_triples.quicksort(GenericComparer<Triple<T>, double>([](const Triple<T>& x) -> double { return -x.win(); }));
 
 	for (const Triple<T> &t : m_triples) {
 		++m_tripleLookUps;
@@ -686,6 +595,4 @@ void MinSteinerTreeZelikovsky<T>::multiPass(Save<T> &save, NodeArray<bool> &isNe
 	} while (win > 0);
 }
 
-
 }
-// end namespace ogdf

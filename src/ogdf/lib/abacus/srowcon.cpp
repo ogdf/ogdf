@@ -44,4 +44,4 @@ double SRowCon::slack(
 
 	return rhs() - lhs;
 }
-} //namespace abacus
+}

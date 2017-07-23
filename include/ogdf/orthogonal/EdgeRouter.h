@@ -45,29 +45,6 @@
 
 namespace ogdf {
 
-//! edge types, defined by necessary bends
-enum class BendType {
-	BendFree,
-	Bend1Left,
-	Bend1Right,
-	Bend2Left,
-	Bend2Right, //results
-	ProbBf,
-	ProbB1L,
-	ProbB1R,
-	ProbB2L,
-	ProbB2R
-}; //and preliminary
-
-
-// unprocessed, processed in degree1 preprocessing, used by degree1
-enum class ProcessType {
-	unprocessed,
-	processed,
-	used
-};
-
-
 /**
  * Places node boxes in replacement areas of orthogonal
  * drawing step and route edges to minimize bends
@@ -138,13 +115,17 @@ public:
 	//! sets values derivable from input
 	void initialize_node_info(node v, int sep);
 
-	// returns assigned connection point and glue point coordinates for each edge
-	int cp_x(adjEntry ae) { return m_acp_x[ae]; } //!< connection point (cage border) coord of source
-	int cp_y(adjEntry ae) { return m_acp_y[ae]; } //!< connection point (cage border) coord of source
-	int gp_x(adjEntry ae) { return m_agp_x[ae]; } //!< glue point (node border)
-	int gp_y(adjEntry ae) { return m_agp_y[ae]; } //!< glue point (node border)
+	//! Returns assigned connection point (cage border) x-coordinate of \p ae 's source
+	int cp_x(adjEntry ae) { return m_acp_x[ae]; }
 
-	BendType abendType(adjEntry ae) { return m_abends[ae]; }
+	//! Returns assigned connection point (cage border) y-coordinate of \p ae 's source
+	int cp_y(adjEntry ae) { return m_acp_y[ae]; }
+
+	//! Returns assigned glue point (node border) x-coordinate
+	int gp_x(adjEntry ae) { return m_agp_x[ae]; }
+
+	//! Returns assigned glue point (node border) y-coordinate
+	int gp_y(adjEntry ae) { return m_agp_y[ae]; }
 
 	void addbends(BendString& bs, const char* s2);
 
@@ -191,8 +172,41 @@ public:
 	void setOrSep(int sep) {m_hasOrSep = true; m_orSep = sep;}
 #endif
 
-
 private:
+	//! Edge types, defined by necessary bends
+	enum class BendType {
+		//! No resulting bends
+		BendFree,
+		//! One resulting bend to the left
+		Bend1Left,
+		//! One resulting bend to the right
+		Bend1Right,
+		//! Two resulting bends to the left
+		Bend2Left,
+		//! Two resulting bends to the right
+		Bend2Right,
+		//! No preliminary bends
+		ProbBf,
+		//! One preliminary bend to the left
+		ProbB1L,
+		//! One preliminary bend to the right
+		ProbB1R,
+		//! Two preliminary bends to the left
+		ProbB2L,
+		//! Two preliminary bends to the right
+		ProbB2R
+	};
+
+	//! Process status of nodes
+	enum class ProcessType {
+		//! unprocessed
+		unprocessed,
+		//! processed in degree-1 preprocessing
+		processed,
+		//! used by degree-1
+		used
+	};
+
 	PlanRep* m_prup;
 	GridLayoutMapped* m_layoutp;
 	OrthoRep* m_orp;
@@ -207,6 +221,8 @@ private:
 	int    m_sep;   //!< minimum separation
 	int    m_overh; //!< minimum overhang
 	double Cconst;  //!< relative sep to overhang / delta to eps
+
+	BendType abendType(adjEntry ae) { return m_abends[ae]; }
 
 	void unsplit(edge e1, edge e2);
 
@@ -322,4 +338,4 @@ private:
 	bool m_align;
 };
 
-} //end namespace
+}

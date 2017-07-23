@@ -165,4 +165,4 @@ bool EdgeCoverMerger::doMerge( MultilevelGraph &MLG, node parent, node mergePart
 	return true;
 }
 
-} // namespace ogdf
+}

@@ -1,12 +1,13 @@
-#ifndef BANDIT_TEST_RUN_ERROR
-#define BANDIT_TEST_RUN_ERROR
+#ifndef BANDIT_TEST_RUN_ERROR_H
+#define BANDIT_TEST_RUN_ERROR_H
 
-namespace bandit { namespace detail {
+#include <stdexcept>
 
-  struct test_run_error : public std::runtime_error
-  {
-    test_run_error(const char* message) : std::runtime_error(message) {}
-  };
-}}
-
+namespace bandit {
+  namespace detail {
+    struct test_run_error : public std::runtime_error {
+      test_run_error(const char* message) : std::runtime_error(message) {}
+    };
+  }
+}
 #endif

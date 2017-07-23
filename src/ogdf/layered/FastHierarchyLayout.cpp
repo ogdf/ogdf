@@ -57,27 +57,17 @@ public:
 		key=wk.key;
 		return *this;
 	}
-	friend ostream& operator<<(ostream& out,const withKey& wk) {
+	friend std::ostream& operator<<(std::ostream& out,const withKey& wk) {
 		out<<wk.element<<"("<<wk.key<<")";
 		return out;
 	}
-	friend istream& operator>>(istream& in,withKey& wk) {
+	friend std::istream& operator>>(std::istream& in,withKey& wk) {
 		in>>wk.element>>wk.key;
 		return in;
 	}
 };
 
-
-class cmpWithKey {
-public:
-	static int compare(const withKey &wk1, const withKey &wk2) {
-		if(wk1.key<wk2.key) return -1;
-		if(wk1.key>wk2.key) return 1;
-		return 0;
-	}
-	OGDF_AUGMENT_STATICCOMPARER(withKey)
-};
-
+OGDF_DECLARE_COMPARER(cmpWithKey, withKey, int, x.key);
 
 /**
  * \brief Class kList extends the class List by functions needed in the FastHierarchLayout algorithm.
@@ -788,13 +778,13 @@ void FastHierarchyLayout::findPlacement()
 		}
 
 		// Store the nodes of every block in a separate list
-		List<int> *blockNodes = new List<int>[n];
+		ArrayBuffer<int> *blockNodes = new ArrayBuffer<int>[n];
 		foralllayers {
 			for(actNode = ( (dir == 1) ? first[actLayer] : (first[actLayer+1]-1) );
 				actNode >= first[actLayer] && actNode < first[actLayer+1];
 				actNode += dir)
 			{
-				blockNodes[block[actNode]].pushBack(actNode);
+				blockNodes[block[actNode]].push(actNode);
 			}
 		}
 
@@ -813,7 +803,7 @@ void FastHierarchyLayout::findPlacement()
 				// minimizing the total edge length to neighbours of blocks
 				// that have already been placed. dist has not been computed by
 				// sortLongEdges and is now set to the optimal value.
-				actLayer = layer[blockNodes[i].front()];
+				actLayer = layer[blockNodes[i][0]];
 				forallnodesonlayer {
 					for (int next : adj[0][actNode]) {
 						neighbours.add(0,pos[next] - pos[actNode]);
@@ -1042,5 +1032,4 @@ void FastHierarchyLayout::findPlacement()
 	delete[] totalB;
 }
 
-
-} // end namespace ogdf
+}

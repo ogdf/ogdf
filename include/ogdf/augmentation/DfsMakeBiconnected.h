@@ -61,4 +61,4 @@ protected:
 	virtual void doCall(Graph& G, List<edge> &L) override;
 };
 
-} // end namespace ogdf
+}

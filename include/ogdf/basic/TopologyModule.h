@@ -52,11 +52,19 @@ namespace topology_module {
 class EdgeLeg
 {
 public:
-	EdgeLeg() : m_xp(0.0, 0.0), m_topDown(false), m_copyEdge(nullptr) { }
+	EdgeLeg()
+	: m_xp(0.0, 0.0)
+	, m_topDown(false)
+	, m_copyEdge(nullptr)
+	, m_number(0) { }
 
-	EdgeLeg(edge e, int number, DPoint p1, DPoint p2) :
-		m_xp(DPoint(0.0,0.0)), m_topDown(false), m_copyEdge(e), m_p1(p1), m_p2(p2), m_number(number)
-		{ }
+	EdgeLeg(edge e, int number, DPoint p1, DPoint p2)
+	: m_xp(DPoint(0.0,0.0))
+	, m_topDown(false)
+	, m_copyEdge(e)
+	, m_p1(p1)
+	, m_p2(p2)
+	, m_number(number) { }
 
 	DPoint& start() { return m_p1; }
 	DPoint& end()   { return m_p2; }
@@ -198,7 +206,7 @@ private:
 	//option settings as bits
 	int m_options;
 
-};//TopologyModule
+};
 
 inline int operator & (int i, TopologyModule::Options b) {
 	return i & static_cast<int>(b);
@@ -212,4 +220,4 @@ inline int operator | (int i, TopologyModule::Options b) {
 	return i | static_cast<int>(b);
 }
 
-} // end namespace ogdf
+}

@@ -1,6 +1,5 @@
 /** \file
- * \brief The algorithm computes a planar embedding with minimum
- * depth if the embedding for all blocks of the graph is given.
+ * \brief Declares ogdf::EmbedderMinDepthPiTa.
  *
  * \author Thorsten Kerkhof
  *
@@ -32,24 +31,24 @@
 
 #pragma once
 
-#include <ogdf/module/EmbedderModule.h>
-#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 
 
 namespace ogdf {
 
-//! Planar graph embedding with minimum block-nesting depth for given embedded blocks.
+//! Embedder that minimizes block-nesting depth for given embedded blocks.
 /**
  * @ingroup ga-planembed
  *
  * For details see the paper "Minimum Depth Graph Drawing" by M. Pizzonia and R. Tamassia.
  */
-class OGDF_EXPORT EmbedderMinDepthPiTa : public EmbedderModule
+class OGDF_EXPORT EmbedderMinDepthPiTa : public embedder::EmbedderBCTreeBase<false>
 {
 public:
 	//constructor
 	EmbedderMinDepthPiTa()
-		: m_useExtendedDepthDefinition(true), pBCTree(nullptr), pAdjExternal(nullptr), pm_blockCutfaceTree(nullptr) {}
+		: m_useExtendedDepthDefinition(true), pm_blockCutfaceTree(nullptr) {}
 
 	/**
 	 * \brief Computes an embedding of \p G.
@@ -61,6 +60,16 @@ public:
 
 	bool useExtendedDepthDefinition() const { return m_useExtendedDepthDefinition; }
 	void useExtendedDepthDefinition(bool b) { m_useExtendedDepthDefinition = b; }
+
+protected:
+	adjEntry trivialInit(Graph &G) override {
+		planarEmbed(G);
+		CombinatorialEmbedding CE(G);
+		adjEntry result = CE.chooseFace()->firstAdj();
+		deleteDummyNodes(G, result);
+
+		return result;
+	}
 
 private:
 	bool m_useExtendedDepthDefinition;
@@ -172,9 +181,6 @@ private:
 	void deleteDummyNodes(Graph& G, adjEntry& adjExternal);
 
 private:
-	/** the BC-tree of G */
-	BCTree* pBCTree;
-
 	/** the tree of pBCTree rooted at a cutface. */
 	Graph bcTreePG;
 
@@ -183,9 +189,6 @@ private:
 
 	/** a mapping of nodes in pBCTree->bcTree() to nodes in bcTreePG */
 	NodeArray<node> npBCTree_to_nBCTree;
-
-	/** an adjacency entry on the external face */
-	adjEntry* pAdjExternal;
 
 	/** all blocks */
 	NodeArray<Graph> blockG;
@@ -308,4 +311,4 @@ private:
 	NodeArray<adjEntry> Gamma_adjExt_nT;
 };
 
-} // end namespace ogdf
+}

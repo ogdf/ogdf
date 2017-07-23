@@ -82,8 +82,8 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const NumVar &rhs) {
-		return out << '(' << rhs.number_  << ')' << endl;
+	friend std::ostream &operator<<(std::ostream &out, const NumVar &rhs) {
+		return out << '(' << rhs.number_  << ')' << std::endl;
 	}
 
 	//! Returns the number of the variable.
@@ -95,4 +95,4 @@ protected:
 	int number_;
 };
 
-} //namespace abacus
+}

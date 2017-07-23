@@ -93,7 +93,7 @@ void CPlanarSubClusteredST::call(const ClusterGraph &CG, EdgeArray<bool>& inST)
 	}
 
 	deleteRepresentationGraphs(CG, l_clusterRepGraph);
-}//call
+}
 
 void CPlanarSubClusteredST::call(const ClusterGraph& CG,
 		EdgeArray<bool>& inST,
@@ -157,7 +157,7 @@ void CPlanarSubClusteredST::call(const ClusterGraph& CG,
 	}
 
 	deleteRepresentationGraphs(CG, l_clusterRepGraph);
-}//call
+}
 
 
 //spanning tree on input graph setting edge status and using

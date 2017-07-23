@@ -67,7 +67,6 @@ public:
 	enum class TreeComputation {Bfs, Dfs, BfsRandom};
 	//! Constructor, sets options to default values.
 	BalloonLayout();
-	virtual ~BalloonLayout();
 	//! Assignmentoperator.
 	BalloonLayout &operator=(const BalloonLayout &bl);
 
@@ -134,7 +133,7 @@ private:
 #ifdef OGDF_DEBUG
 	//! Consistency check for the tree.
 	void checkTree(const Graph &G, bool treeRoot = true);
-	EdgeArray<bool> *m_treeEdge; //!< Holds info about tree edges.
+	EdgeArray<bool> m_treeEdge; //!< Holds info about tree edges.
 #endif
 
 	RootSelection     m_rootSelection; //!< Defines how the tree root is selected
@@ -151,8 +150,8 @@ private:
 	void check(Graph &G);
 
 	OGDF_NEW_DELETE
-}; //class BalloonLayout
+};
 
-OGDF_EXPORT ostream &operator<<(ostream &os, const BalloonLayout::RootSelection &rs);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const BalloonLayout::RootSelection &rs);
 
-}//end namespace ogdf
+}

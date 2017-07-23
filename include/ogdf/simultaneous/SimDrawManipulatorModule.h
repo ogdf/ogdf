@@ -85,4 +85,4 @@ public:
 	const SimDraw &constSimDraw() const { return *m_SD; }
 };
 
-} // end namespace ogdf
+}

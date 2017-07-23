@@ -31,7 +31,7 @@
 namespace abacus {
 
 
-ostream &operator<<(ostream &out, const SlackStat &rhs)
+std::ostream &operator<<(std::ostream &out, const SlackStat &rhs)
 {
 	switch (rhs.status_) {
 	case SlackStat::Basic:
@@ -49,4 +49,4 @@ ostream &operator<<(ostream &out, const SlackStat &rhs)
 	}
 	return out;
 }
-} //namespace abacus
+}

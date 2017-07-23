@@ -270,20 +270,20 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	}
 
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
-	cout << "Goemans primal-dual starting..." << std::endl;
-	cout << "terminals:";
+	std::cout << "Goemans primal-dual starting..." << std::endl;
+	std::cout << "terminals:";
 	for(node v : *m_pTerminals) {
-		cout << " " << v;
+		std::cout << " " << v;
 	}
-	cout << std::endl;
+	std::cout << std::endl;
 
-	cout << "loop starting... " << std::endl;
+	std::cout << "loop starting... " << std::endl;
 #endif
 
 	T result = 0;
 	while(!m_activeComponents.empty()) {
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
-		cout << "active component exists" << std::endl;
+		std::cout << "active component exists" << std::endl;
 #endif
 		// idendify next edge
 		edge minEdge = nullptr;
@@ -291,7 +291,7 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 		OGDF_ASSERT(minEdge != nullptr);
 
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
-		cout << "minEdge found: " << minEdge << ", weight is " << m_pGraph->weight(minEdge) << ", adjusted weight is " << minValue << std::endl;
+		std::cout << "minEdge found: " << minEdge << ", weight is " << m_pGraph->weight(minEdge) << ", adjusted weight is " << minValue << std::endl;
 #endif
 		node v = minEdge->source();
 		node w = minEdge->target();
@@ -318,7 +318,7 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	result -= this->pruneAllDanglingSteinerPaths(*finalSteinerTree, *m_pIsTerminal);
 
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
-	cout << "calculation finished!" << std::endl;
+	std::cout << "calculation finished!" << std::endl;
 #endif
 	return result;
 }
@@ -329,4 +329,4 @@ double MinSteinerTreePrimalDual<T>::getLastLowerBound() const
 	return m_lowerBound;
 }
 
-} // end namespace ogdf
+}

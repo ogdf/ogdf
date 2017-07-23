@@ -54,7 +54,7 @@ enum class XmlToken {
 	invalidToken,		///< No token identified
 	noToken				///< Used for the m_lookAheadToken to indicate that there
 						///< is no lookahead token
-}; // enum XmlToken
+};
 
 /** This class scans the characters of the input file and
  *  provides the detected token.
@@ -71,7 +71,7 @@ private:
 
 public:
 	// construction
-	explicit XmlScanner(istream &is);
+	explicit XmlScanner(std::istream &is);
 
 	//! Destruction: destroys the parse tree
 	~XmlScanner();
@@ -131,7 +131,6 @@ public:
 	// This function tests the scanner by reading the complete
 	// input file and printing the identified token to stdout
 	void test();
+};
 
-}; // class XmlScanner
-
-} // end namespace ogdf
+}

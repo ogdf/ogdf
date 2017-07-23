@@ -128,8 +128,7 @@ protected:
 		const EdgeArray<int>      *pCostOrig,
 		const EdgeArray<uint32_t> *pEdgeSubGraphs) = 0;
 
-
 	OGDF_MALLOC_NEW_DELETE
 };
 
-} // end namespace ogdf
+}

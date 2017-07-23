@@ -16,7 +16,7 @@ int main()
 	  GraphAttributes::edgeGraphics | GraphAttributes::edgeType);
 
 	if (!GraphIO::read(GA, G, "ERDiagram.gml", GraphIO::readGML)) {
-		cerr << "Could not read ERDiagram.gml" << endl;
+		std::cerr << "Could not read ERDiagram.gml" << std::endl;
 		return 1;
 	}
 

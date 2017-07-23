@@ -150,5 +150,4 @@ void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 	}
 }
 
-
-} // end namespace ogdf
+}

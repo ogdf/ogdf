@@ -51,7 +51,7 @@ namespace ogdf {
  */
 class OGDF_EXPORT UmlDiagramGraph {
 
-	friend OGDF_EXPORT ostream &operator<<(ostream&, const UmlDiagramGraph &);
+	friend OGDF_EXPORT std::ostream &operator<<(std::ostream&, const UmlDiagramGraph &);
 
 public:
 	//! This enum type represents the different diagram types of UML. */
@@ -158,6 +158,6 @@ public:
 		return m_h;
 	}
 
-}; // class UmlDiagramGraph
+};
 
-} // end namespace ogdf
+}

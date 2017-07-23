@@ -55,7 +55,7 @@ void PlanarSPQRTree::init(bool isEmbedded)
 
 void PlanarSPQRTree::adoptEmbedding()
 {
-	OGDF_ASSERT_IF(DebugLevel::ExtendedChecking, originalGraph().representsCombEmbedding());
+	OGDF_HEAVY_ASSERT(originalGraph().representsCombEmbedding());
 
 	// ordered list of adjacency entries (for one original node) in all
 	// skeletons (where this node occurs)
@@ -363,7 +363,6 @@ void PlanarSPQRTree::randomEmbed()
 			adjEdges.permute();
 
 			adj = adjRef->cyclicSucc();
-			SListConstIterator<adjEntry> it;
 			for (adjEntry adjNext : adjEdges)
 			{
 				if (adjNext != adj) {
@@ -377,7 +376,7 @@ void PlanarSPQRTree::randomEmbed()
 }
 
 
-long long PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
+long long PlanarSPQRTree::numberOfNodeEmbeddings(node vT) const {
 
 	long long num = 1;
 
@@ -640,5 +639,4 @@ bool PlanarSPQRTree::nextEmbedding(ListIterator<node> it)
 	return true;
 }
 
-
-} // end namespace ogdf
+}

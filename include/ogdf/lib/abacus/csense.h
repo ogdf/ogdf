@@ -77,7 +77,7 @@ public:
 	 *
 	 * \return The output stream.
 	 */
-	friend OGDF_EXPORT ostream& operator<<(ostream &out, const CSense &rhs);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream &out, const CSense &rhs);
 
 	//! Assignment operator.
 	/**
@@ -113,4 +113,4 @@ private:
 	SENSE sense_; //!< Stores the sense of a constraint.
 };
 
-} //namespace abacus
+}

@@ -46,7 +46,7 @@ namespace cluster_planarity {
 class CP_MasterBase : public abacus::Master {
 public:
 
-	enum class solutionState {Undefined, CPlanar, NonCPlanar}; //!< Solution state: undefined, c-planar, non-c-planar
+	enum class solutionState {Undefined, CPlanar, NonCPlanar};
 
 	//! Construction and default values.
 	explicit CP_MasterBase(const ClusterGraph &C,
@@ -132,7 +132,8 @@ public:
 	void setPertubation(bool b) {m_usePerturbation = b;}
 	void setHeuristicFractionalBound(double b) {m_heuristicFractionalBound = b;}
 	void setHeuristicPermutationLists(int n) {m_nHeuristicPermutationLists = n;}
-	void setMPHeuristic(bool b) {m_mpHeuristic = b;}//!< Switches use of lower bound heuristic
+	//! Switches use of lower bound heuristic
+	void setMPHeuristic(bool b) {m_mpHeuristic = b;}
 	void setNumAddVariables(int i) {m_numAddVariables=i;}
 	void setStrongConstraintViolation(double d) { m_strongConstraintViolation=d;}
 	void setStrongVariableViolation(double d) { m_strongVariableViolation=d;}

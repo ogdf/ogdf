@@ -64,9 +64,11 @@ protected:
 	// i.e. Integer-feasible + satisfying all Kuratowski- and Cut-constraints.
 	virtual bool feasible() override;
 
-	virtual int makeFeasible() override { return 0; }  // to trick Sub::solveLp...
+	// to trick Sub::solveLp...
+	virtual int makeFeasible() override { return 0; }
 #if 0
-	virtual int removeNonLiftableCons() { return 0; } // to trick Sub::solveLp into returning 2
+	// to trick Sub::solveLp into returning 2
+	virtual int removeNonLiftableCons() { return 0; }
 #endif
 	int repair();
 
@@ -162,15 +164,15 @@ protected:
 	inline int addPoolCons(ArrayBuffer<abacus::Constraint *> &cons, abacus::StandardPool<abacus::Constraint, abacus::Variable> *pool)
 	{
 		return (master()->useDefaultCutPool()) ? addCons(cons) : addCons(cons, pool);
-	}//addPoolCons
+	}
 	inline int separateCutPool(abacus::StandardPool<abacus::Constraint, abacus::Variable> *pool, double minViolation)
 	{
 		return (master()->useDefaultCutPool()) ? 0 : constraintPoolSeparation(0, pool, minViolation);
-	}//separateCutPool
+	}
 
 private:
 
-	MaxCPlanarMaster* master() { return static_cast<MaxCPlanarMaster*>(master_); }
+	MaxCPlanarMaster* master() const { return static_cast<MaxCPlanarMaster*>(master_); }
 
 	// A flag indicating if constraints have been found in the current separation step.
 	// Is used to check, if the primal heuristic should be run or not.

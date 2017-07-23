@@ -151,14 +151,14 @@ void CutBuffer<BaseType, CoType>::sort(int threshold)
 
 			Logger::ilout(Logger::Level::Minor) << "\titems ranked: accepted in " << -things[0].priority() << " ... "
 			 << -things[threshold - 1].priority() << ", rejected in "
-			 << -things[threshold].priority() << " ... " << -things[n_ - 1].priority() << endl;
+			 << -things[threshold].priority() << " ... " << -things[n_ - 1].priority() << std::endl;
 
 		}
 		else
-			Logger::ilout(Logger::Level::Minor) << "\tnot enough items, no ranking required" << endl;
+			Logger::ilout(Logger::Level::Minor) << "\tnot enough items, no ranking required" << std::endl;
 	}
 	else
-		Logger::ilout(Logger::Level::Minor) << "\tranking of buffered items not possible" << endl;
+		Logger::ilout(Logger::Level::Minor) << "\tranking of buffered items not possible" << std::endl;
 }
 
 
@@ -211,4 +211,4 @@ void CutBuffer<BaseType, CoType>::extract(
 	ranking_ = true;
 }
 
-} // namespace abacus
+}

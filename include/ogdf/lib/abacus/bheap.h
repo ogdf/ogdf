@@ -38,7 +38,7 @@ template<class Type, class Key>
 class AbaBHeap;
 
 template<class Type,class Key>
-ostream&operator<< (ostream& out, const AbaBHeap<Type, Key>& heap);
+std::ostream&operator<< (std::ostream& out, const AbaBHeap<Type, Key>& heap);
 
 
 //! Binary heaps.
@@ -100,7 +100,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream& operator<< <> (ostream &out, const AbaBHeap<Type, Key> &heap);
+	friend std::ostream& operator<< <> (std::ostream &out, const AbaBHeap<Type, Key> &heap);
 
 	//! Inserts an item with a key  into the heap.
 	/**
@@ -191,6 +191,6 @@ private:
 	int          n_;
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/bheap.inc>

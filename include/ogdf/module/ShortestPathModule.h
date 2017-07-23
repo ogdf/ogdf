@@ -55,8 +55,6 @@ public:
 		NodeArray<int> &d,				  // contains shortest path distances after call
 		NodeArray<edge> &pi
 	) = 0;
-
 };
 
-
-} // end namespace ogdf
+}

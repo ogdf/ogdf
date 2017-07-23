@@ -85,7 +85,5 @@ public:
 	}
 };
 
-
-} // end namespace gdf
-
-} // end namespace ogdf
+}
+}

@@ -37,6 +37,41 @@
 
 namespace ogdf {
 
+/**
+ * Calls (possibly destructive) \p func for each element of \p container
+ *
+ * "Destructive" means that the current iterator of \p container may
+ * be deleted during the processing of \p func. It works by saving
+ * the successor of the current element before calling \p func.
+ */
+template<typename CONTAINER>
+inline void safeForEach(CONTAINER &container, std::function<void(typename CONTAINER::value_type)> func) {
+	for (auto it = container.begin(); it.valid();) {
+		// save the successor because func may be destructive
+		auto succ = it.succ();
+		func(*it);
+		it = succ;
+	}
+}
+
+/**
+ * Like ogdf::safeForEach() but aborts if \p func returns \c false
+ *
+ * @return false if \p func returns false,
+ *         true if the whole \p container was processed
+ */
+template<typename CONTAINER>
+inline bool safeTestForEach(CONTAINER &container, std::function<bool(typename CONTAINER::value_type)> func) {
+	for (auto it = container.begin(); it.valid();) {
+		auto succ = it.succ();
+		if (!func(*it)) {
+			return false;
+		}
+		it = succ;
+	}
+	return true;
+}
+
 // sorts list L using quicksort
 template<class LIST>
 void quicksortTemplate(LIST &L)
@@ -204,4 +239,4 @@ typename CONTAINER::const_iterator chooseIteratorFrom(
 			<const CONTAINER, TYPE, typename CONTAINER::const_iterator>(container, includeElement, isFastTest);
 }
 
-} // end namespace ogdf
+}

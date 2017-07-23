@@ -36,7 +36,7 @@ namespace ogdf {
 
 
 // begin of GML file
-static void write_gml_header(ostream &os, bool directed)
+static void write_gml_header(std::ostream &os, bool directed)
 {
 	os << "Creator \"ogdf::GraphIO::writeGML\"\n";
 	os << "graph [\n";
@@ -45,14 +45,14 @@ static void write_gml_header(ostream &os, bool directed)
 
 
 // end of GML file
-static void write_gml_footer(ostream &os)
+static void write_gml_footer(std::ostream &os)
 {
 	os << "]\n"; // graph
 }
 
 
 // write graph structure
-static void write_gml_graph(const Graph &G, ostream &os, NodeArray<int> &index)
+static void write_gml_graph(const Graph &G, std::ostream &os, NodeArray<int> &index)
 {
 	int nextId = 0;
 
@@ -73,7 +73,7 @@ static void write_gml_graph(const Graph &G, ostream &os, NodeArray<int> &index)
 
 const int c_maxLengthPerLine = 200;
 
-static void writeLongString(ostream &os, const string &str)
+static void writeLongString(std::ostream &os, const string &str)
 {
 	os << "\"";
 
@@ -115,12 +115,12 @@ const char *arrow_str[4] = {
 };
 
 // write graph structure with attributes
-static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int> &index)
+static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArray<int> &index)
 {
 	const Graph &G = A.constGraph();
 	int nextId = 0;
 
-	os.setf(ios::showpoint);
+	os.setf(std::ios::showpoint);
 	os.precision(10);
 
 	for(node v : G.nodes) {
@@ -286,7 +286,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 				}
 
 				GraphIO::indent(os,3) << "]\n"; // Line
-			}//bends
+			}
 
 			//output width and color
 			if (A.has(GraphAttributes::edgeStyle))
@@ -301,7 +301,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 
 
 // write cluster structure
-static void write_gml_cluster(cluster c, int d, ostream &os, const NodeArray<int> &index, int &nextClusterIndex)
+static void write_gml_cluster(cluster c, int d, std::ostream &os, const NodeArray<int> &index, int &nextClusterIndex)
 {
 	if (nextClusterIndex == 0)
 		GraphIO::indent(os,d) << "rootcluster [\n";
@@ -324,7 +324,7 @@ static void write_gml_cluster(cluster c, int d, ostream &os, const NodeArray<int
 
 
 // write cluster structure with attributes
-static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d, ostream &os, const NodeArray<int> &index, int &nextClusterIndex)
+static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d, std::ostream &os, const NodeArray<int> &index, int &nextClusterIndex)
 {
 	if (nextClusterIndex == 0)
 		GraphIO::indent(os,d) << "rootcluster [\n";
@@ -385,7 +385,7 @@ static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d,
 
 
 // write Graph
-bool GraphIO::writeGML(const Graph &G, ostream &os)
+bool GraphIO::writeGML(const Graph &G, std::ostream &os)
 {
 	bool result = os.good();
 
@@ -401,7 +401,7 @@ bool GraphIO::writeGML(const Graph &G, ostream &os)
 
 
 // write ClusterGraph
-bool GraphIO::writeGML(const ClusterGraph &C, ostream &os)
+bool GraphIO::writeGML(const ClusterGraph &C, std::ostream &os)
 {
 	bool result = os.good();
 
@@ -422,7 +422,7 @@ bool GraphIO::writeGML(const ClusterGraph &C, ostream &os)
 
 
 // write GraphAttributes
-bool GraphIO::writeGML(const GraphAttributes &A, ostream &os)
+bool GraphIO::writeGML(const GraphAttributes &A, std::ostream &os)
 {
 	bool result = os.good();
 
@@ -438,7 +438,7 @@ bool GraphIO::writeGML(const GraphAttributes &A, ostream &os)
 
 
 // write ClusterGraphAttributes
-bool GraphIO::writeGML(const ClusterGraphAttributes &A, ostream &os)
+bool GraphIO::writeGML(const ClusterGraphAttributes &A, std::ostream &os)
 {
 	bool result = os.good();
 

@@ -56,10 +56,6 @@ public:
 	enum class Type    : uint16_t { tVertex, tEdge };
 	enum class SubType : uint16_t { stVertex, stCluster, stEdge, stInnerCluster, stOuterCluster, stVertexCluster, stClusterCluster, stCrossCluster };
 
-	HananiTutteCPlanarity() {
-		m_status = Status::invalid;
-	}
-
 	Verification isCPlanar(const ClusterGraph &C, bool doPreproc = true, bool forceSolver = false, Solver solver = Solver::HananiTutte);
 
 	Status status() const { return m_status; }
@@ -78,16 +74,16 @@ public:
 	int64_t timesolve() const { return m_tSolve; }
 
 private:
-	int m_nRows;
-	int m_nCols;
-	int64_t m_tPrepare;
-	int64_t m_tCreateSparse;
-	int64_t m_tSolve;
+	int m_nRows = 0;
+	int m_nCols = 0;
+	int64_t m_tPrepare = 0;
+	int64_t m_tCreateSparse = 0;
+	int64_t m_tSolve = 0;
 
-	Status m_status;
-	int m_numNodesPreproc;
-	int m_numEdgesPreproc;
-	int m_numClustersPreproc;
+	Status m_status = Status::invalid;
+	int m_numNodesPreproc = 0;
+	int m_numEdgesPreproc = 0;
+	int m_numClustersPreproc = 0;
 };
 
 

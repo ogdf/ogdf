@@ -61,5 +61,4 @@ public:
 	void call(Level &L) = 0;
 };
 
-
-} // end namespace ogdf
+}

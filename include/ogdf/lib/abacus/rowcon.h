@@ -144,7 +144,7 @@ public:
 	 *
 	 * \param out The output stream.
 	 */
-	virtual void print(ostream &out) const override {
+	virtual void print(std::ostream &out) const override {
 		out << row_;
 	}
 
@@ -159,4 +159,4 @@ protected:
 	Row row_; //!< The representation of the constraint.
 };
 
-} //namespace abacus
+}

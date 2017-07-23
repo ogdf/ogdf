@@ -157,7 +157,7 @@ public:
 	* \return Superset id
 	* \pre \p set is a non negative properly initialized id.
 	*/
-	int getRepresentative(int set)
+	int getRepresentative(int set) const
 	{
 		OGDF_ASSERT(set >= 0);
 		OGDF_ASSERT(set < m_numberOfElements);
@@ -602,4 +602,4 @@ int DisjointSets<linkOption,compressionOption,interleavingOption>::link(disjoint
 	return set2;
 }
 
-}  // end namespace ogdf
+}

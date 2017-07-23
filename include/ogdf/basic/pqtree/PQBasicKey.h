@@ -141,7 +141,7 @@ public:
 	 * format for printing out the information. Currently, the return value
 	 * of the function print() is an empty string.
 	 */
-	virtual ostream &print(ostream &os) { return os; }
+	virtual std::ostream &print(std::ostream &os) { return os; }
 
 	/**
 	 * The function setNodePointer() sets the private member

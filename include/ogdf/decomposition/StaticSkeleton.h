@@ -139,5 +139,4 @@ protected:
 	EdgeArray<edge>       m_treeEdge;  //!< corresp. tree edge (0 if real)
 };
 
-
-} // end namespace ogdf
+}

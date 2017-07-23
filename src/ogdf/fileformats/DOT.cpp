@@ -137,7 +137,6 @@ EdgeArrow toArrow(const std::string &str)
 		EdgeArrow::None, EdgeArrow::Undefined, EdgeArrow::Undefined);
 }
 
+}
 
-} // end namespace graphml
-
-} // end namespace ogdf
+}

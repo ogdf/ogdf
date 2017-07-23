@@ -189,4 +189,4 @@ private:
 	erc m_errorCode; //!< The error code of the last call.
 };
 
-} // namespace ogdf
+}

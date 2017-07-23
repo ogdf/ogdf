@@ -62,4 +62,4 @@ private:
 	NodeSelection m_nodeSelection;
 };
 
-} // namespace ogdf
+}

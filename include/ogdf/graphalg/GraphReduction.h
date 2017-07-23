@@ -76,8 +76,6 @@ public:
 	node reduction(node v) const { return m_vReduction[v]; }
 	// returns reduction of edge e
 	edge reduction(edge e) const { return m_eReduction[e]; }
-
 };
 
-
-} // end namespace ogdf
+}

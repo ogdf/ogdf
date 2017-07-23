@@ -77,7 +77,7 @@ bool GF2Solver::solve()
 			count++; R = r;
 		}
 	}
-	cout << "Rows with maxCol: " << count << endl;
+	std::cout << "Rows with maxCol: " << count << std::endl;
 
 	{
 		int nReqRows = 0, nReqVars = 0;
@@ -108,7 +108,7 @@ bool GF2Solver::solve()
 				}
 		}
 
-		cout << "required: " << nReqRows << " rows, " << nReqVars << " vars" << endl;
+		std::cout << "required: " << nReqRows << " rows, " << nReqVars << " vars" << std::endl;
 	}
 #endif
 
@@ -151,14 +151,14 @@ bool GF2Solver::solve()
 
 		if(contains(rows[r],maxCol)) {
 #if 0
-			cout << "Rows with maxCol: " << count << endl;
+			std::cout << "Rows with maxCol: " << count << std::endl;
 #endif
 			result = false;
 			break;
 		}
 	}
 #if 0
-	cout << "Rows with maxCol: " << count << endl;
+	std::cout << "Rows with maxCol: " << count << std::endl;
 #endif
 
 	for(int i = 0; i < n; ++i) {

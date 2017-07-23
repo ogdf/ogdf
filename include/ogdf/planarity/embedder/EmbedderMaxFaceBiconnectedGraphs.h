@@ -1,6 +1,5 @@
 /** \file
- * \brief Computes an embedding of a biconnected graph with maximum
- * external face.
+ * \brief Declares ogdf::EmbedderMaxFaceBiconnectedGraphs.
  *
  * \author Thorsten Kerkhof
  *
@@ -39,19 +38,17 @@
 
 namespace ogdf {
 
-//! Computes an embedding of a biconnected graph with maximum external face.
+//! Embedder that maximizing the external face.
 /**
- * See the paper "Graph Embedding with Minimum Depth and
- * Maximum External Face" by C. Gutwenger and P. Mutzel (2004) for
- * details.
+ * \pre Input graphs need to be biconnected.
+ *
+ * See the paper "Graph Embedding with Minimum Depth and Maximum External Face"
+ * by C. Gutwenger and P. Mutzel (2004) for details.
  */
 template<class T>
 class EmbedderMaxFaceBiconnectedGraphs
 {
 public:
-	//! Creates an embedder.
-	EmbedderMaxFaceBiconnectedGraphs() { }
-
 	/**
 	 * \brief Embeds \p G by computing and extending a maximum face in \p G
 	 *   containing \p n.
@@ -170,7 +167,7 @@ public:
 		StaticSPQRTree *spqrTree,
 		NodeArray< EdgeArray<T> >& edgeLengthSkel);
 
-private:
+protected:
 	/**
 	 * \brief Bottom up traversal of SPQR-tree computing the component length of
 	 *   all non-reference edges.
@@ -564,7 +561,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::adjEntryForNode(
 				nodeLength, edgeLength, newOrder,
 				adjBeforeNodeArraySource, adjBeforeNodeArrayTarget,
 				adjExternal);
-		} //if (!treeNodeTreated[twinNT])
+		}
 
 		if (ae->theEdge() == referenceEdge)
 		{
@@ -607,7 +604,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::adjEntryForNode(
 			else
 				before = newOrder[origNode].insertBefore(origEdge->adjTarget(), before);
 		}
-	} //else //!(S.isVirtual(ae->theEdge()))
+	}
 }
 
 
@@ -1216,8 +1213,8 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 				buffer[aeN->theEdge()] = newOrder[orig_aeN_twin_theNode];
 				newOrder[orig_aeN_twin_theNode].clear();
 			}
-		} //for (adjEntry aeN = m_start_ae; [...]
-	} //for (adjEntry ae = start_ae; [...]
+		}
+	}
 
 	//Simple copy of not treated node's adjacency lists (internal nodes). Setting
 	//of left node not necessary, because all nodes are not in external face.
@@ -1833,5 +1830,4 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceInSkeleton(
 	return 42;
 }
 
-
-} // end namespace ogdf
+}

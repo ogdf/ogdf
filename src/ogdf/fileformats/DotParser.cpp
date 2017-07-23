@@ -624,7 +624,7 @@ Ast::Graph *Ast::parseGraph(
 		GraphIO::logger.lout() << "Unexpected token \""
 		          << Token::toString(curr->type)
 		          << "\" at "
-		          << curr->row << ", " << curr->column << "." << endl;
+		          << curr->row << ", " << curr->column << "." << std::endl;
 		return nullptr;
 	}
 	curr++;
@@ -639,7 +639,7 @@ Ast::Graph *Ast::parseGraph(
 	}
 
 	if(curr == m_tend || curr->type != Token::Type::leftBrace) {
-		// cerr << "ERROR: Expected \""
+		// std::cerr << "ERROR: Expected \""
 		//      << Token::toString(Token::leftBrace)
 		//      << ", found \""
 		//      << Token::toString(a->type)
@@ -658,7 +658,7 @@ Ast::Graph *Ast::parseGraph(
 		          << ", found \""
 		          << Token::toString(curr->type)
 		          << "\" at "
-		          << curr->row << ", " << curr->column << "." << endl;
+		          << curr->row << ", " << curr->column << "." << std::endl;
 		delete id;
 		delete statements;
 		return nullptr;
@@ -825,7 +825,7 @@ static bool readAttribute(
 		break;
 	default:
 		GraphIO::logger.lout(Logger::Level::Minor) << "Attribute \"" << stmt.lhs
-		          << "\" is  not supported by node or incorrect. Ignoring." << endl;
+		          << "\" is  not supported by node or incorrect. Ignoring." << std::endl;
 	}
 
 	return true;
@@ -871,7 +871,7 @@ static bool readAttribute(
 		}
 		break;
 	default:
-		GraphIO::logger.lout(Logger::Level::Minor) << "Attribute \"" << stmt.lhs << "\" is not supported by edge or incorrect. Ignoring." << endl;
+		GraphIO::logger.lout(Logger::Level::Minor) << "Attribute \"" << stmt.lhs << "\" is not supported by edge or incorrect. Ignoring." << std::endl;
 	}
 
 	return true;
@@ -897,7 +897,7 @@ static bool readAttribute(
 		break;
 	default:
 		GraphIO::logger.lout(Logger::Level::Minor) << "Attribute \"" << stmt.lhs
-	              << "\" is not supported by cluster or incorrect. Ignoring." << endl;
+	              << "\" is not supported by cluster or incorrect. Ignoring." << std::endl;
 	}
 	return true;
 }
@@ -1231,7 +1231,6 @@ SubgraphData SubgraphData::withNodes(
 	return SubgraphData(rootCluster, nodeDefaults, edgeDefaults, newNodes);
 }
 
+}
 
-} // end namespace dot
-
-} // end namespace ogdf
+}

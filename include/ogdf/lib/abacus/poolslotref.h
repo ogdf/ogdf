@@ -40,7 +40,7 @@ template<class BaseType, class CoType>
 class  PoolSlotRef;
 
 template<class BaseType, class CoType>
-ostream &operator<< (ostream &out, const PoolSlotRef<BaseType, CoType> &slot);
+std::ostream &operator<< (std::ostream &out, const PoolSlotRef<BaseType, CoType> &slot);
 
 
 //! Stores a pointer to a pool slot with version number.
@@ -117,7 +117,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<< <> (ostream &out, const PoolSlotRef<BaseType, CoType> &slot);
+	friend std::ostream &operator<< <> (std::ostream &out, const PoolSlotRef<BaseType, CoType> &slot);
 
 	//! Returns a pointer to the constraint/variable stored in the referenced slot.
 	/**
@@ -168,6 +168,6 @@ private:
 	OGDF_NEW_DELETE
 };
 
-} //namespace abacus
+}
 
 #include <ogdf/lib/abacus/poolslotref.inc>

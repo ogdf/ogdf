@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>
+#include <ogdf/basic/Math.h>
 
 namespace ogdf {
 namespace boyer_myrvold {
@@ -65,30 +66,7 @@ void BoyerMyrvoldInit::computeDFS()
 {
 	// compute random edge costs
 	EdgeArray<int> costs;
-	class {
-	private:
-		const EdgeArray<int> *m_edgeCosts = nullptr;
-
-	public:
-		void setCosts(const EdgeArray<int> *costs) {
-			m_edgeCosts = costs;
-		}
-
-		int compare(const adjEntry adjEntry1, const adjEntry adjEntry2) const {
-			edge e = adjEntry1->theEdge();
-			edge f = adjEntry2->theEdge();
-
-			int result = 0;
-
-			if(m_edgeCosts != nullptr) {
-				result = (*m_edgeCosts)[e] - (*m_edgeCosts)[f];
-			}
-
-			return result;
-		}
-
-		OGDF_AUGMENT_COMPARER(adjEntry)
-	} comp;
+	const EdgeArray<int> *costsToUse = nullptr;
 
 	if (m_edgeCosts != nullptr) { // do we have edge costs?
 		if (m_randomness > 0) {
@@ -99,23 +77,23 @@ void BoyerMyrvoldInit::computeDFS()
 			int maxCost = std::numeric_limits<int>::min();
 
 			for(edge e : m_g.edges) {
-				minCost = min(minCost, (*m_edgeCosts)[e]);
-				maxCost = min(maxCost, (*m_edgeCosts)[e]);
+				int c = (*m_edgeCosts)[e];
+				Math::updateMin(minCost, c);
+				Math::updateMax(maxCost, c);
 			}
 
-			std::uniform_real_distribution<> urd(-1, 1);
 			for(edge e : m_g.edges) {
-				costs[e] = minCost + (int)((1 - m_randomness) * ((*m_edgeCosts)[e] - minCost) + m_randomness * (maxCost - minCost) * urd(m_rand));
+				costs[e] = minCost + (int)((1 - m_randomness) * ((*m_edgeCosts)[e] - minCost) + m_randomness * (maxCost - minCost) * randomDouble(0, 1));
 			}
 
-			comp.setCosts(&costs);
+			costsToUse = &costs;
 		} else {
 			// use original edge costs
-			comp.setCosts(m_edgeCosts);
+			costsToUse = m_edgeCosts;
 		}
-	} // else do not use any edge costs
+	}
 
-	StackPure<adjEntry> stack;
+	ArrayBuffer<adjEntry> stack;
 	int nextDFI = 1;
 	const int numberOfNodes = m_g.numberOfNodes();
 
@@ -134,11 +112,11 @@ void BoyerMyrvoldInit::computeDFS()
 			m_nodeFromDFI[nextDFI] = v;
 			++nextDFI;
 		} else {
-			if (m_edgeCosts != nullptr) {
+			if (costsToUse != nullptr) {
 				SList<adjEntry> adjList;
-				adjList.clear();
 				v->allAdjEntries(adjList);
-				adjList.quicksort(comp);
+				// sort in ascending order of weight to hopefully find heavy DFS tree
+				adjList.quicksort(GenericComparer<adjEntry, int>(*costsToUse));
 				m_g.sort(v, adjList);
 			}
 			stack.push(v->firstAdj());
@@ -147,7 +125,7 @@ void BoyerMyrvoldInit::computeDFS()
 
 	while (nextDFI <= numberOfNodes) {
 		OGDF_ASSERT(!stack.empty());
-		adjEntry prnt = stack.pop();
+		adjEntry prnt = stack.popRet();
 		node v = prnt->theNode();
 		// check, if node v was visited before.
 		if (m_dfi[v] != 0) continue;
@@ -168,7 +146,11 @@ void BoyerMyrvoldInit::computeDFS()
 
 			// check for self-loops and dfs- and dfs-parallel edges
 			node w = adj->twinNode();
+
 			if (m_dfi[w] == 0) {
+				// Careful: we keep m_dfi[w] == 0.
+				// Edge e might still turn into a backedge later.
+				// Investigating edges in ascending order of weights makes sense here.
 				m_edgeType[e] = BoyerMyrvoldEdgeType::Dfs;
 				m_adjParent[w] = adj;
 				m_link[BoyerMyrvoldPlanar::DirectionCW][w] = adj;

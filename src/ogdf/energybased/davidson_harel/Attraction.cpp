@@ -58,8 +58,7 @@ void Attraction::reinitializeEdgeLength(double multi)
 	// lengthSum is now the average of all lengths and widths
 	m_preferredEdgeLength = multi * lengthSum;
 
-}//reinitializeEdgeLength
-
+}
 
 //the energy of a pair of vertices is computed as the square of the difference between the
 //actual distance and the preferred edge length
@@ -81,7 +80,7 @@ const
 #ifdef OGDF_DEBUG
 void Attraction::printInternalData() const {
 	NodePairEnergy::printInternalData();
-	cout << "\nPreferred edge length: " << m_preferredEdgeLength;
+	std::cout << "\nPreferred edge length: " << m_preferredEdgeLength;
 }
 #endif
 

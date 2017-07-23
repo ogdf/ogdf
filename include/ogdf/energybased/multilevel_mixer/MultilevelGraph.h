@@ -98,7 +98,7 @@ public:
 	MultilevelGraph(GraphAttributes &GA, Graph &G);
 
 	// creates MultilevelGraph directly from GML file.
-	explicit MultilevelGraph(istream &is);
+	explicit MultilevelGraph(std::istream &is);
 	explicit MultilevelGraph(const char *filename);
 
 	NodeArray<double> &getRArray() { return m_radius; }
@@ -136,7 +136,7 @@ public:
 	void reInsertAll(std::vector<MultilevelGraph *> &components);
 	void copyNodeTo(node v, MultilevelGraph &MLG, std::map<node, node> &tempNodeAssociations, bool associate, int index = -1);
 	void copyEdgeTo(edge e, MultilevelGraph &MLG, std::map<node, node> &tempNodeAssociations, bool associate, int index = -1);
-	void writeGML(ostream &os);
+	void writeGML(std::ostream &os);
 	void writeGML(const char *fileName);
 
 	// the original graph will be cleared to save Memory
@@ -157,4 +157,4 @@ public:
 	void updateMergeWeights();
 };
 
-} // namespace ogdf
+}

@@ -45,7 +45,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CG,
 	List<edge> leftOver;//original edges not in subgraph
 	call(CG, inSub, leftOver);
 
-}//call
+}
 //precondition: graph is c-connected
 void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 									EdgeArray<bool>& inSub, //original edges in subgraph?
@@ -101,7 +101,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 		{
 			leftOver.pushBack(e); //original edges
 			testG.delEdge(edgeCopy[e]);
-		}//if
+		}
 	}
 
 	//todo: cope with preferred edges
@@ -118,19 +118,16 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 
 		bool cplanar = CCCP.call(CG);
 
-
 		if (!cplanar)
 		{
 			testG.delEdge(newCopy);
 			++itE;
-		}//if
-		else
-		{
+		} else {
 			ListIterator<edge> itDel = itE;
 			++itE;
 			leftOver.del(itDel);
 		}
-	}//while
+	}
 
 #if 0
 	ListConstIterator<edge> it;
@@ -147,6 +144,6 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 		}
 	}
 #endif
-}//call
+}
 
-}//end namespace ogdf
+}

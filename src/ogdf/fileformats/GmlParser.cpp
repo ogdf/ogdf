@@ -36,7 +36,7 @@
 
 namespace ogdf {
 
-GmlParser::GmlParser(istream &is, bool doCheck)
+GmlParser::GmlParser(std::istream &is, bool doCheck)
 {
 	m_objectTree = nullptr;
 
@@ -57,7 +57,7 @@ GmlParser::GmlParser(istream &is, bool doCheck)
 }
 
 
-void GmlParser::createObjectTree(istream &is, bool doCheck)
+void GmlParser::createObjectTree(std::istream &is, bool doCheck)
 {
 	initPredefinedKeys();
 	m_error = false;
@@ -512,14 +512,13 @@ bool GmlParser::read(Graph &G)
 			if (m_mapToNode[targetId] == nullptr) m_mapToNode[targetId] = G.newNode();
 
 			G.newEdge(m_mapToNode[sourceId],m_mapToNode[targetId]);
-			}//case edge
+			}
 			break;
-		}//switch
-	}//for sons
+		}
+	}
 
 	return true;
 }
-
 
 bool GmlParser::read(Graph &G, GraphAttributes &AG)
 {
@@ -580,11 +579,10 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 					vId = nodeSon->m_intValue;
 					break;
 
-				case GmlParserPredefinedKey::Graphics: {
+				case GmlParserPredefinedKey::Graphics:
 					if (nodeSon->m_valueType != GmlObjectType::ListBegin) break;
 
-					GmlObject *graphicsObject = nodeSon->m_pFirstSon;
-					for(; graphicsObject;
+					for(GmlObject *graphicsObject = nodeSon->m_pFirstSon; graphicsObject;
 						graphicsObject = graphicsObject->m_pBrother)
 					{
 						switch(id(graphicsObject)) {
@@ -630,12 +628,13 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 						case GmlParserPredefinedKey::Pattern: //fill style
 							if(graphicsObject->m_valueType != GmlObjectType::IntValue) break;
 							pattern = graphicsObject->m_intValue;
+							break;
 						case GmlParserPredefinedKey::Stipple: //line style
 							if(graphicsObject->m_valueType != GmlObjectType::IntValue) break;
 							stipple = graphicsObject->m_intValue;
 						}
 					}
-					break; }
+					break;
 
 				case GmlParserPredefinedKey::Template:
 					if (nodeSon->m_valueType != GmlObjectType::StringValue) break;
@@ -687,7 +686,7 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 				AG.strokeType(m_mapToNode[vId]) = intToStrokeType(stipple);
 				AG.strokeWidth(m_mapToNode[vId]) = lineWidth;
 			}
-							}//node
+							}
 							//Todo: line style set stipple value
 							break;
 
@@ -731,11 +730,10 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 					label = edgeSon->m_stringValue;
 					break;
 
-				case GmlParserPredefinedKey::Graphics: {
+				case GmlParserPredefinedKey::Graphics:
 					if (edgeSon->m_valueType != GmlObjectType::ListBegin) break;
 
-					GmlObject *graphicsObject = edgeSon->m_pFirstSon;
-					for(; graphicsObject;
+					for(GmlObject *graphicsObject = edgeSon->m_pFirstSon; graphicsObject;
 						graphicsObject = graphicsObject->m_pBrother)
 					{
 						if(id(graphicsObject) == GmlParserPredefinedKey::Line &&
@@ -758,8 +756,8 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 						if (id(graphicsObject) == GmlParserPredefinedKey::EdgeWeight &&
 							graphicsObject->m_valueType == GmlObjectType::DoubleValue)
 							edgeWeight = graphicsObject->m_doubleValue;
-					}//for graphics
-										}
+					}
+					break;
 
 				case GmlParserPredefinedKey::Generalization:
 					if (edgeSon->m_valueType != GmlObjectType::IntValue) break;
@@ -828,7 +826,7 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 	}
 
 	return true;
-}//read
+}
 
 
 //the clustergraph has to be initialized on G!!,
@@ -887,7 +885,7 @@ bool GmlParser::clusterRead(
 				//recursively read cluster
 				recursiveClusterRead(rootClusterSon, CG, c);
 
-			} //case cluster
+			}
 			break;
 		case GmlParserPredefinedKey::Vertex: //direct root vertices
 			{
@@ -900,7 +898,7 @@ bool GmlParser::clusterRead(
 				//if old style entry "v"i
 				if (!isdigit((int)vIDString[0])) //should check prefix?
 					vIDString[0] = '0'; //leading zero to allow conversion
-				int vID = stoi(vIDString);
+				int vID = std::stoi(vIDString);
 
 				OGDF_ASSERT(m_mapToNode[vID] != nullptr);
 
@@ -914,15 +912,12 @@ bool GmlParser::clusterRead(
 				for (int ind = 1; ind < vIDString.length(); ind++)
 					vIDChar
 #endif
-
-			}//case vertex
-		}//switch
-	}//for all rootcluster sons
+			}
+		}
+	}
 
 	return true;
-
-}//clusterread
-
+}
 
 bool GmlParser::readClusterAttributes(
 	GmlObject* cGraphics,
@@ -986,8 +981,8 @@ bool GmlParser::readClusterAttributes(
 			//TODO: backgroundcolor
 			//case stylePredefKey:
 			//case boderwidthPredefKey:
-		}//switch
-	}//for
+		}
+	}
 
 	//Hier eigentlich erst abfragen, ob clusterattributes setzbar in ACG,
 	//dann setzen
@@ -996,7 +991,7 @@ bool GmlParser::readClusterAttributes(
 	ACG.setFillPattern(c, intToFillPattern(pattern));
 
 	return true;
-}//readclusterattributes
+}
 
 //recursively read cluster subtree information
 bool GmlParser::recursiveClusterRead(GmlObject* clusterObject,
@@ -1058,15 +1053,15 @@ bool GmlParser::recursiveClusterRead(GmlObject* clusterObject,
 						(!isdigit((int)vIDString[0])))return false; //do not allow labels
 					if (!isdigit((int)vIDString[0])) //should check prefix?
 						vIDString[0] = '0'; //leading zero to allow conversion
-					int vID = stoi(vIDString);
+					int vID = std::stoi(vIDString);
 
 					OGDF_ASSERT(m_mapToNode[vID] != nullptr);
 
 					// all nodes are already assigned to root
 					CG.reassignNode(m_mapToNode[vID], c);
-				}//case vertex
-		}//switch
-	}//for clustersons
+				}
+		}
+	}
 
 	return true;
 }
@@ -1102,13 +1097,13 @@ void GmlParser::setError(const char *errorString)
 }
 
 
-void GmlParser::indent(ostream &os, int d)
+void GmlParser::indent(std::ostream &os, int d)
 {
 	for(int i = 1; i <= d; ++i)
 		os << " ";
 }
 
-void GmlParser::output(ostream &os, GmlObject *object, int d)
+void GmlParser::output(std::ostream &os, GmlObject *object, int d)
 {
 	for(; object; object = object->m_pBrother) {
 		indent(os,d); os << object->m_key->key();
@@ -1142,5 +1137,4 @@ void GmlParser::output(ostream &os, GmlObject *object, int d)
 	}
 }
 
-
-} // end namespace ogdf
+}

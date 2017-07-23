@@ -37,7 +37,6 @@
 #include <ogdf/basic/NodeArray.h>
 #include <memory>
 #include <ogdf/basic/tuples.h>
-#include <ogdf/basic/Stack.h>
 
 namespace ogdf {
 
@@ -92,38 +91,40 @@ public:
 private:
 	// CoffmanGraham data structures
 	class _int_set {
-		int *A, l, p;
+		int* m_array;
+		int m_length;
+		int m_index;
 	public:
-		_int_set() : A(nullptr), l(0), p(0) { }
-		explicit _int_set(int len) : A(nullptr), l(len), p(len) {
+		_int_set() : m_array(nullptr), m_length(0), m_index(0) { }
+		explicit _int_set(int len) : m_array(nullptr), m_length(len), m_index(len) {
 			if (len > 0)
-				A = new int[l];
+				m_array = new int[m_length];
 		}
-		~_int_set() { delete[] A; }
+		~_int_set() { delete[] m_array; }
 
 		void init(int len) {
-			delete A;
-			if ((l = len) == 0)
-				A = nullptr;
+			delete m_array;
+			if ((m_length = len) == 0)
+				m_array = nullptr;
 			else
-				A = new int[l];
-			p = len;
+				m_array = new int[m_length];
+			m_index = len;
 		}
 
 		int length() const {
-			return l;
+			return m_length;
 		}
 
 		int operator[](int i) const {
-			return A[i];
+			return m_array[i];
 		}
 
 		void insert(int x) {
-			A[--p] = x;
+			m_array[--m_index] = x;
 		}
 
 		bool ready() const {
-			return p == 0;
+			return m_index == 0;
 		}
 	};
 
@@ -134,7 +135,6 @@ private:
 
 	// dfs members
 	NodeArray<int> m_mark;
-	StackPure <node> *m_visited;
 
 	// CoffmanGraham funktions
 	void insert (node u, List<Tuple2<node,int> > &ready_nodes);
@@ -145,5 +145,4 @@ private:
 	void dfs(node v);
 };
 
-
-} // end namespace ogdf
+}

@@ -51,13 +51,13 @@ UpwardPlanarityEmbeddedDigraph::UpwardPlanarityEmbeddedDigraph(const Graph &H):
 }
 
 //DFS for calculating a feasible augmentation path
-void UpwardPlanarityEmbeddedDigraph::getPath(Stack<node> &st, EdgeArray<int> &capacity, EdgeArray<int> &flow) {
+void UpwardPlanarityEmbeddedDigraph::getPath(ArrayBuffer<node> &st, EdgeArray<int> &capacity, EdgeArray<int> &flow) {
 	node u = m_s;
 	NodeArray<bool> dfi(m_B, false);
 	dfi[u] = true;
 	st.push(u);
 	while (!st.empty() && u != m_t) {
-		u = st.pop();
+		u = st.popRet();
 		for (adjEntry adj : u->adjEntries) {
 			if (adj->theEdge()->target() == u) continue;
 			node x = adj->twinNode();
@@ -73,10 +73,10 @@ void UpwardPlanarityEmbeddedDigraph::getPath(Stack<node> &st, EdgeArray<int> &ca
 }
 
 //finds the minimum possible increasing flow of the augmentation path
-int UpwardPlanarityEmbeddedDigraph::getMin(Stack<node> stack, EdgeArray<int> &capacity, EdgeArray<int> &flow) {
+int UpwardPlanarityEmbeddedDigraph::getMin(ArrayBuffer<node> stack, EdgeArray<int> &capacity, EdgeArray<int> &flow) {
 	int min = -1;
 	while (!stack.empty()) {
-		node u = stack.pop();
+		node u = stack.popRet();
 		if (stack.empty()) break;
 		node v = stack.top();
 		adjEntry adj_u = nullptr;
@@ -121,7 +121,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 		}
 	}
 
-	Stack<node> stack;
+	ArrayBuffer<node> stack;
 	while (!rFlow) {
 		//find the augmentation path
 		getPath(stack, capacity, flow);
@@ -130,7 +130,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 		if (stack.empty()) break;
 		while (!stack.empty()) {
 			//increase the flow for the augmentation path
-			node u = stack.pop();
+			node u = stack.popRet();
 			if (stack.empty()) break;
 			node v = stack.top();
 			adjEntry adj_u = nullptr;

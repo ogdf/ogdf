@@ -50,7 +50,7 @@ enum class StrokeType : unsigned char {
 };
 
 //! Output operator
-OGDF_EXPORT ostream &operator<<(ostream &os, const StrokeType &st);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const StrokeType &st);
 
 //! Converts integer \p i to stroke type.
 /**
@@ -104,7 +104,7 @@ enum class FillPattern {
 };
 
 //! Output operator
-OGDF_EXPORT ostream &operator<<(ostream &os, const FillPattern &fp);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const FillPattern &fp);
 
 //! Converts integer \p i to fill pattern.
 /**
@@ -148,7 +148,7 @@ enum class EdgeArrow {
 };
 
 //! Output operator
-OGDF_EXPORT ostream &operator<<(ostream &os, const EdgeArrow &ea);
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const EdgeArrow &ea);
 
 //! Colors represented as RGBA values.
 /**
@@ -377,7 +377,7 @@ public:
 	}
 
 	//! Writes the string representation of color \p c to output stream \p os.
-	friend ostream &operator<<(ostream &os, const Color &c) {
+	friend std::ostream &operator<<(std::ostream &os, const Color &c) {
 		return os << c.toString();
 	}
 };
@@ -414,5 +414,4 @@ struct OGDF_EXPORT Fill {
 	Fill(Color c, Color bgColor, FillPattern pattern) : m_color(c), m_bgColor(bgColor), m_pattern(pattern) { }
 };
 
-
-} // end namespace ogdf
+}

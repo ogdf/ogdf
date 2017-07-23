@@ -87,4 +87,4 @@ bool Separator<BaseType, CoType>::find(BaseType *cv)
 	return false;
 }
 
-} // namespace abacus
+}

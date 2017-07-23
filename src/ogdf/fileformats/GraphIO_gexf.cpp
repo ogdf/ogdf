@@ -297,12 +297,12 @@ static void writeCluster(
 
 	pugi::xml_node nodes = graph.append_child("nodes");
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		writeCluster(nodes, C, CA, *cit);
+	for(cluster child : c->children) {
+		writeCluster(nodes, C, CA, child);
 	}
 
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-		writeNode(nodes, CA, *nit);
+	for(node v : c->nodes) {
+		writeNode(nodes, CA, v);
 	}
 
 	if(C.rootCluster() == c) {
@@ -333,9 +333,7 @@ static void writeGraph(
 	gexf::writeEdges(graph, G, GA);
 }
 
-
-} // end namespace gexf
-
+}
 
 bool GraphIO::writeGEXF(const Graph &G, std::ostream &out)
 {
@@ -404,5 +402,4 @@ bool GraphIO::writeGEXF(const ClusterGraphAttributes &CA, std::ostream &out)
 return result;
 }
 
-
-} // end namespace ogdf
+}

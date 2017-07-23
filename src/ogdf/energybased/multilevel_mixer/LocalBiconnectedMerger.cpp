@@ -66,7 +66,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 
 	List<node> bfsQueue;
 	List<node> neighbors;
-	int minIndex = numeric_limits<int>::max();
+	int minIndex = std::numeric_limits<int>::max();
 	for(adjEntry adj : parent->adjEntries) {
 		node temp = adj->twinNode();
 		bfsQueue.pushBack(temp);
@@ -96,7 +96,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 
 	if (testStrength > 0)
 	{
-		minIndex = numeric_limits<int>::max();
+		minIndex = std::numeric_limits<int>::max();
 		for (node temp : neighbors) {
 			for(adjEntry adj : temp->adjEntries) {
 				node neighbor = adj->twinNode();
@@ -351,4 +351,4 @@ int LocalBiconnectedMerger::realNodeMark( int index )
 	}
 }
 
-} // namespace ogdf
+}

@@ -1,10 +1,6 @@
 /** \file
  * \brief Implementation of EdgeComparerSimple.
  *
- * Compare incident edges of a node based on the position of
- * the last bend point or the position of the adjacent node
- * given by the GraphAttributes
- *
  * \author Bernd Zey
  *
  * \par License:
@@ -38,104 +34,50 @@
 
 namespace ogdf {
 
-
 int EdgeComparerSimple::compare(const adjEntry &e1, const adjEntry &e2) const
 {
-	// set true if the algorithm should consider the bend-points
-	bool useBends = true;
+	auto findPoints = [&](const adjEntry a, DPoint& p) {
+		DPolyline poly = m_AG->bends(a->theEdge());
+		if (m_useBends && poly.size() > 2) {
+			ListIterator<DPoint> it;
+			if (a->theEdge()->source() == m_basis) {
+				it = poly.begin();
+				++it;
+			} else {
+				it = poly.rbegin();
+				--it;
+			}
+			p = *it;
+		} else {
+			p.m_x = m_AG->x(a->twinNode());
+			p.m_y = m_AG->y(a->twinNode());
+		}
+	};
 
-	double xP1, xP2, yP1, yP2;
-
-	DPolyline poly = m_AG->bends(e1->theEdge());
-	ListIterator<DPoint> it;
 	DPoint pE1, pE2;
+	findPoints(e1, pE1);
+	findPoints(e2, pE2);
 
-	if ((useBends) && (poly.size() > 2)){
-		it = poly.begin();
+	double xP1 = -m_AG->x(m_basis) + pE1.m_x;
+	double yP1 = -m_AG->y(m_basis) + pE1.m_y;
+	double xP2 = -m_AG->x(m_basis) + pE2.m_x;
+	double yP2 = -m_AG->y(m_basis) + pE2.m_y;
 
-		while (it.valid()){
-			++it;
-		}
+	auto bothYSameSide = [](double x1, double x2, double y1, double y2) -> int {
+		if (x1 >= 0 && x2 < 0) { return -1; }
+		if (x1 < 0 && x2 >= 0) { return 1; }
+		x1 /= sqrt(x1*x1 + y1*y1);
+		x2 /= sqrt(x2*x2 + y2*y2);
+		if (x1 > x2) { return -1; }
+		else { return 1; }
+	};
 
-		if (e1->theEdge()->source() == basis){
-			it = poly.begin();
-			++it;
-		}
-		else{
-			it = poly.rbegin();
-			--it;
-		}
-		pE1 = *it;
-	}
-	else{
-		pE1.m_x = m_AG->x((e1->twinNode()));
-		pE1.m_y = m_AG->y((e1->twinNode()));
-	}
-
-	poly = m_AG->bends(e2->theEdge());
-	if ((useBends) && (poly.size() > 2)){
-		it = poly.begin();
-
-		while (it.valid()){
-			++it;
-		}
-
-		if (e2->theEdge()->source() == basis){
-			it = poly.begin();
-			++it;
-		}
-		else{
-			it = poly.rbegin();
-			--it;
-		}
-		pE2 = *it;
-	}
-	else{
-		pE2.m_x = m_AG->x((e2->twinNode()));
-		pE2.m_y = m_AG->y((e2->twinNode()));
-	}
-
-
-	xP1 = -(m_AG->x(basis)) + (pE1.m_x);
-	yP1 = -(m_AG->y(basis)) + (pE1.m_y);
-
-	xP2 = -(m_AG->x(basis)) + (pE2.m_x);
-	yP2 = -(m_AG->y(basis)) + (pE2.m_y);
-
-	if ((yP1 >= 0) && (yP2 < 0))
-		return 1;
-	if ((yP1 < 0) && (yP2 >= 0))
-		return -1;
-	if ((yP1 >= 0) && (yP2 >= 0)){
-
-		if ((xP1 >= 0) && (xP2 < 0))
-			return -1;
-		if ((xP1 < 0) && (xP2 >= 0))
-			return 1;
-
-		xP1 = xP1 / (sqrt(xP1*xP1 + yP1*yP1));
-		xP2 = xP2 / (sqrt(xP2*xP2 + yP2*yP2));
-		if (xP1 > xP2)
-			return -1;
-		else
-			return 1;
-	}
-	if ((yP1 < 0) && (yP2 < 0)){
-
-		if ((xP1 >= 0) && (xP2 < 0))
-			return 1;
-		if ((xP1 < 0) && (xP2 >= 0))
-			return -1;
-
-		xP1 = xP1 / (sqrt(xP1*xP1 + yP1*yP1));
-		xP2 = xP2 / (sqrt(xP2*xP2 + yP2*yP2));
-		if (xP1 > xP2)
-			return 1;
-		else
-			return -1;
-	}
+	if (yP1 >= 0 && yP2 < 0) { return 1; }
+	if (yP1 < 0 && yP2 >= 0) { return -1; }
+	if (yP1 >= 0 && yP2 >= 0) { return bothYSameSide(xP1, xP2, yP1, yP2); }
+	if (yP1 < 0 && yP2 < 0) { return -bothYSameSide(xP1, xP2, yP1, yP2); }
 
 	return 0;
 }
 
-}//namespace ogdf
+}

@@ -558,10 +558,10 @@ void OrthoRep::dissect2(PlanRep* PG)
 					//itEnd stays with angle value 1
 
 #if 0
-					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+					OGDF_HEAVY_ASSERT(check(msg));
 #endif
-				}//for
-			}//preprocessing pattern1
+				}
+			}
 
 			//we search for a 3111 pattern
 			if (m_pattern2)
@@ -625,16 +625,15 @@ void OrthoRep::dissect2(PlanRep* PG)
 					if (m_angle[adEnd] == 2)
 					{
 						faceCycle.del(itTopSucc);
-					}//if
+					}
 
 #if 0
 					OGDF_ASSERT(check(msg));
 #endif
-				}//for
-			}//pattern2
+				}
+			}
 
-
-		}//iterate pattern search
+		}
 		//search for ears in connection between two cages and fill them in a preprocessing
 		//step to avoid the separation, works only in combination with segment-saving
 		//and if PlanRep-ifnormation is known, maybe use degree1-simplification
@@ -768,10 +767,8 @@ void OrthoRep::dissect2(PlanRep* PG)
 #if 0
 				OGDF_ASSERT(check(msg));
 #endif
-
-			}//for
-		}//preprocessing 2
-
+			}
+		}
 
 		// We iterate over faceCycle and look for occurrences of two
 		// consecutive 90 degree angles
@@ -863,7 +860,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 					{
 						u = (adjSplit->faceCycleSucc())->theNode(); //use this node instead
 						itsucc = faceCycle.cyclicSucc(faceCycle.cyclicSucc(itBackSucc));
-						//cout<<"we will save a vertex\n"<<flush;
+						//std::cout << "we will save a vertex\n" << std::flush;
 					}
 					adjEntry adjSplitSucc = adjSplit->faceCycleSucc();
 #if 0
@@ -892,16 +889,16 @@ void OrthoRep::dissect2(PlanRep* PG)
 								shiftedit = true;
 								it = faceCycle.cyclicSucc(it);
 							}
-							//cout<<"deleted itsucc              "<<*itsucc<<"\n"<<flush;
+							//std::cout << "deleted itsucc              " << *itsucc << std::endl;
 							faceCycle.del(itsucc);
 						}
 
 					}
 					else {
 						m_angle[adjSplitSucc] = 1;
-						//cout << "setting adjsplitsucc angle to : " <<adjSplitSucc<<" : "<<m_angle[adjSplitSucc]<<"\n"<<flush;
+						//std::cout << "setting adjsplitsucc angle to : " << adjSplitSucc << " : " << m_angle[adjSplitSucc] << std::endl;
 					}
-					//cout << "setting asscyclicsucc angle to: " <<adjSplitSucc->cyclicSucc()<<" : "<<1<<"\n"<<flush;
+					//std::cout << "setting asscyclicsucc angle to: " << adjSplitSucc->cyclicSucc() << " : " << 1 << std::endl;
 					m_angle[adjSplitSucc->cyclicSucc()] = 1;
 					//m_angle[adjSplitSucc->cyclicPred()] = 2;
 					//Achtung, geht nur, wenn nicht vorher 180, sonst abhaengig von u.U. v. dritter Kante abziehen
@@ -933,7 +930,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 						if (it == itDel)
 						{
 							it = faceCycle.cyclicSucc(it); shiftedit = true;
-							//cout<<"shifted it to "<<*it<<"\n"<<flush;
+							//std::cout << "shifted it to " << *it << std::endl;
 						}
 						faceCycle.del(itDel);
 					}
@@ -947,13 +944,13 @@ void OrthoRep::dissect2(PlanRep* PG)
 					{
 						if (itsplit == it)
 						{
-							//cout<<"deleting itsplit, shifting it "<<*itsplit<<", "<<*it<<" - "<<*faceCycle.cyclicSucc(it)<<"\n"<<flush;
+							//std::cout << "deleting itsplit, shifting it " << *itsplit << ", " << *it << " - " << *faceCycle.cyclicSucc(it) << std::endl;
 							it = faceCycle.cyclicSucc(it);
 							shiftedit = true;
 						}
 #if 0
 						else
-							cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+							std::cout << "deleting itsplit             " << *itsplit << std::endl;
 #endif
 						faceCycle.del(itsplit);
 					}
@@ -961,17 +958,16 @@ void OrthoRep::dissect2(PlanRep* PG)
 					// This 90 degree angle vanishes from our face
 					faceCycle.del(itBackSucc);
 					if (shiftedit) break;
-				}//while run backwards
-			}//if double 1
+				}
+			}
 			it = faceCycle.cyclicSucc(it);
 			runcount++;
-		}//while
+		}
 #if 0
 		OGDF_ASSERT(check(msg));
 #endif
 	}
 }
-
 
 // segment saving variant, reuses existing vertices to connect face splitting edge,
 // using a simple PlanRep
@@ -1087,10 +1083,10 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					//itEnd stays with angle value 1
 
 #if 0
-					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+					OGDF_HEAVY_ASSERT(check(msg));
 #endif
-				}//for
-			}//preprocessing pattern1
+				}
+			}
 
 			//we search for a 3111 pattern
 			if (m_pattern2)
@@ -1158,11 +1154,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 #if 0
 					OGDF_ASSERT(check(msg));
 #endif
-				}//for
-			}//pattern2
-
-
-		}//iterate pattern search
+				}
+			}
+		}
 		//search for ears in connection between two cages and fill them in a preprocessing
 		//step to avoid the separation, works only in combination with segment-saving
 		//and if PlanRep-information is known, maybe use degree1-simplification
@@ -1290,9 +1284,8 @@ void OrthoRep::gridDissect(PlanRep* PG)
 #if 0
 				OGDF_ASSERT(check(msg));
 #endif
-			}//for
-		}//preprocessing 2
-
+			}
+		}
 
 		// We iterate over faceCycle and look for occurrences of two
 		// consecutive 90 degree angles
@@ -1385,7 +1378,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 						u = (adjSplit->faceCycleSucc())->theNode(); //use this node instead
 						itsucc = faceCycle.cyclicSucc(faceCycle.cyclicSucc(itBackSucc));
 #if 0
-						cout<<"we will save a vertex\n"<<flush;
+						std::cout << "we will save a vertex" << std::endl;
 #endif
 					}
 					adjEntry adjSplitSucc = adjSplit->faceCycleSucc();
@@ -1415,16 +1408,16 @@ void OrthoRep::gridDissect(PlanRep* PG)
 								shiftedit = true;
 								it = faceCycle.cyclicSucc(it);
 							}
-							//cout<<"deleted itsucc              "<<*itsucc<<"\n"<<flush;
+							//std::cout << "deleted itsucc              " << *itsucc << std::endl;
 							faceCycle.del(itsucc);
 						}
 
 					}
 					else {
 						m_angle[adjSplitSucc] = 1;
-						//cout << "setting adjsplitsucc angle to : " <<adjSplitSucc<<" : "<<m_angle[adjSplitSucc]<<"\n"<<flush;
+						//std::cout << "setting adjsplitsucc angle to : " << adjSplitSucc << " : " << m_angle[adjSplitSucc] << std::endl;
 					}
-					//cout << "setting asscyclicsucc angle to: " <<adjSplitSucc->cyclicSucc()<<" : "<<1<<"\n"<<flush;
+					//std::cout << "setting asscyclicsucc angle to: " << adjSplitSucc->cyclicSucc() << " : " << 1 << std::endl;
 					m_angle[adjSplitSucc->cyclicSucc()] = 1;
 					//m_angle[adjSplitSucc->cyclicPred()] = 2;
 					//Achtung, geht nur, wenn nicht vorher 180, sonst abhaengig von u.U. v. dritter Kante abziehen
@@ -1456,7 +1449,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 						if (it == itDel)
 						{
 							it = faceCycle.cyclicSucc(it); shiftedit = true;
-							//cout<<"shifted it to "<<*it<<"\n"<<flush;
+							//std::cout << "shifted it to " << *it << std::endl;
 						}
 						faceCycle.del(itDel);
 					}
@@ -1470,13 +1463,13 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					{
 						if (itsplit == it)
 						{
-							//cout<<"deleting itsplit, shifting it "<<*itsplit<<", "<<*it<<" - "<<*faceCycle.cyclicSucc(it)<<"\n"<<flush;
+							//std::cout << "deleting itsplit, shifting it " << *itsplit << ", " << *it << " - " << *faceCycle.cyclicSucc(it) << std::endl;
 							it = faceCycle.cyclicSucc(it);
 							shiftedit = true;
 						}
 #if 0
 						else
-							cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+							std::cout << "deleting itsplit             " << *itsplit << std::endl;
 #endif
 						faceCycle.del(itsplit);
 					}
@@ -1484,17 +1477,16 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					// This 90 degree angle vanishes from our face
 					faceCycle.del(itBackSucc);
 					if (shiftedit) break;
-				}//while run backwards
-			}//if double 1
+				}
+			}
 			it = faceCycle.cyclicSucc(it);
 			runcount++;
-		}//while
+		}
 #if 0
 		OGDF_ASSERT(check(msg));
 #endif
 	}
 }
-
 
 
 // undoes a previous dissect()
@@ -1530,7 +1522,7 @@ void OrthoRep::undissect(bool align) //default false
 			if (sv->degree() == 0) G.delNode(sv);
 			if (tv->degree() == 0) G.delNode(tv);
 		}
-	}//for
+	}
 	// free allocated memory
 	if (!align) m_dissectionEdge.init();
 
@@ -1538,7 +1530,7 @@ void OrthoRep::undissect(bool align) //default false
 	// unsplit remaining split nodes
 	while(!m_splitNodes.empty())
 	{
-		G.unsplit(m_splitNodes.pop());
+		G.unsplit(m_splitNodes.popRet());
 	}
 
 	// recompute list of faces and restore external face
@@ -1553,19 +1545,17 @@ void OrthoRep::undissect(bool align) //default false
 	else m_pE->setExternalFace(m_pE->rightFace(m_adjExternal));
 
 #if 0
-	ofstream out("c:\\outerface.txt");
-	out<<"Aeusseres Face: \n";
+	std::ofstream out("c:\\outerface.txt");
+	out << "Aeusseres Face: \n";
 	adjEntry eo = m_pE->externalFace()->firstAdj();
 	adjEntry stop = eo;
 	do
 	{
-		out<<eo<<"\n";
+		out << eo << "\n";
 		eo = eo->faceCycleSucc();
 	} while (eo!=stop);
 #endif
-}//undissect
-
-
+}
 
 // assigns consistent directions (vertical or horizontal) to adj. entries
 void OrthoRep::orientate()
@@ -1726,5 +1716,4 @@ void OrthoRep::freeCageInfoUML()
 	}
 }
 
-
-} // end namespace ogdf
+}

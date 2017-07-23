@@ -155,8 +155,8 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 	}
 
 	if ((leftOfLine(calcNormal(q1, q2), start, q1) >= 0.0) && (leftOfLine(calcNormal(q1, q2), end, q1) >= 0.0)) {
-		swap(q1, q2);
-		swap(indexQ1, indexQ2);
+		std::swap(q1, q2);
+		std::swap(indexQ1, indexQ2);
 	}
 
 	double dist = 0.0;
@@ -447,4 +447,4 @@ DPolygon ConvexHull::call(GraphAttributes &GA) const
 	return call(points);
 }
 
-} // namespace ogdf
+}

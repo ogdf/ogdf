@@ -98,7 +98,7 @@ public:
 	//! thread sync call
 	void sync();
 
-#if defined(OGDF_SYSTEM_UNIX) && defined(OGDF_FME_THREAD_AFFINITY)
+#ifdef OGDF_HAS_LINUX_CPU_MACROS
 	void unixSetAffinity();
 #else
 	void unixSetAffinity() { }

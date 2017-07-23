@@ -114,7 +114,7 @@ inline MDMFLengthAttribute operator-(MDMFLengthAttribute x, const MDMFLengthAttr
 	return x;
 }
 
-inline ostream& operator<<(ostream& s, const MDMFLengthAttribute& x) {
+inline std::ostream& operator<<(std::ostream& s, const MDMFLengthAttribute& x) {
 	s << x.a << ", " << x.b;
 	return s;
 }

@@ -66,7 +66,7 @@ class OGDF_EXPORT SolarMerger : public MultilevelBuilder
 	void addPath(node sourceSun, node targetSun, double distance);
 	void findInterSystemPaths(Graph &G, MultilevelGraph &MLG);
 	int calcSystemMass(node v);
-	bool collapsSolarSystem(MultilevelGraph &MLG, node sun, int level);
+	bool collapseSolarSystem(MultilevelGraph &MLG, node sun, int level);
 	bool buildOneLevel(MultilevelGraph &MLG) override;
 	std::vector<node> selectSuns(MultilevelGraph &MLG);
 
@@ -76,4 +76,4 @@ public:
 	void buildAllLevels(MultilevelGraph &MLG) override;
 };
 
-} // namespace ogdf
+}

@@ -92,7 +92,7 @@ private:
 //! Represents a rectangle given by center point, width and height
 struct NearestRectangleFinder::RectRegion
 {
-	friend ostream &operator<<(ostream &os, const RectRegion &rect) {
+	friend std::ostream &operator<<(std::ostream &os, const RectRegion &rect) {
 		os << "(" << rect.m_x << "," << rect.m_y << ":" <<
 			rect.m_width << "," << rect.m_height << ")";
 		return os;
@@ -112,7 +112,7 @@ struct OGDF_EXPORT NearestRectangleFinder::PairRectDist
 		m_distance = distance;
 	}
 
-	friend ostream &operator<<(ostream &os, const PairRectDist &p) {
+	friend std::ostream &operator<<(std::ostream &os, const PairRectDist &p) {
 		os << "(" << p.m_index << "," << p.m_distance << ")";
 		return os;
 	}
@@ -123,4 +123,4 @@ struct OGDF_EXPORT NearestRectangleFinder::PairRectDist
 
 
 
-} // end namespace ogdf
+}

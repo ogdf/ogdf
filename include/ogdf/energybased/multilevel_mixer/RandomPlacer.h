@@ -52,4 +52,4 @@ public:
 	void setCircleSize(double factor);
 };
 
-} // namespace ogdf
+}

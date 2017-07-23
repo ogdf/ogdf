@@ -1918,4 +1918,4 @@ inline void Sub::uBound(int i, double u)
 		lp_->changeUBound(i, u);
 }
 
-} //namespace abacus
+}

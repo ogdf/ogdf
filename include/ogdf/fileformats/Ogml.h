@@ -301,4 +301,4 @@ public:
 	static const string s_graphTypeS[GRAPH_TYPE_NUM];
 };
 
-} //namspace ogdf
+}

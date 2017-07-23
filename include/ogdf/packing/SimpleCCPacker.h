@@ -1,8 +1,5 @@
 /** \file
- * \brief Splits and packs the components of a Graph.
- *
- * Simple proxy class that uses the TileToRowsCCPacker.
- * Use it for layouts that do not support disconnected graphs.
+ * \brief Declaration of ogdf::SimpleCCPacker.
  *
  * \author Martin Gronemann
  *
@@ -34,23 +31,29 @@
 
 #pragma once
 
+#include <memory>
+
 #include <ogdf/module/LayoutModule.h>
 
 
 namespace ogdf {
 
-//! A Layout Module for using the TileToRowsCCPacker
-class SimpleCCPackerModule : public LayoutModule
+//! Splits and packs the components of a Graph.
+/**
+ * Simple proxy class that uses the TileToRowsCCPacker.
+ * Use it for layouts that do not support disconnected graphs.
+ */
+class OGDF_EXPORT SimpleCCPacker : public LayoutModule
 {
 public:
-	// !Constructor for the CCPacker
-	explicit SimpleCCPackerModule(LayoutModule* pSubLayoutModule = nullptr) : m_pSubLayoutModule(pSubLayoutModule)
-{
-	m_leftMargin = 10.0;
-	m_rightMargin = 10.0;
-	m_bottomMargin = 10.0;
-	m_topMargin = 10.0;
-}
+	//! Constructor
+	explicit SimpleCCPacker(LayoutModule* pSubLayoutModule = nullptr) : m_pSubLayoutModule(pSubLayoutModule)
+	{
+		m_leftMargin = 10.0;
+		m_rightMargin = 10.0;
+		m_bottomMargin = 10.0;
+		m_topMargin = 10.0;
+	}
 
 	void setMargins(double left, double top, double right, double bottom)
 	{
@@ -68,8 +71,9 @@ protected:
 	double m_bottomMargin;
 	double m_topMargin;
 
+	std::unique_ptr<LayoutModule> m_pSubLayoutModule;
+
 	void computeBoundingBox(const GraphAttributes& graphAttributes, DPoint& min_coord, DPoint& max_coord);
-	LayoutModule* m_pSubLayoutModule;
 };
 
-} // end of namespace ogdf
+}

@@ -167,5 +167,4 @@ private:
 	std::unique_ptr<MixedModelCrossingsBeautifierModule> m_crossingsBeautifier; //!< The crossings beautifier module.
 };
 
-
-} // end namespace ogdf
+}

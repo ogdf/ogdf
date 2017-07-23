@@ -1,6 +1,5 @@
 /** \file
- * \brief Declaration of min-st-cut algorithm which calculates the min-st-cut of an st-planar graph
- *        by doing dijkstra on the dual graph (class MinSTCutDijkstra)
+ * \brief MinSTCutDijkstra class template
  *
  * \author Mirko Wagner
  *
@@ -42,7 +41,7 @@ namespace ogdf {
 
 /**
  * Min-st-cut algorithm, that calculates the cut by calculating the shortest path between the faces adjacent
- * to an edge between s and t, via Dijkstra on the dual graph.
+ * to an edge between s and t, via the algorithm by %Dijkstra on the dual graph.
  *
  * @pre The input graph is st-planar.
  * @tparam TCost The type in which the weight of the edges is given.

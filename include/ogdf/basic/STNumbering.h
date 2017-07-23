@@ -65,5 +65,4 @@ OGDF_EXPORT int computeSTNumbering(const Graph &G, NodeArray<int> &numbering,
  */
 OGDF_EXPORT bool isSTNumbering(const Graph &G, NodeArray<int> &st_no, int max);
 
-
-} // end namespace ogdf
+}

@@ -122,8 +122,6 @@ Shape toShape(const std::string &str)
 		Shape::Rect, Shape::Image, Shape::Rect);
 }
 
+}
 
-
-} // end namespace gdf
-
-} // end namespace ogdf
+}

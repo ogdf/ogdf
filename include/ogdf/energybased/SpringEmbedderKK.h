@@ -1,6 +1,5 @@
 /** \file
- * \brief Declaration of Spring-Embedder algorithm (Kamada,Kawai).
- *
+ * \brief Declaration of ogdf::SpringEmbedderKK.
  *
  * \author Karsten Klein
  *
@@ -78,15 +77,22 @@ public:
 	using dpair = Tuple2<double, double>;
 
 	//! Constructor: Constructs instance of Kamada Kawai Layout
-	SpringEmbedderKK() : m_tolerance(0.001), m_ltolerance(0.0001), m_computeMaxIt(true),
-		m_K(5.0), m_desLength(0.0), m_distFactor(2.0), m_useLayout(true),
-		m_gItBaseVal(50), m_gItFactor(16)
+	SpringEmbedderKK()
+	: m_tolerance(0.001)
+	, m_ltolerance(0.0001)
+	, m_computeMaxIt(true)
+	, m_K(5.0)
+	, m_prevEnergy(startVal)
+	, m_prevLEnergy(startVal)
+	, m_zeroLength(-1.0)
+	, m_desLength(0.0)
+	, m_distFactor(2.0)
+	, m_useLayout(true)
+	, m_gItBaseVal(50)
+	, m_gItFactor(16)
 	{
 		m_maxLocalIt = m_maxGlobalIt = maxVal;
 	}
-
-	//! Destructor
-	~SpringEmbedderKK() {}
 
 	//! Calls the layout algorithm for graph attributes \p GA.
 	//! Currently, GA.doubleWeight is NOT used to allow simple
@@ -100,17 +106,17 @@ public:
 
 	//! Sets the value for the stop tolerance, below which the
 	//! system is regarded stable (balanced) and the optimization stopped
-	void setStopTolerance(double s) {m_tolerance = s;}
+	void setStopTolerance(double s) { m_tolerance = s; }
 
 	//! If set to true, the given layout is used for the initial positions
-	void setUseLayout(bool b) {m_useLayout = b;}
-	bool useLayout() {return m_useLayout;}
+	void setUseLayout(bool b) { m_useLayout = b; }
+	bool useLayout() { return m_useLayout; }
 
 	//! If set != 0, value zerolength is used to determine the
 	//! desirable edge length by L = zerolength / max distance_ij.
 	//! Otherwise, zerolength is determined using the node number and sizes.
-	void setZeroLength(double d) {m_zeroLength = d;}
-	double zeroLength() {return m_zeroLength;}
+	void setZeroLength(double d) { m_zeroLength = d; }
+	double zeroLength() { return m_zeroLength; }
 
 	//! Sets desirable edge length directly
 	void setDesLength(double d) {m_desLength = d;}
@@ -122,15 +128,19 @@ public:
 	int maxLocalIterations() const {
 		return m_maxLocalIt;
 	}
-	void setGlobalIterationFactor(int i) {if (i>0) m_gItFactor = i;}
+
+	void setGlobalIterationFactor(int i) { if (i>0) m_gItFactor = i; }
+
 	int maxGlobalIterations() const {
 		return m_maxGlobalIt;
 	}
+
 	//! Sets the number of global iterations to \p i.
 	void setMaxGlobalIterations(int i) {
 		if (i>0)
 			m_maxGlobalIt = i;
 	}
+
 	//! Sets the number of local iterations to \p i.
 	void setMaxLocalIterations(int i) {
 		if (i>0)
@@ -158,59 +168,64 @@ public:
 protected:
 	//! Does the actual call
 	void doCall(GraphAttributes& GA, const EdgeArray<double>& eLength, bool simpleBFS);
+
 	//! Checks if main loop is finished because local optimum reached
 	bool finished(double maxdelta)
 	{
-		if (m_prevEnergy == startVal) //first step
+		if (m_prevEnergy == startVal) // first step
 		{
 			m_prevEnergy = maxdelta;
 			return false;
 		}
 
-		double diff = m_prevEnergy - maxdelta; //energy difference
+		double diff = m_prevEnergy - maxdelta; // energy difference
 		if (diff < 0.0) diff = -diff;
 #if 0
 #ifdef OGDF_DEBUG
-		cout << "Finished(): maxdelta: "<< maxdelta<<" diff/prev: "<<diff / m_prevEnergy<<"\n";
+		std::cout << "Finished(): maxdelta: " << maxdelta << " diff/prev: " << diff / m_prevEnergy << std::endl;
 #endif
 #endif
-		//check if we want to stop
-		bool done = (maxdelta < m_tolerance);// || (diff / m_prevEnergy) < m_tolerance);
+		// check if we want to stop
+		bool done = (maxdelta < m_tolerance); // || (diff / m_prevEnergy) < m_tolerance);
 
-		m_prevEnergy = maxdelta;   //save previous energy level
-		m_prevLEnergy =  startVal; //reset energy level for local node decision
+		m_prevEnergy = maxdelta; // save previous energy level
+		m_prevLEnergy = startVal; // reset energy level for local node decision
 
 		return done;
-	}//finished
+	}
+
 	//! Checks if inner loop (current node) is finished
 	bool finishedNode(double deltav)
 	{
 		if (m_prevLEnergy == startVal)
 		{
 			m_prevLEnergy = deltav;
-			return deltav == 0.0;//<m_ltolerance; //locally stable
+			return deltav == 0.0;// m_ltolerance; locally stable
 		}
 #if 0
 #ifdef OGDF_DEBUG
-		cout << "Local delta: "<<deltav<<"\n";
+		std::cout << "Local delta: " << deltav << "\n";
 #endif
 #endif
 		double diff = m_prevLEnergy - deltav;
-		//check if we want to stop
+		// check if we want to stop
 		bool done = (deltav == 0.0 || (diff / m_prevLEnergy) < m_ltolerance);
 
-		m_prevLEnergy = deltav; //save previous energy level
+		m_prevLEnergy = deltav; // save previous energy level
 
 		return done;
-	}//finishedNode
+	}
+
 	//! Changes given edge lengths (interpreted as weight factors)
 	//! according to additional parameters like node size etc.
 	void adaptLengths(const Graph& G,
 		const GraphAttributes& GA,
 		const EdgeArray<double>& eLengths,
 		EdgeArray<double>& adaptedLengths);
+
 	//! Adapts positions to avoid degeneracy (all nodes on a single point)
 	void shufflePositions(GraphAttributes& GA);
+
 	//! Computes contribution of node u to the first partial
 	//! derivatives (dE/dx_m, dE/dy_m) (for node m) (eq. 7 and 8 in paper)
 	dpair computeParDer(node m,
@@ -218,11 +233,13 @@ protected:
 		GraphAttributes& GA,
 		NodeArray< NodeArray<double> >& ss,
 		NodeArray< NodeArray<double> >& dist);
+
 	//! Compute partial derivative for v
 	dpair computeParDers(node v,
 		GraphAttributes& GA,
 		NodeArray< NodeArray<double> >& ss,
 		NodeArray< NodeArray<double> >& dist);
+
 	//! Does the necessary initialization work for the call functions
 	void initialize(GraphAttributes& GA,
 		NodeArray<dpair>& partialDer,
@@ -230,11 +247,13 @@ protected:
 		NodeArray< NodeArray<double> >& oLength,
 		NodeArray< NodeArray<double> >& sstrength,
 		bool simpleBFS);
+
 	//! Main computation loop, nodes are moved here
 	void mainStep(GraphAttributes& GA,
 		NodeArray<dpair>& partialDer,
 		NodeArray< NodeArray<double> >& oLength,
 		NodeArray< NodeArray<double> >& sstrength);
+
 	//! Does the scaling if no edge lengths are given but node sizes
 	//! are respected
 	void scale(GraphAttributes& GA);
@@ -242,34 +261,30 @@ protected:
 private:
 	//! The stop criterion when the forces of all strings are
 	//! considered to be balanced
-	double m_tolerance;  //!<value for stop criterion
-	double m_ltolerance;  //!<value for local stop criterion
-	int m_maxGlobalIt;   //!< Maximum number of global iterations
-	int m_maxLocalIt;   //!< Maximum number of local iterations
-	bool m_computeMaxIt; //!< If true, number of iterations is computed
-	//! depending on number of nodes
+	double m_tolerance; //!< value for stop criterion
+	double m_ltolerance; //!< value for local stop criterion
+	int m_maxGlobalIt; //!< Maximum number of global iterations
+	int m_maxLocalIt; //!< Maximum number of local iterations
+	bool m_computeMaxIt; //!< If true, number of iterations is computed depending on number of nodes
 	double m_K; //! Big K constant for strength computation
 	double m_prevEnergy; //!<max energy value
-	double m_prevLEnergy;//!<local energy
-	double m_zeroLength; //!< Length of a side of the display area, used for
-	//! edge length computation if > 0
+	double m_prevLEnergy; //!<local energy
+	double m_zeroLength; //!< Length of a side of the display area, used for edge length computation if > 0
 	double m_desLength; //!< Desirable edge length, used instead if > 0
-	double m_distFactor; //introduces some distance for scaling in case BFS is used
-
+	double m_distFactor; //< introduces some distance for scaling in case BFS is used
 	bool m_useLayout; //!< use positions or allow to shuffle nodes to avoid degeneration
 	int m_gItBaseVal; //!< minimum number of global iterations
-	int m_gItFactor;  //!< factor for global iterations: m_gItBaseVal+m_gItFactor*|V|
+	int m_gItFactor; //!< factor for global iterations: m_gItBaseVal+m_gItFactor*|V|
 
 	static const double startVal;
 	static const double minVal;
-	static const double desMinLength; //!< Defines minimum desired edge length.
-	//! Smaller values are treated as zero
-	static const int maxVal; //! defines infinite upper bound for iteration number
+	static const double desMinLength; //!< Defines minimum desired edge length. Smaller values are treated as zero
+	static const int maxVal; //!< defines infinite upper bound for iteration number
 
 	double allpairsspBFS(const Graph& G, NodeArray< NodeArray<double> >& distance);
 	double allpairssp(const Graph& G, const EdgeArray<double>& eLengths,
-		NodeArray< NodeArray<double> >& distance,	const double threshold = numeric_limits<double>::max());
-};//SpringEmbedderKK
+		NodeArray< NodeArray<double> >& distance, const double threshold = std::numeric_limits<double>::max());
+};
 
 #if 0
 	//Things that potentially could be added
@@ -308,4 +323,4 @@ private:
 		m_bbYmax = ymax;
 	}
 #endif
-} // end namespace ogdf
+}

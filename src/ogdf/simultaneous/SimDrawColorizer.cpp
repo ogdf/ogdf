@@ -55,8 +55,7 @@ void SimDrawColorizer::addColorNodeVersion()
 			m_GA->fillColor(v) = Color::Name::Yellow;
 	}
 	addColor();
-} // end addColorNodeVersion
-
+}
 
 // adds some color to the edges
 void SimDrawColorizer::addColor()
@@ -67,8 +66,7 @@ void SimDrawColorizer::addColor()
 	SimDrawColorScheme SDCS(m_colorScheme, m_SD->numberOfBasicGraphs());
 	for(edge e : m_G->edges)
 		m_GA->strokeColor(e) = SDCS.getColor(m_GA->subGraphBits(e), m_SD->numberOfBasicGraphs());
-} // end addColor
-
+}
 
 //Implementation of class ColorScheme
 
@@ -82,8 +80,7 @@ SimDrawColorizer::SimDrawColorScheme::SimDrawColorScheme(colorScheme colorScm, i
 	green = new int[numberOfGraphs];
 	blue = new int[numberOfGraphs];
 	assignColScm(numberOfGraphs);
-} // end SimDrawColorScheme Constructor
-
+}
 
 // SimDrawColorScheme Destructor
 SimDrawColorizer::SimDrawColorScheme::~SimDrawColorScheme()
@@ -137,8 +134,7 @@ Color SimDrawColorizer::SimDrawColorScheme::getColor(int subGraphBits, int numbe
 	}
 
 	return Color(r,g,b);
-} // end getColor
-
+}
 
 // Stores colorscheme colors and assigns them to colorscheme objects
 void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
@@ -230,8 +226,6 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 			green[i/3]=colors[i+1];
 			blue[i/3]=colors[i+2];
 		}
-	} //m_intScheme
-
-} // end assignColScm
-
-} // end namespace ogdf
+	}
+}
+}

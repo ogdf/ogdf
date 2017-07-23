@@ -36,6 +36,7 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Array.h>
+#include <ogdf/graphalg/Dijkstra.h>
 
 
 namespace ogdf {
@@ -46,9 +47,12 @@ namespace ogdf {
  *
  * The cost of each edge are \p edgeCost and the result is stored in \p distance.
  */
-OGDF_EXPORT
-void bfs_SPAP(const Graph& G, NodeArray<NodeArray<double> >& distance,
-		double edgeCosts);
+template<typename TCost>
+void bfs_SPAP(const Graph& G, NodeArray<NodeArray<TCost>>& distance, TCost edgeCosts) {
+	for (node v : G.nodes) {
+		bfs_SPSS(v, G, distance[v], edgeCosts);
+	}
+}
 
 
 //! Computes single-source shortest paths from \p s in \p G using breadth-first search (BFS).
@@ -57,11 +61,30 @@ void bfs_SPAP(const Graph& G, NodeArray<NodeArray<double> >& distance,
  *
  * The cost of each edge are \p edgeCost and the result is stored in \p distanceArray.
  */
-OGDF_EXPORT
-void bfs_SPSS(node s, const Graph& G, NodeArray<double> & distanceArray, double edgeCosts);
+template<typename TCost>
+void bfs_SPSS(node s, const Graph& G, NodeArray<TCost> & distanceArray, TCost edgeCosts) {
+	NodeArray<bool> mark(G, false);
+	SListPure<node> bfs;
+	bfs.pushBack(s);
+	// mark s and set distance to itself 0
+	mark[s] = true;
+	distanceArray[s] = TCost(0);
+	while (!bfs.empty()) {
+		node w = bfs.popFrontRet();
+		TCost d = distanceArray[w] + edgeCosts;
+		for(adjEntry adj : w->adjEntries) {
+			node v = adj->twinNode();
+			if (!mark[v]) {
+				mark[v] = true;
+				bfs.pushBack(v);
+				distanceArray[v] = d;
+			}
+		}
+	}
+}
 
 
-//! Computes all-pairs shortest paths in \p GA using Dijkstra's algorithm.
+//! Computes all-pairs shortest paths in \p GA using %Dijkstra's algorithm.
 /**
  * @ingroup ga-sp
  *
@@ -69,21 +92,36 @@ void bfs_SPSS(node s, const Graph& G, NodeArray<double> & distanceArray, double 
  *
  * @return returns the average edge cost
  */
-OGDF_EXPORT
-double dijkstra_SPAP(const GraphAttributes& GA, NodeArray<NodeArray<double> >& shortestPathMatrix);
+template<typename TCost>
+double dijkstra_SPAP(const GraphAttributes& GA, NodeArray<NodeArray<TCost>>& shortestPathMatrix) {
+	const Graph& G = GA.constGraph();
+	EdgeArray<TCost> edgeCosts(G);
+	double avgCosts = 0;
+	for (edge e : G.edges) {
+		edgeCosts[e] = GA.doubleWeight(e);
+		avgCosts += edgeCosts[e];
+	}
+	dijkstra_SPAP(G, shortestPathMatrix, edgeCosts);
+	return avgCosts / G.numberOfEdges();
+}
 
 
-//! Computes all-pairs shortest paths in graph \p G using Dijkstra's algorithm.
+//! Computes all-pairs shortest paths in graph \p G using %Dijkstra's algorithm.
 /**
  * @ingroup ga-sp
  *
  * The cost of an edge are given by \p edgeCosts and the result is stored in \p shortestPathMatrix.
  */
-OGDF_EXPORT
+template<typename TCost>
 void dijkstra_SPAP(
 	const Graph& G,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	const EdgeArray<double>& edgeCosts);
+	NodeArray<NodeArray<TCost>>& shortestPathMatrix,
+	const EdgeArray<TCost>& edgeCosts)
+{
+	for (node v : G.nodes) {
+		dijkstra_SPSS(v, G, shortestPathMatrix[v], edgeCosts);
+	}
+}
 
 
 //! Computes single-source shortest paths from node \p s in \p G using Disjkstra's algorithm.
@@ -94,12 +132,17 @@ void dijkstra_SPAP(
  * Note this algorithm equals Dijkstra<T>::call, though it does not
  * compute the predecessors on the path and is not inlined.
  */
-OGDF_EXPORT
+template<typename TCost>
 void dijkstra_SPSS(
 	node s,
 	const Graph& G,
-	NodeArray<double>& shortestPathMatrix,
-	const EdgeArray<double>& edgeCosts);
+	NodeArray<TCost>& shortestPathMatrix,
+	const EdgeArray<TCost>& edgeCosts)
+{
+	NodeArray<edge> predecessor;
+	Dijkstra<TCost> sssp;
+	sssp.call(G, edgeCosts, s, predecessor, shortestPathMatrix);
+}
 
 
 //! Computes all-pairs shortest paths in graph \p G using Floyd-Warshall's algorithm.
@@ -107,10 +150,17 @@ void dijkstra_SPSS(
  * @ingroup ga-sp
  *
  * Note that the \p shortestPathMatrix has to be initialized and all entries must be positive.
- * The costs of non-adjacent nodes should be set to std::numeric_limits<double>::infinity().
+ * The costs of non-adjacent nodes should be set to std::numeric_limits<TCost>::infinity().
  */
-OGDF_EXPORT
-void floydWarshall_SPAP(NodeArray<NodeArray<double> >& shortestPathMatrix, const Graph& G);
+template<typename TCost>
+void floydWarshall_SPAP(NodeArray<NodeArray<TCost>>& shortestPathMatrix, const Graph& G) {
+	for (node u : G.nodes) {
+		for (node v : G.nodes) {
+			for (node w : G.nodes) {
+				Math::updateMin(shortestPathMatrix[v][w], shortestPathMatrix[u][v] + shortestPathMatrix[u][w]);
+			}
+		}
+	}
+}
 
-
-} /* namespace ogdf */
+}

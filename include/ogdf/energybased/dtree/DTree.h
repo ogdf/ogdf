@@ -46,8 +46,10 @@ public:
 
 	//! constructor
 	explicit DTree(int numPoints)
+	: m_maxLevel((sizeof(IntType) << 3) + 1)
+	, m_numPoints(0)
+	, m_rootIndex(-1)
 	{
-		m_maxLevel = (sizeof(IntType) << 3) + 1;
 		allocate(numPoints);
 	}
 
@@ -166,10 +168,10 @@ private:
 	void deallocate();
 
 	int m_maxLevel;
-	Point* m_points; //!< The input set
+	Point* m_points = nullptr; //!< The input set
 	int m_numPoints; //!< Total number of points
-	MortonEntry* m_mortonOrder; //!< The order to be sorted
-	Node* m_nodes; //!< Memory for all nodes
+	MortonEntry* m_mortonOrder = nullptr; //!< The order to be sorted
+	Node* m_nodes = nullptr; //!< Memory for all nodes
 	int m_rootIndex; //!< The index of the root node
 };
 

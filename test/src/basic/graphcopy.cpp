@@ -29,29 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
-
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/FaceSet.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
-
-template<typename GCType>
-EdgeArray<edge>* getCopyEdges(const Graph &graph, const GCType &graphCopy){
-	EdgeArray<edge> *eCopy = new EdgeArray<edge>(graph);
-
-	for(edge e : graph.edges){
-		(*eCopy)[e] = graphCopy.copy(e);
-	}
-
-	return eCopy;
-}
-
-//! tests if a GraphCopy is initialized correctly
+//! Tests if a GraphCopy is initialized correctly
 /**
  * \param vCopy a List of all the Nodes that should be active
  * \param eCopy an EdgeArray<edge> of the \p graph there every edge is assigned an edge
@@ -65,23 +50,12 @@ EdgeArray<edge>* getCopyEdges(const Graph &graph, const GCType &graphCopy){
 template<typename GCType>
 void testInitGraph(const Graph &graph, const GCType &graphCopy,
 					bool allAdjEdges,
-					List<node> *vCopy = nullptr,
-					EdgeArray<edge> *eCopy = nullptr)
+					const List<node> &vCopy,
+					const EdgeArray<edge> &eCopy)
 {
-	bool vCopySet = (vCopy == nullptr);
-	bool eCopySet = (eCopy == nullptr);
-
-	if(vCopySet){
-		vCopy = new List<node>();
-		graph.allNodes<List<node>>(*vCopy);
-	}
-	if(eCopySet){
-		eCopy = getCopyEdges<GCType>(graph, graphCopy);
-	}
-
 	int numberOfActiveNodes = 0;
 	int numberOfAdjActiveEdges = 0;
-	for(node v : *vCopy){
+	for(node v : vCopy){
 		numberOfActiveNodes++;
 		AssertThat(graphCopy.copy(v), !IsNull());
 		for(adjEntry adj = v->firstAdj(); adj != nullptr; adj = adj->succ()){
@@ -104,14 +78,25 @@ void testInitGraph(const Graph &graph, const GCType &graphCopy,
 	int edgeCounter = 0;
 	for(edge e : graph.edges){
 		if(graphCopy.copy(e) != nullptr){
-			AssertThat((*eCopy)[e], !IsNull());
+			AssertThat(eCopy[e], !IsNull());
 			edgeCounter++;
 		}
 	}
 	AssertThat(numberOfAdjActiveEdges/2, Equals(edgeCounter));
-	if(vCopySet){ delete vCopy; }
-	if(eCopySet){ delete eCopy; }
+}
 
+template<typename GCType>
+void testInitGraph(const Graph &graph, const GCType &graphCopy, bool allAdjEdges)
+{
+	List<node> vCopy;
+	graph.allNodes<List<node>>(vCopy);
+
+	EdgeArray<edge> eCopy(graph);
+	for(edge e : graph.edges){
+		eCopy[e] = graphCopy.copy(e);
+	}
+
+	testInitGraph(graph, graphCopy, allAdjEdges, vCopy, eCopy);
 }
 
 /**
@@ -121,18 +106,17 @@ template<typename GCType>
 void describeGraphCopySimple(int numberOfNodes)
 {
 	Graph graph;
-	GCType *graphCopy;
+	std::unique_ptr<GCType> graphCopy;
 
 	before_each([&](){
 		randomGraph(graph,numberOfNodes,numberOfNodes*4);
-		graphCopy = new GCType(graph);
+		graphCopy.reset(new GCType(graph));
 	});
 
-	after_each([&](){
+	after_each([&] {
 #ifdef OGDF_DEBUG
-		AssertThat(graphCopy->consistencyCheck(),IsTrue());
+		graphCopy->consistencyCheck();
 #endif
-		delete graphCopy;
 	});
 
 	describe("simple initialization",[&](){
@@ -148,8 +132,7 @@ void describeGraphCopySimple(int numberOfNodes)
 		it("is re-initialized with some other graph", [&](){
 			Graph initialGraph;
 			randomGraph(initialGraph, numberOfNodes/2, numberOfNodes*2);
-			delete graphCopy;
-			graphCopy = new GCType(initialGraph);
+			graphCopy.reset(new GCType(initialGraph));
 			graphCopy->init(graph);
 			testInitGraph(graph, *graphCopy, true);
 		});
@@ -234,8 +217,7 @@ void describeGraphCopySimple(int numberOfNodes)
 
 	it("detects dummies",[&](){
 		randomGraph(graph,numberOfNodes,0);
-		delete graphCopy;
-		graphCopy = new GCType(graph);
+		graphCopy.reset(new GCType(graph));
 		AssertThat(graphCopy->isDummy(graphCopy->newEdge(graphCopy->chooseNode(),graphCopy->chooseNode())),IsTrue());
 		AssertThat(graphCopy->isDummy(graphCopy->newNode()), IsTrue());
 	});
@@ -302,15 +284,11 @@ go_bandit([](){
 
 	describe("GraphCopy", [&](){
 		Graph graph;
-		GraphCopy *graphCopy;
+		std::unique_ptr<GraphCopy> graphCopy;
 
 		before_each([&](){
 			randomGraph(graph,numberOfNodes,numberOfNodes*4);
-			graphCopy = new GraphCopy(graph);
-		});
-
-		after_each([&](){
-			delete graphCopy;
+			graphCopy.reset(new GraphCopy(graph));
 		});
 
 		describe("basic functionality",[&](){
@@ -329,8 +307,7 @@ go_bandit([](){
 
 			describe("creating empty copies",[&](){
 				it("works with an empty graph",[&](){
-					delete graphCopy;
-					graphCopy = new GraphCopy();
+					graphCopy.reset(new GraphCopy());
 					graph.clear();
 					graphCopy->createEmpty(graph);
 					AssertThat(graphCopy->numberOfNodes(),Equals(0));
@@ -339,8 +316,7 @@ go_bandit([](){
 				});
 
 				it("works with a non-empty graph",[&](){
-					delete graphCopy;
-					graphCopy = new GraphCopy(graph);
+					graphCopy.reset(new GraphCopy(graph));
 					graphCopy->createEmpty(graph);
 					AssertThat(graphCopy->numberOfNodes(),Equals(numberOfNodes));
 					AssertThat(graphCopy->numberOfEdges(),Equals(numberOfNodes*4));
@@ -357,8 +333,7 @@ go_bandit([](){
 			it("is initialized by a given connected component",[&](){
 				randomGraph(graph, numberOfNodes*2, numberOfNodes*3);
 				Graph::CCsInfo ccs = Graph::CCsInfo(graph);
-				delete graphCopy;
-				graphCopy = new GraphCopy();
+				graphCopy.reset(new GraphCopy());
 				int numberOfCC = ccs.numberOfCCs()-1;
 				graphCopy->createEmpty(graph);
 				graphCopy->initByCC(ccs, numberOfCC, eCopy);
@@ -366,7 +341,7 @@ go_bandit([](){
 				for(int i = ccs.startNode(numberOfCC); i< ccs.stopNode(numberOfCC); i++){
 					origNodes.pushBack(ccs.v(i));
 				}
-				testInitGraph<GraphCopy>(graph, *graphCopy, false, &origNodes, &eCopy);
+				testInitGraph<GraphCopy>(graph, *graphCopy, false, origNodes, eCopy);
 			});
 
 			it("maps adjacency entries of chains", [&] {
@@ -387,27 +362,24 @@ go_bandit([](){
 
 			it("is initialized by either all or none of the nodes of a component",[&](){
 				origNodes.clear();
-				delete graphCopy;
-				graphCopy = new GraphCopy();
+				graphCopy.reset(new GraphCopy());
 				graphCopy->createEmpty(graph);
 				graphCopy->initByNodes(origNodes, eCopy);
-				testInitGraph<GraphCopy>(graph, *graphCopy, true, &origNodes, &eCopy);
-				delete graphCopy;
-				graphCopy = new GraphCopy();
+				testInitGraph<GraphCopy>(graph, *graphCopy, true, origNodes, eCopy);
+				graphCopy.reset(new GraphCopy());
 				origNodes.clear();
 				graph.allNodes<List<node>>(origNodes);
 				eCopy = EdgeArray<edge>(graph);
 				graphCopy->createEmpty(graph);
 				graphCopy->initByNodes(origNodes, eCopy);
-				testInitGraph<GraphCopy>(graph, *graphCopy, true, &origNodes, &eCopy);
+				testInitGraph<GraphCopy>(graph, *graphCopy, true, origNodes, eCopy);
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
 				origNodes = List<node>();
 				origNodes.pushBack(graph.firstNode());
 				origNodes.pushBack(graph.lastNode());
 				eCopy = EdgeArray<edge>(graph);
-				delete graphCopy;
-				graphCopy = new GraphCopy(graph);
+				graphCopy.reset(new GraphCopy(graph));
 				AssertThrows(AssertionFailed, graphCopy->initByNodes(origNodes, eCopy));
 #endif
 			});
@@ -428,7 +400,7 @@ go_bandit([](){
 				graphCopy->allNodes<List<node>>(asdf);
 				List<edge> asdfgh;
 				graphCopy->allEdges(asdfgh);
-				testInitGraph<GraphCopy>(graph, *graphCopy, false, &origNodes, &eCopy);
+				testInitGraph<GraphCopy>(graph, *graphCopy, false, origNodes, eCopy);
 			});
 		});
 
@@ -483,8 +455,7 @@ go_bandit([](){
 						graph.swapAdjEdges(adj, randomNumber(0, 1) ? v->firstAdj() : v->lastAdj());
 					}
 				}
-				delete graphCopy;
-				graphCopy = new GraphCopy(graph);
+				graphCopy.reset(new GraphCopy(graph));
 			});
 
 			it("works if the GraphCopy wasn't modified",[&](){
@@ -530,8 +501,7 @@ go_bandit([](){
 				tw = graph.newEdge(t, w);
 				planarEmbed(graph);
 
-				delete graphCopy;
-				graphCopy = new GraphCopy(graph);
+				graphCopy.reset(new GraphCopy(graph));
 			});
 
 			describe("non-embedded variant",[&](){
@@ -601,7 +571,7 @@ go_bandit([](){
 				});
 
 				it("removes a path",[&](){
-					FaceSetPure newFaces(combEmb);
+					FaceSet<false> newFaces(combEmb);
 					graphCopy->removeEdgePathEmbedded(combEmb, tw, newFaces);
 					AssertThat(graphCopy->chain(tw).size(), Equals(0));
 					edge newOldEdge = graphCopy->copy(tw);
@@ -618,8 +588,7 @@ go_bandit([](){
 
 		it("sets a copy edge and an original edge to be corresponding",[&](){
 			completeGraph(graph, 2);
-			delete graphCopy;
-			graphCopy = new GraphCopy(graph);
+			graphCopy.reset(new GraphCopy(graph));
 			edge copyEdge = graphCopy->chooseEdge();
 			edge origEdge = graphCopy->original(copyEdge);
 			graphCopy->delEdge(copyEdge);
@@ -652,8 +621,7 @@ go_bandit([](){
 
 			it("inserts crossings (case #" + to_string(caseCounter) + ")" ,[&] {
 				completeGraph(graph, 10);
-				delete graphCopy;
-				graphCopy = new GraphCopy(graph);
+				graphCopy.reset(new GraphCopy(graph));
 
 				edge crossingEdge = chooseEdge(crossingEdgeIsDummy, nullptr);
 				edge crossedEdge = chooseEdge(crossedEdgeIsDummy, crossingEdge);
@@ -729,8 +697,7 @@ go_bandit([](){
 			graph.clear();
 			graph.newEdge(graph.newNode(), graph.newNode());
 			graph.newEdge(graph.newNode(), graph.newNode());
-			delete graphCopy;
-			graphCopy = new GraphCopy(graph);
+			graphCopy.reset(new GraphCopy(graph));
 			edge eCopy = graphCopy->firstEdge();
 			edge fCopy = graphCopy->lastEdge();
 			edge eSplit = graphCopy->split(eCopy);

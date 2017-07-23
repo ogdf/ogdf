@@ -131,7 +131,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const ColVar &rhs);
+	friend std::ostream &operator<<(std::ostream &out, const ColVar &rhs);
 
 
 	//! Writes the column representing the variable to output stream \a out.
@@ -140,7 +140,7 @@ public:
 	 *
 	 * \param out The output stream.
 	 */
-	virtual void print(ostream &out) const {
+	virtual void print(std::ostream &out) const {
 		out << *this;
 	}
 
@@ -174,9 +174,9 @@ protected:
 };
 
 
-inline ostream &operator<<(ostream &out, const ColVar &rhs)
+inline std::ostream &operator<<(std::ostream &out, const ColVar &rhs)
 {
 	return out << rhs.column_;
 }
 
-} //namespace abacus
+}

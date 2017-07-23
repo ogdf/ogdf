@@ -46,7 +46,7 @@
 namespace ogdf {
 
 /**
- * Layout the graph with nodes next to each other with natural or custom
+ * %Layout the graph with nodes next to each other with natural or custom
  * order and draw the edges as semicircular bows above them.
  */
 class OGDF_EXPORT LinearLayout : public LayoutModule {
@@ -82,5 +82,4 @@ public:
 	virtual void setCustomOrder(bool o);
 };
 
-
-} // end namespace ogdf
+}

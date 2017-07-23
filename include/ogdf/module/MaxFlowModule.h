@@ -166,7 +166,6 @@ public:
 		computeFlowAfterValue(flow);
 		return val;
 	}
-
 };
 
-}// namespace ogdf
+}

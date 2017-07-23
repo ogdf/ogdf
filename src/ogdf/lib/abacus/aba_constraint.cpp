@@ -129,7 +129,7 @@ InfeasCon::INFEAS Constraint::voidLhsViolated(double newRhs) const
 }
 
 
-void Constraint::printRow(ostream &out,
+void Constraint::printRow(std::ostream &out,
 							  Active<Variable, Constraint> *var) const
 {
 	Row row(master_, var->number());
@@ -170,4 +170,4 @@ ConClass *Constraint::classification(Active<Variable, Constraint> *var) const
 	return conClass_;
 }
 
-} //namespace abacus
+}

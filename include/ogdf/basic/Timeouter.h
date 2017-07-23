@@ -89,5 +89,4 @@ protected:
 	double m_timeLimit; //!< Time limit for module calls (< 0 means no limit).
 };
 
-
-} // end namespace ogdf
+}

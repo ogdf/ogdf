@@ -48,4 +48,4 @@ private:
 	void placeOneNode(MultilevelGraph &MLG);
 };
 
-} // namespace ogdf
+}

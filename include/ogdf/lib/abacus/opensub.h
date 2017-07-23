@@ -120,4 +120,4 @@ private:
 	const OpenSub &operator=(const OpenSub &rhs);
 };
 
-} //namespace abacus
+}

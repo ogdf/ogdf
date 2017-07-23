@@ -77,4 +77,4 @@ private:
 	void recCall(Level&, int low, int high);
 };
 
-}// end namespace ogdf
+}

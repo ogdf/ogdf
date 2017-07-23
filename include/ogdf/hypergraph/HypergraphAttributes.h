@@ -346,7 +346,7 @@ public:
 
 #if 0
 	//! Writes the hypergraph (edge standard representation) into SVG format.
-	void writeSVG(ostream &os, int fontSize, const string &fontColor) const
+	void writeSVG(std::ostream &os, int fontSize, const string &fontColor) const
 	{
 		m_repGA->writeSVG(os, fontSize, fontColor);
 	}
@@ -374,7 +374,6 @@ public:
 	{
 		return m_repGA->boundingBox();
 	}
-
 };
 
-} // end namespace ogdf
+}

@@ -347,4 +347,4 @@ inline void PairingHeap<T, C>::release(PairingHeapNode<T> *heapNode)
 	}
 }
 
-} // end namespace ogdf
+}

@@ -119,4 +119,4 @@ private:
 	int m_runsPostprocessing; //!< Runs of remove-reinsert method.
 };
 
-} // end namespace ogdf
+}

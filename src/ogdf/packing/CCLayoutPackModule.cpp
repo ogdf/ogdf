@@ -44,20 +44,20 @@ bool CCLayoutPackModule::checkOffsetsTP(
 
 	for (int i = 0; i < n; ++i)
 	{
-		typename POINT::numberType xl = offset[i].m_x;
-		typename POINT::numberType xr = xl + box[i].m_x;
-		typename POINT::numberType yb = offset[i].m_y;
-		typename POINT::numberType yt = yb + box[i].m_y;
+		auto xl = offset[i].m_x;
+		auto xr = xl + box[i].m_x;
+		auto yb = offset[i].m_y;
+		auto yt = yb + box[i].m_y;
 
 		OGDF_ASSERT(xl <= xr);
 		OGDF_ASSERT(yb <= yt);
 
 		for (int j = i+1; j < n; ++j)
 		{
-			typename POINT::numberType xl2 = offset[j].m_x;
-			typename POINT::numberType xr2 = xl2 + box[j].m_x;
-			typename POINT::numberType yb2 = offset[j].m_y;
-			typename POINT::numberType yt2 = yb2 + box[j].m_y;
+			auto xl2 = offset[j].m_x;
+			auto xr2 = xl2 + box[j].m_x;
+			auto yb2 = offset[j].m_y;
+			auto yt2 = yb2 + box[j].m_y;
 
 			if (xr2 > xl && xl2 < xr && yt2 > yb && yb2 < yt)
 				return false;
@@ -79,5 +79,4 @@ bool CCLayoutPackModule::checkOffsets(const Array<IPoint> &box,
 	return checkOffsetsTP(box,offset);
 }
 
-
-} // end namespace ogdf
+}

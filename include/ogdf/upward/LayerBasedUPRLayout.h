@@ -162,15 +162,6 @@ protected :
 
 	std::unique_ptr<HierarchyLayoutModule> m_layout;
 
-
-	struct RankComparer {
-		const Hierarchy *H;
-		bool less(node v1, node v2) const {
-			return H->rank(v1) < H->rank(v2);
-		}
-	};
-
-
 private:
 
 	// compute a ranking of the nodes of UPR.

@@ -29,28 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <bandit/bandit.h>
 #include <ogdf/basic/DisjointSets.h>
-
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 template<typename DisjointSetsClass>
 static void registerTestSuite(const string typeName)
 {
 	describe(typeName,[&](){
-		DisjointSetsClass *disjointSets;
+		std::unique_ptr<DisjointSetsClass> disjointSets;
 		int sets[42];
 
 		before_each([&](){
-			disjointSets = new DisjointSetsClass();
+			disjointSets.reset(new DisjointSetsClass());
 			for (auto &set : sets) {
 				set = disjointSets->makeSet();
 			}
-		});
-
-		after_each([&](){
-			delete disjointSets;
 		});
 
 		it("assigns valid set id's", [&](){
@@ -60,11 +53,9 @@ static void registerTestSuite(const string typeName)
 		});
 
 		it("is initialized", [&](){
-			DisjointSetsClass *emptydisjointSets;
-			emptydisjointSets = new DisjointSetsClass();
-			AssertThat(emptydisjointSets->getNumberOfElements(), Equals(0));
-			AssertThat(emptydisjointSets->getNumberOfSets(), Equals(0));
-			delete emptydisjointSets;
+			DisjointSetsClass emptydisjointSets;
+			AssertThat(emptydisjointSets.getNumberOfElements(), Equals(0));
+			AssertThat(emptydisjointSets.getNumberOfSets(), Equals(0));
 		});
 
 		it("can be filled", [&](){

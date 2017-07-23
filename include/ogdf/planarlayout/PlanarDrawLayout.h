@@ -214,5 +214,4 @@ private:
 
 };
 
-
-} // end namespace ogdf
+}
