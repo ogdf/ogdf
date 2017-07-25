@@ -51,7 +51,7 @@ Set::~Set()
 
 void Set::set_seed(int rand_seed)
 {
-	srand(rand_seed);
+	setSeed(rand_seed);
 }
 
 
