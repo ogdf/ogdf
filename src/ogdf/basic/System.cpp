@@ -73,7 +73,7 @@
 
 static inline void cpuid(int CPUInfo[4], int infoType)
 {
-#if defined(OGDF_SYSTEM_WINDOWS)
+#if defined(OGDF_SYSTEM_WINDOWS) && !defined(__GNUC__)
 	__cpuid(CPUInfo, infoType);
 #else
 	uint32_t a = 0;
