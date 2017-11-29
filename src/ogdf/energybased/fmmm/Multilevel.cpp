@@ -51,7 +51,7 @@ void Multilevel::create_multilevel_representations(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int & max_level)
 {
-	srand(rand_seed);
+	setSeed(rand_seed);
 	G_mult_ptr[0] = &G; //init graph at level 0 to the original undirected simple
 	A_mult_ptr[0] = &A; //and loopfree connected graph G/A/E
 	E_mult_ptr[0] = &E;
