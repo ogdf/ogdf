@@ -42,9 +42,10 @@ namespace ogdf {
 // Recursive call for testing C-connectivity.
 bool cConnectTest(ClusterGraph &C, const cluster act, NodeArray<bool> &mark, Graph &G)
 {
-	bool childOk = safeTestForEach(act->children, [&](cluster child) {
+	std::function<bool(cluster)> testFunc = [&](cluster child) {
 		return cConnectTest(C, child, mark, G);
-	});
+	};
+	bool childOk = safeTestForEach(act->children, testFunc);
 	if (!childOk) {
 		return false;
 	}
@@ -164,9 +165,10 @@ void recursiveConnect(
 	//for non-cc clusters, add edges to make them connected
 	//recursively search for connection nodes (simple version:
 	//use first node/first node of first child (recursive)
-	safeForEach(act->children, [&](cluster child) {
+	std::function<void(cluster)> connectFunc = [&](cluster child) {
 		recursiveConnect(CG, child, origCluster, oCcluster, origNode, G, newEdges);
-	});
+	};
+	safeForEach(act->children, connectFunc);
 
 	//We construct a copy of the current cluster
 	OGDF_ASSERT(act->cCount() == 0);
@@ -331,9 +333,10 @@ void recursiveCConnect(
 	//for non-cc clusters, add edges to make them connected
 	//recursively search for connection nodes (simple version:
 	//use first node/first node of first child (recursive)
-	safeForEach(act->children, [&](cluster child) {
+	std::function<void(cluster)> connectFunc = [&](cluster child) {
 		recursiveCConnect(CG, child, origCluster, oCcluster, origNode, G, fullCopy, copyNode, badNode, newEdges);
-	});
+	};
+	safeForEach(act->children, connectFunc);
 
 	//We construct a graph copy of the current cluster subgraph
 	OGDF_ASSERT(act->cCount() == 0);

@@ -220,9 +220,10 @@ void ClusterPlanRep::convertClusterGraph(cluster act,
 		isLeaf = true;
 	}
 	// Test children first
-	safeForEach(act->children, [&](cluster child) {
+	std::function<void(cluster)> convertFunc = [&](cluster child) {
 		convertClusterGraph(child, currentEdge, outEdge);
-	});
+	};
+	safeForEach(act->children, convertFunc);
 
 	//do not convert root cluster
 	if (isRoot) return;

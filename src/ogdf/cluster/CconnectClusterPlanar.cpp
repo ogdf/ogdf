@@ -119,9 +119,10 @@ bool CconnectClusterPlanar::planarityTest(
 	Graph &G)
 {
 	// Test children first
-	if (!safeTestForEach(act->children, [&](cluster child) {
+	std::function<bool(cluster)> testFunc = [&](cluster child) {
 		return planarityTest(C, child, G);
-	})) {
+	};
+	if (!safeTestForEach(act->children, testFunc)) {
 		return false;
 	}
 

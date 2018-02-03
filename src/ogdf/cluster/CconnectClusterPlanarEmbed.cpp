@@ -1026,9 +1026,10 @@ bool CconnectClusterPlanarEmbed::planarityTest(
 	cluster origOfAct = m_clusterTableCopy2Orig[act];
 
 	// Test children first
-	if (!safeTestForEach(act->children, [&](cluster child) {
+	std::function<bool(cluster)> testFunc = [&](cluster child) {
 		return planarityTest(Ccopy, child, Gcopy);
-	})) {
+	};
+	if (!safeTestForEach(act->children, testFunc)) {
 		return false;
 	}
 
