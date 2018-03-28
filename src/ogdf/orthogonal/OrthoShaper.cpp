@@ -1516,7 +1516,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 	Logger::slout() << "\n\nTotal Number of Bends : " << totalNumBends << std::endl << std::endl;
 
 	string error;
-	if (OR.check(error) == false) {
+	if (!OR.check(error)) {
 		Logger::slout() << error << std::endl;
 		OGDF_ASSERT(false);
 	}
@@ -2652,7 +2652,7 @@ void OrthoShaper::call(PlanRep &PG,
 		Logger::slout() << "\n\nTotal Number of Bends : " << totalNumBends << std::endl << std::endl;
 
 	string error;
-	if (OR.check(error) == false) {
+	if (!OR.check(error)) {
 		Logger::slout() << error << std::endl;
 		OGDF_ASSERT(false);
 	}

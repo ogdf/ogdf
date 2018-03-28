@@ -173,7 +173,7 @@ bool SubgraphPlanarizerUML::doSinglePermutation(
 
 	ReturnType ret = inserter.callEx(PG, deletedEdges, pCost, nullptr);
 
-	if(isSolution(ret) == false)
+	if(!isSolution(ret))
 		return false; // no solution found, that's bad...
 
 	if(pCost == nullptr)
@@ -295,7 +295,7 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 
 	int64_t startTime;
 	System::usedRealTime(startTime);
-	int64_t stopTime = (m_timeLimit >= 0) ? (startTime + int64_t(1000.0*m_timeLimit)) : -1;
+	int64_t stopTime = m_timeLimit >= 0 ? startTime + int64_t(1000.0*m_timeLimit) : -1;
 
 	//
 	// Compute subgraph
@@ -325,7 +325,7 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 	} else
 		retValue = subgraph.call(pr, preferedEdges, delEdges);
 
-	if(isSolution(retValue) == false)
+	if(!isSolution(retValue))
 		return retValue;
 
 	const int m = delEdges.size();
@@ -385,13 +385,13 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 			int cr;
 			bool ok = doSinglePermutation(prl, cc, pCostOrig, deletedEdges, inserter, rng, cr);
 
-			if(ok && (foundSolution == false || cr < cs.weightedCrossingNumber())) {
+			if(ok && (!foundSolution || cr < cs.weightedCrossingNumber())) {
 				foundSolution = true;
 				cs.init(prl, cr);
 			}
 
 			if(stopTime >= 0 && System::realTime() >= stopTime) {
-				if(foundSolution == false)
+				if(!foundSolution)
 					return ReturnType::TimeoutInfeasible; // not able to find a solution...
 				break;
 			}
@@ -400,7 +400,7 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 		cs.restore(pr,cc); // restore best solution in PG
 		crossingNumber = cs.weightedCrossingNumber();
 
-		OGDF_ASSERT(isPlanar(pr) == true);
+		OGDF_ASSERT(isPlanar(pr));
 	}
 
 	return ReturnType::Feasible;

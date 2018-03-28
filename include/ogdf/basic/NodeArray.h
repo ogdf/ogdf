@@ -105,6 +105,8 @@ public:
  * NodeArrays represent a mapping from nodes to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
+ * @warn_undef_behavior_array
+ *
  * @tparam T is the element type.
  */
 template<class T> class NodeArray : private Array<T>, protected NodeArrayBase {
@@ -241,43 +243,6 @@ public:
 	 * This is always an invalid iterator.
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
-
-	//! Returns an iterator to the last entry in the node array.
-	/**
-	 * If the node array is empty, an invalid iterator is returned.
-	 */
-	iterator rbegin() { return iterator(m_pGraph->lastNode(), this); }
-
-	//! Returns a const iterator to the last entry in the node array.
-	/**
-	 * If the node array is empty, an invalid iterator is returned.
-	 */
-	const_iterator rbegin() const { return const_iterator(m_pGraph->lastNode(), this); }
-
-	//! Returns a const iterator to the last entry in the node array.
-	/**
-	 * If the node array is empty, an invalid iterator is returned.
-	 */
-	const_iterator crbegin() const { return const_iterator(m_pGraph->lastNode(), this); }
-
-	//! Returns an iterator to one-before-first entry in the node array.
-	/**
-	 * This is always an invalid iterator.
-	 */
-	iterator rend() { return iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the node array.
-	/**
-	 * This is always an invalid iterator.
-	 */
-	const_iterator rend() const { return const_iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the node array.
-	/**
-	 * This is always an invalid iterator.
-	 */
-	const_iterator crend() const { return const_iterator(nullptr, this); }
-
 
 	//@}
 	/**

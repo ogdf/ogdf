@@ -258,7 +258,7 @@ protected:
 	//! Returns the weight of an edge in the terminal tree or 0
 	T weight(edge e) const
 	{
-		return (e ? m_steinerTree->weight(e) : 0);
+		return e ? m_steinerTree->weight(e) : 0;
 	}
 
 	//! Returns the associated weight of a node v in m_tree, or 0 if it is not associated.

@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/SList.h>
 
@@ -950,6 +951,27 @@ OGDF_EXPORT bool isRegular(const Graph& G);
  * @return true if \p G is d-regular, false otherwise.
  */
 OGDF_EXPORT bool isRegular(const Graph& G, int d);
+
+
+//! Checks whether a graph is bipartite.
+/**
+ * @param G is the input graph.
+ * @param color is assigned the color for each node, i.e. the partition it
+ * belongs to, if G is bipartite. Otherwise its contents are undefined.
+ * @return true if \p G is bipartite, false otherwise.
+ */
+OGDF_EXPORT bool isBipartite(const Graph &G, NodeArray<bool> &color);
+
+
+//! Checks whether a graph is bipartite.
+/**
+ * @param G is the input graph.
+ * @return true if \p G is bipartite, false otherwise.
+ */
+inline bool isBipartite(const Graph &G) {
+	NodeArray<bool> color(G);
+	return isBipartite(G, color);
+}
 
 /**
  * Fills \p dist with the distribution given by a function \p func

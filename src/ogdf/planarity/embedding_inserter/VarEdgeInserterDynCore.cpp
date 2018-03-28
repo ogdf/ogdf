@@ -373,8 +373,7 @@ void VarEdgeInserterDynCore::ExpandedGraph::constructDual(node s, node t)
 
 			// Do not insert edges into dual if crossing the original edge
 			// is forbidden
-			if (m_pForbidden &&
-				(*m_pForbidden)[m_gc.original(m_BC.dynamicSPQRForest().original(m_expToG[adj]->theEdge()))] == true)
+			if (m_pForbidden && (*m_pForbidden)[m_gc.original(m_BC.dynamicSPQRForest().original(m_expToG[adj]->theEdge()))])
 				continue;
 
 			node vLeft = faceNode[m_E.leftFace(adj)];
@@ -513,9 +512,7 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(List<edge> &q
 {
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if (v == e->source() &&
-			(eType != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-		{
+		if (v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			queue.pushBack(e);
 		}
 	}
@@ -578,9 +575,7 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(
 {
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if (v == e->source() &&
-			(eType != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-		{
+		if (v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			int listPos = (currentDist + costDual(e)) % maxCost;
 			nodesAtDist[listPos].pushBack(e);
 		}

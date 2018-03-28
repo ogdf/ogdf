@@ -544,9 +544,9 @@ cluster ClusterGraph::commonClusterAncestorsPath(
 					eL.pushBack(c);
 				}
 
-				ListIterator<cluster> itC;
-				for (itC = wList.rbegin(); itC.valid() && *itC != cv; --itC);
-				for (; itC.valid(); --itC) {
+				ListReverseIterator<cluster> itC;
+				for (itC = wList.rbegin(); itC.valid() && *itC != cv; ++itC);
+				for (; itC.valid(); ++itC) {
 					eL.pushBack(*itC);
 				}
 
@@ -570,8 +570,8 @@ cluster ClusterGraph::commonClusterAncestorsPath(
 				}
 				eL.pushBack(cw);
 
-				for (auto itC = wList.rbegin(); itC.valid(); --itC) {
-					eL.pushBack(*itC);
+				for (cluster c : reverse(wList)) {
+					eL.pushBack(c);
 				}
 
 				return cw;

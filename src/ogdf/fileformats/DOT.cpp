@@ -40,18 +40,22 @@ namespace dot {
 std::string toString(const Attribute &attr)
 {
 	switch(attr) {
-	case Attribute::Id: return "id";
-	case Attribute::Label: return "label";
-	case Attribute::Template: return "comment";
-	case Attribute::Width: return "width";
-	case Attribute::Height: return "height";
-	case Attribute::Shape: return "shape";
-	case Attribute::Position: return "pos";
-	case Attribute::Stroke: return "color";
-	case Attribute::Fill: return "fillcolor";
-	case Attribute::Weight: return "weight";
-	case Attribute::Arrow: return "arrow";
-	default: return "comment";
+		case Attribute::Id: return "id";
+		case Attribute::Label: return "label";
+		case Attribute::Template: return "comment";
+		case Attribute::Width: return "width";
+		case Attribute::Height: return "height";
+		case Attribute::Shape: return "shape";
+		case Attribute::Position: return "pos";
+		case Attribute::Stroke: return "color";
+		case Attribute::StrokeType: return "stroketype";
+		case Attribute::Fill: return "fillcolor";
+		case Attribute::Weight: return "weight";
+		case Attribute::Arrow: return "arrow";
+		case Attribute::StrokeWidth: return "strokewidth";
+		case Attribute::FillPattern: return "fillpattern";
+		case Attribute::Type: return "type";
+		default: return "comment";
 	}
 }
 
@@ -60,7 +64,7 @@ std::string toString(const Shape &shape)
 {
 	switch(shape) {
 		case Shape::Rect:             return "rect";
-		case Shape::RoundedRect:      return "rect"; // Not supported.
+		case Shape::RoundedRect:      return "roundedrect";
 		case Shape::Ellipse:          return "ellipse";
 		case Shape::Triangle:         return "triangle";
 		case Shape::Pentagon:         return "pentagon";
@@ -71,8 +75,8 @@ std::string toString(const Shape &shape)
 		case Shape::Parallelogram:    return "parallelogram";
 		case Shape::InvTriangle:      return "invtriangle";
 		case Shape::InvTrapeze:       return "invtrapezium";
-		case Shape::InvParallelogram: return "parallelogram"; // Not supported.
-		case Shape::Image:            return "box"; // Not supported.
+		case Shape::InvParallelogram: return "invparallelogram";
+		case Shape::Image:            return "image";
 	}
 	OGDF_ASSERT(false);
 	return "UNKNOWN";

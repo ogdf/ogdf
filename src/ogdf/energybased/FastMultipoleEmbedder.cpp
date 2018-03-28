@@ -55,15 +55,15 @@ FastMultipoleEmbedder::~FastMultipoleEmbedder(void)
 
 void FastMultipoleEmbedder::initOptions()
 {
-	m_pOptions->preProcTimeStep = 0.5;			// 0.5
-	m_pOptions->preProcMaxNumIterations = 20;	// 20
-	m_pOptions->preProcEdgeForceFactor = 0.5;	// 0.5
-	m_pOptions->timeStep = 0.25;				// 0.25
-	m_pOptions->edgeForceFactor = 1.0;			// 1.00;
-	m_pOptions->repForceFactor = 2.0;			// 2.0;
-	m_pOptions->stopCritConstSq = 2000400;		// 2000400;
-	m_pOptions->stopCritAvgForce = 0.1f;		//
-	m_pOptions->minNumIterations = 4;			// 4
+	m_pOptions->preProcTimeStep = 0.5;
+	m_pOptions->preProcMaxNumIterations = 20;
+	m_pOptions->preProcEdgeForceFactor = 0.5;
+	m_pOptions->timeStep = 0.25;
+	m_pOptions->edgeForceFactor = 1.0;
+	m_pOptions->repForceFactor = 2.0;
+	m_pOptions->stopCritConstSq = 2000400;
+	m_pOptions->stopCritAvgForce = 0.1f;
+	m_pOptions->minNumIterations = 4;
 	m_pOptions->multipolePrecision = m_precisionParameter;
 }
 

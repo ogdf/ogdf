@@ -408,7 +408,7 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 	}
 
 	// replace the old table by the new one
-	delete table_;
+	delete [] table_;
 	table_ = newTable;
 }
 

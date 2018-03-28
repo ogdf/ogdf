@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <numeric>
+
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/Array.h>
 
@@ -222,6 +224,48 @@ inline void getFraction(double d, int &num, int &denom, const double epsilon = 5
 		std::swap(num, denom);
 		num += last * denom;
 	}
+}
+
+//! Returns the minimum of an iterable container of given \p values.
+template<class Container>
+inline typename Container::value_type minValue(const Container &values) {
+	return *std::min_element(values.begin(), values.end());
+}
+
+//! Returns the maximum of an iterable container of given \p values.
+template<class Container>
+inline typename Container::value_type maxValue(const Container &values) {
+	return *std::max_element(values.begin(), values.end());
+}
+
+//! Returns the sum of an iterable container of given \p values.
+template<class Container>
+inline typename Container::value_type sum(const Container &values) {
+	return std::accumulate(values.begin(), values.end(), static_cast<typename Container::value_type>(0));
+}
+
+//! Returns the mean of an iterable container of given \p values.
+template<class Container>
+inline double mean(const Container &values) {
+	return sum(values) / static_cast<double>(values.size());
+}
+
+//! @copydoc standardDeviation(const Container&)
+//! The given \p mean is used instead of computing a new one.
+template<class Container>
+inline double standardDeviation(const Container &values, double mean) {
+	double sum = 0;
+	for (auto value : values) {
+		double d = value - mean;
+		sum += d*d;
+	}
+	return sqrt(sum / values.size());
+}
+
+//! Returns the standard deviation of an iterable container of given \p values.
+template<class Container>
+inline double standardDeviation(const Container &values) {
+	return standardDeviation(values, mean(values));
 }
 
 }}

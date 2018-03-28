@@ -1,15 +1,7 @@
 /** \file
- * \brief Handles connection to the COIN library, by offering
- * helper classes.
+ * \brief Definition of ogdf::CoinManager
  *
- * If you use Coin, you need to include this file.
- *
- * \todo Currently, there is only a single implementation of the
- * CoinCallback-class declared herein (necc. for userdefined cuts).
- * This implementation is CPLEX specific.
- * -- with current coin, it might not even work anymore!
- *
- * \author Markus Chimani
+ * \author Markus Chimani, Stephan Beyer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -39,46 +31,36 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/lib/abacus/osiinclude.h>
 
-#include <coin/OsiSolverInterface.hpp>
-#include <coin/CoinPackedVector.hpp>
+#include <coin/CoinPackedVector.hpp> // not used here but always necessary when using COIN
 
 namespace ogdf {
 
-class OGDF_EXPORT CoinCallbacks {
-	friend class OGDF_EXPORT CoinManager;
-public:
-	enum class CallbackType { Cut = 1, Heuristic = 2, Incumbent = 4, Branch  = 8 };
-	enum class CutReturn { Error, SolutionValid, AddCuts, DontAddCuts, NoCutsFound };
-	enum class HeuristicReturn { Error, Ignore, Update };
-	enum class IncumbentReturn { Error, Ignore, Update };
-#if 0
-	enum class BranchReturn { Error, ... };
-#endif
-	virtual CutReturn cutCallback(const double /* objValue */, const double* /* fracSolution */, OsiCuts* /* addThese */) { return CutReturn::Error; }
-	virtual HeuristicReturn heuristicCallback(double& /* objValue */, double* /* solution */) { return HeuristicReturn::Error; }
-	virtual IncumbentReturn incumbentCallback(const double /* objValue */, const double* /* solution */) { return IncumbentReturn::Error; }
-#if 0
-	virtual BranchReturn branchCallback() { return BR_Error; };
-#endif
-
-	virtual ~CoinCallbacks() {}
-private:
-	bool registerCallbacks(OsiSolverInterface* _posi, int callbackTypes);
-};
-
+//! If you use COIN-OR, you should use this class
 class OGDF_EXPORT CoinManager {
 public:
-	static OsiSolverInterface* createCorrectOsiSolverInterface();
-	static OsiSolverInterface* createCorrectOsiSolverInterface(CoinCallbacks* ccc, int callbackTypes) {
-		OsiSolverInterface* posi = createCorrectOsiSolverInterface();
-		if(ccc->registerCallbacks(posi, callbackTypes))
-			return posi;
-		delete posi;
-		return nullptr;
+	//! Get a new solver
+	static OsiSolverInterface* createCorrectOsiSolverInterface() {
+#ifdef COIN_OSI_CPX
+		OsiCpxSolverInterface *ret = new OsiCpxSolverInterface(); // CPLEX
+#elif defined(COIN_OSI_GRB)
+		OsiGrbSolverInterface *ret = new OsiGrbSolverInterface(); // Gurobi
+#elif defined(COIN_OSI_SYM)
+		OsiSymSolverInterface *ret = new OsiSymSolverInterface(); // Symphony
+		ret->setSymParam(OsiSymVerbosity, -2);
+#else // COIN_OSI_CLP
+		OsiClpSolverInterface *ret = new OsiClpSolverInterface(); // Coin-OR LP
+#endif
+		logging(ret, !Logger::globalStatisticMode() && Logger::globalLogLevel() <= Logger::Level::Minor);
+		return ret;
 	}
-	static void logging(OsiSolverInterface* osi, bool logMe);
+
+	//! Enable or disable logging for the given solver interface
+	static void logging(OsiSolverInterface* osi, bool logMe) {
+		osi->messageHandler()->setLogLevel(logMe ? 1 : 0);
+	}
 };
 
 }

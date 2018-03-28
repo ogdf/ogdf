@@ -108,7 +108,7 @@ void describeEmbedder<EmbedderOptimalFlexDraw>(const string &title) {
 			it("works on a random graph", [&] {
 				Graph graph;
 				constexpr int n = 42;
-				planarConnectedGraph(graph, n, 2*n);
+				randomPlanarConnectedGraph(graph, n, 2*n);
 				EdgeArray<int> costs(graph);
 
 				for(edge e : graph.edges) {

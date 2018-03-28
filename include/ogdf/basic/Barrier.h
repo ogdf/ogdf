@@ -52,9 +52,9 @@ class Barrier {
 	std::condition_variable m_allThreadsReachedSync;
 	std::mutex m_numThreadsReachedSyncLock;
 
-	uint32_t m_threadCount;				//!< the number of threads in the group.
-	uint32_t m_numThreadsReachedSync;	//!< number of htreads that reached current synchronization point.
-	uint32_t m_syncNumber;				//!< number of current synchronization point.
+	uint32_t m_threadCount; //!< the number of threads in the group.
+	uint32_t m_numThreadsReachedSync; //!< number of htreads that reached current synchronization point.
+	uint32_t m_syncNumber; //!< number of current synchronization point.
 
 public:
 

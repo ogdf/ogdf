@@ -249,7 +249,7 @@ void BinaryHeap<T, C>::pop() {
 
 		// check if reallocation is possible
 		// TODO make reallocation threshold configurable?
-		if ((m_size < (m_arraySize/3)) && (m_arraySize > 2*m_initialSize-1)) {
+		if (m_size < m_arraySize / 3 && m_arraySize > 2*m_initialSize - 1) {
 			HeapEntry* tempHeap = new HeapEntry[lowerArrayBound(m_arraySize)];
 
 			for (int i = 1; i <= m_size ; i++) {

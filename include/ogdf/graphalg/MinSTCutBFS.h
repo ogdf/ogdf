@@ -54,18 +54,18 @@ public:
 	MinSTCutBFS() {	}
 
 	/**
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
 	 */
 	virtual bool
-	call(const Graph &graph, node s, node t, List <edge> &edgeList, edge e_st) override {
+	call(const Graph &graph, node s, node t, List <edge> &edgeList, edge e_st = nullptr) override {
 		return call(graph, nullptr, s, t, edgeList, e_st);
 	}
 
 	/**
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
 	virtual bool call(const Graph &graph, const EdgeArray <TCost> &weight, node s, node t,
-	                  List <edge> &edgeList, edge e_st) override {
+	                  List <edge> &edgeList, edge e_st = nullptr) override {
 		return call(graph, &weight, s, t, edgeList, e_st);
 	}
 
@@ -75,7 +75,7 @@ private:
 	/**
 	 * This internal call uses a pointer to the \p weight instead of a reference.
 	 *
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
 	bool call(const Graph &graph, const EdgeArray <TCost> *weight, node s, node t, List <edge> &edgeList, edge e_st);
 

@@ -448,7 +448,7 @@ go_bandit([](){
 
 		describe("original embedding",[&](){
 			before_each([&](){
-				planarBiconnectedGraph(graph, numberOfNodes, static_cast<int>(min(numberOfNodes*2.5, numberOfNodes*3.0-6)));
+				randomPlanarBiconnectedGraph(graph, numberOfNodes, static_cast<int>(min(numberOfNodes*2.5, numberOfNodes*3.0-6)));
 				// shuffle adjacency order
 				for(node v : graph.nodes) {
 					for(adjEntry adj : v->adjEntries) {

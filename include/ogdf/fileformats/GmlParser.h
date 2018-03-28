@@ -88,6 +88,7 @@ namespace GmlParserPredefinedKey {
 	const static int Template       = 33;
 	const static int EdgeWeight     = 34;
 	const static int NextPredefKey  = 35;
+	const static int Z              = 36;
 }
 
 //! Represents node in GML parse tree

@@ -347,6 +347,9 @@ public:
 	//! Returns true iff \p v is incident to the edge.
 	bool isIncident(node v) const { return v == m_src || v == m_tgt; }
 
+	//! Returns true iff \p e is adjacent to the edge.
+	bool isAdjacent(edge e) const { return isIncident(e->m_src) || isIncident(e->m_tgt); }
+
 	//! Returns the common node of the edge and \p e. Returns nullptr if the two edges are not adjacent.
 	node commonNode(edge e) const { return (m_src==e->m_src || m_src==e->m_tgt) ? m_src : ((m_tgt==e->m_src || m_tgt==e->m_tgt) ? m_tgt: nullptr); }
 
@@ -837,6 +840,18 @@ public:
 	 */
 	//@{
 
+	/**
+	 * @copydoc ogdf::Graph::insert(const Graph&)
+	 * @param nodeMap is assigned a mapping from nodes in \p G to nodes in this Graph.
+	 */
+	void insert(const Graph &G, NodeArray<node> &nodeMap);
+
+	//! Inserts Graph \p G as a subgraph into this Graph.
+	/**
+	 * @param G is the Graph to be inserted into this Graph.
+	 */
+	void insert(const Graph &G);
+
 	//! Splits edge \p e into two edges introducing a new node.
 	/**
 	 * Let \p e=(\a v,\a w). Then, the resulting two edges are \a e=(\a v,\a u)
@@ -1276,11 +1291,11 @@ public:
 	//! Info structure for maintaining connected components.
 	class OGDF_EXPORT CCsInfo {
 
-		const Graph *m_graph;	//!< points to the associated graph.
-		int m_numCC;			//!< the number of connected components.
+		const Graph *m_graph; //!< points to the associated graph.
+		int m_numCC; //!< the number of connected components.
 
-		Array<node> m_nodes;	//!< array of all nodes.
-		Array<edge> m_edges;	//!< array of all edges.
+		Array<node> m_nodes; //!< array of all nodes.
+		Array<edge> m_edges; //!< array of all edges.
 		Array<int>  m_startNode; //!< start node of each connected component in m_nodes.
 		Array<int>  m_startEdge; //!< start edge of each connected component in m_edges.
 

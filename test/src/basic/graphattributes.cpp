@@ -657,6 +657,13 @@ describe("graph attributes", [] {
 			for(edge e : graph.edges) {
 				AssertThat(attr.bends(e).size(), Equals(2));
 			}
+			edge e = graph.chooseEdge();
+			DPolyline dpl;
+			dpl.emplaceFront(42, 17);
+			attr.bends(e) = dpl;
+			AssertThat(attr.bends(e).size(), Equals(1));
+			AssertThat((*attr.bends(e).get(0)).m_x, Equals(42));
+			AssertThat((*attr.bends(e).get(0)).m_y, Equals(17));
 		});
 	});
 });

@@ -105,14 +105,12 @@ public:
 	void set_child_lb_ptr(QuadTreeNodeNM* c) {child_lb_ptr = c;}
 	void set_child_rb_ptr(QuadTreeNodeNM* c) {child_rb_ptr = c;}
 
-	bool is_root() {if(father_ptr == nullptr) return true; else return false;}
-	bool is_leaf(){if ((child_lt_ptr == nullptr) &&(child_rt_ptr == nullptr) &&(child_lb_ptr
-		== nullptr) && (child_rb_ptr == nullptr))
-		return true; else return false;}
-	bool child_lt_exists() { if (child_lt_ptr != nullptr) return true; else return false;}
-	bool child_rt_exists() { if (child_rt_ptr != nullptr) return true; else return false;}
-	bool child_lb_exists() { if (child_lb_ptr != nullptr) return true; else return false;}
-	bool child_rb_exists() { if (child_rb_ptr != nullptr) return true; else return false;}
+	bool is_root() { return father_ptr == nullptr; }
+	bool is_leaf() { return child_lt_ptr == nullptr && child_rt_ptr == nullptr && child_lb_ptr == nullptr && child_rb_ptr == nullptr; }
+	bool child_lt_exists() { return child_lt_ptr != nullptr; }
+	bool child_rt_exists() { return child_rt_ptr != nullptr; }
+	bool child_lb_exists() { return child_lb_ptr != nullptr; }
+	bool child_rb_exists() { return child_rb_ptr != nullptr; }
 
 	int get_Sm_level () const {return Sm_level;}
 	DPoint get_Sm_downleftcorner () const {return Sm_downleftcorner;}

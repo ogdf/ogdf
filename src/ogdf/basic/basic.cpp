@@ -81,6 +81,12 @@ static void deinitializeOGDF()
 
 namespace ogdf {
 
+#ifdef OGDF_DEBUG
+bool debugMode = true;
+#else
+bool debugMode = false;
+#endif
+
 Initialization::Initialization()
 {
 	initializeOGDF();
@@ -108,15 +114,15 @@ void removeTrailingWhitespace(std::string &str)
 
 bool equalIgnoreCase(const string &str1, const string &str2)
 {
-	return (str1.size() == str2.size() &&
-		std::equal(str1.begin(), str1.end(), str2.begin(), charCompareIgnoreCase));
+	return str1.size() == str2.size()
+	    && std::equal(str1.begin(), str1.end(), str2.begin(), charCompareIgnoreCase);
 }
 
 bool prefixIgnoreCase(const string &prefix, const string &str)
 {
 	string::size_type len = prefix.length();
-	return (str.size() >= len &&
-		std::equal(prefix.begin(), prefix.end(), str.begin(), charCompareIgnoreCase));
+	return str.size() >= len
+	    && std::equal(prefix.begin(), prefix.end(), str.begin(), charCompareIgnoreCase);
 }
 
 static std::mt19937 s_random;

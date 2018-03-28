@@ -219,7 +219,7 @@ ITERATOR chooseIteratorFrom(
 
 }
 
-//! @copydoc internal::chooseIteratorFrom
+//! @copydoc ogdf::internal::chooseIteratorFrom
 template<typename CONTAINER, typename TYPE>
 typename CONTAINER::iterator chooseIteratorFrom(
 		CONTAINER &container,
@@ -229,7 +229,7 @@ typename CONTAINER::iterator chooseIteratorFrom(
 			<CONTAINER, TYPE, typename CONTAINER::iterator>(container, includeElement, isFastTest);
 }
 
-//! @copydoc internal::chooseIteratorFrom
+//! @copydoc ogdf::internal::chooseIteratorFrom
 template<typename CONTAINER, typename TYPE>
 typename CONTAINER::const_iterator chooseIteratorFrom(
 		const CONTAINER &container,

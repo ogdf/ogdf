@@ -52,15 +52,15 @@ public:
 	MinSTCutDijkstra() { }
 
 	/**
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
 	virtual bool
-	call(const Graph &graph, const EdgeArray<TCost> &weight, node s, node t, List<edge> &edgeList, edge e_st) override;
+	call(const Graph &graph, const EdgeArray<TCost> &weight, node s, node t, List<edge> &edgeList, edge e_st = nullptr) override;
 
 	/**
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
 	 */
-	virtual bool call(const Graph &graph, node s, node t, List<edge> &edgeList, edge e_st) override {
+	virtual bool call(const Graph &graph, node s, node t, List<edge> &edgeList, edge e_st = nullptr) override {
 		EdgeArray<TCost> weight(graph, 1);
 		return call(graph, weight, s, t, edgeList, e_st);
 	}

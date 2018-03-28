@@ -248,6 +248,14 @@ static inline bool setAttribute(
 			GA.label(v) = value;
 		}
 		break;
+	case Attribute::strokeColor:
+		if(attrs & GraphAttributes::nodeStyle) {
+			std::istringstream is(value);
+			int r, g, b, a;
+			is >> TokenIgnorer('(') >> r >> TokenIgnorer(',') >> g >> TokenIgnorer(',') >> b >> TokenIgnorer(',') >> a >> TokenIgnorer(')');
+			GA.strokeColor(v) = Color(r, g, b, a);
+		}
+		break;
 	case Attribute::color:
 		if(attrs & GraphAttributes::nodeStyle) {
 			std::istringstream is(value);
@@ -277,9 +285,25 @@ static inline bool setAttribute(
 			GA.height(v) = height;
 		}
 		break;
+	case Attribute::strokeWidth:
+		if(attrs & GraphAttributes::nodeStyle) {
+			std::istringstream is(value);
+			is >> GA.strokeWidth(v);
+		}
+		break;
+	case Attribute::strokeType:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.strokeType(v) = fromString<StrokeType>(value);
+		}
+		break;
+	case Attribute::fillPattern:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.fillPattern(v) = fromString<FillPattern>(value);
+		}
+		break;
 	case Attribute::shape:
 		if(attrs & GraphAttributes::nodeStyle) {
-
+			GA.shape(v) = fromString<Shape>(value);
 		}
 		break;
 	default:

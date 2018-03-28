@@ -84,7 +84,7 @@ void BertaultLayout::call(GraphAttributes &AG)
 		}
 		req_length=req_length/(G.numberOfEdges());
 	}
-	limit=4*req_length;					// can be changed... this value is taken in the research paper
+	limit=4*req_length; // can be changed... this value is taken in the research paper
 	F_x.init(G);
 	F_y.init(G);
 	sect.init(G);
@@ -136,19 +136,19 @@ void BertaultLayout::call(GraphAttributes &AG)
 				if(e->target()!=v&&e->source()!=v)
 				{
 
-					compute_I(&v,&e,AG);			//computes the projection
+					compute_I(&v,&e,AG); //computes the projection
 
-					if(i_On_Edge(&e,AG))		//computes if projection is on the edge
+					if(i_On_Edge(&e,AG)) //computes if projection is on the edge
 					{
 						if((!impred)||surr(v->index(),e->index())==1)
 						{
 							f_Edge(&v,&e,AG);
 						}
-						r_Calc_On_Edge(&v,&e,AG);					// updates values of section radii
+						r_Calc_On_Edge(&v,&e,AG); // updates values of section radii
 					}
 					else
 					{
-						r_Calc_Outside_Edge(&v,&e,AG);				// updates values of section radii
+						r_Calc_Outside_Edge(&v,&e,AG); // updates values of section radii
 					}
 
 				}
@@ -207,12 +207,12 @@ void BertaultLayout::compute_I(node *v,edge *e, GraphAttributes &AG)
 {
 	node a=(*e)->source();
 	node b=(*e)->target();
-	double m=(AG.y(a)-AG.y(b))/(AG.x(a)-AG.x(b));			//slope of edge
-	double n=-1/m;										//slope of a perpendicular
-	double c=AG.y(a)-m*(AG.x(a));							//y=mx+c for edge
-	double d=AG.y(*v)-n*(AG.x(*v));							//y=nx+d for the perpendicular
-	proj.x=(d-c)/(m-n);										//solve for x
-	proj.y=m*proj.x+c;											//solve for y
+	double m=(AG.y(a)-AG.y(b))/(AG.x(a)-AG.x(b)); //slope of edge
+	double n=-1/m; //slope of a perpendicular
+	double c=AG.y(a)-m*(AG.x(a)); //y=mx+c for edge
+	double d=AG.y(*v)-n*(AG.x(*v)); //y=nx+d for the perpendicular
+	proj.x=(d-c)/(m-n); //solve for x
+	proj.y=m*proj.x+c; //solve for y
 }
 
 bool BertaultLayout::i_On_Edge(edge *e, GraphAttributes &AG)
@@ -289,7 +289,7 @@ void BertaultLayout::r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG)
 		}
 	}
 
-	OGDF_ASSERT(s!=0);			//section>=1
+	OGDF_ASSERT(s!=0); //section>=1
 	double max_radius=(sqrt(x_diff*x_diff+y_diff*y_diff))/3;
 
 #if 0
@@ -645,7 +645,7 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 	AG.fillColor(n)="RED";
 	for(edge e : G.edges)
 	{
-		if(surr(n->index(),e->index())==true)
+		if(surr(n->index(), e->index()))
 			AG.strokeColor(e)="RED";
 	}
 
@@ -1005,7 +1005,9 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 			{
 				double ainc = (AG.y(a) - m2*AG.x(a) - c2), binc = (AG.y(b) - m2*AG.x(b) - c2), xinc = AG.y(x) - m*AG.x(x) - c, yinc = AG.y(y) - m*AG.x(y) - c;
 
-				if (((xinc*yinc < 0 && ainc*binc < 0) || (xinc*yinc == 0 && ainc*binc < 0) || (xinc*yinc < 0 && ainc*binc == 0)))
+				if ((xinc * yinc < 0 && ainc * binc < 0)
+				 || (xinc * yinc == 0 && ainc * binc < 0)
+				 || (xinc * yinc < 0 && ainc * binc == 0))
 				{
 #if 0
 					std::cout << "edge " << e->index()

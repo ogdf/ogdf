@@ -134,14 +134,19 @@ public:
 	// returns true <=> f is a possible next face, i.e
 	//   outv(f) >= 3 and outv(f) = oute(f)+1
 	bool isPossFace(face f) {
-		return (f != externalFace() && m_outv[f] >= 3 && m_outv[f] == m_oute[f]+1);
+		return f != externalFace()
+		    && m_outv[f] >= 3
+		    && m_outv[f] == m_oute[f] + 1;
 	}
 
 	// returns true <=> v is a possible next node, i.e.
 	//   cutf(v) <= 1, cutf(v) = virte(v), numsf(v) = 0 and deg(v) >= 3
 	bool isPossNode(node v) {  // precond.: v on C_k'
-		return (m_onBase[v] == false && m_cutf[v] <= 1 &&
-			m_cutf[v] == virte(v) && m_numsf[v] == 0 && m_deg[v] >= 3);
+		return !m_onBase[v]
+		    && m_cutf[v] <= 1
+		    && m_cutf[v] == virte(v)
+		    && m_numsf[v] == 0
+		    && m_deg[v] >= 3;
 	}
 
 	// returns true <=> v=c_i and c_i -> c_i+1 is a possible next virtual edge, i.e.
@@ -274,8 +279,7 @@ private:
 	// lists of possible faces, nodes and edges
 	ListPure<face> m_possFaces; // faces with outv(f) >= 3 und outv(f) = oute(f)+1
 	ListPure<node> m_possNodes; // nodes with cutf(v) <= 1, cutf(v) = virte(v), numsf(v) = 0 and deg(v) >= 3
-	ListPure<node> m_possVirt;  // node v denotes virtual edge e = (v,next[v]), that satisfies
-								// (deg(v) = 2 and v != vLeft) or (deg(next(v)) = 2 and next(v) != vRight)
+	ListPure<node> m_possVirt;  // node v denotes virtual edge e = (v,next[v]), that satisfies (deg(v) = 2 and v != vLeft) or (deg(next(v)) = 2 and next(v) != vRight)
 
 	ListPure <node> m_updateNodes; // list of nodes to be updated
 	SListPure<face> m_updateFaces; // list of faces to be updated
@@ -425,7 +429,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	{
 		for(adjEntry adjV : v->adjEntries) {
 			face f = left(adjV);
-			if ((m_isSf[f] = (m_outv[f] > m_seqp[f]+1)) == true)
+			if ((m_isSf[f] = (m_outv[f] > m_seqp[f]+1)))
 				++m_numsf[v];
 		}
 	}
@@ -505,11 +509,11 @@ int ComputeBicOrder::virte(node v)
 {
 	int num = 0;
 
-	if (m_onOuter[v] == true)
+	if (m_onOuter[v])
 	{
-		if (m_virtEdge[v] == true)
+		if (m_virtEdge[v])
 			num++;
-		if (v != m_vLeft && m_virtEdge[prev(v)] == true)
+		if (v != m_vLeft && m_virtEdge[prev(v)])
 			num++;
 	}
 	return num;
@@ -652,7 +656,7 @@ node ComputeBicOrder::getFaceCl(face f)
 
 	} else {
 		for(adjEntry adj : f->entries) {
-			if (m_onOuter[v = adj->theNode()] == true && m_deg[v] == 2)
+			if (m_onOuter[v = adj->theNode()] && m_deg[v] == 2)
 				break;
 		}
 	}
@@ -852,7 +856,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 	V = ShellingOrderSet(1);
 	V[1] = m_nextV;
 
-	if (m_virtEdge[prev(m_nextV)] == true) {
+	if (m_virtEdge[prev(m_nextV)]) {
 		V.left(m_prevPred[m_nextV]->twinNode());
 		V.leftAdj(m_prevPred[m_nextV]);
 	} else {
@@ -860,7 +864,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 		V.leftAdj(m_prevPred[m_nextV]->cyclicPred());
 	}
 
-	if (m_virtEdge[m_nextV] == true) {
+	if (m_virtEdge[m_nextV]) {
 		V.right(m_nextSucc[m_nextV]->twinNode());
 		V.rightAdj(m_nextSucc[m_nextV]);
 	} else {
@@ -931,7 +935,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 		{
 			node v = adj2->twinNode();
 
-			if (v != w && m_onOuter[v] == true)
+			if (v != w && m_onOuter[v])
 			{
 				face f = left(adj2);
 
@@ -1047,7 +1051,7 @@ void ComputeBicOrder::removeNextVirt(ShellingOrderSet &V)
 
 void ComputeBicOrder::setUpdate(node v)
 {
-	if (m_vUpdate[v] == false) {
+	if (!m_vUpdate[v]) {
 		m_updateNodes.pushBack(v);
 		m_vUpdate[v] = true;
 	}
@@ -1056,7 +1060,7 @@ void ComputeBicOrder::setUpdate(node v)
 
 void ComputeBicOrder::setUpdate(face f)
 {
-	if (m_fUpdate[f] == false) {
+	if (!m_fUpdate[f]) {
 		m_updateFaces.pushBack(f);
 		m_fUpdate[f] = true;
 	}
@@ -1091,12 +1095,8 @@ void ComputeBicOrder::doUpdate()
 		}
 	}
 
-	ListIterator<node> it, itPrev;
-	for (it = m_updateNodes.rbegin(); it.valid(); it = itPrev)
-	{
-		itPrev = it.pred();
-		node v = *it;
-		if (v != m_vLeft && m_virtEdge[prev(v)] == true)
+	for (node v : reverse(m_updateNodes)) {
+		if (v != m_vLeft && m_virtEdge[prev(v)])
 			setUpdate(prev(v));
 	}
 
@@ -1227,7 +1227,7 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 			if (!firstRun) {
 				posInQ[Q.back().m_limit] = nullptr;
 				Q.back().m_limit = j;
-				posInQ[j] = Q.rbegin();
+				posInQ[j] = Q.backIterator();
 			}
 		}
 

@@ -67,14 +67,15 @@ public:
 		m_mfModule(mfModule), m_treatAsUndirected(treatAsUndirected), m_primaryCut(primaryCut), m_et(epsilonTest) { }
 
 	/**
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
-	virtual bool call(const Graph &graph, const EdgeArray<TCost> &weight, node s, node t, List<edge> &edgeList, edge e_st) override;
+	virtual bool call(const Graph &graph, const EdgeArray<TCost> &weight, node s, node t,
+	                  List<edge> &edgeList, edge e_st = nullptr) override;
 
 	/**
-	 * @copydoc MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
+	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
 	 */
-	virtual bool call(const Graph &graph, node s, node t, List<edge> &edgeList, edge e_st) override {
+	virtual bool call(const Graph &graph, node s, node t, List<edge> &edgeList, edge e_st = nullptr) override {
 		EdgeArray<TCost> weight(graph, 1);
 		return call(graph, weight, s, t, edgeList, e_st);
 	}
@@ -211,6 +212,7 @@ private:
 		List<node> queue;
 		queue.pushBack(startNode);
 		m_nodeSet[origNode(startNode)] = (frontCut ? cutType::FRONT_CUT : cutType::BACK_CUT);
+		frontCut ? m_frontCutCount++ : m_backCutCount++;
 
 		while (!queue.empty()) {
 			const node v = queue.popFrontRet();
@@ -264,6 +266,9 @@ private:
 		EdgeArray<bool> visited(graph, false);
 		node startNode = (m_primaryCut ? source : target);
 		adjEntry startAdj = startNode->firstAdj();
+		if (startAdj == nullptr) {
+			return;
+		}
 		if (startAdj->theEdge()->adjTarget() != startAdj) {
 			stack.push(startAdj->theEdge());
 		}

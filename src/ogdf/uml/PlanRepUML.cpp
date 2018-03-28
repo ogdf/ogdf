@@ -781,7 +781,7 @@ node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens, Combin
 		// add the edge from v to the merge point
 		// this edge is a generalization, but has no original edge
 		//edge eMerge = insertEdge(u, (*(inGens.rbegin()))->adjTarget(), E);
-		edge eMerge = newEdge(u,(*(inGens.rbegin()))->adjTarget());
+		edge eMerge = newEdge(u,inGens.back()->adjTarget());
 			//newEdge(u, (*(inGens.rbegin()))->adjTarget()); //incoming generalization
 		typeOf(eMerge) = Graph::EdgeType::generalization;
 		m_mergeEdges.pushBack(eMerge);

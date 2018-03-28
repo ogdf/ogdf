@@ -60,7 +60,7 @@ struct OGDF_EXPORT GridPointInfo
 	explicit GridPointInfo(edge e) : m_e(e) { }
 
 	bool operator==(const GridPointInfo &i) const {
-		return (m_v == i.m_v && m_e == i.m_e);
+		return m_v == i.m_v && m_e == i.m_e;
 	}
 
 	bool operator!=(const GridPointInfo &i) const {
@@ -134,11 +134,11 @@ bool GridLayout::isRedundant(IPoint &p1, IPoint &p2, IPoint &p3)
 	int dzy2 = p3.m_y - p2.m_y;
 	int dyx1 = p2.m_x - p1.m_x;
 
-	if (dzy1 == 0) return (dyx1 == 0 || dzy2 == 0);
+	if (dzy1 == 0) return dyx1 == 0 || dzy2 == 0;
 
 	int f = dyx1 * dzy2;
 
-	return (f % dzy1 == 0 && (p2.m_y - p1.m_y) == f / dzy1);
+	return f % dzy1 == 0 && p2.m_y - p1.m_y == f / dzy1;
 }
 
 void GridLayout::compact(IPolyline &ip)

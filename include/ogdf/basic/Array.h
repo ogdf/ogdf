@@ -35,6 +35,7 @@
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/memory.h>
 #include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/Reverse.h>
 #include <random>
 #include <type_traits>
 
@@ -42,6 +43,149 @@
 namespace ogdf {
 
 template<class E, class INDEX> class ArrayBuffer;
+
+template<class E, bool isConst> class ArrayReverseIteratorBase;
+template<class E> using ArrayConstIterator = const E*;
+template<class E> using ArrayIterator = E*;
+template<class E> using ArrayConstReverseIterator = ArrayReverseIteratorBase<E, true>;
+template<class E> using ArrayReverseIterator = ArrayReverseIteratorBase<E, false>;
+
+//! Random-access reverse iterator based on a pointer to an array element.
+/**
+ * Swaps all operations involving an increment of the pointer by operations
+ * involving a decrement, and vice versa. Moreover, the relational operators are
+ * swapped as well. It is possible that an iterator encapsulates a null pointer.
+ *
+ * @tparam E The type of element.
+ * @tparam isConst True iff this iterator allows only const-access to the element.
+ */
+template<class E, bool isConst> class ArrayReverseIteratorBase {
+	friend class ArrayReverseIteratorBase<E, !isConst>;
+
+	//! The underlying element, depending on isConst.
+	using Elem = typename std::conditional<isConst, const E, E>::type;
+
+	//! The pointer to the array element.
+	Elem *m_pX;
+
+public:
+	//! Constructs an iterator that points to E* \p pX.
+	ArrayReverseIteratorBase(E *pX) : m_pX(pX) { }
+
+	//! Constructs an iterator that points to const E* \p pX.
+	template<bool isConstSFINAE = isConst, typename std::enable_if<isConstSFINAE, int>::type = 0>
+	ArrayReverseIteratorBase(const E *pX) : m_pX(pX) { }
+
+	//! Constructs an invalid iterator.
+	ArrayReverseIteratorBase() : ArrayReverseIteratorBase(nullptr) { }
+
+	//! Constructs an iterator that is a copy of \p it.
+	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0>
+	ArrayReverseIteratorBase(const ArrayReverseIteratorBase<E,isArgConst> &it) : ArrayReverseIteratorBase(it.m_pX) { }
+
+	//! Implicit cast to (const) E*.
+	operator std::conditional<isConst, const E, E> *() const { return m_pX; }
+
+	//! Equality operator.
+	bool operator==(const ArrayReverseIteratorBase<E, isConst> &it) const {
+		return m_pX == it.m_pX;
+	}
+
+	//! Inequality operator.
+	bool operator!=(const ArrayReverseIteratorBase<E, isConst> &it) const {
+		return m_pX != it.m_pX;
+	}
+
+	//! Returns the element this iterator points to.
+	Elem &operator*() const { return *m_pX; }
+
+	//! Assignment operator.
+	ArrayReverseIteratorBase<E, isConst> &operator=(const ArrayReverseIteratorBase<E, isConst> &it) {
+		m_pX = it.m_pX;
+		return *this;
+	}
+
+	//! Increment operator (prefix).
+	ArrayReverseIteratorBase<E, isConst> &operator++() {
+		m_pX--;
+		return *this;
+	}
+
+	//! Increment operator (postfix).
+	ArrayReverseIteratorBase<E, isConst> operator++(int) {
+		ArrayReverseIteratorBase<E, isConst> it = *this;
+		m_pX--;
+		return it;
+	}
+
+	//! Decrement operator (prefix).
+	ArrayReverseIteratorBase<E, isConst> &operator--() {
+		m_pX++;
+		return *this;
+	}
+
+	//! Decrement operator (postfix).
+	ArrayReverseIteratorBase<E, isConst> operator--(int) {
+		ArrayReverseIteratorBase<E, isConst> it = *this;
+		m_pX++;
+		return it;
+	}
+
+	//! Compound assignment operator (+).
+	ArrayReverseIteratorBase<E, isConst>& operator+=(const int &rhs) {
+		m_pX -= rhs;
+		return *this;
+	}
+
+	//! Compound assignment operator (-).
+	ArrayReverseIteratorBase<E, isConst>& operator-=(const int &rhs) {
+		m_pX += rhs;
+		return *this;
+	}
+
+	//! Addition operator with int on the right-hand side.
+	ArrayReverseIteratorBase<E, isConst> operator+(const int &rhs) {
+		return ArrayReverseIteratorBase<E, isConst>(m_pX - rhs);
+	}
+
+	//! Addition operator with int on the left-hand side.
+	//! Returns the same result as addition with int on the right-hand side.
+	friend ArrayReverseIteratorBase<E, isConst> operator+(
+			const int &lhs, ArrayReverseIteratorBase<E, isConst> rhs) {
+		return ArrayReverseIteratorBase<E, isConst>(rhs.m_pX - lhs);
+	}
+
+	//! Subtraction operator with int on the right-hand side.
+	ArrayReverseIteratorBase<E, isConst> operator-(const int &rhs) {
+		return ArrayReverseIteratorBase<E, isConst>(m_pX + rhs);
+	}
+
+	//! Subtraction operator.
+	template<bool isArgConst>
+	int operator-(ArrayReverseIteratorBase<E, isArgConst> &rhs) {
+		return rhs.m_pX - m_pX;
+	}
+
+	//! Less-than operator.
+	bool operator< (ArrayReverseIteratorBase<E, isConst> &it) const { return m_pX > it.m_pX; }
+
+	//! Greater-than operator.
+	bool operator> (ArrayReverseIteratorBase<E, isConst> &it) const { return m_pX < it.m_pX; }
+
+	//! Less-than-or-equals operator.
+	bool operator<=(ArrayReverseIteratorBase<E, isConst> &it) const { return m_pX >= it.m_pX; }
+
+	//! Greater-than-or-equals operator.
+	bool operator>=(ArrayReverseIteratorBase<E, isConst> &it) const { return m_pX <= it.m_pX; }
+
+	//! Member access operator.
+	Elem &operator[](std::size_t idx) { return m_pX[-idx]; }
+
+	//! Const member access operator.
+	const Elem &operator[](std::size_t idx) const { return m_pX[-idx]; }
+
+	OGDF_NEW_DELETE
+};
 
 //! The parameterized class Array implements dynamic arrays of type \a E.
 /**
@@ -66,9 +210,13 @@ public:
 	//! Provides a reference to a const element stored in an array for reading and performing const operations.
 	using const_reference = const E&;
 	//! Provides a random-access iterator that can read a const element in an array.
-	using const_iterator = const E*;
+	using const_iterator = ArrayConstIterator<E>;
 	//! Provides a random-access iterator that can read or modify any element in an array.
-	using iterator = E*;
+	using iterator = ArrayIterator<E>;
+	//! Provides a reverse random-access iterator that can read a const element in an array.
+	using const_reverse_iterator = ArrayConstReverseIterator<E>;
+	//! Provides a reverse random-access iterator that can read or modify any element in an array.
+	using reverse_iterator = ArrayReverseIterator<E>;
 
 	//! Creates an array with empty index set.
 	Array() { construct(0,-1); }
@@ -176,23 +324,23 @@ public:
 	//! Returns a const iterator to one past the last element.
 	const_iterator cend() const { return m_pStop; }
 
-	//! Returns an iterator to the last element.
-	iterator rbegin() { return m_pStop-1; }
+	//! Returns an reverse iterator to the last element.
+	reverse_iterator rbegin() { return m_pStop-1; }
 
-	//! Returns a const iterator to the last element.
-	const_iterator rbegin() const { return m_pStop-1; }
+	//! Returns a const reverse iterator to the last element.
+	const_reverse_iterator rbegin() const { return m_pStop-1; }
 
-	//! Returns a const iterator to the last element.
-	const_iterator crbegin() const { return m_pStop-1; }
+	//! Returns a const reverse iterator to the last element.
+	const_reverse_iterator crbegin() const { return m_pStop-1; }
 
-	//! Returns an iterator to one before the first element.
-	iterator rend() { return m_pStart-1; }
+	//! Returns an reverse iterator to one before the first element.
+	reverse_iterator rend() { return m_pStart-1; }
 
-	//! Returns a const iterator to one before the first element.
-	const_iterator rend() const { return m_pStart-1; }
+	//! Returns a const reverse iterator to one before the first element.
+	const_reverse_iterator rend() const { return m_pStart-1; }
 
-	//! Returns a const iterator to one before the first element.
-	const_iterator crend() const { return m_pStart-1; }
+	//! Returns a const reverse iterator to one before the first element.
+	const_reverse_iterator crend() const { return m_pStart-1; }
 
 
 	//@}

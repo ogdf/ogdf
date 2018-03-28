@@ -140,8 +140,7 @@ private:
 	node              m_treeRoot; //!< Root of tree after computation.
 	node              m_root;     //!< Root of tree by selection method.
 
-	double            m_estimateFactor; //!< Weight of value (largestchild / number of children) added to
-										// estimate to compute radius.
+	double            m_estimateFactor; //!< Weight of value (largestchild / number of children) added to estimate to compute radius.
 
 	ChildOrder        m_childOrder; //!< How to arrange the children.
 	TreeComputation   m_treeComputation; //!< How to derive the spanning tree.

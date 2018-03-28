@@ -121,7 +121,7 @@ private:
 	struct vInfo {
 		ATYPE rc[4];
 		vInfo() {
-			rc[0] = rc[1] = rc[2] = rc[3];
+			rc[0] = rc[1] = rc[2] = rc[3] = ATYPE();
 		}
 	};
 

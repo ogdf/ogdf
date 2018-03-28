@@ -33,6 +33,8 @@
 
 #include <ogdf/graphalg/steiner_tree/goemans/BlowupGraph.h>
 
+//#define OGDF_STEINER_TREE_GOEMANS_BLOWUP_COMPONENTS_LOGGING
+
 namespace ogdf {
 namespace steiner_tree {
 namespace goemans {
@@ -91,6 +93,13 @@ protected:
 				}
 			}
 		}
+#ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_COMPONENTS_LOGGING
+		std::cout
+		  << " * component with terminals " << terms
+		  << " starting with edge " << rootEdge
+		  << " having cost " << cost
+		  << " and capacity " << blowupGraph.getCapacity(rootEdge) << std::endl;
+#endif
 	}
 
 public:
@@ -103,6 +112,9 @@ public:
 		componentId[blowupGraph.getPseudotarget()] = 0;
 		componentId[blowupGraph.getTarget()] = 0;
 
+#ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_COMPONENTS_LOGGING
+		std::cout << "Finding components in blowup graph:" << std::endl;
+#endif
 		for (node t : blowupGraph.terminals()) {
 			for (adjEntry rootAdj : t->adjEntries) {
 				const edge rootEdge = rootAdj->theEdge();

@@ -67,7 +67,7 @@ public:
 	void insert(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_isContained.graphOf());
 		bool &isContained = m_isContained[c];
-		if (isContained == false) {
+		if (!isContained) {
 			isContained = true;
 			m_clusters.pushFront(c);
 		}

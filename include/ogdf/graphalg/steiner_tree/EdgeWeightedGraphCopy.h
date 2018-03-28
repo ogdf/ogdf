@@ -45,6 +45,7 @@ public:
 	EdgeWeightedGraphCopy &operator=(const EdgeWeightedGraphCopy &wGC);
 	virtual ~EdgeWeightedGraphCopy() {}
 	void createEmpty(const Graph &wG);
+	void init(const EdgeWeightedGraph<T>& wG);
 	edge newEdge(node u, node v, T weight);
 	edge newEdge(edge eOrig, T weight);
 	T weight(const edge e) const {
@@ -139,6 +140,17 @@ EdgeWeightedGraphCopy<T>::EdgeWeightedGraphCopy(const EdgeWeightedGraph<T> &wG)
 	: GraphCopy(wG), m_edgeWeight(*this)
 {
 	for(edge e : edges) {
+		m_edgeWeight[e] = wG.weight(original(e));
+	}
+}
+
+template<typename T>
+void EdgeWeightedGraphCopy<T>::init(const EdgeWeightedGraph<T>& wG)
+{
+	GraphCopy::init(wG);
+
+	m_edgeWeight.init(*this);
+	for (edge e : edges) {
 		m_edgeWeight[e] = wG.weight(original(e));
 	}
 }

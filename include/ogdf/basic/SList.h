@@ -345,21 +345,15 @@ public:
 
 	//! Returns an iterator to the last element of the list.
 	/**
-	 * If the list is empty, a null pointer iterator is returned.
+	 * If the list is empty, an invalid iterator is returned.
 	 */
-	iterator rbegin() { return m_tail; }
+	iterator backIterator() { return m_tail; }
 
 	//! Returns a const iterator to the last element of the list.
 	/**
-	 * If the list is empty, a null pointer iterator is returned.
+	 * If the list is empty, an invalid iterator is returned.
 	 */
-	const_iterator rbegin() const { return m_tail; }
-
-	//! Returns a const iterator to the last element of the list.
-	/**
-	 * If the list is empty, a null pointer iterator is returned.
-	 */
-	const_iterator crbegin() const { return m_tail; }
+	const_iterator backIterator() const { return m_tail; }
 
 	//! Returns an iterator to the cyclic successor of \p it.
 	/**
@@ -416,7 +410,7 @@ public:
 			pX = pX->m_next;
 			pY = pY->m_next;
 		}
-		return (pX == nullptr && pY == nullptr);
+		return pX == nullptr && pY == nullptr;
 	}
 
 	//! Inequality operator.
@@ -692,7 +686,7 @@ public:
 	 */
 	//@{
 
-	//! @copydoc List#chooseIterator
+	//! @copydoc ogdf::List#chooseIterator
 	const_iterator chooseIterator(
 			std::function<bool(const E&)> includeElement = [](const E&) { return true; },
 			bool isFastTest = true) const {
@@ -706,7 +700,7 @@ public:
 		return chooseIteratorFrom(*this, includeElement, isFastTest);
 	}
 
-	//! List#chooseElement
+	//! @copydoc ogdf::List#chooseElement
 	const_reference chooseElement(
 			std::function<bool(const E&)> includeElement = [](const E&) { return true; },
 			bool isFastTest = true) const {
@@ -840,12 +834,12 @@ public:
 		return *this;
 	}
 
-	//! @copydoc SListPure::operator==
+	//! @copydoc ogdf::SListPure::operator==
 	bool operator==(const SList<E> &L) const {
 		return (m_count == L.m_count) && SListPure<E>::operator==(L);
 	}
 
-	//! @copydoc SListPure::operator!=
+	//! @copydoc ogdf::SListPure::operator!=
 	bool operator!=(const SList<E> &L) const {
 		return !operator==(L);
 	}
@@ -857,33 +851,33 @@ public:
 	 */
 	//@{
 
-	//! @copydoc SListPure::pushFront
+	//! @copydoc ogdf::SListPure::pushFront
 	SListIterator<E> pushFront(const E &x) {
 		++m_count;
 		return SListPure<E>::pushFront(x);
 	}
 
-	//! @copydoc SListPure::emplaceFront
+	//! @copydoc ogdf::SListPure::emplaceFront
 	template<class ... Args>
 	iterator emplaceFront(Args && ... args) {
 		++m_count;
 		return SListPure<E>::emplaceFront(std::forward<Args>(args)...);
 	}
 
-	//! @copydoc SListPure::pushBack
+	//! @copydoc ogdf::SListPure::pushBack
 	SListIterator<E> pushBack(const E &x) {
 		++m_count;
 		return SListPure<E>::pushBack(x);
 	}
 
-	//! @copydoc SListPure::emplaceBack
+	//! @copydoc ogdf::SListPure::emplaceBack
 	template<class ... Args>
 	iterator emplaceBack(Args && ... args) {
 		++m_count;
 		return SListPure<E>::emplaceBack(std::forward<Args>(args)...);
 	}
 
-	//! @copydoc SListPure::insertAfter
+	//! @copydoc ogdf::SListPure::insertAfter
 	SListIterator<E> insertAfter(const E &x, SListIterator<E> itBefore) {
 		++m_count;
 		return SListPure<E>::insertAfter(x, itBefore);
@@ -896,26 +890,26 @@ public:
 	 */
 	//@{
 
-	//! @copydoc SListPure::popFront
+	//! @copydoc ogdf::SListPure::popFront
 	void popFront() {
 		--m_count;
 		SListPure<E>::popFront();
 	}
 
-	//! @copydoc SListPure::popFrontRet
+	//! @copydoc ogdf::SListPure::popFrontRet
 	E popFrontRet() {
 		E el = front();
 		popFront();
 		return el;
 	}
 
-	//! @copydoc SListPure::delSucc
+	//! @copydoc ogdf::SListPure::delSucc
 	void delSucc(SListIterator<E> itBefore) {
 		--m_count;
 		SListPure<E>::delSucc(itBefore);
 	}
 
-	//! @copydoc SListPure::clear
+	//! @copydoc ogdf::SListPure::clear
 	void clear() {
 		m_count = 0;
 		SListPure<E>::clear();
@@ -928,25 +922,25 @@ public:
 	 */
 	//@{
 
-	//! @copydoc SListPure::moveFrontToFront
+	//! @copydoc ogdf::SListPure::moveFrontToFront
 	void moveFrontToFront(SList<E> &L2) {
 		SListPure<E>::moveFrontToFront(L2);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc SListPure::moveFrontToBack
+	//! @copydoc ogdf::SListPure::moveFrontToBack
 	void moveFrontToBack(SList<E> &L2) {
 		SListPure<E>::moveFrontToBack(L2);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc SListPure::moveFrontToSucc
+	//! @copydoc ogdf::SListPure::moveFrontToSucc
 	void moveFrontToSucc(SList<E> &L2, SListIterator<E> itBefore) {
 		SListPure<E>::moveFrontToSucc(L2,itBefore);
 		--m_count; ++L2.m_count;
 	}
 
-	//! @copydoc SListPure::conc
+	//! @copydoc ogdf::SListPure::conc
 	void conc(SList<E> &L2) {
 		SListPure<E>::conc(L2);
 		m_count += L2.m_count;
@@ -962,8 +956,7 @@ public:
 	using SListPure<E>::cbegin;
 	using SListPure<E>::end;
 	using SListPure<E>::cend;
-	using SListPure<E>::rbegin;
-	using SListPure<E>::crbegin;
+	using SListPure<E>::backIterator;
 	using SListPure<E>::cyclicSucc;
 	using SListPure<E>::reverse;
 	using SListPure<E>::search;
@@ -1033,6 +1026,10 @@ template<class E>
 template<class RNG>
 void SListPure<E>::permute(const int n, RNG &rng)
 {
+	if (n == 0) {
+		return;
+	}
+
 	Array<SListElement<E> *> A(n+1);
 	A[n] = nullptr;
 

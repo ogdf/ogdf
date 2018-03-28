@@ -226,30 +226,6 @@ void describeArray(
 				}
 				AssertThat(counter, Equals(list.size()));
 			});
-
-			it("iterates over the array backwards", [&]() {
-				List<KeyType> list;
-				getAllKeys(graph, list);
-
-				const MyArrayType cArray(*array);
-				int counter = 0;
-				for(const_iterator it = cArray.rbegin(); it != cArray.rend(); it--){
-					counter++;
-				}
-				AssertThat(counter, Equals(list.size()));
-
-				counter = 0;
-				for(iterator it = array->rbegin(); it != array->rend(); it--){
-					counter++;
-				}
-				AssertThat(counter, Equals(list.size()));
-
-				counter = 0;
-				for(const_iterator it = cArray.crbegin(); it != cArray.crend(); it--){
-					counter++;
-				}
-				AssertThat(counter, Equals(list.size()));
-			});
 		});
 	});
 }

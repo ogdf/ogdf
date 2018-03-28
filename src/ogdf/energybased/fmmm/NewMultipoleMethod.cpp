@@ -91,7 +91,7 @@ static ParticleListState traverse(List<ParticleInfo> &relevantList, double mid_c
 		}
 		if (!last_left_item_found) {
 			l_item = relevantList.cyclicSucc(l_item);
-			r_item = relevantList.cyclicPred(r_item);
+			r_item = relevantList.cyclicSucc(r_item);
 		}
 	}
 
@@ -1404,8 +1404,8 @@ void NewMultipoleMethod::find_small_cell_by_formula(QuadTreeNodeNM* act_ptr, DPo
 		} else { // idea of Aluru et al.
 			int k, a1, a2, A, j_minus_k;
 			double h1;
-			int Sm_x_level, Sm_y_level;
-			int Sm_x_position, Sm_y_position;
+			int Sm_x_level{}, Sm_y_level{};
+			int Sm_x_position{}, Sm_y_position{};
 
 			if (min.m_x != max.m_x) {
 				// calculate Sm_x_level and Sm_x_position

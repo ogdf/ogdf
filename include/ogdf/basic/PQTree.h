@@ -920,7 +920,7 @@ bool PQTree<T,X,Y>::addNodeToNewParent(
 	{
 		OGDF_ASSERT(parent->type() == PQNodeRoot::PQNodeType::PNode || parent->type() == PQNodeRoot::PQNodeType::QNode);
 		//parent type not valid
-		if ((leftBrother == nullptr) && (rightBrother == nullptr))
+		if (leftBrother == nullptr && rightBrother == nullptr)
 			return addNodeToNewParent(parent,child);
 		else if (child != nullptr)
 		{
@@ -1179,7 +1179,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 		valid pointer to their parent and the parent pointer of [[checkNode]]
 		is updated.
 		*/
-		if ((checkNode->m_parentType != PQNodeRoot::PQNodeType::PNode) && (checkNode != m_root))
+		if (checkNode->m_parentType != PQNodeRoot::PQNodeType::PNode && checkNode != m_root)
 			// checkNode is son of a QNode.
 			// Check if it is blocked.
 		{
@@ -1276,7 +1276,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 						PQNode<T,X,Y>* holdSib = clientNextSib(checkSib,oldSib);
 						oldSib = checkSib;
 						checkSib = holdSib;
-							//Blocked node as endmost child of a QNode.
+						// Blocked node as endmost child of a QNode.
 					}
 				}
 
@@ -1293,7 +1293,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 						PQNode<T,X,Y>* holdSib = clientNextSib(checkSib,oldSib);
 						oldSib = checkSib;
 						checkSib = holdSib;
-							//Blocked node as endmost child of a QNode.
+						// Blocked node as endmost child of a QNode.
 					}
 				}
 			}
@@ -1913,8 +1913,7 @@ void PQTree<T,X,Y>::exchangeNodes(
 			oldNode->m_parent->m_rightEndmost = newNode;
 	}
 
-	if ((oldNode->m_sibLeft == oldNode) && (oldNode->m_sibRight == oldNode))
-	{
+	if (oldNode->m_sibLeft == oldNode && oldNode->m_sibRight == oldNode) {
 		/*
 		Two possible cases are occured.
 		\begin{enumerate}
@@ -2062,7 +2061,7 @@ void PQTree<T,X,Y>::linkChildrenOfQnode(
 	PQNode<T,X,Y> *installed,
 	PQNode<T,X,Y> *newChild)
 {
-	if ((installed != nullptr) && (newChild != nullptr))
+	if (installed != nullptr && newChild != nullptr)
 	{
 		if (installed->m_sibLeft == nullptr)
 		{
@@ -2321,7 +2320,7 @@ bool PQTree<T,X,Y>::Reduce(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 	}
 
 	PQNode<T,X,Y>* checkNode = processNodes.top();
-	while ((checkNode != nullptr) && (processNodes.size() > 0))
+	while (checkNode != nullptr && processNodes.size() > 0)
 	{
 		checkNode = processNodes.pop();
 
@@ -2566,14 +2565,12 @@ void PQTree<T,X,Y>::removeBlock(PQNode<T,X,Y> *nodePtr,bool isRoot)
 	if (!isRoot)
 		nodePtr->m_parent->partialChildren->pushFront(nodePtr);
 
-	if (!nodePtr->partialChildren->empty())
-												// Get a partial child.
-	{
+	if (!nodePtr->partialChildren->empty()) { // Get a partial child.
 		partial_1 = nodePtr->partialChildren->popFrontRet();
 
-												// Get the full and empty
-												// endmost children of the
-												// partial child [[partial_1]].
+		// Get the full and empty
+		// endmost children of the
+		// partial child [[partial_1]].
 		checkVarLeft = clientLeftEndmost(partial_1);
 		checkVarRight = clientRightEndmost(partial_1);
 		if (checkVarLeft->status() == PQNodeRoot::PQNodeStatus::Full)
@@ -2602,9 +2599,9 @@ void PQTree<T,X,Y>::removeBlock(PQNode<T,X,Y> *nodePtr,bool isRoot)
 			realempty_1 = checkVarRight;
 		}
 
-												// Get the immediate
-												// siblings of the partial
-												// child [[partial_1]].
+		// Get the immediate
+		// siblings of the partial
+		// child [[partial_1]].
 		if (clientSibLeft(partial_1) != nullptr)
 		{
 			if (clientSibLeft(partial_1)->status() == PQNodeRoot::PQNodeStatus::Full)
@@ -2634,13 +2631,11 @@ void PQTree<T,X,Y>::removeBlock(PQNode<T,X,Y> *nodePtr,bool isRoot)
 	}
 
 
-	if (!nodePtr->partialChildren->empty())
-											// There is a second partial child.
-	{
+	if (!nodePtr->partialChildren->empty()) { // There is a second partial child.
 		partial_2 = nodePtr->partialChildren->popFrontRet();
-											// Get the full and empty endmost
-											// children of the partial
-											// child [[partial_2]].
+		// Get the full and empty endmost
+		// children of the partial
+		// child [[partial_2]].
 
 		checkVarLeft = clientLeftEndmost(partial_2);
 		checkVarRight = clientRightEndmost(partial_2);
@@ -2667,9 +2662,9 @@ void PQTree<T,X,Y>::removeBlock(PQNode<T,X,Y> *nodePtr,bool isRoot)
 			endempty_2 = partial_2->m_rightEndmost;
 			realempty_2 = checkVarRight;
 		}
-												// Get the immediate siblings
-												// of the partial child
-												// [[partial_2]].
+		// Get the immediate siblings
+		// of the partial child
+		// [[partial_2]].
 		if (clientSibLeft(partial_2) != nullptr)
 		{
 			if (clientSibLeft(partial_2)->status() == PQNodeRoot::PQNodeStatus::Full)
@@ -2998,7 +2993,7 @@ void PQTree<T,X,Y>::removeChildFromSiblings(PQNode<T,X,Y>* nodePtr)
 	Remove [[nodePtr]] from its immediate siblings and links the
 	siblings via the [[sibRight]] and [[sibLeft]] pointers.
 	*/
-	if ((nodePtr->m_sibRight != nullptr) && (nodePtr->m_sibRight != nodePtr))
+	if (nodePtr->m_sibRight != nullptr && nodePtr->m_sibRight != nodePtr)
 	{
 		if (nodePtr->m_sibRight->m_sibLeft == nodePtr)
 			nodePtr->m_sibRight->m_sibLeft = nodePtr->m_sibLeft;
@@ -3008,7 +3003,7 @@ void PQTree<T,X,Y>::removeChildFromSiblings(PQNode<T,X,Y>* nodePtr)
 			nodePtr->m_sibRight->m_sibRight = nodePtr->m_sibLeft;
 		}
 	}
-	if ((nodePtr->m_sibLeft != nullptr) && (nodePtr->m_sibLeft != nodePtr))
+	if (nodePtr->m_sibLeft != nullptr && nodePtr->m_sibLeft != nodePtr)
 	{
 		if (nodePtr->m_sibLeft->m_sibRight == nodePtr)
 			nodePtr->m_sibLeft->m_sibRight = nodePtr->m_sibRight;
@@ -3030,7 +3025,7 @@ int PQTree<T,X,Y>::removeNodeFromTree(PQNode<T,X,Y>* parent,PQNode<T,X,Y>* child
 	{
 		removeChildFromSiblings(child);
 		parent->m_childCount--;
-		if ((child->status() == PQNodeRoot::PQNodeStatus::Full) || (child->status() == PQNodeRoot::PQNodeStatus::Partial))
+		if (child->status() == PQNodeRoot::PQNodeStatus::Full || child->status() == PQNodeRoot::PQNodeStatus::Partial)
 			parent->m_pertChildCount--;
 		return parent->m_childCount;
 	}
@@ -3062,7 +3057,7 @@ void PQTree<T,X,Y>::sortExceptions(int Exceptions[],int arraySize)
 template<class T,class X,class Y>
 bool PQTree<T,X,Y>::templateL1(PQNode<T,X,Y> *nodePtr, bool isRoot)
 {
-	if ((nodePtr->type() == PQNodeRoot::PQNodeType::Leaf) && (nodePtr->status() == PQNodeRoot::PQNodeStatus::Full))
+	if (nodePtr->type() == PQNodeRoot::PQNodeType::Leaf && nodePtr->status() == PQNodeRoot::PQNodeStatus::Full)
 	{
 		if (!isRoot)
 			nodePtr->m_parent->fullChildren->pushFront(nodePtr);
@@ -3519,7 +3514,7 @@ bool PQTree<T,X,Y>::templateQ2(PQNode<T,X,Y> *nodePtr,bool isRoot)
 		if (fullNode != nullptr)
 			sequenceCons = checkChain(nodePtr,fullNode,&sequenceBegin,&sequenceEnd);
 
-		if (sequenceCons && (nodePtr->partialChildren->size() == 1))
+		if (sequenceCons && nodePtr->partialChildren->size() == 1)
 		{
 			PQNode<T,X,Y> *partialChild = nodePtr->partialChildren->front();
 			sequenceCons = false;

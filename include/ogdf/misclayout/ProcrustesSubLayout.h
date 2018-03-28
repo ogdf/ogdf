@@ -148,7 +148,7 @@ public:
 		m_scaleToInitialLayout = flag;
 	}
 
-	//! @copydoc setScaleToInitialLayout(bool flag)
+	//! @copydoc #setScaleToInitialLayout
 	bool scaleToInitialLayout() const
 	{
 		return m_scaleToInitialLayout;

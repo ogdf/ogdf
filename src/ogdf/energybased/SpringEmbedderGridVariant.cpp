@@ -419,8 +419,8 @@ void SpringEmbedderGridVariant::Worker::operator()() {
 	// Initialize
 
 	double wsum = 0, hsum = 0;
-	double xmin = std::numeric_limits<double>::max(), xmax = -std::numeric_limits<double>::max();
-	double ymin = std::numeric_limits<double>::max(), ymax = -std::numeric_limits<double>::max();
+	double xmin = std::numeric_limits<double>::max(), xmax = std::numeric_limits<double>::lowest();
+	double ymin = std::numeric_limits<double>::max(), ymax = std::numeric_limits<double>::lowest();
 
 	int adjCounter = m_eStartIndex;
 	int runnerIndex = m_vStartIndex;
@@ -469,11 +469,11 @@ void SpringEmbedderGridVariant::Worker::operator()() {
 	const ForceModelBase &forceModel = m_master.forceModel();
 
 	const int numIter = m_master.numberOfIterations();
-	for(int iter = 1; m_master.hasConverged() == false && iter <= numIter; ++iter) {
+	for(int iter = 1; !m_master.hasConverged() && iter <= numIter; ++iter) {
 		double boxLength = m_master.boxLength();
 
-		xmin = std::numeric_limits<double>::max(); xmax = -std::numeric_limits<double>::max();
-		ymin = std::numeric_limits<double>::max(); ymax = -std::numeric_limits<double>::max();
+		xmin = std::numeric_limits<double>::max(); xmax = std::numeric_limits<double>::lowest();
+		ymin = std::numeric_limits<double>::max(); ymax = std::numeric_limits<double>::lowest();
 
 		double sumForces = 0.0;
 		double maxForce = 0.0;
@@ -540,8 +540,8 @@ void SpringEmbedderGridVariant::Worker::operator()() {
 		for(int iter = 1; !m_master.hasConverged() && iter <= numIterImp; ++iter) {
 			double boxLength = m_master.boxLength();
 
-			xmin = std::numeric_limits<double>::max(); xmax = -std::numeric_limits<double>::max();
-			ymin = std::numeric_limits<double>::max(); ymax = -std::numeric_limits<double>::max();
+			xmin = std::numeric_limits<double>::max(); xmax = std::numeric_limits<double>::lowest();
+			ymin = std::numeric_limits<double>::max(); ymax = std::numeric_limits<double>::lowest();
 
 			double sumForces = 0.0;
 			double maxForce = 0.0;

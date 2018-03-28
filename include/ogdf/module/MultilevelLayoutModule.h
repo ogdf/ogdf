@@ -58,7 +58,6 @@ public:
 	 */
 	virtual void call(GraphAttributes &GA) override = 0;
 
-
 	/**
 	 * \brief Computes a layout of graph \a MLG.
 	 *

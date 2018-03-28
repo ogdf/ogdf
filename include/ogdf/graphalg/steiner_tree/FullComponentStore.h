@@ -97,6 +97,7 @@ public:
 		}
 	}
 
+	//! Inserts a component. Note that \p comp is copied.
 	void insert(const EdgeWeightedGraphCopy<T> &comp)
 	{
 		OGDF_ASSERT(!comp.empty());
@@ -145,6 +146,7 @@ public:
 		m_components.push(data);
 	}
 
+	//! Removes a component by its \p id.
 	void remove(int id)
 	{
 #ifdef OGDF_FULLCOMPONENTSTORE_REMOVE_IN_GRAPH_REPRESENTATION_ALSO

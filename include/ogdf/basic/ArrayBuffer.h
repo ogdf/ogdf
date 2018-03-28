@@ -57,6 +57,13 @@ class ArrayBuffer : private Array<E, INDEX> {
 	INDEX num; //!< The number of elements in the buffer
 	bool growable;
 public:
+	using key_type = INDEX;
+	using value_type = E;
+	using const_iterator = typename Array<E, INDEX>::const_iterator;
+	using iterator = typename Array<E, INDEX>::iterator;
+	using const_reverse_iterator = typename Array<E, INDEX>::const_reverse_iterator;
+	using reverse_iterator = typename Array<E, INDEX>::reverse_iterator;
+
 	//! Creates an empty array buffer, without initial memory allocation.
 	ArrayBuffer() : Array<E,INDEX>(), num(0), growable(true) {}
 
@@ -111,7 +118,7 @@ public:
 	bool empty() const { return !num; }
 
 	//! Returns true iff the buffer is non-growable and filled.
-	bool full() const { return (!growable) && (num == Array<E,INDEX>::size()); }
+	bool full() const { return !growable && num == Array<E,INDEX>::size(); }
 
 	//! Returns number of elements in the buffer.
 	INDEX size() const { return num; }
@@ -125,29 +132,29 @@ public:
 	//! Sets the flag whether the buffer will automatically expand if the initial size is insufficient
 	void setGrowable(bool _growable) { growable = _growable; }
 
-	//! Returns a pointer to the first element.
-	E *begin() { return Array<E, INDEX>::begin(); }
+	//! Returns an iterator to the first element.
+	iterator begin() { return Array<E, INDEX>::begin(); }
 
-	//! Returns a pointer to the first element.
-	const E *begin() const { return Array<E, INDEX>::begin(); }
+	//! Returns a const iterator to the first element.
+	const_iterator begin() const { return Array<E, INDEX>::begin(); }
 
-	//! Returns a pointer to one past the last element.
-	E *end() { return Array<E, INDEX>::begin()+num; }
+	//! Returns an iterator to one past the last element.
+	iterator end() { return Array<E, INDEX>::begin()+num; }
 
-	//! Returns a pointer to one past the last element.
-	const E *end() const { return Array<E, INDEX>::begin()+num; }
+	//! Returns a const iterator to one past the last element.
+	const_iterator end() const { return Array<E, INDEX>::begin()+num; }
 
-	//! Returns a pointer to the last element.
-	E *rbegin() { return Array<E, INDEX>::begin()+(num-1); }
+	//! Returns a reverse iterator to the last element.
+	reverse_iterator rbegin() { return Array<E, INDEX>::begin()+(num-1); }
 
-	//! Returns a pointer to the last element.
-	const E *rbegin() const { return Array<E, INDEX>::begin()+(num-1); }
+	//! Returns a const reverse iterator to the last element.
+	const_reverse_iterator rbegin() const { return Array<E, INDEX>::begin()+(num-1); }
 
-	//! Returns a pointer to one before the first element.
-	E *rend() { return Array<E, INDEX>::rend(); }
+	//! Returns a reverse iterator to one before the first element.
+	reverse_iterator rend() { return Array<E, INDEX>::rend(); }
 
-	//! Returns a pointer to one before the first element.
-	const E *rend() const { return Array<E, INDEX>::rend(); }
+	//! Returns a const reverse iterator to one before the first element.
+	const_reverse_iterator rend() const { return Array<E, INDEX>::rend(); }
 
 	//! Returns a reference to the element at position \p i.
 	const E &operator[](INDEX i) const {
@@ -344,28 +351,35 @@ public:
 		return Array<E,INDEX>::binarySearch(0, num-1, e, comp);
 	}
 
-	//! @copydoc Array::permute(INDEX l, INDEX r, RNG &rng)
+	//! @name Reordering
+	//! @{
+
+	using Array<E, INDEX>::swap;
+
+	//! @copydoc ogdf::Array::permute(INDEX l, INDEX r, RNG &rng)
 	template<class RNG>
 	void permute(INDEX l, INDEX r, RNG &rng) {
 		Array<E,INDEX>::permute(l, r, rng);
 	}
 
-	//! @copydoc Array::permute(RNG &rng)
+	//! @copydoc ogdf::Array::permute(RNG &rng)
 	template<class RNG>
 	void permute(RNG &rng) {
 		permute(0, num - 1, rng);
 	}
 
-	//! @copydoc Array::permute(INDEX l, INDEX r)
+	//! @copydoc ogdf::Array::permute(INDEX l, INDEX r)
 	void permute(INDEX l, INDEX r) {
 		std::minstd_rand rng(randomSeed());
 		permute(l, r, rng);
 	}
 
-	//! @copydoc Array::permute()
+	//! @copydoc ogdf::Array::permute()
 	void permute() {
 		permute(0, num-1);
 	}
+
+	//! @}
 
 	//! Removes the components listed in the buffer \p ind by shifting the remaining components to the left.
 	/**

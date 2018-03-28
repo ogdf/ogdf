@@ -145,11 +145,11 @@ public:
 	}
 	//! stream for logging-output (local)
 	std::ostream& lout(Level level = Level::Default) const {
-		return (is_lout(level)) ? *world : nirvana;
+		return is_lout(level) ? *world : nirvana;
 	}
 	//! stream for statistic-output (local)
 	std::ostream& sout() const {
-		return ((m_globalstatisticmode && m_logmode==LogMode::Global) || (m_logmode == LogMode::Statistic)) ? *world : nirvana;
+		return (m_globalstatisticmode && m_logmode == LogMode::Global) || m_logmode == LogMode::Statistic ? *world : nirvana;
 	}
 	//! stream for forced output (local)
 	std::ostream& fout() const {

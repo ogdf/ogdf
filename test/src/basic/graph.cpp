@@ -91,12 +91,12 @@ describe("Graph Class", [](){
 		AssertThat(graph.lastEdge(), IsNull());
 	});
 
-	for_each_graph_it("finds an existing edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("finds an existing edge", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
 		AssertThat(graph.searchEdge(e->source(), e->target()), Equals(e));
 	});
 
-	for_each_graph_it("returns the adjacency entries of an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("returns the adjacency entries of an edge", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
 		adjEntry adjSrc = e->adjSource();
 		adjEntry adjTgt = e->adjTarget();
@@ -106,12 +106,12 @@ describe("Graph Class", [](){
 		AssertThat(adjTgt->isSource(), IsFalse());
 	});
 
-	for_each_graph_it("finds a reverse edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("finds a reverse edge", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
 		AssertThat(graph.searchEdge(e->target(), e->source()), Equals(e));
 	});
 
-	for_each_graph_it("does not find non-existent edges", files, [](Graph &graph, const string file){
+	for_each_graph_it("does not find non-existent edges", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
 		node s = e->source();
 		node t = e->target();
@@ -119,7 +119,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.searchEdge(s, t), IsNull());
 	});
 
-	for_each_graph_it("can be assigned", files, [](Graph &graph, const string file){
+	for_each_graph_it("can be assigned", files, [](Graph &graph){
 		int m = graph.numberOfEdges();
 
 		int *degreeCounter = new int[m];
@@ -273,7 +273,7 @@ describe("Graph Class", [](){
 		AssertThat(edges.size(), Equals(1));
 	});
 
-	for_each_graph_it("removes a node", files, [](Graph &graph, const string file){
+	for_each_graph_it("removes a node", files, [](Graph &graph){
 		int n = graph.numberOfNodes();
 		int m = graph.numberOfEdges();
 
@@ -286,7 +286,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.numberOfEdges(), Equals(m - deg));
 	});
 
-	for_each_graph_it("removes an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("removes an edge", files, [](Graph &graph){
 		int n = graph.numberOfNodes();
 		int m = graph.numberOfEdges();
 
@@ -301,7 +301,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.numberOfEdges(), Equals(m - 1));
 	});
 
-	for_each_graph_it("can be cleared", files, [](Graph &graph, const string file){
+	for_each_graph_it("can be cleared", files, [](Graph &graph){
 		graph.clear();
 
 		AssertThat(graph.empty(), IsTrue());
@@ -309,7 +309,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.numberOfEdges(), Equals(0));
 	});
 
-	for_each_graph_it("hides an edge and restores it", files, [](Graph &graph, const string file){
+	for_each_graph_it("hides an edge and restores it", files, [](Graph &graph){
 		int n = graph.numberOfNodes();
 		int m = graph.numberOfEdges();
 
@@ -329,7 +329,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.searchEdge(e->source(), e->target()), Equals(e));
 	});
 
-	for_each_graph_it("restores all hidden edges", files, [](Graph &graph, const string file){
+	for_each_graph_it("restores all hidden edges", files, [](Graph &graph){
 		int m = graph.numberOfEdges();
 		Graph::HiddenEdgeSet set(graph);
 
@@ -347,7 +347,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.numberOfEdges(), Equals(m));
 	});
 
-	for_each_graph_it("hides all edges across 10 sets", files, [](Graph &graph, const string file){
+	for_each_graph_it("hides all edges across 10 sets", files, [](Graph &graph){
 		int m = graph.numberOfEdges();
 		int maxIndex = graph.maxNodeIndex();
 
@@ -396,7 +396,7 @@ describe("Graph Class", [](){
 		delete[] outDeg;
 	});
 
-	for_each_graph_it("restores edges upon graph destruction", files, [](Graph &graph, const string file) {
+	for_each_graph_it("restores edges upon graph destruction", files, [](Graph &graph) {
 		GraphCopy *copy = new GraphCopy(graph);
 		Graph::HiddenEdgeSet set(*copy);
 		set.hide(copy->chooseEdge());
@@ -405,26 +405,26 @@ describe("Graph Class", [](){
 	});
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
-	for_each_graph_it("doesn't hide edges of other graphs", files, [](Graph &graph, const string file) {
+	for_each_graph_it("doesn't hide edges of other graphs", files, [](Graph &graph) {
 		GraphCopy copy(graph);
 		Graph::HiddenEdgeSet set(copy);
 		AssertThrows(AssertionFailed, set.hide(graph.chooseEdge()));
 
 	});
 
-	for_each_graph_it("doesn't restore a non-hidden edge", files, [](Graph &graph, const string file) {
+	for_each_graph_it("doesn't restore a non-hidden edge", files, [](Graph &graph) {
 		Graph::HiddenEdgeSet set(graph);
 		AssertThrows(AssertionFailed, set.restore(graph.chooseEdge()));
 	});
 
-	for_each_graph_it("doesn't hide an edge twice", files, [](Graph &graph, const string file) {
+	for_each_graph_it("doesn't hide an edge twice", files, [](Graph &graph) {
 		Graph::HiddenEdgeSet set(graph);
 		edge e = graph.chooseEdge();
 		set.hide(e);
 		AssertThrows(AssertionFailed, set.hide(e));
 	});
 
-	for_each_graph_it("doesn't restore an edge twice", files, [](Graph &graph, const string file) {
+	for_each_graph_it("doesn't restore an edge twice", files, [](Graph &graph) {
 		Graph::HiddenEdgeSet set(graph);
 		edge e = graph.chooseEdge();
 		set.hide(e);
@@ -433,7 +433,7 @@ describe("Graph Class", [](){
 	});
 #endif
 
-	for_each_graph_it("reverses an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("reverses an edge", files, [](Graph &graph){
 		edge e = chooseEdge(graph, 5);
 		node s = e->source();
 		node t = e->target();
@@ -454,7 +454,7 @@ describe("Graph Class", [](){
 		AssertThat(e->source()->outdeg(), Equals(outT + 1));
 	});
 
-	for_each_graph_it("reverses all edges", files, [](Graph &graph, const string file){
+	for_each_graph_it("reverses all edges", files, [](Graph &graph){
 		int maxIndex = graph.maxEdgeIndex();
 		node *sources = new node[maxIndex + 1];
 		node *targets = new node[maxIndex + 1];
@@ -479,7 +479,7 @@ describe("Graph Class", [](){
 		delete[] targets;
 	});
 
-	for_each_graph_it("moves an adjacency entry", files, [](Graph &graph, const string file){
+	for_each_graph_it("moves an adjacency entry", files, [](Graph &graph){
 		adjEntry adj = chooseEdge(graph, 5)->adjSource();
 		adjEntry adjSucc = adj->cyclicSucc();
 
@@ -494,7 +494,7 @@ describe("Graph Class", [](){
 		AssertThat(adjSucc->cyclicSucc(), Is().Not().EqualTo(adj));
 	});
 
-	for_each_graph_it("swaps the target of an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("swaps the target of an edge", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
 		node s = e->source();
 		node t = e->target();
@@ -507,7 +507,7 @@ describe("Graph Class", [](){
 		AssertThat(e->target(), Equals(v));
 	});
 
-	for_each_graph_it("swaps the source of an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("swaps the source of an edge", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
 		node s = e->source();
 		node t = e->target();
@@ -520,7 +520,7 @@ describe("Graph Class", [](){
 		AssertThat(e->target(), Equals(t));
 	});
 
-	for_each_graph_it("splits an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("splits an edge", files, [](Graph &graph){
 		int n = graph.numberOfNodes();
 		int m = graph.numberOfEdges();
 
@@ -536,7 +536,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.numberOfEdges(), Equals(m + 1));
 	});
 
-	for_each_graph_it("un-splits an edge by dummy-node", files, [](Graph &graph, const string file){
+	for_each_graph_it("un-splits an edge by dummy-node", files, [](Graph &graph){
 		int n = graph.numberOfNodes();
 		int m = graph.numberOfEdges();
 
@@ -557,7 +557,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.searchEdge(s, t), Equals(e));
 	});
 
-	for_each_graph_it("un-splits an edge by dummy-edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("un-splits an edge by dummy-edge", files, [](Graph &graph){
 		int n = graph.numberOfNodes();
 		int m = graph.numberOfEdges();
 
@@ -575,7 +575,7 @@ describe("Graph Class", [](){
 		AssertThat(graph.searchEdge(s, t), Equals(e));
 	});
 
-	for_each_graph_it("splits nodes", files, [](Graph &graph, const string file){
+	for_each_graph_it("splits nodes", files, [](Graph &graph){
 		node vLeft = chooseNode(graph, 6);
 
 		int degree = vLeft->degree();
@@ -597,7 +597,7 @@ describe("Graph Class", [](){
 		AssertThat(vLeft->degree() + vRight->degree(), Equals(degree + 2));
 	});
 
-	for_each_graph_it("contracts an edge", files, [](Graph &graph, const string file){
+	for_each_graph_it("contracts an edge", files, [](Graph &graph){
 		edge e = chooseEdge(graph, 5);
 		node s = e->source();
 		node t = e->target();
@@ -651,7 +651,7 @@ describe("Graph Class", [](){
 
 	});
 
-	for_each_graph_it("collapses half of all nodes", files, [](Graph &graph, const string file){
+	for_each_graph_it("collapses half of all nodes", files, [](Graph &graph){
 		int m = graph.numberOfEdges();
 
 		List<node> nodes;
@@ -701,7 +701,7 @@ describe("Graph Class", [](){
 		delete[] adjacent;
 	});
 
-	for_each_graph_it("sorts adjacency lists", files, [](Graph &graph, const string file){
+	for_each_graph_it("sorts adjacency lists", files, [](Graph &graph){
 		node v = chooseNode(graph, 6);
 
 		List<adjEntry> entries;
@@ -725,7 +725,7 @@ describe("Graph Class", [](){
 		}
 	});
 
-	for_each_graph_it("reverses the order of all edges adjacent to a given node", files, [](Graph &graph, const string file){
+	for_each_graph_it("reverses the order of all edges adjacent to a given node", files, [](Graph &graph){
 		node v = chooseNode(graph, 6);
 		List<edge> edges;
 		v->adjEdges(edges);
@@ -742,7 +742,7 @@ describe("Graph Class", [](){
 		}
 	});
 
-	for_each_graph_it("swaps adjacency entries", files, [](Graph &graph, const string file){
+	for_each_graph_it("swaps adjacency entries", files, [](Graph &graph){
 		edge e = chooseEdge(graph, 5);
 		adjEntry adj = e->adjSource()->cyclicSucc()->cyclicSucc();
 
@@ -752,15 +752,15 @@ describe("Graph Class", [](){
 		AssertThat(e->adjSource()->cyclicSucc()->cyclicSucc(), Is().Not().EqualTo(adj));
 	});
 
-	for_each_graph_it("does not return a negative genus", files, [](Graph &graph, const string file){
+	for_each_graph_it("does not return a negative genus", files, [](Graph &graph){
 		AssertThat(graph.genus(), IsGreaterThan(-1));
 	});
 
-	for_each_graph_it("detects a combinatorial embedding", files, [](Graph &graph, const string file){
+	for_each_graph_it("detects a combinatorial embedding", files, [](Graph &graph){
 		AssertThat(graph.representsCombEmbedding(), Equals(graph.genus() == 0));
 	});
 
-	for_each_graph_it("returns wether an adjacency entry lies between two others", files, [](Graph &graph, const string file) {
+	for_each_graph_it("returns wether an adjacency entry lies between two others", files, [](Graph &graph) {
 		node v = graph.newNode();
 
 		while(graph.numberOfNodes() < 12) {
@@ -791,7 +791,7 @@ describe("Graph Class", [](){
 		AssertThat(adjs[2]->isBetween(adjs[0], adjs[1]), IsFalse());
 	});
 
-	for_each_graph_it("returns the adjacency entry of an edge", files, [](Graph &graph, const string file) {
+	for_each_graph_it("returns the adjacency entry of an edge", files, [](Graph &graph) {
 		node v = graph.chooseNode();
 
 		for(adjEntry adj : v->adjEntries) {

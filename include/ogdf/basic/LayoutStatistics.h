@@ -45,83 +45,87 @@ namespace ogdf {
 class OGDF_EXPORT LayoutStatistics
 {
 public:
-	//! Computes the total edge length in the layout \p ga.
+	//! Computes the edge length for each edge in the layout \p ga.
 	/**
-	 * One may assign \c nullptr to any of the output parameter if the respective value isn't of interest.
-	 *
 	 * \param ga                Input layout.
-	 * \param pMinLength        Is assigned the minimum edge length.
-	 * \param pMaxLength        Is assigned the maximum edge length.
-	 * \param pAvgLength        Is assigned the average edge length.
-	 * \param pStdDeviation     Is assigned the standard deviation of edge lengths.
 	 * \param considerSelfLoops Determines whether the lengths of self-loops are considered.
-	 * \return                  Sum of all edge lengths.
+	 * \return                  The edge length for each edge.
 	 */
-	static double edgeLengths(
+	static ArrayBuffer<double> edgeLengths(
 		const GraphAttributes &ga,
-		double *pMinLength        = nullptr,
-		double *pMaxLength        = nullptr,
-		double *pAvgLength        = nullptr,
-		double *pStdDeviation     = nullptr,
-		bool    considerSelfLoops = false);
+		bool considerSelfLoops = false);
 
 
-	//! Computes the total number of bends (i.e., bend-points) in the layout \p ga.
+	//! Computes the number of bends (i.e. bend-points) for each edge in the layout \p ga.
 	/**
-	 * One may assign \c nullptr to any of the output parameter if the respective value isn't of interest.
-
 	 * \param ga                Input layout.
-	 * \param pMinBendsPerEdge  Is assigned the minimum number of bends for any edge.
-	 * \param pMaxBendsPerEdge  Is assigned the maximum number of bends for any edge.
-	 * \param pAvgBendsPerEdge  Is assigned the average number of bends per edge.
-	 * \param pStdDeviation     Is assigned the standard deviation of edge bends.
 	 * \param considerSelfLoops Determines whether the bends of self-loops are considered.
-	 * \return                  Total number of bend points on all edges.
+	 * \return                  The number of bends for each edge.
 	 */
-	static int numberOfBends(
+	static ArrayBuffer<int> numberOfBends(
 		const GraphAttributes &ga,
-		int    *pMinBendsPerEdge  = nullptr,
-		int    *pMaxBendsPerEdge  = nullptr,
-		double *pAvgBendsPerEdge  = nullptr,
-		double *pStdDeviation     = nullptr,
-		bool    considerSelfLoops = false);
+		bool considerSelfLoops = false);
 
 
-	//! Computes the angular resolution of the layout \p ga.
+	//! Computes the angle for each pair of adjacent edge segments of the layout \p ga.
 	/**
-	 * The angular resolution of a layout is the smallest angle formed by any two edge segments that meet in a common endpoint or bend point.
 	 * Angles are given in radians.
-
-	 * One may assign \c nullptr to any of the output parameter if the respective value isn't of interest.
 	 *
 	 * \param ga            Input layout.
-	 * \param pMaxAngle     Is assigned the maximum angle for any two tangent segments.
-	 * \param pAvgAngle     Is assigned the average angle for any two tangent segments.
-	 * \param pStdDeviation Is assigned the standard deviation for angles of tangent segments.
 	 * \param considerBends Determines whether bend points of edges shall be considered.
-	 * \return              Angular resolution (smallest angle) of the layout.
+	 * \return              The angle for each two adjacent edge segments.
 	 */
-	static double angularResolution(
+	static ArrayBuffer<double> angles(
 		const GraphAttributes &ga,
-		double *pMaxAngle     = nullptr,
-		double *pAvgAngle     = nullptr,
-		double *pStdDeviation = nullptr,
-		bool    considerBends = true);
+		bool considerBends = true);
 
 
-	//! Computes the number of edge crossings in the layout \p ga.
+	//! Computes the number of edge crossings for each edge in the layout \p ga.
 	/**
-	 * If several edge segments cross in the same point, this is counted as if all of these segments
-	 * would cross pairwise. E.g., if three edge segments cross in a common points, this counts as
-	 * three crossings.
+	 * If several edge segments cross in the same point, this is counted as if
+	 * all of these segments would cross pairwise. E.g., if three edge segments
+	 * cross in a common points, this counts as two crossings for each of the
+	 * edges.
 	 *
 	 * \warning The same warning as for #intersectionGraph applies.
+	 * \warning The sum of all returned values is twice the number of crossings
+	 * as each crossing involves two edges.
 	 *
-	 * \param ga Input layout. If it contains bend points, each segement of an edge's polyline is considered as a line segment.
+	 * \param ga Input layout. If it contains bend points, each segment of an edge's polyline is considered as a line segment.
 	             Otherwise, a straight-line drawing is assumed.
-	 * \return Crossing number of the drawing.
+	 * \return   The number of crossings for each edge.
 	 */
-	static int numberOfCrossings(const GraphAttributes &ga);
+	static ArrayBuffer<int> numberOfCrossings(const GraphAttributes &ga);
+
+
+	//! Computes the number of crossings through a non-incident node for each
+	//! edge in the layout \p ga.
+	/**
+	 * If several edge segments cross a node in the same point, one crossing per
+	 * edge segment is counted. E.g., if three edge segments cross a node in a
+	 * common point, this counts as three node crossings.
+	 * Each node is treated as if it had the shape of the rectangle with the
+	 * corresponding width and height given by \p ga.
+	 *
+	 * \param ga Input layout. If it contains bend points, each segment of an edge's polyline is considered as a line segment.
+	             Otherwise, a straight-line drawing is assumed.
+	 * \return   The number of node crossings for each edge.
+	 */
+	static ArrayBuffer<int> numberOfNodeCrossings(const GraphAttributes &ga);
+
+
+	//! Computes the number of node overlaps for each node in the layout \p ga.
+	/**
+	 * Each node is treated as if it had the shape of the rectangle with the
+	 * corresponding width and height given by \p ga.
+	 *
+	 * \warning The sum of all returned values is twice the number of node
+	 * overlaps as each node overlap involves two nodes.
+	 *
+	 * \param ga Input layout.
+	 * \return   The number of node overlaps for each node.
+	 */
+	static ArrayBuffer<int> numberOfNodeOverlaps(const GraphAttributes &ga);
 
 
 	//! Computes the intersection graph \p H of the line segments in the layout given by \p ga.
@@ -136,7 +140,7 @@ public:
 	 *
 	 * \warning Do not call this algorithm on drawings with arbitrarily close curves (e.g., curves overlapping on an interval).
 	 *
-	 * \param ga        Input layout. If it contains bend points, each segement of an edge's polyline is considered as a line segment.
+	 * \param ga        Input layout. If it contains bend points, each segment of an edge's polyline is considered as a line segment.
 	                    Otherwise, a straight-line drawing is assumed.
 	 * \param H         Is assigned the intersection graph.
 	 * \param points    Maps nodes in \p H to their geometric position in the layout.

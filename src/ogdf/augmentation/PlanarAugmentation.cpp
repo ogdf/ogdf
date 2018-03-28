@@ -135,7 +135,7 @@ void PlanarAugmentation::makeConnectedByPendants()
 	}
 
 	for(node v : m_pGraph->nodes) {
-		if ((compConnected[components[v]] == false) && (bcTreeTemp.bcproper(v)->degree() <= 1)){
+		if (!compConnected[components[v]] && bcTreeTemp.bcproper(v)->degree() <= 1) {
 			// found a node that will be connected
 			getConnected.pushBack(v);
 			compConnected[components[v]] = true;
@@ -261,10 +261,7 @@ void PlanarAugmentation::augment()
 					joinPendants(first);
 				}
 			}
-		}
-		else{
-
-			// foundMatching == true
+		} else {
 			connectLabels(first, second);
 		}
 

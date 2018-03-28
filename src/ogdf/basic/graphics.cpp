@@ -35,6 +35,7 @@
 #include <ogdf/basic/graphics.h>
 
 namespace ogdf {
+using namespace graphics;
 
 std::ostream &operator<<(std::ostream &os, const StrokeType &st) {
 	switch (st) {
@@ -321,7 +322,7 @@ string Color::toString() const
 
 inline uint8_t fromHex(char c)
 {
-	return (uint8_t)((isdigit((int)c) ? (c - '0') : (tolower((int)c) - 'a' + 10)) & 0xf);
+	return uint8_t((isdigit(int(c)) ? c - '0' : tolower(int(c)) - 'a' + 10) & 0xf);
 }
 
 
@@ -356,5 +357,17 @@ bool Color::fromString(const string &str)
 
 	return true;
 }
+
+namespace graphics {
+	std::map<Shape, string> fromShape;
+	std::map<string, Shape> toShape;
+
+	std::map<StrokeType, string> fromStrokeType;
+	std::map<string, StrokeType> toStrokeType;
+
+	std::map<FillPattern, string> fromFillPattern;
+	std::map<string, FillPattern> toFillPattern;
+}
+
 
 }

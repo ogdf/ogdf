@@ -753,7 +753,7 @@ int LayerByLayerSweep::CrossMinMaster::traverseTopDown(
 
 	if(pLevelChanged != nullptr)
 		doTranspose(levels, *pLevelChanged);
-	if(arrangeCCs() == false)
+	if(!arrangeCCs())
 		levels.separateCCs(arrange_numCC(), arrange_compGC());
 
 	return (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
@@ -777,7 +777,7 @@ int LayerByLayerSweep::CrossMinMaster::traverseBottomUp(
 
 	if (pLevelChanged != nullptr)
 		doTransposeRev(levels, *pLevelChanged);
-	if(arrangeCCs() == false)
+	if (!arrangeCCs())
 		levels.separateCCs(arrange_numCC(), arrange_compGC());
 
 	return (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
@@ -796,7 +796,7 @@ void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
 		levels.permute(rng);
 
 	int nCrossingsOld = (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
-	if(postNewResult(nCrossingsOld, &bestPos) == true)
+	if(postNewResult(nCrossingsOld, &bestPos))
 		levels.storePos(bestPos);
 
 	if(queryBestKnown() == 0)
@@ -822,7 +822,7 @@ void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
 			// top-down traversal
 			int nCrossingsNew = traverseTopDown(levels, pCrossMin, pCrossMinSimDraw, pLevelChanged);
 			if(nCrossingsNew < nCrossingsOld) {
-				if(nCrossingsNew < queryBestKnown() && postNewResult(nCrossingsNew, &bestPos) == true)
+				if(nCrossingsNew < queryBestKnown() && postNewResult(nCrossingsNew, &bestPos))
 					levels.storePos(bestPos);
 
 				nCrossingsOld = nCrossingsNew;
@@ -833,7 +833,7 @@ void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
 			// bottom-up traversal
 			nCrossingsNew = traverseBottomUp(levels, pCrossMin, pCrossMinSimDraw, pLevelChanged);
 			if(nCrossingsNew < nCrossingsOld) {
-				if(nCrossingsNew < queryBestKnown() && postNewResult(nCrossingsNew, &bestPos) == true)
+				if(nCrossingsNew < queryBestKnown() && postNewResult(nCrossingsNew, &bestPos))
 					levels.storePos(bestPos);
 
 				nCrossingsOld = nCrossingsNew;
@@ -843,13 +843,13 @@ void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
 
 		} while(nFails > 0);
 
-		if(getNextRun() == false)
+		if(!getNextRun())
 			break;
 
 		levels.permute(rng);
 
 		nCrossingsOld = (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
-		if(nCrossingsOld < queryBestKnown() && postNewResult(nCrossingsOld, &bestPos) == true)
+		if(nCrossingsOld < queryBestKnown() && postNewResult(nCrossingsOld, &bestPos))
 			levels.storePos(bestPos);
 	}
 
@@ -1020,10 +1020,10 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			m_layout->call(levels,AG);
 
 			double
-				minX =  std::numeric_limits<double>::max(),
-				maxX = -std::numeric_limits<double>::max(),
-				minY =  std::numeric_limits<double>::max(),
-				maxY = -std::numeric_limits<double>::max();
+				minX = std::numeric_limits<double>::max(),
+				maxX = std::numeric_limits<double>::lowest(),
+				minY = std::numeric_limits<double>::max(),
+				maxY = std::numeric_limits<double>::lowest();
 
 			for(node vCopy : GC.nodes)
 			{
@@ -1056,8 +1056,9 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 							bool straight = true;
 							const LevelBase &L_e = levels[H.rank(src)];
 							for(int p = minPos+1; p < maxPos; ++p) {
-								if(!H.isLongEdgeDummy(L_e[p]) && mark[L_e[p]] == false) {
-									straight = false; break;
+								if(!H.isLongEdgeDummy(L_e[p]) && !mark[L_e[p]]) {
+									straight = false;
+									break;
 								}
 							}
 							if(straight) {
@@ -1191,8 +1192,9 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 						bool straight = true;
 						const LevelBase &L_e = levels[H.rank(src)];
 						for(int p = minPos+1; p < maxPos; ++p) {
-							if(!H.isLongEdgeDummy(L_e[p]) && mark[L_e[p]] == false) {
-								straight = false; break;
+							if(!H.isLongEdgeDummy(L_e[p]) && !mark[L_e[p]]) {
+								straight = false;
+								break;
 							}
 						}
 						if(straight) {
@@ -1237,7 +1239,7 @@ void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 	LayerByLayerSweep          *pCrossMin = 0;
 	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw = 0;
 
-	if(useSubgraphs() == false)
+	if(!useSubgraphs())
 		pCrossMin = &m_crossMin.get();
 	else
 		pCrossMinSimDraw = &m_crossMinSimDraw.get();
@@ -1310,7 +1312,7 @@ const HierarchyLevelsBase *SugiyamaLayout::reduceCrossings(Hierarchy &H)
 {
 	OGDF_ASSERT(m_runs >= 1);
 
-	if (useSubgraphs() == false) {
+	if (!useSubgraphs()) {
 		int64_t t;
 		System::usedRealTime(t);
 		const HierarchyLevelsBase *levels = m_crossMin->reduceCrossings( *this, H, m_nCrossings);

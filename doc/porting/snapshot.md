@@ -130,6 +130,26 @@ and can now be found in `include/ogdf/graphalg/Triconnectivity.h`.
 The method `writeGML(const char*, GraphAttributes&, bool)`
 was deleted. Use `writeGML(ostream &os, const GraphAttributes&)` instead.
 
+### Graph generators
+
+The random planar graph generators got a `random` prefix. All directed graph
+generators are now called `Digraph` instead of `DiGraph` to keep consistency
+in capitalization across the OGDF. This affects the following generators:
+
+| Former                         | New                                  |
+|--------------------------------|--------------------------------------|
+| randomDiGraph                  | randomDigraph                        |
+| planarConnectedGraph           | randomPlanarConnectedGraph           |
+| planarBiconnectedGraph         | randomPlanarBiconnectedGraph         |
+| planarBiconnectedDiGraph       | randomPlanarBiconnectedDigraph       |
+| upwardPlanarBiconnectedDiGraph | randomUpwardPlanarBiconnectedDigraph |
+| planarCNBGraph                 | randomPlanarCNBGraph                 |
+| planarTriconnectedGraph        | randomPlanarTriconnectedGraph        |
+
+Additionally, if you require only either deterministic or randomized generators,
+you can now include `include/ogdf/basic/graph_generators/deterministic.h` and
+ `include/ogdf/basic/graph_generators/randomized.h` respectively.
+
 ## Changed method signatures
 
 The parameter `BlockOrder* order` was deleted from the constructors of `Block` in `BlockOrder.h`.
@@ -186,6 +206,19 @@ have been removed from `GraphCopy`.
 You can instead use the respective `newEdge()` function inherited from `Graph`,
 followed by `GraphCopy::setEdge()`.
 
+## Container Classes
+
+The methods `rbegin()` and `rend()` were removed from all
+`GraphArrayIterator`-classes, i.e. from `AdjEntryArray`, `ClusterArray`,
+`EdgeArray`, `FaceArray` and `NodeArray`. Iterating over their elements in any
+order can be done by iterating over their respective keys in this order.
+
+The methods `rbegin()` and `rend()` of all container classes now
+return reverse iterators. `succ()`, `operator++()`, `&operator++()` and
+`cyclicSucc()` of reverse iterators behave like `pred()`, `operator--()`,
+`&operator--()` and `cyclicPred()` of normal iterators respectively, and
+vice versa.
+
 ## Stack & StackPure & BoundedStack classes
 
 The classes `Stack`, `StackPure` and `BoundedStack` are deleted.
@@ -197,6 +230,12 @@ classes (and more) and outperforms all implementations). Change
 
 The deprecated methods `List::exchange()` and `ListPure::exchange()` were removed.
 Use `List::swap()` and `ListPure::swap()` instead.
+
+## SList, SListPure, Queue & QueuePure class
+
+The `rbegin()`-methods of the classes `SList`, `SListPure`, `Queue` and
+`QueuePure` were replaced by `backIterator()`-methods. The name `rbegin()` was
+misleading since the methods do not return reverse iterators.
 
 ## Planar Subgraph Algorithms
 
@@ -320,6 +359,16 @@ Use `call(GraphAttributes)` instead of `call(GraphAttributes, GraphConstraints)`
 Graph constraints were removed entirely.
 Removed classes: `Constraint`, `ConstraintManager`, and `GraphConstraints`.
 
+## LayoutStatistics
+
+`edgeLengths()`, `numberOfBends()`, `angularResolution()` and
+`numberOfCrossings()` now return `ArrayBuffer`s with values for each
+edge/angle/node. The mininum, maximum, mean and standard deviation can no longer
+be obtained using function parameters but by applying `Math`-functions to the
+returned values.
+
+Moreover, `angularResolution()` was renamed to `angles()`.
+
 ## GraphIO
 
 Methods that take filenames (instead of streams) are deprecated and will be removed in future versions.
@@ -356,6 +405,18 @@ However, this generic reader even allows to write
 	GraphIO::read(G, "circulant.lgr");
 	GraphIO::write(G, "circulant.gml", GraphIO::writeGML);
 ```
+
+## OGML
+
+Support for the `OGML`-format was dropped entirely.
+This includes several methods of `GraphIO` and some classes that were used only by the `OGML` reader/writer.
+
+The list of deleted classes includes
+ * `LineBuffer`
+ * `OgmlParser`
+ * `UmlToGraphConverter`
+ * `XmlParser`
+ * `XmlScanner`
 
 ## GmlParser
 
@@ -556,3 +617,37 @@ The class `HyperGraph` was removed. Use `Hypergraph` instead.
 ## EFreeList, EList, and EStack
 
 The classes `EFreeList`, `EList` and `EStack` were removed. Use `List` and `Stack` instead.
+
+## GraphIO
+
+# Dot
+
+The keywords for nodeshapes changed for some shapes.
+
+| Shape                   | Former                           | New                    |
+|-------------------------|----------------------------------|------------------------|
+| Shape::RoundedRect      | "rect"                           | "roundedrect"          |
+| Shape::InvParallelogram | "parallelogram"                  | "invparallelogram"     |
+| Shape::Image            | "box"                            | "image"                |
+
+This can result in these node shapes not being recognized by other programs when parsed, but provides better
+OGDF to OGDF parsing and writing.
+
+edgeArrow is now "string" instead of "int".
+
+
+# GML
+
+When parsing bends the first (last) point of the bend is deleted, if it is inside the source (target) node,
+i.e., if its distance to the source (target) node is zero.
+
+stroketype and stipple are now "string" instead of "int".
+
+GML files use one '\t' instead of two ' ' as indentChar now.
+
+
+# GraphML
+
+x,y,z and size are now "double" instead of "float".
+
+NodeType is now "int" instead of "string".

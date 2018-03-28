@@ -209,7 +209,7 @@ protected:
 #endif
 		double diff = m_prevLEnergy - deltav;
 		// check if we want to stop
-		bool done = (deltav == 0.0 || (diff / m_prevLEnergy) < m_ltolerance);
+		bool done = deltav == 0.0 || diff / m_prevLEnergy < m_ltolerance;
 
 		m_prevLEnergy = deltav; // save previous energy level
 

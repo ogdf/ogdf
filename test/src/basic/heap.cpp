@@ -420,7 +420,7 @@ void prioritizedQueueWrapperTest(std::size_t n)
 }
 
 template<template<typename T, class C> class Impl>
-void priorityQueueWrapperTest(std::size_t n)
+void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 {
 	using PQ = PriorityQueue<int, std::greater<int>, Impl>;
 
@@ -503,6 +503,33 @@ void priorityQueueWrapperTest(std::size_t n)
 			AssertThat(ogdfPQ.size(), Equals(3u));
 			AssertThat(tmp.size(), Equals(0u));
 		});
+
+		if (supportsMerge) {
+			it("correctly merges and clears another PriorityQueue", [&]() {
+				ogdfPQ = init;
+				AssertThat(ogdfPQ.size(), Equals(init.size()));
+
+				PQ tmp = { 1, 2, 3 };
+				ogdfPQ.merge(tmp);
+				AssertThat(ogdfPQ.size(), Equals(init.size() + 3));
+				AssertThat(tmp.size(), Equals(0u));
+
+				tmp = { 1, 2, 3 };
+				PQ orig = init;
+				while (!tmp.empty() && !orig.empty()) {
+					AssertThat(ogdfPQ.empty(), IsFalse());
+					int val = ogdfPQ.top();
+					AssertThat((val == orig.top() || val == tmp.top()), IsTrue());
+					if (val == orig.top()) {
+						orig.pop();
+					}
+					else { // val == tmp.top()
+						tmp.pop();
+					}
+					ogdfPQ.pop();
+				}
+			});
+		}
 	});
 }
 
@@ -603,8 +630,6 @@ void hotQueueSimpleScenario(std::size_t levels, bool supportsDecrease)
 template<template<typename T, class C> class H>
 void hotQueueSimpleTest(std::size_t levels, bool supportsDecrease)
 {
-// TODO hot queue test does not compile on windows
-#ifndef WIN32
 	std::string desc =
 			"simple scenario test using " + std::to_string(levels) + " levels";
 	describe(desc.data(), [&]() {
@@ -615,7 +640,6 @@ void hotQueueSimpleTest(std::size_t levels, bool supportsDecrease)
 		 */
 		hotQueueSimpleScenario<H>(levels, supportsDecrease);
 	});
-#endif
 }
 
 template<template<typename T, class C> class H>
@@ -662,9 +686,9 @@ void describeHeapBasic(bool supportsDecrease, bool supportsMerge) {
 		mergingRandomTest<H>(1000000);
 	}
 	if (supportsDecrease) {
-		priorityQueueWrapperTest<H>(100);
-		priorityQueueWrapperTest<H>(10000);
-		//priorityQueueWrapperTest<H>(1000000);
+		priorityQueueWrapperTest<H>(100, supportsMerge);
+		priorityQueueWrapperTest<H>(10000, supportsMerge);
+		//priorityQueueWrapperTest<H>(1000000, supportsMerge);
 		prioritizedQueueWrapperTest<H>(10);
 		prioritizedQueueWrapperTest<H>(100);
 		prioritizedQueueWrapperTest<H>(10000);

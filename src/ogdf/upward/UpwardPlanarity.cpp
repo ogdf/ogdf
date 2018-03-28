@@ -123,7 +123,7 @@ bool UpwardPlanarity::isUpwardPlanar_singleSource(const Graph &G)
 bool UpwardPlanarity::upwardPlanarEmbed_singleSource(Graph &G)
 {
 	NodeArray<SListPure<adjEntry> > adjacentEdges(G);
-	if(UpwardPlanaritySingleSource::testAndFindEmbedding(G, true, adjacentEdges) == false)
+	if(!UpwardPlanaritySingleSource::testAndFindEmbedding(G, true, adjacentEdges))
 		return false;
 
 	node superSink;
@@ -149,7 +149,7 @@ bool UpwardPlanarity::upwardPlanarAugment_singleSource(
 	SList<edge> &augmentedEdges)
 {
 	NodeArray<SListPure<adjEntry> > adjacentEdges(G);
-	if(UpwardPlanaritySingleSource::testAndFindEmbedding(G, true, adjacentEdges) == false)
+	if(!UpwardPlanaritySingleSource::testAndFindEmbedding(G, true, adjacentEdges))
 		return false;
 
 	UpwardPlanaritySingleSource::embedAndAugment(G, adjacentEdges, true, superSink, augmentedEdges);
@@ -170,7 +170,7 @@ bool UpwardPlanarity::isUpwardPlanar_singleSource_embedded(
 	if(G.empty())
 		return true;
 
-	if(isAcyclic(G) == false)
+	if(!isAcyclic(G))
 		return false;
 
 	// determine the single source in G
@@ -197,7 +197,7 @@ bool UpwardPlanarity::upwardPlanarAugment_singleSource_embedded(
 	if(G.empty())
 		return true;
 
-	if(isAcyclic(G) == false)
+	if(!isAcyclic(G))
 		return false;
 
 	// determine the single source in G

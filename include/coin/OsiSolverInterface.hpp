@@ -914,7 +914,7 @@ public:
 				 int ndx, unsigned digits = 7) const ;
 
     /*! \brief Return the name of the objective function */
-
+#pragma warning(suppress: 4309)
   virtual std::string getObjName (unsigned maxLen = static_cast<unsigned>(std::string::npos)) const ;
 
     /*! \brief Set the name of the objective function */
@@ -929,6 +929,7 @@ public:
       maxLen to limit the length.
     */
     virtual std::string getRowName(int rowIndex,
+#pragma warning(suppress: 4309)
 				   unsigned maxLen = static_cast<unsigned>(std::string::npos)) const ;
 
     /*! \brief Return a pointer to a vector of row names
@@ -974,6 +975,7 @@ public:
       maxLen to limit the length.
     */
     virtual std::string getColName(int colIndex,
+#pragma warning(suppress: 4309)
 				   unsigned maxLen = static_cast<unsigned>(std::string::npos)) const ;
 
     /*! \brief Return a pointer to a vector of column names

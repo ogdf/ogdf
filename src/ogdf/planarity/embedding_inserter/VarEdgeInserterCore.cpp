@@ -508,9 +508,8 @@ bool VarEdgeInserterCore::dfsVertex(node v, int parent)
 				blockInsert(*BC,m_GtoBC[v],m_GtoBC[repT],L); // call biconnected case
 
 				// transform crossed edges to edges in G
-				ListConstIterator<adjEntry> it;
-				for(it = L.rbegin(); it.valid(); --it) {
-					m_pEip->pushFront(BC->m_BCtoG[*it]);
+				for(adjEntry adj : reverse(L)) {
+					m_pEip->pushFront(BC->m_BCtoG[adj]);
 				}
 			}
 
@@ -538,7 +537,7 @@ node VarEdgeInserterCore::dfsComp(int i, node parent)
 		if (repT == m_t) { // t found?
 			return repT;
 		}
-		if (dfsVertex(repT,i) == true) {
+		if (dfsVertex(repT,i)) {
 			return repT; // path found
 		}
 	}
@@ -724,8 +723,7 @@ void VarEdgeInserterCore::ExpandedGraph::constructDual(node s, node t)
 
 			// Do not insert edges into dual if crossing the original edge
 			// is forbidden
-			if(m_pForbidden &&
-				(*m_pForbidden)[m_gc.original(m_BC.m_BCtoG[m_expToG[adj]]->theEdge())] == true)
+			if(m_pForbidden && (*m_pForbidden)[m_gc.original(m_BC.m_BCtoG[m_expToG[adj]]->theEdge())])
 				continue;
 
 			node vLeft  = faceNode[m_E.leftFace (adj)];
@@ -861,9 +859,7 @@ void VarEdgeInserterUMLCore::ExpandedGraphUML::appendCandidates(List<edge> &queu
 {
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if(v == e->source() &&
-			(eType != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-		{
+		if(v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			queue.pushBack(e);
 		}
 	}
@@ -926,9 +922,7 @@ void VarEdgeInserterUMLCore::ExpandedGraphUML::appendCandidates(
 {
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if(v == e->source() &&
-			(eType != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-		{
+		if(v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			int listPos = (currentDist + costDual(e)) % maxCost;
 			nodesAtDist[listPos].pushBack(e);
 		}
@@ -1055,7 +1049,7 @@ void VarEdgeInserterCore::blockInsert(
 	ExpandedGraph *pExp = createExpandedGraph(BC,T);
 
 	if (T.typeOf(m_v1) == SPQRTree::NodeType::RNode)
-		buildSubpath(m_v1, nullptr, (path.empty()) ? nullptr : path.front(), L, *pExp, s, t);
+		buildSubpath(m_v1, nullptr, path.empty() ? nullptr : path.front(), L, *pExp, s, t);
 
 	node v = m_v1;
 	ListConstIterator<edge> it;
@@ -1065,8 +1059,7 @@ void VarEdgeInserterCore::blockInsert(
 		v = e->opposite(v);
 
 		if (T.typeOf(v) == SPQRTree::NodeType::RNode)
-			buildSubpath(v, e,
-			(it.succ().valid() == false) ? nullptr : *(it.succ()), L, *pExp, s, t);
+			buildSubpath(v, e, !it.succ().valid() ? nullptr : *it.succ(), L, *pExp, s, t);
 	}
 
 	delete pExp;
@@ -1081,7 +1074,7 @@ bool VarEdgeInserterCore::pathSearch(node v, edge parent, List<edge> &path)
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (e == parent) continue;
-		if (pathSearch(e->opposite(v),e,path) == true) {
+		if (pathSearch(e->opposite(v),e,path)) {
 			path.pushFront(e);
 			return true;
 		}

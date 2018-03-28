@@ -60,16 +60,12 @@ public:
 
 	virtual ~MinSteinerTreeTakahashi() { }
 
-	/*!
-	 * \brief An extended call method with specific start node \see MinSteinerTreeModule::call
+	/**
+	 * An extended call method with specific start node.
+	 *
 	 * You should only call this method when there is more than one terminal.
-
-	 * @param G The weighted input graph
-	 * @param terminals The list of terminal nodes
-	 * @param isTerminal A bool array of terminals
-	 * @param finalSteinerTree The final Steiner tree
-	 * @param startNode The source node for the special Dijkstra call
-	 * @return The objective value (sum of edge costs) of the final Steiner tree
+	 *
+	 * @see MinSteinerTreeModule::call
 	 */
 	virtual T call(const EdgeWeightedGraph<T> &G,
 	               const List<node> &terminals,
@@ -80,6 +76,13 @@ public:
 		return call(G, terminals, isTerminal, isTerminal, finalSteinerTree, startNode);
 	}
 
+	/**
+	 * An extended call method with intermediate and final (original) terminals.
+	 *
+	 * You should only call this method when there is more than one terminal.
+	 *
+	 * @see MinSteinerTreeModule::call
+	 */
 	virtual T call(const EdgeWeightedGraph<T> &G,
 	               const List<node> &terminals,
 	               const NodeArray<bool> &isTerminal,
@@ -92,16 +95,12 @@ public:
 	using MinSteinerTreeModule<T>::call;
 
 	/*!
-	 * \brief An extended call method with intermediate and final (original) terminal nodes \see MinSteinerTreeModule::call
+	 * An extended call method with intermediate and final (original) terminal nodes
+	 * and a specific start node.
+	 *
 	 * You should only call this method when there is more than one terminal.
 	 *
-	 * @param G The weighted input graph
-	 * @param terminals The list of terminal nodes
-	 * @param isTerminal A bool array of terminals
-	 * @param isOriginalTerminal A bool array of terminals in the original instance
-	 * @param finalSteinerTree The final Steiner tree
-	 * @param startNode The source node for the special Dijkstra call
-	 * @return The objective value (sum of edge costs) of the final Steiner tree
+	 * @see MinSteinerTreeModule::call
 	 */
 	virtual T call(const EdgeWeightedGraph<T> &G,
 	               const List<node> &terminals,
@@ -111,14 +110,6 @@ public:
 	               const node startNode);
 
 protected:
-	/*!
-	 * \brief Builds a minimum Steiner tree given a weighted graph and a list of terminals \see MinSteinerTreeModule::call
-	 * @param G The weighted input graph
-	 * @param terminals The list of terminal nodes
-	 * @param isTerminal A bool array of terminals
-	 * @param finalSteinerTree The final Steiner tree
-	 * @return The objective value (sum of edge costs) of the final Steiner tree
-	 */
 	virtual T computeSteinerTree(
 		const EdgeWeightedGraph<T> &G,
 		const List<node> &terminals,
@@ -152,6 +143,8 @@ T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T> &G,
                                    EdgeWeightedGraphCopy<T> *&finalSteinerTree,
                                    const node startNode)
 {
+	OGDF_ASSERT(isConnected(G));
+
 	EdgeWeightedGraphCopy<T> terminalSpanningTree;
 	terminalSpanningTree.createEmpty(G);
 	terminalDijkstra(G, terminalSpanningTree, startNode, terminals.size(), isTerminal);

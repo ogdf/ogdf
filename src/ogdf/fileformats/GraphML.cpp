@@ -58,10 +58,12 @@ std::string toString(const Attribute &attr)
 
 	case Attribute::Shape: return "shape";
 
-	case Attribute::NodeStroke: return "nodestroke";
+	case Attribute::NodeStrokeColor: return "nodestroke";
+	case Attribute::NodeStrokeType: return "nodestroketype";
+	case Attribute::NodeStrokeWidth: return "nodestrokewidth";
 	case Attribute::EdgeStroke: return "edgestroke";
 	case Attribute::ClusterStroke: return "clusterstroke";
-	case Attribute::NodeFill: return "nodefill";
+	case Attribute::NodeFillPattern: return "nodefill";
 	case Attribute::R: return "r";
 	case Attribute::G: return "g";
 	case Attribute::B: return "b";
@@ -183,7 +185,7 @@ Graph::NodeType toNodeType(const std::string &str)
 {
 	return toEnum(
 		str, nodeTypeMap, toString,
-		static_cast<Graph::NodeType>(0), Graph::NodeType::vertex, Graph::NodeType::vertex);
+		static_cast<Graph::NodeType>(0), Graph::NodeType::associationClass, Graph::NodeType::vertex);
 }
 
 // Same as attrMap but with edge types.

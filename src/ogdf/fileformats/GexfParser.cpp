@@ -50,7 +50,7 @@ static inline bool readAttrDefs(
 	std::string> &attrMap,
 	const pugi::xml_node attrsTag)
 {
-	for (auto attrTag : attrsTag.children("attributes")) {
+	for (auto attrTag : attrsTag.children("attribute")) {
 		pugi::xml_attribute idAttr = attrTag.attribute("id");
 		pugi::xml_attribute idTitle = attrTag.attribute("title");
 
@@ -59,6 +59,7 @@ static inline bool readAttrDefs(
 			GraphIO::logger.lout() << "\"id\" or \"title\" attribute missing." << std::endl;
 			return false;
 		}
+
 
 		attrMap[idAttr.value()] = idTitle.value();
 	}
@@ -322,21 +323,17 @@ static inline bool readVizAttribute(
 			}
 		}
 	} else if(string(tag.name()) == "viz:size") {
-		pugi::xml_attribute valueAttr = tag.attribute("value");
-		if(!valueAttr) {
-			GraphIO::logger.lout() << "\"size\" attribute is missing a value." << std::endl;
-			return false;
-		}
+		if(attrs & GraphAttributes::nodeGraphics) {
+			pugi::xml_attribute valueAttr = tag.attribute("value");
+			if (!valueAttr) {
+				GraphIO::logger.lout() << "\"size\" attribute is missing a value." << std::endl;
+				return false;
+			}
 
-		/*
-		 * Because size is just a scale here, I assume that all nodes have
-		 * some default width and height value. Then, I just rescale them
-		 * using given size. Things can go wrong if viz:size is declared twice
-		 * for the same node but this is not our problem (just fix this file!).
-		 */
-		double size = valueAttr.as_double();
-		GA.width(v) *= size;
-		GA.height(v) *= size;
+			double size = valueAttr.as_double();
+			GA.width(v) = size * LayoutStandards::defaultNodeWidth();
+			GA.height(v) = size * LayoutStandards::defaultNodeHeight();
+		}
 	} else if(string(tag.name()) == "viz:shape") {
 		if(attrs & GraphAttributes::nodeGraphics) {
 			pugi::xml_attribute valueAttr = tag.attribute("value");
@@ -420,8 +417,29 @@ static inline void readAttValue(
 			ss >> GA.weight(v);
 		}
 		break;
+	case graphml::Attribute::NodeStrokeType:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.strokeType(v) = fromString<StrokeType>(value);
+		}
+		break;
+	case graphml::Attribute::NodeFillPattern:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.fillPattern(v) = fromString<FillPattern>(value);
+		}
+		break;
+	case graphml::Attribute::NodeStrokeWidth:
+		if(attrs & GraphAttributes::nodeWeight) {
+			std::istringstream ss(value);
+			ss >> GA.strokeWidth(v);
+		}
+		break;
+	case graphml::Attribute::NodeStrokeColor:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.strokeColor(v) = value.c_str();
+		}
+		break;
 	default:
-		// Not supported attribute, just ignore.
+		GraphIO::logger.slout() << "unsupportet GraphML attr\n";
 		break;
 	}
 }

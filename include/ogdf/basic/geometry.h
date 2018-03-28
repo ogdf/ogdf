@@ -108,8 +108,8 @@ public:
 	//! coordinate of \p p or, if they are equal, the same check is done for the \a y coordinate.
 	bool operator<(const GenericPoint<T> &p) const {
 		// OGDF_GEOM_ET uses different methods for integers and floats
-		return (OGDF_GEOM_ET.less(m_x, p.m_x)
-		    || (OGDF_GEOM_ET.equal(m_x, p.m_x) && OGDF_GEOM_ET.less(m_y, p.m_y)) );
+		return OGDF_GEOM_ET.less(m_x, p.m_x)
+		    || (OGDF_GEOM_ET.equal(m_x, p.m_x) && OGDF_GEOM_ET.less(m_y, p.m_y));
 	}
 
 	//! Operator 'greater'. Returns \c true iff \p p is less than this.
@@ -717,10 +717,10 @@ public:
 
 		if (lineIntersection == IntersectionType::None) {
 			return IntersectionType::None;
-		} else if (lineIntersection == IntersectionType::SinglePoint &&
-			inBoundingRect(inter, endpoints) &&
-			segment.inBoundingRect(inter, endpoints)) {
-			return IntersectionType::SinglePoint;
+		} else if (lineIntersection == IntersectionType::SinglePoint) {
+			return inBoundingRect(inter, endpoints)
+			    && segment.inBoundingRect(inter, endpoints) ?
+				IntersectionType::SinglePoint : IntersectionType::None;
 		} else {
 			// Let inter be the second smallest point of this/the given segment.
 			Array<DPoint> points({this->m_p1, this->m_p2, segment.m_p1, segment.m_p2});
@@ -956,7 +956,7 @@ class OGDF_EXPORT DIntersectableRect : public DRect {
 	DPoint m_center;
 
 	/**
-	 * @copydoc DRect::normalize()
+	 * @copydoc ogdf::DRect::normalize()
 	 * Update #m_area and #m_center.
 	 */
 	void initAreaAndCenter();

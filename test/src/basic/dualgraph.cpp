@@ -37,7 +37,7 @@
 //! Runs all tests on a single randomly generated graph with \c n nodes and \c m edges.
 void performIteration(int n, int m) {
 	Graph graph;
-	planarConnectedGraph(graph, n, m);
+	randomPlanarConnectedGraph(graph, n, m);
 	ConstCombinatorialEmbedding emb(graph);
 	DualGraph dual(emb);
 

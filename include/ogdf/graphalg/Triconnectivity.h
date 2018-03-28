@@ -185,12 +185,12 @@ private:
 	NodeArray<node> m_FATHER;  //!< father of v in palm tree
 	EdgeArray<EdgeType> m_TYPE; //!< type of edge e
 	NodeArray<List<edge> > m_A; //!< adjacency list of v
-	NodeArray<int>  m_NEWNUM;  //!< (second) dfs-number of v
-	EdgeArray<bool> m_START;   //!< edge starts a path
+	NodeArray<int> m_NEWNUM; //!< (second) dfs-number of v
+	EdgeArray<bool> m_START; //!< edge starts a path
 	NodeArray<edge> m_TREE_ARC; //!< tree arc entering v
-	NodeArray<List<int> > m_HIGHPT;	//!< list of fronds entering v in the order they are visited
-	EdgeArray<ListIterator<edge> > m_IN_ADJ;	//!< pointer to element in adjacency list containing e
-	EdgeArray<ListIterator<int> >  m_IN_HIGH;	//!< pointer to element in HIGHPT list containing e
+	NodeArray<List<int> > m_HIGHPT; //!< list of fronds entering v in the order they are visited
+	EdgeArray<ListIterator<edge>> m_IN_ADJ; //!< pointer to element in adjacency list containing e
+	EdgeArray<ListIterator<int>> m_IN_HIGH; //!< pointer to element in HIGHPT list containing e
 	ArrayBuffer<edge> m_ESTACK; //!< stack of currently active edges
 
 	node m_start;     //!< start node of dfs traversal

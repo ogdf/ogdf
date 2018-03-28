@@ -74,7 +74,7 @@ public:
 	int size(int i) const { return m_size[i]; }
 
 	bool isLongEdgeDummy(node v) const {
-		return (m_GC.isDummy(v) && v->outdeg() == 1);
+		return m_GC.isDummy(v) && v->outdeg() == 1;
 	}
 
 private:

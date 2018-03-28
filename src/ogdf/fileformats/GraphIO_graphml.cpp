@@ -84,9 +84,9 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 	}
 
 	if(attributes & GraphAttributes::nodeGraphics) {
-		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::X), "float");
-		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Y), "float");
-		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Size), "float");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::X), "double");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Y), "double");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Size), "double");
 	}
 
 	if(attributes & GraphAttributes::nodeStyle) {
@@ -113,7 +113,10 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 	}
 
 	if(attributes & GraphAttributes::nodeStyle) {
-		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeStroke), "string");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeStrokeColor), "string");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeStrokeType), "int");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeStrokeWidth), "double");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeFillPattern), "int");
 	}
 
 	if(attributes & GraphAttributes::nodeWeight) {
@@ -121,7 +124,7 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 	}
 
 	if(attributes & GraphAttributes::nodeType) {
-		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeType), "string");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeType), "int");
 	}
 
 	if(attributes & GraphAttributes::nodeTemplate) {
@@ -129,7 +132,7 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 	}
 
 	if(attributes & GraphAttributes::threeD) {
-		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Z), "float");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Z), "double");
 	}
 
 	if(attributes & GraphAttributes::edgeGraphics) {
@@ -220,12 +223,15 @@ static inline void writeGraphMLNode(
 		writeGraphMLAttribute(nodeTag, toString(Attribute::R), col.red());
 		writeGraphMLAttribute(nodeTag, toString(Attribute::G), col.green());
 		writeGraphMLAttribute(nodeTag, toString(Attribute::B), col.blue());
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeFillPattern), int(GA.fillPattern(v)));
 
-		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeStroke), GA.strokeColor(v).toString().c_str());
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeStrokeColor), GA.strokeColor(v).toString().c_str());
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeStrokeType), int(GA.strokeType(v)));
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeStrokeWidth), GA.strokeWidth(v));
 	}
 
 	if(GA.has(GraphAttributes::nodeType)) {
-		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeType), toString(GA.type(v)).c_str());
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeType), int(GA.type(v)));
 	}
 
 	if(GA.has(GraphAttributes::nodeTemplate) &&

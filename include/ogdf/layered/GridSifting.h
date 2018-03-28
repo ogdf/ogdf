@@ -94,7 +94,7 @@ private:
 class GridSifting : public LayeredCrossMinModule {
 public:
 	/**
-	 * @copydoc LayeredCrossMinModule::reduceCrossings
+	 * @copydoc ogdf::LayeredCrossMinModule::reduceCrossings
 	 *
 	 * \warning \p nCrossings is not set by this implementation!
 	 */

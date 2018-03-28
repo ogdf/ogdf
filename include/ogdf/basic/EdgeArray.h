@@ -105,6 +105,8 @@ public:
  * Edge arrays represent a mapping from edges to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
+ * @warn_undef_behavior_array
+ *
  * @tparam T is the element type.
  */
 template<class T> class EdgeArray : private Array<T>, protected EdgeArrayBase {
@@ -269,43 +271,6 @@ public:
 	 * This is always a null pointer iterator.
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
-
-	//! Returns an iterator to the last entry in the edge array.
-	/**
-	 * If the edge array is empty, a null pointer iterator is returned.
-	 */
-	iterator rbegin() { return iterator(m_pGraph->lastEdge(), this); }
-
-	//! Returns a const iterator to the last entry in the edge array.
-	/**
-	 * If the edge array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator rbegin() const { return const_iterator(m_pGraph->lastEdge(), this); }
-
-	//! Returns a const iterator to the last entry in the edge array.
-	/**
-	 * If the edge array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator crbegin() const { return const_iterator(m_pGraph->lastEdge(), this); }
-
-	//! Returns an iterator to one-before-first entry in the edge array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	iterator rend() { return iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the edge array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator rend() const { return const_iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the edge array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator crend() const { return const_iterator(nullptr, this); }
-
 
 	//@}
 	/**

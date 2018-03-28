@@ -56,7 +56,7 @@ void LHTreeNode::setPos()
 
 void LHTreeNode::removeAuxChildren()
 {
-	OGDF_ASSERT(isCompound() == true);
+	OGDF_ASSERT(isCompound());
 
 	int j = 0;
 	int i;
@@ -617,11 +617,11 @@ void ExtendedNestingGraph::createDummyNodes()
 		}
 
 		if(c_2 != nullptr) {
-			ListConstIterator<edge> it = m_copyEdge[e].rbegin();
+			ListConstReverseIterator<edge> it = m_copyEdge[e].rbegin();
 			for(cluster c = CG.clusterOf(v); c != c_2->parent(); c = c->parent()) {
 				while(m_rank[(*it)->source()] >= m_rank[m_topNode[c]]) {
 					m_CGC.setParent((*it)->source(), m_CGC.copy(c));
-					--it;
+					++it;
 				}
 			}
 		}
@@ -1418,8 +1418,8 @@ LHTreeNode *ExtendedNestingGraph::lca(
 	LHTreeNode **uChild,
 	LHTreeNode **vChild) const
 {
-	OGDF_ASSERT(uNode->isCompound() == false);
-	OGDF_ASSERT(vNode->isCompound() == false);
+	OGDF_ASSERT(!uNode->isCompound());
+	OGDF_ASSERT(!vNode->isCompound());
 
 	for(cluster c : m_markedClusters)
 		m_markTree[c] = nullptr;
@@ -1508,7 +1508,7 @@ bool ExtendedNestingGraph::reachable(node v, node u, SListPure<node> &successors
 				return true;
 			}
 
-			if(m_aeVisited[t] == false) {
+			if(!m_aeVisited[t]) {
 				m_aeVisited[t] = true;
 				Q.pushBack(t);
 			}
@@ -1581,7 +1581,7 @@ edge ExtendedNestingGraph::addEdge(node u, node v, bool addAlways)
 		return newEdge(u,v);
 
 	SListPure<node> successors;
-	if(reachable(v, u, successors) == false) {
+	if(!reachable(v, u, successors)) {
 		int d = m_aeLevel[u] - m_aeLevel[v] + 1;
 		OGDF_ASSERT(d > 0);
 

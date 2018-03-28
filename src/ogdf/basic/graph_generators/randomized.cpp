@@ -1,7 +1,7 @@
 /** \file
- * \brief Implementation of some graph generators
+ * \brief Implementation of some randomized graph generators
  *
- * \author Carsten Gutwenger, Markus Chimani
+ * \author Carsten Gutwenger, Markus Chimani, Jöran Schierbaum
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -36,6 +36,8 @@
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/Math.h>
 
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarlayout/SchnyderLayout.h>
@@ -45,21 +47,6 @@ using std::uniform_real_distribution;
 
 
 namespace ogdf {
-
-void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Array<node> &nodes)
-{
-	nodes.init(n);
-
-	G.clear();
-
-	for (int i = 0; i < n; i++) {
-		nodes[i] = G.newNode();
-	}
-
-	for (auto e : edges) {
-		G.newEdge(nodes[std::get<0>(e)], nodes[std::get<1>(e)]);
-	}
-}
 
 void randomRegularGraph(Graph &G, int n, int d)
 {
@@ -120,31 +107,6 @@ void randomRegularGraph(Graph &G, int n, int d)
 		}
 	} while (G.numberOfEdges() != n*d/2);
 }
-
-void circulantGraph(Graph &G, int n, Array<int> jumps)
-{
-	G.clear();
-	Array<node> nodes(n);
-	for (int i=0; i<n; i++) {
-		nodes[i] = G.newNode();
-	}
-	Array2D<bool> buildEdge(0,n-1,0,n-1,false);
-	auto pos_modulo = [&n](int i) {return (i % n + n) % n;};
-	for (int s: jumps) {
-		for (int i=0; i<n; i++) {
-			buildEdge(i, pos_modulo(i+s)) = true;
-			buildEdge(i, pos_modulo(i-s)) = true;
-		}
-	}
-	for (int i=0; i<n; i++) {
-		for (int j=i; j<n; j++) {
-			if (buildEdge(i,j)) {
-				G.newEdge(nodes[i], nodes[j]);
-			}
-		}
-	}
-}
-
 
 void randomGraph(Graph &G, int n, int m)
 {
@@ -240,7 +202,9 @@ static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& mask, i
 			a = b;
 			b = c;
 		}
-		if (mask[i = getEdgeIndex(a, b, n, max)] == false) {
+
+		i = getEdgeIndex(a, b, n, max);
+		if (!mask[i]) {
 			mask[i] = true;
 			m--;
 		}
@@ -483,7 +447,7 @@ void randomTriconnectedGraph(Graph &G, int n, double p1, double p2)
 }
 
 
-void planarTriconnectedGraph(Graph &G, int n, double p1, double p2)
+void randomPlanarTriconnectedGraph(Graph &G, int n, double p1, double p2)
 {
 	if (n < 4) n = 4;
 
@@ -548,7 +512,7 @@ void planarTriconnectedGraph(Graph &G, int n, double p1, double p2)
 }
 
 
-void planarTriconnectedGraph(Graph &G, int n, int m)
+void randomPlanarTriconnectedGraph(Graph &G, int n, int m)
 {
 	if (n < 4) n = 4;
 	if(n % 2) ++n; // need an even number
@@ -634,7 +598,7 @@ void planarTriconnectedGraph(Graph &G, int n, int m)
 }
 
 
-void planarConnectedGraph(Graph &G, int n, int m)
+void randomPlanarConnectedGraph(Graph &G, int n, int m)
 {
 	if (n < 1) n = 1;
 	if (m < n-1) m = n-1;
@@ -712,7 +676,7 @@ void planarConnectedGraph(Graph &G, int n, int m)
 }
 
 
-void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
+void randomPlanarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 {
 	if (n < 3) n = 3;
 	if (m < n) m = n;
@@ -817,19 +781,19 @@ void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 	}
 }
 
-void upwardPlanarBiconnectedDiGraph(Graph &G, int n, int m)
+void randomUpwardPlanarBiconnectedDigraph(Graph &G, int n, int m)
 {
-	planarBiconnectedDiGraph(G,n,m);
+	randomPlanarBiconnectedDigraph(G,n,m);
 }
 
-void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
+void randomPlanarBiconnectedDigraph(Graph &G, int n, int m, double p, bool multiEdges)
 {
 	OGDF_ASSERT(p >= 0);
 	OGDF_ASSERT(p < 1.0);
 
 	GraphAttributes GA(G, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
 
-	planarBiconnectedGraph(G,n,m,multiEdges);
+	randomPlanarBiconnectedGraph(G,n,m,multiEdges);
 
 	SchnyderLayout sl;
 	sl.call(GA);
@@ -863,174 +827,38 @@ void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
 }
 
 
-void planarCNBGraph(Graph &G, int n, int m, int b)
+void randomPlanarCNBGraph(Graph &G, int n, int m, int b)
 {
+	OGDF_ASSERT(b > 1);
+	OGDF_ASSERT(n > 1);
+	OGDF_ASSERT((n == 2 && m == 1) || m >= n);
+	m = std::min(m, 3*n-6);
+
 	G.clear();
-	if (b <= 0) b = 1;
-	if (n <= 0) n = 1;
-	if ((m <= 0) || (m > 3*n-6)) m = std::max(0, 3*n-6);
-
-	OGDF_ASSERT(n >= 0);
-	OGDF_ASSERT(m >= 0);
-
 	G.newNode();
 
-	minstd_rand rng(randomSeed());
-	uniform_int_distribution<> dist_1_n(1, n);
-	uniform_int_distribution<> dist_1_m(n > 2 ? 1 : 0, m);
-	uniform_int_distribution<> dist_1_2(1, 2);
-
-	for (int nB=1; nB<=b; nB++){
+	for (int i = 1; i <= b; i++){
+		// Set new cut vertex and number of nodes for the current bicomp.
 		node cutv = G.chooseNode();
-		// set number of nodes for the current created block
-		int actN = dist_1_n(rng);
+		int actN = randomNumber(2, n);
 
-		node v1 = G.newNode();
+		if (actN <= 2){
+			G.newEdge(G.newNode(), cutv);
+		} else {
+			// Set number of edges for the current bicomp.
+			int actM = randomNumber(actN, std::min(m, 3*actN-6));
 
-		if (actN <= 1){
-			G.newEdge(v1, cutv);
+			// Create a planar biconnected graph and insert it into G as a
+			// biconnected component.
+			Graph H;
+			randomPlanarBiconnectedGraph(H, actN, actM, false);
+			NodeArray<node> nodeMap(H);
+			G.insert(H, nodeMap);
+
+			node cutv2 = nodeMap[H.chooseNode()];
+			edge newE = G.newEdge(cutv2, cutv);
+			G.contract(newE);
 		}
-		else
-			if (actN == 2) {
-				node v2 = G.newNode();
-				G.newEdge(v1, v2);
-
-				int rnd = dist_1_2(rng);
-				edge newE;
-				int rnd2 = dist_1_2(rng);
-				if (rnd == 1){
-					newE = G.newEdge(v1, cutv);
-				}
-				else{
-					newE = G.newEdge(v2, cutv);
-				}
-				if (rnd2 == 1){
-					G.contract(newE);
-				}
-
-			} else {
-				// set number of edges for the current created block
-				int actM;
-				if (m > 3*actN-6)
-					actM = uniform_int_distribution<>(1, 3*actN-6)(rng);
-				else
-					actM = dist_1_m(rng);
-				if (actM < actN)
-					actM = actN;
-
-				int ke = actN-3, kf = actM-actN;
-
-				Array<node> nodes(actN);
-				Array<edge> edges(actM);
-				Array<face> bigFaces(actM);
-
-				// we start with a triangle
-				node v2 = G.newNode(), v3 = G.newNode();
-				nodes[0] = v1;
-				nodes[1] = v2;
-				nodes[2] = v3;
-				edges[0] = G.newEdge(v1,v2);
-				edges[1] = G.newEdge(v2,v3);
-				edges[2] = G.newEdge(v3,v1);
-
-				int actInsertedNodes = 3;
-
-				CombinatorialEmbedding E(G);
-				FaceArray<int> posBigFaces(E);
-				int nBigFaces = 0, nEdges = 3;
-
-				while(ke+kf > 0) {
-					int p = uniform_int_distribution<>(1,ke+kf)(rng);
-
-					if (nBigFaces == 0 || p <= ke) {
-						int eNr = uniform_int_distribution<>(0,nEdges-1)(rng);
-						edge e  = edges[eNr];
-						face f  = E.rightFace(e->adjSource());
-						face fr = E.rightFace(e->adjTarget());
-
-						node u = e->source();
-						node v = e->target();
-
-						edges[nEdges++] = E.split(e);
-
-						if (e->source() != v && e->source() != u)
-							nodes[actInsertedNodes++] = e->source();
-						else
-							nodes[actInsertedNodes++] = e->target();
-
-						if (f->size() == 4) {
-							posBigFaces[f] = nBigFaces;
-							bigFaces[nBigFaces++] = f;
-						}
-						if (fr->size() == 4) {
-							posBigFaces[fr] = nBigFaces;
-							bigFaces[nBigFaces++] = fr;
-						}
-
-						ke--;
-					}
-					else {
-						int pos = uniform_int_distribution<>(0,nBigFaces-1)(rng);
-						face f = bigFaces[pos];
-						int df = f->size();
-						int i = uniform_int_distribution<>(0,df-1)(rng);
-						int j = uniform_int_distribution<>(2,df-2)(rng);
-
-						adjEntry adj1;
-						for (adj1 = f->firstAdj(); i > 0; adj1 = adj1->faceCycleSucc())
-							i--;
-
-						adjEntry adj2;
-						for (adj2 = adj1; j > 0; adj2 = adj2->faceCycleSucc())
-							j--;
-
-						edge e = E.splitFace(adj1,adj2);
-						edges[nEdges++] = e;
-
-						face f1 = E.rightFace(e->adjSource());
-						face f2 = E.rightFace(e->adjTarget());
-
-						bigFaces[pos] = f1;
-						posBigFaces[f1] = pos;
-						if (f2->size() >= 4) {
-							posBigFaces[f2] = nBigFaces;
-							bigFaces[nBigFaces++] = f2;
-						}
-						if (f1->size() == 3) {
-							bigFaces[pos] = bigFaces[--nBigFaces];
-						}
-
-						kf--;
-					}
-				}
-
-				// delete multi edges
-				SListPure<edge> allEdges;
-				EdgeArray<int> minIndex(G), maxIndex(G);
-
-				parallelFreeSortUndirected(G,allEdges,minIndex,maxIndex);
-
-				SListConstIterator<edge> it = allEdges.begin();
-				edge ePrev = *it, e;
-				for(it = ++it; it.valid(); ++it, ePrev = e) {
-					e = *it;
-					if (minIndex[ePrev] == minIndex[e] &&
-						maxIndex[ePrev] == maxIndex[e])
-					{
-						G.move(e,
-							e->adjTarget()->faceCycleSucc()->twin(), Direction::before,
-							e->adjSource()->faceCycleSucc()->twin(), Direction::before);
-					}
-				}
-
-				node cutv2 = nodes[uniform_int_distribution<>(0,actN-1)(rng)];
-
-				int rnd = dist_1_2(rng);
-				edge newE = G.newEdge(cutv2, cutv);
-				if (rnd == 1) {
-					G.contract(newE);
-				}
-			}
 	}
 }
 
@@ -1204,18 +1032,6 @@ void randomTree(Graph& G, int n)
 }
 
 
-void regularTree(Graph& G, int n, int children)
-{
-	G.clear();
-	node* id2node = new node[n];
-	id2node[0] = G.newNode();
-	for(int i=1; i<n; i++) {
-		G.newEdge(id2node[(i-1)/children], id2node[i] = G.newNode());
-	}
-	delete[] id2node;
-}
-
-
 void createClustersHelper(ClusterGraph& C, const node curr, const node pred, const cluster predC, List<cluster>& internal, List<cluster>& leaves)
 {
 	cluster currC = predC ? C.createEmptyCluster(predC) : C.rootCluster();
@@ -1277,166 +1093,7 @@ void randomClusterGraph(ClusterGraph& C, const Graph& G, const node root, int mo
 }
 
 
-void completeGraph(Graph &G, int n)
-{
-	G.clear();
-
-	Array<node> v(n);
-
-	int i,j;
-	for(i = n; i-- > 0;)
-		v[i] = G.newNode();
-
-	for(i = n; i-- > 0;)
-		for(j = i; j-- > 0;)
-			G.newEdge(v[i],v[j]);
-}
-
-void completeKPartiteGraph(Graph &G, const Array<int> &signature)
-{
-	G.clear();
-	if (signature.size() <= 0) {
-		return;
-	}
-
-	Array<Array<node>> partitions(signature.size());
-
-	// generate nodes in partitions
-	for (int i = 0; i < partitions.size(); ++i) {
-		OGDF_ASSERT(signature[i] > 0);
-		partitions[i].init(signature[i]);
-		for (int j = 0; j < signature[i]; ++j) {
-			partitions[i][j] = G.newNode();
-		}
-	}
-
-	// generate edges
-	for (int i = 0; i < partitions.size(); ++i) {
-		for (node u : partitions[i]) {
-			for (int j = i+1; j < partitions.size(); ++j) {
-				for (node v : partitions[j]) {
-					G.newEdge(u, v);
-				}
-			}
-		}
-	}
-}
-
-void completeBipartiteGraph(Graph &G, int n, int m)
-{
-	completeKPartiteGraph(G, {n, m});
-}
-
-
-void wheelGraph(Graph &G, int n)
-{
-	G.clear();
-	if (n <= 2) return;
-
-	node center = G.newNode();
-	node n0 = nullptr;
-	node n1 = nullptr;
-
-	while (n--) {
-		node n2 = G.newNode();
-		G.newEdge(center, n2);
-		if (n1)
-			G.newEdge(n1, n2);
-		else
-			n0 = n2;
-		n1 = n2;
-	}
-	G.newEdge(n1, n0);
-}
-
-
-void suspension(Graph &G, int n)
-{
-	if(n == 0) return;
-	OGDF_ASSERT( n>0 );
-
-	List<node> nds;
-	G.allNodes(nds);
-	while (n--) {
-		node n0 = G.newNode();
-		for(node v : nds)
-			G.newEdge(n0,v);
-	}
-}
-
-
-void cubeGraph(Graph &G, int n)
-{
-	OGDF_ASSERT(n >= 0);
-	OGDF_ASSERT(n < 8*(int)sizeof(int)-1); // one sign bit, one less to be safe
-	G.clear();
-
-	int c = 1 << n;
-	Array<node> lu(c);
-	for(int i=0; i<c; ++i) {
-		lu[i] = G.newNode();
-		int q = 1;
-		while( q <= i ) {
-			if(q&i) G.newEdge(lu[i^q],lu[i]);
-			q <<= 1;
-		}
-	}
-}
-
-
-void gridGraph(Graph &G, int n, int m, bool loopN, bool loopM)
-{
-	G.clear();
-	Array<node> front(0,n-1,nullptr);
-	Array<node> fringe(0,n-1,nullptr);
-	node first = nullptr;
-	node last = nullptr;
-	node cur;
-	for(int j = m; j-- > 0;) {
-		for(int i = n; i-- > 0;) {
-			cur = G.newNode();
-			if(!last) first=cur;
-			else G.newEdge(last,cur);
-			if(fringe[i]) G.newEdge(fringe[i],cur);
-			else front[i] = cur;
-			fringe[i] = cur;
-			last = cur;
-		}
-		if(loopN)
-			G.newEdge(last, first);
-		last = nullptr;
-	}
-	if(loopM) {
-		for(int i = n; i-- > 0;) {
-			G.newEdge(fringe[i],front[i]);
-		}
-	}
-}
-
-
-void petersenGraph(Graph &G, int n, int m)
-{
-	G.clear();
-	Array<node> inner(0, n-1, nullptr);
-	node first = nullptr;
-	node last = nullptr;
-	for(int i = n; i-- > 0;) {
-		node outn = G.newNode();
-		node inn = G.newNode();
-		G.newEdge(outn,inn);
-		inner[i]=inn;
-		if(!last) first=outn;
-		else G.newEdge(last,outn);
-		last = outn;
-	}
-	G.newEdge(last, first);
-	for(int i = n; i-- > 0;) {
-		G.newEdge(inner[i],inner[(i+m)%n]);
-	}
-}
-
-
-void randomDiGraph(Graph &G, int n, double p)
+void randomDigraph(Graph &G, int n, double p)
 {
 	OGDF_ASSERT(n >= 0);
 	OGDF_ASSERT(p <= 1);
@@ -1585,11 +1242,214 @@ void randomGeometricCubeGraph(Graph &G, int nodes, double threshold, int dimensi
 	}
 }
 
-void emptyGraph(Graph &G, int nodes)
+void randomWaxmanGraph(Graph &G, int nodes, double alpha, double beta, double width, double height)
 {
-	G.clear();
-	for (int i = 0; i < nodes; i++) {
-		G.newNode();
+	OGDF_ASSERT(0 < alpha);
+	OGDF_ASSERT(1 >= alpha);
+	OGDF_ASSERT(0 < beta);
+	OGDF_ASSERT(1 >= beta);
+
+	emptyGraph(G, nodes);
+
+	// Model RG1: Randomly distribute nodes, then work off their distances.
+	NodeArray<IPoint> cord(G);
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	uniform_int_distribution<> distX(0, width);
+	uniform_int_distribution<> distY(0, height);
+	for (node v : G.nodes) {
+		cord[v] = IPoint(distX(gen), distY(gen));
+	}
+
+	double maxDistance = 0.0;
+	for (node v : G.nodes) {
+		for (node w = v->succ(); w; w = w->succ()) {
+			Math::updateMax(maxDistance, cord[v].distance(cord[w]));
+		}
+	}
+
+	randomEdgesGraph(G, [&](node v, node w) { return beta * exp(-cord[v].distance(cord[w])/(maxDistance * alpha)); });
+}
+
+void preferentialAttachmentGraph(Graph &G, int numberNodes, int minDegree) {
+	OGDF_ASSERT(1 <= minDegree);
+
+	if (numberNodes == 0) {
+		return;
+	}
+
+	// Special case: We get an empty graph. Start with a complete graph
+	// where each node has minDegree.
+	if (G.empty()) {
+		completeGraph(G, minDegree + 1);
+		numberNodes -= (minDegree + 1);
+	}
+	else {
+#ifdef OGDF_DEBUG
+		OGDF_ASSERT(minDegree <= G.numberOfNodes());
+
+		// We need to make sure to have at least minDegree nodes
+		// with at least one edge each, so the algorithm does not
+		// get stuck in an infinite loop trying to find another
+		// node with degree larger than 0.
+		int nNodesWithEdge = 0;
+		for (node n : G.nodes) {
+			if (n->degree() > 0) nNodesWithEdge++;
+			if (nNodesWithEdge >= minDegree) break;
+		}
+		OGDF_ASSERT(nNodesWithEdge >= minDegree);
+#endif
+	}
+
+	minstd_rand rng(randomSeed());
+	List<node> potentialNeighbors;
+
+	for (int i = 0; i < numberNodes; i++) {
+		node w = G.newNode();
+		// At this point, we have no connections and all nodes are potential neighbors.
+		G.allNodes(potentialNeighbors);
+		// We will select a uniform, random number between zero and the count of all
+		// degrees, and then iterate through the nodes, summing up their degrees until
+		// we find our target to connect.
+		int sumDegrees = 2 * G.numberOfEdges();
+
+		while (w->degree() < minDegree) {
+			OGDF_ASSERT(1 <= sumDegrees);
+			uniform_int_distribution<> dist(1, sumDegrees);
+			int selected = dist(rng);
+			int sumLocal = 0;
+			for (auto it = potentialNeighbors.begin(); it != potentialNeighbors.end(); it++) {
+				sumLocal += (*it)->degree();
+				if (sumLocal >= selected) {
+					// For the next iteration, we do not want to try appending to this
+					// node again, so remove it from the calculation.
+					sumDegrees -= (*it)->degree();
+					G.newEdge(*it, w);
+					potentialNeighbors.del(it);
+					break;
+				}
+			}
+		}
+	}
+}
+
+
+void randomWattsStrogatzGraph(Graph &G, int n, int k, double probability)
+{
+	OGDF_ASSERT(0.0 <= probability);
+	OGDF_ASSERT(probability <= 1.0);
+
+	regularLatticeGraph(G, n, k);
+	Array<node> nodes;
+	G.allNodes(nodes);
+	NodeArray<int> indices = NodeArray<int>(G);
+	// Assume the nodes to be generated in order
+	for (int i = 0; i < nodes.size(); i++) {
+		indices[nodes[i]] = i;
+	}
+
+	minstd_rand rng(randomSeed());
+	uniform_real_distribution<> dist(0, 1);
+	uniform_int_distribution<> rand(0, n-1);
+
+	// Construct lists of edges.
+	// Each list i contains the edges with (i+1) distance, i.e. {1, 2, 3,...}.
+	Array<List<edge>> edges;
+	edges.init(k/2);
+	for (node v : nodes) {
+		List<edge> vEdges;
+		v->adjEdges(vEdges);
+
+		for (edge e : vEdges) {
+			int delta = indices[e->opposite(v)] - indices[v];
+
+			// The other node is further clockwise without hitting the edge,
+			// but its index is still in the interval
+			if (delta > 0 && delta <= k/2) {
+				edges[delta-1].pushBack(e);
+			}
+			// The other node has a smaller index, but within the interval when
+			// looking at the overlap
+			else if (delta < 0 && (n + delta) <= k/2) {
+				edges[n+delta-1].pushBack(e);
+			}
+		}
+	}
+
+	for (int i = 0; i < edges.size(); i++) {
+		for (edge e : edges[i]) {
+			if (dist(rng) <= probability) {
+				// We have to rewire this edge.
+				// Take the node further anti-clockwise and anchor the edge there.
+				node v = e->target();
+				bool moveTarget = false;
+				// We know how far the nodes are apart (i+1), so adding this to the
+				// index and accounting for the wrap-around should have us hit the
+				// next node.
+				if ((indices[v] + i + 1) % n != indices[e->source()]) {
+					v = e->source();
+					moveTarget = true;
+				}
+
+				// If we happen to have all other nodes connected to this node, we cannot do anything here.
+				if (v->degree() == G.numberOfNodes() - 1) continue;
+
+				// NOTE The following algorithm to choose nodes works well if n is
+				// much bigger than k. For graphs where k is close to n/2, this can
+				// take a long time as we are just randomly poking into our array.
+				int newNeighbor;
+				do {
+					newNeighbor = rand(rng);
+				} while (nodes[newNeighbor] == v || G.searchEdge(v, nodes[newNeighbor]) != nullptr);
+				if (moveTarget) {
+					G.moveTarget(e, nodes[newNeighbor]);
+				}
+				else {
+					G.moveSource(e, nodes[newNeighbor]);
+				}
+			}
+		}
+	}
+}
+
+void randomChungLuGraph(Graph &G, Array<int> expectedDegreeSequence) {
+	int numberNodes = expectedDegreeSequence.size();
+	OGDF_ASSERT(numberNodes != 0);
+
+	emptyGraph(G, numberNodes);
+	NodeArray<int> expectedDegrees(G);
+	int i = 0;
+	int sumDegrees = 0;
+	// We have exactly the same number of nodes as our sequence is long
+	for (node v : G.nodes) {
+		expectedDegrees[v] = expectedDegreeSequence[i];
+		sumDegrees += expectedDegreeSequence[i];
+		i++;
+	}
+
+#ifdef OGDF_DEBUG
+	for (int deg : expectedDegreeSequence) {
+		OGDF_ASSERT(deg > 0);
+		OGDF_ASSERT(deg < numberNodes);
+		OGDF_ASSERT(deg*deg < sumDegrees);
+	}
+#endif
+
+	randomEdgesGraph(G, [&](node v, node w) {
+		return ((double) expectedDegrees[v] * expectedDegrees[w]) / sumDegrees;
+	});
+}
+
+void randomEdgesGraph(Graph &G, std::function<double(node, node)> probability)
+{
+	minstd_rand rng(randomSeed());
+	uniform_real_distribution<> dist(0, 1);
+	for (node v : G.nodes) {
+		for (node w = v->succ(); w; w = w->succ()) {
+			if (dist(rng) < probability(v, w)) {
+				G.newEdge(v, w);
+			}
+		}
 	}
 }
 

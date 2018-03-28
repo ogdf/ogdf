@@ -119,7 +119,7 @@ public:
 	 * then it has a valid parent pointer.
 	 */
 	bool endmostChild() const {
-		return (m_sibLeft == nullptr || m_sibRight == nullptr);
+		return m_sibLeft == nullptr || m_sibRight == nullptr;
 	}
 
 	/**

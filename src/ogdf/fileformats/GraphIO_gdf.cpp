@@ -69,6 +69,9 @@ static inline void writeNodeHeader(
 	if(attrs & GraphAttributes::nodeStyle) {
 		os << "," << toString(NodeAttribute::FillColor);
 		os << "," << toString(NodeAttribute::StrokeColor);
+		os << "," << toString(NodeAttribute::StrokeType);
+		os << "," << toString(NodeAttribute::StrokeWidth);
+		os << "," << toString(NodeAttribute::FillPattern);
 	}
 	if(attrs & GraphAttributes::nodeTemplate) {
 		os << "," << toString(NodeAttribute::Template);
@@ -110,6 +113,9 @@ static inline void writeNode(
 		writeColor(os, GA->fillColor(v));
 		os << ",";
 		writeColor(os, GA->strokeColor(v));
+		os << "," << toString(GA->strokeType(v));
+		os << "," << GA->strokeWidth(v);
+		os << "," << toString(GA->fillPattern(v));
 	}
 	if(attrs & GraphAttributes::nodeTemplate) {
 		os << "," << GA->templateNode(v);
@@ -200,6 +206,9 @@ static void writeGraph(
 	std::ostream &os,
 	const Graph &G, const GraphAttributes *GA)
 {
+	std::ios_base::fmtflags currentFlags = os.flags();
+	os.flags(currentFlags | std::ios::fixed);
+
 	// Node definition section.
 	writeNodeHeader(os, GA);
 
@@ -213,6 +222,7 @@ static void writeGraph(
 	for(edge e : G.edges) {
 		writeEdge(os, GA, e);
 	}
+	os.flags(currentFlags);
 }
 
 }

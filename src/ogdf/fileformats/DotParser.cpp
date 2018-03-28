@@ -809,12 +809,41 @@ static bool readAttribute(
 		if(flags & GraphAttributes::nodeGraphics) {
 			// sscanf(stmt.rhs.c_str(), "%lf,%lf", &GA.x(v), &GA.y(v));
 			ss >> GA.x(v) >> TokenIgnorer(',') >> GA.y(v);
+			if(flags & GraphAttributes::threeD) {
+				ss >> TokenIgnorer(',') >> GA.z(v);
+			}
 		}
 		break;
 	case Attribute::Stroke:
 		if(flags & GraphAttributes::nodeStyle) {
 			GA.strokeColor(v) = stmt.rhs;
 			// TODO: color literals.
+		}
+		break;
+	case Attribute::StrokeWidth:
+		if(flags & GraphAttributes::nodeStyle) {
+			ss >> GA.strokeWidth(v);
+		}
+		break;
+	case Attribute::FillPattern:
+		if(flags & GraphAttributes::nodeStyle) {
+			string help;
+			ss >> help;
+			GA.fillPattern(v) = fromString<FillPattern>(help);
+		}
+		break;
+	case Attribute::Type:
+		if(flags & GraphAttributes::nodeType) {
+			int help;
+			ss >> help;
+			GA.type(v) = Graph::NodeType(help);
+		}
+		break;
+	case Attribute::StrokeType:
+		if(flags & GraphAttributes::nodeStyle) {
+			string help;
+			ss >> help;
+			GA.strokeType(v) = fromString<StrokeType>(help);
 		}
 		break;
 	case Attribute::Fill:
@@ -847,10 +876,8 @@ static bool readAttribute(
 		break;
 	case Attribute::Weight:
 		if(flags & GraphAttributes::edgeDoubleWeight) {
-			// sscanf(stmt.rhs.c_str(), "%lf", &GA.doubleWeight(e));
 			ss >> GA.doubleWeight(e);
-		} else if(flags & GraphAttributes::edgeIntWeight) {
-			// sscanf(stmt.rhs.c_str(), "%d", &GA.intWeight(e));
+		} else if (flags & GraphAttributes::edgeIntWeight) {
 			ss >> GA.intWeight(e);
 		}
 		break;
@@ -867,7 +894,9 @@ static bool readAttribute(
 		break;
 	case Attribute::Arrow:
 		if(flags & GraphAttributes::edgeArrow) {
-			GA.arrowType(e) = toArrow(stmt.rhs);
+			int help;
+			ss >> help;
+			GA.arrowType(e) = EdgeArrow(help);
 		}
 		break;
 	default:

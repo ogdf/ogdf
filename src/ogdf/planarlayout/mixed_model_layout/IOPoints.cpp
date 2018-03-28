@@ -88,7 +88,7 @@ adjEntry IOPoints::switchEndIn(node v)
 	List<InOutPoint> &Lin  = m_in [v];
 	List<InOutPoint> &Lout = m_out[v];
 
-	ListConstIterator<InOutPoint> it;
+	ListConstReverseIterator<InOutPoint> it;
 	adjEntry adj;
 
 	while ((it = Lin.rbegin()).valid() && marked(adj = (*it).m_adj))
@@ -129,7 +129,7 @@ void IOPoints::numDeg1(node v, int &xl, int &xr,
 		++xl;
 
 	if (doubleCount || it.valid()) // avoid double counting if all are marked
-		for (it = L.rbegin(); it.valid() && marked((*it).m_adj); --it)
+		for (ListConstReverseIterator<InOutPoint> revIt = L.rbegin(); revIt.valid() && marked((*revIt).m_adj); ++revIt)
 			++xr;
 }
 

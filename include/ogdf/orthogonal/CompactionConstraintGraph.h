@@ -673,7 +673,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 				//check for single edge case => special treatment
 				//generic case could handle all numbers
 
-				if ((sDir.totalAttached() == 1) || (sOppDir.totalAttached() == 1))
+				if (sDir.totalAttached() == 1 || sOppDir.totalAttached() == 1)
 				{
 					//first, insert a new center node and connect it
 					ATYPE lenMin = size/2;

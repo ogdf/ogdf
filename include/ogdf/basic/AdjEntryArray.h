@@ -107,6 +107,8 @@ public:
  * Adjacency entry arrays represent a mapping from adjacency entries to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
+ * @warn_undef_behavior_array
+ *
  * @tparam T is the element type.
  */
 template<class T> class AdjEntryArray : private Array<T>, protected AdjEntryArrayBase {
@@ -118,9 +120,9 @@ public:
 	//! The type for array entries.
 	using value_type = T;
 
-	//! The type for edge array iterators.
+	//! The type for adjEntry array iterators.
 	using iterator = internal::GraphArrayIterator<AdjEntryArray<T>>;
-	//! The type for edge array const iterators.
+	//! The type for adjEntry array const iterators.
 	using const_iterator = internal::GraphArrayConstIterator<AdjEntryArray<T>>;
 
 
@@ -238,45 +240,6 @@ public:
 	 * This is always a null pointer iterator.
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
-
-	//! Returns an iterator to the last entry in the array.
-	/**
-	 * If the array is empty, a null pointer iterator is returned.
-	 */
-	iterator rbegin() {
-		return iterator(findLastKey(), this);
-	}
-
-	//! Returns a const iterator to the last entry in the array.
-	/**
-	 * If the array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator rbegin() const { return const_iterator(findLastKey(), this); }
-
-	//! Returns a const iterator to the last entry in the array.
-	/**
-	 * If the array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator crbegin() const { return const_iterator(findLastKey(), this); }
-
-	//! Returns an iterator to one-before-first entry in the array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	iterator rend() { return iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator rend() const { return const_iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator crend() const { return const_iterator(nullptr, this); }
-
 
 	//@}
 	/**

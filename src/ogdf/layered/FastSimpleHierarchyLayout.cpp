@@ -98,8 +98,8 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 
 		// initializing
 		for (int i = 0; i < 4; i++) {
-			min[i] =  std::numeric_limits<double>::max();
-			max[i] = -std::numeric_limits<double>::max();
+			min[i] = std::numeric_limits<double>::max();
+			max[i] = std::numeric_limits<double>::lowest();
 		}
 
 		// calc the layout for down/up and leftToRight/rightToLeft
@@ -223,8 +223,8 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 	}
 
 	if (levels.size() >= 4) {
-		int upper, lower; 	// iteration bounds
-		int k1;				// node position boundaries of closest inner segments
+		int upper, lower; // iteration bounds
+		int k1; // node position boundaries of closest inner segments
 		HierarchyLevelsBase::TraversingDir relupward; // upward relativ to the direction from downward
 
 		if (downward) {
@@ -293,7 +293,7 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 	const bool leftToRight)
 {
 	const GraphCopy& GC = levels.hierarchy();
-	HierarchyLevelsBase::TraversingDir relupward;		// upward relativ to the direction from downward
+	HierarchyLevelsBase::TraversingDir relupward; // upward relativ to the direction from downward
 
 	relupward = downward ? HierarchyLevelsBase::TraversingDir::downward : HierarchyLevelsBase::TraversingDir::upward;
 
@@ -331,7 +331,7 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 
 				if (align[v] == v
 				 // if segment (u,v) not marked by type1 conflicts AND ...
-				 && type1Conflicts[v][u] == false
+				 && !type1Conflicts[v][u]
 				 && ((leftToRight && r < levels.pos(u))
 				  || (!leftToRight && r > levels.pos(u)))) {
 					align[u] = v;
@@ -385,7 +385,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 	NodeArray<node> sink(GC);
 	NodeArray<double> shift(GC, std::numeric_limits<double>::max());
 
-	x.init(GC, -std::numeric_limits<double>::max());
+	x.init(GC, std::numeric_limits<double>::lowest());
 
 	for(node v : GC.nodes) {
 		sink[v] = v;
@@ -468,7 +468,7 @@ void FastSimpleHierarchyLayout::placeBlock(
 	const GraphCopy& GC = H;
 #endif
 
-	if (x[v] == -std::numeric_limits<double>::max()) {
+	if (x[v] == std::numeric_limits<double>::lowest()) {
 		x[v] = 0;
 		node w = v;
 #ifdef OGDF_FAST_SIMPLE_HIERARCHY_LAYOUT_LOGGING

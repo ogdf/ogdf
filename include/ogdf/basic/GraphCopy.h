@@ -348,7 +348,7 @@ public:
 	 * \return the first edge in the corresponding list of edges in
 	 * the graph copy or nullptr if it does not exist.
 	 */
-	edge copy(edge e) const { return (m_eCopy[e].empty() ? nullptr : m_eCopy[e].front()); }
+	edge copy(edge e) const { return m_eCopy[e].empty() ? nullptr : m_eCopy[e].front(); }
 
 	/**
 	* Returns the adjacency entry in the copy graph corresponding to \p adj.

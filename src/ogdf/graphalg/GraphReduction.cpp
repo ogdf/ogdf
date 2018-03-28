@@ -77,9 +77,9 @@ GraphReduction::GraphReduction(const Graph &G)
 				if (e1->source() == v) {
 					if (e2->source() == v) m_eOrig[e2].reverse();
 					this->moveSource(e1, e2->opposite(v));
-					for (ListConstIterator<edge> it = m_eOrig[e2].rbegin(); it.valid(); --it) {
-						m_eReduction[*it] = e1;
-						m_eOrig[e1].pushFront(*it);
+					for (edge origEdge : reverse(m_eOrig[e2])) {
+						m_eReduction[origEdge] = e1;
+						m_eOrig[e1].pushFront(origEdge);
 					}
 				}
 				else {
@@ -104,7 +104,7 @@ GraphReduction::GraphReduction(const Graph &G)
 					edge e2, e3;
 					if (front_e1) {
 						e2 = el.back();
-						e3 = *(el.rbegin().pred());
+						e3 = *(el.rbegin().succ());
 					}
 					else {
 						e2 = el.front();

@@ -156,7 +156,7 @@ int LCA::rmq(int i, int j) const
 	OGDF_ASSERT(interval2 >= 0);
 	OGDF_ASSERT(interval2 < m_len);
 	// return the smaller one
-	return (m_level[interval1] < m_level[interval2] ? interval1 : interval2);
+	return m_level[interval1] < m_level[interval2] ? interval1 : interval2;
 }
 
 }

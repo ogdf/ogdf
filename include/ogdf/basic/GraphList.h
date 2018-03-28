@@ -365,6 +365,8 @@ class GraphObjectContainer : private GraphList<GraphObject> {
 public:
 	//! Provides a bidirectional iterator to an object in the container.
 	using iterator = GraphIterator<GraphObject*>;
+	//! Provides a bidirectional reverse iterator to an object in the container.
+	using reverse_iterator = GraphReverseIterator<GraphObject*>;
 
 	//! Returns an iterator to the first element in the container.
 	iterator begin() const { return GraphList<GraphObject>::head(); }
@@ -372,11 +374,11 @@ public:
 	//! Returns an iterator to the one-past-last element in the container.
 	iterator end() const { return iterator(); }
 
-	//! Returns an iterator to the last element in the container.
-	iterator rbegin() const { return GraphList<GraphObject>::tail(); }
+	//! Returns a reverse iterator to the last element in the container.
+	reverse_iterator rbegin() const { return reverse_iterator(GraphList<GraphObject>::tail()); }
 
-	//! Returns an iterator to the one-before-first element in the container.
-	iterator rend() const { return iterator(); }
+	//! Returns a reverse iterator to the one-before-first element in the container.
+	reverse_iterator rend() const { return reverse_iterator(); }
 
 	//! Returns the number of elements in the container.
 	int size() const { return GraphList<GraphObject>::size(); }

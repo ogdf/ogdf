@@ -35,12 +35,6 @@
 
 int main(int argc, char **argv)
 {
-	if(!resourceCheck()) {
-		std::cerr << "Could not find the resource directory." << std::endl
-		    << "Make sure you run tests from within the OGDF source directory." << std::endl;
-		return 1;
-	}
-
 	bool verbose = false;
 	bool help = false;
 
@@ -52,6 +46,8 @@ int main(int argc, char **argv)
 	if(!verbose) {
 		Logger::globalLogLevel(Logger::Level::Force);
 	}
+
+	resources::load_resources();
 
 	int result = run(argc, argv);
 

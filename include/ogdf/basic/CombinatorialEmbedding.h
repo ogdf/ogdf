@@ -179,9 +179,9 @@ template<class T>class FaceArray;
  *
  * @ingroup graphs
  *
- * Maintains a combinatorial embedding of an embedded graph, i.e., the set of
- * faces. A combinatorial embedding is defined by the (cyclic) order of the
- * adjacency entries around a vertex; more precisely, the adjacency list
+ * Maintains a combinatorial embedding of an embedded connected graph, i.e., the
+ * set of faces. A combinatorial embedding is defined by the (cyclic) order of
+ * the adjacency entries around a vertex; more precisely, the adjacency list
  * gives the cyclic order of the adjacency entries in clockwise order.
  * Each adjacency entry \a adj is contained in exactly one face, the face
  * to the right of \a adj. The list of adjacency entries defining a face is given
@@ -398,8 +398,9 @@ protected:
  *
  * @ingroup graphs
  *
- * Maintains a combinatorial embedding of an embedded graph, i.e., the set of
- * faces, and provides method for modifying the embedding, e.g., by inserting edges.
+ * Maintains a combinatorial embedding of an embedded connected graph, i.e., the
+ * set of faces, and provides method for modifying the embedding, e.g., by
+ * inserting edges.
  *
  * <H3>Thread Safety</H3>
  * The class Graph allows shared access of threads to const methods only.

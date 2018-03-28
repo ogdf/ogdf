@@ -290,7 +290,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 					node v = *itV;
 
 					double s = m_diameter[v] + m_levelDistance;
-					if(g.m_leafGroup == false)
+					if(!g.m_leafGroup)
 						s += m_leaves[v] / g.m_sumW * g.add() + m_leaves[v] / W * deltaL;
 
 					double desiredWedge = s / m_radius[i+1];
@@ -361,7 +361,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 				node u = *it;
 
 				double s = m_diameter[u] + m_levelDistance;
-				if(g.m_leafGroup == false)
+				if(!g.m_leafGroup)
 					s += m_leaves[u] / g.m_sumW * g.add() + m_leaves[u] / W[v] * deltaL;
 
 				double desiredWedge = s / m_radius[i+1];
@@ -442,7 +442,7 @@ void RadialTreeLayout::Grouping::computeAdd(double &D, double &W)
 
 		D += g.m_sumD;
 
-		if(g.m_leafGroup == true)
+		if(g.m_leafGroup)
 			continue;
 
 		W += g.m_sumW;
@@ -450,22 +450,22 @@ void RadialTreeLayout::Grouping::computeAdd(double &D, double &W)
 		ListIterator<Group> itL;
 
 		itL = it.pred();
-		if(itL.valid() == false) {
+		if(!itL.valid()) {
 			g.m_leftAdd = 0.0;
 		} else {
 			ListIterator<Group> itR = itL.pred();
-			if(itR.valid() == false)
+			if(!itR.valid())
 				g.m_leftAdd = (*itL).m_sumD;
 			else
 				g.m_leftAdd = (*itL).m_sumD * g.m_sumW / (*itR).m_sumW;
 		}
 
 		itL = it.succ();
-		if(itL.valid() == false) {
+		if(!itL.valid()) {
 			g.m_leftAdd = 0.0;
 		} else {
 			ListIterator<Group> itR = itL.succ();
-			if(itR.valid() == false)
+			if(!itR.valid())
 				g.m_leftAdd = (*itL).m_sumD;
 			else
 				g.m_leftAdd = (*itL).m_sumD * g.m_sumW / (*itR).m_sumW;
@@ -500,7 +500,7 @@ void RadialTreeLayout::ComputeGrouping(int i)
 		{
 			node u = adj->twinNode();
 
-			if(!currentGroup.valid() || (*currentGroup).isSameType(u) == false)
+			if(!currentGroup.valid() || !(*currentGroup).isSameType(u))
 			{
 				currentGroup = grouping.pushBack(Group(this,u));
 

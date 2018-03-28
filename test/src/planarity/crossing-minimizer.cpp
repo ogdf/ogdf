@@ -275,7 +275,7 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 			};
 
 			for_each_graph_it("works", instances,
-				[&](Graph &gr, const string &filename) {
+				[&](Graph &gr) {
 					testComputation(cmm, gr, -1, false);
 			});
 		}

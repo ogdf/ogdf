@@ -278,12 +278,11 @@ void PlanRepExpansion::insertEdgePathEmbedded(
 
 	adjEntry adjSrc, adjTgt;
 	ListConstIterator<Tuple2<adjEntry,adjEntry> > it = crossedEdges.begin();
-	ListConstIterator<Tuple2<adjEntry,adjEntry> > itLast = crossedEdges.rbegin();
 
 	// iterate over all adjacency entries in crossedEdges except for first
 	// and last
 	adjSrc = (*it).x1();
-	for(++it; it != itLast; ++it)
+	for(++it; it.valid() && it.succ().valid(); ++it)
 	{
 		adjEntry adj  = (*it).x1();
 		adjEntry adj2 = (*it).x2();
@@ -1028,9 +1027,9 @@ edge PlanRepExpansion::separateDummy(
 		}
 
 	} else {
-		ListIterator<edge> it, itPrev;
+		ListReverseIterator<edge> it, itPrev;
 		for(it = path.rbegin(); (*it)->target() != v; it = itPrev) {
-			itPrev = it.pred();
+			itPrev = it.succ();
 			path.moveToFront(it, nsNew->m_path);
 			m_eOrig     [*it] = nullptr;
 			m_eNodeSplit[*it] = nsNew;
@@ -1096,9 +1095,9 @@ edge PlanRepExpansion::separateDummy(
 		}
 
 	} else {
-		ListIterator<edge> it, itPrev;
+		ListReverseIterator<edge> it, itPrev;
 		for(it = pathA.rbegin(); (*it)->target() != u; it = itPrev) {
-			itPrev = it.pred();
+			itPrev = it.succ();
 			pathA.moveToFront(it, nsNew->m_path);
 			m_eOrig     [*it] = 0;
 			m_eNodeSplit[*it] = nsNew;

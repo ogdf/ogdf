@@ -138,7 +138,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 
 		edge eH = testG.newEdge(toTestG[eG->source()],toTestG[eG->target()]);
 
-		if (preferedImplyPlanar == false && isPlanar(H) == false) {
+		if (!preferedImplyPlanar && !isPlanar(H)) {
 			testG.delEdge(eH);
 			delEdges.pushBack(eG);
 		}

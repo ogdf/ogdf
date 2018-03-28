@@ -1016,6 +1016,22 @@ public:
 	 */
 	virtual DRect boundingBox() const;
 
+	//! Computes the bounding rectangle for each node.
+	/**
+	 * \tparam Rectangle is the kind of rectangle that should be created.
+	 * \param boundingBoxes is assigned the bounding rectangle for each node.
+	 * \pre #nodeGraphics is enabled
+	 */
+	template<class Rectangle = DRect>
+	void nodeBoundingBoxes(NodeArray<Rectangle> &boundingBoxes) const {
+		for (node v : constGraph().nodes) {
+			double vHalfWidth  = width(v)  / 2.0;
+			double vHalfHeight = height(v) / 2.0;
+			boundingBoxes[v] = Rectangle(x(v) - vHalfWidth, y(v) - vHalfHeight,
+			                             x(v) + vHalfWidth, y(v) + vHalfHeight);
+		}
+	}
+
 	//! Sets the width of all nodes to \p w.
 	/**
 	 * \pre #nodeGraphics is enabled

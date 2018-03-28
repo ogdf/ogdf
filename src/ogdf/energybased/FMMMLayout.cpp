@@ -76,8 +76,7 @@ void FMMMLayout::call(GraphAttributes &GA, const EdgeArray<double> &edgeLength)
 	const Graph &G = GA.constGraph();
 	NodeArray<NodeAttributes> A(G);       //stores the attributes of the nodes (given by L)
 	EdgeArray<EdgeAttributes> E(G);       //stores the edge attributes of G
-	Graph G_reduced;                      //stores a undirected simple and loopfree copy
-										//of G
+	Graph G_reduced;                      //stores a undirected simple and loop-free copy of G
 	EdgeArray<EdgeAttributes> E_reduced;  //stores the edge attributes of G_reduced
 	NodeArray<NodeAttributes> A_reduced;  //stores the node attributes of G_reduced
 
@@ -215,8 +214,7 @@ void FMMMLayout::call_FORCE_CALCULATION_step(
 		NodeArray<DPoint> F_rep(G); //stores rep. forces
 		NodeArray<DPoint> F_attr(G); //stores attr. forces
 		NodeArray<DPoint> F (G); //stores resulting forces
-		NodeArray<DPoint> last_node_movement(G);//stores the force vectors F of the last
-												//iterations (needed to avoid oscillations)
+		NodeArray<DPoint> last_node_movement(G); //stores the force vectors F of the last iterations (needed to avoid oscillations)
 
 		set_average_ideal_edgelength(G,E);//needed for easy scaling of the forces
 		make_initialisations_for_rep_calc_classes(G);

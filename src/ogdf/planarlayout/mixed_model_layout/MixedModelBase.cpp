@@ -155,7 +155,7 @@ void MixedModelBase::removeDeg1Nodes()
 	int n = m_PG.numberOfNodes();
 	for (node v : m_PG.nodes) {
 		if (n <= 3) break;
-		if ((mark[v] = (v->degree() == 1)) == true) {
+		if ((mark[v] = (v->degree() == 1))) {
 			node w = v->firstAdj()->twinNode();
 			if (mark[w]) mark[w] = false; else --n;
 		}
@@ -625,8 +625,7 @@ void SetYCoords::getNextRegion()
 				m_xNext = m_infinity;
 			} else {
 				const InOutPoint &ip = *m_itIp;
-				m_xNext = marked(ip.m_adj) ? (m_x[z(m_i)] + ip.m_dx) :
-					(m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx);
+				m_xNext = marked(ip.m_adj) ? m_x[z(m_i)] + ip.m_dx : m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx;
 			}
 			m_onBase = (m_iNext != m_i);
 
@@ -636,11 +635,9 @@ void SetYCoords::getNextRegion()
 			searchNextInpoint();
 			if (m_itIpNext.valid() && ip.m_dx < 0) {
 				const InOutPoint &m_ipNext = *m_itIpNext;
-				m_xNext = marked(m_ipNext.m_adj) ? (m_x[z(m_i)] + m_ipNext.m_dx) :
-					(m_x[m_ipNext.m_adj->twinNode()] + outpoint(m_ipNext).m_dx);
+				m_xNext = marked(m_ipNext.m_adj) ? m_x[z(m_i)] + m_ipNext.m_dx : m_x[m_ipNext.m_adj->twinNode()] + outpoint(m_ipNext).m_dx;
 			} else {
-				m_xNext = marked(ip.m_adj) ? (m_x[z(m_i)] + ip.m_dx + 1) :
-					(m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx + 1);
+				m_xNext = marked(ip.m_adj) ? m_x[z(m_i)] + ip.m_dx + 1 : m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx + 1;
 			}
 
 			m_onBase = (m_iNext != m_i);
@@ -719,7 +716,7 @@ void MixedModelBase::computeYCoords()
 				itLast = m_rightOp[k];
 				if (itLast.valid() && (*itLast).m_adj->twinNode() == Vk[p])
 					++itLast;
-				itFirst = (itLast.valid()) ? itLast.pred() : out.rbegin();
+				itFirst = (itLast.valid()) ? itLast.pred() : ListConstIterator<InOutPoint>(out.rbegin());
 
 				while(itFirst.valid() && (m_iops.marked((*itFirst).m_adj) ||
 					(*itFirst).m_adj->twinNode() == Vk[p]))
@@ -728,7 +725,7 @@ void MixedModelBase::computeYCoords()
 
 			} else {
 				itFirst = m_nextLeft[v];
-				itFirst = (itFirst.valid()) ? itFirst.pred() : out.rbegin();
+				itFirst = (itFirst.valid()) ? itFirst.pred() : ListConstIterator<InOutPoint>(out.rbegin());
 
 				while (itFirst.valid() && m_iops.marked((*itFirst).m_adj))
 					--itFirst;
@@ -744,7 +741,7 @@ void MixedModelBase::computeYCoords()
 			}
 			if (v != cr && itFirst != itLast && m_mmo.rank(next[v]) > m_mmo.rank(v)) {
 				int x_n_v = x[next[v]] - m_iops.outLeft(next[v]);
-				ListConstIterator<InOutPoint> it = (itLast.valid()) ? itLast.pred() : out.rbegin();
+				ListConstIterator<InOutPoint> it = (itLast.valid()) ? itLast.pred() : ListConstIterator<InOutPoint>(out.rbegin());
 				for( ; ; ) {
 					if(x[v]+(*it).m_dx >= x_n_v)
 						itLast = it;
@@ -901,7 +898,7 @@ bool MixedModelBase::isRedundant(int x1, int y1, int x2, int y2, int x3, int y3)
 
 	int f = dyx1 * dzy2;
 
-	return (f % dzy1 == 0 && (y2 - y1) == f / dzy1);
+	return f % dzy1 == 0 && y2 - y1 == f / dzy1;
 }
 
 void MixedModelBase::postprocessing2()

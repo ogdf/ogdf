@@ -97,7 +97,7 @@ public:
 	 * It is not necessary to stop the timer to get the correct time.
 	 */
 	int64_t milliSeconds() const {
-		return (m_running) ? (m_totalTime + theTime() - m_startTime) : m_totalTime;
+		return m_running ? m_totalTime + theTime() - m_startTime : m_totalTime;
 	}
 
 	//! Returns the currently elapsed time in 1/100-seconds.

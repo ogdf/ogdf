@@ -145,9 +145,7 @@ public:
 	//! Returns true iff the queue is full.
 	bool full() {
 		INDEX h = m_pEnd-m_pStart;
-		return ( h >= 0 ) ?
-			(h == m_pStop-m_pFirst-1) :
-			(h == -1);
+		return h >= 0 ? h == m_pStop - m_pFirst - 1 : h == -1;
 	}
 
 	//! Assignment operator.

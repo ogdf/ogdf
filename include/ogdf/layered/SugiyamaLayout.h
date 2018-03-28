@@ -182,21 +182,21 @@ protected:
 	//! The module for arranging connected components.
 	std::unique_ptr<CCLayoutPackModule>           m_packer;
 
-	int    m_fails;			//!< Option for maximal number of fails.
-	int    m_runs;			//!< Option for number of runs.
-	bool   m_transpose;		//!< Option for switching on transposal heuristic.
-	bool   m_arrangeCCs;	//!< Option for laying out components separately.
-	double m_minDistCC;		//!< Option for distance between connected components.
-	double m_pageRatio;		//!< Option for desired page ratio.
+	int    m_fails; //!< Option for maximal number of fails.
+	int    m_runs; //!< Option for number of runs.
+	bool   m_transpose; //!< Option for switching on transposal heuristic.
+	bool   m_arrangeCCs; //!< Option for laying out components separately.
+	double m_minDistCC; //!< Option for distance between connected components.
+	double m_pageRatio; //!< Option for desired page ratio.
 	bool   m_permuteFirst;
-	unsigned int m_maxThreads;	//!< The maximal number of used threads.
+	unsigned int m_maxThreads; //!< The maximal number of used threads.
 
-	int m_nCrossings;    //!< Number of crossings in computed layout.
+	int m_nCrossings; //!< Number of crossings in computed layout.
 	RCCrossings m_nCrossingsCluster;
 	Array<bool> m_levelChanged;
 
 	bool m_alignBaseClasses; //!< Option for aligning base classes.
-	bool m_alignSiblings;    //!< Option for aligning siblings in inheritance trees.
+	bool m_alignSiblings; //!< Option for aligning siblings in inheritance trees.
 
 	EdgeArray<uint32_t> *m_subgraphs; //!< Defines the subgraphs for simultaneous drawing.
 

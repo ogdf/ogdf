@@ -30,7 +30,9 @@
  */
 
 
-#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/graph_generators/deterministic.h>
+#include <ogdf/basic/graph_generators/randomHierarchy.h>
 
 using std::minstd_rand;
 using std::uniform_int_distribution;

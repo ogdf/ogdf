@@ -105,7 +105,7 @@ private:
 	//! the assignment operator is fake and can not be used.
 	EnergyFunction& operator=(const EnergyFunction &e);
 
-	GraphAttributes& m_AG;	//!< This stores the graph with its graphical attributes and the current positions for the vertices
+	GraphAttributes& m_AG; //!< This stores the graph with its graphical attributes and the current positions for the vertices
 	node m_testNode; //!< The node that changed position in the candidate
 	DPoint m_testPos; //!< New candidate positions for m_testNode
 };

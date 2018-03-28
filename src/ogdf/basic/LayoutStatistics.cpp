@@ -34,140 +34,63 @@
 
 namespace ogdf {
 
-double LayoutStatistics::edgeLengths(
+ArrayBuffer<double> LayoutStatistics::edgeLengths(
 	const GraphAttributes &ga,
-	double *pMinLength,
-	double *pMaxLength,
-	double *pAvgLength,
-	double *pStdDeviation,
-	bool    considerSelfLoops)
+	bool considerSelfLoops)
 {
-	const Graph &G = ga.constGraph();
-	int m = G.numberOfEdges();
-
-	double totalLength = 0, minLength = std::numeric_limits<double>::max(), maxLength = -std::numeric_limits<double>::max();
-
-	EdgeArray<double> len(G);
-	int nSelfLoops = 0;
-
-	for(edge e : G.edges) {
-		if(!considerSelfLoops && e->isSelfLoop()) {
-			nSelfLoops++;
+	ArrayBuffer<double> values;
+	for (edge e : ga.constGraph().edges) {
+		if (!considerSelfLoops && e->isSelfLoop()) {
 			continue;
 		}
 
 		const DPolyline &dpl = ga.bends(e);
-		DPoint pv = DPoint(ga.x(e->source()),ga.y(e->source()));
-		DPoint pw = DPoint(ga.x(e->target()),ga.y(e->target()));
+		DPoint pv = DPoint(ga.x(e->source()), ga.y(e->source()));
+		DPoint pw = DPoint(ga.x(e->target()), ga.y(e->target()));
 
-		if(!dpl.empty()) {
-			len[e] = dpl.length();
-			len[e] += pv.distance(dpl.front());
-			len[e] += pw.distance(dpl.back());
+		double len = 0;
+		if (!dpl.empty()) {
+			len = dpl.length();
+			len += pv.distance(dpl.front());
+			len += pw.distance(dpl.back());
 		} else {
-			len[e] = pv.distance(pw);
+			len = pv.distance(pw);
 		}
 
-		totalLength += len[e];
-		Math::updateMin(minLength, len[e]);
-		Math::updateMax(maxLength, len[e]);
+		values.push(len);
 	}
 
-	m -= nSelfLoops;
-
-	double avgEdgeLength = totalLength / m;
-	if(pAvgLength) *pAvgLength = avgEdgeLength;
-	if(pMinLength) *pMinLength = minLength;
-	if(pMaxLength) *pMaxLength = maxLength;
-
-	if(pStdDeviation) {
-		double sum = 0;
-		for(edge e : G.edges) {
-			if(!considerSelfLoops && e->isSelfLoop())
-				continue;
-			double d = len[e] - avgEdgeLength;
-			sum += d*d;
-		}
-
-		*pStdDeviation = sqrt(sum / m);
-	}
-
-	return totalLength;
+	return values;
 }
 
 
-int LayoutStatistics::numberOfBends(
+ArrayBuffer<int> LayoutStatistics::numberOfBends(
 	const GraphAttributes &ga,
-	int *pMinBendsPerEdge,
-	int *pMaxBendsPerEdge,
-	double *pAvgBendsPerEdge,
-	double *pStdDeviation,
-	bool    considerSelfLoops)
+	bool considerSelfLoops)
 {
-	const Graph &G = ga.constGraph();
-	int m = G.numberOfEdges();
-
-	int totalBends = 0, minBends = std::numeric_limits<int>::max(), maxBends = 0;
-
-	EdgeArray<int> bends(G);
-	int nSelfLoops = 0;
-
-	for(edge e : G.edges) {
-		if(!considerSelfLoops && e->isSelfLoop()) {
-			nSelfLoops++;
-			continue;
+	ArrayBuffer<int> values;
+	for (edge e : ga.constGraph().edges) {
+		if (considerSelfLoops || !e->isSelfLoop()) {
+			values.push(ga.bends(e).size());
 		}
-
-		const DPolyline &dpl = ga.bends(e);
-
-		bends[e] = dpl.size();
-
-		totalBends += bends[e];
-		Math::updateMin(minBends, bends[e]);
-		Math::updateMax(maxBends, bends[e]);
 	}
 
-	m -= nSelfLoops;
-
-	double avgBends = double(totalBends) / m;
-	if(pAvgBendsPerEdge) *pAvgBendsPerEdge = avgBends;
-	if(pMinBendsPerEdge) *pMinBendsPerEdge = minBends;
-	if(pMaxBendsPerEdge) *pMaxBendsPerEdge = maxBends;
-
-	if(pStdDeviation) {
-		double sum = 0;
-		for(edge e : G.edges) {
-			if(!considerSelfLoops && e->isSelfLoop())
-				continue;
-			double d = bends[e] - avgBends;
-			sum += d*d;
-		}
-
-		*pStdDeviation = sqrt(sum / m);
-	}
-
-	return totalBends;
+	return values;
 }
 
 
-double LayoutStatistics::angularResolution(
+ArrayBuffer<double> LayoutStatistics::angles(
 	const GraphAttributes &ga,
-	double *pMaxAngle,
-	double *pAvgAngle,
-	double *pStdDeviation,
-	bool    considerBends)
+	bool considerBends)
 {
+	ArrayBuffer<double> values;
 	const Graph &G = ga.constGraph();
-
-	double minAngle = 2*Math::pi, maxAngle = 0, sumAngles = 0;
-
-	int numAngles = 0;
-	ListPure<double> allAngles;
 
 	for (node v : G.nodes) {
+		double vx = ga.x(v);
+		double vy = ga.y(v);
 
-		double vx = ga.x(v), vy = ga.y(v);
-
+		// Get angles for edge segments incident to v.
 		List<double> angles;
 		for (adjEntry adj : v->adjEntries) {
 			const DPolyline &dpl = ga.bends(adj->theEdge());
@@ -175,8 +98,7 @@ double LayoutStatistics::angularResolution(
 			if (dpl.empty()) {
 				ex = ga.x(adj->twinNode());
 				ey = ga.y(adj->twinNode());
-			}
-			else {
+			} else {
 				ex = dpl.front().m_x;
 				ey = dpl.front().m_y;
 			}
@@ -184,29 +106,22 @@ double LayoutStatistics::angularResolution(
 			angles.pushBack(atan2(ex-vx, ey-vy));
 		}
 
-		if (angles.size() < 2)
+		if (angles.size() < 2) {
 			continue;
+		}
 
-		numAngles += angles.size();
 		angles.quicksort();
-
 		double lastAngle = angles.back();
 		for (double psi : angles) {
 			double alpha = psi - lastAngle;
 
 			// happens in the first iteration only
-			if(alpha < 0) {
+			if (alpha < 0) {
 				OGDF_ASSERT(psi == angles.front());
 				alpha += 2*Math::pi;
 			}
 
-			if (pStdDeviation)
-				allAngles.pushBack(alpha);
-
-			sumAngles += alpha;
-			Math::updateMin(minAngle, alpha);
-			Math::updateMax(maxAngle, alpha);
-
+			values.push(alpha);
 			lastAngle = psi;
 		}
 	}
@@ -219,10 +134,11 @@ double LayoutStatistics::angularResolution(
 			dpl.pushBack ( DPoint(ga.x(e->target()), ga.y(e->target())) );
 			dpl.normalize();
 
-			if (dpl.size() < 3)
+			if (dpl.size() < 3) {
 				continue;
+			}
 
-			for (ListConstIterator<DPoint> it = dpl.begin().succ(); it != dpl.rbegin(); ++it) {
+			for (ListConstIterator<DPoint> it = dpl.begin().succ(); it.succ().valid(); ++it) {
 				double bx = (*it).m_x, by = (*it).m_y;
 
 				const DPoint &p1 = *it.pred();
@@ -232,59 +148,129 @@ double LayoutStatistics::angularResolution(
 				double psi2 = atan2(p2.m_x - bx, p2.m_y - by);
 
 				double alpha = fabs(psi1 - psi2);
-				if (alpha > Math::pi)
+				if (alpha > Math::pi) {
 					alpha -= Math::pi;
+				}
 
-				sumAngles += 2 * Math::pi;
-				Math::updateMin(minAngle, alpha);
-				Math::updateMin(maxAngle, alpha + Math::pi);
+				values.push(alpha);
+				values.push(alpha*Math::pi);
+			}
+		}
+	}
 
-				if (pStdDeviation) {
-					numAngles += 2;
-					allAngles.pushBack(alpha);
-					allAngles.pushBack(alpha*Math::pi);
+	return values;
+}
+
+
+ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
+{
+	ArrayBuffer<int> values;
+	const Graph &G = ga.constGraph();
+	EdgeArray<int> crossings(G,0);
+
+	Graph H;
+	NodeArray<DPoint> points;
+	NodeArray<node> origNode;
+	EdgeArray<edge> origEdge;
+	intersectionGraph(ga, H, points, origNode, origEdge);
+
+	for(node v : H.nodes) {
+		node vOrig = origNode[v];
+		int d = (vOrig != nullptr) ? vOrig->degree() : 0;
+		int k = (v->degree() - d) / 2;
+
+		// If there are two or more intersecting edges:
+		if (k >= 2) {
+			// For every original edge involved in the crossing:
+			for (adjEntry adj : v->adjEntries) {
+				if (adj->isSource()) {
+					edge e = adj->theEdge();
+					edge eOrig = origEdge[e];
+
+					// Ignore original edges incident to vOrig.
+					if (eOrig->source() != e->source() ||
+						eOrig->target() != e->target()) {
+						crossings[eOrig] += (k - 1);
+					}
 				}
 			}
 		}
 	}
 
-	double avgAngle = sumAngles / numAngles;
-	if (pAvgAngle) *pAvgAngle = avgAngle;
-	if (pMaxAngle) *pMaxAngle = maxAngle;
-
-	if (pStdDeviation) {
-		double sum = 0;
-		for (double alpha : allAngles) {
-			double d = alpha - avgAngle;
-			sum += d*d;
-		}
-
-		*pStdDeviation = sqrt(sum / numAngles);
+	for (edge e : G.edges) {
+		values.push(crossings[e]);
 	}
 
-	return minAngle;
+	return values;
 }
 
 
-int LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
+ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &ga)
 {
-	Graph H;
-	NodeArray<DPoint> points;
+	ArrayBuffer<int> values;
+	const Graph &G = ga.constGraph();
+	DPoint inter;
 
-	NodeArray<node> origNode;
-	EdgeArray<edge> origEdge;
-	intersectionGraph(ga, H, points, origNode, origEdge);
+	// Get bounding rectangle of every node.
+	NodeArray<DRect> nodeRects(G);
+	ga.nodeBoundingBoxes<DRect>(nodeRects);
 
-	int ncr = 0;
-	for(node v : H.nodes) {
-		node vOrig = origNode[v];
-		int d = (vOrig != nullptr) ? vOrig->degree() : 0;
-		int k = (v->degree() - d) / 2;
-		if(k >= 2)
-			ncr += (k * (k-1)) / 2;
+	// For all edges, get the target point of each of their edge segments.
+	for (edge e : G.edges) {
+		int nCrossingsE = 0;
+		node src = e->source();
+		node tgt = e->target();
+		DPoint vPoint = DPoint(ga.x(src), ga.y(src));
+
+		DPolyline edgeSegmentTargets = ga.bends(e);
+		edgeSegmentTargets.pushBack(DPoint(ga.x(tgt), ga.y(tgt)));
+
+		int i = 0;
+		int last = edgeSegmentTargets.size()-1;
+
+		// For all edge segments from vPoint to wPoint:
+		for (DPoint wPoint : edgeSegmentTargets) {
+			DSegment segment = DSegment(vPoint, wPoint);
+
+			// Count crossing of segment with nodes u, but do not count
+			// "crossing" of source/target node with first/last edge segment.
+			for (node u : G.nodes) {
+				if ((u != src || i != 0) && (u != tgt || i != last) &&
+				    nodeRects[u].intersection(segment)) {
+					nCrossingsE++;
+				}
+			}
+			vPoint = wPoint;
+			i++;
+		}
+		values.push(nCrossingsE);
 	}
 
-	return ncr;
+	return values;
+}
+
+
+ArrayBuffer<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes &ga)
+{
+	ArrayBuffer<int> values;
+	const Graph &G = ga.constGraph();
+
+	// Get bounding rectangle of every node.
+	NodeArray<DIntersectableRect> nodeRects(G);
+	ga.nodeBoundingBoxes<DIntersectableRect>(nodeRects);
+
+	// For all pairs of nodes, test whether they overlap.
+	for (node v : G.nodes) {
+		int nOverlapsV = 0;
+		for (node w : G.nodes) {
+			if (v != w && nodeRects[v].intersects(nodeRects[w])) {
+				nOverlapsV++;
+			}
+		}
+		values.push(nOverlapsV);
+	}
+
+	return values;
 }
 
 }

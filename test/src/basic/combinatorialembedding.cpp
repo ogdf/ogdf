@@ -139,7 +139,7 @@ void createBadK4(Graph &graph) {
 template<typename T>
 void testConstCombinatorialEmbedding() {
 	Graph planarGraph;
-	planarConnectedGraph(planarGraph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
+	randomPlanarConnectedGraph(planarGraph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
 	Graph K5;
 	completeGraph(K5, 5);
 	Graph badK4;
@@ -212,7 +212,7 @@ void testConstCombinatorialEmbedding() {
 
 	it("works on a triconnected graph", [&] {
 		Graph graph;
-		planarTriconnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
+		randomPlanarTriconnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
 		T emb(graph);
 
 		int counter = 0;
@@ -259,7 +259,7 @@ void testConstCombinatorialEmbedding() {
 
 	it("detects bridges", [&] {
 		Graph graph;
-		planarBiconnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
+		randomPlanarBiconnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
 
 		EdgeArray<bool> isBridge(graph, false);
 		node chosenNode = graph.chooseNode();
@@ -289,7 +289,7 @@ void testConstCombinatorialEmbedding() {
 
 	it("returns a sane size of its face array", [&] {
 		Graph graph;
-		planarTriconnectedGraph(graph, NUMBER_OF_NODES*10, NUMBER_OF_EDGES*10);
+		randomPlanarTriconnectedGraph(graph, NUMBER_OF_NODES*10, NUMBER_OF_EDGES*10);
 		T emb(graph);
 		AssertThat(emb.faceArrayTableSize(), IsGreaterThan(emb.numberOfFaces() - 1));
 	});
@@ -297,7 +297,7 @@ void testConstCombinatorialEmbedding() {
 	for(int i = 1; i <= NUMBER_OF_ITERATIONS; i++) {
 		describe("iteration #" + to_string(i), [&] {
 			Graph graph;
-			planarConnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
+			randomPlanarConnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
 			testConstCombinatorialEmbedding<T>(graph);
 		});
 	}
@@ -564,7 +564,7 @@ go_bandit([] {
 				Graph graph;
 
 				before_each([&] {
-					planarConnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
+					randomPlanarConnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
 				});
 
 				testCombinatorialEmbedding(graph);

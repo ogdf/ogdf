@@ -335,9 +335,7 @@ void CconnectClusterPlanarEmbed::copyEmbedding(
 						// in the opposite order stored in the list.
 						// This keeps the embedding.
 						bool first = true;
-						for (ListIterator<edge> itE = m_parallelEdges[e].rbegin(); itE.valid(); --itE)
-						{
-							edge parallel = (*itE);
+						for (edge parallel : reverse(m_parallelEdges[e])) {
 							adjEntry adj = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
 							parallelToBeIgnored[adjTableOrig2Copy[adj]] = true;
@@ -516,22 +514,23 @@ void CconnectClusterPlanarEmbed::recursiveEmbed(ClusterGraph &Ccopy,Graph &Gcopy
 	{
 
 		// Cluster act is reinserted into Gcopy.
-		cluster							act				= m_callStack.popRet();
-		if (m_unsatisfiedCluster[act] == true)
+		cluster act = m_callStack.popRet();
+		if (m_unsatisfiedCluster[act]) {
 			continue;
+		}
 
 		// subgraph is the graph that replaces the wheelGraph of act in Gcopy
-		Graph							*subGraph		= m_clusterSubgraph[act];
+		Graph* subGraph = m_clusterSubgraph[act];
 		// embedding contains the (partial) embedding of all biconnected components
 		// that do not have outgoing edges of the cluster act.
-		NodeArray<SListPure<adjEntry> >	*embedding		= m_clusterEmbedding[act];
+		NodeArray<SListPure<adjEntry>>* embedding = m_clusterEmbedding[act];
 		// For every node of subGraph hubs is true if the node is a hub in subGraph
-		NodeArray<bool>					*hubs			= m_clusterSubgraphHubs[act];
+		NodeArray<bool>* hubs = m_clusterSubgraphHubs[act];
 		// For every node in subGraph wheelGraphNodes stores the corresponding
 		// cluster, if the node is a node of a wheel graph
-		NodeArray<cluster>				*wheelGraphNodes= m_clusterSubgraphWheelGraph[act];
-		EmbedPQTree						*T				= m_clusterPQContainer[act].m_T;
-		EdgeArray<ArrayBuffer<edge>*>   *outgoingAnker  = m_clusterOutgoingEdgesAnker[act];
+		NodeArray<cluster>* wheelGraphNodes = m_clusterSubgraphWheelGraph[act];
+		EmbedPQTree* T = m_clusterPQContainer[act].m_T;
+		EdgeArray<ArrayBuffer<edge>*>* outgoingAnker = m_clusterOutgoingEdgesAnker[act];
 
 		// What else do we have:
 		//
@@ -566,7 +565,7 @@ void CconnectClusterPlanarEmbed::recursiveEmbed(ClusterGraph &Ccopy,Graph &Gcopy
 
 		// Introduce a new cluster in Gcopy
 		cluster newCluster = nullptr;
-		if (m_unsatisfiedCluster[act->parent()] == true)
+		if (m_unsatisfiedCluster[act->parent()])
 			newCluster = Ccopy.newCluster(Ccopy.rootCluster());
 		else
 			newCluster = Ccopy.newCluster(m_clusterTableOrig2Copy[act->parent()]);
@@ -707,8 +706,7 @@ void CconnectClusterPlanarEmbed::recursiveEmbed(ClusterGraph &Ccopy,Graph &Gcopy
 			// Assert that stack for anker nodes is not empty
 			OGDF_ASSERT(!m_outgoingEdgesAnker[e]->empty());
 
-			node nonWheelNode; // The node of Gcopy that does not
-								// correspond to cluster act
+			node nonWheelNode; // The node of Gcopy that does not correspond to cluster act
 			if (act != m_wheelGraphNodes[e->source()])
 				nonWheelNode = e->source();
 			else {
@@ -1312,8 +1310,8 @@ bool CconnectClusterPlanarEmbed::preparation(
 #ifdef OGDF_HEAVY_DEBUG
 		int n =
 #endif
-		(superSink ? computeSTNumbering(subGraph, numbering, nullptr, superSink)
-		           : computeSTNumbering(subGraph, numbering));
+		superSink ? computeSTNumbering(subGraph, numbering, nullptr, superSink)
+		          : computeSTNumbering(subGraph, numbering);
 		OGDF_HEAVY_ASSERT(isSTNumbering(subGraph, numbering, n));
 
 		EdgeArray<edge> tableEdgesBiComp2SubGraph(subGraph,nullptr);
@@ -1680,10 +1678,9 @@ bool CconnectClusterPlanarEmbed::doEmbed(
 	}
 
 	// Cleanup
-	if (!origCluster || !superSink || !cPlanar)
-									// Do not cleanup information of component
-									// with outgoing edges.
-	{
+	if (!origCluster || !superSink || !cPlanar) {
+		// Do not cleanup information of component
+		// with outgoing edges.
 		for(node v : biconComp->nodes)
 		{
 			if (v != superSink || !cPlanar)
@@ -1894,8 +1891,7 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph &Ccopy,
 				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)
 				{
 					treeNodes.append(nextSon);
-					newNode = Gcopy.newNode();  // new node corresponding to anchor
-												// or cutnode
+					newNode = Gcopy.newNode();  // new node corresponding to anchor or cutnode
 					m_nodeTableCopy2Orig[newNode] = nullptr;
 					m_wheelGraphNodes[newNode] = origOfAct;
 					Ccopy.reassignNode(newNode,parent);
@@ -1994,8 +1990,7 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph &Ccopy,
 				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)
 				{
 					treeNodes.append(nextSon);
-					newNode = Gcopy.newNode();  // new node corresponding to anchor
-												// or cutnode
+					newNode = Gcopy.newNode();  // new node corresponding to anchor or cutnode
 					m_nodeTableCopy2Orig[newNode] = nullptr;
 					m_wheelGraphNodes[newNode] = origOfAct;
 					Ccopy.reassignNode(newNode,parent);

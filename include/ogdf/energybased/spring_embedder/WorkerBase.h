@@ -86,8 +86,8 @@ protected:
 		const GraphCopy &gc = m_master.getGraph();
 		GraphAttributes &ga = m_master.getAttributes();
 
-		double xmin = std::numeric_limits<double>::max(), xmax = -std::numeric_limits<double>::max();
-		double ymin = std::numeric_limits<double>::max(), ymax = -std::numeric_limits<double>::max();
+		double xmin = std::numeric_limits<double>::max(), xmax = std::numeric_limits<double>::lowest();
+		double ymin = std::numeric_limits<double>::max(), ymax = std::numeric_limits<double>::lowest();
 
 		node v = m_vStart;
 		for(int j = m_vStartIndex; j < m_vStopIndex; ++j) {

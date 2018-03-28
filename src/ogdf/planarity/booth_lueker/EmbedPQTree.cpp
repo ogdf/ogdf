@@ -259,15 +259,12 @@ void EmbedPQTree::ReplacePartialRoot(
 	SListPure<PQBasicKey<edge,IndInfo*,bool>*> &frontier,
 	node v)
 {
-	m_pertinentRoot->childCount(m_pertinentRoot->childCount() + 1 -
-								fullChildren(m_pertinentRoot)->size());
+	m_pertinentRoot->childCount(m_pertinentRoot->childCount() + 1 - fullChildren(m_pertinentRoot)->size());
 
 	PQNode<edge,IndInfo*,bool> *predNode = nullptr; // dummy
 	PQNode<edge,IndInfo*,bool> *beginSequence = nullptr; // marks begin consecuitve seqeunce
 	PQNode<edge,IndInfo*,bool> *endSequence	= nullptr; // marks end consecutive sequence
-	PQNode<edge,IndInfo*,bool> *beginInd = nullptr;	// initially, marks direct sibling indicator
-												// next to beginSequence not contained
-												// in consectuive sequence
+	PQNode<edge,IndInfo*,bool> *beginInd = nullptr; // initially, marks direct sibling indicator next to beginSequence not contained in consectuive sequence
 
 	// Get beginning and end of sequence.
 	while (fullChildren(m_pertinentRoot)->size())
@@ -325,8 +322,7 @@ void EmbedPQTree::ReplacePartialRoot(
 				clientNextSib(currentInd,currentNode);
 			if (currentNode == currentInd->getSib(PQNodeRoot::SibDirection::Right)) //Direction changed
 				currentInd->getNodeInfo()->userStructInfo()->changeDir = true;
-			frontier.pushBack((PQBasicKey<edge,IndInfo*,bool>*)
-								currentInd->getNodeInfo());
+			frontier.pushBack((PQBasicKey<edge,IndInfo*,bool>*)currentInd->getNodeInfo());
 			removeChildFromSiblings(currentInd);
 			m_pertinentNodes->pushBack(currentInd);
 			currentInd = nextInd;

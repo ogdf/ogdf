@@ -1942,9 +1942,9 @@ void EdgeRouter::place(node l_v)
 					xtacy = infos[l_v].cageCoord(OrthoDir::North)
 						+ (infos[l_v].num_bend_edges(OrthoDir::North, OrthoDir::West) -ipos)*m_sep;
 					newe = addLeftBend(e);
-					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (gp_y(ae) + leftofs));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : gp_y(ae) + leftofs);
 					newe = addRightBend(newe);
-					fix_position(newe->source(), xtacy, inedge ? (gp_y(ae) + leftofs) : cp_y(ae));
+					fix_position(newe->source(), xtacy, inedge ? gp_y(ae) + leftofs : cp_y(ae));
 					break;//int bend downwards
 				case BendType::Bend1Right:
 					if (!corn)
@@ -1997,9 +1997,9 @@ void EdgeRouter::place(node l_v)
 						* m_sep;
 					//* infos[l_v].delta(OrthoDir::North, OrthoDir::East);
 					newe = addRightBend(e);
-					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (gp_y(ae) - rightofs));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : gp_y(ae) - rightofs);
 					newe = addLeftBend(newe);
-					fix_position(newe->source(), xtacy, inedge ? (gp_y(ae) - rightofs) : cp_y(ae));
+					fix_position(newe->source(), xtacy, inedge ? gp_y(ae) - rightofs : cp_y(ae));
 					break; //double bend upwards
 				default: break;
 			}
@@ -2376,9 +2376,9 @@ void EdgeRouter::place(node l_v)
 					xtacy = infos[l_v].cageCoord(OrthoDir::South) -
 						(infos[l_v].num_bend_edges(OrthoDir::South, OrthoDir::West) - ipos) * m_sep;
 					newe = addRightBend(e);
-					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (m_agp_y[ae] + rightofs));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : m_agp_y[ae] + rightofs);
 					newe = addLeftBend(newe);
-					fix_position(newe->source(), xtacy, inedge ? (m_agp_y[ae] + rightofs) : cp_y(ae));
+					fix_position(newe->source(), xtacy, inedge ? m_agp_y[ae] + rightofs : cp_y(ae));
 					break; //double bend downwards
 				default: break;
 			}
@@ -2498,9 +2498,9 @@ void EdgeRouter::place(node l_v)
 						- infos[l_v].inList(OrthoDir::West).size())*m_sep;
 					//coord - (-infos[l_v].flips(OrthoDir::West, OrthoDir::South) - ipos  + infos[l_v].inList(OrthoDir::West).size())*m_sep;
 					newe = addLeftBend(e);
-					fix_position(newe->source(), inedge ? cp_x(ae) : (m_agp_x[ae] - leftofs), ypsiqueen);
+					fix_position(newe->source(), inedge ? cp_x(ae) : m_agp_x[ae] - leftofs, ypsiqueen);
 					newe = addRightBend(newe);
-					fix_position(newe->source(), inedge ? (m_agp_x[ae] - leftofs) : cp_x(ae), ypsiqueen);
+					fix_position(newe->source(), inedge ? m_agp_x[ae] - leftofs : cp_x(ae), ypsiqueen);
 					break;//double bend downwards
 				//case ProbB1R:
 				case BendType::Bend1Right:
@@ -2561,10 +2561,10 @@ void EdgeRouter::place(node l_v)
 						 + (infos[l_v].num_bend_edges(OrthoDir::West, OrthoDir::North) - ipos)*m_sep;
 					//infos[l_v].coord(OrthoDir::West) - ((ipos + 1) - infos[l_v].flips(OrthoDir::North, OrthoDir::West)) * m_sep;
 					newe = addRightBend(e);
-					fix_position(newe->source(), inedge ? cp_x(ae) : (m_agp_x[ae] + rightofs), ypsiqueen);
+					fix_position(newe->source(), inedge ? cp_x(ae) : m_agp_x[ae] + rightofs, ypsiqueen);
 					newe = addLeftBend(newe);
 
-					fix_position(newe->source(), inedge ? (m_agp_x[ae] + rightofs) : cp_x(ae), ypsiqueen);
+					fix_position(newe->source(), inedge ? m_agp_x[ae] + rightofs : cp_x(ae), ypsiqueen);
 					break; //double bend upwards
 				default: break;
 			}
@@ -2701,7 +2701,6 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	//correction: we set the glue point at bend introduction
 
 	int flipedges;
-	ListIterator<edge> l_it;
 
 	OrthoDir od = OrthoDir::North;
 #if 0
@@ -2717,12 +2716,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	} while (od != OrthoDir::North);
 #endif
 	//start flipping
-	l_it = infos[v].inList(OrthoDir::North).rbegin();
 	for (flipedges = 0; flipedges < flip_lt; flipedges++)
 	{
 		m_abends[outEntry(infos[v], OrthoDir::North, infos[v].inList(OrthoDir::North).size() - 1 - flipedges)] = BendType::Bend1Right;
 		infos[v].flips(OrthoDir::North, OrthoDir::East)++;
-		--l_it;
 	}
 
 	int newbendfree;
@@ -2738,12 +2735,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 		}
 	}
 
-	l_it = infos[v].inList(OrthoDir::North).begin();
 	for (flipedges = 0; flipedges < flip_lb; flipedges++)
 	{
 		infos[v].flips(OrthoDir::North, OrthoDir::West)++;
 		m_abends[outEntry(infos[v], OrthoDir::North, flipedges)] = BendType::Bend1Left;
-		++l_it;
 	}
 
 	newbendfree = beta_move(OrthoDir::North, OrthoDir::West, flip_lb, v);
@@ -2754,12 +2749,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			cp_y(outEntry(infos[v], OrthoDir::North, flip_lb + newbf));
 	}
 
-	l_it = infos[v].inList(OrthoDir::South).rbegin();
 	for (flipedges = 0; flipedges < flip_rt; flipedges++)
 	{
 		infos[v].flips(OrthoDir::South, OrthoDir::East)++;
 		m_abends[outEntry(infos[v], OrthoDir::South, infos[v].inList(OrthoDir::South).size() - 1 - flipedges)] = BendType::Bend1Left;
-		--l_it;
 	}
 
 	newbendfree = beta_move(OrthoDir::South, OrthoDir::East, flip_rt, v);
@@ -2770,12 +2763,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			cp_y(outEntry(infos[v], OrthoDir::South, infos[v].inList(OrthoDir::South).size() - 1 - flip_rt - newbf));
 	}
 
-	l_it = infos[v].inList(OrthoDir::South).begin();
 	for (flipedges = 0; flipedges < flip_rb; flipedges++)
 	{
 		m_abends[outEntry(infos[v], OrthoDir::South, flipedges)] = BendType::Bend1Right;
 		infos[v].flips(OrthoDir::South, OrthoDir::West)++;
-		++l_it;
 	}
 
 	newbendfree = beta_move(OrthoDir::South, OrthoDir::West, flip_rb, v);
@@ -2787,12 +2778,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	}
 
 	//only one of the quadruples will we executed
-	l_it = infos[v].inList(OrthoDir::East).begin();
 	for (flipedges = 0; flipedges < flip_tl; flipedges++)
 	{
 		m_abends[outEntry(infos[v], OrthoDir::East, flipedges)] = BendType::Bend1Left;
 		infos[v].flips(OrthoDir::East, OrthoDir::North)++;
-		++l_it;
 	}
 
 	newbendfree = beta_move(OrthoDir::East, OrthoDir::North, flip_tl, v);
@@ -2803,12 +2792,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			cp_x(outEntry(infos[v], OrthoDir::East, flip_tl + newbf));
 	}
 
-	l_it = infos[v].inList(OrthoDir::West).begin();
 	for (flipedges = 0; flipedges < flip_bl; flipedges++)
 	{
 		m_abends[outEntry(infos[v], OrthoDir::West, flipedges)] = BendType::Bend1Right;
 		infos[v].flips(OrthoDir::West, OrthoDir::North)++;
-		++l_it;
 	}
 
 	newbendfree = beta_move(OrthoDir::West, OrthoDir::North, flip_bl, v);
@@ -2819,14 +2806,14 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 		cp_x(outEntry(infos[v], OrthoDir::West, flip_bl + newbf));
 	}
 
-	l_it = infos[v].inList(OrthoDir::East).rbegin();
+	ListReverseIterator<edge> l_it = infos[v].inList(OrthoDir::East).rbegin();
 	for (flipedges = 0; flipedges < flip_tr; flipedges++)
 	{
 		if (l_it.valid()) //temporary check
 		{
 			m_abends[outEntry(infos[v], OrthoDir::East, infos[v].inList(OrthoDir::East).size() - 1 - flipedges)] = BendType::Bend1Right;
 			infos[v].flips(OrthoDir::East, OrthoDir::South)++;
-			--l_it;
+			++l_it;
 		}
 	}
 
@@ -2838,12 +2825,10 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			cp_x(outEntry(infos[v], OrthoDir::East, infos[v].inList(OrthoDir::East).size() - 1 - flip_tr - newbf));
 	}
 
-	l_it = infos[v].inList(OrthoDir::West).rbegin();
 	for (flipedges = 0; flipedges < flip_br; flipedges++)
 	{
 		m_abends[outEntry(infos[v], OrthoDir::West, infos[v].inList(OrthoDir::West).size() - 1 - flipedges)] = BendType::Bend1Left;
 		infos[v].flips(OrthoDir::West, OrthoDir::South)++;
-		--l_it;
 	}
 
 	newbendfree = beta_move(OrthoDir::West, OrthoDir::South, flip_br, v);
@@ -2858,11 +2843,6 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	od = OrthoDir::North;
 	do
 	{
-		l_it = infos[v].inList(od).begin();
-		while (l_it.valid())
-		{
-			++l_it;
-		}
 		od =OrthoRep::nextDir(od);
 	} while (od != OrthoDir::North);
 }

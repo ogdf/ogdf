@@ -517,9 +517,7 @@ void SimpleIncNodeInserter::findShortestPath(
 			// (all edges leaving v)
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
-				if (v == e->source() &&
-					(eType != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-				{
+				if (v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 					queue.append(e);
 				}
 			}
@@ -548,7 +546,7 @@ void SimpleIncNodeInserter::insertEdge(
 {
 	// remove dual nodes on insertion path
 	SListConstIterator<adjEntry> it;
-	for(it = crossed.begin(); it != crossed.rbegin(); ++it) {
+	for(it = crossed.begin(); it.valid() && it.succ().valid(); ++it) {
 		m_dual.delNode(m_nodeOf[E.rightFace(*it)]);
 	}
 

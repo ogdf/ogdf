@@ -60,7 +60,7 @@ void HashingBase::init(int tableSize)
 	m_tableSize = tableSize;
 	m_hashMask = tableSize-1;
 	m_tableSizeHigh = tableSize << 1;
-	m_tableSizeLow  = (tableSize > m_minTableSize) ? (tableSize >> 1) : -1;
+	m_tableSizeLow  = tableSize > m_minTableSize ? tableSize >> 1 : -1;
 
 	m_table = (HashElementBase **)calloc(tableSize,sizeof(HashElementBase *));
 }

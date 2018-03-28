@@ -323,7 +323,7 @@ void FixEdgeInserterCore::constructDual(const CombinatorialEmbedding &E)
 		{
 			// Do not insert edges into dual if crossing the original edge
 			// is forbidden
-			if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())] == true)
+			if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())])
 				continue;
 
 			node vLeft  = m_nodeOf[E.leftFace (adj)];
@@ -392,9 +392,7 @@ void FixEdgeInserterUMLCore::appendCandidates(QueuePure<edge> &queue, node v)
 {
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if(v == e->source() &&
-			(m_typeOfCurrentEdge != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-		{
+		if(v == e->source() && (m_typeOfCurrentEdge != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			queue.append(e);
 		}
 	}
@@ -518,9 +516,7 @@ void FixEdgeInserterUMLCore::appendCandidates(
 {
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if(v == e->source() &&
-			(m_typeOfCurrentEdge != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
-		{
+		if(v == e->source() && (m_typeOfCurrentEdge != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			int listPos = (currentDist + costDual[e]) % maxCost;
 			nodesAtDist[listPos].pushBack(e);
 		}
@@ -626,7 +622,7 @@ void FixEdgeInserterCore::insertEdgesIntoDual(const CombinatorialEmbedding &E, a
 
 	adjEntry adj1 = f->firstAdj(), adj = adj1;
 	do {
-		if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())] == true)
+		if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())])
 			continue;
 
 		node vLeft = m_nodeOf[E.leftFace(adj)];
@@ -646,7 +642,7 @@ void FixEdgeInserterCore::insertEdgesIntoDual(const CombinatorialEmbedding &E, a
 	adj1 = f->firstAdj();
 	adj = adj1;
 	do {
-		if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())] == true)
+		if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())])
 			continue;
 
 		node vLeft = m_nodeOf[E.leftFace(adj)];
@@ -705,7 +701,7 @@ void FixEdgeInserterCore::insertEdge(CombinatorialEmbedding &E, edge eOrig, cons
 {
 	// remove dual nodes on insertion path
 	SListConstIterator<adjEntry> it;
-	for(it = crossed.begin(); it != crossed.rbegin(); ++it) {
+	for(it = crossed.begin(); it.valid() && it.succ().valid(); ++it) {
 		m_dual.delNode(m_nodeOf[E.rightFace(*it)]);
 	}
 
@@ -733,7 +729,7 @@ void FixEdgeInserterCore::insertEdgesIntoDualAfterRemove(const CombinatorialEmbe
 
 	adjEntry adj1 = f->firstAdj(), adj = adj1;
 	do {
-		if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())] == true)
+		if(m_pForbidden && (*m_pForbidden)[m_pr.original(adj->theEdge())])
 			continue;
 
 		node vLeft = m_nodeOf[E.leftFace(adj)];

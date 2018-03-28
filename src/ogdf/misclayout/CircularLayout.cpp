@@ -1227,7 +1227,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		for(it = R1.m_clusters.begin(); it.valid(); ++it)
 		{
 			posRegionEnd += R1.m_scaleFactor*preferedAngle[*it];
-			if(it != R1.m_clusters.rbegin())
+			if(iter.valid() && iter.succ().valid())
 			{
 				circleQueue.append(QueuedCirclePosition(
 					*it,minDist,posStart,posRegionEnd));
@@ -1447,7 +1447,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				for(iter = R1.m_clusters.begin(); iter.valid(); ++iter)
 				{
 					posRegionEnd += preferedAngle[*iter];
-					if(iter != R1.m_clusters.rbegin())
+					if(iter.valid() && iter.succ().valid())
 					{
 						circleQueue.append(QueuedCirclePosition(
 							*iter,minDist,posStart,posRegionEnd));

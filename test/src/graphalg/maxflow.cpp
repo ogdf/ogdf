@@ -206,9 +206,10 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 
 	describe(name, [&](){
 		// test predefined instances
-		for_each_file("maxflow", [&](const string &filename){
-			it(string("works on " + filename), [&](){
+		for_each_file("maxflow", [&](const ResourceFile* file){
+			it("works on " + file->fullPath(), [&] {
 				// optimal solution value is extracted from the filename
+				std::string filename = file->name();
 				string tmp = filename.substr(0, filename.length() - 4);
 				tmp = tmp.substr(tmp.find_last_of('.') + 1);
 				std::stringstream ss(tmp);
@@ -219,7 +220,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 				EdgeArray<VALUE_TYPE> caps(graph, 0);
 				node s;
 				node t;
-				std::ifstream is(filename);
+				std::stringstream is{file->data()};
 				AssertThat(GraphIO::readDMF(graph, caps, s, t, is), IsTrue());
 				MaxFlowRequirement props = determineProperties(graph, s, t);
 
@@ -250,7 +251,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 
 		// test random instances
 		for(int n = 2; n < maxNodes; n++) {
-			it(string("works on a random graph of approximate size " + to_string(n)), [&](){
+			it("works on a random graph of approximate size " + to_string(n), [&] {
 				Graph graph;
 				EdgeArray<VALUE_TYPE> caps(graph);
 				node s = nullptr;
@@ -267,7 +268,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 						t = *nodes.get(randomNumber(r*(r-1), r*r-1));
 					} else {
 						int m = randomNumber(n-1, max(n-1, 3*n-6));
-						planarConnectedGraph(graph, n, m);
+						randomPlanarConnectedGraph(graph, n, m);
 						s = graph.chooseNode();
 						CombinatorialEmbedding ce(graph);
 
@@ -284,7 +285,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 					}
 				} else if(reqs & MFR_PLANAR) {
 					int m = randomNumber(n-1, max(n-1, 3*n-6));
-					planarConnectedGraph(graph, n, m);
+					randomPlanarConnectedGraph(graph, n, m);
 				} else {
 					int m = randomNumber(n*2, max(n*2, n*(n-1)/2));
 					randomBiconnectedGraph(graph, n, m);
@@ -369,7 +370,7 @@ describe(title, [&]()
 	ConnectivityTester edgeDirAlgo(false, true);
 
 	for (int n = 3; n < maxNodes / 2; n++) {
-		it(string("works for " + to_string(n) + " nodes"), [&]() {
+		it("works for " + to_string(n) + " nodes", [&] {
 			Graph graph;
 			initializer(graph, n);
 
@@ -451,10 +452,10 @@ go_bandit([]() {
 		});
 
 		describeConnectivityTester("planar connected graphs", 1, [](Graph &graph, int n) {
-			planarConnectedGraph(graph, n, randomNumber(n, (n*(n-1))/2));
+			randomPlanarConnectedGraph(graph, n, randomNumber(n, (n*(n-1))/2));
 		});
 
-		describeConnectivityTester("bionnected graphs", 2, [](Graph &graph, int n) {
+		describeConnectivityTester("biconnected graphs", 2, [](Graph &graph, int n) {
 			randomBiconnectedGraph(graph, n, randomNumber(n, (n*(n-1))/2));
 		});
 

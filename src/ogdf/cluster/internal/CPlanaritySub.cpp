@@ -517,7 +517,7 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 		//(we could have a connected cluster and a connected complement)
 
 		//condition depends on the checked set, cluster or complement
-		set1Connected = (startState ? (count == num) : (count == G.numberOfNodes() - num));
+		set1Connected = startState ? count == num : count == G.numberOfNodes() - num;
 
 #if 0
 		std::cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << " Cluster size: "<< num <<", have: "<< count <<"\n";
@@ -752,7 +752,7 @@ bool CPlanaritySub::fastfeasible()
 					//search for a node outside c
 					//should be done more efficiently, rewrite this
 					node runv = support->firstNode();
-					while (blocked[runv] == true) {runv = runv->succ();}
+					while (blocked[runv]) {runv = runv->succ();}
 
 					dfsIsConnected(runv,blocked,count);
 					if (count != support.numberOfNodes()-clusterNodes.size())

@@ -243,7 +243,7 @@ public:
 		bool randomDFSTree = false,
 		bool avoidE2Minors = true);
 
-	//! @copydoc BoyerMyrvold::planarEmbedDestructive(Graph&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
+	//! @copydoc ogdf::BoyerMyrvold::planarEmbedDestructive(Graph&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
 	bool planarEmbedDestructive(
 		Graph& g,
 		SList<KuratowskiWrapper>& output,
@@ -277,7 +277,7 @@ public:
 		bool randomDFSTree = false,
 		bool avoidE2Minors = true);
 
-	//! @copydoc BoyerMyrvold::planarEmbed(Graph&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
+	//! @copydoc ogdf::BoyerMyrvold::planarEmbed(Graph&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
 	bool planarEmbed(
 		Graph& g,
 		SList<KuratowskiWrapper>& output,
@@ -310,7 +310,7 @@ public:
 		bool randomDFSTree = false,
 		bool avoidE2Minors = true);
 
-	//! @copydoc BoyerMyrvold::planarEmbed(GraphCopySimple&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
+	//! @copydoc ogdf::BoyerMyrvold::planarEmbed(GraphCopySimple&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
 	bool planarEmbed(
 		GraphCopySimple& h,
 		SList<KuratowskiWrapper>& output,

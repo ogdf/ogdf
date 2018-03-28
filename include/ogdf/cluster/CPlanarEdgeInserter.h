@@ -82,7 +82,7 @@ protected:
 	void findShortestPath(
 		const CombinatorialEmbedding &E,
 		node s, //edge startpoint
-		node t,	//edge endpoint
+		node t, //edge endpoint
 		node sDummy, //representing s in network
 		node tDummy, //representing t in network
 		SList<adjEntry> &crossed,

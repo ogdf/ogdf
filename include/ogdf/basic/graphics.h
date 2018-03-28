@@ -32,6 +32,9 @@
 #pragma once
 
 #include <ogdf/basic/basic.h>
+#include <map>
+#include <typeinfo>
+#include <ogdf/basic/Logger.h>
 
 
 namespace ogdf {
@@ -57,6 +60,18 @@ OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const StrokeType &st);
  * @ingroup graph-drawing
  */
 StrokeType intToStrokeType(int i);
+
+//! Converts string \p s to stroke type.
+/**
+ * @ingroup graph-drawing
+ */
+OGDF_EXPORT string strokeTypeToString(StrokeType st);
+
+//! Converts string \p s to stroke type.
+/**
+ * @ingroup graph-drawing
+ */
+OGDF_EXPORT StrokeType stringToStrokeType(string s);
 
 
 //! Line cap types of strokes.
@@ -103,6 +118,20 @@ enum class FillPattern {
 	DiagonalCross
 };
 
+void initFillPatternHashing();
+
+//! Converts fillpattern \p fp to string.
+/**
+ * @ingroup graph-drawing
+ */
+OGDF_EXPORT string fillPatternToString(FillPattern fp);
+
+//! Converts string \p s to fill pattern.
+/**
+ * @ingroup graph-drawing
+ */
+OGDF_EXPORT FillPattern stringToFillPattern(string s);
+
 //! Output operator
 OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const FillPattern &fp);
 
@@ -134,16 +163,31 @@ enum class Shape {
 	Image
 };
 
+//! Converts shape \p s to string.
+/**
+* @ingroup graph-drawing
+*/
+OGDF_EXPORT string shapeToString(Shape s);
+
+//! Converts string \p s to shape.
+/**
+* @ingroup graph-drawing
+*/
+OGDF_EXPORT Shape stringToShape(string s);
+
+//! Output operator
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const FillPattern &fp);
+
 
 //! Types for edge arrows.
 /**
  * @ingroup graph-drawing
  */
 enum class EdgeArrow {
-	None,		//!< no edge arrows
-	Last,		//!< edge arrow at target node of the edge
-	First,	//!< edge arrow at source node of the edge
-	Both,		//!< edge arrow at target and source node of the edge
+	None, //!< no edge arrows
+	Last, //!< edge arrow at target node of the edge
+	First, //!< edge arrow at source node of the edge
+	Both, //!< edge arrow at target and source node of the edge
 	Undefined
 };
 
@@ -414,4 +458,153 @@ struct OGDF_EXPORT Fill {
 	Fill(Color c, Color bgColor, FillPattern pattern) : m_color(c), m_bgColor(bgColor), m_pattern(pattern) { }
 };
 
+namespace graphics {
+	extern OGDF_EXPORT std::map<Shape, string> fromShape;
+	extern OGDF_EXPORT std::map<string, Shape> toShape;
+
+	extern OGDF_EXPORT std::map<StrokeType, string> fromStrokeType;
+	extern OGDF_EXPORT std::map<string, StrokeType> toStrokeType;
+
+	extern OGDF_EXPORT std::map<FillPattern, string> fromFillPattern;
+	extern OGDF_EXPORT std::map<string, FillPattern> toFillPattern;
+
+	template<class Enum>
+	inline void init() {};
+
+	template<class Enum>
+	inline void initSecondMap(std::map<Enum, string> &fromMap, std::map<string, Enum> &toMap) {
+		for(auto it : fromMap) {
+			toMap.emplace(it.second, it.first);
+		}
+	}
+
+
+	template<>
+	inline void init<StrokeType>() {
+		fromStrokeType.emplace(StrokeType::None,          "None");
+		fromStrokeType.emplace(StrokeType::Solid,         "Solid");
+		fromStrokeType.emplace(StrokeType::Dash,          "Dash");
+		fromStrokeType.emplace(StrokeType::Dot,           "Dot");
+		fromStrokeType.emplace(StrokeType::Dashdot,       "Dashdot");
+		fromStrokeType.emplace(StrokeType::Dashdotdot,    "Dashdotdot");
+
+		initSecondMap<StrokeType>(fromStrokeType, toStrokeType);
+	}
+
+	template<>
+	inline void init<FillPattern>() {
+		fromFillPattern.emplace(FillPattern::None,               "None");
+		fromFillPattern.emplace(FillPattern::Solid,              "Solid");
+		fromFillPattern.emplace(FillPattern::Dense1,             "Dense1");
+		fromFillPattern.emplace(FillPattern::Dense2,             "Dense2");
+		fromFillPattern.emplace(FillPattern::Dense3,             "Dense3");
+		fromFillPattern.emplace(FillPattern::Dense4,             "Dense4");
+		fromFillPattern.emplace(FillPattern::Dense5,             "Dense5");
+		fromFillPattern.emplace(FillPattern::Dense6,             "Dense6");
+		fromFillPattern.emplace(FillPattern::Dense7,             "Dense7");
+		fromFillPattern.emplace(FillPattern::Horizontal,         "Horizontal");
+		fromFillPattern.emplace(FillPattern::Vertical,           "Vertical");
+		fromFillPattern.emplace(FillPattern::Cross,              "Cross");
+		fromFillPattern.emplace(FillPattern::BackwardDiagonal,   "BackwardDiagonal");
+		fromFillPattern.emplace(FillPattern::ForwardDiagonal,    "ForwardDiagonal");
+		fromFillPattern.emplace(FillPattern::DiagonalCross,      "DiagonalCross");
+
+		initSecondMap<FillPattern>(fromFillPattern, toFillPattern);
+	}
+
+	template<>
+	inline void init<Shape>() {
+		fromShape.emplace(Shape::Rect,                 "Rect");
+		fromShape.emplace(Shape::RoundedRect,          "RoundedRect");
+		fromShape.emplace(Shape::Ellipse,              "Ellipse");
+		fromShape.emplace(Shape::Triangle,             "Triangle");
+		fromShape.emplace(Shape::Pentagon,             "Pentagon");
+		fromShape.emplace(Shape::Hexagon,              "Hexagon");
+		fromShape.emplace(Shape::Octagon,              "Octagon");
+		fromShape.emplace(Shape::Rhomb,                "Rhomb");
+		fromShape.emplace(Shape::Trapeze,              "Trapeze");
+		fromShape.emplace(Shape::Parallelogram,        "Parallelogram");
+		fromShape.emplace(Shape::InvTriangle,          "InvTriangle");
+		fromShape.emplace(Shape::InvTrapeze,           "InvTrapeze");
+		fromShape.emplace(Shape::InvParallelogram,     "InvParallelogram");
+		fromShape.emplace(Shape::Image,                "Image");
+
+		initSecondMap<Shape>(fromShape, toShape);
+		toShape.emplace("rectangle",                    Shape::Rect);
+		toShape.emplace("box",                          Shape::Image);
+	}
+
+	template<class ToClass>
+	inline std::map<string, ToClass>* getMapToEnum() {
+		std::cout << "getMapToEnum was wrongly called\n";
+		OGDF_ASSERT(false);
+		return nullptr;
+	};
+
+	template<class FromClass>
+	inline std::map<FromClass, string>* getMapToString() {
+		FromClass fc;
+		std::cout << "getMapToString was wrongly called " << typeid(fc).name() << "\n";
+		OGDF_ASSERT(false);
+		return nullptr;
+	};
+
+	template<>
+	inline std::map<string, FillPattern> *getMapToEnum() {
+		return &toFillPattern;
+	};
+
+	template<>
+	inline std::map<string, Shape> *getMapToEnum() {
+		return &toShape;
+	};
+
+	template<>
+	inline std::map<string, StrokeType> *getMapToEnum() {
+		return &toStrokeType;
+	};
+
+	template<>
+	inline std::map<FillPattern, string> *getMapToString() {
+		return &fromFillPattern;
+	};
+
+	template<>
+	inline std::map<Shape, string> *getMapToString() {
+		return &fromShape;
+	};
+
+	template<>
+	inline std::map<StrokeType, string> *getMapToString() {
+		return &fromStrokeType;
+	};
+}
+
+template<class FromClass>
+inline string toString(FromClass key) {
+	auto *map = graphics::getMapToString<FromClass>();
+	if(map->empty()) {
+		graphics::init<FromClass>();
+		std::cout << map->size();
+	}
+	auto it = map->find(key);
+	OGDF_ASSERT(it != map->end());
+	return (*it).second;
+};
+
+template<class ToClass>
+inline ToClass fromString(string key) {
+	auto map = graphics::getMapToEnum<ToClass>();
+	if(map->empty()) {
+		graphics::init<ToClass>();
+	}
+	auto it = map->find(key);
+	if(it != map->end()) {
+		return (*it).second;
+	} else {
+		Logger::slout() << "Encountered invalid " << typeid((*map->begin()).second).name()
+						<< ": " << key << " " << map->size() << " " << map->empty() << std::endl;
+		return static_cast<ToClass>(std::numeric_limits<int>::min());
+	}
+};
 }

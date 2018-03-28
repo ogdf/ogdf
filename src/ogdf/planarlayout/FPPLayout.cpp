@@ -72,8 +72,8 @@ void FPPLayout::doCall(
 
 	NodeArray<int>  num(GC);
 
-	NodeArray<adjEntry> e_wp(GC);					// List of predecessors on circle C_k
-	NodeArray<adjEntry> e_wq(GC);					// List of successors on circle  C_k
+	NodeArray<adjEntry> e_wp(GC); // List of predecessors on circle C_k
+	NodeArray<adjEntry> e_wq(GC); // List of successors on circle  C_k
 
 	computeOrder(GC, num , e_wp, e_wq, e_12, e_2n, e_2n->faceCycleSucc());
 	computeCoordinates(GC, boundingBox, gridLayout, num, e_wp, e_wq);
@@ -89,7 +89,7 @@ void FPPLayout::computeOrder(
 	adjEntry e_2n,
 	adjEntry e_n1)
 {
-	NodeArray<int> num_diag(G, 0);							// number of chords
+	NodeArray<int> num_diag(G, 0); // number of chords
 	// link[v] = Iterator in possible, that points to v (if diag[v] = 0 and outer[v] = TRUE)
 	NodeArray<ListIterator<node> > link(G, nullptr);
 	// outer[v] = TRUE <=> v is a node of the actual outer face
@@ -124,7 +124,7 @@ void FPPLayout::computeOrder(
 
 	// select next v_k and delete it
 	for (k = G.numberOfNodes(); k >= 3; k--) {
-		node v_k = possible.popFrontRet();	// select arbitrary node from possible as v_k
+		node v_k = possible.popFrontRet(); // select arbitrary node from possible as v_k
 
 		num[v_k] = k;
 
@@ -159,7 +159,7 @@ void FPPLayout::computeOrder(
 			// search for new chords
 			for (e2 = e_wp[u]->cyclicPred(); e2 != e_wq[u]; e2 = e2->cyclicPred()) {
 				node w = e2->twinNode();
-				if (outer[w] == true) {
+				if (outer[w]) {
 					++num_diag[u];
 					if (w != v_1
 					 && w != v_2

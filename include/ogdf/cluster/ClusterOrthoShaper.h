@@ -50,8 +50,7 @@ class OGDF_EXPORT ClusterOrthoShaper
 public:
 
 	enum class BendCost { defaultCost, topDownCost, bottomUpCost };
-	enum class n_type { low, high, inner, outer };	//types of network nodes:
-												//nodes and faces
+	enum class n_type { low, high, inner, outer }; // types of network nodes: nodes and faces
 
 	ClusterOrthoShaper() {
 		m_distributeEdges = true;  //!< try to distribute edges to all node sides
@@ -162,14 +161,11 @@ public:
 
 private:
 	bool m_distributeEdges; // distribute edges among all sides if degree > 4
-	bool m_fourPlanar;      // should the input graph be four planar
-							// (no zero degree)
-	bool m_allowLowZero;    // allow low degree nodes zero degree
-							// (to low for zero...)
+	bool m_fourPlanar;      // should the input graph be four planar (no zero degree)
+	bool m_allowLowZero;    // allow low degree nodes zero degree (to low for zero...)
 	bool m_multiAlign;      // multi edges aligned on the same side
 	bool m_deg4free;        // allow degree four nodes free angle assignment
-	bool m_traditional;     // do not prefer 180 degree angles,
-							// traditional is not tamassia,
+	bool m_traditional;     // do not prefer 180 degree angles, traditional is not tamassia,
 	// traditional is a kandinsky - ILP - like network with node supply 4,
 	// not traditional interprets angle flow zero as 180 degree, "flow
 	// through the node"

@@ -148,6 +148,7 @@ public:
 		this->m_t = &target;
 		this->m_cap = &originalCapacities;
 		this->m_flow->init(*this->m_G, (TCap) 0);
+		OGDF_ASSERT(this->isFeasibleInstance());
 
 		// establish s-t-planarity
 		ConstCombinatorialEmbedding embedding(*this->m_G);

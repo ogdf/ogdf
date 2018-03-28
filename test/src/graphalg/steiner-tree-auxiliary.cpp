@@ -32,9 +32,11 @@
 #include <set>
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 #include <ogdf/graphalg/steiner_tree/Full2ComponentGenerator.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorEnumeration.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
 #include <testing.h>
 
 using namespace std::placeholders;
@@ -531,6 +533,82 @@ static void testFull3ComponentGeneratorModule(std::string name, const steiner_tr
 }
 
 template<typename T>
+static void testFullComponentGeneratorDreyfusWagner() {
+	std::unique_ptr<Instance<T>> S;
+	using FCG = steiner_tree::FullComponentGeneratorDreyfusWagner<T>;
+
+	before_each([&] {
+		S.reset(new Instance<T>({0, 1, 2, 3, 4},
+		  {{0, 5, 1}, {1, 5, 1}, {3, 5, 1},
+		   {5, 6, 1}, {2, 6, 1},
+		   {2, 7, 4}, {4, 7, 3},
+		   {0, 1, 2}, {2, 1, 3}}));
+	});
+
+	auto testComponents = [&](const Arguments<T>& arg, const FCG& fcg, int k) {
+		int nTotal = 0;
+		int nValid = 0;
+
+		SubsetEnumerator<node> terminalSubset(S->terminals);
+		for (terminalSubset.begin(k); terminalSubset.valid(); terminalSubset.next()) {
+			EdgeWeightedGraphCopy<T> component;
+			List<node> terminals;
+			terminalSubset.list(terminals);
+			fcg.getSteinerTreeFor(terminals, component);
+			if (FCG::isValidComponent(component, arg.pred, S->isTerminal)) {
+				for (node t : terminals) {
+					AssertThat(component.copy(t)->degree(), Equals(1));
+				};
+				++nValid;
+			};
+			++nTotal;
+		};
+		AssertThat(nTotal, Equals(Math::binomial(S->terminals.size(), k)));
+		return nValid;
+	};
+
+	it("generates full components with terminal-avoiding APSP", [&] {
+		Arguments<T> arg;
+		apspDetour(*S, arg);
+
+		FCG fcg(S->graph, S->terminals, arg.distance);
+		fcg.call(5);
+
+		AssertThat(testComponents(arg, fcg, 2), Equals(7));
+		AssertThat(testComponents(arg, fcg, 3), Equals(4));
+		AssertThat(testComponents(arg, fcg, 4), Equals(1));
+		AssertThat(testComponents(arg, fcg, 5), Equals(0));
+	});
+
+	it("generates full components with terminal-preferring APSP", [&] {
+		Arguments<T> arg;
+		apspStrict(*S, arg);
+
+		FCG fcg(S->graph, S->terminals, arg.distance);
+		fcg.call(5);
+
+		AssertThat(testComponents(arg, fcg, 2), Equals(7));
+		AssertThat(testComponents(arg, fcg, 3), Equals(4));
+		AssertThat(testComponents(arg, fcg, 4), Equals(1));
+		AssertThat(testComponents(arg, fcg, 5), Equals(0));
+	});
+
+	it("omits generating 3-components that are dominated by 2-components", [&] {
+		S->graph.newEdge(S->v[2], S->v[3], 1);
+		S->graph.newEdge(S->v[3], S->v[1], 1);
+		S->graph.newEdge(S->v[1], S->v[2], 1);
+
+		Arguments<T> arg;
+		apspStrict(*S, arg);
+
+		FCG fcg(S->graph, S->terminals, arg.distance);
+		fcg.call(3);
+
+		AssertThat(testComponents(arg, fcg, 3), Equals(0));
+	});
+}
+
+template<typename T>
 static void describeFullComponentGenerators(const std::string &&type) {
 	describe("Full2ComponentGenerator<" + type + ">", [&] {
 		steiner_tree::Full2ComponentGenerator<T> fcg;
@@ -538,10 +616,134 @@ static void describeFullComponentGenerators(const std::string &&type) {
 	});
 	describe("Full3ComponentGeneratorModule<" + type + ">", [&] {
 		steiner_tree::Full3ComponentGeneratorVoronoi<T> fcgVoronoi;
-		testFull3ComponentGeneratorModule(string("Voronoi"), fcgVoronoi);
+		testFull3ComponentGeneratorModule("Voronoi", fcgVoronoi);
 
 		steiner_tree::Full3ComponentGeneratorEnumeration<T> fcgEnumeration;
-		testFull3ComponentGeneratorModule(string("Enumeration"), fcgEnumeration);
+		testFull3ComponentGeneratorModule("Enumeration", fcgEnumeration);
+	});
+	describe("FullComponentGeneratorDreyfusWagner<" + type + ">", [&] {
+		testFullComponentGeneratorDreyfusWagner<T>();
+	});
+}
+
+template<typename T>
+static void describeFullComponentStore(const std::string&& type) {
+	describe("FullComponentStore<" + type + ">", [&] {
+		Instance<T> S({0, 1, 2, 3}, {
+		  {0, 4, 1}, {4, 8, 1},
+		  {1, 5, 1}, {5, 8, 1},
+		  {2, 6, 1}, {6, 8, 1},
+		  {3, 7, 1}, {7, 8, 1},
+		});
+
+		std::unique_ptr<steiner_tree::FullComponentStore<T>> fcs;
+		before_each([&] {
+			fcs.reset(new steiner_tree::FullComponentStore<T>(S.graph, S.terminals, S.isTerminal));
+		});
+
+		it("is empty when nothing is inserted", [&] {
+			AssertThat(fcs->isEmpty(), IsTrue());
+		});
+
+		describe("containing component with degree-2 nodes", [&] {
+			EdgeWeightedGraphCopy<T> copy(S.graph);
+
+			before_each([&] {
+				fcs->insert(copy);
+			});
+
+			it("inserts the component", [&] {
+				AssertThat(fcs->isEmpty(), IsFalse());
+				AssertThat(fcs->size(), Equals(1));
+				AssertThat(fcs->terminals(0).size(), Equals(4));
+				AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
+				AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
+				AssertThat(fcs->terminals(0)[2]->index(), Equals(2));
+				AssertThat(fcs->terminals(0)[3]->index(), Equals(3));
+			});
+
+			it("iterates over all nodes without predecessor matrix", [&] {
+				NodeArray<int> marked(S.graph, 0);
+
+				fcs->foreachNode(0, [&](node v) {
+					++marked[v];
+				});
+
+				for (int count : marked) {
+					AssertThat(count, Equals(1));
+				}
+			});
+
+			it("iterates over all nodes with predecessor matrix", [&] {
+				Arguments<T> arg;
+				MinSteinerTreeModule<T>::allPairShortestPathsStrict(S.graph, S.isTerminal, arg.distance, arg.pred);
+				NodeArray<int> marked(S.graph, 0);
+
+				fcs->foreachNode(0, arg.pred, [&](node v) {
+					++marked[v];
+				});
+
+				for (int count : marked) {
+					AssertThat(count, Equals(1));
+				}
+			});
+		});
+
+		describe("containing component without degree-2 nodes", [&] {
+			EdgeWeightedGraphCopy<T> component(S.graph);
+			for (int i : {4, 5, 6, 7}) {
+				component.delNode(component.copy(S.v[i]));
+			}
+			for (int i : {0, 1, 2, 3}) {
+				component.newEdge(component.copy(S.v[i]), component.copy(S.v[8]), 2);
+			}
+
+			before_each([&] {
+				fcs->insert(component);
+			});
+
+			it("inserts the component", [&] {
+				AssertThat(fcs->isEmpty(), IsFalse());
+				AssertThat(fcs->size(), Equals(1));
+				AssertThat(fcs->terminals(0).size(), Equals(4));
+				AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
+				AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
+				AssertThat(fcs->terminals(0)[2]->index(), Equals(2));
+				AssertThat(fcs->terminals(0)[3]->index(), Equals(3));
+			});
+
+			it("iterates over all critical nodes only", [&] {
+				NodeArray<int> marked(S.graph, 0);
+
+				fcs->foreachNode(0, [&](node v) {
+					++marked[v];
+				});
+
+				AssertThat(marked[S.v[0]], Equals(1));
+				AssertThat(marked[S.v[1]], Equals(1));
+				AssertThat(marked[S.v[2]], Equals(1));
+				AssertThat(marked[S.v[3]], Equals(1));
+				AssertThat(marked[S.v[4]], Equals(0));
+				AssertThat(marked[S.v[5]], Equals(0));
+				AssertThat(marked[S.v[6]], Equals(0));
+				AssertThat(marked[S.v[7]], Equals(0));
+				AssertThat(marked[S.v[8]], Equals(1));
+			});
+
+			it("iterates over all nodes using predecessor matrix", [&] {
+				Arguments<T> arg;
+				MinSteinerTreeModule<T>::allPairShortestPathsStrict(S.graph, S.isTerminal, arg.distance, arg.pred);
+				NodeArray<int> marked(S.graph, 0);
+
+				fcs->foreachNode(0, arg.pred, [&](node v) {
+					++marked[v];
+				});
+
+				for (int count : marked) {
+					AssertThat(count, Equals(1));
+				}
+			});
+		});
 	});
 }
 
@@ -551,5 +753,7 @@ go_bandit([]{
 		describeMinSteinerTreeModule<double>("double");
 		describeFullComponentGenerators<int>("int");
 		describeFullComponentGenerators<double>("double");
+		describeFullComponentStore<int>("int");
+		describeFullComponentStore<double>("double");
 	});
 });

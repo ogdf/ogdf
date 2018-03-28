@@ -285,7 +285,7 @@ public:
 		{
 			if (BranchCondFunction(u))
 			{
-				if (tree.isLeaf(u) || (tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BOUND))
+				if (tree.isLeaf(u) || tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BOUND)
 				{
 					if (tree.numberOfPoints(u) > 1)
 						DNodeFunction(u);
@@ -302,15 +302,15 @@ public:
 		{
 			if (tree.isWS(u, v))
 			{
-				if ((tree.numberOfPoints(u) < OGDF_LQ_M2L_MIN_BOUND) && (tree.numberOfPoints(v) < OGDF_LQ_M2L_MIN_BOUND))
+				if (tree.numberOfPoints(u) < OGDF_LQ_M2L_MIN_BOUND && tree.numberOfPoints(v) < OGDF_LQ_M2L_MIN_BOUND)
 					DPairFunction(u, v);
 				else
 					WSFunction(u, v);
 			}
 			else
 			{
-				if (((tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BRANCH_BOUND) && (tree.numberOfPoints(v) <= OGDF_LQ_WSPD_BRANCH_BOUND)) ||
-					(tree.isLeaf(u) || tree.isLeaf(v)))
+				if ((tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BRANCH_BOUND && tree.numberOfPoints(v) <= OGDF_LQ_WSPD_BRANCH_BOUND) ||
+						tree.isLeaf(u) || tree.isLeaf(v))
 				{
 					DPairFunction(u, v);
 				}

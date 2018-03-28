@@ -288,8 +288,8 @@ void UpwardPlanRep::removeSinkArcs(SList<adjEntry> &crossedEdges) {
 		return;
 
 
-	SListIterator<adjEntry> itPred = crossedEdges.begin(), itLast = crossedEdges.rbegin(), it;
-	for(it = itPred.succ(); it != itLast; ++it)	{
+	SListIterator<adjEntry> itPred = crossedEdges.begin(), it;
+	for(it = itPred.succ(); it.valid() && it.succ().valid(); ++it)	{
 		adjEntry adj = *it;
 		if (m_isSinkArc[adj->theEdge()]) {
 			m_Gamma.joinFaces(adj->theEdge());
@@ -318,13 +318,12 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 
 	adjEntry adjSrc, adjTgt;
 	SListConstIterator<adjEntry> it = crossedEdges.begin();
-	SListConstIterator<adjEntry> itLast = crossedEdges.rbegin();
 
 	// iterate over all adjacency entries in crossedEdges except for first
 	// and last
 	adjSrc = *it;
 	List<adjEntry> dirtyList; // left and right face of the element of this list are modified
-	for(++it; it != itLast; ++it)
+	for(++it; it.valid() && it.succ().valid(); ++it)
 	{
 		adjEntry adj = *it;
 

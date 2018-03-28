@@ -241,8 +241,8 @@ double MinCut::minimumCutPhase() {
 
 	// Computing value \a cutOfThePhase
 	cutOfThePhase = 0.0;
-	ListConstIterator<node> last = markedNodes.rbegin();
-	t = (*last); s = *(last.pred());
+	ListConstReverseIterator<node> last = markedNodes.rbegin();
+	t = (*last); s = *(last.succ());
 	for(adjEntry t_adj : t->adjEntries) {
 		cutOfThePhase += m_w[t_adj->theEdge()];
 	}
@@ -310,11 +310,11 @@ void MinCut::cutEdges(List<edge> &edges, Graph &G) {
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if(e->source() == v) {
-				if(inPartition[e->target()] == false) {
+				if(!inPartition[e->target()]) {
 					edges.pushBack(e);
 				}
 			} else {
-				if(inPartition[e->source()] == false) {
+				if(!inPartition[e->source()]) {
 					edges.pushBack(e);
 				}
 			}

@@ -449,9 +449,8 @@ bool BoothLueker::doEmbed(
 					// in the opposite order stored in the list.
 					// This keeps the embedding.
 					{
-						for (ListConstIterator<edge> itE = m_parallelEdges[trans].rbegin(); itE.valid(); --itE)
-						{
-							edge parallel = forwardTableEdges[*itE];
+						for (edge parEdge : reverse(m_parallelEdges[trans])) {
+							edge parallel = forwardTableEdges[parEdge];
 							adjEntry adj = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
 							newEntireEmbedding[v].pushBack(adj);

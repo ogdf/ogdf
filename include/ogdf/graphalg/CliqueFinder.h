@@ -148,10 +148,11 @@ private:
 	bool m_callByList; //stores information on type of call for result setting
 	List< List<node> > *m_pList; //stores pointer on list given as call parameter
 
-	int m_density;	//an abstract value from 0..100 definin how dense the
-					//subgraphs need to be, is not directly related to any
-					//measure (degree, ...) but translated into a constraint
-					//based on the heuristical search of the subgraphs
+	// an abstract value from 0..100 definin how dense the
+	// subgraphs need to be, is not directly related to any
+	// measure (degree, ...) but translated into a constraint
+	// based on the heuristical search of the subgraphs
+	int m_density;
 };
 
 }

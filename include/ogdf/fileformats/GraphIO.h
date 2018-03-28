@@ -180,7 +180,6 @@ public:
 	 *  - GDF
 	 *  - GraphML
 	 *  - GEXF
-	 *  - OGML
 	 *  - SteinLib
 	 *  - Graph6 (with enforced header)
 	 *
@@ -424,206 +423,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static OGDF_EXPORT bool writeGML(const GraphAttributes &A, std::ostream &os);
-
-#pragma mark OGML
-
-	//@}
-	/**
-	 * @name OGML
-	 *
-	 * Open %Graph Markup Language: http://www.ogdf.net/lib/exe/fetch.php/documentation.pdf
-	 */
-	//@{
-
-	//! Reads graph \p G in OGML format from file \p filename.
-	/**
-	 * \sa readOGML(Graph &G, std::istream &is) for more details.<br>
-	 *     writeOGML(const Graph &G, const string &filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool readOGML(Graph &G, const string &filename);
-
-	//! Reads graph \p G in OGML format from input stream \p is.
-	/**
-	 * \sa writeOGML(const Graph &G, std::ostream &os)
-	 *
-	 * @param G   is assigned the read graph.
-	 * @param is  is the input stream to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool readOGML(Graph &G, std::istream &is);
-
-	//! Writes graph \p G in OGML format to file \p filename.
-	/**
-	 * \sa writeOGML(const Graph &G, std::ostream &os) for more details.<br>
-	 *     readOGML(Graph &G, const string &filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool writeOGML(const Graph &G, const string &filename);
-
-	//! Writes graph \p G in OGML format to output stream \p os.
-	/**
-	 * \sa bool readOGML(Graph &G, std::istream &is)
-	 *
-	 * @param G   is the graph to be written.
-	 * @param os  is the output stream to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool writeOGML(const Graph &G, std::ostream &os);
-
-	//! Reads clustered graph (\p C, \p G) in OGML format from file \p filename.
-	/**
-	 * \pre \p G is the graph associated with clustered graph \p C.
-	 * \sa readOGML(ClusterGraph &C, Graph &G, std::istream &is) for more details.<br>
-	 *     writeOGML(const ClusterGraph &C, const string &filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool readOGML(ClusterGraph &C, Graph &G, const string &filename);
-
-	//! Reads clustered graph (\p C, \p G) in OGML format from input stream \p is.
-	/**
-	 * \pre \p G is the graph associated with clustered graph \p C.
-	 * \sa writeOGML(const ClusterGraph &C, std::ostream &os)
-	 *
-	 * @param C   is assigned the read clustered graph (cluster structure).
-	 * @param G   is assigned the read clustered graph (graph structure).
-	 * @param is  is the input stream to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool readOGML(ClusterGraph &C, Graph &G, std::istream &is);
-
-	//! Writes clustered graph \p C in OGML format to file \p filename.
-	/**
-	 * \sa writeOGML(const ClusterGraph &C, std::ostream &os) for more details.<br>
-	 *     readOGML(ClusterGraph &C, Graph &G, const string &filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool writeOGML(const ClusterGraph &C, const string &filename);
-
-	//! Writes clustered graph \p C in OGML format to output stream \p os.
-	/**
-	 * \sa readOGML(ClusterGraph &C, Graph &G, std::istream &is)
-	 *
-	 * @param C   is the clustered graph to be written.
-	 * @param os  is the output stream to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool writeOGML(const ClusterGraph &C, std::ostream &os);
-
-	//! Reads graph \p G with attributes \p A in OGML format from file \p filename.
-	/**
-	 * \pre \p G is the graph associated with attributes \p A.
-	 * \sa readOGML(GraphAttributes &A, Graph &G, std::istream &is) for more details.<br>
-	 *     writeOGML(const GraphAttributes &A, const string &filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool readOGML(GraphAttributes &A, Graph &G, const string &filename);
-
-	//! Reads graph \p G with attributes \p A in OGML format from input stream \p is.
-	/**
-	 * \pre \p G is the graph associated with attributes \p A.
-	 * \sa writeOGML(const GraphAttributes &A, std::ostream &os)
-	 *
-	 * @param A   is assigned the graph's attributes.
-	 * @param G   is assigned the read graph.
-	 * @param is  is the input stream to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool readOGML(GraphAttributes &A, Graph &G, std::istream &is);
-
-	//! Writes graph with attributes \p A in OGML format to file \p filename.
-	/**
-	 * \sa writeOGML(const GraphAttributes &A, std::ostream &os) for more details.<br>
-	 *     readOGML(GraphAttributes &A, Graph &G, const string &filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool writeOGML(const GraphAttributes &A, const string &filename);
-
-	//! Writes graph with attributes \p A in OGML format to output stream \p os.
-	/**
-	 * \sa readOGML(GraphAttributes &A, Graph &G, std::istream &is)
-	 *
-	 * @param A   specifies the graph and its attributes to be written.
-	 * @param os  is the output stream to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool writeOGML(const GraphAttributes &A, std::ostream &os);
-
-	//! Reads clustered graph (\p C, \p G) with attributes \p A in OGML format from file \p filename.
-	/**
-	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
-	 * \sa readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is) for more details.<br>
-	 *     writeOGML(const ClusterGraphAttributes &A, const string &filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
-
-	//! Reads clustered graph (\p C, \p G) with attributes \p A in OGML format from input stream \p is.
-	/**
-	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
-	 * \sa writeOGML(const ClusterGraphAttributes &A, std::ostream &os)
-	 *
-	 * @param A   is assigned the graph's attributes.
-	 * @param C   is assigned the read clustered graph (cluster structure).
-	 * @param G   is assigned the read clustered graph (graph structure).
-	 * @param is  is the input stream to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is);
-
-	//! Writes graph with attributes \p A in OGML format to file \p filename.
-	/**
-	 * \sa writeOGML(const ClusterGraphAttributes &A, std::ostream &os) for more details.<br>
-	 *     readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	OGDF_DEPRECATED("Streams should be used instead.")
-	static OGDF_EXPORT bool writeOGML(const ClusterGraphAttributes &A, const string &filename);
-
-	//! Writes graph with attributes \p A in OGML format to output stream \p os.
-	/**
-	 * \sa readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
-	 *
-	 * @param A   specifies the clustered graph and its attributes to be written.
-	 * @param os  is the output stream to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static OGDF_EXPORT bool writeOGML(const ClusterGraphAttributes &A, std::ostream &os);
 
 #pragma mark Rome
 
@@ -2933,8 +2732,8 @@ public:
 	static SVGSettings OGDF_EXPORT svgSettings;
 
 private:
-	static OGDF_EXPORT char s_indentChar;	//!< Character used for indentation.
-	static OGDF_EXPORT int  s_indentWidth;	//!< Number of indent characters used for indentation.
+	static OGDF_EXPORT char s_indentChar; //!< Character used for indentation.
+	static OGDF_EXPORT int s_indentWidth; //!< Number of indent characters used for indentation.
 };
 
 }

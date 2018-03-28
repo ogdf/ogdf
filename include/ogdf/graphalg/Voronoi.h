@@ -90,7 +90,7 @@ public:
 	node predecessor(node v) const
 	{
 		edge tmp = predecessorEdge(v);
-		return (tmp ? tmp->opposite(v) : nullptr);
+		return tmp ? tmp->opposite(v) : nullptr;
 	}
 
 	//! Returns the distance between \p v and its %Voronoi seed.

@@ -55,10 +55,10 @@ public:
 	~BertaultLayout();
 
 	//! Constructor, with user defined values for required length and number of iterations.
-	BertaultLayout(double length, int number);	// length= desired edge length... number= number of iterations
+	BertaultLayout(double length, int number); // length= desired edge length... number= number of iterations
 
 	//! Constructor, with user defined values for number of iterations.
-	explicit BertaultLayout(int number);	// number= number of iterations
+	explicit BertaultLayout(int number); // number= number of iterations
 
 
 	//! The main call to the algorithm. AG should have nodeGraphics and EdgeGraphics attributes enabled.
@@ -127,11 +127,11 @@ protected:
 	class CCElement
 	{
 	public:
-		bool root;			// denotes if a element is root
-		int num;			// The number of the connected component represented by	the object
+		bool root; // denotes if a element is root
+		int num; // The number of the connected component represented by	the object
 		CCElement* parent;  // refers to parent of this object in the heirarchy
-		int faceNum;		// the index of the face of parent in which it is contained
-		List <CCElement*> child;	//list of CCElements refering to the CCs which are contained inside this CC
+		int faceNum; // the index of the face of parent in which it is contained
+		List <CCElement*> child; //list of CCElements refering to the CCs which are contained inside this CC
 
 		// Initialises the CCElement to the ith CC
 		void init(int i) {
@@ -148,7 +148,7 @@ private:
 	class BertaultSections
 	{
 	public:
-		double R[9];					//! Ri is radius of ith section
+		double R[9]; //! Ri is radius of ith section
 
 		//! Radii are initialised to std::numeric_limits<double>::max() at the start
 		void initialize()
@@ -186,14 +186,14 @@ private:
 		double x;
 		double y;
 	} proj;
-	NodeArray<BertaultSections> sect;				//! Sections associated with all nodes
-	NodeArray<double> F_x;					//! Force in x direction
-	NodeArray<double> F_y;      				//! Force in y direction
-	double req_length;					//! req_length is the required edge length
-	double limit;						//! limit is the max distance (between node and its projection) at which the edge force on node is considered
-	int iter_no;						//! number of iterations to be performed
-	bool impred;						//! sets the algorithm to ImPrEd when true
-	Array2D<bool> surr;					//! stores the indices of the surrounding edges for each node
+	NodeArray<BertaultSections> sect; //! Sections associated with all nodes
+	NodeArray<double> F_x; //! Force in x direction
+	NodeArray<double> F_y; //! Force in y direction
+	double req_length; //! req_length is the required edge length
+	double limit; //! limit is the max distance (between node and its projection) at which the edge force on node is considered
+	int iter_no; //! number of iterations to be performed
+	bool impred; //! sets the algorithm to ImPrEd when true
+	Array2D<bool> surr; //! stores the indices of the surrounding edges for each node
 
 	OGDF_NEW_DELETE
 };

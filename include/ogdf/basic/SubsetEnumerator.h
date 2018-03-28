@@ -124,6 +124,7 @@ public:
 	void begin(int low, int high)
 	{
 		m_maxCard = high;
+		m_maxCard = min(m_maxCard, m_subset.size());
 		initSubset(low);
 	}
 
@@ -143,6 +144,13 @@ public:
 	int size() const
 	{
 		return m_index.size();
+	}
+
+	//! Returns the cardinality of the (super-)set.
+	//! This is the maximum size that can be used for a subset.
+	int numberOfMembersAndNonmembers() const
+	{
+		return m_subset.size();
 	}
 
 	//! Checks if the current subset is valid.
@@ -273,12 +281,15 @@ public:
 	//! Prints subset to output stream \p os using delimiter \p delim
 	void print(std::ostream &os, string delim = " ") const
 	{
-		OGDF_ASSERT(valid());
-		if (size() > 0) {
-			os << m_subset[m_index[0]];
-			for (int i = 1; i < size(); ++i) {
-				os << delim << m_subset[m_index[i]];
+		if (valid()) {
+			if (size() > 0) {
+				os << m_subset[m_index[0]];
+				for (int i = 1; i < size(); ++i) {
+					os << delim << m_subset[m_index[i]];
+				}
 			}
+		} else {
+			os << "<<invalid subset>>";
 		}
 	}
 };

@@ -68,9 +68,9 @@ bool pathExists(const Graph &graph, const node source, const node target)
 go_bandit([](){
 	describe("strong components", [](){
 		for(int n = 0; n < 75; n++) {
-			it(string("works on a random graph of size " + to_string(n)), [&](){
+			it("works on a random graph of size " + to_string(n), [&](){
 				Graph graph;
-				randomDiGraph(graph, n, randomDouble(0, 1));
+				randomDigraph(graph, n, randomDouble(0, 1));
 
 				NodeArray<int> components(graph);
 				int nComponents = strongComponents(graph, components);

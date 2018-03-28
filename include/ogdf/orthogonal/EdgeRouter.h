@@ -242,7 +242,8 @@ private:
 	bool oppositeExpander(adjEntry ae) {
 		Graph::NodeType nt;
 		nt = m_prup->typeOf(oppositeNode(ae));
-		return ((nt == Graph::NodeType::highDegreeExpander) || (nt == Graph::NodeType::lowDegreeExpander));
+		return nt == Graph::NodeType::highDegreeExpander
+		    || nt == Graph::NodeType::lowDegreeExpander;
 	}
 	//if yes, set its m_oppositeBendType value according to the newly introduced bend
 

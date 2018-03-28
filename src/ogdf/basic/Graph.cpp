@@ -856,6 +856,25 @@ void Graph::unsplit(edge eIn, edge eOut)
 }
 
 
+void Graph::insert(const Graph &G, NodeArray<node> &nodeMap)
+{
+	for (node v : G.nodes) {
+		nodeMap[v] = newNode();
+	}
+
+	for (edge e: G.edges) {
+		newEdge(nodeMap[e->source()], nodeMap[e->target()]);
+	}
+}
+
+
+void Graph::insert(const Graph &G)
+{
+	NodeArray<node> nodeMap(G);
+	insert(G, nodeMap);
+}
+
+
 void Graph::delNode(node v)
 {
 	OGDF_ASSERT(v != nullptr);

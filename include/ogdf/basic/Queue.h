@@ -133,13 +133,10 @@ public:
 	const_iterator cend() const { return SListPure<E>::cend(); }
 
 	//! Returns an iterator to the last element of the queue.
-	iterator rbegin() { return SListPure<E>::rbegin(); }
+	iterator backIterator() { return SListPure<E>::backIterator(); }
 
 	//! Returns a const iterator to the last element of the queue.
-	const_iterator rbegin() const { return SListPure<E>::rbegin(); }
-
-	//! Returns a const iterator to the last element of the queue.
-	const_iterator crbegin() const { return SListPure<E>::crbegin(); }
+	const_iterator backIterator() const { return SListPure<E>::backIterator(); }
 
 	//@}
 	/**
@@ -298,13 +295,10 @@ public:
 	const_iterator cend() const { return SList<E>::cend(); }
 
 	//! Returns an iterator to the last element of the queue.
-	iterator rbegin() { return SList<E>::rbegin(); }
+	iterator backIterator() { return SList<E>::backIterator(); }
 
 	//! Returns a const iterator to the last element of the queue.
-	const_iterator rbegin() const { return SList<E>::rbegin(); }
-
-	//! Returns a const iterator to the last element of the queue.
-	const_iterator crbegin() const { return SList<E>::crbegin(); }
+	const_iterator backIterator() const { return SList<E>::backIterator(); }
 
 	//@}
 	/**

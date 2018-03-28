@@ -47,12 +47,17 @@ enum class Attribute {
 	Template,
 	Stroke,
 	Fill,
+	StrokeType,
 	Width,
 	Height,
 	Shape,
 	Weight,
+	DoubleWeight,
 	Position,
 	Arrow,
+	StrokeWidth,
+	FillPattern,
+	Type,
 	Unknown
 };
 

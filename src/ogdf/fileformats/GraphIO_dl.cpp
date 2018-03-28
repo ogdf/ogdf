@@ -97,6 +97,9 @@ static bool writeGraph(
 	std::ostream &os,
 	const Graph &G, const GraphAttributes *GA)
 {
+	std::ios_base::fmtflags currentFlags = os.flags();
+	os.flags(currentFlags | std::ios::fixed);
+
 	bool result = os.good();
 
 	if(result) {
@@ -113,12 +116,32 @@ static bool writeGraph(
 		os << "FORMAT = ";
 		if (format == Format::Matrix) {
 			os << "fullmatrix\n";
-			writeMatrix(os, G, GA);
 		} else if (format == Format::Edges) {
 			os << "edgelist1\n";
+		}
+
+		const long attrs = GA ? GA->attributes() : 0;
+		if(attrs & GraphAttributes::nodeLabel) {
+			os << "LABELS:\n";
+			bool comma = false;
+			for(node v : G.nodes) {
+				if(comma) {
+					os << ",";
+				}
+				comma = true;
+				os << GA->label(v);
+			}
+			os << "\n";
+		}
+
+		if (format == Format::Matrix) {
+			writeMatrix(os, G, GA);
+		} else if (format == Format::Edges) {
 			writeEdges(os, G, GA);
 		}
 	}
+
+	os.flags(currentFlags);
 
 	return result;
 }

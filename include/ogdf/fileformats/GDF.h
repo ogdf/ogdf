@@ -51,7 +51,11 @@ enum class NodeAttribute {
 	Y,
 	Z,
 	FillColor,
+	FillPattern,
 	StrokeColor,
+	StrokeType,
+	StrokeWidth,
+
 	Shape,
 	Width,
 	Height,

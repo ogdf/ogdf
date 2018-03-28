@@ -83,12 +83,12 @@ void UpwardPlanarSubgraphSimple::call(const Graph &G, List<edge> &delEdges)
 
 	for(edge eG : G.edges)
 	{
-		if(visitedEdge[eG] == true)
+		if(visitedEdge[eG])
 			continue;
 
 		edge eH = H.newEdge(mapToH[eG->source()],mapToH[eG->target()]);
 
-		if (UpwardPlanarity::isUpwardPlanar_singleSource(H) == false) {
+		if (!UpwardPlanarity::isUpwardPlanar_singleSource(H)) {
 			H.delEdge(eH);
 			delEdges.pushBack(eG);
 		}
@@ -167,7 +167,7 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 	for(edge eG : G.edges)
 	{
 		// already treated ?
-		if(visitedEdge[eG] == true)
+		if(visitedEdge[eG])
 			continue;
 
 		// insert edge into H
@@ -175,7 +175,7 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 
 		node superSink;
 		SList<edge> augmentedEdges;
-		if (UpwardPlanarity::upwardPlanarAugment_singleSource(H,superSink,augmentedEdges) == false) {
+		if (!UpwardPlanarity::upwardPlanarAugment_singleSource(H,superSink,augmentedEdges)) {
 			// if H is no longer upward planar, remove eG from subgraph
 			H.delEdge(eH);
 			delEdges.pushBack(eG);
@@ -210,7 +210,7 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 			// property into the upward-planarity test, but this is compicated.
 
 			// test if original graph plus augmented edges is still acyclic
-			if(checkAcyclic(graphAcyclicTest,tmpAugmented) == true) {
+			if(checkAcyclic(graphAcyclicTest,tmpAugmented)) {
 				augmented = tmpAugmented;
 
 			} else {

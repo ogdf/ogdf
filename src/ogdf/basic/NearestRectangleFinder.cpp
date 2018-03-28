@@ -85,8 +85,7 @@ void NearestRectangleFinder::find(
 	sortedPoints.quicksort(GenericComparer<int, double>([&](int x) { return -point[x].m_y; }));
 
 
-	ListPure<int> active;	// list of rectangles such that y-coord. of current
-							// point is contained y-projection of rectangle
+	ListPure<int> active; // list of rectangles such that y-coord. of current point is contained y-projection of rectangle
 
 	// We traverse the lists listTop and listBottom from start to end such that
 	// the coord. of the current entry in listTop is the first entry below p.y
@@ -156,8 +155,8 @@ void NearestRectangleFinder::find(
 		// above p, and downward in listTop since these rectangles lie
 		// completely below p
 		ListIterator<PairCoordId> itTop    = nextTop;
-		ListIterator<PairCoordId> itBottom =
-			(nextBottom.valid()) ? nextBottom.pred() : listBottom.rbegin();
+		ListIterator<PairCoordId> itBottom = nextBottom.valid() ?
+			nextBottom.pred() : ListIterator<PairCoordId>(listBottom.rbegin());
 
 		while(itTop.valid() || itBottom.valid())
 		{

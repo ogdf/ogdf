@@ -46,8 +46,9 @@ class FullComponentGeneratorDreyfusWagner
 	const EdgeWeightedGraph<T> &m_G; //!< A reference to the graph instance
 	const List<node> &m_terminals; //!< A reference to the index-sorted list of terminals
 	const NodeArray<NodeArray<T>> &m_distance; //!< A reference to the full distance matrix
+	SubsetEnumerator<node> m_terminalSubset; //!< Handling subsets of terminals
 
-	using NodePairs = Array<NodePair>;
+	using NodePairs = ArrayBuffer<NodePair>;
 	struct DWMData {
 		T cost;
 		NodePairs nodepairs;
@@ -70,7 +71,8 @@ class FullComponentGeneratorDreyfusWagner
 	{
 		OGDF_ASSERT(key.size() > 1);
 		if (key.size() == 2) {
-			NodePairs nodepairs(0, 0, NodePair(key.front(), key.back()));
+			NodePairs nodepairs;
+			nodepairs.push(NodePair(key.front(), key.back()));
 			return DWMData(
 			  m_distance[key.front()][key.back()],
 			  nodepairs);
@@ -88,17 +90,111 @@ class FullComponentGeneratorDreyfusWagner
 		return m_map.lookup(key)->info().cost;
 	}
 
-	static void insertSorted(List<node> &list, node v)
+	bool safeIfSumSmaller(const T summand1, const T summand2, const T compareValue) const
 	{
-		for (ListIterator<node> it = list.begin(); it.valid(); ++it) {
-			OGDF_ASSERT((*it)->index() != v->index());
-			if (v->index() < (*it)->index()) {
-				list.insertBefore(v, it);
-				return;
+#ifdef OGDF_FULL_COMPONENT_GENERATION_ALWAYS_SAFE
+		return summand1 + summand2 < compareValue;
+#else
+		return summand1 < std::numeric_limits<T>::max()
+		    && summand2 < std::numeric_limits<T>::max()
+		    && summand1 + summand2 < compareValue;
+#endif
+	}
+
+	/**
+	 * Is being used as a callback to ogdf::SubsetEnumerator's forEach* methods
+	 * to get the subset plus a correctly inserted \p newNode (ie, sorted by index)
+	 * into \p list.
+	 *
+	 * @param w Node argument for the callback
+	 * @param list Resulting list
+	 * @param inserted Whether \p newNode was inserted; must be initialized to \c false
+	 * @param newNode New node to be inserted into the list
+	 */
+	static void sortedInserter(node w, List<node> &list, bool &inserted, node newNode)
+	{
+		if (!inserted && w->index() > newNode->index()) {
+			list.pushBack(newNode);
+			inserted = true;
+		}
+		list.pushBack(w);
+	}
+
+	//! Populates \p split
+	void computeSplit(NodeArray<DWMData> &split, node v, SubsetEnumerator<node> &subset) const
+	{
+		DWMData best;
+		for (subset.begin(1, subset.numberOfMembersAndNonmembers() - 1); subset.valid(); subset.next()) {
+			List<node> newSubset, newComplement;
+			bool insertedIntoSubset = false;
+			bool insertedIntoComplement = false;
+			// Interestingly std::bind is much slower than using lambdas (at least on g++ 6.3)
+			subset.forEachMemberAndNonmember(
+			    [&](node w) { sortedInserter(w, newSubset, insertedIntoSubset, v); },
+			    [&](node w) { sortedInserter(w, newComplement, insertedIntoComplement, v); });
+			if (!insertedIntoSubset) {
+				newSubset.pushBack(v);
+			}
+			if (!insertedIntoComplement) {
+				newComplement.pushBack(v);
+			}
+
+			if (safeIfSumSmaller(costOf(newSubset), costOf(newComplement), best.cost)) {
+				best = dataOf(newSubset);
+				DWMData data = dataOf(newComplement);
+				best.cost += data.cost;
+				int dsize = data.nodepairs.size();
+				for (int i = 0; i < dsize; ++i) { // copy
+					best.nodepairs.push(data.nodepairs[i]);
+				}
 			}
 		}
-		list.pushBack(v);
+		split[v] = best;
 	}
+
+	//! Computes partial solutions
+	void computePartialSolutions(NodeArray<DWMData> &split,
+			node v,
+			SubsetEnumerator<node> &subset,
+			const List<node> &terminals)
+	{
+		List<node> newTerminals;
+		bool inserted = false;
+		m_terminalSubset.forEachMember([&](node w) { sortedInserter(w, newTerminals, inserted, v); });
+		if (!inserted) {
+			newTerminals.pushBack(v);
+		}
+
+		T oldCost = costOf(terminals);
+		if (!m_map.member(newTerminals)) { // not already defined
+			DWMData best;
+			for (node w : m_G.nodes) {
+				T dist = m_distance[v][w];
+				if (m_terminalSubset.hasMember(w)) {
+					// we attach edge vw to tree containing terminal w
+					if (safeIfSumSmaller(oldCost, dist, best.cost)) {
+						best = dataOf(terminals);
+						best.cost += dist;
+						best.nodepairs.push(NodePair(v,w));
+					}
+				} else {
+					// we attach edge vw to tree split[w]
+					if (split[w].nodepairs.size() == 0) {
+						OGDF_ASSERT(!m_terminalSubset.hasMember(v));
+						computeSplit(split, w, subset);
+					}
+					if (safeIfSumSmaller(split[w].cost, dist, best.cost)) {
+						best = split[w];
+						if (v != w) {
+							best.cost += dist;
+							best.nodepairs.push(NodePair(v,w));
+						}
+					}
+				}
+			}
+			m_map.fastInsert(newTerminals, best);
+		}
+	};
 
 public:
 	/** The constructor
@@ -108,92 +204,28 @@ public:
 	  : m_G(G)
 	  , m_terminals(terminals)
 	  , m_distance(distance)
+	  , m_terminalSubset(m_terminals)
 	  , m_map(1 << 22) // we initially allocate 4MB*sizeof(DWMData) for hashing
 	{
 	}
 
 	void call(int restricted)
 	{
-		SubsetEnumerator<node> terminalSubset(m_terminals);
-		for (terminalSubset.begin(2, restricted-1); terminalSubset.valid(); terminalSubset.next()) {
+		for (m_terminalSubset.begin(2, restricted-1); m_terminalSubset.valid(); m_terminalSubset.next()) {
 			List<node> terminals;
-			terminalSubset.list(terminals);
-			SubsetEnumerator<node> subset(terminals);
-			// populate "split"
+			m_terminalSubset.list(terminals);
+			SubsetEnumerator<node> subset(terminals); // done here because of linear running time
 			NodeArray<DWMData> split(m_G);
-			auto computeSplit = [&](node v) {
-				OGDF_ASSERT(!terminalSubset.hasMember(v));
-				DWMData best;
-				for (subset.begin(1, terminals.size()-1); subset.valid(); subset.next()) {
-					List<node> list1, list2;
-					subset.list(list1, list2);
-					insertSorted(list1, v);
-					insertSorted(list2, v);
-					T tmp = costOf(list1) + costOf(list2);
-					if (tmp < best.cost) {
-						best = dataOf(list1);
-						DWMData data = dataOf(list2);
-						best.cost += data.cost;
-						int bsize = best.nodepairs.size();
-						int dsize = data.nodepairs.size();
-						best.nodepairs.grow(dsize);
-						for (int i = 0; i < dsize; ++i) { // copy
-							best.nodepairs[bsize + i] = data.nodepairs[i];
-						}
-					}
-				}
-				split[v] = best;
-			};
-			// compute partial solutions
-			auto computePartialSolutions = [&](node v) {
-				List<node> newTerminals(terminals);
-				insertSorted(newTerminals, v);
-				if (m_map.member(newTerminals)) { // already defined
-					return; // abort
-				}
-				DWMData best;
-				for (node w : m_G.nodes) {
-					T dist = m_distance[v][w];
-					if (v == w) {
-						dist = 0;
-					}
-					if (terminalSubset.hasMember(w)) {
-						// we attach edge vw to tree containing terminal w
-						T tmp;
-						tmp = costOf(terminals) + dist;
-						if (tmp < best.cost) {
-							best = dataOf(terminals);
-							best.cost += dist;
-							best.nodepairs.grow(1, NodePair(v,w));
-						}
-					} else {
-						// we attach edge vw to tree split[w]
-						T tmp;
-						if (split[w].nodepairs.size() == 0) {
-							computeSplit(w);
-						}
-						tmp = split[w].cost + dist;
-						if (tmp < best.cost) {
-							best = split[w];
-							if (v != w) {
-								best.cost += dist;
-								best.nodepairs.grow(1, NodePair(v,w));
-							}
-						}
-					}
-				}
-				m_map.fastInsert(newTerminals, best);
-			};
-			if (terminalSubset.size() != restricted - 1) {
+			if (m_terminalSubset.size() != restricted - 1) {
 				for (node v : m_G.nodes) {
-					if (!terminalSubset.hasMember(v)) {
-						computePartialSolutions(v);
+					if (!m_terminalSubset.hasMember(v)) {
+						computePartialSolutions(split, v, subset, terminals);
 					}
 				}
 			} else { // maximal terminal subset
 				for (node v : m_terminals) { // save time by only adding terminals instead of all nodes
-					if (!terminalSubset.hasMember(v)) {
-						computePartialSolutions(v);
+					if (!m_terminalSubset.hasMember(v)) {
+						computePartialSolutions(split, v, subset, terminals);
 					}
 				}
 			}
@@ -252,7 +284,7 @@ public:
 template<typename T>
 class FullComponentGeneratorDreyfusWagner<T>::SortedNodeListHashFunc
 {
-	static const int c_prime = 0x7fffffff; // mersenne prime 2**31 - 1
+	static const unsigned int c_prime = 0x7fffffff; // mersenne prime 2**31 - 1
 	// would be nicer: 0x1fffffffffffffff; // mersenne prime 2**61 - 1
 	const int m_random;
 
@@ -262,9 +294,9 @@ public:
 	{
 	}
 
-	int hash(const List<node> &key) const
+	unsigned int hash(const List<node> &key) const
 	{
-		int hash = 0;
+		unsigned int hash = 0;
 		for (node v : key) {
 			hash = (hash * m_random + v->index()) % c_prime;
 		}

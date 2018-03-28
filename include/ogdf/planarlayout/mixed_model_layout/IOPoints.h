@@ -97,7 +97,7 @@ public:
 	}
 
 	bool marked(node v) {
-		return (v->outdeg() == 1 && marked(v->firstAdj()));
+		return v->outdeg() == 1 && marked(v->firstAdj());
 	}
 
 	// finding outpoints belonging to non-marked edges

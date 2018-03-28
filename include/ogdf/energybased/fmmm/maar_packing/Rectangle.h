@@ -49,8 +49,9 @@ class Rectangle
 		output <<"width: "<< A.width<<" height: "<<A.height<<" old dlc_position: "
 			<<A.old_down_left_corner_position<<" new dlc_position: "
 			<<A.new_down_left_corner_position<<" coponenet_index: "<<A.component_index;
-		if(A.tipped_over == true)
-			output<<" is tipped_over";
+		if (A.tipped_over) {
+			output << " is tipped_over";
+		}
 		return output;
 	}
 
@@ -91,13 +92,7 @@ public:
 	void set_width(double w) {width = w;}
 	void set_height(double h) {height = h;}
 	void set_component_index (int comp_index) {component_index = comp_index;}
-	void tipp_over()
-	{
-		if(tipped_over == false)
-			tipped_over = true;
-		else
-			tipped_over = false;
-	}
+	void tipp_over() { tipped_over = !tipped_over; }
 
 	DPoint get_old_dlc_position() const { return old_down_left_corner_position; }
 	DPoint get_new_dlc_position() const { return new_down_left_corner_position; }

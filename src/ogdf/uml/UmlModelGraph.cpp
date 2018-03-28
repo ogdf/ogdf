@@ -29,7 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/UmlModelGraph.h>
+#include <ogdf/uml/UmlModelGraph.h>
 
 namespace ogdf {
 

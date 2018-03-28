@@ -336,7 +336,7 @@ void CliqueFinder::doCall(int minDegree)
 					// but for now:
 					 && allAdjacent(vCand, *itCand))
 					{
-						OGDF_ASSERT(m_usedNode[*itNode] == false);
+						OGDF_ASSERT(!m_usedNode[*itNode]);
 						(*itCand)->pushBack(*itNode);
 						setFound = true;
 						m_usedNode[*itNode] = true;
@@ -367,7 +367,7 @@ void CliqueFinder::doCall(int minDegree)
 				{
 					List<node>* cliqueCandidate = new List<node>();
 					itCand = cliqueList.pushBack(cliqueCandidate);
-					OGDF_ASSERT(m_usedNode[*itNode] == false);
+					OGDF_ASSERT(!m_usedNode[*itNode]);
 					cliqueCandidate->pushBack(*itNode);
 					m_usedNode[*itNode] = true;
 
@@ -618,7 +618,7 @@ void CliqueFinder::postProcessCliques(
 #endif
 		findClique(v, *neighbours);
 #if 0
-		ListIterator<node> itDense = neighbours->rbegin();
+		ListReverseIterator<node> itDense = neighbours->rbegin();
 		while (itDense.valid())
 		{
 			//TODO: hier die Bedingung an Dichte statt
@@ -627,7 +627,7 @@ void CliqueFinder::postProcessCliques(
 			if (neighbourDegree[*itDense] < neighbours->size())
 				neighbours->del(itDense);
 
-			itDense--;
+			itDense++;
 		}
 #endif
 
@@ -640,7 +640,7 @@ void CliqueFinder::postProcessCliques(
 
 			for(node vUsed : *neighbours)
 			{
-				OGDF_ASSERT(m_usedNode[vUsed] == false);
+				OGDF_ASSERT(!m_usedNode[vUsed]);
 				//TODO: hier gleich die liste checken
 				m_usedNode[vUsed] = true;
 			}

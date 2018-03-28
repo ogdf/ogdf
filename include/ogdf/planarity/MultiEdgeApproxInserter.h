@@ -128,7 +128,18 @@ public:
 
 private:
 	enum class PathDir { Left, Right, None };
-	static PathDir s_oppDir[3];
+
+	//! Returns the opposite direction of \p dir.
+	static inline PathDir oppDir(PathDir dir){
+		switch (dir) {
+			case PathDir::Left:
+				return PathDir::Right;
+			case PathDir::Right:
+				return PathDir::Left;
+			default:
+				return PathDir::None;
+		}
+	};
 
 	//! Maintains a block in the graph
 	class Block;

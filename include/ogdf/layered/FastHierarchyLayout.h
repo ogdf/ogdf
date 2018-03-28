@@ -182,23 +182,21 @@ private:
 	}
 
 	bool sameLayer(int n1, int n2) const {
-		return (n1 >= 0 &&
-			n1 < n  &&
-			n2 >=0  &&
-			n2 < n  &&
-			layer[n1] == layer[n2]);
+		return n1 >= 0 && n1 < n
+		    && n2 >= 0 && n2 < n
+		    && layer[n1] == layer[n2];
 	}
 
 	bool isFirst(int actNode) const {
-		return (actNode < 0  ||
-			actNode >= n ||
-			actNode == first[layer[actNode]]);
+		return actNode < 0
+		    || actNode >= n
+		    || actNode == first[layer[actNode]];
 	}
 
 	bool isLast(int actNode) const {
-		return (actNode < 0  ||
-			actNode >= n ||
-			actNode == first[layer[actNode] + 1] -1);
+		return actNode < 0
+		    || actNode >= n
+		    || actNode == first[layer[actNode] + 1] - 1;
 	}
 
 	/**

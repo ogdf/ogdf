@@ -418,12 +418,11 @@ void GraphCopy::insertEdgePathEmbedded(
 
 	adjEntry adjSrc, adjTgt;
 	SListConstIterator<adjEntry> it = crossedEdges.begin();
-	SListConstIterator<adjEntry> itLast = crossedEdges.rbegin();
 
 	// iterate over all adjacency entries in crossedEdges except for first
 	// and last
 	adjSrc = *it;
-	for(++it; it != itLast; ++it)
+	for(++it; it.valid() && it.succ().valid(); ++it)
 	{
 		adjEntry adj = *it;
 		// split edge

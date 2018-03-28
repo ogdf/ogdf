@@ -597,10 +597,10 @@ void Multilevel::create_all_placement_sectors(
 					angle_1 = act_angle_1;
 					angle_2 = act_angle_1 + min_next_angle;
 				}
-				if (it != adj_pos.rbegin())
+				if (it.valid() && it.succ().valid())
 					it = adj_pos.cyclicSucc(it);
 				steps++;
-			} while ((steps <= MAX) && (it != adj_pos.rbegin()));
+			} while (steps <= MAX && it.valid() && it.succ().valid());
 
 			if (angle_1 == angle_2)
 				angle_2 = angle_1 + Math::pi;

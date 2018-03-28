@@ -317,7 +317,7 @@ public:
 	}
 
 	bool isLongEdgeDummy(node v) const {
-		return (type(v) == NodeType::Dummy && v->outdeg() == 1);
+		return type(v) == NodeType::Dummy && v->outdeg() == 1;
 	}
 
 	bool verticalSegment(edge e) const { return m_vertical[e]; }

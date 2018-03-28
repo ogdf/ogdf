@@ -320,7 +320,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		if ( (C->parent() == m_pClusterGraph->rootCluster()) && !(it.succ().valid()))
 		{
 			//save the adjentry corresponding to new splitresult edge
-			m_rootAdj = currentEdge[(*it)]->adjSource();
+			m_rootAdj = currentEdge[*it]->adjSource();
 			OGDF_ASSERT(m_rootAdj != nullptr);
 		}
 

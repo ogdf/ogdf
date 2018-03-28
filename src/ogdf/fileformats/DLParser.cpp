@@ -171,7 +171,6 @@ static inline bool readEdgeListRow(
 	double weight;
 	is >> weight;
 	if(GA && !is.bad()) {
-		std::cout << std::endl << weight << std::endl;
 		if(GA->has(GraphAttributes::edgeDoubleWeight)) {
 			GA->doubleWeight(e) = weight;
 		} else if(GA->has(GraphAttributes::edgeIntWeight)) {
@@ -453,14 +452,15 @@ bool DLParser::readAssignment(
 			return false;
 		}
 	} else if(lhs == "FORMAT") {
-		if(rhs == "FULLMATRIX") {
+		if(rhs == "FULLMATRIX" || rhs == "FM") {
 			m_format = Format::FullMatrix;
-		} else if(rhs == "EDGELIST1") {
+		} else if(rhs == "EDGELIST1" || rhs == "EL1") {
 			m_format = Format::EdgeList;
-		} else if(rhs == "NODELIST1") {
+		} else if(rhs == "NODELIST1" || rhs == "NL1") {
 			m_format = Format::NodeList;
 		} else {
-			GraphIO::logger.lout() << "Unknown data format \"" << rhs << "\"." << std::endl;
+			GraphIO::logger.lout() << "Unknown data format \"" << rhs << "\"."
+			                       << "Supported formats are: FM, EL1 and NL1" << std::endl;
 			return false;
 		}
 	} else {

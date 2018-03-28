@@ -108,7 +108,7 @@ describe(name, [&](){
 void testNonPlanarCore()
 {
 	for_each_graph_it("returns a simple core", {"north/g.41.26.gml", "north/g.73.8.gml"},
-	                  [&](Graph &graph, const string &filename){
+	                  [&](Graph &graph){
 		makeBiconnected(graph);
 		NonPlanarCore<int> npc(graph);
 		const Graph &core = npc.core();
@@ -178,7 +178,7 @@ void testNonPlanarCore()
 	testNPCWeighted<double>("double", "Dijkstra", true);
 	testNPCWeighted<double>("double", "ItaiShiloach", false);
 
-	for_each_graph_it("retransforms while preserving the genus", {"north/g.41.26.gml", "north/g.73.8.gml"}, [&](Graph &graph, const string &file) {
+	for_each_graph_it("retransforms while preserving the genus", {"north/g.41.26.gml", "north/g.73.8.gml"}, [&](Graph &graph) {
 		makeBiconnected(graph);
 		List<edge> edges;
 		graph.allEdges(edges);
@@ -203,7 +203,7 @@ void testNonPlanarCore()
 		AssertThat(planarCore.genus(), Equals(endGraph.genus()));
 	});
 
-	for_each_graph_it("retransforms", {"north/g.41.26.gml", "north/g.73.8.gml"}, [&](Graph &graph, const string &file) {
+	for_each_graph_it("retransforms", {"north/g.41.26.gml", "north/g.73.8.gml"}, [&](Graph &graph) {
 		makeBiconnected(graph);
 		NonPlanarCore<int> C(graph);
 		const Graph &core = C.core();

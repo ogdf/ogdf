@@ -8,7 +8,7 @@ Here we list some of the available compiler definitions and macros.
 
 | **Definition**                | **Location**       | **Description**  |
 |-------------------------------|--------------------|------------------|
-| `OGDF_DEBUG`          | build configuration | Perform OGDF assertions.
+| `OGDF_DEBUG`          | build configuration | Perform OGDF assertions if compiled in Debug mode.
 | `OGDF_HEAVY_DEBUG`    | build configuration | Perform demanding OGDF assertions that might heavily increase runtime.
 | `OGDF_USE_ASSERT_EXCEPTIONS` | build configuration | Throw exceptions instead of exiting by `assert()`.
 | `OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE` | build configuration | If assert exceptions are thrown, add a stack trace in the `what()` string.

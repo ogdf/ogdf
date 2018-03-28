@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include <memory>
 #include <set>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/SubsetEnumerator.h>
@@ -135,7 +136,7 @@ protected:
 		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
 
 private:
-	//! Compute m_distance and m_pred
+	//! Computes distance and predecessor matrix
 	void computeDistanceMatrix();
 
 	/*!
@@ -189,11 +190,13 @@ private:
 	const EdgeWeightedGraph<T> *m_originalGraph; //!< The original edge-weighted graph
 	const NodeArray<bool> *m_isTerminal; //!< Incidence vector for terminal nodes
 	List<node> m_terminals; //!< List of terminal nodes (will be copied and sorted)
-	ArrayBuffer<node> m_nonterminals; //!< Container of Steiner (non-terminal) nodes
 	int m_restricted; //!< Parameter for the number of terminals in a full component
-	steiner_tree::FullComponentWithLossStore<T> *m_fullCompStore; //!< All generated full components
+	std::unique_ptr<steiner_tree::FullComponentWithLossStore<T>> m_fullCompStore; //!< All generated full components
 	bool m_ssspDistances; //!< True iff we only compute SSSP from terminals instead of APSP for full component construction
+
+	//! Distance matrix for full components
 	NodeArray<NodeArray<T>> m_distance;
+	//! Predecessor matrix for full components
 	NodeArray<NodeArray<edge>> m_pred;
 
 	long m_componentsGenerated; //!< Number of generated components
@@ -209,9 +212,7 @@ T MinSteinerTreeRZLoss<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, con
 	m_terminals = terminals; // copy
 	MinSteinerTreeModule<T>::sortTerminals(m_terminals);
 	m_isTerminal = &isTerminal;
-	m_fullCompStore = new steiner_tree::FullComponentWithLossStore<T>(G, m_terminals, isTerminal);
-
-	MinSteinerTreeModule<T>::getNonterminals(m_nonterminals, G, *m_isTerminal);
+	m_fullCompStore.reset(new steiner_tree::FullComponentWithLossStore<T>(G, m_terminals, isTerminal));
 
 	computeDistanceMatrix();
 
@@ -231,15 +232,14 @@ T MinSteinerTreeRZLoss<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, con
 	if (m_restricted >= 3) {
 		findFullComponents(steinerTree, save);
 	}
+	m_distance.init(); // distance matrix is not necessary any longer
+	m_pred.init(); // predecessor matrix is not necessary any longer
+
 	m_fullCompStore->computeAllLosses();
 	m_componentsGenerated = m_fullCompStore->size();
 
 	// contraction phase
 	multiPass(save, steinerTree, isNewTerminal);
-
-	// cleanup
-	delete m_fullCompStore;
-	m_nonterminals.clear();
 
 	// obtain final Steiner Tree using (MST-based) Steiner tree approximation algorithm
 	return steiner_tree::obtainFinalSteinerTree(*m_originalGraph, isNewTerminal, *m_isTerminal, finalSteinerTree);
@@ -343,7 +343,7 @@ void MinSteinerTreeRZLoss<T>::multiPass(SaveStatic<T> &save, EdgeWeightedGraphCo
 			++m_componentsContracted;
 
 			// convert nodes of component to terminals
-			m_fullCompStore->foreachNode(maxCompId, m_pred, [&](node v) {
+			m_fullCompStore->foreachNode(maxCompId, [&](node v) {
 				isNewTerminal[v] = true;
 			});
 

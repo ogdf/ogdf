@@ -41,9 +41,9 @@
 namespace ogdf {
 
 /**
- * @brief Dual ascent approximation algorithm for Steiner tree problems.
+ * @brief Dual ascent heuristic for the minimum Steiner tree problem.
  *
- * The algorithm is implemented following the paper by Richard T. DualAscent,
+ * The algorithm is implemented following the paper by Richard T. Wong,
  * "A Dual Ascent Approach for Steiner Tree Problems on a Directed Graph",
  * Mathematical Programming 28, pages 271-287, 1984.
  *
@@ -54,22 +54,21 @@ class MinSteinerTreeDualAscent : public MinSteinerTreeModule<T> {
 private:
 	const T MAX_VALUE = std::numeric_limits<T>::max();
 
-	// parameters passed to the module
-	const EdgeWeightedGraph<T> *m_pOrigGraph;
-	const List<node> *m_pTerminals;
-	const NodeArray<bool> *m_pIsTerminal;
+	const EdgeWeightedGraph<T> *m_pOrigGraph; //!< original graph passed to the module
+	const List<node> *m_pTerminals; //!< list of terminals passed to the module
+	const NodeArray<bool> *m_pIsTerminal; //!< terminal incidence vector passed to the module
 
-	GraphCopy m_diGraph; // the directed graph
-	GraphCopy m_steinerGraph; // the to-be constructed "almost" Steiner tree
-	EdgeArray<edge> m_origMapping; // maps each directed edge to its undirected original
+	GraphCopy m_diGraph; //!< the directed graph
+	GraphCopy m_steinerGraph; //!< the to-be constructed "almost" Steiner tree
+	EdgeArray<edge> m_origMapping; //!< maps each directed edge to its undirected original
 
-	EdgeArray<bool> m_edgeInclusions; // stores the resulting Steiner tree
-	EdgeArray<T> m_edgeSlacks; // slack variables for each directed edge representing the adjusted weight
+	EdgeArray<bool> m_edgeInclusions; //!< stores the resulting Steiner tree
+	EdgeArray<T> m_edgeSlacks; //!< slack variables for each directed edge representing the adjusted weight
 
-	node m_rootTerminal;
+	node m_rootTerminal; //!< root node
 
 	// components for the Steiner graph
-	NodeArray<int> m_componentMapping; // maps each node to its component
+	NodeArray<int> m_componentMapping; //!< maps each node to its component
 
 	/**
 	 * Intializes all relevant variables.
@@ -206,7 +205,6 @@ int MinSteinerTreeDualAscent<T>::findComponent(const node v) const
 	return m_componentMapping[v];
 }
 
-
 template<typename T>
 void MinSteinerTreeDualAscent<T>::updateComponents()
 {
@@ -221,6 +219,7 @@ bool MinSteinerTreeDualAscent<T>::isTerminal(const node v, bool rootIsTerminal) 
 	node w = m_diGraph.original(m_steinerGraph.original(v));
 	return (m_rootTerminal != w || rootIsTerminal) && (*m_pIsTerminal)[w];
 }
+
 template<typename T>
 int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 {
@@ -419,10 +418,16 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 		// insert edge into final Steiner tree
 		edge origEdge = m_origMapping[minEdge];
 		T cost = m_pOrigGraph->weight(origEdge);
-		result += cost;
-		if(finalSteinerTree->copy(origEdge->source()) == nullptr) { finalSteinerTree->newNode(origEdge->source()); }
-		if(finalSteinerTree->copy(origEdge->target()) == nullptr) { finalSteinerTree->newNode(origEdge->target()); }
-		if(finalSteinerTree->copy(origEdge) == nullptr) { finalSteinerTree->newEdge(origEdge, cost); }
+		if (finalSteinerTree->copy(origEdge->source()) == nullptr) {
+			finalSteinerTree->newNode(origEdge->source());
+		}
+		if (finalSteinerTree->copy(origEdge->target()) == nullptr) {
+			finalSteinerTree->newNode(origEdge->target());
+		}
+		if (finalSteinerTree->copy(origEdge) == nullptr) {
+			finalSteinerTree->newEdge(origEdge, cost);
+			result += cost;
+		}
 	}
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING

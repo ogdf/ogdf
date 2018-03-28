@@ -326,7 +326,7 @@ private:
 		edge eOrig = PG.originalEdge(adj->theEdge());
 		if(eOrig != nullptr) {
 #if 0
-			if((*forbiddenEdgeOrig)[eOrig] == true)
+			if((*forbiddenEdgeOrig)[eOrig])
 				std::cout << "forbidden: " << eOrig << ", dual: " << e << std::endl;
 #endif
 			return (*forbiddenEdgeOrig)[eOrig];

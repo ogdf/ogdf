@@ -71,13 +71,18 @@ protected:
 	 */
 	inline void updateBestCenter(node x, node &center, T &minCost, const NodeArray<T> &dist1, const NodeArray<T> &dist2, const NodeArray<T> &dist3) const
 	{
-		const T tmp = dist1[x] + dist2[x] + dist3[x];
-		if (minCost > tmp
-		 && dist1[x] != std::numeric_limits<T>::max()
-		 && dist2[x] != std::numeric_limits<T>::max()
-		 && dist3[x] != std::numeric_limits<T>::max()) {
-			center = x;
-			minCost = tmp;
+#ifdef OGDF_FULL_COMPONENT_GENERATION_ALWAYS_SAFE
+		if (true) {
+#else
+		if (dist1[x] < std::numeric_limits<T>::max()
+		 && dist2[x] < std::numeric_limits<T>::max()
+		 && dist3[x] < std::numeric_limits<T>::max()) {
+#endif
+			const T tmp = dist1[x] + dist2[x] + dist3[x];
+			if (tmp < minCost) {
+				center = x;
+				minCost = tmp;
+			}
 		}
 	}
 

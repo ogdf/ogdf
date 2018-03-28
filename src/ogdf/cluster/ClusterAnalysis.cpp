@@ -426,8 +426,7 @@ void ClusterAnalysis::computeIndyBags() {
 		// (Bag which is not outeractive will not become outeractive, but
 		// may get a part of an outeractive bag with the same id, and an
 		// outeractive bag might become enclosed).
-		HashArray<int, bool> indyBag(true); //true if bag with index i does
-											//not have outeractive vertices
+		HashArray<int, bool> indyBag(true); // true if bag with index i does not have outeractive vertices
 		// We want to store all vertices for each index that may be a
 		// potential indyBag index. We could add these in the entry stored
 		// in our index Skiplist, but then we need a comparison of the

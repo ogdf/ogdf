@@ -108,7 +108,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 			if ((adjOuterFace == nullptr) && (m_pEmbedding->leftFace(adjFace) != m_pEmbedding->rightFace(adjFace)))
 				adjOuterFace = adjFace;
 
-			if (activeNodes[adjFace->theNode()] == false){
+			if (!activeNodes[adjFace->theNode()]) {
 				activeNodesList.pushBack(adjFace->theNode());
 				activeNodes[adjFace->theNode()] = true;
 

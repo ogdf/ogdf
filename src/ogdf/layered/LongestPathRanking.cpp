@@ -177,7 +177,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if(!e->isSelfLoop() && e->source() == v &&
-				AGC.type(e) == Graph::EdgeType::generalization /*&& reversed[e] == true*/)
+				AGC.type(e) == Graph::EdgeType::generalization /*&& reversed[e] */)
 				++outdeg[v];
 		}
 	}
@@ -190,7 +190,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node u = e->source();
-			if(u == v || AGC.type(e) != Graph::EdgeType::generalization/* || reversed[e] == false*/)
+			if(u == v || AGC.type(e) != Graph::EdgeType::generalization/* || !reversed[e] */)
 				continue;
 
 			--outdeg[u];
@@ -233,7 +233,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 			node v1 = nullptr;
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
-				if(marked[e] == false || e->source() == v)
+				if(!marked[e] || e->source() == v)
 					continue;
 
 				node u = e->source();

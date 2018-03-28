@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include <ogdf/fileformats/UmlModelGraph.h>
+#include <ogdf/uml/UmlModelGraph.h>
 #include <ogdf/basic/SList.h>
 
 

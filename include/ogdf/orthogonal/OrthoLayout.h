@@ -132,15 +132,15 @@ private:
 
 	// options
 
-	double m_separation;	//!< minimum distance between obkects
-	double m_cOverhang;		//!< distance to corner (relative to node size)
-	double m_margin;		//!< margin around drawing
+	double m_separation; //!< minimum distance between obkects
+	double m_cOverhang; //!< distance to corner (relative to node size)
+	double m_margin; //!< margin around drawing
 
 	bool m_progressive; //!< use progressive ortho style (prefer 180 degree angles on deg-2 vertices).
-	int m_bendBound;	//!< bounds the number of bends per edge in ortho shaper
+	int m_bendBound; //!< bounds the number of bends per edge in ortho shaper
 
-	bool m_useScalingCompaction;	//!< use scaling for compaction
-	int m_scalingSteps;				//!< number of scaling steps (NOT REALLY USED!)
+	bool m_useScalingCompaction; //!< use scaling for compaction
+	int m_scalingSteps; //!< number of scaling steps (NOT REALLY USED!)
 };
 
 }

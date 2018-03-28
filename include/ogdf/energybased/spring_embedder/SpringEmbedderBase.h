@@ -335,7 +335,7 @@ protected:
 	double m_avgConvergenceFactor; //!< convergence if avg. displacement is at most this factor times ideal edge length
 	double m_maxConvergenceFactor; //!< convergence if max. displacement is at most this factor times ideal edge length
 
-	unsigned int m_maxThreads;	//!< The maximal number of used threads.
+	unsigned int m_maxThreads; //!< The maximal number of used threads.
 };
 
 }}

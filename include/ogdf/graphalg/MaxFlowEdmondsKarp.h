@@ -127,6 +127,7 @@ public:
 		this->m_cap = &cap;
 		this->m_s = &s;
 		this->m_t = &t;
+		OGDF_ASSERT(this->isFeasibleInstance());
 
 		if (*this->m_s == *this->m_t) {
 			return (TCap) 0;

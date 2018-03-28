@@ -106,6 +106,8 @@ public:
  * They adjust their table size automatically when the number of faces in the
  * corresponding combinatorial embedding increases.
  *
+ * @warn_undef_behavior_array
+ *
  * @tparam T is the element type.
  */
 template<class T> class FaceArray : private Array<T>, protected FaceArrayBase {
@@ -237,43 +239,6 @@ public:
 	 * This is always a null pointer iterator.
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
-
-	//! Returns an iterator to the last entry in the face array.
-	/**
-	 * If the face array is empty, a null pointer iterator is returned.
-	 */
-	iterator rbegin() { return iterator(m_pEmbedding->lastFace(), this); }
-
-	//! Returns a const iterator to the last entry in the face array.
-	/**
-	 * If the face array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator rbegin() const { return const_iterator(m_pEmbedding->lastFace(), this); }
-
-	//! Returns a const iterator to the last entry in the face array.
-	/**
-	 * If the face array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator crbegin() const { return const_iterator(m_pEmbedding->lastFace(), this); }
-
-	//! Returns an iterator to one-before-first entry in the face array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	iterator rend() { return iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the face array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator rend() const { return const_iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the face array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator crend() const { return const_iterator(nullptr, this); }
-
 
 	//@}
 	/**

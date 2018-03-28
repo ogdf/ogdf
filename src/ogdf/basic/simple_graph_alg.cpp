@@ -682,7 +682,7 @@ static bool dfsTwoEdgeConnected(const Graph &graph,
 /**
  * Helper function for ogdf::isTwoEdgeConnected
  *
- * @copydetails dfsTwoEdgeConnected
+ * @copydetails ogdf::dfsTwoEdgeConnected
  * @param bridge same as in ogdf::isTwoEdgeConnected
  */
 static bool chainsTwoEdgeConnected(const Graph &graph,
@@ -747,11 +747,9 @@ bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 {
 	s1 = s2 = nullptr;
 
-	if (isConnected(G) == false)
+	if (!isConnected(G) || !isBiconnected(G, s1)) {
 		return false;
-
-	if (isBiconnected(G,s1) == false)
-		return false;
+	}
 
 	if (G.numberOfNodes() <= 3)
 		return true;
@@ -776,7 +774,7 @@ bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 		GC.delNode(vC);
 
 		// test for biconnectivity
-		if(isBiconnected(GC,wC) == false) {
+		if(!isBiconnected(GC, wC)) {
 			s1 = v; s2 = GC.original(wC);
 			return false;
 		}
@@ -1000,7 +998,7 @@ bool hasSingleSource(const Graph& G, node &s)
 			} else s = v;
 		}
 	}
-	return (G.empty() || s != nullptr);
+	return G.empty() || s != nullptr;
 }
 
 
@@ -1016,7 +1014,7 @@ bool hasSingleSink(const Graph& G, node &t)
 			} else t = v;
 		}
 	}
-	return (G.empty() || t != nullptr);
+	return G.empty() || t != nullptr;
 }
 
 
@@ -1032,7 +1030,7 @@ bool isStGraph(const Graph &G, node &s, node &t, edge &st)
 	hasSingleSource(G,s);
 	hasSingleSink  (G,t);
 
-	if (s == nullptr || t == nullptr || isAcyclic(G) == false) {
+	if (s == nullptr || t == nullptr || !isAcyclic(G)) {
 		s = t = nullptr;
 		return false;
 	}
@@ -1278,6 +1276,43 @@ bool isRegular(const Graph& G, int d) {
 			return false;
 		}
 	}
+	return true;
+}
+
+bool isBipartite(const Graph &G, NodeArray<bool> &color) {
+	ArrayBuffer<node> stack;
+	NodeArray<bool> visited(G, false);
+
+	// Start a depth-first search from every unvisited node.
+	for (node root : G.nodes) {
+		if (!visited[root]) {
+			stack.push(root);
+			color[root] = true;
+			visited[root] = true;
+
+			while (!stack.empty()) {
+				node v = stack.popRet();
+
+				// For all adjacent nodes w of v:
+				for (adjEntry adj : v->adjEntries) {
+					node w = adj->twinNode();
+
+					// If w is already visited/on the stack, check its color.
+					if (visited[w]) {
+						if (color[w] == color[v]) {
+							return false;
+						}
+					} else {
+						// Else color it and push it on the stack.
+						visited[w] = true;
+						color[w] = !color[v];
+						stack.push(w);
+					}
+				}
+			}
+		}
+	}
+
 	return true;
 }
 

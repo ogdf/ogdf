@@ -227,8 +227,8 @@ public:
 	 */
 	inline bool isVertex(node v) const
 	{
-		return ( (typeOf(v) == Graph::NodeType::vertex) ||
-			(typeOf(v) == Graph::NodeType::associationClass));
+		return typeOf(v) == Graph::NodeType::vertex
+		    || typeOf(v) == Graph::NodeType::associationClass;
 	}
 
 	/**

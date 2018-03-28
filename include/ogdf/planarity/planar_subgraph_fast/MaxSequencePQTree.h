@@ -411,10 +411,7 @@ bool MaxSequencePQTree<T,Y>::Bubble(SListPure<PQLeafKey<T,whaInfo*,Y>*> &leafKey
 		PQNode<T,whaInfo*,Y>* checkLeaf = (*it)->nodePointer();
 		processNodes.append(checkLeaf);
 		cleanUp.pushBack(checkLeaf);
-		if (!checkLeaf->getNodeInfo())	// if leaf does not have an information
-										// class for storing the [wha]-number
-										// allocate one.
-		{
+		if (!checkLeaf->getNodeInfo()) { // if leaf does not have an information class for storing the [wha]-number allocate one.
 			whaInfo *newInfo = new whaInfo;
 			PQNodeKey<T,whaInfo*,Y> *infoPtr = new PQNodeKey<T,whaInfo*,Y>(newInfo);
 			checkLeaf->setNodeInfo(infoPtr);

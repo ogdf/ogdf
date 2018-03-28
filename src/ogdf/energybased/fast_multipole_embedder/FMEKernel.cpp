@@ -128,8 +128,8 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 s_AB = _mm_add_ps( s_A, s_B ); // s = As + Bs
 	__m128 dsq_AB = _mm_add_ps( _mm_mul_ps( x_AB, x_AB ), _mm_mul_ps( y_AB, y_AB ) ); // f = s/d^2
 	__m128 f_AB =  _mm_div_ps( s_AB, dsq_AB );
-	__m128 fx_AB = _mm_mul_ps( x_AB, f_AB ); 	// fx(a,b), fx(b,c), fx(c,d), fx(d,a)
-	__m128 fy_AB = _mm_mul_ps( y_AB, f_AB );	// fy(a,b), fy(b,c), fy(c,d), fy(d,a)
+	__m128 fx_AB = _mm_mul_ps(x_AB, f_AB); // fx(a,b), fx(b,c), fx(c,d), fx(d,a)
+	__m128 fy_AB = _mm_mul_ps(y_AB, f_AB); // fy(a,b), fy(b,c), fy(c,d), fy(d,a)
 	// unshuffle
 	__m128 fx_AB_shuffled = _mm_shuffle_ps( fx_AB, fx_AB, _MM_SHUFFLE(2,1,0,3) ); // fx(d,a), fx(a,b), fx(b,c), fx(c,d)
 	__m128 fy_AB_shuffled = _mm_shuffle_ps( fy_AB, fy_AB, _MM_SHUFFLE(2,1,0,3) ); // fy(d,a), fy(a,b), fy(b,c), fy(c,d)
@@ -174,16 +174,16 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 s_shuffled = _mm_shuffle_ps( s, s, _MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,b), f(b,c), f(c,d), f(d,a) )
-	__m128 dx	= _mm_sub_ps( x, x_shuffled );								// dx = x_A - x_B
-	__m128 dy	= _mm_sub_ps( y, y_shuffled );								// dy = y_A - y_B
+	__m128 dx	= _mm_sub_ps( x, x_shuffled ); // dx = x_A - x_B
+	__m128 dy	= _mm_sub_ps( y, y_shuffled ); // dy = y_A - y_B
 	__m128 s_sum = _mm_add_ps(s, s_shuffled);
 	__m128 f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
 #if 0
 	__m128 dsq	= _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
 	__m128 f	= _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
 #endif
-	__m128 fx	= _mm_mul_ps( dx, f ); 	// ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
-	__m128 fy	= _mm_mul_ps( dy, f );	// ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
+	__m128 fx	= _mm_mul_ps(dx, f); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
+	__m128 fy	= _mm_mul_ps(dy, f); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
 
 	fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
 	fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
@@ -194,16 +194,16 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, _MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,c), f(b,d), f(c,a), f(d,b) )
-	dx = _mm_sub_ps( x, x_shuffled );										// dx = x_A - x_B
-	dy = _mm_sub_ps( y, y_shuffled );										// dy = y_A - y_B
+	dx = _mm_sub_ps(x, x_shuffled); // dx = x_A - x_B
+	dy = _mm_sub_ps(y, y_shuffled); // dy = y_A - y_B
 #if 0
 	dsq = _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
 	f = _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
 #endif
 	s_sum = _mm_add_ps(s, s_shuffled);
 	f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
-	fx = _mm_mul_ps( dx, f );												// fx(a,c), fx(b,d), fx(c,a), fx(d,b)
-	fy = _mm_mul_ps( dy, f );												// fy(a,c), fy(b,d), fy(c,a), fy(d,b)
+	fx = _mm_mul_ps(dx, f); // fx(a,c), fx(b,d), fx(c,a), fx(d,b)
+	fy = _mm_mul_ps(dy, f); // fy(a,c), fy(b,d), fy(c,a), fy(d,b)
 
 	fx_sum = _mm_add_ps(fx_sum, fx);  // ( fx(a,c), fx(b,d), fx(c,a), fx(d,b) )
 	fy_sum = _mm_add_ps(fy_sum, fy);  // ( fy(a,c), fy(b,d), fy(c,a), fy(d,b) )
@@ -236,16 +236,16 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 		__m128 fy_sum_shuffled;
 
 		// begin copy paste from above
-		__m128 dx	= _mm_sub_ps( x, x_shuffled );								// dx = x_A - x_B
-		__m128 dy	= _mm_sub_ps( y, y_shuffled );								// dy = y_A - y_B
+		__m128 dx	= _mm_sub_ps(x, x_shuffled); // dx = x_A - x_B
+		__m128 dy	= _mm_sub_ps(y, y_shuffled); // dy = y_A - y_B
 #if 0
 		__m128 dsq	= _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
 		__m128 f	= _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
 #endif
 		__m128 s_sum = _mm_add_ps(s, s_shuffled);
 		__m128 f    = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
-		__m128 fx	= _mm_mul_ps( dx, f ); 	// ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
-		__m128 fy	= _mm_mul_ps( dy, f );	// ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
+		__m128 fx = _mm_mul_ps(dx, f); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
+		__m128 fy = _mm_mul_ps(dy, f); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
 
 		fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
 		fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
@@ -254,18 +254,18 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 		y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, _MM_SHUFFLE(0,3,2,1) );
 		s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, _MM_SHUFFLE(0,3,2,1) );
 
-		dx = _mm_sub_ps( x, x_shuffled );										// dx = x_A - x_B
-		dy = _mm_sub_ps( y, y_shuffled );										// dy = y_A - y_B
+		dx = _mm_sub_ps(x, x_shuffled); // dx = x_A - x_B
+		dy = _mm_sub_ps(y, y_shuffled); // dy = y_A - y_B
 #if 0
 		dsq = _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
 		f = _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
 #endif
 		s_sum = _mm_add_ps(s, s_shuffled);
 		f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
-		fx = _mm_mul_ps( dx, f );												// fx(a,c), fx(b,d), fx(c,a), fx(d,b)
-		fy = _mm_mul_ps( dy, f );												// fy(a,c), fy(b,d), fy(c,a), fy(d,b)
+		fx = _mm_mul_ps(dx, f); // fx(a,c), fx(b,d), fx(c,a), fx(d,b)
+		fy = _mm_mul_ps(dy, f); // fy(a,c), fy(b,d), fy(c,a), fy(d,b)
 
-		fx_sum = _mm_add_ps(fx_sum, fx);										// ( fx(a,c), fx(b,d), fx(c,a), fx(d,b) )
+		fx_sum = _mm_add_ps(fx_sum, fx); // ( fx(a,c), fx(b,d), fx(c,a), fx(d,b) )
 		fy_sum = _mm_add_ps(fy_sum, fy);
 
 		// end copy paste from above

@@ -42,6 +42,10 @@ std::string toString(const Attribute &attr)
 	switch(attr) {
 	case Attribute::label: return "viewLabel";
 	case Attribute::color: return "viewColor";
+	case Attribute::strokeColor: return "viewStrokeColor";
+	case Attribute::strokeType: return "viewStrokeType";
+	case Attribute::strokeWidth: return "viewStrokeWidth";
+	case Attribute::fillPattern: return "viewFillPattern";
 	case Attribute::position: return "viewLayout";
 	case Attribute::size: return "viewSize";
 	case Attribute::shape: return "viewShape";
@@ -55,17 +59,29 @@ Attribute toAttribute(const std::string &str)
 	if(str == "viewLabel") {
 		return Attribute::label;
 	}
-	if(str == "viewColor") {
+	else if(str == "viewColor") {
 		return Attribute::color;
 	}
-	if(str == "viewLayout") {
+	else if(str == "viewStrokeColor") {
+		return Attribute::strokeColor;
+	}
+	else if(str == "viewStrokeType") {
+		return Attribute::strokeType;
+	}
+	else if(str == "viewFillPattern") {
+		return Attribute::fillPattern;
+	}
+	else if(str == "viewLayout") {
 		return Attribute::position;
 	}
-	if(str == "viewSize") {
+	else if(str == "viewSize") {
 		return Attribute::size;
 	}
-	if(str == "viewShape") {
+	else if(str == "viewShape") {
 		return Attribute::shape;
+	}
+	else if(str == "viewStrokeWidth") {
+		return Attribute::strokeWidth;
 	}
 	return Attribute::unknown;
 }

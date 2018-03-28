@@ -72,7 +72,7 @@ static void draw(
 	if(forbiddenEdgeOrig) {
 		for(edge e : PG.edges) {
 			edge eOrig = PG.originalEdge(e);
-			if (eOrig && (*forbiddenEdgeOrig)[eOrig] == true)
+			if (eOrig && (*forbiddenEdgeOrig)[eOrig])
 				GA.strokeColor(e) = "#ff0000";
 		}
 	}
@@ -528,7 +528,7 @@ void MMFixedEmbeddingInserter::findShortestPath(
 
 	std::cout << "forbidden dual edges: ";
 	for(edge ed : m_dual.edges) {
-		if(origOfDualForbidden(ed,PG,forbiddenEdgeOrig) == true)
+		if(origOfDualForbidden(ed,PG,forbiddenEdgeOrig))
 			std::cout << ed << " ";
 	}
 	std::cout << std::endl;
@@ -726,7 +726,7 @@ void MMFixedEmbeddingInserter::insertEdge(
 
 	// remove dual nodes of faces on insertion path
 	ListConstIterator<Tuple2<adjEntry,adjEntry> > it;
-	for(it = crossed.begin(); it != crossed.rbegin(); ++it) {
+	for(it = crossed.begin(); it.valid() && it.succ().valid(); ++it) {
 		adjEntry adj1 = (*it).x1();
 		adjEntry adj2 = (*it).x2();
 		if(adj2 == nullptr) {
@@ -742,7 +742,7 @@ void MMFixedEmbeddingInserter::insertEdge(
 
 	// remove edges at vertices (to be split) on insertion path
 	// and insert a new vertex in dual for each split node
-	for(it = crossed.begin(); it != crossed.rbegin(); ++it) {
+	for(it = crossed.begin(); it.succ().valid(); ++it) {
 		adjEntry adj1 = (*it).x1();
 		adjEntry adj2 = (*it).x2();
 		if(adj2 != nullptr) {
@@ -1335,7 +1335,7 @@ bool MMFixedEmbeddingInserter::checkDualGraph(
 		if(E.rightFace(e->adjSource()) != af[tgtDual])
 			return false;
 
-		if(exists[eDual->index()] == false)
+		if(!exists[eDual->index()])
 			return false;
 #ifdef OGDF_DEBUG
 		if(eDual->graphOf() != &m_dual)

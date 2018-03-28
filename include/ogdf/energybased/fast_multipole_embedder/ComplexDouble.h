@@ -334,7 +334,7 @@ public:
 
 	inline ComplexDouble operator/(const ComplexDouble& other) const
 	{
-		return ((*this) *other.conj() / (other.reg[0]*other.reg[0] + other.reg[1]*other.reg[1]));
+		return (*this) * other.conj() / (other.reg[0]*other.reg[0] + other.reg[1]*other.reg[1]);
 	}
 
 	inline ComplexDouble operator*(double scalar) const

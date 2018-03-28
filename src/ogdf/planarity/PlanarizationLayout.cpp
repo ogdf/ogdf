@@ -187,8 +187,8 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 			// if the boundary does not exist (connected component is clique), we
 			// only run over the nodes adjacent to centerNode
 			double minx, maxx, miny, maxy;
-			minx = miny =  std::numeric_limits<double>::max();
-			maxx = maxy = -std::numeric_limits<double>::max();
+			minx = miny = std::numeric_limits<double>::max();
+			maxx = maxy = std::numeric_limits<double>::lowest();
 			if (adjBoundary)
 			{
 				adjEntry adjRunner = adjBoundary;

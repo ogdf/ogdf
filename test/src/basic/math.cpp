@@ -39,11 +39,11 @@
 template<typename T>
 static void testGcdAndLcm(const char *type)
 {
-	it(string("computes gcd of large numbers of type ") + string(type), []() {
+	it("computes gcd of large numbers of type " + string(type), [] {
 		T big = std::numeric_limits<T>::max();
 		AssertThat(Math::gcd(big, big), Equals(big));
 	});
-	it(string("computes lcm of large numbers of type ") + string(type), []() {
+	it("computes lcm of large numbers of type " + string(type), [] {
 		T big = std::numeric_limits<T>::max();
 		AssertThat(Math::lcm(big, big), Equals(big));
 	});

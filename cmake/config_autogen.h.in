@@ -1,11 +1,11 @@
 #define OGDF_MEMORY_@OGDF_MEMORY_MANAGER@
 
-#ifndef NDEBUG
-  #cmakedefine OGDF_DEBUG
-  #cmakedefine OGDF_HEAVY_DEBUG
+#if @MULTICONFIG_BUILD@ == 0 || !defined(NDEBUG)
+	#cmakedefine OGDF_DEBUG
 #endif
 
 #ifdef OGDF_DEBUG
+	#cmakedefine OGDF_HEAVY_DEBUG
 	#cmakedefine OGDF_USE_ASSERT_EXCEPTIONS
 	#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 		#define OGDF_FUNCTION_NAME @OGDF_FUNCTION_NAME@

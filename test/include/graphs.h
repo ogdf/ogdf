@@ -86,17 +86,6 @@ enum class GraphProperty {
 	sparse
 };
 
-inline void insertGraph(Graph &g, const Graph &g2)
-{
-	NodeArray<node> map(g2);
-
-	for(node v : g2.nodes)
-		map[v] = g.newNode();
-
-	for(edge e: g2.edges)
-		g.newEdge(map[e->source()], map[e->target()]);
-}
-
 //! Randomly adds loops and parallel edges to \p G.
 /**
  * For each edge, we add parallel edges until an event with probability 1 - \p p is encountered.
@@ -158,18 +147,19 @@ inline void createDisconnectedGraph(
 	G.clear();
 
 	int nBcMax = ceil(nMax / (cc*bc));
+	nBcMax = std::max(nBcMax, 2);
 
 	for(int i = 0; i < cc; i++) {
 		int m = ceil(randomDouble(densityMin*nBcMax, densityMax*nBcMax));
 		Graph H;
-		planarCNBGraph(H, nBcMax, m, bc);
-		insertGraph(G, H);
+		randomPlanarCNBGraph(H, nBcMax, m, bc);
+		G.insert(H);
 	}
 }
 
 inline void createAlmostPlanarGraph(Graph &G, int n, int m, int add_m)
 {
-	planarBiconnectedGraph(G, n, m);
+	randomPlanarBiconnectedGraph(G, n, m);
 
 	Array<node> table(n);
 
@@ -293,8 +283,8 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		  GraphProperty::planar,
 		  GraphProperty::simple },
 		[](Graph& G) {
-			std::ifstream ifs(RESOURCE_DIR + "/misc/path-like_tree.gml");
-			GraphIO::read(G, ifs);
+			std::stringstream ss{ResourceFile::get("misc/path-like_tree.gml")->data()};
+			GraphIO::read(G, ss);
 		});
 
 	testInstance("K4",
@@ -372,7 +362,7 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		{ GraphProperty::connected,
 		  GraphProperty::planar,
 		  GraphProperty::simple },
-		[](Graph &G, int n) { planarConnectedGraph(G, n, 2*n); });
+		[](Graph &G, int n) { randomPlanarConnectedGraph(G, n, 2*n); });
 
 	testInstances("biconnected almost planar graph",
 		{ GraphProperty::biconnected,
@@ -395,7 +385,7 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		  GraphProperty::planar,
 		  GraphProperty::simple },
 		[](Graph &G, int n) {
-			planarBiconnectedDiGraph(G, n, 2*n);
+			randomPlanarBiconnectedDigraph(G, n, 2*n);
 			splitParallelEdges(G);
 		});
 
@@ -418,13 +408,13 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		{ GraphProperty::planar,
 		  GraphProperty::simple,
 		  GraphProperty::triconnected },
-		[](Graph &G, int n) { planarTriconnectedGraph(G, n, .5, .5); });
+		[](Graph &G, int n) { randomPlanarTriconnectedGraph(G, n, .5, .5); });
 
 	testInstances("maximal planar graph",
 		{ GraphProperty::planar,
 		  GraphProperty::simple,
 		  GraphProperty::triconnected },
-		[](Graph &G, int n) { planarBiconnectedGraph(G, n, 3*n - 6); });
+		[](Graph &G, int n) { randomPlanarBiconnectedGraph(G, n, 3*n - 6); });
 
 	testInstances("disconnected planar graph",
 		{ GraphProperty::planar,
@@ -435,7 +425,7 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		{ GraphProperty::planar,
 		  GraphProperty::triconnected },
 		[](Graph &G, int n) {
-			planarTriconnectedGraph(G, n, .5, .5);
+			randomPlanarTriconnectedGraph(G, n, .5, .5);
 			addMultiEdges(G, .5);
 		});
 
@@ -444,7 +434,7 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		  GraphProperty::sparse,
 		  GraphProperty::triconnected },
 		[](Graph &G, int n) {
-			planarTriconnectedGraph(G, n, .5, .5);
+			randomPlanarTriconnectedGraph(G, n, .5, .5);
 			addMultiEdges(G, 5.0/n);
 		});
 }

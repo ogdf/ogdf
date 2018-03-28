@@ -48,11 +48,9 @@ bool ShortestPathWithBFM::call
 	NodeArray<edge> &pi					// predecessors
 	)
 {
-	const int infinity = 20000000;		// big number. danger. think about it.
-
 	//Initialize-Single-Source(G, s):
 	for (node v : G.nodes) {
-		d[v] = infinity;
+		d[v] = std::numeric_limits<int>::max();
 		pi[v] = nullptr;
 	}
 	d[s] = 0;

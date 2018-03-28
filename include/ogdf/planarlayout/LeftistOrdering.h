@@ -79,14 +79,14 @@ private:
 	bool forbidden(node v) const
 	{
 		// too many cut faces?
-		return m_cutFaces[v] > (m_cutEdges[v] + 1);
+		return m_cutFaces[v] > m_cutEdges[v] + 1;
 	}
 
 	// returns true if v is singular
 	bool singular(node v) const
 	{
 		// not more cutfaces then cut edges plus one ?
-		return (m_cutFaces[v] > 2) && (m_cutFaces[v] == (m_cutEdges[v] + 1));
+		return m_cutFaces[v] > 2 && m_cutFaces[v] == m_cutEdges[v] + 1;
 	}
 
 	// the belt

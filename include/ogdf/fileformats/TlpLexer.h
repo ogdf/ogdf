@@ -69,7 +69,7 @@ struct Token {
 	}
 
 	bool inline identifier(const char *str) const {
-		return type == Type::identifier && (*value) == str;
+		return type == Type::identifier && *value == str;
 	}
 
 	bool inline string() const {
@@ -77,7 +77,7 @@ struct Token {
 	}
 
 	bool inline string(const char *str) const {
-		return type == Type::string && (*value) == str;
+		return type == Type::string && *value == str;
 	}
 };
 

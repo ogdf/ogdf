@@ -131,7 +131,7 @@ void CPlanarEdgeInserter::call(
 
 				//stop search, both clusters found
 				if ((ind1 > 0) && (ind2 > 0))
-					itC = cList.rbegin().succ();
+					itC = cList.end();
 			}
 			//set status
 			if ((ind1 > 0 ) && (ind2 > 0))
@@ -669,7 +669,7 @@ void CPlanarEdgeInserter::setArcStatus(
 
 		//stop search, both clusters found
 		if ((ind1 > 0) && (ind2 > 0))
-			itC = cList.rbegin().succ();
+			itC = cList.end();
 	}
 
 	//set status

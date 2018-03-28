@@ -92,7 +92,8 @@ public:
 	double ycoord() const { return m_pRep->m_y; }
 
 	bool operator==(const DPointHandle &p) const {
-		return ( m_pRep->m_x == p.m_pRep->m_x && m_pRep->m_y == p.m_pRep->m_y );
+		return m_pRep->m_x == p.m_pRep->m_x
+		    && m_pRep->m_y == p.m_pRep->m_y;
 	}
 
 	bool operator!=(const DPointHandle &p) const {
@@ -100,7 +101,8 @@ public:
 	}
 
 	bool operator<(const DPointHandle &p) const {
-		return (m_pRep->m_x < p.m_pRep->m_x || (m_pRep->m_x == p.m_pRep->m_x && m_pRep->m_y < p.m_pRep->m_y));
+		return m_pRep->m_x < p.m_pRep->m_x
+		    || (m_pRep->m_x == p.m_pRep->m_x && m_pRep->m_y < p.m_pRep->m_y);
 	}
 
 	bool operator>(const DPointHandle &p) const {
@@ -439,8 +441,8 @@ void LayoutStatistics::intersectionGraph(const GraphAttributes &ga, Graph &H, No
 			ListConstIterator<DPoint> it = dpl.begin();
 			ListConstIterator<DPoint> itSucc = it.succ();
 			for( ; itSucc.valid(); ++it, ++itSucc) {
-				node vp = (it     == dpl.begin ()) ? e->source() : nullptr;
-				node vq = (itSucc == dpl.rbegin()) ? e->target() : nullptr;
+				node vp = it == dpl.begin() ? e->source() : nullptr;
+				node vq = !itSucc.succ().valid() ? e->target() : nullptr;
 
 				DPointHandle p((*it).m_x,(*it).m_y);
 				DPointHandle q((*itSucc).m_x,(*itSucc).m_y);

@@ -44,12 +44,11 @@ class OGDF_EXPORT ParticleInfo
 	//! Output stream for ParticleInfo.
 	friend std::ostream &operator<< (std::ostream & output, const ParticleInfo & A)
 	{
-		output <<" node_index "<<A.vertex->index()<<" x_y_coord "<<A.x_y_coord;
-		if(A.marked == true)
-			output<<" marked ";
-		else
-			output<<" unmarked ";
-		output<<" sublist_ptr ";
+		output
+		  << " node_index " << A.vertex->index()
+		  << " x_y_coord  " << A.x_y_coord
+		  << (A.marked ? " marked " : " unmarked ")
+		  << " sublist_ptr ";
 		if (A.subList_ptr == nullptr)
 			output<<"nullptr";
 		else

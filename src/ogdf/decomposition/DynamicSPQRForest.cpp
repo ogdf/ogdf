@@ -215,7 +215,7 @@ SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH, node& rT) const
 		if (uH == tH || vH == tH) { rT = sT; return pathT; }
 		sT = spqrproper(m_hEdge_twinEdge[eH]);
 	}
-	SListIterator<node> iT = pathT.rbegin();
+	SListIterator<node> iT = pathT.backIterator();
 	while (tT != nT) {
 		edge eH = m_tNode_hRefEdge[tT];
 		node uH = eH->source();
@@ -327,8 +327,9 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 		return eG;
 	}
 
-	node rT;
+	node rT = nullptr;
 	SList<node>& pathT = findPathSPQR(sH, tH, rT);
+	OGDF_ASSERT(rT != nullptr);
 	if (pathT.size() < 2) {
 		if (m_tNode_type[rT] == TNodeType::RComp) {
 			addHEdge(eH, rT);

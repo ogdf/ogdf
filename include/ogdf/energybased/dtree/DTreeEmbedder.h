@@ -591,7 +591,7 @@ void DTreeEmbedder<Dim>::doIterations(int numIterations, double epsilon, RepForc
 	double maxDisplacement = epsilon;
 
 	// while error too big and we have iterations left
-	for (int i = 0; (i < numIterations) && (maxDisplacement >= epsilon); ++i) {
+	for (int i = 0; i < numIterations && maxDisplacement >= epsilon; ++i) {
 		// run it
 		maxDisplacement = doIteration(repForceFunc);
 	}
@@ -618,7 +618,7 @@ void DTreeEmbedder<Dim>::doIterationsAdaptive(int numIterations, double epsilon,
 	double lastMaxDisplacement = 0.0;
 
 	// while error too big and we have iterations left
-	for (int i = 0; (i < numIterations) && (maxDisplacement >= epsilon); ++i) {
+	for (int i = 0; i < numIterations && maxDisplacement >= epsilon; ++i) {
 		// reset forces
 		resetForces();
 
@@ -675,7 +675,7 @@ void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations,
 	double maxDisplacement = 10000.0;
 
 	// while error too big and we have iterations left
-	for (int i = 0; (i < numIterations) && (maxDisplacement > epsilon) ; ++i) {
+	for (int i = 0; i < numIterations && maxDisplacement > epsilon; ++i) {
 		numIterationsUsed++;
 		// reset forces
 		resetForces();

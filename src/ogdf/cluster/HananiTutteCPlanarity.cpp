@@ -744,7 +744,8 @@ bool HananiTutteCPlanarity::CGraph::iD(const CLinearSystem::Object *eo1, const C
 	if(before(vo2,uo2))
 		std::swap(vo2, uo2);
 
-	return ((before(uo1,uo2) && before(uo2,vo1) && before(vo1,vo2)) || (before(uo2,uo1) && before(uo1,vo2) && before(vo2,vo1)));
+	return (before(uo1,uo2) && before(uo2,vo1) && before(vo1,vo2))
+	    || (before(uo2,uo1) && before(uo1,vo2) && before(vo2,vo1));
 }
 
 void HananiTutteCPlanarity::CGraph::affect(const CLinearSystem::Object *eo1, const CLinearSystem::Object &obj, const CLinearSystem::Object *eo2)
@@ -873,7 +874,7 @@ void HananiTutteCPlanarity::CGraph::prepareLinearSystem()
 
 			for(ListConstIterator<cluster> it = path.begin(); it.valid(); ++it) {
 				c = *it;
-				if(it == path.rbegin())
+				if(!it.succ().valid())
 					m_ls.numOx(CLinearSystem::Object(v, c, e));
 				else {
 					cluster c2 = *it.succ();

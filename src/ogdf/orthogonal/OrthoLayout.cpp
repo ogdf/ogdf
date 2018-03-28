@@ -165,8 +165,12 @@ void OrthoLayout::call(PlanRep &PG,
 
 	// PHASE 4: apply improvement compaction heuristics
 
-	// call flow compaction on grid
-	fc.improvementHeuristics(PG, OR, minDistGrid, gridDrawing, int(gridDrawing.toGrid(m_separation)));
+	try {
+		// call flow compaction on grid
+		fc.improvementHeuristics(PG, OR, minDistGrid, gridDrawing, int(gridDrawing.toGrid(m_separation)));
+	} catch(AlgorithmFailureException) {
+		// too bad, that did not work out..
+	}
 
 
 	// re-map result

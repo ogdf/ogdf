@@ -36,6 +36,10 @@
 #include <iostream>
 #include <string>
 
+#if defined(OGDF_DEBUG) && defined(NDEBUG)
+# error "Contradicting configuration: Macros OGDF_DEBUG and NDEBUG are defined."
+#endif
+
 namespace ogdf {
 
 // generally used <string> members
@@ -217,9 +221,9 @@ public:
 
 	//! Specifies the memory-manager used by OGDF.
 	enum class MemoryManager {
-		PoolTS,	//!< thread-safe pool allocator
-		PoolNTS,	//!< non-thread-safe pool allocator
-		Malloc,	//!< malloc/free allocator
+		PoolTS, //!< thread-safe pool allocator
+		PoolNTS, //!< non-thread-safe pool allocator
+		Malloc, //!< malloc/free allocator
 		STOP
 	};
 

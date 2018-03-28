@@ -27,7 +27,7 @@ endif()
 if(OGDF_DEBUG_MODE STREQUAL HEAVY)
   set(OGDF_HEAVY_DEBUG ON)
 endif()
-if(OGDF_HEAVY_DEBUG OR OGDF_DEBUG_MODE STREQUAL REGULAR)
+if(NOT OGDF_DEBUG_MODE STREQUAL NONE AND (MULTICONFIG_BUILD OR CMAKE_BUILD_TYPE MATCHES Debug))
   set(OGDF_DEBUG ON)
 endif()
 
@@ -58,17 +58,20 @@ mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_DEBUG)
 mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_RELEASE)
 
 # compilation
-file(GLOB_RECURSE OGDF_SOURCES src/ogdf/*.cpp include/ogdf/*.h)
-if(NOT OGDF_COMPILE_LEGACY)
-  file(GLOB_RECURSE OGDF_LEGACY_SOURCES src/ogdf/legacy/*.cpp)
-  foreach(legacyFile ${OGDF_LEGACY_SOURCES})
-    list(REMOVE_ITEM OGDF_SOURCES ${legacyFile})
-  endforeach()
-endif()
-add_library(OGDF ${OGDF_SOURCES})
-target_link_libraries(OGDF COIN)
-group_files(OGDF_SOURCES "ogdf")
+file(GLOB_RECURSE ogdf_headers include/ogdf/*.h)
+file(GLOB_RECURSE ogdf_sources src/ogdf/*.cpp)
+set(ogdf_sources "${ogdf_sources};${ogdf_headers}")
+add_library(OGDF "${ogdf_sources}")
+target_link_libraries(OGDF PUBLIC COIN)
+group_files(ogdf_sources "ogdf")
 target_compile_features(OGDF PUBLIC cxx_range_for)
+
+target_include_directories(OGDF PUBLIC # for the autogen header
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_include_directories(OGDF PUBLIC # for the general include files
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 if(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES)
   target_include_directories(OGDF SYSTEM PUBLIC ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
 endif()
@@ -140,7 +143,11 @@ if(has_linux_cpu_macros)
   set(OGDF_HAS_LINUX_CPU_MACROS 1)
 endif()
 
-# add stack trace include paths
+if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_link_libraries(OGDF PUBLIC pthread)
+endif()
+
+# add stack trace settings
 if(BACKWARD_HAS_DW)
   target_include_directories(OGDF SYSTEM PUBLIC ${LIBDW_INCLUDE_DIR})
 elseif(BACKWARD_HAS_BFD)
@@ -148,3 +155,34 @@ elseif(BACKWARD_HAS_BFD)
 elseif(BACKWARD_HAS_UNWIND)
   target_include_directories(OGDF SYSTEM PUBLIC ${LIBUNWIND_INCLUDE_DIR})
 endif()
+if(SHOW_STACKTRACE)
+  if(BACKWARD_HAS_DW)
+    target_link_libraries(OGDF PUBLIC ${LIBDW_LIBRARY})
+  elseif(BACKWARD_HAS_BFD)
+    target_link_libraries(OGDF PUBLIC ${LIBBFD_LIBRARY} ${LIBDL_LIBRARY})
+  elseif(BACKWARD_HAS_UNWIND)
+    target_link_libraries(OGDF PUBLIC ${LIBUNWIND_LIBRARY})
+  endif()
+endif()
+
+# installation
+set(OGDF_INSTALL_LIBRARY_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}" CACHE PATH "Installation path of OGDF library")
+set(OGDF_INSTALL_INCLUDE_DIR "include" CACHE PATH "Installation path of OGDF header files (creates subdirectory)")
+set(OGDF_INSTALL_CMAKE_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/OGDF/" CACHE PATH "Installation path of OGDF files for CMake")
+mark_as_advanced(OGDF_INSTALL_LIBRARY_DIR OGDF_INSTALL_INCLUDE_DIR OGDF_INSTALL_CMAKE_DIR)
+configure_file(cmake/ogdf-config.cmake "${PROJECT_BINARY_DIR}/ogdf-config.cmake" @ONLY)
+install(TARGETS OGDF
+  EXPORT OgdfTargets
+  LIBRARY DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
+  ARCHIVE DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
+  INCLUDES DESTINATION "${COIN_INSTALL_INCLUDE_DIR}"
+  PUBLIC_HEADER DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}")
+install(DIRECTORY "${PROJECT_BINARY_DIR}/include/ogdf" include/ogdf
+  DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
+  FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "*.inc")
+install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
+install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
+export(EXPORT OgdfTargets)

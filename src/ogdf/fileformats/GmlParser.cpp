@@ -98,6 +98,7 @@ void GmlParser::initPredefinedKeys()
 	m_hashTable.fastInsert("graphics",       GmlParserPredefinedKey::Graphics);
 	m_hashTable.fastInsert("x",              GmlParserPredefinedKey::X);
 	m_hashTable.fastInsert("y",              GmlParserPredefinedKey::Y);
+	m_hashTable.fastInsert("z",              GmlParserPredefinedKey::Z);
 	m_hashTable.fastInsert("w",              GmlParserPredefinedKey::W);
 	m_hashTable.fastInsert("h",              GmlParserPredefinedKey::H);
 	m_hashTable.fastInsert("type",           GmlParserPredefinedKey::Type);
@@ -404,7 +405,7 @@ GmlObject *GmlParser::getNodeIdRange(int &minId,int &maxId)
 
 			GmlObject *nodeSon = son->m_pFirstSon;
 			for(; nodeSon; nodeSon = nodeSon->m_pBrother) {
-				if (id(nodeSon) == GmlParserPredefinedKey::Id ||
+				if (id(nodeSon) == GmlParserPredefinedKey::Id &&
 					nodeSon->m_valueType == GmlObjectType::IntValue)
 				{
 					int nodeSonId = nodeSon->m_intValue;
@@ -557,18 +558,21 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 		case GmlParserPredefinedKey::Node: {
 			if (son->m_valueType != GmlObjectType::ListBegin) break;
 
+			bool xDef(false), yDef(false), zDef(false), wDef(false), hDef(false), labelDef(false), templDef(false),
+				fillDef(false), lineDef(false), shapeDef(false), lineWidthDef(false), patternDef(false),
+				stippleDef(false), weightDef(false);
 			// set attributes to default values
 			int vId = notDefined;
-			double x = 0, y = 0, w = 0, h = 0;
+			double x = 0, y = 0, z = 0, w = 0, h = 0;
 			string label;
 			string templ;
 			string fill;  // the fill color attribute
 			string line;  // the line color attribute
 			string shape; //the shape type
-			float lineWidth = 1.0f; //node line width
-			int pattern = 1; //node brush pattern
-			int stipple = 1; //line style pattern
-			int weight = 0; // node weight
+			float lineWidth; //node line width
+			string pattern; //node brush pattern
+			string stipple; //line style pattern
+			int weight; // node weight
 
 			// read all relevant attributes
 			GmlObject *nodeSon = son->m_pFirstSon;
@@ -588,66 +592,86 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 						switch(id(graphicsObject)) {
 						case GmlParserPredefinedKey::X:
 							if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) break;
+							xDef = true;
 							x = graphicsObject->m_doubleValue;
 							break;
 
 						case GmlParserPredefinedKey::Y:
 							if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) break;
+							yDef = true;
 							y = graphicsObject->m_doubleValue;
+							break;
+
+						case GmlParserPredefinedKey::Z:
+							if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) break;
+							zDef = true;
+							z = graphicsObject->m_doubleValue;
 							break;
 
 						case GmlParserPredefinedKey::W:
 							if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) break;
+							wDef = true;
 							w = graphicsObject->m_doubleValue;
 							break;
 
 						case GmlParserPredefinedKey::H:
 							if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) break;
+							hDef = true;
 							h = graphicsObject->m_doubleValue;
 							break;
 
 						case GmlParserPredefinedKey::Fill:
 							if(graphicsObject->m_valueType != GmlObjectType::StringValue) break;
+							fillDef = true;
 							fill = graphicsObject->m_stringValue;
 							break;
 
 						case GmlParserPredefinedKey::line:
 							if(graphicsObject->m_valueType != GmlObjectType::StringValue) break;
+							lineDef = true;
 							line = graphicsObject->m_stringValue;
 							break;
 
 						case GmlParserPredefinedKey::LineWidth:
 							if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) break;
+							lineWidthDef = true;
 							lineWidth = (float)graphicsObject->m_doubleValue;
 							break;
 
 						case GmlParserPredefinedKey::Type:
 							if(graphicsObject->m_valueType != GmlObjectType::StringValue) break;
+							shapeDef = true;
 							shape = graphicsObject->m_stringValue;
 							break;
+
 						case GmlParserPredefinedKey::Pattern: //fill style
-							if(graphicsObject->m_valueType != GmlObjectType::IntValue) break;
-							pattern = graphicsObject->m_intValue;
+							if(graphicsObject->m_valueType != GmlObjectType::StringValue) break;
+							patternDef = true;
+							pattern = graphicsObject->m_stringValue;
 							break;
 						case GmlParserPredefinedKey::Stipple: //line style
-							if(graphicsObject->m_valueType != GmlObjectType::IntValue) break;
-							stipple = graphicsObject->m_intValue;
+							if(graphicsObject->m_valueType != GmlObjectType::StringValue) break;
+							stippleDef = true;
+							stipple = graphicsObject->m_stringValue;
 						}
 					}
 					break;
 
 				case GmlParserPredefinedKey::Template:
 					if (nodeSon->m_valueType != GmlObjectType::StringValue) break;
+					templDef = true;
 					templ = nodeSon->m_stringValue;
 					break;
 
 				case GmlParserPredefinedKey::Label:
 					if (nodeSon->m_valueType != GmlObjectType::StringValue) break;
+					labelDef = true;
 					label = nodeSon->m_stringValue;
 					break;
 
 				case GmlParserPredefinedKey::EdgeWeight: //sic!
 					if (nodeSon->m_valueType != GmlObjectType::IntValue) break;
+					weightDef = true;
 					weight = nodeSon->m_intValue;
 					break;
 				}
@@ -660,40 +684,50 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 			}
 
 			// create new node if necessary and assign attributes
-			if (m_mapToNode[vId] == nullptr) m_mapToNode[vId] = G.newNode();
+			if (m_mapToNode[vId] == nullptr) {
+				m_mapToNode[vId] = G.newNode();
+			}
 			node v = m_mapToNode[vId];
 			if (AG.has(GraphAttributes::nodeGraphics))
 			{
-				AG.x(v) = x;
-				AG.y(v) = y;
-				AG.width (v) = w;
-				AG.height(v) = h;
-				AG.shape(v) = strToShape[shape];
+				if(xDef) { AG.x(v) = x; }
+				if(yDef) { AG.y(v) = y; }
+				if(AG.has(GraphAttributes::threeD)) {
+					if(zDef) { AG.z(v) = z; }
+				}
+				if(wDef) { AG.width (v) = w; }
+				if(hDef) { AG.height(v) = h; }
+				if(shapeDef) { AG.shape(v) = fromString<Shape>(shape); }
 			}
-			if (AG.has(GraphAttributes::nodeLabel))
-				AG.label(m_mapToNode[vId]) = label;
-			if (AG.has(GraphAttributes::nodeTemplate))
-				AG.templateNode(m_mapToNode[vId]) = templ;
-			if (AG.has(GraphAttributes::nodeId))
+			if (AG.has(GraphAttributes::nodeLabel)) {
+				if (labelDef) { AG.label(m_mapToNode[vId]) = label; }
+			}
+			if (AG.has(GraphAttributes::nodeTemplate)) {
+				if (templDef) { AG.templateNode(m_mapToNode[vId]) = templ; }
+			}
+			if (AG.has(GraphAttributes::nodeId)) {
 				AG.idNode(m_mapToNode[vId]) = vId;
-			if (AG.has(GraphAttributes::nodeWeight))
-				AG.weight(m_mapToNode[vId]) = weight;
+			}
+			if (AG.has(GraphAttributes::nodeWeight)) {
+				if (weightDef) { AG.weight(m_mapToNode[vId]) = weight; }
+			}
 			if (AG.has(GraphAttributes::nodeStyle))
 			{
-				AG.fillColor(m_mapToNode[vId]) = fill;
-				AG.strokeColor(m_mapToNode[vId]) = line;
-				AG.fillPattern(m_mapToNode[vId]) = intToFillPattern(pattern);
-				AG.strokeType(m_mapToNode[vId]) = intToStrokeType(stipple);
-				AG.strokeWidth(m_mapToNode[vId]) = lineWidth;
+				if(fillDef) { AG.fillColor(m_mapToNode[vId]) = fill; }
+				if(lineDef) { AG.strokeColor(m_mapToNode[vId]) = line; }
+				if(patternDef) { AG.fillPattern(m_mapToNode[vId]) = fromString<FillPattern>(pattern); }
+				if(stippleDef) { AG.strokeType(m_mapToNode[vId]) = fromString<StrokeType>(stipple); }
+				if(lineWidthDef) { AG.strokeWidth(m_mapToNode[vId]) = lineWidth; }
 			}
-							}
-							//Todo: line style set stipple value
-							break;
+			//Todo: line style set stipple value
+			break; }
 
 		case GmlParserPredefinedKey::Edge: {
+			bool fillDef(false), stippleDef(false), lineWidthDef(false), edgeWeightDef(false), subGraphDef(false),
+				labelDef(false), sourceIdDef(false), targetIdDef(false), umlTypeDef(false), bendsDef(false);
 			string arrow; // the arrow type attribute
 			string fill;  //the color fill attribute
-			int stipple = 1;  //the line style
+			string stipple;  //the line style
 			float lineWidth = 1.0f;
 			double edgeWeight = 1.0;
 			int subGraph = 0; //edgeSubGraphs attribute
@@ -703,7 +737,7 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 
 			// set attributes to default values
 			int sourceId = notDefined, targetId = notDefined;
-			Graph::EdgeType umlType = Graph::EdgeType::association;
+			Graph::EdgeType umlType;
 
 			// read all relevant attributes
 			GmlObject *edgeSon = son->m_pFirstSon;
@@ -712,21 +746,33 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 				switch(id(edgeSon)) {
 				case GmlParserPredefinedKey::Source:
 					if (edgeSon->m_valueType != GmlObjectType::IntValue) break;
+					if(sourceIdDef) {
+						setError("two sources for one edge");
+						return false;
+					}
 					sourceId = edgeSon->m_intValue;
+					sourceIdDef = true;
 					break;
 
 				case GmlParserPredefinedKey::Target:
 					if (edgeSon->m_valueType != GmlObjectType::IntValue) break;
+					if(targetIdDef) {
+						setError("two targets for one edge");
+						return false;
+					}
 					targetId = edgeSon->m_intValue;
+					targetIdDef = true;
 					break;
 
 				case GmlParserPredefinedKey::SubGraph:
 					if (edgeSon->m_valueType != GmlObjectType::IntValue) break;
+					subGraphDef = true;
 					subGraph = edgeSon->m_intValue;
 					break;
 
 				case GmlParserPredefinedKey::Label:
 					if (edgeSon->m_valueType != GmlObjectType::StringValue) break;
+					labelDef = true;
 					label = edgeSon->m_stringValue;
 					break;
 
@@ -734,35 +780,48 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 					if (edgeSon->m_valueType != GmlObjectType::ListBegin) break;
 
 					for(GmlObject *graphicsObject = edgeSon->m_pFirstSon; graphicsObject;
-						graphicsObject = graphicsObject->m_pBrother)
-					{
-						if(id(graphicsObject) == GmlParserPredefinedKey::Line &&
-							graphicsObject->m_valueType == GmlObjectType::ListBegin)
+						graphicsObject = graphicsObject->m_pBrother) {
+						if (id(graphicsObject) == GmlParserPredefinedKey::Line &&
+						    graphicsObject->m_valueType == GmlObjectType::ListBegin)
 						{
-							readLineAttribute(graphicsObject->m_pFirstSon,bends);
+							bendsDef = true;
+							readLineAttribute(graphicsObject->m_pFirstSon, bends);
 						}
-						if(id(graphicsObject) == GmlParserPredefinedKey::Arrow &&
-							graphicsObject->m_valueType == GmlObjectType::StringValue)
+						if (id(graphicsObject) == GmlParserPredefinedKey::Arrow &&
+						    graphicsObject->m_valueType == GmlObjectType::StringValue)
+						{
 							arrow = graphicsObject->m_stringValue;
-						if(id(graphicsObject) == GmlParserPredefinedKey::Fill &&
-							graphicsObject->m_valueType == GmlObjectType::StringValue)
+						}
+						if (id(graphicsObject) == GmlParserPredefinedKey::Fill &&
+						    graphicsObject->m_valueType == GmlObjectType::StringValue)
+						{
+							fillDef = true;
 							fill = graphicsObject->m_stringValue;
+						}
 						if (id(graphicsObject) == GmlParserPredefinedKey::Stipple && //line style
-							graphicsObject->m_valueType == GmlObjectType::IntValue)
-							stipple = graphicsObject->m_intValue;
+						    graphicsObject->m_valueType == GmlObjectType::StringValue)
+						{
+							stippleDef = true;
+							stipple = graphicsObject->m_stringValue;
+						}
 						if (id(graphicsObject) == GmlParserPredefinedKey::LineWidth && //line width
-							graphicsObject->m_valueType == GmlObjectType::DoubleValue)
-							lineWidth = (float)graphicsObject->m_doubleValue;
+						    graphicsObject->m_valueType == GmlObjectType::DoubleValue)
+						{
+							lineWidthDef = true;
+							lineWidth = (float) graphicsObject->m_doubleValue;
+						}
 						if (id(graphicsObject) == GmlParserPredefinedKey::EdgeWeight &&
 							graphicsObject->m_valueType == GmlObjectType::DoubleValue)
+						{
+							edgeWeightDef = true;
 							edgeWeight = graphicsObject->m_doubleValue;
+						}
 					}
 					break;
-
 				case GmlParserPredefinedKey::Generalization:
 					if (edgeSon->m_valueType != GmlObjectType::IntValue) break;
-					umlType = (edgeSon->m_intValue == 0) ?
-						Graph::EdgeType::association : Graph::EdgeType::generalization;
+					umlTypeDef = true;
+					umlType = Graph::EdgeType(edgeSon->m_intValue);
 					break;
 
 				}
@@ -785,39 +844,58 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 
 			edge e = G.newEdge(m_mapToNode[sourceId],m_mapToNode[targetId]);
 			if (AG.has(GraphAttributes::edgeGraphics))
-				AG.bends(e).conc(bends);
-			if (AG.has(GraphAttributes::edgeType))
-				AG.type(e) = umlType;
-			if(AG.has(GraphAttributes::edgeSubGraphs))
-				AG.subGraphBits(e) = subGraph;
-			if (AG.has(GraphAttributes::edgeLabel))
-				AG.label(e) = label;
+				if(bendsDef) {
+					EpsilonTest eps;
+					DPoint src(AG.x(e->source()), AG.y(e->source()));
+					while(eps.equal(bends.front().distance(src), 0.0)) {
+						bends.popFront();
+					}
+					DPoint tgt(AG.x(e->target()), AG.y(e->target()));
+					while(eps.equal(bends.back().distance(tgt), 0.0)) {
+						bends.popBack();
+					}
+					AG.bends(e)= bends;
+				}
+			if (AG.has(GraphAttributes::edgeType)) {
+				if (umlTypeDef) { AG.type(e) = umlType; }
+			}
+			if(AG.has(GraphAttributes::edgeSubGraphs)) {
+				if (subGraphDef) { AG.subGraphBits(e) = subGraph; }
+			}
+			if (AG.has(GraphAttributes::edgeLabel)) {
+				if (labelDef) { AG.label(e) = label; }
+			}
 
 			if (AG.has(GraphAttributes::edgeArrow)) {
-				if (arrow == "none")
+				if (arrow == "none") {
 					AG.arrowType(e) = EdgeArrow::None;
-				else if (arrow == "last")
+				}
+				else if (arrow == "last") {
 					AG.arrowType(e) = EdgeArrow::Last;
-				else if (arrow == "first")
+				}
+				else if (arrow == "first") {
 					AG.arrowType(e) = EdgeArrow::First;
-				else if (arrow == "both")
+				}
+				else if (arrow == "both") {
 					AG.arrowType(e) = EdgeArrow::Both;
-				else
+				}
+				else {
 					AG.arrowType(e) = EdgeArrow::Undefined;
+				}
 			}
 
 			if (AG.has(GraphAttributes::edgeStyle))
 			{
-				AG.strokeColor(e) = fill;
-				AG.strokeType(e) = intToStrokeType(stipple);
-				AG.strokeWidth(e) = lineWidth;
+				if(fillDef) { AG.strokeColor(e) = fill; }
+				if(stippleDef) { AG.strokeType(e) = fromString<StrokeType>(stipple); }
+				if(lineWidthDef) { AG.strokeWidth(e) = lineWidth; }
 			}
 
-			if (AG.has(GraphAttributes::edgeDoubleWeight))
-				AG.doubleWeight(e) = edgeWeight;
-
-
+			if (AG.has(GraphAttributes::edgeDoubleWeight)) {
+				if (edgeWeightDef) { AG.doubleWeight(e) = edgeWeight; }
+			}
 			break; }
+
 		case GmlParserPredefinedKey::Directed: {
 			if(son->m_valueType != GmlObjectType::IntValue) break;
 			AG.directed() = son->m_intValue > 0;
@@ -929,7 +1007,7 @@ bool GmlParser::readClusterAttributes(
 	string line;  // the line color attribute
 	float lineWidth = 1.0f; //node line width
 	int    pattern = 1; //node brush pattern
-	int    stipple = 1; //line style pattern
+	string stipple; //line style pattern
 
 	// read all relevant attributes
 	GmlObject *graphicsObject = cGraphics->m_pFirstSon;
@@ -971,8 +1049,8 @@ bool GmlParser::readClusterAttributes(
 			break;
 
 		case GmlParserPredefinedKey::Stipple:
-			if(graphicsObject->m_valueType != GmlObjectType::IntValue) return false;
-			stipple = graphicsObject->m_intValue;
+			if(graphicsObject->m_valueType != GmlObjectType::StringValue) return false;
+			stipple = graphicsObject->m_stringValue;
 			break;
 		case GmlParserPredefinedKey::LineWidth:
 			if(graphicsObject->m_valueType != GmlObjectType::DoubleValue) return false;
@@ -986,7 +1064,7 @@ bool GmlParser::readClusterAttributes(
 
 	//Hier eigentlich erst abfragen, ob clusterattributes setzbar in ACG,
 	//dann setzen
-	ACG.setStrokeType(c, intToStrokeType(stipple)); //defaulting 1
+	ACG.setStrokeType(c, fromString<StrokeType>(stipple)); //defaulting 1
 	ACG.strokeWidth(c) = lineWidth;
 	ACG.setFillPattern(c, intToFillPattern(pattern));
 

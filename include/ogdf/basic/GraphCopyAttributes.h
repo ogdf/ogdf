@@ -59,12 +59,12 @@ public:
 
 	// returns width of node v
 	double getWidth(node v) const {
-		return (m_pGC->isDummy(v) ? 0.0 : m_pAG->width(m_pGC->original(v)));
+		return m_pGC->isDummy(v) ? 0.0 : m_pAG->width(m_pGC->original(v));
 	}
 
 	// returns height of node v
 	double getHeight(node v) const {
-		return (m_pGC->isDummy(v) ? 0.0 : m_pAG->height(m_pGC->original(v)));
+		return m_pGC->isDummy(v) ? 0.0 : m_pAG->height(m_pGC->original(v));
 	}
 
 	// returns reference to x-coord. of node v

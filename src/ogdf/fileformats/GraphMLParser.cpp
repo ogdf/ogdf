@@ -166,19 +166,29 @@ bool GraphMLParser::readData(
 			return false;
 		}
 		break;
-	case graphml::Attribute::NodeFill:
+	case graphml::Attribute::NodeFillPattern:
 		if(attrs & GraphAttributes::nodeStyle) {
-			GA.fillColor(v) = text.get();
+			GA.fillPattern(v) = FillPattern(text.as_int());
 		}
 		break;
-	case graphml::Attribute::NodeStroke:
+	case graphml::Attribute::NodeStrokeColor:
 		if(attrs & GraphAttributes::nodeStyle) {
 			GA.strokeColor(v) = text.get();
 		}
 		break;
+	case graphml::Attribute::NodeStrokeType:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.strokeType(v) = StrokeType(text.as_int());
+		}
+		break;
+	case graphml::Attribute::NodeStrokeWidth:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.strokeWidth(v) = text.as_float();
+		}
+		break;
 	case graphml::Attribute::NodeType:
 		if(attrs & GraphAttributes::nodeType) {
-			GA.type(v) = graphml::toNodeType(text.get());
+			GA.type(v) = Graph::NodeType(text.as_int());
 		}
 		break;
 	case graphml::Attribute::Template:
@@ -220,10 +230,10 @@ bool GraphMLParser::readData(
 		}
 		break;
 	case graphml::Attribute::EdgeWeight:
-		if(attrs & GraphAttributes::edgeIntWeight) {
-			GA.intWeight(e) = text.as_int();
-		} else if(attrs & GraphAttributes::edgeDoubleWeight) {
+		if(attrs & GraphAttributes::edgeDoubleWeight) {
 			GA.doubleWeight(e) = text.as_double();
+		} else if(attrs & GraphAttributes::edgeIntWeight) {
+			GA.intWeight(e) = text.as_int();
 		}
 		break;
 	case graphml::Attribute::EdgeType:

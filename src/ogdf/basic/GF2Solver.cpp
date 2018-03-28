@@ -103,7 +103,7 @@ bool GF2Solver::solve()
 					reqVar[c] = true;
 					nReqVars++;
 					for(int i = 0; i < n; ++i)
-						if(reqRow[i] == false && contains(rows[i], c))
+						if(!reqRow[i] && contains(rows[i], c))
 							Q.append(i);
 				}
 		}

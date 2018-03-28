@@ -42,6 +42,10 @@ namespace tlp {
 enum class Attribute {
 	label,
 	color,
+	strokeColor,
+	strokeWidth,
+	strokeType,
+	fillPattern,
 	position,
 	size,
 	shape,

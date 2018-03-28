@@ -189,3 +189,45 @@ By also setting the `OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE` variable to
 from binutils is installed), or `ON_LIBUNWIND` (if libunwind is installed),
 a stack trace will be part of the exception's `what()` return string.
 As far as we know, this feature only works on Linux.
+
+## System-wide Installation
+
+System-wide installation of OGDF is supported through the standard mechanisms
+provided by CMake. This support, however, is not thoroughly tested and may
+change in the future.
+
+Current limitations are that Debug and Release installations are not supported
+at the same time. We also do not provide version information at the moment.
+
+## Building User Code
+
+When you want to build user code that uses OGDF, you have to take care of the correct
+include paths.
+You should use `<OGDF build directory>/include` and `<OGDF source directory>/include`
+as include paths, and your OGDF build directory as library path. In case of an in-source
+build, the build and source directories coincide.
+It is not supported to have in-source and out-of-source builds at the same time. In case
+you want to remove an in-source build entirely, do not forget to remove the file
+`include/ogdf/basic/internal/config_autogen.h`.
+
+If you are running into linking errors, undefined behavior or crashes at runtime,
+a typical mistake is that OGDF and user code is compiled in different modes (like
+Debug mode and Release mode).
+To make sure that your configuration is correct, you might use the file
+`examples/special/check-build-mode.cpp` and try to compile it using your configuration.
+
+On Unix systems, typical compilation and linkage of user code would look like this:
+
+```sh
+# compile source files
+c++ -Ibuild_path/include -Isource_path/include -o file1.o -c file1.cpp
+c++ -Ibuild_path/include -Isource_path/include -o file2.o -c file2.cpp
+# link source files
+c++ -o output_binary -Lbuild_path file1.o file2.o -lOGDF -lCOIN
+```
+
+### Example CMake configuration
+
+Since OGDF uses CMake, it is convenient for you to use CMake, too.
+The file `examples/special/CMakeLists.txt` contains a basic configuration
+to start with.

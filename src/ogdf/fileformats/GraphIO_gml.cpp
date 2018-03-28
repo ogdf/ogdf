@@ -39,8 +39,8 @@ namespace ogdf {
 static void write_gml_header(std::ostream &os, bool directed)
 {
 	os << "Creator \"ogdf::GraphIO::writeGML\"\n";
-	os << "graph [\n";
-	GraphIO::indent(os,1) << "directed " << ((directed) ? 1 : 0) << "\n";
+	os << "graph\n[\n";
+	GraphIO::indent(os,1) << "directed\t" << ((directed) ? 1 : 0) << "\n";
 }
 
 
@@ -57,15 +57,17 @@ static void write_gml_graph(const Graph &G, std::ostream &os, NodeArray<int> &in
 	int nextId = 0;
 
 	for(node v : G.nodes) {
-		GraphIO::indent(os,1) << "node [\n";
-		GraphIO::indent(os,2) << "id " << (index[v] = nextId++) << "\n";
+		GraphIO::indent(os,1) << "node\n";
+		GraphIO::indent(os,1) << "[\n";
+		GraphIO::indent(os,2) << "id\t" << (index[v] = nextId++) << "\n";
 		GraphIO::indent(os,1) << "]\n"; // node
 	}
 
 	for(edge e : G.edges) {
-		GraphIO::indent(os,1) << "edge [\n";
-		GraphIO::indent(os,2) << "source " << index[e->source()] << "\n";
-		GraphIO::indent(os,2) << "target " << index[e->target()] << "\n";
+		GraphIO::indent(os,1) << "edge\n";
+		GraphIO::indent(os,1) << "[\n";
+		GraphIO::indent(os,2) << "source\t" << index[e->source()] << "\n";
+		GraphIO::indent(os,2) << "target\t" << index[e->target()] << "\n";
 		GraphIO::indent(os,1) << "]\n"; // edge
 	}
 }
@@ -124,84 +126,43 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 	os.precision(10);
 
 	for(node v : G.nodes) {
-		GraphIO::indent(os,1) << "node [\n";
-		GraphIO::indent(os,2) << "id " << (index[v] = nextId++) << "\n";
+		GraphIO::indent(os,1) << "node\n";
+		GraphIO::indent(os,1) << "[\n";
+		GraphIO::indent(os,2) << "id\t" << (index[v] = nextId++) << "\n";
 
 		if (A.has(GraphAttributes::nodeTemplate)) {
-			GraphIO::indent(os,2) << "template ";
+			GraphIO::indent(os,2) << "template\t";
 			writeLongString(os, A.templateNode(v));
 			os << "\n";
 		}
 		if (A.has(GraphAttributes::nodeLabel)) {
-			GraphIO::indent(os,2) << "label ";
+			GraphIO::indent(os,2) << "label\t";
 			writeLongString(os, A.label(v));
 			os << "\n";
 		}
 		if (A.has(GraphAttributes::nodeWeight)) {
-			GraphIO::indent(os,2) << "weight "  << A.weight(v) << "\n";
+			GraphIO::indent(os,2) << "weight\t"  << A.weight(v) << "\n";
 		}
 		if (A.has(GraphAttributes::nodeGraphics)) {
-			GraphIO::indent(os,2) << "graphics [\n";
-			GraphIO::indent(os,3) << "x " << A.x     (v) << "\n";
-			GraphIO::indent(os,3) << "y " << A.y     (v) << "\n";
-			GraphIO::indent(os,3) << "w " << A.width (v) << "\n";
-			GraphIO::indent(os,3) << "h " << A.height(v) << "\n";
+			GraphIO::indent(os,2) << "graphics\n";
+			GraphIO::indent(os,2) << "[\n";
+			GraphIO::indent(os,3) << "x\t" << A.x(v) << "\n";
+			GraphIO::indent(os,3) << "y\t" << A.y(v) << "\n";
+			if(A.has(GraphAttributes::threeD)) {
+				GraphIO::indent(os,3) << "z\t" << A.z(v) << "\n";
+			}
+			GraphIO::indent(os,3) << "w\t" << A.width (v) << "\n";
+			GraphIO::indent(os,3) << "h\t" << A.height(v) << "\n";
 			if (A.has(GraphAttributes::nodeStyle))
 			{
-				GraphIO::indent(os,3) << "fill \"" << A.fillColor(v) << "\"\n";
-				GraphIO::indent(os,3) << "line \"" << A.strokeColor (v) << "\"\n";
-				GraphIO::indent(os,3) << "pattern \"" << A.fillPattern(v) << "\"\n";
-				GraphIO::indent(os,3) << "stipple "   << A.strokeType (v) << "\n";
-				GraphIO::indent(os,3) << "lineWidth " << A.strokeWidth(v) << "\n";
+				GraphIO::indent(os,3) << "fill\t\"" << A.fillColor(v) << "\"\n";
+				GraphIO::indent(os,3) << "line\t\"" << A.strokeColor (v) << "\"\n";
+				GraphIO::indent(os,3) << "pattern\t\"" << toString(A.fillPattern(v)) << "\"\n";
+				GraphIO::indent(os,3) << "stipple\t\""   << toString(A.strokeType(v)) << "\"\n";
+				GraphIO::indent(os,3) << "lineWidth\t" << A.strokeWidth(v) << "\n";
 			}
-			GraphIO::indent(os,3) << "type \"";
+			GraphIO::indent(os,3) << "type\t\"" << toString(A.shape(v)) << "\"\n";
 
-			switch (A.shape(v)) {
-			case Shape::Rect:
-				os << "rectangle";
-				break;
-			case Shape::RoundedRect:
-				os << "roundedRect";
-				break;
-			case Shape::Ellipse:
-				os << "oval";
-				break;
-			case Shape::Triangle:
-				os << "triangle";
-				break;
-			case Shape::Pentagon:
-				os << "pentagon";
-				break;
-			case Shape::Hexagon:
-				os << "hexagon";
-				break;
-			case Shape::Octagon:
-				os << "octagon";
-				break;
-			case Shape::Rhomb:
-				os << "rhomb";
-				break;
-			case Shape::Trapeze:
-				os << "trapeze";
-				break;
-			case Shape::Parallelogram:
-				os << "parallelogram";
-				break;
-			case Shape::InvTriangle:
-				os << "invTriangle";
-				break;
-			case Shape::InvTrapeze:
-				os << "invTrapeze";
-				break;
-			case Shape::InvParallelogram:
-				os << "invParallelogram";
-				break;
-			case Shape::Image:
-				os << "image";
-				break;
-			}
-
-			os << "\"\n";
 			GraphIO::indent(os,2) << "]\n"; // graphics
 		}
 
@@ -209,88 +170,96 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 	}
 
 	for(edge e : G.edges) {
-		GraphIO::indent(os,1) << "edge [\n";
-		GraphIO::indent(os,2) << "source " << index[e->source()] << "\n";
-		GraphIO::indent(os,2) << "target " << index[e->target()] << "\n";
+		GraphIO::indent(os,1) << "edge\n";
+		GraphIO::indent(os,1) << "[\n";
+		GraphIO::indent(os,2) << "source\t" << index[e->source()] << "\n";
+		GraphIO::indent(os,2) << "target\t" << index[e->target()] << "\n";
+
+		if (A.has(GraphAttributes::edgeType)){
+			GraphIO::indent(os, 2) << "generalization\t" << int(A.type(e)) << "\n";
+		}
 
 		if (A.has(GraphAttributes::edgeLabel)){
 			GraphIO::indent(os,2) << "label ";
 			writeLongString(os, A.label(e));
 			os << "\n";
 		}
-		if (A.has(GraphAttributes::edgeType))
-			GraphIO::indent(os,2) << "generalization " << A.type(e) << "\n";
 
 		if (A.has(GraphAttributes::edgeSubGraphs))
-			GraphIO::indent(os,2) << "subgraph " << A.subGraphBits(e) << "\n";
+			GraphIO::indent(os,2) << "subgraph\t" << A.subGraphBits(e) << "\n";
 
-		if (A.has(GraphAttributes::edgeGraphics)) {
-			GraphIO::indent(os,2) << "graphics [\n";
+		if (A.has(GraphAttributes::edgeGraphics) || A.has(GraphAttributes::edgeArrow) || A.has(GraphAttributes::edgeType)
+		          || A.has(GraphAttributes::edgeStyle) || A.has(GraphAttributes::edgeDoubleWeight)) {
+			GraphIO::indent(os,2) << "graphics\n";
+			GraphIO::indent(os,2) << "[\n";
 
-			GraphIO::indent(os,3) << "type \"line\"\n";
+			GraphIO::indent(os,3) << "type\t\"line\"\n";
 
-			if (A.has(GraphAttributes::edgeType)) {
-				if (A.has(GraphAttributes::edgeArrow)) {
-					int ae = (int)A.arrowType(e);
-					if(0 <= ae && ae < 4)
-						GraphIO::indent(os,3) << "arrow \"" << arrow_str[ae] << "\"\n";
+			GraphIO::indent(os,3) << "arrow\t\"";
+			if (!A.has(GraphAttributes::edgeArrow)) {
+				if (A.has(GraphAttributes::edgeType)) {
+					if (A.type(e) == Graph::EdgeType::generalization) {
+						os << "last";
+					} else {
+						os << "none";
+					}
 				} else {
-					GraphIO::indent(os,3) << "arrow ";
-					if (A.type(e) == Graph::EdgeType::generalization)
-						os << "\"last\"\n";
-					else
-						os << "\"none\"\n";
+					if (A.directed()) {
+						os << "last";
+					} else {
+						os << "none";
+					}
 				}
-
-			} else { // GraphAttributes::edgeType not used
-				GraphIO::indent(os,3) << "arrow ";
-				if (A.directed()) {
-					os << "\"last\"\n";
-				} else {
-					os << "\"none\"\n";
-				}
+			} else {
+				int ae = (int)A.arrowType(e);
+				OGDF_ASSERT(0 <= ae && ae < 4);
+				os << arrow_str[ae];
 			}
+			os << "\"\n";
 
 			if (A.has(GraphAttributes::edgeStyle)) {
-				GraphIO::indent(os,3) << "stipple "   << A.strokeType(e) << "\n";
-				GraphIO::indent(os,3) << "lineWidth " << A.strokeWidth(e) << "\n";
+				GraphIO::indent(os,3) << "stipple\t\""   << toString(A.strokeType(e)) << "\"\n";
+				GraphIO::indent(os,3) << "lineWidth\t" << A.strokeWidth(e) << "\n";
 			}
 
 			if (A.has(GraphAttributes::edgeDoubleWeight)) {
-				GraphIO::indent(os,3) << "weight " << A.doubleWeight(e) << "\n";
+				GraphIO::indent(os,3) << "weight\t" << A.doubleWeight(e) << "\n";
 			}
 
-			const DPolyline &dpl = A.bends(e);
-			if (!dpl.empty()) {
-				GraphIO::indent(os,3) << "Line [\n";
+			if (A.has(GraphAttributes::edgeGraphics)) {
+				const DPolyline &dpl = A.bends(e);
+				if (!dpl.empty()) {
+					GraphIO::indent(os,3) << "Line [\n";
+					node v = e->source();
+					if( dpl.front().m_x < A.x(v) - A.width (v)/2 ||
+					    dpl.front().m_x > A.x(v) + A.width (v)/2 ||
+					    dpl.front().m_y < A.y(v) - A.height(v)/2 ||
+					    dpl.front().m_y > A.y(v) + A.height(v)/2)
+					{
+						GraphIO::indent(os,4) << "point [ x " << A.x(e->source()) << " y " << A.y(e->source()) << " ]\n";
+					}
 
-				node v = e->source();
-				if( dpl.front().m_x < A.x(v) - A.width (v)/2 ||
-					dpl.front().m_x > A.x(v) + A.width (v)/2 ||
-					dpl.front().m_y < A.y(v) - A.height(v)/2 ||
-					dpl.front().m_y > A.y(v) + A.height(v)/2)
-				{
-					GraphIO::indent(os,4) << "point [ x " << A.x(e->source()) << " y " << A.y(e->source()) << " ]\n";
-				}
+					for(const DPoint &dp : dpl) {
+						GraphIO::indent(os, 4) << "point [ x " << dp.m_x << " y " << dp.m_y << " ]\n";
+					}
 
-				for(const DPoint &dp : dpl)
-					GraphIO::indent(os,4) << "point [ x " << dp.m_x << " y " << dp.m_y << " ]\n";
+					v = e->target();
+					if( dpl.back().m_x < A.x(v) - A.width (v)/2 ||
+					    dpl.back().m_x > A.x(v) + A.width (v)/2 ||
+					    dpl.back().m_y < A.y(v) - A.height(v)/2 ||
+					    dpl.back().m_y > A.y(v) + A.height(v)/2)
+					{
+						GraphIO::indent(os,4) << "point [ x " << A.x(e->target()) << " y " << A.y(e->target()) << " ]\n";
+					}
 
-				v = e->target();
-				if( dpl.back().m_x < A.x(v) - A.width (v)/2 ||
-					dpl.back().m_x > A.x(v) + A.width (v)/2 ||
-					dpl.back().m_y < A.y(v) - A.height(v)/2 ||
-					dpl.back().m_y > A.y(v) + A.height(v)/2)
-				{
-					GraphIO::indent(os,4) << "point [ x " << A.x(e->target()) << " y " << A.y(e->target()) << " ]\n";
-				}
-
-				GraphIO::indent(os,3) << "]\n"; // Line
+					GraphIO::indent(os,3) << "]\n"; // Line
+				}//bends
 			}
 
 			//output width and color
-			if (A.has(GraphAttributes::edgeStyle))
-				GraphIO::indent(os,3) << "fill \"" << A.strokeColor(e) << "\"\n";
+			if (A.has(GraphAttributes::edgeStyle)){
+				GraphIO::indent(os, 3) << "fill \"" << A.strokeColor(e) << "\"\n";
+			}
 
 			GraphIO::indent(os,2) << "]\n"; // graphics
 		}
@@ -303,12 +272,15 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 // write cluster structure
 static void write_gml_cluster(cluster c, int d, std::ostream &os, const NodeArray<int> &index, int &nextClusterIndex)
 {
-	if (nextClusterIndex == 0)
-		GraphIO::indent(os,d) << "rootcluster [\n";
+	if (nextClusterIndex == 0) {
+		GraphIO::indent(os, d) << "rootcluster\n";
+		GraphIO::indent(os, d) << "[\n";
+	}
 	else
 	{
-		GraphIO::indent(os,d) << "cluster [\n";
-		GraphIO::indent(os,d+1) << "id " << nextClusterIndex << "\n";
+		GraphIO::indent(os,d) << "cluster\n";
+		GraphIO::indent(os, d) << "[\n";
+		GraphIO::indent(os,d+1) << "id\t" << nextClusterIndex << "\n";
 	}
 
 	nextClusterIndex++;
@@ -326,12 +298,15 @@ static void write_gml_cluster(cluster c, int d, std::ostream &os, const NodeArra
 // write cluster structure with attributes
 static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d, std::ostream &os, const NodeArray<int> &index, int &nextClusterIndex)
 {
-	if (nextClusterIndex == 0)
-		GraphIO::indent(os,d) << "rootcluster [\n";
+	if (nextClusterIndex == 0) {
+		GraphIO::indent(os, d) << "rootcluster\n";
+		GraphIO::indent(os, d) << "[\n";
+	}
 	else
 	{
-		GraphIO::indent(os,d) << "cluster [\n";
-		GraphIO::indent(os,d+1) << "id " << nextClusterIndex << "\n";
+		GraphIO::indent(os,d) << "cluster\n";
+		GraphIO::indent(os, d) << "[\n";
+		GraphIO::indent(os,d+1) << "id\t" << nextClusterIndex << "\n";
 
 		const string &templStr = A.templateCluster(c);
 		if(templStr.length() > 0) {
@@ -348,24 +323,25 @@ static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d,
 			GraphIO::indent(os,d+1) << "label \"" << A.label(c) << "\"\n";
 		}
 
-		GraphIO::indent(os,d+1) << "graphics [\n";
+		GraphIO::indent(os,d+1) << "graphics\n";
+		GraphIO::indent(os,d+1) << "[\n";
 
 		double shiftPos;
 		shiftPos = A.y(c);
 
-		GraphIO::indent(os,d+2) << "x " << A.x(c) << "\n";
-		GraphIO::indent(os,d+2) << "y " << shiftPos/*y(c->index())*/ << "\n";
+		GraphIO::indent(os,d+2) << "x\t" << A.x(c) << "\n";
+		GraphIO::indent(os,d+2) << "y\t" << shiftPos/*y(c->index())*/ << "\n";
 
-		GraphIO::indent(os,d+2) << "width "     << A.width(c)       << "\n";
-		GraphIO::indent(os,d+2) << "height "    << A.height(c)      << "\n";
-		GraphIO::indent(os,d+2) << "fill \""    << A.fillColor(c)   << "\"\n";
-		GraphIO::indent(os,d+2) << "pattern "   << A.fillPattern(c) << "\n";
+		GraphIO::indent(os,d+2) << "width\t"     << A.width(c)       << "\n";
+		GraphIO::indent(os,d+2) << "height\t"    << A.height(c)      << "\n";
+		GraphIO::indent(os,d+2) << "fill\t\""    << A.fillColor(c)   << "\"\n";
+		GraphIO::indent(os,d+2) << "pattern\t\""   << A.fillPattern(c) << "\"\n";
 
-		GraphIO::indent(os,d+2) << "color \""   << A.strokeColor(c)       << "\"\n";
-		GraphIO::indent(os,d+2) << "lineWidth " << A.strokeWidth(c)   << "\n";
+		GraphIO::indent(os,d+2) << "color\t\""   << A.strokeColor(c)       << "\"\n";
+		GraphIO::indent(os,d+2) << "lineWidth\t" << A.strokeWidth(c)   << "\n";
 
 		if (A.strokeType(c) != StrokeType::Solid)
-			GraphIO::indent(os,d+2) << "stipple " << A.strokeType(c) << "\n";
+			GraphIO::indent(os,d+2) << "stipple\t\"" << A.strokeType(c) << "\"\n";
 
 		GraphIO::indent(os,d+2) << "style \"rectangle\"\n";
 
@@ -390,10 +366,13 @@ bool GraphIO::writeGML(const Graph &G, std::ostream &os)
 	bool result = os.good();
 
 	if(result) {
+		std::ios_base::fmtflags currentFlags = os.flags();
+		os.flags(currentFlags | std::ios::fixed);
 		write_gml_header(os, true);
 		NodeArray<int> index(G);
 		write_gml_graph(G, os, index);
 		write_gml_footer(os);
+		os.flags(currentFlags);
 	}
 
 	return result;
@@ -406,6 +385,8 @@ bool GraphIO::writeGML(const ClusterGraph &C, std::ostream &os)
 	bool result = os.good();
 
 	if(result) {
+		std::ios_base::fmtflags currentFlags = os.flags();
+		os.flags(currentFlags | std::ios::fixed);
 		const Graph &G = C.constGraph();
 
 		write_gml_header(os,true);
@@ -415,6 +396,7 @@ bool GraphIO::writeGML(const ClusterGraph &C, std::ostream &os)
 
 		int nextClusterIndex = 0;
 		write_gml_cluster(C.rootCluster(), 1, os, index, nextClusterIndex);
+		os.flags(currentFlags);
 	}
 
 	return result;
@@ -427,10 +409,13 @@ bool GraphIO::writeGML(const GraphAttributes &A, std::ostream &os)
 	bool result = os.good();
 
 	if(result) {
+		std::ios_base::fmtflags currentFlags = os.flags();
+		os.flags(currentFlags | std::ios::fixed);
 		write_gml_header(os, A.directed());
 		NodeArray<int> index(A.constGraph());
 		write_gml_graph(A, os, index);
 		write_gml_footer(os);
+		os.flags(currentFlags);
 	}
 
 	return result;
@@ -443,6 +428,8 @@ bool GraphIO::writeGML(const ClusterGraphAttributes &A, std::ostream &os)
 	bool result = os.good();
 
 	if(result) {
+		std::ios_base::fmtflags currentFlags = os.flags();
+		os.flags(currentFlags | std::ios::fixed);
 		write_gml_header(os, A.directed());
 		NodeArray<int> index(A.constGraph());
 		write_gml_graph(A, os, index);
@@ -450,6 +437,7 @@ bool GraphIO::writeGML(const ClusterGraphAttributes &A, std::ostream &os)
 
 		int nextClusterIndex = 0;
 		write_gml_cluster(A, A.constClusterGraph().rootCluster(), 1, os, index, nextClusterIndex);
+		os.flags(currentFlags);
 	}
 
 	return result;

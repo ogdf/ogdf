@@ -110,7 +110,7 @@ class OGDF_EXPORT GEMLayout : public LayoutModule
 	double m_initialTemperature;    //!< The initial temperature.
 	double m_gravitationalConstant; //!< The gravitational constant.
 	double m_desiredLength;         //!< The desired edge length.
-	double m_maximalDisturbance;	//!< The maximal disturbance.
+	double m_maximalDisturbance;    //!< The maximal disturbance.
 	double m_rotationAngle;         //!< The opening angle for rotations.
 	double m_oscillationAngle;      //!< The opening angle for oscillations.
 	double m_rotationSensitivity;   //!< The rotation sensitivity.

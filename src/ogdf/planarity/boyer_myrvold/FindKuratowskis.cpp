@@ -349,8 +349,8 @@ void FindKuratowskis::splitInMinorTypes(
 						// create externE-list
 						k.externE.pushBack(externEdummy);
 						// save extern linkage
-						info.externEStart = k.externE.rbegin();
-						info.externEEnd = k.externE.rbegin();
+						info.externEStart = k.externE.backIterator();
+						info.externEEnd = k.externE.backIterator();
 					} else {
 						// create externE-list
 						externEdummy.startnodes.clear();

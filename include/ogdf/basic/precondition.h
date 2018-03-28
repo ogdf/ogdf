@@ -124,7 +124,7 @@ bool dfsGenTree(
 	for(edge e : G.edges)
 	{
 		//descent in the hierarchy containing e
-		if ((!used[e]) && (UG.type(e) == Graph::EdgeType::generalization))
+		if (!used[e] && UG.type(e) == Graph::EdgeType::generalization)
 		{
 			hierNum++; //current hierarchy tree
 			//first we search for the sink

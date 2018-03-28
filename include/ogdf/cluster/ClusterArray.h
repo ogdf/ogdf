@@ -104,6 +104,8 @@ public:
 /**
  * Cluster arrays adjust their table size automatically
  * when the cluster graph grows.
+ *
+ * @warn_undef_behavior_array
  */
 template<class T> class ClusterArray : private Array<T>, protected ClusterArrayBase {
 	T m_x; //!< The default value for array elements.
@@ -259,43 +261,6 @@ public:
 	 * This is always a null pointer iterator.
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
-
-	//! Returns an iterator to the last entry in the cluster array.
-	/**
-	 * If the cluster array is empty, a null pointer iterator is returned.
-	 */
-	iterator rbegin() { return iterator(m_pClusterGraph->lastCluster(), this); }
-
-	//! Returns a const iterator to the last entry in the cluster array.
-	/**
-	 * If the cluster array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator rbegin() const { return const_iterator(m_pClusterGraph->lastCluster(), this); }
-
-	//! Returns a const iterator to the last entry in the cluster array.
-	/**
-	 * If the cluster array is empty, a null pointer iterator is returned.
-	 */
-	const_iterator crbegin() const { return const_iterator(m_pClusterGraph->lastCluster(), this); }
-
-	//! Returns an iterator to one-before-first entry in the cluster array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	iterator rend() { return iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the cluster array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator rend() const { return const_iterator(nullptr, this); }
-
-	//! Returns a const iterator to one-before-first entry in the cluster array.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	const_iterator crend() const { return const_iterator(nullptr, this); }
-
 
 	//@}
 	/**

@@ -1050,7 +1050,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 			node vLeft  = dualOfFace[m_E.leftFace (adj)];
 			node vRight = dualOfFace[m_E.rightFace(adj)];
 
-			if(m_BC.m_forbidden[adjBC->theEdge()] == false) {
+			if(!m_BC.m_forbidden[adjBC->theEdge()]) {
 				edge e = m_dual.newEdge(vLeft,vRight);
 				m_primalAdj[e] = adj;
 				m_dualCost [e] = 1;

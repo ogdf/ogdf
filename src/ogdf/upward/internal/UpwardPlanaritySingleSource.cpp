@@ -191,7 +191,7 @@ bool UpwardPlanaritySingleSource::ConstraintRooting::constrainTreeEdge(
 	if (srcTree != eTree->source())
 	{
 		// if it was already constriant we have a contradiction
-		if (m_isConstrained[eTree] == true)
+		if (m_isConstrained[eTree])
 			return false;
 
 		m_tree.reverseEdge(eTree);
@@ -225,7 +225,7 @@ edge UpwardPlanaritySingleSource::ConstraintRooting::findRooting()
 	for(edge e : G.edges) {
 		edge eQ = m_realToConstraint[e];
 
-		if(checked[eQ] == false)
+		if(!checked[eQ])
 			return e;
 	}
 
@@ -274,7 +274,7 @@ bool UpwardPlanaritySingleSource::testAndFindEmbedding(
 	if(G.empty())
 		return true;
 
-	if (isAcyclic(G) == false)
+	if (!isAcyclic(G))
 		return false;
 
 	// build expansion graph of G
@@ -379,7 +379,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 		}
 
 		// test whether expansion graph is planar
-		if (isPlanar(exp) == false)
+		if (!isPlanar(exp))
 			return false;
 
 		// construct SPQR-tree T of exp with embedded skeleton graphs
@@ -649,7 +649,7 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	// the in- and outdegree at real edges is obvious ...
 	// m_containsSource is set to false by default
 	for(edge e : M.edges) {
-		if (S.isVirtual(e) == false) {
+		if (!S.isVirtual(e)) {
 			degInfo[e].m_indegSrc  = 0;
 			degInfo[e].m_outdegSrc = 1;
 			degInfo[e].m_indegTgt  = 1;
@@ -710,8 +710,7 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	degInfo[eRef].m_indegTgt  = tgtOrig->indeg()  - indegTgt;
 	degInfo[eRef].m_outdegTgt = tgtOrig->outdeg() - outdegTgt;
 
-	containsSource[eRef] = (contSource == false &&
-		s != S.original(src) && s != S.original(tgt));
+	containsSource[eRef] = !contSource && s != S.original(src) && s != S.original(tgt);
 
 	// set degres at twin edge of reference edge
 	node wT = S.twinTreeNode(eRef);
@@ -830,7 +829,7 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 				degInfo.m_indegTgt > 0 && degInfo.m_outdegTgt > 0) {
 
 				// v is a source of G-K and s not in K^0
-				if (vTwinIsSource && contSource == false) {
+				if (vTwinIsSource && !contSource) {
 					// a directed edge (u,v)
 					T.directSkEdge(vT,e,u);
 				} else {
@@ -844,7 +843,7 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 				degInfo.m_indegSrc > 0 && degInfo.m_outdegSrc > 0) {
 
 				// u is a source of G-K and s not in K^0
-				if (uTwinIsSource && contSource == false) {
+				if (uTwinIsSource && !contSource) {
 					// a directed edge (v,u)
 					T.directSkEdge(vT,e,v);
 				} else {
@@ -898,7 +897,7 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 		//ConstCombinatorialEmbedding &E = skInfo[vT].m_E;
 		SList<face> &externalFaces = skInfo[vT].m_externalFaces;
 
-		if(initFaceSinkGraph(M,skInfo[vT]) == false)
+		if (!initFaceSinkGraph(M,skInfo[vT]))
 			return nullptr;
 
 

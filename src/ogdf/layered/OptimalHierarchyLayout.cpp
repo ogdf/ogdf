@@ -133,27 +133,22 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	//
 	// determine variables of LP
 	//
-	int nSegments     = 0;	// number of vertical segments
-	int nRealVertices = 0;	// number of real vertices
-	int nEdges        = 0;	// number of edges not in vertical segments
-	int nBalanced     = 0;	// number of real vertices with deg > 1 for which
-							// balancing constraints may be applied
+	int nSegments     = 0; // number of vertical segments
+	int nRealVertices = 0; // number of real vertices
+	int nEdges        = 0; // number of edges not in vertical segments
+	int nBalanced     = 0; // number of real vertices with deg > 1 for which balancing constraints may be applied
 
-	NodeArray<int> vIndex(GC,-1);	// for real node: index of x[v]
-									// for dummy: index of corresponding segment
-	NodeArray<int> bIndex(GC,-1);	// (relative) index of b[v]
-	EdgeArray<int> eIndex(GC,-1);	// for edge not in vertical segment:
-									//   its index
-	Array<int> count(GC.numberOfEdges());	// counts the number of dummy vertices
-											// in corresponding segment that are not at
-											// position 0
+	NodeArray<int> vIndex(GC,-1); // for real node: index of x[v] for dummy: index of corresponding segment
+	NodeArray<int> bIndex(GC,-1); // (relative) index of b[v]
+	EdgeArray<int> eIndex(GC,-1); // for edge not in vertical segment: its index
+	Array<int> count(GC.numberOfEdges()); // counts the number of dummy vertices in corresponding segment that are not at position 0
 
 	for(i = 0; i < k; ++i)
 	{
 		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j) {
 			node v = L[j];
-			if(isVirtual[v] == true)
+			if(isVirtual[v])
 				continue;
 
 			// we've found a real vertex
@@ -171,7 +166,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				// we've found an edge not belonging to a vetical segment
 				eIndex[e] = nEdges++;
 
-				if(isVirtual[w] == false)
+				if(!isVirtual[w])
 					continue;
 
 				// we've found a vertical segment
@@ -231,7 +226,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 		for(int j = 0; j < L.size(); ++j) {
 			node v = L[j];
 
-			if(isVirtual[v] == false) {
+			if(!isVirtual[v]) {
 				i = vertexOffset + vIndex[v];
 				matrixBegin[i] = nNonZeroes;
 
@@ -485,9 +480,9 @@ void OptimalHierarchyLayout::computeXCoordinates(
 			// three edges in GC) get a special weight; all others
 			// have weight 1.0
 			obj[i] = (GC.chain(GC.original(e)).size() >= 3) ? m_weightSegments : 1.0;
-			if(isVirtual[e->source()] == false && e->source()->degree() == 1)
+			if(!isVirtual[e->source()] && e->source()->degree() == 1)
 				obj[i] += m_weightBalancing;
-			if(isVirtual[e->target()] == false && e->target()->degree() == 1)
+			if(!isVirtual[e->target()] && e->target()->degree() == 1)
 				obj[i] += m_weightBalancing;
 		}
 	}

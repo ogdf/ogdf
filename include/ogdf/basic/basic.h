@@ -91,6 +91,9 @@ class AssertionFailed : public std::runtime_error {
 //! The namespace for all OGDF objects.
 namespace ogdf {
 
+//! Set to true iff debug mode is used during compilation of the OGDF
+OGDF_EXPORT extern bool debugMode;
+
 // generally used <algorithm> members
 using std::min;
 using std::max;

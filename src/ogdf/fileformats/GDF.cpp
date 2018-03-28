@@ -46,7 +46,10 @@ std::string toString(const NodeAttribute &attr)
 	case NodeAttribute::Y: return "y";
 	case NodeAttribute::Z: return "z";
 	case NodeAttribute::FillColor: return "color";
+	case NodeAttribute::FillPattern: return "fillpattern";
 	case NodeAttribute::StrokeColor: return "strokecolor";
+	case NodeAttribute::StrokeType: return "stroketype";
+	case NodeAttribute::StrokeWidth: return "strokewidth";
 	case NodeAttribute::Shape: return "style";
 	case NodeAttribute::Width: return "width";
 	case NodeAttribute::Height: return "height";

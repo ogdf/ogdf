@@ -204,6 +204,19 @@ public:
 	static void drawSVG(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const EdgeWeightedGraphCopy<T> &steinerTree, const char *filename);
 
 	/**
+	 * Writes an SVG file of the instance graph
+	 *
+	 * @param G The weighted graph instance
+	 * @param isTerminal Incidence vector indicating terminal nodes
+	 * @param filename The name of the output file
+	 */
+	static void drawSVG(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const char *filename) {
+		EdgeWeightedGraphCopy<T> emptySteinerTree;
+		emptySteinerTree.createEmpty(G);
+		drawSVG(G, isTerminal, emptySteinerTree, filename);
+	}
+
+	/**
 	 * Writes a SVG that shows only the given Steiner tree
 	 *
 	 * @param steinerTree The Steiner tree to be drawn
@@ -329,6 +342,8 @@ T MinSteinerTreeModule<T>::call(const EdgeWeightedGraph<T> &G,
 			EdgeWeightedGraphCopy<T> *&finalSteinerTree
 			)
 {
+	OGDF_ASSERT(isConnected(G));
+
 	if (terminals.size() > 2) {
 		return this->computeSteinerTree(G, terminals, isTerminal, finalSteinerTree);
 	}

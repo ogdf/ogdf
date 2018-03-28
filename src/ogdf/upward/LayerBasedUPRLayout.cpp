@@ -130,13 +130,12 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 	}
 
 	//is one of the node of chain1 marked?
-	ListConstIterator<edge> it;
-	for(it = chain1.rbegin(); it.valid(); --it) {
-		node u = (*it)->source();
+	for(edge e : reverse(chain1)) {
+		node u = e->source();
 		if (visitedNode[u]) {
 			for(adjEntry run : u->adjEntries) {
 				if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()) // outgoing edges only
-					return left(*it, run->theEdge()); //(outEdgeOrder[*it] > outEdgeOrder[run->theEdge()]);
+					return left(e, run->theEdge()); //(outEdgeOrder[e] > outEdgeOrder[run->theEdge()]);
 			}
 		}
 	}

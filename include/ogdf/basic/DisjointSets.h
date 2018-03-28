@@ -131,6 +131,10 @@ public:
 		this->m_siblings = (compressionOption==CompressionOptions::Collapsing) ? new int[this->m_maxNumberOfElements] : nullptr;
 	}
 
+	DisjointSets(const DisjointSets&) = delete;
+
+	DisjointSets& operator=(const DisjointSets&) = delete;
+
 	~DisjointSets()
 	{
 		delete[] this->m_parents;

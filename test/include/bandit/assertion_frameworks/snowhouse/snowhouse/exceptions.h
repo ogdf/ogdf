@@ -90,9 +90,9 @@ namespace snowhouse
     METHOD; \
     SNOWHOUSE_TEMPVAR(no_exception) = true; \
   } \
-  catch (const EXCEPTION_TYPE& e) \
+  catch (const EXCEPTION_TYPE& SNOWHOUSE_TEMPVAR(catched_exception)) \
   { \
-    ::snowhouse::ExceptionStorage<EXCEPTION_TYPE>::store(e); \
+    ::snowhouse::ExceptionStorage<EXCEPTION_TYPE>::store(SNOWHOUSE_TEMPVAR(catched_exception)); \
   } \
   catch (...) \
   { \
@@ -100,15 +100,15 @@ namespace snowhouse
   } \
   if (SNOWHOUSE_TEMPVAR(no_exception)) \
   { \
-    std::ostringstream stm; \
-    stm << "Expected " #EXCEPTION_TYPE ". No exception was thrown."; \
-    ::snowhouse::ConfigurableAssert<FAILURE_HANDLER_TYPE>::Failure(stm.str()); \
+    std::ostringstream SNOWHOUSE_TEMPVAR(stm); \
+    SNOWHOUSE_TEMPVAR(stm) << "Expected " #EXCEPTION_TYPE ". No exception was thrown."; \
+    ::snowhouse::ConfigurableAssert<FAILURE_HANDLER_TYPE>::Failure(SNOWHOUSE_TEMPVAR(stm).str()); \
   } \
   if (SNOWHOUSE_TEMPVAR(wrong_exception)) \
   { \
-    std::ostringstream stm; \
-    stm << "Expected " #EXCEPTION_TYPE ". Wrong exception was thrown."; \
-    ::snowhouse::ConfigurableAssert<FAILURE_HANDLER_TYPE>::Failure(stm.str()); \
+    std::ostringstream SNOWHOUSE_TEMPVAR(stm); \
+    SNOWHOUSE_TEMPVAR(stm) << "Expected " #EXCEPTION_TYPE ". Wrong exception was thrown."; \
+    ::snowhouse::ConfigurableAssert<FAILURE_HANDLER_TYPE>::Failure(SNOWHOUSE_TEMPVAR(stm).str()); \
   } \
   do {} while (false)
 

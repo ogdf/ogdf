@@ -88,10 +88,18 @@ static inline void writeAttributes(
 	if(flags & GraphAttributes::nodeStyle) {
 		writeAttribute(out, separator, "color", GA.strokeColor(v));
 		writeAttribute(out, separator, "fillcolor", GA.fillColor(v));
+		writeAttribute(out, separator, "stroketype", toString(GA.strokeType(v)));
+		writeAttribute(out, separator, "strokewidth", GA.strokeWidth(v));
+		writeAttribute(out, separator, "fillpattern", toString(GA.fillPattern(v)));
 	}
 
-	// NOTE: Node type is weird and (probably) cannot be mapped to DOT.
-	// NOTE: Node weight is not supported.
+	if(flags & GraphAttributes::nodeType) {
+		writeAttribute(out, separator, "type", int(GA.type(v)));
+	}
+
+	if(flags & GraphAttributes::nodeWeight) {
+		writeAttribute(out, separator, "weight", GA.weight(v));
+	}
 
 	out << "]";
 }
@@ -120,9 +128,12 @@ static inline void writeAttributes(
 	if(flags & GraphAttributes::edgeGraphics) {
 		// This should be legal cubic B-Spline in the future.
 		std::stringstream sstream;
+		std::ios_base::fmtflags currentFlags = sstream.flags();
+		sstream.flags(currentFlags | std::ios::fixed);
 		for(const DPoint &p : GA.bends(e)) {
 			sstream << p.m_x << "," << p.m_y << " ";
 		}
+		sstream.flags(currentFlags);
 
 		writeAttribute(out, comma, "pos", sstream.str());
 	}
@@ -135,6 +146,12 @@ static inline void writeAttributes(
 		writeAttribute(out, comma, "color", GA.strokeColor(e));
 	}
 
+	if(flags & GraphAttributes::edgeArrow) {
+		writeAttribute(out, comma, "arrow", int(GA.arrowType(e)));
+	}
+
+#if 0
+	// this stuf is wrong I suppose
 	if(flags & GraphAttributes::edgeType) {
 		writeAttribute(out, comma, "arrowhead", GA.arrowType(e));
 
@@ -143,6 +160,7 @@ static inline void writeAttributes(
 			writeAttribute(out, comma, "style", "dashed");
 		}
 	}
+#endif
 
 	// NOTE: Edge subgraphs are not supported.
 
@@ -178,7 +196,7 @@ static inline bool writeHeader(
 	bool whitespace = false;
 
 	if(GA->has(GraphAttributes::threeD)) {
-		GraphIO::indent(out, depth + 1) << "dim=3\n";
+		GraphIO::indent(out, depth + 1) << "graph [dim=\"3\"]\n";
 		whitespace = true;
 	}
 
@@ -232,6 +250,8 @@ static bool writeCluster(
 	const ClusterGraph &C, const ClusterGraphAttributes *CA, const cluster &c,
 	int &clusterId)
 {
+	std::ios_base::fmtflags currentFlags = out.flags();
+	out.flags(currentFlags | std::ios::fixed);
 	bool result = out.good();
 
 	if(result) {
@@ -285,6 +305,8 @@ static bool writeCluster(
 		GraphIO::indent(out, --depth) << "}\n";
 	}
 
+	out.flags(currentFlags);
+
 	return result;
 }
 
@@ -293,6 +315,9 @@ static bool writeGraph(
 	std::ostream &out,
 	const Graph &G, const GraphAttributes *GA)
 {
+	std::ios_base::fmtflags currentFlags = out.flags();
+	out.flags(currentFlags | std::ios::fixed);
+
 	bool result = out.good();
 
 	if(result) {
@@ -323,6 +348,8 @@ static bool writeGraph(
 
 		out << "}\n";
 	}
+
+	out.flags(currentFlags);
 
 	return result;
 }

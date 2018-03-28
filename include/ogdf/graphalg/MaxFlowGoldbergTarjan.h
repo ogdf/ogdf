@@ -82,17 +82,17 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 	inline bool isAdmissible(const adjEntry adj) const
 	{
 		OGDF_ASSERT(adj);
-		return (isResidualEdge(adj)
-		     && m_label[adj->theNode()] == m_label[adj->twinNode()] + 1);
+		return isResidualEdge(adj)
+		    && m_label[adj->theNode()] == m_label[adj->twinNode()] + 1;
 	}
 
 	inline bool isActive(const node v) const
 	{
 		OGDF_ASSERT((v != *this->m_s && v != *this->m_t)
 		  || (m_label[*this->m_s] == this->m_G->numberOfNodes() && m_label[*this->m_t] == 0));
-		return (this->m_et->greater(m_ex[v], (TCap) 0)
-		     && this->m_G->numberOfNodes() > m_label[v]
-		     && m_label[v] > 0);
+		return this->m_et->greater(m_ex[v], (TCap) 0)
+		    && this->m_G->numberOfNodes() > m_label[v]
+		    && m_label[v] > 0;
 	}
 
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
@@ -257,6 +257,7 @@ public:
 		this->m_t = &t;
 		this->m_cap = &cap;
 		this->m_flow->init(*this->m_G, (TCap) 0);
+		OGDF_ASSERT(this->isFeasibleInstance());
 
 		m_label.init(*this->m_G);
 		m_ex.init(*this->m_G, 0);
@@ -300,7 +301,7 @@ public:
 			OGDF_ASSERT(m_activeLabelListPosition[v] == m_activeLabelList[m_maxLabel].begin());
 #else
 		List<node> active;
-		for(adjEntry adj : this->m_s->adjEntries) {
+		for(adjEntry adj : (*this->m_s)->adjEntries) {
 			node w = adj->theEdge()->target();
 			if (w != *this->m_s) {
 				active.pushBack(w);
@@ -429,18 +430,18 @@ public:
 #else // USE_PUSH_RELABEL_SECOND_STAGE
 		m_ex[*this->m_s] = m_ex[*this->m_t] = 0;
 		for (node v = this->m_G->firstNode(); v; v = v->succ()) {
-			if (this->m_et->greater(m_ex[v], (T) 0)) {
+			if (this->m_et->greater(m_ex[v], (TCap) 0)) {
 				active.pushBack(v);
 			}
 		}
 		while (!active.empty()) {
 			const node v = active.popFrontRet();
-			if (this->m_et->greater(m_ex[v], (T) 0) && v != *this->m_s && v != *this->m_t) {
+			if (this->m_et->greater(m_ex[v], (TCap) 0) && v != *this->m_s && v != *this->m_t) {
 				for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
 					const edge e = adj->theEdge();
 					const node u = e->source();
 					if (u != v) { // e is incoming edge
-						if (this->m_et->greater(m_ex[v], (T) 0)
+						if (this->m_et->greater(m_ex[v], (TCap) 0)
 						 && isResidualEdge(adj)) {
 							push(adj);
 							if (u != *this->m_s) {

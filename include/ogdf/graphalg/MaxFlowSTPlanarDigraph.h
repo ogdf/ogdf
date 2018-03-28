@@ -60,11 +60,11 @@ private:
 
 public:
 	/**
-	 * @copybrief MaxFlowModule<TCap>::computeValue
+	 * @copybrief ogdf::MaxFlowModule<TCap>::computeValue
 	 *
 	 * After this first phase, the flow itself is already computed!
 	 *
-	 * @copydetails MaxFlowModule<TCap>::computeValue
+	 * @copydetails ogdf::MaxFlowModule<TCap>::computeValue
 	 */
 	TCap computeValue(const EdgeArray<TCap> &cap, const node &s, const node &t) override {
 		// clear old flow
@@ -73,6 +73,7 @@ public:
 		this->m_cap = &cap;
 		this->m_s = &s;
 		this->m_t = &t;
+		OGDF_ASSERT(this->isFeasibleInstance());
 
 		OGDF_ASSERT(isSTPlanar(*this->m_G, s, t));
 		GraphCopy copyG(*this->m_G);

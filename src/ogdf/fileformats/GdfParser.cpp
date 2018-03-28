@@ -52,7 +52,7 @@ static inline bool readDef(
 	Attr toAttribute(const std::string &str), Attr a_unknown,
 	std::vector<Attr> &attrs)
 {
-	std::istringstream ss(str);
+	std::istringstream is(str);
 	std::string attr;
 
 	/*
@@ -60,7 +60,7 @@ static inline bool readDef(
 	 * Therefore we chop this stream by commas, and then we read first
 	 * non-whitespace string out of it.
 	 */
-	while(std::getline(ss, attr, ',')) {
+	while(std::getline(is, attr, ',')) {
 		std::istringstream attrss(attr);
 		std::string name;
 		attrss >> name;
@@ -89,18 +89,18 @@ bool Parser::readEdgeDef(const std::string &str)
 }
 
 
-static bool scanQuoted(
+static size_t scanQuoted(
 	const std::string &str, size_t pos,
 	std::string &buff)
 {
 	for(size_t j = 1; pos + j < str.length(); j++) {
 		if(str[pos] == str[pos + j] && str[pos + j - 1] != '\\') {
-			return true; // was j before, but j is always >= 1
+			return j; // was j before, but j is always >= 1
 		}
 		buff += str[pos + j];
 	}
 
-	return false;
+	return 0;
 }
 
 
@@ -113,7 +113,7 @@ static bool split(
 
 	const size_t len = str.length();
 	for(size_t i = 0; i < len; i++) {
-		if(str[i] == '"' || str[i] == '\'') {
+		if(str[i] == '\"' || str[i] == '\'') {
 			size_t quoted = scanQuoted(str, i, buff);
 			if(quoted) {
 				i += quoted;
@@ -262,9 +262,25 @@ static bool inline readAttribute(
 			is >> GA.z(v);
 		}
 		break;
+	case NodeAttribute::FillPattern:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.fillPattern(v) = fromString<FillPattern>(value);
+		}
+		break;
 	case NodeAttribute::FillColor:
 		if(attrs & GraphAttributes::nodeStyle) {
 			GA.fillColor(v) = toColor(value);
+		}
+		break;
+	case NodeAttribute::StrokeWidth:
+		if(attrs & GraphAttributes::nodeStyle) {
+			std::istringstream is(value);
+			is >> GA.strokeWidth(v);
+		}
+		break;
+	case NodeAttribute::StrokeType:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.strokeType(v) = fromString<StrokeType>(value);
 		}
 		break;
 	case NodeAttribute::StrokeColor:
@@ -279,14 +295,14 @@ static bool inline readAttribute(
 		break;
 	case NodeAttribute::Width:
 		if(attrs & GraphAttributes::nodeGraphics) {
-			std::istringstream ss(value);
-			ss >> GA.width(v);
+			std::istringstream is(value);
+			is >> GA.width(v);
 		}
 		break;
 	case NodeAttribute::Height:
 		if(attrs & GraphAttributes::nodeGraphics) {
-			std::istringstream ss(value);
-			ss >> GA.height(v);
+			std::istringstream is(value);
+			is >> GA.height(v);
 		}
 		break;
 	case NodeAttribute::Template:
@@ -296,8 +312,8 @@ static bool inline readAttribute(
 		break;
 	case NodeAttribute::Weight:
 		if(attrs & GraphAttributes::nodeWeight) {
-			std::istringstream ss(value);
-			ss >> GA.weight(v);
+			std::istringstream is(value);
+			is >> GA.weight(v);
 		}
 		break;
 	default:
@@ -330,11 +346,11 @@ static bool inline readAttribute(
 		break;
 	case EdgeAttribute::Weight:
 		if(attrs & GraphAttributes::edgeDoubleWeight) {
-			std::istringstream ss(value);
-			ss >> GA.doubleWeight(e);
-		} else if(attrs & GraphAttributes::edgeIntWeight) {
-			std::istringstream ss(value);
-			ss >> GA.intWeight(e);
+			std::istringstream is(value);
+			is >> GA.doubleWeight(e);
+		} else if (attrs & GraphAttributes::edgeIntWeight) {
+			std::istringstream is(value);
+			is >> GA.intWeight(e);
 		}
 		break;
 	case EdgeAttribute::Color:
@@ -344,12 +360,12 @@ static bool inline readAttribute(
 		break;
 	case EdgeAttribute::Bends:
 		if(attrs & GraphAttributes::edgeGraphics) {
-			std::istringstream ss(value);
+			std::istringstream is(value);
 			std::string x, y;
 
 			DPolyline &line = GA.bends(e);
 			line.clear();
-			while(std::getline(ss, x, ',') && std::getline(ss, y, ',')) {
+			while(std::getline(is, x, ',') && std::getline(is, y, ',')) {
 				std::istringstream conv;
 				double dx, dy;
 

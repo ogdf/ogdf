@@ -157,20 +157,16 @@ public:
 
 	//! Constructor generating a heap which holds the 10 elements with highest value ever added to the heap
 	Top10Heap() : BinaryHeapSimple<X,INDEX>(10) {}
-	//! Constructor generating a heap which holds the \p size elements with highest value ever added to the heap
-	explicit Top10Heap(INDEX size) : BinaryHeapSimple<X,INDEX>(size) {}
+	using BinaryHeapSimple<X,INDEX>::BinaryHeapSimple;
 
-	//! Returns true if the heap contains no elements
-	bool empty() const { return BinaryHeapSimple<X,INDEX>::empty(); }
 	//! Returns true if the heap is completely filled (i.e. the next push operation will return something)
 	bool full() const { return size() == capacity(); }
-	//! Returns the number of elements in the heap
-	INDEX size() const { return BinaryHeapSimple<X,INDEX>::size(); }
-	//! Returns the size of the heap specified when constructing: this is the number of top elements stored.
-	INDEX capacity() const { return BinaryHeapSimple<X,INDEX>::capacity(); }
 
-	//! empties the heap
-	void clear() { BinaryHeapSimple<X,INDEX>::clear(); }
+	using BinaryHeapSimple<X,INDEX>::empty;
+	using BinaryHeapSimple<X,INDEX>::size;
+	using BinaryHeapSimple<X,INDEX>::capacity;
+	using BinaryHeapSimple<X,INDEX>::clear;
+	using BinaryHeapSimple<X,INDEX>::top;
 
 	//! Tries to push the element \p x onto the heap (and may return a removed element as \p out).
 	/**

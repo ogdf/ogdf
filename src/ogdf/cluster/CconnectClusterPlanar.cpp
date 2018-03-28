@@ -274,8 +274,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)
 				{
 					treeNodes.append(nextSon);
-					newNode = G.newNode();  // new node corresponding to anchor
-											// or cutnode
+					newNode = G.newNode(); // new node corresponding to anchor or cutnode
 					C.reassignNode(newNode,parent);
 					graphNodes.append(newNode);
 					G.newEdge(correspond,newNode);
@@ -345,8 +344,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)
 				{
 					treeNodes.append(nextSon);
-					newNode = G.newNode();  // new node corresponding to anchor
-											// or cutnode
+					newNode = G.newNode(); // new node corresponding to anchor or cutnode
 					C.reassignNode(newNode,parent);
 					graphNodes.append(newNode);
 
@@ -534,9 +532,7 @@ bool CconnectClusterPlanar::doTest(
 	for(node v : G.nodes)
 	{
 		for (adjEntry adj : v->adjEntries) {
-			if (numbering[adj->twinNode()] > numbering[v])
-				//sideeffect: loops are ignored
-			{
+			if (numbering[adj->twinNode()] > numbering[v]) { // side-effect: loops are ignored
 				PlanarLeafKey<IndInfo*>* L = new PlanarLeafKey<IndInfo*>(adj->theEdge());
 				inLeaves[v].pushFront(L);
 			}

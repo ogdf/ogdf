@@ -92,7 +92,7 @@ face SimpleEmbedder::findBestExternalFace(
 			}
 		}
 
-		if(isBase == false)
+		if(!isBase)
 			continue;
 
 		face f1 = E.leftFace(adjFound);

@@ -1481,14 +1481,14 @@ void SteinerTreePreprocessing<T>::computeClosestKTerminals(const int k, NodeArra
 
 		// add the new distance such that the list remains sorted
 		if (currentList.empty()
-		 || (*(currentList.begin())).second >= newDist) { // if the list is empty
+		 || (*currentList.begin()).second >= newDist) { // if the list is empty
 			currentList.pushFront(std::make_pair(sourceTerminal, newDist));
 			return;
 		}
 
 		ListIterator<std::pair<node, T>> it = closestTerminals[currentNode].begin();
 		while (it.succ() != closestTerminals[currentNode].end()
-		   && (*(it.succ())).second < newDist) {
+		   && (*it.succ()).second < newDist) {
 			++it;
 		}
 		closestTerminals[currentNode].insertAfter(std::make_pair(sourceTerminal, newDist), it);

@@ -46,14 +46,11 @@ class OGDF_EXPORT CliqueReplacer {
 	double m_cliqueCenterSize; //default size of inserted clique replacement center nodes
 	SListPure<node> m_centerNodes; //center nodes introduced at clique replacement
 
-	EdgeArray<bool> m_replacementEdge;	//used to mark clique replacement edges
-									//may be we can join this with edge type
+	EdgeArray<bool> m_replacementEdge; //used to mark clique replacement edges may be we can join this with edge type
 
-	NodeArray<DRect> m_cliqueCircleSize;	//save the bounding box size of the
-											//circular drawing of the clique at center
+	NodeArray<DRect> m_cliqueCircleSize; //save the bounding box size of the circular drawing of the clique at center
 
-	NodeArray<DPoint> m_cliqueCirclePos;	//save the position of the node in the
-											//circular drawing of the clique
+	NodeArray<DPoint> m_cliqueCirclePos; //save the position of the node in the circular drawing of the clique
 
 public:
 	CliqueReplacer(GraphAttributes &ga, Graph &G);

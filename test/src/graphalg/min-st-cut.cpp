@@ -4,13 +4,25 @@
 #include <ogdf/graphalg/MinSTCutDijkstra.h>
 #include <ogdf/graphalg/MinSTCutBFS.h>
 
-#include <testing.h>
+#include <graphs.h>
 
 using std::string;
 
 template<typename T>
 void describeMSTCutFromMaxFlowSuite(const string &name) {
-describe(string("MinSTCutMaxFlow<" + name + ">"), [](){
+describe("MinSTCutMaxFlow<" + name + ">", [] {
+	it("can handle an isolated node", [](){
+		Graph graph;
+		node v = graph.newNode();
+		EdgeArray<T> weights(graph, 4);
+
+		EdgeArray<T> flow;
+		MaxFlowEdmondsKarp<T> maxFlowEdmondsKarp(graph);
+		maxFlowEdmondsKarp.computeFlow(weights, v, v, flow);
+		MinSTCutMaxFlow<T> minSTCut;
+		minSTCut.call(graph, weights, flow, v, v);
+	});
+
 	it("works on a simple example", [](){
 		Graph graph;
 		node s = graph.newNode();
@@ -77,12 +89,36 @@ describe(string("MinSTCutMaxFlow<" + name + ">"), [](){
 		AssertThat(minSTCut.isInBackCut(*nodes.get(7)), Equals(true));
 		AssertThat(minSTCut.isInFrontCut(*nodes.get(7)), Equals(false));
 	});
+
+	describe("detection of complementary back cuts", [] {
+		MinSTCutMaxFlow<T> minSTCut;
+		forEachGraphItWorks({GraphProperty::connected}, [&] (const Graph& graph, const std::string& graphName, const std::set<GraphProperty>& props) {
+			EdgeArray<T> caps(graph);
+
+			for(edge e : graph.edges) {
+				caps[e] = randomNumber(1, 10);
+			}
+
+			for(node v : graph.nodes) if(v != graph.firstNode()) {
+				List<edge> cutEdges;
+				minSTCut.call(graph, caps, graph.firstNode(), v, cutEdges, nullptr);
+
+				bool isComplement = true;
+
+				for(node w : graph.nodes) {
+					isComplement &= minSTCut.isInFrontCut(w) != minSTCut.isInBackCut(w);
+				}
+
+				AssertThat(minSTCut.frontCutIsComplementOfBackCut(), Equals(isComplement));
+			}
+		});
+	});
 });
 }
 
 template<typename T>
 void describeMSTCutSuite(MinSTCutModule<T> &minst, const string &name, const string &type, bool canHandleNonPlanar) {
-describe(string("MinSTCut"+ name + "<" + type + ">"), [&](){
+describe("MinSTCut"+ name + "<" + type + ">", [&] {
 	it("works on a planar unweighted example", [&]() {
 		Graph graph;
 		node s = graph.newNode();

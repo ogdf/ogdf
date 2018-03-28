@@ -37,7 +37,6 @@ namespace ogdf {
 
 namespace tlp {
 
-
 static inline void writeRange(
 	std::ostream &os,
 	int a, int b)
@@ -96,14 +95,35 @@ static inline void writePropertyHeader(
 }
 
 
-static inline void writeColor(
-	std::ostream &os,
-	const Color &c)
-{
+static inline string writeColor(const Color &c) {
 	const int r = c.red(), g = c.green(), b = c.blue(), a = c.alpha();
-	os << "\"(" << r << "," << g << "," << b << "," << a << ")\"";
+	return "\"(" + to_string(r) + "," + to_string(g) + "," + to_string(b) + "," + to_string(a) + ")\"";
 }
 
+template<typename GraphE, typename Type>
+static void writeSingleProperty(
+	std::ostream &os, std::function<Type(GraphE)> ga, List<GraphE> graphElements, string GraphEName,
+	Attribute attribute, string attrName, Type defaultValue, bool printDefault,
+	std::function<string(Type)> toString)
+{
+	os << "\n";
+	writePropertyHeader(os, attribute, attrName);
+	if(printDefault) {
+		os << "\n";
+		GraphIO::indent(os, 2) << "(default " << toString(defaultValue) << ")";
+	}
+
+	for(GraphE ge : graphElements) {
+		if(defaultValue == ga(ge) ) {
+			continue;
+		}
+
+		os << "\n";
+		GraphIO::indent(os, 2) << "(" << GraphEName << " " << ge->index() << " "
+							   << toString(ga(ge)) << ")";
+	}
+	os << ")";
+};
 
 static void writeProperties(
 	std::ostream &os,
@@ -114,77 +134,50 @@ static void writeProperties(
 	if(attrs & (GraphAttributes::nodeLabel |
 	            GraphAttributes::edgeLabel))
 	{
-		os << "\n";
-		writePropertyHeader(os, Attribute::label, "string");
-		os << "\n";
-		GraphIO::indent(os, 2) << "(default \"\" \"\")";
-
-		if(attrs & GraphAttributes::nodeLabel) {
-			for(node v : G.nodes) {
-				if(GA.label(v).empty()) {
-					continue;
-				}
-
-				os << "\n";
-				GraphIO::indent(os, 2) << "(node " << v->index() << " "
-				                       << "\"" << GA.label(v) << "\")";
-			}
-		}
-
-		if(attrs & GraphAttributes::edgeLabel) {
-			for(edge e : G.edges) {
-				if(GA.label(e).empty()) {
-					continue;
-				}
-
-				os << "\n";
-				GraphIO::indent(os, 2) << "(edge " << e->index() << " "
-				                       << "\"" << GA.label(e) << "\")";
-			}
-		}
-
-		os << ")";
+		List<node> nodes;
+		G.allNodes(nodes);
+		writeSingleProperty<node,string>(os, [&](node v){return GA.label(v);},
+		                                 nodes, "node", Attribute::label, "label", "\" \"", true,
+		                                 [](string s){return "\"" + s + "\"";});
+		List<edge> edges;
+		G.allEdges(edges);
+		writeSingleProperty<edge,string>(os, [&](edge e){; return GA.label(e);},
+		                                 edges, "edge", Attribute::label, "label", "\" \"", true,
+		                                 [](string s){return "\"" + s + "\"";});
 	}
 
-	if(attrs & (GraphAttributes::nodeStyle |
-	            GraphAttributes::edgeStyle))
-	{
-		os << "\n";
-		writePropertyHeader(os, Attribute::color, "color");
+	if(attrs & GraphAttributes::nodeStyle) {
+		List<node> nodes;
+		G.allNodes(nodes);
+		writeSingleProperty<node, Color>(os, [&](node v) { return GA.fillColor(v); },
+		                                 nodes, "node", Attribute::color, "color", Color(), false,
+		                                 [](Color c) { return writeColor(c); });
+		writeSingleProperty<node, Color>(os, [&](node v) { return GA.strokeColor(v); },
+		                                 nodes, "node", Attribute::strokeColor, "color", Color(), false,
+		                                 [](Color c) { return writeColor(c); });
+		writeSingleProperty<node, StrokeType >(os, [&](node v) { return GA.strokeType(v); },
+		                                       nodes, "node", Attribute::strokeType, "string",
+		                                       LayoutStandards::defaultNodeStroke().m_type, false,
+		                                       [](StrokeType st) {return "\"" + toString(st) + "\""; });
+		writeSingleProperty<node, float>(os, [&](node v) { return GA.strokeWidth(v); },
+		                                 nodes, "node", Attribute::strokeWidth, "double", 0.0, false,
+		                                 [](float sw) { return "\"" + to_string(sw) + "\""; });
+		writeSingleProperty<node, FillPattern >(os, [&](node v) { return GA.fillPattern(v); },
+		                                        nodes, "node", Attribute::fillPattern, "string",
+		                                        LayoutStandards::defaultNodeFill().m_pattern, false,
+		                                        [](FillPattern fp) { return "\"" + toString(fp) + "\""; });
+		writeSingleProperty<node, Shape>(os, [&](node v) { return GA.shape(v); },
+		                                 nodes, "node", Attribute::shape, "string",
+		                                 LayoutStandards::defaultNodeShape(), false,
+		                                 [](Shape s) { return "\"" + toString(s) + "\""; });
+	}
 
-		const Color defaultColor = Color(); // Defaults to (0, 0, 0, 255).
-
-		if(attrs & GraphAttributes::nodeStyle) {
-			for(node v : G.nodes) {
-				const Color &color = GA.fillColor(v);
-
-				if(color == defaultColor) {
-					continue;
-				}
-
-				os << "\n";
-				GraphIO::indent(os, 2) << "(node " << v->index() << " ";
-				writeColor(os, color);
-				os << ")";
-			}
-		}
-
-		if(attrs & GraphAttributes::edgeStyle) {
-			for(edge e : G.edges) {
-				const Color &color = GA.strokeColor(e);
-
-				if(color == defaultColor) {
-					continue;
-				}
-
-				os << "\n";
-				GraphIO::indent(os, 2) << "(edge " << e->index() << " ";
-				writeColor(os, color);
-				os << ")";
-			}
-		}
-
-		os << ")";
+	if(attrs & GraphAttributes::edgeStyle) {
+		List<edge> edges;
+		G.allEdges(edges);
+		writeSingleProperty<edge,Color>(os, [&](edge e){; return GA.strokeColor(e);},
+		                                 edges, "edge", Attribute::color, "color", Color(), false,
+		                                 [](Color c){return writeColor(c);});
 	}
 
 	if(attrs & GraphAttributes::nodeGraphics) {
@@ -291,6 +284,9 @@ static void writeGraph(
 	std::ostream &os,
 	const Graph &G, const ClusterGraph *C, const GraphAttributes *GA)
 {
+	std::ios_base::fmtflags currentFlags = os.flags();
+	os.flags(currentFlags | std::ios::fixed);
+
 	os << "(tlp \"2.3\"\n";
 	GraphIO::indent(os, 1) << "(nb_nodes " << G.numberOfNodes() << ")\n";
 	GraphIO::indent(os, 1) << "(nb_edges " << G.numberOfEdges() << ")\n";
@@ -321,6 +317,7 @@ static void writeGraph(
 	}
 
 	os << ")\n";
+	os.flags(currentFlags);
 }
 
 }

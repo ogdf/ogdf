@@ -211,7 +211,7 @@ void describeSortedSequence(const string& typeName) {
 
 			AssertThat(sequence.size(), Equals(perm.size()));
 
-			T prev;
+			T prev{};
 			for (auto it = sequence.begin(); it.valid(); it++) {
 				T k = it.key();
 

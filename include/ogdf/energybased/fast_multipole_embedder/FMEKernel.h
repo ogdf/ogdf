@@ -107,7 +107,7 @@ inline void eval_edges(const ArrayGraph& graph, const uint32_t begin, const uint
 		float dx = x[a] - x[b];
 		float dy = y[a] - y[b];
 		float dsq = dx*dx + dy*dy;
-		float f = (logf(dsq)*0.5f-logf(e[i])) * 0.25f;
+		float f = dsq == 0 ? 0 : (logf(dsq)*0.5f-logf(e[i])) * 0.25f;
 		float fa = (float)(f/((float)a_info.degree));
 		float fb = (float)(f/((float)b_info.degree));
 		fx[a] -= dx*fa;
@@ -246,7 +246,7 @@ public:
 			}
 			simpleEdgeIteration(graph, fx, fy, timeStep);
 		}
-		for(uint32_t i = 0; (i<maxIt) && (!earlyExit); i++)
+		for(uint32_t i = 0; i < maxIt && !earlyExit; i++)
 		{
 			for (uint32_t j = 0; j<graph.numNodes(); j++)
 			{

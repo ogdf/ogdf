@@ -32,23 +32,28 @@
 #pragma once
 
 #include <ogdf/basic/internal/list_templates.h>
+#include <ogdf/basic/Reverse.h>
 #include <random>
 
 namespace ogdf {
 
 template<class E> class List;
 template<class E> class ListPure;
-template<class E, bool isConst> class ListIteratorBase;
-template<class E> using ListConstIterator = ListIteratorBase<E, true>;
-template<class E> using ListIterator = ListIteratorBase<E, false>;
+template<class E, bool isConst, bool isReverse> class ListIteratorBase;
+template<class E> using ListConstIterator = ListIteratorBase<E, true, false>;
+template<class E> using ListIterator = ListIteratorBase<E, false, false>;
+template<class E> using ListConstReverseIterator = ListIteratorBase<E, true, true>;
+template<class E> using ListReverseIterator = ListIteratorBase<E, false, true>;
 
 //! Structure for elements of doubly linked lists.
 template<class E>
 class ListElement {
 	friend class ListPure<E>;
 	friend class List<E>;
-	friend class ListIteratorBase<E, true>;
-	friend class ListIteratorBase<E, false>;
+	friend class ListIteratorBase<E, true, true>;
+	friend class ListIteratorBase<E, false, true>;
+	friend class ListIteratorBase<E, true, false>;
+	friend class ListIteratorBase<E, false, false>;
 
 	ListElement<E> *m_next; //!< Pointer to successor element.
 	ListElement<E> *m_prev; //!< Pointer to predecessor element.
@@ -82,9 +87,12 @@ class ListElement {
  *
  * @tparam E The type of element.
  * @tparam isConst True iff this iterator allows only const-access to the element.
+ * @tparam isReverse True iff this iterator is a reverse iterator.
  */
-template<class E, bool isConst> class ListIteratorBase {
-	friend class ListIteratorBase<E, !isConst>;
+template<class E, bool isConst, bool isReverse> class ListIteratorBase {
+	friend class ListIteratorBase<E, !isConst, isReverse>;
+	friend class ListIteratorBase<E, isConst, !isReverse>;
+	friend class ListIteratorBase<E, !isConst, !isReverse>;
 	friend class ListPure<E>;
 	//! The underlying list element, depending on isConst
 	using ListElem = typename std::conditional<isConst, const ListElement<E>, ListElement<E>>::type;
@@ -105,8 +113,8 @@ public:
 	ListIteratorBase() : ListIteratorBase(nullptr) { }
 
 	//! Constructs an iterator that is a copy of \p it.
-	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0>
-	ListIteratorBase(const ListIteratorBase<E,isArgConst> &it) : ListIteratorBase(it.m_pX) { }
+	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0, bool isArgReverse>
+	ListIteratorBase(const ListIteratorBase<E,isArgConst,isArgReverse> &it) : ListIteratorBase(it.m_pX) { }
 
 	//! Returns true iff the iterator points to an element.
 	bool valid() const { return m_pX != nullptr; }
@@ -120,53 +128,57 @@ public:
 	}
 #endif
 	//! Equality operator.
-	bool operator==(const ListIteratorBase<E, isConst> &it) const {
+	bool operator==(const ListIteratorBase<E, isConst, isReverse> &it) const {
 		return m_pX == it.m_pX;
 	}
 
 	//! Inequality operator.
-	bool operator!=(const ListIteratorBase<E, isConst> &it) const {
+	bool operator!=(const ListIteratorBase<E, isConst, isReverse> &it) const {
 		return m_pX != it.m_pX;
 	}
 
 	//! Returns successor iterator.
-	ListIteratorBase<E, isConst> succ() const { return m_pX->m_next; }
+	ListIteratorBase<E, isConst, isReverse> succ() const {
+		return isReverse ? m_pX->m_prev : m_pX->m_next;
+	}
 
 	//! Returns predecessor iterator.
-	ListIteratorBase<E, isConst> pred() const { return m_pX->m_prev; }
+	ListIteratorBase<E, isConst, isReverse> pred() const {
+		return isReverse ? m_pX->m_next : m_pX->m_prev;
+	}
 
 	//! Returns a reference to the element content.
 	Elem &operator*() const { return m_pX->m_x; }
 
 	//! Assignment operator.
-	ListIteratorBase<E, isConst> &operator=(const ListIteratorBase<E, isConst> &it) {
+	ListIteratorBase<E, isConst, isReverse> &operator=(const ListIteratorBase<E, isConst, isReverse> &it) {
 		m_pX = it.m_pX;
 		return *this;
 	}
 
 	//! Increment operator (prefix).
-	ListIteratorBase<E, isConst> &operator++() {
-		m_pX = m_pX->m_next;
+	ListIteratorBase<E, isConst, isReverse> &operator++() {
+		m_pX = isReverse ? m_pX->m_prev : m_pX->m_next;
 		return *this;
 	}
 
 	//! Increment operator (postfix).
-	ListIteratorBase<E, isConst> operator++(int) {
-		ListIteratorBase<E, isConst> it = *this;
-		m_pX = m_pX->m_next;
+	ListIteratorBase<E, isConst, isReverse> operator++(int) {
+		ListIteratorBase<E, isConst, isReverse> it = *this;
+		m_pX = isReverse ? m_pX->m_prev : m_pX->m_next;
 		return it;
 	}
 
 	//! Decrement operator (prefix).
-	ListIteratorBase<E, isConst> &operator--() {
-		m_pX = m_pX->m_prev;
+	ListIteratorBase<E, isConst, isReverse> &operator--() {
+		m_pX = isReverse ? m_pX->m_next : m_pX->m_prev;
 		return *this;
 	}
 
 	//! Decrement operator (postfix).
-	ListIteratorBase<E, isConst> operator--(int) {
-		ListIteratorBase<E, isConst> it = *this;
-		m_pX = m_pX->m_prev;
+	ListIteratorBase<E, isConst, isReverse> operator--(int) {
+		ListIteratorBase<E, isConst, isReverse> it = *this;
+		m_pX = isReverse ? m_pX->m_next : m_pX->m_prev;
 		return it;
 	}
 
@@ -199,6 +211,10 @@ public:
 	using const_iterator = ListConstIterator<E>;
 	//! Provides a bidirectional iterator that can read or modify any element in a list.
 	using iterator = ListIterator<E>;
+	//! Provides a bidirectional reverse iterator that can read a const element in a list.
+	using const_reverse_iterator = ListConstReverseIterator<E>;
+	//! Provides a bidirectional reverse iterator that can read or modify any element in a list.
+	using reverse_iterator = ListReverseIterator<E>;
 
 	//! Constructs an empty doubly linked list.
 	ListPure() : m_head(nullptr), m_tail(nullptr) { }
@@ -365,37 +381,37 @@ public:
 	/**
 	 * If the list is empty, a null pointer iterator is returned.
 	 */
-	iterator rbegin() { return m_tail; }
+	reverse_iterator rbegin() { return m_tail; }
 
 	//! Returns a const iterator to the last element of the list.
 	/**
 	 * If the list is empty, a null pointer iterator is returned.
 	 */
-	const_iterator rbegin() const { return m_tail; }
+	const_reverse_iterator rbegin() const { return m_tail; }
 
 	//! Returns a const iterator to the last element of the list.
 	/**
 	 * If the list is empty, a null pointer iterator is returned.
 	 */
-	const_iterator crbegin() const { return m_tail; }
+	const_reverse_iterator crbegin() const { return m_tail; }
 
 	//! Returns an iterator to one-before-first element of the list.
 	/**
 	 * This is always a null pointer iterator.
 	 */
-	iterator rend() { return iterator(); }
+	reverse_iterator rend() { return reverse_iterator(); }
 
 	//! Returns a const iterator to one-before-first element of the list.
 	/**
 	 * This is always a null pointer iterator.
 	 */
-	const_iterator rend() const { return const_iterator(); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(); }
 
 	//! Returns a const iterator to one-before-first element of the list.
 	/**
 	 * This is always a null pointer iterator.
 	 */
-	const_iterator crend() const { return const_iterator(); }
+	const_reverse_iterator crend() const { return const_reverse_iterator(); }
 
 	//! Returns a const iterator to the cyclic successor of \p it.
 	/**
@@ -415,6 +431,24 @@ public:
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
 		ListElement<E> *pX = it;
 		return (pX && pX->m_next) ? pX->m_next : m_head;
+	}
+
+	/**
+	 * @copydoc ogdf::List::cyclicSucc
+	 */
+	const_reverse_iterator cyclicSucc(const_reverse_iterator it) const {
+		OGDF_ASSERT(!it.valid() || it.listOf() == this);
+		const ListElement<E> *pX = it;
+		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
+	}
+
+	/**
+	 * @copydoc ogdf::List::cyclicSucc
+	 */
+	reverse_iterator cyclicSucc(reverse_iterator it) {
+		OGDF_ASSERT(!it.valid() || it.listOf() == this);
+		ListElement<E> *pX = it;
+		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
 	//! Returns a const iterator to the cyclic predecessor of \p it.
@@ -437,6 +471,23 @@ public:
 		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
+	/**
+	 * @copydoc ogdf::List::cyclicPred
+	 */
+	const_reverse_iterator cyclicPred(const_reverse_iterator it) const {
+		OGDF_ASSERT(!it.valid() || it.listOf() == this);
+		const ListElement<E> *pX = it;
+		return (pX && pX->m_next) ? pX->m_next : m_head;
+	}
+
+	/**
+	 * @copydoc ogdf::List::cyclicPred
+	 */
+	reverse_iterator cyclicPred(reverse_iterator it) {
+		OGDF_ASSERT(!it.valid() || it.listOf() == this);
+		ListElement<E> *pX = it;
+		return (pX && pX->m_next) ? pX->m_next : m_head;
+	}
 
 	//@}
 	/**
@@ -473,7 +524,7 @@ public:
 			pX = pX->m_next;
 			pY = pY->m_next;
 		}
-		return (pX == nullptr && pY == nullptr);
+		return pX == nullptr && pY == nullptr;
 	}
 
 	//! Inequality operator.
@@ -1224,6 +1275,8 @@ public:
 	using typename ListPure<E>::const_reference;
 	using typename ListPure<E>::const_iterator;
 	using typename ListPure<E>::iterator;
+	using typename ListPure<E>::const_reverse_iterator;
+	using typename ListPure<E>::reverse_iterator;
 
 	//! Constructs an empty doubly linked list.
 	List() : m_count(0) { }
@@ -1590,6 +1643,8 @@ class ListContainer : public List<E> {
 public:
 	//! Provides a bidirectional iterator to an object in the container.
 	using iterator = typename List<E>::const_iterator;
+	//! Provides a bidirectional reverse iterator to an object in the container.
+	using reverse_iterator = typename List<E>::const_reverse_iterator;
 
 	//! Returns an iterator to the first element in the container.
 	iterator begin() const { return List<E>::cbegin(); }
@@ -1597,11 +1652,11 @@ public:
 	//! Returns an iterator to the one-past-last element in the container.
 	iterator end() const { return List<E>::cend(); }
 
-	//! Returns an iterator to the last element in the container.
-	iterator rbegin() const { return List<E>::crbegin(); }
+	//! Returns a reverse iterator to the last element in the container.
+	reverse_iterator rbegin() const { return List<E>::crbegin(); }
 
-	//! Returns an iterator to the one-before-first element in the container.
-	iterator rend() const { return List<E>::crend(); }
+	//! Returns a reverse iterator to the one-before-first element in the container.
+	reverse_iterator rend() const { return List<E>::crend(); }
 
 	//! Returns the number of elements in the container.
 	int size() const { return List<E>::size(); }

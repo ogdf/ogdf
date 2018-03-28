@@ -239,7 +239,7 @@ SList<node>& BCTree::findPath (node sG, node tG) const
 	node tB = bcproper(tG);
 	node nB = findNCA(sB,tB);
 	for (pB.pushBack(sB); sB!=nB; pB.pushBack(sB)) sB = parent(sB);
-	for (SListIterator<node> iB=pB.rbegin(); tB!=nB; tB=parent(tB)) pB.insertAfter(tB,iB);
+	for (SListIterator<node> iB=pB.backIterator(); tB!=nB; tB=parent(tB)) pB.insertAfter(tB,iB);
 	return pB;
 }
 
@@ -249,7 +249,7 @@ SList<node>* BCTree::findPathBCTree (node sB, node tB) const
 	SList<node> *pB = new SList<node>;
 	node nB = findNCA(sB,tB);
 	for (pB->pushBack(sB); sB!=nB; pB->pushBack(sB)) sB = parent(sB);
-	for (SListIterator<node> iB=pB->rbegin(); tB!=nB; tB=parent(tB)) pB->insertAfter(tB,iB);
+	for (SListIterator<node> iB=pB->backIterator(); tB!=nB; tB=parent(tB)) pB->insertAfter(tB,iB);
 	return pB;
 }
 

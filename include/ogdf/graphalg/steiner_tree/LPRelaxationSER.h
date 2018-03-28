@@ -31,12 +31,15 @@
 
 #pragma once
 
-#include <coin/OsiClpSolverInterface.hpp>
 #include <ogdf/external/coin.h>
 #include <ogdf/basic/SubsetEnumerator.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 
+#include <coin/CoinPackedMatrix.hpp>
+
+//#define OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
+//#define OGDF_STEINERTREE_LPRELAXATIONSER_OUTPUT_LP
 #define OGDF_STEINERTREE_LPRELAXATIONSER_SEPARATE_CONNECTED_COMPONENTS // this is faster
 #define OGDF_STEINERTREE_LPRELAXATIONSER_SEPARATE_YVAR_CONSTRAINTS // if not defined: generate all yvar constraints in the beginning
 
@@ -66,8 +69,6 @@ class LPRelaxationSER
 #endif
 
 	const double m_eps; //!< epsilon for double operations
-
-	EdgeWeightedGraphCopy<T> *m_approx2SteinerTree;
 
 	//! Generate the basic LP model
 	void generateProblem();
@@ -189,7 +190,7 @@ public:
 	 */
 	LPRelaxationSER(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
 	                FullComponentWithExtraStore<T, double> &fullCompStore,
-	                T upperBound, int cliqueSize = 0, double eps = 1e-8)
+	                T upperBound = 0, int cliqueSize = 0, double eps = 1e-8)
 	  : m_G(G)
 	  , m_isTerminal(isTerminal)
 	  , m_terminals(terminals)
@@ -246,7 +247,7 @@ LPRelaxationSER<T>::generateProblem()
 	}
 	m_osiSolver->loadProblem(*m_matrix, m_lowerBounds, m_upperBounds, m_objective, nullptr, nullptr);
 
-	if (m_upperBound) { // add upper bound
+	if (m_upperBound > 0) { // add upper bound
 		CoinPackedVector row;
 		row.setFull(m_fullCompStore.size(), m_objective);
 		m_osiSolver->addRow(row, 0, m_upperBound);
@@ -333,16 +334,21 @@ LPRelaxationSER<T>::solve()
 	do {
 		if (initialIteration) {
 			m_osiSolver->initialSolve();
+#ifdef OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
+			std::cout << "Objective value " << m_osiSolver->getObjValue() << " of initial solution." << std::endl;
+#endif
 			initialIteration = false;
 		} else {
 			m_osiSolver->resolve();
+#ifdef OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
+			std::cout << "Objective value " << m_osiSolver->getObjValue() << " after resolve." << std::endl;
+#endif
 		}
 
 		if (!m_osiSolver->isProvenOptimal()) {
-			// infeasible:
-			if (m_upperBound) {
+			if (m_upperBound > 0) { // failed due to better upper bound
 				return false;
-			} else {
+			} else { // failed due to infeasibility
 				std::cerr << "Failed to optimize LP!" << std::endl;
 				throw(-1);
 			}
@@ -355,6 +361,10 @@ LPRelaxationSER<T>::solve()
 	for (int i = 0; i < numberOfColumns; ++i) {
 		m_fullCompStore.extra(i) = constSol[i];
 	}
+
+#ifdef OGDF_STEINERTREE_LPRELAXATIONSER_OUTPUT_LP
+	m_osiSolver->writeLp(stderr);
+#endif
 
 	return true;
 }

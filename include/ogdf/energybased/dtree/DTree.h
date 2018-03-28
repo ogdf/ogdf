@@ -248,11 +248,11 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 		// j is the index of the next cell (node)
 
 		// init the node on the leaf layer
-		leaf.firstPoint = i;	//< node sits above the first point of the cell
-		leaf.numPoints = j-i;	//< number of points with equal morton numbers (number of points in grid cell)
-		leaf.numChilds = 0;		//< it's a leaf
-		leaf.level = 0;			//< it's a leaf
-		leaf.next = j;			//< this leaf hasnt been created yet but we use indices so its ok
+		leaf.firstPoint = i; //< node sits above the first point of the cell
+		leaf.numPoints = j-i; //< number of points with equal morton numbers (number of points in grid cell)
+		leaf.numChilds = 0; //< it's a leaf
+		leaf.level = 0; //< it's a leaf
+		leaf.next = j; //< this leaf hasnt been created yet but we use indices so its ok
 
 		if (j < m_numPoints) {
 			// Note: the n-th inner node is not needed because we only need n-1 inner nodes to cover n leaves
@@ -261,9 +261,9 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 			last = i;
 #endif
 			// init the node on the inner node layer
-			innerNode.child[0] = i;		//< node sits above the first leaf
-			innerNode.child[1] = j;		//< this leaf hasnt been created yet but we use indices so its ok
-			innerNode.numChilds = 2;	//< every inner node covers two leaves in the beginning
+			innerNode.child[0] = i; //< node sits above the first leaf
+			innerNode.child[1] = j; //< this leaf hasnt been created yet but we use indices so its ok
+			innerNode.numChilds = 2; //< every inner node covers two leaves in the beginning
 			innerNode.level = lowestCommonAncestorLevel<IntType, Dim>(m_mortonOrder[i].mortonNr, m_mortonOrder[j].mortonNr);
 			innerNode.next = m_numPoints + j; // the inner node layer is shifted by n
 		} else {
@@ -315,7 +315,7 @@ template<typename IntType, int Dim>
 int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel)
 {
 	// while the subtree is smaller than maxLevel
-	while (node(curr).next && (node(node(curr).next).level < maxLevel)) {
+	while (node(curr).next && node(node(curr).next).level < maxLevel) {
 		// get next node in the chain
 		int next = node(curr).next;
 		// First case: same level => merge, discard next

@@ -154,8 +154,7 @@ node getRepresentationNode(cluster c)
 void recursiveConnect(
 	ClusterGraph& CG,
 	cluster act,
-	NodeArray<cluster>& origCluster,	//on CG, cluster rep.
-										//by collapsed node
+	NodeArray<cluster>& origCluster, // on CG, cluster rep. by collapsed node
 	ClusterArray<cluster>& oCcluster, //cluster in orig for CG cluster
 	NodeArray<node>& origNode,
 	Graph& G,
@@ -284,8 +283,7 @@ static void dfsMakeCConnected(node v,
 void cMakeConnected(
 	Graph &G, //cluster subgraph
 	Graph &fullGraphCopy, //copy of full graph
-	NodeArray<node> &fullGraphNode,	// holds node in fullgraphCopy
-									//corresponding to node in G cluster
+	NodeArray<node> &fullGraphNode, // holds node in fullgraphCopy corresponding to node in G cluster
 	NodeArray<bool> &badNode, //some attribute
 	List<edge> &added)
 {
@@ -317,13 +315,11 @@ void cMakeConnected(
 void recursiveCConnect(
 	ClusterGraph& CG,
 	cluster act,
-	NodeArray<cluster>& origCluster,	//on CG, cluster rep.
-										//by collapsed node
-	ClusterArray<cluster>& oCcluster,	//cluster in orig for CG cluster
+	NodeArray<cluster>& origCluster, // on CG, cluster rep. by collapsed node
+	ClusterArray<cluster>& oCcluster, // cluster in orig for CG cluster
 	NodeArray<node>& origNode,
 	Graph& G,
-	Graph& fullCopy,	//copy of graph G be checked for planarity
-						//holds corresponding nodes in fullCopy for v of G
+	Graph& fullCopy, // copy of graph G be checked for planarity holds corresponding nodes in fullCopy for v of G
 	NodeArray<node>& copyNode,
 	NodeArray<bool>& badNode, //should not we used for connecting
 	List<NodePair>& newEdges)
@@ -439,16 +435,16 @@ void cconnect(
 	}
 
 	recursiveCConnect(
-		CG,					//check cluster graph copy
-		CG.rootCluster(),	//the whole graph
-		origCluster,		//original cluster for collapse nodes
-		oCcluster,			//cluster in copy
-		origNode,			//original nodes
-		G,					//original graph
-		fullCopy,			//planarity checking copy of original graph G
-		fullCopyNode,		//corresponding nodes in fullCopy
-		badNode,			//fullCopy node attribute
-		newEdges);			//inserted edges
+		CG, // check cluster graph copy
+		CG.rootCluster(), // the whole graph
+		origCluster, // original cluster for collapse nodes
+		oCcluster, // cluster in copy
+		origNode, // original nodes
+		G, // original graph
+		fullCopy, // planarity checking copy of original graph G
+		fullCopyNode, // corresponding nodes in fullCopy
+		badNode, // fullCopy node attribute
+		newEdges); // inserted edges
 }
 
 //make a cluster graph cconnected by adding edges

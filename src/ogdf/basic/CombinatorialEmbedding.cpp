@@ -33,6 +33,9 @@
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/Math.h>
+#ifdef OGDF_DEBUG
+# include <ogdf/basic/simple_graph_alg.h>
+#endif
 
 using std::mutex;
 using std::lock_guard;
@@ -55,6 +58,7 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding()
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph &G) :
 	m_cpGraph(&G), m_rightFace(G,nullptr)
 {
+	OGDF_ASSERT(isConnected(G));
 	OGDF_ASSERT(G.representsCombEmbedding());
 	computeFaces();
 }
@@ -90,6 +94,7 @@ ConstCombinatorialEmbedding::~ConstCombinatorialEmbedding() {
 
 void ConstCombinatorialEmbedding::init(const Graph &G)
 {
+	OGDF_ASSERT(isConnected(G));
 	OGDF_ASSERT(G.representsCombEmbedding());
 	m_cpGraph = &G;
 	m_rightFace.init(G,nullptr);
@@ -530,6 +535,7 @@ void ConstCombinatorialEmbedding::reinitArrays()
 #ifdef OGDF_DEBUG
 void ConstCombinatorialEmbedding::consistencyCheck() const
 {
+	OGDF_ASSERT(isConnected(*m_cpGraph));
 	m_cpGraph->consistencyCheck();
 
 	OGDF_ASSERT(m_cpGraph->representsCombEmbedding());

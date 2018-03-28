@@ -31,10 +31,13 @@
 
 #pragma once
 
+#include <memory>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 #include <ogdf/graphalg/steiner_tree/goemans/BlowupComponents.h>
 #include <ogdf/graphalg/steiner_tree/goemans/CoreEdgeRandomSpanningTree.h>
+
+//#define OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
 
 namespace ogdf {
 namespace steiner_tree {
@@ -53,6 +56,27 @@ class Approximation
 
 	std::minstd_rand m_rng;
 
+	//! Add edges into a blowup graph and delete them on destruction
+	struct TemporaryEdges : ArrayBuffer<edge> {
+		//! Construct object for a specific \p blowupGraph
+		TemporaryEdges(BlowupGraph<T>& blowupGraph) : m_blowupGraph(blowupGraph) {}
+
+		//! Add a temporary edge to the blowup graph
+		edge add(node v, node w, T cost, int capacity) {
+			edge e = m_blowupGraph.newEdge(v, w, cost, capacity);
+			this->push(e);
+			return e;
+		}
+
+		//! Remove the edges again
+		~TemporaryEdges() {
+			m_blowupGraph.delEdges(*this);
+		}
+
+	private:
+		BlowupGraph<T>& m_blowupGraph;
+	};
+
 	//! Computes the rank of the gammoid (given by the blowup graph)
 	int gammoidGetRank(const BlowupGraph<T> &blowupGraph) const
 	{
@@ -62,7 +86,7 @@ class Approximation
 
 	//! Finds the best component and its maximum-weight basis in the given blowup graph with given core and witness set
 	//! \return The component id of the best component
-	int findComponentAndMaxBasis(ArrayBuffer<std::pair<node,int>> *&maxBasis,
+	int findComponentAndMaxBasis(std::unique_ptr<ArrayBuffer<std::pair<node,int>>> &maxBasis,
 	                             BlowupGraph<T> &blowupGraph,
 	                             const BlowupComponents<T> &gamma)
 	{
@@ -75,25 +99,17 @@ class Approximation
 		}
 
 		// compute weights of core edges and add source->core edges
-		ArrayBuffer<edge> sourceCoreEdges;
+		TemporaryEdges sourceCoreEdges(blowupGraph);
 		EdgeArray<double> cost(blowupGraph.getGraph(), 0);
-		for (ListConstIterator<node> it = blowupGraph.core().rbegin(); it.valid(); --it) { // XXX: why backwards?
+		for (node v : blowupGraph.core()) {
 			// compute weight of core edge
-			const node v = *it;
-			edge tmp = v->firstAdj()->theEdge();
-			double weight = (double)blowupGraph.getCost(tmp);
-			for (edge e : blowupGraph.witnessList(v)) {
-				OGDF_ASSERT(blowupGraph.numberOfWitnesses(e) > 0);
-				weight += (double)blowupGraph.getCost(e) / blowupGraph.numberOfWitnesses(e);
-			}
+			double weight = blowupGraph.computeCoreWeight(v);
 
 			// add edges from source to core edges v
-			edge e = blowupGraph.newEdge(blowupGraph.getSource(), v, 0, blowupGraph.getCapacity(tmp));
+			edge e = sourceCoreEdges.add(blowupGraph.getSource(), v, 0, blowupGraph.getCoreCapacity(v));
 			cost[e] = -weight;
-			sourceCoreEdges.push(e);
 		}
 
-		maxBasis = nullptr;
 		NodeArray<int> supply(blowupGraph.getGraph(), 0);
 		EdgeArray<int> flow(blowupGraph.getGraph());
 		MinCostFlowReinelt<double> mcf;
@@ -124,19 +140,41 @@ class Approximation
 			 * - check which subset of X is saturated -> these are the nodes representing the edge set we need
 			 */
 			// add edges from component's terminals to target
-			ArrayBuffer<edge> Q_to_target;
+			TemporaryEdges Q_to_target(blowupGraph);
 			for (node t : gamma.terminals(id)) {
-				const edge e = blowupGraph.newEdge(t, blowupGraph.getTarget(), 0,
-				  blowupGraph.getLCM() * blowupGraph.getY());
+				Q_to_target.add(t, blowupGraph.getTarget(), 0, blowupGraph.getLCM() * blowupGraph.getY());
 				// the last value is an upper bound for the capacity
-				Q_to_target.push(e);
 			}
+			// TODO: we could also use static edges from all terminals to the target
+			// and just change their capacities each time; needs extra data structures
 
-			ArrayBuffer<std::pair<node,int>> *basis = new ArrayBuffer<std::pair<node,int>>;
+			std::unique_ptr<ArrayBuffer<std::pair<node,int>>> basis(new ArrayBuffer<std::pair<node,int>>);
 
 			int rank = gammoidGetRank(blowupGraph);
+			OGDF_ASSERT(rank >= blowupGraph.getY() + blowupGraph.getLCM());
 			supply[blowupGraph.getSource()] = rank;
 			supply[blowupGraph.getTarget()] = -rank;
+
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+			std::cout << "Computing min-cost flow for blowup component " << id << " of " << gamma.size() << std::endl;
+			std::cout << " * terminals of component are " << gamma.terminals(id) << std::endl;
+			for (node v : blowupGraph.getGraph().nodes) {
+				if (supply[v] > 0) {
+					std::cout << " * supply node " << v << " with supply " << supply[v] << std::endl;
+				}
+				if (supply[v] < 0) {
+					std::cout << " * demand node " << v << " with demand " << -supply[v] << std::endl;
+				}
+			}
+			for (edge e : blowupGraph.getGraph().edges) {
+				std::cout
+				  << " * edge " << e
+				  << " with cost " << blowupGraph.getCost(e)
+				  << " and flow bounds [" << lB[e]
+				  << ", " << blowupGraph.getCapacity(e)
+				  << "]" << std::endl;
+			}
+#endif
 
 			// find maximum weight basis
 #ifdef OGDF_DEBUG
@@ -154,25 +192,30 @@ class Approximation
 				}
 			}
 
-			// remove temporary edges for multi-target max-flow again
-			blowupGraph.delEdges(Q_to_target);
-			// XXX/TODO: we could also keep target edges from all terminals to the target
-			// and just change the capacity
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+			std::cout
+			  << "Basis weight is " << weight << std::endl
+			  << "Checking if "
+			  << gamma.cost(id) << "(component cost) * " << blowupGraph.getLCM()
+			  << "(lcm) <= " << weight
+			  << "(basis weight)" << std::endl;
+#endif
 
 			// we choose the component with max cost*N <= weight
 			if (gamma.cost(id) * blowupGraph.getLCM() <= weight + m_eps) {
-				maxBasis = basis;
-				blowupGraph.delEdges(sourceCoreEdges); // clean up (XXX: check if necessary)
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+				std::cout << "Using basis because it is feasible." << std::endl;
+#endif
+				maxBasis.swap(basis);
 				return id;
 			}
-			delete basis;
 		}
 		return 0; // no component chosen, fail
 	}
 
 	//! For the end of the algorithm: find cheapest component and choose all remaining core edges as basis
 	//! \return The component id of the cheapest component
-	int findCheapestComponentAndRemainingBasis(ArrayBuffer<std::pair<node,int>> *&maxBasis,
+	int findCheapestComponentAndRemainingBasis(std::unique_ptr<ArrayBuffer<std::pair<node,int>>> &maxBasis,
 	                                           const BlowupGraph<T> &blowupGraph,
 	                                           const BlowupComponents<T> &gamma)
 	{
@@ -186,10 +229,9 @@ class Approximation
 			}
 		}
 		// use all core edges as basis
-		maxBasis = new ArrayBuffer<std::pair<node,int>>();
+		maxBasis.reset(new ArrayBuffer<std::pair<node,int>>());
 		for (node v : blowupGraph.core()) {
-			edge tmp = v->lastAdj()->theEdge();
-			maxBasis->push(std::make_pair(v, blowupGraph.getCapacity(tmp)));
+			maxBasis->push(std::make_pair(v, blowupGraph.getCoreCapacity(v)));
 		}
 		return compId;
 	}
@@ -218,21 +260,14 @@ class Approximation
 		}
 	}
 
-	//! Remove basis (given by \p v, a core edge node of the maximum basis) and cleanup
-	void removeBasisAndCleanup(BlowupGraph<T> &blowupGraph, BlowupComponents<T> &gamma, node v)
-	{
-		blowupGraph.removeBasis(v, [&](edge e) {
-			// in this case we have just fixed the direction of the component,
-			// so e->source() is the new root of the component -> update gamma
-			gamma.setRootEdge(gamma.id(e->target()), e);
-		});
-	}
-
 	//! Remove a given basis and cleanup, the basis may be given fractionally
 	void removeFractionalBasisAndCleanup(ArrayBuffer<std::pair<node,int>> &basis,
 	                                     BlowupGraph<T> &blowupGraph,
 	                                     BlowupComponents<T> &gamma)
 	{
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+		std::cout << "Remove basis from blowup graph" << std::endl;
+#endif
 		// remove B from K (K := K \ B) and from blowup graph (X := X - B)
 		// and, while at it, remove cleanup edges from blowup graph (X := X - F)
 		// and fix components that have no incoming edges
@@ -240,29 +275,44 @@ class Approximation
 		for (auto p : basis) {
 			const node v = p.first;
 			const int count = p.second;
-			OGDF_ASSERT(v->degree() == 2);
-			int origCap = blowupGraph.getCapacity(v->firstAdj()->theEdge());
+			int origCap = blowupGraph.getCoreCapacity(v);
 			OGDF_ASSERT(count <= origCap);
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+			std::cout << " * node " << v << " with count " << count << " (of " << origCap << ")" << std::endl;
+#endif
 			if (count < origCap) { // only remove a fraction?
 				fractionalCoreEdges.push(Prioritized<node,int>(v, -count));
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+				std::cout << "   -> deferred because fractional" << std::endl;
+#endif
 			} else {
 				// we are deleting the core edge from the whole component
 				blowupGraph.delCore(v);
-				removeBasisAndCleanup(blowupGraph, gamma, v);
+				blowupGraph.removeBasis(v);
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+				std::cout << "   -> done" << std::endl;
+#endif
 			}
 		}
 		fractionalCoreEdges.quicksort(); // sort decreasing by flow value
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+		if (!fractionalCoreEdges.empty()) {
+			std::cout << "Deferred core edges:" << std::endl;
+		}
+#endif
 		for (auto p : fractionalCoreEdges) {
 			const node v = p.item();
 			const int count = -p.priority();
-			OGDF_ASSERT(v->degree() == 2);
-			int origCap = blowupGraph.getCapacity(v->firstAdj()->theEdge());
+			int origCap = blowupGraph.getCoreCapacity(v);
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+			std::cout << " * node " << v << " with count " << count << " of " << origCap << std::endl;
+#endif
 			OGDF_ASSERT(count <= origCap);
 			// copy (split) the component
-			blowupGraph.copyComponent(gamma.rootEdge(gamma.id(v)), count, origCap - count);
+			blowupGraph.copyComponent(blowupGraph.findRootEdge(v), count, origCap - count);
 			// we are deleting the core edge from the whole component
 			blowupGraph.delCore(v);
-			removeBasisAndCleanup(blowupGraph, gamma, v);
+			blowupGraph.removeBasis(v);
 		}
 	}
 
@@ -289,36 +339,36 @@ template<typename T>
 void
 Approximation<T>::solve(NodeArray<bool> &isNewTerminal)
 {
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+	std::cout << "Start solving based on LP solution" << std::endl;
+	int iteration = 0;
+#endif
 	CoreEdgeRandomSpanningTree<T> cer(m_rng);
 	BlowupGraph<T> blowupGraph(m_G, m_terminals, m_fullCompStore, cer, m_eps);
 
 	while (blowupGraph.terminals().size() > 1) { // T is not a Steiner tree
-		// TODO: maybe we should initially compute the blowup components when we *build*
-		//       the gammoid graph and update it on each delEdge/delNode
+#ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
+		std::cout << "Iteration " << ++iteration << " with " << blowupGraph.terminals().size() << " terminals" << std::endl;
+#endif
 		BlowupComponents<T> gamma(blowupGraph); // Gamma(X)
 
 		OGDF_ASSERT(isLoopFree(blowupGraph.getGraph()));
 
 		// take a component Q in Gamma(X)
-		ArrayBuffer<std::pair<node,int>> *maxBasis;
+		std::unique_ptr<ArrayBuffer<std::pair<node,int>>> maxBasis;
 		int compId = blowupGraph.getY() > 0
 		     ? findComponentAndMaxBasis(maxBasis, blowupGraph, gamma)
 		     : findCheapestComponentAndRemainingBasis(maxBasis, blowupGraph, gamma);
-		OGDF_ASSERT(compId);
+		OGDF_ASSERT(compId != 0);
 
 		// add component Q to T
 		addComponent(isNewTerminal, blowupGraph, gamma.rootEdge(compId));
 
 		// remove (maybe fractional) basis and do all the small things necessary for update
 		removeFractionalBasisAndCleanup(*maxBasis, blowupGraph, gamma);
-		delete maxBasis;
 
 		// contract (X := X / Q)
-		auto it = gamma.terminals(compId).begin();
-		node v = *it;
-		for (++it; it != gamma.terminals(compId).end(); ++it) {
-			blowupGraph.contract(v, *it);
-		}
+		blowupGraph.contract(gamma.terminals(compId));
 
 		if (blowupGraph.terminals().size() > 1) {
 			blowupGraph.updateSpecialCapacities();

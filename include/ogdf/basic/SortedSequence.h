@@ -34,14 +34,24 @@
 #include <random>
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/memory.h>
+#include <ogdf/basic/Reverse.h>
 
 namespace ogdf {
 
-template<class KEY, class INFO, class CMP>
-class SortedSequenceIterator;
+template<class KEY, class INFO, class CMP, bool isConst, bool isReverse>
+class SortedSequenceIteratorBase;
 
 template<class KEY, class INFO, class CMP>
-class SortedSequenceConstIterator;
+using SortedSequenceIterator = SortedSequenceIteratorBase<KEY,INFO,CMP,false,false>;
+
+template<class KEY, class INFO, class CMP>
+using SortedSequenceConstIterator = SortedSequenceIteratorBase<KEY,INFO,CMP,true,false>;
+
+template<class KEY, class INFO, class CMP>
+using SortedSequenceReverseIterator = SortedSequenceIteratorBase<KEY,INFO,CMP,false,true>;
+
+template<class KEY, class INFO, class CMP>
+using SortedSequenceConstReverseIterator = SortedSequenceIteratorBase<KEY,INFO,CMP,true,true>;
 
 //! Maintains a sequence of (key,info) pairs sorted by key.
 /**
@@ -54,15 +64,17 @@ class SortedSequenceConstIterator;
 template<class KEY, class INFO, class CMP = StdComparer<KEY> >
 class SortedSequence {
 
-	friend class SortedSequenceIterator<KEY,INFO,CMP>;
-	friend class SortedSequenceConstIterator<KEY,INFO,CMP>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,false,false>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,true,false>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,false,true>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,true,true>;
 
 	//! Internal structure to hold the items and internal forward/backward pointers of the skiplist.
 	struct Element {
 
-		KEY  m_key;		//!< stores the key.
-		INFO m_info;	//!< stores the associated information.
-		int  m_height;	//!< the height of the skiplist element.
+		KEY  m_key; //!< stores the key.
+		INFO m_info; //!< stores the associated information.
+		int  m_height; //!< the height of the skiplist element.
 
 		Element** m_next; //!< array of successor elements.
 		Element** m_prev; //!< array of predecessor elements.
@@ -114,6 +126,10 @@ public:
 	using iterator = SortedSequenceIterator<KEY,INFO,CMP>;
 	//! The const-iterator type for sorted sequences (bidirectional iterator).
 	using const_iterator = SortedSequenceConstIterator<KEY,INFO,CMP>;
+	//! The reverse iterator type for sorted sequences (bidirectional iterator).
+	using reverse_iterator = SortedSequenceReverseIterator<KEY,INFO,CMP>;
+	//! The const reverse iterator type for sorted sequences (bidirectional iterator).
+	using const_reverse_iterator = SortedSequenceConstReverseIterator<KEY,INFO,CMP>;
 
 	//! Constructs an initially empty sorted sequence.
 	SortedSequence(const CMP &comparer = CMP()) : m_comparer(comparer), m_rng(randomSeed()), m_randomBits(0,1) {
@@ -172,23 +188,23 @@ public:
 	//! Returns a const-iterator pointing to one past the last element.
 	const_iterator cend() const { return end(); }
 
-	//! Returns an iterator pointing to the last element.
-	iterator rbegin();
+	//! Returns a reverse iterator pointing to the last element.
+	reverse_iterator rbegin();
 
-	//! Returns a const-iterator pointing to the last element.
-	const_iterator rbegin() const;
+	//! Returns a const reverse iterator pointing to the last element.
+	const_reverse_iterator rbegin() const;
 
-	//! Returns a const-iterator pointing to the last element.
-	const_iterator crbegin() const { return rbegin(); }
+	//! Returns a const reverse iterator pointing to the last element.
+	const_reverse_iterator crbegin() const { return rbegin(); }
 
-	//! Returns an iterator pointing to one before the first element.
-	iterator rend();
+	//! Returns a reverse iterator pointing to one before the first element.
+	reverse_iterator rend();
 
-	//! Returns a const-iterator pointing to one before the first element.
-	const_iterator rend() const;
+	//! Returns a const reverse iterator pointing to one before the first element.
+	const_reverse_iterator rend() const;
 
-	//! Returns a const-iterator pointing to one before the first element.
-	const_iterator crend() const { return rend(); }
+	//! Returns a const reverse iterator pointing to one before the first element.
+	const_reverse_iterator crend() const { return rend(); }
 
 
 	/**
@@ -221,17 +237,17 @@ public:
 	 */
 	const_iterator minItem() const { return begin(); }
 
-	//! Returns an iterator to the element with maximal key if the sequence is not empty, an invalid iterator otherwise.
+	//! Returns a reverse iterator to the element with maximal key if the sequence is not empty, an invalid reverse iterator otherwise.
 	/**
 	 * Calling this method is equivalent to calling rbegin(), but has a more intuitive name.
 	 */
-	iterator maxItem() { return rbegin(); }
+	reverse_iterator maxItem() { return rbegin(); }
 
-	//! Returns a const-iterator to the element with maximal key if the sequence is not empty, an invalid const-iterator otherwise.
+	//! Returns a const reverse iterator to the element with maximal key if the sequence is not empty, an invalid const reverse iterator otherwise.
 	/**
 	 * Calling this method is equivalent to calling rbegin(), but has a more intuitive name.
 	 */
-	const_iterator maxItem() const { return rbegin(); }
+	const_reverse_iterator maxItem() const { return rbegin(); }
 
 
 	//@}
@@ -327,10 +343,10 @@ public:
 
 private:
 	CMP m_comparer;
-	int m_size;			//!< number of elements stored in the sequence.
-	Element *m_dummy;	//!< dummy element representing the head and tail of the skiplist.
-	int m_height;		//!< current height of head/tail.
-	int m_realHeight;	//!< actual height of head/tail arrays.
+	int m_size; //!< number of elements stored in the sequence.
+	Element *m_dummy; //!< dummy element representing the head and tail of the skiplist.
+	int m_height; //!< current height of head/tail.
+	int m_realHeight; //!< actual height of head/tail arrays.
 
 	std::minstd_rand m_rng;  //!< Random number generator
 	std::uniform_int_distribution<> m_randomBits;
@@ -359,23 +375,28 @@ private:
 
 
 //! Iterators for sorted sequences.
-template<class KEY, class INFO, class CMP>
-class SortedSequenceIterator {
+template<class KEY, class INFO, class CMP, bool isConst, bool isReverse>
+class SortedSequenceIteratorBase {
 	friend class SortedSequence<KEY,INFO,CMP>;
-	friend class SortedSequenceConstIterator<KEY,INFO,CMP>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,!isConst,isReverse>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,!isReverse>;
+	friend class SortedSequenceIteratorBase<KEY,INFO,CMP,!isConst,!isReverse>;
 
-	typename SortedSequence<KEY,INFO,CMP>::Element *m_pElement;
+	using Element = typename std::conditional<isConst,
+		  const typename SortedSequence<KEY,INFO,CMP>::Element,
+		  typename SortedSequence<KEY,INFO,CMP>::Element>::type;
+	Element *m_pElement;
 
 	//! Creates an iterator pointing to \p pElement.
-	SortedSequenceIterator(typename SortedSequence<KEY,INFO,CMP>::Element *pElement)
-		: m_pElement(pElement) { }
+	SortedSequenceIteratorBase(Element *pElement) : m_pElement(pElement) { }
 
 public:
 	//! Creates an invalid (null-) iterator.
-	SortedSequenceIterator() : m_pElement(nullptr) { }
+	SortedSequenceIteratorBase() : m_pElement(nullptr) { }
 
 	//! Copy constructor.
-	SortedSequenceIterator(const SortedSequenceIterator<KEY,INFO,CMP> &it)
+	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0, bool isArgReverse>
+	SortedSequenceIteratorBase(const SortedSequenceIteratorBase<KEY,INFO,CMP,isArgConst,isArgReverse> &it)
 		: m_pElement(it.m_pElement) { }
 
 	//! Returns the key of the sequence element pointed to.
@@ -385,64 +406,63 @@ public:
 	}
 
 	//! Returns the info of the sequence element pointed to.
-	INFO &info() const {
+	typename std::conditional<isConst, const INFO, INFO>::type &info() const {
 		OGDF_ASSERT(valid());
 		return m_pElement->m_info;
 	}
-
 
 	//! Returns true if the iterator points to an element.
 	bool valid() const { return m_pElement != nullptr; }
 
 	//! Move the iterator one item forward (prefix notation)
-	SortedSequenceIterator<KEY,INFO,CMP> &operator++() {
-		m_pElement = succElement();
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &operator++() {
+		m_pElement = isReverse ? predElement() : succElement();
 		return *this;
 	}
 
 	//! Moves the iterator one item forward (postfix notation)
-	SortedSequenceIterator<KEY,INFO,CMP> operator++(int) {
-		SortedSequenceIterator<KEY,INFO,CMP> it = *this;
-		m_pElement = succElement();
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> operator++(int) {
+		SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> it = *this;
+		m_pElement = isReverse ? predElement() : succElement();
 		return it;
 	}
 
 	//! Moves the iterator one item backward (prefix notation)
-	SortedSequenceIterator<KEY,INFO,CMP> &operator--() {
-		m_pElement = predElement();
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &operator--() {
+		m_pElement = isReverse ? succElement() : predElement();
 		return *this;
 	}
 
 	//! Moves the iterator one item backward (postfix notation)
-	SortedSequenceIterator<KEY,INFO,CMP> operator--(int) {
-		SortedSequenceIterator<KEY,INFO,CMP> it = *this;
-		m_pElement = predElement();
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> operator--(int) {
+		SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> it = *this;
+		m_pElement = isReverse ? succElement() : predElement();
 		return it;
 	}
 
 	//! Returns an iterator pointing to the next element in the sequence.
-	SortedSequenceIterator<KEY,INFO,CMP> succ() const {
-		return succElement();
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> succ() const {
+		return isReverse ? predElement() : succElement();
 	}
 
 	//! Returns an iterator pointing to the previous element in the sequence.
-	SortedSequenceIterator<KEY,INFO,CMP> pred() const {
-		return predElement();
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> pred() const {
+		return isReverse ? succElement() : predElement();
 	}
 
 	//! Assignment operator
-	SortedSequenceIterator<KEY,INFO,CMP> &operator=(const SortedSequenceIterator<KEY,INFO,CMP> &it) {
+	SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &operator=(const SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &it) {
 		m_pElement = it.m_pElement;
 		return *this;
 	}
 
 	//! Equality operator.
-	bool operator==(const SortedSequenceIterator<KEY,INFO,CMP> &it) const {
+	bool operator==(const SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &it) const {
 		return m_pElement == it.m_pElement;
 	}
 
 	//! Inequality operator.
-	bool operator!=(const SortedSequenceIterator<KEY,INFO,CMP> &it) const {
+	bool operator!=(const SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &it) const {
 		return m_pElement != it.m_pElement;
 	}
 
@@ -457,111 +477,6 @@ private:
 		return (m_pElement->m_prev[0]->m_height > 0) ? m_pElement->m_prev[0] : nullptr;
 	}
 };
-
-
-//! Const iterators for sorted sequences.
-template<class KEY, class INFO, class CMP>
-class SortedSequenceConstIterator {
-	friend class SortedSequence<KEY,INFO,CMP>;
-
-	const typename SortedSequence<KEY,INFO,CMP>::Element *m_pElement;
-
-	//! Creates an iterator pointing to \p pElement.
-	SortedSequenceConstIterator(const typename SortedSequence<KEY,INFO,CMP>::Element *pElement)
-		: m_pElement(pElement) { }
-
-public:
-	//! Creates an invalid (null-) iterator.
-	SortedSequenceConstIterator() : m_pElement(nullptr) { }
-
-	//! Copy constructor.
-	SortedSequenceConstIterator(const SortedSequenceConstIterator<KEY,INFO,CMP> &it)
-		: m_pElement(it.m_pElement) { }
-
-	//! Creates an iterator pointing to the same element as \p it.
-	SortedSequenceConstIterator(const SortedSequenceIterator<KEY,INFO,CMP> &it)
-		: m_pElement(it.m_pElement) { }
-
-	//! Returns the key of the sequence element pointed to.
-	const KEY &key() const {
-		OGDF_ASSERT(valid());
-		return m_pElement->m_key;
-	}
-
-	//! Returns the info of the sequence element pointed to.
-	const INFO &info() const {
-		OGDF_ASSERT(valid());
-		return m_pElement->m_info;
-	}
-
-
-	//! Returns true if the iterator points to an element.
-	bool valid() const { return m_pElement != 0; }
-
-	//! Moves the iterator one item forward (prefix notation).
-	SortedSequenceConstIterator<KEY,INFO,CMP> &operator++() {
-		m_pElement = succElement();
-		return *this;
-	}
-
-	//! Moves the iterator one item forward (postfix notation).
-	SortedSequenceConstIterator<KEY,INFO,CMP> operator++(int) {
-		SortedSequenceConstIterator<KEY,INFO,CMP> it = *this;
-		m_pElement = succElement();
-		return it;
-	}
-
-	//! Moves the iterator one item backward (prefix notation).
-	SortedSequenceConstIterator<KEY,INFO,CMP> &operator--() {
-		m_pElement = predElement();
-		return *this;
-	}
-
-	//! Moves the iterator one item backward (postfix notation).
-	SortedSequenceConstIterator<KEY,INFO,CMP> operator--(int) {
-		SortedSequenceConstIterator<KEY,INFO,CMP> it = *this;
-		m_pElement = predElement();
-		return it;
-	}
-
-	//! Returns an iterator pointing to the next element in the sequence.
-	SortedSequenceConstIterator<KEY,INFO,CMP> succ() const {
-		return succElement();
-	}
-
-	//! Returns an iterator pointing to the previous element in the sequence.
-	SortedSequenceConstIterator<KEY,INFO,CMP> pred() const {
-		return predElement();
-	}
-
-	//! Assignment operator.
-	SortedSequenceConstIterator<KEY,INFO,CMP> &operator=(const SortedSequenceConstIterator<KEY,INFO,CMP> &it) {
-		m_pElement = it.m_pElement;
-		return *this;
-	}
-
-	//! Equality operator.
-	bool operator==(const SortedSequenceConstIterator<KEY,INFO,CMP> &it) const {
-		return m_pElement == it.m_pElement;
-	}
-
-	//! Inequality operator.
-	bool operator!=(const SortedSequenceConstIterator<KEY,INFO,CMP> &it) const {
-		return m_pElement != it.m_pElement;
-	}
-
-private:
-	typename SortedSequence<KEY,INFO,CMP>::Element *succElement() const {
-		OGDF_ASSERT(valid());
-		return (m_pElement->m_next[0]->m_height > 0) ? m_pElement->m_next[0] : 0;
-	}
-
-	typename SortedSequence<KEY,INFO,CMP>::Element *predElement() const {
-		OGDF_ASSERT(valid());
-		return (m_pElement->m_prev[0]->m_height > 0) ? m_pElement->m_prev[0] : 0;
-	}
-};
-
 
 template<class KEY, class INFO, class CMP>
 SortedSequence<KEY, INFO, CMP>::SortedSequence(std::initializer_list < std::pair < KEY, INFO >> initList)
@@ -643,7 +558,7 @@ bool SortedSequence<KEY,INFO,CMP>::operator==(const SortedSequence<KEY,INFO,CMP>
 
 	Element *p = m_dummy->m_next[0], *pS = S.m_dummy->m_next[0];
 	while(p != m_dummy) {
-		if(m_comparer.equal(p->m_key,pS->m_key) == false)
+		if (!m_comparer.equal(p->m_key,pS->m_key))
 			return false;
 		p  = p ->m_next[0];
 		pS = pS->m_next[0];
@@ -883,14 +798,14 @@ inline typename SortedSequence<KEY,INFO,CMP>::const_iterator
 
 
 template<class KEY, class INFO, class CMP>
-inline typename SortedSequence<KEY,INFO,CMP>::iterator
+inline typename SortedSequence<KEY,INFO,CMP>::reverse_iterator
 	SortedSequence<KEY,INFO,CMP>::rbegin()
 {
 	return (m_dummy->m_prev[0] != m_dummy) ? m_dummy->m_prev[0] : 0;
 }
 
 template<class KEY, class INFO, class CMP>
-inline typename SortedSequence<KEY,INFO,CMP>::const_iterator
+inline typename SortedSequence<KEY,INFO,CMP>::const_reverse_iterator
 	SortedSequence<KEY,INFO,CMP>::rbegin() const
 {
 	return (m_dummy->m_prev[0] != m_dummy) ? m_dummy->m_prev[0] : 0;
@@ -898,14 +813,14 @@ inline typename SortedSequence<KEY,INFO,CMP>::const_iterator
 
 
 template<class KEY, class INFO, class CMP>
-inline typename SortedSequence<KEY,INFO,CMP>::iterator
+inline typename SortedSequence<KEY,INFO,CMP>::reverse_iterator
 	SortedSequence<KEY,INFO,CMP>::rend()
 {
 	return SortedSequence<KEY,INFO,CMP>::iterator();
 }
 
 template<class KEY, class INFO, class CMP>
-inline typename SortedSequence<KEY,INFO,CMP>::const_iterator
+inline typename SortedSequence<KEY,INFO,CMP>::const_reverse_iterator
 	SortedSequence<KEY,INFO,CMP>::rend() const
 {
 	return SortedSequence<KEY,INFO,CMP>::const_iterator();

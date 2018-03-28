@@ -136,7 +136,7 @@ bool OrthoRep::check(string &error) const
 	std::ostringstream oss;
 
 	// is the associated graph embedded ?
-	if (G.representsCombEmbedding() == false) {
+	if (!G.representsCombEmbedding()) {
 		error = "Graph is not embedded!";
 		return false;
 	}
@@ -369,8 +369,7 @@ void OrthoRep::dissect()
 
 					// We split *itBackSuccSucc ...
 					node u = E.split(adjSplit->theEdge())->source();
-					if (m_dissectionEdge[adjSplit] == false)
-						m_splitNodes.push(u);
+					if (!m_dissectionEdge[adjSplit]) m_splitNodes.push(u);
 					adjEntry adjSplitSucc = adjSplit->faceCycleSucc();
 					// and close a rectangular face
 					edge eDissect = E.splitFace(*itBack, adjSplitSucc);
@@ -735,8 +734,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 
 					node u = se->source();
 
-					if (m_dissectionEdge[adHead] == false)
-						m_splitNodes.push(u);
+					if (!m_dissectionEdge[adHead]) m_splitNodes.push(u);
 					if (wasDissected) m_dissectionEdge[se] = true;
 					if (wasAlign) m_alignmentEdge[se] = true;
 
@@ -851,8 +849,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 						u = se->source();
 						//die neue Kante erhaelt adj, ist aber adjSplit, also immer false?Nein, aber nicht korrekt
 						//order problem: first delete disection edges, then unsplit, but what if split(dissection)
-						if (m_dissectionEdge[adjSplit] == false)
-							m_splitNodes.push(u);
+						if (!m_dissectionEdge[adjSplit]) m_splitNodes.push(u);
 						if (wasDissected) m_dissectionEdge[se] = true;
 						if (wasAlign) m_alignmentEdge[se] = true;
 					}
@@ -1368,8 +1365,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 						u = se->source();
 						//die neue Kante erhaelt adj, ist aber adjSplit, also immer false?Nein, aber nicht korrekt
 						//order problem: first delete disection edges, then unsplit, but what if split(dissection)
-						if (m_dissectionEdge[adjSplit] == false)
-						m_splitNodes.push(u);
+						if (!m_dissectionEdge[adjSplit]) m_splitNodes.push(u);
 						if (wasDissected) m_dissectionEdge[se] = true;
 						if (wasAlign) m_alignmentEdge[se] = true;
 					}
@@ -1495,7 +1491,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 void OrthoRep::undissect(bool align) //default false
 {
 	// assert that dissect() has been called before
-	OGDF_ASSERT(m_dissectionEdge.valid() == true);
+	OGDF_ASSERT(m_dissectionEdge.valid());
 
 	Graph &G = *m_pE;
 
@@ -1504,7 +1500,7 @@ void OrthoRep::undissect(bool align) //default false
 	for(e = G.firstEdge(); e != nullptr; e = eSucc)
 	{
 		eSucc = e->succ();
-		if (m_dissectionEdge[e] == true
+		if (m_dissectionEdge[e]
 		 && !(align && m_alignmentEdge[e])) {
 			// angles at source and target node are joined ...
 			adjEntry adjSrc = e->adjSource();

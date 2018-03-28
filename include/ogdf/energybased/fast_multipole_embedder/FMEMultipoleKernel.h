@@ -157,7 +157,7 @@ public:
 	template<typename T, typename C>
 	inline void sort_parallel(T* ptr, uint32_t n, C comparer)
 	{
-		if ((n < numThreads()*1000) || (numThreads() == 1))
+		if (n < numThreads() * 1000 || numThreads() == 1)
 			sort_single(ptr, n, comparer);
 		else
 			sort_parallel(ptr, n, comparer, 0, numThreads());

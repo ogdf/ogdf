@@ -67,7 +67,7 @@ public:
 
 	//! return pendant with number nr, starts counting at 0
 	node getPendant(int nr) {
-		return (nr < m_pendants.size()) ? (*(m_pendants.get(nr))) : nullptr;
+		return nr < m_pendants.size() ? *m_pendants.get(nr) : nullptr;
 	}
 
 	node getFirstPendant() {

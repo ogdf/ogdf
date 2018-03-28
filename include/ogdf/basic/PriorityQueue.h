@@ -220,7 +220,7 @@ public:
 	 * @param other A queue to be merged in.
 	 */
 	void merge(PriorityQueue &other) {
-		m_impl->merge(other->m_impl);
+		m_impl->merge(*other.m_impl);
 		m_size += other.m_size;
 		other.m_size = 0;
 	}

@@ -59,7 +59,7 @@ mortonComparerEqual(const IntType a[Dim], const IntType b[Dim]) {
 template<typename IntType, int Dim>
 inline typename std::enable_if<Dim == 2, bool>::type
 mortonComparerEqual(const IntType a[Dim], const IntType b[Dim]) {
-	return (a[0] == b[0]) && (a[1] == b[1]);
+	return a[0] == b[0] && a[1] == b[1];
 }
 
 template<typename IntType, int Dim>

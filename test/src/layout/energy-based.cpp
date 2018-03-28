@@ -35,6 +35,7 @@
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/energybased/GEMLayout.h>
 #include <ogdf/energybased/MultilevelLayout.h>
+#include <ogdf/energybased/NodeRespecterLayout.h>
 #include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/energybased/SpringEmbedderFRExact.h>
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
@@ -75,6 +76,11 @@ void init(FMMMLayout& layout) {
 template<>
 void init(GEMLayout& layout) {
 	layout.numberOfRounds(50);
+}
+
+template<>
+void init(NodeRespecterLayout& layout) {
+	layout.setNumberOfIterations(50);
 }
 
 template<>
@@ -158,6 +164,8 @@ go_bandit([] { describe("Energy-based layouts", [] {
 	TEST_ENERGY_BASED_LAYOUT(GEMLayout, 0);
 
 	TEST_ENERGY_BASED_LAYOUT(MultilevelLayout, 0);
+
+	TEST_ENERGY_BASED_LAYOUT(NodeRespecterLayout, 0);
 
 	TEST_ENERGY_BASED_LAYOUT(PivotMDS, 0, GraphProperty::connected);
 

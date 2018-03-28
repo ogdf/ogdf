@@ -48,10 +48,10 @@ class ComputeTricOrder
 public:
 	// constructor
 	ComputeTricOrder (
-			const Graph& G,                  	// biconnected planar graph
-			ConstCombinatorialEmbedding& E, 	// combinatorial embedding of G
-			face outerFace,              		// outer face
-			bool preferNodes = false); 			// boolean value if nodes are prefered to faces
+			const Graph& G, // biconnected planar graph
+			ConstCombinatorialEmbedding& E, // combinatorial embedding of G
+			face outerFace, // outer face
+			bool preferNodes = false); // boolean value if nodes are prefered to faces
 
 
 
@@ -157,7 +157,6 @@ public:
 	}
 
 private:
-
 	void setUpdate(node n);
 
 	void setUpdate(face f);
@@ -165,51 +164,48 @@ private:
 
 	// member variables
 
-	const Graph             	*m_pGraph;     	// the graph
-	ConstCombinatorialEmbedding *m_pEmbedding; 	// the embedding of the graph
+	const Graph *m_pGraph; // the graph
+	ConstCombinatorialEmbedding *m_pEmbedding; // the embedding of the graph
 
-	face m_outerFace; 						// the outer/external face
+	face m_outerFace; // the outer/external face
 
-	node m_v1, m_v2;						// the two nodes on the "bottom edge"
+	node m_v1, m_v2; // the two nodes on the "bottom edge"
 
-	bool m_preferNodes;						// m_preferNodes = true <=> nodes are prefered to faces
-											// in selection of getNextPossible(..)
+	bool m_preferNodes; // m_preferNodes = true <=> nodes are prefered to faces in selection of getNextPossible(..)
 
-	NodeArray<int> m_visited, m_sepf;		// number of visited neighbours and separation faces
-	NodeArray< ListIterator<node> > m_link;	// item in m_possibleNodes containing v
+	NodeArray<int> m_visited, m_sepf; // number of visited neighbours and separation faces
+	NodeArray<ListIterator<node>> m_link; // item in m_possibleNodes containing v
 
-	List<node> m_possibleNodes;				// the possible nodes for the next step
-	List<face> m_possibleFaces;				// the possible faces for the next step
+	List<node> m_possibleNodes; // the possible nodes for the next step
+	List<face> m_possibleFaces; // the possible faces for the next step
 
-	NodeArray< ListIterator<node> > m_nodesLink;	// list-iterator in m_possibleNodes for each node, or nullptr if it doesn't exist
-	FaceArray< ListIterator<face> > m_facesLink;	// list-iterator in m_possibleNodes for each node, or nullptr
+	NodeArray<ListIterator<node>> m_nodesLink; // list-iterator in m_possibleNodes for each node, or nullptr if it doesn't exist
+	FaceArray<ListIterator<face>> m_facesLink; // list-iterator in m_possibleNodes for each node, or nullptr
 
-	List<node> m_updateNodes;				// list of actual changed nodes
-	List<face> m_updateFaces;				// list of actual changed faces
+	List<node> m_updateNodes; // list of actual changed nodes
+	List<face> m_updateFaces; // list of actual changed faces
 
-	NodeArray<bool> m_nodeUpdate;			// m_nodeUpdate[v] = true <=> v \in m_updateNodes
-	FaceArray<bool> m_faceUpdate; 			// m_faceUpdate[f] = true <=> f \in m_updateFaces
+	NodeArray<bool> m_nodeUpdate; // m_nodeUpdate[v] = true <=> v \in m_updateNodes
+	FaceArray<bool> m_faceUpdate; // m_faceUpdate[f] = true <=> f \in m_updateFaces
 
 	FaceArray<bool> m_isSeparationFace;
 
-	bool m_currentIsNode;					// m_currentIsNode == true <=> in the current step a node was picked
-											//  => V_k is a singleton. The Variable == false <=> V_k is a node set
+	bool m_currentIsNode; // m_currentIsNode == true <=> in the current step a node was picked => V_k is a singleton. The Variable == false <=> V_k is a node set
 
-	FaceArray<int> m_outv;					// number of nodes...
-	FaceArray<int> m_oute;					//... and edges of a face that also belong to the outer face
+	FaceArray<int> m_outv; // number of nodes...
+	FaceArray<int> m_oute; //... and edges of a face that also belong to the outer face
 
-	FaceArray< List<node> > m_outerNodes;	// nodes of each face that also belong to the outer face
-	FaceArray< List<edge> > m_outerEdges;	// edges of each face that also belong to the outer face
-
-};	// class ComputeTricOrder
+	FaceArray<List<node>> m_outerNodes; // nodes of each face that also belong to the outer face
+	FaceArray<List<edge>> m_outerEdges; // edges of each face that also belong to the outer face
+};
 
 
 // constructor
 ComputeTricOrder::ComputeTricOrder(
-	const Graph& G, 					// the graph
-	ConstCombinatorialEmbedding &E, 	// embedding of the graph
-	face outerFace,                   	// the outer face
-	bool preferNodes) 					// boolean value if nodes are prefered to faces
+	const Graph& G, // the graph
+	ConstCombinatorialEmbedding &E, // embedding of the graph
+	face outerFace, // the outer face
+	bool preferNodes) // boolean value if nodes are prefered to faces
 {
 	m_pGraph = &G;
 	m_pEmbedding = &E;
@@ -448,9 +444,9 @@ void TriconnectedShellingOrder::doCall(
 		std::cout << "Graph G is triconnected   == " << isTriconnected(G) 	<< std::endl;
 	#endif
 
-	OGDF_ASSERT(isPlanar(G) == true);
-	OGDF_ASSERT(isLoopFree(G) 		== true);
-	OGDF_ASSERT(isTriconnected(G) 	== true);
+	OGDF_ASSERT(isPlanar(G));
+	OGDF_ASSERT(isLoopFree(G));
+	OGDF_ASSERT(isTriconnected(G));
 
 	// crate an embedding for G
 	ConstCombinatorialEmbedding E(G);

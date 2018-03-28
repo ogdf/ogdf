@@ -228,9 +228,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 	m_vIndex.init(H,-1); // for real node: index of x[v] for dummy: index of corresponding segment
 	NodeArray<int> bIndex(H,-1); // (relative) index of b[v]
 	EdgeArray<int> eIndex(H,-1); // for edge not in vertical segment: its index
-	Array<int> count(H.numberOfEdges());	// counts the number of dummy vertices
-											// in corresponding segment that are not at
-											// position 0
+	Array<int> count(H.numberOfEdges()); // counts the number of dummy vertices in corresponding segment that are not at position 0
 
 	int nSpacingConstraints = 0;
 	for(i = 0; i < k; ++i)
@@ -261,7 +259,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 				++nSpacingConstraints;
 
 				// ignore dummy nodes
-				if(m_isVirtual[v] == true)
+				if(m_isVirtual[v])
 					continue;
 
 				// we've found a real vertex
@@ -279,7 +277,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 					// we've found an edge not belonging to a vetical segment
 					eIndex[e] = nEdges++;
 
-					if(m_isVirtual[w] == false)
+					if(!m_isVirtual[w])
 						continue;
 
 					do {
@@ -372,7 +370,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 					H.type(v) == ExtendedNestingGraph::NodeType::ClusterTop)
 					continue;
 
-				if(m_isVirtual[v] == false) {
+				if(!m_isVirtual[v]) {
 					i = m_vertexOffset + m_vIndex[v];
 
 					int cnt =  2 + 2*v->degree();
@@ -638,9 +636,9 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 			} else
 				obj[i] = 1.0;
 
-			if(m_isVirtual[e->source()] == false && e->source()->degree() == 1)
+			if(!m_isVirtual[e->source()] && e->source()->degree() == 1)
 				obj[i] += m_weightBalancing;
-			if(m_isVirtual[e->target()] == false && e->target()->degree() == 1)
+			if(!m_isVirtual[e->target()] && e->target()->degree() == 1)
 				obj[i] += m_weightBalancing;
 		}
 	}
@@ -817,8 +815,8 @@ void OptimalHierarchyClusterLayout::computeYCoordinates(
 		if(c == CG.rootCluster())
 			continue;
 
-		double contentMin =  std::numeric_limits<double>::max();
-		double contentMax = -std::numeric_limits<double>::max();
+		double contentMin = std::numeric_limits<double>::max();
+		double contentMax = std::numeric_limits<double>::lowest();
 
 		ListConstIterator<node> itV;
 		for(itV = c->nBegin(); itV.valid(); ++itV) {

@@ -53,7 +53,7 @@ template<class T>
 class EmbedderMaxFaceBiconnectedGraphsLayers : private EmbedderMaxFaceBiconnectedGraphs<T>
 {
 public:
-	//! @copydoc EmbedderMaxFaceBiconnectedGraphs::embed
+	//! @copydoc ogdf::EmbedderMaxFaceBiconnectedGraphs::embed
 	static void embed(
 		Graph& G,
 		adjEntry& adjExternal,

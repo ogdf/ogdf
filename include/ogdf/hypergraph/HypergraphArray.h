@@ -87,6 +87,9 @@ public:
 };
 
 //! Dynamic arrays indexed with hypernodes.
+/**
+ * @warn_undef_behavior_array
+ */
 template<class T> class HypernodeArray :
 private Array<T>, protected HypergraphArrayBase {
 
@@ -183,6 +186,9 @@ private:
 };
 
 //! Dynamic arrays indexed with nodes.
+/**
+ * @warn_undef_behavior_array
+ */
 template<class T> class HyperedgeArray :
 private Array<T>, protected HypergraphArrayBase {
 

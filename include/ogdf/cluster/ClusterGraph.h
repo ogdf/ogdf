@@ -83,10 +83,10 @@ public:
 
 private:
 
-	cluster			m_parent;		//!< The parent of this cluster.
-	cluster			m_pPrev;		//!< The postorder predecessor of this cluster.
-	cluster			m_pNext;		//!< The postorder successor of this cluster.
-	ListIterator<cluster> m_it;		//!< The position of this cluster within the children list of its parent.
+	cluster m_parent; //!< The parent of this cluster.
+	cluster m_pPrev; //!< The postorder predecessor of this cluster.
+	cluster m_pNext; //!< The postorder successor of this cluster.
+	ListIterator<cluster> m_it; //!< The position of this cluster within the children list of its parent.
 
 #ifdef OGDF_DEBUG
 	// we store the graph containing this cluster for debugging purposes only
@@ -624,7 +624,7 @@ public:
 #if 0
 		if (!c) return false; //Allows easy use in loops
 #endif
-		return (c->nCount() == 1) && (c->cCount() == 0);
+		return c->nCount() == 1 && c->cCount() == 0;
 	}
 
 	//! Returns true if cluster \p c has only one child and no nodes.
@@ -633,7 +633,7 @@ public:
 #if 0
 		if (!c) return false; //Allows easy use in loops
 #endif
-		return (c->nCount() == 0) && (c->cCount() == 1);
+		return c->nCount() == 0 && c->cCount() == 1;
 	}
 
 	//@}

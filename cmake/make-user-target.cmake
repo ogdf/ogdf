@@ -1,19 +1,12 @@
-# Compilation of executables that use OGDF
-function(make_user_target TARGET)
+# Compilation of executables that do or do not use OGDF
+function(make_some_target TARGET include_path)
   add_ogdf_extra_flags(${TARGET})
   target_compile_features(${TARGET} PUBLIC cxx_range_for)
-  target_include_directories(${TARGET} BEFORE PUBLIC ${CMAKE_BINARY_DIR}/include)
+  target_include_directories(${TARGET} BEFORE PUBLIC ${include_path})
+endfunction()
+
+# Compilation of executables that use OGDF
+function(make_user_target TARGET)
+  make_some_target(${TARGET} ${PROJECT_BINARY_DIR}/include)
   target_link_libraries(${TARGET} OGDF)
-  if(SHOW_STACKTRACE)
-    if(BACKWARD_HAS_DW)
-      target_link_libraries(${TARGET} ${LIBDW_LIBRARY})
-    elseif(BACKWARD_HAS_BFD)
-      target_link_libraries(${TARGET} ${LIBBFD_LIBRARY} ${LIBDL_LIBRARY})
-    elseif(BACKWARD_HAS_UNWIND)
-      target_link_libraries(${TARGET} ${LIBUNWIND_LIBRARY})
-    endif()
-  endif()
-  if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_link_libraries(${TARGET} pthread)
-  endif()
 endfunction()

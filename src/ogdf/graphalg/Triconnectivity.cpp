@@ -354,7 +354,7 @@ bool Triconnectivity::checkComp()
 				std::cout << "virtual edge contained " << count[e];
 				printOs(e); std::cout << std::endl;
 			}
-			if (checkSepPair(e) == false) {
+			if (!checkSepPair(e)) {
 				ok = false;
 				std::cout << "virtual edge"; printOs(e);
 				std::cout << " does not correspond to a sep. pair." << std::endl;
@@ -1006,7 +1006,7 @@ bool Triconnectivity::pathSearch (const Graph &G, node v, node &s1, node &s2)
 				TSTACK_pushEOS();
 			}
 
-			if(pathSearch(G,w,s1,s2) == false)
+			if(!pathSearch(G,w,s1,s2))
 				return false;
 
 			while (vnum != 1 && ((m_TSTACK_a[m_top] == vnum) ||

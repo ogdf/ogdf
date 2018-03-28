@@ -94,14 +94,14 @@ public:
 
 	/**
 	 * \brief An slimmed version of the Algorithm call and constructor
-	 * @copydetails NonPlanarCore::NonPlanarCore(const Graph&,bool)
+	 * @copydetails ogdf::NonPlanarCore::NonPlanarCore(const Graph&,bool)
 	 * \param weight if the graph is weighted, the weights otherwise a nullptr
 	 */
 	NonPlanarCore(const Graph &G, const EdgeArray<TCost> &weight, bool nonPlanarityGuaranteed = false);
 
 	/**
 	 * \brief Algorithm call and constructor
-	 * @copydetails NonPlanarCore::NonPlanarCore(const Graph&,bool)
+	 * @copydetails ogdf::NonPlanarCore::NonPlanarCore(const Graph&,bool)
 	 * \param weight if the graph is weighted, the weights otherwise a nullptr
 	 * \param minSTCutModule the MaxFlowModule that should be used for calculating the traversing path
 	 * for weighted graphs.

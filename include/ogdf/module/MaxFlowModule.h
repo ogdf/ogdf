@@ -129,7 +129,7 @@ public:
 	 * If source and target are the same node, the algorithm must return zero.
 	 *
 	 * @return The value of the flow.
-	 * @param cap is the EdgeArray of capacities.
+	 * @param cap is the EdgeArray of non-negative capacities.
 	 * @param s is the source.
 	 * @param t is the sink.
 	 */
@@ -152,10 +152,21 @@ public:
 		flow = *m_flow;
 	}
 
+	//! Return whether the instance is feasible, i.e. the capacities are
+	//! non-negative.
+	bool isFeasibleInstance() const {
+		for (edge e : m_G->edges) {
+			if ((*m_cap)[e] < 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	//! Only a shortcut for computeValue and computeFlowAfterValue.
 	/**
 	 * @return The value of the flow.
-	 * @param cap is the EdgeArray of capacities.
+	 * @param cap is the EdgeArray of non-negative capacities.
 	 * @param s is the source.
 	 * @param t is the sink.
 	 * @param flow A copy of the "internal" flow array is given in \p flow.

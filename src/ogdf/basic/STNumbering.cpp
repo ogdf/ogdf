@@ -218,8 +218,7 @@ int computeSTNumbering(const Graph &G,
 	markedNode[t] = true;
 	markedEdge[st] = true;
 
-	ArrayBuffer<node> nodeStack;	// nodeStack stores the vertices during the
-								// computation of the st-numbering.
+	ArrayBuffer<node> nodeStack; // nodeStack stores the vertices during the computation of the st-numbering.
 	nodeStack.push(t);
 	nodeStack.push(s);
 	count = 1;

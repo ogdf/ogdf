@@ -163,8 +163,7 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 		x_cr += x[cr]; // x_cr = abs. x-coord(cr) - abs. x-coord(cl)
 
 		int offset;
-		if (m_sizeOptimization == true)
-		{
+		if (m_sizeOptimization) {
 			// optimization: compute minimal value offset by which cr must be
 			// shift to right
 			int yMax = y[cr];

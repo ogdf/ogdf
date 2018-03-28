@@ -403,7 +403,7 @@ public:
 			{
 				localContexts[currThread]->innerNodePartition.numNodes++;
 				curr = tree->nextNode(curr);
-				if ((localContexts[currThread]->innerNodePartition.numNodes>=numInnerNodesPerThread) && (currThread < numThreads-1))
+				if (localContexts[currThread]->innerNodePartition.numNodes >= numInnerNodesPerThread && currThread < numThreads - 1)
 				{
 					currThread++;
 					localContexts[currThread]->innerNodePartition.numNodes = 0;
@@ -432,7 +432,7 @@ public:
 			{
 				localContexts[currThread]->leafPartition.numNodes++;
 				curr = tree->nextNode(curr);
-				if ((localContexts[currThread]->leafPartition.numNodes>=numLeavesPerThread) && (currThread < numThreads-1))
+				if (localContexts[currThread]->leafPartition.numNodes >= numLeavesPerThread && currThread < numThreads - 1)
 				{
 					currThread++;
 					localContexts[currThread]->leafPartition.numNodes = 0;
@@ -460,7 +460,7 @@ public:
 	{
 		uint32_t bound = tree->numberOfPoints() / (numThreads*numThreads);
 
-		if (tree->isLeaf(nodeID) || (tree->numberOfPoints(nodeID) < bound))
+		if (tree->isLeaf(nodeID) || tree->numberOfPoints(nodeID) < bound)
 			l_par.push_back(nodeID);
 		else
 			for (uint32_t i = 0; i < tree->numberOfChilds(nodeID); i++)

@@ -379,8 +379,8 @@ public:
 	//! returns true iff original edge is contained in optimum solution
 	bool isSolutionEdge(edge e) const
 	{
-		return ((m_isSolutionEdge[m_mapToBidirectedGraph1[e]])
-			   || (m_isSolutionEdge[m_mapToBidirectedGraph2[e]]));
+		return m_isSolutionEdge[m_mapToBidirectedGraph1[e]]
+		    || m_isSolutionEdge[m_mapToBidirectedGraph2[e]];
 	}
 
 	//! the directed graph, i.e., the bidirection of the input graph
@@ -832,7 +832,7 @@ public:
 	{
 		EdgeVariable *edgeVar = (EdgeVariable*)v;
 		edge e = edgeVar->theEdge();
-		if ((e != m_e1) && (e != m_e2))
+		if (e != m_e1 && e != m_e2)
 			return 0.0;
 		return m_factor;
 	}
@@ -918,7 +918,7 @@ public:
 		EdgeVariable *edgeVar = (EdgeVariable*)v;
 		edge e = edgeVar->theEdge();
 		// the edge
-		if ((e->source() == m_edge->source()) && (e->target() == m_edge->target()))
+		if (e->source() == m_edge->source() && e->target() == m_edge->target())
 			return m_coeffEdge;
 		// all edges to vertices x != source
 		if (e->target() != m_edge->source())
@@ -1000,7 +1000,7 @@ public:
 	}
 	//! returns true iff the edge is contained in the cut
 	bool cutedge(edge e) const {
-		return ((m_marked[e->source()]) && (!m_marked[e->target()]));
+		return m_marked[e->source()] && !m_marked[e->target()];
 	}
 	//! the number of marked nodes
 	int nMarkedNodes() const { return m_nMarkedNodes; }
@@ -1615,7 +1615,7 @@ MinSteinerTreeDirectedCut<T>::Sub::feasible()
 	m_alreadySeparated = mySeparate();
 
 	if (m_alreadySeparated > 0) {
-		if ((m_callPrimalHeuristic == 2) && (!m_pMaster->relaxed())) {
+		if (m_callPrimalHeuristic == 2 && !m_pMaster->relaxed()) {
 			myImprove();
 		}
 		return false;
@@ -1630,7 +1630,7 @@ MinSteinerTreeDirectedCut<T>::Sub::feasible()
 	if (!m_pMaster->relaxed()) {
 		// check integrality
 		for (int i = 0; i < m_pMaster->nEdges(); i++) {
-			if ((xVal_[i] > eps) && (xVal_[i] < oneMinusEps)) {
+			if (xVal_[i] > eps && xVal_[i] < oneMinusEps) {
 				// found non-integral solution but no violated directed cuts
 				// i.e., we have to branch.
 				// But first, we call the primal heuristic
@@ -1676,22 +1676,21 @@ MinSteinerTreeDirectedCut<T>::Sub::printCurrentSolution(bool onlyNonZeros)
 	double eps = master_->eps();
 	double oneMinusEps = 1.0 - eps;
 	for (int i = 0; i < nVar(); i++) {
-		if ((xVal_[i] > -eps) && (xVal_[i] < eps)) {
+		if (xVal_[i] > -eps && xVal_[i] < eps) {
 			if (!onlyNonZeros) {
 				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=0" << std::flush;
 				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
 			}
 		}
-		else
-			if ((xVal_[i] > oneMinusEps) && (xVal_[i] < 1+eps)) {
-				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=1" << std::flush;
-				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
-				nOnesInSol++;
-			}
-			else {
-				m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=" << xVal_[i] << std::flush;
-				m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
-			}
+		else if (xVal_[i] > oneMinusEps && xVal_[i] < 1+eps) {
+			m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=1" << std::flush;
+			m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
+			nOnesInSol++;
+		}
+		else {
+			m_pMaster->lout(Logger::Level::Minor) << "\tx" << i << "=" << xVal_[i] << std::flush;
+			m_pMaster->lout(Logger::Level::Minor) << " [edge " << ((EdgeVariable*)variable(i))->theEdge() << "]" << std::endl;
+		}
 	}
 	m_pMaster->lout(Logger::Level::Medium) << "\tnEdges=" << nOnesInSol << std::endl << std::flush;
 }
@@ -1716,7 +1715,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 	int nTerminals = m_pMaster->nTerminals();
 	const node *masterTerminals = m_pMaster->terminals();
-	node *terminal = new node[nTerminals];
+	Array<node> terminal(nTerminals);
 
 	for (int i = 0; i < nTerminals; i++) {
 		terminal[i] = masterTerminals[i];
@@ -1747,7 +1746,8 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 	EdgeArray<double> capacities;
 	capacities.init(g, 0);
 	for (edge e : g.edges) {
-		capacities[e] = xVal_[m_pMaster->edgeID(e)];
+		// some LP solvers might return a negative epsilon instead of 0 due to numerical reasons
+		capacities[e] = max(xVal_[m_pMaster->edgeID(e)], 0.);
 		if (m_minCardinalityCuts)
 			capacities[e] += cardEps;
 	}
@@ -1791,7 +1791,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 	List<edge> modified;
 
 	// main while loop for the computation of the cutting planes
-	while ((cutsFound < m_maxNrCuttingPlanes) && (ti < nTerminals)) {
+	while (cutsFound < m_maxNrCuttingPlanes && ti < nTerminals) {
 		t = terminal[ti];
 		if (t != r) {
 #ifdef OGDF_STP_EXACT_LOGGING
@@ -1834,7 +1834,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 #endif
 
 			// min cardinality
-			if (m_minCardinalityCuts && (cutValue < uBound)) {
+			if (m_minCardinalityCuts && cutValue < uBound) {
 				for (edge e : g.edges) {
 					if (minSTCut.isFrontCutEdge(e)) {
 						cutValue -= cardEps;
@@ -1884,10 +1884,10 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 					<< "Sub::mySeparate(): found violated cut:" << std::endl;
 				printConstraint(newCut, Logger::Level::Medium);
 #endif
-				if ((m_computeBackCuts)
+				if (m_computeBackCuts
 				&& !minSTCut.frontCutIsComplementOfBackCut()
-				&& (cutsFound < m_maxNrCuttingPlanes)
-				&& (cutValueBack <= oneMinusEps)) {
+				&& cutsFound < m_maxNrCuttingPlanes
+				&& cutValueBack <= oneMinusEps) {
 					cutsFound++;
 					// generate new constraint
 					DirectedCutConstraint *newBackCut = new DirectedCutConstraint(master_, g, &minSTCut, MinSTCutMaxFlow<double>::cutType::BACK_CUT);
@@ -1915,10 +1915,10 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 								modified.pushBack(e);
 						}
 						else {
-							if ((m_computeBackCuts)
-							&& (nOtherNodes > 0)
-							&& (cutValueBack <= oneMinusEps)
-							&& (minSTCut.isBackCutEdge(e))) {
+							if (m_computeBackCuts
+							&& nOtherNodes > 0
+							&& cutValueBack <= oneMinusEps
+							&& minSTCut.isBackCutEdge(e)) {
 								if (m_saturationStrategy == 2)
 									capacities[e] = 1.0/(double)cardinalityBackcut + eps;
 								else
@@ -1933,13 +1933,10 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			}
 		}
 
-		if (!m_computeNestedCuts)
-		{
+		if (!m_computeNestedCuts) {
 			ti++;
-		}
-		else {
-			// m_computeNestedCuts == true
-			if ((cutValue > oneMinusEps) || (r == t)) {
+		} else {
+			if (cutValue > oneMinusEps || r == t) {
 				ti++;
 				if (m_separationStrategy == 2) {
 					while (!modified.empty()) {
@@ -1952,8 +1949,6 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			}
 		}
 	}
-
-	delete[] terminal;
 
 	m_alreadySeparated = cutsFound;
 
@@ -2118,9 +2113,9 @@ MinSteinerTreeDirectedCut<T>::Sub::printConstraint(abacus::Constraint *constrain
 	for (int i = 0; i < nVar(); i++) {
 		var = variable(i);
 		val = constraint->coeff(var);
-		if ((val > eps) || (val < -eps)) {
+		if (val > eps || val < -eps) {
 			if (val > 0) {
-				if ((val > 1-eps) && (val < 1+eps)) {
+				if (val > 1-eps && val < 1+eps) {
 					if (!first)
 						m_pMaster->lout(level) << " + ";
 				}
@@ -2130,7 +2125,7 @@ MinSteinerTreeDirectedCut<T>::Sub::printConstraint(abacus::Constraint *constrain
 				}
 			}
 			else {
-				if ((val < -1+eps) && (val > -1-eps)) {
+				if (val < -1+eps && val > -1-eps) {
 					if (!first)
 						m_pMaster->lout(level) << " - ";
 					else
@@ -2187,41 +2182,41 @@ MinSteinerTreeDirectedCut<T>::DirectedCutConstraint::coeff(const abacus::Variabl
 template<typename T>
 T MinSteinerTreeDirectedCut<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
-	Master *stpMaster = new Master(G, terminals, isTerminal, m_eps);
+	Master stpMaster(G, terminals, isTerminal, m_eps);
 	if (m_configFile) {
-		stpMaster->setConfigFile(m_configFile);
+		stpMaster.setConfigFile(m_configFile);
 	}
 #ifdef OGDF_STP_EXACT_LOGGING
-	stpMaster->setOutputLevel(m_outputLevel);
+	stpMaster.setOutputLevel(m_outputLevel);
 #endif
-	stpMaster->useDegreeConstraints(m_addDegreeConstraints);
-	stpMaster->useIndegreeEdgeConstraints(m_addIndegreeEdgeConstraints);
-	stpMaster->useGSEC2Constraints(m_addGSEC2Constraints);
-	stpMaster->useFlowBalanceConstraints(m_addFlowBalanceConstraints);
-	stpMaster->setMaxNumberAddedCuttingPlanes(m_maxNrAddedCuttingPlanes);
-	stpMaster->useTerminalShuffle(m_shuffleTerminals);
-	stpMaster->useBackCuts(m_backCutComputation);
-	stpMaster->useNestedCuts(m_nestedCutComputation);
-	stpMaster->setSeparationStrategy(m_separationStrategy);
-	stpMaster->setSaturationStrategy(m_saturationStrategy);
-	stpMaster->useMinCardinalityCuts(m_minCardinalityCuts);
-	stpMaster->setMaxFlowModule(m_maxFlowModuleOption.get());
+	stpMaster.useDegreeConstraints(m_addDegreeConstraints);
+	stpMaster.useIndegreeEdgeConstraints(m_addIndegreeEdgeConstraints);
+	stpMaster.useGSEC2Constraints(m_addGSEC2Constraints);
+	stpMaster.useFlowBalanceConstraints(m_addFlowBalanceConstraints);
+	stpMaster.setMaxNumberAddedCuttingPlanes(m_maxNrAddedCuttingPlanes);
+	stpMaster.useTerminalShuffle(m_shuffleTerminals);
+	stpMaster.useBackCuts(m_backCutComputation);
+	stpMaster.useNestedCuts(m_nestedCutComputation);
+	stpMaster.setSeparationStrategy(m_separationStrategy);
+	stpMaster.setSaturationStrategy(m_saturationStrategy);
+	stpMaster.useMinCardinalityCuts(m_minCardinalityCuts);
+	stpMaster.setMaxFlowModule(m_maxFlowModuleOption.get());
 	if (m_primalHeuristic) {
-		stpMaster->setPrimalHeuristic(m_primalHeuristic);
+		stpMaster.setPrimalHeuristic(m_primalHeuristic);
 	}
-	stpMaster->setPrimalHeuristicCallStrategy(m_callPrimalHeuristic);
-	stpMaster->setPoolSizeInitFactor(m_poolSizeInitFactor);
-	// XXX: should we set stpMaster->objInteger true/false according to weights automatically?
+	stpMaster.setPrimalHeuristicCallStrategy(m_callPrimalHeuristic);
+	stpMaster.setPoolSizeInitFactor(m_poolSizeInitFactor);
+	// XXX: should we set stpMaster.objInteger true/false according to weights automatically?
 
 	// now solve LP
-	stpMaster->optimize();
+	stpMaster.optimize();
 
 	// collect solution edges to build Steiner tree
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
 	finalSteinerTree->createEmpty(G);
 	T weight(0);
 	for (edge e = G.firstEdge(); e; e = e->succ()) {
-		if (stpMaster->isSolutionEdge(e)) {
+		if (stpMaster.isSolutionEdge(e)) {
 			const node vO = e->source();
 			node vC = finalSteinerTree->copy(vO);
 			if (!vC) {
@@ -2238,8 +2233,6 @@ T MinSteinerTreeDirectedCut<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G
 		}
 	}
 
-	delete stpMaster;
-	// mincut is already deleted
 	return weight;
 }
 

@@ -48,7 +48,7 @@
 
 //#define OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 
-#define TEST_LAYOUT(TYPE, ...) describeLayout<TYPE>(string(#TYPE), 0, {__VA_ARGS__})
+#define TEST_LAYOUT(TYPE, ...) describeLayout<TYPE>(#TYPE, 0, {__VA_ARGS__})
 
 #ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 namespace layout_helpers {
@@ -132,10 +132,16 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 
 	string indent = "        ";
 	std::cout << std::endl;
-	double resolution = (LayoutStatistics::angularResolution(GA)*100)/(2*Math::pi);
-	std::cout << indent << "angular resolution: " << std::setw(9) << std::setprecision(2) << std::fixed << resolution << " %" << std::endl;
-	std::cout << indent << "average edge length: " << std::setw(8) << LayoutStatistics::edgeLengths(GA) / (1.0 * G.numberOfEdges()) << std::endl;
-	std::cout << indent << "average bends per edge: " << std::setw(5) << LayoutStatistics::numberOfBends(GA) / (1.0 * G.numberOfEdges()) << std::endl;
+	double resolution = (Math::minValue(LayoutStatistics::angles(GA))*100) / (2*Math::pi);
+	double avgEdgeLength = Math::mean(LayoutStatistics::edgeLengths(GA));
+	double avgBends = Math::mean(LayoutStatistics::numberOfBends(GA));
+	double avgNodeCrossings = Math::mean(LayoutStatistics::numberOfNodeCrossings(GA));
+	double avgNodeOverlaps = Math::mean(LayoutStatistics::numberOfNodeOverlaps(GA));
+	std::cout << indent << "angular resolution: " << std::setw(18) << std::setprecision(2) << std::fixed << resolution << " %" << std::endl;
+	std::cout << indent << "average edge length: " << std::setw(17) << avgEdgeLength << std::endl;
+	std::cout << indent << "average bends per edge: " << std::setw(14) << avgBends << std::endl;
+	std::cout << indent << "average node crossings per edge: " << std::setw(5) << avgNodeCrossings << std::endl;
+	std::cout << indent << "average node overlaps per node: " << std::setw(6) << avgNodeOverlaps << std::endl;
 
 	// Assert that we do not have any needless bendpoints
 	for(edge e : G.edges) {
@@ -154,7 +160,7 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 
 	// Assume that any layout algorithm that requires planar graphs or planarize produces planar drawings
 	if(algoPlanarizes || algoRequiresPlanar) {
-		int crossingNumber = LayoutStatistics::numberOfCrossings(GA);
+		int crossingNumber = Math::sum(LayoutStatistics::numberOfCrossings(GA)) / 2;
 
 		std::cout << indent << "crossing number: " << std::setw(9) << crossingNumber << std::endl;
 

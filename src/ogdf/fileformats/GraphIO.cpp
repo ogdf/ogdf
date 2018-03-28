@@ -35,7 +35,6 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GmlParser.h>
-#include <ogdf/fileformats/OgmlParser.h>
 #include <ogdf/fileformats/GraphMLParser.h>
 #include <ogdf/fileformats/DotParser.h>
 #include <ogdf/fileformats/GexfParser.h>
@@ -52,8 +51,8 @@ using std::istringstream;
 
 namespace ogdf {
 
-char GraphIO::s_indentChar  = ' ';
-int  GraphIO::s_indentWidth = 2;
+char GraphIO::s_indentChar  = '\t';
+int  GraphIO::s_indentWidth = 1;
 Logger GraphIO::logger;
 
 //! Supported formats for automated detection
@@ -67,7 +66,6 @@ const std::vector<GraphIO::ReaderFunc> readers = {
 	GraphIO::readGDF,
 	GraphIO::readGraphML,
 	GraphIO::readGEXF,
-	GraphIO::readOGML,
 	GraphIO::readSTP,
 	GraphIO::readGraph6WithForcedHeader
 };
@@ -113,25 +111,6 @@ bool GraphIO::writeGML(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
 	return writeGML(G, os);
-}
-
-bool GraphIO::readOGML(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readOGML(G, is);
-}
-
-bool GraphIO::readOGML(Graph &G, std::istream &is)
-{
-	if(!is.good()) return false;
-	OgmlParser parser;
-	return parser.read(is, G);
-}
-
-bool GraphIO::writeOGML(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeOGML(G, os);
 }
 
 bool GraphIO::readRome(Graph &G, const string &filename)
@@ -244,56 +223,148 @@ bool GraphIO::readChaco(Graph &G, const string &filename)
 
 bool GraphIO::readChaco(Graph &G, std::istream &is)
 {
-	if(!is.good()) return false;
+	if (!is.good()) {
+		return false;
+	}
 
 	G.clear();
-
 	string buffer;
 	istringstream iss;
+	auto log = [&](std::string&& s) {
+		Logger::slout() << "GraphIO::readChaco: " << s << "\n";
+	};
 
-	int numN = -1, numE = -1;
-	if (std::getline(is, buffer)) {
-		iss.str(buffer);
-		iss >> numN >> numE;
-		if(numN < 0 || numE < 0)
-			return false;
-	} else
+	int numN = -1;
+	int numE = -1;
+	int numWeightInfo = -1;
+	bool nodesNumbered = false;
+	bool nodesWeighted = false;
+	bool edgesWeighted = false;
+
+	while (std::getline(is, buffer) && (buffer[0] == '%' || buffer[0] == '#')) {
+		// Ignore comments: leading lines starting with '%' or '#'.
+	}
+
+	// Get number of nodes and edges in the first uncommented line.
+	iss.str(buffer);
+	if (!(iss >> numN) || numN < 0) {
+		log("Number of nodes is not a non-negative integer.");
 		return false;
+	}
+	if (!(iss >> numE) || numE < 0) {
+		log("Number of edges is not a non-negative integer.");
+		return false;
+	}
 
-	if (numN == 0) return true;
+	// If optional weight info (three digit number) is set, read it.
+	if (!iss.eof()) {
+		if (!(iss >> numWeightInfo) || numWeightInfo < 0 || numWeightInfo > 999) {
+			log("Weight info number is not an integer in {0,...,999}.");
+			return false;
+		}
+		nodesNumbered = numWeightInfo > 99;
+		nodesWeighted = numWeightInfo % 100 > 9;
+		edgesWeighted = numWeightInfo % 10 > 0;
+	}
+
+	// If n = 0: Return true only if m == 0 and there are no more lines.
+	if (numN == 0) {
+		if (numE > 0) {
+			log("No nodes but a positive amount of edges specified.");
+		}
+		if (std::getline(is, buffer)) {
+			log("Number of nodes is 0 but adjacency lists found.");
+		}
+		return true;
+	}
 
 	Array<node> indexToNode(1,numN,nullptr);
-	for (int i = 1; i <= numN; i++)
+	for (int i = 1; i <= numN; i++) {
 		indexToNode[i] = G.newNode();
+	}
 
 	int vid = 0;
-	while(std::getline(is, buffer))
-	{
-		if(buffer.empty())
-			continue;
-
-		if(vid >= numN) {
-			Logger::slout() << "GraphIO::readChaco: More lines with adjacency lists than expected.\n";
+	while (std::getline(is, buffer)) {
+		if (vid >= numN) {
+			log("More lines with adjacency lists than expected.");
 			return false;
 		}
 
-		iss.str(buffer); iss.clear();
-		node v = indexToNode[++vid];
+		iss.str(buffer);
+		iss.clear();
 
-		int wid;
-		while(iss >> wid) {
-			if(wid < 1 || wid > numN) {
-				Logger::slout() << "GraphIO::readChaco: Illegal node index in adjacency list.\n";
+		// Get correct node using its id.
+		node v;
+		if (nodesNumbered) {
+			int nodeId;
+			if (!(iss >> nodeId)) {
+				log("Invalid node index.");
 				return false;
 			}
-			if(wid >= vid)
-				G.newEdge(v, indexToNode[wid]);
+			if (nodeId == vid) {
+				v = indexToNode[vid];
+			} else if (nodeId == vid+1) {
+				v = indexToNode[++vid];
+			} else {
+				log("Invalid order of adjacency lists.");
+				if (nodeId >= 0 && nodeId <= numN) {
+					vid = nodeId;
+					v = indexToNode[vid];
+				} else {
+					return false;
+				}
+			}
+		} else {
+			v = indexToNode[++vid];
+		}
+
+		// Get node weight.
+		if (nodesWeighted) {
+			int nodeWeight;
+			if (!(iss >> nodeWeight)) {
+				log("Illegal node weight in adjacency list.");
+			}
+		}
+
+		// Blank lines represent nodes without adjacency lists.
+		if (buffer.empty()) {
+			continue;
+		}
+
+		// Read adjacent nodes (alternating with edge weights if specified).
+		bool readId = false;
+		while (!iss.eof()) {
+			readId = edgesWeighted ? !readId : true;
+			if (readId) {
+				int neighbourId;
+				if (!(iss >> neighbourId) || neighbourId < 1 || neighbourId > numN) {
+					log("Illegal node index in adjacency list.");
+					return false;
+				}
+				if (neighbourId >= vid) {
+					G.newEdge(v, indexToNode[neighbourId]);
+				}
+			} else {
+				double edgeWeight;
+				if (!(iss >> edgeWeight)) {
+					log("Illegal edge weight in adjacency list.");
+				}
+			}
+		}
+
+		// Iff edge weights are given, the line should end with one.
+		if (edgesWeighted == readId) {
+			log("Invalid number of entries in adjacency list.");
 		}
 	}
 
-	if(G.numberOfEdges() != numE) {
-		Logger::slout() << "GraphIO::readChaco: Invalid number of edges: " << G.numberOfEdges() << " but expected " << numE << "\n";
-		return false;
+	if (vid != numN) {
+		log("Invalid number of lines with adjacency lists: " +
+			to_string(vid) + " but expected " + to_string(numN));
+	}
+	if (G.numberOfEdges() != numE) {
+		log("Invalid number of edges: " + to_string(G.numberOfEdges()) +
+			" but expected " + to_string(numE));
 	}
 
 	return true;
@@ -703,24 +774,6 @@ bool GraphIO::writeGML(const ClusterGraph &C, const string &filename)
 	return writeGML(C, os);
 }
 
-bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readOGML(C, G, is);
-}
-
-bool GraphIO::readOGML(ClusterGraph &C, Graph &G, std::istream &is)
-{
-	OgmlParser parser;
-	return parser.read(is, G, C);
-}
-
-bool GraphIO::writeOGML(const ClusterGraph &C, const string &filename)
-{
-	ofstream os(filename);
-	return writeOGML(C, os);
-}
-
 bool GraphIO::readGML(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -739,25 +792,6 @@ bool GraphIO::writeGML(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
 	return writeGML(A, os);
-}
-
-bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readOGML(A, G, is);
-}
-
-bool GraphIO::readOGML(GraphAttributes &A, Graph &G, std::istream &is)
-{
-	if(!is.good()) return false;
-	OgmlParser parser;
-	return parser.read(is, G, A);
-}
-
-bool GraphIO::writeOGML(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeOGML(A, os);
 }
 
 bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const string &filename)
@@ -862,25 +896,6 @@ bool GraphIO::writeGML(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
 	return writeGML(A, os);
-}
-
-bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readOGML(A, C, G, is);
-}
-
-bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
-{
-	if(!is.good()) return false;
-	OgmlParser parser;
-	return parser.read(is, G, C, A);
-}
-
-bool GraphIO::writeOGML(const ClusterGraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeOGML(A, os);
 }
 
 bool GraphIO::readMatrixMarket(Graph& G, std::istream &inStream)

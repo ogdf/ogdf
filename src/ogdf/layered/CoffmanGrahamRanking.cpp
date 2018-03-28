@@ -128,7 +128,7 @@ void CoffmanGrahamRanking::insert (node u, List<Tuple2<node,int> > &ready_nodes)
 {
 	int j = 0;
 
-	for( ListIterator<Tuple2<node,int> > it = ready_nodes.rbegin(); it.valid(); --it) {
+	for( ListReverseIterator<Tuple2<node,int> > it = ready_nodes.rbegin(); it.valid(); ++it) {
 		node v     = (*it).x1();
 		int  sigma = (*it).x2();
 
@@ -167,7 +167,7 @@ void CoffmanGrahamRanking::insert (node u, List<Tuple2<node,int> > &ready_nodes)
 
 void CoffmanGrahamRanking::insert (node v, List<node> &ready, const NodeArray<int> &pi)
 {
-	for( ListIterator<node> it = ready.rbegin(); it.valid(); --it) {
+	for( ListReverseIterator<node> it = ready.rbegin(); it.valid(); ++it) {
 		if (pi[v] <= pi[*it]) {
 			ready.insertAfter(v, it);
 			return;

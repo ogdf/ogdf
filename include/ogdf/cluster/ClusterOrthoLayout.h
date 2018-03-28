@@ -160,7 +160,7 @@ private:
 	// options
 	double m_separation;//!< Minimum distance between edges and vertices.
 	double m_cOverhang; //!< Factor for minimum distance between vertex corner an adjacent edges.
-	double m_margin;	//!< Distance between bounding box and drawing boundary.
+	double m_margin; //!< Distance between bounding box and drawing boundary.
 	OrthoDir m_preferedDir; //!< Preferred direction of generalizations (obsolete).
 	int m_optionProfile;
 	int m_costAssoc;    //!< Compaction cost of association type edges.

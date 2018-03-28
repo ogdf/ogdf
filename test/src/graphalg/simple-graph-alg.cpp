@@ -295,7 +295,7 @@ go_bandit([]() {
 			});
 
 			it("works on an empty graph", [&](){
-				AssertThat(isTwoEdgeConnected(G), IsTrue());
+				AssertThat(isBiconnected(G), IsTrue());
 			});
 
 			it("works on a graph with one node", [&](){
@@ -732,6 +732,83 @@ go_bandit([]() {
 					AssertThat(dist[i], Equals(1));
 				}
 				AssertThat(dist[dist.high()], Equals(2));
+			});
+		});
+
+		describe("isBipartite", [](){
+			it("works on an empty graph", [&](){
+				Graph G;
+				AssertThat(isBipartite(G), IsTrue());
+			});
+
+			it("works on a graph with one node", [&](){
+				Graph G;
+				G.newNode();
+				AssertThat(isBipartite(G), IsTrue());
+			});
+
+			it("works on a path of two nodes", [&](){
+				Graph G;
+				NodeArray<bool> color(G, false);
+				customGraph(G, 2, {{0,1}});
+				AssertThat(isBipartite(G, color), IsTrue());
+				AssertThat(color[G.firstNode()], !Equals(color[G.lastNode()]));
+			});
+
+			it("works on a disconnected bipartite graph", [&](){
+				Graph G;
+				NodeArray<bool> color(G, false);
+				Array<node> nodes;
+				customGraph(G, 3, {{0,1}}, nodes);
+				AssertThat(isBipartite(G, color), IsTrue());
+				AssertThat(color[nodes[0]], !Equals(color[nodes[1]]));
+			});
+
+			it("works on a disconnected non-bipartite graph", [&](){
+				Graph G;
+				customGraph(G, 4, {{1,2}, {2,3}, {3,1}});
+				AssertThat(isBipartite(G), IsFalse());
+			});
+
+			it("works on a bipartite graph with multi-edges", [&](){
+				Graph G;
+				NodeArray<bool> color(G, false);
+				Array<node> nodes;
+				customGraph(G, 3, {{0,1}, {1,0}, {1,2}}, nodes);
+				AssertThat(isBipartite(G, color), IsTrue());
+				AssertThat(color[nodes[0]], !Equals(color[nodes[1]]));
+				AssertThat(color[nodes[1]], !Equals(color[nodes[2]]));
+				AssertThat(color[nodes[0]], Equals(color[nodes[2]]));
+			});
+
+			it("works on a non-bipartite graph with multi-edges", [&](){
+				Graph G;
+				customGraph(G, 4, {{1,2}, {2,3}, {3,1}});
+				AssertThat(isBipartite(G), IsFalse());
+			});
+
+			it("works on a graph with a self-loop", [&](){
+				Graph G;
+				customGraph(G, 2, {{0,1}, {1,1}});
+				AssertThat(isBipartite(G), IsFalse());
+			});
+
+			it("works on an extremely large tree", [&](){
+				Graph G;
+				randomTree(G, 250000);
+				AssertThat(isBipartite(G), IsTrue());
+			});
+
+			it("works on an extremely large non-bipartite graph", [&](){
+				Graph G;
+				randomTree(G, 250000);
+				node u = G.chooseNode();
+				node v = G.chooseNode();
+				node w = G.chooseNode();
+				G.newEdge(u, v);
+				G.newEdge(u, w);
+				G.newEdge(v, w);
+				AssertThat(isBipartite(G), IsFalse());
 			});
 		});
 

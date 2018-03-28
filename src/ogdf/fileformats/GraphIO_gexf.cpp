@@ -102,6 +102,22 @@ static inline void defineAttributes(
 		defineAttribute(child, graphml::toString(graphml::Attribute::NodeWeight), "float");
 	}
 
+	if(attrs & GraphAttributes::nodeStyle) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeStrokeColor), "string");
+	}
+
+	if(attrs & GraphAttributes::nodeStyle) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeStrokeType), "string");
+	}
+
+	if(attrs & GraphAttributes::nodeStyle) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeStrokeWidth), "float");
+	}
+
+	if(attrs & GraphAttributes::nodeStyle) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeFillPattern), "string");
+	}
+
 	// Declare edge attributes.
 	child = xmlNode.append_child("attributes");
 	child.append_attribute("class") = "edge";
@@ -119,10 +135,10 @@ static inline void defineAttributes(
 static inline void writeColor(pugi::xml_node xmlNode, const Color color)
 {
 	pugi::xml_node child = xmlNode.append_child("viz:color");
-	child.attribute("red") = color.red();
-	child.attribute("green") = color.green();
-	child.attribute("blue") = color.blue();
-	child.attribute("alpha") = color.alpha();
+	child.append_attribute("red") = color.red();
+	child.append_attribute("green") = color.green();
+	child.append_attribute("blue") = color.blue();
+	child.append_attribute("alpha") = color.alpha();
 }
 
 
@@ -136,17 +152,15 @@ static inline void writeAttributes(
 	if(attrs & GraphAttributes::nodeGraphics) {
 		const double z = (attrs & GraphAttributes::threeD) ? GA.z(v) : 0.0;
 		pugi::xml_node child = xmlNode.append_child("viz:position");
-		child.attribute("x") = GA.x(v);
-		child.attribute("y") = GA.y(v);
-		child.attribute("z") = z;
+		child.append_attribute("x") = GA.x(v);
+		child.append_attribute("y") = GA.y(v);
+		child.append_attribute("z") = z;
 
-		// TODO: size is a scale here, so we have to know average size first.
-#if 0
-		const double size = std::max(GA.width(v), GA.height(v));
-		GraphIO::indent(out, depth) << "<viz:size "
-		                            << "value=\"" << size << "\" "
-		                            << "/>\n";
-#endif
+		const double size = GA.width(v) / LayoutStandards::defaultNodeWidth();
+		if(GA.weight(v) / LayoutStandards::defaultNodeWidth() != GA.height(v) / LayoutStandards::defaultNodeHeight()) {
+			GraphIO::logger.lout() << "height and width of " << v->index() << " are not equal!\n";
+		}
+		xmlNode.append_child("viz:size").append_attribute("value") = size;
 
 		const Shape shape = GA.shape(v);
 		xmlNode.append_child("viz:shape").append_attribute("value") = toString(shape).c_str();
@@ -164,7 +178,8 @@ static inline void writeAttributes(
 	 */
 	if(!(attrs & (GraphAttributes::nodeType |
 	              GraphAttributes::nodeTemplate |
-	              GraphAttributes::nodeWeight))) {
+	              GraphAttributes::nodeWeight |
+		          GraphAttributes::nodeStyle))) {
 		return;
 	}
 
@@ -181,6 +196,14 @@ static inline void writeAttributes(
 	if(attrs & GraphAttributes::nodeWeight) {
 		writeAttValue(attValues, graphml::Attribute::NodeWeight, GA.weight(v));
 	}
+
+	if(attrs & GraphAttributes::nodeStyle) {
+		writeAttValue(attValues, graphml::Attribute::NodeStrokeColor, GA.strokeColor(v).toString().c_str());
+		writeAttValue(attValues, graphml::Attribute::NodeStrokeWidth, GA.strokeWidth(v));
+		writeAttValue(attValues, graphml::Attribute::NodeStrokeType, toString(GA.strokeType(v)).c_str());
+		writeAttValue(attValues, graphml::Attribute::NodeFillPattern, toString(GA.fillPattern(v)).c_str());
+	}
+
 }
 
 
@@ -248,15 +271,15 @@ static inline void writeEdge(
 	pugi::xml_node edge = xmlNode.append_child("edge");
 	edge.append_attribute("id") = e->index();
 
+	edge.append_attribute("source") = e->source()->index();
+	edge.append_attribute("target") = e->target()->index();
+
 	if(GA) {
 		if(GA->has(GraphAttributes::edgeLabel)) {
 			edge.append_attribute("label") = GA->label(e).c_str();
 		}
 
 		writeAttributes(edge, *GA, e);
-	} else {
-		edge.append_attribute("source") = e->source()->index();
-		edge.append_attribute("target") = e->target()->index();
 	}
 }
 

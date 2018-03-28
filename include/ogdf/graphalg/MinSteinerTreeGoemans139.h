@@ -167,9 +167,6 @@ class MinSteinerTreeGoemans139<T>::Main
 	const List<node> &m_terminals; //!< List of terminals
 	steiner_tree::FullComponentWithExtraStore<T, double> m_fullCompStore; //!< all enumerated full components, with solution
 
-	NodeArray<NodeArray<T>> m_distance;
-	NodeArray<NodeArray<edge>> m_predAPSP;
-
 	int m_restricted;
 	enum class Approx2State {
 		Off,
@@ -187,13 +184,13 @@ class MinSteinerTreeGoemans139<T>::Main
 	//! \name Finding full components
 	//! @{
 
-	//! Compute m_distance and m_predAPSP
-	void computeDistanceMatrix();
+	//! Computes distance and predecessor matrix
+	void computeDistanceMatrix(NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred);
 
 	//! Find full components of size 2
-	void findFull2Components();
+	void findFull2Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred);
 	//! Find full components of size 3
-	void findFull3Components();
+	void findFull3Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred);
 	//! Find full components
 	void findFullComponents();
 
@@ -227,7 +224,7 @@ class MinSteinerTreeGoemans139<T>::Main
 	//! Add a full component to the final solution (by changing nonterminals to terminals)
 	void addComponent(NodeArray<bool> &isNewTerminal, int id)
 	{
-		m_fullCompStore.foreachNode(id, m_predAPSP, [&](node v) {
+		m_fullCompStore.foreachNode(id, [&](node v) {
 			isNewTerminal[v] = true;
 		});
 	}
@@ -296,8 +293,6 @@ public:
 	  , m_isTerminal(isTerminal)
 	  , m_terminals(terminals)
 	  , m_fullCompStore(G, m_terminals, isTerminal)
-	  , m_distance()
-	  , m_predAPSP()
 	  , m_restricted(restricted)
 	  , m_use2approx(use2approx ? Approx2State::On : Approx2State::Off)
 	  , m_ssspDistances(useSSSPfor3Restricted)
@@ -305,16 +300,15 @@ public:
 	  , m_approx2SteinerTree(nullptr)
 	  , m_approx2Weight(0)
 	{
-		if (m_use2approx != Approx2State::Off) { // add upper bound by 2-approximation
+		if (m_use2approx == Approx2State::On) { // add upper bound by 2-approximation
 			MinSteinerTreeTakahashi<T> mstT;
-			m_approx2Weight = mstT.call(m_G, m_terminals, m_isTerminal, m_approx2SteinerTree, m_G.firstNode());
+			m_approx2Weight = mstT.call(m_G, m_terminals, m_isTerminal, m_approx2SteinerTree);
 		}
 
 		if (m_restricted > m_terminals.size()) {
 			m_restricted = m_terminals.size();
 		}
 
-		computeDistanceMatrix();
 		findFullComponents();
 
 		steiner_tree::LPRelaxationSER<T> lp(m_G, m_terminals, m_isTerminal, m_fullCompStore, m_approx2Weight, m_restricted + 1, m_eps);
@@ -333,37 +327,37 @@ public:
 };
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::findFull2Components()
+void MinSteinerTreeGoemans139<T>::Main::findFull2Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred)
 {
 	steiner_tree::Full2ComponentGenerator<T> fcg;
-	fcg.call(m_G, m_terminals, m_distance, m_predAPSP,
+	fcg.call(m_G, m_terminals, distance, pred,
 	  [&](node s, node t, T cost) {
 		EdgeWeightedGraphCopy<T> minComp;
 		minComp.createEmpty(m_G);
-		minComp.newEdge(minComp.newNode(s), minComp.newNode(t), m_distance[s][t]);
+		minComp.newEdge(minComp.newNode(s), minComp.newNode(t), distance[s][t]);
 		m_fullCompStore.insert(minComp);
 	});
 }
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::findFull3Components()
+void MinSteinerTreeGoemans139<T>::Main::findFull3Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred)
 {
 	steiner_tree::Full3ComponentGeneratorVoronoi<T> fcg;
-	fcg.call(m_G, m_terminals, m_isTerminal, m_distance, m_predAPSP,
+	fcg.call(m_G, m_terminals, m_isTerminal, distance, pred,
 	  [&](node t0, node t1, node t2, node minCenter, T minCost) {
 		// create a full 3-component
 		EdgeWeightedGraphCopy<T> minComp;
 		minComp.createEmpty(m_G);
 		node minCenterC = minComp.newNode(minCenter);
-		minComp.newEdge(minComp.newNode(t0), minCenterC, m_distance[t0][minCenter]);
-		minComp.newEdge(minComp.newNode(t1), minCenterC, m_distance[t1][minCenter]);
-		minComp.newEdge(minComp.newNode(t2), minCenterC, m_distance[t2][minCenter]);
+		minComp.newEdge(minComp.newNode(t0), minCenterC, distance[t0][minCenter]);
+		minComp.newEdge(minComp.newNode(t1), minCenterC, distance[t1][minCenter]);
+		minComp.newEdge(minComp.newNode(t2), minCenterC, distance[t2][minCenter]);
 		m_fullCompStore.insert(minComp);
 	});
 }
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::computeDistanceMatrix()
+void MinSteinerTreeGoemans139<T>::Main::computeDistanceMatrix(NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred)
 {
 	if (m_ssspDistances
 	 && m_restricted <= 3) {
@@ -373,7 +367,7 @@ void MinSteinerTreeGoemans139<T>::Main::computeDistanceMatrix()
 #else
 		MinSteinerTreeModule<T>::allTerminalShortestPathsDetour
 #endif
-		  (m_G, m_terminals, m_isTerminal, m_distance, m_predAPSP);
+		  (m_G, m_terminals, m_isTerminal, distance, pred);
 	} else {
 		m_ssspDistances = false;
 #ifndef OGDF_MINSTEINERTREEGOEMANS139_DETOUR
@@ -381,30 +375,34 @@ void MinSteinerTreeGoemans139<T>::Main::computeDistanceMatrix()
 #else
 		MinSteinerTreeModule<T>::allPairShortestPathsDetour
 #endif
-		  (m_G, m_isTerminal, m_distance, m_predAPSP);
+		  (m_G, m_isTerminal, distance, pred);
 	}
 }
 
 template<typename T>
 void MinSteinerTreeGoemans139<T>::Main::findFullComponents()
 {
+	NodeArray<NodeArray<T>> distance;
+	NodeArray<NodeArray<edge>> pred;
+
+	computeDistanceMatrix(distance, pred);
 	if (m_restricted >= 4) { // use Dreyfus-Wagner based full component generation
 		SubsetEnumerator<node> terminalSubset(m_terminals);
-		steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(m_G, m_terminals, m_distance);
+		steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(m_G, m_terminals, distance);
 		fcg.call(m_restricted);
 		for (terminalSubset.begin(2, m_restricted); terminalSubset.valid(); terminalSubset.next()) {
 			EdgeWeightedGraphCopy<T> component;
 			List<node> terminals;
 			terminalSubset.list(terminals);
 			fcg.getSteinerTreeFor(terminals, component);
-			if (steiner_tree::FullComponentGeneratorDreyfusWagner<T>::isValidComponent(component, m_predAPSP, m_isTerminal)) {
+			if (steiner_tree::FullComponentGeneratorDreyfusWagner<T>::isValidComponent(component, pred, m_isTerminal)) {
 				m_fullCompStore.insert(component);
 			}
 		}
 	} else {
-		findFull2Components();
+		findFull2Components(distance, pred);
 		if (m_restricted == 3) {
-			findFull3Components();
+			findFull3Components(distance, pred);
 		}
 	}
 }
@@ -436,10 +434,12 @@ MinSteinerTreeGoemans139<T>::Main::getApproximation(EdgeWeightedGraphCopy<T> *&f
 	}
 
 	T cost = steiner_tree::obtainFinalSteinerTree(m_G, isNewTerminal, m_isTerminal, finalSteinerTree);
+
 	if (m_use2approx != Approx2State::Off) {
 		if (m_approx2Weight < cost) {
 			delete finalSteinerTree;
 			finalSteinerTree = m_approx2SteinerTree;
+			cost = m_approx2Weight;
 		} else {
 			delete m_approx2SteinerTree;
 		}

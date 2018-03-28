@@ -351,8 +351,12 @@ void SpringEmbedderKK::adaptLengths(
 
 void SpringEmbedderKK::shufflePositions(GraphAttributes& GA)
 {
-//first check if degenerated or
-//just position all on a circle or random layout?
+	const Graph &G = GA.constGraph();
+	int n = G.numberOfNodes();
+	for (node v : G.nodes) {
+		GA.x(v) = randomDouble(0.0, n);
+		GA.y(v) = randomDouble(0.0, n);
+	}
 }
 
 // Compute contribution of vertex u to the first partial

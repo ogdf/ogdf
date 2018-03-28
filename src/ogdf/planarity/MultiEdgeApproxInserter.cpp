@@ -41,10 +41,6 @@
 
 namespace ogdf {
 
-
-MultiEdgeApproxInserter::PathDir MultiEdgeApproxInserter::s_oppDir[] = { PathDir::Right, PathDir::Left, PathDir::None };
-
-
 class MultiEdgeApproxInserter::EmbeddingPreference
 {
 public:
@@ -671,7 +667,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 		node v = pair.x1();
 
 		// leads to an unvisited node ?
-		if (visited[v] == false) {
+		if (!visited[v]) {
 			visited[v] = true;
 			spPred[v] = pair.x2();
 
@@ -922,7 +918,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 
 			// do we need to mirror embedding of R-node?
 			prefs.pushBack(EmbeddingPreference(dirFrom != curDir));
-			curDir = dirFrom == curDir ? dirTo : s_oppDir[static_cast<int>(dirTo)];
+			curDir = dirFrom == curDir ? dirTo : oppDir(dirTo);
 			break;
 
 		case SPQRTree::NodeType::PNode:
@@ -945,7 +941,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 			prefs.pushBack(EmbeddingPreference(a1,a2));
 
 			if(e1->source() != e2->source())
-				curDir = s_oppDir[static_cast<int>(curDir)];
+				curDir = oppDir(curDir);
 			}
 			break;
 
@@ -962,7 +958,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 					at = at->twin()->cyclicSucc();
 
 				if(at == e2->adjSource())
-					curDir = s_oppDir[static_cast<int>(curDir)];
+					curDir = oppDir(curDir);
 			}
 			break; // nothing to do
 		}

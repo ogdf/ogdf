@@ -73,10 +73,7 @@ void UniformGrid::ModifiedBresenham(
 		int dPru 	= dPr - (dX<<1);   // amount to increment decision if up is chosen
 		int P 		= dPr - dX;  // decision variable start value
 		int secondY = Ay+Yincr; //Y-coordinate of secondary point
-		int testval = P;	//if P is equal to testval, the the next point is drawn exactly
-							// on the segment. If P is smaller than testval, it is below the
-							//segment
-
+		int testval = P; //if P is equal to testval, the the next point is drawn exactly on the segment. If P is smaller than testval, it is below the segment
 
 		for (; dX>=0; dX--)  // process each point in the line one at a time (just use dX)
 		{
@@ -362,10 +359,10 @@ void UniformGrid::computeGridGeometry(
 {
 	//first we compute the resolution and size of the grid
 	double
-		minX =  std::numeric_limits<double>::max(),
-		minY =  std::numeric_limits<double>::max(),
-		maxX = -std::numeric_limits<double>::max(),
-		maxY = -std::numeric_limits<double>::max();
+		minX = std::numeric_limits<double>::max(),
+		minY = std::numeric_limits<double>::max(),
+		maxX = std::numeric_limits<double>::lowest(),
+		maxY = std::numeric_limits<double>::lowest();
 
 	//find lower left and upper right vertex
 	for(node v : m_graph.nodes) {

@@ -222,28 +222,27 @@ private:
 
 
 	// Parameters
-	int m_nKuratowskiSupportGraphs; 	// Maximal number of times the Kuratowski support graph is computed
-	int m_nKuratowskiIterations; 		// Maximal number of times BoyerMyrvold is invoked
-	int m_nSubdivisions; 				// Maximal number of extracted Kuratowski subdivisions
-	int m_nMaxVars; 					// Max Number of variables
-	int m_heuristicLevel; 				// Indicates if primal heuristic shall be used or not
-	int m_nHeuristicRuns; 				// Counts how often the primal heuristic has been called
+	int m_nKuratowskiSupportGraphs; // Maximal number of times the Kuratowski support graph is computed
+	int m_nKuratowskiIterations; // Maximal number of times BoyerMyrvold is invoked
+	int m_nSubdivisions; // Maximal number of extracted Kuratowski subdivisions
+	int m_nMaxVars; // Max Number of variables
+	int m_heuristicLevel; // Indicates if primal heuristic shall be used or not
+	int m_nHeuristicRuns; // Counts how often the primal heuristic has been called
 
-	bool m_usePerturbation; 			// Indicates whether C-variables should be perturbated or not
-	double m_branchingGap;				// Modifies the branching behaviour
+	bool m_usePerturbation; // Indicates whether C-variables should be perturbated or not
+	double m_branchingGap; // Modifies the branching behaviour
 	double m_heuristicFractionalBound;
-	int m_nHeuristicPermutationLists;	// The number of permutation lists used in the primal heuristic
-	bool m_mpHeuristic;                 //!< Indicates if simple max planar subgraph heuristic
-										// should be used to derive lower bound if only root cluster exists
+	int m_nHeuristicPermutationLists; // The number of permutation lists used in the primal heuristic
+	bool m_mpHeuristic; //!< Indicates if simple max planar subgraph heuristic should be used to derive lower bound if only root cluster exists
 
-	double m_kuratowskiBoundHigh;		// Upper bound for deterministic edge addition in computation of the Supportgraph
-	double m_kuratowskiBoundLow;		// Lower bound for deterministic edge deletion in computation of the Supportgraph
+	double m_kuratowskiBoundHigh; // Upper bound for deterministic edge addition in computation of the Supportgraph
+	double m_kuratowskiBoundLow; // Lower bound for deterministic edge deletion in computation of the Supportgraph
 
-	int m_numAddVariables;				// how many variables should i add maximally per pricing round?
+	int m_numAddVariables; // how many variables should i add maximally per pricing round?
 	double m_strongConstraintViolation; // when do i consider a constraint strongly violated -> separate in first stage
 	double m_strongVariableViolation;   // when do i consider a variable strongly violated (red.cost) -> separate in first stage
 
-	string *m_maxCpuTime;			// Time threshold for optimization
+	string *m_maxCpuTime; // Time threshold for optimization
 
 
 	// The basic objective function coefficient for connection edges.
