@@ -679,16 +679,14 @@ void describeDOTwithClusters()
 {
 	describe("DOT with subgraphs as clusters", []() {
 		it("reads a cluster graph", []() {
-			const std::string filename = "fileformats/dot/valid/cluster";
-
-			const ResourceFile* file = ResourceFile::get(filename);
+			const ResourceFile* file = ResourceFile::get(
+				"fileformats/dot/valid/cluster");
 			std::stringstream is{file->data()};
 
 			Graph G;
 			ClusterGraph CG(G);
-			ClusterGraphAttributes CA(CG);
 
-			const bool readStatus = GraphIO::readDOT(CA, CG, G, is);
+			const bool readStatus = GraphIO::readDOT(CG, G, is);
 			AssertThat(readStatus, Equals(true));
 
 			// this graph has two clusters inside the root cluster, each of which
@@ -715,8 +713,6 @@ describe("GraphIO", []() {
 	describeDMF<int>("int");
 	describeDMF<double>("double");
 
-	describeDOTwithClusters();
-
 	describeGAFormat("GML", GraphIO::readGML, GraphIO::writeGML, GraphIO::readGML, GraphIO::writeGML, false,
 	                 GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeDoubleWeight
 	                 | GraphAttributes::edgeLabel | GraphAttributes::nodeLabel | GraphAttributes::edgeType
@@ -737,6 +733,7 @@ describe("GraphIO", []() {
 	                 | GraphAttributes::edgeLabel | GraphAttributes::nodeLabel | GraphAttributes::nodeType
 	                 | GraphAttributes::edgeDoubleWeight | GraphAttributes::edgeArrow | GraphAttributes::nodeTemplate
 	                 | GraphAttributes::nodeWeight | GraphAttributes::nodeStyle | GraphAttributes::threeD);
+	describeDOTwithClusters();
 	describeGAFormat("GEXF", GraphIO::readGEXF, GraphIO::writeGEXF, GraphIO::readGEXF, GraphIO::writeGEXF, true,
 	                 GraphAttributes::nodeGraphics | GraphAttributes::edgeIntWeight
 	                 | GraphAttributes::edgeDoubleWeight | GraphAttributes::nodeType | GraphAttributes::edgeType
