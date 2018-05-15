@@ -671,6 +671,37 @@ void describeGAFormat(const std::string name, GraphIO::AttrReaderFunc readerGA, 
 	});
 }
 
+/**
+ * Tests reading a DOT clustergraph, using a simplified version of:
+ * https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html
+ */
+void describeDOTwithClusters()
+{
+	describe("DOT with subgraphs as clusters", []() {
+		it("reads a cluster graph", []() {
+			const std::string filename = "fileformats/dot/valid/cluster";
+
+			const ResourceFile* file = ResourceFile::get(filename);
+			std::stringstream is{file->data()};
+
+			Graph G;
+			ClusterGraph CG(G);
+			ClusterGraphAttributes CA(CG);
+
+			const bool readStatus = GraphIO::readDOT(CA, CG, G, is);
+			AssertThat(readStatus, Equals(true));
+
+			// this graph has two clusters inside the root cluster, each of which
+			// has four nodes.
+			AssertThat(CG.numberOfClusters(), Equals(3));
+			AssertThat(CG.rootCluster()->children.size(), Equals(2));
+			for (const auto &cluster : CG.rootCluster()->children) {
+				AssertThat(cluster->nodes.size(), Equals(4));
+			}
+		});
+	});
+}
+
 function<bool(Graph &G, istream &is)> toLambda(const GraphIO::ReaderFunc &reader) {
 	return [&](Graph &G, istream &is) { return reader(G, is); };
 }
@@ -683,6 +714,8 @@ describe("GraphIO", []() {
 
 	describeDMF<int>("int");
 	describeDMF<double>("double");
+
+	describeDOTwithClusters();
 
 	describeGAFormat("GML", GraphIO::readGML, GraphIO::writeGML, GraphIO::readGML, GraphIO::writeGML, false,
 	                 GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeDoubleWeight
