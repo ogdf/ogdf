@@ -1172,7 +1172,7 @@ node Parser::requestNode(
 	// up. And this is achieved by the line below - if a node is requested on
 	// a level that is deeper than currently assigned one, then we reassign
 	// cluster.
-	if(C && data.rootCluster->depth() < C->clusterOf(v)->depth()) {
+	if(C && data.rootCluster->depth() > C->clusterOf(v)->depth()) {
 		C->reassignNode(v, data.rootCluster);
 	}
 
