@@ -671,13 +671,11 @@ void describeGAFormat(const std::string name, GraphIO::AttrReaderFunc readerGA, 
 	});
 }
 
-/**
- * Tests reading a DOT clustergraph, using a simplified version of:
- * https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html
- */
-void describeDOTwithClusters()
+void describeDOTSpecialCases()
 {
 	describe("DOT with subgraphs as clusters", []() {
+		// Tests reading a DOT clustergraph, using a simplified version of:
+		// https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html
 		it("reads a cluster graph", []() {
 			const ResourceFile* file = ResourceFile::get(
 				"fileformats/dot/valid/cluster");
@@ -697,6 +695,40 @@ void describeDOTwithClusters()
 				AssertThat(cluster->nodes.size(), Equals(4));
 			}
 		});
+
+		it("reads assignment statements", []() {
+			std::stringstream is{ResourceFile::get("fileformats/dot/valid/assignments")->data()};
+
+			Graph G;
+			ClusterGraph CG(G);
+			ClusterGraphAttributes CGA(CG);
+
+			const bool readStatus = GraphIO::readDOT(CGA, CG, G, is);
+			AssertThat(readStatus, Equals(true));
+			AssertThat(CGA.label(CG.rootCluster()), Equals("wat"));
+		});
+
+		{ // a scope for the variables to deal with arrow types
+			std::stringstream is{ResourceFile::get("fileformats/dot/valid/arrowtypes")->data()};
+			Graph G;
+			GraphAttributes GA(G, GraphAttributes::edgeArrow);
+			const bool readStatus = GraphIO::readDOT(GA, G, is);
+			AssertThat(readStatus, Equals(true));
+			auto checkDir = [&](EdgeArrow e, const edge& ed, const string &s) {
+				it("parses dir attribute set to " + s,
+				   [&]() { AssertThat(GA.arrowType(ed), Equals(e)); });
+			};
+			auto ed = G.firstEdge();
+			checkDir(EdgeArrow::Both, ed, "both");
+			ed = ed->succ();
+			checkDir(EdgeArrow::Last, ed, "last");
+			ed = ed->succ();
+			checkDir(EdgeArrow::First, ed, "first");
+			ed = ed->succ();
+			checkDir(EdgeArrow::None, ed, "none");
+			ed = ed->succ();
+			checkDir(EdgeArrow::Undefined, ed, "undefined");
+		}
 	});
 }
 
@@ -733,7 +765,7 @@ describe("GraphIO", []() {
 	                 | GraphAttributes::edgeLabel | GraphAttributes::nodeLabel | GraphAttributes::nodeType
 	                 | GraphAttributes::edgeDoubleWeight | GraphAttributes::edgeArrow | GraphAttributes::nodeTemplate
 	                 | GraphAttributes::nodeWeight | GraphAttributes::nodeStyle | GraphAttributes::threeD);
-	describeDOTwithClusters();
+	describeDOTSpecialCases();
 	describeGAFormat("GEXF", GraphIO::readGEXF, GraphIO::writeGEXF, GraphIO::readGEXF, GraphIO::writeGEXF, true,
 	                 GraphAttributes::nodeGraphics | GraphAttributes::edgeIntWeight
 	                 | GraphAttributes::edgeDoubleWeight | GraphAttributes::nodeType | GraphAttributes::edgeType

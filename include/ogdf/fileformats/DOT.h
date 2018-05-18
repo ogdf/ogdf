@@ -58,6 +58,7 @@ enum class Attribute {
 	StrokeWidth,
 	FillPattern,
 	Type,
+	Dir,
 	Unknown
 };
 

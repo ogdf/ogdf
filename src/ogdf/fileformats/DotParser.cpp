@@ -545,9 +545,9 @@ Ast::Stmt *Ast::parseStmt(
 {
 	Stmt *stmt;
 	if((stmt = parseEdgeStmt(curr, curr)) ||
-	   (stmt = parseNodeStmt(curr, curr)) ||
 	   (stmt = parseAttrStmt(curr, curr)) ||
 	   (stmt = parseAsgnStmt(curr, curr)) ||
+	   (stmt = parseNodeStmt(curr, curr)) ||
 	   (stmt = parseSubgraph(curr, curr))) {
 		rest = curr;
 		return stmt;
@@ -639,12 +639,13 @@ Ast::Graph *Ast::parseGraph(
 	}
 
 	if(curr == m_tend || curr->type != Token::Type::leftBrace) {
-		// std::cerr << "ERROR: Expected \""
-		//      << Token::toString(Token::leftBrace)
-		//      << ", found \""
-		//      << Token::toString(a->type)
-		//      << "\" at "
-		//      << a->row << ", " << a->column << ".\n";
+#if 0
+		GraphIO::logger.lout() << "Expected \""
+							   << Token::toString(Token::Type::leftBrace)
+							   << ", found \"" << Token::toString(curr->type)
+							   << "\" at " << curr->row << ", " << curr->column
+							   << ".\n";
+#endif
 		delete id;
 		return nullptr;
 	}
@@ -897,6 +898,11 @@ static bool readAttribute(
 			int help;
 			ss >> help;
 			GA.arrowType(e) = EdgeArrow(help);
+		}
+		break;
+	case Attribute::Dir:
+		if (flags & GraphAttributes::edgeArrow) {
+			GA.arrowType(e) = dot::toArrow(stmt.rhs);
 		}
 		break;
 	default:
