@@ -107,17 +107,18 @@ private:
 	//! Checks if \a head matches given token. Advances \a head on success.
 	/**
 	 * @param type A type of token being matched.
+	 * @param word True if token is part of a word, false otherwise.
 	 * @return True if matches, false otherwise.
 	 */
-	bool match(const Token::Type &type);
+	bool match(const Token::Type &type, bool word = false);
 
 	//! Checks if \a head matches given string. Advances \a head on success.
 	/**
 	 * @param str A string being matched.
+	 * @param word True if token is part of a word, false otherwise.
 	 * @return True if matches, false otherwise.
 	 */
-
-	bool match(const std::string &str);
+	bool match(const std::string &str, bool word = false);
 
 	//! Checks whether \a head is an identifier.
 	/**
@@ -125,6 +126,13 @@ private:
 	 * @return True if matches, false otherwise.
 	 */
 	bool identifier(Token &token);
+
+	//! Checks if character is allowed in an identifier by DOT standard
+	/**
+	 * @param c A character
+	 * @return True if c is one of alphabetic ([a-zA-Z\200-\377]) characters, underscores ('_') or digits ([0-9])
+	 */
+	bool isDotAlnum(char c);
 
 public:
 	//! Initializes lexer with given input (but does nothing to it).
