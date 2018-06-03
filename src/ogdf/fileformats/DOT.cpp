@@ -55,6 +55,7 @@ std::string toString(const Attribute &attr)
 		case Attribute::StrokeWidth: return "strokewidth";
 		case Attribute::FillPattern: return "fillpattern";
 		case Attribute::Type: return "type";
+		case Attribute::Dir: return "dir";
 		default: return "comment";
 	}
 }
