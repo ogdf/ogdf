@@ -172,17 +172,17 @@ bool Lexer::tokenizeLine()
 			token.type = Token::Type::leftBrace;
 		} else if(match(Token::Type::rightBrace)) {
 			token.type = Token::Type::rightBrace;
-		} else if(match(Token::Type::graph)) {
+		} else if(match(Token::Type::graph, true)) {
 			token.type = Token::Type::graph;
-		} else if(match(Token::Type::digraph)) {
+		} else if(match(Token::Type::digraph, true)) {
 			token.type = Token::Type::digraph;
-		} else if(match(Token::Type::subgraph)) {
+		} else if(match(Token::Type::subgraph, true)) {
 			token.type = Token::Type::subgraph;
-		} else if(match(Token::Type::node)) {
+		} else if(match(Token::Type::node, true)) {
 			token.type = Token::Type::node;
-		} else if(match(Token::Type::edge)) {
+		} else if(match(Token::Type::edge, true)) {
 			token.type = Token::Type::edge;
-		} else if(match(Token::Type::strict)) {
+		} else if(match(Token::Type::strict, true)) {
 			token.type = Token::Type::strict;
 		} else if(identifier(token)) {
 			token.type = Token::Type::identifier;
@@ -198,16 +198,16 @@ bool Lexer::tokenizeLine()
 }
 
 
-bool Lexer::match(const Token::Type &type)
+bool Lexer::match(const Token::Type &type, bool word)
 {
-	return match(Token::toString(type));
+	return match(Token::toString(type), word);
 }
 
 
-bool Lexer::match(const std::string &str)
+bool Lexer::match(const std::string &str, bool word)
 {
 	// Check whether buffer is too short to match.
-	if(m_buffer.length() - m_col < str.length()) {
+	if(m_buffer.length() < m_col + str.length()) {
 		return false;
 	}
 
@@ -215,6 +215,12 @@ bool Lexer::match(const std::string &str)
 		if(m_buffer[m_col + i] != str[i]) {
 			return false;
 		}
+	}
+
+	// we've matched a part of a word instead of a whole word
+	if (word && m_buffer.length() >= m_col + str.length() + 1 &&
+		isDotAlnum(m_buffer[m_col + str.length()])) {
+		return false;
 	}
 
 	// After successful match we move the "head".
@@ -251,10 +257,11 @@ bool Lexer::identifier(Token &token)
 	}
 
 	// Check whether identifier is a normal C-like identifier.
-	if(isalpha(m_buffer[m_col]) || m_buffer[m_col] == '_') {
+	// according to DOT standard, an ID may not begin with a digit
+	if (isDotAlnum(m_buffer[m_col]) && !isdigit(m_buffer[m_col])) {
 		std::ostringstream ss;
 
-		while(isalnum(m_buffer[m_col]) || m_buffer[m_col] == '_') {
+		while (isDotAlnum(m_buffer[m_col])) {
 			ss << m_buffer[m_col++];
 		}
 
@@ -281,6 +288,10 @@ bool Lexer::identifier(Token &token)
 	// TODO: HTML string identifiers.
 
 	return false;
+}
+
+bool Lexer::isDotAlnum(char c) {
+	return isalnum(c) || c < 0 || c == '_';
 }
 
 }
