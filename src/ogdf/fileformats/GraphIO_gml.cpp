@@ -128,7 +128,13 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 	for(node v : G.nodes) {
 		GraphIO::indent(os,1) << "node\n";
 		GraphIO::indent(os,1) << "[\n";
-		GraphIO::indent(os,2) << "id\t" << (index[v] = nextId++) << "\n";
+		
+		if (A.attributes() & GraphAttributes::nodeId) {
+			GraphIO::indent(os,2) << "id\t" << A.idNode(v) << "\n";
+		}
+		else {
+			GraphIO::indent(os,2) << "id\t" << (index[v] = nextId++) << "\n";
+		}
 
 		if (A.has(GraphAttributes::nodeTemplate)) {
 			GraphIO::indent(os,2) << "template\t";
@@ -172,8 +178,15 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 	for(edge e : G.edges) {
 		GraphIO::indent(os,1) << "edge\n";
 		GraphIO::indent(os,1) << "[\n";
-		GraphIO::indent(os,2) << "source\t" << index[e->source()] << "\n";
-		GraphIO::indent(os,2) << "target\t" << index[e->target()] << "\n";
+		
+		if (A.attributes() & GraphAttributes::nodeId) {
+			GraphIO::indent(os, 2) << "source\t" << A.idNode(e->source()) << "\n";
+			GraphIO::indent(os, 2) << "target\t" << A.idNode(e->target()) << "\n";
+		}
+		else {
+			GraphIO::indent(os,2) << "source\t" << index[e->source()] << "\n";
+			GraphIO::indent(os,2) << "target\t" << index[e->target()] << "\n";
+		}
 
 		if (A.has(GraphAttributes::edgeType)){
 			GraphIO::indent(os, 2) << "generalization\t" << int(A.type(e)) << "\n";
