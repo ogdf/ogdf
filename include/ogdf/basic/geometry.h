@@ -676,6 +676,9 @@ public:
 	GenericSegment(const GenericSegment<PointType> &ds)
 	: GenericLine<PointType>(ds) {}
 
+	//! Assignment operator
+	GenericSegment& operator=(const GenericSegment<PointType> &) = default;
+
 	//! Equality operator.
 	bool operator==(const GenericSegment<PointType> &dl) const {
 		return this->m_p1 == dl.m_p1 && this->m_p2 == dl.m_p2;

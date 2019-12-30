@@ -288,6 +288,9 @@ public:
 	{
 	}
 
+	PairTemplate(const PairTemplate &) = default; // luk036
+
+
 	PairTemplate(const E &element, const P &priority)
 		: m_element(element), m_priority(priority)
 	{

@@ -197,7 +197,7 @@ V RadixHeap<V, P>::pop()
 		if(m_buckets[0] != nullptr) {
 			m_buckets[0]->prev = nullptr;
 		}
-		return std::move(result);
+		return result;
 	}
 
 	std::size_t ind = BITS + 1 - msbSet(m_bucketMask);
@@ -238,7 +238,7 @@ V RadixHeap<V, P>::pop()
 		bucket = next;
 	}
 
-	return std::move(result);
+	return result;
 }
 
 

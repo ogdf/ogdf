@@ -750,19 +750,19 @@ void Array<E, INDEX>::expandArray(INDEX add)
 	// expand allocated memory block
 	if (m_pStart != nullptr) {
 		// if the element type is trivially copiable, just use realloc
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5
-		// g++ 4.8/4.9 does not have is_trivially_copyable, but
-		// clang 3.5 (which is also __GNUC__ < 5) has it
-		if (std::has_trivial_copy_assign<E>::value) {
-#else
-		if (std::is_trivially_copyable<E>::value) {
-#endif
-			E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
-			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
-			m_pStart = p;
+// #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5
+// 		// g++ 4.8/4.9 does not have is_trivially_copyable, but
+// 		// clang 3.5 (which is also __GNUC__ < 5) has it
+// 		if (std::has_trivial_copy_assign<E>::value) {
+// #else
+// 		if (std::is_trivially_copyable<E>::value) {
+// #endif
+// 			E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
+// 			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
+// 			m_pStart = p;
 
-		// otherwise allocate new block, move elements, and free old block
-		} else {
+// 		// otherwise allocate new block, move elements, and free old block
+// 		} else {
 			E *p = static_cast<E *>( malloc(sNew*sizeof(E)) );
 			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
 
@@ -772,7 +772,7 @@ void Array<E, INDEX>::expandArray(INDEX add)
 
 			deconstruct();
 			m_pStart = p;
-		}
+		// }
 
 	} else {
 		m_pStart = static_cast<E *>( malloc(sNew*sizeof(E)) );
