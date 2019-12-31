@@ -229,7 +229,7 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &
 		int last = edgeSegmentTargets.size()-1;
 
 		// For all edge segments from vPoint to wPoint:
-		for (DPoint wPoint : edgeSegmentTargets) {
+		for (const DPoint& wPoint : edgeSegmentTargets) {
 			DSegment segment = DSegment(vPoint, wPoint);
 
 			// Count crossing of segment with nodes u, but do not count

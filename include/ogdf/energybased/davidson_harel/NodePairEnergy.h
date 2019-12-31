@@ -42,7 +42,7 @@ namespace davidson_harel {
 class NodePairEnergy: public EnergyFunction {
 public:
 	//Initializes data dtructures to speed up later computations
-	NodePairEnergy(const string energyname, GraphAttributes &AG);
+	NodePairEnergy(const string& energyname, GraphAttributes &AG);
 
 	virtual ~NodePairEnergy() {
 		delete m_nodeNums;

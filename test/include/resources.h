@@ -164,7 +164,7 @@ public:
 	 * \param callback A function that will be called for each file in the directory.
 	 * \param recurse Whether to include sub directories.
 	 */
-	void forEachFile(std::function<void(const ResourceFile*)> callback, bool recurse = false) const;
+	void forEachFile(const std::function<void(const ResourceFile*)>& callback, bool recurse = false) const;
 
 	//! Retrieves a resource directory with given path
 	/**

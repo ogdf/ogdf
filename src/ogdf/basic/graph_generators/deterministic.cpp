@@ -48,7 +48,7 @@ using std::uniform_real_distribution;
 
 namespace ogdf {
 
-void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Array<node> &nodes)
+void customGraph(Graph &G, int n, const List<std::pair<int,int>>& edges, Array<node> &nodes)
 {
 	nodes.init(n);
 
@@ -64,7 +64,7 @@ void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Array<node> &n
 }
 
 
-void circulantGraph(Graph &G, int n, Array<int> jumps)
+void circulantGraph(Graph &G, int n, const Array<int>& jumps)
 {
 	G.clear();
 	Array<node> nodes(n);

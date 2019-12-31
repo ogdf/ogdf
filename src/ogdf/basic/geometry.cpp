@@ -165,7 +165,7 @@ DSegment DPolygon::segment(ListConstIterator<DPoint> it) const
 DPolygon &DPolygon::operator=(const DRect &rect)
 {
 	clear();
-	DRect  r1(rect);
+	const DRect&  r1(rect);
 	DRect  r2(rect);
 	if (m_counterclock)
 		r2.xInvert();

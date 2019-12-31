@@ -637,7 +637,7 @@ private:
 
 	int nextEntry(char *buffer, int from, string stop);
 
-	HypernodeElement::Type gateType(string gate);
+	HypernodeElement::Type gateType(const string& gate);
 };
 
 }

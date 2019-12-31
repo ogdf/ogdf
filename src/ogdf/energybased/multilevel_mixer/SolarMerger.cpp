@@ -31,6 +31,8 @@
 
 #include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
 
+#include <cmath>
+
 namespace ogdf {
 
 SolarMerger::SolarMerger(bool simple, bool massAsNodeRadius)
@@ -405,7 +407,7 @@ bool SolarMerger::collapseSolarSystem(MultilevelGraph &MLG, node sun, int level)
 
 		bool ret;
 		if (i == systemNodes.begin() && m_massAsNodeRadius) {
-			ret = MLG.changeNode(NM, sun, sqrt((float)m_mass[sun]) * m_radius[sun], mergeNode);
+			ret = MLG.changeNode(NM, sun, std::sqrt((float)m_mass[sun]) * m_radius[sun], mergeNode);
 		} else {
 			ret = MLG.changeNode(NM, sun, MLG.radius(sun), mergeNode);
 		}

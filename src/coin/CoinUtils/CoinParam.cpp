@@ -3,9 +3,10 @@
 // Corporation and others.  All Rights Reserved.
 // This code is licensed under the terms of the Eclipse Public License (EPL).
 
-#include <string>
 #include <cassert>
 #include <iostream>
+#include <string>
+#include <utility>
 
 #include "CoinPragma.hpp"
 #include "CoinParam.hpp"
@@ -50,7 +51,7 @@ CoinParam::CoinParam ()
 CoinParam::CoinParam (std::string name, std::string help,
 		      double lower, double upper, double dflt, bool display)
   : type_(coinParamDbl),
-    name_(name),
+    name_(std::move(name)),
     lengthName_(0),
     lengthMatch_(0),
     lowerDblValue_(lower),
@@ -64,7 +65,7 @@ CoinParam::CoinParam (std::string name, std::string help,
     currentKwd_(-1),
     pushFunc_(0),
     pullFunc_(0),
-    shortHelp_(help),
+    shortHelp_(std::move(help)),
     longHelp_(),
     display_(display)
 {
@@ -77,7 +78,7 @@ CoinParam::CoinParam (std::string name, std::string help,
 CoinParam::CoinParam (std::string name, std::string help,
 		      int lower, int upper, int dflt, bool display)
   : type_(coinParamInt),
-    name_(name),
+    name_(std::move(name)),
     lengthName_(0),
     lengthMatch_(0),
     lowerDblValue_(0.0),
@@ -91,7 +92,7 @@ CoinParam::CoinParam (std::string name, std::string help,
     currentKwd_(-1),
     pushFunc_(0),
     pullFunc_(0),
-    shortHelp_(help),
+    shortHelp_(std::move(help)),
     longHelp_(),
     display_(display)
 {
@@ -104,7 +105,7 @@ CoinParam::CoinParam (std::string name, std::string help,
 CoinParam::CoinParam (std::string name, std::string help,
 		      std::string firstValue, int dflt, bool display)
   : type_(coinParamKwd),
-    name_(name),
+    name_(std::move(name)),
     lengthName_(0),
     lengthMatch_(0),
     lowerDblValue_(0.0),
@@ -118,7 +119,7 @@ CoinParam::CoinParam (std::string name, std::string help,
     currentKwd_(dflt),
     pushFunc_(0),
     pullFunc_(0),
-    shortHelp_(help),
+    shortHelp_(std::move(help)),
     longHelp_(),
     display_(display)
 {
@@ -132,7 +133,7 @@ CoinParam::CoinParam (std::string name, std::string help,
 CoinParam::CoinParam (std::string name, std::string help,
 	 	      std::string dflt, bool display)
   : type_(coinParamStr),
-    name_(name),
+    name_(std::move(name)),
     lengthName_(0),
     lengthMatch_(0),
     lowerDblValue_(0.0),
@@ -141,12 +142,12 @@ CoinParam::CoinParam (std::string name, std::string help,
     lowerIntValue_(0),
     upperIntValue_(0),
     intValue_(0),
-    strValue_(dflt),
+    strValue_(std::move(dflt)),
     definedKwds_(),
     currentKwd_(0),
     pushFunc_(0),
     pullFunc_(0),
-    shortHelp_(help),
+    shortHelp_(std::move(help)),
     longHelp_(),
     display_(display)
 {
@@ -158,7 +159,7 @@ CoinParam::CoinParam (std::string name, std::string help,
 */
 CoinParam::CoinParam (std::string name, std::string help, bool display)
   : type_(coinParamAct),
-    name_(name),
+    name_(std::move(name)),
     lengthName_(0),
     lengthMatch_(0),
     lowerDblValue_(0.0),
@@ -172,7 +173,7 @@ CoinParam::CoinParam (std::string name, std::string help, bool display)
     currentKwd_(0),
     pushFunc_(0),
     pullFunc_(0),
-    shortHelp_(help),
+    shortHelp_(std::move(help)),
     longHelp_(),
     display_(display)
 {
@@ -496,7 +497,7 @@ void CoinParam::setStrVal (std::string value)
 {
   assert (type_ == coinParamStr) ;
 
-  strValue_ = value ;
+  strValue_ = std::move(value) ;
 }
 
 std::string CoinParam::strVal () const

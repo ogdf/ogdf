@@ -361,7 +361,7 @@ void SvgPrinter::appendLineStyle(pugi::xml_node line, edge e) {
 	}
 }
 
-pugi::xml_node SvgPrinter::drawPolygon(pugi::xml_node xmlNode, const std::list<double> points) {
+pugi::xml_node SvgPrinter::drawPolygon(pugi::xml_node xmlNode, const std::list<double>& points) {
 	pugi::xml_node result = xmlNode.append_child("polygon");
 	OGDF_ASSERT(points.size() % 2 == 0);
 

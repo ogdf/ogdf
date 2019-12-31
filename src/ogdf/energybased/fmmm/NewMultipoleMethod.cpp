@@ -171,7 +171,7 @@ inline void NewMultipoleMethod::calculate_repulsive_forces_by_exact_method(
 void NewMultipoleMethod::make_initialisations(
 	const Graph &G,
 	double bl,
-	DPoint d_l_c,
+	const DPoint& d_l_c,
 	int p_i_l,
 	int p,
 	FMMMOptions::ReducedTreeConstruction t_c_w,
@@ -202,7 +202,7 @@ void NewMultipoleMethod::deallocate_memory()
 }
 
 
-void NewMultipoleMethod::update_boxlength_and_cornercoordinate(double b_l, DPoint d_l_c)
+void NewMultipoleMethod::update_boxlength_and_cornercoordinate(double b_l, const DPoint& d_l_c)
 {
 	if(using_NMM) {
 		boxlength = b_l;
@@ -530,31 +530,31 @@ inline void NewMultipoleMethod::calculate_boundaries_of_act_node(QuadTreeNodeNM*
 	max = DPoint((*L_x_ptr->rbegin()).get_x_y_coord(), (*L_y_ptr->rbegin()).get_x_y_coord());
 }
 
-bool NewMultipoleMethod::quadHelper(DPoint min, DPoint max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr) {
+bool NewMultipoleMethod::quadHelper(const DPoint& min, const DPoint& max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr) {
 	bottomleft += act_ptr->get_Sm_downleftcorner();
 	topright += act_ptr->get_Sm_downleftcorner();
 	return (bottomleft.m_x <= min.m_x && max.m_x < topright.m_x && bottomleft.m_y <= min.m_y && max.m_y < topright.m_y)
 	    || (min == max && max == topright && topright == bottomleft);
 }
 
-bool NewMultipoleMethod::in_lt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+bool NewMultipoleMethod::in_lt_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max) {
 	double lo = act_ptr->get_Sm_boxlength() / 2;
 	double hi = act_ptr->get_Sm_boxlength();
 	return quadHelper(min, max, DPoint(0, lo), DPoint(lo, hi), act_ptr);
 }
 
-bool NewMultipoleMethod::in_rt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+bool NewMultipoleMethod::in_rt_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max) {
 	double lo = act_ptr->get_Sm_boxlength() / 2;
 	double hi = act_ptr->get_Sm_boxlength();
 	return quadHelper(min, max, DPoint(lo, lo), DPoint(hi, hi), act_ptr);
 }
 
-bool NewMultipoleMethod::in_lb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+bool NewMultipoleMethod::in_lb_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max) {
 	double lo = act_ptr->get_Sm_boxlength() / 2;
 	return quadHelper(min, max, DPoint(0, 0), DPoint(lo, lo), act_ptr);
 }
 
-bool NewMultipoleMethod::in_rb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max) {
+bool NewMultipoleMethod::in_rb_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max) {
 	double lo = act_ptr->get_Sm_boxlength() / 2;
 	double hi = act_ptr->get_Sm_boxlength();
 	return quadHelper(min, max, DPoint(lo, 0), DPoint(hi, lo), act_ptr);
@@ -1330,7 +1330,7 @@ bool NewMultipoleMethod::find_smallest_quad(NodeArray<NodeAttributes>& A, QuadTr
 }
 
 
-void NewMultipoleMethod::find_small_cell_iteratively(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max)
+void NewMultipoleMethod::find_small_cell_iteratively(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max)
 {
 	while (max.m_x - min.m_x >= MIN_BOX_LENGTH
 	    || max.m_y - min.m_y >= MIN_BOX_LENGTH) {
@@ -1882,7 +1882,7 @@ void NewMultipoleMethod::add_local_expansion(QuadTreeNodeNM* ptr_0, QuadTreeNode
 {
 	complex<double> z_0 = ptr_0->get_Sm_center();
 	complex<double> z_1 = ptr_1->get_Sm_center();
-	complex<double> sum, z_error;
+	complex<double> sum;
 	complex<double> factor;
 	complex<double> z_1_minus_z_0_over_k;
 	complex<double> z_1_minus_z_0_over_s;
@@ -1929,7 +1929,7 @@ void NewMultipoleMethod::add_local_expansion_of_leaf(
 	List<node> contained_nodes;
 	double multipole_0_of_v = 1;//only the first coefficient is not zero
 	complex<double> z_1 = ptr_1->get_Sm_center();
-	complex<double> z_error;
+	// complex<double> z_error;
 	complex<double> z_1_minus_z_0_over_s;
 	complex<double> pow_minus_1_s_plus_1;
 

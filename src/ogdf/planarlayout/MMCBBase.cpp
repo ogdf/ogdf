@@ -337,7 +337,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 	return retVal;
 }
 
-static void doForEachCoordinate(const PlanRep &PG, GridLayout &gl, std::function<void(int &, int &)> func)
+static void doForEachCoordinate(const PlanRep &PG, GridLayout &gl, const std::function<void(int &, int &)>& func)
 {
 	for (edge e : PG.edges) {
 		for (IPoint &p : gl.bends(e)) {

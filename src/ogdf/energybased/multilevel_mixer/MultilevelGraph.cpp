@@ -33,6 +33,8 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 
+#include <cmath>
+
 namespace ogdf {
 
 MultilevelGraph::~MultilevelGraph()
@@ -250,7 +252,7 @@ void MultilevelGraph::exportAttributesSimple(GraphAttributes &GA) const
 			w *= factor;
 			h *= factor;
 		} else {
-			w = h = m_radius[v] * sqrt(2.0f);
+			w = h = m_radius[v] * std::sqrt(2.0f);
 		}
 		GA.width(v) = w;
 		GA.height(v) = h;
@@ -288,7 +290,7 @@ void MultilevelGraph::exportAttributes(GraphAttributes &GA) const
 			w *= factor;
 			h *= factor;
 		} else {
-			w = h = m_radius[v] * sqrt(2.0f);
+			w = h = m_radius[v] * std::sqrt(2.0f);
 		}
 		GA.width(tempNodeAssociations[m_nodeAssociations[v]]) = w;
 		GA.height(tempNodeAssociations[m_nodeAssociations[v]]) = h;

@@ -3687,7 +3687,7 @@ ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint ** constrain
           }
           // redo matrix
           double offset;
-          CoinPackedMatrix newMatrix(saveMatrix);
+          const CoinPackedMatrix& newMatrix(saveMatrix);
           // get matrix data pointers
           column = newMatrix.getIndices();
           rowStart = newMatrix.getVectorStarts();

@@ -96,7 +96,7 @@ struct Instance {
 	Array<node> v;
 
 	//! Constructs a custom instance
-	Instance(std::vector<int> terminalList, std::vector<EdgeData<T>> edges) {
+	Instance(const std::vector<int>& terminalList, std::vector<EdgeData<T>> edges) {
 		int n = 0;
 		for (auto e : edges) {
 			Math::updateMax(n, e.source + 1);
@@ -120,7 +120,7 @@ struct Instance {
 	  : Instance(predefinedInstanceData<T>(i).first, predefinedInstanceData<T>(i).second)
 	{}
 
-	void setTerminals(std::vector<int> terminalList) {
+	void setTerminals(const std::vector<int>& terminalList) {
 		isTerminal.init(graph, false);
 		for (auto t : terminalList) {
 			OGDF_ASSERT(t <= v.high());
@@ -155,7 +155,7 @@ struct ModifiedShortestPathAlgorithmsTest {
 
 			doAPSP(S, arg);
 
-			for (auto af : list) {
+			for (const auto& af : list) {
 				af.doAssert(S, arg.distance[S.v[af.start]], arg.pred[S.v[af.start]]);
 			}
 		});
@@ -202,7 +202,7 @@ struct ModifiedShortestPathAlgorithmsTest {
 		}
 	}
 
-	static void itMimicsOrdinaryShortestPath(const std::string spName,
+	static void itMimicsOrdinaryShortestPath(const std::string& spName,
 			std::function<void(const Instance<T> &S, Arguments<T> &arg)> spAlg) {
 		testIt("mimics ordinary " + spName + " when terminals are not in between",
 		  1, spAlg, {{0, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
@@ -217,7 +217,7 @@ struct ModifiedShortestPathAlgorithmsTest {
 	}
 
 	//! The test for the algorithm variants preferring paths over terminals
-	static void callExpectPreferTerminals(const std::string spName,
+	static void callExpectPreferTerminals(const std::string& spName,
 			std::function<void(const Instance<T> &S, Arguments<T> &arg)> spAlg) {
 		describe(spName + " preferring terminals heuristic", [&] {
 			itMimicsOrdinaryShortestPath(spName, spAlg);
@@ -240,7 +240,7 @@ struct ModifiedShortestPathAlgorithmsTest {
 	}
 
 	//! The test for the algorithm variants avoiding paths over terminals
-	static void callExpectForbidTerminals(const std::string spName,
+	static void callExpectForbidTerminals(const std::string& spName,
 			std::function<void(const Instance<T> &S, Arguments<T> &arg)> spAlg) {
 		describe(spName +" avoiding terminals heuristic", [&] {
 			itMimicsOrdinaryShortestPath(spName, spAlg);

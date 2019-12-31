@@ -694,7 +694,7 @@ void Multilevel::set_initial_positions_of_pm_nodes(
 	}
 }
 
-inline DPoint Multilevel::create_random_pos(DPoint center,double radius,double angle_1,
+inline DPoint Multilevel::create_random_pos(const DPoint& center,double radius,double angle_1,
 	double angle_2)
 {
 	const int BILLION = 1000000000;
@@ -709,7 +709,7 @@ inline DPoint Multilevel::create_random_pos(DPoint center,double radius,double a
 }
 
 
-inline DPoint Multilevel::get_waggled_inbetween_position(DPoint s, DPoint t, double lambda)
+inline DPoint Multilevel::get_waggled_inbetween_position(const DPoint& s, const DPoint& t, double lambda)
 {
 	const double WAGGLEFACTOR = 0.05;
 	const int BILLION = 1000000000;
@@ -736,7 +736,7 @@ inline DPoint Multilevel::get_barycenter_position(List<DPoint>& L)
 }
 
 
-inline DPoint Multilevel::calculate_position(DPoint P, DPoint Q, double dist_P, double dist_Q)
+inline DPoint Multilevel::calculate_position(const DPoint& P, const DPoint& Q, double dist_P, double dist_Q)
 {
 	double dist_PQ = (P-Q).norm();
 	double lambda = (dist_P + (dist_PQ - dist_P - dist_Q)/2)/dist_PQ;

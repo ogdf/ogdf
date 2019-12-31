@@ -34,11 +34,13 @@
 
 #include <ogdf/misclayout/LinearLayout.h>
 
+#include <utility>
+
 namespace ogdf {
 
 LinearLayout::LinearLayout(double w, ListPure<node> o) {
 	m_outWidth = w;
-	m_nodeOrder = o;
+	m_nodeOrder = std::move(o);
 	m_customOrder = 0;
 }
 

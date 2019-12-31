@@ -260,7 +260,7 @@ private:
 	 * \param points the list of coordinates
 	 * \return The generated XML-node
 	 */
-	pugi::xml_node drawPolygon(pugi::xml_node xmlNode, const std::list<double> points);
+	pugi::xml_node drawPolygon(pugi::xml_node xmlNode, const std::list<double>& points);
 };
 
 }

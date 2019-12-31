@@ -35,7 +35,7 @@ int OsiRowCutDebugger::validateCuts (const OsiCuts & cs,
 
   for (i=first; i<nRowCuts; i++){
 
-    OsiRowCut rcut = cs.rowCut(i);
+    const OsiRowCut& rcut = cs.rowCut(i);
     CoinPackedVector rpv = rcut.row();
     const int n = rpv.getNumElements();
     const int * indices = rpv.getIndices();

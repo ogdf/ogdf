@@ -253,7 +253,7 @@ void usage(const std::string& key)
 
 //----------------------------------------------------------------
 int mainTest (int argc, const char *argv[], int algorithm,
-              ClpSimplex empty, ClpSolve solveOptionsIn,
+              const ClpSimplex& empty, const ClpSolve& solveOptionsIn,
               int switchOffValue, bool doVector)
 {
      int i;

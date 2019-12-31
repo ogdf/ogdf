@@ -53,7 +53,7 @@ protected:
 	const Array2D<ListPure<int>> &m_gridCell;
 
 	DPoint computeRepulsiveForce(int j, double boxLength, int idealExponent, int normExponent = 1) const;
-	DPoint computeMixedForcesDisplacement(int j, int boxLength, std::function<DPoint(double, const DPoint &)> attractiveChange, std::function<double()> attractiveFinal) const;
+	DPoint computeMixedForcesDisplacement(int j, int boxLength, const std::function<DPoint(double, const DPoint &)>& attractiveChange, const std::function<double()>& attractiveFinal) const;
 };
 
 

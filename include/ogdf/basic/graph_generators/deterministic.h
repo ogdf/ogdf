@@ -47,7 +47,7 @@ namespace ogdf {
  * @copydoc ogdf::customGraph(Graph &G, int n, List<std::pair<int,int>> edges)
  * @param nodes resulting array mapping node index to the actual node
  */
-OGDF_EXPORT void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Array<node> &nodes);
+OGDF_EXPORT void customGraph(Graph &G, int n, const List<std::pair<int,int>>& edges, Array<node> &nodes);
 
 //! Creates a custom graph using a list of pairs to determine the graph's edges.
 /**
@@ -77,7 +77,7 @@ inline void customGraph(Graph &G, int n, List<std::pair<int,int>> edges) {
  * ogdf::circulantGraph(G, 11, ogdf::Array<int>({1,2,4}));
  * @endcode
  */
-OGDF_EXPORT void circulantGraph (Graph &G, int n, Array<int> jumps);
+OGDF_EXPORT void circulantGraph (Graph &G, int n, const Array<int>& jumps);
 
 //! Creates a regular lattice graph.
 /**

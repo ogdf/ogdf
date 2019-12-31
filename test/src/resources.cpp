@@ -139,13 +139,13 @@ std::vector<const ResourceDirectory*> ResourceDirectory::getDirectories() const 
 	return entries;
 }
 
-void ResourceDirectory::forEachFile(std::function<void(const ResourceFile*)> callback, bool recurse) const {
-	for (auto it : m_files) {
+void ResourceDirectory::forEachFile(const std::function<void(const ResourceFile*)>& callback, bool recurse) const {
+	for (const auto& it : m_files) {
 		callback(it.second);
 	}
 
 	if (recurse) {
-		for (auto it : m_directories) {
+		for (const auto& it : m_directories) {
 			if (it.second == nullptr) continue;
 			it.second->forEachFile(callback, true);
 		}

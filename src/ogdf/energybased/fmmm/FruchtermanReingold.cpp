@@ -162,7 +162,7 @@ void FruchtermanReingold::calculate_approx_repulsive_forces(
 }
 
 
-void FruchtermanReingold::make_initialisations(double bl, DPoint d_l_c, int grid_quot)
+void FruchtermanReingold::make_initialisations(double bl, const DPoint& d_l_c, int grid_quot)
 {
 	grid_quotient(grid_quot);
 	down_left_corner = d_l_c; //export this two values from FMMM

@@ -243,7 +243,7 @@ public:
 		const int k = 5; // for PTmTest
 		bool changed = deleteComponentsWithoutTerminals();
 		bool triviallyChanged = false;
-		changed |= repeat([this, &triviallyChanged, k]() {
+		changed |= repeat([this, &triviallyChanged]() {
 			bool innerChanged = false;
 			triviallyChanged = reduceTrivial();
 			// graph guaranteed to be simple and connected

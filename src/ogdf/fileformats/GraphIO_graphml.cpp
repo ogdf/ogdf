@@ -49,7 +49,7 @@ static inline pugi::xml_node writeGraphMLHeader(pugi::xml_document &doc)
 	return rootNode;
 }
 
-static inline pugi::xml_node writeGraphTag(pugi::xml_node xmlNode, std::string edgeDefault)
+static inline pugi::xml_node writeGraphTag(pugi::xml_node xmlNode, const std::string& edgeDefault)
 {
 	pugi::xml_node graphNode = xmlNode.append_child("graph");
 	graphNode.append_attribute("id") = "G";

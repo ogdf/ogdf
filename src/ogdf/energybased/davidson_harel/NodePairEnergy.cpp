@@ -35,7 +35,7 @@
 namespace ogdf {
 namespace davidson_harel {
 
-NodePairEnergy::NodePairEnergy(const string energyname, GraphAttributes &AG) :
+NodePairEnergy::NodePairEnergy(const string& energyname, GraphAttributes &AG) :
 	EnergyFunction(energyname, AG),
 	m_candPairEnergy(m_G),
 	m_shape(m_G),

@@ -1316,7 +1316,7 @@ bool isBipartite(const Graph &G, NodeArray<bool> &color) {
 	return true;
 }
 
-void nodeDistribution(const Graph& G, Array<int> &dist, std::function<int(node)> func) {
+void nodeDistribution(const Graph& G, Array<int> &dist, const std::function<int(node)>& func) {
 	int maxval = 0;
 	int minval = std::numeric_limits<int>::max();
 

@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 #include "CoinHelperFunctions.hpp"
 
@@ -122,7 +123,7 @@ ClpPresolve::presolvedModelToFile(ClpSimplex &si, std::string fileName,
      if (!si.clpMatrix()->allElementsInRange(&si, si.getSmallElementValue(),
                                              1.0e20))
           return 2;
-     saveFile_ = fileName;
+     saveFile_ = std::move(fileName);
      si.saveModel(saveFile_.c_str());
      ClpSimplex * model = gutsOfPresolvedModel(&si, feasibilityTolerance, keepIntegers, numberPasses, dropNames,
                           doRowObjective);

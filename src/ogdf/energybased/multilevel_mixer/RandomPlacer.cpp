@@ -32,6 +32,8 @@
 #include <ogdf/basic/Math.h>
 #include <ogdf/energybased/multilevel_mixer/RandomPlacer.h>
 
+#include <cmath>
+
 namespace ogdf {
 
 void RandomPlacer::setCircleSize(double factor)
@@ -67,8 +69,8 @@ void RandomPlacer::placeOneNode(MultilevelGraph &MLG, double radius)
 	node merged = MLG.undoLastMerge();
 	float angle = (float)randomDouble(0.0, 2 * Math::pi);
 	float randRadius = float(sqrt(randomDouble(0.0, radius * radius)));
-	MLG.x(merged, cos(angle) * randRadius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
-	MLG.y(merged, sin(angle) * randRadius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
+	MLG.x(merged, std::cos(angle) * randRadius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
+	MLG.y(merged, std::sin(angle) * randRadius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
 }
 
 }

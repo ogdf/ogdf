@@ -18,17 +18,18 @@
 #ifdef CBC_NEXT_VERSION
 #include "OsiSolverBranch.hpp"
 #endif
-#include "OsiCuts.hpp"
-#include "OsiRowCut.hpp"
-#include "OsiColCut.hpp"
-#include "OsiRowCutDebugger.hpp"
+#include "CoinBuild.hpp"
+#include "CoinFinite.hpp"
+#include "CoinLpIO.hpp"
+#include "CoinModel.hpp"
 #include "OsiAuxInfo.hpp"
 #include "OsiBranchingObject.hpp"
+#include "OsiColCut.hpp"
+#include "OsiCuts.hpp"
+#include "OsiRowCut.hpp"
+#include "OsiRowCutDebugger.hpp"
 #include <cassert>
-#include "CoinFinite.hpp"
-#include "CoinBuild.hpp"
-#include "CoinModel.hpp"
-#include "CoinLpIO.hpp"
+#include <utility>
 //#############################################################################
 // Hotstart related methods (primarily used in strong branching)
 // It is assumed that only bounds (on vars/constraints) can change between
@@ -338,7 +339,7 @@ void OsiSolverInterface::addCol(const CoinPackedVectorBase& vec,
 {
   int ndx = getNumCols() ;
   addCol(vec,collb,colub,obj) ;
-  setColName(ndx,name) ;
+  setColName(ndx,std::move(name)) ;
 }
 
 void OsiSolverInterface::addCol(int numberElements,
@@ -348,7 +349,7 @@ void OsiSolverInterface::addCol(int numberElements,
 {
   int ndx = getNumCols() ;
   addCol(numberElements,rows,elements,collb,colub,obj) ;
-  setColName(ndx,name) ;
+  setColName(ndx,std::move(name)) ;
 }
 
 /* Convenience alias for addCol */
@@ -532,7 +533,7 @@ void OsiSolverInterface::addRow(const CoinPackedVectorBase& vec,
 {
   int ndx = getNumRows() ;
   addRow(vec,rowlb,rowub) ;
-  setRowName(ndx,name) ;
+  setRowName(ndx,std::move(name)) ;
 }
 
 void OsiSolverInterface::addRow(const CoinPackedVectorBase& vec,
@@ -541,7 +542,7 @@ void OsiSolverInterface::addRow(const CoinPackedVectorBase& vec,
 {
   int ndx = getNumRows() ;
   addRow(vec,rowsen,rowrhs,rowrng) ;
-  setRowName(ndx,name) ;
+  setRowName(ndx,std::move(name)) ;
 }
 
 /* Convenience alias for addRow. */
