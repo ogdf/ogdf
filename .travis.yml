@@ -101,13 +101,13 @@ script:
       cmake -DENABLE_COVERAGE=1 -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib ..;
       make -j2
       make tests
-      ./tests
+      ./tests > /dev/null
     else
       mkdir build && cd build;
       cmake -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib ..;
       make -j2
       make tests
-      ./tests
+      ./tests > /dev/null
     fi
 
 after_success:
