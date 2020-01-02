@@ -707,6 +707,11 @@ private:
 	//! Used by grow() to enlarge the array.
 	void expandArray(INDEX add);
 
+	//! Used by grow() to enlarge the array.
+	template <typename U>
+	typename std::enable_if<std::is_same<E,U>::value &&  std::is_trivially_copyable<U>::value >::type
+	expandArray(INDEX add);
+
 	//! Internal Quicksort implementation with comparer template.
 	template<class COMPARER>
 	static void quicksortInt(E *pL, E *pR, const COMPARER &comp) {
@@ -755,24 +760,15 @@ void Array<E, INDEX>::expandArray(INDEX add)
 // 		// clang 3.5 (which is also __GNUC__ < 5) has it
 // 		if (std::has_trivial_copy_assign<E>::value) {
 // #else
-// 		if (std::is_trivially_copyable<E>::value) {
-// #endif
-// 			E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
-// 			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
-// 			m_pStart = p;
+		E *p = static_cast<E *>( malloc(sNew*sizeof(E)) );
+		if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
 
-// 		// otherwise allocate new block, move elements, and free old block
-// 		} else {
-			E *p = static_cast<E *>( malloc(sNew*sizeof(E)) );
-			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
+		for (int i = 0; i < min(sOld,sNew); ++i) {
+			new (&p[i]) E(std::move(m_pStart[i]));
+		}
 
-			for (int i = 0; i < min(sOld,sNew); ++i) {
-				new (&p[i]) E(std::move(m_pStart[i]));
-			}
-
-			deconstruct();
-			m_pStart = p;
-		// }
+		deconstruct();
+		m_pStart = p;
 
 	} else {
 		m_pStart = static_cast<E *>( malloc(sNew*sizeof(E)) );
@@ -783,6 +779,30 @@ void Array<E, INDEX>::expandArray(INDEX add)
 	m_pStop = m_pStart + sNew;
 	m_high += add;
 }
+
+template<class E, class INDEX>
+template <typename U>
+typename std::enable_if<std::is_same<E,U>::value && std::is_trivially_copyable<U>::value>::type
+Array<E, INDEX>::expandArray(INDEX add)
+{
+	INDEX sOld = size(), sNew = sOld + add;
+
+	// expand allocated memory block
+	if (m_pStart != nullptr) {
+		E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
+		if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
+		m_pStart = p;
+	} else {
+		m_pStart = static_cast<E *>( malloc(sNew*sizeof(E)) );
+		if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);
+	}
+
+	m_vpStart = m_pStart - m_low;
+	m_pStop = m_pStart + sNew;
+	m_high += add;
+}
+
+
 
 // enlarges array by add elements and sets new elements to x
 template<class E, class INDEX>
