@@ -117,7 +117,7 @@ inline void MAARPacking::presort_rectangles_by_width(List<Rectangle>& R)
 
 
 void MAARPacking::B_F_insert_rectangle_in_new_row(
-	Rectangle r,
+	const Rectangle& r,
 	List<PackingRowInfo>& P,
 	List <ListIterator<PackingRowInfo> >&row_of_rectangle,
 	PQueue& total_width_of_row)
@@ -192,7 +192,7 @@ ListIterator<PackingRowInfo> MAARPacking::find_Best_Fit_insert_position(
 
 
 void MAARPacking::B_F_insert_rectangle(
-	Rectangle r,
+	const Rectangle& r,
 	List<PackingRowInfo>& P,
 	List<ListIterator<PackingRowInfo> >&row_of_rectangle,
 	ListIterator<PackingRowInfo> B_F_item,
@@ -314,7 +314,7 @@ inline double MAARPacking::calculate_aspect_ratio_area(
 
 
 bool MAARPacking::better_tipp_rectangle_in_new_row(
-	Rectangle r,
+	const Rectangle& r,
 	double aspect_ratio,
 	FMMMOptions::TipOver allow_tipping_over,
 	double& best_area)
@@ -346,7 +346,7 @@ bool MAARPacking::better_tipp_rectangle_in_new_row(
 
 
 bool MAARPacking::better_tipp_rectangle_in_this_row(
-	Rectangle r,
+	const Rectangle& r,
 	double aspect_ratio,
 	FMMMOptions::TipOver allow_tipping_over,
 	PackingRowInfo B_F_row,

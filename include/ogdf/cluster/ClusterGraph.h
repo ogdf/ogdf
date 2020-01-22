@@ -831,7 +831,7 @@ private:
 			const ClusterGraph &C,
 			const Graph &G,
 			ClusterArray<cluster> &originalClusterTable,
-			std::function<node(node)> nodeMap = [](node v) { return v; });
+			const std::function<node(node)>& nodeMap = [](node v) { return v; });
 
 	//! Assigns node \p v to cluster \p C (\p v not yet assigned!).
 	void assignNode(node v, cluster C);

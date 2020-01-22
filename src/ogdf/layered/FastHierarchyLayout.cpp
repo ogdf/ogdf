@@ -52,6 +52,10 @@ public:
 	int element;
 	double key;
 
+	withKey() = default; // luk036
+
+	withKey(const withKey&) = default; // luk036
+
 	withKey &operator=(const withKey& wk) {
 		element=wk.element;
 		key=wk.key;

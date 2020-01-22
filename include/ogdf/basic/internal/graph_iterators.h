@@ -127,6 +127,9 @@ public:
 	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isArgConst> &iter)
 	: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
 
+	//! Copy constructor.
+	GraphArrayIteratorBase<ArrayType, isConst>(const GraphArrayIteratorBase<ArrayType, isConst> &iter) = default;
+
 	//! Copy assignment operator.
 	GraphArrayIteratorBase<ArrayType, isConst> &operator=(const GraphArrayIteratorBase<ArrayType, isConst> &iter) {
 		m_key = iter.m_key;

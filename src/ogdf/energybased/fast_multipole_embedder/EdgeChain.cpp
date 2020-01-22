@@ -36,7 +36,7 @@ namespace fast_multipole_embedder {
 
 void pushBackEdge(uint32_t a, uint32_t b,
                   std::function<EdgeAdjInfo&(uint32_t)> edgeInform,
-                  std::function<NodeAdjInfo&(uint32_t)> nodeInform,
+                  const std::function<NodeAdjInfo&(uint32_t)>& nodeInform,
                   int e_index)
 {
 	auto adjustLinks = [&](NodeAdjInfo& info, uint32_t index) {

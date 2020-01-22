@@ -394,6 +394,9 @@ public:
 	//! Creates an invalid (null-) iterator.
 	SortedSequenceIteratorBase() : m_pElement(nullptr) { }
 
+	//! Copy constructor. (luk036)
+	SortedSequenceIteratorBase(const SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &it) = default;
+
 	//! Copy constructor.
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0, bool isArgReverse>
 	SortedSequenceIteratorBase(const SortedSequenceIteratorBase<KEY,INFO,CMP,isArgConst,isArgReverse> &it)

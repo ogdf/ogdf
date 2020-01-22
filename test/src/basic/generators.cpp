@@ -40,7 +40,7 @@
  * pairs {\a d, \a n} in \p degNumberPairs, that there
  * are \a n occurrences of degree \a d.
  */
-static void assertNodeDegrees(const Graph &G, std::vector<std::pair<int,int>> degNumberPairs) {
+static void assertNodeDegrees(const Graph &G, const std::vector<std::pair<int,int>>& degNumberPairs) {
 	Array<int> degdist;
 	degreeDistribution(G, degdist);
 

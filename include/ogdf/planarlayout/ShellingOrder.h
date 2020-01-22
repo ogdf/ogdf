@@ -64,6 +64,9 @@ public:
 		m_rightAdj    = adjR;
 	}
 
+	//! Copy constructor
+	ShellingOrderSet(const ShellingOrderSet& ) = default;
+
 	// destructor
 	~ShellingOrderSet() { }
 

@@ -66,8 +66,8 @@ computeRepulsiveForce(int j, double boxLength, int idealExponent, int normExpone
 
 DPoint SpringEmbedderGridVariant::ForceModelBase::
 computeMixedForcesDisplacement(int j, int boxLength,
-                               std::function<DPoint(double, const DPoint &)> attractiveChange,
-                               std::function<double()> attractiveFinal) const
+                               const std::function<DPoint(double, const DPoint &)>& attractiveChange,
+                               const std::function<double()>& attractiveFinal) const
 {
 	DPoint disp(computeRepulsiveForce(j, boxLength, 2));
 

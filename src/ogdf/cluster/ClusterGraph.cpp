@@ -244,7 +244,7 @@ void ClusterGraph::constructClusterTree(
 		const ClusterGraph &C,
 		const Graph &G,
 		ClusterArray<cluster> &originalClusterTable,
-		std::function<node(node)> nodeMap)
+		const std::function<node(node)>& nodeMap)
 {
 	for (cluster c : C.clusters) {
 		if (c == C.m_rootCluster) {

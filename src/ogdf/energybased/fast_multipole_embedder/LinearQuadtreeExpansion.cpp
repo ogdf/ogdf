@@ -33,6 +33,8 @@
 #include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>
 #include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
 
+#include <cmath>
+
 using namespace ogdf::sse;
 
 namespace ogdf {
@@ -235,7 +237,7 @@ void LinearQuadtreeExpansion::M2L(uint32_t source, uint32_t receiver)
 #endif
 
 	double r = delta1.length();//= sqrt(sdelta.real()*sdelta.real()+sdelta.imag()*sdelta.imag());
-	double phi = atan((center_x_receiver - center_x_source)/(center_y_receiver - center_y_source));
+	double phi = std::atan((center_x_receiver - center_x_source)/(center_y_receiver - center_y_source));
 #if 0
 	sum = a0*log(z1 - z0)
 #endif

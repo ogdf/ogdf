@@ -62,7 +62,7 @@ public:
 	//! Make all initialisations that are needed for FruchtermanReingold.
 	void make_initialisations (
 		double boxlength,
-		DPoint down_left_corner,
+		const DPoint& down_left_corner,
 		int grid_quotient);
 
 	//! Import updated information of the drawing area.

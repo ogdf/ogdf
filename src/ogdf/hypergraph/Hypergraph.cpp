@@ -518,7 +518,7 @@ int Hypergraph::nextEntry(char *buffer, int from, string stop)
 	return pos - from;
 }
 
-HypernodeElement::Type Hypergraph::gateType(string gate)
+HypernodeElement::Type Hypergraph::gateType(const string& gate)
 {
 	if (!gate.compare("or"))
 		return HypernodeElement::Type::OR;

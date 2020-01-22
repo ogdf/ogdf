@@ -23,6 +23,13 @@ include(group-files)
 include(coin)
 include(ogdf)
 
+# Enable code coverage with -DENABLE_COVERAGE=1
+if(ENABLE_COVERAGE)
+    set(CMAKE_BUILD_TYPE "Coverage")
+    include(CodeCoverage)
+    setup_target_for_coverage(${PROJECT_NAME}_coverage ${PROJECT_NAME}_test coverage)
+endif()
+
 include(make-user-target)
 include(tests)
 include(examples)

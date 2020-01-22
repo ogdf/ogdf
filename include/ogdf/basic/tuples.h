@@ -55,6 +55,8 @@ public:
 	//! Constructs a 2-tuple that is a copy of \p t2.
 	Tuple2(const Tuple2<E1,E2> &t2) : m_x1(t2.m_x1), m_x2(t2.m_x2) { }
 
+	Tuple2& operator=(const Tuple2& ) = default; // luk036
+
 	//! Returns a reference the first element.
 	const E1 &x1() const { return m_x1; }
 	//! Returns a reference the second element.

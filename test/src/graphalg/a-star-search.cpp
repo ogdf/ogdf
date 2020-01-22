@@ -175,7 +175,7 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 }
 
 template<typename T>
-void registerTests(string typeName) {
+void registerTests(const string& typeName) {
 	EpsilonTest et;
 	for(int i = 0; i < 16; i++) {
 		bool pathLike = i % 2;

@@ -1,0 +1,127 @@
+language: cpp
+dist: bionic
+
+cache: # see https://docs.travis-ci.com/user/caching/
+  - directories:
+    - $HOME/.cache
+
+matrix:
+  include:
+    - os: linux
+      addons: &gcc7
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - libfmt-dev
+            - libspdlog-dev
+            - lcov
+      env: COMPILER=gcc GCC=7 BLAS=OpenBLAS BUILD_TYPE='Debug'
+    - os: linux
+      addons: *gcc7
+      env: COMPILER=gcc GCC=7 BLAS=OpenBLAS BUILD_TYPE='Release'
+    - os: linux
+      addons: *gcc7
+      env: COMPILER=gcc GCC=7 BLAS=OpenBLAS BUILD_TYPE='Coverage'
+    - os: linux
+      addons: &gcc8
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - libfmt-dev
+            - libspdlog-dev
+            - lcov
+      env: COMPILER=gcc GCC=8 BLAS=OpenBLAS BUILD_TYPE='Debug'
+    - os: linux
+      addons: *gcc8
+      env: COMPILER=gcc GCC=8 BLAS=OpenBLAS BUILD_TYPE='Release'
+    - os: linux
+      addons: &clang8
+        apt:
+          sources: ['llvm-toolchain-xenial-8', 'ubuntu-toolchain-r-test']
+          packages:
+            - clang-8
+            - libstdc++-8-dev
+            - libfmt-dev
+            - libspdlog-dev
+            - lcov
+      env: COMPILER=clang CLANG=8 BLAS=OpenBLAS BUILD_TYPE='Debug'
+    - os: linux
+      addons: *clang8
+      env: COMPILER=clang CLANG=8 BLAS=OpenBLAS BUILD_TYPE='Release'
+
+env:
+  global:
+    - MINCONDA_VERSION="latest"
+    - MINCONDA_LINUX="Linux-x86_64"
+    - MINCONDA_OSX="MacOSX-x86_64"
+
+before_install:
+  - |
+    # Configure build variables
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      if [[ "$COMPILER" == "gcc" ]]; then
+        export CXX=g++-$GCC CC=gcc-$GCC;
+      fi
+      if [[ "$COMPILER" == "clang" ]]; then
+        export CXX=clang++-$CLANG CC=clang-$CLANG;
+      fi
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      export CXX=clang++ CC=clang;
+    fi
+
+install:
+  - mkdir -p $HOME/.cache
+  - touch $HOME/.cache/mydependency.so
+  # Define the version of miniconda to download
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      MINCONDA_OS=$MINCONDA_LINUX;
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      MINCONDA_OS=$MINCONDA_OSX;
+    fi
+  - wget "http://repo.continuum.io/miniconda/Miniconda3-$MINCONDA_VERSION-$MINCONDA_OS.sh" -O miniconda.sh;
+  - export CONDA_PREFIX=$HOME/miniconda
+  - bash miniconda.sh -b -p $CONDA_PREFIX
+  - export PATH="$CONDA_PREFIX/bin:$PATH"
+  - export LD_LIBRARY_PATH="$CONDA_PREFIX/lib"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  # - conda install gtest cmake -c conda-forge
+  - conda install lapack -c conda-forge
+
+script:
+  - |
+    if [[ "$BUILD_TYPE" == "Coverage" ]]; then
+      mkdir build && cd build;
+      cmake -DENABLE_COVERAGE=1 -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib ..;
+      make -j2
+      make tests
+      ./tests > /dev/null
+    else
+      mkdir build && cd build;
+      cmake -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_SYSTEM_IGNORE_PATH=/usr/lib ..;
+      make -j2
+      make tests
+      ./tests > /dev/null
+    fi
+
+after_success:
+  - |
+    if [[ "$BUILD_TYPE" == "Coverage" ]]; then
+      lcov --directory . --capture --output-file coverage.info # capture coverage info
+      lcov --remove coverage.info '/usr/*' $CONDA_PREFIX'/*' --output-file coverage.info # filter out system
+      lcov --list coverage.info #debug info
+      # Uploading report to CodeCov
+      bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
+    fi
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      - loksu:jErzuILLSNn9qGYkkILvBwje#ellcpp

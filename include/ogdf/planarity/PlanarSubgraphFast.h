@@ -165,6 +165,8 @@ public:
 		m_nRuns = 10;
 	}
 
+	PlanarSubgraphFast(const PlanarSubgraphFast& ) = default;
+
 	//! Destructor
 	~PlanarSubgraphFast() { }
 

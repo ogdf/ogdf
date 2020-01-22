@@ -60,7 +60,7 @@ template<typename T>
 using Modules = std::vector<ModuleData<T>>;
 
 template<typename T>
-static void addModule(Modules<T>& modules, const std::string& name, MinSteinerTreeModule<T>* alg, double ratio, std::vector<int> sizes = {35, 50}) {
+static void addModule(Modules<T>& modules, const std::string& name, MinSteinerTreeModule<T>* alg, double ratio, const std::vector<int>& sizes = {35, 50}) {
 	modules.emplace_back(ModuleData<T>{name, std::unique_ptr<MinSteinerTreeModule<T>>(alg), ratio, sizes});
 }
 
@@ -266,7 +266,7 @@ void testModule(const ModuleData<T>& module)
 
 		for_each_file("steiner", [&](const ResourceFile* file){
 			// optimal solution value is extracted from the filename
-			string filename = file->name();
+			const string& filename = file->name();
 			string tmp = filename.substr(0, filename.length() - 4);
 			T opt(0);
 			auto pos = tmp.find_last_of('.');
@@ -302,6 +302,7 @@ void testModule(const ModuleData<T>& module)
 
 struct MaxFlowFactoryBase {
 	virtual MaxFlowModule<double>* create() = 0;
+	virtual ~MaxFlowFactoryBase() = default; // luk
 };
 template<typename MaxFlowModuleType>
 struct MaxFlowFactory : MaxFlowFactoryBase {
@@ -327,10 +328,10 @@ registerDirectedCutVariants(Modules<T> &modules)
 	};
 
 	for (auto maxFlow : {AlgPair{flowEK.get(), "Edmonds-Karp"}, AlgPair{flowGT.get(), "Goldberg-Tarjan"}}) {
-		for (auto useBackCuts : VerboseTrueFalse{", back cuts"}) {
-			for (auto useMinCardinalityCuts : VerboseTrueFalse{", min cardinality cuts"}) {
-				for (auto useNestedCuts : VerboseTrueFalse{", nested cuts"}) {
-					for (auto useExtraConstraints : VerboseTrueFalse{"all extra constraints", "only necessary constraints"}) {
+		for (const auto& useBackCuts : VerboseTrueFalse{", back cuts"}) {
+			for (const auto& useMinCardinalityCuts : VerboseTrueFalse{", min cardinality cuts"}) {
+				for (const auto& useNestedCuts : VerboseTrueFalse{", nested cuts"}) {
+					for (const auto& useExtraConstraints : VerboseTrueFalse{"all extra constraints", "only necessary constraints"}) {
 						MinSteinerTreeDirectedCut<T> *alg = new MinSteinerTreeDirectedCut<T>();
 
 						std::stringstream ss;
@@ -545,7 +546,7 @@ registerGoemans139Variants(Modules<T> &modules)
  * template parameter, like int or double.
  */
 template<typename T>
-void registerSuite(const std::string typeName)
+void registerSuite(const std::string& typeName)
 {
 	describe("for graphs with " + typeName + "-typed costs:", [] {
 		Modules<T> modules;

@@ -80,7 +80,7 @@ private:
 
 	//! Creates a new empty row in P and inserts r into this row (by updating P,
 	//! row_of_rectangle and total_width_of_row).
-	void  B_F_insert_rectangle_in_new_row(Rectangle r,List<PackingRowInfo>& P, List
+	void  B_F_insert_rectangle_in_new_row(const Rectangle& r,List<PackingRowInfo>& P, List
 		<ListIterator<PackingRowInfo> >&
 		row_of_rectangle, PQueue&
 		total_width_of_row);
@@ -100,7 +100,7 @@ private:
 
 	//! Inserts r into the row with corresponding ListIterator B_F_item and updates
 	//! total_width_of_row.
-	void B_F_insert_rectangle(Rectangle r,List<PackingRowInfo>& P,List
+	void B_F_insert_rectangle(const Rectangle& r,List<PackingRowInfo>& P,List
 		<ListIterator
 		<PackingRowInfo> >& row_of_rectangle,ListIterator
 		<PackingRowInfo> B_F_item, PQueue& total_width_of_row);
@@ -124,13 +124,13 @@ private:
 	//! Returns true if the aspect_ratio_area of the acual packing becomes better, when
 	//! tipping r over bevore inserting it into the new row. best_area holds the aspect
 	//! ratio area of the best of the two insertion alternatives.
-	bool better_tipp_rectangle_in_new_row(Rectangle r,double aspect_ratio, FMMMOptions::TipOver
+	bool better_tipp_rectangle_in_new_row(const Rectangle& r,double aspect_ratio, FMMMOptions::TipOver
 		allow_tipping_over,double& best_area);
 
 	//! Returns true if the aspect_ratio_area of the acual packing becomes better, when
 	//! tipping r over bevore inserting it into the existing row B_F_row. best_area holds
 	//! the aspect ratio area of the best of the two insertion alternatives.
-	bool better_tipp_rectangle_in_this_row(Rectangle r,double aspect_ratio,FMMMOptions::TipOver
+	bool better_tipp_rectangle_in_this_row(const Rectangle& r,double aspect_ratio,FMMMOptions::TipOver
 		allow_tipping_over,PackingRowInfo B_F_row,
 		double& best_area);
 

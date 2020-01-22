@@ -33,6 +33,8 @@
 #include <ogdf/lib/abacus/column.h>
 #include <ogdf/lib/abacus/row.h>
 
+#include <utility>
+
 namespace abacus {
 
 
@@ -90,7 +92,7 @@ LP(master),
 {
 	lpMasterOsi_ = master->lpMasterOsi();
 
-	_initialize(sense, nRow, maxRow, nCol, maxCol, obj, lb, ub, rows);
+	_initialize(std::move(sense), nRow, maxRow, nCol, maxCol, obj, lb, ub, rows);
 }
 
 

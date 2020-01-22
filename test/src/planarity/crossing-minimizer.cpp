@@ -156,7 +156,7 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
  * \param title a human-readable title of the algorithm
  * \param isOptimal whether the algorithm is optimal
  */
-void testModule(CrossingMinimizationModule &cmm, const std::string title, bool isOptimal) {
+void testModule(CrossingMinimizationModule &cmm, const std::string& title, bool isOptimal) {
 	describe(title, [&]() {
 		Graph graph;
 
@@ -297,7 +297,7 @@ void setRemoveReinsert(MultiEdgeApproxInserter &edgeInserter, RemoveReinsertType
  * Test the ::SubgraphPlanarizer with a specific type of edge remove-reinsert post-processing.
  */
 template<typename EdgeInserter>
-void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, RemoveReinsertType rrType, const std::string name, bool skipMe) {
+void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, RemoveReinsertType rrType, const std::string& name, bool skipMe) {
 	auto performTest = [&]() {
 		setRemoveReinsert(*edgeInserter, rrType);
 		heuristic.permutations(1);
@@ -319,7 +319,7 @@ void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, Rem
  * Test the ::SubgraphPlanarizer with a specific ::EdgeInsertionModule .
  */
 template<typename EdgeInserter>
-void testSPEdgeInserter(EdgeInserter *edgeInserter, const std::string name, bool skipMe = false) {
+void testSPEdgeInserter(EdgeInserter *edgeInserter, const std::string& name, bool skipMe = false) {
 	describe("edge insertion: " + name, [&]() {
 		SubgraphPlanarizer heuristic;
 		heuristic.setInserter(edgeInserter);

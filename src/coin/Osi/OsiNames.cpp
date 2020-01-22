@@ -6,8 +6,9 @@
 #  pragma warning(disable:4786)
 #endif
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
+#include <utility>
 
 #include "OsiSolverInterface.hpp"
 #include "CoinLpIO.hpp"
@@ -417,7 +418,7 @@ void OsiSolverInterface::setRowName (int ndx, std::string name)
       else
       if (static_cast<unsigned>(ndx) >= rowNames_.size())
       { rowNames_.resize(ndx+1) ; }
-      rowNames_[ndx] = name ;
+      rowNames_[ndx] = std::move(name) ;
       break ; }
     default:
     { break ; } }
@@ -546,7 +547,7 @@ void OsiSolverInterface::setColName (int ndx, std::string name)
       else
       if (static_cast<unsigned>(ndx) >= colNames_.size())
       { colNames_.resize(ndx+1) ; }
-      colNames_[ndx] = name ;
+      colNames_[ndx] = std::move(name) ;
       break ; }
     default:
     { break ; } }

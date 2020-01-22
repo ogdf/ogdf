@@ -113,6 +113,9 @@ public:
 	ListIteratorBase() : ListIteratorBase(nullptr) { }
 
 	//! Constructs an iterator that is a copy of \p it.
+	ListIteratorBase(const ListIteratorBase<E,isConst, isReverse> &it) = default;  // luk036
+
+	//! Constructs an iterator that is a copy of \p it.
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0, bool isArgReverse>
 	ListIteratorBase(const ListIteratorBase<E,isArgConst,isArgReverse> &it) : ListIteratorBase(it.m_pX) { }
 

@@ -104,6 +104,9 @@ public:
 	SListIteratorBase() : SListIteratorBase(nullptr) { }
 
 	//! Constructs an iterator that is a copy of \p it.
+	SListIteratorBase(const SListIteratorBase<E, isConst> &it) = default;  // luk036
+
+	//! Constructs an iterator that is a copy of \p it.
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0>
 	SListIteratorBase(const SListIteratorBase<E, isArgConst> &it) : SListIteratorBase(it.m_pX) { }
 

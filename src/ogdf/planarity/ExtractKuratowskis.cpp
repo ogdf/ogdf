@@ -539,7 +539,7 @@ bool ExtractKuratowskis::isANewKuratowski(
 		const EdgeArray<int>& test,
 		const SList<KuratowskiWrapper>& output)
 {
-	for (auto kw : output) {
+	for (const auto& kw : output) {
 		bool differentEdgeFound = false;
 		for (edge e : kw.edgeList) {
 			if (!test[e]) {

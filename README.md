@@ -1,5 +1,9 @@
 # OGDF
 
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/ogdf/ogdf)
+[![Build Status](https://travis-ci.com/luk036/ogdf.svg?branch=master)](https://travis-ci.com/luk036/ogdf)
+[![codecov](https://codecov.io/gh/luk036/ogdf/branch/master/graph/badge.svg)](https://codecov.io/gh/luk036/ogdf)
+
 The **O**pen **G**raph **D**rawing **F**ramework is a self-contained C++ class library
 for the automatic layout of diagrams. OGDF offers sophisticated algorithms and
 data structures to use within your own applications or scientific projects.

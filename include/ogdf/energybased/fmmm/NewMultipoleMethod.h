@@ -58,7 +58,7 @@ public:
 	//! Make all initialisations that are needed for New Multipole Method (NMM)
 	void make_initialisations (const Graph &G,
 		double boxlength,
-		DPoint down_left_corner,
+		const DPoint& down_left_corner,
 		int particles_in_leaves,
 		int precision,
 		FMMMOptions::ReducedTreeConstruction tree_construction_way,
@@ -68,7 +68,7 @@ public:
 	void deallocate_memory();
 
 	//! Import updated information of the drawing area.
-	void update_boxlength_and_cornercoordinate(double b_l,DPoint d_l_c);
+	void update_boxlength_and_cornercoordinate(double b_l,const DPoint& d_l_c);
 
 private:
 	//! The minimum number of nodes for which the forces are
@@ -150,11 +150,11 @@ private:
 
 	//! Returns true if the rectangle defined by min and max lies within the
 	//! left(right)_top(bottom) quad of the small cell of *act_ptr.
-	bool in_lt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
-	bool in_rt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
-	bool in_lb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
-	bool in_rb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
-	bool quadHelper(DPoint min, DPoint max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr);
+	bool in_lt_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max);
+	bool in_rt_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max);
+	bool in_lb_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max);
+	bool in_rb_quad(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max);
+	bool quadHelper(const DPoint& min, const DPoint& max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr);
 
 	//! The Lists *act_ptr->get_x(y)_List_ptr() are split into two sublists containing
 	//! the particles in the left and right half of the actual quad. The list that is
@@ -311,7 +311,7 @@ private:
 
 	//! Finds the small cell of the actual Node of T iteratively,and updates
 	//! Sm_downleftcorner, Sm_boxlength, and level of *act_ptr.
-	void find_small_cell_iteratively(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
+	void find_small_cell_iteratively(QuadTreeNodeNM* act_ptr, const DPoint& min, const DPoint& max);
 
 	//! Finds the small cell of the actual Node of T by Aluru's Formula, and updates
 	//! Sm_downleftcorner, Sm_boxlength, and level of *act_ptr.

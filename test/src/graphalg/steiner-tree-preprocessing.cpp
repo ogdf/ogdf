@@ -173,7 +173,7 @@ testPrecomposedReductions(int numberOfTests)
 
 template<typename T>
 static void
-testWildMixesOfReductions(string typeName, int numberOfTests)
+testWildMixesOfReductions(const string& typeName, int numberOfTests)
 {
 	std::pair<string, std::function<void(SteinerTreePreprocessing<T> &)>> reductions[] = {
 		{ "nearest-vertex", [](SteinerTreePreprocessing<T> &stprep) {

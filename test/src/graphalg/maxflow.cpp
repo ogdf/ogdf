@@ -209,7 +209,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 		for_each_file("maxflow", [&](const ResourceFile* file){
 			it("works on " + file->fullPath(), [&] {
 				// optimal solution value is extracted from the filename
-				std::string filename = file->name();
+				const std::string& filename = file->name();
 				string tmp = filename.substr(0, filename.length() - 4);
 				tmp = tmp.substr(tmp.find_last_of('.') + 1);
 				std::stringstream ss(tmp);
@@ -326,7 +326,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 }
 
 template<typename T>
-void registerTestSuite(const string typeName)
+void registerTestSuite(const string& typeName)
 {
 	const string suffix = "<" + typeName + ">";
 
@@ -349,7 +349,7 @@ void registerTestSuite(const string typeName)
  *                    Each call is provided with the graph to be initialized and a counter.
  */
 void describeConnectivityTester(
-        string title,
+        const string& title,
         int expected,
         std::function<void (Graph&, int)> initializer)
 {

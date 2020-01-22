@@ -33,6 +33,8 @@
 #include <ogdf/energybased/multilevel_mixer/CirclePlacer.h>
 #include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
 
+#include <cmath>
+
 namespace ogdf {
 
 CirclePlacer::CirclePlacer()
@@ -94,8 +96,8 @@ void CirclePlacer::placeOneLevel(MultilevelGraph &MLG)
 			|| (m_nodeSelection == NodeSelection::Old && !oldNodes[v]))
 		{
 			float angle = (float)(atan2( MLG.x(v) - center.m_x, -MLG.y(v) + center.m_y) - 0.5 * Math::pi);
-			MLG.x(v, cos(angle) * radius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
-			MLG.y(v, sin(angle) * radius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
+			MLG.x(v, std::cos(angle) * radius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
+			MLG.y(v, std::sin(angle) * radius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
 		}
 	}
 }

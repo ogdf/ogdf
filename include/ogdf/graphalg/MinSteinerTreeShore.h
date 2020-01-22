@@ -340,7 +340,7 @@ T MinSteinerTreeShore<T>::weightOf(const edge e) const
 template<typename T>
 bool MinSteinerTreeShore<T>::validateMapping() const
 {
-	for (edge e : m_graph.edges) {
+	for ([[maybe_unused]] edge e : m_graph.edges) {
 		OGDF_ASSERT(m_mapping[e] != nullptr);
 		OGDF_ASSERT(m_mapping[e]->graphOf() == m_originalGraph);
 	}

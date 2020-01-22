@@ -219,11 +219,11 @@ public:
 		return *this;
 	}
 
-	bool operator==(const SkiplistIterator<X> other) const {
+	bool operator==(const SkiplistIterator<X>& other) const {
 		return el == other.el;
 	}
 
-	bool operator!=(const SkiplistIterator<X> other) const {
+	bool operator!=(const SkiplistIterator<X>& other) const {
 		return !operator==(other);
 	}
 };

@@ -198,10 +198,10 @@ private:
 		List<node>& pm_nodes);
 
 	//! Returns a random point with radius radius between angle_1 and angle_2.
-	DPoint create_random_pos(DPoint center, double radius, double angle_1, double angle_2);
+	DPoint create_random_pos(const DPoint& center, double radius, double angle_1, double angle_2);
 
 	//! Returns roughtly the position s +lambda*(t-s) + some random waggling.
-	DPoint get_waggled_inbetween_position(DPoint s, DPoint t, double lambda);
+	DPoint get_waggled_inbetween_position(const DPoint& s, const DPoint& t, double lambda);
 
 	//! Returns the barycenter position of all points in L (the mass of all point is
 	//! regarded as equal).
@@ -209,7 +209,7 @@ private:
 
 	//! Creates a waggled position on the line PQ, depending on dist_P and dist_Q
 	//! needed in case init_placement_way() == 1.
-	DPoint calculate_position(DPoint P,DPoint Q, double dist_P, double dist_Q);
+	DPoint calculate_position(const DPoint& P,const DPoint& Q, double dist_P, double dist_Q);
 };
 
 }

@@ -417,7 +417,7 @@ void describeDMF(const string &typeName) {
  * \param writer The write function to be tested.
  * \param isXml Whether the format is based on XML.
  */
-void testFormat(const std::string name, function<bool(Graph &G, istream &is)> reader,
+void testFormat(const std::string& name, function<bool(Graph &G, istream &is)> reader,
                         function<bool(Graph &G, ostream &os)> writer, bool isXml)
 {
 	std::string lowerCaseName = name;

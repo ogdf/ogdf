@@ -411,7 +411,7 @@ OGDF_EXPORT void randomChungLuGraph(Graph &G, Array<int> expectedDegreeDistribut
  * @param probability is a callback function that, for any given pair of nodes, returns a probability
  *        between 0 and 1 for the two nodes to be connected.
  */
-OGDF_EXPORT void randomEdgesGraph(Graph &G, std::function<double(node, node)> probability);
+OGDF_EXPORT void randomEdgesGraph(Graph &G, const std::function<double(node, node)>& probability);
 
 //! @}
 

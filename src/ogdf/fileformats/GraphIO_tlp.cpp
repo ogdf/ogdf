@@ -102,8 +102,8 @@ static inline string writeColor(const Color &c) {
 
 template<typename GraphE, typename Type>
 static void writeSingleProperty(
-	std::ostream &os, std::function<Type(GraphE)> ga, List<GraphE> graphElements, string GraphEName,
-	Attribute attribute, string attrName, Type defaultValue, bool printDefault,
+	std::ostream &os, std::function<Type(GraphE)> ga, List<GraphE> graphElements, const string& GraphEName,
+	Attribute attribute, const string& attrName, Type defaultValue, bool printDefault,
 	std::function<string(Type)> toString)
 {
 	os << "\n";
@@ -138,12 +138,12 @@ static void writeProperties(
 		G.allNodes(nodes);
 		writeSingleProperty<node,string>(os, [&](node v){return GA.label(v);},
 		                                 nodes, "node", Attribute::label, "label", "\" \"", true,
-		                                 [](string s){return "\"" + s + "\"";});
+		                                 [](const string& s){return "\"" + s + "\"";});
 		List<edge> edges;
 		G.allEdges(edges);
 		writeSingleProperty<edge,string>(os, [&](edge e){; return GA.label(e);},
 		                                 edges, "edge", Attribute::label, "label", "\" \"", true,
-		                                 [](string s){return "\"" + s + "\"";});
+		                                 [](const string& s){return "\"" + s + "\"";});
 	}
 
 	if(attrs & GraphAttributes::nodeStyle) {

@@ -63,6 +63,9 @@ public:
 	//! Returns a new instance of the variable embedding inserter with the same option settings.
 	virtual EdgeInsertionModule *clone() const override;
 
+	//! Copy constructor
+	VariableEmbeddingInserterDyn(const VariableEmbeddingInserterDyn &) = default;
+
 	//! Assignment operator. Copies option settings only.
 	VariableEmbeddingInserterDyn &operator=(const VariableEmbeddingInserterDyn &inserter);
 

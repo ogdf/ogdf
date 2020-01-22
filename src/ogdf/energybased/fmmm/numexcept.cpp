@@ -40,7 +40,7 @@ namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-DPoint numexcept::choose_distinct_random_point_in_disque(DPoint old_point,
+DPoint numexcept::choose_distinct_random_point_in_disque(const DPoint& old_point,
 	double xmin,double xmax,double ymin,double ymax)
 {
 	const int BILLION = 1000000000;
@@ -96,7 +96,7 @@ DPoint numexcept::choose_distinct_random_point_in_disque(DPoint old_point,
 	return new_point;
 }
 
-DPoint numexcept::choose_distinct_random_point_in_radius_epsilon(DPoint old_pos)
+DPoint numexcept::choose_distinct_random_point_in_radius_epsilon(const DPoint& old_pos)
 {
 	double xmin = old_pos.m_x-1*epsilon;
 	double xmax = old_pos.m_x+1*epsilon;
@@ -166,7 +166,7 @@ bool numexcept::nearly_equal(double a,double b)
 	return (small_b <= a) && (a <= big_b);
 }
 
-DPoint numexcept::f_rep_u_on_v(DPoint pos_u, DPoint pos_v)
+DPoint numexcept::f_rep_u_on_v(DPoint pos_u, const DPoint& pos_v)
 {
 	if (pos_u == pos_v) {
 		// Exception handling if two nodes have the same position

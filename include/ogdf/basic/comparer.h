@@ -290,6 +290,9 @@ public:
 	//! Copy-constructor
 	Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
 
+	//! Assignment operator
+    Prioritized& operator=(const Prioritized&) = default; // luk036
+
 	//! Returns the key of the element
 	Priority priority() const { return p; }
 

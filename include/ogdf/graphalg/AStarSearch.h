@@ -74,10 +74,10 @@ public:
 	 *               The default of 1 leads to an optimal solution.
 	 * @param et The ::ogdf::EpsilonTest to be used for comparing edge costs
 	 */
-	explicit AStarSearch(const bool directed = false, const double maxGap = 1, const EpsilonTest &et = EpsilonTest())
+	explicit AStarSearch(const bool directed = false, const double maxGap = 1, const EpsilonTest &et2 = EpsilonTest())
 	: m_directed(directed)
 	, m_maxGap(maxGap)
-	, m_et(et)
+	, m_et(et2)
 	{
 		OGDF_ASSERT(m_et.geq(maxGap, 1.0));
 	}

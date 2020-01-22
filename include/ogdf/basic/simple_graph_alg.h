@@ -1003,7 +1003,7 @@ inline bool isBipartite(const Graph &G) {
  *
  * @see ogdf::degreeDistribution
  */
-OGDF_EXPORT void nodeDistribution(const Graph& G, Array<int> &degdist, std::function<int(node)> func);
+OGDF_EXPORT void nodeDistribution(const Graph& G, Array<int> &degdist, const std::function<int(node)>& func);
 
 /**
  * Fills \p degdist with the degree distribution of graph \p G.

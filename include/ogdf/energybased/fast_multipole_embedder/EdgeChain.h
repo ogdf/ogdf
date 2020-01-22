@@ -71,7 +71,7 @@ public:
 //! Helper method used by ArrayGraph and WSPD.
 void pushBackEdge(uint32_t a, uint32_t b,
                   std::function<EdgeAdjInfo&(uint32_t)> edgeInform,
-                  std::function<NodeAdjInfo&(uint32_t)> nodeInform,
+                  const std::function<NodeAdjInfo&(uint32_t)>& nodeInform,
                   int e_index);
 
 }

@@ -1440,7 +1440,7 @@ void randomChungLuGraph(Graph &G, Array<int> expectedDegreeSequence) {
 	});
 }
 
-void randomEdgesGraph(Graph &G, std::function<double(node, node)> probability)
+void randomEdgesGraph(Graph &G, const std::function<double(node, node)>& probability)
 {
 	minstd_rand rng(randomSeed());
 	uniform_real_distribution<> dist(0, 1);

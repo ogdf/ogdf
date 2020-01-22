@@ -11,12 +11,13 @@
 #include "CoinUtilsConfig.h"
 
 #include <cassert>
-#include <cstdlib>
-#include <cmath>
 #include <cfloat>
-#include <string>
+#include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
+#include <string>
+#include <utility>
 
 #include "CoinMpsIO.hpp"
 #include "CoinMessage.hpp"
@@ -3895,7 +3896,7 @@ static void outputCard(int formatType,int numberFields,
 		       const char outputRow[2][100])
 {
    // fprintf(fp,"%s",head.c_str());
-   std::string line = head;
+   std::string line = std::move(head);
    int i;
    if (formatType==0||(formatType>=2&&formatType<8)) {
       char outputColumn[9];

@@ -337,8 +337,8 @@ struct SeqItemXY {
 static void computeIntersection(XSequence &xStructure, YSequence &yStructure, YSequence::iterator sit0)
 {
 	YSequence::iterator sit1 = sit0.succ();
-	DSegmentHandle s0 = sit0.key();
-	DSegmentHandle s1 = sit1.key();
+	const DSegmentHandle& s0 = sit0.key();
+	const DSegmentHandle& s1 = sit1.key();
 
 	if( orientation(s0, s1.end()) <= 0 && orientation(s1, s0.end()) >= 0 ) {
 		DPointHandle q;
@@ -382,8 +382,8 @@ static void addSegment(
 
 	if(it1 == it2) return;
 
-	DPointHandle p1 = it1.key();
-	DPointHandle p2 = it2.key();
+	const DPointHandle& p1 = it1.key();
+	const DPointHandle& p2 = it2.key();
 
 	EventCmp eventCmp;
 	DSegmentHandle s1 = (eventCmp.compare(p1,p2) < 0) ? DSegmentHandle(p1,p2) : DSegmentHandle(p2,p1);

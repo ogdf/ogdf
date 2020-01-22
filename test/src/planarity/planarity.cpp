@@ -47,7 +47,7 @@ using std::uniform_int_distribution;
 using ReturnType = CrossingMinimizationModule::ReturnType;
 
 template<typename T>
-void testNPCWeighted(string description, string alg, bool useDijkstra) {
+void testNPCWeighted(const string& description, const string& alg, bool useDijkstra) {
 	it("recognizes weight in " + description + " with " + alg, [&]() {
 		Graph graph;
 		completeGraph(graph, 5);

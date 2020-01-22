@@ -49,7 +49,7 @@ public:
 	//! D is shrunk by multiplying with epsilon = 0.1; Precondition:
 	//! old_point is contained in the box and the box is not equal to old_point.
 	static DPoint choose_distinct_random_point_in_disque(
-		DPoint old_point,
+		const DPoint& old_point,
 		double xmin,
 		double xmax,
 		double ymin,
@@ -65,12 +65,12 @@ public:
 	//! insufficient in functions well_seperated and bordering of NMM)
 	static bool nearly_equal(double a, double b);
 
-	static DPoint f_rep_u_on_v(DPoint pos_u, DPoint pos_v);
+	static DPoint f_rep_u_on_v(DPoint pos_u, const DPoint& pos_v);
 
 protected:
 	//! A random point (distinct from old_pos) on the disque around old_pos with
 	//! radius epsilon = 0.1 is computed.
-	static DPoint choose_distinct_random_point_in_radius_epsilon(DPoint old_pos);
+	static DPoint choose_distinct_random_point_in_radius_epsilon(const DPoint& old_pos);
 
 	//! If distance has a value near the machine precision the repulsive force calculation
 	//! is not possible (calculated values exceed the machine accuracy) in this cases
