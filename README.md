@@ -1,5 +1,6 @@
 # OGDF
 
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/ogdf/ogdf)
 [![Build Status](https://travis-ci.com/luk036/ogdf.svg?branch=master)](https://travis-ci.com/luk036/ogdf)
 [![codecov](https://codecov.io/gh/luk036/ogdf/branch/master/graph/badge.svg)](https://codecov.io/gh/luk036/ogdf)
 
