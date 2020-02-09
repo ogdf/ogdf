@@ -226,27 +226,61 @@ describe("SVG", []() {
 		AssertThat(static_cast<int>(doc.select_nodes(".//rect").size()), Equals(clusterGraph.numberOfClusters() - 1));
 	});
 
-	it("supports arrow heads", [&]() {
-		GraphAttributes attr(*graph, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeArrow);
+	for(bool directed : {true, false}) {
+		it("supports arrow heads when directed=" + to_string(directed) + " but edge arrow attribute is disabled", [&]() {
+			GraphAttributes attr(*graph, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
+			attr.directed() = directed;
 
-		pugi::xml_document doc;
-		createDocument(attr, doc);
+			pugi::xml_document doc;
+			createDocument(attr, doc);
 
-		AssertThat(static_cast<int>(doc.select_nodes(".//polygon").size()), Equals(graph->numberOfEdges()));
-	});
+			AssertThat(static_cast<int>(doc.select_nodes(".//polygon").size()), Equals(directed ? graph->numberOfEdges() : 0));
+		});
 
-	it("supports two arrows per edge", [&]() {
-		GraphAttributes attr(*graph, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeArrow);
+		for(EdgeArrow ea : {EdgeArrow::Undefined, EdgeArrow::First, EdgeArrow::Last, EdgeArrow::Both, EdgeArrow::None}) {
+			std::stringstream ss;
+			ss << "supports arrow heads when directed=" << directed << " and type=";
+			switch(ea) {
+				case EdgeArrow::Undefined:
+					ss << "UNDEFINED";
+					break;
+				case EdgeArrow::First:
+					ss << "FIRST";
+					break;
+				case EdgeArrow::Last:
+					ss << "LAST";
+					break;
+				case EdgeArrow::Both:
+					ss << "BOTH";
+					break;
+				default:
+					OGDF_ASSERT(ea == EdgeArrow::None);
+					ss << "NONE";
+		            break;
+			}
 
-		for(edge e : graph->edges) {
-			attr.arrowType(e) = EdgeArrow::Both;
+			it(ss.str(), [&]() {
+				GraphAttributes attr(*graph, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeArrow);
+				attr.directed() = directed;
+
+				for(edge e : graph->edges) {
+					attr.arrowType(e) = ea;
+				}
+
+				pugi::xml_document doc;
+				createDocument(attr, doc);
+
+				int expected = 0;
+				if((directed && ea == EdgeArrow::Undefined) || ea == EdgeArrow::First || ea == EdgeArrow::Last) {
+					expected = graph->numberOfEdges();
+				}
+				if(ea == EdgeArrow::Both) {
+					expected = 2*graph->numberOfEdges();
+				}
+				AssertThat(static_cast<int>(doc.select_nodes(".//polygon").size()), Equals(expected));
+			});
 		}
-
-		pugi::xml_document doc;
-		createDocument(attr, doc);
-
-		AssertThat(static_cast<int>(doc.select_nodes(".//polygon").size()), Equals(graph->numberOfEdges() * 2));
-	});
+	}
 });
 });
 });

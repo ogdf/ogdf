@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/MaxFlowModule.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 
 namespace ogdf {
 

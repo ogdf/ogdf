@@ -272,6 +272,11 @@ static bool inline readAttribute(
 			GA.fillColor(v) = toColor(value);
 		}
 		break;
+	case NodeAttribute::FillBgColor:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.fillBgColor(v) = toColor(value);
+		}
+		break;
 	case NodeAttribute::StrokeWidth:
 		if(attrs & GraphAttributes::nodeStyle) {
 			std::istringstream is(value);

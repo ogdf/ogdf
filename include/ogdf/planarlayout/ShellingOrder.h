@@ -64,9 +64,6 @@ public:
 		m_rightAdj    = adjR;
 	}
 
-	// destructor
-	~ShellingOrderSet() { }
-
 
 	//! Returns the left-node of the set.
 	node left() const {
@@ -133,15 +130,6 @@ public:
 		return Array<node>::operator[](i);
 	}
 
-	//! Assignment operator.
-	ShellingOrderSet &operator= (const ShellingOrderSet& S) {
-		Array<node>::operator= (S);
-		left     (S.left());
-		right    (S.right());
-		leftAdj (S.leftAdj());
-		rightAdj(S.rightAdj());
-		return *this;
-	}
 
 private:
 	node m_leftVertex;   //!< the left-node of the set.
@@ -149,9 +137,6 @@ private:
 	adjEntry m_leftAdj;  //!< the adjacency entry pointing to the left-node.
 	adjEntry m_rightAdj; //!< the adjacency entry pointing to the right-node.
 };
-
-
-
 
 /**
  * \brief The shelling order of a graph.

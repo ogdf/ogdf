@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/energybased/SpringForceModel.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
 #include <ogdf/basic/simple_graph_alg.h>

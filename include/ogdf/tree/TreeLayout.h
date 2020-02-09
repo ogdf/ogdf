@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/SList.h>
 
 namespace ogdf {
@@ -127,7 +127,7 @@ public:
 	/**
 	 * \brief Calls tree layout for graph attributes \p GA.
 	 *
-	 * \pre The graph is a tree or a forest. If this is not the case, a PreconditionViolatedException will be thrown.
+	 * \pre The graph is a tree or a forest.
 	 *
 	 * The order of children is given by the adjacency lists. The successor of the unique in-edge of a non-root node
 	 * leads to its leftmost child; the leftmost child of the root is given by its first adjacency entry.
@@ -139,7 +139,7 @@ public:
 	/**
 	 * \brief Calls tree layout for graph attributes \p GA.
 	 *
-	 * \pre The graph is a tree or a forest. If this is not the case, a PreconditionViolatedException will be thrown.
+	 * \pre The graph is a tree or a forest.
 	 *
 	 * Sorts the adjacency entries according to the positions of adjacent
 	 * vertices in \p GA.

@@ -1,6 +1,5 @@
 /** \file
- * \brief Definition and implementation of FullComponentStore,
- *   a data structure to store full components
+ * \brief Definition of the FullComponentStore class template
  *
  * \author Stephan Beyer
  *
@@ -40,9 +39,7 @@ namespace steiner_tree {
 
 #define OGDF_FULLCOMPONENTSTORE_REMOVE_IN_GRAPH_REPRESENTATION_ALSO // unnecessary but may save memory
 
-/*!
- * \brief A data structure to store full components
- */
+//! A data structure to store full components
 template<typename T, typename ExtraDataType = void>
 class FullComponentStore
 {
@@ -82,6 +79,66 @@ protected:
 	};
 	ArrayBuffer<Metadata<ExtraDataType>> m_components; //!< List of full components (based on metadata)
 
+	//! Traverse over degree-2 nonterminals
+	void traverseOverDegree2Nonterminals(node& uO, T& weight, EdgeArray<bool>& marked, adjEntry adj, const EdgeWeightedGraphCopy<T>& comp) const {
+		while (m_nodeCopy[uO] == nullptr && !m_isTerminal[uO]) {
+			OGDF_ASSERT(comp.copy(uO)->degree() == 2);
+			adj = adj->twin()->cyclicSucc();
+			OGDF_ASSERT(comp.original(adj->theNode()) == uO);
+			edge e2 = adj->theEdge();
+			marked[e2] = true;
+			weight += comp.weight(e2);
+			uO = comp.original(adj->twinNode());
+		}
+	}
+
+	//! Copy edges from \p comp into our representation, traversing variant to ignore degree-2 nodes
+	void copyEdgesWithSimplifiedPaths(Metadata<ExtraDataType>& data, const EdgeWeightedGraphCopy<T>& comp, const ArrayBuffer<node>& nonterminals) {
+		EdgeArray<bool> marked(comp, false);
+		for (node v : nonterminals) {
+			for (adjEntry adj : comp.copy(m_nodeOrig[v])->adjEntries) {
+				edge e = adj->theEdge();
+				if (!marked[e]) {
+					marked[e] = true;
+					node vO = comp.original(adj->theNode());
+					OGDF_ASSERT(m_nodeCopy[vO] != nullptr);
+					node uO = comp.original(adj->twinNode());
+					T weight(comp.weight(e));
+
+					traverseOverDegree2Nonterminals(uO, weight, marked, adj, comp);
+
+					edge eC = m_graph.newEdge(m_nodeCopy[uO], m_nodeCopy[vO], weight);
+					data.cost += weight;
+					if (m_isTerminal[uO]) {
+						data.start = eC->adjSource();
+					}
+				}
+			}
+		}
+#ifdef OGDF_DEBUG
+		for (edge e : comp.edges) {
+			OGDF_ASSERT(marked[e] == true);
+		}
+#endif
+	}
+
+	//! Copy edges from \p comp into our representation
+	void copyEdges(Metadata<ExtraDataType>& data, const EdgeWeightedGraphCopy<T>& comp) {
+		for (edge e : comp.edges) {
+			node uO = comp.original(e->source());
+			node vO = comp.original(e->target());
+			T weight = comp.weight(e);
+			edge eC = m_graph.newEdge(m_nodeCopy[uO], m_nodeCopy[vO], weight);
+			data.cost += weight;
+			if (m_isTerminal[uO]) {
+				data.start = eC->adjSource();
+			} else
+			if (m_isTerminal[vO]) {
+				data.start = eC->adjTarget();
+			}
+		}
+	}
+
 public:
 	FullComponentStore(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal)
 	  : m_originalGraph(G)
@@ -97,25 +154,31 @@ public:
 		}
 	}
 
-	//! Inserts a component. Note that \p comp is copied.
+	//! Inserts a component. Note that \p comp is copied and degree-2 nodes are removed.
 	void insert(const EdgeWeightedGraphCopy<T> &comp)
 	{
 		OGDF_ASSERT(!comp.empty());
 		OGDF_ASSERT(isTree(comp));
 
-		// we temporarily use m_nodeCopy for nonterminals also
-		ArrayBuffer<node> tempUse(comp.numberOfNodes() / 2);
+		// we temporarily use m_nodeCopy for nonterminals (with degree > 2) also
+		ArrayBuffer<node> nonterminals(comp.numberOfNodes() / 2);
 
-		// add all nonterminals of comp to m_graph
+		// add all nonterminals with degree > 2 of comp to m_graph
 		// and find terminals
 		Metadata<ExtraDataType> data;
+		bool existNoncritical = false;
 		for (node v : comp.nodes) {
 			node vO = comp.original(v);
 			if (m_nodeCopy[vO] == nullptr) {
-				node vC = m_graph.newNode();
-				m_nodeCopy[vO] = vC;
-				m_nodeOrig[vC] = vO;
-				tempUse.push(vO);
+				OGDF_ASSERT(v->degree() >= 2);
+				if (v->degree() > 2) {
+					node vC = m_graph.newNode();
+					m_nodeCopy[vO] = vC;
+					m_nodeOrig[vC] = vO;
+					nonterminals.push(vC);
+				} else {
+					existNoncritical = true;
+				}
 			} else {
 				data.terminals.grow(1, vO);
 			}
@@ -124,23 +187,26 @@ public:
 
 		// add all edges of comp to m_graph
 		// and find start adjEntry
-		for (edge e : comp.edges) {
-			node uO = comp.original(e->source());
-			node vO = comp.original(e->target());
-			T weight = comp.weight(e);
-			edge eC = m_graph.newEdge(m_nodeCopy[uO], m_nodeCopy[vO], weight);
-			data.cost += weight;
-			if (m_isTerminal[uO]) {
+		if (existNoncritical) {
+			if (nonterminals.empty()) {
+				OGDF_ASSERT(data.terminals.size() == 2);
+				OGDF_ASSERT(data.cost == 0);
+				for (edge e : comp.edges) {
+					data.cost += comp.weight(e);
+				}
+				edge eC = m_graph.newEdge(m_nodeCopy[data.terminals[0]], m_nodeCopy[data.terminals[1]], data.cost);
 				data.start = eC->adjSource();
-			} else
-			if (m_isTerminal[vO]) {
-				data.start = eC->adjTarget();
+			} else {
+				copyEdgesWithSimplifiedPaths(data, comp, nonterminals);
 			}
+		} else {
+			copyEdges(data, comp);
 		}
+		OGDF_ASSERT(data.start != nullptr);
 
-		// cleanup m_nodeCopy
-		for (node vO : tempUse) {
-			m_nodeCopy[vO] = nullptr;
+		// cleanup m_nodeCopy (only terminals should be set)
+		for (node vC : nonterminals) {
+			m_nodeCopy[m_nodeOrig[vC]] = nullptr;
 		}
 
 		m_components.push(data);
@@ -150,7 +216,6 @@ public:
 	void remove(int id)
 	{
 #ifdef OGDF_FULLCOMPONENTSTORE_REMOVE_IN_GRAPH_REPRESENTATION_ALSO
-		// TODO: remove in graph also
 		auto &comp = m_components[id];
 		if (comp.terminals.size() == 2) {
 			m_graph.delEdge(comp.start->theEdge());

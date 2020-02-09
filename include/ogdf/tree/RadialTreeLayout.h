@@ -35,12 +35,10 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/SList.h>
 
-
 namespace ogdf {
-
 
 //! The radial tree layout algorithm.
 /**

@@ -30,8 +30,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <cctype>
+#include <unordered_map>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/basic/AdjacencyOracle.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GmlParser.h>
@@ -55,21 +56,6 @@ char GraphIO::s_indentChar  = '\t';
 int  GraphIO::s_indentWidth = 1;
 Logger GraphIO::logger;
 
-//! Supported formats for automated detection
-const std::vector<GraphIO::ReaderFunc> readers = {
-	GraphIO::readDOT,
-	GraphIO::readGML,
-	GraphIO::readTLP,
-	GraphIO::readLEDA,
-	GraphIO::readChaco,
-	GraphIO::readDL,
-	GraphIO::readGDF,
-	GraphIO::readGraphML,
-	GraphIO::readGEXF,
-	GraphIO::readSTP,
-	GraphIO::readGraph6WithForcedHeader
-};
-
 std::ostream &GraphIO::indent(std::ostream &os, int depth)
 {
 	int n = s_indentWidth * depth;
@@ -81,6 +67,37 @@ std::ostream &GraphIO::indent(std::ostream &os, int depth)
 
 bool GraphIO::read(Graph &G, std::istream &is)
 {
+	//! Supported formats for automated detection
+	static const std::vector<GraphIO::ReaderFunc> readers = {
+		GraphIO::readDOT,
+		GraphIO::readGML,
+		GraphIO::readTLP,
+		GraphIO::readLEDA,
+		GraphIO::readChaco,
+		GraphIO::readDL,
+		GraphIO::readGDF,
+		GraphIO::readGraphML,
+		GraphIO::readGEXF,
+		GraphIO::readSTP,
+		GraphIO::readGraph6WithForcedHeader,
+		GraphIO::readDigraph6WithForcedHeader,
+		GraphIO::readSparse6WithForcedHeader,
+		GraphIO::readDMF,
+		GraphIO::readPMDissGraph,
+		GraphIO::readRudy,
+#if 0
+		// The following graph formats let the generic reader tests fail:
+		GraphIO::readRome,
+		GraphIO::readYGraph,
+		GraphIO::readMatrixMarket,
+
+		// The following graph formats have no corresponding ReaderFunc:
+		GraphIO::readBENCH,
+		GraphIO::readPLA,
+		GraphIO::readChallengeGraph,
+#endif
+	};
+
 	for(auto &reader : readers) {
 		if(reader(G, is)) {
 			return true;
@@ -94,29 +111,83 @@ bool GraphIO::read(Graph &G, std::istream &is)
 	return false;
 }
 
-bool GraphIO::readGML(Graph &G, const string &filename)
+bool GraphIO::read(GraphAttributes &GA, Graph &G, std::istream &is)
 {
-	ifstream is(filename);
-	return readGML(G, is);
+	static const std::vector<GraphIO::AttrReaderFunc> attrReaders = {
+		GraphIO::readDOT,
+		GraphIO::readGML,
+		GraphIO::readTLP,
+		GraphIO::readDL,
+		GraphIO::readGDF,
+		GraphIO::readGraphML,
+		GraphIO::readGEXF,
+		GraphIO::readSTP,
+		GraphIO::readDMF,
+		GraphIO::readRudy
+	};
+
+	for (auto &reader : attrReaders) {
+		if (reader(GA, G, is)) {
+			return true;
+		} else {
+			G.clear();
+			is.clear();
+			is.seekg(0, std::ios::beg);
+		}
+	}
+
+	return false;
+}
+
+bool GraphIO::write(const Graph &G, const string &filename)
+{
+	static const std::unordered_map<string, GraphIO::WriterFunc> writerByExtension =
+		{ { "gml", GraphIO::writeGML }
+		, { "rome", GraphIO::writeRome } // unofficial
+		, { "leda", GraphIO::writeLEDA }
+		, { "gw", GraphIO::writeLEDA } // GraphWin, extension of LEDA
+		, { "chaco", GraphIO::writeChaco }
+		, { "pm", GraphIO::writePMDissGraph } // unofficial
+		, { "pmd", GraphIO::writePMDissGraph } // unofficial
+		, { "g6", GraphIO::writeGraph6 }
+		, { "d6", GraphIO::writeDigraph6 }
+		, { "s6", GraphIO::writeSparse6 }
+		, { "graphml", GraphIO::writeGraphML }
+		, { "dot", GraphIO::writeDOT }
+		, { "gv", GraphIO::writeDOT } // GraphViz
+		, { "gefx", GraphIO::writeGEXF }
+		, { "gdf", GraphIO::writeGDF }
+		, { "tlp", GraphIO::writeTLP }
+		, { "dl", GraphIO::writeDL }
+	};
+
+	GraphIO::WriterFunc writer;
+	string ext = filename.substr(filename.find_last_of(".") + 1);
+
+	auto search = writerByExtension.find(ext);
+	if (search != writerByExtension.end()) {
+		writer = search->second;
+	} else {
+		// Graphs in the old Rome format have the form "grafoX.Y" where both X
+		// and Y are positive integers (Y being the number of nodes).
+		const string romeStart = "grafo";
+		if (!ext.empty()
+		 && std::all_of(ext.begin(), ext.end(), [](unsigned char c){ return std::isdigit(c); })
+		 && filename.compare(0, romeStart.length(), romeStart) == 0) {
+			writer = GraphIO::writeRome;
+		} else {
+			return false;
+		}
+	}
+
+	return write(G, filename, writer);
 }
 
 bool GraphIO::readGML(Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
-	GmlParser parser(is);
-	return !parser.error() && parser.read(G);
-}
-
-bool GraphIO::writeGML(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeGML(G, os);
-}
-
-bool GraphIO::readRome(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readRome(G, is);
+	gml::Parser parser(is);
+	return parser.read(G);
 }
 
 bool GraphIO::readRome(Graph &G, std::istream &is)
@@ -172,12 +243,6 @@ bool GraphIO::readRome(Graph &G, std::istream &is)
 	return true;
 }
 
-bool GraphIO::writeRome(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeRome(G, os);
-}
-
 bool GraphIO::writeRome(const Graph &G, std::ostream &os)
 {
 	if(!os.good()) return false;
@@ -201,24 +266,6 @@ bool GraphIO::writeRome(const Graph &G, std::ostream &os)
 	}
 
 	return true;
-}
-
-bool GraphIO::readLEDA(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readLEDA(G, is);
-}
-
-bool GraphIO::writeLEDA(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeLEDA(G, os);
-}
-
-bool GraphIO::readChaco(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readChaco(G, is);
 }
 
 bool GraphIO::readChaco(Graph &G, std::istream &is)
@@ -370,12 +417,6 @@ bool GraphIO::readChaco(Graph &G, std::istream &is)
 	return true;
 }
 
-bool GraphIO::writeChaco(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeChaco(G, os);
-}
-
 bool GraphIO::writeChaco(const Graph &G, std::ostream &os)
 {
 	if(!os.good()) return false;
@@ -389,18 +430,16 @@ bool GraphIO::writeChaco(const Graph &G, std::ostream &os)
 		index[v] = ++count;
 
 	for(node v : G.nodes) {
-		for(adjEntry adj : v->adjEntries)
-			os << " " << index[adj->twinNode()];
+		for(adjEntry adj : v->adjEntries) {
+			// Write each self-loop only once.
+			if (!adj->theEdge()->isSelfLoop() || adj->isSource()) {
+				os << " " << index[adj->twinNode()];
+			}
+		}
 		os << "\n";
 	}
 
 	return true;
-}
-
-bool GraphIO::readYGraph(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readYGraph(G, is);
 }
 
 bool GraphIO::readYGraph(Graph &G, std::istream &is)
@@ -452,12 +491,6 @@ bool GraphIO::readYGraph(Graph &G, std::istream &is)
 	}
 
 	return true;
-}
-
-bool GraphIO::readPMDissGraph(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readPMDissGraph(G, is);
 }
 
 bool GraphIO::readPMDissGraph(Graph &G, std::istream &is)
@@ -540,12 +573,6 @@ bool GraphIO::readPMDissGraph(Graph &G, std::istream &is)
 	return true;
 }
 
-bool GraphIO::writePMDissGraph(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writePMDissGraph(G, os);
-}
-
 bool GraphIO::writePMDissGraph(const Graph &G, std::ostream &os)
 {
 	if(!os.good()) return false;
@@ -567,237 +594,18 @@ bool GraphIO::writePMDissGraph(const Graph &G, std::ostream &os)
 	return true;
 }
 
-bool
-GraphIO::readGraph6(Graph &G, std::istream &is, bool forceHeader)
-{
-	if (!is.good()) {
-		return false;
-	}
-
-	G.clear();
-
-	const int asciishift = 63;
-	Array<node> index;
-	int sourceIdx = 0;
-	int targetIdx = 1;
-	int numberOfNodes = 0;
-	auto addEdge = [&](int add) {
-		if (add) {
-			G.newEdge(index[sourceIdx], index[targetIdx]);
-		}
-		++sourceIdx;
-		if (sourceIdx == targetIdx) {
-			sourceIdx = 0;
-			++targetIdx;
-		}
-	};
-	enum class State {
-		Start,
-		EighteenBit,
-		RemainingBits,
-		Triangle,
-	} state = State::Start;
-	auto addNodes = [&]() {
-		index.init(numberOfNodes);
-		for (int i = 0; i < numberOfNodes; ++i) {
-			index[i] = G.newNode();
-		}
-		state = State::Triangle;
-	};
-	int remainingBits;
-	if (forceHeader) {
-		string header;
-		header.resize(10);
-		is.read(&header[0], 10);
-		if (header != ">>graph6<<") {
-			return false;
-		}
-	}
-	for (unsigned char readbyte; is >> readbyte;) {
-		int byte = readbyte;
-		switch (state) {
-		case State::Triangle:
-			if (byte >= '?' && byte <= '~') {
-				OGDF_ASSERT(numberOfNodes == G.numberOfNodes());
-				OGDF_ASSERT(sourceIdx < targetIdx);
-				if (targetIdx >= numberOfNodes) {
-					return false;
-				}
-				byte -= asciishift;
-				addEdge(byte & 040);
-				addEdge(byte & 020);
-				addEdge(byte & 010);
-				addEdge(byte & 04);
-				addEdge(byte & 02);
-				addEdge(byte & 01);
-			}
-			break;
-		case State::EighteenBit:
-			if (byte == '~') {
-				state = State::RemainingBits;
-				remainingBits = 6;
-			} else
-			if (byte >= '?' && byte < '~') {
-				numberOfNodes |= ((byte - asciishift) << 12);
-				state = State::RemainingBits;
-				remainingBits = 2;
-			}
-			break;
-		case State::RemainingBits:
-			if (byte >= '?' && byte <= '~') {
-				--remainingBits;
-				numberOfNodes |= ((byte - asciishift) << (6*remainingBits));
-				if (remainingBits == 0) {
-					addNodes();
-				}
-			}
-			break;
-		case State::Start:
-			if (byte == '>') {
-				string header;
-				header.resize(9);
-				is.read(&header[0], 9);
-				if (header != ">graph6<<") {
-					return false;
-				}
-			} else
-			if (byte == '~') {
-				state = State::EighteenBit;
-			} else
-			if (byte >= '?' && byte < '~') {
-				numberOfNodes = byte - asciishift;
-				addNodes();
-			}
-			// ignore others
-		}
-	}
-	return numberOfNodes == G.numberOfNodes();
-}
-
-bool GraphIO::readGraph6WithForcedHeader(Graph &G, std::istream &is)
-{
-	return readGraph6(G, is, true);
-}
-
-bool GraphIO::readGraph6(Graph &G, const string &filename, bool forceHeader)
-{
-	ifstream is(filename);
-	return readGraph6(G, is, forceHeader);
-}
-
-bool GraphIO::writeGraph6(const Graph &G, std::ostream &os)
-{
-	if (!os.good()) {
-		return false;
-	}
-	const int asciishift = 63;
-
-	os << ">>graph6<<";
-	int n = G.numberOfNodes();
-	auto sixtetChar = [&](int sixtet) {
-		return static_cast<unsigned char>(((n >> (6*sixtet)) & asciishift) + asciishift);
-	};
-	if (n < 64) {
-		os << sixtetChar(0);
-	}
-	else
-	if (n < 258048) {
-		os
-		  << '~'
-		  << sixtetChar(2)
-		  << sixtetChar(1)
-		  << sixtetChar(0);
-	}
-	else { // XXX: < 68719476736
-		os
-		  << "~~"
-		  << sixtetChar(5)
-		  << sixtetChar(4)
-		  << sixtetChar(3)
-		  << sixtetChar(2)
-		  << sixtetChar(1)
-		  << sixtetChar(0);
-	}
-
-	AdjacencyOracle oracle(G);
-	int shift = 6;
-	int sixtet = 0;
-	for (node v : G.nodes) {
-		for (node w : G.nodes) {
-			if (v == w) {
-				break;
-			}
-			int bit = oracle.adjacent(v, w);
-			--shift;
-			sixtet |= bit << shift;
-			if (shift == 0) {
-				os << static_cast<unsigned char>(sixtet + asciishift);
-				shift = 6;
-				sixtet = 0;
-			}
-		}
-	}
-	if (shift != 6) {
-		os << static_cast<unsigned char>(sixtet + asciishift);
-	}
-	os << "\n";
-
-	return true;
-}
-
-bool GraphIO::writeGraph6(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeGraph6(G, os);
-}
-
-bool GraphIO::readGML(ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGML(C, G, is);
-}
-
 bool GraphIO::readGML(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
-
-	GmlParser gml(is);
-	if (gml.error())
-		return false;
-
+	gml::Parser gml(is);
 	return gml.read(G) && gml.readCluster(G, C);
-}
-
-bool GraphIO::writeGML(const ClusterGraph &C, const string &filename)
-{
-	ofstream os(filename);
-	return writeGML(C, os);
-}
-
-bool GraphIO::readGML(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGML(A, G, is);
 }
 
 bool GraphIO::readGML(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if (!is.good()) return false;
-	GmlParser parser(is);
-	if (parser.error()) return false;
+	gml::Parser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeGML(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGML(A, os);
-}
-
-bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readRudy(A, G, is);
 }
 
 bool GraphIO::readRudy(GraphAttributes &A, Graph &G, std::istream &is)
@@ -806,11 +614,15 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, std::istream &is)
 
 	G.clear();
 
-	int n, m;
-	is >> n >> m;
+	int n = -1;
+	int m = -1;
 
-	if(n < 0 || m < 0) {
-		Logger::slout() << "GraphIO::readRudy: Illegal number of nodes or edges!\n";
+	if (!(is >> n) || n < 0) {
+		Logger::slout() << "GraphIO::readRudy: Number of nodes is not a non-negative integer.";
+		return false;
+	}
+	if (!(is >> m) || m < 0) {
+		Logger::slout() << "GraphIO::readRudy: Number of edges is not a non-negative integer.";
 		return false;
 	}
 
@@ -842,12 +654,6 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, std::istream &is)
 	return true;
 }
 
-bool GraphIO::writeRudy(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeRudy(A, os);
-}
-
 bool GraphIO::writeRudy(const GraphAttributes &A, std::ostream &os)
 {
 	if(!os.good()) return false;
@@ -872,30 +678,11 @@ bool GraphIO::writeRudy(const GraphAttributes &A, std::ostream &os)
 	return true;
 }
 
-bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGML(A, C, G, is);
-}
-
 bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) return false;
-
-	GmlParser gml(is);
-	if (gml.error())
-		return false;
-
-	if(!gml.read(G, A))
-		return false;
-
-	return gml.readCluster(G, C, &A);
-}
-
-bool GraphIO::writeGML(const ClusterGraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGML(A, os);
+	gml::Parser gml(is);
+	return gml.read(G, A) && gml.readCluster(G, C, &A);
 }
 
 bool GraphIO::readMatrixMarket(Graph& G, std::istream &inStream)
@@ -1000,30 +787,6 @@ bool GraphIO::readMatrixMarket(Graph& G, std::istream &inStream)
 	return true;
 }
 
-bool GraphIO::readMatrixMarket(Graph& G, const string& filename)
-{
-	ifstream inStream(filename);
-	return readMatrixMarket(G, inStream);
-}
-
-bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
-{
-	ifstream is(filename);
-	return readBENCH(G, hypernodes, shell, is);
-}
-
-bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
-{
-	ifstream is(filename);
-	return readPLA(G, hypernodes, shell, is);
-}
-
-bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const string &filename)
-{
-	ifstream is(filename);
-	return readChallengeGraph(G, gl, is);
-}
-
 bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, std::istream &is)
 {
 	if(!is.good()) return false;
@@ -1099,12 +862,6 @@ bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, std::istream &is)
 	return true;
 }
 
-bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, const string &filename)
-{
-	ofstream os(filename);
-	return writeChallengeGraph(G, gl, os);
-}
-
 bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, std::ostream &os)
 {
 	if(!os.good()) return false;
@@ -1132,10 +889,540 @@ bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, std::ost
 	return true;
 }
 
-bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string &filename)
+bool GraphIO::readSTP(GraphAttributes &attr, Graph &graph,
+		List<node> &terminals,
+		NodeArray<bool> &isTerminal,
+		std::istream &is)
 {
-	ifstream is(filename);
-	return readEdgeListSubgraph(G, delEdges, is);
+	attr.addAttributes(GraphAttributes::nodeGraphics);
+	attr.directed() = false;
+	const long attrs = attr.attributes();
+	const bool iWeight = (attrs & GraphAttributes::edgeIntWeight) != 0;
+	const bool dWeight = (attrs & GraphAttributes::edgeDoubleWeight) != 0;
+
+	graph.clear();
+	terminals.clear();
+	isTerminal.init(graph, false);
+	int expectedNumberOfTerminals = -1;
+	int expectedNumberOfEdges = -1;
+	int expectedCoordinateDimension = -1;
+
+	int encounteredNumberOfCoordinates = 0;
+
+	string buffer;
+
+	enum class Section {
+		None,
+		Comment,
+		Graph,
+		Terminals,
+		Coordinates,
+		Ignore, // mostly: not implemented
+	} section = Section::None;
+
+	string key, value;
+
+	Array<node> indexToNode;
+	node root = nullptr; // root terminal (directed case)
+
+	double version;
+
+	// 1. line = identifier; ignore that it must be all on the first line
+	std::vector<string> firstline{"33D32945", "STP", "File,", "STP", "Format", "Version"};
+
+	is >> buffer;
+	if (is.good() && !equalIgnoreCase(buffer, firstline[0])) {
+		logger.lout() << "No STP Header found, assuming simplified STP format" << std::endl;
+		is.clear();
+		is.seekg(0, std::ios::beg);
+	} else {
+		for (int i = 1; i < 6; ++i) {
+			is >> buffer;
+			if (!is.good() || !equalIgnoreCase(buffer, firstline[i])) {
+				logger.lout() << "Faulty header" << std::endl;
+				return false;
+			}
+		}
+		is >> version;
+		if (!is.good() || version != 1.0) {
+			logger.lout() << "Encountered unknown STP format version." << std::endl;
+			return false;
+		}
+	}
+
+	while (std::getline(is, buffer)) {
+		removeTrailingWhitespace(buffer);
+
+		if (buffer.empty() || buffer[0] == '#') {
+			continue;
+		}
+
+		std::istringstream iss(buffer);
+		iss >> key;
+		if (section != Section::None && equalIgnoreCase(key, "END")) {
+			section = Section::None;
+			continue;
+		}
+		switch (section) {
+		case Section::None:
+			if (equalIgnoreCase(key, "SECTION")) {
+				string what;
+				iss >> what;
+				if (equalIgnoreCase(what, "Comment")) {
+					section = Section::Comment;
+				} else if (equalIgnoreCase(what, "Graph")) {
+					if (graph.numberOfNodes() != 0) {
+						logger.lout(Logger::Level::Minor) << "Encountered duplicate graph section.";
+						section = Section::Ignore;
+					} else {
+						section = Section::Graph;
+					}
+				} else if (equalIgnoreCase(what, "Terminals")) {
+					if (!terminals.empty()) {
+						logger.lout(Logger::Level::Minor) << "Encountered duplicate terminal section.";
+						section = Section::Ignore;
+					} else {
+						section = Section::Terminals;
+					}
+				} else if (equalIgnoreCase(what, "Coordinates")) {
+					if (encounteredNumberOfCoordinates != 0) {
+						logger.lout(Logger::Level::Minor) << "Encountered duplicate coordinate section.";
+						section = Section::Ignore;
+					} else {
+						section = Section::Coordinates;
+					}
+				} else {
+					logger.lout(Logger::Level::Minor) << "Invalid Section encountered: " << what << std::endl;
+					section = Section::Ignore;
+				}
+
+				if (!iss.eof()) {
+					iss >> what;
+					if (equalIgnoreCase(what, "FROM")) {
+						logger.lout(Logger::Level::Minor) << "External loading not implemented" << std::endl;
+						section = Section::None;
+					}
+				}
+			} else if (equalIgnoreCase(buffer, "EOF")) {
+				if(expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size()) {
+					logger.lout()
+						<< "Invalid number of terminals. Was " << terminals.size()
+						<< " but expected " << expectedNumberOfTerminals << "." << std::endl;
+				}
+
+				if(expectedNumberOfEdges != -1 && expectedNumberOfEdges != graph.numberOfEdges()) {
+					logger.lout()
+						<<  "Invalid number of edges. Was " << graph.numberOfEdges()
+						<< " but expected " << expectedNumberOfEdges << "." << std::endl;
+				}
+
+				if (encounteredNumberOfCoordinates != 0 && graph.numberOfNodes() != encounteredNumberOfCoordinates) {
+					logger.lout()
+						<< "Invalid number of coordinates. Was " << encounteredNumberOfCoordinates
+						<< " but expected 0 or " << graph.numberOfNodes() << "." << std::endl;
+				}
+
+				if (root == nullptr && attr.directed() && !terminals.empty()) {
+					logger.lout()
+						<< "Expected root specification in directed STP instance,"
+						<< " but got none." << std::endl;
+				}
+				return true;
+			}
+			break;
+
+		case Section::Ignore:
+		case Section::Comment:
+			// allow anything
+			break;
+
+		case Section::Graph:
+			if (equalIgnoreCase(key, "Nodes")) {
+				int n = -1;
+				iss >> n;
+				if (n < 0) {
+					logger.lout() << "Invalid number of nodes specified: " << n << std::endl;
+					return false;
+				}
+
+				indexToNode = Array<node>(1, n, nullptr);
+				for (int i = 1; i <= n; ++i) {
+					indexToNode[i] = graph.newNode();
+					attr.shape(indexToNode[i]) = Shape::Ellipse;
+				}
+			} else if(equalIgnoreCase(key, "Edges") || equalIgnoreCase(key, "Arcs")) {
+				if (expectedNumberOfEdges == -1) {
+					iss >> expectedNumberOfEdges;
+					if (expectedNumberOfEdges < 0) {
+						logger.lout() << "Invalid number of edges specified: " << expectedNumberOfEdges << std::endl;
+						return false;
+					}
+					attr.directed() = equalIgnoreCase(key, "Arcs");
+				} else {
+					logger.lout() << "Repeated or mixed specification of edge/arc count" << std::endl;
+				}
+			} else if (equalIgnoreCase(key, "E") || equalIgnoreCase(key, "A")) {
+				if ((equalIgnoreCase(key, "E") && attr.directed())
+					|| (equalIgnoreCase(key, "A") && !attr.directed())) {
+					logger.lout() << "Edge key " + key + " does not match the edge type specified beforehand" << std::endl;
+				}
+				int source = -1, target = -1;
+				double weight = -1.0;
+				iss >> source >> target >> weight;
+				if (source <= 0 || source > graph.numberOfNodes()
+					|| target <= 0 || target > graph.numberOfNodes()
+					|| weight < 0) {
+					logger.lout() << "Invalid edge given: " << source << "->" << target << "(weight: " << weight << ")" << std::endl;
+					return false;
+				}
+				edge newE = graph.newEdge(indexToNode[source], indexToNode[target]);
+				if (iWeight) {
+					attr.intWeight(newE) = static_cast<int>(weight);
+				}
+				if (dWeight) {
+					attr.doubleWeight(newE) = weight;
+				}
+			} else {
+				logger.lout(Logger::Level::Minor) << "Invalid edge key encountered: " << key << std::endl;
+			}
+			break;
+
+		case Section::Terminals:
+			if (equalIgnoreCase(key, "Terminals")) {
+				iss >> expectedNumberOfTerminals;
+			} else if (equalIgnoreCase(key, "T")) {
+				int v = -1;
+				iss >> v;
+				if (v <= 0 || v > graph.numberOfNodes()) {
+					logger.lout() << "Invalid terminal encountered: " << v << std::endl;
+					return false;
+				}
+				terminals.pushBack(indexToNode[v]);
+				isTerminal[indexToNode[v]] = true;
+				attr.shape(indexToNode[v]) = Shape::Rect;
+			} else if (equalIgnoreCase(key, "Root") && root == nullptr) {
+				int v = -1;
+				iss >> v;
+				if (v <= 0 || v > graph.numberOfNodes()) {
+					logger.lout() << "Invalid root terminal encountered: " << v << std::endl;
+					return false;
+				}
+				root = indexToNode[v];
+				terminals.pushFront(root);
+				isTerminal[root] = true;
+				attr.shape(root) = Shape::Triangle;
+			} else {
+				logger.lout(Logger::Level::Minor) << "Invalid Terminal key encountered: " << key << std::endl;
+			}
+			break;
+
+		case Section::Coordinates:
+			if (equalIgnoreCase(key, "D") || equalIgnoreCase(key, "DD") || equalIgnoreCase(key, "DDD")) {
+				if (expectedCoordinateDimension == -1) {
+					expectedCoordinateDimension = key.length();
+					if (expectedCoordinateDimension == 3) {
+						attr.addAttributes(GraphAttributes::threeD);
+					}
+				} else if (static_cast<size_t>(expectedCoordinateDimension) != key.length()) {
+					logger.lout(Logger::Level::Minor) << "Non-uniform coordinate dimensions encountered" << std::endl;
+					return false;
+				}
+				long v = -1;
+				iss >> v;
+				if (v <= 0 || v > graph.numberOfNodes()) {
+					logger.lout() << "Invalid node (coordinate) encountered: " << v << std::endl;
+					return false;
+				}
+				if (expectedCoordinateDimension >= 1) {
+					double x = 0;
+					iss >> x;
+					attr.x(indexToNode[v]) = x;
+				}
+				if (expectedCoordinateDimension >= 2) {
+					double y = 0;
+					iss >> y;
+					attr.y(indexToNode[v]) = y;
+				}
+				if (expectedCoordinateDimension == 3) {
+					double z = 0;
+					iss >> z;
+					attr.z(indexToNode[v]) = z;
+				}
+				encounteredNumberOfCoordinates++;
+			} else {
+				logger.lout(Logger::Level::Minor) << "Invalid Coordinate key encountered: " << key << std::endl;
+			}
+			break;
+		}
+	}
+	logger.lout() << "Unexpected end of file." << std::endl;
+	return false;
+}
+
+bool GraphIO::writeSTP(const GraphAttributes &attr, const List<node> &terminals, std::ostream &os, const string &comments)
+{
+	if(!os.good()) return false;
+	const long attrs = attr.attributes();
+	const bool iWeight = (attrs & GraphAttributes::edgeIntWeight) != 0;
+	const bool dWeight = (attrs & GraphAttributes::edgeDoubleWeight) != 0;
+	const bool xyCoord = (attrs & GraphAttributes::nodeGraphics) != 0;
+	const bool zCoord = (attrs & GraphAttributes::threeD) != 0;
+	const Graph &graph = attr.constGraph();
+
+	string edgeName, edgeKey;
+	node root = nullptr;
+	if (attr.directed()) {
+		edgeName = "Arcs";
+		edgeKey = "A";
+		if (!terminals.empty()) {
+			root = terminals.front();
+		}
+	} else {
+		edgeName ="Edges";
+		edgeKey = "E";
+	}
+
+	os << "33d32945 STP File, STP Format Version  1.00" << std::endl;
+
+	os << std::endl << "Section Comment" << std::endl;
+	if (comments.length() != 0) {
+		os << comments << std::endl;
+	}
+	os << "End" << std::endl;
+
+	os << std::endl << "Section Graph" << std::endl;
+	os << "Nodes " << graph.numberOfNodes() << std::endl;
+	os << edgeName << " " << graph.numberOfEdges() << std::endl;
+
+	NodeArray<int> nodeToIndex(graph);
+	int i = 1;
+	for (node v : graph.nodes) {
+		nodeToIndex[v] = i++;
+	}
+	for (edge e : graph.edges) {
+		os << edgeKey << " " << nodeToIndex[e->source()]
+			<< " " << nodeToIndex[e->target()];
+		if (dWeight) {
+			os << " " << attr.doubleWeight(e) << std::endl;
+		} else if (iWeight) {
+			os << " " << attr.intWeight(e) << std::endl;
+		}
+	}
+	os << "End" << std::endl
+		<< std::endl
+		<< "Section Terminals" << std::endl
+		<< "Terminals " << terminals.size() << std::endl;
+	for (node v : terminals) {
+		if (root != nullptr && v == root) {
+			os << "Root " << nodeToIndex[root] << std::endl;
+		} else {
+			os << "T " << nodeToIndex[v] << std::endl;
+		}
+	}
+	os << "End" << std::endl
+		<< std::endl;
+	if (xyCoord) {
+		os << "Section Coordinates" << std::endl;
+		for (node v : graph.nodes) {
+			if (zCoord) {
+				os << "DDD " << nodeToIndex[v] << " "
+					<< attr.x(v) << " "
+					<< attr.y(v) << " "
+					<< attr.z(v) << " "
+					<< std::endl;
+			} else {
+				os << "DD " <<  nodeToIndex[v] << " "
+					<< attr.x(v) << " "
+					<< attr.y(v) << " "
+					<< std::endl;
+			}
+		}
+		os << "End" << std::endl
+			<< std::endl;
+	}
+	os << "EOF" << std::endl;
+
+	return true;
+}
+
+bool GraphIO::readDMF(GraphAttributes &attr, Graph &graph, node &source, node &sink, std::istream &is)
+{
+	const long attrs = attr.attributes();
+	const bool iWeight = (attrs & GraphAttributes::edgeIntWeight) != 0;
+	const bool dWeight = (attrs & GraphAttributes::edgeDoubleWeight) != 0;
+
+	int expectedNumberOfEdges = -1;
+	List<node> nodes;
+	graph.clear();
+	source = nullptr;
+	sink = nullptr;
+
+	string buffer;
+
+	while (std::getline(is, buffer)) {
+		removeTrailingWhitespace(buffer);
+		std::istringstream iss(buffer);
+		string tmp;
+		iss >> tmp;
+
+		if (!buffer.empty() && buffer[0] != 'c') {
+			if(buffer[0] == 'p') {
+				// problem definition section
+				if(!graph.empty()) {
+					logger.lout() << "Ambiguous problem definition encountered." << std::endl;
+					return false;
+				}
+
+				string problemType = "";
+				iss >> problemType;
+				if(problemType.compare("max")) {
+					logger.lout() << "Invalid problem type encountered: " << problemType << std::endl;
+					return false;
+				}
+
+				int numberOfNodes = -1;
+				iss >> numberOfNodes >> expectedNumberOfEdges;
+
+				if(numberOfNodes < 2) {
+					logger.lout() << "The given number of nodes is invalid (at least two)." << std::endl;
+					return false;
+				}
+
+				if(expectedNumberOfEdges < 0) {
+					logger.lout() << "The given number of edges is invalid." << std::endl;
+					return false;
+				}
+
+				for(int i = 0; i < numberOfNodes; i++) {
+					graph.newNode();
+				}
+				graph.allNodes(nodes);
+			} else if(buffer[0] == 'n') {
+				// target or source definition
+				int nodeIndex = -1;
+				string nodeTypeString = "";
+				iss >> nodeIndex >> nodeTypeString;
+
+				if (nodeIndex < 1 || nodeIndex > nodes.size()) {
+					logger.lout() << "Invalid node index supplied: " << nodeIndex << std::endl;
+					return false;
+				}
+
+				node w = *nodes.get(nodeIndex - 1);
+				if (!nodeTypeString.compare("t")) {
+					if(sink != nullptr) {
+						logger.lout() << "Duplicate sink encountered: " << nodeTypeString << std::endl;
+						return false;
+					}
+					sink = w;
+				} else if (!nodeTypeString.compare("s")) {
+					if(source != nullptr) {
+						logger.lout() << "Duplicate source encountered: " << nodeTypeString << std::endl;
+						return false;
+					}
+					source = w;
+				} else {
+					logger.lout() << "Malformed node type encountered: " << nodeTypeString << std::endl;
+					return false;
+				}
+
+			} else if (buffer[0] == 'a') {
+				// edge definition
+				int sourceIndex = -1;
+				int targetIndex = -1;
+				double cap = -1.0;
+
+				iss >> sourceIndex >> targetIndex >> cap;
+
+				if (sourceIndex < 1 || sourceIndex > nodes.size()) {
+					logger.lout() << "Invalid node index supplied: " << sourceIndex << std::endl;
+					return false;
+				}
+				node newSource = *nodes.get(sourceIndex - 1);
+
+				if (targetIndex < 1 || targetIndex > nodes.size()) {
+					logger.lout() << "Invalid node index supplied: " << targetIndex << std::endl;
+					return false;
+				}
+				node newTarget = *nodes.get(targetIndex - 1);
+
+				if(cap < 0) {
+					logger.lout() << "Negative capacity supplied: " << targetIndex << std::endl;
+					return false;
+				}
+
+				edge e = graph.newEdge(newSource, newTarget);
+				if (iWeight) {
+					attr.intWeight(e) = static_cast<int>(cap);
+				}
+				if (dWeight) {
+					attr.doubleWeight(e) = cap;
+				}
+			} else {
+				logger.lout() << "Encountered invalid line: " << buffer << std::endl;
+				return false;
+			}
+		}
+	}
+
+	if (graph.empty()) {
+		logger.lout() << "Missing problem definition." << std::endl;
+		return false;
+	}
+
+	if (source == nullptr) {
+		logger.lout() << "Missing source node." << std::endl;
+		return false;
+	}
+
+	if(sink == nullptr) {
+		logger.lout() << "Missing sink node." << std::endl;
+		return false;
+	}
+
+	if(sink == source) {
+		logger.lout() << "Source must be different from sink." << std::endl;
+		return false;
+	}
+
+	if(expectedNumberOfEdges != graph.numberOfEdges()) {
+		logger.lout() << "Invalid number of edges: expected " << expectedNumberOfEdges << " but was " << graph.numberOfEdges() << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool GraphIO::writeDMF(const GraphAttributes &attr, const node source, const node sink, std::ostream &os)
+{
+	if(!os.good()) return false;
+	const long attrs = attr.attributes();
+	const bool iWeight = (attrs & GraphAttributes::edgeIntWeight) != 0;
+	const bool dWeight = (attrs & GraphAttributes::edgeDoubleWeight) != 0;
+
+	const Graph &graph = attr.constGraph();
+	NodeArray<int> nodeIndices(graph);
+
+	int counter = 0;
+	for(node v : graph.nodes) {
+		nodeIndices[v] = ++counter;
+	}
+
+	os << "p max " << graph.numberOfNodes() << " "  << graph.numberOfEdges() << std::endl;
+	os << "n " << nodeIndices[source] << " s" << std::endl;
+	os << "n " << nodeIndices[sink] << " t" << std::endl;
+
+	for(edge e : graph.edges) {
+		os << "a " << nodeIndices[e->source()] << " " << nodeIndices[e->target()] << " ";
+		if (dWeight) {
+			os << attr.doubleWeight(e);
+		} else if (iWeight) {
+			os << attr.intWeight(e);
+		}
+		os << std::endl;
+	}
+
+	return true;
 }
 
 bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, std::istream &is)
@@ -1183,12 +1470,6 @@ bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, std::istream 
 	return true;
 }
 
-bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const string &filename)
-{
-	ofstream os(filename);
-	return writeEdgeListSubgraph(G, delEdges, os);
-}
-
 bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, std::ostream &os)
 {
 	if(!os.good()) return false;
@@ -1218,18 +1499,6 @@ bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, 
 	return true;
 }
 
-bool GraphIO::drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings)
-{
-	ofstream os(filename);
-	return drawSVG(A, os, settings);
-}
-
-bool GraphIO::drawSVG(const ClusterGraphAttributes &A, const string &filename, const SVGSettings &settings)
-{
-	ofstream os(filename);
-	return drawSVG(A, os, settings);
-}
-
 bool GraphIO::drawSVG(const GraphAttributes &attr, std::ostream &os, const SVGSettings &settings)
 {
 	SvgPrinter printer(attr, settings);
@@ -1242,12 +1511,6 @@ bool GraphIO::drawSVG(const ClusterGraphAttributes &attr, std::ostream &os, cons
 	return printer.draw(os);
 }
 
-bool GraphIO::readGraphML(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGraphML(G, is);
-}
-
 bool GraphIO::readGraphML(Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1255,18 +1518,6 @@ bool GraphIO::readGraphML(Graph &G, std::istream &is)
 	}
 	GraphMLParser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeGraphML(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeGraphML(G, os);
-}
-
-bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGraphML(C, G, is);
 }
 
 bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, std::istream &is)
@@ -1278,18 +1529,6 @@ bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, std::istream &is)
 	return parser.read(G, C);
 }
 
-bool GraphIO::writeGraphML(const ClusterGraph &C, const string &filename)
-{
-	ofstream os(filename);
-	return writeGraphML(C, os);
-}
-
-bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGraphML(A, G, is);
-}
-
 bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1299,34 +1538,10 @@ bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, std::istream &is)
 	return parser.read(G, A);
 }
 
-bool GraphIO::writeGraphML(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGraphML(A, os);
-}
-
-bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return is.is_open() && readGraphML(A, C, G, is);
-}
-
 bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	GraphMLParser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeGraphML(const ClusterGraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGraphML(A, os);
-}
-
-bool GraphIO::readDOT(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readDOT(G, is);
 }
 
 bool GraphIO::readDOT(Graph &G, std::istream &is)
@@ -1338,18 +1553,6 @@ bool GraphIO::readDOT(Graph &G, std::istream &is)
 	return parser.read(G);
 }
 
-bool GraphIO::writeDOT(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeDOT(G, os);
-}
-
-bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readDOT(C, G, is);
-}
-
 bool GraphIO::readDOT(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1357,18 +1560,6 @@ bool GraphIO::readDOT(ClusterGraph &C, Graph &G, std::istream &is)
 	}
 	dot::Parser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeDOT(const ClusterGraph &C, const string &filename)
-{
-	ofstream os(filename);
-	return writeDOT(C, os);
-}
-
-bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readDOT(A, G, is);
 }
 
 bool GraphIO::readDOT(GraphAttributes &A, Graph &G, std::istream &is)
@@ -1380,18 +1571,6 @@ bool GraphIO::readDOT(GraphAttributes &A, Graph &G, std::istream &is)
 	return parser.read(G, A);
 }
 
-bool GraphIO::writeDOT(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeDOT(A, os);
-}
-
-bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readDOT(A, C, G, is);
-}
-
 bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1399,18 +1578,6 @@ bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std:
 	}
 	dot::Parser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeDOT(const ClusterGraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeDOT(A, os);
-}
-
-bool GraphIO::readGEXF(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGEXF(G, is);
 }
 
 bool GraphIO::readGEXF(Graph &G, std::istream &is)
@@ -1422,18 +1589,6 @@ bool GraphIO::readGEXF(Graph &G, std::istream &is)
 	return parser.read(G);
 }
 
-bool GraphIO::writeGEXF(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeGEXF(G, os);
-}
-
-bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGEXF(C, G, is);
-}
-
 bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1441,18 +1596,6 @@ bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, std::istream &is)
 	}
 	gexf::Parser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeGEXF(const ClusterGraph &C, const string &filename)
-{
-	ofstream os(filename);
-	return writeGEXF(C, os);
-}
-
-bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGEXF(A, G, is);
 }
 
 bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, std::istream &is)
@@ -1464,18 +1607,6 @@ bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, std::istream &is)
 	return parser.read(G, A);
 }
 
-bool GraphIO::writeGEXF(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGEXF(A, os);
-}
-
-bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGEXF(A, C, G, is);
-}
-
 bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1483,18 +1614,6 @@ bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std
 	}
 	gexf::Parser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeGEXF(const ClusterGraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGEXF(A, os);
-}
-
-bool GraphIO::readGDF(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGDF(G, is);
 }
 
 bool GraphIO::readGDF(Graph &G, std::istream &is)
@@ -1506,18 +1625,6 @@ bool GraphIO::readGDF(Graph &G, std::istream &is)
 	return parser.read(G);
 }
 
-bool GraphIO::writeGDF(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeGDF(G, os);
-}
-
-bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readGDF(A, G, is);
-}
-
 bool GraphIO::readGDF(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1525,18 +1632,6 @@ bool GraphIO::readGDF(GraphAttributes &A, Graph &G, std::istream &is)
 	}
 	gdf::Parser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeGDF(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeGDF(A, os);
-}
-
-bool GraphIO::readTLP(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readTLP(G, is);
 }
 
 bool GraphIO::readTLP(Graph &G, std::istream &is)
@@ -1548,18 +1643,6 @@ bool GraphIO::readTLP(Graph &G, std::istream &is)
 	return parser.read(G);
 }
 
-bool GraphIO::writeTLP(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeTLP(G, os);
-}
-
-bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readTLP(C, G, is);
-}
-
 bool GraphIO::readTLP(ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1567,18 +1650,6 @@ bool GraphIO::readTLP(ClusterGraph &C, Graph &G, std::istream &is)
 	}
 	tlp::Parser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeTLP(const ClusterGraph &C, const string &filename)
-{
-	ofstream os(filename);
-	return os.is_open() && writeTLP(C, os);
-}
-
-bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readTLP(A, G, is);
 }
 
 bool GraphIO::readTLP(GraphAttributes &A, Graph &G, std::istream &is)
@@ -1590,18 +1661,6 @@ bool GraphIO::readTLP(GraphAttributes &A, Graph &G, std::istream &is)
 	return parser.read(G, A);
 }
 
-bool GraphIO::writeTLP(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeTLP(A, os);
-}
-
-bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readTLP(A, C, G, is);
-}
-
 bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1609,18 +1668,6 @@ bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std:
 	}
 	tlp::Parser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeTLP(const ClusterGraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeTLP(A, os);
-}
-
-bool GraphIO::readDL(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readDL(G, is);
 }
 
 bool GraphIO::readDL(Graph &G, std::istream &is)
@@ -1632,18 +1679,6 @@ bool GraphIO::readDL(Graph &G, std::istream &is)
 	return parser.read(G);
 }
 
-bool GraphIO::writeDL(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	return writeDL(G, os);
-}
-
-bool GraphIO::readDL(GraphAttributes &A, Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return readDL(A, G, is);
-}
-
 bool GraphIO::readDL(GraphAttributes &A, Graph &G, std::istream &is)
 {
 	if(!is.good()) {
@@ -1651,12 +1686,6 @@ bool GraphIO::readDL(GraphAttributes &A, Graph &G, std::istream &is)
 	}
 	DLParser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeDL(const GraphAttributes &A, const string &filename)
-{
-	ofstream os(filename);
-	return writeDL(A, os);
 }
 
 }

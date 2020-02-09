@@ -33,9 +33,9 @@
 
 #include <memory>
 #include <ogdf/upward/UpwardPlanRep.h>
-#include <ogdf/module/RankingModule.h>
-#include <ogdf/module/UPRLayoutModule.h>
-#include <ogdf/module/HierarchyLayoutModule.h>
+#include <ogdf/layered/RankingModule.h>
+#include <ogdf/upward/UPRLayoutModule.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/OptimalRanking.h>
@@ -198,7 +198,7 @@ private:
 
 	int m_numLevels;
 	int m_maxLevelSize;
-
+	ArrayBuffer<node> m_dummies;
 
 
 	//! \name UPRLayoutSimple methods

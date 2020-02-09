@@ -31,12 +31,10 @@
 
 #pragma once
 
-#include <ogdf/module/AcyclicSubgraphModule.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/basic/NodeArray.h>
 
-
 namespace ogdf {
-
 
 //! Greedy algorithm for computing a maximal acyclic subgraph.
 /**

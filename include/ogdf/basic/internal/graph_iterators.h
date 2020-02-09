@@ -127,6 +127,11 @@ public:
 	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isArgConst> &iter)
 	: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
 
+	//! Copy constructor.
+	// gcc9 complains since it cannot match the templated constructor above (-Werror=deprecated-copy).
+	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isConst> &iter)
+	: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
+
 	//! Copy assignment operator.
 	GraphArrayIteratorBase<ArrayType, isConst> &operator=(const GraphArrayIteratorBase<ArrayType, isConst> &iter) {
 		m_key = iter.m_key;

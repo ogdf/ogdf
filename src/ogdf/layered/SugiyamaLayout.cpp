@@ -51,58 +51,6 @@ using std::minstd_rand;
 
 namespace ogdf {
 
-void GraphCopyAttributes::transform()
-{
-	for(node v : m_pGC->nodes)
-	{
-		node vG = m_pGC->original(v);
-		if(vG) {
-			m_pAG->x(vG) = m_x[v];
-			m_pAG->y(vG) = m_y[v];
-		}
-	}
-
-	auto toPoint = [&](node v) { return DPoint(m_x[v], m_y[v]); };
-
-	for(edge e : m_pGC->edges)
-	{
-		edge eG = m_pGC->original(e);
-		if(eG == nullptr || e != m_pGC->chain(eG).front())
-			continue;
-		// current implementation does not layout self-loops;
-		// they are simply ignored
-#if 0
-		if (e->isSelfLoop()) continue;
-#endif
-
-		DPolyline &dpl = m_pAG->bends(eG);
-		dpl.clear();
-
-		const List<edge> &chain = m_pGC->chain(eG);
-		if(!chain.empty()) {
-			DPoint pLast = toPoint(e->source());
-
-			for(edge f : chain) {
-				DPoint p = toPoint(f->source());
-				if(p != pLast) {
-					dpl.pushBack(p);
-				}
-			}
-
-			if(!dpl.empty()) {
-				dpl.popBack();
-			}
-		}
-
-		dpl.normalize();
-
-		if (m_pGC->isReversed(eG)) {
-			dpl.reverse();
-		}
-	}
-}
-
-
 void ClusterGraphCopyAttributes::transform()
 {
 	for(node v : m_pH->nodes)
@@ -1366,6 +1314,248 @@ const HierarchyLevelsBase *SugiyamaLayout::reduceCrossings(Hierarchy &H)
 	m_timeReduceCrossings = double(t) / 1000;
 
 	return pLevels;
+}
+
+void SugiyamaLayout::call(ClusterGraphAttributes &AG)
+{
+#if 0
+	std::ofstream os("C:\\temp\\sugi.txt");
+	freopen("c:\\work\\GDE\\std::cout.txt", "w", stdout);
+
+	const Graph &G = AG.constGraph();
+#endif
+	const ClusterGraph &CG = AG.constClusterGraph();
+#if 0
+	if (G.numberOfNodes() == 0) {
+		os << "Empty graph." << std::endl;
+		return;
+	}
+#endif
+
+	// 1. Phase: Edge Orientation and Layer Assignment
+
+	// Build extended nesting hierarchy H
+	ExtendedNestingGraph H(CG);
+
+
+#if 0
+	os << "Cluster Hierarchy:\n";
+	for(node v : G.nodes)
+		os << "V " << v << ": parent = " << CG.clusterOf(v)->index() << "\n";
+
+	for(cluster c : CG.clusters)
+		if(c != CG.rootCluster())
+			os << "C " << c->index() << ": parent = " << c->parent()->index() << "\n";
+
+	os << "\nExtended Nesting Graph:\n";
+	os << "  nodes: " << H.numberOfNodes() << "\n";
+	os << "  edges: " << H.numberOfEdges() << "\n\n";
+
+	for(node v : H.nodes) {
+		os << v->index() << ": ";
+		switch(H.type(v)) {
+			case ExtendedNestingGraph::NodeType::Node:
+				os << "[V  " << H.origNode(v);
+				break;
+			case ExtendedNestingGraph::NodeType::ClusterTop:
+				os << "[CT " << H.originalCluster(v)->index();
+				break;
+			case ExtendedNestingGraph::NodeType::ClusterBottom:
+				os << "[CB " << H.originalCluster(v)->index();
+				break;
+		}
+		os << ", rank = " << H.rank(v) << "]  ";
+
+		edge e;
+		forall_adj_edges(e, v)
+			if(e->target() != v)
+				os << e->target() << " ";
+		os << "\n";
+	}
+
+
+	os << "\nLong Edges:\n";
+	for(edge e : G.edges) {
+		os << e << ": ";
+		ListConstIterator<edge> it;
+		for(edge ei : H.chain(e))
+			os << " " << ei;
+		os << "\n";
+	}
+
+	os << "\nLevel:\n";
+	int maxLevel = 0;
+	for(node v : H.nodes)
+		if(H.rank(v) > maxLevel)
+			maxLevel = H.rank(v);
+#endif
+
+	Array<List<node> > level(H.numberOfLayers());
+	for(node v : H.nodes)
+		level[H.rank(v)].pushBack(v);
+#if 0
+	for(int i = 0; i <= maxLevel; ++i) {
+		os << i << ": ";
+		ListConstIterator<node> it;
+		for(node v : level[i]) {
+			switch(H.type(v)) {
+				case ExtendedNestingGraph::NodeType::Node:
+					os << "(V" << H.origNode(v);
+					break;
+				case ExtendedNestingGraph::NodeType::ClusterTop:
+					os << "(CT" << H.originalCluster(v)->index();
+					break;
+				case ExtendedNestingGraph::NodeType::ClusterBottom:
+					os << "(CB" << H.originalCluster(v)->index();
+					break;
+				case ExtendedNestingGraph::NodeType::Dummy:
+					os << "(D" << v;
+					break;
+			}
+
+			os << ",C" << H.originalCluster(v) << ")  ";
+		}
+		os << "\n";
+	}
+
+
+	os << "\nLayer Hierarchy Trees:\n";
+	for(int i = 0; i <= maxLevel; ++i) {
+		os << i << ": " << H.layerHierarchyTree(i) << "\n";
+	}
+
+	os << "\nCompound Nodes Adjacencies:\n";
+	for(int i = 0; i <= maxLevel; ++i) {
+		os << "Layer " << i << ":\n";
+
+		Queue<const LHTreeNode*> Q;
+		Q.append(H.layerHierarchyTree(i));
+
+		while(!Q.empty()) {
+			const LHTreeNode *p = Q.pop();
+			os << "  C" << p->originalCluster() << ": ";
+
+			for(const LHTreeNode::Adjacency &adj : p->m_upperAdj) {
+				node        u      = adj.m_u;
+				LHTreeNode *vNode  = adj.m_v;
+				int         weight = adj.m_weight;
+
+				os << " (" << u << ",";
+				if(vNode->isCompound())
+					os << "C" << vNode->originalCluster();
+				else
+					os << "N" << vNode->getNode();
+				os << "," << weight << ") ";
+			}
+			os << "\n";
+
+			for(int i = 0; i < p->numberOfChildren(); ++i)
+				if(p->child(i)->isCompound())
+					Q.append(p->child(i));
+		}
+	}
+#endif
+
+	// 2. Phase: Crossing Reduction
+	reduceCrossings(H);
+#if 0
+	os << "\nLayers:\n";
+	for(int i = 0; i < H.numberOfLayers(); ++i) {
+		os << i << ": ";
+		const List<node> &L = level[i];
+		Array<node> order(0,L.size()-1,0);
+		for(node v : L)
+			order[H.pos(v)] = v;
+
+		for(int j = 0; j < L.size(); ++j)
+			os << " " << order[j];
+		os << "\n";
+	}
+
+	os << "\nnumber of crossings: " << m_nCrossingsCluster << "\n";
+#endif
+
+	// 3. Phase: Coordinate Assignment
+	H.removeTopBottomEdges();
+	m_clusterLayout->callCluster(H, AG);
+}
+
+
+RCCrossings SugiyamaLayout::traverseTopDown(ExtendedNestingGraph &H)
+{
+	RCCrossings numCrossings;
+
+	for(int i = 1; i < H.numberOfLayers(); ++i)
+		numCrossings += H.reduceCrossings(i,true);
+
+	return numCrossings;
+}
+
+
+RCCrossings SugiyamaLayout::traverseBottomUp(ExtendedNestingGraph &H)
+{
+	RCCrossings numCrossings;
+
+	for(int i = H.numberOfLayers()-2; i >= 0; --i)
+		numCrossings += H.reduceCrossings(i,false);
+
+	return numCrossings;
+}
+
+
+void SugiyamaLayout::reduceCrossings(ExtendedNestingGraph &H)
+{
+	RCCrossings nCrossingsOld, nCrossingsNew;
+	m_nCrossingsCluster = nCrossingsOld.setInfinity();
+
+	for(int i = 1; ; ++i)
+	{
+		int nFails = m_fails+1;
+		int counter = 0;
+
+		do {
+			counter++;
+			// top-down traversal
+			nCrossingsNew = traverseTopDown(H);
+
+			if(nCrossingsNew < nCrossingsOld) {
+				if(nCrossingsNew < m_nCrossingsCluster) {
+					H.storeCurrentPos();
+
+					if((m_nCrossingsCluster = nCrossingsNew).isZero())
+						break;
+				}
+				nCrossingsOld = nCrossingsNew;
+				nFails = m_fails+1;
+			} else
+				--nFails;
+
+			// bottom-up traversal
+			nCrossingsNew = traverseBottomUp(H);
+
+			if(nCrossingsNew < nCrossingsOld) {
+				if(nCrossingsNew < m_nCrossingsCluster) {
+					H.storeCurrentPos();
+
+					if((m_nCrossingsCluster = nCrossingsNew).isZero())
+						break;
+				}
+				nCrossingsOld = nCrossingsNew;
+				nFails = m_fails+1;
+			} else
+				--nFails;
+
+		} while(nFails > 0);
+
+		if(m_nCrossingsCluster.isZero() || i >= m_runs)
+			break;
+
+		H.permute();
+		nCrossingsOld.setInfinity();
+	}
+
+	H.restorePos();
+	m_nCrossings = m_nCrossingsCluster.m_cnEdges;
 }
 
 }

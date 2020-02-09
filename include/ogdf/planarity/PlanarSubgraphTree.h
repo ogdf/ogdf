@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/PlanarSubgraphModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/DisjointSets.h>
 #include <ogdf/basic/extended_graph_alg.h>

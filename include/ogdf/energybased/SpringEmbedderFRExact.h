@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/module/ForceLayoutModule.h>
+#include <ogdf/energybased/ForceLayoutModule.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/GraphAttributes.h>
 
 namespace ogdf {
 

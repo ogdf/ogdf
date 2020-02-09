@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/GraphCopy.h>
 
 namespace ogdf {

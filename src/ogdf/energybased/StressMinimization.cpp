@@ -53,20 +53,15 @@ void StressMinimization::call(GraphAttributes& GA)
 		}
 		return;
 	}
-	if (m_componentLayout && !isConnected(G)) {
-		OGDF_THROW(PreconditionViolatedException);
-		return;
-	}
+	// Separate component layout cant be applied to a non-connected graph
+	OGDF_ASSERT(!m_componentLayout || isConnected(G));
 	NodeArray<NodeArray<double> > shortestPathMatrix(G);
 	NodeArray<NodeArray<double> > weightMatrix(G);
 	initMatrices(G, shortestPathMatrix, weightMatrix);
 	// if the edge costs are defined by the attribute copy it to an array and
 	// construct the proper shortest path matrix
 	if (m_hasEdgeCostsAttribute) {
-		if (!GA.has(GraphAttributes::edgeDoubleWeight)) {
-			OGDF_THROW(PreconditionViolatedException);
-			return;
-		}
+		OGDF_ASSERT(GA.has(GraphAttributes::edgeDoubleWeight));
 		m_avgEdgeCosts = dijkstra_SPAP(GA, shortestPathMatrix);
 		// compute shortest path all pairs
 	} else {

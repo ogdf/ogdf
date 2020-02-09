@@ -35,7 +35,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
 
-#include <ogdf/module/CPlanarSubgraphModule.h>
+#include <ogdf/cluster/CPlanarSubgraphModule.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 
@@ -112,7 +112,7 @@ public:
 	 */
 	ReturnType callAndConnect(
 			const ClusterGraph &G,
-			const EdgeArray<int> *pCost,
+			const EdgeArray<double> *pCost,
 			List<edge> &delEdges,
 			NodePairs &addedEdges) {
 		return doCall(G, pCost, delEdges, addedEdges);
@@ -189,7 +189,7 @@ protected:
 	//! graph G is c-planar
 	virtual ReturnType doCall(
 		const ClusterGraph &G,
-		const EdgeArray<int> *pCost,
+		const EdgeArray<double> *pCost,
 		List<edge> &delEdges) override
 	{
 		NodePairs addEdges;
@@ -201,7 +201,7 @@ protected:
 	//graph that contains the computed c-planar subgraph
 	virtual ReturnType doCall(
 			const ClusterGraph &G,
-			const EdgeArray<int> *pCost,
+			const EdgeArray<double> *pCost,
 			List<edge> &delEdges,
 			NodePairs &addedEdges);
 

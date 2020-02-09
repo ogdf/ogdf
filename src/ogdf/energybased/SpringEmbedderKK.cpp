@@ -30,10 +30,7 @@
  */
 
 #include <ogdf/energybased/SpringEmbedderKK.h>
-
-#ifdef OGDF_DEBUG
 #include <ogdf/basic/simple_graph_alg.h>
-#endif
 
 namespace ogdf {
 const double SpringEmbedderKK::startVal = std::numeric_limits<double>::max() - 1.0;
@@ -312,8 +309,9 @@ void SpringEmbedderKK::doCall(GraphAttributes& GA, const EdgeArray<double>& eLen
 void SpringEmbedderKK::call(GraphAttributes& GA)
 {
 	const Graph &G = GA.constGraph();
-	if(G.numberOfEdges() < 1)
+	if (!hasNonSelfLoopEdges(G)) {
 		return;
+	}
 
 	EdgeArray<double> eLength(G);//, 1.0);is not used
 	doCall(GA, eLength, true);
@@ -322,8 +320,9 @@ void SpringEmbedderKK::call(GraphAttributes& GA)
 void SpringEmbedderKK::call(GraphAttributes& GA,  const EdgeArray<double>& eLength)
 {
 	const Graph &G = GA.constGraph();
-	if(G.numberOfEdges() < 1)
+	if (!hasNonSelfLoopEdges(G)) {
 		return;
+	}
 
 	doCall(GA, eLength, false);
 }

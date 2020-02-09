@@ -51,7 +51,7 @@ class MaxCPlanarMaster : public abacus::Master {
 	// Pointers to the given Clustergraph and underlying Graph are stored.
 	const ClusterGraph *m_C;
 	const Graph *m_G;
-	const EdgeArray<int> *m_pCost;
+	const EdgeArray<double> *m_pCost;
 
 
 	// Each time the primal bound is improved, the integer solution induced Graph is built.
@@ -68,7 +68,7 @@ public:
 	// Construction and default values
 	MaxCPlanarMaster(
 		const ClusterGraph &C,
-		const EdgeArray<int> *pCost,
+		const EdgeArray<double> *pCost,
 		int heuristicLevel=1,
 		int heuristicRuns=2,
 		double heuristicOEdgeBound=0.3,

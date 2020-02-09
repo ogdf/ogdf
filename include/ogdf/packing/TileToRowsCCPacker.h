@@ -31,9 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/CCLayoutPackModule.h>
-
-
+#include <ogdf/packing/CCLayoutPackModule.h>
 
 namespace ogdf {
 

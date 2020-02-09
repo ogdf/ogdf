@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/EmbedderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/decomposition/BCTree.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>

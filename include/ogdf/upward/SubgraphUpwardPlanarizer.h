@@ -32,21 +32,37 @@
 #pragma once
 
 #include <memory>
-#include <ogdf/module/AcyclicSubgraphModule.h>
-#include <ogdf/module/FUPSModule.h>
-#include <ogdf/module/UpwardEdgeInserterModule.h>
-#include <ogdf/module/UpwardPlanarizerModule.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/upward/FUPSModule.h>
+#include <ogdf/upward/UpwardEdgeInserterModule.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
 #include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/FUPSSimple.h>
 #include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
 #include <ogdf/decomposition/BCTree.h>
 #include <ogdf/layered/GreedyCycleRemoval.h>
 
+namespace ogdf {
 
-namespace ogdf
-{
-
-
+/**
+ * Takes an acyclic connected non-upward-planar graph and planarizes it, i.e., we obtain an upward-planar graph
+ * where crossings are represented via dummy vertices. The code corresponds to the following paper by Hoi-Ming Wong:
+ *
+ *   M. Chimani, C. Gutwenger, P. Mutzel, H.-M. Wong.
+ *   Layer-Free Upward Crossing Minimization.
+ *   ACM Journal of Experimental Algorithmics, Vol. 15, Art.No. 2.2, 27 pages, ACM, 2010.
+ *
+ * \note To call the planarizer, an UpwardPlanRep is required. It needs to have the input graph as its orginal,
+ * but is initially empty! After the algorithm, it will hold the representation.
+ *
+ * Example for Input "Graph G":
+ * \code
+ *  UpwardPlanRep U;
+ *  U.createEmpty(G);
+ *  SubgraphUpwardPlanarizer sup;
+ *  sup.call(U, 0, 0);
+ * \endcode
+ */
 class OGDF_EXPORT SubgraphUpwardPlanarizer : public UpwardPlanarizerModule
 {
 

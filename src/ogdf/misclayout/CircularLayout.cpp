@@ -33,6 +33,7 @@
 //#define OGDF_CIRCULAR_LAYOUT_LOGGING
 
 #include <ogdf/misclayout/CircularLayout.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/tuples.h>
@@ -539,7 +540,7 @@ void CircularLayout::call(GraphAttributes &AG)
 	{
 		GC.initByNodes(nodesInCC[i],auxCopy);
 
-		GraphCopyAttributes AGC(GC,AG);
+		GraphAttributes AGC(GC);
 
 		if(GC.numberOfNodes() == 1)
 		{
@@ -693,7 +694,7 @@ void outputRegions(List<SCRegion> &regions)
 
 // call for predefined clusters
 // performs the actual layout algorithm
-void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
+void CircularLayout::doCall(GraphAttributes &AG, ClusterStructure &C)
 {
 	// we consider currently only the case that we have a single main-site cluster
 	OGDF_ASSERT(C.m_mainSiteCluster.size() == 1);
@@ -711,8 +712,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		double sumDiameters = 0, maxR = 0;
 		SListConstIterator<node> it;
 		for(it = C.m_nodesIn[i].begin(); it.valid(); ++it) {
-			double d = sqrt(
-				AG.getWidth(*it) * AG.getWidth(*it) + AG.getHeight(*it) * AG.getHeight(*it));
+			double d = sqrt(AG.width(*it) * AG.width(*it) + AG.height(*it) * AG.height(*it));
 			sumDiameters += d;
 			if (d/2 > maxR) maxR = d/2;
 		}
@@ -1826,7 +1826,9 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		}
 		std::cout << std::endl;
 	}
-	GraphIO::writeGML(BCTree, "BC-Tree.gml");
+
+	std::ofstream out("BC-Tree.gml");
+	GraphIO::writeGML(BCTree, out);
 #endif
 
 

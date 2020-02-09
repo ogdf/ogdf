@@ -846,8 +846,7 @@ protected:
 
 		// true iff this glueing is about a PNode (so a glueing at two common nodes)
 		bool thisIsAboutAPNode = false;
-		if ((eLoser->source() == eWinner->source() && eLoser->target() == eWinner->target()) ||
-		    (eLoser->target() == eWinner->source() && eLoser->source() == eWinner->target())) {
+		if (eLoser->isParallelUndirected(eWinner)) {
 			thisIsAboutAPNode = true;
 		}
 
@@ -857,7 +856,7 @@ protected:
 		node sLoser = m_sNode[eLoser];
 		node tLoser = m_tNode[eLoser];
 
-		bool sameDirection = !(eWinner->source() == eLoser->target() && eWinner->target() == eLoser->source());
+		bool sameDirection{!eWinner->isInvertedDirected(eLoser)};
 
 		// we get a list of all nodes of the loser graph
 		List<node> allNodesButSt;

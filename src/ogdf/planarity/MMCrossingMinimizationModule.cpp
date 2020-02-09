@@ -29,12 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/module/MMCrossingMinimizationModule.h>
+#include <ogdf/planarity/MMCrossingMinimizationModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
-
 namespace ogdf {
-
 
 Module::ReturnType MMCrossingMinimizationModule::call(
 	const Graph &G,

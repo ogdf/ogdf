@@ -31,13 +31,17 @@
 
 #include <ogdf/basic/DualGraph.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/extended_graph_alg.h>
 
+#include <graphs.h>
 #include <testing.h>
 
-//! Runs all tests on a single randomly generated graph with \c n nodes and \c m edges.
-void performIteration(int n, int m) {
-	Graph graph;
-	randomPlanarConnectedGraph(graph, n, m);
+//! Creates a DualGraph of \p graph and runs several tests on it.
+void describeDualGraph(Graph &graph) {
+	if (graph.numberOfEdges() < 1) {
+		return;
+	}
+	planarEmbed(graph);
 	ConstCombinatorialEmbedding emb(graph);
 	DualGraph dual(emb);
 
@@ -90,10 +94,8 @@ void performIteration(int n, int m) {
 
 go_bandit([]() {
 	describe("DualGraph",[] {
-		for(int i = 1; i <= 100; i++) {
-			describe("iteration #" + to_string(i), []() {
-				performIteration(100, 200);
-			});
-		}
+		forEachGraphDescribe({GraphProperty::planar, GraphProperty::connected},
+			[&](Graph &graph) { describeDualGraph(graph); }
+		);
 	});
 });

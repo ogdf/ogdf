@@ -228,8 +228,8 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 				if(reqs & MFR_ST_NON_INCIDENT_FACE) {
 					props = props | MFR_ST_NON_INCIDENT_FACE;
 					node v = graph.newNode();
-					graph.newEdge(v, t);
-					graph.newEdge(t, v);
+					caps[graph.newEdge(v, t)] = 0;
+					caps[graph.newEdge(t, v)] = 0;
 				}
 
 				if(props & MFR_PLANAR) {

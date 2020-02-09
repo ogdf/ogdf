@@ -774,6 +774,11 @@ static bool readAttribute(
 
 	std::istringstream ss(stmt.rhs);
 	switch(toAttribute(stmt.lhs)) {
+	case Attribute::Id:
+		if(flags & GraphAttributes::nodeId) {
+			ss >> GA.idNode(v);
+		}
+		break;
 	case Attribute::Label:
 		if(flags & GraphAttributes::nodeLabel) {
 			GA.label(v) = stmt.rhs;
@@ -815,6 +820,14 @@ static bool readAttribute(
 			}
 		}
 		break;
+	case Attribute::LabelPosition:
+		if(flags & GraphAttributes::nodeLabelPosition) {
+			ss >> GA.xLabel(v) >> TokenIgnorer(',') >> GA.yLabel(v);
+			if(flags & GraphAttributes::threeD) {
+				ss >> TokenIgnorer(',') >> GA.zLabel(v);
+			}
+		}
+		break;
 	case Attribute::Stroke:
 		if(flags & GraphAttributes::nodeStyle) {
 			GA.strokeColor(v) = stmt.rhs;
@@ -824,6 +837,11 @@ static bool readAttribute(
 	case Attribute::StrokeWidth:
 		if(flags & GraphAttributes::nodeStyle) {
 			ss >> GA.strokeWidth(v);
+		}
+		break;
+	case Attribute::FillBackground:
+		if(flags & GraphAttributes::nodeStyle) {
+			GA.fillBgColor(v) = stmt.rhs;
 		}
 		break;
 	case Attribute::FillPattern:
@@ -893,6 +911,25 @@ static bool readAttribute(
 			// TODO: color literals.
 		}
 		break;
+	case Attribute::StrokeWidth:
+		if(flags & GraphAttributes::edgeStyle) {
+			ss >> GA.strokeWidth(e);
+		}
+		break;
+	case Attribute::StrokeType:
+		if(flags & GraphAttributes::edgeStyle) {
+			string help;
+			ss >> help;
+			GA.strokeType(e) = fromString<StrokeType>(help);
+		}
+		break;
+	case Attribute::Type:
+		if(flags & GraphAttributes::edgeType) {
+			string help;
+			ss >> help;
+			GA.type(e) = dot::toEdgeType(help);
+		}
+		break;
 	case Attribute::Arrow:
 		if(flags & GraphAttributes::edgeArrow) {
 			int help;
@@ -903,6 +940,14 @@ static bool readAttribute(
 	case Attribute::Dir:
 		if (flags & GraphAttributes::edgeArrow) {
 			GA.arrowType(e) = dot::toArrow(stmt.rhs);
+		}
+		break;
+	case Attribute::SubGraphs:
+		if (flags & GraphAttributes::edgeSubGraphs) {
+			int sg;
+			while(ss >> sg) {
+				GA.addSubGraph(e, sg);
+			}
 		}
 		break;
 	default:
@@ -917,18 +962,68 @@ static bool readAttribute(
 	ClusterGraphAttributes &CA, const cluster &c,
 	const Ast::AsgnStmt &stmt)
 {
+	const long flags = CA.attributes();
+
+	std::istringstream ss(stmt.rhs);
 	switch(toAttribute(stmt.lhs)) {
 	case Attribute::Label:
-		CA.label(c) = stmt.rhs;
+		if (flags & ClusterGraphAttributes::clusterLabel) {
+			CA.label(c) = stmt.rhs;
+		}
 		break;
 	case Attribute::Template:
-		CA.templateCluster(c) = stmt.rhs;
+		if (flags & ClusterGraphAttributes::clusterTemplate) {
+			CA.templateCluster(c) = stmt.rhs;
+		}
+		break;
+	case Attribute::Position:
+		if (flags & ClusterGraphAttributes::clusterGraphics) {
+			ss >> CA.x(c) >> TokenIgnorer(',') >> CA.y(c);
+		}
+		break;
+	case Attribute::Width:
+		if (flags & ClusterGraphAttributes::clusterGraphics) {
+			ss >> CA.width(c);
+		}
+		break;
+	case Attribute::Height:
+		if (flags & ClusterGraphAttributes::clusterGraphics) {
+			ss >> CA.height(c);
+		}
+		break;
+	case Attribute::StrokeType:
+		if (flags & ClusterGraphAttributes::clusterStyle) {
+			string help;
+			ss >> help;
+			CA.strokeType(c) = fromString<StrokeType>(help);
+		}
 		break;
 	case Attribute::Fill:
-		CA.fillColor(c) = stmt.rhs;
+		if (flags & ClusterGraphAttributes::clusterStyle) {
+			CA.fillColor(c) = stmt.rhs;
+		}
 		break;
 	case Attribute::Stroke:
-		CA.strokeColor(c) = stmt.rhs;
+		if (flags & ClusterGraphAttributes::clusterStyle) {
+			CA.strokeColor(c) = stmt.rhs;
+		}
+		break;
+	case Attribute::StrokeWidth:
+		if (flags & ClusterGraphAttributes::clusterStyle) {
+			ss >> CA.strokeWidth(c);
+		}
+		break;
+	case Attribute::FillPattern:
+		if (flags & ClusterGraphAttributes::clusterStyle) {
+			string help;
+			ss >> help;
+			CA.fillPattern(c) = fromString<FillPattern>(help);
+		}
+		break;
+	case Attribute::FillBackground:
+		if (flags & ClusterGraphAttributes::clusterStyle) {
+			CA.fillBgColor(c) = stmt.rhs;
+		}
 		break;
 	default:
 		GraphIO::logger.lout(Logger::Level::Minor) << "Attribute \"" << stmt.lhs

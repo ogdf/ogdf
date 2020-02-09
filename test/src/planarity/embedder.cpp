@@ -41,16 +41,22 @@ void testEmbedder(EmbedderModule &embedder, const Graph &graph, bool repeat = tr
 	if(repeat) {
 		shuffleEmbedding(copy);
 	}
+
 	// initialize adjExternal with a corrupt value
-	adjEntry adjExternal = graph.firstNode()->firstAdj();
+	adjEntry adjExternal = graph.numberOfNodes() == 0 ? nullptr : graph.firstNode()->firstAdj();
 
 	embedder(copy, adjExternal);
 
 	validateCopy(graph, copy);
-	AssertThat(adjExternal, !IsNull());
+	if (graph.numberOfEdges() == 0) {
+		AssertThat(adjExternal, IsNull());
+	} else {
+		AssertThat(adjExternal, !IsNull());
 #ifdef OGDF_DEBUG
-	AssertThat(adjExternal->graphOf(), Equals(&copy));
+		AssertThat(adjExternal->graphOf(), Equals(&copy));
 #endif
+	}
+
 	AssertThat(copy.representsCombEmbedding(), IsTrue());
 
 	// test planarly embedded input

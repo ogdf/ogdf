@@ -85,7 +85,7 @@ static void nonsatisfiableTest()
 static void readDIMACSTest()
 {
 	Minisat::Formula formula;
-	std::stringstream ss{ResourceFile::get("minisat/satisfiable.txt")->data()};
+	std::stringstream ss{ResourceFile::data("minisat/satisfiable.txt")};
 	AssertThat(formula.readDimacs(ss), IsTrue());
 	Minisat::Model model;
 	bool satisfiable = formula.solve(model);

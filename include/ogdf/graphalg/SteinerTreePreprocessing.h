@@ -1,5 +1,5 @@
 /*! \file
- * \brief Declaration of the SteinerTreePreprocessing class.
+ * \brief Definition of the ogdf::SteinerTreePreprocessing class template.
  *
  * \author Mihai Popa
  *
@@ -32,17 +32,16 @@
 #pragma once
 
 #include <forward_list>
-#include <set>
-#include <ogdf/basic/EpsilonTest.h>
-#include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/graphalg/Voronoi.h>
-#include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
-#include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 #include <memory>
+#include <set>
+#include <unordered_map>
+
 #include <ogdf/basic/BoundedQueue.h>
 #include <ogdf/basic/SubsetEnumerator.h>
-
-#include <unordered_map>
+#include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
+#include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
+#include <ogdf/graphalg/SteinerTreeLowerBoundDualAscent.h>
+#include <ogdf/graphalg/steiner_tree/HeavyPathDecomposition.h>
 
 namespace ogdf {
 
@@ -113,11 +112,7 @@ protected:
 
 	std::unique_ptr<MinSteinerTreeModule<T>> m_costUpperBoundAlgorithm; //!< Algorithm used for computing the upper bound for the cost of a minimum Steiner tree.
 
-	class HeavyPathDecomposition; /*!< An implementation of the HeavyPathDecomposition on trees.
-	                                   It contains very specific queries used by reductions. */
-
 public:
-
 	/*!
 	 * @param wg The initial graph that will be reduced.
 	 * @param terminals The list of terminals of the initial graph.
@@ -199,6 +194,9 @@ public:
 	//! Returns the list of the terminals corresponding to the reduced graph.
 	inline const List<node>& getReducedTerminals() const {	return m_copyTerminals; }
 
+	//! Shuffles the list of reduced terminals. This can have an effect on some tests.
+	inline void shuffleReducedTerminals() { m_copyTerminals.permute(); }
+
 	//! Returns the NodeArray<bool> isTerminal corresponding to the reduced graph.
 	inline const NodeArray<bool>& getReducedIsTerminal() const { return m_copyIsTerminal; }
 	//@}
@@ -238,9 +236,11 @@ public:
 	}
 
 	//! \brief Apply fast reductions iteratively (includes trivial reductions).
-	bool reduceFast()
-	{
-		const int k = 5; // for PTmTest
+	bool reduceFast() {
+		int k = 5; // for PTmTest
+		// comment wrt. Apple Clang 10: making k const, results in compiler error while binding it in lambda
+		// comment wrt. MSVC 19: not binding the const k would result in compiler error
+
 		bool changed = deleteComponentsWithoutTerminals();
 		bool triviallyChanged = false;
 		changed |= repeat([this, &triviallyChanged, k]() {
@@ -248,51 +248,45 @@ public:
 			triviallyChanged = reduceTrivial();
 			// graph guaranteed to be simple and connected
 
-			// precond: simple, connected
-			innerChanged |= NTDkTest(10, k);
-			// can occur: parallel edges
-
-			// precond: connected
-#if 0
-			// commented out because it is too expensive
-			innerChanged |= longEdgesTest();
-#endif
-
-			// precond: connected
-			innerChanged |= lowerBoundBasedNodeTest();
-
-			// precond: connected
-			if (lowerBoundBasedEdgeTest()) {
-				// can occur: disconnected
-				deleteComponentsWithoutTerminals();
-				makeSimple(); // not necessary, but does not hurt (XXX)
+			if (nearestVertexTest()) {
+				makeSimple();
 				innerChanged = true;
 			}
 
 			// precond: connected
 			if (terminalDistanceTest()) {
-				// can occur: disconnected graph
+				// can occur: disconnected
 				deleteComponentsWithoutTerminals();
+				innerChanged = true;
 			}
+
+			// precond: simple, connected
+			innerChanged |= NTDkTest(10, k);
+			// can occur: parallel edges
+
+			// precond: connected
+			innerChanged |= shortLinksTest();
+			// can occur: parallel edges, self-loops
+
+			// precond: connected
+			innerChanged |= lowerBoundBasedTest();
 
 			// is not thaaat good but helps a little:
 			innerChanged |= PTmTest(k);
 			// can occur: parallel edges
 
-			innerChanged |= repeat([this]() {
-				// precond: must be connected
-				bool innerInnerChanged = shortLinksTest();
-				// can occur: parallel edges, self-loops
-				makeSimple();
-
-				// precond: loop-free, connected
-				innerInnerChanged |= nearestVertexTest();
-				// can occur: parallel edges, self-loops
-				return innerInnerChanged;
-			});
 			return innerChanged;
 		});
 		return changed | triviallyChanged;
+	}
+
+	//! Apply fast reductions and the dual-ascent-based tests iteratively.
+	bool reduceFastAndDualAscent() {
+		return repeat([this] {
+			bool changed = reduceFast();
+			changed |= dualAscentBasedTest();
+			return changed;
+		});
 	}
 
 	//@}
@@ -404,28 +398,43 @@ public:
 	bool shortLinksTest();
 
 	/*!
-	 * \brief Computes for each non-terminal a lower bound of the cost of the minimum Steiner tree containing it.
-	 *    Deletes the nodes whose corresponding lower bound exceeds the [upper bound](\ref computeMinSteinerTreeUpperBound).
-	 *    See [PV01, Observations 3.5 and 3.8].
+	 * Computes for each non-terminal a lower bound of the cost of the minimum Steiner tree containing it.
+	 * Deletes the nodes and edges whose corresponding lower bounds exceed the \p upperBound.
+	 * See [PV01, Observations 3.5, 3.6, and 3.8].
 	 * - Time: O(m log n)
 	 * - Memory: O(n)
 	 * @return True iff the graph is changed
 	 *
 	 * \pre Graph must be connected (use deleteComponentsWithoutTerminals())
 	 */
-	bool lowerBoundBasedNodeTest();
+	bool lowerBoundBasedTest(T upperBound);
 
 	/*!
-	 * \brief Computes for each edge a lower bound of the cost of the minimum Steiner tree containing it.
-	 *    Deletes the edges whose corresponding lower bound exceeds the [upper bound](\ref computeMinSteinerTreeUpperBound).
-	 *    See [PV01, Observation 3.6]
-	 * - Time: O(n + m)
-	 * - Memory: O(n)
+	 * Like #lowerBoundBasedTest(T upperBound) but the
+	 * upper bound is computed by #computeMinSteinerTreeUpperBound.
+	 */
+	inline bool lowerBoundBasedTest() {
+		return lowerBoundBasedTest(computeMinSteinerTreeUpperBound());
+	}
+
+	/**
+	 * Like #lowerBoundBasedTest(T upperBound)
+	 * but uses ogdf::SteinerTreeLowerBoundDualAscent to compute lower bounds.
+	 *    See [PV01, Section 3.2.2 on DA].
+	 * - Time: O(m min(m, r*n) + n log n)
 	 * @return True iff the graph is changed
 	 *
 	 * \pre Graph must be connected (use deleteComponentsWithoutTerminals())
 	 */
-	bool lowerBoundBasedEdgeTest();
+	bool dualAscentBasedTest(int repetitions, T upperBound);
+
+	/*!
+	 * Like #dualAscentBasedTest(int repetitions, T upperBound) but the
+	 * upper bound is computed by #computeMinSteinerTreeUpperBound.
+	 */
+	inline bool dualAscentBasedTest(int repetitions = 1) {
+		return dualAscentBasedTest(repetitions, computeMinSteinerTreeUpperBound());
+	}
 
 	/*!
 	 * \brief Performs a reachability test [DV89].
@@ -463,11 +472,8 @@ public:
 
 	//@}
 
-private:
-	//! \brief Repeat a function until it returns false (used for iteratively applying reductions)
-	template<typename Fun>
-	bool repeat(Fun f) const
-	{
+	//! Auxiliary function: Repeats a function until it returns false (used for iteratively applying reductions)
+	static bool repeat(std::function<bool()> f) {
 		bool changed = false;
 		while (f()) {
 			changed = true;
@@ -476,20 +482,6 @@ private:
 	}
 
 protected:
-	EdgeWeightedGraphCopy<T> *
-	initializeTPrime() const
-	{
-		EdgeWeightedGraphCopy<T> *terminalTree = new EdgeWeightedGraphCopy<T>();
-		EdgeArray<edge> bridges;
-		Voronoi<T> voronoi(m_copyGraph, m_copyGraph.edgeWeights(), m_copyTerminals);
-
-		MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(m_copyGraph, m_copyTerminals, voronoi, bridges, *terminalTree);
-
-		makeMinimumSpanningTree(*terminalTree, terminalTree->edgeWeights());
-
-		return terminalTree;
-	}
-
 	/*!
 	 * \brief Update internal data structures to let a (new) node or edge represent replaced nodes and/or edges.
 	 * @param x The node or edge that represents the replaced entities. Note that its existing information will be overwritten.
@@ -555,7 +547,10 @@ protected:
 	bool deleteEdgesAboveUpperBound(const EdgeArray<T> &lowerBoundWithEdge, const T upperBound);
 
 	//! Deletes a node that is known to have degree 2 in at least one minimum Steiner tree.
-	void deleteSteinerDegreeTwoNode(node v, const EdgeWeightedGraphCopy<T> &tprime, const HeavyPathDecomposition &tprimeHPD, const NodeArray<List<std::pair<node,T>>> &closestTerminals);
+	void deleteSteinerDegreeTwoNode(node v,
+			const EdgeWeightedGraphCopy<T>& tprime,
+			const steiner_tree::HeavyPathDecomposition<T>& tprimeHPD,
+			const NodeArray<List<std::pair<node,T>>>& closestTerminals);
 
 	/**
 	 * \brief Heuristic approach to computing the closest non-terminals for one node, such that there is no terminal on the path
@@ -572,7 +567,10 @@ protected:
 	 * \brief Heuristic computation [PV01] of the bottleneck Steiner distance between two nodes in a graph.
 	 * - Time: O(log n)
 	 */
-	T computeBottleneckDistance(node x, node y, const EdgeWeightedGraphCopy<T> &tprime, const HeavyPathDecomposition &tprimeHPD, const NodeArray<List<std::pair<node,T>>> &closestTerminals) const;
+	T computeBottleneckDistance(node x, node y,
+			const EdgeWeightedGraphCopy<T>& tprime,
+			const steiner_tree::HeavyPathDecomposition<T>& tprimeHPD,
+			const NodeArray<List<std::pair<node,T>>>& closestTerminals) const;
 
 	/**
 	 * \brief Computes for every non-terminal the closest k terminals such that there is no other terminal on the path
@@ -591,8 +589,11 @@ protected:
 	template<typename LAMBDA>
 	void computeOptimalTerminals(node v, LAMBDA dist, node &optimalTerminal1, node &optimalTerminal2, NodeArray<T> &distance) const;
 
-	//! Mark successors
+	//! Mark successors of \p currentNode in its shortest-path tree in \p voronoiRegions
 	void markSuccessors(node currentNode, const Voronoi<T> &voronoiRegions, NodeArray<bool> &isSuccessorOfMinCostEdge) const;
+
+	//! Finds the \p first and \p second smallest edges incident to \p v
+	void findTwoMinimumCostEdges(node v, edge& first, edge& second) const;
 };
 
 template<typename T>
@@ -600,8 +601,10 @@ SteinerTreePreprocessing<T>::SteinerTreePreprocessing(const EdgeWeightedGraph<T>
   : m_origGraph(wg)
   , m_origTerminals(terminals)
   , m_origIsTerminal(isTerminal)
-  , m_eps()
+  , m_eps(1e-6)
 {
+	OGDF_ASSERT(!m_origGraph.empty());
+
 	// make the initial graph copy
 	m_copyGraph.clear();
 	NodeArray<node> nCopy(m_origGraph);
@@ -715,7 +718,7 @@ void SteinerTreePreprocessing<T>::computeOriginalSolution(const EdgeWeightedGrap
 template<typename T>
 void SteinerTreePreprocessing<T>::deleteSteinerDegreeTwoNode(node v,
                                                              const EdgeWeightedGraphCopy<T> &tprime,
-                                                             const HeavyPathDecomposition &tprimeHPD,
+                                                             const steiner_tree::HeavyPathDecomposition<T> &tprimeHPD,
                                                              const NodeArray<List<std::pair<node,T>>> &closestTerminals)
 {
 	struct NewEdgeData {
@@ -779,7 +782,7 @@ void SteinerTreePreprocessing<T>::recomputeTerminalsList()
 template<typename T>
 T SteinerTreePreprocessing<T>::computeBottleneckDistance(node x, node y,
                                                          const EdgeWeightedGraphCopy<T> &tprime,
-                                                         const HeavyPathDecomposition &tprimeHPD,
+                                                         const steiner_tree::HeavyPathDecomposition<T> &tprimeHPD,
                                                          const NodeArray<List<std::pair<node, T>>> &closestTerminals) const
 {
 	T bottleneckDistance = std::numeric_limits<T>::max();
@@ -798,320 +801,6 @@ T SteinerTreePreprocessing<T>::computeBottleneckDistance(node x, node y,
 
 	return bottleneckDistance;
 }
-
-template<typename T>
-class SteinerTreePreprocessing<T>::HeavyPathDecomposition {
-private:
-	const EdgeWeightedGraphCopy<T> &tree; ///< constant ref to the tree to be decomposed
-	List<node> terminals; ///< list of terminals of the desc tree
-	const NodeArray<bool> isTerminal; ///< isTerminal of the desc tree
-
-	std::vector<std::vector<node>> chains; ///< list of chains of nodes corresponding to the decomposition
-	std::vector<std::vector<node>> chainsOfTerminals; ///< list of chains only of terminals corresponding to the decomposition
-	NodeArray<int> chainOfNode; ///< the index of a node's chain
-	NodeArray<int> positionOnChain; ///< position of a node on his chain
-	NodeArray<int> weightOfSubtree; ///< weight of the subtree rooted in one node
-	NodeArray<int> nodeLevel; ///< the level of a node in the tree
-	NodeArray<T> distanceToRoot; ///< the length of the edge to his father
-	NodeArray<node> closestSteinerAncestor; ///< the highest-level Steiner ancestor of the current node
-	std::vector<node> fatherOfChain; ///< the first node from bottom up that does not belong to the chain
-
-	std::vector<std::vector<T>> longestDistToSteinerAncestorOnChain; ///< the max of the interval 0..i for every i on chains
-	std::vector<std::vector<T>> longestDistToSteinerAncestorSegTree; ///< segment tree for segment maxs on every chain
-
-	/*!
-	 * \brief builds a max segment tree on the baseArray
-	 * - Time: O(n)
-	 */
-	void buildMaxSegmentTree(std::vector<T> &segmentTree, const int nodeIndex, const int left, const int right, const std::vector<T> &baseArray) const
-	{
-		if (left == right) { // leaf
-			segmentTree[nodeIndex] = baseArray[left];
-			return;
-		}
-
-		int middle = (left+right)>>1;
-		int leftNodeIndex = nodeIndex+nodeIndex+1;
-		int rightNodeIndex = leftNodeIndex + 1;
-
-		buildMaxSegmentTree(segmentTree, leftNodeIndex, left, middle, baseArray);
-		buildMaxSegmentTree(segmentTree, rightNodeIndex, middle+1, right, baseArray);
-
-		segmentTree[nodeIndex] = max(segmentTree[leftNodeIndex], segmentTree[rightNodeIndex]);
-	}
-	/*!
-	 * \brief extracts the maximum on the required interval
-	 * - Time: O(log n)
-	 */
-	T getMaxSegmentTree(const std::vector<T> &segmentTree, const int nodeIndex, const int left, const int right, const int queryLeft, const int queryRight) const
-	{
-		if (queryLeft > queryRight
-		 || left > queryRight
-		 || queryLeft > right) {
-			return 0;
-		}
-
-		if (queryLeft <= left
-		 && right <= queryRight) { // included
-			return segmentTree[nodeIndex];
-		}
-
-		int middleIndex = (left + right)>>1;
-		int leftNodeIndex = nodeIndex+nodeIndex+1;
-		int rightNodeIndex = leftNodeIndex + 1;
-
-		T maxValue(0);
-		if (queryLeft <= middleIndex) {
-			Math::updateMax(maxValue, getMaxSegmentTree(segmentTree, leftNodeIndex, left, middleIndex, queryLeft, queryRight));
-		}
-		if (queryRight > middleIndex) {
-			Math::updateMax(maxValue, getMaxSegmentTree(segmentTree, rightNodeIndex, middleIndex+1, right, queryLeft, queryRight));
-		}
-
-		return maxValue;
-	}
-
-	/*!
-	 * computes the sum of all edges on the path from v to ancestor
-	 * v must be in ancestor's subtree
-	 */
-	T distanceToAncestor(node v, node ancestor) const
-	{
-		if (ancestor == nullptr) {
-			return distanceToRoot[v];
-		}
-		return distanceToRoot[v] - distanceToRoot[ancestor];
-	}
-
-	/*!
-	 * \brief creates for every chain an array with the maximum of every prefix of a fictive array
-	 * which keeps for every node the sum of the edges on the path from it to its closest
-	 * terminal ancestor
-	 */
-	void computeLongestDistToSteinerAncestorOnChain()
-	{
-		longestDistToSteinerAncestorOnChain.resize((int)chains.size());
-		for (int i = 0; i < (int)chains.size(); ++i) {
-			longestDistToSteinerAncestorOnChain[i].resize((int)chains[i].size());
-			for (int j = 0; j < (int)chains[i].size(); ++j) {
-				longestDistToSteinerAncestorOnChain[i][j] = distanceToAncestor(chains[i][j], closestSteinerAncestor[chains[i][j]]);
-				if (j > 0) {
-					Math::updateMax(longestDistToSteinerAncestorOnChain[i][j], longestDistToSteinerAncestorOnChain[i][j-1]);
-				}
-			}
-		}
-	}
-
-	/*!
-	 * \brief creates for every chain a segment tree built on a fictive array
-	 * which keeps for every node the sum of the edges on the path from it to its closest
-	 * terminal ancestor
-	 */
-	void computeLongestDistToSteinerAncestorSegTree()
-	{
-		longestDistToSteinerAncestorSegTree.resize((int)chains.size());
-		for (int i = 0; i < (int)chains.size(); ++i) {
-			longestDistToSteinerAncestorSegTree[i].resize(4*(int)chains[i].size());
-
-			std::vector<T> distanceToSteinerAncestor_byPosition;
-			distanceToSteinerAncestor_byPosition.resize(chains[i].size());
-			for (int j = 0; j < (int)chains[i].size(); ++j) {
-				distanceToSteinerAncestor_byPosition[j] = distanceToAncestor(chains[i][j], closestSteinerAncestor[chains[i][j]]);
-			}
-
-			buildMaxSegmentTree(longestDistToSteinerAncestorSegTree[i], 0, 0, (int)chains[i].size()-1, distanceToSteinerAncestor_byPosition);
-		}
-	}
-
-	/*!
-	 * \brief performs the heavy path decomposition on the tree belonging to the class
-	 * updates the fields of the class
-	 */
-	void dfsHeavyPathDecomposition(node v, node closestSteinerUpNode)
-	{
-		weightOfSubtree[v] = 1;
-		node heaviestSon = nullptr;
-		closestSteinerAncestor[v] = closestSteinerUpNode;
-
-		for(adjEntry adj : v->adjEntries) {
-			edge e = adj->theEdge();
-			node son = adj->twinNode();
-
-			if (weightOfSubtree[son] != 0) { // the parent
-				continue;
-			}
-
-			nodeLevel[son] = nodeLevel[v] + 1;
-			distanceToRoot[son] = distanceToRoot[v] + tree.weight(e);
-
-			dfsHeavyPathDecomposition(son, v);
-
-			fatherOfChain[chainOfNode[son]] = v;
-			weightOfSubtree[v] += weightOfSubtree[son];
-			if (heaviestSon == nullptr
-			 || weightOfSubtree[heaviestSon] < weightOfSubtree[son]) {
-				heaviestSon = son;
-			}
-		}
-
-		if (heaviestSon == nullptr) { // it's leaf => new chain
-			OGDF_ASSERT((v->degree() <= 1));
-
-			std::vector<node>new_chain;
-			chains.push_back(new_chain);
-			chainsOfTerminals.push_back(new_chain);
-
-			fatherOfChain.push_back(nullptr);
-			chainOfNode[v] = (int)chains.size()-1;
-		} else {
-			chainOfNode[v] = chainOfNode[heaviestSon];
-		}
-
-		chains[chainOfNode[v]].push_back(v);
-		chainsOfTerminals[chainOfNode[v]].push_back(v);
-		positionOnChain[v] = (int)chains[chainOfNode[v]].size()-1;
-	}
-
-	/*!
-	 * \brief performs a binary search on chainOfTerminals,
-	 * searches for the closest node to the root on chainOfTerminals that sits below v
-	 * - Time: O(log n)
-	 */
-	node binarySearchUpmostTerminal(node v, const std::vector<node> &chainOfTerminals) const
-	{
-		int left = 0, middle, right = (int)chainOfTerminals.size()-1;
-		while (left <= right) {
-			middle = (left+right)>>1;
-
-			if (nodeLevel[chainOfTerminals[middle]] >= nodeLevel[v]) {
-				right = middle-1;
-			} else {
-				left = middle+1;
-			}
-		}
-
-		if (left == (int)chainOfTerminals.size()) {
-			return nullptr;
-		}
-		return chainOfTerminals[left];
-	}
-
-	/*!
-	 * \brief computes for the path from x to ancestor
-	 * the maximum distance (sum of edges) between any two consecutive terminals using the hpd
-	 * updates it in longestPathDistance
-	 * also puts in fromLowestToAncestor the sum of edges from the last terminal found to the ancestor
-	 * (the last terminal is special since its Steiner ancestor is ancestor for ancestor as well, so we would consider
-	 * a wrong part of the path
-	 * - Time: O(log n)
-	 */
-	void computeBottleneckOnBranch(node x, node ancestor, T &longestPathDistance, T &fromLowestToAncestor) const
-	{
-		node upmostTerminal = x;
-		while (closestSteinerAncestor[chains[chainOfNode[x]][0]] != nullptr
-		    && nodeLevel[closestSteinerAncestor[chains[chainOfNode[x]][0]]] >= nodeLevel[ancestor]) {
-			Math::updateMax(longestPathDistance, longestDistToSteinerAncestorOnChain[chainOfNode[x]][positionOnChain[x]]);
-
-			if (!chainsOfTerminals[chainOfNode[x]].empty()
-			 && nodeLevel[chainsOfTerminals[chainOfNode[x]][0]] <= nodeLevel[x]) {
-				upmostTerminal = chainsOfTerminals[chainOfNode[x]][0];
-			}
-			x = fatherOfChain[chainOfNode[x]];
-		}
-
-		// search the upmost terminal on the current chain that has level >= level[ancestor]
-		node upmostTerminalLastChain = binarySearchUpmostTerminal(ancestor, chainsOfTerminals[chainOfNode[x]]);
-		if (nodeLevel[upmostTerminalLastChain] > nodeLevel[x]) {
-			upmostTerminalLastChain = nullptr;
-		}
-		if (upmostTerminalLastChain != nullptr) {
-			upmostTerminal = upmostTerminalLastChain;
-		}
-
-		if (upmostTerminalLastChain != nullptr) {
-			Math::updateMax(longestPathDistance,
-			  getMaxSegmentTree(longestDistToSteinerAncestorSegTree[chainOfNode[x]], 0, 0,
-			                    static_cast<int>(chains[chainOfNode[x]].size()) - 1,
-			                    positionOnChain[upmostTerminalLastChain] + 1,
-			                    positionOnChain[x]));
-		}
-
-		fromLowestToAncestor = distanceToAncestor(upmostTerminal, ancestor);
-	}
-
-public:
-
-	HeavyPathDecomposition(const EdgeWeightedGraphCopy<T> &treeEWGraphCopy)
-	  : tree(treeEWGraphCopy)
-	{
-		node root = treeEWGraphCopy.firstNode();
-
-		chainOfNode.init(treeEWGraphCopy, -1);
-		positionOnChain.init(treeEWGraphCopy, -1);
-		weightOfSubtree.init(treeEWGraphCopy, 0);
-		nodeLevel.init(treeEWGraphCopy, 0);
-		distanceToRoot.init(treeEWGraphCopy, 0);
-		closestSteinerAncestor.init(treeEWGraphCopy, nullptr);
-
-		dfsHeavyPathDecomposition(root, nullptr);
-		fatherOfChain[chainOfNode[root]] = nullptr;
-
-		// reverse the obtained chains
-		int numberOfChains = static_cast<int>(chains.size());
-		for (int i = 0; i < numberOfChains; ++i) {
-			reverse(chains[i].begin(), chains[i].end());
-			reverse(chainsOfTerminals[i].begin(), chainsOfTerminals[i].end());
-			for (node v : chains[i]) {
-				positionOnChain[v] = (int)chains[i].size()-1-positionOnChain[v];
-			}
-		}
-
-		computeLongestDistToSteinerAncestorOnChain();
-		computeLongestDistToSteinerAncestorSegTree();
-	}
-
-	/*!
-	 * \brief computes the lowest common ancestor of nodes x and y using the hpd
-	 * - Time: O(log n)
-	 */
-	node lowestCommonAncestor(node x, node y) const
-	{
-		while (chainOfNode[x] != chainOfNode[y]) {
-			int xlevelOfFatherOfChain = fatherOfChain[chainOfNode[x]] != nullptr ? nodeLevel[fatherOfChain[chainOfNode[x]]] : -1;
-			int ylevelOfFatherOfChain = fatherOfChain[chainOfNode[y]] != nullptr ? nodeLevel[fatherOfChain[chainOfNode[y]]] : -1;
-
-			if (xlevelOfFatherOfChain >= ylevelOfFatherOfChain) {
-				x = fatherOfChain[chainOfNode[x]];
-			} else {
-				y = fatherOfChain[chainOfNode[y]];
-			}
-		}
-
-		if (nodeLevel[x] <= nodeLevel[y]) {
-			return x;
-		}
-		return y;
-	}
-
-	/*!
-	 * \brief computes in the bottleneck distance between terminals x and y
-	 * - Time: O(log n)
-	 */
-	T getBottleneckSteinerDistance(node x, node y) const
-	{
-		T xLongestPathDistance = 0, yLongestPathDistance = 0;
-		T xFromLowestToLCA = 0, yFromLowestToLCA = 0;
-		node xyLowestCommonAncestor = lowestCommonAncestor(x, y);
-
-		computeBottleneckOnBranch(x, xyLowestCommonAncestor, xLongestPathDistance, xFromLowestToLCA);
-		computeBottleneckOnBranch(y, xyLowestCommonAncestor, yLongestPathDistance, yFromLowestToLCA);
-
-		T maxValue = max(xLongestPathDistance, yLongestPathDistance);
-		Math::updateMax(maxValue, xFromLowestToLCA+yFromLowestToLCA);
-
-		return maxValue;
-	}
-};
 
 template<typename T>
 bool SteinerTreePreprocessing<T>::deleteLeaves()
@@ -1260,8 +949,8 @@ inline void SteinerTreePreprocessing<T>::computeShortestPathMatrix(NodeArray<Nod
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::leastCostTest()
-{
+bool SteinerTreePreprocessing<T>::leastCostTest() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	bool changed = false;
 	NodeArray<NodeArray<T>> shortestPath;
 	computeShortestPathMatrix(shortestPath);
@@ -1283,8 +972,8 @@ bool SteinerTreePreprocessing<T>::leastCostTest()
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::degree2Test()
-{
+bool SteinerTreePreprocessing<T>::degree2Test() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	bool changed = false;
 	for (node v = m_copyGraph.firstNode(), nextV; v; v = nextV) {
 		nextV = v->succ();
@@ -1339,17 +1028,17 @@ bool SteinerTreePreprocessing<T>::deleteComponentsWithoutTerminals()
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::terminalDistanceTest()
-{
-	bool changed = false;
+bool SteinerTreePreprocessing<T>::terminalDistanceTest() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	OGDF_ASSERT(isConnected(m_copyGraph));
+	bool changed = false;
 
-	EdgeWeightedGraphCopy<T> *tprime = initializeTPrime();
+	EdgeWeightedGraphCopy<T> tprime;
+	steiner_tree::constructTerminalSpanningTreeUsingVoronoiRegions(tprime, m_copyGraph, m_copyTerminals);
 	T maxBottleneck(0);
-	for (edge e : tprime->edges) {
-		Math::updateMax(maxBottleneck, tprime->weight(e));
+	for (edge e : tprime.edges) {
+		Math::updateMax(maxBottleneck, tprime.weight(e));
 	}
-	delete tprime;
 
 	for (edge e = m_copyGraph.firstEdge(), nextE; e; e = nextE) {
 		nextE = e->succ();
@@ -1406,8 +1095,8 @@ void SteinerTreePreprocessing<T>::findClosestNonTerminals(node source, List<node
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::longEdgesTest()
-{
+bool SteinerTreePreprocessing<T>::longEdgesTest() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	bool changed = false;
 	NodeArray<T> xDistance(m_copyGraph, std::numeric_limits<T>::max()),
 	             yDistance(m_copyGraph, std::numeric_limits<T>::max());
@@ -1534,22 +1223,23 @@ void SteinerTreePreprocessing<T>::computeClosestKTerminals(const int k, NodeArra
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::PTmTest(const int k)
-{
-	bool changed = false;
+bool SteinerTreePreprocessing<T>::PTmTest(const int k) {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	OGDF_ASSERT(isConnected(m_copyGraph));
+	bool changed = false;
 
-	EdgeWeightedGraphCopy<T> *tprime = initializeTPrime();
+	EdgeWeightedGraphCopy<T> tprime;
+	steiner_tree::constructTerminalSpanningTreeUsingVoronoiRegions(tprime, m_copyGraph, m_copyTerminals);
 
 	NodeArray<List<std::pair<node,T>>> closestTerminals;
 	computeClosestKTerminals(k, closestTerminals);
 
-	HeavyPathDecomposition tprimeHPD(*tprime);
+	steiner_tree::HeavyPathDecomposition<T> tprimeHPD(tprime);
 
 	for (edge e = m_copyGraph.firstEdge(), nextE; e; e = nextE) {
 		nextE = e->succ();
 
-		T bottleneckDistance = computeBottleneckDistance(e->source(), e->target(), *tprime, tprimeHPD, closestTerminals);
+		T bottleneckDistance = computeBottleneckDistance(e->source(), e->target(), tprime, tprimeHPD, closestTerminals);
 
 		if (m_eps.greater(m_copyGraph.weight(e), bottleneckDistance)) {
 			m_copyGraph.delEdge(e);
@@ -1557,27 +1247,27 @@ bool SteinerTreePreprocessing<T>::PTmTest(const int k)
 		}
 	}
 
-	delete tprime;
 	return changed;
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::NTDkTest(const int maxTestedDegree, const int k)
-{
+bool SteinerTreePreprocessing<T>::NTDkTest(const int maxTestedDegree, const int k) {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	if (m_copyTerminals.size() <= 2) {
 		return false;
 	}
 
 	bool changed = false;
-	OGDF_ASSERT(isSimple(m_copyGraph));
+	OGDF_ASSERT(isSimpleUndirected(m_copyGraph));
 	OGDF_ASSERT(isConnected(m_copyGraph));
 
-	EdgeWeightedGraphCopy<T> *tprime = initializeTPrime();
+	EdgeWeightedGraphCopy<T> tprime;
+	steiner_tree::constructTerminalSpanningTreeUsingVoronoiRegions(tprime, m_copyGraph, m_copyTerminals);
 
 	NodeArray<List<std::pair<node,T>>> closestTerminals;
 	computeClosestKTerminals(k, closestTerminals);
 
-	HeavyPathDecomposition tprimeHPD(*tprime);
+	steiner_tree::HeavyPathDecomposition<T> tprimeHPD(tprime);
 
 	for (node v = m_copyGraph.firstNode(), nextV; v; v = nextV) {
 		nextV = v->succ();
@@ -1624,7 +1314,7 @@ bool SteinerTreePreprocessing<T>::NTDkTest(const int maxTestedDegree, const int 
 					weight[e] = computeBottleneckDistance(
 					  auxGraphToInitNode[auxGraphNode1],
 					  auxGraphToInitNode[auxGraphNode2],
-					  *tprime, tprimeHPD, closestTerminals);
+					  tprime, tprimeHPD, closestTerminals);
 				}
 			}
 
@@ -1638,12 +1328,11 @@ bool SteinerTreePreprocessing<T>::NTDkTest(const int maxTestedDegree, const int 
 		}
 
 		if (deleteNode) {
-			deleteSteinerDegreeTwoNode(v, *tprime, tprimeHPD, closestTerminals);
+			deleteSteinerDegreeTwoNode(v, tprime, tprimeHPD, closestTerminals);
 			changed = true;
 		}
 	}
 
-	delete tprime;
 	return changed;
 }
 
@@ -1654,7 +1343,8 @@ void SteinerTreePreprocessing<T>::markSuccessors(node currentNode, const Voronoi
 
 	OGDF_ASSERT(voronoiRegions.seed(currentNode) != currentNode);
 
-	for(adjEntry adj : currentNode->adjEntries) {
+	// recurse for every successor
+	for (adjEntry adj : currentNode->adjEntries) {
 		edge e = adj->theEdge();
 		node adjacentNode = e->opposite(currentNode);
 
@@ -1662,6 +1352,33 @@ void SteinerTreePreprocessing<T>::markSuccessors(node currentNode, const Voronoi
 			markSuccessors(adjacentNode, voronoiRegions, isSuccessorOfMinCostEdge);
 		}
 	}
+}
+
+template<typename T>
+void SteinerTreePreprocessing<T>::findTwoMinimumCostEdges(node v, edge& first, edge& second) const {
+	/* This is a simple problem, however, there is a weird case that can occur
+	 * in nearestVertexTest(): Imagine a triangle of three terminals where the three edges
+	 * have all equal costs. It can happen that each terminal chooses its first edge to
+	 * be unique, so in the end we add all three edges of the triangle except only two of it.
+	 * We tackle this problem at *this* stage by choosing the edge with smallest index
+	 * in case of a tie in the costs. It is sufficient to do that for the first only
+	 * because this is the edge that will be put into the solution. */
+	for (adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
+		if (first == nullptr // not set or
+		 || m_eps.less(m_copyGraph.weight(e), m_copyGraph.weight(first)) // smaller cost or
+		 || (m_eps.equal(m_copyGraph.weight(e), m_copyGraph.weight(first)) // cost tie but...
+		  && e->index() < first->index())) { // cost tie but smaller index
+			second = first;
+			first = e;
+		} else {
+			if (second == nullptr
+			 || m_eps.less(m_copyGraph.weight(e), m_copyGraph.weight(second))) {
+				second = e;
+			}
+		}
+	}
+	OGDF_ASSERT(first != second);
 }
 
 template<typename T>
@@ -1684,8 +1401,8 @@ bool SteinerTreePreprocessing<T>::addEdgesToSolution(const List<edge> &edgesToBe
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::nearestVertexTest()
-{
+bool SteinerTreePreprocessing<T>::nearestVertexTest() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	OGDF_ASSERT(isLoopFree(m_copyGraph));
 	OGDF_ASSERT(isConnected(m_copyGraph));
 
@@ -1694,37 +1411,22 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 	NodeArray<edge> minCostIncidentEdge1(m_copyGraph, nullptr);
 	NodeArray<edge> minCostIncidentEdge2(m_copyGraph, nullptr);
 
+	// find the first and second minimum-cost edges incident to terminals
 	for (node terminal : m_copyTerminals) {
-		if (terminal->degree() < 2) {
-			continue;
-		}
-
-		// compute his two lowest cost incident edges
-		for(adjEntry adj : terminal->adjEntries) {
-			edge e = adj->theEdge();
-			if (minCostIncidentEdge1[terminal] == nullptr
-			 || m_copyGraph.weight(minCostIncidentEdge1[terminal]) > m_copyGraph.weight(e)) {
-				minCostIncidentEdge2[terminal] = minCostIncidentEdge1[terminal];
-				minCostIncidentEdge1[terminal] = e;
-			} else {
-				if (minCostIncidentEdge2[terminal] == nullptr
-				 || m_copyGraph.weight(minCostIncidentEdge2[terminal]) > m_copyGraph.weight(e)) {
-					minCostIncidentEdge2[terminal] = e;
-				}
-			}
+		if (terminal->degree() >= 2) {
+			findTwoMinimumCostEdges(terminal, minCostIncidentEdge1[terminal], minCostIncidentEdge2[terminal]);
 		}
 	}
 
-	// mark nodes that have the first min cost incident node predecessor in the Voronoi tree
+	// for each Voronoi region, mark successors (recursively) of the minimum-cost edge
 	NodeArray<bool> isSuccessorOfMinCostEdge(m_copyGraph, false);
 	for (node terminal : m_copyTerminals) {
-		if (terminal->degree() < 2) {
-			continue;
-		}
-		node closestNode = minCostIncidentEdge1[terminal]->opposite(terminal);
+		if (terminal->degree() >= 2) {
+			node closestNode = minCostIncidentEdge1[terminal]->opposite(terminal);
 
-		if (voronoiRegions.seed(closestNode) == terminal) {
-			markSuccessors(closestNode, voronoiRegions, isSuccessorOfMinCostEdge);
+			if (voronoiRegions.seed(closestNode) == terminal) {
+				markSuccessors(closestNode, voronoiRegions, isSuccessorOfMinCostEdge);
+			}
 		}
 	}
 
@@ -1746,27 +1448,22 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 		}
 	}
 
-	// see what edges can be added in solution
+	// see what edges can be added in solution (Observation 3.2)
 	List<edge> edgesToBeAddedInSolution;
 	EdgeArray<bool> willBeAddedInSolution(m_copyGraph, false);
 	for (node terminal : m_copyTerminals) {
-		if (terminal->degree() < 2) {
-			continue;
-		}
+		if (terminal->degree() >= 2) {
+			const edge e = minCostIncidentEdge1[terminal];
+			const node closestAdjacentNode = e->opposite(terminal);
+			T distance{voronoiRegions.seed(closestAdjacentNode) == terminal
+			  ? distanceToClosestTerminal[terminal]
+			  : m_copyGraph.weight(e) + voronoiRegions.distance(closestAdjacentNode)};
 
-		const edge e1 = minCostIncidentEdge1[terminal];
-		const node closestAdjacentNode = e1->opposite(terminal);
-		T distance;
-
-		if (voronoiRegions.seed(closestAdjacentNode) == terminal) {
-			distance = distanceToClosestTerminal[terminal];
-		} else {
-			distance = m_copyGraph.weight(e1) + voronoiRegions.distance(closestAdjacentNode);
-		}
-		if (m_eps.geq(m_copyGraph.weight(minCostIncidentEdge2[terminal]), distance)
-		 && !willBeAddedInSolution[e1]) {
-			edgesToBeAddedInSolution.pushBack(e1);
-			willBeAddedInSolution[e1] = true;
+			if (m_eps.geq(m_copyGraph.weight(minCostIncidentEdge2[terminal]), distance)
+			 && !willBeAddedInSolution[e]) {
+				edgesToBeAddedInSolution.pushBack(e);
+				willBeAddedInSolution[e] = true;
+			}
 		}
 	}
 
@@ -1774,8 +1471,8 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::shortLinksTest()
-{
+bool SteinerTreePreprocessing<T>::shortLinksTest() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	OGDF_ASSERT(isConnected(m_copyGraph));
 
 	Voronoi<T> voronoiRegions(m_copyGraph, m_copyGraph.edgeWeights(), m_copyTerminals);
@@ -1829,6 +1526,8 @@ bool SteinerTreePreprocessing<T>::shortLinksTest()
 template<typename T>
 void SteinerTreePreprocessing<T>::computeRadiusOfTerminals(NodeArray<T> &terminalRadius) const
 {
+	OGDF_ASSERT(m_copyTerminals.size() > 1);
+
 	// compute the Voronoi regions
 	Voronoi<T> voronoiRegions(m_copyGraph, m_copyGraph.edgeWeights(), m_copyTerminals);
 
@@ -1856,6 +1555,7 @@ bool SteinerTreePreprocessing<T>::deleteNodesAboveUpperBound(const NodeArray<T> 
 	for (node v = m_copyGraph.firstNode(), nextV; v; v = nextV) {
 		nextV = v->succ();
 		if (m_eps.greater(lowerBoundWithNode[v], upperBound)) {
+			OGDF_ASSERT(!m_copyIsTerminal[v]);
 			m_copyGraph.delNode(v);
 			changed = true;
 		}
@@ -1864,8 +1564,12 @@ bool SteinerTreePreprocessing<T>::deleteNodesAboveUpperBound(const NodeArray<T> 
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
-{
+bool SteinerTreePreprocessing<T>::lowerBoundBasedTest(T upperBound) {
+	OGDF_ASSERT(!m_copyGraph.empty());
+	if (m_copyTerminals.size() <= 1) {
+		return false;
+	}
+
 	OGDF_ASSERT(isConnected(m_copyGraph));
 
 	NodeArray<T> lowerBoundWithNode(m_copyGraph, std::numeric_limits<T>::lowest());
@@ -1890,6 +1594,17 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 		T distanceToClosestTerminal1 = closestTerminalPair1.second, distanceToClosestTerminal2 = closestTerminalPair2.second;
 
 		Math::updateMax(lowerBoundWithNode[v], distanceToClosestTerminal1 + distanceToClosestTerminal2 + radiusSum);
+	}
+
+	// Compute lower bound for edges, see [PV01, page 278, Observation 3.5]
+	EdgeArray<T> lowerBoundWithEdge(m_copyGraph, 0);
+	for (edge e : m_copyGraph.edges) {
+		node x = e->source(), y = e->target();
+
+		T distanceToClosestTerminalX = (*closestTerminals[x].begin()).second;
+		T distanceToClosestTerminalY = (*closestTerminals[y].begin()).second;
+
+		Math::updateMax(lowerBoundWithEdge[e], m_copyGraph.weight(e) + distanceToClosestTerminalX + distanceToClosestTerminalY + radiusSum);
 	}
 
 	// Update the lowerbound of the cost of a Steiner tree containing one particular node
@@ -1944,7 +1659,25 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 		Math::updateMax(lowerBoundWithNode[v], minimumSpanningTreeCost - longestEdgeCost + distanceToClosestTerminal1 + distanceToClosestTerminal2);
 	}
 
-	return deleteNodesAboveUpperBound(lowerBoundWithNode, computeMinSteinerTreeUpperBound());
+	return deleteNodesAboveUpperBound(lowerBoundWithNode, upperBound)
+	    || deleteEdgesAboveUpperBound(lowerBoundWithEdge, upperBound);
+}
+
+template<typename T>
+bool SteinerTreePreprocessing<T>::dualAscentBasedTest(int repetitions, T upperBound) {
+	OGDF_ASSERT(!m_copyGraph.empty());
+	bool changed = false;
+	if (m_copyTerminals.size() > 1) {
+		NodeArray<T> lowerBoundNodes;
+		EdgeArray<T> lowerBoundEdges;
+		SteinerTreeLowerBoundDualAscent<T> alg;
+		alg.setRepetitions(repetitions);
+		alg.call(m_copyGraph, m_copyTerminals, lowerBoundNodes, lowerBoundEdges);
+
+		changed |= deleteNodesAboveUpperBound(lowerBoundNodes, upperBound);
+		changed |= deleteEdgesAboveUpperBound(lowerBoundEdges, upperBound);
+	}
+	return changed;
 }
 
 template<typename T>
@@ -1987,34 +1720,11 @@ T SteinerTreePreprocessing<T>::computeRadiusSum() const
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::lowerBoundBasedEdgeTest()
-{
+bool SteinerTreePreprocessing<T>::reachabilityTest(int maxDegreeTest, const int k) {
+	OGDF_ASSERT(!m_copyGraph.empty());
+	OGDF_ASSERT(isSimpleUndirected(m_copyGraph));
 	OGDF_ASSERT(isConnected(m_copyGraph));
-
-	EdgeArray<T> lowerBoundWithEdge(m_copyGraph, 0);
-	NodeArray<List<std::pair<node, T>>> closestTerminals;
-	computeClosestKTerminals(3, closestTerminals);
-
-	const T radiusSum = computeRadiusSum();
-
-	for (edge e : m_copyGraph.edges) {
-		node x = e->source(), y = e->target();
-
-		T distanceToClosestTerminalX = (*closestTerminals[x].begin()).second;
-		T distanceToClosestTerminalY = (*closestTerminals[y].begin()).second;
-
-		Math::updateMax(lowerBoundWithEdge[e], m_copyGraph.weight(e) + distanceToClosestTerminalX + distanceToClosestTerminalY + radiusSum);
-	}
-
-	return deleteEdgesAboveUpperBound(lowerBoundWithEdge, computeMinSteinerTreeUpperBound());
-}
-
-template<typename T>
-bool SteinerTreePreprocessing<T>::reachabilityTest(int maxDegreeTest, const int k)
-{
 	bool changed = false;
-	OGDF_ASSERT(isSimple(m_copyGraph));
-	OGDF_ASSERT(isConnected(m_copyGraph));
 	if (maxDegreeTest <= 0) {
 		maxDegreeTest = m_copyGraph.numberOfNodes();
 	}
@@ -2029,12 +1739,14 @@ bool SteinerTreePreprocessing<T>::reachabilityTest(int maxDegreeTest, const int 
 	delete approximatedSteinerTree;
 
 	// Initialize tprime and its hpd decomposition used for partially not adding useless edges during nodes' deletion
-	EdgeWeightedGraphCopy<T> *tprime = initializeTPrime();
+	EdgeWeightedGraphCopy<T> tprime;
+	steiner_tree::constructTerminalSpanningTreeUsingVoronoiRegions(tprime, m_copyGraph, m_copyTerminals);
+	OGDF_ASSERT(!tprime.empty());
 
 	NodeArray<List<std::pair<node,T>>> closestTerminals;
 	computeClosestKTerminals(k, closestTerminals);
 
-	HeavyPathDecomposition tprimeHPD(*tprime);
+	steiner_tree::HeavyPathDecomposition<T> tprimeHPD(tprime);
 
 	// check which nodes can be deleted
 	for (node v = m_copyGraph.firstNode(), nextV; v; v = nextV) {
@@ -2082,15 +1794,13 @@ bool SteinerTreePreprocessing<T>::reachabilityTest(int maxDegreeTest, const int 
 			 && distanceToClosestTerminal2 != std::numeric_limits<T>::max()
 			 && m_eps.less(distanceToFarthestTerminal + distanceToClosestTerminal1, upperBoundCost)) {
 				// the deleted node has degree 2 -> replace it with edges
-				deleteSteinerDegreeTwoNode(v, *tprime, tprimeHPD, closestTerminals);
+				deleteSteinerDegreeTwoNode(v, tprime, tprimeHPD, closestTerminals);
 			} else {
 				// just delete the node
 				m_copyGraph.delNode(v);
 			}
 		}
 	}
-
-	delete tprime;
 
 	return changed;
 }
@@ -2128,8 +1838,8 @@ void SteinerTreePreprocessing<T>::computeOptimalTerminals(node v, LAMBDA dist, n
 }
 
 template<typename T>
-bool SteinerTreePreprocessing<T>::cutReachabilityTest()
-{
+bool SteinerTreePreprocessing<T>::cutReachabilityTest() {
+	OGDF_ASSERT(!m_copyGraph.empty());
 	if (m_copyTerminals.size() <= 2) {
 		return false;
 	}

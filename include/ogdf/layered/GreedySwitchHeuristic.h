@@ -31,13 +31,10 @@
 
 #pragma once
 
-#include <ogdf/module/LayerByLayerSweep.h>
+#include <ogdf/layered/LayerByLayerSweep.h>
 #include <ogdf/layered/CrossingsMatrix.h>
 
-
-namespace ogdf
-{
-
+namespace ogdf {
 
 //! The greedy-switch heuristic for 2-layer crossing minimization.
 /**

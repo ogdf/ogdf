@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/MMEdgeInsertionModule.h>
+#include <ogdf/planarity/MMEdgeInsertionModule.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceArray.h>

@@ -70,20 +70,18 @@ public:
 
 	inline const string& data() const { return m_data; }
 
+	//! Retrieves the data of a resource with given path
+	//! @param file filename with path given relative to original resources folder
+	static inline const string& data(const string& file) {
+		return get(file)->data();
+	}
+
 	//! Retrieves a resource with given path
 	/**
 	 * @param path file path and name, relative to original resources folder
-	 * @return pointer to file if found, \c nullptr otherwise
+	 * @return pointer to file if found, throws exception otherwise
 	 */
 	static const ResourceFile* get(const string& path);
-
-	//! Retrieves a resource with given path and name
-	/**
-	 * @param dir a directory relative to original resources folder
-	 * @param file filename of the requested file
-	 * @return pointer to file if found, \c nullptr otherwise
-	 */
-	static const ResourceFile* get(const string& dir, const string& file);
 };
 
 //! A resource folder, holding subfolders and files
@@ -239,7 +237,6 @@ inline void for_each_graph_it(const string &title, const std::vector<string> &fi
 		bandit::it(title + " [" + filename.c_str() + "]", [&] {
 			Graph graph;
 			const ResourceFile* file = ResourceFile::get(filename);
-			AssertThat(file == nullptr, IsFalse());
 			std::stringstream ss{file->data()};
 			AssertThat(reader(graph, ss), IsTrue());
 			testFunc(graph);

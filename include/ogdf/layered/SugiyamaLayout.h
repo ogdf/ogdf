@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
-#include <ogdf/module/RankingModule.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/layered/RankingModule.h>
 #include <ogdf/simultaneous/TwoLayerCrossMinSimDraw.h>
-#include <ogdf/module/HierarchyLayoutModule.h>
-#include <ogdf/module/HierarchyClusterLayoutModule.h>
-#include <ogdf/module/CCLayoutPackModule.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
+#include <ogdf/layered/HierarchyClusterLayoutModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <memory>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>

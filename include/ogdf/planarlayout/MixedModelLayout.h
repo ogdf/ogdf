@@ -31,16 +31,14 @@
 
 #pragma once
 
-#include <ogdf/module/GridLayoutModule.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <memory>
-#include <ogdf/module/EmbedderModule.h>
-#include <ogdf/module/AugmentationModule.h>
-#include <ogdf/module/ShellingOrderModule.h>
-#include <ogdf/module/MixedModelCrossingsBeautifierModule.h>
-
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/augmentation/AugmentationModule.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
 
 namespace ogdf {
-
 
 /**
  * \brief Implementation of the Mixed-Model layout algorithm.

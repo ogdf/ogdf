@@ -38,26 +38,17 @@
 
 namespace ogdf {
 
-BertaultLayout::BertaultLayout()
-{
-	req_length=0;
-	iter_no=0;
-		impred=false;
-}
-
 BertaultLayout::BertaultLayout(double length, int number)
-{
-	req_length=length;
-	iter_no=number;
-		impred=false;
-}
+	: userReqLength(length)
+	, userIterNo(number)
+	, req_length(0)
+	, iter_no(0)
+	, impred(false)
+	{}
 
-BertaultLayout::BertaultLayout(int number)
-{
-	req_length=0;
-	iter_no=number;
-		impred=false;
-}
+BertaultLayout::BertaultLayout(int number) : BertaultLayout(0, number) {}
+
+BertaultLayout::BertaultLayout() : BertaultLayout(0) {}
 
 BertaultLayout::~BertaultLayout()
 {
@@ -72,19 +63,21 @@ void BertaultLayout::call(GraphAttributes &AG)
 		return;
 	if(AG.has(GraphAttributes::edgeGraphics))
 		AG.clearAllBends();
-	if(iter_no==0)
-		iter_no=G.numberOfNodes()*10;
-	if(req_length==0)
-	{
+
+	iter_no = userIterNo <= 0 ? G.numberOfNodes()*10 : userIterNo;
+
+	if(userReqLength <= 0) {
+		req_length = 0;
 		for(edge e : G.edges)
 		{
 			node a=e->source();
 			node b=e->target();
 			req_length+=sqrt((AG.x(a)-AG.x(b))*(AG.x(a)-AG.x(b))+(AG.y(a)-AG.y(b))*(AG.y(a)-AG.y(b)));
 		}
-		req_length=req_length/(G.numberOfEdges());
+		req_length = req_length/(G.numberOfEdges() == 0 ? 1 : G.numberOfEdges());
+	} else {
+		req_length = userReqLength;
 	}
-	limit=4*req_length; // can be changed... this value is taken in the research paper
 	F_x.init(G);
 	F_y.init(G);
 	sect.init(G);
@@ -230,6 +223,11 @@ bool BertaultLayout::i_On_Edge(edge *e, GraphAttributes &AG)
 void BertaultLayout::f_Edge(node *v,edge *e, GraphAttributes &AG)
 {
 	double dist=sqrt((AG.x(*v)-proj.x)*(AG.x(*v)-proj.x)+(AG.y(*v)-proj.y)*(AG.y(*v)-proj.y));
+
+	// limit is the max distance (between a node and its projection) at which
+	// the edge force on the node is considered. The value is taken from the
+	// research paper but can be changed.
+	double limit = 4*req_length;
 	if(dist<=limit&&dist>0)
 	{
 		double fx=(limit-dist)*(limit-dist)*(AG.x(*v)-proj.x)/dist;

@@ -1882,7 +1882,7 @@ void NewMultipoleMethod::add_local_expansion(QuadTreeNodeNM* ptr_0, QuadTreeNode
 {
 	complex<double> z_0 = ptr_0->get_Sm_center();
 	complex<double> z_1 = ptr_1->get_Sm_center();
-	complex<double> sum, z_error;
+	complex<double> sum;
 	complex<double> factor;
 	complex<double> z_1_minus_z_0_over_k;
 	complex<double> z_1_minus_z_0_over_s;
@@ -1929,7 +1929,6 @@ void NewMultipoleMethod::add_local_expansion_of_leaf(
 	List<node> contained_nodes;
 	double multipole_0_of_v = 1;//only the first coefficient is not zero
 	complex<double> z_1 = ptr_1->get_Sm_center();
-	complex<double> z_error;
 	complex<double> z_1_minus_z_0_over_s;
 	complex<double> pow_minus_1_s_plus_1;
 

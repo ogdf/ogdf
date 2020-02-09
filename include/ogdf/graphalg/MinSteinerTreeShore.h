@@ -45,7 +45,7 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/NodeSet.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 
 namespace ogdf {
 

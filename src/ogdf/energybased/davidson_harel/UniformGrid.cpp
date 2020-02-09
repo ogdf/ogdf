@@ -396,10 +396,10 @@ void UniformGrid::computeCrossings(
 		SList<IPoint> crossedCells;
 		DPoint sPos, tPos;
 		const node& s = e->source();
-		if (s != moved) sPos = DPoint(m_layout.x(s), m_layout.y(s));
+		if (s != moved) sPos = m_layout.point(s);
 		else sPos = newPos;
 		const node& t = e->target();
-		if (t != moved) tPos = DPoint(m_layout.x(t), m_layout.y(t));
+		if (t != moved) tPos = m_layout.point(t);
 		else tPos = newPos;
 		DoubleModifiedBresenham(sPos, tPos, crossedCells);
 		for (const IPoint &p : crossedCells) {
@@ -450,13 +450,13 @@ bool UniformGrid::crossingTest(
 		double xBottom = cell.m_y*m_CellSize;
 		double xTop = (cell.m_y+1)*m_CellSize;
 		DPoint ps1,pt1,ps2,pt2;
-		if(s1 != moved) ps1 = DPoint(m_layout.x(s1),m_layout.y(s1));
+		if(s1 != moved) ps1 = m_layout.point(s1);
 		else ps1 = newPos;
-		if(t1 != moved) pt1 = DPoint(m_layout.x(t1),m_layout.y(t1));
+		if(t1 != moved) pt1 = m_layout.point(t1);
 		else pt1 = newPos;
-		if(s2 != moved) ps2 = DPoint(m_layout.x(s2),m_layout.y(s2));
+		if(s2 != moved) ps2 = m_layout.point(s2);
 		else ps2 = newPos;
-		if(t2 != moved) pt2 = DPoint(m_layout.x(t2),m_layout.y(t2));
+		if(t2 != moved) pt2 = m_layout.point(t2);
 		else pt2 = newPos;
 		DSegment l1(ps1,pt1),l2(ps2,pt2);
 		DPoint crossPoint;
@@ -683,7 +683,7 @@ std::ostream &operator<<(std::ostream &out, const UniformGrid &ug)
 	out << "\nConstruction time: " << ug.m_time;
 	DIntersectableRect ir;
 	node v = ug.m_graph.firstNode();
-	ug.computeGridGeometry(v,DPoint(ug.m_layout.x(v),ug.m_layout.y(v)),ir);
+	ug.computeGridGeometry(v,ug.m_layout.point(v),ir);
 	double size = max(ir.width(),ir.height());
 	std::cout << "\nPreferred Cell Size: " << size / (ug.m_graph.numberOfEdges()*ug.m_edgeMultiplier);
 #endif

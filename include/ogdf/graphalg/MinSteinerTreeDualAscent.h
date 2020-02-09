@@ -33,7 +33,7 @@
 #pragma once
 
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 
 // enable this to print log
 //#define OGDF_DUAL_ASCENT_LOGGING

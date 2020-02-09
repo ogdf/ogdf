@@ -13,7 +13,7 @@ int main()
 	}
 
 	for (node v : G.nodes)
-		GA.width(v) = GA.height(v) = 10.0;
+		GA.width(v) = GA.height(v) = 5.0;
 
 	FMMMLayout fmmm;
 
@@ -24,6 +24,7 @@ int main()
 
 	fmmm.call(GA);
 	GraphIO::write(GA, "output-energybased-sierpinski-layout.gml", GraphIO::writeGML);
+	GraphIO::write(GA, "output-energybased-sierpinski-layout.svg", GraphIO::drawSVG);
 
 	return 0;
 }

@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <ogdf/module/UpwardPlanarizerModule.h>
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <memory>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/FaceArray.h>
@@ -44,7 +44,6 @@
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
 
 namespace ogdf {
-
 
 class OGDF_EXPORT VisibilityLayout : public LayoutModule
 {

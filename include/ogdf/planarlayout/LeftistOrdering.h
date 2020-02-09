@@ -33,9 +33,8 @@
 
 #pragma once
 
-#include <ogdf/module/ShellingOrderModule.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
 #include <ogdf/basic/AdjEntryArray.h>
-
 
 namespace ogdf {
 

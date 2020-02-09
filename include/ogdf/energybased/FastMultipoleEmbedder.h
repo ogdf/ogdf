@@ -32,7 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
 #include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>

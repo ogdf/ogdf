@@ -31,14 +31,11 @@
 
 #pragma once
 
-#include <ogdf/module/UpwardEdgeInserterModule.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/upward/UpwardEdgeInserterModule.h>
 #include <ogdf/upward/UpwardPlanarity.h>
 
-
-
 namespace ogdf {
-
 
 //! Edge insertion module that inserts each edge optimally into a fixed embedding.
 class OGDF_EXPORT FixedEmbeddingUpwardEdgeInserter : public UpwardEdgeInserterModule

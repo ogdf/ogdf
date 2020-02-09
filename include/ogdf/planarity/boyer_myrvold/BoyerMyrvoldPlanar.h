@@ -429,10 +429,19 @@ protected:
 	//! Identifies the rootnode of the child bicomp the given backedge points to
 	EdgeArray<node> m_pointsToRoot;
 
-	//! Keeps track of all vertices that are visited by the walkup through a specific backedge
-	/** This is done in order to refer to the unique child-bicomp of v.
+	/**
+	 * Stores for each (real) non-root vertex v with which backedge it was
+	 * visited during the walkup. This is done to later identify the root vertex
+	 * of the bicomp v belongs to.
 	 */
-	NodeArray<int> m_visitedWithBackedge;
+	NodeArray<edge> m_visitedWithBackedge;
+
+	/**
+	 * Stores for each (virtual) bicomp root how many backedges to its bicomp
+	 * still have to be embedded. The value is set during the walkup, and it is
+	 * used and decreased while embedding backedges during the walkdown.
+	 */
+	NodeArray<int> m_numUnembeddedBackedgesInBicomp;
 
 	//! Iff true, the node is the root of a bicomp which has to be flipped.
 	/** The DFS-child of every bicomp root vertex is unique. if a bicomp

@@ -53,10 +53,6 @@ public:
 	{
 	}
 
-	~Triple()
-	{
-	}
-
 	node s0() const
 	{
 		return m_s0;

@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <ogdf/module/HierarchyClusterLayoutModule.h>
+#include <ogdf/layered/HierarchyClusterLayoutModule.h>
 #include <ogdf/basic/tuples.h>
-
 
 namespace ogdf {
 

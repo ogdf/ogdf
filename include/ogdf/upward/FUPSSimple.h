@@ -31,8 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/FUPSModule.h>
-
+#include <ogdf/upward/FUPSModule.h>
 
 namespace ogdf {
 

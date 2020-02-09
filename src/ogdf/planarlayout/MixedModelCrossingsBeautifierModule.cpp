@@ -30,9 +30,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
-#include <ogdf/module/MixedModelCrossingsBeautifierModule.h>
-
+#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
 
 namespace ogdf {
 

@@ -1,12 +1,7 @@
 /** \file
- * \brief  Implementation of class AjacencyOracle
+ * \brief Implementation of ogdf::AdjacencyOracle
  *
- * This class is used to efficiently test if two vertices
- * are adjacent. It is basically a wrapper for a 2D-Matrix.
- * This file contains the code for the construction of the
- * matrix and the query function.
- *
- * \author Rene Weiskircher
+ * \author Stephan Beyer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -38,31 +33,61 @@
 
 namespace ogdf {
 
-AdjacencyOracle::AdjacencyOracle(const Graph &G)
-  : m_nodeNum(G)
+//! Returns the base index of row \p j for an array containing a lower triangular matrix
+inline static int getRowIndex(int j) {
+	return (j + 1) * j / 2;
+}
+
+AdjacencyOracle::AdjacencyOracle(const Graph &G, int degreeThreshold)
+  : m_nodeNum{G, -1}
 {
-	int i = 1;
-	for(node v : G.nodes) m_nodeNum[v] = i++;
-	int nodeNum = i-1;
-	m_adjacencyMatrix.init(1, i, 1, i);
-	for(i = 1; i < nodeNum; i++)
-		for(int j = i+1; j <= nodeNum; j++)
-			m_adjacencyMatrix(i, j) = false;
-	for(edge e : G.edges) {
-		int num1 = m_nodeNum[e->source()];
-		int num2 = m_nodeNum[e->target()];
-		m_adjacencyMatrix(min(num1, num2), max(num1, num2)) = true;
+	int i{0};
+	for (node v : G.nodes) {
+		if (v->degree() > degreeThreshold) {
+			m_nodeNum[v] = i++;
+		}
+	}
+
+	m_adjacencies.resize(getRowIndex(i), false);
+
+	for (node v : G.nodes) {
+		if (m_nodeNum[v] >= 0) {
+			for (adjEntry adj : v->adjEntries) {
+				node w{adj->twinNode()};
+				if (m_nodeNum[w] >= 0) {
+					m_adjacencies[index(v, w)] = true;
+				}
+			}
+		}
 	}
 }
 
-bool AdjacencyOracle::adjacent(const node v, const node w) const
-{
-	// Only the entries in the 2D matrix where the first
-	// index is smaller than the second is used. So we have to
-	// pay attention that the first index is smaller than the second.
-	int num1 = m_nodeNum[v];
-	int num2 = m_nodeNum[w];
-	return m_adjacencyMatrix(min(num1, num2), max(num1, num2));
+bool AdjacencyOracle::adjacent(node v, node w) const {
+	if (m_nodeNum[v] >= 0 && m_nodeNum[w] >= 0) {
+		return m_adjacencies[index(v, w)];
+	}
+
+	if (w->degree() < v->degree()) {
+		std::swap(v, w);
+	}
+	OGDF_ASSERT(m_nodeNum[v] < 0);
+
+	for (adjEntry adj : v->adjEntries) {
+		if (adj->twinNode() == w) {
+			return true;
+		}
+	}
+	return false;
+}
+
+int AdjacencyOracle::index(node v, node w) const {
+	int i{m_nodeNum[v]};
+	int j{m_nodeNum[w]};
+	if (i > j) {
+		std::swap(i, j);
+	}
+
+	return getRowIndex(j) + i;
 }
 
 }

@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/AugmentationModule.h>
+#include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/augmentation/planar/PALabel.h>
 #include <ogdf/decomposition/DynamicBCTree.h>

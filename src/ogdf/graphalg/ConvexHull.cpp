@@ -441,7 +441,7 @@ DPolygon ConvexHull::call(GraphAttributes &GA) const
 	std::vector<DPoint> points;
 
 	for(node v : GA.constGraph().nodes) {
-		points.push_back(DPoint(GA.x(v), GA.y(v)));
+		points.push_back(GA.point(v));
 	}
 
 	return call(points);

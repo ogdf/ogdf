@@ -1,7 +1,7 @@
 /** \file
- * \brief Declares class AdjacencyOracle.
+ * \brief Declaration of ogdf::AdjacencyOracle class
  *
- * \author Rene Weiskircher
+ * \author Rene Weiskircher, Stephan Beyer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,7 +32,6 @@
 #pragma once
 
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/Array2D.h>
 
 namespace ogdf {
 
@@ -40,32 +39,31 @@ namespace ogdf {
 /**
  * @ingroup graphs
  *
- * AdjacencyOracle is initialized with a Graph and returns for
- * any pair of nodes in constant time if they are adajcent.
+ * AdjacencyOracle is initialized with a graph and returns for
+ * any pair of nodes in constant time if they are adjacent.
  */
-class AdjacencyOracle {
+class OGDF_EXPORT AdjacencyOracle {
 public:
 	/**
-	 * The constructor for the class, needs time O(n + m)
+	 * The constructor for the class, needs time O(n^2 + m) ∩ Ω(n).
 	 *
-	 * Builds a 2D-array indexed by the numbers of vertices.
-	 *
-	 * It uses only the part
-	 * of the matrix left of the diagonal (where the first index is smaller than the
-	 * second. For each pair of vertices, the corresponding entry in the matrix is set true
-	 * if and only if the two vertices are adjacent.
+	 * Builds the bottom-left part of an adjacency matrix for the subset of nodes
+	 * with degree above \p degreeThreshold.
 	 */
-	explicit AdjacencyOracle(const Graph &G);
+	explicit AdjacencyOracle(const Graph &G, int degreeThreshold = 32);
 
 	//! The destructor
 	~AdjacencyOracle() { }
 
-	//! Returns true iff two vertices are adjacent.
-	bool adjacent(const node, const node) const;
+	//! Returns true iff vertices \p v and \p w are adjacent.
+	bool adjacent(node v, node w) const;
 
 private:
+	//! Returns an index for #m_adjacencies that corresponds to the entry of nodes \p v and \p w
+	int index(node v, node w) const;
+
 	NodeArray<int> m_nodeNum; //!< The internal number given to each node
-	Array2D<bool> m_adjacencyMatrix; //!< A 2D-array where the entry is true if the nodes with the corresponding number are adjacent
+	std::vector<bool> m_adjacencies; //!< An entry is true iff the corresponding nodes are adjacent
 };
 
 }

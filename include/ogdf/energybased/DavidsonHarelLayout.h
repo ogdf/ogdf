@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 
 namespace ogdf {
 

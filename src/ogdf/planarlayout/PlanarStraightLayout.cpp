@@ -61,7 +61,10 @@ void PlanarStraightLayout::doCall(
 	// require to have a planar graph without multi-edges and self-loops;
 	// planarity is checked below
 	OGDF_ASSERT(isSimple(G));
-	OGDF_ASSERT(isLoopFree(G));
+
+	if (G.numberOfNodes() < 2) {
+		return;
+	}
 
 	// we make a copy of G since we use planar biconnected augmentation
 	GraphCopySimple GC(G);

@@ -32,13 +32,11 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutClusterPlanRepModule.h>
-#include <ogdf/module/CCLayoutPackModule.h>
+#include <ogdf/cluster/LayoutClusterPlanRepModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <memory>
 
-
 namespace ogdf {
-
 
 //! The cluster planarization layout algorithm.
 /**

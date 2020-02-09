@@ -87,6 +87,6 @@ built on the same philosophy but works without C++11.
 
 ## Online resources
 
- * [The bandit website](//banditcpp.org)
+ * [The bandit website](//banditcpp.github.io/bandit/)
  * [Bandit on GitHub](//github.com/banditcpp/bandit)
  * [Issues with bandit](//github.com/banditcpp/bandit/issues?state=open)

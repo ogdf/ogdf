@@ -63,7 +63,7 @@ private:
 	                             int n,
 	                             ListPure<node> currentOrder,
 	                             ListPure<node> currentUnsorted,
-	                             std::vector<int> r,
+	                             NodeArray<int> r,
 	                             ListPure<ListPure<node>> *MAOs
 	                            );
 
@@ -84,7 +84,7 @@ private:
 	                             ListPure<node> currentOrder,
 	                             ListPure<ListPure<edge>> currentForest,
 	                             ListPure<node> currentUnsorted,
-	                             std::vector<int> r,
+	                             NodeArray<int> r,
 	                             ListPure<ListPure<node>> *MAOs,
 	                             ListPure<ListPure<ListPure<edge>>> *Fs
 	                            );

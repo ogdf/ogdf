@@ -53,7 +53,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	std::vector<int> r(n,0);
+	NodeArray<int> r{*G, 0};
 
 	//currently maximal node
 	node curMaxNode(*(unsortedNodes.begin()));
@@ -76,10 +76,10 @@ void MaxAdjOrdering::calc(const Graph *G,
 		//set maximal node to first unsorted
 		if (i < n-1) {
 			curMaxNode = unsortedNodes.front();
-			curMaxVal = r[curMaxNode->index()];
+			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
-				if (curMaxVal < r[u->index()]) {
-					curMaxVal = r[u->index()];
+				if (curMaxVal < r[u]) {
+					curMaxVal = r[u];
 					curMaxNode = u;
 				}
 			}
@@ -98,11 +98,11 @@ void MaxAdjOrdering::calc(const Graph *G,
 			//proceed if unsorted
 			if (endIt.valid()) {
 				//reset neighbourhood
-				r[end->index()]++;
+				r[end]++;
 
 				//reset maximal node
-				if (r[end->index()] > curMaxVal) {
-					curMaxVal = r[end->index()];
+				if (r[end] > curMaxVal) {
+					curMaxVal = r[end];
 					curMaxNode = end;
 				}
 			}
@@ -115,6 +115,9 @@ void MaxAdjOrdering::calcBfs(const Graph *G,
 {
 	//node count
 	int n = G->numberOfNodes();
+	if (n < 1) {
+		return;
+	}
 
 	//store unsorted nodes
 	ListPure<node> unsortedNodes;
@@ -126,8 +129,7 @@ void MaxAdjOrdering::calcBfs(const Graph *G,
 	node curMaxTieNode(*(unsortedNodes.begin()));
 
 	//neighbourhood counter
-	//std::vector<int> r(n,0);
-	NodeArray<int> r(*G,0);
+	NodeArray<int> r{*G, 0};
 
 	//currently maximal node
 	node curMaxNode(*(unsortedNodes.begin()));
@@ -263,7 +265,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	std::vector<int> r(n,0);
+	NodeArray<int> r{*G, 0};
 
 	//currently maximal node
 	node curMaxNode(*(unsortedNodes.begin()));
@@ -286,10 +288,10 @@ void MaxAdjOrdering::calc(const Graph *G,
 		//set maximal node to currently maximal unsorted
 		if (i < n-1) {
 			curMaxNode = unsortedNodes.front();
-			curMaxVal = r[curMaxNode->index()];
+			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
-				if (curMaxVal < r[u->index()]) {
-					curMaxVal = r[u->index()];
+				if (curMaxVal < r[u]) {
+					curMaxVal = r[u];
 					curMaxNode = u;
 				}
 			}
@@ -307,7 +309,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 			//proceed if unsorted
 			if (endIt.valid()) {
 				//correct neighbourhood
-				int r_(++r[end->index()]);
+				int r_(++r[end]);
 
 				if (r_ > curMaxVal) {
 					curMaxVal = r_;
@@ -334,7 +336,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	std::vector<int> r(n,0);
+	NodeArray<int> r{*G, 0};
 
 	//currently maximal node
 	node curMaxNode = s;
@@ -356,10 +358,10 @@ void MaxAdjOrdering::calc(const Graph *G,
 
 		if (i < n-1) {
 			curMaxNode = unsortedNodes.front();
-			curMaxVal = r[curMaxNode->index()];
+			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
-				if (curMaxVal < r[u->index()]) {
-					curMaxVal = r[u->index()];
+				if (curMaxVal < r[u]) {
+					curMaxVal = r[u];
 					curMaxNode = u;
 				}
 			}
@@ -377,10 +379,10 @@ void MaxAdjOrdering::calc(const Graph *G,
 			//proceed if unsorted
 			if (endIt.valid()) {
 				//correct neighbourhood
-				r[end->index()]++;
+				r[end]++;
 
-				if (r[end->index()] > curMaxVal) {
-					curMaxVal = r[end->index()];
+				if (r[end] > curMaxVal) {
+					curMaxVal = r[end];
 					curMaxNode = end;
 				}
 			}
@@ -401,7 +403,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	std::vector<int> r(n,0);
+	NodeArray<int> r{*G, 0};
 
 	//currently maximal node
 	node curMaxNode = s;
@@ -424,10 +426,10 @@ void MaxAdjOrdering::calc(const Graph *G,
 		//set maximal node to first unsorted
 		if (i < n-1) {
 			curMaxNode = unsortedNodes.front();
-			curMaxVal = r[curMaxNode->index()];
+			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
-				if (curMaxVal < r[u->index()]) {
-					curMaxVal = r[u->index()];
+				if (curMaxVal < r[u]) {
+					curMaxVal = r[u];
 					curMaxNode = u;
 				}
 			}
@@ -445,10 +447,10 @@ void MaxAdjOrdering::calc(const Graph *G,
 			//proceed if unsorted
 			if (endIt.valid()) {
 				//correct neighbourhood
-				int r_(++r[end->index()]);
+				int r_(++r[end]);
 
-				if (r[end->index()] > curMaxVal) {
-					curMaxVal = r[end->index()];
+				if (r[end] > curMaxVal) {
+					curMaxVal = r[end];
 					curMaxNode = end;
 				}
 
@@ -478,7 +480,7 @@ void MaxAdjOrdering::calcAll(const Graph *G,
 		m_calcAllMAOs_recursion(G->numberOfNodes(),
 		                        start,
 		                        unsorted,
-		                        std::vector<int>(G->numberOfNodes(),0),
+		                        NodeArray<int>{*G, 0},
 		                        MAOs);
 	}
 }
@@ -487,7 +489,7 @@ void MaxAdjOrdering::calcAll(const Graph *G,
 void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
                                              ListPure<node> currentOrder,
                                              ListPure<node> currentUnsorted,
-                                             std::vector<int> r,
+                                             NodeArray<int> r,
                                              ListPure<ListPure<node>> *MAOs)
 {
 	if (currentUnsorted.empty()) {
@@ -505,17 +507,17 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 	ListPure<node> maxNodes;
 
 	//choose the first maxValue as the first value in the unsorted
-	int maxValue(r[(currentUnsorted.front())->index()]);
+	int maxValue(r[(currentUnsorted.front())]);
 
 	for (auto& u : currentUnsorted) {
-		if (maxValue < r[u->index()]) {
-			maxValue = r[u->index()];
+		if (maxValue < r[u]) {
+			maxValue = r[u];
 		}
 	}
 
 	//add all nodes that have this value
 	for (node it : currentUnsorted) {
-		if (r[it->index()] == maxValue) {
+		if (r[it] == maxValue) {
 			maxNodes.pushBack(it);
 		}
 	}
@@ -529,20 +531,20 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 
 		//if is unsorted
 		if (endIt.valid()) {
-			int endInd((*endIt)->index());
+			node endNode(*endIt);
 
 			//increase value of neighborhood
-			r[endInd]++;
+			r[endNode]++;
 
 			//if it is the current maximum, add it to the list
-			if (r[endInd] == maxValue) {
+			if (r[endNode] == maxValue) {
 				maxNodes.pushBack(end);
 			}
 
 			//if it is larger than the current maximum
-			if (r[endInd] > maxValue) {
+			if (r[endNode] > maxValue) {
 				//reset maximum value
-				maxValue = r[endInd];
+				maxValue = r[endNode];
 
 				//clear maximum list
 				maxNodes.clear();
@@ -591,7 +593,7 @@ void MaxAdjOrdering::calcAll(const Graph *G,
 		                        start,
 		                        ListPure<ListPure<edge>>(),
 		                        unsorted,
-		                        std::vector<int>(G->numberOfNodes(),0),
+		                        NodeArray<int>{*G, 0},
 		                        MAOs,
 		                        Fs);
 	}
@@ -601,7 +603,7 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
                                              ListPure<node> currentOrder,
                                              ListPure<ListPure<edge>> currentForest,
                                              ListPure<node> currentUnsorted,
-                                             std::vector<int> r,
+                                             NodeArray<int> r,
                                              ListPure<ListPure<node>> *MAOs,
                                              ListPure<ListPure<ListPure<edge>>> *Fs)
 {
@@ -620,16 +622,16 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 	ListPure<node> maxNodes;
 
 	//choose the first maxValue as the first value in the unsorted
-	int maxValue(r[(currentUnsorted.front())->index()]);
+	int maxValue(r[(currentUnsorted.front())]);
 	for (auto& u : currentUnsorted) {
-		if (maxValue < r[u->index()]) {
-			maxValue = r[u->index()];
+		if (maxValue < r[u]) {
+			maxValue = r[u];
 		}
 	}
 
 	//add all nodes that have this value
 	for (node it : currentUnsorted) {
-		if (r[it->index()] == maxValue) {
+		if (r[it] == maxValue) {
 			maxNodes.pushBack(it);
 		}
 	}
@@ -644,7 +646,7 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 		//if is unsorted
 		if (endIt.valid()) {
 			//increase value of neighborhood and store it
-			int r_(++r[(*endIt)->index()]);
+			int r_(++r[(*endIt)]);
 
 			//if it is the current maximum, add it to the list
 			if (r_ == maxValue) {

@@ -46,11 +46,9 @@ namespace ogdf {
  */
 template<typename CONTAINER>
 inline void safeForEach(CONTAINER &container, std::function<void(typename CONTAINER::value_type)> func) {
-	for (auto it = container.begin(); it.valid();) {
-		// save the successor because func may be destructive
-		auto succ = it.succ();
-		func(*it);
-		it = succ;
+	for (auto it = container.begin(); it != container.end();) {
+		auto prev = it++;
+		func(*prev);
 	}
 }
 
@@ -62,12 +60,11 @@ inline void safeForEach(CONTAINER &container, std::function<void(typename CONTAI
  */
 template<typename CONTAINER>
 inline bool safeTestForEach(CONTAINER &container, std::function<bool(typename CONTAINER::value_type)> func) {
-	for (auto it = container.begin(); it.valid();) {
-		auto succ = it.succ();
-		if (!func(*it)) {
+	for (auto it = container.begin(); it != container.end();) {
+		auto prev = it++;
+		if (!func(*prev)) {
 			return false;
 		}
-		it = succ;
 	}
 	return true;
 }

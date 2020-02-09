@@ -269,22 +269,19 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 
 	//check for selfloops and handle them
 	for(edge e : G.edges) {
-		if (e->isSelfLoop())
-			OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::SelfLoop);
+		OGDF_ASSERT(!e->isSelfLoop());
 	}
 
 	// check for generalization - nontrees
 	// if m_fakeTree is set, change type of "back" edges to association
 	m_fakedGens.clear();//?
-	if (!dfsGenTree(UG, m_fakedGens, m_fakeTree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::TreeHierarchies);
+	bool treeGenerated = dfsGenTree(UG, m_fakedGens, m_fakeTree);
+	OGDF_ASSERT(treeGenerated);
 
-	else {
-		ListConstIterator<edge> itE = m_fakedGens.begin();
-		while (itE.valid()) {
-			UG.type(*itE) = Graph::EdgeType::association;
-			++itE;
-		}
+	ListConstIterator<edge> itE = m_fakedGens.begin();
+	while (itE.valid()) {
+		UG.type(*itE) = Graph::EdgeType::association;
+		++itE;
 	}
 }
 

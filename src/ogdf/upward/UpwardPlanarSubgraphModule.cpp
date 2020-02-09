@@ -29,9 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
-#include <ogdf/module/UpwardPlanarSubgraphModule.h>
-
+#include <ogdf/upward/UpwardPlanarSubgraphModule.h>
 
 namespace ogdf {
 

@@ -1,23 +1,27 @@
 # OGDF
 
-The **O**pen **G**raph **D**rawing **F**ramework is a self-contained C++ class library
-for the automatic layout of diagrams. OGDF offers sophisticated algorithms and
-data structures to use within your own applications or scientific projects.
-The library is available under the GNU General Public License.
+OGDF stands both for **O**pen **G**raph **D**rawing **F**ramework (the original name)
+and **O**pen **G**raph algorithms and **D**ata structures **F**ramework.
 
-OGDF is developed and supported by [TU Dortmund](http://ls11-www.cs.uni-dortmund.de/),
+OGDF is a self-contained C++ library for graph algorithms,
+in particular for (but not restricted to) automatic graph drawing.
+It offers sophisticated algorithms and data structures to use
+within your own applications or scientific projects.
+
+OGDF is developed and supported by
 [Osnabrück University](http://www.inf.uni-osnabrueck.de/theoinf),
+[TU Dortmund](http://ls11-www.cs.uni-dortmund.de/),
 [University of Cologne](http://www.informatik.uni-koeln.de/ls_juenger/),
-[Monash University](http://www.infotech.monash.edu.au/about/schools/caulfield/),
+[University of Konstanz](https://www.cls.uni-konstanz.de/),
 and [TU Ilmenau](http://www.tu-ilmenau.de/dma/).
 
 ## Shortcuts
 
 * [How to Install](doc/build.md)
-* [Porting Guide](doc/porting.md)
+* [Release Notes](doc/relnotes.md) and [Porting Guide](doc/porting.md)
 * [Compiler Defines](doc/defines.md)
 * [Official Website](http://ogdf.net/)
-* [Snapshot Reference Documentation](http://ogdf.github.io/doc/ogdf-snapshot/)
+* [Reference Documentation](http://ogdf.github.io/doc/ogdf/)
 
 ## License
 
@@ -34,20 +38,13 @@ linear programming or unit testing.
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 1999-2018
+Copyright (C) 1999–2020
 
 ## Note for GitHub users
 
 OGDF is actively developed using a non-public Git repository.
 
 The [Git repository on GitHub](https://github.com/ogdf/ogdf) is not a
-mirror but contains the [official releases](http://ogdf.net/doku.php/tech:download)
-and [snapshots](http://ogdf.net/doku.php/tech:download#download_snapshots)
+mirror but contains the [official releases](http://ogdf.net/releases/)
 of OGDF.
 We however attempt to take care of issues and pull requests.
-
-## Do you use OGDF?
-
-If you use OGDF for some software project, we would be proud to mention it on
-[our list of projects using OGDF](http://ogdf.net/doku.php/project:external).
-In this case, please contact us.

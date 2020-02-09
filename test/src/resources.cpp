@@ -40,11 +40,11 @@ std::unordered_map<string, ResourceFile> internal::g_resources;
 ResourceDirectory internal::g_resources_root;
 
 /* Class Members of ResourceFile */
-const ResourceFile* ResourceFile::get(const string& dir, const string& file) {
-	return get(dir + '/' + file);
-}
 const ResourceFile* ResourceFile::get(const string& path) {
-	if (internal::g_resources.find(path) == internal::g_resources.end()) return nullptr;
+	if (internal::g_resources.find(path) == internal::g_resources.end()) {
+		throw(std::runtime_error("The file `" + path + "' could not be found in the packed resources.\n"
+		  "If it is in your file system, you have to re-run cmake and recompile."));
+	}
 	return &internal::g_resources[path];
 }
 

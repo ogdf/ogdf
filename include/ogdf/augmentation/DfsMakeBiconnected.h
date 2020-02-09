@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/AugmentationModule.h>
+#include <ogdf/augmentation/AugmentationModule.h>
 
 namespace ogdf {
 

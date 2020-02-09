@@ -29,9 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
-#include <ogdf/module/UMLCrossingMinimizationModule.h>
-
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>
 
 namespace ogdf {
 

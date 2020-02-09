@@ -158,7 +158,7 @@ FindKuratowskis::FindKuratowskis(BoyerMyrvoldPlanar* bm) :
 	m_highestSubtreeDFI(bm->m_highestSubtreeDFI),
 	m_separatedDFSChildList(bm->m_separatedDFSChildList),
 	m_pointsToRoot(bm->m_pointsToRoot),
-	m_visitedWithBackedge(bm->m_visitedWithBackedge),
+	m_numUnembeddedBackedgesInBicomp(bm->m_numUnembeddedBackedgesInBicomp),
 	m_backedgeFlags(bm->m_backedgeFlags),
 	m_pertinentRoots(bm->m_pertinentRoots)
 {
@@ -587,8 +587,8 @@ void FindKuratowskis::extractPertinentSubgraph(
 			m_backedgeFlags[target].clear();
 			m_edgeType[e] = BoyerMyrvoldEdgeType::BackDeleted;
 			// delete backedge-counter on virtual root node
-			--m_visitedWithBackedge[m_pointsToRoot[e]];
-			OGDF_ASSERT(m_visitedWithBackedge[m_pointsToRoot[e]] >= 0);
+			--m_numUnembeddedBackedgesInBicomp[m_pointsToRoot[e]];
+			OGDF_ASSERT(m_numUnembeddedBackedgesInBicomp[m_pointsToRoot[e]] >= 0);
 
 			// go up along the DFS-path
 			while (m_getWInfo[target] == nullptr) {
@@ -652,8 +652,8 @@ void FindKuratowskis::extractPertinentSubgraphBundles(
 					m_edgeType[e] = BoyerMyrvoldEdgeType::BackDeleted;
 					m_backedgeFlags[w].clear();
 					// delete backedge-counter on virtual root node
-					--m_visitedWithBackedge[m_pointsToRoot[e]];
-					OGDF_ASSERT(m_visitedWithBackedge[m_pointsToRoot[e]] >= 0);
+					--m_numUnembeddedBackedgesInBicomp[m_pointsToRoot[e]];
+					OGDF_ASSERT(m_numUnembeddedBackedgesInBicomp[m_pointsToRoot[e]] >= 0);
 					pertinentSubgraph.pushBack(e);
 				} else if (w != currentWNode && m_dfi[x] >= m_dfi[w]) {
 					OGDF_ASSERT(m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Dfs ||

@@ -399,6 +399,11 @@ public:
 	SortedSequenceIteratorBase(const SortedSequenceIteratorBase<KEY,INFO,CMP,isArgConst,isArgReverse> &it)
 		: m_pElement(it.m_pElement) { }
 
+	//! Copy constructor.
+	// gcc9 complains since it cannot match the templated constructor above (-Werror=deprecated-copy).
+	SortedSequenceIteratorBase(const SortedSequenceIteratorBase<KEY,INFO,CMP,isConst,isReverse> &it)
+		: m_pElement(it.m_pElement) { }
+
 	//! Returns the key of the sequence element pointed to.
 	const KEY &key() const {
 		OGDF_ASSERT(valid());

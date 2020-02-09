@@ -40,6 +40,13 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 		const EdgeArray<bool> &forbid)
 {
 	const Graph &G = UPR.original();
+
+	if(G.numberOfNodes() < 2) {
+		if (G.numberOfNodes() == 1)
+			UPR.newNode(G.firstNode());
+		return Module::ReturnType::Optimal;
+	}
+
 	GraphCopy GC(G);
 
 	//reverse some edges in order to obtain a DAG

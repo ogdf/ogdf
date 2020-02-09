@@ -29,9 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
-#include <ogdf/module/ShellingOrderModule.h>
-
+#include <ogdf/planarlayout/ShellingOrderModule.h>
 
 namespace ogdf {
 

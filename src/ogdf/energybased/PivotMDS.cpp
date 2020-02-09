@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/energybased/PivotMDS.h>
+#include <ogdf/basic/GraphCopy.h>
 
 
 namespace ogdf {
@@ -40,14 +41,8 @@ const double PivotMDS::FACTOR = -0.5;
 
 void PivotMDS::call(GraphAttributes& GA)
 {
-	if (!isConnected(GA.constGraph())) {
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Connected);
-		return;
-	}
-	if (m_hasEdgeCostsAttribute && !GA.has(GraphAttributes::edgeDoubleWeight)) {
-		OGDF_THROW(PreconditionViolatedException);
-		return;
-	}
+	OGDF_ASSERT(isConnected(GA.constGraph()));
+	OGDF_ASSERT(!m_hasEdgeCostsAttribute || GA.has(GraphAttributes::edgeDoubleWeight));
 	pivotMDSLayout(GA);
 }
 
@@ -151,17 +146,20 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v)
 {
 	double xPos = 0;
-	node prev = v;
+	node prev = nullptr;
+	node oldCur = nullptr;
 	node cur = v;
 	// since the given node is the beginning of the path just
 	// use bfs and increment the x coordinate by the average
 	// edge costs.
 	do {
+		oldCur = cur;
 		GA.x(cur) = xPos;
 		GA.y(cur) = 0;
 		for(adjEntry adj : cur->adjEntries) {
 			node w = adj->twinNode();
-			if (!(w == prev) || w == cur) {
+			// Ignore multi-edges and self-loops.
+			if (w != prev && w != cur) {
 				prev = cur;
 				cur = w;
 				if(m_hasEdgeCostsAttribute) {
@@ -171,9 +169,8 @@ void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v)
 				}
 				break;
 			}
-			prev = cur;
 		}
-	} while (prev != cur);
+	} while (cur != oldCur);
 }
 
 
@@ -307,39 +304,27 @@ void PivotMDS::copySPSS(Array<double>& copyTo, NodeArray<double>& copyFrom)
 
 node PivotMDS::getRootedPath(const Graph& G)
 {
+	GraphCopy GC(G);
+	makeSimpleUndirected(GC);
 	node head = nullptr;
-	NodeArray<bool> visited(G, false);
-	SListPure<node> neighbors;
-	// in every path there are two nodes with degree 1 and
-	// each node has at most degree 2
-	for(node v : G.nodes)
-	{
-		int degree = 0;
-		visited[v] = true;
-		neighbors.pushBack(v);
+	int numDegree1 = 0;
+	int numDegree2 = 0;
 
-		for(adjEntry adj : v->adjEntries) {
-			node w = adj->twinNode();
-			if (!visited[w])
-			{
-				neighbors.pushBack(w);
-				visited[w]=true;
-				++degree;
-			}
-		}
-		if (degree > 2) {
-			neighbors.clear();
+	for (node v : GC.nodes) {
+		if (v->degree() == 2) {
+			numDegree2++;
+		} else if (v->degree() == 1) {
+			head = v;
+			numDegree1++;
+		} else {
 			return nullptr;
 		}
-		if (degree == 1) {
-			head = v;
-		}
-		for(node u : neighbors) {
-			visited[u] = false;
-		}
-		neighbors.clear();
 	}
-	return head;
+
+	// Given n >= 2 (as guaranteed by pivotMDSLayout()),
+	// a path has two nodes with degree 1 and n-2 nodes with degree 2.
+	return numDegree1 == 2 && numDegree2 == GC.numberOfNodes() - 2 ?
+		   GC.original(head) : nullptr;
 }
 
 

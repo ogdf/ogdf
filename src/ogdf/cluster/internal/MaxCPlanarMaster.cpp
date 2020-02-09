@@ -63,7 +63,7 @@ void MaxCPlanarMaster::printGraph(const Graph &G) {
 
 MaxCPlanarMaster::MaxCPlanarMaster(
 	const ClusterGraph &C,
-	const EdgeArray<int> *pCost,
+	const EdgeArray<double> *pCost,
 	int heuristicLevel,
 	int heuristicRuns,
 	double heuristicOEdgeBound,
@@ -376,9 +376,9 @@ double MaxCPlanarMaster::heuristicInitialLowerBound()
 	{
 		//we run both heuristics that currently exist in OGDF
 		//MaxSimple
-		MaximalPlanarSubgraphSimple<int> simpleHeur;
+		MaximalPlanarSubgraphSimple<double> simpleHeur;
 		List<edge> delEdgesList;
-		PlanarSubgraphFast<int> fastHeur;
+		PlanarSubgraphFast<double> fastHeur;
 		fastHeur.runs(m_fastHeuristicRuns);
 		List<edge> delEdgesListFast;
 		List<edge> *delEdges;

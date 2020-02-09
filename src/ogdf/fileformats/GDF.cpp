@@ -46,6 +46,7 @@ std::string toString(const NodeAttribute &attr)
 	case NodeAttribute::Y: return "y";
 	case NodeAttribute::Z: return "z";
 	case NodeAttribute::FillColor: return "color";
+	case NodeAttribute::FillBgColor: return "fillbg";
 	case NodeAttribute::FillPattern: return "fillpattern";
 	case NodeAttribute::StrokeColor: return "strokecolor";
 	case NodeAttribute::StrokeType: return "stroketype";
@@ -96,32 +97,24 @@ std::string toString(const Shape &shape)
 }
 
 
-static std::map<std::string, NodeAttribute> nodeAttrMap;
-
 NodeAttribute toNodeAttribute(const std::string &str)
 {
 	return toEnum(
-		str, nodeAttrMap, toString,
+		str, toString,
 		static_cast<NodeAttribute>(0), NodeAttribute::Unknown, NodeAttribute::Unknown);
 }
-
-
-static std::map<std::string, EdgeAttribute> edgeAttrMap;
 
 EdgeAttribute toEdgeAttribute(const std::string &str)
 {
 	return toEnum(
-		str, edgeAttrMap, toString,
+		str, toString,
 		static_cast<EdgeAttribute>(0), EdgeAttribute::Unknown, EdgeAttribute::Unknown);
 }
-
-
-static std::map<std::string, Shape> shapeMap;
 
 Shape toShape(const std::string &str)
 {
 	return toEnum(
-		str, shapeMap, toString,
+		str, toString,
 		Shape::Rect, Shape::Image, Shape::Rect);
 }
 

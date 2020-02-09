@@ -34,11 +34,11 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <random>
-
 
 namespace ogdf {
 
@@ -277,10 +277,10 @@ private:
 	}
 
 	//! Computes the new impulse for node \p v.
-	void computeImpulse(GraphCopy &GC, GraphCopyAttributes &AGC,node v);
+	void computeImpulse(GraphCopy &GC, GraphAttributes &AGC,node v);
 
 	//! Updates the node data for node \p v.
-	void updateNode(GraphCopy &GC, GraphCopyAttributes &AGC,node v);
+	void updateNode(GraphCopy &GC, GraphAttributes &AGC,node v);
 
 	OGDF_NEW_DELETE
 };

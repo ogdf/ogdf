@@ -32,13 +32,11 @@
 #pragma once
 
 #include <memory>
-#include <ogdf/module/MultilevelLayoutModule.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelLayoutModule.h>
 #include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 
-
 namespace ogdf {
-
 
 //! Scales a graph layout and calls a secondary layout algorithm.
 /**

@@ -37,7 +37,7 @@
 //oder Elemente, die nicht akiv sind, loeschen
 
 #include <ogdf/planarity/PlanRepInc.h>
-#include <ogdf/basic/TopologyModule.h>
+#include <ogdf/planarity/TopologyModule.h>
 
 namespace ogdf {
 

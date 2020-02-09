@@ -290,7 +290,7 @@ bool Lexer::identifier(Token &token)
 	return false;
 }
 
-bool Lexer::isDotAlnum(char c) {
+bool Lexer::isDotAlnum(signed char c) {
 	return isalnum(c) || c < 0 || c == '_';
 }
 

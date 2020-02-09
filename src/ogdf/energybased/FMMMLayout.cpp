@@ -668,7 +668,12 @@ void FMMMLayout::adjust_positions(const Graph& G, NodeArray<NodeAttributes>& A)
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else std::cout << "Error FMMMLayout:: adjust_positions()" << std::endl;
+			else {
+				// if G has only isolated vertices (this matters for n >= 2), the initial placement of these vertices is ok, so having IntersectionType::Overlapping in this case is ok
+				if (G.numberOfEdges() != 0) {
+					std::cout << "Error in FMMMLayout while restricting vertex positions to a boundary box (vertices already in box)" << std::endl;
+				}
+			}
 		}
 	}
 	//make positions integer

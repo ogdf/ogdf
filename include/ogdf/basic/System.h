@@ -114,7 +114,6 @@ OGDF_EXPORT unsigned int operator|=(unsigned int &i, CPUFeatureMask fm);
  * The class System encapsulates system specific functions
  * providing unified access across different operating systems.
  * The provided functionality includes:
- *   - Access to file system functionality (listing directories etc.).
  *   - Query memory usage.
  *   - Access to high-perfomance counter under Windows and Cygwin.
  *   - Query CPU specific information.

@@ -313,13 +313,12 @@ static inline bool readVizAttribute(
 				return false;
 			}
 
-			GA.x(v) = xAttr.as_int();
-			GA.y(v) = yAttr.as_int();
+			GA.x(v) = xAttr.as_double();
+			GA.y(v) = yAttr.as_double();
 
 			// z attribute is optional and avaliable only in \a threeD mode
-			GA.y(v) = yAttr.as_int();
 			if (zAttr && (attrs & GraphAttributes::threeD)) {
-				GA.z(v) = zAttr.as_int();
+				GA.z(v) = zAttr.as_double();
 			}
 		}
 	} else if(string(tag.name()) == "viz:size") {
@@ -375,13 +374,19 @@ static inline bool readVizAttribute(
 			return false;
 		}
 
-		if(attrs & GraphAttributes::edgeDoubleWeight) {
-			GA.doubleWeight(e) = thickAttr.as_double();
-		} else if(attrs & GraphAttributes::edgeIntWeight) {
-			GA.intWeight(e) = thickAttr.as_int();
-		}
+		GA.strokeWidth(e) = thickAttr.as_double();
 	} else if(string(tag.name()) == "viz:shape") {
-		// Values: solid, dotted, dashed, double. Not supported in OGDF.
+		// GEXF supports solid, dotted, dashed, double.
+		// We don't support double, but dashdot and dashdotdot instead.
+		if(attrs & GraphAttributes::edgeStyle) {
+			pugi::xml_attribute valueAttr = tag.attribute("value");
+			if(!valueAttr) {
+				GraphIO::logger.lout() << "Missing \"value\" on shape tag." << std::endl;
+				return false;
+			}
+
+			GA.strokeType(e) = toStrokeType(valueAttr.value());
+		}
 	} else {
 		GraphIO::logger.lout() << "Incorrect tag \"" << tag.name() << "\"." << std::endl;
 		return false;
@@ -401,6 +406,12 @@ static inline void readAttValue(
 
 	// For not "viz" attributes, we use GraphML ones.
 	switch(graphml::toAttribute(name)) {
+	case graphml::Attribute::NodeId:
+		if(attrs & GraphAttributes::nodeId) {
+			std::istringstream ss(value);
+			ss >> GA.idNode(v);
+		}
+		break;
 	case graphml::Attribute::NodeType:
 		if(attrs & GraphAttributes::nodeType) {
 			GA.type(v) = graphml::toNodeType(value);
@@ -427,6 +438,11 @@ static inline void readAttValue(
 			GA.fillPattern(v) = fromString<FillPattern>(value);
 		}
 		break;
+	case graphml::Attribute::NodeFillBackground:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.fillBgColor(v) = value;
+		}
+		break;
 	case graphml::Attribute::NodeStrokeWidth:
 		if(attrs & GraphAttributes::nodeWeight) {
 			std::istringstream ss(value);
@@ -435,11 +451,29 @@ static inline void readAttValue(
 		break;
 	case graphml::Attribute::NodeStrokeColor:
 		if(attrs & GraphAttributes::nodeStyle) {
-			GA.strokeColor(v) = value.c_str();
+			GA.strokeColor(v) = value;
+		}
+		break;
+	case graphml::Attribute::NodeLabelX:
+		if(attrs & GraphAttributes::nodeLabelPosition) {
+			std::istringstream ss(value);
+			ss >> GA.xLabel(v);
+		}
+		break;
+	case graphml::Attribute::NodeLabelY:
+		if(attrs & GraphAttributes::nodeLabelPosition) {
+			std::istringstream ss(value);
+			ss >> GA.yLabel(v);
+		}
+		break;
+	case graphml::Attribute::NodeLabelZ:
+		if(attrs & GraphAttributes::nodeLabelPosition && attrs & GraphAttributes::threeD) {
+			std::istringstream ss(value);
+			ss >> GA.zLabel(v);
 		}
 		break;
 	default:
-		GraphIO::logger.slout() << "unsupportet GraphML attr\n";
+		GraphIO::logger.slout() << "unsupported GraphML attr " << name << "\n";
 		break;
 	}
 }
@@ -463,6 +497,26 @@ static inline void readAttValue(
 	case graphml::Attribute::EdgeArrow:
 		if(attrs & GraphAttributes::edgeArrow) {
 			GA.arrowType(e) = graphml::toArrow(value);
+		}
+		break;
+	case graphml::Attribute::EdgeBends:
+		if(attrs & GraphAttributes::edgeGraphics) {
+			std::stringstream is(value);
+			double x, y;
+			DPolyline& polyline = GA.bends(e);
+			polyline.clear();
+			while(is >> x && is >> y) {
+				polyline.pushBack(DPoint(x, y));
+			}
+		}
+		break;
+	case graphml::Attribute::EdgeSubGraph:
+		if(attrs & GraphAttributes::edgeSubGraphs) {
+			std::stringstream sstream(value);
+			int sg;
+			while(sstream >> sg) {
+				GA.addSubGraph(e, sg);
+			}
 		}
 		break;
 	default:
@@ -501,11 +555,19 @@ bool Parser::readAttributes(
 	GraphAttributes &GA, node v,
 	const pugi::xml_node nodeTag)
 {
+	if (GA.has(GraphAttributes::nodeLabel)) {
+		pugi::xml_attribute labelAttr = nodeTag.attribute("label");
+		if (labelAttr) {
+			GA.label(v) = labelAttr.as_string();
+		}
+	}
 	for(const pugi::xml_node tag : nodeTag.children()) {
 		if(string(tag.name()) == "nodes") {
 			continue;
 		} else if(string(tag.name()) == "attvalues") {
-			return readAttValues(GA, v, tag, m_nodeAttr);
+			if (!readAttValues(GA, v, tag, m_nodeAttr)) {
+				return false;
+			}
 		} else if(!readVizAttribute(GA, v, tag)) {
 			return false;
 		}
@@ -519,6 +581,20 @@ bool Parser::readAttributes(
 	GraphAttributes &GA, edge e,
 	const pugi::xml_node edgeTag)
 {
+	if (GA.has(GraphAttributes::edgeLabel)) {
+		pugi::xml_attribute labelAttr = edgeTag.attribute("label");
+		if (labelAttr) {
+			GA.label(e) = labelAttr.as_string();
+		}
+	}
+	if (GA.has(GraphAttributes::edgeDoubleWeight)) {
+		pugi::xml_attribute weightAttr = edgeTag.attribute("weight");
+		GA.doubleWeight(e) = weightAttr.as_double();
+	} else if (GA.has(GraphAttributes::edgeIntWeight)) {
+		pugi::xml_attribute weightAttr = edgeTag.attribute("weight");
+		GA.intWeight(e) = weightAttr.as_int();
+	}
+
 	for(const pugi::xml_node tag : edgeTag.children()) {
 		if(string(tag.name()) == "attvalues") {
 			return readAttValues(GA, e, tag, m_edgeAttr);
@@ -552,6 +628,10 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 	OGDF_ASSERT(m_graphTag);
 
 	G.clear();
+
+	// Check whether graph is directed or not (undirected by default).
+	pugi::xml_attribute edgeDirAttr = m_graphTag.attribute("defaultedgetype");
+	GA.directed() = !(edgeDirAttr && string(edgeDirAttr.value()) == "undirected");
 
 	return readNodes(G, &GA) && readEdges(G, nullptr, &GA);
 }

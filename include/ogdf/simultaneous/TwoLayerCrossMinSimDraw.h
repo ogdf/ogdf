@@ -32,11 +32,9 @@
 
 #pragma once
 
-#include <ogdf/module/LayerByLayerSweep.h>
-
+#include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
-
 
 class OGDF_EXPORT TwoLayerCrossMinSimDraw : public LayerByLayerSweep
 {

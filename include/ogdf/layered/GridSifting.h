@@ -33,7 +33,7 @@
 
 #include <ogdf/layered/SugiyamaLayout.h>
 #include <ogdf/layered/BlockOrder.h>
-#include <ogdf/module/LayeredCrossMinModule.h>
+#include <ogdf/layered/LayeredCrossMinModule.h>
 
 namespace ogdf {
 

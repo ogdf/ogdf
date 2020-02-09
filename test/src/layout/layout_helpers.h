@@ -38,7 +38,7 @@
 #include <ogdf/basic/DisjointSets.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/LayoutStatistics.h>
 
 #include <ogdf/planarity/PlanarSubgraphCactus.h>
@@ -55,6 +55,37 @@ namespace layout_helpers {
 	int drawingCounter = 0;
 }
 #endif
+
+/**
+ * Prints out the layout statistics given by \p calc(\p values).
+ *
+ * @tparam Container is the type of container containing the \p values.
+ * @param measure is the name of the measure that is calculated.
+ * @param values are used as a basis for calculation. In general this is the
+ * return value of a LayoutStatistics-function applied to some GraphAttributes.
+ * @param calc is the function which is applied to the \p values.
+ */
+template<typename Container>
+inline void printLayoutStatistics(std::string measure, const Container &values,
+		std::function<double(const Container&)> calc = [](const Container &vals) { return Math::mean(vals); })
+{
+	const int infoLength = 39;
+	const int spaces = infoLength - measure.length() - 2;
+	const std::string indent = "        ";
+	std::cout << indent << measure << ": " << std::setw(spaces);
+
+	if (values.empty()) {
+		std::cout << "N/A" << std::endl;
+	} else {
+		double result = calc(values);
+		std::cout << std::setprecision(2) << std::fixed << result << std::endl;
+
+		// Test for very high/low values (potential integer overflows) and
+		// implicitly for nan (every comparison with nan returns false).
+		AssertThat(result, IsLessThan(std::numeric_limits<int>::max() / 2));
+		AssertThat(result, IsGreaterThan(std::numeric_limits<int>::lowest() / 2));
+	}
+}
 
 inline void getRandomLayout(GraphAttributes &GA)
 {
@@ -130,27 +161,24 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 	layout_helpers::drawingCounter++;
 #endif
 
-	string indent = "        ";
 	std::cout << std::endl;
-	double resolution = (Math::minValue(LayoutStatistics::angles(GA))*100) / (2*Math::pi);
-	double avgEdgeLength = Math::mean(LayoutStatistics::edgeLengths(GA));
-	double avgBends = Math::mean(LayoutStatistics::numberOfBends(GA));
-	double avgNodeCrossings = Math::mean(LayoutStatistics::numberOfNodeCrossings(GA));
-	double avgNodeOverlaps = Math::mean(LayoutStatistics::numberOfNodeOverlaps(GA));
-	std::cout << indent << "angular resolution: " << std::setw(18) << std::setprecision(2) << std::fixed << resolution << " %" << std::endl;
-	std::cout << indent << "average edge length: " << std::setw(17) << avgEdgeLength << std::endl;
-	std::cout << indent << "average bends per edge: " << std::setw(14) << avgBends << std::endl;
-	std::cout << indent << "average node crossings per edge: " << std::setw(5) << avgNodeCrossings << std::endl;
-	std::cout << indent << "average node overlaps per node: " << std::setw(6) << avgNodeOverlaps << std::endl;
+
+	std::function<double(const ArrayBuffer<double>&)> angularResolution = [](const ArrayBuffer<double> &angles) {
+		return (Math::minValue(angles)*100) / (2*Math::pi);
+	};
+	printLayoutStatistics("angular resolution", LayoutStatistics::angles(GA), angularResolution);
+	printLayoutStatistics("average edge length", LayoutStatistics::edgeLengths(GA));
+	printLayoutStatistics("average bends per edge", LayoutStatistics::numberOfBends(GA));
+	printLayoutStatistics("average node crossings per edge", LayoutStatistics::numberOfNodeCrossings(GA));
+	printLayoutStatistics("average node overlaps per node", LayoutStatistics::numberOfNodeOverlaps(GA));
 
 	// Assert that we do not have any needless bendpoints
 	for(edge e : G.edges) {
-		auto toPoint = [&](node v) { return DPoint(GA.x(v), GA.y(v)); };
 		DPolyline bends = GA.bends(e);
 
 		if(!bends.empty()) {
-			AssertThat(bends.front(), !Equals(toPoint(e->source())));
-			AssertThat(bends.back(), !Equals(toPoint(e->target())));
+			AssertThat(bends.front(), !Equals(GA.point(e->source())));
+			AssertThat(bends.back(), !Equals(GA.point(e->target())));
 		}
 
 		int size = bends.size();
@@ -161,10 +189,14 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 	// Assume that any layout algorithm that requires planar graphs or planarize produces planar drawings
 	if(algoPlanarizes || algoRequiresPlanar) {
 		int crossingNumber = Math::sum(LayoutStatistics::numberOfCrossings(GA)) / 2;
+		std::cout << "        " << "crossing number: " << std::setw(22) << crossingNumber << std::endl;
 
-		std::cout << indent << "crossing number: " << std::setw(9) << crossingNumber << std::endl;
-
-		if(instanceIsPlanar) {
+		// When our layout algorithms produce nodes that are very close together, the crossing test fails
+		// due to inprecision. Limit checking it to instances where this does not happen. This limit value
+		// is selected arbritarily and should be adjusted if it can be shown to be too narrow or wide.
+		double minimumAngleThreshold = 1e-12;
+		auto angles = LayoutStatistics::angles(GA);
+		if(instanceIsPlanar && (angles.empty() || Math::minValue(angles) > minimumAngleThreshold)) {
 			AssertThat(crossingNumber, Equals(0));
 		}
 	}

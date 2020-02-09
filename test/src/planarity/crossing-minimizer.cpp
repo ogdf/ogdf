@@ -297,7 +297,7 @@ void setRemoveReinsert(MultiEdgeApproxInserter &edgeInserter, RemoveReinsertType
  * Test the ::SubgraphPlanarizer with a specific type of edge remove-reinsert post-processing.
  */
 template<typename EdgeInserter>
-void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, RemoveReinsertType rrType, const std::string name, bool skipMe) {
+void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, RemoveReinsertType rrType, const std::string name) {
 	auto performTest = [&]() {
 		setRemoveReinsert(*edgeInserter, rrType);
 		heuristic.permutations(1);
@@ -307,29 +307,24 @@ void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, Rem
 	};
 
 	string title = "remove-reinsert: " + name;
-
-	if(skipMe) {
-		describe_skip(title, performTest);
-	} else {
-		describe(title, performTest);
-	}
+	describe(title, performTest);
 }
 
 /**
  * Test the ::SubgraphPlanarizer with a specific ::EdgeInsertionModule .
  */
 template<typename EdgeInserter>
-void testSPEdgeInserter(EdgeInserter *edgeInserter, const std::string name, bool skipMe = false) {
+void testSPEdgeInserter(EdgeInserter *edgeInserter, const std::string name) {
 	describe("edge insertion: " + name, [&]() {
 		SubgraphPlanarizer heuristic;
 		heuristic.setInserter(edgeInserter);
 
-		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::None, "none", skipMe);
-		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::Inserted, "inserted", skipMe);
-		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::MostCrossed, "most-crossed", skipMe);
-		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::All, "all", skipMe);
-		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::Incremental, "incremental", skipMe);
-		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::IncInserted, "inc-inserted", skipMe);
+		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::None, "none");
+		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::Inserted, "inserted");
+		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::MostCrossed, "most-crossed");
+		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::All, "all");
+		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::Incremental, "incremental");
+		testSPRRType(heuristic, edgeInserter, RemoveReinsertType::IncInserted, "inc-inserted");
 	});
 }
 

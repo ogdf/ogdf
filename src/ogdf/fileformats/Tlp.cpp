@@ -46,6 +46,7 @@ std::string toString(const Attribute &attr)
 	case Attribute::strokeType: return "viewStrokeType";
 	case Attribute::strokeWidth: return "viewStrokeWidth";
 	case Attribute::fillPattern: return "viewFillPattern";
+	case Attribute::fillBackground: return "viewFillBackgroundColor";
 	case Attribute::position: return "viewLayout";
 	case Attribute::size: return "viewSize";
 	case Attribute::shape: return "viewShape";
@@ -70,6 +71,9 @@ Attribute toAttribute(const std::string &str)
 	}
 	else if(str == "viewFillPattern") {
 		return Attribute::fillPattern;
+	}
+	else if(str == "viewFillBackgroundColor") {
+		return Attribute::fillBackground;
 	}
 	else if(str == "viewLayout") {
 		return Attribute::position;

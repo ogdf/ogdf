@@ -132,7 +132,7 @@ private:
 	 * @param c A character
 	 * @return True if c is one of alphabetic ([a-zA-Z\200-\377]) characters, underscores ('_') or digits ([0-9])
 	 */
-	bool isDotAlnum(char c);
+	bool isDotAlnum(signed char c);
 
 public:
 	//! Initializes lexer with given input (but does nothing to it).

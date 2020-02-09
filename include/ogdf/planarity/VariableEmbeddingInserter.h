@@ -54,15 +54,8 @@ class OGDF_EXPORT VariableEmbeddingInserter : public VariableEmbeddingInserterBa
 public:
 	using VariableEmbeddingInserterBase::VariableEmbeddingInserterBase;
 
-	//! Destructor.
-	~VariableEmbeddingInserter() { }
-
 	//! Returns a new instance of the variable embedding inserter with the same option settings.
 	virtual EdgeInsertionModule *clone() const override;
-
-	//! Assignment operator. Copies option settings only.
-	VariableEmbeddingInserter &operator=(const VariableEmbeddingInserter &inserter);
-
 
 	//! Calls only the postprocessing; assumes that all edges in \p origEdges are already inserted into \p pr.
 	/**

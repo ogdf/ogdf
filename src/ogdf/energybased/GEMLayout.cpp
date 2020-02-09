@@ -127,7 +127,7 @@ void GEMLayout::call(GraphAttributes &AG)
 	{
 		GC.initByNodes(nodesInCC[i],auxCopy);
 
-		GraphCopyAttributes AGC(GC,AG);
+		GraphAttributes AGC(GC);
 		for(node vCopy : GC.nodes) {
 			node vOrig = GC.original(vCopy);
 			AGC.x(vCopy) = AG.x(vOrig);
@@ -227,14 +227,14 @@ void GEMLayout::call(GraphAttributes &AG)
 }
 
 
-void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
+void GEMLayout::computeImpulse(GraphCopy &G, GraphAttributes &AG,node v) {
 	int n = G.numberOfNodes();
 
 	double deltaX,deltaY,delta,deltaSqu;
 	double desiredLength,desiredSqu;
 
 	// add double node radius to desired edge length
-	desiredLength = m_desiredLength + length(AG.getHeight(v),AG.getWidth(v));
+	desiredLength = m_desiredLength + length(AG.height(v),AG.width(v));
 	desiredSqu = desiredLength * desiredLength;
 
 	// compute attraction to center of gravity
@@ -280,7 +280,7 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 }
 
 
-void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
+void GEMLayout::updateNode(GraphCopy &G, GraphAttributes &AG,node v) {
 	int n = G.numberOfNodes();
 	double impulseLength;
 

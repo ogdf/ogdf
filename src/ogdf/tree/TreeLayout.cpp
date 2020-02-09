@@ -282,10 +282,7 @@ void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reve
 			}
 		}
 
-		if(root == nullptr) {
-			undoReverseEdges(AG, tree, reversedEdges);
-			OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
-		}
+		OGDF_ASSERT(root != nullptr);
 
 		adjustEdgeDirections(tree, reversedEdges, root, nullptr);
 	}
@@ -311,8 +308,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 {
 	OGDF_ASSERT(&tree == &(AG.constGraph()));
 
-	if (!isAcyclicUndirected(tree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
+	OGDF_ASSERT(isAcyclicUndirected(tree));
 
 	SListPure<edge> reversedEdges;
 	setRoot(AG, tree, reversedEdges);
@@ -388,9 +384,7 @@ void TreeLayout::call(GraphAttributes &AG)
 	const Graph &tree = AG.constGraph();
 	if(tree.numberOfNodes() == 0) return;
 
-	if (!isArborescenceForest(tree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
-
+	OGDF_ASSERT(isArborescenceForest(tree));
 	OGDF_ASSERT(m_siblingDistance > 0);
 	OGDF_ASSERT(m_subtreeDistance > 0);
 	OGDF_ASSERT(m_levelDistance > 0);

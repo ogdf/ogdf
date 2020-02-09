@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/fileformats/GEXF.h>
+#include <ogdf/fileformats/Utils.h>
 
 
 namespace ogdf {
@@ -53,19 +54,26 @@ std::string toString(const Shape &shape)
 
 Shape toShape(const std::string &str)
 {
-	if(str == "square") {
-		return Shape::Rect;
-	} else if(str == "disc") {
-		return Shape::Ellipse;
-	} else if(str == "triangle") {
-		return Shape::Triangle;
-	} else if(str == "diamond") {
-		return Shape::Rhomb;
-	} else if(str == "image") {
-		return Shape::Image;
-	} else {
-		return Shape::Rect;
+	return toEnum(str, toString, Shape::Rect, Shape::Image, Shape::Rect);
+}
+
+std::string toGEXFStrokeType(const StrokeType &type)
+{
+	switch(type) {
+	case StrokeType::Solid: return "solid";
+	case StrokeType::Dot: return "dotted";
+	case StrokeType::Dash: return "dashed";
+	case StrokeType::Dashdot: return "dashdot";
+	case StrokeType::Dashdotdot: return "dashdotdot";
+	default: return "";
 	}
+}
+
+StrokeType toStrokeType(const std::string &str)
+{
+	// GEXF supports solid, dotted, dashed, double.
+	// We don't support double, but dashdot and dashdotdot instead.
+	return toEnum(str, toGEXFStrokeType, StrokeType::None, StrokeType::Dashdotdot, StrokeType::Solid);
 }
 
 }

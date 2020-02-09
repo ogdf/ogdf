@@ -35,10 +35,9 @@
 
 #pragma once
 
-#include <ogdf/module/ClustererModule.h>
+#include <ogdf/graphalg/ClustererModule.h>
 
 namespace ogdf {
-
 
 /**
  * @ingroup ga-clustering

@@ -54,21 +54,26 @@ enum class Attribute {
 	Weight,
 	DoubleWeight,
 	Position,
+	LabelPosition,
 	Arrow,
 	StrokeWidth,
 	FillPattern,
+	FillBackground,
 	Type,
 	Dir,
+	SubGraphs,
 	Unknown
 };
 
 std::string toString(const Attribute &attr);
 std::string toString(const Shape &shape);
 std::string toString(const EdgeArrow &arrow);
+std::string toString(const Graph::EdgeType &type);
 
 Attribute toAttribute(const std::string &str);
 Shape toShape(const std::string &str);
 EdgeArrow toArrow(const std::string &str);
+Graph::EdgeType toEdgeType(const std::string &str);
 
 }
 }

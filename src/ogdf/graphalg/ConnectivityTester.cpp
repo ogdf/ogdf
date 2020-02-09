@@ -143,7 +143,7 @@ node ConnectivityTester::copyOf(node v, bool isSource) const
 
 		if(isSource && m_nodeConnectivity) {
 			result = (*m_source)[result];
-			}
+		}
 	}
 
 	return result;

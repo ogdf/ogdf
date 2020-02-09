@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/module/RankingModule.h>
-#include <ogdf/module/AcyclicSubgraphModule.h>
+#include <ogdf/layered/RankingModule.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <memory>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/tuples.h>

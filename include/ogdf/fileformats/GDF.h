@@ -62,6 +62,7 @@ enum class NodeAttribute {
 	// OGDF specific
 	Template,
 	Weight,
+	FillBgColor,
 	Unknown
 };
 

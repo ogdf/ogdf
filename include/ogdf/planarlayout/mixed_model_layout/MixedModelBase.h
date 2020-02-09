@@ -33,16 +33,13 @@
 
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GridLayout.h>
-#include <ogdf/module/AugmentationModule.h>
-#include <ogdf/module/ShellingOrderModule.h>
-#include <ogdf/module/EmbedderModule.h>
-
+#include <ogdf/augmentation/AugmentationModule.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarlayout/mixed_model_layout/MMOrder.h>
 #include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>
 
-
 namespace ogdf {
-
 
 class MixedModelBase
 {

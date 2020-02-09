@@ -275,7 +275,7 @@ public:
 		: HashingBase(minTableSize), m_hashFunc(hashFunc) { }
 
 	//! Copy constructor.
-	Hashing(const Hashing<K,I> &h) : HashingBase(h) { }
+	Hashing(const Hashing<K,I,H> &h) = default;
 
 	//! Destruction
 	~Hashing() { HashingBase::destroyAll(); }
@@ -303,11 +303,7 @@ public:
 	}
 
 	//! Assignment operator.
-	Hashing<K,I> &operator=(const Hashing<K,I> &hashing) {
-		HashingBase::operator =(hashing);
-		m_hashFunc = hashing.m_hashFunc;
-		return *this;
-	}
+	Hashing<K,I,H> &operator=(const Hashing<K,I,H> &hashing) = default;
 
 	/**
 	 * \brief Inserts a new element with key \p key and information \p info into the hash table.

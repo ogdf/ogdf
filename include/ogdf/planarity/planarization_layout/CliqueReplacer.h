@@ -59,7 +59,7 @@ public:
 	// inserting a center node connected to each node (=>star)
 	// and deleting all edges between nodes in clique
 	// returns center node
-	void replaceByStar(List< List<node> > &cliques);
+	void replaceByStar(List<List<node>*> &cliques);
 
 	// undo clique replacements
 	void undoStars();

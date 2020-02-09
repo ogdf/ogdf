@@ -34,7 +34,7 @@
 #include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/energybased/SpringForceModel.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/GraphAttributes.h>
 
 namespace ogdf {
 

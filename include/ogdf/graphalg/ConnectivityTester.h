@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/MaxFlowModule.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/basic/GraphCopy.h>
 
@@ -161,7 +161,7 @@ public:
 	int computeConnectivity(const Graph &graph, node v, node u) {
 		prepareGraph(graph);
 
-		return computeConnectivity(copyOf(v, false), copyOf(u));
+		return computeConnectivity(copyOf(v, true), copyOf(u));
 	}
 
 	/**

@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include <ogdf/module/MaxFlowModule.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/DualGraph.h>

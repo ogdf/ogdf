@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
@@ -36,7 +37,8 @@ namespace ogdf {
 
 static void writeMatrix(
 	std::ostream &os,
-	const Graph &G, const GraphAttributes *GA)
+	const Graph &G, const GraphAttributes *GA,
+	const NodeArray<int> &index)
 {
 	os << "DATA:\n";
 	const long attrs = GA ? GA->attributes() : 0;
@@ -44,8 +46,8 @@ static void writeMatrix(
 	std::vector<double> matrix(n * n, 0);
 
 	for(edge e : G.edges) {
-		const int vs = e->source()->index();
-		const int vt = e->target()->index();
+		const int vs = index[e->source()];
+		const int vt = index[e->target()];
 
 		if(attrs & GraphAttributes::edgeDoubleWeight) {
 			matrix[vs * n + vt] = GA->doubleWeight(e);
@@ -64,7 +66,7 @@ static void writeMatrix(
 			}
 			space = true;
 
-			const int vs = v->index(), vt = u->index();
+			const int vs = index[v], vt = index[u];
 			os << matrix[vs * n + vt];
 		}
 		os << "\n";
@@ -74,13 +76,14 @@ static void writeMatrix(
 
 static void writeEdges(
 	std::ostream &os,
-	const Graph &G, const GraphAttributes *GA)
+	const Graph &G, const GraphAttributes *GA,
+	const NodeArray<int> &index)
 {
 	os << "DATA:\n";
 	const long attrs = GA ? GA->attributes() : 0;
 
 	for(edge e : G.edges) {
-		os << (e->source()->index() + 1) << " " << (e->target()->index() + 1);
+		os << (index[e->source()] + 1) << " " << (index[e->target()] + 1);
 
 		if(attrs & GraphAttributes::edgeDoubleWeight) {
 			os << " " << GA->doubleWeight(e);
@@ -107,10 +110,15 @@ static bool writeGraph(
 
 		os << "DL N = " << n << "\n";
 
-		// We pick output format basing on edge density.
+		// First pick output format.
+		// We cannot use matrix output if we have (directed) parallel edges.
+		// If we have no parallel edges, we base our decision on the
+		// number of bytes (length) used by the respective representation:
+		//   * (2n + 1) n is the length of the matrix representation.
+		//   * 6m is a rough estimate for the length of the edge list representation.
 		enum class Format {
 			Matrix, Edges
-		} format = (m > (n * n / 2)) ? Format::Matrix : Format::Edges;
+		} format = isParallelFree(G) && (2 * n + 1) * n < 6 * m ? Format::Matrix : Format::Edges;
 
 		// Specify output format.
 		os << "FORMAT = ";
@@ -118,6 +126,12 @@ static bool writeGraph(
 			os << "fullmatrix\n";
 		} else if (format == Format::Edges) {
 			os << "edgelist1\n";
+		}
+
+		NodeArray<int> indices{G};
+		int index{0};
+		for (node v : G.nodes) {
+			indices[v] = index++;
 		}
 
 		const long attrs = GA ? GA->attributes() : 0;
@@ -135,9 +149,9 @@ static bool writeGraph(
 		}
 
 		if (format == Format::Matrix) {
-			writeMatrix(os, G, GA);
+			writeMatrix(os, G, GA, indices);
 		} else if (format == Format::Edges) {
-			writeEdges(os, G, GA);
+			writeEdges(os, G, GA, indices);
 		}
 	}
 

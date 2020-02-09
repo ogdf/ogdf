@@ -32,13 +32,11 @@
 #pragma once
 
 #include <ogdf/basic/FaceArray.h>
-#include <ogdf/module/EdgeInsertionModule.h>
+#include <ogdf/planarity/EdgeInsertionModule.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
 
-
 namespace ogdf {
-
 
 //! Multi edge inserter with approximation guarantee.
 /**

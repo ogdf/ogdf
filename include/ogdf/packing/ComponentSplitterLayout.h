@@ -33,8 +33,8 @@
 
 #include <memory>
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
-#include <ogdf/module/CCLayoutPackModule.h>
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <vector>

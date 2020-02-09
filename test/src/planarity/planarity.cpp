@@ -90,18 +90,84 @@ describe(name, [&](){
 	minstd_rand rng(42);
 	srand(4711);
 
-	forEachGraphItWorks({GraphProperty::planar}, [&](Graph G) {
+	forEachGraphItWorks({GraphProperty::planar}, [&](Graph &G) {
+		int n = G.numberOfNodes();
+		int m = G.numberOfEdges();
 		randomizeAdjLists(G, rng);
 		AssertThat(pm.isPlanar(G), IsTrue());
 		AssertThat(pm.planarEmbed(G), IsTrue());
 		AssertThat(G.representsCombEmbedding(), IsTrue());
+
+		// Destructive embeddings of a planar graph should not alter it.
+		AssertThat(pm.isPlanarDestructive(G), IsTrue());
+		AssertThat(G.numberOfNodes(), Equals(n));
+		AssertThat(G.numberOfEdges(), Equals(m));
 	});
 
-	forEachGraphItWorks({GraphProperty::nonPlanar}, [&](Graph G) {
+	forEachGraphItWorks({GraphProperty::nonPlanar}, [&](Graph &G) {
 		randomizeAdjLists(G, rng);
 		AssertThat(pm.isPlanar(G), IsFalse());
 		AssertThat(pm.planarEmbed(G), IsFalse());
+		AssertThat(G.representsCombEmbedding(), IsFalse());
+		AssertThat(pm.isPlanarDestructive(G), IsFalse());
 	});
+});
+}
+
+void describeDestructiveBoyerMyrvold(bool bundles, bool limitStructures,
+		bool randomDFSTree, bool avoidE2Minors) {
+	// bundles on big non-planar graphs takes too long.
+	const int maxNNonPlanar = bundles ? 6 : std::numeric_limits<int>::max();
+	const int maxKuratowskis = 5;
+
+	BoyerMyrvold bm;
+	minstd_rand rng(42);
+	srand(4711);
+
+	describe("bundles=" + to_string(bundles) +
+		", limitStructures=" + to_string(limitStructures) +
+		", randomDFSTree=" + to_string(randomDFSTree) +
+		", avoidE2Minors=" + to_string(avoidE2Minors), [&](){
+
+		forEachGraphItWorks({GraphProperty::planar}, [&](Graph &G) {
+			SList<KuratowskiWrapper> kuratowskis;
+			int n = G.numberOfNodes();
+			int m = G.numberOfEdges();
+			randomizeAdjLists(G, rng);
+			bool result = bm.planarEmbedDestructive(G, kuratowskis, maxKuratowskis,
+				bundles, limitStructures, randomDFSTree, avoidE2Minors);
+
+			// Destructive embeddings of a planar graph should not alter it.
+			AssertThat(result, IsTrue());
+			AssertThat(kuratowskis.empty(), IsTrue());
+			AssertThat(G.representsCombEmbedding(), IsTrue());
+			AssertThat(G.numberOfNodes(), Equals(n));
+			AssertThat(G.numberOfEdges(), Equals(m));
+		});
+
+		forEachGraphItWorks({GraphProperty::nonPlanar}, [&](Graph &G) {
+			SList<KuratowskiWrapper> kuratowskis;
+			randomizeAdjLists(G, rng);
+			bool result = bm.planarEmbedDestructive(G, kuratowskis, maxKuratowskis,
+				bundles, limitStructures, randomDFSTree, avoidE2Minors);
+			AssertThat(result, IsFalse());
+			AssertThat(kuratowskis.empty(), IsFalse());
+		}, GraphSizes(), 0, maxNNonPlanar);
+	});
+}
+
+void describeDestructiveBoyerMyrvold() {
+describe("Destructive Boyer-Myrvold Embedding", [](){
+	for (bool bundles : {false, true}) {
+		for (bool limitStructures : {false, true}) {
+			for (bool randomDFSTree : {false, true}) {
+				for (bool avoidE2Minors : {false, true}) {
+					describeDestructiveBoyerMyrvold(
+						bundles, limitStructures, randomDFSTree, avoidE2Minors);
+				}
+			}
+		}
+	}
 });
 }
 
@@ -376,8 +442,9 @@ go_bandit([](){
 		describeModule("Booth-Lueker", bl);
 		BoyerMyrvold bm;
 		describeModule("Boyer-Myrvold", bm);
+		describeDestructiveBoyerMyrvold();
 
-		it("transforms based on the right graph, when it's a GraphCopySimple", [&](){
+		it("transforms based on the right graph, when it's a GraphCopySimple", [](){
 			Graph G;
 			randomRegularGraph(G, 10, 6);
 			GraphCopySimple gcs(G);

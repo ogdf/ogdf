@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/module/EmbedderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <memory>
-#include <ogdf/module/MinCostFlowModule.h>
+#include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 
 namespace ogdf {

@@ -32,6 +32,7 @@ int main()
 	SL.setLayout(ohl);
 
 	SL.call(GA);
+	GraphIO::write(GA, "output-unix-history-hierarchical.gml", GraphIO::writeGML);
 	GraphIO::write(GA, "output-unix-history-hierarchical.svg", GraphIO::drawSVG);
 
 	return 0;

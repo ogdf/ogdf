@@ -530,7 +530,7 @@ bool MultilevelGraph::postMerge(NodeMerge * NM, node merged)
 	int index = merged->index();
 	if (merged->degree() == 0 && NM->m_changedNodes.size() > 0) {
 		NM->m_mergedNode = index;
-		NM->m_radius[index] = m_radius[index];
+		NM->m_radius[index] = m_radius[merged];
 		m_changes.push_back(NM);
 		m_G->delNode(merged);
 		m_reverseNodeIndex[index] = nullptr;
@@ -685,24 +685,24 @@ node MultilevelGraph::undoLastMerge()
 	// reinsert merged node
 	node merged = m_G->newNode(merge->m_mergedNode);
 	m_reverseNodeIndex[merge->m_mergedNode] = merged;
-	m_radius[merge->m_mergedNode] = merge->m_radius[merge->m_mergedNode];
+	m_radius[merged] = merge->m_radius[merge->m_mergedNode];
 
 	// add deleted edges
 	for (int index : merge->m_deletedEdges) {
 		m_reverseEdgeIndex[index] = m_G->newEdge(m_reverseNodeIndex[merge->m_source[index]], m_reverseNodeIndex[merge->m_target[index]], index);
-		m_weight[index] = merge->m_doubleWeight[index];
+		m_weight[m_reverseEdgeIndex[index]] = merge->m_doubleWeight[index];
 	}
 
 	// undo edge changes
 	for (int index : merge->m_changedEdges) {
 		m_G->delEdge(m_reverseEdgeIndex[index]);
 		m_reverseEdgeIndex[index] = m_G->newEdge(m_reverseNodeIndex[merge->m_source[index]], m_reverseNodeIndex[merge->m_target[index]], index);
-		m_weight[index] = merge->m_doubleWeight[index];
+		m_weight[m_reverseEdgeIndex[index]] = merge->m_doubleWeight[index];
 	}
 
 	// undo node changes
 	for (int index : merge->m_changedNodes) {
-		m_radius[index] = merge->m_radius[index];
+		m_radius[m_reverseNodeIndex[index]] = merge->m_radius[index];
 		m_reverseNodeMergeWeight[index] -= m_reverseNodeMergeWeight[merged->index()];
 	}
 

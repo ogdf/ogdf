@@ -36,6 +36,7 @@
 #include <ogdf/basic/FaceArray.h>
 
 #include <testing.h>
+#include <graphs.h>
 
 constexpr int NUMBER_OF_ITERATIONS = 17;
 constexpr int NUMBER_OF_NODES = 100;
@@ -301,6 +302,27 @@ void testConstCombinatorialEmbedding() {
 			testConstCombinatorialEmbedding<T>(graph);
 		});
 	}
+
+	forEachGraphItWorks({GraphProperty::planar, GraphProperty::connected}, [&](Graph &graph) {
+		planarEmbed(graph);
+		T emb(graph);
+
+		int phi = 0;
+		int size = 0;
+		for (face f : emb.faces) {
+			phi++;
+			size += f->size();
+		}
+
+		// Test whether Euler's formula holds.
+		int n = graph.numberOfNodes();
+		int m = graph.numberOfEdges();
+		AssertThat(phi, Equals(emb.numberOfFaces()));
+		AssertThat(size, Equals(2*m));
+		if (graph.numberOfEdges() > 0) {
+			AssertThat(n - m + phi, Equals(2));
+		}
+	}, GraphSizes(4, NUMBER_OF_NODES, 1));
 }
 
 //! Performs single iteration of generic tests that modify the \c graph.

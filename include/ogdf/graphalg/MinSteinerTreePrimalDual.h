@@ -36,7 +36,7 @@
 #include <limits>
 
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/basic/DisjointSets.h>
 
 //#define OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING

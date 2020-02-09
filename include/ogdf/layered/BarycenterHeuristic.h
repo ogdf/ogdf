@@ -31,11 +31,9 @@
 
 #pragma once
 
-#include <ogdf/module/LayerByLayerSweep.h>
-
+#include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
-
 
 //! The barycenter heuristic for 2-layer crossing minimization.
 /**

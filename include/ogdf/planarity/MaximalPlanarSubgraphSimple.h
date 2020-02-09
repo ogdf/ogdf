@@ -231,8 +231,9 @@ protected:
 				result = m_heuristic.call(graph, preferredEdges, heuDelEdges, preferredImplyPlanar);
 			} else {
 				std::uniform_real_distribution<TCost> distribution (0.0,1.0);
-				TCost maxCost = (*pCost)[graph.firstEdge()];
-				TCost minCost = (*pCost)[graph.firstEdge()];
+				edge firstEdge = graph.firstEdge();
+				TCost maxCost = firstEdge == nullptr ? 0 : (*pCost)[firstEdge];
+				TCost minCost = firstEdge == nullptr ? 0 : (*pCost)[firstEdge];
 				for (edge e: graph.edges) {
 					Math::updateMax(maxCost, (*pCost)[e]);
 					Math::updateMin(minCost, (*pCost)[e]);
@@ -240,7 +241,10 @@ protected:
 				for (edge e: graph.edges) {
 					// do not merge with first FOR !
 					// normalized = pCost transformed to [0,1]
-					TCost normalized = ((*pCost)[e] - minCost) / (maxCost - minCost);
+					TCost normalized = 1;
+					if (maxCost > minCost) {
+						normalized = ((*pCost)[e] - minCost) / (maxCost - minCost);
+					}
 					// now use randomness
 					normalizedCost[e] = (1.0 - m_randomness)*normalized + m_randomness*distribution(m_randomGenerator);
 				}

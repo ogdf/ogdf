@@ -32,7 +32,7 @@
 #include <ogdf/energybased/TutteLayout.h>
 
 
-#include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
@@ -160,6 +160,7 @@ void TutteLayout::call(GraphAttributes &AG, const List<node> &givenNodes)
 
 	List<node> fixedNodes;
 	List<DPoint> positions;
+	DRect oldBBox = m_bbox;
 
 	double diam =
 	sqrt((m_bbox.width()) * (m_bbox.width())
@@ -185,7 +186,8 @@ void TutteLayout::call(GraphAttributes &AG, const List<node> &givenNodes)
 	node v = G.firstNode();
 
 	double r        = diam/2.8284271;
-	int    n        = G.numberOfNodes();
+	// Prevent division by zero that occurs for n=2 in later if-condition.
+	int n           = G.numberOfNodes() == 2 ? 3 : G.numberOfNodes();
 	double nodeDiam = 2.0*sqrt((AG.width(v)) * (AG.width(v))
 			 + (AG.height(v)) * (AG.height(v)));
 
@@ -197,6 +199,8 @@ void TutteLayout::call(GraphAttributes &AG, const List<node> &givenNodes)
 	setFixedNodes(G,fixedNodes,givenNodes,positions,r);
 
 	doCall(AG,fixedNodes,positions);
+
+	m_bbox = oldBBox;
 }
 
 void TutteLayout::call(GraphAttributes &AG)
@@ -205,6 +209,7 @@ void TutteLayout::call(GraphAttributes &AG)
 
 	List<node> fixedNodes;
 	List<DPoint> positions;
+	DRect oldBBox = m_bbox;
 
 	double diam =
 	sqrt((m_bbox.width()) * (m_bbox.width())
@@ -230,7 +235,8 @@ void TutteLayout::call(GraphAttributes &AG)
 	node v = G.firstNode();
 
 	double r        = diam/2.8284271;
-	int n           = G.numberOfNodes();
+	// Prevent division by zero that occurs for n=2 in later if-condition.
+	int n           = G.numberOfNodes() == 2 ? 3 : G.numberOfNodes();
 	double nodeDiam = 2.0*sqrt((AG.width(v)) * (AG.width(v))
 			 + (AG.height(v)) * (AG.height(v)));
 
@@ -242,6 +248,8 @@ void TutteLayout::call(GraphAttributes &AG)
 	setFixedNodes(G,fixedNodes,positions,r);
 
 	doCall(AG,fixedNodes,positions);
+
+	m_bbox = oldBBox;
 }
 
 
@@ -258,7 +266,7 @@ bool TutteLayout::doCall(
 	OGDF_ASSERT(isTriconnected(G));
 
 	GraphCopy GC(G);
-	GraphCopyAttributes AGC(GC, AG);
+	GraphAttributes AGC(GC);
 
 	// mark fixed nodes and set their positions in a
 	NodeArray<bool> fixed(GC, false);

@@ -33,9 +33,8 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutPlanRepUMLModule.h>
+#include <ogdf/uml/LayoutPlanRepUMLModule.h>
 #include <ogdf/orthogonal/OrthoRep.h>
-
 
 namespace ogdf {
 

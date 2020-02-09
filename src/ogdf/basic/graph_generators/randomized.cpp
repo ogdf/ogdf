@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <unordered_set>
 
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -44,7 +45,7 @@
 using std::minstd_rand;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
-
+using std::unordered_set;
 
 namespace ogdf {
 
@@ -141,70 +142,74 @@ constexpr int getEdgeIndex(int a, int b, int n, int max)
 }
 
 /**
- * Auxiliary function for ogdf::randomSimpleGraph and ogdf::randomSimpleConnectedGraph
+ * Auxiliary function for ogdf::randomSimpleGraph and ogdf::randomSimpleConnectedGraph.
+ * Adds/removes randomly picked edges into the graph and keeps track of edges already
+ * added/removed by using a mask bool array.
  *
  * @param G the graph to be generated
  * @param n the number of nodes
  * @param m the number of edges
- * @param mask
+ * @param preEdges
  *   An array mask containing booleans for each edge (given by its unique computed index).
- *   If an edge's value is true, it will (not) be contained in \p G.
- *   After the generation, all (not) contained edges will be set to true.
- *   The "not" applies iff \p negate is true.
- * @param masked The number of masked edges. (Must equal the number of true values in \p mask.)
- * @param negate True iff the meaning of the mask should be negated (see \p mask).
+ *   If an edge's value is true, it will be contained in \p G.
+ *   After the generation, all contained edges will be set to true.
+ * @param preAdded The number of edges that MUST BE ADDED. (Must equal the number of true values in \p preEdges.)
  */
-static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& mask, int masked = 0, bool negate = false)
+static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& preEdges, int preAdded = 0)
 {
-	OGDF_ASSERT(mask.low() == 0);
+	OGDF_ASSERT(preEdges.low() == 0);
 
 	G.clear();
 
-	if (n == 0 && m == 0)
+	if (n == 0 && m == 0) {
 		return true;
+	}
 
-	if (n < 1)
+	if (n < 1) {
 		return false;
+	}
 
-	const int max = mask.size();
+	const int max = preEdges.size();
 	OGDF_ASSERT(max == getMaxNumberEdges(n));
-	OGDF_ASSERT(max == mask.high() + 1);
+	OGDF_ASSERT(max == preEdges.high() + 1);
 
-	if (m > max)
+	if (m > max) {
 		return false;
+	}
 
 	Array<node> v(n);
 
-	int i;
-	for (i = 0; i < n; i++)
+	for (int i = 0; i < n; i++) {
 		v[i] = G.newNode();
+	}
 
-	if (m == 0)
+	if (m == 0) {
 		return true;
+	}
 
 	minstd_rand rng(randomSeed());
 	uniform_int_distribution<> dist_a(0, n-1);
 	uniform_int_distribution<> dist_b(0, n-2);
 
-	if (negate) {
+	bool maskRemoveNotAdd = (m > max / 2);
+	if (maskRemoveNotAdd) {
 		m = max - m;
+	} else {
+		m -= preAdded;
 	}
 
-	m -= masked;
-
+	Array<bool> mask(0, max-1, false);
 	while (m > 0) {
 		int a = dist_a(rng);
 		int b = dist_b(rng);
 		if (b >= a) {
 			b++;
 		} else {
-			int c = a;
-			a = b;
-			b = c;
+			std::swap(a, b);
 		}
 
-		i = getEdgeIndex(a, b, n, max);
-		if (!mask[i]) {
+		int i = getEdgeIndex(a, b, n, max);
+		if (!mask[i] && !preEdges[i]) {
 			mask[i] = true;
 			m--;
 		}
@@ -212,7 +217,8 @@ static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& mask, i
 
 	for (int a = 0; a < n; a++) {
 		for (int b = a + 1; b < n; b++) {
-			if (mask[getEdgeIndex(a, b, n, max)] == !negate) {
+			int i = getEdgeIndex(a, b, n, max);
+			if (preEdges[i] || mask[i] == !maskRemoveNotAdd) {
 				G.newEdge(v[a], v[b]);
 			}
 		}
@@ -221,17 +227,144 @@ static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& mask, i
 	return true;
 }
 
-bool randomSimpleGraph(Graph &G, int n, int m)
+/**
+ * Auxiliary function for ogdf::randomSimpleGraph and ogdf::randomSimpleConnectedGraph.
+ * Adds randomly picked edges into the graph and keeps track of edges already added
+ * by using a hashset.
+ *
+ * @param G the graph to be generated
+ * @param n the number of nodes
+ * @param m the number of edges
+ * @param preEdges
+ *   A vector containing std::pair<int,int> for each edge that must be added into G.
+ *   After the generation, all contained edges will be part of G.
+ * @pre preEdges may only contain edges (i, j) where j > i and no duplicate edges
+ */
+static bool randomSimpleGraphBySet(Graph& G, int n, int m, std::vector<std::pair<int, int>>& preEdges)
 {
-	// save some running time by exploiting addition/removal symmetry
-	bool negate = false;
-	const int max = getMaxNumberEdges(n);
-	if (m > max / 2) {
-		negate = true;
+	G.clear();
+
+	if (n == 0 && m == 0) {
+		return true;
 	}
 
-	Array<bool> mask(0, max-1, false);
-	return randomSimpleGraphByMask(G, n, m, mask, 0, negate);
+	if (n < 1) {
+		return false;
+	}
+
+	const int max = getMaxNumberEdges(n);
+	if (m > max || m < (int) preEdges.size()) {
+		return false;
+	}
+
+	Array<node> v(n);
+	for (int i = 0; i < n; i++) {
+		v[i] = G.newNode();
+	}
+
+	unordered_set<int> edgeIndices(2*m);
+	for (auto e: preEdges) {
+		OGDF_ASSERT(e.first < e.second);
+		OGDF_ASSERT(edgeIndices.find(getEdgeIndex(e.first, e.second, n, max)) == edgeIndices.end());
+		edgeIndices.emplace(getEdgeIndex(e.first, e.second, n, max));
+		G.newEdge(v[e.first], v[e.second]);
+		m--;
+	}
+
+	if (m == 0) {
+		return true;
+	}
+
+	minstd_rand rng(randomSeed());
+	uniform_int_distribution<> dist_a(0, n-1);
+	uniform_int_distribution<> dist_b(0, n-2);
+
+	while (m > 0) {
+		int a = dist_a(rng);
+		int b = dist_b(rng);
+		if (b >= a) {
+			b++;
+		} else {
+			std::swap(a, b);
+		}
+
+		int edgeIndex = getEdgeIndex(a, b, n, max);
+		if (edgeIndices.find(edgeIndex) == edgeIndices.end()) {
+			edgeIndices.emplace(edgeIndex);
+			G.newEdge(v[a], v[b]);
+			m--;
+		}
+	}
+
+	return true;
+}
+
+bool randomSimpleGraph(Graph &G, int n, int m)
+{
+	const int max = getMaxNumberEdges(n);
+	// Set implementation showed to be only efficient for very sparse graphs, i.e. <0.5% of possible edges
+	if (m > 0.005 * max) {
+		Array<bool> preEdges(0, max-1, false);
+		return randomSimpleGraphByMask(G, n, m, preEdges, 0);
+	} else {
+		std::vector<std::pair<int, int>> preEdges(0);
+		return randomSimpleGraphBySet(G, n, m, preEdges);
+	}
+}
+
+
+// Algorithm based on PreZER/LogZER from http://dx.doi.org/10.1145/1951365.1951406
+bool randomSimpleGraphByProbability(Graph &G, int n, double pEdge)
+{
+	G.clear();
+
+	if (pEdge > 1 || pEdge < 0)
+		return false;
+
+	Array<node> v(n);
+	for (int i = 0; i < n; i++)
+		v[i] = G.newNode();
+
+	// Precomputation of cumulative probability distribution
+	const int SIZE = 50; // good compromise for sparse and dense graphs (tested)
+	double F[SIZE];
+	for (int k = 0; k < SIZE; k++) {
+		F[k] = 1 - pow(1 - pEdge, k + 1.0);
+	}
+
+	minstd_rand rng(randomSeed());
+	uniform_real_distribution<> dist(0, 1);
+
+	double log1p = log(1 - pEdge);
+	std::pair<int, int> e = {0, 0};
+	while (e.first < n - 1) {
+		double alpha = dist(rng);
+		// Determine how many sequentially enumerated edges to skip
+		int skip = 1;
+		while (skip-1 < SIZE && F[skip-1] <= alpha) {
+			skip++;
+		}
+		if (skip-1 == SIZE) {
+			skip = log(1 - alpha) / log1p + 1;
+		}
+		// Decoding from an edge index to vertex indices is too slow so we
+		// iterate directly over the vertex indices
+		while (skip != 0) {
+			if (skip <= n - 1 - e.second) {
+				e.second += skip;
+				skip = 0;
+			} else {
+				e.first++;
+				skip -= n - e.second;
+				e.second = e.first + 1;
+			}
+		}
+		if (e.first < n - 1) {
+			G.newEdge(v[e.first], v[e.second]);
+		}
+	}
+
+	return true;
 }
 
 bool randomSimpleConnectedGraph(Graph &G, int n, int m)
@@ -245,12 +378,20 @@ bool randomSimpleConnectedGraph(Graph &G, int n, int m)
 	randomTree(tree, n);
 
 	const int max = getMaxNumberEdges(n);
-	Array<bool> used(0, max - 1, false);
-	for (edge e : tree.edges) {
-		used[getEdgeIndex(e->source()->index(), e->target()->index(), n, max)] = true;
+	// Set implementation showed to be only efficient for very sparse graphs, i.e. <0.5% of possible edges
+	if (m > 0.005 * max) {
+		Array<bool> preEdges(0, max - 1, false);
+		for (edge e : tree.edges) {
+			preEdges[getEdgeIndex(e->source()->index(), e->target()->index(), n, max)] = true;
+		}
+		return randomSimpleGraphByMask(G, n, m, preEdges, tree.numberOfEdges());
+	} else {
+		std::vector<std::pair<int, int>> preEdges;
+		for (edge e : tree.edges) {
+			preEdges.emplace_back(e->source()->index(), e->target()->index());
+		}
+		return randomSimpleGraphBySet(G, n, m, preEdges);
 	}
-
-	return randomSimpleGraphByMask(G, n, m, used, tree.numberOfEdges());
 }
 
 
@@ -1217,12 +1358,11 @@ void randomGeometricCubeGraph(Graph &G, int nodes, double threshold, int dimensi
 	// create nodes with random d-dim coordinate
 	emptyGraph(G, nodes);
 	NodeArray<Array<double>> cord(G, Array<double>(dimension));
-	std::random_device rd;
-	std::mt19937 gen(rd());
+	std::minstd_rand rng(randomSeed());
 	uniform_real_distribution<> dist(0, 1);
 	for (node v : G.nodes) {
 		for (int i = 0; i < dimension; i++){
-			cord[v][i] = dist(gen);
+			cord[v][i] = dist(rng);
 		}
 	}
 
@@ -1253,12 +1393,11 @@ void randomWaxmanGraph(Graph &G, int nodes, double alpha, double beta, double wi
 
 	// Model RG1: Randomly distribute nodes, then work off their distances.
 	NodeArray<IPoint> cord(G);
-	std::random_device rd;
-	std::mt19937 gen(rd());
+	std::minstd_rand rng(randomSeed());
 	uniform_int_distribution<> distX(0, width);
 	uniform_int_distribution<> distY(0, height);
 	for (node v : G.nodes) {
-		cord[v] = IPoint(distX(gen), distY(gen));
+		cord[v] = IPoint(distX(rng), distY(rng));
 	}
 
 	double maxDistance = 0.0;

@@ -66,6 +66,7 @@ public:
 	E2 &x2() { return m_x2; }
 
 	// default assignment operator
+	Tuple2& operator=(const Tuple2<E1,E2>&) = default;
 
 	OGDF_NEW_DELETE
 };

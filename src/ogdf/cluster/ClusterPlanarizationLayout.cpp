@@ -228,8 +228,8 @@ void ClusterPlanarizationLayout::call(
 			OGDF_ASSERT(subPlanar);
 #endif
 		} else {
-			if (!connect)
-				OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::ClusterPlanar);
+			// assert that we fixed c-connection if non-c-planarity is not (or no longer) the issue
+			OGDF_ASSERT(connect);
 		}
 	}
 

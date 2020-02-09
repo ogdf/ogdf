@@ -2,10 +2,15 @@
  * \mainpage The Open Graph Drawing Framework
  *
  * \section sec_intro Introduction
- * The Open Graph Drawing Framework (OGDF) is a C++ library containing
- * implementations of various graph drawing algorithms. The library is self
- * contained; optionally, additional packages like LP-solvers are required
- * for some implementations.
+ * OGDF stands both for Open Graph Drawing Framework (the original name)
+ * and Open Graph algorithms and Data structures Framework.
+ *
+ * OGDF is a C++ library for graph algorithms,
+ * in particular for (but not restricted to) automatic graph drawing.
+ * It offers sophisticated algorithms and data structures to use
+ * within your own applications or scientific projects.
+ * The library is self-contained; optionally, additional packages
+ * like LP-solvers are required for some implementations.
  *
  * Here, you find the library's documentation. For more general information
  * on OGDF see http://www.ogdf.net. There, you can also find further explanations,
@@ -20,7 +25,7 @@
  *
  * - \ref basic
  *   <br>Contains basic general classes and functions for \ref random "random numbers", \ref date-time "date and time",
- *   \ref file-system "file and directory handling", fundamental classes and concepts like \ref exceptions "exception handling"
+ *   fundamental classes and concepts like \ref exceptions "exception handling"
  *   and \ref comparer "comparer", as well as system-specific functionality like \ref threads "multi-threading support" and
  *   access to information on \ref system "system and configuration".
  *   There are also some \ref macros "noteworthy macros" for developers.
@@ -42,6 +47,7 @@
  * \page getting-started Getting Started
  *
  * - \subpage build for information how to build OGDF
+ * - \subpage relnotes for each release
  * - \subpage porting for information about compatibility-breaking changes
  * - A list of @subpage defines
  *
@@ -68,10 +74,6 @@
  * @defgroup date-time Date and Time
  * @ingroup basic
  * \brief Provides date and time utilites.
- *
- * @defgroup file-system Files and Directories
- * @ingroup basic
- * \brief Provides functionality for easy file and directory handling.
  *
  * @defgroup container-functions Container Functions
  * @ingroup basic

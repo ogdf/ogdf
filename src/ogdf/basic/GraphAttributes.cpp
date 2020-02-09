@@ -34,27 +34,33 @@
 
 
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
 
 
 namespace ogdf {
 
-const int GraphAttributes::nodeGraphics      = 0x00001;
-const int GraphAttributes::edgeGraphics      = 0x00002;
-const int GraphAttributes::edgeIntWeight     = 0x00004;
-const int GraphAttributes::edgeDoubleWeight  = 0x00008;
-const int GraphAttributes::edgeLabel         = 0x00010;
-const int GraphAttributes::nodeLabel         = 0x00020;
-const int GraphAttributes::edgeType          = 0x00040;
-const int GraphAttributes::nodeType          = 0x00080;
-const int GraphAttributes::nodeId            = 0x00100;
-const int GraphAttributes::edgeArrow         = 0x00200;
-const int GraphAttributes::edgeStyle         = 0x00400;
-const int GraphAttributes::nodeStyle         = 0x00800;
-const int GraphAttributes::nodeTemplate      = 0x01000;
-const int GraphAttributes::edgeSubGraphs     = 0x02000;
-const int GraphAttributes::nodeWeight        = 0x04000;
-const int GraphAttributes::threeD            = 0x08000;
-const int GraphAttributes::nodeLabelPosition = 0x10000;
+const long GraphAttributes::nodeGraphics      = 1 << 0;
+const long GraphAttributes::edgeGraphics      = 1 << 1;
+const long GraphAttributes::edgeIntWeight     = 1 << 2;
+const long GraphAttributes::edgeDoubleWeight  = 1 << 3;
+const long GraphAttributes::edgeLabel         = 1 << 4;
+const long GraphAttributes::nodeLabel         = 1 << 5;
+const long GraphAttributes::edgeType          = 1 << 6;
+const long GraphAttributes::nodeType          = 1 << 7;
+const long GraphAttributes::nodeId            = 1 << 8;
+const long GraphAttributes::edgeArrow         = 1 << 9;
+const long GraphAttributes::edgeStyle         = 1 << 10;
+const long GraphAttributes::nodeStyle         = 1 << 11;
+const long GraphAttributes::nodeTemplate      = 1 << 12;
+const long GraphAttributes::edgeSubGraphs     = 1 << 13;
+const long GraphAttributes::nodeWeight        = 1 << 14;
+const long GraphAttributes::threeD            = 1 << 15;
+const long GraphAttributes::nodeLabelPosition = 1 << 16;
+// Make sure this covers all other flags!
+// Also if you ever add any attributes that are not to be encompassed by
+// GraphAttributes::all, make sure to update ClusterGraphattributes.cpp
+// as well so the attributes do not overlap.
+const long GraphAttributes::all               = (1 << 17) - 1;
 
 GraphAttributes::GraphAttributes() : m_pGraph(nullptr), m_directed(true), m_attributes(0) { }
 
@@ -433,8 +439,8 @@ void GraphAttributes::addNodeCenter2Bends(int mode)
 		DPolyline &bendpoints = bends(e);
 		if (mode <= 1) {
 			// push center to the bends
-			bendpoints.pushFront(DPoint(x(v), y(v)));
-			bendpoints.pushBack (DPoint(x(w), y(w)));
+			bendpoints.pushFront(point(v));
+			bendpoints.pushBack (point(w));
 		}
 		if (mode >= 1) {
 			// determine intersection between node and last bend-segment
@@ -674,6 +680,173 @@ void GraphAttributes::rotateLeft90()
 				p.m_y = -x;
 			}
 		}
+	}
+}
+
+void GraphAttributes::copyNodeAttributes(GraphAttributes &toAttr, node vFrom, node vTo, long attrs) const {
+	if (vTo != nullptr && vFrom != nullptr) {
+		if (attrs & nodeGraphics) {
+			toAttr.x(vTo) = x(vFrom);
+			toAttr.y(vTo) = y(vFrom);
+			toAttr.width(vTo) = width(vFrom);
+			toAttr.height(vTo) = height(vFrom);
+			toAttr.shape(vTo) = shape(vFrom);
+		}
+		if (attrs & threeD) {
+			toAttr.z(vTo) = z(vFrom);
+		}
+		if (attrs & nodeStyle) {
+			toAttr.strokeColor(vTo) = strokeColor(vFrom);
+			toAttr.strokeType(vTo) = strokeType(vFrom);
+			toAttr.strokeWidth(vTo) = strokeWidth(vFrom);
+			toAttr.fillBgColor(vTo) = fillBgColor(vFrom);
+			toAttr.fillColor(vTo) = fillColor(vFrom);
+			toAttr.fillPattern(vTo) = fillPattern(vFrom);
+		}
+		if (attrs & nodeWeight) {
+			toAttr.weight(vTo) = weight(vFrom);
+		}
+		if (attrs & nodeLabel) {
+			toAttr.label(vTo) = label(vFrom);
+		}
+		if (attrs & nodeLabelPosition) {
+			toAttr.xLabel(vTo) = xLabel(vFrom);
+			toAttr.yLabel(vTo) = yLabel(vFrom);
+			if (attrs & threeD) {
+				toAttr.zLabel(vTo) = zLabel(vFrom);
+			}
+		}
+		if (attrs & nodeType) {
+			toAttr.type(vTo) = type(vFrom);
+		}
+		if (attrs & nodeId) {
+			toAttr.idNode(vTo) = idNode(vFrom);
+		}
+		if (attrs & nodeTemplate) {
+			toAttr.templateNode(vTo) = templateNode(vFrom);
+		}
+	}
+}
+
+void GraphAttributes::copyEdgeAttributes(GraphAttributes &toAttr, edge eFrom, edge eTo, long attrs) const {
+	if (eTo != nullptr && eFrom != nullptr) {
+		if (attrs & edgeStyle) {
+			toAttr.strokeColor(eTo) = strokeColor(eFrom);
+			toAttr.strokeType(eTo) = strokeType(eFrom);
+			toAttr.strokeWidth(eTo) = strokeWidth(eFrom);
+		}
+		if (attrs & edgeIntWeight) {
+			toAttr.intWeight(eTo) = intWeight(eFrom);
+		}
+		if (attrs & edgeDoubleWeight) {
+			toAttr.doubleWeight(eTo) = doubleWeight(eFrom);
+		}
+		if (attrs & edgeLabel) {
+			toAttr.label(eTo) = label(eFrom);
+		}
+		if (attrs & edgeType) {
+			toAttr.type(eTo) = type(eFrom);
+		}
+		if (attrs & edgeArrow) {
+			toAttr.arrowType(eTo) = arrowType(eFrom);
+		}
+		if (attrs & edgeSubGraphs) {
+			toAttr.subGraphBits(eTo) = subGraphBits(eFrom);
+		}
+	}
+}
+
+void GraphAttributes::transferToOriginal(GraphAttributes &origAttr) const {
+	// GC is the GraphCopy belonging to this GraphAttributes.
+	const GraphCopy &GC = dynamic_cast<const GraphCopy&>(constGraph());
+	const Graph &G = origAttr.constGraph();
+	long bothAttrs = attributes() & origAttr.attributes();
+
+	origAttr.directed() = directed();
+
+	// Transfer node attributes if they are enabled in both.
+	for (node vOrig : G.nodes) {
+		copyNodeAttributes(origAttr, GC.copy(vOrig), vOrig, bothAttrs);
+	}
+
+	auto pushBends = [&](DPolyline &origBends, edge eInChain, bool isReversed) {
+		if (isReversed) {
+			for (auto bendPoint : reverse(bends(eInChain))) {
+				origBends.pushBack(bendPoint);
+			}
+		} else {
+			for (auto bendPoint : bends(eInChain)) {
+				origBends.pushBack(bendPoint);
+			}
+		}
+	};
+
+	// Transfer edge attributes if they are enabled in both.
+	for (edge eOrig : G.edges) {
+		// Always transfer attributes from the first edge in chain(eOrig).
+		edge eCopy = GC.copy(eOrig);
+
+		if (eCopy != nullptr && (bothAttrs & edgeGraphics)) {
+			// Push bends of the first edge in the chain to the original.
+			DPolyline &origBends = origAttr.bends(eOrig);
+			origBends.clear();
+			pushBends(origBends, eCopy, GC.isReversed(eOrig));
+
+			// Add both dummy nodes and bends of other chain edges as bends to the original.
+			const List<edge> &chain = GC.chain(eOrig);
+			auto dummyIter = chain.begin();
+			auto nextDummyIter = chain.begin();
+			for (nextDummyIter++; nextDummyIter != chain.end(); dummyIter++, nextDummyIter++) {
+				node dummy = (*dummyIter)->commonNode(*nextDummyIter);
+				origBends.pushBack(point(dummy));
+				pushBends(origBends, *nextDummyIter, dummy == (*nextDummyIter)->source());
+			}
+
+			origBends.normalize();
+		}
+		copyEdgeAttributes(origAttr, eCopy, eOrig, bothAttrs);
+	}
+}
+
+void GraphAttributes::transferToCopy(GraphAttributes &copyAttr) const {
+	// GC is the GraphCopy belonging to copyAttr.
+	const GraphCopy &GC = dynamic_cast<const GraphCopy&>(copyAttr.constGraph());
+	const Graph &G = constGraph();
+	long bothAttrs = attributes() & copyAttr.attributes();
+
+	copyAttr.directed() = directed();
+
+	// Transfer node attributes if they are enabled in both.
+	for (node vOrig : G.nodes) {
+		copyNodeAttributes(copyAttr, vOrig, GC.copy(vOrig), bothAttrs);
+	}
+
+	// Transfer edge attributes if they are enabled in both.
+	for (edge eOrig : G.edges) {
+		// Transfer attributes to all copy edges in the chain.
+		for (edge eCopy : GC.chain(eOrig)) {
+			if (bothAttrs & edgeGraphics) {
+				copyAttr.bends(eCopy).clear();
+			}
+			copyEdgeAttributes(copyAttr, eOrig, eCopy, bothAttrs);
+		}
+
+		// Transfer bends to the first copy edge in the chain.
+		edge eCopy = GC.copy(eOrig);
+		if (eCopy != nullptr && (bothAttrs & edgeGraphics)) {
+			DPolyline &copyBends = copyAttr.bends(eCopy);
+			if (GC.isReversed(eOrig)) {
+				for (auto bendPoint : reverse(bends(eOrig))) {
+					copyBends.pushBack(bendPoint);
+				}
+			} else {
+				for (auto bendPoint : bends(eOrig)) {
+					copyBends.pushBack(bendPoint);
+				}
+			}
+			copyBends.normalize();
+		}
+
 	}
 }
 

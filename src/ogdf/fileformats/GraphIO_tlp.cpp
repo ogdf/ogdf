@@ -166,6 +166,9 @@ static void writeProperties(
 		                                        nodes, "node", Attribute::fillPattern, "string",
 		                                        LayoutStandards::defaultNodeFill().m_pattern, false,
 		                                        [](FillPattern fp) { return "\"" + toString(fp) + "\""; });
+		writeSingleProperty<node, Color>(os, [&](node v) { return GA.fillBgColor(v); },
+		                                 nodes, "node", Attribute::fillBackground, "color", Color(), false,
+		                                 [](Color c) { return writeColor(c); });
 		writeSingleProperty<node, Shape>(os, [&](node v) { return GA.shape(v); },
 		                                 nodes, "node", Attribute::shape, "string",
 		                                 LayoutStandards::defaultNodeShape(), false,

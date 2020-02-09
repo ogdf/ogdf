@@ -294,13 +294,17 @@ void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c)
 		cluster = xmlNode;
 	} else {
 		pugi::xml_node clusterXmlNode = xmlNode.append_child("rect");
-		clusterXmlNode.append_attribute("x") = m_clsAttr->x(c);
-		clusterXmlNode.append_attribute("y") = m_clsAttr->y(c);
-		clusterXmlNode.append_attribute("width") = m_clsAttr->width(c);
-		clusterXmlNode.append_attribute("height") = m_clsAttr->height(c);
-		clusterXmlNode.append_attribute("fill") = m_clsAttr->fillPattern(c) == FillPattern::None ? "none" : m_clsAttr->fillColor(c).toString().c_str();
-		clusterXmlNode.append_attribute("stroke") = m_clsAttr->strokeType(c) == StrokeType::None ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
-		clusterXmlNode.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
+		if (m_clsAttr->has(ClusterGraphAttributes::clusterGraphics)) {
+			clusterXmlNode.append_attribute("x") = m_clsAttr->x(c);
+			clusterXmlNode.append_attribute("y") = m_clsAttr->y(c);
+			clusterXmlNode.append_attribute("width") = m_clsAttr->width(c);
+			clusterXmlNode.append_attribute("height") = m_clsAttr->height(c);
+		}
+		if (m_clsAttr->has(ClusterGraphAttributes::clusterStyle)) {
+			clusterXmlNode.append_attribute("fill") = m_clsAttr->fillPattern(c) == FillPattern::None ? "none" : m_clsAttr->fillColor(c).toString().c_str();
+			clusterXmlNode.append_attribute("stroke") = m_clsAttr->strokeType(c) == StrokeType::None ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
+			clusterXmlNode.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
+		}
 	}
 }
 
@@ -377,20 +381,49 @@ pugi::xml_node SvgPrinter::drawPolygon(pugi::xml_node xmlNode, const std::list<d
 	return result;
 }
 
-double SvgPrinter::getArrowSize(edge e, node v) {
+bool SvgPrinter::isArrowEnabled(adjEntry adj) {
+	bool result = false;
+
+	if(m_attr.has(GraphAttributes::edgeArrow)) {
+		switch(m_attr.arrowType(*adj)) {
+			case EdgeArrow::Undefined:
+				result = !adj->isSource() && m_attr.directed();
+				break;
+			case EdgeArrow::First:
+				result = adj->isSource();
+				break;
+			case EdgeArrow::Last:
+				result = !adj->isSource();
+				break;
+			case EdgeArrow::Both:
+				result = true;
+				break;
+			case EdgeArrow::None:
+				;
+		}
+	} else {
+		result = !adj->isSource() && m_attr.directed();
+	}
+
+	return result;
+}
+
+double SvgPrinter::getArrowSize(adjEntry adj) {
 	double result = 0;
 
-	if(m_attr.has(GraphAttributes::edgeArrow) || m_attr.directed()) {
-		const double minSize = (m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeWidth(e) : 1) * 3;
-		node w = e->opposite(v);
+	if(isArrowEnabled(adj)) {
+		const double minSize = (m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeWidth(adj->theEdge()) : 1) * 3;
+		node v = adj->theNode();
+		node w = adj->twinNode();
 		result = std::max(minSize, (m_attr.width(v) + m_attr.height(v) + m_attr.width(w) + m_attr.height(w)) / 16.0);
 	}
 
 	return result;
 }
 
-bool SvgPrinter::isCoveredBy(const DPoint &point, edge e, node v) {
-	double arrowSize = getArrowSize(e, v);
+bool SvgPrinter::isCoveredBy(const DPoint &point, adjEntry adj) {
+	double arrowSize = getArrowSize(adj);
+	node v = adj->theNode();
 
 	return point.m_x >= m_attr.x(v) - m_attr.width(v)/2 - arrowSize
 	    && point.m_x <= m_attr.x(v) + m_attr.width(v)/2 + arrowSize
@@ -399,29 +432,8 @@ bool SvgPrinter::isCoveredBy(const DPoint &point, edge e, node v) {
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
-	// draw arrows if G is directed or if arrow types are defined for the edge
-	bool drawSourceArrow = false;
-	bool drawTargetArrow = false;
-
-	if (m_attr.has(GraphAttributes::edgeArrow)) {
-		switch (m_attr.arrowType(e)) {
-		case EdgeArrow::Undefined:
-			drawTargetArrow = m_attr.directed();
-			break;
-		case EdgeArrow::Last:
-			drawTargetArrow = true;
-			break;
-		case EdgeArrow::Both:
-			drawTargetArrow = true;
-			OGDF_CASE_FALLTHROUGH;
-		case EdgeArrow::First:
-			drawSourceArrow = true;
-			break;
-		default:
-			// don't draw any arrows
-			break;
-		}
-	}
+	bool drawSourceArrow = isArrowEnabled(e->adjSource());
+	bool drawTargetArrow = isArrowEnabled(e->adjTarget());
 
 	xmlNode = xmlNode.append_child("g");
 	bool drawLabel = m_attr.has(GraphAttributes::edgeLabel) && !m_attr.label(e).empty();
@@ -440,8 +452,8 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 	DPolyline path = m_attr.bends(e);
 	node s = e->source();
 	node t = e->target();
-	path.pushFront(DPoint(m_attr.x(s), m_attr.y(s)));
-	path.pushBack(DPoint(m_attr.x(t), m_attr.y(t)));
+	path.pushFront(m_attr.point(s));
+	path.pushBack(m_attr.point(t));
 
 	bool drawSegment = false;
 	bool finished = false;
@@ -453,20 +465,20 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 		DPoint p2 = *(it.succ());
 
 		// leaving segment at source node ?
-		if(isCoveredBy(p1, e, s) && !isCoveredBy(p2, e, s)) {
+		if(isCoveredBy(p1, e->adjSource()) && !isCoveredBy(p2, e->adjSource())) {
 			if(!drawSegment && drawSourceArrow) {
-				drawArrowHead(xmlNode, p2, p1, s, e);
+				drawArrowHead(xmlNode, p2, p1, e->adjSource());
 			}
 
 			drawSegment = true;
 		}
 
 		// entering segment at target node ?
-		if(!isCoveredBy(p1, e, t) && isCoveredBy(p2, e, t)) {
+		if(!isCoveredBy(p1, e->adjTarget()) && isCoveredBy(p2, e->adjTarget())) {
 			finished = true;
 
 			if(drawTargetArrow) {
-				drawArrowHead(xmlNode, p1, p2, t, e);
+				drawArrowHead(xmlNode, p1, p2, e->adjTarget());
 			}
 		}
 
@@ -602,11 +614,12 @@ pugi::xml_node SvgPrinter::drawCurve(pugi::xml_node xmlNode, edge e, List<DPoint
 	return line;
 }
 
-void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoint &end, node v, edge e)
+void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoint &end, adjEntry adj)
 {
 	const double dx = end.m_x - start.m_x;
 	const double dy = end.m_y - start.m_y;
-	const double size = getArrowSize(e, v);
+	const double size = getArrowSize(adj);
+	node v = adj->theNode();
 
 	pugi::xml_node arrowHead;
 
@@ -630,7 +643,7 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoi
 		double delta = x - start.m_x;
 		double y = start.m_y + delta*slope;
 
-		if(!isCoveredBy(DPoint(x,y), e, v)) {
+		if(!isCoveredBy(DPoint(x,y), adj)) {
 			sign = dy > 0 ? 1 : -1;
 			y = m_attr.y(v) - m_attr.height(v)/2 * sign;
 			delta = y - start.m_y;
@@ -660,5 +673,5 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoi
 		arrowHead = drawPolygon(xmlNode, {end.m_x, end.m_y, x2, y2, x3, y3});
 	}
 
-	appendLineStyle(arrowHead, e);
+	appendLineStyle(arrowHead, *adj);
 }

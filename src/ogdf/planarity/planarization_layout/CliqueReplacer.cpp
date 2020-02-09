@@ -44,7 +44,7 @@ CliqueReplacer::CliqueReplacer(GraphAttributes &ga, Graph &G) : m_G(G), m_ga(ga)
 // edges between nodes in set, lists need to be disjoint
 // TODO: think about directly using the cliquenum array
 // output of findcliques here
-void CliqueReplacer::replaceByStar(List< List<node> > &cliques)
+void CliqueReplacer::replaceByStar(List<List<node>*> &cliques)
 {
 	m_cliqueCircleSize.init(m_G);
 	m_cliqueCirclePos.init(m_G);
@@ -53,33 +53,23 @@ void CliqueReplacer::replaceByStar(List< List<node> > &cliques)
 	if (cliques.empty()) return;
 	//we save membership of nodes in each list
 	NodeArray<int> cliqueNum(m_G, -1);
-	ListIterator< List<node> > it = cliques.begin();
 
 	int num = 0;
-	while (it.valid())
-	{
-		ListIterator<node> itNode = (*it).begin();
-		while (itNode.valid())
-		{
-			cliqueNum[*itNode] = num;
-			++itNode;
+	for (List<node>* clique : cliques) {
+		for (node v : *clique) {
+			cliqueNum[v] = num;
 		}
-
 		++num;
-		++it;
 	}
 
 	//now replace each list
-	it = cliques.begin();
-	while (it.valid())
-	{
-		node newCenter = replaceByStar((*it), cliqueNum);
+	for (List<node>* clique : cliques) {
+		node newCenter = replaceByStar(*clique, cliqueNum);
 		OGDF_ASSERT(newCenter != nullptr);
 		m_centerNodes.pushBack(newCenter);
 		//now we compute a circular drawing of the replacement
 		//and save its size and the node positions
 		m_cliqueCircleSize[newCenter] = circularBound(newCenter);
-		++it;
 	}
 }
 
@@ -175,7 +165,7 @@ DRect CliqueReplacer::circularBound(node center)
 
 	for(node v : G.nodes)
 	{
-		m_cliqueCirclePos[umlOriginal[v]] = DPoint(AG.x(v), AG.y(v));
+		m_cliqueCirclePos[umlOriginal[v]] = AG.point(v);
 	}
 	bb = AG.boundingBox();
 

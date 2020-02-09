@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/PlanarSubgraphModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/basic/STNumbering.h>
 #include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 #include <ogdf/planarity/planar_subgraph_fast/PlanarSubgraphPQTree.h>
@@ -165,24 +165,12 @@ public:
 		m_nRuns = 10;
 	}
 
-	//! Destructor
-	~PlanarSubgraphFast() { }
-
 	//! Returns a new instance of fast planar subgraph with the same option settings.
 	virtual PlanarSubgraphFast *clone() const override {
 		auto* res = new PlanarSubgraphFast<TCost>(*this);
 		res->m_nRuns = m_nRuns;
 		return res;
 	}
-
-	//! Assignment operator. Copies option settings only.
-	PlanarSubgraphFast &operator=(const PlanarSubgraphFast &fps) {
-		maxThreads(fps.maxThreads());
-		this->m_timeLimit = fps.m_timeLimit;
-		m_nRuns = fps.m_nRuns;
-		return *this;
-	}
-
 
 	//! Sets the number of randomized runs to \p nRuns.
 	void runs (int nRuns) {

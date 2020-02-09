@@ -33,7 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph_d.h>
-#include <ogdf/module/GridLayoutModule.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <ogdf/basic/List.h>
 
 namespace ogdf {

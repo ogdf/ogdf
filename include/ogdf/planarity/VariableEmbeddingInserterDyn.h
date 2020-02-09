@@ -57,14 +57,8 @@ class OGDF_EXPORT VariableEmbeddingInserterDyn : public VariableEmbeddingInserte
 public:
 	using VariableEmbeddingInserterBase::VariableEmbeddingInserterBase;
 
-	//! Destructor.
-	~VariableEmbeddingInserterDyn() { }
-
 	//! Returns a new instance of the variable embedding inserter with the same option settings.
 	virtual EdgeInsertionModule *clone() const override;
-
-	//! Assignment operator. Copies option settings only.
-	VariableEmbeddingInserterDyn &operator=(const VariableEmbeddingInserterDyn &inserter);
 
 private:
 	//! Implements the algorithm call.

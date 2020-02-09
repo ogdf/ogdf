@@ -62,11 +62,13 @@ void testAttribute(
 	describe(attributeName, [&] {
 		Graph graph;
 		GraphAttributes attr(graph);
+		GraphAttributes attrCopy;
 		List<Element> elements;
 
 		before_each([&] {
 			completeGraph(graph, 7);
 			attr.init(neededAttributes);
+			attrCopy = attr;
 			elements = elemFunc(graph);
 		});
 
@@ -81,6 +83,8 @@ void testAttribute(
 			for(Element elem : elements) {
 				AssertThat(constRefFunc(attr, elem), Equals(defaultValue));
 				AssertThat(refFunc(attr, elem), Equals(defaultValue));
+				AssertThat(constRefFunc(attrCopy, elem), Equals(defaultValue));
+				AssertThat(refFunc(attrCopy, elem), Equals(defaultValue));
 			}
 		});
 
@@ -90,7 +94,14 @@ void testAttribute(
 				value = secondValue;
 				AssertThat(refFunc(attr, elem), Equals(secondValue));
 				AssertThat(constRefFunc(attr, elem), Equals(secondValue));
+				AssertThat(refFunc(attrCopy, elem), Equals(defaultValue));
+				AssertThat(constRefFunc(attrCopy, elem), Equals(defaultValue));
 			}
+		});
+
+		it("enables the attribute when enabling all", [&] {
+			attr.init(GA::all);
+			AssertThat(attr.has(neededAttributes), IsTrue());
 		});
 	});
 }
@@ -142,6 +153,14 @@ describe("graph attributes", [] {
 		attr.init(graph, GA::nodeId);
 		AssertThat(&attr.constGraph(), Equals(&graph));
 		AssertThat(attr.attributes(), Equals(GA::nodeId));
+	});
+
+	it("initializes using another GraphAttributes instance", [] {
+		Graph graph;
+		GraphAttributes attr(graph, GA::nodeId | GA::nodeGraphics);
+		GraphAttributes attrCopy(attr);
+		AssertThat(&attrCopy.constGraph(), Equals(&graph));
+		AssertThat(attrCopy.attributes(), Equals(GA::nodeId | GA::nodeGraphics));
 	});
 
 	it("destroys its attributes", [] {
@@ -622,7 +641,7 @@ describe("graph attributes", [] {
 		AssertThat(boundBox.p2().m_x, Equals(2020) || IsLessThan(2020));
 		AssertThat(boundBox.p2().m_y, Equals(2020) || IsLessThan(2020));
 		for(node v : graph.nodes) {
-			AssertThat(boundBox.contains(DPoint(attr.x(v), attr.y(v))), IsTrue());
+			AssertThat(boundBox.contains(attr.point(v)), IsTrue());
 		}
 		for(edge e : graph.edges) {
 			for(DPoint &p : attr.bends(e)) {
@@ -665,6 +684,108 @@ describe("graph attributes", [] {
 			AssertThat((*attr.bends(e).get(0)).m_x, Equals(42));
 			AssertThat((*attr.bends(e).get(0)).m_y, Equals(17));
 		});
+	});
+
+	it("can be transferred from a GraphCopy to the original", [] {
+		Graph graph;
+		completeGraph(graph, 5);
+		GraphAttributes attr(graph);
+
+		// Create GraphCopy with bend point and dummy node splitting first edge.
+		GraphCopy copy(graph);
+		GraphAttributes copyAttr(copy);
+		DPoint bendPoint(42,42);
+		edge firstCopyEdge = copy.copy(graph.firstEdge());
+		copyAttr.bends(firstCopyEdge).pushBack(bendPoint);
+		node dummy = copy.split(firstCopyEdge)->source();
+
+		for (node vCopy : copy.nodes) {
+			copyAttr.x(vCopy) = randomNumber(0,100);
+			copyAttr.y(vCopy) = randomNumber(0,100);
+		}
+		copyAttr.transferToOriginal(attr);
+
+		for (node v : graph.nodes) {
+			AssertThat(attr.x(v), Equals(copyAttr.x(copy.copy(v))));
+			AssertThat(attr.y(v), Equals(copyAttr.y(copy.copy(v))));
+		}
+
+		// Both the bend point and the dummy node are transferred as bend points.
+		DPolyline dpl = attr.bends(graph.firstEdge());
+		AssertThat(dpl.size(), Equals(2));
+		AssertThat(dpl.front(), Equals(bendPoint));
+		AssertThat(dpl.back(), Equals(copyAttr.point(dummy)));
+	});
+
+	it("can be transferred from the original to a GraphCopy", [] {
+		Graph graph;
+		completeGraph(graph, 5);
+		GraphAttributes attr(graph, GraphAttributes::nodeGraphics |
+				GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
+		DPoint bendPoint(42,42);
+		attr.bends(graph.firstEdge()).pushBack(bendPoint);
+		attr.strokeWidth(graph.firstEdge()) = 7;
+
+		// Create GraphCopy with dummy node splitting first edge.
+		GraphCopy copy(graph);
+		GraphAttributes copyAttr(copy, GraphAttributes::nodeGraphics |
+				GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
+		node dummy = copy.split(copy.copy(graph.firstEdge()))->source();
+
+		// Node attributes are only transferred to non-dummy nodes.
+		for (node vOrig : graph.nodes) {
+			attr.x(vOrig) = randomNumber(0,100);
+			attr.y(vOrig) = randomNumber(0,100);
+		}
+		for (node vCopy : copy.nodes) {
+			copyAttr.x(vCopy) = 200;
+			copyAttr.y(vCopy) = 200;
+		}
+		attr.transferToCopy(copyAttr);
+
+		for (node vCopy : copy.nodes) {
+			if (!copy.isDummy(vCopy)) {
+				AssertThat(copyAttr.x(vCopy), Equals(attr.x(copy.original(vCopy))));
+				AssertThat(copyAttr.y(vCopy), Equals(attr.y(copy.original(vCopy))));
+			}
+		}
+		AssertThat(copyAttr.x(dummy), Equals(200));
+		AssertThat(copyAttr.y(dummy), Equals(200));
+
+		// Bends are only transferred to the first edge in the chain, other
+		// attributes are transferred to all edges in the chain.
+		const List<edge> &chain = copy.chain(graph.firstEdge());
+		AssertThat(copyAttr.bends(chain.front()).size(), Equals(1));
+		AssertThat(copyAttr.bends(chain.front()).front(), Equals(bendPoint));
+		AssertThat(copyAttr.bends(chain.back()).empty(), IsTrue());
+		AssertThat(copyAttr.strokeWidth(chain.front()), Equals(7));
+		AssertThat(copyAttr.strokeWidth(chain.back()), Equals(7));
+	});
+
+	it("is not changed during transfers with disjoint attributes", [] {
+		Graph graph;
+		customGraph(graph, 1, {{0,0}});
+		GraphAttributes attr(graph, GraphAttributes::nodeLabel);
+		attr.label(graph.firstNode()) = "node";
+
+		GraphCopy copy(graph);
+		GraphAttributes copyAttr(copy, GraphAttributes::edgeLabel);
+		copyAttr.label(copy.firstEdge()) = "edge";
+
+		auto assertNothingChanged = [&]() {
+			AssertThat(attr.label(graph.firstNode()), Equals("node"));
+			AssertThat(copyAttr.label(copy.firstEdge()), Equals("edge"));
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, attr.label(graph.firstEdge()));
+			AssertThrows(AssertionFailed, copyAttr.label(copy.firstNode()));
+#endif
+		};
+
+		assertNothingChanged();
+		attr.transferToCopy(copyAttr);
+		assertNothingChanged();
+		copyAttr.transferToOriginal(attr);
+		assertNothingChanged();
 	});
 });
 });

@@ -40,7 +40,7 @@
 #include <ogdf/graphalg/steiner_tree/SaveDynamic.h>
 #include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 
 namespace ogdf {
@@ -522,9 +522,9 @@ template<typename T>
 void MinSteinerTreeZelikovsky<T>::computeDistanceMatrix()
 {
 	if (m_ssspDistances) {
-		MinSteinerTreeModule<T>::allTerminalShortestPathsStrict(*m_originalGraph, *m_terminals, *m_isTerminal, m_distance, m_pred);
+		MinSteinerTreeModule<T>::allTerminalShortestPaths(*m_originalGraph, *m_terminals, *m_isTerminal, m_distance, m_pred);
 	} else {
-		MinSteinerTreeModule<T>::allPairShortestPathsStrict(*m_originalGraph, *m_isTerminal, m_distance, m_pred);
+		MinSteinerTreeModule<T>::allPairShortestPaths(*m_originalGraph, *m_isTerminal, m_distance, m_pred);
 	}
 }
 

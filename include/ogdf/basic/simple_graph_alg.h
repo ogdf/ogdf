@@ -40,6 +40,13 @@ namespace ogdf {
 //! \name Methods for loops
 //! @{
 
+/**
+ * Removes all self-loops for a given node \p v in \p graph
+ *
+ * @ingroup ga-multi
+ */
+OGDF_EXPORT void removeSelfLoops(Graph &graph, node v);
+
 //! Returns true iff \p G contains no self-loop.
 /**
  * @ingroup ga-multi
@@ -62,16 +69,16 @@ void makeLoopFree(Graph &G, NODELIST &L)
 {
 	L.clear();
 
-	edge e, eNext;
-	for (e = G.firstEdge(); e; e = eNext) {
-		eNext = e->succ();
+	safeForEach(G.edges, [&](edge e) {
 		if (e->isSelfLoop()) {
 			L.pushBack(e->source());
 			G.delEdge(e);
 		}
-	}
+	});
 }
 
+//! Returns whether \p G has edges which are not self-loops.
+OGDF_EXPORT bool hasNonSelfLoopEdges(const Graph &G);
 
 //! Removes all self-loops from \p G.
 /**
@@ -119,11 +126,33 @@ OGDF_EXPORT bool isParallelFree(const Graph &G);
  * also take reversal edges into account, use numParallelEdgesUndirected().
  *
  * @param G is the input graph.
+ * @tparam ONLY_ONCE Whether the searching for multi-edges should be stopped
+ * once a single multi-edge is found.
  * @return is the number of parallel edges: for each bundle of parallel edges between two nodes
  *         v and w, all but one are counted.
  */
-OGDF_EXPORT int numParallelEdges(const Graph &G);
+template <bool ONLY_ONCE = false>
+int numParallelEdges(const Graph &G) {
+	if (G.numberOfEdges() <= 1) return 0;
 
+	SListPure<edge> edges;
+	parallelFreeSort(G,edges);
+
+	int num = 0;
+	SListConstIterator<edge> it = edges.begin();
+	edge ePrev = *it, e;
+	for(it = ++it; it.valid(); ++it, ePrev = e) {
+		e = *it;
+		if (ePrev->isParallelDirected(e)) {
+			++num;
+			if (ONLY_ONCE) {
+				return num;
+			}
+		}
+	}
+
+	return num;
+}
 
 //! Removes all but one of each bundle of parallel edges.
 /**
@@ -152,7 +181,7 @@ void makeParallelFree(Graph &G, EDGELIST &parallelEdges)
 	bool bAppend = true;
 	while(it.valid()) {
 		e = *it++;
-		if (ePrev->source() == e->source() && ePrev->target() == e->target()) {
+		if (e->isParallelDirected(ePrev)) {
 			G.delEdge(e);
 			if (bAppend) { parallelEdges.pushBack(ePrev); bAppend = false; }
 		} else {
@@ -219,10 +248,35 @@ OGDF_EXPORT bool isParallelFreeUndirected(const Graph &G);
  * in the graph.
  *
  * @param G is the input graph.
+ * @tparam ONLY_ONCE Whether the searching for multi-edges should be stopped
+ * once a single multi-edge is found.
  * @return the number of undirected parallel edges; for each unordered pair {v,w} of nodes, all
  *         but one of the edges with endpoints v and w (in any order) are counted.
  */
-OGDF_EXPORT int numParallelEdgesUndirected(const Graph &G);
+template <bool ONLY_ONCE = false>
+int numParallelEdgesUndirected(const Graph &G)
+{
+	if (G.numberOfEdges() <= 1) return 0;
+
+	SListPure<edge> edges;
+	EdgeArray<int> minIndex(G), maxIndex(G);
+	parallelFreeSortUndirected(G,edges,minIndex,maxIndex);
+
+	int num = 0;
+	SListConstIterator<edge> it = edges.begin();
+	edge ePrev = *it, e;
+	for(it = ++it; it.valid(); ++it, ePrev = e) {
+		e = *it;
+		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]) {
+			++num;
+			if (ONLY_ONCE) {
+				return num;
+			}
+		}
+	}
+
+	return num;
+}
 
 
 //! Computes the bundles of undirected parallel edges in \p G.

@@ -45,8 +45,8 @@ ArrayBuffer<double> LayoutStatistics::edgeLengths(
 		}
 
 		const DPolyline &dpl = ga.bends(e);
-		DPoint pv = DPoint(ga.x(e->source()), ga.y(e->source()));
-		DPoint pw = DPoint(ga.x(e->target()), ga.y(e->target()));
+		DPoint pv = ga.point(e->source());
+		DPoint pw = ga.point(e->target());
 
 		double len = 0;
 		if (!dpl.empty()) {
@@ -130,8 +130,8 @@ ArrayBuffer<double> LayoutStatistics::angles(
 		for (edge e : G.edges) {
 			DPolyline dpl = ga.bends(e);
 
-			dpl.pushFront( DPoint(ga.x(e->source()), ga.y(e->source())) );
-			dpl.pushBack ( DPoint(ga.x(e->target()), ga.y(e->target())) );
+			dpl.pushFront(ga.point(e->source()));
+			dpl.pushBack (ga.point(e->target()));
 			dpl.normalize();
 
 			if (dpl.size() < 3) {
@@ -220,10 +220,10 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &
 		int nCrossingsE = 0;
 		node src = e->source();
 		node tgt = e->target();
-		DPoint vPoint = DPoint(ga.x(src), ga.y(src));
+		DPoint vPoint = ga.point(src);
 
 		DPolyline edgeSegmentTargets = ga.bends(e);
-		edgeSegmentTargets.pushBack(DPoint(ga.x(tgt), ga.y(tgt)));
+		edgeSegmentTargets.pushBack(ga.point(tgt));
 
 		int i = 0;
 		int last = edgeSegmentTargets.size()-1;

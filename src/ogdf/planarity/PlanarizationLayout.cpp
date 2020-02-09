@@ -38,7 +38,8 @@
 #include <ogdf/orthogonal/OrthoLayout.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/graphalg/CliqueFinder.h>
+#include <ogdf/clique/CliqueFinderSPQR.h>
+#include <ogdf/clique/CliqueFinderHeuristic.h>
 
 namespace ogdf {
 
@@ -307,10 +308,11 @@ void PlanarizationLayout::preprocessCliques(Graph &G, CliqueReplacer &cliqueRepl
 {
 	cliqueReplacer.setDefaultCliqueCenterSize(m_planarLayouter->separation());
 
-	CliqueFinder cf(G);
+	CliqueFinderHeuristic heurCf;
+	CliqueFinderSPQR cf(heurCf);
 	cf.setMinSize(m_cliqueSize);
-	List< List<node> > cliques;
-	cf.call(cliques);
+	List<List<node>*> cliques;
+	cf.call(G, cliques);
 
 	// now replace all found cliques by stars
 	cliqueReplacer.replaceByStar(cliques);

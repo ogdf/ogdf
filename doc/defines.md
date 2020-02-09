@@ -1,4 +1,4 @@
-[OGDF](README.md) » Compiler Defines
+[OGDF](../README.md) » Compiler Defines
 
 # Compiler Defines {#defines}
 

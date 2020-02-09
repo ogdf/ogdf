@@ -80,6 +80,7 @@ enum class GraphProperty {
 
 	//! Indicates graphs that are (undirected!) simple.
 	simple,
+	loopFree,
 
 	//! Indicates instances that have a reasonably low number of edges.
 	//! These graphs can, e.g., be used for planarization layouts without raising runtime too much.
@@ -118,6 +119,73 @@ inline void addMultiEdges(Graph& G, double p) {
 			}
 		}
 	}
+}
+
+//! Creates gaps in the indices of nodes and edges of \p G.
+/**
+ * The gaps are created by reinserting nodes and incident edges.
+ *
+ * \p p Probability with which each node and its incident edges are reinserted.
+ * It also determines whether the last node and edge indices are incremented
+ * before reinsertion. A greater \p p leads to greater gaps in the indices.
+ */
+inline void makeIndicesNonContinuous(Graph& G, double p) {
+	OGDF_ASSERT(p >= 0);
+	OGDF_ASSERT(p < 1);
+
+	auto byChance = [&]() -> bool { return randomDouble(0, 1) < p; };
+
+#ifdef OGDF_DEBUG
+	int n = G.numberOfNodes();
+	int m = G.numberOfEdges();
+#endif
+	List<node> nodes;
+	G.allNodes(nodes);
+
+	for (node v : nodes) {
+		if (byChance()) {
+			// Create gaps before indices for newly inserted node/edges.
+			while (byChance()) {
+				G.delNode(G.newNode());
+			}
+			while (byChance()) {
+				G.delEdge(G.newEdge(v,v));
+			}
+
+			// Create replacement for v.
+			node newV = G.newNode();
+
+			// Remember old neighbors.
+			ArrayBuffer<node> outNeighbors;
+			ArrayBuffer<node> inNeighbors;
+			for (adjEntry adj : v->adjEntries) {
+				if (adj->theEdge()->isSelfLoop()) {
+					// Remember self-loops only once.
+					if (adj->isSource()) {
+						outNeighbors.push(newV);
+					}
+				} else {
+					if (adj->isSource()) {
+						outNeighbors.push(adj->twinNode());
+					} else {
+						inNeighbors.push(adj->twinNode());
+					}
+				}
+			}
+
+			// Delete v and reinsert incident edges.
+			G.delNode(v);
+			for (node neighbor : outNeighbors) {
+				G.newEdge(newV, neighbor);
+			}
+			for (node neighbor : inNeighbors) {
+				G.newEdge(neighbor, newV);
+			}
+		}
+	}
+
+	OGDF_ASSERT(n == G.numberOfNodes());
+	OGDF_ASSERT(m == G.numberOfEdges());
 }
 
 /**
@@ -198,6 +266,7 @@ inline void performImplications(std::set<GraphProperty>& props) {
 	imply(props, GraphProperty::connected, GraphProperty::biconnected);
 	imply(props, GraphProperty::planar, GraphProperty::arborescenceForest);
 	imply(props, GraphProperty::acyclic, GraphProperty::arborescenceForest);
+	imply(props, GraphProperty::loopFree, GraphProperty::simple);
 
 	if (doesInclude({GraphProperty::simple}, props) &&
 			(doesInclude({GraphProperty::maxDeg4}, props) || doesInclude({GraphProperty::planar}, props))) {
@@ -228,20 +297,35 @@ inline void splitParallelEdges(Graph& G) {
  * @param requirements Required properties that feasible graphs must have.
  * @param doTest Actual test routine for given graph.
  * @param sizes Approximate number of nodes (and number of instances) for randomly generated graphs.
- * @param stepSize Increase for number of nodes between steps for randomly generated graphs.
+ * @param minSize Minimum number of nodes as a requirement for tested instances.
+ * @param maxSize Maximum number of nodes as a requirement for tested instances.
+ * @param describable Whether bandit::describe() should be used on \p doTest instead of bandit::it().
  */
 inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
-		std::function<void(const Graph&, const std::string &graphName, const std::set<GraphProperty>& props)> doTest,
-		GraphSizes sizes = GraphSizes()) {
+		std::function<void(Graph&, const std::string &graphName, const std::set<GraphProperty>& props)> doTest,
+		GraphSizes sizes = GraphSizes(),
+		int minSize = 0,
+		int maxSize = std::numeric_limits<int>::max(),
+		bool describable = false) {
 	auto testInstance = [&](const string& desc, std::set<GraphProperty> props, std::function<void(Graph&)> generateGraph) {
 		performImplications(props);
 
 		if (doesInclude(requirements, props)) {
-			bandit::it("works on a " + desc, [&] {
-				Graph G;
-				generateGraph(G);
-				doTest(G, desc, props);
-			});
+			Graph G;
+			generateGraph(G);
+			makeIndicesNonContinuous(G, 0.5);
+
+			if (G.numberOfNodes() >= minSize && G.numberOfNodes() <= maxSize) {
+				auto func = [&] {
+					doTest(G, desc, props);
+				};
+
+				if (describable) {
+					bandit::describe("on a " + desc, func);
+				} else {
+					bandit::it("works on a " + desc, func);
+				}
+			}
 		}
 	};
 
@@ -251,6 +335,141 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		});
 	};
 
+	// Single test instances
+	testInstance("graph without any nodes",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::acyclic,
+		  GraphProperty::simple },
+		[](Graph &G) { emptyGraph(G, 0); });
+
+	testInstance("graph with a single node",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::acyclic,
+		  GraphProperty::simple },
+		[](Graph &G) { emptyGraph(G, 1); });
+
+	testInstance("graph with a single node and one self-loop",
+		{ GraphProperty::planar,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::sparse },
+		[](Graph &G) { customGraph(G, 1, {{0,0}}); });
+
+	testInstance("graph with two nodes and no edge",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::acyclic,
+		  GraphProperty::simple },
+		[](Graph &G) { emptyGraph(G, 2); });
+
+	testInstance("graph with two nodes and one edge",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::acyclic,
+		  GraphProperty::simple },
+		[](Graph &G) { customGraph(G, 2, {{0,1}}); });
+
+	testInstance("graph with two nodes and two edges (one self-loop)",
+		{ GraphProperty::planar,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::sparse },
+		[](Graph &G) { customGraph(G, 2, {{0,0}, {0,1}}); });
+
+	testInstance("graph with two nodes and directed parallel edges",
+		{ GraphProperty::planar,
+		  GraphProperty::acyclic,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::loopFree,
+		  GraphProperty::sparse },
+		[](Graph &G) { customGraph(G, 2, {{0,1}, {0,1}}); });
+
+	testInstance("graph with two nodes and undirected parallel edges",
+		{ GraphProperty::planar,
+		  GraphProperty::triconnected,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::loopFree,
+		  GraphProperty::sparse },
+		[](Graph &G) { customGraph(G, 2, {{0,1}, {1,0}}); });
+
+	testInstance("graph with three nodes and no edge",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::acyclic,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::simple },
+		[](Graph &G) { emptyGraph(G, 3); });
+
+	testInstance("graph with three nodes and one edge",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::acyclic,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::simple },
+		[](Graph &G) { customGraph(G, 3, {{0,1}}); });
+
+	testInstance("K2,3",
+		{ GraphProperty::maxDeg4,
+		  GraphProperty::acyclic,
+		  GraphProperty::planar,
+		  GraphProperty::simple,
+		  GraphProperty::biconnected },
+		[](Graph& G) { completeBipartiteGraph(G, 2, 3); });
+
+	testInstance("K3,3",
+		{ GraphProperty::nonPlanar,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::acyclic,
+		  GraphProperty::simple,
+		  GraphProperty::triconnected },
+		[](Graph& G) { completeBipartiteGraph(G, 3, 3); });
+
+	testInstance("K4",
+		{ GraphProperty::maxDeg4,
+		  GraphProperty::planar,
+		  GraphProperty::simple,
+		  GraphProperty::acyclic,
+		  GraphProperty::triconnected},
+		[](Graph& G) { completeGraph(G, 4); });
+
+	testInstance("K5",
+		{ GraphProperty::nonPlanar,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::simple,
+		  GraphProperty::acyclic,
+		  GraphProperty::triconnected },
+		[](Graph& G) { completeGraph(G, 5); });
+
+	testInstance("Petersen graph",
+		{ GraphProperty::nonPlanar,
+		  GraphProperty::maxDeg4,
+		  GraphProperty::triconnected,
+		  GraphProperty::simple,
+		  GraphProperty::sparse },
+		[](Graph& G) { petersenGraph(G); });
+
+	testInstance("path-like tree",
+		{ GraphProperty::connected,
+		  GraphProperty::planar,
+		  GraphProperty::simple },
+		[](Graph& G) {
+			std::stringstream ss{ResourceFile::get("misc/path-like_tree.gml")->data()};
+			GraphIO::read(G, ss);
+		});
+
+	testInstance("non-upward planar graph",
+		{ GraphProperty::planar,
+		  GraphProperty::acyclic,
+		  GraphProperty::simple,
+		  GraphProperty::sparse,
+		  GraphProperty::connected },
+		[](Graph &G) { customGraph(G, 6, {{0,1}, {0,2}, {1,3}, {1,4}, {2,3}, {2,4}, {3,5}, {4,5}}); });
+
+	// Groups of similar test instances
 	testInstances("arborescence",
 		{ GraphProperty::arborescenceForest,
 		  GraphProperty::connected,
@@ -266,7 +485,7 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 			randomTree(G, n);
 
 			// make graph disconnected
-			for(int i = 0; i < 3; i++) {
+			for(int i = 0; i < std::min(3, G.numberOfEdges()); i++) {
 				G.delEdge(G.chooseEdge());
 			}
 		});
@@ -278,42 +497,11 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		  GraphProperty::simple },
 		[](Graph &G, int n) { regularTree(G, n, 3); });
 
-	testInstance("path-like tree",
-		{ GraphProperty::connected,
-		  GraphProperty::planar,
+	testInstances("isolated nodes",
+		{ GraphProperty::arborescenceForest,
+		  GraphProperty::maxDeg4,
 		  GraphProperty::simple },
-		[](Graph& G) {
-			std::stringstream ss{ResourceFile::get("misc/path-like_tree.gml")->data()};
-			GraphIO::read(G, ss);
-		});
-
-	testInstance("K4",
-		{ GraphProperty::maxDeg4,
-		  GraphProperty::planar,
-		  GraphProperty::simple,
-		  GraphProperty::triconnected},
-		[](Graph& G) { completeGraph(G, 4); });
-
-	testInstance("K2,3",
-		{ GraphProperty::maxDeg4,
-		  GraphProperty::planar,
-		  GraphProperty::simple,
-		  GraphProperty::biconnected },
-		[](Graph& G) { completeBipartiteGraph(G, 2, 3); });
-
-	testInstance("K5",
-		{ GraphProperty::nonPlanar,
-		  GraphProperty::maxDeg4,
-		  GraphProperty::simple,
-		  GraphProperty::triconnected },
-		[](Graph& G) { completeGraph(G, 5); });
-
-	testInstance("K3,3",
-		{ GraphProperty::nonPlanar,
-		  GraphProperty::maxDeg4,
-		  GraphProperty::simple,
-		  GraphProperty::triconnected },
-		[](Graph& G) { completeBipartiteGraph(G, 3, 3); });
+		[](Graph &G, int n) { emptyGraph(G, n); });
 
 	testInstances("connected sparse graph",
 		{ GraphProperty::connected,
@@ -336,7 +524,6 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		{ GraphProperty::maxDeg4 },
 		[](Graph &G, int n) { randomRegularGraph(G, n, 4); });
 
-
 	testInstances("acyclic grid graph",
 		{ GraphProperty::acyclic,
 		  GraphProperty::biconnected,
@@ -357,6 +544,16 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		  GraphProperty::planar,
 		  GraphProperty::simple },
 		[](Graph &G, int n) { randomSeriesParallelDAG(G, n); });
+
+	testInstances("path with multi-edges",
+		{ GraphProperty::connected,
+		  GraphProperty::loopFree,
+		  GraphProperty::planar },
+		[](Graph &G, int n) {
+			randomTree(G, n, 2, 1);
+			addMultiEdges(G, .3);
+			makeLoopFree(G);
+		});
 
 	testInstances("connected planar graph",
 		{ GraphProperty::connected,
@@ -435,15 +632,37 @@ inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
 		  GraphProperty::triconnected },
 		[](Graph &G, int n) {
 			randomPlanarTriconnectedGraph(G, n, .5, .5);
-			addMultiEdges(G, 5.0/n);
+			addMultiEdges(G, std::min(5.0/n, 0.95));
 		});
 }
 
 inline void forEachGraphItWorks(std::set<GraphProperty> requirements,
-		std::function<void(const Graph&)> doTest,
-		GraphSizes sizes = GraphSizes()) {
+		std::function<void(Graph&)> doTest,
+		GraphSizes sizes = GraphSizes(),
+		int minSize = 0,
+		int maxSize = std::numeric_limits<int>::max()) {
 	forEachGraphItWorks(
 			requirements,
-			[&](const Graph& G, const std::string&, const std::set<GraphProperty>&) { doTest(G); },
-			sizes);
+			[&](Graph& G, const std::string&, const std::set<GraphProperty>&) { doTest(G); },
+			sizes, minSize, maxSize);
+}
+
+//! Shorthand for forEachGraphItWorks() with describable set to true.
+inline void forEachGraphDescribe(std::set<GraphProperty> requirements,
+		std::function<void(Graph&, const std::string &graphName, const std::set<GraphProperty>& props)> doTest,
+		GraphSizes sizes = GraphSizes(),
+		int minSize = 0,
+		int maxSize = std::numeric_limits<int>::max()) {
+	forEachGraphItWorks(requirements, doTest, sizes, minSize, maxSize, true);
+}
+
+inline void forEachGraphDescribe(std::set<GraphProperty> requirements,
+		std::function<void(Graph&)> doTest,
+		GraphSizes sizes = GraphSizes(),
+		int minSize = 0,
+		int maxSize = std::numeric_limits<int>::max()) {
+	forEachGraphDescribe(
+			requirements,
+			[&](Graph& G, const std::string&, const std::set<GraphProperty>&) { doTest(G); },
+			sizes, minSize, maxSize);
 }

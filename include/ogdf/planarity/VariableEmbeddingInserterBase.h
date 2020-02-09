@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <ogdf/module/EdgeInsertionModule.h>
+#include <ogdf/planarity/EdgeInsertionModule.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
-
 
 namespace ogdf {
 

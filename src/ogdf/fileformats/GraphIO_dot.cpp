@@ -85,12 +85,23 @@ static inline void writeAttributes(
 		out << "\"";
 	}
 
+	if(flags & GraphAttributes::nodeLabelPosition) {
+		// No need to check separator, as `nodeLabel` must be set as well
+		// and is handled earlier.
+		out << ", labelpos=\"" << GA.xLabel(v) << "," << GA.yLabel(v);
+		if(flags & GraphAttributes::threeD) {
+			out << "," << GA.zLabel(v);
+		}
+		out << "\"";
+	}
+
 	if(flags & GraphAttributes::nodeStyle) {
 		writeAttribute(out, separator, "color", GA.strokeColor(v));
 		writeAttribute(out, separator, "fillcolor", GA.fillColor(v));
 		writeAttribute(out, separator, "stroketype", toString(GA.strokeType(v)));
 		writeAttribute(out, separator, "strokewidth", GA.strokeWidth(v));
 		writeAttribute(out, separator, "fillpattern", toString(GA.fillPattern(v)));
+		writeAttribute(out, separator, "fillbgcolor", GA.fillBgColor(v));
 	}
 
 	if(flags & GraphAttributes::nodeType) {
@@ -144,46 +155,64 @@ static inline void writeAttributes(
 
 	if(flags & GraphAttributes::edgeStyle) {
 		writeAttribute(out, comma, "color", GA.strokeColor(e));
+		writeAttribute(out, comma, "stroketype", GA.strokeType(e));
+		writeAttribute(out, comma, "strokewidth", GA.strokeWidth(e));
 	}
 
-	if(flags & GraphAttributes::edgeArrow) {
-		writeAttribute(out, comma, "arrow", int(GA.arrowType(e)));
-	}
-
-#if 0
-	// this stuf is wrong I suppose
 	if(flags & GraphAttributes::edgeType) {
-		writeAttribute(out, comma, "arrowhead", GA.arrowType(e));
-
-		// Additionaly, according to IBM UML doc dependency is a dashed edge.
-		if(GA.type(e) == Graph::EdgeType::dependency) {
-			writeAttribute(out, comma, "style", "dashed");
-		}
+		writeAttribute(out, comma, "type", dot::toString(GA.type(e)));
 	}
-#endif
 
-	// NOTE: Edge subgraphs are not supported.
+	if(flags & GraphAttributes::edgeSubGraphs) {
+		const uint32_t mask = GA.subGraphBits(e);
+
+		// Iterate over all subgraphs and print the ones the edge is part of.
+		std::stringstream sstream;
+		for (size_t sg = 0; sg < sizeof(mask) * 8; ++sg) {
+			if((1 << sg) & mask) {
+				sstream << (sg == 0 ? "" : " ") << sg;
+			}
+		}
+		writeAttribute(out, comma, "available_for", sstream.str());
+	}
 
 	out << "]";
 }
 
 
-static inline void writeAttributes(
-	std::ostream &out, const int &depth,
+static inline bool writeAttributes(
+	std::ostream &out,
 	const ClusterGraphAttributes &CA, const cluster &c)
 {
-	GraphIO::indent(out, depth) << "color=\"" << CA.strokeColor(c) << "\"\n";
-	GraphIO::indent(out, depth) << "bgcolor=\"" << CA.fillColor(c) << "\"\n";
-	GraphIO::indent(out, depth) << "label=\"" << CA.label(c) << "\"\n";
+	const long flags = CA.attributes();
+	bool separator = false;
 
-	// There is no point in exporting rest of the cluster attributes, so to
-	// maintain high readability they are omitted.
+	if(flags & ClusterGraphAttributes::clusterGraphics) {
+		writeAttribute(out, separator, "width", CA.width(c));
+		writeAttribute(out, separator, "height", CA.height(c));
+		out << ", pos=\"" << CA.x(c) << "," << CA.y(c) << "\"";
+	}
+	if(flags & ClusterGraphAttributes::clusterStyle) {
+		writeAttribute(out, separator, "color", CA.strokeColor(c));
+		writeAttribute(out, separator, "stroketype", CA.strokeType(c));
+		writeAttribute(out, separator, "strokewidth", CA.strokeWidth(c));
+		writeAttribute(out, separator, "fillpattern", CA.fillPattern(c));
+		writeAttribute(out, separator, "fillcolor", CA.fillColor(c));
+		writeAttribute(out, separator, "fillbgcolor", CA.fillBgColor(c));
+	}
+	if(flags & ClusterGraphAttributes::clusterLabel) {
+		writeAttribute(out, separator, "label", CA.label(c));
+	}
+	if(flags & ClusterGraphAttributes::clusterTemplate) {
+		writeAttribute(out, separator, "comment", CA.templateCluster(c));
+	}
+	return separator;
 }
 
 
 static inline bool writeHeader(
 	std::ostream &out, const int &depth,
-	const GraphAttributes *GA)
+	const GraphAttributes *GA, bool writeAttributes = true)
 {
 	if(GA) {
 		GraphIO::indent(out, depth) << (GA->directed() ? "digraph" : "graph")
@@ -193,14 +222,47 @@ static inline bool writeHeader(
 		return false;
 	}
 
+	if (!writeAttributes) return false;
+
 	bool whitespace = false;
 
 	if(GA->has(GraphAttributes::threeD)) {
-		GraphIO::indent(out, depth + 1) << "graph [dim=\"3\"]\n";
-		whitespace = true;
+		GraphIO::indent(out, depth + 1) << "graph [";
+		writeAttribute(out, whitespace, "dim", 3);
+		out << "]\n";
+	}
+	return whitespace;
+}
+
+static inline bool writeHeader(
+	std::ostream &out, const int &depth,
+	const ClusterGraphAttributes *CA, cluster rootCluster,
+	cluster c, int clusterId)
+{
+	if (rootCluster == c) {
+		writeHeader(out, depth, CA, false);
+	}
+	else {
+		GraphIO::indent(out, depth) << "subgraph cluster" << clusterId << " {\n";
 	}
 
-	return whitespace;
+	if (!CA) return false;
+
+	std::ostringstream attr;
+	attr.setf(std::ios::fixed);
+
+	bool separator = false;
+	separator = writeAttributes(attr, *CA, c);
+	if(CA->has(GraphAttributes::threeD)) {
+		writeAttribute(attr, separator, "dim", 3);
+	}
+	string attributes = attr.str();
+	if (!attributes.empty()) {
+		GraphIO::indent(out, depth + 1) << "graph ["
+			<< attributes << "]\n";
+	}
+
+	return separator;
 }
 
 
@@ -255,20 +317,10 @@ static bool writeCluster(
 	bool result = out.good();
 
 	if(result) {
-		if (C.rootCluster() == c) {
-			writeHeader(out, depth++, CA);
-		} else {
-			GraphIO::indent(out, depth++) << "subgraph cluster" << clusterId << " {\n";
-		}
-		clusterId++;
-
 		bool whitespace; // True if a whitespace should printed (readability).
 
-		whitespace = false;
-		if (CA) {
-			writeAttributes(out, depth, *CA, c);
-			whitespace = true;
-		}
+		whitespace = writeHeader(out, depth++, CA, C.rootCluster(), c, clusterId);
+		clusterId++;
 
 		if (whitespace) {
 			out << "\n";

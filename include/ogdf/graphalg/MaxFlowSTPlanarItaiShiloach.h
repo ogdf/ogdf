@@ -35,7 +35,7 @@
 #pragma once
 
 #include <limits>
-#include <ogdf/module/MaxFlowModule.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
 

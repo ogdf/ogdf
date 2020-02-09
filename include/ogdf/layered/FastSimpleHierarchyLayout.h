@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/HierarchyLayoutModule.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/basic/NodeArray.h>
 
@@ -93,7 +93,7 @@ private:
 	bool   m_leftToRight;	//!< stores the option <i>left-to-right</i>.
 
 protected:
-	virtual void doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC) override;
+	virtual void doCall(const HierarchyLevelsBase &levels, GraphAttributes &AGC) override;
 
 public:
 	//! Creates an instance of fast simple hierarchy layout.
@@ -210,7 +210,7 @@ private:
 	 */
 	void computeBlockWidths(
 		const GraphCopy &GC,
-		const GraphCopyAttributes &GCA,
+		const GraphAttributes &GCA,
 		NodeArray<node> &root,
 		NodeArray<double> &blockWidth);
 

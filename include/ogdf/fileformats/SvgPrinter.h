@@ -220,10 +220,9 @@ private:
 	 * Determines whether a candidate arrow tip lies inside the rectangle of the node.
 	 *
 	 * \param point the candidate arrow tip
-	 * \param e the edge of the arrow head
-	 * \param v the node the arrow is facing
+	 * \param adj the adjacency entry
 	 */
-	bool isCoveredBy(const DPoint &point, edge e, node v);
+	bool isCoveredBy(const DPoint &point, adjEntry adj);
 
 	/**
 	 * Draws an arrow head at the end of the edge.
@@ -232,18 +231,24 @@ private:
 	 * \param xmlNode the XML-node to print to
 	 * \param start the start point of the edge segment the arrow head will be placed on
 	 * \param end the end point of the edge segment the arrow head will be placed on, this will usually be modified
-	 * \param v the node that the arrow is facing
-	 * \param e the edge that the arrow belongs to
+	 * \param adj the adjacency entry
 	 */
-	void drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoint &end, node v, edge e);
+	void drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoint &end, adjEntry adj);
+
+	/**
+	 * Returns whether an edge arrow is to be drawn.
+	 *
+	 * \param adj the adjacency entry
+	 */
+	bool isArrowEnabled(adjEntry adj);
 
 	/**
 	 * Returns the size of the arrow.
+	 * The result is zero if the respective arrow is disabled (not to be drawn).
 	 *
-	 * \param e the edge that the arrow belongs to
-	 * \param v the node that the arrow is facing
+	 * \param adj the adjacency entry
 	 */
-	double getArrowSize(edge e, node v);
+	double getArrowSize(adjEntry adj);
 
 	/**
 	 * Writes the requested line style to the line's XML-node.

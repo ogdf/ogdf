@@ -181,7 +181,6 @@ void describeGraphCopySimple(int numberOfNodes)
 			AssertThat(foundDummy, IsTrue());
 		});
 
-
 		it("supports assignment", [&](){
 			GCType copy = *graphCopy;
 
@@ -402,6 +401,17 @@ go_bandit([](){
 				graphCopy->allEdges(asdfgh);
 				testInitGraph<GraphCopy>(graph, *graphCopy, false, origNodes, eCopy);
 			});
+		});
+
+		it("supports assignment of an uninitialized copy", [&] {
+			GraphCopy copy{*graphCopy};
+			GraphCopy tmp{};
+			tmp.newNode();
+			copy = tmp;
+			copy.newNode();
+
+			AssertThat(copy.numberOfNodes(), Equals(2));
+			AssertThat(copy.numberOfEdges(), Equals(0));
 		});
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS

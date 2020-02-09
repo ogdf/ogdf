@@ -66,7 +66,7 @@ OptimalHierarchyLayout &OptimalHierarchyLayout::operator=(const OptimalHierarchy
 	return *this;
 }
 
-void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC)
+void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphAttributes &AGC)
 {
 	// trivial cases
 	const GraphCopy &GC = levels.hierarchy();
@@ -91,7 +91,7 @@ void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphCopyA
 
 void OptimalHierarchyLayout::computeXCoordinates(
 	const HierarchyLevelsBase &levels,
-	GraphCopyAttributes &AGC)
+	GraphAttributes &AGC)
 {
 	const Hierarchy &H  = levels.hierarchy();
 	const GraphCopy &GC = H;
@@ -376,8 +376,8 @@ void OptimalHierarchyLayout::computeXCoordinates(
 			debugNonZeroCount++;
 
 			equationSense[currentRow] = 'G';
-			rightHandSide[currentRow] =
-				m_nodeDistance + 0.5*(AGC.getWidth(v)+AGC.getWidth(u));
+			rightHandSide[currentRow] = m_nodeDistance +
+				0.5*(getWidth(AGC, levels, v) + getWidth(AGC, levels, u));
 
 			++currentRow;
 		}
@@ -546,7 +546,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 void OptimalHierarchyLayout::computeYCoordinates(
 	const HierarchyLevelsBase &levels,
-	GraphCopyAttributes &AGC)
+	GraphAttributes &AGC)
 {
 	const int k = levels.size();
 	int i;
@@ -557,7 +557,7 @@ void OptimalHierarchyLayout::computeYCoordinates(
 	for(i = 0; i < k; ++i) {
 		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j) {
-			double h = AGC.getHeight(L[j]);
+			double h = getHeight(AGC, levels, L[j]);
 			if(h > height[i])
 				height[i] = h;
 		}

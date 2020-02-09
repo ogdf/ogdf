@@ -31,7 +31,7 @@
 
 #include <set>
 #include <ogdf/basic/EpsilonTest.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 #include <ogdf/graphalg/steiner_tree/Full2ComponentGenerator.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
@@ -41,7 +41,7 @@
 
 using namespace std::placeholders;
 
-static EpsilonTest et(1e-6);
+static EpsilonTest epst(1e-6);
 
 template<typename T>
 struct EdgeData {
@@ -66,14 +66,6 @@ static std::pair<std::vector<int>, std::vector<EdgeData<T>>> predefinedInstanceD
 		// a simple instance with all nodes being terminals
 		return {{0, 1, 2}, {{0, 1, 2}, {0, 2, 2}}};
 	case 3:
-		// an instance to check heuristics avoiding terminals
-		return {{0, 1, 2},
-		  {{0, 3, 1},
-		   {0, 1, 2},
-		   {1, 3, 1},
-		   {2, 3, 5},
-		   {2, 1, 2}}};
-	case 4:
 		// an instance to check heuristics preferring terminals
 		return {{0, 1, 2},
 		  {{0, 3, 1},
@@ -83,6 +75,13 @@ static std::pair<std::vector<int>, std::vector<EdgeData<T>>> predefinedInstanceD
 		   {5, 4, 1},
 		   {4, 3, 1},
 		   {2, 1, 2}}};
+	case 4:
+		// a more complicated instance
+		return {{0, 1, 2, 3, 4},
+		  {{0, 5, 1}, {1, 5, 1}, {3, 5, 1},
+		   {5, 6, 1}, {2, 6, 1},
+		   {2, 7, 4}, {4, 7, 3},
+		   {0, 1, 2}, {2, 1, 3}}};
 	}
 	return {{}, {}};
 };
@@ -172,7 +171,7 @@ struct ModifiedShortestPathAlgorithmsTest {
 	//! the distance to \a u equals \a d.
 	static void assertDistanceTo(const Instance<T> &S, const NodeArray<T> &distance, std::initializer_list<std::pair<int, T>> nodeDistancePairs) {
 		for (auto p : nodeDistancePairs) {
-			AssertThat(et.equal(distance[S.v[p.first]], T(p.second)), IsTrue());
+			AssertThat(epst.equal(distance[S.v[p.first]], T(p.second)), IsTrue());
 		}
 	}
 
@@ -184,21 +183,6 @@ struct ModifiedShortestPathAlgorithmsTest {
 			if (p.second >= 0) {
 				AssertThat(pred[S.v[p.first]]->opposite(S.v[p.first]), Equals(S.v[p.second]));
 			}
-		}
-	}
-
-	//! Assert for predefined instance 2, that the third terminal is unreachable...
-	//! If \p byDistance is true, it expects the terminal to be unreachable by
-	//! distance, too, that is, the distance is \c std::numeric_limits<T>::max().
-	static void assertThirdUnreachable(const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred, bool byDistance) {
-		assertHasNoPred(S, pred, {1, 2});
-		assertPred(S, pred, {{0, -1}});
-		assertDistanceTo(S, distance, {{0, 2}, {2, 0}});
-		if (byDistance) {
-			AssertThat(distance[S.v[1]], Equals(std::numeric_limits<T>::max()));
-		} else {
-			AssertThat(distance[S.v[1]], IsGreaterThan(3));
-			AssertThat(distance[S.v[1]], IsLessThan(5));
 		}
 	}
 
@@ -223,10 +207,16 @@ struct ModifiedShortestPathAlgorithmsTest {
 			itMimicsOrdinaryShortestPath(spName, spAlg);
 
 			testIt("marks the third terminal on a path of three terminals as unreachable (by predecessor only)",
-			  2, spAlg, {{2, std::bind(assertThirdUnreachable, _1, _2, _3, false)}});
+			  2, spAlg, {{2, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
+				assertHasNoPred(S, pred, {1, 2});
+				assertPred(S, pred, {{0, -1}});
+				assertDistanceTo(S, distance, {{0, 2}, {2, 0}});
+				AssertThat(distance[S.v[1]], IsGreaterThan(3));
+				AssertThat(distance[S.v[1]], IsLessThan(5));
+			}}});
 
 			testIt("prefers terminals in shortest paths",
-			  4, spAlg, {{0, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
+			  3, spAlg, {{0, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
 				assertHasNoPred(S, pred, {0, 2});
 				assertPred(S, pred, {{1, -1}, {3, 0}, {4, 3}, {5, 4}});
 				AssertThat(pred[S.v[1]]->opposite(S.v[1]), Equals(S.v[0]) || Equals(S.v[3]));
@@ -240,54 +230,76 @@ struct ModifiedShortestPathAlgorithmsTest {
 	}
 
 	//! The test for the algorithm variants avoiding paths over terminals
-	static void callExpectForbidTerminals(const std::string spName,
+	static void callExpectStandard(const std::string spName,
 			std::function<void(const Instance<T> &S, Arguments<T> &arg)> spAlg) {
-		describe(spName +" avoiding terminals heuristic", [&] {
+		describe(spName +" (standard)", [&] {
 			itMimicsOrdinaryShortestPath(spName, spAlg);
 
-			testIt("marks the third terminal on a path of three terminals as unreachable (by predecessor and distance)",
-			  2, spAlg, {{2, std::bind(assertThirdUnreachable, _1, _2, _3, true)}});
+			testIt("marks no terminal as unreachable",
+			  2, spAlg, {{2, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
+				assertHasNoPred(S, pred, {2});
+				assertPred(S, pred, {{1, 0}, {0, 2}});
+				assertDistanceTo(S, distance, {{1, 4}, {0, 2}, {2, 0}});
+			}}});
 
-			testIt("uses a detour as shortest path over nonterminals",
+			testIt("works on a graph with three terminals",
 			  3, spAlg, {{0, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
 				assertHasNoPred(S, pred, {0});
-				assertPred(S, pred, {{1, -1}, {2, 3}, {3, 0}});
+				assertPred(S, pred, {{1, -1}, {2, -1}, {3, -1}, {4, 3}, {5, 4}});
 				AssertThat(pred[S.v[1]]->opposite(S.v[1]), Equals(S.v[0]) || Equals(S.v[3]));
-				assertDistanceTo(S, distance, {{0, 0}, {3, 1}, {1, 2}, {2, 6}});
+				AssertThat(pred[S.v[2]]->opposite(S.v[2]), Equals(S.v[1]) || Equals(S.v[5]));
+				AssertThat(pred[S.v[3]]->opposite(S.v[3]), Equals(S.v[0]) || Equals(S.v[1]));
+				assertDistanceTo(S, distance, {{0, 0}, {3, 1}, {4, 2}, {5, 3}, {1, 2}, {2, 4}});
+			}}, {2, [&](const Instance<T> &S, const NodeArray<T> &distance, const NodeArray<edge> &pred) {
+				assertHasNoPred(S, pred, {2});
+				assertPred(S, pred, {{0, -1}, {1, 2}, {3, -1}, {4, 5}, {5, 2}});
+				AssertThat(pred[S.v[0]]->opposite(S.v[0]), Equals(S.v[1]) || Equals(S.v[3]));
+				AssertThat(pred[S.v[3]]->opposite(S.v[3]), Equals(S.v[1]) || Equals(S.v[4]));
+				assertDistanceTo(S, distance, {{2, 0}, {3, 3}, {4, 2}, {5, 1}, {0, 4}, {1, 2}});
 			}}});
 		});
 	}
 };
 
 template<typename T>
-static void ssspDetour(const Instance<T> &S, Arguments<T> &arg) {
-	MinSteinerTreeModule<T>::allTerminalShortestPathsDetour(S.graph, S.terminals, S.isTerminal, arg.distance, arg.pred);
+static void ssspStandard(const Instance<T> &S, Arguments<T> &arg) {
+	MinSteinerTreeModule<T>::allTerminalShortestPathsStandard(S.graph, S.terminals, S.isTerminal, arg.distance, arg.pred);
 }
 
 template<typename T>
-static void ssspStrict(const Instance<T> &S, Arguments<T> &arg) {
-	MinSteinerTreeModule<T>::allTerminalShortestPathsStrict(S.graph, S.terminals, S.isTerminal, arg.distance, arg.pred);
+static void ssspPrefer(const Instance<T> &S, Arguments<T> &arg) {
+	MinSteinerTreeModule<T>::allTerminalShortestPathsPreferringTerminals(S.graph, S.terminals, S.isTerminal, arg.distance, arg.pred);
 }
 
 template<typename T>
-static void apspDetour(const Instance<T> &S, Arguments<T> &arg) {
-	ArrayBuffer<node> nonterminals;
-	MinSteinerTreeModule<T>::getNonterminals(nonterminals, S.graph, S.isTerminal);
-	MinSteinerTreeModule<T>::allPairShortestPathsDetour(S.graph, nonterminals, arg.distance, arg.pred);
+static void ssspAllPairStandard(const Instance<T> &S, Arguments<T> &arg) {
+	MinSteinerTreeModule<T>::allNodeShortestPathsStandard(S.graph, S.terminals, S.isTerminal, arg.distance, arg.pred);
 }
 
 template<typename T>
-static void apspStrict(const Instance<T> &S, Arguments<T> &arg) {
-	MinSteinerTreeModule<T>::allPairShortestPathsStrict(S.graph, S.isTerminal, arg.distance, arg.pred);
+static void ssspAllPairPrefer(const Instance<T> &S, Arguments<T> &arg) {
+	MinSteinerTreeModule<T>::allNodeShortestPathsPreferringTerminals(S.graph, S.terminals, S.isTerminal, arg.distance, arg.pred);
+}
+
+template<typename T>
+static void apspStandard(const Instance<T> &S, Arguments<T> &arg) {
+	MinSteinerTreeModule<T>::allPairShortestPathsStandard(S.graph, S.isTerminal, arg.distance, arg.pred);
+}
+
+template<typename T>
+static void apspPrefer(const Instance<T> &S, Arguments<T> &arg) {
+	MinSteinerTreeModule<T>::allPairShortestPathsPreferringTerminals(S.graph, S.isTerminal, arg.distance, arg.pred);
 }
 
 //! Tests for shortest path algorithms (SSSP and APSP variants)
 template<typename T>
 static void testShortestPathAlgorithms() {
-	ModifiedShortestPathAlgorithmsTest<T>::callExpectForbidTerminals("SSSP", ssspDetour<T>);
-	ModifiedShortestPathAlgorithmsTest<T>::callExpectPreferTerminals("SSSP", ssspStrict<T>);
-	ModifiedShortestPathAlgorithmsTest<T>::callExpectForbidTerminals("APSP", apspDetour<T>);
-	ModifiedShortestPathAlgorithmsTest<T>::callExpectPreferTerminals("APSP", apspStrict<T>);
+	ModifiedShortestPathAlgorithmsTest<T>::callExpectStandard("all-terminal SSSP", ssspStandard<T>);
+	ModifiedShortestPathAlgorithmsTest<T>::callExpectPreferTerminals("all-terminal SSSP", ssspPrefer<T>);
+	ModifiedShortestPathAlgorithmsTest<T>::callExpectStandard("APSP", apspStandard<T>);
+	ModifiedShortestPathAlgorithmsTest<T>::callExpectPreferTerminals("APSP", apspPrefer<T>);
+	ModifiedShortestPathAlgorithmsTest<T>::callExpectStandard("all-node SSSP", ssspAllPairStandard<T>);
+	ModifiedShortestPathAlgorithmsTest<T>::callExpectPreferTerminals("all-node SSSP", ssspAllPairPrefer<T>);
 }
 
 //! Test MinSteinerTreeModule<T>::isSteinerTree()
@@ -417,9 +429,9 @@ static void testFull2ComponentGenerator(const steiner_tree::Full2ComponentGenera
 	  {{0, 3, 1}, {3, 2, 1}, {2, 4, 2}, {4, 1, 1},
 	   {3, 5, 1}, {5, 4, 2}});
 
-	it("generates full components with terminal-avoiding APSP", [&] {
+	it("generates full components with standard APSP", [&] {
 		Arguments<T> arg;
-		apspDetour(S, arg);
+		apspStandard(S, arg);
 
 		int number = 0;
 		fcg.call(S.graph, S.terminals, arg.distance, arg.pred,
@@ -430,13 +442,13 @@ static void testFull2ComponentGenerator(const steiner_tree::Full2ComponentGenera
 			std::set<node> actual = {u, v};
 			AssertThat(allowed, Contains(actual));
 			if (std::set<node>{u, v} == std::set<node>{S.v[0], S.v[1]}) {
-				AssertThat(et.equal(minCost, T(5)), IsTrue());
+				AssertThat(epst.equal(minCost, T(5)), IsTrue());
 			} else
 			if (std::set<node>{u, v} == std::set<node>{S.v[0], S.v[2]}) {
-				AssertThat(et.equal(minCost, T(2)), IsTrue());
+				AssertThat(epst.equal(minCost, T(2)), IsTrue());
 			} else
 			if (std::set<node>{u, v} == std::set<node>{S.v[1], S.v[2]}) {
-				AssertThat(et.equal(minCost, T(3)), IsTrue());
+				AssertThat(epst.equal(minCost, T(3)), IsTrue());
 			}
 		});
 		AssertThat(number, Equals(3));
@@ -444,7 +456,7 @@ static void testFull2ComponentGenerator(const steiner_tree::Full2ComponentGenera
 
 	it("generates full components with terminal-preferring APSP", [&] {
 		Arguments<T> arg;
-		apspStrict(S, arg);
+		apspPrefer(S, arg);
 
 		int number = 0;
 		fcg.call(S.graph, S.terminals, arg.distance, arg.pred,
@@ -455,10 +467,10 @@ static void testFull2ComponentGenerator(const steiner_tree::Full2ComponentGenera
 			std::set<node> actual = {u, v};
 			AssertThat(allowed, Contains(actual));
 			if (std::set<node>{u, v} == std::set<node>{S.v[0], S.v[2]}) {
-				AssertThat(et.equal(minCost, T(2)), IsTrue());
+				AssertThat(epst.equal(minCost, T(2)), IsTrue());
 			} else
 			if (std::set<node>{u, v} == std::set<node>{S.v[1], S.v[2]}) {
-				AssertThat(et.equal(minCost, T(3)), IsTrue());
+				AssertThat(epst.equal(minCost, T(3)), IsTrue());
 			}
 		});
 		AssertThat(number, Equals(2));
@@ -471,34 +483,26 @@ static void testFull3ComponentGeneratorModule(std::string name, const steiner_tr
 		std::unique_ptr<Instance<T>> S; // a pointer because we may change the instance in the "it"s
 
 		before_each([&] {
-			S.reset(new Instance<T>({0, 1, 2, 3, 4},
-			  {{0, 5, 1}, {1, 5, 1}, {3, 5, 1},
-			   {5, 6, 1}, {2, 6, 1},
-			   {2, 7, 4}, {4, 7, 3},
-			   {0, 1, 2}, {2, 1, 3}}));
+			S.reset(new Instance<T>(4));
 		});
 
-		it("generates full components with terminal-avoiding APSP", [&] {
+		it("generates full components with standard APSP", [&] {
 			Arguments<T> arg;
-			apspDetour(*S, arg);
+			apspStandard(*S, arg);
 
 			int number = 0;
 			fcg.call(S->graph, S->terminals, S->isTerminal, arg.distance, arg.pred,
 			  [&](node u, node v, node w, node center, T minCost) {
 				++number;
 				assertTerminals(*S, {u, v, w});
-				AssertThat(S->isTerminal[center], IsFalse());
-				AssertThat(u, !Equals<node>(S->v[4]));
-				AssertThat(v, !Equals<node>(S->v[4]));
-				AssertThat(w, !Equals<node>(S->v[4]));
-				AssertThat(center, Equals<node>(S->v[5]));
+				AssertThat(center, Equals(S->v[5]));
 			});
-			AssertThat(number, IsGreaterThan(2) || IsLessThan(5));
+			AssertThat(number, IsGreaterThan(4) && IsLessThan(8));
 		});
 
 		it("generates full components with terminal-preferring APSP", [&] {
 			Arguments<T> arg;
-			apspStrict(*S, arg);
+			apspPrefer(*S, arg);
 
 			int number = 0;
 			fcg.call(S->graph, S->terminals, S->isTerminal, arg.distance, arg.pred,
@@ -511,7 +515,7 @@ static void testFull3ComponentGeneratorModule(std::string name, const steiner_tr
 				AssertThat(w, !Equals<node>(S->v[4]));
 				AssertThat(center, Equals<node>(S->v[5]));
 			});
-			AssertThat(number, IsGreaterThan(2) || IsLessThan(5));
+			AssertThat(number, IsGreaterThan(2) && IsLessThan(5));
 		});
 
 		it("omits generating 3-components that are dominated by 2-components", [&] {
@@ -520,7 +524,7 @@ static void testFull3ComponentGeneratorModule(std::string name, const steiner_tr
 			S->graph.newEdge(S->v[1], S->v[2], 1);
 
 			Arguments<T> arg;
-			apspStrict(*S, arg);
+			apspPrefer(*S, arg);
 
 			int number = 0;
 			fcg.call(S->graph, S->terminals, S->isTerminal, arg.distance, arg.pred,
@@ -538,11 +542,7 @@ static void testFullComponentGeneratorDreyfusWagner() {
 	using FCG = steiner_tree::FullComponentGeneratorDreyfusWagner<T>;
 
 	before_each([&] {
-		S.reset(new Instance<T>({0, 1, 2, 3, 4},
-		  {{0, 5, 1}, {1, 5, 1}, {3, 5, 1},
-		   {5, 6, 1}, {2, 6, 1},
-		   {2, 7, 4}, {4, 7, 3},
-		   {0, 1, 2}, {2, 1, 3}}));
+		S.reset(new Instance<T>(4));
 	});
 
 	auto testComponents = [&](const Arguments<T>& arg, const FCG& fcg, int k) {
@@ -555,36 +555,36 @@ static void testFullComponentGeneratorDreyfusWagner() {
 			List<node> terminals;
 			terminalSubset.list(terminals);
 			fcg.getSteinerTreeFor(terminals, component);
-			if (FCG::isValidComponent(component, arg.pred, S->isTerminal)) {
+			if (fcg.isValidComponent(component)) {
 				for (node t : terminals) {
 					AssertThat(component.copy(t)->degree(), Equals(1));
 				};
 				++nValid;
-			};
+			}
 			++nTotal;
 		};
 		AssertThat(nTotal, Equals(Math::binomial(S->terminals.size(), k)));
 		return nValid;
 	};
 
-	it("generates full components with terminal-avoiding APSP", [&] {
+	it("generates full components with standard APSP", [&] {
 		Arguments<T> arg;
-		apspDetour(*S, arg);
+		apspStandard(*S, arg);
 
-		FCG fcg(S->graph, S->terminals, arg.distance);
+		FCG fcg(S->graph, S->terminals, S->isTerminal, arg.distance, arg.pred);
 		fcg.call(5);
 
-		AssertThat(testComponents(arg, fcg, 2), Equals(7));
-		AssertThat(testComponents(arg, fcg, 3), Equals(4));
-		AssertThat(testComponents(arg, fcg, 4), Equals(1));
+		AssertThat(testComponents(arg, fcg, 2), Equals(10));
+		AssertThat(testComponents(arg, fcg, 3), Equals(7));
+		AssertThat(testComponents(arg, fcg, 4), Equals(2));
 		AssertThat(testComponents(arg, fcg, 5), Equals(0));
 	});
 
 	it("generates full components with terminal-preferring APSP", [&] {
 		Arguments<T> arg;
-		apspStrict(*S, arg);
+		apspPrefer(*S, arg);
 
-		FCG fcg(S->graph, S->terminals, arg.distance);
+		FCG fcg(S->graph, S->terminals, S->isTerminal, arg.distance, arg.pred);
 		fcg.call(5);
 
 		AssertThat(testComponents(arg, fcg, 2), Equals(7));
@@ -599,9 +599,9 @@ static void testFullComponentGeneratorDreyfusWagner() {
 		S->graph.newEdge(S->v[1], S->v[2], 1);
 
 		Arguments<T> arg;
-		apspStrict(*S, arg);
+		apspPrefer(*S, arg);
 
-		FCG fcg(S->graph, S->terminals, arg.distance);
+		FCG fcg(S->graph, S->terminals, S->isTerminal, arg.distance, arg.pred);
 		fcg.call(3);
 
 		AssertThat(testComponents(arg, fcg, 3), Equals(0));
@@ -627,6 +627,145 @@ static void describeFullComponentGenerators(const std::string &&type) {
 }
 
 template<typename T>
+static void testFullComponentStore(std::unique_ptr<steiner_tree::FullComponentStore<T>>& fcs,
+		const Instance<T>& S,
+		const EdgeWeightedGraphCopy<T>& component, const EdgeWeightedGraphCopy<T>& path) {
+	describe("only one 2-component", [&] {
+		before_each([&] {
+			fcs->insert(path);
+		});
+
+		it("inserts the component", [&] {
+			AssertThat(fcs->isEmpty(), IsFalse());
+			AssertThat(fcs->size(), Equals(1));
+			AssertThat(fcs->terminals(0).size(), Equals(2));
+			AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
+			AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
+			AssertThat(fcs->graph().numberOfNodes(), Equals(4));
+			AssertThat(fcs->graph().numberOfEdges(), Equals(1));
+		});
+
+		it("iterates over all critical nodes only", [&] {
+			NodeArray<int> marked(S.graph, 0);
+
+			fcs->foreachNode(0, [&](node v) {
+				++marked[v];
+			});
+
+			AssertThat(marked[S.v[0]], Equals(1));
+			AssertThat(marked[S.v[1]], Equals(1));
+		});
+
+		it("iterates over all nodes using predecessor matrix", [&] {
+			Arguments<T> arg;
+			MinSteinerTreeModule<T>::allPairShortestPathsPreferringTerminals(S.graph, S.isTerminal, arg.distance, arg.pred);
+			NodeArray<int> marked(S.graph, 0);
+
+			fcs->foreachNode(0, arg.pred, [&](node v) {
+				++marked[v];
+			});
+
+			for (int i : {2, 3, 6, 7}) {
+				AssertThat(marked[S.v[i]], Equals(0));
+			}
+			for (int i : {0, 1, 4, 5, 8}) {
+				AssertThat(marked[S.v[i]], Equals(1));
+			}
+		});
+	});
+
+	describe("only one 4-component", [&] {
+		before_each([&] {
+			fcs->insert(component);
+		});
+
+		it("inserts the component", [&] {
+			AssertThat(fcs->isEmpty(), IsFalse());
+			AssertThat(fcs->size(), Equals(1));
+			AssertThat(fcs->terminals(0).size(), Equals(4));
+			AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
+			AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
+			AssertThat(fcs->terminals(0)[2]->index(), Equals(2));
+			AssertThat(fcs->terminals(0)[3]->index(), Equals(3));
+			AssertThat(fcs->graph().numberOfNodes(), Equals(5));
+			AssertThat(fcs->graph().numberOfEdges(), Equals(4));
+		});
+
+		it("iterates over all critical nodes only", [&] {
+			NodeArray<int> marked(S.graph, 0);
+
+			fcs->foreachNode(0, [&](node v) {
+				++marked[v];
+			});
+
+			AssertThat(marked[S.v[0]], Equals(1));
+			AssertThat(marked[S.v[1]], Equals(1));
+			AssertThat(marked[S.v[2]], Equals(1));
+			AssertThat(marked[S.v[3]], Equals(1));
+			AssertThat(marked[S.v[4]], Equals(0));
+			AssertThat(marked[S.v[5]], Equals(0));
+			AssertThat(marked[S.v[6]], Equals(0));
+			AssertThat(marked[S.v[7]], Equals(0));
+			AssertThat(marked[S.v[8]], Equals(1));
+		});
+
+		it("iterates over all nodes using predecessor matrix", [&] {
+			Arguments<T> arg;
+			MinSteinerTreeModule<T>::allPairShortestPathsPreferringTerminals(S.graph, S.isTerminal, arg.distance, arg.pred);
+			NodeArray<int> marked(S.graph, 0);
+
+			fcs->foreachNode(0, arg.pred, [&](node v) {
+				++marked[v];
+			});
+
+			for (int count : marked) {
+				AssertThat(count, Equals(1));
+			}
+		});
+	});
+
+	describe("one 2-component and one 4-component", [&] {
+		before_each([&] {
+			fcs->insert(path);
+			fcs->insert(component);
+		});
+
+		it("inserts the components", [&] {
+			AssertThat(fcs->isEmpty(), IsFalse());
+			AssertThat(fcs->size(), Equals(2));
+			AssertThat(fcs->terminals(0).size(), Equals(2));
+			AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
+			AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
+			AssertThat(fcs->terminals(1).size(), Equals(4));
+			AssertThat(fcs->terminals(1)[0]->index(), Equals(0));
+			AssertThat(fcs->terminals(1)[1]->index(), Equals(1));
+			AssertThat(fcs->terminals(1)[2]->index(), Equals(2));
+			AssertThat(fcs->terminals(1)[3]->index(), Equals(3));
+			AssertThat(fcs->graph().numberOfNodes(), Equals(5));
+			AssertThat(fcs->graph().numberOfEdges(), Equals(5));
+		});
+
+		it("removes the components", [&] {
+			fcs->remove(0);
+			AssertThat(fcs->isEmpty(), IsFalse());
+			fcs->remove(0);
+			AssertThat(fcs->isEmpty(), IsTrue());
+		});
+	});
+
+	it("inserts the same component twice", [&] {
+		fcs->insert(component);
+		fcs->insert(component);
+		AssertThat(fcs->isEmpty(), IsFalse());
+		AssertThat(fcs->size(), Equals(2));
+		AssertThat(fcs->terminals(0).size(), Equals(4));
+		AssertThat(fcs->terminals(1).size(), Equals(4));
+		AssertThat(fcs->graph().numberOfNodes(), Equals(6));
+		AssertThat(fcs->graph().numberOfEdges(), Equals(8));
+	});
+}
+
+template<typename T>
 static void describeFullComponentStore(const std::string&& type) {
 	describe("FullComponentStore<" + type + ">", [&] {
 		Instance<T> S({0, 1, 2, 3}, {
@@ -647,46 +786,12 @@ static void describeFullComponentStore(const std::string&& type) {
 
 		describe("containing component with degree-2 nodes", [&] {
 			EdgeWeightedGraphCopy<T> copy(S.graph);
+			EdgeWeightedGraphCopy<T> path(S.graph);
+			for (int i : {2, 3, 6, 7}) {
+				path.delNode(path.copy(S.v[i]));
+			}
 
-			before_each([&] {
-				fcs->insert(copy);
-			});
-
-			it("inserts the component", [&] {
-				AssertThat(fcs->isEmpty(), IsFalse());
-				AssertThat(fcs->size(), Equals(1));
-				AssertThat(fcs->terminals(0).size(), Equals(4));
-				AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
-				AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
-				AssertThat(fcs->terminals(0)[2]->index(), Equals(2));
-				AssertThat(fcs->terminals(0)[3]->index(), Equals(3));
-			});
-
-			it("iterates over all nodes without predecessor matrix", [&] {
-				NodeArray<int> marked(S.graph, 0);
-
-				fcs->foreachNode(0, [&](node v) {
-					++marked[v];
-				});
-
-				for (int count : marked) {
-					AssertThat(count, Equals(1));
-				}
-			});
-
-			it("iterates over all nodes with predecessor matrix", [&] {
-				Arguments<T> arg;
-				MinSteinerTreeModule<T>::allPairShortestPathsStrict(S.graph, S.isTerminal, arg.distance, arg.pred);
-				NodeArray<int> marked(S.graph, 0);
-
-				fcs->foreachNode(0, arg.pred, [&](node v) {
-					++marked[v];
-				});
-
-				for (int count : marked) {
-					AssertThat(count, Equals(1));
-				}
-			});
+			testFullComponentStore(fcs, S, copy, path);
 		});
 
 		describe("containing component without degree-2 nodes", [&] {
@@ -698,51 +803,13 @@ static void describeFullComponentStore(const std::string&& type) {
 				component.newEdge(component.copy(S.v[i]), component.copy(S.v[8]), 2);
 			}
 
-			before_each([&] {
-				fcs->insert(component);
-			});
+			EdgeWeightedGraphCopy<T> path;
+			path.createEmpty(S.graph);
+			path.newNode(S.v[0]);
+			path.newNode(S.v[1]);
+			path.newEdge(path.firstNode(), path.lastNode(), 4);
 
-			it("inserts the component", [&] {
-				AssertThat(fcs->isEmpty(), IsFalse());
-				AssertThat(fcs->size(), Equals(1));
-				AssertThat(fcs->terminals(0).size(), Equals(4));
-				AssertThat(fcs->terminals(0)[0]->index(), Equals(0));
-				AssertThat(fcs->terminals(0)[1]->index(), Equals(1));
-				AssertThat(fcs->terminals(0)[2]->index(), Equals(2));
-				AssertThat(fcs->terminals(0)[3]->index(), Equals(3));
-			});
-
-			it("iterates over all critical nodes only", [&] {
-				NodeArray<int> marked(S.graph, 0);
-
-				fcs->foreachNode(0, [&](node v) {
-					++marked[v];
-				});
-
-				AssertThat(marked[S.v[0]], Equals(1));
-				AssertThat(marked[S.v[1]], Equals(1));
-				AssertThat(marked[S.v[2]], Equals(1));
-				AssertThat(marked[S.v[3]], Equals(1));
-				AssertThat(marked[S.v[4]], Equals(0));
-				AssertThat(marked[S.v[5]], Equals(0));
-				AssertThat(marked[S.v[6]], Equals(0));
-				AssertThat(marked[S.v[7]], Equals(0));
-				AssertThat(marked[S.v[8]], Equals(1));
-			});
-
-			it("iterates over all nodes using predecessor matrix", [&] {
-				Arguments<T> arg;
-				MinSteinerTreeModule<T>::allPairShortestPathsStrict(S.graph, S.isTerminal, arg.distance, arg.pred);
-				NodeArray<int> marked(S.graph, 0);
-
-				fcs->foreachNode(0, arg.pred, [&](node v) {
-					++marked[v];
-				});
-
-				for (int count : marked) {
-					AssertThat(count, Equals(1));
-				}
-			});
+			testFullComponentStore(fcs, S, component, path);
 		});
 	});
 }

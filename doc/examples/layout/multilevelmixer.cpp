@@ -174,7 +174,8 @@ int main(int argc, const char *argv[])
 	// After the computation the MultilevelGraph is exported to the
 	// GraphAttributes and written to disk.
 	mlg.exportAttributes(ga);
-	GraphIO::write(ga, "output-multilevelmixer-.gml", GraphIO::writeGML);
+	GraphIO::write(ga, "output-multilevelmixer-" + std::string(argv[1]) + ".gml", GraphIO::writeGML);
+	GraphIO::write(ga, "output-multilevelmixer-" + std::string(argv[1]) + ".svg", GraphIO::drawSVG);
 
 	return 0;
 }

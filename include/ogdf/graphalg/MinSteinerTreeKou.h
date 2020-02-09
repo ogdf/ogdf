@@ -34,7 +34,7 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 #include <ogdf/graphalg/Dijkstra.h>

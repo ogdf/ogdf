@@ -268,6 +268,8 @@ class Compare
 public:
 	Compare(const C &compare = C()) : m_compare(compare) {}
 
+	Compare(const Compare& other) : m_compare(other.m_compare) {}
+
 	bool operator()(const T &x, const T &y) const {
 		return m_compare(x.priority(), y.priority());
 	}
@@ -291,14 +293,6 @@ public:
 	PairTemplate(const E &element, const P &priority)
 		: m_element(element), m_priority(priority)
 	{
-	}
-
-	PairTemplate & operator=(const PairTemplate &pair)
-	{
-		m_element = pair.m_element;
-		m_priority = pair.m_priority;
-
-		return *this;
 	}
 
 	const E &element() const {
@@ -358,10 +352,10 @@ public:
 	}
 
 	/**
-	 * Pushes a new element with the respective priotiy to the queue.
+	 * Pushes a new element with the respective priority to the queue.
 	 *
 	 * @param element the element to be added
-	 * @param priority the priotiy of that element
+	 * @param priority the priority of that element
 	 */
 	Handle push(const E &element, const P &priority) {
 		Pair pair(element, priority);

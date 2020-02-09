@@ -476,7 +476,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 //computes clustering and translates the computed structure into C
 void Clusterer::createClusterGraph(ClusterGraph &C)
 {
-	if (&(C.constGraph()) != m_pGraph) throw PreconditionViolatedException();
+	OGDF_ASSERT(&(C.constGraph()) == m_pGraph);
 	//clear existing entries
 	C.clear();
 

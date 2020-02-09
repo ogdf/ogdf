@@ -56,14 +56,21 @@ std::string toString(const Attribute &attr)
 	case Attribute::Height:	return "height";
 	case Attribute::Size: return "size";
 
+	case Attribute::NodeLabelX: return "labelx";
+	case Attribute::NodeLabelY: return "labely";
+	case Attribute::NodeLabelZ: return "labelz";
+
 	case Attribute::Shape: return "shape";
 
 	case Attribute::NodeStrokeColor: return "nodestroke";
 	case Attribute::NodeStrokeType: return "nodestroketype";
 	case Attribute::NodeStrokeWidth: return "nodestrokewidth";
-	case Attribute::EdgeStroke: return "edgestroke";
+	case Attribute::EdgeStrokeColor: return "edgestroke";
+	case Attribute::EdgeStrokeType: return "edgestroketype";
+	case Attribute::EdgeStrokeWidth: return "edgestrokewidth";
 	case Attribute::ClusterStroke: return "clusterstroke";
 	case Attribute::NodeFillPattern: return "nodefill";
+	case Attribute::NodeFillBackground: return "nodefillbg";
 	case Attribute::R: return "r";
 	case Attribute::G: return "g";
 	case Attribute::B: return "b";
@@ -74,10 +81,11 @@ std::string toString(const Attribute &attr)
 	case Attribute::NodeType: return "nodetype";
 	case Attribute::EdgeType: return "edgetype";
 
+	case Attribute::NodeId: return "nodeid";
 	case Attribute::Template: return "template";
 
 	case Attribute::EdgeArrow: return "arrow";
-	case Attribute::EdgeSubGraph: return "avaliable-for";
+	case Attribute::EdgeSubGraph: return "subgraphs";
 	case Attribute::EdgeBends: return "bends";
 
 	// default case (to avoid compiler warnings)
@@ -149,52 +157,36 @@ std::string toString(const Graph::EdgeType &type)
 	return "UNKNOWN";
 }
 
-// Map is lazily-evaluated (this could be avoided with C++11 constexpr).
-static std::map<std::string, Attribute> attrMap;
-
 Attribute toAttribute(const std::string &str)
 {
 	return toEnum(
-		str, attrMap, toString,
+		str, toString,
 		static_cast<Attribute>(0), Attribute::Unknown, Attribute::Unknown);
 }
 
-
-// Same as attrMap but with shapes.
-static std::map<std::string, Shape> shapeMap;
-
 Shape toShape(const std::string &str)
 {
-	return toEnum(str, shapeMap, toString, Shape::Rect, Shape::Image, Shape::Rect);
+	return toEnum(str, toString, Shape::Rect, Shape::Image, Shape::Rect);
 }
 
-
-// Same as attrMap but with arrows.
-static std::map<std::string, EdgeArrow> arrowMap;
 
 EdgeArrow toArrow(const std::string &str)
 {
-	return toEnum(str, arrowMap, toString, EdgeArrow::None, EdgeArrow::Undefined, EdgeArrow::Undefined);
+	return toEnum(str, toString, EdgeArrow::None, EdgeArrow::Undefined, EdgeArrow::Undefined);
 }
 
-
-// Same as attrMap but with node types.
-static std::map<std::string, Graph::NodeType> nodeTypeMap;
 
 Graph::NodeType toNodeType(const std::string &str)
 {
 	return toEnum(
-		str, nodeTypeMap, toString,
+		str, toString,
 		static_cast<Graph::NodeType>(0), Graph::NodeType::associationClass, Graph::NodeType::vertex);
 }
-
-// Same as attrMap but with edge types.
-static std::map<std::string, Graph::EdgeType> edgeTypeMap;
 
 Graph::EdgeType toEdgeType(const std::string &str)
 {
 	return toEnum(
-		str, edgeTypeMap, toString,
+		str, toString,
 		static_cast<Graph::EdgeType>(0), Graph::EdgeType::dependency, Graph::EdgeType::association);
 }
 

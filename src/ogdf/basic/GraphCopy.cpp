@@ -125,7 +125,6 @@ GraphCopy::GraphCopy(const Graph &G)
 
 GraphCopy::GraphCopy(const GraphCopy &GC) : Graph()
 {
-	m_pGraph = nullptr; // just a temporary value to make "clear" work correctly
 	*this = GC;
 }
 
@@ -294,11 +293,15 @@ void GraphCopy::initByActiveNodes(
 
 GraphCopy &GraphCopy::operator=(const GraphCopy &GC)
 {
+	m_pGraph = nullptr;
+
 	NodeArray<node> vCopy;
 	EdgeArray<edge> eCopy;
 
 	Graph::assign(GC,vCopy,eCopy);
-	initGC(GC,vCopy,eCopy);
+	if (GC.m_pGraph != nullptr) {
+		initGC(GC,vCopy,eCopy);
+	}
 
 	return *this;
 }

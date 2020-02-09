@@ -75,13 +75,12 @@ void randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, do
 	// Randomly distribute nodes in a d-dimensional area
 	NodeArray<int> nodeWeights = NodeArray<int>(G);
 	NodeArray<Array<double>> cord(G, Array<double>(dimension));
-	std::random_device rd;
-	std::mt19937 gen(rd());
+	std::minstd_rand rng(randomSeed());
 	for (int i = 0; i < weights.size(); i++) {
 		nodes[i] = G.newNode();
 		nodeWeights[nodes[i]] = weights[i];
 		for (int j = 0; j < dimension; j++){
-			cord[nodes[i]][j] = dist(gen);
+			cord[nodes[i]][j] = dist(rng);
 		}
 	}
 

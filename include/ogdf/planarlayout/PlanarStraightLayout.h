@@ -32,11 +32,11 @@
 
 #pragma once
 
-#include <ogdf/module/GridLayoutModule.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <memory>
-#include <ogdf/module/AugmentationModule.h>
-#include <ogdf/module/ShellingOrderModule.h>
-#include <ogdf/module/EmbedderModule.h>
+#include <ogdf/augmentation/AugmentationModule.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarlayout/ShellingOrder.h>
 
 namespace ogdf {

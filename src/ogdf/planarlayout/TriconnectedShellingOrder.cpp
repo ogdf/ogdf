@@ -516,7 +516,9 @@ void TriconnectedShellingOrder::doCall(
 	for (int i = 1; i <= mid; i++)
 		adjRun = adjRun->twin()->cyclicSucc();
 
-	cto.initPossible(adjRun->theNode());
+	if (G.numberOfNodes() >= 3) {
+		cto.initPossible(adjRun->theNode());
+	}
 
 	// node and face that are selected during the algorithm
 	node vk;

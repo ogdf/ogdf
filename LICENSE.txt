@@ -37,7 +37,7 @@ Steiner tree computations by Ivana Ljubic, Matteo Fischetti, et al.
 
 
 
-See also: http://www.ogdf.net/license.html
+See also: http://www.ogdf.net/license
 
 
 Third-party software:

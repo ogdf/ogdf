@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <ogdf/module/UpwardPlanarSubgraphModule.h>
+#include <ogdf/upward/UpwardPlanarSubgraphModule.h>
 #include <ogdf/basic/tuples.h>
-
 
 namespace ogdf {
 

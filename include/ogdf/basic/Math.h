@@ -229,12 +229,14 @@ inline void getFraction(double d, int &num, int &denom, const double epsilon = 5
 //! Returns the minimum of an iterable container of given \p values.
 template<class Container>
 inline typename Container::value_type minValue(const Container &values) {
+	OGDF_ASSERT(!values.empty());
 	return *std::min_element(values.begin(), values.end());
 }
 
 //! Returns the maximum of an iterable container of given \p values.
 template<class Container>
 inline typename Container::value_type maxValue(const Container &values) {
+	OGDF_ASSERT(!values.empty());
 	return *std::max_element(values.begin(), values.end());
 }
 
@@ -247,6 +249,7 @@ inline typename Container::value_type sum(const Container &values) {
 //! Returns the mean of an iterable container of given \p values.
 template<class Container>
 inline double mean(const Container &values) {
+	OGDF_ASSERT(!values.empty());
 	return sum(values) / static_cast<double>(values.size());
 }
 
@@ -254,6 +257,7 @@ inline double mean(const Container &values) {
 //! The given \p mean is used instead of computing a new one.
 template<class Container>
 inline double standardDeviation(const Container &values, double mean) {
+	OGDF_ASSERT(!values.empty());
 	double sum = 0;
 	for (auto value : values) {
 		double d = value - mean;

@@ -29,8 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/module/CCLayoutPackModule.h>
-
+#include <ogdf/packing/CCLayoutPackModule.h>
 
 namespace ogdf {
 

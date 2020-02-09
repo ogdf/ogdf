@@ -345,7 +345,7 @@ bool DLParser::readEmbeddedNodeList(Graph &G, GraphAttributes *GA)
 bool DLParser::readData(Graph &G, GraphAttributes *GA)
 {
 	if(m_nodes < 0) {
-		GraphIO::logger.lout() << "Number of nodes not specified or incorret." << std::endl;
+		GraphIO::logger.lout() << "Number of nodes not specified or incorrect." << std::endl;
 		return false;
 	}
 

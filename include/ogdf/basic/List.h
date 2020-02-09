@@ -116,6 +116,10 @@ public:
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0, bool isArgReverse>
 	ListIteratorBase(const ListIteratorBase<E,isArgConst,isArgReverse> &it) : ListIteratorBase(it.m_pX) { }
 
+	//! Copy constructor.
+	// gcc9 complains since it cannot match the templated constructor above (-Werror=deprecated-copy).
+	ListIteratorBase(const ListIteratorBase<E, isConst, isReverse> &it) : ListIteratorBase(it.m_pX) { }
+
 	//! Returns true iff the iterator points to an element.
 	bool valid() const { return m_pX != nullptr; }
 

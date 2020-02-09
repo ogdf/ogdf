@@ -61,9 +61,6 @@ public:
 	 */
 	explicit Layout(const Graph &G) : m_x(G,0), m_y(G,0), m_bends(G) { }
 
-	//! Destruction
-	~Layout() { }
-
 
 	/** @} @{
 	 * \brief Returns a reference to the array storing x-coordinates of nodes.

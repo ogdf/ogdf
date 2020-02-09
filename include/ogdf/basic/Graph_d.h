@@ -36,6 +36,7 @@
 
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/internal/graph_iterators.h>
+#include <array>
 #include <mutex>
 
 #ifdef OGDF_DEBUG
@@ -97,6 +98,8 @@ public:
 	operator edge() const { return m_edge; }
 	//! Returns the node whose adjacency list contains this element.
 	node theNode() const { return m_node; }
+	//! Casts to the node whose adjacency list contains this element.
+	operator node() const { return m_node; }
 
 	//! Returns the corresponding adjacency element associated with the same edge.
 	adjEntry twin() const { return m_twin; }
@@ -323,6 +326,8 @@ public:
 	node source() const { return m_src; }
 	//! Returns the target node of the edge.
 	node target() const { return m_tgt; }
+	//! Returns a list of adjacent nodes. If this edge is a self-loop, both entries will be the same node.
+	std::array<node, 2> nodes() const { return std::array<node, 2>{{m_src, m_tgt}}; }
 
 	//! Returns the corresponding adjacancy entry at source node.
 	adjEntry adjSource() const { return m_adjSrc; }
@@ -331,8 +336,18 @@ public:
 
 	//! Returns the adjacent node different from \p v.
 	node opposite(node v) const { return (v == m_src) ? m_tgt : m_src; }
-	// Returns true iff the edge is a self-loop (source node = target node).
+
+	//! Returns true iff the edge is a self-loop (source node = target node).
 	bool isSelfLoop() const { return m_src == m_tgt; }
+
+	//! Returns true iff edge \p e is an inverted edge to this (directed) edge
+	bool isInvertedDirected(edge e) const { return m_src == e->target() && m_tgt == e->source(); }
+
+	//! Returns true iff edge \p e is parallel to this (directed) edge (or if it is the same edge)
+	bool isParallelDirected(edge e) const { return m_src == e->source() && m_tgt == e->target(); }
+
+	//! Returns true iff edge \p e is parallel to this (undirected) edge (or if it is the same edge)
+	bool isParallelUndirected(edge e) const { return isParallelDirected(e) || isInvertedDirected(e); }
 
 	//! Returns the successor in the list of all edges.
 	edge succ() const { return static_cast<edge>(m_next); }
@@ -979,11 +994,14 @@ public:
 
 	//! Searches and returns an edge connecting nodes \p v and \p w in time \a O( min(deg(\p v ), deg(\p w ))).
 	/**
-	 * @param v is the source node of the edge to be searched.
-	 * @param w is the target node of the edge to be searched.
-	 * @return an edge (\p v,\p w) if such an edge exists, nullptr otherwise.
+	 * @param v is the first endpoint of the edge to be searched.
+	 * @param w is the second endpoint of the edge to be searched.
+	 * @param directed iff set to true, enforces that
+	 * \p v must be the source node and \p w the target node of the edge.
+	 * @return an edge (\p v,\p w) (or (\p w,\p v) for !\p directed)
+	 * if such an edge exists, nullptr otherwise.
 	 */
-	edge searchEdge (node v, node w) const;
+	edge searchEdge (node v, node w, bool directed = false) const;
 
 	//! Reverses the edge \p e, i.e., exchanges source and target node.
 	void reverseEdge(edge e);

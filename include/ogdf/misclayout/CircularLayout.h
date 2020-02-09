@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/GraphAttributes.h>
 
 namespace ogdf {
 
@@ -133,7 +133,7 @@ private:
 	double m_minDistCC;      //!< The minimal distance between connected components.
 	double m_pageRatio;      //!< The page ratio used for packing connected components.
 
-	void doCall(GraphCopyAttributes &AG, ClusterStructure &C);
+	void doCall(GraphAttributes &AG, ClusterStructure &C);
 
 	void assignClustersByBiconnectedComponents(ClusterStructure &C);
 

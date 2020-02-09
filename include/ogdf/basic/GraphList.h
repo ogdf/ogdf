@@ -363,6 +363,8 @@ class GraphObjectContainer : private GraphList<GraphObject> {
 #endif
 
 public:
+	//! The value type (a pointer to a specific graph object)
+	using value_type = GraphObject*;
 	//! Provides a bidirectional iterator to an object in the container.
 	using iterator = GraphIterator<GraphObject*>;
 	//! Provides a bidirectional reverse iterator to an object in the container.

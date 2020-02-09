@@ -30,7 +30,7 @@
 
 #include <ogdf/energybased/dtree/DTreeEmbedder.h>
 #include <ogdf/energybased/dtree/GalaxyLevel.h>
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
 namespace ogdf {

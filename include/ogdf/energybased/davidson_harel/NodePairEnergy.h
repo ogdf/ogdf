@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/AdjacencyOracle.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 

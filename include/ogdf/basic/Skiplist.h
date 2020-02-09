@@ -213,12 +213,6 @@ public:
 		return it;
 	}
 
-	//! Assignment operator
-	SkiplistIterator<X> &operator=(const SkiplistIterator<X> &it) {
-		el = it.el;
-		return *this;
-	}
-
 	bool operator==(const SkiplistIterator<X> other) const {
 		return el == other.el;
 	}

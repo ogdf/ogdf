@@ -36,13 +36,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/uml/PlanarizationLayoutUML.h>
-#include <ogdf/basic/TopologyModule.h>
+#include <ogdf/planarity/TopologyModule.h>
 #include <ogdf/planarity/PlanRepInc.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/planarity/SimpleIncNodeInserter.h>
-
 
 namespace ogdf {
 

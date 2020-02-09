@@ -103,6 +103,11 @@ bool GraphMLParser::readData(
 	pugi::xml_text text = nodeData.text();
 
 	switch (graphml::toAttribute(m_attrName[keyId.value()])) {
+	case graphml::Attribute::NodeId:
+		if(attrs & GraphAttributes::nodeId) {
+			GA.idNode(v) = text.as_int();
+		}
+		break;
 	case graphml::Attribute::NodeLabel:
 		if(attrs & GraphAttributes::nodeLabel) {
 			GA.label(v) = text.get();
@@ -148,6 +153,21 @@ bool GraphMLParser::readData(
 			GA.z(v) = text.as_double();
 		}
 		break;
+	case graphml::Attribute::NodeLabelX:
+		if (attrs & GraphAttributes::nodeLabelPosition) {
+			GA.xLabel(v) = text.as_double();
+		}
+		break;
+	case graphml::Attribute::NodeLabelY:
+		if (attrs & GraphAttributes::nodeLabelPosition) {
+			GA.yLabel(v) = text.as_double();
+		}
+		break;
+	case graphml::Attribute::NodeLabelZ:
+		if (attrs & GraphAttributes::nodeLabelPosition && attrs & GraphAttributes::threeD) {
+			GA.zLabel(v) = text.as_double();
+		}
+		break;
 	case graphml::Attribute::R:
 		if (attrs & GraphAttributes::nodeStyle
 		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).red(val); })) {
@@ -169,6 +189,11 @@ bool GraphMLParser::readData(
 	case graphml::Attribute::NodeFillPattern:
 		if(attrs & GraphAttributes::nodeStyle) {
 			GA.fillPattern(v) = FillPattern(text.as_int());
+		}
+		break;
+	case graphml::Attribute::NodeFillBackground:
+		if(attrs & GraphAttributes::nodeStyle) {
+			GA.fillBgColor(v) = text.get();
 		}
 		break;
 	case graphml::Attribute::NodeStrokeColor:
@@ -246,9 +271,39 @@ bool GraphMLParser::readData(
 			GA.arrowType(e) = graphml::toArrow(text.get());
 		}
 		break;
-	case graphml::Attribute::EdgeStroke:
+	case graphml::Attribute::EdgeStrokeColor:
 		if(attrs & GraphAttributes::edgeStyle) {
 			GA.strokeColor(e) = text.get();
+		}
+		break;
+	case graphml::Attribute::EdgeStrokeType:
+		if(attrs & GraphAttributes::edgeStyle) {
+			GA.strokeType(e) = StrokeType(text.as_int());
+		}
+		break;
+	case graphml::Attribute::EdgeStrokeWidth:
+		if(attrs & GraphAttributes::edgeStyle) {
+			GA.strokeWidth(e) = text.as_float();
+		}
+		break;
+	case graphml::Attribute::EdgeBends:
+		if(attrs & GraphAttributes::edgeGraphics) {
+			std::stringstream is(text.get());
+			double x, y;
+			DPolyline& polyline = GA.bends(e);
+			polyline.clear();
+			while(is >> x && is >> y) {
+				polyline.pushBack(DPoint(x, y));
+			}
+		}
+		break;
+	case graphml::Attribute::EdgeSubGraph:
+		if(attrs & GraphAttributes::edgeSubGraphs) {
+			std::stringstream sstream(text.get());
+			int sg;
+			while(sstream >> sg) {
+				GA.addSubGraph(e, sg);
+			}
 		}
 		break;
 	default:
@@ -449,14 +504,6 @@ bool GraphMLParser::readClusters(
 
 bool GraphMLParser::read(Graph &G)
 {
-	// Check whether graph is directed or not (directed by default).
-#if 0
-	XmlAttributeObject *edgeDefaultAttr;
-	m_graphTag->findXmlAttributeObjectByName("edgedefault", edgeDefaultAttr);
-
-	bool directed = edgeDefaultAttr == nullptr ||
-	                edgeDefaultAttr->getValue() == "directed";
-#endif
 	if(m_error) {
 		return false;
 	}
@@ -470,6 +517,10 @@ bool GraphMLParser::read(Graph &G)
 
 bool GraphMLParser::read(Graph &G, GraphAttributes &GA)
 {
+	// Check whether graph is directed or not (directed by default).
+	pugi::xml_attribute edgeDefaultAttr = m_graphTag.attribute("edgedefault");
+	GA.directed() = (!edgeDefaultAttr || string(edgeDefaultAttr.value()) == "directed");
+
 	if(m_error) {
 		return false;
 	}

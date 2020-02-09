@@ -31,17 +31,15 @@
 
 #pragma once
 
-#include <ogdf/module/EdgeInsertionModule.h>
-#include <ogdf/module/CrossingMinimizationModule.h>
-#include <ogdf/module/PlanarSubgraphModule.h>
+#include <ogdf/planarity/EdgeInsertionModule.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <memory>
 #include <ogdf/basic/Logger.h>
 
 #include <random>
 
-
-namespace ogdf
-{
+namespace ogdf {
 
 //! The planarization approach for crossing minimization.
 /**

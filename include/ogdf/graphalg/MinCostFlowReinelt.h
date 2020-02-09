@@ -31,12 +31,10 @@
 
 #pragma once
 
-#include <ogdf/module/MinCostFlowModule.h>
+#include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/basic/EpsilonTest.h>
 
-
 namespace ogdf {
-
 
 //! Computes a min-cost flow using a network simplex method.
 /**

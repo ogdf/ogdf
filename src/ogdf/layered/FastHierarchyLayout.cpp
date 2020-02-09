@@ -52,11 +52,6 @@ public:
 	int element;
 	double key;
 
-	withKey &operator=(const withKey& wk) {
-		element=wk.element;
-		key=wk.key;
-		return *this;
-	}
 	friend std::ostream& operator<<(std::ostream& out,const withKey& wk) {
 		out<<wk.element<<"("<<wk.key<<")";
 		return out;
@@ -166,10 +161,14 @@ FastHierarchyLayout &FastHierarchyLayout::operator=(const FastHierarchyLayout &f
 
 
 void FastHierarchyLayout::doCall(const HierarchyLevelsBase &levels,
-	GraphCopyAttributes &AGC)
+	GraphAttributes &AGC)
 {
 	const Hierarchy &H  = levels.hierarchy();
 	const GraphCopy &GC = H;
+
+	if (GC.numberOfNodes() == 0) {
+		return;
+	}
 
 	int actLayer = 0;
 	int actNode = 0;
@@ -211,8 +210,8 @@ void FastHierarchyLayout::doCall(const HierarchyLevelsBase &levels,
 		breadth[n1] = 0;
 		layer[n1] = H.rank(v1);
 		if(!virt[n1]) {
-			breadth[n1] = AGC.getWidth(v1);
-			incrTo(height[layer[n1]],AGC.getHeight(v1));
+			breadth[n1] = getWidth(AGC, levels, v1);
+			incrTo(height[layer[n1]], getHeight(AGC, levels, v1));
 			newEdge = new List<int>;
 			newEdge->pushBack(n1);
 			longEdge[n1] = newEdge;

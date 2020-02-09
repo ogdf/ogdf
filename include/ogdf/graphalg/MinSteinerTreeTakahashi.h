@@ -34,7 +34,7 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
 namespace ogdf {

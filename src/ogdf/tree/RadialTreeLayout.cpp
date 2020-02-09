@@ -63,10 +63,9 @@ RadialTreeLayout &RadialTreeLayout::operator=(const RadialTreeLayout &tl)
 void RadialTreeLayout::call(GraphAttributes &AG)
 {
 	const Graph &tree = AG.constGraph();
-	if(tree.numberOfNodes() == 0) return;
+	if(tree.numberOfNodes() < 2) return;
 
-	if (!isArborescence(tree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
+	OGDF_ASSERT(isArborescence(tree));
 
 	OGDF_ASSERT(m_levelDistance > 0);
 

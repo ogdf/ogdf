@@ -963,9 +963,6 @@ void PlanRepUML::writeGML(std::ostream &os, const Layout &drawing)
 	os << "]\n"; // graph
 }
 
-
-
-
 void PlanRepUML::writeGML(const char *fileName, const OrthoRep &OR, const Layout &drawing)
 {
 	std::ofstream os(fileName);

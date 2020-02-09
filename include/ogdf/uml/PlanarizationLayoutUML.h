@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <ogdf/module/UMLLayoutModule.h>
-#include <ogdf/module/UMLCrossingMinimizationModule.h>
-#include <ogdf/module/LayoutPlanRepUMLModule.h>
-#include <ogdf/module/CCLayoutPackModule.h>
+#include <ogdf/uml/UMLLayoutModule.h>
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>
+#include <ogdf/uml/LayoutPlanRepUMLModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <memory>
-#include <ogdf/module/EmbedderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 
@@ -293,7 +293,7 @@ public:
 		return m_nCrossings;
 	}
 
-	//! Throws a PreconditionViolatedException if \p umlGraph violates a precondition of planarization layout.
+	//! \pre \p umlGraph may not violate a precondition of planarization layout.
 	void assureDrawability(UMLGraph& umlGraph);
 
 	//! @}

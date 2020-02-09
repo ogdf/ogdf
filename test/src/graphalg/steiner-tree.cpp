@@ -302,6 +302,7 @@ void testModule(const ModuleData<T>& module)
 
 struct MaxFlowFactoryBase {
 	virtual MaxFlowModule<double>* create() = 0;
+	virtual ~MaxFlowFactoryBase() = default;
 };
 template<typename MaxFlowModuleType>
 struct MaxFlowFactory : MaxFlowFactoryBase {
@@ -488,18 +489,11 @@ static void
 registerRZLossVariants(Modules<T> &modules)
 {
 	// RZLoss for different maximum component sizes
-	for(int i = 2; i < 6; i++) {
+	for(int maxCompSize = 3; maxCompSize < 6; ++maxCompSize) {
 		MinSteinerTreeRZLoss<T> *alg = new MinSteinerTreeRZLoss<T>();
-		int maxCompSize = i;
-		std::string info = "";
 		// APSP is only being used for maximum component size of 3
-		if(i == 2) {
-			alg->forceAPSP(true);
-			info = " and forced APSP";
-			maxCompSize = 3;
-		}
 		alg->setMaxComponentSize(maxCompSize);
-		addModule(modules, "RZLoss with maximum component size of " + to_string(maxCompSize) + info, alg, 2, {14, 25});
+		addModule(modules, "RZLoss with maximum component size of " + to_string(maxCompSize), alg, 2, {14, 25});
 	}
 }
 
@@ -511,20 +505,13 @@ static void
 registerGoemans139Variants(Modules<T> &modules)
 {
 	// Goemans139 for different maximum component sizes
-	for(int i = 2; i < 6; i++) {
+	for(int maxCompSize = 3; maxCompSize < 6; ++maxCompSize) {
 		// and for standard and stronger LP relaxation
 		for (int strongerLP = 0; strongerLP < 2; ++strongerLP) {
 			for (int use2approx = 0; use2approx < 2; ++use2approx) {
 				MinSteinerTreeGoemans139<T> *alg = new MinSteinerTreeGoemans139<T>();
-				int maxCompSize = i;
 				std::string info = "Goemans139 with maximum component size ";
-				if(i == 2) {
-					alg->forceAPSP();
-					maxCompSize = 3;
-					info += "3 (enforced APSP)";
-				} else {
-					info += to_string(maxCompSize);
-				}
+				info += to_string(maxCompSize);
 				alg->setMaxComponentSize(maxCompSize);
 				if (strongerLP) {
 					alg->separateCycles();

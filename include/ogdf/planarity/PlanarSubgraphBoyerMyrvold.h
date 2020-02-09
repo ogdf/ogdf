@@ -33,7 +33,7 @@
 #pragma once
 
 #include <random>
-#include <ogdf/module/PlanarSubgraphModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/planarity/BoothLueker.h>

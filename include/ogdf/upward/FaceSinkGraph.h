@@ -81,9 +81,6 @@ public:
 		return m_containsSource[v];
 	}
 
-
-
-
 	//! returns the list of faces f in E such that there exists an upward-planar
 	//! drawing realizing E with f as external face
 	//! a node v_T in tree T is returned as representative. v_T is 0 if no possible external face exists.
@@ -127,8 +124,6 @@ public:
 	//! compute the sink switches of all faces.
 	// the ext. face muss be set
 	void sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches);
-
-
 
 private:
 	//! constructs face-sink graph

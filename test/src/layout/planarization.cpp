@@ -37,6 +37,7 @@
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarlayout/MixedModelLayout.h>
 #include <ogdf/planarlayout/MMCBLocalStretch.h>
+#include <ogdf/upward/UpwardPlanarizationLayout.h>
 
 #include "layout_helpers.h"
 
@@ -71,4 +72,7 @@ go_bandit([] { describe("Planarization layouts", [] {
 
 	describeLayout("PlanarizationGridLayout", pgl, 0, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
 	describeLayout("PlanarizationGridLayout with mixed model", pglMM, 0, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+
+	UpwardPlanarizationLayout upl;
+	describeLayout("UpwardPlanarizationLayout", upl, 0, {GraphProperty::acyclic, GraphProperty::simple, GraphProperty::sparse, GraphProperty::connected}, false, smallSizes);
 }); });

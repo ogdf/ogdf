@@ -35,7 +35,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
 
-#include <ogdf/module/ClusterPlanarModule.h>
+#include <ogdf/cluster/ClusterPlanarModule.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
 

@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/PlanarSubgraphModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 
 namespace ogdf {
 

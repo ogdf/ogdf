@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/PlanarityModule.h>
+#include <ogdf/planarity/PlanarityModule.h>
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/ExtractKuratowskis.h>
 #include <ogdf/basic/GraphCopy.h>

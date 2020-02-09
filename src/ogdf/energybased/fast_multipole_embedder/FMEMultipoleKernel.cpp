@@ -154,10 +154,6 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 	tree.forall_tree_nodes(LQCoordsFunctor(localContext), localContext->leafPartition.begin, localContext->leafPartition.numNodes)();
 }
 
-
-
-
-
 void FMEMultipoleKernel::multipoleApproxSingleThreaded(ArrayPartition& nodePointPartition)
 {
 	FMELocalContext*  localContext	= m_pLocalContext;
@@ -472,8 +468,6 @@ void FMEMultipoleKernel::multipoleApproxFinal(ArrayPartition& nodePointPartition
 		)
 	);
 }
-
-
 
 void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 {

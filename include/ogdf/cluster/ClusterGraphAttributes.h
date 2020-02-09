@@ -4,7 +4,7 @@
  * like cluster cage positions and sizes that can be accessed
  * over the cluster/cluster ID
  *
- * \author Karsten Klein, Carsten Gutwenger
+ * \author Karsten Klein, Carsten Gutwenger, Max Ilsen
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -40,40 +40,51 @@
 
 namespace ogdf {
 
-//! Stores information associated with a cluster.
-struct OGDF_EXPORT ClusterInfo
-{
-	double m_x, m_y;	//!< position of lower left corner
-	double m_w, m_h;	//!< width and height
-
-	string m_label;		//!< cluster label
-
-	Stroke m_stroke;	//!< stroke (style of boundary)
-	Fill   m_fill;		//!< fill (style of interior)
-
-	ClusterInfo()
-		: m_stroke(LayoutStandards::defaultClusterStroke()), m_fill(LayoutStandards::defaultClusterFill())
-	{
-		m_x = m_y = 0.0;
-		m_w = m_h = 0.0;
-	}
-};
-
-
 //! Stores additional attributes of a clustered graph (like layout information).
 /**
  * @ingroup graph-containers graph-drawing
  */
 class OGDF_EXPORT ClusterGraphAttributes : public GraphAttributes
 {
+protected:
 	const ClusterGraph* m_pClusterGraph;//!< Only points to existing graphs.
 
-private:
-	ClusterArray<ClusterInfo> m_clusterInfo;     //!< cluster attributes
-	ClusterArray<string>      m_clusterTemplate; //!< Name of cluster template.
+	ClusterArray<double> m_x; //!< X-position of lower left corner
+	ClusterArray<double> m_y; //!< Y-position of lower left corner
+	ClusterArray<double> m_width; //!< Cluster width
+	ClusterArray<double> m_height; //!< Cluster height
+	ClusterArray<string> m_label; //!< Cluster label
+	ClusterArray<Stroke> m_stroke; //!< Stroke (style of boundary)
+	ClusterArray<Fill> m_fill; //!< Fill (style of interior)
+	ClusterArray<string> m_clusterTemplate; //!< Name of cluster template
 
 public:
-	// don't hide these inherited methods by overloading
+	/**
+	 * @name Flags for enabling attributes
+	 * @{
+	 */
+
+	//! Corresponds to cluster attributes #x(cluster), #y(cluster),
+	//! #width(cluster), #height(cluster).
+	static const long clusterGraphics;
+
+	//! Corresponds to cluster attributes #strokeColor(cluster),
+	//! #strokeType(cluster), #strokeWidth(cluster), #fillPattern(cluster),
+	//! #fillColor(cluster), and #fillBgColor(cluster).
+	static const long clusterStyle;
+
+	//! Corresponds to cluster attribute #label(cluster).
+	static const long clusterLabel;
+
+	//! Corresponds to cluster attribute #templateCluster(cluster).
+	static const long clusterTemplate;
+
+	//! Enables all available flags.
+	static const long all;
+
+	//!@}
+
+	// Don't hide these inherited methods by overloading.
 	using GraphAttributes::x;
 	using GraphAttributes::y;
 	using GraphAttributes::width;
@@ -91,154 +102,287 @@ public:
 
 	/**
 	 * @name Construction and management of attributes
+	 * @{
 	 */
-	//@{
 
 	//! Constructs cluster graph attributes for no associated graph.
 	ClusterGraphAttributes() : GraphAttributes(), m_pClusterGraph(nullptr) { }
 
 	//! Constructs cluster graph attributes for cluster graph \p cg with attributes \p initAttributes.
-	/**
-	 * \remark All attributes in ClusterElement are always available.
-	 */
-	explicit ClusterGraphAttributes(ClusterGraph& cg, long initAttributes = 0);
+	explicit ClusterGraphAttributes(const ClusterGraph& cg,
+			long initAttributes = nodeGraphics | edgeGraphics | clusterGraphics
+	);
 
 	virtual ~ClusterGraphAttributes() { }
 
-	//! Initializes the cluster graph attributes for cluster graph \p cg with attributes \p initAttributes.
-	virtual void init(ClusterGraph &cg, long initAttributes = 0);
-
+private:
 	//! Forbidden initialization, use init(ClusterGraph &cg, long initAttributes) instead!
-	virtual void init(const Graph &, long) override {
-		OGDF_THROW(Exception); // We need a cluster graph for initialization
-	}
+	using GraphAttributes::init;
 
-	//! Initializes the attributes according to \p initAttributes.
-	virtual void initAtt(long initAttributes = 0) {
-		GraphAttributes::addAttributes(initAttributes);
-	}
+	//! Add all cluster-related attributes in \p attr.
+	/**
+	 * @pre #m_attributes already contains \p attr.
+	 */
+	void addClusterAttributes(long attr);
+
+	//! Destroy all cluster-related attributes in \p attr.
+	/**
+	 * @pre #m_attributes already contains \p attr.
+	 */
+	void destroyClusterAttributes(long attr);
+
+public:
+	//! Initializes the ClusterGraphAttributes for ClusterGraph \p cg.
+	/**
+	 * @param cg is the new associated ClusterGraph.
+	 * @param attr specifies the set of attributes that can be accessed.
+	 *
+	 * \warning All attributes that were allocated before are destroyed by this function!
+	 *  If you wish to extend the set of allocated attributes, use #addAttributes.
+	 */
+	void init(ClusterGraph &cg, long attr = 0);
+
+	//! Re-initializes the ClusterGraphAttributes while maintaining the associated CluterGraph.
+	//! @see init(const ClusterGraph&, long)
+	void init(long attr = 0);
+
+	//! @copydoc GraphAttributes::addAttributes()
+	void addAttributes(long attr);
+
+	//! @copydoc GraphAttributes::destroyAttributes()
+	void destroyAttributes(long attr);
 
 	//! Returns the associated cluster graph.
 	const ClusterGraph& constClusterGraph() const { return *m_pClusterGraph; }
 
 
-	//@}
 	/**
+	 * @}
 	 * @name Cluster attributes
+	 * @{
 	 */
-	//@{
 
 	//! Returns the x-position of cluster \p c's cage (lower left corner).
-	double x(cluster c) const { return m_clusterInfo[c].m_x; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double x(cluster c) const {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_x[c];
+	}
 
 	//! Returns the x-position of cluster \p c's cage (lower left corner).
-	double& x(cluster c) { return m_clusterInfo[c].m_x; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double& x(cluster c) {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_x[c];
+	}
 
 	//! Returns the y-position of cluster \p c's cage (lower left corner).
-	double y(cluster c) const { return m_clusterInfo[c].m_y; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double y(cluster c) const {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_y[c];
+	}
 
 	//! Returns the y-position of cluster \p c's cage (lower left corner).
-	double& y(cluster c) { return m_clusterInfo[c].m_y; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double& y(cluster c) {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_y[c];
+	}
 
 	//! Returns the width of cluster \p c.
-	double width(cluster c) const { return m_clusterInfo[c].m_w; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double width(cluster c) const {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_width[c];
+	}
 
 	//! Returns the width of cluster \p c.
-	double& width(cluster c) { return m_clusterInfo[c].m_w; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double& width(cluster c) {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_width[c];
+	}
 
 	//! Returns the height of cluster \p c.
-	double height(cluster c) const { return m_clusterInfo[c].m_h; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double height(cluster c) const {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_height[c];
+	}
 
 	//! Returns the height of cluster \p c.
-	double& height(cluster c) { return m_clusterInfo[c].m_h; }
+	/**
+	 * \pre #clusterGraphics is enabled
+	 */
+	double& height(cluster c) {
+		OGDF_ASSERT(has(clusterGraphics));
+		return m_height[c];
+	}
 
 	//! Returns the stroke type of cluster \p c.
-	StrokeType strokeType(cluster c) const {
-		return m_clusterInfo[c].m_stroke.m_type;
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	const StrokeType &strokeType(cluster c) const {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_stroke[c].m_type;
 	}
 
-	//! Sets the stroke type of cluster \p c to \p st.
-	void setStrokeType(cluster c, StrokeType st) {
-		m_clusterInfo[c].m_stroke.m_type = st;
+	//! Returns the stroke type of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	StrokeType &strokeType(cluster c) {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_stroke[c].m_type;
 	}
 
 	//! Returns the stroke color of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
 	const Color &strokeColor(cluster c) const {
-		return m_clusterInfo[c].m_stroke.m_color;
+		OGDF_ASSERT(has(clusterStyle));
+		return m_stroke[c].m_color;
 	}
 
 	//! Returns the stroke color of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
 	Color &strokeColor(cluster c) {
-		return m_clusterInfo[c].m_stroke.m_color;
+		OGDF_ASSERT(has(clusterStyle));
+		return m_stroke[c].m_color;
 	}
 
 	//! Returns the stroke width of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
 	const float &strokeWidth(cluster c) const {
-		return m_clusterInfo[c].m_stroke.m_width;
+		OGDF_ASSERT(has(clusterStyle));
+		return m_stroke[c].m_width;
 	}
 
 	//! Returns the stroke width of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
 	float &strokeWidth(cluster c) {
-		return m_clusterInfo[c].m_stroke.m_width;
+		OGDF_ASSERT(has(clusterStyle));
+		return m_stroke[c].m_width;
 	}
 
 	//! Returns the fill pattern of cluster \p c.
-	FillPattern fillPattern(cluster c) const {
-		return m_clusterInfo[c].m_fill.m_pattern;
-	}
-
-	//! Sets the fill pattern of cluster \p c to \p fp.
-	void setFillPattern(cluster c, FillPattern fp) {
-		m_clusterInfo[c].m_fill.m_pattern = fp;
-	}
-
-	//! Returns the fill color of cluster \p c.
-	const Color &fillColor(cluster c) const {
-		return m_clusterInfo[c].m_fill.m_color;
-	}
-
-	//! Returns the fill color of cluster \p c.
-	Color &fillColor(cluster c) {
-		return m_clusterInfo[c].m_fill.m_color;
-	}
-
-	//! Returns the background color of fill patterns for cluster \p c.
-	const Color &fillBgColor(cluster c) const {
-		return m_clusterInfo[c].m_fill.m_bgColor;
-	}
-
-	//! Returns the background color of fill patterns for cluster \p c.
-	Color &fillBgColor(cluster c) {
-		return m_clusterInfo[c].m_fill.m_bgColor;
-	}
-
-	//! Returns the label of cluster \p c.
-	const string &label(cluster c) const {
-		return m_clusterInfo[c].m_label;
-	}
-
-	//! Returns the label of cluster \p c.
-	string &label(cluster c) {
-		return m_clusterInfo[c].m_label;
-	}
-
-	//! Returns the template of cluster \p c.
-	const string &templateCluster(cluster c) const { return m_clusterTemplate[c]; }
-
-	//! Returns the template of cluster \p c.
-	string &templateCluster(cluster c) { return m_clusterTemplate[c]; }
-
-	//! Returns the cluster info structure of cluster \p c.
-	const ClusterInfo& clusterInfo(cluster c) const { return m_clusterInfo[c]; }
-
-	//! Returns the cluster info structure of cluster \p c.
-	ClusterInfo& clusterInfo(cluster c) { return m_clusterInfo[c]; }
-
-	//@}
 	/**
-	* @name Layout transformations
-	*/
-	//@{
+	 * \pre #clusterStyle is enabled
+	 */
+	const FillPattern &fillPattern(cluster c) const {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_fill[c].m_pattern;
+	}
+
+	//! Returns the fill pattern of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	FillPattern &fillPattern(cluster c) {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_fill[c].m_pattern;
+	}
+
+	//! Returns the fill color of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	const Color &fillColor(cluster c) const {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_fill[c].m_color;
+	}
+
+	//! Returns the fill color of cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	Color &fillColor(cluster c) {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_fill[c].m_color;
+	}
+
+	//! Returns the background color of fill patterns for cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	const Color &fillBgColor(cluster c) const {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_fill[c].m_bgColor;
+	}
+
+	//! Returns the background color of fill patterns for cluster \p c.
+	/**
+	 * \pre #clusterStyle is enabled
+	 */
+	Color &fillBgColor(cluster c) {
+		OGDF_ASSERT(has(clusterStyle));
+		return m_fill[c].m_bgColor;
+	}
+
+	//! Returns the label of cluster \p c.
+	/**
+	 * \pre #clusterLabel is enabled
+	 */
+	const string &label(cluster c) const {
+		OGDF_ASSERT(has(clusterLabel));
+		return m_label[c];
+	}
+
+	//! Returns the label of cluster \p c.
+	/**
+	 * \pre #clusterLabel is enabled
+	 */
+	string &label(cluster c) {
+		OGDF_ASSERT(has(clusterLabel));
+		return m_label[c];
+	}
+
+	//! Returns the template of cluster \p c.
+	/**
+	 * \pre #clusterTemplate is enabled
+	 */
+	const string &templateCluster(cluster c) const {
+		OGDF_ASSERT(has(clusterTemplate));
+		return m_clusterTemplate[c];
+	}
+
+	//! Returns the template of cluster \p c.
+	/**
+	 * \pre #clusterTemplate is enabled
+	 */
+	string &templateCluster(cluster c) {
+		OGDF_ASSERT(has(clusterTemplate));
+		return m_clusterTemplate[c];
+	}
+
+	/**
+	 * @}
+	 * @name Layout transformations
+	 * @}
+	 */
 
 	using GraphAttributes::scale;
 	using GraphAttributes::flipVertical;

@@ -31,12 +31,10 @@
 
 #pragma once
 
-#include <ogdf/module/HierarchyLayoutModule.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
 #include <ogdf/basic/List.h>
 
-
 namespace ogdf {
-
 
 /**
  * \brief Coordinate assignment phase for the Sugiyama algorithm by Buchheim et al.
@@ -78,7 +76,7 @@ namespace ogdf {
 class OGDF_EXPORT FastHierarchyLayout : public HierarchyLayoutModule
 {
 protected:
-	virtual void doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC) override;
+	virtual void doCall(const HierarchyLevelsBase &levels, GraphAttributes &AGC) override;
 
 public:
 	//! Creates an instance of fast hierarchy layout.

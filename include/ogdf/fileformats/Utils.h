@@ -55,15 +55,11 @@ std::istream &operator >>(std::istream &is, TokenIgnorer token);
 template <typename E>
 static inline E toEnum(
 	const std::string &str, // A string we want to convert.
-	std::map<std::string, E> &map, // A map to be lazily evaluated.
 	std::string toString(const E&),
 	const E first, const E last, const E def) // Enum informations.
 {
+	static std::map<std::string, E> map; // A map to be lazily evaluated.
 	if(map.empty()) {
-#if 0
-		map = new Hashing<std::string, E>();
-#endif
-
 		// Iterating over enums is potentially unsafe... (fixable in C++11).
 		for(int it = static_cast<int>(last); it >= static_cast<int>(first); it--) {
 			const E e = static_cast<E>(it);

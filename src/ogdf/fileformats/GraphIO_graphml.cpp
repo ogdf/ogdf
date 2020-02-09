@@ -83,6 +83,14 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeLabel), "string");
 	}
 
+	if(attributes & GraphAttributes::nodeLabelPosition) {
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeLabelX), "float");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeLabelY), "float");
+		if (attributes & GraphAttributes::threeD) {
+			defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeLabelZ), "float");
+		}
+	}
+
 	if(attributes & GraphAttributes::nodeGraphics) {
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::X), "double");
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::Y), "double");
@@ -117,6 +125,7 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeStrokeType), "int");
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeStrokeWidth), "double");
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeFillPattern), "int");
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeFillBackground), "string");
 	}
 
 	if(attributes & GraphAttributes::nodeWeight) {
@@ -125,6 +134,10 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 
 	if(attributes & GraphAttributes::nodeType) {
 		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeType), "int");
+	}
+
+	if(attributes & GraphAttributes::nodeId) {
+		defineGraphMLAttribute(xmlNode, "node", toString(Attribute::NodeId), "int");
 	}
 
 	if(attributes & GraphAttributes::nodeTemplate) {
@@ -151,11 +164,14 @@ static inline void defineGraphMLAttributes(pugi::xml_node xmlNode, long attribut
 	}
 
 	if(attributes & GraphAttributes::edgeStyle) {
-		defineGraphMLAttribute(xmlNode, "edge", toString(Attribute::EdgeStroke), "string");
+		defineGraphMLAttribute(xmlNode, "edge", toString(Attribute::EdgeStrokeColor), "string");
+		defineGraphMLAttribute(xmlNode, "edge", toString(Attribute::EdgeStrokeType), "int");
+		defineGraphMLAttribute(xmlNode, "edge", toString(Attribute::EdgeStrokeWidth), "double");
 	}
 
 	if(attributes & GraphAttributes::edgeSubGraphs) {
-		defineGraphMLAttribute(xmlNode, "edge", toString(Attribute::EdgeSubGraph), "int");
+		// Similarly to bend points, print as list.
+		defineGraphMLAttribute(xmlNode, "edge", toString(Attribute::EdgeSubGraph), "string");
 	}
 }
 
@@ -198,8 +214,11 @@ static inline void writeGraphMLNode(
 
 	pugi::xml_node nodeTag = xmlNode.append_child("node");
 
-	// Use attribute id if available, node index if not.
-	nodeTag.append_attribute("id") = GA.has(GraphAttributes::nodeId) ? GA.idNode(v) : v->index();
+	nodeTag.append_attribute("id") = v->index();
+
+	if(GA.has(GraphAttributes::nodeId)) {
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeId), GA.idNode(v));
+	}
 
 	if(GA.has(GraphAttributes::nodeLabel) && GA.label(v) != "") {
 		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeLabel), GA.label(v).c_str());
@@ -218,12 +237,21 @@ static inline void writeGraphMLNode(
 		writeGraphMLAttribute(nodeTag, toString(Attribute::Z), GA.z(v));
 	}
 
+	if(GA.has(GraphAttributes::nodeLabelPosition)) {
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeLabelX), GA.xLabel(v));
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeLabelY), GA.yLabel(v));
+		if(GA.has(GraphAttributes::threeD)) {
+			writeGraphMLAttribute(nodeTag, toString(Attribute::NodeLabelZ), GA.zLabel(v));
+		}
+	}
+
 	if(GA.has(GraphAttributes::nodeStyle)) {
 		const Color &col = GA.fillColor(v);
 		writeGraphMLAttribute(nodeTag, toString(Attribute::R), col.red());
 		writeGraphMLAttribute(nodeTag, toString(Attribute::G), col.green());
 		writeGraphMLAttribute(nodeTag, toString(Attribute::B), col.blue());
 		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeFillPattern), int(GA.fillPattern(v)));
+		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeFillBackground), GA.fillBgColor(v).toString().c_str());
 
 		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeStrokeColor), GA.strokeColor(v).toString().c_str());
 		writeGraphMLAttribute(nodeTag, toString(Attribute::NodeStrokeType), int(GA.strokeType(v)));
@@ -264,18 +292,15 @@ static inline void writeGraphMLEdge(
 		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeWeight), GA.intWeight(e));
 	}
 
-	if(GA.has(GraphAttributes::edgeGraphics)) {
-		std::stringstream sstream; // For code consistency.
+	if(GA.has(GraphAttributes::edgeGraphics) && !GA.bends(e).empty()) {
+		std::stringstream sstream;
+		sstream.setf(std::ios::fixed);
 
 		for(const DPoint &p : GA.bends(e)) {
 			sstream << p.m_x << " " << p.m_y << " ";
 		}
 
-		// Call to GA.bends(e).length() causes a "Segmentation fault".
-		const std::string str = sstream.str();
-		if (str.length() > 0) {
-			writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeBends), sstream.str().c_str());
-		}
+		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeBends), sstream.str().c_str());
 	}
 
 	if(GA.has(GraphAttributes::edgeType)) {
@@ -290,18 +315,22 @@ static inline void writeGraphMLEdge(
 	}
 
 	if(GA.has(GraphAttributes::edgeStyle)) {
-		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeStroke), GA.strokeColor(e).toString().c_str());
+		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeStrokeColor), GA.strokeColor(e).toString().c_str());
+		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeStrokeType), int(GA.strokeType(e)));
+		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeStrokeWidth), GA.strokeWidth(e));
 	}
 
 	if(GA.has(GraphAttributes::edgeSubGraphs)) {
 		const uint32_t mask = GA.subGraphBits(e);
 
-		// Iterate over all subgraphs and print avaliable.
-		for(size_t sg = 0; sg < sizeof(mask) * 8; sg++) {
+		// Iterate over all subgraphs and print the ones the edge is part of.
+		std::stringstream sstream;
+		for (size_t sg = 0; sg < sizeof(mask) * 8; ++sg) {
 			if((1 << sg) & mask) {
-				writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeSubGraph), static_cast<int>(sg));
+				sstream << (sg == 0 ? "" : " ") << sg;
 			}
 		}
+		writeGraphMLAttribute(edgeTag, toString(Attribute::EdgeSubGraph), sstream.str().c_str());
 	}
 }
 

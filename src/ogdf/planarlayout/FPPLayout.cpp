@@ -45,6 +45,10 @@ void FPPLayout::doCall(
 	IPoint &boundingBox,
 	bool fixEmbedding)
 {
+	if (G.numberOfNodes() < 2) {
+		return;
+	}
+
 	// check for double edges & self loops
 	OGDF_ASSERT(isSimple(G));
 
@@ -52,9 +56,8 @@ void FPPLayout::doCall(
 	GraphCopy GC(G);
 
 	// embed
-	if (!fixEmbedding && !planarEmbed(GC)) {
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Planar);
-	}
+	bool isPlanar = planarEmbed(GC);
+	OGDF_ASSERT(fixEmbedding || isPlanar);
 
 	triangulate(GC);
 

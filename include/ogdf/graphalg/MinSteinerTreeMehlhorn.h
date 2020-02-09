@@ -35,10 +35,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/Voronoi.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/module/MinSteinerTreeModule.h>
-
-#include <ogdf/basic/GraphAttributes.h>
-#include <sstream>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 
 namespace ogdf {
 
@@ -297,4 +294,18 @@ void MinSteinerTreeMehlhorn<T>::insertPath(node u,
 	}
 }
 
+namespace steiner_tree {
+
+template<typename T>
+T constructTerminalSpanningTreeUsingVoronoiRegions(EdgeWeightedGraphCopy<T>& terminalSpanningTree,
+		const EdgeWeightedGraph<T>& graph,
+		const List<node>& terminals) {
+	EdgeArray<edge> bridges;
+	Voronoi<T> voronoi(graph, graph.edgeWeights(), terminals);
+
+	MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(graph, terminals, voronoi, bridges, terminalSpanningTree);
+
+	return makeMinimumSpanningTree(terminalSpanningTree, terminalSpanningTree.edgeWeights());
+}
+}
 }

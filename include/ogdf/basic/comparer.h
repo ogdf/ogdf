@@ -288,7 +288,7 @@ public:
 	Prioritized(X xt, Priority pt) : x(xt),p(pt) { }
 
 	//! Copy-constructor
-	Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
+	Prioritized(const Prioritized& P) = default;
 
 	//! Returns the key of the element
 	Priority priority() const { return p; }
@@ -301,6 +301,9 @@ public:
 
 	//! Sets value x
 	void setItem(X item) { x=item; }
+
+	//! Copy assignment operator
+	Prioritized& operator=(const Prioritized<X,Priority>& P) = default;
 
 	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
 	bool operator<(const Prioritized<X,Priority>& P) const { return p<P.p; }

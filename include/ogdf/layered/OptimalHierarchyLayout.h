@@ -32,8 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/HierarchyLayoutModule.h>
-
+#include <ogdf/layered/HierarchyLayoutModule.h>
 
 namespace ogdf {
 
@@ -158,15 +157,15 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	virtual void doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC) override;
+	virtual void doCall(const HierarchyLevelsBase &levels,GraphAttributes &AGC) override;
 
 private:
 	void computeXCoordinates(
 		const HierarchyLevelsBase &levels,
-		GraphCopyAttributes &AGC);
+		GraphAttributes &AGC);
 	void computeYCoordinates(
 		const HierarchyLevelsBase &levels,
-		GraphCopyAttributes &AGC);
+		GraphAttributes &AGC);
 
 	// options
 	double m_nodeDistance;  //!< The minimal distance between nodes.

@@ -35,14 +35,13 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 
 namespace ogdf {
-
 
 //! Energy-based layout using stress minimization.
 /**
@@ -51,8 +50,6 @@ namespace ogdf {
 class OGDF_EXPORT StressMinimization: public LayoutModule {
 
 public:
-
-
 	enum class TerminationCriterion {
 		None, PositionDifference, Stress
 	};

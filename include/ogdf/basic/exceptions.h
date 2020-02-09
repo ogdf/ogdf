@@ -76,31 +76,6 @@ namespace ogdf {
 
 //! @}
 
-//! Error code for a violated precondition.
-/**
- * @ingroup exceptions
- *
- * \see PreconditionViolatedException
- */
-enum class PreconditionViolatedCode {
-	Unknown,
-	SelfLoop,          //!< graph contains a self-loop
-	TreeHierarchies,   //!< hierarchies are not only trees
-	AcyclicHierarchies,//!< hierarchies are not acyclic
-	SingleSource,      //!< graph has not a single source
-	UpwardPlanar,      //!< graph is not upward planar
-	Tree,              //!< graph is not a rooted tree
-	Forest,            //!< graph is not a rooted forest
-	Orthogonal,        //!< layout is not orthogonal
-	Planar,            //!< graph is not planar
-	ClusterPlanar,     //!< graph is not c-planar
-	NoCopy,            //!< graph is not a copy of the corresponding graph
-	Connected,         //!< graph is not connected
-	Biconnected,       //!< graph is not twoconnected
-	Full,         	   //!< datastructure is already full
-	STOP               // INSERT NEW CODES BEFORE pvcSTOP!
-};
-
 //! Code for an internal failure condition
 /**
  * @ingroup exceptions
@@ -269,37 +244,6 @@ class OGDF_EXPORT TypeNotSupportedException : public Exception {
 public:
 	//! Constructs a type-not-supported exception.
 	explicit TypeNotSupportedException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
-};
-
-
-//! %Exception thrown when preconditions are violated.
-/**
-* @ingroup exceptions
-*/
-class OGDF_EXPORT PreconditionViolatedException : public Exception
-{
-public:
-	//! Constructs a precondition violated exception.
-	explicit PreconditionViolatedException(PreconditionViolatedCode code,
-		const char *file = nullptr,
-		int line = -1) :
-	Exception(file, line),
-	m_exceptionCode(code)
-	{}
-
-	//! Constructs a precondition violated exception.
-	explicit PreconditionViolatedException(
-		const char *file = nullptr,
-		int line = -1) :
-	Exception(file, line),
-	m_exceptionCode(PreconditionViolatedCode::Unknown)
-	{}
-
-	//! Returns the error code of the exception.
-	PreconditionViolatedCode exceptionCode() const { return m_exceptionCode; }
-
-private:
-	PreconditionViolatedCode m_exceptionCode; //!< The error code specifying the exception.
 };
 
 //! %Exception thrown when an algorithm realizes an internal bug that prevents it from continuing.

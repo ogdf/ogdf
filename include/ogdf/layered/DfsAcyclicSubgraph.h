@@ -32,7 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/module/AcyclicSubgraphModule.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
 
 namespace ogdf {
 

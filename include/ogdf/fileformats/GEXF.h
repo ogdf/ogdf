@@ -44,5 +44,8 @@ namespace gexf {
 std::string toString(const Shape &shape);
 Shape toShape(const std::string &str);
 
+std::string toGEXFStrokeType(const StrokeType &type);
+StrokeType toStrokeType(const std::string &str);
+
 }
 }

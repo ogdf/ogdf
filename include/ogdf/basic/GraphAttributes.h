@@ -113,57 +113,60 @@ public:
 	//!@{
 
 	//! Corresponds to node attributes #x(node), #y(node), #width(node), #height(node), and #shape(node).
-	static const int nodeGraphics;
+	static const long nodeGraphics;
 
 	//! Corresponds to edge attribute #bends(edge).
-	static const int edgeGraphics;
+	static const long edgeGraphics;
 
 	//! Corresponds to edge attribute #intWeight(edge).
-	static const int edgeIntWeight;
+	static const long edgeIntWeight;
 
 	//! Corresponds to edge attribute #doubleWeight(edge).
-	static const int edgeDoubleWeight;
+	static const long edgeDoubleWeight;
 
 	//! Corresponds to edge attribute #label(edge).
-	static const int edgeLabel;
+	static const long edgeLabel;
 
 	//! Corresponds to node attribute #label(node).
-	static const int nodeLabel;
+	static const long nodeLabel;
 
 	//! Corresponds to edge attribute #type(edge).
-	static const int edgeType;
+	static const long edgeType;
 
 	//! Corresponds to node attribute #type(node).
-	static const int nodeType;
+	static const long nodeType;
 
 	//! Corresponds to node attribute #idNode(node).
-	static const int nodeId;
+	static const long nodeId;
 
 	//! Corresponds to edge attribute #arrowType(edge).
-	static const int edgeArrow;
+	static const long edgeArrow;
 
 	//! Corresponds to edge attributes #strokeColor(edge), #strokeType(edge), and #strokeWidth(edge).
-	static const int edgeStyle;
+	static const long edgeStyle;
 
 	//! Corresponds to node attributes #strokeColor(node), #strokeType(node),
 	//! #strokeWidth(node), #fillPattern(node), #fillColor(node), and #fillBgColor(node).
-	static const int nodeStyle;
+	static const long nodeStyle;
 
 	//! Corresponds to node attribute #templateNode(node).
-	static const int nodeTemplate;
+	static const long nodeTemplate;
 
 	//! Corresponds to edge attributes modified by
 	//! #addSubGraph(edge, int), #inSubGraph(edge, int) const, and #removeSubGraph(edge, int).
-	static const int edgeSubGraphs;
+	static const long edgeSubGraphs;
 
 	//! Corresponds to node attribute #weight(node).
-	static const int nodeWeight;
+	static const long nodeWeight;
 
 	//! Corresponds to node attribute #z(node). Note that all methods work on 2D coordinates only.
-	static const int threeD;
+	static const long threeD;
 
 	//! Corresponds to node attributes #xLabel(node), #yLabel(node), and #zLabel(node).
-	static const int nodeLabelPosition;
+	static const long nodeLabelPosition;
+
+	//! Enables all available flags.
+	static const long all;
 
 	//!@}
 
@@ -184,6 +187,12 @@ public:
 	 * @param attr specifies the set of attributes that can be accessed.
 	 */
 	explicit GraphAttributes(const Graph &G, long attr = nodeGraphics | edgeGraphics);
+
+	//! Copy constructor.
+	GraphAttributes(const GraphAttributes&) = default;
+
+	//! Copy assignment operator.
+	GraphAttributes& operator=(const GraphAttributes&) = default;
 
 	virtual ~GraphAttributes() {
 	}
@@ -1010,6 +1019,40 @@ public:
 	 */
 	//!@{
 
+	//! Returns a DPoint corresponding to the x- and y-coordinates of \p v.
+	inline DPoint point(node v) const { return DPoint(m_x[v], m_y[v]); }
+
+	//! Copies attributes of this to \p origAttr.
+	/**
+	 * Only attributes which are enabled in both this and \p origAttr are
+	 * copied.
+	 * The edges of \p origAttr get attributes associated with the respective
+	 * first edge in the chain of copy edges. Both dummy nodes and bends between
+	 * dummy nodes are added as bends to \p origAttr.
+	 *
+	 * @pre This GraphAttributes is associated with a GraphCopy, which is
+	 * a copy of the graph that \p origAttr is associated with.
+	 *
+	 * @param origAttr is the GraphAttributes of the original graph.
+	 */
+	void transferToOriginal(GraphAttributes &origAttr) const;
+
+	//! Copies attributes of this to \p copyAttr.
+	/**
+	 * Only attributes which are enabled in both this and \p copyAttr are
+	 * copied.
+	 * The edges of \p copyAttr get attributes associated with the respective
+	 * original edge. Bend points, however, are only transferred to the first
+	 * edge in the chain of copy edges. Bend points of all other copy edges in
+	 * the chain are cleared.
+	 *
+	 * @pre \p copyAttr is associated with a GraphCopy, which is a copy of the
+	 * graph that this GraphAttributes is associated with.
+	 *
+	 * @param copyAttr is the GraphAttributes of the GraphCopy.
+	 */
+	void transferToCopy(GraphAttributes &copyAttr) const;
+
 	//! Returns the bounding box of the graph.
 	/**
 	 * \pre #nodeGraphics and #edgeGraphics is enabled
@@ -1112,6 +1155,13 @@ public:
 	int hierarchyList(List<List<edge>*> &list) const;
 
 	//!@}
+
+private:
+	//! Copies all attributes \p attrs of \p vFrom to \p toAttr for \p vTo.
+	void copyNodeAttributes(GraphAttributes &toAttr, node vFrom, node vTo, long attrs) const;
+
+	//! Copies all attributes \p attrs except bends (!) of \p eFrom to \p toAttr for \p eTo.
+	void copyEdgeAttributes(GraphAttributes &toAttr, edge eFrom, edge eTo, long attrs) const;
 };
 
 }

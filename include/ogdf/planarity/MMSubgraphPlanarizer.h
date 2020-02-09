@@ -31,14 +31,12 @@
 
 #pragma once
 
-#include <ogdf/module/MMCrossingMinimizationModule.h>
-#include <ogdf/module/PlanarSubgraphModule.h>
-#include <ogdf/module/MMEdgeInsertionModule.h>
+#include <ogdf/planarity/MMCrossingMinimizationModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
+#include <ogdf/planarity/MMEdgeInsertionModule.h>
 #include <memory>
 
-
-namespace ogdf
-{
+namespace ogdf {
 
 /**
  * \brief Planarization approach for minor-monotone crossing minimization.

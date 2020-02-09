@@ -72,6 +72,7 @@ static inline void writeNodeHeader(
 		os << "," << toString(NodeAttribute::StrokeType);
 		os << "," << toString(NodeAttribute::StrokeWidth);
 		os << "," << toString(NodeAttribute::FillPattern);
+		os << "," << toString(NodeAttribute::FillBgColor);
 	}
 	if(attrs & GraphAttributes::nodeTemplate) {
 		os << "," << toString(NodeAttribute::Template);
@@ -116,6 +117,8 @@ static inline void writeNode(
 		os << "," << toString(GA->strokeType(v));
 		os << "," << GA->strokeWidth(v);
 		os << "," << toString(GA->fillPattern(v));
+		os << ",";
+		writeColor(os, GA->fillBgColor(v));
 	}
 	if(attrs & GraphAttributes::nodeTemplate) {
 		os << "," << GA->templateNode(v);

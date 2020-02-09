@@ -32,8 +32,7 @@
 
 #pragma once
 
-#include <ogdf/module/MixedModelCrossingsBeautifierModule.h>
-
+#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
 
 namespace ogdf {
 

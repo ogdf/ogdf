@@ -46,6 +46,7 @@ enum class Attribute {
 	strokeWidth,
 	strokeType,
 	fillPattern,
+	fillBackground,
 	position,
 	size,
 	shape,

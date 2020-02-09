@@ -89,7 +89,8 @@ m_g(g),
 	// apply this only, if FIND-procedure will be called
 	if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
 		m_pointsToRoot.init(g,nullptr);
-		m_visitedWithBackedge.init(g,0);
+		m_visitedWithBackedge.init(g,nullptr);
+		m_numUnembeddedBackedgesInBicomp.init(g,0);
 		m_highestSubtreeDFI.init(g); // doesn't need initialization
 	}
 	m_flippedNodes = 0;
@@ -272,8 +273,8 @@ void BoyerMyrvoldPlanar::embedBackedges(
 	// decrease counter of backedges per bicomp
 	if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
 		node bicompRoot = m_pointsToRoot[m_backedgeFlags[w].front()->theEdge()];
-		m_visitedWithBackedge[bicompRoot] -= m_backedgeFlags[w].size();
-		OGDF_ASSERT( m_extractSubgraph || m_visitedWithBackedge[bicompRoot] >= 0 );
+		m_numUnembeddedBackedgesInBicomp[bicompRoot] -= m_backedgeFlags[w].size();
+		OGDF_ASSERT( m_extractSubgraph || m_numUnembeddedBackedgesInBicomp[bicompRoot] >= 0 );
 	}
 
 	// delete BackedgeFlags
@@ -320,8 +321,8 @@ node BoyerMyrvoldPlanar::walkup(
 		m_visited[x] = marker;
 		m_visited[y] = marker;
 		if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
-			m_visitedWithBackedge[x] = back->index();
-			m_visitedWithBackedge[y] = back->index();
+			m_visitedWithBackedge[x] = back;
+			m_visitedWithBackedge[y] = back;
 		}
 
 		// is x or y root vertex?
@@ -551,7 +552,7 @@ int BoyerMyrvoldPlanar::walkdown(
 					if (m_embeddingGrade <= EmbeddingGrade::doNotFind) return false;
 					// check, if some backedges were not embedded (=> nonplanar)
 					// note, that this is performed at most one time per virtual root
-					if (m_visitedWithBackedge[v] > 0) {
+					if (m_numUnembeddedBackedgesInBicomp[v] > 0) {
 						// some backedges are left on this bicomp
 						stoppingNodesFound = 1;
 						// check, if we have found enough kuratowski structures
@@ -604,16 +605,17 @@ bool BoyerMyrvoldPlanar::embed()
 
 				// divide children bicomps
 				if (m_realVertex[x] == v) {
+					// x is a (virtual) root vertex.
 					m_pointsToRoot[e] = x;
-					// set backedgenumber to 1 on this root
-					m_visitedWithBackedge[x] = 1;
+					OGDF_ASSERT(m_numUnembeddedBackedgesInBicomp[x] == 0);
 				} else {
+					// Set x to the (virtual) root of its bicomp.
 					x = m_pointsToRoot[m_visitedWithBackedge[x]];
 					m_pointsToRoot[e] = x;
-					// increase backedgenumber on this root
-					OGDF_ASSERT(m_visitedWithBackedge[x]>=1);
-					++m_visitedWithBackedge[x];
+					OGDF_ASSERT(m_numUnembeddedBackedgesInBicomp[x] >= 1);
 				}
+				// Increase the number of backedges leading to x's child bicomp.
+				++m_numUnembeddedBackedgesInBicomp[x];
 			}
 		}
 

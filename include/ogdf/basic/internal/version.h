@@ -1,3 +1,3 @@
 #pragma once
 
-#define OGDF_VERSION "snapshot-2018-03-28"
+#define OGDF_VERSION "2020.02"

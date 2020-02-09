@@ -29,14 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
-#include <ogdf/module/HierarchyLayoutModule.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
 #include <ogdf/basic/Queue.h>
 
 namespace ogdf {
 
 #if 0
-void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &levels)
+void HierarchyLayoutModule::addBends(GraphAttributes &AGC, HierarchyLevels &levels)
 {
 	const Hierarchy &H = levels.hierarchy();
 
@@ -50,15 +49,15 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 			compute the max. height (y coord.) of the bounding boxex of lvl_cur
 		*/
 		// y coord. of the top
-		double y_h = AGC.y(lvl_cur[0]) + AGC.getHeight(lvl_cur[0])/2;
+		double y_h = AGC.y(lvl_cur[0]) + getHeight(AGC, levels, lvl_cur[0])/2;
 		//y coord. of the bottom
-		double y_l = AGC.y(lvl_cur[0]) - AGC.getHeight(lvl_cur[0])/2;
+		double y_l = AGC.y(lvl_cur[0]) - getHeight(AGC, levels, lvl_cur[0])/2;
 
 		//iterate over all nodes and find the max. height
 		for(int j = 0; j <= lvl_cur.high(); j++) {
 			node v = lvl_cur[j];
-			double a = AGC.y(v) - AGC.getHeight(v)/2;
-			double b = AGC.y(v) + AGC.getHeight(v)/2;
+			double a = AGC.y(v) - getHeight(AGC, levels, v)/2;
+			double b = AGC.y(v) + getHeight(AGC, levels, v)/2;
 			if (y_h < b )
 				y_h = b;
 			if (y_l > a)
@@ -92,7 +91,7 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				if (AGC.x(v) > AGC.x(w))
 					swap(nodeLeft, nodeRight);
 
-				DSegment line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
+				DSegment line_v2w(AGC.point(v), AGC.point(w));
 
 				//iterate over all node of lvl_cur and find out wether line_v2w overlap a node or not
 				for(int k = 0; k <= lvl_cur.high(); k++) {
@@ -224,13 +223,13 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 
 				// default value if w is null
 				double delta = 10;
-				double a = AGC.x(v) - AGC.getWidth(v)/2;
+				double a = AGC.x(v) - getWidth(AGC, levels, v)/2;
 				double b = a;
 				if (w != 0) {
-					b = AGC.x(w) + AGC.getWidth(w)/2;
+					b = AGC.x(w) + getWidth(AGC, levels, w)/2;
 					if (AGC.x(v) < AGC.x(w)) {
-						a = AGC.x(v) + AGC.getWidth(v)/2;
-						b = AGC.x(w) - AGC.getWidth(w)/2;
+						a = AGC.x(v) + getWidth(AGC, levels, v)/2;
+						b = AGC.x(w) - getWidth(AGC, levels, w)/2;
 					}
 					for(adjEntry adj : w->adjEntries) {
 						edge eTmp = adj->theEdge();
@@ -300,11 +299,8 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				edge e1 = v->firstAdj()->theEdge();
 				edge e2 = v->lastAdj()->theEdge();
 
-				segment1 = DSegment( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
-							DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
-
-				segment2 = DSegment( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
-							DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
+				segment1 = DSegment(AGC.point(e1->source()), AGC.point(e1->target()));
+				segment2 = DSegment(AGC.point(e2->source()), AGC.point(e2->target()));
 
 				dirty[v] = true;
 			}
@@ -326,11 +322,8 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				/*
 					compute edges which crossed the two new segment of the bended edge
 				*/
-				segment1 = DSegment( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
-								DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
-
-				segment2 = DSegment( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
-								DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
+				segment1 = DSegment(AGC.point(e1->source()), AGC.point(e1->target()));
+				segment2 = DSegment(AGC.point(e2->source()), AGC.point(e2->target()));
 			}
 
 			for(int z = 0; z <= lvl_cur.high(); z++) {
@@ -339,7 +332,7 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 				for(adjEntry adj : uu->adjEntries) {
 					edge ee = adj->theEdge();
 
-					DSegment line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
+					DSegment line_ee(AGC.point(ee->source()), AGC.point(ee->target()));
 
 					// TODO: What to do when IntersectionType::Overlapping is returned?
 					DPoint dummy;
@@ -353,7 +346,7 @@ void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &
 }
 #endif
 
-void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, HierarchyLevelsBase &levels)
+void HierarchyLayoutModule::dynLayerDistance(GraphAttributes &AGC, HierarchyLevelsBase &levels)
 {
 	if (levels.high() < 1)
 		return;
@@ -367,8 +360,8 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 	const LevelBase &lvl0 = levels[0];
 	for (int j = 0; j <= lvl0.high(); j++) {
 		node v = lvl0[j];
-		if (maxH_low < AGC.getHeight(v))
-			maxH_low = AGC.getHeight(v);
+		if (maxH_low < getHeight(AGC, levels, v))
+			maxH_low = getHeight(AGC, levels, v);
 	}
 
 	for (int i = 1; i <= levels.high(); i++) { // all level
@@ -381,8 +374,8 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 		for (int j = 0; j <= lvl.high(); j++) {
 			node v = lvl[j];
 
-			if (maxH_cur < AGC.getHeight(v))
-				maxH_cur = AGC.getHeight(v);
+			if (maxH_cur < getHeight(AGC, levels, v))
+				maxH_cur = getHeight(AGC, levels, v);
 
 			int ci = 0;
 			int cj = 0;
@@ -398,7 +391,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 
 				overlap(AGC, levels, e->source(), e->target(), i, ci, cj);
 
-				DLine line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
+				DLine line_v2w(AGC.point(v), AGC.point(w));
 				count = count + ci + cj;
 			}
 		}
@@ -434,7 +427,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 				if (w == v)
 					continue; // only incoming edges
 
-				DSegment line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
+				DSegment line_v2w(AGC.point(v), AGC.point(w));
 				if (line_v2w.length()>3*(y_cur - y_low))
 					numEdge++;
 			}
@@ -474,12 +467,12 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 }
 
 
-void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::HierarchyLevelsBase &levels, ogdf::node s, ogdf::node t, int i, int &ci, int &cj)
+void HierarchyLayoutModule::overlap(ogdf::GraphAttributes &AGC, ogdf::HierarchyLevelsBase &levels, ogdf::node s, ogdf::node t, int i, int &ci, int &cj)
 {
 	const Hierarchy &H = levels.hierarchy();
 
 	const LevelBase &lvl_cur = levels[i];
-	DSegment line(DPoint(AGC.x(s), AGC.y(s)), DPoint(AGC.x(t), AGC.y(t)));
+	DSegment line(AGC.point(s), AGC.point(t));
 
 	//iterate over all node of level lvl_cur
 	for(int k = 0; k <= lvl_cur.high(); k++) {
@@ -488,8 +481,8 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 		if (u == s || u== t || H.isLongEdgeDummy(u))
 			continue;
 
-		double h = AGC.getHeight(u);
-		double b = AGC.getWidth(u);
+		double h = getHeight(AGC, levels, u);
+		double b = getWidth(AGC, levels, u);
 
 		//bounding box of the node u
 		DSegment left(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)-b/2, AGC.y(u)+h/2));
@@ -517,8 +510,8 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 			if (u == s || u == t || H.isLongEdgeDummy(u))
 				continue;
 
-			double h = AGC.getHeight(u);
-			double b = AGC.getWidth(u);
+			double h = getHeight(AGC, levels, u);
+			double b = getWidth(AGC, levels, u);
 
 			//bounding box of the node u
 			DSegment left(DPoint(AGC.x(u)-b/2, AGC.y(u)-h/2), DPoint(AGC.x(u)-b/2, AGC.y(u)+h/2));

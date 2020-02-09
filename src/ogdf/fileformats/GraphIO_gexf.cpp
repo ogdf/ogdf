@@ -90,6 +90,10 @@ static inline void defineAttributes(
 	pugi::xml_node child = xmlNode.append_child("attributes");
 	child.append_attribute("class") = "node";
 
+	if(attrs & GraphAttributes::nodeId) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeId), "int");
+	}
+
 	if(attrs & GraphAttributes::nodeType) {
 		defineAttribute(child, graphml::toString(graphml::Attribute::NodeType), "string");
 	}
@@ -104,18 +108,18 @@ static inline void defineAttributes(
 
 	if(attrs & GraphAttributes::nodeStyle) {
 		defineAttribute(child, graphml::toString(graphml::Attribute::NodeStrokeColor), "string");
-	}
-
-	if(attrs & GraphAttributes::nodeStyle) {
 		defineAttribute(child, graphml::toString(graphml::Attribute::NodeStrokeType), "string");
-	}
-
-	if(attrs & GraphAttributes::nodeStyle) {
 		defineAttribute(child, graphml::toString(graphml::Attribute::NodeStrokeWidth), "float");
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeFillPattern), "string");
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeFillBackground), "string");
 	}
 
-	if(attrs & GraphAttributes::nodeStyle) {
-		defineAttribute(child, graphml::toString(graphml::Attribute::NodeFillPattern), "string");
+	if(attrs & GraphAttributes::nodeLabelPosition) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeLabelX), "float");
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeLabelY), "float");
+		if(attrs & GraphAttributes::threeD) {
+			defineAttribute(child, graphml::toString(graphml::Attribute::NodeLabelZ), "float");
+		}
 	}
 
 	// Declare edge attributes.
@@ -128,6 +132,14 @@ static inline void defineAttributes(
 
 	if(attrs & GraphAttributes::edgeArrow) {
 		defineAttribute(child, graphml::toString(graphml::Attribute::EdgeArrow), "string");
+	}
+
+	if(attrs & GraphAttributes::edgeGraphics) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::EdgeBends), "string");
+	}
+
+	if(attrs & GraphAttributes::edgeSubGraphs) {
+		defineAttribute(child, graphml::toString(graphml::Attribute::EdgeSubGraph), "string");
 	}
 }
 
@@ -150,11 +162,12 @@ static inline void writeAttributes(
 	const long attrs = GA.attributes();
 
 	if(attrs & GraphAttributes::nodeGraphics) {
-		const double z = (attrs & GraphAttributes::threeD) ? GA.z(v) : 0.0;
 		pugi::xml_node child = xmlNode.append_child("viz:position");
 		child.append_attribute("x") = GA.x(v);
 		child.append_attribute("y") = GA.y(v);
-		child.append_attribute("z") = z;
+		if (attrs & GraphAttributes::threeD) {
+			child.append_attribute("z") = GA.z(v);
+		}
 
 		const double size = GA.width(v) / LayoutStandards::defaultNodeWidth();
 		if(GA.weight(v) / LayoutStandards::defaultNodeWidth() != GA.height(v) / LayoutStandards::defaultNodeHeight()) {
@@ -176,14 +189,19 @@ static inline void writeAttributes(
 	 * them only if either of them is present). For convenience reasons, we use
 	 * the same names and values as in GraphML format.
 	 */
-	if(!(attrs & (GraphAttributes::nodeType |
-	              GraphAttributes::nodeTemplate |
-	              GraphAttributes::nodeWeight |
-		          GraphAttributes::nodeStyle))) {
+	if(!(attrs & (GraphAttributes::nodeId
+	            | GraphAttributes::nodeType
+	            | GraphAttributes::nodeTemplate
+	            | GraphAttributes::nodeWeight
+	            | GraphAttributes::nodeStyle))) {
 		return;
 	}
 
 	pugi::xml_node attValues = xmlNode.append_child("attvalues");
+
+	if(attrs & GraphAttributes::nodeId) {
+		writeAttValue(attValues, graphml::Attribute::NodeId, GA.idNode(v));
+	}
 
 	if(attrs & GraphAttributes::nodeType) {
 		writeAttValue(attValues, graphml::Attribute::NodeType, graphml::toString(GA.type(v)).c_str());
@@ -202,8 +220,16 @@ static inline void writeAttributes(
 		writeAttValue(attValues, graphml::Attribute::NodeStrokeWidth, GA.strokeWidth(v));
 		writeAttValue(attValues, graphml::Attribute::NodeStrokeType, toString(GA.strokeType(v)).c_str());
 		writeAttValue(attValues, graphml::Attribute::NodeFillPattern, toString(GA.fillPattern(v)).c_str());
+		writeAttValue(attValues, graphml::Attribute::NodeFillBackground, GA.fillBgColor(v).toString().c_str());
 	}
 
+	if(attrs & GraphAttributes::nodeLabelPosition) {
+		writeAttValue(attValues, graphml::Attribute::NodeLabelX, GA.xLabel(v));
+		writeAttValue(attValues, graphml::Attribute::NodeLabelY, GA.yLabel(v));
+		if(attrs & GraphAttributes::threeD) {
+			writeAttValue(attValues, graphml::Attribute::NodeLabelZ, GA.zLabel(v));
+		}
+	}
 }
 
 
@@ -216,21 +242,17 @@ static inline void writeAttributes(
 
 	if(attrs & GraphAttributes::edgeStyle) {
 		writeColor(xmlNode, GA.strokeColor(e));
-	}
-
-	if(attrs & GraphAttributes::edgeDoubleWeight) {
-		xmlNode.append_child("viz:thickness").append_attribute("value") = GA.doubleWeight(e);
-	} else if(attrs & GraphAttributes::edgeIntWeight) {
-		xmlNode.append_child("viz:thickness").append_attribute("value") = GA.intWeight(e);
+		xmlNode.append_child("viz:thickness").append_attribute("value") = GA.strokeWidth(e);
+		xmlNode.append_child("viz:shape").append_attribute("value") = toGEXFStrokeType(GA.strokeType(e)).c_str();
 	}
 
 	/*
-	 * Edge type and arrow are not supported by VIZ module. Therefore, they
-	 * need to be written using <attvalues> tag (for estetic reasons, we write
-	 * them only if either of them is present). For convenience reasons, we use
-	 * the same names and values as in GraphML format.
+	 * The following attributes are not supported by VIZ module. Therefore, they
+	 * need to be written using <attvalues> tag (for aesthetic reasons, we write
+	 * them only if any of them is present). For convenience reasons, we use the
+	 * same names and values as in GraphML format.
 	 */
-	if(!(attrs & (GraphAttributes::edgeType | GraphAttributes::edgeArrow))) {
+	if(!(attrs & (GraphAttributes::edgeType | GraphAttributes::edgeArrow | GraphAttributes::edgeGraphics | GraphAttributes::edgeSubGraphs))) {
 		return;
 	}
 
@@ -241,6 +263,28 @@ static inline void writeAttributes(
 	}
 	if(attrs & GraphAttributes::edgeArrow) {
 		writeAttValue(attValues, graphml::Attribute::EdgeArrow, graphml::toString(GA.arrowType(e)).c_str());
+	}
+	if(attrs & GraphAttributes::edgeGraphics && !GA.bends(e).empty()) {
+		std::stringstream sstream;
+		sstream.setf(std::ios::fixed);
+
+		for(const DPoint &p : GA.bends(e)) {
+			sstream << p.m_x << " " << p.m_y << " ";
+		}
+
+		writeAttValue(attValues, graphml::Attribute::EdgeBends, sstream.str().c_str());
+	}
+	if(attrs & GraphAttributes::edgeSubGraphs) {
+		const uint32_t mask = GA.subGraphBits(e);
+
+		// Iterate over all subgraphs and print the ones the edge is part of.
+		std::stringstream sstream;
+		for (size_t sg = 0; sg < sizeof(mask) * 8; ++sg) {
+			if((1 << sg) & mask) {
+				sstream << (sg == 0 ? "" : " ") << sg;
+			}
+		}
+		writeAttValue(attValues, graphml::Attribute::EdgeSubGraph, sstream.str().c_str());
 	}
 }
 
@@ -277,6 +321,12 @@ static inline void writeEdge(
 	if(GA) {
 		if(GA->has(GraphAttributes::edgeLabel)) {
 			edge.append_attribute("label") = GA->label(e).c_str();
+		}
+		if(GA->has(GraphAttributes::edgeDoubleWeight)) {
+			edge.append_attribute("weight") = GA->doubleWeight(e);
+		} else if(GA->has(GraphAttributes::edgeIntWeight)) {
+			// GEXF requires the weight field to be floating point.
+			edge.append_attribute("weight") = double(GA->intWeight(e));
 		}
 
 		writeAttributes(edge, *GA, e);

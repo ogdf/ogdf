@@ -16,6 +16,7 @@ int main()
 	hlES.call(HA);
 
 	GraphIO::write(HA.repGA(), "output-c17.gml", GraphIO::writeGML);
+	GraphIO::write(HA.repGA(), "output-c17.svg", GraphIO::drawSVG);
 
 	return 0;
 }

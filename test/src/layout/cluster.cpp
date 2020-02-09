@@ -29,7 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/cluster/ClusterPlanarizationLayout.h>
 #include <ogdf/cluster/ClusterOrthoLayout.h>
 
@@ -45,6 +45,7 @@ public:
 		GraphCopy G(attr.constGraph());
 		ClusterGraph C(G);
 		ClusterGraphAttributes cAttr(C);
+		bool originalEmpty = G.numberOfNodes() == 0;
 
 		// add clique cluster
 		SList<node> nodes;
@@ -72,7 +73,9 @@ public:
 		// connect it all
 		G.newEdge(nodeInClique, nodes.front());
 		G.newEdge(nodeInClique, nodes.back());
-		G.newEdge(nodeInClique, G.firstNode());
+		if (!originalEmpty) {
+			G.newEdge(nodeInClique, G.firstNode());
+		}
 
 		clusterPlanarizationLayout.call(G, cAttr, C);
 

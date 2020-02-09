@@ -69,10 +69,14 @@ FastSimpleHierarchyLayout &FastSimpleHierarchyLayout::operator=(const FastSimple
 }
 
 
-void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC)
+void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphAttributes &AGC)
 {
 	const Hierarchy &H  = levels.hierarchy();
 	const GraphCopy &GC = H;
+
+	if (GC.numberOfNodes() == 0) {
+		return;
+	}
 
 	NodeArray<node> align(GC);
 
@@ -191,7 +195,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 	for(int i = 0; i < k; ++i) {
 		const LevelBase &level = levels[i];
 		for(int j = 0; j < level.size(); ++j) {
-			double h = AGC.getHeight(level[j]);
+			double h = getHeight(AGC, levels, level[j]);
 			if(h > height[i])
 				height[i] = h;
 		}
@@ -272,7 +276,7 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 							 * with 0 because no index can be smaller than 0
 							 */
 							if (levels.pos(currentNeighbour) < k0 || levels.pos(currentNeighbour) > k1) {
-								type1Conflicts[l1][currentNeighbour] = true;
+								type1Conflicts[nextLevel[l1]][currentNeighbour] = true;
 							}
 						}
 					}
@@ -356,14 +360,15 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 
 void FastSimpleHierarchyLayout::computeBlockWidths(
 	const GraphCopy &GC,
-	const GraphCopyAttributes &GCA,
+	const GraphAttributes &GCA,
 	NodeArray<node> &root,
 	NodeArray<double> &blockWidth)
 {
 	blockWidth.init(GC, 0.0);
 	for(node v : GC.nodes) {
-		node r = root[v];
-		blockWidth[r] = max(blockWidth[r], GCA.getWidth(v));
+		if (!GC.isDummy(v)) {
+			Math::updateMax(blockWidth[root[v]], GCA.width(v));
+		}
 	}
 }
 

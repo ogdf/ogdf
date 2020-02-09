@@ -31,14 +31,12 @@
 
 #pragma once
 
-#include <ogdf/module/GridLayoutModule.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <memory>
-#include <ogdf/module/CrossingMinimizationModule.h>
-#include <ogdf/module/CCLayoutPackModule.h>
-
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 
 namespace ogdf {
-
 
 /**
  * \brief The planarization grid layout algorithm.

@@ -35,7 +35,7 @@
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/module/PlanarityModule.h>
+#include <ogdf/planarity/PlanarityModule.h>
 
 namespace ogdf {
 

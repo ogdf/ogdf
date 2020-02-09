@@ -20,6 +20,12 @@ int main()
 		return 1;
 	}
 
+	for (node v : G.nodes)
+	{
+		GA.width(v) /= 2;
+		GA.height(v) /= 2;
+	}
+
 	PlanarizationLayout pl;
 
 	SubgraphPlanarizer crossMin;
@@ -43,6 +49,7 @@ int main()
 	pl.call(GA);
 
 	GraphIO::write(GA, "output-ERDiagram.gml", GraphIO::writeGML);
+	GraphIO::write(GA, "output-ERDiagram.svg", GraphIO::drawSVG);
 
 	return 0;
 }

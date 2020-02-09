@@ -32,11 +32,9 @@
 #pragma once
 
 #include <memory>
-#include <ogdf/module/MultilevelLayoutModule.h>
-
+#include <ogdf/energybased/multilevel_mixer/MultilevelLayoutModule.h>
 
 namespace ogdf {
-
 
 /** \brief The PreprocessorLayout removes multi-edges and self-loops.
  *

@@ -32,11 +32,10 @@
 #pragma once
 
 #include <memory>
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 #include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
-
 
 namespace ogdf {
 

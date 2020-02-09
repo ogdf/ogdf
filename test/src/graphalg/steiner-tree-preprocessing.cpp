@@ -159,6 +159,9 @@ testPrecomposedReductions(int numberOfTests)
 		{ "fast reductions", [](SteinerTreePreprocessing<T> &stprep) {
 			stprep.reduceFast();
 		}},
+		{ "fast reductions with dual-ascent-based test", [](SteinerTreePreprocessing<T> &stprep) {
+			stprep.reduceFastAndDualAscent();
+		}},
 	};
 	for (const auto &reduction : reductions) {
 		describe(reduction.first, [numberOfTests, &reduction]() {
@@ -201,13 +204,13 @@ testWildMixesOfReductions(string typeName, int numberOfTests)
 			stprep.deleteComponentsWithoutTerminals();
 			stprep.NTDkTest();
 		}},
-		{ "lower-bound-node", [](SteinerTreePreprocessing<T> &stprep) {
+		{ "lower-bound", [](SteinerTreePreprocessing<T> &stprep) {
 			stprep.deleteComponentsWithoutTerminals();
-			stprep.lowerBoundBasedNodeTest();
+			stprep.lowerBoundBasedTest();
 		}},
-		{ "lower-bound-edge", [](SteinerTreePreprocessing<T> &stprep) {
+		{ "dual-ascent", [](SteinerTreePreprocessing<T> &stprep) {
 			stprep.deleteComponentsWithoutTerminals();
-			stprep.lowerBoundBasedEdgeTest();
+			stprep.dualAscentBasedTest();
 		}},
 		{ "reachability", [](SteinerTreePreprocessing<T> &stprep) {
 			stprep.makeSimple();
@@ -249,6 +252,7 @@ testWildMixesOfReductions(string typeName, int numberOfTests)
 						for (auto redIndex : usedReductions) {
 							reductions[redIndex].second(stp);
 						}
+						stp.deleteComponentsWithoutTerminals();
 					});
 				});
 				order.permute();

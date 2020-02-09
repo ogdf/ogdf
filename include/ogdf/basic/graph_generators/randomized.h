@@ -71,6 +71,20 @@ OGDF_EXPORT void randomGraph(Graph &G, int n, int m);
  */
 OGDF_EXPORT bool randomSimpleGraph(Graph &G, int n, int m);
 
+//! Creates a random simple graph.
+/**
+ * Algorithm based on PreZER/LogZER from:
+ * Sadegh Nobari, Xuesong Lu, Panagiotis Karras, and Stéphane Bressan. 2011. Fast random graph generation.
+ * In Proceedings of the 14th International Conference on Extending Database Technology (EDBT/ICDT '11),
+ * ACM, New York, NY, USA, 331-342. DOI=http://dx.doi.org/10.1145/1951365.1951406
+ *
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes of the generated graph.
+ * @param pEdge is the probability for each edge to be added into the graph.
+ * @pre /p pEdge is in [0, 1]
+ */
+OGDF_EXPORT bool randomSimpleGraphByProbability(Graph &G, int n, double pEdge);
+
 //! Creates a random simple and connected graph.
 /**
  * @param G is assigned the generated graph.

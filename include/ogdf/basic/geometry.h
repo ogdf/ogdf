@@ -673,8 +673,10 @@ public:
 	: GenericLine<PointType>(x1, y1, x2, y2) {}
 
 	//! Copy constructor.
-	GenericSegment(const GenericSegment<PointType> &ds)
-	: GenericLine<PointType>(ds) {}
+	GenericSegment(const GenericSegment<PointType> &ds) = default;
+
+	//! Copy assignment operator.
+	GenericSegment& operator=(const GenericSegment<PointType> &ds) = default;
 
 	//! Equality operator.
 	bool operator==(const GenericSegment<PointType> &dl) const {

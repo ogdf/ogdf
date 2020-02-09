@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/module/EmbedderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/planarity/PlanRep.h>

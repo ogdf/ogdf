@@ -40,12 +40,6 @@ EdgeInsertionModule *VariableEmbeddingInserterDyn::clone() const
 	return new VariableEmbeddingInserterDyn(*this);
 }
 
-VariableEmbeddingInserterDyn &VariableEmbeddingInserterDyn::operator=(const VariableEmbeddingInserterDyn &inserter)
-{
-	VariableEmbeddingInserterBase::operator=(inserter);
-	return *this;
-}
-
 // actual call method
 Module::ReturnType VariableEmbeddingInserterDyn::doCall(
 	PlanRepLight &pr,

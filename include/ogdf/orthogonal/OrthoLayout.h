@@ -32,12 +32,10 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutPlanRepModule.h>
+#include <ogdf/planarity/LayoutPlanRepModule.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 
-
 namespace ogdf {
-
 
 //! The Orthogonal layout algorithm for planar graphs.
 class OGDF_EXPORT OrthoLayout : public LayoutPlanRepModule

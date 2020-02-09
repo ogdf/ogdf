@@ -45,7 +45,7 @@ namespace ogdf {
 using namespace cluster_planarity;
 
 Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
-                                                  const EdgeArray<int> *pCost,
+                                                  const EdgeArray<double> *pCost,
                                                   List<edge> &delEdges,
                                                   List<NodePair> &addedEdges)
 {
@@ -320,9 +320,9 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 			std::cout << "\n";
 			os << "\n";
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
-			string fn = "cGraph";
-			fn += to_string(writeCount++) + ".gml";
-			GraphIO::writeGML(testCopy, fn);
+			string fn = "cGraph" + to_string(writeCount++) + ".gml";
+			std::ofstream out(fn);
+			GraphIO::writeGML(testCopy, out);
 #endif
 		}
 	}

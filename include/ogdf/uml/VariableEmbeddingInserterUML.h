@@ -31,12 +31,10 @@
 
 #pragma once
 
-#include <ogdf/module/UMLEdgeInsertionModule.h>
+#include <ogdf/uml/UMLEdgeInsertionModule.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
 
-
 namespace ogdf {
-
 
 //! Optimal edge insertion module.
 /**

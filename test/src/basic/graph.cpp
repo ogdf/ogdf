@@ -93,7 +93,8 @@ describe("Graph Class", [](){
 
 	for_each_graph_it("finds an existing edge", files, [](Graph &graph){
 		edge e = graph.chooseEdge();
-		AssertThat(graph.searchEdge(e->source(), e->target()), Equals(e));
+		AssertThat(graph.searchEdge(e->source(), e->target(), true), Equals(e));
+		AssertThat(graph.searchEdge(e->source(), e->target(), false), Equals(e));
 	});
 
 	for_each_graph_it("returns the adjacency entries of an edge", files, [](Graph &graph){
@@ -117,6 +118,10 @@ describe("Graph Class", [](){
 		node t = e->target();
 		graph.delEdge(e);
 		AssertThat(graph.searchEdge(s, t), IsNull());
+
+		edge reverseE = graph.newEdge(t, s);
+		AssertThat(graph.searchEdge(s, t), Equals(reverseE));
+		AssertThat(graph.searchEdge(s, t, true), IsNull());
 	});
 
 	for_each_graph_it("can be assigned", files, [](Graph &graph){
@@ -806,6 +811,215 @@ describe("Graph Class", [](){
 				AssertThat(adj2, Equals(adj));
 			}
 		}
+	});
+});
+
+describe("EdgeElement", [] {
+	Graph graph;
+	node u{graph.newNode()};
+	node v{graph.newNode()};
+	node w{graph.newNode()};
+	edge eSelfLoop1{graph.newEdge(u, u)};
+	edge eSelfLoop2{graph.newEdge(u, u)};
+	edge eParallelBase{graph.newEdge(v, w)};
+	edge eParallelDirected{graph.newEdge(v, w)};
+	edge eParallelInverted{graph.newEdge(w, v)};
+	edge eUnrelated{graph.newEdge(v, u)};
+
+	describe("nodes()", [&] {
+		it("returns the same node twice on self-loops", [&] {
+			for (edge e : {eSelfLoop1, eSelfLoop2}) {
+				for (node x : e->nodes()) {
+					AssertThat(x, Equals(u));
+				}
+			}
+		});
+
+		it("returns source and target on non-self-loops", [&] {
+			for (edge e : {eParallelBase, eParallelDirected, eParallelInverted, eUnrelated}) {
+				NodeArray<int> mark{graph, 0};
+				for (node x : e->nodes()) {
+					++mark[x];
+				}
+				for (node x : graph.nodes) {
+					if (e->isIncident(x)) {
+						AssertThat(mark[x], Equals(1));
+					} else {
+						AssertThat(mark[x], Equals(0));
+					}
+				}
+			}
+		});
+	});
+
+	describe("opposite()", [&] {
+		it("returns the same node on self-loops", [&] {
+			AssertThat(eSelfLoop1->opposite(u), Equals(u));
+			AssertThat(eSelfLoop2->opposite(u), Equals(u));
+		});
+
+		it("returns the opposite node on non-self-loops", [&] {
+			AssertThat(eParallelBase->opposite(w), Equals(v));
+			AssertThat(eParallelDirected->opposite(v), Equals(w));
+			AssertThat(eParallelInverted->opposite(v), Equals(w));
+			AssertThat(eUnrelated->opposite(v), Equals(u));
+		});
+	});
+
+	describe("isSelfLoop()", [&] {
+		it("recognizes self-loops as self-loops", [&] {
+			AssertThat(eSelfLoop1->isSelfLoop(), IsTrue());
+			AssertThat(eSelfLoop2->isSelfLoop(), IsTrue());
+		});
+
+		it("recognizes non-self-loops as non-self-loops", [&] {
+			for (edge e : {eParallelBase, eParallelDirected, eParallelInverted, eUnrelated}) {
+				AssertThat(e->isSelfLoop(), IsFalse());
+			}
+		});
+	});
+
+	describe("isInvertedDirected()", [&] {
+		it("recognizes self-loops as inverted edges", [&] {
+			AssertThat(eSelfLoop1->isInvertedDirected(eSelfLoop1), IsTrue());
+			AssertThat(eSelfLoop1->isInvertedDirected(eSelfLoop2), IsTrue());
+			AssertThat(eSelfLoop2->isInvertedDirected(eSelfLoop2), IsTrue());
+			AssertThat(eSelfLoop2->isInvertedDirected(eSelfLoop1), IsTrue());
+		});
+
+		it("recognizes inverted non-self-loop edges", [&] {
+			AssertThat(eParallelBase->isInvertedDirected(eParallelInverted), IsTrue());
+			AssertThat(eParallelInverted->isInvertedDirected(eParallelBase), IsTrue());
+		});
+
+		it("recognizes non-inverted edges", [&] {
+			AssertThat(eSelfLoop1->isInvertedDirected(eUnrelated), IsFalse());
+			AssertThat(eParallelBase->isInvertedDirected(eParallelDirected), IsFalse());
+			AssertThat(eUnrelated->isInvertedDirected(eParallelBase), IsFalse());
+		});
+
+		it("recognizes itself as non-inverted (except self-loops)", [&] {
+			for (edge e : graph.edges) {
+				if (!e->isSelfLoop()) {
+					AssertThat(e->isInvertedDirected(e), IsFalse());
+				}
+			}
+		});
+	});
+
+	describe("isParallelDirected()", [&] {
+		it("recognizes self-loops as parallel edges", [&] {
+			AssertThat(eSelfLoop1->isParallelDirected(eSelfLoop1), IsTrue());
+			AssertThat(eSelfLoop1->isParallelDirected(eSelfLoop2), IsTrue());
+			AssertThat(eSelfLoop2->isParallelDirected(eSelfLoop2), IsTrue());
+			AssertThat(eSelfLoop2->isParallelDirected(eSelfLoop1), IsTrue());
+		});
+
+		it("recognizes parallel non-self-loop edges", [&] {
+			AssertThat(eParallelBase->isParallelDirected(eParallelDirected), IsTrue());
+			AssertThat(eParallelDirected->isParallelDirected(eParallelBase), IsTrue());
+		});
+
+		it("recognizes non-parallel edges", [&] {
+			AssertThat(eSelfLoop1->isParallelDirected(eUnrelated), IsFalse());
+			AssertThat(eParallelBase->isParallelDirected(eParallelInverted), IsFalse());
+			AssertThat(eUnrelated->isParallelDirected(eParallelBase), IsFalse());
+		});
+
+		it("recognizes itself as parallel", [&] {
+			for (edge e : graph.edges) {
+				AssertThat(e->isParallelDirected(e), IsTrue());
+			}
+		});
+	});
+
+	describe("isParallelUndirected()", [&] {
+		it("recognizes self-loops as parallel edges", [&] {
+			AssertThat(eSelfLoop1->isParallelUndirected(eSelfLoop1), IsTrue());
+			AssertThat(eSelfLoop1->isParallelUndirected(eSelfLoop2), IsTrue());
+			AssertThat(eSelfLoop2->isParallelUndirected(eSelfLoop2), IsTrue());
+			AssertThat(eSelfLoop2->isParallelUndirected(eSelfLoop1), IsTrue());
+		});
+
+		it("recognizes parallel non-self-loop edges", [&] {
+			AssertThat(eParallelBase->isParallelUndirected(eParallelDirected), IsTrue());
+			AssertThat(eParallelBase->isParallelUndirected(eParallelInverted), IsTrue());
+			AssertThat(eParallelDirected->isParallelUndirected(eParallelBase), IsTrue());
+			AssertThat(eParallelInverted->isParallelUndirected(eParallelDirected), IsTrue());
+		});
+
+		it("recognizes non-parallel edges", [&] {
+			AssertThat(eSelfLoop1->isParallelUndirected(eUnrelated), IsFalse());
+			AssertThat(eUnrelated->isParallelUndirected(eParallelBase), IsFalse());
+			AssertThat(eParallelInverted->isParallelUndirected(eUnrelated), IsFalse());
+		});
+
+		it("recognizes itself as parallel", [&] {
+			for (edge e : graph.edges) {
+				AssertThat(e->isParallelUndirected(e), IsTrue());
+			}
+		});
+	});
+
+	describe("isIncident()", [&] {
+		it("recognizes incident nodes as incident", [&] {
+			for (node x : graph.nodes) {
+				for (adjEntry adj : x->adjEntries) {
+					AssertThat(adj->theEdge()->isIncident(x), IsTrue());
+				}
+			}
+		});
+
+		it("recognizes non-incident nodes as non-incident", [&] {
+			AssertThat(eSelfLoop1->isIncident(v), IsFalse());
+			AssertThat(eSelfLoop1->isIncident(w), IsFalse());
+			AssertThat(eParallelBase->isIncident(u), IsFalse());
+			AssertThat(eUnrelated->isIncident(w), IsFalse());
+		});
+	});
+
+	describe("isAdjacent()", [&] {
+		it("recognizes itself as adjacent", [&] {
+			for (edge e : graph.edges) {
+				AssertThat(e->isAdjacent(e), IsTrue());
+			}
+		});
+
+		it("recognizes parallel edges as adjacent", [&] {
+			AssertThat(eSelfLoop1->isAdjacent(eSelfLoop2), IsTrue());
+			AssertThat(eParallelBase->isAdjacent(eParallelDirected), IsTrue());
+			AssertThat(eParallelInverted->isAdjacent(eParallelDirected), IsTrue());
+		});
+
+		it("recognizes adjacent edges as adjacent", [&] {
+			AssertThat(eSelfLoop1->isAdjacent(eUnrelated), IsTrue());
+			AssertThat(eUnrelated->isAdjacent(eParallelInverted), IsTrue());
+			AssertThat(eUnrelated->isAdjacent(eParallelBase), IsTrue());
+		});
+
+		it("recognizes non-adjacent edges as non-adjacent", [&] {
+			AssertThat(eSelfLoop1->isAdjacent(eParallelBase), IsFalse());
+			AssertThat(eParallelInverted->isAdjacent(eSelfLoop2), IsFalse());
+		});
+	});
+
+	describe("commonNode()", [&] {
+		it("returns any common node of parallel edges", [&] {
+			AssertThat(eSelfLoop1->commonNode(eSelfLoop2), Equals(u));
+			AssertThat(eParallelBase->commonNode(eParallelDirected), Equals(v) || Equals(w));
+			AssertThat(eParallelDirected->commonNode(eParallelInverted), Equals(v) || Equals(w));
+		});
+
+		it("returns the common node of adjacent non-parallel edges", [&] {
+			AssertThat(eSelfLoop1->commonNode(eUnrelated), Equals(u));
+			AssertThat(eUnrelated->commonNode(eSelfLoop2), Equals(u));
+			AssertThat(eParallelBase->commonNode(eUnrelated), Equals(v));
+		});
+
+		it("returns nullptr if edges are non-adjacent", [&] {
+			AssertThat(eSelfLoop1->commonNode(eParallelBase), IsNull());
+			AssertThat(eParallelInverted->commonNode(eSelfLoop2), IsNull());
+		});
 	});
 });
 });

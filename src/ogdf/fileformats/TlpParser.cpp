@@ -301,6 +301,14 @@ static inline bool setAttribute(
 			GA.fillPattern(v) = fromString<FillPattern>(value);
 		}
 		break;
+	case Attribute::fillBackground:
+		if(attrs & GraphAttributes::nodeStyle) {
+			std::istringstream is(value);
+			int r, g, b, a;
+			is >> TokenIgnorer('(') >> r >> TokenIgnorer(',') >> g >> TokenIgnorer(',') >> b >> TokenIgnorer(',') >> a >> TokenIgnorer(')');
+			GA.fillBgColor(v) = Color(r, g, b, a);
+		}
+		break;
 	case Attribute::shape:
 		if(attrs & GraphAttributes::nodeStyle) {
 			GA.shape(v) = fromString<Shape>(value);

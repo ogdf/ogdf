@@ -987,18 +987,22 @@ edge Graph::chooseEdge(std::function<bool(edge)> includeEdge, bool isFastTest) c
 }
 
 
-edge Graph::searchEdge(node v, node w) const
+edge Graph::searchEdge(node v, node w, bool directed) const
 {
 	OGDF_ASSERT(v != nullptr);
 	OGDF_ASSERT(v->graphOf() == this);
 	OGDF_ASSERT(w != nullptr);
 	OGDF_ASSERT(w->graphOf() == this);
+
+	bool swapped = false;
 	if (w->degree() < v->degree()) {
 		std::swap(v,w);
+		swapped = true;
 	}
 
 	for(adjEntry adj : v->adjEntries) {
-		if (adj->twinNode() == w) {
+		if (adj->twinNode() == w &&
+		    (!directed || swapped != adj->isSource())) {
 			return adj->theEdge();
 		}
 	}

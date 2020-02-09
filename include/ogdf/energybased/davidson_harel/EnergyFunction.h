@@ -83,7 +83,7 @@ protected:
 	DPoint testPos() { return m_testPos; }
 
 	//! returns the current position of vertex v
-	DPoint currentPos(const node v) const { return DPoint(m_AG.x(v),m_AG.y(v)); }
+	DPoint currentPos(const node v) const { return m_AG.point(v); }
 
 	//! returns the vertex that is under consideration in the current step
 	node testNode() const { return m_testNode; }

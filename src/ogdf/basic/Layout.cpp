@@ -99,48 +99,50 @@ void Layout::computePolylineClear(PlanRep &PG, edge eOrig, DPolyline &dpl)
 
 DPoint Layout::computeBoundingBox(PlanRep &PG) const
 {
-	double maxWidth  = 0;
-	double maxHeight = 0;
+	if (PG.numberOfNodes() == 0) {
+		return DPoint(0,0);
+	}
+
+	double maxX = std::numeric_limits<double>::lowest();
+	double maxY = std::numeric_limits<double>::lowest();
+	double minX = std::numeric_limits<double>::max();
+	double minY = std::numeric_limits<double>::max();
 
 	// check rightmost and uppermost extension of all (original) nodes
 	for(int i = PG.startNode(); i < PG.stopNode(); ++i) {
 		node vG = PG.v(i);
-
-		double maxX = x(PG.copy(vG)) + PG.widthOrig(vG)/2;
-		if (maxX > maxWidth ) maxWidth  = maxX;
-
-		double maxY = y(PG.copy(vG)) + PG.heightOrig(vG)/2;
-		if (maxY > maxHeight) maxHeight = maxY;
+		Math::updateMax(maxX, x(PG.copy(vG)) + PG.widthOrig(vG)/2);
+		Math::updateMax(maxY, y(PG.copy(vG)) + PG.heightOrig(vG)/2);
+		Math::updateMin(minX, x(PG.copy(vG)) - PG.widthOrig(vG)/2);
+		Math::updateMin(minY, y(PG.copy(vG)) - PG.heightOrig(vG)/2);
 
 		// check polylines of all (original) edges
 		for(adjEntry adj : vG->adjEntries) {
 			if ((adj->index() & 1) == 0) continue;
 			edge eG = adj->theEdge();
 
-			const List<edge> &path = PG.chain(eG);
-
-			for(edge e : path)
-			{
+			for(edge e : PG.chain(eG)) {
 				// we have to check (only) all interior points, i.e., we can
 				// omitt the first and last point since it lies in the box of
 				// the source or target node.
 				// This version checks also the first for simplicity of the loop.
 				node v = e->source();
-				if (x(v) > maxWidth ) maxWidth  = x(v);
-				if (y(v) > maxHeight) maxHeight = y(v);
+				Math::updateMax(maxX, x(v));
+				Math::updateMax(maxY, y(v));
+				Math::updateMin(minX, x(v));
+				Math::updateMin(minY, y(v));
 
-				const DPolyline &dpl = bends(e);
-
-				for(const DPoint &dp : dpl)
-				{
-					if (dp.m_x > maxWidth ) maxWidth  = dp.m_x;
-					if (dp.m_y > maxHeight) maxHeight = dp.m_y;
+				for(const DPoint &dp : bends(e)) {
+					Math::updateMax(maxX, dp.m_x);
+					Math::updateMax(maxY, dp.m_y);
+					Math::updateMin(minX, dp.m_x);
+					Math::updateMin(minY, dp.m_y);
 				}
 			}
 		}
 	}
 
-	return DPoint(maxWidth,maxHeight);
+	return DPoint(maxX - minX, maxY - minY);
 }
 
 }

@@ -918,7 +918,7 @@ public:
 		EdgeVariable *edgeVar = (EdgeVariable*)v;
 		edge e = edgeVar->theEdge();
 		// the edge
-		if (e->source() == m_edge->source() && e->target() == m_edge->target())
+		if (e->isParallelDirected(m_edge))
 			return m_coeffEdge;
 		// all edges to vertices x != source
 		if (e->target() != m_edge->source())

@@ -216,8 +216,15 @@ Triconnectivity::Triconnectivity(const Graph &G, bool &isTric, node &s1, node &s
 
 	s1 = s2 = nullptr;
 
-	if(n == 0) {
-		isTric = true; return;
+	if (n < 2) {
+		isTric = true;
+		return;
+	} else if (n == 2) {
+		isTric = hasNonSelfLoopEdges(G);
+		return;
+	} else if (m == 0) {
+		isTric = false;
+		return;
 	}
 
 	makeLoopFree(GC);

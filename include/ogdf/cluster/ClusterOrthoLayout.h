@@ -32,11 +32,10 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutClusterPlanRepModule.h>
+#include <ogdf/cluster/LayoutClusterPlanRepModule.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/cluster/CPlanarEdgeInserter.h>
-
 
 namespace ogdf {
 

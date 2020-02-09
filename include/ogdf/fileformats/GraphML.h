@@ -48,12 +48,19 @@ enum class Attribute {
 	Size, // Gephi compatibility (size = max(width, height)).
 	Shape,
 
+	NodeLabelX,
+	NodeLabelY,
+	NodeLabelZ,
+
 	NodeStrokeColor,
 	NodeStrokeType,
 	NodeStrokeWidth,
-	EdgeStroke,
+	EdgeStrokeColor,
+	EdgeStrokeType,
+	EdgeStrokeWidth,
 	ClusterStroke,
 	NodeFillPattern,
+	NodeFillBackground,
 	R, G, B, // Gephi compatibility (fill compounds).
 
 	NodeWeight,
@@ -62,6 +69,7 @@ enum class Attribute {
 	NodeType,
 	EdgeType,
 
+	NodeId,
 	Template,
 
 	EdgeArrow,

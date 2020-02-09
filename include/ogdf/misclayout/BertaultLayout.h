@@ -35,17 +35,14 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/planarity/PlanRep.h>
 
-
-
 namespace ogdf {
-
 
 class OGDF_EXPORT BertaultLayout : public LayoutModule
 {
@@ -68,14 +65,15 @@ public:
 	//! Sets impred option true or false.
 	void setImpred(bool option) { impred=option;};
 
-	//! Sets the number of iterations
-	void iterno(int no) { iter_no=no; }
+	//! Sets the number of iterations. If \p no <= 0, 10*n will be used.
+	void iterno(int no) { userIterNo=no; }
 
 	//! Returns the number of iterations
 	int iterno() { return iter_no; }
 
-	//! Sets the required length
-	void reqlength(double length) { req_length=length; }
+	//! Sets the required length. If \p length <= 0, the average edge length
+	//! will be used.
+	void reqlength(double length) { userReqLength=length; }
 
 	//! Returns the required length
 	double reqlength() { return req_length; }
@@ -189,8 +187,9 @@ private:
 	NodeArray<BertaultSections> sect; //! Sections associated with all nodes
 	NodeArray<double> F_x; //! Force in x direction
 	NodeArray<double> F_y; //! Force in y direction
+	double userReqLength; //! required edge length set by the user
+	double userIterNo; //! number of iterations set by the user
 	double req_length; //! req_length is the required edge length
-	double limit; //! limit is the max distance (between node and its projection) at which the edge force on node is considered
 	int iter_no; //! number of iterations to be performed
 	bool impred; //! sets the algorithm to ImPrEd when true
 	Array2D<bool> surr; //! stores the indices of the surrounding edges for each node

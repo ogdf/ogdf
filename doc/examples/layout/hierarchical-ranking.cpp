@@ -45,6 +45,7 @@ int main()
 	SL.setLayout(ohl);
 
 	SL.call(GA, rank);
+	GraphIO::write(GA, "output-unix-history-hierarchical-ranking.gml", GraphIO::writeGML);
 	GraphIO::write(GA, "output-unix-history-hierarchical-ranking.svg", GraphIO::drawSVG);
 
 	return 0;

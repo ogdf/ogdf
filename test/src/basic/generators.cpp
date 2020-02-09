@@ -88,6 +88,54 @@ static void assertCirculant(Graph &G, Array<int>& jumps) {
 }
 
 /**
+ * Checks whether two graphs \p G and \p H are equal based on their internal structure.
+ *
+ * This compares indices for nodes, edges and adjacency entries to make sure two graphs
+ * have been constructed identically. This fails on any permutations like different
+ * construction order!
+ */
+static void assertStructurallyEqual(const Graph &G, const Graph &H) {
+	AssertThat(G.numberOfEdges(), Equals(H.numberOfEdges()));
+	AssertThat(G.numberOfNodes(), Equals(H.numberOfNodes()));
+
+	// Assert equality for all nodes
+	for (auto it_G = G.nodes.begin(), it_H = H.nodes.begin(); it_G != G.nodes.end(); ++it_G, ++it_H) {
+		node n_G = *it_G;
+		node n_H = *it_H;
+		AssertThat(n_G->index(), Equals(n_H->index()));
+		AssertThat(n_G->adjEntries.size(), Equals(n_H->adjEntries.size()));
+
+		// Assert equality for all adjacency entries of this node
+		auto it_n_G = n_G->adjEntries.begin();
+		auto it_n_H = n_H->adjEntries.begin();
+		for (; it_n_G != n_G->adjEntries.end(); ++it_n_G, ++it_n_H) {
+			adjEntry adj_G = *it_n_G;
+			adjEntry adj_H = *it_n_H;
+			AssertThat(adj_G->index(), Equals(adj_H->index()));
+			AssertThat(adj_G->theEdge()->index(), Equals(adj_H->theEdge()->index()));
+			AssertThat(adj_G->twinNode()->index(), Equals(adj_H->twinNode()->index()));
+		}
+	}
+}
+
+/**
+ * Checks if \p generator constructs the same graph on multiple runs
+ */
+static void itKeepsStructuralEquality(std::function<void(Graph &G)> generator) {
+	it("constructs the same graph in multiple runs with the same seed", [&] {
+		int seed = randomNumber(0, std::numeric_limits<int>::max());
+		Graph G;
+		Graph H;
+		setSeed(seed);
+		generator(G);
+		setSeed(seed);
+		generator(H);
+		assertStructurallyEqual(G, H);
+	});
+}
+
+
+/**
  * Checks if \p clearFunction clears the graph
  */
 static void itClearsGraph(std::function<void(Graph &G)> clearFunction) {
@@ -162,6 +210,7 @@ static void testDeterministicGenerators() {
 				AssertThat(G.numberOfNodes(), Equals(n));
 				AssertThat(G.numberOfEdges(), Equals(n * (n-1) / 2));
 				AssertThat(isSimpleUndirected(G), IsTrue());
+				AssertThat(isAcyclic(G), IsTrue());
 			});
 		}
 	});
@@ -176,6 +225,7 @@ static void testDeterministicGenerators() {
 					AssertThat(G.numberOfEdges(), Equals(n * m));
 					AssertThat(isSimpleUndirected(G), IsTrue());
 					AssertThat(isBipartite(G), IsTrue());
+					AssertThat(isAcyclic(G), IsTrue());
 				});
 			}
 		}
@@ -192,6 +242,7 @@ static void testDeterministicGenerators() {
 			AssertThat(G.numberOfNodes(), Equals(3));
 			AssertThat(isSimpleUndirected(G), IsTrue());
 			AssertThat(isAcyclicUndirected(G), IsFalse());
+			AssertThat(isAcyclic(G), IsTrue());
 		});
 
 		it("generates K_{4,1,1}", [] {
@@ -202,6 +253,7 @@ static void testDeterministicGenerators() {
 			AssertThat(isConnected(G), IsTrue());
 			AssertThat(isSimpleUndirected(G), IsTrue());
 			assertNodeDegrees(G, {{2, 4}, {5, 2}});
+			AssertThat(isAcyclic(G), IsTrue());
 		});
 
 		it("generates K_{1,2,1,2}", [] {
@@ -212,6 +264,7 @@ static void testDeterministicGenerators() {
 			AssertThat(isConnected(G), IsTrue());
 			AssertThat(isSimpleUndirected(G), IsTrue());
 			assertNodeDegrees(G, {{4, 4}, {5, 2}});
+			AssertThat(isAcyclic(G), IsTrue());
 		});
 	});
 
@@ -439,6 +492,9 @@ static void testRandomGenerators() {
 		itClearsGraph([](Graph &G) {
 			randomGraph(G, 0, 0);
 		});
+		itKeepsStructuralEquality([](Graph &G) {
+			randomGraph(G, 20, 100);
+		});
 
 		for(int n = 0; n < 100; n++) {
 			int m = randomNumber(0, (n*(n-1))/2);
@@ -455,6 +511,9 @@ static void testRandomGenerators() {
 		itClearsGraph([](Graph &G) {
 			randomSimpleGraph(G, 0, 0);
 		});
+		itKeepsStructuralEquality([](Graph &G) {
+			randomSimpleGraph(G, 20, 100);
+		});
 
 		for(int n = 0; n < 100; n++) {
 			int m = randomNumber(0, (n*(n-1))/2);
@@ -468,9 +527,31 @@ static void testRandomGenerators() {
 		}
 	});
 
+	describe("randomSimpleGraphByProbability", [](){
+		itClearsGraph([](Graph &G) {
+			randomSimpleGraphByProbability(G, 0, 0);
+		});
+		itKeepsStructuralEquality([](Graph &G) {
+			randomSimpleGraphByProbability(G, 20, 0.5);
+		});
+
+		for(int n = 0; n < 100; n++) {
+			double p = randomDouble(0, 1);
+			it("generates a graph with " + to_string(n) + " nodes and " + to_string(p) + " edge probability", [&] {
+				Graph G;
+				AssertThat(randomSimpleGraphByProbability(G, n, p), Equals(true));
+				AssertThat(G.numberOfNodes(), Equals(n));
+				AssertThat(isSimple(G), Equals(true));
+			});
+		}
+	});
+
 	describe("randomSimpleConnectedGraph", []() {
 		itClearsGraph([](Graph &G) {
 			randomSimpleConnectedGraph(G, 0, 0);
+		});
+		itKeepsStructuralEquality([](Graph &G) {
+			randomSimpleConnectedGraph(G, 20, 100);
 		});
 
 		it("fails if it cannot be simple", []() {
@@ -501,6 +582,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomBiconnectedGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomBiconnectedGraph(G, 20, 100);
+		});
+
 		for(int n = 3; n < 100; n++) {
 			int m = randomNumber(n, (n*(n-1))/2);
 			it("generates a graph with " + to_string(n) + " nodes and " + to_string(m) + " edges", [&] {
@@ -514,6 +599,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomTriconnectedGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomTriconnectedGraph(G, 20, .5, .5);
+		});
+
 		for(int n = 4; n < 100; n++) {
 			it("generates a graph with " + to_string(n) + " nodes", [&] {
 				Graph G;
@@ -525,6 +614,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomPlanarBiconnectedGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomPlanarBiconnectedGraph(G, 20, 100, true);
+		});
+
 		for(int n = 3; n < 100; n++) {
 			int m = randomNumber(n, 3*n-6);
 			it("generates a graph with " + to_string(n) + " nodes and " + to_string(m) + " edges", [&] {
@@ -540,6 +633,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomPlanarCNBGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomPlanarCNBGraph(G, 20, 50, 3);
+		});
+
 		for(int b = 2; b < 15; b++) {
 			for(int n = 3; n < 30; n++) {
 				int m = randomNumber(n, 3*n-6);
@@ -564,6 +661,9 @@ static void testRandomGenerators() {
 	describe("randomTree", [](){
 		itClearsGraph([](Graph &G) {
 			randomTree(G, 0);
+		});
+		itKeepsStructuralEquality([](Graph &G) {
+			randomTree(G, 20);
 		});
 
 		for(int n = 0; n < 100; n++) {
@@ -590,6 +690,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomDigraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomDigraph(G, 20, 0.4);
+		});
+
 		for(int n = 1; n < 100; n++) {
 			it("generates a graph with " + to_string(n) + " nodes", [&] {
 				Graph G;
@@ -601,6 +705,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomRegularGraph", []() {
+		itKeepsStructuralEquality([](Graph &G) {
+			randomRegularGraph(G, 20, 4);
+		});
+
 		for (int n = 10; n <= 30; n += 5) {
 			for (int d = 2; d <= 6; d += 2) {
 				it("generates a graph with degree " + to_string(d) + " and " + to_string(n) + " nodes", [&] {
@@ -615,6 +723,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomGeometricCubeGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomGeometricCubeGraph(G, 20, 0.4, 3);
+		});
+
 		for(int d = 1; d < 4; d++){
 			for(double t : {0.0, 0.1, 0.5}) {
 				for(int n = 0; n < 100; n++) {
@@ -632,6 +744,15 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomGeographicalThresholdGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			Array<int> weights = Array<int>(20);
+			for (int &w : weights) {
+				w = randomNumber(0, 20);
+			}
+			std::exponential_distribution<double> dist(0.5);
+			randomGeographicalThresholdGraph(G, weights, dist, 0.4, 2, 2);
+		});
+
 		for (int d = 1; d < 4; d++) {
 			for (double l : {0.5, 1.0, 2.0}) {
 				for (int a = 1; a < 4; a++) {
@@ -672,6 +793,11 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomEdgesGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			emptyGraph(G, 20);
+			randomEdgesGraph(G, [&](node,node) { return 0.4; });
+		});
+
 		std::minstd_rand rng(randomSeed());
 		std::uniform_real_distribution<> dist(0, 1);
 		for (int n = 2; n < 50; n++) {
@@ -715,6 +841,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomWaxmanGraph", []() {
+		itKeepsStructuralEquality([](Graph &G) {
+			randomWaxmanGraph(G, 20, 0.4, 0.6);
+		});
+
 		for(int n = 1; n < 100; n+=10) {
 			it("generates a graph with " + to_string(n) + " nodes", [&] {
 				Graph G;
@@ -734,6 +864,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("preferentialAttachmentGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			preferentialAttachmentGraph(G, 20, 3);
+		});
+
 		for (int n = 0; n < 100; n+=10) {
 			for (int d = 1; d < 5; d++) {
 				it("generates a graph with " + to_string(n) + " nodes with degree " + to_string(d) + " on an empty input graph", [&] {
@@ -765,6 +899,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomWattsStrogatzGraph", [] {
+		itKeepsStructuralEquality([](Graph &G) {
+			randomWattsStrogatzGraph(G, 20, 4, 0.4);
+		});
+
 		it("does not modify generated lattice graph at 0.0 probability", [] {
 			Graph G;
 			randomWattsStrogatzGraph(G, 20, 4, 0.0);
@@ -792,6 +930,10 @@ static void testRandomGenerators() {
 	});
 
 	describe("randomChungLuGraph", [](){
+		itKeepsStructuralEquality([](Graph &G) {
+			randomChungLuGraph(G, {1, 2, 2, 3, 3, 3, 4});
+		});
+
 		it("generates graph", []() {
 			Graph G;
 			randomChungLuGraph(G, {1, 2, 2, 3, 3, 3});

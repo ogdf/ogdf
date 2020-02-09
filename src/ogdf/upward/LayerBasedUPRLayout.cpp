@@ -33,9 +33,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
 
-
 namespace ogdf {
-
 
 OrderComparer::OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H) : m_UPR(_UPR), H(_H)
 {
@@ -55,10 +53,7 @@ OrderComparer::OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H) : m_UPR(_
 		if (!visited[run->theEdge()->target()])
 			dfs_LR(run->theEdge(), visited, m_dfsNum, num);
 	} while(run != rightAdj);
-
 }
-
-
 
 bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 {
@@ -109,8 +104,6 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 		} while (true);
 	}
 }
-
-
 
 bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , const List<edge> &chain2) const
 {
@@ -163,8 +156,6 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 	return left(adj_v1->theEdge(), adj_v2->theEdge());
 }
 
-
-
 bool OrderComparer::checkUp(node vUPR, int level) const
 {
 	const GraphCopy &GC = H;
@@ -191,8 +182,6 @@ bool OrderComparer::checkUp(node vUPR, int level) const
 	}
 	return false;
 }
-
-
 
 bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) const
 {
@@ -256,8 +245,6 @@ bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) cons
 	return !tulp.x2();
 }
 
-
-
 bool OrderComparer::less(node vH1, node vH2) const
 {
 	if (vH1 == vH2)
@@ -310,8 +297,6 @@ bool OrderComparer::less(node vH1, node vH2) const
 	}
 }
 
-
-
 void OrderComparer::dfs_LR(
 	edge e,
 	NodeArray<bool> &visited,
@@ -341,8 +326,6 @@ void OrderComparer::dfs_LR(
 	}
 	visited[v] = true;
 }
-
-
 
 void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 {
@@ -410,10 +393,13 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 	postProcessing_sourceReorder(levels, sources);
 	m_crossings = levels.calculateCrossings();
 
+	while(!m_dummies.empty()) {
+		H.m_GC.delNode(m_dummies.popRet());
+	}
+
 	OGDF_ASSERT(m_crossings <= UPR.numberOfCrossings());
 	OGDF_ASSERT(m_layout);
 
-	GraphCopyAttributes AGC(H, AG);
 	m_layout->call(levels,AG);
 	// end postprocessing
 
@@ -527,8 +513,6 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 #endif
 }
 
-
-
 void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels &levels, List<node> &sources)
 {
 	const Hierarchy &H = levels.hierarchy();
@@ -611,8 +595,6 @@ void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels &levels, 
 	}
 }
 
-
-
 void LayerBasedUPRLayout::postProcessing_markUp(HierarchyLevels &levels, node s, NodeArray<bool> &markedNodes)
 {
 	const GraphCopy &GC = levels.hierarchy();
@@ -635,8 +617,6 @@ void LayerBasedUPRLayout::postProcessing_markUp(HierarchyLevels &levels, node s,
 		}
 	}
 }
-
-
 
 void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels &levels, node s)
 {
@@ -698,7 +678,15 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 			edge outEdge = u->lastAdj()->theEdge();
 			if (inEdge->target() != u)
 				std::swap(inEdge, outEdge);
+
+			edge eOrig = H.m_GC.original(inEdge);
+			OGDF_ASSERT(eOrig == H.m_GC.original(outEdge));
+
+			node x = H.m_GC.newNode();
+			H.m_GC.moveSource(outEdge, x);
+			H.m_GC.moveTarget(inEdge, x);
 			H.m_GC.unsplit(inEdge, outEdge);
+			m_dummies.push(u);
 		}
 
 #if 0
@@ -884,8 +872,6 @@ void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLe
 	}
 }
 
-
-
 void LayerBasedUPRLayout::post_processing_deleteInterval(Hierarchy &H, HierarchyLevels &levels, int beginIdx, int endIdx, int &j)
 {
 	Level &lvl = levels[j];
@@ -908,8 +894,6 @@ void LayerBasedUPRLayout::post_processing_deleteInterval(Hierarchy &H, Hierarchy
 		lvl.m_nodes.grow(-blockSize); // reduce the size of the lvl
 }
 
-
-
 void LayerBasedUPRLayout::post_processing_deleteLvl(Hierarchy &H, HierarchyLevels &levels, int i)
 {
 	//move the pointer to end, then delete the lvl
@@ -928,9 +912,6 @@ void LayerBasedUPRLayout::post_processing_deleteLvl(Hierarchy &H, HierarchyLevel
 	delete levels.m_pLevel[levels.high()];
 	levels.m_pLevel.grow(-1);
 }
-
-
-
 
 void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttributes &GA)
 {

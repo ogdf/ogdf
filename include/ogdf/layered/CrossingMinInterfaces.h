@@ -65,6 +65,11 @@ public:
 class OGDF_EXPORT HierarchyLevelsBase {
 
 public:
+	HierarchyLevelsBase() = default;
+
+	HierarchyLevelsBase(const HierarchyLevelsBase&) = default;
+	HierarchyLevelsBase& operator=(const HierarchyLevelsBase&) = default;
+
 	// destruction
 	virtual ~HierarchyLevelsBase() { }
 

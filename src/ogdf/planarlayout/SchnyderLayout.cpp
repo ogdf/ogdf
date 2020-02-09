@@ -48,6 +48,16 @@ void SchnyderLayout::doCall(
 	IPoint &boundingBox,
 	bool fixEmbedding)
 {
+	if (G.numberOfNodes() < 3) {
+		if (G.numberOfNodes() == 2) {
+			gridLayout.x()[G.firstNode()] = 0;
+			gridLayout.y()[G.firstNode()] = 0;
+			gridLayout.x()[G.lastNode()] = 1;
+			gridLayout.y()[G.lastNode()] = 0;
+		}
+		return;
+	}
+
 	// check for double edges & self loops
 	OGDF_ASSERT(isSimple(G));
 
@@ -55,9 +65,8 @@ void SchnyderLayout::doCall(
 	GraphCopy GC(G);
 
 	// embed
-	if (!fixEmbedding && !planarEmbed(GC)) {
-		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Planar);
-	}
+	bool isPlanar = planarEmbed(GC);
+	OGDF_ASSERT(fixEmbedding || isPlanar);
 
 	triangulate(GC);
 

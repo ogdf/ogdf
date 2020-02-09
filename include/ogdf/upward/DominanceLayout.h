@@ -38,13 +38,12 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <memory>
 #include <ogdf/basic/Math.h>
-#include <ogdf/module/LayoutModule.h>
-#include <ogdf/module/UpwardPlanarizerModule.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
 #include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
 
 namespace ogdf {
-
 
 class OGDF_EXPORT DominanceLayout : public LayoutModule
 {

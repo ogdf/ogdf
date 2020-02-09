@@ -123,9 +123,13 @@ public:
 	//! Initializes the SubsetEnumerator to enumerate subsets of cardinalities from low to high.
 	void begin(int low, int high)
 	{
-		m_maxCard = high;
-		m_maxCard = min(m_maxCard, m_subset.size());
-		initSubset(low);
+		if (high >= low) {
+			m_maxCard = high;
+			m_maxCard = min(m_maxCard, m_subset.size());
+			initSubset(low);
+		} else {
+			m_valid = false;
+		}
 	}
 
 	//! Initializes the SubsetEnumerator to enumerate subsets of given cardinality.

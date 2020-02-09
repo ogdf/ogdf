@@ -5,6 +5,7 @@
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #include <ogdf/planarity/MaximumPlanarSubgraph.h>
 #include <ogdf/planarity/PlanarSubgraphCactus.h>
+#include <ogdf/planarity/PlanarSubgraphTriangles.h>
 #include <ogdf/planarity/PlanarSubgraphTree.h>
 
 #include <graphs.h>
@@ -14,6 +15,9 @@ using std::minstd_rand;
 template <typename TCost>
 void testSubgraphInstance(Graph &graph, PlanarSubgraphModule<TCost> &psm, PlanarityModule &tester, bool assertMaximality, bool weighEdges, bool connects) {
 	makeSimpleUndirected(graph);
+	if (graph.numberOfEdges() == 0) {
+		return;
+	}
 	makeConnected(graph);
 
 	EdgeArray<TCost> costs;
@@ -90,7 +94,7 @@ void testSubgraphInstanceForIntAndDouble(Graph &graph, PlanarSubgraphModule<int>
 void performGenericTests(const string &name, bool optimal, bool respectsEdgeWeight, bool skip, std::function<void(Graph &, bool)> callFunc) {
 	describe(name, [&]() {
 		auto doTest = [&](bool weighted) {
-			forEachGraphItWorks({GraphProperty::sparse}, [&](Graph G) { callFunc(G, weighted); }, optimal ? GraphSizes(10) : GraphSizes());
+			forEachGraphItWorks({GraphProperty::sparse}, [&](Graph &G) { callFunc(G, weighted); }, optimal ? GraphSizes(10) : GraphSizes());
 		};
 
 		doTest(false);
@@ -128,29 +132,35 @@ void describeAlgorithm(const string &name, bool optimal, bool maximal, bool resp
 go_bandit([]() {
 	describe("Planar Subgraphs", []() {
 		PlanarSubgraphBoyerMyrvold bms;
-		MaximumPlanarSubgraph mps;
 
 		testSubgraphAlgorithm("PlanarSubgraphBoyerMyrvold",              bms, false, false, true,  true, true);
 		describeAlgorithm<PlanarSubgraphFast>("PlanarSubgraphFast",           false, false, false, true);
 		describeAlgorithm<PlanarSubgraphCactus>("PlanarSubgraphCactus",       false, false, false, true);
+		describeAlgorithm<PlanarSubgraphTriangles>("PlanarSubgraphTriangles", false, false, false, true);
 		describeAlgorithm<PlanarSubgraphTree>("PlanarSubgraphTree",           false, false, false, true);
-		testSubgraphAlgorithm("MaximumPlanarSubgraph",                   mps, true,  true,  true,  true);
+		describeAlgorithm<MaximumPlanarSubgraph>("MaximumPlanarSubgraph",     true,  true,  true,  true);
 		describeAlgorithm<PlanarSubgraphEmpty>("PlanarSubgraphEmpty",         false, false, false, false);
 
 		MaximalPlanarSubgraphSimple<int> mpss;
 		PlanarSubgraphCactus<int> psc;
 		MaximalPlanarSubgraphSimple<int> mpssPsc(psc);
+		PlanarSubgraphTriangles<int> pst;
+		MaximalPlanarSubgraphSimple<int> mpssPst(pst);
 		PlanarSubgraphFast<int> fps;
 		MaximalPlanarSubgraphSimple<int> mpssFps(fps);
 		MaximalPlanarSubgraphSimple<int> mpssBms(bms);
 
 		testSubgraphAlgorithm("MaximalPlanarSubgraphSimple",        mpss,    false, true, false, true);
 		testSubgraphAlgorithm("Maximal PlanarSubgraphCactus",       mpssPsc, false, true, false, true);
+		testSubgraphAlgorithm("Maximal PlanarSubgraphTriangles",    mpssPst, false, true, false, true);
 		testSubgraphAlgorithm("Maximal PlanarSubgraphFast",         mpssFps, false, true, false, true);
 		testSubgraphAlgorithm("Maximal PlanarSubgraphBoyerMyrvold", mpssBms, false, true, false, true, true);
 
 		PlanarSubgraphCactus<double> pscd;
 		MaximalPlanarSubgraphSimple<double> mpssPscd(pscd);
 		testSubgraphAlgorithmForIntAndDouble("Maximal PlanarSubgraphCactus", mpssPsc, mpssPscd);
+		PlanarSubgraphTriangles<double> psdt;
+		MaximalPlanarSubgraphSimple<double> mpssPsdt(psdt);
+		testSubgraphAlgorithmForIntAndDouble("Maximal PlanarSubgraphTriangles", mpssPst, mpssPsdt);
 	});
 });

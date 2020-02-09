@@ -33,7 +33,7 @@
 //debug
 #include <ogdf/planarity/PlanRepInc.h>
 
-#include <ogdf/basic/TopologyModule.h>
+#include <ogdf/planarity/TopologyModule.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -680,7 +680,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			OGDF_ASSERT(PG.original((iti)->theNode()));
 			OGDF_ASSERT(PG.original((iti->twin())->theNode()));
 
-			B.pushFront(DPoint(GA.x(srcNode), GA.y(srcNode)));
+			B.pushFront(GA.point(srcNode));
 
 			B.conc(dp);
 			pl.conc(B);
@@ -694,7 +694,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 		{
 			DPoint dp1;
 			if (srcNode)
-				dp1 = DPoint(GA.x(srcNode), GA.y(srcNode));
+				dp1 = GA.point(srcNode);
 			else
 				dp1 = DPoint(m_crossPosition[(iti)->theNode()]);
 
@@ -728,7 +728,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 		{
 			OGDF_ASSERT(!case2);
 			OGDF_ASSERT((iti->twin())->theNode()->degree() == 4);
-			DPoint sNode = DPoint(GA.x(srcNode), GA.y(srcNode));
+			DPoint sNode = GA.point(srcNode);
 			//sourceNode is on face border
 			B.pushFront(sNode);
 			//search segment with crossing point
@@ -767,8 +767,8 @@ double TopologyModule::faceSum(PlanRep &PG,
 			B.pushFront(dp1);
 			//we start searching from the edge's original start node
 			node srcONode = (reversed ? eOrig->target() : eOrig->source());
-			DPoint sNode = DPoint(GA.x(srcONode), GA.y(srcONode));
-				//GA.x(srcNode), GA.y(srcNode));
+			DPoint sNode = GA.point(srcONode);
+				//GA.point(srcNode));
 
 			//Searchloop
 			ListIterator<DPoint> it = dp.begin();
@@ -801,8 +801,8 @@ double TopologyModule::faceSum(PlanRep &PG,
 			B.pushFront(dp1);
 			//we start searching from the edge's original start node
 			node srcONode = (reversed ? eOrig->target() : eOrig->source());
-			DPoint sNode = DPoint(GA.x(srcONode), GA.y(srcONode));
-			//DPoint sNode = DPoint(GA.x(srcNode), GA.y(srcNode));
+			DPoint sNode = GA.point(srcONode);
+			//DPoint sNode = GA.point(srcNode);
 			//Searchloop1
 			ListIterator<DPoint> it = dp.begin();
 			DPoint tNode = (*it);

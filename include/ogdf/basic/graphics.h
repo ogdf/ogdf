@@ -585,7 +585,6 @@ inline string toString(FromClass key) {
 	auto *map = graphics::getMapToString<FromClass>();
 	if(map->empty()) {
 		graphics::init<FromClass>();
-		std::cout << map->size();
 	}
 	auto it = map->find(key);
 	OGDF_ASSERT(it != map->end());

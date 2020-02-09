@@ -531,9 +531,9 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 			std::cout << "\n";
 			os << "\n";
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
-			string fn = "cGraph";
-			fn += to_string(writeCount++) + ".gml";
-			GraphIO::writeGML(testCopy, fn);
+			string fn = "cGraph" + to_string(writeCount++) + ".gml";
+			std::ofstream out(fn);
+			GraphIO::writeGML(testCopy, out);
 #endif
 		}
 	}

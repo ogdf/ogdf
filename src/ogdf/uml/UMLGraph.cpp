@@ -299,7 +299,7 @@ DRect UMLGraph::circularBound(node center)
 
 	for(node v : G.nodes)
 	{
-		m_cliqueCirclePos[umlOriginal[v]] = DPoint(AG.x(v), AG.y(v));
+		m_cliqueCirclePos[umlOriginal[v]] = AG.point(v);
 	}
 	bb = AG.boundingBox();
 

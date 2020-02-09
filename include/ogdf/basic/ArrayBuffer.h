@@ -101,10 +101,8 @@ public:
 	//! Puts a new element in the buffer.
 	void push(E e) {
 		if (num == Array<E,INDEX>::size()) {
-			if (growable)
-				Array<E,INDEX>::grow(max(num,1)); // double the size
-			else
-				OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Full);
+			OGDF_ASSERT(growable);
+			Array<E,INDEX>::grow(max(num,1)); // double the size
 		}
 		Array<E,INDEX>::operator[](num++) = e;
 	}

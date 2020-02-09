@@ -36,11 +36,9 @@
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
-#include <ogdf/module/LayoutModule.h>
-
+#include <ogdf/basic/LayoutModule.h>
 
 namespace ogdf {
-
 
 template<typename T>
 inline bool isinf(T value)

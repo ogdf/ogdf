@@ -258,13 +258,13 @@ void NodeRespecterLayout::createBends(const ArrayBuffer<edge> &origEdges, GraphA
 					}
 				} else {
 					// Else use v as a bend point.
-					bendLine.pushBack(DPoint(m_copyAttr.x(v), m_copyAttr.y(v)));
+					bendLine.pushBack(m_copyAttr.point(v));
 					last = v;
 				}
 			} else {
 				// If post processing is not activated, add all dummies as
 				// bends points.
-				bendLine.pushBack(DPoint(m_copyAttr.x(v), m_copyAttr.y(v)));
+				bendLine.pushBack(m_copyAttr.point(v));
 			}
 		}
 
@@ -273,8 +273,7 @@ void NodeRespecterLayout::createBends(const ArrayBuffer<edge> &origEdges, GraphA
 			!OGDF_GEOM_ET.equal(m_bendNormalizationAngle, Math::pi)) {
 			node src = eOrig->source();
 			node tgt = eOrig->target();
-			bendLine.normalize(DPoint(attr.x(src), attr.y(src)),
-			                   DPoint(attr.x(tgt), attr.y(tgt)),
+			bendLine.normalize(attr.point(src), attr.point(tgt),
 			                   m_bendNormalizationAngle);
 		}
 	}

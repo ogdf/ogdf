@@ -39,6 +39,22 @@ namespace ogdf {
 
 // Functions related to self-loops
 
+void removeSelfLoops(Graph &graph, node v) {
+	adjEntry adj = v->firstAdj();
+	adjEntry adjPrev = nullptr;
+
+	while (adj != nullptr) {
+		edge e{adj->theEdge()};
+		if (e->isSelfLoop()) {
+			graph.delEdge(e);
+		} else {
+			adjPrev = adj;
+		}
+
+		adj = adjPrev == nullptr ? v->firstAdj() : adjPrev->succ();
+	}
+}
+
 bool isLoopFree(const Graph &G)
 {
 	for(edge e : G.edges)
@@ -49,11 +65,18 @@ bool isLoopFree(const Graph &G)
 
 void makeLoopFree(Graph &G)
 {
-	edge e, eNext;
-	for (e = G.firstEdge(); e; e = eNext) {
-		eNext = e->succ();
+	safeForEach(G.edges, [&](edge e) {
 		if (e->isSelfLoop()) G.delEdge(e);
+	});
+}
+
+bool hasNonSelfLoopEdges(const Graph &G) {
+	for (edge e : G.edges) {
+		if (!e->isSelfLoop()) {
+			return true;
+		}
 	}
+	return false;
 }
 
 // Functions related to directed parallel edges
@@ -67,29 +90,6 @@ void parallelFreeSort(const Graph &G, SListPure<edge> &edges)
 
 	BucketTargetIndex bucketTgt;
 	edges.bucketSort(0,G.maxNodeIndex(),bucketTgt);
-}
-
-template <bool ONLY_ONCE = false>
-int numParallelEdges(const Graph &G) {
-	if (G.numberOfEdges() <= 1) return 0;
-
-	SListPure<edge> edges;
-	parallelFreeSort(G,edges);
-
-	int num = 0;
-	SListConstIterator<edge> it = edges.begin();
-	edge ePrev = *it, e;
-	for(it = ++it; it.valid(); ++it, ePrev = e) {
-		e = *it;
-		if (ePrev->source() == e->source() && ePrev->target() == e->target()) {
-			++num;
-			if (ONLY_ONCE) {
-				return num;
-			}
-		}
-	}
-
-	return num;
 }
 
 bool isParallelFree(const Graph &G) {
@@ -117,31 +117,6 @@ void parallelFreeSortUndirected(const Graph &G,
 	BucketEdgeArray bucketMin(minIndex), bucketMax(maxIndex);
 	edges.bucketSort(0,G.maxNodeIndex(),bucketMin);
 	edges.bucketSort(0,G.maxNodeIndex(),bucketMax);
-}
-
-template <bool ONLY_ONCE = false>
-int numParallelEdgesUndirected(const Graph &G)
-{
-	if (G.numberOfEdges() <= 1) return 0;
-
-	SListPure<edge> edges;
-	EdgeArray<int> minIndex(G), maxIndex(G);
-	parallelFreeSortUndirected(G,edges,minIndex,maxIndex);
-
-	int num = 0;
-	SListConstIterator<edge> it = edges.begin();
-	edge ePrev = *it, e;
-	for(it = ++it; it.valid(); ++it, ePrev = e) {
-		e = *it;
-		if (minIndex[ePrev] == minIndex[e] && maxIndex[ePrev] == maxIndex[e]) {
-			++num;
-			if (ONLY_ONCE) {
-				return num;
-			}
-		}
-	}
-
-	return num;
 }
 
 bool isParallelFreeUndirected(const Graph &G) {

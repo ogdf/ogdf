@@ -104,13 +104,16 @@ OGDF_EXPORT void regularTree(Graph& G, int n, int children);
 
 //! Creates the complete graph \a K_n.
 /**
+ * The returned graph is directed acyclic.
+ *
  * @param G is assigned the generated graph.
  * @param n is the number of nodes of the generated graph.
  */
 OGDF_EXPORT void completeGraph(Graph &G, int n);
 
+//! Creates the complete k-partite graph \a K_{k1,k2,...,kn}.
 /**
- * Creates the complete k-partite graph \a K_{k1,k2,...,kn}.
+ * The returned graph is directed acyclic.
  *
  * @param G is assigned the generated graph.
  * @param signature contains the positive values k1, k2, ..., kn.
@@ -119,6 +122,8 @@ OGDF_EXPORT void completeKPartiteGraph(Graph &G, const Array<int> &signature);
 
 //! Creates the complete bipartite graph \a K_{n,m}.
 /**
+ * The returned graph is directed acyclic.
+ *
  * @param G is assigned the generated graph.
  * @param n is the number of nodes of the first partition set.
  * @param m is the number of nodes of the second partition set.

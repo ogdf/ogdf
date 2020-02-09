@@ -31,10 +31,10 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/tuples.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/basic/GraphAttributes.h>
 
 namespace ogdf {
 

@@ -33,8 +33,10 @@
 #pragma once
 
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagnerWithoutMatrix.h>
 #include <ogdf/graphalg/steiner_tree/Full2ComponentGenerator.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorCaller.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 #include <ogdf/graphalg/steiner_tree/LPRelaxationSER.h>
 #include <ogdf/graphalg/steiner_tree/goemans/Approximation.h>
@@ -66,16 +68,16 @@ private:
 
 protected:
 	int m_restricted;
+	bool m_preprocess;
 	bool m_use2approx;
-	bool m_forceAPSP;
 	bool m_separateCycles;
 	int m_seed;
 
 public:
 	MinSteinerTreeGoemans139()
 	  : m_restricted(3)
+	  , m_preprocess(true)
 	  , m_use2approx(false)
-	  , m_forceAPSP(false)
 	  , m_separateCycles(false)
 	  , m_seed(1337)
 	{
@@ -111,15 +113,14 @@ public:
 		m_use2approx = use2approx;
 	}
 
-	/*! \brief Force full APSP algorithm even if consecutive SSSP algorithms may work
-	 *
-	 * For the 3-restricted case, it is sufficient to compute an SSSP from every terminal
-	 *  instead of doing a full APSP. In case a full APSP is faster, use this method.
-	 * @param force True to force APSP instead of SSSP.
+	/*!
+	 * Disable preprocessing of LP solutions
+	 * \note not recommended to use in general
+	 * @param preprocess True to disable, false to enable
 	 */
-	void forceAPSP(bool force = true)
+	void disablePreprocessing(bool preprocess = true)
 	{
-		m_forceAPSP = force;
+		m_preprocess = !preprocess;
 	}
 
 	/*!
@@ -153,8 +154,8 @@ T MinSteinerTreeGoemans139<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	std::minstd_rand rng(m_seed);
 	List<node> sortedTerminals(terminals);
 	MinSteinerTreeModule<T>::sortTerminals(sortedTerminals);
-	Main main(G, sortedTerminals, isTerminal, m_restricted, m_use2approx, m_separateCycles, !m_forceAPSP);
-	return main.getApproximation(finalSteinerTree, rng, true);
+	Main main(G, sortedTerminals, isTerminal, m_restricted, m_use2approx, m_separateCycles);
+	return main.getApproximation(finalSteinerTree, rng, m_preprocess);
 }
 
 //! \brief Class managing LP-based approximation
@@ -174,7 +175,6 @@ class MinSteinerTreeGoemans139<T>::Main
 		JustUseIt,
 	};
 	Approx2State m_use2approx;
-	bool m_ssspDistances;
 
 	const double m_eps; //!< epsilon for double operations
 
@@ -184,13 +184,19 @@ class MinSteinerTreeGoemans139<T>::Main
 	//! \name Finding full components
 	//! @{
 
-	//! Computes distance and predecessor matrix
-	void computeDistanceMatrix(NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred);
-
 	//! Find full components of size 2
 	void findFull2Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred);
 	//! Find full components of size 3
 	void findFull3Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred);
+	//! Find 3-restricted components
+	void find3RestrictedComponents();
+	//! Find full components using algorithm by Dreyfus-Wagner
+	void findFullComponentsDW();
+	//! Find full components using algorithm by Erickson et al
+	void findFullComponentsEMV();
+	//! Auxiliary function to retrieve components by Dreyfus-Wagner/Erickson et al implementation
+	template<typename FCG>
+	void retrieveComponents(const FCG& fcg);
 	//! Find full components
 	void findFullComponents();
 
@@ -199,14 +205,10 @@ class MinSteinerTreeGoemans139<T>::Main
 	//! @{
 
 	//! Remove inactive components from m_fullCompStore (since we do not need them any longer)
-	void removeInactiveComponents()
-	{
-		// XXX: is it faster to do this backwards? (less copying)
-		int k = 0;
-		while (k < m_fullCompStore.size()) {
-			if (m_fullCompStore.extra(k) > m_eps) {
-				++k;
-			} else {
+	void removeInactiveComponents() {
+		for (int k = m_fullCompStore.size() - 1; k >= 0; --k) {
+			OGDF_ASSERT(k < m_fullCompStore.size());
+			if (m_fullCompStore.extra(k) <= m_eps) {
 				m_fullCompStore.remove(k);
 			}
 		}
@@ -288,14 +290,13 @@ class MinSteinerTreeGoemans139<T>::Main
 public:
 	//! Initialize all attributes, sort the terminal list
 	Main(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
-	     int restricted, bool use2approx, bool separateCycles, bool useSSSPfor3Restricted, double eps = 1e-8)
+	     int restricted, bool use2approx, bool separateCycles, double eps = 1e-8)
 	  : m_G(G)
 	  , m_isTerminal(isTerminal)
 	  , m_terminals(terminals)
 	  , m_fullCompStore(G, m_terminals, isTerminal)
 	  , m_restricted(restricted)
 	  , m_use2approx(use2approx ? Approx2State::On : Approx2State::Off)
-	  , m_ssspDistances(useSSSPfor3Restricted)
 	  , m_eps(eps)
 	  , m_approx2SteinerTree(nullptr)
 	  , m_approx2Weight(0)
@@ -311,7 +312,7 @@ public:
 
 		findFullComponents();
 
-		steiner_tree::LPRelaxationSER<T> lp(m_G, m_terminals, m_isTerminal, m_fullCompStore, m_approx2Weight, m_restricted + 1, m_eps);
+		steiner_tree::LPRelaxationSER<T> lp(m_G, m_terminals, m_isTerminal, m_fullCompStore, m_approx2Weight, separateCycles ? m_restricted + 1 : 0, m_eps);
 		if (!lp.solve()) {
 			OGDF_ASSERT(m_use2approx == Approx2State::On);
 			m_use2approx = Approx2State::JustUseIt;
@@ -357,53 +358,62 @@ void MinSteinerTreeGoemans139<T>::Main::findFull3Components(const NodeArray<Node
 }
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::computeDistanceMatrix(NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred)
-{
-	if (m_ssspDistances
-	 && m_restricted <= 3) {
-		// for 2- and 3-restricted computations, it is ok to use SSSP from all terminals
-#ifndef OGDF_MINSTEINERTREEGOEMANS139_DETOUR
-		MinSteinerTreeModule<T>::allTerminalShortestPathsStrict
-#else
-		MinSteinerTreeModule<T>::allTerminalShortestPathsDetour
-#endif
-		  (m_G, m_terminals, m_isTerminal, distance, pred);
-	} else {
-		m_ssspDistances = false;
-#ifndef OGDF_MINSTEINERTREEGOEMANS139_DETOUR
-		MinSteinerTreeModule<T>::allPairShortestPathsStrict
-#else
-		MinSteinerTreeModule<T>::allPairShortestPathsDetour
-#endif
-		  (m_G, m_isTerminal, distance, pred);
+void MinSteinerTreeGoemans139<T>::Main::find3RestrictedComponents() {
+	NodeArray<NodeArray<T>> distance;
+	NodeArray<NodeArray<edge>> pred;
+
+	steiner_tree::FullComponentGeneratorCaller<T>::computeDistanceMatrix(distance, pred, m_G, m_terminals, m_isTerminal, m_restricted);
+
+	findFull2Components(distance, pred);
+	if (m_restricted == 3) {
+		findFull3Components(distance, pred);
 	}
+}
+
+template<typename T>
+template<typename FCG>
+void MinSteinerTreeGoemans139<T>::Main::retrieveComponents(const FCG& fcg) {
+	SubsetEnumerator<node> terminalSubset(m_terminals);
+	for (terminalSubset.begin(2, m_restricted); terminalSubset.valid(); terminalSubset.next()) {
+		EdgeWeightedGraphCopy<T> component;
+		List<node> terminals;
+		terminalSubset.list(terminals);
+		fcg.getSteinerTreeFor(terminals, component);
+		if (fcg.isValidComponent(component)) {
+			m_fullCompStore.insert(component);
+		}
+	}
+}
+
+template<typename T>
+void MinSteinerTreeGoemans139<T>::Main::findFullComponentsDW() {
+	NodeArray<NodeArray<T>> distance;
+	NodeArray<NodeArray<edge>> pred;
+	steiner_tree::FullComponentGeneratorCaller<T>::computeDistanceMatrix(distance, pred, m_G, m_terminals, m_isTerminal, m_restricted);
+
+	steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(m_G, m_terminals, m_isTerminal, distance, pred);
+	fcg.call(m_restricted);
+	retrieveComponents(fcg);
+}
+
+template<typename T>
+void MinSteinerTreeGoemans139<T>::Main::findFullComponentsEMV() {
+	steiner_tree::FullComponentGeneratorDreyfusWagnerWithoutMatrix<T> fcg(m_G, m_terminals, m_isTerminal);
+	fcg.call(m_restricted);
+	retrieveComponents(fcg);
 }
 
 template<typename T>
 void MinSteinerTreeGoemans139<T>::Main::findFullComponents()
 {
-	NodeArray<NodeArray<T>> distance;
-	NodeArray<NodeArray<edge>> pred;
-
-	computeDistanceMatrix(distance, pred);
 	if (m_restricted >= 4) { // use Dreyfus-Wagner based full component generation
-		SubsetEnumerator<node> terminalSubset(m_terminals);
-		steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(m_G, m_terminals, distance);
-		fcg.call(m_restricted);
-		for (terminalSubset.begin(2, m_restricted); terminalSubset.valid(); terminalSubset.next()) {
-			EdgeWeightedGraphCopy<T> component;
-			List<node> terminals;
-			terminalSubset.list(terminals);
-			fcg.getSteinerTreeFor(terminals, component);
-			if (steiner_tree::FullComponentGeneratorDreyfusWagner<T>::isValidComponent(component, pred, m_isTerminal)) {
-				m_fullCompStore.insert(component);
-			}
+		if (steiner_tree::FullComponentDecisions::shouldUseErickson(m_G.numberOfNodes(), m_G.numberOfEdges())) {
+			findFullComponentsEMV();
+		} else {
+			findFullComponentsDW();
 		}
 	} else {
-		findFull2Components(distance, pred);
-		if (m_restricted == 3) {
-			findFull3Components(distance, pred);
-		}
+		find3RestrictedComponents();
 	}
 }
 

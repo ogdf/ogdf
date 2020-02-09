@@ -64,7 +64,9 @@ public:
 	explicit MinSTCutMaxFlow(bool treatAsUndirected = true, MaxFlowModule<TCost> *mfModule = new MaxFlowGoldbergTarjan<TCost>(),
 	                bool primaryCut = true, bool calculateOtherCut = true,
 	                EpsilonTest *epsilonTest = new EpsilonTest()) :
-		m_mfModule(mfModule), m_treatAsUndirected(treatAsUndirected), m_primaryCut(primaryCut), m_et(epsilonTest) { }
+		m_mfModule(mfModule), m_treatAsUndirected(treatAsUndirected), m_primaryCut(primaryCut),
+		m_calculateOtherCut(calculateOtherCut), m_et(epsilonTest)
+	{ }
 
 	/**
 	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)

@@ -161,7 +161,9 @@ Sub *MaxCPlanarSub::generateSon(BranchRule *rule) {
 				if (xVal(i) == 1.0) GA.strokeColor(e->theEdge()) = "#FF0000";
 			}
 		}
-		GraphIO::writeGML(GA, "WeightedIntermediateGraph.gml");
+
+		std::ofstream out("WeightedIntermediateGraph.gml");
+		GraphIO::writeGML(GA, out);
 	}
 #endif
 
@@ -724,7 +726,7 @@ double MaxCPlanarSub::heuristicImprovePrimalBound(
 		}
 	}
 
-	const EdgeArray<int> *pCost = static_cast<MaxCPlanarMaster*>(master_)->m_pCost;
+	const EdgeArray<double> *pCost = static_cast<MaxCPlanarMaster*>(master_)->m_pCost;
 
 	// Randomly permute the edges in \a oneOEdges.
 	oneOEdges.permute();

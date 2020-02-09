@@ -31,11 +31,11 @@
 
 #pragma once
 
-#include <ogdf/module/LayoutModule.h>
-#include <ogdf/module/CrossingMinimizationModule.h>
-#include <ogdf/module/EmbedderModule.h>
-#include <ogdf/module/LayoutPlanRepModule.h>
-#include <ogdf/module/CCLayoutPackModule.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/planarity/LayoutPlanRepModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <memory>
 #include <ogdf/planarity/planarization_layout/CliqueReplacer.h>
 
