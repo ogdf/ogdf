@@ -126,8 +126,6 @@ void ClusterPlanarizationLayout::call(
 	// correct the problem by planarizing or inserting connection edges.
 	if (!cplanar)
 	{
-		bool connect = false;
-
 		if ( (CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonConnected) ||
 			(CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCConnected) )
 		{
