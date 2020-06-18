@@ -53,6 +53,7 @@ public:
 	FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
 	explicit FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
 	FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
+	FaceAdjIterator(const FaceAdjIterator &other) : m_adjFirst(other.m_adjFirst), m_adj(other.m_adj) { }
 
 	bool operator==(const FaceAdjIterator &other) const {
 		return m_adj == other.m_adj;
