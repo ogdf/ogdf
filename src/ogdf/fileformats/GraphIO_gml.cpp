@@ -386,8 +386,15 @@ static void write_gml_cluster(const ClusterGraphAttributes &CA, cluster c, int d
 	for (cluster child : c->children)
 		write_gml_cluster(CA, child, d+1, os, index, nextClusterIndex);
 
-	for (node v : c->nodes)
-		GraphIO::indent(os,d+1) << "vertex \"" << index[v] << "\"\n";
+	if (CA.attributes() & GraphAttributes::nodeId) {
+		for (node v : c->nodes) {
+			GraphIO::indent(os,d+1) << "vertex \"" << CA.idNode(v) << "\"\n";
+		}
+	} else {
+		for (node v : c->nodes) {
+			GraphIO::indent(os,d+1) << "vertex \"" << index[v] << "\"\n";
+		}
+	}
 
 	GraphIO::indent(os,d) << "]\n"; // cluster
 }
