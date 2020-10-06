@@ -471,12 +471,13 @@ inline void makeConnected(Graph& G) {
  *
  * @param G         is the input graph.
  * @param component is assigned a mapping from nodes to component numbers.
- * @param isolated  is assigned the list of isolated nodes. An isolated node is
- *                  a node without incident edges.
+ * @param isolated  if non-null, will contain the list of isolated nodes afterwards.
+ *                  An isolated node is a node without incident edges.
+ * @param reprs     if non-null, will contain a node from component c at index c afterwards.
  * @return the number of connected components.
  */
 OGDF_EXPORT int connectedComponents(const Graph& G, NodeArray<int>& component,
-		List<node>* isolated = nullptr);
+		List<node>* isolated = nullptr, ArrayBuffer<node>* reprs = nullptr);
 
 //! Computes the amount of connected components of \p G.
 /**
@@ -494,7 +495,7 @@ inline int connectedComponents(const Graph& G) {
 OGDF_DEPRECATED("connectedComponents() should be used instead.")
 
 /**
- * @copydoc ogdf::connectedComponents(const Graph&, NodeArray<int>&, List<node>*);
+ * @see ogdf::connectedComponents(const Graph&, NodeArray<int>&, List<node>*, ArrayBuffer<node>*)
  */
 inline int connectedIsolatedComponents(const Graph& G, List<node>& isolated,
 		NodeArray<int>& component) {
