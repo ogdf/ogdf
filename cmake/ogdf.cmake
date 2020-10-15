@@ -144,7 +144,7 @@ if(has_linux_cpu_macros)
   set(OGDF_HAS_LINUX_CPU_MACROS 1)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(CMAKE_COMPILER_IS_GNUCXX OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT "${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC"))
   target_link_libraries(OGDF PUBLIC pthread)
 endif()
 

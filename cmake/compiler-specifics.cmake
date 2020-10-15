@@ -23,7 +23,20 @@ set(available_default_warning_flags "")
 set(available_default_warning_flags_debug "")
 set(available_default_warning_flags_release "")
 set(warnings_as_errors_flag "")
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if(MSVC)
+  set(available_default_warning_flags "/W3 /wd4018 /wd4068 /wd4101 /wd4244 /wd4250 /wd4267 /wd4373 /wd4800")
+  # this has to be explained because MSVC is so cryptic:
+  # /W3 sets the warning level of MSVC to 3 (all warnings except informational warnings),
+  # /wd<code> disables the warning with the specific code,
+  #     4018 = signed/unsigned mismatch
+  #     4068 = unknown pragmas
+  #     4101 = unused variable
+  #     4244, 4267 = implicit conversion
+  #     4250 = class inherits a member from another class via dominance
+  #     4373 = behavior in old MSVC versions is different to C++ standard
+  #     4800 = bool conversion from int or pointers
+  set(warnings_as_errors_flag "/WX")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(available_default_warning_flags "-Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas \
       -Wno-error=sign-compare -Wno-error=conversion -Wno-error=strict-aliasing")
   if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
@@ -42,17 +55,4 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   endif()
   set(available_default_warning_flags_release "${available_default_warning_flags_release} -Wno-error=unused-variable")
   set(warnings_as_errors_flag "-Werror")
-elseif(MSVC)
-  set(available_default_warning_flags "/W3 /wd4018 /wd4068 /wd4101 /wd4244 /wd4250 /wd4267 /wd4373 /wd4800")
-  # this has to be explained because MSVC is so cryptic:
-  # /W3 sets the warning level of MSVC to 3 (all warnings except informational warnings),
-  # /wd<code> disables the warning with the specific code,
-  #     4018 = signed/unsigned mismatch
-  #     4068 = unknown pragmas
-  #     4101 = unused variable
-  #     4244, 4267 = implicit conversion
-  #     4250 = class inherits a member from another class via dominance
-  #     4373 = behavior in old MSVC versions is different to C++ standard
-  #     4800 = bool conversion from int or pointers
-  set(warnings_as_errors_flag "/WX")
 endif()
