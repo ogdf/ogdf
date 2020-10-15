@@ -1453,8 +1453,8 @@ static int c_ekkbtrn_mpt(const EKKfactinfo * COIN_RESTRICT2 fact,
   const int * COIN_RESTRICT mpermu=fact->mpermu;
   /*const int *mrstrt	= fact->xrsadr;*/
 
-#ifdef DEBUG
   int i;
+#ifdef DEBUG
   memset(spare,'A',3*nrow*sizeof(int));
   {
 
@@ -1467,7 +1467,6 @@ static int c_ekkbtrn_mpt(const EKKfactinfo * COIN_RESTRICT2 fact,
 #endif
 
 
-  int i;
 #ifdef DEBUG
   for (i=1;i<=nrow;i++) {
     if (fact->nonzero[i]||dpermu[i]) {
