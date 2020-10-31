@@ -174,6 +174,26 @@ public:
 		return num;
 	}
 
+	//! Checks whether a cluster \p child is a descendant (i.e. child, child of a child, ...) of this cluster.
+	/**
+	 * @param child the cluster that might be a descendant of this
+	 * @param allow_equal when not given or false, return false in the case that this == child
+	 * \return whether child is a descendant of this
+	 */
+	bool isDescendant(ClusterElement* child, bool allow_equal = false) {
+		OGDF_ASSERT(child != nullptr);
+		if (!allow_equal) {
+			child = child->parent();
+		}
+		while (child != this) {
+			if (child == nullptr) {
+				return false;
+			}
+			child = child->parent();
+		}
+		return true;
+	}
+
 	//! @}
 	/**
 	* @name Iteration over tree structure
@@ -654,6 +674,9 @@ public:
 			c->adjEntries.pushBack(adj);
 		}
 	}
+
+	//! Gets the availability status of the adjacency entries.
+	bool adjAvailable() const { return m_adjAvailable; }
 
 	//! Sets the availability status of the adjacency entries.
 	void adjAvailable(bool val) { m_adjAvailable = val; }
