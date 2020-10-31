@@ -46,6 +46,24 @@ class HananiTutteCPlanarity {
 	class CGraph;
 
 public:
+	struct Stats {
+		int nRows = 0;
+		int nColumns = 0;
+		int nConditions = 0;
+		int nMoves = 0;
+
+		int64_t tPrepare = 0;
+		int64_t tCreateSparse = 0;
+		int64_t tSolve = 0;
+		int64_t tCheck = 0;
+	};
+
+	struct HananiTutteSolver {
+		virtual ~HananiTutteSolver() = default;
+		virtual bool test(Stats& stats) = 0;
+		virtual bool verify(Stats& stats) = 0;
+	};
+
 	enum class Solver { HananiTutte, HananiTutteVerify, ILP };
 	enum class Status {
 		invalid,
@@ -82,7 +100,7 @@ public:
 
 	Status status() const { return m_status; }
 
-	void preprocessing(ClusterGraph& C, Graph& G);
+	static void preprocessing(ClusterGraph& C, Graph& G);
 
 	int numNodesPreproc() const { return m_numNodesPreproc; }
 
@@ -90,23 +108,22 @@ public:
 
 	int numClustersPreproc() const { return m_numClustersPreproc; }
 
-	int numMatrixRows() const { return m_nRows; }
+	int numMatrixRows() const { return m_stats.nRows; }
 
-	int numMatrixCols() const { return m_nCols; }
+	int numMatrixCols() const { return m_stats.nColumns; }
 
-	int64_t timePrepare() const { return m_tPrepare; }
+	int64_t timePrepare() const { return m_stats.tPrepare; }
 
-	int64_t timeCreateSparse() const { return m_tCreateSparse; }
+	int64_t timeCreateSparse() const { return m_stats.tCreateSparse; }
 
-	int64_t timesolve() const { return m_tSolve; }
+	int64_t timesolve() const { return m_stats.tSolve; }
+
+	const Stats& stats() const { return m_stats; }
+
+	static HananiTutteSolver* getSolver(const ClusterGraph& C);
 
 private:
-	int m_nRows = 0;
-	int m_nCols = 0;
-	int64_t m_tPrepare = 0;
-	int64_t m_tCreateSparse = 0;
-	int64_t m_tSolve = 0;
-
+	Stats m_stats;
 	Status m_status = Status::invalid;
 	int m_numNodesPreproc = 0;
 	int m_numEdgesPreproc = 0;
