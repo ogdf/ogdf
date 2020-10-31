@@ -1125,6 +1125,18 @@ void Graph::resetEdgeIdCount(int maxId) {
 #endif
 }
 
+void Graph::resetNodeIdCount(int maxId) {
+	m_nodeIdCount = maxId + 1;
+
+#ifdef OGDF_HEAVY_DEBUG
+	for (node n : nodes) {
+		// if there is a node with higer index than maxId, we cannot
+		// set the node id count to maxId+1
+		OGDF_ASSERT(n->index() <= maxId);
+	}
+#endif
+}
+
 node Graph::splitNode(adjEntry adjStartLeft, adjEntry adjStartRight) {
 	OGDF_ASSERT(adjStartLeft != nullptr);
 	OGDF_ASSERT(adjStartRight != nullptr);
