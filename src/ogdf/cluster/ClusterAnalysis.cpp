@@ -643,7 +643,7 @@ void ClusterAnalysis::computeBags() {
 					int theid = uf.find(setid[*itvc]);
 
 					if (theid != inid) {
-						uf.link(inid, theid);
+						inid = uf.link(inid, theid);
 					}
 					clists[cind[c]].pushBack(*itvc);
 					++itvc;
