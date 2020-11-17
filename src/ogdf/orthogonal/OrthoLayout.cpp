@@ -167,7 +167,7 @@ void OrthoLayout::call(PlanRep& PG, adjEntry adjExternal, Layout& drawing) {
 		// call flow compaction on grid
 		fc.improvementHeuristics(PG, OR, minDistGrid, gridDrawing,
 				int(gridDrawing.toGrid(m_separation)));
-	} catch (AlgorithmFailureException) {
+	} catch (const AlgorithmFailureException&) {
 		// too bad, that did not work out..
 	}
 
