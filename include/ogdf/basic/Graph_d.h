@@ -35,6 +35,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/internal/graph_iterators.h>
 
 #include <array>
@@ -456,11 +457,85 @@ void NodeElement::outEdges(EDGELIST& edgeList) const {
 	}
 }
 
-class NodeArrayBase;
+template<class Key>
+class GraphRegistry : public RegistryBase<Key*, GraphRegistry<Key>, internal::GraphIterator<Key*>> {
+	Graph* m_pGraph;
+	int* m_nextKeyIndex;
+	internal::GraphObjectContainer<Key>* m_pContainer;
+
+public:
+	GraphRegistry(Graph* mPGraph, int* mNextKeyIndex,
+			internal::GraphObjectContainer<Key>* mPContainer = nullptr)
+		: m_pGraph(mPGraph), m_nextKeyIndex(mNextKeyIndex), m_pContainer(mPContainer) { }
+
+	bool isKeyAssociated(Key* key) const override {
+#ifdef OGDF_DEBUG
+		return key && key->graphOf() == m_pGraph;
+#else
+		return key;
+#endif
+	}
+
+	int keyToIndex(Key* key) const override { return key->index(); }
+
+	int keyArrayTableSize() const override { return calculateTableSize(*m_nextKeyIndex); }
+
+	int maxKeyIndex() const override { return (*m_nextKeyIndex) - 1; }
+
+	internal::GraphIterator<Key*> begin() const override { return m_pContainer->begin(); }
+
+	internal::GraphIterator<Key*> end() const override { return m_pContainer->end(); }
+
+	operator Graph&() const { return *m_pGraph; }
+
+	operator Graph*() const { return m_pGraph; }
+
+	Graph* graphOf() const { return m_pGraph; }
+};
+
+//template<typename Value>
+//using NodeArray = RegisteredArray<GraphRegistry<NodeElement>, NodeElement*, Value>;
+
+template<typename Value>
+class NodeArray : public RegisteredArray<GraphRegistry<NodeElement>, NodeElement*, Value> {
+	using RA = RegisteredArray<GraphRegistry<NodeElement>, NodeElement*, Value>;
+
+public:
+	NodeArray() { }
+
+	NodeArray(const GraphRegistry<node>& pRegistry) : RA(pRegistry) { }
+
+	NodeArray(const GraphRegistry<node>& pRegistry, const Value& defaultValue)
+		: RA(pRegistry, defaultValue) { }
+
+	NodeArray(const Graph& graph) : RA(graph) { }
+
+	NodeArray(const Graph& graph, const Value& defaultValue) : RA(graph, defaultValue) { }
+
+	NodeArray(const NodeArray<Value>& a) : RA(a) { }
+
+	NodeArray(NodeArray<Value>&& a) : RA(a) { }
+
+	//! Assignment operator.
+	NodeArray<Value>& operator=(const NodeArray<Value>& A) {
+		RA::operator=(A);
+		return *this;
+	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * Adjacency entry array \p a is empty afterwards and not associated with any graph.
+	 */
+	NodeArray<Value>& operator=(NodeArray<Value>&& a) {
+		RA::operator=(std::move(a));
+		return *this;
+	}
+
+	Graph* graphOf() const { return RA::registeredAt()->graphOf(); }
+};
+
 class EdgeArrayBase;
 class AdjEntryArrayBase;
-template<class T>
-class NodeArray;
 template<class T>
 class EdgeArray;
 template<class T>
@@ -526,15 +601,15 @@ private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
 	int m_edgeIdCount; //!< The Index that will be assigned to the next created edge.
 
-	int m_nodeArrayTableSize; //!< The current table size of node arrays associated with this graph.
 	int m_edgeArrayTableSize; //!< The current table size of edge arrays associated with this graph.
 
-	mutable ListPure<NodeArrayBase*> m_regNodeArrays; //!< The registered node arrays.
+	GraphRegistry<NodeElement> m_regNodeArrays; //!< The registered node arrays.
 	mutable ListPure<EdgeArrayBase*> m_regEdgeArrays; //!< The registered edge arrays.
 	mutable ListPure<AdjEntryArrayBase*> m_regAdjArrays; //!< The registered adjEntry arrays.
 	mutable ListPure<GraphObserver*> m_regStructures; //!< The registered graph structures.
 
 #ifndef OGDF_MEMORY_POOL_NTS
+	// TODO remove
 	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
 #endif
 
@@ -1225,15 +1300,7 @@ public:
 	 */
 	//! @{
 
-	//! Registers a node array.
-	/**
-	 * \remark This method is automatically called by node arrays; it should not be called manually.
-	 *
-	 * @param pNodeArray is a pointer to the node array's base; this node array must be associated with this graph.
-	 * @return an iterator pointing to the entry for the registered node array in the list of registered node arrays.
-	 *         This iterator is required for unregistering the node array again.
-	 */
-	ListIterator<NodeArrayBase*> registerArray(NodeArrayBase* pNodeArray) const;
+	operator const GraphRegistry<NodeElement>&() const { return m_regNodeArrays; }
 
 	//! Registers an edge array.
 	/**
@@ -1264,13 +1331,6 @@ public:
 	 *         graph observers. This iterator is required for unregistering the graph observer again.
 	 */
 	ListIterator<GraphObserver*> registerStructure(GraphObserver* pStructure) const;
-
-	//! Unregisters a node array.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered node arrays for the node array to
-	 *        be unregistered.
-	 */
-	void unregisterArray(ListIterator<NodeArrayBase*> it) const;
 
 	//! Unregisters an edge array.
 	/**

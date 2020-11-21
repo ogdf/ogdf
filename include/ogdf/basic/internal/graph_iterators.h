@@ -71,6 +71,8 @@ public:
 
 	GraphObjectPtr& operator*() { return m_ptr; }
 
+	const GraphObjectPtr operator*() const { return m_ptr; }
+
 	//! Increment operator (prefix).
 	GraphIteratorBase<GraphObjectPtr, isReverse>& operator++() {
 		OGDF_ASSERT(m_ptr != nullptr);

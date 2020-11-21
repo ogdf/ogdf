@@ -49,12 +49,14 @@ namespace ogdf {
 
 using Math::nextPower2;
 
-Graph::Graph() {
+int calculateTableSize(int actualCount) { return Math::nextPower2(MIN_TABLE_SIZE, actualCount); }
+
+Graph::Graph() : m_regNodeArrays(this, &m_nodeIdCount) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	resetTableSizes();
 }
 
-Graph::Graph(const Graph& G) {
+Graph::Graph(const Graph& G) : m_regNodeArrays(this, &m_nodeIdCount) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);
 	resetTableSizes();
@@ -62,10 +64,6 @@ Graph::Graph(const Graph& G) {
 
 Graph::~Graph() {
 	restoreAllEdges();
-
-	while (!m_regNodeArrays.empty()) {
-		m_regNodeArrays.popFrontRet()->disconnect();
-	}
 
 	while (!m_regEdgeArrays.empty()) {
 		m_regEdgeArrays.popFrontRet()->disconnect();
@@ -234,7 +232,6 @@ void Graph::constructInitByNodes(const Graph& G, const List<node>& nodeList,
 	edges.clear();
 
 	m_nodeIdCount = m_edgeIdCount = 0;
-	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
 
 
 	// list of edges adjacent to nodes in nodeList
@@ -317,7 +314,6 @@ void Graph::constructInitByActiveNodes(const List<node>& nodeList,
 	edges.clear();
 
 	m_nodeIdCount = m_edgeIdCount = 0;
-	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
 
 
 	// list of edges adjacent to nodes in nodeList
@@ -383,20 +379,17 @@ void Graph::constructInitByActiveNodes(const List<node>& nodeList,
 }
 
 node Graph::newNode() {
-	if (m_nodeIdCount == m_nodeArrayTableSize) {
-		m_nodeArrayTableSize <<= 1;
-		for (NodeArrayBase* nab : m_regNodeArrays) {
-			nab->enlargeTable(m_nodeArrayTableSize);
-		}
-	}
-
+	int size = m_regNodeArrays.keyArrayTableSize();
 #ifdef OGDF_DEBUG
 	node v = new NodeElement(this, m_nodeIdCount++);
 #else
 	node v = new NodeElement(m_nodeIdCount++);
 #endif
-
 	nodes.pushBack(v);
+
+	if (size != m_regNodeArrays.keyArrayTableSize()) {
+		m_regNodeArrays.enlargeArrayTables();
+	}
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -409,13 +402,10 @@ node Graph::newNode() {
 //what about negative index numbers?
 node Graph::newNode(int index) {
 	if (index >= m_nodeIdCount) {
+		int size = m_regNodeArrays.keyArrayTableSize();
 		m_nodeIdCount = index + 1;
-
-		if (index >= m_nodeArrayTableSize) {
-			m_nodeArrayTableSize = nextPower2(m_nodeArrayTableSize, index + 1);
-			for (NodeArrayBase* nab : m_regNodeArrays) {
-				nab->enlargeTable(m_nodeArrayTableSize);
-			}
+		if (size != m_regNodeArrays.keyArrayTableSize()) {
+			m_regNodeArrays.enlargeArrayTables();
 		}
 	}
 
@@ -867,7 +857,6 @@ void Graph::clear() {
 	edges.clear();
 
 	m_nodeIdCount = m_edgeIdCount = 0;
-	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
 	reinitArrays(false);
 
 #ifdef OGDF_HEAVY_DEBUG
@@ -981,13 +970,6 @@ int Graph::genus() const {
 	return (numberOfEdges() - numberOfNodes() - nIsolated - nFaceCycles + 2 * nCC) / 2;
 }
 
-ListIterator<NodeArrayBase*> Graph::registerArray(NodeArrayBase* pNodeArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regNodeArrays.pushBack(pNodeArray);
-}
-
 ListIterator<EdgeArrayBase*> Graph::registerArray(EdgeArrayBase* pEdgeArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 	lock_guard<mutex> guard(m_mutexRegArrays);
@@ -1007,13 +989,6 @@ ListIterator<GraphObserver*> Graph::registerStructure(GraphObserver* pStructure)
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
 	return m_regStructures.pushBack(pStructure);
-}
-
-void Graph::unregisterArray(ListIterator<NodeArrayBase*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regNodeArrays.del(it);
 }
 
 void Graph::unregisterArray(ListIterator<EdgeArrayBase*> it) const {
@@ -1038,7 +1013,6 @@ void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const {
 }
 
 void Graph::resetTableSizes() {
-	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE, m_nodeIdCount + 1);
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE, m_edgeIdCount + 1);
 }
 
@@ -1047,9 +1021,7 @@ void Graph::reinitArrays(bool doResetTableSizes) {
 		resetTableSizes();
 	}
 
-	for (NodeArrayBase* nab : m_regNodeArrays) {
-		nab->reinit(m_nodeArrayTableSize);
-	}
+	m_regNodeArrays.reinitArrays();
 
 	for (EdgeArrayBase* eab : m_regEdgeArrays) {
 		eab->reinit(m_edgeArrayTableSize);
