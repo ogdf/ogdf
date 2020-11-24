@@ -457,7 +457,7 @@ void NodeElement::outEdges(EDGELIST& edgeList) const {
 	}
 }
 
-template<class Key>
+template<typename Key>
 class GraphRegistry : public RegistryBase<Key*, GraphRegistry<Key>, internal::GraphIterator<Key*>> {
 	Graph* m_pGraph;
 	int* m_nextKeyIndex;
@@ -478,7 +478,7 @@ public:
 
 	int keyToIndex(Key* key) const override { return key->index(); }
 
-	int keyArrayTableSize() const override { return calculateTableSize(*m_nextKeyIndex); }
+	int arraySize() const override { return calculateTableSize(*m_nextKeyIndex); }
 
 	int maxKeyIndex() const override { return (*m_nextKeyIndex) - 1; }
 
@@ -486,53 +486,66 @@ public:
 
 	internal::GraphIterator<Key*> end() const override { return m_pContainer->end(); }
 
-	operator Graph&() const { return *m_pGraph; }
-
-	operator Graph*() const { return m_pGraph; }
-
 	Graph* graphOf() const { return m_pGraph; }
 };
 
-//template<typename Value>
-//using NodeArray = RegisteredArray<GraphRegistry<NodeElement>, NodeElement*, Value>;
-
-template<typename Value>
-class NodeArray : public RegisteredArray<GraphRegistry<NodeElement>, NodeElement*, Value> {
-	using RA = RegisteredArray<GraphRegistry<NodeElement>, NodeElement*, Value>;
+template<typename Key, typename Value>
+class GraphRegisteredArray : public RegisteredArrayWithDefault<GraphRegistry<Key>, Value> {
+	using RA = RegisteredArrayWithDefault<GraphRegistry<Key>, Value>;
 
 public:
-	NodeArray() { }
+	GraphRegisteredArray() : RA(nullptr, Value()) {};
 
-	NodeArray(const GraphRegistry<node>& pRegistry) : RA(pRegistry) { }
+	GraphRegisteredArray(const Graph& graph)
+		: RA(&((const GraphRegistry<NodeElement>&)graph), Value()) {};
 
-	NodeArray(const GraphRegistry<node>& pRegistry, const Value& defaultValue)
-		: RA(pRegistry, defaultValue) { }
+	GraphRegisteredArray(const Graph& graph, const Value& def)
+		: RA(&((const GraphRegistry<NodeElement>&)graph), def) {};
 
-	NodeArray(const Graph& graph) : RA(graph) { }
+	void init() { RA::init(); }
 
-	NodeArray(const Graph& graph, const Value& defaultValue) : RA(graph, defaultValue) { }
+	void init(const Graph& graph) { RA::init(&((const GraphRegistry<NodeElement>&)graph)); }
 
-	NodeArray(const NodeArray<Value>& a) : RA(a) { }
-
-	NodeArray(NodeArray<Value>&& a) : RA(a) { }
-
-	//! Assignment operator.
-	NodeArray<Value>& operator=(const NodeArray<Value>& A) {
-		RA::operator=(A);
-		return *this;
-	}
-
-	//! Assignment operator (move semantics).
-	/**
-	 * Adjacency entry array \p a is empty afterwards and not associated with any graph.
-	 */
-	NodeArray<Value>& operator=(NodeArray<Value>&& a) {
-		RA::operator=(std::move(a));
-		return *this;
+	void init(const Graph& graph, const Value& new_default) {
+		RA::setDefault(new_default);
+		RA::init(&((const GraphRegistry<NodeElement>&)graph));
 	}
 
 	Graph* graphOf() const { return RA::registeredAt()->graphOf(); }
 };
+
+// vector<bool> is weird, so make sure we don't use that if someone explicitly wants a NodeArray<bool>
+// newer code should be using NodeSet, which is perfectly fine with using the weird vector<bool> internally
+template<typename Key>
+class GraphRegisteredArray<Key, bool>
+	: public RegisteredArrayWithDefault<GraphRegistry<Key>, unsigned char> {
+	using RA = RegisteredArrayWithDefault<GraphRegistry<Key>, unsigned char>;
+
+public:
+	GraphRegisteredArray() : RA(nullptr, false) {};
+
+	GraphRegisteredArray(const Graph& graph)
+		: RA(&((const GraphRegistry<NodeElement>&)graph), false) {};
+
+	GraphRegisteredArray(const Graph& graph, const bool& def)
+		: RA(&((const GraphRegistry<NodeElement>&)graph), def) {};
+
+	void init() { RA::init(); }
+
+	void init(const Graph& graph) { RA::init(&((const GraphRegistry<NodeElement>&)graph)); }
+
+	void init(const Graph& graph, const bool& new_default) {
+		RA::setDefault(new_default);
+		RA::init(&((const GraphRegistry<NodeElement>&)graph));
+	}
+
+	// TODO override operator[], operator(), begin / end ?
+
+	Graph* graphOf() const { return RA::registeredAt()->graphOf(); }
+};
+
+template<typename Value>
+using NodeArray = GraphRegisteredArray<NodeElement, Value>;
 
 class EdgeArrayBase;
 class AdjEntryArrayBase;
@@ -709,7 +722,9 @@ public:
 	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
 	//! Returns the table size of node arrays associated with this graph.
-	int nodeArrayTableSize() const { return m_nodeArrayTableSize; }
+	OGDF_DEPRECATED("remove this") // TODO
+
+	int nodeArrayTableSize() const { return 0; }
 
 	//! Returns the table size of edge arrays associated with this graph.
 	int edgeArrayTableSize() const { return m_edgeArrayTableSize; }

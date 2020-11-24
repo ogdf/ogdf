@@ -51,12 +51,12 @@ using Math::nextPower2;
 
 int calculateTableSize(int actualCount) { return Math::nextPower2(MIN_TABLE_SIZE, actualCount); }
 
-Graph::Graph() : m_regNodeArrays(this, &m_nodeIdCount) {
+Graph::Graph() : m_regNodeArrays(this, &m_nodeIdCount, &nodes) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	resetTableSizes();
 }
 
-Graph::Graph(const Graph& G) : m_regNodeArrays(this, &m_nodeIdCount) {
+Graph::Graph(const Graph& G) : m_regNodeArrays(this, &m_nodeIdCount, &nodes) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);
 	resetTableSizes();
@@ -379,17 +379,13 @@ void Graph::constructInitByActiveNodes(const List<node>& nodeList,
 }
 
 node Graph::newNode() {
-	int size = m_regNodeArrays.keyArrayTableSize();
 #ifdef OGDF_DEBUG
 	node v = new NodeElement(this, m_nodeIdCount++);
 #else
 	node v = new NodeElement(m_nodeIdCount++);
 #endif
 	nodes.pushBack(v);
-
-	if (size != m_regNodeArrays.keyArrayTableSize()) {
-		m_regNodeArrays.enlargeArrayTables();
-	}
+	m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -401,21 +397,13 @@ node Graph::newNode() {
 
 //what about negative index numbers?
 node Graph::newNode(int index) {
-	if (index >= m_nodeIdCount) {
-		int size = m_regNodeArrays.keyArrayTableSize();
-		m_nodeIdCount = index + 1;
-		if (size != m_regNodeArrays.keyArrayTableSize()) {
-			m_regNodeArrays.enlargeArrayTables();
-		}
-	}
-
 #ifdef OGDF_DEBUG
 	node v = new NodeElement(this, index);
 #else
 	node v = new NodeElement(index);
 #endif
-
 	nodes.pushBack(v);
+	m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -1021,7 +1009,7 @@ void Graph::reinitArrays(bool doResetTableSizes) {
 		resetTableSizes();
 	}
 
-	m_regNodeArrays.reinitArrays();
+	//	m_regNodeArrays.resizeArrays(); // TODO
 
 	for (EdgeArrayBase* eab : m_regEdgeArrays) {
 		eab->reinit(m_edgeArrayTableSize);

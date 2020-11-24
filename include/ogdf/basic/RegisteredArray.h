@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/Array.h>
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+
+#include <list>
 
 #ifndef OGDF_MEMORY_POOL_NTS
 
@@ -42,58 +42,177 @@
 #endif
 
 namespace ogdf {
+template<typename Registry>
+class RegisteredArrayBase;
 
-template<class Key, class Registry>
-class RegisteredArrayBase {
-	ListIterator<RegisteredArrayBase<Key, Registry>*> m_registration;
-	const Registry* m_pRegistry;
+static constexpr int MIN_TABLE_SIZE = (1 << 4);
+
+int calculateTableSize(int actualCount);
+
+template<typename Key, typename Registry, typename Iterator = void>
+class RegistryBase {
+public:
+	using registered_array_type = RegisteredArrayBase<Registry>;
+	using key_type = Key;
+	using registry_type = Registry;
+	using iterator_type = Iterator;
+	using registration_list_type = std::list<registered_array_type*>;
+	using registration_iterator_type = typename registration_list_type::iterator;
+
+private:
+	mutable registration_list_type m_registeredArrays;
+	bool m_lazy = false;
+	bool m_auto_shrink = false;
+	int m_size = 0;
+
+#ifndef OGDF_MEMORY_POOL_NTS
+	mutable std::mutex m_mutexRegArrays;
+#endif
+
+protected:
+	RegistryBase() = default;
 
 public:
-	//! Initializes an adjacency entry array not associated with a graph.
-	RegisteredArrayBase() : m_pRegistry(nullptr) { }
+	virtual ~RegistryBase() { unregisterArrays(); }
 
-	//! Initializes an adjacency entry array associated with \p pG.
-	explicit RegisteredArrayBase(const Registry& registry) : m_pRegistry(&registry) {
-		m_registration = registry.registerArray(this);
+	[[nodiscard]] virtual registration_iterator_type registerArray(
+			registered_array_type* pArray) const {
+#ifndef OGDF_MEMORY_POOL_NTS
+		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
+#endif
+		return m_registeredArrays.emplace(m_registeredArrays.end(), pArray);
 	}
 
-	//! Initializes an adjacency entry array associated with \p pG.
-	explicit RegisteredArrayBase(const Registry* registry) : m_pRegistry(registry) {
-		if (registry) {
-			m_registration = registry->registerArray(this);
+	virtual void unregisterArray(registration_iterator_type it) const {
+#ifndef OGDF_MEMORY_POOL_NTS
+		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
+#endif
+		m_registeredArrays.erase(it);
+	}
+
+	virtual void moveRegisterArray(registration_iterator_type it,
+			registered_array_type* pArray) const {
+#ifndef OGDF_MEMORY_POOL_NTS
+		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
+#endif
+		*it = pArray;
+	}
+
+	[[nodiscard]] virtual bool isKeyAssociated(Key key) const = 0;
+
+	[[nodiscard]] virtual int keyToIndex(Key key) const = 0;
+
+	[[nodiscard]] virtual int maxKeyIndex() const = 0;
+
+	[[nodiscard]] virtual int arraySize() const = 0;
+
+	[[nodiscard]] virtual Iterator begin() const = 0;
+
+	[[nodiscard]] virtual Iterator end() const = 0;
+
+	virtual void keyAdded(Key key) {
+		// TODO use m_lazy, m_auto_shrink and maxKeyIndex() / arraySize() to call resizeArrays(...)
+		// TODO notify observers
+	}
+
+	virtual void keyRemoved(Key key) {
+		// TODO use m_lazy, m_auto_shrink and maxKeyIndex() / arraySize() to call resizeArrays(...)
+		// TODO notify observers
+	}
+
+	virtual void keysCleared() {
+		// TODO use m_lazy, m_auto_shrink and maxKeyIndex() / arraySize() to call resizeArrays(...)
+		// TODO notify observers
+	}
+
+	void resizeArrays(int size) {
+		m_size = size;
+		for (registered_array_type* ab : m_registeredArrays) {
+			ab->resize(size, m_auto_shrink);
 		}
 	}
 
-	//! Moves adjacency entry array \p move_from to this adjacency entry array.
-	RegisteredArrayBase(RegisteredArrayBase<Key, Registry>&& move_from) noexcept
-		: m_registration(move_from.m_registration), m_pRegistry(move_from.m_pRegistry) {
-		m_pRegistry->moveRegisterArray(m_registration, this);
-		move_from.m_pRegistry = nullptr;
-		move_from.m_registration = ListIterator<RegisteredArrayBase<Key, Registry>*>();
+	void resizeArrays(int size, bool shrink) {
+		m_size = size;
+		for (registered_array_type* ab : m_registeredArrays) {
+			ab->resize(size, shrink);
+		}
 	}
 
-	//! Destructor, unregisters the array
+	void swapArrayEntries(int newIndex, int oldIndex) {
+		for (registered_array_type* ab : m_registeredArrays) {
+			ab->swapEntry(newIndex, oldIndex);
+		}
+	}
+
+	void unregisterArrays() {
+		while (!m_registeredArrays.empty()) {
+#ifdef OGDF_DEBUG
+			auto size = m_registeredArrays.size();
+#endif
+			m_registeredArrays.front()->unregister();
+			OGDF_ASSERT(m_registeredArrays.size() < size);
+		}
+	}
+};
+
+// TODO Add Observers
+//	template<class Registry>
+//	class RegistryObserver {
+//		using key_type = typename Registry::key_type;
+//
+//		virtual void registered(Registry &registry) = 0;
+//
+//		virtual void unregistered(Registry &registry) = 0;
+//
+//		virtual void keyAdded(Registry &registry, key_type key) = 0;
+//
+//		virtual void keyRemoved(Registry &registry, key_type key) = 0;
+//
+//		virtual void keysCleared(Registry &registry) = 0;
+//	};
+
+template<class Registry>
+class RegisteredArrayBase {
+	using registry_type = Registry;
+	using registration_iterator_type = typename Registry::registration_iterator_type;
+
+	registration_iterator_type m_registration;
+	const Registry* m_pRegistry = nullptr;
+
+protected:
+	RegisteredArrayBase() = default;
+
+	// TODO copy / move assignment and constructors
+	//		RegisteredArrayBase(const RegisteredArrayBase<Registry> &copy) : m_pRegistry(copy.m_pRegistry) {
+	//			if (m_pRegistry)
+	//				m_registration = m_pRegistry->registerArray(this);
+	//		}
+	//
+	//		RegisteredArrayBase(RegisteredArrayBase<Registry> &&move_from) noexcept
+	//				: m_registration(move_from.m_registration), m_pRegistry(move_from.m_pRegistry) {
+	//			m_pRegistry->moveRegisterArray(m_registration, this);
+	//			move_from.m_pRegistry = nullptr;
+	//			move_from.m_registration = ListIterator<RegisteredArrayBase<Registry> *>();
+	//		}
+
+public:
 	virtual ~RegisteredArrayBase() {
 		if (m_pRegistry) {
 			m_pRegistry->unregisterArray(m_registration);
-			disconnect();
 		}
 	}
 
-	// event interface used by Graph
-	//! Virtual function called when table size has to be enlarged.
-	virtual void enlargeTable(int newTableSize) = 0;
+	virtual void resize(int size, bool shrink) = 0;
 
-	//! Virtual function called when table has to be reinitialized.
-	virtual void reinit(int initTableSize) = 0;
+	virtual void swapEntries(int newIndex, int oldIndex) = 0;
 
-	//! Virtual function called when array is disconnected from the graph.
-	virtual void disconnect() { m_pRegistry = nullptr; }
+	virtual void unregister() {
+		resize(0, true);
+		reregister(nullptr);
+	}
 
-	//! Virtual function called when the index of an adjacency entry is changed.
-	virtual void resetIndex(int newIndex, int oldIndex) = 0;
-
-	//! Associates the array with a new graph.
+protected:
 	void reregister(const Registry* registry) {
 		if (m_pRegistry) {
 			m_pRegistry->unregisterArray(m_registration);
@@ -102,397 +221,230 @@ public:
 		if (m_pRegistry != nullptr) {
 			m_registration = m_pRegistry->registerArray(this);
 		} else {
-			m_registration = nullptr;
+			m_registration = registration_iterator_type();
 		}
 	}
 
-	//! Moves array registration from \p move_from to this array.
-	void moveRegister(RegisteredArrayBase<Key, Registry>& move_from) {
+	void moveRegister(RegisteredArrayBase<Registry>& move_from) {
 		if (m_pRegistry) {
 			m_pRegistry->unregisterArray(m_registration);
 		}
 		m_pRegistry = move_from.m_pRegistry;
 		m_registration = move_from.m_registration;
 		move_from.m_pRegistry = nullptr;
-		move_from.m_registration = ListIterator<RegisteredArrayBase<Key, Registry>*>();
+		move_from.m_registration = nullptr;
 		if (m_pRegistry != nullptr) {
 			m_pRegistry->moveRegisterArray(m_registration, this);
 		}
 	}
 
-	//! Returns a pointer to the associated graph.
+public:
 	const Registry* registeredAt() const { return m_pRegistry; }
 };
 
-template<class ArrayType, bool isConst = false>
+template<class ArrayType, class KeyIterator, bool isConst = false>
 class RegisteredArrayIterator {
 public:
-	//! Index type of the associated array.
 	using registry_type = typename ArrayType::registry_type;
-	using iterator_type = typename ArrayType::registry_type::iterator_type;
 	using key_type = typename ArrayType::key_type;
-	//! Value type of the associated array.
 	using value_type = typename std::conditional<isConst, const typename ArrayType::value_type,
 			typename ArrayType::value_type>::type;
-	//! Type of the array.
 	using array_pointer_type = typename std::conditional<isConst, const ArrayType*, ArrayType*>::type;
 
 private:
-	iterator_type m_it;
-	array_pointer_type m_array; //!< The array.
+	KeyIterator m_it;
+	array_pointer_type m_array;
 
 public:
-	RegisteredArrayIterator(iterator_type mIt, array_pointer_type mArray)
+	RegisteredArrayIterator(KeyIterator mIt, array_pointer_type mArray)
 		: m_it(mIt), m_array(mArray) { }
 
-	//! Index in #m_array.
 	key_type key() const { return *m_it; }
 
-	//! Value of #m_array at index #m_key.
 	value_type& value() const { return (*m_array)[*m_it]; }
 
-	//! Value of #m_array at index #m_key.
 	value_type& operator*() const { return (*m_array)[*m_it]; }
 
-	//! Equality operator.
-	bool operator==(const RegisteredArrayIterator<ArrayType, isConst>& iter) const {
+	bool operator==(const RegisteredArrayIterator<ArrayType, KeyIterator, isConst>& iter) const {
 		return m_it == iter.m_it && m_array == iter.m_array;
 	}
 
-	//! Inequality operator.
-	bool operator!=(const RegisteredArrayIterator<ArrayType, isConst>& iter) const {
+	bool operator!=(const RegisteredArrayIterator<ArrayType, KeyIterator, isConst>& iter) const {
 		return !operator==(iter);
 	}
 
-	//! Increment operator (prefix).
-	RegisteredArrayIterator<ArrayType, isConst>& operator++() {
+	RegisteredArrayIterator<ArrayType, KeyIterator, isConst>& operator++() {
 		++m_it;
 		return *this;
 	}
 
-	//! Increment operator (postfix).
-	RegisteredArrayIterator<ArrayType, isConst> operator++(int) {
-		RegisteredArrayIterator<ArrayType, isConst> iter = *this;
+	RegisteredArrayIterator<ArrayType, KeyIterator, isConst> operator++(int) {
+		RegisteredArrayIterator<ArrayType, KeyIterator, isConst> iter = *this;
 		++m_it;
 		return iter;
 	}
 
-	//! Decrement operator (prefix).
-	RegisteredArrayIterator<ArrayType, isConst>& operator--() {
+	RegisteredArrayIterator<ArrayType, KeyIterator, isConst>& operator--() {
 		--m_it;
 		return *this;
 	}
 
-	//! Decrement operator (postfix).
-	RegisteredArrayIterator<ArrayType, isConst> operator--(int) {
-		RegisteredArrayIterator<ArrayType, isConst> iter = *this;
+	RegisteredArrayIterator<ArrayType, KeyIterator, isConst> operator--(int) {
+		RegisteredArrayIterator<ArrayType, KeyIterator, isConst> iter = *this;
 		--m_it;
 		return iter;
 	}
 };
 
-template<class Registry, class Key, class Value>
-class RegisteredArray : protected Array<Value>, protected RegisteredArrayBase<Key, Registry> {
-	Value m_default_value; //!< The default value for array elements.
+template<class Registry, class Value>
+class RegisteredArray : protected RegisteredArrayBase<Registry> {
+protected:
+	using key_iterator = typename Registry::iterator_type;
+	using registered_array = RegisteredArray<Registry, Value>;
+	using registered_array_base = RegisteredArrayBase<Registry>;
 
 public:
-	//! The type of the registry.
 	using registry_type = Registry;
-	//! The type for array keys.
-	using key_type = Key;
-	//! The type for array entries.
-	using value_type = Value;
+	using key_type = typename Registry::key_type;
+	//		using vector_type = typename std::conditional<std::is_same<Value, bool>::value,
+	//				std::vector<unsigned char>, std::vector<Value>>::type;
+	using vector_type = std::vector<Value>;
+	using value_type = typename vector_type::value_type;
+	using value_ref_type = typename vector_type::reference;
+	using value_const_ref_type = typename vector_type::const_reference;
 
-	using array = Array<Value>;
-	using registered_array = RegisteredArray<Registry, Key, Value>;
-	using registered_array_base = RegisteredArrayBase<Key, Registry>;
+	using iterator = RegisteredArrayIterator<registered_array, key_iterator, false>;
+	using const_iterator = RegisteredArrayIterator<registered_array, key_iterator, true>;
 
-	//! The type for edge array iterators.
-	using iterator = RegisteredArrayIterator<registered_array, false>;
-	//! The type for edge array const iterators.
-	using const_iterator = RegisteredArrayIterator<registered_array, true>;
+protected:
+	vector_type m_data;
 
-	//! Constructs an empty adjacency entry array associated with no graph.
-	RegisteredArray() : array(), registered_array_base() { }
+public:
+	explicit RegisteredArray(const Registry* registry = nullptr) { init(registry); }
 
-	//! Constructs an adjacency entry array associated with \p G.
-	explicit RegisteredArray(const Registry& pRegistry)
-		: array(pRegistry.keyArrayTableSize()), registered_array_base(pRegistry) { }
+	// TODO copy / move assignment and constructors
+	//		registered_array &operator=(const registered_array &A) {
+	//			array::operator=(A);
+	//			m_default_value = A.m_default_value;
+	//			registered_array_base::reregister(A.registeredAt());
+	//			return *this;
+	//		}
+	//
+	//		registered_array &operator=(registered_array &&a) {
+	//			array::operator=(std::move(a));
+	//			m_default_value = a.m_default_value;
+	//			moveRegister(a.registeredAt());
+	//			registered_array_base::reregister(a.registeredAt());
+	//			a.init();
+	//			return *this;
+	//		}
 
-	//! Constructs an adjacency entry array associated with \p G.
-	/**
-		 * @param R is the associated graph.
-		 * @param default_value is the default value for all array elements.
-		 */
-	RegisteredArray(const Registry& pRegistry, const Value& default_value)
-		: array(0, pRegistry.keyArrayTableSize() - 1, default_value)
-		, registered_array_base(pRegistry)
-		, m_default_value(default_value) { }
+	~RegisteredArray() override = default;
 
-	//! Constructs an adjacency entry array that is a copy of \p A.
-	/**
-		 * Associates the array with the same graph as \p A and copies all elements.
-		 */
-	RegisteredArray(const registered_array& A)
-		: array(A), registered_array_base(A.registeredAt()), m_default_value(A.m_default_value) { }
-
-	//! Constructs an adjacency entry array containing the elements of \p A (move semantics).
-	/**
-		 * Adjacency entry array \p A is empty afterwards and not associated with any graph.
-		 */
-	RegisteredArray(registered_array&& A) noexcept
-		: array(std::move(A))
-		, registered_array_base(A.registeredAt())
-		, m_default_value(A.m_default_value) { }
-
-	/**
-			  * @name Initialization and assignment
-			  * These methods can be used to reinitialize the array, or to initialize all elements with a given value.
-			  */
-	//@{
-
-	//! Reinitializes the array. Associates the array with no graph.
-	void init() {
-		array::init();
-		registered_array::reregister(nullptr);
-	}
-
-	//! Reinitializes the array. Associates the array with \p G.
-	void init(const Registry& pRegistry) {
-		array::init(pRegistry.keyArrayTableSize());
-		registered_array::reregister(&pRegistry);
-	}
-
-	//! Reinitializes the array. Associates the array with \p G.
-	/**
-		 * @param R is the associated graph.
-		 * @param default_value is the default value.
-		 */
-	void init(const Registry& pRegistry, const Value& default_value) {
-		array::init(0, pRegistry.keyArrayTableSize() - 1, m_default_value = default_value);
-		registered_array::reregister(&pRegistry);
-	}
-
-	//! Sets all array elements to \p x.
-	void fill(const Value& x) {
-		if (!registeredAt()) {
-			return;
+	void init(const Registry* registry = nullptr) {
+		if (registry == nullptr) {
+			resize(0, true);
+		} else {
+			resize(registry->arraySize(), true);
 		}
-		int high = registeredAt()->maxKeyIndex();
-		if (high >= 0) {
-			array::fill(0, high, x);
-		}
+		registered_array::reregister(registry);
 	}
 
-	//! Assignment operator.
-	registered_array& operator=(const registered_array& A) {
-		array::operator=(A);
-		m_default_value = A.m_default_value;
-		registered_array_base::reregister(A.registeredAt());
-		return *this;
+	void fill(value_const_ref_type x) { m_data.assign(getRegistry().arraySize(), x); }
+
+	value_const_ref_type operator[](key_type key) const {
+		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+		return m_data[getRegistry().keyToIndex(key)];
 	}
 
-	//! Assignment operator (move semantics).
-	/**
-		 * Adjacency entry array \p a is empty afterwards and not associated with any graph.
-		 */
-	registered_array& operator=(registered_array&& a) {
-		array::operator=(std::move(a));
-		m_default_value = a.m_default_value;
-		//			moveRegister(a.registeredAt());//TODO
-		registered_array_base::reregister(a.registeredAt());
-		a.init();
-		return *this;
+	value_ref_type operator[](key_type key) {
+		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+		return m_data[getRegistry().keyToIndex(key)];
 	}
 
-	//@}
-	/**
-		 * @name Access methods
-		 * These methods provide access to elements, size, and corresponding graph.
-		 */
-	//@{
-
-	//! Returns true iff the array is associated with a graph.
-	bool valid() const { return array::low() <= array::high(); }
-
-	//! Returns a reference to the element with index \p adj.
-	const Value& operator[](Key key) const {
-		OGDF_ASSERT(registeredAt());
-		OGDF_ASSERT(registeredAt()->isKeyAssociated(key));
-		return array::operator[](registeredAt()->keyToIndex(key));
+	value_const_ref_type operator()(key_type key) const {
+		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+		return m_data[getRegistry().keyToIndex(key)];
 	}
 
-	//! Returns a reference to the element with index \p adj.
-	Value& operator[](Key key) {
-		OGDF_ASSERT(registeredAt());
-		OGDF_ASSERT(registeredAt()->isKeyAssociated(key));
-		return array::operator[](registeredAt()->keyToIndex(key));
+	value_ref_type operator()(key_type key) {
+		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+		return m_data[getRegistry().keyToIndex(key)];
 	}
 
-	//! Returns a reference to the element with index \p adj.
-	const Value& operator()(Key key) const {
-		OGDF_ASSERT(registeredAt());
-		OGDF_ASSERT(registeredAt()->isKeyAssociated(key));
-		return array::operator[](registeredAt()->keyToIndex(key));
-	}
+	value_const_ref_type operator[](int idx) const { return m_data[idx]; }
 
-	//! Returns a reference to the element with index \p adj.
-	Value& operator()(Key key) {
-		OGDF_ASSERT(registeredAt());
-		OGDF_ASSERT(registeredAt()->isKeyAssociated(key));
-		return array::operator[](registeredAt()->keyToIndex(key));
-	}
+	value_ref_type operator[](int idx) { return m_data[idx]; }
 
-	//@}
-	/**
-		 * @name Iterators
-		 * These methods return bidirectional iterators to elements in the array.
-		 */
-	//@{
+	iterator begin() { return iterator(getRegistry().begin(), this); }
 
-	//! Returns an iterator to the first entry in the edge array.
-	/**
-		 * If the edge array is empty, a null pointer iterator is returned.
-		 */
-	iterator begin() { return iterator(registeredAt()->begin(), this); }
+	const_iterator begin() const { return const_iterator(getRegistry().begin(), this); }
 
-	//! Returns a const iterator to the first entry in the edge array.
-	/**
-		 * If the edge array is empty, a null pointer iterator is returned.
-		 */
-	const_iterator begin() const { return const_iterator(registeredAt()->begin(), this); }
+	const_iterator cbegin() const { return const_iterator(getRegistry().begin(), this); }
 
-	//! Returns a const iterator to the first entry in the edge array.
-	/**
-		 * If the edge array is empty, a null pointer iterator is returned.
-		 */
-	const_iterator cbegin() const { return const_iterator(registeredAt()->begin(), this); }
+	iterator end() { return iterator(getRegistry().end(), this); }
 
-	//! Returns an iterator to one-past-last entry in the edge array.
-	/**
-		 * This is always a null pointer iterator.
-		 */
-	iterator end() { return iterator(registeredAt()->end(), this); }
+	const_iterator end() const { return const_iterator(getRegistry().end(), this); }
 
-	//! Returns a const iterator to one-past-last entry in the edge array.
-	/**
-		 * This is always a null pointer iterator.
-		 */
-	const_iterator end() const { return const_iterator(registeredAt()->end(), this); }
+	const_iterator cend() const { return const_iterator(getRegistry().end(), this); }
 
-	//! Returns a const iterator to one-past-last entry in the edge array.
-	/**
-		 * This is always a null pointer iterator.
-		 */
-	const_iterator cend() const { return const_iterator(registeredAt()->end(), this); }
-
-	//@}
+	bool valid() const { return registered_array_base::registeredAt(); }
 
 	using registered_array_base::registeredAt;
 
-private:
-	void enlargeTable(int newTableSize) override {
-		array::grow(newTableSize - array::size(), m_default_value);
+protected:
+	inline const Registry& getRegistry() const {
+		OGDF_ASSERT(registeredAt());
+		return *registeredAt();
 	}
 
-	void reinit(int initTableSize) override { array::init(0, initTableSize - 1, m_default_value); }
-
-	void resetIndex(int newIndex, int oldIndex) override {
-		array::operator[](newIndex) = array::operator[](oldIndex);
+	void resize(int size, bool shrink) override {
+		m_data.resize(size);
+		if (shrink) {
+			m_data.shrink_to_fit();
+		}
 	}
 
-	void disconnect() override {
-		array::init();
-		registered_array_base::disconnect();
+	void swapEntries(int newIndex, int oldIndex) override {
+		std::swap(m_data[newIndex], m_data[oldIndex]);
 	}
-
-	OGDF_NEW_DELETE
 };
 
-static constexpr int MIN_TABLE_SIZE = (1 << 4);
+template<class Registry, class Value>
+class RegisteredArrayWithDefault : public RegisteredArray<Registry, Value> {
+	using RA = RegisteredArray<Registry, Value>;
+	Value m_default;
 
-int calculateTableSize(int actualCount);
-
-template<class Key, class Registry, typename Iterator = void>
-class RegistryBase {
 public:
-	using registered_array_type = RegisteredArrayBase<Key, Registry>;
-	using key_type = Key;
-	using registry_type = Registry;
-	using iterator_type = Iterator;
+	// TODO use varargs or move default?
+	//		explicit RegisteredArrayWithDefault(const Registry *registry, Value &&def)
+	//				: RA(registry), m_default(std::forward<Value>(def)) {};
 
-private:
-	mutable ListPure<registered_array_type*> m_registeredArrays; //!< The registered arrays.
+	explicit RegisteredArrayWithDefault(const Registry* registry, const Value& def)
+		: RA(registry), m_default(def) {};
 
-#ifndef OGDF_MEMORY_POOL_NTS
-	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
-#endif
-public:
-	virtual ~RegistryBase() {
-		while (!m_registeredArrays.empty()) {
-			m_registeredArrays.popFrontRet()->disconnect();
-		}
-	}
+	//		explicit RegisteredArrayWithDefault(const Registry *registry, typename RA::value_const_ref_type def)
+	//				: RA(registry), m_default(def) {};
 
-	ListIterator<registered_array_type*> registerArray(registered_array_type* pArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
-#endif
-		return m_registeredArrays.pushBack(pArray);
-	}
+	~RegisteredArrayWithDefault() override = default;
 
-	void unregisterArray(ListIterator<registered_array_type*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
-#endif
-		m_registeredArrays.del(it);
-	}
+	//		void setDefault(Value &&def) {
+	//			m_default = std::move<Value>(def);
+	//		}
 
-	void moveRegisterArray(ListIterator<registered_array_type*> it,
-			registered_array_type* pArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
-#endif
-		*it = pArray;
-	}
+	void setDefault(const Value& def) { m_default = def; }
 
-	/**
-		 * Returns whether a key is associated with this registry.
-		 * @param key The key.
-		 * @return Whether \p key is associated with this registry.
-		 */
-	[[nodiscard]] virtual bool isKeyAssociated(Key key) const = 0;
+	//		void setDefault(typename RA::value_const_ref_type def) {
+	//			m_default = def;
+	//		}
 
-	/**
-		 * Returns the associated index of a key.
-		 * @param key The key.
-		 * @return The index of the key.
-		 */
-	[[nodiscard]] virtual int keyToIndex(Key key) const = 0;
+	void fillWithDefault() { RA::m_data.assign(RA::getRegistry().arraySize(), m_default); }
 
-	[[nodiscard]] virtual int keyArrayTableSize() const = 0;
-
-	[[nodiscard]] virtual int maxKeyIndex() const = 0;
-
-	[[nodiscard]] virtual Iterator begin() const { }
-
-	[[nodiscard]] virtual Iterator end() const { }
-
-	void reinitArrays() {
-		for (registered_array_type* ab : m_registeredArrays) {
-			ab->reinit(this->keyArrayTableSize());
-		}
-	}
-
-	void enlargeArrayTables() {
-		for (registered_array_type* ab : m_registeredArrays) {
-			ab->enlargeTable(this->keyArrayTableSize());
-		}
-	}
-
-	void resetArrayEntryIndex(int newIndex, int oldIndex) {
-		for (registered_array_type* ab : m_registeredArrays) {
-			ab->resetIndex(newIndex, oldIndex);
+protected:
+	void resize(int size, bool shrink) override {
+		RA::m_data.resize(size, m_default);
+		if (shrink) {
+			RA::m_data.shrink_to_fit();
 		}
 	}
 };
