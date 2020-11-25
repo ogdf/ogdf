@@ -478,7 +478,7 @@ public:
 
 	int keyToIndex(Key* key) const override { return key->index(); }
 
-	int arraySize() const override { return calculateTableSize(*m_nextKeyIndex); }
+	int calculateArraySize() const override { return calculateTableSize(*m_nextKeyIndex); }
 
 	int maxKeyIndex() const override { return (*m_nextKeyIndex) - 1; }
 
@@ -511,7 +511,13 @@ public:
 		RA::init(&((const GraphRegistry<NodeElement>&)graph));
 	}
 
-	Graph* graphOf() const { return RA::registeredAt()->graphOf(); }
+	Graph* graphOf() const {
+		if (RA::registeredAt() == nullptr) {
+			return nullptr;
+		} else {
+			return RA::registeredAt()->graphOf();
+		}
+	}
 };
 
 // vector<bool> is weird, so make sure we don't use that if someone explicitly wants a NodeArray<bool>

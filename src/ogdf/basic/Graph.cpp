@@ -419,8 +419,9 @@ node Graph::pureNewNode() {
 #else
 	node v = new NodeElement(m_nodeIdCount++);
 #endif
-
 	nodes.pushBack(v);
+	// TODO why do we notify observers but not the arrays?
+	// m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -832,6 +833,8 @@ void Graph::delEdge(edge e) {
 }
 
 void Graph::clear() {
+	m_regNodeArrays.keysCleared();
+
 	// tell all structures to clear their graph-initialized data
 	for (GraphObserver* obs : m_regStructures) {
 		obs->cleared();
@@ -1002,6 +1005,7 @@ void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const {
 
 void Graph::resetTableSizes() {
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE, m_edgeIdCount + 1);
+	m_regNodeArrays.resizeArrays(); // FIXME this is very weird
 }
 
 void Graph::reinitArrays(bool doResetTableSizes) {
@@ -1009,7 +1013,7 @@ void Graph::reinitArrays(bool doResetTableSizes) {
 		resetTableSizes();
 	}
 
-	//	m_regNodeArrays.resizeArrays(); // TODO
+	m_regNodeArrays.resizeArrays(); // FIXME this is very weird
 
 	for (EdgeArrayBase* eab : m_regEdgeArrays) {
 		eab->reinit(m_edgeArrayTableSize);

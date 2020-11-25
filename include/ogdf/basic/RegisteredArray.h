@@ -49,6 +49,22 @@ static constexpr int MIN_TABLE_SIZE = (1 << 4);
 
 int calculateTableSize(int actualCount);
 
+template<class Registry>
+class RegistryObserver {
+public:
+	using key_type = typename Registry::key_type;
+
+	virtual void registered(Registry* registry) = 0;
+
+	virtual void unregistered(Registry* registry) noexcept = 0;
+
+	virtual void keyAdded(Registry* registry, key_type key) = 0;
+
+	virtual void keyRemoved(Registry* registry, key_type key) = 0;
+
+	virtual void keysCleared(Registry* registry) = 0;
+};
+
 template<typename Key, typename Registry, typename Iterator = void>
 class RegistryBase {
 public:
@@ -58,11 +74,12 @@ public:
 	using iterator_type = Iterator;
 	using registration_list_type = std::list<registered_array_type*>;
 	using registration_iterator_type = typename registration_list_type::iterator;
+	using observer_list_type = std::list<RegistryObserver<Registry>*>;
 
 private:
 	mutable registration_list_type m_registeredArrays;
-	bool m_lazy = false;
-	bool m_auto_shrink = false;
+	mutable observer_list_type m_registeredObservers;
+	bool m_autoShrink = false;
 	int m_size = 0;
 
 #ifndef OGDF_MEMORY_POOL_NTS
@@ -73,25 +90,35 @@ protected:
 	RegistryBase() = default;
 
 public:
-	virtual ~RegistryBase() { unregisterArrays(); }
+	virtual ~RegistryBase() noexcept { // TODO fix destructors, propagate noexcept
+		unregisterArrays();
+	}
 
-	[[nodiscard]] virtual registration_iterator_type registerArray(
-			registered_array_type* pArray) const {
+	RegistryBase(const RegistryBase& copy) = delete;
+
+	RegistryBase(RegistryBase&& move) noexcept = delete;
+
+	RegistryBase& operator=(const RegistryBase& other) = delete;
+
+	RegistryBase& operator=(RegistryBase&& other) noexcept = delete;
+
+	// TODO remove [[nodiscard]]
+	// TODO same methods for Observers, also unregisterObservers for the destructor
+	[[nodiscard]] registration_iterator_type registerArray(registered_array_type* pArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
 		return m_registeredArrays.emplace(m_registeredArrays.end(), pArray);
 	}
 
-	virtual void unregisterArray(registration_iterator_type it) const {
+	void unregisterArray(registration_iterator_type it) const noexcept {
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
 		m_registeredArrays.erase(it);
 	}
 
-	virtual void moveRegisterArray(registration_iterator_type it,
-			registered_array_type* pArray) const {
+	void moveRegisterArray(registration_iterator_type it, registered_array_type* pArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
@@ -104,38 +131,51 @@ public:
 
 	[[nodiscard]] virtual int maxKeyIndex() const = 0;
 
-	[[nodiscard]] virtual int arraySize() const = 0;
+	[[nodiscard]] virtual int calculateArraySize() const = 0;
 
 	[[nodiscard]] virtual Iterator begin() const = 0;
 
 	[[nodiscard]] virtual Iterator end() const = 0;
 
-	virtual void keyAdded(Key key) {
-		// TODO use m_lazy, m_auto_shrink and maxKeyIndex() / arraySize() to call resizeArrays(...)
-		// TODO notify observers
-	}
-
-	virtual void keyRemoved(Key key) {
-		// TODO use m_lazy, m_auto_shrink and maxKeyIndex() / arraySize() to call resizeArrays(...)
-		// TODO notify observers
-	}
-
-	virtual void keysCleared() {
-		// TODO use m_lazy, m_auto_shrink and maxKeyIndex() / arraySize() to call resizeArrays(...)
-		// TODO notify observers
-	}
-
-	void resizeArrays(int size) {
-		m_size = size;
-		for (registered_array_type* ab : m_registeredArrays) {
-			ab->resize(size, m_auto_shrink);
+	void keyAdded(Key key) {
+		resizeArrays();
+		for (auto observer : m_registeredObservers) {
+			observer->keyAdded((Registry*)this, key);
 		}
 	}
 
+	void keyRemoved(Key key) {
+		for (auto observer : m_registeredObservers) {
+			observer->keyRemoved((Registry*)this, key);
+		}
+		resizeArrays();
+	}
+
+	void keysCleared() {
+		for (auto observer : m_registeredObservers) {
+			observer->keysCleared((Registry*)this);
+		}
+		resizeArrays();
+	}
+
+	void resizeArrays() { resizeArrays(calculateArraySize()); }
+
+	void resizeArrays(int size) { resizeArrays(size, m_autoShrink); }
+
 	void resizeArrays(int size, bool shrink) {
-		m_size = size;
+		if (size == m_size) {
+			return;
+		}
+		m_size = size = max(size, 0);
 		for (registered_array_type* ab : m_registeredArrays) {
 			ab->resize(size, shrink);
+		}
+	}
+
+	void shrinkArrays(int size) {
+		m_size = size = max(size, 0);
+		for (registered_array_type* ab : m_registeredArrays) {
+			ab->resize(size, true);
 		}
 	}
 
@@ -145,7 +185,7 @@ public:
 		}
 	}
 
-	void unregisterArrays() {
+	void unregisterArrays() noexcept {
 		while (!m_registeredArrays.empty()) {
 #ifdef OGDF_DEBUG
 			auto size = m_registeredArrays.size();
@@ -154,23 +194,17 @@ public:
 			OGDF_ASSERT(m_registeredArrays.size() < size);
 		}
 	}
-};
 
-// TODO Add Observers
-//	template<class Registry>
-//	class RegistryObserver {
-//		using key_type = typename Registry::key_type;
-//
-//		virtual void registered(Registry &registry) = 0;
-//
-//		virtual void unregistered(Registry &registry) = 0;
-//
-//		virtual void keyAdded(Registry &registry, key_type key) = 0;
-//
-//		virtual void keyRemoved(Registry &registry, key_type key) = 0;
-//
-//		virtual void keysCleared(Registry &registry) = 0;
-//	};
+	const registration_list_type& getRegisteredArrays() const { return m_registeredArrays; }
+
+	const observer_list_type& getRegisteredObservers() const { return m_registeredObservers; }
+
+	bool isAutoShrink() const { return m_autoShrink; }
+
+	void setAutoShrink(bool mAutoShrink) { m_autoShrink = mAutoShrink; }
+
+	int getArraySize() const { return m_size; }
+};
 
 template<class Registry>
 class RegisteredArrayBase {
@@ -183,21 +217,24 @@ class RegisteredArrayBase {
 protected:
 	RegisteredArrayBase() = default;
 
-	// TODO copy / move assignment and constructors
-	//		RegisteredArrayBase(const RegisteredArrayBase<Registry> &copy) : m_pRegistry(copy.m_pRegistry) {
-	//			if (m_pRegistry)
-	//				m_registration = m_pRegistry->registerArray(this);
-	//		}
-	//
-	//		RegisteredArrayBase(RegisteredArrayBase<Registry> &&move_from) noexcept
-	//				: m_registration(move_from.m_registration), m_pRegistry(move_from.m_pRegistry) {
-	//			m_pRegistry->moveRegisterArray(m_registration, this);
-	//			move_from.m_pRegistry = nullptr;
-	//			move_from.m_registration = ListIterator<RegisteredArrayBase<Registry> *>();
-	//		}
+	RegisteredArrayBase(const RegisteredArrayBase<Registry>& copy) { reregister(copy.m_pRegistry); }
+
+	RegisteredArrayBase(RegisteredArrayBase<Registry>&& move_from) noexcept {
+		moveRegister(move_from);
+	}
+
+	RegisteredArrayBase& operator=(const RegisteredArrayBase<Registry>& copy) {
+		reregister(copy.m_pRegistry);
+		return *this;
+	}
+
+	RegisteredArrayBase& operator=(RegisteredArrayBase<Registry>&& move_from) noexcept {
+		moveRegister(move_from);
+		return *this;
+	}
 
 public:
-	virtual ~RegisteredArrayBase() {
+	virtual ~RegisteredArrayBase() noexcept {
 		if (m_pRegistry) {
 			m_pRegistry->unregisterArray(m_registration);
 		}
@@ -207,7 +244,7 @@ public:
 
 	virtual void swapEntries(int newIndex, int oldIndex) = 0;
 
-	virtual void unregister() {
+	void unregister() noexcept {
 		resize(0, true);
 		reregister(nullptr);
 	}
@@ -232,7 +269,7 @@ protected:
 		m_pRegistry = move_from.m_pRegistry;
 		m_registration = move_from.m_registration;
 		move_from.m_pRegistry = nullptr;
-		move_from.m_registration = nullptr;
+		move_from.m_registration = registration_iterator_type();
 		if (m_pRegistry != nullptr) {
 			m_pRegistry->moveRegisterArray(m_registration, this);
 		}
@@ -320,61 +357,75 @@ protected:
 	vector_type m_data;
 
 public:
-	explicit RegisteredArray(const Registry* registry = nullptr) { init(registry); }
-
-	// TODO copy / move assignment and constructors
-	//		registered_array &operator=(const registered_array &A) {
-	//			array::operator=(A);
-	//			m_default_value = A.m_default_value;
-	//			registered_array_base::reregister(A.registeredAt());
-	//			return *this;
-	//		}
-	//
-	//		registered_array &operator=(registered_array &&a) {
-	//			array::operator=(std::move(a));
-	//			m_default_value = a.m_default_value;
-	//			moveRegister(a.registeredAt());
-	//			registered_array_base::reregister(a.registeredAt());
-	//			a.init();
-	//			return *this;
-	//		}
-
-	~RegisteredArray() override = default;
+	explicit RegisteredArray(const Registry* registry = nullptr) {
+		// during base class initialization, no part of the derived class exists, so this will always call our base init
+		// so base classes should call their own init themselves
+		registered_array::init(registry);
+	}
 
 	void init(const Registry* registry = nullptr) {
 		if (registry == nullptr) {
 			resize(0, true);
 		} else {
-			resize(registry->arraySize(), true);
+			resize(0, false);
+			resize(registry->getArraySize(), true);
 		}
 		registered_array::reregister(registry);
 	}
 
-	void fill(value_const_ref_type x) { m_data.assign(getRegistry().arraySize(), x); }
+	void fill(value_const_ref_type x) { m_data.assign(getRegistry().getArraySize(), x); }
 
 	value_const_ref_type operator[](key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+#ifdef OGDF_DEBUG
+		return m_data.at(getRegistry().keyToIndex(key));
+#else
 		return m_data[getRegistry().keyToIndex(key)];
+#endif
 	}
 
 	value_ref_type operator[](key_type key) {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+#ifdef OGDF_DEBUG
+		return m_data.at(getRegistry().keyToIndex(key));
+#else
 		return m_data[getRegistry().keyToIndex(key)];
+#endif
 	}
 
 	value_const_ref_type operator()(key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+#ifdef OGDF_DEBUG
+		return m_data.at(getRegistry().keyToIndex(key));
+#else
 		return m_data[getRegistry().keyToIndex(key)];
+#endif
 	}
 
 	value_ref_type operator()(key_type key) {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
+#ifdef OGDF_DEBUG
+		return m_data.at(getRegistry().keyToIndex(key));
+#else
 		return m_data[getRegistry().keyToIndex(key)];
+#endif
 	}
 
-	value_const_ref_type operator[](int idx) const { return m_data[idx]; }
+	value_const_ref_type operator[](int idx) const {
+#ifdef OGDF_DEBUG
+		return m_data.at(idx);
+#else
+		return m_data[idx];
+#endif
+	}
 
-	value_ref_type operator[](int idx) { return m_data[idx]; }
+	value_ref_type operator[](int idx) {
+#ifdef OGDF_DEBUG
+		return m_data.at(idx);
+#else
+		return m_data[idx];
+#endif
+	}
 
 	iterator begin() { return iterator(getRegistry().begin(), this); }
 
@@ -421,12 +472,13 @@ public:
 	//				: RA(registry), m_default(std::forward<Value>(def)) {};
 
 	explicit RegisteredArrayWithDefault(const Registry* registry, const Value& def)
-		: RA(registry), m_default(def) {};
+		: RA(), m_default(def) {
+		// call init from here, as our virtual override of init is not available during initialization of the base class
+		RA::init(registry);
+	};
 
 	//		explicit RegisteredArrayWithDefault(const Registry *registry, typename RA::value_const_ref_type def)
 	//				: RA(registry), m_default(def) {};
-
-	~RegisteredArrayWithDefault() override = default;
 
 	//		void setDefault(Value &&def) {
 	//			m_default = std::move<Value>(def);
