@@ -106,10 +106,10 @@ public:
 	 * All dummy node features are introduced for usage when running
 	 * callSubgraphPlanarizer of SimDrawCaller.
 	 */
-	const bool& isDummy(node v) const { return (const bool&)m_isDummy[v]; }
+	const bool& isDummy(node v) const { return reinterpret_cast<const bool&>(m_isDummy[v]); }
 
 	//! returns true if node \p v is marked as dummy
-	bool& isDummy(node v) { return (bool&)m_isDummy[v]; }
+	bool& isDummy(node v) { return reinterpret_cast<bool&>(m_isDummy[v]); }
 
 	//! returns true if node \p v is a cost zero dummy node
 	bool isPhantomDummy(node v) const { return isDummy(v) && !isProperDummy(v); }

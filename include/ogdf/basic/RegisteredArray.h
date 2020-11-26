@@ -41,6 +41,10 @@
 
 #endif
 
+#define OGDF_NODISCARD
+
+// TODO define OGDF_NODISCARD properly and in a sensible place
+
 namespace ogdf {
 template<typename Registry>
 class RegisteredArrayBase;
@@ -102,9 +106,8 @@ public:
 
 	RegistryBase& operator=(RegistryBase&& other) noexcept = delete;
 
-	// TODO remove [[nodiscard]]
 	// TODO same methods for Observers, also unregisterObservers for the destructor
-	[[nodiscard]] registration_iterator_type registerArray(registered_array_type* pArray) const {
+	OGDF_NODISCARD registration_iterator_type registerArray(registered_array_type* pArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
@@ -125,17 +128,17 @@ public:
 		*it = pArray;
 	}
 
-	[[nodiscard]] virtual bool isKeyAssociated(Key key) const = 0;
+	OGDF_NODISCARD virtual bool isKeyAssociated(Key key) const = 0;
 
-	[[nodiscard]] virtual int keyToIndex(Key key) const = 0;
+	OGDF_NODISCARD virtual int keyToIndex(Key key) const = 0;
 
-	[[nodiscard]] virtual int maxKeyIndex() const = 0;
+	OGDF_NODISCARD virtual int maxKeyIndex() const = 0;
 
-	[[nodiscard]] virtual int calculateArraySize() const = 0;
+	OGDF_NODISCARD virtual int calculateArraySize() const = 0;
 
-	[[nodiscard]] virtual Iterator begin() const = 0;
+	OGDF_NODISCARD virtual Iterator begin() const = 0;
 
-	[[nodiscard]] virtual Iterator end() const = 0;
+	OGDF_NODISCARD virtual Iterator end() const = 0;
 
 	void keyAdded(Key key) {
 		resizeArrays();

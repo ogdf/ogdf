@@ -728,9 +728,7 @@ public:
 	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
 	//! Returns the table size of node arrays associated with this graph.
-	OGDF_DEPRECATED("remove this") // TODO
-
-	int nodeArrayTableSize() const { return 0; }
+	int nodeArrayTableSize() const { return m_regNodeArrays.getArraySize(); } // TODO remove
 
 	//! Returns the table size of edge arrays associated with this graph.
 	int edgeArrayTableSize() const { return m_edgeArrayTableSize; }
