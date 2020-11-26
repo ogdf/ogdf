@@ -494,7 +494,7 @@ class GraphRegisteredArray : public RegisteredArrayWithDefault<GraphRegistry<Key
 	using RA = RegisteredArrayWithDefault<GraphRegistry<Key>, Value>;
 
 public:
-	GraphRegisteredArray() : RA(nullptr, Value()) {};
+	GraphRegisteredArray() : RA(Value()) {};
 
 	GraphRegisteredArray(const Graph& graph)
 		: RA(&((const GraphRegistry<NodeElement>&)graph), Value()) {};
@@ -502,7 +502,7 @@ public:
 	GraphRegisteredArray(const Graph& graph, const Value& def)
 		: RA(&((const GraphRegistry<NodeElement>&)graph), def) {};
 
-	void init() { RA::init(); }
+	using RA::init;
 
 	void init(const Graph& graph) { RA::init(&((const GraphRegistry<NodeElement>&)graph)); }
 
@@ -528,7 +528,7 @@ class GraphRegisteredArray<Key, bool>
 	using RA = RegisteredArrayWithDefault<GraphRegistry<Key>, unsigned char>;
 
 public:
-	GraphRegisteredArray() : RA(nullptr, false) {};
+	GraphRegisteredArray() : RA(false) {};
 
 	GraphRegisteredArray(const Graph& graph)
 		: RA(&((const GraphRegistry<NodeElement>&)graph), false) {};

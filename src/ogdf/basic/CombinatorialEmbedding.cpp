@@ -60,7 +60,11 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph& G)
 }
 
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const ConstCombinatorialEmbedding& C)
-	: m_cpGraph(C.m_cpGraph), m_rightFace(*C.m_cpGraph, nullptr) {
+	: m_cpGraph(C.m_cpGraph) {
+	if (C.m_cpGraph == nullptr) {
+		return;
+	}
+	m_rightFace.init(*C.m_cpGraph, nullptr);
 	computeFaces();
 
 	if (C.m_externalFace == nullptr) {

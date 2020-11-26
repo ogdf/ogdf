@@ -98,7 +98,7 @@ void Graph::assign(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& ma
 
 void Graph::construct(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge) {
 	copy(G, mapNode, mapEdge);
-	resetTableSizes();
+	reinitArrays(true);
 }
 
 void Graph::copy(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge) {
@@ -799,6 +799,8 @@ void Graph::delNode(node v) {
 	OGDF_ASSERT(v != nullptr);
 	OGDF_ASSERT(v->graphOf() == this);
 
+	m_regNodeArrays.keyRemoved(v);
+
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
 		obs->nodeDeleted(v);
@@ -833,12 +835,12 @@ void Graph::delEdge(edge e) {
 }
 
 void Graph::clear() {
-	m_regNodeArrays.keysCleared();
-
 	// tell all structures to clear their graph-initialized data
 	for (GraphObserver* obs : m_regStructures) {
 		obs->cleared();
 	}
+
+	m_regNodeArrays.keysCleared();
 
 	for (node v = nodes.head(); v; v = v->succ()) {
 		v->adjEntries.~GraphObjectContainer<AdjElement>();
@@ -1013,6 +1015,7 @@ void Graph::reinitArrays(bool doResetTableSizes) {
 		resetTableSizes();
 	}
 
+	m_regNodeArrays.resizeArrays(0);
 	m_regNodeArrays.resizeArrays(); // FIXME this is very weird
 
 	for (EdgeArrayBase* eab : m_regEdgeArrays) {

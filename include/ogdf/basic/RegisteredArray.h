@@ -155,7 +155,7 @@ public:
 		for (auto observer : m_registeredObservers) {
 			observer->keysCleared((Registry*)this);
 		}
-		resizeArrays();
+		resizeArrays(0);
 	}
 
 	void resizeArrays() { resizeArrays(calculateArraySize()); }
@@ -214,7 +214,7 @@ class RegisteredArrayBase {
 	registration_iterator_type m_registration;
 	const Registry* m_pRegistry = nullptr;
 
-protected:
+public:
 	RegisteredArrayBase() = default;
 
 	RegisteredArrayBase(const RegisteredArrayBase<Registry>& copy) { reregister(copy.m_pRegistry); }
@@ -233,7 +233,6 @@ protected:
 		return *this;
 	}
 
-public:
 	virtual ~RegisteredArrayBase() noexcept {
 		if (m_pRegistry) {
 			m_pRegistry->unregisterArray(m_registration);
@@ -357,7 +356,9 @@ protected:
 	vector_type m_data;
 
 public:
-	explicit RegisteredArray(const Registry* registry = nullptr) {
+	RegisteredArray() = default;
+
+	explicit RegisteredArray(const Registry* registry) {
 		// during base class initialization, no part of the derived class exists, so this will always call our base init
 		// so base classes should call their own init themselves
 		registered_array::init(registry);
@@ -367,13 +368,14 @@ public:
 		if (registry == nullptr) {
 			resize(0, true);
 		} else {
+			OGDF_ASSERT(registry->maxKeyIndex() < registry->getArraySize());
 			resize(0, false);
 			resize(registry->getArraySize(), true);
 		}
 		registered_array::reregister(registry);
 	}
 
-	void fill(value_const_ref_type x) { m_data.assign(getRegistry().getArraySize(), x); }
+	void fill(value_const_ref_type x) { m_data.assign(m_data.size(), x); }
 
 	value_const_ref_type operator[](key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
@@ -439,13 +441,18 @@ public:
 
 	const_iterator cend() const { return const_iterator(getRegistry().end(), this); }
 
-	bool valid() const { return registered_array_base::registeredAt(); }
+	bool valid() const {
+		OGDF_ASSERT(registeredAt() == nullptr
+				|| ((size_t)registeredAt()->maxKeyIndex()) < m_data.size());
+		return registered_array_base::registeredAt();
+	}
 
 	using registered_array_base::registeredAt;
 
 protected:
 	inline const Registry& getRegistry() const {
 		OGDF_ASSERT(registeredAt());
+		OGDF_ASSERT(registeredAt()->maxKeyIndex() < ((int)m_data.size()));
 		return *registeredAt();
 	}
 
@@ -471,6 +478,8 @@ public:
 	//		explicit RegisteredArrayWithDefault(const Registry *registry, Value &&def)
 	//				: RA(registry), m_default(std::forward<Value>(def)) {};
 
+	explicit RegisteredArrayWithDefault(const Value& def) : RA(), m_default(def) {};
+
 	explicit RegisteredArrayWithDefault(const Registry* registry, const Value& def)
 		: RA(), m_default(def) {
 		// call init from here, as our virtual override of init is not available during initialization of the base class
@@ -485,6 +494,10 @@ public:
 	//		}
 
 	void setDefault(const Value& def) { m_default = def; }
+
+	const Value& getDefault() const { return m_default; }
+
+	Value& getDefault() { return m_default; }
 
 	//		void setDefault(typename RA::value_const_ref_type def) {
 	//			m_default = def;
