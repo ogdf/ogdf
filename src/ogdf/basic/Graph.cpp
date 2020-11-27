@@ -397,6 +397,10 @@ node Graph::newNode() {
 
 //what about negative index numbers?
 node Graph::newNode(int index) {
+	if (index >= m_nodeIdCount) {
+		m_nodeIdCount = index + 1;
+	}
+
 #ifdef OGDF_DEBUG
 	node v = new NodeElement(this, index);
 #else
