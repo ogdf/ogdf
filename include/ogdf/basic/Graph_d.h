@@ -547,6 +547,33 @@ public:
 
 	// TODO override operator[], operator(), begin / end ?
 
+	using value_const_ref_type = const bool&;
+	using value_ref_type = bool&;
+
+	value_const_ref_type operator[](Key* key) const {
+		return reinterpret_cast<value_const_ref_type>(RA::operator[](key));
+	}
+
+	value_ref_type operator[](Key* key) {
+		return reinterpret_cast<value_ref_type>(RA::operator[](key));
+	}
+
+	value_const_ref_type operator()(Key* key) const {
+		return reinterpret_cast<value_const_ref_type>(RA::operator()(key));
+	}
+
+	value_ref_type operator()(Key* key) {
+		return reinterpret_cast<value_ref_type>(RA::operator()(key));
+	}
+
+	value_const_ref_type operator[](int idx) const {
+		return reinterpret_cast<value_const_ref_type>(RA::operator[](idx));
+	}
+
+	value_ref_type operator[](int idx) {
+		return reinterpret_cast<value_ref_type>(RA::operator[](idx));
+	}
+
 	Graph* graphOf() const { return RA::registeredAt()->graphOf(); }
 };
 
