@@ -478,8 +478,13 @@ class RegisteredArrayWithDefault : public RegisteredArray<Registry, Value> {
 
 public:
 	// TODO use varargs or move default?
-	//		explicit RegisteredArrayWithDefault(const Registry *registry, Value &&def)
-	//				: RA(registry), m_default(std::forward<Value>(def)) {};
+	explicit RegisteredArrayWithDefault(Value&& def) : RA(), m_default(std::forward<Value>(def)) {};
+
+	explicit RegisteredArrayWithDefault(const Registry* registry, Value&& def)
+		: RA(), m_default(std::forward<Value>(def)) {
+		// call init from here, as our virtual override of init is not available during initialization of the base class
+		RA::init(registry);
+	};
 
 	explicit RegisteredArrayWithDefault(const Value& def) : RA(), m_default(def) {};
 
@@ -489,12 +494,7 @@ public:
 		RA::init(registry);
 	};
 
-	//		explicit RegisteredArrayWithDefault(const Registry *registry, typename RA::value_const_ref_type def)
-	//				: RA(registry), m_default(def) {};
-
-	//		void setDefault(Value &&def) {
-	//			m_default = std::move<Value>(def);
-	//		}
+	void setDefault(Value&& def) { m_default = std::forward<Value>(def); }
 
 	void setDefault(const Value& def) { m_default = def; }
 
