@@ -49,7 +49,7 @@ public:
 	E2 m_x2; //!< The second element.
 
 	//! Constructs a 2-tuple using default constructors.
-	Tuple2() { }
+	Tuple2() = default;
 
 	//! Constructs a 2-tuple for given values.
 	Tuple2(const E1& y1, const E2& y2) : m_x1(y1), m_x2(y2) { }
