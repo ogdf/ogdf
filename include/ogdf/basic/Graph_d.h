@@ -496,19 +496,18 @@ class GraphRegisteredArray : public RegisteredArrayWithDefault<GraphRegistry<Key
 public:
 	GraphRegisteredArray() : RA(Value()) {};
 
-	GraphRegisteredArray(const Graph& graph)
-		: RA(&((const GraphRegistry<NodeElement>&)graph), Value()) {};
+	GraphRegisteredArray(const Graph& graph) : RA(&((const GraphRegistry<Key>&)graph), Value()) {};
 
 	GraphRegisteredArray(const Graph& graph, const Value& def)
-		: RA(&((const GraphRegistry<NodeElement>&)graph), def) {};
+		: RA(&((const GraphRegistry<Key>&)graph), def) {};
 
 	using RA::init;
 
-	void init(const Graph& graph) { RA::init(&((const GraphRegistry<NodeElement>&)graph)); }
+	void init(const Graph& graph) { RA::init(&((const GraphRegistry<Key>&)graph)); }
 
 	void init(const Graph& graph, const Value& new_default) {
 		RA::setDefault(new_default);
-		RA::init(&((const GraphRegistry<NodeElement>&)graph));
+		RA::init(&((const GraphRegistry<Key>&)graph));
 	}
 
 	Graph* graphOf() const {
@@ -530,19 +529,18 @@ class GraphRegisteredArray<Key, bool>
 public:
 	GraphRegisteredArray() : RA(false) {};
 
-	GraphRegisteredArray(const Graph& graph)
-		: RA(&((const GraphRegistry<NodeElement>&)graph), false) {};
+	GraphRegisteredArray(const Graph& graph) : RA(&((const GraphRegistry<Key>&)graph), false) {};
 
 	GraphRegisteredArray(const Graph& graph, const bool& def)
-		: RA(&((const GraphRegistry<NodeElement>&)graph), def) {};
+		: RA(&((const GraphRegistry<Key>&)graph), def) {};
 
 	void init() { RA::init(); }
 
-	void init(const Graph& graph) { RA::init(&((const GraphRegistry<NodeElement>&)graph)); }
+	void init(const Graph& graph) { RA::init(&((const GraphRegistry<Key>&)graph)); }
 
 	void init(const Graph& graph, const bool& new_default) {
 		RA::setDefault(new_default);
-		RA::init(&((const GraphRegistry<NodeElement>&)graph));
+		RA::init(&((const GraphRegistry<Key>&)graph));
 	}
 
 	// TODO override operator[], operator(), begin / end ?
@@ -580,10 +578,41 @@ public:
 template<typename Value>
 using NodeArray = GraphRegisteredArray<NodeElement, Value>;
 
-class EdgeArrayBase;
+template<typename Value>
+class EdgeArray : public GraphRegisteredArray<EdgeElement, Value> {
+public:
+	EdgeArray() { }
+
+	EdgeArray(const Graph& graph) : GraphRegisteredArray<EdgeElement, Value>(graph) { }
+
+	EdgeArray(const Graph& graph, const Value& def)
+		: GraphRegisteredArray<EdgeElement, Value>(graph, def) { }
+
+	using GraphRegisteredArray<EdgeElement, Value>::operator[];
+	using GraphRegisteredArray<EdgeElement, Value>::operator();
+
+	const Value& operator[](adjEntry adj) const {
+		OGDF_ASSERT(adj != nullptr);
+		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+	}
+
+	Value& operator[](adjEntry adj) {
+		OGDF_ASSERT(adj != nullptr);
+		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+	}
+
+	const Value& operator()(adjEntry adj) const {
+		OGDF_ASSERT(adj != nullptr);
+		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+	}
+
+	Value& operator()(adjEntry adj) {
+		OGDF_ASSERT(adj != nullptr);
+		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+	}
+};
+
 class AdjEntryArrayBase;
-template<class T>
-class EdgeArray;
 template<class T>
 class AdjEntryArray;
 class OGDF_EXPORT GraphObserver;
@@ -647,10 +676,8 @@ private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
 	int m_edgeIdCount; //!< The Index that will be assigned to the next created edge.
 
-	int m_edgeArrayTableSize; //!< The current table size of edge arrays associated with this graph.
-
 	GraphRegistry<NodeElement> m_regNodeArrays; //!< The registered node arrays.
-	mutable ListPure<EdgeArrayBase*> m_regEdgeArrays; //!< The registered edge arrays.
+	GraphRegistry<EdgeElement> m_regEdgeArrays; //!< The registered edge arrays.
 	mutable ListPure<AdjEntryArrayBase*> m_regAdjArrays; //!< The registered adjEntry arrays.
 	mutable ListPure<GraphObserver*> m_regStructures; //!< The registered graph structures.
 
@@ -758,10 +785,10 @@ public:
 	int nodeArrayTableSize() const { return m_regNodeArrays.getArraySize(); } // TODO remove
 
 	//! Returns the table size of edge arrays associated with this graph.
-	int edgeArrayTableSize() const { return m_edgeArrayTableSize; }
+	int edgeArrayTableSize() const { return m_regEdgeArrays.getArraySize(); }
 
 	//! Returns the table size of adjEntry arrays associated with this graph.
-	int adjEntryArrayTableSize() const { return m_edgeArrayTableSize << 1; }
+	int adjEntryArrayTableSize() const { return m_regEdgeArrays.getArraySize() << 1; }
 
 	//! Returns the first node in the list of all nodes.
 	node firstNode() const { return nodes.head(); }
@@ -1348,15 +1375,7 @@ public:
 
 	operator const GraphRegistry<NodeElement>&() const { return m_regNodeArrays; }
 
-	//! Registers an edge array.
-	/**
-	 * \remark This method is automatically called by edge arrays; it should not be called manually.
-	 *
-	 * @param pEdgeArray is a pointer to the edge array's base; this edge array must be associated with this graph.
-	 * @return an iterator pointing to the entry for the registered edge array in the list of registered edge arrays.
-	 *         This iterator is required for unregistering the edge array again.
-	 */
-	ListIterator<EdgeArrayBase*> registerArray(EdgeArrayBase* pEdgeArray) const;
+	operator const GraphRegistry<EdgeElement>&() const { return m_regEdgeArrays; }
 
 	//! Registers an adjEntry array.
 	/**
@@ -1377,13 +1396,6 @@ public:
 	 *         graph observers. This iterator is required for unregistering the graph observer again.
 	 */
 	ListIterator<GraphObserver*> registerStructure(GraphObserver* pStructure) const;
-
-	//! Unregisters an edge array.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered edge arrays for the edge array to
-	 *        be unregistered.
-	 */
-	void unregisterArray(ListIterator<EdgeArrayBase*> it) const;
 
 	//! Unregisters an adjEntry array.
 	/**

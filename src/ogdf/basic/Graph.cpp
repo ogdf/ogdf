@@ -42,21 +42,20 @@ using std::lock_guard;
 #endif
 
 
-#define MIN_NODE_TABLE_SIZE (1 << 4)
-#define MIN_EDGE_TABLE_SIZE (1 << 4)
-
 namespace ogdf {
 
 using Math::nextPower2;
 
 int calculateTableSize(int actualCount) { return Math::nextPower2(MIN_TABLE_SIZE, actualCount); }
 
-Graph::Graph() : m_regNodeArrays(this, &m_nodeIdCount, &nodes) {
+Graph::Graph()
+	: m_regNodeArrays(this, &m_nodeIdCount, &nodes), m_regEdgeArrays(this, &m_edgeIdCount, &edges) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	resetTableSizes();
 }
 
-Graph::Graph(const Graph& G) : m_regNodeArrays(this, &m_nodeIdCount, &nodes) {
+Graph::Graph(const Graph& G)
+	: m_regNodeArrays(this, &m_nodeIdCount, &nodes), m_regEdgeArrays(this, &m_edgeIdCount, &edges) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);
 	resetTableSizes();
@@ -64,10 +63,6 @@ Graph::Graph(const Graph& G) : m_regNodeArrays(this, &m_nodeIdCount, &nodes) {
 
 Graph::~Graph() {
 	restoreAllEdges();
-
-	while (!m_regEdgeArrays.empty()) {
-		m_regEdgeArrays.popFrontRet()->disconnect();
-	}
 
 	while (!m_regAdjArrays.empty()) {
 		m_regAdjArrays.popFrontRet()->disconnect();
@@ -441,21 +436,17 @@ node Graph::pureNewNode() {
 //
 // This can be useful sometimes in order to avoid visiting an edge twice.
 edge Graph::createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt) {
-	if (m_edgeIdCount == m_edgeArrayTableSize) {
-		m_edgeArrayTableSize <<= 1;
-
-		for (EdgeArrayBase* eab : m_regEdgeArrays) {
-			eab->enlargeTable(m_edgeArrayTableSize);
-		}
-
-		for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-			aab->enlargeTable(m_edgeArrayTableSize << 1);
-		}
-	}
-
 	adjTgt->m_id = (adjSrc->m_id = m_edgeIdCount << 1) | 1;
 	edge e = new EdgeElement(v, w, adjSrc, adjTgt, m_edgeIdCount++);
 	edges.pushBack(e);
+
+	int old_size = m_regEdgeArrays.getArraySize();
+	m_regEdgeArrays.keyAdded(e);
+	if (old_size != m_regEdgeArrays.getArraySize()) {
+		for (AdjEntryArrayBase* aab : m_regAdjArrays) {
+			aab->enlargeTable(m_regEdgeArrays.getArraySize() << 1);
+		}
+	}
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -484,25 +475,21 @@ edge Graph::newEdge(node v, node w, int index) {
 	adjSrc->m_twin = adjTgt;
 	adjTgt->m_twin = adjSrc;
 
-	if (index >= m_edgeIdCount) {
-		m_edgeIdCount = index + 1;
-
-		if (index >= m_edgeArrayTableSize) {
-			m_edgeArrayTableSize = nextPower2(m_edgeArrayTableSize, index + 1);
-
-			for (EdgeArrayBase* eab : m_regEdgeArrays) {
-				eab->enlargeTable(m_edgeArrayTableSize);
-			}
-
-			for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-				aab->enlargeTable(m_edgeArrayTableSize << 1);
-			}
-		}
-	}
-
 	adjTgt->m_id = (adjSrc->m_id = index /*m_edgeIdCount*/ << 1) | 1;
 	edge e = new EdgeElement(v, w, adjSrc, adjTgt, index);
 	edges.pushBack(e);
+
+	if (index >= m_edgeIdCount) {
+		m_edgeIdCount = index + 1;
+
+		int old_size = m_regEdgeArrays.getArraySize();
+		m_regEdgeArrays.keyAdded(e);
+		if (old_size != m_regEdgeArrays.getArraySize()) {
+			for (AdjEntryArrayBase* aab : m_regAdjArrays) {
+				aab->enlargeTable(m_regEdgeArrays.getArraySize() << 1);
+			}
+		}
+	}
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -967,13 +954,6 @@ int Graph::genus() const {
 	return (numberOfEdges() - numberOfNodes() - nIsolated - nFaceCycles + 2 * nCC) / 2;
 }
 
-ListIterator<EdgeArrayBase*> Graph::registerArray(EdgeArrayBase* pEdgeArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regEdgeArrays.pushBack(pEdgeArray);
-}
-
 ListIterator<AdjEntryArrayBase*> Graph::registerArray(AdjEntryArrayBase* pAdjArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 	lock_guard<mutex> guard(m_mutexRegArrays);
@@ -986,13 +966,6 @@ ListIterator<GraphObserver*> Graph::registerStructure(GraphObserver* pStructure)
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
 	return m_regStructures.pushBack(pStructure);
-}
-
-void Graph::unregisterArray(ListIterator<EdgeArrayBase*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regEdgeArrays.del(it);
 }
 
 void Graph::unregisterArray(ListIterator<AdjEntryArrayBase*> it) const {
@@ -1010,24 +983,21 @@ void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const {
 }
 
 void Graph::resetTableSizes() {
-	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE, m_edgeIdCount + 1);
-	m_regNodeArrays.resizeArrays(); // FIXME this is very weird
+	// FIXME this is very weird
+	m_regNodeArrays.resizeArrays();
+	m_regEdgeArrays.resizeArrays();
 }
 
 void Graph::reinitArrays(bool doResetTableSizes) {
-	if (doResetTableSizes) {
-		resetTableSizes();
-	}
-
+	// TODO remove param, update AdjEntryArray
 	m_regNodeArrays.resizeArrays(0);
-	m_regNodeArrays.resizeArrays(); // FIXME this is very weird
+	m_regNodeArrays.resizeArrays();
 
-	for (EdgeArrayBase* eab : m_regEdgeArrays) {
-		eab->reinit(m_edgeArrayTableSize);
-	}
+	m_regEdgeArrays.resizeArrays(0);
+	m_regEdgeArrays.resizeArrays();
 
 	for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-		aab->reinit(m_edgeArrayTableSize << 1);
+		aab->reinit(m_regEdgeArrays.getArraySize() << 1);
 	}
 }
 
