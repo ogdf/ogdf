@@ -65,10 +65,14 @@ public:
 			num_s_edges[i] = 0;
 			m_gen_pos[i] = -1;
 			m_nbf[i] = 0;
+			m_rc[i] = 0;
 			m_coord[i] = 0;
 			m_ccoord[i] = 0;
 		}
 		lu = ll = ru = rl = tl = tr = bl = br = 0;
+		cage_x_size = cage_y_size = box_x_size = box_y_size = 0;
+		m_vdegree = 0;
+		m_firstAdj = m_adj = nullptr;
 	}
 
 	//Constructor, adj holds entry for inner face edge
