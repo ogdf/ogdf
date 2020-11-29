@@ -457,57 +457,120 @@ void NodeElement::outEdges(EDGELIST& edgeList) const {
 	}
 }
 
-template<typename Key>
-class GraphRegistry : public RegistryBase<Key*, GraphRegistry<Key>, internal::GraphIterator<Key*>> {
+class GraphAdjIterator {
 	Graph* m_pGraph;
-	int* m_nextKeyIndex;
-	internal::GraphObjectContainer<Key>* m_pContainer;
+	adjEntry m_entry;
 
 public:
-	GraphRegistry(Graph* mPGraph, int* mNextKeyIndex,
-			internal::GraphObjectContainer<Key>* mPContainer = nullptr)
-		: m_pGraph(mPGraph), m_nextKeyIndex(mNextKeyIndex), m_pContainer(mPContainer) { }
+	using iterator = GraphAdjIterator;
+
+	GraphAdjIterator(Graph* graph = nullptr, adjEntry entry = nullptr);
+
+	GraphAdjIterator begin();
+
+	GraphAdjIterator end() { return GraphAdjIterator(m_pGraph); }
+
+	void next();
+
+	void prev();
+
+	adjEntry operator*() const { return m_entry; }
+
+	AdjElement& operator->() const { return *m_entry; }
+
+	bool operator==(const GraphAdjIterator& iter) const {
+		return m_pGraph == iter.m_pGraph && m_entry == iter.m_entry;
+	}
+
+	bool operator!=(const GraphAdjIterator& iter) const { return !operator==(iter); }
+
+	GraphAdjIterator& operator++() {
+		next();
+		return *this;
+	}
+
+	GraphAdjIterator operator++(int) {
+		GraphAdjIterator iter = *this;
+		next();
+		return iter;
+	}
+
+	GraphAdjIterator& operator--() {
+		prev();
+		return *this;
+	}
+
+	GraphAdjIterator operator--(int) {
+		GraphAdjIterator iter = *this;
+		prev();
+		return iter;
+	}
+};
+
+template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>>
+class GraphRegistry
+	: public RegistryBase<Key*, GraphRegistry<Key, Iterable>, typename Iterable::iterator> {
+	using iterator = typename Iterable::iterator;
+
+	Graph* m_pGraph;
+	int* m_nextKeyIndex;
+	Iterable* m_iterable;
+	int m_factor;
+
+public:
+	GraphRegistry(Graph* graph, int* nextKeyIndex, Iterable* container = nullptr, int factor = 1)
+		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container), m_factor(factor) { }
 
 	bool isKeyAssociated(Key* key) const override {
+		if (key == nullptr) {
+			return false;
+		}
 #ifdef OGDF_DEBUG
-		return key && key->graphOf() == m_pGraph;
+		if (key->graphOf() == m_pGraph) {
+			OGDF_ASSERT(keyToIndex(key) < this->getArraySize());
+			return true;
+		} else {
+			return false;
+		}
 #else
-		return key;
+		return true;
 #endif
 	}
 
 	int keyToIndex(Key* key) const override { return key->index(); }
 
-	int calculateArraySize() const override { return calculateTableSize(*m_nextKeyIndex); }
+	int calculateArraySize() const override {
+		return calculateTableSize((*m_nextKeyIndex) * m_factor);
+	}
 
-	int maxKeyIndex() const override { return (*m_nextKeyIndex) - 1; }
+	int maxKeyIndex() const override { return ((*m_nextKeyIndex) * m_factor) - 1; }
 
-	internal::GraphIterator<Key*> begin() const override { return m_pContainer->begin(); }
+	iterator begin() const override { return m_iterable->begin(); }
 
-	internal::GraphIterator<Key*> end() const override { return m_pContainer->end(); }
+	iterator end() const override { return m_iterable->end(); }
 
 	Graph* graphOf() const { return m_pGraph; }
 };
 
-template<typename Key, typename Value>
-class GraphRegisteredArray : public RegisteredArrayWithDefault<GraphRegistry<Key>, Value> {
-	using RA = RegisteredArrayWithDefault<GraphRegistry<Key>, Value>;
+template<typename Key, typename Value, typename Registry = GraphRegistry<Key>>
+class GraphRegisteredArray : public RegisteredArrayWithDefault<Registry, Value> {
+	using RA = RegisteredArrayWithDefault<Registry, Value>;
 
 public:
 	GraphRegisteredArray() : RA(Value()) {};
 
-	GraphRegisteredArray(const Graph& graph) : RA(&((const GraphRegistry<Key>&)graph), Value()) {};
+	GraphRegisteredArray(const Graph& graph) : RA(&((const Registry&)graph), Value()) {};
 
 	GraphRegisteredArray(const Graph& graph, const Value& def)
-		: RA(&((const GraphRegistry<Key>&)graph), def) {};
+		: RA(&((const Registry&)graph), def) {};
 
 	using RA::init;
 
-	void init(const Graph& graph) { RA::init(&((const GraphRegistry<Key>&)graph)); }
+	void init(const Graph& graph) { RA::init(&((const Registry&)graph)); }
 
 	void init(const Graph& graph, const Value& new_default) {
 		RA::setDefault(new_default);
-		RA::init(&((const GraphRegistry<Key>&)graph));
+		RA::init(&((const Registry&)graph));
 	}
 
 	Graph* graphOf() const {
@@ -521,26 +584,26 @@ public:
 
 // vector<bool> is weird, so make sure we don't use that if someone explicitly wants a NodeArray<bool>
 // newer code should be using NodeSet, which is perfectly fine with using the weird vector<bool> internally
-template<typename Key>
-class GraphRegisteredArray<Key, bool>
-	: public RegisteredArrayWithDefault<GraphRegistry<Key>, unsigned char> {
-	using RA = RegisteredArrayWithDefault<GraphRegistry<Key>, unsigned char>;
+template<typename Key, typename Registry>
+class GraphRegisteredArray<Key, bool, Registry>
+	: public RegisteredArrayWithDefault<Registry, unsigned char> {
+	using RA = RegisteredArrayWithDefault<Registry, unsigned char>;
 
 public:
 	GraphRegisteredArray() : RA(false) {};
 
-	GraphRegisteredArray(const Graph& graph) : RA(&((const GraphRegistry<Key>&)graph), false) {};
+	GraphRegisteredArray(const Graph& graph) : RA(&((const Registry&)graph), false) {};
 
 	GraphRegisteredArray(const Graph& graph, const bool& def)
-		: RA(&((const GraphRegistry<Key>&)graph), def) {};
+		: RA(&((const Registry&)graph), def) {};
 
 	void init() { RA::init(); }
 
-	void init(const Graph& graph) { RA::init(&((const GraphRegistry<Key>&)graph)); }
+	void init(const Graph& graph) { RA::init(&((const Registry&)graph)); }
 
 	void init(const Graph& graph, const bool& new_default) {
 		RA::setDefault(new_default);
-		RA::init(&((const GraphRegistry<Key>&)graph));
+		RA::init(&((const Registry&)graph));
 	}
 
 	// TODO override operator[], operator(), begin / end ?
@@ -612,9 +675,10 @@ public:
 	}
 };
 
-class AdjEntryArrayBase;
-template<class T>
-class AdjEntryArray;
+template<typename Value>
+using AdjEntryArray =
+		GraphRegisteredArray<AdjElement, Value, GraphRegistry<AdjElement, GraphAdjIterator>>;
+
 class OGDF_EXPORT GraphObserver;
 
 namespace internal {
@@ -678,11 +742,11 @@ private:
 
 	GraphRegistry<NodeElement> m_regNodeArrays; //!< The registered node arrays.
 	GraphRegistry<EdgeElement> m_regEdgeArrays; //!< The registered edge arrays.
-	mutable ListPure<AdjEntryArrayBase*> m_regAdjArrays; //!< The registered adjEntry arrays.
+	GraphRegistry<AdjElement, GraphAdjIterator> m_regAdjArrays;
+	GraphAdjIterator m_adjIt;
 	mutable ListPure<GraphObserver*> m_regStructures; //!< The registered graph structures.
 
 #ifndef OGDF_MEMORY_POOL_NTS
-	// TODO remove
 	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
 #endif
 
@@ -1377,16 +1441,7 @@ public:
 
 	operator const GraphRegistry<EdgeElement>&() const { return m_regEdgeArrays; }
 
-	//! Registers an adjEntry array.
-	/**
-	 * \remark This method is automatically called by adjacency entry arrays; it should not be called manually.
-	 *
-	 * @param pAdjArray is a pointer to the adjacency entry array's base; this adjacency entry array must be
-	 *                  associated with this graph.
-	 * @return an iterator pointing to the entry for the registered adjacency entry array in the list of registered
-	 *         adjacency entry arrays. This iterator is required for unregistering the adjacency entry array again.
-	 */
-	ListIterator<AdjEntryArrayBase*> registerArray(AdjEntryArrayBase* pAdjArray) const;
+	operator const GraphRegistry<AdjElement, GraphAdjIterator>&() const { return m_regAdjArrays; }
 
 	//! Registers a graph observer (e.g. a ClusterGraph).
 	/**
@@ -1397,13 +1452,6 @@ public:
 	 */
 	ListIterator<GraphObserver*> registerStructure(GraphObserver* pStructure) const;
 
-	//! Unregisters an adjEntry array.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered adjacency entry arrays for the
-	 *           adjacency entry array to be unregistered.
-	 */
-	void unregisterArray(ListIterator<AdjEntryArrayBase*> it) const;
-
 	//! Unregisters a graph observer.
 	/**
 	 * @param it is an iterator pointing to the entry in the list of registered graph observers for the graph
@@ -1411,14 +1459,6 @@ public:
 	 */
 	void unregisterStructure(ListIterator<GraphObserver*> it) const;
 
-	//! Move the registration \p it of an graph element array to \p pArray (used with move semantics for graph element arrays).
-	template<class ArrayBase>
-	void moveRegisterArray(ListIterator<ArrayBase*> it, ArrayBase* pArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
-#endif
-		*it = pArray;
-	}
 
 	//! Resets the edge id count to \p maxId.
 	/**

@@ -184,7 +184,7 @@ public:
 
 	void swapArrayEntries(int newIndex, int oldIndex) {
 		for (registered_array_type* ab : m_registeredArrays) {
-			ab->swapEntry(newIndex, oldIndex);
+			ab->swapEntries(newIndex, oldIndex);
 		}
 	}
 
@@ -467,7 +467,8 @@ protected:
 	}
 
 	void swapEntries(int newIndex, int oldIndex) override {
-		std::swap(m_data[newIndex], m_data[oldIndex]);
+		//			std::swap(m_data.at(newIndex), m_data.at(oldIndex)); // TODO this yields weird results after calling split
+		m_data.at(newIndex) = m_data.at(oldIndex);
 	}
 };
 

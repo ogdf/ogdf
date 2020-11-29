@@ -49,13 +49,19 @@ using Math::nextPower2;
 int calculateTableSize(int actualCount) { return Math::nextPower2(MIN_TABLE_SIZE, actualCount); }
 
 Graph::Graph()
-	: m_regNodeArrays(this, &m_nodeIdCount, &nodes), m_regEdgeArrays(this, &m_edgeIdCount, &edges) {
+	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
+	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
+	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt, 2)
+	, m_adjIt(this) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	resetTableSizes();
 }
 
 Graph::Graph(const Graph& G)
-	: m_regNodeArrays(this, &m_nodeIdCount, &nodes), m_regEdgeArrays(this, &m_edgeIdCount, &edges) {
+	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
+	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
+	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt, 2)
+	, m_adjIt(this) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);
 	resetTableSizes();
@@ -63,10 +69,6 @@ Graph::Graph(const Graph& G)
 
 Graph::~Graph() {
 	restoreAllEdges();
-
-	while (!m_regAdjArrays.empty()) {
-		m_regAdjArrays.popFrontRet()->disconnect();
-	}
 
 	for (node v = nodes.head(); v; v = v->succ()) {
 		v->adjEntries.~GraphObjectContainer<AdjElement>();
@@ -392,10 +394,7 @@ node Graph::newNode() {
 
 //what about negative index numbers?
 node Graph::newNode(int index) {
-	if (index >= m_nodeIdCount) {
-		m_nodeIdCount = index + 1;
-	}
-
+	m_nodeIdCount = max(m_nodeIdCount, index + 1);
 #ifdef OGDF_DEBUG
 	node v = new NodeElement(this, index);
 #else
@@ -440,13 +439,8 @@ edge Graph::createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt) 
 	edge e = new EdgeElement(v, w, adjSrc, adjTgt, m_edgeIdCount++);
 	edges.pushBack(e);
 
-	int old_size = m_regEdgeArrays.getArraySize();
 	m_regEdgeArrays.keyAdded(e);
-	if (old_size != m_regEdgeArrays.getArraySize()) {
-		for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-			aab->enlargeTable(m_regEdgeArrays.getArraySize() << 1);
-		}
-	}
+	m_regAdjArrays.keyAdded(e->adjSource());
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -475,21 +469,13 @@ edge Graph::newEdge(node v, node w, int index) {
 	adjSrc->m_twin = adjTgt;
 	adjTgt->m_twin = adjSrc;
 
+	m_edgeIdCount = max(m_edgeIdCount, index + 1);
 	adjTgt->m_id = (adjSrc->m_id = index /*m_edgeIdCount*/ << 1) | 1;
 	edge e = new EdgeElement(v, w, adjSrc, adjTgt, index);
 	edges.pushBack(e);
 
-	if (index >= m_edgeIdCount) {
-		m_edgeIdCount = index + 1;
-
-		int old_size = m_regEdgeArrays.getArraySize();
-		m_regEdgeArrays.keyAdded(e);
-		if (old_size != m_regEdgeArrays.getArraySize()) {
-			for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-				aab->enlargeTable(m_regEdgeArrays.getArraySize() << 1);
-			}
-		}
-	}
+	m_regEdgeArrays.keyAdded(e);
+	m_regAdjArrays.keyAdded(e->adjSource());
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -954,25 +940,11 @@ int Graph::genus() const {
 	return (numberOfEdges() - numberOfNodes() - nIsolated - nFaceCycles + 2 * nCC) / 2;
 }
 
-ListIterator<AdjEntryArrayBase*> Graph::registerArray(AdjEntryArrayBase* pAdjArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regAdjArrays.pushBack(pAdjArray);
-}
-
 ListIterator<GraphObserver*> Graph::registerStructure(GraphObserver* pStructure) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
 	return m_regStructures.pushBack(pStructure);
-}
-
-void Graph::unregisterArray(ListIterator<AdjEntryArrayBase*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regAdjArrays.del(it);
 }
 
 void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const {
@@ -986,6 +958,7 @@ void Graph::resetTableSizes() {
 	// FIXME this is very weird
 	m_regNodeArrays.resizeArrays();
 	m_regEdgeArrays.resizeArrays();
+	m_regAdjArrays.resizeArrays();
 }
 
 void Graph::reinitArrays(bool doResetTableSizes) {
@@ -996,15 +969,13 @@ void Graph::reinitArrays(bool doResetTableSizes) {
 	m_regEdgeArrays.resizeArrays(0);
 	m_regEdgeArrays.resizeArrays();
 
-	for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-		aab->reinit(m_regEdgeArrays.getArraySize() << 1);
-	}
+	m_regAdjArrays.resizeArrays(0);
+	m_regAdjArrays.resizeArrays();
 }
 
 void Graph::resetAdjEntryIndex(int newIndex, int oldIndex) {
-	for (AdjEntryArrayBase* aab : m_regAdjArrays) {
-		aab->resetIndex(newIndex, oldIndex);
-	}
+	// TODO also for others / inline?
+	m_regAdjArrays.swapArrayEntries(newIndex, oldIndex);
 }
 
 
@@ -1291,6 +1262,43 @@ std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 		break;
 	}
 	return os;
+}
+
+GraphAdjIterator::GraphAdjIterator(Graph* graph, adjEntry entry)
+	: m_pGraph(graph), m_entry(entry) { }
+
+GraphAdjIterator GraphAdjIterator::begin() {
+	node v = m_pGraph->firstNode();
+	while (v != nullptr && v->firstAdj() == nullptr) {
+		v = v->succ();
+	}
+	return {m_pGraph, (v != nullptr) ? v->firstAdj() : nullptr};
+}
+
+void GraphAdjIterator::next() {
+	OGDF_ASSERT(m_entry != nullptr);
+	if (m_entry->succ() != nullptr) {
+		m_entry = m_entry->succ();
+	} else {
+		node v = m_entry->theNode()->succ();
+		while (v != nullptr && v->firstAdj() == nullptr) {
+			v = v->succ();
+		}
+		m_entry = (v != nullptr) ? v->firstAdj() : nullptr;
+	}
+}
+
+void GraphAdjIterator::prev() {
+	OGDF_ASSERT(m_entry != nullptr);
+	if (m_entry->pred() != nullptr) {
+		m_entry = m_entry->pred();
+	} else {
+		node v = m_entry->theNode()->pred();
+		while (v != nullptr && v->lastAdj() == nullptr) {
+			v = v->pred();
+		}
+		m_entry = (v != nullptr) ? v->lastAdj() : nullptr;
+	}
 }
 
 }

@@ -35,6 +35,19 @@
 
 #include <testing.h>
 
+template<typename Type>
+inline Type maybeWrap(int value);
+
+template<>
+inline int maybeWrap<int>(int value) {
+	return value;
+}
+
+template<>
+inline List<int> maybeWrap<List<int>>(int value) {
+	return {value};
+}
+
 /**
  * Perform basic tests for a map of graph elements to values.
  * @tparam ArrayType the type of array to be tested
@@ -203,21 +216,44 @@ void describeArray(const std::string& title, const ElementType& fillElement,
 				const MyArrayType cArray(*array);
 				int counter = 0;
 				for (const_iterator it = cArray.begin(); it != cArray.end(); it++) {
+					AssertThat(counter, IsLessThan(list.size()));
+					AssertThat((*array)[it.key()], Equals(fillElement));
+					AssertThat(cArray[it.key()], Equals(fillElement));
+					AssertThat(*it, Equals(fillElement));
+					(*array)[it.key()] = maybeWrap<ElementType>(counter);
 					counter++;
 				}
 				AssertThat(counter, Equals(list.size()));
 
 				counter = 0;
+				int defaults = 0;
 				for (iterator it = array->begin(); it != array->end(); it++) {
+					AssertThat(counter, IsLessThan(list.size()));
+					AssertThat((*array)[it.key()], Equals(maybeWrap<ElementType>(counter)));
+					AssertThat(*it, Equals(maybeWrap<ElementType>(counter)));
+					*it = maybeWrap<ElementType>(counter + list.size());
+					if (maybeWrap<ElementType>(counter + list.size()) == fillElement) {
+						defaults++;
+					}
 					counter++;
 				}
 				AssertThat(counter, Equals(list.size()));
 
 				counter = 0;
 				for (const_iterator it = cArray.cbegin(); it != cArray.cend(); it++) {
+					AssertThat(counter, IsLessThan(list.size()));
+					AssertThat((*array)[it.key()],
+							Equals(maybeWrap<ElementType>(counter + list.size())));
 					counter++;
 				}
 				AssertThat(counter, Equals(list.size()));
+
+				for (KeyType val : list) {
+					if ((*array)[val] == fillElement) {
+						defaults--;
+					}
+				}
+				AssertThat(defaults, Equals(0));
 			});
 		});
 	});
