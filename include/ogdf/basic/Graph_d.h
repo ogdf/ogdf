@@ -457,7 +457,7 @@ void NodeElement::outEdges(EDGELIST& edgeList) const {
 	}
 }
 
-class GraphAdjIterator {
+class OGDF_EXPORT GraphAdjIterator {
 	Graph* m_pGraph;
 	adjEntry m_entry;
 
