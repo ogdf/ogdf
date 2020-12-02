@@ -33,7 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphObserver.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/SList.h>
 
 namespace ogdf {
@@ -294,8 +294,9 @@ inline bool test_forall_adj_edges_of_cluster(adjEntry& adj, edge& e) {
 
 //! @}
 
-class ClusterArrayBase;
-template<class T>
+using ClusterGraphRegistry = RegistryBase<cluster, ClusterGraph, internal::GraphIterator<cluster>>;
+
+template<class Value>
 class ClusterArray;
 
 //! Representation of clustered graphs.
@@ -305,11 +306,10 @@ class ClusterArray;
  * This class is derived from GraphObserver and handles hierarchical
  * clustering of the nodes in a graph, providing additional functionality.
  */
-class OGDF_EXPORT ClusterGraph : public GraphObserver {
+class OGDF_EXPORT ClusterGraph : public GraphObserver, public ClusterGraphRegistry {
 	const Graph* m_pGraph; //!< The associated graph.
 
 	int m_clusterIdCount; //!< The index assigned to the next created cluster.
-	int m_clusterArrayTableSize; //!< The current table size of cluster arrays.
 
 	mutable cluster m_postOrderStart; //!< The first cluster in postorder.
 	cluster m_rootCluster; //!< The root cluster.
@@ -321,7 +321,6 @@ class OGDF_EXPORT ClusterGraph : public GraphObserver {
 	//! Stores for every node its position within the children list of its cluster.
 	NodeArray<ListIterator<node>> m_itMap;
 
-	mutable ListPure<ClusterArrayBase*> m_regClusterArrays; //!< The registered cluster arrays.
 	mutable ListPure<ClusterGraphObserver*> m_regObservers; //!< The registered graph observers.
 
 #ifndef OGDF_MEMORY_POOL_NTS
@@ -413,7 +412,7 @@ public:
 	int maxClusterIndex() const { return m_clusterIdCount - 1; }
 
 	//! Returns the table size of cluster arrays associated with this graph.
-	int clusterArrayTableSize() const { return m_clusterArrayTableSize; }
+	int clusterArrayTableSize() const { return getArraySize(); }
 
 	//! Returns the cluster to which a node belongs.
 	inline cluster clusterOf(node v) const { return m_nodeMap[v]; }
@@ -712,20 +711,37 @@ public:
 	 */
 	//! @{
 
-	//! Registers a cluster array.
-	ListIterator<ClusterArrayBase*> registerArray(ClusterArrayBase* pClusterArray) const;
-
-	//! Unregisters a cluster array.
-	void unregisterArray(ListIterator<ClusterArrayBase*> it) const;
-
-	//! Move the registration \p it of a cluster array to \p pClusterArray (used with move semantics for cluster arrays).
-	void moveRegisterArray(ListIterator<ClusterArrayBase*> it, ClusterArrayBase* pClusterArray) const;
-
 	//! Registers a cluster graph observer.
 	ListIterator<ClusterGraphObserver*> registerObserver(ClusterGraphObserver* pObserver) const;
 
 	//! Unregisters a cluster graph observer.
 	void unregisterObserver(ListIterator<ClusterGraphObserver*> it) const;
+
+	bool isKeyAssociated(cluster key) const override {
+		if (key == nullptr) {
+			return false;
+		}
+#ifdef OGDF_DEBUG
+		if (key->graphOf() == this) {
+			OGDF_ASSERT(keyToIndex(key) < this->getArraySize());
+			return true;
+		} else {
+			return false;
+		}
+#else
+		return true;
+#endif
+	}
+
+	int keyToIndex(cluster key) const override { return key->index(); }
+
+	int calculateArraySize() const override { return calculateTableSize(m_clusterIdCount); }
+
+	int maxKeyIndex() const override { return (m_clusterIdCount)-1; }
+
+	cluster_iterator begin() const override { return clusters.begin(); }
+
+	cluster_iterator end() const override { return clusters.end(); }
 
 	//! @}
 	/**
@@ -891,6 +907,34 @@ private:
 	void postOrder(cluster c, SListPure<cluster>& S) const;
 
 	void reinitArrays();
+};
+
+template<class Value>
+class ClusterArray : public RegisteredArrayWithDefault<ClusterGraph, Value> {
+public:
+	using RA = RegisteredArrayWithDefault<ClusterGraph, Value>;
+
+	ClusterArray() : RA(Value()) {};
+
+	ClusterArray(const ClusterGraph& C) : RA(&C, Value()) {};
+
+	ClusterArray(const ClusterGraph& C, const Value& def) : RA(&C, def) {};
+
+	// TODO This constructor probably should not even exist
+	ClusterArray(const ClusterGraph& C, const Value& def, int size) : RA(&C, def) {
+		((ClusterGraphRegistry&)C).resizeArrays(size);
+	};
+
+	using RA::init;
+
+	void init(const ClusterGraph& C) { RA::init(&C); }
+
+	void init(const ClusterGraph& C, const Value& new_default) {
+		RA::setDefault(new_default);
+		RA::init(&C);
+	}
+
+	ClusterGraph* graphOf() const { return (ClusterGraph*)RA::registeredAt(); }
 };
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream& os, cluster c);

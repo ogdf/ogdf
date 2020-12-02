@@ -48,8 +48,6 @@ namespace ogdf {
 
 using Math::nextPower2;
 
-#define MIN_CLUSTER_TABLE_SIZE (1 << 4)
-
 void ClusterElement::getClusterInducedNodes(List<node>& clusterNodes) {
 	for (node v : nodes) {
 		clusterNodes.pushBack(v);
@@ -79,7 +77,6 @@ ClusterGraph::ClusterGraph() : m_pGraph(nullptr) {
 	m_updateDepth = false;
 	m_depthUpToDate = false;
 
-	m_clusterArrayTableSize = MIN_CLUSTER_TABLE_SIZE;
 	m_adjAvailable = false;
 	m_lcaNumber = 0;
 	m_lcaSearch = nullptr;
@@ -99,13 +96,15 @@ ClusterGraph::ClusterGraph(const Graph& G) : GraphObserver(&G), m_pGraph(&G) {
 	m_depthUpToDate = false;
 
 	m_lcaNumber = 0;
-	// TODO does this really have to be larger than the node array? (same below)
-	m_clusterArrayTableSize = nextPower2(MIN_CLUSTER_TABLE_SIZE, G.nodeArrayTableSize() + 1);
 	initGraph(G);
 }
 
 ClusterGraph::ClusterGraph(const ClusterGraph& C)
-	: GraphObserver(C.m_pGraph), m_lcaSearch(nullptr), m_vAncestor(nullptr), m_wAncestor(nullptr) {
+	: GraphObserver(C.m_pGraph)
+	, ClusterGraphRegistry()
+	, m_lcaSearch(nullptr)
+	, m_vAncestor(nullptr)
+	, m_wAncestor(nullptr) {
 	m_clusterIdCount = 0;
 	m_postOrderStart = nullptr;
 	m_rootCluster = nullptr;
@@ -116,7 +115,6 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C)
 
 	m_lcaNumber = 0;
 
-	m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 	shallowCopy(C);
 }
 
@@ -133,7 +131,6 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G,
 
 	m_lcaNumber = 0;
 
-	m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 	deepCopy(C, G, originalClusterTable, originalNodeTable);
 }
 
@@ -151,7 +148,6 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G,
 
 	m_lcaNumber = 0;
 
-	m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 	deepCopy(C, G, originalClusterTable, originalNodeTable, edgeCopy);
 }
 
@@ -167,17 +163,10 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G)
 
 	m_lcaNumber = 0;
 
-	m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 	deepCopy(C, G);
 }
 
-ClusterGraph::~ClusterGraph() {
-	for (ClusterArrayBase* a : m_regClusterArrays) {
-		a->disconnect();
-	}
-
-	doClear();
-}
+ClusterGraph::~ClusterGraph() { doClear(); }
 
 // Construction of a new cluster graph. All nodes
 // are children of the root cluster
@@ -188,14 +177,12 @@ void ClusterGraph::init(const Graph& G) {
 	m_pGraph = &G;
 
 	m_lcaNumber = 0;
-	m_clusterArrayTableSize = nextPower2(MIN_CLUSTER_TABLE_SIZE, G.nodeArrayTableSize() + 1);
 	initGraph(G);
 }
 
 ClusterGraph& ClusterGraph::operator=(const ClusterGraph& C) {
 	doClear();
 	shallowCopy(C);
-	m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 	reinitArrays();
 
 #ifdef OGDF_HEAVY_DEBUG
@@ -271,7 +258,7 @@ void ClusterGraph::initGraph(const Graph& G) {
 	m_clusterIdCount++;
 	m_nodeMap.init(G, m_rootCluster);
 	m_itMap.init(G);
-
+	keyAdded(m_rootCluster);
 	// assign already existing nodes to root cluster (new nodes are assigned over nodeadded)
 	for (node v : G.nodes) {
 		m_itMap[v] = m_rootCluster->getNodes().pushBack(v);
@@ -287,8 +274,6 @@ void ClusterGraph::reinitGraph(const Graph& G) {
 	G.consistencyCheck();
 #endif
 
-	m_clusterArrayTableSize = nextPower2(MIN_CLUSTER_TABLE_SIZE, G.nodeArrayTableSize() + 1);
-
 	if (numberOfClusters() != 0) {
 		doClear();
 	}
@@ -297,9 +282,8 @@ void ClusterGraph::reinitGraph(const Graph& G) {
 }
 
 void ClusterGraph::reinitArrays() {
-	for (ClusterArrayBase* a : m_regClusterArrays) {
-		a->reinit(m_clusterArrayTableSize);
-	}
+	resizeArrays(0);
+	resizeArrays();
 }
 
 // Copy Function
@@ -536,8 +520,6 @@ void ClusterGraph::copyLCA(const ClusterGraph& C) {
 	}
 	if (C.m_lcaSearch) {
 		//otherwise, initialization won't work
-		m_clusterArrayTableSize = C.m_clusterArrayTableSize;
-
 		m_lcaSearch = new ClusterArray<int>(*this, -1); //(*C.m_lcaSearch);
 
 		m_vAncestor = new ClusterArray<cluster>(*this, nullptr);
@@ -604,18 +586,13 @@ cluster ClusterGraph::newCluster(int id) {
 	if (id >= m_clusterIdCount) {
 		m_clusterIdCount = id + 1;
 	}
-	if (m_clusterIdCount >= m_clusterArrayTableSize) {
-		m_clusterArrayTableSize = nextPower2(m_clusterArrayTableSize, id + 1);
-		for (ClusterArrayBase* cab : m_regClusterArrays) {
-			cab->enlargeTable(m_clusterArrayTableSize);
-		}
-	}
 #ifdef OGDF_DEBUG
 	cluster c = new ClusterElement(this, id);
 #else
 	cluster c = new ClusterElement(id);
 #endif
 	clusters.pushBack(c);
+	keyAdded(c);
 
 	// notify observers
 	for (ClusterGraphObserver* obs : m_regObservers) {
@@ -630,18 +607,13 @@ cluster ClusterGraph::newCluster(int id) {
 cluster ClusterGraph::newCluster() {
 	m_adjAvailable = false;
 	m_postOrderStart = nullptr;
-	if (m_clusterIdCount == m_clusterArrayTableSize) {
-		m_clusterArrayTableSize <<= 1;
-		for (ListIterator<ClusterArrayBase*> it = m_regClusterArrays.begin(); it.valid(); ++it) {
-			(*it)->enlargeTable(m_clusterArrayTableSize);
-		}
-	}
 #ifdef OGDF_DEBUG
 	cluster c = new ClusterElement(this, m_clusterIdCount++);
 #else
 	cluster c = new ClusterElement(m_clusterIdCount++);
 #endif
 	clusters.pushBack(c);
+	keyAdded(c);
 	// notify observers
 	for (ClusterGraphObserver* obs : m_regObservers) {
 		obs->clusterAdded(c);
@@ -829,8 +801,10 @@ void ClusterGraph::doClear() {
 		clearClusterTree(m_rootCluster);
 		clusters.del(m_rootCluster);
 	}
+	keysCleared();
 	//no clusters, so we can restart at 0
 	m_clusterIdCount = 0;
+	reinitArrays();
 }
 
 // Removes the Clustering of a Tree and frees the allocated memory
@@ -1275,30 +1249,6 @@ bool ClusterGraph::representsCombEmbedding() const {
 	}
 
 	return true;
-}
-
-// registers a cluster array
-ListIterator<ClusterArrayBase*> ClusterGraph::registerArray(ClusterArrayBase* pClusterArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regClusterArrays.pushBack(pClusterArray);
-}
-
-// unregisters a cluster array
-void ClusterGraph::unregisterArray(ListIterator<ClusterArrayBase*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regClusterArrays.del(it);
-}
-
-void ClusterGraph::moveRegisterArray(ListIterator<ClusterArrayBase*> it,
-		ClusterArrayBase* pClusterArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	*it = pClusterArray;
 }
 
 // registers a ClusterGraphObserver.
