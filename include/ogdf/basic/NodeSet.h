@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/RegisteredSet.h>
 
 namespace ogdf {
 
@@ -51,103 +52,17 @@ namespace ogdf {
  * \sa FaceSet
  */
 template<bool SupportFastSizeQuery = true>
-class NodeSet {
+class NodeSet : public RegisteredSet<node, GraphRegistry<NodeElement>, SupportFastSizeQuery> {
+	using RS = RegisteredSet<node, GraphRegistry<NodeElement>, SupportFastSizeQuery>;
+
 public:
-	using ListType =
-			typename std::conditional<SupportFastSizeQuery, List<node>, ListPure<node>>::type;
-
-	//! Creates an empty node set associated with graph \p G.
-	explicit NodeSet(const Graph& G) : m_it(G) { }
-
-	//! Inserts node \p v into this set.
-	/**
-	 * This operation has constant runtime.
-	 * If the node is already contained in this set, nothing happens.
-	 *
-	 * \pre \p v is a node in the associated graph.
-	 */
-	void insert(node v) {
-		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
-		ListIterator<node>& itV = m_it[v];
-
-		if (!itV.valid()) {
-			itV = m_nodes.pushBack(v);
-		}
-	}
-
-	//! Removes node \p v from this set.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p v is a node in the associated graph.
-	 * If the node is not contained in this set, nothing happens.
-	 */
-	void remove(node v) {
-		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
-		ListIterator<node>& itV = m_it[v];
-
-		if (itV.valid()) {
-			m_nodes.del(itV);
-			itV = ListIterator<node>();
-		}
-	}
-
-	//! Removes all nodes from this set.
-	/**
-	 * After this operation, this set is empty and still associated with the same graph.
-	 * The runtime of this operations is linear in the #size().
-	 */
-	void clear() {
-		m_it.init(graphOf());
-		m_nodes.clear();
-	}
-
-	//! Returns \c true iff node \p v is contained in this set.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p v is a node in the associated graph.
-	 */
-	bool isMember(node v) const {
-		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
-		return m_it[v].valid();
-	}
+	explicit NodeSet(const Graph& graph) : RS((const GraphRegistry<NodeElement>&)graph) {};
 
 	//! Returns a reference to the list of nodes contained in this set.
-	const ListType& nodes() const { return m_nodes; }
+	const typename RS::ListType& nodes() { return RS::elements(); }
 
 	//! Returns the associated graph
-	const Graph& graphOf() const { return *m_it.graphOf(); }
-
-	//! Returns the number of nodes in this set.
-	/**
-	 * This operation has either linear or constant runtime, depending on \a SupportFastSizeQuery.
-	 */
-	int size() const { return m_nodes.size(); }
-
-	//! Copy constructor.
-	template<bool OtherSupportsFastSizeQuery>
-	NodeSet(const NodeSet<OtherSupportsFastSizeQuery>& other) : m_it(other.graphOf()) {
-		this = other;
-	}
-
-	//! Assignment operator.
-	template<bool OtherSupportsFastSizeQuery>
-	NodeSet& operator=(const NodeSet<OtherSupportsFastSizeQuery>& other) {
-		m_nodes.clear();
-		m_it.init(other.graphOf());
-		for (node v : other.nodes()) {
-			insert(v);
-		}
-	}
-
-private:
-	//! #m_it[\a v] contains the list iterator pointing to \a v if \a v is contained in this set,
-	//! or an invalid list iterator otherwise.
-	NodeArray<ListIterator<node>> m_it;
-
-	//! The list of nodes contained in this set.
-	ListType m_nodes;
+	const Graph* graphOf() const { return RS::registeredAt(); }
 };
 
 }
