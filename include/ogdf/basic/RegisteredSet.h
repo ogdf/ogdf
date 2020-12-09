@@ -56,7 +56,7 @@ public:
 
 	//! Reinitializes the set. Associates the set with graph \p R.
 	void init(const RegistryType& R) {
-		m_it.init(R);
+		m_it.init(&R);
 		m_elements.clear();
 	}
 
@@ -131,7 +131,7 @@ public:
 	RegisteredSet& operator=(
 			const RegisteredSet<ElementType, RegistryType, OtherSupportsFastSizeQuery>& other) {
 		m_elements.clear();
-		m_it.init(*other.registeredAt());
+		m_it.init(other.registeredAt());
 		for (ElementType v : other.elements()) {
 			insert(v);
 		}
