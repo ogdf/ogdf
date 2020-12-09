@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/cluster/ClusterArray.h>
 
 namespace ogdf {
@@ -64,7 +64,6 @@ public:
 	 */
 	void insert(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_isContained.graphOf());
-		// TODO migrate ClusterSet and avoid ClusterArray<bool>
 		if (!m_isContained[c]) {
 			m_isContained[c] = true;
 			m_clusters.pushFront(c);
@@ -123,81 +122,17 @@ private:
  *
  * \sa ClusterSet, ClusterSetSimple
  */
-class OGDF_EXPORT ClusterSetPure {
+class OGDF_EXPORT ClusterSetPure : public RegisteredSet<cluster, ClusterGraph, false> {
+	using RS = RegisteredSet<cluster, ClusterGraph, false>;
+
 public:
-	//! Creates an empty cluster set associated with clustered graph \p C.
-	explicit ClusterSetPure(const ClusterGraph& C) : m_it(C, ListIterator<cluster>()) { }
-
-	// destructor
-	~ClusterSetPure() { }
-
-	//! Inserts cluster \p c into \a S.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated clustered graph.
-	 */
-	void insert(cluster c) {
-		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster>& itV = m_it[c];
-		if (!itV.valid()) {
-			itV = m_clusters.pushBack(c);
-		}
-	}
-
-	//! Removes cluster \p c from \a S.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated clustered graph.
-	 */
-	void remove(cluster c) {
-		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster>& itV = m_it[c];
-		if (itV.valid()) {
-			m_clusters.del(itV);
-			itV = ListIterator<cluster>();
-		}
-	}
-
-	//! Removes all clusters from \a S.
-	/**
-	 * After this operation, \a S is empty and still associated with the same clustered graph.
-	 * The runtime of this operations is O(k), where k is the number of clusters in \a S
-	 * before this operation.
-	 */
-	void clear() {
-		ListIterator<cluster> it;
-		for (it = m_clusters.begin(); it.valid(); ++it) {
-			m_it[*it] = ListIterator<cluster>();
-		}
-		m_clusters.clear();
-	}
-
-	//! Returns true if cluster \p c is contained in \a S, false otherwise.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated graph.
-	 */
-	bool isMember(cluster c) const {
-		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		return m_it[c].valid();
-	}
+	using RS::RS;
 
 	//! Returns a reference to the list of clusters contained in \a S.
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const ListPure<cluster>& clusters() const { return m_clusters; }
-
-private:
-	//! #m_it[\a c] contains the list iterator pointing to \a c if \a c is contained in \a S,
-	//! an invalid list iterator otherwise.
-	ClusterArray<ListIterator<cluster>> m_it;
-
-	//! The list of clusters contained in \a S.
-	ListPure<cluster> m_clusters;
+	const ListPure<cluster>& clusters() const { return RS::elements(); }
 };
 
 //! Cluster sets.
@@ -213,87 +148,17 @@ private:
  *
  * \sa - ClusterSetPure, ClusterSetSimple
  */
-class OGDF_EXPORT ClusterSet {
+class OGDF_EXPORT ClusterSet : RegisteredSet<cluster, ClusterGraph, true> {
+	using RS = RegisteredSet<cluster, ClusterGraph, true>;
+
 public:
-	//! Creates an empty cluster set associated with clustered graph \p C.
-	explicit ClusterSet(const ClusterGraph& C) : m_it(C, ListIterator<cluster>()) { }
-
-	// destructor
-	~ClusterSet() { }
-
-	//! Inserts cluster \p c into \a S.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated clustered graph.
-	 */
-	void insert(cluster c) {
-		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster>& itV = m_it[c];
-		if (!itV.valid()) {
-			itV = m_clusters.pushBack(c);
-		}
-	}
-
-	//! Removes cluster \p c from \a S.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated clustered graph.
-	 */
-	void remove(cluster c) {
-		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster>& itV = m_it[c];
-		if (itV.valid()) {
-			m_clusters.del(itV);
-			itV = ListIterator<cluster>();
-		}
-	}
-
-	//! Removes all clusters from \a S.
-	/**
-	 * After this operation, \a S is empty and still associated with the same clustered graph.
-	 * The runtime of this operations is O(k), where k is the number of clusters in \a S
-	 * before this operation.
-	 */
-	void clear() {
-		ListIterator<cluster> it;
-		for (it = m_clusters.begin(); it.valid(); ++it) {
-			m_it[*it] = ListIterator<cluster>();
-		}
-		m_clusters.clear();
-	}
-
-	//! Returns true if cluster \p c is contained in \a S, false otherwise.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated graph.
-	 */
-	bool isMember(cluster c) const {
-		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		return m_it[c].valid();
-	}
-
-	//! Returns the size of \a S.
-	/**
-	 * This operation has constant runtime.
-	 */
-	int size() const { return m_clusters.size(); }
+	using RS::RS;
 
 	//! Returns a reference to the list of clusters contained in \a S.
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const List<cluster>& clusters() const { return m_clusters; }
-
-private:
-	//! #m_it[\a c] contains the list iterator pointing to \a c if \a c is contained in \a S,
-	//! an invalid list iterator otherwise.
-	ClusterArray<ListIterator<cluster>> m_it;
-
-	//! The list of clusters contained in \a S.
-	List<cluster> m_clusters;
+	const List<cluster>& clusters() const { return RS::elements(); }
 };
 
 }
