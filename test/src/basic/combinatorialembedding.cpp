@@ -122,7 +122,7 @@ void testConstCombinatorialEmbedding(Graph& graph) {
 		}
 
 		for (face f : emb.faces) {
-			AssertThat(visited[f], IsTrue());
+			AssertThat(static_cast<bool>(visited[f]), IsTrue());
 		}
 	});
 }

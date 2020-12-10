@@ -164,9 +164,34 @@ public:
 	OGDF_NEW_DELETE
 };
 
-class FaceArrayBase;
-template<class T>
-class FaceArray;
+using CombinatorialEmbeddingRegistry =
+		RegistryBase<face, ConstCombinatorialEmbedding, internal::GraphIterator<face>>;
+
+// TODO handle FaceArray<bool>
+template<class Value>
+class FaceArray : public RegisteredArrayWithDefault<ConstCombinatorialEmbedding, Value> {
+public:
+	using RA = RegisteredArrayWithDefault<ConstCombinatorialEmbedding, Value>;
+
+	FaceArray() : RA(Value()) {};
+
+	FaceArray(const ConstCombinatorialEmbedding& C) : RA(&C, Value()) {};
+
+	FaceArray(const ConstCombinatorialEmbedding& C, const Value& def) : RA(&C, def) {};
+
+	using RA::init;
+
+	void init(const ConstCombinatorialEmbedding& C) { RA::init(&C); }
+
+	void init(const ConstCombinatorialEmbedding& C, const Value& new_default) {
+		RA::setDefault(new_default);
+		RA::init(&C);
+	}
+
+	ConstCombinatorialEmbedding* embeddingOf() const {
+		return (ConstCombinatorialEmbedding*)RA::registeredAt();
+	}
+};
 
 /**
  * \brief Combinatorial embeddings of planar graphs.
@@ -189,21 +214,14 @@ class FaceArray;
  * \see CombinatorialEmbedding provides additional functionality for modifying
  *      the embedding.
  */
-class OGDF_EXPORT ConstCombinatorialEmbedding {
+class OGDF_EXPORT ConstCombinatorialEmbedding : public CombinatorialEmbeddingRegistry {
 protected:
 	const Graph* m_cpGraph; //!< The associated graph.
 
 	int m_faceIdCount; //!< The index assigned to the next created face.
-	int m_faceArrayTableSize; //!< The current table size of face arrays.
 
 	AdjEntryArray<face> m_rightFace; //!< The face to which an adjacency entry belongs.
 	face m_externalFace; //! The external face.
-
-	mutable ListPure<FaceArrayBase*> m_regFaceArrays; //!< The registered face arrays.
-
-#ifndef OGDF_MEMORY_POOL_NTS
-	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
-#endif
 
 public:
 	//! Provides a bidirectional iterator to a face in a combinatorial embedding.
@@ -280,7 +298,7 @@ public:
 	int maxFaceIndex() const { return m_faceIdCount - 1; }
 
 	//! Returns the table size of face arrays associated with this embedding.
-	int faceArrayTableSize() const { return m_faceArrayTableSize; }
+	int faceArrayTableSize() const { return getArraySize(); }
 
 	/** @} @{
 	 * Returns a random face.
@@ -332,23 +350,31 @@ public:
 	void consistencyCheck() const;
 #endif
 
+	bool isKeyAssociated(face key) const override {
+		if (key == nullptr) {
+			return false;
+		}
+#ifdef OGDF_DEBUG
+		if (key->embeddingOf() == this) {
+			OGDF_ASSERT(keyToIndex(key) < this->getArraySize());
+			return true;
+		} else {
+			return false;
+		}
+#else
+		return true;
+#endif
+	}
 
-	/** @} @{
-	 * \brief Registers the face array \p pFaceArray.
-	 *
-	 * This method is only used by face arrays.
-	 */
-	ListIterator<FaceArrayBase*> registerArray(FaceArrayBase* pFaceArray) const;
+	int keyToIndex(face key) const override { return key->index(); }
 
-	/**
-	 * \brief Unregisters the face array identified by \p it.
-	 *
-	 * This method is only used by face arrays.
-	 */
-	void unregisterArray(ListIterator<FaceArrayBase*> it) const;
+	int calculateArraySize() const override { return calculateTableSize(m_faceIdCount); }
 
-	//! Move the registration \p it of a node array to \p pFaceArray (used with move semantics for face arrays).
-	void moveRegisterArray(ListIterator<FaceArrayBase*> it, FaceArrayBase* pFaceArray) const;
+	int maxKeyIndex() const override { return (m_faceIdCount)-1; }
+
+	face_iterator begin() const override { return faces.begin(); }
+
+	face_iterator end() const override { return faces.end(); }
 
 	/**
 	 * Identifies a common face of two nodes and returns the respective adjacency entry.
