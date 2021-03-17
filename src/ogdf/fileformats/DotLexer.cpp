@@ -280,7 +280,7 @@ bool Lexer::identifier(Token &token)
 			m_col = m_buffer.size();
 		} else {
 			token.value = new std::string(m_buffer.substr(m_col, length));
-			m_col += length;
+			m_col += (static_cast<long>(length) - 1);
 		}
 		return true;
 	}
