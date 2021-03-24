@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/energybased/DavidsonHarelLayout.h>
 #include <ogdf/energybased/DTreeMultilevelEmbedder.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
@@ -178,4 +179,21 @@ go_bandit([] { describe("Energy-based layouts", [] {
 	TEST_ENERGY_BASED_LAYOUT(StressMinimization, 0);
 
 	TEST_ENERGY_BASED_LAYOUT(TutteLayout, 0, GraphProperty::triconnected, GraphProperty::planar, GraphProperty::simple);
-}); });
+});
+
+describe("FMMMLayout parameters overriding", [&]() {
+
+	it("should not reset parameters to their default value when using high level options", [&]() {
+		Graph G;
+		randomSimpleGraph(G, 100, 200);
+		GraphAttributes GA(G);
+
+		FMMMLayout fmmm;
+		fmmm.useHighLevelOptions(true);
+		fmmm.allowedPositions(FMMMOptions::AllowedPositions::All);
+		fmmm.call(GA);
+		AssertThat(fmmm.allowedPositions(), Equals(FMMMOptions::AllowedPositions::All));
+	});
+});
+
+});
