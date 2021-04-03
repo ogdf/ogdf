@@ -228,6 +228,7 @@ std::ostream& GraphIO::indent(std::ostream& os, int depth) {
 				reader = t->FUNC;                      \
 			}                                          \
 		}                                              \
+		OGDF_ASSERT(reader);                           \
 		std::ifstream is(filename);                    \
 		return is.good() && reader(__VA_ARGS__, is);   \
 	}
@@ -258,6 +259,7 @@ bool GraphIO::read(ClusterGraphAttributes& GA, ClusterGraph& CG, Graph& G, const
 				writer = t->FUNC;                                                                      \
 			}                                                                                          \
 		}                                                                                              \
+		OGDF_ASSERT(writer);                                                                           \
 		std::ofstream os(filename);                                                                    \
 		return os.good() && writer(ARG, os);                                                           \
 	}
