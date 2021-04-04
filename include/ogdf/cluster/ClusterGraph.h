@@ -799,23 +799,25 @@ protected:
 	//! @{
 
 	//! Implementation of inherited method: Updates data if node deleted.
-	virtual void nodeDeleted(node v) override;
+	void nodeDeleted(node v) override;
 
 	//! Implementation of inherited method: Updates data if node added.
-	virtual void nodeAdded(node v) override { assignNode(v, rootCluster()); }
+	void nodeAdded(node v) override { assignNode(v, rootCluster()); }
 
 	//! Implementation of inherited method: Updates data if edge deleted.
-	virtual void edgeDeleted(edge /* e */) override { }
+	void edgeDeleted(edge /* e */) override { }
 
 	//! Implementation of inherited method: Updates data if edge added.
-	virtual void edgeAdded(edge /* e */) override { }
+	void edgeAdded(edge /* e */) override { }
 
 	//! Clears cluster data without deleting root when underlying graphs' clear method is called.
-	virtual void cleared() override {
+	void cleared() override {
 		//we don't want a complete clear, as the graph still exists
 		//and can be updated from input stream
 		clear();
 	}
+
+	void unregistered() override;
 
 	//! @}
 

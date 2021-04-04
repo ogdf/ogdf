@@ -68,8 +68,13 @@ Graph::Graph(const Graph& G)
 }
 
 Graph::~Graph() {
+	for (auto& obs : m_regStructures) {
+		obs->unregistered();
+	}
+
 	restoreAllEdges();
 
+	// this is only necessary because GraphObjectContainer simply deallocs its memory without calling destructors
 	for (node v = nodes.head(); v; v = v->succ()) {
 		v->adjEntries.~GraphObjectContainer<AdjElement>();
 	}

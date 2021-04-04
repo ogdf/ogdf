@@ -73,8 +73,6 @@ public:
 	//! Copy constructor.
 	GraphCopySimple(const GraphCopySimple& GC);
 
-	virtual ~GraphCopySimple() { }
-
 	//! Re-initializes the copy using \p G.
 	void init(const Graph& G);
 
@@ -277,8 +275,6 @@ public:
 	 * copy of the original graph of \p GC.
 	 */
 	GraphCopy(const GraphCopy& GC);
-
-	virtual ~GraphCopy() { }
 
 	/**
 	 * @name Mapping between original graph and copy

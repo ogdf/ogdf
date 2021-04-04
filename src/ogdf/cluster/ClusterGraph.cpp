@@ -166,7 +166,17 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G)
 	deepCopy(C, G);
 }
 
-ClusterGraph::~ClusterGraph() { doClear(); }
+ClusterGraph::~ClusterGraph() {
+	if (m_lcaSearch) {
+		delete m_lcaSearch;
+		delete m_vAncestor;
+		delete m_wAncestor;
+	}
+	// this is only necessary because GraphObjectContainer simply deallocs its memory without calling destructors
+	while (!clusters.empty()) {
+		clusters.del(clusters.head());
+	}
+}
 
 // Construction of a new cluster graph. All nodes
 // are children of the root cluster
@@ -236,7 +246,7 @@ void ClusterGraph::shallowCopy(const ClusterGraph& C) {
 
 // Initialize the graph
 void ClusterGraph::initGraph(const Graph& G) {
-	reregister(&G); //will in some constructors cause double registration
+	reregister(&G); //FIXME will in some constructors cause double registration
 
 	m_lcaNumber = 0;
 	m_lcaSearch = nullptr;
@@ -1266,6 +1276,27 @@ void ClusterGraph::unregisterObserver(ListIterator<ClusterGraphObserver*> it) co
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
 	m_regObservers.del(it);
+}
+
+void ClusterGraph::unregistered() {
+	if (m_lcaSearch) {
+		delete m_lcaSearch;
+		delete m_vAncestor;
+		delete m_wAncestor;
+	}
+	m_lcaNumber = 0;
+	m_adjAvailable = false;
+	std::list<cluster> queue {m_rootCluster};
+	while (!queue.empty()) {
+		cluster c = queue.front();
+		queue.pop_front();
+		for (cluster child : c->children) {
+			queue.push_back(child);
+		}
+		c->nodes.clear();
+		c->adjEntries.clear();
+	}
+	GraphObserver::unregistered();
 }
 
 std::ostream& operator<<(std::ostream& os, cluster c) {

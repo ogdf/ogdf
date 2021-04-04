@@ -148,7 +148,7 @@ public:
  *
  * \sa - ClusterSetPure, ClusterSetSimple
  */
-class OGDF_EXPORT ClusterSet : RegisteredSet<cluster, ClusterGraph, true> {
+class OGDF_EXPORT ClusterSet : public RegisteredSet<cluster, ClusterGraph, true> {
 	using RS = RegisteredSet<cluster, ClusterGraph, true>;
 
 public:

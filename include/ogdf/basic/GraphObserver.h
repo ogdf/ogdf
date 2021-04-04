@@ -105,6 +105,8 @@ public:
 	//! Has to be implemented by derived classes
 	virtual void cleared() = 0;
 
+	virtual void unregistered() { m_pGraph = nullptr; }
+
 	const Graph* getGraph() const { return m_pGraph; }
 
 protected:
