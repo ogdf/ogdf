@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/RegisteredSet.h>
 
@@ -62,7 +61,10 @@ public:
 	const typename RS::ListType& nodes() { return RS::elements(); }
 
 	//! Returns the associated graph
-	const Graph* graphOf() const { return RS::registeredAt(); }
+	const Graph& graphOf() const {
+		OGDF_ASSERT(RS::registeredAt());
+		return *RS::registeredAt();
+	}
 };
 
 }
