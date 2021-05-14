@@ -38,77 +38,6 @@
 namespace ogdf {
 
 
-//! Simple cluster sets.
-/**
- * @ingroup graph-containers
- *
- * A cluster set maintains a subset \a S of the clusters contained in an associated
- * clustered graph. This kind of cluster set only provides efficient operation for testing
- * membership, insertion, and clearing the set.
- *
- * \sa ClusterSet, ClusterSetPure
- */
-class OGDF_EXPORT ClusterSetSimple {
-public:
-	//! Creates an empty cluster set associated with clustered graph \p C.
-	explicit ClusterSetSimple(const ClusterGraph& C) : m_isContained(C, false) { }
-
-	// destructor
-	~ClusterSetSimple() { }
-
-	//! Inserts cluster \p c into \a S.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated clustered graph.
-	 */
-	void insert(cluster c) {
-		OGDF_ASSERT(c->graphOf() == m_isContained.graphOf());
-		if (!m_isContained[c]) {
-			m_isContained[c] = true;
-			m_clusters.pushFront(c);
-		}
-	}
-
-	//! Removes all clusters from \a S.
-	/**
-	 * After this operation, \a S is empty and still associated with the same clustered graph.
-	 * The runtime of this operations is O(k), where k is the number of clusters in \a S
-	 * before this operation.
-	 */
-	void clear() {
-		SListIterator<cluster> it;
-		for (it = m_clusters.begin(); it.valid(); ++it) {
-			m_isContained[*it] = false;
-		}
-		m_clusters.clear();
-	}
-
-	//! Returns true if cluster \p c is contained in \a S, false otherwise.
-	/**
-	 * This operation has constant runtime.
-	 *
-	 * \pre \p c is a cluster in the associated graph.
-	 */
-	bool isMember(cluster c) const {
-		OGDF_ASSERT(c->graphOf() == m_isContained.graphOf());
-		return m_isContained[c];
-	}
-
-	//! Returns a reference to the list of clusters contained in \a S.
-	/**
-	 * This list can be used for iterating over all clusters in \a S.
-	 */
-	const SListPure<cluster>& clusters() const { return m_clusters; }
-
-private:
-	//! m_isContained[\a c] is true iff \a c is contained in \a S
-	ClusterArray<bool> m_isContained;
-
-	//! The list of clusters contained in \a S
-	SListPure<cluster> m_clusters;
-};
-
 //! Cluster sets.
 /**
  * @ingroup graph-containers
@@ -120,7 +49,7 @@ private:
  * In contrast to ClusterSet, a ClusterSetPure does not provide efficient access
  * to the number of clusters stored in the set.
  *
- * \sa ClusterSet, ClusterSetSimple
+ * \sa ClusterSet
  */
 class OGDF_EXPORT ClusterSetPure : public RegisteredSet<cluster, ClusterGraph, false> {
 	using RS = RegisteredSet<cluster, ClusterGraph, false>;
@@ -146,7 +75,7 @@ public:
  * In contrast to ClusterSetPure, a ClusterSet provides efficient access
  * to the number of clusters stored in the set.
  *
- * \sa - ClusterSetPure, ClusterSetSimple
+ * \sa - ClusterSetPure
  */
 class OGDF_EXPORT ClusterSet : public RegisteredSet<cluster, ClusterGraph, true> {
 	using RS = RegisteredSet<cluster, ClusterGraph, true>;
@@ -160,5 +89,7 @@ public:
 	 */
 	const List<cluster>& clusters() const { return RS::elements(); }
 };
+
+using ClusterSetSimple = ClusterSetPure;
 
 }
