@@ -49,169 +49,219 @@ inline List<int> maybeWrap<List<int>>(int value) {
 }
 
 /**
- * Perform basic tests for a map of graph elements to values.
+ * Perform basic tests for a map of registry elements to values.
+ * @tparam RegistryType the type of the associated registry
  * @tparam ArrayType the type of array to be tested
- * @tparam KeyType the type of key graph element
+ * @tparam KeyType the type of key registry element
  * @tparam ElementType the value type
  *
  * @param title the title of the top-level bandit::describe
  * @param fillElement an arbitrary instance of \a ElementType
  * @param secondElement a second instance of \a ElementType, must differ from \p fillElement
- * @param chooseKey a function to choose an arbitrary key element from the graph
+ * @param initRegistry a function to initialize the registry
+ * @param chooseKey a function to choose an arbitrary key element from the registry
  * @param getAllKeys a function to generate a list of all keys
- * @param createKey a function to create a new key element in the graph
+ * @param createKey a function to create a new key element in the registry
  */
-template<template<typename> class ArrayType, typename KeyType, typename ElementType>
+template<class RegistryType, template<typename> class ArrayType, typename KeyType, typename ElementType>
 void describeArray(const std::string& title, const ElementType& fillElement,
-		const ElementType& secondElement, std::function<KeyType(const Graph&)> chooseKey,
-		std::function<void(const Graph&, List<KeyType>&)> getAllKeys,
-		std::function<KeyType(Graph&)> createKey) {
+		const ElementType& secondElement, std::function<void(RegistryType&)> initRegistry,
+		std::function<KeyType(const RegistryType&)> chooseKey,
+		std::function<void(const RegistryType&, List<KeyType>&)> getAllKeys,
+		std::function<KeyType(RegistryType&)> createKey) {
 	using MyArrayType = ArrayType<ElementType>;
+	using RegistryBaseType = const typename MyArrayType::registry_type;
 	using const_iterator = typename MyArrayType::const_iterator;
 	using iterator = typename MyArrayType::iterator;
 
 	describe(title.c_str(), [&]() {
 		std::unique_ptr<MyArrayType> array;
-		Graph graph;
-		randomGraph(graph, 42, 168);
+		RegistryType registry;
+		initRegistry(registry);
 
-		before_each([&]() { array.reset(new MyArrayType()); });
+		before_each([&]() {
+			array.reset(new MyArrayType());
+			initRegistry(registry);
+		});
 
 		it("handles nested arrays well", [&]() {
-			Graph G;
-			G.newEdge(G.newNode(), G.newNode());
+			RegistryType R;
+			initRegistry(R);
 
 			List<KeyType> keys;
-			getAllKeys(G, keys);
+			getAllKeys(R, keys);
 
-			ArrayType<MyArrayType> nestedArray(G);
+			ArrayType<MyArrayType> nestedArray(R);
 			for (KeyType k : keys) {
-				nestedArray[k].init(G, fillElement);
+				nestedArray[k].init(R, fillElement);
 			}
 		});
 
 		describe("init", [&]() {
-			it("initializes w/o a graph", [&]() {
-				AssertThat(array->graphOf(), IsNull());
+			it("initializes w/o a registry", [&]() {
+				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				array->init();
-				AssertThat(array->graphOf(), IsNull());
+				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 			});
 
-			it("initializes w a graph", [&]() {
-				array->init(graph);
-				AssertThat(array->graphOf(), Equals(&graph));
+			it("initializes w a registry", [&]() {
+				array->init(registry);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
-			it("initializes w a graph and filled", [&]() {
-				array->init(graph, fillElement);
-				AssertThat(array->graphOf(), Equals(&graph));
-				AssertThat(array->valid(), IsTrue());
-				AssertThat((*array)[chooseKey(graph)], Equals(fillElement));
-			});
-
-			it("is constructed w a graph", [&]() {
-				array.reset(new MyArrayType(graph));
-				AssertThat(array->graphOf(), Equals(&graph));
+			it("initializes w an empty registry", [&]() {
+				RegistryType R;
+				array->init(R);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)R)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
-			it("is constructed w a graph and filled", [&]() {
-				array.reset(new MyArrayType(graph, fillElement));
-				AssertThat(array->graphOf(), Equals(&graph));
+			it("initializes w a registry and filled", [&]() {
+				array->init(registry, fillElement);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
 				AssertThat(array->valid(), IsTrue());
-				AssertThat((*array)[chooseKey(graph)], Equals(fillElement));
+				AssertThat((*array)[chooseKey(registry)], Equals(fillElement));
+			});
+
+			it("is constructed w a registry", [&]() {
+				array.reset(new MyArrayType(registry));
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(array->valid(), IsTrue());
+			});
+
+			it("is constructed w an empty registry", [&]() {
+				RegistryType R;
+				array.reset(new MyArrayType(R));
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)R)));
+				AssertThat(array->valid(), IsTrue());
+			});
+
+			it("is constructed w a registry and filled", [&]() {
+				array.reset(new MyArrayType(registry, fillElement));
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(array->valid(), IsTrue());
+				AssertThat((*array)[chooseKey(registry)], Equals(fillElement));
 			});
 
 			it("supports copy-construction", [&]() {
-				array->init(graph, fillElement);
+				array->init(registry, fillElement);
 				MyArrayType copiedArray(*array);
-				AssertThat(copiedArray.graphOf(), Equals(array->graphOf()));
+				AssertThat(copiedArray.registeredAt(), Equals(array->registeredAt()));
 				AssertThat(array->valid(), IsTrue());
-				AssertThat((*array)[chooseKey(graph)], Equals(fillElement));
+				AssertThat((*array)[chooseKey(registry)], Equals(fillElement));
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
 			});
 
 			it("implements the assignment-operator", [&]() {
-				array->init(graph, fillElement);
+				array->init(registry, fillElement);
 				MyArrayType copiedArray = *array;
-				AssertThat(copiedArray.graphOf(), Equals(array->graphOf()));
+				AssertThat(copiedArray.registeredAt(), Equals(array->registeredAt()));
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
 			});
 
 			it("supports move-construction", [&]() {
-				array->init(graph, fillElement);
+				array->init(registry, fillElement);
 				MyArrayType copiedArray = std::move(*array);
-				AssertThat(copiedArray.graphOf(), Equals(&graph));
-				AssertThat(array->graphOf(), IsNull());
+				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
 			});
 
 			it("moves an array using the assignment operator", [&]() {
-				array->init(graph, fillElement);
+				array->init(registry, fillElement);
 				MyArrayType copiedArray;
 				copiedArray = (std::move(*array));
-				AssertThat(&(*copiedArray.graphOf()), Equals(&graph));
-				AssertThat(array->graphOf(), IsNull());
+				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(graph)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
+			});
+
+			it("correctly fills the array with a default value", [&]() {
+				array->init(registry, fillElement);
+				AssertThat(array->getDefault(), Equals(fillElement));
+				array->setDefault(secondElement);
+				array->fillWithDefault();
+				AssertThat(array->getDefault(), Equals(secondElement));
+				AssertThat((*array)[chooseKey(registry)], Equals(secondElement));
+			});
+
+			it("allows filling the array with a specific element", [&]() {
+				array->init(registry, fillElement);
+				array->fill(secondElement);
+				AssertThat((*array)[chooseKey(registry)], Equals(secondElement));
 			});
 
 			it("assigns the default value to a newly created key", [&]() {
-				array->init(graph, fillElement);
-				KeyType key = createKey(graph);
+				array->init(registry, fillElement);
+				KeyType key = createKey(registry);
 				AssertThat((*array)[key], Equals(fillElement));
+			});
+
+			it("retains the stored information when it grows", [&]() {
+				array->init(registry, fillElement);
+				KeyType k = chooseKey(registry);
+				(*array)[k] = secondElement;
+				int size = array->registeredAt()->getArraySize();
+
+				for (int i = 0; i <= size; ++i) {
+					createKey(registry);
+				}
+
+				AssertThat(array->registeredAt()->getArraySize(), IsGreaterThan(size));
+				AssertThat((*array)[k], Equals(secondElement));
 			});
 		});
 
 		describe("access", [&]() {
 			it("distinguishes between a valid and an invalid array", [&]() {
 				AssertThat(array->valid(), IsFalse());
-				array->init(graph);
+				array->init(registry);
 				AssertThat(array->valid(), IsTrue());
 			});
 
-			it("knows its graph", [&]() {
-				array->init(graph);
-				AssertThat(array->graphOf(), Equals(&graph));
+			it("knows its registry", [&]() {
+				array->init(registry);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
 			});
 
 			it("allows access with the subscript operator", [&]() {
-				array->init(graph, fillElement);
-				KeyType k = chooseKey(graph);
+				array->init(registry, fillElement);
+				KeyType k = chooseKey(registry);
 				AssertThat((*array)[k], Equals(fillElement));
 				AssertThat((*array)[k] = secondElement, Equals(secondElement));
 
-				array->init(graph, fillElement);
+				array->init(registry, fillElement);
 				const MyArrayType cAccessArray(*array);
 				AssertThat(cAccessArray[k], Equals(fillElement));
 			});
 
 			it("allows access with the () operator", [&]() {
-				array->init(graph, fillElement);
-				KeyType k = chooseKey(graph);
+				array->init(registry, fillElement);
+				KeyType k = chooseKey(registry);
 				AssertThat((*array)(k), Equals(fillElement));
 				AssertThat((*array)(k) = secondElement, Equals(secondElement));
 
-				array->init(graph, fillElement);
+				array->init(registry, fillElement);
 				const MyArrayType cAccessArray(*array);
 				AssertThat(cAccessArray(k), Equals(fillElement));
 			});
 		});
 
 		describe("iterators", [&]() {
-			before_each([&]() { array->init(graph, fillElement); });
+			before_each([&]() { array->init(registry, fillElement); });
 
 			it("iterates over the array", [&]() {
 				List<KeyType> list;
-				getAllKeys(graph, list);
+				getAllKeys(registry, list);
 
 				const MyArrayType cArray(*array);
 				int counter = 0;

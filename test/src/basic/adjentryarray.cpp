@@ -55,8 +55,10 @@ go_bandit([]() {
 		return randomNumber(0, 1) ? e->adjSource() : e->adjTarget();
 	};
 
-	describeArray<AdjEntryArray, adjEntry, int>("AdjEntryArray filled with ints", 42, 43,
-			chooseAdjEntry, allAdjEntries, createAdjEntry);
-	describeArray<AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints",
-			{1, 2, 3}, {42}, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
+
+	describeArray<Graph, AdjEntryArray, adjEntry, int>("AdjEntryArray filled with ints", 42, 43,
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	describeArray<Graph, AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints",
+			{1, 2, 3}, {42}, init, chooseAdjEntry, allAdjEntries, createAdjEntry);
 });

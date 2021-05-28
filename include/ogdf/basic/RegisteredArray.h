@@ -445,7 +445,7 @@ public:
 	const_iterator cend() const { return const_iterator(getRegistry().end(), this); }
 
 	bool valid() const {
-		OGDF_ASSERT(registeredAt() == nullptr
+		OGDF_ASSERT(registeredAt() == nullptr || registeredAt()->maxKeyIndex() < 0
 				|| ((size_t)registeredAt()->maxKeyIndex()) < m_data.size());
 		return registered_array_base::registeredAt();
 	}
@@ -507,7 +507,7 @@ public:
 	//			m_default = def;
 	//		}
 
-	void fillWithDefault() { RA::m_data.assign(RA::getRegistry().arraySize(), m_default); }
+	void fillWithDefault() { RA::m_data.assign(RA::getRegistry().getArraySize(), m_default); }
 
 protected:
 	void resize(int size, bool shrink) override {

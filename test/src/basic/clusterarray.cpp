@@ -1,7 +1,7 @@
 /** \file
- * \brief Tests for ogdf::EdgeArray
+ * \brief Tests for ogdf::ClusterArray
  *
- * \author Mirko Wagner, Tilo Wiedera
+ * \author Matthias Pfretzschner
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -30,22 +30,27 @@
  */
 #include "array_helper.h"
 
-using namespace ogdf;
-using namespace bandit;
-
 go_bandit([]() {
-	auto chooseEdge = [](const Graph& graph) { return graph.chooseEdge(); };
+	auto allClusters = [](const ClusterGraph& C, List<cluster>& list) { C.allClusters(list); };
 
-	auto allEdges = [](const Graph& graph, List<edge>& list) { graph.allEdges(list); };
-
-	auto createEdge = [](Graph& graph) {
-		return graph.newEdge(graph.chooseNode(), graph.chooseNode());
+	auto chooseCluster = [](const ClusterGraph& C) {
+		return *chooseIteratorFrom<internal::GraphObjectContainer<ClusterElement>, cluster>(
+				const_cast<internal::GraphObjectContainer<ClusterElement>&>(C.clusters));
 	};
 
-	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
+	auto createCluster = [](ClusterGraph& C) { return C.createEmptyCluster(); };
 
-	describeArray<Graph, EdgeArray, edge, int>("EdgeArray filled with ints", 42, 43, init,
-			chooseEdge, allEdges, createEdge);
-	describeArray<Graph, EdgeArray, edge, List<int>>("EdgeArray filled with lists of ints",
-			{1, 2, 3}, {42}, init, chooseEdge, allEdges, createEdge);
+	Graph G;
+
+	auto init = [&](ClusterGraph& C) {
+		randomSimpleConnectedGraph(G, 42, 168);
+		C.init(G);
+		randomClusterGraph(C, G, 42);
+	};
+
+	describeArray<ClusterGraph, ClusterArray, cluster, int>("ClusterArray filled with ints", 42, 43,
+			init, chooseCluster, allClusters, createCluster);
+	describeArray<ClusterGraph, ClusterArray, cluster, List<int>>(
+			"ClusterArray filled with lists of ints", {1, 2, 3}, {42}, init, chooseCluster,
+			allClusters, createCluster);
 });

@@ -41,8 +41,10 @@ go_bandit([]() {
 
 	auto createNode = [](Graph& graph) { return graph.newNode(); };
 
-	describeArray<NodeArray, node, int>("NodeArray filled with ints", 42, 43, chooseNode, allNodes,
-			createNode);
-	describeArray<NodeArray, node, List<int>>("NodeArray filled with lists of ints", {1, 2, 3},
-			{42}, chooseNode, allNodes, createNode);
+	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
+
+	describeArray<Graph, NodeArray, node, int>("NodeArray filled with ints", 42, 43, init,
+			chooseNode, allNodes, createNode);
+	describeArray<Graph, NodeArray, node, List<int>>("NodeArray filled with lists of ints",
+			{1, 2, 3}, {42}, init, chooseNode, allNodes, createNode);
 });
