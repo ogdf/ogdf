@@ -90,6 +90,46 @@ public:                                                             \
  */
 #define OGDF_MALLOC_NEW_DELETE OGDF_MM(ogdf::MallocMemoryAllocator)
 
+template<class T>
+struct OGDFAllocator {
+	using value_type = T;
+
+	OGDFAllocator() noexcept { }
+
+	template<class U>
+	OGDFAllocator(const OGDFAllocator<U>&) noexcept { }
+
+	template<class U>
+	bool operator==(const OGDFAllocator<U>&) const noexcept {
+		return true;
+	}
+
+	template<class U>
+	bool operator!=(const OGDFAllocator<U>&) const noexcept {
+		return false;
+	}
+
+	T* allocate(const size_t n) const {
+		const size_t s = n * sizeof(T);
+		if (OGDF_LIKELY(OGDF_ALLOCATOR::checkSize(s))) {
+			return static_cast<T*>(OGDF_ALLOCATOR::allocate(s));
+		} else {
+			return static_cast<T*>(ogdf::MallocMemoryAllocator::allocate(s));
+		}
+	}
+
+	void deallocate(T* const p, size_t n) const noexcept {
+		if (OGDF_LIKELY(p != nullptr)) {
+			const size_t s = n * sizeof(T);
+			if (OGDF_LIKELY(OGDF_ALLOCATOR::checkSize(s))) {
+				OGDF_ALLOCATOR::deallocate(s, p);
+			} else {
+				ogdf::MallocMemoryAllocator::deallocate(s, p);
+			}
+		}
+	}
+};
+
 //! @}
 
 }

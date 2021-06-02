@@ -76,7 +76,8 @@ public:
 	using key_type = Key;
 	using registry_type = Registry;
 	using iterator_type = Iterator;
-	using registration_list_type = std::list<registered_array_type*>;
+	using registration_list_type =
+			std::list<registered_array_type*, OGDFAllocator<registered_array_type*>>;
 	using registration_iterator_type = typename registration_list_type::iterator;
 	using observer_list_type = std::list<RegistryObserver<Registry>*>;
 
@@ -347,7 +348,7 @@ public:
 	using key_type = typename Registry::key_type;
 	//		using vector_type = typename std::conditional<std::is_same<Value, bool>::value,
 	//				std::vector<unsigned char>, std::vector<Value>>::type;
-	using vector_type = std::vector<Value>;
+	using vector_type = std::vector<Value, OGDFAllocator<Value>>;
 	using value_type = typename vector_type::value_type;
 	using value_ref_type = typename vector_type::reference;
 	using value_const_ref_type = typename vector_type::const_reference;
