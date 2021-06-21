@@ -854,6 +854,26 @@ public:
 	//! Returns the table size of adjEntry arrays associated with this graph.
 	int adjEntryArrayTableSize() const { return m_regEdgeArrays.getArraySize() << 1; }
 
+	//! Returns a reference to the registry of node arrays associated with this graph.
+	GraphRegistry<NodeElement>& nodeRegistry() { return m_regNodeArrays; }
+
+	//! Returns a const reference to the registry of node arrays associated with this graph.
+	const GraphRegistry<NodeElement>& nodeRegistry() const { return m_regNodeArrays; }
+
+	//! Returns a reference to the registry of edge arrays associated with this graph.
+	GraphRegistry<EdgeElement>& edgeRegistry() { return m_regEdgeArrays; }
+
+	//! Returns a const reference to the registry of edge arrays associated with this graph.
+	const GraphRegistry<EdgeElement>& edgeRegistry() const { return m_regEdgeArrays; }
+
+	//! Returns a reference to the registry of adjEntry arrays associated with this graph.
+	GraphRegistry<AdjElement, GraphAdjIterator>& adjEntryRegistry() { return m_regAdjArrays; }
+
+	//! Returns a const reference to the registry of adjEntry arrays associated with this graph.
+	const GraphRegistry<AdjElement, GraphAdjIterator>& adjEntryRegistry() const {
+		return m_regAdjArrays;
+	}
+
 	//! Returns the first node in the list of all nodes.
 	node firstNode() const { return nodes.head(); }
 
