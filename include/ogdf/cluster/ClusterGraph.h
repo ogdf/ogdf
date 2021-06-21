@@ -922,9 +922,8 @@ public:
 
 	ClusterArray(const ClusterGraph& C, const Value& def) : RA(&C, def) {};
 
-	// TODO This constructor probably should not even exist
 	ClusterArray(const ClusterGraph& C, const Value& def, int size) : RA(&C, def) {
-		((ClusterGraphRegistry&)C).resizeArrays(size);
+		RA::resize(size, true);
 	};
 
 	using RA::init;

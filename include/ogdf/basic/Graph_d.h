@@ -846,7 +846,7 @@ public:
 	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
 	//! Returns the table size of node arrays associated with this graph.
-	int nodeArrayTableSize() const { return m_regNodeArrays.getArraySize(); } // TODO remove
+	int nodeArrayTableSize() const { return m_regNodeArrays.getArraySize(); }
 
 	//! Returns the table size of edge arrays associated with this graph.
 	int edgeArrayTableSize() const { return m_regEdgeArrays.getArraySize(); }
@@ -1615,7 +1615,7 @@ private:
 	//! Respects the minimum table size constants.
 	void resetTableSizes();
 
-	//! Re-initializes registed arrays with respect to the current sizes.
+	//! Re-initializes registered arrays with respect to the current sizes.
 	//! Calls #resetTableSizes() if \p doResetTableSizes is \c true (default).
 	void reinitArrays(bool doResetTableSizes = true);
 	void resetAdjEntryIndex(int newIndex, int oldIndex);

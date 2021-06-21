@@ -35,7 +35,6 @@
 
 namespace ogdf {
 
-// TODO replace ogdf::List, ogdf::ListPure with lists from the standard library?
 template<class ElementType, class RegistryType, bool SupportFastSizeQuery = true>
 class RegisteredSet {
 public:

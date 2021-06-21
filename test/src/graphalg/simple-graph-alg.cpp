@@ -49,9 +49,6 @@
  * @param assignedVals is the first array.
  * @param expVals is an initializer list with values for the second array.
  */
-// TODO replace
-//template<typename GraphObject>
-//void bijectiveMappingAssert(GraphRegisteredArray<GraphObject, int> assignedVals, std::initializer_list<int> expVals)
 template<typename ArrayType>
 void bijectiveMappingAssert(ArrayType assignedVals, std::initializer_list<int> expVals) {
 	std::set<int> expSet(expVals);

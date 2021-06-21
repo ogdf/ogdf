@@ -167,7 +167,6 @@ public:
 using CombinatorialEmbeddingRegistry =
 		RegistryBase<face, ConstCombinatorialEmbedding, internal::GraphIterator<face>>;
 
-// TODO handle FaceArray<bool>
 template<class Value>
 class FaceArray : public RegisteredArrayWithDefault<ConstCombinatorialEmbedding, Value> {
 public:

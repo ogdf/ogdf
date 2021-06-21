@@ -87,7 +87,7 @@ go_bandit([]() {
 			AssertThat(graph.maxNodeIndex(), IsLessThan(0));
 			AssertThat(graph.maxEdgeIndex(), IsLessThan(0));
 			AssertThat(graph.maxAdjEntryIndex(), IsLessThan(0));
-			//		AssertThat(graph.nodeArrayTableSize(), IsGreaterThan(0)); // TODO
+			AssertThat(graph.nodeArrayTableSize(), IsGreaterThan(0));
 			AssertThat(graph.edgeArrayTableSize(), IsGreaterThan(0));
 			AssertThat(graph.adjEntryArrayTableSize(), IsGreaterThan(0));
 			AssertThat(graph.firstNode(), IsNull());

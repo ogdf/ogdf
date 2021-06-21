@@ -79,11 +79,9 @@ public:
 	using registration_list_type =
 			std::list<registered_array_type*, OGDFAllocator<registered_array_type*>>;
 	using registration_iterator_type = typename registration_list_type::iterator;
-	using observer_list_type = std::list<RegistryObserver<Registry>*>;
 
 private:
 	mutable registration_list_type m_registeredArrays;
-	mutable observer_list_type m_registeredObservers;
 	bool m_autoShrink = false;
 	int m_size = 0;
 
@@ -95,9 +93,7 @@ protected:
 	RegistryBase() = default;
 
 public:
-	virtual ~RegistryBase() noexcept { // TODO fix destructors, propagate noexcept
-		unregisterArrays();
-	}
+	virtual ~RegistryBase() noexcept { unregisterArrays(); }
 
 	RegistryBase(const RegistryBase& copy) = delete;
 
@@ -107,7 +103,6 @@ public:
 
 	RegistryBase& operator=(RegistryBase&& other) noexcept = delete;
 
-	// TODO same methods for Observers, also unregisterObservers for the destructor
 	OGDF_NODISCARD registration_iterator_type registerArray(registered_array_type* pArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
@@ -141,26 +136,11 @@ public:
 
 	OGDF_NODISCARD virtual Iterator end() const = 0;
 
-	void keyAdded(Key key) {
-		resizeArrays();
-		for (auto observer : m_registeredObservers) {
-			observer->keyAdded((Registry*)this, key);
-		}
-	}
+	void keyAdded(Key key) { resizeArrays(); }
 
-	void keyRemoved(Key key) {
-		for (auto observer : m_registeredObservers) {
-			observer->keyRemoved((Registry*)this, key);
-		}
-		resizeArrays();
-	}
+	void keyRemoved(Key key) { resizeArrays(); }
 
-	void keysCleared() {
-		for (auto observer : m_registeredObservers) {
-			observer->keysCleared((Registry*)this);
-		}
-		resizeArrays(0);
-	}
+	void keysCleared() { resizeArrays(0); }
 
 	void resizeArrays() { resizeArrays(calculateArraySize()); }
 
@@ -189,6 +169,12 @@ public:
 		}
 	}
 
+	void resetArrayIndex(int newIndex, int oldIndex) {
+		for (registered_array_type* ab : m_registeredArrays) {
+			ab->resetIndex(newIndex, oldIndex);
+		}
+	}
+
 	void unregisterArrays() noexcept {
 		while (!m_registeredArrays.empty()) {
 #ifdef OGDF_DEBUG
@@ -200,8 +186,6 @@ public:
 	}
 
 	const registration_list_type& getRegisteredArrays() const { return m_registeredArrays; }
-
-	const observer_list_type& getRegisteredObservers() const { return m_registeredObservers; }
 
 	bool isAutoShrink() const { return m_autoShrink; }
 
@@ -246,6 +230,8 @@ public:
 	virtual void resize(int size, bool shrink) = 0;
 
 	virtual void swapEntries(int newIndex, int oldIndex) = 0;
+
+	virtual void resetIndex(int newIndex, int oldIndex) = 0;
 
 	void unregister() noexcept {
 		resize(0, true);
@@ -346,8 +332,6 @@ protected:
 public:
 	using registry_type = Registry;
 	using key_type = typename Registry::key_type;
-	//		using vector_type = typename std::conditional<std::is_same<Value, bool>::value,
-	//				std::vector<unsigned char>, std::vector<Value>>::type;
 	using vector_type = std::vector<Value, OGDFAllocator<Value>>;
 	using value_type = typename vector_type::value_type;
 	using value_ref_type = typename vector_type::reference;
@@ -468,7 +452,10 @@ protected:
 	}
 
 	void swapEntries(int newIndex, int oldIndex) override {
-		//			std::swap(m_data.at(newIndex), m_data.at(oldIndex)); // TODO this yields weird results after calling split
+		std::swap(m_data.at(newIndex), m_data.at(oldIndex));
+	}
+
+	void resetIndex(int newIndex, int oldIndex) override {
 		m_data.at(newIndex) = m_data.at(oldIndex);
 	}
 };
@@ -479,7 +466,6 @@ class RegisteredArrayWithDefault : public RegisteredArray<Registry, Value> {
 	Value m_default;
 
 public:
-	// TODO use varargs or move default?
 	explicit RegisteredArrayWithDefault(Value&& def) : RA(), m_default(std::forward<Value>(def)) {};
 
 	explicit RegisteredArrayWithDefault(const Registry* registry, Value&& def)
@@ -503,10 +489,6 @@ public:
 	const Value& getDefault() const { return m_default; }
 
 	Value& getDefault() { return m_default; }
-
-	//		void setDefault(typename RA::value_const_ref_type def) {
-	//			m_default = def;
-	//		}
 
 	void fillWithDefault() { RA::m_data.assign(RA::getRegistry().getArraySize(), m_default); }
 

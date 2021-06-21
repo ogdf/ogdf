@@ -100,7 +100,7 @@ void Graph::assign(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& ma
 
 void Graph::construct(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge) {
 	copy(G, mapNode, mapEdge);
-	reinitArrays(true);
+	reinitArrays();
 }
 
 void Graph::copy(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge) {
@@ -423,8 +423,7 @@ node Graph::pureNewNode() {
 	node v = new NodeElement(m_nodeIdCount++);
 #endif
 	nodes.pushBack(v);
-	// TODO why do we notify observers but not the arrays?
-	// m_regNodeArrays.keyAdded(v);
+	m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
 	for (GraphObserver* obs : m_regStructures) {
@@ -697,7 +696,7 @@ edge Graph::split(edge e) {
 
 	int oldId = e->m_adjTgt->m_id;
 	edge e2 = createEdgeElement(u, e->m_tgt, adjSrc, e->m_adjTgt);
-	resetAdjEntryIndex(e->m_adjTgt->m_id, oldId);
+	m_regAdjArrays.resetArrayIndex(e->m_adjTgt->m_id, oldId);
 
 	e2->m_adjTgt->m_twin = adjSrc;
 	e->m_adjTgt->m_edge = adjSrc->m_edge = e2;
@@ -739,7 +738,7 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	eIn->m_tgt = eOut->m_tgt;
 
 	// adapt adjacency entry index to hold invariant
-	resetAdjEntryIndex(eIn->m_adjTgt->m_id, adjTgt->m_id);
+	m_regAdjArrays.resetArrayIndex(eIn->m_adjTgt->m_id, adjTgt->m_id);
 	adjTgt->m_id = eIn->m_adjTgt->m_id; // correct id of adjacency entry!
 
 	eIn->m_adjTgt = adjTgt;
@@ -832,7 +831,7 @@ void Graph::clear() {
 	edges.clear();
 
 	m_nodeIdCount = m_edgeIdCount = 0;
-	reinitArrays(false);
+	reinitArrays();
 
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
@@ -960,14 +959,12 @@ void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const {
 }
 
 void Graph::resetTableSizes() {
-	// FIXME this is very weird
 	m_regNodeArrays.resizeArrays();
 	m_regEdgeArrays.resizeArrays();
 	m_regAdjArrays.resizeArrays();
 }
 
-void Graph::reinitArrays(bool doResetTableSizes) {
-	// TODO remove param, update AdjEntryArray
+void Graph::reinitArrays() {
 	m_regNodeArrays.resizeArrays(0);
 	m_regNodeArrays.resizeArrays();
 
