@@ -61,4 +61,32 @@ go_bandit([]() {
 			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
 	describeArray<Graph, AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints",
 			{1, 2, 3}, {42}, init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+
+
+	describe("AdjEntryArray", [&]() {
+		it("keeps the correct values when splitting/unsplitting edges", [&]() {
+			Graph G;
+			AdjEntryArray<int> R(G, 0);
+			node n1 = G.newNode();
+			node n2 = G.newNode();
+			edge e = G.newEdge(n1, n2);
+			R[e->adjSource()] = 1;
+			R[e->adjTarget()] = 2;
+
+			edge e2 = G.split(e);
+
+			AssertThat(R[e->adjSource()], Equals(1));
+			AssertThat(R[e2->adjSource()], Equals(1));
+			AssertThat(R[e->adjTarget()], Equals(2));
+			AssertThat(R[e2->adjTarget()], Equals(2));
+
+			R[e->adjTarget()] = 3;
+			R[e2->adjSource()] = 4;
+
+			G.unsplit(e, e2);
+
+			AssertThat(R[e->adjSource()], Equals(1));
+			AssertThat(R[e->adjTarget()], Equals(2));
+		});
+	});
 });

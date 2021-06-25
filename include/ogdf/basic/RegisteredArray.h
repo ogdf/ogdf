@@ -169,9 +169,9 @@ public:
 		}
 	}
 
-	void resetArrayIndex(int newIndex, int oldIndex) {
+	void copyArrayEntries(int toIndex, int fromIndex) {
 		for (registered_array_type* ab : m_registeredArrays) {
-			ab->resetIndex(newIndex, oldIndex);
+			ab->copyEntry(toIndex, fromIndex);
 		}
 	}
 
@@ -231,7 +231,7 @@ public:
 
 	virtual void swapEntries(int newIndex, int oldIndex) = 0;
 
-	virtual void resetIndex(int newIndex, int oldIndex) = 0;
+	virtual void copyEntry(int newIndex, int oldIndex) = 0;
 
 	void unregister() noexcept {
 		resize(0, true);
@@ -455,8 +455,8 @@ protected:
 		std::swap(m_data.at(newIndex), m_data.at(oldIndex));
 	}
 
-	void resetIndex(int newIndex, int oldIndex) override {
-		m_data.at(newIndex) = m_data.at(oldIndex);
+	void copyEntry(int toIndex, int fromIndex) override {
+		m_data.at(toIndex) = m_data.at(fromIndex);
 	}
 };
 

@@ -696,7 +696,10 @@ edge Graph::split(edge e) {
 
 	int oldId = e->m_adjTgt->m_id;
 	edge e2 = createEdgeElement(u, e->m_tgt, adjSrc, e->m_adjTgt);
-	m_regAdjArrays.resetArrayIndex(e->m_adjTgt->m_id, oldId);
+
+	// copy array entries from the original adjEntries to the new ones
+	m_regAdjArrays.copyArrayEntries(e->m_adjTgt->m_id, oldId);
+	m_regAdjArrays.copyArrayEntries(adjSrc->m_id, e->m_adjSrc->m_id);
 
 	e2->m_adjTgt->m_twin = adjSrc;
 	e->m_adjTgt->m_edge = adjSrc->m_edge = e2;
@@ -738,7 +741,7 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	eIn->m_tgt = eOut->m_tgt;
 
 	// adapt adjacency entry index to hold invariant
-	m_regAdjArrays.resetArrayIndex(eIn->m_adjTgt->m_id, adjTgt->m_id);
+	m_regAdjArrays.copyArrayEntries(eIn->m_adjTgt->m_id, adjTgt->m_id);
 	adjTgt->m_id = eIn->m_adjTgt->m_id; // correct id of adjacency entry!
 
 	eIn->m_adjTgt = adjTgt;
