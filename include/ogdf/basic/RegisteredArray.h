@@ -41,10 +41,6 @@
 
 #endif
 
-#define OGDF_NODISCARD
-
-// TODO define OGDF_NODISCARD properly and in a sensible place
-
 namespace ogdf {
 template<typename Registry>
 class RegisteredArrayBase;

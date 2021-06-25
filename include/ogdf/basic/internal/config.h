@@ -131,6 +131,22 @@ using std::to_string;
 #endif
 
 //! @}
+//! @name Unused results
+//! @{
+
+//! Indicate that the result of a function call should not be discarded.
+//! @ingroup macros
+#define OGDF_NODISCARD
+
+#if OGDF_HAS_CPP_ATTRIBUTE(nodiscard)
+#	undef OGDF_NODISCARD
+#	define OGDF_NODISCARD [[nodiscard]]
+#elif defined(__GNUC__)
+#	undef OGDF_NODISCARD
+#	define OGDF_NODISCARD __attribute__((warn_unused_result))
+#endif
+
+//! @}
 
 //! @name Optimization
 //! @{
