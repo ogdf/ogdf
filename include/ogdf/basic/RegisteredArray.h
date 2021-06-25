@@ -49,22 +49,6 @@ static constexpr int MIN_TABLE_SIZE = (1 << 4);
 
 int calculateTableSize(int actualCount);
 
-template<class Registry>
-class RegistryObserver {
-public:
-	using key_type = typename Registry::key_type;
-
-	virtual void registered(Registry* registry) = 0;
-
-	virtual void unregistered(Registry* registry) noexcept = 0;
-
-	virtual void keyAdded(Registry* registry, key_type key) = 0;
-
-	virtual void keyRemoved(Registry* registry, key_type key) = 0;
-
-	virtual void keysCleared(Registry* registry) = 0;
-};
-
 template<typename Key, typename Registry, typename Iterator = void>
 class RegistryBase {
 public:
