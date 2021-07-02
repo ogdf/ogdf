@@ -356,26 +356,12 @@ public:
 	Hypergraph* graphOf() const { return m_pGraph; }
 };
 
-template<typename Key, typename Value, typename Registry = HypergraphRegistry<Key>>
-class HypergraphRegisteredArray : public RegisteredArrayWithDefault<Registry, Value> {
-	using RA = RegisteredArrayWithDefault<Registry, Value>;
+template<typename Key, typename Value, bool WithDefault, typename Registry = HypergraphRegistry<Key>>
+class HypergraphRegisteredArray : public RegisteredArray<Registry, Value, WithDefault, Hypergraph> {
+	using RA = RegisteredArray<Registry, Value, WithDefault, Hypergraph>;
 
 public:
-	HypergraphRegisteredArray() : RA(Value()) {};
-
-	HypergraphRegisteredArray(const Hypergraph& graph) : RA(&((const Registry&)graph), Value()) {};
-
-	HypergraphRegisteredArray(const Hypergraph& graph, const Value& def)
-		: RA(&((const Registry&)graph), def) {};
-
-	using RA::init;
-
-	void init(const Hypergraph& graph) { RA::init(&((const Registry&)graph)); }
-
-	void init(const Hypergraph& graph, const Value& new_default) {
-		RA::setDefault(new_default);
-		RA::init(&((const Registry&)graph));
-	}
+	using RA::RA;
 
 	Hypergraph* hypergraphOf() const {
 		if (RA::registeredAt() == nullptr) {
@@ -387,10 +373,16 @@ public:
 };
 
 template<typename Value>
-using HypernodeArray = HypergraphRegisteredArray<HypernodeElement, Value>;
+using HypernodeArray = HypergraphRegisteredArray<HypernodeElement, Value, true>;
 
 template<typename Value>
-using HyperedgeArray = HypergraphRegisteredArray<HyperedgeElement, Value>;
+using HypernodeArrayWithoutDefault = HypergraphRegisteredArray<HypernodeElement, Value, false>;
+
+template<typename Value>
+using HyperedgeArray = HypergraphRegisteredArray<HyperedgeElement, Value, true>;
+
+template<typename Value>
+using HyperedgeArrayWithoutDefault = HypergraphRegisteredArray<HyperedgeElement, Value, false>;
 
 class OGDF_EXPORT HypergraphObserver;
 

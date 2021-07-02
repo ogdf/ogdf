@@ -53,4 +53,11 @@ go_bandit([]() {
 	describeArray<ClusterGraph, ClusterArray, cluster, List<int>>(
 			"ClusterArray filled with lists of ints", {1, 2, 3}, {42}, init, chooseCluster,
 			allClusters, createCluster);
+
+	describeArrayWithoutDefault<ClusterGraph, ClusterArrayWithoutDefault, cluster, std::unique_ptr<int>>(
+			"ClusterArray filled with unique pointers", init, chooseCluster, allClusters,
+			createCluster);
+	describeArrayWithoutDefault<ClusterGraph, ClusterArrayWithoutDefault, cluster,
+			std::vector<std::unique_ptr<int>>>("ClusterArray filled with vectors of unique pointers",
+			init, chooseCluster, allClusters, createCluster);
 });

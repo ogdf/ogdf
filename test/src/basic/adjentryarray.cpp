@@ -63,6 +63,13 @@ go_bandit([]() {
 			{1, 2, 3}, {42}, init, chooseAdjEntry, allAdjEntries, createAdjEntry);
 
 
+	describeArrayWithoutDefault<Graph, AdjEntryArrayWithoutDefault, adjEntry, std::unique_ptr<int>>(
+			"AdjEntryArray filled with unique pointers", init, chooseAdjEntry, allAdjEntries,
+			createAdjEntry);
+	describeArrayWithoutDefault<Graph, AdjEntryArrayWithoutDefault, adjEntry,
+			std::vector<std::unique_ptr<int>>>("AdjEntryArray filled with vectors of unique pointers",
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+
 	describe("AdjEntryArray", [&]() {
 		it("keeps the correct values when splitting/unsplitting edges", [&]() {
 			Graph G;

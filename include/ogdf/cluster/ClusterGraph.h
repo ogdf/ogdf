@@ -296,8 +296,14 @@ inline bool test_forall_adj_edges_of_cluster(adjEntry& adj, edge& e) {
 
 using ClusterGraphRegistry = RegistryBase<cluster, ClusterGraph, internal::GraphIterator<cluster>>;
 
+template<class Value, bool WithDefault>
+class ClusterArrayBase;
+
 template<class Value>
-class ClusterArray;
+using ClusterArray = ClusterArrayBase<Value, true>;
+
+template<class Value>
+using ClusterArrayWithoutDefault = ClusterArrayBase<Value, false>;
 
 //! Representation of clustered graphs.
 /**
@@ -911,31 +917,18 @@ private:
 	void reinitArrays();
 };
 
-template<class Value>
-class ClusterArray : public RegisteredArrayWithDefault<ClusterGraph, Value> {
+template<class Value, bool WithDefault>
+class ClusterArrayBase : public RegisteredArray<ClusterGraph, Value, WithDefault> {
+	using RA = RegisteredArray<ClusterGraph, Value, WithDefault>;
+
 public:
-	using RA = RegisteredArrayWithDefault<ClusterGraph, Value>;
+	using RA::RA;
 
-	ClusterArray() : RA(Value()) {};
-
-	ClusterArray(const ClusterGraph& C) : RA(&C, Value()) {};
-
-	ClusterArray(const ClusterGraph& C, const Value& def) : RA(&C, def) {};
-
-	ClusterArray(const ClusterGraph& C, const Value& def, int size) : RA(&C, def) {
+	ClusterArrayBase(const ClusterGraph& C, const Value& def, int size) : RA(C, def) {
 		RA::resize(size, true);
 	};
 
-	using RA::init;
-
-	void init(const ClusterGraph& C) { RA::init(&C); }
-
-	void init(const ClusterGraph& C, const Value& new_default) {
-		RA::setDefault(new_default);
-		RA::init(&C);
-	}
-
-	ClusterGraph* graphOf() const { return (ClusterGraph*)RA::registeredAt(); }
+	ClusterGraph* graphOf() const { return RA::registeredAt(); }
 };
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream& os, cluster c);

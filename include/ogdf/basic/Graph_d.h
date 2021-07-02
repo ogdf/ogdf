@@ -552,26 +552,12 @@ public:
 	Graph* graphOf() const { return m_pGraph; }
 };
 
-template<typename Key, typename Value, typename Registry = GraphRegistry<Key>>
-class GraphRegisteredArray : public RegisteredArrayWithDefault<Registry, Value> {
-	using RA = RegisteredArrayWithDefault<Registry, Value>;
+template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>
+class GraphRegisteredArray : public RegisteredArray<Registry, Value, WithDefault, Graph> {
+	using RA = RegisteredArray<Registry, Value, WithDefault, Graph>;
 
 public:
-	GraphRegisteredArray() : RA(Value()) {};
-
-	GraphRegisteredArray(const Graph& graph) : RA(&((const Registry&)graph), Value()) {};
-
-	GraphRegisteredArray(const Graph& graph, const Value& def)
-		: RA(&((const Registry&)graph), def) {};
-
-	using RA::init;
-
-	void init(const Graph& graph) { RA::init(&((const Registry&)graph)); }
-
-	void init(const Graph& graph, const Value& new_default) {
-		RA::setDefault(new_default);
-		RA::init(&((const Registry&)graph));
-	}
+	using RA::RA;
 
 	Graph* graphOf() const {
 		if (RA::registeredAt() == nullptr) {
@@ -584,27 +570,13 @@ public:
 
 // vector<bool> is weird, so make sure we don't use that if someone explicitly wants a NodeArray<bool>
 // newer code should be using NodeSet, which is perfectly fine with using the weird vector<bool> internally
-template<typename Key, typename Registry>
-class GraphRegisteredArray<Key, bool, Registry>
-	: public RegisteredArrayWithDefault<Registry, unsigned char> {
-	using RA = RegisteredArrayWithDefault<Registry, unsigned char>;
+template<typename Key, bool WithDefault, typename Registry>
+class GraphRegisteredArray<Key, bool, WithDefault, Registry>
+	: public RegisteredArray<Registry, unsigned char, WithDefault, Graph> {
+	using RA = RegisteredArray<Registry, unsigned char, WithDefault, Graph>;
 
 public:
-	GraphRegisteredArray() : RA(false) {};
-
-	GraphRegisteredArray(const Graph& graph) : RA(&((const Registry&)graph), false) {};
-
-	GraphRegisteredArray(const Graph& graph, const bool& def)
-		: RA(&((const Registry&)graph), def) {};
-
-	void init() { RA::init(); }
-
-	void init(const Graph& graph) { RA::init(&((const Registry&)graph)); }
-
-	void init(const Graph& graph, const bool& new_default) {
-		RA::setDefault(new_default);
-		RA::init(&((const Registry&)graph));
-	}
+	using RA::RA;
 
 	// TODO override operator[], operator(), begin / end ?
 
@@ -635,49 +607,69 @@ public:
 		return reinterpret_cast<value_ref_type>(RA::operator[](idx));
 	}
 
-	Graph* graphOf() const { return RA::registeredAt()->graphOf(); }
+	Graph* graphOf() const {
+		if (RA::registeredAt() == nullptr) {
+			return nullptr;
+		} else {
+			return RA::registeredAt()->graphOf();
+		}
+	}
 };
 
 template<typename Value>
-using NodeArray = GraphRegisteredArray<NodeElement, Value>;
+using NodeArray = GraphRegisteredArray<NodeElement, Value, true>;
 
 template<typename Value>
-class EdgeArray : public GraphRegisteredArray<EdgeElement, Value> {
+using NodeArrayWithoutDefault = GraphRegisteredArray<NodeElement, Value, false>;
+
+template<typename Value, bool WithDefault>
+class EdgeArrayBase : public GraphRegisteredArray<EdgeElement, Value, WithDefault> {
+	using GRA = GraphRegisteredArray<EdgeElement, Value, WithDefault>;
+
 public:
-	EdgeArray() { }
+	EdgeArrayBase() { }
 
-	EdgeArray(const Graph& graph) : GraphRegisteredArray<EdgeElement, Value>(graph) { }
+	EdgeArrayBase(const Graph& graph) : GRA(graph) { }
 
-	EdgeArray(const Graph& graph, const Value& def)
-		: GraphRegisteredArray<EdgeElement, Value>(graph, def) { }
+	EdgeArrayBase(const Graph& graph, const Value& def) : GRA(graph, def) { }
 
-	using GraphRegisteredArray<EdgeElement, Value>::operator[];
-	using GraphRegisteredArray<EdgeElement, Value>::operator();
+	using GRA::operator[];
+	using GRA::operator();
 
 	const Value& operator[](adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
-		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+		return GRA::operator[](adj->index() >> 1);
 	}
 
 	Value& operator[](adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
-		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+		return GRA::operator[](adj->index() >> 1);
 	}
 
 	const Value& operator()(adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
-		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+		return GRA::operator[](adj->index() >> 1);
 	}
 
 	Value& operator()(adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
-		return GraphRegisteredArray<EdgeElement, Value>::operator[](adj->index() >> 1);
+		return GRA::operator[](adj->index() >> 1);
 	}
 };
 
 template<typename Value>
+using EdgeArray = EdgeArrayBase<Value, true>;
+
+template<typename Value>
+using EdgeArrayWithoutDefault = EdgeArrayBase<Value, false>;
+
+template<typename Value>
 using AdjEntryArray =
-		GraphRegisteredArray<AdjElement, Value, GraphRegistry<AdjElement, GraphAdjIterator>>;
+		GraphRegisteredArray<AdjElement, Value, true, GraphRegistry<AdjElement, GraphAdjIterator>>;
+
+template<typename Value>
+using AdjEntryArrayWithoutDefault =
+		GraphRegisteredArray<AdjElement, Value, false, GraphRegistry<AdjElement, GraphAdjIterator>>;
 
 class OGDF_EXPORT GraphObserver;
 

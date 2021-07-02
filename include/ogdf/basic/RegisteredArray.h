@@ -303,10 +303,10 @@ public:
 };
 
 template<class Registry, class Value>
-class RegisteredArray : protected RegisteredArrayBase<Registry> {
+class RegisteredArrayWithoutDefault : protected RegisteredArrayBase<Registry> {
 protected:
 	using key_iterator = typename Registry::iterator_type;
-	using registered_array = RegisteredArray<Registry, Value>;
+	using registered_array = RegisteredArrayWithoutDefault<Registry, Value>;
 	using registered_array_base = RegisteredArrayBase<Registry>;
 
 public:
@@ -324,9 +324,9 @@ protected:
 	vector_type m_data;
 
 public:
-	RegisteredArray() = default;
+	RegisteredArrayWithoutDefault() = default;
 
-	explicit RegisteredArray(const Registry* registry) {
+	explicit RegisteredArrayWithoutDefault(const Registry* registry) {
 		// during base class initialization, no part of the derived class exists, so this will always call our base init
 		// so base classes should call their own init themselves
 		registered_array::init(registry);
@@ -436,19 +436,20 @@ protected:
 	}
 
 	void copyEntry(int toIndex, int fromIndex) override {
-		m_data.at(toIndex) = m_data.at(fromIndex);
+		throw std::runtime_error("RegisteredArrayWithoutDefault does not support copyEntry");
 	}
 };
 
 template<class Registry, class Value>
-class RegisteredArrayWithDefault : public RegisteredArray<Registry, Value> {
-	using RA = RegisteredArray<Registry, Value>;
+class RegisteredArrayWithDefault : public RegisteredArrayWithoutDefault<Registry, Value> {
+	using RA = RegisteredArrayWithoutDefault<Registry, Value>;
 	Value m_default;
 
 public:
-	explicit RegisteredArrayWithDefault(Value&& def) : RA(), m_default(std::forward<Value>(def)) {};
+	explicit RegisteredArrayWithDefault(Value&& def = Value())
+		: RA(), m_default(std::forward<Value>(def)) {};
 
-	explicit RegisteredArrayWithDefault(const Registry* registry, Value&& def)
+	explicit RegisteredArrayWithDefault(const Registry* registry, Value&& def = Value())
 		: RA(), m_default(std::forward<Value>(def)) {
 		// call init from here, as our virtual override of init is not available during initialization of the base class
 		RA::init(registry);
@@ -473,11 +474,40 @@ public:
 	void fillWithDefault() { RA::m_data.assign(RA::getRegistry().getArraySize(), m_default); }
 
 protected:
+	void copyEntry(int toIndex, int fromIndex) override {
+		RA::m_data.at(toIndex) = RA::m_data.at(fromIndex);
+	}
+
 	void resize(int size, bool shrink) override {
 		RA::m_data.resize(size, m_default);
 		if (shrink) {
 			RA::m_data.shrink_to_fit();
 		}
+	}
+};
+
+template<class RegistryBase, class Value, bool WithDefault = true, class Registry = RegistryBase>
+class RegisteredArray
+	: public std::conditional<WithDefault, RegisteredArrayWithDefault<RegistryBase, Value>,
+			  RegisteredArrayWithoutDefault<RegistryBase, Value>>::type {
+	using RA = typename std::conditional<WithDefault, RegisteredArrayWithDefault<RegistryBase, Value>,
+			RegisteredArrayWithoutDefault<RegistryBase, Value>>::type;
+
+public:
+	RegisteredArray() : RA() {};
+
+	RegisteredArray(const Registry& registry) : RA(&((const RegistryBase&)registry)) {};
+
+	RegisteredArray(const Registry& registry, const Value& def)
+		: RA(&((const RegistryBase&)registry), def) {};
+
+	using RA::init;
+
+	void init(const Registry& registry) { RA::init(&((const RegistryBase&)registry)); }
+
+	void init(const Registry& registry, const Value& new_default) {
+		RA::setDefault(new_default);
+		RA::init(&((const RegistryBase&)registry));
 	}
 };
 }

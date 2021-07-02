@@ -47,4 +47,28 @@ go_bandit([]() {
 			chooseNode, allNodes, createNode);
 	describeArray<Graph, NodeArray, node, List<int>>("NodeArray filled with lists of ints",
 			{1, 2, 3}, {42}, init, chooseNode, allNodes, createNode);
+
+	describeArrayWithoutDefault<Graph, NodeArrayWithoutDefault, node, std::unique_ptr<int>>(
+			"NodeArray filled with unique pointers", init, chooseNode, allNodes, createNode);
+	describeArrayWithoutDefault<Graph, NodeArrayWithoutDefault, node, std::vector<std::unique_ptr<int>>>(
+			"NodeArray filled with vectors of unique pointers", init, chooseNode, allNodes,
+			createNode);
+
+	describe("NodeArray filled with pointers", [&]() {
+		Graph G;
+		init(G);
+
+		it("initializes with nullptr values", [&]() {
+			NodeArray<int*> arr1(G);
+			NodeArrayWithoutDefault<int*> arr2(G);
+			AssertThat(arr1[chooseNode(G)], IsNull());
+			AssertThat(arr2[chooseNode(G)], IsNull());
+		});
+
+		it("initializes with a default value", [&]() {
+			std::unique_ptr<int> p(new int(42));
+			NodeArray<int*> arr(G, p.get());
+			AssertThat(arr[chooseNode(G)], Equals(p.get()));
+		});
+	});
 });

@@ -167,30 +167,21 @@ public:
 using CombinatorialEmbeddingRegistry =
 		RegistryBase<face, ConstCombinatorialEmbedding, internal::GraphIterator<face>>;
 
-template<class Value>
-class FaceArray : public RegisteredArrayWithDefault<ConstCombinatorialEmbedding, Value> {
+template<class Value, bool WithDefault>
+class FaceArrayBase : public RegisteredArray<ConstCombinatorialEmbedding, Value, WithDefault> {
+	using RA = RegisteredArray<ConstCombinatorialEmbedding, Value, WithDefault>;
+
 public:
-	using RA = RegisteredArrayWithDefault<ConstCombinatorialEmbedding, Value>;
+	using RA::RA;
 
-	FaceArray() : RA(Value()) {};
-
-	FaceArray(const ConstCombinatorialEmbedding& C) : RA(&C, Value()) {};
-
-	FaceArray(const ConstCombinatorialEmbedding& C, const Value& def) : RA(&C, def) {};
-
-	using RA::init;
-
-	void init(const ConstCombinatorialEmbedding& C) { RA::init(&C); }
-
-	void init(const ConstCombinatorialEmbedding& C, const Value& new_default) {
-		RA::setDefault(new_default);
-		RA::init(&C);
-	}
-
-	ConstCombinatorialEmbedding* embeddingOf() const {
-		return (ConstCombinatorialEmbedding*)RA::registeredAt();
-	}
+	ConstCombinatorialEmbedding* embeddingOf() const { return RA::registeredAt(); }
 };
+
+template<class Value>
+using FaceArray = FaceArrayBase<Value, true>;
+
+template<class Value>
+using FaceArrayWithoutDefault = FaceArrayBase<Value, false>;
 
 /**
  * \brief Combinatorial embeddings of planar graphs.

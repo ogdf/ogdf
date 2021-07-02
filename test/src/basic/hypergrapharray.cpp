@@ -65,9 +65,23 @@ go_bandit([]() {
 			"HypernodeArray filled with lists of ints", {1, 2, 3}, {42}, init, chooseHypernode,
 			allHypernodes, createHypernode);
 
+	describeArrayWithoutDefault<Hypergraph, HypernodeArrayWithoutDefault, hypernode,
+			std::unique_ptr<int>>("HypernodeArray filled with unique pointers", init,
+			chooseHypernode, allHypernodes, createHypernode);
+	describeArrayWithoutDefault<Hypergraph, HypernodeArrayWithoutDefault, hypernode,
+			std::vector<std::unique_ptr<int>>>("HypernodeArray filled with vectors of unique pointers",
+			init, chooseHypernode, allHypernodes, createHypernode);
+
 	describeArray<Hypergraph, HyperedgeArray, hyperedge, int>("HyperedgeArray filled with ints", 42,
 			43, init, chooseHyperedge, allHyperedges, createHyperedge);
 	describeArray<Hypergraph, HyperedgeArray, hyperedge, List<int>>(
 			"HyperedgeArray filled with lists of ints", {1, 2, 3}, {42}, init, chooseHyperedge,
 			allHyperedges, createHyperedge);
+
+	describeArrayWithoutDefault<Hypergraph, HyperedgeArrayWithoutDefault, hyperedge,
+			std::unique_ptr<int>>("HyperedgeArray filled with unique pointers", init,
+			chooseHyperedge, allHyperedges, createHyperedge);
+	describeArrayWithoutDefault<Hypergraph, HyperedgeArrayWithoutDefault, hyperedge,
+			std::vector<std::unique_ptr<int>>>("HyperedgeArray filled with vectors of unique pointers",
+			init, chooseHyperedge, allHyperedges, createHyperedge);
 });
