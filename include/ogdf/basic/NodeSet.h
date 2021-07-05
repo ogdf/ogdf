@@ -31,40 +31,5 @@
 
 #pragma once
 
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/RegisteredSet.h>
-
-namespace ogdf {
-
-//! Node sets.
-/**
- * @ingroup graph-containers
- *
- * Maintains a subset of nodes contained in an associated graph.
- *
- * Provides efficient operations for testing membership,
- * iteration, insertion, and deletion of elements, as well as clearing the set.
- *
- * \tparam SupportFastSizeQuery Whether this set supports querying it's #size in
- * constant instead of linear time (in the size).
- *
- * \sa FaceSet
- */
-template<bool SupportFastSizeQuery = true>
-class NodeSet : public RegisteredSet<node, GraphRegistry<NodeElement>, SupportFastSizeQuery> {
-	using RS = RegisteredSet<node, GraphRegistry<NodeElement>, SupportFastSizeQuery>;
-
-public:
-	explicit NodeSet(const Graph& graph) : RS((const GraphRegistry<NodeElement>&)graph) {};
-
-	//! Returns a reference to the list of nodes contained in this set.
-	const typename RS::ListType& nodes() { return RS::elements(); }
-
-	//! Returns the associated graph
-	const Graph& graphOf() const {
-		OGDF_ASSERT(RS::registeredAt());
-		return *RS::registeredAt();
-	}
-};
-
-}

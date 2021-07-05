@@ -137,8 +137,10 @@ go_bandit([] {
 		std::unique_ptr<AdjEntryArray<int>> adjEntryArray(new AdjEntryArray<int>(*G, 42));
 		std::unique_ptr<NodeSet<>> nodeSet(new NodeSet<>(*G));
 		nodeSet->insert(G->nodes.head());
-		//	std::unique_ptr<EdgeSet<>> edgeSet(new EdgeSet<>(*G));
-		//	std::unique_ptr<AdjEntrySet<>> adjEntrySet(new AdjEntrySet<>(*G));
+		std::unique_ptr<EdgeSet<>> edgeSet(new EdgeSet<>(*G));
+		edgeSet->insert(G->edges.head());
+		std::unique_ptr<AdjEntrySet<>> adjEntrySet(new AdjEntrySet<>(*G));
+		adjEntrySet->insert(G->edges.head()->adjSource());
 
 		std::unique_ptr<CombinatorialEmbedding> CE(new CombinatorialEmbedding(*G));
 		std::unique_ptr<ConstCombinatorialEmbedding> CCE(new ConstCombinatorialEmbedding(*G));
