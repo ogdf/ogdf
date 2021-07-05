@@ -924,6 +924,8 @@ class ClusterArrayBase : public RegisteredArray<ClusterGraph, Value, WithDefault
 public:
 	using RA::RA;
 
+	ClusterArrayBase() = default;
+
 	ClusterArrayBase(const ClusterGraph& C, const Value& def, int size) : RA(C, def) {
 		RA::resize(size, true);
 	};
