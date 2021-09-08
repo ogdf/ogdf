@@ -739,8 +739,6 @@ public:
 #endif
 	}
 
-	int keyToIndex(cluster key) const override { return key->index(); }
-
 	int calculateArraySize() const override { return calculateTableSize(m_clusterIdCount); }
 
 	int maxKeyIndex() const override { return (m_clusterIdCount)-1; }

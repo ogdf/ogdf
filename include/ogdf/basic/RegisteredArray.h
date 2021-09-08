@@ -49,6 +49,11 @@ static constexpr int MIN_TABLE_SIZE = (1 << 4);
 
 int calculateTableSize(int actualCount);
 
+template<typename Key>
+OGDF_NODISCARD inline int keyToIndex(Key key) {
+	return key->index();
+}
+
 template<typename Key, typename Registry, typename Iterator = void>
 class RegistryBase {
 public:
@@ -105,8 +110,6 @@ public:
 	}
 
 	OGDF_NODISCARD virtual bool isKeyAssociated(Key key) const = 0;
-
-	OGDF_NODISCARD virtual int keyToIndex(Key key) const = 0;
 
 	OGDF_NODISCARD virtual int maxKeyIndex() const = 0;
 
@@ -356,36 +359,36 @@ public:
 	value_const_ref_type operator[](key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(getRegistry().keyToIndex(key));
+		return m_data.at(keyToIndex(key));
 #else
-		return m_data[getRegistry().keyToIndex(key)];
+		return m_data[keyToIndex(key)];
 #endif
 	}
 
 	value_ref_type operator[](key_type key) {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(getRegistry().keyToIndex(key));
+		return m_data.at(keyToIndex(key));
 #else
-		return m_data[getRegistry().keyToIndex(key)];
+		return m_data[keyToIndex(key)];
 #endif
 	}
 
 	value_const_ref_type operator()(key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(getRegistry().keyToIndex(key));
+		return m_data.at(keyToIndex(key));
 #else
-		return m_data[getRegistry().keyToIndex(key)];
+		return m_data[keyToIndex(key)];
 #endif
 	}
 
 	value_ref_type operator()(key_type key) {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(getRegistry().keyToIndex(key));
+		return m_data.at(keyToIndex(key));
 #else
-		return m_data[getRegistry().keyToIndex(key)];
+		return m_data[keyToIndex(key)];
 #endif
 	}
 

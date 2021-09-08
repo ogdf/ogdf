@@ -537,8 +537,6 @@ public:
 #endif
 	}
 
-	int keyToIndex(Key* key) const override { return key->index(); }
-
 	int calculateArraySize() const override {
 		return calculateTableSize((*m_nextKeyIndex) * m_factor);
 	}

@@ -356,8 +356,6 @@ public:
 #endif
 	}
 
-	int keyToIndex(face key) const override { return key->index(); }
-
 	int calculateArraySize() const override { return calculateTableSize(m_faceIdCount); }
 
 	int maxKeyIndex() const override { return (m_faceIdCount)-1; }
