@@ -116,9 +116,17 @@ public:
 
 	OGDF_NODISCARD virtual Iterator end() const = 0;
 
-	void keyAdded(Key key) { resizeArrays(); }
+	void keyAdded(Key key) {
+		if (keyToIndex(key) >= m_size) {
+			resizeArrays();
+		}
+	}
 
-	void keyRemoved(Key key) { resizeArrays(); }
+	void keyRemoved(Key key) {
+		if (m_autoShrink) {
+			resizeArrays();
+		}
+	}
 
 	void keysCleared() { resizeArrays(0); }
 
