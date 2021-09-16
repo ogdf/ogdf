@@ -566,54 +566,6 @@ public:
 	}
 };
 
-// vector<bool> is weird, so make sure we don't use that if someone explicitly wants a NodeArray<bool>
-// newer code should be using NodeSet, which is perfectly fine with using the weird vector<bool> internally
-template<typename Key, bool WithDefault, typename Registry>
-class GraphRegisteredArray<Key, bool, WithDefault, Registry>
-	: public RegisteredArray<Registry, unsigned char, WithDefault, Graph> {
-	using RA = RegisteredArray<Registry, unsigned char, WithDefault, Graph>;
-
-public:
-	using RA::RA;
-
-	// TODO override operator[], operator(), begin / end ?
-
-	using value_const_ref_type = const bool&;
-	using value_ref_type = bool&;
-
-	value_const_ref_type operator[](Key* key) const {
-		return reinterpret_cast<value_const_ref_type>(RA::operator[](key));
-	}
-
-	value_ref_type operator[](Key* key) {
-		return reinterpret_cast<value_ref_type>(RA::operator[](key));
-	}
-
-	value_const_ref_type operator()(Key* key) const {
-		return reinterpret_cast<value_const_ref_type>(RA::operator()(key));
-	}
-
-	value_ref_type operator()(Key* key) {
-		return reinterpret_cast<value_ref_type>(RA::operator()(key));
-	}
-
-	value_const_ref_type operator[](int idx) const {
-		return reinterpret_cast<value_const_ref_type>(RA::operator[](idx));
-	}
-
-	value_ref_type operator[](int idx) {
-		return reinterpret_cast<value_ref_type>(RA::operator[](idx));
-	}
-
-	Graph* graphOf() const {
-		if (RA::registeredAt() == nullptr) {
-			return nullptr;
-		} else {
-			return RA::registeredAt()->graphOf();
-		}
-	}
-};
-
 template<typename Value>
 using NodeArray = GraphRegisteredArray<NodeElement, Value, true>;
 

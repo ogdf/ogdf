@@ -521,4 +521,42 @@ public:
 		RA::init(&((const RegistryBase&)registry));
 	}
 };
+
+// Specialization to work around vector<bool>:
+template<class RegistryBase, bool WithDefault, class Registry>
+class RegisteredArray<RegistryBase, bool, WithDefault, Registry>
+	: public RegisteredArray<RegistryBase, unsigned char, WithDefault, Registry> {
+	using RA = RegisteredArray<RegistryBase, unsigned char, WithDefault, Registry>;
+	using key_type = typename RA::key_type;
+
+public:
+	using RA::RA;
+
+	using value_const_ref_type = const bool&;
+	using value_ref_type = bool&;
+
+	value_const_ref_type operator[](key_type key) const {
+		return reinterpret_cast<value_const_ref_type>(RA::operator[](key));
+	}
+
+	value_ref_type operator[](key_type key) {
+		return reinterpret_cast<value_ref_type>(RA::operator[](key));
+	}
+
+	value_const_ref_type operator()(key_type key) const {
+		return reinterpret_cast<value_const_ref_type>(RA::operator()(key));
+	}
+
+	value_ref_type operator()(key_type key) {
+		return reinterpret_cast<value_ref_type>(RA::operator()(key));
+	}
+
+	value_const_ref_type operator[](int idx) const {
+		return reinterpret_cast<value_const_ref_type>(RA::operator[](idx));
+	}
+
+	value_ref_type operator[](int idx) {
+		return reinterpret_cast<value_ref_type>(RA::operator[](idx));
+	}
+};
 }
