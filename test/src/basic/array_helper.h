@@ -74,51 +74,51 @@ inline int unwrap<std::vector<std::unique_ptr<int>>>(std::vector<std::unique_ptr
 }
 
 /**
- * Perform basic tests for a map of registry elements to values.
- * @tparam RegistryType the type of the associated registry
+ * Perform basic tests for a map of registered keys to values.
+ * @tparam BaseType the type of the class (e.g. Graph) that maintains the registered keys
  * @tparam ArrayType the type of array to be tested
- * @tparam KeyType the type of key registry element
+ * @tparam KeyType the type of registered key
  * @tparam ElementType the value type
  *
  * @param title the title of the top-level bandit::describe
  * @param fillElement an arbitrary instance of \a ElementType
  * @param secondElement a second instance of \a ElementType, must differ from \p fillElement
- * @param initRegistry a function to initialize the registry
- * @param chooseKey a function to choose an arbitrary key element from the registry
+ * @param initBase a function to initialize the base
+ * @param chooseKey a function to choose an arbitrary key from the base
  * @param getAllKeys a function to generate a list of all keys
- * @param createKey a function to create a new key element in the registry
+ * @param createKey a function to create a new key in the base
  */
-template<class RegistryType, template<typename> class ArrayType, typename KeyType, typename ElementType>
+template<class BaseType, template<typename> class ArrayType, typename KeyType, typename ElementType>
 void describeArray(const std::string& title, const ElementType& fillElement,
-		const ElementType& secondElement, std::function<void(RegistryType&)> initRegistry,
-		std::function<KeyType(const RegistryType&)> chooseKey,
-		std::function<void(const RegistryType&, List<KeyType>&)> getAllKeys,
-		std::function<KeyType(RegistryType&)> createKey) {
+		const ElementType& secondElement, std::function<void(BaseType&)> initBase,
+		std::function<KeyType(const BaseType&)> chooseKey,
+		std::function<void(const BaseType&, List<KeyType>&)> getAllKeys,
+		std::function<KeyType(BaseType&)> createKey) {
 	using MyArrayType = ArrayType<ElementType>;
-	using RegistryBaseType = const typename MyArrayType::registry_type;
+	using RegistryType = const typename MyArrayType::registry_type;
 	using const_iterator = typename MyArrayType::const_iterator;
 	using iterator = typename MyArrayType::iterator;
 
 	describe(title.c_str(), [&]() {
 		std::unique_ptr<MyArrayType> array;
-		RegistryType registry;
-		initRegistry(registry);
+		BaseType base;
+		initBase(base);
 
 		before_each([&]() {
 			array.reset(new MyArrayType());
-			initRegistry(registry);
+			initBase(base);
 		});
 
 		it("handles nested arrays well", [&]() {
-			RegistryType R;
-			initRegistry(R);
+			BaseType B;
+			initBase(B);
 
 			List<KeyType> keys;
-			getAllKeys(R, keys);
+			getAllKeys(B, keys);
 
-			ArrayType<MyArrayType> nestedArray(R);
+			ArrayType<MyArrayType> nestedArray(B);
 			for (KeyType k : keys) {
-				nestedArray[k].init(R, fillElement);
+				nestedArray[k].init(B, fillElement);
 			}
 		});
 
@@ -132,113 +132,113 @@ void describeArray(const std::string& title, const ElementType& fillElement,
 			});
 
 			it("initializes w a registry", [&]() {
-				array->init(registry);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array->init(base);
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("initializes w an empty registry", [&]() {
-				RegistryType R;
-				array->init(R);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)R)));
+				BaseType B;
+				array->init(B);
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("initializes w a registry and filled", [&]() {
-				array->init(registry, fillElement);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array->init(base, fillElement);
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
-				AssertThat((*array)[chooseKey(registry)], Equals(fillElement));
+				AssertThat((*array)[chooseKey(base)], Equals(fillElement));
 			});
 
 			it("is constructed w a registry", [&]() {
-				array.reset(new MyArrayType(registry));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array.reset(new MyArrayType(base));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w an empty registry", [&]() {
-				RegistryType R;
-				array.reset(new MyArrayType(R));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)R)));
+				BaseType B;
+				array.reset(new MyArrayType(B));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w a registry and filled", [&]() {
-				array.reset(new MyArrayType(registry, fillElement));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array.reset(new MyArrayType(base, fillElement));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
-				AssertThat((*array)[chooseKey(registry)], Equals(fillElement));
+				AssertThat((*array)[chooseKey(base)], Equals(fillElement));
 			});
 
 			it("supports copy-construction", [&]() {
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				MyArrayType copiedArray(*array);
 				AssertThat(copiedArray.registeredAt(), Equals(array->registeredAt()));
 				AssertThat(array->valid(), IsTrue());
-				AssertThat((*array)[chooseKey(registry)], Equals(fillElement));
+				AssertThat((*array)[chooseKey(base)], Equals(fillElement));
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(base)], Equals(fillElement));
 			});
 
 			it("implements the assignment-operator", [&]() {
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				MyArrayType copiedArray = *array;
 				AssertThat(copiedArray.registeredAt(), Equals(array->registeredAt()));
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(base)], Equals(fillElement));
 			});
 
 			it("supports move-construction", [&]() {
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				MyArrayType copiedArray = std::move(*array);
-				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(base)], Equals(fillElement));
 			});
 
 			it("moves an array using the assignment operator", [&]() {
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				MyArrayType copiedArray;
 				copiedArray = (std::move(*array));
-				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryType&)base)));
 				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(registry)], Equals(fillElement));
+				AssertThat(copiedArray[chooseKey(base)], Equals(fillElement));
 			});
 
 			it("correctly fills the array with a default value", [&]() {
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				AssertThat(array->getDefault(), Equals(fillElement));
 				array->setDefault(secondElement);
 				array->fillWithDefault();
 				AssertThat(array->getDefault(), Equals(secondElement));
-				AssertThat((*array)[chooseKey(registry)], Equals(secondElement));
+				AssertThat((*array)[chooseKey(base)], Equals(secondElement));
 			});
 
 			it("allows filling the array with a specific element", [&]() {
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				array->fill(secondElement);
-				AssertThat((*array)[chooseKey(registry)], Equals(secondElement));
+				AssertThat((*array)[chooseKey(base)], Equals(secondElement));
 			});
 
 			it("assigns the default value to a newly created key", [&]() {
-				array->init(registry, fillElement);
-				KeyType key = createKey(registry);
+				array->init(base, fillElement);
+				KeyType key = createKey(base);
 				AssertThat((*array)[key], Equals(fillElement));
 			});
 
 			it("retains the stored information when it grows", [&]() {
-				array->init(registry, fillElement);
-				KeyType k = chooseKey(registry);
+				array->init(base, fillElement);
+				KeyType k = chooseKey(base);
 				(*array)[k] = secondElement;
 				int size = array->registeredAt()->getArraySize();
 
 				for (int i = 0; i <= size; ++i) {
-					createKey(registry);
+					createKey(base);
 				}
 
 				AssertThat(array->registeredAt()->getArraySize(), IsGreaterThan(size));
@@ -249,44 +249,44 @@ void describeArray(const std::string& title, const ElementType& fillElement,
 		describe("access", [&]() {
 			it("distinguishes between a valid and an invalid array", [&]() {
 				AssertThat(array->valid(), IsFalse());
-				array->init(registry);
+				array->init(base);
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("knows its registry", [&]() {
-				array->init(registry);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array->init(base);
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 			});
 
 			it("allows access with the subscript operator", [&]() {
-				array->init(registry, fillElement);
-				KeyType k = chooseKey(registry);
+				array->init(base, fillElement);
+				KeyType k = chooseKey(base);
 				AssertThat((*array)[k], Equals(fillElement));
 				AssertThat((*array)[k] = secondElement, Equals(secondElement));
 
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				const MyArrayType cAccessArray(*array);
 				AssertThat(cAccessArray[k], Equals(fillElement));
 			});
 
 			it("allows access with the () operator", [&]() {
-				array->init(registry, fillElement);
-				KeyType k = chooseKey(registry);
+				array->init(base, fillElement);
+				KeyType k = chooseKey(base);
 				AssertThat((*array)(k), Equals(fillElement));
 				AssertThat((*array)(k) = secondElement, Equals(secondElement));
 
-				array->init(registry, fillElement);
+				array->init(base, fillElement);
 				const MyArrayType cAccessArray(*array);
 				AssertThat(cAccessArray(k), Equals(fillElement));
 			});
 		});
 
 		describe("iterators", [&]() {
-			before_each([&]() { array->init(registry, fillElement); });
+			before_each([&]() { array->init(base, fillElement); });
 
 			it("iterates over the array", [&]() {
 				List<KeyType> list;
-				getAllKeys(registry, list);
+				getAllKeys(base, list);
 
 				const MyArrayType cArray(*array);
 				int counter = 0;
@@ -335,24 +335,23 @@ void describeArray(const std::string& title, const ElementType& fillElement,
 }
 
 /**
- * Perform basic tests for a map of registry elements to non copy constructible values.
- * @tparam RegistryType the type of the associated registry
+ * Perform basic tests for a map of registered keys to non copy constructible values.
+ * @tparam BaseType the type of the class (e.g. Graph) that maintains the registered keys
  * @tparam ArrayType the type of array to be tested
- * @tparam KeyType the type of key registry element
+ * @tparam KeyType the type of registered key
  * @tparam ElementType the value type
  *
  * @param title the title of the top-level bandit::describe
- * @param initRegistry a function to initialize the registry
- * @param chooseKey a function to choose an arbitrary key element from the registry
+ * @param initBase a function to initialize the base
+ * @param chooseKey a function to choose an arbitrary key from the base
  * @param getAllKeys a function to generate a list of all keys
- * @param createKey a function to create a new key element in the registry
+ * @param createKey a function to create a new key in the base
  */
-template<class RegistryType, template<typename> class ArrayType, typename KeyType, typename ElementType>
-void describeArrayWithoutDefault(const std::string& title,
-		std::function<void(RegistryType&)> initRegistry,
-		std::function<KeyType(const RegistryType&)> chooseKey,
-		std::function<void(const RegistryType&, List<KeyType>&)> getAllKeys,
-		std::function<KeyType(RegistryType&)> createKey) {
+template<class BaseType, template<typename> class ArrayType, typename KeyType, typename ElementType>
+void describeArrayWithoutDefault(const std::string& title, std::function<void(BaseType&)> initBase,
+		std::function<KeyType(const BaseType&)> chooseKey,
+		std::function<void(const BaseType&, List<KeyType>&)> getAllKeys,
+		std::function<KeyType(BaseType&)> createKey) {
 	using MyArrayType = ArrayType<ElementType>;
 	using RegistryBaseType = const typename MyArrayType::registry_type;
 	using const_iterator = typename MyArrayType::const_iterator;
@@ -360,24 +359,24 @@ void describeArrayWithoutDefault(const std::string& title,
 
 	describe(title.c_str(), [&]() {
 		std::unique_ptr<MyArrayType> array;
-		RegistryType registry;
-		initRegistry(registry);
+		BaseType base;
+		initBase(base);
 
 		before_each([&]() {
 			array.reset(new MyArrayType());
-			initRegistry(registry);
+			initBase(base);
 		});
 
 		it("handles nested arrays well", [&]() {
-			RegistryType R;
-			initRegistry(R);
+			BaseType B;
+			initBase(B);
 
 			List<KeyType> keys;
-			getAllKeys(R, keys);
+			getAllKeys(B, keys);
 
-			ArrayType<MyArrayType> nestedArray(R);
+			ArrayType<MyArrayType> nestedArray(B);
 			for (KeyType k : keys) {
-				nestedArray[k].init(R);
+				nestedArray[k].init(B);
 			}
 		});
 
@@ -391,66 +390,66 @@ void describeArrayWithoutDefault(const std::string& title,
 			});
 
 			it("initializes w a registry", [&]() {
-				array->init(registry);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array->init(base);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)base)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("initializes w an empty registry", [&]() {
-				RegistryType R;
-				array->init(R);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)R)));
+				BaseType B;
+				array->init(B);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)B)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w a registry", [&]() {
-				array.reset(new MyArrayType(registry));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array.reset(new MyArrayType(base));
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)base)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w an empty registry", [&]() {
-				RegistryType R;
-				array.reset(new MyArrayType(R));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)R)));
+				BaseType B;
+				array.reset(new MyArrayType(B));
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)B)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("supports move-construction", [&]() {
-				array->init(registry);
+				array->init(base);
 				MyArrayType copiedArray = std::move(*array);
-				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryBaseType&)base)));
 				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(registry)] == ElementType(), IsTrue());
+				AssertThat(copiedArray[chooseKey(base)] == ElementType(), IsTrue());
 			});
 
 			it("moves an array using the assignment operator", [&]() {
-				array->init(registry);
+				array->init(base);
 				MyArrayType copiedArray;
 				copiedArray = (std::move(*array));
-				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryBaseType&)registry)));
+				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryBaseType&)base)));
 				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
-				AssertThat(copiedArray[chooseKey(registry)] == ElementType(), IsTrue());
+				AssertThat(copiedArray[chooseKey(base)] == ElementType(), IsTrue());
 			});
 
 			it("assigns the default constructor value to a newly created key", [&]() {
-				array->init(registry);
-				KeyType key = createKey(registry);
+				array->init(base);
+				KeyType key = createKey(base);
 				AssertThat((*array)[key] == ElementType(), IsTrue());
 			});
 
 			it("retains the stored information when it grows", [&]() {
-				array->init(registry);
-				KeyType k = chooseKey(registry);
+				array->init(base);
+				KeyType k = chooseKey(base);
 				(*array)[k] = maybeWrap<ElementType>(42);
 				int size = array->registeredAt()->getArraySize();
 
 				for (int i = 0; i <= size; ++i) {
-					createKey(registry);
+					createKey(base);
 				}
 
 				AssertThat(array->registeredAt()->getArraySize(), IsGreaterThan(size));
@@ -461,26 +460,26 @@ void describeArrayWithoutDefault(const std::string& title,
 		describe("access", [&]() {
 			it("distinguishes between a valid and an invalid array", [&]() {
 				AssertThat(array->valid(), IsFalse());
-				array->init(registry);
+				array->init(base);
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("knows its registry", [&]() {
-				array->init(registry);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)registry)));
+				array->init(base);
+				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)base)));
 			});
 
 			it("allows access with the subscript operator", [&]() {
-				array->init(registry);
-				KeyType k = chooseKey(registry);
+				array->init(base);
+				KeyType k = chooseKey(base);
 				AssertThat((*array)[k] == ElementType(), IsTrue());
 				(*array)[k] = maybeWrap<ElementType>(42);
 				AssertThat(unwrap<ElementType>((*array)[k]), Equals(42));
 			});
 
 			it("allows access with the () operator", [&]() {
-				array->init(registry);
-				KeyType k = chooseKey(registry);
+				array->init(base);
+				KeyType k = chooseKey(base);
 				AssertThat((*array)(k) == ElementType(), IsTrue());
 				(*array)(k) = maybeWrap<ElementType>(42);
 				AssertThat(unwrap<ElementType>((*array)(k)), Equals(42));
@@ -488,13 +487,13 @@ void describeArrayWithoutDefault(const std::string& title,
 		});
 
 		describe("iterators", [&]() {
-			before_each([&]() { array->init(registry); });
+			before_each([&]() { array->init(base); });
 
 			it("iterates over the array", [&]() {
 				List<KeyType> list;
-				getAllKeys(registry, list);
+				getAllKeys(base, list);
 
-				const MyArrayType cArray(registry);
+				const MyArrayType cArray(base);
 				int counter = 0;
 				for (const_iterator it = cArray.begin(); it != cArray.end(); it++) {
 					AssertThat(counter, IsLessThan(list.size()));
