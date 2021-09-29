@@ -35,14 +35,29 @@
 
 namespace ogdf {
 
-template<class ElementType, class RegistryType, bool SupportFastSizeQuery = true>
+//! Constant-time set operations.
+/**
+ * Maintains a subset of indexed keys managed by a registry.
+ *
+ * Provides efficient operations for testing membership,
+ * iteration, insertion, and deletion of elements, as well as clearing the set.
+ *
+ * @tparam Registry The class which manages the registered keys. Must provide the functions defined in
+ * class RegistryBase.
+ * @tparam SupportFastSizeQuery Whether this set supports querying its #size in
+ * constant instead of linear time (in the size).
+ *
+ * \sa RegisteredArray, NodeSet
+ */
+template<class Registry, bool SupportFastSizeQuery = true>
 class RegisteredSet {
 public:
-	using ListType =
-			typename std::conditional<SupportFastSizeQuery, List<ElementType>, ListPure<ElementType>>::type;
+	using element_type = typename Registry::key_type;
+	using list_type = typename std::conditional<SupportFastSizeQuery, List<element_type>,
+			ListPure<element_type>>::type;
 
 	//! Creates an empty set associated with registry \p R.
-	explicit RegisteredSet(const RegistryType& R) : m_it(&R) { }
+	explicit RegisteredSet(const Registry& R) : m_it(&R) { }
 
 	//! Creates an empty set associated with no registry.
 	explicit RegisteredSet() : m_it() { }
@@ -53,8 +68,8 @@ public:
 		m_elements.clear();
 	}
 
-	//! Reinitializes the set. Associates the set with graph \p R.
-	void init(const RegistryType& R) {
+	//! Reinitializes the set. Associates the set with registry \p R.
+	void init(const Registry& R) {
 		m_it.init(&R);
 		m_elements.clear();
 	}
@@ -66,8 +81,8 @@ public:
 	 *
 	 * \pre \p v is an element in the associated registry.
 	 */
-	void insert(ElementType v) {
-		ListIterator<ElementType>& itV = m_it[v];
+	void insert(element_type v) {
+		ListIterator<element_type>& itV = m_it[v];
 		if (!itV.valid()) {
 			itV = m_elements.pushBack(v);
 		}
@@ -80,11 +95,11 @@ public:
 	 * \pre \p v is an element in the associated registry.
 	 * If the element is not contained in this set, nothing happens.
 	 */
-	void remove(ElementType v) {
-		ListIterator<ElementType>& itV = m_it[v];
+	void remove(element_type v) {
+		ListIterator<element_type>& itV = m_it[v];
 		if (itV.valid()) {
 			m_elements.del(itV);
-			itV = ListIterator<ElementType>();
+			itV = ListIterator<element_type>();
 		}
 	}
 
@@ -94,7 +109,7 @@ public:
 	 * The runtime of this operations is linear in the #size().
 	 */
 	void clear() {
-		m_it.fill(ListIterator<ElementType>());
+		m_it.fill(ListIterator<element_type>());
 		m_elements.clear();
 	}
 
@@ -102,15 +117,15 @@ public:
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \p v is an element in the associated graph.
+	 * \pre \p v is an element in the associated registry.
 	 */
-	bool isMember(ElementType v) const { return m_it[v].valid(); }
+	bool isMember(element_type v) const { return m_it[v].valid(); }
 
 	//! Returns a reference to the list of elements contained in this set.
-	const ListType& elements() const { return m_elements; }
+	const list_type& elements() const { return m_elements; }
 
 	//! Returns the associated registry.
-	const RegistryType* registeredAt() const { return m_it.registeredAt(); }
+	const Registry* registeredAt() const { return m_it.registeredAt(); }
 
 	//! Returns the number of elements in this set.
 	/**
@@ -120,18 +135,16 @@ public:
 
 	//! Copy constructor.
 	template<bool OtherSupportsFastSizeQuery>
-	explicit RegisteredSet(
-			const RegisteredSet<ElementType, RegistryType, OtherSupportsFastSizeQuery>& other) {
+	explicit RegisteredSet(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
 		this = other;
 	}
 
 	//! Assignment operator.
 	template<bool OtherSupportsFastSizeQuery>
-	RegisteredSet& operator=(
-			const RegisteredSet<ElementType, RegistryType, OtherSupportsFastSizeQuery>& other) {
+	RegisteredSet& operator=(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
 		m_elements.clear();
 		m_it.init(other.registeredAt());
-		for (ElementType v : other.elements()) {
+		for (element_type v : other.elements()) {
 			insert(v);
 		}
 	}
@@ -139,10 +152,10 @@ public:
 private:
 	//! #m_it[\a v] contains the list iterator pointing to \a v if \a v is contained in this set,
 	//! or an invalid list iterator otherwise.
-	RegisteredArrayWithoutDefault<RegistryType, ListIterator<ElementType>> m_it;
+	RegisteredArrayWithoutDefault<Registry, ListIterator<element_type>> m_it;
 
 	//! The list of elements contained in this set.
-	ListType m_elements;
+	list_type m_elements;
 };
 
 }

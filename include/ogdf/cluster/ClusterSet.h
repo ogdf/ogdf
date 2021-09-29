@@ -51,8 +51,8 @@ namespace ogdf {
  *
  * \sa ClusterSet
  */
-class OGDF_EXPORT ClusterSetPure : public RegisteredSet<cluster, ClusterGraph, false> {
-	using RS = RegisteredSet<cluster, ClusterGraph, false>;
+class OGDF_EXPORT ClusterSetPure : public RegisteredSet<ClusterGraph, false> {
+	using RS = RegisteredSet<ClusterGraph, false>;
 
 public:
 	using RS::RS;
@@ -77,8 +77,8 @@ public:
  *
  * \sa - ClusterSetPure
  */
-class OGDF_EXPORT ClusterSet : public RegisteredSet<cluster, ClusterGraph, true> {
-	using RS = RegisteredSet<cluster, ClusterGraph, true>;
+class OGDF_EXPORT ClusterSet : public RegisteredSet<ClusterGraph, true> {
+	using RS = RegisteredSet<ClusterGraph, true>;
 
 public:
 	using RS::RS;

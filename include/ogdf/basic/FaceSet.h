@@ -50,14 +50,14 @@ namespace ogdf {
  * \sa NodeSet
  */
 template<bool SupportFastSizeQuery = true>
-class FaceSet : public RegisteredSet<face, ConstCombinatorialEmbedding, SupportFastSizeQuery> {
-	using RS = RegisteredSet<face, ConstCombinatorialEmbedding, SupportFastSizeQuery>;
+class FaceSet : public RegisteredSet<ConstCombinatorialEmbedding, SupportFastSizeQuery> {
+	using RS = RegisteredSet<ConstCombinatorialEmbedding, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Returns a reference to the list of faces contained in this set.
-	const typename RS::ListType& faces() const { return RS::elements(); }
+	const typename RS::list_type& faces() const { return RS::elements(); }
 
 	//! Returns the associated combinatorial embedding
 	const ConstCombinatorialEmbedding& embeddingOf() const {
