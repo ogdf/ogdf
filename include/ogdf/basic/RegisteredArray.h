@@ -341,6 +341,9 @@ private:
 	array_pointer_type m_array;
 
 public:
+	//! Creates a new iterator associated with no array.
+	RegisteredArrayIterator() : m_it(), m_array(nullptr) { }
+
 	//! Creates a new iterator.
 	/**
 	 * @param mIt An iterator pointing to the current key.
