@@ -697,6 +697,7 @@ inline void getAllEdges(const Graph& G, CONTAINER& edges);
 class OGDF_EXPORT Graph {
 public:
 	class HiddenEdgeSet;
+	friend class GraphObserver;
 
 private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
@@ -706,7 +707,7 @@ private:
 	GraphRegistry<EdgeElement> m_regEdgeArrays; //!< The registered edge arrays.
 	GraphRegistry<AdjElement, GraphAdjIterator> m_regAdjArrays;
 	GraphAdjIterator m_adjIt;
-	mutable ListPure<GraphObserver*> m_regStructures; //!< The registered graph structures.
+	mutable ListPure<GraphObserver*> m_regObservers; //!< The registered graph observers.
 
 #ifndef OGDF_MEMORY_POOL_NTS
 	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
@@ -1425,23 +1426,6 @@ public:
 
 	operator const GraphRegistry<AdjElement, GraphAdjIterator>&() const { return m_regAdjArrays; }
 
-	//! Registers a graph observer (e.g. a ClusterGraph).
-	/**
-	 * @param pStructure is a pointer to the graph observer that shall be registered; this graph observer must be
-	 *                   associated with this graph.
-	 * @return an iterator pointing to the entry for the registered graph observer in the list of registered
-	 *         graph observers. This iterator is required for unregistering the graph observer again.
-	 */
-	ListIterator<GraphObserver*> registerStructure(GraphObserver* pStructure) const;
-
-	//! Unregisters a graph observer.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered graph observers for the graph
-	 *           observer to be unregistered.
-	 */
-	void unregisterStructure(ListIterator<GraphObserver*> it) const;
-
-
 	//! Resets the edge id count to \p maxId.
 	/**
 	 * The next edge will get edge id \p maxId +1. Use this function with caution!
@@ -1568,6 +1552,22 @@ private:
 
 	edge createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt);
 	node pureNewNode();
+
+	//! Registers a graph observer (e.g. a ClusterGraph).
+	/**
+	 * @param pStructure is a pointer to the graph observer that shall be registered; this graph observer must be
+	 *                   associated with this graph.
+	 * @return an iterator pointing to the entry for the registered graph observer in the list of registered
+	 *         graph observers. This iterator is required for unregistering the graph observer again.
+	 */
+	ListIterator<GraphObserver*> registerObserver(GraphObserver* pStructure) const;
+
+	//! Unregisters a graph observer.
+	/**
+	 * @param it is an iterator pointing to the entry in the list of registered graph observers for the graph
+	 *           observer to be unregistered.
+	 */
+	void unregisterObserver(ListIterator<GraphObserver*> it) const;
 
 	// moves adjacency entry to node w
 	void moveAdj(adjEntry adj, node w);

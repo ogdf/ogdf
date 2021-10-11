@@ -68,7 +68,7 @@ Graph::Graph(const Graph& G)
 }
 
 Graph::~Graph() {
-	for (auto& obs : m_regStructures) {
+	for (auto& obs : m_regObservers) {
 		obs->unregistered();
 	}
 
@@ -390,7 +390,7 @@ node Graph::newNode() {
 	m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->nodeAdded(v);
 	}
 
@@ -409,7 +409,7 @@ node Graph::newNode(int index) {
 	m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->nodeAdded(v);
 	}
 
@@ -426,7 +426,7 @@ node Graph::pureNewNode() {
 	m_regNodeArrays.keyAdded(v);
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->nodeAdded(v);
 	}
 
@@ -447,7 +447,7 @@ edge Graph::createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt) 
 	m_regAdjArrays.keyAdded(e->adjSource());
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->edgeAdded(e);
 	}
 
@@ -482,7 +482,7 @@ edge Graph::newEdge(node v, node w, int index) {
 	m_regAdjArrays.keyAdded(e->adjSource());
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->edgeAdded(e);
 	}
 
@@ -752,10 +752,10 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	adjTgt->m_edge = eIn;
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->edgeDeleted(eOut);
 	}
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->nodeDeleted(u);
 	}
 
@@ -786,7 +786,7 @@ void Graph::delNode(node v) {
 	m_regNodeArrays.keyRemoved(v);
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->nodeDeleted(v);
 	}
 
@@ -804,7 +804,7 @@ void Graph::delEdge(edge e) {
 	OGDF_ASSERT(e->graphOf() == this);
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->edgeDeleted(e);
 	}
 
@@ -820,7 +820,7 @@ void Graph::delEdge(edge e) {
 
 void Graph::clear() {
 	// tell all structures to clear their graph-initialized data
-	for (GraphObserver* obs : m_regStructures) {
+	for (GraphObserver* obs : m_regObservers) {
 		obs->cleared();
 	}
 
@@ -947,18 +947,18 @@ int Graph::genus() const {
 	return (numberOfEdges() - numberOfNodes() - nIsolated - nFaceCycles + 2 * nCC) / 2;
 }
 
-ListIterator<GraphObserver*> Graph::registerStructure(GraphObserver* pStructure) const {
+ListIterator<GraphObserver*> Graph::registerObserver(GraphObserver* pStructure) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
-	return m_regStructures.pushBack(pStructure);
+	return m_regObservers.pushBack(pStructure);
 }
 
-void Graph::unregisterStructure(ListIterator<GraphObserver*> it) const {
+void Graph::unregisterObserver(ListIterator<GraphObserver*> it) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
-	m_regStructures.del(it);
+	m_regObservers.del(it);
 }
 
 void Graph::resetTableSizes() {
