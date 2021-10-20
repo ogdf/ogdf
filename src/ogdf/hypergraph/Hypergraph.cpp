@@ -42,6 +42,7 @@ Hypergraph::Hypergraph()
 	, m_regHyperedgeArrays(this, &m_hyperedgeIdCount, &m_hyperedges) {
 	m_nHypernodes = m_nHyperedges = 0;
 	m_hypernodeIdCount = m_hyperedgeIdCount = 0;
+	initArrays();
 }
 
 Hypergraph::~Hypergraph() {
@@ -159,8 +160,8 @@ void Hypergraph::delHypernode(hypernode v) {
 
 	OGDF_ASSERT(v->m_degree == 0);
 
-	m_hypernodes.del(v);
 	m_regHypernodeArrays.keyRemoved(v);
+	m_hypernodes.del(v);
 }
 
 void Hypergraph::delHyperedge(hyperedge e) {
@@ -181,8 +182,8 @@ void Hypergraph::delHyperedge(hyperedge e) {
 
 	OGDF_ASSERT(e->m_cardinality == 0);
 
-	m_hyperedges.del(e);
 	m_regHyperedgeArrays.keyRemoved(e);
+	m_hyperedges.del(e);
 }
 
 void Hypergraph::clear() {

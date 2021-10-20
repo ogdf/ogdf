@@ -82,6 +82,8 @@ ClusterGraph::ClusterGraph() : m_pGraph(nullptr) {
 	m_lcaSearch = nullptr;
 	m_vAncestor = nullptr;
 	m_wAncestor = nullptr;
+
+	resizeArrays();
 }
 
 // Construction of a new cluster graph. All nodes
@@ -193,7 +195,6 @@ void ClusterGraph::init(const Graph& G) {
 ClusterGraph& ClusterGraph::operator=(const ClusterGraph& C) {
 	doClear();
 	shallowCopy(C);
-	reinitArrays();
 
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
@@ -232,6 +233,8 @@ void ClusterGraph::constructClusterTree(const ClusterGraph& C, const Graph& G,
 
 // Copy Function
 void ClusterGraph::shallowCopy(const ClusterGraph& C) {
+	resizeArrays(C.numberOfClusters() + 1);
+
 	const Graph& G = C;
 	m_pGraph = &G;
 
@@ -319,6 +322,7 @@ void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable,
 		EdgeArray<edge>& edgeCopy) {
 	G.clear();
+	resizeArrays(C.numberOfClusters() + 1);
 
 	const Graph& cG = C; // original graph
 
@@ -751,6 +755,7 @@ void ClusterGraph::delCluster(cluster c) {
 	for (ClusterGraphObserver* obs : m_regObservers) {
 		obs->clusterDeleted(c);
 	}
+	keyRemoved(c);
 
 	m_postOrderStart = nullptr;
 
@@ -831,6 +836,7 @@ void ClusterGraph::clearClusterTree(cluster c) {
 			parent->nodes.pushBack(v);
 			m_itMap[v] = parent->getNodes().rbegin();
 		}
+		keyRemoved(c);
 		clusters.del(c);
 	} else if (c == m_rootCluster) {
 		for (node v : attached) {
@@ -845,6 +851,7 @@ void ClusterGraph::clearClusterTree(cluster c) {
 void ClusterGraph::clearClusterTree(cluster c, List<node>& attached) {
 	attached.conc(c->nodes);
 	recurseClearClusterTreeOnChildren(c, attached);
+	keyRemoved(c);
 	clusters.del(c);
 }
 

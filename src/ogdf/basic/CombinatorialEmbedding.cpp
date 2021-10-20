@@ -46,6 +46,7 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding() {
 	m_cpGraph = nullptr;
 	m_externalFace = nullptr;
 	m_faceIdCount = 0;
+	reinitArrays();
 }
 
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph& G)
@@ -57,6 +58,7 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph& G)
 
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const ConstCombinatorialEmbedding& C)
 	: CombinatorialEmbeddingRegistry(), m_cpGraph(C.m_cpGraph) {
+	resizeArrays(C.numberOfFaces());
 	if (C.m_cpGraph == nullptr) {
 		return;
 	}
@@ -72,6 +74,7 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const ConstCombinatoria
 
 ConstCombinatorialEmbedding& ConstCombinatorialEmbedding::operator=(
 		const ConstCombinatorialEmbedding& C) {
+	resizeArrays(C.numberOfFaces());
 	init(*C.m_cpGraph);
 
 	if (C.m_externalFace == nullptr) {
@@ -344,6 +347,7 @@ face CombinatorialEmbedding::joinFaces(edge e) {
 			m_rightFace[adj] = f1;
 		} while ((adj = adj->faceCycleSucc()) != adj1);
 
+		keyRemoved(f2);
 		faces.del(f2);
 	}
 
