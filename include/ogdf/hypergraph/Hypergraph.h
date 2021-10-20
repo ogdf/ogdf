@@ -314,6 +314,7 @@ public:
 	OGDF_NEW_DELETE;
 };
 
+//! Registry for nodes and edges of a hypergraph.
 template<typename Key>
 class HypergraphRegistry
 	: public RegistryBase<Key*, HypergraphRegistry<Key>, internal::GraphIterator<Key*>> {
@@ -324,6 +325,7 @@ class HypergraphRegistry
 	internal::GraphList<Key>* m_iterable;
 
 public:
+	//! Constructor.
 	HypergraphRegistry(Hypergraph* graph, int* nextKeyIndex, internal::GraphList<Key>* container)
 		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container) { }
 
@@ -351,9 +353,11 @@ public:
 
 	iterator end() const override { return iterator(); }
 
+	//! Returns a pointer to the associated hypergraph
 	Hypergraph* graphOf() const { return m_pGraph; }
 };
 
+//! RegisteredArray for nodes and edges of a hypergraph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = HypergraphRegistry<Key>>
 class HypergraphRegisteredArray : public RegisteredArray<Registry, Value, WithDefault, Hypergraph> {
 	using RA = RegisteredArray<Registry, Value, WithDefault, Hypergraph>;
@@ -361,6 +365,7 @@ class HypergraphRegisteredArray : public RegisteredArray<Registry, Value, WithDe
 public:
 	using RA::RA;
 
+	//! Returns a pointer to the associated hypergraph.
 	Hypergraph* hypergraphOf() const {
 		if (RA::registeredAt() == nullptr) {
 			return nullptr;

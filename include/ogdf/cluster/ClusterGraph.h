@@ -915,6 +915,7 @@ private:
 	void reinitArrays();
 };
 
+//! RegisteredArray for clusters of a cluster graph.
 template<class Value, bool WithDefault>
 class ClusterArrayBase : public RegisteredArray<ClusterGraph, Value, WithDefault> {
 	using RA = RegisteredArray<ClusterGraph, Value, WithDefault>;
@@ -922,12 +923,15 @@ class ClusterArrayBase : public RegisteredArray<ClusterGraph, Value, WithDefault
 public:
 	using RA::RA;
 
+	//! Default Constructor.
 	ClusterArrayBase() = default;
 
+	//! Creates a new cluster array with initial capacity \p size.
 	ClusterArrayBase(const ClusterGraph& C, const Value& def, int size) : RA(C, def) {
 		RA::resize(size, true);
 	};
 
+	//! Returns a pointer to the associated cluster graph.
 	ClusterGraph* graphOf() const { return RA::registeredAt(); }
 };
 

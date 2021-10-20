@@ -457,6 +457,7 @@ void NodeElement::outEdges(EDGELIST& edgeList) const {
 	}
 }
 
+//! Iterator for AdjEntries of a graph.
 class OGDF_EXPORT GraphAdjIterator {
 	Graph* m_pGraph;
 	adjEntry m_entry;
@@ -464,42 +465,55 @@ class OGDF_EXPORT GraphAdjIterator {
 public:
 	using iterator = GraphAdjIterator;
 
+	//! Constructor.
 	GraphAdjIterator(Graph* graph = nullptr, adjEntry entry = nullptr);
 
+	//! Returns an iterator to the first adjEntry in the associated graph.
 	GraphAdjIterator begin();
 
+	//! Returns an iterator to the one-past-last adjEntry in the associated graph.
 	GraphAdjIterator end() { return GraphAdjIterator(m_pGraph); }
 
+	//! Proceeds to the next adjEntry.
 	void next();
 
+	//! Returns to the previous adjEntry.
 	void prev();
 
+	//! Returns the associated adjEntry.
 	adjEntry operator*() const { return m_entry; }
 
+	//! Returns a reference to the associated adjElement.
 	AdjElement& operator->() const { return *m_entry; }
 
+	//! Equality operator.
 	bool operator==(const GraphAdjIterator& iter) const {
 		return m_pGraph == iter.m_pGraph && m_entry == iter.m_entry;
 	}
 
+	//! Inequality operator.
 	bool operator!=(const GraphAdjIterator& iter) const { return !operator==(iter); }
 
+	//! Increment operator (prefix).
 	GraphAdjIterator& operator++() {
 		next();
 		return *this;
 	}
 
+	//! Increment operator (postfix).
 	GraphAdjIterator operator++(int) {
 		GraphAdjIterator iter = *this;
 		next();
 		return iter;
 	}
 
+	//! Decrement operator (prefix).
 	GraphAdjIterator& operator--() {
 		prev();
 		return *this;
 	}
 
+	//! Decrement operator (postfix).
 	GraphAdjIterator operator--(int) {
 		GraphAdjIterator iter = *this;
 		prev();
@@ -507,6 +521,7 @@ public:
 	}
 };
 
+//! Registry for nodes, edges and adjEntries of a graph.
 template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>>
 class GraphRegistry
 	: public RegistryBase<Key*, GraphRegistry<Key, Iterable>, typename Iterable::iterator> {
@@ -518,6 +533,7 @@ class GraphRegistry
 	int m_factor;
 
 public:
+	//! Constructor.
 	GraphRegistry(Graph* graph, int* nextKeyIndex, Iterable* container = nullptr, int factor = 1)
 		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container), m_factor(factor) { }
 
@@ -547,9 +563,11 @@ public:
 
 	iterator end() const override { return m_iterable->end(); }
 
+	//! Returns a pointer to the associated graph.
 	Graph* graphOf() const { return m_pGraph; }
 };
 
+//! RegisteredArray for nodes, edges and adjEntries of a graph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>
 class GraphRegisteredArray : public RegisteredArray<Registry, Value, WithDefault, Graph> {
 	using RA = RegisteredArray<Registry, Value, WithDefault, Graph>;
@@ -557,6 +575,7 @@ class GraphRegisteredArray : public RegisteredArray<Registry, Value, WithDefault
 public:
 	using RA::RA;
 
+	//! Returns a pointer to the associated graph.
 	Graph* graphOf() const {
 		if (RA::registeredAt() == nullptr) {
 			return nullptr;
@@ -572,35 +591,36 @@ using NodeArray = GraphRegisteredArray<NodeElement, Value, true>;
 template<typename Value>
 using NodeArrayWithoutDefault = GraphRegisteredArray<NodeElement, Value, false>;
 
+//! RegisteredArray for edges of a graph.
 template<typename Value, bool WithDefault>
 class EdgeArrayBase : public GraphRegisteredArray<EdgeElement, Value, WithDefault> {
 	using GRA = GraphRegisteredArray<EdgeElement, Value, WithDefault>;
 
 public:
-	EdgeArrayBase() { }
-
-	EdgeArrayBase(const Graph& graph) : GRA(graph) { }
-
-	EdgeArrayBase(const Graph& graph, const Value& def) : GRA(graph, def) { }
+	using GRA::GRA;
 
 	using GRA::operator[];
 	using GRA::operator();
 
+	//! Returns a const reference to the element associated with the edge corresponding to \p adj.
 	const Value& operator[](adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
 		return GRA::operator[](adj->index() >> 1);
 	}
 
+	//! Returns a reference to the element associated with the edge corresponding to \p adj.
 	Value& operator[](adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
 		return GRA::operator[](adj->index() >> 1);
 	}
 
+	//! Returns a const reference to the element associated with the edge corresponding to \p adj.
 	const Value& operator()(adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
 		return GRA::operator[](adj->index() >> 1);
 	}
 
+	//! Returns a reference to the element associated with the edge corresponding to \p adj.
 	Value& operator()(adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
 		return GRA::operator[](adj->index() >> 1);

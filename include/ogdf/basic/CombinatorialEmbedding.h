@@ -167,6 +167,7 @@ public:
 using CombinatorialEmbeddingRegistry =
 		RegistryBase<face, ConstCombinatorialEmbedding, internal::GraphIterator<face>>;
 
+//! RegisteredArray for faces of a combinatorial embedding.
 template<class Value, bool WithDefault>
 class FaceArrayBase : public RegisteredArray<ConstCombinatorialEmbedding, Value, WithDefault> {
 	using RA = RegisteredArray<ConstCombinatorialEmbedding, Value, WithDefault>;
@@ -174,6 +175,7 @@ class FaceArrayBase : public RegisteredArray<ConstCombinatorialEmbedding, Value,
 public:
 	using RA::RA;
 
+	//! Returns a pointer to the associated combinatorial embedding.
 	ConstCombinatorialEmbedding* embeddingOf() const { return RA::registeredAt(); }
 };
 
