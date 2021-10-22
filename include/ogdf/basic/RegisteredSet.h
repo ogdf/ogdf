@@ -77,7 +77,7 @@ public:
 	//! Inserts element \p v into this set.
 	/**
 	 * This operation has constant runtime.
-	 * If the node is already contained in this set, nothing happens.
+	 * If the element is already contained in this set, nothing happens.
 	 *
 	 * \pre \p v is an element in the associated registry.
 	 */

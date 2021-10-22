@@ -45,11 +45,17 @@ namespace ogdf {
 template<typename Registry>
 class RegisteredArrayBase;
 
+//! The default minimum table size for registered arrays.
 static constexpr int MIN_TABLE_SIZE = (1 << 4);
 
+//! The default growth function for registered arrays.
+/**
+ * @return The smallest power of 2 that is no less than \p actualCount and #MIN_TABLE_SIZE.
+ */
 int calculateTableSize(int actualCount);
 
-template<typename Key>
+//! Returns the index of \p key.
+template<typename Key> // template function instead of a virtual function in RegistryBase to improve performance
 OGDF_NODISCARD inline int keyToIndex(Key key) {
 	return key->index();
 }
@@ -147,10 +153,10 @@ public:
 	OGDF_NODISCARD virtual int calculateArraySize() const = 0;
 
 	//! Returns an iterator to the first key managed by this registry.
-	OGDF_NODISCARD virtual Iterator begin() const = 0;
+	virtual Iterator begin() const = 0;
 
 	//! Returns the past-the-end iterator for the keys managed by this registry.
-	OGDF_NODISCARD virtual Iterator end() const = 0;
+	virtual Iterator end() const = 0;
 
 	//! Records the addition of a new key and resizes all registered arrays if necessary.
 	void keyAdded(Key key) {
@@ -641,6 +647,8 @@ protected:
  * Registered arrays provide an efficient, constant-time mapping from indexed keys of a \a Registry to elements of
  * type \a Value. The storage automatically grows and shrinks when keys are added to or removed from the registry.
  *
+ * \warning When the array grows or shrinks, all pointers to its entries become invalid.
+ *
  * @tparam Registry The class which manages the registered keys. Must provide the functions defined in
  * class RegistryBase.
  * @tparam Value The type of the stored data.
@@ -651,6 +659,88 @@ protected:
  * @tparam Base The class that manages multiple related registries. \a Base must be convertible
  * to \a Registry. If only one such registry exists, \a Base and \a Registry can be the
  * same class (i.e. \a Base directly inherits from class RegistryBase)
+ *
+ * ### Class Interaction
+ * - **Key**
+ *
+ * 	Used to index the registered array. Every key must have a unique non-negative index. Must either provide a public
+ * 	method called \c index() or the template function keyToIndex() must offer a specialization for \a Key to give access
+ * 	to its index.
+ *
+ * - **Value**
+ *
+ * 	The type of the elements stored in the array.
+ *
+ * - **RegistryBase**
+ *
+ * 	Defines the interface for the \a Registry.
+ *
+ * - **Registry**
+ *
+ * 	Implements the abstract functionality defined in RegistryBase. Manages the objects of type \a Key and stores a list
+ * 	of associated registered arrays for \a Key. Determines the growth rate of the arrays. When keys are added or
+ * 	removed, the functions RegistryBase::keyAdded(), RegistryBase::keyRemoved(), and RegistryBase::keysCleared()
+ * 	should be called so that the size of all arrays will be adjusted accordingly.
+ *
+ * - **RegisteredArrayBase**
+ *
+ * 	Abstract base class for all registered arrays. The \a Registry communicates with its registered arrays using
+ * 	this interface.
+ *
+ * - **RegisteredArrayWithoutDefault**
+ *
+ * 	Provides the core functionality for accessing the values stored in the array. New entries are initialized using the
+ * 	default constructor of type \a Value.
+ *
+ * - **RegisteredArrayWithDefault**
+ *
+ * 	Extends the functionality of RegisteredArrayWithoutDefault by adding the possibility to set a specific default value
+ * 	for new keys added to the registry. This requires type \a Value to be copy-constructible.
+ *
+ * - **RegisteredArray**
+ *
+ * 	Used in user code. Inherits from RegisteredArrayWithoutDefault or RegisteredArrayWithDefault, depending on the
+ * 	template parameter \a WithDefault.
+ *
+ *
+ * ### Example Setup
+ *
+ * A simple registry that only allows addition of keys:
+ * \code
+ * class ExampleKey {
+ * 	int m_index;
+ *
+ * public:
+ * 	explicit ExampleKey(int index) : m_index(index) {}
+ * 	int index() const { return m_index; }
+ * };
+ *
+ * class ExampleRegistry : public RegistryBase<ExampleKey *, ExampleRegistry> {
+ * 	std::list<std::unique_ptr<ExampleKey>> m_keys;
+ *
+ * public:
+ * 	ExampleKey *newKey() {
+ * 		m_keys.push_back(std::unique_ptr<ExampleKey>(new ExampleKey(m_keys.size())));
+ * 		keyAdded(m_keys.back().get());
+ * 		return m_keys.back().get();
+ * 	}
+ *
+ * 	bool isKeyAssociated(ExampleKey *key) const override { return true; }
+ * 	int maxKeyIndex() const override { return m_keys.size() - 1; }
+ * 	int calculateArraySize() const override { return calculateTableSize(m_keys.size()); }
+ * 	void begin() const override {}
+ * 	void end() const override {}
+ * };
+ * \endcode
+ * With this setup, registering an array and modifying its values works as follows:
+ * \code
+ * ExampleRegistry G;
+ * RegisteredArray<ExampleRegistry, int> R(G);
+ * ExampleKey *key = G.newKey();
+ * R[key] = 42;
+ * \endcode
+ *
+ * \extends RegisteredArrayWithDefault
  *
  * \sa RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegistryBase, NodeArray
  */

@@ -53,12 +53,13 @@ class NodeSet : public RegisteredSet<GraphRegistry<NodeElement>, SupportFastSize
 	using RS = RegisteredSet<GraphRegistry<NodeElement>, SupportFastSizeQuery>;
 
 public:
+	//! Creates a new node set associated with \p graph.
 	explicit NodeSet(const Graph& graph) : RS((const GraphRegistry<NodeElement>&)graph) {};
 
 	//! Returns a reference to the list of nodes contained in this set.
 	const typename RS::list_type& nodes() { return RS::elements(); }
 
-	//! Returns the associated graph
+	//! Returns the associated graph.
 	const Graph& graphOf() const {
 		OGDF_ASSERT(RS::registeredAt());
 		return *RS::registeredAt();
@@ -82,12 +83,13 @@ class EdgeSet : public RegisteredSet<GraphRegistry<EdgeElement>, SupportFastSize
 	using RS = RegisteredSet<GraphRegistry<EdgeElement>, SupportFastSizeQuery>;
 
 public:
+	//! Creates a new edge set associated with \p graph.
 	explicit EdgeSet(const Graph& graph) : RS((const GraphRegistry<EdgeElement>&)graph) {};
 
 	//! Returns a reference to the list of edges contained in this set.
 	const typename RS::list_type& edges() { return RS::elements(); }
 
-	//! Returns the associated graph
+	//! Returns the associated graph.
 	const Graph& graphOf() const {
 		OGDF_ASSERT(RS::registeredAt());
 		return *RS::registeredAt();
@@ -112,13 +114,14 @@ class AdjEntrySet
 	using RS = RegisteredSet<GraphRegistry<AdjElement, GraphAdjIterator>, SupportFastSizeQuery>;
 
 public:
+	//! Creates a new adjEntry set associated with \p graph.
 	explicit AdjEntrySet(const Graph& graph)
 		: RS((const GraphRegistry<AdjElement, GraphAdjIterator>&)graph) {};
 
 	//! Returns a reference to the list of adjEntries contained in this set.
 	const typename RS::list_type& adjEntries() { return RS::elements(); }
 
-	//! Returns the associated graph
+	//! Returns the associated graph.
 	const Graph& graphOf() const {
 		OGDF_ASSERT(RS::registeredAt());
 		return *RS::registeredAt();
