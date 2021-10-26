@@ -53,6 +53,8 @@ class NodeSet : public RegisteredSet<GraphRegistry<NodeElement>, SupportFastSize
 	using RS = RegisteredSet<GraphRegistry<NodeElement>, SupportFastSizeQuery>;
 
 public:
+	using RS::RS;
+
 	//! Creates a new node set associated with \p graph.
 	explicit NodeSet(const Graph& graph) : RS((const GraphRegistry<NodeElement>&)graph) {};
 
@@ -83,6 +85,8 @@ class EdgeSet : public RegisteredSet<GraphRegistry<EdgeElement>, SupportFastSize
 	using RS = RegisteredSet<GraphRegistry<EdgeElement>, SupportFastSizeQuery>;
 
 public:
+	using RS::RS;
+
 	//! Creates a new edge set associated with \p graph.
 	explicit EdgeSet(const Graph& graph) : RS((const GraphRegistry<EdgeElement>&)graph) {};
 
@@ -114,6 +118,8 @@ class AdjEntrySet
 	using RS = RegisteredSet<GraphRegistry<AdjElement, GraphAdjIterator>, SupportFastSizeQuery>;
 
 public:
+	using RS::RS;
+
 	//! Creates a new adjEntry set associated with \p graph.
 	explicit AdjEntrySet(const Graph& graph)
 		: RS((const GraphRegistry<AdjElement, GraphAdjIterator>&)graph) {};
