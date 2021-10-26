@@ -62,6 +62,8 @@ go_bandit([]() {
 	describeArray<Graph, AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints",
 			{1, 2, 3}, {42}, init, chooseAdjEntry, allAdjEntries, createAdjEntry);
 
+	describeArray<Graph, AdjEntryArray, adjEntry, bool>("AdjEntryArray filled with bools", false,
+			true, init, chooseAdjEntry, allAdjEntries, createAdjEntry);
 
 	describeArrayWithoutDefault<Graph, AdjEntryArrayWithoutDefault, adjEntry, std::unique_ptr<int>>(
 			"AdjEntryArray filled with unique pointers", init, chooseAdjEntry, allAdjEntries,

@@ -49,6 +49,9 @@ go_bandit([]() {
 	describeArray<Graph, EdgeArray, edge, List<int>>("EdgeArray filled with lists of ints",
 			{1, 2, 3}, {42}, init, chooseEdge, allEdges, createEdge);
 
+	describeArray<Graph, EdgeArray, edge, bool>("EdgeArray filled with bools", false, true, init,
+			chooseEdge, allEdges, createEdge);
+
 	describeArrayWithoutDefault<Graph, EdgeArrayWithoutDefault, edge, std::unique_ptr<int>>(
 			"EdgeArray filled with unique pointers", init, chooseEdge, allEdges, createEdge);
 	describeArrayWithoutDefault<Graph, EdgeArrayWithoutDefault, edge, std::vector<std::unique_ptr<int>>>(

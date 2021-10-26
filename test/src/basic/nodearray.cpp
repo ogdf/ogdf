@@ -48,6 +48,9 @@ go_bandit([]() {
 	describeArray<Graph, NodeArray, node, List<int>>("NodeArray filled with lists of ints",
 			{1, 2, 3}, {42}, init, chooseNode, allNodes, createNode);
 
+	describeArray<Graph, NodeArray, node, bool>("NodeArray filled with bools", false, true, init,
+			chooseNode, allNodes, createNode);
+
 	describeArrayWithoutDefault<Graph, NodeArrayWithoutDefault, node, std::unique_ptr<int>>(
 			"NodeArray filled with unique pointers", init, chooseNode, allNodes, createNode);
 	describeArrayWithoutDefault<Graph, NodeArrayWithoutDefault, node, std::vector<std::unique_ptr<int>>>(

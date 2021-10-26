@@ -39,37 +39,42 @@ template<typename Type>
 inline Type maybeWrap(int value);
 
 template<>
-inline int maybeWrap<int>(int value) {
+inline int maybeWrap(int value) {
 	return value;
 }
 
 template<>
-inline List<int> maybeWrap<List<int>>(int value) {
+inline List<int> maybeWrap(int value) {
 	return {value};
 }
 
 template<>
-inline std::unique_ptr<int> maybeWrap<std::unique_ptr<int>>(int value) {
+inline std::unique_ptr<int> maybeWrap(int value) {
 	return std::unique_ptr<int>(new int(value));
 }
 
 template<>
-inline std::vector<std::unique_ptr<int>> maybeWrap<std::vector<std::unique_ptr<int>>>(int value) {
+inline std::vector<std::unique_ptr<int>> maybeWrap(int value) {
 	std::vector<std::unique_ptr<int>> v;
 	v.push_back(std::unique_ptr<int>(new int(value)));
 	return v;
+}
+
+template<>
+inline bool maybeWrap(int value) {
+	return value;
 }
 
 template<typename Type>
 inline int unwrap(Type& value);
 
 template<>
-inline int unwrap<std::unique_ptr<int>>(std::unique_ptr<int>& value) {
+inline int unwrap(std::unique_ptr<int>& value) {
 	return *value;
 }
 
 template<>
-inline int unwrap<std::vector<std::unique_ptr<int>>>(std::vector<std::unique_ptr<int>>& value) {
+inline int unwrap(std::vector<std::unique_ptr<int>>& value) {
 	return *value.front();
 }
 
