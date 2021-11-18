@@ -304,9 +304,9 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 
 	node m_src; //!< The source node of the edge.
 	node m_tgt; //!< The target node of the edge.
-	AdjElement* m_adjSrc; //!< Corresponding adjacancy entry at source node.
-	AdjElement* m_adjTgt; //!< Corresponding adjacancy entry at target node.
-	int m_id; // The (unique) index of the node.
+	AdjElement* m_adjSrc; //!< Corresponding adjacency entry at source node.
+	AdjElement* m_adjTgt; //!< Corresponding adjacency entry at target node.
+	int m_id; // The (unique) index of the edge.
 
 	//! Constructs an edge element (\p src,\p tgt).
 	/**
@@ -652,6 +652,8 @@ inline void getAllEdges(const Graph& G, CONTAINER& edges);
 
 //! Data type for general directed graphs (adjacency list representation).
 /**
+ * In embedded graphs, adjacency lists are given in clockwise order.
+ *
  * @ingroup graphs
  *
  * <H3>Thread Safety</H3>
@@ -1467,7 +1469,7 @@ public:
 	//! @{
 	//! Assignment operator.
 	/**
-	 * The assignment operature assures that the adjacency lists of nodes in the
+	 * The assignment operator assures that the adjacency lists of nodes in the
 	 * constructed graph are in the same order as the adjacency lists in \p G.
 	 * This is in particular important when dealing with embedded graphs.
 	 *
@@ -1636,7 +1638,7 @@ private:
 	edge createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt);
 	node pureNewNode();
 
-	//! Registers a graph observer (e.g. a ClusterGraph).
+	//! Registers a graph observer.
 	/**
 	 * @param pStructure is a pointer to the graph observer that shall be registered; this graph observer must be
 	 *                   associated with this graph.
@@ -1652,7 +1654,7 @@ private:
 	 */
 	void unregisterObserver(ListIterator<GraphObserver*> it) const;
 
-	// moves adjacency entry to node w
+	//! moves adjacency entry to node w
 	void moveAdj(adjEntry adj, node w);
 
 	//! Sets the sizes of registered node and edge arrays to the

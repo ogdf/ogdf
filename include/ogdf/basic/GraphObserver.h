@@ -41,10 +41,6 @@
 
 namespace ogdf {
 
-//
-// in embedded graphs, adjacency lists are given in clockwise order.
-//
-
 
 //! Abstract Base class for graph observers.
 /**
@@ -76,7 +72,6 @@ public:
 
 	//! Associates observer instance with graph \p G
 	void reregister(const Graph* pG) {
-		//small speedup: check if == m_pGraph
 		if (m_pGraph) {
 			m_pGraph->unregisterObserver(m_itGList);
 		}
@@ -105,6 +100,7 @@ public:
 	//! Has to be implemented by derived classes
 	virtual void cleared() = 0;
 
+	//! Called when the watched graph is deconstructed and thus no longer available
 	virtual void unregistered() { m_pGraph = nullptr; }
 
 	const Graph* getGraph() const { return m_pGraph; }
