@@ -1027,7 +1027,10 @@ public:
 	//! Removes all nodes and all edges from the graph.
 	virtual void clear();
 
-	//! @}
+	//! Restore all hidden edges and invalidate all HiddenEdgeSets.
+	void restoreAllEdges();
+
+	//@}
 
 	/**
 	 * @brief Functionality for temporarily hiding edges in constant time.
@@ -1705,21 +1708,6 @@ private:
 
 	//! moves adjacency entry to node w
 	void moveAdj(adjEntry adj, node w);
-
-	//! Sets the sizes of registered node and edge arrays to the
-	//! next power of two that is no less than the current id counts.
-	//! Respects the minimum table size constants.
-	void resetTableSizes();
-
-	//! Re-initializes registered arrays with respect to the current sizes.
-	//! Calls #resetTableSizes() if \p doResetTableSizes is \c true (default).
-	void reinitArrays(bool doResetTableSizes = true);
-	void resetAdjEntryIndex(int newIndex, int oldIndex);
-
-	/**
-	 * Used to restore all hidden edges upon deleting the graph.
-	 */
-	void restoreAllEdges();
 };
 
 Graph::CCNodeIterator Graph::CCsInfo::nodes(int cc) const { return {*this, cc}; }

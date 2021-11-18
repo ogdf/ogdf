@@ -54,7 +54,6 @@ Graph::Graph()
 	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt, 2)
 	, m_adjIt(this) {
 	m_nodeIdCount = m_edgeIdCount = 0;
-	resetTableSizes();
 }
 
 Graph::Graph(const Graph& G)
@@ -64,12 +63,13 @@ Graph::Graph(const Graph& G)
 	, m_adjIt(this) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);
-	resetTableSizes();
 }
 
 Graph::~Graph() {
-	for (auto& obs : m_regObservers) {
+	while (!m_regObservers.empty()) {
+		GraphObserver* obs = m_regObservers.popFrontRet();
 		obs->unregistered();
+		obs->m_pGraph = nullptr;
 	}
 
 	restoreAllEdges();
@@ -80,15 +80,34 @@ Graph::~Graph() {
 	}
 }
 
-Graph& Graph::operator=(const Graph& G) {
-	clear();
-	copy(G);
-	reinitArrays();
+void Graph::clear() {
+	restoreAllEdges();
+
+	// tell all structures to clear their graph-initialized data
+	for (GraphObserver* obs : m_regObservers) {
+		obs->cleared();
+	}
+
+	m_regNodeArrays.keysCleared();
+	m_regEdgeArrays.keysCleared();
+	m_regAdjArrays.keysCleared();
+
+	for (node v = nodes.head(); v; v = v->succ()) {
+		v->adjEntries.~GraphObjectContainer<AdjElement>();
+	}
+	nodes.clear();
+	edges.clear();
+
+	m_nodeIdCount = m_edgeIdCount = 0;
 
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
 #endif
+}
 
+Graph& Graph::operator=(const Graph& G) {
+	clear();
+	copy(G);
 	return *this;
 }
 
@@ -676,29 +695,6 @@ void Graph::delEdge(edge e) {
 	edges.del(e);
 }
 
-void Graph::clear() {
-	// tell all structures to clear their graph-initialized data
-	for (GraphObserver* obs : m_regObservers) {
-		obs->cleared();
-	}
-
-	m_regNodeArrays.keysCleared();
-
-	for (node v = nodes.head(); v; v = v->succ()) {
-		v->adjEntries.~GraphObjectContainer<AdjElement>();
-	}
-
-	nodes.clear();
-	edges.clear();
-
-	m_nodeIdCount = m_edgeIdCount = 0;
-	reinitArrays();
-
-#ifdef OGDF_HEAVY_DEBUG
-	consistencyCheck();
-#endif
-}
-
 void Graph::reverseEdge(edge e) {
 	OGDF_ASSERT(e != nullptr);
 	OGDF_ASSERT(e->graphOf() == this);
@@ -817,23 +813,6 @@ void Graph::unregisterObserver(ListIterator<GraphObserver*> it) const {
 	lock_guard<mutex> guard(m_mutexRegArrays);
 #endif
 	m_regObservers.del(it);
-}
-
-void Graph::resetTableSizes() {
-	m_regNodeArrays.resizeArrays();
-	m_regEdgeArrays.resizeArrays();
-	m_regAdjArrays.resizeArrays();
-}
-
-void Graph::reinitArrays() {
-	m_regNodeArrays.resizeArrays(0);
-	m_regNodeArrays.resizeArrays();
-
-	m_regEdgeArrays.resizeArrays(0);
-	m_regEdgeArrays.resizeArrays();
-
-	m_regAdjArrays.resizeArrays(0);
-	m_regAdjArrays.resizeArrays();
 }
 
 void Graph::resetAdjEntryIndex(int newIndex, int oldIndex) {
