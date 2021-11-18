@@ -903,57 +903,30 @@ public:
 	//! @{
 
 	//! Creates a new node and returns it.
-	node newNode();
-
-	//! Creates a new node with predefined index and returns it.
 	/**
-	 * \pre \p index is currently not the index of any other node in the graph.
-	 *
-	 * \attention Passing a node index that is already in use results in an inconsistent
-	 *            data structure. Only use this method if you know what you're doing!
-	 *
 	 * @param index is the index that will be assigned to the newly created node.
+	 *              If negative or not given will use the next free index \c maxNodeIndex().
+	 *              Passing a node index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created node.
 	 */
-	node newNode(int index);
+	node newNode(int index = -1);
 
 	//! Creates a new edge (\p v,\p w) and returns it.
 	/**
-	 * @param v is the source node of the newly created edge.
-	 * @param w is the target node of the newly created edge.
-	 * @return the newly created edge.
-	 */
-	edge newEdge(node v, node w);
-
-	//! Creates a new edge (\p v,\p w) with predefined index and returns it.
-	/**
-	 * \pre \p index is currently not the index of any other edge in the graph.
-	 *
-	 * \attention  Passing an edge index that is already in use results in an inconsistent
-	 *             data structure. Only use this method if you know what you're doing!
-	 *
 	 * @param v     is the source node of the newly created edge.
 	 * @param w     is the target node of the newly created edge.
 	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing a edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(node v, node w, int index);
-
-	//! Creates a new edge at predefined positions in the adjacency lists.
-	/**
-	 * Let \a v be the node whose adjacency list contains \p adjSrc,
-	 * and \a w the node whose adjacency list contains \p adjTgt. Then,
-	 * the created edge is (\a v,\a w).
-	 *
-	 * @param adjSrc is the adjacency entry after which the new edge is inserted
-	 *               in the adjacency list of \a v.
-	 * @param adjTgt is the adjacency entry after which the new edge is inserted
-	 *               in the adjacency list of \a w.
-	 * @param dir    specifies if the edge is inserted before or after the given
-	 *               adjacency entries.
-	 * @return the newly created edge.
-	 */
-	edge newEdge(adjEntry adjSrc, adjEntry adjTgt, Direction dir = Direction::after);
+	inline edge newEdge(node v, node w, int index = -1) {
+		OGDF_ASSERT(v != nullptr);
+		OGDF_ASSERT(w != nullptr);
+		return newEdge(v->lastAdj(), w->lastAdj(), Direction::after, index);
+	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
@@ -964,9 +937,16 @@ public:
 	 *               of the adjacency list of \p v.
 	 * @param adjTgt is the adjacency entry after which the new edge is inserted
 	 *               in the adjacency list of \a w.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing a edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(node v, adjEntry adjTgt);
+	inline edge newEdge(node v, adjEntry adjTgt, int index = -1) {
+		OGDF_ASSERT(v != nullptr);
+		return newEdge(v->lastAdj(), adjTgt, Direction::after, index);
+	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
@@ -977,10 +957,60 @@ public:
 	 *               in the adjacency list of \a v.
 	 * @param w      is the source node of the new edge; the edge is added at the end
 	 *               of the adjacency list of \p w.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing a edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(adjEntry adjSrc, node w);
+	inline edge newEdge(adjEntry adjSrc, node w, int index = -1) {
+		OGDF_ASSERT(w != nullptr);
+		return newEdge(adjSrc, w->lastAdj(), Direction::after, index);
+	}
 
+	//! Creates a new edge at predefined positions in the adjacency lists.
+	/**
+	 * Let \a v be the node whose adjacency list contains \p adjSrc,
+	 * and \a w the node whose adjacency list contains \p adjTgt.
+	 * Then, the created edge is (\a v,\a w).
+	 *
+	 * @param adjSrc is the adjacency entry before / after which the new edge is inserted
+	 *               in the adjacency list of \a v.
+	 * @param adjTgt is the adjacency entry before / after which the new edge is inserted
+	 *               in the adjacency list of \a w.
+	 * @param dir    specifies if the edge is inserted before or after the given
+	 *               adjacency entries.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing a edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
+	 * @return the newly created edge.
+	 */
+	inline edge newEdge(adjEntry adjSrc, adjEntry adjTgt, Direction dir = Direction::after,
+			int index = -1) {
+		return newEdge(adjSrc, dir, adjTgt, dir, index);
+	}
+
+	//! Creates a new edge at predefined positions in the adjacency lists.
+	/**
+	 * Let \a v be the node whose adjacency list contains \p adjSrc,
+	 * and \a w the node whose adjacency list contains \p adjTgt.
+	 * Then, the created edge is (\a v,\a w).
+	 *
+	 * @param adjSrc is the adjacency entry before / after which the new edge is inserted
+	 *               in the adjacency list of \a v.
+	 * @param dirSrc specifies if the edge is inserted before or after \p adjSrc.
+	 * @param adjTgt is the adjacency entry before / after which the new edge is inserted
+	 *               in the adjacency list of \a w.
+	 * @param dirTgt specifies if the edge is inserted before or after \p adjTgt.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing a edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
+	 * @return the newly created edge.
+	 */
+	edge newEdge(adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt,
+			int index = -1);
 
 	//! @}
 	/**
@@ -1635,8 +1665,27 @@ private:
 	void copy(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
 	void copy(const Graph& G);
 
-	edge createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt);
-	node pureNewNode();
+	/**
+	 * Creates a new node object with id \p index and adds it to the list of nodes.
+	 * Registered NodeArrays won't get resized and GraphObservers also won't get notified of the new node.
+	 *
+	 * @param index The index of the new node.
+	 * @return The newly created node.
+	 */
+	node pureNewNode(int index);
+
+	/**
+	 * Creates a new edge object with id \p index and corresponding AdjElements and adds it to the list of edges.
+	 * Registered EdgeArrays won't get resized and GraphObservers also won't get notified of the new edge.
+	 *
+	 * @warning The adjacency lists of the passed nodes won't be updated.
+	 *
+	 * @param src The source node of the new edge.
+	 * @param tgt The target node of the new edge.
+	 * @param index The index of the new edge.
+	 * @return The newly created edge.
+	 */
+	edge pureNewEdge(node src, node tgt, int index);
 
 	//! Registers a graph observer.
 	/**

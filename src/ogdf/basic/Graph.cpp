@@ -380,56 +380,16 @@ void Graph::constructInitByActiveNodes(const List<node>& nodeList,
 #endif
 }
 
-node Graph::newNode() {
-#ifdef OGDF_DEBUG
-	node v = new NodeElement(this, m_nodeIdCount++);
-#else
-	node v = new NodeElement(m_nodeIdCount++);
-#endif
-	nodes.pushBack(v);
-	m_regNodeArrays.keyAdded(v);
-
-	// notify all registered observers
-	for (GraphObserver* obs : m_regObservers) {
-		obs->nodeAdded(v);
+node Graph::pureNewNode(int index) {
+	if (index < 0) {
+		index = m_nodeIdCount++;
 	}
-
-	return v;
-}
-
-//what about negative index numbers?
-node Graph::newNode(int index) {
-	m_nodeIdCount = max(m_nodeIdCount, index + 1);
 #ifdef OGDF_DEBUG
 	node v = new NodeElement(this, index);
 #else
 	node v = new NodeElement(index);
 #endif
 	nodes.pushBack(v);
-	m_regNodeArrays.keyAdded(v);
-
-	// notify all registered observers
-	for (GraphObserver* obs : m_regObservers) {
-		obs->nodeAdded(v);
-	}
-
-	return v;
-}
-
-node Graph::pureNewNode() {
-#ifdef OGDF_DEBUG
-	node v = new NodeElement(this, m_nodeIdCount++);
-#else
-	node v = new NodeElement(m_nodeIdCount++);
-#endif
-	nodes.pushBack(v);
-	m_regNodeArrays.keyAdded(v);
-
-	// notify all registered observers
-	for (GraphObserver* obs : m_regObservers) {
-		obs->nodeAdded(v);
-	}
-
 	return v;
 }
 
@@ -443,157 +403,48 @@ edge Graph::createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt) 
 	edge e = new EdgeElement(v, w, adjSrc, adjTgt, m_edgeIdCount++);
 	edges.pushBack(e);
 
+	e->m_adjSrc = new AdjElement(e, index << 1);
+	e->m_adjTgt = new AdjElement(e, (index << 1) | 1);
+
+	e->m_adjSrc->m_twin = e->m_adjTgt;
+	e->m_adjSrc->m_node = src;
+	src->m_outdeg++;
+
+	e->m_adjTgt->m_twin = e->m_adjSrc;
+	e->m_adjTgt->m_node = tgt;
+	tgt->m_indeg++;
+
+	return e;
+}
+
+edge Graph::newEdge(adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt, int index) {
+	OGDF_ASSERT(adjSrc != nullptr);
+	OGDF_ASSERT(adjTgt != nullptr);
+	OGDF_ASSERT(adjSrc->graphOf() == this);
+	OGDF_ASSERT(adjTgt->graphOf() == this);
+
+	edge e = pureNewEdge(adjSrc->theNode(), adjTgt->theNode(), index);
+
+	if (dirSrc == Direction::after) {
+		adjSrc->theNode()->adjEntries.insertAfter(e->m_adjSrc, adjSrc);
+	} else {
+		adjSrc->theNode()->adjEntries.insertBefore(e->m_adjSrc, adjSrc);
+	}
+
+	if (dirTgt == Direction::after) {
+		adjTgt->theNode()->adjEntries.insertAfter(e->m_adjTgt, adjTgt);
+	} else {
+		adjTgt->theNode()->adjEntries.insertBefore(e->m_adjTgt, adjTgt);
+	}
+
 	m_regEdgeArrays.keyAdded(e);
 	m_regAdjArrays.keyAdded(e->adjSource());
 
-	// notify all registered observers
 	for (GraphObserver* obs : m_regObservers) {
 		obs->edgeAdded(e);
 	}
 
 	return e;
-}
-
-edge Graph::newEdge(node v, node w, int index) {
-	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(w != nullptr);
-	OGDF_ASSERT(v->graphOf() == this);
-	OGDF_ASSERT(w->graphOf() == this);
-
-	AdjElement* adjSrc = new AdjElement(v);
-
-	v->adjEntries.pushBack(adjSrc);
-	v->m_outdeg++;
-
-	AdjElement* adjTgt = new AdjElement(w);
-
-	w->adjEntries.pushBack(adjTgt);
-	w->m_indeg++;
-
-	adjSrc->m_twin = adjTgt;
-	adjTgt->m_twin = adjSrc;
-
-	m_edgeIdCount = max(m_edgeIdCount, index + 1);
-	adjTgt->m_id = (adjSrc->m_id = index /*m_edgeIdCount*/ << 1) | 1;
-	edge e = new EdgeElement(v, w, adjSrc, adjTgt, index);
-	edges.pushBack(e);
-
-	m_regEdgeArrays.keyAdded(e);
-	m_regAdjArrays.keyAdded(e->adjSource());
-
-	// notify all registered observers
-	for (GraphObserver* obs : m_regObservers) {
-		obs->edgeAdded(e);
-	}
-
-	return adjSrc->m_edge = adjTgt->m_edge = e;
-}
-
-edge Graph::newEdge(node v, node w) {
-	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(w != nullptr);
-	OGDF_ASSERT(v->graphOf() == this);
-	OGDF_ASSERT(w->graphOf() == this);
-
-	AdjElement* adjSrc = new AdjElement(v);
-
-	v->adjEntries.pushBack(adjSrc);
-	v->m_outdeg++;
-
-	AdjElement* adjTgt = new AdjElement(w);
-
-	w->adjEntries.pushBack(adjTgt);
-	w->m_indeg++;
-
-	adjSrc->m_twin = adjTgt;
-	adjTgt->m_twin = adjSrc;
-
-	edge e = createEdgeElement(v, w, adjSrc, adjTgt);
-
-	return adjSrc->m_edge = adjTgt->m_edge = e;
-}
-
-edge Graph::newEdge(adjEntry adjStart, adjEntry adjEnd, Direction dir) {
-	OGDF_ASSERT(adjStart != nullptr);
-	OGDF_ASSERT(adjEnd != nullptr);
-	OGDF_ASSERT(adjStart->graphOf() == this);
-	OGDF_ASSERT(adjEnd->graphOf() == this);
-
-	node v = adjStart->theNode(), w = adjEnd->theNode();
-
-	AdjElement* adjTgt = new AdjElement(w);
-	AdjElement* adjSrc = new AdjElement(v);
-
-	if (dir == Direction::after) {
-		w->adjEntries.insertAfter(adjTgt, adjEnd);
-		v->adjEntries.insertAfter(adjSrc, adjStart);
-	} else {
-		w->adjEntries.insertBefore(adjTgt, adjEnd);
-		v->adjEntries.insertBefore(adjSrc, adjStart);
-	}
-
-	w->m_indeg++;
-	v->m_outdeg++;
-
-	adjSrc->m_twin = adjTgt;
-	adjTgt->m_twin = adjSrc;
-
-	edge e = createEdgeElement(v, w, adjSrc, adjTgt);
-
-	return adjSrc->m_edge = adjTgt->m_edge = e;
-}
-
-edge Graph::newEdge(node v, adjEntry adjEnd) {
-	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(adjEnd != nullptr);
-	OGDF_ASSERT(v->graphOf() == this);
-	OGDF_ASSERT(adjEnd->graphOf() == this);
-
-	node w = adjEnd->theNode();
-
-	AdjElement* adjTgt = new AdjElement(w);
-
-	w->adjEntries.insertAfter(adjTgt, adjEnd);
-	w->m_indeg++;
-
-	AdjElement* adjSrc = new AdjElement(v);
-
-	v->adjEntries.pushBack(adjSrc);
-	v->m_outdeg++;
-
-	adjSrc->m_twin = adjTgt;
-	adjTgt->m_twin = adjSrc;
-
-	edge e = createEdgeElement(v, w, adjSrc, adjTgt);
-
-	return adjSrc->m_edge = adjTgt->m_edge = e;
-}
-
-//copy of above function with edge ending at v
-edge Graph::newEdge(adjEntry adjStart, node v) {
-	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(adjStart != nullptr);
-	OGDF_ASSERT(v->graphOf() == this);
-	OGDF_ASSERT(adjStart->graphOf() == this);
-
-	node w = adjStart->theNode();
-
-	AdjElement* adjSrc = new AdjElement(w);
-
-	w->adjEntries.insertAfter(adjSrc, adjStart);
-	w->m_outdeg++;
-
-	AdjElement* adjTgt = new AdjElement(v);
-
-	v->adjEntries.pushBack(adjTgt);
-	v->m_indeg++;
-
-	adjSrc->m_twin = adjTgt;
-	adjTgt->m_twin = adjSrc;
-
-	edge e = createEdgeElement(w, v, adjSrc, adjTgt);
-
-	return adjSrc->m_edge = adjTgt->m_edge = e;
 }
 
 void Graph::move(edge e, adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt) {
@@ -695,11 +546,20 @@ edge Graph::split(edge e) {
 	u->adjEntries.pushBack(adjSrc);
 
 	int oldId = e->m_adjTgt->m_id;
-	edge e2 = createEdgeElement(u, e->m_tgt, adjSrc, e->m_adjTgt);
+	e->m_adjTgt->m_id = (adjSrc->m_id = m_edgeIdCount << 1) | 1;
+	edge e2 = new EdgeElement(u, e->m_tgt, adjSrc, e->m_adjTgt, m_edgeIdCount++);
+	edges.pushBack(e2);
+
+	m_regEdgeArrays.keyAdded(e2); // FIXME registry observers won't see copied entry
+	m_regAdjArrays.keyAdded(e2->adjSource());
 
 	// copy array entries from the original adjEntries to the new ones
 	m_regAdjArrays.copyArrayEntries(e->m_adjTgt->m_id, oldId);
 	m_regAdjArrays.copyArrayEntries(adjSrc->m_id, e->m_adjSrc->m_id);
+
+	for (GraphObserver* obs : m_regObservers) {
+		obs->edgeAdded(e2);
+	}
 
 	e2->m_adjTgt->m_twin = adjSrc;
 	e->m_adjTgt->m_edge = adjSrc->m_edge = e2;
@@ -783,17 +643,14 @@ void Graph::delNode(node v) {
 	OGDF_ASSERT(v != nullptr);
 	OGDF_ASSERT(v->graphOf() == this);
 
-	m_regNodeArrays.keyRemoved(v);
-
-	// notify all registered observers
-	for (GraphObserver* obs : m_regObservers) {
-		obs->nodeDeleted(v);
+	// delete all edges first, notifying the respective observers
+	for (AdjElement* adj; adj != nullptr; adj = v->adjEntries.head()) {
+		delEdge(adj->m_edge);
 	}
 
-	internal::GraphList<AdjElement>& adjEdges = v->adjEntries;
-	AdjElement* adj;
-	while ((adj = adjEdges.head()) != nullptr) {
-		delEdge(adj->m_edge);
+	m_regNodeArrays.keyRemoved(v);
+	for (GraphObserver* obs : m_regObservers) {
+		obs->nodeDeleted(v);
 	}
 
 	nodes.del(v);
@@ -803,7 +660,8 @@ void Graph::delEdge(edge e) {
 	OGDF_ASSERT(e != nullptr);
 	OGDF_ASSERT(e->graphOf() == this);
 
-	// notify all registered observers
+	m_regAdjArrays.keyRemoved(e->adjSource());
+	m_regEdgeArrays.keyRemoved(e);
 	for (GraphObserver* obs : m_regObservers) {
 		obs->edgeDeleted(e);
 	}
