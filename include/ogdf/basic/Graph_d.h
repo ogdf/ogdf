@@ -697,6 +697,9 @@ inline void getAllEdges(const Graph& G, CONTAINER& edges);
 class OGDF_EXPORT Graph {
 public:
 	class HiddenEdgeSet;
+	class CCsInfo;
+	class CCNodeIterator;
+	class CCEdgeIterator;
 	friend class GraphObserver;
 
 private:
@@ -1513,6 +1516,10 @@ public:
 		//! Returns the index of (one past) the last node in connected component \p cc.
 		int stopNode(int cc) const { return m_startNode[cc + 1]; }
 
+		CCNodeIterator nodes(int cc) const;
+
+		CCEdgeIterator edges(int cc) const;
+
 		//! Returns the index of the first edge in connected component \p cc.
 		int startEdge(int cc) const { return m_startEdge[cc]; }
 
@@ -1524,6 +1531,82 @@ public:
 
 		//! Returns the edge with index \p i.
 		edge e(int i) const { return m_edges[i]; }
+	};
+
+	class OGDF_EXPORT CCNodeIterator {
+	private:
+		const CCsInfo& _info;
+		int _cc;
+		int _cur;
+
+		CCNodeIterator(const CCsInfo& info, int cc, int cur) : _info(info), _cc(cc), _cur(cur) { }
+
+	public:
+		CCNodeIterator(const CCsInfo& info, int cc)
+			: _info(info), _cc(cc), _cur(info.startNode(cc)) { }
+
+		CCNodeIterator begin() const { return *this; }
+
+		CCNodeIterator end() const { return {_info, _cc, _info.stopEdge(_cc)}; }
+
+		node operator*() const { return _info.v(_cur); }
+
+		NodeElement& operator->() const { return *_info.v(_cur); }
+
+		CCNodeIterator& operator++() {
+			++_cur;
+			return *this;
+		}
+
+		CCNodeIterator operator++(int) {
+			CCNodeIterator copy = *this;
+			++*this;
+			return copy;
+		}
+
+		bool operator==(const CCNodeIterator& rhs) const {
+			return &_info == &rhs._info && _cc == rhs._cc && _cur == rhs._cur;
+		}
+
+		bool operator!=(const CCNodeIterator& rhs) const { return !(rhs == *this); }
+	};
+
+	class OGDF_EXPORT CCEdgeIterator {
+	private:
+		const CCsInfo& _info;
+		int _cc;
+		int _cur;
+
+		CCEdgeIterator(const CCsInfo& info, int cc, int cur) : _info(info), _cc(cc), _cur(cur) { }
+
+	public:
+		CCEdgeIterator(const CCsInfo& info, int cc)
+			: _info(info), _cc(cc), _cur(info.startEdge(cc)) { }
+
+		CCEdgeIterator begin() const { return *this; }
+
+		CCEdgeIterator end() const { return {_info, _cc, _info.stopEdge(_cc)}; }
+
+		edge operator*() const { return _info.e(_cur); }
+
+		EdgeElement& operator->() const { return *_info.e(_cur); }
+
+		CCEdgeIterator& operator++() {
+			++_cur;
+			return *this;
+		}
+
+		CCEdgeIterator operator++(int) {
+			CCEdgeIterator copy = *this;
+			++*this;
+			return copy;
+		}
+
+		bool operator==(const CCEdgeIterator& rhs) const {
+			return &_info == &rhs._info && _cc == rhs._cc && _cur == rhs._cur;
+		}
+
+		bool operator!=(const CCEdgeIterator& rhs) const { return !(rhs == *this); }
 	};
 
 protected:
@@ -1587,6 +1670,10 @@ private:
 	 */
 	void restoreAllEdges();
 };
+
+Graph::CCNodeIterator Graph::CCsInfo::nodes(int cc) const { return {*this, cc}; }
+
+Graph::CCEdgeIterator Graph::CCsInfo::edges(int cc) const { return {*this, cc}; }
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et);
 
