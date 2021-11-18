@@ -52,9 +52,11 @@ namespace ogdf {
  * @param subGraph is assigned the computed subgraph.
  */
 template<class LISTITERATOR>
+OGDF_DEPRECATED("use Graph::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph) {
-	NodeArray<node> nodeTableOrig2New;
-	inducedSubGraph(G, start, subGraph, nodeTableOrig2New);
+	NodeArray<node> nodeMap(G, nullptr);
+	EdgeArray<edge> edgeMap(G, nullptr);
+	subGraph.insert(start, G.edges, nodeMap, edgeMap);
 }
 
 //! Computes the subgraph induced by a list of nodes (plus a mapping from original nodes to new copies).
@@ -69,28 +71,11 @@ void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph) {
  * @param nodeTableOrig2New is assigned a mapping from the nodes in \p G to the nodes in \p subGraph.
  */
 template<class LISTITERATOR>
+OGDF_DEPRECATED("use Graph::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
 		NodeArray<node>& nodeTableOrig2New) {
-	subGraph.clear();
-	nodeTableOrig2New.init(G, nullptr);
-
-	EdgeArray<bool> mark(G, false);
-
-	LISTITERATOR its;
-	for (its = start; its.valid(); its++) {
-		node w = (*its);
-		OGDF_ASSERT(w != nullptr);
-		OGDF_ASSERT(w->graphOf() == &G);
-		nodeTableOrig2New[w] = subGraph.newNode();
-
-		for (adjEntry adj : w->adjEntries) {
-			edge e = adj->theEdge();
-			if (nodeTableOrig2New[e->source()] && nodeTableOrig2New[e->target()] && !mark[e]) {
-				subGraph.newEdge(nodeTableOrig2New[e->source()], nodeTableOrig2New[e->target()]);
-				mark[e] = true;
-			}
-		}
-	}
+	EdgeArray<edge> edgeMap(G, nullptr);
+	subGraph.insert(start, G.edges, nodeTableOrig2New, edgeMap);
 }
 
 //! Computes the subgraph induced by a list of nodes (plus mappings from original nodes and edges to new copies).
@@ -106,30 +91,10 @@ void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
  * @param edgeTableOrig2New is assigned a mapping from the edges in \p G to the egdes in \p subGraph.
  */
 template<class LISTITERATOR>
+OGDF_DEPRECATED("use Graph::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
 		NodeArray<node>& nodeTableOrig2New, EdgeArray<edge>& edgeTableOrig2New) {
-	subGraph.clear();
-	nodeTableOrig2New.init(G, nullptr);
-	edgeTableOrig2New.init(G, nullptr);
-
-	EdgeArray<bool> mark(G, false);
-
-	LISTITERATOR its;
-	for (its = start; its.valid(); its++) {
-		node w = (*its);
-		OGDF_ASSERT(w != nullptr);
-		OGDF_ASSERT(w->graphOf() == &G);
-		nodeTableOrig2New[w] = subGraph.newNode();
-
-		for (adjEntry adj : w->adjEntries) {
-			edge e = adj->theEdge();
-			if (nodeTableOrig2New[e->source()] && nodeTableOrig2New[e->target()] && !mark[e]) {
-				edgeTableOrig2New[e] = subGraph.newEdge(nodeTableOrig2New[e->source()],
-						nodeTableOrig2New[e->target()]);
-				mark[e] = true;
-			}
-		}
-	}
+	subGraph.insert(start, G.edges, nodeTableOrig2New, edgeTableOrig2New);
 }
 
 //! Computes the subgraph induced by a list of nodes.
@@ -146,7 +111,6 @@ template<class LISTITERATOR>
 void inducedSubGraph(const Graph& G, LISTITERATOR start, GraphCopySimple& subGraph) {
 	subGraph.clear();
 	subGraph.createEmpty(G);
-	EdgeArray<bool> mark(G, false);
 
 	LISTITERATOR its;
 	for (its = start; its.valid(); its++) {

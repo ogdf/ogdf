@@ -1119,18 +1119,6 @@ public:
 	 */
 	//! @{
 
-	/**
-	 * @copydoc ogdf::Graph::insert(const Graph&)
-	 * @param nodeMap is assigned a mapping from nodes in \p G to nodes in this Graph.
-	 */
-	void insert(const Graph& G, NodeArray<node>& nodeMap);
-
-	//! Inserts Graph \p G as a subgraph into this Graph.
-	/**
-	 * @param G is the Graph to be inserted into this Graph.
-	 */
-	void insert(const Graph& G);
-
 	//! Splits edge \p e into two edges introducing a new node.
 	/**
 	 * Let \p e=(\a v,\a w). Then, the resulting two edges are \a e=(\a v,\a u)
@@ -1515,6 +1503,42 @@ public:
 
 	//! @}
 
+#define NodeFilter typename
+#define EdgeFilter typename
+#define NodeList typename
+#define EdgeList typename
+#define NodeIter typename
+#define EdgeIter typename
+
+	template<NodeIter NI, EdgeIter EI, bool copyEmbedding = true, bool copyIDs = false>
+	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgeBegin,
+			const EI& edgeEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+	// TODO implement
+
+	template<NodeList NL, EdgeList EL>
+	std::pair<int, int> insert(const NL& nodeList, const EL& edgeList, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap);
+
+	template<NodeFilter NF, EdgeFilter EF>
+	std::pair<int, int> insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap) {
+		return insert(info.nodes(cc), info.edges(cc), nodeMap, edgeMap);
+	}
+
+	std::pair<int, int> insert(const Graph& G, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+		return insert(G.nodes.begin(), G.nodes.end(), G.edges.begin(), G.edges.end(), nodeMap,
+				edgeMap);
+	}
+
+	std::pair<int, int> insert(const Graph& G) {
+		NodeArray<node> nodeMap(G, nullptr);
+		EdgeArray<edge> edgeMap(G, nullptr);
+		return insert(G, nodeMap, edgeMap);
+	}
+
 public:
 	//! Info structure for maintaining connected components.
 	class OGDF_EXPORT CCsInfo {
@@ -1644,30 +1668,7 @@ public:
 		bool operator!=(const CCEdgeIterator& rhs) const { return !(rhs == *this); }
 	};
 
-protected:
-	void construct(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-
-	void assign(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-
-	//! Constructs a copy of the subgraph of \p G induced by \p nodeList.
-	/**
-	 * This method preserves the order in the adjacency lists, i.e., if
-	 * \p G is embedded, its embedding induces the embedding of the copy.
-	 */
-	void constructInitByNodes(const Graph& G, const List<node>& nodeList, NodeArray<node>& mapNode,
-			EdgeArray<edge>& mapEdge);
-
-	void constructInitByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-			NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-
-	//! Constructs a copy of connected component \p cc in \p info.
-	void constructInitByCC(const CCsInfo& info, int cc, NodeArray<node>& mapNode,
-			EdgeArray<edge>& mapEdge);
-
 private:
-	void copy(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-	void copy(const Graph& G);
-
 	/**
 	 * Creates a new node object with id \p index and adds it to the list of nodes.
 	 * Registered NodeArrays won't get resized and GraphObservers also won't get notified of the new node.

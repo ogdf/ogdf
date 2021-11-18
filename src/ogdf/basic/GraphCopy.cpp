@@ -46,7 +46,7 @@ GraphCopySimple::GraphCopySimple(const GraphCopySimple& GC) : Graph() { *this = 
 void GraphCopySimple::init(const Graph& G) {
 	m_pGraph = &G;
 
-	Graph::assign(G, m_vCopy, m_eCopy);
+	insert(G, m_vCopy, m_eCopy);
 
 	m_vOrig.init(*this, nullptr);
 	m_eOrig.init(*this, nullptr);
@@ -64,7 +64,8 @@ GraphCopySimple& GraphCopySimple::operator=(const GraphCopySimple& GC) {
 	NodeArray<node> vCopy;
 	EdgeArray<edge> eCopy;
 
-	Graph::assign(GC, vCopy, eCopy);
+	clear();
+	insert(GC, vCopy, eCopy);
 	initGC(GC, vCopy, eCopy);
 
 	return *this;
@@ -153,7 +154,7 @@ void GraphCopy::init(const Graph& G) {
 	m_pGraph = &G;
 
 	EdgeArray<edge> eCopy;
-	Graph::assign(G, m_vCopy, eCopy);
+	insert(G, m_vCopy, eCopy);
 
 	m_vOrig.init(*this, nullptr);
 	m_eOrig.init(*this, nullptr);
@@ -278,7 +279,8 @@ GraphCopy& GraphCopy::operator=(const GraphCopy& GC) {
 	NodeArray<node> vCopy;
 	EdgeArray<edge> eCopy;
 
-	Graph::assign(GC, vCopy, eCopy);
+	clear();
+	insert(GC, vCopy, eCopy);
 	if (GC.m_pGraph != nullptr) {
 		initGC(GC, vCopy, eCopy);
 	}
