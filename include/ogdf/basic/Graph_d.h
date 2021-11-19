@@ -1510,18 +1510,23 @@ public:
 #define NodeIter typename
 #define EdgeIter typename
 
-	template<NodeIter NI, EdgeIter EI, bool copyEmbedding = true, bool copyIDs = false>
-	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgeBegin,
-			const EI& edgeEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
-	// TODO implement
+
+	template<NodeIter NI, EdgeIter EI, bool copyEmbedding = true, bool copyIDs = false,
+			bool notifyObservers = true>
+	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
+			const EI& edgesEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	template<NodeFilter NF, EdgeFilter EF, bool copyEmbedding = true, bool copyIDs = false,
+			bool notifyObservers = true>
+	std::pair<int, int> insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
 
 	template<NodeList NL, EdgeList EL>
 	std::pair<int, int> insert(const NL& nodeList, const EL& edgeList, NodeArray<node>& nodeMap,
-			EdgeArray<edge>& edgeMap);
-
-	template<NodeFilter NF, EdgeFilter EF>
-	std::pair<int, int> insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+			EdgeArray<edge>& edgeMap) {
+		return insert(nodeList.begin(), nodeList.end(), edgeList.begin(), edgeList.end(), nodeMap,
+				edgeMap);
+	}
 
 	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
@@ -1783,3 +1788,5 @@ inline std::ostream& operator<<(std::ostream& os, const NodePair& np) {
 }
 
 }
+
+#include <ogdf/basic/InducedSubgraph.h>
