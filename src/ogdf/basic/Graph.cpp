@@ -111,73 +111,6 @@ Graph& Graph::operator=(const Graph& G) {
 	return *this;
 }
 
-node Graph::pureNewNode(int index) {
-	if (index < 0) {
-		index = m_nodeIdCount++;
-	}
-#ifdef OGDF_DEBUG
-	node v = new NodeElement(this, index);
-#else
-	node v = new NodeElement(index);
-#endif
-	nodes.pushBack(v);
-	return v;
-}
-
-// IMPORTANT:
-// The indices of the two adjacency entries pointing to an edge differ
-// only in the last bit (adjSrc/2 == adjTgt/2)
-//
-// This can be useful sometimes in order to avoid visiting an edge twice.
-edge Graph::createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt) {
-	adjTgt->m_id = (adjSrc->m_id = m_edgeIdCount << 1) | 1;
-	edge e = new EdgeElement(v, w, adjSrc, adjTgt, m_edgeIdCount++);
-	edges.pushBack(e);
-
-	e->m_adjSrc = new AdjElement(e, index << 1);
-	e->m_adjTgt = new AdjElement(e, (index << 1) | 1);
-
-	e->m_adjSrc->m_twin = e->m_adjTgt;
-	e->m_adjSrc->m_node = src;
-	src->m_outdeg++;
-
-	e->m_adjTgt->m_twin = e->m_adjSrc;
-	e->m_adjTgt->m_node = tgt;
-	tgt->m_indeg++;
-
-	return e;
-}
-
-edge Graph::newEdge(adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt, int index) {
-	OGDF_ASSERT(adjSrc != nullptr);
-	OGDF_ASSERT(adjTgt != nullptr);
-	OGDF_ASSERT(adjSrc->graphOf() == this);
-	OGDF_ASSERT(adjTgt->graphOf() == this);
-
-	edge e = pureNewEdge(adjSrc->theNode(), adjTgt->theNode(), index);
-
-	if (dirSrc == Direction::after) {
-		adjSrc->theNode()->adjEntries.insertAfter(e->m_adjSrc, adjSrc);
-	} else {
-		adjSrc->theNode()->adjEntries.insertBefore(e->m_adjSrc, adjSrc);
-	}
-
-	if (dirTgt == Direction::after) {
-		adjTgt->theNode()->adjEntries.insertAfter(e->m_adjTgt, adjTgt);
-	} else {
-		adjTgt->theNode()->adjEntries.insertBefore(e->m_adjTgt, adjTgt);
-	}
-
-	m_regEdgeArrays.keyAdded(e);
-	m_regAdjArrays.keyAdded(e->adjSource());
-
-	for (GraphObserver* obs : m_regObservers) {
-		obs->edgeAdded(e);
-	}
-
-	return e;
-}
-
 void Graph::move(edge e, adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt) {
 	OGDF_ASSERT(e->graphOf() == this);
 	OGDF_ASSERT(adjSrc->graphOf() == this);
@@ -360,7 +293,7 @@ void Graph::delNode(node v) {
 	OGDF_ASSERT(v->graphOf() == this);
 
 	// delete all edges first, notifying the respective observers
-	for (AdjElement* adj; adj != nullptr; adj = v->adjEntries.head()) {
+	for (AdjElement* adj = v->adjEntries.head(); adj != nullptr; adj = v->adjEntries.head()) {
 		delEdge(adj->m_edge);
 	}
 

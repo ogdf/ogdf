@@ -648,6 +648,10 @@ template<typename CONTAINER>
 inline void getAllNodes(const Graph& G, CONTAINER& nodes);
 template<typename CONTAINER>
 inline void getAllEdges(const Graph& G, CONTAINER& edges);
+
+inline node adjToNode(adjEntry adj) { return adj->theNode(); }
+
+inline node adjToNode(node n) { return n; }
 }
 
 //! Data type for general directed graphs (adjacency list representation).
@@ -910,7 +914,14 @@ public:
 	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created node.
 	 */
-	node newNode(int index = -1);
+	node newNode(int index = -1) {
+		node v = pureNewNode(index);
+		m_regNodeArrays.keyAdded(v);
+		for (GraphObserver* obs : m_regObservers) {
+			obs->nodeAdded(v);
+		}
+		return v;
+	}
 
 	//! Creates a new edge (\p v,\p w) and returns it.
 	/**
@@ -923,9 +934,7 @@ public:
 	 * @return the newly created edge.
 	 */
 	inline edge newEdge(node v, node w, int index = -1) {
-		OGDF_ASSERT(v != nullptr);
-		OGDF_ASSERT(w != nullptr);
-		return newEdge(v->lastAdj(), w->lastAdj(), Direction::after, index);
+		return newEdge(v, Direction::after, w, Direction::after, index);
 	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
@@ -944,8 +953,7 @@ public:
 	 * @return the newly created edge.
 	 */
 	inline edge newEdge(node v, adjEntry adjTgt, int index = -1) {
-		OGDF_ASSERT(v != nullptr);
-		return newEdge(v->lastAdj(), adjTgt, Direction::after, index);
+		return newEdge(v, Direction::after, adjTgt, Direction::after, index);
 	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
@@ -964,8 +972,7 @@ public:
 	 * @return the newly created edge.
 	 */
 	inline edge newEdge(adjEntry adjSrc, node w, int index = -1) {
-		OGDF_ASSERT(w != nullptr);
-		return newEdge(adjSrc, w->lastAdj(), Direction::after, index);
+		return newEdge(adjSrc, Direction::after, w, Direction::after, index);
 	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
@@ -1009,8 +1016,23 @@ public:
 	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt,
-			int index = -1);
+	template<typename S, typename T>
+	edge newEdge(S src, Direction dirSrc, T tgt, Direction dirTgt, int index) {
+		OGDF_ASSERT(src != nullptr);
+		OGDF_ASSERT(tgt != nullptr);
+		edge e = pureNewEdge(internal::adjToNode(src), internal::adjToNode(tgt), index);
+
+		insertAdjEntry(src, e->m_adjSrc, dirSrc);
+		insertAdjEntry(tgt, e->m_adjTgt, dirTgt);
+
+		m_regEdgeArrays.keyAdded(e);
+		m_regAdjArrays.keyAdded(e->adjSource());
+		for (GraphObserver* obs : m_regObservers) {
+			obs->edgeAdded(e);
+		}
+
+		return e;
+	}
 
 	//! @}
 	/**
@@ -1681,7 +1703,18 @@ private:
 	 * @param index The index of the new node.
 	 * @return The newly created node.
 	 */
-	node pureNewNode(int index);
+	inline node pureNewNode(int index) {
+		if (index < 0) {
+			index = m_nodeIdCount++;
+		}
+#ifdef OGDF_DEBUG
+		node v = new NodeElement(this, index);
+#else
+		node v = new NodeElement(index);
+#endif
+		nodes.pushBack(v);
+		return v;
+	}
 
 	/**
 	 * Creates a new edge object with id \p index and corresponding AdjElements and adds it to the list of edges.
@@ -1694,7 +1727,48 @@ private:
 	 * @param index The index of the new edge.
 	 * @return The newly created edge.
 	 */
-	edge pureNewEdge(node src, node tgt, int index);
+	edge pureNewEdge(node src, node tgt, int index) {
+		OGDF_ASSERT(src != nullptr);
+		OGDF_ASSERT(tgt != nullptr);
+		OGDF_ASSERT(src->graphOf() == this);
+		OGDF_ASSERT(tgt->graphOf() == this);
+
+		if (index < 0) {
+			index = m_edgeIdCount++;
+		}
+
+		edge e = new EdgeElement(src, tgt, index);
+		edges.pushBack(e);
+
+		e->m_adjSrc = new AdjElement(e, index << 1);
+		e->m_adjTgt = new AdjElement(e, (index << 1) | 1);
+
+		e->m_adjSrc->m_twin = e->m_adjTgt;
+		e->m_adjSrc->m_node = src;
+		src->m_outdeg++;
+
+		e->m_adjTgt->m_twin = e->m_adjSrc;
+		e->m_adjTgt->m_node = tgt;
+		tgt->m_indeg++;
+
+		return e;
+	}
+
+	static inline void insertAdjEntry(adjEntry oldAdj, adjEntry newAdj, Direction dir) {
+		if (dir == Direction::after) {
+			oldAdj->theNode()->adjEntries.insertAfter(newAdj, oldAdj);
+		} else {
+			oldAdj->theNode()->adjEntries.insertBefore(newAdj, oldAdj);
+		}
+	}
+
+	static inline void insertAdjEntry(node n, adjEntry newAdj, Direction dir) {
+		if (dir == Direction::after || n->adjEntries.empty()) {
+			n->adjEntries.pushBack(newAdj);
+		} else {
+			n->adjEntries.insertBefore(newAdj, n->adjEntries.head());
+		}
+	}
 
 	//! Registers a graph observer.
 	/**
