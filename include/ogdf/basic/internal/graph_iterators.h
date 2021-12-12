@@ -54,6 +54,8 @@ class GraphIteratorBase {
 	GraphObjectPtr m_ptr;
 
 public:
+	using value_type = GraphObjectPtr;
+
 	GraphIteratorBase() : m_ptr(nullptr) { }
 
 	GraphIteratorBase(GraphObjectPtr ptr) : m_ptr(ptr) { }

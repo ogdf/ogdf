@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphObserver.h>
 #include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/SList.h>
