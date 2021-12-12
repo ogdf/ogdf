@@ -7,7 +7,7 @@ namespace ogdf {
 
 template<typename BaseIterator>
 struct filtered_iterator { // TODO IteratorTraits
-	typedef std::function<bool(const typename BaseIterator::value_type&)> filter_type;
+	using filter_type = std::function<bool(const typename BaseIterator::value_type&)>;
 
 	filtered_iterator(filter_type filter, BaseIterator base, BaseIterator end = {})
 		: _cur(base), _end(end), _filter(filter) {
@@ -55,7 +55,7 @@ filtered_iterator<BaseIterator> make_filtered_iterator(
 	return {filter, base, end};
 }
 
-template<NodeIter NI, EdgeIter EI, bool copyEmbedding, bool copyIDs, bool notifyObservers>
+template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding, bool copyIDs, bool notifyObservers>
 std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
 		const EI& edgesEnd, NodeArray<node>& nodeMap,
 		EdgeArray<edge>& edgeMap) { // TODO use template magic to switch to a faster implementation, if possible
@@ -155,7 +155,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	return {newNodes, newEdges};
 }
 
-template<NodeFilter NF, EdgeFilter EF, bool copyEmbedding, bool copyIDs, bool notifyObservers>
+template<OGDF_NODE_FILTER NF, OGDF_EDGE_FILTER EF, bool copyEmbedding, bool copyIDs, bool notifyObservers>
 std::pair<int, int> Graph::insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
 		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
 	if (!nodeMap.registeredAt()) {

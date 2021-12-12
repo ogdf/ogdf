@@ -1059,11 +1059,11 @@ public:
 	 * and \a w the node whose adjacency list contains \p adjTgt.
 	 * Then, the created edge is (\a v,\a w).
 	 *
-	 * @param adjSrc is the adjacency entry before / after which the new edge is inserted
-	 *               in the adjacency list of \a v.
+	 * @param src is the adjacency entry before / after which the new edge is inserted
+	 *            in the adjacency list of \a v.
 	 * @param dirSrc specifies if the edge is inserted before or after \p adjSrc.
-	 * @param adjTgt is the adjacency entry before / after which the new edge is inserted
-	 *               in the adjacency list of \a w.
+	 * @param tgt is the adjacency entry before / after which the new edge is inserted
+	 *            in the adjacency list of \a w.
 	 * @param dirTgt specifies if the edge is inserted before or after \p adjTgt.
 	 * @param index is the index that will be assigned to the newly created edge.
 	 *              If negative or not given will use the next free index \c maxEdgeIndex().
@@ -1580,25 +1580,25 @@ public:
 
 	//! @}
 
-#define NodeFilter typename
-#define EdgeFilter typename
-#define NodeList typename
-#define EdgeList typename
-#define NodeIter typename
-#define EdgeIter typename
+#define OGDF_NODE_FILTER typename
+#define OGDF_EDGE_FILTER typename
+#define OGDF_NODE_LIST typename
+#define OGDF_EDGE_LIST typename
+#define OGDF_NODE_ITER typename
+#define OGDF_EDGE_ITER typename
 
 
-	template<NodeIter NI, EdgeIter EI, bool copyEmbedding = true, bool copyIDs = false,
+	template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding = true, bool copyIDs = false,
 			bool notifyObservers = true>
 	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
 			const EI& edgesEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
 
-	template<NodeFilter NF, EdgeFilter EF, bool copyEmbedding = true, bool copyIDs = false,
-			bool notifyObservers = true>
+	template<OGDF_NODE_FILTER NF, OGDF_EDGE_FILTER EF, bool copyEmbedding = true,
+			bool copyIDs = false, bool notifyObservers = true>
 	std::pair<int, int> insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
 			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
 
-	template<NodeList NL, EdgeList EL>
+	template<OGDF_NODE_LIST NL, OGDF_EDGE_LIST EL>
 	std::pair<int, int> insert(const NL& nodeList, const EL& edgeList, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
 		return insert(nodeList.begin(), nodeList.end(), edgeList.begin(), edgeList.end(), nodeMap,
@@ -1925,9 +1925,9 @@ inline std::ostream& operator<<(std::ostream& os, const NodePair& np) {
 #include <ogdf/basic/InducedSubgraph.h>
 
 
-#undef NodeFilter
-#undef EdgeFilter
-#undef NodeList
-#undef EdgeList
-#undef NodeIter
-#undef EdgeIter
+#undef OGDF_NODE_FILTER
+#undef OGDF_EDGE_FILTER
+#undef OGDF_NODE_LIST
+#undef OGDF_EDGE_LIST
+#undef OGDF_NODE_ITER
+#undef OGDF_EDGE_ITER
