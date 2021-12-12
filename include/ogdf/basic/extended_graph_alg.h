@@ -75,6 +75,10 @@ OGDF_DEPRECATED("use Graph::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
 		NodeArray<node>& nodeTableOrig2New) {
 	EdgeArray<edge> edgeMap(G, nullptr);
+	if (!nodeTableOrig2New.registeredAt()) {
+		nodeTableOrig2New.init(G);
+	}
+	OGDF_ASSERT(nodeTableOrig2New.registeredAt()->graphOf() == &G);
 	subGraph.insert(start, G.edges, nodeTableOrig2New, edgeMap);
 }
 
@@ -94,6 +98,14 @@ template<class LISTITERATOR>
 OGDF_DEPRECATED("use Graph::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
 		NodeArray<node>& nodeTableOrig2New, EdgeArray<edge>& edgeTableOrig2New) {
+	if (!nodeTableOrig2New.registeredAt()) {
+		nodeTableOrig2New.init(G);
+	}
+	OGDF_ASSERT(nodeTableOrig2New.registeredAt()->graphOf() == &G);
+	if (!edgeTableOrig2New.registeredAt()) {
+		edgeTableOrig2New.init(G);
+	}
+	OGDF_ASSERT(edgeTableOrig2New.registeredAt()->graphOf() == &G);
 	subGraph.insert(start, G.edges, nodeTableOrig2New, edgeTableOrig2New);
 }
 

@@ -11,7 +11,7 @@ struct filtered_iterator { // TODO IteratorTraits
 
 	filtered_iterator(filter_type filter, BaseIterator base, BaseIterator end = {})
 		: _cur(base), _end(end), _filter(filter) {
-		while (*_cur != _end && !_filter(*_cur)) {
+		while (_cur != _end && !_filter(*_cur)) {
 			++_cur;
 		}
 	}
@@ -25,7 +25,7 @@ struct filtered_iterator { // TODO IteratorTraits
 	filtered_iterator& operator++() {
 		do {
 			++_cur;
-		} while (*_cur != _end && !_filter(*_cur));
+		} while (_cur != _end && !_filter(*_cur));
 		return *this;
 	}
 
@@ -36,7 +36,8 @@ struct filtered_iterator { // TODO IteratorTraits
 	}
 
 	bool operator==(const filtered_iterator& rhs) const {
-		return _cur == rhs._cur && _end == rhs._end && _filter == rhs._filter;
+		return _cur == rhs._cur && _end == rhs._end
+				&& _filter.target_type() == rhs._filter.target_type();
 	}
 
 	bool operator!=(const filtered_iterator& rhs) const { return !(rhs == *this); }
@@ -58,10 +59,13 @@ template<NodeIter NI, EdgeIter EI, bool copyEmbedding, bool copyIDs, bool notify
 std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
 		const EI& edgesEnd, NodeArray<node>& nodeMap,
 		EdgeArray<edge>& edgeMap) { // TODO use template magic to switch to a faster implementation, if possible
-	int newNodes = 0, newEdges = 0;
+	// TODO reserve size in m_regNodeArrays and m_regEdgeArrays
+	OGDF_ASSERT(nodeMap.registeredAt());
+	OGDF_ASSERT(edgeMap.registeredAt());
 	if (nodesBegin == nodesEnd) {
-		return {newNodes, newEdges};
+		return {0, 0};
 	}
+	int newNodes = 0, newEdges = 0;
 
 	for (auto it = nodesBegin; it != nodesEnd; ++it) {
 		node vG = *it;
@@ -69,7 +73,9 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			m_nodeIdCount = max(m_nodeIdCount, vG->index() + 1);
 		}
 		node v = nodeMap[vG] = pureNewNode(copyIDs ? vG->index() : m_nodeIdCount++);
+		newNodes++;
 		if (notifyObservers) {
+			m_regNodeArrays.keyAdded(v);
 			for (GraphObserver* obs : m_regObservers) {
 				obs->nodeAdded(v);
 			}
@@ -91,12 +97,13 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			m_edgeIdCount = max(m_edgeIdCount, eG->index() + 1);
 		}
 		edge e = edgeMap[eG] = pureNewEdge(src, tgt, copyIDs ? eG->index() : m_edgeIdCount++);
-		src->m_outdeg++;
-		tgt->m_indeg++;
+		newEdges++;
 		if (!copyEmbedding) {
 			src->adjEntries.pushBack(e->m_adjSrc);
 			tgt->adjEntries.pushBack(e->m_adjTgt);
 			if (notifyObservers) {
+				m_regEdgeArrays.keyAdded(e);
+				m_regAdjArrays.keyAdded(e->adjSource());
 				for (GraphObserver* obs : m_regObservers) {
 					obs->edgeAdded(e);
 				}
@@ -122,18 +129,19 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			}
 			adjEntry adj = adjG->isSource() ? eC->adjSource() : eC->adjTarget();
 			v->adjEntries.pushBack(adj);
-			adj->m_node = v;
 		}
 	}
 
 	// notify observers of added edges after adjEntries are initialized
-	if (notifyObservers && !m_regObservers.empty()) {
+	if (notifyObservers) { // FIXME call registry.reserve(), maybe use && !m_regObservers.empty()
 		for (auto it = edgesBegin; it != edgesEnd; ++it) {
 			edge eG = *it;
 			edge e = edgeMap[eG];
 			if (e == nullptr) {
 				continue;
 			}
+			m_regEdgeArrays.keyAdded(e);
+			m_regAdjArrays.keyAdded(e->adjSource());
 			for (GraphObserver* obs : m_regObservers) {
 				obs->edgeAdded(e);
 			}
@@ -150,6 +158,14 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 template<NodeFilter NF, EdgeFilter EF, bool copyEmbedding, bool copyIDs, bool notifyObservers>
 std::pair<int, int> Graph::insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
 		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+	if (!nodeMap.registeredAt()) {
+		nodeMap.init(G);
+	}
+	OGDF_ASSERT(nodeMap.registeredAt()->graphOf() == &G);
+	if (!edgeMap.registeredAt()) {
+		edgeMap.init(G);
+	}
+	OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
 	filtered_iterator<node_iterator> nodes_it {nodeFilter, G.nodes.begin(), G.nodes.end()};
 	filtered_iterator<edge_iterator> edges_it {edgeFilter, G.edges.begin(), G.edges.end()};
 	return insert<filtered_iterator<node_iterator>, filtered_iterator<edge_iterator>, copyEmbedding,

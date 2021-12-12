@@ -1611,6 +1611,14 @@ public:
 	}
 
 	std::pair<int, int> insert(const Graph& G, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+		if (!nodeMap.registeredAt()) {
+			nodeMap.init(G);
+		}
+		OGDF_ASSERT(nodeMap.registeredAt()->graphOf() == &G);
+		if (!edgeMap.registeredAt()) {
+			edgeMap.init(G);
+		}
+		OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
 		return insert(G.nodes.begin(), G.nodes.end(), G.edges.begin(), G.edges.end(), nodeMap,
 				edgeMap);
 	}
@@ -1657,9 +1665,9 @@ public:
 		//! Returns the index of (one past) the last node in connected component \p cc.
 		int stopNode(int cc) const { return m_startNode[cc + 1]; }
 
-		CCNodeIterator nodes(int cc) const;
+		CCNodeIterator nodes(int cc) const { return {*this, cc}; }
 
-		CCEdgeIterator edges(int cc) const;
+		CCEdgeIterator edges(int cc) const { return {*this, cc}; }
 
 		//! Returns the index of the first edge in connected component \p cc.
 		int startEdge(int cc) const { return m_startEdge[cc]; }
@@ -1688,7 +1696,7 @@ public:
 
 		CCNodeIterator begin() const { return *this; }
 
-		CCNodeIterator end() const { return {_info, _cc, _info.stopEdge(_cc)}; }
+		CCNodeIterator end() const { return {_info, _cc, _info.stopNode(_cc)}; }
 
 		node operator*() const { return _info.v(_cur); }
 
@@ -1845,10 +1853,6 @@ private:
 	void moveAdj(adjEntry adj, node w);
 };
 
-Graph::CCNodeIterator Graph::CCsInfo::nodes(int cc) const { return {*this, cc}; }
-
-Graph::CCEdgeIterator Graph::CCsInfo::edges(int cc) const { return {*this, cc}; }
-
 OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et);
 
 //! Bucket function using the index of an edge's source node as bucket.
@@ -1919,3 +1923,11 @@ inline std::ostream& operator<<(std::ostream& os, const NodePair& np) {
 }
 
 #include <ogdf/basic/InducedSubgraph.h>
+
+
+#undef NodeFilter
+#undef EdgeFilter
+#undef NodeList
+#undef EdgeList
+#undef NodeIter
+#undef EdgeIter
