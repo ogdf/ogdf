@@ -1077,8 +1077,8 @@ public:
 		OGDF_ASSERT(tgt != nullptr);
 		edge e = pureNewEdge(internal::adjToNode(src), internal::adjToNode(tgt), index);
 
-		insertAdjEntry(src, e->m_adjSrc, dirSrc);
 		insertAdjEntry(tgt, e->m_adjTgt, dirTgt);
+		insertAdjEntry(src, e->m_adjSrc, dirSrc);
 
 		m_regEdgeArrays.keyAdded(e);
 		m_regAdjArrays.keyAdded(e->adjSource());
