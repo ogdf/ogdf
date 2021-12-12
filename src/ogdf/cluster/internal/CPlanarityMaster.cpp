@@ -820,8 +820,9 @@ void CPlanarityMaster::initializeOptimization() {
 #endif
 
 		// Compute the cluster-induced Subgraph
-		it = getClusterNodes(c).begin();
-		inducedSubGraph(*m_G, it, subGraph, orig2new);
+		orig2new.init(*m_G);
+		EdgeArray<edge> edgeMap(*m_G, nullptr);
+		subGraph.insert(getClusterNodes(c), (*m_G).edges, orig2new, edgeMap);
 		numCEdges[c] = subGraph.numberOfEdges();
 
 		// Compute the number of connected components

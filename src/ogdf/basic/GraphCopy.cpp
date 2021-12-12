@@ -183,10 +183,8 @@ void GraphCopy::createEmpty(const Graph& G) {
 
 void GraphCopy::initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
 	eCopy.init(*m_pGraph);
-
-	m_vCopy.init(*m_pGraph, nullptr);
-	m_eCopy.init(*m_pGraph);
-	Graph::constructInitByCC(info, cc, m_vCopy, eCopy);
+	clear();
+	Graph::insert(info, cc, m_vCopy, eCopy);
 
 	for (int i = info.startNode(cc); i < info.stopNode(cc); ++i) {
 		node v = info.v(i);
@@ -226,9 +224,10 @@ void GraphCopy::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy)
 	}
 #endif
 
-	m_vCopy.init(*m_pGraph, nullptr);
-	m_eCopy.init(*m_pGraph);
-	Graph::constructInitByNodes(*m_pGraph, origNodes, m_vCopy, eCopy);
+	eCopy.init(*m_pGraph);
+	clear();
+	const std::pair<int, int>& count = Graph::insert(origNodes, m_pGraph->edges, m_vCopy, eCopy);
+	OGDF_ASSERT(count.first == origNodes.size());
 
 	for (node v : origNodes) {
 		m_vOrig[m_vCopy[v]] = v;
@@ -249,9 +248,10 @@ void GraphCopy::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy)
 
 void GraphCopy::initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
 		EdgeArray<edge>& eCopy) {
-	m_vCopy.init(*m_pGraph, nullptr);
-	m_eCopy.init(*m_pGraph);
-	Graph::constructInitByActiveNodes(nodeList, activeNodes, m_vCopy, eCopy);
+	eCopy.init(*m_pGraph);
+	clear();
+	Graph::insert(
+			*m_pGraph, activeNodes, [](edge e) -> bool { return true; }, m_vCopy, eCopy);
 
 	for (node v : nodeList) {
 		m_vOrig[m_vCopy[v]] = v;
