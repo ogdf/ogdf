@@ -641,7 +641,62 @@ template<typename Value>
 using AdjEntryArrayWithoutDefault =
 		GraphRegisteredArray<AdjElement, Value, false, GraphRegistry<AdjElement, GraphAdjIterator>>;
 
-class OGDF_EXPORT GraphObserver;
+//! Abstract Base class for graph observers.
+/**
+ * @ingroup graphs
+ *
+ * If a class needs to keep track of changes in a graph like addition or deletion
+ * of nodes or edges, you can derive it from GraphObserver and override the
+ * notification methods nodeDeleted, nodeAdded, edgeDeleted, edgeAdded.
+ */
+class OGDF_EXPORT GraphObserver {
+	friend class Graph;
+
+public:
+	//! Constructs instance of GraphObserver class
+	GraphObserver() : m_pGraph(nullptr) { }
+
+	/**
+	 *\brief Constructs instance of GraphObserver class
+	 * \param G is the graph to be watched
+	 */
+	explicit GraphObserver(const Graph* G);
+
+	//! Destroys the instance, unregisters it from watched graph
+	virtual ~GraphObserver();
+
+	//! Associates observer instance with graph \p G
+	void reregister(const Graph* pG);
+
+	//! Called by watched graph when a node is deleted
+	//! Has to be implemented by derived classes
+	virtual void nodeDeleted(node v) = 0;
+
+	//! Called by watched graph when a node is added
+	//! Has to be implemented by derived classes
+	virtual void nodeAdded(node v) = 0;
+
+	//! Called by watched graph when an edge is deleted
+	//! Has to be implemented by derived classes
+	virtual void edgeDeleted(edge e) = 0;
+
+	//! Called by watched graph when an edge is added
+	//! Has to be implemented by derived classes
+	virtual void edgeAdded(edge e) = 0;
+
+	//! Called by watched graph when its clear function is called
+	//! Has to be implemented by derived classes
+	virtual void cleared() = 0;
+
+	//! Called when the watched graph is deconstructed and thus no longer available
+	virtual void unregistered() { m_pGraph = nullptr; }
+
+	const Graph* getGraph() const { return m_pGraph; }
+
+protected:
+	const Graph* m_pGraph; //! watched graph
+	ListIterator<GraphObserver*> m_itGList; //! List entry in graphs list of all registered graphobservers
+};
 
 namespace internal {
 template<typename CONTAINER>

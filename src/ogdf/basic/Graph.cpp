@@ -721,6 +721,25 @@ void Graph::HiddenEdgeSet::restore() {
 
 int Graph::HiddenEdgeSet::size() { return m_edges.size(); }
 
+ogdf::GraphObserver::GraphObserver(const Graph* G) : m_pGraph(G) {
+	m_itGList = G->registerObserver(this);
+}
+
+ogdf::GraphObserver::~GraphObserver() {
+	if (m_pGraph) {
+		m_pGraph->unregisterObserver(m_itGList);
+	}
+}
+
+void ogdf::GraphObserver::reregister(const Graph* pG) {
+	if (m_pGraph) {
+		m_pGraph->unregisterObserver(m_itGList);
+	}
+	if ((m_pGraph = pG) != nullptr) {
+		m_itGList = pG->registerObserver(this);
+	}
+}
+
 std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 	switch (et) {
 	case Graph::EdgeType::association:
