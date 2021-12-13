@@ -53,7 +53,11 @@ void assertGraphEqual(const Graph& G, const GraphCopySimple& GC) {
 
 void testFullCopy(const Graph& G) {
 	GraphCopySimple GC;
-	GC.insert(G);
+	List<node> nodes;
+	for (node n : G.nodes) {
+		nodes.pushBack(n);
+	}
+	inducedSubGraph<ListIterator<node>>(G, nodes.begin(), GC);
 	assertGraphEqual(G, GC);
 }
 
