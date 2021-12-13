@@ -1607,7 +1607,10 @@ public:
 
 	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
-		return insert(info.nodes(cc), info.edges(cc), nodeMap, edgeMap);
+		const std::pair<int, int>& count = insert(info.nodes(cc), info.edges(cc), nodeMap, edgeMap);
+		OGDF_ASSERT(count.first == info.numberOfNodes(cc));
+		OGDF_ASSERT(count.second == info.numberOfEdges(cc));
+		return count;
 	}
 
 	std::pair<int, int> insert(const Graph& G, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
@@ -1619,8 +1622,11 @@ public:
 			edgeMap.init(G);
 		}
 		OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
-		return insert(G.nodes.begin(), G.nodes.end(), G.edges.begin(), G.edges.end(), nodeMap,
-				edgeMap);
+		const std::pair<int, int>& count = insert(G.nodes.begin(), G.nodes.end(), G.edges.begin(),
+				G.edges.end(), nodeMap, edgeMap);
+		OGDF_ASSERT(count.first == G.numberOfNodes());
+		OGDF_ASSERT(count.second == G.numberOfEdges());
+		return count;
 	}
 
 	std::pair<int, int> insert(const Graph& G) {
@@ -1769,7 +1775,14 @@ private:
 	inline node pureNewNode(int index) {
 		if (index < 0) {
 			index = m_nodeIdCount++;
+		} else {
+			m_nodeIdCount = max(m_nodeIdCount, index + 1);
 		}
+
+		// simple check against illegal index reuse
+		OGDF_ASSERT(nodes.empty() || index != nodes.head()->index());
+		OGDF_ASSERT(nodes.empty() || index != nodes.tail()->index());
+
 #ifdef OGDF_DEBUG
 		node v = new NodeElement(this, index);
 #else
@@ -1798,7 +1811,13 @@ private:
 
 		if (index < 0) {
 			index = m_edgeIdCount++;
+		} else {
+			m_edgeIdCount = max(m_edgeIdCount, index + 1);
 		}
+
+		// simple check against illegal index reuse
+		OGDF_ASSERT(edges.empty() || index != edges.head()->index());
+		OGDF_ASSERT(edges.empty() || index != edges.tail()->index());
 
 		edge e = new EdgeElement(src, tgt, index);
 		edges.pushBack(e);
