@@ -936,7 +936,7 @@ void ExtendedNestingGraph::buildLayers()
 					cluster cl = lca(treeNode[u], treeNode[v], &uChild, &vChild)->originalCluster();
 
 					edgeArray[cl].pushBack(std::make_tuple(e,uChild,vChild));
-					C.insert(c);
+					C.insert(cl);
 				}
 			}
 		}
