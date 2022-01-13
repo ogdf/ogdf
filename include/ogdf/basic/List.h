@@ -117,6 +117,8 @@ class ListIteratorBase {
 	operator ListElem*() { return m_pX; }
 
 public:
+	using value_type = Elem;
+
 	//! Constructs an iterator that points to \p pX.
 	ListIteratorBase(ListElem* pX) : m_pX(pX) { }
 

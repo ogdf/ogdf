@@ -464,6 +464,7 @@ class OGDF_EXPORT GraphAdjIterator {
 
 public:
 	using iterator = GraphAdjIterator;
+	using value_type = adjEntry;
 
 	//! Constructor.
 	GraphAdjIterator(Graph* graph = nullptr, adjEntry entry = nullptr);
@@ -1703,6 +1704,8 @@ public:
 		CCNodeIterator(const CCsInfo& info, int cc, int cur) : _info(info), _cc(cc), _cur(cur) { }
 
 	public:
+		using value_type = node;
+
 		CCNodeIterator(const CCsInfo& info, int cc)
 			: _info(info), _cc(cc), _cur(info.startNode(cc)) { }
 
@@ -1741,6 +1744,8 @@ public:
 		CCEdgeIterator(const CCsInfo& info, int cc, int cur) : _info(info), _cc(cc), _cur(cur) { }
 
 	public:
+		using value_type = edge;
+
 		CCEdgeIterator(const CCsInfo& info, int cc)
 			: _info(info), _cc(cc), _cur(info.startEdge(cc)) { }
 

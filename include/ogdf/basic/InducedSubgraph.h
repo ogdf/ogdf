@@ -8,6 +8,7 @@ namespace ogdf {
 template<typename BaseIterator>
 struct filtered_iterator { // TODO IteratorTraits
 	using filter_type = std::function<bool(const typename BaseIterator::value_type&)>;
+	using value_type = typename BaseIterator::value_type;
 
 	filtered_iterator(filter_type filter, BaseIterator base, BaseIterator end = {})
 		: _cur(base), _end(end), _filter(filter) {
