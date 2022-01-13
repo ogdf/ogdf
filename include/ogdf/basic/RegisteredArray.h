@@ -751,24 +751,44 @@ class RegisteredArray
 	using RA = typename std::conditional<WithDefault, RegisteredArrayWithDefault<Registry, Value>,
 			RegisteredArrayWithoutDefault<Registry, Value>>::type;
 
+	static inline const Registry* cast(const Base* base) {
+		if (base != nullptr) {
+			// unpack the pointer to invoke the conversion operator
+			return &((const Registry&)*base);
+		} else {
+			return nullptr;
+		}
+	}
+
 public:
 	//! Creates a new registered array associated with no registry.
 	RegisteredArray() : RA() {};
 
 	//! Creates a new registered array associated with the matching registry of \p base.
-	RegisteredArray(const Base& base) : RA(&((const Registry&)base)) {};
+	explicit RegisteredArray(const Base& base) : RA(cast(&base)) {};
 
 	//! Creates a new registered array associated with the matching registry of \p base and initializes
 	//! all values with \p def.
 	/**
 	 * \remarks This constructor is only available with \a WithDefault \= \c true.
 	 */
-	RegisteredArray(const Base& base, const Value& def) : RA(&((const Registry&)base), def) {};
+	RegisteredArray(const Base& base, const Value& def) : RA(cast(&base), def) {};
 
-	using RA::init;
+	//! Creates a new registered array associated with the matching registry of \p base.
+	explicit RegisteredArray(const Base* base) : RA(cast(base)) {};
+
+	//! Creates a new registered array associated with the matching registry of \p base and initializes
+	//! all values with \p def.
+	/**
+	 * \remarks This constructor is only available with \a WithDefault \= \c true.
+	 */
+	RegisteredArray(const Base* base, const Value& def) : RA(cast(base), def) {};
 
 	//! Reinitializes the array. Associates the array with the matching registry of \p base.
-	void init(const Base& base) { RA::init(&((const Registry&)base)); }
+	void init(const Base* base = nullptr) { RA::init(cast(base)); }
+
+	//! Reinitializes the array. Associates the array with the matching registry of \p base.
+	void init(const Base& base) { RA::init(cast(&base)); }
 
 	//! Reinitializes the array with default value \p new_default. Associates the array with the matching
 	//! registry of \p base.
@@ -777,7 +797,12 @@ public:
 	 */
 	void init(const Base& base, const Value& new_default) {
 		RA::setDefault(new_default);
-		RA::init(&((const Registry&)base));
+		RA::init(cast(&base));
+	}
+
+	void init(const Base* base, const Value& new_default) {
+		RA::setDefault(new_default);
+		RA::init(cast(base));
 	}
 };
 
