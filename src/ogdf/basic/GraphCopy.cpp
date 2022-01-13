@@ -37,72 +37,33 @@
 namespace ogdf {
 
 
-GraphCopySimple::GraphCopySimple() { }
-
-GraphCopySimple::GraphCopySimple(const Graph& G) { init(G); }
-
-GraphCopySimple::GraphCopySimple(const GraphCopySimple& GC) : Graph() { *this = GC; }
-
-void GraphCopySimple::init(const Graph& G) {
-	m_pGraph = &G;
-
-	insert(G, m_vCopy, m_eCopy);
-
-	m_vOrig.init(*this, nullptr);
-	m_eOrig.init(*this, nullptr);
-
-	for (node v : G.nodes) {
-		m_vOrig[m_vCopy[v]] = v;
-	}
-
-	for (edge e : G.edges) {
-		m_eOrig[m_eCopy[e]] = e;
-	}
-}
-
-GraphCopySimple& GraphCopySimple::operator=(const GraphCopySimple& GC) {
-	NodeArray<node> vCopy;
-	EdgeArray<edge> eCopy;
-
-	clear();
-	insert(GC, vCopy, eCopy);
-	initGC(GC, vCopy, eCopy);
-
-	return *this;
-}
-
-void GraphCopySimple::initGC(const GraphCopySimple& GC, NodeArray<node>& vCopy,
-		EdgeArray<edge>& eCopy) {
-	m_pGraph = GC.m_pGraph;
-
-	m_vOrig.init(*this, nullptr);
-	m_eOrig.init(*this, nullptr);
-	m_vCopy.init(*m_pGraph, nullptr);
-	m_eCopy.init(*m_pGraph, nullptr);
-
-	for (node v : GC.nodes) {
-		node w = GC.m_vOrig[v];
-		m_vOrig[vCopy[v]] = w;
-		if (w != nullptr) {
-			m_vCopy[w] = vCopy[v];
-		}
-	}
-
-	for (edge e : GC.edges) {
-		edge eOrig = GC.m_eOrig[e];
-		m_eOrig[eCopy[e]] = eOrig;
-		if (eOrig) {
-			m_eCopy[eOrig] = eCopy[e];
-		}
-	}
-}
+//	GraphCopySimple &GraphCopySimple::operator=(const GraphCopySimple &GC) {
+//		NodeArray<node> vCopy;
+//		EdgeArray<edge> eCopy;
+//
+//		clear();
+//		insert(GC, vCopy, eCopy);
+//		initGC(GC, vCopy, eCopy);
+//
+//		return *this;
+//	}
+//
 
 void GraphCopySimple::createEmpty(const Graph& G) {
+	Graph::clear();
 	m_pGraph = &G;
-	m_vOrig.init(*this, nullptr);
-	m_eOrig.init(*this, nullptr);
-	m_vCopy.init(*m_pGraph, nullptr);
-	m_eCopy.init(*m_pGraph, nullptr);
+	m_vOrig.init(this, nullptr);
+	m_eOrig.init(this, nullptr);
+	m_vCopy.init(G, nullptr);
+	m_eCopy.init(G, nullptr);
+}
+
+void GraphCopySimple::clear() {
+	if (m_pGraph != nullptr) {
+		m_vCopy.init(m_pGraph, nullptr);
+		m_eCopy.init(m_pGraph, nullptr);
+	}
+	Graph::clear();
 }
 
 void GraphCopySimple::delEdge(edge e) {
@@ -113,179 +74,32 @@ void GraphCopySimple::delEdge(edge e) {
 	}
 }
 
-void GraphCopySimple::delNode(node v) {
-	node vOrig = m_vOrig[v];
-	Graph::delNode(v);
-	if (vOrig != nullptr) {
-		m_vCopy[vOrig] = nullptr;
-	}
-}
-
-GraphCopy::GraphCopy(const Graph& G) { init(G); }
-
-GraphCopy::GraphCopy(const GraphCopy& GC) : Graph() { *this = GC; }
-
-void GraphCopy::initGC(const GraphCopy& GC, NodeArray<node>& vCopy, EdgeArray<edge>& eCopy) {
-	createEmpty(*GC.m_pGraph);
-
-	for (node v : GC.nodes) {
-		m_vOrig[vCopy[v]] = GC.original(v);
-	}
-
-	for (edge e : GC.edges) {
-		m_eOrig[eCopy[e]] = GC.original(e);
-	}
-
-	for (node v : nodes) {
-		node w = m_vOrig[v];
-		if (w != nullptr) {
-			m_vCopy[w] = v;
-		}
-	}
-
-	for (edge e : m_pGraph->edges) {
-		for (edge ei : GC.m_eCopy[e]) {
-			m_eIterator[eCopy[ei]] = m_eCopy[e].pushBack(eCopy[ei]);
-		}
-	}
-}
-
-void GraphCopy::init(const Graph& G) {
-	m_pGraph = &G;
-
-	EdgeArray<edge> eCopy;
-	insert(G, m_vCopy, eCopy);
-
-	m_vOrig.init(*this, nullptr);
-	m_eOrig.init(*this, nullptr);
-	m_eCopy.init(G);
-	m_eIterator.init(*this, nullptr);
-
-	for (node v : G.nodes) {
-		m_vOrig[m_vCopy[v]] = v;
-	}
-
-	for (edge e : G.edges) {
-		m_eIterator[eCopy[e]] = m_eCopy[e].pushBack(eCopy[e]);
-		m_eOrig[eCopy[e]] = e;
-	}
-}
-
 void GraphCopy::createEmpty(const Graph& G) {
+	Graph::clear();
 	m_pGraph = &G;
-
+	m_vOrig.init(this, nullptr);
+	m_eOrig.init(this, nullptr);
 	m_vCopy.init(G, nullptr);
 	m_eCopy.init(G);
-	m_vOrig.init(*this, nullptr);
-	m_eOrig.init(*this, nullptr);
-	m_eIterator.init(*this, nullptr);
+	m_eIterator.init(this, nullptr);
 }
 
-void GraphCopy::initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
-	eCopy.init(*m_pGraph);
-	clear();
-	Graph::insert(info, cc, m_vCopy, eCopy);
-
-	for (int i = info.startNode(cc); i < info.stopNode(cc); ++i) {
-		node v = info.v(i);
-		m_vOrig[m_vCopy[v]] = v;
+void GraphCopy::delEdge(edge e) {
+	edge eOrig = m_eOrig[e];
+	Graph::delEdge(e);
+	if (eOrig == nullptr) {
+		return;
 	}
-
-	for (int i = info.startEdge(cc); i < info.stopEdge(cc); ++i) {
-		edge e = info.e(i);
-		m_eIterator[eCopy[e]] = m_eCopy[e].pushBack(eCopy[e]);
-		m_eOrig[eCopy[e]] = e;
-	}
-
-#ifdef OGDF_HEAVY_DEBUG
-	consistencyCheck();
-#endif
+	OGDF_ASSERT(m_eCopy[eOrig].size() == 1);
+	m_eCopy[eOrig].clear();
 }
 
-void GraphCopy::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy) {
-#ifdef OGDF_DEBUG
-	ArrayBuffer<node> stack;
-	List<node> copyList(origNodes);
-	while (!copyList.empty()) {
-		stack.push(copyList.popFrontRet());
-		node v;
-		while (!stack.empty()) {
-			v = stack.popRet();
-			for (adjEntry adj : v->adjEntries) {
-				node w = adj->twinNode();
-				OGDF_ASSERT(origNodes.search(w).valid());
-				auto it = copyList.search(w);
-				if (it.valid()) {
-					stack.push(w);
-					copyList.del(it);
-				}
-			}
-		}
+void GraphCopy::clear() {
+	if (m_pGraph != nullptr) {
+		m_vCopy.init(m_pGraph, nullptr);
+		m_eCopy.init(m_pGraph);
 	}
-#endif
-
-	eCopy.init(*m_pGraph);
-	clear();
-	const std::pair<int, int>& count = Graph::insert(origNodes, m_pGraph->edges, m_vCopy, eCopy);
-	OGDF_ASSERT(count.first == origNodes.size());
-
-	for (node v : origNodes) {
-		m_vOrig[m_vCopy[v]] = v;
-
-		for (adjEntry adj : v->adjEntries) {
-			if ((adj->index() & 1) == 0) {
-				edge e = adj->theEdge();
-				m_eIterator[eCopy[e]] = m_eCopy[e].pushBack(eCopy[e]);
-				m_eOrig[eCopy[e]] = e;
-			}
-		}
-	}
-
-#ifdef OGDF_HEAVY_DEBUG
-	consistencyCheck();
-#endif
-}
-
-void GraphCopy::initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-		EdgeArray<edge>& eCopy) {
-	eCopy.init(*m_pGraph);
-	clear();
-	Graph::insert(
-			*m_pGraph, activeNodes, [](edge e) -> bool { return true; }, m_vCopy, eCopy);
-
-	for (node v : nodeList) {
-		m_vOrig[m_vCopy[v]] = v;
-
-		for (adjEntry adj : v->adjEntries) {
-			if ((adj->index() & 1) == 0) {
-				edge e = adj->theEdge();
-				OGDF_ASSERT(m_eCopy[e].size() == 0);
-				if (activeNodes[e->opposite(v)]) {
-					m_eIterator[eCopy[e]] = m_eCopy[e].pushBack(eCopy[e]);
-					m_eOrig[eCopy[e]] = e;
-				}
-			}
-		}
-	}
-
-#ifdef OGDF_HEAVY_DEBUG
-	consistencyCheck();
-#endif
-}
-
-GraphCopy& GraphCopy::operator=(const GraphCopy& GC) {
-	m_pGraph = nullptr;
-
-	NodeArray<node> vCopy;
-	EdgeArray<edge> eCopy;
-
-	clear();
-	insert(GC, vCopy, eCopy);
-	if (GC.m_pGraph != nullptr) {
-		initGC(GC, vCopy, eCopy);
-	}
-
-	return *this;
+	Graph::clear();
 }
 
 void GraphCopy::setOriginalEmbedding() {
@@ -297,7 +111,7 @@ void GraphCopy::setOriginalEmbedding() {
 		newAdjOrder.clear();
 
 		for (adjEntry adjOr : v->adjEntries) {
-			OGDF_ASSERT(m_eCopy[adjOr->theEdge()].size() > 0);
+			OGDF_ASSERT(!m_eCopy[adjOr->theEdge()].empty());
 			// we have outgoing adjEntries for all
 			// incoming and outgoing edges, check the direction
 			// to find the correct copy adjEntry
@@ -504,7 +318,7 @@ void GraphCopy::insertEdgePath(node srcOrig, node tgtOrig, const SList<adjEntry>
 
 		edge eNew = newEdge(v, u);
 #if 0
-		m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
+			m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
 #endif
 		m_eOrig[eNew] = nullptr;
 
@@ -513,7 +327,7 @@ void GraphCopy::insertEdgePath(node srcOrig, node tgtOrig, const SList<adjEntry>
 
 	edge eNew = newEdge(v, copy(tgtOrig));
 #if 0
-	m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
+		m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
 #endif
 	m_eOrig[eNew] = nullptr;
 }
@@ -559,36 +373,6 @@ edge GraphCopy::insertCrossing(edge& crossingEdge, edge crossedEdge, bool rightT
 #endif
 
 	return e;
-}
-
-void GraphCopy::delEdge(edge e) {
-	edge eOrig = m_eOrig[e];
-
-	Graph::delEdge(e);
-	if (eOrig == nullptr) {
-		return;
-	}
-
-	OGDF_ASSERT(m_eCopy[eOrig].size() == 1);
-	m_eCopy[eOrig].clear();
-}
-
-void GraphCopy::delNode(node v) {
-	node w = m_vOrig[v];
-	if (w != nullptr) {
-		m_vCopy[w] = nullptr;
-	}
-
-	Graph::delNode(v);
-}
-
-void GraphCopy::clear() {
-	if (m_pGraph != nullptr) {
-		m_vCopy.init(*m_pGraph, nullptr);
-		m_eCopy.init(*m_pGraph);
-	}
-
-	Graph::clear();
 }
 
 void GraphCopy::removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig,
@@ -809,8 +593,6 @@ void GraphCopy::removeUnnecessaryCrossing(adjEntry adj, DynamicDualGraph* dualGr
 	consistencyCheck();
 #endif
 }
-
-bool GraphCopy::embed() { return planarEmbed(*this); }
 
 void GraphCopy::removePseudoCrossings() {
 	node v, vSucc;
@@ -1248,7 +1030,65 @@ bool GraphCopy::isReversedCopyEdge(edge e) const {
 	}
 }
 
+void GraphCopySimple::postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
+		std::function<node()> nodeIter, std::function<edge()> edgeIter, NodeArray<node>& nodeMap,
+		EdgeArray<edge>& edgeMap, int newNodes, int newEdges) {
+	// don't update the copy if we inserted something that doesn't come from our original graph
+	if (nodeMap.graphOf() != m_pGraph) {
+		return;
+	}
+
+	int c = 0;
+	for (node v = nodeIter(); v != nullptr; v = nodeIter()) {
+		m_vOrig[m_vCopy[v] = nodeMap[v]] = v;
+		c++;
+	}
+	OGDF_ASSERT(c == newNodes);
+
+	c = 0;
+	for (edge e = edgeIter(); e != nullptr; e = edgeIter()) {
+		if (!edgeMap[e]) {
+			continue;
+		}
+		m_eOrig[m_eCopy[e] = edgeMap[e]] = e;
+		c++;
+	}
+	OGDF_ASSERT(c == newEdges);
+}
+
+void GraphCopy::postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
+		std::function<node()> nodeIter, std::function<edge()> edgeIter, NodeArray<node>& nodeMap,
+		EdgeArray<edge>& edgeMap, int newNodes, int newEdges) {
+	// don't update the copy if we inserted something that doesn't come from our original graph
+	if (nodeMap.graphOf() != m_pGraph) {
+		return;
+	}
+
+	int c = 0;
+	for (node v = nodeIter(); v != nullptr; v = nodeIter()) {
+		node vc = nodeMap[v];
+		OGDF_ASSERT(vc->graphOf() == this);
+		m_vOrig[m_vCopy[v] = vc] = v;
+		c++;
+	}
+	OGDF_ASSERT(c == newNodes);
+
+	c = 0;
+	for (edge e = edgeIter(); e != nullptr; e = edgeIter()) {
+		edge ec = edgeMap[e];
+		if (!ec) {
+			continue; // FIXME edgeMap[e]!=nullptr doesn't mean the inserted the edge this iteration
+		}
+		OGDF_ASSERT(ec->graphOf() == this);
+		m_eIterator[ec] = m_eCopy[e].pushBack(ec);
+		m_eOrig[ec] = e;
+		c++;
+	}
+	OGDF_ASSERT(c >= newEdges); // edgeIter might be G.edges and edgeMap might be GraphCopySimply.m_eCopy also containing already copied edges
+}
+
 #ifdef OGDF_DEBUG
+
 void GraphCopy::consistencyCheck() const {
 	Graph::consistencyCheck();
 
@@ -1290,6 +1130,7 @@ void GraphCopy::consistencyCheck() const {
 		}
 	}
 }
+
 #endif
 
 }

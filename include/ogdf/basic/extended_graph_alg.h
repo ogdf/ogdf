@@ -120,24 +120,11 @@ void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
  * @param subGraph is assigned the computed subgraph, which will be set as a copy of \p G.
  */
 template<class LISTITERATOR>
+OGDF_DEPRECATED("use GraphCopy(Simple)::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, GraphCopySimple& subGraph) {
 	subGraph.clear();
 	subGraph.createEmpty(G);
-
-	LISTITERATOR its;
-	for (its = start; its.valid(); its++) {
-		node w = (*its);
-		OGDF_ASSERT(w != nullptr);
-		OGDF_ASSERT(w->graphOf() == &G);
-		subGraph.newNode(w);
-
-		for (adjEntry adj : w->adjEntries) {
-			edge e = adj->theEdge();
-			if (subGraph.copy(e->source()) && subGraph.copy(e->target()) && !subGraph.copy(e)) {
-				subGraph.newEdge(e);
-			}
-		}
-	}
+	subGraph.insert(start, G.edges);
 }
 
 //! Computes the edges in a node-induced subgraph.

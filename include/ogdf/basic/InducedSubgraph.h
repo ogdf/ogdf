@@ -55,14 +55,35 @@ filtered_iterator<BaseIterator> make_filtered_iterator(
 	return {filter, base, end};
 }
 
+template<typename BaseIterator>
+struct iterator_func {
+	iterator_func(BaseIterator cur, BaseIterator end) : _cur(cur), _end(end) { }
+
+	typename BaseIterator::value_type operator()() {
+		if (_cur == _end) {
+			return {};
+		}
+		typename BaseIterator::value_type val = *_cur;
+		_cur++;
+		return val;
+	}
+
+private:
+	BaseIterator _cur;
+	BaseIterator _end;
+};
+
 template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding, bool copyIDs, bool notifyObservers>
 std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
 		const EI& edgesEnd, NodeArray<node>& nodeMap,
-		EdgeArray<edge>& edgeMap) { // TODO use template magic to switch to a faster implementation, if possible
+		EdgeArray<edge>& edgeMap) { // TODO use template magic to switch to a faster implementation for filtering_iterator, GraphElementList and GraphSet
 	// TODO reserve size in m_regNodeArrays and m_regEdgeArrays
-	OGDF_ASSERT(nodeMap.registeredAt());
-	OGDF_ASSERT(edgeMap.registeredAt());
+	OGDF_ASSERT(nodeMap.valid());
+	OGDF_ASSERT(edgeMap.valid());
+	OGDF_ASSERT(nodeMap.graphOf() == edgeMap.graphOf());
 	if (nodesBegin == nodesEnd) {
+		postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
+				iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, 0, 0);
 		return {0, 0};
 	}
 	int newNodes = 0, newEdges = 0;
@@ -83,6 +104,8 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	}
 
 	if (edgesBegin == edgesEnd) {
+		postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
+				iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, newNodes, newEdges);
 		return {newNodes, newEdges};
 	}
 
@@ -115,6 +138,8 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 #ifdef OGDF_HEAVY_DEBUG
 		consistencyCheck();
 #endif
+		postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
+				iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, newNodes, newEdges);
 		return {newNodes, newEdges};
 	}
 
@@ -152,6 +177,9 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	consistencyCheck();
 #endif
 
+	// FIXME edges might be G.edges while there are only 2 nodes
+	postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
+			iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, newNodes, newEdges);
 	return {newNodes, newEdges};
 }
 

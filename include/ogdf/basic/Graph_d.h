@@ -1629,11 +1629,17 @@ public:
 		return count;
 	}
 
-	std::pair<int, int> insert(const Graph& G) {
+	virtual std::pair<int, int> insert(const Graph& G) {
 		NodeArray<node> nodeMap(G, nullptr);
 		EdgeArray<edge> edgeMap(G, nullptr);
 		return insert(G, nodeMap, edgeMap);
 	}
+
+protected:
+	virtual void postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
+			std::function<node()> nodeIter, std::function<edge()> edgeIter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int newNodes, int newEdges) {};
+
 
 public:
 	//! Info structure for maintaining connected components.
