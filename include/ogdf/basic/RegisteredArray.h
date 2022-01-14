@@ -786,13 +786,17 @@ template<class Registry, bool WithDefault, class Base>
 class RegisteredArray<Registry, bool, WithDefault, Base>
 	: public RegisteredArray<Registry, unsigned char, WithDefault, Base> {
 	using RA = RegisteredArray<Registry, unsigned char, WithDefault, Base>;
-	using key_type = typename RA::key_type;
+	using BRA = RegisteredArray<Registry, bool, WithDefault, Base>;
 
 public:
 	using RA::RA;
 
+	using key_type = typename RA::key_type;
+	using value_type = bool;
 	using value_const_ref_type = const bool&;
 	using value_ref_type = bool&;
+	using iterator = RegisteredArrayIterator<BRA, typename RA::key_iterator, false>;
+	using const_iterator = RegisteredArrayIterator<BRA, typename RA::key_iterator, true>;
 
 	value_const_ref_type operator[](key_type key) const {
 		return reinterpret_cast<value_const_ref_type>(RA::operator[](key));
@@ -817,5 +821,23 @@ public:
 	value_ref_type operator[](int idx) {
 		return reinterpret_cast<value_ref_type>(RA::operator[](idx));
 	}
+
+	value_ref_type getDefault() { return reinterpret_cast<value_ref_type>(RA::getDefault()); }
+
+	value_const_ref_type getDefault() const {
+		return reinterpret_cast<value_const_ref_type>(RA::getDefault());
+	}
+
+	iterator begin() { return iterator(RA::getRegistry().begin(), this); }
+
+	const_iterator begin() const { return const_iterator(RA::getRegistry().begin(), this); }
+
+	const_iterator cbegin() const { return const_iterator(RA::getRegistry().begin(), this); }
+
+	iterator end() { return iterator(RA::getRegistry().end(), this); }
+
+	const_iterator end() const { return const_iterator(RA::getRegistry().end(), this); }
+
+	const_iterator cend() const { return const_iterator(RA::getRegistry().end(), this); }
 };
 }
