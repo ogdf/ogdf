@@ -36,8 +36,7 @@
 
 namespace ogdf {
 
-void GraphCopySimple::createEmpty(const Graph& G) {
-	Graph::clear();
+void GraphCopySimple::createEmpty(const Graph& G) { // TODO rename to setOriginalGraph
 	m_pGraph = &G;
 	m_vOrig.init(this, nullptr);
 	m_eOrig.init(this, nullptr);
@@ -123,7 +122,6 @@ GraphCopy& GraphCopy::operator=(const GraphCopy& other) {
 };
 
 void GraphCopy::createEmpty(const Graph& G) {
-	Graph::clear();
 	m_pGraph = &G;
 	m_vOrig.init(this, nullptr);
 	m_eOrig.init(this, nullptr);
