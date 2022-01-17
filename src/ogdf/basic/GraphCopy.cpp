@@ -36,19 +36,6 @@
 
 namespace ogdf {
 
-
-//	GraphCopySimple &GraphCopySimple::operator=(const GraphCopySimple &GC) {
-//		NodeArray<node> vCopy;
-//		EdgeArray<edge> eCopy;
-//
-//		clear();
-//		insert(GC, vCopy, eCopy);
-//		initGC(GC, vCopy, eCopy);
-//
-//		return *this;
-//	}
-//
-
 void GraphCopySimple::createEmpty(const Graph& G) {
 	Graph::clear();
 	m_pGraph = &G;
@@ -66,6 +53,37 @@ void GraphCopySimple::clear() {
 	Graph::clear();
 }
 
+GraphCopySimple& GraphCopySimple::operator=(const GraphCopySimple& other) {
+	Graph::clear();
+	GraphCopySimple::createEmpty(other.original());
+	if (other.numberOfNodes() == 0 && other.numberOfEdges() == 0) {
+		return *this;
+	}
+	NodeArray<node> nodeMap(other, nullptr);
+	EdgeArray<edge> edgeMap(other, nullptr);
+	GraphCopySimple::insert(other, nodeMap, edgeMap);
+	if (other.m_pGraph == nullptr) {
+		return *this;
+	}
+	for (node other_node : other.nodes) {
+		node my_node = nodeMap[other_node];
+		node original_node = other.original(other_node);
+		m_vOrig[my_node] = original_node;
+		if (original_node != nullptr) {
+			m_vCopy[original_node] = my_node;
+		}
+	}
+	for (edge other_edge : other.edges) {
+		edge my_edge = edgeMap[other_edge];
+		edge original_edge = other.original(other_edge);
+		m_eOrig[my_edge] = original_edge;
+		if (original_edge) {
+			m_eCopy[original_edge] = my_edge;
+		}
+	}
+	return *this;
+}
+
 void GraphCopySimple::delEdge(edge e) {
 	edge eOrig = m_eOrig[e];
 	Graph::delEdge(e);
@@ -73,6 +91,36 @@ void GraphCopySimple::delEdge(edge e) {
 		m_eCopy[eOrig] = nullptr;
 	}
 }
+
+GraphCopy& GraphCopy::operator=(const GraphCopy& other) {
+	Graph::clear();
+	GraphCopy::createEmpty(other.original());
+	if (other.numberOfNodes() == 0 && other.numberOfEdges() == 0) {
+		return *this;
+	}
+	NodeArray<node> nodeMap(other, nullptr);
+	EdgeArray<edge> edgeMap(other, nullptr);
+	GraphCopy::insert(other, nodeMap, edgeMap);
+	if (other.m_pGraph == nullptr) {
+		return *this;
+	}
+	for (node other_node : other.nodes) {
+		node my_node = nodeMap[other_node];
+		node original_node = other.original(other_node);
+		m_vOrig[my_node] = original_node;
+		if (original_node != nullptr) {
+			m_vCopy[original_node] = my_node;
+		}
+	}
+	for (edge original_edge : original().edges) {
+		for (edge other_edge : other.m_eCopy[original_edge]) {
+			edge my_edge = edgeMap[other_edge];
+			m_eOrig[my_edge] = original_edge;
+			m_eIterator[my_edge] = m_eCopy[original_edge].pushBack(my_edge);
+		}
+	}
+	return *this;
+};
 
 void GraphCopy::createEmpty(const Graph& G) {
 	Graph::clear();
