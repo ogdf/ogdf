@@ -84,6 +84,41 @@ void GraphCopy::createEmpty(const Graph& G) {
 	m_eIterator.init(this, nullptr);
 }
 
+void* GraphCopyBase::preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
+		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) {
+	// don't update the copy if we inserted something that doesn't come from our original graph
+	if (nodeMap.graphOf() == m_pGraph) {
+		return reinterpret_cast<void*>(1);
+	} else {
+		return nullptr;
+	}
+}
+
+void GraphCopyBase::nodeInserted(void* userData, node original, node copy) {
+	if (!userData) {
+		return;
+	}
+	OGDF_ASSERT(copy->graphOf() == this);
+	m_vOrig[m_vCopy[original] = copy] = original;
+}
+
+void GraphCopySimple::edgeInserted(void* userData, edge original, edge copy) {
+	if (!userData) {
+		return;
+	}
+	OGDF_ASSERT(copy->graphOf() == this);
+	m_eOrig[m_eCopy[original] = copy] = original;
+}
+
+void GraphCopy::edgeInserted(void* userData, edge original, edge copy) {
+	if (!userData) {
+		return;
+	}
+	OGDF_ASSERT(copy->graphOf() == this);
+	m_eIterator[copy] = m_eCopy[original].pushBack(copy);
+	m_eOrig[copy] = original;
+}
+
 void GraphCopy::delEdge(edge e) {
 	edge eOrig = m_eOrig[e];
 	Graph::delEdge(e);
@@ -1030,62 +1065,6 @@ bool GraphCopy::isReversedCopyEdge(edge e) const {
 	}
 }
 
-void GraphCopySimple::postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
-		std::function<node()> nodeIter, std::function<edge()> edgeIter, NodeArray<node>& nodeMap,
-		EdgeArray<edge>& edgeMap, int newNodes, int newEdges) {
-	// don't update the copy if we inserted something that doesn't come from our original graph
-	if (nodeMap.graphOf() != m_pGraph) {
-		return;
-	}
-
-	int c = 0;
-	for (node v = nodeIter(); v != nullptr; v = nodeIter()) {
-		m_vOrig[m_vCopy[v] = nodeMap[v]] = v;
-		c++;
-	}
-	OGDF_ASSERT(c == newNodes);
-
-	c = 0;
-	for (edge e = edgeIter(); e != nullptr; e = edgeIter()) {
-		if (!edgeMap[e]) {
-			continue;
-		}
-		m_eOrig[m_eCopy[e] = edgeMap[e]] = e;
-		c++;
-	}
-	OGDF_ASSERT(c == newEdges);
-}
-
-void GraphCopy::postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
-		std::function<node()> nodeIter, std::function<edge()> edgeIter, NodeArray<node>& nodeMap,
-		EdgeArray<edge>& edgeMap, int newNodes, int newEdges) {
-	// don't update the copy if we inserted something that doesn't come from our original graph
-	if (nodeMap.graphOf() != m_pGraph) {
-		return;
-	}
-
-	int c = 0;
-	for (node v = nodeIter(); v != nullptr; v = nodeIter()) {
-		node vc = nodeMap[v];
-		OGDF_ASSERT(vc->graphOf() == this);
-		m_vOrig[m_vCopy[v] = vc] = v;
-		c++;
-	}
-	OGDF_ASSERT(c == newNodes);
-
-	c = 0;
-	for (edge e = edgeIter(); e != nullptr; e = edgeIter()) {
-		edge ec = edgeMap[e];
-		if (!ec) {
-			continue; // FIXME edgeMap[e]!=nullptr doesn't mean the inserted the edge this iteration
-		}
-		OGDF_ASSERT(ec->graphOf() == this);
-		m_eIterator[ec] = m_eCopy[e].pushBack(ec);
-		m_eOrig[ec] = e;
-		c++;
-	}
-	OGDF_ASSERT(c >= newEdges); // edgeIter might be G.edges and edgeMap might be GraphCopySimply.m_eCopy also containing already copied edges
-}
 
 #ifdef OGDF_DEBUG
 

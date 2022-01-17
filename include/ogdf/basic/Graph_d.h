@@ -1641,10 +1641,16 @@ public:
 	}
 
 protected:
-	virtual void postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
-			std::function<node()> nodeIter, std::function<edge()> edgeIter,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int newNodes, int newEdges) {};
+	virtual void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) {
+		return nullptr;
+	};
 
+	virtual void nodeInserted(void* userData, node original, node copy) {};
+
+	virtual void edgeInserted(void* userData, edge original, edge copy) {};
+
+	virtual void postInsert(void* userData, int newNodes, int newEdges) {};
 
 public:
 	//! Info structure for maintaining connected components.

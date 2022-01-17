@@ -154,6 +154,12 @@ public:
 			m_vCopy[vOrig] = nullptr;
 		}
 	}
+
+protected:
+	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) override;
+
+	void nodeInserted(void* userData, node original, node copy) override;
 };
 
 /**
@@ -284,9 +290,7 @@ public:
 	}
 
 protected:
-	void postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
-			std::function<node()> nodeIter, std::function<edge()> edgeIter,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int newNodes, int newEdges) override;
+	void edgeInserted(void* userData, edge original, edge copy) override;
 };
 
 /**
@@ -822,9 +826,7 @@ public:
 	//! @}
 
 protected:
-	void postInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
-			std::function<node()> nodeIter, std::function<edge()> edgeIter,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int newNodes, int newEdges) override;
+	void edgeInserted(void* userData, edge original, edge copy) override;
 
 
 	void removeUnnecessaryCrossing(adjEntry adjA1, adjEntry adjA2, adjEntry adjB1, adjEntry adjB2);

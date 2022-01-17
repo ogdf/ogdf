@@ -56,38 +56,21 @@ filtered_iterator<BaseIterator> make_filtered_iterator(
 	return {filter, base, end};
 }
 
-template<typename BaseIterator>
-struct iterator_func {
-	iterator_func(BaseIterator cur, BaseIterator end) : _cur(cur), _end(end) { }
-
-	typename BaseIterator::value_type operator()() {
-		if (_cur == _end) {
-			return {};
-		}
-		typename BaseIterator::value_type val = *_cur;
-		_cur++;
-		return val;
-	}
-
-private:
-	BaseIterator _cur;
-	BaseIterator _end;
-};
-
 template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding, bool copyIDs, bool notifyObservers>
 std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
-		const EI& edgesEnd, NodeArray<node>& nodeMap,
-		EdgeArray<edge>& edgeMap) { // TODO use template magic to switch to a faster implementation for filtering_iterator, GraphElementList and GraphSet
-	// TODO reserve size in m_regNodeArrays and m_regEdgeArrays
+		const EI& edgesEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+	// TODO use template magic to switch to a faster implementation for filtering_iterator, GraphElementList and GraphSet
+	// TODO reserve size in m_regNodeArrays and m_regEdgeArrays (but how do we know length of iterators?)
 	OGDF_ASSERT(nodeMap.valid());
 	OGDF_ASSERT(edgeMap.valid());
 	OGDF_ASSERT(nodeMap.graphOf() == edgeMap.graphOf());
+	int newNodes = 0, newEdges = 0;
+	void* cbData = preInsert(copyEmbedding, copyIDs, notifyObservers, nodeMap, edgeMap, &newNodes,
+			&newEdges);
 	if (nodesBegin == nodesEnd) {
-		postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
-				iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, 0, 0);
+		postInsert(cbData, 0, 0);
 		return {0, 0};
 	}
-	int newNodes = 0, newEdges = 0;
 
 	for (auto it = nodesBegin; it != nodesEnd; ++it) {
 		node vG = *it;
@@ -98,6 +81,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		newNodes++;
 		if (notifyObservers) {
 			m_regNodeArrays.keyAdded(v);
+			nodeInserted(cbData, vG, v);
 			for (GraphObserver* obs : m_regObservers) {
 				obs->nodeAdded(v);
 			}
@@ -105,8 +89,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	}
 
 	if (edgesBegin == edgesEnd) {
-		postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
-				iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, newNodes, newEdges);
+		postInsert(cbData, newNodes, newEdges);
 		return {newNodes, newEdges};
 	}
 
@@ -128,6 +111,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			if (notifyObservers) {
 				m_regEdgeArrays.keyAdded(e);
 				m_regAdjArrays.keyAdded(e->adjSource());
+				edgeInserted(cbData, eG, e);
 				for (GraphObserver* obs : m_regObservers) {
 					obs->edgeAdded(e);
 				}
@@ -139,8 +123,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 #ifdef OGDF_HEAVY_DEBUG
 		consistencyCheck();
 #endif
-		postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
-				iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, newNodes, newEdges);
+		postInsert(cbData, newNodes, newEdges);
 		return {newNodes, newEdges};
 	}
 
@@ -159,7 +142,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	}
 
 	// notify observers of added edges after adjEntries are initialized
-	if (notifyObservers) { // FIXME call registry.reserve(), maybe use && !m_regObservers.empty()
+	if (notifyObservers) {
 		for (auto it = edgesBegin; it != edgesEnd; ++it) {
 			edge eG = *it;
 			edge e = edgeMap[eG];
@@ -168,6 +151,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			}
 			m_regEdgeArrays.keyAdded(e);
 			m_regAdjArrays.keyAdded(e->adjSource());
+			edgeInserted(cbData, eG, e);
 			for (GraphObserver* obs : m_regObservers) {
 				obs->edgeAdded(e);
 			}
@@ -178,9 +162,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	consistencyCheck();
 #endif
 
-	// FIXME edges might be G.edges while there are only 2 nodes
-	postInsert(copyEmbedding, copyIDs, notifyObservers, iterator_func<NI>(nodesBegin, nodesEnd),
-			iterator_func<EI>(edgesBegin, edgesEnd), nodeMap, edgeMap, newNodes, newEdges);
+	postInsert(cbData, newNodes, newEdges);
 	return {newNodes, newEdges};
 }
 
