@@ -544,20 +544,20 @@ public:
 	//! Returns the const past-the-end iterator of the array.
 	const_iterator cend() const { return const_iterator(getRegistry().end(), this); }
 
+	using registered_array_base::registeredAt;
+
 	//! Returns true iff the array is associated with a registry.
 	bool valid() const {
 		OGDF_ASSERT(registeredAt() == nullptr || registeredAt()->maxKeyIndex() < 0
 				|| ((size_t)registeredAt()->maxKeyIndex()) < m_data.size());
-		return registered_array_base::registeredAt();
+		return registeredAt();
 	}
-
-	using registered_array_base::registeredAt;
 
 protected:
 	//! Returns a reference to the associated registry.
 	inline const Registry& getRegistry() const {
 		OGDF_ASSERT(registeredAt());
-		OGDF_ASSERT(registeredAt()->maxKeyIndex() < ((int)m_data.size()));
+		OGDF_ASSERT(valid());
 		return *registeredAt();
 	}
 
