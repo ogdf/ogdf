@@ -51,7 +51,7 @@ int calculateTableSize(int actualCount) { return Math::nextPower2(MIN_TABLE_SIZE
 Graph::Graph()
 	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
 	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
-	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt, 2)
+	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt)
 	, m_adjIt(this) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 }
@@ -59,7 +59,7 @@ Graph::Graph()
 Graph::Graph(const Graph& G)
 	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
 	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
-	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt, 2)
+	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt)
 	, m_adjIt(this) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	insert(G);

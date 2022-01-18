@@ -49,14 +49,14 @@ namespace ogdf {
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
-class NodeSet : public RegisteredSet<GraphRegistry<NodeElement>, SupportFastSizeQuery> {
-	using RS = RegisteredSet<GraphRegistry<NodeElement>, SupportFastSizeQuery>;
+class NodeSet : public RegisteredSet<GraphNodeRegistry, SupportFastSizeQuery> {
+	using RS = RegisteredSet<GraphNodeRegistry, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Creates a new node set associated with \p graph.
-	explicit NodeSet(const Graph& graph) : RS((const GraphRegistry<NodeElement>&)graph) {};
+	explicit NodeSet(const Graph& graph) : RS((const GraphNodeRegistry&)graph) {};
 
 	//! Returns a reference to the list of nodes contained in this set.
 	const typename RS::list_type& nodes() { return RS::elements(); }
@@ -81,14 +81,14 @@ public:
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
-class EdgeSet : public RegisteredSet<GraphRegistry<EdgeElement>, SupportFastSizeQuery> {
-	using RS = RegisteredSet<GraphRegistry<EdgeElement>, SupportFastSizeQuery>;
+class EdgeSet : public RegisteredSet<GraphEdgeRegistry, SupportFastSizeQuery> {
+	using RS = RegisteredSet<GraphEdgeRegistry, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Creates a new edge set associated with \p graph.
-	explicit EdgeSet(const Graph& graph) : RS((const GraphRegistry<EdgeElement>&)graph) {};
+	explicit EdgeSet(const Graph& graph) : RS((const GraphEdgeRegistry&)graph) {};
 
 	//! Returns a reference to the list of edges contained in this set.
 	const typename RS::list_type& edges() { return RS::elements(); }
@@ -113,16 +113,14 @@ public:
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
-class AdjEntrySet
-	: public RegisteredSet<GraphRegistry<AdjElement, GraphAdjIterator>, SupportFastSizeQuery> {
-	using RS = RegisteredSet<GraphRegistry<AdjElement, GraphAdjIterator>, SupportFastSizeQuery>;
+class AdjEntrySet : public RegisteredSet<GraphAdjRegistry, SupportFastSizeQuery> {
+	using RS = RegisteredSet<GraphAdjRegistry, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Creates a new adjEntry set associated with \p graph.
-	explicit AdjEntrySet(const Graph& graph)
-		: RS((const GraphRegistry<AdjElement, GraphAdjIterator>&)graph) {};
+	explicit AdjEntrySet(const Graph& graph) : RS((const GraphAdjRegistry&)graph) {};
 
 	//! Returns a reference to the list of adjEntries contained in this set.
 	const typename RS::list_type& adjEntries() { return RS::elements(); }

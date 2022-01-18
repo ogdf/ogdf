@@ -523,20 +523,19 @@ public:
 };
 
 //! Registry for nodes, edges and adjEntries of a graph.
-template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>>
+template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>, int Factor = 1>
 class GraphRegistry
-	: public RegistryBase<Key*, GraphRegistry<Key, Iterable>, typename Iterable::iterator> {
+	: public RegistryBase<Key*, GraphRegistry<Key, Iterable, Factor>, typename Iterable::iterator> {
 	using iterator = typename Iterable::iterator;
 
 	Graph* m_pGraph;
 	int* m_nextKeyIndex;
 	Iterable* m_iterable;
-	int m_factor;
 
 public:
 	//! Constructor.
-	GraphRegistry(Graph* graph, int* nextKeyIndex, Iterable* container = nullptr, int factor = 1)
-		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container), m_factor(factor) { }
+	GraphRegistry(Graph* graph, int* nextKeyIndex, Iterable* container = nullptr)
+		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container) { }
 
 	static inline int keyToIndex(Key* key) { return key->index(); }
 
@@ -557,10 +556,10 @@ public:
 	}
 
 	int calculateArraySize(int add) const {
-		return calculateTableSize((*m_nextKeyIndex + add) * m_factor);
+		return calculateTableSize((*m_nextKeyIndex + add) * Factor);
 	}
 
-	int maxKeyIndex() const { return ((*m_nextKeyIndex) * m_factor) - 1; }
+	int maxKeyIndex() const { return ((*m_nextKeyIndex) * Factor) - 1; }
 
 	iterator begin() const override { return m_iterable->begin(); }
 
@@ -569,6 +568,10 @@ public:
 	//! Returns a pointer to the associated graph.
 	Graph* graphOf() const { return m_pGraph; }
 };
+
+using GraphNodeRegistry = GraphRegistry<NodeElement>;
+using GraphEdgeRegistry = GraphRegistry<EdgeElement>;
+using GraphAdjRegistry = GraphRegistry<AdjElement, GraphAdjIterator, 2>;
 
 //! RegisteredArray for nodes, edges and adjEntries of a graph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>
@@ -641,12 +644,10 @@ template<typename Value>
 using EdgeArrayWithoutDefault = EdgeArrayBase<Value, false>;
 
 template<typename Value>
-using AdjEntryArray =
-		GraphRegisteredArray<AdjElement, Value, true, GraphRegistry<AdjElement, GraphAdjIterator>>;
+using AdjEntryArray = GraphRegisteredArray<AdjElement, Value, true, GraphAdjRegistry>;
 
 template<typename Value>
-using AdjEntryArrayWithoutDefault =
-		GraphRegisteredArray<AdjElement, Value, false, GraphRegistry<AdjElement, GraphAdjIterator>>;
+using AdjEntryArrayWithoutDefault = GraphRegisteredArray<AdjElement, Value, false, GraphAdjRegistry>;
 
 //! Abstract Base class for graph observers.
 /**
@@ -774,9 +775,9 @@ private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
 	int m_edgeIdCount; //!< The Index that will be assigned to the next created edge.
 
-	GraphRegistry<NodeElement> m_regNodeArrays; //!< The registered node arrays.
-	GraphRegistry<EdgeElement> m_regEdgeArrays; //!< The registered edge arrays.
-	GraphRegistry<AdjElement, GraphAdjIterator> m_regAdjArrays;
+	GraphNodeRegistry m_regNodeArrays; //!< The registered node arrays.
+	GraphEdgeRegistry m_regEdgeArrays; //!< The registered edge arrays.
+	GraphAdjRegistry m_regAdjArrays;
 	GraphAdjIterator m_adjIt;
 	mutable ListPure<GraphObserver*> m_regObservers; //!< The registered graph observers.
 
@@ -889,24 +890,22 @@ public:
 	int adjEntryArrayTableSize() const { return m_regEdgeArrays.getArraySize() << 1; }
 
 	//! Returns a reference to the registry of node arrays associated with this graph.
-	GraphRegistry<NodeElement>& nodeRegistry() { return m_regNodeArrays; }
+	GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
 
 	//! Returns a const reference to the registry of node arrays associated with this graph.
-	const GraphRegistry<NodeElement>& nodeRegistry() const { return m_regNodeArrays; }
+	const GraphNodeRegistry& nodeRegistry() const { return m_regNodeArrays; }
 
 	//! Returns a reference to the registry of edge arrays associated with this graph.
-	GraphRegistry<EdgeElement>& edgeRegistry() { return m_regEdgeArrays; }
+	GraphEdgeRegistry& edgeRegistry() { return m_regEdgeArrays; }
 
 	//! Returns a const reference to the registry of edge arrays associated with this graph.
-	const GraphRegistry<EdgeElement>& edgeRegistry() const { return m_regEdgeArrays; }
+	const GraphEdgeRegistry& edgeRegistry() const { return m_regEdgeArrays; }
 
 	//! Returns a reference to the registry of adjEntry arrays associated with this graph.
-	GraphRegistry<AdjElement, GraphAdjIterator>& adjEntryRegistry() { return m_regAdjArrays; }
+	GraphAdjRegistry& adjEntryRegistry() { return m_regAdjArrays; }
 
 	//! Returns a const reference to the registry of adjEntry arrays associated with this graph.
-	const GraphRegistry<AdjElement, GraphAdjIterator>& adjEntryRegistry() const {
-		return m_regAdjArrays;
-	}
+	const GraphAdjRegistry& adjEntryRegistry() const { return m_regAdjArrays; }
 
 	//! Returns the first node in the list of all nodes.
 	node firstNode() const { return nodes.head(); }
@@ -1530,11 +1529,11 @@ public:
 	 */
 	//! @{
 
-	operator const GraphRegistry<NodeElement>&() const { return m_regNodeArrays; }
+	operator const GraphNodeRegistry&() const { return m_regNodeArrays; }
 
-	operator const GraphRegistry<EdgeElement>&() const { return m_regEdgeArrays; }
+	operator const GraphEdgeRegistry&() const { return m_regEdgeArrays; }
 
-	operator const GraphRegistry<AdjElement, GraphAdjIterator>&() const { return m_regAdjArrays; }
+	operator const GraphAdjRegistry&() const { return m_regAdjArrays; }
 
 	//! Resets the edge id count to \p maxId.
 	/**
