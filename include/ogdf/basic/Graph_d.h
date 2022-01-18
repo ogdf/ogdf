@@ -538,7 +538,9 @@ public:
 	GraphRegistry(Graph* graph, int* nextKeyIndex, Iterable* container = nullptr, int factor = 1)
 		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container), m_factor(factor) { }
 
-	bool isKeyAssociated(Key* key) const override {
+	static inline int keyToIndex(Key* key) { return key->index(); }
+
+	bool isKeyAssociated(Key* key) const {
 		if (key == nullptr) {
 			return false;
 		}
@@ -554,11 +556,11 @@ public:
 #endif
 	}
 
-	int calculateArraySize() const override {
-		return calculateTableSize((*m_nextKeyIndex) * m_factor);
+	int calculateArraySize(int add) const {
+		return calculateTableSize((*m_nextKeyIndex + add) * m_factor);
 	}
 
-	int maxKeyIndex() const override { return ((*m_nextKeyIndex) * m_factor) - 1; }
+	int maxKeyIndex() const { return ((*m_nextKeyIndex) * m_factor) - 1; }
 
 	iterator begin() const override { return m_iterable->begin(); }
 

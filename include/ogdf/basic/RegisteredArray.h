@@ -54,11 +54,11 @@ static constexpr int MIN_TABLE_SIZE = (1 << 4);
  */
 int calculateTableSize(int actualCount);
 
-//! Returns the index of \p key.
-template<typename Key> // template function instead of a virtual function in RegistryBase to improve performance
-OGDF_NODISCARD inline int keyToIndex(Key key) {
-	return key->index();
-}
+////! Returns the index of \p key.
+//template<typename Key> // template function instead of a virtual function in RegistryBase to improve performance
+//OGDF_NODISCARD inline int keyToIndex(Key key) {
+//	return key->index();
+//}
 
 //! Abstract base class for registries.
 /**
@@ -140,17 +140,17 @@ public:
 		*it = pArray;
 	}
 
-	//! Returns whether \p key is associated with this registry.
-	OGDF_NODISCARD virtual bool isKeyAssociated(Key key) const = 0;
-
-	//! Returns the maximum index of all keys managed by this registry.
-	OGDF_NODISCARD virtual int maxKeyIndex() const = 0;
-
-	//! Returns the array size currently requested by this registry.
-	/**
-	 * \remark To avoid frequent costly resize operations, the array size should grow in larger steps (e.g. powers of 2)
-	 */
-	OGDF_NODISCARD virtual int calculateArraySize() const = 0;
+	//	//! Returns whether \p key is associated with this registry.
+	//	OGDF_NODISCARD virtual bool isKeyAssociated(Key key) const = 0;
+	//
+	//	//! Returns the maximum index of all keys managed by this registry.
+	//	OGDF_NODISCARD virtual int maxKeyIndex() const = 0;
+	//
+	//	//! Returns the array size currently requested by this registry.
+	//	/**
+	//	 * \remark To avoid frequent costly resize operations, the array size should grow in larger steps (e.g. powers of 2)
+	//	 */
+	//	OGDF_NODISCARD virtual int calculateArraySize(int add) const = 0;
 
 	//! Returns an iterator to the first key managed by this registry.
 	virtual Iterator begin() const = 0;
@@ -160,7 +160,7 @@ public:
 
 	//! Records the addition of a new key and resizes all registered arrays if necessary.
 	void keyAdded(Key key) {
-		if (keyToIndex(key) >= m_size) {
+		if (static_cast<Registry*>(this)->keyToIndex(key) >= m_size) {
 			resizeArrays();
 		}
 	}
@@ -177,7 +177,7 @@ public:
 
 	//! Resizes all arrays to the size requested by calculateArraySize(). Only shrinks the arrays if auto shrink is
 	//! enabled
-	void resizeArrays() { resizeArrays(calculateArraySize()); }
+	void resizeArrays() { resizeArrays(static_cast<Registry*>(this)->calculateArraySize(0)); }
 
 	//! Resizes all arrays to \p size. Only shrinks the arrays if auto shrink is enabled
 	void resizeArrays(int size) { resizeArrays(size, m_autoShrink); }
@@ -467,9 +467,9 @@ public:
 	value_const_ref_type operator[](key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(keyToIndex(key));
+		return m_data.at(registeredAt()->keyToIndex(key));
 #else
-		return m_data[keyToIndex(key)];
+		return m_data[registeredAt()->keyToIndex(key)];
 #endif
 	}
 
@@ -477,9 +477,9 @@ public:
 	value_ref_type operator[](key_type key) {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(keyToIndex(key));
+		return m_data.at(registeredAt()->keyToIndex(key));
 #else
-		return m_data[keyToIndex(key)];
+		return m_data[registeredAt()->keyToIndex(key)];
 #endif
 	}
 
@@ -487,9 +487,9 @@ public:
 	value_const_ref_type operator()(key_type key) const {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(keyToIndex(key));
+		return m_data.at(registeredAt()->keyToIndex(key));
 #else
-		return m_data[keyToIndex(key)];
+		return m_data[registeredAt()->keyToIndex(key)];
 #endif
 	}
 
@@ -497,9 +497,9 @@ public:
 	value_ref_type operator()(key_type key) {
 		OGDF_ASSERT(getRegistry().isKeyAssociated(key));
 #ifdef OGDF_DEBUG
-		return m_data.at(keyToIndex(key));
+		return m_data.at(registeredAt()->keyToIndex(key));
 #else
-		return m_data[keyToIndex(key)];
+		return m_data[registeredAt()->keyToIndex(key)];
 #endif
 	}
 

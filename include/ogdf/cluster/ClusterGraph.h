@@ -724,7 +724,9 @@ public:
 	//! Unregisters a cluster graph observer.
 	void unregisterObserver(ListIterator<ClusterGraphObserver*> it) const;
 
-	bool isKeyAssociated(cluster key) const override {
+	static inline int keyToIndex(cluster key) { return key->index(); }
+
+	bool isKeyAssociated(cluster key) const {
 		if (key == nullptr) {
 			return false;
 		}
@@ -740,9 +742,9 @@ public:
 #endif
 	}
 
-	int calculateArraySize() const override { return calculateTableSize(m_clusterIdCount); }
+	int calculateArraySize(int add) const { return calculateTableSize(m_clusterIdCount + add); }
 
-	int maxKeyIndex() const override { return (m_clusterIdCount)-1; }
+	int maxKeyIndex() const { return (m_clusterIdCount)-1; }
 
 	cluster_iterator begin() const override { return clusters.begin(); }
 

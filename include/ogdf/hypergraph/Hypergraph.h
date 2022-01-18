@@ -329,7 +329,9 @@ public:
 	HypergraphRegistry(Hypergraph* graph, int* nextKeyIndex, internal::GraphList<Key>* container)
 		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container) { }
 
-	bool isKeyAssociated(Key* key) const override {
+	static inline int keyToIndex(Key* key) { return key->index(); }
+
+	bool isKeyAssociated(Key* key) const {
 		if (key == nullptr) {
 			return false;
 		}
@@ -345,9 +347,9 @@ public:
 #endif
 	}
 
-	int calculateArraySize() const override { return calculateTableSize(*m_nextKeyIndex); }
+	int calculateArraySize(int add) const { return calculateTableSize(*m_nextKeyIndex + add); }
 
-	int maxKeyIndex() const override { return (*m_nextKeyIndex) - 1; }
+	int maxKeyIndex() const { return (*m_nextKeyIndex) - 1; }
 
 	iterator begin() const override { return m_iterable->head(); }
 

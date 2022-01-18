@@ -342,7 +342,9 @@ public:
 	void consistencyCheck() const;
 #endif
 
-	bool isKeyAssociated(face key) const override {
+	static inline int keyToIndex(face key) { return key->index(); }
+
+	bool isKeyAssociated(face key) const {
 		if (key == nullptr) {
 			return false;
 		}
@@ -358,9 +360,9 @@ public:
 #endif
 	}
 
-	int calculateArraySize() const override { return calculateTableSize(m_faceIdCount); }
+	int calculateArraySize(int add) const { return calculateTableSize(m_faceIdCount + add); }
 
-	int maxKeyIndex() const override { return (m_faceIdCount)-1; }
+	int maxKeyIndex() const { return (m_faceIdCount)-1; }
 
 	face_iterator begin() const override { return faces.begin(); }
 
