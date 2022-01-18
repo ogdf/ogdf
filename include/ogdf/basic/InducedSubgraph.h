@@ -60,7 +60,7 @@ template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding, bool copyIDs,
 std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
 		const EI& edgesEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
 	// TODO use template magic to switch to a faster implementation for filtering_iterator, GraphElementList and GraphSet
-	// TODO reserve size in m_regNodeArrays and m_regEdgeArrays (but how do we know length of iterators?)
+	// TODO reserve size in registered arrays if length of iterators is known
 	OGDF_ASSERT(nodeMap.valid());
 	OGDF_ASSERT(edgeMap.valid());
 	OGDF_ASSERT(nodeMap.graphOf() == edgeMap.graphOf());
@@ -127,16 +127,21 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		return {newNodes, newEdges};
 	}
 
+	m_regEdgeArrays.reserveSpace(newEdges);
+	m_regAdjArrays.reserveSpace(newEdges); // registry adds factor 2 in calculateArraySize
+
 	for (auto it = nodesBegin; it != nodesEnd; ++it) {
 		node vG = *it;
 		node v = nodeMap[vG];
 		for (adjEntry adjG : vG->adjEntries) {
-			edge e = adjG->m_edge;
-			edge eC = edgeMap[e];
-			if (eC == nullptr) {
+			edge eG = adjG->m_edge;
+			edge e = edgeMap[eG];
+			// edgeMap[eG] might be an old value, so check whether the edge was overwritten this round
+			if (nodeMap[eG->source()] == nullptr || nodeMap[eG->target()] == nullptr) {
 				continue;
 			}
-			adjEntry adj = adjG->isSource() ? eC->adjSource() : eC->adjTarget();
+			OGDF_ASSERT(e != nullptr);
+			adjEntry adj = adjG->isSource() ? e->adjSource() : e->adjTarget();
 			v->adjEntries.pushBack(adj);
 		}
 	}
@@ -146,9 +151,10 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		for (auto it = edgesBegin; it != edgesEnd; ++it) {
 			edge eG = *it;
 			edge e = edgeMap[eG];
-			if (e == nullptr) {
+			if (nodeMap[eG->source()] == nullptr || nodeMap[eG->target()] == nullptr) {
 				continue;
 			}
+			OGDF_ASSERT(e != nullptr);
 			m_regEdgeArrays.keyAdded(e);
 			m_regAdjArrays.keyAdded(e->adjSource());
 			edgeInserted(cbData, eG, e);

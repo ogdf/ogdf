@@ -193,6 +193,11 @@ public:
 		}
 	}
 
+	//! Resizes all arrays to make space of \p new_keys new keys.
+	void reserveSpace(int new_keys) {
+		resizeArrays(static_cast<Registry*>(this)->calculateArraySize(new_keys));
+	}
+
 	//! Swaps the entries at \p index1 and \p index2 in all registered arrays.
 	void swapArrayEntries(int index1, int index2) {
 		for (registered_array_type* ab : m_registeredArrays) {
