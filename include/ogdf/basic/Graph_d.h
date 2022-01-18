@@ -605,10 +605,6 @@ class EdgeArrayBase : public GraphRegisteredArray<EdgeElement, Value, WithDefaul
 public:
 	using GRA::GRA;
 
-	EdgeArrayBase(const Graph* graph) : GRA(graph) { }
-
-	EdgeArrayBase(const Graph* graph, const Value& def) : GRA(graph, def) { }
-
 	using GRA::operator[];
 	using GRA::operator();
 
