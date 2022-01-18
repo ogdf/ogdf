@@ -294,11 +294,6 @@ void ClusterGraph::reinitGraph(const Graph& G) {
 	initGraph(G); //already constructs root cluster, reassign
 }
 
-void ClusterGraph::reinitArrays() {
-	resizeArrays(0);
-	resizeArrays();
-}
-
 // Copy Function
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G) {
 	const Graph& cG = C; // original graph
@@ -819,7 +814,6 @@ void ClusterGraph::doClear() {
 	keysCleared();
 	//no clusters, so we can restart at 0
 	m_clusterIdCount = 0;
-	reinitArrays();
 }
 
 // Removes the Clustering of a Tree and frees the allocated memory

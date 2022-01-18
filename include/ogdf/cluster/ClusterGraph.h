@@ -912,8 +912,6 @@ private:
 #endif
 
 	void postOrder(cluster c, SListPure<cluster>& S) const;
-
-	void reinitArrays();
 };
 
 //! RegisteredArray for clusters of a cluster graph.

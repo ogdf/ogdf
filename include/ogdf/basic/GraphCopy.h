@@ -480,18 +480,6 @@ public:
 	//! Removes all crossing nodes which are actually only two "touching" edges.
 	void removePseudoCrossings();
 
-	//! Re-inserts edge \p eOrig by "crossing" the edges in \p crossedEdges.
-	/**
-		 * Let \a v and \a w be the copies of the source and target nodes of \p eOrig.
-		 * Each edge in \p crossedEdges is split creating a sequence
-		 * \a u_1, ..., \a u_k of new nodes, and additional edges are inserted creating
-		 * a path \a v, \a u_1, ..., \a u_k, \a w.
-		 * @param eOrig is an edge in the original graph and becomes the original edge of
-		 *        all edges in the path \a v, \a u_1, ..., \a u_k, \a w.
-		 * @param crossedEdges are edges in the graph copy.
-		 */
-	void insertEdgePath(edge eOrig, const SList<adjEntry>& crossedEdges);
-
 	//! Returns whether there are two edges in the GraphCopy that cross each
 	//! other multiple times.
 	bool hasSameEdgesCrossings() const;
@@ -653,65 +641,29 @@ public:
 		 */
 	void insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E,
 			const SList<adjEntry>& crossedEdges);
-	//! Re-inserts edge \p eOrig by "crossing" the edges in \p crossedEdges in embedding \p E.
-	/**
-	 * Let \a v and \a w be the copies of the source and target nodes of \p eOrig,
-	 * and let \a e_0, \a e_1, ..., \a e_k, \a e_{k+1} be the sequence of edges corresponding
-	 * to the adjacency entries in \p crossedEdges. The first edge needs to be incident
-	 * to \a v and the last to \a w; the edges \a e_1, ..., \a e_k are each split
-	 * creating a sequence \a u_1, ..., \a u_k of new nodes, and additional edges
-	 * are inserted creating a path \a v, \a u_1, ..., \a u_k, \a w.
-	 *
-	 * The following figure illustrates, which adjacency entries need to be in the list
-	 * \p crossedEdges. It inserts an edge connecting \a v and \a w by passing through
-	 * the faces \a f_0, \a f_1, \a f_2; in this case, the list \p crossedEdges must contain
-	 * the adjacency entries \a adj_0, ..., \a adj_3 (in this order).
-	 * \image html insertEdgePathEmbedded.png
-	 *
-	 * @param eOrig is an edge in the original graph and becomes the original edge of
-	 *        all edges in the path \a v, \a u_1, ..., \a u_k, \a w.
-	 * @param E is an embedding of the graph copy.
-	 * @param crossedEdges are a list of adjacency entries in the graph copy.
-	 */
-	void insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E,
-			const SList<adjEntry>& crossedEdges);
 
 	void insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E, DynamicDualGraph& dual,
 			const SList<adjEntry>& crossedEdges);
 
 	//! Removes the complete edge path for edge \p eOrig while preserving the embedding.
 	/**
+		 * If an endpoint of \p eOrig has degree 1, the node is also deleted (since
+		 * removing the edge path would otherwise isolated the node, resulting in a
+		 * broken embedding).
+		 *
 		 * @param E is an embedding of the graph copy.
 		 * @param eOrig is an edge in the original graph.
 		 * @param newFaces is assigned the set of new faces resulting from joining faces
 		 *        when removing edges.
 		 */
 	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet<false>& newFaces);
-	//! Removes the complete edge path for edge \p eOrig while preserving the embedding.
-	/**
-	 * If an endpoint of \p eOrig has degree 1, the node is also deleted (since
-	 * removing the edge path would otherwise isolated the node, resulting in a
-	 * broken embedding).
-	 *
-	 * @param E is an embedding of the graph copy.
-	 * @param eOrig is an edge in the original graph.
-	 * @param newFaces is assigned the set of new faces resulting from joining faces
-	 *        when removing edges.
-	 */
-	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet<false>& newFaces);
 
-	//@}
-	/**
-		 * @name Miscellaneous
-		 */
-	//@{
 	void removeEdgePathEmbedded(CombinatorialEmbedding& E, DynamicDualGraph& dual, edge eOrig);
-
 
 	//! @}
 	/**
-	 * @name Miscellaneous
-	 */
+		 * @name Miscellaneous
+		 */
 	//! @{
 
 #ifdef OGDF_DEBUG

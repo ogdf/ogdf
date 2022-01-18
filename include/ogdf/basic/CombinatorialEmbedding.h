@@ -397,9 +397,6 @@ public:
 protected:
 	//! Create a new face.
 	face createFaceElement(adjEntry adjFirst);
-
-	//! Reinitialize associated face arrays.
-	void reinitArrays();
 };
 
 /**
