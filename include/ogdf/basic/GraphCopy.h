@@ -63,6 +63,7 @@ public:
 
 	//! Re-initializes the copy using \p G (which might be null), creating copies for all nodes and edges in \p G.
 	void init(const Graph& G) {
+		clear();
 		createEmpty(G);
 		insert(G);
 	}
