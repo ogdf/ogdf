@@ -186,13 +186,13 @@ public:
 
 	explicit GraphCopySimple(const Graph& G) : GraphCopySimple(&G) { }
 
-	explicit GraphCopySimple(const Graph* G) {
+	explicit GraphCopySimple(const Graph* G) : GraphCopyBase() {
 		if (G) {
 			init(*G);
 		}
 	}
 
-	GraphCopySimple(const GraphCopySimple& other) { *this = other; }
+	GraphCopySimple(const GraphCopySimple& other) : GraphCopyBase() { *this = other; }
 
 	GraphCopySimple& operator=(const GraphCopySimple& other);
 
@@ -318,13 +318,13 @@ public:
 
 	explicit GraphCopy(const Graph& G) : GraphCopy(&G) { }
 
-	explicit GraphCopy(const Graph* G) {
+	explicit GraphCopy(const Graph* G) : GraphCopyBase() {
 		if (G) {
 			init(*G);
 		}
 	}
 
-	GraphCopy(const GraphCopy& other) { *this = other; }
+	GraphCopy(const GraphCopy& other) : GraphCopyBase() { *this = other; }
 
 	GraphCopy& operator=(const GraphCopy& other);
 
