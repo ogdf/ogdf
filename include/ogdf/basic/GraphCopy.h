@@ -683,7 +683,10 @@ public:
 	//		OGDF_DEPRECATED("use insert")
 	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
 		clear();
-		auto count = insert(info.nodes(cc), info.edges(cc), m_vCopy, eCopy);
+#ifdef OGDF_DEBUG
+		auto count =
+#endif
+				insert(info.nodes(cc), info.edges(cc), m_vCopy, eCopy);
 		OGDF_ASSERT(count.first == info.numberOfNodes(cc));
 		OGDF_ASSERT(count.second == info.numberOfEdges(cc));
 	}
@@ -708,7 +711,10 @@ public:
 	//		OGDF_DEPRECATED("use insert")
 	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy) {
 		clear();
-		auto count = Graph::insert(origNodes, m_pGraph->edges, m_vCopy, eCopy);
+#ifdef OGDF_DEBUG
+		auto count =
+#endif
+				Graph::insert(origNodes, m_pGraph->edges, m_vCopy, eCopy);
 		OGDF_ASSERT(count.first == origNodes.size());
 	}
 

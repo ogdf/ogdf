@@ -78,16 +78,13 @@ private:
 		for (int c = 0; c < amountComponenets; c++) {
 			assertTimeLeft();
 
-			List<node> nodes;
-			for (node n : G.nodes) {
-				if (components[n] == c) {
-					nodes.pushBack(n);
-				}
-			}
-
 			GraphCopySimple GC;
 			GC.createEmpty(G);
-			inducedSubGraph(G, nodes.begin(), GC);
+			NodeArray<node> nodeMap(G, nullptr);
+			EdgeArray<edge> edgeMap(G, nullptr);
+			GC.insert(
+					G, [&components, c](node n) -> bool { return components[n] == c; },
+					[](edge e) -> bool { return true; }, nodeMap, edgeMap);
 
 			GraphCopySimple spanner(GC);
 			EdgeArray<bool> inSpanner;
