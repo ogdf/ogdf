@@ -52,7 +52,9 @@ static constexpr int MIN_TABLE_SIZE = (1 << 4);
 /**
  * @return The smallest power of 2 that is no less than \p actualCount and #MIN_TABLE_SIZE.
  */
-int calculateTableSize(int actualCount);
+inline int calculateTableSize(int actualCount) {
+	return Math::nextPower2(MIN_TABLE_SIZE, actualCount);
+}
 
 ////! Returns the index of \p key.
 //template<typename Key> // template function instead of a virtual function in RegistryBase to improve performance

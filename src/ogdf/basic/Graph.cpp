@@ -44,10 +44,6 @@ using std::lock_guard;
 
 namespace ogdf {
 
-using Math::nextPower2;
-
-int calculateTableSize(int actualCount) { return Math::nextPower2(MIN_TABLE_SIZE, actualCount); }
-
 Graph::Graph()
 	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
 	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
