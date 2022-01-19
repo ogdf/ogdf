@@ -1158,4 +1158,33 @@ void GraphCopy::consistencyCheck() const {
 
 #endif
 
+void GraphCopy::initByCC(const Graph::CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
+	eCopy.init(*m_pGraph);
+	clear();
+#ifdef OGDF_DEBUG
+	auto count =
+#endif
+			insert(info.nodes(cc), info.edges(cc), m_vCopy, eCopy);
+	OGDF_ASSERT(count.first == info.numberOfNodes(cc));
+	OGDF_ASSERT(count.second == info.numberOfEdges(cc));
+}
+
+void GraphCopy::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy) {
+	eCopy.init(*m_pGraph);
+	clear();
+#ifdef OGDF_DEBUG
+	auto count =
+#endif
+			Graph::insert(origNodes, m_pGraph->edges, m_vCopy, eCopy);
+	OGDF_ASSERT(count.first == origNodes.size());
+}
+
+void GraphCopy::initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
+		EdgeArray<edge>& eCopy) {
+	eCopy.init(*m_pGraph);
+	clear();
+	Graph::insert(
+			*m_pGraph, activeNodes, [](edge e) -> bool { return true; }, m_vCopy, eCopy);
+}
+
 }

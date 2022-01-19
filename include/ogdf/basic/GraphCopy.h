@@ -681,15 +681,7 @@ public:
 		 * @param eCopy is assigned a mapping from original to copy edges.
 		 */
 	//		OGDF_DEPRECATED("use insert")
-	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
-		clear();
-#ifdef OGDF_DEBUG
-		auto count =
-#endif
-				insert(info.nodes(cc), info.edges(cc), m_vCopy, eCopy);
-		OGDF_ASSERT(count.first == info.numberOfNodes(cc));
-		OGDF_ASSERT(count.second == info.numberOfEdges(cc));
-	}
+	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
 
 	//! Initializes the graph copy for the nodes in a component.
 	/**
@@ -709,14 +701,7 @@ public:
 		 * @param eCopy is assigned the copy of each original edge.
 		 */
 	//		OGDF_DEPRECATED("use insert")
-	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy) {
-		clear();
-#ifdef OGDF_DEBUG
-		auto count =
-#endif
-				Graph::insert(origNodes, m_pGraph->edges, m_vCopy, eCopy);
-		OGDF_ASSERT(count.first == origNodes.size());
-	}
+	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
 
 	//! Initializes the graph copy for the nodes in \p nodeList.
 	/**
@@ -733,12 +718,7 @@ public:
 		 */
 	//		OGDF_DEPRECATED("use insert")
 	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-			EdgeArray<edge>& eCopy) {
-		clear();
-		Graph::insert(
-				*m_pGraph, activeNodes, [](edge e) -> bool { return true; }, m_vCopy, eCopy);
-	}
-
+			EdgeArray<edge>& eCopy);
 	//! @}
 
 protected:
