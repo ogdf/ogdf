@@ -36,8 +36,8 @@
 
 namespace ogdf {
 
-void GraphCopySimple::createEmpty(const Graph& G) { // TODO rename to setOriginalGraph
-	m_pGraph = &G;
+void GraphCopySimple::setOriginalGraph(const Graph* G) {
+	m_pGraph = G;
 	m_vOrig.init(this, nullptr);
 	m_eOrig.init(this, nullptr);
 	m_vCopy.init(G, nullptr);
@@ -54,7 +54,7 @@ void GraphCopySimple::clear() {
 
 GraphCopySimple& GraphCopySimple::operator=(const GraphCopySimple& other) {
 	Graph::clear();
-	GraphCopySimple::createEmpty(other.original());
+	setOriginalGraph(other.m_pGraph);
 	if (other.numberOfNodes() == 0 && other.numberOfEdges() == 0) {
 		return *this;
 	}
@@ -93,7 +93,7 @@ void GraphCopySimple::delEdge(edge e) {
 
 GraphCopy& GraphCopy::operator=(const GraphCopy& other) {
 	Graph::clear();
-	GraphCopy::createEmpty(other.original());
+	setOriginalGraph(other.m_pGraph);
 	if (other.numberOfNodes() == 0 && other.numberOfEdges() == 0) {
 		return *this;
 	}
@@ -121,8 +121,8 @@ GraphCopy& GraphCopy::operator=(const GraphCopy& other) {
 	return *this;
 };
 
-void GraphCopy::createEmpty(const Graph& G) {
-	m_pGraph = &G;
+void GraphCopy::setOriginalGraph(const Graph* G) {
+	m_pGraph = G;
 	m_vOrig.init(this, nullptr);
 	m_eOrig.init(this, nullptr);
 	m_vCopy.init(G, nullptr);

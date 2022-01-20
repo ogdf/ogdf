@@ -61,21 +61,38 @@ public:
 
 	GraphCopyBase& operator=(GraphCopyBase&& other) noexcept = delete;
 
-	//! Re-initializes the copy using \p G (which might be null), creating copies for all nodes and edges in \p G.
+	//! Re-initializes the copy using \p G, creating copies for all nodes and edges in \p G.
 	void init(const Graph& G) {
 		clear();
-		createEmpty(G);
+		setOriginalGraph(&G);
 		insert(G);
 	}
 
+	//! Re-initializes the copy using \p G (which might be null), creating copies for all nodes and edges in \p G.
+	void init(const Graph* G) {
+		clear();
+		setOriginalGraph(G);
+		if (G != nullptr) {
+			insert(*G);
+		}
+	}
+
+	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
+	void createEmpty(const Graph& G) { setOriginalGraph(&G); }
+
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
-	virtual void createEmpty(const Graph& G) = 0;
+	virtual void setOriginalGraph(const Graph* G) = 0;
+
+	const Graph* getOriginalGraph() const { return m_pGraph; }
 
 	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
 	void clear() override = 0;
 
 	//! Returns a reference to the original graph.
-	const Graph& original() const { return *m_pGraph; }
+	const Graph& original() const {
+		OGDF_ASSERT(m_pGraph != nullptr);
+		return *m_pGraph;
+	}
 
 	/**
 		 * \brief Returns the node in the original graph corresponding to \p v.
@@ -197,7 +214,7 @@ public:
 	GraphCopySimple& operator=(const GraphCopySimple& other);
 
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
-	void createEmpty(const Graph& G) override;
+	void setOriginalGraph(const Graph* G) override;
 
 	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
 	void clear() override;
@@ -358,7 +375,7 @@ public:
 		 * \endcode
 		 * @param G is the graph of which this graph copy shall be a copy.
 		 */
-	void createEmpty(const Graph& G) override;
+	void setOriginalGraph(const Graph* G) override;
 
 	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
 	void clear() override;
