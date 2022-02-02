@@ -27,7 +27,7 @@
 *
 * \par
 *   The file \a lpif.cc contains all code fragments of the basic
-*   \ABACUS\ library which depend on the preprocessor definition of the
+*   ABACUS library which depend on the preprocessor definition of the
 *   supported LP solvers. Only this file needs to be recompiled
 *   if the LP solver definitions change.
 *

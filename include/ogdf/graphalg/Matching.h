@@ -39,6 +39,7 @@ namespace ogdf {
 namespace Matching {
 
 //! Checks in time O(|V| + size of \p matching) if the given set of edges represents a matching.
+//! @ingroup ga-matching
 template<typename EdgeContainer>
 inline bool isMatching(const Graph& graph, const EdgeContainer& matching) {
 	NodeArray<bool> covered{graph, false};
@@ -85,6 +86,7 @@ bool isMaximal(const Graph& graph, const EdgeContainer& matching, edge& addable)
 }
 
 //! Checks in time O(|E|) if there are edges that could be added to \p matching.
+//! @ingroup ga-matching
 template<typename EdgeContainer>
 inline bool isMaximal(const Graph& graph, const EdgeContainer& matching) {
 	edge ignored;
@@ -92,24 +94,28 @@ inline bool isMaximal(const Graph& graph, const EdgeContainer& matching) {
 }
 
 //! Checks in O(|V| + |E|) time if \p matching is a maximal matching.
+//! @ingroup ga-matching
 template<typename EdgeContainer>
 inline bool isMaximalMatching(const Graph& graph, const EdgeContainer& matching) {
 	return isMatching(graph, matching) && isMaximal(graph, matching);
 }
 
 //! Checks in O(1) if \p matching (assuming it is a matching and the graph is simple and connected) is perfect.
+//! @ingroup ga-matching
 template<typename EdgeContainer>
 inline bool isPerfect(const Graph& graph, const EdgeContainer& matching) {
 	return 2 * int(matching.size()) == graph.numberOfNodes();
 }
 
 //! Checks in O(|V| + size of \p matching) if \p matching is a perfect matching.
+//! @ingroup ga-matching
 template<typename EdgeContainer>
 inline bool isPerfectMatching(const Graph& graph, const EdgeContainer& matching) {
 	return isMatching(graph, matching) && isPerfect(graph, matching);
 }
 
 //! Obtains a maximal matching in O(|E|) time
+//! @ingroup ga-matching
 OGDF_EXPORT void findMaximalMatching(const Graph& graph, ArrayBuffer<edge>& matching);
 
 }

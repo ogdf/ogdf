@@ -47,6 +47,7 @@ namespace ogdf {
  * The class MaxAdjOrdering provides one algorithm to calculate a MAO or all MAOs of a given graph.
  * It returns a ListPure of nodes or a list of ListPures that contain the ordering.
  *
+ * @ingroup ga-connectivity
  */
 class OGDF_EXPORT MaxAdjOrdering{
 private:

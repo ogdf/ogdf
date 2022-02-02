@@ -28,15 +28,15 @@ int main()
 
 	PlanarizationLayout pl;
 
-	SubgraphPlanarizer crossMin;
-
-	auto* ps = new PlanarSubgraphFast<int>;
+	SubgraphPlanarizer *crossMin = new SubgraphPlanarizer;
+	PlanarSubgraphFast<int> *ps = new PlanarSubgraphFast<int>;
 	ps->runs(100);
 	VariableEmbeddingInserter *ves = new VariableEmbeddingInserter;
 	ves->removeReinsert(RemoveReinsertType::All);
 
-	crossMin.setSubgraph(ps);
-	crossMin.setInserter(ves);
+	crossMin->setSubgraph(ps);
+	crossMin->setInserter(ves);
+	pl.setCrossMin(crossMin);
 
 	EmbedderMinDepthMaxFaceLayers *emb = new EmbedderMinDepthMaxFaceLayers;
 	pl.setEmbedder(emb);

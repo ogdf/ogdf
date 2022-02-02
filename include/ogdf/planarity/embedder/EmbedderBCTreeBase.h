@@ -40,7 +40,7 @@ namespace ogdf {
 namespace embedder {
 
 //! Common base for embedder algorithms based on BC trees.
-template<bool EnableLayers>
+template<bool EnableLayers, bool IsEmbedderMinDepth = false>
 class OGDF_EXPORT EmbedderBCTreeBase : public EmbedderModule {
 	using BicompEmbedder = typename std::conditional<EnableLayers, EmbedderMaxFaceBiconnectedGraphsLayers<int>, EmbedderMaxFaceBiconnectedGraphs<int>>::type;
 protected:
@@ -54,7 +54,7 @@ protected:
 	//! Returns an adjacency entry that lies on the external face.
 	virtual adjEntry trivialInit(Graph &G) {
 		NodeArray<int> m_nodeLength(G, 0);
-		EdgeArray<int> m_edgeLength(G, 0);
+		EdgeArray<int> m_edgeLength(G, IsEmbedderMinDepth ? 0 : 1);
 		adjEntry m_adjExternal;
 		BicompEmbedder::embed(G, m_adjExternal, m_nodeLength, m_edgeLength);
 

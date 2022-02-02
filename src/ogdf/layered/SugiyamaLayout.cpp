@@ -1166,6 +1166,19 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 
 	for(edge e : G.edges) {
 		AG.bends(e).normalize();
+		// Hierarchy reverses all edges in it's own GraphCopy that would otherwise face downwards,
+		// i.e. go from a higher level to a lower level. As the bend points are inserted into the
+		// original GraphAttributes following the edge direction in the GraphCopy, these points are
+		// then the wrong way around if the edge was reversed in the GraphCopy.
+		// This detects this by checking which bend point is closer to the actual source and
+		// reversing the bend points if necessary.
+		if (AG.bends(e).size() >= 2) {
+			bool nodes_lt = AG.y(e->source()) < AG.y(e->target());
+			bool bends_lt = AG.bends(e).front().m_y < AG.bends(e).back().m_y;
+			if (nodes_lt != bends_lt) {
+				AG.bends(e).reverse();
+			}
+		}
 	}
 }
 

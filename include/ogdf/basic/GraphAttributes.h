@@ -658,19 +658,26 @@ public:
 
 	//! Returns the user ID of node \p v.
 	/**
+	 * If no user ID is set, returns the original index of the node instead.
+	 *
 	 * \pre #nodeId is enabled
 	 */
 	int idNode(node v) const {
 		OGDF_ASSERT(has(nodeId));
-		return m_nodeId[v];
+		return m_nodeId[v] == -1 ? v->index() : m_nodeId[v];
 	}
 
 	//! Returns the user ID of node \p v.
 	/**
+	 * If no user ID is set, returns the original index of the node instead.
+	 *
 	 * \pre #nodeId is enabled
 	 */
 	int &idNode(node v) {
 		OGDF_ASSERT(has(nodeId));
+		if (m_nodeId[v] == -1) {
+			m_nodeId[v] = v->index();
+		}
 		return m_nodeId[v];
 	}
 

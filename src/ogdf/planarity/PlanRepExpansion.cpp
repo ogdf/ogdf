@@ -952,6 +952,8 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 			++i;
 		}
 	}
+	// This assertion convinces static analyzers that we properly initialized the fields ec, eOrig, and nsplit.
+	OGDF_ASSERT(i == 2);
 
 	List<edge> &path_0 = (eOrig[0] != nullptr) ? m_eCopy[eOrig[0]] : nsplit[0]->m_path;
 	if(m_vOrig[path_0.front()->source()] == vOrig)

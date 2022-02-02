@@ -1,3 +1,34 @@
+/** \file
+ * \brief Tests for simple graph algorithms
+ *
+ * \author Max Ilsen, Stephan Beyer, Thomas Klein
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #include <set>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
@@ -6,6 +37,7 @@
 
 #include <testing.h>
 #include <graphs.h>
+#include <ogdf/basic/extended_graph_alg.h>
 
 /**
  * Assert that there is a one-to-one mapping of values in assignedVals to values
@@ -112,6 +144,55 @@ bool pathExists(const Graph &graph, const node source, const node target)
 	}
 
 	return result;
+}
+
+/**
+ * Assert that triangulate() returns a properly triangulated graph
+ * that is still simple, planar, connected and consists of triangular faces with distinct nodes.
+ *
+ * @param G is the graph to be tested (will be destroyed in the process)
+ */
+void isTriangulatedAssert(Graph &G) {
+
+    AssertThat(isSimple(G), IsTrue());
+    AssertThat(isPlanar(G), IsTrue());
+    AssertThat(isConnected(G), IsTrue());
+    AssertThat(G.numberOfEdges(), Equals(3*G.numberOfNodes()-6));
+
+    CombinatorialEmbedding E(G);
+
+#ifdef OGDF_DEBUG
+    E.consistencyCheck();
+#endif
+
+    for(face f : E.faces) {
+
+        AssertThat(f->size(), Equals(3));
+
+        // making sure that all three nodes of each face are actually distinct
+        adjEntry adj = f->firstAdj();
+        node x = adj->theNode();
+        adj = adj->faceCycleSucc();
+        node y = adj->theNode();
+        adj = adj->faceCycleSucc();
+        node z = adj->theNode();
+
+        AssertThat(x != y && y != z, IsTrue());
+    }
+}
+
+/**
+ * Perform tests for triangulate().
+ * Asserts that triangulate() works for simple planar graphs of size >= 3.
+ */
+static void describeTriangulation() {
+    forEachGraphItWorks(std::set<GraphProperty>({GraphProperty::planar, GraphProperty::simple}),
+        [](Graph& testG){
+            planarEmbedPlanarGraph(testG);
+            makeConnected(testG);
+            triangulate(testG);
+            isTriangulatedAssert(testG);
+        }, GraphSizes(), 3);
 }
 
 /**
@@ -840,6 +921,10 @@ go_bandit([]() {
 
 		describe("strongComponents", [](){
 			describeStrongComponents();
+		});
+
+		describe("triangulate", [](){
+		    describeTriangulation();
 		});
 
 		describe("isAcyclic", [](){

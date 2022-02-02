@@ -34,6 +34,7 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/tuples.h>
 
 namespace ogdf {
 
@@ -78,6 +79,7 @@ void makeLoopFree(Graph &G, NODELIST &L)
 }
 
 //! Returns whether \p G has edges which are not self-loops.
+//! @ingroup ga-multi
 OGDF_EXPORT bool hasNonSelfLoopEdges(const Graph &G);
 
 //! Removes all self-loops from \p G.
@@ -368,18 +370,12 @@ void makeParallelFreeUndirected(
 }
 
 
-/**
- * @ingroup ga-multi
- */
 template <class EDGELIST>
 OGDF_DEPRECATED("The pointer-based makeParallelFreeUndirected() should be used instead.")
 void makeParallelFreeUndirected(Graph &G, EDGELIST &parallelEdges) {
 	makeParallelFreeUndirected(G, &parallelEdges);
 }
 
-/**
- * @ingroup ga-multi
- */
 template <class EDGELIST>
 OGDF_DEPRECATED("The pointer-based makeParallelFreeUndirected() should be used instead.")
 void makeParallelFreeUndirected(Graph &G,
@@ -496,15 +492,59 @@ OGDF_EXPORT int connectedComponents(const Graph &G,
 		List<node> *isolated = nullptr);
 
 
-OGDF_DEPRECATED("connectedComponents() should be used instead.")
+//! Computes the amount of connected components of \p G.
 /**
  * @ingroup ga-connectivity
+ *
+ * @param G         is the input graph.
+ * @return the amount of connected components.
+ */
+inline int connectedComponents(const Graph &G) {
+	NodeArray<int> component(G);
+	return connectedComponents(G, component);
+}
+
+
+OGDF_DEPRECATED("connectedComponents() should be used instead.")
+/**
  * @copydoc ogdf::connectedComponents(const Graph&, NodeArray<int>&, List<node>*);
  */
 inline int connectedIsolatedComponents(const Graph &G,
 		List<node> &isolated,
 		NodeArray<int> &component) {
 	return connectedComponents(G, component, &isolated);
+}
+
+
+/**
+ * @copydoc findCutVertices(const Graph&, ArrayBuffer<node>&, bool)
+ * @param addEdges is assigned the tuples of nodes which have to be connected in
+ *        order to turn each cut vertex into a non-cut vertex.
+ */
+OGDF_EXPORT bool findCutVertices(const Graph &G,
+		ArrayBuffer<node> &cutVertices,
+		ArrayBuffer<Tuple2<node,node>> &addEdges,
+		bool onlyOne = false);
+
+
+//! Finds cut vertices and potential edges that could be added to turn the cut
+//! vertices into non-cut vertices.
+/**
+ * @ingroup ga-connectivity
+ *
+ * @pre \p G must be connected.
+ *
+ * @param G is the graph whose cut vertices should be found.
+ * @param cutVertices is assigned the cut vertices of the graph.
+ * @param onlyOne should be set to true if the search should stop after finding
+ *        one cut vertex, to false if all cut vertices should be found.
+ * @return true if the graph contains at least one cut vertex, false otherwise.
+ */
+inline bool findCutVertices(const Graph &G,
+		ArrayBuffer<node> &cutVertices,
+		bool onlyOne = false) {
+	ArrayBuffer<Tuple2<node,node>> addEdges;
+	return findCutVertices(G, cutVertices, addEdges, onlyOne);
 }
 
 
@@ -684,7 +724,7 @@ inline bool isTriconnectedPrimitive(const Graph &G) {
  *
  * @param G is the input graph to which edges will be added.
  */
-void triangulate(Graph &G);
+OGDF_EXPORT void triangulate(Graph &G);
 
 
 //! @}
@@ -899,7 +939,6 @@ inline void makeBimodal(Graph &G) {
 
 OGDF_DEPRECATED("isAcyclicUndirected() should be used instead.")
 /**
- * @ingroup ga-tree
  * @copydoc ogdf::isAcyclicUndirected(const Graph &G)
  */
 inline bool isFreeForest(const Graph &G) {
@@ -947,7 +986,6 @@ inline bool isArborescenceForest(const Graph &G) {
 
 OGDF_DEPRECATED("isArborescenceForest() should be used instead.")
 /**
- * @ingroup ga-tree
  * @copydoc ogdf::isArborescenceForest(const Graph& G, List<node> &roots)
  */
 inline bool isForest(const Graph& G, List<node> &roots) {
@@ -957,7 +995,6 @@ inline bool isForest(const Graph& G, List<node> &roots) {
 
 OGDF_DEPRECATED("isArborescenceForest() should be used instead.")
 /**
- * @ingroup ga-tree
  * @copydoc ogdf::isArborescenceForest(const Graph& G)
  */
 inline bool isForest(const Graph &G) {
@@ -992,6 +1029,8 @@ inline bool isArborescence(const Graph &G) {
 
 //! Checks if a graph is regular
 /**
+ * @ingroup graph-algs
+ *
  * @param G is the input graph.
  * @return true if \p G is regular, false otherwise.
  */
@@ -1000,6 +1039,8 @@ OGDF_EXPORT bool isRegular(const Graph& G);
 
 //! Checks if a graph is d-regular
 /**
+ * @ingroup graph-algs
+ *
  * @param G is the input graph.
  * @param d is the vertex degree.
  * @return true if \p G is d-regular, false otherwise.
@@ -1009,6 +1050,8 @@ OGDF_EXPORT bool isRegular(const Graph& G, int d);
 
 //! Checks whether a graph is bipartite.
 /**
+ * @ingroup graph-algs
+ *
  * @param G is the input graph.
  * @param color is assigned the color for each node, i.e. the partition it
  * belongs to, if G is bipartite. Otherwise its contents are undefined.
@@ -1019,6 +1062,8 @@ OGDF_EXPORT bool isBipartite(const Graph &G, NodeArray<bool> &color);
 
 //! Checks whether a graph is bipartite.
 /**
+ * @ingroup graph-algs
+ *
  * @param G is the input graph.
  * @return true if \p G is bipartite, false otherwise.
  */
@@ -1056,6 +1101,8 @@ inline bool isBipartite(const Graph &G) {
  *     \endcode
  *
  * @see ogdf::degreeDistribution
+ *
+ * @ingroup graph-algs
  */
 OGDF_EXPORT void nodeDistribution(const Graph& G, Array<int> &degdist, std::function<int(node)> func);
 
@@ -1063,6 +1110,8 @@ OGDF_EXPORT void nodeDistribution(const Graph& G, Array<int> &degdist, std::func
  * Fills \p degdist with the degree distribution of graph \p G.
  *
  * @see ogdf::nodeDistribution
+ *
+ * @ingroup graph-algs
  */
 inline void degreeDistribution(const Graph& G, Array<int> &degdist) {
 	nodeDistribution(G, degdist, [](node v) {

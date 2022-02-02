@@ -48,10 +48,6 @@ namespace ogdf {
  * planar grid layout algorithm as a subroutine and allows to generate
  * a usual layout or a grid layout.
  *
- * If the planarization layout algorithm shall be used for simultaneous drawing,
- * you need to define the different subgraphs by setting the <i>subgraphs</i>
- * option.
- *
  * The implementation used in PlanarizationGridLayout is based on the following
  * publication:
  *

@@ -126,7 +126,9 @@ void ClusterPlanarizationLayout::call(
 	// correct the problem by planarizing or inserting connection edges.
 	if (!cplanar)
 	{
+#ifdef OGDF_DEBUG
 		bool connect = false;
+#endif
 
 		if ( (CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonConnected) ||
 			(CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCConnected) )
@@ -141,7 +143,9 @@ void ClusterPlanarizationLayout::call(
 				origEdges[e] = e;
 			}
 
+#ifdef OGDF_DEBUG
 			connect = true;
+#endif
 
 			CCPE.embed(cGraph, G);
 

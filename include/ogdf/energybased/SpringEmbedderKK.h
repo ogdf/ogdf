@@ -178,9 +178,9 @@ protected:
 			return false;
 		}
 
+#if 0
 		double diff = m_prevEnergy - maxdelta; // energy difference
 		if (diff < 0.0) diff = -diff;
-#if 0
 #ifdef OGDF_DEBUG
 		std::cout << "Finished(): maxdelta: " << maxdelta << " diff/prev: " << diff / m_prevEnergy << std::endl;
 #endif

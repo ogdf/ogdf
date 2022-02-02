@@ -158,6 +158,7 @@ void VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::insertEdgePath(
 {
 	SList<edge> ti;
 	SList<node> tj;
+	OGDF_ASSERT(eOrig != nullptr);
 	for (adjEntry adj : crossedEdges) {
 		ti.pushBack(adj->theEdge());
 		tj.pushBack(adj->theEdge()->target());

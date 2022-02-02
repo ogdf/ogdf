@@ -128,7 +128,7 @@ Color SimDrawColorizer::SimDrawColorScheme::getColor(int subGraphBits, int numbe
 	else
 	{
 		OGDF_ASSERT(numberOfGraphsInEdge > 0);
-		r /= numberOfGraphsInEdge;
+		r /= numberOfGraphsInEdge; // NOLINT(clang-analyzer-core.DivideZero)
 		g /= numberOfGraphsInEdge;
 		b /= numberOfGraphsInEdge;
 	}

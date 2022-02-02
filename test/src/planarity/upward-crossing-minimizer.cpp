@@ -46,7 +46,7 @@ go_bandit([] {
 			UpwardPlanRep U;
 			U.createEmpty(G);
 			SubgraphUpwardPlanarizer sup;
-			Module::ReturnType s = sup.call(U, 0, 0);
+			Module::ReturnType s = sup.call(U, nullptr, nullptr);
 			AssertThat(Module::isSolution(s), IsTrue());
 			AssertThat(UpwardPlanarity::isUpwardPlanar(U), IsTrue());
 		});

@@ -39,11 +39,12 @@
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
+#include <ogdf/planarity/PlanarizerStarReinsertion.h>
+#include <ogdf/planarity/PlanarizerMixedInsertion.h>
+#include <ogdf/planarity/PlanarizerChordlessCycle.h>
 #include <ogdf/energybased/FMMMLayout.h>
 
 #include <resources.h>
-
-constexpr edge none = nullptr;
 
 /**
  * Verifies that \p graph resembles a planarization of the original graph.
@@ -67,22 +68,20 @@ int verifyCrossings(const GraphCopy &graph, const EdgeArray<int> *cost) {
 			AssertThat(v->degree(), Equals(4));
 			AssertThat(v->indeg(), Equals(2));
 
-			std::set<edge> set;
 			edge e = graph.original(v->firstAdj()->theEdge());
 			edge f = graph.original(v->lastAdj()->theEdge());
-			set.insert(e);
-			set.insert(f);
-			set.insert(graph.original(v->firstAdj()->cyclicSucc()->theEdge()));
-			set.insert(graph.original(v->lastAdj()->cyclicPred()->theEdge()));
-			AssertThat(set.size(), Equals(2u));
+			edge e2 = graph.original(v->lastAdj()->cyclicPred()->theEdge());
+			edge f2 = graph.original(v->firstAdj()->cyclicSucc()->theEdge());
+			AssertThat(e, Equals(e2));
+			AssertThat(f, Equals(f2));
 
 			List<edge> inEdges;
 			v->inEdges(inEdges);
 			AssertThat(graph.original(inEdges.front()), !Equals(graph.original(inEdges.back())));
 
-			AssertThat(e, !Equals(none));
-			AssertThat(f, !Equals(none));
-			result += cost ? (*cost)[*set.begin()] * (*cost)[*set.rbegin()] : 1;
+			AssertThat(e, !IsNull());
+			AssertThat(f, !IsNull());
+			result += cost ? (*cost)[e] * (*cost)[f] : 1;
 		}
 	}
 
@@ -134,7 +133,7 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
 		AssertThat(actual, !IsLessThan(expected));
 	}
 
-	bool planar = planarEmbed(planRep);
+	bool planar = isPlanar(planRep);
 
 	// optimal algorithms don't need to return planarizations
 	if(!isOptimal) {
@@ -150,7 +149,7 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
 }
 
 /**
- * Tests a ::CrossingMinimizationModule \p cmm for correctness.
+ * Tests an ogdf::CrossingMinimizationModule \p cmm for correctness.
  *
  * \param cmm an algorithm to be tested
  * \param title a human-readable title of the algorithm
@@ -258,6 +257,7 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 #endif
 		} else {
 			// we assume non-optimal algorithms to be faster
+			// some algorithms require biconnectivity!
 
 			it("works on a generalized petersen graph (15,3)", [&]() {
 				petersenGraph(graph, 15, 3);
@@ -269,14 +269,10 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 				testComputation(cmm, graph, 60, false);
 			});
 
-			std::vector<string> instances = {
-				"rome/grafo3703.45.lgr.gml.pun",
-				"rome/grafo5745.50.lgr.gml.pun"
-			};
-
-			for_each_graph_it("works", instances,
-				[&](Graph &gr) {
-					testComputation(cmm, gr, -1, false);
+			it("works on a random simple biconnected graph with 50 nodes", [&]() {
+				randomBiconnectedGraph(graph, 50, 70);
+				makeSimpleUndirected(graph);
+				testComputation(cmm, graph, -1, false);
 			});
 		}
 	});
@@ -294,7 +290,7 @@ void setRemoveReinsert(MultiEdgeApproxInserter &edgeInserter, RemoveReinsertType
 }
 
 /**
- * Test the ::SubgraphPlanarizer with a specific type of edge remove-reinsert post-processing.
+ * Test the ogdf::SubgraphPlanarizer with a specific type of edge remove-reinsert post-processing.
  */
 template<typename EdgeInserter>
 void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, RemoveReinsertType rrType, const std::string name) {
@@ -311,7 +307,7 @@ void testSPRRType(SubgraphPlanarizer &heuristic, EdgeInserter *edgeInserter, Rem
 }
 
 /**
- * Test the ::SubgraphPlanarizer with a specific ::EdgeInsertionModule .
+ * Test the ogdf::SubgraphPlanarizer with a specific ogdf::EdgeInsertionModule.
  */
 template<typename EdgeInserter>
 void testSPEdgeInserter(EdgeInserter *edgeInserter, const std::string name) {
@@ -329,7 +325,7 @@ void testSPEdgeInserter(EdgeInserter *edgeInserter, const std::string name) {
 }
 
 /**
- * Test variants of the ::SubgraphPlanarizer .
+ * Test variants of the ogdf::SubgraphPlanarizer.
  */
 void testSubgraphPlanarizer() {
 	describe("SubgraphPlanarizer", []() {
@@ -337,6 +333,55 @@ void testSubgraphPlanarizer() {
 		testSPEdgeInserter(new MultiEdgeApproxInserter, "MultiEdgeApprox");
 		testSPEdgeInserter(new VariableEmbeddingInserter, "VariableEmbedding");
 		testSPEdgeInserter(new VariableEmbeddingInserterDyn, "VariableEmbeddingDyn");
+	});
+}
+
+/**
+ * Test planarizers based on star insertion.
+ */
+void testStarInsertionPlanarizers() {
+	describe("PlanarizerStarReinsertion", []() {
+		for (int maxIter : {0,1,100,-1}) {
+			PlanarizerStarReinsertion heuristic;
+			heuristic.maxIterations(maxIter);
+			testModule(heuristic, "maxIterations = " + std::to_string(maxIter), false);
+		}
+	});
+	describe("PlanarizerStarReinsertion with PlanarizerMixedInsertion initialization", []() {
+		for (int maxIter : {0,1,100,-1}) {
+			PlanarizerStarReinsertion heuristic2;
+			heuristic2.setPlanarization(new PlanarizerMixedInsertion);
+			heuristic2.maxIterations(maxIter);
+			testModule(heuristic2, "maxIterations = " + std::to_string(maxIter), false);
+		}
+	});
+	describe("PlanarizerStarReinsertion with PlanarizerChordlessCycle initialization", []() {
+		for (int maxIter : {0,1,100,-1}) {
+			PlanarizerStarReinsertion heuristic2;
+			heuristic2.setPlanarization(new PlanarizerChordlessCycle);
+			heuristic2.maxIterations(maxIter);
+			testModule(heuristic2, "maxIterations = " + std::to_string(maxIter), false);
+		}
+	});
+	describe("PlanarizerMixedInsertion", []() {
+		int i {0};
+		for (PlanarizerMixedInsertion::NodeSelectionMethod method : {
+				PlanarizerMixedInsertion::NodeSelectionMethod::Random,
+				PlanarizerMixedInsertion::NodeSelectionMethod::HigherDegree,
+				PlanarizerMixedInsertion::NodeSelectionMethod::LowerDegree,
+				PlanarizerMixedInsertion::NodeSelectionMethod::HigherNonPlanarDegree,
+				PlanarizerMixedInsertion::NodeSelectionMethod::LowerNonPlanarDegree,
+				PlanarizerMixedInsertion::NodeSelectionMethod::BothEndpoints
+			}) {
+			PlanarizerMixedInsertion heuristic;
+			heuristic.nodeSelectionMethod(method);
+			testModule(heuristic, "nodeSelectionMethod = " + std::to_string(i), false);
+			i++;
+		}
+	});
+	describe("PlanarizerChordlessCycle", []() {
+		PlanarizerChordlessCycle heuristic;
+		testModule(heuristic, "default configuration", false);
 	});
 }
 

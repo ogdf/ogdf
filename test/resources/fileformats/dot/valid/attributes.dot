@@ -1,7 +1,7 @@
 graph {
   a [label="Foo"];
   b [shape=box];
-  a -- b -- c [color=blue];
+  a -- b -- c [fontsize=12];
   b -- d [style=dotted];
   node [
     nodesep = 0.2,

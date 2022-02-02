@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<travellingSalesmanProblemInstance>
+  <name>undirected</name>
+  <source>TSPLIB</source>
+  <description>undirected</description>
+  <doublePrecision>15</doublePrecision>
+  <ignoredDigits>5</ignoredDigits>
+  <graph>
+    <vertex>
+      <edge cost="0.500000000000000e+00">1</edge>
+    </vertex>
+    <vertex>
+      <edge>0</edge>
+    </vertex>
+  </graph>
+</travellingSalesmanProblemInstance>

@@ -59,6 +59,8 @@ constexpr double compiletimeHarmonic(unsigned n)
 	return n <= 1 ? 1.0 : (compiletimeHarmonic(n-1) + 1.0 / n);
 }
 
+//! @cond
+// Doxygen will complain about recursive class relation if not hidden this way
 template<unsigned... Is>
 struct seq { };
 // rec_seq<3>{} : rec_seq<2,2>{} : rec_seq<1,1,2>{} : rec_seq<0,0,1,2> : seq<0,1,2>
@@ -66,6 +68,7 @@ template<unsigned N, unsigned... Is>
 struct rec_seq : rec_seq<N-1, N-1, Is...> { };
 template<unsigned... Is>
 struct rec_seq<0, Is...> : seq<Is...> { };
+//! @endcond
 
 constexpr unsigned compiletimeLimit = 128;
 

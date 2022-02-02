@@ -64,7 +64,7 @@ public:
 		return m_ptr != other.m_ptr;
 	}
 
-	GraphObjectPtr operator*() {
+	GraphObjectPtr& operator*() {
 		return m_ptr;
 	}
 

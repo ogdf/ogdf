@@ -92,6 +92,9 @@ private:
 	//! attributes of the cluster graph (\c nullptr if no cluster graph)
 	const ClusterGraphAttributes *m_clsAttr;
 
+	//! cached bounding box of the graph to be visualized
+	DRect m_bbox;
+
 	//! SVG configuration
 	const GraphIO::SVGSettings &m_settings;
 

@@ -57,17 +57,20 @@ namespace layout_helpers {
 #endif
 
 /**
- * Prints out the layout statistics given by \p calc(\p values).
+ * Prints out the layout statistics given by a function called on \p values,
+ * usually the mean.
  *
  * @tparam Container is the type of container containing the \p values.
  * @param measure is the name of the measure that is calculated.
  * @param values are used as a basis for calculation. In general this is the
  * return value of a LayoutStatistics-function applied to some GraphAttributes.
- * @param calc is the function which is applied to the \p values.
+ * @param angularResolution determines whether the angular resolution is
+ * calculated instead of the mean.
  */
 template<typename Container>
-inline void printLayoutStatistics(std::string measure, const Container &values,
-		std::function<double(const Container&)> calc = [](const Container &vals) { return Math::mean(vals); })
+inline void printLayoutStatistics(const std::string &measure,
+	const Container &values,
+	bool angularResolution = false)
 {
 	const int infoLength = 39;
 	const int spaces = infoLength - measure.length() - 2;
@@ -77,7 +80,10 @@ inline void printLayoutStatistics(std::string measure, const Container &values,
 	if (values.empty()) {
 		std::cout << "N/A" << std::endl;
 	} else {
-		double result = calc(values);
+		double result = angularResolution ?
+			(Math::minValue(values)*100) / (2*Math::pi) :
+			Math::mean(values);
+
 		std::cout << std::setprecision(2) << std::fixed << result << std::endl;
 
 		// Test for very high/low values (potential integer overflows) and
@@ -121,11 +127,30 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 	GraphAttributes GA(G, extraAttributes | GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
 	getRandomLayout(GA);
 
+	// Initialize the node attributes which are not changed by layout algorithms
+	// with random non-default values to make sure the layout algorithm
+	// 1. does not fail in this case, and 2. does not reset them to defaults.
+	NodeArray<double> widthBefore(G);
+	NodeArray<double> heightBefore(G);
+	NodeArray<Shape> shapeBefore(G);
+	for (node v : G.nodes) {
+		widthBefore[v] = GA.width(v) = randomNumber(1, 20);
+		heightBefore[v] = GA.height(v) = randomNumber(1, 20);
+		shapeBefore[v] = GA.shape(v) = randomNumber(0, 1) == 0 ? Shape::Pentagon : Shape::Octagon;
+	}
+
 	int64_t result;
 	int64_t time;
 	System::usedRealTime(time);
 	L.call(GA);
 	result = System::usedRealTime(time);
+
+	// Assert that nodeGraphics-attributes other than x/y remain unchanged.
+	for (node v : G.nodes) {
+		AssertThat(GA.width(v), Equals(widthBefore[v]));
+		AssertThat(GA.height(v), Equals(heightBefore[v]));
+		AssertThat(GA.shape(v), Equals(shapeBefore[v]));
+	}
 
 #ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 	double sumWidths = 0;
@@ -163,10 +188,7 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 
 	std::cout << std::endl;
 
-	std::function<double(const ArrayBuffer<double>&)> angularResolution = [](const ArrayBuffer<double> &angles) {
-		return (Math::minValue(angles)*100) / (2*Math::pi);
-	};
-	printLayoutStatistics("angular resolution", LayoutStatistics::angles(GA), angularResolution);
+	printLayoutStatistics("angular resolution", LayoutStatistics::angles(GA), true);
 	printLayoutStatistics("average edge length", LayoutStatistics::edgeLengths(GA));
 	printLayoutStatistics("average bends per edge", LayoutStatistics::numberOfBends(GA));
 	printLayoutStatistics("average node crossings per edge", LayoutStatistics::numberOfNodeCrossings(GA));

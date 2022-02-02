@@ -666,6 +666,7 @@ int MaxSequencePQTree<T,Y>::determineMinRemoveSequence(
 	//[[m_pertinentRoot]]. In case that the minimum is equal to $0$, the
 	//[[m_pertinentRoot]] stays of type $B$. Otherwise the type is selected
 	//according to the minimum.
+	OGDF_ASSERT(nodePtr != nullptr);
 	this->m_pertinentRoot = nodePtr;
 	if (this->m_pertinentRoot->getNodeInfo()->userStructInfo()->m_h <
 		this->m_pertinentRoot->getNodeInfo()->userStructInfo()->m_a)
@@ -1245,7 +1246,7 @@ void MaxSequencePQTree<T,Y>::hNumQnode(
 	//Compute the $h$-number of the $Q$-node [[nodePtr]]
 
 	//Get endmost children of the $Q$-node [[nodePtr]].
-	leftChild = nodePtr->getEndmost(0);
+	leftChild = nodePtr->getEndmost(nullptr);
 	rightChild = nodePtr->getEndmost(leftChild);
 	OGDF_ASSERT(leftChild);
 	OGDF_ASSERT(rightChild);
@@ -1324,7 +1325,7 @@ void MaxSequencePQTree<T,Y>::hNumQnode(
 	Observe that we have to case the fact, that on both sides of the
 	$Q$-node [[nodePtr]] no pertinent children are.
 	*/
-	leftChild = nodePtr->getEndmost(0);
+	leftChild = nodePtr->getEndmost(nullptr);
 	rightChild = nodePtr->getEndmost(leftChild);
 	if (sumLeft == 0 && sumRight == 0)
 	{
@@ -1392,7 +1393,7 @@ void MaxSequencePQTree<T,Y>::aNumQnode(
 
 	SList<PQNode<T,whaInfo*,Y>*> sequence;
 
-	actualNode   = nodePtr->getEndmost(0);
+	actualNode   = nodePtr->getEndmost(nullptr);
 	lastChild    = nodePtr->getEndmost(actualNode);
 
 	endReached = false;

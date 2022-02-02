@@ -132,8 +132,7 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 
 		if (A.attributes() & GraphAttributes::nodeId) {
 			GraphIO::indent(os,2) << "id\t" << A.idNode(v) << "\n";
-		}
-		else {
+		} else {
 			GraphIO::indent(os,2) << "id\t" << (index[v] = nextId++) << "\n";
 		}
 
@@ -194,8 +193,7 @@ static void write_gml_graph(const GraphAttributes &A, std::ostream &os, NodeArra
 		if (A.attributes() & GraphAttributes::nodeId) {
 			GraphIO::indent(os, 2) << "source\t" << A.idNode(e->source()) << "\n";
 			GraphIO::indent(os, 2) << "target\t" << A.idNode(e->target()) << "\n";
-		}
-		else {
+		} else {
 			GraphIO::indent(os,2) << "source\t" << index[e->source()] << "\n";
 			GraphIO::indent(os,2) << "target\t" << index[e->target()] << "\n";
 		}

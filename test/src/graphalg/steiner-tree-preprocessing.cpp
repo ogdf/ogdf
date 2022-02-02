@@ -60,7 +60,7 @@ putRandomTerminals(const EdgeWeightedGraph<T> &wg, List<node> &terminals, NodeAr
 
 template<typename T>
 static void
-putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::is_integral<T>::value >::type* = 0)
+putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::is_integral<T>::value >::type* = nullptr)
 {
 	for (edge e : wg.edges) {
 		wg.setWeight(e, randomNumber(x, y));
@@ -69,7 +69,7 @@ putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::
 
 template<typename T>
 static void
-putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::is_floating_point<T>::value >::type* = 0)
+putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::is_floating_point<T>::value >::type* = nullptr)
 {
 	for (edge e : wg.edges) {
 		wg.setWeight(e, randomDouble(x, y));

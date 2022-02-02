@@ -79,6 +79,7 @@ face SimpleEmbedder::findBestExternalFace(
 			}
 		}
 
+		OGDF_ASSERT(adjFound != nullptr);
 		OGDF_ASSERT(adjFound->theEdge()->source() == v);
 
 		node w = adjFound->theEdge()->target();

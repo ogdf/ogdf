@@ -97,12 +97,12 @@ private:
 
 	//! Constructs an adjacency element for a given hyper{node,edge}.
 	explicit AdjHypergraphElement(GraphElement *pElement)
-	  : m_element(pElement)
+	  : m_element(pElement), m_twin(nullptr), m_index(0)
 	{ }
 
 	//! Constructs an adjacency entry for a given hyper{node,edge} and index.
 	AdjHypergraphElement(GraphElement *pElement, int pIndex)
-	  : m_element(pElement), m_index(pIndex)
+	  : m_element(pElement), m_twin(nullptr), m_index(pIndex)
 	{ }
 
 public:

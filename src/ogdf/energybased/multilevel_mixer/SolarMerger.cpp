@@ -405,9 +405,15 @@ bool SolarMerger::collapseSolarSystem(MultilevelGraph &MLG, node sun, int level)
 
 		bool ret;
 		if (i == systemNodes.begin() && m_massAsNodeRadius) {
-			ret = MLG.changeNode(NM, sun, sqrt((float)m_mass[sun]) * m_radius[sun], mergeNode);
+#ifdef OGDF_DEBUG
+			ret =
+#endif
+				MLG.changeNode(NM, sun, sqrt((float)m_mass[sun]) * m_radius[sun], mergeNode);
 		} else {
-			ret = MLG.changeNode(NM, sun, MLG.radius(sun), mergeNode);
+#ifdef OGDF_DEBUG
+			ret =
+#endif
+				MLG.changeNode(NM, sun, MLG.radius(sun), mergeNode);
 		}
 		OGDF_ASSERT( ret );
 		MLG.moveEdgesToParent(NM, mergeNode, sun, true, m_adjustEdgeLengths);

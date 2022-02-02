@@ -46,7 +46,7 @@ namespace ogdf {
 /**
  * @ingroup ga-induced
  *
- * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
+ * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
  * @param G        is the input graph.
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
  *                 an induced subgraph shall be computed.
@@ -63,7 +63,7 @@ void inducedSubGraph(const Graph &G, LISTITERATOR start, Graph &subGraph)
 /**
  * @ingroup ga-induced
  *
- * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
+ * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
  * @param G        is the input graph.
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
  *                 an induced subgraph shall be computed.
@@ -107,7 +107,7 @@ void inducedSubGraph(
 /**
  * @ingroup ga-induced
  *
- * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
+ * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
  * @param G        is the input graph.
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
  *                 an induced subgraph shall be computed.
@@ -154,6 +154,46 @@ void inducedSubGraph(
 	}
 }
 
+//! Computes the subgraph induced by a list of nodes.
+/**
+ * @ingroup ga-induced
+ *
+ * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
+ * @param G        is the input graph.
+ * @param start    is a list iterator pointing to the first element in a list of nodes, for which
+ *                 an induced subgraph shall be computed.
+ * @param subGraph is assigned the computed subgraph, which will be set as a copy of \p G.
+ */
+template<class LISTITERATOR>
+void inducedSubGraph(
+	const Graph &G,
+	LISTITERATOR start,
+	GraphCopySimple &subGraph)
+{
+	subGraph.clear();
+	subGraph.createEmpty(G);
+	EdgeArray<bool> mark(G, false);
+
+	LISTITERATOR its;
+	for (its = start; its.valid(); its++)
+	{
+		node w = (*its);
+		OGDF_ASSERT(w != nullptr);
+		OGDF_ASSERT(w->graphOf() == &G);
+		subGraph.newNode(w);
+
+		for(adjEntry adj : w->adjEntries)
+		{
+			edge e = adj->theEdge();
+			if (subGraph.copy(e->source()) &&
+				subGraph.copy(e->target()) &&
+				!subGraph.copy(e))
+			{
+				subGraph.newEdge(e);
+			}
+		}
+	}
+}
 
 //! Computes the edges in a node-induced subgraph.
 /**
@@ -255,6 +295,8 @@ inline T computeMinST(const Graph &G, const EdgeArray<T> &weight, NodeArray<edge
 
 //! Computes a minimum spanning tree (MST) using Prim's algorithm
 /**
+ * @ingroup ga-mst
+ *
  * @tparam T        is the numeric type for edge weights.
  * @param  G        is the input graph.
  * @param  weight   is an edge array with the edge weights.
@@ -312,6 +354,8 @@ void computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<
 
 //! Computes a minimum spanning tree (MST) using Prim's algorithm
 /**
+ * @ingroup ga-mst
+ *
  * @tparam T        is the numeric type for edge weights.
  * @param  s        is the start node for Prim's algorithm and will be the root of the MST.
  * @param  G        is the input graph.
@@ -401,6 +445,8 @@ inline bool isPlanar(const Graph &G) {
 /**
  * Returns whether G is s-t-planar (i.e. it can be planarly embedded with s and t sharing a face).
  *
+ * @ingroup ga-planembed
+ *
  * @param graph The graph to be tested
  * @param s The node to be incident to the same face as t nodes
  * @param t The other node
@@ -438,6 +484,8 @@ inline bool planarEmbed(Graph &G) {
 
 /**
  * s-t-planarly embeds a graph.
+ *
+ * @ingroup ga-planembed
  *
  * @param graph The graph to be embedded
  * @param s The node to be incident to the same face as t nodes

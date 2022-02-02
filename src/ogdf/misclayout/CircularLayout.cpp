@@ -894,7 +894,6 @@ void CircularLayout::doCall(GraphAttributes &AG, ClusterStructure &C)
 
 				itR3 = itR2.succ();
 				finish = !itR3.valid();
-				doMerge = false;
 
 				if(!itR3.valid()) {
 					itR3 = regions.begin();
@@ -954,6 +953,7 @@ void CircularLayout::doCall(GraphAttributes &AG, ClusterStructure &C)
 					maxGap = gap; itStartRegion = itSucc;
 				}
 			}
+			OGDF_ASSERT(itStartRegion.valid());
 
 			// compute scaling
 			double scaleFactor = (sumLength <= sectorLength) ? 1 : sectorLength/sumLength;

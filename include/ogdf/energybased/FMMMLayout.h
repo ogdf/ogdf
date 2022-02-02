@@ -302,11 +302,26 @@ public:
 	 *  @{
 	 */
 
+	//! All parameter options (both low- and high-level) are set to the default values.
+	/**
+	 * useHighLevelOptions() is also set to false.
+	 */
+	void resetOptions();
+
 	//! Returns the current setting of option useHighLevelOptions.
 	/**
-	 * If set to true, the high-level options are used to set all low-level options.
-	 * Usually, it is sufficient just to set high-level options; if you want to
-	 * be more specific, set this parameter to false and set the low level options.
+	 * If set to true, the high-level options are used to set the most important
+	 * low-level options (which are pageRatio(), initialPlacementForces(),
+	 * fixedIterations(), fineTuningIterations(), and nmPrecision()).
+	 *
+	 * Usually, it is sufficient just to set high-level options.
+	 * If you want to be more specific, you have two options:
+	 * 1. Set this parameter to false and set all low-level options as you please.
+	 * 2. Set this parameter to true and only set the low-level options that are
+	 * not affected by high-level options.
+	 *
+	 * It might be useful to resetOptions() first if you use the same FMMMLayout
+	 * multiple times.
 	 */
 	bool useHighLevelOptions() const { return m_useHighLevelOptions; }
 
@@ -317,6 +332,9 @@ public:
 	void setSingleLevel(bool b) {m_singleLevel = b;}
 
 	//! Returns the current setting of option pageFormat.
+	/**
+	 * This setting determines the setting of the low-level option pageRatio().
+	 */
 	FMMMOptions::PageFormatType pageFormat() const { return m_pageFormat; }
 
 	//! Sets the option pageRatio to \p t.
@@ -333,6 +351,9 @@ public:
 	 * This option defines if the initial placement of the nodes at the
 	 * coarsest multilevel is varied for each distinct call of FMMMLayout
 	 * or keeps always the same.
+	 *
+	 * This setting determines the setting of the low-level option
+	 * initialPlacementForces().
 	 */
 	bool newInitialPlacement() const { return m_newInitialPlacement; }
 
@@ -340,6 +361,10 @@ public:
 	void newInitialPlacement(bool nip) { m_newInitialPlacement = nip; }
 
 	//! Returns the current setting of option qualityVersusSpeed.
+	/**
+	 * This setting determines the settings of the low-level options
+	 * fixedIterations(), fineTuningIterations(), and nmPrecision().
+	 */
 	FMMMOptions::QualityVsSpeed qualityVersusSpeed() const { return m_qualityVersusSpeed; }
 
 	//! Sets the option qualityVersusSpeed to \p qvs.
@@ -824,9 +849,6 @@ private:
 	//! @}
 	//! \name Functions for pre- and post-processing
 	//! @{
-
-	//! All parameter options are set to the default values.
-	void initialize_all_options();
 
 	//! Updates several low level parameter options due to the settings of the high level parameter options.
 	void update_low_level_options_due_to_high_level_options_settings();

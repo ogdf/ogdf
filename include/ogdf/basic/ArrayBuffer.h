@@ -102,7 +102,7 @@ public:
 	void push(E e) {
 		if (num == Array<E,INDEX>::size()) {
 			OGDF_ASSERT(growable);
-			Array<E,INDEX>::grow(max(num,1)); // double the size
+			Array<E,INDEX>::grow(max(num,static_cast<INDEX>(1))); // double the size
 		}
 		Array<E,INDEX>::operator[](num++) = e;
 	}
@@ -222,34 +222,11 @@ public:
 	 * Creates a copy of the ArrayBuffer and stores it into
 	 * the given Array \p A2.
 	 * \p A2 has exactly the neccessary size to hold all
-	 * elements in the buffer.
-	 *
-	 * This method uses an elementwise operator=.
-	 * If you need a bitcopy of the buffer, use compactMemcpy()
-	 * instead; if you need a traditional array copy (using the Array's
-	 * copy-constructor) use compactCpycon() instead.
-	 */
-	void compactCopy(Array<E,INDEX>& A2) const {
-		OGDF_ASSERT(this != &A2);
-		if(num) {
-			A2.init(num);
-			for(INDEX i = num; i-- > 0;)
-				A2[i] = (*this)[i];
-		} else
-			A2.init(0);
-	}
-
-	//! Generates a compact copy holding the current elements.
-	/**
-	 * Creates a copy of the ArrayBuffer and stores it into
-	 * the given Array \p A2.
-	 * \p A2 has exactly the neccessary size to hold all
 	 * elements in the buffer
 	 *
-	 * This method uses the Array's copy constructur. If you
-	 * need a bitcopy of the buffer, use compactMemcpy()
-	 * instead; if you need a elementwise operator=-copy, use
-	 * compactCopy() instead.
+	 * This method uses the Array's copy constructor.
+	 * If you need an elementwise operator=-copy or a bitcopy, use compactCopy()
+	 * instead.
 	 */
 	void compactCpycon(Array<E,INDEX>& A2) const {
 		OGDF_ASSERT(this != &A2);
@@ -269,12 +246,36 @@ public:
 	 * \p A2 has exactly the neccessary size to hold all
 	 * elements in the buffer.
 	 *
-	 * This method uses memcpy. If you need a traditional
-	 * arraycopy using a copy constructur, use compactCoycon()
-	 * instead; if you neeed a elementwise operator=-copy, use
-	 * compactCopy() instead.
+	 * This method uses an elementwise operator=.
+	 * If you need a traditional array copy (using the Array's
+	 * copy-constructor), use compactCpycon() instead.
 	 */
-	void compactMemcpy(Array<E,INDEX>& A2) const {
+	template<typename EE = E,
+		typename std::enable_if<!OGDF_TRIVIALLY_COPYABLE<EE>::value, int>::type = 0>
+	void compactCopy(Array<E,INDEX>& A2) const {
+		OGDF_ASSERT(this != &A2);
+		if(num) {
+			A2.init(num);
+			for(INDEX i = num; i-- > 0;)
+				A2[i] = (*this)[i];
+		} else
+			A2.init(0);
+	}
+
+	//! Generates a compact copy holding the current elements.
+	/**
+	 * Creates a copy of the ArrayBuffer and stores it into
+	 * the given Array \p A2.
+	 * \p A2 has exactly the neccessary size to hold all
+	 * elements in the buffer.
+	 *
+	 * This method uses memcpy.
+	 * If you need a traditional array copy (using the Array's
+	 * copy-constructor), use compactCpycon() instead.
+	 */
+	template<typename EE = E,
+		typename std::enable_if<OGDF_TRIVIALLY_COPYABLE<EE>::value, int>::type = 0>
+	void compactCopy(Array<E,INDEX>& A2) const {
 		OGDF_ASSERT(this != &A2);
 		if(num) {
 			A2.init(num);

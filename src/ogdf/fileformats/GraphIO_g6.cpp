@@ -681,11 +681,6 @@ bool GraphIO::readGraph6(Graph &G, std::istream &is, bool forceHeader)
 	return reader.read();
 }
 
-bool GraphIO::readGraph6WithForcedHeader(Graph &G, std::istream &is)
-{
-	return readGraph6(G, is, true);
-}
-
 bool GraphIO::writeGraph6(const Graph &G, std::ostream &os)
 {
 	Graph6Writer writer(G, os);
@@ -698,10 +693,6 @@ bool GraphIO::readDigraph6(Graph &G, std::istream &is, bool forceHeader)
 	return reader.read();
 }
 
-bool GraphIO::readDigraph6WithForcedHeader(Graph &G, std::istream &is)
-{
-	return readDigraph6(G, is, true);
-}
 
 bool GraphIO::writeDigraph6(const Graph &G, std::ostream &os)
 {
@@ -713,11 +704,6 @@ bool GraphIO::readSparse6(Graph &G, std::istream &is, bool forceHeader)
 {
 	Sparse6Reader reader(G, is, forceHeader);
 	return reader.read();
-}
-
-bool GraphIO::readSparse6WithForcedHeader(Graph &G, std::istream &is)
-{
-	return readSparse6(G, is, true);
 }
 
 bool GraphIO::writeSparse6(const Graph &G, std::ostream &os)

@@ -81,8 +81,11 @@ enum ClpStrParam {
 template <class T> inline void
 ClpDisjointCopyN( const T * array, const int size, T * newArray)
 {
-     memcpy(reinterpret_cast<void *> (newArray), array, size * sizeof(T));
+     if (array != nullptr || size != 0) {
+          memcpy(reinterpret_cast<void *> (newArray), array, size * sizeof(T));
+     }
 }
+
 /// And set
 template <class T> inline void
 ClpFillN( T * array, const int size, T value)

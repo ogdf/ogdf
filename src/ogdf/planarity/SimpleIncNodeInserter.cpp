@@ -292,6 +292,7 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 		//we don't have to care about the external face, just set one
 		return;
 	}
+	OGDF_ASSERT(f != nullptr);
 
 	List<adjEntry> faceAdj;
 	adjEntry adFace = f->firstAdj();

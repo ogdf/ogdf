@@ -42,25 +42,43 @@ static void stSearch(const Graph &G, node v, int &count,
                      NodeArray<int> &low, NodeArray<int> &dfn,
                      NodeArray<edge> &dfsInEdge, NodeArray<edge> &followLowPath)
 {
-	dfn[v] = count;
-	count++;
-	low[v] = dfn[v];
+	ArrayBuffer<std::pair<node, adjEntry>> stack;
+	stack.push(std::make_pair(v, v->firstAdj()));
 
-	for (adjEntry adj : v->adjEntries) {
-		node w = adj->twinNode();
-		edge e = adj->theEdge();
+	while (!stack.empty()) {
+		node n = stack.top().first;
+		adjEntry nextAdj = stack.top().second;
 
-		if (!dfn[w]) { // node not visited yet
-			dfsInEdge[w] = e;
-			stSearch(G,w,count,low,dfn,dfsInEdge,followLowPath);
-			if (low[v] > low[w]) {
-				low[v] = low[w];
-				followLowPath[v] = e;
-			}
+		if (!dfn[n]) { // Set DFN on first visit
+			dfn[n] = count;
+			count++;
+			low[n] = dfn[n];
 		}
-		else if (low[v] > dfn[w]) {
-			low[v] = dfn[w];
-			followLowPath[v] = e;
+
+		bool popStack = true;
+		while (nextAdj) {
+			node w = nextAdj->twinNode();
+			edge e = nextAdj->theEdge();
+
+			if (!dfn[w]) { // neighbor not visited yet
+				dfsInEdge[w] = e;
+				stack.top().second = nextAdj->succ();
+				stack.push(std::make_pair(w, w->firstAdj()));
+				popStack = false;
+				break;
+			} else if (low[n] > dfn[w]) {
+				low[n] = dfn[w];
+				followLowPath[n] = e;
+			}
+			nextAdj = nextAdj->succ();
+		}
+
+		if (popStack) { // Update predecessor's LOW after node is processed
+			stack.pop();
+			if (dfsInEdge[n] && low[dfsInEdge[n]->opposite(n)] > low[n]) {
+				low[dfsInEdge[n]->opposite(n)] = low[n];
+				followLowPath[dfsInEdge[n]->opposite(n)] = dfsInEdge[n];
+			}
 		}
 	}
 }

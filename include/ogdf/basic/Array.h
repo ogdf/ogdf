@@ -83,6 +83,10 @@ public:
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0>
 	ArrayReverseIteratorBase(const ArrayReverseIteratorBase<E,isArgConst> &it) : ArrayReverseIteratorBase(it.m_pX) { }
 
+	//! Copy constructor.
+	//! clang10 does not see the above templated one match this case and requires it explicitly.
+	ArrayReverseIteratorBase(const ArrayReverseIteratorBase<E,isConst> &it) : ArrayReverseIteratorBase(it.m_pX) { }
+
 	//! Implicit cast to (const) E*.
 	operator std::conditional<isConst, const E, E> *() const { return m_pX; }
 
@@ -707,6 +711,33 @@ private:
 	//! Used by grow() to enlarge the array.
 	void expandArray(INDEX add);
 
+	//! Used by expandArray() to reallocate the array elements.
+	template<typename EE = E,
+		typename std::enable_if<OGDF_TRIVIALLY_COPYABLE<EE>::value, int>::type = 0>
+	void expandArrayHelper(INDEX sOld, INDEX sNew) {
+		// If the element type is trivially copiable, just use realloc.
+		E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
+		if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
+		m_pStart = p;
+	}
+
+	//! Used by expandArray() to reallocate the array elements.
+	template<typename EE = E,
+		typename std::enable_if<!OGDF_TRIVIALLY_COPYABLE<EE>::value, int>::type = 0>
+	void expandArrayHelper(INDEX sOld, INDEX sNew) {
+		// If the element type is not trivially copiable,
+		// allocate a new block, move the elements, and free the old block.
+		E *p = static_cast<E *>( malloc(sNew*sizeof(E)) );
+		if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
+
+		for (int i = 0; i < min(sOld,sNew); ++i) {
+			new (&p[i]) E(std::move(m_pStart[i]));
+		}
+
+		deconstruct();
+		m_pStart = p;
+	}
+
 	//! Internal Quicksort implementation with comparer template.
 	template<class COMPARER>
 	static void quicksortInt(E *pL, E *pR, const COMPARER &comp) {
@@ -749,31 +780,7 @@ void Array<E, INDEX>::expandArray(INDEX add)
 
 	// expand allocated memory block
 	if (m_pStart != nullptr) {
-		// if the element type is trivially copiable, just use realloc
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5
-		// g++ 4.8/4.9 does not have is_trivially_copyable, but
-		// clang 3.5 (which is also __GNUC__ < 5) has it
-		if (std::has_trivial_copy_assign<E>::value) {
-#else
-		if (std::is_trivially_copyable<E>::value) {
-#endif
-			E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
-			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
-			m_pStart = p;
-
-		// otherwise allocate new block, move elements, and free old block
-		} else {
-			E *p = static_cast<E *>( malloc(sNew*sizeof(E)) );
-			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
-
-			for (int i = 0; i < min(sOld,sNew); ++i) {
-				new (&p[i]) E(std::move(m_pStart[i]));
-			}
-
-			deconstruct();
-			m_pStart = p;
-		}
-
+		expandArrayHelper(sOld, sNew);
 	} else {
 		m_pStart = static_cast<E *>( malloc(sNew*sizeof(E)) );
 		if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);

@@ -67,6 +67,10 @@ public:
 	void setPacker(CCLayoutPackModule *packer) {
 		m_packer.reset(packer);
 	}
+
+	void setBorder(int border) {
+		m_border = border;
+	}
 };
 
 }

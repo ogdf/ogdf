@@ -403,7 +403,7 @@ public:
 			{
 				localContexts[currThread]->innerNodePartition.numNodes++;
 				curr = tree->nextNode(curr);
-				if (localContexts[currThread]->innerNodePartition.numNodes >= numInnerNodesPerThread && currThread < numThreads - 1)
+				if (currThread < numThreads - 1 && localContexts[currThread]->innerNodePartition.numNodes >= numInnerNodesPerThread)
 				{
 					currThread++;
 					localContexts[currThread]->innerNodePartition.numNodes = 0;
@@ -432,7 +432,7 @@ public:
 			{
 				localContexts[currThread]->leafPartition.numNodes++;
 				curr = tree->nextNode(curr);
-				if (localContexts[currThread]->leafPartition.numNodes >= numLeavesPerThread && currThread < numThreads - 1)
+				if (currThread < numThreads - 1 && localContexts[currThread]->leafPartition.numNodes >= numLeavesPerThread)
 				{
 					currThread++;
 					localContexts[currThread]->leafPartition.numNodes = 0;

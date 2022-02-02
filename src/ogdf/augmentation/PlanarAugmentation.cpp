@@ -34,11 +34,11 @@
 #include <ogdf/basic/extended_graph_alg.h>
 
 // for debug-outputs
-//#define PLANAR_AUGMENTATION_DEBUG
+//#define OGDF_PLANAR_AUGMENTATION_DEBUG
 
 // for checking planarity directly after inserting a new edge
 //   and additional planarity tests after each augmentation round
-//#define PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
+//#define OGDF_PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
 
 namespace ogdf {
 
@@ -64,7 +64,7 @@ void PlanarAugmentation::doCall(Graph& g, List<edge>& list)
 
 	m_pGraph = &g;
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << "Graph G has no self loops = " << isLoopFree(*m_pGraph) << std::endl;
 	std::cout << "Graph G is planar         = " << isPlanar(*m_pGraph)<< std::endl;
 	std::cout << "Graph G is connected      = " << isConnected(*m_pGraph) << std::endl;
@@ -162,16 +162,16 @@ void PlanarAugmentation::augment()
 	// first initialize the list of pendants
 	for(node v : m_pBCTree->bcTree().nodes){
 		if (v->degree() == 1){
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 			std::cout << "augment(): found pendant with index " << v->index();
 #endif
 			if (m_pBCTree->parent(v) == nullptr){
 				rootPendant = v;
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 				std::cout << " is root! (also inserted into pendants-list!)" << std::endl;
 #endif
 			} else {
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 				std::cout << std::endl;
 #endif
 			}
@@ -185,7 +185,7 @@ void PlanarAugmentation::augment()
 
 		node bAdjNode = rootPendant->firstAdj()->twinNode();
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "augment(): changing root in bc-tree because root is a pendant!" << std::endl;
 		std::cout << "augment(): index of old root = " << rootPendant->index() << ", new root = " << bAdjNode->index() << std::endl;
 #endif
@@ -213,7 +213,7 @@ void PlanarAugmentation::augment()
 		}
 	}
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << "augment(): after reduceChain() for every pendant:" << std::endl;
 	std::cout << "           #labels = " << m_labels.size() << std::endl;
 	std::cout << "           #pendants = " << m_pendants.size() << std::endl << std::endl;
@@ -266,11 +266,11 @@ void PlanarAugmentation::augment()
 		}
 
 		// output after each round:
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << std::endl << "augment(): output after one round:" << std::endl;
 		std::cout         << "           #labels   = " << m_labels.size() << std::endl;
 		std::cout         << "           #pendants = " << m_pendants.size() << std::endl;
-#ifdef PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
 		std::cout << "graph is planar == " << isPlanar(*m_pGraph) << std::endl;
 		std::cout << "graph is biconnected == " << isBiconnected(*m_pGraph) << std::endl;
 #endif
@@ -297,10 +297,10 @@ void PlanarAugmentation::augment()
 		// : output after each round
 	}
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << std::endl << "FINISHED MAIN LOOP" << std::endl << std::endl;
 	std::cout << "# planarity tests = " << m_nPlanarityTests << std::endl;
-#ifdef PLANAR_AUGMENTATION_DEBUG_PLANARITY
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG_PLANARITY
 	std::cout << "resulting Graph is biconnected = " << isBiconnected(*m_pGraph) << std::endl;
 	std::cout << "resulting Graph is planar = " << isPlanar(*m_pGraph) << std::endl;
 #endif
@@ -318,7 +318,7 @@ void PlanarAugmentation::augment()
 // reduceChain can also insert edges in case of Planarity
 void PlanarAugmentation::reduceChain(node pendant, pa_label labelOld)
 {
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << "reduceChain(" << pendant->index() << ")";
 #endif
 
@@ -334,7 +334,7 @@ void PlanarAugmentation::reduceChain(node pendant, pa_label labelOld)
 	// conditions. last is going to be the last cutvertex on this path
 	stopCause = followPath(parent, last);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << ", stopCause == ";
 	switch(stopCause){
 	case PALabel::StopCause::Planarity:
@@ -360,7 +360,7 @@ void PlanarAugmentation::reduceChain(node pendant, pa_label labelOld)
 		// computes path in bc-tree between bcproper(adjToCutP) and bcproper(adjToCutLast)
 		SList<node>& path = m_pBCTree->findPath(adjToCutP, adjToCutLast);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout
 		  << "reduceChain(): inserting edge between " << adjToCutP->index()
 		  << " and " << adjToCutLast->index() << std::endl;
@@ -393,7 +393,7 @@ void PlanarAugmentation::reduceChain(node pendant, pa_label labelOld)
 
 		// check if newPendant is the new root of the bc-tree
 		if (m_pBCTree->DynamicBCTree::parent(newPendant) == nullptr){
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 			std::cout
 			  << "reduceChain(): new arised pendant is the new root of the bc-tree, it has degree "
 			  << m_pBCTree->m_bNode_degree[newPendant] << std::endl;
@@ -412,7 +412,7 @@ void PlanarAugmentation::reduceChain(node pendant, pa_label labelOld)
 			deleteLabel(labelOld);
 		}
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "reduceChain(): calling reduceChain() with newPendant = " << newPendant->index() << std::endl;
 #endif
 
@@ -598,7 +598,6 @@ node PlanarAugmentation::adjToCutvertex(node v, node cutvertex)
 		bool found = false;
 
 		if (m_pBCTree->bComponent(nodeAdjToCutVertex, adj->twinNode()) == v){
-			found = true;
 			nodeAdjToCutVertex = adj->twinNode();
 		}
 		else{
@@ -687,7 +686,7 @@ void PlanarAugmentation::addPendant(node pendant, pa_label& label)
 // connects all pendants of the label
 void PlanarAugmentation::joinPendants(pa_label& label)
 {
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << "joinPendants(): label->size()==" << label->size() << std::endl;
 #endif
 
@@ -706,7 +705,7 @@ void PlanarAugmentation::joinPendants(pa_label& label)
 			// delete pendant from m_pendants but not from the label it belongs to
 			deletePendant(*pendantIt, false);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 			std::cout
 			  << "joinPendants(): connectPendants: " << pendant1->index()
 			  << " and " << (*pendantIt)->index() << std::endl;
@@ -729,7 +728,7 @@ void PlanarAugmentation::joinPendants(pa_label& label)
 	SListIterator<edge> edgeIt = newEdges.begin();
 	node newBlock = (m_pBCTree->DynamicBCTree::bcproper(*edgeIt));
 	if (m_pBCTree->m_bNode_degree[newBlock] == 1){
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "joinPendants(): new block " << newBlock->index() << " has degree 1 " << std::endl;
 #endif
 
@@ -739,7 +738,7 @@ void PlanarAugmentation::joinPendants(pa_label& label)
 
 	}
 	else{
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "joinPendants(): new block has degree " << m_pBCTree->m_bNode_degree[newBlock] << std::endl;
 #endif
 		deleteLabel(label);
@@ -751,7 +750,7 @@ void PlanarAugmentation::joinPendants(pa_label& label)
 // connects the only pendant of label with a computed "ancestor"
 void PlanarAugmentation::connectInsideLabel(pa_label& label)
 {
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout
 	  << "connectInsideLabel(): label->size() == " << label->size() << ", parent = " << label->parent()->index()
 	  << ", head = " << label->head()->index() << std::endl;
@@ -782,7 +781,7 @@ void PlanarAugmentation::connectInsideLabel(pa_label& label)
 
 	node v2 = adjToCutvertex(ancestor, head);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << "connectInsideLabel(): inserting edge between " << v1->index() << " and " << v2->index() << std::endl;
 #endif
 
@@ -790,7 +789,7 @@ void PlanarAugmentation::connectInsideLabel(pa_label& label)
 	edge e = m_pGraph->newEdge(v1, v2);
 	newEdges.pushFront(e);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
 	if (!isPlanar(*m_pGraph))
 		std::cout << "connectInsideLabel(): CRITICAL ERROR!!! inserted non-planar edge!!! (in connectInsideLabel())" << std::endl;
 #endif
@@ -803,7 +802,7 @@ void PlanarAugmentation::connectInsideLabel(pa_label& label)
 	deleteLabel(label);
 
 	if (m_pBCTree->m_bNode_degree[newBlock] == 1){
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "connectInsideLabel(): new block " << newBlock->index() << " has degree 1... calling reduceChain() ";
 #endif
 		m_pendants.pushBack(newBlock);
@@ -834,13 +833,13 @@ edge PlanarAugmentation::connectPendants(node pendant1, node pendant2)
 	node v1 = adjToCutvertex(pendant1);
 	node v2 = adjToCutvertex(pendant2);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout << "connectPendants(): inserting edge between " << v1->index() << " and " << v2->index() << std::endl;
 #endif
 
 	edge e = m_pGraph->newEdge(v1, v2);
 
-#ifdef PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
 	if (!(isPlanar(*m_pGraph)))
 		std::cout << "connectLabels(): CRITICAL ERROR in connectPendants: inserted edge is not planar!!!" << std::endl;
 #endif
@@ -908,7 +907,7 @@ void PlanarAugmentation::deleteLabel(pa_label& label, bool removePendants)
 // first.size() >= second.size()
 void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 {
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout
 	  << "connectLabels(), first->size()==" << first->size() << " , second->size()=="
 	  << second->size() << std::endl;
@@ -937,7 +936,7 @@ void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 		getConnected.pushBack(v2);
 		newEdges.pushBack(connectPendants(v2, *pendantIt));
 
-#ifdef PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG_PLANARCHECK
 		if (!(isPlanar(*m_pGraph)))
 			std::cout << "connectLabels(): CRITICAL ERROR: inserted edge is not planar!!!" << std::endl;
 #endif
@@ -950,7 +949,7 @@ void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 	deleteLabel(second);
 
 	node newBlock = m_pBCTree->DynamicBCTree::bcproper(newEdges.front());
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 	std::cout
 	  << "connectLabels(): newBlock->index() == " << newBlock->index() << ", degree == "
 	  << m_pBCTree->m_bNode_degree[newBlock] << std::endl;
@@ -976,7 +975,7 @@ void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 	}
 
 	if (m_pBCTree->m_bNode_degree[newBlock] == 1){
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "connectLabels(): m_bNode_degree[" << newBlock->index() << "] == 1... calling reduceChain()" << std::endl;
 #endif
 
@@ -1001,7 +1000,7 @@ void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 		}
 	}
 	else{
-#ifdef PLANAR_AUGMENTATION_DEBUG
+#ifdef OGDF_PLANAR_AUGMENTATION_DEBUG
 		std::cout << "connectLabels(): newBlock is no new pendant ! degree == " << m_pBCTree->m_bNode_degree[newBlock] << std::endl;
 #endif
 	}

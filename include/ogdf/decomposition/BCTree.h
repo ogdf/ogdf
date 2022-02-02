@@ -322,6 +322,17 @@ protected:
 	void initNotConnected (node vG);
 
 	/**
+	 * Initialization for not connected graphs
+	 *
+	 * Initializes all data structures and generates a forest of BC-trees and the
+	 * biconnected components graph by call to biComp(), but only for components
+	 * containing a vertex from \p vG.
+	 * \param vG a list of vertices of the original graph from which the DFS
+	 * algorithm is run.
+	 */
+	void initNotConnected (List<node> &vG);
+
+	/**
 	 * Generates the BC-tree and the biconnected components graph
 	 * recursively.
 	 *
@@ -381,6 +392,20 @@ public:
 		if (!callInitConnected)
 			init(vG);
 		else initNotConnected(vG);
+	}
+
+	/**
+	 * Constructor for not connected graphs
+	 *
+	 * Initializes all data structures and generates a forest of BC-trees and the
+	 * biconnected components graph, but only for components containing a vertex
+	 * from \p vG.
+	 * \param G is the original graph.
+	 * \param vG a list of vertices of the original graph from which the DFS
+	 * algorithm is run.
+	 */
+	BCTree (Graph& G, List<node> &vG) : m_G(G), m_eStack(G.numberOfEdges()) {
+		initNotConnected(vG);
 	}
 
 	//! Virtual destructor.

@@ -620,6 +620,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 
 			//hier muss man fuer die Kanten, die rechts ansetzen noch lowerbound 2 setzen
 
+			// NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): adj can never be nullptr
 			if ((gen2 == adj && gen1 == adj->cyclicSucc())
 			 || (gen1 == adj && gen2 == adj->cyclicSucc())) {
 				setBoundsEqually(e2, piAngleFlow, 0);
@@ -716,6 +717,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 						break;
 					}
 				}
+				OGDF_ASSERT(adjFound != nullptr);
 
 				edge e;
 				if (m_traditional)
@@ -770,6 +772,7 @@ void OrthoShaper::call(PlanRepUML &PG,
 						break;
 					}
 				}
+				OGDF_ASSERT(adjFound);
 
 				if (m_traditional)
 					e = adjFound->cyclicPred()->theEdge();
@@ -1860,6 +1863,7 @@ void OrthoShaper::call(PlanRep &PG,
 
 			//hier muss man fuer die Kanten, die rechts ansetzen noch lowerbound 2 setzen
 
+			// NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): adj can never be nullptr
 			if ((gen2 == adj && gen1 == adj->cyclicSucc())
 			 || (gen1 == adj && gen2 == adj->cyclicSucc())) {
 				setBoundsEqually(e2, piAngleFlow, piAngleFlow, 0);
@@ -1955,6 +1959,7 @@ void OrthoShaper::call(PlanRep &PG,
 						break;
 					}
 				}
+				OGDF_ASSERT(adjFound);
 
 				edge e;
 				if (m_traditional)
@@ -2009,6 +2014,7 @@ void OrthoShaper::call(PlanRep &PG,
 						break;
 					}
 				}
+				OGDF_ASSERT(adjFound);
 
 				if (m_traditional)
 					e = adjFound->cyclicPred()->theEdge();

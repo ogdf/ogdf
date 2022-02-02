@@ -11688,6 +11688,8 @@ PUGI__NS_END
 
 namespace pugi
 {
+//! @cond
+// doxygen will complain if this isnt hidden from doc
 #ifndef PUGIXML_NO_EXCEPTIONS
 	PUGI__FN xpath_exception::xpath_exception(const xpath_parse_result& result_): _result(result_)
 	{
@@ -11704,6 +11706,7 @@ namespace pugi
 		return _result;
 	}
 #endif
+//! @endcond
 
 	PUGI__FN xpath_node::xpath_node()
 	{

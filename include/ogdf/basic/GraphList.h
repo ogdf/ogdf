@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/internal/graph_iterators.h>
 
 namespace ogdf {
@@ -58,8 +59,8 @@ class OGDF_EXPORT GraphElement {
 
 protected:
 
-	GraphElement *m_next; //!< The successor in the list.
-	GraphElement *m_prev; //!< The predecessor in the list.
+	GraphElement *m_next = nullptr; //!< The successor in the list.
+	GraphElement *m_prev = nullptr; //!< The predecessor in the list.
 
 	OGDF_NEW_DELETE
 };
@@ -206,6 +207,40 @@ public:
 #endif
 	}
 
+	//! Permutes all list elements.
+	template<class RNG>
+	void permute(RNG &rng) {
+		Array<GraphElement*> A(m_size+2);
+		A[0] = A[m_size+1] = nullptr;
+
+		int i = 1;
+		GraphElement *pX;
+		for (pX = m_head; pX; pX = pX->m_next) {
+			A[i++] = pX;
+		}
+
+		A.permute(1,m_size,rng);
+
+		for (i = 1; i <= m_size; i++) {
+			pX = A[i];
+			pX->m_next = A[i+1];
+			pX->m_prev = A[i-1];
+		}
+
+		m_head = A[1];
+		m_tail = A[m_size];
+
+#ifdef OGDF_DEBUG
+		consistencyCheck();
+#endif
+	}
+
+	//! Permutes all list elements.
+	void permute() {
+		std::minstd_rand rng(randomSeed());
+		permute(rng);
+	}
+
 #ifdef OGDF_DEBUG
 	//! Asserts consistency of this list.
 	void consistencyCheck() const {
@@ -343,6 +378,7 @@ public:
 		GraphListBase::swap(pX, pY);
 	}
 
+	using GraphListBase::permute;
 #ifdef OGDF_DEBUG
 	using GraphListBase::consistencyCheck;
 #endif
@@ -382,9 +418,9 @@ public:
 	//! Returns a reverse iterator to the one-before-first element in the container.
 	reverse_iterator rend() const { return reverse_iterator(); }
 
-	//! Returns the number of elements in the container.
-	int size() const { return GraphList<GraphObject>::size(); }
-
+	using GraphList<GraphObject>::permute;
+	using GraphList<GraphObject>::size;
+	using GraphList<GraphObject>::empty;
 	using GraphList<GraphObject>::head;
 	using GraphList<GraphObject>::tail;
 };

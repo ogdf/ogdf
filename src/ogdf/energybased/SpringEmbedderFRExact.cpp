@@ -284,8 +284,11 @@ void SpringEmbedderFRExact::cool(double &tx, double &ty, int &cF)
 			break;
 
 		case CoolingFunction::Logarithmic:
-			tx = m_txNull / mylog2(cF);
-			ty = m_tyNull / mylog2(cF);
+			double cFLog = mylog2(cF);
+			if (cFLog != 0) {
+				tx = m_txNull / cFLog;
+				ty = m_tyNull / cFLog;
+			}
 			cF++;
 			break;
 	}

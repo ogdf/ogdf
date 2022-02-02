@@ -100,9 +100,9 @@ MaxFlowRequirement determineProperties(const Graph &graph, node s, node t)
  *
  * @param graph the graph to be printed
  * @param caps the capacities
- * @param node s the source node
- * @param node t the sink node
- * @param flow the calculated flow
+ * @param s the source node
+ * @param t the sink node
+ * @param flows the calculated flow
  */
 template<typename T>
 bool printInstance(const Graph &graph, const EdgeArray<T> caps, const node s, const node t, const EdgeArray<T> &flows)
@@ -135,7 +135,7 @@ bool printInstance(const Graph &graph, const EdgeArray<T> caps, const node s, co
  * @param s the source node
  * @param t the sink node
  * @param flows the flow to be validated
- * @param the total flow from source to sink
+ * @param flow the total flow from source to sink
  * @param computeFlow if true the reference algorithms result is
  *        compared to the given flow
  */
@@ -196,7 +196,7 @@ void validateFlow(
  * Tests a given maximum flow algorithm.
  *
  * @param name the human-readable description of this algorithm
- * @param the requiremets for this algorithm
+ * @param reqs the requiremets for this algorithm
  */
 template<typename MAX_FLOW_ALGO, typename VALUE_TYPE>
 void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = MFR_NONE)

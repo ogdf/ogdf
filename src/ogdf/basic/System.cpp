@@ -67,7 +67,7 @@
 # include <fcntl.h>
 # include <sys/time.h>
 #endif
-#ifdef __GNUC__
+#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 # include <cpuid.h>
 #endif
 
@@ -81,7 +81,7 @@ static inline void cpuid(int CPUInfo[4], int infoType)
 	uint32_t c = 0;
 	uint32_t d = 0;
 
-# ifdef __GNUC__
+# if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 	__get_cpuid(infoType, &a, &b, &c, &d);
 # endif
 
@@ -374,12 +374,20 @@ size_t System::memoryInFreelistOfMalloc()
 
 size_t System::memoryAllocatedByMalloc()
 {
+#ifdef OGDF_HAS_MALLINFO2
+	return mallinfo2().uordblks;
+#else
 	return mallinfo().uordblks;
+#endif
 }
 
 size_t System::memoryInFreelistOfMalloc()
 {
+#ifdef OGDF_HAS_MALLINFO2
+	return mallinfo2().fordblks;
+#else
 	return mallinfo().fordblks;
+#endif
 }
 
 #endif

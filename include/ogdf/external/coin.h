@@ -41,7 +41,13 @@ namespace ogdf {
 //! If you use COIN-OR, you should use this class
 class OGDF_EXPORT CoinManager {
 public:
-	//! Get a new solver
+	//! The OGDF Logger which will determine the log level for a new instance returned by createCorrectOsiSolverInterface.
+	/**
+	 *  Use updateLogging to propagate changes made to this value to already existing solver instances.
+	 */
+	static Logger CoinLog;
+
+	//! Get a new solver and set its initial log level according to the level of CoinLog.
 	static OsiSolverInterface* createCorrectOsiSolverInterface() {
 #ifdef COIN_OSI_CPX
 		OsiCpxSolverInterface *ret = new OsiCpxSolverInterface(); // CPLEX
@@ -53,13 +59,41 @@ public:
 #else // COIN_OSI_CLP
 		OsiClpSolverInterface *ret = new OsiClpSolverInterface(); // Coin-OR LP
 #endif
-		logging(ret, !Logger::globalStatisticMode() && Logger::globalLogLevel() <= Logger::Level::Minor);
+		updateLogging(ret);
 		return ret;
 	}
 
-	//! Enable or disable logging for the given solver interface
-	static void logging(OsiSolverInterface* osi, bool logMe) {
-		osi->messageHandler()->setLogLevel(logMe ? 1 : 0);
+	//! Update the log level of the CoinMessageHandler associated with \p osi to match the log level of the ogdf::Logger CoinLog.
+	static void updateLogging(OsiSolverInterface* osi) {
+		if (CoinLog.effectiveStatisticMode()) {
+			osi->messageHandler()->setLogLevel(0);
+		} else {
+			switch (CoinLog.effectiveLogLevel()) {
+				//- 0 - none
+				//- 1 - minimal
+				//- 2 - normal low
+				//- 3 - normal high
+				//- 4 - verbose
+				case Logger::Level::Minor:
+					osi->messageHandler()->setLogLevel(4);
+					break;
+				case Logger::Level::Medium:
+					osi->messageHandler()->setLogLevel(3);
+					break;
+				case Logger::Level::Default:
+					osi->messageHandler()->setLogLevel(2);
+					break;
+				case Logger::Level::High:
+					osi->messageHandler()->setLogLevel(1);
+					break;
+				case Logger::Level::Alarm:
+					osi->messageHandler()->setLogLevel(0);
+					break;
+				case Logger::Level::Force:
+					osi->messageHandler()->setLogLevel(0);
+					break;
+			}
+		}
 	}
 };
 

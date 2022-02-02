@@ -94,7 +94,7 @@ void MixedModelBase::computeOrder(
 			}
 			// one of adjL and adjR is not 0 by definition of the ordering
 			if (adjR == nullptr) adjR = adjL;
-			if (adjL == nullptr) adjL = adjR;
+			OGDF_ASSERT(adjR != nullptr);
 
 			adjEntry adj = adjR;
 			do {
@@ -561,6 +561,7 @@ void SetYCoords::init(int k)
 	m_k = k; m_V = &m_mmo[k];
 	m_ymax = 0;
 	m_lookAheadX = 0;
+	m_lookAheadNextX = 0;
 
 	m_i = 0;
 	m_cl = m_mmo.m_left[k]; m_cr = m_mmo.m_right[k];
@@ -630,6 +631,7 @@ void SetYCoords::getNextRegion()
 			m_onBase = (m_iNext != m_i);
 
 		} else {
+			OGDF_ASSERT(m_itIp.valid());
 			const InOutPoint &ip = *m_itIp;
 			m_deltaY = -ip.m_dy;
 			searchNextInpoint();

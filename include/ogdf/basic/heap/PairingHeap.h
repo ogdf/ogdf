@@ -172,6 +172,7 @@ PairingHeap<T, C>::~PairingHeap()
 template<typename T, typename C>
 inline const T &PairingHeap<T, C>::top() const
 {
+	OGDF_ASSERT(m_root != nullptr);
 	return m_root->value;
 }
 

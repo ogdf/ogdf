@@ -42,7 +42,9 @@ class LinearQuadtreeBuilder
 {
 public:
 	//! constructor
-	explicit LinearQuadtreeBuilder(LinearQuadtree& treeRef) : tree(treeRef) { n = tree.numberOfPoints(); }
+	explicit LinearQuadtreeBuilder(LinearQuadtree& treeRef)
+		: firstInner(0), firstLeaf(0), lastInner(0), lastLeaf(0), numInnerNodes(0), numLeaves(0),
+		tree(treeRef), restoreChainLastNode(0) { n = tree.numberOfPoints(); }
 
 	//! the main build call
 	void build();

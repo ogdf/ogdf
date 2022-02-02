@@ -223,7 +223,7 @@ describe("SVG", []() {
 		pugi::xml_parse_result result =  doc.load_string(write.str().c_str());
 
 		AssertThat((bool) result, IsTrue());
-		AssertThat(static_cast<int>(doc.select_nodes(".//rect").size()), Equals(clusterGraph.numberOfClusters() - 1));
+		AssertThat(static_cast<int>(doc.select_nodes(".//rect").size()), Equals(clusterGraph.numberOfClusters()));
 	});
 
 	for(bool directed : {true, false}) {

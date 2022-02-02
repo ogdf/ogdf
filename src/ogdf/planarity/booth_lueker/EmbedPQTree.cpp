@@ -304,6 +304,7 @@ void EmbedPQTree::ReplacePartialRoot(
 	// For every full node get its frontier. Scan intermediate indicators.
 
 	OGDF_ASSERT(beginSequence != nullptr);
+	OGDF_ASSERT(endSequence != nullptr);
 	PQNode<edge,IndInfo*,bool> *currentNode = beginSequence;
 	while (currentNode != endSequence)
 	{
@@ -330,6 +331,7 @@ void EmbedPQTree::ReplacePartialRoot(
 
 		removeChildFromSiblings(currentNode);
 		currentNode = nextNode;
+		OGDF_ASSERT(currentNode != nullptr);
 	}
 
 	currentNode->parent(m_pertinentRoot);
@@ -530,8 +532,9 @@ void EmbedPQTree::getFront(
 			{
 				firstSon = checkNode->referenceChild();
 			}
-			else if (checkNode->type() == PQNodeRoot::PQNodeType::QNode)
+			else
 			{
+				OGDF_ASSERT(checkNode->type() == PQNodeRoot::PQNodeType::QNode);
 				firstSon = checkNode->getEndmost(PQNodeRoot::SibDirection::Right);
 				// By this, we make sure that we start on the left side
 				// since the left endmost child will be on top of the stack

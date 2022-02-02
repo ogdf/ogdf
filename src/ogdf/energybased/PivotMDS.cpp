@@ -85,7 +85,8 @@ void PivotMDS::centerPivotmatrix(Array<Array<double> >& pivotMatrix)
 void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 {
 	const Graph& G = GA.constGraph();
-	bool use3D = GA.has(GraphAttributes::threeD) && DIMENSION_COUNT > 2;
+	m_dimensionCount = GA.has(GraphAttributes::threeD) ? 3 : 2;
+	bool use3D = m_dimensionCount == 3;
 
 	const int n = G.numberOfNodes();
 
@@ -114,12 +115,12 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 		// center the pivot matrix
 		centerPivotmatrix(pivDistMatrix);
 		// init the coordinate matrix
-		Array<Array<double> > coord(DIMENSION_COUNT);
+		Array<Array<double> > coord(m_dimensionCount);
 		for (auto &elem : coord) {
 			elem.init(n);
 		}
 		// init the eigen values array
-		Array<double> eVals(DIMENSION_COUNT);
+		Array<double> eVals(m_dimensionCount);
 		singularValueDecomposition(pivDistMatrix, coord, eVals);
 		// compute the correct aspect ratio
 		for (int i = 0; i < coord.size(); i++) {
@@ -182,7 +183,7 @@ void PivotMDS::eigenValueDecomposition(
 	randomize(eVecs);
 	const int p = K.size();
 	double r = 0;
-	for (int i = 0; i < DIMENSION_COUNT; i++) {
+	for (int i = 0; i < m_dimensionCount; i++) {
 		eValues[i] = normalize(eVecs[i]);
 	}
 	while (r < EPSILON) {
@@ -193,8 +194,8 @@ void PivotMDS::eigenValueDecomposition(
 			return;
 		}
 		// remember prev values
-		Array<Array<double> > tmpOld(DIMENSION_COUNT);
-		for (int i = 0; i < DIMENSION_COUNT; i++) {
+		Array<Array<double> > tmpOld(m_dimensionCount);
+		for (int i = 0; i < m_dimensionCount; i++) {
 			tmpOld[i].init(p);
 			for (int j = 0; j < p; j++) {
 				tmpOld[i][j] = eVecs[i][j];
@@ -202,7 +203,7 @@ void PivotMDS::eigenValueDecomposition(
 			}
 		}
 		// multiply matrices
-		for (int i = 0; i < DIMENSION_COUNT; i++) {
+		for (int i = 0; i < m_dimensionCount; i++) {
 			for (int j = 0; j < p; j++) {
 				for (int k = 0; k < p; k++) {
 					eVecs[i][k] += K[j][k] * tmpOld[i][j];
@@ -210,7 +211,7 @@ void PivotMDS::eigenValueDecomposition(
 			}
 		}
 		// orthogonalize
-		for (int i = 0; i < DIMENSION_COUNT; i++) {
+		for (int i = 0; i < m_dimensionCount; i++) {
 			for (int j = 0; j < i; j++) {
 				double fac = prod(eVecs[j], eVecs[i])
 						/ prod(eVecs[j], eVecs[j]);
@@ -220,11 +221,11 @@ void PivotMDS::eigenValueDecomposition(
 			}
 		}
 		// normalize
-		for (int i = 0; i < DIMENSION_COUNT; i++) {
+		for (int i = 0; i < m_dimensionCount; i++) {
 			eValues[i] = normalize(eVecs[i]);
 		}
 		r = 1;
-		for (int i = 0; i < DIMENSION_COUNT; i++) {
+		for (int i = 0; i < m_dimensionCount; i++) {
 			// get absolute value (abs only defined for int)
 			double tmp = prod(eVecs[i], tmpOld[i]);
 			if (tmp < 0) {
@@ -391,15 +392,15 @@ void PivotMDS::singularValueDecomposition(
 	// calc C^TC
 	selfProduct(pivDistMatrix, K);
 
-	Array<Array<double> > tmp(DIMENSION_COUNT);
-	for (int i = 0; i < DIMENSION_COUNT; i++) {
+	Array<Array<double> > tmp(m_dimensionCount);
+	for (int i = 0; i < m_dimensionCount; i++) {
 		tmp[i].init(size);
 	}
 
 	eigenValueDecomposition(K, tmp, eVals);
 
 	// C^Tx
-	for (int i = 0; i < DIMENSION_COUNT; i++) {
+	for (int i = 0; i < m_dimensionCount; i++) {
 		eVals[i] = sqrt(eVals[i]);
 		for (int j = 0; j < n; j++) { // node j
 			eVecs[i][j] = 0;
@@ -408,7 +409,7 @@ void PivotMDS::singularValueDecomposition(
 			}
 		}
 	}
-	for (int i = 0; i < DIMENSION_COUNT; i++) {
+	for (int i = 0; i < m_dimensionCount; i++) {
 		normalize(eVecs[i]);
 	}
 }

@@ -168,6 +168,18 @@ double randomDouble(double low, double high)
 	return dist(s_random);
 }
 
+double randomDoubleExponential(double beta)
+{
+	OGDF_ASSERT(beta > 0);
+
+	std::exponential_distribution<> dist(beta);
+
+#ifndef OGDF_MEMORY_POOL_NTS
+	std::lock_guard<std::mutex> guard(s_randomMutex);
+#endif
+	return dist(s_random);
+}
+
 double usedTime(double& T)
 {
 	double t = T;

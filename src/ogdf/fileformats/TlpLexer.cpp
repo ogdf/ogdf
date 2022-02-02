@@ -173,6 +173,7 @@ bool Lexer::tokenizeString()
 		// Check whether we need to refill the buffer.
 		if(m_begin == m_end && !fetchBuffer()) {
 			GraphIO::logger.lout() << "End of input while parsing a string at (" << token.line << ", " << token.column << ")." << std::endl;
+			delete token.value;
 			return false;
 		}
 
@@ -192,6 +193,7 @@ bool Lexer::tokenizeString()
 		++m_begin;
 	}
 
+	delete token.value;
 	return true;
 }
 

@@ -244,10 +244,12 @@ void VisibilityLayout::constructVisibilityRepresentation(const UpwardPlanRep& UP
 	EdgeArray<face> rightFace_edge;
 
 	Graph D; // the dual graph of the UPR
-	node s_D; // super source of D
-	node t_D; // super sink f D
+	node s_D = nullptr; // super source of D
+	node t_D = nullptr; // super sink f D
 
 	constructDualGraph(UPR, D, s_D, t_D, faceToNode, leftFace_node, rightFace_node, leftFace_edge, rightFace_edge);
+	OGDF_ASSERT(s_D != nullptr);
+	OGDF_ASSERT(t_D != nullptr);
 #if 0
 	makeSimple(D);
 	if (t_D->degree() <= 1)

@@ -58,6 +58,22 @@ public:
 	 */
 	void call(const HierarchyLevelsBase &levels, GraphAttributes &GA) {
 		GraphAttributes AGC(levels.hierarchy());
+
+		// Copy over relevant nodeGraphics attributes that may be used by doCall
+		// or need to be preserved. edgeGraphics' bend points need to be cleared
+		// and are not copied over.
+		if (GA.has(GraphAttributes::nodeGraphics)) {
+			const GraphCopy &GC = dynamic_cast<const GraphCopy&>(AGC.constGraph());
+			for (node vOrig : GA.constGraph().nodes) {
+				node v = GC.copy(vOrig);
+				if (v != nullptr) {
+					AGC.height(v) = GA.height(vOrig);
+					AGC.width(v) = GA.width(vOrig);
+					AGC.shape(v) = GA.shape(vOrig);
+				}
+			}
+		}
+
 		doCall(levels,AGC);
 		AGC.transferToOriginal(GA);
 	}

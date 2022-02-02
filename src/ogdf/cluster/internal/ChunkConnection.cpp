@@ -49,8 +49,8 @@ using namespace abacus;
 ChunkConnection::ChunkConnection(Master *master, const ArrayBuffer<node>& chunk, const ArrayBuffer<node>& cochunk) :
 	BaseConstraint(master, nullptr, CSense::Greater, 1.0, false, false, true)
 {
-	chunk.compactMemcpy(m_chunk);
-	cochunk.compactMemcpy(m_cochunk);
+	chunk.compactCopy(m_chunk);
+	cochunk.compactCopy(m_cochunk);
 }
 
 

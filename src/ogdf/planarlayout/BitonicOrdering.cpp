@@ -370,6 +370,8 @@ void BitonicOrdering::consistencyCheck(GraphAttributes& GA) const
 					adj_last_succ = adj;
 
 			}
+			OGDF_ASSERT(adj_first_succ != nullptr);
+			OGDF_ASSERT(adj_last_succ != nullptr);
 
 
 			// we are going to look for bitonic succ lists

@@ -557,7 +557,7 @@ void createGraphAttributes(GraphAttributes &GA, bool squareNodes = false) {
 			GA.intWeight(e) = randomNumber(2, std::numeric_limits<int>::max());
 		}
 		if(attr & GraphAttributes::edgeDoubleWeight) {
-			GA.doubleWeight(e) = randomNumber(2, std::numeric_limits<int>::max());
+			GA.doubleWeight(e) = randomDouble(2.0, std::numeric_limits<int>::max()); // Use double, but only in a reasonable range (int)
 		}
 		if(attr & GraphAttributes::edgeLabel) {
 			GA.label(e) = to_string(randomNumber(1, std::numeric_limits<int>::max()));
@@ -616,6 +616,27 @@ void createClusterGraphAttributes(ClusterGraphAttributes& CGA) {
 }
 
 /**
+ * Writes \p GA into a stream and reads \p GA2 (and graph \p G2) from it.
+ * @param readerGA The parse function respecting GraphAttributes to be tested.
+ * @param writerGA The write function respecting GraphAttributes to be tested.
+ * @param GA GraphAttributes to write into a stream.
+ * @param GA2 GraphAttributes to read from the stream.
+ * @param G2 Graph of \p GA2.
+ */
+void writeAndReadGraphAttributes(GraphIO::AttrReaderFunc readerGA,
+		GraphIO::AttrWriterFunc writerGA,
+		GraphAttributes &GA, GraphAttributes &GA2, Graph &G2) {
+	std::ostringstream write;
+	auto flagsBefore = write.flags();
+	AssertThat(writerGA(GA, write), IsTrue());
+	AssertThat(write.flags(), Equals(flagsBefore));
+	std::istringstream read(write.str());
+	flagsBefore = read.flags();
+	AssertThat(readerGA(GA2, G2, read), IsTrue());
+	AssertThat(read.flags(), Equals(flagsBefore));
+}
+
+/**
  * Used to describe a format parser and writer that respects GraphAttributes.
  *
  * @copydetails describeFormat
@@ -644,6 +665,32 @@ void describeGAFormat(const std::string name,
 	describe("with GraphAttributes", [&]() {
 		describeFormat(name, graphOnlyReader, graphOnlyWriter, isXml, reqs);
 
+		it("writes and reads the same graph when no GraphAttributes are set", [&] {
+			Graph graph;
+			randomSimpleGraph(graph, 20, 40);
+			GraphAttributes GA(graph, attr);
+
+			Graph G2;
+			GraphAttributes GA2(G2, attr);
+			writeAndReadGraphAttributes(readerGA, writerGA, GA, GA2, G2);
+
+			AssertThat(G2.numberOfNodes(), Equals(graph.numberOfNodes()));
+			AssertThat(G2.numberOfEdges(), Equals(graph.numberOfEdges()));
+			if (attr & GraphAttributes::nodeId) {
+				for (node v : G2.nodes) {
+					AssertThat(GA2.idNode(v), !Equals(-1));
+					bool found{false};
+					for (node w : graph.nodes) {
+						if (GA.idNode(w) == GA2.idNode(v)) {
+							found = true;
+							break;
+						}
+					}
+					AssertThat(found, IsTrue());
+				}
+			}
+		});
+
 		// the following test needs nodeGraphics or nodeLabel in order to work;
 		// skip it if not available
 		bool infoAvailable(attr & (GraphAttributes::nodeGraphics | GraphAttributes::nodeLabel));
@@ -653,16 +700,10 @@ void describeGAFormat(const std::string name,
 			GraphAttributes GA(graph, attr); // all attributes specified in the call activated
 			createGraphAttributes(GA, name == "GEXF");
 
-			std::ostringstream write;
-			auto flagsBefore = write.flags();
-			AssertThat(writerGA(GA, write), Equals(true));
-			AssertThat(write.flags(), Equals(flagsBefore));
-			std::istringstream read(write.str());
 			Graph G2;
 			GraphAttributes GA2(G2, attr);
-			flagsBefore = read.flags();
-			AssertThat(readerGA(GA2, G2, read), Equals(true));
-			AssertThat(read.flags(), Equals(flagsBefore));
+			writeAndReadGraphAttributes(readerGA, writerGA, GA, GA2, G2);
+
 			assertEqualGAs(GA, GA2, supportsDirected);
 		}, !infoAvailable);
 	});
@@ -825,7 +866,7 @@ void describeDOTSpecialCases() {
 	it("reads a cluster graph", []() {
 		// Tests reading a DOT clustergraph, using a simplified version of:
 		// https://graphviz.gitlab.io/_pages/Gallery/directed/cluster.html
-		std::stringstream is{ResourceFile::data("fileformats/dot/valid/cluster")};
+		std::stringstream is{ResourceFile::data("fileformats/dot/valid/cluster.dot")};
 
 		Graph G;
 		ClusterGraph CG(G);
@@ -843,7 +884,7 @@ void describeDOTSpecialCases() {
 	});
 
 	it("reads assignment statements", []() {
-		std::stringstream is{ResourceFile::get("fileformats/dot/valid/assignments")->data()};
+		std::stringstream is{ResourceFile::get("fileformats/dot/valid/assignments.dot")->data()};
 
 		Graph G;
 		ClusterGraph CG(G);
@@ -855,7 +896,7 @@ void describeDOTSpecialCases() {
 	});
 
 	{ // a scope for the variables to deal with arrow types
-		std::stringstream is{ResourceFile::get("fileformats/dot/valid/arrowtypes")->data()};
+		std::stringstream is{ResourceFile::get("fileformats/dot/valid/arrowtypes.dot")->data()};
 		Graph G;
 		GraphAttributes GA(G, GraphAttributes::edgeArrow);
 		const bool readStatus = GraphIO::readDOT(GA, G, is);
@@ -1203,6 +1244,116 @@ void describeDMF() {
 	});
 }
 
+// This one is special: There is no writer for these files, so
+// the generic tests with `describeGAFormat` do not work.
+// In the resource folder are some example files with 6 nodes each:
+// - undirected.xml: weights between two nodes is (a.index + b.index)/2. There
+//   are 6*5 directed edges, but 6*5/2 expected since it is undirected.
+// - directed.xml: The weights are the same as for the undirected case.
+//   The direction of an edge is from higher index to lower index. So there
+//   are 6*5/2 directed edges.
+// - complete_directed.xml: Edge weight: (10*a.index + b.index). 6*5 edges.
+// Examples with 4 nodes:
+// - 4 cycle directed
+// - 4 cycle undirected
+void describeTsplibXml() {
+	describe("TsplibXml", [] {
+		auto test_simple = [](bool directed) {
+			std::string directedString = directed ? "directed" : "undirected";
+			it("reads a " + directedString + " graph with weights", [&] {
+				const string& data = ResourceFile::data("fileformats/tsplibxml/valid/" + directedString + ".xml");
+				Graph G;
+				GraphAttributes GA;
+				stringstream ss{data};
+				AssertThat(GraphIO::read(GA, G, ss), IsTrue());
+				AssertThat(GA.attributes(), Equals(GraphAttributes::edgeDoubleWeight));
+				AssertThat(GA.directed(), Equals(directed));
+				for (node n1 : G.nodes) {
+					for (node n2 : G.nodes) {
+						if (n1 == n2 || (directed && n1->index() < n2->index())) {
+							continue;
+						}
+						edge e = G.searchEdge(n1, n2, directed);
+						AssertThat(e, Is().Not().Null());
+						double expectedWeight = static_cast<double>(n1->index() + n2->index()) / 2.0;
+						AssertThat(GA.doubleWeight(e), Equals(expectedWeight));
+					}
+				}
+			});
+		};
+		test_simple(false);
+		test_simple(true);
+
+		it("reads a complete directed graph with weights", [&] {
+			const string& data = ResourceFile::data("fileformats/tsplibxml/valid/complete_directed.xml");
+			Graph G;
+			GraphAttributes GA;
+			stringstream ss{data};
+			AssertThat(GraphIO::read(GA, G, ss), IsTrue());
+			AssertThat(GA.attributes(), Equals(GraphAttributes::edgeDoubleWeight));
+			AssertThat(GA.directed(), IsTrue());
+			for (node n1 : G.nodes) {
+				for (node n2 : G.nodes) {
+					if (n1 == n2) {
+						continue;
+					}
+					edge e = G.searchEdge(n1, n2, true);
+					AssertThat(e, Is().Not().Null());
+					double expectedWeight = static_cast<double>(10 * n1->index() + n2->index());
+					AssertThat(GA.doubleWeight(e), Equals(expectedWeight));
+				}
+			}
+		});
+		it("reads an undirected 4 cycle", [&] {
+			const string& data = ResourceFile::data("fileformats/tsplibxml/valid/4cycle_undirected.xml");
+			Graph G;
+			GraphAttributes GA;
+			stringstream ss{data};
+			AssertThat(GraphIO::read(GA, G, ss), IsTrue());
+			AssertThat(GA.directed(), IsFalse());
+			int n = G.numberOfNodes();
+			AssertThat(n, Equals(4));
+			AssertThat(G.numberOfEdges(), Equals(4));
+			for (node u : G.nodes) {
+				int i = u->index();
+				List<adjEntry> adjs;
+				u->allAdjEntries(adjs);
+				AssertThat(adjs.size(), Equals(2));
+				node v = (*adjs.get(0))->twinNode();
+				node w = (*adjs.get(1))->twinNode();
+				AssertThat(u, Is().Not().EqualTo(v));
+				AssertThat(
+					(i == (v->index()-1 + n)%n && i == (w->index()+1)%n) ||
+					(i == (w->index()-1 + n)%n && i == (v->index()+1)%n),
+					IsTrue()); // Assert v and w wrapping around u: v-u-w or w-u-v
+			}
+		});
+		it("reads a directed 4 cycle", [&] {
+			const string& data = ResourceFile::data("fileformats/tsplibxml/valid/4cycle_directed.xml");
+			Graph G;
+			GraphAttributes GA;
+			stringstream ss{data};
+			AssertThat(GraphIO::read(GA, G, ss), IsTrue());
+			AssertThat(GA.directed(), IsTrue());
+			AssertThat(G.numberOfNodes(), Equals(4));
+			AssertThat(G.numberOfEdges(), Equals(4));
+			for (node u : G.nodes) {
+				AssertThat(u->adjEntries.size(), Equals(2));
+				// Find right node
+				node v = nullptr;
+				for (adjEntry adj : u->adjEntries) {
+					if (adj->isSource()) {
+						v = adj->twinNode();
+					}
+				}
+				AssertThat(u, Is().Not().Null());
+				AssertThat(u, Is().Not().EqualTo(v));
+				AssertThat(v->index(), Equals((u->index()+1)%G.numberOfNodes()));
+			}
+		});
+	});
+}
+
 void describeSpecificFormats() {
 	// Use the same order as in GraphIO.h
 	describeGML();
@@ -1225,10 +1376,11 @@ void describeSpecificFormats() {
 	describeDL();
 	describeSTP();
 	describeDMF();
+	describeTsplibXml();
 }
 
-void describeGenericReader() {
-	describe("generic reader", [] {
+void describeGenericAutoReader() {
+	describe("generic auto-detecting reader", [] {
 		auto genericTest = [](const ResourceFile* file, bool result) {
 			it((result ? "parses " : "does not recognize ") + file->fullPath(), [&]() {
 				Graph graph;
@@ -1273,9 +1425,12 @@ void describeGenericReader() {
 		for_each_file("fileformats/sparse6/valid", genericTestTrue);
 
 		for_each_file("fileformats/dmf/invalid", genericTestFalse);
+
+		for_each_file("fileformats/tsplibxml/valid", genericTestTrue);
+		for_each_file("fileformats/tsplibxml/invalid", genericTestFalse);
 	});
 
-	describe("generic reader with GraphAttributes", [] {
+	describe("generic auto-detecting reader with GraphAttributes", [] {
 		auto genericTest = [](const ResourceFile* file, bool result) {
 			it((result ? "parses " : "does not recognize ") + file->fullPath(), [&]() {
 				Graph graph;
@@ -1309,81 +1464,73 @@ void describeGenericReader() {
 		for_each_file("fileformats/stp/valid", genericTestTrue);
 
 		for_each_file("fileformats/dmf/invalid", genericTestFalse);
+
+		for_each_file("fileformats/tsplibxml/valid", genericTestTrue);
+		for_each_file("fileformats/tsplibxml/invalid", genericTestFalse);
 	});
 }
 
-void describeGenericWriter() {
-	describe("generic writer", [] {
-		auto fileExists = [](const string &filename) {
-			std::fstream fs(filename);
-			return fs.good();
+void describeGenericExtensionReadWrite() {
+	describe("generic extension-based", [] {
+		Graph out;
+		randomTree(out, 50);
+		auto checkExtensionWrite = [&out](const string &filename, GraphIO::ReaderFunc reader) {
+			AssertThat(GraphIO::write(out, filename), IsTrue());
+			Graph in;
+			AssertThat(GraphIO::read(in, filename, reader), IsTrue());
+			assertSeemsEqual(out, in);
+			std::remove(filename.c_str());
+		};
+		auto checkExtensionRead = [&out](const string &filename, GraphIO::WriterFunc writer) {
+			AssertThat(GraphIO::write(out, filename, writer), IsTrue());
+			Graph in;
+			AssertThat(GraphIO::read(in, filename), IsTrue());
+			assertSeemsEqual(out, in);
+			std::remove(filename.c_str());
 		};
 
-		describe("writing graphs in the correct format", [&]() {
-			std::vector<string> autoReadExtensions = {
-				"gml",
-				"leda",
-				"gw",
-				"chaco",
-				"pm",
-				"pmd",
-				"g6",
-				"d6",
-				"s6",
-				"graphml",
-				"dot",
-				"gv",
-				"gefx",
-				"gdf",
-				"tlp",
-				"dl"
-			};
-
-			Graph out;
-			randomTree(out, 50);
-			auto writeAndRead = [&out](const string &filename, GraphIO::ReaderFunc reader = nullptr) {
-				Graph in;
-				AssertThat(GraphIO::write(out, filename), IsTrue());
-				std::ifstream read(filename);
-				if (reader == nullptr) {
-					AssertThat(GraphIO::read(in, read), IsTrue());
-				} else {
-					AssertThat(reader(in, read), IsTrue());
-				}
-				assertSeemsEqual(out, in);
-				std::remove(filename.c_str());
-			};
-
-			for (auto ext : autoReadExtensions) {
-				string filename = "mygraph." + ext;
-				it("handles " + ext, [&]() {
-					writeAndRead(filename);
-				}, fileExists(filename));
+		for (const GraphIO::FileType &fileType : GraphIO::FILE_TYPES) {
+			for (const string &extension : fileType.extensions) {
+				if (!fileType.reader_func || !fileType.writer_func) continue;
+				string filename = "mygraph." + extension;
+				it("reads " + extension, [&]() {
+					checkExtensionRead(filename, fileType.writer_func);
+				});
+				it("writes " + extension, [&]() {
+					checkExtensionWrite(filename, fileType.reader_func);
+				});
 			}
+		}
 
-			string filename = "mygraph.rome";
-			it("handles rome", [&]() {
-				writeAndRead(filename, GraphIO::readRome);
-			}, fileExists(filename));
-
-			filename = "grafo42.50";
-			it("handles grafoX.Y (Rome graphs)", [&]() {
-				writeAndRead(filename, GraphIO::readRome);
-			}, fileExists(filename));
+		string filename = "grafo42.50";
+		it("reads grafoX.Y (Rome graphs)", [&]() {
+			checkExtensionRead(filename, GraphIO::writeRome);
+		});
+		it("writes grafoX.Y (Rome graphs)", [&]() {
+			checkExtensionWrite(filename, GraphIO::readRome);
 		});
 
-		string filename = "mygraph.xxx";
-		it("fails for an unknown file extension", [&filename]() {
-			Graph out;
+		filename = "mygraph.xxx";
+		it("fails when writing for an unknown file extension", [&filename, &out]() {
 			AssertThat(GraphIO::write(out, filename), IsFalse());
-		}, fileExists(filename));
+		});
+		it("fails when reading for an unknown file extension with weird contents", [&filename]() {
+			{
+				std::ofstream os(filename);
+				os << "weird contents";
+			}
+			Graph in;
+			AssertThat(GraphIO::getFileType(filename), IsNull());
+			AssertThat(GraphIO::read(in, filename), IsFalse());
+			std::remove(filename.c_str());
+		});
 	});
 }
 
 go_bandit([]() {
 	describe("GraphIO", []() {
 		describeSpecificFormats();
-		describeGenericReader();
-		describeGenericWriter();
+		describeGenericAutoReader();
+		describeGenericExtensionReadWrite();
 	});
 });

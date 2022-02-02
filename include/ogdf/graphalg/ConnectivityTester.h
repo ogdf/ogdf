@@ -43,6 +43,8 @@ namespace ogdf {
  * The connectivity is computed utilizing ogdf::MaxFlowModule.
  *
  * Note that the runtime might be improved by implementing a Gomory-Hu Tree.
+ *
+ * @ingroup ga-connectivity
  */
 class OGDF_EXPORT ConnectivityTester {
 private:

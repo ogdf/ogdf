@@ -42,7 +42,7 @@ using energybased::fmmm::numexcept;
 
 FMMMLayout::FMMMLayout()
 {
-	initialize_all_options();
+	resetOptions();
 }
 
 
@@ -260,7 +260,7 @@ void FMMMLayout::call_POSTPROCESSING_step(
 }
 
 
-void FMMMLayout::initialize_all_options()
+void FMMMLayout::resetOptions()
 {
 	//setting high level options
 	useHighLevelOptions(false);

@@ -265,17 +265,22 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 	//self loops are killed by the caller (e.g., the plugin interface)
 	//should be done here later
 
+#ifdef OGDF_DEBUG
 	const Graph& G = UG.constGraph();
 
 	//check for selfloops and handle them
 	for(edge e : G.edges) {
 		OGDF_ASSERT(!e->isSelfLoop());
 	}
+#endif
 
 	// check for generalization - nontrees
 	// if m_fakeTree is set, change type of "back" edges to association
 	m_fakedGens.clear();//?
-	bool treeGenerated = dfsGenTree(UG, m_fakedGens, m_fakeTree);
+#ifdef OGDF_DEBUG
+	bool treeGenerated =
+#endif
+		dfsGenTree(UG, m_fakedGens, m_fakeTree);
 	OGDF_ASSERT(treeGenerated);
 
 	ListConstIterator<edge> itE = m_fakedGens.begin();

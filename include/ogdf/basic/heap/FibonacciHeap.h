@@ -221,6 +221,7 @@ void FibonacciHeap<T, C>::release(FibonacciHeapNode<T> *heapNode)
 template<typename T, typename C>
 inline const T &FibonacciHeap<T, C>::top() const
 {
+	OGDF_ASSERT(m_minimal != nullptr);
 	return m_minimal->value;
 }
 

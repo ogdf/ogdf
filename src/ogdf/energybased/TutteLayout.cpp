@@ -1,7 +1,7 @@
 /** \file
  * \brief Definition of ogdf::TutteLayout.
  *
- * \author David Alberts \and Andrea Wagner
+ * \author David Alberts, Andrea Wagner
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

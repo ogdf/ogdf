@@ -202,7 +202,11 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 		}
 
 		NodeMerge * NM = new NodeMerge(level);
-		bool ret = MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
+		bool ret;
+#ifdef OGDF_DEBUG
+		ret =
+#endif
+			MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
 		OGDF_ASSERT( ret );
 		MLG.moveEdgesToParent(NM, mergeNode, parent, true, m_adjustEdgeLengths);
 		ret = MLG.postMerge(NM, mergeNode);

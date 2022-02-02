@@ -39,7 +39,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 
 // define for debugging
-//#define OUTPUT_TSO
+//#define OGDF_TSO_OUTPUT
 
 namespace ogdf {
 
@@ -312,7 +312,7 @@ void ComputeTricOrder::initOuterEdges()
 // adjSucc is the adjElement in counterclockwise order on the outerface
 node ComputeTricOrder::getOuterNodeDeg2(face f, NodeArray<adjEntry>& adjPred, NodeArray<adjEntry>& adjSucc){
 	// need the boolean value if v2 is found before another node with degree 2
-	bool foundV2;
+	bool foundV2 = false;
 	for (node v : m_outerNodes[f]){
 		if (v == m_v2){
 			foundV2 = true;
@@ -437,7 +437,7 @@ void TriconnectedShellingOrder::doCall(
 	// prefer nodes to faces?
 	bool preferNodes = false;
 
-	#ifdef OUTPUT_TSO
+	#ifdef OGDF_TSO_OUTPUT
 		std::cout << "Graph G is planar         == " << isPlanar(G)  << std::endl;
 		std::cout << "Graph G has no self loops == " << isLoopFree(G) 		<< std::endl;
 		std::cout << "Graph G is connected      == " << isConnected(G) 		<< std::endl;
@@ -454,7 +454,7 @@ void TriconnectedShellingOrder::doCall(
 	// set outerFace so adj is on it or to face with maximal size
 	face outerFace = (adj != nullptr) ? E.rightFace(adj) : E.maximalFace();
 
-#ifdef OUTPUT_TSO
+#ifdef OGDF_TSO_OUTPUT
 	std::cout << "faces:" << std::endl;
 	for(face fh : E.faces) {
 		if (fh == outerFace)
@@ -529,7 +529,7 @@ void TriconnectedShellingOrder::doCall(
 	ShellingOrderSet V;
 	// further auxiliary variables
 
-	#ifdef OUTPUT_TSO
+	#ifdef OGDF_TSO_OUTPUT
 		std::cout << "finished initialization of cto, adjSucc, adjPred." << std::endl << std::flush;
 		std::cout << "v1 = " << v1 << ", v2 = " << v2 << ", first possible node = " << adjRun->theNode() << std::endl;
 
@@ -550,7 +550,7 @@ void TriconnectedShellingOrder::doCall(
 		// check if the current selection is a node or a face
 		if (cto.isNode()){
 
-			#ifdef OUTPUT_TSO
+			#ifdef OGDF_TSO_OUTPUT
 				std::cout << " nextPossible is node " << vk << std::endl << std::flush;
 			#endif
 
@@ -564,7 +564,7 @@ void TriconnectedShellingOrder::doCall(
 		}
 		else{
 
-			#ifdef OUTPUT_TSO
+			#ifdef OGDF_TSO_OUTPUT
 				std::cout << " nextPossible is face " << Fk->index() << std::endl << std::flush;
 			#endif
 
@@ -600,7 +600,7 @@ void TriconnectedShellingOrder::doCall(
 			partition.pushFront(V);
 		}
 
-#ifdef OUTPUT_TSO
+#ifdef OGDF_TSO_OUTPUT
 		std::cout << "  set cl = " << cl << std::endl;
 		std::cout << "  set cr = " << cr << std::endl;
 #endif
@@ -653,7 +653,7 @@ void TriconnectedShellingOrder::doCall(
 		// update cto
 		cto.doUpdate();
 
-#ifdef OUTPUT_TSO
+#ifdef OGDF_TSO_OUTPUT
 		cto.output();
 #endif
 	}
@@ -664,7 +664,7 @@ void TriconnectedShellingOrder::doCall(
 	V[2] = v2;
 	partition.pushFront(V);
 
-	#ifdef OUTPUT_TSO
+	#ifdef OGDF_TSO_OUTPUT
 		std::cout << "output of the computed partition:" << std::endl;
 		int k = 1;
 		for (const ShellingOrderSet &S : partition) {

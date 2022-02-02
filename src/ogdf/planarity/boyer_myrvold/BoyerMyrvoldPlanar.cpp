@@ -634,6 +634,7 @@ bool BoyerMyrvoldPlanar::embed()
 				} else if (result == 1) {
 					// found stopping configuration
 					nonplanar = true;
+					// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks): findKuratowskis has to be nullptr since m_embeddingGrade never changes.
 					if (m_embeddingGrade <= EmbeddingGrade::doNotFind) return false;
 				}
 			}

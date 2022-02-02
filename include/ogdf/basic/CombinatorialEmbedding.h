@@ -39,6 +39,9 @@ namespace ogdf {
 
 using face = FaceElement*;
 
+//! Output operator for faces; prints face index (or "nil").
+OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::face f);
+
 // Definition of iterator and container types for adjacency entries in a face
 // These declarations are just internal representations
 namespace internal {
@@ -53,6 +56,8 @@ public:
 	FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
 	explicit FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
 	FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
+	FaceAdjIterator(const FaceAdjIterator&) = default;
+	FaceAdjIterator& operator=(const FaceAdjIterator&) = default;
 
 	bool operator==(const FaceAdjIterator &other) const {
 		return m_adj == other.m_adj;
@@ -62,15 +67,10 @@ public:
 		return m_adj != other.m_adj;
 	}
 
-	FaceAdjIterator &operator=(FaceAdjIterator &other) {
-		m_adjFirst = other.m_adjFirst;
-		m_adj = other.m_adj;
-		return *this;
-	}
-
 	adjEntry operator*() const { return m_adj; }
 
 	FaceAdjIterator &operator++() {
+		OGDF_ASSERT(m_adj != nullptr);
 		m_adj = m_adj->faceCycleSucc();
 		if (m_adj == m_adjFirst)
 			m_adj = nullptr;
@@ -524,24 +524,30 @@ public:
 	node splitNode(adjEntry adjStartLeft, adjEntry adjStartRight);
 
 	/**
-	 * \brief Contracts edge \p e.
-	 * @param e is an edge is the associated graph.
-	 * @return the node resulting from the contraction.
+	 * @copydoc Graph::contract(edge, bool)
 	 */
-	node contract(edge e);
+	node contract(edge e, bool keepSelfLoops = false);
 
 	/**
 	 * Splits a face by inserting a new edge.
 	 *
-	 * Creates a new edge from the node of \c adjSrc to the one of \c adjTgt.
+	 * Creates a new edge from the node of \p adjSrc to the one of \p adjTgt.
 	 * Note that this can also be achieved by inserting an edge
 	 * in the underlying graph directly and calling #computeFaces again.
 	 * In contrast, this operation achieves constant running time.
 	 *
-	 * \pre \c adjSrc and \c adjTgt are distinct AdjEntries, belonging to the same face.
-	 * \return The new edge.
+	 * \pre \p adjSrc and \p adjTgt belong to the same face.
+	 *
+	 * @param adjSrc The adjEntry after which the source adjEntry of the new
+	 * edge should be inserted.
+	 * @param adjTgt The adjEntry after which the target adjEntry of the new
+	 * edge should be inserted.
+	 * @param sourceAfter Only has an effect if \p adjSrc == \p adjTgt.
+	 * Marks whether the source of the introduced self-loop comes after its
+	 * target in the adjacency list.
+	 * @return The new edge.
 	 */
-	edge splitFace(adjEntry adjSrc, adjEntry adjTgt);
+	edge splitFace(adjEntry adjSrc, adjEntry adjTgt, bool sourceAfter = false);
 
 	/**
 	 * Inserts a new edge similarly to #splitFace without having to call #computeFaces again.
@@ -584,14 +590,6 @@ public:
 
 
 	/** @} */
-
-protected:
-	/**
-	 * \brief Joins the two faces adjacent to \p e but does not remove edge \p e.
-	 * @param e is an edge in the associated graph.
-	 * \return the resulting (joined) face.
-	 */
-	face joinFacesPure(edge e);
 
 private:
 	/**

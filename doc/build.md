@@ -6,11 +6,11 @@ The OGDF build configuration is generated using [CMake](http://www.cmake.org/).
 
 ## Requirements
 
- * CMake 3.1+
- * C++11 compliant compiler
-   * gcc 4.9.2+
-   * clang 3.5+
-   * Microsoft Visual C++ 2015+
+ * CMake 3.8+
+ * C++17 compliant compiler
+   * gcc 7+
+   * clang 6+
+   * Microsoft Visual C++ 2017 15.8+
  * GNU Make (in most cases)
  * Doxygen 1.8.6+ (optional)
 
@@ -42,16 +42,20 @@ Such a configuration is sufficient if you want to compile the Library with a sin
 ```
 $ cd OGDF
 $ cmake .
--- The CXX compiler identification is GNU 6.2.0
+-- The CXX compiler identification is GNU 10.3.0
 -- Check for working CXX compiler: /usr/bin/c++
 -- Check for working CXX compiler: /usr/bin/c++ -- works
 -- Detecting CXX compiler ABI info
 -- Detecting CXX compiler ABI info - done
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
+-- Performing Test has_mallinfo2
+-- Performing Test has_mallinfo2 - Failed
 -- Performing Test has_sse3_pmmintrin
 -- Performing Test has_sse3_pmmintrin - Success
--- Found Doxygen: /usr/bin/doxygen (found version "1.8.8")
+-- Performing Test has_linux_cpu_macros
+-- Performing Test has_linux_cpu_macros - Success
+-- Found Doxygen: /bin/doxygen (found version "1.8.13")
 -- The default target builds OGDF (and dependencies like COIN).
 --
 -- Other important targets:

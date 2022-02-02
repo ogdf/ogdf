@@ -44,7 +44,7 @@ namespace ogdf {
  * See paper "Graph Embedding with Minimum Depth and Maximum External Face"
  * by C. Gutwenger and P. Mutzel (2004) for details.
  */
-class OGDF_EXPORT EmbedderMinDepth : public embedder::EmbedderBCTreeBase<false>
+class OGDF_EXPORT EmbedderMinDepth : public embedder::EmbedderBCTreeBase<false, true>
 {
 public:
 	/**

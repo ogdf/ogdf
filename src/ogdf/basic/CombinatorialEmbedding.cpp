@@ -233,7 +233,7 @@ node CombinatorialEmbedding::splitNode(adjEntry adjStartLeft, adjEntry adjStartR
 }
 
 
-node CombinatorialEmbedding::contract(edge e)
+node CombinatorialEmbedding::contract(edge e, bool keepSelfLoops)
 {
 	// Since we remove edge e, we also remove adjSrc and adjTgt.
 	// We make sure that node of them is stored as first adjacency
@@ -254,7 +254,7 @@ node CombinatorialEmbedding::contract(edge e)
 		fTgt->entries.m_adjFirst = (adj != adjSrc) ? adj : adj->faceCycleSucc();
 	}
 
-	node v = m_pGraph->contract(e);
+	node v = m_pGraph->contract(e, keepSelfLoops);
 	--fSrc->m_size;
 	--fTgt->m_size;
 
@@ -266,24 +266,26 @@ node CombinatorialEmbedding::contract(edge e)
 }
 
 
-edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
+edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt, bool sourceAfter)
 {
 	OGDF_ASSERT(m_rightFace[adjSrc] == m_rightFace[adjTgt]);
-	OGDF_ASSERT(adjSrc != adjTgt);
 
 	edge e = m_pGraph->newEdge(adjSrc,adjTgt);
+	if (adjSrc == adjTgt && sourceAfter) {
+		m_pGraph->reverseEdge(e);
+	}
 
 	face f1 = m_rightFace[adjTgt];
-	face f2 = createFaceElement(adjSrc);
+	face f2 = createFaceElement(e->adjTarget());
 
-	adjEntry adj = adjSrc;
+	adjEntry adj = e->adjTarget();
 	do {
 		m_rightFace[adj] = f2;
 		f2->m_size++;
 		adj = adj->faceCycleSucc();
-	} while (adj != adjSrc);
+	} while (adj != e->adjTarget());
 
-	f1->entries.m_adjFirst = adjTgt;
+	f1->entries.m_adjFirst = e->adjSource();
 	f1->m_size += (2 - f2->m_size);
 	m_rightFace[e->adjSource()] = f1;
 
@@ -339,25 +341,11 @@ void CombinatorialEmbedding::updateMerger(edge e, face fRight, face fLeft)
 
 face CombinatorialEmbedding::joinFaces(edge e)
 {
-	face f = joinFacesPure(e);
-	m_pGraph->delEdge(e);
-
-#ifdef OGDF_HEAVY_DEBUG
-	consistencyCheck();
-#endif
-
-	return f;
-}
-
-face CombinatorialEmbedding::joinFacesPure(edge e)
-{
 	OGDF_ASSERT(e->graphOf() == m_pGraph);
 
 	// get the two faces adjacent to e
 	face f1 = m_rightFace[e->adjSource()];
 	face f2 = m_rightFace[e->adjTarget()];
-
-	OGDF_ASSERT(f1 != f2);
 
 	// we will reuse the largest face and delete the other one
 	if (f2->m_size > f1->m_size)
@@ -365,25 +353,42 @@ face CombinatorialEmbedding::joinFacesPure(edge e)
 
 	// the size of the joined face is the sum of the sizes of the two faces
 	// f1 and f2 minus the two adjacency entries of e
-	f1->m_size += f2->m_size - 2;
+	f1->m_size += (f1 == f2 ? -2 : f2->m_size - 2);
 
 	// If the stored (first) adjacency entry of f1 belongs to e, we must set
 	// it to the next entry in the face, because we will remove it by deleting
 	// edge e
-	if (f1->entries.m_adjFirst->theEdge() == e)
+	if (f1->entries.m_adjFirst->theEdge() == e) {
 		f1->entries.m_adjFirst = f1->entries.m_adjFirst->faceCycleSucc();
+	}
 
-	// each adjacency entry in f2 belongs now to f1
-	adjEntry adj1 = f2->firstAdj(), adj = adj1;
-	do {
-		m_rightFace[adj] = f1;
-	} while((adj = adj->faceCycleSucc()) != adj1);
+	if (f1 == f2) {
+		// If e is a bridge, both of its adjEntries belong to f1 (== f2).
+		// We might have to change the adjEntry again.
+		if (f1->entries.m_adjFirst->theEdge() == e) {
+			f1->entries.m_adjFirst = f1->entries.m_adjFirst->faceCycleSucc();
+		}
+	} else {
+		// each adjacency entry in f2 belongs now to f1
+		adjEntry adj1 = f2->firstAdj(), adj = adj1;
+		do {
+			m_rightFace[adj] = f1;
+		} while((adj = adj->faceCycleSucc()) != adj1);
 
-	faces.del(f2);
+		faces.del(f2);
+	}
+
+	// Delete e, but prevent dynamic binding of virtual method Graph::delEdge().
+	// This is for the case that m_pGraph is actually a pointer to a subclass of
+	// Graph, e.g. a GraphCopy. Call Graph::delEdge(), not GraphCopy::delEdge().
+	m_pGraph->Graph::delEdge(e);
+
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
 
 	return f1;
 }
-
 
 void CombinatorialEmbedding::reverseEdge(edge e)
 {
@@ -441,6 +446,9 @@ void CombinatorialEmbedding::removeDeg1(node v)
 		f->entries.m_adjFirst = adj->faceCycleSucc();
 	f->m_size -= 2;
 
+	// Delete the last incident edge of v via Graph::delEdge().
+	// GraphCopy::delEdge() would delete the whole chain of that last edge.
+	m_pGraph->Graph::delEdge(adj->theEdge());
 	m_pGraph->delNode(v);
 
 #ifdef OGDF_HEAVY_DEBUG
@@ -583,6 +591,16 @@ adjEntry ConstCombinatorialEmbedding::findCommonFace(const node v, const node w,
 		}
 	}
 	return nullptr;
+}
+
+std::ostream &operator<<(std::ostream &os, ogdf::face f)
+{
+	if (f) {
+		os << f->index();
+	} else {
+		os << "nil";
+	}
+	return os;
 }
 
 }

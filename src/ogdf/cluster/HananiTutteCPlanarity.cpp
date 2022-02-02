@@ -1078,7 +1078,7 @@ HananiTutteCPlanarity::Verification HananiTutteCPlanarity::isCPlanar(const Clust
 	return Verification::verificationFailed;  // never reached (silence compiler warning)
 }
 
-//#define PRINT_INFO
+//#define OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 
 static bool areAdjacent(node v, node w)
 {
@@ -1139,7 +1139,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 	}
 
 	if(!toRemove.empty()) {
-#ifdef PRINT_INFO
+#ifdef OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 		std::cout << "Remove " << toRemove.size() << " deg-0/1 vertices" << std::endl;
 #endif
 		modified = true;
@@ -1181,7 +1181,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 
 
 	if(!toRemove.empty()) {
-#ifdef PRINT_INFO
+#ifdef OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 		std::cout << "Unsplit " << toRemove.size() << " deg-2 vertices" << std::endl;
 #endif
 		modified = true;
@@ -1223,7 +1223,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 		}
 
 		if(replaceByStar) {
-#ifdef PRINT_INFO
+#ifdef OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 			std::cout << "Replace cluster by star" << std::endl;
 #endif
 			modified = true;
@@ -1257,7 +1257,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 	}
 
 	if(!toRemoveC.empty()) {
-#ifdef PRINT_INFO
+#ifdef OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 		std::cout << "Remove " << toRemoveC.size() << " 2-node clusters" << std::endl;
 #endif
 		modified = true;
@@ -1277,7 +1277,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 	}
 
 	if(!toRemoveC.empty()) {
-#ifdef PRINT_INFO
+#ifdef OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 		std::cout << "Remove " << toRemoveC.size() << " singleton clusters" << std::endl;
 #endif
 		modified = true;
@@ -1294,7 +1294,7 @@ static bool preprocessStep(ClusterGraph &C, Graph &G)
 	C.emptyClusters(toRemoveC);
 
 	if(!toRemoveC.empty()) {
-#ifdef PRINT_INFO
+#ifdef OGDF_HANANI_TUTTE_CPLANARITY_OUTPUT
 		std::cout << "Remove " << toRemoveC.size() << " empty clusters" << std::endl;
 #endif
 		modified = true;

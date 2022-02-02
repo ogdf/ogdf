@@ -65,7 +65,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 		edge e = adj->theEdge();
 
 		IPolyline &ip = gl.bends(e);
-		int xc = gl.x(v), yc = gl.y(v);
+		int xc, yc;
 		int xxc =  gl.x(v), yyc = gl.y(v);
 		int add_l = 0;
 		do {
@@ -109,6 +109,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 		if (3 < count)
 			break;
 	}
+	OGDF_ASSERT(count == 4);
 
 	for (auto &elem : ev)
 	{

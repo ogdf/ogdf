@@ -46,6 +46,9 @@ FastMultipoleEmbedder::FastMultipoleEmbedder()
 	m_randomize = true;
 	m_numberOfThreads = 0;
 	m_maxNumberOfThreads = 1; //the only save value
+	m_pGraph = nullptr;
+	m_threadPool = nullptr;
+	m_pOptions = nullptr;
 }
 
 FastMultipoleEmbedder::~FastMultipoleEmbedder(void)

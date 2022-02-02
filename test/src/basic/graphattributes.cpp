@@ -42,7 +42,7 @@ using GA = GraphAttributes;
  * \param elemFunc Returns a list of elements which properties are to be tested.
  * \param refFunc Returns a non-const reference to the attribute (getter & setter to be tested).
  * \param constRefFunc Returns a copy of the attribute (second getter to be tested).
- * \param defaultValue Value that the attribute is supposed to be initialized to.
+ * \param defaultValueFunc Returns the value that the attribute is supposed to be initialized to.
  * \param secondValue Differs from \p defaultValue, used for testing setters.
  * \param neededAttributes Attribute flags that are required to enable the attribute.
  * \param attributeName Human-readable name of the property. Used to create a title for the test.
@@ -54,7 +54,7 @@ void testAttribute(
 	std::function<List<Element>(const Graph&)> elemFunc,
 	std::function<Attribute& (GraphAttributes&, Element)> refFunc,
 	std::function<Attribute (const GraphAttributes&, Element)> constRefFunc,
-	Attribute defaultValue,
+	std::function<Attribute (Element)> defaultValueFunc,
 	Attribute secondValue,
 	long neededAttributes,
 	string attributeName)
@@ -81,6 +81,7 @@ void testAttribute(
 
 		it("gets the value", [&] {
 			for(Element elem : elements) {
+				Attribute defaultValue = defaultValueFunc(elem);
 				AssertThat(constRefFunc(attr, elem), Equals(defaultValue));
 				AssertThat(refFunc(attr, elem), Equals(defaultValue));
 				AssertThat(constRefFunc(attrCopy, elem), Equals(defaultValue));
@@ -90,6 +91,7 @@ void testAttribute(
 
 		it("sets the value", [&] {
 			for(Element elem : elements) {
+				Attribute defaultValue = defaultValueFunc(elem);
 				Attribute &value = refFunc(attr, elem);
 				value = secondValue;
 				AssertThat(refFunc(attr, elem), Equals(secondValue));
@@ -104,6 +106,28 @@ void testAttribute(
 			AssertThat(attr.has(neededAttributes), IsTrue());
 		});
 	});
+}
+
+//! @see testAttribute
+template<class Attribute, class Element>
+void testAttribute(
+	std::function<List<Element>(const Graph&)> elemFunc,
+	std::function<Attribute& (GraphAttributes&, Element)> refFunc,
+	std::function<Attribute (const GraphAttributes&, Element)> constRefFunc,
+	Attribute defaultValue,
+	Attribute secondValue,
+	long neededAttributes,
+	string attributeName)
+{
+	testAttribute<Attribute, Element>(
+		elemFunc,
+		refFunc,
+		constRefFunc,
+		[&defaultValue](Element) { return defaultValue; },
+		secondValue,
+		neededAttributes,
+		attributeName
+	);
 }
 
 //! @see testAttribute
@@ -340,7 +364,7 @@ describe("graph attributes", [] {
 		testNodeAttribute<int>(
 			[](GraphAttributes &a, node v) -> int& { return a.idNode(v); },
 			[](const GraphAttributes &a, node v) { return a.idNode(v); },
-			-1, 42,
+			[](node v) -> int { return v->index(); }, 42,
 			GA::nodeId, "idNode");
 
 		describe("advanced", [] {

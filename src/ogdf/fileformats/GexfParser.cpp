@@ -561,7 +561,7 @@ bool Parser::readAttributes(
 			GA.label(v) = labelAttr.as_string();
 		}
 	}
-	for(const pugi::xml_node tag : nodeTag.children()) {
+	for(const pugi::xml_node& tag : nodeTag.children()) {
 		if(string(tag.name()) == "nodes") {
 			continue;
 		} else if(string(tag.name()) == "attvalues") {
@@ -595,7 +595,7 @@ bool Parser::readAttributes(
 		GA.intWeight(e) = weightAttr.as_int();
 	}
 
-	for(const pugi::xml_node tag : edgeTag.children()) {
+	for(const pugi::xml_node& tag : edgeTag.children()) {
 		if(string(tag.name()) == "attvalues") {
 			return readAttValues(GA, e, tag, m_edgeAttr);
 		} else if(!readVizAttribute(GA, e, tag)) {

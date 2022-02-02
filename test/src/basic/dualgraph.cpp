@@ -1,7 +1,7 @@
 /** \file
  * \brief Tests for ogdf::DualGraph.
  *
- * \author Mirko Wagner, Tilo Wiedera
+ * \author Mirko Wagner, Tilo Wiedera, Max Ilsen
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -36,15 +36,11 @@
 #include <graphs.h>
 #include <testing.h>
 
-//! Creates a DualGraph of \p graph and runs several tests on it.
-void describeDualGraph(Graph &graph) {
-	if (graph.numberOfEdges() < 1) {
-		return;
-	}
-	planarEmbed(graph);
-	ConstCombinatorialEmbedding emb(graph);
-	DualGraph dual(emb);
-
+//! Tests consistency of a DynamicDualGraph \p dual and its corresponding primal
+//! embedding \p emb as well as the primal graph &graph.
+void describeDualGraph(const DynamicDualGraph &dual,
+		const ConstCombinatorialEmbedding &emb,
+		const Graph &graph) {
 	it("returns its primal embedding", [&] {
 		AssertThat(&dual.getPrimalEmbedding(), Equals(&emb));
 	});
@@ -92,10 +88,101 @@ void describeDualGraph(Graph &graph) {
 	});
 }
 
+//! Creates a DualGraph of \p graph and runs several tests on it.
+void describeDualGraph(const Graph &graph) {
+	if (graph.numberOfEdges() < 1) {
+		return;
+	}
+
+	GraphCopy copy;
+	CombinatorialEmbedding emb;
+	std::unique_ptr<DynamicDualGraph> dual;
+
+	describe("initialization", [&] {
+		copy.init(graph);
+		planarEmbed(copy);
+		emb.init(copy);
+		dual.reset(new DynamicDualGraph {emb});
+		describeDualGraph(*dual, emb, copy);
+	});
+
+	if (graph.numberOfEdges() > 2) {
+		describe("split and unsplit edges", [&] {
+			copy.init(graph);
+			planarEmbed(copy);
+			emb.init(copy);
+			dual.reset(new DynamicDualGraph {emb});
+			internal::GraphObjectContainer<ogdf::EdgeElement>::iterator it {copy.edges.begin()};
+			for (int i {0}; i < min(10, copy.numberOfEdges()); ++i) {
+				edge e {*it};
+				it++;
+				edge eOut {dual->splitPrimal(e)};
+				dual->unsplitPrimal(e, eOut);
+			}
+			describeDualGraph(*dual, emb, copy);
+		});
+
+		describe("split and unsplit faces", [&] {
+			copy.init(graph);
+			planarEmbed(copy);
+			emb.init(copy);
+			dual.reset(new DynamicDualGraph {emb});
+			internal::GraphObjectContainer<ogdf::FaceElement>::iterator it {emb.faces.begin()};
+			for (int i {0}; i < min(10, emb.numberOfFaces()); ++i) {
+				face f {*it};
+				it++;
+				adjEntry firstAdj {f->firstAdj()};
+				edge e {dual->splitFacePrimal(firstAdj, firstAdj->clockwiseFacePred())};
+				dual->joinFacesPrimal(e);
+			}
+			describeDualGraph(*dual, emb, copy);
+		});
+
+		describe("split and join nodes", [&] {
+			copy.init(graph);
+			planarEmbed(copy);
+			emb.init(copy);
+			dual.reset(new DynamicDualGraph {emb});
+			internal::GraphObjectContainer<ogdf::NodeElement>::iterator it {copy.nodes.begin()};
+			for (int i {0}; i < min(10, copy.numberOfNodes()); ++i) {
+				node v {*it};
+				it++;
+				adjEntry firstAdj {v->firstAdj()};
+				dual->splitNodePrimal(firstAdj, firstAdj->cyclicPred());
+				dual->contractPrimal(firstAdj->cyclicPred()->theEdge(), true);
+				// TODO If contractPrimal-param keepSelfLoops is set to false,
+				// this fails.
+			}
+			describeDualGraph(*dual, emb, copy);
+		});
+
+		describe("add and remove degree-1-nodes", [&] {
+			copy.init(graph);
+			planarEmbed(copy);
+			emb.init(copy);
+			dual.reset(new DynamicDualGraph {emb});
+			internal::GraphObjectContainer<ogdf::NodeElement>::iterator it {copy.nodes.begin()};
+			for (int i {0}; i < min(10, copy.numberOfNodes()); ++i) {
+				node v {*it};
+				it++;
+				adjEntry firstAdj {v->firstAdj()};
+				node newNode {copy.newNode()};
+				if (randomNumber(0,1) == 0) {
+					dual->addEdgeToIsolatedNodePrimal(firstAdj, newNode);
+				} else {
+					dual->addEdgeToIsolatedNodePrimal(newNode, firstAdj);
+				}
+				dual->removeDeg1Primal(newNode);
+			}
+			describeDualGraph(*dual, emb, copy);
+		});
+	}
+}
+
 go_bandit([]() {
 	describe("DualGraph",[] {
 		forEachGraphDescribe({GraphProperty::planar, GraphProperty::connected},
-			[&](Graph &graph) { describeDualGraph(graph); }
+			[&](const Graph &graph) { describeDualGraph(graph); }
 		);
 	});
 });

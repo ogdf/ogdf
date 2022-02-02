@@ -122,7 +122,8 @@ public:
 
 	/**
 	 * \brief A shortcut to get the solution of a reduced instance.
-	 * Note that you have to apply reductions first, e.g., reduceFast().
+	 * Note that you have to apply reductions first,
+	 * e.g., reduceFast() or reduceFastAndDualAscent().
 	 * @param mst A MinSteinerTreeModule<T> instance that is used to solve the problem
 	 * @param finalSteinerTree A pointer to the final Steiner tree (has to be freed)
 	 * @return The weight of the final Steiner tree

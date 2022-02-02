@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<travellingSalesmanProblemInstance>
+  <name>empty</name>
+  <source>TSPLIB</source>
+  <description>empty</description>
+  <doublePrecision>15</doublePrecision>
+  <ignoredDigits>5</ignoredDigits>
+  <graph></graph>
+</travellingSalesmanProblemInstance>

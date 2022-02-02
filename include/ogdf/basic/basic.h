@@ -81,6 +81,14 @@ class AssertionFailed : public std::runtime_error {
 
 //! @}
 
+// g++ 4.8/4.9 does not have is_trivially_copyable,
+// but clang 3.5 (which is also __GNUC__ < 5) has it.
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5
+#define OGDF_TRIVIALLY_COPYABLE std::has_trivial_copy_assign
+#else
+#define OGDF_TRIVIALLY_COPYABLE std::is_trivially_copyable
+#endif
+
 #include <cstdint>
 #include <cmath>
 #include <ctime>
@@ -171,6 +179,13 @@ inline double randomDoubleNormal(double m, double sd)
 
 	return m + y1 * sd;
 }
+
+//! Returns a random double value from the exponential distribution.
+/**
+ * <H3>Thread Safety</H3>
+ * This functions is thread-safe.
+ */
+OGDF_EXPORT double randomDoubleExponential(double beta);
 
 //! @}
 

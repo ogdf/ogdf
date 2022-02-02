@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<travellingSalesmanProblemInstance>
+  <name>undirected</name>
+  <source>TSPLIB</source>
+  <description>undirected</description>
+  <doublePrecision>15</doublePrecision>
+  <ignoredDigits>5</ignoredDigits>
+  <graph>
+    <vertex>
+      <edge cost="0.500000000000000e+00">1</edge>
+      <edge cost="1.000000000000000e+00">2</edge>
+      <edge cost="1.500000000000000e+00">3</edge>
+      <edge cost="2.000000000000000e+00">4</edge>
+      <edge cost="2.500000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="0.500000000000000e+00">0</edge>
+      <edge cost="1.500000000000000e+00">2</edge>
+      <edge cost="2.000000000000000e+00">3</edge>
+      <edge cost="2.500000000000000e+00">4</edge>
+      <edge cost="3.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.000000000000000e+00">0</edge>
+      <edge cost="1.500000000000000e+00">1</edge>
+      <edge cost="2.500000000000000e+00">3</edge>
+      <edge cost="3.000000000000000e+00">4</edge>
+      <edge cost="3.500000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.500000000000000e+00">0</edge>
+      <edge cost="2.000000000000000e+00">1</edge>
+      <edge cost="2.500000000000000e+00">2</edge>
+      <edge cost="3.500000000000000e+00">4</edge>
+      <edge cost="4.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="2.000000000000000e+00">0</edge>
+      <edge cost="2.500000000000000e+00">1</edge>
+      <edge cost="3.000000000000000e+00">2</edge>
+      <edge cost="3.500000000000000e+00">3</edge>
+      <edge cost="4.500000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="2.500000000000000e+00">0</edge>
+      <edge cost="3.000000000000000e+00">1</edge>
+      <edge cost="3.500000000000000e+00">2</edge>
+      <edge cost="4.000000000000000e+00">3</edge>
+      <edge cost="4.500000000000000e+00">4</edge>
+    </vertex>
+  </graph>
+</travellingSalesmanProblemInstance>

@@ -95,7 +95,7 @@ void EmbedderMinDepth::doCall(Graph& G, adjEntry& adjExternal)
 
 	//compute bT_opt:
 	int depth = maxint;
-	node bT_opt;
+	node bT_opt = nullptr;
 	for(node n : pBCTree->bcTree().nodes)
 	{
 		if (pBCTree->typeOfBNode(n) != BCTree::BNodeType::BComp)
@@ -106,6 +106,7 @@ void EmbedderMinDepth::doCall(Graph& G, adjEntry& adjExternal)
 			bT_opt = n;
 		}
 	}
+	OGDF_ASSERT(bT_opt != nullptr);
 
 	//Second step: Embed G by expanding a maximum face in bT_opt
 	newOrder.init(G);
@@ -605,6 +606,7 @@ void EmbedderMinDepth::embedBlock(
 		if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex)
 		{
 			node cT2 = pBCTree->bcproper(nG);
+			OGDF_ASSERT(cT2 != nullptr);
 			bool no_recursion = false;
 			if (cT2 == cT)
 			{

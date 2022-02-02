@@ -135,7 +135,7 @@ protected:
 	}
 };
 
-//! A variant of BinaryHeapSimple which always holds only the X (e.g. X=10) elements with the highest keys.
+//! A variant of BinaryHeapSimple which always holds only the 10 elements with the highest keys.
 /**
  * It assumes that the data-elements are themselves comparable, i.e., the compare-function
  * of the items implicitly defines the keys.

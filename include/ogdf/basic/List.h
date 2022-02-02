@@ -239,6 +239,7 @@ public:
 	 * The list \p L is empty afterwards.
 	 */
 	ListPure(ListPure<E> &&L) : m_head(L.m_head), m_tail(L.m_tail) {
+		reassignListRefs();
 		L.m_head = L.m_tail = nullptr;
 	}
 

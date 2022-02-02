@@ -638,6 +638,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjSource())], nullptr) );
 		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjTarget())], nullptr) );
 	} else {
+		OGDF_ASSERT(v1 != nullptr);
 		for(adjEntry adj : v1->adjEntries)
 			nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(adj)], nullptr) );
 	}
@@ -649,6 +650,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 		stopVertex[faceNode[emb.rightFace(e2->adjSource())]] = true;
 		stopVertex[faceNode[emb.rightFace(e2->adjTarget())]] = true;
 	} else {
+		OGDF_ASSERT(v2 != nullptr);
 		for(adjEntry adj : v2->adjEntries)
 			stopVertex[faceNode[emb.rightFace(adj)]] = true;
 	}
@@ -1184,7 +1186,7 @@ void MultiEdgeApproxInserter::recFlipPref(
 // currently not supported:
 //   frobidCrossingGens, forbiddenEdgeOrig, edgeSubGraphs
 const char *strType[] = { "S", "P", "R" };
-//#define MEAI_OUTPUT
+//#define OGDF_MEAI_OUTPUT
 
 struct CutvertexPreference {
 	CutvertexPreference(node v1, int b1, node v2, int b2)
@@ -1286,7 +1288,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 		computePathBC(i);
 		m_sumInsertionCosts += m_insertionCosts[i];
 
-#ifdef MEAI_OUTPUT
+#ifdef OGDF_MEAI_OUTPUT
 		std::cout << "(" << PG.copy((*m_edge)[i]->source()) << "," << PG.copy((*m_edge)[i]->target()) << ")  c = " << m_insertionCosts[i] << ":\n";
 		for (const auto &vblock : m_pathBCs[i]) {
 			int b = vblock.m_block;

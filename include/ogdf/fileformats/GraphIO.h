@@ -37,6 +37,7 @@
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 #include <sstream>
+#include <unordered_map>
 
 
 namespace ogdf {
@@ -49,7 +50,7 @@ namespace ogdf {
 class GraphIO
 {
 public:
-	static Logger OGDF_EXPORT logger;
+	static OGDF_EXPORT Logger logger;
 
 	//! Type of simple graph reader functions working on streams
 	using ReaderFunc = bool (*)(Graph&, std::istream&);
@@ -74,6 +75,45 @@ public:
 
 	//! Type of cluster graph attributes writer functions working on streams
 	using ClusterAttrWriterFunc = bool (*)(const ClusterGraphAttributes&, std::ostream&);
+
+	struct FileType {
+		std::vector<std::string> extensions;
+		ReaderFunc reader_func;
+		ReaderFunc auto_reader_func;
+		WriterFunc writer_func;
+		AttrReaderFunc attr_reader_func;
+		AttrReaderFunc auto_attr_reader_func;
+		AttrWriterFunc attr_writer_func;
+		ClusterReaderFunc cluster_reader_func;
+		ClusterReaderFunc auto_cluster_reader_func;
+		ClusterWriterFunc cluster_writer_func;
+		ClusterAttrReaderFunc cluster_attr_reader_func;
+		ClusterAttrReaderFunc auto_cluster_attr_reader_func;
+		ClusterAttrWriterFunc cluster_attr_writer_func;
+
+		explicit FileType(std::vector<std::string> extensions,
+				 ReaderFunc readerFunc = nullptr,
+				 WriterFunc writerFunc = nullptr,
+				 AttrReaderFunc attrReaderFunc = nullptr,
+				 AttrWriterFunc attrWriterFunc = nullptr,
+				 ClusterReaderFunc clusterReaderFunc = nullptr,
+				 ClusterWriterFunc clusterWriterFunc = nullptr,
+				 ClusterAttrReaderFunc clusterAttrReaderFunc = nullptr,
+				 ClusterAttrWriterFunc clusterAttrWriterFunc = nullptr);
+
+		FileType &replaceAutoReaders(
+				ReaderFunc readerFunc = nullptr,
+				AttrReaderFunc attrReaderFunc = nullptr,
+				ClusterReaderFunc clusterReaderFunc = nullptr,
+				ClusterAttrReaderFunc clusterAttrReaderFunc = nullptr);
+	};
+
+	static const OGDF_EXPORT std::vector<FileType> FILE_TYPES;
+	static OGDF_EXPORT std::unordered_map<string, const FileType *> FILE_TYPE_MAP;
+
+	static OGDF_EXPORT const std::unordered_map<string, const FileType *> &getFileTypeMap();
+
+	static OGDF_EXPORT const FileType *getFileType(const string &filename);
 
 	//! Condensed settings for drawing SVGs
 	class OGDF_EXPORT SVGSettings
@@ -153,116 +193,243 @@ public:
 	/**
 	 * @name Graphs
 	 * These functions read and write graphs (instances of type Graph) in various graph formats.
+	 * If you have a stream object and know the file format beforehand, you can call the corresponding method directly (e.g. #readGML or #writeGML).
+	 * If you have a filename and the format is fixed, you can use the following methods and pass the desired method for your format.
+	 * If you have a filename and the format should be determined from the file extension, use the following methods without passing a method.
+	 * If you have a stream and the format should be determined from its contents, use #read and pass your stream.
+	 *
+	 * <table>
+	 * <caption id="multi_row">Supported File Types</caption>
+	 * <tr>
+	 * 	<th>Name<th>Known Extensions
+	 * 	<th>Read Graph<th>Write Graph<th>Read GraphAttributes<th>Write GraphAttributes
+	 * 	<th>Read ClusterGraph<th>Write ClusterGraph<th>Read ClusterGraphAttributes<th>Write ClusterGraphAttributes
+	 * <tr>
+	 * 	<td>DOT
+	 * 	<td>.dot, .gv
+	 * 	<td>X<td>X<td>X<td>X<td>X<td>X<td>X<td>X
+	 * <tr>
+	 * 	<td>GML
+	 * 	<td>.gml
+	 * 	<td>X<td>X<td>X<td>X<td>X<td>X<td>X<td>X
+	 * <tr>
+	 * 	<td>TLP
+	 * 	<td>.tlp
+	 * 	<td>X<td>X<td>X<td>X<td>X<td>X<td>X<td>X
+	 * <tr>
+	 * 	<td>LEDA
+	 * 	<td>.leda
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>Chaco
+	 * 	<td>.chaco
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>DL
+	 * 	<td>.dl
+	 * 	<td>X<td>X<td>X<td>X<td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>GDF
+	 * 	<td>.gdf
+	 * 	<td>X<td>X<td>X<td>X<td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>GraphML
+	 * 	<td>.graphml
+	 * 	<td>X<td>X<td>X<td>X<td>X<td>X<td>X<td>X
+	 * <tr>
+	 * 	<td>GEXF
+	 * 	<td>.gexf
+	 * 	<td>X<td>X<td>X<td>X<td>X<td>X<td>X<td>X
+	 * <tr>
+	 * 	<td>STP
+	 * 	<td>.stp
+	 * 	<td>X<td> <td>X<td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>Graph6
+	 * 	<td>.g6
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>Digraph6
+	 * 	<td>.d6
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>Sparse6
+	 * 	<td>.s6
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>DMF
+	 * 	<td>.dmf
+	 * 	<td>X<td> <td>X<td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>PMDiss
+	 * 	<td>.pm, .pmd
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>Rudy
+	 * 	<td>.rudy
+	 * 	<td>X<td> <td>X<td>X<td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>SVG
+	 * 	<td>.svg
+	 * 	<td> <td> <td> <td>X<td> <td> <td> <td>X
+	 * <tr>
+	 * 	<td>Rome
+	 * 	<td>.rome, .grafoX.Y
+	 * 	<td>X<td>X<td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>MatrixMarket
+	 * 	<td>.mtx
+	 * 	<td>X<td> <td> <td> <td> <td> <td> <td>
+	 * <tr>
+	 * 	<td>TsplibXml
+	 * 	<td>.xml
+	 * 	<td>X<td> <td>X<td> <td> <td> <td> <td>
+	 * </table>
+	 *
+	 * Note: The Rome and MatrixMarket formats won't be guessed from an input stream, as they would also wrongly interpret files of other formats.
+	 * Use a filename matching "*.rome" or "grafo*.*" / "*.mtx" or pass the readRome / readMatrixMarket reader explicitly if you are reading Rome / MatrixMarket files.
+	 * Similarly, (Di)Graph6/Sparse6 files will only be guessed from an input stream if they include the header specified as optional by the file format.
+	 * If you have a (Di)Graph6/Sparse6 file without a header, pass it using its filename (with the appropriate extension) or pass the right reader function explicitly.
+	 *
+	 * \sa std::vector<FileType> FILE_TYPES
 	 */
 	//@{
 
-	//! Reads arbitrary format from a file specified by name.
 	/**
-	 * @param G graph to be read.
-	 * @param filename name of the file to read from.
-	 * @param reader format to be used (e.g. #readGML), use #read(Graph &G, std::istream &is) for automated detection
+	 * Reads graph \p G from a file with name \p filename and infers the used format from the file's extension.
+	 *
+	 * @param G the Graph
+	 * @param filename the file
+	 * @param reader format to be used (e.g. #readGML), use nullptr (the default) for automated detection from filename extension
+	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
 	 * @return true if successful, false otherwise.
 	 */
-	static inline bool read(Graph &G, const string &filename, ReaderFunc reader = GraphIO::read) {
-		std::ifstream is(filename);
-		return is.good() && reader(G, is);
-	}
+	static OGDF_EXPORT bool read(Graph &G, const string &filename, ReaderFunc reader = nullptr);
 
-	//! Writes arbitrary format to a file specified by name.
 	/**
-	 * @param G graph to be written.
-	 * @param filename name of the file to write to.
-	 * @param writer format to be used (e.g. #writeGML)
+	 * Reads graph \p G and its attributes \p GA from a file with name \p filename and infers the used format from the file's extension.
+	 *
+	 * @param G the Graph
+	 * @param GA its attributes
+	 * @param filename the file
+	 * @param reader format to be used (e.g. #readGML), use nullptr (the default) for automated detection from filename extension
+	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
 	 * @return true if successful, false otherwise.
 	 */
-	static inline bool write(const Graph &G, const string &filename, WriterFunc writer) {
-		std::ofstream os(filename);
-		return os.good() && writer(G, os);
-	}
+	static OGDF_EXPORT bool read(GraphAttributes &GA, Graph &G, const string &filename, AttrReaderFunc reader = nullptr);
 
-	//! Writes \p G to a file specified by name.
 	/**
-	 * The format of the file is deduced from the file extension of \p filename.
+	 * Reads graph \p G and a clustering \p CG of G from a file with name \p filename and infers the used format from the file's extension.
 	 *
-	 * @param G graph to be written.
-	 * @param filename name of the file to write to.
-	 * @return true if successful (including successful file format deduction),
-	 * false otherwise.
+	 * @param G the Graph
+	 * @param CG its clusters
+	 * @param filename the file
+	 * @param reader format to be used (e.g. #readGML), use nullptr (the default) for automated detection from filename extension
+	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
+	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool write(const Graph &G, const string &filename);
+	static OGDF_EXPORT bool read(ClusterGraph &CG, Graph &G, const string &filename, ClusterReaderFunc reader = nullptr);
 
-	//! Reads graph \p G of arbitrary graph format from \p is.
 	/**
-	 * The following file formats are currently supported:
-	 *  - DOT
-	 *  - GML
-	 *  - TLP
-	 *  - LEDA
-	 *  - Chaco
-	 *  - DL
-	 *  - GDF
-	 *  - GraphML
-	 *  - GEXF
-	 *  - SteinLib
-	 *  - Graph6 (with enforced header)
-	 *  - Digraph6 (with enforced header)
-	 *  - Sparse6 (with enforced header)
-	 *  - DMF
-	 *  - PMDissGraph
-	 *  - Rudy
+	 * Reads graph \p G, a clustering \p CG of G and their attributes \p CGA from a file with name \p filename and infers the used format from the file's extension.
 	 *
-	 * @param G        is assigned the read graph.
-	 * @param is  is the input stream to be read.
+	 * @param G the Graph
+	 * @param CG its clusters
+	 * @param GA their attributes
+	 * @param filename the file
+	 * @param reader format to be used (e.g. #readGML), use nullptr (the default) for automated detection from filename extension
+	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, const string &filename, ClusterAttrReaderFunc reader = nullptr);
+
+	/**
+	 * Reads graph \p G from a stream \p is and try to guess the contained format by trying all available readers.
+	 *
+	 * @sa read(Graph &G, const string &filename, ReaderFunc reader = nullptr)
+	 *
+	 * @param G the Graph
+	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
 	static OGDF_EXPORT bool read(Graph &G, std::istream &is);
 
-	//! Reads graph \p G including its attributes \p GA of arbitrary graph
-	//! format from \p is.
 	/**
-	 * The following file formats are currently supported:
-	 *  - DOT
-	 *  - GML
-	 *  - TLP
-	 *  - DL
-	 *  - GDF
-	 *  - GraphML
-	 *  - GEXF
-	 *  - STP
-	 *  - DMF
-	 *  - Rudy
+	 * Reads graph \p G and its attributes \p GA from a stream \p is and try to guess the contained format by trying all available readers.
 	 *
-	 * @param GA is assigned the read graph attributes.
-	 * @param G is assigned the read graph.
-	 * @param is is the input stream to be read.
+	 * @sa read(GraphAttributes &GA, Graph &G, const string &filename, AttrReaderFunc reader = nullptr)
+	 *
+	 * @param G the Graph
+	 * @param GA its attributes
+	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
 	static OGDF_EXPORT bool read(GraphAttributes &GA, Graph &G, std::istream &is);
 
-	//! Reads arbitrary format from a file specified by name.
 	/**
-	 * @param GA graph attributes to be read.
-	 * @param G graph to be read.
-	 * @param filename name of the file to read from.
-	 * @param reader format to be used (e.g. #readGML).
+	 * Reads graph \p G and a clustering \p CG of G from a stream \p is and try to guess the contained format by trying all available readers.
+	 *
+	 * @sa read(ClusterGraph &CG, Graph &G, const string &filename, ClusterReaderFunc reader = nullptr)
+	 *
+	 * @param G the Graph
+	 * @param CG its clusters
+	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
-	static bool read(GraphAttributes &GA, Graph &G, const string &filename, AttrReaderFunc reader) {
-		std::ifstream is(filename);
-		return is.good() && reader(GA, G, is);
-	}
+	static OGDF_EXPORT bool read(ClusterGraph &CG, Graph &G, std::istream &is);
 
-	//! Writes arbitrary format to a file specified by name.
 	/**
-	 * @param GA graph attributes to be written.
-	 * @param filename name of the file to write to.
-	 * @param writer format to be used (e.g. #writeGML).
+	 * Reads graph \p G, a clustering \p CG of G and their attributes \p GA from a stream \p is and try to guess the contained format by trying all available readers.
+	 *
+	 * @sa read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, const string &filename, ClusterAttrReaderFunc reader = nullptr)
+	 *
+	 * @param G the Graph
+	 * @param CG its clusters
+	 * @param GA their attributes
+	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
-	static bool write(const GraphAttributes &GA, const string &filename, AttrWriterFunc writer) {
-		std::ofstream os(filename);
-		return os.good() && writer(GA, os);
-	}
+	static OGDF_EXPORT bool read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, std::istream &is);
+
+	/**
+	 * Writes graph \p G to a file with name \p filename and infers the format to use from the file's extension.
+	 *
+	 * @param G the Graph
+	 * @param filename the file
+	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool write(const Graph &G, const string &filename, WriterFunc writer = nullptr);
+
+	/**
+	 * Writes graph \p G and its attributes \p GA to a file with name \p filename and infers the format to use from the file's extension.
+	 *
+	 * @param GA its attributes
+	 * @param filename the file
+	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool write(const GraphAttributes &GA, const string &filename, AttrWriterFunc writer = nullptr);
+
+	/**
+	 * Writes graph \p G and a clustering \p CG of G to a file with name \p filename and infers the format to use from the file's extension.
+	 *
+	 * @param CG its clusters
+	 * @param filename the file
+	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool write(const ClusterGraph &CG, const string &filename, ClusterWriterFunc writer = nullptr);
+
+	/**
+	 * Writes graph \p G, a clustering \p CG of G and their attributes \p CGA to a file with name \p filename and infers the format to use from the file's extension.
+	 *
+	 * @param GA their attributes
+	 * @param filename the file
+	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool write(const ClusterGraphAttributes &GA, const string &filename, ClusterAttrWriterFunc writer = nullptr);
 
 	//@}
 
@@ -1535,6 +1702,34 @@ public:
 		return writeDMF(attr, source, sink, os);
 	}
 
+#pragma mark TsplibXml
+	/**
+	 * @name TsplibXml
+	 *
+	 * Unified xml format of Tsplib instances: http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
+	 */
+	//@{
+
+	//! Reads graph \p G in TsplibXml format from input stream \p is.
+	/**
+	 * @param G   is assigned the read graph.
+	 * @param is  is the input stream to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool readTsplibXml(Graph &G, std::istream &is);
+
+	//! Reads graph \p G with attributes \p GA in TsplibXml format from input stream \p is.
+	/**
+	 * \pre \p G is the graph associated with attributes \p GA.
+	 *
+	 * @param GA  is assigned the graph's attributes.
+	 * @param G   is assigned the read graph.
+	 * @param is  is the input stream to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool readTsplibXml(GraphAttributes &GA, Graph &G, std::istream &is);
+	//@}
+
 	//@}
 	/**
 	 * @name Graphs with subgraph
@@ -1574,12 +1769,22 @@ public:
 
 	static OGDF_EXPORT bool drawSVG(const GraphAttributes &A, std::ostream &os, const SVGSettings &settings);
 	static inline bool drawSVG(const GraphAttributes &A, std::ostream &os) {
+		// we may not use a defaulted argument settings=svgSettings here if drawSVG should be a AttrWriterFunc:
+		// https://stackoverflow.com/a/2225426/805569
 		return drawSVG(A, os, svgSettings);
+	}
+	static inline bool drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings=svgSettings) {
+		std::ofstream os(filename);
+		return os.good() && drawSVG(A, os, svgSettings);
 	}
 
 	static OGDF_EXPORT bool drawSVG(const ClusterGraphAttributes &A, std::ostream &os, const SVGSettings &settings);
 	static inline bool drawSVG(const ClusterGraphAttributes &A, std::ostream &os) {
 		return drawSVG(A, os, svgSettings);
+	}
+	static inline bool drawSVG(const ClusterGraphAttributes &A, const string &filename, const SVGSettings &settings=svgSettings) {
+		std::ofstream os(filename);
+		return os.good() && drawSVG(A, os, svgSettings);
 	}
 
 	//@}
@@ -1638,7 +1843,7 @@ public:
 	 * Helps with templated access to GraphAttributes edgeWeight type
 	 */
 	template<typename T, typename std::enable_if<std::is_integral<T>::value, bool>::type = 0>
-	static int getEdgeWeightFlag() {
+	static long getEdgeWeightFlag() {
 		return GraphAttributes::edgeIntWeight;
 	}
 
@@ -1647,7 +1852,7 @@ public:
 	 * Helps with templated access to GraphAttributes edgeWeight type
 	 */
 	template<typename T, typename std::enable_if<std::is_floating_point<T>::value, bool>::type = 0>
-	static int getEdgeWeightFlag() {
+	static long getEdgeWeightFlag() {
 		return GraphAttributes::edgeDoubleWeight;
 	}
 
@@ -1678,9 +1883,6 @@ public:
 	static SVGSettings OGDF_EXPORT svgSettings;
 
 private:
-	static OGDF_EXPORT bool readGraph6WithForcedHeader(Graph &G, std::istream &is);
-	static OGDF_EXPORT bool readDigraph6WithForcedHeader(Graph &G, std::istream &is);
-	static OGDF_EXPORT bool readSparse6WithForcedHeader(Graph &G, std::istream &is);
 	static OGDF_EXPORT char s_indentChar; //!< Character used for indentation.
 	static OGDF_EXPORT int s_indentWidth; //!< Number of indent characters used for indentation.
 };

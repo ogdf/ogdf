@@ -1,3 +1,34 @@
+/** \file
+ * \brief Tests for embedder algorithms
+ *
+ * \author Tilo Wiedera
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/planarity/EmbedderMaxFace.h>
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
@@ -11,6 +42,20 @@
 #include <graphs.h>
 
 #define TEST_EMBEDDER(NAME) describeEmbedder<NAME>(#NAME)
+
+void assertMaximumExternalFace(const GraphCopy &copy, adjEntry adjExternal) {
+	if (adjExternal != nullptr) {
+		ConstCombinatorialEmbedding C{copy};
+		AssertThat(C.rightFace(adjExternal)->size(), Equals(C.maximalFace()->size()));
+	}
+}
+
+template<typename EmbedderType>
+void checkProperties(const EmbedderType &embedder, const GraphCopy &copy, adjEntry adjExternal) { }
+
+void checkProperties(const EmbedderMaxFace &embedder, const GraphCopy &copy, adjEntry adjExternal) {
+	assertMaximumExternalFace(copy, adjExternal);
+}
 
 void validateCopy(const Graph &graph, const GraphCopy &copy) {
 	AssertThat(graph.numberOfNodes(), Equals(copy.numberOfNodes()));
@@ -36,7 +81,8 @@ void shuffleEmbedding(Graph &graph) {
 	}
 }
 
-void testEmbedder(EmbedderModule &embedder, const Graph &graph, bool repeat = true) {
+template<typename EmbedderType>
+void testEmbedder(EmbedderType &embedder, const Graph &graph, bool repeat = true) {
 	GraphCopy copy(graph);
 	if(repeat) {
 		shuffleEmbedding(copy);
@@ -58,6 +104,7 @@ void testEmbedder(EmbedderModule &embedder, const Graph &graph, bool repeat = tr
 	}
 
 	AssertThat(copy.representsCombEmbedding(), IsTrue());
+	checkProperties(embedder, copy, adjExternal);
 
 	// test planarly embedded input
 	if(repeat) {
@@ -65,7 +112,8 @@ void testEmbedder(EmbedderModule &embedder, const Graph &graph, bool repeat = tr
 	}
 }
 
-void describeEmbedder(const string &title, EmbedderModule &embedder, std::set<GraphProperty> requirements = {}, bool doSkip = false) {
+template<typename EmbedderType>
+void describeEmbedder(const string &title, EmbedderType &embedder, std::set<GraphProperty> requirements = {}, bool doSkip = false) {
 	describe(title, [&] {
 		requirements.insert(GraphProperty::connected);
 		requirements.insert(GraphProperty::planar);

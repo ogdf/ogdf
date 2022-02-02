@@ -767,6 +767,7 @@ void FixEdgeInserterUMLCore::insertEdgesIntoDualAfterRemove(const CombinatorialE
 
 void FixEdgeInserterCore::removeEdge(CombinatorialEmbedding &E, edge eOrig)
 {
+	OGDF_ASSERT(m_delFaces != nullptr);
 	const List<edge> &path = m_pr.chain(eOrig);
 	for(edge e : path)
 	{

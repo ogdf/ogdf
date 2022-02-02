@@ -87,9 +87,9 @@ class OGDF_EXPORT AdjElement : private internal::GraphElement {
 	int m_id;    //!< The (unique) index of the adjacency entry.
 
 	//! Constructs an adjacency element for a given node.
-	explicit AdjElement(node v) : m_node(v) { }
+	explicit AdjElement(node v) : m_twin(nullptr), m_edge(nullptr), m_node(v), m_id(0) { }
 	//! Constructs an adjacency entry for a given edge and index.
-	AdjElement(edge e, int id) : m_edge(e), m_id(id) { }
+	AdjElement(edge e, int id) : m_twin(nullptr), m_edge(e), m_node(nullptr), m_id(id) { }
 
 public:
 	//! Returns the edge associated with this adjacency entry.
@@ -317,7 +317,7 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 	 * @param id is the index of the edge.
 	 */
 	EdgeElement(node src, node tgt, int id) :
-		m_src(src), m_tgt(tgt), m_id(id) { }
+		m_src(src), m_tgt(tgt), m_adjSrc(nullptr), m_adjTgt(nullptr), m_id(id) { }
 
 public:
 	//! Returns the index of the edge.
@@ -335,7 +335,10 @@ public:
 	adjEntry adjTarget() const { return m_adjTgt; }
 
 	//! Returns the adjacent node different from \p v.
-	node opposite(node v) const { return (v == m_src) ? m_tgt : m_src; }
+	node opposite(node v) const {
+		OGDF_ASSERT(isIncident(v));
+		return v == m_src ? m_tgt : m_src;
+	}
 
 	//! Returns true iff the edge is a self-loop (source node = target node).
 	bool isSelfLoop() const { return m_src == m_tgt; }
@@ -914,8 +917,12 @@ public:
 	 * (thus \p adjStartRight is the first edge that goes to \a vr). The
 	 * order of adjacency entries is preserved. Additionally, a new edge
 	 * (\a vl,\a vr) is created, such that this edge is inserted before
-	 * \p adjStartLeft and \p adjStartRight in the the adjacency lists of
+	 * \p adjStartLeft and \p adjStartRight in the adjacency lists of
 	 * \a vl and \a vr.
+	 *
+	 * When \p adjStartLeft and \p adjStartRight are the same, \a vl receives
+	 * all edges and the edge (\a vl, \a vr) is inserted before \p adjStartLeft
+	 * in the adjacency list of \a vl.
 	 *
 	 * Node \a v is modified to become node \a vl, and node \a vr is returned.
 	 * This method is useful when modifying combinatorial embeddings.
@@ -928,11 +935,14 @@ public:
 
 	//! Contracts edge \p e while preserving the order of adjacency entries.
 	/**
-	 * @attention Edges parallel to \p e will also be contracted (they do not result in self-loops).
 	 * @param e is the edge to be contracted.
-	 * @return The endpoint of \p e to which all edges have been moved. The implementation ensures this to be the source of the former edge \p e.
+	 * @param keepSelfLoops determines whether edges parallel to \p e will
+	 * result in self-loops or not (in the latter case, they will also be
+	 * contracted).
+	 * @return The endpoint of \p e to which all edges have been moved.
+	 * The implementation ensures this to be the source of the former edge \p e.
 	 */
-	node contract(edge e);
+	node contract(edge e, bool keepSelfLoops = false);
 
 	//! Moves edge \p e to a different adjacency list.
 	/**
@@ -1147,10 +1157,10 @@ public:
 	//! Returns the genus of the graph's embedding.
 	/**
 	 * The genus of a graph is defined as follows. Let \a G be a graph
-	 * with \a m edges, \a n nodes, \a c connected components, \a nz
-	 * isolated vertices, and \a fc face cycles. Then,
+	 * with \a m edges, \a n nodes, \a nz isolated vertices, \a fc face cycles,
+	 * and \a c connected components. Then,
 	 * \f[
-	 *   genus(G) = (m/2 + 2c - n -nz -fc)/2
+	 *   genus(G) = (m - n - nz - fc + 2c)/2
 	 * \f]
 	 *
 	 * @return the genus of the graph's current embedding; if this is 0, then the graph is planarly embedded.

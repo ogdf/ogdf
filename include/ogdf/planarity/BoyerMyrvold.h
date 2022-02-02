@@ -152,7 +152,7 @@ protected:
 
 public:
 	//! Constructor
-	BoyerMyrvold() { pBMP = nullptr; }
+	BoyerMyrvold() { pBMP = nullptr; nOfStructures = 0; }
 	//! Destructor
 	~BoyerMyrvold() { clear(); }
 

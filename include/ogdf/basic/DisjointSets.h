@@ -122,13 +122,9 @@ public:
 	* \param maxNumberOfElements Expected number of Elements.
 	*/
 	explicit DisjointSets(int maxNumberOfElements = (1<<15) )
+		: m_parents(nullptr), m_parameters(nullptr), m_siblings(nullptr)
 	{
-		this->m_numberOfSets=0;
-		this->m_numberOfElements=0;
-		this->m_maxNumberOfElements = maxNumberOfElements;
-		this->m_parents = new int[this->m_maxNumberOfElements];
-		this->m_parameters = (linkOption==LinkOptions::Rank || linkOption==LinkOptions::Size) ? new int[this->m_maxNumberOfElements] : nullptr;
-		this->m_siblings = (compressionOption==CompressionOptions::Collapsing) ? new int[this->m_maxNumberOfElements] : nullptr;
+		init(maxNumberOfElements);
 	}
 
 	DisjointSets(const DisjointSets&) = delete;
@@ -140,6 +136,28 @@ public:
 		delete[] this->m_parents;
 		delete[] this->m_parameters;
 		delete[] this->m_siblings;
+	}
+
+	//! Resets the DisjointSets structure to be empty, also changing the expected number of elements.
+	void init(int maxNumberOfElements)
+	{
+		this->m_maxNumberOfElements = maxNumberOfElements;
+		init();
+	}
+
+	//! Resets the DisjointSets structure to be empty, preserving the previous value of maxNumberOfElements.
+	void init()
+	{
+		delete[] this->m_parents;
+		delete[] this->m_parameters;
+		delete[] this->m_siblings;
+		this->m_numberOfSets = 0;
+		this->m_numberOfElements = 0;
+		this->m_parents = new int[this->m_maxNumberOfElements];
+		this->m_parameters = (linkOption == LinkOptions::Rank || linkOption == LinkOptions::Size)
+		                     ? new int[this->m_maxNumberOfElements] : nullptr;
+		this->m_siblings = (compressionOption == CompressionOptions::Collapsing)
+		                   ? new int[this->m_maxNumberOfElements] : nullptr;
 	}
 
 	//! Returns the id of the largest superset of \p set and compresses the path according to ::CompressionOptions.

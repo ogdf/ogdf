@@ -126,7 +126,7 @@ Object *Parser::parseList(ObjectType closingKey)
 #ifdef _MSC_VER
 			strcpy_s(pChar, len, m_stringSymbol);
 #else
-			strcpy(pChar, m_stringSymbol);
+			strcpy(pChar, m_stringSymbol); // NOLINT: strcpy is fine here as we allocated pChar exactly big enough
 #endif
 			object = new Object(key,pChar); }
 			break;

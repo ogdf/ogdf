@@ -41,6 +41,8 @@ namespace ogdf {
  * Min-st-cut algorithm, that calculates the cut via maxflow.
  *
  * @tparam TCost The type in which the weight of the edges is given.
+ *
+ * @ingroup ga-cut
  */
 template<typename TCost>
 class MinSTCutMaxFlow: public MinSTCutModule<TCost> {
@@ -264,7 +266,7 @@ private:
 			markCut(target, false, origNode);
 		}
 
-		ArrayBuffer<edge> stack;
+		ArrayBuffer<edge, size_t> stack;
 		EdgeArray<bool> visited(graph, false);
 		node startNode = (m_primaryCut ? source : target);
 		adjEntry startAdj = startNode->firstAdj();

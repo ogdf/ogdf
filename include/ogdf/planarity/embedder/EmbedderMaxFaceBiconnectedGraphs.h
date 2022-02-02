@@ -451,7 +451,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::embed(
 
 	//Second step: Embed G
 	T biggestFace = -1;
-	node bigFaceMu;
+	node bigFaceMu = nullptr;
 	if (n == nullptr)
 	{
 		for(node mu : spqrTree.tree().nodes)
@@ -500,6 +500,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::embed(
 		}
 		delete[] mus;
 	}
+	OGDF_ASSERT(bigFaceMu != nullptr);
 
 	bigFaceMu = spqrTree.rootTreeAt(bigFaceMu);
 
@@ -705,6 +706,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeSNode(
 
 		if (ae->theEdge() == referenceEdge)
 		{
+			// NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): referenceEdge cannot be null
 			if (ae->theNode() == referenceEdge->source())
 				adjBeforeNodeArraySource[mu] = before;
 			else
@@ -726,6 +728,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeSNode(
 		before = nullptr;
 		if (ae->theEdge() == referenceEdge)
 		{
+			// NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): referenceEdge cannot be null
 			if (ae->theNode() == referenceEdge->source())
 				adjBeforeNodeArraySource[mu] = beforeSource;
 			else
@@ -1341,6 +1344,7 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::computeSize(
 
 	//set length for all real edges in skeletons to length of the original edge
 	//and initialize edge lengths for virtual edges with 0:
+	OGDF_ASSERT(spqrTree != nullptr);
 	edgeLengthSkel.init(spqrTree->tree());
 	for(node v : spqrTree->tree().nodes)
 	{

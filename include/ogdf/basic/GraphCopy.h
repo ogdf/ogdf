@@ -34,7 +34,7 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/DualGraph.h>
 
 
 namespace ogdf {
@@ -66,6 +66,9 @@ class OGDF_EXPORT GraphCopySimple : public Graph
 	EdgeArray<edge> m_eCopy; //!< The corresponding edge in the graph copy.
 
 public:
+	//! Constructs a GraphCopySimple associated with no graph.
+	GraphCopySimple();
+
 	//! Constructs a copy of graph \p G.
 	explicit GraphCopySimple(const Graph &G);
 
@@ -76,6 +79,9 @@ public:
 
 	//! Re-initializes the copy using \p G.
 	void init(const Graph &G);
+
+	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
+	void createEmpty(const Graph &G);
 
 	//! Returns a reference to the original graph.
 	const Graph &original() const { return *m_pGraph; }
@@ -475,6 +481,76 @@ public:
 	//! Removes all crossing nodes which are actually only two "touching" edges.
 	void removePseudoCrossings();
 
+	//! Returns whether there are two edges in the GraphCopy that cross each
+	//! other multiple times.
+	bool hasSameEdgesCrossings() const;
+
+	//! Returns whether the GraphCopy contains at least one crossing of two
+	//! adjacent edges.
+	bool hasAdjacentEdgesCrossings() const;
+
+	//! Returns whether the GraphCopy contains crossings that will result in a
+	//! non-simple drawing.
+	/**
+	 * This method will return true iff the GraphCopy contains
+	 * a) a crossing of two adjacent edges (see hasAdjacentEdgesCrossings()), or
+	 * b) two edges crossing each other multiple times (see hasSameEdgesCrossings()).
+	 *
+	 * @warning Crossings of an edge with itself are currently not detected.
+	 */
+	inline bool hasNonSimpleCrossings() const {
+		return hasAdjacentEdgesCrossings() || hasSameEdgesCrossings();
+	};
+
+	/**
+	 * Removes all non-simple cossings involving edges from \p edgesToCheck
+	 * (see hasNonSimpleCrossings() for a definition of non-simple crossings).
+	 *
+	 * @warning Crossings of an edge with itself are currently not removed.
+	 *
+	 * @param edgesToCheck edges from which non-simple crossings should be
+	 * removed.
+	 * @param dualGraph points to the dual graph of *this. Can be nullptr if
+	 * only the GraphCopy should be changed.
+	 */
+	void removeNonSimpleCrossings(SListPure<edge> &edgesToCheck,
+		DynamicDualGraph *dualGraph = nullptr);
+
+	/**
+	 * Removes all non-simple cossings (see hasNonSimpleCrossings() for a
+	 * definition of non-simple crossings).
+	 *
+	 * @warning Crossings of an edge with itself are currently not removed.
+	 *
+	 * @param dualGraph points to the dual graph of *this. Can be nullptr if
+	 * only the GraphCopy should be changed.
+	 */
+	inline void removeNonSimpleCrossings(DynamicDualGraph *dualGraph = nullptr) {
+		SListPure<edge> edgesToCheck;
+		m_pGraph->allEdges(edgesToCheck);
+		removeNonSimpleCrossings(edgesToCheck, dualGraph);
+	};
+
+	/**
+	 * Removes all non-simple cossings involving edges incident to \p origNode
+	 * (see hasNonSimpleCrossings() for a definition of non-simple crossings).
+	 *
+	 * @warning Crossings of an edge with itself are currently not removed.
+	 *
+	 * @param origNode original node from whose incident edges non-simple
+	 * crossings are removed.
+	 * @param dualGraph points to the dual graph of *this. Can be nullptr if
+	 * only the GraphCopy should be changed.
+	 */
+	inline void removeNonSimpleCrossings(node origNode, DynamicDualGraph *dualGraph = nullptr) {
+		SListPure<edge> edgesToCheck;
+		for (adjEntry adj : origNode->adjEntries) {
+			edgesToCheck.pushBack(adj->theEdge());
+		}
+		removeNonSimpleCrossings(edgesToCheck, dualGraph);
+	}
+
+
 	//! Re-inserts edge \p eOrig by "crossing" the edges in \p crossedEdges.
 	/**
 	 * Let \a v and \a w be the copies of the source and target nodes of \p eOrig.
@@ -574,8 +650,18 @@ public:
 		CombinatorialEmbedding &E,
 		const SList<adjEntry> &crossedEdges);
 
+	void insertEdgePathEmbedded(
+		edge eOrig,
+		CombinatorialEmbedding &E,
+		DynamicDualGraph &dual,
+		const SList<adjEntry> &crossedEdges);
+
 	//! Removes the complete edge path for edge \p eOrig while preserving the embedding.
 	/**
+	 * If an endpoint of \p eOrig has degree 1, the node is also deleted (since
+	 * removing the edge path would otherwise isolated the node, resulting in a
+	 * broken embedding).
+	 *
 	 * @param E is an embedding of the graph copy.
 	 * @param eOrig is an edge in the original graph.
 	 * @param newFaces is assigned the set of new faces resulting from joining faces
@@ -585,6 +671,11 @@ public:
 		CombinatorialEmbedding &E,
 		edge                    eOrig,
 		FaceSet<false>         &newFaces);
+
+	void removeEdgePathEmbedded(
+		CombinatorialEmbedding &E,
+		DynamicDualGraph &dual,
+		edge eOrig);
 
 
 	//@}
@@ -709,6 +800,82 @@ protected:
 		adjEntry adjA2,
 		adjEntry adjB1,
 		adjEntry adjB2);
+
+	/**
+	 * Removes the pseudo crossing that adj belongs to.
+	 * In comparison to removeUnnecessaryCrossing(adjEntry, adjEntry, adjEntry,
+	 * adjEntry), this method allows to change a dual graph as well.
+	 *
+	 * \pre adj->theNode() is a crossing with two incoming and two outgoing
+	 * edges. adj and its successor must be part of the same original edge; the
+	 * same holds for the next two successors respectively.
+	 */
+	void removeUnnecessaryCrossing(
+		adjEntry adj,
+		DynamicDualGraph *dualGraph);
+
+	/**
+	 * Removes the crossing of the two adjacent edges adj1->theEdge() and
+	 * adj2->theEdge().
+	 *
+	 * \pre adj1 and adj2 are successive adjEntries of the same node, pointing
+	 * towards the common node of both of their original edges.
+	 */
+	void removeAdjacentEdgesCrossing(
+		adjEntry adj1,
+		adjEntry adj2,
+		DynamicDualGraph *dualGraph);
+
+	/**
+	 * Removes the two crossings given by the adjEntries, assuming that both
+	 * crossings stem from the same two edges.
+	 *
+	 * \pre adjFirstCrossing1 and adjFirstCrossing2 as well as
+	 * adjSecondCrossing1 and adjSecondCrossing2 are successive adjEntries of
+	 * the same node respectively, such that the former point towards the latter
+	 * and vice versa.
+	 */
+	void removeSameEdgesCrossing(
+		adjEntry adjFirstCrossing1,
+		adjEntry adjFirstCrossing2,
+		adjEntry adjSecondCrossing1,
+		adjEntry adjSecondCrossing2,
+		DynamicDualGraph *dualGraph);
+
+	/**
+	 * Swaps the original edges from adjCopy1 up to the common node of
+	 * {adjCopy1, adjCopy2} with the original edges from adjCopy2 up to the same
+	 * common node. Can be used to fix crossings of adjacent edges.
+	 *
+	 * \pre Both adjCopy1 and adjCopy2 must point towards a common original node
+	 * at the end of their chains.
+	 */
+	void swapOriginalEdgesAtCrossing(adjEntry adjCopy1, adjEntry adjCopy2,
+			DynamicDualGraph *dual = nullptr);
+
+	/**
+	 * Swaps the original edges from adjFirstCrossing1 up to
+	 * adjSecondCrossing1->theNode() with the original edges from
+	 * adjFirstCrossing2 up to adjSecondCrossing2->theNode().
+	 * Can be used to fix multiple crossings of the same two edges.
+	 */
+	void swapOriginalEdgesBetweenCrossings(
+		adjEntry adjFirstCrossing1,
+		adjEntry adjFirstCrossing2,
+		adjEntry adjSecondCrossing1,
+		adjEntry adjSecondCrossing2,
+		DynamicDualGraph *dual = nullptr);
+
+	/**
+	 * Sets the original edges from adjCopy1 up to vCopy to eOrig2, and the
+	 * original edges from adjCopy2 up to vCopy to eOrig1.
+	 */
+	void setOriginalEdgeAlongCrossings(
+		adjEntry adjCopy1,
+		adjEntry adjCopy2,
+		node vCopy,
+		edge eOrig1,
+		edge eOrig2);
 
 private:
 	void initGC(const GraphCopy &GC,

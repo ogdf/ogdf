@@ -537,7 +537,6 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 
 		activeNodes.append(complementStart);
 		isVisited[complementStart] = true;
-		startState = ! startState;
 		int ccount = 0;
 		while (!activeNodes.empty())
 		{
@@ -1726,7 +1725,7 @@ int CPlanaritySub::solveLp() {
 					if(kickout.size() > bestCCnt) {
 						bestCCnt = kickout.size();
 						best = nit;
-						kickout.compactMemcpy(bestKickout);
+						kickout.compactCopy(bestKickout);
 					}
 				}
 				if(bestCCnt>0) {

@@ -62,7 +62,7 @@ private:
 public:
 	//! Empty Constructor.
 	MaxFlowModule()
-		: m_et(nullptr), m_flow(nullptr), m_G(nullptr), m_s(nullptr), m_t(nullptr) { }
+		: m_et(nullptr), m_flow(nullptr), m_G(nullptr), m_cap(nullptr), m_s(nullptr), m_t(nullptr) { }
 
 	//! Constructor that calls init.
 	/**

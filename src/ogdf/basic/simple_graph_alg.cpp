@@ -1,7 +1,7 @@
 /** \file
  * \brief Implementation of simple graph algorithms
  *
- * \author Carsten Gutwenger, Sebastian Leipert
+ * \author Carsten Gutwenger, Sebastian Leipert, Thomas Klein
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,8 +32,8 @@
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/tuples.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/extended_graph_alg.h>
 
 namespace ogdf {
 
@@ -320,7 +320,7 @@ static int buildDfsTree(const node &root,
  * @param cutVertices is assigned the cut vertices of the graph.
  * @param addEdges is assigned the tuples of nodes which have to be connected in
  *        order to turn each cut vertex into a non-cut vertex.
- * @param only_one should be set to true if the search should stop after finding
+ * @param onlyOne should be set to true if the search should stop after finding
  *        one cut vertex, to false if all cut vertices should be found.
  * @return true if the graph contains at least one cut vertex, false otherwise.
  */
@@ -329,7 +329,7 @@ static bool findCutVertices(NodeArray<int> &number,
 		ArrayBuffer<node> &revS,
 		ArrayBuffer<node> &cutVertices,
 		ArrayBuffer<Tuple2<node,node>> &addEdges,
-		bool only_one)
+		bool onlyOne)
 {
 	NodeArray<int> lowpt(number);
 
@@ -371,7 +371,7 @@ static bool findCutVertices(NodeArray<int> &number,
 						cutVertices.push(v);
 						addEdges.push(Tuple2<node,node>(w, parent[v]));
 
-						if (only_one) {
+						if (onlyOne) {
 							return true;
 						}
 					}
@@ -382,7 +382,7 @@ static bool findCutVertices(NodeArray<int> &number,
 						cutVertices.push(v);
 						addEdges.push(Tuple2<node,node>(w, firstChild));
 
-						if (only_one) {
+						if (onlyOne) {
 							return true;
 						}
 					}
@@ -392,6 +392,29 @@ static bool findCutVertices(NodeArray<int> &number,
 	}
 
 	return !cutVertices.empty();
+}
+
+bool findCutVertices(const Graph &G,
+		ArrayBuffer<node> &cutVertices,
+		ArrayBuffer<Tuple2<node,node>> &addEdges,
+		bool onlyOne)
+{
+	if (G.empty()) {
+		return true;
+	}
+
+	// Build the dfs-tree and get the number of visited nodes.
+	NodeArray<int> number(G, 0);
+	NodeArray<node> parent(G, nullptr);
+	ArrayBuffer<node> revS;
+	NodeArray<int> childNr(G);
+#ifdef OGDF_DEBUG
+	int numCount =
+#endif
+		buildDfsTree(G.firstNode(), number, parent, childNr, revS);
+	OGDF_ASSERT(numCount == G.numberOfNodes()); // The graph must be connected.
+
+	return findCutVertices(number, parent, revS, cutVertices, addEdges, onlyOne);
 }
 
 bool isBiconnected(const Graph &G, node &cutVertex)
@@ -434,18 +457,10 @@ void makeBiconnected(Graph &G, List<edge> &added)
 
 	makeConnected(G, added);
 
-	NodeArray<int> number(G,0);        // discovery times
-	NodeArray<node> parent(G,nullptr); // parents in the dfs tree
-	ArrayBuffer<node> revS;            // nodes of the dfs tree in reverse order
-
-	// Build the dfs-tree.
-	NodeArray<int> childNr(G);
-	buildDfsTree(G.firstNode(), number, parent, childNr, revS);
-
 	// Find all cut vertices.
 	ArrayBuffer<node> cutVertices;
 	ArrayBuffer<Tuple2<node,node>> addEdges;
-	findCutVertices(number, parent, revS, cutVertices, addEdges, false);
+	findCutVertices(G, cutVertices, addEdges, false);
 
 	// Add a new edge for each cut vertex to make the graph biconnected.
 	for (Tuple2<node,node> nodes : addEdges) {
@@ -608,9 +623,9 @@ int biconnectedComponents(const Graph &G, EdgeArray<int> &component, int &nCompo
  * @return false, if the \p graph is not connected, true otherwise
  */
 static bool dfsTwoEdgeConnected(const Graph &graph,
-                                List<node> &dfsOrder,
-                                NodeArray<edge> &prev,
-                                NodeArray<ArrayBuffer<edge>> &backEdges)
+								List<node> &dfsOrder,
+								NodeArray<edge> &prev,
+								NodeArray<ArrayBuffer<edge>> &backEdges)
 {
 	dfsOrder.clear();
 	prev.init(graph, nullptr);
@@ -661,10 +676,10 @@ static bool dfsTwoEdgeConnected(const Graph &graph,
  * @param bridge same as in ogdf::isTwoEdgeConnected
  */
 static bool chainsTwoEdgeConnected(const Graph &graph,
-                                   edge &bridge,
-                                   List<node> &dfsOrder,
-                                   const NodeArray<edge> &prev,
-                                   const NodeArray<ArrayBuffer<edge>> &backEdges)
+								   edge &bridge,
+								   List<node> &dfsOrder,
+								   const NodeArray<edge> &prev,
+								   const NodeArray<ArrayBuffer<edge>> &backEdges)
 {
 	NodeArray<bool> visited(graph, false);
 	EdgeArray<bool> inAChain(graph, false);
@@ -765,10 +780,20 @@ bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 
 
 // Triangulations
+void triangulate(Graph &G) {
 
-void triangulate(Graph &G)
-{
+	OGDF_ASSERT(G.numberOfNodes() >= 3);
 	OGDF_ASSERT(isSimple(G));
+	OGDF_ASSERT(G.representsCombEmbedding());
+	OGDF_ASSERT(isConnected(G)); // todo connectedness should be checked by representsCombEmbedding()
+
+	for(node v : G.nodes) {
+		// handle all nodes of degree 1 by adding an edge to successor's successor
+		if(v->degree() == 1) {
+			adjEntry firstAdj = v->firstAdj();
+			G.newEdge(firstAdj, firstAdj->faceCycleSucc()->twin(), Direction::before);
+		}
+	}
 
 	CombinatorialEmbedding E(G);
 
@@ -776,42 +801,68 @@ void triangulate(Graph &G)
 	E.consistencyCheck();
 #endif
 
-	adjEntry succ, succ2, succ3;
-	NodeArray<int> marked(E.getGraph(), 0);
+	ArrayBuffer<face> faces; // stack of faces that need to be divided
 
-	for(node v : E.getGraph().nodes) {
-		marked.init(E.getGraph(), 0);
-
-		for(adjEntry adj : v->adjEntries) {
-			marked[adj->twinNode()] = 1;
+	for(face f : E.faces) {
+		if(f->size() > 3) {
+			faces.push(f);
 		}
+	}
 
-		// forall faces adj to v
-		for(adjEntry adj : v->adjEntries) {
-			succ = adj->faceCycleSucc();
-			succ2 = succ->faceCycleSucc();
+	while(!faces.empty()) {
 
-			if (succ->twinNode() != v && adj->twinNode() != v) {
-				while (succ2->twinNode() != v) {
-					if (marked[succ2->theNode()] == 1) {
-						// edge e=(x2,x4)
-						succ3 = succ2->faceCycleSucc();
-						E.splitFace(succ, succ3);
-					}
-					else {
-						// edge e=(v=x1,x3)
-						edge e = E.splitFace(adj, succ2);
-						marked[succ2->theNode()] = 1;
+		face f = faces.popRet(); // grab first face
 
-						// old adj is in wrong face
-						adj = e->adjSource();
-					}
-					succ = adj->faceCycleSucc();
-					succ2 = succ->faceCycleSucc();
+		// grab candidate adjEntries for the new edge
+		adjEntry src = f->firstAdj();
+		adjEntry tar = src->faceCycleSucc()->faceCycleSucc();
+		adjEntry lastChance = src->faceCyclePred();
+
+		bool makeSplit = false;
+		while(!makeSplit) {
+			makeSplit = true;
+			// while splitting is impossible, try next node in face until we are where we started
+			while(G.searchEdge(src->theNode(), tar->theNode()) != nullptr || src->theNode() == tar->theNode()) {
+				tar = tar->faceCycleSucc();
+				if (tar == lastChance) {
+					makeSplit = false;
+					break;
 				}
+			}
+			if(makeSplit) {
+				edge splitEdge = E.splitFace(src, tar);
+
+				face rightFace = E.rightFace(splitEdge->adjSource());
+				face leftFace = E.leftFace(splitEdge->adjSource());
+
+				if(leftFace->size() > 3) {
+					faces.push(leftFace);
+				}
+
+				if(rightFace->size() > 3) {
+					faces.push(rightFace);
+				}
+				break;
+			} else {
+				// splitting from src was impossible, so try next node in face
+				src = src->faceCycleSucc();
+				tar = src->faceCycleSucc()->faceCycleSucc();
+				lastChance = src->faceCyclePred();
 			}
 		}
 	}
+
+#ifdef OGDF_HEAVY_DEBUG
+	// if something in this block goes wrong, the triangulation function is broken
+	OGDF_ASSERT(isSimple(G));
+	OGDF_ASSERT(isPlanar(G));
+	OGDF_ASSERT(isConnected(G));
+
+	for(face f : E.faces) {
+		OGDF_ASSERT(f->size() == 3);
+	}
+#endif
+
 }
 
 

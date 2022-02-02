@@ -1167,7 +1167,6 @@ void BlockOrder::verticalStep(Block *b)
 		m_Blocks[i]->m_lower = bestM_lower[i];
 		m_Blocks[i]->m_upper = bestM_upper[i];
 	}
-	currentChi = bestChi;
 
 	m_activeBlocksCount = bestActiveBlocksCount;
 	m_isActiveEdge = bestM_isActiveEdge;

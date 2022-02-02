@@ -399,6 +399,7 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 					else
 						adjTgt = tgtLeft; // *it->theEdge() is on the left face side
 				}
+				OGDF_ASSERT(adjTgt != nullptr);
 
 				if (Gamma.rightFace(adj) != Gamma.rightFace(adjTgt))
 					adjTgt = adjTgt->cyclicPred();

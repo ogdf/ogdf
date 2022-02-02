@@ -149,6 +149,17 @@ void describeFMMM() {
 	fmmm.stopCriterion(FMMMOptions::StopCriterion::Threshold);
 	fmmm.tipOverCCs(FMMMOptions::TipOver::Always);
 	describeLayout("FMMMLayout with very specific configuration (using GridApproximation)", fmmm);
+
+	it("should not reset parameters to their default value when using high level options", [&]() {
+		Graph G;
+		randomSimpleGraph(G, 100, 200);
+		GraphAttributes GA(G);
+
+		fmmm.useHighLevelOptions(true);
+		fmmm.allowedPositions(FMMMOptions::AllowedPositions::All);
+		fmmm.call(GA);
+		AssertThat(fmmm.allowedPositions(), Equals(FMMMOptions::AllowedPositions::All));
+	});
 }
 
 go_bandit([] { describe("Energy-based layouts", [] {
@@ -179,21 +190,6 @@ go_bandit([] { describe("Energy-based layouts", [] {
 	TEST_ENERGY_BASED_LAYOUT(StressMinimization, 0);
 
 	TEST_ENERGY_BASED_LAYOUT(TutteLayout, 0, GraphProperty::triconnected, GraphProperty::planar, GraphProperty::simple);
-});
-
-describe("FMMMLayout parameters overriding", [&]() {
-
-	it("should not reset parameters to their default value when using high level options", [&]() {
-		Graph G;
-		randomSimpleGraph(G, 100, 200);
-		GraphAttributes GA(G);
-
-		FMMMLayout fmmm;
-		fmmm.useHighLevelOptions(true);
-		fmmm.allowedPositions(FMMMOptions::AllowedPositions::All);
-		fmmm.call(GA);
-		AssertThat(fmmm.allowedPositions(), Equals(FMMMOptions::AllowedPositions::All));
-	});
 });
 
 });

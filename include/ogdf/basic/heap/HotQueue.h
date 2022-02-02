@@ -99,6 +99,11 @@ private:
 	{
 	}
 
+public:
+	HotQueueHandle(const HotQueueHandle &other) {
+		operator=(other);
+	}
+
 	HotQueueHandle &operator=(const HotQueueHandle &other) {
 		type = other.type;
 		switch(type) {

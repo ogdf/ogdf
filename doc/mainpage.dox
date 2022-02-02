@@ -124,6 +124,10 @@
  * @ingroup graph-algs
  * \brief Functions for testing if a graph represents a (free) tree or forest.
  *
+ * @defgroup ga-matching Basic Functions for Matchings
+ * @ingroup graph-algs
+ * \brief Simple algorithms for matchings (testing properties, obtaining a maximal matching)
+ *
  * @defgroup ga-connectivity Connectivity in Graphs and Digraphs
  * @ingroup graph-algs
  * \brief Provides functions dealing with connectivity in graphs and clustered.
@@ -136,6 +140,10 @@
  * @ingroup graph-algs
  * \brief Algorithms for computing min-cost and maximum flows.
  *
+ * @defgroup ga-cut Cut Algorithms
+ * @ingroup graph-algs
+ * \brief Algorithms for computing minimum (s-t-)cuts.
+ *
  * @defgroup ga-mst Minimum Spanning Trees
  * @ingroup graph-algs
  * \brief Provides algorithms for minimum spanning trees.
@@ -143,6 +151,10 @@
  * @defgroup ga-steiner Steiner Trees
  * @ingroup graph-algs
  * \brief Algorithms for computing Steiner trees.
+ *
+ * @defgroup ga-spanner Spanner Algorithms
+ * @ingroup graph-algs
+ * \brief Algorithms for computing graph spanners.
  *
  * @defgroup ga-planarity Planarity and Planarization
  * @ingroup graph-algs
@@ -160,9 +172,9 @@
  * @ingroup ga-planarity
  * \brief Heuristics and optimal algorithms for crossing minimization.
  *
- * @defgroup ga-insert Edge Insertion
+ * @defgroup ga-insert Edge and Star Insertion
  * @ingroup ga-planarity
- * \brief Algorithms for inserting edges into planar graphs with few crossings.
+ * \brief Algorithms for inserting edges or stars into planar graphs with few crossings.
  *
  * @defgroup ga-cplanarity Cluster-Planarity and Planarization
  * @ingroup graph-algs

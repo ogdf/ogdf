@@ -44,7 +44,7 @@ namespace ogdf {
 
 //! Computes a minimum cut in a graph.
 /**
- * @ingroup graph-alg
+ * @ingroup ga-cut
  */
 class OGDF_EXPORT MinCut {
 

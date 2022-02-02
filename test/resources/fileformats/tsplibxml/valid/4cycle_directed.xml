@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<travellingSalesmanProblemInstance>
+  <name>4cycle_directed</name>
+  <source>TSPLIB</source>
+  <description>4cycle_directed</description>
+  <doublePrecision>15</doublePrecision>
+  <ignoredDigits>5</ignoredDigits>
+  <graph>
+    <vertex>
+      <edge cost="1.000000000000000e+00">1</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.000000000000000e+00">2</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.000000000000000e+00">3</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.000000000000000e+00">0</edge>
+    </vertex>
+  </graph>
+</travellingSalesmanProblemInstance>

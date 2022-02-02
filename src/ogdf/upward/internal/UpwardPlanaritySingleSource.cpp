@@ -1155,6 +1155,7 @@ void UpwardPlanaritySingleSource::assignSinks(
 			h = v; break;
 		}
 	}
+	OGDF_ASSERT(h != nullptr);
 
 	// find all roots of trees in F different from (the unique tree T)
 	// rooted at h

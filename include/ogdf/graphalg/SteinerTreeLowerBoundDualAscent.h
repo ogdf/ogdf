@@ -247,6 +247,8 @@ public:
  * Tobias Polzin, Siavash Vahdati Daneshmand:
  * Improved algorithms for the Steiner problem in networks.
  * Discrete Applied Mathematics 112(1-3): 263-300 (2001)
+ *
+ * @ingroup ga-steiner
  */
 template<typename T>
 class SteinerTreeLowerBoundDualAscent {

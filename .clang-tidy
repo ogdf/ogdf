@@ -1,0 +1,4 @@
+---
+Checks: '-clang-analyzer-optin*,modernize-use-nullptr,-clang-analyzer-deadcode.DeadStores,-clang-analyzer-core.UndefinedBinaryOperatorResult,-clang-analyzer-core.uninitialized.UndefReturn,-clang-analyzer-core.NullDereference,-clang-analyzer-core.uninitialized.Assign,-clang-analyzer-unix.Malloc'
+HeaderFilterRegex: '^((?!lib/|coin/).)*$'
+...

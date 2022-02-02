@@ -70,7 +70,7 @@ public:
 	static const int numberUsedLabels = static_cast<int>(UsedLabels::lAll);
 
 	//construction and destruction
-	EdgeLabel() { m_edge = 0; m_usedLabels = 0; }
+	EdgeLabel() { m_edge = nullptr; m_usedLabels = 0; }
 
 	//bit pattern 2^labelenumpos bitwise
 	explicit EdgeLabel(edge e, int usedLabels = numberUsedLabels) : m_usedLabels(usedLabels), m_edge(e)
@@ -223,7 +223,7 @@ public:
 		m_distDefault = 2;
 		m_minFeatDist = 1;
 		m_labels.init(pru.original());
-		m_ug = 0;
+		m_ug = nullptr;
 
 		for(edge e : pru.original().edges)
 			setLabel(e, EdgeLabel<coordType>(e, 0));

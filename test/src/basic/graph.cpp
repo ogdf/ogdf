@@ -785,6 +785,7 @@ describe("Graph Class", [](){
 
 			count++;
 		}
+		OGDF_ASSERT(count >= 3);
 
 		AssertThat(adjs[0]->isBetween(adjs[2], adjs[1]), IsTrue());
 		AssertThat(adjs[0]->isBetween(adjs[1], adjs[2]), IsFalse());

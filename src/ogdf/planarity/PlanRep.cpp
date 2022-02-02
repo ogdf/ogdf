@@ -275,6 +275,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 	//keep it simple: just assign the last adjEntry to boundaryAdj
 	//we have to save at the original, the copy may be replaced
 	OGDF_ASSERT(m_boundaryAdj[original(center)] == nullptr);
+	//NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): False positive, e cannot be nullptr
 	m_boundaryAdj[original(center)] = e->adjSource();
 }
 

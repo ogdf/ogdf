@@ -105,6 +105,23 @@ void BCTree::initNotConnected (node vG)
 }
 
 
+void BCTree::initNotConnected (List<node> &vG)
+{
+	auto it = vG.begin();
+	initBasic(*it);
+	it++;
+
+	for (; it.valid(); it++) {
+		if (m_number[*it] == 0) {
+			m_eStack.clear();
+			biComp(nullptr, *it);
+		}
+	}
+
+	initEdges();
+}
+
+
 void BCTree::biComp (adjEntry adjuG, node vG)
 {
 	m_lowpt[vG] = m_number[vG] = ++m_count;

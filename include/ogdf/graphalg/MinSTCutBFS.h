@@ -47,6 +47,8 @@ namespace ogdf {
  *
  * @pre The input graph is st-planar.
  * @tparam TCost The type in which the weight of the edges is given.
+ *
+ * @ingroup ga-cut
  */
 template<typename TCost>
 class MinSTCutBFS : public MinSTCutModule<TCost> {

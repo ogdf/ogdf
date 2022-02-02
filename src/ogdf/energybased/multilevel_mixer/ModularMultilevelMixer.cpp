@@ -74,7 +74,6 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 	const Graph &G = MLG.getGraph();
 
 	m_errorCode = erc::None;
-	clock_t time = clock();
 	if ((!m_multilevelBuilder || !m_initialPlacement) && !m_oneLevelLayoutModule) {
 		OGDF_THROW(AlgorithmFailureException);
 	}
@@ -158,7 +157,6 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 		}
 	}
 
-	time = clock() - time;
 }
 
 }

@@ -47,6 +47,13 @@ void FPPLayout::doCall(
 {
 	if (G.numberOfNodes() < 2) {
 		return;
+	} else if (G.numberOfNodes() == 2) {
+		gridLayout.x(G.nodes.head()) = 0;
+		gridLayout.y(G.nodes.head()) = 0;
+		gridLayout.x(G.nodes.tail()) = 1;
+		gridLayout.y(G.nodes.tail()) = 0;
+		boundingBox = IPoint(1, 0);
+		return;
 	}
 
 	// check for double edges & self loops
@@ -56,8 +63,16 @@ void FPPLayout::doCall(
 	GraphCopy GC(G);
 
 	// embed
-	bool isPlanar = planarEmbed(GC);
-	OGDF_ASSERT(fixEmbedding || isPlanar);
+	if (fixEmbedding) {
+		GC.setOriginalEmbedding();
+		OGDF_ASSERT(GC.representsCombEmbedding());
+	} else {
+#ifdef OGDF_DEBUG
+		bool isPlanar =
+#endif
+				planarEmbed(GC);
+		OGDF_ASSERT(isPlanar);
+	}
 
 	triangulate(GC);
 

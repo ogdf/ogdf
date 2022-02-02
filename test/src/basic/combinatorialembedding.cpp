@@ -513,6 +513,26 @@ void testCombinatorialEmbedding(Graph &graph) {
 			AssertThat(emb.rightFace(adjSecond), Equals(g));
 		});
 
+		it("is able to create a self-loop", [&] {
+			edge e = emb.splitFace(adjFirst, adjFirst);
+
+			AssertThat(e, !IsNull());
+			AssertThat(e->source(), Equals(adjFirst->theNode()));
+			AssertThat(e->target(), Equals(adjFirst->theNode()));
+
+			face f = emb.leftFace(e->adjSource());
+			face g = emb.rightFace(e->adjSource());
+
+			AssertThat(f, !Equals(g));
+			AssertThat(fSplitMe, Equals(f) || Equals(g));
+
+			AssertThat(f->size(), Equals(sizeOfFace + 1));
+			AssertThat(g->size(), Equals(1));
+
+			AssertThat(emb.rightFace(adjFirst), Equals(f));
+			AssertThat(emb.rightFace(e->adjSource()), Equals(g));
+		});
+
 		it("works given a deg-0 node and an adjacency entry as target", [&] {
 			node v = graph.newNode();
 

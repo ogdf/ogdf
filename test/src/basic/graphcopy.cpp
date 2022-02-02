@@ -53,6 +53,7 @@ void testInitGraph(const Graph &graph, const GCType &graphCopy,
 					const List<node> &vCopy,
 					const EdgeArray<edge> &eCopy)
 {
+	AssertThat(&(graphCopy.original()), Equals(&graph));
 	int numberOfActiveNodes = 0;
 	int numberOfAdjActiveEdges = 0;
 	for(node v : vCopy){
@@ -124,6 +125,17 @@ void describeGraphCopySimple(int numberOfNodes)
 			testInitGraph<GCType>(graph, *graphCopy, true);
 		});
 
+		it("is initialized with an empty Graph",[&](){
+			graph.clear();
+			graphCopy.reset(new GCType(graph));
+			testInitGraph<GCType>(graph, *graphCopy, true);
+
+			node v = graph.newNode();
+			graphCopy->newNode(v);
+			graphCopy->newEdge(graph.newEdge(v, v));
+			testInitGraph<GCType>(graph, *graphCopy, true);
+		});
+
 		it("is initialized with a given graph copy",[&](){
 			GCType graphCopyCopy(*graphCopy);
 			testInitGraph<GCType>(graph, graphCopyCopy, true);
@@ -135,6 +147,31 @@ void describeGraphCopySimple(int numberOfNodes)
 			graphCopy.reset(new GCType(initialGraph));
 			graphCopy->init(graph);
 			testInitGraph(graph, *graphCopy, true);
+		});
+
+		describe("creating empty copies",[&](){
+			it("works with an empty graph",[&](){
+				graphCopy.reset(new GCType());
+				graph.clear();
+				graphCopy->createEmpty(graph);
+				AssertThat(&(graphCopy->original()),Equals(&graph));
+				AssertThat(graphCopy->numberOfNodes(),Equals(0));
+				AssertThat(graphCopy->numberOfEdges(),Equals(0));
+			});
+
+			it("works with a non-empty graph",[&](){
+				graphCopy.reset(new GCType(graph));
+				graphCopy->createEmpty(graph);
+				AssertThat(&(graphCopy->original()),Equals(&graph));
+				AssertThat(graphCopy->numberOfNodes(),Equals(numberOfNodes));
+				AssertThat(graphCopy->numberOfEdges(),Equals(numberOfNodes*4));
+				AssertThat(graphCopy->chooseNode(),!IsNull());
+				AssertThat(graphCopy->chooseEdge(),!IsNull());
+				AssertThat(graphCopy->copy(graph.chooseNode()), IsNull());
+				AssertThat(graphCopy->copy(graph.chooseEdge()), IsNull());
+				AssertThat(graphCopy->original(graphCopy->chooseNode()), IsNull());
+				AssertThat(graphCopy->original(graphCopy->chooseEdge()), IsNull());
+			});
 		});
 
 		it("supports copy-construction", [&](){
@@ -302,31 +339,6 @@ go_bandit([](){
 				GraphCopy graphCopyCopy;
 				graphCopyCopy=*graphCopy;
 				testInitGraph<GraphCopy>(graph, graphCopyCopy, true);
-			});
-
-			describe("creating empty copies",[&](){
-				it("works with an empty graph",[&](){
-					graphCopy.reset(new GraphCopy());
-					graph.clear();
-					graphCopy->createEmpty(graph);
-					AssertThat(graphCopy->numberOfNodes(),Equals(0));
-					AssertThat(graphCopy->numberOfEdges(),Equals(0));
-					AssertThat(&(graphCopy->original()),Equals(&graph));
-				});
-
-				it("works with a non-empty graph",[&](){
-					graphCopy.reset(new GraphCopy(graph));
-					graphCopy->createEmpty(graph);
-					AssertThat(graphCopy->numberOfNodes(),Equals(numberOfNodes));
-					AssertThat(graphCopy->numberOfEdges(),Equals(numberOfNodes*4));
-					AssertThat(&(graphCopy->original()),Equals(&graph));
-					AssertThat(graphCopy->chooseNode(),!IsNull());
-					AssertThat(graphCopy->chooseEdge(),!IsNull());
-					AssertThat(graphCopy->copy(graph.chooseNode()), IsNull());
-					AssertThat(graphCopy->copy(graph.chooseEdge()), IsNull());
-					AssertThat(graphCopy->original(graphCopy->chooseNode()), IsNull());
-					AssertThat(graphCopy->original(graphCopy->chooseEdge()), IsNull());
-				});
 			});
 
 			it("is initialized by a given connected component",[&](){

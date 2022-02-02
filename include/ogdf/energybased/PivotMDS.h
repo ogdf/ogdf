@@ -54,14 +54,19 @@ inline bool isinf(T value)
  */
 class OGDF_EXPORT PivotMDS : public LayoutModule {
 public:
-	PivotMDS() : m_numberOfPivots(250), m_edgeCosts(100), m_hasEdgeCostsAttribute(false) { }
+	PivotMDS()
+		: m_numberOfPivots(250)
+		, m_dimensionCount(2)
+		, m_edgeCosts(100)
+		, m_hasEdgeCostsAttribute(false)
+		{ }
 
 	virtual ~PivotMDS() { }
 
 	//! Sets the number of pivots. If the new value is smaller or equal 0
 	//! the default value (250) is used.
 	void setNumberOfPivots(int numberOfPivots) {
-		m_numberOfPivots = (numberOfPivots < DIMENSION_COUNT) ? DIMENSION_COUNT : numberOfPivots;
+		m_numberOfPivots = std::max(numberOfPivots, m_dimensionCount);
 	}
 
 	//! Sets the desired distance between adjacent nodes. If the new value is smaller or equal
@@ -84,11 +89,6 @@ public:
 
 private:
 
-	//! The dimension count determines the number of evecs that
-	//! will be computed. Nevertheless PivotMDS only takes the first two
-	//! with the highest eigenwert into account.
-	const static int DIMENSION_COUNT = 2;
-
 	//! Convergence factor used for power iteration.
 	const static double EPSILON;
 
@@ -100,6 +100,11 @@ private:
 
 	//! The number of pivots.
 	int m_numberOfPivots;
+
+	//! The dimension count determines the number of evecs that
+	//! will be computed. Nevertheless PivotMDS only takes the first two
+	//! with the highest eigenwert into account.
+	int m_dimensionCount;
 
 	//! The costs to traverse an edge.
 	double m_edgeCosts;

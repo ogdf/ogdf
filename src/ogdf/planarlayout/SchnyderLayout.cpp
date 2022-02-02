@@ -65,7 +65,10 @@ void SchnyderLayout::doCall(
 	GraphCopy GC(G);
 
 	// embed
-	bool isPlanar = planarEmbed(GC);
+#ifdef OGDF_DEBUG
+	bool isPlanar =
+#endif
+		planarEmbed(GC);
 	OGDF_ASSERT(fixEmbedding || isPlanar);
 
 	triangulate(GC);
@@ -286,6 +289,7 @@ void SchnyderLayout::realizer(
 				break;
 			}
 		}
+		OGDF_ASSERT(adj != nullptr);
 
 		adjEntry adj1 = adj;
 		while (ord[adj1->twinNode()] > ord[v]) {

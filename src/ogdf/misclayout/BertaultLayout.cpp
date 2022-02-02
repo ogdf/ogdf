@@ -951,6 +951,7 @@ void BertaultLayout::compute(CCElement* element, PlanRep &PG, GraphAttributes &A
 						break;
 					}
 				}
+				OGDF_ASSERT(f2 != nullptr);
 
 				for(adjEntry adj2 : f2->entries)
 				{

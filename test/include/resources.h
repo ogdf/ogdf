@@ -233,7 +233,7 @@ inline void for_each_file(const string &directory, std::function<void(const Reso
  * \param reader The function used to parse the files, defaults to GraphIO::readGML.
  */
 inline void for_each_graph_it(const string &title, const std::vector<string> &filenames, std::function<void(Graph&)> testFunc, GraphIO::ReaderFunc reader = GraphIO::readGML) {
-	for(const string filename : filenames) {
+	for(const string &filename : filenames) {
 		bandit::it(title + " [" + filename.c_str() + "]", [&] {
 			Graph graph;
 			const ResourceFile* file = ResourceFile::get(filename);

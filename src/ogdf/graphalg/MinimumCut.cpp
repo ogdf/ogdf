@@ -36,7 +36,7 @@
 
 //used solely for efficiency and correctness checks of priority
 //queue usage
-//#define USE_PRIO
+//#define OGDF_MINIMUM_CUT_USE_PRIOQ
 
 
 namespace ogdf {
@@ -146,7 +146,7 @@ double MinCut::minimumCutPhase() {
 	// Contains for each node the sum of the edge weights of those edges
 	// incident to nodes in list \a markedNodes
 	NodeArray<double> nodePrio(m_GC);
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 	PrioritizedMapQueue<node, double> pq(m_GC);
 #endif
 	// The two nodes that have been added last to the list \a markedNodes.
@@ -156,7 +156,7 @@ double MinCut::minimumCutPhase() {
 	// Initialization of data structures
 	for(node v : m_GC.nodes) {
 		leftoverNodes.pushBack(v);
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 		pq.push(v, 0.0);
 #endif
 	}
@@ -168,7 +168,7 @@ double MinCut::minimumCutPhase() {
 	//assumes that no multiedges exist
 	for(adjEntry adj : v->adjEntries) {
 		nodePrio[adj->twinNode()] = m_w[adj->theEdge()];
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 		pq.decrease(adj->twinNode(), -m_w[adj->theEdge()]);
 #endif
 	}
@@ -176,7 +176,7 @@ double MinCut::minimumCutPhase() {
 	// Temporary variables
 	ListIterator<node> maxWeightNodeIt;
 	//replaces line above
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 	node maxWeightNodePq;
 #endif
 
@@ -185,7 +185,7 @@ double MinCut::minimumCutPhase() {
 
 		double mostTightly = 0.0;
 		node maxWeightNode = nullptr;
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 		//Find the most tightly connected node
 		maxWeightNodePq = nullptr;
 		if (pq.topPriority() < mostTightly)
@@ -208,7 +208,7 @@ double MinCut::minimumCutPhase() {
 				mostTightly = nodePrio[*it1];
 			}
 		}
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 		OGDF_ASSERT(maxWeightNode == maxWeightNodePq);
 #endif
 
@@ -230,7 +230,7 @@ double MinCut::minimumCutPhase() {
 		for(adjEntry a : maxWeightNode->adjEntries) {
 			nodePrio[a->twinNode()] += m_w[a->theEdge()];
 		}
-#ifdef USE_PRIO
+#ifdef OGDF_MINIMUM_CUT_USE_PRIOQ
 		//replaces loop above
 		for(adjEntry a : maxWeightNodePq->adjEntries) {
 			//should have some decreasePriorityBy instead...

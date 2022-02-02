@@ -42,6 +42,7 @@ namespace ogdf {
 
 //! realizes Hopcroft/Tarjan algorithm for finding the triconnected
 //! components of a biconnected multi-graph
+//! @ingroup ga-connectivity
 class OGDF_EXPORT Triconnectivity
 {
 public:

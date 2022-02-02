@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<travellingSalesmanProblemInstance>
+  <name>complete_directed</name>
+  <source>TSPLIB</source>
+  <description>complete_directed</description>
+  <doublePrecision>15</doublePrecision>
+  <ignoredDigits>5</ignoredDigits>
+  <graph>
+    <vertex>
+      <edge cost="1.000000000000000e+00">1</edge>
+      <edge cost="2.000000000000000e+00">2</edge>
+      <edge cost="3.000000000000000e+00">3</edge>
+      <edge cost="4.000000000000000e+00">4</edge>
+      <edge cost="5.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="10.000000000000000e+00">0</edge>
+      <edge cost="12.000000000000000e+00">2</edge>
+      <edge cost="13.000000000000000e+00">3</edge>
+      <edge cost="14.000000000000000e+00">4</edge>
+      <edge cost="15.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="20.000000000000000e+00">0</edge>
+      <edge cost="21.000000000000000e+00">1</edge>
+      <edge cost="23.000000000000000e+00">3</edge>
+      <edge cost="24.000000000000000e+00">4</edge>
+      <edge cost="25.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="30.000000000000000e+00">0</edge>
+      <edge cost="31.000000000000000e+00">1</edge>
+      <edge cost="32.000000000000000e+00">2</edge>
+      <edge cost="34.000000000000000e+00">4</edge>
+      <edge cost="35.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="40.000000000000000e+00">0</edge>
+      <edge cost="41.000000000000000e+00">1</edge>
+      <edge cost="42.000000000000000e+00">2</edge>
+      <edge cost="43.000000000000000e+00">3</edge>
+      <edge cost="45.000000000000000e+00">5</edge>
+    </vertex>
+    <vertex>
+      <edge cost="50.000000000000000e+00">0</edge>
+      <edge cost="51.000000000000000e+00">1</edge>
+      <edge cost="52.000000000000000e+00">2</edge>
+      <edge cost="53.000000000000000e+00">3</edge>
+      <edge cost="54.000000000000000e+00">4</edge>
+    </vertex>
+  </graph>
+</travellingSalesmanProblemInstance>

@@ -203,6 +203,7 @@ void MultilevelGraph::prepareGraphAttributes(GraphAttributes &GA) const
 void MultilevelGraph::copyFromGraph(const Graph &G, NodeArray<int> & /*nodeAssociations*/, EdgeArray<int> & /* edgeAssociations */)
 {
 	NodeArray<node> tempAssociations(G);
+	EdgeArray<edge> tempEdgeAssociations(G);
 
 	for(node v : G.nodes) {
 		node v_new = m_G->newNode();
@@ -213,6 +214,17 @@ void MultilevelGraph::copyFromGraph(const Graph &G, NodeArray<int> & /*nodeAssoc
 	for(edge e : G.edges) {
 		edge e_new = m_G->newEdge(tempAssociations[e->source()], tempAssociations[e->target()]);
 		m_edgeAssociations[e_new] = e->index();
+		tempEdgeAssociations[e] = e_new;
+	}
+
+	for (node v : G.nodes) {
+		node v_new = tempAssociations[v];
+		List<adjEntry> adjEdges;
+		for (adjEntry adjG : v->adjEntries) {
+			edge e = tempEdgeAssociations[adjG->theEdge()];
+			adjEdges.pushBack(adjG->isSource() ? e->adjSource() : e->adjTarget());
+		}
+		m_G->sort(v_new, adjEdges);
 	}
 
 	initReverseIndizes();

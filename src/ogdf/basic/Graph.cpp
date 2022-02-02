@@ -121,9 +121,10 @@ void Graph::construct(const Graph &G, NodeArray<node> &mapNode,
 void Graph::copy(const Graph &G, NodeArray<node> &mapNode,
 	EdgeArray<edge> &mapEdge)
 {
-	if (G.nodes.empty()) return;
-
 	mapNode.init(G,nullptr);
+	mapEdge.init(G,nullptr);
+
+	if (G.nodes.empty()) return;
 
 	for(node vG : G.nodes) {
 		node v = mapNode[vG] = pureNewNode();
@@ -132,8 +133,6 @@ void Graph::copy(const Graph &G, NodeArray<node> &mapNode,
 	}
 
 	if (G.edges.empty()) return;
-
-	mapEdge.init(G,nullptr);
 
 	for(edge e : G.edges) {
 		edge eC;
@@ -1241,31 +1240,31 @@ node Graph::splitNode(adjEntry adjStartLeft, adjEntry adjStartRight)
 		moveAdj(adj,w);
 	}
 
-	newEdge(adjStartLeft, adjStartRight, Direction::before);
+	if (adjStartLeft == adjStartRight) {
+		newEdge(adjStartLeft->cyclicPred(), w);
+	} else {
+		newEdge(adjStartLeft, adjStartRight, Direction::before);
+	}
 
 	return w;
 }
 
 
-node Graph::contract(edge e)
+node Graph::contract(edge e, bool keepSelfLoops)
 {
 	adjEntry adjSrc = e->adjSource();
 	adjEntry adjTgt = e->adjTarget();
 	node v = e->source();
-	node w = e->target();
 
 	adjEntry adjNext;
 	for (adjEntry adj = adjTgt->cyclicSucc(); adj != adjTgt; adj = adjNext) {
 		adjNext = adj->cyclicSucc();
-		if (adj->twinNode() == v) {
-			continue;
-		}
-
-		edge eAdj = adj->theEdge();
-		if (w == eAdj->source()) {
-			moveSource(eAdj, adjSrc, Direction::before);
-		} else {
-			moveTarget(eAdj, adjSrc, Direction::before);
+		if (keepSelfLoops || adj->twinNode() != v) {
+			if (adj->isSource()) {
+				moveSource(adj->theEdge(), adjSrc, Direction::before);
+			} else {
+				moveTarget(adj->theEdge(), adjSrc, Direction::before);
+			}
 		}
 	}
 
@@ -1283,7 +1282,7 @@ void Graph::moveAdj(adjEntry adj, node w)
 	adj->m_node = w;
 
 	edge e = adj->m_edge;
-	if(v == e->m_src) {
+	if (adj->isSource()) {
 		--v->m_outdeg;
 		e->m_src = w;
 		++w->m_outdeg;

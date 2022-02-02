@@ -1535,8 +1535,10 @@ void ExtractKuratowskis::extractMinorE(
 	// find external paths for each extern node z on the lower external face
 	OGDF_ASSERT(info.externEStart.valid());
 	OGDF_ASSERT(info.externEEnd.valid());
+	OGDF_ASSERT(info.highestXYPath != nullptr);
 
 	int before = -1; // -1= before, 0=equal, 1=after
+// 	OGDF_ASSERT((*info.highestXYPath)[0] != nullptr);
 	node px = (*info.highestXYPath)[0]->theNode();
 	node py = info.highestXYPath->top()->theNode();
 
@@ -1675,6 +1677,7 @@ void ExtractKuratowskis::extractMinorEBundles(
 	// perform backtracking for each extern node z on the lower external face
 	OGDF_ASSERT(info.externEStart.valid());
 	OGDF_ASSERT(info.externEEnd.valid());
+	OGDF_ASSERT(info.highestXYPath != nullptr);
 	SListPure<edge> pathZ;
 	node endnodeZ;
 	int before = -1; // -1= before, 0=equal to wNode, 1=after

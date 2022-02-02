@@ -41,7 +41,15 @@ class CrossingStructure
 public:
 	CrossingStructure() : m_numCrossings(0), m_weightedCrossingNumber(0) { }
 
-	void init(PlanRepLight &PG, int weightedCrossingNumber);
+	void init(GraphCopy &PG, int weightedCrossingNumber);
+
+	/**
+	 * @warning The order of adjEntries around each node will not be restored.
+	 * In particular, the order of edges around a dummy node may not reflect a
+	 * crossing anymore. In this case, \p PG can be embedded via e.g.
+	 * planarEmbed() and pseudo crossings can be removed afterwards via
+	 * GraphCopy::removePseudoCrossings().
+	 */
 	void restore(PlanRep &PG, int cc);
 
 	int numberOfCrossings() const { return m_numCrossings; }

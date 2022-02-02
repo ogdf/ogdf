@@ -43,6 +43,7 @@
 #include <ogdf/fileformats/TlpParser.h>
 #include <ogdf/fileformats/DLParser.h>
 #include <ogdf/fileformats/SvgPrinter.h>
+#include <ogdf/fileformats/TsplibXmlParser.h>
 
 // we use these data structures from the stdlib
 using std::map;
@@ -56,6 +57,124 @@ char GraphIO::s_indentChar  = '\t';
 int  GraphIO::s_indentWidth = 1;
 Logger GraphIO::logger;
 
+GraphIO::FileType::FileType(
+		std::vector<std::string> _extensions,
+		GraphIO::ReaderFunc readerFunc, GraphIO::WriterFunc writerFunc,
+		GraphIO::AttrReaderFunc attrReaderFunc, GraphIO::AttrWriterFunc attrWriterFunc,
+		GraphIO::ClusterReaderFunc clusterReaderFunc, GraphIO::ClusterWriterFunc clusterWriterFunc,
+		GraphIO::ClusterAttrReaderFunc clusterAttrReaderFunc, GraphIO::ClusterAttrWriterFunc clusterAttrWriterFunc
+) : extensions(std::move(_extensions)),
+	reader_func(readerFunc), auto_reader_func(readerFunc),
+	writer_func(writerFunc),
+	attr_reader_func(attrReaderFunc), auto_attr_reader_func(attrReaderFunc),
+	attr_writer_func(attrWriterFunc),
+	cluster_reader_func(clusterReaderFunc), auto_cluster_reader_func(clusterReaderFunc),
+	cluster_writer_func(clusterWriterFunc),
+	cluster_attr_reader_func(clusterAttrReaderFunc), auto_cluster_attr_reader_func(clusterAttrReaderFunc),
+	cluster_attr_writer_func(clusterAttrWriterFunc) {}
+
+GraphIO::FileType &GraphIO::FileType::replaceAutoReaders(
+		GraphIO::ReaderFunc readerFunc, GraphIO::AttrReaderFunc attrReaderFunc,
+		GraphIO::ClusterReaderFunc clusterReaderFunc, GraphIO::ClusterAttrReaderFunc clusterAttrReaderFunc) {
+	auto_reader_func = readerFunc;
+	auto_attr_reader_func = attrReaderFunc;
+	auto_cluster_reader_func = clusterReaderFunc;
+	auto_cluster_attr_reader_func = clusterAttrReaderFunc;
+	return *this;
+}
+
+bool readGraph6WithForcedHeader(Graph &G, std::istream &is) { return GraphIO::readGraph6(G, is, true); }
+bool readSparse6WithForcedHeader(Graph &G, std::istream &is) { return GraphIO::readSparse6(G, is, true); }
+bool readDigraph6WithForcedHeader(Graph &G, std::istream &is) { return GraphIO::readDigraph6(G, is, true); }
+bool readGraph6WithoutForcedHeader(Graph &G, std::istream &is) { return GraphIO::readGraph6(G, is, false); }
+bool readSparse6WithoutForcedHeader(Graph &G, std::istream &is) { return GraphIO::readSparse6(G, is, false); }
+bool readDigraph6WithoutForcedHeader(Graph &G, std::istream &is) { return GraphIO::readDigraph6(G, is, false); }
+
+// XXX Remember to update the docs of the generic read/write methods when changing the following data
+const std::vector<GraphIO::FileType> GraphIO::FILE_TYPES = {
+		GraphIO::FileType({"dot", "gv"}, GraphIO::readDOT, GraphIO::writeDOT, GraphIO::readDOT, GraphIO::writeDOT,
+					GraphIO::readDOT, GraphIO::writeDOT, GraphIO::readDOT, GraphIO::writeDOT),
+		GraphIO::FileType({"gml"}, GraphIO::readGML, GraphIO::writeGML, GraphIO::readGML, GraphIO::writeGML,
+					GraphIO::readGML, GraphIO::writeGML, GraphIO::readGML, GraphIO::writeGML),
+		GraphIO::FileType({"tlp"}, GraphIO::readTLP, GraphIO::writeTLP, GraphIO::readTLP, GraphIO::writeTLP,
+					GraphIO::readTLP, GraphIO::writeTLP, GraphIO::readTLP, GraphIO::writeTLP),
+		GraphIO::FileType({"leda", "gw"}, GraphIO::readLEDA, GraphIO::writeLEDA),
+		GraphIO::FileType({"chaco"}, GraphIO::readChaco, GraphIO::writeChaco),
+		GraphIO::FileType({"dl"}, GraphIO::readDL, GraphIO::writeDL, GraphIO::readDL, GraphIO::writeDL),
+		GraphIO::FileType({"gdf"}, GraphIO::readGDF, GraphIO::writeGDF, GraphIO::readGDF, GraphIO::writeGDF),
+		GraphIO::FileType({"graphml"}, GraphIO::readGraphML, GraphIO::writeGraphML, GraphIO::readGraphML, GraphIO::writeGraphML,
+					GraphIO::readGraphML, GraphIO::writeGraphML, GraphIO::readGraphML, GraphIO::writeGraphML),
+		GraphIO::FileType({"gexf"}, GraphIO::readGEXF, GraphIO::writeGEXF, GraphIO::readGEXF, GraphIO::writeGEXF,
+					GraphIO::readGEXF, GraphIO::writeGEXF, GraphIO::readGEXF, GraphIO::writeGEXF),
+		GraphIO::FileType({"xml"}, GraphIO::readTsplibXml, nullptr, GraphIO::readTsplibXml),
+		GraphIO::FileType({"stp"}, GraphIO::readSTP, nullptr, GraphIO::readSTP, nullptr),
+		GraphIO::FileType({"d6"}, readDigraph6WithoutForcedHeader, GraphIO::writeDigraph6)
+				.replaceAutoReaders(readDigraph6WithForcedHeader),
+				// if we are sure about the file type, we don't care about the header
+				// but if we try to auto-detect the file type, we need to rely on the header
+		GraphIO::FileType({"g6"}, readGraph6WithoutForcedHeader, GraphIO::writeGraph6)
+				.replaceAutoReaders(readGraph6WithForcedHeader),
+		GraphIO::FileType({"s6"}, readSparse6WithoutForcedHeader, GraphIO::writeSparse6)
+				.replaceAutoReaders(readSparse6WithForcedHeader),
+		GraphIO::FileType({"dmf"}, GraphIO::readDMF, nullptr, GraphIO::readDMF, nullptr),
+		GraphIO::FileType({"pm", "pmd"}, GraphIO::readPMDissGraph, GraphIO::writePMDissGraph),
+		GraphIO::FileType({"rudy"}, GraphIO::readRudy, nullptr, GraphIO::readRudy, GraphIO::writeRudy),
+
+		// SVG can only write GraphAttributes and ClusterGraphAttributes
+		GraphIO::FileType({"svg"}, nullptr, nullptr, nullptr, GraphIO::drawSVG,
+					nullptr, nullptr, nullptr, GraphIO::drawSVG),
+
+		// The following graph formats let the generic reader tests fail:
+		GraphIO::FileType({"rome"}, GraphIO::readRome, GraphIO::writeRome)
+				.replaceAutoReaders(nullptr), // readRome("chaco/invalid/invalid-node.chaco") == true
+//		GraphIO::FileType({}, GraphIO::readYGraph), // (we can't use auto reading and we don't know the extension)
+//				.replaceAutoReaders(nullptr), // readYGraph("dl/invalid/*.dl") == true
+		GraphIO::FileType({"mtx"}, GraphIO::readMatrixMarket)
+				.replaceAutoReaders(nullptr), // otherwise accepts many (~42) invalid files of other formats
+
+		// The following graph formats have no corresponding generic ReaderFunc:
+//		GraphIO::FileType( {}, GraphIO::readBENCH, nullptr,GraphIO::readBENCH), // (Hypergraph)
+//		GraphIO::FileType( {}, GraphIO::readPLA, GraphIO::writePLA,GraphIO::readPLA), // (Hypergraph)
+//		GraphIO::FileType( {}, GraphIO::readChallengeGraph, GraphIO::writeChallengeGraph), // (bundled with GridLayout)
+//		GraphIO::FileType( {}, GraphIO::readEdgeListSubgraph, GraphIO::writeEdgeListSubgraph), // (bundled with List<edge> subgraph)
+};
+
+std::unordered_map<string, const GraphIO::FileType *> GraphIO::FILE_TYPE_MAP;
+
+const std::unordered_map<string, const GraphIO::FileType *> &GraphIO::getFileTypeMap() {
+	if (FILE_TYPE_MAP.empty()) {
+		for (const FileType &t:FILE_TYPES) {
+			for (const string &ext:t.extensions) {
+				FILE_TYPE_MAP.insert({ext, &t});
+			}
+		}
+	}
+	return FILE_TYPE_MAP;
+}
+
+const GraphIO::FileType *GraphIO::getFileType(const string &filename) {
+	auto dot = filename.find_last_of('.');
+	string ext = filename.substr(dot + 1);
+	const auto &map = getFileTypeMap();
+	auto search = map.find(ext);
+	if (search != map.end()) {
+		return search->second;
+	} else {
+		// Graphs in the old Rome format have the form "grafoX.Y" where both X
+		// and Y are positive integers (Y being the number of nodes).
+		const string romeStart = "grafo";
+		if (!ext.empty() && filename.compare(0, romeStart.length(), romeStart) == 0 && dot > romeStart.length()) {
+			auto isdigit = [](unsigned char c) { return std::isdigit(c); };
+			string pre = filename.substr(romeStart.length(), dot - romeStart.length());
+			if (std::all_of(pre.begin(), pre.end(), isdigit) &&
+				std::all_of(ext.begin(), ext.end(), isdigit)) {
+				return map.find("rome")->second;
+			}
+		}
+		return nullptr;
+	}
+}
+
 std::ostream &GraphIO::indent(std::ostream &os, int depth)
 {
 	int n = s_indentWidth * depth;
@@ -65,123 +184,86 @@ std::ostream &GraphIO::indent(std::ostream &os, int depth)
 	return os;
 }
 
-bool GraphIO::read(Graph &G, std::istream &is)
-{
-	//! Supported formats for automated detection
-	static const std::vector<GraphIO::ReaderFunc> readers = {
-		GraphIO::readDOT,
-		GraphIO::readGML,
-		GraphIO::readTLP,
-		GraphIO::readLEDA,
-		GraphIO::readChaco,
-		GraphIO::readDL,
-		GraphIO::readGDF,
-		GraphIO::readGraphML,
-		GraphIO::readGEXF,
-		GraphIO::readSTP,
-		GraphIO::readGraph6WithForcedHeader,
-		GraphIO::readDigraph6WithForcedHeader,
-		GraphIO::readSparse6WithForcedHeader,
-		GraphIO::readDMF,
-		GraphIO::readPMDissGraph,
-		GraphIO::readRudy,
-#if 0
-		// The following graph formats let the generic reader tests fail:
-		GraphIO::readRome,
-		GraphIO::readYGraph,
-		GraphIO::readMatrixMarket,
-
-		// The following graph formats have no corresponding ReaderFunc:
-		GraphIO::readBENCH,
-		GraphIO::readPLA,
-		GraphIO::readChallengeGraph,
-#endif
-	};
-
-	for(auto &reader : readers) {
-		if(reader(G, is)) {
-			return true;
-		} else {
-			G.clear();
-			is.clear();
-			is.seekg(0, std::ios::beg);
-		}
-	}
-
-	return false;
+#define READ_FILENAME(FUNC, ...) {                   \
+	if (reader == nullptr) {                         \
+		const FileType *t = getFileType(filename);   \
+		if (t == nullptr) {                          \
+			reader = GraphIO::read;                  \
+		} else {                                     \
+			reader = t->FUNC;                        \
+		}                                            \
+	}                                                \
+	std::ifstream is(filename);                      \
+	return is.good() && reader(__VA_ARGS__, is);     \
 }
+
+bool GraphIO::read(Graph &G, const string &filename, GraphIO::ReaderFunc reader)
+	READ_FILENAME(reader_func, G)
+
+bool GraphIO::read(GraphAttributes &GA, Graph &G, const string &filename, GraphIO::AttrReaderFunc reader)
+	READ_FILENAME(attr_reader_func, GA, G)
+
+bool GraphIO::read(ClusterGraph &CG, Graph &G, const string &filename, GraphIO::ClusterReaderFunc reader)
+	READ_FILENAME(cluster_reader_func, CG, G)
+
+bool GraphIO::read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, const string &filename, GraphIO::ClusterAttrReaderFunc reader)
+	READ_FILENAME(cluster_attr_reader_func, GA, CG, G)
+
+#define WRITE_FILENAME(FUNC, ARG) {                                                                                   \
+	if (writer == nullptr) {                                                                                          \
+		const FileType *t = getFileType(filename);                                                                    \
+		if (t == nullptr) {                                                                                           \
+			logger.lout() << "Can't determine type of file " << filename << " for writing, " <<                       \
+						  "please pass the writer function explicitly or use a known file extension!" << std::endl;   \
+			return false;                                                                                             \
+		} else {                                                                                                      \
+			writer = t->FUNC;                                                                                         \
+		}                                                                                                             \
+	}                                                                                                                 \
+	std::ofstream os(filename);                                                                                       \
+	return os.good() && writer(ARG, os);                                                                              \
+}
+
+bool GraphIO::write(const Graph &G, const string &filename, GraphIO::WriterFunc writer)
+	WRITE_FILENAME(writer_func, G)
+
+bool GraphIO::write(const GraphAttributes &GA, const string &filename, GraphIO::AttrWriterFunc writer)
+	WRITE_FILENAME(attr_writer_func, GA)
+
+bool GraphIO::write(const ClusterGraph &CG, const string &filename, GraphIO::ClusterWriterFunc writer)
+	WRITE_FILENAME(cluster_writer_func, CG)
+
+bool GraphIO::write(const ClusterGraphAttributes &GA, const string &filename, GraphIO::ClusterAttrWriterFunc writer)
+	WRITE_FILENAME(cluster_attr_writer_func, GA)
+
+#define READ_STREAM(FUNC, CLEAR, ...) {     \
+	for (auto &type : FILE_TYPES) {         \
+		if (type.FUNC == nullptr) {         \
+			continue;                       \
+		}                                   \
+		if (type.FUNC(__VA_ARGS__, is)) {   \
+			return true;                    \
+		} else {                            \
+			CLEAR                           \
+			G.clear();                      \
+			is.clear();                     \
+			is.seekg(0, std::ios::beg);     \
+		}                                   \
+	}                                       \
+	return false;                           \
+}
+
+bool GraphIO::read(Graph &G, std::istream &is)
+	READ_STREAM(auto_reader_func, , G)
 
 bool GraphIO::read(GraphAttributes &GA, Graph &G, std::istream &is)
-{
-	static const std::vector<GraphIO::AttrReaderFunc> attrReaders = {
-		GraphIO::readDOT,
-		GraphIO::readGML,
-		GraphIO::readTLP,
-		GraphIO::readDL,
-		GraphIO::readGDF,
-		GraphIO::readGraphML,
-		GraphIO::readGEXF,
-		GraphIO::readSTP,
-		GraphIO::readDMF,
-		GraphIO::readRudy
-	};
+	READ_STREAM(auto_attr_reader_func, , GA, G)
 
-	for (auto &reader : attrReaders) {
-		if (reader(GA, G, is)) {
-			return true;
-		} else {
-			G.clear();
-			is.clear();
-			is.seekg(0, std::ios::beg);
-		}
-	}
+bool GraphIO::read(ClusterGraph &CG, Graph &G, std::istream &is)
+	READ_STREAM(auto_cluster_reader_func, CG.clear();, CG, G)
 
-	return false;
-}
-
-bool GraphIO::write(const Graph &G, const string &filename)
-{
-	static const std::unordered_map<string, GraphIO::WriterFunc> writerByExtension =
-		{ { "gml", GraphIO::writeGML }
-		, { "rome", GraphIO::writeRome } // unofficial
-		, { "leda", GraphIO::writeLEDA }
-		, { "gw", GraphIO::writeLEDA } // GraphWin, extension of LEDA
-		, { "chaco", GraphIO::writeChaco }
-		, { "pm", GraphIO::writePMDissGraph } // unofficial
-		, { "pmd", GraphIO::writePMDissGraph } // unofficial
-		, { "g6", GraphIO::writeGraph6 }
-		, { "d6", GraphIO::writeDigraph6 }
-		, { "s6", GraphIO::writeSparse6 }
-		, { "graphml", GraphIO::writeGraphML }
-		, { "dot", GraphIO::writeDOT }
-		, { "gv", GraphIO::writeDOT } // GraphViz
-		, { "gefx", GraphIO::writeGEXF }
-		, { "gdf", GraphIO::writeGDF }
-		, { "tlp", GraphIO::writeTLP }
-		, { "dl", GraphIO::writeDL }
-	};
-
-	GraphIO::WriterFunc writer;
-	string ext = filename.substr(filename.find_last_of(".") + 1);
-
-	auto search = writerByExtension.find(ext);
-	if (search != writerByExtension.end()) {
-		writer = search->second;
-	} else {
-		// Graphs in the old Rome format have the form "grafoX.Y" where both X
-		// and Y are positive integers (Y being the number of nodes).
-		const string romeStart = "grafo";
-		if (!ext.empty()
-		 && std::all_of(ext.begin(), ext.end(), [](unsigned char c){ return std::isdigit(c); })
-		 && filename.compare(0, romeStart.length(), romeStart) == 0) {
-			writer = GraphIO::writeRome;
-		} else {
-			return false;
-		}
-	}
-
-	return write(G, filename, writer);
-}
+bool GraphIO::read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, std::istream &is)
+	READ_STREAM(auto_cluster_attr_reader_func, CG.clear();, GA, CG, G)
 
 bool GraphIO::readGML(Graph &G, std::istream &is)
 {
@@ -1686,6 +1768,24 @@ bool GraphIO::readDL(GraphAttributes &A, Graph &G, std::istream &is)
 	}
 	DLParser parser(is);
 	return parser.read(G, A);
+}
+
+bool GraphIO::readTsplibXml(Graph &G, std::istream &is)
+{
+	if(!is.good()) {
+		return false;
+	}
+	TsplibXmlParser parser(is);
+	return parser.read(G);
+}
+
+bool GraphIO::readTsplibXml(GraphAttributes &GA, Graph &G, std::istream &is)
+{
+	if(!is.good()) {
+		return false;
+	}
+	TsplibXmlParser parser(is);
+	return parser.read(G, GA);
 }
 
 }

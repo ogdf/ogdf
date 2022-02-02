@@ -44,7 +44,7 @@ static inline pugi::xml_node writeGraphMLHeader(pugi::xml_document &doc)
 	pugi::xml_node rootNode = doc.append_child("graphml");
 	rootNode.append_attribute("xmlns") = xmlns.c_str();
 	rootNode.append_attribute("xmlns:xsi") = "http://www.w3.org/2001/XMLSchema-instance";
-	rootNode.append_attribute("xsi:schemaLocation") = (xmlns + "\n" + xmlns + "/1.0/graphml.xsd\">\n").c_str();
+	rootNode.append_attribute("xsi:schemaLocation") = (xmlns + "\n" + xmlns + "/1.0/graphml.xsd").c_str();
 
 	return rootNode;
 }
@@ -338,25 +338,22 @@ static inline void writeGraphMLEdge(
 static void writeGraphMLCluster(
 	pugi::xml_node xmlNode,
 	const ClusterGraph &C,
-	const cluster &c,
-	int clusterId)
+	const cluster &c)
 {
 	pugi::xml_node graph;
 
 	if(C.rootCluster() != c) {
 		pugi::xml_node clusterXmlNode = xmlNode.append_child("node");
-		const char* idValue = ("cluster" + to_string(clusterId)).c_str();
-		clusterXmlNode.append_attribute("id") = idValue;
+		string idValue = "cluster" + to_string(c->index());
+		clusterXmlNode.append_attribute("id") = idValue.c_str();
 
 		graph = clusterXmlNode.append_child("graph");
-		graph.append_attribute("id") = idValue;
+		graph.append_attribute("id") = idValue.c_str();
 		graph.append_attribute("edgedefault") = "directed";
 	}
 
-	clusterId++;
-
 	for(cluster child : c->children) {
-		writeGraphMLCluster(graph, C, child, clusterId);
+		writeGraphMLCluster(graph, C, child);
 	}
 
 	for(node v : c->nodes) {
@@ -368,8 +365,7 @@ static void writeGraphMLCluster(
 static void writeGraphMLCluster(
 	pugi::xml_node xmlNode,
 	const ClusterGraphAttributes &CA,
-	const cluster &c,
-	int clusterId)
+	const cluster &c)
 {
 	pugi::xml_node graph;
 	pugi::xml_node clusterTag;
@@ -379,18 +375,16 @@ static void writeGraphMLCluster(
 		graph = xmlNode;
 	} else {
 		clusterTag = xmlNode.append_child("node");
-		const char* idValue = ("cluster" + to_string(clusterId)).c_str();
-		clusterTag.append_attribute("id") = idValue;
+		string idValue = "cluster" + to_string(c->index());
+		clusterTag.append_attribute("id") = idValue.c_str();
 
-		pugi::xml_node graphXmlNode = clusterTag.append_child("graph");
-		graphXmlNode.append_attribute("id") = idValue;
-		graphXmlNode.append_attribute("edgedefault") = CA.directed() ? "directed" : "undirected";
+		graph = clusterTag.append_child("graph");
+		graph.append_attribute("id") = idValue.c_str();
+		graph.append_attribute("edgedefault") = CA.directed() ? "directed" : "undirected";
 	}
 
-	clusterId++;
-
 	for(cluster child : c->children) {
-		writeGraphMLCluster(graph, CA, child, clusterId);
+		writeGraphMLCluster(graph, CA, child);
 	}
 
 	for(node v : c->nodes) {
@@ -462,7 +456,7 @@ bool GraphIO::writeGraphML(const ClusterGraph &C, std::ostream &out)
 		pugi::xml_node rootNode = writeGraphMLHeader(doc);
 		pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
 
-		writeGraphMLCluster(graphNode, G, C.rootCluster(), 0);
+		writeGraphMLCluster(graphNode, G, C.rootCluster());
 
 		for (edge e : G.edges) {
 			writeGraphMLEdge(graphNode, e);
@@ -516,7 +510,8 @@ bool GraphIO::writeGraphML(const ClusterGraphAttributes &CA, std::ostream &out)
 		defineGraphMLAttributes(rootNode, CA.attributes());
 		defineGraphMLAttribute(rootNode, "node", toString(graphml::Attribute::ClusterStroke), "string");
 		pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
-		writeGraphMLCluster(graphNode, CA, C.rootCluster(), 0);
+
+		writeGraphMLCluster(graphNode, CA, C.rootCluster());
 
 		for (edge e : G.edges) {
 			writeGraphMLEdge(graphNode, CA, e);

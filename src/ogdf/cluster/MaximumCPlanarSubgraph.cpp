@@ -47,7 +47,7 @@ using namespace cluster_planarity;
 Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
                                                   const EdgeArray<double> *pCost,
                                                   List<edge> &delEdges,
-                                                  List<NodePair> &addedEdges)
+                                                  NodePairs &addedEdges)
 {
 #ifdef OGDF_DEBUG
 	std::cout << "Creating new Masterproblem for clustergraph with " << G.constGraph().numberOfNodes() << " nodes\n";

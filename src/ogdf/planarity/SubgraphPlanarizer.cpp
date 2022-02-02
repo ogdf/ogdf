@@ -172,7 +172,6 @@ bool SubgraphPlanarizer::doSinglePermutation(
 {
 	prl.initCC(cc);
 
-	const int nG = prl.numberOfNodes();
 	const int high = deletedEdges.high();
 
 	for(int j = 0; j <= high; ++j)
@@ -181,31 +180,17 @@ bool SubgraphPlanarizer::doSinglePermutation(
 	deletedEdges.permute(rng);
 
 	ReturnType ret = inserter.callEx(prl, deletedEdges, pCost, pForbid, pEdgeSubGraphs);
+	SListPure<edge> reinsertedEdges;
+	for(int i = 0; i <= high; ++i) {
+		reinsertedEdges.pushBack(deletedEdges[i]);
+	}
+
+	prl.removeNonSimpleCrossings(reinsertedEdges);
 
 	if(!isSolution(ret))
 		return false; // no solution found, that's bad...
 
-	if(pCost == nullptr)
-		crossingNumber = prl.numberOfNodes() - nG;
-	else {
-		crossingNumber = 0;
-		for(node n : prl.nodes) {
-			if(prl.original(n) == nullptr) { // dummy found -> calc cost
-				edge e1 = prl.original(n->firstAdj()->theEdge());
-				edge e2 = prl.original(n->lastAdj()->theEdge());
-				if(pEdgeSubGraphs != nullptr) {
-					int subgraphCounter = 0;
-					for(int i = 0; i < 32; i++) {
-						if((((*pEdgeSubGraphs)[e1] & (1<<i))!=0) && (((*pEdgeSubGraphs)[e2] & (1<<i)) != 0))
-							subgraphCounter++;
-					}
-					crossingNumber += (subgraphCounter * (*pCost)[e1] * (*pCost)[e2]);
-				} else
-					crossingNumber += (*pCost)[e1] * (*pCost)[e2];
-			}
-		}
-	}
-
+	crossingNumber = computeCrossingNumber(prl, pCost, pEdgeSubGraphs);
 	return true;
 }
 
@@ -424,6 +409,15 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 
 		OGDF_ASSERT(isPlanar(pr));
 	}
+
+	// Remove pseudo crossings and recompute crossing number.
+#ifdef OGDF_DEBUG
+	bool planar =
+#endif
+		planarEmbed(pr);
+	OGDF_ASSERT(planar);
+	pr.removePseudoCrossings();
+	crossingNumber = computeCrossingNumber(pr, pCostOrig, pEdgeSubGraphs);
 
 	return ReturnType::Feasible;
 }

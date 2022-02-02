@@ -47,6 +47,8 @@ namespace ogdf {
  * The algorithm can also be used to compute approximate solutions at a faster pace.
  *
  * @tparam T The type of edge cost
+ *
+ * @ingroup ga-sp
  */
 template<typename T>
 class AStarSearch {

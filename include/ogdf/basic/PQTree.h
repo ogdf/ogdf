@@ -1568,6 +1568,7 @@ void PQTree<T,X,Y>::Cleanup()
 	if (m_root != nullptr)
 	{
 		emptyAllPertinentNodes();
+		OGDF_ASSERT(m_root != nullptr);
 		PQNode<T,X,Y>*  oldSib = nullptr;
 
 		/*
@@ -3381,6 +3382,7 @@ bool PQTree<T,X,Y>::templateP6(PQNode<T,X,Y> **nodePtr)
 		realEmptyEnd_2 = clientRightEndmost(partial_2);
 	}
 
+	OGDF_ASSERT(emptyEnd_2 != nullptr);
 	OGDF_ASSERT(fullEnd_2 != emptyEnd_2);
 	//partial child with same type of endmost child detected
 

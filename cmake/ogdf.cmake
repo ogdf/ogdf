@@ -58,6 +58,18 @@ mark_as_advanced(OGDF_EXTRA_CXX_FLAGS)
 mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_DEBUG)
 mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_RELEASE)
 
+# static analysis using clang-tidy
+option(OGDF_ENABLE_CLANG_TIDY "Enable static analysis using clang-tidy" OFF)
+
+if(OGDF_ENABLE_CLANG_TIDY)
+  find_program(CLANG_TIDY clang-tidy)
+  if(CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY};-extra-arg=-Wno-unknown-warning-option)
+  else()
+    message(WARNING "clang-tidy not found!")
+  endif()
+endif()
+
 # compilation
 file(GLOB_RECURSE ogdf_headers include/ogdf/*.h)
 file(GLOB_RECURSE ogdf_sources src/ogdf/*.cpp)
@@ -97,6 +109,14 @@ endfunction()
 
 add_ogdf_extra_flags(OGDF)
 
+# do not count warnings in external libraries as errors
+file(GLOB_RECURSE lib_headers include/ogdf/lib/*.h)
+file(GLOB_RECURSE lib_sources src/ogdf/lib/*.cpp)
+file(GLOB_RECURSE bandit_headers test/include/bandit/*.h)
+set(tinydir_headers "test/include/tinydir.h")
+set(lib_sources "${lib_sources};${lib_headers};${bandit_headers};${tinydir_headers}")
+set_source_files_properties(${lib_sources} PROPERTIES COMPILE_FLAGS " ${warnings_not_as_errors_flag} ")
+
 # set OGDF_INSTALL for shared libraries
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(OGDF PRIVATE OGDF_INSTALL)
@@ -126,6 +146,12 @@ endif()
 # autogen header variables if libs are shared
 if(BUILD_SHARED_LIBS)
   set(OGDF_DLL 1)
+endif()
+
+# autogen header variables for mallinfo2
+include(check-mallinfo2)
+if(has_mallinfo2)
+  set(OGDF_HAS_MALLINFO2 1)
 endif()
 
 # autogen header variables for SSE3

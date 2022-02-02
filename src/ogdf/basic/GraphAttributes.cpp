@@ -234,8 +234,9 @@ void GraphAttributes::setAllHeight(double h)
 
 void GraphAttributes::clearAllBends()
 {
-	for(edge e : m_pGraph->edges)
-		m_bends[e].clear();
+	if (has(edgeGraphics))
+		for (edge e : m_pGraph->edges)
+			m_bends[e].clear();
 }
 
 
@@ -286,7 +287,7 @@ DRect GraphAttributes::boundingBox() const
 // at least one list is returned, which is the list of all nodes not belonging to any hierachy
 // this is always the first list
 // the return-value of this function is the number of hierachies
-int GraphAttributes::hierarchyList(List<List<node>* > &list) const
+int GraphAttributes::hierarchyList(List<List<node>*> &list) const
 {
 	// list must be empty during startup
 	OGDF_ASSERT(list.empty());
@@ -346,7 +347,7 @@ int GraphAttributes::hierarchyList(List<List<node>* > &list) const
 // returns a list of all hierarchies in the graph (in this case, a hierarchy consists of a set of edges)
 // list may be empty, if no generalizations are used
 // the return-value of this function is the number of hierarchies with generalizations
-int GraphAttributes::hierarchyList(List<List<edge>* > &list) const
+int GraphAttributes::hierarchyList(List<List<edge>*> &list) const
 {
 	// list must be empty during startup
 	OGDF_ASSERT(list.empty());

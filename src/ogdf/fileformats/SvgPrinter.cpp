@@ -85,14 +85,14 @@ pugi::xml_node SvgPrinter::writeHeader(pugi::xml_document &doc)
 		rootNode.append_attribute("height") = m_settings.height().c_str();
 	}
 
-	DRect box = m_clsAttr ? m_clsAttr->boundingBox() : m_attr.boundingBox();
+	m_bbox = m_clsAttr ? m_clsAttr->boundingBox() : m_attr.boundingBox();
 
 	double margin = m_settings.margin();
 	std::stringstream is;
-	is << (box.p1().m_x - margin);
-	is << " " << (box.p1().m_y - margin);
-	is << " " << (box.width() + 2*margin);
-	is << " " << (box.height() + 2*margin);
+	is << (m_bbox.p1().m_x - margin);
+	is << " " << (m_bbox.p1().m_y - margin);
+	is << " " << (m_bbox.width() + 2*margin);
+	is << " " << (m_bbox.height() + 2*margin);
 	rootNode.append_attribute("viewBox") = is.str().c_str();
 
 	return rootNode;
@@ -288,23 +288,48 @@ void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c)
 {
 	OGDF_ASSERT(m_clsAttr);
 
-	pugi::xml_node cluster;
+	pugi::xml_node clusterXmlNode = xmlNode.append_child("rect");
+	if (m_clsAttr->has(ClusterGraphAttributes::clusterGraphics)) {
+		clusterXmlNode.append_attribute("x") = m_clsAttr->x(c);
+		clusterXmlNode.append_attribute("y") = m_clsAttr->y(c);
+		clusterXmlNode.append_attribute("width") = m_clsAttr->width(c);
+		clusterXmlNode.append_attribute("height") = m_clsAttr->height(c);
+	}
+	if (m_clsAttr->has(ClusterGraphAttributes::clusterStyle)) {
+		clusterXmlNode.append_attribute("fill") =
+				m_clsAttr->fillPattern(c) == FillPattern::None ? "none" : m_clsAttr->fillColor(c).toString().c_str();
+		clusterXmlNode.append_attribute("stroke") =
+				m_clsAttr->strokeType(c) == StrokeType::None ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
+		clusterXmlNode.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
+	}
+	if (m_clsAttr->has(ClusterGraphAttributes::clusterLabel)) {
+		DRect cbox(m_clsAttr->x(c), m_clsAttr->y(c),
+				   m_clsAttr->x(c) + m_clsAttr->width(c),
+				   m_clsAttr->y(c) + m_clsAttr->height(c));
+		cbox.normalize();
+		double top = m_bbox.p2().m_y - cbox.p2().m_y;
+		double bottom = cbox.p1().m_y - m_bbox.p1().m_y;
+		double right = m_bbox.p2().m_x - cbox.p2().m_x;
+		double left = cbox.p1().m_x - m_bbox.p1().m_x;
 
-	if (c == m_clsAttr->constClusterGraph().rootCluster()) {
-		cluster = xmlNode;
-	} else {
-		pugi::xml_node clusterXmlNode = xmlNode.append_child("rect");
-		if (m_clsAttr->has(ClusterGraphAttributes::clusterGraphics)) {
-			clusterXmlNode.append_attribute("x") = m_clsAttr->x(c);
-			clusterXmlNode.append_attribute("y") = m_clsAttr->y(c);
-			clusterXmlNode.append_attribute("width") = m_clsAttr->width(c);
-			clusterXmlNode.append_attribute("height") = m_clsAttr->height(c);
+		pugi::xml_node label = xmlNode.append_child("text");
+		if (top > bottom) {
+			label.append_attribute("y") = cbox.p2().m_y + m_settings.fontSize();
+		} else {
+			label.append_attribute("y") = cbox.p1().m_y - m_settings.fontSize();
 		}
-		if (m_clsAttr->has(ClusterGraphAttributes::clusterStyle)) {
-			clusterXmlNode.append_attribute("fill") = m_clsAttr->fillPattern(c) == FillPattern::None ? "none" : m_clsAttr->fillColor(c).toString().c_str();
-			clusterXmlNode.append_attribute("stroke") = m_clsAttr->strokeType(c) == StrokeType::None ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
-			clusterXmlNode.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
+		if (left > right) {
+			label.append_attribute("x") = cbox.p1().m_x;
+			label.append_attribute("text-anchor") = "start";
+		} else {
+			label.append_attribute("x") = cbox.p2().m_x;
+			label.append_attribute("text-anchor") = "end";
 		}
+		label.append_attribute("dominant-baseline") = "middle";
+		label.append_attribute("font-family") = m_settings.fontFamily().c_str();
+		label.append_attribute("font-size") = m_settings.fontSize();
+		label.append_attribute("fill") = m_settings.fontColor().c_str();
+		label.text() = m_clsAttr->label(c).c_str();
 	}
 }
 
@@ -422,13 +447,12 @@ double SvgPrinter::getArrowSize(adjEntry adj) {
 }
 
 bool SvgPrinter::isCoveredBy(const DPoint &point, adjEntry adj) {
-	double arrowSize = getArrowSize(adj);
 	node v = adj->theNode();
 
-	return point.m_x >= m_attr.x(v) - m_attr.width(v)/2 - arrowSize
-	    && point.m_x <= m_attr.x(v) + m_attr.width(v)/2 + arrowSize
-	    && point.m_y >= m_attr.y(v) - m_attr.height(v)/2 - arrowSize
-	    && point.m_y <= m_attr.y(v) + m_attr.height(v)/2 + arrowSize;
+	return point.m_x >= m_attr.x(v) - m_attr.width(v)/2
+	    && point.m_x <= m_attr.x(v) + m_attr.width(v)/2
+	    && point.m_y >= m_attr.y(v) - m_attr.height(v)/2
+	    && point.m_y <= m_attr.y(v) + m_attr.height(v)/2;
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {

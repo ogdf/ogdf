@@ -44,6 +44,8 @@ namespace ogdf {
  * Given a root note, a set of k edge-independent spanning trees of
  * a graph G is a set of k spanning trees, for which for each two
  * trees the paths from any node to the root are edge-disjoint.
+ *
+ * @ingroup graph-algs
  */
 class OGDF_EXPORT EdgeIndependentSpanningTrees {
 public:

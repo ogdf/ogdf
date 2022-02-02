@@ -35,7 +35,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/NodeSet.h>
 
-//#define TRIC_COMP_OUTPUT
+//#define OGDF_TRICONNECTIVITY_OUTPUT
 
 
 namespace ogdf {
@@ -57,7 +57,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	const int n = GC.numberOfNodes();
 	const int m = GC.numberOfEdges();
 
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "Dividing G into triconnected components.\n" << std::endl;
 	std::cout << "n = " << n << ", m = " << m << std::endl << std::endl;
 #endif
@@ -98,7 +98,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 			GC.reverseEdge(e);
 	}
 
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nnode\tNUMBER\tFATHER\tLOWPT1\tLOWPT2\tND" << std::endl;
 	for (node v : GC.nodes) {
 		std::cout << GC.original(v) << ":  \t" << m_NUMBER[v] << "   \t";
@@ -112,7 +112,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	m_IN_ADJ.init(GC,nullptr);
 	buildAcceptableAdjStruct(GC);
 
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nadjaceny lists:" << std::endl;
 	for (node v : GC.nodes) {
 		std::cout << v << "\t";
@@ -125,7 +125,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 
 	DFS2(GC);
 
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nnode\tNEWNUM\tLOWPT1\tLOWPT2\tHIGHPT" << std::endl;
 	for (node v : GC.nodes) {
 		std::cout << GC.original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
@@ -158,7 +158,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	}
 	C.m_type = (C.m_edges.size() > 4) ? CompType::triconnected : CompType::polygon;
 
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	printStacks();
 #endif
 
@@ -184,7 +184,7 @@ Triconnectivity::Triconnectivity (const Graph& G) :
 	OGDF_ASSERT(checkComp());
 #endif
 
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\n\nTriconnected components:\n";
 	for (int i = 0; i < m_numComp; i++) {
 		const List<edge> &L = m_component[i].m_edges;
@@ -732,7 +732,8 @@ void Triconnectivity::DFS2 (const Graph& G)
 void Triconnectivity::pathSearch (const Graph& G, node v)
 {
 	edge e;
-	int y, vnum = m_NEWNUM[v];
+	int y = 0;
+	int vnum = m_NEWNUM[v];
 	int a, b;
 
 	List<edge> &Adj = m_A[v];
@@ -784,7 +785,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 					edge e_ab = nullptr;
 
 					if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 						std::cout << std::endl << "\nfound type-2 separation pair " <<
 							m_pGC->original(v) << ", " <<
 							m_pGC->original(m_A[w].front()->target());
@@ -813,7 +814,7 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 						}
 
 					} else {
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 						std::cout << "\nfound type-2 separation pair " <<
 							m_pGC->original(m_NODEAT[a]) << ", " <<
 							m_pGC->original(m_NODEAT[b]);
@@ -877,14 +878,14 @@ void Triconnectivity::pathSearch (const Graph& G, node v)
 
 			if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[v] != m_start || outv >= 2))
 			{
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 				std::cout << "\nfound type-1 separation pair " <<
 					m_pGC->original(m_NODEAT[m_LOWPT1[w]]) << ", " <<
 					m_pGC->original(v);
 #endif
 
 				CompStruct &C = newComp();
-				int xx;
+				int xx = 0;
 				OGDF_ASSERT(!m_ESTACK.empty()); // otherwise undefined behavior since x is not initialized
 				while (!m_ESTACK.empty()) {
 					edge xy = m_ESTACK.top();
@@ -1092,7 +1093,7 @@ bool isTriconnected(const Graph &G, node &s1, node &s2)
 // debugging stuff
 void Triconnectivity::printOs(edge e)
 {
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << " (" << m_pGC->original(e->source()) << "," <<
 		m_pGC->original(e->target()) << "," << e->index() << ")";
 	if (m_pGC->original(e) == 0) std::cout << "v";
@@ -1101,7 +1102,7 @@ void Triconnectivity::printOs(edge e)
 
 void Triconnectivity::printStacks()
 {
-#ifdef TRIC_COMP_OUTPUT
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\n\nTSTACK:" << std::endl;
 
 	for (int i = m_top; i >= 0; i--)

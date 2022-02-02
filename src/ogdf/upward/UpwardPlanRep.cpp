@@ -508,6 +508,7 @@ void UpwardPlanRep::initMe()
 				f_ext = f;
 		}
 	}
+	OGDF_ASSERT(f_ext != nullptr);
 	m_Gamma.setExternalFace(f_ext);
 	for(adjEntry adj : s_hat->adjEntries) {
 		if (m_Gamma.rightFace(adj) == m_Gamma.externalFace()) {

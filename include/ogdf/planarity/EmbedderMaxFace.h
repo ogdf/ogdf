@@ -193,6 +193,7 @@ protected:
 
 			if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex) {
 				node cT2 = pBCTree->bcproper(nG);
+				OGDF_ASSERT(cT2 != nullptr);
 				bool doRecurse = true;
 
 				if (cT2 == cT) {

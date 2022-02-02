@@ -263,7 +263,6 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		if (hull.size() <= 1) {
 			best_height = 1.0;
 			best_width = 1.0;
-			best_area = 1.0;
 			best_normal = DPoint(1.0, 1.0);
 		}
 

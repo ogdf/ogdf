@@ -40,7 +40,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 
 
-//#define OUTPUT_BSO
+//#define OGDF_BSO_OUTPUT
 
 namespace ogdf {
 
@@ -321,7 +321,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	m_pGraph = &G;
 	m_pEmbedding = &E;
 
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "faces:" << std::endl;
 	for(face fh : E.faces) {
 		std::cout << fh->index() << ":";
@@ -344,7 +344,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 
 	m_extFace = extFace;
 
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "external face = " << extFace->index() << std::endl;
 #endif
 
@@ -352,7 +352,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	m_vLeft      = m_adjLeft->theNode();
 	m_vRight     = m_adjRight->twinNode();
 
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "vLeft = " << m_vLeft << ", " << "vRight = " << m_vRight << std::endl;
 #endif
 
@@ -780,7 +780,7 @@ void ComputeBicOrder::setSeqp(node cl, node cr)
 
 void ComputeBicOrder::removeNextFace(ShellingOrderSet &V)
 {
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "remove next face: " << m_nextF->index() << std::endl;
 #endif
 
@@ -846,7 +846,7 @@ void ComputeBicOrder::removeNextFace(ShellingOrderSet &V)
 
 void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 {
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "remove next node: " << m_nextV << std::endl;
 #endif
 
@@ -1014,7 +1014,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 
 void ComputeBicOrder::removeNextVirt(ShellingOrderSet &V)
 {
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "remove next virt: " << m_nextE << std::endl;
 #endif
 
@@ -1198,6 +1198,7 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 		if (posInQ[i].valid()) {
 			adjEntry adj2 = Q.front().m_start;
 			int d = (i - num[adj2->theNode()] + p) % p + 1;
+			OGDF_ASSERT(d > length || adjStart != nullptr);
 			if (d > length || (d == length && adj2->theNode()->index() < adjStart->theNode()->index())) {
 				length = d;
 				adjStart = adj2;
@@ -1257,7 +1258,7 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 
 	cpo.initPossibles();
 
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 	std::cout << "after initialization:\n";
 	cpo.print();
 #endif
@@ -1284,7 +1285,7 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 
 		cpo.doUpdate();
 
-#ifdef OUTPUT_BSO
+#ifdef OGDF_BSO_OUTPUT
 		std::cout << "after update:\n";
 		cpo.print();
 #endif

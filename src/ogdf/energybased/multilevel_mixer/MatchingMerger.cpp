@@ -113,7 +113,11 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 		}
 
 		NodeMerge * NM = new NodeMerge(level);
-		bool ret = MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
+		bool ret;
+#ifdef OGDF_DEBUG
+		ret =
+#endif
+			MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
 		OGDF_ASSERT( ret );
 		if (m_selectByMass) {
 			m_mass[parent] = m_mass[parent] + m_mass[mergeNode];

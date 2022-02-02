@@ -1885,7 +1885,6 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph &Ccopy,
 
 			nextSon = firstSon->getNextSib(oldSib);
 			oldSib = firstSon;
-			pre = next;
 			while (nextSon && nextSon != firstSon)
 			{
 				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)

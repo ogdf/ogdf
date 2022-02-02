@@ -19,6 +19,7 @@ Here we list some of the available compiler definitions and macros.
 | `OGDF_MEMORY_POOL_NTS`      | build configuration        | OGDF uses the custom non-thread-safe pool memory manager.
 | `OGDF_MEMORY_MALLOC_TS`     | build configuration        | OGDF uses the default c++ memory manager.
 | `OGDF_HAS_LINUX_CPU_MACROS` | build configuration        | Set if macros like `CPU_SET` are available.
+| `OGDF_HAS_MALLINFO2`        | build configuration        | Set if `mallinfo2()` is available.
 | `OGDF_SSE3_EXTENSIONS`      | build configuration        | Set to the (system-specific) path of intrinsics (eg, `<intrin.h>`) or not defined.
 | `COIN_OSI_CLP`              | build configuration        | Clp is the linear program solver (default).
 | `COIN_OSI_GRB`              | build configuration        | Gurobi is the linear program solver.

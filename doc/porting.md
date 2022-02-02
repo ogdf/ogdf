@@ -8,5 +8,6 @@ change their code after an OGDF update.
 The following files describe compatibility-breaking changes
 for this and former OGDF versions:
 
+  * [from Catalpa to Dogwood](porting/dogwood.md)
   * [from Baobab to Catalpa](porting/catalpa.md)
   * [from Sakura to Baobab](porting/baobab.md)

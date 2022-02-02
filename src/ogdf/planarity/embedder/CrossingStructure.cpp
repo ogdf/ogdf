@@ -35,7 +35,7 @@
 namespace ogdf {
 namespace embedder {
 
-void CrossingStructure::init(PlanRepLight &PG, int weightedCrossingNumber)
+void CrossingStructure::init(GraphCopy &PG, int weightedCrossingNumber)
 {
 	m_weightedCrossingNumber = weightedCrossingNumber;
 	m_crossings.init(PG.original());

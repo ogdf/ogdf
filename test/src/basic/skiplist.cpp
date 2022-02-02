@@ -145,7 +145,7 @@ void describeSortedSequence(const string& typeName) {
 		MyInfoObject() : MyInfoObject(0) {}
 	};
 
-	SortedSequence<int, MyInfoObject> sequence;
+	SortedSequence<T, MyInfoObject> sequence;
 
 	auto toInfo = [](T i) {
 		i = std::abs(i);
@@ -159,8 +159,8 @@ void describeSortedSequence(const string& typeName) {
 
 	List<T> perm;
 
-	for(T i = 0; i < MAX_ELEMENTS; i++) {
-		perm.pushBack(i);
+	for(int i = 0; i < MAX_ELEMENTS; i++) {
+		perm.pushBack(static_cast<T>(i));
 	}
 
 	describe("SortedSequence<" + typeName + ">", [&] {

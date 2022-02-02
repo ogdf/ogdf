@@ -36,6 +36,8 @@
 
 namespace ogdf {
 
+Logger CoinManager::CoinLog{};
+
 LPSolver::LPSolver()
 {
 	osi = CoinManager::createCorrectOsiSolverInterface();

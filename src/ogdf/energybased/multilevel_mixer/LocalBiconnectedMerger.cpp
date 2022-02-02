@@ -190,7 +190,11 @@ bool LocalBiconnectedMerger::doMergeIfPossible( Graph &G, MultilevelGraph &MLG, 
 bool LocalBiconnectedMerger::doMerge( MultilevelGraph &MLG, node parent, node mergePartner, int level )
 {
 	NodeMerge * NM = new NodeMerge(level);
-	bool ret = MLG.changeNode(NM, parent, MLG.radius(parent), mergePartner);
+	bool ret;
+#ifdef OGDF_DEBUG
+	ret =
+#endif
+		MLG.changeNode(NM, parent, MLG.radius(parent), mergePartner);
 	OGDF_ASSERT( ret );
 	MLG.moveEdgesToParent(NM, mergePartner, parent, true, m_adjustEdgeLengths);
 	ret = MLG.postMerge(NM, mergePartner);

@@ -21,7 +21,16 @@ if(DOXYGEN_FOUND)
     message(WARNING "Doxygen version >= 1.8.6 is necessary to build the documentation correctly.")
   endif()
 
-  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${doc_dir}/ogdf-doxygen.cfg WORKING_DIRECTORY ${doc_dir})
+  option(OGDF_FULL_DOC "Whether we want to include tests and source files in documentation, not just include/ogdf." OFF)
+  set(DOC_INPUT_DIRS "${doc_dir} ${PROJECT_SOURCE_DIR}/include/ogdf")
+  if (OGDF_FULL_DOC)
+    set(DOC_INPUT_DIRS "${DOC_INPUT_DIRS} ${PROJECT_SOURCE_DIR}/src/ogdf ${PROJECT_SOURCE_DIR}/test/include ${PROJECT_SOURCE_DIR}/test/src")
+  endif()
+
+  add_custom_target(doc
+    ${CMAKE_COMMAND} -E env DOXYGEN_INPUT_DIRS=${DOC_INPUT_DIRS}
+    ${DOXYGEN_EXECUTABLE} ${doc_dir}/ogdf-doxygen.cfg
+    WORKING_DIRECTORY ${doc_dir})
   option(DOC_INSTALL "Whether we want to install documentation. Makes doc part of the default target." OFF)
 
   if(DOC_INSTALL)

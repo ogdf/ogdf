@@ -86,6 +86,7 @@ int UpwardPlanarityEmbeddedDigraph::getMin(ArrayBuffer<node> stack, EdgeArray<in
 				break;
 			}
 		}
+		OGDF_ASSERT(adj_u != nullptr);
 		edge k = adj_u->theEdge();
 		if (capacity[k] - flow[k] < min || min == -1) min = capacity[k] - flow[k];
 	}
@@ -140,6 +141,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 					break;
 				}
 			}
+			OGDF_ASSERT(adj_u != nullptr);
 			edge k = adj_u->theEdge();
 			flow[k] = flow[k] + min;
 			flow[R[k]] = -flow[k];

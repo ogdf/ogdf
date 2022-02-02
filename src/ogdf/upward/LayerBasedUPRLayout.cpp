@@ -85,6 +85,7 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 
 	//same source;
 	if (v == e2UPR->source()) {
+		OGDF_ASSERT(outLeft != nullptr);
 		do {
 			if (outLeft->theEdge() == e1UPR)
 				return false;
@@ -95,6 +96,7 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 	}
 	//same target
 	else {
+		OGDF_ASSERT(inLeft != nullptr);
 		do {
 			if (inLeft->theEdge() == e1UPR)
 				return false;
@@ -316,6 +318,7 @@ void OrderComparer::dfs_LR(
 				break; // run is the left out-edge
 			}
 		}
+		OGDF_ASSERT(run != nullptr);
 
 		do {
 			if (!visited[run->theEdge()->target()]) {
@@ -679,8 +682,7 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 			if (inEdge->target() != u)
 				std::swap(inEdge, outEdge);
 
-			edge eOrig = H.m_GC.original(inEdge);
-			OGDF_ASSERT(eOrig == H.m_GC.original(outEdge));
+			OGDF_ASSERT(H.m_GC.original(inEdge) == H.m_GC.original(outEdge));
 
 			node x = H.m_GC.newNode();
 			H.m_GC.moveSource(outEdge, x);
@@ -937,6 +939,7 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 			break;
 		}
 	}
+	OGDF_ASSERT(adjLeft != nullptr);
 	adjLeft = adjLeft->cyclicSucc();
 	callSimple(GA_UPR, adjLeft);
 

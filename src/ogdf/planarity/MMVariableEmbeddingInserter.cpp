@@ -36,7 +36,7 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-//#define MMC_OUTPUT
+//#define OGDF_MMVEI_OUTPUT
 
 namespace ogdf {
 
@@ -105,7 +105,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 	m_pSources = new NodeSet<>(PG);
 	m_pTargets = new NodeSet<>(PG);
 
-#ifdef MMC_OUTPUT
+#ifdef OGDF_MMVEI_OUTPUT
 	outputPG(PG,0);
 	int ii = 0;
 #endif
@@ -115,7 +115,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 		node srcOrig = eOrig->source();
 		node tgtOrig = eOrig->target();
 
-#ifdef MMC_OUTPUT
+#ifdef OGDF_MMVEI_OUTPUT
 		std::cout << "insert " << srcOrig << " -> " << tgtOrig << std::endl;
 #endif
 
@@ -136,25 +136,25 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			AnchorNodeInfo vStart, vEnd;
 			insert(eip, vStart, vEnd);
 
-#ifdef MMC_OUTPUT
+#ifdef OGDF_MMVEI_OUTPUT
 			writeEip(eip);
 #endif
 			preprocessInsertionPath(vStart,vEnd,srcOrig,tgtOrig,src,tgt,eExtraSrc,eExtraTgt);
 
-#ifdef MMC_OUTPUT
+#ifdef OGDF_MMVEI_OUTPUT
 			std::cout << "from: " << src << "  to: " << tgt << std::endl;
 #endif
 
 		} else {
 			insertWithCommonDummy(eOrig, vDummy, src, tgt);
-#ifdef MMC_OUTPUT
+#ifdef OGDF_MMVEI_OUTPUT
 			std::cout << "(direct) from: " << src << "  to: " << tgt << std::endl;
 #endif
 		}
 
 		PG.insertEdgePath(eOrig, nullptr, src, tgt, eip, eExtraSrc, eExtraTgt);
 
-#ifdef MMC_OUTPUT
+#ifdef OGDF_MMVEI_OUTPUT
 		++ii;
 		std::cout << std::endl;
 		outputPG(PG,ii);
@@ -498,12 +498,13 @@ node MMVariableEmbeddingInserter::prepareAnchorNode(
 
 		if(PG.original(vStraight) != vOrig) {
 			node u = adj->theNode();
-			adjEntry adjA[2];
+			adjEntry adjA[2]{nullptr, nullptr};
 			int i = 0;
 			for(adjEntry adj_x : u->adjEntries) {
 				if(adj_x != anchor.m_adj_1 && adj_x != anchor.m_adj_2)
 					adjA[i++] = adj_x;
 			}
+			OGDF_ASSERT(adjA[0] != nullptr && adjA[1] != nullptr);
 
 			List<edge> *pathStraightAdjA = &PG.setOrigs(adjA[0]->theEdge(), eStraight, nsStraight);
 			vStraight = pathStraightAdjA->front()->source();
@@ -572,6 +573,9 @@ void MMVariableEmbeddingInserter::preprocessInsertionPath(
 	edge &eTgt)
 {
 	PlanRepExpansion &PG = *m_pPG;
+
+	OGDF_ASSERT(srcInfo.m_adj_1 != nullptr);
+	OGDF_ASSERT(tgtInfo.m_adj_1 != nullptr);
 
 	src = srcInfo.m_adj_1->theNode();
 	if(PG.original(src) == nullptr)
@@ -1302,6 +1306,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::findShortestPath(
 
 		edge eCand = nodesAtDist[currentDist % maxCost].popFrontRet();
 		node v = eCand->target();
+		OGDF_ASSERT(v != nullptr); // hint for clang-tidy to understand that v cannot be null
 
 		// leads to an unvisited node?
 		if (spPred[v] == nullptr)
@@ -1544,6 +1549,7 @@ void MMVariableEmbeddingInserter::blockInsert(
 			}
 		}
 	}
+	OGDF_ASSERT(v1 != nullptr);
 
 	List<edge> path;
 	if(vx == nullptr) {
