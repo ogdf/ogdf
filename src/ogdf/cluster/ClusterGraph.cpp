@@ -770,7 +770,7 @@ void ClusterGraph::delCluster(cluster c) {
 		obs->clusterDeleted(c);
 	}
 
-	m_adjAvailable = false;
+	m_postOrderStart = nullptr;
 
 	c->m_parent->children.del(c->m_it);
 	c->m_it = ListIterator<cluster>();
@@ -801,6 +801,9 @@ void ClusterGraph::delCluster(cluster c) {
 	}
 
 	clusters.del(c);
+#ifdef OGDF_DEBUG
+	consistencyCheck();
+#endif
 }
 
 //pulls up depth of subtree located at c by one
@@ -1160,6 +1163,7 @@ void ClusterGraph::postOrder(cluster c, SListPure<cluster>& L) const {
 void ClusterGraph::consistencyCheck() const {
 	ClusterArray<bool> visitedClusters((*this), false);
 	NodeArray<bool> visitedNodes((*m_pGraph), false);
+	int visitedClustersC = 0, visitedNodesC = 0;
 	ClusterArray<int> clusterDepth;
 	if (m_updateDepth && m_depthUpToDate) {
 		clusterDepth.init((*this), -1);
@@ -1168,20 +1172,24 @@ void ClusterGraph::consistencyCheck() const {
 	for (cluster c = firstPostOrderCluster(); c != nullptr; c = c->pSucc()) {
 		OGDF_ASSERT(!visitedClusters[c]);
 		visitedClusters[c] = true;
+		visitedClustersC++;
 		if (m_updateDepth && m_depthUpToDate) {
 			clusterDepth[c] = c->depth();
 		}
+		OGDF_ASSERT((c->parent() == nullptr) == (c == rootCluster()));
 
 		for (node v : c->nodes) {
 			OGDF_ASSERT(clusterOf(v) == c);
 			OGDF_ASSERT(!visitedNodes[v]);
 			visitedNodes[v] = true;
+			visitedNodesC++;
 		}
 		for (cluster child : c->children) {
 			OGDF_ASSERT(visitedClusters[child]);
 			OGDF_ASSERT(child->parent() == c);
 		}
 	}
+	OGDF_ASSERT(visitedClustersC == numberOfClusters());
 
 	if (m_updateDepth && m_depthUpToDate) {
 		computeSubTreeDepth(rootCluster());
@@ -1196,6 +1204,7 @@ void ClusterGraph::consistencyCheck() const {
 		}
 	}
 
+	OGDF_ASSERT(visitedNodesC == m_pGraph->numberOfNodes());
 	for (node v : m_pGraph->nodes) {
 		OGDF_ASSERT(visitedNodes[v]);
 	}
