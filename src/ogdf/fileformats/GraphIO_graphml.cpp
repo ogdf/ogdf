@@ -366,20 +366,25 @@ static void writeGraphMLCluster(pugi::xml_node xmlNode, const ClusterGraphAttrib
 	using namespace graphml;
 
 	// Writing cluster attributes (defined as cluster-node attributes).
-	if (CA.label(c).length() > 0) {
+
+	if (CA.has(ClusterGraphAttributes::clusterLabel) && CA.label(c).length() > 0) {
 		writeGraphMLAttribute(clusterTag, toString(Attribute::NodeLabel), CA.label(c).c_str());
 	}
-	writeGraphMLAttribute(clusterTag, toString(Attribute::X), CA.x(c));
-	writeGraphMLAttribute(clusterTag, toString(Attribute::Y), CA.y(c));
+	if (CA.has(ClusterGraphAttributes::clusterGraphics)) {
+		writeGraphMLAttribute(clusterTag, toString(Attribute::X), CA.x(c));
+		writeGraphMLAttribute(clusterTag, toString(Attribute::Y), CA.y(c));
+	}
 
-	const Color& col = CA.fillColor(c);
-	writeGraphMLAttribute(clusterTag, toString(Attribute::R), col.red());
-	writeGraphMLAttribute(clusterTag, toString(Attribute::G), col.green());
-	writeGraphMLAttribute(clusterTag, toString(Attribute::B), col.blue());
-	writeGraphMLAttribute(clusterTag, toString(Attribute::ClusterStroke),
-			CA.strokeColor(c).toString().c_str());
+	if (CA.has(ClusterGraphAttributes::clusterStyle)) {
+		const Color& col = CA.fillColor(c);
+		writeGraphMLAttribute(clusterTag, toString(Attribute::R), col.red());
+		writeGraphMLAttribute(clusterTag, toString(Attribute::G), col.green());
+		writeGraphMLAttribute(clusterTag, toString(Attribute::B), col.blue());
+		writeGraphMLAttribute(clusterTag, toString(Attribute::ClusterStroke),
+				CA.strokeColor(c).toString().c_str());
+	}
 
-	if (CA.templateCluster(c).length() > 0) {
+	if (CA.has(ClusterGraphAttributes::clusterTemplate) && CA.templateCluster(c).length() > 0) {
 		writeGraphMLAttribute(clusterTag, toString(Attribute::Template),
 				CA.templateCluster(c).c_str());
 	}
