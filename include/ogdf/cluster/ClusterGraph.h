@@ -363,7 +363,7 @@ public:
 	/**
 	 * All nodes in \p G are assigned to the root cluster.
 	 */
-	ClusterGraph(const Graph& G);
+	explicit ClusterGraph(const Graph& G);
 
 	//! Copy constructor.
 	/**

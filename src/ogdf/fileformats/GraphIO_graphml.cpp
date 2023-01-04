@@ -426,7 +426,7 @@ bool GraphIO::writeGraphML(const ClusterGraph& C, std::ostream& out) {
 		pugi::xml_node rootNode = writeGraphMLHeader(doc);
 		pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
 
-		writeGraphMLCluster(graphNode, G, C.rootCluster());
+		writeGraphMLCluster(graphNode, C, C.rootCluster());
 
 		for (edge e : G.edges) {
 			writeGraphMLEdge(graphNode, e);
