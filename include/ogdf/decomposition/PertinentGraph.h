@@ -73,7 +73,7 @@ public:
 
 	//! Initialization of a pertinent graph of tree node \p vT.
 	void init(node vT) {
-		m_P = Graph();
+		m_P.clear();
 		m_vT = vT;
 		m_vEdge = m_skRefEdge = nullptr;
 		m_origV.init(m_P, nullptr);
