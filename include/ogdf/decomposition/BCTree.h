@@ -411,6 +411,11 @@ public:
 	//! Virtual destructor.
 	virtual ~BCTree() { }
 
+	BCTree(const BCTree& copy) = delete;
+	BCTree(BCTree&& move) = delete;
+	BCTree& operator=(const BCTree& copy) = delete;
+	BCTree& operator=(BCTree&& move) = delete;
+
 	//! @{
 	//! Returns the original graph.
 	const Graph& originalGraph() const { return m_G; }
@@ -631,12 +636,6 @@ public:
 
 	//! @}
 private:
-	//! Copy constructor is undefined!
-	BCTree(const BCTree&) = delete;
-
-	//! Assignment operator is undefined!
-	BCTree& operator=(const BCTree&) = delete;
-
 	void initBasic(node vG);
 	void initEdges();
 };

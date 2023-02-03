@@ -73,8 +73,13 @@ public:
 	enum class NodeType { SNode, PNode, RNode };
 
 	// destructor
-
 	virtual ~SPQRTree() { }
+
+	SPQRTree() {};
+	SPQRTree(const SPQRTree& copy) = delete;
+	SPQRTree(SPQRTree&& move) = delete;
+	SPQRTree& operator=(const SPQRTree& copy) = delete;
+	SPQRTree& operator=(SPQRTree&& move) = delete;
 
 	//! \name Access operations
 	//! @{
