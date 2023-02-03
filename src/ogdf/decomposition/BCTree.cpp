@@ -40,24 +40,24 @@ void BCTree::initBasic(node vG) {
 
 	m_gNode_isMarked.init(m_G, false);
 	m_gNode_hNode.init(m_G, nullptr);
-	m_gEdge_hEdge.init(m_G);
+	m_gEdge_hEdge.init(m_G, nullptr);
 
 	m_bNode_type.init(m_B);
 	m_bNode_isMarked.init(m_B, false);
-	m_bNode_hRefNode.init(m_B);
-	m_bNode_hParNode.init(m_B);
+	m_bNode_hRefNode.init(m_B, nullptr);
+	m_bNode_hParNode.init(m_B, nullptr);
 	m_bNode_hEdges.init(m_B);
-	m_bNode_numNodes.init(m_B);
+	m_bNode_numNodes.init(m_B, 0);
 
-	m_hNode_bNode.init(m_H);
-	m_hEdge_bNode.init(m_H);
-	m_hNode_gNode.init(m_H);
-	m_hEdge_gEdge.init(m_H);
+	m_hNode_bNode.init(m_H, nullptr);
+	m_hEdge_bNode.init(m_H, nullptr);
+	m_hNode_gNode.init(m_H, nullptr);
+	m_hEdge_gEdge.init(m_H, nullptr);
 
 	m_count = 0;
 	m_number.init(m_G, 0);
-	m_lowpt.init(m_G);
-	m_gtoh.init(m_G);
+	m_lowpt.init(m_G, 0);
+	m_gtoh.init(m_G, nullptr);
 
 	biComp(nullptr, vG);
 }

@@ -36,8 +36,8 @@ namespace ogdf {
 
 
 void DynamicBCTree::init() {
-	m_bNode_owner.init(m_B);
-	m_bNode_degree.init(m_B);
+	m_bNode_owner.init(m_B, nullptr);
+	m_bNode_degree.init(m_B, 0);
 	for (node vB : m_B.nodes) {
 		m_bNode_owner[vB] = vB;
 		m_bNode_degree[vB] = vB->degree();
