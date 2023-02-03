@@ -139,23 +139,6 @@ protected:
 	void init();
 
 	/**
-	 * Creates the SPQR-tree for a given B-component of the
-	 * BC-tree.
-	 *
-	 * An SPQR-tree belonging to a B-component of the BC-tree is only
-	 * created on demand, i.e. this member function is only called by
-	 * findSPQRTree() and - under certain circumstances - by
-	 * updateInsertedEdge().
-	 * \param vB is a vertex of the BC-tree representing a B-component.
-	 * \pre \p vB has to be the proper representative of its B-component,
-	 * i.e. it has to be the root vertex of its respective
-	 * UNION/FIND-tree.
-	 * \pre The B-component represented by \p vB must contain at least
-	 * 3 edges.
-	 */
-	void createSPQR(node vB) const;
-
-	/**
 	 * Creates a new node in the SPQR-tree for a given B-component of the
 	 * BC-tree.
 	 *
@@ -327,18 +310,90 @@ public:
 	 * Finds the proper representative of the SPQR-tree-vertex which
 	 * a given real or virtual edge is belonging to.
 	 *
-	 * This member function has to be used carefully (see <b>Precondition</b>)!
 	 * \param eH is an edge of \a m_H.
 	 * \pre The respective SPQR-tree belonging to the B-component represented by
-	 * the BC-tree-vertex bcproper(\p eH) must exist! Notice, that this condition
-	 * is fulfilled, if \p eH is a member of a list gained by the hEdgesSPQR()
-	 * member function, because that member function needs an SPQR-tree-vertex as
-	 * parameter, which might have been found (and eventually created) by the
-	 * findPathSPQR() member function.
+	 * the BC-tree-vertex bcproper(\p eH) must exist, i.e. spqrroot(bcproper(\p eH)) != nullptr.
+	 * Use createSPQR(\p eH) to initialize the respective SPQR-tree on demand otherwise.
 	 * \return the proper representative of the SPQR-tree-vertex which \p eH
 	 * is belonging to.
 	 */
 	node spqrproper(edge eH) const { return m_hEdge_tNode[eH] = findSPQR(m_hEdge_tNode[eH]); }
+
+	/**
+	 * Creates the SPQR-tree for a given B-component of the
+	 * BC-tree.
+	 *
+	 * An SPQR-tree belonging to a B-component of the BC-tree is only
+	 * created on demand by findSPQRTree() and - under certain circumstances - by
+	 * updateInsertedEdge().
+	 *
+	 * \param vB is a vertex of the BC-tree representing a B-component.
+	 * \pre \p vB has to be the proper representative of its B-component,
+	 * i.e. it has to be the root vertex of its respective
+	 * UNION/FIND-tree.
+	 * \pre The B-component represented by \p vB must contain at least
+	 * 3 edges.
+	 */
+	void createSPQR(node vB) const;
+
+	/**
+	 * Returns the root of the SPQR-tree for a given B-component of the BC-tree.
+	 *
+	 * \param vB is a vertex of the BC-tree representing a B-component.
+	 * \return the respective root SPQR-node, if an SPQR-tree has been created for \p vB
+	 * (e.g. using createSPQR(\p vB)) or nullptr otherwise.
+	 */
+	node spqrroot(node vB) const { return m_bNode_SPQR[vB]; }
+
+	/**
+	 * Returns the number of S-nodes in the SPQR-tree for a given B-component of the BC-tree.
+	 *
+	 * \param vB is a vertex of the BC-tree representing a B-component.
+	 * \return the number of S-nodes, if an SPQR-tree has been created for \p vB
+	 * (e.g. using createSPQR(\p vB)) or 0 otherwise.
+	 */
+	int numberOfSNodes(node vB) const { return m_bNode_numS[vB]; }
+
+	/**
+	 * Returns the number of P-nodes in the SPQR-tree for a given B-component of the BC-tree.
+	 *
+	 * \param vB is a vertex of the BC-tree representing a B-component.
+	 * \return the number of P-nodes, if an SPQR-tree has been created for \p vB
+	 * (e.g. using createSPQR(\p vB)) or 0 otherwise.
+	 */
+	int numberOfPNodes(node vB) const { return m_bNode_numP[vB]; }
+
+	/**
+	 * Returns the number of R-nodes in the SPQR-tree for a given B-component of the BC-tree.
+	 *
+	 * \param vB is a vertex of the BC-tree representing a B-component.
+	 * \return the number of R-nodes, if an SPQR-tree has been created for \p vB
+	 * (e.g. using createSPQR(\p vB)) or 0 otherwise.
+	 */
+	int numberOfRNodes(node vB) const { return m_bNode_numR[vB]; }
+
+	//! Returns the SPQR-tree graph.
+	const Graph& spqrTree() const { return m_T; }
+
+	//! Returns the parent node of a node of the SPQR-tree Graph, or nullptr if \p vT is a root.
+	node spqrParent(node vT) const {
+		edge p_e = m_tNode_hRefEdge[vT];
+		if (p_e == nullptr) {
+			return nullptr;
+		}
+		edge p_et = twinEdge(p_e);
+		OGDF_ASSERT(p_et != nullptr);
+		node p = m_hEdge_tNode[p_et];
+		OGDF_ASSERT(p != nullptr);
+		OGDF_ASSERT(m_T.searchEdge(vT, p) != nullptr);
+		return p;
+	}
+
+	//! Returns the virtual edge leading to the parents of a SPQR-tree vertex, or nullptr if \p vT is a root.
+	edge spqrParentEdge(node vT) const { return m_tNode_hRefEdge[vT]; }
+
+	//! The SPQR-tree-vertex which a real or virtual edge \p eH belongs to, if the SPQR-tree has been created using createSPQR.
+	node spqrNodeOf(edge eH) const { return m_hEdge_tNode[eH]; }
 
 	/**
 	 * Returns the twin edge of a given edge of \a m_H, if it is
