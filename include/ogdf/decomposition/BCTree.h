@@ -366,33 +366,29 @@ public:
 	 * A constructor.
 	 *
 	 * This constructor does only call init() or initNotConnected().
-	 * BCTree(\p G) is equivalent to BCTree(\p G, \c G.firstNode()).
 	 * \param G is the original graph.
-	 * \param callInitConnected decides which init is called, default call is init()
+	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
+	 * 	Otherwise, only the connected component of G.firstNode() will be processed.
 	 */
-	explicit BCTree(Graph& G, bool callInitConnected = false)
-		: m_G(G), m_eStack(G.numberOfEdges()) {
-		if (!callInitConnected) {
-			init(G.firstNode());
-		} else {
-			initNotConnected(G.firstNode());
-		}
-	}
+	explicit BCTree(Graph& G, bool not_connected = false) : BCTree(G, nullptr, not_connected) {};
 
 	/**
 	 * A constructor.
 	 *
 	 * This constructor does only call init() or initNotConnected().
 	 * \param G is the original graph.
-	 * \param vG is the vertex of the original graph which the DFS algorithm starts
-	 * \param callInitConnected decides which init is called, default call is init()
+	 * \param vG is the vertex of the original graph which the DFS algorithm starts, defaults to G.firstNode().
+	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
+	 * 	Otherwise, only the connected component of \p vG will be processed.
 	 */
-	BCTree(Graph& G, node vG, bool callInitConnected = false)
-		: m_G(G), m_eStack(G.numberOfEdges()) {
-		if (!callInitConnected) {
-			init(vG);
-		} else {
+	BCTree(Graph& G, node vG, bool not_connected = false) : m_G(G), m_eStack(G.numberOfEdges()) {
+		if (vG == nullptr) {
+			vG = G.firstNode();
+		}
+		if (not_connected) {
 			initNotConnected(vG);
+		} else {
+			init(vG);
 		}
 	}
 
@@ -500,7 +496,7 @@ public:
 	 * \param vH is a vertex of the biconnected components graph.
 	 * \return the vertex of the original graph which \p vH is corresponding to.
 	 */
-	node original(node vH) { return m_hNode_gNode[vH]; }
+	node original(node vH) const { return m_hNode_gNode[vH]; }
 
 	/**
 	 * Returns the edge of the original graph which a given edge of the

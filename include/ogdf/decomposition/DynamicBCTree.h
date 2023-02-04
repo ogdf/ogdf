@@ -141,23 +141,23 @@ public:
 	 * DynamicBCTree(\p G) is equivalent to DynamicBCTree(<em>G</em>,
 	 * <em>G</em>.firstNode()).
 	 * \param G is the original graph.
-	 * \param callInitConnected decides which init is called, default call is init().
+	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
+	 * 	Otherwise, only the connected component of G.firstNode() will be processed.
 	 */
-	explicit DynamicBCTree(Graph& G, bool callInitConnected = false)
-		: BCTree(G, callInitConnected) {
-		init();
-	}
+	explicit DynamicBCTree(Graph& G, bool not_connected = false)
+		: DynamicBCTree(G, nullptr, not_connected) { }
 
 	/**
 	 * A constructor.
 	 *
 	 * This constructor does only call BCTree::BCTree() and DynamicBCTree::init().
 	 * \param G is the original graph.
-	 * \param vG is the vertex of the original graph which the DFS algorithm starts with.
-	 * \param callInitConnected decides which init is called, default call is init().
+	 * \param vG is the vertex of the original graph which the DFS algorithm starts, defaults to G.firstNode().
+	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
+	 * 	Otherwise, only the connected component of \p vG will be processed.
 	 */
-	DynamicBCTree(Graph& G, node vG, bool callInitConnected = false)
-		: BCTree(G, vG, callInitConnected) {
+	explicit DynamicBCTree(Graph& G, node vG, bool not_connected = false)
+		: BCTree(G, vG, not_connected) {
 		init();
 	}
 
