@@ -49,7 +49,9 @@ public:
 	 * Divides G into triconnected components.
 	 * \param G graph
 	 */
-	explicit Triconnectivity(const Graph& G);
+	explicit Triconnectivity(const Graph& G) : Triconnectivity(new GraphCopySimple(G)) {};
+
+	explicit Triconnectivity(GraphCopySimple* GC);
 
 	/**
 	 * Tests G for triconnectivity.
@@ -58,7 +60,10 @@ public:
 	 * \param s1 first vertex of separation pair if G is biconnected, cut vertex of G if G is not biconnected, nullptr if G is not connected.
 	 * \param s2 second vertex of separation pair if G is biconnected, nullptr otherwise.
 	 */
-	Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2);
+	Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2)
+		: Triconnectivity(new GraphCopySimple(G), isTric, s1, s2) {};
+
+	Triconnectivity(GraphCopySimple* GC, bool& isTric, node& s1, node& s2);
 
 	Triconnectivity(const Triconnectivity&) = delete;
 
@@ -96,6 +101,11 @@ public:
 	 */
 	bool checkComp();
 
+	GraphCopySimple* releaseGraphCopy() {
+		GraphCopySimple* ret = m_pGC;
+		m_pGC = nullptr;
+		return ret;
+	}
 
 private:
 	bool checkSepPair(edge eVirt);

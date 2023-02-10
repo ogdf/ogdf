@@ -44,8 +44,8 @@ namespace ogdf {
 Triconnectivity::~Triconnectivity() { delete m_pGC; }
 
 // Divides G into triconnected components.
-Triconnectivity::Triconnectivity(const Graph& G) : m_ESTACK(G.numberOfEdges()) {
-	m_pGC = new GraphCopySimple(G);
+Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfEdges()) {
+	m_pGC = GCp;
 	GraphCopySimple& GC = *m_pGC;
 
 	const int n = GC.numberOfNodes();
@@ -61,7 +61,7 @@ Triconnectivity::Triconnectivity(const Graph& G) : m_ESTACK(G.numberOfEdges()) {
 
 	// special cases
 	OGDF_ASSERT(n >= 2);
-	OGDF_HEAVY_ASSERT(isBiconnected(G));
+	OGDF_HEAVY_ASSERT(isBiconnected(GC));
 
 	if (n <= 2) {
 		OGDF_ASSERT(m >= 3);
@@ -152,7 +152,7 @@ Triconnectivity::Triconnectivity(const Graph& G) : m_ESTACK(G.numberOfEdges()) {
 	m_TSTACK_b = new int[2 * m + 1];
 	m_TSTACK_a[m_top = 0] = -1; // start with EOS
 
-	pathSearch(G, m_start);
+	pathSearch(GC.original(), m_start);
 
 	// last split component
 	CompStruct& C = newComp();
@@ -224,8 +224,8 @@ Triconnectivity::Triconnectivity(const Graph& G) : m_ESTACK(G.numberOfEdges()) {
 
 // Tests G for triconnectivity and returns a cut vertex in
 // s1 or a separation pair in (s1,s2).
-Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2) {
-	m_pGC = new GraphCopySimple(G);
+Triconnectivity::Triconnectivity(GraphCopySimple* GCp, bool& isTric, node& s1, node& s2) {
+	m_pGC = GCp;
 	GraphCopySimple& GC = *m_pGC;
 
 	const int n = GC.numberOfNodes();
@@ -237,7 +237,7 @@ Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s
 		isTric = true;
 		return;
 	} else if (n == 2) {
-		isTric = hasNonSelfLoopEdges(G);
+		isTric = hasNonSelfLoopEdges(m_pGC->original());
 		return;
 	} else if (m == 0) {
 		isTric = false;
@@ -295,7 +295,7 @@ Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s
 	m_TSTACK_b = new int[m];
 	m_TSTACK_a[m_top = 0] = -1; // start with EOS
 
-	isTric = pathSearch(G, m_start, s1, s2);
+	isTric = pathSearch(m_pGC->original(), m_start, s1, s2);
 	if (s1) {
 		s1 = GC.original(s1);
 		s2 = GC.original(s2);
