@@ -449,14 +449,14 @@ public:
 	 * given vertex of the original graph is belonging to.
 	 * \param vG is a vertex of the original graph.
 	 * \return a vertex of the BC-tree:
-	 * - If \p vG is not a cut-vertex, then typeOfGNode(\p vG) returns the very
+	 * - If \p vG is not a cut-vertex, then bcproper(\p vG) returns the very
 	 *   vertex of the BC-tree representing the unambiguous B-component which \p vG
 	 *   is belonging to.
-	 * - If \p vG is a cut-vertex, then typeOfGNode(\p vG) returns the very vertex
+	 * - If \p vG is a cut-vertex, then bcproper(\p vG) returns the very vertex
 	 *   of the BC-tree representing the unambiguous C-component which \p vG is
 	 *   belonging to.
 	 */
-	virtual node bcproper(node vG) const { return m_hNode_bNode[m_gNode_hNode[vG]]; }
+	node bcproper(node vG) const { return bccomp(m_gNode_hNode[vG]); }
 
 	/**
 	 * Returns the BC-tree-vertex representing the biconnected component
@@ -465,7 +465,30 @@ public:
 	 * \return the vertex of the BC-tree representing the B-component which \p eG
 	 * is belonging to.
 	 */
-	virtual node bcproper(edge eG) const { return m_hEdge_bNode[m_gEdge_hEdge[eG]]; }
+	node bcproper(edge eG) const { return bccomp(m_gEdge_hEdge[eG]); }
+
+	/**
+	 * Returns a BC-tree-vertex representing a biconnected component which a
+	 * given vertex of the auxiliary graph is belonging to.
+	 * \param vH is a vertex of the auxiliary graph.
+	 * \return a vertex of the BC-tree:
+	 * - If \p vH is not a cut-vertex, then bcproper(\p vH) returns the very
+	 *   vertex of the BC-tree representing the unambiguous B-component which \p vH
+	 *   is belonging to.
+	 * - If \p vH is a cut-vertex, then bcproper(\p vH) returns the very vertex
+	 *   of the BC-tree representing the unambiguous C-component which \p vH is
+	 *   belonging to.
+	 */
+	virtual node bccomp(node vH) const { return m_hNode_bNode[vH]; }
+
+	/**
+	 * Returns the BC-tree-vertex representing the biconnected component
+	 * which a given edge of the auxiliary graph is belonging to.
+	 * \param eH is an edge of the auxiliary graph.
+	 * \return the vertex of the BC-tree representing the B-component which \p eH
+	 * is belonging to.
+	 */
+	virtual node bccomp(edge eH) const { return m_hEdge_bNode[eH]; }
 
 	/**
 	 * Returns a vertex of the biconnected components graph corresponding to

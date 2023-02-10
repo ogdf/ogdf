@@ -137,19 +137,17 @@ node DynamicBCTree::find(node vB) const {
 	return m_bNode_owner[vB] = find(m_bNode_owner[vB]);
 }
 
-node DynamicBCTree::bcproper(node vG) const {
-	if (!vG) {
+node DynamicBCTree::bccomp(node vH) const {
+	if (!vH) {
 		return nullptr;
 	}
-	node vH = m_gNode_hNode[vG];
 	return m_hNode_bNode[vH] = find(m_hNode_bNode[vH]);
 }
 
-node DynamicBCTree::bcproper(edge eG) const {
-	if (!eG) {
+node DynamicBCTree::bccomp(edge eH) const {
+	if (!eH) {
 		return nullptr;
 	}
-	edge eH = m_gEdge_hEdge[eG];
 	return m_hEdge_bNode[eH] = find(m_hEdge_bNode[eH]);
 }
 
