@@ -135,8 +135,8 @@ public:
 	//! creates a new Logger-object with given log-mode and local log-level equal globalLogLevel
 	explicit Logger(LogMode m) : Logger(m, m_globalloglevel) { }
 
-	//! creates a new Logger-object with LogMode::Global and given local log-level
-	explicit Logger(Level level) : Logger(LogMode::Global, level) { }
+	//! creates a new Logger-object with LogMode::Log and given local log-level
+	explicit Logger(Level level) : Logger(LogMode::Log, level) { }
 
 	//! creates a new Logger-object with given log-mode and given local log-level
 	Logger(LogMode m, Level level) : m_loglevel(level), m_logmode(m), m_indent(0) { }
