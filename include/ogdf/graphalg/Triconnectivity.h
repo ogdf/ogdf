@@ -44,14 +44,26 @@ namespace ogdf {
 //! components of a biconnected multi-graph
 //! @ingroup ga-connectivity
 class OGDF_EXPORT Triconnectivity {
+	explicit Triconnectivity(Graph* G);
+
 public:
 	/**
 	 * Divides G into triconnected components.
 	 * \param G graph
 	 */
-	explicit Triconnectivity(const Graph& G) : Triconnectivity(new GraphCopySimple(G)) {};
+	explicit Triconnectivity(const Graph& G) : Triconnectivity(new GraphCopySimple(G)) {
+		m_deleteGraph = true;
+	};
 
-	explicit Triconnectivity(GraphCopySimple* GC);
+	/**
+	 * Divides G into triconnected components.
+	 * \param G graph
+	 * \param modifyG adds virtual edges directly to G if true, otherwise makes a copy first
+	 */
+	explicit Triconnectivity(Graph& G, bool modifyG = false)
+		: Triconnectivity(modifyG ? &G : new GraphCopySimple(G)) {
+		m_deleteGraph = !modifyG;
+	};
 
 	/**
 	 * Tests G for triconnectivity.
@@ -60,10 +72,7 @@ public:
 	 * \param s1 first vertex of separation pair if G is biconnected, cut vertex of G if G is not biconnected, nullptr if G is not connected.
 	 * \param s2 second vertex of separation pair if G is biconnected, nullptr otherwise.
 	 */
-	Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2)
-		: Triconnectivity(new GraphCopySimple(G), isTric, s1, s2) {};
-
-	Triconnectivity(GraphCopySimple* GC, bool& isTric, node& s1, node& s2);
+	Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2);
 
 	Triconnectivity(const Triconnectivity&) = delete;
 
@@ -88,8 +97,8 @@ public:
 		}
 	};
 
-	//! copy of G containing also virtual edges
-	GraphCopySimple* m_pGC;
+	//! modifiable copy of G also containing virtual edges
+	Graph* m_pG;
 	//! array of components
 	Array<CompStruct> m_component;
 	//! number of components
@@ -97,15 +106,9 @@ public:
 
 	/**
 	 * Checks if computed triconnected componets are correct.
-	 * \pre checkComp() assumes that the graph is simple!
+	 * \pre checkComp() assumes that the graph is simple and is a GraphCopySimple!
 	 */
 	bool checkComp();
-
-	GraphCopySimple* releaseGraphCopy() {
-		GraphCopySimple* ret = m_pGC;
-		m_pGC = nullptr;
-		return ret;
-	}
 
 private:
 	bool checkSepPair(edge eVirt);
@@ -145,20 +148,20 @@ private:
 	enum class EdgeType { unseen, tree, frond, removed };
 
 	//! first dfs traversal
-	void DFS1(const Graph& G, node v, node u);
-	//! special version for triconnectivity tes
-	void DFS1(const Graph& G, node v, node u, node& s1);
+	void DFS1(node v, node u);
+	//! special version for triconnectivity test
+	void DFS1(node v, node u, node& s1);
 
 	//! constructs ordered adjaceny lists
-	void buildAcceptableAdjStruct(const Graph& G);
+	void buildAcceptableAdjStruct();
 	//! the second dfs traversal
-	void DFS2(const Graph& G);
-	void pathFinder(const Graph& G, node v);
+	void DFS2();
+	void pathFinder(node v);
 
 	//! finding of split components
-	void pathSearch(const Graph& G, node v);
-
-	bool pathSearch(const Graph& G, node v, node& s1, node& s2);
+	void pathSearch(node v);
+	//! special version for triconnectivity test
+	bool pathSearch(node v, node& s1, node& s2);
 
 	//! merges split-components into triconnected components
 	void assembleTriconnectedComponents();
@@ -176,6 +179,10 @@ private:
 			node v = e->target();
 			m_HIGHPT[v].del(it);
 		}
+	}
+
+	GraphCopySimple& GC() const {
+		return *dynamic_cast<GraphCopySimple*>(m_pG); // TODO use common superclass of all GraphCopies
 	}
 
 	NodeArray<int> m_NUMBER; //!< (first) dfs-number of v
@@ -198,6 +205,7 @@ private:
 	node m_start; //!< start node of dfs traversal
 	int m_numCount; //!< counter for dfs-traversal
 	bool m_newPath; //!< true iff we start a new path
+	bool m_deleteGraph; //!< whether the Graph(Copy) was created by us and should thus be deleted in the destructor
 };
 
 }

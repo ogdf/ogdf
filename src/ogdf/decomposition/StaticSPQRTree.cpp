@@ -69,7 +69,7 @@ void StaticSPQRTree::init(edge eRef) {
 
 void StaticSPQRTree::init(edge eRef, Triconnectivity& tricComp) {
 	m_cpV = nullptr;
-	const GraphCopySimple& GC = *tricComp.m_pGC;
+	const GraphCopySimple& GC = *dynamic_cast<GraphCopySimple*>(tricComp.m_pG);
 
 	m_type.init(m_tree, NodeType::SNode);
 	m_sk.init(m_tree, nullptr);

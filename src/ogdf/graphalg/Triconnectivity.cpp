@@ -41,15 +41,17 @@
 namespace ogdf {
 
 
-Triconnectivity::~Triconnectivity() { delete m_pGC; }
+Triconnectivity::~Triconnectivity() {
+	if (m_deleteGraph) {
+		delete m_pG;
+	}
+}
 
 // Divides G into triconnected components.
-Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfEdges()) {
-	m_pGC = GCp;
-	GraphCopySimple& GC = *m_pGC;
-
-	const int n = GC.numberOfNodes();
-	const int m = GC.numberOfEdges();
+Triconnectivity::Triconnectivity(Graph* G)
+	: m_pG(G), m_ESTACK(G->numberOfEdges()), m_deleteGraph(false) {
+	const int n = m_pG->numberOfNodes();
+	const int m = m_pG->numberOfEdges();
 
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "Dividing G into triconnected components.\n" << std::endl;
@@ -61,62 +63,62 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfE
 
 	// special cases
 	OGDF_ASSERT(n >= 2);
-	OGDF_HEAVY_ASSERT(isBiconnected(GC));
+	OGDF_HEAVY_ASSERT(isBiconnected(*m_pG));
 
 	if (n <= 2) {
 		OGDF_ASSERT(m >= 3);
 		CompStruct& C = newComp();
-		for (edge e : GC.edges) {
+		for (edge e : m_pG->edges) {
 			C << e;
 		}
 		C.m_type = CompType::bond;
 		return;
 	}
 
-	m_TYPE.init(GC, EdgeType::unseen);
+	m_TYPE.init(*m_pG, EdgeType::unseen);
 	splitMultiEdges();
 
 	// initialize arrays
-	m_NUMBER.init(GC, 0);
-	m_LOWPT1.init(GC);
-	m_LOWPT2.init(GC);
-	m_FATHER.init(GC, nullptr);
-	m_ND.init(GC);
-	m_DEGREE.init(GC);
-	m_TREE_ARC.init(GC, nullptr);
+	m_NUMBER.init(*m_pG, 0);
+	m_LOWPT1.init(*m_pG);
+	m_LOWPT2.init(*m_pG);
+	m_FATHER.init(*m_pG, nullptr);
+	m_ND.init(*m_pG);
+	m_DEGREE.init(*m_pG);
+	m_TREE_ARC.init(*m_pG, nullptr);
 	m_NODEAT = Array<node>(1, n);
 
 	m_numCount = 0;
-	m_start = GC.firstNode();
-	DFS1(GC, m_start, nullptr);
+	m_start = m_pG->firstNode();
+	DFS1(m_start, nullptr);
 
-	for (edge e : GC.edges) {
+	for (edge e : m_pG->edges) {
 		bool up = (m_NUMBER[e->target()] - m_NUMBER[e->source()] > 0);
 		if ((up && m_TYPE[e] == EdgeType::frond) || (!up && m_TYPE[e] == EdgeType::tree)) {
-			GC.reverseEdge(e);
+			m_pG->reverseEdge(e);
 		}
 	}
 
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nnode\tNUMBER\tFATHER\tLOWPT1\tLOWPT2\tND" << std::endl;
-	for (node v : GC.nodes) {
-		std::cout << GC.original(v) << ":  \t" << m_NUMBER[v] << "   \t";
+	for (node v : m_pG->nodes) {
+		std::cout << GC().original(v) << ":  \t" << m_NUMBER[v] << "   \t";
 		if (m_FATHER[v] == 0) {
 			std::cout << "nil \t";
 		} else {
-			std::cout << GC.original(m_FATHER[v]) << "   \t";
+			std::cout << GC().original(m_FATHER[v]) << "   \t";
 		}
 		std::cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t" << m_ND[v] << std::endl;
 	}
 #endif
 
-	m_A.init(GC);
-	m_IN_ADJ.init(GC, nullptr);
-	buildAcceptableAdjStruct(GC);
+	m_A.init(*m_pG);
+	m_IN_ADJ.init(*m_pG, nullptr);
+	buildAcceptableAdjStruct();
 
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nadjaceny lists:" << std::endl;
-	for (node v : GC.nodes) {
+	for (node v : m_pG->nodes) {
 		std::cout << v << "\t";
 		for (edge ei : m_A[v]) {
 			printOs(ei);
@@ -125,12 +127,12 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfE
 	}
 #endif
 
-	DFS2(GC);
+	DFS2();
 
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nnode\tNEWNUM\tLOWPT1\tLOWPT2\tHIGHPT" << std::endl;
-	for (node v : GC.nodes) {
-		std::cout << GC.original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
+	for (node v : m_pG->nodes) {
+		std::cout << GC().original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
 		std::cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t";
 		for (int i : m_HIGHPT[v]) {
 			std::cout << i << " ";
@@ -139,7 +141,7 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfE
 	}
 
 	std::cout << "\nedges starting a path:" << std::endl;
-	for (edge e : GC.edges) {
+	for (edge e : m_pG->edges) {
 		if (m_START[e]) {
 			printOs(e);
 		}
@@ -152,7 +154,7 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfE
 	m_TSTACK_b = new int[2 * m + 1];
 	m_TSTACK_a[m_top = 0] = -1; // start with EOS
 
-	pathSearch(GC.original(), m_start);
+	pathSearch(m_start);
 
 	// last split component
 	CompStruct& C = newComp();
@@ -224,12 +226,10 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp) : m_ESTACK(GCp->numberOfE
 
 // Tests G for triconnectivity and returns a cut vertex in
 // s1 or a separation pair in (s1,s2).
-Triconnectivity::Triconnectivity(GraphCopySimple* GCp, bool& isTric, node& s1, node& s2) {
-	m_pGC = GCp;
-	GraphCopySimple& GC = *m_pGC;
-
-	const int n = GC.numberOfNodes();
-	const int m = GC.numberOfEdges();
+Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2)
+	: m_pG(new GraphCopySimple(G)), m_deleteGraph(true) {
+	const int n = m_pG->numberOfNodes();
+	const int m = m_pG->numberOfEdges();
 
 	s1 = s2 = nullptr;
 
@@ -237,31 +237,31 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp, bool& isTric, node& s1, n
 		isTric = true;
 		return;
 	} else if (n == 2) {
-		isTric = hasNonSelfLoopEdges(m_pGC->original());
+		isTric = hasNonSelfLoopEdges(*m_pG);
 		return;
 	} else if (m == 0) {
 		isTric = false;
 		return;
 	}
 
-	makeLoopFree(GC);
-	makeParallelFreeUndirected(GC);
+	makeLoopFree(*m_pG);
+	makeParallelFreeUndirected(*m_pG);
 
 	// initialize arrays
-	m_TYPE.init(GC, EdgeType::unseen);
-	m_NUMBER.init(GC, 0);
-	m_LOWPT1.init(GC);
-	m_LOWPT2.init(GC);
-	m_FATHER.init(GC, nullptr);
-	m_ND.init(GC);
-	m_DEGREE.init(GC);
+	m_TYPE.init(*m_pG, EdgeType::unseen);
+	m_NUMBER.init(*m_pG, 0);
+	m_LOWPT1.init(*m_pG);
+	m_LOWPT2.init(*m_pG);
+	m_FATHER.init(*m_pG, nullptr);
+	m_ND.init(*m_pG);
+	m_DEGREE.init(*m_pG);
 	m_NODEAT.init(1, n);
 
-	m_TREE_ARC.init(GC, nullptr); // probably not required
+	m_TREE_ARC.init(*m_pG, nullptr); // probably not required
 
 	m_numCount = 0;
-	m_start = GC.firstNode();
-	DFS1(GC, m_start, nullptr, s1);
+	m_start = m_pG->firstNode();
+	DFS1(m_start, nullptr, s1);
 
 	// graph not even connected?
 	if (m_numCount < n) {
@@ -272,33 +272,33 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp, bool& isTric, node& s1, n
 
 	// graph no biconnected?
 	if (s1 != nullptr) {
-		s1 = GC.original(s1);
+		s1 = GC().original(s1);
 		isTric = false; // s1 is a cut vertex
 		return;
 	}
 
-	for (edge e : GC.edges) {
+	for (edge e : m_pG->edges) {
 		bool up = (m_NUMBER[e->target()] - m_NUMBER[e->source()] > 0);
 		if ((up && m_TYPE[e] == EdgeType::frond) || (!up && m_TYPE[e] == EdgeType::tree)) {
-			GC.reverseEdge(e);
+			m_pG->reverseEdge(e);
 		}
 	}
 
-	m_A.init(GC);
-	m_IN_ADJ.init(GC, nullptr);
-	buildAcceptableAdjStruct(GC);
+	m_A.init(*m_pG);
+	m_IN_ADJ.init(*m_pG, nullptr);
+	buildAcceptableAdjStruct();
 
-	DFS2(GC);
+	DFS2();
 
 	m_TSTACK_h = new int[m];
 	m_TSTACK_a = new int[m];
 	m_TSTACK_b = new int[m];
 	m_TSTACK_a[m_top = 0] = -1; // start with EOS
 
-	isTric = pathSearch(m_pGC->original(), m_start, s1, s2);
+	isTric = pathSearch(m_start, s1, s2);
 	if (s1) {
-		s1 = GC.original(s1);
-		s2 = GC.original(s2);
+		s1 = GC().original(s1);
+		s2 = GC().original(s2);
 	}
 
 	delete[] m_TSTACK_h;
@@ -326,11 +326,9 @@ Triconnectivity::Triconnectivity(GraphCopySimple* GCp, bool& isTric, node& s1, n
 // Splits bundles of multi-edges into bonds and creates
 // a new virtual edge in GC.
 void Triconnectivity::splitMultiEdges() {
-	GraphCopySimple& GC = *m_pGC;
-
 	SListPure<edge> edges;
-	EdgeArray<int> minIndex(GC), maxIndex(GC);
-	parallelFreeSortUndirected(GC, edges, minIndex, maxIndex);
+	EdgeArray<int> minIndex(*m_pG), maxIndex(*m_pG);
+	parallelFreeSortUndirected(*m_pG, edges, minIndex, maxIndex);
 
 	SListIterator<edge> it;
 	for (it = edges.begin(); it.valid();) {
@@ -339,7 +337,7 @@ void Triconnectivity::splitMultiEdges() {
 		++it;
 		if (it.valid() && minI == minIndex[*it] && maxI == maxIndex[*it]) {
 			CompStruct& C = newComp(CompType::bond);
-			C << GC.newEdge(e->source(), e->target()) << e << *it;
+			C << m_pG->newEdge(e->source(), e->target()) << e << *it;
 			m_TYPE[e] = m_TYPE[*it] = EdgeType::removed;
 
 			for (++it; it.valid() && minI == minIndex[*it] && maxI == maxIndex[*it]; ++it) {
@@ -352,10 +350,10 @@ void Triconnectivity::splitMultiEdges() {
 
 // Checks if computed triconnected components are correct.
 bool Triconnectivity::checkSepPair(edge eVirt) {
-	GraphCopySimple G(*m_pGC);
+	GraphCopySimple G(*m_pG);
 
-	G.delNode(G.copy(m_pGC->original(eVirt->source())));
-	G.delNode(G.copy(m_pGC->original(eVirt->target())));
+	G.delNode(G.copy(eVirt->source()));
+	G.delNode(G.copy(eVirt->target()));
 
 	return !isConnected(G);
 }
@@ -363,23 +361,20 @@ bool Triconnectivity::checkSepPair(edge eVirt) {
 bool Triconnectivity::checkComp() {
 	bool ok = true;
 
-	GraphCopySimple& GC = *m_pGC;
-	GraphCopySimple GTest(GC.original());
-
-	if (!isLoopFree(GC)) {
+	if (!isLoopFree(*m_pG)) {
 		ok = false;
 		std::cout << "GC contains loops!" << std::endl;
 	}
 
-	EdgeArray<int> count(GC, 0);
+	EdgeArray<int> count(*m_pG, 0);
 	for (int i = 0; i < m_numComp; i++) {
 		for (edge e : m_component[i].m_edges) {
 			count[e]++;
 		}
 	}
 
-	for (edge e : GC.edges) {
-		if (GC.original(e) == nullptr) {
+	for (edge e : m_pG->edges) {
+		if (GC().original(e) == nullptr) {
 			if (count[e] != 2) {
 				ok = false;
 				std::cout << "virtual edge contained " << count[e];
@@ -403,8 +398,8 @@ bool Triconnectivity::checkComp() {
 		}
 	}
 
-	NodeSet<> S(GC);
-	NodeArray<node> map(GC);
+	NodeSet<> S(*m_pG);
+	NodeArray<node> map(*m_pG);
 
 	for (int i = 0; i < m_numComp; i++) {
 		CompStruct& C = m_component[i];
@@ -503,11 +498,9 @@ bool Triconnectivity::checkComp() {
 // joins bonds and polygons with common virtual edge in
 // order to build the triconnected components.
 void Triconnectivity::assembleTriconnectedComponents() {
-	GraphCopySimple& GC = *m_pGC;
-
-	EdgeArray<int> comp1(GC), comp2(GC);
-	EdgeArray<ListIterator<edge>> item1(GC, ListIterator<edge>());
-	EdgeArray<ListIterator<edge>> item2(GC);
+	EdgeArray<int> comp1(*m_pG, -1), comp2(*m_pG, -1);
+	EdgeArray<ListIterator<edge>> item1(*m_pG, ListIterator<edge>());
+	EdgeArray<ListIterator<edge>> item2(*m_pG, ListIterator<edge>());
 
 	bool* visited = new bool[m_numComp];
 
@@ -519,7 +512,7 @@ void Triconnectivity::assembleTriconnectedComponents() {
 		ListIterator<edge> it;
 		for (it = L.begin(); it.valid(); ++it) {
 			edge e = *it;
-			if (!item1[e].valid()) {
+			if (comp1[e] < 0) {
 				comp1[e] = i;
 				item1[e] = it;
 			} else {
@@ -534,7 +527,7 @@ void Triconnectivity::assembleTriconnectedComponents() {
 		List<edge>& L1 = C1.m_edges;
 		visited[i] = true;
 
-		if (L1.size() == 0) {
+		if (L1.empty()) {
 			continue;
 		}
 
@@ -544,7 +537,7 @@ void Triconnectivity::assembleTriconnectedComponents() {
 				itNext = it.succ();
 				edge e = *it;
 
-				if (GC.original(e) != nullptr) {
+				if (comp2[e] < 0) {
 					continue;
 				}
 
@@ -576,7 +569,7 @@ void Triconnectivity::assembleTriconnectedComponents() {
 				}
 				L1.del(it);
 
-				GC.delEdge(e);
+				m_pG->delEdge(e);
 			}
 		}
 	}
@@ -587,7 +580,7 @@ void Triconnectivity::assembleTriconnectedComponents() {
 // The first dfs-search
 //  computes NUMBER[v], FATHER[v], LOWPT1[v], LOWPT2[v],
 //           ND[v], TYPE[e], DEGREE[v]
-void Triconnectivity::DFS1(const Graph& G, node v, node u) {
+void Triconnectivity::DFS1(node v, node u) {
 	m_NUMBER[v] = ++m_numCount;
 	m_FATHER[v] = u;
 	m_DEGREE[v] = v->degree();
@@ -609,7 +602,7 @@ void Triconnectivity::DFS1(const Graph& G, node v, node u) {
 
 			m_TREE_ARC[w] = e;
 
-			DFS1(G, w, v);
+			DFS1(w, v);
 
 			if (m_LOWPT1[w] < m_LOWPT1[v]) {
 				m_LOWPT2[v] = min(m_LOWPT1[v], m_LOWPT2[w]);
@@ -638,7 +631,7 @@ void Triconnectivity::DFS1(const Graph& G, node v, node u) {
 	}
 }
 
-void Triconnectivity::DFS1(const Graph& G, node v, node u, node& s1) {
+void Triconnectivity::DFS1(node v, node u, node& s1) {
 	node firstSon = nullptr;
 
 	m_NUMBER[v] = ++m_numCount;
@@ -665,7 +658,7 @@ void Triconnectivity::DFS1(const Graph& G, node v, node u, node& s1) {
 
 			m_TREE_ARC[w] = e;
 
-			DFS1(G, w, v, s1);
+			DFS1(w, v, s1);
 
 			// check for cut vertex
 			if (m_LOWPT1[w] >= m_NUMBER[v] && (w != firstSon || u != nullptr)) {
@@ -700,11 +693,11 @@ void Triconnectivity::DFS1(const Graph& G, node v, node u, node& s1) {
 }
 
 // Construction of ordered adjaceny lists
-void Triconnectivity::buildAcceptableAdjStruct(const Graph& G) {
-	int max = 3 * G.numberOfNodes() + 2;
+void Triconnectivity::buildAcceptableAdjStruct() {
+	int max = 3 * m_pG->numberOfNodes() + 2;
 	Array<List<edge>> BUCKET(1, max);
 
-	for (edge e : G.edges) {
+	for (edge e : m_pG->edges) {
 		EdgeType t = m_TYPE[e];
 		if (t == EdgeType::removed) {
 			continue;
@@ -725,7 +718,7 @@ void Triconnectivity::buildAcceptableAdjStruct(const Graph& G) {
 }
 
 // The second dfs-search
-void Triconnectivity::pathFinder(const Graph& G, node v) {
+void Triconnectivity::pathFinder(node v) {
 	m_NEWNUM[v] = m_numCount - m_ND[v] + 1;
 
 	for (edge e : m_A[v]) {
@@ -737,7 +730,7 @@ void Triconnectivity::pathFinder(const Graph& G, node v) {
 		}
 
 		if (m_TYPE[e] == EdgeType::tree) {
-			pathFinder(G, w);
+			pathFinder(w);
 			m_numCount--;
 
 		} else {
@@ -747,24 +740,24 @@ void Triconnectivity::pathFinder(const Graph& G, node v) {
 	}
 }
 
-void Triconnectivity::DFS2(const Graph& G) {
-	m_NEWNUM.init(G, 0);
-	m_HIGHPT.init(G);
-	m_IN_HIGH.init(G, ListIterator<int>());
-	m_START.init(G, false);
+void Triconnectivity::DFS2() {
+	m_NEWNUM.init(*m_pG, 0);
+	m_HIGHPT.init(*m_pG);
+	m_IN_HIGH.init(*m_pG, ListIterator<int>());
+	m_START.init(*m_pG, false);
 
-	m_numCount = G.numberOfNodes();
+	m_numCount = m_pG->numberOfNodes();
 	m_newPath = true;
 
-	pathFinder(G, m_start);
+	pathFinder(m_start);
 
-	Array<int> old2new(1, G.numberOfNodes());
+	Array<int> old2new(1, m_pG->numberOfNodes());
 
-	for (node v : G.nodes) {
+	for (node v : m_pG->nodes) {
 		old2new[m_NUMBER[v]] = m_NEWNUM[v];
 	}
 
-	for (node v : G.nodes) {
+	for (node v : m_pG->nodes) {
 		m_NODEAT[m_NEWNUM[v]] = v;
 		m_LOWPT1[v] = old2new[m_LOWPT1[v]];
 		m_LOWPT2[v] = old2new[m_LOWPT2[v]];
@@ -772,7 +765,7 @@ void Triconnectivity::DFS2(const Graph& G) {
 }
 
 // recognition of split components
-void Triconnectivity::pathSearch(const Graph& G, node v) {
+void Triconnectivity::pathSearch(node v) {
 	edge e;
 	int y = 0;
 	int vnum = m_NEWNUM[v];
@@ -803,7 +796,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 				TSTACK_pushEOS();
 			}
 
-			pathSearch(G, w);
+			pathSearch(w);
 
 			m_ESTACK.push(m_TREE_ARC[w]); // add (v,w) to ESTACK (can differ from e!)
 
@@ -827,8 +820,8 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 					if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 						std::cout << std::endl
-								  << "\nfound type-2 separation pair " << m_pGC->original(v) << ", "
-								  << m_pGC->original(m_A[w].front()->target());
+								  << "\nfound type-2 separation pair " << GC().original(v) << ", "
+								  << GC().original(m_A[w].front()->target());
 #endif
 
 						edge e1 = m_ESTACK.popRet();
@@ -837,7 +830,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 
 						x = e2->target();
 
-						eVirt = m_pGC->newEdge(v, x);
+						eVirt = m_pG->newEdge(v, x);
 						m_DEGREE[x]--;
 						m_DEGREE[v]--;
 
@@ -856,9 +849,8 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 
 					} else {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
-						std::cout << "\nfound type-2 separation pair "
-								  << m_pGC->original(m_NODEAT[a]) << ", "
-								  << m_pGC->original(m_NODEAT[b]);
+						std::cout << "\nfound type-2 separation pair " << GC().original(m_NODEAT[a])
+								  << ", " << GC().original(m_NODEAT[b]);
 #endif
 
 						int h = m_TSTACK_h[m_top--];
@@ -891,7 +883,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 							}
 						}
 
-						eVirt = m_pGC->newEdge(m_NODEAT[a], m_NODEAT[b]);
+						eVirt = m_pG->newEdge(m_NODEAT[a], m_NODEAT[b]);
 						C.finishTricOrPoly(eVirt);
 						x = m_NODEAT[b];
 					}
@@ -900,7 +892,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 						CompStruct& C = newComp(CompType::bond);
 						C << e_ab << eVirt;
 
-						eVirt = m_pGC->newEdge(v, x);
+						eVirt = m_pG->newEdge(v, x);
 						C << eVirt;
 
 						m_DEGREE[x]--;
@@ -925,7 +917,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 			if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[v] != m_start || outv >= 2)) {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 				std::cout << "\nfound type-1 separation pair "
-						  << m_pGC->original(m_NODEAT[m_LOWPT1[w]]) << ", " << m_pGC->original(v);
+						  << GC().original(m_NODEAT[m_LOWPT1[w]]) << ", " << GC().original(v);
 #endif
 
 				CompStruct& C = newComp();
@@ -946,7 +938,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 					m_DEGREE[m_NODEAT[y]]--;
 				}
 
-				edge eVirt = m_pGC->newEdge(v, m_NODEAT[m_LOWPT1[w]]);
+				edge eVirt = m_pG->newEdge(v, m_NODEAT[m_LOWPT1[w]]);
 				C.finishTricOrPoly(eVirt);
 
 				if ((xx == vnum && y == m_LOWPT1[w]) || (y == vnum && xx == m_LOWPT1[w])) {
@@ -956,7 +948,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 						m_A[eh->source()].del(m_IN_ADJ[eh]);
 					}
 					compBond << eh << eVirt;
-					eVirt = m_pGC->newEdge(v, m_NODEAT[m_LOWPT1[w]]);
+					eVirt = m_pG->newEdge(v, m_NODEAT[m_LOWPT1[w]]);
 					compBond << eVirt;
 					m_IN_HIGH[eVirt] = m_IN_HIGH[eh];
 					m_DEGREE[v]--;
@@ -979,7 +971,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 
 					CompStruct& compBond = newComp(CompType::bond);
 					compBond << eVirt;
-					eVirt = m_pGC->newEdge(m_NODEAT[m_LOWPT1[w]], v);
+					eVirt = m_pG->newEdge(m_NODEAT[m_LOWPT1[w]], v);
 					compBond << eVirt;
 
 					edge eh = m_TREE_ARC[v];
@@ -1007,7 +999,8 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 
 			outv--;
 
-		} else { // frond arc
+		} else {
+			OGDF_ASSERT(m_TYPE[e] == EdgeType::frond);
 			if (m_START[e]) {
 				y = 0;
 				if (m_TSTACK_a[m_top] > wnum) {
@@ -1027,7 +1020,7 @@ void Triconnectivity::pathSearch(const Graph& G, node v) {
 }
 
 // simplified path search for triconnectivity test
-bool Triconnectivity::pathSearch(const Graph& G, node v, node& s1, node& s2) {
+bool Triconnectivity::pathSearch(node v, node& s1, node& s2) {
 	edge e;
 	int y, vnum = m_NEWNUM[v];
 	int a, b;
@@ -1057,7 +1050,7 @@ bool Triconnectivity::pathSearch(const Graph& G, node v, node& s1, node& s2) {
 				TSTACK_pushEOS();
 			}
 
-			if (!pathSearch(G, w, s1, s2)) {
+			if (!pathSearch(w, s1, s2)) {
 				return false;
 			}
 
@@ -1131,9 +1124,9 @@ bool isTriconnected(const Graph& G, node& s1, node& s2) {
 // debugging stuff
 void Triconnectivity::printOs(edge e) {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
-	std::cout << " (" << m_pGC->original(e->source()) << "," << m_pGC->original(e->target()) << ","
+	std::cout << " (" << GC().original(e->source()) << "," << GC().original(e->target()) << ","
 			  << e->index() << ")";
-	if (m_pGC->original(e) == 0) {
+	if (GC().original(e) == 0) {
 		std::cout << "v";
 	}
 #endif
