@@ -848,7 +848,7 @@ void Array<E, INDEX>::grow(INDEX add) {
 
 	// initialize new array entries
 	for (E* pDest = m_pStart + sOld; pDest < m_pStop; pDest++) {
-		new (pDest) E;
+		new (pDest) E();
 	}
 }
 
@@ -877,7 +877,7 @@ void Array<E, INDEX>::initialize() {
 	E* pDest = m_pStart;
 	try {
 		for (; pDest < m_pStop; pDest++) {
-			new (pDest) E;
+			new (pDest) E();
 		}
 	} catch (...) {
 		while (--pDest >= m_pStart) {

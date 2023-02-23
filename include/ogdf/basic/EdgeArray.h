@@ -137,10 +137,11 @@ public:
 	using const_iterator = internal::GraphArrayConstIterator<EdgeArray<T>>;
 
 	//! Constructs an empty edge array associated with no graph.
-	EdgeArray() : Array<T>(), EdgeArrayBase() { }
+	EdgeArray() : Array<T>(), EdgeArrayBase(), m_x() { }
 
 	//! Constructs an edge array associated with \p G.
-	explicit EdgeArray(const Graph& G) : Array<T>(G.edgeArrayTableSize()), EdgeArrayBase(&G) { }
+	explicit EdgeArray(const Graph& G)
+		: Array<T>(G.edgeArrayTableSize()), EdgeArrayBase(&G), m_x() { }
 
 	//! Constructs an edge array associated with \p G.
 	/**
@@ -205,24 +206,28 @@ public:
 	//! Returns a reference to the element with index edge of \p adj.
 	const T& operator[](adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator[](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \p adj.
 	T& operator[](adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator[](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \p adj.
 	const T& operator()(adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator[](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \p adj.
 	T& operator()(adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator[](adj->index() >> 1);
 	}
 

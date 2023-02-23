@@ -85,7 +85,7 @@ class HypernodeArray : private Array<T>, protected HypergraphArrayBase {
 
 public:
 	//! Constructs an empty hypernode array associated with no hypergraph.
-	HypernodeArray() : Array<T>(), HypergraphArrayBase() { }
+	HypernodeArray() : Array<T>(), HypergraphArrayBase(), m_x() { }
 
 	//! Constructs a hypernode array associated with \p H.
 	HypernodeArray(const Hypergraph& H, const T& x)
@@ -162,7 +162,7 @@ class HyperedgeArray : private Array<T>, protected HypergraphArrayBase {
 
 public:
 	//! Constructs an empty hypernode array associated with no graph.
-	HyperedgeArray() : Array<T>(), HypergraphArrayBase() { }
+	HyperedgeArray() : Array<T>(), HypergraphArrayBase(), m_x() { }
 
 	//! Constructs a hypernode array associated with \p H.
 	HyperedgeArray(const Hypergraph& H, const T& x)
