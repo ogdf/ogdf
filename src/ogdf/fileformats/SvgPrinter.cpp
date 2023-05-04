@@ -426,11 +426,7 @@ double SvgPrinter::getArrowSize(adjEntry adj) {
 
 bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) {
 	node v = adj->theNode();
-
-	return point.m_x >= m_attr.x(v) - m_attr.width(v) / 2
-			&& point.m_x <= m_attr.x(v) + m_attr.width(v) / 2
-			&& point.m_y >= m_attr.y(v) - m_attr.height(v) / 2
-			&& point.m_y <= m_attr.y(v) + m_attr.height(v) / 2;
+	return point.isCoveredBy(v, m_attr);
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {

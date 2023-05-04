@@ -31,7 +31,10 @@
  */
 
 
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/geometry.h>
+
+#include "ogdf/basic/graphics.h"
 
 namespace ogdf {
 
@@ -333,5 +336,102 @@ int orientation(const DPoint& p, const DPoint& q, const DPoint& r) {
 		return (d1 > d2) ? +1 : -1;
 	}
 }
+
+template<>
+bool DPoint::isCoveredBy(node v, const GraphAttributes& attr) const {
+	OGDF_ASSERT(v != nullptr);
+	const double epsilon = 1e-6;
+	const double trapeziumWidthOffset = attr.width(v) * 0.275;
+	DPolyline polygon;
+
+	auto isInConvexCCWPolygon = [&] {
+		for (int i = 0; i < polygon.size(); i++) {
+			DPoint edgePt1 = attr.point(v) + *polygon.get(i);
+			DPoint edgePt2 = attr.point(v) + *polygon.get((i + 1) % polygon.size());
+
+			if ((edgePt2.m_x - edgePt1.m_x) * (this->m_y - edgePt1.m_y)
+							- (edgePt2.m_y - edgePt1.m_y) * (this->m_x - edgePt1.m_x)
+					< -epsilon) {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	auto isInRegularPolygon = [&](unsigned int sides) {
+		polygon.clear();
+		double radius = (max(attr.width(v), attr.height(v)) / 2.0);
+		for (double angle = -(Math::pi / 2) + Math::pi / sides; angle < 1.5 * Math::pi;
+				angle += 2.0 * Math::pi / sides) {
+			polygon.pushBack(DPoint(radius * cos(angle), radius * sin(angle)));
+		}
+		return isInConvexCCWPolygon();
+	};
+
+	switch (attr.shape(v)) {
+	// currently these tikz polygons are only supported as regular polygons, i.e. width=height
+	case Shape::Pentagon:
+		return isInRegularPolygon(5);
+	case Shape::Hexagon:
+		return isInRegularPolygon(6);
+	case Shape::Octagon:
+		return isInRegularPolygon(8);
+	// Non-regular polygons
+	case Shape::Triangle:
+		polygon.pushBack(DPoint(0, attr.height(v) * 2.0 / 3.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, -attr.height(v) * 1.0 / 3.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, -attr.height(v) * 1.0 / 3.0));
+		return isInConvexCCWPolygon();
+	case Shape::InvTriangle:
+		polygon.pushBack(DPoint(0, -attr.height(v) * 2.0 / 3.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, attr.height(v) * 1.0 / 3.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, attr.height(v) * 1.0 / 3.0));
+		return isInConvexCCWPolygon();
+	case Shape::Rhomb:
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, 0));
+		polygon.pushBack(DPoint(0, attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, 0));
+		polygon.pushBack(DPoint(0, -attr.height(v) / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::Trapeze:
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0 - trapeziumWidthOffset, +attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0 + trapeziumWidthOffset, +attr.height(v) / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::InvTrapeze:
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0 + trapeziumWidthOffset, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0 - trapeziumWidthOffset, -attr.height(v) / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::Parallelogram:
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0 - trapeziumWidthOffset, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, +attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0 + trapeziumWidthOffset, +attr.height(v) / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::InvParallelogram:
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0 + trapeziumWidthOffset, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0, -attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(attr.width(v) / 2.0 - trapeziumWidthOffset, attr.height(v) / 2.0));
+		polygon.pushBack(DPoint(-attr.width(v) / 2.0, attr.height(v) / 2.0));
+		return isInConvexCCWPolygon();
+	// Ellipse
+	case Shape::Ellipse:
+		return pow((this->m_x - attr.x(v)) / (attr.width(v) * 0.5), 2)
+				+ pow((this->m_y - attr.y(v)) / (attr.height(v) * 0.5), 2)
+				< 1;
+	// Simple x y comparison
+	case Shape::Rect:
+	case Shape::RoundedRect:
+	default:
+		return this->m_x + epsilon >= attr.x(v) - attr.width(v) / 2.0
+				&& this->m_x - epsilon <= attr.x(v) + attr.width(v) / 2.0
+				&& this->m_y + epsilon >= attr.y(v) - attr.height(v) / 2.0
+				&& this->m_y - epsilon <= attr.y(v) + attr.height(v) / 2.0;
+	}
+}
+
 
 }

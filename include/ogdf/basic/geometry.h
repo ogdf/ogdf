@@ -41,6 +41,13 @@
 
 namespace ogdf {
 
+//! The type of nodes.
+//! @ingroup graphs
+class OGDF_EXPORT NodeElement;
+using node = NodeElement*;
+
+class OGDF_EXPORT GraphAttributes;
+
 extern OGDF_EXPORT const EpsilonTest OGDF_GEOM_ET;
 
 //! Determines the orientation in hierarchical layouts.
@@ -155,6 +162,16 @@ public:
 
 	//! Returns the norm of the point.
 	double norm() const { return sqrt(m_x * m_x + m_y * m_y); }
+
+	/**
+	 * Check whether this point lies within a node (using
+	 * node shapes with same size and aspect as in TikZ).
+	 *
+	 * @param v node to check.
+	 * @param attr GraphAttributes of \v s graph.
+	 * @return true thi point lies within the border of \p v.
+	 */
+	bool isCoveredBy(node v, const GraphAttributes& attr) const;
 
 	//! Adds \p p to this.
 	GenericPoint<T>& operator+=(const GenericPoint<T>& p) {
