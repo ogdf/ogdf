@@ -212,7 +212,7 @@ private:
 	std::string getEdgeLabel(edge e, const DPoint& previousPoint, const DPoint& labelPoint) const;
 
 	/**
-	 * \deprecated{Use GenericPoint::isCoveredBy(node v, GraphAttributes attr)}
+	 * \deprecated{Use isPointCoveredByNode(GenericPoint<T> point, node v, GraphAttributes attr)}
 	 * Check whether a point (e.g. edge bend point) lies within a node (using
 	 * node shapes with same size and aspect as in TikZ).
 	 *

@@ -39,6 +39,9 @@
 
 #include <cfloat>
 
+#include "ogdf/basic/graphics.h"
+#include "ogdf/basic/internal/config.h"
+
 namespace ogdf {
 
 //! The type of nodes.
@@ -162,16 +165,6 @@ public:
 
 	//! Returns the norm of the point.
 	double norm() const { return sqrt(m_x * m_x + m_y * m_y); }
-
-	/**
-	 * Check whether this point lies within a node (using
-	 * node shapes with same size and aspect as in TikZ).
-	 *
-	 * @param v node to check.
-	 * @param attr GraphAttributes of \v s graph.
-	 * @return true thi point lies within the border of \p v.
-	 */
-	bool isCoveredBy(node v, const GraphAttributes& attr) const;
 
 	//! Adds \p p to this.
 	GenericPoint<T>& operator+=(const GenericPoint<T>& p) {
@@ -1071,4 +1064,37 @@ inline int orientation(const DSegment& s, const DPoint& p) {
 	return orientation(s.start(), s.end(), p);
 }
 
+/**
+	 * Check whether this point lies within a node (using
+	 * node shapes with same size and aspect as in TikZ).
+	 *
+	 * @param point the point
+	 * @param v the node.
+	 * @param attr GraphAttributes of \p s graph.
+	 * @return true the point lies within the border of \p v.
+	 */
+bool isPointCoveredByNode(const DPoint& point, node v, const GraphAttributes& attr);
+
+
+/**
+ * returns the point where a vector, pointing from center in direction of angle, intersects with
+ * the countour of any regular n-polygon.
+ * \par angle angle of vector.
+ * \par n number of polygon sides.
+ * \par rotationOffset rotational offset of the polygon in RAD.
+ * \par center center point of the polygon.
+ * \par radius outer radius of the polygon.
+ */
+OGDF_EXPORT DPoint contourPointFromAngle(double angle, int n, double rotationOffset = 0,
+		DPoint center = DPoint(), double radius = 1);
+/**
+ * returns the point where a vector, pointing from center in direction of angle, intersects with
+ * the countour of any Shape.
+ * \par angle angle of vector.
+ * \par shape shape
+ * \par center center point of the shape.
+ * \par radius outer radius of the shape.
+ */
+OGDF_EXPORT DPoint contourPointFromAngle(double angle, Shape shape, DPoint center = DPoint(),
+		double radius = 1);
 }

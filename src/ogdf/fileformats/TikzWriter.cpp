@@ -506,7 +506,9 @@ std::string TikzWriter::getEdgeLabel(edge e, const DPoint& previousPoint,
 	return "edgelabel={" + relPos + ": " + m_attr.label(e) + "}";
 }
 
-bool TikzWriter::isCoveredBy(const DPoint& pt, node v) const { return pt.isCoveredBy(v, m_attr); }
+bool TikzWriter::isCoveredBy(const DPoint& pt, node v) const {
+	return isPointCoveredByNode(pt, v, m_attr);
+}
 
 double TikzWriter::calcArrowSize() const {
 	using std::min;

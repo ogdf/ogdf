@@ -34,6 +34,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
+
+#include "ogdf/basic/geometry.h"
+#include "ogdf/basic/graphics.h"
 
 using namespace ogdf;
 
@@ -424,9 +428,9 @@ double SvgPrinter::getArrowSize(adjEntry adj) {
 	return result;
 }
 
-bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) {
+bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) const {
 	node v = adj->theNode();
-	return point.isCoveredBy(v, m_attr);
+	return ogdf::isPointCoveredByNode(point, v, m_attr);
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
@@ -634,42 +638,30 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoi
 						y - size * sign});
 	} else {
 		// identify the position of the tip
+		float angle = atan(dy / dx) + (dx < 0 ? Math::pi : 0);
+		DPoint head = contourPointFromAngle(angle, m_attr.shape(v),
+				DPoint(m_attr.x(v), m_attr.y(v)), max(m_attr.height(v), m_attr.width(v)) / 2);
 
-		double slope = dy / dx;
-		int sign = dx > 0 ? 1 : -1;
-
-		double x = m_attr.x(v) - m_attr.width(v) / 2 * sign;
-		double delta = x - start.m_x;
-		double y = start.m_y + delta * slope;
-
-		if (!isCoveredBy(DPoint(x, y), adj)) {
-			sign = dy > 0 ? 1 : -1;
-			y = m_attr.y(v) - m_attr.height(v) / 2 * sign;
-			delta = y - start.m_y;
-			x = start.m_x + delta / slope;
-		}
-
-		end.m_x = x;
-		end.m_y = y;
+		end.m_x = head.m_x;
+		end.m_y = head.m_y;
 
 		// draw the actual arrow head
+		// BUG: code assumes straight line between the nodes.
 
-		double dx2 = end.m_x - start.m_x;
-		double dy2 = end.m_y - start.m_y;
-		double length = std::sqrt(dx2 * dx2 + dy2 * dy2);
-		dx2 /= length;
-		dy2 /= length;
+		double length = std::sqrt(dx * dx + dy * dy);
+		double dx_norm = dx / length;
+		double dy_norm = dy / length;
 
-		double mx = end.m_x - size * dx2;
-		double my = end.m_y - size * dy2;
+		double mx = head.m_x - size * dx_norm;
+		double my = head.m_y - size * dy_norm;
 
-		double x2 = mx - size / 4 * dy2;
-		double y2 = my + size / 4 * dx2;
+		double x2 = mx - size / 4 * dy_norm;
+		double y2 = my + size / 4 * dx_norm;
 
-		double x3 = mx + size / 4 * dy2;
-		double y3 = my - size / 4 * dx2;
+		double x3 = mx + size / 4 * dy_norm;
+		double y3 = my - size / 4 * dx_norm;
 
-		arrowHead = drawPolygon(xmlNode, {end.m_x, end.m_y, x2, y2, x3, y3});
+		arrowHead = drawPolygon(xmlNode, {head.m_x, head.m_y, x2, y2, x3, y3});
 	}
 
 	appendLineStyle(arrowHead, *adj, true);

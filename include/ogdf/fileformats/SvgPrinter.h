@@ -213,12 +213,12 @@ private:
 
 	/**
 	 * Determines whether a candidate arrow tip lies inside the rectangle of the node.
-	 * If the node is known, use DPoint::isCoveredBy(node v, GraphAttributes) instead.
+	 * If the node is known, use isPointCoveredByNode(GenericPoint<> point, node v, GraphAttributes) instead.
 	 *
 	 * \param point the candidate arrow tip
 	 * \param adj the adjacency entry
 	 */
-	bool isCoveredBy(const DPoint& point, adjEntry adj);
+	bool isCoveredBy(const DPoint& point, adjEntry adj) const;
 
 	/**
 	 * Draws an arrow head at the end of the edge.
