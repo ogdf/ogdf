@@ -1320,11 +1320,10 @@ void describeTsplibXml() {
 		auto test_simple = [](bool directed) {
 			std::string directedString = directed ? "directed" : "undirected";
 			it("reads a " + directedString + " graph with weights", [&] {
-				const string& data =
-						ResourceFile::data("fileformats/tsplibxml/valid/" + directedString + ".xml");
 				Graph G;
 				GraphAttributes GA;
-				stringstream ss {data};
+				stringstream ss {ResourceFile::data(
+						"fileformats/tsplibxml/valid/" + directedString + ".xml")};
 				AssertThat(GraphIO::read(GA, G, ss), IsTrue());
 				AssertThat(GA.attributes(), Equals(GraphAttributes::edgeDoubleWeight));
 				AssertThat(GA.directed(), Equals(directed));
@@ -1345,11 +1344,9 @@ void describeTsplibXml() {
 		test_simple(true);
 
 		it("reads a complete directed graph with weights", [&] {
-			const string& data =
-					ResourceFile::data("fileformats/tsplibxml/valid/complete_directed.xml");
 			Graph G;
 			GraphAttributes GA;
-			stringstream ss {data};
+			stringstream ss {ResourceFile::data("fileformats/tsplibxml/valid/complete_directed.xml")};
 			AssertThat(GraphIO::read(GA, G, ss), IsTrue());
 			AssertThat(GA.attributes(), Equals(GraphAttributes::edgeDoubleWeight));
 			AssertThat(GA.directed(), IsTrue());
@@ -1366,11 +1363,9 @@ void describeTsplibXml() {
 			}
 		});
 		it("reads an undirected 4 cycle", [&] {
-			const string& data =
-					ResourceFile::data("fileformats/tsplibxml/valid/4cycle_undirected.xml");
 			Graph G;
 			GraphAttributes GA;
-			stringstream ss {data};
+			stringstream ss {ResourceFile::data("fileformats/tsplibxml/valid/4cycle_undirected.xml")};
 			AssertThat(GraphIO::read(GA, G, ss), IsTrue());
 			AssertThat(GA.directed(), IsFalse());
 			int n = G.numberOfNodes();
@@ -1390,11 +1385,9 @@ void describeTsplibXml() {
 			}
 		});
 		it("reads a directed 4 cycle", [&] {
-			const string& data =
-					ResourceFile::data("fileformats/tsplibxml/valid/4cycle_directed.xml");
 			Graph G;
 			GraphAttributes GA;
-			stringstream ss {data};
+			stringstream ss {ResourceFile::data("fileformats/tsplibxml/valid/4cycle_directed.xml")};
 			AssertThat(GraphIO::read(GA, G, ss), IsTrue());
 			AssertThat(GA.directed(), IsTrue());
 			AssertThat(G.numberOfNodes(), Equals(4));
