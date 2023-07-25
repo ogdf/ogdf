@@ -433,23 +433,23 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
 	}
 }
 
-DPoint contourPointFromAngle(double angle, int n, double rotationOffset, DPoint center,
-		double radius) {
+DPoint contourPointFromAngle(double angle, int n, double rotationOffset, DPoint center, DPoint vSize) {
 	// math visualised: https://www.desmos.com/calculator/j6iktd7fs4
 	double nOffset = floor((angle - rotationOffset) / (2 * Math::pi / n)) * 2 * Math::pi / n;
 	double polyLineStartAngle = rotationOffset + nOffset;
 	double polyLineEndAngle = polyLineStartAngle + 2 * Math::pi / n;
-	DLine polyLine = DLine(-radius * cos(polyLineStartAngle), -radius * sin(polyLineStartAngle),
-			-radius * cos(polyLineEndAngle), -radius * sin(polyLineEndAngle));
+	DLine polyLine = DLine(-cos(polyLineStartAngle), -sin(polyLineStartAngle),
+			-cos(polyLineEndAngle), -sin(polyLineEndAngle));
 
-	DLine originLine = DLine(0, 0, radius * cos(angle), radius * sin(angle));
+	DLine originLine = DLine(0, 0, cos(angle), sin(angle));
 
 	DPoint intersectionPoint;
 	originLine.intersection(polyLine, intersectionPoint);
+	intersectionPoint = DPoint(intersectionPoint.m_x * vSize.m_x, intersectionPoint.m_y * vSize.m_y);
 	return intersectionPoint + center;
 }
 
-DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, double radius) {
+DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, DPoint vSize) {
 	angle = std::fmod(angle, 2 * Math::pi);
 	if (angle < 0) {
 		angle += Math::pi * 2;
@@ -457,71 +457,73 @@ DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, double ra
 
 	switch (shape) {
 	case Shape::Triangle:
-		return contourPointFromAngle(angle, 3, Math::pi / 2, center, radius);
+		return contourPointFromAngle(angle, 3, Math::pi / 2, center, vSize);
 	case Shape::InvTriangle:
-		return contourPointFromAngle(angle + Math::pi, Shape::Triangle, DPoint(), radius) * -1
+		return contourPointFromAngle(angle + Math::pi, Shape::Triangle, DPoint(), vSize) * -1
 				+ center;
 	case Shape::Image:
 	case Shape::RoundedRect:
 	case Shape::Rect:
-		return contourPointFromAngle(angle, 4, Math::pi / 4, center, radius * sqrt(2));
+		return contourPointFromAngle(angle, 4, Math::pi / 4, center, vSize / sqrt(2));
 	case Shape::Pentagon:
-		return contourPointFromAngle(angle, 5, Math::pi / 2, center, radius);
+		return contourPointFromAngle(angle, 5, Math::pi / 2, center, vSize);
 	case Shape::Hexagon:
-		return contourPointFromAngle(angle, 6, 0, center, radius);
+		return contourPointFromAngle(angle, 6, 0, center, vSize);
 	case Shape::Octagon:
-		return contourPointFromAngle(angle, 8, Math::pi / 8, center, radius);
+		return contourPointFromAngle(angle, 8, Math::pi / 8, center, vSize);
 	case Shape::Rhomb:
-		return contourPointFromAngle(angle, 4, Math::pi / 2, center, radius);
+		return contourPointFromAngle(angle, 4, Math::pi / 2, center, vSize);
 	case Shape::Trapeze:
 		if (angle < atan(2) || angle >= Math::pi * 7 / 4) {
-			DPoint other = contourPointFromAngle(Math::pi - angle, Shape::Trapeze, DPoint(), radius);
+			DPoint other = contourPointFromAngle(Math::pi - angle, Shape::Trapeze, DPoint(), vSize);
 			other.m_x *= -1;
 			return other + center;
 		} else if (angle < Math::pi - atan(2)) {
-			return contourPointFromAngle(angle, Shape::Rect, center, radius);
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
 		} else if (angle < Math::pi * 5 / 4) {
-			DLine tLine = DLine(radius / 2, -radius, radius, radius);
-			DLine eLine = DLine(0, 0, 2 * radius * cos(angle), 2 * radius * sin(angle));
+			DLine tLine = DLine(.5, -1, 1, 1);
+			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
 			DPoint iPoint;
 			tLine.intersection(eLine, iPoint);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
 			return iPoint + center;
 		}
 		if (angle < Math::pi * 7 / 4) {
-			return contourPointFromAngle(angle, Shape::Rect, center, radius);
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
 		}
 		return DPoint(); // Execution will never reach this point but it reduces warnings.
 	case Shape::InvTrapeze:
-		return contourPointFromAngle(angle + Math::pi, Shape::Trapeze, DPoint(), radius) * -1
-				+ center;
+		return contourPointFromAngle(angle + Math::pi, Shape::Trapeze, DPoint(), vSize) * -1 + center;
 	case Shape::Parallelogram:
 		if (angle < atan(2) || angle > Math::pi * 7 / 4) {
-			DLine tLine = DLine(-radius / 2, -radius, -radius, radius);
-			DLine eLine = DLine(0, 0, 2 * radius * cos(angle), 2 * radius * sin(angle));
+			DLine tLine = DLine(-.5, -1, -1, 1);
+			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
 			DPoint iPoint;
 			tLine.intersection(eLine, iPoint);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
 			return iPoint + center;
 		} else if (angle < Math::pi * 3 / 4) {
-			return contourPointFromAngle(angle, Shape::Rect, center, radius);
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
 		} else if (angle < Math::pi + atan(2)) {
-			DLine tLine = DLine(radius / 2, radius, radius, -radius);
-			DLine eLine = DLine(0, 0, 2 * radius * cos(angle), 2 * radius * sin(angle));
+			DLine tLine = DLine(.5, 1, 1, -1);
+			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
 			DPoint iPoint;
 			tLine.intersection(eLine, iPoint);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
 			return iPoint + center;
 		}
 		if (angle < Math::pi * 7 / 4) {
-			return contourPointFromAngle(angle, Shape::Rect, center, radius);
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
 		}
 		return DPoint(); // Execution will never reach this point but it reduces warnings.
 	case Shape::InvParallelogram: {
-		DPoint p = contourPointFromAngle(Math::pi - angle, Shape::Parallelogram, DPoint(), radius);
+		DPoint p = contourPointFromAngle(Math::pi - angle, Shape::Parallelogram, DPoint(), vSize);
 		p.m_x *= -1;
 		return p + center;
 	}
 	case Shape::Ellipse:
 	default:
-		return DPoint(-radius * cos(angle), -radius * sin(angle)) + center;
+		return DPoint(-vSize.m_x * cos(angle), -vSize.m_y * sin(angle)) + center;
 	}
 }
 

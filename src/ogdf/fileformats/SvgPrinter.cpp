@@ -643,7 +643,7 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoi
 		// identify the position of the tip
 		float angle = atan(dy / dx) + (dx < 0 ? Math::pi : 0);
 		DPoint head = contourPointFromAngle(angle, m_attr.shape(v),
-				DPoint(m_attr.x(v), m_attr.y(v)), max(m_attr.height(v), m_attr.width(v)) / 2);
+				DPoint(m_attr.x(v), m_attr.y(v)), DPoint(m_attr.width(v), m_attr.height(v)));
 
 		end.m_x = head.m_x;
 		end.m_y = head.m_y;

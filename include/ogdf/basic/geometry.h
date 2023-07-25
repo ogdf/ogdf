@@ -1081,18 +1081,18 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
  * \par n number of polygon sides.
  * \par rotationOffset rotational offset of the polygon in RAD.
  * \par center center point of the polygon.
- * \par radius outer radius of the polygon.
+ * \par vSize Width and height of v.
  */
 OGDF_EXPORT DPoint contourPointFromAngle(double angle, int n, double rotationOffset = 0,
-		DPoint center = DPoint(), double radius = 1);
+		DPoint center = DPoint(), DPoint vSize = DPoint(1, 1));
 /**
  * returns the point where a vector, pointing from center in direction of angle, intersects with
  * the countour of any Shape.
  * \par angle angle of vector.
  * \par shape shape
  * \par center center point of the shape.
- * \par radius outer radius of the shape.
+ * \par vSize Width and height of v.
  */
 OGDF_EXPORT DPoint contourPointFromAngle(double angle, Shape shape, DPoint center = DPoint(),
-		double radius = 1);
+		DPoint vSize = DPoint(1, 1));
 }
