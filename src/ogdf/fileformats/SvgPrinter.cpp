@@ -36,6 +36,9 @@
 #include <cmath>
 #include <iostream>
 
+#include <math.h>
+
+#include "ogdf/basic/Math.h"
 #include "ogdf/basic/geometry.h"
 #include "ogdf/basic/graphics.h"
 
@@ -129,7 +132,8 @@ void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, do
 
 void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 #if 1
-	const double hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
+	const double triangleWidth = 0.433012701892 * m_attr.width(v),
+				 hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
 				 pentagonHalfWidth = 0.475528258147577 * m_attr.width(v),
 				 pentagonSmallHeight = 0.154508497187474 * m_attr.height(v),
 				 pentagonSmallWidth = 0.293892626146236 * m_attr.width(v),
@@ -156,13 +160,13 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 		break;
 	case Shape::Triangle:
 		shape = drawPolygon(xmlNode,
-				{x, y - m_attr.height(v) / 2, x - m_attr.width(v) / 2, y + m_attr.height(v) / 2,
-						x + m_attr.width(v) / 2, y + m_attr.height(v) / 2});
+				{x, y - m_attr.height(v) / 2, x + triangleWidth, y + m_attr.height(v) / 4,
+						x - triangleWidth, y + m_attr.height(v) / 4});
 		break;
 	case Shape::InvTriangle:
 		shape = drawPolygon(xmlNode,
-				{x, y + m_attr.height(v) / 2, x - m_attr.width(v) / 2, y - m_attr.height(v) / 2,
-						x + m_attr.width(v) / 2, y - m_attr.height(v) / 2});
+				{x, y + m_attr.height(v) / 2, x - triangleWidth, y - m_attr.height(v) / 4,
+						x + triangleWidth, y - m_attr.height(v) / 4});
 		break;
 	case Shape::Pentagon:
 		shape = drawPolygon(xmlNode,
