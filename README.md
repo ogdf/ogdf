@@ -1,5 +1,8 @@
 # OGDF
 
+![Conan Center](https://img.shields.io/conan/v/ogdf)
+![vcpkg](https://img.shields.io/vcpkg/v/ogdf)
+
 OGDF stands both for **O**pen **G**raph **D**rawing **F**ramework (the original name)
 and **O**pen **G**raph algorithms and **D**ata structures **F**ramework.
 
