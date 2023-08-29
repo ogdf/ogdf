@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/fileformats/SvgPrinter.h>
 
 #include <algorithm>
@@ -37,10 +40,6 @@
 #include <iostream>
 
 #include <math.h>
-
-#include "ogdf/basic/Math.h"
-#include "ogdf/basic/geometry.h"
-#include "ogdf/basic/graphics.h"
 
 using namespace ogdf;
 
@@ -132,7 +131,7 @@ void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, do
 
 void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 #if 1
-	const double triangleWidth = 0.433012701892 * m_attr.width(v),
+	const double triangleWidth = 0.43301270189222 * m_attr.width(v),
 				 hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
 				 pentagonHalfWidth = 0.475528258147577 * m_attr.width(v),
 				 pentagonSmallHeight = 0.154508497187474 * m_attr.height(v),
@@ -434,7 +433,8 @@ double SvgPrinter::getArrowSize(adjEntry adj) {
 
 bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) const {
 	node v = adj->theNode();
-	return ogdf::isPointCoveredByNode(point, v, m_attr);
+	DPoint vSize = DPoint(m_attr.width(v), m_attr.height(v));
+	return ogdf::isPointCoveredByNode(point, m_attr.point(v), vSize, m_attr.shape(v));
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
@@ -638,8 +638,7 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoi
 		end.m_y = y - sign * size;
 
 		arrowHead = drawPolygon(xmlNode,
-				{end.m_x, y, end.m_x - size / 4, y - size * sign, end.m_x + size / 4,
-						y - size * sign});
+				{end.m_x, y, end.m_x - size / 4, end.m_y, end.m_x + size / 4, end.m_y});
 	} else {
 		// identify the position of the tip
 		float angle = atan(dy / dx) + (dx < 0 ? Math::pi : 0);
@@ -650,7 +649,6 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoi
 		end.m_y = head.m_y;
 
 		// draw the actual arrow head
-		// BUG: code assumes straight line between the nodes.
 
 		double length = std::sqrt(dx * dx + dy * dy);
 		double dx_norm = dx / length;

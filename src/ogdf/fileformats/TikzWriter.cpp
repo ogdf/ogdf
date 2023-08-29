@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/fileformats/TikzWriter.h>
 
 #include <iomanip>
@@ -260,12 +261,18 @@ void TikzWriter::drawEdge(std::ostream& os, edge e) {
 		}
 	}
 	// If no bendpoint inside source node -> snap line end to source node border
-	if (edgeLine.size() == 0 || !isCoveredBy(*edgeLine.get(0), source)) {
+	DPoint vSize = DPoint(m_attr.width(source), m_attr.height(source));
+	if (edgeLine.size() == 0
+			|| !isPointCoveredByNode(*edgeLine.get(0), m_attr.point(source), vSize,
+					m_attr.shape(source))) {
 		bendPointStrings.pushFront("(Node" + std::to_string(source->index()) + ")");
 		edgeLine.pushFront(m_attr.point(source));
 	}
 	// If no bendpoint inside target node -> snap line end to target node border
-	if (edgeLine.size() == 0 || !isCoveredBy(*edgeLine.get(edgeLine.size() - 1), target)) {
+	vSize = DPoint(m_attr.width(target), m_attr.height(target));
+	if (edgeLine.size() == 0
+			|| !isPointCoveredByNode(*edgeLine.get(edgeLine.size() - 1), m_attr.point(target),
+					vSize, m_attr.shape(target))) {
 		bendPointStrings.pushBack("(Node" + std::to_string(target->index()) + ")");
 		edgeLine.pushBack(m_attr.point(target));
 	}
@@ -504,10 +511,6 @@ std::string TikzWriter::getEdgeLabel(edge e, const DPoint& previousPoint,
 	}
 
 	return "edgelabel={" + relPos + ": " + m_attr.label(e) + "}";
-}
-
-bool TikzWriter::isCoveredBy(const DPoint& pt, node v) const {
-	return isPointCoveredByNode(pt, v, m_attr);
 }
 
 double TikzWriter::calcArrowSize() const {

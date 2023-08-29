@@ -36,11 +36,10 @@
 #include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/internal/config.h>
 
 #include <cfloat>
-
-#include "ogdf/basic/graphics.h"
-#include "ogdf/basic/internal/config.h"
 
 namespace ogdf {
 
@@ -48,8 +47,6 @@ namespace ogdf {
 //! @ingroup graphs
 class OGDF_EXPORT NodeElement;
 using node = NodeElement*;
-
-class OGDF_EXPORT GraphAttributes;
 
 extern OGDF_EXPORT const EpsilonTest OGDF_GEOM_ET;
 
@@ -1065,16 +1062,17 @@ inline int orientation(const DSegment& s, const DPoint& p) {
 }
 
 /**
-	 * Check whether this point lies within a node (using
-	 * node shapes with same size and aspect as in TikZ).
-	 *
-	 * @param point the point
-	 * @param v the node.
-	 * @param attr GraphAttributes of \p s graph.
-	 * @return true the point lies within the border of \p v.
-	 */
-bool isPointCoveredByNode(const DPoint& point, node v, const GraphAttributes& attr);
-
+ * Check whether this point lies within a node (using
+ * node shapes with same size and aspect as in TikZ).
+ *
+ * @param point the point
+ * @param v the node.
+ * @param vSize Width and height of v.
+ * @param shape of the node.
+ * @return true the point lies within the border of \p v.
+ */
+OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, const DPoint& vSize,
+		const Shape& shape);
 
 /**
  * returns the point where a vector, pointing from center in direction of angle, intersects with
