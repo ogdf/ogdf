@@ -1084,11 +1084,28 @@ public:
 	 */
 	template<class ADJ_ENTRY_LIST>
 	void sort(node v, const ADJ_ENTRY_LIST& newOrder) {
+		using std::begin;
+		using std::end;
+		sort(v, begin(newOrder), end(newOrder));
+	}
+
+	//! Sorts the adjacency list of node \p v according to the range denoted by two iterators.
+	/**
+	 * \pre \p begin ... \p end contains exactly the adjacency entries of \p v!
+	 *
+	 * @tparam IT        is the type of the input adjacency entry list iterator.
+	 * @param  v         is the node whose adjacency list will be sorted.
+	 * @param  begin     is the iterator to the adjacency entry that should come first
+	 * @param  end       is the iterator one past the adjacency entry that should come last
+	 */
+	template<class IT>
+	void sort(node v, IT begin, IT end) {
 #ifdef OGDF_DEBUG
 		std::set<int> entries;
 		int counter = 0;
 
-		for (adjEntry adj : newOrder) {
+		for (auto it = begin; it != end; ++it) {
+			adjEntry adj = *it;
 			entries.insert(adj->index());
 			OGDF_ASSERT(adj->theNode() == v);
 			counter++;
@@ -1097,7 +1114,7 @@ public:
 		OGDF_ASSERT(counter == v->degree());
 		OGDF_ASSERT(entries.size() == static_cast<unsigned int>(v->degree()));
 #endif
-		v->adjEntries.sort(newOrder);
+		v->adjEntries.sort(begin, end);
 	}
 
 	//! Reverses the adjacency list of \p v.
