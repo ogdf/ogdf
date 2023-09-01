@@ -654,6 +654,12 @@ public:
 	virtual node cutVertex(node uB, node vB) const;
 
 	//! @}
+
+#ifdef OGDF_DEBUG
+	//! Asserts that this BCTree is consistent.
+	void consistencyCheck() const;
+#endif
+
 private:
 	void initBasic(node vG);
 	void initEdges();

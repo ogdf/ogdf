@@ -34,6 +34,7 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/decomposition/BCTree.h>
 
 #include <set>
 
@@ -401,11 +402,25 @@ static void describeBiconnectedComponents() {
 
 	before_each([&]() { G.clear(); });
 
-	forEachGraphItWorks({GraphProperty::biconnected, GraphProperty::simple}, [&](const Graph& testG) {
-		EdgeArray<int> component(testG, -1);
-		AssertThat(biconnectedComponents(testG, component),
-				Equals(testG.numberOfNodes() == 0 ? 0 : 1));
-	});
+	forEachGraphItWorks({GraphProperty::simple},
+			[](const Graph& testG, const std::string& graphName, const std::set<GraphProperty>& props) {
+				int cc = connectedComponents(testG);
+				EdgeArray<int> component(testG, -1);
+				int bcs = biconnectedComponents(testG, component);
+				Graph copyG(testG);
+				BCTree bc(copyG, cc > 1); // G may not be const
+#ifdef OGDF_DEBUG
+				bc.consistencyCheck();
+#endif
+				if (props.count(GraphProperty::biconnected) == 1) {
+					AssertThat(bcs, Equals(testG.numberOfNodes() == 0 ? 0 : 1));
+					OGDF_ASSERT(bc.numberOfCComps() == 0);
+					OGDF_ASSERT(bc.numberOfBComps() == bcs);
+				} else {
+					OGDF_ASSERT(bc.numberOfCComps() <= bcs - cc);
+					OGDF_ASSERT(bc.numberOfBComps() == bcs);
+				}
+			});
 
 	it("works on a graph with a self-loop", [&]() {
 		customGraph(G, 2, {{0, 0}, {0, 1}});
@@ -461,10 +476,17 @@ static void describeBiconnectedComponents() {
 		int result = biconnectedComponents(G, component);
 
 		AssertThat(result, IsGreaterThan(0));
-		AssertThat(result, !IsLessThan(connectedComponents(G, conComp)));
+		int cc = connectedComponents(G, conComp);
+		AssertThat(result, !IsLessThan(cc));
 		for (edge e : G.edges) {
 			AssertThat(component[e], IsGreaterThan(-1));
 		}
+
+		// FIXME fails because BCTree can't handle non-simple graphs
+		//BCTree bc(G, cc > 1);
+		//bc.consistencyCheck();
+		//OGDF_ASSERT(bc.numberOfCComps() <= result - cc);
+		//OGDF_ASSERT(bc.numberOfBComps() == result);
 	});
 
 	it("works on an extremely large biconnected graph", [&]() {
@@ -475,6 +497,13 @@ static void describeBiconnectedComponents() {
 		for (edge e : G.edges) {
 			AssertThat(component[e], Equals(0));
 		}
+
+		BCTree bc(G);
+#ifdef OGDF_DEBUG
+		bc.consistencyCheck();
+#endif
+		OGDF_ASSERT(bc.numberOfCComps() == 0);
+		OGDF_ASSERT(bc.numberOfBComps() == 1);
 	});
 }
 
