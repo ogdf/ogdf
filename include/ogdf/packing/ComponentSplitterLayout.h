@@ -31,18 +31,18 @@
 
 #pragma once
 
-#include <memory>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
-#include <ogdf/packing/CCLayoutPackModule.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
+
+#include <memory>
 #include <vector>
 
 namespace ogdf {
 
-class OGDF_EXPORT ComponentSplitterLayout : public LayoutModule
-{
+class OGDF_EXPORT ComponentSplitterLayout : public LayoutModule {
 private:
 	std::unique_ptr<LayoutModule> m_secondaryLayout;
 	std::unique_ptr<CCLayoutPackModule> m_packer;
@@ -53,24 +53,18 @@ private:
 	//! Combines drawings of connected components to
 	//! a single drawing by rotating components and packing
 	//! the result (optimizes area of axis-parallel rectangle).
-	void reassembleDrawings(GraphAttributes &GA, const Array<List<node> > &nodesInCC);
+	void reassembleDrawings(GraphAttributes& GA, const Array<List<node>>& nodesInCC);
 
 public:
 	ComponentSplitterLayout();
 
-	void call(GraphAttributes &GA) override;
+	void call(GraphAttributes& GA) override;
 
-	void setLayoutModule(LayoutModule *layout) {
-		m_secondaryLayout.reset(layout);
-	}
+	void setLayoutModule(LayoutModule* layout) { m_secondaryLayout.reset(layout); }
 
-	void setPacker(CCLayoutPackModule *packer) {
-		m_packer.reset(packer);
-	}
+	void setPacker(CCLayoutPackModule* packer) { m_packer.reset(packer); }
 
-	void setBorder(int border) {
-		m_border = border;
-	}
+	void setBorder(int border) { m_border = border; }
 };
 
 }

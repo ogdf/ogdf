@@ -41,14 +41,11 @@ namespace ogdf {
  * @ingroup ga-flow
  */
 template<typename TCap>
-class MaxFlowEdmondsKarp : public MaxFlowModule<TCap>
-{
+class MaxFlowEdmondsKarp : public MaxFlowModule<TCap> {
 private:
-
 	//! If there is an augumenting path: do an interation step. Otherwise return
 	//! false so that the algorithm can stop.
-	bool augmentShortestSourceSinkPath()
-	{
+	bool augmentShortestSourceSinkPath() {
 		NodeArray<adjEntry> pred(*this->m_G, nullptr); // edges from the predecessor
 		List<node> queue;
 		queue.pushBack(*this->m_s);
@@ -83,19 +80,20 @@ private:
 				}
 				return true;
 			}
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				const node w = adj->twinNode();
-				if (w != (*this->m_s)
-					&& !pred[w]) // if not already visited
+				if (w != (*this->m_s) && !pred[w]) // if not already visited
 				{
 					const edge e = adj->theEdge();
 					if (e->source() == v) { // real edge e = vw
-						if ( (*this->m_et).greater((*this->m_cap)[e],(*this->m_flow)[e]) ) { // reachable in residual graph
+						if ((*this->m_et).greater((*this->m_cap)[e], (*this->m_flow)[e])) {
+							// reachable in residual graph
 							queue.pushBack(w);
 							pred[w] = adj;
 						}
 					} else { // virtual edge (adj) wv
-						if ( (*this->m_et).greater( (*this->m_flow)[e] ,  (TCap) 0 )) { // reachable in residual graph
+						if ((*this->m_et).greater((*this->m_flow)[e], (TCap)0)) {
+							// reachable in residual graph
 							queue.pushBack(w);
 							pred[w] = adj;
 						}
@@ -108,7 +106,6 @@ private:
 	}
 
 public:
-
 	//! Implementation of computeValue from the super class. The flow array is
 	//! cleared, \p cap, \p s and \p t are stored and Edmonds&Karp starts. After
 	//! this first phase, the flow itself is already computed!
@@ -119,10 +116,9 @@ public:
 	 * @param s is the source.
 	 * @param t is the sink.
 	 */
-	TCap computeValue(const EdgeArray<TCap> &cap, const node &s, const node &t)
-	{
+	TCap computeValue(const EdgeArray<TCap>& cap, const node& s, const node& t) {
 		// clear old flow
-		this->m_flow->fill((TCap) 0);
+		this->m_flow->fill((TCap)0);
 		// store capacity, source and sink
 		this->m_cap = &cap;
 		this->m_s = &s;
@@ -130,14 +126,16 @@ public:
 		OGDF_ASSERT(this->isFeasibleInstance());
 
 		if (*this->m_s == *this->m_t) {
-			return (TCap) 0;
+			return (TCap)0;
 		}
 
-		while (augmentShortestSourceSinkPath());
+		while (augmentShortestSourceSinkPath()) {
+			;
+		}
 		TCap flowValue = 0;
-		for(adjEntry adj : s->adjEntries) {
+		for (adjEntry adj : s->adjEntries) {
 			edge e = adj->theEdge();
-			if(e->source() == s) {
+			if (e->source() == s) {
 				flowValue += (*this->m_flow)[e];
 			} else {
 				flowValue -= (*this->m_flow)[e];
@@ -148,7 +146,8 @@ public:
 
 	//! Implementation of computeFlowAfterValue from the super class. This does
 	//! nothing, because the algorithm is finished after computeValue.
-	void computeFlowAfterValue() { /* nothing to do here */ }
+	void computeFlowAfterValue() { /* nothing to do here */
+	}
 
 	// use methods from super class
 	using MaxFlowModule<TCap>::useEpsilonTest;

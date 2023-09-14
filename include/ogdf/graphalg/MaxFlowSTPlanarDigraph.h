@@ -33,11 +33,11 @@
 
 #pragma once
 
-#include <ogdf/graphalg/MaxFlowModule.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/Dijkstra.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 
 namespace ogdf {
 
@@ -45,12 +45,11 @@ namespace ogdf {
 /**
  * @ingroup ga-flow
  */
-template <typename TCap>
+template<typename TCap>
 class MaxFlowSTPlanarDigraph : public MaxFlowModule<TCap> {
 private:
-
 	//! Create back arcs for all edges and set the backedges' \p new_costs to zero.
-	void createBackArcs(Graph &gr, EdgeArray<TCap> &new_costs) {
+	void createBackArcs(Graph& gr, EdgeArray<TCap>& new_costs) {
 		// gr = dg.
 		for (edge e = gr.lastEdge(); e != nullptr; e = e->pred()) {
 			edge e_new_dg = gr.newEdge(e->target(), e->source());
@@ -66,7 +65,7 @@ public:
 	 *
 	 * @copydetails ogdf::MaxFlowModule<TCap>::computeValue
 	 */
-	TCap computeValue(const EdgeArray<TCap> &cap, const node &s, const node &t) override {
+	TCap computeValue(const EdgeArray<TCap>& cap, const node& s, const node& t) override {
 		// clear old flow
 		(*this->m_flow).fill(0);
 		// store capacity, source and sink
@@ -99,12 +98,11 @@ public:
 		Dijkstra<TCap> dij;
 		NodeArray<edge> preds(dg, nullptr);
 		NodeArray<TCap> dists(dg, 0);
-		dij.call(dg, costs, dg.dualNode(f_infty), preds, dists, true);  // directed
+		dij.call(dg, costs, dg.dualNode(f_infty), preds, dists, true); // directed
 
 		for (edge e : (*this->m_G).edges) {
-			(*this->m_flow)[e] =
-				dists[dg.dualNode(ce.leftFace(copyG.copy(e)->adjSource()))] -
-				dists[dg.dualNode(ce.rightFace(copyG.copy(e)->adjSource()))];
+			(*this->m_flow)[e] = dists[dg.dualNode(ce.leftFace(copyG.copy(e)->adjSource()))]
+					- dists[dg.dualNode(ce.rightFace(copyG.copy(e)->adjSource()))];
 		}
 
 		// compute flow value
@@ -125,7 +123,7 @@ public:
 	void computeFlowAfterValue() override { /* nothing to do here */
 	}
 
-	void init(const Graph &graph, EdgeArray<TCap> *flow = nullptr) override {
+	void init(const Graph& graph, EdgeArray<TCap>* flow = nullptr) override {
 		OGDF_ASSERT(isConnected(graph));
 		OGDF_ASSERT(isPlanar(graph));
 		MaxFlowModule<TCap>::init(graph, flow);

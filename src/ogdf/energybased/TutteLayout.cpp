@@ -29,67 +29,53 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/TutteLayout.h>
-
-
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
-
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/TutteLayout.h>
 
 namespace ogdf {
 
 
 // solves a system of linear equations with a linear solver for optimization problems.
 // I'm sorry but there is no Gauss-Algorithm (or some numerical stuff) in OGDF...
-bool TutteLayout::solveLP(
-	int cols,
-	const CoinPackedMatrix &Matrix,
-	const Array<double> &rightHandSide,
-	Array<double> &x)
-{
+bool TutteLayout::solveLP(int cols, const CoinPackedMatrix& Matrix,
+		const Array<double>& rightHandSide, Array<double>& x) {
 	int i;
 
-	OsiSolverInterface *osi = CoinManager::createCorrectOsiSolverInterface();
+	OsiSolverInterface* osi = CoinManager::createCorrectOsiSolverInterface();
 
 	// constructs a dummy optimization problem.
 	// The given system of equations is used as constraint.
-	osi->setObjSense(-1);                        // maximize...
-	Array<double> obj(0,cols-1,1);               // ...the sum of variables
-	Array<double> lowerBound(0,cols-1,-1*(osi->getInfinity()));
-	Array<double> upperBound(0,cols-1,osi->getInfinity());
+	osi->setObjSense(-1); // maximize...
+	Array<double> obj(0, cols - 1, 1); // ...the sum of variables
+	Array<double> lowerBound(0, cols - 1, -1 * (osi->getInfinity()));
+	Array<double> upperBound(0, cols - 1, osi->getInfinity());
 
 	// loads the problem to Coin-Osi
-	osi->loadProblem(Matrix, &lowerBound[0], &upperBound[0], &obj[0], &rightHandSide[0], &rightHandSide[0]);
+	osi->loadProblem(Matrix, &lowerBound[0], &upperBound[0], &obj[0], &rightHandSide[0],
+			&rightHandSide[0]);
 
 	// solves the linear program
 	osi->initialSolve();
 
 	// gets the solution and returns true if it is optimal
-	const double *sol = osi->getColSolution();
-	for(i=0; i<cols; i++) x[i] = sol[i];
+	const double* sol = osi->getColSolution();
+	for (i = 0; i < cols; i++) {
+		x[i] = sol[i];
+	}
 
 	bool returnValue = osi->isProvenOptimal();
 	delete osi;
 	return returnValue;
 }
 
-
-TutteLayout::TutteLayout() : m_bbox(0.0, 0.0, 250.0, 250.0)
-{
-}
-
-
+TutteLayout::TutteLayout() : m_bbox(0.0, 0.0, 250.0, 250.0) { }
 
 // sets the positions of the nodes in a largest face of G in the form
 // of a regular k-gon. The corresponding nodes and their positions are
 // stored in nodes and pos, respectively.
-void TutteLayout::setFixedNodes(
-	const Graph &G,
-	List<node>& nodes,
-	List<DPoint>& pos,
-	double radius)
-{
+void TutteLayout::setFixedNodes(const Graph& G, List<node>& nodes, List<DPoint>& pos, double radius) {
 	// compute faces of a copy of G
 	GraphCopy GC(G);
 
@@ -108,36 +94,31 @@ void TutteLayout::setFixedNodes(
 	pos.clear();
 
 	// set nodes and pos
-	NodeArray<bool> addMe(GC,true);
+	NodeArray<bool> addMe(GC, true);
 
 	List<node> maxNodes;
-	for(adjEntry adj : maxFace->entries) {
+	for (adjEntry adj : maxFace->entries) {
 		maxNodes.pushBack(adj->theNode());
 	}
 
-	for(node w : maxNodes) {
-		if(addMe[w]) {
+	for (node w : maxNodes) {
+		if (addMe[w]) {
 			nodes.pushBack(GC.original(w));
 			addMe[w] = false;
 		}
 	}
 
-	double step  = 2.0 * Math::pi / (double)(nodes.size());
+	double step = 2.0 * Math::pi / (double)(nodes.size());
 	double alpha = 0.0;
-	for(int i = 0; i < nodes.size(); ++i) {
+	for (int i = 0; i < nodes.size(); ++i) {
 		pos.pushBack(DPoint(radius * cos(alpha), radius * sin(alpha)));
 		alpha += step;
 	}
 }
 
 // Overload setFixedNodes for given nodes
-void TutteLayout::setFixedNodes(
-	const Graph &G,
-	List<node>& nodes,
-	const List<node>& givenNodes,
-	List<DPoint>& pos,
-	double radius)
-{
+void TutteLayout::setFixedNodes(const Graph& G, List<node>& nodes, const List<node>& givenNodes,
+		List<DPoint>& pos, double radius) {
 	GraphCopy GC(G);
 
 	// delete possible old entries
@@ -146,122 +127,109 @@ void TutteLayout::setFixedNodes(
 	// set nodes and pos
 	nodes = givenNodes;
 
-	double step  = 2.0 * Math::pi / (double)(nodes.size());
+	double step = 2.0 * Math::pi / (double)(nodes.size());
 	double alpha = 0.0;
-	for(int i = 0; i < nodes.size(); ++i) {
+	for (int i = 0; i < nodes.size(); ++i) {
 		pos.pushBack(DPoint(radius * cos(alpha), radius * sin(alpha)));
 		alpha += step;
 	}
 }
 
-void TutteLayout::call(GraphAttributes &AG, const List<node> &givenNodes)
-{
-	const Graph &G = AG.constGraph();
+void TutteLayout::call(GraphAttributes& AG, const List<node>& givenNodes) {
+	const Graph& G = AG.constGraph();
 
 	List<node> fixedNodes;
 	List<DPoint> positions;
 	DRect oldBBox = m_bbox;
 
-	double diam =
-	sqrt((m_bbox.width()) * (m_bbox.width())
-		 + (m_bbox.height()) * (m_bbox.height()));
+	double diam = sqrt((m_bbox.width()) * (m_bbox.width()) + (m_bbox.height()) * (m_bbox.height()));
 
 	// handle graphs with less than two nodes
 	switch (G.numberOfNodes()) {
-		case 0:
-			return;
-		case 1:
-			node v = G.firstNode();
+	case 0:
+		return;
+	case 1:
+		node v = G.firstNode();
 
-			DPoint center(0.5 * m_bbox.width(),0.5 * m_bbox.height());
-			center = center + m_bbox.p1();
+		DPoint center(0.5 * m_bbox.width(), 0.5 * m_bbox.height());
+		center = center + m_bbox.p1();
 
-			AG.x(v) = center.m_x;
-			AG.y(v) = center.m_y;
+		AG.x(v) = center.m_x;
+		AG.y(v) = center.m_y;
 
-			return;
+		return;
 	}
 
 	// increase radius to have no overlap on the outer circle
 	node v = G.firstNode();
 
-	double r        = diam/2.8284271;
+	double r = diam / 2.8284271;
 	// Prevent division by zero that occurs for n=2 in later if-condition.
-	int n           = G.numberOfNodes() == 2 ? 3 : G.numberOfNodes();
-	double nodeDiam = 2.0*sqrt((AG.width(v)) * (AG.width(v))
-			 + (AG.height(v)) * (AG.height(v)));
+	int n = G.numberOfNodes() == 2 ? 3 : G.numberOfNodes();
+	double nodeDiam = 2.0 * sqrt((AG.width(v)) * (AG.width(v)) + (AG.height(v)) * (AG.height(v)));
 
-	if(r<nodeDiam/(2*sin(2*Math::pi/n))) {
-		r=nodeDiam/(2*sin(2*Math::pi/n));
-		m_bbox = DRect (0.0, 0.0, 2*r, 2*r);
+	if (r < nodeDiam / (2 * sin(2 * Math::pi / n))) {
+		r = nodeDiam / (2 * sin(2 * Math::pi / n));
+		m_bbox = DRect(0.0, 0.0, 2 * r, 2 * r);
 	}
 
-	setFixedNodes(G,fixedNodes,givenNodes,positions,r);
+	setFixedNodes(G, fixedNodes, givenNodes, positions, r);
 
-	doCall(AG,fixedNodes,positions);
+	doCall(AG, fixedNodes, positions);
 
 	m_bbox = oldBBox;
 }
 
-void TutteLayout::call(GraphAttributes &AG)
-{
-	const Graph &G = AG.constGraph();
+void TutteLayout::call(GraphAttributes& AG) {
+	const Graph& G = AG.constGraph();
 
 	List<node> fixedNodes;
 	List<DPoint> positions;
 	DRect oldBBox = m_bbox;
 
-	double diam =
-	sqrt((m_bbox.width()) * (m_bbox.width())
-		 + (m_bbox.height()) * (m_bbox.height()));
+	double diam = sqrt((m_bbox.width()) * (m_bbox.width()) + (m_bbox.height()) * (m_bbox.height()));
 
 	// handle graphs with less than two nodes
 	switch (G.numberOfNodes()) {
-		case 0:
-			return;
-		case 1:
-			node v = G.firstNode();
+	case 0:
+		return;
+	case 1:
+		node v = G.firstNode();
 
-			DPoint center(0.5 * m_bbox.width(),0.5 * m_bbox.height());
-			center = center + m_bbox.p1();
+		DPoint center(0.5 * m_bbox.width(), 0.5 * m_bbox.height());
+		center = center + m_bbox.p1();
 
-			AG.x(v) = center.m_x;
-			AG.y(v) = center.m_y;
+		AG.x(v) = center.m_x;
+		AG.y(v) = center.m_y;
 
-			return;
+		return;
 	}
 
 	// increase radius to have no overlap on the outer circle
 	node v = G.firstNode();
 
-	double r        = diam/2.8284271;
+	double r = diam / 2.8284271;
 	// Prevent division by zero that occurs for n=2 in later if-condition.
-	int n           = G.numberOfNodes() == 2 ? 3 : G.numberOfNodes();
-	double nodeDiam = 2.0*sqrt((AG.width(v)) * (AG.width(v))
-			 + (AG.height(v)) * (AG.height(v)));
+	int n = G.numberOfNodes() == 2 ? 3 : G.numberOfNodes();
+	double nodeDiam = 2.0 * sqrt((AG.width(v)) * (AG.width(v)) + (AG.height(v)) * (AG.height(v)));
 
-	if(r<nodeDiam/(2*sin(2*Math::pi/n))) {
-		r=nodeDiam/(2*sin(2*Math::pi/n));
-		m_bbox = DRect (0.0, 0.0, 2*r, 2*r);
+	if (r < nodeDiam / (2 * sin(2 * Math::pi / n))) {
+		r = nodeDiam / (2 * sin(2 * Math::pi / n));
+		m_bbox = DRect(0.0, 0.0, 2 * r, 2 * r);
 	}
 
-	setFixedNodes(G,fixedNodes,positions,r);
+	setFixedNodes(G, fixedNodes, positions, r);
 
-	doCall(AG,fixedNodes,positions);
+	doCall(AG, fixedNodes, positions);
 
 	m_bbox = oldBBox;
 }
-
-
 
 // does the actual computation. fixedNodes and fixedPositions
 // contain the nodes with fixed positions.
-bool TutteLayout::doCall(
-	GraphAttributes &AG,
-	const List<node> &fixedNodes,
-	List<DPoint> &fixedPositions)
-{
-	const Graph &G = AG.constGraph();
+bool TutteLayout::doCall(GraphAttributes& AG, const List<node>& fixedNodes,
+		List<DPoint>& fixedPositions) {
+	const Graph& G = AG.constGraph();
 
 	OGDF_ASSERT(isTriconnected(G));
 
@@ -274,8 +242,8 @@ bool TutteLayout::doCall(
 		node v = GC.copy(w);
 		fixed[v] = true;
 
-		DPoint p = fixedPositions.popFrontRet();   // slightly dirty...
-		fixedPositions.pushBack(p);          // ...
+		DPoint p = fixedPositions.popFrontRet(); // slightly dirty...
+		fixedPositions.pushBack(p); // ...
 
 		AGC.x(v) = p.m_x;
 		AGC.y(v) = p.m_y;
@@ -292,28 +260,32 @@ bool TutteLayout::doCall(
 
 	// collect other nodes
 	List<node> otherNodes;
-	for (node v : GC.nodes)
-	if (!fixed[v]) otherNodes.pushBack(v);
+	for (node v : GC.nodes) {
+		if (!fixed[v]) {
+			otherNodes.pushBack(v);
+		}
+	}
 
-	NodeArray<int> ind(GC);       // position of v in otherNodes and A
+	NodeArray<int> ind(GC); // position of v in otherNodes and A
 
 	int i = 0;
-	for (node v : otherNodes)
+	for (node v : otherNodes) {
 		ind[v] = i++;
+	}
 
-	int n = otherNodes.size();           // #other nodes
-	Array<double> coord(n);              // coordinates (first x then y)
-	Array<double> rhs(n);                // right hand side
+	int n = otherNodes.size(); // #other nodes
+	Array<double> coord(n); // coordinates (first x then y)
+	Array<double> rhs(n); // right hand side
 	double oneOverD = 0.0;
 
-	CoinPackedMatrix A(false, 0, 0);       // equations
+	CoinPackedMatrix A(false, 0, 0); // equations
 	A.setDimensions(n, n);
 
 	// initialize non-zero entries in matrix A
 	for (node v : otherNodes) {
-		oneOverD = (double) (1.0 / (v->degree()));
+		oneOverD = (double)(1.0 / (v->degree()));
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode();
 			if (!fixed[w]) {
 				A.modifyCoefficient(ind[v], ind[w], oneOverD);
@@ -325,34 +297,44 @@ bool TutteLayout::doCall(
 	// compute right hand side for x coordinates
 	for (node v : otherNodes) {
 		rhs[ind[v]] = 0;
-		oneOverD = (double) (1.0 / (v->degree()));
+		oneOverD = (double)(1.0 / (v->degree()));
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode();
-			if (fixed[w]) rhs[ind[v]] -= (oneOverD*AGC.x(w));
+			if (fixed[w]) {
+				rhs[ind[v]] -= (oneOverD * AGC.x(w));
+			}
 		}
 	}
 
 	// compute x coordinates
-	if (!(solveLP(n, A, rhs, coord))) return false;
-	for (node v : otherNodes)
+	if (!(solveLP(n, A, rhs, coord))) {
+		return false;
+	}
+	for (node v : otherNodes) {
 		AGC.x(v) = coord[ind[v]];
+	}
 
 	// compute right hand side for y coordinates
 	for (node v : otherNodes) {
 		rhs[ind[v]] = 0;
-		oneOverD = (double) (1.0 / (v->degree()));
+		oneOverD = (double)(1.0 / (v->degree()));
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode();
-			if (fixed[w]) rhs[ind[v]] -= (oneOverD*AGC.y(w));
+			if (fixed[w]) {
+				rhs[ind[v]] -= (oneOverD * AGC.y(w));
+			}
 		}
 	}
 
 	// compute y coordinates
-	if (!(solveLP(n, A, rhs, coord))) return false;
-	for (node v : otherNodes)
+	if (!(solveLP(n, A, rhs, coord))) {
+		return false;
+	}
+	for (node v : otherNodes) {
 		AGC.y(v) = coord[ind[v]];
+	}
 
 	// translate coordinates, such that the center lies in
 	// the center of the bounding box

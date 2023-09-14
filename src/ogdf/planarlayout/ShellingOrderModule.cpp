@@ -34,25 +34,18 @@
 namespace ogdf {
 
 
-void ShellingOrderModule::call(const Graph &G,
-	ShellingOrder &order,
-	adjEntry adj)
-{
+void ShellingOrderModule::call(const Graph& G, ShellingOrder& order, adjEntry adj) {
 	List<ShellingOrderSet> partition;
-	doCall(G,adj,partition);
+	doCall(G, adj, partition);
 
-	order.init(G,partition);
+	order.init(G, partition);
 }
 
-
-void ShellingOrderModule::callLeftmost(const Graph &G,
-	ShellingOrder &order,
-	adjEntry adj)
-{
+void ShellingOrderModule::callLeftmost(const Graph& G, ShellingOrder& order, adjEntry adj) {
 	List<ShellingOrderSet> partition;
-	doCall(G,adj,partition);
+	doCall(G, adj, partition);
 
-	order.initLeftmost(G,partition);
+	order.initLeftmost(G, partition);
 }
 
 }

@@ -38,107 +38,101 @@
 #include <ogdf/orthogonal/EdgeRouter.h>
 #include <ogdf/uml/UMLGraph.h>
 
-
 namespace ogdf {
 
 //descent the hierarchy tree at "sink" v recursively
-bool dfsGenTreeRec(
-	UMLGraph& UG,
-	EdgeArray<bool> &used,
-	NodeArray<int> &hierNumber, //number of hierarchy tree
-	// A node is visited if its hierNumber != 0
-	int hierNum,
-	node v,
-	List<edge>& fakedGens, //temporary
-	bool fakeTree)
-{
+bool dfsGenTreeRec(UMLGraph& UG, EdgeArray<bool>& used,
+		NodeArray<int>& hierNumber, //number of hierarchy tree
+		// A node is visited if its hierNumber != 0
+		int hierNum, node v,
+		List<edge>& fakedGens, //temporary
+		bool fakeTree) {
 	OGDF_ASSERT(hierNumber[v] == 0);
 	hierNumber[v] = hierNum;
 
 	bool returnValue = true;
 
-	for(adjEntry adj : v->adjEntries) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if (e->source() == v) continue;
-		if (!(UG.type(e) == Graph::EdgeType::generalization)) continue;
-		if (used[e]) continue; //error ??
+		if (e->source() == v) {
+			continue;
+		}
+		if (!(UG.type(e) == Graph::EdgeType::generalization)) {
+			continue;
+		}
+		if (used[e]) {
+			continue; //error ??
+		}
 		used[e] = true;
 
 		node w = e->opposite(v);
 
 		if (hierNumber[w]) {
 			//temporarily fake trees
-#if 0
-			if (hierNumber[w] == hierNum) //forward search edge
-#endif
-			if (fakeTree)
-			{
+			// if (hierNumber[w] == hierNum) //forward search edge
+			if (fakeTree) {
 #if 0
 				UG.type(e) = Graph::association;
 #endif
 				fakedGens.pushBack(e);
 				continue;
+			} else {
+				return false; //reached w over unused edge => no tree
 			}
-			else return false;//reached w over unused edge => no tree
 		}
 
 		returnValue = dfsGenTreeRec(UG, used, hierNumber, hierNum, w, fakedGens, fakeTree);
 		//shortcut
-		if (!returnValue) return false;
+		if (!returnValue) {
+			return false;
+		}
 	}
 
 	return returnValue;
 }
 
-edge firstOutGen(UMLGraph& UG, node v, EdgeArray<bool>& /* used */)
-{
-	for(adjEntry adj : v->adjEntries) {
+edge firstOutGen(UMLGraph& UG, node v, EdgeArray<bool>& /* used */) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if (e->target() == v) continue;
-		if (UG.type(e) == Graph::EdgeType::generalization)
-		{
+		if (e->target() == v) {
+			continue;
+		}
+		if (UG.type(e) == Graph::EdgeType::generalization) {
 #if 0
 			OGDF_ASSERT(!used[e]);
 #endif
 			return e;
+		} else {
+			continue;
 		}
-		else continue;
 	}
 	return nullptr;
 }
 
-bool dfsGenTree(
-	UMLGraph& UG,
-	List<edge>& fakedGens,
-	bool fakeTree)
-{
+bool dfsGenTree(UMLGraph& UG, List<edge>& fakedGens, bool fakeTree) {
 	EdgeArray<bool> used(UG.constGraph(), false);
 #if 0
 	NodeArray<bool> visited(UG,false);
 #endif
-	NodeArray<int>  hierNumber(UG.constGraph(), 0);
+	NodeArray<int> hierNumber(UG.constGraph(), 0);
 
 	int hierNum = 0; //number of hierarchy tree
 
 	const Graph& G = UG.constGraph();
-	for(edge e : G.edges)
-	{
+	for (edge e : G.edges) {
 		//descent in the hierarchy containing e
-		if (!used[e] && UG.type(e) == Graph::EdgeType::generalization)
-		{
+		if (!used[e] && UG.type(e) == Graph::EdgeType::generalization) {
 			hierNum++; //current hierarchy tree
 			//first we search for the sink
 			node sink = e->target();
 			edge sinkPath = firstOutGen(UG, e->target(), used);
 			int cycleCounter = 0;
-			while (sinkPath)
-			{
+			while (sinkPath) {
 				sink = sinkPath->target();
 				sinkPath = firstOutGen(UG, sinkPath->target(), used);
 				cycleCounter++;
 				//if there is no sink, convert Generalizations to Associations and draw
-				if (cycleCounter > G.numberOfEdges())
-				{
+				if (cycleCounter > G.numberOfEdges()) {
 					UG.type(sinkPath) = Graph::EdgeType::association;
 					fakedGens.pushBack(sinkPath);
 					sink = sinkPath->source();
@@ -150,9 +144,10 @@ bool dfsGenTree(
 
 			//used is set in dfsGenTreeRec
 			bool isTree = dfsGenTreeRec(UG, used, hierNumber, hierNum, sink, fakedGens, fakeTree);
-			if (!isTree) return false;
+			if (!isTree) {
+				return false;
+			}
 		}
-
 	}
 
 	return true;

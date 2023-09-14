@@ -31,10 +31,9 @@
 
 #pragma once
 
-#include <ogdf/decomposition/Skeleton.h>
-#include <ogdf/decomposition/PertinentGraph.h>
 #include <ogdf/basic/SList.h>
-
+#include <ogdf/decomposition/PertinentGraph.h>
+#include <ogdf/decomposition/Skeleton.h>
 
 namespace ogdf {
 
@@ -68,8 +67,7 @@ namespace ogdf {
  * reference edge of the skeleton \a S of a non-root node \a v is the virtual
  * edge in \a S that corresponds to the tree edge (parent(\a v),\a v).
  */
-class OGDF_EXPORT SPQRTree
-{
+class OGDF_EXPORT SPQRTree {
 public:
 	//! The type of a tree node in T.
 	enum class NodeType { SNode, PNode, RNode };
@@ -82,72 +80,77 @@ public:
 	//! @{
 
 	//! Returns a reference to the original graph \a G.
-	virtual const Graph &originalGraph() const=0;
+	virtual const Graph& originalGraph() const = 0;
 
 	//! Returns a reference to the tree \a T.
-	virtual const Graph &tree() const=0;
+	virtual const Graph& tree() const = 0;
 
 	//! Returns the edge of \a G at which \a T is rooted.
-	virtual edge rootEdge() const=0;
+	virtual edge rootEdge() const = 0;
 
 	//! Returns the root node of \a T.
-	virtual node rootNode() const=0;
+	virtual node rootNode() const = 0;
 
 	//! Returns the number of S-nodes in \a T.
-	virtual int numberOfSNodes() const=0;
+	virtual int numberOfSNodes() const = 0;
 
 	//! Returns the number of P-nodes in \a T.
-	virtual int numberOfPNodes() const=0;
+	virtual int numberOfPNodes() const = 0;
 
 	//! Returns the number of R-nodes in \a T.
-	virtual int numberOfRNodes() const=0;
+	virtual int numberOfRNodes() const = 0;
 
 	/**
 	 * \brief Returns the type of node \p v.
 	 * \pre \p v is a node in \a T
 	 */
-	virtual NodeType typeOf(node v) const=0;
+	virtual NodeType typeOf(node v) const = 0;
 
 	//! Returns the list of all nodes with type \p t.
-	virtual List<node> nodesOfType(NodeType t) const=0;
+	virtual List<node> nodesOfType(NodeType t) const = 0;
 
 	/**
 	 * \brief Returns the skeleton of node \p v.
 	 * \pre \p v is a node in \a T
 	 */
-	virtual Skeleton &skeleton(node v) const=0;
+	virtual Skeleton& skeleton(node v) const = 0;
 
 	/**
 	 * \brief Returns the skeleton that contains the real edge \p e.
 	 * \pre \p e is an edge in \a G
 	 */
-	virtual const Skeleton &skeletonOfReal(edge e) const=0;
+	virtual const Skeleton& skeletonOfReal(edge e) const = 0;
 
 	/**
 	 * \brief Returns the skeleton edge that corresponds to the real edge \p e.
 	 * \pre \p e is an edge in \a G
 	 */
-	virtual edge copyOfReal(edge e) const=0;
+	virtual edge copyOfReal(edge e) const = 0;
 
 	/**
 	 * \brief Returns the pertinent graph of tree node \p v in \p Gp.
 	 * \pre \p v is a node in \a T
 	 */
-	void pertinentGraph(node v, PertinentGraph &Gp) const
-	{
-		if (m_cpV == nullptr) m_cpV = new NodeArray<node>(originalGraph(),nullptr);
-		NodeArray<node> &cpV = *m_cpV;
+	void pertinentGraph(node v, PertinentGraph& Gp) const {
+		if (m_cpV == nullptr) {
+			m_cpV = new NodeArray<node>(originalGraph(), nullptr);
+		}
+		NodeArray<node>& cpV = *m_cpV;
 
 		Gp.init(v);
-		cpRec(v,Gp);
+		cpRec(v, Gp);
 
-		const Skeleton &S = skeleton(v);
+		const Skeleton& S = skeleton(v);
 
 		edge e = Gp.m_skRefEdge = S.referenceEdge();
-		if (e != nullptr) e = Gp.m_P.newEdge(cpV[S.original(e->source())],cpV[S.original(e->target())]);
+		if (e != nullptr) {
+			e = Gp.m_P.newEdge(cpV[S.original(e->source())], cpV[S.original(e->target())]);
+		}
 		Gp.m_vEdge = e;
 
-		while (!m_cpVAdded.empty()) cpV[m_cpVAdded.popFrontRet()] = nullptr;
+		while (!m_cpVAdded.empty()) {
+			cpV[m_cpVAdded.popFrontRet()] = nullptr;
+		}
 	}
 
 	//! @}
@@ -158,51 +161,47 @@ public:
 	 * \brief Roots \a T at edge \p e and returns the new root node of \a T.
 	 * \pre \p e is an edge in \a G
 	 */
-	virtual node rootTreeAt(edge e) =0;
+	virtual node rootTreeAt(edge e) = 0;
 
 	/**
 	 * \brief Roots \a T at node \p v and returns \p v.
 	 * \pre \p v is a node in \a T
 	 */
-	virtual node rootTreeAt(node v) =0;
+	virtual node rootTreeAt(node v) = 0;
 
-
-	void directSkEdge(node vT, edge e, node src)
-	{
+	void directSkEdge(node vT, edge e, node src) {
 		OGDF_ASSERT(e != nullptr);
 		OGDF_ASSERT(src == e->source() || src == e->target());
 
-		if(e->source() != src) skeleton(vT).getGraph().reverseEdge(e);
+		if (e->source() != src) {
+			skeleton(vT).getGraph().reverseEdge(e);
+		}
 	}
 
-	void replaceSkEdgeByPeak(node vT, edge e)
-	{
-		Graph &M = skeleton(vT).getGraph();
+	void replaceSkEdgeByPeak(node vT, edge e) {
+		Graph& M = skeleton(vT).getGraph();
 		M.reverseEdge(M.split(e));
 	}
 
 	// !@}
 
 protected:
-
 	/**
 	 * \brief Recursively performs the task of adding edges (and nodes)
 	 * to the pertinent graph \p Gp for each involved skeleton graph.
 	 */
-	virtual void cpRec(node v, PertinentGraph &Gp) const=0;
+	virtual void cpRec(node v, PertinentGraph& Gp) const = 0;
 
 	//! Add an edge to \p Gp corresponding to \p eOrig.
-	edge cpAddEdge(edge eOrig, PertinentGraph &Gp) const
-	{
-		edge eP = Gp.m_P.newEdge(cpAddNode(eOrig->source(),Gp),cpAddNode(eOrig->target(),Gp));
+	edge cpAddEdge(edge eOrig, PertinentGraph& Gp) const {
+		edge eP = Gp.m_P.newEdge(cpAddNode(eOrig->source(), Gp), cpAddNode(eOrig->target(), Gp));
 		Gp.m_origE[eP] = eOrig;
 		return eP;
 	}
 
 	//! Add a node to \p Gp corresponding to \p vOrig if required.
-	node cpAddNode(node vOrig, PertinentGraph &Gp) const
-	{
-		node &vP = (*m_cpV)[vOrig];
+	node cpAddNode(node vOrig, PertinentGraph& Gp) const {
+		node& vP = (*m_cpV)[vOrig];
 		if (vP == nullptr) {
 			m_cpVAdded.pushBack(vOrig);
 			Gp.m_origV[vP = Gp.m_P.newNode()] = vOrig;
@@ -211,8 +210,8 @@ protected:
 	}
 
 	// auxiliary members used for computing pertinent graphs
-	mutable NodeArray<node> *m_cpV;       //!< node in pertinent graph corresponding to an original node (auxiliary member)
-	mutable SList<node>      m_cpVAdded;  //!< list of added nodes (auxiliary member)
+	mutable NodeArray<node>* m_cpV; //!< node in pertinent graph corresponding to an original node (auxiliary member)
+	mutable SList<node> m_cpVAdded; //!< list of added nodes (auxiliary member)
 };
 
 }

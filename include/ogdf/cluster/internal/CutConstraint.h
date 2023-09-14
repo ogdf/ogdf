@@ -46,21 +46,23 @@ namespace cluster_planarity {
 
 class CutConstraint : public BaseConstraint {
 public:
-	CutConstraint(abacus::Master *master, abacus::Sub *sub, List<NodePair> &edges);
+	CutConstraint(abacus::Master* master, abacus::Sub* sub, List<NodePair>& edges);
 
 	virtual ~CutConstraint();
 
 	// Computes and returns the coefficient for the given variable
-	virtual double coeff(const abacus::Variable *v) const override {
-		const EdgeVar *ev = static_cast<const EdgeVar *>(v);
+	virtual double coeff(const abacus::Variable* v) const override {
+		const EdgeVar* ev = static_cast<const EdgeVar*>(v);
 		return static_cast<double>(coeff(ev->sourceNode(), ev->targetNode()));
 	}
-	inline int coeff(const NodePair& n) const override { return coeff(n.source,n.target); }
+
+	inline int coeff(const NodePair& n) const override { return coeff(n.source, n.target); }
+
 	int coeff(node n1, node n2) const;
 
 	void printMe(std::ostream& out) const {
 		out << "[CutCon: ";
-		for(const NodePair &p : m_cutEdges) {
+		for (const NodePair& p : m_cutEdges) {
 			out << p << ",";
 		}
 		out << "]";
@@ -69,7 +71,6 @@ public:
 private:
 	// The list containing the node pairs corresponding to the cut edges
 	List<NodePair> m_cutEdges;
-
 };
 
 }

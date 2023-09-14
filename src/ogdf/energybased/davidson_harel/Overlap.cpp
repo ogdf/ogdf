@@ -35,23 +35,22 @@
 namespace ogdf {
 namespace davidson_harel {
 
-Overlap::Overlap(GraphAttributes &AG) : NodePairEnergy("Overlap",AG){}
+Overlap::Overlap(GraphAttributes& AG) : NodePairEnergy("Overlap", AG) { }
 
-double Overlap::computeCoordEnergy(node v1, node v2, const DPoint &p1, const DPoint &p2)
-	const
-{
+double Overlap::computeCoordEnergy(node v1, node v2, const DPoint& p1, const DPoint& p2) const {
 	DIntersectableRect i1(shape(v1)), i2(shape(v2));
 	i1.move(p1);
 	i2.move(p2);
 	DIntersectableRect intersection = i1.intersection(i2);
 	double area = intersection.area();
-	if(area < 0.0) {
+	if (area < 0.0) {
 		OGDF_ASSERT(area > -0.00001);
 		area = 0.0;
 	}
-	double minArea = min(i1.area(),i2.area());
+	double minArea = min(i1.area(), i2.area());
 	double energy = area / minArea;
 	return energy;
 }
 
-}}
+}
+}

@@ -30,48 +30,43 @@
  */
 
 
-
-#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
-#include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
-#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
+#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
 
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
-#include <sstream>
+#	include <sstream>
 #endif
 
 
 namespace ogdf {
 
-ModularMultilevelMixer::ModularMultilevelMixer()
-{
+ModularMultilevelMixer::ModularMultilevelMixer() {
 	// options
-	m_times              = 1;
-	m_fixedEdgeLength    = -1.0f;
-	m_fixedNodeSize      = -1.0f;
-	m_coarseningRatio    = 1.0;
-	m_levelBound         = false;
-	m_randomize          = false;
+	m_times = 1;
+	m_fixedEdgeLength = -1.0f;
+	m_fixedNodeSize = -1.0f;
+	m_coarseningRatio = 1.0;
+	m_levelBound = false;
+	m_randomize = false;
 
 	// module options
 	setMultilevelBuilder(new SolarMerger);
-	setInitialPlacer    (new BarycenterPlacer);
+	setInitialPlacer(new BarycenterPlacer);
 	setLevelLayoutModule(new SpringEmbedderGridVariant);
 }
 
-
-void ModularMultilevelMixer::call(GraphAttributes &GA)
-{   //ensure consistent behaviour of the two call Methods
+void ModularMultilevelMixer::call(
+		GraphAttributes& GA) { //ensure consistent behaviour of the two call Methods
 	MultilevelGraph MLG(GA);
 	call(MLG);
 	MLG.exportAttributes(GA);
 }
 
-
-void ModularMultilevelMixer::call(MultilevelGraph &MLG)
-{
-	const Graph &G = MLG.getGraph();
+void ModularMultilevelMixer::call(MultilevelGraph& MLG) {
+	const Graph& G = MLG.getGraph();
 
 	m_errorCode = erc::None;
 	if ((!m_multilevelBuilder || !m_initialPlacement) && !m_oneLevelLayoutModule) {
@@ -79,43 +74,39 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 	}
 
 	if (m_fixedEdgeLength > 0.0) {
-		for(edge e : G.edges) {
+		for (edge e : G.edges) {
 			MLG.weight(e, m_fixedEdgeLength);
 		}
 	}
 
 	if (m_fixedNodeSize > 0.0) {
-		for(node v : G.nodes) {
+		for (node v : G.nodes) {
 			MLG.radius(v, m_fixedNodeSize);
 		}
 	}
 
-	if (m_multilevelBuilder && m_initialPlacement)
-	{
-		double lbound = 16.0 * log(double(G.numberOfNodes()))/log(2.0);
+	if (m_multilevelBuilder && m_initialPlacement) {
+		double lbound = 16.0 * log(double(G.numberOfNodes())) / log(2.0);
 		m_multilevelBuilder->buildAllLevels(MLG);
 
 		//Part for experiments: Stop if number of levels too high
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
 		int nlevels = m_multilevelBuilder->getNumLevels();
 #endif
-		if (m_levelBound
-		 && m_multilevelBuilder->getNumLevels() > lbound) {
+		if (m_levelBound && m_multilevelBuilder->getNumLevels() > lbound) {
 			m_errorCode = erc::LevelBound;
 			return;
 		}
-		if (m_randomize)
-		{
-			for(node v : G.nodes) {
+		if (m_randomize) {
+			for (node v : G.nodes) {
 				MLG.x(v, (float)randomDouble(-1.0, 1.0));
 				MLG.y(v, (float)randomDouble(-1.0, 1.0));
 			}
 		}
 
-		while(MLG.getLevel() > 0)
-		{
+		while (MLG.getLevel() > 0) {
 			if (m_oneLevelLayoutModule) {
-				for(int i = 1; i <= m_times; i++) {
+				for (int i = 1; i <= m_times; i++) {
 					m_oneLevelLayoutModule->call(MLG.getGraphAttributes());
 				}
 			}
@@ -148,15 +139,14 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 
 	//Final level
 
-	if(m_finalLayoutModule ||  m_oneLevelLayoutModule)
-	{
-		LayoutModule &lastLayoutModule = *(m_finalLayoutModule ? m_finalLayoutModule : m_oneLevelLayoutModule);
+	if (m_finalLayoutModule || m_oneLevelLayoutModule) {
+		LayoutModule& lastLayoutModule =
+				*(m_finalLayoutModule ? m_finalLayoutModule : m_oneLevelLayoutModule);
 
-		for(int i = 1; i <= m_times; i++) {
+		for (int i = 1; i <= m_times; i++) {
 			lastLayoutModule.call(MLG.getGraphAttributes());
 		}
 	}
-
 }
 
 }

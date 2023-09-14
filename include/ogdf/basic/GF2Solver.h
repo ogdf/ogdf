@@ -33,13 +33,12 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <iomanip>
 
+#include <iomanip>
 
 namespace ogdf {
 
 class GF2Solver {
-
 	static constexpr int chunkSize = 13;
 	static constexpr int chunkSize2 = 9;
 
@@ -49,9 +48,7 @@ class GF2Solver {
 		int m_max;
 		Next* m_next;
 
-		bool full() const {
-			return m_max == Dim - 1;
-		}
+		bool full() const { return m_max == Dim - 1; }
 
 		ChunkBase() {
 			m_max = -1;
@@ -65,11 +62,9 @@ class GF2Solver {
 	};
 
 	struct Chunk : public ChunkBase<chunkSize, Chunk> {
-		Chunk() : ChunkBase<chunkSize, Chunk>() {}
+		Chunk() : ChunkBase<chunkSize, Chunk>() { }
 
-		void add(int x) {
-			m_x[++m_max] = x;
-		}
+		void add(int x) { m_x[++m_max] = x; }
 
 		OGDF_NEW_DELETE
 	};
@@ -81,7 +76,7 @@ class GF2Solver {
 
 		void add(int x, ListIterator<int> it) {
 			++m_max;
-			m_x [m_max] = x;
+			m_x[m_max] = x;
 			m_it[m_max] = it;
 		}
 
@@ -109,25 +104,23 @@ class GF2Solver {
 #endif
 
 	struct Row2 {
-		Chunk2 *m_pHead;
-		Chunk2 *m_pTail;
+		Chunk2* m_pHead;
+		Chunk2* m_pTail;
 
-		Row2() {
-			m_pHead = m_pTail = nullptr;
-		}
+		Row2() { m_pHead = m_pTail = nullptr; }
 
-		void addChunk(Chunk2 *p) {
-			if(m_pHead == nullptr)
+		void addChunk(Chunk2* p) {
+			if (m_pHead == nullptr) {
 				m_pHead = m_pTail = p;
-			else {
+			} else {
 				m_pTail->m_next = p;
 				m_pTail = p;
 			}
 		}
 	};
 
-	Chunk *m_freelist;
-	Chunk2 *m_freelist2;
+	Chunk* m_freelist;
+	Chunk2* m_freelist2;
 
 #if 0
 	Chunk *getChunk() {
@@ -142,9 +135,9 @@ class GF2Solver {
 	}
 #endif
 
-	Chunk2 *getChunk2() {
-		if(m_freelist2 != nullptr) {
-			Chunk2 *p = m_freelist2;
+	Chunk2* getChunk2() {
+		if (m_freelist2 != nullptr) {
+			Chunk2* p = m_freelist2;
 			m_freelist2 = p->m_next;
 			p->m_next = nullptr;
 			p->m_max = -1;
@@ -160,7 +153,7 @@ class GF2Solver {
 	}
 #endif
 
-	void freeChunk2(Chunk2 *p) {
+	void freeChunk2(Chunk2* p) {
 		p->m_next = m_freelist2;
 		m_freelist2 = p;
 	}
@@ -172,7 +165,7 @@ class GF2Solver {
 	}
 #endif
 
-	void freeChunks2(Chunk2 *pHead, Chunk2 *pTail) {
+	void freeChunks2(Chunk2* pHead, Chunk2* pTail) {
 		pTail->m_next = m_freelist2;
 		m_freelist2 = pHead;
 	}
@@ -182,22 +175,19 @@ class GF2Solver {
 
 	void symDiff(Row &r, const Row &other);
 #endif
-	void symDiff2(int r1, int r2, Array<Row2> &rows, Array<List<int>> &cols);
+	void symDiff2(int r1, int r2, Array<Row2>& rows, Array<List<int>>& cols);
 
 public:
-
 	class Equation {
-
 		List<int> m_objects;
 
 	public:
 		Equation() { }
 
-		void print() {
-			std::cout << m_objects << std::endl;
-		}
+		void print() { std::cout << m_objects << std::endl; }
 
 		ListConstIterator<int> begin() const { return m_objects.begin(); }
+
 		ListConstIterator<int> end() const { return m_objects.end(); }
 
 #if 0
@@ -212,19 +202,20 @@ public:
 		}
 #endif
 
-		int size() const {
-			return m_objects.size();
-		}
+		int size() const { return m_objects.size(); }
 
-		Equation &operator|=(int obj) {
+		Equation& operator|=(int obj) {
 			ListIterator<int> it = m_objects.begin();
-			while(it.valid() && *it < obj)
+			while (it.valid() && *it < obj) {
 				++it;
-			if(it.valid()) {
-				if(*it != obj)
-					m_objects.insertBefore(obj,it);
-			} else
+			}
+			if (it.valid()) {
+				if (*it != obj) {
+					m_objects.insertBefore(obj, it);
+				}
+			} else {
 				m_objects.pushBack(obj);
+			}
 
 			return *this;
 		}
@@ -262,7 +253,6 @@ public:
 	};
 
 	class Matrix {
-
 		Array<Equation*> m_equations;
 		int m_numRows;
 		int m_numCols;
@@ -271,61 +261,58 @@ public:
 		Matrix() : m_equations(0, 255, nullptr), m_numRows(0), m_numCols(0) { }
 
 		~Matrix() {
-			for(int i = 0; i < m_numRows; ++i)
+			for (int i = 0; i < m_numRows; ++i) {
 				delete m_equations[i];
+			}
 		}
 
-		Equation &operator[](int i) {
+		Equation& operator[](int i) {
 			OGDF_ASSERT(i >= 0);
 			OGDF_ASSERT(i < m_numRows);
 			return *m_equations[i];
 		}
 
-		const Equation &operator[](int i) const {
+		const Equation& operator[](int i) const {
 			OGDF_ASSERT(i >= 0);
 			OGDF_ASSERT(i < m_numRows);
 			return *m_equations[i];
 		}
 
 		int numRows() const { return m_numRows; }
+
 		int numColumns() const { return m_numCols; }
 
 		int addRow() {
 			int i = m_numRows++;
-			if(i == m_equations.size())
+			if (i == m_equations.size()) {
 				m_equations.grow(m_equations.size(), nullptr);
+			}
 			m_equations[i] = new Equation;
 
 			return i;
 		}
 
-		int addColumn() {
-			return m_numCols++;
-		}
+		int addColumn() { return m_numCols++; }
 
 		void clear() {
-			for(int i = 0; i < m_numRows; ++i)
+			for (int i = 0; i < m_numRows; ++i) {
 				delete m_equations[i];
+			}
 
 			m_equations.init(0, 255, nullptr);
 			m_numRows = m_numCols = 0;
 		}
 
 		void print() const {
-			for(int i = 0; i < m_numRows; ++i) {
+			for (int i = 0; i < m_numRows; ++i) {
 				std::cout << std::setw(4) << i << ": ";
 				m_equations[i]->print();
 			}
 		}
 	};
 
-
-	explicit GF2Solver(GF2Solver::Matrix &Mx)
-	  : m_freelist(nullptr)
-	  , m_freelist2(nullptr)
-	  , m_matrix(Mx)
-	{
-	}
+	explicit GF2Solver(GF2Solver::Matrix& Mx)
+		: m_freelist(nullptr), m_freelist2(nullptr), m_matrix(Mx) { }
 
 	~GF2Solver();
 
@@ -334,7 +321,7 @@ public:
 
 
 private:
-	Matrix &m_matrix;
+	Matrix& m_matrix;
 };
 
 }

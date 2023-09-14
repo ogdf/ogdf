@@ -30,53 +30,40 @@
  */
 
 
-#include <ogdf/planarlayout/MixedModelLayout.h>
 #include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
-#include <ogdf/planarlayout/BiconnectedShellingOrder.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
-
+#include <ogdf/planarlayout/BiconnectedShellingOrder.h>
+#include <ogdf/planarlayout/MixedModelLayout.h>
 #include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>
-
 
 namespace ogdf {
 
 
-void MMOrder::init(
-	PlanRep &PG,
-	ShellingOrderModule &compOrder,
-	adjEntry adjExternal)
-{
+void MMOrder::init(PlanRep& PG, ShellingOrderModule& compOrder, adjEntry adjExternal) {
 	compOrder.callLeftmost(PG, m_lmc, adjExternal);
-	m_left .init(1,m_lmc.length());
-	m_right.init(1,m_lmc.length());
+	m_left.init(1, m_lmc.length());
+	m_right.init(1, m_lmc.length());
 }
 
-
-MixedModelLayout::MixedModelLayout()
-{
+MixedModelLayout::MixedModelLayout() {
 	m_augmenter.reset(new PlanarAugmentation);
 	m_compOrder.reset(new BiconnectedShellingOrder);
 	m_crossingsBeautifier.reset(new MMDummyCrossingsBeautifier);
 	m_embedder.reset(new SimpleEmbedder);
 }
 
+void MixedModelLayout::doCall(PlanRep& PG, adjEntry adjExternal, GridLayout& gridLayout,
+		IPoint& boundingBox, bool fixEmbedding) {
+	MixedModelBase mm(PG, gridLayout);
 
-void MixedModelLayout::doCall(
-	PlanRep &PG,
-	adjEntry adjExternal,
-	GridLayout &gridLayout,
-	IPoint &boundingBox,
-	bool fixEmbedding)
-{
-	MixedModelBase mm(PG,gridLayout);
-
-	if(fixEmbedding) {
+	if (fixEmbedding) {
 		OGDF_ASSERT(PG.representsCombEmbedding());
 		PlanarAugmentationFix fixAugmenter;
 		mm.computeOrder(fixAugmenter, nullptr, adjExternal, *m_compOrder);
-	} else
-		mm.computeOrder(*m_augmenter,m_embedder.get(),nullptr,*m_compOrder);
+	} else {
+		mm.computeOrder(*m_augmenter, m_embedder.get(), nullptr, *m_compOrder);
+	}
 
 	mm.assignIopCoords();
 	mm.placeNodes();
@@ -84,10 +71,10 @@ void MixedModelLayout::doCall(
 	mm.setBends();
 	mm.postprocessing2();
 
-	m_crossingsBeautifier->call(PG,gridLayout);
+	m_crossingsBeautifier->call(PG, gridLayout);
 
 	int xmin, ymin;
-	gridLayout.computeBoundingBox(xmin,boundingBox.m_x,ymin,boundingBox.m_y);
+	gridLayout.computeBoundingBox(xmin, boundingBox.m_x, ymin, boundingBox.m_y);
 }
 
 }

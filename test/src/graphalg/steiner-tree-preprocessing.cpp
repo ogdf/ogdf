@@ -29,21 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string>
-#include <sstream>
-
-#include <ogdf/graphalg/SteinerTreePreprocessing.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
+#include <ogdf/graphalg/SteinerTreePreprocessing.h>
+
+#include <sstream>
+#include <string>
 
 #include <testing.h>
 
 using namespace std;
 
 template<typename T>
-static void
-putRandomTerminals(const EdgeWeightedGraph<T> &wg, List<node> &terminals, NodeArray<bool> &isTerminal, int numberOfTerminals)
-{
+static void putRandomTerminals(const EdgeWeightedGraph<T>& wg, List<node>& terminals,
+		NodeArray<bool>& isTerminal, int numberOfTerminals) {
 	isTerminal.init(wg, false);
 
 	Array<node> nodes(wg.numberOfNodes());
@@ -59,27 +58,24 @@ putRandomTerminals(const EdgeWeightedGraph<T> &wg, List<node> &terminals, NodeAr
 }
 
 template<typename T>
-static void
-putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::is_integral<T>::value >::type* = nullptr)
-{
+static void putRandomCosts(EdgeWeightedGraph<T>& wg, T x, T y,
+		typename std::enable_if<std::is_integral<T>::value>::type* = nullptr) {
 	for (edge e : wg.edges) {
 		wg.setWeight(e, randomNumber(x, y));
 	}
 }
 
 template<typename T>
-static void
-putRandomCosts(EdgeWeightedGraph<T> &wg, T x, T y, typename std::enable_if<std::is_floating_point<T>::value >::type* = nullptr)
-{
+static void putRandomCosts(EdgeWeightedGraph<T>& wg, T x, T y,
+		typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr) {
 	for (edge e : wg.edges) {
 		wg.setWeight(e, randomDouble(x, y));
 	}
 }
 
 template<typename T>
-static void
-randomEdgeWeightedGraph(int numberOfnodes, int numberOfedges, int numberOfTerminals, T maxEdgeCost, EdgeWeightedGraph<T> &wg, List<node> &terminals, NodeArray<bool> &isTerminal)
-{
+static void randomEdgeWeightedGraph(int numberOfnodes, int numberOfedges, int numberOfTerminals,
+		T maxEdgeCost, EdgeWeightedGraph<T>& wg, List<node>& terminals, NodeArray<bool>& isTerminal) {
 	randomGraph(wg, numberOfnodes, numberOfedges);
 	makeConnected(wg);
 	putRandomTerminals<T>(wg, terminals, isTerminal, numberOfTerminals);
@@ -87,9 +83,7 @@ randomEdgeWeightedGraph(int numberOfnodes, int numberOfedges, int numberOfTermin
 }
 
 template<typename T>
-static T
-getCostOfSolution(const EdgeWeightedGraphCopy<T> &wg)
-{
+static T getCostOfSolution(const EdgeWeightedGraphCopy<T>& wg) {
 	T cost = 0;
 	for (edge e : wg.edges) {
 		cost += wg.weight(e);
@@ -99,11 +93,9 @@ getCostOfSolution(const EdgeWeightedGraphCopy<T> &wg)
 }
 
 template<typename T, typename Fun>
-static void
-testReduction(Fun reductionFun)
-{
+static void testReduction(Fun reductionFun) {
 	int numberOfNodes = randomNumber(50, 120);
-	int numberOfEdges = randomNumber(numberOfNodes-1, 3*numberOfNodes);
+	int numberOfEdges = randomNumber(numberOfNodes - 1, 3 * numberOfNodes);
 	int numberOfTerminals = randomNumber(1, numberOfNodes);
 	T maxEdgeCost = randomNumber(3, 1000000);
 	MinSteinerTreeDirectedCut<T> mst;
@@ -111,21 +103,23 @@ testReduction(Fun reductionFun)
 	EdgeWeightedGraph<T> wg;
 	List<node> terminals;
 	NodeArray<bool> isTerminal;
-	randomEdgeWeightedGraph<T>(numberOfNodes, numberOfEdges, numberOfTerminals, maxEdgeCost, wg, terminals, isTerminal);
+	randomEdgeWeightedGraph<T>(numberOfNodes, numberOfEdges, numberOfTerminals, maxEdgeCost, wg,
+			terminals, isTerminal);
 
-	EdgeWeightedGraphCopy<T> *treeBefore = nullptr;
+	EdgeWeightedGraphCopy<T>* treeBefore = nullptr;
 	T costBefore = mst.call(wg, terminals, isTerminal, treeBefore);
 
 	SteinerTreePreprocessing<T> stprep(wg, terminals, isTerminal);
 	reductionFun(stprep);
 
-	EdgeWeightedGraphCopy<T> *treeAfter = nullptr;
+	EdgeWeightedGraphCopy<T>* treeAfter = nullptr;
 	T costAfter = stprep.solve(mst, treeAfter);
 
 	EpsilonTest et(1e-6);
 	AssertThat(et.equal(costAfter, costBefore), IsTrue());
 
-	AssertThat(MinSteinerTreeModule<T>::isSteinerTree(wg, terminals, isTerminal, *treeAfter), IsTrue());
+	AssertThat(MinSteinerTreeModule<T>::isSteinerTree(wg, terminals, isTerminal, *treeAfter),
+			IsTrue());
 	AssertThat(et.equal(getCostOfSolution<T>(*treeAfter), costBefore), IsTrue());
 
 	delete treeBefore;
@@ -133,12 +127,10 @@ testReduction(Fun reductionFun)
 }
 
 template<typename T>
-static void
-testBasicReductions(int numberOfTests)
-{
+static void testBasicReductions(int numberOfTests) {
 	for (int i = 1; i <= numberOfTests; ++i) {
 		it("does not change solution cost and finds a solution in the original graph", [&]() {
-			testReduction<T>([](SteinerTreePreprocessing<T> &stp) {
+			testReduction<T>([](SteinerTreePreprocessing<T>& stp) {
 				stp.deleteLeaves();
 				stp.degree2Test();
 				stp.makeSimple();
@@ -149,79 +141,77 @@ testBasicReductions(int numberOfTests)
 }
 
 template<typename T>
-static void
-testPrecomposedReductions(int numberOfTests)
-{
-	std::pair<const string, std::function<void(SteinerTreePreprocessing<T> &)>> reductions[] = {
-		{ "trivial reductions", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.reduceTrivial();
-		}},
-		{ "fast reductions", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.reduceFast();
-		}},
-		{ "fast reductions with dual-ascent-based test", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.reduceFastAndDualAscent();
-		}},
+static void testPrecomposedReductions(int numberOfTests) {
+	std::pair<const string, std::function<void(SteinerTreePreprocessing<T>&)>> reductions[] = {
+			{"trivial reductions",
+					[](SteinerTreePreprocessing<T>& stprep) { stprep.reduceTrivial(); }},
+			{"fast reductions", [](SteinerTreePreprocessing<T>& stprep) { stprep.reduceFast(); }},
+			{"fast reductions with dual-ascent-based test",
+					[](SteinerTreePreprocessing<T>& stprep) { stprep.reduceFastAndDualAscent(); }},
 	};
-	for (const auto &reduction : reductions) {
+	for (const auto& reduction : reductions) {
 		describe(reduction.first, [numberOfTests, &reduction]() {
 			for (int i = 1; i <= numberOfTests; ++i) {
-				it("does not change solution cost and finds a solution in the original graph", [&]() {
-					testReduction<T>(reduction.second);
-				});
+				it("does not change solution cost and finds a solution in the original graph",
+						[&]() { testReduction<T>(reduction.second); });
 			}
 		});
 	}
 }
 
 template<typename T>
-static void
-testWildMixesOfReductions(string typeName, int numberOfTests)
-{
-	std::pair<string, std::function<void(SteinerTreePreprocessing<T> &)>> reductions[] = {
-		{ "nearest-vertex", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.makeSimple();
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.nearestVertexTest();
-		}},
-		{ "shortest-link", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.shortLinksTest();
-		}},
-		{ "PTm", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.PTmTest();
-		}},
-		{ "terminal-distance", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.terminalDistanceTest();
-		}},
-		{ "long-edge", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.longEdgesTest();
-		}},
-		{ "NTDk", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.makeSimple();
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.NTDkTest();
-		}},
-		{ "lower-bound", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.lowerBoundBasedTest();
-		}},
-		{ "dual-ascent", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.dualAscentBasedTest();
-		}},
-		{ "reachability", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.makeSimple();
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.reachabilityTest();
-		}},
-		{ "cut-reachability", [](SteinerTreePreprocessing<T> &stprep) {
-			stprep.deleteLeaves();
-			stprep.deleteComponentsWithoutTerminals();
-			stprep.cutReachabilityTest();
-		}},
+static void testWildMixesOfReductions(string typeName, int numberOfTests) {
+	std::pair<string, std::function<void(SteinerTreePreprocessing<T>&)>> reductions[] = {
+			{"nearest-vertex",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.makeSimple();
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.nearestVertexTest();
+					}},
+			{"shortest-link",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.shortLinksTest();
+					}},
+			{"PTm",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.PTmTest();
+					}},
+			{"terminal-distance",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.terminalDistanceTest();
+					}},
+			{"long-edge", [](SteinerTreePreprocessing<T>& stprep) { stprep.longEdgesTest(); }},
+			{"NTDk",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.makeSimple();
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.NTDkTest();
+					}},
+			{"lower-bound",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.lowerBoundBasedTest();
+					}},
+			{"dual-ascent",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.dualAscentBasedTest();
+					}},
+			{"reachability",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.makeSimple();
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.reachabilityTest();
+					}},
+			{"cut-reachability",
+					[](SteinerTreePreprocessing<T>& stprep) {
+						stprep.deleteLeaves();
+						stprep.deleteComponentsWithoutTerminals();
+						stprep.cutReachabilityTest();
+					}},
 	};
 	auto size = sizeof reductions / sizeof reductions[0];
 	for (auto reductionBitmask = 1; reductionBitmask < (1 << size); ++reductionBitmask) {
@@ -248,7 +238,7 @@ testWildMixesOfReductions(string typeName, int numberOfTests)
 				ss << "does not change solution cost and finds a solution in the original graph (order "
 				   << order << ")";
 				it(ss.str(), [&]() {
-					testReduction<T>([&usedReductions, &reductions](SteinerTreePreprocessing<T> &stp) {
+					testReduction<T>([&usedReductions, &reductions](SteinerTreePreprocessing<T>& stp) {
 						for (auto redIndex : usedReductions) {
 							reductions[redIndex].second(stp);
 						}
@@ -262,18 +252,11 @@ testWildMixesOfReductions(string typeName, int numberOfTests)
 }
 
 template<typename T>
-static void
-registerSuite(const string &typeName)
-{
-	describe("basic reductions (" + typeName + ")", []() {
-		testBasicReductions<T>(15);
-	});
-	describe_skip("mix of all subsets of reductions (" + typeName + ")", [&typeName]() {
-		testWildMixesOfReductions<T>(typeName, 3);
-	});
-	describe("precomposed reductions (" + typeName + ")", []() {
-		testPrecomposedReductions<T>(15);
-	});
+static void registerSuite(const string& typeName) {
+	describe("basic reductions (" + typeName + ")", []() { testBasicReductions<T>(15); });
+	describe_skip("mix of all subsets of reductions (" + typeName + ")",
+			[&typeName]() { testWildMixesOfReductions<T>(typeName, 3); });
+	describe("precomposed reductions (" + typeName + ")", []() { testPrecomposedReductions<T>(15); });
 }
 
 go_bandit([]() {

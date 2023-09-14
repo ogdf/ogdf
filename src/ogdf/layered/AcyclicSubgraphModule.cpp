@@ -34,29 +34,26 @@
 
 namespace ogdf {
 
-void AcyclicSubgraphModule::callAndReverse(Graph &G, List<edge> &reversed)
-{
-	call(G,reversed);
+void AcyclicSubgraphModule::callAndReverse(Graph& G, List<edge>& reversed) {
+	call(G, reversed);
 
-	for(edge e : reversed)
+	for (edge e : reversed) {
 		G.reverseEdge(e);
+	}
 }
 
-
-void AcyclicSubgraphModule::callAndReverse(Graph &G)
-{
+void AcyclicSubgraphModule::callAndReverse(Graph& G) {
 	List<edge> reversed;
-	callAndReverse(G,reversed);
+	callAndReverse(G, reversed);
 }
 
-
-void AcyclicSubgraphModule::callAndDelete(Graph &G)
-{
+void AcyclicSubgraphModule::callAndDelete(Graph& G) {
 	List<edge> arcSet;
-	call(G,arcSet);
+	call(G, arcSet);
 
-	for(edge e : arcSet)
+	for (edge e : arcSet) {
 		G.delEdge(e);
+	}
 }
 
 }

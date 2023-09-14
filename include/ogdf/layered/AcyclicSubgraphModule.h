@@ -56,7 +56,7 @@ public:
 	 * @param G is the input graph.
 	 * @param arcSet is assigned the list of edges that have to be removed in \p G.
 	 */
-	virtual void call(const Graph &G, List<edge> &arcSet) = 0;
+	virtual void call(const Graph& G, List<edge>& arcSet) = 0;
 
 	/**
 	 * \brief Computes the set of edges \p arcSet which have to be removed
@@ -64,9 +64,7 @@ public:
 	 * @param G is the input graph.
 	 * @param arcSet is assigned the list of edges that have to be removed in \p G.
 	 */
-	void operator()(const Graph &G, List<edge> &arcSet) {
-		call(G,arcSet);
-	}
+	void operator()(const Graph& G, List<edge>& arcSet) { call(G, arcSet); }
 
 	/**
 	 * \brief Makes \p G acyclic by reversing edges.
@@ -76,7 +74,7 @@ public:
 	 * @param G is the input graph.
 	 * @param reversed is assigned the list of edges that have been reversed in \p G.
 	 */
-	void callAndReverse(Graph &G, List<edge> &reversed);
+	void callAndReverse(Graph& G, List<edge>& reversed);
 
 	// makes G acyclic (except for self-loops!) by reversing edges
 	/**
@@ -87,7 +85,7 @@ public:
 	 * that does not return the list of reversed edges.
 	 * @param G is the input graph.
 	 */
-	void callAndReverse(Graph &G);
+	void callAndReverse(Graph& G);
 
 	// makes G acyclic by deleting edges
 	/**
@@ -96,7 +94,7 @@ public:
 	 * This method will also remove self-loops in the input graph \p G.
 	 * @param G is the input graph.
 	 */
-	void callAndDelete(Graph &G);
+	void callAndDelete(Graph& G);
 
 	OGDF_MALLOC_NEW_DELETE
 };

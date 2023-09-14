@@ -29,10 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/memory.h>
+
 #include <cmath>
 #include <iostream>
-#include <ogdf/basic/memory.h>
-#include <ogdf/basic/System.h>
+
 #include <testing.h>
 
 template<size_t size>
@@ -50,7 +52,7 @@ class MallocObject {
 };
 
 template<template<size_t> class ObjectOfSize>
-void describeMemoryManager(const std::string &name) {
+void describeMemoryManager(const std::string& name) {
 	describe(name + " allocator", [] {
 		after_each([] {
 			size_t managerAllocated = System::memoryAllocatedByMemoryManager();
@@ -58,12 +60,10 @@ void describeMemoryManager(const std::string &name) {
 			AssertThat(managerAllocated, IsLessThanOrEqualTo(mallocAllocated));
 		});
 
-		it("allocates objects that need exactly 1 byte", [] {
-			delete new ObjectOfSize<1>;
-		});
+		it("allocates objects that need exactly 1 byte", [] { delete new ObjectOfSize<1>; });
 
 		it("does not deallocate nullptr", [] {
-			ObjectOfSize<1> *ptr = nullptr;
+			ObjectOfSize<1>* ptr = nullptr;
 			delete ptr;
 		});
 	});

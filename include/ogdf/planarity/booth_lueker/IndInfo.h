@@ -38,15 +38,19 @@
 namespace ogdf {
 namespace booth_lueker {
 
-class IndInfo
-{
+class IndInfo {
 	friend class EmbedPQTree;
 
 public:
-	explicit IndInfo(node w) { v = w; changeDir = false; }
+	explicit IndInfo(node w) {
+		v = w;
+		changeDir = false;
+	}
+
 	~IndInfo() { }
 
 	void resetAssociatedNode(node w) { v = w; }
+
 	node getAssociatedNode() { return v; }
 
 private:

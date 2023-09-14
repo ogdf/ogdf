@@ -39,33 +39,26 @@
 
 #pragma once
 
-#include <ogdf/hypergraph/Hypergraph.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
+#include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/HypergraphAttributes.h>
 #include <ogdf/hypergraph/HypergraphLayoutModule.h>
-
-#include <ogdf/basic/exceptions.h>
-#include <memory>
-#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/LayoutPlanRepModule.h>
-
 #include <ogdf/planarity/PlanRep.h>
+
+#include <memory>
 
 namespace ogdf {
 
 class OGDF_EXPORT HypergraphLayoutES : public HypergraphLayoutModule {
-
 public:
-
 	//! Final appearance is driven by given profile.
-	enum class Profile {
-		Normal          = 0x000001,
-		ElectricCircuit = 0x000002
-	};
+	enum class Profile { Normal = 0x000001, ElectricCircuit = 0x000002 };
 
 private:
-
 	//! The ration between width and height of a drawing.
 	double m_ratio;
 
@@ -83,16 +76,15 @@ private:
 	Profile m_profile;
 
 	//! The module for computing the final layout.
-	std::unique_ptr<LayoutPlanRepModule>  m_planarLayoutModule;
+	std::unique_ptr<LayoutPlanRepModule> m_planarLayoutModule;
 
 	//! The module for crossing minimization.
 	std::unique_ptr<CrossingMinimizationModule> m_crossingMinimizationModule;
 
 	//! The module for embedding planarization.
-	std::unique_ptr<EmbedderModule>  m_embeddingModule;
+	std::unique_ptr<EmbedderModule> m_embeddingModule;
 
 public:
-
 	// constructor
 	HypergraphLayoutES();
 
@@ -101,40 +93,28 @@ public:
 
 	// Dynamic casting is currently not working as desired and hence we left
 	// the following call inherited from superclass empty.
-	virtual void call(HypergraphAttributes &HA) override;
+	virtual void call(HypergraphAttributes& HA) override;
 
 #if 0
 	void call(HypergraphAttributesES &HA);
 #endif
 
 	//! Assignment operator.
-	HypergraphLayoutES &operator=(const HypergraphLayoutES &hl);
+	HypergraphLayoutES& operator=(const HypergraphLayoutES& hl);
 
 	//! Returns the number of crossings in computed layout.
-	int crossings() const
-	{
-		return m_crossings;
-	}
+	int crossings() const { return m_crossings; }
 
 	//! Returns the ratio  between width and height of a drawing.
-	double ratio() const
-	{
-		return m_ratio;
-	}
+	double ratio() const { return m_ratio; }
 
 	//! Sets the Input / Output drawing requirement.
-	void setConstraintIO(bool pConstraintIO)
-	{
-		m_constraintIO = pConstraintIO;
-	}
+	void setConstraintIO(bool pConstraintIO) { m_constraintIO = pConstraintIO; }
 
 	//! Sets the layout profile.
-	void setProfile(Profile pProfile)
-	{
-		m_profile = pProfile;
-	}
+	void setProfile(Profile pProfile) { m_profile = pProfile; }
 
-	/** @}
+	/**
 	 *  @name Modules
 	 *  @{
 	 */
@@ -147,12 +127,9 @@ public:
 	 * This is in fact a planar graph and hence it can be drawn quite
 	 * easily by any planar layout algorithm.
 	 */
-	void setPlanarLayoutModule
-		(LayoutPlanRepModule *pPlanarLayoutModule)
-	{
+	void setPlanarLayoutModule(LayoutPlanRepModule* pPlanarLayoutModule) {
 		m_planarLayoutModule.reset(pPlanarLayoutModule);
 	}
-
 
 	/**
 	 * \brief Sets the module option for crossing minimization.
@@ -160,9 +137,7 @@ public:
 	 * The crossing minimization module minimizes the crossings of a hypergraph
 	 * in an edge standard  representation.
 	 */
-	void setCrossingMinimizationModule
-		(CrossingMinimizationModule *pCrossingMinimizationModule)
-	{
+	void setCrossingMinimizationModule(CrossingMinimizationModule* pCrossingMinimizationModule) {
 		m_crossingMinimizationModule.reset(pCrossingMinimizationModule);
 	}
 
@@ -172,30 +147,28 @@ public:
 	 * When a planarized edge representation of a hypergraph in computed,
 	 * we have to found a way how to embed it (ie. find faces).
 	 */
-	void setEmbeddingModule
-		(EmbedderModule *pEmbeddingModule)
-	{
+	void setEmbeddingModule(EmbedderModule* pEmbeddingModule) {
 		m_embeddingModule.reset(pEmbeddingModule);
 	}
 
-private:
+	//! @}
 
-	void layout(HypergraphAttributesES &pHA);
+private:
+	void layout(HypergraphAttributesES& pHA);
 
 #if 0
 	void planarizeCC(PlanRep &ccPlanarRep, List<edge> &fixedShell);
 #endif
 
-	void packAllCC(const PlanRep &planarRep,
-	               const GraphCopySimple &gc,
-	               HypergraphAttributesES &pHA,
-	               Array<DPoint> &bounding);
+	void packAllCC(const PlanRep& planarRep, const GraphCopySimple& gc, HypergraphAttributesES& pHA,
+			Array<DPoint>& bounding);
 
-	void insertShell(GraphCopySimple &planarRep, List<node> &src, List<node> &tgt, List<edge> &fixedShell);
+	void insertShell(GraphCopySimple& planarRep, List<node>& src, List<node>& tgt,
+			List<edge>& fixedShell);
 
-	void removeShell(PlanRep &planarRep, NodePair &st);
+	void removeShell(PlanRep& planarRep, NodePair& st);
 
-	void applyProfile(HypergraphAttributesES &HA);
+	void applyProfile(HypergraphAttributesES& HA);
 };
 
 }

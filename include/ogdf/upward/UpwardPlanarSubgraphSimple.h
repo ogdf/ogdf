@@ -32,37 +32,32 @@
 
 #pragma once
 
-#include <ogdf/upward/UpwardPlanarSubgraphModule.h>
 #include <ogdf/basic/tuples.h>
+#include <ogdf/upward/UpwardPlanarSubgraphModule.h>
 
 namespace ogdf {
 
 //! A maximal planar subgraph algorithm using planarity testing
-class OGDF_EXPORT UpwardPlanarSubgraphSimple : public UpwardPlanarSubgraphModule
-{
+class OGDF_EXPORT UpwardPlanarSubgraphSimple : public UpwardPlanarSubgraphModule {
 public:
 	// construction
 	UpwardPlanarSubgraphSimple() { }
+
 	// destruction
 	~UpwardPlanarSubgraphSimple() { }
 
 	// computes set of edges delEdges, which have to be deleted
 	// in order to get a planar subgraph; edges in preferedEdges
 	// should be contained in planar subgraph
-	virtual void call(const Graph &G, List<edge> &delEdges) override;
+	virtual void call(const Graph& G, List<edge>& delEdges) override;
 
-	void call(GraphCopy &GC, List<edge> &delEdges);
+	void call(GraphCopy& GC, List<edge>& delEdges);
 
 
 private:
-	bool checkAcyclic(
-		GraphCopySimple &graphAcyclicTest,
-		SList<Tuple2<node,node> > &tmpAugmented);
+	bool checkAcyclic(GraphCopySimple& graphAcyclicTest, SList<Tuple2<node, node>>& tmpAugmented);
 
-	void dfsBuildSpanningTree(
-		node v,
-		SListPure<edge> &treeEdges,
-		NodeArray<bool> &visited);
+	void dfsBuildSpanningTree(node v, SListPure<edge>& treeEdges, NodeArray<bool>& visited);
 };
 
 }

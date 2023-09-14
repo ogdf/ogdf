@@ -34,18 +34,14 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/upward/UpwardPlanRep.h>
 
-
 namespace ogdf {
 
 /**
  * \brief Interface for upward planarization algorithms.
  *
  */
-class OGDF_EXPORT UpwardPlanarizerModule : public Module
-{
-
+class OGDF_EXPORT UpwardPlanarizerModule : public Module {
 public:
-
 	//! Initializes an upward planarizer module.
 	UpwardPlanarizerModule() : m_useCost(false), m_useForbid(false) { }
 
@@ -70,32 +66,35 @@ public:
 	 * \return the status of the result.
 	 *
 	 */
-	ReturnType call(UpwardPlanRep &UPR,
-					const EdgeArray<int>  * cost = nullptr,
-					const EdgeArray<bool> * forbid = nullptr)
-	{
+	ReturnType call(UpwardPlanRep& UPR, const EdgeArray<int>* cost = nullptr,
+			const EdgeArray<bool>* forbid = nullptr) {
 		m_useCost = (cost != nullptr);
 		m_useForbid = (forbid != nullptr);
 
-		if(!useCost())      cost      = new EdgeArray<int> (UPR.original(), 1);
-		if(!useForbid())    forbid    = new EdgeArray<bool> (UPR.original(), 0);
+		if (!useCost()) {
+			cost = new EdgeArray<int>(UPR.original(), 1);
+		}
+		if (!useForbid()) {
+			forbid = new EdgeArray<bool>(UPR.original(), 0);
+		}
 
 
 		ReturnType R = doCall(UPR, *cost, *forbid);
 
-		if(!useCost())      delete cost;
-		if(!useForbid())    delete forbid;
+		if (!useCost()) {
+			delete cost;
+		}
+		if (!useForbid()) {
+			delete forbid;
+		}
 		return R;
 	}
 
-
 	//! Computes a upward planarized representation of the input graph (shorthand for call)
-	ReturnType operator()(UpwardPlanRep &UPR,
-			const EdgeArray<int>  * cost = nullptr,
-			const EdgeArray<bool> * forbid = nullptr) {
+	ReturnType operator()(UpwardPlanRep& UPR, const EdgeArray<int>* cost = nullptr,
+			const EdgeArray<bool>* forbid = nullptr) {
 		return call(UPR, cost, forbid);
 	}
-
 
 	//! Returns true iff edge costs are given.
 	bool useCost() const { return m_useCost; }
@@ -121,10 +120,8 @@ protected:
 	 *
 	 * \return the status of the result.
 	 */
-	virtual ReturnType doCall(
-		UpwardPlanRep &UPR,
-		const EdgeArray<int>  &cost,
-		const EdgeArray<bool> &forbid) = 0;
+	virtual ReturnType doCall(UpwardPlanRep& UPR, const EdgeArray<int>& cost,
+			const EdgeArray<bool>& forbid) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 

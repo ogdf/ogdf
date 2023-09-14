@@ -29,14 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/upward/LayerBasedUPRLayout.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/upward/LayerBasedUPRLayout.h>
 
 namespace ogdf {
 
-OrderComparer::OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H) : m_UPR(_UPR), H(_H)
-{
+OrderComparer::OrderComparer(const UpwardPlanRep& _UPR, Hierarchy& _H) : m_UPR(_UPR), H(_H) {
 	m_dfsNum.init(m_UPR, -1);
 	crossed.init(m_UPR, false);
 
@@ -44,30 +43,32 @@ OrderComparer::OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H) : m_UPR(_
 	node start;
 	hasSingleSource(m_UPR, start);
 	NodeArray<bool> visited(m_UPR, false);
-	adjEntry rightAdj = m_UPR.getAdjEntry(m_UPR.getEmbedding(), start, m_UPR.getEmbedding().externalFace());
+	adjEntry rightAdj =
+			m_UPR.getAdjEntry(m_UPR.getEmbedding(), start, m_UPR.getEmbedding().externalFace());
 	int num = 0;
 	m_dfsNum[start] = num++;
 	adjEntry run = rightAdj;
 	do {
 		run = run->cyclicSucc();
-		if (!visited[run->theEdge()->target()])
+		if (!visited[run->theEdge()->target()]) {
 			dfs_LR(run->theEdge(), visited, m_dfsNum, num);
-	} while(run != rightAdj);
+		}
+	} while (run != rightAdj);
 }
 
-bool OrderComparer::left(edge e1UPR, edge e2UPR) const
-{
+bool OrderComparer::left(edge e1UPR, edge e2UPR) const {
 	OGDF_ASSERT(e1UPR->source() == e2UPR->source() || e1UPR->target() == e2UPR->target());
 	OGDF_ASSERT(e1UPR != e2UPR);
 
 	node v = e1UPR->source();
-	if (e2UPR->source() != v)
+	if (e2UPR->source() != v) {
 		v = e1UPR->target();
+	}
 
 	adjEntry inLeft = nullptr, outLeft = nullptr;
 	//compute left in and left out edge of the common node v if exist
 	if (v->indeg() != 0) {
-		for(adjEntry run : v->adjEntries) {
+		for (adjEntry run : v->adjEntries) {
 			if (run->cyclicSucc()->theEdge()->source() == v) {
 				inLeft = run;
 				break;
@@ -75,8 +76,9 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 		}
 	}
 	if (v->outdeg() != 0) {
-		for(adjEntry run : v->adjEntries) {
-			if (run->cyclicPred()->theEdge()->target() == v || m_UPR.getEmbedding().leftFace(run) == m_UPR.getEmbedding().externalFace()) {
+		for (adjEntry run : v->adjEntries) {
+			if (run->cyclicPred()->theEdge()->target() == v
+					|| m_UPR.getEmbedding().leftFace(run) == m_UPR.getEmbedding().externalFace()) {
 				outLeft = run;
 				break;
 			}
@@ -87,10 +89,12 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 	if (v == e2UPR->source()) {
 		OGDF_ASSERT(outLeft != nullptr);
 		do {
-			if (outLeft->theEdge() == e1UPR)
+			if (outLeft->theEdge() == e1UPR) {
 				return false;
-			if (outLeft->theEdge() == e2UPR)
+			}
+			if (outLeft->theEdge() == e2UPR) {
 				return true;
+			}
 			outLeft = outLeft->cyclicSucc();
 		} while (true);
 	}
@@ -98,46 +102,52 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 	else {
 		OGDF_ASSERT(inLeft != nullptr);
 		do {
-			if (inLeft->theEdge() == e1UPR)
+			if (inLeft->theEdge() == e1UPR) {
 				return false;
-			if (inLeft->theEdge() == e2UPR)
+			}
+			if (inLeft->theEdge() == e2UPR) {
 				return true;
+			}
 			inLeft = inLeft->cyclicPred();
 		} while (true);
 	}
 }
 
-bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , const List<edge> &chain2) const
-{
+bool OrderComparer::left(node v1UPR, const List<edge>& chain1, node v2UPR,
+		const List<edge>& chain2) const {
 	//mark the edges an nodes of chain2 list
 	NodeArray<bool> visitedNode(m_UPR, false);
 	EdgeArray<bool> visitedEdge(m_UPR, false);
-	for(edge e : chain2) {
-		visitedNode[e->source()] =  visitedNode[e->target()] = true;
+	for (edge e : chain2) {
+		visitedNode[e->source()] = visitedNode[e->target()] = true;
 		visitedEdge[e] = true;
 	}
 
 	// traverse from vUPR2 to the super source using left path p and marks it.
 	visitedNode[v2UPR] = true;
-	for(adjEntry run = m_UPR.leftInEdge(v2UPR); run != nullptr; run = m_UPR.leftInEdge(run->theEdge()->source())) {
+	for (adjEntry run = m_UPR.leftInEdge(v2UPR); run != nullptr;
+			run = m_UPR.leftInEdge(run->theEdge()->source())) {
 		visitedNode[run->theEdge()->source()] = visitedNode[run->theEdge()->target()] = true;
 		visitedEdge[run->theEdge()] = true;
 	}
 
 	//is one of the node of chain1 marked?
-	for(edge e : reverse(chain1)) {
+	for (edge e : reverse(chain1)) {
 		node u = e->source();
 		if (visitedNode[u]) {
-			for(adjEntry run : u->adjEntries) {
-				if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()) // outgoing edges only
+			for (adjEntry run : u->adjEntries) {
+				// outgoing edges only:
+				if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()) {
 					return left(e, run->theEdge()); //(outEdgeOrder[e] > outEdgeOrder[run->theEdge()]);
+				}
 			}
 		}
 	}
 
 	// traverse from vUPR1 to a node of path p (using left path).
 	adjEntry adj_v1 = nullptr, adj_v2 = nullptr;
-	for (adjEntry run = m_UPR.leftInEdge(v1UPR); run != nullptr; run = m_UPR.leftInEdge(run->theEdge()->source())) {
+	for (adjEntry run = m_UPR.leftInEdge(v1UPR); run != nullptr;
+			run = m_UPR.leftInEdge(run->theEdge()->source())) {
 		if (visitedNode[run->theEdge()->source()]) {
 			adj_v1 = run->twin(); //reached a marked node
 			break;
@@ -146,8 +156,9 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 
 	OGDF_ASSERT(adj_v1 != nullptr);
 
-	for(adjEntry run : adj_v1->theNode()->adjEntries) {
-		if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()){ // outgoing edges only
+	for (adjEntry run : adj_v1->theNode()->adjEntries) {
+		if (visitedEdge[run->theEdge()]
+				&& run->theEdge()->source() == run->theNode()) { // outgoing edges only
 			adj_v2 = run;
 			break;
 		}
@@ -158,9 +169,8 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 	return left(adj_v1->theEdge(), adj_v2->theEdge());
 }
 
-bool OrderComparer::checkUp(node vUPR, int level) const
-{
-	const GraphCopy &GC = H;
+bool OrderComparer::checkUp(node vUPR, int level) const {
+	const GraphCopy& GC = H;
 
 	//traverse from vUPR (going up)
 	NodeArray<bool> inList(m_UPR, false);
@@ -170,11 +180,12 @@ bool OrderComparer::checkUp(node vUPR, int level) const
 	while (!list.empty()) {
 		node v = list.popFrontRet();
 		node vOrig = m_UPR.original(v);
-		if (vOrig != nullptr && H.rank(GC.copy(vOrig)) <= level)
+		if (vOrig != nullptr && H.rank(GC.copy(vOrig)) <= level) {
 			return true;
+		}
 		List<edge> outEdges;
 		v->outEdges(outEdges);
-		for(edge e : outEdges) {
+		for (edge e : outEdges) {
 			node tgt = e->target();
 			if (!inList[tgt]) {
 				list.pushBack(tgt);
@@ -185,20 +196,19 @@ bool OrderComparer::checkUp(node vUPR, int level) const
 	return false;
 }
 
-bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) const
-{
+bool OrderComparer::left(List<edge>& chain1, List<edge>& chain2, int level) const {
 	//mark the source nodes of the edges of chain1
 	NodeArray<bool> markedNodes(m_UPR, false);
 	EdgeArray<bool> markedEdges(m_UPR, false);
-	for(edge e : chain1) {
+	for (edge e : chain1) {
 		node v = e->source();
 		markedNodes[v] = true;
 		markedEdges[e] = true;
 	}
 
 	//compute the list of common nodes of chain1 and chain2
-	List< Tuple2<node, bool> > commonNodeList; // first: common node; second: true if vH1 (associated with chain1) is on the left hand side
-	for(edge e : chain2) {
+	List<Tuple2<node, bool>> commonNodeList; // first: common node; second: true if vH1 (associated with chain1) is on the left hand side
+	for (edge e : chain2) {
 		node v = e->source();
 		if (markedNodes[v]) {
 			//edge e = *iter;
@@ -213,7 +223,6 @@ bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) cons
 				if (markedEdges[adj->theEdge()]) {
 					break;
 				}
-
 			}
 			Tuple2<node, bool> tulp(v, value);
 			commonNodeList.pushFront(tulp);
@@ -230,8 +239,8 @@ bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) cons
 	}
 
 	// there is a least one crossing
-	ListIterator< Tuple2<node, bool> > it = commonNodeList.begin();
-	while(it.valid()) {
+	ListIterator<Tuple2<node, bool>> it = commonNodeList.begin();
+	while (it.valid()) {
 		Tuple2<node, bool> tulp = *it;
 		// is there a node above which level is lower or equal the given level?
 		// if so, then return the value
@@ -247,15 +256,15 @@ bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) cons
 	return !tulp.x2();
 }
 
-bool OrderComparer::less(node vH1, node vH2) const
-{
-	if (vH1 == vH2)
+bool OrderComparer::less(node vH1, node vH2) const {
+	if (vH1 == vH2) {
 		return false;
+	}
 
 	/*
 	case:vH1 and vH2 are not long-edge dummies.
 	*/
-	const GraphCopy &GC = H;
+	const GraphCopy& GC = H;
 	if (!H.isLongEdgeDummy(vH1) && !H.isLongEdgeDummy(vH2)) {
 		node v1 = m_UPR.copy(GC.original(vH1));
 		node v2 = m_UPR.copy(GC.original(vH2));
@@ -288,8 +297,7 @@ bool OrderComparer::less(node vH1, node vH2) const
 		OGDF_ASSERT(!chain1.empty());
 
 		return left(chain1.front()->source(), chain1, v, chain2);
-	}
-	else {
+	} else {
 		chain2 = m_UPR.chain(GC.original(vH2->firstAdj()->theEdge()));
 		v = m_UPR.copy(GC.original(vH1));
 
@@ -299,19 +307,14 @@ bool OrderComparer::less(node vH1, node vH2) const
 	}
 }
 
-void OrderComparer::dfs_LR(
-	edge e,
-	NodeArray<bool> &visited,
-	NodeArray<int> &dfsNum,
-	int &num)
-{
+void OrderComparer::dfs_LR(edge e, NodeArray<bool>& visited, NodeArray<int>& dfsNum, int& num) {
 	node v = e->target();
 	//outEdgeOrder[e] = num++;
 	dfsNum[v] = num++;
 	if (e->target()->outdeg() > 0) {
 		// compute left out edge
 		adjEntry run = nullptr;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			adjEntry adj_pred = adj->cyclicPred();
 			if (adj_pred->theEdge()->target() == v && adj->theEdge()->source() == v) {
 				run = adj;
@@ -325,25 +328,24 @@ void OrderComparer::dfs_LR(
 				dfs_LR(run->theEdge(), visited, dfsNum, num);
 			}
 			run = run->cyclicSucc();
-		} while(run->theEdge()->target() != e->target());
+		} while (run->theEdge()->target() != e->target());
 	}
 	visited[v] = true;
 }
 
-void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
-{
+void LayerBasedUPRLayout::doCall(const UpwardPlanRep& UPR, GraphAttributes& AG) {
 	OGDF_ASSERT(UPR.augmented());
 
 	numberOfLevels = 0;
 	m_numLevels = 0;
 	m_crossings = 0;
 
-	const Graph &G = UPR.original();
+	const Graph& G = UPR.original();
 	NodeArray<int> rank_G(G);
 	computeRanking(UPR, rank_G);
 	Hierarchy H(G, rank_G);
 	HierarchyLevels levels(H);
-	const GraphCopy &GC = H;
+	const GraphCopy& GC = H;
 
 #if 0
 	// m_UPR.outputFaces(m_UPR.getEmbedding());
@@ -363,16 +365,17 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 
 	//adjust order
 	OrderComparer oComparer(UPR, H);
-	for(int i = 0; i < levels.size(); ++i) {
-		Level &level = levels[i];
+	for (int i = 0; i < levels.size(); ++i) {
+		Level& level = levels[i];
 		level.sortOrder(oComparer);
 	}
 
 	// postprocessing
 	List<node> sources;
-	for(node vTmp : GC.nodes) {
-		if (vTmp->indeg() == 0)
+	for (node vTmp : GC.nodes) {
+		if (vTmp->indeg() == 0) {
 			sources.pushBack(vTmp);
+		}
 	}
 
 	sources.quicksort(GenericComparer<node, int>([&](node v) { return -H.rank(v); }));
@@ -396,48 +399,47 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 	postProcessing_sourceReorder(levels, sources);
 	m_crossings = levels.calculateCrossings();
 
-	while(!m_dummies.empty()) {
+	while (!m_dummies.empty()) {
 		H.m_GC.delNode(m_dummies.popRet());
 	}
 
 	OGDF_ASSERT(m_crossings <= UPR.numberOfCrossings());
 	OGDF_ASSERT(m_layout);
 
-	m_layout->call(levels,AG);
+	m_layout->call(levels, AG);
 	// end postprocessing
 
 	numberOfLevels = levels.size();
 	m_maxLevelSize = 0;
-	for(int i = 0; i <= levels.high(); i++) {
-		Level &level = levels[i];
-		if (m_maxLevelSize < level.size())
+	for (int i = 0; i <= levels.high(); i++) {
+		Level& level = levels[i];
+		if (m_maxLevelSize < level.size()) {
 			m_maxLevelSize = level.size();
+		}
 	}
 }
 
-
-void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int> &rank)
-{
+void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep& UPR, NodeArray<int>& rank) {
 	OGDF_ASSERT(UPR.augmented());
 
 	GraphCopy GC(UPR.original());
-	for(edge e : UPR.original().edges) {
+	for (edge e : UPR.original().edges) {
 		if (UPR.isReversed(e)) {
 			GC.reverseEdge(GC.copy(e));
 		}
 	}
 
 	// compute auxiliary edges
-	EdgeArray<int> cost(GC,1);
-	List< Tuple2<node, node> > auxEdges;
+	EdgeArray<int> cost(GC, 1);
+	List<Tuple2<node, node>> auxEdges;
 	NodeArray<int> inL(UPR, -1);
 	int num = -1;
-	for(node v : UPR.nodes) {
-
-		if (UPR.isDummy(v) || v->indeg()==0)
+	for (node v : UPR.nodes) {
+		if (UPR.isDummy(v) || v->indeg() == 0) {
 			continue;
+		}
 
-		num = num +1;
+		num = num + 1;
 		//compute all "adjacent" non dummy nodes
 		List<node> toDo, srcNodes;
 		toDo.pushBack(v);
@@ -446,16 +448,14 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 			node u = toDo.popFrontRet();
 			List<edge> inEdges;
 			u->inEdges(inEdges);
-			for(edge eIn : inEdges) {
+			for (edge eIn : inEdges) {
 				node w = eIn->source();
 				if (UPR.isDummy(w)) {
 					if (inL[w] != num) {
 						toDo.pushBack(w);
 						inL[w] = num;
 					}
-				}
-				else {
-
+				} else {
 					OGDF_ASSERT(UPR.original(w) != nullptr);
 					OGDF_ASSERT(UPR.original(v) != nullptr);
 
@@ -472,39 +472,26 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 
 	OGDF_ASSERT(isAcyclic(GC));
 
-#if 0
-	GraphAttributes GA(GC, GraphAttributes::nodeGraphics |
-						GraphAttributes::edgeGraphics |
-						GraphAttributes::nodeStyle |
-						GraphAttributes::edgeStyle |
-						GraphAttributes::nodeLabel |
-						GraphAttributes::edgeLabel);
-	// label the nodes with their index
-	for(node vTmp : GC.nodes) {
-		node w = GC.original(vTmp);
-		GA.label(vTmp) = to_string(w->index());
-	}
-	GA.writeGML("c:/temp/ranking_graph.gml");
-#endif
-
 	NodeArray<int> ranking(GC, 0);
-	EdgeArray<int> length(GC,1);
+	EdgeArray<int> length(GC, 1);
 
 	m_ranking->call(GC, length, cost, ranking);
 
 	// adjust ranking
 	int minRank = std::numeric_limits<int>::max();
-	for(node v : GC.nodes) {
-		if(ranking[v] < minRank)
+	for (node v : GC.nodes) {
+		if (ranking[v] < minRank) {
 			minRank = ranking[v];
+		}
 	}
 
-	if(minRank != 0) {
-		for(node v : GC.nodes)
+	if (minRank != 0) {
+		for (node v : GC.nodes) {
 			ranking[v] -= minRank;
+		}
 	}
 
-	for(node v : GC.nodes) {
+	for (node v : GC.nodes) {
 		node vOrig = GC.original(v);
 		rank[vOrig] = ranking[v];
 	}
@@ -516,69 +503,68 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 #endif
 }
 
-void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels &levels, List<node> &sources)
-{
-	const Hierarchy &H = levels.hierarchy();
+void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels& levels, List<node>& sources) {
+	const Hierarchy& H = levels.hierarchy();
 
 	//reorder the sources;
-	for(node s : sources) {
-		Level &level = levels[H.rank(s)];
+	for (node s : sources) {
+		Level& level = levels[H.rank(s)];
 
 		//compute the desire position (heuristic)
 		int wantedPos = 0;
 		GenericComparer<node, int> comp([&](node v) { return H.rank(v); });
 
 		if (s->outdeg() == 1) {
-			node tgt =  s->firstAdj()->theEdge()->target();
+			node tgt = s->firstAdj()->theEdge()->target();
 			List<node> nodes;
 
-			for(adjEntry adj : tgt->adjEntries) {
-				if (adj->theEdge()->target() == tgt)
+			for (adjEntry adj : tgt->adjEntries) {
+				if (adj->theEdge()->target() == tgt) {
 					nodes.pushBack(adj->theEdge()->source());
+				}
 			}
 
 			nodes.quicksort(comp);
 
 			//postion of the median
-			node v = *nodes.get(nodes.size()/2);
+			node v = *nodes.get(nodes.size() / 2);
 			wantedPos = levels.pos(v);
 		} else {
 			List<node> nodes;
 
-			for(adjEntry adj : s->adjEntries)
+			for (adjEntry adj : s->adjEntries) {
 				nodes.pushBack(adj->theEdge()->source());
+			}
 
 			nodes.quicksort(comp);
 
 			//postion of the median
-			node v = *nodes.get(nodes.size()/2);
+			node v = *nodes.get(nodes.size() / 2);
 			wantedPos = levels.pos(v);
 		}
 
 		//move s to front of the array
 		int pos = levels.pos(s);
 		while (pos != 0) {
-			level.swap(pos-1, pos);
+			level.swap(pos - 1, pos);
 			pos--;
 		}
 
 		// compute the position of s, which cause min. crossing
 		int minPos = pos;
 		int oldCr = levels.calculateCrossings(level.index());
-		while(pos != level.size()-1) {
-			level.swap(pos, pos+1);
+		while (pos != level.size() - 1) {
+			level.swap(pos, pos + 1);
 			int newCr = levels.calculateCrossings(level.index());
 			if (newCr <= oldCr) {
 				if (newCr < oldCr) {
 					minPos = levels.pos(s);
 					oldCr = newCr;
-				}
-				else {
-					if (abs(minPos - wantedPos) > abs(pos+1 - wantedPos)) {
+				} else {
+					if (abs(minPos - wantedPos) > abs(pos + 1 - wantedPos)) {
 						minPos = levels.pos(s);
 						oldCr = newCr;
 					}
-
 				}
 			}
 			pos++;
@@ -587,43 +573,43 @@ void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels &levels, 
 		//move s to minPos
 		while (pos != minPos) {
 			if (minPos > pos) {
-				level.swap(pos, pos+1);
+				level.swap(pos, pos + 1);
 				pos++;
 			}
 			if (minPos < pos) {
-				level.swap(pos, pos-1);
+				level.swap(pos, pos - 1);
 				pos--;
 			}
 		}
 	}
 }
 
-void LayerBasedUPRLayout::postProcessing_markUp(HierarchyLevels &levels, node s, NodeArray<bool> &markedNodes)
-{
-	const GraphCopy &GC = levels.hierarchy();
+void LayerBasedUPRLayout::postProcessing_markUp(HierarchyLevels& levels, node s,
+		NodeArray<bool>& markedNodes) {
+	const GraphCopy& GC = levels.hierarchy();
 	NodeArray<bool> inQueue(GC, false);
 	Queue<node> nodesToDo;
 	nodesToDo.append(s);
 
-	while(!nodesToDo.empty()) {
+	while (!nodesToDo.empty()) {
 		node w = nodesToDo.pop();
 		markedNodes[w] = true;
 		List<edge> outEdges;
 		w->outEdges(outEdges);
-		ListIterator <edge> it;
+		ListIterator<edge> it;
 		for (it = outEdges.begin(); it.valid(); ++it) {
 			edge e = *it;
-			if (!inQueue[e->target()] && !markedNodes[e->target()]) { // put the next node in queue if it is not already in queue
-				nodesToDo.append( e->target() );
+			if (!inQueue[e->target()]
+					&& !markedNodes[e->target()]) { // put the next node in queue if it is not already in queue
+				nodesToDo.append(e->target());
 				inQueue[e->target()] = true;
 			}
 		}
 	}
 }
 
-void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels &levels, node s)
-{
-	const GraphCopy &GC = H;
+void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy& H, HierarchyLevels& levels, node s) {
+	const GraphCopy& GC = H;
 
 	NodeArray<bool> markedNodes(GC, false);
 
@@ -633,7 +619,7 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 
 
 	for (int i = H.rank(s) + 1; i <= levels.high(); i++) {
-		const Level &lvl = levels[i];
+		const Level& lvl = levels[i];
 
 		// Compute the start and end index of the marked graph on this level.
 		int minIdx = std::numeric_limits<int>::max();
@@ -644,32 +630,38 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 		int sumInDeg = 0;
 		int numMarkedNodes = 0;
 		int numDummies = 0;
-		for(int j = 0; j <= lvl.high(); j++) {
+		for (int j = 0; j <= lvl.high(); j++) {
 			node u = lvl[j];
 
 			if (markedNodes[u]) {
 				numMarkedNodes++;
 
-				if (H.isLongEdgeDummy(u))
+				if (H.isLongEdgeDummy(u)) {
 					numDummies++;
+				}
 
-				if (levels.pos(u)< minIdx)
+				if (levels.pos(u) < minIdx) {
 					minIdx = levels.pos(u);
-				if (levels.pos(u) > maxIdx)
+				}
+				if (levels.pos(u) > maxIdx) {
 					maxIdx = levels.pos(u);
+				}
 
 				sumInDeg += u->indeg();
-				for(adjEntry adj : u->adjEntries) {
-					if (adj->theEdge()->target()==u && markedNodes[adj->theEdge()->source()])
+				for (adjEntry adj : u->adjEntries) {
+					if (adj->theEdge()->target() == u && markedNodes[adj->theEdge()->source()]) {
 						numEdges++;
+					}
 				}
 			}
 		}
-		if (numEdges!=sumInDeg || maxIdx-minIdx+1!=numMarkedNodes )
+		if (numEdges != sumInDeg || maxIdx - minIdx + 1 != numMarkedNodes) {
 			return;
+		}
 
-		if (numDummies!=numMarkedNodes)
+		if (numDummies != numMarkedNodes) {
 			continue;
+		}
 
 		//delete long edge dummies
 		for (int k = minIdx; k <= maxIdx; k++) {
@@ -679,8 +671,9 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 
 			edge inEdge = u->firstAdj()->theEdge();
 			edge outEdge = u->lastAdj()->theEdge();
-			if (inEdge->target() != u)
+			if (inEdge->target() != u) {
 				std::swap(inEdge, outEdge);
+			}
 
 			OGDF_ASSERT(H.m_GC.original(inEdge) == H.m_GC.original(outEdge));
 
@@ -726,19 +719,11 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 	}
 }
 
+void LayerBasedUPRLayout::post_processing_reduce(Hierarchy& H, HierarchyLevels& levels, int& i,
+		node s, int minIdx, int maxIdx, NodeArray<bool>& markedNodes) {
+	const Level& lvl = levels[i];
 
-void LayerBasedUPRLayout::post_processing_reduce(
-	Hierarchy &H,
-	HierarchyLevels &levels,
-	int &i,
-	node s,
-	int minIdx,
-	int maxIdx,
-	NodeArray<bool> &markedNodes)
-{
-	const Level &lvl = levels[i];
-
-	if (maxIdx-minIdx+1 == lvl.size()) {
+	if (maxIdx - minIdx + 1 == lvl.size()) {
 		post_processing_deleteLvl(H, levels, i);
 		i--;
 		return;
@@ -747,7 +732,6 @@ void LayerBasedUPRLayout::post_processing_reduce(
 	// delete the dummies in interval[minIdx,maxIdx] and copy the nodes in lvl i-1 to lvl i for i={0,..,i-1}
 	int startLvl = H.rank(s);
 	for (int j = i; j > startLvl; j--) {
-
 		int idxl1 = std::numeric_limits<int>::max();
 		int idxl2 = std::numeric_limits<int>::max();
 		int idxh1 = -1;
@@ -756,27 +740,31 @@ void LayerBasedUPRLayout::post_processing_reduce(
 			node u = levels[j][k];
 
 			if (markedNodes[u]) {
-				if (k < idxl1)
+				if (k < idxl1) {
 					idxl1 = k;
-				if (k > idxh1)
+				}
+				if (k > idxh1) {
 					idxh1 = k;
+				}
 			}
 		}
 
-		for (int k = 0; k <= levels[j-1].high(); k++) {
-			node u = levels[j-1][k];
+		for (int k = 0; k <= levels[j - 1].high(); k++) {
+			node u = levels[j - 1][k];
 
 			if (markedNodes[u]) {
-				if (k < idxl2)
+				if (k < idxl2) {
 					idxl2 = k;
-				if (k > idxh2)
+				}
+				if (k > idxh2) {
 					idxh2 = k;
+				}
 			}
 		}
 
 		int jTmp = j;
 		post_processing_deleteInterval(H, levels, idxl1, idxh1, j);
-		if (jTmp!=j) {
+		if (jTmp != j) {
 			i--;
 			return; //a level was deleted, we are done
 		}
@@ -812,7 +800,6 @@ void LayerBasedUPRLayout::post_processing_reduce(
 			std::cout << std::endl;
 		}
 #endif
-
 	}
 
 	int idxl1 = std::numeric_limits<int>::max();
@@ -821,23 +808,25 @@ void LayerBasedUPRLayout::post_processing_reduce(
 		node u = levels[startLvl][k];
 
 		if (markedNodes[u]) {
-			if (k < idxl1)
+			if (k < idxl1) {
 				idxl1 = k;
-			if (k > idxh1)
+			}
+			if (k > idxh1) {
 				idxh1 = k;
+			}
 		}
 	}
 	int tmp = startLvl;
 	post_processing_deleteInterval(H, levels, idxl1, idxh1, startLvl);
-	if (tmp!=startLvl)
+	if (tmp != startLvl) {
 		i--;
+	}
 }
 
-
-void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLevels &levels, int i, int beginIdx, int endIdx, int pos)
-{
-	Level &lvl_cur = levels[i];
-	int intervalSize = endIdx - beginIdx +1;
+void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy& H, HierarchyLevels& levels, int i,
+		int beginIdx, int endIdx, int pos) {
+	Level& lvl_cur = levels[i];
+	int intervalSize = endIdx - beginIdx + 1;
 	int lastIdx = lvl_cur.high();
 
 	OGDF_ASSERT(intervalSize > 0);
@@ -845,7 +834,7 @@ void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLe
 	// grow array
 	lvl_cur.m_nodes.grow(intervalSize);
 	//move all the data block [pos,lvl_cur.high()] to the end of the array
-	for (int k = 0; k < (lastIdx - pos + 1) ; k++) {
+	for (int k = 0; k < (lastIdx - pos + 1); k++) {
 		//update position
 		levels.m_pos[lvl_cur[lastIdx - k]] = lvl_cur.high() - k;
 		lvl_cur[lvl_cur.high() - k] = lvl_cur[lastIdx - k];
@@ -862,7 +851,7 @@ void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLe
 #endif
 
 	//copy the nodes of nodeList into the array
-	Level &lvl_low = levels[i-1];
+	Level& lvl_low = levels[i - 1];
 	int idx = pos;
 	for (int k = beginIdx; k <= endIdx; k++) {
 		node u = lvl_low[k];
@@ -874,38 +863,37 @@ void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLe
 	}
 }
 
-void LayerBasedUPRLayout::post_processing_deleteInterval(Hierarchy &H, HierarchyLevels &levels, int beginIdx, int endIdx, int &j)
-{
-	Level &lvl = levels[j];
+void LayerBasedUPRLayout::post_processing_deleteInterval(Hierarchy& H, HierarchyLevels& levels,
+		int beginIdx, int endIdx, int& j) {
+	Level& lvl = levels[j];
 
 	int i = 0;
 	while ((endIdx + i) < lvl.high()) {
-		lvl[beginIdx + i] = lvl[endIdx + i +1];
-		levels.m_pos[lvl[endIdx + i +1]] = beginIdx + i;
+		lvl[beginIdx + i] = lvl[endIdx + i + 1];
+		levels.m_pos[lvl[endIdx + i + 1]] = beginIdx + i;
 		i++;
 	}
 
 	int blockSize = endIdx - beginIdx + 1;
 
-	if (lvl.m_nodes.size()==blockSize) {
+	if (lvl.m_nodes.size() == blockSize) {
 		int level = lvl.index();
 		post_processing_deleteLvl(H, levels, level); //delete the lvl
 		j--;
-	}
-	else
+	} else {
 		lvl.m_nodes.grow(-blockSize); // reduce the size of the lvl
+	}
 }
 
-void LayerBasedUPRLayout::post_processing_deleteLvl(Hierarchy &H, HierarchyLevels &levels, int i)
-{
+void LayerBasedUPRLayout::post_processing_deleteLvl(Hierarchy& H, HierarchyLevels& levels, int i) {
 	//move the pointer to end, then delete the lvl
 	int curPos = i;
 	while (curPos < levels.high()) {
-		std::swap(levels.m_pLevel[curPos], levels.m_pLevel[curPos+1]);
-		Level &lvlTmp = levels[curPos];
+		std::swap(levels.m_pLevel[curPos], levels.m_pLevel[curPos + 1]);
+		Level& lvlTmp = levels[curPos];
 		lvlTmp.m_index = curPos;
 		//update rank
-		for(int iter = 0; iter <= lvlTmp.high(); iter++) {
+		for (int iter = 0; iter <= lvlTmp.high(); iter++) {
 			H.m_rank[lvlTmp[iter]] = curPos;
 		}
 		curPos++;
@@ -915,16 +903,15 @@ void LayerBasedUPRLayout::post_processing_deleteLvl(Hierarchy &H, HierarchyLevel
 	levels.m_pLevel.grow(-1);
 }
 
-void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttributes &GA)
-{
+void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep& UPR, GraphAttributes& GA) {
 	//clear some data
-	for(edge e : GA.constGraph().edges) {
+	for (edge e : GA.constGraph().edges) {
 		GA.bends(e).clear();
 	}
 
 	// layout the representation
 	GraphAttributes GA_UPR(UPR);
-	for(node v : GA.constGraph().nodes) {
+	for (node v : GA.constGraph().nodes) {
 		node vUPR = UPR.copy(v);
 		GA_UPR.height(vUPR) = GA.height(v);
 		GA_UPR.width(vUPR) = GA.width(v);
@@ -933,7 +920,7 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 
 	//compute the left edge
 	adjEntry adjLeft = nullptr;
-	for(adjEntry adj : UPR.getSuperSource()->adjEntries) {
+	for (adjEntry adj : UPR.getSuperSource()->adjEntries) {
 		if (UPR.getEmbedding().rightFace(adj) == UPR.getEmbedding().externalFace()) {
 			adjLeft = adj;
 			break;
@@ -944,7 +931,7 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 	callSimple(GA_UPR, adjLeft);
 
 	//map to AG
-	for(node v : GA.constGraph().nodes) {
+	for (node v : GA.constGraph().nodes) {
 		double vX = GA_UPR.x(UPR.copy(v));
 		double vY = GA_UPR.y(UPR.copy(v));
 		GA.x(v) = vX;
@@ -952,15 +939,15 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 	}
 
 	// add bends to original edges
-	for(edge e : GA.constGraph().edges) {
-		const List<edge> &chain = UPR.chain(e);
-		for(edge eUPR : chain) {
+	for (edge e : GA.constGraph().edges) {
+		const List<edge>& chain = UPR.chain(e);
+		for (edge eUPR : chain) {
 			node tgtUPR = eUPR->target();
 
 			//add bend point of eUPR to original edge
 			ListIterator<DPoint> iter;
-			DPolyline &line = GA_UPR.bends(eUPR);
-			for(iter = line.begin(); iter.valid(); ++iter) {
+			DPolyline& line = GA_UPR.bends(eUPR);
+			for (iter = line.begin(); iter.valid(); ++iter) {
 				double x2 = (*iter).m_x;
 				double y2 = (*iter).m_y;
 				DPoint p(x2, y2);
@@ -975,7 +962,7 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 			}
 		}
 
-		DPolyline &poly = GA.bends(e);
+		DPolyline& poly = GA.bends(e);
 		DPoint pSrc(GA.x(e->source()), GA.y(e->source()));
 		DPoint pTgt(GA.x(e->target()), GA.y(e->target()));
 		poly.normalize(pSrc, pTgt);
@@ -984,13 +971,11 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 	//layers and max. layer size
 }
 
-
-void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
-{
-	m_numLevels = -1;	//not implemented yet!
+void LayerBasedUPRLayout::callSimple(GraphAttributes& GA, adjEntry adj) {
+	m_numLevels = -1; //not implemented yet!
 	m_maxLevelSize = -1; //not implemented yet!
 
-	const Graph &G = GA.constGraph();
+	const Graph& G = GA.constGraph();
 
 	OGDF_ASSERT(adj->graphOf() == &G);
 
@@ -1022,11 +1007,12 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	// For the st-graph, we compute a longest path ranking. Since the graph
 	// is st-planar, it is also level planar for the computed rank assignment.
 	NodeArray<int> stRank(stGraph);
-	longestPathRanking(stGraph,stRank);
+	longestPathRanking(stGraph, stRank);
 
 #ifdef OGDF_DEBUG
-	for (edge e : stGraph.edges)
+	for (edge e : stGraph.edges) {
 		OGDF_ASSERT(stRank[e->source()] < stRank[e->target()]);
+	}
 #endif
 
 	// We translate the rank assignment for stGraph to a rank assignment of G
@@ -1034,8 +1020,9 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	// subgraph of stGraph, G is level planar with this ranking.
 	NodeArray<int> rank(G);
 
-	for(node vG : G.nodes)
+	for (node vG : G.nodes) {
 		rank[vG] = stRank[stGraph.copy(vG)];
+	}
 
 
 #if 0
@@ -1045,34 +1032,34 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	}
 #endif
 
-	Hierarchy H(G,rank);
+	Hierarchy H(G, rank);
 	HierarchyLevels levels(H);
 
 	// GC is the underlying graph of the proper hierarchy H.
-	const GraphCopy &GC = H;
+	const GraphCopy& GC = H;
 
 
 	// We compute the positions of the nodes of GC on each level. It is
 	// important to determine also the positions of the dummy nodes which
 	// resulted from splitting edges. The node array st2GC maps the nodes in
 	// stGraph to the nodes in GC.
-	NodeArray<node> st2GC(stGraph,nullptr);
+	NodeArray<node> st2GC(stGraph, nullptr);
 
 	// For nodes representing real nodes in G this is simple.
-	for(node vG : G.nodes) {
+	for (node vG : G.nodes) {
 		OGDF_ASSERT(H.rank(GC.copy(vG)) == stRank[stGraph.copy(vG)]);
 		st2GC[stGraph.copy(vG)] = GC.copy(vG);
 	}
 
 	// For the dummy nodes, we first have to split edges in stGraph.
 	// For an edge e=(v,w), we have to split e stRank[w]-stRank[v]-1 times.
-	for(edge eG : G.edges) {
+	for (edge eG : G.edges) {
 		edge eSt = stGraph.copy(eG);
-		const List<edge> &pathGC = GC.chain(eG);
+		const List<edge>& pathGC = GC.chain(eG);
 
 		ListConstIterator<edge> it;
 		int r = stRank[eSt->source()];
-		for(it = pathGC.begin().succ(); it.valid(); ++it) {
+		for (it = pathGC.begin().succ(); it.valid(); ++it) {
 			eSt = stGraph.split(eSt);
 			node v = eSt->source();
 			node vGC = (*it)->source();
@@ -1084,7 +1071,7 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	}
 
 #ifdef OGDF_DEBUG
-	for(node v : stGraph.nodes) {
+	for (node v : stGraph.nodes) {
 		node vGC = st2GC[v];
 		OGDF_ASSERT(vGC == nullptr || stRank[v] == H.rank(vGC));
 	}
@@ -1098,9 +1085,9 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 
 
 	// The array nodes contains the sorted nodes of stGraph on each level.
-	Array<SListPure<node> > nodes(stRank[s],stRank[t]);
+	Array<SListPure<node>> nodes(stRank[s], stRank[t]);
 
-	dfsSortLevels(adjCopy,stRank,nodes);
+	dfsSortLevels(adjCopy, stRank, nodes);
 
 #if 0
 	for(int i = stRank[s]; i <= stRank[t]; ++i) {
@@ -1122,7 +1109,7 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	// introduced by the augmentation). We can simply ignore such nodes.
 	int i;
 	for (i = 0; i <= levels.high(); ++i) {
-		Level &level = levels[i];
+		Level& level = levels[i];
 
 #if 0
 		std::cout << i << std::endl;
@@ -1131,10 +1118,11 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 
 		int j = 0;
 		SListConstIterator<node> itSt;
-		for(itSt = nodes[i].begin(); itSt.valid(); ++itSt) {
+		for (itSt = nodes[i].begin(); itSt.valid(); ++itSt) {
 			node vGC = st2GC[*itSt];
-			if(vGC != nullptr)
+			if (vGC != nullptr) {
 				level[j++] = vGC;
+			}
 		}
 
 		//std::cout << level << std::endl;
@@ -1151,17 +1139,15 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 
 	// Finally, we draw the computed hierarchy applying a hierarchy layout
 	// module.
-	m_layout->call(levels,GA);
+	m_layout->call(levels, GA);
 }
-
 
 // This procedure computes the sorted nodes lists on each level of an st-graph.
 // adj1 corresponds to the leftmost outgoing edge of v = adj1->theNode().
 // Levels are build from left to right.
-void LayerBasedUPRLayout::dfsSortLevels(
-	adjEntry adj1,                   // leftmost outgoing edge
-	const NodeArray<int> &rank,      // ranking
-	Array<SListPure<node> > &nodes)  // sorted nodes on levels
+void LayerBasedUPRLayout::dfsSortLevels(adjEntry adj1, // leftmost outgoing edge
+		const NodeArray<int>& rank, // ranking
+		Array<SListPure<node>>& nodes) // sorted nodes on levels
 {
 	node v = adj1->theNode();
 
@@ -1175,43 +1161,42 @@ void LayerBasedUPRLayout::dfsSortLevels(
 
 		// Is adjW the leftmost outgoing edge of w ?
 		adjEntry adjW = adj->twin()->cyclicSucc();
-		if(adjW->theEdge()->source() == w)
-			dfsSortLevels(adjW,rank,nodes);
+		if (adjW->theEdge()->source() == w) {
+			dfsSortLevels(adjW, rank, nodes);
+		}
 
 		adj = adj->cyclicSucc();
 	} while (adj != adj1 && adj->theEdge()->source() == v);
 }
 
-
 // for UPRLayoutSimple
-void LayerBasedUPRLayout::longestPathRanking(
-	const Graph &G,
-	NodeArray<int> &rank)
-{
+void LayerBasedUPRLayout::longestPathRanking(const Graph& G, NodeArray<int>& rank) {
 	ArrayBuffer<node> sources;
 	NodeArray<int> indeg(G);
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		indeg[v] = v->indeg();
 		rank[v] = 0;
-		if(indeg[v] == 0) {
+		if (indeg[v] == 0) {
 			sources.push(v);
 		}
 	}
 
-	while(!sources.empty())
-	{
+	while (!sources.empty()) {
 		node v = sources.popRet();
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = e->target();
-			if (w == v) continue;
+			if (w == v) {
+				continue;
+			}
 
-			if(rank[w] < rank[v]+1)
-				rank[w] = rank[v]+1;
+			if (rank[w] < rank[v] + 1) {
+				rank[w] = rank[v] + 1;
+			}
 
-			if(--indeg[w] == 0) {
+			if (--indeg[w] == 0) {
 				sources.push(w);
 			}
 		}

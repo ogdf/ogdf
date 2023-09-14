@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/uml/UMLEdgeInsertionModule.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
+#include <ogdf/uml/UMLEdgeInsertionModule.h>
 
 namespace ogdf {
 
@@ -48,24 +48,22 @@ namespace ogdf {
  * Carsten Gutwenger, Petra Mutzel, Rene Weiskircher: <i>Inserting an Edge into
  * a Planar %Graph</i>. Algorithmica 41(4), pp. 289-308, 2005.
  */
-class OGDF_EXPORT VariableEmbeddingInserterDynUML : public UMLEdgeInsertionModule
-{
+class OGDF_EXPORT VariableEmbeddingInserterDynUML : public UMLEdgeInsertionModule {
 public:
 	//! Creates an instance of variable embedding edge inserter with default settings.
 	VariableEmbeddingInserterDynUML();
 
 	//! Creates an instance of variable embedding inserter with the same settings as \p inserter.
-	VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML &inserter);
+	VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML& inserter);
 
 	//! Destructor.
 	~VariableEmbeddingInserterDynUML() { }
 
 	//! Returns a new instance of the variable embedding inserter with the same option settings.
-	virtual UMLEdgeInsertionModule *clone() const override;
+	virtual UMLEdgeInsertionModule* clone() const override;
 
 	//! Assignment operator. Copies option settings only.
-	VariableEmbeddingInserterDynUML &operator=(const VariableEmbeddingInserterDynUML &inserter);
-
+	VariableEmbeddingInserterDynUML& operator=(const VariableEmbeddingInserterDynUML& inserter);
 
 	/**
 	 *  @name Optional parameters
@@ -73,42 +71,30 @@ public:
 	 */
 
 	//! Sets the remove-reinsert postprocessing method.
-	void removeReinsert(RemoveReinsertType rrOption) {
-		m_rrOption = rrOption;
-	}
+	void removeReinsert(RemoveReinsertType rrOption) { m_rrOption = rrOption; }
 
 	//! Returns the current setting of the remove-reinsert postprocessing method.
-	RemoveReinsertType removeReinsert() const {
-		return m_rrOption;
-	}
-
+	RemoveReinsertType removeReinsert() const { return m_rrOption; }
 
 	//! Sets the option <i>percentMostCrossed</i> to \p percent.
 	/**
 	 * This option determines the portion of most crossed edges used if the remove-reinsert
 	 * method is set to RemoveReinsertType::MostCrossed. This portion is number of edges * percentMostCrossed() / 100.
 	 */
-	void percentMostCrossed(double percent) {
-		m_percentMostCrossed = percent;
-	}
+	void percentMostCrossed(double percent) { m_percentMostCrossed = percent; }
 
 	//! Returns the current setting of option percentMostCrossed.
-	double percentMostCrossed() const {
-		return m_percentMostCrossed;
-	}
+	double percentMostCrossed() const { return m_percentMostCrossed; }
 
 	//! @}
 
 private:
 	//! Implements the algorithm call.
-	virtual ReturnType doCall(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraph) override;
+	virtual ReturnType doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+			const EdgeArray<int>* pCostOrig, const EdgeArray<uint32_t>* pEdgeSubgraph) override;
 
 	RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
-	double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
+	double m_percentMostCrossed; //!< The portion of most crossed edges considered.
 };
 
 }

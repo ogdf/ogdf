@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
 
 namespace ogdf {
 
@@ -44,7 +44,6 @@ namespace ogdf {
  * A CliqueFinderModule can be called on a graph to retrieve (disjoint) cliques.
  */
 class OGDF_EXPORT CliqueFinderModule {
-
 public:
 	/**
 	 * Creates a CliqueFinderModule.
@@ -52,11 +51,7 @@ public:
 	 * By default, it searches for cliques containing at least three nodes.
 	 * This setting can be changed with #setMinSize().
 	 */
-	explicit CliqueFinderModule()
-		: m_pGraph(nullptr)
-		, m_pCopy(nullptr)
-		, m_minDegree(2)
-	{ }
+	explicit CliqueFinderModule() : m_pGraph(nullptr), m_pCopy(nullptr), m_minDegree(2) { }
 
 	virtual ~CliqueFinderModule() { }
 
@@ -68,7 +63,7 @@ public:
 	 * @param G The graph on which the clique finding algorithm is called.
 	 * @param cliqueNumber The clique number for each node.
 	 */
-	void call(const Graph &G, NodeArray<int> &cliqueNumber);
+	void call(const Graph& G, NodeArray<int>& cliqueNumber);
 
 	//! Searches for cliques and returns the list of cliques.
 	/**
@@ -77,13 +72,13 @@ public:
 	 * @param G The graph on which the clique finding algorithm is called.
 	 * @param cliqueLists The list of cliques.
 	 */
-	void call(const Graph &G, List<List<node>*> &cliqueLists);
+	void call(const Graph& G, List<List<node>*>& cliqueLists);
 
 	//! @{
 	//! \name Parameter Setters
 
 	//! Sets the minimum size of a clique.
-	void setMinSize(int i) { m_minDegree = max(0, i-1); }
+	void setMinSize(int i) { m_minDegree = max(0, i - 1); }
 
 	//! @}
 	//! \name Helper Functions
@@ -96,9 +91,8 @@ public:
 	 * @param cliqueLists List of lists, each one representing a clique.
 	 * @param cliqueNumber Is assigned the clique number for each node.
 	 */
-	static void cliqueListToNumber(const Graph &G,
-			const List<List<node>*> &cliqueLists,
-			NodeArray<int> &cliqueNumber);
+	static void cliqueListToNumber(const Graph& G, const List<List<node>*>& cliqueLists,
+			NodeArray<int>& cliqueNumber);
 
 	/**
 	 * Uses the clique number for each node to create a list of cliques.
@@ -108,9 +102,8 @@ public:
 	 * @param cliqueLists Is assigned a list of lists, each one representing a
 	 * clique.
 	 */
-	static void cliqueNumberToList(const Graph &G,
-			const NodeArray<int> &cliqueNumber,
-			List<List<node>*> &cliqueLists);
+	static void cliqueNumberToList(const Graph& G, const NodeArray<int>& cliqueNumber,
+			List<List<node>*>& cliqueLists);
 
 	/**
 	 * Labels and colors nodes in the given GraphAttributes according to their
@@ -123,9 +116,8 @@ public:
 	 * @param cliqueNumber The clique number for each node.
 	 * @param GA Is assigned the node colors and labels.
 	 */
-	static void cliqueGraphAttributes(const Graph &G,
-			const NodeArray<int> &cliqueNumber,
-			GraphAttributes &GA);
+	static void cliqueGraphAttributes(const Graph& G, const NodeArray<int>& cliqueNumber,
+			GraphAttributes& GA);
 
 	/**
 	 * Checks whether density times the number of possible edges exist between
@@ -137,9 +129,7 @@ public:
 	 * members that have to exist in order for the check to succeed.
 	 * @return Whether the check succeeded.
 	 */
-	static bool cliqueOK(const Graph &G,
-			List<node> *clique,
-			double density = 1.0);
+	static bool cliqueOK(const Graph& G, List<node>* clique, double density = 1.0);
 
 	//! @}
 
@@ -148,14 +138,14 @@ private:
 	/**
 	 * @param G The graph in which to search for cliques.
 	 */
-	void beginCall(const Graph &G);
+	void beginCall(const Graph& G);
 
 	/**
 	 * Sets the results of doCall() using #m_copyCliqueNumber.
 	 *
 	 * @param cliqueNumber Is assigned the clique number for each node.
 	 */
-	void setResults(NodeArray<int> &cliqueNumber);
+	void setResults(NodeArray<int>& cliqueNumber);
 
 	/**
 	 * Sets the results of doCall() using #m_copyCliqueNumber.
@@ -164,7 +154,7 @@ private:
 	 * @param cliqueLists Is assigned a list of pointers, each one pointing to a
 	 * list of nodes representing a clique.
 	 */
-	void setResults(List<List<node>*> &cliqueLists);
+	void setResults(List<List<node>*>& cliqueLists);
 
 	//! Frees memory after doCall().
 	void endCall();
@@ -176,10 +166,10 @@ private:
 	 */
 	bool handleTrivialCases();
 
-	const Graph *m_pGraph; //!< The original Graph in which cliques are searched.
+	const Graph* m_pGraph; //!< The original Graph in which cliques are searched.
 
 protected:
-	GraphCopy *m_pCopy; //!< Copy of #m_pGraph without self-loops and multi-edges.
+	GraphCopy* m_pCopy; //!< Copy of #m_pGraph without self-loops and multi-edges.
 
 	NodeArray<int> m_copyCliqueNumber; //!< The clique number for each node in #m_pCopy.
 

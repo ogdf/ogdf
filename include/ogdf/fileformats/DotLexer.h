@@ -35,7 +35,6 @@
 #include <sstream>
 #include <vector>
 
-
 namespace ogdf {
 
 namespace dot {
@@ -53,15 +52,25 @@ namespace dot {
  * \sa dot::Lexer
  */
 struct Token {
-
 	enum class Type {
 		// Operators
-		assignment, colon, semicolon, comma, edgeOpDirected, edgeOpUndirected,
+		assignment,
+		colon,
+		semicolon,
+		comma,
+		edgeOpDirected,
+		edgeOpUndirected,
 		// Brackets
-		leftBracket, rightBracket,
-		leftBrace, rightBrace,
+		leftBracket,
+		rightBracket,
+		leftBrace,
+		rightBrace,
 		// Keywords
-		graph, digraph, subgraph, node, edge,
+		graph,
+		digraph,
+		subgraph,
+		node,
+		edge,
 		strict,
 		// Values
 		identifier
@@ -74,14 +83,13 @@ struct Token {
 	//! Indicated a token column.
 	size_t column;
 	//! Identifier content (nullptr for non-id tokens).
-	std::string *value;
+	std::string* value;
 
-	Token(size_t tokenRow, size_t tokenColumn, std::string *identifierContent = nullptr);
+	Token(size_t tokenRow, size_t tokenColumn, std::string* identifierContent = nullptr);
 
 	//! Returns string representation of given token type.
-	static std::string toString(const Type &type);
+	static std::string toString(const Type& type);
 };
-
 
 //! Lexical analysis tool.
 /**
@@ -95,7 +103,7 @@ struct Token {
  */
 class Lexer {
 private:
-	std::istream &m_input;
+	std::istream& m_input;
 
 	std::string m_buffer; // Current line of given file.
 	size_t m_row, m_col; // Current position in parsed file.
@@ -110,7 +118,7 @@ private:
 	 * @param word True if token is part of a word, false otherwise.
 	 * @return True if matches, false otherwise.
 	 */
-	bool match(const Token::Type &type, bool word = false);
+	bool match(const Token::Type& type, bool word = false);
 
 	//! Checks if \a head matches given string. Advances \a head on success.
 	/**
@@ -118,14 +126,14 @@ private:
 	 * @param word True if token is part of a word, false otherwise.
 	 * @return True if matches, false otherwise.
 	 */
-	bool match(const std::string &str, bool word = false);
+	bool match(const std::string& str, bool word = false);
 
 	//! Checks whether \a head is an identifier.
 	/**
 	 * @param token Function fills it with identifier value and col/row info.
 	 * @return True if matches, false otherwise.
 	 */
-	bool identifier(Token &token);
+	bool identifier(Token& token);
 
 	//! Checks if character is allowed in an identifier by DOT standard
 	/**
@@ -136,7 +144,7 @@ private:
 
 public:
 	//! Initializes lexer with given input (but does nothing to it).
-	explicit Lexer(std::istream &input);
+	explicit Lexer(std::istream& input);
 	~Lexer();
 
 	//! Scans input and turns it into token list.
@@ -145,7 +153,7 @@ public:
 	 */
 	bool tokenize();
 	//! Returns list of tokens (first use Lexer#tokenize())
-	const std::vector<Token> &tokens() const;
+	const std::vector<Token>& tokens() const;
 };
 
 }

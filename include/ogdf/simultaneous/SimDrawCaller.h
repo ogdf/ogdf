@@ -34,8 +34,7 @@
 
 #include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
-namespace ogdf
-{
+namespace ogdf {
 
 //! Calls modified algorithms for simdraw instances
 /**
@@ -53,11 +52,9 @@ namespace ogdf
  *  SDC.callSubgraphPlanarizer();
  *  \endcode
  */
-class OGDF_EXPORT SimDrawCaller : public SimDrawManipulatorModule
-{
-
+class OGDF_EXPORT SimDrawCaller : public SimDrawManipulatorModule {
 private:
-	EdgeArray<uint32_t> *m_esg;     //!< saves edgeSubGraphs data
+	EdgeArray<uint32_t>* m_esg; //!< saves edgeSubGraphs data
 
 	//! updates m_esg
 	/**
@@ -68,7 +65,7 @@ private:
 
 public:
 	//! constructor
-	explicit SimDrawCaller(SimDraw &SD);
+	explicit SimDrawCaller(SimDraw& SD);
 
 	//! runs SugiyamaLayout with modified SplitHeuristic
 	/**

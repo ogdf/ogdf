@@ -43,30 +43,20 @@ namespace ogdf {
 class OGDF_EXPORT DfsAcyclicSubgraph : public AcyclicSubgraphModule {
 public:
 	//! Computes the set of edges \p arcSet, which have to be deleted in the acyclic subgraph.
-	virtual void call (const Graph &G, List<edge> &arcSet) override;
+	virtual void call(const Graph& G, List<edge>& arcSet) override;
 
 	//! Call for UML graph.
 	/**
 	 * Computes the set of edges \p arcSet, which have to be deleted
 	 * in the acyclic subgraph.
 	 */
-	void callUML (const GraphAttributes &AG, List<edge> &arcSet);
+	void callUML(const GraphAttributes& AG, List<edge>& arcSet);
 
 private:
-	int dfsFindHierarchies(
-		const GraphAttributes &AG,
-		NodeArray<int> &hierarchy,
-		int i,
-		node v);
+	int dfsFindHierarchies(const GraphAttributes& AG, NodeArray<int>& hierarchy, int i, node v);
 
-	void dfsBackedgesHierarchies(
-		const GraphAttributes &AG,
-		node v,
-		NodeArray<int> &number,
-		NodeArray<int> &completion,
-		int &nNumber,
-		int &nCompletion);
-
+	void dfsBackedgesHierarchies(const GraphAttributes& AG, node v, NodeArray<int>& number,
+			NodeArray<int>& completion, int& nNumber, int& nCompletion);
 };
 
 }

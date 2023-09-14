@@ -30,12 +30,13 @@
  */
 
 #include <ogdf/graphalg/Matching.h>
+
 #include <graphs.h>
 #include <testing.h>
 
-static std::vector<edge> getEdges(const Graph &graph, std::set<int>&& edgeIndices) {
+static std::vector<edge> getEdges(const Graph& graph, std::set<int>&& edgeIndices) {
 	std::vector<edge> result;
-	int idx{0};
+	int idx {0};
 	for (edge e : graph.edges) {
 		if (edgeIndices.find(idx) != edgeIndices.end()) {
 			result.push_back(e);
@@ -65,7 +66,7 @@ static void describeIsMatching() {
 		Graph graph;
 		customGraph(graph, 2, {{0, 1}, {0, 1}, {0, 1}, {0, 1}});
 		for (edge e : graph.edges) {
-			AssertThat(Matching::isMatching(graph, List<edge>{e}), IsTrue());
+			AssertThat(Matching::isMatching(graph, List<edge> {e}), IsTrue());
 		}
 	});
 
@@ -73,29 +74,27 @@ static void describeIsMatching() {
 	Array<node> nodes;
 	customGraph(graph, 5, {{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 0}, {3, 1}}, nodes);
 
-	it("accepts an empty set", [&] {
-		AssertThat(Matching::isMatching(graph, List<edge>{}), IsTrue());
-	});
+	it("accepts an empty set",
+			[&] { AssertThat(Matching::isMatching(graph, List<edge> {}), IsTrue()); });
 
-	it("does not identify all edges as matching on a graph with minimum degree 2", [&] {
-		AssertThat(Matching::isMatching(graph, graph.edges), IsFalse());
-	});
+	it("does not identify all edges as matching on a graph with minimum degree 2",
+			[&] { AssertThat(Matching::isMatching(graph, graph.edges), IsFalse()); });
 }
 
 static void describeIsMaximal() {
 	it("accepts an empty matching on isolated nodes", [] {
 		Graph graph;
 		emptyGraph(graph, 10);
-		AssertThat(Matching::isMaximal(graph, List<edge>{}), IsTrue());
-		edge addable{graph.firstEdge()}; // initialize with wrong value
-		AssertThat(Matching::isMaximal(graph, List<edge>{}, addable), IsTrue());
+		AssertThat(Matching::isMaximal(graph, List<edge> {}), IsTrue());
+		edge addable {graph.firstEdge()}; // initialize with wrong value
+		AssertThat(Matching::isMaximal(graph, List<edge> {}, addable), IsTrue());
 		AssertThat(addable, IsNull());
 	});
 
 	it("accepts a maximal but not maximum matching", [] {
 		Graph graph;
 		customGraph(graph, 6, {{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}});
-		edge addable{graph.firstEdge()}; // initialize with wrong value
+		edge addable {graph.firstEdge()}; // initialize with wrong value
 		AssertThat(Matching::isMaximal(graph, getEdges(graph, {1, 3}), addable), IsTrue());
 		AssertThat(addable, IsNull());
 	});
@@ -103,7 +102,7 @@ static void describeIsMaximal() {
 	it("finds an edge that can be added to the matching", [] {
 		Graph graph;
 		customGraph(graph, 6, {{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}});
-		edge addable{nullptr};
+		edge addable {nullptr};
 		AssertThat(Matching::isMaximal(graph, getEdges(graph, {2, 4}), addable), IsFalse());
 		AssertThat(addable, Equals(graph.firstEdge()));
 	});
@@ -117,7 +116,7 @@ static void describeIsMaximal() {
 	it("finds an edge that can be added although the edge set is not a matching", [] {
 		Graph graph;
 		customGraph(graph, 5, {{0, 1}, {1, 2}, {2, 0}, {0, 3}, {4, 1}, {3, 4}});
-		edge addable{nullptr};
+		edge addable {nullptr};
 		AssertThat(Matching::isMaximal(graph, getEdges(graph, {0, 1, 2}), addable), IsFalse());
 		AssertThat(addable, Equals(graph.lastEdge()));
 	});
@@ -142,8 +141,9 @@ static void describeIsPerfectMatching() {
 	it("rejects non-matchings", [] {
 		Graph graph;
 		customGraph(graph, 4, {{0, 1}, {1, 2}, {2, 3}, {3, 0}});
-		for (auto&& edgeSet : List<std::set<int>>{{0, 1}, {0, 3}, {1, 2}, {2, 3}}) {
-			AssertThat(Matching::isPerfectMatching(graph, getEdges(graph, std::move(edgeSet))), IsFalse());
+		for (auto&& edgeSet : List<std::set<int>> {{0, 1}, {0, 3}, {1, 2}, {2, 3}}) {
+			AssertThat(Matching::isPerfectMatching(graph, getEdges(graph, std::move(edgeSet))),
+					IsFalse());
 		}
 	});
 }
@@ -158,20 +158,12 @@ static void describeMaximalMatching() {
 
 go_bandit([] {
 	describe("Matching algorithms", [] {
-		describe("isMatching()", [] {
-			describeIsMatching();
-		});
+		describe("isMatching()", [] { describeIsMatching(); });
 
-		describe("isMaximal()", [] {
-			describeIsMaximal();
-		});
+		describe("isMaximal()", [] { describeIsMaximal(); });
 
-		describe("isPerfectMatching()", [] {
-			describeIsPerfectMatching();
-		});
+		describe("isPerfectMatching()", [] { describeIsPerfectMatching(); });
 
-		describe("findMaximalMatching()", [] {
-			describeMaximalMatching();
-		});
+		describe("findMaximalMatching()", [] { describeMaximalMatching(); });
 	});
 });

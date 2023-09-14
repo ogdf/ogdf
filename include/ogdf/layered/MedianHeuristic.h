@@ -39,29 +39,25 @@ namespace ogdf {
 /**
  * @ingroup gd-layered-crossmin
  */
-class OGDF_EXPORT MedianHeuristic : public LayerByLayerSweep
-{
+class OGDF_EXPORT MedianHeuristic : public LayerByLayerSweep {
 public:
 	//! Creates a new instance of the median heuristic.
 	MedianHeuristic() { }
 
 	//! Creates a new instance of the median heuristic.
-	MedianHeuristic(const MedianHeuristic &crossMin) { }
+	MedianHeuristic(const MedianHeuristic& crossMin) { }
 
 	//! Returns a new instance of the median heuristic with the same option settings.
-	virtual LayerByLayerSweep *clone() const override
-	{
-		return new MedianHeuristic;
-	}
+	virtual LayerByLayerSweep* clone() const override { return new MedianHeuristic; }
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	virtual void init (const HierarchyLevels &levels) override { m_weight.init(levels.hierarchy()); }
+	virtual void init(const HierarchyLevels& levels) override { m_weight.init(levels.hierarchy()); }
 
 	//! Calls the median heuristic for level \p L.
-	virtual void call (Level &L) override;
+	virtual void call(Level& L) override;
 
 	//! Does some clean-up after calls.
-	virtual void cleanup () override { m_weight.init(); }
+	virtual void cleanup() override { m_weight.init(); }
 
 private:
 	NodeArray<int> m_weight; //!< The median weight of a node.

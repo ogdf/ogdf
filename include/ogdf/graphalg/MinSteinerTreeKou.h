@@ -34,10 +34,9 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
+#include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-
-#include <ogdf/graphalg/Dijkstra.h>
 
 namespace ogdf {
 
@@ -67,11 +66,8 @@ protected:
 	 * @param finalSteinerTree The final Steiner tree
 	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(
-		const EdgeWeightedGraph<T> &G,
-		const List<node> &terminals,
-		const NodeArray<bool> &isTerminal,
-		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override;
 
 	/*!
 	 * \brief Builds a complete terminal graph
@@ -80,8 +76,8 @@ protected:
 	 * @param predecessor stores for each edge in the complete terminal graph the according path in the original graph
 	 * @param completeTerminalGraph the resulting complete terminal graph
 	 */
-	void calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, EdgeArray<List<edge>> &predecessor,
-			EdgeWeightedGraphCopy<T> &completeTerminalGraph);
+	void calculateCompleteGraph(const EdgeWeightedGraph<T>& wG, const List<node>& terminals,
+			EdgeArray<List<edge>>& predecessor, EdgeWeightedGraphCopy<T>& completeTerminalGraph);
 
 	/*!
 	 * \brief Swaps an edge in the complete terminal graph with the corresponding shortest path in the original graph
@@ -91,8 +87,9 @@ protected:
 	 * @param finalSteinerTree the resulting Steiner tree
 	 * @param wG the original graph
 	 */
-	void reinsertShortestPaths(const EdgeWeightedGraphCopy<T> &completeTerminalGraph, const EdgeArray<List<edge>> &ssspPred,
-			const NodeArray<edge> &mstPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG);
+	void reinsertShortestPaths(const EdgeWeightedGraphCopy<T>& completeTerminalGraph,
+			const EdgeArray<List<edge>>& ssspPred, const NodeArray<edge>& mstPred,
+			EdgeWeightedGraphCopy<T>& finalSteinerTree, const EdgeWeightedGraph<T>& wG);
 
 	/*!
 	 * \brief Inserts a shortest path corresponding to an edge in the complete terminal graph
@@ -100,12 +97,13 @@ protected:
 	 * @param finalSteinerTree the resulting Steiner tree
 	 * @param wG the original graph
 	 */
-	void insertPath(const List<edge> &ssspPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG);
+	void insertPath(const List<edge>& ssspPred, EdgeWeightedGraphCopy<T>& finalSteinerTree,
+			const EdgeWeightedGraph<T>& wG);
 };
 
 template<typename T>
-T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+		const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	EdgeWeightedGraphCopy<T> completeTerminalGraph;
 	completeTerminalGraph.createEmpty(G);
 
@@ -133,8 +131,9 @@ T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const 
 }
 
 template<typename T>
-void MinSteinerTreeKou<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, EdgeArray<List<edge>> &predecessor, EdgeWeightedGraphCopy<T> &completeTerminalGraph)
-{
+void MinSteinerTreeKou<T>::calculateCompleteGraph(const EdgeWeightedGraph<T>& wG,
+		const List<node>& terminals, EdgeArray<List<edge>>& predecessor,
+		EdgeWeightedGraphCopy<T>& completeTerminalGraph) {
 	Dijkstra<T> sssp;
 	for (node u = completeTerminalGraph.firstNode(); u->succ(); u = u->succ()) {
 		NodeArray<T> d;
@@ -151,13 +150,10 @@ void MinSteinerTreeKou<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG
 }
 
 template<typename T>
-void MinSteinerTreeKou<T>::reinsertShortestPaths(const EdgeWeightedGraphCopy<T> &completeTerminalGraph,
-                                                 const EdgeArray<List<edge>> &ssspPred,
-                                                 const NodeArray<edge> &mstPred,
-                                                 EdgeWeightedGraphCopy<T> &finalSteinerTree,
-                                                 const EdgeWeightedGraph<T> &wG)
-{
-	for(node u : completeTerminalGraph.nodes) {
+void MinSteinerTreeKou<T>::reinsertShortestPaths(const EdgeWeightedGraphCopy<T>& completeTerminalGraph,
+		const EdgeArray<List<edge>>& ssspPred, const NodeArray<edge>& mstPred,
+		EdgeWeightedGraphCopy<T>& finalSteinerTree, const EdgeWeightedGraph<T>& wG) {
+	for (node u : completeTerminalGraph.nodes) {
 		if (mstPred[u]) {
 			insertPath(ssspPred[mstPred[u]], finalSteinerTree, wG);
 		}
@@ -165,12 +161,10 @@ void MinSteinerTreeKou<T>::reinsertShortestPaths(const EdgeWeightedGraphCopy<T> 
 }
 
 template<typename T>
-void MinSteinerTreeKou<T>::insertPath(const List<edge> &ssspPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG)
-{
-	for (edge e : ssspPred)
-	{
-		if (e != nullptr && finalSteinerTree.chain(e).size() == 0)
-		{
+void MinSteinerTreeKou<T>::insertPath(const List<edge>& ssspPred,
+		EdgeWeightedGraphCopy<T>& finalSteinerTree, const EdgeWeightedGraph<T>& wG) {
+	for (edge e : ssspPred) {
+		if (e != nullptr && finalSteinerTree.chain(e).size() == 0) {
 			node edgeSource = e->source();
 			node edgeTarget = e->target();
 

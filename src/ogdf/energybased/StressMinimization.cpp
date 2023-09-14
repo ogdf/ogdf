@@ -32,31 +32,31 @@
 
 #include <ogdf/energybased/StressMinimization.h>
 
-
 namespace ogdf {
 
 const double StressMinimization::EPSILON = 10e-4;
 
 const int StressMinimization::DEFAULT_NUMBER_OF_PIVOTS = 50;
 
-
-void StressMinimization::call(GraphAttributes& GA)
-{
+void StressMinimization::call(GraphAttributes& GA) {
+	m_use3D = GA.has(GraphAttributes::threeD) && !m_forcing2DLayout;
 	const Graph& G = GA.constGraph();
 	// if the graph has at most one node nothing to do
 	if (G.numberOfNodes() <= 1) {
 		// make it exception save
-		for(node v : G.nodes)
-		{
+		for (node v : G.nodes) {
 			GA.x(v) = 0;
 			GA.y(v) = 0;
+			if (m_use3D) {
+				GA.z(v) = 0;
+			}
 		}
 		return;
 	}
 	// Separate component layout cant be applied to a non-connected graph
 	OGDF_ASSERT(!m_componentLayout || isConnected(G));
-	NodeArray<NodeArray<double> > shortestPathMatrix(G);
-	NodeArray<NodeArray<double> > weightMatrix(G);
+	NodeArray<NodeArray<double>> shortestPathMatrix(G);
+	NodeArray<NodeArray<double>> weightMatrix(G);
 	initMatrices(G, shortestPathMatrix, weightMatrix);
 	// if the edge costs are defined by the attribute copy it to an array and
 	// construct the proper shortest path matrix
@@ -71,12 +71,8 @@ void StressMinimization::call(GraphAttributes& GA)
 	call(GA, shortestPathMatrix, weightMatrix);
 }
 
-
-void StressMinimization::call(
-	GraphAttributes& GA,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	NodeArray<NodeArray<double> >& weightMatrix)
-{
+void StressMinimization::call(GraphAttributes& GA, NodeArray<NodeArray<double>>& shortestPathMatrix,
+		NodeArray<NodeArray<double>>& weightMatrix) {
 	// compute the initial layout if necessary
 	if (!m_hasInitialLayout) {
 		computeInitialLayout(GA);
@@ -95,18 +91,17 @@ void StressMinimization::call(
 	minimizeStress(GA, shortestPathMatrix, weightMatrix);
 }
 
-
-void StressMinimization::computeInitialLayout(GraphAttributes& GA)
-{
+void StressMinimization::computeInitialLayout(GraphAttributes& GA) {
 	PivotMDS* pivMDS = new PivotMDS();
 	pivMDS->setNumberOfPivots(DEFAULT_NUMBER_OF_PIVOTS);
 	pivMDS->useEdgeCostsAttribute(m_hasEdgeCostsAttribute);
 	pivMDS->setEdgeCosts(m_edgeCosts);
+	pivMDS->setForcing2DLayout(m_forcing2DLayout);
 	if (!m_componentLayout) {
 		// the graph might be disconnected therefore we need
 		// the component layouter
 		//design decision: should that parameter be passed to CSL?
-		ComponentSplitterLayout compLayouter;//(m_hasEdgeCostsAttribute);
+		ComponentSplitterLayout compLayouter; //(m_hasEdgeCostsAttribute);
 		compLayouter.setLayoutModule(pivMDS);
 		compLayouter.call(GA);
 	} else {
@@ -115,15 +110,12 @@ void StressMinimization::computeInitialLayout(GraphAttributes& GA)
 	}
 }
 
+void StressMinimization::replaceInfinityDistances(NodeArray<NodeArray<double>>& shortestPathMatrix,
+		double newVal) {
+	const Graph& G = *shortestPathMatrix.graphOf();
 
-void StressMinimization::replaceInfinityDistances(
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	double newVal)
-{
-	const Graph &G = *shortestPathMatrix.graphOf();
-
-	for(node v : G.nodes) {
-		for(node w : G.nodes) {
+	for (node v : G.nodes) {
+		for (node w : G.nodes) {
 			if (v != w && isinf(shortestPathMatrix[v][w])) {
 				shortestPathMatrix[v][w] = newVal;
 			}
@@ -131,85 +123,60 @@ void StressMinimization::replaceInfinityDistances(
 	}
 }
 
-
-void StressMinimization::calcWeights(
-	const Graph& G,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	NodeArray<NodeArray<double> >& weightMatrix)
-{
+void StressMinimization::calcWeights(const Graph& G, NodeArray<NodeArray<double>>& shortestPathMatrix,
+		NodeArray<NodeArray<double>>& weightMatrix) {
 	for (node v : G.nodes) {
 		for (node w : G.nodes) {
 			if (v != w) {
 				// w_ij = d_ij^-2
-				weightMatrix[v][w] = 1
-					/ (shortestPathMatrix[v][w] * shortestPathMatrix[v][w]);
+				weightMatrix[v][w] = 1 / (shortestPathMatrix[v][w] * shortestPathMatrix[v][w]);
 			}
 		}
 	}
 }
 
-
-double StressMinimization::calcStress(
-	const GraphAttributes& GA,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	NodeArray<NodeArray<double> >& weightMatrix)
-{
+double StressMinimization::calcStress(const GraphAttributes& GA,
+		NodeArray<NodeArray<double>>& shortestPathMatrix, NodeArray<NodeArray<double>>& weightMatrix) {
 	double stress = 0;
 	for (node v = GA.constGraph().firstNode(); v != nullptr; v = v->succ()) {
 		for (node w = v->succ(); w != nullptr; w = w->succ()) {
 			double xDiff = GA.x(v) - GA.x(w);
 			double yDiff = GA.y(v) - GA.y(w);
 			double zDiff = 0.0;
-			if (GA.has(GraphAttributes::threeD))
-			{
+			if (m_use3D) {
 				zDiff = GA.z(v) - GA.z(w);
 			}
 			double dist = sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 			if (dist != 0) {
 				stress += weightMatrix[v][w] * (shortestPathMatrix[v][w] - dist)
-					* (shortestPathMatrix[v][w] - dist);//
+						* (shortestPathMatrix[v][w] - dist); //
 			}
 		}
 	}
 	return stress;
 }
 
-
-void StressMinimization::copyLayout(
-	const GraphAttributes& GA,
-	NodeArray<double>& newX,
-	NodeArray<double>& newY)
-{
+void StressMinimization::copyLayout(const GraphAttributes& GA, NodeArray<double>& newX,
+		NodeArray<double>& newY) {
 	// copy the layout
-	for(node v : GA.constGraph().nodes)
-	{
+	for (node v : GA.constGraph().nodes) {
 		newX[v] = GA.x(v);
 		newY[v] = GA.y(v);
 	}
 }
 
-
-void StressMinimization::copyLayout(
-	const GraphAttributes& GA,
-	NodeArray<double>& newX,
-	NodeArray<double>& newY,
-	NodeArray<double>& newZ)
-{
+void StressMinimization::copyLayout(const GraphAttributes& GA, NodeArray<double>& newX,
+		NodeArray<double>& newY, NodeArray<double>& newZ) {
 	// copy the layout
-	for(node v : GA.constGraph().nodes)
-	{
+	for (node v : GA.constGraph().nodes) {
 		newX[v] = GA.x(v);
 		newY[v] = GA.y(v);
 		newZ[v] = GA.z(v);
 	}
 }
 
-
-void StressMinimization::minimizeStress(
-	GraphAttributes& GA,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	NodeArray<NodeArray<double> >& weightMatrix)
-{
+void StressMinimization::minimizeStress(GraphAttributes& GA,
+		NodeArray<NodeArray<double>>& shortestPathMatrix, NodeArray<NodeArray<double>>& weightMatrix) {
 	const Graph& G = GA.constGraph();
 	int numberOfPerformedIterations = 0;
 
@@ -227,14 +194,17 @@ void StressMinimization::minimizeStress(
 	if (m_terminationCriterion == TerminationCriterion::PositionDifference) {
 		newX.init(G);
 		newY.init(G);
-		if (GA.has(GraphAttributes::threeD))
+		if (m_use3D) {
 			newZ.init(G);
+		}
 	}
 	do {
 		if (m_terminationCriterion == TerminationCriterion::PositionDifference) {
-			if (GA.has(GraphAttributes::threeD))
+			if (m_use3D) {
 				copyLayout(GA, newX, newY, newZ);
-			else copyLayout(GA, newX, newY);
+			} else {
+				copyLayout(GA, newX, newY);
+			}
 		}
 		nextIteration(GA, shortestPathMatrix, weightMatrix);
 		if (m_terminationCriterion == TerminationCriterion::Stress) {
@@ -243,35 +213,29 @@ void StressMinimization::minimizeStress(
 		}
 	} while (!finished(GA, ++numberOfPerformedIterations, newX, newY, prevStress, curStress));
 
-	Logger::slout() << "Iteration count:\t" << numberOfPerformedIterations
-		<< "\tStress:\t" << calcStress(GA, shortestPathMatrix, weightMatrix) << std::endl;
+	Logger::slout() << "Iteration count:\t" << numberOfPerformedIterations << "\tStress:\t"
+					<< calcStress(GA, shortestPathMatrix, weightMatrix) << std::endl;
 }
 
-
-void StressMinimization::nextIteration(
-	GraphAttributes& GA,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	NodeArray<NodeArray<double> >& weights)
-{
+void StressMinimization::nextIteration(GraphAttributes& GA,
+		NodeArray<NodeArray<double>>& shortestPathMatrix, NodeArray<NodeArray<double>>& weights) {
 	const Graph& G = GA.constGraph();
 
-	for (node v : G.nodes)
-	{
+	for (node v : G.nodes) {
 		double newXCoord = 0.0;
 		double newYCoord = 0.0;
 		double newZCoord = 0.0;
 		double& currXCoord = GA.x(v);
 		double& currYCoord = GA.y(v);
 		double totalWeight = 0;
-		for (node w : G.nodes)
-		{
+		for (node w : G.nodes) {
 			if (v == w) {
 				continue;
 			}
 			// calculate euclidean distance between both points
 			double xDiff = currXCoord - GA.x(w);
 			double yDiff = currYCoord - GA.y(w);
-			double zDiff = (GA.has(GraphAttributes::threeD)) ? GA.z(v) - GA.z(w) : 0.0;
+			double zDiff = m_use3D ? GA.z(v) - GA.z(w) : 0.0;
 			double euclideanDist = sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 			// get the weight
 			double weight = weights[v][w];
@@ -298,7 +262,7 @@ void StressMinimization::nextIteration(
 				}
 				newYCoord += weight * voteY;
 			}
-			if (GA.has(GraphAttributes::threeD) && !m_fixZCoords) {
+			if (m_use3D && !m_fixZCoords) {
 				// reset the voted z coordinate
 				double voteZ = GA.z(w);
 				if (euclideanDist != 0) {
@@ -318,36 +282,27 @@ void StressMinimization::nextIteration(
 			if (!m_fixYCoords) {
 				currYCoord = newYCoord / totalWeight;
 			}
-			if (GA.has(GraphAttributes::threeD) && !m_fixZCoords) {
+			if (m_use3D && !m_fixZCoords) {
 				GA.z(v) = newZCoord / totalWeight;
 			}
 		}
 	}
 }
 
-
-bool StressMinimization::finished(
-	GraphAttributes& GA,
-	int numberOfPerformedIterations,
-	NodeArray<double>& prevXCoords,
-	NodeArray<double>& prevYCoords,
-	const double prevStress,
-	const double curStress)
-{
+bool StressMinimization::finished(GraphAttributes& GA, int numberOfPerformedIterations,
+		NodeArray<double>& prevXCoords, NodeArray<double>& prevYCoords, const double prevStress,
+		const double curStress) {
 	if (numberOfPerformedIterations == m_numberOfIterations) {
 		return true;
 	}
 
-	switch (m_terminationCriterion)
-	{
-	case TerminationCriterion::PositionDifference:
-	{
+	switch (m_terminationCriterion) {
+	case TerminationCriterion::PositionDifference: {
 		double eucNorm = 0;
 		double dividend = 0;
 		// compute the translation of all nodes between
 		// the consecutive layouts
-		for (node v : GA.constGraph().nodes)
-		{
+		for (node v : GA.constGraph().nodes) {
 			double diffX = prevXCoords[v] - GA.x(v);
 			double diffY = prevYCoords[v] - GA.y(v);
 			dividend += diffX * diffX + diffY * diffY;
@@ -363,14 +318,10 @@ bool StressMinimization::finished(
 	}
 }
 
-
 void StressMinimization::initMatrices(const Graph& G,
-	NodeArray<NodeArray<double> >& shortestPathMatrix,
-	NodeArray<NodeArray<double> >& weightMatrix)
-{
+		NodeArray<NodeArray<double>>& shortestPathMatrix, NodeArray<NodeArray<double>>& weightMatrix) {
 	// init shortest path matrix by infinity distances
-	for (node v : G.nodes)
-	{
+	for (node v : G.nodes) {
 		shortestPathMatrix[v].init(G, std::numeric_limits<double>::infinity());
 		shortestPathMatrix[v][v] = 0;
 		weightMatrix[v].init(G, 0);

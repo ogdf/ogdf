@@ -33,8 +33,7 @@
 
 #include <ogdf/basic/pqtree/PQNodeRoot.h>
 
-
-namespace ogdf{
+namespace ogdf {
 
 /**
 The definitions for W, B, H and A
@@ -46,13 +45,11 @@ in the frontier of X that have to be deleted. For further
 description of the types see Jayakumar, Thulasiraman and Swamy 1989.
 */
 
-enum class whaType {
-	W, B, H, A
-};
+enum class whaType { W, B, H, A };
 
-class whaInfo
-{
-	template<class T, class Y> friend class MaxSequencePQTree;
+class whaInfo {
+	template<class T, class Y>
+	friend class MaxSequencePQTree;
 
 public:
 	//The deleteType is set to type b (= keep all leaves in the frontier).
@@ -60,17 +57,16 @@ public:
 		m_a = 0;
 		m_h = 0;
 		m_w = 0;
-		m_deleteType      = whaType::B;
-		m_pertLeafCount   = 0;
+		m_deleteType = whaType::B;
+		m_pertLeafCount = 0;
 		m_notVisitedCount = 0;
-		m_aChild          = nullptr;
-		m_hChild1         = nullptr;
-		m_hChild2         = nullptr;
-		m_hChild2Sib      = nullptr;
+		m_aChild = nullptr;
+		m_hChild1 = nullptr;
+		m_hChild2 = nullptr;
+		m_hChild2Sib = nullptr;
 	}
 
-
-	~whaInfo() {}
+	~whaInfo() { }
 
 	void defaultValues() {
 		m_a = 0;
@@ -112,21 +108,21 @@ private:
 
 	// a pointer to the child of node that has to be of type a if the
 	// node itself has been determined to be of type a.
-	PQNodeRoot *m_aChild;
+	PQNodeRoot* m_aChild;
 
 	// a pointer to the child of node that has to be of type h if the
 	// node itself has been determined to be of type h.
-	PQNodeRoot *m_hChild1;
+	PQNodeRoot* m_hChild1;
 
 	// a pointer to the child of node that has to be of type h if the
 	// node itself has been determined to be of type a and m_aChild does
 	// contain the empty pointer.
-	PQNodeRoot *m_hChild2;
+	PQNodeRoot* m_hChild2;
 
 
 	// m_hChild2Sib is a pointer to the pertinent sibling of m_hChild2. This
 	// pointer is necessary if the sequence of pertinent children is not unique.
-	PQNodeRoot *m_hChild2Sib;
+	PQNodeRoot* m_hChild2Sib;
 
 	OGDF_NEW_DELETE
 };

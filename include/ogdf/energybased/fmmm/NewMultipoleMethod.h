@@ -31,44 +31,40 @@
 
 #pragma once
 
+#include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/fmmm/FMMMOptions.h>
-#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNM.h>
 #include <ogdf/energybased/fmmm/FruchtermanReingold.h>
+#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNM.h>
+
 #include <complex>
 
 namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-class OGDF_EXPORT NewMultipoleMethod
-{
+class OGDF_EXPORT NewMultipoleMethod {
 public:
 	//! Constructor
 	NewMultipoleMethod();
 
 	//! Calculate rep. forces for each node.
-	void calculate_repulsive_forces(const Graph &G,
-		NodeArray<NodeAttributes>& A,
-		NodeArray<DPoint>& F_rep);
+	void calculate_repulsive_forces(const Graph& G, NodeArray<NodeAttributes>& A,
+			NodeArray<DPoint>& F_rep);
 
 	//! Make all initialisations that are needed for New Multipole Method (NMM)
-	void make_initialisations (const Graph &G,
-		double boxlength,
-		DPoint down_left_corner,
-		int particles_in_leaves,
-		int precision,
-		FMMMOptions::ReducedTreeConstruction tree_construction_way,
-		FMMMOptions::SmallestCellFinding find_small_cell);
+	void make_initialisations(const Graph& G, double boxlength, DPoint down_left_corner,
+			int particles_in_leaves, int precision,
+			FMMMOptions::ReducedTreeConstruction tree_construction_way,
+			FMMMOptions::SmallestCellFinding find_small_cell);
 
 	//! Dynamically allocated memory is freed here.
 	void deallocate_memory();
 
 	//! Import updated information of the drawing area.
-	void update_boxlength_and_cornercoordinate(double b_l,DPoint d_l_c);
+	void update_boxlength_and_cornercoordinate(double b_l, DPoint d_l_c);
 
 private:
 	//! The minimum number of nodes for which the forces are
@@ -82,14 +78,14 @@ private:
 
 	FMMMOptions::ReducedTreeConstruction _tree_construction_way;
 	FMMMOptions::SmallestCellFinding _find_small_cell;
-	int _particles_in_leaves;//!< max. number of particles for leaves of the quadtree
-	int _precision;  //!< precision for p-term multipole expansion
+	int _particles_in_leaves; //!< max. number of particles for leaves of the quadtree
+	int _precision; //!< precision for p-term multipole expansion
 
-	double boxlength;//!< length of drawing box
-	DPoint down_left_corner;//!< down left corner of drawing box
+	double boxlength; //!< length of drawing box
+	DPoint down_left_corner; //!< down left corner of drawing box
 
-	const int max_power_of_2_index;//!< holds max. index for power_of_2 (= 30)
-	double ** BK; //!< holds the binomial coefficients
+	const int max_power_of_2_index; //!< holds max. index for power_of_2 (= 30)
+	double** BK; //!< holds the binomial coefficients
 
 	//! stores the rep. forces of the last iteration
 	//! needed for error calculation)
@@ -101,52 +97,47 @@ private:
 	int power_of_two(int i);
 
 	//! Returns the maximal index of a box in level i.
-	int maxboxindex (int level);
+	int maxboxindex(int level);
 
 	//! Use NMM for force calculation (used for large Graphs (|V| > MIN_NODE_NUMBER)).
-	void  calculate_repulsive_forces_by_NMM(const Graph &G, NodeArray
-		<NodeAttributes>& A, NodeArray<DPoint>& F_rep);
+	void calculate_repulsive_forces_by_NMM(const Graph& G, NodeArray<NodeAttributes>& A,
+			NodeArray<DPoint>& F_rep);
 
 	//! Use the exact method for force calculation (used for small Graphs (|V| <=
 	//! MIN_NODE_NUMBER) for speed reasons).
-	void  calculate_repulsive_forces_by_exact_method(const Graph &G,
-		NodeArray<NodeAttributes>& A,
-		NodeArray<DPoint>& F_rep);
+	void calculate_repulsive_forces_by_exact_method(const Graph& G, NodeArray<NodeAttributes>& A,
+			NodeArray<DPoint>& F_rep);
 
-	//! \name Functions needed for path by path tree construction @{
+	//! @{
+	//! @name Functions needed for path by path tree construction
 
 	//! The reduced quadtree is build up path by path (the Lists LE,ME, the
 	//! centers, D1, D2, M, and quad_tree_leaves are not calculated here.
-	void  build_up_red_quad_tree_path_by_path(const Graph& G,
-		NodeArray<NodeAttributes>& A,
-		QuadTreeNM& T);
+	void build_up_red_quad_tree_path_by_path(const Graph& G, NodeArray<NodeAttributes>& A,
+			QuadTreeNM& T);
 
 	//! Makes L_x(y)_copy a copy of L_x(y)_orig and sets p.copy_item for each element in
 	//! L_x(y)_orig to the ListIterator of the corresponding element in L_x(y)_copy.
 	//! Furthermore, the p.cross_ref_items in L_x(y)_copy are set and p.subList_ptr and
 	//! p.tmp_cross_ref_item is reset to nullptr in both lists.
-	void make_copy_and_init_Lists(List<ParticleInfo>& L_x_orig,
-		List<ParticleInfo>& L_x_copy,
-		List<ParticleInfo>& L_y_orig,
-		List<ParticleInfo>& L_y_copy);
+	void make_copy_and_init_Lists(List<ParticleInfo>& L_x_orig, List<ParticleInfo>& L_x_copy,
+			List<ParticleInfo>& L_y_orig, List<ParticleInfo>& L_y_copy);
 
 	//! The root node of T is constructed.
-	void build_up_root_node(const Graph& G,NodeArray<NodeAttributes>& A, QuadTreeNM& T);
+	void build_up_root_node(const Graph& G, NodeArray<NodeAttributes>& A, QuadTreeNM& T);
 
 	//! The sorted and linked Lists L_x and L_y for the root node are created.
-	void create_sorted_coordinate_Lists(const Graph& G,NodeArray<NodeAttributes>& A,
-		List<ParticleInfo>& L_x, List<ParticleInfo>& L_y);
+	void create_sorted_coordinate_Lists(const Graph& G, NodeArray<NodeAttributes>& A,
+			List<ParticleInfo>& L_x, List<ParticleInfo>& L_y);
 
 	//! T is extended by a subtree T1 rooted at the T.get_act_node().
 	//! The boxlength and down_left_corner of the actual node is reduced if it is
 	//! not the minimal subquad that contains all the particles in the represented area.
-	void  decompose_subtreenode(QuadTreeNM& T,
-		List<ParticleInfo>& act_x_List_copy,
-		List<ParticleInfo>& act_y_List_copy,
-		List<QuadTreeNodeNM*>& new_leaf_List);
+	void decompose_subtreenode(QuadTreeNM& T, List<ParticleInfo>& act_x_List_copy,
+			List<ParticleInfo>& act_y_List_copy, List<QuadTreeNodeNM*>& new_leaf_List);
 
 	//! The extreme coordinates of the particles contained in *act_ptr are calculated.
-	void calculate_boundaries_of_act_node(QuadTreeNodeNM* act_ptr, DPoint &min, DPoint &max);
+	void calculate_boundaries_of_act_node(QuadTreeNodeNM* act_ptr, DPoint& min, DPoint& max);
 
 	//! Returns true if the rectangle defined by min and max lies within the
 	//! left(right)_top(bottom) quad of the small cell of *act_ptr.
@@ -154,7 +145,8 @@ private:
 	bool in_rt_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
 	bool in_lb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
 	bool in_rb_quad(QuadTreeNodeNM* act_ptr, DPoint min, DPoint max);
-	bool quadHelper(DPoint min, DPoint max, DPoint bottomleft, DPoint topright, QuadTreeNodeNM* act_ptr);
+	bool quadHelper(DPoint min, DPoint max, DPoint bottomleft, DPoint topright,
+			QuadTreeNodeNM* act_ptr);
 
 	//! The Lists *act_ptr->get_x(y)_List_ptr() are split into two sublists containing
 	//! the particles in the left and right half of the actual quad. The list that is
@@ -163,13 +155,9 @@ private:
 	//! elements in L_x(y)_copy contain a pointer to the x(y) List, where they belong to.
 	//! If \p isHorizontal is true, we are talking about the respective x lists,
 	//! otherwise about the y lists.
-	void split(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_left_ptr,
-		List<ParticleInfo>*& L_y_left_ptr,
-		List<ParticleInfo>*& L_x_right_ptr,
-		List<ParticleInfo>*& L_y_right_ptr,
-		bool isHorizontal);
+	void split(QuadTreeNodeNM* act_ptr, List<ParticleInfo>*& L_x_left_ptr,
+			List<ParticleInfo>*& L_y_left_ptr, List<ParticleInfo>*& L_x_right_ptr,
+			List<ParticleInfo>*& L_y_right_ptr, bool isHorizontal);
 
 	//! The Lists *L_x(y)_left_ptr are constructed from *act_ptr->get_x(y)_List_ptr()
 	//! by deleting all elements right (if \p deleteRight is true, otherwise left)
@@ -179,91 +167,67 @@ private:
 	//! hold the information, that they belong to the Lists *L_x(y)_left_ptr.
 	//! If \p isHorizontal is true, we are talking about the respective x lists,
 	//! otherwise about the y lists.
-	void delete_subLists(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_left_ptr,
-		List<ParticleInfo>*& L_y_left_ptr,
-		List<ParticleInfo>*& L_x_right_ptr,
-		List<ParticleInfo>*& L_y_right_ptr,
-		ListIterator<ParticleInfo> last_left_item,
-		bool deleteRight,
-		bool isHorizontal);
+	void delete_subLists(QuadTreeNodeNM* act_ptr, List<ParticleInfo>*& L_x_left_ptr,
+			List<ParticleInfo>*& L_y_left_ptr, List<ParticleInfo>*& L_x_right_ptr,
+			List<ParticleInfo>*& L_y_right_ptr, ListIterator<ParticleInfo> last_left_item,
+			bool deleteRight, bool isHorizontal);
 
 	//! The Lists *L_x(y)_b_ptr and *L_x(y)_t_ptr are constructed from the Lists
 	//!  *L_x(y)_ptr.
-	void split_in_y_direction(
-		QuadTreeNodeNM* act_ptr,
-		List<ParticleInfo>*& L_x_ptr,
-		List<ParticleInfo>*& L_x_b_ptr,
-		List<ParticleInfo>*& L_x_t_ptr,
-		List<ParticleInfo>*& L_y_ptr,
-		List<ParticleInfo>*& L_y_b_ptr,
-		List<ParticleInfo>*& L_y_t_ptr);
+	void split_in_y_direction(QuadTreeNodeNM* act_ptr, List<ParticleInfo>*& L_x_ptr,
+			List<ParticleInfo>*& L_x_b_ptr, List<ParticleInfo>*& L_x_t_ptr,
+			List<ParticleInfo>*& L_y_ptr, List<ParticleInfo>*& L_y_b_ptr,
+			List<ParticleInfo>*& L_y_t_ptr);
 
 	//! The Lists *L_x(y)_b(t)_ptr are constructed from the Lists *L_x(y)_ptr by
 	//! moving all List elements from *L_x(y)_ptr that belong to *L_x(y)_l_ptr
 	//! (\p moveRight false) or *L_x(y)_r_ptr (\p moveRight true) to this List.
 	//! The L_x(y)_right_ptr point to the reduced Lists L_x(y)_ptr afterwards
 	//! but the elements that belong to *&L_x(y)_right_ptr are moved.
-	void move_subLists_vertical(
-		List<ParticleInfo>*& L_x_ptr,
-		List<ParticleInfo>*& L_x_b_ptr,
-		List<ParticleInfo>*& L_x_t_ptr,
-		List<ParticleInfo>*& L_y_ptr,
-		List<ParticleInfo>*& L_y_b_ptr,
-		List<ParticleInfo>*& L_y_t_ptr,
-		ListIterator<ParticleInfo> last_left_item,
-		bool moveRight);
+	void move_subLists_vertical(List<ParticleInfo>*& L_x_ptr, List<ParticleInfo>*& L_x_b_ptr,
+			List<ParticleInfo>*& L_x_t_ptr, List<ParticleInfo>*& L_y_ptr,
+			List<ParticleInfo>*& L_y_b_ptr, List<ParticleInfo>*& L_y_t_ptr,
+			ListIterator<ParticleInfo> last_left_item, bool moveRight);
 
 	//! The sorted subLists, that can be accesssed by the entries in L_x(y)_copy->get_subList_ptr()
 	//! are constructed.
-	void build_up_sorted_subLists(List<ParticleInfo>& L_x_copy,
-		List<ParticleInfo>& act_y_List_copy);
+	void build_up_sorted_subLists(List<ParticleInfo>& L_x_copy, List<ParticleInfo>& act_y_List_copy);
 
 	//! @}
-	//! \name Functions needed for subtree by subtree tree construction
 	//! @{
+	//! \name Functions needed for subtree by subtree tree construction
 
 	//! The reduced quadtree is build up subtree by subtree (the lists LE, ME the
 	//! centers, D1, D2, M, quad_tree_leaves are not calculated here.
-	void  build_up_red_quad_tree_subtree_by_subtree(const Graph& G,
-		NodeArray<NodeAttributes>& A,
-		QuadTreeNM& T);
+	void build_up_red_quad_tree_subtree_by_subtree(const Graph& G, NodeArray<NodeAttributes>& A,
+			QuadTreeNM& T);
 
 	//! The root node of T is constructed and contained_nodes is set to the list of
 	//! all nodes of G.
-	void build_up_root_vertex(const Graph&G, QuadTreeNM& T);
+	void build_up_root_vertex(const Graph& G, QuadTreeNM& T);
 
 	//! The reduced subtree of T rooted at *subtree_root_ptr containing all the particles
 	//! of subtree_root_ptr->get_contained_nodes() is constructed; Pointers to leaves
 	//! of the subtree that contain more than particles_in_leaves() particles in their
 	//! contained_nodes() lists are added to new_subtree_root_List_ptr; The lists
 	//! contained_nodes() are nonempty only for the (actual) leaves of T.
-	void construct_subtree(NodeArray<NodeAttributes>& A,
-		QuadTreeNM& T,
-		QuadTreeNodeNM*	subtree_root_ptr,
-		List<QuadTreeNodeNM*>& new_subtree_root_List);
+	void construct_subtree(NodeArray<NodeAttributes>& A, QuadTreeNM& T,
+			QuadTreeNodeNM* subtree_root_ptr, List<QuadTreeNodeNM*>& new_subtree_root_List);
 
 	//! A complete subtree of T and of depth subtree_depth, rooted at *T.get_act_ptr() is
 	//! constructed. Furthermore leaf_ptr[i][j] points to a leaf node of the subtree
 	//! that represents the quadratic subregion of *T.get_act_ptr() at subtree_depth
 	//! and position [i][j] i,j in 0,...,maxindex;act_depth(x_index,y_index) are
 	//! helping variables for recursive calls.
-	void construct_complete_subtree(QuadTreeNM& T,
-		int subtree_depth,
-		Array2D<QuadTreeNodeNM*>& leaf_ptr,
-		int act_depth,
-		int act_x_index,
-		int act_y_index);
+	void construct_complete_subtree(QuadTreeNM& T, int subtree_depth,
+			Array2D<QuadTreeNodeNM*>& leaf_ptr, int act_depth, int act_x_index, int act_y_index);
 
 	//! The particles in subtree_root_ptr->get_contained_nodes() are assigned to
 	//! the the contained_nodes lists of the leaves of the subtree by using the
 	//! information of A,leaf_ptr and maxindex. Afterwards contained_nodes of
 	//!  *subtree_root_ptr is empty.
 	void set_contained_nodes_for_leaves(NodeArray<NodeAttributes>& A,
-		QuadTreeNodeNM* subtree_root_ptr,
-		Array2D<QuadTreeNodeNM*>& leaf_ptr,
-		int maxindex);
+			QuadTreeNodeNM* subtree_root_ptr, Array2D<QuadTreeNodeNM*>& leaf_ptr, int maxindex);
 
 	//! The subtree of T rooted at *T.get_act_ptr() is traversed bottom up, such that
 	//! the subtreeparticlenumber of every node in this subtree is set correctly.
@@ -273,9 +237,8 @@ private:
 	//! every leaf of this subtree that contains more then particles_in_leaves()
 	//! particles is added to new_subtree_root_List; The lists contained_nodes are
 	//! empty for all but the leaves.
-	void construct_reduced_subtree(NodeArray<NodeAttributes>& A,
-		QuadTreeNM& T,
-		List<QuadTreeNodeNM*>& new_subtree_root_List);
+	void construct_reduced_subtree(NodeArray<NodeAttributes>& A, QuadTreeNM& T,
+			List<QuadTreeNodeNM*>& new_subtree_root_List);
 
 	//! All subtrees of *T.get_act_ptr() that have a child c of *T.get_act_ptr() as root
 	//! and c.get_particlenumber_in_subtree() == 0 are deleted.
@@ -335,15 +298,13 @@ private:
 
 	//! The multipole expansion terms ME are calculated for all nodes of T ( centers are
 	//! initialized for each cell and quad_tree_leaves stores pointers to leaves of T).
-	void form_multipole_expansions(NodeArray<NodeAttributes>& A,
-		QuadTreeNM& T,
-		List<QuadTreeNodeNM*>& quad_tree_leaves);
+	void form_multipole_expansions(NodeArray<NodeAttributes>& A, QuadTreeNM& T,
+			List<QuadTreeNodeNM*>& quad_tree_leaves);
 
 	//! The multipole expansion List ME for the tree rooted at T.get_act_ptr() is
 	//! recursively calculated.
-	void form_multipole_expansion_of_subtree(NodeArray<NodeAttributes>& A,
-		QuadTreeNM& T,
-		List<QuadTreeNodeNM*>& quad_tree_leaves);
+	void form_multipole_expansion_of_subtree(NodeArray<NodeAttributes>& A, QuadTreeNM& T,
+			List<QuadTreeNodeNM*>& quad_tree_leaves);
 
 	//! The Lists ME and LE are both initialized to zero entries for *act_ptr.
 	void init_expansion_Lists(QuadTreeNodeNM* act_ptr);
@@ -352,8 +313,7 @@ private:
 	void set_center(QuadTreeNodeNM* act_ptr);
 
 	//! Calculate List ME for *act_ptr Precondition: *act_ptr is a leaf.
-	void form_multipole_expansion_of_leaf_node(NodeArray<NodeAttributes>& A,
-		QuadTreeNodeNM* act_ptr);
+	void form_multipole_expansion_of_leaf_node(NodeArray<NodeAttributes>& A, QuadTreeNodeNM* act_ptr);
 
 	//! Add the shifted ME Lists of *act_ptr to act_ptr->get_father_ptr() ; precondition
 	//!  *act_ptr has a father_node.
@@ -362,8 +322,8 @@ private:
 	//! According to NMM T is traversed recursively top-down starting from act_node_ptr
 	//! == T.get_root_ptr() and thereby the lists D1, D2, M and LE are calculated for all
 	//! treenodes.
-	void calculate_local_expansions_and_WSPRLS(NodeArray<NodeAttributes>&A,
-		QuadTreeNodeNM* act_node_ptr);
+	void calculate_local_expansions_and_WSPRLS(NodeArray<NodeAttributes>& A,
+			QuadTreeNodeNM* act_node_ptr);
 
 	//! If the small cell of ptr_1 and ptr_2 are well separated true is returned (else
 	//! false).
@@ -383,34 +343,28 @@ private:
 	//! The multipole expansion for every particle of leaf_ptr->contained_nodes
 	//! (1,0,...) is transformed into a local expansion around the center of *ptr_2 and
 	//! added to *ptr_2 s local expansion List;precondition: *leaf_ptr is a leaf.
-	void add_local_expansion_of_leaf(NodeArray<NodeAttributes>&A,
-		QuadTreeNodeNM*	leaf_ptr,
-		QuadTreeNodeNM* act_ptr);
+	void add_local_expansion_of_leaf(NodeArray<NodeAttributes>& A, QuadTreeNodeNM* leaf_ptr,
+			QuadTreeNodeNM* act_ptr);
 
 	//! For each leaf v in quad_tree_leaves the force contribution defined by
 	//! v.get_local_exp() is calculated and stored in F_local_exp.
-	void transform_local_exp_to_forces(NodeArray <NodeAttributes>&A,
-		List<QuadTreeNodeNM*>& quad_tree_leaves,
-		NodeArray<DPoint>& F_local_exp);
+	void transform_local_exp_to_forces(NodeArray<NodeAttributes>& A,
+			List<QuadTreeNodeNM*>& quad_tree_leaves, NodeArray<DPoint>& F_local_exp);
 
 	//! For each leaf v in quad_tree_leaves the force contribution defined by all nodes
 	//! in v.get_M() is calculated and stored in F_multipole_exp.
 	void transform_multipole_exp_to_forces(NodeArray<NodeAttributes>& A,
-		List<QuadTreeNodeNM*>& quad_tree_leaves,
-		NodeArray<DPoint>& F_multipole_exp);
+			List<QuadTreeNodeNM*>& quad_tree_leaves, NodeArray<DPoint>& F_multipole_exp);
 
 	//! For each leaf v in quad_tree_leaves the force contributions from all leaves in
 	//! v.get_D1() and v.get_D2() are calculated.
 	void calculate_neighbourcell_forces(NodeArray<NodeAttributes>& A,
-		List<QuadTreeNodeNM*>& quad_tree_leaves,
-		NodeArray<DPoint>& F_direct);
+			List<QuadTreeNodeNM*>& quad_tree_leaves, NodeArray<DPoint>& F_direct);
 
 	//! Add repulsive force contributions for each node.
-	void add_rep_forces(const Graph& G,
-		NodeArray<DPoint>& F_direct,
-		NodeArray<DPoint>& F_multipole_exp,
-		NodeArray<DPoint>& F_local_exp,
-		NodeArray<DPoint>& F_rep);
+	void add_rep_forces(const Graph& G, NodeArray<DPoint>& F_direct,
+			NodeArray<DPoint>& F_multipole_exp, NodeArray<DPoint>& F_local_exp,
+			NodeArray<DPoint>& F_rep);
 
 	//! Init BK -matrix for values n, k in 0 to t.
 	void init_binko(int t);
@@ -422,7 +376,9 @@ private:
 	double binko(int n, int k);
 
 	//! Returns the way to construct the reduced tree
-	FMMMOptions::ReducedTreeConstruction tree_construction_way() const { return _tree_construction_way; }
+	FMMMOptions::ReducedTreeConstruction tree_construction_way() const {
+		return _tree_construction_way;
+	}
 
 	void tree_construction_way(FMMMOptions::ReducedTreeConstruction rtc) {
 		_tree_construction_way = rtc;
@@ -432,17 +388,17 @@ private:
 	//! of a node in the reduced bucket quadtree is calculated.
 	FMMMOptions::SmallestCellFinding find_sm_cell() const { return _find_small_cell; }
 
-	void find_sm_cell(FMMMOptions::SmallestCellFinding scf) {
-		_find_small_cell = scf;
-	}
+	void find_sm_cell(FMMMOptions::SmallestCellFinding scf) { _find_small_cell = scf; }
 
 	//! Max. number of particles that are contained in a leaf of the red. quadtree.
-	void particles_in_leaves (int b) { _particles_in_leaves = ((b>= 1)? b : 1); }
-	int particles_in_leaves () const { return _particles_in_leaves; }
+	void particles_in_leaves(int b) { _particles_in_leaves = ((b >= 1) ? b : 1); }
+
+	int particles_in_leaves() const { return _particles_in_leaves; }
 
 	//! The precision p for the p-term multipole expansions.
-	void precision (int p) { _precision  = ((p >= 1 ) ? p : 1); }
-	int  precision () const { return _precision; }
+	void precision(int p) { _precision = ((p >= 1) ? p : 1); }
+
+	int precision() const { return _precision; }
 };
 
 }

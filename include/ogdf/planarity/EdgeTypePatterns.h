@@ -30,10 +30,10 @@
  */
 
 //edge type patterns:
-	//FOUR TYPE LEVELS:
-	//primary holds information about generalization/association,...
-	//secondary about merger edges,...
-	//user edge types can be set locally
+//FOUR TYPE LEVELS:
+//primary holds information about generalization/association,...
+//secondary about merger edges,...
+//user edge types can be set locally
 
 #pragma once
 
@@ -42,53 +42,64 @@ namespace ogdf {
 using edgeType = long long;
 
 enum class UMLEdgeTypePatterns : edgeType {
-	Primary   = 0x0000000f,
+	Primary = 0x0000000f,
 	Secondary = 0x000000f0,
-	Tertiary  = 0x00000f00,
-	Fourth    = 0x0000f000,
-	User      = 0xff000000,
-	All       = 0xffffffff
+	Tertiary = 0x00000f00,
+	Fourth = 0x0000f000,
+	User = 0xff000000,
+	All = 0xffffffff
 }; // attention sign, 7fffffff
 
-inline edgeType operator & (edgeType lhs, UMLEdgeTypePatterns rhs) {
+inline edgeType operator&(edgeType lhs, UMLEdgeTypePatterns rhs) {
 	return lhs & static_cast<edgeType>(rhs);
 }
 
-inline edgeType operator & (UMLEdgeTypePatterns lhs, edgeType rhs) {
+inline edgeType operator&(UMLEdgeTypePatterns lhs, edgeType rhs) {
 	return static_cast<edgeType>(lhs) & rhs;
 }
 
-inline edgeType operator << (edgeType lhs, UMLEdgeTypePatterns rhs) {
+inline edgeType operator<<(edgeType lhs, UMLEdgeTypePatterns rhs) {
 	return lhs << static_cast<edgeType>(rhs);
 }
 
 enum class UMLEdgeTypeConstants {
 	//primary types (should be disjoint bits)
-	PrimAssociation = 0x1, PrimGeneralization = 0x2, PrimDependency = 0x4,
+	PrimAssociation = 0x1,
+	PrimGeneralization = 0x2,
+	PrimDependency = 0x4,
 	//secondary types: reason of insertion (should be disjoint types, but not bits,
 	//but may not completely cover others that are allowed to be set together)
 	//preliminary: setsecondarytype deletes old type
 	//edge in Expansion, dissection edge, face splitter, cluster boundary
-	SecExpansion = 0x1, SecDissect = 0x2, SecFaceSplitter = 0x3,
-	SecCluster = 0x4, SecClique, //the boundaries
+	SecExpansion = 0x1,
+	SecDissect = 0x2,
+	SecFaceSplitter = 0x3,
+	SecCluster = 0x4,
+	SecClique, //the boundaries
 	//tertiary types: special types
 	//merger edge, vertical in hierarchy, alignment, association class connnection
-	Merger = 0x1, Vertical = 0x2, Align = 0x3, AssClass = 0x8,
+	Merger = 0x1,
+	Vertical = 0x2,
+	Align = 0x3,
+	AssClass = 0x8,
 	//fourth types: relation of nodes
 	//direct neighbours in hierarchy = brother, neighbour = halfbrother
 	//same level = cousin, to merger = ToMerger, from Merger = FromMerger
-	Brother = 0x1, HalfBrother = 0x2, Cousin= 0x3,
+	Brother = 0x1,
+	HalfBrother = 0x2,
+	Cousin = 0x3,
 	//fifth level types
-	FifthToMerger = 0x1, FifthFromMerger = 0x2
+	FifthToMerger = 0x1,
+	FifthFromMerger = 0x2
 	//user type hint: what you have done with the edge, e.g. brother edge
 	//that is embedded crossing free and should be drawn bend free
 };
 
-inline edgeType operator & (edgeType lhs, UMLEdgeTypeConstants rhs) {
+inline edgeType operator&(edgeType lhs, UMLEdgeTypeConstants rhs) {
 	return lhs & static_cast<edgeType>(rhs);
 }
 
-inline bool operator == (edgeType lhs, UMLEdgeTypeConstants rhs) {
+inline bool operator==(edgeType lhs, UMLEdgeTypeConstants rhs) {
 	return lhs == static_cast<edgeType>(rhs);
 }
 
@@ -101,15 +112,15 @@ enum class UMLEdgeTypeOffsets {
 	User = 24
 };
 
-inline edgeType operator >> (edgeType lhs, UMLEdgeTypeOffsets rhs) {
+inline edgeType operator>>(edgeType lhs, UMLEdgeTypeOffsets rhs) {
 	return lhs >> static_cast<edgeType>(rhs);
 }
 
-inline edgeType operator << (edgeType lhs, UMLEdgeTypeOffsets rhs) {
+inline edgeType operator<<(edgeType lhs, UMLEdgeTypeOffsets rhs) {
 	return lhs << static_cast<edgeType>(rhs);
 }
 
-inline edgeType operator << (UMLEdgeTypeConstants lhs, UMLEdgeTypeOffsets rhs) {
+inline edgeType operator<<(UMLEdgeTypeConstants lhs, UMLEdgeTypeOffsets rhs) {
 	return static_cast<edgeType>(lhs) << static_cast<edgeType>(rhs);
 }
 

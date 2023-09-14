@@ -29,25 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/SchnyderLayout.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarlayout/SchnyderLayout.h>
 
 namespace ogdf {
 
 SchnyderLayout::SchnyderLayout()
-	: PlanarGridLayoutModule()
-	, m_combinatorialObjects(CombinatorialObjects::VerticesMinusDepth)
-	{}
+	: PlanarGridLayoutModule(), m_combinatorialObjects(CombinatorialObjects::VerticesMinusDepth) { }
 
-
-void SchnyderLayout::doCall(
-	const Graph &G,
-	adjEntry adjExternal,
-	GridLayout &gridLayout,
-	IPoint &boundingBox,
-	bool fixEmbedding)
-{
+void SchnyderLayout::doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+		IPoint& boundingBox, bool fixEmbedding) {
 	if (G.numberOfNodes() < 3) {
 		if (G.numberOfNodes() == 2) {
 			gridLayout.x()[G.firstNode()] = 0;
@@ -68,7 +60,7 @@ void SchnyderLayout::doCall(
 #ifdef OGDF_DEBUG
 	bool isPlanar =
 #endif
-		planarEmbed(GC);
+			planarEmbed(GC);
 	OGDF_ASSERT(fixEmbedding || isPlanar);
 
 	triangulate(GC);
@@ -88,18 +80,13 @@ void SchnyderLayout::doCall(
 		OGDF_ASSERT(xmax - xmin == n - 2);
 		OGDF_ASSERT(ymax - ymin == n - 2);
 	} else if (m_combinatorialObjects == CombinatorialObjects::Faces) {
-		OGDF_ASSERT(xmax - xmin == 2*n - 5);
-		OGDF_ASSERT(ymax - ymin == 2*n - 5);
+		OGDF_ASSERT(xmax - xmin == 2 * n - 5);
+		OGDF_ASSERT(ymax - ymin == 2 * n - 5);
 	}
 #endif
 }
 
-
-void SchnyderLayout::schnyderEmbedding(
-	GraphCopy& GC,
-	GridLayout &gridLayout,
-	adjEntry adjExternal)
-{
+void SchnyderLayout::schnyderEmbedding(GraphCopy& GC, GridLayout& gridLayout, adjEntry adjExternal) {
 	// Choose outer face a, b, c.
 	adjEntry adja;
 	if (adjExternal != nullptr) {
@@ -166,7 +153,7 @@ void SchnyderLayout::schnyderEmbedding(
 			if (m_combinatorialObjects == CombinatorialObjects::VerticesMinusDepth) {
 				gridLayout.x()[T.original(v)] = sum1[v] - p3[v];
 			} else if (m_combinatorialObjects == CombinatorialObjects::Faces) {
-				gridLayout.x()[T.original(v)] = 2*sum1[v] - p2[v] - p3[v] - 3;
+				gridLayout.x()[T.original(v)] = 2 * sum1[v] - p2[v] - p3[v] - 3;
 			}
 		}
 	}
@@ -185,19 +172,17 @@ void SchnyderLayout::schnyderEmbedding(
 			if (m_combinatorialObjects == CombinatorialObjects::VerticesMinusDepth) {
 				gridLayout.y()[T.original(v)] = sum1[v] - p1[v];
 			} else if (m_combinatorialObjects == CombinatorialObjects::Faces) {
-				gridLayout.y()[T.original(v)] = 2*sum1[v] - p1[v] - p3[v] - 3;
+				gridLayout.y()[T.original(v)] = 2 * sum1[v] - p1[v] - p3[v] - 3;
 			}
 		}
 	}
 }
 
-
 /*
  * Constructs List L
  * L is the ordering for uncontracting the nodes in realizer
  */
-void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
-{
+void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L) {
 	List<node> candidates;
 	NodeArray<bool> marked(G, false); // considered nodes
 	NodeArray<int> deg(G, 0); // # virtual neighbours
@@ -209,15 +194,15 @@ void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 	deg[a] = deg[b] = deg[c] = N;
 
 	// mark neighbours of a and calc the degree of the second (virtual) neighbours
-	for(adjEntry adj1 : a->adjEntries) {
+	for (adjEntry adj1 : a->adjEntries) {
 		marked[adj1->twinNode()] = true;
-		for(adjEntry adj2 : adj1->twinNode()->adjEntries) {
+		for (adjEntry adj2 : adj1->twinNode()->adjEntries) {
 			deg[adj2->twinNode()]++;
 		}
 	}
 
 	// find first candidates
-	for(adjEntry adj1 : a->adjEntries) {
+	for (adjEntry adj1 : a->adjEntries) {
 		if (deg[adj1->twinNode()] <= 2) {
 			candidates.pushBack(adj1->twinNode());
 		}
@@ -228,39 +213,33 @@ void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 		if (deg[u] == 2) {
 			L.pushFront(u);
 			deg[u] = N;
-			for(adjEntry adj1 : u->adjEntries) {
+			for (adjEntry adj1 : u->adjEntries) {
 				node v = adj1->twinNode();
 				deg[v]--; // u is virtualy deleted
 				if (!marked[v]) { // v is new neighbour of a
 					marked[v] = true;
-					for(adjEntry adj2 : v->adjEntries) {
+					for (adjEntry adj2 : v->adjEntries) {
 						deg[adj2->twinNode()]++; // degree of virtaul neighbours increase
 					}
-					if (deg[v] <= 2) candidates.pushBack(v); // next candidate v
+					if (deg[v] <= 2) {
+						candidates.pushBack(v); // next candidate v
+					}
+				} else if (deg[v] == 2) {
+					candidates.pushBack(v); // next candidate v
 				}
-				else
-					if (deg[v] == 2) candidates.pushBack(v); // next candidate v
 			}
 		}
 	}
 }
-
 
 /*
  * Construct the realiszer and the Tree T
  * rValues = realizer value
  * T = Tree
  */
-void SchnyderLayout::realizer(
-	GraphCopy& G,
-	const List<node>& L,
-	node a,
-	node b,
-	node c,
-	EdgeArray<int>& rValues,
-	GraphCopy& T)
-{
-	int  i = 0;
+void SchnyderLayout::realizer(GraphCopy& G, const List<node>& L, node a, node b, node c,
+		EdgeArray<int>& rValues, GraphCopy& T) {
+	int i = 0;
 	edge e;
 	NodeArray<int> ord(G, 0);
 
@@ -268,7 +247,7 @@ void SchnyderLayout::realizer(
 	ord[b] = i++;
 	ord[c] = i++;
 
-	for(node v : L) {
+	for (node v : L) {
 		ord[v] = i++; // enumerate V(G)
 	}
 	ord[a] = i++;
@@ -279,11 +258,11 @@ void SchnyderLayout::realizer(
 		T.delEdge(e);
 	}
 
-	for(node v : L) {
-		node u = T.copy(G.original(v));   // u is copy of v in T
+	for (node v : L) {
+		node u = T.copy(G.original(v)); // u is copy of v in T
 
 		adjEntry adj = nullptr;
-		for(adjEntry adjRun : v->adjEntries) {
+		for (adjEntry adjRun : v->adjEntries) {
 			if (ord[adjRun->twinNode()] > ord[v]) {
 				adj = adjRun;
 				break;
@@ -306,7 +285,7 @@ void SchnyderLayout::realizer(
 		rValues[e] = 3;
 
 		for (adj = adj1->cyclicSucc(); adj != adj2; adj = adj->cyclicSucc()) {
-			e =  T.newEdge(u, T.copy(G.original(adj->twinNode())));
+			e = T.newEdge(u, T.copy(G.original(adj->twinNode())));
 			rValues[e] = 1;
 		}
 	}
@@ -317,7 +296,7 @@ void SchnyderLayout::realizer(
 	node c_in_T = T.copy(G.original(c));
 
 	// all edges to node a get realizer value 1
-	for(adjEntry adj : a->adjEntries) {
+	for (adjEntry adj : a->adjEntries) {
 		e = T.newEdge(a_in_T, T.copy(G.original(adj->twinNode())));
 		rValues[e] = 1;
 	}
@@ -334,18 +313,12 @@ void SchnyderLayout::realizer(
 	rValues[e] = 3;
 }
 
-
 /*
  * computes the sizes of all subtrees of a tree with root r
  */
-void SchnyderLayout::subtreeSizes(
-	EdgeArray<int>& rValues,
-	int i,
-	node r,
-	NodeArray<int>& size)
-{
+void SchnyderLayout::subtreeSizes(EdgeArray<int>& rValues, int i, node r, NodeArray<int>& size) {
 	int sum = 0;
-	for(adjEntry adj : r->adjEntries) {
+	for (adjEntry adj : r->adjEntries) {
 		if (adj->theEdge()->source() == r && rValues[adj->theEdge()] == i) {
 			node w = adj->twinNode();
 			subtreeSizes(rValues, i, w, size);
@@ -359,13 +332,8 @@ void SchnyderLayout::subtreeSizes(
  * computes for every node u in the subtree of T(i) with root r
  * the sum of all val[v] where v is a node on the path from r to u
  */
-void SchnyderLayout::prefixSum(
-	EdgeArray<int>& rValues,
-	int i,
-	node r,
-	const NodeArray<int>& val,
-	NodeArray<int>& sum)
-{
+void SchnyderLayout::prefixSum(EdgeArray<int>& rValues, int i, node r, const NodeArray<int>& val,
+		NodeArray<int>& sum) {
 	List<node> Q;
 
 	Q.pushBack(r);

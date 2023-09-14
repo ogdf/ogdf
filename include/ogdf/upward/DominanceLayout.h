@@ -36,42 +36,38 @@
 #pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <memory>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/upward/UpwardPlanarizerModule.h>
-#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
-class OGDF_EXPORT DominanceLayout : public LayoutModule
-{
+class OGDF_EXPORT DominanceLayout : public LayoutModule {
 public:
-
 	DominanceLayout() {
 		m_grid_dist = 1;
 		// set default module
 		m_upPlanarizer.reset(new SubgraphUpwardPlanarizer());
 
 		m_angle = Math::degreesToRadians(45.0);
-
 	}
 
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
-	void layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig);
+	void layout(GraphAttributes& GA, const UpwardPlanRep& UPROrig);
 
-	void setUpwardPlanarizer(UpwardPlanarizerModule *upPlanarizer) {
+	void setUpwardPlanarizer(UpwardPlanarizerModule* upPlanarizer) {
 		m_upPlanarizer.reset(upPlanarizer);
 	}
 
-	void setMinGridDistance(int dist) {m_grid_dist = dist;}
-
+	void setMinGridDistance(int dist) { m_grid_dist = dist; }
 
 
 private:
-
 	double m_angle; //rotate angle to obtain an upward drawing; default is 45°
 
 	NodeArray<edge> firstout;
@@ -100,13 +96,13 @@ private:
 
 	std::unique_ptr<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
 
-	void labelX(const UpwardPlanRep &UPR, node v, int &count);
+	void labelX(const UpwardPlanRep& UPR, node v, int& count);
 
-	void labelY(const UpwardPlanRep &UPR, node v, int &count);
+	void labelY(const UpwardPlanRep& UPR, node v, int& count);
 
-	void compact(const UpwardPlanRep &UPR, GraphAttributes &GA);
+	void compact(const UpwardPlanRep& UPR, GraphAttributes& GA);
 
-	void findTransitiveEdges(const UpwardPlanRep &UPR, List<edge> &edges);
+	void findTransitiveEdges(const UpwardPlanRep& UPR, List<edge>& edges);
 };
 
 }

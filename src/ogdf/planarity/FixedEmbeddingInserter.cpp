@@ -36,31 +36,27 @@ namespace ogdf {
 
 // constructor
 // sets default values for options
-FixedEmbeddingInserter::FixedEmbeddingInserter()
-{
+FixedEmbeddingInserter::FixedEmbeddingInserter() {
 	m_rrOption = RemoveReinsertType::None;
 	m_percentMostCrossed = 25;
 	m_keepEmbedding = false;
 }
 
 // copy constructor
-FixedEmbeddingInserter::FixedEmbeddingInserter(const FixedEmbeddingInserter &inserter)
-	: EdgeInsertionModule(inserter)
-{
+FixedEmbeddingInserter::FixedEmbeddingInserter(const FixedEmbeddingInserter& inserter)
+	: EdgeInsertionModule(inserter) {
 	m_rrOption = inserter.m_rrOption;
 	m_percentMostCrossed = inserter.m_percentMostCrossed;
 	m_keepEmbedding = inserter.m_keepEmbedding;
 }
 
 // clone method
-EdgeInsertionModule *FixedEmbeddingInserter::clone() const
-{
+EdgeInsertionModule* FixedEmbeddingInserter::clone() const {
 	return new FixedEmbeddingInserter(*this);
 }
 
 // assignment operator
-FixedEmbeddingInserter &FixedEmbeddingInserter::operator=(const FixedEmbeddingInserter &inserter)
-{
+FixedEmbeddingInserter& FixedEmbeddingInserter::operator=(const FixedEmbeddingInserter& inserter) {
 	m_timeLimit = inserter.m_timeLimit;
 	m_rrOption = inserter.m_rrOption;
 	m_percentMostCrossed = inserter.m_percentMostCrossed;
@@ -69,13 +65,9 @@ FixedEmbeddingInserter &FixedEmbeddingInserter::operator=(const FixedEmbeddingIn
 }
 
 // actual call method
-Module::ReturnType FixedEmbeddingInserter::doCall(
-	PlanRepLight &pr,
-	const Array<edge> &origEdges,
-	const EdgeArray<int> *pCostOrig,
-	const EdgeArray<bool> *pForbiddenOrig,
-	const EdgeArray<uint32_t> *pEdgeSubgraphs)
-{
+Module::ReturnType FixedEmbeddingInserter::doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+		const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+		const EdgeArray<uint32_t>* pEdgeSubgraphs) {
 	FixEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
 	core.timeLimit(timeLimit());
 

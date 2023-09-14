@@ -41,19 +41,14 @@ namespace fmmm {
 //! placed at the same position and a new random position has to be found, or
 //! when the calculated forces are near the machine accuracy, where no
 //! reasonable numeric and logic calculations are possible any more
-class numexcept
-{
+class numexcept {
 public:
 	//! Returns a distinct random point within the smallest disque D with center
 	//! old_point that is contained in the box defined by xmin,...,ymax; The size of
 	//! D is shrunk by multiplying with epsilon = 0.1; Precondition:
 	//! old_point is contained in the box and the box is not equal to old_point.
-	static DPoint choose_distinct_random_point_in_disque(
-		DPoint old_point,
-		double xmin,
-		double xmax,
-		double ymin,
-		double ymax);
+	static DPoint choose_distinct_random_point_in_disque(DPoint old_point, double xmin, double xmax,
+			double ymin, double ymax);
 
 	//! If distance has a value near the machine precision the (attractive)force
 	//! calculation is not possible (calculated values exceed the machine accuracy) in
@@ -81,7 +76,7 @@ protected:
 	//! Returns the repulsing force_function_value of scalar d.
 	static double f_rep_scalar(double d) {
 		OGDF_ASSERT(d != 0);
-		return 1/d;
+		return 1 / d;
 	}
 };
 

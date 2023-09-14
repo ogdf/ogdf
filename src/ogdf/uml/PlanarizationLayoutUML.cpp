@@ -37,50 +37,46 @@
  */
 
 
-#include <ogdf/uml/PlanarizationLayoutUML.h>
-#include <ogdf/uml/OrthoLayoutUML.h>
-#include <ogdf/uml/SubgraphPlanarizerUML.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
 #include <ogdf/basic/precondition.h>
-
+#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/planarity/SimpleEmbedder.h>
+#include <ogdf/uml/OrthoLayoutUML.h>
+#include <ogdf/uml/PlanarizationLayoutUML.h>
+#include <ogdf/uml/SubgraphPlanarizerUML.h>
 
 namespace ogdf {
 
 // Constructor:
 // set default values for parameters and set planar layouter, planarization modules
-PlanarizationLayoutUML::PlanarizationLayoutUML()
-{
+PlanarizationLayoutUML::PlanarizationLayoutUML() {
 	//modules
-	m_crossMin      .reset(new SubgraphPlanarizerUML);
+	m_crossMin.reset(new SubgraphPlanarizerUML);
 	m_planarLayouter.reset(new OrthoLayoutUML);
-	m_packer        .reset(new TileToRowsCCPacker);
-	m_embedder      .reset(new SimpleEmbedder);
+	m_packer.reset(new TileToRowsCCPacker);
+	m_embedder.reset(new SimpleEmbedder);
 
 	//parameters
 	m_pageRatio = 1.0;
-	m_fakeTree  = true; //change edge type from generalization to association
+	m_fakeTree = true; //change edge type from generalization to association
 }
-
 
 // call function: compute a layout for graph umlGraph without
 // special UML or interactive features, clique processing etc.
-void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
-{
+void PlanarizationLayoutUML::doSimpleCall(GraphAttributes& GA) {
 	m_nCrossings = 0;
 
-	if(GA.constGraph().empty())
+	if (GA.constGraph().empty()) {
 		return;
+	}
 
-	PlanRepUML pr =  PlanRepUML(GA);
+	PlanRepUML pr = PlanRepUML(GA);
 	const int numCC = pr.numberOfCCs();
 
 	// (width,height) of the layout of each connected component
 	Array<DPoint> boundingBox(numCC);
 
 	//now planarize CCs and apply drawing module
-	for(int i = 0; i < numCC; ++i)
-	{
+	for (int i = 0; i < numCC; ++i) {
 		// 1. crossing minimization
 		int cr;
 		m_crossMin->call(pr, i, cr);
@@ -94,21 +90,22 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 		Layout drawing(pr);
 
 		//call the Layouter for the CC's UMLGraph
-		m_planarLayouter->call(pr,adjExternal,drawing);
+		m_planarLayouter->call(pr, adjExternal, drawing);
 
 		// copy layout into umlGraph
 		// Later, we move nodes and edges in each connected component, such
 		// that no two overlap.
 
-		for(int j = pr.startNode(); j < pr.stopNode(); ++j) {
+		for (int j = pr.startNode(); j < pr.stopNode(); ++j) {
 			node vG = pr.v(j);
 
 			GA.x(vG) = drawing.x(pr.copy(vG));
 			GA.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEntries) {
-				if ((adj->index() & 1) == 0)
+			for (adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) {
 					continue;
+				}
 				edge eG = adj->theEdge();
 				drawing.computePolylineClear(pr, eG, GA.bends(eG));
 			}
@@ -123,14 +120,13 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 	arrangeCCs(pr, GA, boundingBox);
 }
 
-
 // call function: compute an UML layout for graph umlGraph
-void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
-{
+void PlanarizationLayoutUML::call(UMLGraph& umlGraph) {
 	m_nCrossings = 0;
 
-	if(umlGraph.constGraph().empty())
+	if (umlGraph.constGraph().empty()) {
 		return;
+	}
 
 	// check necessary preconditions
 	preProcess(umlGraph);
@@ -155,8 +151,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 	//end alignment section
 
 	//now planarize CCs and apply drawing module
-	for(int i = 0; i < numCC; ++i)
-	{
+	for (int i = 0; i < numCC; ++i) {
 		// 1. crossing minimization
 
 		// alignment: check wether gens exist, special treatment is necessary
@@ -170,21 +165,21 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		//edgearray for reinserter call: which edge may never be crossed?
 		EdgeArray<bool> noCrossingEdge(pr.original(), false);
 
-		for(edge e : pr.edges)
-		{
+		for (edge e : pr.edges) {
 			edge eOrig = pr.original(e);
 
-			if (pr.typeOf(e) == Graph::EdgeType::generalization)
-			{
-				if (l_align) l_gensExist = true;
+			if (pr.typeOf(e) == Graph::EdgeType::generalization) {
+				if (l_align) {
+					l_gensExist = true;
+				}
 				OGDF_ASSERT(!eOrig || !(noCrossingEdge[eOrig]));
 
 				// high cost to allow alignment without crossings
-				if (l_align && (
-					(eOrig && (pr.typeOf(e->target()) == Graph::NodeType::generalizationMerger))
-						|| pr.alignUpward(e->adjSource())
-					))
-				costOrig[eOrig] = 10;
+				if (l_align
+						&& ((eOrig && (pr.typeOf(e->target()) == Graph::NodeType::generalizationMerger))
+								|| pr.alignUpward(e->adjSource()))) {
+					costOrig[eOrig] = 10;
+				}
 			}
 		}
 
@@ -201,13 +196,14 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		// embedding, otherwise crossing nodes can turn into "touching points"
 		// of edges (alternatively, we could compute a new embedding and
 		// finally "remove" such unnecessary crossings).
-		if(!pr.representsCombEmbedding())
+		if (!pr.representsCombEmbedding()) {
 			planarEmbed(pr);
+		}
 
 		adjEntry adjExternal = nullptr;
-		if(pr.numberOfEdges() > 0) {
+		if (pr.numberOfEdges() > 0) {
 			CombinatorialEmbedding E(pr);
-			face fExternal = findBestExternalFace(pr,E);
+			face fExternal = findBestExternalFace(pr, E);
 			adjExternal = fExternal->firstAdj();
 		}
 
@@ -216,10 +212,11 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 
 		// distinguish between CC's with/without generalizations
 		// this changes the input layout modules options!
-		if (l_gensExist)
+		if (l_gensExist) {
 			m_planarLayouter->setOptions(l_layoutOptions);
-		else
+		} else {
 			m_planarLayouter->setOptions((l_layoutOptions & ~UMLOpt::OpAlign));
+		}
 
 		// call the Layouter for the CC's UMLGraph
 		m_planarLayouter->call(pr, adjExternal, drawing);
@@ -228,17 +225,19 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		// Later, we move nodes and edges in each connected component, such
 		// that no two overlap.
 
-		for(int j = pr.startNode(); j < pr.stopNode(); ++j) {
+		for (int j = pr.startNode(); j < pr.stopNode(); ++j) {
 			node vG = pr.v(j);
 
 			umlGraph.x(vG) = drawing.x(pr.copy(vG));
 			umlGraph.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEntries) {
-				if ((adj->index() & 1) == 0) continue;
+			for (adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) {
+					continue;
+				}
 				edge eG = adj->theEdge();
 
-				drawing.computePolylineClear(pr,eG,umlGraph.bends(eG));
+				drawing.computePolylineClear(pr, eG, umlGraph.bends(eG));
 			}
 		}
 
@@ -257,10 +256,8 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 	postProcess(umlGraph);
 }
 
-
 // additional helper functions
-void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
-{
+void PlanarizationLayoutUML::assureDrawability(UMLGraph& UG) {
 	//preliminary
 	//self loops are killed by the caller (e.g., the plugin interface)
 	//should be done here later
@@ -269,18 +266,18 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 	const Graph& G = UG.constGraph();
 
 	//check for selfloops and handle them
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		OGDF_ASSERT(!e->isSelfLoop());
 	}
 #endif
 
 	// check for generalization - nontrees
 	// if m_fakeTree is set, change type of "back" edges to association
-	m_fakedGens.clear();//?
+	m_fakedGens.clear(); //?
 #ifdef OGDF_DEBUG
 	bool treeGenerated =
 #endif
-		dfsGenTree(UG, m_fakedGens, m_fakeTree);
+			dfsGenTree(UG, m_fakedGens, m_fakeTree);
 	OGDF_ASSERT(treeGenerated);
 
 	ListConstIterator<edge> itE = m_fakedGens.begin();
@@ -290,27 +287,22 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 	}
 }
 
-void PlanarizationLayoutUML::preProcess(UMLGraph &UG)
-{
+void PlanarizationLayoutUML::preProcess(UMLGraph& UG) {
 	assureDrawability(UG);
 
-	const SListPure<UMLGraph::AssociationClass*> &acList = UG.assClassList();
+	const SListPure<UMLGraph::AssociationClass*>& acList = UG.assClassList();
 	SListConstIterator<UMLGraph::AssociationClass*> it = acList.begin();
-	while (it.valid())
-	{
+	while (it.valid()) {
 		UG.modelAssociationClass((*it));
 		++it;
 	}
 }
 
-void PlanarizationLayoutUML::postProcess(UMLGraph& UG)
-{
+void PlanarizationLayoutUML::postProcess(UMLGraph& UG) {
 	//reset the type of faked associations to generalization
-	if (m_fakeTree)
-	{
+	if (m_fakeTree) {
 		ListIterator<edge> itE = m_fakedGens.begin();
-		while (itE.valid())
-		{
+		while (itE.valid()) {
 			UG.type(*itE) = Graph::EdgeType::generalization;
 			++itE;
 		}
@@ -320,22 +312,20 @@ void PlanarizationLayoutUML::postProcess(UMLGraph& UG)
 }
 
 // find best suited external face according to certain criteria
-face PlanarizationLayoutUML::findBestExternalFace(
-	const PlanRep &PG,
-	const CombinatorialEmbedding &E)
-{
+face PlanarizationLayoutUML::findBestExternalFace(const PlanRep& PG, const CombinatorialEmbedding& E) {
 	FaceArray<int> weight(E);
 
-	for(face f : E.faces)
+	for (face f : E.faces) {
 		weight[f] = f->size();
+	}
 
-	for(node v : PG.nodes)
-	{
-		if(PG.typeOf(v) != Graph::NodeType::generalizationMerger)
+	for (node v : PG.nodes) {
+		if (PG.typeOf(v) != Graph::NodeType::generalizationMerger) {
 			continue;
+		}
 
 		adjEntry adjOut = nullptr;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->source() == v) {
 				adjOut = adj;
 				break;
@@ -347,64 +337,66 @@ face PlanarizationLayoutUML::findBestExternalFace(
 		node w = adjOut->theEdge()->target();
 		bool isBase = true;
 
-		for(adjEntry adj2 : w->adjEntries) {
+		for (adjEntry adj2 : w->adjEntries) {
 			edge e = adj2->theEdge();
-			if(e->target() != w && PG.typeOf(e) == Graph::EdgeType::generalization) {
+			if (e->target() != w && PG.typeOf(e) == Graph::EdgeType::generalization) {
 				isBase = false;
 				break;
 			}
 		}
 
-		if(!isBase)
+		if (!isBase) {
 			continue;
+		}
 
 		face f1 = E.leftFace(adjOut);
 		face f2 = E.rightFace(adjOut);
 
 		weight[f1] += v->indeg();
-		if(f2 != f1)
+		if (f2 != f1) {
 			weight[f2] += v->indeg();
+		}
 	}
 
 	face fBest = E.firstFace();
-	for(face f : E.faces)
-		if(weight[f] > weight[fBest])
+	for (face f : E.faces) {
+		if (weight[f] > weight[fBest]) {
 			fBest = f;
+		}
+	}
 
 	return fBest;
 }
 
-
-void PlanarizationLayoutUML::arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<DPoint> &boundingBox)
-{
+void PlanarizationLayoutUML::arrangeCCs(PlanRep& PG, GraphAttributes& GA, Array<DPoint>& boundingBox) {
 	int numCC = PG.numberOfCCs();
 	Array<DPoint> offset(numCC);
-	m_packer->call(boundingBox,offset,m_pageRatio);
+	m_packer->call(boundingBox, offset, m_pageRatio);
 
 	// The arrangement is given by offset to the origin of the coordinate
 	// system. We still have to shift each node and edge by the offset
 	// of its connected component.
 
-	for(int i = 0; i < numCC; ++i) {
-
+	for (int i = 0; i < numCC; ++i) {
 		const double dx = offset[i].m_x;
 		const double dy = offset[i].m_y;
 
 		// iterate over all nodes in ith CC
-		for(int j = PG.startNode(i); j < PG.stopNode(i); ++j)
-		{
+		for (int j = PG.startNode(i); j < PG.stopNode(i); ++j) {
 			node v = PG.v(j);
 
 			GA.x(v) += dx;
 			GA.y(v) += dy;
 
-			for(adjEntry adj : v->adjEntries) {
-				if ((adj->index() & 1) == 0) continue;
+			for (adjEntry adj : v->adjEntries) {
+				if ((adj->index() & 1) == 0) {
+					continue;
+				}
 				edge e = adj->theEdge();
 
-				DPolyline &dpl = GA.bends(e);
+				DPolyline& dpl = GA.bends(e);
 				ListIterator<DPoint> it;
-				for(it = dpl.begin(); it.valid(); ++it) {
+				for (it = dpl.begin(); it.valid(); ++it) {
 					(*it).m_x += dx;
 					(*it).m_y += dy;
 				}
@@ -422,8 +414,9 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 {
 	m_nCrossings = 0;
 
-	if(((const Graph &)umlGraph).empty())
+	if(((const Graph &)umlGraph).empty()) {
 		return;
+	}
 
 	//check necessary preconditions
 	preProcess(umlGraph);
@@ -511,10 +504,11 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 			//face fExternal = E.maximalFace();
 			face fExternal = findBestExternalFace(PG,E);
 			adjExternal = fExternal->firstAdj();
-#if 0
-			while (PG.sinkConnect(adjExternal->theEdge()))
+#	if 0
+			while (PG.sinkConnect(adjExternal->theEdge())) {
 				adjExternal = adjExternal->faceCycleSucc();
-#endif
+			}
+#	endif
 		}
 
 		m_nCrossings += PG.numberOfNodes() - nOrigVerticesPG;
@@ -578,11 +572,8 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 						//because of the node collapse using the original
 						//edges instead of the merger copy edges (should be
 						//fixed for incremental mode) the  degree is 4
-#if 0
-						if (vConnect->degree() != 3)
-#else
+						// if (vConnect->degree() != 3)
 						if (vConnect->degree() != 4)
-#endif
 						{
 							runAdj = runAdj->faceCycleSucc();
 							continue;
@@ -605,10 +596,11 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 						if (adjMerger->theEdge()->target() == vMerger)
 						{
 							edge eOrig = PG.original(adjMerger->theEdge());
-							if (eOrig)
+							if (eOrig) {
 								//incoming merger edges always have an original here!
 								umlGraph.bends(eOrig).pushBack(DPoint(drawing.x(vMerger),
 								drawing.y(vMerger)));
+							}
 						}
 					}
 				}

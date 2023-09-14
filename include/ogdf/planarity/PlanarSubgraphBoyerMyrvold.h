@@ -32,11 +32,12 @@
 
 #pragma once
 
-#include <random>
+#include <ogdf/planarity/BoothLueker.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
-#include <ogdf/planarity/BoothLueker.h>
+
+#include <random>
 
 namespace ogdf {
 
@@ -47,8 +48,7 @@ namespace ogdf {
  *
  * @ingroup ga-plansub
  */
-class OGDF_EXPORT PlanarSubgraphBoyerMyrvold : public PlanarSubgraphModule<int>
-{
+class OGDF_EXPORT PlanarSubgraphBoyerMyrvold : public PlanarSubgraphModule<int> {
 private:
 	int m_runs;
 	double m_randomness;
@@ -65,24 +65,19 @@ public:
 	 *                   Any value between 0 and 1 is allowed and will result in a specific random influence.
 	 *                   When performing multiple runs, a randomness greater zero should be chosen.
 	 */
-	explicit PlanarSubgraphBoyerMyrvold(int runs = 1, double randomness = 0) :
-	    m_runs(runs),
-	    m_randomness(randomness),
-	    m_rand(rand())
-	{};
+	explicit PlanarSubgraphBoyerMyrvold(int runs = 1, double randomness = 0)
+		: m_runs(runs), m_randomness(randomness), m_rand(rand()) {};
 
 	~PlanarSubgraphBoyerMyrvold() {};
 
-	virtual PlanarSubgraphBoyerMyrvold *clone() const override {
+	virtual PlanarSubgraphBoyerMyrvold* clone() const override {
 		return new PlanarSubgraphBoyerMyrvold(m_runs);
 	};
 
 	//! Seeds the random generator for performing a random DFS.
 	//! If this method is never called the random generator will be seeded by a value
 	//! extracted from the global random generator.
-	void seed(std::minstd_rand rand) {
-		m_rand = rand;
-	}
+	void seed(std::minstd_rand rand) { m_rand = rand; }
 
 protected:
 	/**
@@ -94,18 +89,15 @@ protected:
 	 * @param pCost the costs for removing each edge
 	 * @param preferedImplyPlanar ignored
 	 */
-	virtual ReturnType doCall(
-		const Graph &graph,
-		const List<edge> &preferedEdges,
-		List<edge> &delEdges,
-		const EdgeArray<int> *pCost,
-		bool preferedImplyPlanar) override;
+	virtual ReturnType doCall(const Graph& graph, const List<edge>& preferedEdges,
+			List<edge>& delEdges, const EdgeArray<int>* pCost, bool preferedImplyPlanar) override;
 
 	/**
 	 * Returns true iff this edge could not be embedded.
 	 */
-	bool isRemoved(const GraphCopy &copy, const edge e) {
-		return copy.copy(e) == nullptr || copy.copy(e)->source() != copy.copy(e->source()) || copy.copy(e)->target() != copy.copy(e->target());
+	bool isRemoved(const GraphCopy& copy, const edge e) {
+		return copy.copy(e) == nullptr || copy.copy(e)->source() != copy.copy(e->source())
+				|| copy.copy(e)->target() != copy.copy(e->target());
 	}
 };
 

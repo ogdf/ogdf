@@ -29,26 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <random>
-
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+
+#include <random>
 
 #include <graphs.h>
 
 
 go_bandit([] {
-	describe("SubgraphUpwardPlanarizer", [] { forEachGraphItWorks(
-		{GraphProperty::acyclic, GraphProperty::connected, GraphProperty::simple, GraphProperty::sparse},
-		[](Graph &G, const std::string &graphName, const std::set<GraphProperty> &props) {
-
-			// Init module
-			UpwardPlanRep U;
-			U.createEmpty(G);
-			SubgraphUpwardPlanarizer sup;
-			Module::ReturnType s = sup.call(U, nullptr, nullptr);
-			AssertThat(Module::isSolution(s), IsTrue());
-			AssertThat(UpwardPlanarity::isUpwardPlanar(U), IsTrue());
-		});
+	describe("SubgraphUpwardPlanarizer", [] {
+		forEachGraphItWorks({GraphProperty::acyclic, GraphProperty::connected,
+									GraphProperty::simple, GraphProperty::sparse},
+				[](Graph& G, const std::string& graphName, const std::set<GraphProperty>& props) {
+					// Init module
+					UpwardPlanRep U;
+					U.createEmpty(G);
+					SubgraphUpwardPlanarizer sup;
+					Module::ReturnType s = sup.call(U, nullptr, nullptr);
+					AssertThat(Module::isSolution(s), IsTrue());
+					AssertThat(UpwardPlanarity::isUpwardPlanar(U), IsTrue());
+				});
 	});
 });

@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Layout.h>
+#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/geometry.h>
 
 namespace ogdf {
@@ -43,59 +43,60 @@ namespace ogdf {
  *
  * @ingroup graph-drawing
  */
-class OGDF_EXPORT GridLayout
-{
+class OGDF_EXPORT GridLayout {
 public:
 	//! Creates an instance of a grid layout (associated with no graph).
 	GridLayout() { }
 
 	//! Creates an instance of a grid layout associated with \p G.
-	explicit GridLayout(const Graph &G) : m_x(G,0), m_y(G,0), m_bends(G) { }
+	explicit GridLayout(const Graph& G) : m_x(G, 0), m_y(G, 0), m_bends(G) { }
 
 	//! Destruction
 	virtual ~GridLayout() { }
 
+	//! Returns a reference to the array storing the x-coordinates of nodes.
+	const NodeArray<int>& x() const { return m_x; }
 
 	//! Returns a reference to the array storing the x-coordinates of nodes.
-	const NodeArray<int> &x() const { return m_x; }
-	//! Returns a reference to the array storing the x-coordinates of nodes.
-	NodeArray<int> &x() { return m_x; }
+	NodeArray<int>& x() { return m_x; }
 
 	//! Returns a reference to the array storing the y-coordinates of nodes.
-	const NodeArray<int> &y() const { return m_y; }
+	const NodeArray<int>& y() const { return m_y; }
+
 	//! Returns a reference to the array storing the y-coordinates of nodes.
-	NodeArray<int> &y() { return m_y; }
+	NodeArray<int>& y() { return m_y; }
 
 	//! Returns a reference to the array storing the bend points of edges.
-	const EdgeArray<IPolyline> &bends() const { return m_bends; }
+	const EdgeArray<IPolyline>& bends() const { return m_bends; }
+
 	//! Returns a reference to the array storing the bend points of edges.
-	EdgeArray<IPolyline> &bends() { return m_bends; }
-
+	EdgeArray<IPolyline>& bends() { return m_bends; }
 
 	//! Returns a reference to the x-coordinate of node \p v.
-	const int &x(node v) const { return m_x[v]; }
+	const int& x(node v) const { return m_x[v]; }
+
 	//! Returns a reference to the x-coordinate of node \p v.
-	int &x(node v) { return m_x[v]; }
+	int& x(node v) { return m_x[v]; }
 
 	//! Returns a reference to the y-coordinate of node \p v.
-	const int &y(node v) const { return m_y[v]; }
+	const int& y(node v) const { return m_y[v]; }
+
 	//! Returns a reference to the y-coordinate of node \p v.
-	int &y(node v) { return m_y[v]; }
-
+	int& y(node v) { return m_y[v]; }
 
 	//! Returns a reference to the bend point list of edge \p e.
-	const IPolyline &bends(edge e) const { return m_bends[e]; }
+	const IPolyline& bends(edge e) const { return m_bends[e]; }
+
 	//! Returns a reference to the bend point list of edge \p e.
-	IPolyline &bends(edge e) { return m_bends[e]; }
+	IPolyline& bends(edge e) { return m_bends[e]; }
 
 	//! Returns the polyline of edge \p e (including start and end point!).
 	IPolyline polyline(edge e) const;
 
-
 	//! Initializes the grid layout for graph \p G.
-	void init(const Graph &G) {
-		m_x.init(G,0);
-		m_y.init(G,0);
+	void init(const Graph& G) {
+		m_x.init(G, 0);
+		m_y.init(G, 0);
 		m_bends.init(G);
 	}
 
@@ -132,7 +133,7 @@ public:
 	 * @param ymin is assigned the minimum y-coordinate in the grid layout.
 	 * @param ymax is assigned the maximum y-coordinate in the grid layout.
 	 */
-	void computeBoundingBox(int &xmin, int &xmax, int &ymin, int &ymax);
+	void computeBoundingBox(int& xmin, int& xmax, int& ymin, int& ymax);
 
 	//! Computes the total manhattan edge length of the grid layout.
 	int totalManhattanEdgeLength() const;
@@ -152,19 +153,19 @@ public:
 	 * This implementation only copies the grid coordinates to \p drawing; the
 	 * derived class GridLayoutMapped performs the actual transformation of coordinates.
 	 */
-	virtual void remap(Layout &drawing);
+	virtual void remap(Layout& drawing);
 
-	static int manhattanDistance(const IPoint &ip1, const IPoint &ip2);
-	static double euclideanDistance(const IPoint &ip1, const IPoint &ip2);
+	static int manhattanDistance(const IPoint& ip1, const IPoint& ip2);
+	static double euclideanDistance(const IPoint& ip1, const IPoint& ip2);
 
 protected:
-	NodeArray<int> m_x;  //!< The x-coordinates of nodes.
-	NodeArray<int> m_y;  //!< The y-coordinates of nodes.
+	NodeArray<int> m_x; //!< The x-coordinates of nodes.
+	NodeArray<int> m_y; //!< The y-coordinates of nodes.
 	EdgeArray<IPolyline> m_bends; //!< The bend points of edges.
 
 private:
-	static bool isRedundant(IPoint &p1, IPoint &p2, IPoint &p3);
-	static void compact(IPolyline &ip);
+	static bool isRedundant(IPoint& p1, IPoint& p2, IPoint& p3);
+	static void compact(IPolyline& ip);
 
 	OGDF_MALLOC_NEW_DELETE
 };

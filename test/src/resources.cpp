@@ -42,8 +42,9 @@ ResourceDirectory internal::g_resources_root;
 /* Class Members of ResourceFile */
 const ResourceFile* ResourceFile::get(const string& path) {
 	if (internal::g_resources.find(path) == internal::g_resources.end()) {
-		throw(std::runtime_error("The file `" + path + "' could not be found in the packed resources.\n"
-		  "If it is in your file system, you have to re-run cmake and recompile."));
+		throw(std::runtime_error("The file `" + path
+				+ "' could not be found in the packed resources.\n"
+				  "If it is in your file system, you have to re-run cmake and recompile."));
 	}
 	return &internal::g_resources[path];
 }
@@ -58,6 +59,7 @@ void ResourceDirectory::addDirectory(ResourceDirectory* r) {
 	OGDF_ASSERT(r != nullptr);
 	m_directories[r->name()] = r;
 }
+
 ResourceDirectory* ResourceDirectory::addDirectory(const string& name) {
 	ResourceDirectory newdir(fullPath(), name);
 	// Copy into global array and return address from that
@@ -69,18 +71,26 @@ ResourceDirectory* ResourceDirectory::addDirectory(const string& name) {
 
 const ResourceFile* ResourceDirectory::getFile(const string& name) const {
 	auto it = m_files.find(name);
-	if (it == m_files.end()) return nullptr;
+	if (it == m_files.end()) {
+		return nullptr;
+	}
 	return it->second;
 }
+
 const ResourceDirectory* ResourceDirectory::getDirectory(const string& name) const {
 	auto it = m_directories.find(name);
-	if (it == m_directories.end()) return nullptr;
+	if (it == m_directories.end()) {
+		return nullptr;
+	}
 	return it->second;
 }
+
 ResourceDirectory* ResourceDirectory::getDirectory(const string& name, bool create) {
 	auto it = m_directories.find(name);
 	if (it == m_directories.end()) {
-		if (create) return addDirectory(name);
+		if (create) {
+			return addDirectory(name);
+		}
 		return nullptr;
 	}
 	return it->second;
@@ -92,18 +102,24 @@ const ResourceFile* ResourceDirectory::getFileByPath(const string& path) const {
 		return getFile(path);
 	}
 	const ResourceDirectory* next = getDirectory(path.substr(0, pos));
-	if (next == nullptr) return nullptr; // no such directory
+	if (next == nullptr) {
+		return nullptr; // no such directory
+	}
 	return next->getFileByPath(path.substr(pos + 1));
 }
+
 const ResourceDirectory* ResourceDirectory::getDirectoryByPath(const string& path) const {
 	string::size_type pos = path.find('/');
 	if (pos == string::npos) {
 		return getDirectory(path);
 	}
 	const ResourceDirectory* next = getDirectory(path.substr(0, pos));
-	if (next == nullptr) return next; // no such directory
+	if (next == nullptr) {
+		return next; // no such directory
+	}
 	return next->getDirectoryByPath(path.substr(pos + 1));
 }
+
 ResourceDirectory* ResourceDirectory::getDirectoryByPath(const string& path, bool createPath) {
 	string::size_type pos = path.find('/');
 	if (pos == string::npos) {
@@ -131,6 +147,7 @@ std::vector<const ResourceFile*> ResourceDirectory::getFiles() const {
 	}
 	return entries;
 }
+
 std::vector<const ResourceDirectory*> ResourceDirectory::getDirectories() const {
 	std::vector<const ResourceDirectory*> entries;
 	for (auto it : m_directories) {
@@ -139,14 +156,17 @@ std::vector<const ResourceDirectory*> ResourceDirectory::getDirectories() const 
 	return entries;
 }
 
-void ResourceDirectory::forEachFile(std::function<void(const ResourceFile*)> callback, bool recurse) const {
+void ResourceDirectory::forEachFile(std::function<void(const ResourceFile*)> callback,
+		bool recurse) const {
 	for (auto it : m_files) {
 		callback(it.second);
 	}
 
 	if (recurse) {
 		for (auto it : m_directories) {
-			if (it.second == nullptr) continue;
+			if (it.second == nullptr) {
+				continue;
+			}
 			it.second->forEachFile(callback, true);
 		}
 	}
@@ -155,13 +175,17 @@ void ResourceDirectory::forEachFile(std::function<void(const ResourceFile*)> cal
 const ResourceDirectory* ResourceDirectory::get(const string& dir, const string& name) {
 	return get(dir + '/' + name);
 }
+
 const ResourceDirectory* ResourceDirectory::get(const string& path) {
-	if (internal::g_directories.find(path) == internal::g_directories.end()) return nullptr;
+	if (internal::g_directories.find(path) == internal::g_directories.end()) {
+		return nullptr;
+	}
 	return &internal::g_directories[path];
 }
 
 /* Global methods */
-void internal::registerResource(const string& directory, const string& filename, const string& contents) {
+void internal::registerResource(const string& directory, const string& filename,
+		const string& contents) {
 	ResourceDirectory* dir = g_resources_root.getDirectoryByPath(directory, true);
 	ResourceFile f(directory, filename, contents);
 	// Copy into global array, store address of that copy

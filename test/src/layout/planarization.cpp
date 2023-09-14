@@ -29,50 +29,61 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/PlanarizationLayout.h>
-#include <ogdf/planarity/PlanarizationGridLayout.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
-#include <ogdf/planarlayout/MixedModelLayout.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
+#include <ogdf/planarity/PlanarizationGridLayout.h>
+#include <ogdf/planarity/PlanarizationLayout.h>
+#include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarlayout/MMCBLocalStretch.h>
+#include <ogdf/planarlayout/MixedModelLayout.h>
 #include <ogdf/upward/UpwardPlanarizationLayout.h>
 
 #include "layout_helpers.h"
 
-go_bandit([] { describe("Planarization layouts", [] {
-	PlanarizationLayout pl, plFixed;
-	PlanarizationGridLayout pgl, pglMM;
+go_bandit([] {
+	describe("Planarization layouts", [] {
+		PlanarizationLayout pl, plFixed;
+		PlanarizationGridLayout pgl, pglMM;
 
-	VariableEmbeddingInserter *pVarInserter = new VariableEmbeddingInserter;
-	FixedEmbeddingInserter *pFixInserter = new FixedEmbeddingInserter;
+		VariableEmbeddingInserter* pVarInserter = new VariableEmbeddingInserter;
+		FixedEmbeddingInserter* pFixInserter = new FixedEmbeddingInserter;
 
-	SubgraphPlanarizer *pCrossMin = new SubgraphPlanarizer;
-	pCrossMin->setSubgraph(new PlanarSubgraphFast<int>);
-	pCrossMin->setInserter(pVarInserter);
-	pCrossMin->permutations(4);
+		SubgraphPlanarizer* pCrossMin = new SubgraphPlanarizer;
+		pCrossMin->setSubgraph(new PlanarSubgraphFast<int>);
+		pCrossMin->setInserter(pVarInserter);
+		pCrossMin->permutations(4);
 
-	pl.setCrossMin(pCrossMin->clone());
-	pgl.setCrossMin(pCrossMin->clone());
-	pglMM.setCrossMin(pCrossMin->clone());
+		pl.setCrossMin(pCrossMin->clone());
+		pgl.setCrossMin(pCrossMin->clone());
+		pglMM.setCrossMin(pCrossMin->clone());
 
-	pCrossMin->setInserter(pFixInserter);
-	pCrossMin->permutations(1);
-	plFixed.setCrossMin(pCrossMin);
+		pCrossMin->setInserter(pFixInserter);
+		pCrossMin->permutations(1);
+		plFixed.setCrossMin(pCrossMin);
 
-	MixedModelLayout *pMml = new MixedModelLayout;
-	pMml->setCrossingsBeautifier(new MMCBLocalStretch);
-	pglMM.setPlanarLayouter(pMml);
+		MixedModelLayout* pMml = new MixedModelLayout;
+		pMml->setCrossingsBeautifier(new MMCBLocalStretch);
+		pglMM.setPlanarLayouter(pMml);
 
-	GraphSizes smallSizes = GraphSizes(16, 48, 16);
+		GraphSizes smallSizes = GraphSizes(16, 48, 16);
 
-	describeLayout("PlanarizationLayout", pl, GraphAttributes::edgeType | GraphAttributes::nodeType, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
-	describeLayout("PlanarizationLayout with fixed inserter", plFixed, GraphAttributes::edgeType | GraphAttributes::nodeType, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+		describeLayout("PlanarizationLayout", pl,
+				GraphAttributes::edgeType | GraphAttributes::nodeType,
+				{GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+		describeLayout("PlanarizationLayout with fixed inserter", plFixed,
+				GraphAttributes::edgeType | GraphAttributes::nodeType,
+				{GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
 
-	describeLayout("PlanarizationGridLayout", pgl, 0, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
-	describeLayout("PlanarizationGridLayout with mixed model", pglMM, 0, {GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+		describeLayout("PlanarizationGridLayout", pgl, 0,
+				{GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
+		describeLayout("PlanarizationGridLayout with mixed model", pglMM, 0,
+				{GraphProperty::simple, GraphProperty::sparse}, true, smallSizes);
 
-	UpwardPlanarizationLayout upl;
-	describeLayout("UpwardPlanarizationLayout", upl, 0, {GraphProperty::acyclic, GraphProperty::simple, GraphProperty::sparse, GraphProperty::connected}, false, smallSizes);
-}); });
+		UpwardPlanarizationLayout upl;
+		describeLayout("UpwardPlanarizationLayout", upl, 0,
+				{GraphProperty::acyclic, GraphProperty::simple, GraphProperty::sparse,
+						GraphProperty::connected},
+				false, smallSizes);
+	});
+});

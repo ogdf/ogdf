@@ -32,11 +32,11 @@
 
 #pragma once
 
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/planarity/ExtractKuratowskis.h>
+#include <ogdf/planarity/KuratowskiSubdivision.h>
 #include <ogdf/planarity/PlanarityModule.h>
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
-#include <ogdf/planarity/ExtractKuratowskis.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/planarity/KuratowskiSubdivision.h>
 
 namespace ogdf {
 
@@ -135,8 +135,7 @@ class KuratowskiWrapper;
  * this transformation is a switch to filter all similar or not similar Kuratowski
  * Subdivisions.
  */
-class OGDF_EXPORT BoyerMyrvold : public PlanarityModule
-{
+class OGDF_EXPORT BoyerMyrvold : public PlanarityModule {
 protected:
 	//! Class BoyerMyrvoldPlanar on heap
 	BoyerMyrvoldPlanar* pBMP;
@@ -152,7 +151,11 @@ protected:
 
 public:
 	//! Constructor
-	BoyerMyrvold() { pBMP = nullptr; nOfStructures = 0; }
+	BoyerMyrvold() {
+		pBMP = nullptr;
+		nOfStructures = 0;
+	}
+
 	//! Destructor
 	~BoyerMyrvold() { clear(); }
 
@@ -171,9 +174,9 @@ public:
 	virtual bool isPlanar(const Graph& g) override;
 
 	//! Returns true, if G is planar, false otherwise. If true, G contains a planar embedding.
-	virtual bool planarEmbed(Graph &G) override {
+	virtual bool planarEmbed(Graph& G) override {
 		SList<KuratowskiWrapper> list;
-		return planarEmbed(G,list);
+		return planarEmbed(G, list);
 	}
 
 	//! Constructs a planar embedding of G. \p G \b has to be planar!
@@ -185,43 +188,32 @@ public:
 	 * This routine is slightly faster than planarEmbed, but requires \p G to be planar.
 	 * If \p G is not planar, the graph will be destroyed while trying to embed it!
 	 */
-	virtual bool planarEmbedPlanarGraph(Graph &G) override {
+	virtual bool planarEmbedPlanarGraph(Graph& G) override {
 		SList<KuratowskiWrapper> list;
-		return planarEmbedDestructive(G,list);
+		return planarEmbedDestructive(G, list);
 	}
 
-
 	//! Transforms KuratowskiWrapper in KuratowskiSubdivision
-	void transform(
-		const KuratowskiWrapper& source,
-		KuratowskiSubdivision& target,
-		NodeArray<int>& count,
-		EdgeArray<int>& countEdge);
+	void transform(const KuratowskiWrapper& source, KuratowskiSubdivision& target,
+			NodeArray<int>& count, EdgeArray<int>& countEdge);
 
 	//! Transforms KuratowskiWrapper-List in KuratowskiSubdivision-List with respect to sieving constraints
 	/**
 	 * This method is called if BoyerMyrvold::planarEmbed was called with the Graph g previously.
 	 */
-	void transform(
-		const SList<KuratowskiWrapper>& sourceList,
-		SList<KuratowskiSubdivision>& targetList,
-		const Graph& g,
-		const bool onlyDifferent = false);
-
+	void transform(const SList<KuratowskiWrapper>& sourceList,
+			SList<KuratowskiSubdivision>& targetList, const Graph& g,
+			const bool onlyDifferent = false);
 
 	//! Transforms KuratowskiWrapper-List in KuratowskiSubdivision-List with respect to sieving constraints
 	/**
 	 * This method is called if BoyerMyrvold::planarEmbed was called with the GraphCopySimple h previously.
 	 */
-	void transform(
-		const SList<KuratowskiWrapper>& sourceList,
-		SList<KuratowskiSubdivision>& targetList,
-		const GraphCopySimple& h,
-		const bool onlyDifferent = false)
-	{
+	void transform(const SList<KuratowskiWrapper>& sourceList,
+			SList<KuratowskiSubdivision>& targetList, const GraphCopySimple& h,
+			const bool onlyDifferent = false) {
 		transform(sourceList, targetList, h.original(), onlyDifferent);
 	}
-
 
 	//! Returns an embedding, if \p g is planar and Kuratowski Subdivisions otherwise
 	/** If \p g is planar, the adjLists of \p g specify a planar embedding.
@@ -234,26 +226,18 @@ public:
 	 * @param randomDFSTree randomizes Kuratowski extraction through randomizing the DFSTree, if set
 	 * @param avoidE2Minors avoids all \a E2-Minors and ensures unique subdivisions, if set
 	 */
-	bool planarEmbedDestructive(
-		Graph& g,
-		SList<KuratowskiWrapper>& output,
-		int embeddingGrade,
-		bool bundles = false,
-		bool limitStructures = false,
-		bool randomDFSTree = false,
-		bool avoidE2Minors = true);
+	bool planarEmbedDestructive(Graph& g, SList<KuratowskiWrapper>& output, int embeddingGrade,
+			bool bundles = false, bool limitStructures = false, bool randomDFSTree = false,
+			bool avoidE2Minors = true);
 
 	//! @copydoc ogdf::BoyerMyrvold::planarEmbedDestructive(Graph&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
-	bool planarEmbedDestructive(
-		Graph& g,
-		SList<KuratowskiWrapper>& output,
-		BoyerMyrvoldPlanar::EmbeddingGrade embeddingGrade = BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind,
-		bool bundles = false,
-		bool limitStructures = false,
-		bool randomDFSTree = false,
-		bool avoidE2Minors = true)
-	{
-		return planarEmbedDestructive(g, output, static_cast<int>(embeddingGrade), bundles, limitStructures, randomDFSTree, avoidE2Minors);
+	bool planarEmbedDestructive(Graph& g, SList<KuratowskiWrapper>& output,
+			BoyerMyrvoldPlanar::EmbeddingGrade embeddingGrade =
+					BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind,
+			bool bundles = false, bool limitStructures = false, bool randomDFSTree = false,
+			bool avoidE2Minors = true) {
+		return planarEmbedDestructive(g, output, static_cast<int>(embeddingGrade), bundles,
+				limitStructures, randomDFSTree, avoidE2Minors);
 	}
 
 	//! Returns an embedding, if \p g is planar and Kuratowski Subdivisions otherwise
@@ -268,26 +252,18 @@ public:
 	 * @param randomDFSTree randomizes Kuratowski extraction through randomizing the DFSTree, if set
 	 * @param avoidE2Minors avoids all \a E2-Minors and ensures unique subdivisions, if set
 	 */
-	bool planarEmbed(
-		Graph& g,
-		SList<KuratowskiWrapper>& output,
-		int embeddingGrade,
-		bool bundles = false,
-		bool limitStructures = false,
-		bool randomDFSTree = false,
-		bool avoidE2Minors = true);
+	bool planarEmbed(Graph& g, SList<KuratowskiWrapper>& output, int embeddingGrade,
+			bool bundles = false, bool limitStructures = false, bool randomDFSTree = false,
+			bool avoidE2Minors = true);
 
 	//! @copydoc ogdf::BoyerMyrvold::planarEmbed(Graph&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
-	bool planarEmbed(
-		Graph& g,
-		SList<KuratowskiWrapper>& output,
-		BoyerMyrvoldPlanar::EmbeddingGrade embeddingGrade = BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind,
-		bool bundles = false,
-		bool limitStructures = false,
-		bool randomDFSTree = false,
-		bool avoidE2Minors = true)
-	{
-		return planarEmbed(g, output, static_cast<int>(embeddingGrade), bundles, limitStructures, randomDFSTree, avoidE2Minors);
+	bool planarEmbed(Graph& g, SList<KuratowskiWrapper>& output,
+			BoyerMyrvoldPlanar::EmbeddingGrade embeddingGrade =
+					BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind,
+			bool bundles = false, bool limitStructures = false, bool randomDFSTree = false,
+			bool avoidE2Minors = true) {
+		return planarEmbed(g, output, static_cast<int>(embeddingGrade), bundles, limitStructures,
+				randomDFSTree, avoidE2Minors);
 	}
 
 	//! Returns an embedding, if graph copy \p h is planar and Kuratowski Subdivisions otherwise
@@ -301,26 +277,18 @@ public:
 	 * @param randomDFSTree randomizes Kuratowski extraction through randomizing the DFSTree, if set
 	 * @param avoidE2Minors avoids all \a E2-Minors and ensures unique subdivisions, if set
 	 */
-	bool planarEmbed(
-		GraphCopySimple& h,
-		SList<KuratowskiWrapper>& output,
-		int embeddingGrade,
-		bool bundles = false,
-		bool limitStructures = false,
-		bool randomDFSTree = false,
-		bool avoidE2Minors = true);
+	bool planarEmbed(GraphCopySimple& h, SList<KuratowskiWrapper>& output, int embeddingGrade,
+			bool bundles = false, bool limitStructures = false, bool randomDFSTree = false,
+			bool avoidE2Minors = true);
 
 	//! @copydoc ogdf::BoyerMyrvold::planarEmbed(GraphCopySimple&,SList<KuratowskiWrapper>&,int,bool,bool,bool,bool)
-	bool planarEmbed(
-		GraphCopySimple& h,
-		SList<KuratowskiWrapper>& output,
-		BoyerMyrvoldPlanar::EmbeddingGrade embeddingGrade = BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind,
-		bool bundles = false,
-		bool limitStructures = false,
-		bool randomDFSTree = false,
-		bool avoidE2Minors = true)
-	{
-		return planarEmbed(h, output, static_cast<int>(embeddingGrade), bundles, limitStructures, randomDFSTree, avoidE2Minors);
+	bool planarEmbed(GraphCopySimple& h, SList<KuratowskiWrapper>& output,
+			BoyerMyrvoldPlanar::EmbeddingGrade embeddingGrade =
+					BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind,
+			bool bundles = false, bool limitStructures = false, bool randomDFSTree = false,
+			bool avoidE2Minors = true) {
+		return planarEmbed(h, output, static_cast<int>(embeddingGrade), bundles, limitStructures,
+				randomDFSTree, avoidE2Minors);
 	}
 };
 

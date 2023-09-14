@@ -40,6 +40,7 @@
 //#define OGDF_GT_GRH_STEPS	1	// gap relabel frequency: call gapRelabel() after OGDF_GT_GRH_STEPS relabel() operations (1 == off)
 #endif
 #define OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
+
 // world666 is much better without OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
 
 namespace ogdf {
@@ -49,18 +50,17 @@ namespace ogdf {
  * @ingroup ga-flow
  */
 template<typename TCap>
-class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
-{
+class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap> {
 	NodeArray<int> m_label;
 	NodeArray<TCap> m_ex; // ex_f(v) values will be saved here to save runtime
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
-	NodeArray< ListIterator<node> > m_activeLabelListPosition; // holds the iterator of every active node in the corresp. list of m_labeList
-	Array< List<node> > m_activeLabelList; // array indexed by label, contains list of active nodes with that label
+	NodeArray<ListIterator<node>> m_activeLabelListPosition; // holds the iterator of every active node in the corresp. list of m_labeList
+	Array<List<node>> m_activeLabelList; // array indexed by label, contains list of active nodes with that label
 	int m_maxLabel = 0; // the maximum label among all active nodes
 #endif
 #ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
-	NodeArray< ListIterator<node> > m_labelListPosition; // holds the iterator of every node in the corresp. list of m_labeList
-	Array< List<node> > m_labelList; // array indexed by label, contains list of nodes with that label
+	NodeArray<ListIterator<node>> m_labelListPosition; // holds the iterator of every node in the corresp. list of m_labeList
+	Array<List<node>> m_labelList; // array indexed by label, contains list of nodes with that label
 #endif
 
 	mutable List<node> m_cutNodes;
@@ -70,34 +70,28 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		return e->target() == *this->m_s ? 0 : (*this->m_cap)[e];
 	}
 
-	inline bool isResidualEdge(const adjEntry adj) const
-	{
+	inline bool isResidualEdge(const adjEntry adj) const {
 		const edge e = adj->theEdge();
 		if (adj->theNode() == e->source()) {
 			return this->m_et->less((*this->m_flow)[e], getCap(e));
 		}
-		return this->m_et->greater((*this->m_flow)[e], (TCap) 0);
+		return this->m_et->greater((*this->m_flow)[e], (TCap)0);
 	}
 
-	inline bool isAdmissible(const adjEntry adj) const
-	{
+	inline bool isAdmissible(const adjEntry adj) const {
 		OGDF_ASSERT(adj);
-		return isResidualEdge(adj)
-		    && m_label[adj->theNode()] == m_label[adj->twinNode()] + 1;
+		return isResidualEdge(adj) && m_label[adj->theNode()] == m_label[adj->twinNode()] + 1;
 	}
 
-	inline bool isActive(const node v) const
-	{
+	inline bool isActive(const node v) const {
 		OGDF_ASSERT((v != *this->m_s && v != *this->m_t)
-		  || (m_label[*this->m_s] == this->m_G->numberOfNodes() && m_label[*this->m_t] == 0));
-		return this->m_et->greater(m_ex[v], (TCap) 0)
-		    && this->m_G->numberOfNodes() > m_label[v]
-		    && m_label[v] > 0;
+				|| (m_label[*this->m_s] == this->m_G->numberOfNodes() && m_label[*this->m_t] == 0));
+		return this->m_et->greater(m_ex[v], (TCap)0) && this->m_G->numberOfNodes() > m_label[v]
+				&& m_label[v] > 0;
 	}
 
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
-	inline void setActive(const node v)
-	{
+	inline void setActive(const node v) {
 		const int label = m_label[v];
 		OGDF_ASSERT(0 < label);
 		OGDF_ASSERT(label < this->m_G->numberOfNodes());
@@ -108,16 +102,13 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		}
 	}
 
-	inline void findNewMaxLabel()
-	{
-		while (m_maxLabel > 0
-		    && m_activeLabelList[m_maxLabel].empty()) {
+	inline void findNewMaxLabel() {
+		while (m_maxLabel > 0 && m_activeLabelList[m_maxLabel].empty()) {
 			--m_maxLabel;
 		}
 	}
 
-	inline void setInactive(const node v)
-	{
+	inline void setInactive(const node v) {
 		OGDF_ASSERT(m_activeLabelListPosition[v].valid());
 		m_activeLabelList[m_label[v]].del(m_activeLabelListPosition[v]);
 		m_activeLabelListPosition[v] = nullptr;
@@ -126,13 +117,14 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 #endif
 
 	// sets label of v, maintaining m_labelList (moves node v to the correct list in the array)
-	inline void setLabel(const node v, int label)
-	{
+	inline void setLabel(const node v, int label) {
 #ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 		if (m_labelListPosition[v].valid()) {
-			m_labelList[m_label[v]].del(m_labelListPosition[v]); // delete node from old list using noted position
+			m_labelList[m_label[v]].del(
+					m_labelListPosition[v]); // delete node from old list using noted position
 		}
-		m_labelListPosition[v] = m_labelList[label].pushBack(v); // push node to new list and update iterator
+		m_labelListPosition[v] =
+				m_labelList[label].pushBack(v); // push node to new list and update iterator
 #endif
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 		if (m_activeLabelListPosition[v].valid()) {
@@ -141,9 +133,7 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 			setInactive(v);
 		}
 		m_label[v] = label; // update label
-		if (v != *this->m_s
-		 && v != *this->m_t
-		 && isActive(v)) {
+		if (v != *this->m_s && v != *this->m_t && isActive(v)) {
 			setActive(v);
 		}
 #else
@@ -152,14 +142,13 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 	}
 
 #ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
-	void gapRelabel()
-	{
-#  ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
+	void gapRelabel() {
+#	ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 		// XXX: this is a test but it seems to work and it seems to be fast!
 		const int n = m_maxLabel + 1;
-#  else
+#	else
 		const int n = this->m_G->numberOfNodes();
-#  endif
+#	endif
 		for (int i = 1; i < n - 1; ++i) {
 			if (m_labelList[i].empty()) {
 				for (int j = i + 1; j < n; ++j) {
@@ -173,27 +162,25 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 	}
 #endif
 
-	void push(const adjEntry adj)
-	{
+	void push(const adjEntry adj) {
 		const edge e = adj->theEdge();
 		const node v = adj->theNode();
 		if (v == e->source()) {
 			const TCap value = min(m_ex[v], getCap(e) - (*this->m_flow)[e]);
-			OGDF_ASSERT(this->m_et->geq(value, (TCap) 0));
+			OGDF_ASSERT(this->m_et->geq(value, (TCap)0));
 			(*this->m_flow)[e] += value;
 			m_ex[v] -= value;
 			m_ex[adj->twinNode()] += value;
 		} else {
 			const TCap value = min(m_ex[v], (*this->m_flow)[adj]);
-			OGDF_ASSERT(this->m_et->geq(value, (TCap) 0));
+			OGDF_ASSERT(this->m_et->geq(value, (TCap)0));
 			(*this->m_flow)[adj] -= value;
 			m_ex[v] -= value;
 			m_ex[adj->twinNode()] += value;
 		}
 	}
 
-	void globalRelabel()
-	{
+	void globalRelabel() {
 		// breadth-first search to relabel nodes with their respective distance to the sink in the residual graph
 		const int n = this->m_G->numberOfNodes();
 		NodeArray<int> dist(*this->m_G, n); // distance array
@@ -202,25 +189,23 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		queue.pushBack(*this->m_t);
 		while (!queue.empty()) { // is there a node to check?
 			node w = queue.popFrontRet();
-			for(adjEntry adj : w->adjEntries) {
+			for (adjEntry adj : w->adjEntries) {
 				node x = adj->twinNode();
-				if (isResidualEdge(adj->twin())
-				 && dist[x] == n) { // not already seen
+				if (isResidualEdge(adj->twin()) && dist[x] == n) { // not already seen
 					dist[x] = dist[w] + 1; // set distance of node to sink
 					queue.pushBack(x);
 				}
 			}
 		}
 		// set distance of unreachable nodes to "number of nodes" thus making them inactive
-		for(node w : this->m_G->nodes) {
+		for (node w : this->m_G->nodes) {
 			setLabel(w, dist[w]);
 		}
 	}
 
-	void relabel(const node v)
-	{
+	void relabel(const node v) {
 		int minLabel = this->m_G->numberOfNodes() - 1;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (isResidualEdge(adj)) {
 				const int label = m_label[adj->twinNode()];
 				if (label < minLabel) {
@@ -233,10 +218,9 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		}
 	}
 
-	void relabelStage2(const node v)
-	{
+	void relabelStage2(const node v) {
 		int minLabel = this->m_G->numberOfNodes() - 1;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (isResidualEdge(adj)) {
 				const int label = m_label[adj->twinNode()];
 				if (label < minLabel) {
@@ -250,13 +234,12 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 
 public:
 	// first stage: push excess towards sink
-	TCap computeValue(const EdgeArray<TCap> &cap, const node &s, const node &t)
-	{
+	TCap computeValue(const EdgeArray<TCap>& cap, const node& s, const node& t) {
 		// TODO: init this stuff in the module?
 		this->m_s = &s;
 		this->m_t = &t;
 		this->m_cap = &cap;
-		this->m_flow->init(*this->m_G, (TCap) 0);
+		this->m_flow->init(*this->m_G, (TCap)0);
 		OGDF_ASSERT(this->isFeasibleInstance());
 
 		m_label.init(*this->m_G);
@@ -273,16 +256,15 @@ public:
 		m_cutNodes.clear();
 
 		// initialize residual graph for first preflow
-		for(edge e : this->m_G->edges) {
-			if (e->source() == *this->m_s
-			&& e->target() != *this->m_s) { // ignore loops
+		for (edge e : this->m_G->edges) {
+			if (e->source() == *this->m_s && e->target() != *this->m_s) { // ignore loops
 				(*this->m_flow)[e] = getCap(e);
 				m_ex[e->target()] += getCap(e); // "+" needed for the case of multigraphs
 			}
 		}
 
-		if(*this->m_t == *this->m_s) {
-			return (TCap) 0;
+		if (*this->m_t == *this->m_s) {
+			return (TCap)0;
 		}
 
 		NodeArray<adjEntry> curr(*this->m_G);
@@ -301,7 +283,7 @@ public:
 			OGDF_ASSERT(m_activeLabelListPosition[v] == m_activeLabelList[m_maxLabel].begin());
 #else
 		List<node> active;
-		for(adjEntry adj : (*this->m_s)->adjEntries) {
+		for (adjEntry adj : (*this->m_s)->adjEntries) {
 			node w = adj->theEdge()->target();
 			if (w != *this->m_s) {
 				active.pushBack(w);
@@ -310,10 +292,8 @@ public:
 		while (!active.empty()) {
 			const node v = active.front();
 #endif
-			adjEntry &adj = curr[v];
-			if (v == *this->m_s
-			 || v == *this->m_t
-			 || !isActive(v)) {
+			adjEntry& adj = curr[v];
+			if (v == *this->m_s || v == *this->m_t || !isActive(v)) {
 				// source, sink or not active: remove activity status
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 				setInactive(v);
@@ -321,20 +301,17 @@ public:
 				active.popFront();
 #endif
 			} else {
-				while (this->m_et->greater(m_ex[v], (TCap) 0)) {
+				while (this->m_et->greater(m_ex[v], (TCap)0)) {
 					if (isAdmissible(adj)) {
 						// push and adjacent node becomes active
 #ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 						const node w = adj->twinNode();
-						if (w != *this->m_s
-						 && w != *this->m_t
-						 && !isActive(w)) {
+						if (w != *this->m_s && w != *this->m_t && !isActive(w)) {
 							// w will become active after push
 							setActive(w);
 						}
 						push(adj);
-						if (v != *this->m_s
-						 && !isActive(v)) {
+						if (v != *this->m_s && !isActive(v)) {
 							setInactive(v);
 						}
 #else
@@ -351,10 +328,11 @@ public:
 #ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 							// only gapRelabel if we do not do a globalRelabel directly afterwards
 							if (relCount != this->m_G->numberOfNodes()
-#  if (OGDF_GT_GRH_STEPS > 1)
-							 && relCount % OGDF_GT_GRH_STEPS == 0 // obey frequency of gap relabel heuristic
-#  endif
-							  ) {
+#	if (OGDF_GT_GRH_STEPS > 1)
+									&& relCount % OGDF_GT_GRH_STEPS
+											== 0 // obey frequency of gap relabel heuristic
+#	endif
+							) {
 								gapRelabel();
 							}
 #endif
@@ -370,9 +348,9 @@ public:
 		}
 
 		TCap result = 0;
-		for(adjEntry adj : (*this->m_t)->adjEntries) {
+		for (adjEntry adj : (*this->m_t)->adjEntries) {
 			edge e = adj->theEdge();
-			if(e->target() == *this->m_t) {
+			if (e->target() == *this->m_t) {
 				result += (*this->m_flow)[e];
 			} else {
 				result -= (*this->m_flow)[e];
@@ -382,15 +360,14 @@ public:
 	}
 
 	// second stage: push excess that has not reached the sink back towards source
-	void computeFlowAfterValue()
-	{
+	void computeFlowAfterValue() {
 		List<node> active;
 #ifdef OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
 		NodeArray<adjEntry> curr(*this->m_G);
 		for (node v = this->m_G->firstNode(); v; v = v->succ()) {
 			curr[v] = v->firstAdj();
 			m_label[v] = 1;
-			if (this->m_et->greater(m_ex[v], (TCap) 0) && v != *this->m_s && v != *this->m_t) {
+			if (this->m_et->greater(m_ex[v], (TCap)0) && v != *this->m_s && v != *this->m_t) {
 				active.pushBack(v);
 			}
 		}
@@ -401,12 +378,10 @@ public:
 		m_label[*this->m_s] = 0;
 		while (!active.empty()) {
 			node v = active.front();
-			if (v == *this->m_s
-			 || v == *this->m_t
-			 || !isActive(v)) {
+			if (v == *this->m_s || v == *this->m_t || !isActive(v)) {
 				active.popFront();
 			} else {
-				adjEntry &adj = curr[v];
+				adjEntry& adj = curr[v];
 				if (isAdmissible(adj)) {
 					push(adj);
 					active.pushBack(adj->twinNode());
@@ -415,12 +390,12 @@ public:
 						// no admissible outgoing edge found -> relabel node!
 						relabelStage2(v);
 						adj = v->firstAdj();
-#if 0
+#	if 0
 						// node is still active but move it to the end of the queue
 						// (don't know if this is really necessary)
 						active.popFront();
 						active.pushBack(v);
-#endif
+#	endif
 					} else {
 						adj = adj->succ();
 					}
@@ -430,19 +405,18 @@ public:
 #else // USE_PUSH_RELABEL_SECOND_STAGE
 		m_ex[*this->m_s] = m_ex[*this->m_t] = 0;
 		for (node v = this->m_G->firstNode(); v; v = v->succ()) {
-			if (this->m_et->greater(m_ex[v], (TCap) 0)) {
+			if (this->m_et->greater(m_ex[v], (TCap)0)) {
 				active.pushBack(v);
 			}
 		}
 		while (!active.empty()) {
 			const node v = active.popFrontRet();
-			if (this->m_et->greater(m_ex[v], (TCap) 0) && v != *this->m_s && v != *this->m_t) {
+			if (this->m_et->greater(m_ex[v], (TCap)0) && v != *this->m_s && v != *this->m_t) {
 				for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
 					const edge e = adj->theEdge();
 					const node u = e->source();
 					if (u != v) { // e is incoming edge
-						if (this->m_et->greater(m_ex[v], (TCap) 0)
-						 && isResidualEdge(adj)) {
+						if (this->m_et->greater(m_ex[v], (TCap)0) && isResidualEdge(adj)) {
 							push(adj);
 							if (u != *this->m_s) {
 								active.pushFront(u);
@@ -454,6 +428,7 @@ public:
 		}
 #endif // USE_PUSH_RELABEL_SECOND_STAGE
 	}
+
 	using MaxFlowModule<TCap>::useEpsilonTest;
 	using MaxFlowModule<TCap>::init;
 	using MaxFlowModule<TCap>::computeFlow;

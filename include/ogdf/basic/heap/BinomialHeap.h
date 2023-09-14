@@ -31,10 +31,10 @@
 
 #pragma once
 
+#include <ogdf/basic/heap/HeapBase.h>
+
 #include <functional>
 #include <utility>
-
-#include <ogdf/basic/heap/HeapBase.h>
 
 namespace ogdf {
 
@@ -42,24 +42,22 @@ namespace ogdf {
 //! Binomial heap node.
 template<typename T>
 struct BinomialHeapNode {
-	template<typename, typename> friend class BinomialHeap;
+	template<typename, typename>
+	friend class BinomialHeap;
+
 protected:
 	T value; //!< Value contained in the node.
 
 	size_t rank; //!< Determines rank of a node.
 
-	BinomialHeapNode<T> *parent; //!< Parent of the node.
-	BinomialHeapNode<T> *next; //!< Next sibling of the node.
-	BinomialHeapNode<T> *child; //!< First child of the node.
+	BinomialHeapNode<T>* parent; //!< Parent of the node.
+	BinomialHeapNode<T>* next; //!< Next sibling of the node.
+	BinomialHeapNode<T>* child; //!< First child of the node.
 
 	//! Creates heap node with a given \p nodeValue.
-	explicit BinomialHeapNode(const T &nodeValue)
-	: value(nodeValue),
-	  rank(0), parent(nullptr), next(nullptr), child(nullptr)
-	{
-	}
+	explicit BinomialHeapNode(const T& nodeValue)
+		: value(nodeValue), rank(0), parent(nullptr), next(nullptr), child(nullptr) { }
 };
-
 
 //! Binomial heap implementation.
 /**
@@ -72,20 +70,17 @@ protected:
  * @tparam C Denotes comparison functor determining value ordering.
  */
 template<typename T, typename C = std::less<T>>
-class BinomialHeap : public HeapBase<BinomialHeap<T, C>, BinomialHeapNode<T>, T, C>
-{
-
+class BinomialHeap : public HeapBase<BinomialHeap<T, C>, BinomialHeapNode<T>, T, C> {
 	using base_type = HeapBase<BinomialHeap<T, C>, BinomialHeapNode<T>, T, C>;
 
 public:
-
 	/**
 	 * Creates empty binomial heap.
 	 *
 	 * @param cmp Comparison functor determining value ordering.
 	 * @param initialSize ignored by this implementation.
 	 */
-	explicit BinomialHeap(const C &cmp = C(), int initialSize = -1);
+	explicit BinomialHeap(const C& cmp = C(), int initialSize = -1);
 
 	/**
 	 * Destructs the heap.
@@ -96,7 +91,7 @@ public:
 	virtual ~BinomialHeap();
 
 	//! Returns reference to the top element in the heap.
-	const T &top() const override;
+	const T& top() const override;
 
 	/**
 	 * Inserts a new node with given \p value into a heap.
@@ -104,7 +99,7 @@ public:
 	 * @param value A value to be inserted.
 	 * @return Handle to the inserted node.
 	 */
-	BinomialHeapNode<T> *push(const T &value) override;
+	BinomialHeapNode<T>* push(const T& value) override;
 
 	/**
 	 * Removes the top element from the heap.
@@ -122,7 +117,7 @@ public:
 	 * @param heapNode A node for which the value is to be decreased.
 	 * @param value A new value for the node.
 	 */
-	void decrease(BinomialHeapNode<T> *heapNode, const T &value) override;
+	void decrease(BinomialHeapNode<T>* heapNode, const T& value) override;
 
 	/**
 	 * Merges in values of \p other heap.
@@ -131,7 +126,7 @@ public:
 	 *
 	 * @param other A heap to be merged in.
 	 */
-	void merge(BinomialHeap<T, C> &other) override;
+	void merge(BinomialHeap<T, C>& other) override;
 
 	/**
 	 * Returns the value of the node
@@ -139,58 +134,49 @@ public:
 	 * @param heapNode The nodes handle
 	 * @return the value of the node
 	 */
-	const T &value(BinomialHeapNode<T> *heapNode) const override {
-		return heapNode->value;
-	}
+	const T& value(BinomialHeapNode<T>* heapNode) const override { return heapNode->value; }
 
 private:
-	BinomialHeapNode<T> *m_root; //!< Root node of the heap.
+	BinomialHeapNode<T>* m_root; //!< Root node of the heap.
 
 	//! Joins heap lists \p a and \p b into single list sorted by the ranks.
-	BinomialHeapNode<T> *join(BinomialHeapNode<T> *a, BinomialHeapNode<T> *b);
+	BinomialHeapNode<T>* join(BinomialHeapNode<T>* a, BinomialHeapNode<T>* b);
 	//! Merges in \p other heap list into the heap.
-	void merge(BinomialHeapNode<T> *other);
+	void merge(BinomialHeapNode<T>* other);
 
 	//! Makes \p child node a child of \p parent node.
-	static void link(BinomialHeapNode<T> *parent, BinomialHeapNode<T> *child);
+	static void link(BinomialHeapNode<T>* parent, BinomialHeapNode<T>* child);
 
 	//! Releases memory occupied by list of heaps given as \p heapNode.
-	static void release(BinomialHeapNode<T> *heapNode);
+	static void release(BinomialHeapNode<T>* heapNode);
 };
 
+template<typename T, typename C>
+BinomialHeap<T, C>::BinomialHeap(const C& cmp, int /* unused parameter */)
+	: base_type(cmp), m_root(nullptr) { }
 
 template<typename T, typename C>
-BinomialHeap<T, C>::BinomialHeap(const C &cmp, int /* unused parameter */)
-: base_type(cmp), m_root(nullptr) {}
-
-
-template<typename T, typename C>
-BinomialHeap<T, C>::~BinomialHeap()
-{
+BinomialHeap<T, C>::~BinomialHeap() {
 	release(m_root);
 	m_root = nullptr;
 }
 
-
 template<typename T, typename C>
-void BinomialHeap<T, C>::release(BinomialHeapNode<T> *heapNode)
-{
-	while(heapNode != nullptr) {
+void BinomialHeap<T, C>::release(BinomialHeapNode<T>* heapNode) {
+	while (heapNode != nullptr) {
 		release(heapNode->child);
 
-		BinomialHeapNode<T> *next = heapNode->next;
+		BinomialHeapNode<T>* next = heapNode->next;
 		delete heapNode;
 		heapNode = next;
 	}
 }
 
-
 template<typename T, typename C>
-inline const T &BinomialHeap<T, C>::top() const
-{
-	BinomialHeapNode<T> *min = m_root;
-	for(BinomialHeapNode<T> *it = m_root->next; it != nullptr; it = it->next) {
-		if(this->comparator()(it->value, min->value)) {
+inline const T& BinomialHeap<T, C>::top() const {
+	BinomialHeapNode<T>* min = m_root;
+	for (BinomialHeapNode<T>* it = m_root->next; it != nullptr; it = it->next) {
+		if (this->comparator()(it->value, min->value)) {
 			min = it;
 		}
 	}
@@ -198,40 +184,36 @@ inline const T &BinomialHeap<T, C>::top() const
 	return min->value;
 }
 
-
 template<typename T, typename C>
-BinomialHeapNode<T> *BinomialHeap<T, C>::push(const T &value)
-{
-	BinomialHeapNode<T> *heapNode = new BinomialHeapNode<T>(value);
+BinomialHeapNode<T>* BinomialHeap<T, C>::push(const T& value) {
+	BinomialHeapNode<T>* heapNode = new BinomialHeapNode<T>(value);
 
 	merge(heapNode);
 	return heapNode;
 }
 
-
 template<typename T, typename C>
-void BinomialHeap<T, C>::pop()
-{
-	BinomialHeapNode<T> *curr = m_root, *min = m_root, *minPrev = nullptr;
+void BinomialHeap<T, C>::pop() {
+	BinomialHeapNode<T>*curr = m_root, *min = m_root, *minPrev = nullptr;
 
-	while(curr->next != nullptr) {
-		if(this->comparator()(curr->next->value, min->value)) {
+	while (curr->next != nullptr) {
+		if (this->comparator()(curr->next->value, min->value)) {
 			min = curr->next;
 			minPrev = curr;
 		}
 		curr = curr->next;
 	}
 
-	if(min == m_root) {
+	if (min == m_root) {
 		m_root = min->next;
 	} else {
 		minPrev->next = min->next;
 	}
 
 	// Children list has to be reversed before it can be merged.
-	BinomialHeapNode<T> *reversed = nullptr, *child = min->child;
-	while(child != nullptr) {
-		BinomialHeapNode<T> *next = child->next;
+	BinomialHeapNode<T>*reversed = nullptr, *child = min->child;
+	while (child != nullptr) {
+		BinomialHeapNode<T>* next = child->next;
 		child->next = reversed;
 		reversed = child;
 		child = next;
@@ -240,56 +222,48 @@ void BinomialHeap<T, C>::pop()
 	delete min;
 }
 
-
 template<typename T, typename C>
-void BinomialHeap<T, C>::decrease(BinomialHeapNode<T> *heapNode, const T &value)
-{
+void BinomialHeap<T, C>::decrease(BinomialHeapNode<T>* heapNode, const T& value) {
 	// BinomialHeap::decrease is not supported
 	OGDF_ASSERT(false);
 
 	heapNode->value = value;
 
-	while(heapNode->parent != nullptr &&
-	      this->comparator()(heapNode->value, heapNode->parent->value))
-	{
+	while (heapNode->parent != nullptr
+			&& this->comparator()(heapNode->value, heapNode->parent->value)) {
 		std::swap(heapNode->value, heapNode->parent->value);
 		heapNode = heapNode->parent;
 	}
 }
 
-
 template<typename T, typename C>
-void BinomialHeap<T, C>::merge(BinomialHeap<T, C> &other)
-{
+void BinomialHeap<T, C>::merge(BinomialHeap<T, C>& other) {
 	merge(other.m_root);
 	other.m_root = nullptr;
 }
 
-
 template<typename T, typename C>
-inline BinomialHeapNode<T> *BinomialHeap<T, C>::join(
-	BinomialHeapNode<T> *a, BinomialHeapNode<T> *b)
-{
-	if(a == nullptr) {
+inline BinomialHeapNode<T>* BinomialHeap<T, C>::join(BinomialHeapNode<T>* a, BinomialHeapNode<T>* b) {
+	if (a == nullptr) {
 		return b;
 	}
-	if(b == nullptr) {
+	if (b == nullptr) {
 		return a;
 	}
 
-	if(b->rank < a->rank) {
+	if (b->rank < a->rank) {
 		std::swap(a, b);
 	}
 
-	BinomialHeapNode<T> *head = a;
-	while(b != nullptr) {
-		if(a->next == nullptr) {
+	BinomialHeapNode<T>* head = a;
+	while (b != nullptr) {
+		if (a->next == nullptr) {
 			a->next = b;
 			break;
 		}
 
-		if(b->rank < a->next->rank) {
-			BinomialHeapNode<T> *nextB = b->next;
+		if (b->rank < a->next->rank) {
+			BinomialHeapNode<T>* nextB = b->next;
 			b->next = a->next;
 			a->next = b;
 
@@ -303,30 +277,26 @@ inline BinomialHeapNode<T> *BinomialHeap<T, C>::join(
 	return head;
 }
 
-
 template<typename T, typename C>
-inline void BinomialHeap<T, C>::merge(BinomialHeapNode<T> *other)
-{
+inline void BinomialHeap<T, C>::merge(BinomialHeapNode<T>* other) {
 	m_root = join(m_root, other);
-	if(m_root == nullptr) {
+	if (m_root == nullptr) {
 		return;
 	}
 
-	BinomialHeapNode<T> *prev = nullptr, *curr = m_root, *next = m_root->next;
-	while(next != nullptr) {
-		if(curr->rank != next->rank || (next->next != nullptr &&
-		                                next->next->rank == curr->rank))
-		{
+	BinomialHeapNode<T>*prev = nullptr, *curr = m_root, *next = m_root->next;
+	while (next != nullptr) {
+		if (curr->rank != next->rank || (next->next != nullptr && next->next->rank == curr->rank)) {
 			prev = curr;
 			curr = next;
 			next = curr->next;
 			continue;
 		}
 
-		if(this->comparator()(curr->value, next->value)) {
+		if (this->comparator()(curr->value, next->value)) {
 			curr->next = next->next;
 			link(curr, next);
-		} else if(prev == nullptr) {
+		} else if (prev == nullptr) {
 			m_root = next;
 			link(next, curr);
 			curr = next;
@@ -339,11 +309,8 @@ inline void BinomialHeap<T, C>::merge(BinomialHeapNode<T> *other)
 	}
 }
 
-
 template<typename T, typename C>
-inline void BinomialHeap<T, C>::link(
-	BinomialHeapNode<T> *parent, BinomialHeapNode<T> *child)
-{
+inline void BinomialHeap<T, C>::link(BinomialHeapNode<T>* parent, BinomialHeapNode<T>* child) {
 	child->next = parent->child;
 	child->parent = parent;
 	parent->child = child;

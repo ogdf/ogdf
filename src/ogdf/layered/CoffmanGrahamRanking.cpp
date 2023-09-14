@@ -29,54 +29,51 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/layered/CoffmanGrahamRanking.h>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
-#include <ogdf/basic/GraphCopy.h>
 
 namespace ogdf {
 
-CoffmanGrahamRanking::CoffmanGrahamRanking() : m_w(3)
-{
+CoffmanGrahamRanking::CoffmanGrahamRanking() : m_w(3) {
 	m_subgraph.reset(new DfsAcyclicSubgraph());
 }
 
-
-void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
-{
+void CoffmanGrahamRanking::call(const Graph& G, NodeArray<int>& rank) {
 	rank.init(G);
 	GraphCopy gc(G);
 
 	m_subgraph->callAndReverse(gc);
 	removeTransitiveEdges(gc);
 
-	List<Tuple2<node, int> > ready_nodes;
+	List<Tuple2<node, int>> ready_nodes;
 	NodeArray<int> deg(gc);
 	NodeArray<int> pi(gc);
 	m_s.init(gc);
 
 	List<edge> edges;
 
-	for(node v : gc.nodes) {
+	for (node v : gc.nodes) {
 		edges.clear();
 		v->inEdges(edges);
 		deg[v] = edges.size();
 		if (deg[v] == 0) {
-			ready_nodes.pushBack(Tuple2<node,int>(v,0));
+			ready_nodes.pushBack(Tuple2<node, int>(v, 0));
 		}
 		m_s[v].init(deg[v]);
 	}
 
 	int i = 1;
-	while(!ready_nodes.empty()) {
+	while (!ready_nodes.empty()) {
 		node v = ready_nodes.popFrontRet().x1();
 		pi[v] = i++;
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if ((adj->theEdge()->source()) == v) {
 				node u = adj->twinNode();
 				m_s[u].insert(pi[v]);
 				if (--deg[u] == 0) {
-					insert(u,ready_nodes);
+					insert(u, ready_nodes);
 				}
 			}
 		}
@@ -85,26 +82,25 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 
 	List<node> ready, waiting;
 
-	for(node v : gc.nodes) {
+	for (node v : gc.nodes) {
 		edges.clear();
 		v->outEdges(edges);
 		deg[v] = edges.size();
 		if (deg[v] == 0) {
-			insert(v,ready,pi);  // ready.append(v);
+			insert(v, ready, pi); // ready.append(v);
 		}
 	}
 
 	int k;
 	// 	for all ranks
 	for (k = 1; !ready.empty(); k++) {
-
 		for (i = 1; i <= m_w && !ready.empty(); i++) {
 			node u = ready.popFrontRet();
 			rank[gc.original(u)] = k;
 
 			u->inEdges<List<edge>>(edges);
 			for (edge e : edges) {
-				if (--deg[e->source()] == 0){
+				if (--deg[e->source()] == 0) {
 					waiting.pushBack(e->source());
 				}
 			}
@@ -116,28 +112,28 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 	}
 
 	k--;
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		rank[v] = k - rank[v];
 	}
 
 	m_s.init();
 }
 
-
-void CoffmanGrahamRanking::insert (node u, List<Tuple2<node,int> > &ready_nodes)
-{
+void CoffmanGrahamRanking::insert(node u, List<Tuple2<node, int>>& ready_nodes) {
 	int j = 0;
 
-	for( ListReverseIterator<Tuple2<node,int> > it = ready_nodes.rbegin(); it.valid(); ++it) {
-		node v     = (*it).x1();
-		int  sigma = (*it).x2();
+	for (ListReverseIterator<Tuple2<node, int>> it = ready_nodes.rbegin(); it.valid(); ++it) {
+		node v = (*it).x1();
+		int sigma = (*it).x2();
 
 		if (sigma < j) {
-			ready_nodes.insertAfter(Tuple2<node,int>(u,j), it);
+			ready_nodes.insertAfter(Tuple2<node, int>(u, j), it);
 			return;
 		}
 
-		if (sigma > j) continue;
+		if (sigma > j) {
+			continue;
+		}
 
 		const _int_set &x = m_s[u], &y = m_s[v];
 		int k = min(x.length(), y.length());
@@ -147,27 +143,29 @@ void CoffmanGrahamRanking::insert (node u, List<Tuple2<node,int> > &ready_nodes)
 		}
 
 		if (j == k) {
-			if (x.length() < y.length()) continue;
+			if (x.length() < y.length()) {
+				continue;
+			}
 
 			(*it).x2() = k;
-			ready_nodes.insertAfter(Tuple2<node,int>(u,sigma), it);
+			ready_nodes.insertAfter(Tuple2<node, int>(u, sigma), it);
 			return;
 		}
 
-		if (x[j] < y[j]) continue;
+		if (x[j] < y[j]) {
+			continue;
+		}
 
 		(*it).x2() = j;
-		ready_nodes.insert(Tuple2<node,int>(u,sigma), it);
+		ready_nodes.insert(Tuple2<node, int>(u, sigma), it);
 		return;
 	}
 
-	ready_nodes.pushFront(Tuple2<node,int>(u,j));
+	ready_nodes.pushFront(Tuple2<node, int>(u, j));
 }
 
-
-void CoffmanGrahamRanking::insert (node v, List<node> &ready, const NodeArray<int> &pi)
-{
-	for( ListReverseIterator<node> it = ready.rbegin(); it.valid(); ++it) {
+void CoffmanGrahamRanking::insert(node v, List<node>& ready, const NodeArray<int>& pi) {
+	for (ListReverseIterator<node> it = ready.rbegin(); it.valid(); ++it) {
 		if (pi[v] <= pi[*it]) {
 			ready.insertAfter(v, it);
 			return;
@@ -177,9 +175,7 @@ void CoffmanGrahamRanking::insert (node v, List<node> &ready, const NodeArray<in
 	ready.pushFront(v);
 }
 
-
-void CoffmanGrahamRanking::dfs(node v)
-{
+void CoffmanGrahamRanking::dfs(node v) {
 	ArrayBuffer<node> stack;
 	stack.push(v);
 
@@ -204,12 +200,10 @@ void CoffmanGrahamRanking::dfs(node v)
 	}
 }
 
-
-void CoffmanGrahamRanking::removeTransitiveEdges(Graph& G)
-{
+void CoffmanGrahamRanking::removeTransitiveEdges(Graph& G) {
 	List<edge> vout;
 
-	m_mark.init(G,0);
+	m_mark.init(G, 0);
 	ArrayBuffer<node> visited;
 
 	for (node v : G.nodes) {

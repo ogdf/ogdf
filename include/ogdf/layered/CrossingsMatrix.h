@@ -32,42 +32,32 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/HierarchyLevels.h>
 
-namespace ogdf
-{
+namespace ogdf {
 
 //! Implements crossings matrix which is used by some
 //! TwoLayerCrossingMinimization heuristics (e.g. split)
-class OGDF_EXPORT CrossingsMatrix
-{
+class OGDF_EXPORT CrossingsMatrix {
 public:
-	CrossingsMatrix() : matrix(0,0,0,0) {
-		m_bigM = 10000;
-	}
+	CrossingsMatrix() : matrix(0, 0, 0, 0) { m_bigM = 10000; }
 
-	explicit CrossingsMatrix(const HierarchyLevels &levels);
+	explicit CrossingsMatrix(const HierarchyLevels& levels);
 
 	~CrossingsMatrix() { }
 
-	int operator()(int i, int j) const
-	{
-		return matrix(map[i],map[j]);
-	}
+	int operator()(int i, int j) const { return matrix(map[i], map[j]); }
 
-	void swap(int i, int j)
-	{
-		map.swap(i,j);
-	}
+	void swap(int i, int j) { map.swap(i, j); }
 
 	//! ordinary init
-	void init(Level &L);
+	void init(Level& L);
 
 	//! SimDraw init
-	void init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs);
+	void init(Level& L, const EdgeArray<uint32_t>* edgeSubGraphs);
 
 private:
 	Array<int> map;

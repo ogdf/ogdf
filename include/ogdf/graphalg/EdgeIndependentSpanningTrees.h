@@ -31,10 +31,11 @@
 
 #pragma once
 
-#include <vector>
-#include <set>
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/List.h>
+
+#include <set>
+#include <vector>
 
 namespace ogdf {
 
@@ -60,19 +61,20 @@ public:
 	using Solution = EdgeArray<std::pair<unsigned int, unsigned int>>;
 
 	//! Creates an instance of edge-independent spanning tree withou associated graph and root
-	EdgeIndependentSpanningTrees() : m_G{nullptr}, m_root{nullptr} {}
+	EdgeIndependentSpanningTrees() : m_G {nullptr}, m_root {nullptr} { }
 
 	//! Creates an instance of edge-independent spanning tree and sets the graph
-	EdgeIndependentSpanningTrees(const Graph &G) : EdgeIndependentSpanningTrees{G, G.firstNode()} {}
+	EdgeIndependentSpanningTrees(const Graph& G)
+		: EdgeIndependentSpanningTrees {G, G.firstNode()} { }
 
 	//! Creates an instance of edge-independent spanning tree and sets the graph and root node
-	EdgeIndependentSpanningTrees(const Graph &G, node root) : m_G{&G}, m_root{root} {}
+	EdgeIndependentSpanningTrees(const Graph& G, node root) : m_G {&G}, m_root {root} { }
 
 	//! Destructor.
 	~EdgeIndependentSpanningTrees() = default;
 
 	//! Finds k edge-independent spanning trees in graph #m_G rooted at #m_root.
-	bool findOne(unsigned int k, Solution &f) const;
+	bool findOne(unsigned int k, Solution& f) const;
 
 	//! Finds all k edge-independent spanning trees in graph #m_G rooted at #m_root.
 	List<Solution> findAll(unsigned int k) const;
@@ -81,25 +83,19 @@ public:
 	List<Solution> findAllPerm(unsigned int k) const;
 
 	//! Returns a pointer to the associated graph.
-	const Graph *getGraph() const {
-		return m_G;
-	}
+	const Graph* getGraph() const { return m_G; }
 
 	//! Sets the associated graph.
-	void setGraph(const Graph &G) {
+	void setGraph(const Graph& G) {
 		OGDF_ASSERT(!G.empty());
 		m_G = &G;
 	}
 
 	//! Returns the associated root node.
-	node getRoot() const {
-		return m_root;
-	}
+	node getRoot() const { return m_root; }
 
 	//! Sets the associated root node.
-	void setRoot(node root) {
-		m_root = root;
-	}
+	void setRoot(node root) { m_root = root; }
 
 protected:
 	//! Finds k edge-independent spanning trees and invokes \p func for each one,
@@ -107,52 +103,55 @@ protected:
 	void findDo(unsigned int k, std::function<bool(Solution&)> func) const;
 
 private:
-	const Graph *m_G; //!< The associated graph.
+	const Graph* m_G; //!< The associated graph.
 	node m_root; //!< The associated root node.
 
 	//! Takes two edge-independent spanning trees, permutes one and checks for them being unequal
-	bool checkOnePermUnequal(const Solution &f1, const Solution &f2, const std::vector<unsigned int> &perm) const;
+	bool checkOnePermUnequal(const Solution& f1, const Solution& f2,
+			const std::vector<unsigned int>& perm) const;
 
 	//! Takes two edge-independent spanning trees and checks for them being unequal under all permutations
-	bool checkNewTree(const Solution &f1, const Solution &f2, unsigned int k) const;
+	bool checkNewTree(const Solution& f1, const Solution& f2, unsigned int k) const;
 
 	//! Creates a parent relation, which for each node in the associated graph contains the adjEntry pointing towards the root node.
-	bool createParentRel(const Solution &f, unsigned int j, NodeArray<adjEntry> &parent) const;
+	bool createParentRel(const Solution& f, unsigned int j, NodeArray<adjEntry>& parent) const;
 
 	//! Checks k spanning trees for independence
-	bool checkIndependence(const std::vector<NodeArray<adjEntry>> &parents, unsigned int k) const;
+	bool checkIndependence(const std::vector<NodeArray<adjEntry>>& parents, unsigned int k) const;
 
 	//! Checks two paths for independence
-	bool checkTwoPathIndependence(const std::vector<NodeArray<adjEntry>> &parents, node v, unsigned int p1, unsigned int p2) const;
+	bool checkTwoPathIndependence(const std::vector<NodeArray<adjEntry>>& parents, node v,
+			unsigned int p1, unsigned int p2) const;
 
 	//! Iterates over all subgraphs
-	bool iterate(Solution &f, unsigned int j, unsigned int k) const;
+	bool iterate(Solution& f, unsigned int j, unsigned int k) const;
 
 	//! Checks whether iteration is finished
-	bool isFinished(const Solution &f, unsigned int k) const;
+	bool isFinished(const Solution& f, unsigned int k) const;
 
 	//! Creates the values needed for nextSpanningTree from \p f
-	unsigned int createVals(const Solution &f, unsigned int k, std::vector<edge> &tree) const;
+	unsigned int createVals(const Solution& f, unsigned int k, std::vector<edge>& tree) const;
 
 	//! Clears the j-th Tree from \p f
-	void clearTree(Solution &f, unsigned int j) const;
+	void clearTree(Solution& f, unsigned int j) const;
 
 	//! Calculates the next spanning tree after tree using backtracking
-	bool nextSpanningTree(unsigned int &t, std::vector<edge> &tree) const;
+	bool nextSpanningTree(unsigned int& t, std::vector<edge>& tree) const;
 
 	//! Checks whether \p v1 and \p v2 are connected in the subgraph
-	bool pathExists(const std::vector<edge> &tree, node v1, node v2, unsigned int t) const;
+	bool pathExists(const std::vector<edge>& tree, node v1, node v2, unsigned int t) const;
 
 	//! Checks whether \p e is in the subgraph
-	bool isInSubGraph(const std::vector<edge> &sub, const edge &e, unsigned int t) const;
+	bool isInSubGraph(const std::vector<edge>& sub, const edge& e, unsigned int t) const;
 
 	//! Creates first k spanning trees
-	bool createInitialSpanningTrees(Solution &f, unsigned int k) const;
+	bool createInitialSpanningTrees(Solution& f, unsigned int k) const;
 
-	bool insertNewTree(Solution &f, unsigned int t, unsigned int j, std::vector<edge> &tree) const;
+	bool insertNewTree(Solution& f, unsigned int t, unsigned int j, std::vector<edge>& tree) const;
 
 	//! Iterates using #nextSpanningTree until #insertNewTree succeeds
-	bool findAndInsertNextTree(Solution &f, unsigned int &t, unsigned int j, std::vector<edge> &tree) const;
+	bool findAndInsertNextTree(Solution& f, unsigned int& t, unsigned int j,
+			std::vector<edge>& tree) const;
 };
 
 }

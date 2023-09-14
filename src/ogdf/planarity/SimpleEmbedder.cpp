@@ -29,13 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/basic/FaceArray.h>
+#include <ogdf/planarity/SimpleEmbedder.h>
 
 namespace ogdf {
 
-void SimpleEmbedder::doCall(Graph& G, adjEntry& adjExternal)
-{
+void SimpleEmbedder::doCall(Graph& G, adjEntry& adjExternal) {
 	// determine embedding of G
 
 	// We currently compute any embedding and choose the maximal face
@@ -46,8 +45,9 @@ void SimpleEmbedder::doCall(Graph& G, adjEntry& adjExternal)
 	// of edges (alternatively, we could compute a new embedding and
 	// finally "remove" such unnecessary crossings).
 	adjExternal = nullptr;
-	if(!G.representsCombEmbedding())
+	if (!G.representsCombEmbedding()) {
 		planarEmbed(G);
+	}
 
 	CombinatorialEmbedding CE(G);
 	PlanRep PR(G);
@@ -56,23 +56,20 @@ void SimpleEmbedder::doCall(Graph& G, adjEntry& adjExternal)
 	adjExternal = fExternal->firstAdj();
 }
 
-
-face SimpleEmbedder::findBestExternalFace(
-	const PlanRep& PG,
-	const CombinatorialEmbedding& E)
-{
+face SimpleEmbedder::findBestExternalFace(const PlanRep& PG, const CombinatorialEmbedding& E) {
 	FaceArray<int> weight(E);
 
-	for(face f : E.faces)
+	for (face f : E.faces) {
 		weight[f] = f->size();
+	}
 
-	for(node v : PG.nodes)
-	{
-		if(PG.typeOf(v) != Graph::NodeType::generalizationMerger)
+	for (node v : PG.nodes) {
+		if (PG.typeOf(v) != Graph::NodeType::generalizationMerger) {
 			continue;
+		}
 
 		adjEntry adjFound = nullptr;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->source() == v) {
 				adjFound = adj;
 				break;
@@ -85,29 +82,33 @@ face SimpleEmbedder::findBestExternalFace(
 		node w = adjFound->theEdge()->target();
 		bool isBase = true;
 
-		for(adjEntry adj : w->adjEntries) {
+		for (adjEntry adj : w->adjEntries) {
 			edge e = adj->theEdge();
-			if(e->target() != w && PG.typeOf(e) == Graph::EdgeType::generalization) {
+			if (e->target() != w && PG.typeOf(e) == Graph::EdgeType::generalization) {
 				isBase = false;
 				break;
 			}
 		}
 
-		if(!isBase)
+		if (!isBase) {
 			continue;
+		}
 
 		face f1 = E.leftFace(adjFound);
 		face f2 = E.rightFace(adjFound);
 
 		weight[f1] += v->indeg();
-		if(f2 != f1)
+		if (f2 != f1) {
 			weight[f2] += v->indeg();
+		}
 	}
 
 	face fBest = E.firstFace();
-	for(face f : E.faces)
-		if(weight[f] > weight[fBest])
+	for (face f : E.faces) {
+		if (weight[f] > weight[fBest]) {
 			fBest = f;
+		}
+	}
 
 	return fBest;
 }

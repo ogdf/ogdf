@@ -30,31 +30,22 @@
  */
 
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
-#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
 #include <ogdf/planarity/embedder/ConnectedSubgraph.h>
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
 
 namespace ogdf {
 
-void EmbedderMaxFaceLayers::embedBlock(
-	const node& bT,
-	const node& cT,
-	ListIterator<adjEntry>& after)
-{
+void EmbedderMaxFaceLayers::embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after) {
 	treeNodeTreated[bT] = true;
 	node cH = nullptr;
-	if (cT != nullptr)
+	if (cT != nullptr) {
 		cH = pBCTree->cutVertex(cT, bT);
+	}
 
 	EdgeArray<int> edgeLength(blockG[bT], 1);
 
-	internalEmbedBlock(
-			blockG[bT],
-			nodeLength[bT],
-			edgeLength,
-			nBlockEmbedding_to_nH[bT],
-			eBlockEmbedding_to_eH[bT],
-			cH == nullptr ? nullptr : nH_to_nBlockEmbedding[bT][cH],
-			cT,
+	internalEmbedBlock(blockG[bT], nodeLength[bT], edgeLength, nBlockEmbedding_to_nH[bT],
+			eBlockEmbedding_to_eH[bT], cH == nullptr ? nullptr : nH_to_nBlockEmbedding[bT][cH], cT,
 			after);
 }
 

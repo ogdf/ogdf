@@ -1,4 +1,4 @@
-[OGDF](../../README.md) » [Porting Guide](../porting.md) » Catalpa
+[OGDF](../../README.md) » [Developer's Guide](../dev-guide.md) » [Porting Guide](../porting.md) » Catalpa
 
 # Porting from Baobab to Catalpa
 
@@ -441,7 +441,7 @@ The line color is written as "outline" rather than "line".
 
 Edge weight has been moved out of the graphics definition.
 
-GML files use one '\t' instead of two ' ' as indentChar now.
+GML files use one '\\t' instead of two ' ' as indentChar now.
 
 The `GraphAttributes::edgeSubGraphs` feature allows to define up to 32 subgraphs by assigning a subset of
 these subgraphs to each edge. These subsets are internally stored in a bitmask. In former versions of OGDF,
@@ -644,7 +644,7 @@ Moreover, `CliqueReplacer::replaceByStar()` takes `List<List<node>*>` as a param
 ## doDestruction()
 
 The function template `template<class E> doDestruction(const E *)` has been removed
-in favor of `!std::is_trivially_destructible<E>::value`. Hence, lists of elements with
+in favor of `!``std::is_trivially_destructible<E>::value`. Hence, lists of elements with
 trivial destructors are now deallocated in constant time automatically, without
 the necessity of writing a template specialization.
 

@@ -35,58 +35,40 @@
 #include <string>
 #include <vector>
 
-
 namespace ogdf {
 
 namespace tlp {
 
 
 struct Token {
+	enum class Type { leftParen, rightParen, identifier, string } type;
 
-	enum class Type {
-		leftParen,
-		rightParen,
-		identifier,
-		string
-	} type;
-
-	std::string *value; // Optional token value (avaliable in id and string).
+	std::string* value; // Optional token value (avaliable in id and string).
 	size_t line, column; // Where given token occured for printing nice info.
 
-	Token(const Type &type, size_t line, size_t column);
-	friend std::ostream &operator <<(std::istream &os, const Token &token);
+	Token(const Type& type, size_t line, size_t column);
+	friend std::ostream& operator<<(std::istream& os, const Token& token);
 
-	bool inline leftParen() const {
-		return type == Type::leftParen;
-	}
+	bool inline leftParen() const { return type == Type::leftParen; }
 
-	bool inline rightParen() const {
-		return type == Type::rightParen;
-	}
+	bool inline rightParen() const { return type == Type::rightParen; }
 
-	bool inline identifier() const {
-		return type == Type::identifier;
-	}
+	bool inline identifier() const { return type == Type::identifier; }
 
-	bool inline identifier(const char *str) const {
+	bool inline identifier(const char* str) const {
 		return type == Type::identifier && *value == str;
 	}
 
-	bool inline string() const {
-		return type == Type::string;
-	}
+	bool inline string() const { return type == Type::string; }
 
-	bool inline string(const char *str) const {
-		return type == Type::string && *value == str;
-	}
+	bool inline string(const char* str) const { return type == Type::string && *value == str; }
 };
 
-std::ostream &operator <<(std::ostream &os, const Token &token);
-
+std::ostream& operator<<(std::ostream& os, const Token& token);
 
 class Lexer {
 private:
-	std::istream &m_istream;
+	std::istream& m_istream;
 	std::string m_buffer;
 	std::string::const_iterator m_begin, m_end;
 	size_t m_line;
@@ -100,24 +82,19 @@ private:
 	bool tokenizeString();
 	bool tokenizeIdentifier();
 
-	size_t line() const {
-		return m_line;
-	}
+	size_t line() const { return m_line; }
 
-	size_t column() const {
-		return std::distance(m_buffer.begin(), m_begin) + 1;
-	}
+	size_t column() const { return std::distance(m_buffer.begin(), m_begin) + 1; }
 
 	static bool isIdentifier(char c);
 
 public:
-	explicit Lexer(std::istream &is);
+	explicit Lexer(std::istream& is);
 	~Lexer();
 
 	bool tokenize();
-	const std::vector<Token> &tokens() const {
-		return m_tokens;
-	}
+
+	const std::vector<Token>& tokens() const { return m_tokens; }
 };
 
 }

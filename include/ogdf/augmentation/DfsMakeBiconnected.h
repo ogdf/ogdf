@@ -58,7 +58,7 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	virtual void doCall(Graph& G, List<edge> &L) override;
+	virtual void doCall(Graph& G, List<edge>& L) override;
 };
 
 }

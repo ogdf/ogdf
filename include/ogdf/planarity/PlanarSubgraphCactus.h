@@ -44,14 +44,11 @@ namespace ogdf {
  * Weighted edges are heuristically respected but there is no approximation guarantee in the weighted case.
  */
 template<typename TCost>
-class PlanarSubgraphCactus : public PlanarSubgraphTriangles<TCost>
-{
+class PlanarSubgraphCactus : public PlanarSubgraphTriangles<TCost> {
 public:
 	PlanarSubgraphCactus() : PlanarSubgraphTriangles<TCost>(true) { }
 
-	virtual PlanarSubgraphCactus *clone() const override {
-		return new PlanarSubgraphCactus();
-	}
+	virtual PlanarSubgraphCactus* clone() const override { return new PlanarSubgraphCactus(); }
 };
 
 }

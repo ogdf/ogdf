@@ -32,17 +32,17 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/basic/PQTree.h>
-#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/planarity/booth_lueker/IndInfo.h>
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 
 namespace ogdf {
 namespace booth_lueker {
 
-class PlanarPQTree: public PQTree<edge,IndInfo*,bool> {
+class PlanarPQTree : public PQTree<edge, IndInfo*, bool> {
 public:
-	PlanarPQTree() : PQTree<edge,IndInfo*,bool>() { }
+	PlanarPQTree() : PQTree<edge, IndInfo*, bool>() { }
 
 	virtual ~PlanarPQTree() { }
 
@@ -50,29 +50,28 @@ public:
 	virtual void emptyAllPertinentNodes() override;
 
 	//! Initializes a new PQ-tree with a set of leaves.
-	virtual int Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+	virtual int Initialize(SListPure<PlanarLeafKey<IndInfo*>*>& leafKeys);
 
-	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override {
-		return PQTree<edge,IndInfo*,bool>::Initialize(leafKeys);
+	int Initialize(SListPure<PQLeafKey<edge, IndInfo*, bool>*>& leafKeys) override {
+		return PQTree<edge, IndInfo*, bool>::Initialize(leafKeys);
 	}
 
 	//! Replaces the pertinent subtree by a set of new leaves.
-	void ReplaceRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+	void ReplaceRoot(SListPure<PlanarLeafKey<IndInfo*>*>& leafKeys);
 
 	//! Reduces a set of leaves.
-	virtual bool Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+	virtual bool Reduction(SListPure<PlanarLeafKey<IndInfo*>*>& leafKeys);
 
-	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override {
-		return PQTree<edge,IndInfo*,bool>::Reduction(leafKeys);
+	bool Reduction(SListPure<PQLeafKey<edge, IndInfo*, bool>*>& leafKeys) override {
+		return PQTree<edge, IndInfo*, bool>::Reduction(leafKeys);
 	}
 
 private:
-
 	//! Replaces a pertinet subtree by a set of new leaves if the root is full.
-	void ReplaceFullRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+	void ReplaceFullRoot(SListPure<PlanarLeafKey<IndInfo*>*>& leafKeys);
 
 	//! Replaces a pertinet subtree by a set of new leaves if the root is partial.
-	void ReplacePartialRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+	void ReplacePartialRoot(SListPure<PlanarLeafKey<IndInfo*>*>& leafKeys);
 };
 
 }

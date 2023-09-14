@@ -36,37 +36,30 @@ namespace davidson_harel {
 
 const double Attraction::MULTIPLIER = 2.0;
 
-
 //initializes internal data, like name and layout
-Attraction::Attraction(GraphAttributes &AG) : NodePairEnergy("Attraction", AG) {
-
+Attraction::Attraction(GraphAttributes& AG) : NodePairEnergy("Attraction", AG) {
 	reinitializeEdgeLength(MULTIPLIER);
 }
 
-
 //computes preferred edge length as the average of all widths and heights of the vertices
 //multiplied by the multiplier
-void Attraction::reinitializeEdgeLength(double multi)
-{
+void Attraction::reinitializeEdgeLength(double multi) {
 	double lengthSum(0.0);
 	for (node v : m_G.nodes) {
-		const DIntersectableRect &i = shape(v);
+		const DIntersectableRect& i = shape(v);
 		lengthSum += i.width();
 		lengthSum += i.height();
 	}
 	lengthSum /= (2 * m_G.numberOfNodes());
 	// lengthSum is now the average of all lengths and widths
 	m_preferredEdgeLength = multi * lengthSum;
-
 }
 
 //the energy of a pair of vertices is computed as the square of the difference between the
 //actual distance and the preferred edge length
-double Attraction::computeCoordEnergy(node v1, node v2, const DPoint &p1, const DPoint &p2)
-const
-{
+double Attraction::computeCoordEnergy(node v1, node v2, const DPoint& p1, const DPoint& p2) const {
 	double energy = 0.0;
-	if(adjacent(v1,v2)) {
+	if (adjacent(v1, v2)) {
 		DIntersectableRect i1(shape(v1)), i2(shape(v2));
 		i1.move(p1);
 		i2.move(p2);
@@ -84,4 +77,5 @@ void Attraction::printInternalData() const {
 }
 #endif
 
-}}
+}
+}

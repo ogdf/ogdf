@@ -30,18 +30,16 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/STNumbering.h>
+#include <ogdf/basic/simple_graph_alg.h>
 
 namespace ogdf {
 
 // Computes the DFN and LOW numbers of a biconnected component
 // Uses DFS strategy
-static void stSearch(const Graph &G, node v, int &count,
-                     NodeArray<int> &low, NodeArray<int> &dfn,
-                     NodeArray<edge> &dfsInEdge, NodeArray<edge> &followLowPath)
-{
+static void stSearch(const Graph& G, node v, int& count, NodeArray<int>& low, NodeArray<int>& dfn,
+		NodeArray<edge>& dfsInEdge, NodeArray<edge>& followLowPath) {
 	ArrayBuffer<std::pair<node, adjEntry>> stack;
 	stack.push(std::make_pair(v, v->firstAdj()));
 
@@ -83,11 +81,9 @@ static void stSearch(const Graph &G, node v, int &count,
 	}
 }
 
-static bool stPath(ArrayBuffer<node> &path, node v, adjEntry &adj,
-                   NodeArray<bool> &markedNode, EdgeArray<bool> &markedEdge,
-                   NodeArray<int> &dfn, NodeArray<edge> &dfsInEdge,
-                   NodeArray<edge> &followLowPath)
-{
+static bool stPath(ArrayBuffer<node>& path, node v, adjEntry& adj, NodeArray<bool>& markedNode,
+		EdgeArray<bool>& markedEdge, NodeArray<int>& dfn, NodeArray<edge>& dfsInEdge,
+		NodeArray<edge>& followLowPath) {
 	edge e;
 	node w;
 	path.clear();
@@ -115,8 +111,7 @@ static bool stPath(ArrayBuffer<node> &path, node v, adjEntry &adj,
 				w = e->opposite(w);
 			}
 			return true;
-		}
-		else if (dfn[v] < dfn[w]) {
+		} else if (dfn[v] < dfn[w]) {
 			path.push(v);
 			while (!markedNode[w]) {
 				e = dfsInEdge[w];
@@ -142,74 +137,61 @@ static bool stPath(ArrayBuffer<node> &path, node v, adjEntry &adj,
 // If s and t are set 0 and parameter randomized is set to true,
 // the st edge is chosen to be a random edge in G.
 
-int computeSTNumbering(const Graph &G,
-	NodeArray<int> &numbering,
-	node s,
-	node t,
-	bool randomized)
-{
-
-	int    count       = 1;
+int computeSTNumbering(const Graph& G, NodeArray<int>& numbering, node s, node t, bool randomized) {
+	int count = 1;
 
 	// Stores for every vertex its LOW number
-	NodeArray<int> low(G,0);
+	NodeArray<int> low(G, 0);
 	// Stores for every vertex ist DFN number
-	NodeArray<int> dfn(G,0);
+	NodeArray<int> dfn(G, 0);
 
 	// Stores for every vertex if it has been visited dsuring the st-numbering
-	NodeArray<bool> markedNode(G,false);
+	NodeArray<bool> markedNode(G, false);
 	// Stores for every edge if it has been visited dsuring the st-numbering
-	EdgeArray<bool> markedEdge(G,false);
+	EdgeArray<bool> markedEdge(G, false);
 
 	// Stores for every node its ingoing edge of the dfs tree.
-	NodeArray<edge> dfsInEdge(G,nullptr);
+	NodeArray<edge> dfsInEdge(G, nullptr);
 
 	// Stores a path of vertices that have not been visited.
 	ArrayBuffer<node> path;
 
 	//Stores for every node the outgoing, first edge on the
 	// path that defines the low number of the node.
-	NodeArray<edge> followLowPath(G,nullptr);
+	NodeArray<edge> followLowPath(G, nullptr);
 
 	edge st = nullptr;
 
-	if (s && t)
-	{
+	if (s && t) {
 		bool found = false;
-		for(adjEntry adj : s->adjEntries) {
-			if (adj->twinNode() == t)
-			{
+		for (adjEntry adj : s->adjEntries) {
+			if (adj->twinNode() == t) {
 				st = adj->theEdge();
 				found = true;
 				break;
 			}
 		}
-		if (!found)
+		if (!found) {
 			return 0;
-	}
-	else if (s)
-	{
+		}
+	} else if (s) {
 		st = s->firstAdj()->theEdge();
 		t = st->opposite(s);
-	}
-	else if (t)
-	{
+	} else if (t) {
 		st = t->firstAdj()->theEdge();
 		s = st->opposite(t);
-	}
-	else
-	{
-		if(randomized) {
+	} else {
+		if (randomized) {
 			// chose a random edge in G
 			st = G.chooseEdge();
-			if(!st) // graph is empty?
+			if (!st) { // graph is empty?
 				return 0;
+			}
 			s = st->source();
 			t = st->target();
 
 		} else {
-			for(node v : G.nodes)
-			{
+			for (node v : G.nodes) {
 				if (v->degree() > 0) {
 					s = v;
 					st = s->firstAdj()->theEdge();
@@ -219,8 +201,9 @@ int computeSTNumbering(const Graph &G,
 			}
 		}
 	}
-	if (!s || !t)
+	if (!s || !t) {
 		return 0;
+	}
 
 	OGDF_ASSERT(st != nullptr);
 
@@ -228,9 +211,10 @@ int computeSTNumbering(const Graph &G,
 	// of the block.
 	dfn[t] = count++;
 	low[t] = dfn[t];
-	stSearch(G,s,count,low,dfn,dfsInEdge,followLowPath);
-	if (low[t] > low[s])
+	stSearch(G, s, count, low, dfn, dfsInEdge, followLowPath);
+	if (low[t] > low[s]) {
 		low[t] = low[s];
+	}
 
 	markedNode[s] = true;
 	markedNode[t] = true;
@@ -242,18 +226,15 @@ int computeSTNumbering(const Graph &G,
 	count = 1;
 	node v = nodeStack.popRet();
 	adjEntry adj = nullptr;
-	while (v != t)
-	{
-		if (!stPath(path,v,adj,markedNode,markedEdge,dfn,dfsInEdge,followLowPath))
-		{
+	while (v != t) {
+		if (!stPath(path, v, adj, markedNode, markedEdge, dfn, dfsInEdge, followLowPath)) {
 			numbering[v] = count;
 			count++;
 			adj = nullptr;
-		}
-		else
-		{
-			while (!path.empty())
+		} else {
+			while (!path.empty()) {
 				nodeStack.push(path.popRet());
+			}
 		}
 		v = nodeStack.popRet();
 	}
@@ -261,48 +242,45 @@ int computeSTNumbering(const Graph &G,
 	return count;
 }
 
-bool isSTNumbering(const Graph &G, NodeArray<int> &st_no,int max)
-{
-	bool   foundLow = false;
-	bool   foundHigh = false;
-	bool   it_is = true;
+bool isSTNumbering(const Graph& G, NodeArray<int>& st_no, int max) {
+	bool foundLow = false;
+	bool foundHigh = false;
+	bool it_is = true;
 
-	for(node v : G.nodes)
-	{
-		if (v->degree() == 0)
+	for (node v : G.nodes) {
+		if (v->degree() == 0) {
 			continue;
+		}
 
 		foundHigh = foundLow = 0;
-		if (st_no[v] == 1)
-		{
-			for(adjEntry adj : v->adjEntries)
-			{
-				if (st_no[adj->theEdge()->opposite(v)] == max)
+		if (st_no[v] == 1) {
+			for (adjEntry adj : v->adjEntries) {
+				if (st_no[adj->theEdge()->opposite(v)] == max) {
 					foundLow = foundHigh = 1;
+				}
 			}
 		}
 
-		else if (st_no[v] == max)
-		{
-			for(adjEntry adj : v->adjEntries)
-			{
-				if (st_no[adj->theEdge()->opposite(v)] == 1)
+		else if (st_no[v] == max) {
+			for (adjEntry adj : v->adjEntries) {
+				if (st_no[adj->theEdge()->opposite(v)] == 1) {
 					foundLow = foundHigh = 1;
+				}
 			}
 		}
 
-		else
-		{
-			for(adjEntry adj : v->adjEntries)
-			{
-				if (st_no[adj->theEdge()->opposite(v)] < st_no[v])
+		else {
+			for (adjEntry adj : v->adjEntries) {
+				if (st_no[adj->theEdge()->opposite(v)] < st_no[v]) {
 					foundLow = 1;
-				else if (st_no[adj->theEdge()->opposite(v)] > st_no[v])
+				} else if (st_no[adj->theEdge()->opposite(v)] > st_no[v]) {
 					foundHigh = 1;
+				}
 			}
 		}
-		if (!foundLow || !foundHigh)
+		if (!foundLow || !foundHigh) {
 			it_is = 0;
+		}
 	}
 
 	return it_is;

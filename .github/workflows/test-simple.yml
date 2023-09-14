@@ -1,0 +1,146 @@
+name: Check, Build and Test
+on: [push]
+
+# # Debug setup:
+# env:
+#   OGDF_UTILS_PREQUEL: "set -x"
+#   CCACHE_DEBUG: 1
+#   CCACHE_DEBUGDIR: ${{ github.workspace }}/ccache-debug
+
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:15
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - run: util/test_clang_format.sh
+      - run: util/test_eols.sh
+      - run: util/test_number_newlines.sh
+      - run: util/test_line_length.sh
+      - run: util/test_tabs.sh
+      - run: util/test_macros.sh
+      - run: util/test_license.sh
+      - run: util/test_no_typedefs.sh
+      - run: util/test_no_enums.sh
+
+  dirs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test directory structure
+        run: util/test_directory_structure.sh
+
+  docs:
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:15
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - name: Test doxygen build
+        run: util/test_doxygen.sh
+
+  self-sufficiency:
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set-up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}
+      - name: Test self-sufficiency
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          util/test_self-sufficiency.sh
+      - uses: actions/upload-artifact@v3
+        name: Upload ccache debug info
+        if: ${{ env.CCACHE_DEBUG == 1 }}
+        with:
+          name: ${{ github.job }}
+          path: ${{ github.workspace }}/ccache-debug
+
+  build-linux:
+    strategy:
+      matrix:
+        mode: [debug, release]
+        compiler: ['gcc:7', 'gcc:10', 'clang:15']
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
+    container: docker.io/ogdf/${{ matrix.compiler }}
+    needs: [style, dirs, docs, self-sufficiency]
+    steps:
+      - name: Set compiler name
+        run: |
+          GH_COMPILER_NAME="${{ matrix.compiler }}"
+          GH_COMPILER_NAME="${GH_COMPILER_NAME//:}"
+          echo "GH_COMPILER_NAME=${GH_COMPILER_NAME}" >> "$GITHUB_ENV"
+        shell: bash
+      - uses: actions/checkout@v3
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - name: Set-up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+      - name: Check ccache version
+        run: ccache --version
+      - name: Test ${{ matrix.mode }} build with ${{ matrix.compiler }} and run
+        run: |
+          util/test_build_and_run.sh \
+            ${{ matrix.compiler == 'gcc:7' && 'dynamic' || 'static' }} \
+            ${{ matrix.mode }} \
+            ${{ startsWith(matrix.compiler, 'gcc') && 'gcc' || 'clang' }} \
+            default_s \
+            -DOGDF_INCLUDE_CGAL=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - uses: actions/upload-artifact@v3
+        name: Upload ccache debug info
+        if: ${{ env.CCACHE_DEBUG == 1 }}
+        with:
+          name: ${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ matrix.mode }}
+          path: ${{ github.workspace }}/ccache-debug
+
+  build-macos:
+    strategy:
+      matrix:
+        mode: [debug, release]
+    runs-on: macos-latest
+    needs: [style, dirs, docs, self-sufficiency]
+    steps:
+      - uses: actions/checkout@v3
+      - run: brew install coreutils findutils
+      - name: Set-up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.mode }}
+      - name: Test ${{ matrix.mode }} build and run
+        run: |
+          util/test_build_and_run.sh \
+            static \
+            ${{ matrix.mode }} \
+            default_c \
+            default_s \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - uses: actions/upload-artifact@v3
+        name: Upload ccache debug info
+        if: ${{ env.CCACHE_DEBUG == 1 }}
+        with:
+          name: ${{ github.job }}-${{ matrix.mode }}
+          path: ${{ github.workspace }}/ccache-debug
+
+  build-windows:
+    strategy:
+      matrix:
+        mode: [debug, release]
+    runs-on: windows-latest
+    needs: [style, dirs, docs, self-sufficiency]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: microsoft/setup-msbuild@v1.1
+      - name: Test ${{ matrix.mode }} build and run
+        run: powershell util\test_build_and_run.ps1 ${{ matrix.mode == 'debug' && '-debug' }}

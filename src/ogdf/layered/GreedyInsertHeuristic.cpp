@@ -33,20 +33,17 @@
 
 namespace ogdf {
 
-void GreedyInsertHeuristic::init(const HierarchyLevels &levels)
-{
+void GreedyInsertHeuristic::init(const HierarchyLevels& levels) {
 	m_weight.init(levels.hierarchy());
 	m_crossingMatrix = new CrossingsMatrix(levels);
 }
 
-void GreedyInsertHeuristic::cleanup()
-{
+void GreedyInsertHeuristic::cleanup() {
 	m_weight.init();
 	delete m_crossingMatrix;
 }
 
-void GreedyInsertHeuristic::call(Level &L)
-{
+void GreedyInsertHeuristic::call(Level& L) {
 	m_crossingMatrix->init(L);
 	int index, i;
 
@@ -54,7 +51,7 @@ void GreedyInsertHeuristic::call(Level &L)
 	for (i = 0; i < L.size(); i++) {
 		double prio = 0;
 		for (index = 0; index < L.size(); index++) {
-			prio += (*m_crossingMatrix)(i,index);
+			prio += (*m_crossingMatrix)(i, index);
 		}
 
 		// stable quicksort: no need for unique prio

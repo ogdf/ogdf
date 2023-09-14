@@ -47,8 +47,7 @@ LinearLayout::LinearLayout() {
 	m_customOrder = 0;
 }
 
-LinearLayout::~LinearLayout() {
-}
+LinearLayout::~LinearLayout() { }
 
 void LinearLayout::call(GraphAttributes& GA) {
 	const Graph& G = GA.constGraph();
@@ -60,10 +59,10 @@ void LinearLayout::call(GraphAttributes& GA) {
 	}
 
 	double x(0);
-	double step(m_outWidth / double(nodes.size()-1));
+	double step(m_outWidth / double(nodes.size() - 1));
 
 	//first position all nodes next to each other
-	for (auto &n : nodes) {
+	for (auto& n : nodes) {
 		GA.x(n) = x;
 		x += step;
 	}
@@ -71,27 +70,26 @@ void LinearLayout::call(GraphAttributes& GA) {
 	//then bend all the edges
 	ListPure<edge> edges;
 	G.allEdges(edges);
-	for (auto &e : edges) {
+	for (auto& e : edges) {
 		node n1 = e->source();
 		node n2 = e->target();
-		if (!(++(nodes.search(n1)) == nodes.search(n2)) && !(++(nodes.search(n2)) == nodes.search(n1))) {
-			DPolyline &pL = GA.bends(e);
+		if (!(++(nodes.search(n1)) == nodes.search(n2))
+				&& !(++(nodes.search(n2)) == nodes.search(n1))) {
+			DPolyline& pL = GA.bends(e);
 			const double m(0.5 * (GA.x(n1) + GA.x(n2)));
 			const double r(std::abs(GA.x(n1) - m));
 			const double sgn(GA.x(n1) > GA.x(n2) ? 1.0 : -1.0);
-			int segments = int(sqrt(r*Math::pi / 0.2));
+			int segments = int(sqrt(r * Math::pi / 0.2));
 			for (int i = segments; i--;) {
 				const double di = double(i);
-				const double newX = m - sgn*r*cos(di / segments*Math::pi);
-				const double newY = 0.5*GA.height(n1) - r*sin(di / segments*Math::pi);
+				const double newX = m - sgn * r * cos(di / segments * Math::pi);
+				const double newY = 0.5 * GA.height(n1) - r * sin(di / segments * Math::pi);
 				pL.pushBack(DPoint(newX, newY));
 			}
 		}
 	}
 }
 
-void LinearLayout::setCustomOrder(bool o) {
-	m_customOrder = o;
-}
+void LinearLayout::setCustomOrder(bool o) { m_customOrder = o; }
 
 }

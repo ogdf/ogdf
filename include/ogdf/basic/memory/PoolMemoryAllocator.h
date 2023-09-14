@@ -35,7 +35,7 @@
 #include <ogdf/basic/System.h>
 
 #ifndef OGDF_MEMORY_POOL_NTS
-# include <mutex>
+#	include <mutex>
 #endif
 
 namespace ogdf {
@@ -55,7 +55,7 @@ namespace ogdf {
 class PoolMemoryAllocator {
 	//! Basic memory element used to realize a linked list of deallocated memory segments
 	struct MemElem {
-		MemElem *m_next;
+		MemElem* m_next;
 	};
 
 	using MemElemPtr = MemElem*;
@@ -69,21 +69,20 @@ class PoolMemoryAllocator {
 
 public:
 	PoolMemoryAllocator() { }
+
 	~PoolMemoryAllocator() { }
 
 	//! Frees all allocated memory
 	static OGDF_EXPORT void cleanup();
 
 	//! Returns true iff #allocate can be invoked with \c nBytes
-	static OGDF_EXPORT bool checkSize(size_t nBytes) {
-		return nBytes < TABLE_SIZE;
-	}
+	static OGDF_EXPORT bool checkSize(size_t nBytes) { return nBytes < TABLE_SIZE; }
 
 	//! Allocates memory of size \c nBytes.
-	static OGDF_EXPORT void *allocate(size_t nBytes);
+	static OGDF_EXPORT void* allocate(size_t nBytes);
 
 	//! Deallocates memory at address \c p which is of size \c nBytes.
-	static OGDF_EXPORT void deallocate(size_t nBytes, void *p);
+	static OGDF_EXPORT void deallocate(size_t nBytes, void* p);
 
 	//! Deallocate a complete list starting at \c pHead and ending at \c pTail.
 	/**
@@ -91,7 +90,7 @@ public:
 	 * elements are of size \c nBytes.
 	 * In contrasting to linear-time element-wise deallocation this method takes constant time.
 	 */
-	static OGDF_EXPORT void deallocateList(size_t nBytes, void *pHead, void *pTail);
+	static OGDF_EXPORT void deallocateList(size_t nBytes, void* pHead, void* pTail);
 
 	//! Flushes all free but allocated bytes (#s_tp) to the thread-global list (#s_pool) of allocated bytes.
 	static OGDF_EXPORT void flushPool();
@@ -129,15 +128,15 @@ private:
 
 	static int slicesPerBlock(uint16_t nBytes) {
 		int nWords;
-		return slicesPerBlock(nBytes,nWords);
+		return slicesPerBlock(nBytes, nWords);
 	}
 
-	static int slicesPerBlock(uint16_t nBytes, int &nWords) {
+	static int slicesPerBlock(uint16_t nBytes, int& nWords) {
 		nWords = (nBytes + OGDF_SIZEOF_POINTER - 1) / OGDF_SIZEOF_POINTER;
 		return (BLOCK_SIZE - OGDF_SIZEOF_POINTER) / (nWords * OGDF_SIZEOF_POINTER);
 	}
 
-	static void *fillPool(MemElemPtr &pFreeBytes, uint16_t nBytes);
+	static void* fillPool(MemElemPtr& pFreeBytes, uint16_t nBytes);
 
 	static MemElemPtr allocateBlock();
 	static void makeSlices(MemElemPtr p, int nWords, int nSlices);
@@ -149,7 +148,7 @@ private:
 	static PoolElement s_pool[TABLE_SIZE];
 
 	//! Holds all allocated memory independently of whether it is cleared in chunks of size #BLOCK_SIZE.
-	static BlockChain *s_blocks;
+	static BlockChain* s_blocks;
 
 #ifdef OGDF_DEBUG
 	//! Holds the number of globally allocated bytes for debugging.
@@ -165,7 +164,6 @@ private:
 	//! Contains the allocated but free memory for a single thread.
 	static thread_local MemElemPtr s_tp[TABLE_SIZE];
 #endif
-
 };
 
 }

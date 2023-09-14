@@ -34,7 +34,6 @@
 
 #include <ogdf/cluster/ClusterGraph.h>
 
-
 namespace ogdf {
 
 
@@ -43,34 +42,62 @@ namespace ogdf {
  * @ingroup ga-cplanarity
  */
 class HananiTutteCPlanarity {
-
 	class CLinearSystem;
 	class CGraph;
 
 public:
-
 	enum class Solver { HananiTutte, HananiTutteVerify, ILP };
-	enum class Status { invalid, emptyAfterPreproc, cConnectedAfterPreproc, nonPlanarAfterPreproc, applyHananiTutte, applyILP, timeoutILP, errorILP };
-	enum class Verification { cPlanar, cPlanarVerified, nonCPlanarVerified, verificationFailed, timeout };
+	enum class Status {
+		invalid,
+		emptyAfterPreproc,
+		cConnectedAfterPreproc,
+		nonPlanarAfterPreproc,
+		applyHananiTutte,
+		applyILP,
+		timeoutILP,
+		errorILP
+	};
+	enum class Verification {
+		cPlanar,
+		cPlanarVerified,
+		nonCPlanarVerified,
+		verificationFailed,
+		timeout
+	};
 
-	enum class Type    : uint16_t { tVertex, tEdge };
-	enum class SubType : uint16_t { stVertex, stCluster, stEdge, stInnerCluster, stOuterCluster, stVertexCluster, stClusterCluster, stCrossCluster };
+	enum class Type : uint16_t { tVertex, tEdge };
+	enum class SubType : uint16_t {
+		stVertex,
+		stCluster,
+		stEdge,
+		stInnerCluster,
+		stOuterCluster,
+		stVertexCluster,
+		stClusterCluster,
+		stCrossCluster
+	};
 
-	Verification isCPlanar(const ClusterGraph &C, bool doPreproc = true, bool forceSolver = false, Solver solver = Solver::HananiTutte);
+	Verification isCPlanar(const ClusterGraph& C, bool doPreproc = true, bool forceSolver = false,
+			Solver solver = Solver::HananiTutte);
 
 	Status status() const { return m_status; }
 
-	void preprocessing(ClusterGraph &C, Graph &G);
+	void preprocessing(ClusterGraph& C, Graph& G);
 
 	int numNodesPreproc() const { return m_numNodesPreproc; }
+
 	int numEdgesPreproc() const { return m_numEdgesPreproc; }
+
 	int numClustersPreproc() const { return m_numClustersPreproc; }
 
 	int numMatrixRows() const { return m_nRows; }
+
 	int numMatrixCols() const { return m_nCols; }
 
 	int64_t timePrepare() const { return m_tPrepare; }
+
 	int64_t timeCreateSparse() const { return m_tCreateSparse; }
+
 	int64_t timesolve() const { return m_tSolve; }
 
 private:

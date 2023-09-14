@@ -44,10 +44,9 @@ template<typename T>
  */
 class Save {
 public:
-	Save() {
-	}
-	virtual ~Save() {
-	}
+	Save() { }
+
+	virtual ~Save() { }
 
 	/*!
 	 * \brief Returns the gain (sum of the save edges) of a node triple
@@ -78,7 +77,7 @@ public:
 	 * \brief Updates the weighted tree data structure given a contracted triple
 	 * @param t The contracted triple
 	 */
-	virtual void update(const Triple<T> &t) = 0;
+	virtual void update(const Triple<T>& t) = 0;
 };
 
 }

@@ -34,17 +34,14 @@
 
 namespace ogdf {
 
-ArrayBuffer<double> LayoutStatistics::edgeLengths(
-	const GraphAttributes &ga,
-	bool considerSelfLoops)
-{
+ArrayBuffer<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, bool considerSelfLoops) {
 	ArrayBuffer<double> values;
 	for (edge e : ga.constGraph().edges) {
 		if (!considerSelfLoops && e->isSelfLoop()) {
 			continue;
 		}
 
-		const DPolyline &dpl = ga.bends(e);
+		const DPolyline& dpl = ga.bends(e);
 		DPoint pv = ga.point(e->source());
 		DPoint pw = ga.point(e->target());
 
@@ -63,11 +60,7 @@ ArrayBuffer<double> LayoutStatistics::edgeLengths(
 	return values;
 }
 
-
-ArrayBuffer<int> LayoutStatistics::numberOfBends(
-	const GraphAttributes &ga,
-	bool considerSelfLoops)
-{
+ArrayBuffer<int> LayoutStatistics::numberOfBends(const GraphAttributes& ga, bool considerSelfLoops) {
 	ArrayBuffer<int> values;
 	for (edge e : ga.constGraph().edges) {
 		if (considerSelfLoops || !e->isSelfLoop()) {
@@ -78,13 +71,9 @@ ArrayBuffer<int> LayoutStatistics::numberOfBends(
 	return values;
 }
 
-
-ArrayBuffer<double> LayoutStatistics::angles(
-	const GraphAttributes &ga,
-	bool considerBends)
-{
+ArrayBuffer<double> LayoutStatistics::angles(const GraphAttributes& ga, bool considerBends) {
 	ArrayBuffer<double> values;
-	const Graph &G = ga.constGraph();
+	const Graph& G = ga.constGraph();
 
 	for (node v : G.nodes) {
 		double vx = ga.x(v);
@@ -93,7 +82,7 @@ ArrayBuffer<double> LayoutStatistics::angles(
 		// Get angles for edge segments incident to v.
 		List<double> angles;
 		for (adjEntry adj : v->adjEntries) {
-			const DPolyline &dpl = ga.bends(adj->theEdge());
+			const DPolyline& dpl = ga.bends(adj->theEdge());
 			double ex, ey;
 			if (dpl.empty()) {
 				ex = ga.x(adj->twinNode());
@@ -103,7 +92,7 @@ ArrayBuffer<double> LayoutStatistics::angles(
 				ey = dpl.front().m_y;
 			}
 
-			angles.pushBack(atan2(ex-vx, ey-vy));
+			angles.pushBack(atan2(ex - vx, ey - vy));
 		}
 
 		if (angles.size() < 2) {
@@ -118,7 +107,7 @@ ArrayBuffer<double> LayoutStatistics::angles(
 			// happens in the first iteration only
 			if (alpha < 0) {
 				OGDF_ASSERT(psi == angles.front());
-				alpha += 2*Math::pi;
+				alpha += 2 * Math::pi;
 			}
 
 			values.push(alpha);
@@ -131,7 +120,7 @@ ArrayBuffer<double> LayoutStatistics::angles(
 			DPolyline dpl = ga.bends(e);
 
 			dpl.pushFront(ga.point(e->source()));
-			dpl.pushBack (ga.point(e->target()));
+			dpl.pushBack(ga.point(e->target()));
 			dpl.normalize();
 
 			if (dpl.size() < 3) {
@@ -141,10 +130,10 @@ ArrayBuffer<double> LayoutStatistics::angles(
 			for (ListConstIterator<DPoint> it = dpl.begin().succ(); it.succ().valid(); ++it) {
 				double bx = (*it).m_x, by = (*it).m_y;
 
-				const DPoint &p1 = *it.pred();
-				double psi1 = atan2(p1.m_x-bx, p1.m_y-by);
+				const DPoint& p1 = *it.pred();
+				double psi1 = atan2(p1.m_x - bx, p1.m_y - by);
 
-				const DPoint &p2 = *it.succ();
+				const DPoint& p2 = *it.succ();
 				double psi2 = atan2(p2.m_x - bx, p2.m_y - by);
 
 				double alpha = fabs(psi1 - psi2);
@@ -153,7 +142,7 @@ ArrayBuffer<double> LayoutStatistics::angles(
 				}
 
 				values.push(alpha);
-				values.push(alpha*Math::pi);
+				values.push(alpha * Math::pi);
 			}
 		}
 	}
@@ -161,12 +150,10 @@ ArrayBuffer<double> LayoutStatistics::angles(
 	return values;
 }
 
-
-ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
-{
+ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes& ga) {
 	ArrayBuffer<int> values;
-	const Graph &G = ga.constGraph();
-	EdgeArray<int> crossings(G,0);
+	const Graph& G = ga.constGraph();
+	EdgeArray<int> crossings(G, 0);
 
 	Graph H;
 	NodeArray<DPoint> points;
@@ -174,7 +161,7 @@ ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
 	EdgeArray<edge> origEdge;
 	intersectionGraph(ga, H, points, origNode, origEdge);
 
-	for(node v : H.nodes) {
+	for (node v : H.nodes) {
 		node vOrig = origNode[v];
 		int d = (vOrig != nullptr) ? vOrig->degree() : 0;
 		int k = (v->degree() - d) / 2;
@@ -188,8 +175,7 @@ ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
 					edge eOrig = origEdge[e];
 
 					// Ignore original edges incident to vOrig.
-					if (eOrig->source() != e->source() ||
-						eOrig->target() != e->target()) {
+					if (eOrig->source() != e->source() || eOrig->target() != e->target()) {
 						crossings[eOrig] += (k - 1);
 					}
 				}
@@ -204,11 +190,9 @@ ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes &ga)
 	return values;
 }
 
-
-ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &ga)
-{
+ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& ga) {
 	ArrayBuffer<int> values;
-	const Graph &G = ga.constGraph();
+	const Graph& G = ga.constGraph();
 	DPoint inter;
 
 	// Get bounding rectangle of every node.
@@ -226,7 +210,7 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &
 		edgeSegmentTargets.pushBack(ga.point(tgt));
 
 		int i = 0;
-		int last = edgeSegmentTargets.size()-1;
+		int last = edgeSegmentTargets.size() - 1;
 
 		// For all edge segments from vPoint to wPoint:
 		for (DPoint wPoint : edgeSegmentTargets) {
@@ -235,8 +219,8 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &
 			// Count crossing of segment with nodes u, but do not count
 			// "crossing" of source/target node with first/last edge segment.
 			for (node u : G.nodes) {
-				if ((u != src || i != 0) && (u != tgt || i != last) &&
-				    nodeRects[u].intersection(segment)) {
+				if ((u != src || i != 0) && (u != tgt || i != last)
+						&& nodeRects[u].intersection(segment)) {
 					nCrossingsE++;
 				}
 			}
@@ -249,11 +233,9 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes &
 	return values;
 }
 
-
-ArrayBuffer<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes &ga)
-{
+ArrayBuffer<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga) {
 	ArrayBuffer<int> values;
-	const Graph &G = ga.constGraph();
+	const Graph& G = ga.constGraph();
 
 	// Get bounding rectangle of every node.
 	NodeArray<DIntersectableRect> nodeRects(G);

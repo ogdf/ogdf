@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 
@@ -43,6 +43,7 @@ namespace steiner_tree {
 template<typename T>
 class LowerBoundDualAscent {
 	struct TerminalData;
+
 	struct TerminalDataReference {
 		node v;
 		ListIterator<ListIterator<TerminalData>> it;
@@ -56,7 +57,7 @@ class LowerBoundDualAscent {
 		ArrayBuffer<TerminalDataReference> references;
 
 		TerminalData(const EdgeWeightedGraph<T>& graph, node t)
-		  : terminal(t), cutIterators(graph, nullptr), inCut(graph, false) {}
+			: terminal(t), cutIterators(graph, nullptr), inCut(graph, false) { }
 	};
 
 	EpsilonTest m_eps;
@@ -189,16 +190,16 @@ class LowerBoundDualAscent {
 
 public:
 	//! Initializes the algorithm
-	LowerBoundDualAscent(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, node root, double eps = 1e-6)
-	  : m_eps(eps),
-	    m_lower(0),
-	    m_graph(graph),
-	    m_root(nullptr),
-	    m_reducedCost(m_graph),
-	    m_inTerminalCut(m_graph) {
+	LowerBoundDualAscent(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, node root,
+			double eps = 1e-6)
+		: m_eps(eps)
+		, m_lower(0)
+		, m_graph(graph)
+		, m_root(nullptr)
+		, m_reducedCost(m_graph)
+		, m_inTerminalCut(m_graph) {
 		for (edge e : graph.edges) {
-			m_reducedCost[e->adjSource()] =
-			  m_reducedCost[e->adjTarget()] = graph.weight(e);
+			m_reducedCost[e->adjSource()] = m_reducedCost[e->adjTarget()] = graph.weight(e);
 		}
 
 		for (node t : terminals) {
@@ -215,8 +216,9 @@ public:
 	}
 
 	//! Initializes the algorithm (and takes the first terminal as root)
-	LowerBoundDualAscent(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, double eps = 1e-6)
-	  : LowerBoundDualAscent(graph, terminals, terminals.front(), eps) {}
+	LowerBoundDualAscent(const EdgeWeightedGraph<T>& graph, const List<node>& terminals,
+			double eps = 1e-6)
+		: LowerBoundDualAscent(graph, terminals, terminals.front(), eps) { }
 
 	//! Computes the lower bound
 	void compute() {
@@ -229,14 +231,10 @@ public:
 
 	//! Returns the reduced cost of the arc given by \p adj
 	//! @param adj is the adjacency entry of an edge at a node, represents the arc coming into that node
-	T reducedCost(adjEntry adj) const {
-		return m_reducedCost[adj];
-	}
+	T reducedCost(adjEntry adj) const { return m_reducedCost[adj]; }
 
 	//! Returns the lower bound
-	T get() const {
-		return m_lower;
-	}
+	T get() const { return m_lower; }
 };
 }
 
@@ -260,7 +258,8 @@ class SteinerTreeLowerBoundDualAscent {
 		return alg.get();
 	}
 
-	void compute(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, node root, NodeArray<T>& lbNodes, EdgeArray<T>& lbEdges) {
+	void compute(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, node root,
+			NodeArray<T>& lbNodes, EdgeArray<T>& lbEdges) {
 		OGDF_ASSERT(isConnected(graph));
 
 		// compute first
@@ -331,9 +330,7 @@ class SteinerTreeLowerBoundDualAscent {
 
 public:
 	//! Sets the number of repeated calls to the lower bound algorithm (runs with different roots)
-	void setRepetitions(int num) {
-		m_repetitions = num;
-	}
+	void setRepetitions(int num) { m_repetitions = num; }
 
 	//! Calls the algorithm and returns the lower bound
 	T call(const EdgeWeightedGraph<T>& graph, const List<node>& terminals) {
@@ -352,7 +349,8 @@ public:
 	 * Compute the lower bounds under the assumption nodes or edges are included in the solution.
 	 * The parameter \p lbNodes and \p lbEdges are filled with the lower bound for each node and edge, respectively.
 	 */
-	void call(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, NodeArray<T>& lbNodes, EdgeArray<T>& lbEdges) {
+	void call(const EdgeWeightedGraph<T>& graph, const List<node>& terminals, NodeArray<T>& lbNodes,
+			EdgeArray<T>& lbEdges) {
 		if (m_repetitions <= 1) {
 			// catch this special case to avoid copying
 			compute(graph, terminals, terminals.front(), lbNodes, lbEdges);

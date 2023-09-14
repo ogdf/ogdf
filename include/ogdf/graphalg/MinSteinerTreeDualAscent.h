@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 // enable this to print log
 //#define OGDF_DUAL_ASCENT_LOGGING
@@ -54,9 +54,9 @@ class MinSteinerTreeDualAscent : public MinSteinerTreeModule<T> {
 private:
 	const T MAX_VALUE = std::numeric_limits<T>::max();
 
-	const EdgeWeightedGraph<T> *m_pOrigGraph; //!< original graph passed to the module
-	const List<node> *m_pTerminals; //!< list of terminals passed to the module
-	const NodeArray<bool> *m_pIsTerminal; //!< terminal incidence vector passed to the module
+	const EdgeWeightedGraph<T>* m_pOrigGraph; //!< original graph passed to the module
+	const List<node>* m_pTerminals; //!< list of terminals passed to the module
+	const NodeArray<bool>* m_pIsTerminal; //!< terminal incidence vector passed to the module
 
 	GraphCopy m_diGraph; //!< the directed graph
 	GraphCopy m_steinerGraph; //!< the to-be constructed "almost" Steiner tree
@@ -92,7 +92,7 @@ private:
 	 * @param terminal Will hold an arbitrary terminal of the returned component.
 	 * @return the index of the found componennt or -1 if none is found
 	 */
-	int findActiveComponent(node *terminal) const;
+	int findActiveComponent(node* terminal) const;
 
 	/**
 	 * Returns the component of node v.
@@ -108,7 +108,7 @@ private:
 	 * @param v representative of the component
 	 * @return a list of edges containing each incoming cut edge once
 	 */
-	List<edge> *computeCutSet(const node v) const;
+	List<edge>* computeCutSet(const node v) const;
 
 	/**
 	 * Determines whether a strongly connected component
@@ -128,7 +128,6 @@ private:
 	void updateComponents();
 
 protected:
-
 	/**
 	 * Creates a minimum Steiner tree given a weighted graph and a list of terminals
 	 *
@@ -144,16 +143,12 @@ protected:
 	 * \return
 	 * 	The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	T computeSteinerTree(
-	  const EdgeWeightedGraph<T> &G,
-	  const List<node> &terminals,
-	  const NodeArray<bool> &isTerminal,
-	  EdgeWeightedGraphCopy<T> *&finalSteinerTree);
+	T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree);
 };
 
 template<typename T>
-void MinSteinerTreeDualAscent<T>::init()
-{
+void MinSteinerTreeDualAscent<T>::init() {
 	// local auxilary lists
 	List<node> nodes;
 	m_pOrigGraph->allNodes(nodes);
@@ -175,12 +170,12 @@ void MinSteinerTreeDualAscent<T>::init()
 	// TODO: Better choices possible?
 	m_rootTerminal = m_pTerminals->chooseElement();
 
-	for(node v : nodes) {
+	for (node v : nodes) {
 		node w = m_diGraph.newNode(v);
 		m_steinerGraph.newNode(w);
 	}
 
-	for(edge e : edges) {
+	for (edge e : edges) {
 		node source = m_diGraph.copy(e->source());
 		node target = m_diGraph.copy(e->target());
 		edge copiedEdgeS = m_diGraph.newEdge(source, target);
@@ -192,28 +187,25 @@ void MinSteinerTreeDualAscent<T>::init()
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 	std::cout << "directed graph has " << m_diGraph.numberOfNodes() << " nodes "
-	     << "and " << m_diGraph.numberOfEdges() << " edges." << std::endl
-	     << "root terminal is node " << m_rootTerminal << "." << std::endl;
+			  << "and " << m_diGraph.numberOfEdges() << " edges." << std::endl
+			  << "root terminal is node " << m_rootTerminal << "." << std::endl;
 #endif
 }
 
 template<typename T>
-int MinSteinerTreeDualAscent<T>::findComponent(const node v) const
-{
+int MinSteinerTreeDualAscent<T>::findComponent(const node v) const {
 	OGDF_ASSERT(v->graphOf() == &m_steinerGraph);
 	OGDF_ASSERT(m_componentMapping[v] > -1);
 	return m_componentMapping[v];
 }
 
 template<typename T>
-void MinSteinerTreeDualAscent<T>::updateComponents()
-{
+void MinSteinerTreeDualAscent<T>::updateComponents() {
 	strongComponents(m_steinerGraph, m_componentMapping);
 }
 
 template<typename T>
-bool MinSteinerTreeDualAscent<T>::isTerminal(const node v, bool rootIsTerminal) const
-{
+bool MinSteinerTreeDualAscent<T>::isTerminal(const node v, bool rootIsTerminal) const {
 	OGDF_ASSERT(v->graphOf() == &m_steinerGraph);
 
 	node w = m_diGraph.original(m_steinerGraph.original(v));
@@ -221,8 +213,7 @@ bool MinSteinerTreeDualAscent<T>::isTerminal(const node v, bool rootIsTerminal) 
 }
 
 template<typename T>
-int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
-{
+int MinSteinerTreeDualAscent<T>::findActiveComponent(node* terminal) const {
 	int result = -1;
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
@@ -230,19 +221,20 @@ int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 #endif
 
 	HashArray<int, bool> checked(false);
-	for(auto it = m_pTerminals->begin(); it != m_pTerminals->end() && result == -1; it++) {
-		if(*it != m_rootTerminal) {
+	for (auto it = m_pTerminals->begin(); it != m_pTerminals->end() && result == -1; it++) {
+		if (*it != m_rootTerminal) {
 			node v = m_steinerGraph.copy(m_diGraph.copy(*it));
 			int candidate = findComponent(v);
-			if(!checked[candidate]) {
+			if (!checked[candidate]) {
 				checked[candidate] = true;
 				bool isRoot = isActiveComponent(v);
 
-				if(isRoot) {
+				if (isRoot) {
 					result = candidate;
 					*terminal = *it;
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-					std::cout << "  active component found: component " << result << ", terminal " << *terminal << std::endl;
+					std::cout << "  active component found: component " << result << ", terminal "
+							  << *terminal << std::endl;
 #endif
 				}
 			}
@@ -250,7 +242,7 @@ int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 	}
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	if(result == -1) {
+	if (result == -1) {
 		std::cout << "  could not find an active component" << std::endl;
 	}
 #endif
@@ -259,8 +251,7 @@ int MinSteinerTreeDualAscent<T>::findActiveComponent(node *terminal) const
 }
 
 template<typename T>
-List<edge> *MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const
-{
+List<edge>* MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const {
 	OGDF_ASSERT(root->graphOf() == &m_steinerGraph);
 
 	// establish "weakly connected" component of v (non-standard definition, see paper for details)
@@ -273,13 +264,13 @@ List<edge> *MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const
 
 	// determine all nodes connected to root
 	// meaning all nodes from which a directed path to root exists
-	while(!queue.empty()) {
+	while (!queue.empty()) {
 		node v = queue.popFrontRet();
 		weakComp.pushBack(v);
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = e->source();
-			if(!visited[w]) {
+			if (!visited[w]) {
 				visited[w] = true;
 				queue.pushBack(w);
 			}
@@ -287,13 +278,13 @@ List<edge> *MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const
 	}
 
 	// identify (incoming) cut edges
-	List<edge> *result = new List<edge>();
+	List<edge>* result = new List<edge>();
 
-	for(node v : weakComp) {
+	for (node v : weakComp) {
 		node w = m_steinerGraph.original(v);
-		for(adjEntry adj : w->adjEntries) {
+		for (adjEntry adj : w->adjEntries) {
 			edge e = adj->theEdge();
-			if(!visited[m_steinerGraph.copy(e->source())]) {
+			if (!visited[m_steinerGraph.copy(e->source())]) {
 				result->pushBack(e);
 				OGDF_ASSERT(m_steinerGraph.copy(e) == nullptr);
 			}
@@ -303,8 +294,7 @@ List<edge> *MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const
 }
 
 template<typename T>
-bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
-{
+bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const {
 	OGDF_ASSERT(source->graphOf() == &m_steinerGraph);
 
 	int comp = findComponent(source);
@@ -321,16 +311,16 @@ bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
 	queue.pushBack(source);
 	visited[source] = true;
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	while(!queue.empty()) {
+	while (!queue.empty()) {
 #else
-	while(!queue.empty() && !danglingTerminalFound) {
+	while (!queue.empty() && !danglingTerminalFound) {
 #endif
-	node v = queue.popFrontRet();
+		node v = queue.popFrontRet();
 		hasTerminal |= isTerminal(v, false) && findComponent(v) == comp;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = e->source();
-			if(!visited[w]) {
+			if (!visited[w]) {
 				danglingTerminalFound |= isTerminal(w, true) && findComponent(w) != comp;
 				visited[w] = true;
 				queue.pushBack(w);
@@ -339,25 +329,28 @@ bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
 	}
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
-	if(hasTerminal) { std::cout << "      component includes a terminal" << std::endl; }
-	if(danglingTerminalFound) { std::cout << "      component has dangling terminal" << std::endl; }
-	if(hasTerminal && !danglingTerminalFound) { std::cout << "      component is active!" << std::endl; }
+	if (hasTerminal) {
+		std::cout << "      component includes a terminal" << std::endl;
+	}
+	if (danglingTerminalFound) {
+		std::cout << "      component has dangling terminal" << std::endl;
+	}
+	if (hasTerminal && !danglingTerminalFound) {
+		std::cout << "      component is active!" << std::endl;
+	}
 #endif
 	return hasTerminal && !danglingTerminalFound;
 }
 
 template<typename T>
-T MinSteinerTreeDualAscent<T>::computeSteinerTree(
-	const EdgeWeightedGraph<T> &G,
-	const List<node> &terminals,
-	const NodeArray<bool> &isTerminal,
-	EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T MinSteinerTreeDualAscent<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 	std::cout << "MinSteinerTreeDualAscent called." << std::endl;
 	std::cout << "terminals are: ";
 
-	for(node v : terminals) {
+	for (node v : terminals) {
 		std::cout << v << " ";
 	}
 	std::cout << std::endl;
@@ -379,23 +372,23 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 	std::cout << "main loop starting.." << std::endl;
 #endif
-	while((comp = findActiveComponent(&terminal)) != -1) {
+	while ((comp = findActiveComponent(&terminal)) != -1) {
 		// if active comonents exists we
 		// have one of its terminals
 		OGDF_ASSERT(terminal != nullptr);
 
 		// find minimal cut edge
-		List<edge> *cutEdges = computeCutSet(m_steinerGraph.copy(m_diGraph.copy(terminal)));
+		List<edge>* cutEdges = computeCutSet(m_steinerGraph.copy(m_diGraph.copy(terminal)));
 		edge minEdge = nullptr;
 		T minSlack = MAX_VALUE;
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 		std::cout << "  cut edges:";
 #endif
-		for(edge e : *cutEdges) {
+		for (edge e : *cutEdges) {
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 			std::cout << " " << e;
 #endif
-			if(m_edgeSlacks[e] < MAX_VALUE || minEdge == nullptr) {
+			if (m_edgeSlacks[e] < MAX_VALUE || minEdge == nullptr) {
 				minEdge = e;
 				minSlack = m_edgeSlacks[e];
 			}
@@ -406,7 +399,7 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 		OGDF_ASSERT(minEdge != nullptr);
 
 		// update slack variables
-		for(edge e : *cutEdges) {
+		for (edge e : *cutEdges) {
 			m_edgeSlacks[e] -= minSlack;
 		}
 		delete cutEdges;

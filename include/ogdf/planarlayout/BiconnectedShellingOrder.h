@@ -43,20 +43,14 @@ namespace ogdf {
  * \pre The input graph has to be simple (no multi-edges, no self-loops),
  * planar and biconnected.
  */
-class OGDF_EXPORT BiconnectedShellingOrder : public ShellingOrderModule
-{
+class OGDF_EXPORT BiconnectedShellingOrder : public ShellingOrderModule {
 public:
 	//! Creates a biconnected shelling order module.
-	BiconnectedShellingOrder() {
-		m_baseRatio = 0.33;
-	}
+	BiconnectedShellingOrder() { m_baseRatio = 0.33; }
 
 protected:
 	//! The actual implementation of the module call.
-	virtual void doCall(
-		const Graph &G,
-		adjEntry adj,
-		List<ShellingOrderSet> &partition) override;
+	virtual void doCall(const Graph& G, adjEntry adj, List<ShellingOrderSet>& partition) override;
 };
 
 }

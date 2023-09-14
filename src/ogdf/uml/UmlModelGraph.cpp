@@ -33,22 +33,18 @@
 
 namespace ogdf {
 
-UmlModelGraph::UmlModelGraph(){
-
+UmlModelGraph::UmlModelGraph() {
 	// Initialize arrays
 	m_nodeLabel.init(*this);
-	m_eType.init(*this,Graph::EdgeType::association);
-	m_vType.init(*this,Graph::NodeType::vertex);
-
+	m_eType.init(*this, Graph::EdgeType::association);
+	m_vType.init(*this, Graph::NodeType::vertex);
 }
 
-UmlModelGraph::~UmlModelGraph(){
-
+UmlModelGraph::~UmlModelGraph() {
 	// ??? Destroy arrays
 }
 
-std::ostream &operator<<(std::ostream &os, const UmlModelGraph &modelGraph)
-{
+std::ostream& operator<<(std::ostream& os, const UmlModelGraph& modelGraph) {
 	// Header
 	os << "\n--- UmlModelGraph ---\n" << std::endl;
 
@@ -56,27 +52,27 @@ std::ostream &operator<<(std::ostream &os, const UmlModelGraph &modelGraph)
 
 	// Nodes
 	os << "Classes/Interfaces:\n" << std::endl;
-	for(node v : modelGraph.nodes) {
+	for (node v : modelGraph.nodes) {
 		os << "\t" << modelGraph.getNodeLabel(v) << std::endl;
 	}
 
 	// Edges
 	os << "\nRelations:\n" << std::endl;
-	for(edge e : modelGraph.edges) {
+	for (edge e : modelGraph.edges) {
 		os << "\t";
 
-		if (modelGraph.type(e) == Graph::EdgeType::association){
+		if (modelGraph.type(e) == Graph::EdgeType::association) {
 			os << "Association between ";
 		}
-		if (modelGraph.type(e) == Graph::EdgeType::generalization){
+		if (modelGraph.type(e) == Graph::EdgeType::generalization) {
 			os << "Generalization between ";
 		}
-		if (modelGraph.type(e) == Graph::EdgeType::dependency){
+		if (modelGraph.type(e) == Graph::EdgeType::dependency) {
 			os << "Dependency between ";
 		}
 
 		os << modelGraph.getNodeLabel(e->source()) << " and "
-			<< modelGraph.getNodeLabel(e->target()) << std::endl;
+		   << modelGraph.getNodeLabel(e->target()) << std::endl;
 	}
 
 	return os;

@@ -29,15 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <set>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
-#include <testing.h>
+#include <set>
+
 #include <graphs.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <testing.h>
 
 /**
  * Assert that there is a one-to-one mapping of values in assignedVals to values
@@ -48,14 +49,13 @@
  * @param expVals is an initializer list with values for the second array.
  */
 template<template<typename> class ArrayType>
-void bijectiveMappingAssert(ArrayType<int> assignedVals, std::initializer_list<int> expVals)
-{
+void bijectiveMappingAssert(ArrayType<int> assignedVals, std::initializer_list<int> expVals) {
 	std::set<int> expSet(expVals);
 	int size = expSet.size();
 	Array<int> expectedVals(expVals);
 
-	Array<int> expToAssign(0, size-1, -1);
-	Array<int> assignToExp(0, size-1, -1);
+	Array<int> expToAssign(0, size - 1, -1);
+	Array<int> assignToExp(0, size - 1, -1);
 
 	int i = 0;
 	for (int assigned : assignedVals) {
@@ -84,9 +84,8 @@ void bijectiveMappingAssert(ArrayType<int> assignedVals, std::initializer_list<i
  * @param expCount is the expected number of biconnected components.
  * @param expectedComps is the expected biconnected component id for each edge.
  */
-void biconnectedComponentsAssert(Graph &G, int expCount, std::initializer_list<int> expectedComps)
-{
-	EdgeArray<int> comps(G,-1);
+void biconnectedComponentsAssert(Graph& G, int expCount, std::initializer_list<int> expectedComps) {
+	EdgeArray<int> comps(G, -1);
 	int nonEmptyBiComps;
 	AssertThat(biconnectedComponents(G, comps, nonEmptyBiComps), Equals(expCount));
 
@@ -94,7 +93,7 @@ void biconnectedComponentsAssert(Graph &G, int expCount, std::initializer_list<i
 
 	// nonEmptyBiComps-1 should be equal to max(component).
 	int maxUsedIndex = 0;
-	for (int c: comps) {
+	for (int c : comps) {
 		maxUsedIndex = std::max(maxUsedIndex, c);
 	}
 	AssertThat(maxUsedIndex, Equals(nonEmptyBiComps - 1));
@@ -109,18 +108,16 @@ void biconnectedComponentsAssert(Graph &G, int expCount, std::initializer_list<i
  * @param G is the graph to be tested.
  * @param expectedComps is the expected strong component id for each node.
  */
-void strongComponentsAssert(Graph &G, std::initializer_list<int> expectedComps)
-{
+void strongComponentsAssert(Graph& G, std::initializer_list<int> expectedComps) {
 	std::set<int> expSet(expectedComps);
 	int expCount = expSet.size();
-	NodeArray<int> comps(G,-1);
+	NodeArray<int> comps(G, -1);
 	AssertThat(strongComponents(G, comps), Equals(expCount));
 	bijectiveMappingAssert(comps, expectedComps);
 }
 
 //! Returns whether a path from source to target exists in the graph.
-bool pathExists(const Graph &graph, const node source, const node target)
-{
+bool pathExists(const Graph& graph, const node source, const node target) {
 	OGDF_ASSERT(source != target);
 	OGDF_ASSERT(source->graphOf() == &graph);
 	OGDF_ASSERT(target->graphOf() == &graph);
@@ -131,11 +128,11 @@ bool pathExists(const Graph &graph, const node source, const node target)
 	queue.pushBack(source);
 
 	bool result = false;
-	while(!queue.empty() && !result) {
+	while (!queue.empty() && !result) {
 		node v = queue.popFrontRet();
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			node w = adj->theEdge()->target();
-			if(!visited[w]) {
+			if (!visited[w]) {
 				result |= w == target;
 				visited[w] = true;
 				queue.pushBack(w);
@@ -152,33 +149,31 @@ bool pathExists(const Graph &graph, const node source, const node target)
  *
  * @param G is the graph to be tested (will be destroyed in the process)
  */
-void isTriangulatedAssert(Graph &G) {
+void isTriangulatedAssert(Graph& G) {
+	AssertThat(isSimple(G), IsTrue());
+	AssertThat(isPlanar(G), IsTrue());
+	AssertThat(isConnected(G), IsTrue());
+	AssertThat(G.numberOfEdges(), Equals(3 * G.numberOfNodes() - 6));
 
-    AssertThat(isSimple(G), IsTrue());
-    AssertThat(isPlanar(G), IsTrue());
-    AssertThat(isConnected(G), IsTrue());
-    AssertThat(G.numberOfEdges(), Equals(3*G.numberOfNodes()-6));
-
-    CombinatorialEmbedding E(G);
+	CombinatorialEmbedding E(G);
 
 #ifdef OGDF_DEBUG
-    E.consistencyCheck();
+	E.consistencyCheck();
 #endif
 
-    for(face f : E.faces) {
+	for (face f : E.faces) {
+		AssertThat(f->size(), Equals(3));
 
-        AssertThat(f->size(), Equals(3));
+		// making sure that all three nodes of each face are actually distinct
+		adjEntry adj = f->firstAdj();
+		node x = adj->theNode();
+		adj = adj->faceCycleSucc();
+		node y = adj->theNode();
+		adj = adj->faceCycleSucc();
+		node z = adj->theNode();
 
-        // making sure that all three nodes of each face are actually distinct
-        adjEntry adj = f->firstAdj();
-        node x = adj->theNode();
-        adj = adj->faceCycleSucc();
-        node y = adj->theNode();
-        adj = adj->faceCycleSucc();
-        node z = adj->theNode();
-
-        AssertThat(x != y && y != z, IsTrue());
-    }
+		AssertThat(x != y && y != z, IsTrue());
+	}
 }
 
 /**
@@ -186,13 +181,15 @@ void isTriangulatedAssert(Graph &G) {
  * Asserts that triangulate() works for simple planar graphs of size >= 3.
  */
 static void describeTriangulation() {
-    forEachGraphItWorks(std::set<GraphProperty>({GraphProperty::planar, GraphProperty::simple}),
-        [](Graph& testG){
-            planarEmbedPlanarGraph(testG);
-            makeConnected(testG);
-            triangulate(testG);
-            isTriangulatedAssert(testG);
-        }, GraphSizes(), 3);
+	forEachGraphItWorks(
+			std::set<GraphProperty>({GraphProperty::planar, GraphProperty::simple}),
+			[](Graph& testG) {
+				planarEmbedPlanarGraph(testG);
+				makeConnected(testG);
+				triangulate(testG);
+				isTriangulatedAssert(testG);
+			},
+			GraphSizes(), 3);
 }
 
 /**
@@ -205,11 +202,9 @@ static void describeTriangulation() {
  * @param directed sets whether isAcyclic() or isAcyclicUndirected() is tested.
  * @param expected is the expected result of the function call.
  */
-void isAcyclicAssert(Graph G, bool directed, bool expected)
-{
+void isAcyclicAssert(Graph G, bool directed, bool expected) {
 	List<edge> backedges;
-	bool result = directed ?
-	              isAcyclic(G, backedges) : isAcyclicUndirected(G, backedges);
+	bool result = directed ? isAcyclic(G, backedges) : isAcyclicUndirected(G, backedges);
 
 	if (expected) {
 		AssertThat(result, IsTrue());
@@ -225,8 +220,7 @@ void isAcyclicAssert(Graph G, bool directed, bool expected)
 			G.delEdge(e);
 		}
 
-		result = directed ?
-		         isAcyclic(G, backedges) : isAcyclicUndirected(G, backedges);
+		result = directed ? isAcyclic(G, backedges) : isAcyclicUndirected(G, backedges);
 		AssertThat(result, IsTrue());
 		AssertThat(backedges.empty(), IsTrue());
 		AssertThat(isConnected(G), Equals(connected));
@@ -238,66 +232,60 @@ void isAcyclicAssert(Graph G, bool directed, bool expected)
  *
  * @param directed sets whether isAcyclic() or isAcyclicUndirected() is tested.
  */
-void describeIsAcyclic(bool directed)
-{
+void describeIsAcyclic(bool directed) {
 	Graph G;
 
-	before_each([&](){
-		G.clear();
-	});
+	before_each([&]() { G.clear(); });
 
-	forEachGraphItWorks(directed ?
-			std::set<GraphProperty>({GraphProperty::acyclic}) :
-			std::set<GraphProperty>({GraphProperty::arborescenceForest}),
-			[&](const Graph& testG) {
-		isAcyclicAssert(testG, directed, true);
-	});
+	forEachGraphItWorks(directed ? std::set<GraphProperty>({GraphProperty::acyclic})
+								 : std::set<GraphProperty>({GraphProperty::arborescenceForest}),
+			[&](const Graph& testG) { isAcyclicAssert(testG, directed, true); });
 
 	if (!directed) {
-		forEachGraphItWorks({GraphProperty::biconnected} , [&](const Graph& testG) {
+		forEachGraphItWorks({GraphProperty::biconnected}, [&](const Graph& testG) {
 			bool acylic = testG.numberOfNodes() <= 2 && isSimpleUndirected(testG);
 			isAcyclicAssert(testG, directed, acylic);
 		});
 	}
 
-	it("works on a cyclic graph", [&](){
-		customGraph(G, 3, {{0,1}, {1,2}, {2,1}});
+	it("works on a cyclic graph", [&]() {
+		customGraph(G, 3, {{0, 1}, {1, 2}, {2, 1}});
 		isAcyclicAssert(G, directed, false);
 	});
 
-	it("works on a disconnected cyclic graph", [&](){
-		customGraph(G, 4, {{1,2}, {2,3}, {3,1}});
+	it("works on a disconnected cyclic graph", [&]() {
+		customGraph(G, 4, {{1, 2}, {2, 3}, {3, 1}});
 		isAcyclicAssert(G, directed, false);
 	});
 
-	it("works on an acyclic graph requiring multiple dfs starts if directed", [&](){
-		customGraph(G, 4, {{0,1}, {1,2}, {3,1}});
+	it("works on an acyclic graph requiring multiple dfs starts if directed", [&]() {
+		customGraph(G, 4, {{0, 1}, {1, 2}, {3, 1}});
 		isAcyclicAssert(G, directed, true);
 	});
 
-	it("works on a cyclic graph requiring multiple dfs starts if directed", [&](){
-		customGraph(G, 4, {{0,1}, {1,2}, {2,0}, {3,1}});
+	it("works on a cyclic graph requiring multiple dfs starts if directed", [&]() {
+		customGraph(G, 4, {{0, 1}, {1, 2}, {2, 0}, {3, 1}});
 		isAcyclicAssert(G, directed, false);
 	});
 
-	it("works on a directed acyclic but undirected cyclic graph", [&](){
-		customGraph(G, 3, {{0,1}, {0,2}, {1,2}});
+	it("works on a directed acyclic but undirected cyclic graph", [&]() {
+		customGraph(G, 3, {{0, 1}, {0, 2}, {1, 2}});
 		isAcyclicAssert(G, directed, directed);
 	});
 
-	it("works on an extremely large acyclic graph", [&](){
+	it("works on an extremely large acyclic graph", [&]() {
 		randomTree(G, 125000, 1, 0);
 		isAcyclicAssert(G, directed, true);
 	});
 
-	it("works on an extremely large cyclic graph", [&](){
+	it("works on an extremely large cyclic graph", [&]() {
 		randomBiconnectedGraph(G, 125000, 250000);
 		isAcyclicAssert(G, directed, false);
 	});
 }
 
 static void describeIsTwoEdgeConnected() {
-	forEachGraphItWorks({GraphProperty::biconnected} , [&](const Graph& testG) {
+	forEachGraphItWorks({GraphProperty::biconnected}, [&](const Graph& testG) {
 		edge bridge = testG.lastEdge();
 		bool isSingleEdge = testG.numberOfNodes() == 2 && isParallelFreeUndirected(testG);
 		AssertThat(isTwoEdgeConnected(testG, bridge), Equals(!isSingleEdge));
@@ -307,7 +295,7 @@ static void describeIsTwoEdgeConnected() {
 		}
 	});
 
-	forEachGraphItWorks({GraphProperty::arborescenceForest} , [&](const Graph& testG) {
+	forEachGraphItWorks({GraphProperty::arborescenceForest}, [&](const Graph& testG) {
 		edge bridge = nullptr;
 		bool connected = isConnected(testG);
 		bool twoEdgeConnected = connected && testG.numberOfNodes() <= 1;
@@ -319,27 +307,25 @@ static void describeIsTwoEdgeConnected() {
 		}
 	});
 
-	it("works on a connected but not two-edge-connected graph", [&](){
+	it("works on a connected but not two-edge-connected graph", [&]() {
 		Graph G;
 		Array<node> nodes;
-		customGraph(G, 7, {
-			{0,1},{0,2},{1,2},{3,4},{4,5},{5,6},{6,2},{6,3}
-		}, nodes);
+		customGraph(G, 7, {{0, 1}, {0, 2}, {1, 2}, {3, 4}, {4, 5}, {5, 6}, {6, 2}, {6, 3}}, nodes);
 		node v = nodes[6];
 		node u = nodes[2];
-		edge e = G.searchEdge(u,v);
+		edge e = G.searchEdge(u, v);
 		edge bridge = nullptr;
 		AssertThat(isTwoEdgeConnected(G, bridge), IsFalse());
 		AssertThat(bridge, Equals(e));
 	});
 
-	it("works on an extremely large tree", [&](){
+	it("works on an extremely large tree", [&]() {
 		Graph G;
 		randomTree(G, 250000);
 		AssertThat(isTwoEdgeConnected(G), IsFalse());
 	});
 
-	it("works on an extremely large 2-edge-connected graph", [&](){
+	it("works on an extremely large 2-edge-connected graph", [&]() {
 		Graph G;
 		randomBiconnectedGraph(G, 250000, 500000);
 		AssertThat(isTwoEdgeConnected(G), IsTrue());
@@ -347,13 +333,13 @@ static void describeIsTwoEdgeConnected() {
 }
 
 static void describeIsBiconnected() {
-	forEachGraphItWorks({GraphProperty::biconnected} , [](const Graph& G) {
+	forEachGraphItWorks({GraphProperty::biconnected}, [](const Graph& G) {
 		node cutVertex = G.firstNode();
 		AssertThat(isBiconnected(G, cutVertex), IsTrue());
 		AssertThat(cutVertex, IsNull());
 	});
 
-	forEachGraphItWorks({GraphProperty::arborescenceForest} , [](const Graph& G) {
+	forEachGraphItWorks({GraphProperty::arborescenceForest}, [](const Graph& G) {
 		node cutVertex = G.firstNode();
 		bool connected = isConnected(G);
 		bool biconnected = connected && G.numberOfNodes() <= 2;
@@ -365,13 +351,13 @@ static void describeIsBiconnected() {
 		}
 	});
 
-	it("works on an extremely large tree", [&](){
+	it("works on an extremely large tree", [&]() {
 		Graph G;
 		randomTree(G, 250000);
 		AssertThat(isBiconnected(G), IsFalse());
 	});
 
-	it("works on an extremely large biconnected graph", [&](){
+	it("works on an extremely large biconnected graph", [&]() {
 		Graph G;
 		randomBiconnectedGraph(G, 250000, 500000);
 		AssertThat(isBiconnected(G), IsTrue());
@@ -379,7 +365,7 @@ static void describeIsBiconnected() {
 }
 
 static void describeMakeBiconnected() {
-	forEachGraphItWorks({}, [](Graph &G) {
+	forEachGraphItWorks({}, [](Graph& G) {
 		List<edge> added;
 		NodeArray<int> comps(G);
 		int numComps = connectedComponents(G, comps);
@@ -397,7 +383,7 @@ static void describeMakeBiconnected() {
 		}
 	});
 
-	it("works on an extremely large graph", [](){
+	it("works on an extremely large graph", []() {
 		Graph G;
 		List<edge> added;
 		emptyGraph(G, 250000);
@@ -413,76 +399,79 @@ static void describeMakeBiconnected() {
 static void describeBiconnectedComponents() {
 	Graph G;
 
-	before_each([&](){
-		G.clear();
-	});
+	before_each([&]() { G.clear(); });
 
 	forEachGraphItWorks({GraphProperty::biconnected, GraphProperty::simple}, [&](const Graph& testG) {
-		EdgeArray<int> component(testG,-1);
-		AssertThat(biconnectedComponents(testG, component), Equals(testG.numberOfNodes() == 0 ? 0 : 1));
+		EdgeArray<int> component(testG, -1);
+		AssertThat(biconnectedComponents(testG, component),
+				Equals(testG.numberOfNodes() == 0 ? 0 : 1));
 	});
 
-	it("works on a graph with a self-loop", [&](){
-		customGraph(G, 2, {{0,0}, {0,1}});
-		auto expectedComps = {0,1};
+	it("works on a graph with a self-loop", [&]() {
+		customGraph(G, 2, {{0, 0}, {0, 1}});
+		auto expectedComps = {0, 1};
 		biconnectedComponentsAssert(G, 2, expectedComps);
 	});
 
-	it("works on a disconnected graph", [&](){
-		customGraph(G, 3, {{0,1}});
+	it("works on a disconnected graph", [&]() {
+		customGraph(G, 3, {{0, 1}});
 		auto expectedComps = {0};
 		biconnectedComponentsAssert(G, 2, expectedComps);
 	});
 
-	it("works on a connected but not biconnected graph", [&](){
-		customGraph(G, 3, {{0,1}, {0,2}});
-		auto expectedComps = {0,1};
+	it("works on a connected but not biconnected graph", [&]() {
+		customGraph(G, 3, {{0, 1}, {0, 2}});
+		auto expectedComps = {0, 1};
 		biconnectedComponentsAssert(G, 2, expectedComps);
 	});
 
-	it("works on a biconnected graph", [&](){
+	it("works on a biconnected graph", [&]() {
 		completeGraph(G, 3);
-		auto expectedComps = {0,0,0};
+		auto expectedComps = {0, 0, 0};
 		biconnectedComponentsAssert(G, 1, expectedComps);
 	});
 
-	it("works on a graph with 2 biconnected components", [&](){
-		customGraph(G, 4, {{0,1}, {0,2}, {1,2}, {0,3}});
-		auto expectedComps = {0,0,0,1};
+	it("works on a graph with 2 biconnected components", [&]() {
+		customGraph(G, 4, {{0, 1}, {0, 2}, {1, 2}, {0, 3}});
+		auto expectedComps = {0, 0, 0, 1};
 		biconnectedComponentsAssert(G, 2, expectedComps);
 	});
 
-	it("works on a graph with 4 biconnected components", [&](){
-		customGraph(G, 10, {{0,1}, {1,2}, {2,3}, {3,1}, {3,4}, {4,1}, {1,5}, {5,6}, {6,0}, {0,7}, {7,8}, {8,9}, {9,7}});
-		auto expectedComps = {0,1,1,1,1,1,0,0,0,2,3,3,3};
+	it("works on a graph with 4 biconnected components", [&]() {
+		customGraph(G, 10,
+				{{0, 1}, {1, 2}, {2, 3}, {3, 1}, {3, 4}, {4, 1}, {1, 5}, {5, 6}, {6, 0}, {0, 7},
+						{7, 8}, {8, 9}, {9, 7}});
+		auto expectedComps = {0, 1, 1, 1, 1, 1, 0, 0, 0, 2, 3, 3, 3};
 		biconnectedComponentsAssert(G, 4, expectedComps);
 	});
 
-	it("works on a graph with 5 biconnected components", [&](){
-		customGraph(G, 12, {{0,1}, {1,2}, {2,3}, {3,4}, {4,2}, {3,1}, {1,5}, {5,6}, {6,0}, {5,7}, {7,8}, {5,8}, {8,9}, {10,11}});
-		auto expectedComps = {0,1,1,1,1,1,0,0,0,2,2,2,3,4};
+	it("works on a graph with 5 biconnected components", [&]() {
+		customGraph(G, 12,
+				{{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 2}, {3, 1}, {1, 5}, {5, 6}, {6, 0}, {5, 7},
+						{7, 8}, {5, 8}, {8, 9}, {10, 11}});
+		auto expectedComps = {0, 1, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 4};
 		biconnectedComponentsAssert(G, 5, expectedComps);
 	});
 
-	it("works on an extremely large graph", [&](){
+	it("works on an extremely large graph", [&]() {
 		randomGraph(G, 250000, 500000);
 
-		EdgeArray<int> component(G,-1);
+		EdgeArray<int> component(G, -1);
 		NodeArray<int> conComp(G);
-		int result = biconnectedComponents(G,component);
+		int result = biconnectedComponents(G, component);
 
 		AssertThat(result, IsGreaterThan(0));
-		AssertThat(result, !IsLessThan(connectedComponents(G,conComp)));
+		AssertThat(result, !IsLessThan(connectedComponents(G, conComp)));
 		for (edge e : G.edges) {
 			AssertThat(component[e], IsGreaterThan(-1));
 		}
 	});
 
-	it("works on an extremely large biconnected graph", [&](){
+	it("works on an extremely large biconnected graph", [&]() {
 		randomBiconnectedGraph(G, 250000, 500000);
 
-		EdgeArray<int> component(G,-1);
-		AssertThat(biconnectedComponents(G,component), Equals(1));
+		EdgeArray<int> component(G, -1);
+		AssertThat(biconnectedComponents(G, component), Equals(1));
 		for (edge e : G.edges) {
 			AssertThat(component[e], Equals(0));
 		}
@@ -492,66 +481,68 @@ static void describeBiconnectedComponents() {
 static void describeStrongComponents() {
 	Graph G;
 
-	before_each([&](){
-		G.clear();
-	});
+	before_each([&]() { G.clear(); });
 
 	forEachGraphItWorks({GraphProperty::acyclic}, [](const Graph& testG) {
-		NodeArray<int> component(testG,-1);
+		NodeArray<int> component(testG, -1);
 		AssertThat(strongComponents(testG, component), Equals(testG.numberOfNodes()));
 	});
 
-	it("works on a graph with a self-loop", [&](){
-		customGraph(G, 2, {{0,0}, {0,1}});
-		auto expectedComps = {0,1};
+	it("works on a graph with a self-loop", [&]() {
+		customGraph(G, 2, {{0, 0}, {0, 1}});
+		auto expectedComps = {0, 1};
 		strongComponentsAssert(G, expectedComps);
 	});
 
-	it("works on a strongly connected graph", [&](){
-		customGraph(G, 3, {{0,1}, {1,2}, {2,0}});
-		auto expectedComps = {0,0,0};
+	it("works on a strongly connected graph", [&]() {
+		customGraph(G, 3, {{0, 1}, {1, 2}, {2, 0}});
+		auto expectedComps = {0, 0, 0};
 		strongComponentsAssert(G, expectedComps);
 	});
 
-	it("works on a graph with 2 strongly connected components", [&](){
-		customGraph(G, 4, {{0,1}, {1,2}, {2,0}, {0,3}});
-		auto expectedComps = {0,0,0,1};
+	it("works on a graph with 2 strongly connected components", [&]() {
+		customGraph(G, 4, {{0, 1}, {1, 2}, {2, 0}, {0, 3}});
+		auto expectedComps = {0, 0, 0, 1};
 		strongComponentsAssert(G, expectedComps);
 	});
 
-	it("works on a graph with 3 strongly connected components", [&](){
-		customGraph(G, 10, {{0,1}, {1,2}, {2,3}, {3,1}, {3,4}, {4,1}, {0,5}, {5,6}, {6,0}, {0,7}, {7,8}, {8,9}, {9,7}});
-		auto expectedComps = {0,1,1,1,1,0,0,2,2,2};
+	it("works on a graph with 3 strongly connected components", [&]() {
+		customGraph(G, 10,
+				{{0, 1}, {1, 2}, {2, 3}, {3, 1}, {3, 4}, {4, 1}, {0, 5}, {5, 6}, {6, 0}, {0, 7},
+						{7, 8}, {8, 9}, {9, 7}});
+		auto expectedComps = {0, 1, 1, 1, 1, 0, 0, 2, 2, 2};
 		strongComponentsAssert(G, expectedComps);
 	});
 
-	it("works on a graph with 5 strongly connected components", [&](){
-		customGraph(G, 12, {{0,1}, {1,2}, {2,3}, {3,4}, {4,2}, {1,3}, {1,5}, {5,6}, {6,0}, {5,7}, {7,8}, {8,5}, {8,9}, {10,11}});
-		auto expectedComps = {0,0,1,1,1,0,0,0,0,2,3,4};
+	it("works on a graph with 5 strongly connected components", [&]() {
+		customGraph(G, 12,
+				{{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 2}, {1, 3}, {1, 5}, {5, 6}, {6, 0}, {5, 7},
+						{7, 8}, {8, 5}, {8, 9}, {10, 11}});
+		auto expectedComps = {0, 0, 1, 1, 1, 0, 0, 0, 0, 2, 3, 4};
 		strongComponentsAssert(G, expectedComps);
 	});
 
-	it("works on a graph with overlapping circles", [&](){
-		customGraph(G, 8, {{2,5}, {3,6}, {4,7}, {5,4}, {6,5}, {6,1}, {7,2}, {7,3}, {7,6}});
-		auto expectedComps = {0,1,2,2,2,2,2,2};
+	it("works on a graph with overlapping circles", [&]() {
+		customGraph(G, 8, {{2, 5}, {3, 6}, {4, 7}, {5, 4}, {6, 5}, {6, 1}, {7, 2}, {7, 3}, {7, 6}});
+		auto expectedComps = {0, 1, 2, 2, 2, 2, 2, 2};
 		strongComponentsAssert(G, expectedComps);
 	});
 
-	it("works on an extremely large graph", [&](){
+	it("works on an extremely large graph", [&]() {
 		randomGraph(G, 250000, 500000);
 
-		NodeArray<int> component(G,-1);
+		NodeArray<int> component(G, -1);
 		NodeArray<int> conComp(G);
-		int result = strongComponents(G,component);
+		int result = strongComponents(G, component);
 
 		AssertThat(result, IsGreaterThan(0));
-		AssertThat(result, !IsLessThan(connectedComponents(G,conComp)));
+		AssertThat(result, !IsLessThan(connectedComponents(G, conComp)));
 		for (node v : G.nodes) {
 			AssertThat(component[v], IsGreaterThan(-1));
 		}
 	});
 
-	it("works on an extremely large strongly connected graph", [&](){
+	it("works on an extremely large strongly connected graph", [&]() {
 		randomBiconnectedGraph(G, 250000, 250000);
 
 		// Ensure that G is strongly connected.
@@ -561,15 +552,15 @@ static void describeStrongComponents() {
 			G.newEdge(e->target(), e->source());
 		}
 
-		NodeArray<int> component(G,-1);
-		AssertThat(strongComponents(G,component), Equals(1));
+		NodeArray<int> component(G, -1);
+		AssertThat(strongComponents(G, component), Equals(1));
 		for (node v : G.nodes) {
 			AssertThat(component[v], Equals(0));
 		}
 	});
 
-	for(int n = 0; n < 75; n++) {
-		it("works on a random graph of size " + to_string(n), [&](){
+	for (int n = 0; n < 75; n++) {
+		it("works on a random graph of size " + to_string(n), [&]() {
 			Graph graph;
 			randomDigraph(graph, n, randomDouble(0, 1));
 
@@ -595,7 +586,7 @@ static void describeIsArborescenceForest() {
 	Graph G;
 	List<node> roots;
 
-	before_each([&](){
+	before_each([&]() {
 		G.clear();
 		roots.clear();
 	});
@@ -608,44 +599,45 @@ static void describeIsArborescenceForest() {
 	});
 
 	forEachGraphItWorks({GraphProperty::biconnected}, [&](const Graph& testG) {
-		AssertThat(isArborescenceForest(testG, roots), Equals(testG.numberOfNodes() <= 2 && isSimpleUndirected(testG)));
+		AssertThat(isArborescenceForest(testG, roots),
+				Equals(testG.numberOfNodes() <= 2 && isSimpleUndirected(testG)));
 	});
 
-	it("works on a graph without a source", [&](){
-		customGraph(G, 2, {{0,0}, {0,1}});
+	it("works on a graph without a source", [&]() {
+		customGraph(G, 2, {{0, 0}, {0, 1}});
 		AssertThat(isArborescenceForest(G, roots), IsFalse());
 	});
 
-	it("works on a graph with one tree and one cyclic subgraph", [&](){
-		customGraph(G, 5, {{0,1}, {2,3}, {3,4}, {4,2}});
+	it("works on a graph with one tree and one cyclic subgraph", [&]() {
+		customGraph(G, 5, {{0, 1}, {2, 3}, {3, 4}, {4, 2}});
 		AssertThat(isArborescenceForest(G, roots), IsFalse());
 	});
 
-	it("works on a directed tree that is not an arborescence", [&](){
-		customGraph(G, 4, {{0,1}, {1,2}, {3,1}});
+	it("works on a directed tree that is not an arborescence", [&]() {
+		customGraph(G, 4, {{0, 1}, {1, 2}, {3, 1}});
 		AssertThat(isArborescenceForest(G, roots), IsFalse());
 	});
 
-	it("works on an extremely large biconnected graph", [&](){
+	it("works on an extremely large biconnected graph", [&]() {
 		randomBiconnectedGraph(G, 250000, 500000);
 		AssertThat(isArborescenceForest(G, roots), IsFalse());
 	});
 
-	it("works on an extremely large arborescence", [&](){
+	it("works on an extremely large arborescence", [&]() {
 		constexpr int n = 125000;
 		node nodes[n];
 		nodes[0] = G.newNode();
 
 		for (int i = 1; i < n; i++) {
 			nodes[i] = G.newNode();
-			G.newEdge(nodes[randomNumber(0, i-1)], nodes[i]);
+			G.newEdge(nodes[randomNumber(0, i - 1)], nodes[i]);
 		}
 		AssertThat(isArborescenceForest(G, roots), IsTrue());
 		AssertThat(roots.size(), Equals(1));
 		AssertThat(roots.front(), Equals(G.firstNode()));
 	});
 
-	it("works on an extremely large path", [&](){
+	it("works on an extremely large path", [&]() {
 		node v = G.newNode();
 		for (int i = 0; i < 125000; i++) {
 			node w = G.newNode();
@@ -669,42 +661,42 @@ static void describeIsBipartite() {
 		}
 	});
 
-	it("works on a disconnected non-bipartite graph", [&](){
+	it("works on a disconnected non-bipartite graph", [&]() {
 		Graph G;
-		customGraph(G, 4, {{1,2}, {2,3}, {3,1}});
+		customGraph(G, 4, {{1, 2}, {2, 3}, {3, 1}});
 		AssertThat(isBipartite(G), IsFalse());
 	});
 
-	it("works on a bipartite graph with multi-edges", [&](){
+	it("works on a bipartite graph with multi-edges", [&]() {
 		Graph G;
 		NodeArray<bool> color(G, false);
 		Array<node> nodes;
-		customGraph(G, 3, {{0,1}, {1,0}, {1,2}}, nodes);
+		customGraph(G, 3, {{0, 1}, {1, 0}, {1, 2}}, nodes);
 		AssertThat(isBipartite(G, color), IsTrue());
 		AssertThat(color[nodes[0]], !Equals(color[nodes[1]]));
 		AssertThat(color[nodes[1]], !Equals(color[nodes[2]]));
 		AssertThat(color[nodes[0]], Equals(color[nodes[2]]));
 	});
 
-	it("works on a non-bipartite graph with multi-edges", [&](){
+	it("works on a non-bipartite graph with multi-edges", [&]() {
 		Graph G;
-		customGraph(G, 4, {{1,2}, {2,3}, {3,1}});
+		customGraph(G, 4, {{1, 2}, {2, 3}, {3, 1}});
 		AssertThat(isBipartite(G), IsFalse());
 	});
 
-	it("works on a graph with a self-loop", [&](){
+	it("works on a graph with a self-loop", [&]() {
 		Graph G;
-		customGraph(G, 2, {{0,1}, {1,1}});
+		customGraph(G, 2, {{0, 1}, {1, 1}});
 		AssertThat(isBipartite(G), IsFalse());
 	});
 
-	it("works on an extremely large tree", [&](){
+	it("works on an extremely large tree", [&]() {
 		Graph G;
 		randomTree(G, 250000);
 		AssertThat(isBipartite(G), IsTrue());
 	});
 
-	it("works on an extremely large non-bipartite graph", [&](){
+	it("works on an extremely large non-bipartite graph", [&]() {
 		Graph G;
 		randomTree(G, 250000);
 		node u = G.chooseNode();
@@ -722,9 +714,7 @@ static void describeNodeDistribution() {
 		Graph G;
 		customGraph(G, 3, {{0, 1}, {1, 2}, {2, 0}});
 		Array<int> dist;
-		nodeDistribution(G, dist, [](node v) {
-			return v->indeg();
-		});
+		nodeDistribution(G, dist, [](node v) { return v->indeg(); });
 		AssertThat(dist.low(), Equals(1));
 		AssertThat(dist.size(), Equals(1));
 		AssertThat(dist[1], Equals(3));
@@ -767,9 +757,9 @@ static void describeDegreeDistribution() {
 		completeGraph(G, n);
 		Array<int> dist;
 		degreeDistribution(G, dist);
-		AssertThat(dist.low(), Equals(n-1));
+		AssertThat(dist.low(), Equals(n - 1));
 		AssertThat(dist.size(), Equals(1));
-		AssertThat(dist[n-1], Equals(n));
+		AssertThat(dist[n - 1], Equals(n));
 	});
 
 	it("works on an isolated node with a lot of self-loops", [] {
@@ -781,9 +771,9 @@ static void describeDegreeDistribution() {
 		}
 		Array<int> dist;
 		degreeDistribution(G, dist);
-		AssertThat(dist.low(), Equals(2*n));
+		AssertThat(dist.low(), Equals(2 * n));
 		AssertThat(dist.size(), Equals(1));
-		AssertThat(dist[2*n], Equals(1));
+		AssertThat(dist[2 * n], Equals(1));
 	});
 
 	it("works with a very untypical distribution", [] {
@@ -798,8 +788,8 @@ static void describeDegreeDistribution() {
 		Array<int> dist;
 		degreeDistribution(G, dist);
 		AssertThat(dist.low(), Equals(1));
-		AssertThat(dist.high(), Equals(n-1));
-		AssertThat(dist[dist.low()], Equals(2*n));
+		AssertThat(dist.high(), Equals(n - 1));
+		AssertThat(dist[dist.low()], Equals(2 * n));
 		for (int i = dist.low() + 1; i < dist.high(); ++i) {
 			AssertThat(dist[i], Equals(0));
 		}
@@ -809,7 +799,7 @@ static void describeDegreeDistribution() {
 	it("works with a multigraph", [] {
 		Graph G;
 		customGraph(G, 7,
-		  {{0, 1}, {1, 2}, {2, 3}, {2, 4}, {3, 4}, {3, 4}, {3, 5}, {4, 5}, {4, 5}, {5, 5}});
+				{{0, 1}, {1, 2}, {2, 3}, {2, 4}, {3, 4}, {3, 4}, {3, 5}, {4, 5}, {4, 5}, {5, 5}});
 		Array<int> dist;
 		degreeDistribution(G, dist);
 		AssertThat(dist.low(), Equals(0));
@@ -824,15 +814,15 @@ static void describeDegreeDistribution() {
 static void describeRemoveSelfLoops() {
 	it("leaves a single node with no further edges unchanged", [] {
 		Graph G;
-		node v{G.newNode()};
+		node v {G.newNode()};
 		removeSelfLoops(G, v);
 		AssertThat(v->degree(), Equals(0));
 	});
 
 	it("removes all incident edges on a single node with only self-loops", [] {
 		Graph G;
-		node v{G.newNode()};
-		for (int i{0}; i < 10; ++i) {
+		node v {G.newNode()};
+		for (int i {0}; i < 10; ++i) {
 			G.newEdge(v, v);
 		}
 		removeSelfLoops(G, v);
@@ -843,27 +833,28 @@ static void describeRemoveSelfLoops() {
 		Graph G;
 		Array<node> nodes;
 		customGraph(G, 3, {{0, 1}, {1, 2}, {2, 0}, {2, 1}, {1, 0}, {1, 2}}, nodes);
-		for (int i{0}; i < 3; ++i) {
+		for (int i {0}; i < 3; ++i) {
 			removeSelfLoops(G, nodes[i]);
 			AssertThat(G.numberOfEdges(), Equals(6));
 		};
 	});
 
-	using CaseEdges = List<std::pair<int,int>>;
+	using CaseEdges = List<std::pair<int, int>>;
+
 	struct CaseType {
 		std::string removalDesc;
 		CaseEdges edges;
 	};
 
-	List<CaseType> cases{
+	List<CaseType> cases {
 			{"one self-loop if it is the first incident edge of a node",
-			 CaseEdges{{1, 1}, {0, 1}, {1, 2}, {2, 0}}},
+					CaseEdges {{1, 1}, {0, 1}, {1, 2}, {2, 0}}},
 			{"one self-loop if it is the last incident edge of a node",
-			 CaseEdges{{0, 1}, {1, 2}, {2, 0}, {1, 1}}},
+					CaseEdges {{0, 1}, {1, 2}, {2, 0}, {1, 1}}},
 			{"one self-loop if it is neither the first nor the last incident edge of a node",
-			 CaseEdges{{0, 1}, {1, 1}, {1, 2}, {2, 0}}},
+					CaseEdges {{0, 1}, {1, 1}, {1, 2}, {2, 0}}},
 			{"three self-loops that are non-consecutive in the incidence list of the node",
-			 CaseEdges{{1, 1}, {0, 1}, {1, 1}, {1, 2}, {1, 1}, {2, 0}}},
+					CaseEdges {{1, 1}, {0, 1}, {1, 1}, {1, 2}, {1, 1}, {2, 0}}},
 	};
 
 	for (CaseType testcase : cases) {
@@ -884,8 +875,8 @@ static void describeRemoveSelfLoops() {
 
 static void describeMakeLoopFree(bool withList) {
 	forEachGraphItWorks({}, [&](Graph& G) {
-		int prevEdges{G.numberOfEdges()};
-		bool wasLoopFree{isLoopFree(G)};
+		int prevEdges {G.numberOfEdges()};
+		bool wasLoopFree {isLoopFree(G)};
 		List<node> nodes;
 
 		if (withList) {
@@ -902,66 +893,36 @@ static void describeMakeLoopFree(bool withList) {
 }
 
 go_bandit([]() {
-	describe("Simple Graph Algorithms", [](){
-		describe("isTwoEdgeConnected", [](){
-			describeIsTwoEdgeConnected();
-		});
+	describe("Simple Graph Algorithms", []() {
+		describe("isTwoEdgeConnected", []() { describeIsTwoEdgeConnected(); });
 
-		describe("isBiconnected", [](){
-			describeIsBiconnected();
-		});
+		describe("isBiconnected", []() { describeIsBiconnected(); });
 
-		describe("makeBiconnected", [](){
-			describeMakeBiconnected();
-		});
+		describe("makeBiconnected", []() { describeMakeBiconnected(); });
 
-		describe("biconnectedComponents", [](){
-			describeBiconnectedComponents();
-		});
+		describe("biconnectedComponents", []() { describeBiconnectedComponents(); });
 
-		describe("strongComponents", [](){
-			describeStrongComponents();
-		});
+		describe("strongComponents", []() { describeStrongComponents(); });
 
-		describe("triangulate", [](){
-		    describeTriangulation();
-		});
+		describe("triangulate", []() { describeTriangulation(); });
 
-		describe("isAcyclic", [](){
-			describeIsAcyclic(true);
-		});
+		describe("isAcyclic", []() { describeIsAcyclic(true); });
 
-		describe("isAcyclicUndirected", [](){
-			describeIsAcyclic(false);
-		});
+		describe("isAcyclicUndirected", []() { describeIsAcyclic(false); });
 
-		describe("isArborescenceForest", [](){
-			describeIsArborescenceForest();
-		});
+		describe("isArborescenceForest", []() { describeIsArborescenceForest(); });
 
-		describe("isBipartite", [](){
-			describeIsBipartite();
-		});
+		describe("isBipartite", []() { describeIsBipartite(); });
 
-		describe("nodeDistribution", [] {
-			describeNodeDistribution();
-		});
+		describe("nodeDistribution", [] { describeNodeDistribution(); });
 
-		describe("degreeDistribution", [] {
-			describeDegreeDistribution();
-		});
+		describe("degreeDistribution", [] { describeDegreeDistribution(); });
 
-		describe("removeSelfLoops", [] {
-			describeRemoveSelfLoops();
-		});
+		describe("removeSelfLoops", [] { describeRemoveSelfLoops(); });
 
 		describe("makeLoopFree", [] {
-			describe("without node list", [] {
-				describeMakeLoopFree(false);
-			});
-			describe("with node list", [] {
-				describeMakeLoopFree(true);
-			});
+			describe("without node list", [] { describeMakeLoopFree(false); });
+			describe("with node list", [] { describeMakeLoopFree(true); });
 		});
 	});
 });

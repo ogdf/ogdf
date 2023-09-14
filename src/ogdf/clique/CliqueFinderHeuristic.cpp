@@ -32,20 +32,15 @@
 
 //#define OGDF_CLIQUE_FINDER_HEURISTIC_DEBUG
 
-#include <ogdf/clique/CliqueFinderHeuristic.h>
 #include <ogdf/basic/geometry.h>
+#include <ogdf/clique/CliqueFinderHeuristic.h>
 
 namespace ogdf {
 
 CliqueFinderHeuristic::CliqueFinderHeuristic()
-	: CliqueFinderModule()
-	, m_density(1.0)
-	, m_postProcess(true)
-	, m_adjOracle(nullptr)
-{ }
+	: CliqueFinderModule(), m_density(1.0), m_postProcess(true), m_adjOracle(nullptr) { }
 
-void CliqueFinderHeuristic::doCall()
-{
+void CliqueFinderHeuristic::doCall() {
 	// Delete nodes with degree < m_minDegree, they are not part of cliques.
 	preProcess();
 
@@ -57,24 +52,22 @@ void CliqueFinderHeuristic::doCall()
 	// For density = 1.0 this is done automatically via degree() as all low
 	// degree neighbours are deleted. For density != 1.0 the high degree
 	// neighbours have to be found manually.
-	auto degreeFunction = OGDF_GEOM_ET.equal(m_density, 1.0) ?
-		std::function<int(node)>([](node v) { return v->degree(); }) :
-		std::function<int(node)>([&](node v) {
-			int relativeDegree{0};
-			for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
-				if (adj->twinNode()->degree() >= m_minDegree) {
-					relativeDegree++;
-				}
-			}
-			return relativeDegree;
-		});
+	auto degreeFunction = OGDF_GEOM_ET.equal(m_density, 1.0)
+			? std::function<int(node)>([](node v) { return v->degree(); })
+			: std::function<int(node)>([&](node v) {
+				  int relativeDegree {0};
+				  for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
+					  if (adj->twinNode()->degree() >= m_minDegree) {
+						  relativeDegree++;
+					  }
+				  }
+				  return relativeDegree;
+			  });
 
 	// Sort the nodes by their degree in descending order.
 	List<node> nodesSortedByDegree;
 	m_pCopy->allNodes(nodesSortedByDegree);
-	nodesSortedByDegree.quicksort(
-		GenericComparer<node, int, false>(degreeFunction)
-	);
+	nodesSortedByDegree.quicksort(GenericComparer<node, int, false>(degreeFunction));
 
 	// Add clique candidates to cliqueList:
 	// Put new nodes in existing cliques - if not possible, start new cliques.
@@ -104,8 +97,7 @@ void CliqueFinderHeuristic::doCall()
 				// Move the clique to its correct place in cliqueList,
 				// which is sorted from the biggest to the smallest clique.
 				auto itSearch = itCand.pred();
-				while (itSearch.valid()
-				    && (*itCand)->size() > (*itSearch)->size()) {
+				while (itSearch.valid() && (*itCand)->size() > (*itSearch)->size()) {
 					--itSearch;
 				}
 
@@ -128,7 +120,7 @@ void CliqueFinderHeuristic::doCall()
 	}
 
 #ifdef OGDF_DEBUG
-	for (List<node> *clique : cliqueList) {
+	for (List<node>* clique : cliqueList) {
 		OGDF_ASSERT(cliqueOK(*m_pCopy, clique, m_density));
 	}
 #endif
@@ -137,7 +129,7 @@ void CliqueFinderHeuristic::doCall()
 	int numC1 = cliqueList.size();
 
 	int nodeNum = 0;
-	for (List<node> *clique : cliqueList) {
+	for (List<node>* clique : cliqueList) {
 		if (clique->size() > m_minDegree) {
 			nodeNum += clique->size();
 		}
@@ -154,29 +146,29 @@ void CliqueFinderHeuristic::doCall()
 	realTime = ogdf::usedTime(realTime);
 
 	int nodeNum2 = 0;
-	for (List<node> *clique : cliqueList) {
+	for (List<node>* clique : cliqueList) {
 		if (clique->size() > m_minDegree) {
 			nodeNum2 += clique->size();
 		}
 	}
 	if (nodeNum2 > nodeNum) {
 		std::cout << "\nNumber cliques before PP: " << numC1
-			<< "\nNumber cliques after PP: " << cliqueList.size()
-			<< "\nNumber nodes in big cliques before PP: " << nodeNum
-			<< "\nNumber nodes in big cliques after PP: " << nodeNum2;
+				  << "\nNumber cliques after PP: " << cliqueList.size()
+				  << "\nNumber nodes in big cliques before PP: " << nodeNum
+				  << "\nNumber nodes in big cliques after PP: " << nodeNum2;
 	}
 	std::cout << "\nUsed postprocessing time: " << realTime << std::endl;
 #endif
 
 #ifdef OGDF_DEBUG
-	for (List<node> *clique : cliqueList) {
+	for (List<node>* clique : cliqueList) {
 		OGDF_ASSERT(cliqueOK(*m_pCopy, clique, m_density));
 	}
 #endif
 
 	// Assign clique numbers and get number of cliques.
 	int numberOfCliques = 0;
-	for (List<node> *pCand : cliqueList) {
+	for (List<node>* pCand : cliqueList) {
 		// The cliques must be big enough.
 		if (pCand->size() > m_minDegree) {
 			for (node u : *pCand) {
@@ -188,15 +180,14 @@ void CliqueFinderHeuristic::doCall()
 	}
 
 	// Free the allocated memory.
-	for(List<node> *pCl : cliqueList) {
+	for (List<node>* pCl : cliqueList) {
 		delete pCl;
 	}
 	m_usedNode.init();
 	delete m_adjOracle;
 }
 
-void CliqueFinderHeuristic::postProcessCliques(List<List<node>*> &cliqueList)
-{
+void CliqueFinderHeuristic::postProcessCliques(List<List<node>*>& cliqueList) {
 	if (!m_postProcess) {
 		return;
 	}
@@ -211,7 +202,7 @@ void CliqueFinderHeuristic::postProcessCliques(List<List<node>*> &cliqueList)
 	// subgraph to allow reuse.
 	if (OGDF_GEOM_ET.less(m_density, 1.0)) {
 		// For every big clique:
-		for (List<node> *pCand : cliqueList) {
+		for (List<node>* pCand : cliqueList) {
 			if (pCand->size() > m_minDegree) {
 				// Clique nodes are inList.
 				NodeArray<bool> inList(*m_pCopy, false);
@@ -274,9 +265,7 @@ void CliqueFinderHeuristic::postProcessCliques(List<List<node>*> &cliqueList)
 
 	// Now we have all left over nodes in list leftOver.
 	// Sort leftOver by the heuristic evaluation function.
-	leftOver.quicksort(GenericComparer<node, int, false>([&](node v) {
-		return evaluate(v);
-	}));
+	leftOver.quicksort(GenericComparer<node, int, false>([&](node v) { return evaluate(v); }));
 
 	// Go through leftOver nodes, starting at the most qualified ones.
 	for (node v : leftOver) {
@@ -285,7 +274,7 @@ void CliqueFinderHeuristic::postProcessCliques(List<List<node>*> &cliqueList)
 			// TODO: This is the same loop as in evaluate and should not be run
 			// twice. However, it's not efficient to save the neighbour degree
 			// values for every run of evaluate.
-			List<node> *neighbours = new List<node>();
+			List<node>* neighbours = new List<node>();
 			NodeArray<bool> neighbour(*m_pCopy, false);
 			NodeArray<int> neighbourDegree(*m_pCopy, 0);
 
@@ -314,9 +303,7 @@ void CliqueFinderHeuristic::postProcessCliques(List<List<node>*> &cliqueList)
 
 			// Now we have a (dense) set of nodes and we can delete nodes from
 			// neighbours until the set conforms to m_minDegree and m_density.
-			neighbours->quicksort(
-				GenericComparer<node, int, false>(neighbourDegree)
-			);
+			neighbours->quicksort(GenericComparer<node, int, false>(neighbourDegree));
 			findClique(v, *neighbours);
 
 			// We found a dense subgraph!
@@ -341,8 +328,7 @@ void CliqueFinderHeuristic::postProcessCliques(List<List<node>*> &cliqueList)
 	cliqueList.conc(cliqueAdd);
 }
 
-int CliqueFinderHeuristic::evaluate(node v)
-{
+int CliqueFinderHeuristic::evaluate(node v) {
 	// Get all unused neighbours of v.
 	// TODO: Use something more efficient than the NodeArray?
 	List<node> vNeighbours;
@@ -372,9 +358,7 @@ int CliqueFinderHeuristic::evaluate(node v)
 	return triangleCount;
 }
 
-
-void CliqueFinderHeuristic::findClique(node v, List<node> &neighbours)
-{
+void CliqueFinderHeuristic::findClique(node v, List<node>& neighbours) {
 	OGDF_ASSERT(!m_usedNode[v]);
 
 	if (v->degree() < m_minDegree) {
@@ -393,8 +377,8 @@ void CliqueFinderHeuristic::findClique(node v, List<node> &neighbours)
 
 	while (itNode.valid()) {
 		// Remove neighbours that cannot be part of the clique.
-		if ((*itNode)->degree() < int(ceil(m_density * m_minDegree)) ||
-			!allAdjacent(*itNode, &clique)) {
+		if ((*itNode)->degree() < int(ceil(m_density * m_minDegree))
+				|| !allAdjacent(*itNode, &clique)) {
 			ListIterator<node> itDel = itNode;
 			++itNode;
 			neighbours.del(itDel);
@@ -405,9 +389,7 @@ void CliqueFinderHeuristic::findClique(node v, List<node> &neighbours)
 	}
 }
 
-
-inline bool CliqueFinderHeuristic::allAdjacent(node v, List<node>* vList) const
-{
+inline bool CliqueFinderHeuristic::allAdjacent(node v, List<node>* vList) const {
 	if (vList->size() == 0) {
 		return true;
 	}
@@ -429,8 +411,7 @@ inline bool CliqueFinderHeuristic::allAdjacent(node v, List<node>* vList) const
 	return adjCount >= threshold;
 }
 
-void CliqueFinderHeuristic::preProcess()
-{
+void CliqueFinderHeuristic::preProcess() {
 	int relMinDegree = int(ceil(m_minDegree * m_density));
 
 	// Get nodes with degree < relMinDegree.

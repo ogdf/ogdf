@@ -39,15 +39,12 @@
 
 namespace ogdf {
 
-bool ShortestPathWithBFM::call
-	(
-	const Graph &G,						// directed graph
-	const node s,						// source node
-	const EdgeArray<int> &length,		// length of an edge
-	NodeArray<int> &d,					// contains shortest path distances after call
-	NodeArray<edge> &pi					// predecessors
-	)
-{
+bool ShortestPathWithBFM::call(const Graph& G, // directed graph
+		const node s, // source node
+		const EdgeArray<int>& length, // length of an edge
+		NodeArray<int>& d, // contains shortest path distances after call
+		NodeArray<edge>& pi // predecessors
+) {
 	//Initialize-Single-Source(G, s):
 	for (node v : G.nodes) {
 		d[v] = std::numeric_limits<int>::max();
@@ -55,7 +52,7 @@ bool ShortestPathWithBFM::call
 	}
 	d[s] = 0;
 	for (int i = 1; i < G.numberOfNodes(); ++i) {
-		for (edge e : G.edges)	{
+		for (edge e : G.edges) {
 			//relax(u, v, w): // e == (u, v), length == w
 			if (d[e->target()] > d[e->source()] + length[e]) {
 				d[e->target()] = d[e->source()] + length[e];
@@ -66,7 +63,9 @@ bool ShortestPathWithBFM::call
 
 	//check for negative cycle:
 	for (edge e : G.edges) {
-		if (d[e->target()] > d[e->source()] + length[e]) return false;
+		if (d[e->target()] > d[e->source()] + length[e]) {
+			return false;
+		}
 	}
 
 	return true;

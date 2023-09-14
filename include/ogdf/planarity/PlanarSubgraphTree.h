@@ -31,31 +31,24 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanarSubgraphModule.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/DisjointSets.h>
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 
 namespace ogdf {
 
 //! Maximum planar subgraph heuristic that yields a spanning tree.
 //! @ingroup ga-plansub
 template<typename TCost>
-class PlanarSubgraphTree : public PlanarSubgraphModule<TCost>
-{
+class PlanarSubgraphTree : public PlanarSubgraphModule<TCost> {
 public:
-	virtual PlanarSubgraphTree *clone() const override {
-		return new PlanarSubgraphTree();
-	}
+	virtual PlanarSubgraphTree* clone() const override { return new PlanarSubgraphTree(); }
 
 protected:
-	virtual Module::ReturnType doCall(
-			const Graph &graph,
-			const List<edge> &preferredEdges,
-			List<edge> &delEdges,
-			const EdgeArray<TCost> *pCost,
-			bool preferedImplyPlanar) override {
+	virtual Module::ReturnType doCall(const Graph& graph, const List<edge>& preferredEdges,
+			List<edge>& delEdges, const EdgeArray<TCost>* pCost, bool preferedImplyPlanar) override {
 		delEdges.clear();
 
 		if (pCost) {

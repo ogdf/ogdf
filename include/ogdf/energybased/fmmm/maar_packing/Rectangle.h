@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/geometry.h>
+
 #include <iostream>
 
 namespace ogdf {
@@ -41,14 +42,13 @@ namespace fmmm {
 //! Helping data structure for packing rectangles; The width, height and the position
 //! of the down left corner of the tight surroundig rectangle is represented for each
 //! connected component of the graph.
-class Rectangle
-{
+class Rectangle {
 	//! Outputstream for Rectangle.
-	friend std::ostream &operator<< (std::ostream & output, const Rectangle & A)
-	{
-		output <<"width: "<< A.width<<" height: "<<A.height<<" old dlc_position: "
-			<<A.old_down_left_corner_position<<" new dlc_position: "
-			<<A.new_down_left_corner_position<<" coponenet_index: "<<A.component_index;
+	friend std::ostream& operator<<(std::ostream& output, const Rectangle& A) {
+		output << "width: " << A.width << " height: " << A.height
+			   << " old dlc_position: " << A.old_down_left_corner_position
+			   << " new dlc_position: " << A.new_down_left_corner_position
+			   << " coponenet_index: " << A.component_index;
 		if (A.tipped_over) {
 			output << " is tipped_over";
 		}
@@ -56,14 +56,12 @@ class Rectangle
 	}
 
 	//! Inputstream for Rectangle.
-	friend std::istream &operator>> (std::istream & input,  Rectangle & A)
-	{
-		input >>A.width;
+	friend std::istream& operator>>(std::istream& input, Rectangle& A) {
+		input >> A.width;
 		return input;
 	}
 
 public:
-
 	Rectangle() //!< constructor
 	{
 		old_down_left_corner_position.m_x = 0;
@@ -76,9 +74,8 @@ public:
 		tipped_over = false;
 	}
 
-	void set_rectangle (double w, double h, double old_dlc_x_pos,double
-		old_dlc_y_pos,int comp_index)
-	{
+	void set_rectangle(double w, double h, double old_dlc_x_pos, double old_dlc_y_pos,
+			int comp_index) {
 		width = w;
 		height = h;
 		old_down_left_corner_position.m_x = old_dlc_x_pos;
@@ -87,29 +84,38 @@ public:
 		tipped_over = false;
 	}
 
-	void set_old_dlc_position(DPoint dlc_pos){old_down_left_corner_position = dlc_pos;}
-	void set_new_dlc_position(DPoint dlc_pos){new_down_left_corner_position = dlc_pos;}
-	void set_width(double w) {width = w;}
-	void set_height(double h) {height = h;}
-	void set_component_index (int comp_index) {component_index = comp_index;}
+	void set_old_dlc_position(DPoint dlc_pos) { old_down_left_corner_position = dlc_pos; }
+
+	void set_new_dlc_position(DPoint dlc_pos) { new_down_left_corner_position = dlc_pos; }
+
+	void set_width(double w) { width = w; }
+
+	void set_height(double h) { height = h; }
+
+	void set_component_index(int comp_index) { component_index = comp_index; }
+
 	void tipp_over() { tipped_over = !tipped_over; }
 
 	DPoint get_old_dlc_position() const { return old_down_left_corner_position; }
+
 	DPoint get_new_dlc_position() const { return new_down_left_corner_position; }
-	double get_width() const {return width;}
-	double get_height() const {return height;}
-	int get_component_index() const {return component_index;}
-	bool is_tipped_over() const {return tipped_over;}
+
+	double get_width() const { return width; }
+
+	double get_height() const { return height; }
+
+	int get_component_index() const { return component_index; }
+
+	bool is_tipped_over() const { return tipped_over; }
 
 private:
-	DPoint old_down_left_corner_position;//!< down left corner of the tight surround. rect.
-	DPoint new_down_left_corner_position;//!< new calculated down left corner of ...
-	double width;                     //!< width of the surround. rect.
-	double height;                    //!< height of the surround. rect.
-	int component_index;  //!< the index of the related connected component
-	bool tipped_over;     //!< indicates if this rectangle has been tipped over in the
+	DPoint old_down_left_corner_position; //!< down left corner of the tight surround. rect.
+	DPoint new_down_left_corner_position; //!< new calculated down left corner of ...
+	double width; //!< width of the surround. rect.
+	double height; //!< height of the surround. rect.
+	int component_index; //!< the index of the related connected component
+	bool tipped_over; //!< indicates if this rectangle has been tipped over in the
 	//! packing step
-
 };
 
 }

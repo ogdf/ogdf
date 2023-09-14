@@ -54,33 +54,36 @@ class OGDF_EXPORT ClusterGraphObserver {
 	friend class ClusterGraph;
 
 public:
-	ClusterGraphObserver() : m_pClusterGraph(nullptr) {}
+	ClusterGraphObserver() : m_pClusterGraph(nullptr) { }
 
-	explicit ClusterGraphObserver(const ClusterGraph* CG) : m_pClusterGraph(CG)
-	{
+	explicit ClusterGraphObserver(const ClusterGraph* CG) : m_pClusterGraph(CG) {
 		m_itCGList = CG->registerObserver(this);
 	}
 
-	virtual ~ClusterGraphObserver()
-	{
-		if (m_pClusterGraph) m_pClusterGraph->unregisterObserver(m_itCGList);
+	virtual ~ClusterGraphObserver() {
+		if (m_pClusterGraph) {
+			m_pClusterGraph->unregisterObserver(m_itCGList);
+		}
 	}
 
 	// associates structure with different graph
-	void reregister(const ClusterGraph *pCG) {
+	void reregister(const ClusterGraph* pCG) {
 		//small speedup: check if == m_pGraph
-		if (m_pClusterGraph) m_pClusterGraph->unregisterObserver(m_itCGList);
-		if ((m_pClusterGraph = pCG) != nullptr) m_itCGList = pCG->registerObserver(this);
+		if (m_pClusterGraph) {
+			m_pClusterGraph->unregisterObserver(m_itCGList);
+		}
+		if ((m_pClusterGraph = pCG) != nullptr) {
+			m_itCGList = pCG->registerObserver(this);
+		}
 	}
 
 	virtual void clusterDeleted(cluster v) = 0;
-	virtual void clusterAdded(cluster v)   = 0;
+	virtual void clusterAdded(cluster v) = 0;
 #if 0
-	virtual void reInit()                  = 0;
 	virtual void cleared()                 = 0;//Graph cleared
 #endif
 
-	const ClusterGraph*  getGraph() const {	return m_pClusterGraph;}
+	const ClusterGraph* getGraph() const { return m_pClusterGraph; }
 
 protected:
 	const ClusterGraph* m_pClusterGraph; //underlying clustergraph

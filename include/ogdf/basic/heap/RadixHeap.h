@@ -31,11 +31,10 @@
 
 #pragma once
 
+#include <array>
 #include <functional>
 #include <utility>
-#include <array>
 #include <vector>
-
 
 namespace ogdf {
 
@@ -46,16 +45,12 @@ public:
 	V value;
 	P priority;
 
-	RadixHeapNode<V, P> *prev;
-	RadixHeapNode<V, P> *next;
+	RadixHeapNode<V, P>* prev;
+	RadixHeapNode<V, P>* next;
 
-	RadixHeapNode(const V &nodeValue, const P &nodePriority)
-	: value(nodeValue), priority(nodePriority),
-	  prev(nullptr), next(nullptr)
-	{
-	}
+	RadixHeapNode(const V& nodeValue, const P& nodePriority)
+		: value(nodeValue), priority(nodePriority), prev(nullptr), next(nullptr) { }
 };
-
 
 //! Radix heap data structure implementation.
 /**
@@ -86,7 +81,7 @@ public:
 	 * @param priority A priority of inserted element.
 	 * @return Handle to the inserted node.
 	 */
-	RadixHeapNode<V, P> *push(const V &value, const P &priority);
+	RadixHeapNode<V, P>* push(const V& value, const P& priority);
 
 	//! Removes the top element from the heap and returns its value.
 	/**
@@ -97,17 +92,13 @@ public:
 	V pop();
 
 	//! Number of elements contained within the heap.
-	std::size_t size() const {
-		return m_size;
-	}
+	std::size_t size() const { return m_size; }
 
 	//! Checks whether the heap is empty.
-	bool empty() const {
-		return size() == 0;
-	}
+	bool empty() const { return size() == 0; }
 
 private:
-	using Bucket = RadixHeapNode<V, P> *;
+	using Bucket = RadixHeapNode<V, P>*;
 	static constexpr std::size_t BITS = sizeof(P) * 8;
 
 	std::size_t m_size; //! Number of elements.
@@ -117,13 +108,13 @@ private:
 	std::array<Bucket, BITS + 1> m_buckets; //! Buckets with values.
 
 	//! Inserts \p heapNode to the appropriate bucket.
-	void insert(RadixHeapNode<V, P> *heapNode);
+	void insert(RadixHeapNode<V, P>* heapNode);
 
 	//! Returns most significant bit set on given mask.
 	template<typename T>
 	static std::size_t msbSet(T mask) {
 		std::size_t i = 0;
-		while(mask != 0) {
+		while (mask != 0) {
 			mask >>= 1;
 			i++;
 		}
@@ -131,7 +122,7 @@ private:
 	}
 
 #ifdef __has_builtin
-#if __has_builtin(__builtin_clz)
+#	if __has_builtin(__builtin_clz)
 	static std::size_t msbSet(unsigned int mask) {
 		return mask == 0 ? 0 : (BITS - __builtin_clz(mask));
 	}
@@ -143,26 +134,20 @@ private:
 	static std::size_t msbSet(unsigned long long mask) {
 		return mask == 0 ? 0 : (BITS - __builtin_clzll(mask));
 	}
+#	endif
 #endif
-#endif
-
 };
 
-
 template<typename V, typename P>
-RadixHeap<V, P>::RadixHeap()
-: m_size(0), m_minimum(0), m_bucketMask(0)
-{
+RadixHeap<V, P>::RadixHeap() : m_size(0), m_minimum(0), m_bucketMask(0) {
 	m_buckets.fill(nullptr);
 }
 
-
 template<typename V, typename P>
-RadixHeap<V, P>::~RadixHeap()
-{
-	for(Bucket &bucket : m_buckets) {
+RadixHeap<V, P>::~RadixHeap() {
+	for (Bucket& bucket : m_buckets) {
 		auto it = bucket;
-		while(it != nullptr) {
+		while (it != nullptr) {
 			auto next = it->next;
 			delete it;
 			it = next;
@@ -170,31 +155,27 @@ RadixHeap<V, P>::~RadixHeap()
 	}
 }
 
-
 template<typename V, typename P>
-RadixHeapNode<V, P> *RadixHeap<V, P>::push(const V &value, const P &priority)
-{
+RadixHeapNode<V, P>* RadixHeap<V, P>::push(const V& value, const P& priority) {
 	m_size++;
 
-	RadixHeapNode<V, P> *heapNode = new RadixHeapNode<V, P>(value, priority);
+	RadixHeapNode<V, P>* heapNode = new RadixHeapNode<V, P>(value, priority);
 	insert(heapNode);
 	return heapNode;
 }
 
-
 template<typename V, typename P>
-V RadixHeap<V, P>::pop()
-{
+V RadixHeap<V, P>::pop() {
 	m_size--;
 
-	if(m_buckets[0] != nullptr) {
+	if (m_buckets[0] != nullptr) {
 		V result = std::move(m_buckets[0]->value);
 
 		Bucket tmp = m_buckets[0]->next;
 		delete m_buckets[0];
 		m_buckets[0] = tmp;
 
-		if(m_buckets[0] != nullptr) {
+		if (m_buckets[0] != nullptr) {
 			m_buckets[0]->prev = nullptr;
 		}
 		return result;
@@ -204,25 +185,25 @@ V RadixHeap<V, P>::pop()
 
 	Bucket bucket = m_buckets[ind];
 	m_buckets[ind] = nullptr;
-	if(ind != 0) {
+	if (ind != 0) {
 		m_bucketMask ^= (P(1) << (8 * sizeof(P) - ind));
 	}
 
 
 	Bucket min = bucket;
-	for(Bucket it = bucket; it != nullptr; it = it->next) {
-		if(it->priority < min->priority) {
+	for (Bucket it = bucket; it != nullptr; it = it->next) {
+		if (it->priority < min->priority) {
 			min = it;
 		}
 	}
 
-	if(min->prev != nullptr) {
+	if (min->prev != nullptr) {
 		min->prev->next = min->next;
 	} else {
 		bucket = min->next;
 	}
 
-	if(min->next != nullptr) {
+	if (min->next != nullptr) {
 		min->next->prev = min->prev;
 	}
 
@@ -230,7 +211,7 @@ V RadixHeap<V, P>::pop()
 	m_minimum = std::move(min->priority);
 	delete min;
 
-	while(bucket != nullptr) {
+	while (bucket != nullptr) {
 		Bucket next = bucket->next;
 		bucket->prev = nullptr;
 		insert(bucket);
@@ -241,19 +222,17 @@ V RadixHeap<V, P>::pop()
 	return result;
 }
 
-
 template<typename V, typename P>
-inline void RadixHeap<V, P>::insert(RadixHeapNode<V, P> *heapNode)
-{
+inline void RadixHeap<V, P>::insert(RadixHeapNode<V, P>* heapNode) {
 	std::size_t ind = msbSet(heapNode->priority ^ m_minimum);
 
 	heapNode->next = m_buckets[ind];
-	if(m_buckets[ind] != nullptr) {
+	if (m_buckets[ind] != nullptr) {
 		m_buckets[ind]->prev = heapNode;
 	}
 	m_buckets[ind] = heapNode;
 
-	if(ind != 0) {
+	if (ind != 0) {
 		m_bucketMask |= (P(1) << (BITS - ind));
 	}
 }

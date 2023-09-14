@@ -40,11 +40,8 @@ namespace ogdf {
  * \brief Interface for feasible upward planar subgraph algorithms.
  *
  */
-class OGDF_EXPORT FUPSModule : public Module
-{
-
+class OGDF_EXPORT FUPSModule : public Module {
 public:
-
 	//! Initializes a feasible upward planar subgraph module.
 	FUPSModule() { }
 
@@ -61,18 +58,10 @@ public:
 	 *		  The edges are edges of the original graph of UPR.
 	 * \return the status of the result.
 	 */
-	ReturnType call(UpwardPlanRep &UPR,
-		List<edge> &delEdges)
-	{
-		return doCall(UPR, delEdges);
-	}
+	ReturnType call(UpwardPlanRep& UPR, List<edge>& delEdges) { return doCall(UPR, delEdges); }
 
 	//! Computes a upward planarized representation of the input graph (shorthand for call)
-	ReturnType operator()(UpwardPlanRep &UPR,
-			List<edge> &delEdges)
-	{
-		return call(UPR, delEdges);
-	}
+	ReturnType operator()(UpwardPlanRep& UPR, List<edge>& delEdges) { return call(UPR, delEdges); }
 
 
 protected:
@@ -86,11 +75,9 @@ protected:
 	 *		  The edges are edges of the original graph G.
 	 * \return the status of the result.
 	 */
-	virtual ReturnType doCall(UpwardPlanRep &UPR,
-		List<edge> &delEdges) = 0;
+	virtual ReturnType doCall(UpwardPlanRep& UPR, List<edge>& delEdges) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
-
 };
 
 }

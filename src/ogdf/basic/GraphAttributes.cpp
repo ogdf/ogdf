@@ -36,43 +36,39 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
 
-
 namespace ogdf {
 
-const long GraphAttributes::nodeGraphics      = 1 << 0;
-const long GraphAttributes::edgeGraphics      = 1 << 1;
-const long GraphAttributes::edgeIntWeight     = 1 << 2;
-const long GraphAttributes::edgeDoubleWeight  = 1 << 3;
-const long GraphAttributes::edgeLabel         = 1 << 4;
-const long GraphAttributes::nodeLabel         = 1 << 5;
-const long GraphAttributes::edgeType          = 1 << 6;
-const long GraphAttributes::nodeType          = 1 << 7;
-const long GraphAttributes::nodeId            = 1 << 8;
-const long GraphAttributes::edgeArrow         = 1 << 9;
-const long GraphAttributes::edgeStyle         = 1 << 10;
-const long GraphAttributes::nodeStyle         = 1 << 11;
-const long GraphAttributes::nodeTemplate      = 1 << 12;
-const long GraphAttributes::edgeSubGraphs     = 1 << 13;
-const long GraphAttributes::nodeWeight        = 1 << 14;
-const long GraphAttributes::threeD            = 1 << 15;
+const long GraphAttributes::nodeGraphics = 1 << 0;
+const long GraphAttributes::edgeGraphics = 1 << 1;
+const long GraphAttributes::edgeIntWeight = 1 << 2;
+const long GraphAttributes::edgeDoubleWeight = 1 << 3;
+const long GraphAttributes::edgeLabel = 1 << 4;
+const long GraphAttributes::nodeLabel = 1 << 5;
+const long GraphAttributes::edgeType = 1 << 6;
+const long GraphAttributes::nodeType = 1 << 7;
+const long GraphAttributes::nodeId = 1 << 8;
+const long GraphAttributes::edgeArrow = 1 << 9;
+const long GraphAttributes::edgeStyle = 1 << 10;
+const long GraphAttributes::nodeStyle = 1 << 11;
+const long GraphAttributes::nodeTemplate = 1 << 12;
+const long GraphAttributes::edgeSubGraphs = 1 << 13;
+const long GraphAttributes::nodeWeight = 1 << 14;
+const long GraphAttributes::threeD = 1 << 15;
 const long GraphAttributes::nodeLabelPosition = 1 << 16;
 // Make sure this covers all other flags!
 // Also if you ever add any attributes that are not to be encompassed by
 // GraphAttributes::all, make sure to update ClusterGraphattributes.cpp
 // as well so the attributes do not overlap.
-const long GraphAttributes::all               = (1 << 17) - 1;
+const long GraphAttributes::all = (1 << 17) - 1;
 
 GraphAttributes::GraphAttributes() : m_pGraph(nullptr), m_directed(true), m_attributes(0) { }
 
-GraphAttributes::GraphAttributes(const Graph &G, long attr) : GraphAttributes()
-{
+GraphAttributes::GraphAttributes(const Graph& G, long attr) : GraphAttributes() {
 	m_pGraph = &G;
 	addAttributes(attr);
 }
 
-
-void GraphAttributes::addAttributes(long attr)
-{
+void GraphAttributes::addAttributes(long attr) {
 	m_attributes |= attr;
 
 	// assert implications of attributes
@@ -82,11 +78,11 @@ void GraphAttributes::addAttributes(long attr)
 	OGDF_ASSERT(!(m_attributes & nodeLabelPosition) || (m_attributes & nodeLabel));
 
 	if (attr & nodeGraphics) {
-		m_x        .init( *m_pGraph, 0.0 );
-		m_y        .init( *m_pGraph, 0.0 );
-		m_width    .init( *m_pGraph, LayoutStandards::defaultNodeWidth () );
-		m_height   .init( *m_pGraph, LayoutStandards::defaultNodeHeight() );
-		m_nodeShape.init( *m_pGraph, LayoutStandards::defaultNodeShape () );
+		m_x.init(*m_pGraph, 0.0);
+		m_y.init(*m_pGraph, 0.0);
+		m_width.init(*m_pGraph, LayoutStandards::defaultNodeWidth());
+		m_height.init(*m_pGraph, LayoutStandards::defaultNodeHeight());
+		m_nodeShape.init(*m_pGraph, LayoutStandards::defaultNodeShape());
 	}
 	if (attr & threeD) {
 		m_z.init(*m_pGraph, 0.0);
@@ -95,23 +91,23 @@ void GraphAttributes::addAttributes(long attr)
 		}
 	}
 	if (attr & nodeStyle) {
-		m_nodeStroke.init( *m_pGraph, LayoutStandards::defaultNodeStroke() );
-		m_nodeFill  .init( *m_pGraph, LayoutStandards::defaultNodeFill  () );
+		m_nodeStroke.init(*m_pGraph, LayoutStandards::defaultNodeStroke());
+		m_nodeFill.init(*m_pGraph, LayoutStandards::defaultNodeFill());
 	}
 	if (attr & edgeGraphics) {
-		m_bends.init( *m_pGraph, DPolyline() );
+		m_bends.init(*m_pGraph, DPolyline());
 	}
 	if (attr & edgeStyle) {
-		m_edgeStroke.init( *m_pGraph, LayoutStandards::defaultEdgeStroke() );
+		m_edgeStroke.init(*m_pGraph, LayoutStandards::defaultEdgeStroke());
 	}
 	if (attr & nodeWeight) {
-		m_nodeIntWeight.init( *m_pGraph, 0 );
+		m_nodeIntWeight.init(*m_pGraph, 0);
 	}
 	if (attr & edgeIntWeight) {
-		m_intWeight.init( *m_pGraph, 1 );
+		m_intWeight.init(*m_pGraph, 1);
 	}
 	if (attr & edgeDoubleWeight) {
-		m_doubleWeight.init( *m_pGraph, 1.0 );
+		m_doubleWeight.init(*m_pGraph, 1.0);
 	}
 	if (attr & nodeLabel) {
 		m_nodeLabel.init(*m_pGraph);
@@ -127,39 +123,38 @@ void GraphAttributes::addAttributes(long attr)
 		m_edgeLabel.init(*m_pGraph);
 	}
 	if (attr & edgeType) {
-		m_eType.init( *m_pGraph, Graph::EdgeType::association ); //should be Graph::standard and explicitly set
+		m_eType.init(*m_pGraph,
+				Graph::EdgeType::association); //should be Graph::standard and explicitly set
 	}
 	if (attr & nodeType) {
-		m_vType.init( *m_pGraph, Graph::NodeType::vertex );
+		m_vType.init(*m_pGraph, Graph::NodeType::vertex);
 	}
 	if (attr & nodeId) {
-		m_nodeId.init( *m_pGraph, -1 );
+		m_nodeId.init(*m_pGraph, -1);
 	}
 	if (attr & edgeArrow) {
-		m_edgeArrow.init( *m_pGraph, LayoutStandards::defaultEdgeArrow() );
+		m_edgeArrow.init(*m_pGraph, LayoutStandards::defaultEdgeArrow());
 	}
 	if (attr & nodeTemplate) {
 		m_nodeTemplate.init(*m_pGraph);
 	}
 	if (attr & edgeSubGraphs) {
-		m_subGraph.init( *m_pGraph, 0 );
+		m_subGraph.init(*m_pGraph, 0);
 	}
 }
 
-
-void GraphAttributes::destroyAttributes(long attr)
-{
+void GraphAttributes::destroyAttributes(long attr) {
 	m_attributes &= ~attr;
 
 	if (attr & nodeGraphics) {
-		m_x     .init();
-		m_y     .init();
-		m_width .init();
+		m_x.init();
+		m_y.init();
+		m_width.init();
 		m_height.init();
 		m_nodeShape.init();
 		if (attr & nodeStyle) {
 			m_nodeStroke.init();
-			m_nodeFill  .init();
+			m_nodeFill.init();
 		}
 	}
 	if (attr & threeD) {
@@ -206,56 +201,51 @@ void GraphAttributes::destroyAttributes(long attr)
 	}
 }
 
-void GraphAttributes::init(long attr)
-{
+void GraphAttributes::init(long attr) {
 	destroyAttributes(m_attributes);
 	addAttributes(attr);
 }
 
-void GraphAttributes::init(const Graph &G, long attr)
-{
+void GraphAttributes::init(const Graph& G, long attr) {
 	m_pGraph = &G;
 	init(attr);
 }
 
-void GraphAttributes::setAllWidth(double w)
-{
-	for(node v : m_pGraph->nodes)
+void GraphAttributes::setAllWidth(double w) {
+	for (node v : m_pGraph->nodes) {
 		m_width[v] = w;
+	}
 }
 
-
-void GraphAttributes::setAllHeight(double h)
-{
-	for (node v : m_pGraph->nodes)
+void GraphAttributes::setAllHeight(double h) {
+	for (node v : m_pGraph->nodes) {
 		m_height[v] = h;
+	}
 }
 
-
-void GraphAttributes::clearAllBends()
-{
-	if (has(edgeGraphics))
-		for (edge e : m_pGraph->edges)
+void GraphAttributes::clearAllBends() {
+	if (has(edgeGraphics)) {
+		for (edge e : m_pGraph->edges) {
 			m_bends[e].clear();
+		}
+	}
 }
-
 
 //
 // calculates the bounding box of the graph
-DRect GraphAttributes::boundingBox() const
-{
-	const Graph &G = constGraph();
+DRect GraphAttributes::boundingBox() const {
+	const Graph& G = constGraph();
 	double minx = 0;
 	double maxx = 0;
 	double miny = 0;
 	double maxy = 0;
 
-	if(has(nodeGraphics) && !G.empty()) {
+	if (has(nodeGraphics) && !G.empty()) {
 		minx = maxx = x(G.firstNode());
 		miny = maxy = y(G.firstNode());
 
-		for(node v : G.nodes) {
-			double lw = has(GraphAttributes::nodeStyle) ? 0.5*strokeWidth(v) : 0;
+		for (node v : G.nodes) {
+			double lw = has(GraphAttributes::nodeStyle) ? 0.5 * strokeWidth(v) : 0;
 
 			Math::updateMin(minx, x(v) - width(v) / 2 - lw);
 			Math::updateMax(maxx, x(v) + width(v) / 2 + lw);
@@ -264,12 +254,12 @@ DRect GraphAttributes::boundingBox() const
 		}
 	}
 
-	if(has(edgeGraphics)) {
-		for(edge e : G.edges) {
-			const DPolyline &dpl = bends(e);
-			double lw = has(GraphAttributes::edgeStyle) ? 0.5*strokeWidth(e) : 0;
+	if (has(edgeGraphics)) {
+		for (edge e : G.edges) {
+			const DPolyline& dpl = bends(e);
+			double lw = has(GraphAttributes::edgeStyle) ? 0.5 * strokeWidth(e) : 0;
 
-			for (const DPoint &p : dpl) {
+			for (const DPoint& p : dpl) {
 				Math::updateMin(minx, p.m_x - lw);
 				Math::updateMax(maxx, p.m_x + lw);
 				Math::updateMin(miny, p.m_y - lw);
@@ -281,43 +271,42 @@ DRect GraphAttributes::boundingBox() const
 	return DRect(minx, miny, maxx, maxy);
 }
 
-
 //
 // returns a list of all hierachies in the graph (a hierachy consists of a set of nodes)
 // at least one list is returned, which is the list of all nodes not belonging to any hierachy
 // this is always the first list
 // the return-value of this function is the number of hierachies
-int GraphAttributes::hierarchyList(List<List<node>*> &list) const
-{
+int GraphAttributes::hierarchyList(List<List<node>*>& list) const {
 	// list must be empty during startup
 	OGDF_ASSERT(list.empty());
 
-	const Graph &G = constGraph();
+	const Graph& G = constGraph();
 	Array<bool> processed(0, G.maxNodeIndex(), false);
 
 	// initialize the first list of all single nodes
-	List<node> *firstList = new List<node>;
+	List<node>* firstList = new List<node>;
 	list.pushBack(firstList);
 
-	for(node v : G.nodes) { // scan all nodes
+	for (node v : G.nodes) { // scan all nodes
 
 		// skip, if already processed
-		if (processed[v->index()])
+		if (processed[v->index()]) {
 			continue;
+		}
 
-		List<node> nodeSet;                    // set of nodes in this hierachy,
+		List<node> nodeSet; // set of nodes in this hierachy,
 		// whose neighbours have to be processed
-		List<node> *hierachy = new List<node>; // holds all nodes in this hierachy
+		List<node>* hierachy = new List<node>; // holds all nodes in this hierachy
 
-		nodeSet.pushBack(v);           // push the unprocessed node to the list
-		processed[v->index()] = true;  // and mark it as processed
+		nodeSet.pushBack(v); // push the unprocessed node to the list
+		processed[v->index()] = true; // and mark it as processed
 
 		do { // scan all neighbours of nodes in 'nodeSet'
 			node front = nodeSet.popFrontRet();
 			hierachy->pushBack(front); // push front to the list of nodes in this hierachy
 
 			// process all the neighbours of front, e.g. push them into 'nodeSet'
-			for(adjEntry adj : front->adjEntries) {
+			for (adjEntry adj : front->adjEntries) {
 				edge e = adj->theEdge();
 
 				if (type(e) == Graph::EdgeType::generalization) {
@@ -334,45 +323,44 @@ int GraphAttributes::hierarchyList(List<List<node>*> &list) const
 		if (hierachy->size() == 1) {
 			firstList->conc(*hierachy);
 			delete hierachy;
-		}
-		else
+		} else {
 			list.pushBack(hierachy);
+		}
 	}
 
 	return list.size() - 1 + (*list.begin())->size();
 }
 
-
 //
 // returns a list of all hierarchies in the graph (in this case, a hierarchy consists of a set of edges)
 // list may be empty, if no generalizations are used
 // the return-value of this function is the number of hierarchies with generalizations
-int GraphAttributes::hierarchyList(List<List<edge>*> &list) const
-{
+int GraphAttributes::hierarchyList(List<List<edge>*>& list) const {
 	// list must be empty during startup
 	OGDF_ASSERT(list.empty());
 
-	const Graph &G = constGraph();
+	const Graph& G = constGraph();
 	Array<bool> processed(0, G.maxNodeIndex(), false);
 
-	for(node v : G.nodes) { // scan all nodes
+	for (node v : G.nodes) { // scan all nodes
 
 		// skip, if already processed
-		if (processed[v->index()])
+		if (processed[v->index()]) {
 			continue;
+		}
 
-		List<node> nodeSet;                    // set of nodes in this hierarchy,
+		List<node> nodeSet; // set of nodes in this hierarchy,
 		// whose neighbours have to be processed
-		List<edge> *hierarchy = new List<edge>; // holds all edges in this hierarchy
+		List<edge>* hierarchy = new List<edge>; // holds all edges in this hierarchy
 
-		nodeSet.pushBack(v);           // push the unprocessed node to the list
-		processed[v->index()] = true;  // and mark it as processed
+		nodeSet.pushBack(v); // push the unprocessed node to the list
+		processed[v->index()] = true; // and mark it as processed
 
 		do { // scan all neighbours of nodes in 'nodeSet'
 			node front = nodeSet.popFrontRet();
 
 			// process all the neighbours of front, e.g. push them into 'nodeSet'
-			for(adjEntry adj : front->adjEntries) {
+			for (adjEntry adj : front->adjEntries) {
 				edge e = adj->theEdge();
 
 				if (type(e) == Graph::EdgeType::generalization) {
@@ -387,25 +375,23 @@ int GraphAttributes::hierarchyList(List<List<edge>*> &list) const
 		} while (!nodeSet.empty());
 
 		// skip adding 'hierarchy', if it contains only one node
-		if (hierarchy->empty())
+		if (hierarchy->empty()) {
 			delete hierarchy;
-		else
+		} else {
 			list.pushBack(hierarchy);
+		}
 	}
 
 	return list.size();
 }
 
+void GraphAttributes::removeUnnecessaryBendsHV() {
+	for (edge e : m_pGraph->edges) {
+		DPolyline& dpl = m_bends[e];
 
-
-void GraphAttributes::removeUnnecessaryBendsHV()
-{
-	for(edge e: m_pGraph->edges)
-	{
-		DPolyline &dpl = m_bends[e];
-
-		if(dpl.size() < 3)
+		if (dpl.size() < 3) {
 			continue;
+		}
 
 		ListIterator<DPoint> it1, it2, it3;
 
@@ -414,9 +400,8 @@ void GraphAttributes::removeUnnecessaryBendsHV()
 		it3 = it2.succ();
 
 		do {
-			if(((*it1).m_x == (*it2).m_x && (*it2).m_x == (*it3).m_x) ||
-				((*it1).m_y == (*it2).m_y && (*it2).m_y == (*it3).m_y))
-			{
+			if (((*it1).m_x == (*it2).m_x && (*it2).m_x == (*it3).m_x)
+					|| ((*it1).m_y == (*it2).m_y && (*it2).m_y == (*it3).m_y)) {
 				dpl.del(it2);
 				it2 = it3;
 			} else {
@@ -425,47 +410,37 @@ void GraphAttributes::removeUnnecessaryBendsHV()
 			}
 
 			it3 = it2.succ();
-		} while(it3.valid());
+		} while (it3.valid());
 	}
 }
 
-
-void GraphAttributes::addNodeCenter2Bends(int mode)
-{
+void GraphAttributes::addNodeCenter2Bends(int mode) {
 	OGDF_ASSERT(mode >= 0);
 	OGDF_ASSERT(mode <= 2);
 	for (edge e : m_pGraph->edges) {
 		node v = e->source();
 		node w = e->target();
-		DPolyline &bendpoints = bends(e);
+		DPolyline& bendpoints = bends(e);
 		if (mode <= 1) {
 			// push center to the bends
 			bendpoints.pushFront(point(v));
-			bendpoints.pushBack (point(w));
+			bendpoints.pushBack(point(w));
 		}
 		if (mode >= 1) {
 			// determine intersection between node and last bend-segment
-			DPoint sp1(x(v) - width(v)/2, y(v) - height(v)/2);
-			DPoint sp2(x(v) - width(v)/2, y(v) + height(v)/2);
-			DPoint sp3(x(v) + width(v)/2, y(v) + height(v)/2);
-			DPoint sp4(x(v) + width(v)/2, y(v) - height(v)/2);
+			DPoint sp1(x(v) - width(v) / 2, y(v) - height(v) / 2);
+			DPoint sp2(x(v) - width(v) / 2, y(v) + height(v) / 2);
+			DPoint sp3(x(v) + width(v) / 2, y(v) + height(v) / 2);
+			DPoint sp4(x(v) + width(v) / 2, y(v) - height(v) / 2);
 			DSegment sourceRect[4] = {
-				DSegment(sp1, sp2),
-				DSegment(sp2, sp3),
-				DSegment(sp3, sp4),
-				DSegment(sp4, sp1)
-			};
+					DSegment(sp1, sp2), DSegment(sp2, sp3), DSegment(sp3, sp4), DSegment(sp4, sp1)};
 
-			DPoint tp1(x(w) - width(w)/2, y(w) - height(w)/2);
-			DPoint tp2(x(w) - width(w)/2, y(w) + height(w)/2);
-			DPoint tp3(x(w) + width(w)/2, y(w) + height(w)/2);
-			DPoint tp4(x(w) + width(w)/2, y(w) - height(w)/2);
+			DPoint tp1(x(w) - width(w) / 2, y(w) - height(w) / 2);
+			DPoint tp2(x(w) - width(w) / 2, y(w) + height(w) / 2);
+			DPoint tp3(x(w) + width(w) / 2, y(w) + height(w) / 2);
+			DPoint tp4(x(w) + width(w) / 2, y(w) - height(w) / 2);
 			DSegment targetRect[4] = {
-				DSegment(tp1, tp2),
-				DSegment(tp2, tp3),
-				DSegment(tp3, tp4),
-				DSegment(tp4, tp1)
-			};
+					DSegment(tp1, tp2), DSegment(tp2, tp3), DSegment(tp3, tp4), DSegment(tp4, tp1)};
 
 			DRect source(sp1, sp3);
 			DRect target(tp1, tp3);
@@ -473,28 +448,41 @@ void GraphAttributes::addNodeCenter2Bends(int mode)
 			DPoint c1 = bendpoints.popFrontRet();
 			DPoint c2 = bendpoints.popBackRet();
 
-			while (!bendpoints.empty() && source.contains(bendpoints.front()))
+			while (!bendpoints.empty() && source.contains(bendpoints.front())) {
 				c1 = bendpoints.popFrontRet();
-			while (!bendpoints.empty() && target.contains(bendpoints.back()))
+			}
+			while (!bendpoints.empty() && target.contains(bendpoints.back())) {
 				c2 = bendpoints.popBackRet();
+			}
 
 			DPoint a1, a2;
 			int i;
 			// TODO: What to do when IntersectionType::Overlapping is returned?
 			if (bendpoints.size() == 0) {
 				DSegment cross(c1, c2);
-				for (i = 0; i < 4; i++)
-					if (cross.intersection(sourceRect[i], a1) == IntersectionType::SinglePoint) break;
-				for (i = 0; i < 4; i++)
-					if (cross.intersection(targetRect[i], a2) == IntersectionType::SinglePoint) break;
-			}
-			else {
+				for (i = 0; i < 4; i++) {
+					if (cross.intersection(sourceRect[i], a1) == IntersectionType::SinglePoint) {
+						break;
+					}
+				}
+				for (i = 0; i < 4; i++) {
+					if (cross.intersection(targetRect[i], a2) == IntersectionType::SinglePoint) {
+						break;
+					}
+				}
+			} else {
 				DSegment cross1(c1, bendpoints.front());
-				for (i = 0; i < 4; i++)
-					if (cross1.intersection(sourceRect[i], a1) == IntersectionType::SinglePoint) break;
+				for (i = 0; i < 4; i++) {
+					if (cross1.intersection(sourceRect[i], a1) == IntersectionType::SinglePoint) {
+						break;
+					}
+				}
 				DSegment cross2(bendpoints.back(), c2);
-				for (i = 0; i < 4; i++)
-					if (cross2.intersection(targetRect[i], a2) == IntersectionType::SinglePoint) break;
+				for (i = 0; i < 4; i++) {
+					if (cross2.intersection(targetRect[i], a2) == IntersectionType::SinglePoint) {
+						break;
+					}
+				}
 			}
 			bendpoints.pushFront(a1);
 			bendpoints.pushBack(a2);
@@ -503,9 +491,7 @@ void GraphAttributes::addNodeCenter2Bends(int mode)
 	}
 }
 
-
-void GraphAttributes::scale(double sx, double sy, bool scaleNodes)
-{
+void GraphAttributes::scale(double sx, double sy, bool scaleNodes) {
 	if (m_attributes & nodeGraphics) {
 		for (node v : m_pGraph->nodes) {
 			m_x[v] *= sx;
@@ -515,7 +501,7 @@ void GraphAttributes::scale(double sx, double sy, bool scaleNodes)
 		if (scaleNodes) {
 			double asx = fabs(sx), asy = fabs(sy);
 			for (node v : m_pGraph->nodes) {
-				m_width [v] *= asx;
+				m_width[v] *= asx;
 				m_height[v] *= asy;
 			}
 		}
@@ -523,7 +509,7 @@ void GraphAttributes::scale(double sx, double sy, bool scaleNodes)
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				p.m_x *= sx;
 				p.m_y *= sy;
 			}
@@ -531,9 +517,7 @@ void GraphAttributes::scale(double sx, double sy, bool scaleNodes)
 	}
 }
 
-
-void GraphAttributes::translate(double dx, double dy)
-{
+void GraphAttributes::translate(double dx, double dy) {
 	if (m_attributes & nodeGraphics) {
 		for (node v : m_pGraph->nodes) {
 			m_x[v] += dx;
@@ -543,7 +527,7 @@ void GraphAttributes::translate(double dx, double dy)
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				p.m_x += dx;
 				p.m_y += dy;
 			}
@@ -551,26 +535,25 @@ void GraphAttributes::translate(double dx, double dy)
 	}
 }
 
-
-void GraphAttributes::translateToNonNeg()
-{
-	if ((m_attributes & nodeGraphics) == 0)
+void GraphAttributes::translateToNonNeg() {
+	if ((m_attributes & nodeGraphics) == 0) {
 		return;
+	}
 
 	DRect bb = boundingBox();
 
 	double dx = -bb.p1().m_x;
 	double dy = -bb.p1().m_y;
 
-	if (dx != 0 || dy != 0)
+	if (dx != 0 || dy != 0) {
 		translate(dx, dy);
+	}
 }
 
-
-void GraphAttributes::flipVertical(const DRect &box)
-{
-	if ((m_attributes & nodeGraphics) == 0)
+void GraphAttributes::flipVertical(const DRect& box) {
+	if ((m_attributes & nodeGraphics) == 0) {
 		return;
+	}
 
 	double dy = box.p1().m_y + box.p2().m_y;
 
@@ -580,18 +563,17 @@ void GraphAttributes::flipVertical(const DRect &box)
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				p.m_y = dy - p.m_y;
 			}
 		}
 	}
 }
 
-
-void GraphAttributes::flipHorizontal(const DRect &box)
-{
-	if ((m_attributes & nodeGraphics) == 0)
+void GraphAttributes::flipHorizontal(const DRect& box) {
+	if ((m_attributes & nodeGraphics) == 0) {
 		return;
+	}
 
 	double dx = box.p1().m_x + box.p2().m_x;
 
@@ -601,16 +583,14 @@ void GraphAttributes::flipHorizontal(const DRect &box)
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				p.m_x = dx - p.m_x;
 			}
 		}
 	}
 }
 
-
-void GraphAttributes::scaleAndTranslate(double sx, double sy, double dx, double dy, bool scaleNodes)
-{
+void GraphAttributes::scaleAndTranslate(double sx, double sy, double dx, double dy, bool scaleNodes) {
 	if (m_attributes & nodeGraphics) {
 		for (node v : m_pGraph->nodes) {
 			m_x[v] = m_x[v] * sx + dx;
@@ -620,7 +600,7 @@ void GraphAttributes::scaleAndTranslate(double sx, double sy, double dx, double 
 		if (scaleNodes) {
 			for (node v : m_pGraph->nodes) {
 				double asx = fabs(sx), asy = fabs(sy);
-				m_width[v]  *= asx;
+				m_width[v] *= asx;
 				m_height[v] *= asy;
 			}
 		}
@@ -628,7 +608,7 @@ void GraphAttributes::scaleAndTranslate(double sx, double sy, double dx, double 
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				p.m_x = p.m_x * sx + dx;
 				p.m_y = p.m_y * sy + dy;
 			}
@@ -636,9 +616,7 @@ void GraphAttributes::scaleAndTranslate(double sx, double sy, double dx, double 
 	}
 }
 
-
-void GraphAttributes::rotateRight90()
-{
+void GraphAttributes::rotateRight90() {
 	if (m_attributes & nodeGraphics) {
 		for (node v : m_pGraph->nodes) {
 			double x = m_x[v], y = m_y[v];
@@ -651,7 +629,7 @@ void GraphAttributes::rotateRight90()
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				double x = p.m_x, y = p.m_y;
 				p.m_x = -y;
 				p.m_y = x;
@@ -660,9 +638,7 @@ void GraphAttributes::rotateRight90()
 	}
 }
 
-
-void GraphAttributes::rotateLeft90()
-{
+void GraphAttributes::rotateLeft90() {
 	if (m_attributes & nodeGraphics) {
 		for (node v : m_pGraph->nodes) {
 			double x = m_x[v], y = m_y[v];
@@ -675,7 +651,7 @@ void GraphAttributes::rotateLeft90()
 
 	if (m_attributes & edgeGraphics) {
 		for (edge e : m_pGraph->edges) {
-			for (DPoint &p : m_bends[e]) {
+			for (DPoint& p : m_bends[e]) {
 				double x = p.m_x, y = p.m_y;
 				p.m_x = y;
 				p.m_y = -x;
@@ -684,7 +660,79 @@ void GraphAttributes::rotateLeft90()
 	}
 }
 
-void GraphAttributes::copyNodeAttributes(GraphAttributes &toAttr, node vFrom, node vTo, long attrs) const {
+bool GraphAttributes::isUniform(long attributes) const {
+	attributes &= m_attributes;
+	if (attributes & nodeGraphics
+			&& (!isUniformForNodes<double>(&GraphAttributes::x)
+					|| !isUniformForNodes<double>(&GraphAttributes::y)
+					|| !isUniformForNodes<double>(&GraphAttributes::width)
+					|| !isUniformForNodes<double>(&GraphAttributes::height)
+					|| !isUniformForNodes<Shape>(&GraphAttributes::shape))) {
+		return false;
+	}
+	if (attributes & edgeGraphics && !isUniformForEdges<const DPolyline&>(&GraphAttributes::bends)) {
+		return false;
+	}
+	if (attributes & edgeIntWeight && !isUniformForEdges<int>(&GraphAttributes::intWeight)) {
+		return false;
+	}
+	if (attributes & edgeDoubleWeight && !isUniformForEdges<double>(&GraphAttributes::doubleWeight)) {
+		return false;
+	}
+	if (attributes & edgeLabel && !isUniformForEdges<const string&>(&GraphAttributes::label)) {
+		return false;
+	}
+	if (attributes & nodeLabel && !isUniformForNodes<const string&>(&GraphAttributes::label)) {
+		return false;
+	}
+	if (attributes & edgeType && !isUniformForEdges<Graph::EdgeType>(&GraphAttributes::type)) {
+		return false;
+	}
+	if (attributes & nodeType && !isUniformForNodes<Graph::NodeType>(&GraphAttributes::type)) {
+		return false;
+	}
+	if (attributes & nodeId && !isUniformForNodes<int>(&GraphAttributes::idNode)) {
+		return false;
+	}
+	if (attributes & edgeArrow && !isUniformForEdges<EdgeArrow>(&GraphAttributes::arrowType)) {
+		return false;
+	}
+	if (attributes & edgeStyle
+			&& (!isUniformForEdges<const Color&>(&GraphAttributes::strokeColor)
+					|| !isUniformForEdges<StrokeType>(&GraphAttributes::strokeType)
+					|| !isUniformForEdges<float>(&GraphAttributes::strokeWidth))) {
+		return false;
+	}
+	if (attributes & nodeStyle
+			&& (!isUniformForNodes<const Color&>(&GraphAttributes::strokeColor)
+					|| !isUniformForNodes<StrokeType>(&GraphAttributes::strokeType)
+					|| !isUniformForNodes<float>(&GraphAttributes::strokeWidth)
+					|| !isUniformForNodes<FillPattern>(&GraphAttributes::fillPattern)
+					|| !isUniformForNodes<const Color&>(&GraphAttributes::fillColor)
+					|| !isUniformForNodes<const Color&>(&GraphAttributes::fillBgColor))) {
+		return false;
+	}
+	if (attributes & nodeTemplate
+			&& !isUniformForNodes<const string&>(&GraphAttributes::templateNode)) {
+		return false;
+	}
+	if (attributes & nodeWeight && !isUniformForNodes<int>(&GraphAttributes::weight)) {
+		return false;
+	}
+	if (attributes & threeD && !isUniformForNodes<double>(&GraphAttributes::z)) {
+		return false;
+	}
+	if (attributes & nodeLabelPosition
+			&& (!isUniformForNodes<double>(&GraphAttributes::xLabel)
+					|| !isUniformForNodes<double>(&GraphAttributes::yLabel)
+					|| !isUniformForNodes<double>(&GraphAttributes::zLabel))) {
+		return false;
+	}
+	return true;
+}
+
+void GraphAttributes::copyNodeAttributes(GraphAttributes& toAttr, node vFrom, node vTo,
+		long attrs) const {
 	if (vTo != nullptr && vFrom != nullptr) {
 		if (attrs & nodeGraphics) {
 			toAttr.x(vTo) = x(vFrom);
@@ -729,7 +777,8 @@ void GraphAttributes::copyNodeAttributes(GraphAttributes &toAttr, node vFrom, no
 	}
 }
 
-void GraphAttributes::copyEdgeAttributes(GraphAttributes &toAttr, edge eFrom, edge eTo, long attrs) const {
+void GraphAttributes::copyEdgeAttributes(GraphAttributes& toAttr, edge eFrom, edge eTo,
+		long attrs) const {
 	if (eTo != nullptr && eFrom != nullptr) {
 		if (attrs & edgeStyle) {
 			toAttr.strokeColor(eTo) = strokeColor(eFrom);
@@ -757,10 +806,10 @@ void GraphAttributes::copyEdgeAttributes(GraphAttributes &toAttr, edge eFrom, ed
 	}
 }
 
-void GraphAttributes::transferToOriginal(GraphAttributes &origAttr) const {
+void GraphAttributes::transferToOriginal(GraphAttributes& origAttr) const {
 	// GC is the GraphCopy belonging to this GraphAttributes.
-	const GraphCopy &GC = dynamic_cast<const GraphCopy&>(constGraph());
-	const Graph &G = origAttr.constGraph();
+	const GraphCopy& GC = dynamic_cast<const GraphCopy&>(constGraph());
+	const Graph& G = origAttr.constGraph();
 	long bothAttrs = attributes() & origAttr.attributes();
 
 	origAttr.directed() = directed();
@@ -770,7 +819,7 @@ void GraphAttributes::transferToOriginal(GraphAttributes &origAttr) const {
 		copyNodeAttributes(origAttr, GC.copy(vOrig), vOrig, bothAttrs);
 	}
 
-	auto pushBends = [&](DPolyline &origBends, edge eInChain, bool isReversed) {
+	auto pushBends = [&](DPolyline& origBends, edge eInChain, bool isReversed) {
 		if (isReversed) {
 			for (auto bendPoint : reverse(bends(eInChain))) {
 				origBends.pushBack(bendPoint);
@@ -789,12 +838,12 @@ void GraphAttributes::transferToOriginal(GraphAttributes &origAttr) const {
 
 		if (eCopy != nullptr && (bothAttrs & edgeGraphics)) {
 			// Push bends of the first edge in the chain to the original.
-			DPolyline &origBends = origAttr.bends(eOrig);
+			DPolyline& origBends = origAttr.bends(eOrig);
 			origBends.clear();
 			pushBends(origBends, eCopy, GC.isReversed(eOrig));
 
 			// Add both dummy nodes and bends of other chain edges as bends to the original.
-			const List<edge> &chain = GC.chain(eOrig);
+			const List<edge>& chain = GC.chain(eOrig);
 			auto dummyIter = chain.begin();
 			auto nextDummyIter = chain.begin();
 			for (nextDummyIter++; nextDummyIter != chain.end(); dummyIter++, nextDummyIter++) {
@@ -809,10 +858,10 @@ void GraphAttributes::transferToOriginal(GraphAttributes &origAttr) const {
 	}
 }
 
-void GraphAttributes::transferToCopy(GraphAttributes &copyAttr) const {
+void GraphAttributes::transferToCopy(GraphAttributes& copyAttr) const {
 	// GC is the GraphCopy belonging to copyAttr.
-	const GraphCopy &GC = dynamic_cast<const GraphCopy&>(copyAttr.constGraph());
-	const Graph &G = constGraph();
+	const GraphCopy& GC = dynamic_cast<const GraphCopy&>(copyAttr.constGraph());
+	const Graph& G = constGraph();
 	long bothAttrs = attributes() & copyAttr.attributes();
 
 	copyAttr.directed() = directed();
@@ -835,7 +884,7 @@ void GraphAttributes::transferToCopy(GraphAttributes &copyAttr) const {
 		// Transfer bends to the first copy edge in the chain.
 		edge eCopy = GC.copy(eOrig);
 		if (eCopy != nullptr && (bothAttrs & edgeGraphics)) {
-			DPolyline &copyBends = copyAttr.bends(eCopy);
+			DPolyline& copyBends = copyAttr.bends(eCopy);
 			if (GC.isReversed(eOrig)) {
 				for (auto bendPoint : reverse(bends(eOrig))) {
 					copyBends.pushBack(bendPoint);
@@ -847,7 +896,6 @@ void GraphAttributes::transferToCopy(GraphAttributes &copyAttr) const {
 			}
 			copyBends.normalize();
 		}
-
 	}
 }
 

@@ -28,8 +28,9 @@
 
 #pragma once
 
-#include <algorithm>
 #include <ogdf/energybased/dtree/utils.h>
+
+#include <algorithm>
 
 namespace ogdf {
 namespace energybased {
@@ -37,56 +38,43 @@ namespace dtree {
 
 //! Implentation of the reduced quadtree for Dim dimensions
 template<typename IntType, int Dim>
-class DTree
-{
+class DTree {
 public:
-
 	//! the maximum number of children per node = 2^d
 	static constexpr int MaxNumChildrenPerNode = (1 << Dim);
 
 	//! constructor
 	explicit DTree(int numPoints)
-	: m_maxLevel((sizeof(IntType) << 3) + 1)
-	, m_numPoints(0)
-	, m_rootIndex(-1)
-	{
+		: m_maxLevel((sizeof(IntType) << 3) + 1), m_numPoints(0), m_rootIndex(-1) {
 		allocate(numPoints);
 	}
 
 	//! destructor
-	~DTree()
-	{
-		deallocate();
-	}
+	~DTree() { deallocate(); }
 
 	//! The point class with integer coords
-	struct Point
-	{
+	struct Point {
 		IntType x[Dim];
 	};
 
 	//! The entry in the sorted order for a point
-	struct MortonEntry
-	{
+	struct MortonEntry {
 		IntType mortonNr[Dim]; //!< the morton number of the point
 		int ref; //!< index in the original point order
 
 		//! less comparator for sort
-		bool operator<(const MortonEntry& other) const
-		{
+		bool operator<(const MortonEntry& other) const {
 			return mortonComparerLess<IntType, Dim>(mortonNr, other.mortonNr);
 		}
 
 		//! equal comparer for the construction algorithm
-		bool operator==(const MortonEntry& other) const
-		{
+		bool operator==(const MortonEntry& other) const {
 			return mortonComparerEqual<IntType, Dim>(mortonNr, other.mortonNr);
 		}
 	};
 
 	//! The node class
-	struct Node
-	{
+	struct Node {
 		// quadtree related stuff
 		int level; //!< the level of the node in a complete quadtree
 		int next; //!< the next node on the same layer (leaf or inner node layer)
@@ -112,7 +100,7 @@ public:
 	inline int numPoints(int i) const { return m_nodes[i].numPoints; };
 
 	//! returns the index of the jth point covered by i's subtree.
-	inline int point(int i, int j) const { return m_mortonOrder[ m_nodes[i].firstPoint + j ].ref; };
+	inline int point(int i, int j) const { return m_mortonOrder[m_nodes[i].firstPoint + j].ref; };
 
 	//! sets the point to the given grid coords
 	void setPoint(int i, int d, IntType value);
@@ -160,7 +148,6 @@ public:
 	int rootIndex() const { return m_rootIndex; };
 
 private:
-
 	//! Allocates memory for n points
 	void allocate(int n);
 
@@ -177,37 +164,32 @@ private:
 
 //! allocates memory for n points
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::allocate(int n)
-{
+void DTree<IntType, Dim>::allocate(int n) {
 	m_numPoints = n;
 	m_points = new Point[m_numPoints];
 	m_mortonOrder = new MortonEntry[m_numPoints];
 	m_nodes = new Node[m_numPoints * 2];
 };
 
-
 //! releases memory
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::deallocate()
-{
+void DTree<IntType, Dim>::deallocate() {
 	delete[] m_points;
 	delete[] m_mortonOrder;
 	delete[] m_nodes;
 };
 
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::setPoint(int i, int d, IntType value)
-{
+void DTree<IntType, Dim>::setPoint(int i, int d, IntType value) {
 	// set i-th point d coord to value
 	m_points[i].x[d] = value;
 }
 
 //! Prepares the morton numbers for sorting
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::prepareMortonOrder()
-{
+void DTree<IntType, Dim>::prepareMortonOrder() {
 	// loop over the point order
-	for (int i=0; i<m_numPoints; i++) {
+	for (int i = 0; i < m_numPoints; i++) {
 		// set i's ref to i
 		m_mortonOrder[i].ref = i;
 
@@ -218,38 +200,36 @@ void DTree<IntType, Dim>::prepareMortonOrder()
 
 //! Sorts the points by morton number
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::sortMortonNumbers()
-{
+void DTree<IntType, Dim>::sortMortonNumbers() {
 	// just sort them
 	std::sort(m_mortonOrder, m_mortonOrder + m_numPoints);
 }
 
-
 //! Prepares both the leaf and inner node layer
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::prepareNodeLayer()
-{
-	Node* leafLayer	 = m_nodes;
+void DTree<IntType, Dim>::prepareNodeLayer() {
+	Node* leafLayer = m_nodes;
 	Node* innerLayer = m_nodes + m_numPoints;
 
 #if 0
 	int last = 0;
 #endif
-	for (int i = 0; i<m_numPoints;) {
+	for (int i = 0; i < m_numPoints;) {
 		Node& leaf = leafLayer[i];
 		Node& innerNode = innerLayer[i];
 		// i represents the current node on both layers
-		int j = i+1;
+		int j = i + 1;
 
 		// find the next morton number that differs or stop when j is equal to m_numPoints
-		while ((j < m_numPoints) &&
-			   (m_mortonOrder[i] == m_mortonOrder[j]))
+		while ((j < m_numPoints) && (m_mortonOrder[i] == m_mortonOrder[j])) {
 			j++;
+		}
 		// j is the index of the next cell (node)
 
 		// init the node on the leaf layer
 		leaf.firstPoint = i; //< node sits above the first point of the cell
-		leaf.numPoints = j-i; //< number of points with equal morton numbers (number of points in grid cell)
+		leaf.numPoints =
+				j - i; //< number of points with equal morton numbers (number of points in grid cell)
 		leaf.numChilds = 0; //< it's a leaf
 		leaf.level = 0; //< it's a leaf
 		leaf.next = j; //< this leaf hasnt been created yet but we use indices so its ok
@@ -264,7 +244,8 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 			innerNode.child[0] = i; //< node sits above the first leaf
 			innerNode.child[1] = j; //< this leaf hasnt been created yet but we use indices so its ok
 			innerNode.numChilds = 2; //< every inner node covers two leaves in the beginning
-			innerNode.level = lowestCommonAncestorLevel<IntType, Dim>(m_mortonOrder[i].mortonNr, m_mortonOrder[j].mortonNr);
+			innerNode.level = lowestCommonAncestorLevel<IntType, Dim>(m_mortonOrder[i].mortonNr,
+					m_mortonOrder[j].mortonNr);
 			innerNode.next = m_numPoints + j; // the inner node layer is shifted by n
 		} else {
 			// no next for the last
@@ -276,7 +257,7 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 		// advance to the next cell
 		i = j;
 	};
-	// here we set the successor of the n-1-th inner node to zero to avoid dealing with the n-th inner node
+		// here we set the successor of the n-1-th inner node to zero to avoid dealing with the n-th inner node
 #if 0
 	innerLayer[last].next = 0;
 #endif
@@ -284,8 +265,7 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 
 //! Merges curr with next node in the chain (used by linkNodes)
 template<typename IntType, int Dim>
-inline void DTree<IntType, Dim>::mergeWithNext(int curr)
-{
+inline void DTree<IntType, Dim>::mergeWithNext(int curr) {
 	int next = node(curr).next;
 	// Cool: since we never touched node(next) before
 	// it is still linked to only two leaves,
@@ -298,22 +278,21 @@ inline void DTree<IntType, Dim>::mergeWithNext(int curr)
 };
 
 template<typename IntType, int Dim>
-inline void DTree<IntType, Dim>::adjustPointInfo(int curr)
-{
+inline void DTree<IntType, Dim>::adjustPointInfo(int curr) {
 	// adjust the first such that it matched the first child
 	node(curr).firstPoint = node(node(curr).child[0]).firstPoint;
 
 	// index of the last child
-	const int lastChild = node(curr).child[node(curr).numChilds-1];
+	const int lastChild = node(curr).child[node(curr).numChilds - 1];
 
 	// numPoints is lastPoint + 1 - firstPoint
-	node(curr).numPoints = node(lastChild).firstPoint + node(lastChild).numPoints - node(curr).firstPoint;
+	node(curr).numPoints =
+			node(lastChild).firstPoint + node(lastChild).numPoints - node(curr).firstPoint;
 }
 
 //! The Recursive Bottom-Up Construction
 template<typename IntType, int Dim>
-int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel)
-{
+int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel) {
 	// while the subtree is smaller than maxLevel
 	while (node(curr).next && node(node(curr).next).level < maxLevel) {
 		// get next node in the chain
@@ -321,8 +300,8 @@ int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel)
 		// First case: same level => merge, discard next
 		if (node(curr).level == node(next).level) {
 			mergeWithNext(curr);
-		} else // Second case: next is higher => become first child
-		if (node(curr).level < node(next).level) {
+		} else if (node(curr).level < node(next).level) {
+			// Second case: next is higher => become first child
 			// set the first child of next to the current node
 			node(next).child[0] = curr;
 
@@ -333,7 +312,7 @@ int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel)
 			curr = next;
 		} else { // Third case: next is smaller => construct a maximal subtree starting with next
 			int r = linkNodes(next, node(curr).level);
-			node(curr).child[node(curr).numChilds-1] = r;
+			node(curr).child[node(curr).numChilds - 1] = r;
 			node(curr).next = node(r).next;
 		};
 	};
@@ -344,34 +323,30 @@ int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel)
 	return curr;
 };
 
-
 //! The Recursive Bottom-Up Construction (recursion start)
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::linkNodes()
-{
+void DTree<IntType, Dim>::linkNodes() {
 	m_rootIndex = linkNodes(m_numPoints, m_maxLevel);
 };
 
 //! Just for fun: traverse the tree and count the points in the leaves
 template<typename IntType, int Dim>
-int DTree<IntType, Dim>::countPoints(int curr) const
-{
+int DTree<IntType, Dim>::countPoints(int curr) const {
 	if (m_nodes[curr].numChilds) {
 		int sum = 0;
-		for (int i=0; i<m_nodes[curr].numChilds; i++) {
+		for (int i = 0; i < m_nodes[curr].numChilds; i++) {
 			sum += countPoints(m_nodes[curr].child[i]);
 		};
 
 		return sum;
-	}
-	else
+	} else {
 		return m_nodes[curr].numPoints;
+	}
 };
 
 //! Does all required steps except the allocate, deallocate, randomPoints
 template<typename IntType, int Dim>
-void DTree<IntType, Dim>::build()
-{
+void DTree<IntType, Dim>::build() {
 	// prepare the array with the morton numbers
 	prepareMortonOrder();
 
@@ -385,4 +360,6 @@ void DTree<IntType, Dim>::build()
 	linkNodes();
 };
 
-}}}
+}
+}
+}

@@ -34,31 +34,30 @@
 #include <ogdf/cluster/CPlanarSubClusteredGraph.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
 
-
 namespace ogdf {
 
 //precondition: graph is c-connected
-void CPlanarSubClusteredGraph::call(const ClusterGraph &CG,
-									EdgeArray<bool>& inSub) //original edges in subgraph?
+void CPlanarSubClusteredGraph::call(const ClusterGraph& CG,
+		EdgeArray<bool>& inSub) // original edges in subgraph?
 
 {
-	List<edge> leftOver;//original edges not in subgraph
+	List<edge> leftOver; //original edges not in subgraph
 	call(CG, inSub, leftOver);
-
 }
+
 //precondition: graph is c-connected
-void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
-									EdgeArray<bool>& inSub, //original edges in subgraph?
-									List<edge>& leftOver)//original edges not in subgraph
+void CPlanarSubClusteredGraph::call(const ClusterGraph& CGO,
+		EdgeArray<bool>& inSub, // original edges in subgraph?
+		List<edge>& leftOver) // original edges not in subgraph
 {
 	EdgeArray<double> weightDummy;
 	call(CGO, inSub, leftOver, weightDummy);
 }
 
-void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
-									EdgeArray<bool>& inSub, //original edges in subgraph?
-									List<edge>& leftOver,   //original edges not in subgraph
-									EdgeArray<double>& edgeWeight) //prefer lightweight edges
+void CPlanarSubClusteredGraph::call(const ClusterGraph& CGO,
+		EdgeArray<bool>& inSub, // original edges in subgraph?
+		List<edge>& leftOver, // original edges not in subgraph
+		EdgeArray<double>& edgeWeight) // prefer lightweight edges
 {
 	leftOver.clear();
 
@@ -71,10 +70,11 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 	m_edgeStatus.init(origG, 0);
 
 	cluster_planarity::CPlanarSubClusteredST CPST;
-	if (edgeWeight.valid())
+	if (edgeWeight.valid()) {
 		CPST.call(CGO, inSub, edgeWeight);
-	else
+	} else {
 		CPST.call(CGO, inSub);
+	}
 
 	//now construct the copy
 	//we should create a clusterGraph copy function that
@@ -92,13 +92,11 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 	//perform reinsertion of leftover edges
 	//fill list of uninserted edges
 
-	EdgeArray<bool> visited(origG,false);
+	EdgeArray<bool> visited(origG, false);
 
 	//delete the non-ST edges
-	for(edge e : origG.edges)
-	{
-		if (!inSub[e])
-		{
+	for (edge e : origG.edges) {
+		if (!inSub[e]) {
 			leftOver.pushBack(e); //original edges
 			testG.delEdge(edgeCopy[e]);
 		}
@@ -107,19 +105,16 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 	//todo: cope with preferred edges
 	//simple reinsertion strategy: just iterate over list and test
 	ListIterator<edge> itE = leftOver.begin();
-	while (itE.valid())
-	{
+	while (itE.valid()) {
 #if 0
 		testG=CG.getGraph()
 #endif
-		edge newCopy = testG.newEdge(nodeCopy[(*itE)->source()],
-		                             nodeCopy[(*itE)->target()]);
+		edge newCopy = testG.newEdge(nodeCopy[(*itE)->source()], nodeCopy[(*itE)->target()]);
 		edgeCopy[*itE] = newCopy;
 
 		bool cplanar = CCCP.call(CG);
 
-		if (!cplanar)
-		{
+		if (!cplanar) {
 			testG.delEdge(newCopy);
 			++itE;
 		} else {

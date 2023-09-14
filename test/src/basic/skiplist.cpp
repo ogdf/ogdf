@@ -29,10 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/Skiplist.h>
 #include <ogdf/basic/SortedSequence.h>
+#include <ogdf/basic/geometry.h>
 
 #include <testing.h>
 
@@ -43,9 +43,7 @@ void describeSkiplist(const string& typeName, std::function<T()> randomValue) {
 	describe("Skiplist<" + typeName + ">", [&] {
 		Skiplist<T*> list;
 
-		after_each([&] {
-			list.clear(true);
-		});
+		after_each([&] { list.clear(true); });
 
 		it("recognizes empty lists", [&] {
 			AssertThat(list.empty(), IsTrue());
@@ -65,12 +63,12 @@ void describeSkiplist(const string& typeName, std::function<T()> randomValue) {
 		});
 
 		it("sorts inserted values", [&] {
-			std::map<T,int> counter;
+			std::map<T, int> counter;
 
 			for (int i = 0; i < MAX_ELEMENTS; i++) {
 				T j = randomValue();
 
-				if(counter.find(j) == counter.end()) {
+				if (counter.find(j) == counter.end()) {
 					counter[j] = 1;
 				} else {
 					counter[j]++;
@@ -80,15 +78,15 @@ void describeSkiplist(const string& typeName, std::function<T()> randomValue) {
 			}
 
 			T prev = std::numeric_limits<T>::lowest();
-			for(T* p : list) {
+			for (T* p : list) {
 				T j = *p;
 				counter[j]--;
 
-				if(counter[j] == 0) {
+				if (counter[j] == 0) {
 					counter.erase(j);
 				}
 
-				if(j != prev) {
+				if (j != prev) {
 					AssertThat(prev, IsLessThan(j));
 					prev = j;
 				}
@@ -104,11 +102,11 @@ void describeSkiplist(const string& typeName, std::function<T()> randomValue) {
 				big = randomValue();
 			} while (big == small);
 
-			if(big < small) {
+			if (big < small) {
 				std::swap(big, small);
 			}
 
-			for(int i = 0; i < MAX_ELEMENTS; i++) {
+			for (int i = 0; i < MAX_ELEMENTS; i++) {
 				list.add(&big);
 			}
 
@@ -116,13 +114,13 @@ void describeSkiplist(const string& typeName, std::function<T()> randomValue) {
 			list.add(&big);
 			list.add(&small);
 
-			AssertThat(list.size(), Equals(MAX_ELEMENTS+3));
+			AssertThat(list.size(), Equals(MAX_ELEMENTS + 3));
 
 			int counter = 0;
-			for(auto p : list) {
+			for (auto p : list) {
 				counter++;
 
-				if(counter < 3) {
+				if (counter < 3) {
 					AssertThat(p, Equals(&small));
 				} else {
 					AssertThat(p, Equals(&big));
@@ -141,15 +139,17 @@ void describeSortedSequence(const string& typeName) {
 	class MyInfoObject {
 	public:
 		T x;
-		MyInfoObject(T p) : x(p) {}
-		MyInfoObject() : MyInfoObject(0) {}
+
+		MyInfoObject(T p) : x(p) { }
+
+		MyInfoObject() : MyInfoObject(0) { }
 	};
 
 	SortedSequence<T, MyInfoObject> sequence;
 
 	auto toInfo = [](T i) {
 		i = std::abs(i);
-		return (i+1)*(i+2);
+		return (i + 1) * (i + 2);
 	};
 
 	auto insert = [&](T i) {
@@ -159,18 +159,14 @@ void describeSortedSequence(const string& typeName) {
 
 	List<T> perm;
 
-	for(int i = 0; i < MAX_ELEMENTS; i++) {
+	for (int i = 0; i < MAX_ELEMENTS; i++) {
 		perm.pushBack(static_cast<T>(i));
 	}
 
 	describe("SortedSequence<" + typeName + ">", [&] {
-		before_each([&] {
-			perm.permute();
-		});
+		before_each([&] { perm.permute(); });
 
-		after_each([&] {
-			sequence.clear();
-		});
+		after_each([&] { sequence.clear(); });
 
 		it("recognizes empty sequences", [&] {
 			AssertThat(sequence.empty(), IsTrue());
@@ -185,7 +181,7 @@ void describeSortedSequence(const string& typeName) {
 		it("returns its size", [&] {
 			int counter = 0;
 
-			for(T i : perm) {
+			for (T i : perm) {
 				AssertThat(sequence.size(), Equals(counter));
 				insert(i);
 				counter++;
@@ -203,7 +199,7 @@ void describeSortedSequence(const string& typeName) {
 		});
 
 		it("sorts inserted values", [&] {
-			for(T i : perm) {
+			for (T i : perm) {
 				AssertThat(sequence.lookup(i).valid(), IsFalse());
 				insert(i);
 				AssertThat(sequence.lookup(i).valid(), IsTrue());
@@ -211,12 +207,12 @@ void describeSortedSequence(const string& typeName) {
 
 			AssertThat(sequence.size(), Equals(perm.size()));
 
-			T prev{};
+			T prev {};
 			for (auto it = sequence.begin(); it.valid(); it++) {
 				T k = it.key();
 
 				AssertThat(sequence.lookup(k).valid(), IsTrue());
-				if(it != sequence.begin()) {
+				if (it != sequence.begin()) {
 					AssertThat(k, IsGreaterThan(prev));
 				}
 
@@ -243,12 +239,12 @@ void describeSortedSequence(const string& typeName) {
 			AssertThat(sequence.minItem().valid(), IsFalse());
 			AssertThat(sequence.maxItem().valid(), IsFalse());
 
-			for(int i : perm) {
+			for (int i : perm) {
 				insert(i);
 			}
 
 			AssertThat(sequence.minItem().key(), Equals(0));
-			AssertThat(sequence.maxItem().key(), Equals(MAX_ELEMENTS-1));
+			AssertThat(sequence.maxItem().key(), Equals(MAX_ELEMENTS - 1));
 		});
 
 		it("locates the smallest feasible value", [&] {
@@ -257,11 +253,11 @@ void describeSortedSequence(const string& typeName) {
 			int max = 0;
 			bool firstIteration = true;
 
-			for(int i : perm) {
+			for (int i : perm) {
 				Math::updateMax(max, i);
 				insert(i);
 
-				if(!firstIteration) {
+				if (!firstIteration) {
 					AssertThat(sequence.locate(0).key(), !Equals(max));
 				}
 
@@ -277,7 +273,7 @@ void describeSortedSequence(const string& typeName) {
 go_bandit([] {
 	auto ranD = [] { return randomDouble(0, MAX_ELEMENTS); };
 
-	describeSkiplist<int>("int", [] { return randomNumber(0, (MAX_ELEMENTS*5)/6); });
+	describeSkiplist<int>("int", [] { return randomNumber(0, (MAX_ELEMENTS * 5) / 6); });
 	describeSkiplist<double>("double", ranD);
 	describeSkiplist<DPoint>("DPoint", [&] { return DPoint(ranD(), ranD()); });
 

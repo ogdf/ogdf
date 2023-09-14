@@ -35,8 +35,7 @@
 
 using namespace ogdf;
 
-void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<List<node> >& lco)
-{
+void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<List<node>>& lco) {
 	m_ears.init(lco.size());
 
 	// counter for the partition index
@@ -48,10 +47,10 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 		Array<adjEntry>& ear = m_ears[currPartIndex];
 
 		// reserve for all adjEntries from left->v1, ... v_k->right some space
-		ear.init(list.size()+1);
+		ear.init(list.size() + 1);
 
 		// just for safety ;)
-		for (int i = 0; i < list.size()+1; ++i) {
+		for (int i = 0; i < list.size() + 1; ++i) {
 			// reset the array
 			ear[i] = nullptr;
 		}
@@ -102,8 +101,9 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 				node w_prev = adj->cyclicPred()->twinNode();
 
 				// if that is an edge to G / G_k, skip ti
-				if (partIndex[w] > partIndex[v])
+				if (partIndex[w] > partIndex[v]) {
 					continue;
+				}
 
 				// if w is in G_k-1
 				if (partIndex[w] < partIndex[v]) {
@@ -118,13 +118,10 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 						// last element of the path
 						ear[list.size()] = adj;
 					}
-				} else
-				if (partIndex[w] == partIndex[v]
-				 && partIndex[w_prev] > partIndex[v]) {
+				} else if (partIndex[w] == partIndex[v] && partIndex[w_prev] > partIndex[v]) {
 					// if the prev is in G / G_k this must be an v_i v_i+1 edge
 					ear[i] = adj;
 				}
-
 			}
 			// increment the counter
 			i++;
@@ -140,18 +137,17 @@ void LeftistOrdering::Partitioning::buildFromResult(const Graph& G, const List<L
 	adjEntry adj_v1n = getChainAdj(0, 0)->cyclicSucc();
 
 	// set it as path begin
-	m_ears[numPartitions()-1][0] = adj_v1n;
+	m_ears[numPartitions() - 1][0] = adj_v1n;
 
 	// the end is then the next edge cw
 	// notice that this last guy is a singleton anyway
-	m_ears[numPartitions()-1][1] = adj_v1n->twin()->cyclicSucc();
+	m_ears[numPartitions() - 1][1] = adj_v1n->twin()->cyclicSucc();
 }
 
 // computes the leftist canonical order. Requires that G is simple, triconnected and embedded.
 // adj_v1n is the adjEntry at v_1 looking towards v_n, the outerface is choosen such that v_2 is the cyclic pred
 // of v_n. the result is saved in result, a list of list of nodes, first set is v_1, v_2, last one is v_n.
-bool LeftistOrdering::call(const Graph& G, adjEntry adj_v1n, List<List<node> >& result)
-{
+bool LeftistOrdering::call(const Graph& G, adjEntry adj_v1n, List<List<node>>& result) {
 	// init the is marked array for all adj entries
 	m_marked.init(G, false);
 
@@ -173,7 +169,7 @@ bool LeftistOrdering::call(const Graph& G, adjEntry adj_v1n, List<List<node> >& 
 	// initial candidate for the belt
 	Candidate v12_candidate;
 	v12_candidate.chain.pushBack(adj_v12->twin()); // edge 2->1
-	v12_candidate.chain.pushBack(adj_v12);         // edge 1->2
+	v12_candidate.chain.pushBack(adj_v12); // edge 1->2
 	v12_candidate.chain.pushBack(adj_v12->twin()); // edge 2->1
 	v12_candidate.stopper = nullptr;
 
@@ -190,8 +186,9 @@ bool LeftistOrdering::call(const Graph& G, adjEntry adj_v1n, List<List<node> >& 
 		List<node> P_k;
 
 		// get the next leftmost feasible candidate
-		if (!leftmostFeasibleCandidate(P_k))
+		if (!leftmostFeasibleCandidate(P_k)) {
 			return false;
+		}
 
 		// update the belt
 		updateBelt();
@@ -203,8 +200,7 @@ bool LeftistOrdering::call(const Graph& G, adjEntry adj_v1n, List<List<node> >& 
 	return true;
 }
 
-bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result)
-{
+bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result) {
 	// init found to havent found anything
 	bool found = false;
 
@@ -223,8 +219,7 @@ bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result)
 		{
 			int j = 0;
 			// for all in the candidate chain
-			for (List<adjEntry>::const_iterator it = candidate.chain.begin();
-					it.valid(); ++it) {
+			for (List<adjEntry>::const_iterator it = candidate.chain.begin(); it.valid(); ++it) {
 				// copy all z_0 til z_p into the array
 				z[j++] = (*it)->theNode();
 			}
@@ -234,7 +229,7 @@ bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result)
 		}
 
 		// check if z_0 = z_p+1
-		if (z[0] != z[p+1]) {
+		if (z[0] != z[p + 1]) {
 			// init j with p, i.e. the index of the item before the last one
 			int j = p;
 
@@ -277,11 +272,11 @@ bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result)
 	} while (!found);
 
 	// we found something, copy it to the result
-	for (List<adjEntry>::const_iterator it = (*m_currCandidateIt).chain.begin();
-			it.valid(); ++it) {
+	for (List<adjEntry>::const_iterator it = (*m_currCandidateIt).chain.begin(); it.valid(); ++it) {
 		// skip the first one
-		if (it == (*m_currCandidateIt).chain.begin())
+		if (it == (*m_currCandidateIt).chain.begin()) {
 			continue;
+		}
 
 		// copy all z_0 til z_p into the array
 		result.pushBack((*it)->theNode());
@@ -290,42 +285,43 @@ bool LeftistOrdering::leftmostFeasibleCandidate(List<node>& result)
 }
 
 // this is uses to check a candidate for a singleton copy
-bool LeftistOrdering::isSingletonWith(const Candidate& c,node v) const
-{
+bool LeftistOrdering::isSingletonWith(const Candidate& c, node v) const {
 	// only two please
-	if (c.chain.size() > 2)
+	if (c.chain.size() > 2) {
 		return false;
+	}
 
 	// check if v_1 is v
-	if (c.chain.front()->twinNode() != v)
+	if (c.chain.front()->twinNode() != v) {
 		return false;
+	}
 
 	// no forbidden candidates
-	if (forbidden(c.chain.front()->twinNode()))
+	if (forbidden(c.chain.front()->twinNode())) {
 		return false;
+	}
 
 	// last but not least is it singular ?
 	// notice that the stopper may not be up to date
 	return singular(c.chain.front()->twinNode());
 }
 
-void LeftistOrdering::updateBelt()
-{
+void LeftistOrdering::updateBelt() {
 	// get the real candidate instance
 	Candidate& candidate = *m_currCandidateIt;
 
 	// check for singleton
 	if (candidate.stopper && singular(candidate.stopper)) {
 		// while candidate has a succ and that is a copy of the singleton
-		while (m_currCandidateIt.succ().valid() &&
-				isSingletonWith(*m_currCandidateIt.succ(), candidate.stopper)) {
+		while (m_currCandidateIt.succ().valid()
+				&& isSingletonWith(*m_currCandidateIt.succ(), candidate.stopper)) {
 			// remove it
 			m_belt.del(m_currCandidateIt.succ());
 		}
 
 		// while candidate has a pred and that is a copy of the singleton
-		while (m_currCandidateIt.pred().valid() &&
-				isSingletonWith(*m_currCandidateIt.pred(), candidate.stopper)) {
+		while (m_currCandidateIt.pred().valid()
+				&& isSingletonWith(*m_currCandidateIt.pred(), candidate.stopper)) {
 			// remove it
 			m_belt.del(m_currCandidateIt.pred());
 		}
@@ -390,8 +386,7 @@ void LeftistOrdering::updateBelt()
 	}
 }
 
-void LeftistOrdering::beltExtension(List<Candidate>& extension)
-{
+void LeftistOrdering::beltExtension(List<Candidate>& extension) {
 	// clear the result
 	extension.clear();
 
@@ -450,6 +445,6 @@ void LeftistOrdering::beltExtension(List<Candidate>& extension)
 			}
 
 			// until w == v_end
-		}  while (adj_vw->twinNode() != v_end);
+		} while (adj_vw->twinNode() != v_end);
 	}
 }

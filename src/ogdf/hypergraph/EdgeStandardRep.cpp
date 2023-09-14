@@ -29,19 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
+#include <ogdf/hypergraph/Hypergraph.h>
 
 namespace ogdf {
 
-EdgeStandardRep::EdgeStandardRep()
-	: m_type(EdgeStandardType::star), m_hypergraph(nullptr)
-{
-}
+EdgeStandardRep::EdgeStandardRep() : m_type(EdgeStandardType::star), m_hypergraph(nullptr) { }
 
-EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType pType = EdgeStandardType::star)
-	: HypergraphObserver(&pH)
-{
+EdgeStandardRep::EdgeStandardRep(const Hypergraph& pH, EdgeStandardType pType = EdgeStandardType::star)
+	: HypergraphObserver(&pH) {
 	m_type = pType;
 	m_hypergraph = &pH;
 
@@ -49,58 +45,55 @@ EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType pType = 
 	m_hyperedgeMap = EdgeArray<hyperedge>(m_graphRep, nullptr);
 
 	m_nodeMap = HypernodeArray<node>(pH, nullptr);
-	m_edgeMap = HyperedgeArray<List<edge> > (pH, List<edge>());
+	m_edgeMap = HyperedgeArray<List<edge>>(pH, List<edge>());
 
-	if (m_type == EdgeStandardType::clique)
+	if (m_type == EdgeStandardType::clique) {
 		constructCliqueRep();
-	else if (m_type == EdgeStandardType::star)
+	} else if (m_type == EdgeStandardType::star) {
 		constructStarRep();
-	else if (m_type == EdgeStandardType::tree)
+	} else if (m_type == EdgeStandardType::tree) {
 		constructTreeRep();
+	}
 }
 
-EdgeStandardRep::~EdgeStandardRep()
-{
-	m_hypergraph = nullptr;
-}
+EdgeStandardRep::~EdgeStandardRep() { m_hypergraph = nullptr; }
 
-void EdgeStandardRep::constructCliqueRep()
-{
+void EdgeStandardRep::constructCliqueRep() {
 	OGDF_ASSERT(m_hypergraph != nullptr);
 	OGDF_ASSERT(m_type == EdgeStandardType::clique);
 
 	cloneHypernodes();
 
 	hyperedge e;
-	forall_hyperedges(e, *m_hypergraph)
+	forall_hyperedges(e, *m_hypergraph) {
 		hyperedgeToClique(e);
+	}
 }
 
-void EdgeStandardRep::constructStarRep()
-{
+void EdgeStandardRep::constructStarRep() {
 	OGDF_ASSERT(m_hypergraph != nullptr);
 	OGDF_ASSERT(m_type == EdgeStandardType::star);
 
 	cloneHypernodes();
 	hyperedge e;
-	forall_hyperedges(e, *m_hypergraph)
+	forall_hyperedges(e, *m_hypergraph) {
 		hyperedgeToTree(e, e->cardinality());
+	}
 }
 
-void EdgeStandardRep::constructTreeRep()
-{
+void EdgeStandardRep::constructTreeRep() {
 	OGDF_ASSERT(m_hypergraph != nullptr);
 	OGDF_ASSERT(m_type == EdgeStandardType::tree);
 
 	cloneHypernodes();
 
 	hyperedge e;
-	forall_hyperedges(e, *m_hypergraph)
+	forall_hyperedges(e, *m_hypergraph) {
 		hyperedgeToTree(e, 3);
+	}
 }
 
-void EdgeStandardRep::cloneHypernodes()
-{
+void EdgeStandardRep::cloneHypernodes() {
 	hypernode v;
 	forall_hypernodes(v, *m_hypergraph) {
 		node vRep = m_graphRep.newNode(v->index());
@@ -109,15 +102,13 @@ void EdgeStandardRep::cloneHypernodes()
 	}
 }
 
-void EdgeStandardRep::hypernodeDeleted(hypernode v)
-{
+void EdgeStandardRep::hypernodeDeleted(hypernode v) {
 	OGDF_ASSERT(v != nullptr);
 
 	m_graphRep.delNode(m_nodeMap[v]);
 }
 
-void EdgeStandardRep::hypernodeAdded(hypernode v)
-{
+void EdgeStandardRep::hypernodeAdded(hypernode v) {
 	OGDF_ASSERT(v != nullptr);
 
 	node vRep = m_graphRep.newNode(v->index());
@@ -125,8 +116,7 @@ void EdgeStandardRep::hypernodeAdded(hypernode v)
 	m_nodeMap[v] = vRep;
 }
 
-void EdgeStandardRep::hyperedgeDeleted(hyperedge e)
-{
+void EdgeStandardRep::hyperedgeDeleted(hyperedge e) {
 	OGDF_ASSERT(e != nullptr);
 
 	for (ListIterator<edge> it = m_edgeMap[e].begin(); it.valid(); ++it) {
@@ -142,31 +132,26 @@ void EdgeStandardRep::hyperedgeDeleted(hyperedge e)
 	}
 }
 
-void EdgeStandardRep::hyperedgeAdded(hyperedge e)
-{
+void EdgeStandardRep::hyperedgeAdded(hyperedge e) {
 	OGDF_ASSERT(e != nullptr);
 
-	if (m_type == EdgeStandardType::clique)
+	if (m_type == EdgeStandardType::clique) {
 		hyperedgeToClique(e);
-	else if (m_type == EdgeStandardType::star)
+	} else if (m_type == EdgeStandardType::star) {
 		hyperedgeToTree(e, e->cardinality());
-	else if (m_type == EdgeStandardType::tree)
+	} else if (m_type == EdgeStandardType::tree) {
 		hyperedgeToTree(e, 3);
+	}
 }
 
-void EdgeStandardRep::cleared()
-{
-	m_graphRep.clear();
-}
+void EdgeStandardRep::cleared() { m_graphRep.clear(); }
 
-void EdgeStandardRep::hyperedgeToClique(hyperedge e)
-{
+void EdgeStandardRep::hyperedgeToClique(hyperedge e) {
 	OGDF_ASSERT(e != nullptr);
 
 	edge eRep;
 	for (adjHypergraphEntry adjSrc = e->firstAdj(); adjSrc->succ(); adjSrc = adjSrc->succ()) {
 		for (adjHypergraphEntry adjTgt = adjSrc->succ(); adjTgt; adjTgt = adjTgt->succ()) {
-
 			eRep = m_graphRep.newEdge(m_nodeMap[reinterpret_cast<hypernode>(adjSrc->element())],
 					m_nodeMap[reinterpret_cast<hypernode>(adjTgt->element())]);
 
@@ -176,8 +161,7 @@ void EdgeStandardRep::hyperedgeToClique(hyperedge e)
 	}
 }
 
-void EdgeStandardRep::hyperedgeToTree(hyperedge e, int degree)
-{
+void EdgeStandardRep::hyperedgeToTree(hyperedge e, int degree) {
 	OGDF_ASSERT(e != nullptr);
 	OGDF_ASSERT(degree >= 2);
 
@@ -195,7 +179,6 @@ void EdgeStandardRep::hyperedgeToTree(hyperedge e, int degree)
 		m_dummyNodes.pushBack(parentDummy);
 
 		for (int i = 0; i < degree - 1; i++) {
-
 			eRep = m_graphRep.newEdge(*(orphans.begin()), parentDummy);
 			m_hyperedgeMap[eRep] = e;
 			m_edgeMap[e].pushBack(eRep);

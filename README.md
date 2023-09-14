@@ -1,7 +1,7 @@
 # OGDF
 
-![Conan Center](https://img.shields.io/conan/v/ogdf)
-![vcpkg](https://img.shields.io/vcpkg/v/ogdf)
+[![Conan Center](https://img.shields.io/conan/v/ogdf)](https://conan.io/center/recipes/ogdf)
+[![vcpkg](https://img.shields.io/vcpkg/v/ogdf)](https://vcpkg.roundtrip.dev/ports/ogdf)
 
 OGDF stands both for **O**pen **G**raph **D**rawing **F**ramework (the original name)
 and **O**pen **G**raph algorithms and **D**ata structures **F**ramework.
@@ -12,19 +12,20 @@ It offers sophisticated algorithms and data structures to use
 within your own applications or scientific projects.
 
 OGDF is developed and supported by
-[Osnabrück University](http://www.inf.uni-osnabrueck.de/theoinf),
-[TU Dortmund](http://ls11-www.cs.uni-dortmund.de/),
-[University of Cologne](http://www.informatik.uni-koeln.de/ls_juenger/),
+[Osnabrück University](https://tcs.informatik.uos.de/),
+[University of Passau](https://www.fim.uni-passau.de/en/theoretical-computer-science/),
 [University of Konstanz](https://www.cls.uni-konstanz.de/),
-and [TU Ilmenau](http://www.tu-ilmenau.de/dma/).
+[TU Vienna](https://www.ac.tuwien.ac.at/),
+and [TU Ilmenau](https://www.tu-ilmenau.de/dma/).
 
 ## Shortcuts
 
 * [How to Install](doc/build.md)
 * [Release Notes](doc/relnotes.md) and [Porting Guide](doc/porting.md)
+* [Reference Documentation](https://ogdf.github.io/doc/ogdf/)
+* [Developer's Guide](doc/dev-guide.md)
 * [Compiler Defines](doc/defines.md)
 * [Official Website](http://ogdf.net/)
-* [Reference Documentation](http://ogdf.github.io/doc/ogdf/)
 
 ## License
 
@@ -41,13 +42,4 @@ linear programming or unit testing.
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 1999–2022
-
-## Note for GitHub users
-
-OGDF is actively developed using a non-public Git repository.
-
-The [Git repository on GitHub](https://github.com/ogdf/ogdf) is not a
-mirror but contains the [official releases](http://ogdf.net/releases/)
-of OGDF.
-We however attempt to take care of issues and pull requests.
+Copyright (C) 1999–2023

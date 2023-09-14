@@ -32,13 +32,13 @@
 
 #pragma once
 
-#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
-#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagnerWithoutMatrix.h>
 #include <ogdf/graphalg/steiner_tree/Full2ComponentGenerator.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorCaller.h>
-#include <ogdf/graphalg/steiner_tree/common_algorithms.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagnerWithoutMatrix.h>
 #include <ogdf/graphalg/steiner_tree/LPRelaxationSER.h>
+#include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 #include <ogdf/graphalg/steiner_tree/goemans/Approximation.h>
 
 namespace ogdf {
@@ -61,8 +61,7 @@ namespace ogdf {
  * MEMICS 2014, LNCS 8934, 60-72, Springer, 2014
  */
 template<typename T>
-class MinSteinerTreeGoemans139 : public MinSteinerTreeModule<T>
-{
+class MinSteinerTreeGoemans139 : public MinSteinerTreeModule<T> {
 private:
 	class Main;
 
@@ -75,13 +74,11 @@ protected:
 
 public:
 	MinSteinerTreeGoemans139()
-	  : m_restricted(3)
-	  , m_preprocess(true)
-	  , m_use2approx(false)
-	  , m_separateCycles(false)
-	  , m_seed(1337)
-	{
-	}
+		: m_restricted(3)
+		, m_preprocess(true)
+		, m_use2approx(false)
+		, m_separateCycles(false)
+		, m_seed(1337) { }
 
 	virtual ~MinSteinerTreeGoemans139() { }
 
@@ -89,48 +86,33 @@ public:
 	 * \brief Sets the maximal number of terminals in a full component
 	 * @param k the maximal number of terminals in a full component
 	 */
-	void setMaxComponentSize(int k)
-	{
-		m_restricted = k;
-	}
+	void setMaxComponentSize(int k) { m_restricted = k; }
 
 	/*!
 	 * \brief Set seed for the random number generation.
 	 * @param seed The seed
 	 */
-	void setSeed(int seed)
-	{
-		m_seed = seed;
-	}
+	void setSeed(int seed) { m_seed = seed; }
 
 	/*!
 	 * \brief Use Takahashi-Matsuyama 2-approximation as upper bounds
 	 * \note not recommended to use in general
 	 * @param use2approx True to apply the bound
 	 */
-	void use2Approximation(bool use2approx = true)
-	{
-		m_use2approx = use2approx;
-	}
+	void use2Approximation(bool use2approx = true) { m_use2approx = use2approx; }
 
 	/*!
 	 * Disable preprocessing of LP solutions
 	 * \note not recommended to use in general
 	 * @param preprocess True to disable, false to enable
 	 */
-	void disablePreprocessing(bool preprocess = true)
-	{
-		m_preprocess = !preprocess;
-	}
+	void disablePreprocessing(bool preprocess = true) { m_preprocess = !preprocess; }
 
 	/*!
 	 * \brief Use stronger LP relaxation (not recommended in general)
 	 * @param separateCycles True to turn the stronger LP relaxation on
 	 */
-	void separateCycles(bool separateCycles = true)
-	{
-		m_separateCycles = separateCycles;
-	}
+	void separateCycles(bool separateCycles = true) { m_separateCycles = separateCycles; }
 
 protected:
 	/*!
@@ -141,16 +123,14 @@ protected:
 	 * @param finalSteinerTree The final Steiner tree
 	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(
-		const EdgeWeightedGraph<T> &G,
-		const List<node> &terminals,
-		const NodeArray<bool> &isTerminal,
-		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override;
 };
 
 template<typename T>
-T MinSteinerTreeGoemans139<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T MinSteinerTreeGoemans139<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	std::minstd_rand rng(m_seed);
 	List<node> sortedTerminals(terminals);
 	MinSteinerTreeModule<T>::sortTerminals(sortedTerminals);
@@ -161,12 +141,12 @@ T MinSteinerTreeGoemans139<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 //! \brief Class managing LP-based approximation
 //! \todo should be refactored, done this way for historical reasons
 template<typename T>
-class MinSteinerTreeGoemans139<T>::Main
-{
-	const EdgeWeightedGraph<T> &m_G;
-	const NodeArray<bool> &m_isTerminal;
-	const List<node> &m_terminals; //!< List of terminals
-	steiner_tree::FullComponentWithExtraStore<T, double> m_fullCompStore; //!< all enumerated full components, with solution
+class MinSteinerTreeGoemans139<T>::Main {
+	const EdgeWeightedGraph<T>& m_G;
+	const NodeArray<bool>& m_isTerminal;
+	const List<node>& m_terminals; //!< List of terminals
+	steiner_tree::FullComponentWithExtraStore<T, double>
+			m_fullCompStore; //!< all enumerated full components, with solution
 
 	int m_restricted;
 	enum class Approx2State {
@@ -178,16 +158,18 @@ class MinSteinerTreeGoemans139<T>::Main
 
 	const double m_eps; //!< epsilon for double operations
 
-	EdgeWeightedGraphCopy<T> *m_approx2SteinerTree;
+	EdgeWeightedGraphCopy<T>* m_approx2SteinerTree;
 	T m_approx2Weight;
 
 	//! \name Finding full components
 	//! @{
 
 	//! Find full components of size 2
-	void findFull2Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred);
+	void findFull2Components(const NodeArray<NodeArray<T>>& distance,
+			const NodeArray<NodeArray<edge>>& pred);
 	//! Find full components of size 3
-	void findFull3Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred);
+	void findFull3Components(const NodeArray<NodeArray<T>>& distance,
+			const NodeArray<NodeArray<edge>>& pred);
 	//! Find 3-restricted components
 	void find3RestrictedComponents();
 	//! Find full components using algorithm by Dreyfus-Wagner
@@ -215,8 +197,7 @@ class MinSteinerTreeGoemans139<T>::Main
 	}
 
 	//! Remove the full components with the given ids
-	void removeComponents(ArrayBuffer<int> &ids)
-	{
+	void removeComponents(ArrayBuffer<int>& ids) {
 		ids.quicksort();
 		for (int i = ids.size() - 1; i >= 0; --i) {
 			m_fullCompStore.remove(ids[i]);
@@ -224,17 +205,13 @@ class MinSteinerTreeGoemans139<T>::Main
 	}
 
 	//! Add a full component to the final solution (by changing nonterminals to terminals)
-	void addComponent(NodeArray<bool> &isNewTerminal, int id)
-	{
-		m_fullCompStore.foreachNode(id, [&](node v) {
-			isNewTerminal[v] = true;
-		});
+	void addComponent(NodeArray<bool>& isNewTerminal, int id) {
+		m_fullCompStore.foreachNode(id, [&](node v) { isNewTerminal[v] = true; });
 	}
 
 	//! \brief Preprocess LP solution
 	//! \pre every terminal is covered with >= 1
-	void preprocess(NodeArray<bool> &isNewTerminal)
-	{
+	void preprocess(NodeArray<bool>& isNewTerminal) {
 		Graph H; // a graph where each component is a star
 		NodeArray<int> id(H); // ids each center of the star to the component id
 		NodeArray<node> copy(m_G, nullptr); // ids orig in m_G -> copy in H
@@ -289,18 +266,18 @@ class MinSteinerTreeGoemans139<T>::Main
 
 public:
 	//! Initialize all attributes, sort the terminal list
-	Main(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
-	     int restricted, bool use2approx, bool separateCycles, double eps = 1e-8)
-	  : m_G(G)
-	  , m_isTerminal(isTerminal)
-	  , m_terminals(terminals)
-	  , m_fullCompStore(G, m_terminals, isTerminal)
-	  , m_restricted(restricted)
-	  , m_use2approx(use2approx ? Approx2State::On : Approx2State::Off)
-	  , m_eps(eps)
-	  , m_approx2SteinerTree(nullptr)
-	  , m_approx2Weight(0)
-	{
+	Main(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, int restricted, bool use2approx, bool separateCycles,
+			double eps = 1e-8)
+		: m_G(G)
+		, m_isTerminal(isTerminal)
+		, m_terminals(terminals)
+		, m_fullCompStore(G, m_terminals, isTerminal)
+		, m_restricted(restricted)
+		, m_use2approx(use2approx ? Approx2State::On : Approx2State::Off)
+		, m_eps(eps)
+		, m_approx2SteinerTree(nullptr)
+		, m_approx2Weight(0) {
 		if (m_use2approx == Approx2State::On) { // add upper bound by 2-approximation
 			MinSteinerTreeTakahashi<T> mstT;
 			m_approx2Weight = mstT.call(m_G, m_terminals, m_isTerminal, m_approx2SteinerTree);
@@ -312,27 +289,26 @@ public:
 
 		findFullComponents();
 
-		steiner_tree::LPRelaxationSER<T> lp(m_G, m_terminals, m_isTerminal, m_fullCompStore, m_approx2Weight, separateCycles ? m_restricted + 1 : 0, m_eps);
+		steiner_tree::LPRelaxationSER<T> lp(m_G, m_terminals, m_isTerminal, m_fullCompStore,
+				m_approx2Weight, separateCycles ? m_restricted + 1 : 0, m_eps);
 		if (!lp.solve()) {
 			OGDF_ASSERT(m_use2approx == Approx2State::On);
 			m_use2approx = Approx2State::JustUseIt;
 		}
 	}
 
-	~Main()
-	{
-	}
+	~Main() { }
 
 	//! Obtain an (1.39+epsilon)-approximation based on the LP solution
-	T getApproximation(EdgeWeightedGraphCopy<T> *&finalSteinerTree, const std::minstd_rand &rng, const bool doPreprocessing = true);
+	T getApproximation(EdgeWeightedGraphCopy<T>*& finalSteinerTree, const std::minstd_rand& rng,
+			const bool doPreprocessing = true);
 };
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::findFull2Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred)
-{
+void MinSteinerTreeGoemans139<T>::Main::findFull2Components(const NodeArray<NodeArray<T>>& distance,
+		const NodeArray<NodeArray<edge>>& pred) {
 	steiner_tree::Full2ComponentGenerator<T> fcg;
-	fcg.call(m_G, m_terminals, distance, pred,
-	  [&](node s, node t, T cost) {
+	fcg.call(m_G, m_terminals, distance, pred, [&](node s, node t, T cost) {
 		EdgeWeightedGraphCopy<T> minComp;
 		minComp.createEmpty(m_G);
 		minComp.newEdge(minComp.newNode(s), minComp.newNode(t), distance[s][t]);
@@ -341,20 +317,20 @@ void MinSteinerTreeGoemans139<T>::Main::findFull2Components(const NodeArray<Node
 }
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::findFull3Components(const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred)
-{
+void MinSteinerTreeGoemans139<T>::Main::findFull3Components(const NodeArray<NodeArray<T>>& distance,
+		const NodeArray<NodeArray<edge>>& pred) {
 	steiner_tree::Full3ComponentGeneratorVoronoi<T> fcg;
 	fcg.call(m_G, m_terminals, m_isTerminal, distance, pred,
-	  [&](node t0, node t1, node t2, node minCenter, T minCost) {
-		// create a full 3-component
-		EdgeWeightedGraphCopy<T> minComp;
-		minComp.createEmpty(m_G);
-		node minCenterC = minComp.newNode(minCenter);
-		minComp.newEdge(minComp.newNode(t0), minCenterC, distance[t0][minCenter]);
-		minComp.newEdge(minComp.newNode(t1), minCenterC, distance[t1][minCenter]);
-		minComp.newEdge(minComp.newNode(t2), minCenterC, distance[t2][minCenter]);
-		m_fullCompStore.insert(minComp);
-	});
+			[&](node t0, node t1, node t2, node minCenter, T minCost) {
+				// create a full 3-component
+				EdgeWeightedGraphCopy<T> minComp;
+				minComp.createEmpty(m_G);
+				node minCenterC = minComp.newNode(minCenter);
+				minComp.newEdge(minComp.newNode(t0), minCenterC, distance[t0][minCenter]);
+				minComp.newEdge(minComp.newNode(t1), minCenterC, distance[t1][minCenter]);
+				minComp.newEdge(minComp.newNode(t2), minCenterC, distance[t2][minCenter]);
+				m_fullCompStore.insert(minComp);
+			});
 }
 
 template<typename T>
@@ -362,7 +338,8 @@ void MinSteinerTreeGoemans139<T>::Main::find3RestrictedComponents() {
 	NodeArray<NodeArray<T>> distance;
 	NodeArray<NodeArray<edge>> pred;
 
-	steiner_tree::FullComponentGeneratorCaller<T>::computeDistanceMatrix(distance, pred, m_G, m_terminals, m_isTerminal, m_restricted);
+	steiner_tree::FullComponentGeneratorCaller<T>::computeDistanceMatrix(distance, pred, m_G,
+			m_terminals, m_isTerminal, m_restricted);
 
 	findFull2Components(distance, pred);
 	if (m_restricted == 3) {
@@ -389,25 +366,28 @@ template<typename T>
 void MinSteinerTreeGoemans139<T>::Main::findFullComponentsDW() {
 	NodeArray<NodeArray<T>> distance;
 	NodeArray<NodeArray<edge>> pred;
-	steiner_tree::FullComponentGeneratorCaller<T>::computeDistanceMatrix(distance, pred, m_G, m_terminals, m_isTerminal, m_restricted);
+	steiner_tree::FullComponentGeneratorCaller<T>::computeDistanceMatrix(distance, pred, m_G,
+			m_terminals, m_isTerminal, m_restricted);
 
-	steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(m_G, m_terminals, m_isTerminal, distance, pred);
+	steiner_tree::FullComponentGeneratorDreyfusWagner<T> fcg(m_G, m_terminals, m_isTerminal,
+			distance, pred);
 	fcg.call(m_restricted);
 	retrieveComponents(fcg);
 }
 
 template<typename T>
 void MinSteinerTreeGoemans139<T>::Main::findFullComponentsEMV() {
-	steiner_tree::FullComponentGeneratorDreyfusWagnerWithoutMatrix<T> fcg(m_G, m_terminals, m_isTerminal);
+	steiner_tree::FullComponentGeneratorDreyfusWagnerWithoutMatrix<T> fcg(m_G, m_terminals,
+			m_isTerminal);
 	fcg.call(m_restricted);
 	retrieveComponents(fcg);
 }
 
 template<typename T>
-void MinSteinerTreeGoemans139<T>::Main::findFullComponents()
-{
+void MinSteinerTreeGoemans139<T>::Main::findFullComponents() {
 	if (m_restricted >= 4) { // use Dreyfus-Wagner based full component generation
-		if (steiner_tree::FullComponentDecisions::shouldUseErickson(m_G.numberOfNodes(), m_G.numberOfEdges())) {
+		if (steiner_tree::FullComponentDecisions::shouldUseErickson(m_G.numberOfNodes(),
+					m_G.numberOfEdges())) {
 			findFullComponentsEMV();
 		} else {
 			findFullComponentsDW();
@@ -418,9 +398,8 @@ void MinSteinerTreeGoemans139<T>::Main::findFullComponents()
 }
 
 template<typename T>
-T
-MinSteinerTreeGoemans139<T>::Main::getApproximation(EdgeWeightedGraphCopy<T> *&finalSteinerTree, const std::minstd_rand &rng, const bool doPreprocessing)
-{
+T MinSteinerTreeGoemans139<T>::Main::getApproximation(EdgeWeightedGraphCopy<T>*& finalSteinerTree,
+		const std::minstd_rand& rng, const bool doPreprocessing) {
 	if (m_use2approx == Approx2State::JustUseIt) {
 		// no remaining components
 		finalSteinerTree = m_approx2SteinerTree;
@@ -439,7 +418,8 @@ MinSteinerTreeGoemans139<T>::Main::getApproximation(EdgeWeightedGraphCopy<T> *&f
 	}
 
 	if (!m_fullCompStore.isEmpty()) {
-		steiner_tree::goemans::Approximation<T> approx(m_G, m_terminals, m_isTerminal, m_fullCompStore, rng, m_eps);
+		steiner_tree::goemans::Approximation<T> approx(m_G, m_terminals, m_isTerminal,
+				m_fullCompStore, rng, m_eps);
 		approx.solve(isNewTerminal);
 	}
 

@@ -30,29 +30,24 @@
  */
 
 
+#include <ogdf/graphalg/ConvexHull.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/graphalg/ConvexHull.h>
 //used for splitting
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/GraphCopy.h>
-
+#include <ogdf/basic/simple_graph_alg.h>
 
 namespace ogdf {
 
-ComponentSplitterLayout::ComponentSplitterLayout()
-{
+ComponentSplitterLayout::ComponentSplitterLayout() {
 	m_packer.reset(new TileToRowsCCPacker);
 	m_targetRatio = 1.f;
 	m_border = 30;
 }
 
-
-void ComponentSplitterLayout::call(GraphAttributes &GA)
-{
+void ComponentSplitterLayout::call(GraphAttributes& GA) {
 	// Only do preparations and call if layout is valid
-	if (m_secondaryLayout)
-	{
+	if (m_secondaryLayout) {
 		//first we split the graph into its components
 		const Graph& G = GA.constGraph();
 
@@ -63,10 +58,11 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 		}
 
 		// intialize the array of lists of nodes contained in a CC
-		Array<List<node> > nodesInCC(numberOfComponents);
+		Array<List<node>> nodesInCC(numberOfComponents);
 
-		for(node v : G.nodes)
+		for (node v : G.nodes) {
 			nodesInCC[componentNumber[v]].pushBack(v);
+		}
 
 		// Create copies of the connected components and corresponding
 		// GraphAttributes
@@ -75,13 +71,11 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 
 		EdgeArray<edge> auxCopy(G);
 
-		for (int i = 0; i < numberOfComponents; i++)
-		{
-			GC.initByNodes(nodesInCC[i],auxCopy);
+		for (int i = 0; i < numberOfComponents; i++) {
+			GC.initByNodes(nodesInCC[i], auxCopy);
 			GraphAttributes cGA(GC, GA.attributes());
 			//copy information into copy GA
-			for(node v : GC.nodes)
-			{
+			for (node v : GC.nodes) {
 				cGA.width(v) = GA.width(GC.original(v));
 				cGA.height(v) = GA.height(GC.original(v));
 				cGA.x(v) = GA.x(GC.original(v));
@@ -96,11 +90,9 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 			m_secondaryLayout->call(cGA);
 
 			//copy layout information back into GA
-			for(node v : GC.nodes)
-			{
+			for (node v : GC.nodes) {
 				node w = GC.original(v);
-				if (w != nullptr)
-				{
+				if (w != nullptr) {
 					GA.x(w) = cGA.x(v);
 					GA.y(w) = cGA.y(v);
 					if (GA.has(GraphAttributes::threeD)) {
@@ -137,12 +129,10 @@ void moveToZero()
 }
 */
 
-double atan2ex(double y, double x)
-{
+double atan2ex(double y, double x) {
 	double angle = atan2(y, x);
 
-	if (x == 0)
-	{
+	if (x == 0) {
 		if (y >= 0) {
 			angle = 0.5 * Math::pi;
 		} else {
@@ -150,10 +140,8 @@ double atan2ex(double y, double x)
 		}
 	}
 
-	if (y == 0)
-	{
-		if (x >= 0)
-		{
+	if (y == 0) {
+		if (x >= 0) {
 			angle = 0.0;
 		} else {
 			angle = Math::pi;
@@ -165,8 +153,8 @@ double atan2ex(double y, double x)
 
 //TODO: Regard some kind of aspect ration (input)
 //(then also the rotation of a single component makes sense)
-void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Array<List<node> > &nodesInCC)
-{
+void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA,
+		const Array<List<node>>& nodesInCC) {
 	int numberOfComponents = nodesInCC.size();
 
 	Array<IPoint> box;
@@ -178,8 +166,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 	// rotate components and create bounding rectangles
 
 	//iterate through all components and compute convex hull
-	for (int j = 0; j < numberOfComponents; j++)
-	{
+	for (int j = 0; j < numberOfComponents; j++) {
 		//todo: should not use std::vector, but in order not
 		//to have to change all interfaces, we do it anyway
 		std::vector<DPoint> points;
@@ -188,8 +175,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		// at origin
 		double avg_x = 0.0;
 		double avg_y = 0.0;
-		for (node v : nodesInCC[j])
-		{
+		for (node v : nodesInCC[j]) {
 			DPoint dp(GA.x(v), GA.y(v));
 			avg_x += dp.m_x;
 			avg_y += dp.m_y;
@@ -201,8 +187,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		//adapt positions to origin
 		int count = 0;
 		//assume same order of vertices and positions
-		for (node v : nodesInCC[j])
-		{
+		for (node v : nodesInCC[j]) {
 			//TODO: I am not sure if we need to update both
 			GA.x(v) = GA.x(v) - avg_x;
 			GA.y(v) = GA.y(v) - avg_y;
@@ -226,7 +211,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 
 			double dist = 0.0;
 			DPoint norm = CH.calcNormal(*k, *iter);
-			for (const DPoint &z : hull) {
+			for (const DPoint& z : hull) {
 				double d = CH.leftOfLine(norm, z, *k);
 				if (d > dist) {
 					dist = d;
@@ -236,12 +221,11 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 			double left = 0.0;
 			double right = 0.0;
 			norm = CH.calcNormal(DPoint(0, 0), norm);
-			for (const DPoint &z : hull) {
+			for (const DPoint& z : hull) {
 				double d = CH.leftOfLine(norm, z, *k);
 				if (d > left) {
 					left = d;
-				}
-				else if (d < right) {
+				} else if (d < right) {
 					right = d;
 				}
 			}
@@ -280,7 +264,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		// apply rotation to hull and calc offset
 		for (DPoint tempP : hull) {
 			double ang = atan2(tempP.m_y, tempP.m_x);
-			double len = sqrt(tempP.m_x*tempP.m_x + tempP.m_y*tempP.m_y);
+			double len = sqrt(tempP.m_x * tempP.m_x + tempP.m_y * tempP.m_y);
 			ang += angle;
 			tempP.m_x = cos(ang) * len;
 			tempP.m_y = sin(ang) * len;
@@ -295,7 +279,9 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 				bottom = tempP.m_y;
 			}
 		}
-		oldOffset.grow(1, DPoint(left + 0.5 * static_cast<double>(m_border), -1.0 * best_height + 1.0 * bottom + 0.0 * top + 0.5 * (double)m_border));
+		oldOffset.grow(1,
+				DPoint(left + 0.5 * static_cast<double>(m_border),
+						-1.0 * best_height + 1.0 * bottom + 0.0 * top + 0.5 * (double)m_border));
 
 		// save rect
 		int w = static_cast<int>(best_width);
@@ -310,17 +296,15 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 
 	int index = 0;
 	// Apply offset and rebuild Graph
-	for (int j = 0; j < numberOfComponents; j++)
-	{
+	for (int j = 0; j < numberOfComponents; j++) {
 		double angle = rotation[index];
 		// apply rotation and offset to all nodes
 
-		for (node v : nodesInCC[j])
-		{
+		for (node v : nodesInCC[j]) {
 			double x = GA.x(v);
 			double y = GA.y(v);
 			double ang = atan2(y, x);
-			double len = sqrt(x*x + y*y);
+			double len = sqrt(x * x + y * y);
 			ang += angle;
 			x = cos(ang) * len;
 			y = sin(ang) * len;

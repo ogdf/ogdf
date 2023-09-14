@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
@@ -50,8 +50,7 @@ namespace ogdf {
  * turning a grid layout algorithm automatically into a
  * LayoutModule.
  */
-class OGDF_EXPORT GridLayoutModule : public LayoutModule
-{
+class OGDF_EXPORT GridLayoutModule : public LayoutModule {
 	friend class GridLayoutPlanRepModule;
 	friend class PlanarGridLayoutModule;
 
@@ -69,7 +68,7 @@ public:
 	 *
 	 * @param GA is the input graph; the new layout is also stored in \p GA.
 	 */
-	virtual void call(GraphAttributes &GA) override final;
+	virtual void call(GraphAttributes& GA) override final;
 
 	/**
 	 * \brief Calls the grid layout algorithm (call for GridLayout).
@@ -79,8 +78,7 @@ public:
 	 * @param G is the input graph.
 	 * @param gridLayout is assigned the computed grid layout.
 	 */
-	void callGrid(const Graph &G, GridLayout &gridLayout);
-
+	void callGrid(const Graph& G, GridLayout& gridLayout);
 
 	//! Returns the current setting of the minimum distance between nodes.
 	/**
@@ -98,7 +96,7 @@ public:
 	 */
 	void separation(double sep) { m_separation = sep; }
 
-	const IPoint &gridBoundingBox() const { return m_gridBoundingBox; }
+	const IPoint& gridBoundingBox() const { return m_gridBoundingBox; }
 
 protected:
 	/**
@@ -113,7 +111,7 @@ protected:
 	 *        corner of the bounding box is always (0,0), thus this IPoint defines the
 	 *        upper right corner as well as the width and height of the grid layout.
 	 */
-	virtual void doCall(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox) = 0;
+	virtual void doCall(const Graph& G, GridLayout& gridLayout, IPoint& boundingBox) = 0;
 
 	IPoint m_gridBoundingBox; //!< The computed bounding box of the grid layout.
 
@@ -121,11 +119,8 @@ private:
 	double m_separation; //!< The minimum distance between nodes.
 
 	//! Internal transformation of grid coordinates to real coordinates.
-	void mapGridLayout(const Graph &G,
-		GridLayout &gridLayout,
-		GraphAttributes &AG);
+	void mapGridLayout(const Graph& G, GridLayout& gridLayout, GraphAttributes& AG);
 };
-
 
 /**
  * \brief Base class for planar grid layout algorithms.
@@ -135,8 +130,7 @@ private:
  * graph. It provides an additional call method for producing
  * a planar layout with a predefined planar embedding.
  */
-class OGDF_EXPORT PlanarGridLayoutModule : public GridLayoutModule
-{
+class OGDF_EXPORT PlanarGridLayoutModule : public GridLayoutModule {
 public:
 	//! Initializes a planar grid layout module.
 	PlanarGridLayoutModule() : GridLayoutModule() { }
@@ -152,7 +146,7 @@ public:
 	 * @param adjExternal specifies an adjacency entry on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callFixEmbed(GraphAttributes &AG, adjEntry adjExternal = nullptr);
+	void callFixEmbed(GraphAttributes& AG, adjEntry adjExternal = nullptr);
 
 	/**
 	 * \brief Calls the grid layout algorithm with a fixed planar embedding (call for GridLayout).
@@ -164,10 +158,9 @@ public:
 	 * @param adjExternal specifies an adjacency entry (of \p G) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = nullptr);
+	void callGridFixEmbed(const Graph& G, GridLayout& gridLayout, adjEntry adjExternal = nullptr);
 
 protected:
-
 	/**
 	 * \brief Implements the algorithm call.
 	 *
@@ -185,20 +178,12 @@ protected:
 	 *        has to be preserved (true), or if an embedding needs to be computed (false).
 	 */
 
-	virtual void doCall(
-		const Graph &G,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding) = 0;
+	virtual void doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+			IPoint& boundingBox, bool fixEmbedding) = 0;
 
 	//! Implements the GridLayoutModule::doCall().
-	virtual void doCall(
-		const Graph &G,
-		GridLayout &gridLayout,
-		IPoint &boundingBox) override
-	{
-		doCall(G,nullptr,gridLayout,boundingBox,false);
+	virtual void doCall(const Graph& G, GridLayout& gridLayout, IPoint& boundingBox) override {
+		doCall(G, nullptr, gridLayout, boundingBox, false);
 	}
 
 	/**
@@ -206,9 +191,8 @@ protected:
 	 *
 	 * @return true iff the instance is handled
 	 */
-	bool handleTrivial(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox);
+	bool handleTrivial(const Graph& G, GridLayout& gridLayout, IPoint& boundingBox);
 };
-
 
 /**
  * \brief Base class for grid layout algorithms operating on a PlanRep.
@@ -220,8 +204,7 @@ protected:
  *
  * \see PlanarizationGridLayout
  */
-class OGDF_EXPORT GridLayoutPlanRepModule : public PlanarGridLayoutModule
-{
+class OGDF_EXPORT GridLayoutPlanRepModule : public PlanarGridLayoutModule {
 public:
 	//! Initializes a plan-rep grid layout module.
 	GridLayoutPlanRepModule() : PlanarGridLayoutModule() { }
@@ -238,8 +221,8 @@ public:
 	 * @param G is the input graph.
 	 * @param gridLayout is assigned the computed grid layout.
 	 */
-	void callGrid(const Graph &G, GridLayout &gridLayout) {
-		PlanarGridLayoutModule::callGrid(G,gridLayout);
+	void callGrid(const Graph& G, GridLayout& gridLayout) {
+		PlanarGridLayoutModule::callGrid(G, gridLayout);
 	}
 
 	/**
@@ -248,7 +231,7 @@ public:
 	 * @param PG is the input graph which may be modified by the algorithm.
 	 * @param gridLayout is assigned the computed grid layout of \p PG.
 	 */
-	void callGrid(PlanRep &PG, GridLayout &gridLayout);
+	void callGrid(PlanRep& PG, GridLayout& gridLayout);
 
 	/**
 	 * \brief Calls the grid layout algorithm with a fixed planar embedding (call for GridLayout).
@@ -260,8 +243,8 @@ public:
 	 * @param adjExternal specifies an adjacency entry (of \p G) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = nullptr) {
-		PlanarGridLayoutModule::callGridFixEmbed(G,gridLayout,adjExternal);
+	void callGridFixEmbed(const Graph& G, GridLayout& gridLayout, adjEntry adjExternal = nullptr) {
+		PlanarGridLayoutModule::callGridFixEmbed(G, gridLayout, adjExternal);
 	}
 
 	/**
@@ -274,7 +257,7 @@ public:
 	 * @param adjExternal specifies an adjacency entry (of \p PG) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callGridFixEmbed(PlanRep &PG, GridLayout &gridLayout, adjEntry adjExternal = nullptr);
+	void callGridFixEmbed(PlanRep& PG, GridLayout& gridLayout, adjEntry adjExternal = nullptr);
 
 protected:
 	/**
@@ -291,21 +274,13 @@ protected:
 	 * @param fixEmbedding determines if the input graph is embedded and that embedding
 	 *        has to be preserved (true), or if an embedding needs to be computed (false).
 	 */
-	virtual void doCall(
-		PlanRep &PG,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding) = 0;
+	virtual void doCall(PlanRep& PG, adjEntry adjExternal, GridLayout& gridLayout,
+			IPoint& boundingBox, bool fixEmbedding) = 0;
 
 
 	//! Implements PlanarGridLayoutModule::doCall().
-	void doCall(
-		const Graph &G,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding) override;
+	void doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout, IPoint& boundingBox,
+			bool fixEmbedding) override;
 
 	using PlanarGridLayoutModule::doCall;
 };

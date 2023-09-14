@@ -41,19 +41,14 @@ namespace goemans {
 
 //! Computes a random set of core edges
 template<typename T>
-class CoreEdgeRandomSpanningTree
-  : public CoreEdgeModule<T>
-{
-	std::minstd_rand &m_rng;
+class CoreEdgeRandomSpanningTree : public CoreEdgeModule<T> {
+	std::minstd_rand& m_rng;
 
 public:
-	CoreEdgeRandomSpanningTree(std::minstd_rand &rng)
-	  : m_rng(rng)
-	{
-	}
+	CoreEdgeRandomSpanningTree(std::minstd_rand& rng) : m_rng(rng) { }
 
-	void call(const Graph &graph, const List<node> &terminals, EdgeArray<bool> &isInTree) const override
-	{
+	void call(const Graph& graph, const List<node>& terminals,
+			EdgeArray<bool>& isInTree) const override {
 		// Let's do Kruskal's algorithm without weights but on a randomly permuted edge list.
 		// We virtually contract all terminals in the union-find data structure.
 		NodeArray<int> setID(graph, -1);

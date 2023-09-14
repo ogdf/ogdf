@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
 
 namespace ogdf {
 
@@ -46,16 +46,16 @@ public:
 	GreedyCycleRemoval() { }
 
 	//! Computes the set of edges \p arcSet, which have to be deleted in the acyclic subgraph.
-	virtual void call (const Graph &G, List<edge> &arcSet) override;
+	virtual void call(const Graph& G, List<edge>& arcSet) override;
 
 private:
-	void dfs (node v, const Graph &G);
+	void dfs(node v, const Graph& G);
 
 	int m_min, m_max, m_counter;
 
 	NodeArray<int> m_in, m_out, m_index;
-	Array<ListPure<node> > m_B;
-	NodeArray<ListIterator<node> > m_item;
+	Array<ListPure<node>> m_B;
+	NodeArray<ListIterator<node>> m_item;
 	NodeArray<bool> m_visited;
 };
 

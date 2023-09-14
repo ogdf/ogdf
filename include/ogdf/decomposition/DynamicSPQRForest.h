@@ -50,9 +50,12 @@ class OGDF_EXPORT DynamicSPQRForest : public DynamicBCTree {
 public:
 	//! Enumeration type for characterizing the SPQR-tree-vertices.
 	enum class TNodeType {
-		SComp = static_cast<int>(SPQRTree::NodeType::SNode), //!< denotes a vertex representing an S-component
-		PComp = static_cast<int>(SPQRTree::NodeType::PNode), //!< denotes a vertex representing a P-component
-		RComp = static_cast<int>(SPQRTree::NodeType::RNode) //!< denotes a vertex representing an R-component
+		SComp = static_cast<int>(
+				SPQRTree::NodeType::SNode), //!< denotes a vertex representing an S-component
+		PComp = static_cast<int>(
+				SPQRTree::NodeType::PNode), //!< denotes a vertex representing a P-component
+		RComp = static_cast<int>(
+				SPQRTree::NodeType::RNode) //!< denotes a vertex representing an R-component
 	};
 
 protected:
@@ -115,7 +118,7 @@ protected:
 
 	//! @{
 	//! The positions of real and virtual edges in their \a m_tNode_hEdges lists.
-	mutable EdgeArray<ListIterator<edge> > m_hEdge_position;
+	mutable EdgeArray<ListIterator<edge>> m_hEdge_position;
 
 	//! The SPQR-tree-vertices which the real and virtual edges are belonging to.
 	mutable EdgeArray<node> m_hEdge_tNode;
@@ -314,7 +317,11 @@ public:
 	 */
 	explicit DynamicSPQRForest(Graph& G) : DynamicBCTree(G) { init(); }
 
-	~DynamicSPQRForest() { for (auto pList : m_tNode_hEdges) { delete pList; } }
+	~DynamicSPQRForest() {
+		for (auto pList : m_tNode_hEdges) {
+			delete pList;
+		}
+	}
 
 	/** @{
 	 * Finds the proper representative of the SPQR-tree-vertex which
@@ -341,6 +348,7 @@ public:
 	 * is real.
 	 */
 	edge twinEdge(edge eH) const { return m_hEdge_twinEdge[eH]; }
+
 	//! @}
 
 	/** @{

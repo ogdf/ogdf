@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
-
+#include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 
 namespace ogdf {
 
@@ -52,22 +51,18 @@ namespace ogdf {
  * Carsten Gutwenger, Petra Mutzel, Rene Weiskircher: <i>Inserting an Edge into
  * a Planar %Graph</i>. Algorithmica 41(4), pp. 289-308, 2005.
  */
-class OGDF_EXPORT VariableEmbeddingInserterDyn : public VariableEmbeddingInserterBase
-{
+class OGDF_EXPORT VariableEmbeddingInserterDyn : public VariableEmbeddingInserterBase {
 public:
 	using VariableEmbeddingInserterBase::VariableEmbeddingInserterBase;
 
 	//! Returns a new instance of the variable embedding inserter with the same option settings.
-	virtual EdgeInsertionModule *clone() const override;
+	virtual EdgeInsertionModule* clone() const override;
 
 private:
 	//! Implements the algorithm call.
-	virtual ReturnType doCall(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraphs) override;
+	virtual ReturnType doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+			const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+			const EdgeArray<uint32_t>* pEdgeSubgraphs) override;
 };
 
 }

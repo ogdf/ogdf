@@ -43,8 +43,7 @@ namespace ogdf {
  * See the paper "Graph Embedding with Minimum Depth and Maximum External Face"
  * by C. Gutwenger and P. Mutzel (2004) for details.
  */
-class OGDF_EXPORT EmbedderMinDepthMaxFace : public EmbedderMaxFace
-{
+class OGDF_EXPORT EmbedderMinDepthMaxFace : public EmbedderMaxFace {
 public:
 	/**
 	 * \brief Call embedder algorithm.
@@ -66,7 +65,7 @@ protected:
 	 * \return Minimum depth of an embedding of \p bT with \p cH on the external
 	 *    face.
 	 */
-	int bottomUpTraversal(const node &bT, const node &cH);
+	int bottomUpTraversal(const node& bT, const node& cH);
 
 	/**
 	 * \brief Top-down-traversal of BC-tree. The minimum depth of the BC-tree-node
@@ -79,11 +78,11 @@ protected:
 	 *
 	 * \param bT is a block vertex in the BC-tree.
 	 */
-	void topDownTraversal(const node &bT);
+	void topDownTraversal(const node& bT);
 
-	int constraintMaxFace(const node &bT, const node &cH) override;
+	int constraintMaxFace(const node& bT, const node& cH) override;
 
-	void maximumFaceRec(const node &bT, node &bT_opt, int &ell_opt) override;
+	void maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt) override;
 
 	virtual void embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after) override;
 

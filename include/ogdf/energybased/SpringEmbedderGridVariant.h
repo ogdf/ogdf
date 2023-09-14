@@ -31,10 +31,10 @@
 
 #pragma once
 
-#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 #include <ogdf/basic/Array2D.h>
-#include <ogdf/energybased/SpringForceModel.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/energybased/SpringForceModel.h>
+#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 
 namespace ogdf {
 
@@ -78,19 +78,15 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT SpringEmbedderGridVariant : public spring_embedder::SpringEmbedderBase
-{
+class OGDF_EXPORT SpringEmbedderGridVariant : public spring_embedder::SpringEmbedderBase {
 public:
-	SpringEmbedderGridVariant() {
-		m_forceLimitStep = .5;
-	}
+	SpringEmbedderGridVariant() { m_forceLimitStep = .5; }
 
 protected:
 	void callMaster(const GraphCopy& copy, GraphAttributes& attr, DPoint& box) override;
 
 private:
-	struct NodeInfo
-	{
+	struct NodeInfo {
 		DPoint m_pos;
 
 		int m_adjBegin;

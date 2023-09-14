@@ -34,19 +34,19 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-void pushBackEdge(uint32_t a, uint32_t b,
-                  std::function<EdgeAdjInfo&(uint32_t)> edgeInform,
-                  std::function<NodeAdjInfo&(uint32_t)> nodeInform,
-                  int e_index)
-{
+void pushBackEdge(uint32_t a, uint32_t b, std::function<EdgeAdjInfo&(uint32_t)> edgeInform,
+		std::function<NodeAdjInfo&(uint32_t)> nodeInform, int e_index) {
 	auto adjustLinks = [&](NodeAdjInfo& info, uint32_t index) {
 		// if is part of at least one edge
 		if (info.degree) {
 			// adjust the links
 			EdgeAdjInfo& a_e = edgeInform(info.lastEntry);
 			// check which one is a
-			if (index == a_e.a) { a_e.a_next = e_index; }
-			else { a_e.b_next = e_index; }
+			if (index == a_e.a) {
+				a_e.a_next = e_index;
+			} else {
+				a_e.b_next = e_index;
+			}
 		} else {
 			// this edge is the first for a => set the firstEntry link
 			info.firstEntry = e_index;

@@ -31,12 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/graphics.h>
-#include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/graphics.h>
 
 #include <string>
-
 
 namespace ogdf {
 
@@ -81,13 +80,13 @@ enum class EdgeAttribute {
 };
 
 
-std::string toString(const NodeAttribute &attr);
-std::string toString(const EdgeAttribute &attr);
-std::string toString(const Shape &shape);
+std::string toString(const NodeAttribute& attr);
+std::string toString(const EdgeAttribute& attr);
+std::string toString(const Shape& shape);
 
-NodeAttribute toNodeAttribute(const std::string &str);
-EdgeAttribute toEdgeAttribute(const std::string &str);
-Shape toShape(const std::string &str);
+NodeAttribute toNodeAttribute(const std::string& str);
+EdgeAttribute toEdgeAttribute(const std::string& str);
+Shape toShape(const std::string& str);
 
 }
 }

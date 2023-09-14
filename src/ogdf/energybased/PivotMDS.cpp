@@ -29,26 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/basic/GraphCopy.h>
-
+#include <ogdf/energybased/PivotMDS.h>
 
 namespace ogdf {
 
 const double PivotMDS::EPSILON = 1 - 1e-10;
 const double PivotMDS::FACTOR = -0.5;
 
-
-void PivotMDS::call(GraphAttributes& GA)
-{
+void PivotMDS::call(GraphAttributes& GA) {
 	OGDF_ASSERT(isConnected(GA.constGraph()));
 	OGDF_ASSERT(!m_hasEdgeCostsAttribute || GA.has(GraphAttributes::edgeDoubleWeight));
 	pivotMDSLayout(GA);
 }
 
-
-void PivotMDS::centerPivotmatrix(Array<Array<double> >& pivotMatrix)
-{
+void PivotMDS::centerPivotmatrix(Array<Array<double>>& pivotMatrix) {
 	int numberOfPivots = pivotMatrix.size();
 	// this is ensured since the graph size is at least 2!
 	int nodeCount = pivotMatrix[0].size();
@@ -70,8 +65,7 @@ void PivotMDS::centerPivotmatrix(Array<Array<double> >& pivotMatrix)
 		rowColNormalizer = 0;
 		for (int j = 0; j < numberOfPivots; j++) {
 			double square = pivotMatrix[j][i] * pivotMatrix[j][i];
-			pivotMatrix[j][i] = square + normalizationFactor
-					- colNormalization[j];
+			pivotMatrix[j][i] = square + normalizationFactor - colNormalization[j];
 			rowColNormalizer += square;
 		}
 		rowColNormalizer /= numberOfPivots;
@@ -81,25 +75,25 @@ void PivotMDS::centerPivotmatrix(Array<Array<double> >& pivotMatrix)
 	}
 }
 
-
-void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
-{
+void PivotMDS::pivotMDSLayout(GraphAttributes& GA) {
 	const Graph& G = GA.constGraph();
-	m_dimensionCount = GA.has(GraphAttributes::threeD) ? 3 : 2;
+	m_dimensionCount = GA.has(GraphAttributes::threeD) && !m_forcing2DLayout ? 3 : 2;
 	bool use3D = m_dimensionCount == 3;
 
 	const int n = G.numberOfNodes();
 
 	// trivial cases
-	if (n == 0)
+	if (n == 0) {
 		return;
+	}
 
 	if (n == 1) {
 		node v1 = G.firstNode();
 		GA.x(v1) = 0.0;
 		GA.y(v1) = 0.0;
-		if (use3D)
+		if (use3D) {
 			GA.z(v1) = 0.0;
+		}
 		return;
 	}
 
@@ -107,16 +101,15 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 	const node head = getRootedPath(G);
 	if (head != nullptr) {
 		doPathLayout(GA, head);
-	}
-	else {
-		Array<Array<double> > pivDistMatrix;
+	} else {
+		Array<Array<double>> pivDistMatrix;
 		// compute the pivot matrix
 		getPivotDistanceMatrix(GA, pivDistMatrix);
 		// center the pivot matrix
 		centerPivotmatrix(pivDistMatrix);
 		// init the coordinate matrix
-		Array<Array<double> > coord(m_dimensionCount);
-		for (auto &elem : coord) {
+		Array<Array<double>> coord(m_dimensionCount);
+		for (auto& elem : coord) {
 			elem.init(n);
 		}
 		// init the eigen values array
@@ -131,21 +124,18 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 		}
 		// set the new positions to the graph
 		int i = 0;
-		for (node v : G.nodes)
-		{
+		for (node v : G.nodes) {
 			GA.x(v) = coord[0][i];
 			GA.y(v) = coord[1][i];
-			if (use3D){
-				GA.z(v) = coord[2][i];//std::cout << coord[2][i] << "\n";
+			if (use3D) {
+				GA.z(v) = coord[2][i]; //std::cout << coord[2][i] << "\n";
 			}
 			++i;
 		}
 	}
 }
 
-
-void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v)
-{
+void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v) {
 	double xPos = 0;
 	node prev = nullptr;
 	node oldCur = nullptr;
@@ -157,14 +147,14 @@ void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v)
 		oldCur = cur;
 		GA.x(cur) = xPos;
 		GA.y(cur) = 0;
-		for(adjEntry adj : cur->adjEntries) {
+		for (adjEntry adj : cur->adjEntries) {
 			node w = adj->twinNode();
 			// Ignore multi-edges and self-loops.
 			if (w != prev && w != cur) {
 				prev = cur;
 				cur = w;
-				if(m_hasEdgeCostsAttribute) {
-					xPos+=GA.doubleWeight(adj->theEdge());
+				if (m_hasEdgeCostsAttribute) {
+					xPos += GA.doubleWeight(adj->theEdge());
 				} else {
 					xPos += m_edgeCosts;
 				}
@@ -174,12 +164,8 @@ void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v)
 	} while (cur != oldCur);
 }
 
-
-void PivotMDS::eigenValueDecomposition(
-	Array<Array<double> >& K,
-	Array<Array<double> >& eVecs,
-	Array<double>& eValues)
-{
+void PivotMDS::eigenValueDecomposition(Array<Array<double>>& K, Array<Array<double>>& eVecs,
+		Array<double>& eValues) {
 	randomize(eVecs);
 	const int p = K.size();
 	double r = 0;
@@ -194,7 +180,7 @@ void PivotMDS::eigenValueDecomposition(
 			return;
 		}
 		// remember prev values
-		Array<Array<double> > tmpOld(m_dimensionCount);
+		Array<Array<double>> tmpOld(m_dimensionCount);
 		for (int i = 0; i < m_dimensionCount; i++) {
 			tmpOld[i].init(p);
 			for (int j = 0; j < p; j++) {
@@ -213,8 +199,7 @@ void PivotMDS::eigenValueDecomposition(
 		// orthogonalize
 		for (int i = 0; i < m_dimensionCount; i++) {
 			for (int j = 0; j < i; j++) {
-				double fac = prod(eVecs[j], eVecs[i])
-						/ prod(eVecs[j], eVecs[j]);
+				double fac = prod(eVecs[j], eVecs[i]) / prod(eVecs[j], eVecs[j]);
 				for (int k = 0; k < p; k++) {
 					eVecs[i][k] -= fac * eVecs[j][k];
 				}
@@ -236,11 +221,7 @@ void PivotMDS::eigenValueDecomposition(
 	}
 }
 
-
-void PivotMDS::getPivotDistanceMatrix(
-	const GraphAttributes& GA,
-	Array<Array<double> >& pivDistMatrix)
-{
+void PivotMDS::getPivotDistanceMatrix(const GraphAttributes& GA, Array<Array<double>>& pivDistMatrix) {
 	const Graph& G = GA.constGraph();
 	const int n = G.numberOfNodes();
 
@@ -257,8 +238,7 @@ void PivotMDS::getPivotDistanceMatrix(
 	// already checked whether this attribute exists or not (see call method)
 	if (m_hasEdgeCostsAttribute) {
 		edgeCosts.init(G);
-		for(edge e : G.edges)
-		{
+		for (edge e : G.edges) {
 			edgeCosts[e] = GA.doubleWeight(e);
 		}
 		hasEdgeCosts = true;
@@ -281,8 +261,7 @@ void PivotMDS::getPivotDistanceMatrix(
 		// update the pivot and the minDistances array ... to ensure the
 		// correctness set minDistance of the pivot node to zero
 		minDistances[pivNode] = 0;
-		for(node v : G.nodes)
-		{
+		for (node v : G.nodes) {
 			Math::updateMin(minDistances[v], shortestPathSingleSource[v]);
 			if (minDistances[v] > minDistances[pivNode]) {
 				pivNode = v;
@@ -291,10 +270,8 @@ void PivotMDS::getPivotDistanceMatrix(
 	}
 }
 
-
-void PivotMDS::copySPSS(Array<double>& copyTo, NodeArray<double>& copyFrom)
-{
-	const Graph &G = *copyFrom.graphOf();
+void PivotMDS::copySPSS(Array<double>& copyTo, NodeArray<double>& copyFrom) {
+	const Graph& G = *copyFrom.graphOf();
 
 	int i = 0;
 	for (node v : G.nodes) {
@@ -302,9 +279,7 @@ void PivotMDS::copySPSS(Array<double>& copyTo, NodeArray<double>& copyFrom)
 	}
 }
 
-
-node PivotMDS::getRootedPath(const Graph& G)
-{
+node PivotMDS::getRootedPath(const Graph& G) {
 	GraphCopy GC(G);
 	makeSimpleUndirected(GC);
 	node head = nullptr;
@@ -324,25 +299,20 @@ node PivotMDS::getRootedPath(const Graph& G)
 
 	// Given n >= 2 (as guaranteed by pivotMDSLayout()),
 	// a path has two nodes with degree 1 and n-2 nodes with degree 2.
-	return numDegree1 == 2 && numDegree2 == GC.numberOfNodes() - 2 ?
-		   GC.original(head) : nullptr;
+	return numDegree1 == 2 && numDegree2 == GC.numberOfNodes() - 2 ? GC.original(head) : nullptr;
 }
 
-
-double PivotMDS::normalize(Array<double>& x)
-{
+double PivotMDS::normalize(Array<double>& x) {
 	double norm = sqrt(prod(x, x));
 	if (norm != 0) {
-		for (auto &elem : x) {
+		for (auto& elem : x) {
 			elem /= norm;
 		}
 	}
 	return norm;
 }
 
-
-double PivotMDS::prod(const Array<double>& x, const Array<double>& y)
-{
+double PivotMDS::prod(const Array<double>& x, const Array<double>& y) {
 	double result = 0;
 	for (int i = 0; i < x.size(); i++) {
 		result += x[i] * y[i];
@@ -350,20 +320,16 @@ double PivotMDS::prod(const Array<double>& x, const Array<double>& y)
 	return result;
 }
 
-
-void PivotMDS::randomize(Array<Array<double> >& matrix)
-{
+void PivotMDS::randomize(Array<Array<double>>& matrix) {
 	srand(SEED);
-	for (auto &elem : matrix) {
+	for (auto& elem : matrix) {
 		for (int j = 0; j < elem.size(); j++) {
-			elem[j] = ((double) rand()) / RAND_MAX;
+			elem[j] = ((double)rand()) / RAND_MAX;
 		}
 	}
 }
 
-
-void PivotMDS::selfProduct(const Array<Array<double> >& d, Array<Array<double> >& result)
-{
+void PivotMDS::selfProduct(const Array<Array<double>>& d, Array<Array<double>>& result) {
 	double sum;
 	for (int i = 0; i < d.size(); i++) {
 		for (int j = 0; j <= i; j++) {
@@ -377,22 +343,18 @@ void PivotMDS::selfProduct(const Array<Array<double> >& d, Array<Array<double> >
 	}
 }
 
-
-void PivotMDS::singularValueDecomposition(
-	Array<Array<double> >& pivDistMatrix,
-	Array<Array<double> >& eVecs,
-	Array<double>& eVals)
-{
+void PivotMDS::singularValueDecomposition(Array<Array<double>>& pivDistMatrix,
+		Array<Array<double>>& eVecs, Array<double>& eVals) {
 	const int size = pivDistMatrix.size();
 	const int n = pivDistMatrix[0].size();
-	Array<Array<double> > K(size);
+	Array<Array<double>> K(size);
 	for (int i = 0; i < size; i++) {
 		K[i].init(size);
 	}
 	// calc C^TC
 	selfProduct(pivDistMatrix, K);
 
-	Array<Array<double> > tmp(m_dimensionCount);
+	Array<Array<double>> tmp(m_dimensionCount);
 	for (int i = 0; i < m_dimensionCount; i++) {
 		tmp[i].init(size);
 	}

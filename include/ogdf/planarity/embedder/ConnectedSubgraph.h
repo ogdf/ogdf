@@ -31,15 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 namespace embedder {
 
 template<class T>
-class ConnectedSubgraph
-{
+class ConnectedSubgraph {
 public:
 	//constructor
 	ConnectedSubgraph() { }
@@ -53,13 +52,8 @@ public:
 	 * \param nodeLengthG stores for each node of G its length.
 	 * \param nodeLengthSG is assigned for each node of SG its length.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		node& nSG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, node& nSG,
+			const NodeArray<T>& nodeLengthG, NodeArray<T>& nodeLengthSG) {
 		EdgeArray<T> edgeLengthG(G, 1);
 		EdgeArray<T> edgeLengthSG;
 		call(G, SG, nG, nSG, nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG);
@@ -74,21 +68,16 @@ public:
 	 * \param nodeLengthSG is assigned for each node of SG its length.
 	 * \param nG_to_nSG is assigned a mapping of nodes in G to nodes in SG.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG,
-		NodeArray<node>& nG_to_nSG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, const NodeArray<T>& nodeLengthG,
+			NodeArray<T>& nodeLengthSG, NodeArray<node>& nG_to_nSG) {
 		node nSG;
 		NodeArray<node> nSG_to_nG;
 		EdgeArray<edge> eSG_to_eG;
 		EdgeArray<edge> eG_to_eSG;
 		EdgeArray<T> edgeLengthG(G, 1);
 		EdgeArray<T> edgeLengthSG;
-		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG,
-			nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG);
+		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG, nodeLengthG, nodeLengthSG,
+				edgeLengthG, edgeLengthSG);
 	}
 
 	/**
@@ -102,19 +91,13 @@ public:
 	 * \param edgeLengthG is saving for each edge of G its length.
 	 * \param edgeLengthSG is assigned for each edge of SG its length.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		node& nSG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG,
-		const EdgeArray<T>& edgeLengthG,
-		EdgeArray<T>& edgeLengthSG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, node& nSG,
+			const NodeArray<T>& nodeLengthG, NodeArray<T>& nodeLengthSG,
+			const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG) {
 		NodeArray<node> nSG_to_nG(SG);
 		EdgeArray<edge> eSG_to_eG(SG);
-		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nodeLengthG,
-			nodeLengthSG, edgeLengthG, edgeLengthSG);
+		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nodeLengthG, nodeLengthSG, edgeLengthG,
+				edgeLengthSG);
 	}
 
 	/**
@@ -125,12 +108,8 @@ public:
 	 * \param nodeLengthG stores for each node of G its length.
 	 * \param nodeLengthSG is assigned for each node of SG its length.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, const NodeArray<T>& nodeLengthG,
+			NodeArray<T>& nodeLengthSG) {
 		node nSG;
 		call(G, SG, nG, nSG, nodeLengthG, nodeLengthSG);
 	}
@@ -145,14 +124,8 @@ public:
 	 * \param edgeLengthG stores for each edge of G its length.
 	 * \param edgeLengthSG is assigned for each edge of SG its length.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG,
-		const EdgeArray<T>& edgeLengthG,
-		EdgeArray<T>& edgeLengthSG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, const NodeArray<T>& nodeLengthG,
+			NodeArray<T>& nodeLengthSG, const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG) {
 		node nSG = nullptr;
 		call(G, SG, nG, nSG, nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG);
 	}
@@ -170,21 +143,13 @@ public:
 	 * \param edgeLengthG stores for each edge of G its length.
 	 * \param edgeLengthSG is assigned for each edge of SG its length.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		node& nSG,
-		NodeArray<node>& nSG_to_nG,
-		EdgeArray<edge>& eSG_to_eG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG,
-		const EdgeArray<T>& edgeLengthG,
-		EdgeArray<T>& edgeLengthSG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, node& nSG,
+			NodeArray<node>& nSG_to_nG, EdgeArray<edge>& eSG_to_eG, const NodeArray<T>& nodeLengthG,
+			NodeArray<T>& nodeLengthSG, const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG) {
 		NodeArray<node> nG_to_nSG;
 		EdgeArray<edge> eG_to_eSG;
-		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG, nodeLengthG,
-			nodeLengthSG, edgeLengthG, edgeLengthSG);
+		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG, nodeLengthG, nodeLengthSG,
+				edgeLengthG, edgeLengthSG);
 	}
 
 	/**
@@ -202,18 +167,10 @@ public:
 	 * \param edgeLengthG stores for each edge of G its length.
 	 * \param edgeLengthSG is assigned for each edge of SG its length.
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		node& nSG,
-		NodeArray<node>& nSG_to_nG,
-		EdgeArray<edge>& eSG_to_eG,
-		NodeArray<node>& nG_to_nSG,
-		EdgeArray<edge>& eG_to_eSG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG,
-		const EdgeArray<T>& edgeLengthG,
-		EdgeArray<T>& edgeLengthSG);
+	static void call(const Graph& G, Graph& SG, const node& nG, node& nSG,
+			NodeArray<node>& nSG_to_nG, EdgeArray<edge>& eSG_to_eG, NodeArray<node>& nG_to_nSG,
+			EdgeArray<edge>& eG_to_eSG, const NodeArray<T>& nodeLengthG, NodeArray<T>& nodeLengthSG,
+			const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG);
 
 	/**
 	 * \brief Computes a connected subgraph SG of G containing node nG.
@@ -225,13 +182,8 @@ public:
 	 * \param nG_to_nSG is mapping nodes in G to nodes in SG
 	 * \param eG_to_eSG is mapping edges in G to edges in SG
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		NodeArray<node>& nSG_to_nG,
-		EdgeArray<edge>& eSG_to_eG,
-		NodeArray<node>& nG_to_nSG,
-		EdgeArray<edge>& eG_to_eSG);
+	static void call(const Graph& G, Graph& SG, const node& nG, NodeArray<node>& nSG_to_nG,
+			EdgeArray<edge>& eSG_to_eG, NodeArray<node>& nG_to_nSG, EdgeArray<edge>& eG_to_eSG);
 
 	/**
 	 * \brief Computes a connected subgraph SG of G containing node nG.
@@ -240,18 +192,15 @@ public:
 	 * \param nG is a node in G.
 	 * \param nSG_to_nG is mapping nodes in SG to nodes in G
 	 */
-	static void call(const Graph& G,
-		Graph& SG,
-		const node& nG,
-		NodeArray<node>& nSG_to_nG)
-	{
+	static void call(const Graph& G, Graph& SG, const node& nG, NodeArray<node>& nSG_to_nG) {
 		NodeArray<T> nodeLengthG(G, 0);
 		NodeArray<T> nodeLengthSG(SG);
 		EdgeArray<T> edgeLengthG(G, 0);
 		EdgeArray<T> edgeLengthSG(SG);
 		node nSG;
 		EdgeArray<edge> eSG_to_eG;
-		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG);
+		call(G, SG, nG, nSG, nSG_to_nG, eSG_to_eG, nodeLengthG, nodeLengthSG, edgeLengthG,
+				edgeLengthSG);
 	}
 
 private:
@@ -274,54 +223,34 @@ private:
 	 * \param nG_to_nSG is mapping nodes in G to nodes in SG
 	 * \param eG_to_eSG is mapping edges in G to edges in SG
 	 */
-	static void recursion(Graph& SG,
-		NodeArray<bool> &nodeVisited,
-		EdgeArray<bool> &edgeVisited,
-		const node& nG,
-		const NodeArray<T>& nodeLengthG,
-		NodeArray<T>& nodeLengthSG,
-		const EdgeArray<T>& edgeLengthG,
-		EdgeArray<T>& edgeLengthSG,
-		NodeArray<node>& nSG_to_nG,
-		EdgeArray<edge>& eSG_to_eG,
-		NodeArray<node>& nG_to_nSG,
-		EdgeArray<edge>& eG_to_eSG);
+	static void recursion(Graph& SG, NodeArray<bool>& nodeVisited, EdgeArray<bool>& edgeVisited,
+			const node& nG, const NodeArray<T>& nodeLengthG, NodeArray<T>& nodeLengthSG,
+			const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG, NodeArray<node>& nSG_to_nG,
+			EdgeArray<edge>& eSG_to_eG, NodeArray<node>& nG_to_nSG, EdgeArray<edge>& eG_to_eSG);
 };
 
-
 template<class T>
-void ConnectedSubgraph<T>::recursion(
-	Graph& SG,
-	NodeArray<bool> &nodeVisited,
-	EdgeArray<bool> &edgeVisited,
-	const node& nG,
-	const NodeArray<T>& nodeLengthG,
-	NodeArray<T>& nodeLengthSG,
-	const EdgeArray<T>& edgeLengthG,
-	EdgeArray<T>& edgeLengthSG,
-	NodeArray<node>& nSG_to_nG,
-	EdgeArray<edge>& eSG_to_eG,
-	NodeArray<node>& nG_to_nSG,
-	EdgeArray<edge>& eG_to_eSG)
-{
+void ConnectedSubgraph<T>::recursion(Graph& SG, NodeArray<bool>& nodeVisited,
+		EdgeArray<bool>& edgeVisited, const node& nG, const NodeArray<T>& nodeLengthG,
+		NodeArray<T>& nodeLengthSG, const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG,
+		NodeArray<node>& nSG_to_nG, EdgeArray<edge>& eSG_to_eG, NodeArray<node>& nG_to_nSG,
+		EdgeArray<edge>& eG_to_eSG) {
 	node nSG = SG.newNode();
 	nodeLengthSG[nSG] = nodeLengthG[nG];
 	nG_to_nSG[nG] = nSG;
 	nSG_to_nG[nSG] = nG;
 	nodeVisited[nG] = true;
 
-	for(adjEntry adj : nG->adjEntries) {
+	for (adjEntry adj : nG->adjEntries) {
 		edge eG = adj->theEdge();
-		if (!nodeVisited[eG->source()])
-			recursion(SG, nodeVisited, edgeVisited, eG->source(),
-				nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
-				nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
-		else if (!nodeVisited[eG->target()])
-			recursion(SG, nodeVisited, edgeVisited, eG->target(),
-				nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
-				nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
-		if (!edgeVisited[eG])
-		{
+		if (!nodeVisited[eG->source()]) {
+			recursion(SG, nodeVisited, edgeVisited, eG->source(), nodeLengthG, nodeLengthSG,
+					edgeLengthG, edgeLengthSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
+		} else if (!nodeVisited[eG->target()]) {
+			recursion(SG, nodeVisited, edgeVisited, eG->target(), nodeLengthG, nodeLengthSG,
+					edgeLengthG, edgeLengthSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
+		}
+		if (!edgeVisited[eG]) {
 			edge eSG = SG.newEdge(nG_to_nSG[eG->source()], nG_to_nSG[eG->target()]);
 			edgeLengthSG[eSG] = edgeLengthG[eG];
 			eG_to_eSG[eG] = eSG;
@@ -331,25 +260,15 @@ void ConnectedSubgraph<T>::recursion(
 	}
 }
 
-
 template<class T>
-void ConnectedSubgraph<T>::call(const Graph& G,
-	Graph& SG,
-	const node& nG,
-	node& nSG,
-	NodeArray<node>& nSG_to_nG,
-	EdgeArray<edge>& eSG_to_eG,
-	NodeArray<node>& nG_to_nSG,
-	EdgeArray<edge>& eG_to_eSG,
-	const NodeArray<T>& nodeLengthG,
-	NodeArray<T>& nodeLengthSG,
-	const EdgeArray<T>& edgeLengthG,
-	EdgeArray<T>& edgeLengthSG)
-{
+void ConnectedSubgraph<T>::call(const Graph& G, Graph& SG, const node& nG, node& nSG,
+		NodeArray<node>& nSG_to_nG, EdgeArray<edge>& eSG_to_eG, NodeArray<node>& nG_to_nSG,
+		EdgeArray<edge>& eG_to_eSG, const NodeArray<T>& nodeLengthG, NodeArray<T>& nodeLengthSG,
+		const EdgeArray<T>& edgeLengthG, EdgeArray<T>& edgeLengthSG) {
 	SG.clear();
 
-	NodeArray<bool> nodeVisited(G,false);
-	EdgeArray<bool> edgeVisited(G,false);
+	NodeArray<bool> nodeVisited(G, false);
+	EdgeArray<bool> edgeVisited(G, false);
 
 #if 0
 	const int n = G.numberOfNodes();
@@ -369,9 +288,8 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 	nG_to_nSG.init(G);
 	eG_to_eSG.init(G);
 
-	recursion(SG, nodeVisited, edgeVisited, nG,
-		nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
-		nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
+	recursion(SG, nodeVisited, edgeVisited, nG, nodeLengthG, nodeLengthSG, edgeLengthG,
+			edgeLengthSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
 	nSG = nG_to_nSG[nG];
 
 #if 0
@@ -380,20 +298,13 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 #endif
 }
 
-
 template<class T>
-void ConnectedSubgraph<T>::call(const Graph& G,
-	Graph& SG,
-	const node& nG,
-	NodeArray<node>& nSG_to_nG,
-	EdgeArray<edge>& eSG_to_eG,
-	NodeArray<node>& nG_to_nSG,
-	EdgeArray<edge>& eG_to_eSG)
-{
+void ConnectedSubgraph<T>::call(const Graph& G, Graph& SG, const node& nG, NodeArray<node>& nSG_to_nG,
+		EdgeArray<edge>& eSG_to_eG, NodeArray<node>& nG_to_nSG, EdgeArray<edge>& eG_to_eSG) {
 	SG.clear();
 
-	NodeArray<bool> nodeVisited(G,false);
-	EdgeArray<bool> edgeVisited(G,false);
+	NodeArray<bool> nodeVisited(G, false);
+	EdgeArray<bool> edgeVisited(G, false);
 
 #if 0
 	bool* nodeVisited = new bool[G.numberOfNodes()];
@@ -412,9 +323,8 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 	nG_to_nSG.init(G);
 	eG_to_eSG.init(G);
 
-	recursion(SG, nodeVisited, edgeVisited, nG,
-		nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
-		nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
+	recursion(SG, nodeVisited, edgeVisited, nG, nodeLengthG, nodeLengthSG, edgeLengthG,
+			edgeLengthSG, nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
 
 #if 0
 	delete[] nodeVisited;

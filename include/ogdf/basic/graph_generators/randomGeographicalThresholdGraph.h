@@ -64,8 +64,8 @@ namespace ogdf {
  * @param dimension is the dimension the nodes are laid out in.
  */
 template<typename D>
-void randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, double threshold, std::function<double(double)> h, int dimension = 2)
-{
+void randomGeographicalThresholdGraph(Graph& G, Array<int>& weights, D& dist, double threshold,
+		std::function<double(double)> h, int dimension = 2) {
 	OGDF_ASSERT(dimension >= 1);
 	OGDF_ASSERT(threshold >= 0.0);
 
@@ -79,7 +79,7 @@ void randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, do
 	for (int i = 0; i < weights.size(); i++) {
 		nodes[i] = G.newNode();
 		nodeWeights[nodes[i]] = weights[i];
-		for (int j = 0; j < dimension; j++){
+		for (int j = 0; j < dimension; j++) {
 			cord[nodes[i]][j] = dist(rng);
 		}
 	}
@@ -100,7 +100,7 @@ void randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, do
 }
 
 /**
- * @copybrief ::randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, double threshold, std::function<double(double)> h, int dimension)
+ * @copybrief ::randomGeographicalThresholdGraph(Graph &, Array<int> &, D &, double, std::function<double(double)>, int)
  *
  * This generator uses \f$r^{-\alpha}\f$ for the given \p alpha as heuristic function.
  *
@@ -117,9 +117,10 @@ void randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, do
  * @param dimension is the dimension the nodes are laid out in.
  */
 template<typename D>
-void randomGeographicalThresholdGraph(Graph &G, Array<int> &weights, D &dist, double threshold, int alpha = 2, int dimension = 2)
-{
-	randomGeographicalThresholdGraph<D>(G, weights, dist, threshold, [alpha](double d){ return 1/pow(d, alpha); }, dimension);
+void randomGeographicalThresholdGraph(Graph& G, Array<int>& weights, D& dist, double threshold,
+		int alpha = 2, int dimension = 2) {
+	randomGeographicalThresholdGraph<D>(
+			G, weights, dist, threshold, [alpha](double d) { return 1 / pow(d, alpha); }, dimension);
 }
 
 //! @}

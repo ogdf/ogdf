@@ -33,37 +33,26 @@
 #pragma once
 
 #include <ogdf/planarity/PlanRep.h>
-#include <ogdf/planarlayout/ShellingOrderModule.h>
 #include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
 
 namespace ogdf {
 
-class MMOrder
-{
+class MMOrder {
 public:
 	MMOrder() { }
 
-	void init(PlanRep &PG, ShellingOrderModule &compOrder, adjEntry adjExternal);
+	void init(PlanRep& PG, ShellingOrderModule& compOrder, adjEntry adjExternal);
 
-	int rank(node v) const {
-		return m_lmc.rank(v);
-	}
+	int rank(node v) const { return m_lmc.rank(v); }
 
-	int length() const {
-		return m_lmc.length();
-	}
+	int length() const { return m_lmc.length(); }
 
-	const ShellingOrderSet &operator[](int k) const {
-		return m_lmc[k];
-	}
+	const ShellingOrderSet& operator[](int k) const { return m_lmc[k]; }
 
-	node operator()(int k, int i) const {
-		return m_lmc(k,i);
-	}
+	node operator()(int k, int i) const { return m_lmc(k, i); }
 
-	int len(int k) const {
-		return m_lmc.len(k);
-	}
+	int len(int k) const { return m_lmc.len(k); }
 
 	Array<node> m_left, m_right;
 

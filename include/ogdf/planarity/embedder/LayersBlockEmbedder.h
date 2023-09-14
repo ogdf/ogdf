@@ -32,11 +32,10 @@
 
 #pragma once
 
-#include <ogdf/decomposition/BCTree.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
+#include <ogdf/decomposition/BCTree.h>
 #include <ogdf/graphalg/ShortestPathWithBFM.h>
-
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
 
 namespace ogdf {
 namespace embedder {
@@ -45,19 +44,13 @@ namespace embedder {
 template<class BaseEmbedder, class T>
 class LayersBlockEmbedder : public BaseEmbedder {
 protected:
-	void internalEmbedBlock(
-			Graph &SG,
-			NodeArray<T> &nodeLengthSG,
-			EdgeArray<T> &edgeLengthSG,
-			NodeArray<node> &nSG_to_nG,
-			EdgeArray<edge> &eSG_to_eG,
-			node nodeInBlockSG,
-			node cT,
-			ListIterator<adjEntry> &after) {
+	void internalEmbedBlock(Graph& SG, NodeArray<T>& nodeLengthSG, EdgeArray<T>& edgeLengthSG,
+			NodeArray<node>& nSG_to_nG, EdgeArray<edge>& eSG_to_eG, node nodeInBlockSG, node cT,
+			ListIterator<adjEntry>& after) {
 		adjEntry m_adjExternal = nullptr;
 		// 1. Compute embedding of block
-		EmbedderMaxFaceBiconnectedGraphsLayers<T>::embed(
-				SG, m_adjExternal, nodeLengthSG, edgeLengthSG, nodeInBlockSG);
+		EmbedderMaxFaceBiconnectedGraphsLayers<T>::embed(SG, m_adjExternal, nodeLengthSG,
+				edgeLengthSG, nodeInBlockSG);
 
 		// 2. Copy block embedding into graph embedding and call recursively
 		//    embedBlock for all cut vertices in bT
@@ -68,7 +61,8 @@ protected:
 			node on = BaseEmbedder::pBCTree->original(nSG_to_nG[m_adjExternal->theNode()]);
 
 			for (adjEntry ae : on->adjEntries) {
-				if (ae->theEdge() == BaseEmbedder::pBCTree->original(eSG_to_eG[m_adjExternal->theEdge()])) {
+				if (ae->theEdge()
+						== BaseEmbedder::pBCTree->original(eSG_to_eG[m_adjExternal->theEdge()])) {
 					*BaseEmbedder::pAdjExternal = ae->twin();
 					break;
 				}
@@ -137,8 +131,8 @@ protected:
 						if (!DGcomputed) {
 							p_DG = new Graph();
 							p_fPG_to_nDG = new ArrayBuffer<node>();
-							p_adjacencyList = new NodeArray< List<adjEntry> >();
-							p_faces = new List< List<adjEntry> >;
+							p_adjacencyList = new NodeArray<List<adjEntry>>();
+							p_faces = new List<List<adjEntry>>;
 							p_distances = new NodeArray<int>;
 							DGcomputed = true;
 
@@ -150,7 +144,7 @@ protected:
 								}
 							}
 
-							NodeArray< List<adjEntry> > adjEntryTreated(SG);
+							NodeArray<List<adjEntry>> adjEntryTreated(SG);
 							for (node nBG : SG.nodes) {
 								for (adjEntry adj : nBG->adjEntries) {
 									if (!adjEntryTreated[nBG].search(adj).valid()) {
@@ -160,7 +154,8 @@ protected:
 										do {
 											newFace.pushBack(adj2);
 											adjEntryTreated[adj2->theNode()].pushBack(adj2);
-											List<adjEntry> &ladj = (*p_adjacencyList)[adj2->twinNode()];
+											List<adjEntry>& ladj =
+													(*p_adjacencyList)[adj2->twinNode()];
 											adj2 = *ladj.cyclicPred(ladj.search(adj2->twin()));
 										} while (adj2 != adj);
 
@@ -176,14 +171,14 @@ protected:
 							NodeArray<List<node>> adjFaces(*p_DG);
 							int i = 0;
 
-							for (const List<adjEntry> &Li : *p_faces) {
+							for (const List<adjEntry>& Li : *p_faces) {
 								int f1_id = i;
 
 								for (adjEntry adj2 : Li) {
 									int f2_id = 0;
 									int j = 0;
 
-									for (List<adjEntry> &Lj : *p_faces) {
+									for (List<adjEntry>& Lj : *p_faces) {
 										bool do_break = false;
 
 										for (adjEntry adj4 : Lj) {
@@ -202,9 +197,14 @@ protected:
 									}
 
 									if (f1_id != f2_id
-											&& !adjFaces[(*p_fPG_to_nDG)[f1_id]].search((*p_fPG_to_nDG)[f2_id]).valid()
-											&& !adjFaces[(*p_fPG_to_nDG)[f2_id]].search((*p_fPG_to_nDG)[f1_id]).valid()) {
-										adjFaces[(*p_fPG_to_nDG)[f1_id]].pushBack((*p_fPG_to_nDG)[f2_id]);
+											&& !adjFaces[(*p_fPG_to_nDG)[f1_id]]
+														.search((*p_fPG_to_nDG)[f2_id])
+														.valid()
+											&& !adjFaces[(*p_fPG_to_nDG)[f2_id]]
+														.search((*p_fPG_to_nDG)[f1_id])
+														.valid()) {
+										adjFaces[(*p_fPG_to_nDG)[f1_id]].pushBack(
+												(*p_fPG_to_nDG)[f2_id]);
 										p_DG->newEdge((*p_fPG_to_nDG)[f1_id], (*p_fPG_to_nDG)[f2_id]);
 									}
 
@@ -275,7 +275,8 @@ protected:
 
 			// embed all edges of block bT:
 			bool after_ae = true;
-			for (adjEntry aeNode = ae; after_ae || aeNode != ae; aeNode = aeNode->succ() == nullptr ? nSG->firstAdj() : aeNode->succ()) {
+			for (adjEntry aeNode = ae; after_ae || aeNode != ae;
+					aeNode = aeNode->succ() == nullptr ? nSG->firstAdj() : aeNode->succ()) {
 				edge eG = BaseEmbedder::pBCTree->original(eSG_to_eG[aeNode->theEdge()]);
 				if (nG == eG->source()) {
 					if (pAfter->valid()) {
@@ -309,4 +310,5 @@ protected:
 	}
 };
 
-}}
+}
+}

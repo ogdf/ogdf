@@ -36,28 +36,26 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRepInc.h>
-#include <ogdf/uml/UMLGraph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphObserver.h>
+#include <ogdf/planarity/PlanRepInc.h>
+#include <ogdf/uml/UMLGraph.h>
 
 namespace ogdf {
 
-class OGDF_EXPORT IncNodeInserter
-{
+class OGDF_EXPORT IncNodeInserter {
 public:
 	//! Creates inserter on \p PG
-	explicit IncNodeInserter(PlanRepInc &PG) : m_planRep(&PG ) { }
+	explicit IncNodeInserter(PlanRepInc& PG) : m_planRep(&PG) { }
 
 	//! Inserts copy in #m_planRep for original node \p v
-	virtual void insertCopyNode(node v, CombinatorialEmbedding &E,
-		Graph::NodeType vTyp) = 0;
+	virtual void insertCopyNode(node v, CombinatorialEmbedding& E, Graph::NodeType vTyp) = 0;
 
 protected:
 	//! Returns a face to insert a copy of \p v and a list of
 	//! adjacency entries corresponding to the insertion adjEntries
 	//! for the adjacent edges
-	virtual face getInsertionFace(node v, CombinatorialEmbedding &E) = 0;
+	virtual face getInsertionFace(node v, CombinatorialEmbedding& E) = 0;
 
 	//! pointer to a PlanRepInc that is to be changed
 	PlanRepInc* m_planRep;

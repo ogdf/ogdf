@@ -38,65 +38,64 @@ namespace ogdf {
 namespace dot {
 
 
-Token::Token(
-	size_t tokenRow, size_t tokenColumn,
-	std::string *identifierContent)
-: row(tokenRow), column(tokenColumn), value(identifierContent)
-{
-}
+Token::Token(size_t tokenRow, size_t tokenColumn, std::string* identifierContent)
+	: row(tokenRow), column(tokenColumn), value(identifierContent) { }
 
-
-std::string Token::toString(const Type &type)
-{
-	switch(type) {
-		case Type::assignment:       return "=";
-		case Type::colon:            return ":";
-		case Type::semicolon:        return ";";
-		case Type::comma:            return ",";
-		case Type::edgeOpDirected:   return "->";
-		case Type::edgeOpUndirected: return "--";
-		case Type::leftBracket:      return "[";
-		case Type::rightBracket:     return "]";
-		case Type::leftBrace:        return "{";
-		case Type::rightBrace:       return "}";
-		case Type::graph:            return "graph";
-		case Type::digraph:          return "digraph";
-		case Type::subgraph:         return "subgraph";
-		case Type::node:             return "node";
-		case Type::edge:             return "edge";
-		case Type::strict:           return "strict";
-		case Type::identifier:       return "identifier";
+std::string Token::toString(const Type& type) {
+	switch (type) {
+	case Type::assignment:
+		return "=";
+	case Type::colon:
+		return ":";
+	case Type::semicolon:
+		return ";";
+	case Type::comma:
+		return ",";
+	case Type::edgeOpDirected:
+		return "->";
+	case Type::edgeOpUndirected:
+		return "--";
+	case Type::leftBracket:
+		return "[";
+	case Type::rightBracket:
+		return "]";
+	case Type::leftBrace:
+		return "{";
+	case Type::rightBrace:
+		return "}";
+	case Type::graph:
+		return "graph";
+	case Type::digraph:
+		return "digraph";
+	case Type::subgraph:
+		return "subgraph";
+	case Type::node:
+		return "node";
+	case Type::edge:
+		return "edge";
+	case Type::strict:
+		return "strict";
+	case Type::identifier:
+		return "identifier";
 	}
 	OGDF_ASSERT(false);
 	return "UNKNOWN";
 }
 
+Lexer::Lexer(std::istream& input) : m_input(input) { }
 
-Lexer::Lexer(std::istream &input) : m_input(input)
-{
-}
-
-
-Lexer::~Lexer()
-{
-	for(const Token &t : m_tokens)
-	{
+Lexer::~Lexer() {
+	for (const Token& t : m_tokens) {
 		delete t.value;
 	}
 }
 
+const std::vector<Token>& Lexer::tokens() const { return m_tokens; }
 
-const std::vector<Token> &Lexer::tokens() const
-{
-	return m_tokens;
-}
-
-
-bool Lexer::tokenize()
-{
+bool Lexer::tokenize() {
 	m_row = 0;
-	while(m_input.good()) {
-		if(!tokenizeLine()) {
+	while (m_input.good()) {
+		if (!tokenizeLine()) {
 			return false;
 		}
 	}
@@ -104,30 +103,28 @@ bool Lexer::tokenize()
 	return true;
 }
 
-
-bool Lexer::tokenizeLine()
-{
+bool Lexer::tokenizeLine() {
 	std::getline(m_input, m_buffer);
 	m_row++;
 
 	// Handle line output from a C preprocessor (#blabla).
-	if(m_buffer[0] == '#') {
+	if (m_buffer[0] == '#') {
 		return true;
 	}
 
-	for(m_col = 0; m_col < m_buffer.size(); m_col++) {
+	for (m_col = 0; m_col < m_buffer.size(); m_col++) {
 		// Ignore whitespaces.
-		if(isspace(m_buffer[m_col])) {
+		if (isspace(m_buffer[m_col])) {
 			continue;
 		}
 
 		// Handle single-line comments.
-		if(match("//")) {
+		if (match("//")) {
 			break;
 		}
 
 		// Handle multi-line comments.
-		if(match("/*")) {
+		if (match("/*")) {
 			const size_t column = m_col;
 			const size_t row = m_row;
 
@@ -135,16 +132,17 @@ bool Lexer::tokenizeLine()
 				m_col++;
 
 				// Get a new line if a current one has ended.
-				if(m_col >= m_buffer.size()) {
-					if(!m_input.good()) {
-						GraphIO::logger.lout() << "Unclosed comment at" << column << ", " << row << std::endl;
+				if (m_col >= m_buffer.size()) {
+					if (!m_input.good()) {
+						GraphIO::logger.lout()
+								<< "Unclosed comment at" << column << ", " << row << std::endl;
 						return false;
 					}
 					std::getline(m_input, m_buffer);
 					m_row++;
 					m_col = 0;
 				}
-			} while(!(m_buffer[m_col - 1] == '*' && m_buffer[m_col] == '/'));
+			} while (!(m_buffer[m_col - 1] == '*' && m_buffer[m_col] == '/'));
 
 			m_col += 2;
 			continue;
@@ -152,39 +150,39 @@ bool Lexer::tokenizeLine()
 
 		Token token(m_row + 1, m_col + 1);
 
-		if(match(Token::Type::assignment)) {
+		if (match(Token::Type::assignment)) {
 			token.type = Token::Type::assignment;
-		} else if(match(Token::Type::colon)) {
+		} else if (match(Token::Type::colon)) {
 			token.type = Token::Type::colon;
-		} else if(match(Token::Type::semicolon)) {
+		} else if (match(Token::Type::semicolon)) {
 			token.type = Token::Type::semicolon;
-		} else if(match(Token::Type::comma)) {
+		} else if (match(Token::Type::comma)) {
 			token.type = Token::Type::comma;
-		} else if(match(Token::Type::edgeOpDirected)) {
+		} else if (match(Token::Type::edgeOpDirected)) {
 			token.type = Token::Type::edgeOpDirected;
-		} else if(match(Token::Type::edgeOpUndirected)) {
+		} else if (match(Token::Type::edgeOpUndirected)) {
 			token.type = Token::Type::edgeOpUndirected;
-		} else if(match(Token::Type::leftBracket)) {
+		} else if (match(Token::Type::leftBracket)) {
 			token.type = Token::Type::leftBracket;
-		} else if(match(Token::Type::rightBracket)) {
+		} else if (match(Token::Type::rightBracket)) {
 			token.type = Token::Type::rightBracket;
-		} else if(match(Token::Type::leftBrace)) {
+		} else if (match(Token::Type::leftBrace)) {
 			token.type = Token::Type::leftBrace;
-		} else if(match(Token::Type::rightBrace)) {
+		} else if (match(Token::Type::rightBrace)) {
 			token.type = Token::Type::rightBrace;
-		} else if(match(Token::Type::graph, true)) {
+		} else if (match(Token::Type::graph, true)) {
 			token.type = Token::Type::graph;
-		} else if(match(Token::Type::digraph, true)) {
+		} else if (match(Token::Type::digraph, true)) {
 			token.type = Token::Type::digraph;
-		} else if(match(Token::Type::subgraph, true)) {
+		} else if (match(Token::Type::subgraph, true)) {
 			token.type = Token::Type::subgraph;
-		} else if(match(Token::Type::node, true)) {
+		} else if (match(Token::Type::node, true)) {
 			token.type = Token::Type::node;
-		} else if(match(Token::Type::edge, true)) {
+		} else if (match(Token::Type::edge, true)) {
 			token.type = Token::Type::edge;
-		} else if(match(Token::Type::strict, true)) {
+		} else if (match(Token::Type::strict, true)) {
 			token.type = Token::Type::strict;
-		} else if(identifier(token)) {
+		} else if (identifier(token)) {
 			token.type = Token::Type::identifier;
 		} else {
 			GraphIO::logger.lout() << "Unknown token at: " << m_row << "; " << m_col << std::endl;
@@ -197,29 +195,23 @@ bool Lexer::tokenizeLine()
 	return true;
 }
 
+bool Lexer::match(const Token::Type& type, bool word) { return match(Token::toString(type), word); }
 
-bool Lexer::match(const Token::Type &type, bool word)
-{
-	return match(Token::toString(type), word);
-}
-
-
-bool Lexer::match(const std::string &str, bool word)
-{
+bool Lexer::match(const std::string& str, bool word) {
 	// Check whether buffer is too short to match.
-	if(m_buffer.length() < m_col + str.length()) {
+	if (m_buffer.length() < m_col + str.length()) {
 		return false;
 	}
 
-	for(size_t i = 0; i < str.length(); i++) {
-		if(m_buffer[m_col + i] != str[i]) {
+	for (size_t i = 0; i < str.length(); i++) {
+		if (m_buffer[m_col + i] != str[i]) {
 			return false;
 		}
 	}
 
 	// we've matched a part of a word instead of a whole word
-	if (word && m_buffer.length() >= m_col + str.length() + 1 &&
-		isDotAlnum(m_buffer[m_col + str.length()])) {
+	if (word && m_buffer.length() >= m_col + str.length() + 1
+			&& isDotAlnum(m_buffer[m_col + str.length()])) {
 		return false;
 	}
 
@@ -229,21 +221,20 @@ bool Lexer::match(const std::string &str, bool word)
 	return true;
 }
 
-
-bool Lexer::identifier(Token &token)
-{
+bool Lexer::identifier(Token& token) {
 	// Check whether identifier is double-quoted string.
-	if(m_buffer[m_col] == '"') {
+	if (m_buffer[m_col] == '"') {
 		m_col++;
 		std::stringstream ss;
 
-		while(m_buffer[m_col] != '"' || m_buffer[m_col - 1] == '\\') {
+		while (m_buffer[m_col] != '"' || m_buffer[m_col - 1] == '\\') {
 			ss << m_buffer[m_col++];
 
 			// Get a new line if a current one has ended.
-			if(m_col >= m_buffer.size()) {
-				if(!m_input.good()) {
-					GraphIO::logger.lout() << "Unclosed string at " << token.row << ", " << token.column << std::endl;
+			if (m_col >= m_buffer.size()) {
+				if (!m_input.good()) {
+					GraphIO::logger.lout() << "Unclosed string at " << token.row << ", "
+										   << token.column << std::endl;
 					return false;
 				}
 				std::getline(m_input, m_buffer);
@@ -290,9 +281,7 @@ bool Lexer::identifier(Token &token)
 	return false;
 }
 
-bool Lexer::isDotAlnum(signed char c) {
-	return isalnum(c) || c < 0 || c == '_';
-}
+bool Lexer::isDotAlnum(signed char c) { return isalnum(c) || c < 0 || c == '_'; }
 
 }
 

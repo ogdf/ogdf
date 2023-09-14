@@ -29,15 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/clique/CliqueFinderSPQR.h>
 #include <ogdf/decomposition/StaticSPQRTree.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/Math.h>
 
 namespace ogdf {
 
-void CliqueFinderSPQR::doCall()
-{
+void CliqueFinderSPQR::doCall() {
 	// Precondition for SPQR-trees: n >= 3 or (n == 2 and m >= 3).
 	// Special cases are handled by CliqueFinderModule::handleTrivialCases().
 
@@ -50,22 +49,20 @@ void CliqueFinderSPQR::doCall()
 	// Go through (bigger) R nodes first since they contain bigger cliques.
 	List<node> spqrNodes;
 	spqrTree.tree().allNodes(spqrNodes);
-	spqrNodes.quicksort(
-		GenericComparer<node, int, false>([&spqrTree](node v) {
-			if (spqrTree.typeOf(v) == SPQRTree::NodeType::RNode) {
-				return spqrTree.skeleton(v).getGraph().numberOfNodes();
-			} else {
-				return -1;
-			}
-		})
-	);
+	spqrNodes.quicksort(GenericComparer<node, int, false>([&spqrTree](node v) {
+		if (spqrTree.typeOf(v) == SPQRTree::NodeType::RNode) {
+			return spqrTree.skeleton(v).getGraph().numberOfNodes();
+		} else {
+			return -1;
+		}
+	}));
 
 	// Search for cliques in SPQR-nodes:
 	int cliqueNumber = 0;
 	for (node v : spqrNodes) {
 		// Retrieve the skeleton.
-		Skeleton &s = spqrTree.skeleton(v);
-		Graph &skeletonG = s.getGraph();
+		Skeleton& s = spqrTree.skeleton(v);
+		Graph& skeletonG = s.getGraph();
 
 		// Remove all nodes which are already in other cliques.
 		safeForEach(skeletonG.nodes, [&](node vSkel) {
@@ -101,8 +98,7 @@ void CliqueFinderSPQR::doCall()
 		} else {
 			// The SPQR node is either an S node or a P node.
 			// Each triangle (S node) is a clique for min degree 2.
-			if (skeletonG.numberOfNodes() == 3 &&
-			    skeletonG.numberOfEdges() == 3 && m_minDegree <= 2) {
+			if (skeletonG.numberOfNodes() == 3 && skeletonG.numberOfEdges() == 3 && m_minDegree <= 2) {
 				for (node vSkel : skeletonG.nodes) {
 					m_copyCliqueNumber[s.original(vSkel)] = cliqueNumber;
 				}

@@ -33,20 +33,17 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/external/Minisat.h>
 
-namespace Minisat
-{
+namespace Minisat {
 
-void Clause::addMultiple(int Amount, ...)
-{
+void Clause::addMultiple(int Amount, ...) {
 	va_list params;
 	va_start(params, Amount);
 	for (int i = 0; i < Amount; ++i) {
 		Internal::Var paramVar = va_arg(params, Internal::Var);
 		Internal::Lit l;
 		if (paramVar >= 0) {
-			l = Internal::mkLit(paramVar-1, true);
-		}
-		else {
+			l = Internal::mkLit(paramVar - 1, true);
+		} else {
 			l = Internal::mkLit(-(paramVar + 1), false);
 		}
 		m_ps.push(l);
@@ -54,15 +51,12 @@ void Clause::addMultiple(int Amount, ...)
 	va_end(params);
 }
 
-Clause *Formula::newClause()
-{
+Clause* Formula::newClause() {
 	m_Clauses.push_back(new Clause);
 	return m_Clauses.back();
-
 }
 
-void Formula::finalizeClause(const clause cl)
-{
+void Formula::finalizeClause(const clause cl) {
 	for (int i = 0; i < cl->m_ps.size(); ++i) {
 		// if an variable does not exist, it will be generated (and all between the gap)
 		if (!(Internal::var(cl->m_ps[i]) < Solver::nVars())) {
@@ -75,8 +69,7 @@ void Formula::finalizeClause(const clause cl)
 	Solver::addClause(cl->m_ps);
 }
 
-bool Formula::finalizeNotExtensibleClause(const clause cl)
-{
+bool Formula::finalizeNotExtensibleClause(const clause cl) {
 	//proves if variables from clause are valid (still known to formula)
 	for (int i = 0; i < cl->m_ps.size(); ++i) {
 		if (!(Internal::var(cl->m_ps[i]) < Solver::nVars())) {
@@ -88,41 +81,38 @@ bool Formula::finalizeNotExtensibleClause(const clause cl)
 	return true;
 }
 
-Clause *Formula::getClause( const int pos )
-{
-	if ( pos < (int)m_Clauses.size() )
+Clause* Formula::getClause(const int pos) {
+	if (pos < (int)m_Clauses.size()) {
 		return m_Clauses[pos];
-	else
+	} else {
 		return nullptr;
+	}
 }
 
-bool Formula::solve( Model &ReturnModel )
-{
+bool Formula::solve(Model& ReturnModel) {
 	bool solv = Solver::solve();
 
-	if ( solv )
-		ReturnModel.setModel ( *this );
+	if (solv) {
+		ReturnModel.setModel(*this);
+	}
 
 	return solv;
 }
 
-
-bool Formula::solve( Model &ReturnModel, double& timeLimit )
-{
+bool Formula::solve(Model& ReturnModel, double& timeLimit) {
 	SolverStatus st;
 	bool solv = Solver::solve(timeLimit, st);
 
-	if (solv)
-		ReturnModel.setModel (*this);
+	if (solv) {
+		ReturnModel.setModel(*this);
+	}
 
 	ReturnModel.solverStatus = st;
 
 	return solv;
 }
 
-
-void Formula::removeClause(int i)
-{
+void Formula::removeClause(int i) {
 	Internal::CRef cr = Solver::clauses[i];
 	Solver::removeClause(cr);
 	int j, k;
@@ -131,13 +121,12 @@ void Formula::removeClause(int i)
 			clauses[k++] = clauses[j];
 		}
 	}
-	clauses.shrink( j - k );
+	clauses.shrink(j - k);
 	delete &m_Clauses[i];
-	m_Clauses.erase( m_Clauses.begin() + i );
+	m_Clauses.erase(m_Clauses.begin() + i);
 }
 
-void Formula::reset()
-{
+void Formula::reset() {
 	free();
 	Solver::assigns.clear();
 	Solver::vardata.clear();
@@ -150,32 +139,28 @@ void Formula::reset()
 	Solver::model.clear();
 }
 
-void Formula::free()
-{
+void Formula::free() {
 	for (auto i = 0; i < Solver::clauses.size(); ++i) {
 		Solver::removeClause(Solver::clauses[i]);
 	}
-	for (auto &cl : m_Clauses) {
+	for (auto& cl : m_Clauses) {
 		delete cl;
 	}
 	Solver::clauses.shrink(Solver::clauses.size());
 	m_Clauses.clear();
 }
 
-bool Formula::readDimacs(const char *filename)
-{
+bool Formula::readDimacs(const char* filename) {
 	std::ifstream is(filename);
 	return is.is_open() && readDimacs(is);
 }
 
-bool Formula::readDimacs(const string &filename)
-{
+bool Formula::readDimacs(const string& filename) {
 	std::ifstream is(filename);
 	return is.is_open() && readDimacs(is);
 }
 
-bool Formula::readDimacs(std::istream &in)
-{
+bool Formula::readDimacs(std::istream& in) {
 	std::string currentString;
 
 	while (!in.eof()) {
@@ -203,9 +188,10 @@ bool Formula::readDimacs(std::istream &in)
 	ogdf::ArrayBuffer<int> literals;
 	for (int lit; in >> lit;) {
 		if (lit) {
-			if (lit > numVars
-			 || -lit > numVars) {
-				ogdf::Logger::slout() << "Literal does not represent a valid variable (index too high)" << std::endl;
+			if (lit > numVars || -lit > numVars) {
+				ogdf::Logger::slout()
+						<< "Literal does not represent a valid variable (index too high)"
+						<< std::endl;
 				return false;
 			}
 			literals.push(lit);
@@ -216,44 +202,38 @@ bool Formula::readDimacs(std::istream &in)
 		}
 	}
 	if (!literals.empty()) {
-		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Last clause is not terminated by 0 marker, but we accept it nonetheless" << std::endl;
+		ogdf::Logger::slout(ogdf::Logger::Level::Minor)
+				<< "Last clause is not terminated by 0 marker, but we accept it nonetheless"
+				<< std::endl;
 		addClause(literals);
 	}
-	if(clauseCount != numClauses) {
-		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Number of clauses differs from file header" << std::endl;
+	if (clauseCount != numClauses) {
+		ogdf::Logger::slout(ogdf::Logger::Level::Minor)
+				<< "Number of clauses differs from file header" << std::endl;
 	}
 
 	return true;
 }
 
-bool Formula::writeDimacs(const char *filename)
-{
+bool Formula::writeDimacs(const char* filename) {
 	std::ofstream os(filename);
 	return os.is_open() && writeDimacs(os);
 }
 
-bool Formula::writeDimacs(const string &filename)
-{
+bool Formula::writeDimacs(const string& filename) {
 	std::ofstream os(filename);
 	return os.is_open() && writeDimacs(os);
 }
 
-bool Formula::writeDimacs(std::ostream &f)
-{
+bool Formula::writeDimacs(std::ostream& f) {
 	f << "p cnf " << getVariableCount() << " " << getClauseCount() << std::endl;
-	for (auto &cl : m_Clauses) {
+	for (auto& cl : m_Clauses) {
 		for (int j = 0; j < cl->m_ps.size(); ++j) {
 #if defined(OGDF_DEBUG)
-			std::cout
-			  << "Sign : "
-			  << Internal::sign(cl->m_ps[j])
-			  << "Var : "
-			  << Internal::var(cl->m_ps[j]) + 1
-			  << std::endl;
+			std::cout << "Sign : " << Internal::sign(cl->m_ps[j])
+					  << "Var : " << Internal::var(cl->m_ps[j]) + 1 << std::endl;
 #endif
-			f << " "
-			  << Clause::convertLitSign(cl->m_ps[j])
-			  << Internal::var(cl->m_ps[j]) + 1;
+			f << " " << Clause::convertLitSign(cl->m_ps[j]) << Internal::var(cl->m_ps[j]) + 1;
 		}
 		f << " 0" << std::endl;
 	}

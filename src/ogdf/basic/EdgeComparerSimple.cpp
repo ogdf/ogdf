@@ -34,8 +34,7 @@
 
 namespace ogdf {
 
-int EdgeComparerSimple::compare(const adjEntry &e1, const adjEntry &e2) const
-{
+int EdgeComparerSimple::compare(const adjEntry& e1, const adjEntry& e2) const {
 	auto findPoints = [&](const adjEntry a, DPoint& p) {
 		DPolyline poly = m_AG->bends(a->theEdge());
 		if (m_useBends && poly.size() > 2) {
@@ -64,18 +63,33 @@ int EdgeComparerSimple::compare(const adjEntry &e1, const adjEntry &e2) const
 	double yP2 = -m_AG->y(m_basis) + pE2.m_y;
 
 	auto bothYSameSide = [](double x1, double x2, double y1, double y2) -> int {
-		if (x1 >= 0 && x2 < 0) { return -1; }
-		if (x1 < 0 && x2 >= 0) { return 1; }
-		x1 /= sqrt(x1*x1 + y1*y1);
-		x2 /= sqrt(x2*x2 + y2*y2);
-		if (x1 > x2) { return -1; }
-		else { return 1; }
+		if (x1 >= 0 && x2 < 0) {
+			return -1;
+		}
+		if (x1 < 0 && x2 >= 0) {
+			return 1;
+		}
+		x1 /= sqrt(x1 * x1 + y1 * y1);
+		x2 /= sqrt(x2 * x2 + y2 * y2);
+		if (x1 > x2) {
+			return -1;
+		} else {
+			return 1;
+		}
 	};
 
-	if (yP1 >= 0 && yP2 < 0) { return 1; }
-	if (yP1 < 0 && yP2 >= 0) { return -1; }
-	if (yP1 >= 0 && yP2 >= 0) { return bothYSameSide(xP1, xP2, yP1, yP2); }
-	if (yP1 < 0 && yP2 < 0) { return -bothYSameSide(xP1, xP2, yP1, yP2); }
+	if (yP1 >= 0 && yP2 < 0) {
+		return 1;
+	}
+	if (yP1 < 0 && yP2 >= 0) {
+		return -1;
+	}
+	if (yP1 >= 0 && yP2 >= 0) {
+		return bothYSameSide(xP1, xP2, yP1, yP2);
+	}
+	if (yP1 < 0 && yP2 < 0) {
+		return -bothYSameSide(xP1, xP2, yP1, yP2);
+	}
 
 	return 0;
 }

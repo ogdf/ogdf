@@ -37,9 +37,8 @@
 
 #pragma once
 
-#include <ogdf/uml/UmlModelGraph.h>
 #include <ogdf/basic/SList.h>
-
+#include <ogdf/uml/UmlModelGraph.h>
 
 namespace ogdf {
 
@@ -50,12 +49,11 @@ namespace ogdf {
  *  with additional geometric information.
  */
 class OGDF_EXPORT UmlDiagramGraph {
-
-	friend OGDF_EXPORT std::ostream &operator<<(std::ostream&, const UmlDiagramGraph &);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream&, const UmlDiagramGraph&);
 
 public:
 	//! This enum type represents the different diagram types of UML. */
-	enum class UmlDiagramType{
+	enum class UmlDiagramType {
 		classDiagram,
 		moduleDiagram,
 		sequenceDiagram,
@@ -66,7 +64,7 @@ public:
 
 private:
 	/** Reference to the model graph. */
-	const UmlModelGraph &m_modelGraph;
+	const UmlModelGraph& m_modelGraph;
 
 	/** The name of the diagram. */
 	string m_diagramName;
@@ -105,11 +103,9 @@ private:
 	SList<double> m_h;
 
 public:
-
 	/** Constructor. */
-	UmlDiagramGraph(const UmlModelGraph &umlModelGraph,
-						UmlDiagramType diagramType,
-						const string &diagramName);
+	UmlDiagramGraph(const UmlModelGraph& umlModelGraph, UmlDiagramType diagramType,
+			const string& diagramName);
 
 	/** Destructor. */
 	~UmlDiagramGraph();
@@ -121,43 +117,28 @@ public:
 	void addEdge(edge umlEdge);
 
 	/** Returns the name of the diagram. */
-	const string &getDiagramName() const{
-		return m_diagramName;
-	}
+	const string& getDiagramName() const { return m_diagramName; }
 
 	/** Returns the type of the diagram as string. */
-	const char *getDiagramTypeString() const;
+	const char* getDiagramTypeString() const;
 
 	/** Access to contained nodes. */
-	const SList<node> &getNodes() const{
-		return m_containedNodes;
-	}
+	const SList<node>& getNodes() const { return m_containedNodes; }
 
 	/** Access to contained edges. */
-	const SList<edge> &getEdges() const{
-		return m_containedEdges;
-	}
+	const SList<edge>& getEdges() const { return m_containedEdges; }
 
 	/** Access to x-coordinates. */
-	const SList<double> &getX() const{
-		return m_x;
-	}
+	const SList<double>& getX() const { return m_x; }
 
 	/** Access to y-coordinates. */
-	const SList<double> &getY() const{
-		return m_y;
-	}
+	const SList<double>& getY() const { return m_y; }
 
 	/** Access to width. */
-	const SList<double> &getWidth() const{
-		return m_w;
-	}
+	const SList<double>& getWidth() const { return m_w; }
 
 	/** Access to height. */
-	const SList<double> &getHeight() const{
-		return m_h;
-	}
-
+	const SList<double>& getHeight() const { return m_h; }
 };
 
 }

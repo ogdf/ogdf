@@ -35,19 +35,14 @@
 namespace ogdf {
 
 // clone method
-EdgeInsertionModule *VariableEmbeddingInserterDyn::clone() const
-{
+EdgeInsertionModule* VariableEmbeddingInserterDyn::clone() const {
 	return new VariableEmbeddingInserterDyn(*this);
 }
 
 // actual call method
-Module::ReturnType VariableEmbeddingInserterDyn::doCall(
-	PlanRepLight &pr,
-	const Array<edge> &origEdges,
-	const EdgeArray<int> *pCostOrig,
-	const EdgeArray<bool> *pForbiddenOrig,
-	const EdgeArray<uint32_t> *pEdgeSubgraphs)
-{
+Module::ReturnType VariableEmbeddingInserterDyn::doCall(PlanRepLight& pr,
+		const Array<edge>& origEdges, const EdgeArray<int>* pCostOrig,
+		const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubgraphs) {
 	VarEdgeInserterDynCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
 	core.timeLimit(timeLimit());
 

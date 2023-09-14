@@ -29,11 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/FPPLayout.h>
-#include <ogdf/planarlayout/MixedModelLayout.h>
-#include <ogdf/planarlayout/PlanarDrawLayout.h>
-#include <ogdf/planarlayout/PlanarStraightLayout.h>
-#include <ogdf/planarlayout/SchnyderLayout.h>
 #include <ogdf/planarity/EmbedderMaxFace.h>
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
 #include <ogdf/planarity/EmbedderMinDepth.h>
@@ -42,13 +37,19 @@
 #include <ogdf/planarity/EmbedderMinDepthPiTa.h>
 #include <ogdf/planarity/EmbedderOptimalFlexDraw.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/planarlayout/TriconnectedShellingOrder.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
+#include <ogdf/planarlayout/FPPLayout.h>
+#include <ogdf/planarlayout/MixedModelLayout.h>
+#include <ogdf/planarlayout/PlanarDrawLayout.h>
+#include <ogdf/planarlayout/PlanarStraightLayout.h>
+#include <ogdf/planarlayout/SchnyderLayout.h>
+#include <ogdf/planarlayout/TriconnectedShellingOrder.h>
 
 #include "layout_helpers.h"
 
 template<typename Layout>
-static void describeForAllEmbedders(string name, Layout &layout, std::set<GraphProperty> requirements = {}, bool skipMe = false) {
+static void describeForAllEmbedders(string name, Layout& layout,
+		std::set<GraphProperty> requirements = {}, bool skipMe = false) {
 	name += " and ";
 
 	requirements.insert({GraphProperty::planar, GraphProperty::simple});
@@ -61,16 +62,19 @@ static void describeForAllEmbedders(string name, Layout &layout, std::set<GraphP
 	describeLayout(name + "EmbedderMaxFace", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMaxFaceLayers);
-	describeLayout(name + "EmbedderMaxFaceLayers", layout, 0, requirements, false, GraphSizes(), skipMe);
+	describeLayout(name + "EmbedderMaxFaceLayers", layout, 0, requirements, false, GraphSizes(),
+			skipMe);
 
 	layout.setEmbedder(new EmbedderMinDepth);
 	describeLayout(name + "EmbedderMinDepth", layout, 0, requirements, false, GraphSizes(), skipMe);
 
 	layout.setEmbedder(new EmbedderMinDepthMaxFace);
-	describeLayout(name + "EmbedderMinDepthMaxFace", layout, 0, requirements, false, GraphSizes(), skipMe);
+	describeLayout(name + "EmbedderMinDepthMaxFace", layout, 0, requirements, false, GraphSizes(),
+			skipMe);
 
 	layout.setEmbedder(new EmbedderMinDepthMaxFaceLayers);
-	describeLayout(name + "EmbedderMinDepthMaxFaceLayers", layout, 0, requirements, false, GraphSizes(), skipMe);
+	describeLayout(name + "EmbedderMinDepthMaxFaceLayers", layout, 0, requirements, false,
+			GraphSizes(), skipMe);
 
 	// the two embedders below are currently disabled since they cause failures
 
@@ -78,7 +82,8 @@ static void describeForAllEmbedders(string name, Layout &layout, std::set<GraphP
 	describeLayout(name + "EmbedderMinDepthPiTa", layout, 0, requirements, false, GraphSizes(), true);
 
 	layout.setEmbedder(new EmbedderOptimalFlexDraw);
-	describeLayout(name + "EmbedderOptimalFlexDraw", layout, 0, requirements, false, GraphSizes(), true);
+	describeLayout(name + "EmbedderOptimalFlexDraw", layout, 0, requirements, false, GraphSizes(),
+			true);
 }
 
 template<typename Layout>
@@ -94,13 +99,19 @@ static void describePlanarLayout(string name, std::set<GraphProperty> requiremen
 	describeForAllEmbedders(name + "TriconnectedShellingOrder", layout, requirements);
 }
 
-go_bandit([] { describe("Planar layouts", [] {
-	describePlanarLayout<PlanarStraightLayout>("PlanarStraightLayout");
-	describePlanarLayout<PlanarDrawLayout>("PlanarDrawLayout");
+go_bandit([] {
+	describe("Planar layouts", [] {
+		describePlanarLayout<PlanarStraightLayout>("PlanarStraightLayout");
+		describePlanarLayout<PlanarDrawLayout>("PlanarDrawLayout");
 
-	describePlanarLayout<MixedModelLayout>("MixedModelLayout", {GraphProperty::connected});
+		describePlanarLayout<MixedModelLayout>("MixedModelLayout", {GraphProperty::connected});
 
-	describeLayout<FPPLayout>("FPPLayout", 0, {GraphProperty::planar, GraphProperty::simple, GraphProperty::connected}, false, GraphSizes());
+		describeLayout<FPPLayout>("FPPLayout", 0,
+				{GraphProperty::planar, GraphProperty::simple, GraphProperty::connected}, false,
+				GraphSizes());
 
-	describeLayout<SchnyderLayout>("SchnyderLayout", 0, {GraphProperty::planar, GraphProperty::simple, GraphProperty::connected}, false, GraphSizes());
-}); });
+		describeLayout<SchnyderLayout>("SchnyderLayout", 0,
+				{GraphProperty::planar, GraphProperty::simple, GraphProperty::connected}, false,
+				GraphSizes());
+	});
+});

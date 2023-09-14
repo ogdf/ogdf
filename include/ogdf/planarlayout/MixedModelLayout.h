@@ -31,12 +31,13 @@
 
 #pragma once
 
-#include <ogdf/planarlayout/GridLayoutModule.h>
-#include <memory>
-#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/augmentation/AugmentationModule.h>
-#include <ogdf/planarlayout/ShellingOrderModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -109,8 +110,7 @@ namespace ogdf {
  * The computation of the layout takes time O(<I>n</I>), where <I>n</I> is
  * the number of nodes of the input graph.
  */
-class OGDF_EXPORT MixedModelLayout : public GridLayoutPlanRepModule
-{
+class OGDF_EXPORT MixedModelLayout : public GridLayoutPlanRepModule {
 public:
 	//! Constructs an instance of the Mixed-Model layout algorithm.
 	MixedModelLayout();
@@ -128,39 +128,29 @@ public:
 	 * The augmentation module needs to make sure that the graph gets the
 	 * connectivity required for calling the shelling order module.
 	 */
-	void setAugmenter(AugmentationModule *pAugmenter) {
-		m_augmenter.reset(pAugmenter);
-	}
+	void setAugmenter(AugmentationModule* pAugmenter) { m_augmenter.reset(pAugmenter); }
 
 	//! Sets the shelling order module.
-	void setShellingOrder(ShellingOrderModule *pOrder) {
-		m_compOrder.reset(pOrder);
-	}
+	void setShellingOrder(ShellingOrderModule* pOrder) { m_compOrder.reset(pOrder); }
 
 	//! Sets the crossings beautifier module.
-	void setCrossingsBeautifier(MixedModelCrossingsBeautifierModule *pBeautifier) {
+	void setCrossingsBeautifier(MixedModelCrossingsBeautifierModule* pBeautifier) {
 		m_crossingsBeautifier.reset(pBeautifier);
 	}
 
 	//! Sets the module option for the graph embedding algorithm.
-	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.reset(pEmbedder);
-	}
+	void setEmbedder(EmbedderModule* pEmbedder) { m_embedder.reset(pEmbedder); }
 
 	//! @}
 
 protected:
 	//! Implements the algorithm call.
-	virtual void doCall(
-		PlanRep &PG,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding) override;
+	virtual void doCall(PlanRep& PG, adjEntry adjExternal, GridLayout& gridLayout,
+			IPoint& boundingBox, bool fixEmbedding) override;
 
 private:
-	std::unique_ptr<EmbedderModule>      m_embedder;  //!< The planar embedder module.
-	std::unique_ptr<AugmentationModule>  m_augmenter; //!< The augmentation module.
+	std::unique_ptr<EmbedderModule> m_embedder; //!< The planar embedder module.
+	std::unique_ptr<AugmentationModule> m_augmenter; //!< The augmentation module.
 	std::unique_ptr<ShellingOrderModule> m_compOrder; //!< The shelling order module.
 	std::unique_ptr<MixedModelCrossingsBeautifierModule> m_crossingsBeautifier; //!< The crossings beautifier module.
 };

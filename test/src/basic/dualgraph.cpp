@@ -30,24 +30,19 @@
  */
 
 #include <ogdf/basic/DualGraph.h>
-#include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graph_generators.h>
 
 #include <graphs.h>
 #include <testing.h>
 
 //! Tests consistency of a DynamicDualGraph \p dual and its corresponding primal
 //! embedding \p emb as well as the primal graph &graph.
-void describeDualGraph(const DynamicDualGraph &dual,
-		const ConstCombinatorialEmbedding &emb,
-		const Graph &graph) {
-	it("returns its primal embedding", [&] {
-		AssertThat(&dual.getPrimalEmbedding(), Equals(&emb));
-	});
+void describeDualGraph(const DynamicDualGraph& dual, const ConstCombinatorialEmbedding& emb,
+		const Graph& graph) {
+	it("returns its primal embedding", [&] { AssertThat(&dual.getPrimalEmbedding(), Equals(&emb)); });
 
-	it("returns its primal graph", [&] {
-		AssertThat(&dual.getPrimalGraph(), Equals(&graph));
-	});
+	it("returns its primal graph", [&] { AssertThat(&dual.getPrimalGraph(), Equals(&graph)); });
 
 	it("has a matching number of nodes, faces, and edges", [&] {
 		AssertThat(dual.numberOfFaces(), Equals(graph.numberOfNodes()));
@@ -64,7 +59,7 @@ void describeDualGraph(const DynamicDualGraph &dual,
 	});
 
 	it("maps primal nodes to dual faces", [&] {
-		for (node v: graph.nodes) {
+		for (node v : graph.nodes) {
 			face f = dual.dualFace(v);
 			AssertThat(dual.primalNode(f), Equals(v));
 			AssertThat(f->size(), Equals(v->degree()));
@@ -89,7 +84,7 @@ void describeDualGraph(const DynamicDualGraph &dual,
 }
 
 //! Creates a DualGraph of \p graph and runs several tests on it.
-void describeDualGraph(const Graph &graph) {
+void describeDualGraph(const Graph& graph) {
 	if (graph.numberOfEdges() < 1) {
 		return;
 	}
@@ -167,7 +162,7 @@ void describeDualGraph(const Graph &graph) {
 				it++;
 				adjEntry firstAdj {v->firstAdj()};
 				node newNode {copy.newNode()};
-				if (randomNumber(0,1) == 0) {
+				if (randomNumber(0, 1) == 0) {
 					dual->addEdgeToIsolatedNodePrimal(firstAdj, newNode);
 				} else {
 					dual->addEdgeToIsolatedNodePrimal(newNode, firstAdj);
@@ -180,9 +175,8 @@ void describeDualGraph(const Graph &graph) {
 }
 
 go_bandit([]() {
-	describe("DualGraph",[] {
+	describe("DualGraph", [] {
 		forEachGraphDescribe({GraphProperty::planar, GraphProperty::connected},
-			[&](const Graph &graph) { describeDualGraph(graph); }
-		);
+				[&](const Graph& graph) { describeDualGraph(graph); });
 	});
 });

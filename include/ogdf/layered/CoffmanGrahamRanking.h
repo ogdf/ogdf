@@ -32,11 +32,12 @@
 
 #pragma once
 
-#include <ogdf/layered/RankingModule.h>
-#include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/basic/NodeArray.h>
-#include <memory>
 #include <ogdf/basic/tuples.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/layered/RankingModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -50,7 +51,6 @@ namespace ogdf {
  * the ranking (the number of layers) is kept small.
  */
 class OGDF_EXPORT CoffmanGrahamRanking : public RankingModule {
-
 public:
 	//! Creates an instance of coffman graham ranking.
 	CoffmanGrahamRanking();
@@ -62,8 +62,7 @@ public:
 	 */
 
 	//! Computes a node ranking of \p G in \p rank.
-	virtual void call(const Graph &G, NodeArray<int> &rank) override;
-
+	virtual void call(const Graph& G, NodeArray<int>& rank) override;
 
 	/** @}
 	 *  @name Module options
@@ -71,21 +70,15 @@ public:
 	 */
 
 	//! Sets the module for the computation of the acyclic subgraph.
-	void setSubgraph(AcyclicSubgraphModule *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(AcyclicSubgraphModule* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! @}
 
 	//! Get for the with
-	int width() const {
-		return m_w;
-	}
+	int width() const { return m_w; }
 
 	//! Set for the with
-	void width (int w) {
-		m_w = w;
-	}
+	void width(int w) { m_w = w; }
 
 
 private:
@@ -94,38 +87,35 @@ private:
 		int* m_array;
 		int m_length;
 		int m_index;
+
 	public:
 		_int_set() : m_array(nullptr), m_length(0), m_index(0) { }
+
 		explicit _int_set(int len) : m_array(nullptr), m_length(len), m_index(len) {
-			if (len > 0)
+			if (len > 0) {
 				m_array = new int[m_length];
+			}
 		}
+
 		~_int_set() { delete[] m_array; }
 
 		void init(int len) {
 			delete m_array;
-			if ((m_length = len) == 0)
+			if ((m_length = len) == 0) {
 				m_array = nullptr;
-			else
+			} else {
 				m_array = new int[m_length];
+			}
 			m_index = len;
 		}
 
-		int length() const {
-			return m_length;
-		}
+		int length() const { return m_length; }
 
-		int operator[](int i) const {
-			return m_array[i];
-		}
+		int operator[](int i) const { return m_array[i]; }
 
-		void insert(int x) {
-			m_array[--m_index] = x;
-		}
+		void insert(int x) { m_array[--m_index] = x; }
 
-		bool ready() const {
-			return m_index == 0;
-		}
+		bool ready() const { return m_index == 0; }
 	};
 
 	// CoffmanGraham members
@@ -137,11 +127,11 @@ private:
 	NodeArray<int> m_mark;
 
 	// CoffmanGraham funktions
-	void insert (node u, List<Tuple2<node,int> > &ready_nodes);
-	void insert (node u, List<node> &ready, const NodeArray<int> &pi);
+	void insert(node u, List<Tuple2<node, int>>& ready_nodes);
+	void insert(node u, List<node>& ready, const NodeArray<int>& pi);
 
 	// dfs funktions
-	void removeTransitiveEdges (Graph& G);
+	void removeTransitiveEdges(Graph& G);
 	void dfs(node v);
 };
 

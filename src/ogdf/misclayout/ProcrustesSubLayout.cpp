@@ -33,65 +33,57 @@
 
 namespace ogdf {
 
-ProcrustesSubLayout::ProcrustesSubLayout(LayoutModule* pSubLayout) : m_pSubLayout(pSubLayout), m_scaleToInitialLayout(true) { }
+ProcrustesSubLayout::ProcrustesSubLayout(LayoutModule* pSubLayout)
+	: m_pSubLayout(pSubLayout), m_scaleToInitialLayout(true) { }
 
-void ProcrustesSubLayout::copyFromGraphAttributes(const GraphAttributes& graphAttributes, ProcrustesPointSet& pointSet)
-{
+void ProcrustesSubLayout::copyFromGraphAttributes(const GraphAttributes& graphAttributes,
+		ProcrustesPointSet& pointSet) {
 	const Graph& graph = graphAttributes.constGraph();
 	int i = 0;
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		pointSet.set(i, graphAttributes.x(v), graphAttributes.y(v));
 		i++;
 	}
 }
 
-void ProcrustesSubLayout::translate(GraphAttributes& graphAttributes, double dx, double dy)
-{
+void ProcrustesSubLayout::translate(GraphAttributes& graphAttributes, double dx, double dy) {
 	const Graph& graph = graphAttributes.constGraph();
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		graphAttributes.x(v) += dx;
 		graphAttributes.y(v) += dy;
 	}
 }
 
-void ProcrustesSubLayout::rotate(GraphAttributes& graphAttributes, double angle)
-{
+void ProcrustesSubLayout::rotate(GraphAttributes& graphAttributes, double angle) {
 	const Graph& graph = graphAttributes.constGraph();
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
-		double x = cos(angle)*graphAttributes.x(v) - sin(angle)*graphAttributes.y(v);
-		double y = sin(angle)*graphAttributes.x(v) + cos(angle)*graphAttributes.y(v);
+	for (node v = graph.firstNode(); v; v = v->succ()) {
+		double x = cos(angle) * graphAttributes.x(v) - sin(angle) * graphAttributes.y(v);
+		double y = sin(angle) * graphAttributes.x(v) + cos(angle) * graphAttributes.y(v);
 		graphAttributes.x(v) = x;
 		graphAttributes.y(v) = y;
 	}
 }
 
-void ProcrustesSubLayout::scale(GraphAttributes& graphAttributes, double scale)
-{
+void ProcrustesSubLayout::scale(GraphAttributes& graphAttributes, double scale) {
 	const Graph& graph = graphAttributes.constGraph();
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		graphAttributes.x(v) *= scale;
 		graphAttributes.y(v) *= scale;
 	}
 }
 
-void ProcrustesSubLayout::flipY(GraphAttributes& graphAttributes)
-{
+void ProcrustesSubLayout::flipY(GraphAttributes& graphAttributes) {
 	const Graph& graph = graphAttributes.constGraph();
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		graphAttributes.y(v) = -graphAttributes.y(v);
 	}
 }
 
-void ProcrustesSubLayout::call(GraphAttributes& graphAttributes)
-{
+void ProcrustesSubLayout::call(GraphAttributes& graphAttributes) {
 	// any layout?
-	if (!m_pSubLayout)
+	if (!m_pSubLayout) {
 		return;
+	}
 
 	const Graph& graph = graphAttributes.constGraph();
 
@@ -116,19 +108,19 @@ void ProcrustesSubLayout::call(GraphAttributes& graphAttributes)
 	newFlippedPointSet.rotateTo(initialPointSet);
 
 	// which layout is better
-	bool useFlippedLayout = initialPointSet.compare(newFlippedPointSet) < initialPointSet.compare(newPointSet);
+	bool useFlippedLayout =
+			initialPointSet.compare(newFlippedPointSet) < initialPointSet.compare(newPointSet);
 	double scaleFactor = initialPointSet.scale();
-	if (useFlippedLayout)
-	{
+	if (useFlippedLayout) {
 		reverseTransform(graphAttributes, newFlippedPointSet);
-		if (!m_scaleToInitialLayout)
+		if (!m_scaleToInitialLayout) {
 			scaleFactor = newFlippedPointSet.scale();
-	}
-	else
-	{
+		}
+	} else {
 		reverseTransform(graphAttributes, newPointSet);
-		if (!m_scaleToInitialLayout)
+		if (!m_scaleToInitialLayout) {
 			scaleFactor = newFlippedPointSet.scale();
+		}
 	}
 
 	// everything is uniform and rotated. now get back to the initial layout
@@ -136,43 +128,41 @@ void ProcrustesSubLayout::call(GraphAttributes& graphAttributes)
 	translate(graphAttributes, initialPointSet.originX(), initialPointSet.originY());
 }
 
-void ProcrustesSubLayout::reverseTransform(GraphAttributes& graphAttributes, const ProcrustesPointSet& pointSet)
-{
+void ProcrustesSubLayout::reverseTransform(GraphAttributes& graphAttributes,
+		const ProcrustesPointSet& pointSet) {
 	translate(graphAttributes, -pointSet.originX(), -pointSet.originY());
-	if (pointSet.isFlipped())
+	if (pointSet.isFlipped()) {
 		flipY(graphAttributes);
-	scale(graphAttributes, 1.0/pointSet.scale());
+	}
+	scale(graphAttributes, 1.0 / pointSet.scale());
 	rotate(graphAttributes, pointSet.angle());
 }
 
-ProcrustesPointSet::ProcrustesPointSet(int numPoints) :
-	m_numPoints(numPoints),
-	m_originX(0.0),
-	m_originY(0.0),
-	m_scale(1.0),
-	m_angle(0.0),
-	m_flipped(false)
-{
+ProcrustesPointSet::ProcrustesPointSet(int numPoints)
+	: m_numPoints(numPoints)
+	, m_originX(0.0)
+	, m_originY(0.0)
+	, m_scale(1.0)
+	, m_angle(0.0)
+	, m_flipped(false) {
 	m_x = new double[m_numPoints];
 	m_y = new double[m_numPoints];
 }
 
-ProcrustesPointSet::~ProcrustesPointSet()
-{
+ProcrustesPointSet::~ProcrustesPointSet() {
 	delete[] m_x;
 	delete[] m_y;
 }
 
-void ProcrustesPointSet::normalize(bool flip)
-{
-	if (!m_numPoints)
+void ProcrustesPointSet::normalize(bool flip) {
+	if (!m_numPoints) {
 		return;
+	}
 
 	// calculate the avg center
 	m_originX = 0.0;
 	m_originY = 0.0;
-	for (int i = 0; i < m_numPoints; ++i)
-	{
+	for (int i = 0; i < m_numPoints; ++i) {
 		m_originX += m_x[i];
 		m_originY += m_y[i];
 	}
@@ -181,16 +171,14 @@ void ProcrustesPointSet::normalize(bool flip)
 	m_originY /= (double)m_numPoints;
 
 	// center points and calculate root mean square distance (RMDS)
-	if (m_numPoints > 1)
-	{
+	if (m_numPoints > 1) {
 		m_scale = 0.0;
-		for (int i = 0; i < m_numPoints; ++i)
-		{
+		for (int i = 0; i < m_numPoints; ++i) {
 			// translate
 			m_x[i] -= m_originX;
 			m_y[i] -= m_originY;
 			// while we are here: sum up for RMDS
-			m_scale += m_x[i]*m_x[i] + m_y[i]*m_y[i];
+			m_scale += m_x[i] * m_x[i] + m_y[i] * m_y[i];
 		}
 		// the ROOT MEAN in root mean square distance
 		m_scale = sqrt(m_scale / (double)m_numPoints);
@@ -200,57 +188,49 @@ void ProcrustesPointSet::normalize(bool flip)
 
 	// rescale all points to uniform scale
 	double scaleInv = 1.0 / m_scale;
-	for (int i = 0; i < m_numPoints; ++i)
-	{
+	for (int i = 0; i < m_numPoints; ++i) {
 		// scaling
 		m_x[i] *= scaleInv;
 		m_y[i] *= scaleInv;
 	}
 
 	m_flipped = flip;
-	if (m_flipped)
-	{
-		for (int i = 0; i < m_numPoints; ++i)
-		{
+	if (m_flipped) {
+		for (int i = 0; i < m_numPoints; ++i) {
 			m_y[i] = -m_y[i];
 		}
 	}
 }
 
-void ProcrustesPointSet::rotateTo(const ProcrustesPointSet& other)
-{
+void ProcrustesPointSet::rotateTo(const ProcrustesPointSet& other) {
 	// calculate angle between the two normalized point sets
 	double a = 0.0;
 	double b = 0.0;
-	for (int i = 0; i < m_numPoints; ++i)
-	{
-		a += m_x[i]*other.m_y[i] - m_y[i]*other.m_x[i];
-		b += m_x[i]*other.m_x[i] + m_y[i]*other.m_y[i];
+	for (int i = 0; i < m_numPoints; ++i) {
+		a += m_x[i] * other.m_y[i] - m_y[i] * other.m_x[i];
+		b += m_x[i] * other.m_x[i] + m_y[i] * other.m_y[i];
 	}
 
 	// note: atan and me never have been friends really.
 	// i hope i'm not missing anything here!
-	m_angle	= atan2(a, b);
+	m_angle = atan2(a, b);
 
 	// now rotate the points
-	for (int i = 0; i < m_numPoints; ++i)
-	{
-		double x = cos(m_angle)*m_x[i] - sin(m_angle)*m_y[i];
-		double y = sin(m_angle)*m_x[i] + cos(m_angle)*m_y[i];
+	for (int i = 0; i < m_numPoints; ++i) {
+		double x = cos(m_angle) * m_x[i] - sin(m_angle) * m_y[i];
+		double y = sin(m_angle) * m_x[i] + cos(m_angle) * m_y[i];
 		m_x[i] = x;
 		m_y[i] = y;
 	}
 }
 
-double ProcrustesPointSet::compare(const ProcrustesPointSet& other) const
-{
+double ProcrustesPointSet::compare(const ProcrustesPointSet& other) const {
 	double result = 0.0;
 	// calculate the comparison value
-	for (int i = 0; i < m_numPoints; ++i)
-	{
+	for (int i = 0; i < m_numPoints; ++i) {
 		double dx = other.m_x[i] - m_x[i];
 		double dy = other.m_y[i] - m_y[i];
-		result += dx*dx + dy*dy;
+		result += dx * dx + dy * dy;
 	}
 	// somehow similiar to rmds, see wikipedia for further details
 	result = sqrt(result);

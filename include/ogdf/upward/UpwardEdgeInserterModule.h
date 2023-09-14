@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/basic/Module.h>
+#include <ogdf/upward/UpwardPlanRep.h>
 
 namespace ogdf {
 
-class OGDF_EXPORT UpwardEdgeInserterModule : public Module{
+class OGDF_EXPORT UpwardEdgeInserterModule : public Module {
 public:
 	//! Initializes an edge insertion module.
 	UpwardEdgeInserterModule() { }
@@ -52,7 +52,7 @@ public:
 	 *			of \p UPR) that have to be inserted.
 	 * \return the status of the result.
 	 */
-	ReturnType call(UpwardPlanRep &UPR, const List<edge> &origEdges) {
+	ReturnType call(UpwardPlanRep& UPR, const List<edge>& origEdges) {
 		return doCall(UPR, origEdges, nullptr, nullptr);
 	}
 
@@ -66,10 +66,7 @@ public:
 	 *        of \p UPR) that have to be inserted.
 	 * \return the status of the result.
 	 */
-	ReturnType call(UpwardPlanRep &UPR,
-		const EdgeArray<int> &costOrig,
-		const List<edge> &origEdges)
-	{
+	ReturnType call(UpwardPlanRep& UPR, const EdgeArray<int>& costOrig, const List<edge>& origEdges) {
 		return doCall(UPR, origEdges, &costOrig, nullptr);
 	}
 
@@ -84,11 +81,8 @@ public:
 	 * @param origEdges is the list of original edges (edges in the original graph
 	 *        of \p UPR) that have to be inserted.
 	 */
-	ReturnType call(UpwardPlanRep &UPR,
-		const EdgeArray<int>  &costOrig,
-		const EdgeArray<bool> &forbidOriginal,
-		const List<edge> &origEdges)
-	{
+	ReturnType call(UpwardPlanRep& UPR, const EdgeArray<int>& costOrig,
+			const EdgeArray<bool>& forbidOriginal, const List<edge>& origEdges) {
 		return doCall(UPR, origEdges, &costOrig, &forbidOriginal);
 	}
 
@@ -104,10 +98,8 @@ public:
 	 *        of \p UPR) that have to be inserted.
 	 * \return the status of the result.
 	 */
-	ReturnType call(UpwardPlanRep &UPR,
-		const EdgeArray<bool> &forbidOriginal,
-		const List<edge> &origEdges)
-	{
+	ReturnType call(UpwardPlanRep& UPR, const EdgeArray<bool>& forbidOriginal,
+			const List<edge>& origEdges) {
 		return doCall(UPR, origEdges, nullptr, &forbidOriginal);
 	}
 
@@ -123,11 +115,8 @@ protected:
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */
-	virtual ReturnType doCall(UpwardPlanRep &UPR,
-		const List<edge> &origEdges,
-		const EdgeArray<int>  *costOrig,
-		const EdgeArray<bool> *forbiddenEdgeOrig
-		) = 0;
+	virtual ReturnType doCall(UpwardPlanRep& UPR, const List<edge>& origEdges,
+			const EdgeArray<int>* costOrig, const EdgeArray<bool>* forbiddenEdgeOrig) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

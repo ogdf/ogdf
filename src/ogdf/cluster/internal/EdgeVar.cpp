@@ -38,41 +38,42 @@ using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
-EdgeVar::EdgeVar(Master *master, double obj, EdgeType eType, node source, node target)
-  : Variable(master, nullptr, false, false, obj,
-             eType == EdgeType::Connect
-               ? 0.0
-               : (static_cast<MaxCPlanarMaster*>(master)->getCheckCPlanar() ? 1.0 : 0.0),
-             1.0,
-             eType == EdgeType::Connect
-               ? VarType::Binary
-               : (static_cast<MaxCPlanarMaster*>(master)->getCheckCPlanar() ? VarType::Continuous : VarType::Binary))
-{
+EdgeVar::EdgeVar(Master* master, double obj, EdgeType eType, node source, node target)
+	: Variable(master, nullptr, false, false, obj,
+			eType == EdgeType::Connect
+					? 0.0
+					: (static_cast<MaxCPlanarMaster*>(master)->getCheckCPlanar() ? 1.0 : 0.0),
+			1.0,
+			eType == EdgeType::Connect ? VarType::Binary
+									   : (static_cast<MaxCPlanarMaster*>(master)->getCheckCPlanar()
+													   ? VarType::Continuous
+													   : VarType::Binary)) {
 	m_eType = eType;
 	m_source = source;
 	m_target = target;
-//	m_objCoeff = obj; // not necc.
-//TODO no searchedge!
-	if (eType == EdgeType::Original) m_edge = static_cast<MaxCPlanarMaster*>(master)->getGraph()->searchEdge(source,target);
-	else m_edge = nullptr;
+	//	m_objCoeff = obj; // not necc.
+	//TODO no searchedge!
+	if (eType == EdgeType::Original) {
+		m_edge = static_cast<MaxCPlanarMaster*>(master)->getGraph()->searchEdge(source, target);
+	} else {
+		m_edge = nullptr;
+	}
 }
 
-EdgeVar::EdgeVar(Master *master, double obj, node source, node target) :
-	Variable (master, nullptr, false, false, obj, 0.0, 1.0, VarType::Binary)
-{
+EdgeVar::EdgeVar(Master* master, double obj, node source, node target)
+	: Variable(master, nullptr, false, false, obj, 0.0, 1.0, VarType::Binary) {
 	m_eType = EdgeType::Connect;
 	m_source = source;
 	m_target = target;
 	m_edge = nullptr;
 }
 
-EdgeVar::EdgeVar(Master *master, double obj, double lbound, node source, node target) :
-	Variable (master, nullptr, false, false, obj, lbound, 1.0, VarType::Binary)
-{
+EdgeVar::EdgeVar(Master* master, double obj, double lbound, node source, node target)
+	: Variable(master, nullptr, false, false, obj, lbound, 1.0, VarType::Binary) {
 	m_eType = EdgeType::Connect;
 	m_source = source;
 	m_target = target;
 	m_edge = nullptr;
 }
 
-EdgeVar::~EdgeVar() {}
+EdgeVar::~EdgeVar() { }

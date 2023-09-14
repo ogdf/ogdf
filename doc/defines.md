@@ -1,4 +1,4 @@
-[OGDF](../README.md) » Compiler Defines
+[OGDF](../README.md) » [Developer's Guide](dev-guide.md) » Compiler Defines
 
 # Compiler Defines {#defines}
 
@@ -24,6 +24,7 @@ Here we list some of the available compiler definitions and macros.
 | `COIN_OSI_CLP`              | build configuration        | Clp is the linear program solver (default).
 | `COIN_OSI_GRB`              | build configuration        | Gurobi is the linear program solver.
 | `COIN_OSI_CPX`              | build configuration        | CPLEX is the linear program solver.
+| `OGDF_INCLUDE_CGAL`         | build configuration        | OGDF is built with components using the Computational Geometry Algorithms Library
 | `OGDF_SYSTEM_WINDOWS`       | `basic/internal/config.h`  | Compiling for a Windows system.
 | `OGDF_SYSTEM_UNIX`          | `basic/internal/config.h`  | Compiling for a UNIX system.
 | `OGDF_SYSTEM_OSX`           | `basic/internal/config.h`  | Compiling for a Mac OS X system; in this case `OGDF_SYSTEM_UNIX` is also defined.

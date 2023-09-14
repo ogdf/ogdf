@@ -28,57 +28,54 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include <ogdf/basic/graph_generators/deterministic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graph_generators/deterministic.h>
 
 #include <graphs.h>
 #include <testing.h>
 
 void assertGraphEqual(const Graph& G, const GraphCopySimple& GC) {
-    AssertThat(GC.numberOfNodes(), Equals(G.numberOfNodes()));
-    AssertThat(GC.numberOfEdges(), Equals(G.numberOfEdges()));
+	AssertThat(GC.numberOfNodes(), Equals(G.numberOfNodes()));
+	AssertThat(GC.numberOfEdges(), Equals(G.numberOfEdges()));
 
-    for (node n : G.nodes) {
-        AssertThat(GC.copy(n), Is().Not().Null());
-    }
+	for (node n : G.nodes) {
+		AssertThat(GC.copy(n), Is().Not().Null());
+	}
 
-    for (edge e : G.edges) {
-        edge copy = GC.copy(e);
-        AssertThat(copy, Is().Not().Null());
+	for (edge e : G.edges) {
+		edge copy = GC.copy(e);
+		AssertThat(copy, Is().Not().Null());
 
-        AssertThat(GC.original(copy->source()), Equals(e->source()));
-        AssertThat(GC.original(copy->target()), Equals(e->target()));
-    }
+		AssertThat(GC.original(copy->source()), Equals(e->source()));
+		AssertThat(GC.original(copy->target()), Equals(e->target()));
+	}
 }
 
 void testFullCopy(const Graph& G) {
-    GraphCopySimple GC;
-    List<node> nodes;
-    for (node n : G.nodes) {
-        nodes.pushBack(n);
-    }
-    inducedSubGraph<ListIterator<node>>(G, nodes.begin(), GC);
-    assertGraphEqual(G, GC);
+	GraphCopySimple GC;
+	List<node> nodes;
+	for (node n : G.nodes) {
+		nodes.pushBack(n);
+	}
+	inducedSubGraph<ListIterator<node>>(G, nodes.begin(), GC);
+	assertGraphEqual(G, GC);
 }
 
 go_bandit([] {
 	describe("induced subgraph", [] {
-        describe("preserves direction", [] {
-            it("works forward", [] {
-                Graph G;
-                customGraph(G, 2, {{0, 1}});
-                testFullCopy(G);
-            });
-            it("works backward", [] {
-                Graph G;
-                customGraph(G, 2, {{1, 0}});
-                testFullCopy(G);
-            });
-        });
-        describe("Can copy full graph", [] {
-            forEachGraphItWorks({}, [](Graph& G) {
-                testFullCopy(G);
-            });
-        });
-    });
+		describe("preserves direction", [] {
+			it("works forward", [] {
+				Graph G;
+				customGraph(G, 2, {{0, 1}});
+				testFullCopy(G);
+			});
+			it("works backward", [] {
+				Graph G;
+				customGraph(G, 2, {{1, 0}});
+				testFullCopy(G);
+			});
+		});
+		describe("Can copy full graph",
+				[] { forEachGraphItWorks({}, [](Graph& G) { testFullCopy(G); }); });
+	});
 });

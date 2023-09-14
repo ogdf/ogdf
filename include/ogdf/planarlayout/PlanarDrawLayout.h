@@ -32,12 +32,13 @@
 
 #pragma once
 
-#include <ogdf/planarlayout/GridLayoutModule.h>
-#include <memory>
 #include <ogdf/augmentation/AugmentationModule.h>
-#include <ogdf/planarlayout/ShellingOrderModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -114,14 +115,12 @@ namespace ogdf {
  * The computation of the layout takes time O(<I>n</I>), where <I>n</I> is
  * the number of nodes of the input graph.
  */
-class OGDF_EXPORT PlanarDrawLayout : public PlanarGridLayoutModule
-{
+class OGDF_EXPORT PlanarDrawLayout : public PlanarGridLayoutModule {
 public:
 	//! Constructs an instance of the Planar-Draw layout algorithm.
 	PlanarDrawLayout();
 
 	~PlanarDrawLayout() { }
-
 
 	/**
 	 *  @name Optional parameters
@@ -162,7 +161,6 @@ public:
 	//! Sets the option baseRatio to \p ratio.
 	void baseRatio(double ratio) { m_baseRatio = ratio; }
 
-
 	/** @}
 	 *  @name Module options
 	 *  @{
@@ -174,44 +172,31 @@ public:
 	 * The augmentation module needs to make sure that the graph gets the
 	 * connectivity required for calling the shelling order module.
 	 */
-	void setAugmenter(AugmentationModule *pAugmenter) {
-		m_augmenter.reset(pAugmenter);
-	}
+	void setAugmenter(AugmentationModule* pAugmenter) { m_augmenter.reset(pAugmenter); }
 
 	//! Sets the shelling order module.
-	void setShellingOrder(ShellingOrderModule *pOrder){
-		m_computeOrder.reset(pOrder);
-	}
+	void setShellingOrder(ShellingOrderModule* pOrder) { m_computeOrder.reset(pOrder); }
 
 	//! Sets the module option for the graph embedding algorithm.
-	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.reset(pEmbedder);
-	}
+	void setEmbedder(EmbedderModule* pEmbedder) { m_embedder.reset(pEmbedder); }
 
 	//! @}
 
 private:
-	bool   m_sizeOptimization; //!< The option for allowing arbitrary slopes.
-	bool   m_sideOptimization; //!< The option for size optimization.
-	double m_baseRatio;        //!< The option for specifying the base ratio.
+	bool m_sizeOptimization; //!< The option for allowing arbitrary slopes.
+	bool m_sideOptimization; //!< The option for size optimization.
+	double m_baseRatio; //!< The option for specifying the base ratio.
 
-	std::unique_ptr<EmbedderModule>      m_embedder;       //!< The planar embedder module.
-	std::unique_ptr<AugmentationModule>  m_augmenter;		//!< The augmentation module.
-	std::unique_ptr<ShellingOrderModule> m_computeOrder;	//!< The shelling order module.
+	std::unique_ptr<EmbedderModule> m_embedder; //!< The planar embedder module.
+	std::unique_ptr<AugmentationModule> m_augmenter; //!< The augmentation module.
+	std::unique_ptr<ShellingOrderModule> m_computeOrder; //!< The shelling order module.
 
 	// computes grid layout for graph G
-	virtual void doCall(
-		const Graph &G,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding) override;
+	virtual void doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+			IPoint& boundingBox, bool fixEmbedding) override;
 
-	void computeCoordinates(const Graph &G,
-		ShellingOrder &order,
-		NodeArray<int> &x,
-		NodeArray<int> &y);
-
+	void computeCoordinates(const Graph& G, ShellingOrder& order, NodeArray<int>& x,
+			NodeArray<int>& y);
 };
 
 }

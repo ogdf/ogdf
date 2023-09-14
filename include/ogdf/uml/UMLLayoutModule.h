@@ -34,15 +34,13 @@
 
 #include <ogdf/uml/UMLGraph.h>
 
-
 namespace ogdf {
 
 
 /**
  * \brief Interface of UML layout algorithms.
  */
-class OGDF_EXPORT UMLLayoutModule
-{
+class OGDF_EXPORT UMLLayoutModule {
 public:
 	//! Initializes a UML layout module.
 	UMLLayoutModule() { }
@@ -55,14 +53,14 @@ public:
 	 * Must be implemented by derived classes.
 	 * @param umlGraph is the input UML graph and has to be assigned the UML layout.
 	 */
-	virtual void call(UMLGraph &umlGraph) = 0;
+	virtual void call(UMLGraph& umlGraph) = 0;
 
 	/**
 	 * \brief Computes a layout of UML graph \p umlGraph
 	 *
 	 * @param umlGraph is the input UML graph and has to be assigned the UML layout.
 	 */
-	void operator()(UMLGraph &umlGraph) { call(umlGraph); }
+	void operator()(UMLGraph& umlGraph) { call(umlGraph); }
 
 	OGDF_MALLOC_NEW_DELETE
 };

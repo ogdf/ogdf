@@ -30,16 +30,14 @@
  */
 
 
-#include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/graphalg/Triconnectivity.h>
-
 
 namespace ogdf {
 
 
-void DynamicSPQRForest::init()
-{
+void DynamicSPQRForest::init() {
 	m_bNode_SPQR.init(m_B, nullptr);
 	m_bNode_numS.init(m_B, 0);
 	m_bNode_numP.init(m_B, 0);
@@ -55,8 +53,7 @@ void DynamicSPQRForest::init()
 	m_htogc.init(m_H);
 }
 
-void DynamicSPQRForest::createSPQR(node vB) const
-{
+void DynamicSPQRForest::createSPQR(node vB) const {
 	Graph GC;
 	NodeArray<node> origNode(GC, nullptr);
 	EdgeArray<edge> origEdge(GC, nullptr);
@@ -70,8 +67,14 @@ void DynamicSPQRForest::createSPQR(node vB) const
 		node tH = eH->target();
 		node& sGC = m_htogc[sH];
 		node& tGC = m_htogc[tH];
-		if (sGC == nullptr) { sGC = GC.newNode(); origNode[sGC] = sH; }
-		if (tGC == nullptr) { tGC = GC.newNode(); origNode[tGC] = tH; }
+		if (sGC == nullptr) {
+			sGC = GC.newNode();
+			origNode[sGC] = sH;
+		}
+		if (tGC == nullptr) {
+			tGC = GC.newNode();
+			origNode[tGC] = tH;
+		}
 		origEdge[GC.newEdge(sGC, tGC)] = eH;
 	}
 
@@ -83,7 +86,7 @@ void DynamicSPQRForest::createSPQR(node vB) const
 	EdgeArray<edge> partnerEdge(GCC, nullptr);
 
 	for (int i = 0; i < tricComp.m_numComp; ++i) {
-		const Triconnectivity::CompStruct &C = tricComp.m_component[i];
+		const Triconnectivity::CompStruct& C = tricComp.m_component[i];
 
 		if (C.m_edges.empty()) {
 			continue;
@@ -91,15 +94,15 @@ void DynamicSPQRForest::createSPQR(node vB) const
 
 		node vT;
 		switch (C.m_type) {
-			case Triconnectivity::CompType::bond:
-				vT = newSPQRNode(vB, TNodeType::PComp);
-				break;
-			case Triconnectivity::CompType::polygon:
-				vT = newSPQRNode(vB, TNodeType::SComp);
-				break;
-			case Triconnectivity::CompType::triconnected:
-				vT = newSPQRNode(vB, TNodeType::RComp);
-				break;
+		case Triconnectivity::CompType::bond:
+			vT = newSPQRNode(vB, TNodeType::PComp);
+			break;
+		case Triconnectivity::CompType::polygon:
+			vT = newSPQRNode(vB, TNodeType::SComp);
+			break;
+		case Triconnectivity::CompType::triconnected:
+			vT = newSPQRNode(vB, TNodeType::RComp);
+			break;
 		}
 
 		for (edge eGCC : C.m_edges) {
@@ -148,9 +151,7 @@ void DynamicSPQRForest::createSPQR(node vB) const
 	}
 }
 
-
-node DynamicSPQRForest::uniteSPQR(node vB, node sT, node tT)
-{
+node DynamicSPQRForest::uniteSPQR(node vB, node sT, node tT) {
 	if (m_tNode_type[tT] == TNodeType::SComp) {
 		m_bNode_numS[vB]--;
 	} else if (m_tNode_type[tT] == TNodeType::PComp) {
@@ -173,9 +174,7 @@ node DynamicSPQRForest::uniteSPQR(node vB, node sT, node tT)
 	return sT;
 }
 
-
-node DynamicSPQRForest::findSPQR(node vT) const
-{
+node DynamicSPQRForest::findSPQR(node vT) const {
 	if (vT == nullptr || m_tNode_owner[vT] == vT) {
 		return vT;
 	} else {
@@ -183,16 +182,15 @@ node DynamicSPQRForest::findSPQR(node vT) const
 	}
 }
 
-
-node DynamicSPQRForest::findNCASPQR(node sT, node tT) const
-{
+node DynamicSPQRForest::findNCASPQR(node sT, node tT) const {
 	if (m_tNode_isMarked[sT]) {
 		return sT;
 	}
 	m_tNode_isMarked[sT] = true;
 	node uT = m_tNode_hRefEdge[sT] ? spqrproper(m_hEdge_twinEdge[m_tNode_hRefEdge[sT]]) : nullptr;
 	if (uT == nullptr) {
-		for (uT = tT; !m_tNode_isMarked[uT]; uT = spqrproper(m_hEdge_twinEdge[m_tNode_hRefEdge[uT]])) {};
+		for (uT = tT; !m_tNode_isMarked[uT]; uT = spqrproper(m_hEdge_twinEdge[m_tNode_hRefEdge[uT]])) {
+		};
 	} else {
 		uT = findNCASPQR(tT, uT);
 	}
@@ -200,9 +198,7 @@ node DynamicSPQRForest::findNCASPQR(node sT, node tT) const
 	return uT;
 }
 
-
-SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH, node& rT) const
-{
+SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH, node& rT) const {
 	SList<node>& pathT = *new SList<node>;
 	node sT = spqrproper(sH->firstAdj()->theEdge());
 	node tT = spqrproper(tH->firstAdj()->theEdge());
@@ -211,8 +207,13 @@ SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH, node& rT) const
 		edge eH = m_tNode_hRefEdge[sT];
 		node uH = eH->source();
 		node vH = eH->target();
-		if (uH != sH && vH != sH) { pathT.pushBack(sT); }
-		if (uH == tH || vH == tH) { rT = sT; return pathT; }
+		if (uH != sH && vH != sH) {
+			pathT.pushBack(sT);
+		}
+		if (uH == tH || vH == tH) {
+			rT = sT;
+			return pathT;
+		}
 		sT = spqrproper(m_hEdge_twinEdge[eH]);
 	}
 	SListIterator<node> iT = pathT.backIterator();
@@ -227,7 +228,10 @@ SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH, node& rT) const
 				pathT.pushFront(tT);
 			}
 		}
-		if (uH == sH || vH == sH) { rT = tT; return pathT; }
+		if (uH == sH || vH == sH) {
+			rT = tT;
+			return pathT;
+		}
 		tT = spqrproper(m_hEdge_twinEdge[eH]);
 	}
 	if (iT.valid()) {
@@ -235,12 +239,11 @@ SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH, node& rT) const
 	} else {
 		pathT.pushFront(nT);
 	}
-	rT = nT; return pathT;
+	rT = nT;
+	return pathT;
 }
 
-
-SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH) const
-{
+SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH) const {
 	node vB = bComponent(m_hNode_gNode[sH], m_hNode_gNode[tH]);
 	if (vB == nullptr) {
 		return *new SList<node>;
@@ -259,9 +262,7 @@ SList<node>& DynamicSPQRForest::findPathSPQR(node sH, node tH) const
 	return pathT;
 }
 
-
-edge DynamicSPQRForest::virtualEdge(node vT, node wT) const
-{
+edge DynamicSPQRForest::virtualEdge(node vT, node wT) const {
 	edge eH = m_tNode_hRefEdge[vT];
 	if (eH != nullptr) {
 		eH = m_hEdge_twinEdge[eH];
@@ -277,9 +278,7 @@ edge DynamicSPQRForest::virtualEdge(node vT, node wT) const
 	return nullptr;
 }
 
-
-edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
-{
+edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG) {
 	node sH = repVertex(eG->source(), vB);
 	node tH = repVertex(eG->target(), vB);
 	edge eH = m_H.newEdge(sH, tH);
@@ -422,8 +421,8 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 				node wH = fH->target();
 				node xH = bothVirtEdgesExist ? gH->source() : uH;
 				node yH = bothVirtEdgesExist ? gH->target() : uH;
-				bool incidentVirtEdges = bothVirtEdgesExist &&
-				     (vH == xH || vH == yH || wH == xH || wH == yH);
+				bool incidentVirtEdges =
+						bothVirtEdgesExist && (vH == xH || vH == yH || wH == xH || wH == yH);
 
 				if (bothVirtEdgesExist && aH->size() == 3) {
 					delHEdge(fH, vT);
@@ -431,10 +430,15 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 					xT = uniteSPQR(vB, xT, vT);
 				} else if (incidentVirtEdges) {
 					edge nH = nullptr;
-					if (vH == xH) { nH = m_H.newEdge(wH, yH); }
-					else if (vH == yH) { nH = m_H.newEdge(wH, xH); }
-					else if (wH == xH) { nH = m_H.newEdge(vH, yH); }
-					else if (wH == yH) { nH = m_H.newEdge(vH, xH); }
+					if (vH == xH) {
+						nH = m_H.newEdge(wH, yH);
+					} else if (vH == yH) {
+						nH = m_H.newEdge(wH, xH);
+					} else if (wH == xH) {
+						nH = m_H.newEdge(vH, yH);
+					} else if (wH == yH) {
+						nH = m_H.newEdge(vH, xH);
+					}
 					m_hEdge_position[nH] = aH->insertAfter(nH, m_hEdge_position[gH]);
 					m_hEdge_tNode[nH] = vT;
 					if (vT == rT) {
@@ -478,20 +482,26 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 					}
 					if (pathH.size() == 1) {
 						edge bhFront = pathH.front();
-						if (bhFront == rH) { rT = nullptr; }
+						if (bhFront == rH) {
+							rT = nullptr;
+						}
 						absorbedEdges.pushBack(bhFront);
 					} else {
 						node nT = newSPQRNode(vB, TNodeType::SComp);
 						while (!pathH.empty()) {
 							edge bhFront = pathH.popFrontRet();
 							addHEdge(bhFront, nT);
-							if (bhFront == rH) { rT = nT; }
+							if (bhFront == rH) {
+								rT = nT;
+							}
 						}
 						edge newEdgeH = m_H.newEdge(vH, zH);
 						addHEdge(newEdgeH, nT);
 						if (nT == rT) {
 							m_tNode_hRefEdge[nT] = rH;
-							if (rH == nullptr) { m_bNode_SPQR[vB] = nT; }
+							if (rH == nullptr) {
+								m_bNode_SPQR[vB] = nT;
+							}
 							rH = newEdgeH;
 						} else {
 							m_tNode_hRefEdge[nT] = newEdgeH;
@@ -500,9 +510,9 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 					}
 					if (m_tNode_hEdges[vT]->size() == 1) {
 						xT = uniteSPQR(vB, xT, vT);
-					}  else {
-						edge newEdgeH = m_H.newEdge(wH, bothVirtEdgesExist ?
-						                            (vH == yH ? xH : yH) : vH);
+					} else {
+						edge newEdgeH =
+								m_H.newEdge(wH, bothVirtEdgesExist ? (vH == yH ? xH : yH) : vH);
 						addHEdge(newEdgeH, vT);
 						if (vT == rT) {
 							rH = newEdgeH;
@@ -519,8 +529,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 				if (gH != nullptr) {
 					delHEdge(gH, vT);
 				}
-				if (m_tNode_type[vT] == TNodeType::PComp &&
-				    m_tNode_hEdges[vT]->size() > 1) {
+				if (m_tNode_type[vT] == TNodeType::PComp && m_tNode_hEdges[vT]->size() > 1) {
 					edge nH = m_tNode_hEdges[vT]->front();
 					nH = m_H.newEdge(nH->source(), nH->target());
 					addHEdge(nH, vT);
@@ -558,9 +567,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR(node vB, edge eG)
 	return eG;
 }
 
-
-node DynamicSPQRForest::updateInsertedNodeSPQR(node vB, edge eG, edge fG)
-{
+node DynamicSPQRForest::updateInsertedNodeSPQR(node vB, edge eG, edge fG) {
 	node vG = fG->source();
 	node wG = fG->target();
 	node vH = m_H.newNode();
@@ -590,9 +597,7 @@ node DynamicSPQRForest::updateInsertedNodeSPQR(node vB, edge eG, edge fG)
 	return vG;
 }
 
-
-edge DynamicSPQRForest::updateInsertedEdge(edge eG)
-{
+edge DynamicSPQRForest::updateInsertedEdge(edge eG) {
 	node sG = eG->source();
 	node tG = eG->target();
 	node vB = bComponent(sG, tG);
@@ -602,7 +607,9 @@ edge DynamicSPQRForest::updateInsertedEdge(edge eG)
 		SList<node>& pathB = findPath(sG, tG);
 		SListIterator<node> jB = pathB.begin();
 		SListIterator<node> iB = jB;
-		while (iB.valid() && m_bNode_SPQR[*iB] == nullptr) { iB++; }
+		while (iB.valid() && m_bNode_SPQR[*iB] == nullptr) {
+			iB++;
+		}
 		if (iB.valid()) {
 			nT = m_T.newNode();
 			m_tNode_type[nT] = TNodeType::SComp;
@@ -618,46 +625,46 @@ edge DynamicSPQRForest::updateInsertedEdge(edge eG)
 				node mT;
 				edge mH, nH;
 				switch (numberOfEdges(*iB)) {
-					case 0:
-						break;
-					case 1:
-						addHEdge(m_bNode_hEdges[*iB].front(), nT);
-						break;
-					case 2:
-						mT = m_T.newNode();
-						m_tNode_type[mT] = TNodeType::PComp;
-						m_tNode_owner[mT] = mT;
-						m_tNode_hEdges[mT] = new List<edge>;
-						addHEdge(m_bNode_hEdges[*iB].front(), mT);
-						addHEdge(m_bNode_hEdges[*iB].back(), mT);
-						mH = m_H.newEdge(sH, tH);
-						addHEdge(mH, mT);
-						newTwinEdge(mH, mT);
-						m_tNode_hRefEdge[mT] = mH;
-						numP++;
-						break;
-					default:
-						if (m_bNode_SPQR[*iB] == nullptr) {
-							createSPQR(*iB);
-						}
-						edge mG = m_G.newEdge(m_hNode_gNode[sH], m_hNode_gNode[tH]);
-						updateInsertedEdgeSPQR(*iB, mG);
-						mH = m_gEdge_hEdge[mG];
+				case 0:
+					break;
+				case 1:
+					addHEdge(m_bNode_hEdges[*iB].front(), nT);
+					break;
+				case 2:
+					mT = m_T.newNode();
+					m_tNode_type[mT] = TNodeType::PComp;
+					m_tNode_owner[mT] = mT;
+					m_tNode_hEdges[mT] = new List<edge>;
+					addHEdge(m_bNode_hEdges[*iB].front(), mT);
+					addHEdge(m_bNode_hEdges[*iB].back(), mT);
+					mH = m_H.newEdge(sH, tH);
+					addHEdge(mH, mT);
+					newTwinEdge(mH, mT);
+					m_tNode_hRefEdge[mT] = mH;
+					numP++;
+					break;
+				default:
+					if (m_bNode_SPQR[*iB] == nullptr) {
+						createSPQR(*iB);
+					}
+					edge mG = m_G.newEdge(m_hNode_gNode[sH], m_hNode_gNode[tH]);
+					updateInsertedEdgeSPQR(*iB, mG);
+					mH = m_gEdge_hEdge[mG];
+					mT = spqrproper(mH);
+					m_G.delEdge(mG);
+					m_hEdge_gEdge[mH] = nullptr;
+					newTwinEdge(mH, nT);
+					nH = m_tNode_hRefEdge[mT];
+					m_tNode_hRefEdge[mT] = mH;
+					while (nH != nullptr) {
+						mH = m_hEdge_twinEdge[nH];
 						mT = spqrproper(mH);
-						m_G.delEdge(mG);
-						m_hEdge_gEdge[mH] = nullptr;
-						newTwinEdge(mH, nT);
 						nH = m_tNode_hRefEdge[mT];
 						m_tNode_hRefEdge[mT] = mH;
-						while (nH != nullptr) {
-							mH = m_hEdge_twinEdge[nH];
-							mT = spqrproper(mH);
-							nH = m_tNode_hRefEdge[mT];
-							m_tNode_hRefEdge[mT] = mH;
-						}
-						numS += m_bNode_numS[*iB];
-						numP += m_bNode_numP[*iB];
-						numR += m_bNode_numR[*iB];
+					}
+					numS += m_bNode_numS[*iB];
+					numP += m_bNode_numP[*iB];
+					numR += m_bNode_numR[*iB];
 				}
 				if (jB.valid()) {
 					sH = cutVertex(*iB, *jB);
@@ -686,9 +693,7 @@ edge DynamicSPQRForest::updateInsertedEdge(edge eG)
 	return eG;
 }
 
-
-node DynamicSPQRForest::updateInsertedNode(edge eG, edge fG)
-{
+node DynamicSPQRForest::updateInsertedNode(edge eG, edge fG) {
 	node vB = bcproper(eG);
 	if (m_bNode_SPQR[vB]) {
 		node uG = updateInsertedNodeSPQR(vB, eG, fG);

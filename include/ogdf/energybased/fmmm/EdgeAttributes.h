@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
 namespace energybased {
@@ -40,52 +40,68 @@ namespace fmmm {
 
 //! helping data structure that stores the graphical attributes of an edge
 //! that are needed for the force-directed  algorithms.
-class OGDF_EXPORT EdgeAttributes
-{
+class OGDF_EXPORT EdgeAttributes {
 	//! outputstream for EdgeAttributes
-	friend OGDF_EXPORT std::ostream &operator<< (std::ostream &, const EdgeAttributes &);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream&, const EdgeAttributes&);
 
 	//! inputstream for EdgeAttributes
-	friend OGDF_EXPORT std::istream &operator>> (std::istream &, EdgeAttributes &);
+	friend OGDF_EXPORT std::istream& operator>>(std::istream&, EdgeAttributes&);
 
 public:
 	//! Constructor
 	EdgeAttributes();
 
-	void set_EdgeAttributes(double len, edge e_orig, edge e_sub)
-	{
+	void set_EdgeAttributes(double len, edge e_orig, edge e_sub) {
 		length = len;
 		e_original = e_orig;
 		e_subgraph = e_sub;
 	}
 
 	void set_length(double len) { length = len; }
+
 	double get_length() const { return length; }
 
-	//! \name for the divide et impera step in FMMM @{
+	//! @{
+	//! @name for the divide et impera step in FMMM
 
-	void set_original_edge (edge e) { e_original = e; }
-	void set_subgraph_edge (edge e) { e_subgraph = e; }
+	void set_original_edge(edge e) { e_original = e; }
+
+	void set_subgraph_edge(edge e) { e_subgraph = e; }
+
 	edge get_original_edge() const { return e_original; }
+
 	edge get_subgraph_edge() const { return e_subgraph; }
 
 	//! @}
-	//! \name for the preprocessing step in FMMM (set/get_original_edge are needed, too) @{
+	//! @{
+	//! @name for the preprocessing step in FMMM (set/get_original_edge are needed, too)
 
-	void set_copy_edge (edge e) {e_subgraph = e;}
-	edge get_copy_edge() const {return e_subgraph;}
+	void set_copy_edge(edge e) { e_subgraph = e; }
+
+	edge get_copy_edge() const { return e_subgraph; }
 
 	//! @}
-	//! \name for multilevel step @{
+	//! @{
+	//! @name for multilevel step
 
-	void set_higher_level_edge (edge e) { e_subgraph = e; }
+	void set_higher_level_edge(edge e) { e_subgraph = e; }
+
 	edge get_higher_level_edge() const { return e_subgraph; }
+
 	bool is_moon_edge() const { return moon_edge; }
+
 	void make_moon_edge() { moon_edge = true; }
+
 	bool is_extra_edge() const { return extra_edge; }
+
 	void make_extra_edge() { extra_edge = true; }
+
 	void mark_as_normal_edge() { extra_edge = false; }
-	void init_mult_values() { e_subgraph = nullptr; moon_edge = false; }
+
+	void init_mult_values() {
+		e_subgraph = nullptr;
+		moon_edge = false;
+	}
 
 	//! @}
 

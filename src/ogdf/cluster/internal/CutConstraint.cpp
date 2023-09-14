@@ -40,21 +40,20 @@ using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
-CutConstraint::CutConstraint(Master *master, Sub *sub, List<NodePair> &edges) :
-	BaseConstraint(master, sub, CSense::Greater, 1.0, true, true, true)
-{
-	for (const NodePair &p : edges) {
+CutConstraint::CutConstraint(Master* master, Sub* sub, List<NodePair>& edges)
+	: BaseConstraint(master, sub, CSense::Greater, 1.0, true, true, true) {
+	for (const NodePair& p : edges) {
 		m_cutEdges.pushBack(p);
 	}
 }
 
-CutConstraint::~CutConstraint() {}
+CutConstraint::~CutConstraint() { }
 
-int CutConstraint::coeff(node n1, node n2) const
-{
-	for (const NodePair &p : m_cutEdges) {
-		if ( (p.source == n1 && p.target == n2) || (p.target == n1 && p.source == n2) )
+int CutConstraint::coeff(node n1, node n2) const {
+	for (const NodePair& p : m_cutEdges) {
+		if ((p.source == n1 && p.target == n2) || (p.target == n1 && p.source == n2)) {
 			return 1;
+		}
 	}
 	return 0;
 }

@@ -33,22 +33,22 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/List.h>
 
 namespace ogdf {
 
 class UpwardPlanarityEmbeddedDigraph {
 public:
 	//constructor
-	explicit UpwardPlanarityEmbeddedDigraph(const Graph &H);
+	explicit UpwardPlanarityEmbeddedDigraph(const Graph& H);
 
 private:
 	//copy of the Input-Graph
-	const Graph &m_G;
+	const Graph& m_G;
 	//super-source and super-sink of the flow-network
 	node m_s, m_t;
 	//flow-network
@@ -58,31 +58,31 @@ private:
 	//flow-values of the faces
 	FaceArray<int> m_A;
 	//annotations for the construction of the flow-network
-	FaceArray< List<node> > m_assignedSourcesAndSinks;
-	NodeArray<node> 	  	m_correspondingSourceOrSink;
-	NodeArray<face> 	  	m_correspondingFace;
-	FaceArray<node> 	  	m_correspondingFaceNode;
-	NodeArray<edge> 	  	m_correspondingEdge;
+	FaceArray<List<node>> m_assignedSourcesAndSinks;
+	NodeArray<node> m_correspondingSourceOrSink;
+	NodeArray<face> m_correspondingFace;
+	FaceArray<node> m_correspondingFaceNode;
+	NodeArray<edge> m_correspondingEdge;
 
 public:
 	//tests whether the embedded Digraph is upward planar by using the private class methods
 	//returns true iff G is upward planar observing the fixed embedding
 	bool isUpwardPlanarEmbedded();
 	//get the set of feasible external faces (represented by the first AdjEntry) if G is upward planar observing the fixed embedding
-	bool isUpwardPlanarEmbedded(List<adjEntry> &possibleExternalFaces);
+	bool isUpwardPlanarEmbedded(List<adjEntry>& possibleExternalFaces);
 
 private:
 	//tests whether the embedded Digraph is upward planar
 	//val = true forces a break if the first feasible external face was found
-	void isUpwardPlanarEmbedded(const bool val, List<adjEntry> &possibleExternalFaces);
+	void isUpwardPlanarEmbedded(const bool val, List<adjEntry>& possibleExternalFaces);
 	//constructs flow-network of the corresponding Graph G
-	void constructNetwork(EdgeArray<int> &capacity, EdgeArray<int> &flow);
+	void constructNetwork(EdgeArray<int>& capacity, EdgeArray<int>& flow);
 	//tests whether a flow of power r is possible in the flow-network by executing augmentation steps
-	bool isFlow(EdgeArray<int> &capacity, EdgeArray<int> &flow, const int r);
+	bool isFlow(EdgeArray<int>& capacity, EdgeArray<int>& flow, const int r);
 	//returns a feasible augmentation path
-	void getPath(ArrayBuffer<node> &st, EdgeArray<int> &capacity, EdgeArray<int> &flow);
+	void getPath(ArrayBuffer<node>& st, EdgeArray<int>& capacity, EdgeArray<int>& flow);
 	//returns the value for one augmentation step
-	int getMin(ArrayBuffer<node> stack, EdgeArray<int> &capacity, EdgeArray<int> &flow);
+	int getMin(ArrayBuffer<node> stack, EdgeArray<int>& capacity, EdgeArray<int>& flow);
 };
 
 }

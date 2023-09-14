@@ -35,48 +35,45 @@
 namespace ogdf {
 namespace embedder {
 
-void CrossingStructure::init(GraphCopy &PG, int weightedCrossingNumber)
-{
+void CrossingStructure::init(GraphCopy& PG, int weightedCrossingNumber) {
 	m_weightedCrossingNumber = weightedCrossingNumber;
 	m_crossings.init(PG.original());
 
 	m_numCrossings = 0;
-	NodeArray<int> index(PG,-1);
-	for(node v : PG.nodes)
-		if(PG.isDummy(v))
+	NodeArray<int> index(PG, -1);
+	for (node v : PG.nodes) {
+		if (PG.isDummy(v)) {
 			index[v] = m_numCrossings++;
+		}
+	}
 
-	for(edge ePG : PG.edges)
-	{
-		if(PG.original(ePG->source()) != nullptr) {
+	for (edge ePG : PG.edges) {
+		if (PG.original(ePG->source()) != nullptr) {
 			edge e = PG.original(ePG);
 			ListConstIterator<edge> it = PG.chain(e).begin();
-			for(++it; it.valid(); ++it) {
+			for (++it; it.valid(); ++it) {
 				m_crossings[e].pushBack(index[(*it)->source()]);
 			}
 		}
 	}
 }
 
-void CrossingStructure::restore(PlanRep &PG, int cc)
-{
-	Array<node> id2Node(0,m_numCrossings-1,nullptr);
+void CrossingStructure::restore(PlanRep& PG, int cc) {
+	Array<node> id2Node(0, m_numCrossings - 1, nullptr);
 
 	SListPure<edge> edges;
 	PG.allEdges(edges);
 
-	for(edge ePG : edges)
-	{
+	for (edge ePG : edges) {
 		edge e = PG.original(ePG);
 
-		for(int i : m_crossings[e])
-		{
+		for (int i : m_crossings[e]) {
 			node x = id2Node[i];
 			edge ePGOld = ePG;
 			ePG = PG.split(ePG);
 			node y = ePG->source();
 
-			if(x == nullptr) {
+			if (x == nullptr) {
 				id2Node[i] = y;
 			} else {
 				PG.moveTarget(ePGOld, x);

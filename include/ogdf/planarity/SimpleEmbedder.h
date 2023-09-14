@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/EmbedderModule.h>
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
@@ -44,11 +44,11 @@ namespace ogdf {
  *
  * @ingroup ga-planarembed
  */
-class OGDF_EXPORT SimpleEmbedder : public EmbedderModule
-{
+class OGDF_EXPORT SimpleEmbedder : public EmbedderModule {
 public:
 	// construction / destruction
 	SimpleEmbedder() { }
+
 	~SimpleEmbedder() { }
 
 	/**
@@ -66,7 +66,6 @@ private:
 	 * \return Best suited external face.
 	 */
 	face findBestExternalFace(const PlanRep& PG, const CombinatorialEmbedding& E);
-
 };
 
 }

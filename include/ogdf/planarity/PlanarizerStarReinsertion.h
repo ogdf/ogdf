@@ -34,8 +34,8 @@
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/StarInserter.h>
 #include <ogdf/planarity/embedder/CrossingStructure.h>
-#include <memory>
 
+#include <memory>
 
 namespace ogdf {
 
@@ -95,8 +95,7 @@ using embedder::CrossingStructure;
  *   </tr>
  * </table>
 */
-class OGDF_EXPORT PlanarizerStarReinsertion : public CrossingMinimizationModule
-{
+class OGDF_EXPORT PlanarizerStarReinsertion : public CrossingMinimizationModule {
 private:
 	//! The initial planarization algorithm.
 	std::unique_ptr<CrossingMinimizationModule> m_planarization;
@@ -126,14 +125,9 @@ private:
 	 * @returns whether a better solution was found, i.e. whether
 	 * \p bestCS was updated.
 	 */
-	bool reinsertStar(
-		GraphCopy &currentPlanarization,
-		DynamicDualGraph &dualGraph,
-		node nodeToReinsert,
-		CrossingStructure &bestCS,
-		const EdgeArray<int> *pCostOrig,
-		const EdgeArray<bool> *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs);
+	bool reinsertStar(GraphCopy& currentPlanarization, DynamicDualGraph& dualGraph,
+			node nodeToReinsert, CrossingStructure& bestCS, const EdgeArray<int>* pCostOrig,
+			const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubGraphs);
 
 	//! Reinserts a specific set of stars until a termination criterion is met.
 	/**
@@ -150,11 +144,8 @@ private:
 	 * to which subgraph it belongs.
 	 * @return the return type of the algorithm.
 	 */
-	ReturnType mainLoop(const PlanRep &pr,
-		CrossingStructure &bestCS,
-		const EdgeArray<int> *pCostOrig,
-		const EdgeArray<bool> *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs);
+	ReturnType mainLoop(const PlanRep& pr, CrossingStructure& bestCS, const EdgeArray<int>* pCostOrig,
+			const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubGraphs);
 
 protected:
 	//! Implements the algorithm call.
@@ -162,28 +153,25 @@ protected:
 	 * @pre \p pr must be biconnected, simple, and already embedded, with pseudo
 	 * crossings being removed.
 	 */
-	virtual ReturnType doCall(PlanRep &pr,
-		int cc,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs,
-		int &crossingNumber) override;
+	virtual ReturnType doCall(PlanRep& pr, int cc, const EdgeArray<int>* pCostOrig,
+			const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubGraphs,
+			int& crossingNumber) override;
 
 public:
 	//! Creates a PlanarizerStarReinsertion with default settings.
 	PlanarizerStarReinsertion();
 
 	//! Creates a PlanarizerStarReinsertion with the same settings as \p planarizer.
-	PlanarizerStarReinsertion(const PlanarizerStarReinsertion &planarizer);
+	PlanarizerStarReinsertion(const PlanarizerStarReinsertion& planarizer);
 
 	//! Returns a new PlanarizerStarReinsertion with the same option settings.
-	virtual CrossingMinimizationModule *clone() const override;
+	virtual CrossingMinimizationModule* clone() const override;
 
 	//! Assignment operator, copies option settings only.
-	PlanarizerStarReinsertion &operator=(const PlanarizerStarReinsertion &planarizer);
+	PlanarizerStarReinsertion& operator=(const PlanarizerStarReinsertion& planarizer);
 
 	//! Sets the module option for the computation of the inital planarization.
-	void setPlanarization(CrossingMinimizationModule *pPlanarizationModule) {
+	void setPlanarization(CrossingMinimizationModule* pPlanarizationModule) {
 		m_planarization.reset(pPlanarizationModule);
 	}
 
@@ -214,7 +202,6 @@ public:
 	void maxIterations(int maxIterations) { m_maxIterations = maxIterations; }
 
 	//! @}
-
 };
 
 }

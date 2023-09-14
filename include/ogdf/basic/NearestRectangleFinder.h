@@ -38,8 +38,7 @@ namespace ogdf {
 
 //! Finds in a given set of rectangles for each point in a given
 //! set of points the nearest rectangle
-class OGDF_EXPORT NearestRectangleFinder
-{
+class OGDF_EXPORT NearestRectangleFinder {
 public:
 	struct RectRegion;
 	struct PairRectDist;
@@ -53,6 +52,7 @@ public:
 	// the maximal allowed distance between a rectangle and a point
 	// rectangles with a greater distance are not considered
 	void maxAllowedDistance(double mad) { m_maxAllowedDistance = mad; }
+
 	double maxAllowedDistance() const { return m_maxAllowedDistance; }
 
 	// the tolerance in which rectangles are considered to be ambigous, i.e.
@@ -60,26 +60,23 @@ public:
 	// and there is another rectangle with distance dist such that
 	// dist <= minDist + toleranceDistance, we say that the closest rectangle is not unique.
 	void toleranceDistance(double td) { m_toleranceDistance = td; }
-	double toleranceDistance() const { return m_toleranceDistance; }
 
+	double toleranceDistance() const { return m_toleranceDistance; }
 
 	// finds the nearest rectangles for a given set of points
 	// The nearest rectangles are passed in a list. If the list is empty, there
 	// is no rectangle within the ,aximal allowed distance. If the list contains
 	// more than one element, the nearest rectangle is not unique for the
 	// given tolerance.
-	void find(
-		const Array<RectRegion> &region, // given rectangles
-		const Array<DPoint> &point,      // given points
-		Array<List<PairRectDist> > &nearest); // nearest rectangles
+	void find(const Array<RectRegion>& region, // given rectangles
+			const Array<DPoint>& point, // given points
+			Array<List<PairRectDist>>& nearest); // nearest rectangles
 
 	// trivial implementation of find(). Can be used in order to check
 	// correctness. Computes only rectangle with minimum distance without
 	// considering maxAllowedDistance and toleranceDistance.
-	void findSimple(
-		const Array<RectRegion> &region,
-		const Array<DPoint> &point,
-		Array<List<PairRectDist> > &nearest);
+	void findSimple(const Array<RectRegion>& region, const Array<DPoint>& point,
+			Array<List<PairRectDist>>& nearest);
 
 private:
 	class CoordComparer;
@@ -90,21 +87,18 @@ private:
 };
 
 //! Represents a rectangle given by center point, width and height
-struct NearestRectangleFinder::RectRegion
-{
-	friend std::ostream &operator<<(std::ostream &os, const RectRegion &rect) {
-		os << "(" << rect.m_x << "," << rect.m_y << ":" <<
-			rect.m_width << "," << rect.m_height << ")";
+struct NearestRectangleFinder::RectRegion {
+	friend std::ostream& operator<<(std::ostream& os, const RectRegion& rect) {
+		os << "(" << rect.m_x << "," << rect.m_y << ":" << rect.m_width << "," << rect.m_height
+		   << ")";
 		return os;
 	}
 
 	double m_x, m_y, m_width, m_height;
 };
 
-
 //! Represents a rectangle (given by its index) and a distance value
-struct OGDF_EXPORT NearestRectangleFinder::PairRectDist
-{
+struct OGDF_EXPORT NearestRectangleFinder::PairRectDist {
 	PairRectDist() { }
 
 	PairRectDist(int index, double distance) {
@@ -112,7 +106,7 @@ struct OGDF_EXPORT NearestRectangleFinder::PairRectDist
 		m_distance = distance;
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const PairRectDist &p) {
+	friend std::ostream& operator<<(std::ostream& os, const PairRectDist& p) {
 		os << "(" << p.m_index << "," << p.m_distance << ")";
 		return os;
 	}
@@ -120,7 +114,6 @@ struct OGDF_EXPORT NearestRectangleFinder::PairRectDist
 	int m_index;
 	double m_distance;
 };
-
 
 
 }

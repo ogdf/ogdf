@@ -40,18 +40,12 @@ namespace ogdf {
  * \brief Interface of hypergraph layout algorithms.
  *
  */
-class OGDF_EXPORT HypergraphLayoutModule
-{
+class OGDF_EXPORT HypergraphLayoutModule {
 public:
-
 	//! Initializes a layout module.
-	HypergraphLayoutModule()
-	{
-	}
+	HypergraphLayoutModule() { }
 
-	virtual ~HypergraphLayoutModule()
-	{
-	}
+	virtual ~HypergraphLayoutModule() { }
 
 	/**
 	 * \brief Computes a layout of hypergraph given by \p HA.
@@ -60,17 +54,14 @@ public:
 	 * derived classes.
 	 * @param HA is the input hypergraph attributes class.
 	 */
-	virtual void call(HypergraphAttributes &HA) = 0;
+	virtual void call(HypergraphAttributes& HA) = 0;
 
 	/**
 	 * \brief Computes a layout of a hypergraph given by \p HA.
 	 *
 	 * @param HA is the input hypergraph attributes class.
 	 */
-	void operator()(HypergraphAttributes &HA)
-	{
-		call(HA);
-	}
+	void operator()(HypergraphAttributes& HA) { call(HA); }
 
 	OGDF_MALLOC_NEW_DELETE;
 };

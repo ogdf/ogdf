@@ -33,14 +33,10 @@
 
 namespace ogdf {
 
-MatchingMerger::MatchingMerger()
-:m_selectByMass(false)
-{
-}
+MatchingMerger::MatchingMerger() : m_selectByMass(false) { }
 
-bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
-{
-	Graph &G = MLG.getGraph();
+bool MatchingMerger::buildOneLevel(MultilevelGraph& MLG) {
+	Graph& G = MLG.getGraph();
 	int level = MLG.getLevel() + 1;
 
 	int numNodes = G.numberOfNodes();
@@ -57,13 +53,12 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 	std::vector<edge> matching;
 	std::vector<node> candidates;
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		candidates.push_back(v);
 	}
 
-	while (!candidates.empty())
-	{
-		int rndIndex = randomNumber(0, (int)candidates.size()-1);
+	while (!candidates.empty()) {
+		int rndIndex = randomNumber(0, (int)candidates.size() - 1);
 		node one = candidates[rndIndex];
 		candidates[rndIndex] = candidates.back();
 		candidates.pop_back();
@@ -76,10 +71,9 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 		std::vector<node> candNeighbors;
 		std::vector<edge> candEdges;
 		unsigned int minMass = std::numeric_limits<unsigned int>::max();
-		for(adjEntry adj : one->adjEntries) {
+		for (adjEntry adj : one->adjEntries) {
 			node cand = adj->twinNode();
-			if (!nodeMarks[cand] && (!m_selectByMass || m_mass[cand] <= minMass))
-			{
+			if (!nodeMarks[cand] && (!m_selectByMass || m_mass[cand] <= minMass)) {
 				if (m_selectByMass && m_mass[cand] < minMass) {
 					minMass = m_mass[cand];
 					candNeighbors.clear();
@@ -92,7 +86,7 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 		if (candNeighbors.empty()) {
 			continue;
 		}
-		int index = randomNumber(0, int(candNeighbors.size())-1);
+		int index = randomNumber(0, int(candNeighbors.size()) - 1);
 		nodeMarks[candNeighbors[index]] = true;
 		matching.push_back(candEdges[index]);
 	}
@@ -112,19 +106,19 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 			parent = matchingEdge->source();
 		}
 
-		NodeMerge * NM = new NodeMerge(level);
+		NodeMerge* NM = new NodeMerge(level);
 		bool ret;
 #ifdef OGDF_DEBUG
 		ret =
 #endif
-			MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
-		OGDF_ASSERT( ret );
+				MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
+		OGDF_ASSERT(ret);
 		if (m_selectByMass) {
 			m_mass[parent] = m_mass[parent] + m_mass[mergeNode];
 		}
 		MLG.moveEdgesToParent(NM, mergeNode, parent, true, m_adjustEdgeLengths);
 		ret = MLG.postMerge(NM, mergeNode);
-		if( !ret ) {
+		if (!ret) {
 			delete NM;
 		}
 	}
@@ -132,10 +126,6 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 	return true;
 }
 
-
-void MatchingMerger::selectByNodeMass( bool on )
-{
-	m_selectByMass = on;
-}
+void MatchingMerger::selectByNodeMass(bool on) { m_selectByMass = on; }
 
 }

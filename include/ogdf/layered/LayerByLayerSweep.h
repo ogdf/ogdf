@@ -57,14 +57,14 @@ class SugiyamaLayout;
  */
 class OGDF_EXPORT LayerByLayerSweep : public LayeredCrossMinModule {
 public:
-
-	virtual const HierarchyLevels *reduceCrossings(const SugiyamaLayout &sugi, const Hierarchy &H, int &nCrossings);
+	virtual const HierarchyLevels* reduceCrossings(const SugiyamaLayout& sugi, const Hierarchy& H,
+			int& nCrossings);
 
 	//! Template method implementation of reduceCrossings from LayeredCrossMinModule.
-	virtual const HierarchyLevels *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) override
-	{
-		const Hierarchy &constH = H;
-		return reduceCrossings( sugi, constH, nCrossings );
+	virtual const HierarchyLevels* reduceCrossings(const SugiyamaLayout& sugi, Hierarchy& H,
+			int& nCrossings) override {
+		const Hierarchy& constH = H;
+		return reduceCrossings(sugi, constH, nCrossings);
 	}
 
 	//! Initializes a two-layer crossing minimization module.
@@ -73,14 +73,14 @@ public:
 	virtual ~LayerByLayerSweep() { }
 
 	//! Returns a new instance of the two-layer crossing minimization module with the same option settings.
-	virtual LayerByLayerSweep *clone() const = 0;
+	virtual LayerByLayerSweep* clone() const = 0;
 
 	/**
 	 * \brief Initializes the crossing minimization module for hierarchy levels \p levels.
 	 *
 	 * @param levels is the hierarchy on which the module shall operate.
 	 */
-	virtual void init(const HierarchyLevels &levels) { }
+	virtual void init(const HierarchyLevels& levels) { }
 
 	/**
 	 * \brief Performs crossing minimization for level \p L.
@@ -88,7 +88,7 @@ public:
 	 * @param L is the level in the hierarchy on which nodes are permuted; the
 	 *        neighbor level (fixed level) is determined by the hierarchy.
 	 */
-	virtual void call(Level &L) = 0;
+	virtual void call(Level& L) = 0;
 
 	/**
 	 * \brief Performs crossing minimization for level \p L.
@@ -96,9 +96,7 @@ public:
 	 * @param L is the level in the hierarchy on which nodes are permuted; the
 	 *        neighbor level (fixed level) is determined by the hierarchy.
 	 */
-	void operator()(Level &L) {
-		call(L);
-	}
+	void operator()(Level& L) { call(L); }
 
 	//! Performs clean-up.
 	virtual void cleanup() override { }

@@ -42,7 +42,7 @@ namespace gml {
 
 //! Represents node in GML parse tree
 struct OGDF_EXPORT Object {
-	Object *pBrother; // brother of node in tree
+	Object* pBrother; // brother of node in tree
 	Key key; // tag of node
 	ObjectType valueType; // type of node
 
@@ -55,50 +55,49 @@ struct OGDF_EXPORT Object {
 	union {
 		int intValue;
 		double doubleValue;
-		const char *stringValue;
-		Object *pFirstSon;
+		const char* stringValue;
+		Object* pFirstSon;
 	};
 
 	// construction
-	Object(Key k, int value) : pBrother(nullptr), key(k),
-		valueType(ObjectType::IntValue), intValue(value)  { }
+	Object(Key k, int value)
+		: pBrother(nullptr), key(k), valueType(ObjectType::IntValue), intValue(value) { }
 
-	Object(Key k, double value) : pBrother(nullptr), key(k),
-		valueType(ObjectType::DoubleValue), doubleValue(value)  { }
+	Object(Key k, double value)
+		: pBrother(nullptr), key(k), valueType(ObjectType::DoubleValue), doubleValue(value) { }
 
-	Object(Key k, const char *value) : pBrother(nullptr), key(k),
-		valueType(ObjectType::StringValue), stringValue(value)  { }
+	Object(Key k, const char* value)
+		: pBrother(nullptr), key(k), valueType(ObjectType::StringValue), stringValue(value) { }
 
-	Object(Key k) : pBrother(nullptr), key(k),
-		valueType(ObjectType::ListBegin), pFirstSon(nullptr)  { }
+	Object(Key k)
+		: pBrother(nullptr), key(k), valueType(ObjectType::ListBegin), pFirstSon(nullptr) { }
 
 	OGDF_NEW_DELETE
 };
 
-
 //! Reads GML file and constructs GML parse tree
 class OGDF_EXPORT Parser {
-	std::istream *m_is;
+	std::istream* m_is;
 	bool m_error;
 
 	char *m_rLineBuffer, *m_lineBuffer, *m_pCurrent, *m_pStore, m_cStore;
 
 	int m_intSymbol;
 	double m_doubleSymbol;
-	const char *m_stringSymbol;
+	const char* m_stringSymbol;
 	Key m_keySymbol;
 	string m_longString;
 
-	Object *m_objectTree; // root node of GML parse tree
+	Object* m_objectTree; // root node of GML parse tree
 
 	bool m_doCheck;
 	Array<node> m_mapToNode;
-	Object  *m_graphObject;
+	Object* m_graphObject;
 
 public:
 	// construction: creates object tree
 	// sets m_error flag if an error occured
-	explicit Parser(std::istream &is, bool doCheck = false);
+	explicit Parser(std::istream& is, bool doCheck = false);
 
 	//! Destruction: destroys object tree
 	~Parser();
@@ -107,34 +106,30 @@ public:
 	bool error() const { return m_error; }
 
 	// creates graph from GML parse tree
-	bool read(Graph &G);
+	bool read(Graph& G);
 	// creates attributed graph from GML parse tree
-	bool read(Graph &G, GraphAttributes &GA);
+	bool read(Graph& G, GraphAttributes& GA);
 
 	//read only cluster part of object tree and create cluster graph structure
-	bool readCluster(Graph &G, ClusterGraph &CG, ClusterGraphAttributes *ACG = nullptr);
+	bool readCluster(Graph& G, ClusterGraph& CG, ClusterGraphAttributes* ACG = nullptr);
 
 protected:
-
 	//! Reads cluster subtree information recursively
-	bool recursiveClusterRead(
-		Object* clusterObject,
-		ClusterGraph& CG,
-		cluster c,
-		ClusterGraphAttributes* ACG = nullptr);
+	bool recursiveClusterRead(Object* clusterObject, ClusterGraph& CG, cluster c,
+			ClusterGraphAttributes* ACG = nullptr);
 
 private:
-	void createObjectTree(std::istream &is, bool doCheck);
-	void setError(const char *errorString, Logger::Level level = Logger::Level::Default);
+	void createObjectTree(std::istream& is, bool doCheck);
+	void setError(const string& errorString, Logger::Level level = Logger::Level::Default);
 
-	Object *parseList(ObjectType closingKey);
+	Object* parseList(ObjectType closingKey);
 	ObjectType getNextSymbol();
 	bool getLine();
 
-	Object *getNodeIdRange(int &minId,int &maxId);
-	void readLineAttribute(Object *object, DPolyline &dpl);
+	Object* getNodeIdRange(int& minId, int& maxId);
+	void readLineAttribute(Object* object, DPolyline& dpl);
 
-	void destroyObjectList(Object *object);
+	void destroyObjectList(Object* object);
 };
 
 }

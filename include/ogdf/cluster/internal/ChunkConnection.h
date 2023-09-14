@@ -60,27 +60,31 @@ class ChunkConnection : public BaseConstraint {
 	friend class CPlanarSub;
 #endif
 public:
-
-	ChunkConnection(abacus::Master *master, const ArrayBuffer<node>& chunk, const ArrayBuffer<node>& cochunk);
+	ChunkConnection(abacus::Master* master, const ArrayBuffer<node>& chunk,
+			const ArrayBuffer<node>& cochunk);
 
 	virtual ~ChunkConnection();
 
 	// Computes and returns the coefficient for the given variable
-	virtual double coeff(const abacus::Variable *v) const override {
-		const EdgeVar *ev = static_cast<const EdgeVar *>(v);
+	virtual double coeff(const abacus::Variable* v) const override {
+		const EdgeVar* ev = static_cast<const EdgeVar*>(v);
 		//Safe for both clustered planarity testing and maximum c-planar subgraph
-		return (ev->theEdgeType() != EdgeVar::EdgeType::Connect) ? 0.0 : (double)coeff(ev->sourceNode(), ev->targetNode());
+		return (ev->theEdgeType() != EdgeVar::EdgeType::Connect)
+				? 0.0
+				: (double)coeff(ev->sourceNode(), ev->targetNode());
 	}
-	inline int coeff(const NodePair& n) const override { return coeff(n.source ,n.target); }
+
+	inline int coeff(const NodePair& n) const override { return coeff(n.source, n.target); }
+
 	int coeff(node v1, node v2) const;
 
 	void printMe(std::ostream& out) const {
 		out << "[ChunkCon: (";
-		for(node v : m_chunk) {
+		for (node v : m_chunk) {
 			Logger::slout() << v << ",";
 		}
 		out << "|";
-		for(node v : m_cochunk) {
+		for (node v : m_cochunk) {
 			Logger::slout() << v << ",";
 		}
 		out << ")]";

@@ -32,15 +32,13 @@
 #include <ogdf/basic/Layout.h>
 #include <ogdf/planarity/PlanRep.h>
 
-
 namespace ogdf {
 
 
-void Layout::computePolyline(GraphCopy &GC, edge eOrig, DPolyline &dpl) const
-{
+void Layout::computePolyline(GraphCopy& GC, edge eOrig, DPolyline& dpl) const {
 	dpl.clear();
 
-	const List<edge> &edgePath = GC.chain(eOrig);
+	const List<edge>& edgePath = GC.chain(eOrig);
 
 	// The corresponding edge path in the copy must contain at least 1 edge!
 	OGDF_ASSERT(edgePath.size() >= 1);
@@ -51,28 +49,28 @@ void Layout::computePolyline(GraphCopy &GC, edge eOrig, DPolyline &dpl) const
 		node v = e->source();
 
 		// append point of source node of e ...
-		if (!firstTime)
+		if (!firstTime) {
 			dpl.pushBack(DPoint(m_x[v], m_y[v]));
-		else
+		} else {
 			firstTime = false;
+		}
 
 		// ... and polyline of e
-		const DPolyline &segment = m_bends[e];
+		const DPolyline& segment = m_bends[e];
 
-		for (const DPoint &dp : segment)
+		for (const DPoint& dp : segment) {
 			dpl.pushBack(dp);
+		}
 	}
 }
-
 
 // faster version of computePolylineClear
 // clears the list of bend points  of all edges in the edge path
 // in the copy corresponding to eOrig!
-void Layout::computePolylineClear(PlanRep &PG, edge eOrig, DPolyline &dpl)
-{
+void Layout::computePolylineClear(PlanRep& PG, edge eOrig, DPolyline& dpl) {
 	dpl.clear();
 
-	const List<edge> &edgePath = PG.chain(eOrig);
+	const List<edge>& edgePath = PG.chain(eOrig);
 
 	// The corresponding edge path in the copy must contain at least 1 edge!
 	OGDF_ASSERT(edgePath.size() >= 1);
@@ -83,24 +81,24 @@ void Layout::computePolylineClear(PlanRep &PG, edge eOrig, DPolyline &dpl)
 		node v = e->source();
 
 		// append point of source node of e ...
-		if (!firstTime)
+		if (!firstTime) {
 			dpl.pushBack(DPoint(m_x[v], m_y[v]));
-		else
+		} else {
 			firstTime = false;
+		}
 
 		// ... and polyline of e
 		dpl.conc(m_bends[e]);
 	}
 	node w = edgePath.back()->target();
-	if (PG.typeOf(w) == Graph::NodeType::generalizationExpander)
+	if (PG.typeOf(w) == Graph::NodeType::generalizationExpander) {
 		dpl.pushBack(DPoint(m_x[w], m_y[w]));
+	}
 }
 
-
-DPoint Layout::computeBoundingBox(PlanRep &PG) const
-{
+DPoint Layout::computeBoundingBox(PlanRep& PG) const {
 	if (PG.numberOfNodes() == 0) {
-		return DPoint(0,0);
+		return DPoint(0, 0);
 	}
 
 	double maxX = std::numeric_limits<double>::lowest();
@@ -109,19 +107,21 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 	double minY = std::numeric_limits<double>::max();
 
 	// check rightmost and uppermost extension of all (original) nodes
-	for(int i = PG.startNode(); i < PG.stopNode(); ++i) {
+	for (int i = PG.startNode(); i < PG.stopNode(); ++i) {
 		node vG = PG.v(i);
-		Math::updateMax(maxX, x(PG.copy(vG)) + PG.widthOrig(vG)/2);
-		Math::updateMax(maxY, y(PG.copy(vG)) + PG.heightOrig(vG)/2);
-		Math::updateMin(minX, x(PG.copy(vG)) - PG.widthOrig(vG)/2);
-		Math::updateMin(minY, y(PG.copy(vG)) - PG.heightOrig(vG)/2);
+		Math::updateMax(maxX, x(PG.copy(vG)) + PG.widthOrig(vG) / 2);
+		Math::updateMax(maxY, y(PG.copy(vG)) + PG.heightOrig(vG) / 2);
+		Math::updateMin(minX, x(PG.copy(vG)) - PG.widthOrig(vG) / 2);
+		Math::updateMin(minY, y(PG.copy(vG)) - PG.heightOrig(vG) / 2);
 
 		// check polylines of all (original) edges
-		for(adjEntry adj : vG->adjEntries) {
-			if ((adj->index() & 1) == 0) continue;
+		for (adjEntry adj : vG->adjEntries) {
+			if ((adj->index() & 1) == 0) {
+				continue;
+			}
 			edge eG = adj->theEdge();
 
-			for(edge e : PG.chain(eG)) {
+			for (edge e : PG.chain(eG)) {
 				// we have to check (only) all interior points, i.e., we can
 				// omitt the first and last point since it lies in the box of
 				// the source or target node.
@@ -132,7 +132,7 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 				Math::updateMin(minX, x(v));
 				Math::updateMin(minY, y(v));
 
-				for(const DPoint &dp : bends(e)) {
+				for (const DPoint& dp : bends(e)) {
 					Math::updateMax(maxX, dp.m_x);
 					Math::updateMax(maxY, dp.m_y);
 					Math::updateMin(minX, dp.m_x);

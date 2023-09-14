@@ -40,7 +40,8 @@ Logger::Level Logger::m_globalloglevel = Logger::Level::Default;
 Logger::Level Logger::m_minimumloglevel = Logger::Level::Minor;
 Logger::Level Logger::m_globallibraryloglevel = Logger::Level::Default;
 #else // RELEASE
-Logger::Level Logger::m_globalloglevel = Logger::Level::Alarm; // forbid anything except alarms and forced writes -> logging is off
+Logger::Level Logger::m_globalloglevel =
+		Logger::Level::Alarm; // forbid anything except alarms and forced writes -> logging is off
 Logger::Level Logger::m_globallibraryloglevel = Logger::Level::Alarm;
 Logger::Level Logger::m_minimumloglevel = Logger::Level::Medium;
 #endif

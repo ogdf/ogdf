@@ -53,7 +53,6 @@ namespace ogdf {
  *   combined but not interconnected within a single ogdf::Graph structure.
  */
 class OGDF_EXPORT BCTree {
-
 public:
 	//! Enumeration type for characterizing the vertices of the original graph.
 	enum class GNodeType {
@@ -198,7 +197,7 @@ protected:
 	 * - If \a vB is representing a C-component, then m_bNode_hEdges[\a vB] is an
 	 *   empty list.
 	 */
-	NodeArray<SList<edge> > m_bNode_hEdges;
+	NodeArray<SList<edge>> m_bNode_hEdges;
 
 	/**
 	 * Array that contains for each BC-tree-vertex the number of vertices
@@ -300,7 +299,7 @@ protected:
 	 */
 	SList<node> m_nodes;
 
-	/** @}
+	/** @{
 	 * Initialization.
 	 *
 	 * initializes all data structures and generates the BC-tree and the
@@ -308,7 +307,7 @@ protected:
 	 * \param vG is the vertex of the original graph which the DFS algorithm starts
 	 * with.
 	 */
-	void init (node vG);
+	void init(node vG);
 	//! @}
 
 	/**
@@ -319,7 +318,7 @@ protected:
 	 * \param vG is the vertex of the original graph which the DFS algorithm starts
 	 * first with.
 	 */
-	void initNotConnected (node vG);
+	void initNotConnected(node vG);
 
 	/**
 	 * Initialization for not connected graphs
@@ -330,7 +329,7 @@ protected:
 	 * \param vG a list of vertices of the original graph from which the DFS
 	 * algorithm is run.
 	 */
-	void initNotConnected (List<node> &vG);
+	void initNotConnected(List<node>& vG);
 
 	/**
 	 * Generates the BC-tree and the biconnected components graph
@@ -340,7 +339,7 @@ protected:
 	 * Efficient algorithms for graph manipulation. <em>Comm. ACM</em>, 16:372-378
 	 * (1973).
 	 */
-	void biComp (adjEntry adjuG, node vG);
+	void biComp(adjEntry adjuG, node vG);
 
 	/** @{
 	 * Returns the parent of a given BC-tree-vertex.
@@ -349,7 +348,7 @@ protected:
 	 * root of the BC-tree, and \c nullptr, if \p vB is \c nullptr or the root of the
 	 * BC-tree.
 	 */
-	virtual node parent (node vB) const;
+	virtual node parent(node vB) const;
 
 	/**
 	 * Calculates the nearest common ancestor of two vertices of the
@@ -358,7 +357,7 @@ protected:
 	 * \param vB is a vertex of the BC-tree.
 	 * \return the nearest common ancestor of \p uB and \p vB.
 	 */
-	node findNCA (node uB, node vB) const;
+	node findNCA(node uB, node vB) const;
 
 	//! @}
 
@@ -371,11 +370,11 @@ public:
 	 * \param G is the original graph.
 	 * \param callInitConnected decides which init is called, default call is init()
 	 */
-	explicit BCTree (Graph& G, bool callInitConnected = false) : m_G(G), m_eStack(G.numberOfEdges()) {
+	explicit BCTree(Graph& G, bool callInitConnected = false)
+		: m_G(G), m_eStack(G.numberOfEdges()) {
 		if (!callInitConnected) {
 			init(G.firstNode());
-		}
-		else {
+		} else {
 			initNotConnected(G.firstNode());
 		}
 	}
@@ -388,10 +387,13 @@ public:
 	 * \param vG is the vertex of the original graph which the DFS algorithm starts
 	 * \param callInitConnected decides which init is called, default call is init()
 	 */
-	BCTree (Graph& G, node vG, bool callInitConnected = false) : m_G(G), m_eStack(G.numberOfEdges()) {
-		if (!callInitConnected)
+	BCTree(Graph& G, node vG, bool callInitConnected = false)
+		: m_G(G), m_eStack(G.numberOfEdges()) {
+		if (!callInitConnected) {
 			init(vG);
-		else initNotConnected(vG);
+		} else {
+			initNotConnected(vG);
+		}
 	}
 
 	/**
@@ -404,25 +406,30 @@ public:
 	 * \param vG a list of vertices of the original graph from which the DFS
 	 * algorithm is run.
 	 */
-	BCTree (Graph& G, List<node> &vG) : m_G(G), m_eStack(G.numberOfEdges()) {
-		initNotConnected(vG);
-	}
+	BCTree(Graph& G, List<node>& vG) : m_G(G), m_eStack(G.numberOfEdges()) { initNotConnected(vG); }
 
 	//! Virtual destructor.
-	virtual ~BCTree () { }
+	virtual ~BCTree() { }
 
+	//! @{
 	//! Returns the original graph.
-	const Graph& originalGraph () const { return m_G; }
+	const Graph& originalGraph() const { return m_G; }
+
 	//! Returns the BC-tree graph.
-	const Graph& bcTree () const { return m_B; }
+	const Graph& bcTree() const { return m_B; }
+
 	//! Returns the biconnected components graph.
-	const Graph& auxiliaryGraph () const { return m_H; }
+	const Graph& auxiliaryGraph() const { return m_H; }
+
 	//! @}
 
+	//! @{
 	//! Returns the number of B-components.
-	int numberOfBComps () const { return m_numB; }
+	int numberOfBComps() const { return m_numB; }
+
 	//! Returns the number of C-components.
-	int numberOfCComps () const { return m_numC; }
+	int numberOfCComps() const { return m_numC; }
+
 	//! @}
 
 	/** @{
@@ -430,7 +437,11 @@ public:
 	 * \param vG is a vertex of the original graph.
 	 * \return the type of \p vG.
 	 */
-	GNodeType typeOfGNode (node vG) const { return m_bNode_type[m_hNode_bNode[m_gNode_hNode[vG]]]==BNodeType::BComp ? GNodeType::Normal : GNodeType::CutVertex; }
+	GNodeType typeOfGNode(node vG) const {
+		return m_bNode_type[m_hNode_bNode[m_gNode_hNode[vG]]] == BNodeType::BComp
+				? GNodeType::Normal
+				: GNodeType::CutVertex;
+	}
 
 	/**
 	 * Returns a BC-tree-vertex representing a biconnected component which a
@@ -444,7 +455,7 @@ public:
 	 *   of the BC-tree representing the unambiguous C-component which \p vG is
 	 *   belonging to.
 	 */
-	virtual node bcproper (node vG) const { return m_hNode_bNode[m_gNode_hNode[vG]]; }
+	virtual node bcproper(node vG) const { return m_hNode_bNode[m_gNode_hNode[vG]]; }
 
 	/**
 	 * Returns the BC-tree-vertex representing the biconnected component
@@ -453,7 +464,7 @@ public:
 	 * \return the vertex of the BC-tree representing the B-component which \p eG
 	 * is belonging to.
 	 */
-	virtual node bcproper (edge eG) const { return m_hEdge_bNode[m_gEdge_hEdge[eG]]; }
+	virtual node bcproper(edge eG) const { return m_hEdge_bNode[m_gEdge_hEdge[eG]]; }
 
 	/**
 	 * Returns a vertex of the biconnected components graph corresponding to
@@ -466,7 +477,7 @@ public:
 	 *   biconnected components graph representing the C-component which \p vG is
 	 *   belonging to.
 	 */
-	node rep (node vG) const { return m_gNode_hNode[vG]; }
+	node rep(node vG) const { return m_gNode_hNode[vG]; }
 
 	/**
 	 * Returns the edge of the biconnected components graph corresponding to
@@ -474,7 +485,8 @@ public:
 	 * \param eG is an edge of the original graph.
 	 * \return the edge of the biconnected components graph corresponding to \p eG.
 	 */
-	edge rep (edge eG) const { return m_gEdge_hEdge[eG]; }
+	edge rep(edge eG) const { return m_gEdge_hEdge[eG]; }
+
 	//! @}
 
 	/** @{
@@ -483,7 +495,7 @@ public:
 	 * \param vH is a vertex of the biconnected components graph.
 	 * \return the vertex of the original graph which \p vH is corresponding to.
 	 */
-	node original (node vH) { return m_hNode_gNode[vH]; }
+	node original(node vH) { return m_hNode_gNode[vH]; }
 
 	/**
 	 * Returns the edge of the original graph which a given edge of the
@@ -491,7 +503,8 @@ public:
 	 * \param eH is an edge of the biconnected components graph.
 	 * \return the edge of the original graph which \p eH is corresponding to.
 	 */
-	edge original (edge eH) const { return m_hEdge_gEdge[eH]; }
+	edge original(edge eH) const { return m_hEdge_gEdge[eH]; }
+
 	//! @}
 
 	/** @{
@@ -500,7 +513,7 @@ public:
 	 * \param vB is a vertex of the BC-tree.
 	 * \return the type of the biconnected component represented by \p vB.
 	 */
-	BNodeType typeOfBNode (node vB) const { return m_bNode_type[vB]; }
+	BNodeType typeOfBNode(node vB) const { return m_bNode_type[vB]; }
 
 	/**
 	 * Returns a linear list of the edges of the biconnected components
@@ -512,7 +525,7 @@ public:
 	 *   copies of the edges belonging to the B-component.
 	 * - If \p vB is representing a C-component, then the list is empty.
 	 */
-	const SList<edge>& hEdges (node vB) const { return m_bNode_hEdges[vB]; }
+	const SList<edge>& hEdges(node vB) const { return m_bNode_hEdges[vB]; }
 
 	/**
 	 * Returns the number of edges belonging to the biconnected component
@@ -521,7 +534,7 @@ public:
 	 * \return the number of edges belonging to the B- or C-component represented
 	 * by \p vB, particularly 0 if it is a C-component.
 	 */
-	int numberOfEdges (node vB) const { return m_bNode_hEdges[vB].size(); }
+	int numberOfEdges(node vB) const { return m_bNode_hEdges[vB].size(); }
 
 	/**
 	 * Returns the number of vertices belonging to the biconnected component
@@ -531,7 +544,8 @@ public:
 	 * represented by \p vB, cut-vertices inclusive, particularly 1 if it is a
 	 * C-component.
 	 */
-	int numberOfNodes (node vB) const { return m_bNode_numNodes[vB]; }
+	int numberOfNodes(node vB) const { return m_bNode_numNodes[vB]; }
+
 	//! @}
 
 	/** @{
@@ -545,7 +559,7 @@ public:
 	 * correct B-component even if \p uG or \p vG or either are cut-vertices and
 	 * are therefore belonging to C-components, too.
 	 */
-	node bComponent (node uG, node vG) const;
+	node bComponent(node uG, node vG) const;
 
 	/**
 	 * Calculates a path in the BC-tree.
@@ -556,7 +570,7 @@ public:
 	 * \post <b>The SList<node> instance is created by this function and has to be
 	 * destructed by the caller!</b>
 	 */
-	SList<node>& findPath (node sG, node tG) const;
+	SList<node>& findPath(node sG, node tG) const;
 
 	/**
 	 * Calculates a path in the BC-tree.
@@ -567,7 +581,7 @@ public:
 	 * \post <b>The SList<node> instance is created by this function and has to be
 	 * destructed by the caller!</b>
 	 */
-	SList<node>* findPathBCTree (node sB, node tB) const;
+	SList<node>* findPathBCTree(node sB, node tB) const;
 
 	/**
 	 * Returns a vertex of the biconnected components graph corresponding to
@@ -582,7 +596,7 @@ public:
 	 *   \p vB.
 	 * - Otherwise, repVertex(\p uG, \p vB) returns \a nullptr.
 	 */
-	virtual node repVertex (node uG, node vB) const;
+	virtual node repVertex(node uG, node vB) const;
 
 	/**
 	 * Returns the copy of a cut-vertex in the biconnected components graph
@@ -613,15 +627,15 @@ public:
 	 *   by \p vB.
 	 * - Otherwise, cutVertex(\p uB, \p vB) returns \a nullptr.
 	 */
-	virtual node cutVertex (node uB, node vB) const;
+	virtual node cutVertex(node uB, node vB) const;
 
 	//! @}
 private:
 	//! Copy constructor is undefined!
-	BCTree(const BCTree &) = delete;
+	BCTree(const BCTree&) = delete;
 
 	//! Assignment operator is undefined!
-	BCTree &operator=(const BCTree &) = delete;
+	BCTree& operator=(const BCTree&) = delete;
 
 	void initBasic(node vG);
 	void initEdges();

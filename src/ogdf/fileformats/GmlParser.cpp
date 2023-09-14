@@ -30,20 +30,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <unordered_map>
-#include <memory>
-
 #include <ogdf/fileformats/GmlParser.h>
 #include <ogdf/fileformats/Utils.h>
 
+#include <memory>
+#include <unordered_map>
 
 namespace ogdf {
 
 namespace gml {
 
 
-Parser::Parser(std::istream &is, bool doCheck)
-{
+Parser::Parser(std::istream& is, bool doCheck) {
 	m_objectTree = nullptr;
 
 	if (!is) {
@@ -51,7 +49,7 @@ Parser::Parser(std::istream &is, bool doCheck)
 		return;
 	}
 
-	createObjectTree(is,doCheck);
+	createObjectTree(is, doCheck);
 
 	int minId, maxId;
 	m_graphObject = getNodeIdRange(minId, maxId);
@@ -59,12 +57,10 @@ Parser::Parser(std::istream &is, bool doCheck)
 		setError("Cannot obtain min and max node id.");
 		return;
 	}
-	m_mapToNode.init(minId,maxId,nullptr);
+	m_mapToNode.init(minId, maxId, nullptr);
 }
 
-
-void Parser::createObjectTree(std::istream &is, bool doCheck)
-{
+void Parser::createObjectTree(std::istream& is, bool doCheck) {
 	m_error = false;
 
 	m_is = &is;
@@ -73,10 +69,12 @@ void Parser::createObjectTree(std::istream &is, bool doCheck)
 	// initialize line buffer (note: GML specifies a maximal line length
 	// of 254 characters!)
 	m_rLineBuffer = new char[256];
-	if (m_rLineBuffer == nullptr) OGDF_THROW(InsufficientMemoryException);
+	if (m_rLineBuffer == nullptr) {
+		OGDF_THROW(InsufficientMemoryException);
+	}
 
 	*m_rLineBuffer = '\n';
-	m_lineBuffer = m_rLineBuffer+1;
+	m_lineBuffer = m_rLineBuffer + 1;
 
 	m_pCurrent = m_pStore = m_lineBuffer;
 	m_cStore = 0; // forces getNextSymbol() to read first line
@@ -87,17 +85,16 @@ void Parser::createObjectTree(std::istream &is, bool doCheck)
 	delete[] m_rLineBuffer;
 }
 
+Object* Parser::parseList(ObjectType closingKey) {
+	Object* firstSon = nullptr;
+	Object** pPrev = &firstSon;
 
-Object *Parser::parseList(ObjectType closingKey)
-{
-	Object *firstSon = nullptr;
-	Object **pPrev = &firstSon;
-
-	for( ; ; ) {
+	for (;;) {
 		ObjectType symbol = getNextSymbol();
 
-		if (symbol == closingKey || symbol == ObjectType::Error)
+		if (symbol == closingKey || symbol == ObjectType::Error) {
 			return firstSon;
+		}
 
 		if (symbol != ObjectType::Key) {
 			setError("key expected");
@@ -107,29 +104,32 @@ Object *Parser::parseList(ObjectType closingKey)
 		Key key = m_keySymbol;
 
 		symbol = getNextSymbol();
-		Object *object = nullptr;
+		Object* object = nullptr;
 
 		switch (symbol) {
 		case ObjectType::IntValue:
-			object = new Object(key,m_intSymbol);
+			object = new Object(key, m_intSymbol);
 			break;
 
 		case ObjectType::DoubleValue:
-			object = new Object(key,m_doubleSymbol);
+			object = new Object(key, m_doubleSymbol);
 			break;
 
 		case ObjectType::StringValue: {
-			size_t len = strlen(m_stringSymbol)+1;
-			char *pChar = new char[len];
-			if (pChar == nullptr) OGDF_THROW(InsufficientMemoryException);
+			size_t len = strlen(m_stringSymbol) + 1;
+			char* pChar = new char[len];
+			if (pChar == nullptr) {
+				OGDF_THROW(InsufficientMemoryException);
+			}
 
 #ifdef _MSC_VER
 			strcpy_s(pChar, len, m_stringSymbol);
 #else
-			strcpy(pChar, m_stringSymbol); // NOLINT: strcpy is fine here as we allocated pChar exactly big enough
+			strcpy(pChar,
+					m_stringSymbol); // NOLINT: strcpy is fine here as we allocated pChar exactly big enough
 #endif
-			object = new Object(key,pChar); }
-			break;
+			object = new Object(key, pChar);
+		} break;
 
 		case ObjectType::ListBegin:
 			object = new Object(key);
@@ -163,53 +163,53 @@ Object *Parser::parseList(ObjectType closingKey)
 	return firstSon;
 }
 
-
-void Parser::destroyObjectList(Object *object)
-{
-	Object *nextObject;
-	for(; object; object = nextObject) {
+void Parser::destroyObjectList(Object* object) {
+	Object* nextObject;
+	for (; object; object = nextObject) {
 		nextObject = object->pBrother;
 
-		if (object->valueType == ObjectType::StringValue)
-			delete[] const_cast<char *>(object->stringValue);
+		if (object->valueType == ObjectType::StringValue) {
+			delete[] const_cast<char*>(object->stringValue);
+		}
 
-		else if (object->valueType == ObjectType::ListBegin)
+		else if (object->valueType == ObjectType::ListBegin) {
 			destroyObjectList(object->pFirstSon);
+		}
 
 		delete object;
 	}
 }
 
-
-Parser::~Parser()
-{
+Parser::~Parser() {
 	// we have to delete all objects and allocated char arrays in string values
 	destroyObjectList(m_objectTree);
 }
 
-
-bool Parser::getLine()
-{
+bool Parser::getLine() {
 	do {
-		if (m_is->eof()) return false;
-		(*m_is) >> std::ws;  // skip whitespace like spaces for indentation
-		m_is->getline(m_lineBuffer,255);
-		if (m_is->fail())
+		if (m_is->eof()) {
 			return false;
-		for(m_pCurrent = m_lineBuffer;
-			*m_pCurrent && isspace((int)*m_pCurrent); ++m_pCurrent) ;
+		}
+		(*m_is) >> std::ws; // skip whitespace like spaces for indentation
+		m_is->getline(m_lineBuffer, 255);
+		if (m_is->fail()) {
+			return false;
+		}
+		for (m_pCurrent = m_lineBuffer; *m_pCurrent && isspace((int)*m_pCurrent); ++m_pCurrent) {
+			;
+		}
 	} while (*m_pCurrent == '#' || *m_pCurrent == 0);
 
 	return true;
 }
 
-
-ObjectType Parser::getNextSymbol()
-{
+ObjectType Parser::getNextSymbol() {
 	*m_pStore = m_cStore;
 
 	// eat whitespace
-	for(; *m_pCurrent && isspace((int)*m_pCurrent); ++m_pCurrent) ;
+	for (; *m_pCurrent && isspace((int)*m_pCurrent); ++m_pCurrent) {
+		;
+	}
 
 	// get new line if required
 	if (*m_pCurrent == 0 && !getLine()) {
@@ -217,17 +217,16 @@ ObjectType Parser::getNextSymbol()
 	}
 
 	// identify start of current symbol
-	char *pStart = m_pCurrent;
+	char* pStart = m_pCurrent;
 
 	// we currently do not support strings with line breaks!
-	if (*pStart == '\"')
-	{ // string
+	if (*pStart == '\"') { // string
 		m_stringSymbol = ++m_pCurrent;
-		char *pWrite = m_pCurrent;
+		char* pWrite = m_pCurrent;
 		auto update = [&] {
-			while(*m_pCurrent != 0 && *m_pCurrent != '\"') {
+			while (*m_pCurrent != 0 && *m_pCurrent != '\"') {
 				if (*m_pCurrent == '\\') {
-					switch(*(m_pCurrent+1)) {
+					switch (*(m_pCurrent + 1)) {
 					case 0:
 						*m_pCurrent = 0;
 						break;
@@ -251,12 +250,10 @@ ObjectType Parser::getNextSymbol()
 		};
 		update();
 
-		if (*m_pCurrent == 0)
-		{
+		if (*m_pCurrent == 0) {
 			*pWrite = 0;
-			m_longString = (pStart+1);
-			while(getLine())
-			{
+			m_longString = (pStart + 1);
+			while (getLine()) {
 				m_pCurrent = pWrite = m_lineBuffer;
 				update();
 
@@ -284,20 +281,23 @@ ObjectType Parser::getNextSymbol()
 	}
 
 	// identify end of current symbol
-	while(*m_pCurrent != 0 && !isspace((int)*m_pCurrent)) ++m_pCurrent;
+	while (*m_pCurrent != 0 && !isspace((int)*m_pCurrent)) {
+		++m_pCurrent;
+	}
 
 	m_cStore = *(m_pStore = m_pCurrent);
 	*m_pCurrent = 0;
 
-	if(isalpha((int)*pStart)) { // key
+	if (isalpha((int)*pStart)) { // key
 
 		// check if really a correct key (error if not)
 		if (m_doCheck) {
-			for (char *p = pStart+1; *p; ++p)
+			for (char* p = pStart + 1; *p; ++p) {
 				if (!(isalpha((int)*p) || isdigit((int)*p))) {
 					setError("malformed key");
 					return ObjectType::Error;
 				}
+			}
 		}
 
 		m_keySymbol = toKey(pStart);
@@ -310,8 +310,10 @@ ObjectType Parser::getNextSymbol()
 		return ObjectType::ListEnd;
 
 	} else if (*pStart == '-' || isdigit((int)*pStart)) { // int or double
-		char *p = pStart+1;
-		while(isdigit((int)*p)) ++p;
+		char* p = pStart + 1;
+		while (isdigit((int)*p)) {
+			++p;
+		}
 
 		if (*p == '.') { // double
 			// check to be done
@@ -335,27 +337,27 @@ ObjectType Parser::getNextSymbol()
 	return ObjectType::Error;
 }
 
-
-Object *Parser::getNodeIdRange(int &minId,int &maxId)
-{
+Object* Parser::getNodeIdRange(int& minId, int& maxId) {
 	maxId = 0;
 	minId = std::numeric_limits<int>::max();
 
-	Object *graphObject = m_objectTree;
-	for(; graphObject; graphObject = graphObject->pBrother)
-		if (graphObject->key == Key::Graph) break;
+	Object* graphObject = m_objectTree;
+	for (; graphObject; graphObject = graphObject->pBrother) {
+		if (graphObject->key == Key::Graph) {
+			break;
+		}
+	}
 
 	if (!graphObject || graphObject->valueType != ObjectType::ListBegin) {
 		return nullptr;
 	}
 
-	Object *son = graphObject->pFirstSon;
-	for(; son; son = son->pBrother) {
+	Object* son = graphObject->pFirstSon;
+	for (; son; son = son->pBrother) {
 		if (son->key == Key::Node && son->valueType == ObjectType::ListBegin) {
-			Object *nodeSon = son->pFirstSon;
-			for(; nodeSon; nodeSon = nodeSon->pBrother) {
-				if (nodeSon->key == Key::Id &&
-					nodeSon->valueType == ObjectType::IntValue) {
+			Object* nodeSon = son->pFirstSon;
+			for (; nodeSon; nodeSon = nodeSon->pBrother) {
+				if (nodeSon->key == Key::Id && nodeSon->valueType == ObjectType::IntValue) {
 					Math::updateMin(minId, nodeSon->intValue);
 					Math::updateMax(maxId, nodeSon->intValue);
 				}
@@ -365,7 +367,6 @@ Object *Parser::getNodeIdRange(int &minId,int &maxId)
 
 	return graphObject;
 }
-
 
 string toString(ObjectType type) {
 	switch (type) {
@@ -388,22 +389,34 @@ struct GmlType {
 	static ObjectType type;
 	static T get_attr(Object*);
 };
+
 template<>
 ObjectType GmlType<int>::type = ObjectType::IntValue;
+
 template<>
-int GmlType<int>::get_attr(Object *obj) { return obj->intValue; };
+int GmlType<int>::get_attr(Object* obj) {
+	return obj->intValue;
+};
+
 template<>
 ObjectType GmlType<double>::type = ObjectType::DoubleValue;
+
 template<>
-double GmlType<double>::get_attr(Object *obj) { return obj->doubleValue; };
+double GmlType<double>::get_attr(Object* obj) {
+	return obj->doubleValue;
+};
+
 template<>
 ObjectType GmlType<string>::type = ObjectType::StringValue;
+
 template<>
-string GmlType<string>::get_attr(Object *obj) { return obj->stringValue; };
+string GmlType<string>::get_attr(Object* obj) {
+	return obj->stringValue;
+};
 
 // Interface for handlers, so we can abstract away the difference between simple and list handlers
 struct IHandler {
-	virtual void handle(Object *obj) = 0;
+	virtual void handle(Object* obj) = 0;
 	virtual ~IHandler() = default;
 };
 
@@ -411,19 +424,54 @@ struct IHandler {
 class BasicHandler : public IHandler {
 public:
 	BasicHandler(GraphAttributes* GA = nullptr) : m_requiredGAs(0), m_GA(GA) { }
+
 	virtual ~BasicHandler() = default;
 
-	BasicHandler& eachInt(std::function<bool(const int&)> handler) { m_handleInt = handler; return *this; }
-	BasicHandler& eachDouble(std::function<bool(const double&)> handler) { m_handleDouble = handler; return *this; }
-	BasicHandler& eachString(std::function<bool(const string&)> handler) { m_handleString = handler; return *this; }
-	BasicHandler& each(std::function<bool(Object*)> handler) { m_handleObject = handler; return *this; }
+	BasicHandler& eachInt(std::function<bool(const int&)> handler) {
+		m_handleInt = handler;
+		return *this;
+	}
 
-	BasicHandler& storeInt(long gattr, std::function<void(const int&)> save) { m_requiredGAs = gattr; m_saveInt = save; return *this; }
-	BasicHandler& storeDouble(long gattr, std::function<void(const double&)> save) { m_requiredGAs = gattr; m_saveDouble = save; return *this; }
-	BasicHandler& storeString(long gattr, std::function<void(const string&)> save) { m_requiredGAs = gattr; m_saveString = save; return *this; }
-	BasicHandler& store(long gattr, std::function<void(Object*)> save) { m_requiredGAs = gattr; m_saveObject = save; return *this; }
+	BasicHandler& eachDouble(std::function<bool(const double&)> handler) {
+		m_handleDouble = handler;
+		return *this;
+	}
 
-	void handle(Object *obj) override {
+	BasicHandler& eachString(std::function<bool(const string&)> handler) {
+		m_handleString = handler;
+		return *this;
+	}
+
+	BasicHandler& each(std::function<bool(Object*)> handler) {
+		m_handleObject = handler;
+		return *this;
+	}
+
+	BasicHandler& storeInt(long gattr, std::function<void(const int&)> save) {
+		m_requiredGAs = gattr;
+		m_saveInt = save;
+		return *this;
+	}
+
+	BasicHandler& storeDouble(long gattr, std::function<void(const double&)> save) {
+		m_requiredGAs = gattr;
+		m_saveDouble = save;
+		return *this;
+	}
+
+	BasicHandler& storeString(long gattr, std::function<void(const string&)> save) {
+		m_requiredGAs = gattr;
+		m_saveString = save;
+		return *this;
+	}
+
+	BasicHandler& store(long gattr, std::function<void(Object*)> save) {
+		m_requiredGAs = gattr;
+		m_saveObject = save;
+		return *this;
+	}
+
+	void handle(Object* obj) override {
 		bool handled = false;
 		bool saved = false;
 		// Make sure the parsed data is of the expected type
@@ -434,7 +482,9 @@ public:
 			if (!handled && !m_handleDouble && obj->valueType == ObjectType::DoubleValue) {
 				handled = m_handleInt(obj->doubleValue);
 				if (handled) {
-					Logger::slout(Logger::Level::Minor) << "Expected integer attribute for " << toString(obj->key) << ", found float. Read may have lost precision!";
+					Logger::slout(Logger::Level::Minor)
+							<< "Expected integer attribute for " << toString(obj->key)
+							<< ", found float. Read may have lost precision!";
 				}
 			}
 		}
@@ -468,7 +518,9 @@ public:
 				}
 				if (!saved && !m_saveDouble && obj->valueType == ObjectType::DoubleValue) {
 					m_saveInt(obj->doubleValue);
-					Logger::slout(Logger::Level::Minor) << "Expected integer attribute for " << toString(obj->key) << ", found float. Read may have lost precision!";
+					Logger::slout(Logger::Level::Minor)
+							<< "Expected integer attribute for " << toString(obj->key)
+							<< ", found float. Read may have lost precision!";
 					saved = true;
 				}
 			}
@@ -505,7 +557,8 @@ public:
 		// If we had no callbacks registered, applicable, or our general callback returned false,
 		// we are simply discarding the read attribute. Inform the user of this.
 		if (!handled && !saved) {
-			Logger::slout(Logger::Level::Minor) << "Ignoring unused attribute " << toString(obj->key) << "!";
+			Logger::slout(Logger::Level::Minor)
+					<< "Ignoring unused attribute " << toString(obj->key) << "!";
 		}
 	}
 
@@ -520,9 +573,7 @@ private:
 	std::function<void(const double&)> m_saveDouble;
 	std::function<void(const string&)> m_saveString;
 	std::function<void(Object*)> m_saveObject;
-
 };
-
 
 // Handle attributes in a user-defined way
 class CustomHandler : public IHandler {
@@ -531,9 +582,7 @@ public:
 
 	void each(std::function<void(Object*)> handler) { m_handle = handler; }
 
-	void handle(Object *obj) override {
-		m_handle(obj);
-	}
+	void handle(Object* obj) override { m_handle(obj); }
 
 private:
 	std::function<void(Object*)> m_handle;
@@ -572,30 +621,38 @@ public:
 		m_beforeEach = init;
 		return *this;
 	}
+
 	ListHandler& afterEach(std::function<bool()> check) {
 		m_afterEach = check;
 		return *this;
 	}
 
-	void handle(Object *obj) override {
-		if (m_beforeEach) m_beforeEach();
+	void handle(Object* obj) override {
+		if (m_beforeEach) {
+			m_beforeEach();
+		}
 
 		if (obj->valueType == ObjectType::ListBegin) {
-			Object *son = obj->pFirstSon;
-			for(; son; son = son->pBrother) {
+			Object* son = obj->pFirstSon;
+			for (; son; son = son->pBrother) {
 				if (m_handlers.find(son->key) != m_handlers.end()) {
 					m_handlers[son->key]->handle(son);
 				} else {
-					Logger::slout(Logger::Level::Minor) << "Ignoring unused attribute " << toString(son->key) << "!\n";
+					Logger::slout(Logger::Level::Minor)
+							<< "Ignoring unused attribute " << toString(son->key) << "!\n";
 				}
 			}
 
 		} else {
-			Logger::slout(Logger::Level::Default) << "Unexpected type for attribute " << toString(obj->key) << ": Found "
-				<< toString(obj->valueType) << ", expected " << toString(ObjectType::ListBegin) << ".\n";
+			Logger::slout(Logger::Level::Default)
+					<< "Unexpected type for attribute " << toString(obj->key) << ": Found "
+					<< toString(obj->valueType) << ", expected " << toString(ObjectType::ListBegin)
+					<< ".\n";
 		}
 
-		if (m_afterEach && !m_afterEach()) return;
+		if (m_afterEach && !m_afterEach()) {
+			return;
+		}
 	}
 
 private:
@@ -605,17 +662,16 @@ private:
 	std::function<bool()> m_afterEach;
 };
 
-
-bool Parser::read(Graph &G)
-{
+bool Parser::read(Graph& G) {
 	GraphAttributes GA(G, 0l);
 	return read(G, GA);
 }
 
-bool Parser::read(Graph &G, GraphAttributes &GA)
-{
+bool Parser::read(Graph& G, GraphAttributes& GA) {
 	// Abort if setup failed.
-	if (m_error) return false;
+	if (m_error) {
+		return false;
+	}
 
 	OGDF_ASSERT(&G == &(GA.constGraph()));
 
@@ -645,69 +701,104 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 	});
 
 	// These two variables are reset for every read node, read and written by the closures passed to the handler.
-	bool nodeIdDef{false};
-	node v{nullptr};
-	ListHandler &nh = lh.listAttribute(Key::Node).beforeEach([&] {
-		nodeIdDef = false;
-		v = G.newNode();
-	}).afterEach([&] {
-		// check if everything required is defined correctly
-		if (!nodeIdDef) {
-			setError("node id not defined");
-			return false;
-		}
-		return true;
+	bool nodeIdDef {false};
+	node v {nullptr};
+	ListHandler& nh = lh.listAttribute(Key::Node)
+							  .beforeEach([&] {
+								  nodeIdDef = false;
+								  v = G.newNode();
+							  })
+							  .afterEach([&] {
+								  // check if everything required is defined correctly
+								  if (!nodeIdDef) {
+									  setError("node id not defined");
+									  return false;
+								  }
+								  return true;
+							  });
+
+	nh.attribute(Key::Id)
+			.eachInt([&](const int& i) {
+				m_mapToNode[i] = v;
+				nodeIdDef = true;
+				return true;
+			})
+			.storeInt(GraphAttributes::nodeId, [&](const int& i) { GA.idNode(v) = i; });
+	nh.attribute(Key::Template).storeString(GraphAttributes::nodeTemplate, [&](const string& s) {
+		GA.templateNode(v) = s;
 	});
-
-	nh.attribute(Key::Id).eachInt([&](const int& i) {
-		m_mapToNode[i] = v;
-		nodeIdDef = true;
-		return true;
-	}).storeInt(GraphAttributes::nodeId, [&](const int& i) { GA.idNode(v) = i; });
-	nh.attribute(Key::Template).storeString(GraphAttributes::nodeTemplate, [&](const string& s) { GA.templateNode(v) = s; });
-	nh.attribute(Key::Label).storeString(GraphAttributes::nodeLabel, [&](const string& s) { GA.label(v) = s; });
-	nh.attribute(Key::Weight).storeInt(GraphAttributes::nodeWeight, [&](const int& i) { GA.weight(v) = i; });
-	nh.attribute(Key::Type) \
-	  .storeString(GraphAttributes::nodeType, [&](const string& s) { GA.type(v) = toNodeType(s); }) \
-	  .storeInt(GraphAttributes::nodeType, [&](const int& i) { GA.type(v) = Graph::NodeType(i); });
-	ListHandler &ngh = nh.listAttribute(Key::Graphics);
-	ngh.attribute(Key::X).storeDouble(GraphAttributes::nodeGraphics, [&](const double& d) { GA.x(v) = d; });
-	ngh.attribute(Key::Y).storeDouble(GraphAttributes::nodeGraphics, [&](const double& d) { GA.y(v) = d; });
-	ngh.attribute(Key::Z).storeDouble(GraphAttributes::nodeGraphics | GraphAttributes::threeD, [&](const double& d) { GA.z(v) = d; });
-	ngh.attribute(Key::W).storeDouble(GraphAttributes::nodeGraphics, [&](const double& d) { GA.width(v) = d; });
-	ngh.attribute(Key::H).storeDouble(GraphAttributes::nodeGraphics, [&](const double& d) { GA.height(v) = d; });
-	ngh.attribute(Key::Fill).storeString(GraphAttributes::nodeStyle, [&](const string& s) { GA.fillColor(v) = s; });
-	ngh.attribute(Key::FillBg).storeString(GraphAttributes::nodeStyle, [&](const string& s) { GA.fillBgColor(v) = s; });
-	ngh.attribute(Key::Outline).storeString(GraphAttributes::nodeStyle, [&](const string& s) { GA.strokeColor(v) = s; });
-	ngh.attribute(Key::LineWidth).storeDouble(GraphAttributes::nodeStyle, [&](const double& d) { GA.strokeWidth(v) = d; });
-	ngh.attribute(Key::Type).storeString(GraphAttributes::nodeGraphics, [&](const string& s) { GA.shape(v) = fromString<Shape>(s); });
-	ngh.attribute(Key::Pattern).storeString(GraphAttributes::nodeStyle, [&](const string& s) { GA.fillPattern(v) = fromString<FillPattern>(s); });
-	ngh.attribute(Key::Stipple).storeString(GraphAttributes::nodeStyle, [&](const string& s) { GA.strokeType(v) = fromString<StrokeType>(s); });
-	ListHandler &nglh = ngh.listAttribute(Key::Label);
-	nglh.attribute(Key::X).storeDouble(GraphAttributes::nodeLabelPosition, [&] (const double& d) { GA.xLabel(v) = d; });
-	nglh.attribute(Key::Y).storeDouble(GraphAttributes::nodeLabelPosition, [&] (const double& d) { GA.yLabel(v) = d; });
-	nglh.attribute(Key::Z).storeDouble(GraphAttributes::nodeLabelPosition | GraphAttributes::threeD, [&] (const double& d) { GA.zLabel(v) = d; });
-
-
-	edge e{nullptr};
-	bool sourceIdDef{false}, targetIdDef{false};
-	ListHandler &eh = lh.listAttribute(Key::Edge).beforeEach([&] {
-		// Start off by making our edge a selfloop on the first node.
-		// During reading, we update its source and target to what the file defines.
-		e = G.newEdge(G.firstNode(), G.firstNode());
-		sourceIdDef = targetIdDef = false;
-	}).afterEach([&] {
-		// check if everything required is defined correctly
-		if (!sourceIdDef) {
-			setError("edge source id not defined");
-			return false;
-		}
-		if (!targetIdDef) {
-			setError("edge target id not defined");
-			return false;
-		}
-		return true;
+	nh.attribute(Key::Label).storeString(GraphAttributes::nodeLabel, [&](const string& s) {
+		GA.label(v) = s;
 	});
+	nh.attribute(Key::Weight).storeInt(GraphAttributes::nodeWeight, [&](const int& i) {
+		GA.weight(v) = i;
+	});
+	nh.attribute(Key::Type)
+			.storeString(GraphAttributes::nodeType,
+					[&](const string& s) { GA.type(v) = toNodeType(s); })
+			.storeInt(GraphAttributes::nodeType,
+					[&](const int& i) { GA.type(v) = Graph::NodeType(i); });
+	ListHandler& ngh = nh.listAttribute(Key::Graphics);
+	ngh.attribute(Key::X).storeDouble(GraphAttributes::nodeGraphics,
+			[&](const double& d) { GA.x(v) = d; });
+	ngh.attribute(Key::Y).storeDouble(GraphAttributes::nodeGraphics,
+			[&](const double& d) { GA.y(v) = d; });
+	ngh.attribute(Key::Z).storeDouble(GraphAttributes::nodeGraphics | GraphAttributes::threeD,
+			[&](const double& d) { GA.z(v) = d; });
+	ngh.attribute(Key::W).storeDouble(GraphAttributes::nodeGraphics,
+			[&](const double& d) { GA.width(v) = d; });
+	ngh.attribute(Key::H).storeDouble(GraphAttributes::nodeGraphics,
+			[&](const double& d) { GA.height(v) = d; });
+	ngh.attribute(Key::Fill).storeString(GraphAttributes::nodeStyle,
+			[&](const string& s) { GA.fillColor(v) = s; });
+	ngh.attribute(Key::FillBg).storeString(GraphAttributes::nodeStyle, [&](const string& s) {
+		GA.fillBgColor(v) = s;
+	});
+	ngh.attribute(Key::Outline).storeString(GraphAttributes::nodeStyle, [&](const string& s) {
+		GA.strokeColor(v) = s;
+	});
+	ngh.attribute(Key::LineWidth).storeDouble(GraphAttributes::nodeStyle, [&](const double& d) {
+		GA.strokeWidth(v) = d;
+	});
+	ngh.attribute(Key::Type).storeString(GraphAttributes::nodeGraphics,
+			[&](const string& s) { GA.shape(v) = fromString<Shape>(s); });
+	ngh.attribute(Key::Pattern).storeString(GraphAttributes::nodeStyle, [&](const string& s) {
+		GA.fillPattern(v) = fromString<FillPattern>(s);
+	});
+	ngh.attribute(Key::Stipple).storeString(GraphAttributes::nodeStyle, [&](const string& s) {
+		GA.strokeType(v) = fromString<StrokeType>(s);
+	});
+	ListHandler& nglh = ngh.listAttribute(Key::Label);
+	nglh.attribute(Key::X).storeDouble(GraphAttributes::nodeLabelPosition,
+			[&](const double& d) { GA.xLabel(v) = d; });
+	nglh.attribute(Key::Y).storeDouble(GraphAttributes::nodeLabelPosition,
+			[&](const double& d) { GA.yLabel(v) = d; });
+	nglh.attribute(Key::Z).storeDouble(GraphAttributes::nodeLabelPosition | GraphAttributes::threeD,
+			[&](const double& d) { GA.zLabel(v) = d; });
+
+
+	edge e {nullptr};
+	bool sourceIdDef {false}, targetIdDef {false};
+	ListHandler& eh =
+			lh.listAttribute(Key::Edge)
+					.beforeEach([&] {
+						// Start off by making our edge a selfloop on the first node.
+						// During reading, we update its source and target to what the file defines.
+						e = G.newEdge(G.firstNode(), G.firstNode());
+						sourceIdDef = targetIdDef = false;
+					})
+					.afterEach([&] {
+						// check if everything required is defined correctly
+						if (!sourceIdDef) {
+							setError("edge source id not defined");
+							return false;
+						}
+						if (!targetIdDef) {
+							setError("edge target id not defined");
+							return false;
+						}
+						return true;
+					});
 
 	eh.attribute(Key::Source).eachInt([&](const int& i) {
 		if (sourceIdDef) {
@@ -724,7 +815,7 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 		return true;
 	});
 	eh.attribute(Key::Target).eachInt([&](const int& i) {
-		if(targetIdDef) {
+		if (targetIdDef) {
 			setError("two targets for one edge");
 			return false;
 		}
@@ -737,13 +828,21 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 		targetIdDef = true;
 		return true;
 	});
-	eh.attribute(Key::SubGraph).storeInt(GraphAttributes::edgeSubGraphs, [&](const int& i) { GA.addSubGraph(e, i); });
-	eh.attribute(Key::Label).storeString(GraphAttributes::edgeLabel, [&](const string& s) { GA.label(e) = s; });
-	eh.attribute(Key::Weight).storeDouble(GraphAttributes::edgeDoubleWeight, [&](const double& d) { GA.doubleWeight(e) = d; });
-	eh.attribute(Key::EdgeIntWeight).storeInt(GraphAttributes::edgeIntWeight, [&](const int& i) { GA.intWeight(e) = i; });
-	ListHandler &egh = eh.listAttribute(Key::Graphics);
+	eh.attribute(Key::SubGraph).storeInt(GraphAttributes::edgeSubGraphs, [&](const int& i) {
+		GA.addSubGraph(e, i);
+	});
+	eh.attribute(Key::Label).storeString(GraphAttributes::edgeLabel, [&](const string& s) {
+		GA.label(e) = s;
+	});
+	eh.attribute(Key::Weight).storeDouble(GraphAttributes::edgeDoubleWeight, [&](const double& d) {
+		GA.doubleWeight(e) = d;
+	});
+	eh.attribute(Key::EdgeIntWeight).storeInt(GraphAttributes::edgeIntWeight, [&](const int& i) {
+		GA.intWeight(e) = i;
+	});
+	ListHandler& egh = eh.listAttribute(Key::Graphics);
 	// Use a custom parser for the bend list, as a list-based one would require more intermediary variables.
-	egh.attribute(Key::Bends).store(GraphAttributes::edgeGraphics, [&](const Object *list) {
+	egh.attribute(Key::Bends).store(GraphAttributes::edgeGraphics, [&](const Object* list) {
 		readLineAttribute(list->pFirstSon, bends);
 		EpsilonTest eps;
 		DPoint src(GA.x(e->source()), GA.y(e->source()));
@@ -757,11 +856,20 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 		GA.bends(e) = bends;
 		return true;
 	});
-	egh.attribute(Key::Arrow).storeString(GraphAttributes::edgeArrow, [&](const string& s) { GA.arrowType(e) = toArrow(s); });
-	egh.attribute(Key::Fill).storeString(GraphAttributes::edgeStyle, [&](const string& s) { GA.strokeColor(e) = s; });
-	egh.attribute(Key::Stipple).storeString(GraphAttributes::edgeStyle, [&](const string& s) { GA.strokeType(e) = fromString<StrokeType>(s); });
-	egh.attribute(Key::LineWidth).storeDouble(GraphAttributes::edgeStyle, [&](const double& d) { GA.strokeWidth(e) = d; });
-	eh.attribute(Key::Generalization).storeInt(GraphAttributes::edgeType, [&](const int& i) { GA.type(e) = Graph::EdgeType(i); });
+	egh.attribute(Key::Arrow).storeString(GraphAttributes::edgeArrow, [&](const string& s) {
+		GA.arrowType(e) = toArrow(s);
+	});
+	egh.attribute(Key::Fill).storeString(GraphAttributes::edgeStyle,
+			[&](const string& s) { GA.strokeColor(e) = s; });
+	egh.attribute(Key::Stipple).storeString(GraphAttributes::edgeStyle, [&](const string& s) {
+		GA.strokeType(e) = fromString<StrokeType>(s);
+	});
+	egh.attribute(Key::LineWidth).storeDouble(GraphAttributes::edgeStyle, [&](const double& d) {
+		GA.strokeWidth(e) = d;
+	});
+	eh.attribute(Key::Generalization).storeInt(GraphAttributes::edgeType, [&](const int& i) {
+		GA.type(e) = Graph::EdgeType(i);
+	});
 
 	// Run the handler on the `graph` key.
 	lh.handle(m_graphObject);
@@ -769,20 +877,21 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 	return !m_error;
 }
 
-
 //the clustergraph has to be initialized on G!!,
 //no clusters other then root cluster may exist, which holds all nodes
-bool Parser::readCluster(Graph &G, ClusterGraph &CG, ClusterGraphAttributes *ACG)
-{
-	if (m_error) return false;
+bool Parser::readCluster(Graph& G, ClusterGraph& CG, ClusterGraphAttributes* ACG) {
+	if (m_error) {
+		return false;
+	}
 
 	OGDF_ASSERT(&CG.constGraph() == &G);
 
 	// now we need the cluster object
-	Object *rootObject;
-	for(rootObject = m_objectTree;
-	    rootObject && rootObject->key != Key::Root;
-	    rootObject = rootObject->pBrother);
+	Object* rootObject;
+	for (rootObject = m_objectTree; rootObject && rootObject->key != Key::Root;
+			rootObject = rootObject->pBrother) {
+		;
+	}
 
 	// we have to check if the file does really contain clusters
 	// otherwise, rootcluster will suffice
@@ -794,23 +903,19 @@ bool Parser::readCluster(Graph &G, ClusterGraph &CG, ClusterGraphAttributes *ACG
 		return false;
 	}
 
-	return rootObject->valueType == ObjectType::ListBegin && recursiveClusterRead(rootObject, CG, CG.rootCluster(), ACG);
+	return rootObject->valueType == ObjectType::ListBegin
+			&& recursiveClusterRead(rootObject, CG, CG.rootCluster(), ACG);
 }
 
-
 //recursively read cluster subtree information
-bool Parser::recursiveClusterRead(Object* clusterObject,
-								ClusterGraph& CG,
-								cluster c,
-								ClusterGraphAttributes* ACG)
-{
-
+bool Parser::recursiveClusterRead(Object* clusterObject, ClusterGraph& CG, cluster c,
+		ClusterGraphAttributes* ACG) {
 	ListHandler lh(ACG);
-	bool clusterIdDef{false};
+	bool clusterIdDef {false};
 
 	lh.customAttribute(Key::Cluster).each([&](Object* subClusterObject) {
 		cluster subCluster = CG.newCluster(c);
-		recursiveClusterRead(subClusterObject, CG, subCluster, ACG);
+		return recursiveClusterRead(subClusterObject, CG, subCluster, ACG);
 	});
 	lh.attribute(Key::Id).eachInt([&](const int&) {
 		clusterIdDef = true;
@@ -819,33 +924,64 @@ bool Parser::recursiveClusterRead(Object* clusterObject,
 	lh.attribute(Key::Vertex).eachString([&](const string& s) {
 		string vIDString = s;
 		//we only allow a vertex id as string identification
-		if ((vIDString[0] != 'v') &&
-			(!isdigit((int)vIDString[0])))return false; //do not allow labels
-		if (!isdigit((int)vIDString[0])) //should check prefix?
+		if ((vIDString[0] != 'v') && (!isdigit((int)vIDString[0]))) {
+			return false; //do not allow labels
+		}
+		if (!isdigit((int)vIDString[0])) { //should check prefix?
 			vIDString[0] = '0'; //leading zero to allow conversion
+		}
 		int vID = std::stoi(vIDString);
 
-		OGDF_ASSERT(m_mapToNode[vID] != nullptr);
+		if (vID > m_mapToNode.high() || vID < 0 || m_mapToNode[vID] == nullptr) {
+			setError("node index \"" + vIDString + "\" malformed");
+			return false;
+		}
+
+		if (CG.clusterOf(m_mapToNode[vID]) != CG.rootCluster()) {
+			setError("node \"" + vIDString + "\" is in two clusters");
+			return false;
+		}
 
 		// all nodes are already assigned to root
 		CG.reassignNode(m_mapToNode[vID], c);
 		return true;
 	});
 
-	lh.attribute(Key::Label).storeString(ClusterGraphAttributes::clusterLabel, [&](const string& s) { ACG->label(c) = s; });
-	lh.attribute(Key::Template).storeString(ClusterGraphAttributes::clusterTemplate, [&](const string& s) { ACG->templateCluster(c) = s; });
+	lh.attribute(Key::Label).storeString(ClusterGraphAttributes::clusterLabel, [&](const string& s) {
+		ACG->label(c) = s;
+	});
+	lh.attribute(Key::Template)
+			.storeString(ClusterGraphAttributes::clusterTemplate,
+					[&](const string& s) { ACG->templateCluster(c) = s; });
 
-	ListHandler &gh = lh.listAttribute(Key::Graphics);
-	gh.attribute(Key::X).storeDouble(ClusterGraphAttributes::clusterGraphics, [&](const double& d) { ACG->x(c) = d; });
-	gh.attribute(Key::Y).storeDouble(ClusterGraphAttributes::clusterGraphics, [&](const double& d) { ACG->y(c) = d; });
-	gh.attribute(Key::Width).storeDouble(ClusterGraphAttributes::clusterGraphics, [&](const double& d) { ACG->width(c) = d; });
-	gh.attribute(Key::Height).storeDouble(ClusterGraphAttributes::clusterGraphics, [&](const double& d) { ACG->height(c) = d; });
-	gh.attribute(Key::Fill).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) { ACG->fillColor(c) = s; });
-	gh.attribute(Key::Pattern).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) { ACG->fillPattern(c) = fromString<FillPattern>(s); });
-	gh.attribute(Key::Color).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) { ACG->strokeColor(c) = s; });
-	gh.attribute(Key::LineWidth).storeDouble(ClusterGraphAttributes::clusterStyle, [&](const double& d) { ACG->strokeWidth(c) = d; });
-	gh.attribute(Key::Stipple).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) { ACG->strokeType(c) = fromString<StrokeType>(s); });
-	gh.attribute(Key::FillBg).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) { ACG->fillBgColor(c) = s; });
+	ListHandler& gh = lh.listAttribute(Key::Graphics);
+	gh.attribute(Key::X).storeDouble(ClusterGraphAttributes::clusterGraphics,
+			[&](const double& d) { ACG->x(c) = d; });
+	gh.attribute(Key::Y).storeDouble(ClusterGraphAttributes::clusterGraphics,
+			[&](const double& d) { ACG->y(c) = d; });
+	gh.attribute(Key::Width).storeDouble(ClusterGraphAttributes::clusterGraphics, [&](const double& d) {
+		ACG->width(c) = d;
+	});
+	gh.attribute(Key::Height).storeDouble(ClusterGraphAttributes::clusterGraphics, [&](const double& d) {
+		ACG->height(c) = d;
+	});
+	gh.attribute(Key::Fill).storeString(ClusterGraphAttributes::clusterStyle,
+			[&](const string& s) { ACG->fillColor(c) = s; });
+	gh.attribute(Key::Pattern).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) {
+		ACG->fillPattern(c) = fromString<FillPattern>(s);
+	});
+	gh.attribute(Key::Color).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) {
+		ACG->strokeColor(c) = s;
+	});
+	gh.attribute(Key::LineWidth).storeDouble(ClusterGraphAttributes::clusterStyle, [&](const double& d) {
+		ACG->strokeWidth(c) = d;
+	});
+	gh.attribute(Key::Stipple).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) {
+		ACG->strokeType(c) = fromString<StrokeType>(s);
+	});
+	gh.attribute(Key::FillBg).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) {
+		ACG->fillBgColor(c) = s;
+	});
 
 	lh.handle(clusterObject);
 
@@ -855,25 +991,25 @@ bool Parser::recursiveClusterRead(Object* clusterObject,
 	}
 
 
-	return true;
+	return !m_error;
 }
 
-void Parser::readLineAttribute(Object *object, DPolyline &dpl)
-{
+void Parser::readLineAttribute(Object* object, DPolyline& dpl) {
 	dpl.clear();
-	for(; object; object = object->pBrother) {
-		if (object->key == Key::Point &&
-			object->valueType == ObjectType::ListBegin)
-		{
+	for (; object; object = object->pBrother) {
+		if (object->key == Key::Point && object->valueType == ObjectType::ListBegin) {
 			DPoint dp;
 
-			Object *pointObject = object->pFirstSon;
+			Object* pointObject = object->pFirstSon;
 			for (; pointObject; pointObject = pointObject->pBrother) {
-				if (pointObject->valueType != ObjectType::DoubleValue) continue;
-				if (pointObject->key == Key::X)
+				if (pointObject->valueType != ObjectType::DoubleValue) {
+					continue;
+				}
+				if (pointObject->key == Key::X) {
 					dp.m_x = pointObject->doubleValue;
-				else if (pointObject->key == Key::Y)
+				} else if (pointObject->key == Key::Y) {
 					dp.m_y = pointObject->doubleValue;
+				}
 			}
 
 			dpl.pushBack(dp);
@@ -881,9 +1017,7 @@ void Parser::readLineAttribute(Object *object, DPolyline &dpl)
 	}
 }
 
-
-void Parser::setError(const char *errorString, Logger::Level level)
-{
+void Parser::setError(const string& errorString, Logger::Level level) {
 	Logger::slout(level) << errorString;
 	m_error = true;
 }

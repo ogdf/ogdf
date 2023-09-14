@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/internal/config.h>
+
 #include <algorithm>
 
 namespace ogdf {
@@ -97,17 +98,9 @@ namespace ogdf {
  */
 
 class Logger {
-
 public:
 	//! supported log-levels from lowest to highest importance
-	enum class Level {
-		Minor,
-		Medium,
-		Default,
-		High,
-		Alarm,
-		Force
-	};
+	enum class Level { Minor, Medium, Default, High, Alarm, Force };
 	//! Local log-modes
 	enum class LogMode {
 		//! the object is in the same mode as the static Logger-class (i.e., global settings)
@@ -121,14 +114,16 @@ public:
 	};
 
 	//! creates a new Logger-object with LogMode::Global and local log-level equal globalLogLevel
-	Logger() : Logger(LogMode::Global, m_globalloglevel) {}
+	Logger() : Logger(LogMode::Global, m_globalloglevel) { }
+
 	//! creates a new Logger-object with given log-mode and local log-level equal globalLogLevel
-	explicit Logger(LogMode m) : Logger(m, m_globalloglevel) {}
+	explicit Logger(LogMode m) : Logger(m, m_globalloglevel) { }
+
 	//! creates a new Logger-object with LogMode::Global and given local log-level
-	explicit Logger(Level level) : Logger(LogMode::Global, level) {}
+	explicit Logger(Level level) : Logger(LogMode::Global, level) { }
+
 	//! creates a new Logger-object with given log-mode and given local log-level
-	Logger(LogMode m, Level level) :
-		m_loglevel(level), m_logmode(m) {}
+	Logger(LogMode m, Level level) : m_loglevel(level), m_logmode(m) { }
 
 	//! \name Usage
 	//! @{
@@ -136,25 +131,28 @@ public:
 	//! returns true if such an lout command will result in text being printed
 	bool is_lout(Level level = Level::Default) const {
 		bool globalNotStatistic = !m_globalstatisticmode && m_logmode == LogMode::Global;
-		if (globalNotStatistic || m_logmode==LogMode::GlobalLog) {
+		if (globalNotStatistic || m_logmode == LogMode::GlobalLog) {
 			return level >= m_globalloglevel;
 		} else {
-			return m_logmode==LogMode::Log
-			    && level >= std::max(m_loglevel, m_minimumloglevel);
+			return m_logmode == LogMode::Log && level >= std::max(m_loglevel, m_minimumloglevel);
 		}
 	}
+
 	//! stream for logging-output (local)
 	std::ostream& lout(Level level = Level::Default) const {
 		return is_lout(level) ? *world : nirvana;
 	}
+
 	//! stream for statistic-output (local)
 	std::ostream& sout() const {
-		return (m_globalstatisticmode && m_logmode == LogMode::Global) || m_logmode == LogMode::Statistic ? *world : nirvana;
+		return (m_globalstatisticmode && m_logmode == LogMode::Global)
+						|| m_logmode == LogMode::Statistic
+				? *world
+				: nirvana;
 	}
+
 	//! stream for forced output (local)
-	std::ostream& fout() const {
-		return sfout();
-	}
+	std::ostream& fout() const { return sfout(); }
 
 	//! @}
 	//! \name Static usage
@@ -164,18 +162,17 @@ public:
 	static bool is_slout(Level level = Level::Default) {
 		return !m_globalstatisticmode && level >= m_globalloglevel;
 	}
+
 	//! stream for logging-output (global)
 	static std::ostream& slout(Level level = Level::Default) {
 		return is_slout(level) ? *world : nirvana;
 	}
+
 	//! stream for statistic-output (global)
-	static std::ostream& ssout() {
-		return m_globalstatisticmode ? *world : nirvana;
-	}
+	static std::ostream& ssout() { return m_globalstatisticmode ? *world : nirvana; }
+
 	//! stream for forced output (global)
-	static std::ostream& sfout() {
-		return *world;
-	}
+	static std::ostream& sfout() { return *world; }
 
 	//! @}
 	//! \name Static internal library usage
@@ -186,35 +183,29 @@ public:
 	static bool is_ilout(Level level = Level::Default) {
 		return !m_globalstatisticmode && level >= m_globallibraryloglevel;
 	}
+
 	static std::ostream& ilout(Level level = Level::Default) {
 		return is_ilout(level) ? *world : nirvana;
 	}
 
 	//! stream for forced output (global; used by internal libraries, e.g. Abacus)
-	static std::ostream& ifout() {
-		return *world;
-	}
+	static std::ostream& ifout() { return *world; }
 
 	//! @}
 	//! \name Local
 	//! @{
 
 	//! gives the local log-level
-	Level localLogLevel() const {
-		return m_loglevel;
-	}
+	Level localLogLevel() const { return m_loglevel; }
+
 	//! sets the local log-level
-	void localLogLevel(Level level) {
-		m_loglevel = level;
-	}
+	void localLogLevel(Level level) { m_loglevel = level; }
+
 	//! gives the local log-mode
-	LogMode localLogMode() const {
-		return m_logmode;
-	}
+	LogMode localLogMode() const { return m_logmode; }
+
 	//! sets the local log-mode
-	void localLogMode(LogMode m) {
-		m_logmode = m;
-	}
+	void localLogMode(LogMode m) { m_logmode = m; }
 
 	//! @}
 	//! \name Global
@@ -222,29 +213,35 @@ public:
 
 	//! gives the global log-level
 	static Level globalLogLevel() { return m_globalloglevel; }
+
 	//! sets the global log-level
 	static void globalLogLevel(Level level) {
 		m_globalloglevel = level;
-		if( m_globalloglevel < m_minimumloglevel )
+		if (m_globalloglevel < m_minimumloglevel) {
 			m_minimumloglevel = m_globalloglevel;
+		}
 	}
 
 	//! gives the internal-library log-level
 	static Level globalInternalLibraryLogLevel() { return m_globallibraryloglevel; }
+
 	//! sets the internal-library log-level
 	static void globalInternalLibraryLogLevel(Level level) { m_globallibraryloglevel = level; }
 
 	//! gives the globally minimally required log-level
 	static Level globalMinimumLogLevel() { return m_minimumloglevel; }
+
 	//! sets the globally minimally required log-level
 	static void globalMinimumLogLevel(Level level) {
 		m_minimumloglevel = level;
-		if( m_globalloglevel < m_minimumloglevel )
+		if (m_globalloglevel < m_minimumloglevel) {
 			m_globalloglevel = m_minimumloglevel;
+		}
 	}
 
 	//! returns true if we are globally in statistic mode
 	static bool globalStatisticMode() { return m_globalstatisticmode; }
+
 	//! sets whether we are globally in statistic mode
 	static void globalStatisticMode(bool s) { m_globalstatisticmode = s; }
 
@@ -257,15 +254,17 @@ public:
 
 	//! obtain the effective log-level for the Logger-object (i.e., resolve the dependencies on the global settings)
 	Level effectiveLogLevel() const {
-		if(m_logmode==LogMode::Global || m_logmode==LogMode::GlobalLog)
+		if (m_logmode == LogMode::Global || m_logmode == LogMode::GlobalLog) {
 			return m_globalloglevel;
-		else
+		} else {
 			return (m_loglevel > m_minimumloglevel) ? m_loglevel : m_minimumloglevel;
+		}
 	}
 
 	//! returns true if the Logger-object is effectively in statistic-mode (as this might be depending on the global settings)
 	bool effectiveStatisticMode() const {
-		return m_logmode==LogMode::Statistic || (m_logmode==LogMode::Global && m_globalstatisticmode);
+		return m_logmode == LogMode::Statistic
+				|| (m_logmode == LogMode::Global && m_globalstatisticmode);
 	}
 
 	//! @}
@@ -283,7 +282,7 @@ private:
 	LogMode m_logmode;
 };
 
-inline std::ostream &operator<<(std::ostream &os, Logger::Level level) {
+inline std::ostream& operator<<(std::ostream& os, Logger::Level level) {
 	switch (level) {
 	case Logger::Level::Minor:
 		os << "Minor";

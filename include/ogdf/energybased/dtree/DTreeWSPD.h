@@ -35,16 +35,14 @@ namespace ogdf {
 namespace energybased {
 namespace dtree {
 
-class IWSPD
-{
+class IWSPD {
 public:
 	//! called by the WSPD for a pair that is well separated
 	virtual void onWellSeparatedPair(int aIndex, int bIndex) = 0;
 };
 
 template<int Dim>
-class DTreeWSPD
-{
+class DTreeWSPD {
 public:
 	using IntType = unsigned int;
 	using Tree = DTree<IntType, Dim>;
@@ -161,10 +159,9 @@ protected:
 //! constructs a new WSPD for numPoints
 template<int Dim>
 DTreeWSPD<Dim>::DTreeWSPD(int numPoints)
-: m_numPoints(numPoints)
-, m_wspdSeparationFactor(1.0)
-, m_wspdSeparationFactorPlus2Squared_cached(9.0)
-{
+	: m_numPoints(numPoints)
+	, m_wspdSeparationFactor(1.0)
+	, m_wspdSeparationFactorPlus2Squared_cached(9.0) {
 	// get the memory
 	allocate();
 
@@ -176,31 +173,27 @@ DTreeWSPD<Dim>::DTreeWSPD(int numPoints)
 
 //! destructor
 template<int Dim>
-DTreeWSPD<Dim>::~DTreeWSPD()
-{
+DTreeWSPD<Dim>::~DTreeWSPD() {
 	// free the mem
 	deallocate();
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::allocate()
-{
+void DTreeWSPD<Dim>::allocate() {
 	m_pTree = new Tree(m_numPoints);
 	m_nodeData = new NodeData[m_pTree->maxNumNodes()];
 	m_pointData = new PointData[m_numPoints];
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::deallocate()
-{
+void DTreeWSPD<Dim>::deallocate() {
 	delete m_pTree;
 	delete[] m_nodeData;
 	delete[] m_pointData;
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::update()
-{
+void DTreeWSPD<Dim>::update() {
 	// update the bounding box of the point set
 	updateBoundingBox();
 
@@ -215,8 +208,7 @@ void DTreeWSPD<Dim>::update()
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::computeWSPD(IWSPD* pIWSPD)
-{
+void DTreeWSPD<Dim>::computeWSPD(IWSPD* pIWSPD) {
 	m_pIWSPD = pIWSPD;
 
 	// update this cached value for the well-sep test
@@ -229,18 +221,16 @@ void DTreeWSPD<Dim>::computeWSPD(IWSPD* pIWSPD)
 	wspdRecursive(m_pTree->rootIndex());
 }
 
-
 // the unary recursive function generating the binary calls
 template<int Dim>
-void DTreeWSPD<Dim>::wspdRecursive(int curr)
-{
+void DTreeWSPD<Dim>::wspdRecursive(int curr) {
 	// iterate over all ordered pairs of children
 	for (int i = 0; i < m_pTree->numChilds(curr); i++) {
 		// the first child index
 		const int first_child = m_pTree->child(curr, i);
 
 		// the second loop for the pair
-		for (int j = i+1; j < m_pTree->numChilds(curr); j++) {
+		for (int j = i + 1; j < m_pTree->numChilds(curr); j++) {
 			// the second child index
 			const int second_child = m_pTree->child(curr, j);
 
@@ -254,12 +244,12 @@ void DTreeWSPD<Dim>::wspdRecursive(int curr)
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::wspdRecursive(int a, int b)
-{
+void DTreeWSPD<Dim>::wspdRecursive(int a, int b) {
 	if (areWellSeparated(a, b)) {
 		// far enough away => approx
-		if (m_pIWSPD)
+		if (m_pIWSPD) {
 			m_pIWSPD->onWellSeparatedPair(a, b);
+		}
 	} else {
 		// two cells are too close
 		int small_node = a;
@@ -279,8 +269,7 @@ void DTreeWSPD<Dim>::wspdRecursive(int a, int b)
 }
 
 template<int Dim>
-bool DTreeWSPD<Dim>::areWellSeparated(int a, int b) const
-{
+bool DTreeWSPD<Dim>::areWellSeparated(int a, int b) const {
 	// take the bigger radius
 	double r_max_sq = std::max(node(a).radius_sq, node(b).radius_sq);
 
@@ -300,20 +289,19 @@ bool DTreeWSPD<Dim>::areWellSeparated(int a, int b) const
 	// more efficient: d^2 > (s + 2)^2 r^2
 	// d_sq > (s^2 + 4s + 4) * r_max
 #if 0
-# if 0
+#	if 0
 	const double s = (m_wspdSeparationFactor + 2.0);
 	return dist_sq > (m_wspdSeparationFactor * m_wspdSeparationFactor + 4.0 * m_wspdSeparationFactor + 4) * r_max * r_max;
-# else
+#	else
 	return dist_sq > s * s * r_max_sq;
-# endif
+#	endif
 #else
 	return dist_sq > m_wspdSeparationFactorPlus2Squared_cached * r_max_sq;
 #endif
 }
 
 template<>
-bool DTreeWSPD<2>::areWellSeparated(int a, int b) const
-{
+bool DTreeWSPD<2>::areWellSeparated(int a, int b) const {
 	// take the bigger radius
 	double r_max_sq = std::max(node(a).radius_sq, node(b).radius_sq);
 
@@ -327,8 +315,7 @@ bool DTreeWSPD<2>::areWellSeparated(int a, int b) const
 }
 
 template<>
-bool DTreeWSPD<3>::areWellSeparated(int a, int b) const
-{
+bool DTreeWSPD<3>::areWellSeparated(int a, int b) const {
 	// take the bigger radius
 	double r_max_sq = std::max(node(a).radius_sq, node(b).radius_sq);
 
@@ -342,19 +329,17 @@ bool DTreeWSPD<3>::areWellSeparated(int a, int b) const
 	return dist_sq > m_wspdSeparationFactorPlus2Squared_cached * r_max_sq;
 }
 
-
 //! sets the point to the given coords
 template<int Dim>
-void DTreeWSPD<Dim>::setPoint(int i, int d, double coord)
-{
+void DTreeWSPD<Dim>::setPoint(int i, int d, double coord) {
 	m_pointData[i].x[d] = coord;
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::updateBoundingBox()
-{
-	if (!m_numPoints)
+void DTreeWSPD<Dim>::updateBoundingBox() {
+	if (!m_numPoints) {
 		return;
+	}
 
 	// initial values
 	for (int d = 0; d < Dim; d++) {
@@ -372,8 +357,7 @@ void DTreeWSPD<Dim>::updateBoundingBox()
 
 // updates the integer grid points in the quadtree
 template<int Dim>
-void DTreeWSPD<Dim>::updateTreeGridPoints()
-{
+void DTreeWSPD<Dim>::updateTreeGridPoints() {
 	for (int d = 0; d < Dim; d++) {
 		double noise_max = (m_bboxMax[d] - m_bboxMin[d]) * 0.25;
 		m_bboxMax[d] += randomDouble(0.0, noise_max);
@@ -407,15 +391,13 @@ void DTreeWSPD<Dim>::updateTreeGridPoints()
 }
 
 template<int Dim>
-void DTreeWSPD<Dim>::updateTreeNodeGeometry()
-{
+void DTreeWSPD<Dim>::updateTreeNodeGeometry() {
 	updateTreeNodeGeometry(m_pTree->rootIndex());
 }
 
 // updates the geometry of the quadtree nodes
 template<int Dim>
-void DTreeWSPD<Dim>::updateTreeNodeGeometry(int curr)
-{
+void DTreeWSPD<Dim>::updateTreeNodeGeometry(int curr) {
 	// if this is an inner node
 	if (m_pTree->numChilds(curr)) {
 		// init with the bbox of the first child
@@ -444,14 +426,16 @@ void DTreeWSPD<Dim>::updateTreeNodeGeometry(int curr)
 	} else { // else it is a leaf
 		// init from first point
 		for (int d = 0; d < Dim; d++) {
-			node(curr).min_x[d] = node(curr).max_x[d] = point(tree().point(curr,0)).x[d];
+			node(curr).min_x[d] = node(curr).max_x[d] = point(tree().point(curr, 0)).x[d];
 		}
 
 		// and the remaining points
 		for (int i = 1; i < tree().numPoints(curr); ++i) {
 			for (int d = 0; d < Dim; d++) {
-				node(curr).min_x[d] = std::min(node(curr).min_x[d], point(tree().point(curr,i)).x[d]);
-				node(curr).max_x[d] = std::max(node(curr).max_x[d], point(tree().point(curr,i)).x[d]);
+				node(curr).min_x[d] =
+						std::min(node(curr).min_x[d], point(tree().point(curr, i)).x[d]);
+				node(curr).max_x[d] =
+						std::max(node(curr).max_x[d], point(tree().point(curr, i)).x[d]);
 			}
 		}
 	}
@@ -470,4 +454,6 @@ void DTreeWSPD<Dim>::updateTreeNodeGeometry(int curr)
 	node(curr).radius_sq *= 0.25; // sqrt(node(curr).radius) * 0.5 squared;
 }
 
-}}}
+}
+}
+}

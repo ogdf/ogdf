@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/graphalg/Dijkstra.h>
+
 #include <map>
 
 namespace ogdf {
@@ -48,66 +49,45 @@ protected:
 	NodeArray<T> m_distance;
 	NodeArray<node> m_seedOfNode;
 	std::map<node, ArrayBuffer<node>> m_nodeList;
-	const Graph &m_graph;
-	const List<node> &m_seeds;
+	const Graph& m_graph;
+	const List<node>& m_seeds;
 
-	void computeVoronoiRegions(const Graph &G, const EdgeArray<T> &weights, const List<node> &seeds);
+	void computeVoronoiRegions(const Graph& G, const EdgeArray<T>& weights, const List<node>& seeds);
 
 public:
 	//! Build data structure to query %Voronoi regions of edge-weighted graph \p G with given %Voronoi seeds
 	//! @param G the input graph
 	//! @param weights edge weights
 	//! @param seeds a list of %Voronoi seed nodes, the centers of the %Voronoi regions
-	Voronoi(const Graph &G, const EdgeArray<T> &weights, const List<node> &seeds)
-	 : m_seedOfNode(G)
-	 , m_nodeList()
-	 , m_graph(G)
-	 , m_seeds(seeds)
-	{
+	Voronoi(const Graph& G, const EdgeArray<T>& weights, const List<node>& seeds)
+		: m_seedOfNode(G), m_nodeList(), m_graph(G), m_seeds(seeds) {
 		computeVoronoiRegions(G, weights, seeds);
 	}
 
 	//! Returns a reference to the graph the %Voronoi region has been computed for.
-	const Graph &getGraph() const
-	{
-		return m_graph;
-	}
+	const Graph& getGraph() const { return m_graph; }
 
 	//! Returns a reference to the list of seeds the %Voronoi region has been computed for.
-	const List<node> &getSeeds() const
-	{
-		return m_seeds;
-	}
+	const List<node>& getSeeds() const { return m_seeds; }
 
 	//! Returns the edge incident to \p v and its predecessor.
 	//! Note that the predecessor of a terminal is \c nullptr.
-	edge predecessorEdge(node v) const
-	{
-		return m_predecessor[v];
-	}
+	edge predecessorEdge(node v) const { return m_predecessor[v]; }
 
 	//! Returns the nearest node to \p v on the shortest path to its %Voronoi seed.
-	node predecessor(node v) const
-	{
+	node predecessor(node v) const {
 		edge tmp = predecessorEdge(v);
 		return tmp ? tmp->opposite(v) : nullptr;
 	}
 
 	//! Returns the distance between \p v and its %Voronoi seed.
-	T distance(node v) const
-	{
-		return m_distance[v];
-	}
+	T distance(node v) const { return m_distance[v]; }
 
 	//! Returns the %Voronoi seed of node \p v.
-	node seed(node v) const
-	{
-		return m_seedOfNode[v];
-	}
+	node seed(node v) const { return m_seedOfNode[v]; }
 
 	//! Returns the list of nodes in the %Voronoi region of node \p v.
-	const ArrayBuffer<node> &nodesInRegion(node v) const
-	{
+	const ArrayBuffer<node>& nodesInRegion(node v) const {
 		return m_nodeList.find(seed(v))->second;
 	}
 };
@@ -115,8 +95,8 @@ public:
 //// implementation
 
 template<typename T>
-void Voronoi<T>::computeVoronoiRegions(const Graph &G, const EdgeArray<T> &weights, const List<node> &seeds)
-{
+void Voronoi<T>::computeVoronoiRegions(const Graph& G, const EdgeArray<T>& weights,
+		const List<node>& seeds) {
 	Dijkstra<T> sssp;
 	sssp.call(G, weights, seeds, m_predecessor, m_distance);
 

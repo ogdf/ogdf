@@ -35,8 +35,7 @@
 
 namespace ogdf {
 
-class ProcrustesPointSet
-{
+class ProcrustesPointSet {
 public:
 	//! Constructor for allocating memory for \p numPoints points
 	explicit ProcrustesPointSet(int numPoints);
@@ -54,53 +53,31 @@ public:
 	double compare(const ProcrustesPointSet& other) const;
 
 	//! Sets \p i'th coordinate.
-	void set(int i, double x, double y)
-	{
+	void set(int i, double x, double y) {
 		m_x[i] = x;
 		m_y[i] = y;
 	}
 
 	//! Returns \p i'th x-coordinate.
-	double getX(int i) const
-	{
-		return m_x[i];
-	}
+	double getX(int i) const { return m_x[i]; }
 
 	//! Returns \p i'th y-coordinate.
-	double getY(int i) const
-	{
-		return m_y[i];
-	}
+	double getY(int i) const { return m_y[i]; }
 
 	//! Returns the origin's x.
-	double originX() const
-	{
-		return m_originX;
-	}
+	double originX() const { return m_originX; }
 
 	//! Returns the origin's y.
-	double originY() const
-	{
-		return m_originY;
-	}
+	double originY() const { return m_originY; }
 
 	//! Returns the scale factor.
-	double scale() const
-	{
-		return m_scale;
-	}
+	double scale() const { return m_scale; }
 
 	//! Returns the rotation angle.
-	double angle() const
-	{
-		return m_angle;
-	}
+	double angle() const { return m_angle; }
 
 	//! Returns true if the point set is flipped by y coord.
-	bool isFlipped() const
-	{
-		return m_flipped;
-	}
+	bool isFlipped() const { return m_flipped; }
 
 private:
 	//! Number of points.
@@ -128,30 +105,21 @@ private:
 };
 
 //! Simple procrustes analysis.
-class OGDF_EXPORT ProcrustesSubLayout : public LayoutModule
-{
+class OGDF_EXPORT ProcrustesSubLayout : public LayoutModule {
 public:
 	//! Constructor.
 	explicit ProcrustesSubLayout(LayoutModule* pSubLayout);
 
 	//! Destructor.
-	virtual ~ProcrustesSubLayout() {
-		delete m_pSubLayout;
-	}
+	virtual ~ProcrustesSubLayout() { delete m_pSubLayout; }
 
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	//! Should the new layout scale be used or the initial scale? Defaults to \c true.
-	void setScaleToInitialLayout(bool flag)
-	{
-		m_scaleToInitialLayout = flag;
-	}
+	void setScaleToInitialLayout(bool flag) { m_scaleToInitialLayout = flag; }
 
 	//! @copydoc #setScaleToInitialLayout
-	bool scaleToInitialLayout() const
-	{
-		return m_scaleToInitialLayout;
-	}
+	bool scaleToInitialLayout() const { return m_scaleToInitialLayout; }
 
 private:
 	//! Does a reverse transform of graph attributes by using the origin, scale and angle in pointset.
@@ -170,7 +138,8 @@ private:
 	void flipY(GraphAttributes& graphAttributes);
 
 	//! Copies the coords in graph attributes to the point set.
-	void copyFromGraphAttributes(const GraphAttributes& graphAttributes, ProcrustesPointSet& pointSet);
+	void copyFromGraphAttributes(const GraphAttributes& graphAttributes,
+			ProcrustesPointSet& pointSet);
 
 	//! Layout module to call for a new layout.
 	LayoutModule* m_pSubLayout;

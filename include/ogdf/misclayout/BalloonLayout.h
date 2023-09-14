@@ -53,30 +53,28 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT BalloonLayout : public LayoutModule
-{
+class OGDF_EXPORT BalloonLayout : public LayoutModule {
 public:
 	//Root may be defined by center of the graph
 	//Directed cases: source/sink
-	enum class RootSelection {Center, HighestDegree};
+	enum class RootSelection { Center, HighestDegree };
 	//either keep the given embedding or optimize
 	//the order wrto angular resolution and minimum aspect ratio
-	enum class ChildOrder {Fixed, Optimized};
+	enum class ChildOrder { Fixed, Optimized };
 	//compute tree by different methods
-	enum class TreeComputation {Bfs, Dfs, BfsRandom};
+	enum class TreeComputation { Bfs, Dfs, BfsRandom };
 	//! Constructor, sets options to default values.
 	BalloonLayout();
 	//! Assignmentoperator.
-	BalloonLayout &operator=(const BalloonLayout &bl);
+	BalloonLayout& operator=(const BalloonLayout& bl);
 
 	//! Standard call using the stored parameter settings.
-	virtual void call(GraphAttributes & AG) override;
+	virtual void call(GraphAttributes& AG) override;
 
 	/** Call using special parameter settings for fractal model
 	 * takes radius ratio < 0.5 as parameter.
 	 */
-	virtual void callFractal(GraphAttributes & AG, double ratio = 0.3)
-	{
+	virtual void callFractal(GraphAttributes& AG, double ratio = 0.3) {
 		bool even = getEvenAngles();
 		setEvenAngles(true);
 		call(AG);
@@ -84,72 +82,73 @@ public:
 	}
 
 	/// Subtrees may be assigned even angles or angles depending on their size.
-	void setEvenAngles(bool b) {m_evenAngles = b;}
+	void setEvenAngles(bool b) { m_evenAngles = b; }
+
 	/// returns how the angles are assigned to subtrees.
-	bool getEvenAngles() {return m_evenAngles;}
+	bool getEvenAngles() { return m_evenAngles; }
 
 protected:
 	//! Computes the spanning tree that is used for the
 	//! layout computation, the non-tree edges are
 	//! simply added into the layout.
-	void computeTree(const Graph &G);
+	void computeTree(const Graph& G);
 
 	//! Computes tree by BFS, fills m_parent and m_childCount.
-	void computeBFSTree(const Graph &G, node v);
+	void computeBFSTree(const Graph& G, node v);
 
 	//! Selects the root of the spanning tree that
 	//! is placed in the layout center.
-	void selectRoot(const Graph &G);
+	void selectRoot(const Graph& G);
 
-	//! Computes a radius for each of the vertices in G.
-	//! fractal model: same radius on same level, such
-	//! that r(m) = gamma* r(m-1) where gamma is predefined
-	//! SNS model: different radii possible
-	//! Optimal: unordered tree, order of children is optimized.
-	#ifdef OGDF_DEBUG
-	void computeRadii(GraphAttributes &AG);
-	#else
-	void computeRadii(const GraphAttributes &AG);
-	#endif
+//! Computes a radius for each of the vertices in G.
+//! fractal model: same radius on same level, such
+//! that r(m) = gamma* r(m-1) where gamma is predefined
+//! SNS model: different radii possible
+//! Optimal: unordered tree, order of children is optimized.
+#ifdef OGDF_DEBUG
+	void computeRadii(GraphAttributes& AG);
+#else
+	void computeRadii(const GraphAttributes& AG);
+#endif
 
 	//! Computes the angle distribution: assigns m_angle each node.
-	void computeAngles(const Graph &G);
+	void computeAngles(const Graph& G);
 
 	//! Computes coordinates from angles and radii.
-	void computeCoordinates(GraphAttributes &AG);
+	void computeCoordinates(GraphAttributes& AG);
 
 private:
 	NodeArray<double> m_radius; //! Radius at node center.
 	NodeArray<double> m_oRadius; //!< Outer radius enclosing all children.
 	NodeArray<double> m_maxChildRadius; //!< Outer radius of largest child.
-	NodeArray<node>   m_parent; //!< Parent in spanning tree.
-	NodeArray<int>    m_childCount; //!< Number of children in spanning tree.
+	NodeArray<node> m_parent; //!< Parent in spanning tree.
+	NodeArray<int> m_childCount; //!< Number of children in spanning tree.
 	NodeArray<double> m_angle; //!< Angle assigned to nodes.
 	NodeArray<double> m_estimate; //!< Rough estimate of circumference of subtrees.
-	NodeArray<double> m_size;   //!< Radius of circle around node box.
+	NodeArray<double> m_size; //!< Radius of circle around node box.
 
-	NodeArray< List<node> > m_childList;
+	NodeArray<List<node>> m_childList;
 #ifdef OGDF_DEBUG
 	//! Consistency check for the tree.
-	void checkTree(const Graph &G, bool treeRoot = true);
+	void checkTree(const Graph& G, bool treeRoot = true);
 	EdgeArray<bool> m_treeEdge; //!< Holds info about tree edges.
 #endif
 
-	RootSelection     m_rootSelection; //!< Defines how the tree root is selected
-	node              m_treeRoot; //!< Root of tree after computation.
-	node              m_root;     //!< Root of tree by selection method.
+	RootSelection m_rootSelection; //!< Defines how the tree root is selected
+	node m_treeRoot; //!< Root of tree after computation.
+	node m_root; //!< Root of tree by selection method.
 
-	double            m_estimateFactor; //!< Weight of value (largestchild / number of children) added to estimate to compute radius.
+	double m_estimateFactor; //!< Weight of value (largestchild / number of children) added to estimate to compute radius.
 
-	ChildOrder        m_childOrder; //!< How to arrange the children.
-	TreeComputation   m_treeComputation; //!< How to derive the spanning tree.
-	bool              m_evenAngles; //! Use even angles independent of subtree size.
+	ChildOrder m_childOrder; //!< How to arrange the children.
+	TreeComputation m_treeComputation; //!< How to derive the spanning tree.
+	bool m_evenAngles; //! Use even angles independent of subtree size.
 
-	void check(Graph &G);
+	void check(Graph& G);
 
 	OGDF_NEW_DELETE
 };
 
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const BalloonLayout::RootSelection &rs);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const BalloonLayout::RootSelection& rs);
 
 }

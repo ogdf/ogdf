@@ -29,43 +29,43 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/Queue.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
+#include <ogdf/upward/UpwardPlanRep.h>
 
 
 //debug only
 #include <ogdf/upward/LayerBasedUPRLayout.h>
 
-
 namespace ogdf {
 
-Module::ReturnType FixedEmbeddingUpwardEdgeInserter::doCall(
-	UpwardPlanRep &UPR,
-	const List<edge> &origEdges,
-	const EdgeArray<int>  *costOrig,
-	const EdgeArray<bool> *forbiddenEdgeOrig)
-{
-	if (origEdges.empty())
+Module::ReturnType FixedEmbeddingUpwardEdgeInserter::doCall(UpwardPlanRep& UPR,
+		const List<edge>& origEdges, const EdgeArray<int>* costOrig,
+		const EdgeArray<bool>* forbiddenEdgeOrig) {
+	if (origEdges.empty()) {
 		return Module::ReturnType::Feasible;
+	}
 
 	List<edge> toInsert = origEdges;
 
-	if (!UPR.augmented())
+	if (!UPR.augmented()) {
 		UPR.augment();
+	}
 
 	EdgeArray<int> cost;
-	if (costOrig != nullptr)
+	if (costOrig != nullptr) {
 		cost = *costOrig;
-	else
+	} else {
 		cost.init(UPR.original(), 1);
+	}
 
 	if (forbiddenEdgeOrig != nullptr) {
-		for(edge e : UPR.original().edges) {
-			if ((*forbiddenEdgeOrig)[e])
+		for (edge e : UPR.original().edges) {
+			if ((*forbiddenEdgeOrig)[e]) {
 				cost[e] = std::numeric_limits<int>::max();
+			}
 		}
 	}
 
@@ -80,15 +80,11 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::doCall(
 	return insertAll(UPR, toInsert, cost);
 }
 
-
-
-Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
-	UpwardPlanRep &UPR,
-	List<edge> &toInsert,
-	EdgeArray<int>  &costOrig)
-{
-	if (toInsert.empty())
+Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(UpwardPlanRep& UPR,
+		List<edge>& toInsert, EdgeArray<int>& costOrig) {
+	if (toInsert.empty()) {
 		return Module::ReturnType::Feasible;
+	}
 
 	List<edge> list;
 	int size_new = toInsert.size();
@@ -124,29 +120,25 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 				OGDF_ASSERT(isConnected(UPR));
 				OGDF_ASSERT(hasSingleSource(UPR));
 
-			}
-			else
+			} else {
 				list.pushBack(e_orig);
+			}
 
 #if 0
-#if 0
+#	if 0
 			m_UPR.outputFaces(m_UPR.getEmbedding());
-			m_UPR.writeGML("c:/temp/bug5.gml");
-#endif
+#	endif
 
 			LayerBasedUPRLayout uprLayout;
 			Graph GTmp( (const Graph &) m_UPR);
 			CombinatorialEmbedding embTmp(GTmp);
 			node tTmp = 0;
-#if 0
-			GTmp.writeGML("c:/temp/bug4.gml");
-#endif
 			hasSingleSink(GTmp, tTmp);
 			OGDF_ASSERT(tTmp != 0);
 			embTmp.setExternalFace(embTmp.rightFace(tTmp->firstAdj()));
-#if 0
+#	if 0
 			adjEntry adjTmp = GCTmp.copy(m_UPR.extFaceHandle->theEdge())->adjTarget();
-#endif
+#	endif
 			UpwardPlanRep upr_bug(embTmp);
 			adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
 			node s_upr_bug = upr_bug.newNode();
@@ -182,11 +174,11 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 					(*it).m_x = -(*it).m_x;
 				}
 			}
-			GA_UPR_tmp.writeGML("c:/temp/UPR_int.gml");
-#if 0
+			GraphIO::write(GA_UPR_tmp,"UPR_int.gml");
+#	if 0
 			std::cout << "face of UPR_int :" << std::endl;
 			upr_bug.outputFaces(upr_bug.getEmbedding());
-#endif
+#	endif
 #endif
 		}
 		size_new = list.size();
@@ -198,7 +190,6 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 	 * some edges cannot be inserted, so use heuristic insertion methods
 	 */
 	if (!toInsert.empty()) {
-
 #if 0
 		std::cout << std::endl << "\a\a\a\a\aheuristical call!! " << std::endl;
 #endif
@@ -210,69 +201,6 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 		std::cout << "heuristical insertion path for e_orig :" << e_orig << ";  e_UPR: (" << m_UPR.copy(e_orig->source()) << ","
 			<< m_UPR.copy(e_orig->target()) << ")" <<  std::endl;
 #endif
-
-
-#if 0
-#if 0
-		m_UPR.outputFaces(m_UPR.getEmbedding());
-		m_UPR.writeGML("c:/temp/bug5.gml");
-#endif
-
-		LayerBasedUPRLayout uprLayout;
-		Graph GTmp( (const Graph &) m_UPR);
-		CombinatorialEmbedding embTmp(GTmp);
-		node tTmp = 0;
-#if 0
-		GTmp.writeGML("c:/temp/bug4.gml");
-#endif
-		hasSingleSink(GTmp, tTmp);
-		OGDF_ASSERT(tTmp != 0);
-		embTmp.setExternalFace(embTmp.rightFace(tTmp->firstAdj()));
-#if 0
-		adjEntry adjTmp = GCTmp.copy(m_UPR.extFaceHandle->theEdge())->adjTarget();
-#endif
-		UpwardPlanRep upr_bug(embTmp);
-		adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
-		node s_upr_bug = upr_bug.newNode();
-		upr_bug.getEmbedding().splitFace(s_upr_bug, adj_bug);
-		upr_bug.m_isSourceArc.init(upr_bug, false);
-		upr_bug.m_isSourceArc[s_upr_bug->firstAdj()->theEdge()] = true;
-		upr_bug.s_hat = s_upr_bug;
-		upr_bug.augment();
-
-		GraphAttributes GA_UPR_tmp(GTmp, GraphAttributes::nodeGraphics |
-				GraphAttributes::edgeGraphics |
-				GraphAttributes::nodeStyle |
-				GraphAttributes::edgeStyle |
-				GraphAttributes::nodeLabel |
-				GraphAttributes::edgeLabel
-				);
-		GA_UPR_tmp.setAllHeight(30.0);
-		GA_UPR_tmp.setAllWidth(30.0);
-
-		uprLayout.call(upr_bug, GA_UPR_tmp);
-
-		// label the nodes with their index
-		for(node z : GA_UPR_tmp.constGraph().nodes) {
-			GA_UPR_tmp.label(z) = to_string(z->index());
-			GA_UPR_tmp.y(z)=-GA_UPR_tmp.y(z);
-			GA_UPR_tmp.x(z)=-GA_UPR_tmp.x(z);
-		}
-		for(edge eee : GA_UPR_tmp.constGraph().edges) {
-			DPolyline &line = GA_UPR_tmp.bends(eee);
-			ListIterator<DPoint> it;
-			for(it = line.begin(); it.valid(); it++) {
-				(*it).m_y = -(*it).m_y;
-				(*it).m_x = -(*it).m_x;
-			}
-		}
-		GA_UPR_tmp.writeGML("c:/temp/UPR_int.gml");
-#if 0
-		std::cout << "face of UPR_int :" << std::endl;
-		upr_bug.outputFaces(upr_bug.getEmbedding());
-#endif
-#endif
-
 		SList<adjEntry> path;
 		constraintFIP(UPR, toInsert, costOrig, e_orig, path);
 
@@ -291,58 +219,46 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 	return Module::ReturnType::Feasible;
 }
 
-
-
-void FixedEmbeddingUpwardEdgeInserter::staticLock(
-	UpwardPlanRep &UPR,
-	EdgeArray<bool> &locked,
-	const List<edge> &origEdges,
-	edge e_orig)
-{
+void FixedEmbeddingUpwardEdgeInserter::staticLock(UpwardPlanRep& UPR, EdgeArray<bool>& locked,
+		const List<edge>& origEdges, edge e_orig) {
 	// construct merge graph M
-	GraphCopy M((const Graph &) UPR);
+	GraphCopy M((const Graph&)UPR);
 
 	// add deleted edges to M
-	for(edge e : origEdges) {
+	for (edge e : origEdges) {
 		node u = M.copy(UPR.copy(e->source()));
 		node v = M.copy(UPR.copy(e->target()));
-		M.newEdge(u,v);
+		M.newEdge(u, v);
 	}
 
 	EdgeArray<bool> markedEdges(M, false);
 	markUp(M, M.copy(UPR.copy(e_orig->target())), markedEdges);
 	markDown(M, M.copy(UPR.copy(e_orig->source())), markedEdges);
 
-	for(edge e : M.edges) {
+	for (edge e : M.edges) {
 		if (markedEdges[e] && M.original(e) != nullptr) {
 			locked[M.original(e)] = true;
 		}
 	}
 }
 
-
-
-void FixedEmbeddingUpwardEdgeInserter::getPath(
-	UpwardPlanRep &UPR,
-	List<edge> &origEdges,
-	EdgeArray<int> &cost,
-	edge e_orig,
-	SList<adjEntry> &path,
-	bool heuristic)
-{
+void FixedEmbeddingUpwardEdgeInserter::getPath(UpwardPlanRep& UPR, List<edge>& origEdges,
+		EdgeArray<int>& cost, edge e_orig, SList<adjEntry>& path, bool heuristic) {
 	path.clear();
 	node x_1 = UPR.copy(e_orig->source());
 	node y_1 = UPR.copy(e_orig->target());
-	const CombinatorialEmbedding &Gamma = UPR.getEmbedding();
+	const CombinatorialEmbedding& Gamma = UPR.getEmbedding();
 
 	EdgeArray<bool> locked(UPR, false);
 	staticLock(UPR, locked, origEdges, e_orig);
 
 	//locked the adjacent edges of x_1 and y_1
-	for(adjEntry adjTmp : x_1->adjEntries)
+	for (adjEntry adjTmp : x_1->adjEntries) {
 		locked[adjTmp->theEdge()] = true;
-	for(adjEntry adjTmp : y_1->adjEntries)
+	}
+	for (adjEntry adjTmp : y_1->adjEntries) {
 		locked[adjTmp->theEdge()] = true;
+	}
 
 	EdgeArray<adjEntry> predAdj(UPR, nullptr); // for path reconstruction
 	EdgeArray<int> dist(UPR, std::numeric_limits<int>::max()); // current distance to an edge
@@ -356,23 +272,25 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 	List<edge> outEdges;
 	List<adjEntry> adjOut;
 	x_1->outEdges(outEdges);
-	for(edge eOut : outEdges) {
+	for (edge eOut : outEdges) {
 		adjEntry adj = eOut->adjSource();
 		adjOut.pushBack(adj);
-		if (adj->cyclicPred()->theEdge()->target() == x_1)
+		if (adj->cyclicPred()->theEdge()->target() == x_1) {
 			adjOut.pushBack(adj->cyclicPred()); // right face of the left in edge of x_1
+		}
 	}
 
 	List<adjEntry> initEdges;
-	for(adjEntry adj : adjOut) {
+	for (adjEntry adj : adjOut) {
 		feasibleEdges(UPR, Gamma.rightFace(adj), adj, locked, initEdges, heuristic);
-		for(adjEntry adjInit : initEdges) {
+		for (adjEntry adjInit : initEdges) {
 			edge ee = adjInit->theEdge();
 			if (!locked[ee]) {
-				if (UPR.isSinkArc(ee) || UPR.isSourceArc(ee))
+				if (UPR.isSinkArc(ee) || UPR.isSourceArc(ee)) {
 					dist[ee] = 0;
-				else
+				} else {
 					dist[ee] = 1;
+				}
 				predAdj[ee] = adj;
 				// mappe ee to the "correct" adjEntry
 				toAdjEntry[ee] = adjInit;
@@ -380,29 +298,33 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 
 			//check if ee contains the target source y_1
 			if (adjInit->twin()->theNode() == y_1) {
-				adjEntry adjTgt = UPR.getAdjEntry(UPR.getEmbedding(), y_1, UPR.getEmbedding().rightFace(adj));
+				adjEntry adjTgt =
+						UPR.getAdjEntry(UPR.getEmbedding(), y_1, UPR.getEmbedding().rightFace(adj));
 
 				//for the case if there are two adjEntry of y_1 which right face is the external face
 				if (Gamma.rightFace(adj) == Gamma.externalFace()) {
 					//we have to compute the correct adjEntry
 					adjEntry tgtLeft = nullptr, tgtRight = nullptr;
-					for(adjEntry runAdj : y_1->adjEntries) {
+					for (adjEntry runAdj : y_1->adjEntries) {
 						if (Gamma.rightFace(runAdj) == Gamma.externalFace()) {
-							if (runAdj->theEdge()->target() == y_1)
+							if (runAdj->theEdge()->target() == y_1) {
 								tgtLeft = runAdj;
-							else
+							} else {
 								tgtRight = runAdj;
+							}
 						}
 					}
-					if (adj->theNode() == adj->theEdge()->source())
+					if (adj->theNode() == adj->theEdge()->source()) {
 						adjTgt = tgtRight; // *it->theEdge() is on the right face side
-					else
+					} else {
 						adjTgt = tgtLeft; // *it->theEdge() is on the left face side
+					}
 				}
 				OGDF_ASSERT(adjTgt != nullptr);
 
-				if (Gamma.rightFace(adj) != Gamma.rightFace(adjTgt))
+				if (Gamma.rightFace(adj) != Gamma.rightFace(adjTgt)) {
 					adjTgt = adjTgt->cyclicPred();
+				}
 				path.pushFront(adj);
 				path.pushBack(adjTgt);
 
@@ -411,8 +333,9 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 				break;
 			}
 		}
-		if (path.size() == 2) // edge can be inserted without crossing
+		if (path.size() == 2) { // edge can be inserted without crossing
 			break; //leave for(adjEntry adj : adjOut) loop
+		}
 
 		initEdges.clear();
 	}
@@ -421,7 +344,7 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 	if (path.size() != 2) {
 		// init the priority queque
 		PrioritizedMapQueue<edge, int> priorQ(UPR);
-		for(edge e : UPR.edges) {
+		for (edge e : UPR.edges) {
 			if (!locked[e]) {
 				int priority = dist[e];
 				priorQ.push(e, priority);
@@ -429,20 +352,18 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 		}
 		adjEntry adjLast = nullptr;
 		while (!priorQ.empty()) {
-
 			adjEntry adj_cur = toAdjEntry[priorQ.topElement()];
 			priorQ.pop();
 
 			OGDF_ASSERT(adj_cur != nullptr);
 
-			face f = Gamma.rightFace(adj_cur);	//current face f
+			face f = Gamma.rightFace(adj_cur); //current face f
 			List<adjEntry> nextAdjs;
 			feasibleEdges(UPR, f, adj_cur, locked, nextAdjs, heuristic);
 
 			bool reached = false;
-			for(adjEntry adjNext : nextAdjs) {
-
-				if (adjNext->theNode() == y_1) { 	// y_1 reached ?
+			for (adjEntry adjNext : nextAdjs) {
+				if (adjNext->theNode() == y_1) { // y_1 reached ?
 
 					adjLast = UPR.getAdjEntry(UPR.getEmbedding(), y_1, f);
 					reached = true;
@@ -450,18 +371,20 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 					if (Gamma.rightFace(adj_cur) == Gamma.externalFace()) {
 						//we have to compute the correct adjEntry
 						adjEntry tgtLeft = nullptr, tgtRight = nullptr;
-						for(adjEntry runAdj : y_1->adjEntries) {
+						for (adjEntry runAdj : y_1->adjEntries) {
 							if (Gamma.rightFace(runAdj) == Gamma.externalFace()) {
-								if (runAdj->theEdge()->target() == y_1)
+								if (runAdj->theEdge()->target() == y_1) {
 									tgtLeft = runAdj;
-								else
+								} else {
 									tgtRight = runAdj;
+								}
 							}
 						}
-						if (adj_cur->theNode() == adj_cur->theEdge()->source())
+						if (adj_cur->theNode() == adj_cur->theEdge()->source()) {
 							adjLast = tgtRight; // adj_cur->theEdge() is on the right face side
-						else
+						} else {
 							adjLast = tgtLeft; // adj_cur->theEdge() is on the left face side
+						}
 					}
 
 					OGDF_ASSERT(adjLast != nullptr);
@@ -473,14 +396,16 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 				bool ok = !locked[adjNext->theEdge()];
 
 				//use heuristic to check curent path
-				if (ok && heuristic)
+				if (ok && heuristic) {
 					ok = isConstraintFeasible(UPR, origEdges, e_orig, adj_cur, adjNext, predAdj);
+				}
 
 				//relax if ok
 				if (ok) {
 					int c = 0;
-					if (UPR.original(adjNext->theEdge()) != nullptr)
+					if (UPR.original(adjNext->theEdge()) != nullptr) {
 						c = cost[UPR.original(adjNext->theEdge())];
+					}
 
 					int new_dist = dist[adj_cur->theEdge()] + c;
 					if (dist[adjNext->theEdge()] > new_dist) {
@@ -492,8 +417,9 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 				}
 			}
 
-			if (reached)
+			if (reached) {
 				break; // leave while-loop if y_1 is found
+			}
 		}
 
 		//construct the path
@@ -508,16 +434,9 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 	OGDF_ASSERT(path.size() >= 2);
 }
 
-
-
-bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
-	UpwardPlanRep &UPR,
-	const List<edge> &orig_edges,
-	edge e_orig,
-	adjEntry adjCurrent,
-	adjEntry adjNext,
-	EdgeArray<adjEntry> &predAdj)
-{
+bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(UpwardPlanRep& UPR,
+		const List<edge>& orig_edges, edge e_orig, adjEntry adjCurrent, adjEntry adjNext,
+		EdgeArray<adjEntry>& predAdj) {
 	//construct path to adj->theEdge()
 	SList<adjEntry> path;
 	path.pushBack(adjNext);
@@ -535,17 +454,18 @@ bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
 	}
 #endif
 
-	GraphCopy M( (const Graph &) UPR); // merge graph
+	GraphCopy M((const Graph&)UPR); // merge graph
 
 	//convert adjEntry of path to adjEntry of M
 	SList<adjEntry> path_M;
-	for(adjEntry a : path) {
+	for (adjEntry a : path) {
 		edge e_M = M.copy(a->theEdge());
 		node v = M.copy(a->theNode());
-		if (e_M->source() == v)
+		if (e_M->source() == v) {
 			path_M.pushBack(e_M->adjSource());
-		else
+		} else {
 			path_M.pushBack(e_M->adjTarget());
+		}
 	}
 
 	// construct a partial path from src to adjNext
@@ -561,7 +481,7 @@ bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
 
 	M.newEdge(src, tgt);
 	//add the deleted edges
-	for(edge eOrig : orig_edges) {
+	for (edge eOrig : orig_edges) {
 		node a = M.copy(UPR.copy(eOrig->source()));
 		node b = M.copy(UPR.copy(eOrig->target()));
 		M.newEdge(a, b);
@@ -570,25 +490,21 @@ bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
 	return isAcyclic(M);
 }
 
-
-bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
-	UpwardPlanRep &UPR,
-	List<edge> &origEdges,
-	edge e_orig,
-	SList<adjEntry> &path)
-{
-	GraphCopy GC( (const Graph &) UPR);
-	GraphCopy M((const Graph &)GC); // merge graph
+bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(UpwardPlanRep& UPR,
+		List<edge>& origEdges, edge e_orig, SList<adjEntry>& path) {
+	GraphCopy GC((const Graph&)UPR);
+	GraphCopy M((const Graph&)GC); // merge graph
 
 	//convert adjEntry of path to adjEntry of M
 	SList<adjEntry> path_M;
-	for(adjEntry a : path) {
-		edge e_M = M.copy( GC.copy(a->theEdge()) );
+	for (adjEntry a : path) {
+		edge e_M = M.copy(GC.copy(a->theEdge()));
 		node v = M.copy(GC.copy(a->theNode()));
-		if (e_M->source() == v)
+		if (e_M->source() == v) {
 			path_M.pushBack(e_M->adjSource());
-		else
+		} else {
 			path_M.pushBack(e_M->adjTarget());
+		}
 	}
 
 #if 0
@@ -606,7 +522,7 @@ bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
 	OGDF_ASSERT(isAcyclic(M));
 
 	//add the deleted edges
-	for(edge eOrig : origEdges) {
+	for (edge eOrig : origEdges) {
 		node a = M.copy(GC.copy(UPR.copy(eOrig->source())));
 		node b = M.copy(GC.copy(UPR.copy(eOrig->target())));
 		M.newEdge(a, b);
@@ -615,16 +531,9 @@ bool FixedEmbeddingUpwardEdgeInserter::isConstraintFeasible(
 	return isAcyclic(M);
 }
 
-
-void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
-	UpwardPlanRep &UPR,
-	face f,
-	adjEntry adj,
-	EdgeArray<bool> &locked,
-	List<adjEntry> &feasible,
-	bool heuristic)
-{
-	const CombinatorialEmbedding &Gamma = UPR.getEmbedding();
+void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(UpwardPlanRep& UPR, face f, adjEntry adj,
+		EdgeArray<bool>& locked, List<adjEntry>& feasible, bool heuristic) {
+	const CombinatorialEmbedding& Gamma = UPR.getEmbedding();
 
 	OGDF_ASSERT(Gamma.rightFace(adj) == f);
 
@@ -638,10 +547,12 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 			 *all edges between adj->theEdge() and the super sink t_hat on the right path are feasible.
 			 */
 			do {
-				if (run->theEdge()->target() == UPR.getSuperSink())
+				if (run->theEdge()->target() == UPR.getSuperSink()) {
 					stop = true;
-				if (run != start)
+				}
+				if (run != start) {
 					feasible.pushBack(run->twin());
+				}
 				run = run->faceCycleSucc();
 			} while (!stop);
 
@@ -650,8 +561,9 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 				run = start;
 				stop = false;
 				do {
-					if (run->theEdge()->source() == UPR.getSuperSource())
+					if (run->theEdge()->source() == UPR.getSuperSource()) {
 						stop = true;
+					}
 					locked[run->theEdge()] = true;
 					run = run->faceCyclePred();
 				} while (!stop);
@@ -664,10 +576,12 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 			*All edges between adj->theEdge() and the super sink t_hat on the left path are feasible.
 			*/
 			do {
-				if (run->theEdge()->target()== UPR.getSuperSink())
+				if (run->theEdge()->target() == UPR.getSuperSink()) {
 					stop = true;
-				if (run != start)
+				}
+				if (run != start) {
 					feasible.pushBack(run->twin());
+				}
 				run = run->faceCyclePred();
 			} while (!stop);
 
@@ -676,8 +590,9 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 				run = start;
 				stop = false;
 				do {
-					if (run->theEdge()->source() == UPR.getSuperSource())
+					if (run->theEdge()->source() == UPR.getSuperSource()) {
 						stop = true;
+					}
 					locked[run->theEdge()] = true;
 					run = run->faceCycleSucc();
 				} while (!stop);
@@ -690,15 +605,18 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 		bool stop = false;
 
 		if (adj->theNode() == adj->theEdge()->source()) {
-		/*
+			/*
 		 *adj->theEdge() is on the left path of f; walk cw to the source-witch of f.
 		 *All edges traversing by this walk are feasible.
 		 */
 			do {
-				if (run->theEdge()->source() == run->faceCycleSucc()->theEdge()->source()) //reach source-switch of f
+				if (run->theEdge()->source() == run->faceCycleSucc()->theEdge()->source()) {
+					// reach source-switch of f
 					stop = true;
-				if (run != start)
+				}
+				if (run != start) {
 					feasible.pushBack(run->twin());
+				}
 				run = run->faceCycleSucc();
 			} while (!stop);
 
@@ -708,8 +626,10 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 				stop = false;
 				do {
 					locked[run->theEdge()] = true;
-					if (run->theEdge()->source() == run->faceCyclePred()->theEdge()->source()) //reach source-switch of f
+					if (run->theEdge()->source()
+							== run->faceCyclePred()->theEdge()->source()) { //reach source-switch of f
 						stop = true;
+					}
 					run = run->faceCyclePred();
 				} while (!stop);
 			}
@@ -721,10 +641,13 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 			*All edges traversing by this walk are feasible.
 			*/
 			do {
-				if (run->theEdge()->source() == run->faceCyclePred()->theEdge()->source()) //reach source-switch of f
+				if (run->theEdge()->source() == run->faceCyclePred()->theEdge()->source()) {
+					// reach source-switch of f
 					stop = true;
-				if (run != start)
+				}
+				if (run != start) {
 					feasible.pushBack(run->twin());
+				}
 				run = run->faceCyclePred();
 			} while (!stop);
 
@@ -734,8 +657,10 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 				stop = false;
 				do {
 					locked[run->theEdge()] = true;
-					if (run->theEdge()->source() == run->faceCycleSucc()->theEdge()->source()) //reach source-switch of f
+					if (run->theEdge()->source() == run->faceCycleSucc()->theEdge()->source()) {
+						// reach source-switch of f
 						stop = true;
+					}
 					run = run->faceCycleSucc();
 				} while (!stop);
 			}
@@ -743,58 +668,51 @@ void FixedEmbeddingUpwardEdgeInserter::feasibleEdges(
 	}
 }
 
-
-void FixedEmbeddingUpwardEdgeInserter::markUp(
-	const Graph &G,
-	node v,
-	//NodeArray<bool> &markedNodes,
-	EdgeArray<bool> &markedEdges )
-{
+void FixedEmbeddingUpwardEdgeInserter::markUp(const Graph& G, node v,
+		//NodeArray<bool> &markedNodes,
+		EdgeArray<bool>& markedEdges) {
 	// traversing G from v
 	Queue<node> nodesToDo;
 	nodesToDo.append(v);
 	NodeArray<bool> inQueue(G, false);
-	while(!nodesToDo.empty()) {
+	while (!nodesToDo.empty()) {
 		node w = nodesToDo.pop();
 		List<edge> outEdges;
 		w->outEdges(outEdges);
-		ListIterator <edge> it;
+		ListIterator<edge> it;
 		for (it = outEdges.begin(); it.valid(); ++it) {
 			edge e = *it;
 			if (!inQueue[e->target()]) { // put the next node in queue if it is not already in queue
-				nodesToDo.append( e->target() );
+				nodesToDo.append(e->target());
 				inQueue[e->target()] = true;
 			}
-			markedEdges[e] = true;	// mark edge
+			markedEdges[e] = true; // mark edge
 		}
 	}
 }
 
-
-void FixedEmbeddingUpwardEdgeInserter::markDown(
-	const Graph &G,
-	node v,
+void FixedEmbeddingUpwardEdgeInserter::markDown(const Graph& G, node v,
 #if 0
 	NodeArray<bool> &markedNodes,
 #endif
-	EdgeArray<bool> &markedEdges)
-{
+		EdgeArray<bool>& markedEdges) {
 	// mark the subgraph, i.e all nodes and edges, which dominate node v
 	Queue<node> nodesToDo;
 	nodesToDo.append(v);
 	NodeArray<bool> inQueue(G, false);
-	while(!nodesToDo.empty()) {
+	while (!nodesToDo.empty()) {
 		node w = nodesToDo.pop();
 		List<edge> inEdges;
 		w->inEdges(inEdges);
-		ListIterator <edge> it;
+		ListIterator<edge> it;
 		for (it = inEdges.begin(); it.valid(); ++it) {
 			edge e = *it;
 			if (!inQueue[e->source()]) {
-				nodesToDo.append(e->source() ); // put the next node in queue if it is not already in queue
+				nodesToDo.append(
+						e->source()); // put the next node in queue if it is not already in queue
 				inQueue[e->source()] = true;
 			}
-			markedEdges[e] = true;	// mark the edge
+			markedEdges[e] = true; // mark the edge
 		}
 	}
 }

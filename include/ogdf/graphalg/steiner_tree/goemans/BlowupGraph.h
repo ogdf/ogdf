@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 #include <ogdf/graphalg/steiner_tree/goemans/CoreEdgeModule.h>
 
@@ -50,7 +50,7 @@ template<typename T>
 class BlowupGraph {
 private:
 	Graph m_graph;
-	const FullComponentWithExtraStore<T, double> &m_fullCompStore; //!< all enumerated full components, with solution
+	const FullComponentWithExtraStore<T, double>& m_fullCompStore; //!< all enumerated full components, with solution
 	const double m_eps; //!< epsilon for double operations
 
 	List<node> m_terminals; //!< The terminals in the blowup graph
@@ -72,7 +72,7 @@ private:
 	node m_pseudotarget;
 	node m_target;
 
-	const CoreEdgeModule<T> &m_ceModule;
+	const CoreEdgeModule<T>& m_ceModule;
 
 	List<node> m_coreEdges; //!< the core edges as nodes
 
@@ -142,7 +142,7 @@ protected:
 
 	//! Does a bfs of the component tree to add *directed* components with the first terminal as root
 	//! @return the root of the component
-	node initBlowupGraphComponent(const NodeArray<node> &copy, adjEntry start, int cap) {
+	node initBlowupGraphComponent(const NodeArray<node>& copy, adjEntry start, int cap) {
 		node v = m_fullCompStore.original(start->theNode());
 		List<adjEntry> queueT;
 		List<node> queueC;
@@ -170,7 +170,7 @@ protected:
 	}
 
 	//! Connects source to component roots
-	void initSource(ArrayBuffer<std::pair<node, int>> &roots) {
+	void initSource(ArrayBuffer<std::pair<node, int>>& roots) {
 		OGDF_ASSERT(m_source == nullptr);
 		m_source = m_graph.newNode();
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
@@ -178,16 +178,16 @@ protected:
 #endif
 		for (auto root : roots) {
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-			std::cout
-			  << " * node " << root.first
-			  << " with cost 0 and capacity " << root.second << std::endl;
+			std::cout << " * node " << root.first << " with cost 0 and capacity " << root.second
+					  << std::endl;
 #endif
 			newEdge(getSource(), root.first, 0, root.second);
 		}
 	}
 
 	//! Initializes all components in the blowup graph as well as core edges and witness sets
-	void initBlowupGraphComponents(const EdgeWeightedGraph<T> &originalGraph, const List<node> &terminals) {
+	void initBlowupGraphComponents(const EdgeWeightedGraph<T>& originalGraph,
+			const List<node>& terminals) {
 		ArrayBuffer<std::pair<node, int>> roots; // roots (in the blowupGraph) and their capacities
 
 		NodeArray<node> copy(originalGraph, nullptr);
@@ -204,10 +204,8 @@ protected:
 
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
 		for (edge e : m_graph.edges) {
-			std::cout
-			  << "Edge from " << e
-			  << " of cost " << m_cost[e]
-			  << " and capacity " << m_capacity[e] << std::endl;
+			std::cout << "Edge from " << e << " of cost " << m_cost[e] << " and capacity "
+					  << m_capacity[e] << std::endl;
 		}
 #endif
 
@@ -224,7 +222,8 @@ protected:
 		m_pseudotarget = m_graph.newNode();
 
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-		std::cout << "Add pseudo-target " << getPseudotarget() << " with edges coming from:" << std::endl;
+		std::cout << "Add pseudo-target " << getPseudotarget()
+				  << " with edges coming from:" << std::endl;
 #endif
 		for (node v : terminals()) {
 			OGDF_ASSERT(v);
@@ -241,9 +240,8 @@ protected:
 			if (y_v > 0) {
 				newEdge(v, getPseudotarget(), 0, y_v);
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-				std::cout
-				  << " * terminal " << v
-				  << " with zero cost and capacity " << y_v << std::endl;
+				std::cout << " * terminal " << v << " with zero cost and capacity " << y_v
+						  << std::endl;
 #endif
 				m_y += y_v;
 			}
@@ -257,10 +255,8 @@ protected:
 
 		newEdge(getPseudotarget(), getTarget(), 0, m_y);
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-		std::cout
-		  << "Add edge from pseudo-target " << getPseudotarget()
-		  << " to target " << getTarget()
-		  << " with zero cost and capacity " << m_y << std::endl;
+		std::cout << "Add edge from pseudo-target " << getPseudotarget() << " to target "
+				  << getTarget() << " with zero cost and capacity " << m_y << std::endl;
 #endif
 	}
 
@@ -273,39 +269,36 @@ protected:
 		int capSource = 0;
 		int capTarget = -getLCM();
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-		std::cout << "   * target capacity initialized to " << capTarget << ", source capacity and delta to 0" << std::endl;
+		std::cout << "   * target capacity initialized to " << capTarget
+				  << ", source capacity and delta to 0" << std::endl;
 #endif
 		adjEntry adj2;
 		for (adjEntry adj = v->firstAdj(); adj; adj = adj2) {
 			adj2 = adj->succ();
 			if (adj->twinNode() == getSource()) {
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-				std::cout << "   * remove edge with capacity " << getCapacity(adj->theEdge()) << " from source " << getSource() << std::endl;
+				std::cout << "   * remove edge with capacity " << getCapacity(adj->theEdge())
+						  << " from source " << getSource() << std::endl;
 #endif
 				OGDF_ASSERT(adj->theEdge()->source() == getSource());
 
 				// remove arcs from the source
 				m_graph.delEdge(adj->theEdge());
-			}
-			else
-			if (adj->twinNode() == getPseudotarget()) {
+			} else if (adj->twinNode() == getPseudotarget()) {
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-				std::cout
-				  << "   * remove edge to pseudotarget " << getPseudotarget()
-				  << " with capacity " << getCapacity(adj->theEdge())
-				  << " participating in delta" << std::endl;
+				std::cout << "   * remove edge to pseudotarget " << getPseudotarget()
+						  << " with capacity " << getCapacity(adj->theEdge())
+						  << " participating in delta" << std::endl;
 #endif
 				OGDF_ASSERT(adj->theEdge()->target() == getPseudotarget());
 
 				// remove arcs to the pseudotarget
 				delta -= getCapacity(adj->theEdge());
 				m_graph.delEdge(adj->theEdge());
-			}
-			else {
+			} else {
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-				std::cout
-				  << "   * update target capacity for edge " << adj->theEdge()
-				  << " by adding " << getCapacity(adj->theEdge()) << std::endl;
+				std::cout << "   * update target capacity for edge " << adj->theEdge()
+						  << " by adding " << getCapacity(adj->theEdge()) << std::endl;
 #endif
 				// compute y_v for the contraction node
 				capTarget += getCapacity(adj->theEdge());
@@ -319,24 +312,21 @@ protected:
 			}
 		}
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-		std::cout
-		  << "   * new target capacity is " << capTarget
-		  << " and delta = " << delta << std::endl;
+		std::cout << "   * new target capacity is " << capTarget << " and delta = " << delta
+				  << std::endl;
 #endif
 		OGDF_ASSERT(capTarget >= 0);
 		if (capTarget > 0) {
 			newEdge(v, getPseudotarget(), 0, capTarget);
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-				std::cout
-				  << "   * new edge from pseudotarget to target with zero cost and capacity "
-				  << capTarget << std::endl;
+			std::cout << "   * new edge from pseudotarget to target with zero cost and capacity "
+					  << capTarget << std::endl;
 #endif
 		}
 		if (capSource > 0) {
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-				std::cout
-				  << "   * new edge from source to " << v << " with zero cost and capacity "
-				  << capSource << std::endl;
+			std::cout << "   * new edge from source to " << v << " with zero cost and capacity "
+					  << capSource << std::endl;
 #endif
 			newEdge(getSource(), v, 0, capSource);
 		}
@@ -344,18 +334,14 @@ protected:
 		return delta + capTarget;
 	}
 
-	void setCapacity(edge e, int capacity) {
-		m_capacity[e] = capacity;
-	}
+	void setCapacity(edge e, int capacity) { m_capacity[e] = capacity; }
 
 	//! @name Core edges and witness set management
 	//! @{
 
 	//! Adds a core edge
 	//! \remark Note that core edges are implemented by nodes in the blowup graph
-	void addCore(node e) {
-		m_coreEdges.pushBack(e);
-	}
+	void addCore(node e) { m_coreEdges.pushBack(e); }
 
 	//! Adds \p e to W(\p f)
 	void addWitness(node e, edge f) {
@@ -431,8 +417,8 @@ protected:
 	}
 
 	//! Copies witness sets and core edges for a given copy map
-	void makeCWCopy(const HashArray<edge,edge> &edgeMap) {
-		for (HashConstIterator<edge,edge> pair = edgeMap.begin(); pair.valid(); ++pair) {
+	void makeCWCopy(const HashArray<edge, edge>& edgeMap) {
+		for (HashConstIterator<edge, edge> pair = edgeMap.begin(); pair.valid(); ++pair) {
 			const edge eO = pair.key();
 			const edge eC = pair.info();
 			const node vO = eO->target();
@@ -460,30 +446,29 @@ protected:
 
 public:
 	//! Initializes a blowup graph including core edges and witness sets
-	BlowupGraph(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const FullComponentWithExtraStore<T, double> &fullCompStore, const CoreEdgeModule<T> &ceModule, double eps = 1e-8)
-	  : m_fullCompStore(fullCompStore)
-	  , m_eps(eps)
-	  , m_terminals()
-	  , m_isTerminal(m_graph, false)
-	  , m_original(m_graph, nullptr)
-	  , m_cost(m_graph)
-	  , m_capacity(m_graph)
-	  , m_y(0)
-	  , m_source(nullptr)
-	  , m_pseudotarget(nullptr)
-	  , m_target(nullptr)
-	  , m_ceModule(ceModule)
-	{
+	BlowupGraph(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const FullComponentWithExtraStore<T, double>& fullCompStore,
+			const CoreEdgeModule<T>& ceModule, double eps = 1e-8)
+		: m_fullCompStore(fullCompStore)
+		, m_eps(eps)
+		, m_terminals()
+		, m_isTerminal(m_graph, false)
+		, m_original(m_graph, nullptr)
+		, m_cost(m_graph)
+		, m_capacity(m_graph)
+		, m_y(0)
+		, m_source(nullptr)
+		, m_pseudotarget(nullptr)
+		, m_target(nullptr)
+		, m_ceModule(ceModule) {
 		computeLCM();
 
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
 		std::cout << "Full components to use in blowup graph:\n";
 		for (int k = 0; k < m_fullCompStore.size(); ++k) {
-			std::cout
-			  << " * " << m_fullCompStore.terminals(k)
-			  << " cost " << m_fullCompStore.cost(k)
-			  << " support " << m_fullCompStore.extra(k)
-			  << " (normalized to " << m_fullCompStore.extra(k) * m_lcm << ")" << std::endl;
+			std::cout << " * " << m_fullCompStore.terminals(k) << " cost "
+					  << m_fullCompStore.cost(k) << " support " << m_fullCompStore.extra(k)
+					  << " (normalized to " << m_fullCompStore.extra(k) * m_lcm << ")" << std::endl;
 		}
 #endif
 
@@ -495,64 +480,40 @@ public:
 	//! @name Getters for the blow-up graph (without core edges and witness sets)
 	//! @{
 
-	const Graph &getGraph() const {
-		return m_graph;
-	}
+	const Graph& getGraph() const { return m_graph; }
 
 	//! Returns the source node
-	node getSource() const {
-		return m_source;
-	}
+	node getSource() const { return m_source; }
 
 	//! Returns the pseudotarget node
-	node getPseudotarget() const {
-		return m_pseudotarget;
-	}
+	node getPseudotarget() const { return m_pseudotarget; }
 
 	//! Returns the target node
-	node getTarget() const {
-		return m_target;
-	}
+	node getTarget() const { return m_target; }
 
 	//! Returns the capacity of \p e
-	int getCapacity(edge e) const {
-		return m_capacity[e];
-	}
+	int getCapacity(edge e) const { return m_capacity[e]; }
 
 	//! Returns a reference to the edge array containing all capacities
-	const EdgeArray<int> &capacities() const {
-		return m_capacity;
-	}
+	const EdgeArray<int>& capacities() const { return m_capacity; }
 
 	//! Returns the cost of \p e
-	T getCost(edge e) const {
-		return m_cost[e];
-	}
+	T getCost(edge e) const { return m_cost[e]; }
 
 	//! Returns the original node of \p v
-	node getOriginal(node v) const {
-		return m_original[v];
-	}
+	node getOriginal(node v) const { return m_original[v]; }
 
 	//! Returns the least common multiple of all denominators
-	int getLCM() const {
-		return m_lcm;
-	}
+	int getLCM() const { return m_lcm; }
 
 	//! Returns the y-value of all terminals
-	int getY() const {
-		return m_y;
-	}
+	int getY() const { return m_y; }
 
 	//! Returns a reference to the list containing all terminals in the blowup graph
-	const List<node> &terminals() const {
-		return m_terminals;
-	}
+	const List<node>& terminals() const { return m_terminals; }
 
 	//! Returns true if and only if \p v is a terminal
-	bool isTerminal(node v) const {
-		return m_isTerminal[v];
-	}
+	bool isTerminal(node v) const { return m_isTerminal[v]; }
 
 	//! @}
 	//! @name Getters for core edges
@@ -618,7 +579,7 @@ public:
 	}
 
 	//! Contracts node \p v and terminal \p t into \p v
-	void contract(node &v, node t) {
+	void contract(node& v, node t) {
 		if (v->degree() == 0) {
 			std::swap(v, t);
 		}
@@ -668,15 +629,16 @@ public:
 #endif
 					cleanup.push(v->firstAdj()->twinNode());
 					m_graph.delNode(v);
-				} else
-				if (v->indeg() == 0) { // v has no incoming edge, fix
+				} else if (v->indeg() == 0) { // v has no incoming edge, fix
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-					std::cout << "    * " << v << " has no incoming edge -> fix directions" << std::endl;
+					std::cout << "    * " << v << " has no incoming edge -> fix directions"
+							  << std::endl;
 #endif
 					const node w = v->firstAdj()->twinNode();
 					const edge e = v->firstAdj()->theEdge();
 #ifdef OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
-					std::cout << "      * make " << w << " parent of " << v << " (reverse edge " << e << ")" << std::endl;
+					std::cout << "      * make " << w << " parent of " << v << " (reverse edge "
+							  << e << ")" << std::endl;
 #endif
 					m_graph.reverseEdge(e);
 					OGDF_ASSERT(e->source() == w);
@@ -733,7 +695,7 @@ public:
 		}
 		List<edge> todo;
 		List<node> origin;
-		HashArray<edge,edge> edgeMap;
+		HashArray<edge, edge> edgeMap;
 		todo.pushBack(origEdge);
 		origin.pushBack(origEdge->source());
 		while (!todo.empty()) {
@@ -748,7 +710,8 @@ public:
 			setCapacity(eO, origCap);
 			edgeMap[eO] = eC;
 			if (!isTerminal(wO)) {
-				for (adjEntry adj = eO->adjTarget()->cyclicSucc(); adj != eO->adjTarget(); adj = adj->cyclicSucc()) {
+				for (adjEntry adj = eO->adjTarget()->cyclicSucc(); adj != eO->adjTarget();
+						adj = adj->cyclicSucc()) {
 					OGDF_ASSERT(adj->theEdge()->target() != eO->target()); // outgoing edges
 					origin.pushBack(wC);
 					todo.pushBack(adj->theEdge());
@@ -762,9 +725,7 @@ public:
 	//! @{
 
 	//! Return list of core edges (implemented by nodes)
-	const List<node> &core() const {
-		return m_coreEdges;
-	}
+	const List<node>& core() const { return m_coreEdges; }
 
 	//! Remove a core edge
 	//! \note the blowup graph is not affected
@@ -782,14 +743,10 @@ public:
 	}
 
 	//! Return the number of witnesses of an edge
-	int numberOfWitnesses(edge e) const {
-		return m_witnessCard[e];
-	}
+	int numberOfWitnesses(edge e) const { return m_witnessCard[e]; }
 
 	//! Return list of loss edges f in W(e)
-	const ArrayBuffer<edge> &witnessList(node e) const {
-		return m_witness[e];
-	}
+	const ArrayBuffer<edge>& witnessList(node e) const { return m_witness[e]; }
 
 	//! @}
 };

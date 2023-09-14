@@ -37,12 +37,11 @@
 using namespace ogdf;
 
 BitonicOrdering::BitonicOrdering(Graph& G, adjEntry adj_st_edge)
-  : m_graph(G)
-  , m_currLabel(0)
-  , m_orderIndex(G,-1)
-  , m_indexToNode(G.numberOfNodes())
-  , m_tree(G, adj_st_edge->theEdge(), true)
-{
+	: m_graph(G)
+	, m_currLabel(0)
+	, m_orderIndex(G, -1)
+	, m_indexToNode(G.numberOfNodes())
+	, m_tree(G, adj_st_edge->theEdge(), true) {
 	// set all tree nodes to non flipped
 	m_flipped.init(m_tree.tree(), false);
 
@@ -67,10 +66,8 @@ BitonicOrdering::BitonicOrdering(Graph& G, adjEntry adj_st_edge)
 	m_tree.embed(m_graph);
 }
 
-
 // used to distinguish between the three cases below
-void BitonicOrdering::handleCase(node v_T)
-{
+void BitonicOrdering::handleCase(node v_T) {
 	// check if this skeleton has been flipped in some R-node
 	// above temporarily
 	if (isFlipped(v_T)) {
@@ -81,32 +78,30 @@ void BitonicOrdering::handleCase(node v_T)
 	// the switch statement to check what type of node
 	// v_T is
 	switch (m_tree.typeOf(v_T)) {
-		case ogdf::SPQRTree::NodeType::SNode:
-			handleSerialCase(v_T);
-			break;
+	case ogdf::SPQRTree::NodeType::SNode:
+		handleSerialCase(v_T);
+		break;
 
-		case ogdf::SPQRTree::NodeType::PNode:
-			handleParallelCase(v_T);
-			break;
+	case ogdf::SPQRTree::NodeType::PNode:
+		handleParallelCase(v_T);
+		break;
 
-		case ogdf::SPQRTree::NodeType::RNode:
-			handleRigidCase(v_T);
-			break;
+	case ogdf::SPQRTree::NodeType::RNode:
+		handleRigidCase(v_T);
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 
 	// if we flipped it before, we now reverse the reversing
 	if (isFlipped(v_T)) {
 		m_tree.reverse(v_T);
 	}
-
 }
 
 // helper function that finds the st-adjEntry in the skeleton of v_T
-adjEntry BitonicOrdering::getAdjST(node v_T) const
-{
+adjEntry BitonicOrdering::getAdjST(node v_T) const {
 	// the reference edge in G_skel
 	edge e_ref = m_tree.skeleton(v_T).referenceEdge();
 
@@ -126,8 +121,7 @@ adjEntry BitonicOrdering::getAdjST(node v_T) const
 }
 
 // the S-node case
-void BitonicOrdering::handleSerialCase(node v_T)
-{
+void BitonicOrdering::handleSerialCase(node v_T) {
 	// the skeleton instance of the tree node
 	const Skeleton& skel = m_tree.skeleton(v_T);
 
@@ -138,9 +132,7 @@ void BitonicOrdering::handleSerialCase(node v_T)
 	node t = adj_st->twinNode();
 
 	// now we traverse the cycle of skel counter clockwise from s to t
-	for (adjEntry adj = adj_st->cyclicSucc();
-			adj != adj_st->twin();
-			adj = adj->twin()->cyclicSucc()) {
+	for (adjEntry adj = adj_st->cyclicSucc(); adj != adj_st->twin(); adj = adj->twin()->cyclicSucc()) {
 		// the current edge of the cycle
 		edge e = adj->theEdge();
 
@@ -161,13 +153,14 @@ void BitonicOrdering::handleSerialCase(node v_T)
 		node v = adj->twinNode();
 
 		// assign v a label unless it is t.
-		if (v != t) assignLabel(v_T, v);
+		if (v != t) {
+			assignLabel(v_T, v);
+		}
 	}
 }
 
 // the P-node case
-void BitonicOrdering::handleParallelCase(node v_T)
-{
+void BitonicOrdering::handleParallelCase(node v_T) {
 	// the skeleton instance of the tree node
 	const Skeleton& skel = m_tree.skeleton(v_T);
 
@@ -180,8 +173,7 @@ void BitonicOrdering::handleParallelCase(node v_T)
 	// first we check if there is any real edge here
 	for (adjEntry adj = adj_st->cyclicPred(); adj != adj_st; adj = adj->cyclicPred()) {
 		// check if it is a real edge
-		if (!skel.isVirtual(adj->theEdge())
-		 && adj != adj_st->cyclicSucc()) {
+		if (!skel.isVirtual(adj->theEdge()) && adj != adj_st->cyclicSucc()) {
 			// we are only interested in a real edge that is not the cyclic succ of the reference adj
 			adj_real = adj; // we found one, this is moved
 		}
@@ -216,15 +208,13 @@ void BitonicOrdering::handleParallelCase(node v_T)
 // transforms the result of the canonical ordering into two arrays,
 // one holding the index in the temporary order for a node,
 // the other is the reverse map. Function assumes proper init for indices and vertices
-void BitonicOrdering::partitionToOrderIndices(const List<List<node> >& partitionlist,
-                             NodeArray<int>& indices,
-                             Array<node>& vertices) const
-{
+void BitonicOrdering::partitionToOrderIndices(const List<List<node>>& partitionlist,
+		NodeArray<int>& indices, Array<node>& vertices) const {
 	// counter for the index of a node
 	int currIndex = 0;
 
 	// for all parititons
-	for (List<List<node> >::const_iterator lit = partitionlist.begin(); lit.valid(); ++lit) {
+	for (List<List<node>>::const_iterator lit = partitionlist.begin(); lit.valid(); ++lit) {
 		// a chain or singleton
 		const List<node>& partition = *lit;
 
@@ -246,8 +236,7 @@ void BitonicOrdering::partitionToOrderIndices(const List<List<node> >& partition
 }
 
 // the R-node case
-void BitonicOrdering::handleRigidCase(node v_T)
-{
+void BitonicOrdering::handleRigidCase(node v_T) {
 	// the skeleton instance of the tree node
 	const Skeleton& skel = m_tree.skeleton(v_T);
 
@@ -265,7 +254,7 @@ void BitonicOrdering::handleRigidCase(node v_T)
 	LeftistOrdering leftistOrder;
 
 	// the result of the leftist order
-	List<List<node> > temporaryPartition;
+	List<List<node>> temporaryPartition;
 
 	// get the order
 	leftistOrder.call(G_skel, adj_st, temporaryPartition);
@@ -290,14 +279,14 @@ void BitonicOrdering::handleRigidCase(node v_T)
 			node v = adj->twinNode();
 
 			// check if this is an incoming edge in the temporary order
-			if (vertexIndex[v] < vertexIndex[w] ) {
+			if (vertexIndex[v] < vertexIndex[w]) {
 				// yes it is, w is the successor of v
 				// time for some recursion
 				edge e = adj->theEdge();
 
 				// check if this is a virtual one, i.e. is there something we
 				// have to label first? however, make sure not to recurse on the parent
-				if (skel.isVirtual(e) && ( e != skel.referenceEdge())) {
+				if (skel.isVirtual(e) && (e != skel.referenceEdge())) {
 					// the corresponding child of v_T
 					node w_T = skel.twinTreeNode(e);
 
@@ -326,13 +315,14 @@ void BitonicOrdering::handleRigidCase(node v_T)
 		}
 
 		//now we are ready to label v
-		if ((w != t) && (w != s)) assignLabel(v_T, w);
+		if ((w != t) && (w != s)) {
+			assignLabel(v_T, w);
+		}
 	}
 }
 
 #ifdef OGDF_DEBUG
-void BitonicOrdering::consistencyCheck(GraphAttributes& GA) const
-{
+void BitonicOrdering::consistencyCheck(GraphAttributes& GA) const {
 	GA.init(m_graph, GraphAttributes::nodeLabel);
 	bool allBitonic = true;
 
@@ -363,12 +353,13 @@ void BitonicOrdering::consistencyCheck(GraphAttributes& GA) const
 				// and its cyclic succ
 				node w_next = adj->cyclicSucc()->twinNode();
 
-				if ((m_orderIndex[v] > m_orderIndex[w_prev]) && (m_orderIndex[v] < m_orderIndex[w]))
+				if ((m_orderIndex[v] > m_orderIndex[w_prev]) && (m_orderIndex[v] < m_orderIndex[w])) {
 					adj_first_succ = adj;
+				}
 
-				if ((m_orderIndex[v] > m_orderIndex[w_next]) && (m_orderIndex[v] < m_orderIndex[w]))
+				if ((m_orderIndex[v] > m_orderIndex[w_next]) && (m_orderIndex[v] < m_orderIndex[w])) {
 					adj_last_succ = adj;
-
+				}
 			}
 			OGDF_ASSERT(adj_first_succ != nullptr);
 			OGDF_ASSERT(adj_last_succ != nullptr);
@@ -383,25 +374,28 @@ void BitonicOrdering::consistencyCheck(GraphAttributes& GA) const
 				// and its cyclic succ
 				node w_next = adj->cyclicSucc()->twinNode();
 
-				if (m_orderIndex[v] <= max(m_orderIndex[w_prev], max(m_orderIndex[w], m_orderIndex[w_next]))) {
+				if (m_orderIndex[v]
+						<= max(m_orderIndex[w_prev], max(m_orderIndex[w], m_orderIndex[w_next]))) {
 					// all succs, lets check for bitonic indices
 
-					if ((m_orderIndex[w_prev] >= m_orderIndex[w]) && (m_orderIndex[w_next] >= m_orderIndex[w]) &&
-						(m_orderIndex[v] > 0)) {
+					if ((m_orderIndex[w_prev] >= m_orderIndex[w])
+							&& (m_orderIndex[w_next] >= m_orderIndex[w]) && (m_orderIndex[v] > 0)) {
 						isNodeBitonic = false;
 						Logger::slout()
-								<< "[BitonicOrder:] " << "NOT BITONIC SUCC LIST " << v << "(" << m_orderIndex[v] << ")"
+								<< "[BitonicOrder:] "
+								<< "NOT BITONIC SUCC LIST " << v << "(" << m_orderIndex[v] << ")"
 								<< std::endl
-								<< "[BitonicOrder:] " << w_prev << "(" << m_orderIndex[w_prev] << ") "
-								<< w << "(" << m_orderIndex[w] << ") "
-								<< w_next << "(" << m_orderIndex[w_next] << ")" << std::endl
+								<< "[BitonicOrder:] " << w_prev << "(" << m_orderIndex[w_prev]
+								<< ") " << w << "(" << m_orderIndex[w] << ") " << w_next << "("
+								<< m_orderIndex[w_next] << ")" << std::endl
 								<< std::endl;
 					};
 				}
 			}
 
 			if (!isNodeBitonic) {
-				for (adjEntry adj = adj_first_succ; adj != adj_last_succ->cyclicSucc(); adj = adj->cyclicSucc()) {
+				for (adjEntry adj = adj_first_succ; adj != adj_last_succ->cyclicSucc();
+						adj = adj->cyclicSucc()) {
 					Logger::slout() << "(" << m_orderIndex[adj->twinNode()] << ") ";
 				}
 			}

@@ -35,18 +35,14 @@ using namespace snowhouse;
 using namespace bandit;
 
 go_bandit([]() {
-	auto chooseNode = [](const Graph &graph) {
-		return graph.chooseNode();
-	};
+	auto chooseNode = [](const Graph& graph) { return graph.chooseNode(); };
 
-	auto allNodes = [](const Graph &graph, List<node> &list) {
-		graph.allNodes(list);
-	};
+	auto allNodes = [](const Graph& graph, List<node>& list) { graph.allNodes(list); };
 
-	auto createNode = [](Graph &graph) {
-		return graph.newNode();
-	};
+	auto createNode = [](Graph& graph) { return graph.newNode(); };
 
-	describeArray<NodeArray, node, int>("NodeArray filled with ints", 42, 43, chooseNode, allNodes, createNode);
-	describeArray<NodeArray, node, List<int>>("NodeArray filled with lists of ints", {1, 2, 3}, {42}, chooseNode, allNodes, createNode);
+	describeArray<NodeArray, node, int>("NodeArray filled with ints", 42, 43, chooseNode, allNodes,
+			createNode);
+	describeArray<NodeArray, node, List<int>>("NodeArray filled with lists of ints", {1, 2, 3},
+			{42}, chooseNode, allNodes, createNode);
 });

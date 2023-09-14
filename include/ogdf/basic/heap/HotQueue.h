@@ -31,12 +31,11 @@
 
 #pragma once
 
+#include <cmath>
 #include <functional>
+#include <limits>
 #include <utility>
 #include <vector>
-#include <limits>
-#include <cmath>
-
 
 namespace ogdf {
 
@@ -47,21 +46,14 @@ struct HotQueueNode {
 	V value;
 	P priority;
 
-	HotQueueNode<V, P> *prev;
-	HotQueueNode<V, P> *next;
+	HotQueueNode<V, P>* prev;
+	HotQueueNode<V, P>* next;
 
-	HotQueueNode()
-	: prev(nullptr), next(nullptr)
-	{
-	}
+	HotQueueNode() : prev(nullptr), next(nullptr) { }
 
-	HotQueueNode(const V &val, const P &pr)
-	: value(val), priority(pr),
-	  prev(nullptr), next(nullptr)
-	{
-	}
+	HotQueueNode(const V& val, const P& pr)
+		: value(val), priority(pr), prev(nullptr), next(nullptr) { }
 };
-
 
 //! Heap-on-Top handle to inserted items.
 /**
@@ -75,38 +67,28 @@ struct HotQueueNode {
 template<typename V, typename P, typename HeapHandle>
 struct HotQueueHandle {
 private:
-	enum class Type {
-		heap,
-		bucket
-	} type; //!< Union tag.
+	enum class Type { heap, bucket } type; //!< Union tag.
 
 	union {
 		//! Handle to underlying heap.
 		HeapHandle heapHandle;
 		//! Handle to bucket element (bucket index and list iterator).
-		std::pair<std::size_t, HotQueueNode<V, P> *> bucketHandle;
+		std::pair<std::size_t, HotQueueNode<V, P>*> bucketHandle;
 	};
 
 	//! Creates heap-type handle.
-	HotQueueHandle(HeapHandle handle)
-	: type(Type::heap), heapHandle(handle)
-	{
-	}
+	HotQueueHandle(HeapHandle handle) : type(Type::heap), heapHandle(handle) { }
 
 	//! Creates bucket-type handle.
-	HotQueueHandle(std::size_t index, HotQueueNode<V, P> *queueNode)
-	: type(Type::bucket), bucketHandle(index, queueNode)
-	{
-	}
+	HotQueueHandle(std::size_t index, HotQueueNode<V, P>* queueNode)
+		: type(Type::bucket), bucketHandle(index, queueNode) { }
 
 public:
-	HotQueueHandle(const HotQueueHandle &other) {
-		operator=(other);
-	}
+	HotQueueHandle(const HotQueueHandle& other) { operator=(other); }
 
-	HotQueueHandle &operator=(const HotQueueHandle &other) {
+	HotQueueHandle& operator=(const HotQueueHandle& other) {
 		type = other.type;
-		switch(type) {
+		switch (type) {
 		case Type::heap:
 			heapHandle = other.heapHandle;
 			break;
@@ -118,12 +100,9 @@ public:
 		return *this;
 	}
 
-	template<
-		typename V1, typename P1, template<typename T, typename C> class H1
-	>
+	template<typename V1, typename P1, template<typename T, typename C> class H1>
 	friend class HotQueue;
 };
-
 
 //! Heap-on-Top queue implementation.
 /**
@@ -148,7 +127,7 @@ private:
 	H<std::pair<V, P>, HeapComparator> m_heap; //!< Underlying heap structure.
 	std::size_t m_heapSize; //!< Size of underlying heap.
 
-	std::vector<HotQueueNode<V, P> *> m_buckets; //!< Array of buckets.
+	std::vector<HotQueueNode<V, P>*> m_buckets; //!< Array of buckets.
 
 public:
 	using Handle = HotQueueHandle<V, P, HeapHandle>;
@@ -158,13 +137,13 @@ public:
 	 * @param change Maximum \em {event duration}.
 	 * @param levels Number of buckets.
 	 */
-	HotQueue(const P &change, std::size_t levels);
+	HotQueue(const P& change, std::size_t levels);
 
 	//! Releases all buckets on destruction
 	~HotQueue();
 
 	//! Returns reference to the top element in the heap.
-	const V &top() const;
+	const V& top() const;
 
 	//! Inserts a new node with given \p value and \p priority into a heap.
 	/**
@@ -172,7 +151,7 @@ public:
 	 * @param priority A priority of inserted element.
 	 * @return Handle to the inserted node.
 	 */
-	Handle push(const V &value, const P &priority);
+	Handle push(const V& value, const P& priority);
 
 	//! Removes the top element from the heap.
 	/**
@@ -189,22 +168,18 @@ public:
 	 *               decreased.
 	 * @param priority A new priority for the element.
 	 */
-	void decrease(Handle &handle, const P &priority);
+	void decrease(Handle& handle, const P& priority);
 
 	//! Number of elements contained within the heap.
-	std::size_t size() const {
-		return m_size;
-	}
+	std::size_t size() const { return m_size; }
 
 	//! Checks whether the heap is empty.
-	bool empty() const {
-		return size() == 0;
-	}
+	bool empty() const { return size() == 0; }
 
 private:
 	//! Comparator used by underlying heap.
 	struct HeapComparator {
-		bool operator()(const std::pair<V, P> &a, const std::pair<V, P> &b) const {
+		bool operator()(const std::pair<V, P>& a, const std::pair<V, P>& b) const {
 			return std::get<1>(a) < std::get<1>(b);
 		}
 	};
@@ -215,38 +190,34 @@ private:
 	const P m_bucketSpan; //!< Length of the interval covered by each bucket.
 
 	//! Computes bucket index of given \p priority.
-	std::size_t bucketIndex(const P &priority) {
-		return (std::size_t) std::round(priority / m_bucketSpan);
+	std::size_t bucketIndex(const P& priority) {
+		return (std::size_t)std::round(priority / m_bucketSpan);
 	}
 
 	//! Provides access to bucket at given \p index.
-	HotQueueNode<V, P> *&bucketAt(std::size_t index) {
-		return m_buckets[index % m_buckets.size()];
-	}
+	HotQueueNode<V, P>*& bucketAt(std::size_t index) { return m_buckets[index % m_buckets.size()]; }
 
 	static constexpr std::size_t NONE = std::numeric_limits<size_t>::max();
 };
 
+template<typename V, typename P, template<typename T, typename C> class H>
+HotQueue<V, P, H>::HotQueue(const P& change, std::size_t levels)
+	: m_size(0)
+	, m_heapSize(0)
+	, m_buckets(levels, nullptr)
+	, m_heapedBucket(NONE)
+	, m_lastBucket(0)
+	, m_bucketSpan((int)std::round(change / (levels - 1))) { }
 
 template<typename V, typename P, template<typename T, typename C> class H>
-HotQueue<V, P, H>::HotQueue(const P &change, std::size_t levels)
-: m_size(0), m_heapSize(0),
-  m_buckets(levels, nullptr),
-  m_heapedBucket(NONE), m_lastBucket(0),
-  m_bucketSpan((int) std::round(change / (levels - 1)))
-{
-}
-
-template<typename V, typename P, template<typename T, typename C> class H>
-HotQueue<V, P, H>::~HotQueue()
-{
+HotQueue<V, P, H>::~HotQueue() {
 	if (empty()) {
 		return;
 	}
-	for (auto &bucket : m_buckets) {
+	for (auto& bucket : m_buckets) {
 		if (bucket != nullptr) {
-			for (HotQueueNode<V, P> *it = bucket; it != nullptr;) {
-				HotQueueNode<V, P> *next = it->next;
+			for (HotQueueNode<V, P>* it = bucket; it != nullptr;) {
+				HotQueueNode<V, P>* next = it->next;
 				delete it;
 				it = next;
 			}
@@ -255,32 +226,28 @@ HotQueue<V, P, H>::~HotQueue()
 }
 
 template<typename V, typename P, template<typename T, typename C> class H>
-inline const V &HotQueue<V, P, H>::top() const
-{
+inline const V& HotQueue<V, P, H>::top() const {
 	return std::get<0>(m_heap.top());
 }
 
-
 template<typename V, typename P, template<typename T, typename C> class H>
-typename HotQueue<V, P, H>::Handle HotQueue<V, P, H>::push(
-	const V &value, const P &priority)
-{
+typename HotQueue<V, P, H>::Handle HotQueue<V, P, H>::push(const V& value, const P& priority) {
 	m_size++;
 
 	std::size_t ind = bucketIndex(priority);
 
-	if(m_heapedBucket == NONE) {
+	if (m_heapedBucket == NONE) {
 		m_heapedBucket = ind;
 	}
 
-	if(ind == m_heapedBucket) {
+	if (ind == m_heapedBucket) {
 		m_heapSize++;
 		HeapHandle handle = m_heap.push(std::make_pair(value, priority));
 		return Handle(handle);
 	} else {
-		HotQueueNode<V, P> *queueNode = new HotQueueNode<V, P>(value, priority);
+		HotQueueNode<V, P>* queueNode = new HotQueueNode<V, P>(value, priority);
 
-		if(bucketAt(ind) != nullptr) {
+		if (bucketAt(ind) != nullptr) {
 			bucketAt(ind)->prev = queueNode;
 		}
 		queueNode->next = bucketAt(ind);
@@ -291,10 +258,8 @@ typename HotQueue<V, P, H>::Handle HotQueue<V, P, H>::push(
 	}
 }
 
-
 template<typename V, typename P, template<typename T, typename C> class H>
-void HotQueue<V, P, H>::pop()
-{
+void HotQueue<V, P, H>::pop() {
 	m_size--;
 
 	m_heap.pop();
@@ -306,49 +271,43 @@ void HotQueue<V, P, H>::pop()
 	 * but there is no non-empty bucket afterwards it may be the case that
 	 * element will be inserted into the current heap (therefore, do nothing).
 	 */
-	if(!(m_heapSize == 0 && m_heapedBucket != m_lastBucket)) {
+	if (!(m_heapSize == 0 && m_heapedBucket != m_lastBucket)) {
 		return;
 	}
 
 	// Find first non-empty bucket.
 	do {
 		m_heapedBucket++;
-	} while(bucketAt(m_heapedBucket) == nullptr);
+	} while (bucketAt(m_heapedBucket) == nullptr);
 
 	// Move bucket contents into a heap.
-	for(HotQueueNode<V, P> *it = bucketAt(m_heapedBucket); it != nullptr;)	{
+	for (HotQueueNode<V, P>* it = bucketAt(m_heapedBucket); it != nullptr;) {
 		m_heapSize++;
 		m_heap.push(std::make_pair(it->value, it->priority));
 
-		HotQueueNode<V, P> *next = it->next;
+		HotQueueNode<V, P>* next = it->next;
 		delete it;
 		it = next;
 	}
 	bucketAt(m_heapedBucket) = nullptr;
 }
 
-
 template<typename V, typename P, template<typename T, typename C> class H>
-void HotQueue<V, P, H>::decrease(
-	typename HotQueue<V, P, H>::Handle &handle,
-	const P &priority)
-{
-	switch(handle.type) {
+void HotQueue<V, P, H>::decrease(typename HotQueue<V, P, H>::Handle& handle, const P& priority) {
+	switch (handle.type) {
 	case Handle::Type::heap: {
 		// Simple case, just use native heap decrease key.
-		const HeapHandle &elem = handle.heapHandle;
-		m_heap.decrease(elem, std::make_pair(
-			std::get<0>(m_heap.value(elem)), priority)
-		);
+		const HeapHandle& elem = handle.heapHandle;
+		m_heap.decrease(elem, std::make_pair(std::get<0>(m_heap.value(elem)), priority));
 		break;
 	}
 	case Handle::Type::bucket:
 		// Remove element from bucket (as with ordinary linked-list)...
-		HotQueueNode<V, P> *queueNode = std::get<1>(handle.bucketHandle);
-		if(queueNode->next != nullptr) {
+		HotQueueNode<V, P>* queueNode = std::get<1>(handle.bucketHandle);
+		if (queueNode->next != nullptr) {
 			queueNode->next->prev = queueNode->prev;
 		}
-		if(queueNode->prev != nullptr) {
+		if (queueNode->prev != nullptr) {
 			queueNode->prev->next = queueNode->next;
 		} else {
 			m_buckets[std::get<0>(handle.bucketHandle)] = queueNode->next;

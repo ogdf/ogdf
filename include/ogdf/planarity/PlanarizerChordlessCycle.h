@@ -34,7 +34,6 @@
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/StarInserter.h>
 
-
 namespace ogdf {
 
 /**
@@ -50,32 +49,28 @@ namespace ogdf {
  * @warning Ignores the time limit set in the CrossingMinimizationModule.
  * However, the heuristic should be very fast in practice anyway.
  */
-class OGDF_EXPORT PlanarizerChordlessCycle : public CrossingMinimizationModule
-{
+class OGDF_EXPORT PlanarizerChordlessCycle : public CrossingMinimizationModule {
 protected:
 	//! Implements the algorithm call.
 	/**
 	 * @pre \p pr must be simple.
 	 */
-	virtual ReturnType doCall(PlanRep &pr,
-		int cc,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs,
-		int &crossingNumber) override;
+	virtual ReturnType doCall(PlanRep& pr, int cc, const EdgeArray<int>* pCostOrig,
+			const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubGraphs,
+			int& crossingNumber) override;
 
 public:
 	//! Creates a PlanarizerChordlessCycle with default settings.
 	PlanarizerChordlessCycle();
 
 	//! Creates a PlanarizerChordlessCycle with the same settings as \p planarizer.
-	PlanarizerChordlessCycle(const PlanarizerChordlessCycle &planarizer);
+	PlanarizerChordlessCycle(const PlanarizerChordlessCycle& planarizer);
 
 	//! Returns a new PlanarizerChordlessCycle with the same option settings.
-	virtual CrossingMinimizationModule *clone() const override;
+	virtual CrossingMinimizationModule* clone() const override;
 
 	//! Assignment operator, copies option settings only.
-	PlanarizerChordlessCycle &operator=(const PlanarizerChordlessCycle &planarizer);
+	PlanarizerChordlessCycle& operator=(const PlanarizerChordlessCycle& planarizer);
 
 private:
 	/**
@@ -83,7 +78,7 @@ private:
 	 * @param cycle is assigned a list of nodes in \p G which induce a chordless
 	 * cycle.
 	 */
-	bool findChordlessCycle(const Graph &G, List<node> &cycle);
+	bool findChordlessCycle(const Graph& G, List<node>& cycle);
 
 	/**
 	 * Creates crossings in \p pr that resemble the crossings in \p copyCopy.
@@ -97,10 +92,7 @@ private:
 	 * @param copyCopy is a planarization that contains the crossings that
 	 * should be copied to \p pr.
 	 */
-	void transferToPlanRep(
-		PlanRep &pr,
-		const GraphCopy &graphCopy,
-		const GraphCopy &copyCopy);
+	void transferToPlanRep(PlanRep& pr, const GraphCopy& graphCopy, const GraphCopy& copyCopy);
 
 	/**
 	 * Creates a copy of \p vOrig in \p graphCopy and optimally inserts a copy
@@ -115,13 +107,8 @@ private:
 	 * @param pCostCopy are the edge costs in \p graphCopy (edge costs for the
 	 * newly created edges are added).
 	 */
-	void addToGraphCopy(
-		GraphCopy &graphCopy,
-		GraphCopy &copyCopy,
-		DynamicDualGraph &dual,
-		node vOrig,
-		const EdgeArray<int> *pCostOrig,
-		EdgeArray<int> *pCostCopy);
+	void addToGraphCopy(GraphCopy& graphCopy, GraphCopy& copyCopy, DynamicDualGraph& dual,
+			node vOrig, const EdgeArray<int>* pCostOrig, EdgeArray<int>* pCostCopy);
 
 	//! The StarInserter used to insert new nodes into the planarization.
 	StarInserter m_inserter;

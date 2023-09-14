@@ -30,8 +30,8 @@
  */
 
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/cluster/ClusterPlanarizationLayout.h>
 #include <ogdf/cluster/ClusterOrthoLayout.h>
+#include <ogdf/cluster/ClusterPlanarizationLayout.h>
 
 #include "layout_helpers.h"
 
@@ -41,7 +41,7 @@ class CPLMock : public LayoutModule {
 	ClusterPlanarizationLayout clusterPlanarizationLayout;
 
 public:
-	virtual void call(GraphAttributes &attr) override {
+	virtual void call(GraphAttributes& attr) override {
 		GraphCopy G(attr.constGraph());
 		ClusterGraph C(G);
 		ClusterGraphAttributes cAttr(C);
@@ -52,9 +52,9 @@ public:
 		node nodeInClique = G.newNode();
 		nodes.pushBack(nodeInClique);
 
-		for(int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			node w = G.newNode();
-			for(node v : nodes) {
+			for (node v : nodes) {
 				G.newEdge(v, w);
 			}
 			nodes.pushBack(w);
@@ -64,7 +64,7 @@ public:
 		// add path cluster
 		nodes.clear();
 		nodes.pushBack(G.newNode());
-		for(int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++) {
 			node w = G.newNode();
 			G.newEdge(nodes.back(), w);
 			nodes.pushBack(w);
@@ -80,14 +80,14 @@ public:
 		clusterPlanarizationLayout.call(G, cAttr, C);
 
 		for (node v : G.nodes) {
-			if(!G.isDummy(v)) {
+			if (!G.isDummy(v)) {
 				attr.x(G.original(v)) = cAttr.x(v);
 				attr.y(G.original(v)) = cAttr.y(v);
 			}
 		}
 
 		for (edge e : G.edges) {
-			if(!G.isDummy(e)) {
+			if (!G.isDummy(e)) {
 				attr.bends(G.original(e)) = cAttr.bends(e);
 			}
 		}
@@ -95,5 +95,7 @@ public:
 };
 
 go_bandit([] {
-	describeLayout<CPLMock>("ClusterPlanarizationLayout", 0, {GraphProperty::connected, GraphProperty::sparse, GraphProperty::simple}, true, GraphSizes(16, 32, 16));
+	describeLayout<CPLMock>("ClusterPlanarizationLayout", 0,
+			{GraphProperty::connected, GraphProperty::sparse, GraphProperty::simple}, true,
+			GraphSizes(16, 32, 16));
 });

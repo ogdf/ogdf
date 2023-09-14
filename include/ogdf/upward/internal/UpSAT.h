@@ -35,11 +35,12 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/external/Minisat.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
+
 #include <vector>
 
 namespace ogdf {
@@ -47,14 +48,15 @@ namespace ogdf {
 class UpSAT {
 public:
 	//constructor
-	explicit UpSAT(Graph &G);
-	UpSAT(GraphCopy &G, bool feasibleOriginalEdges);
+	explicit UpSAT(Graph& G);
+	UpSAT(GraphCopy& G, bool feasibleOriginalEdges);
+
 private:
 	class Comp;
 	//FLAGS
 	bool feasibleOriginalEdges;
 	//copy of the input graph
-	Graph &m_G;
+	Graph& m_G;
 	//number of clauses and variables
 	int numberOfVariables;
 	long long numberOfClauses;
@@ -62,19 +64,21 @@ private:
 	NodeArray<int> N;
 	EdgeArray<int> M;
 	//Dominating edges-pairs
-	EdgeArray< List<edge> > D;
+	EdgeArray<List<edge>> D;
 	//Variables of the formulation(s)
-	std::vector< std::vector<int> > tau;
-	std::vector< std::vector<int> > sigma;
-	std::vector< std::vector<int> > mu;
+	std::vector<std::vector<int>> tau;
+	std::vector<std::vector<int>> sigma;
+	std::vector<std::vector<int>> mu;
 	//Formula
 	Minisat::Formula m_F;
+
 public:
-	bool testUpwardPlanarity(NodeArray<int> *nodeOrder = nullptr);
-	bool embedUpwardPlanar(adjEntry& externalToItsRight,NodeArray<int> *nodeOrder = nullptr);
+	bool testUpwardPlanarity(NodeArray<int>* nodeOrder = nullptr);
+	bool embedUpwardPlanar(adjEntry& externalToItsRight, NodeArray<int>* nodeOrder = nullptr);
 	long long getNumberOfClauses();
 	int getNumberOfVariables();
 	void reset();
+
 private:
 	void computeDominatingEdges();
 	void computeTauVariables();
@@ -85,13 +89,13 @@ private:
 	void ruleUpward();
 	void rulePlanarity();
 	void ruleTutte();
-	void ruleFixed(const Minisat::Model &model);
-	void sortBySigma(List<adjEntry> &adjList, const Minisat::Model &model);
-	void embedFromModel(const Minisat::Model &model, adjEntry& externalToItsRight);
-	bool OE(bool embed, adjEntry& externalToItsRight, NodeArray<int> *nodeOrder);
-	bool FPSS(NodeArray<int> *nodeOrder); // cannot embed
-	bool HL(bool embed, adjEntry& externalToItsRight, NodeArray<int> *nodeOrder);
-	void writeNodeOrder(const Minisat::Model &model, NodeArray<int> *nodeOrder);
+	void ruleFixed(const Minisat::Model& model);
+	void sortBySigma(List<adjEntry>& adjList, const Minisat::Model& model);
+	void embedFromModel(const Minisat::Model& model, adjEntry& externalToItsRight);
+	bool OE(bool embed, adjEntry& externalToItsRight, NodeArray<int>* nodeOrder);
+	bool FPSS(NodeArray<int>* nodeOrder); // cannot embed
+	bool HL(bool embed, adjEntry& externalToItsRight, NodeArray<int>* nodeOrder);
+	void writeNodeOrder(const Minisat::Model& model, NodeArray<int>* nodeOrder);
 };
 
 }

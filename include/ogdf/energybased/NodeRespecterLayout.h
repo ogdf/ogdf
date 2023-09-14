@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/LayoutModule.h>
 
 namespace ogdf {
 
@@ -82,28 +82,26 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT NodeRespecterLayout : public LayoutModule
-{
-
+class OGDF_EXPORT NodeRespecterLayout : public LayoutModule {
 public:
 	//! Creates an instance of the NodeRespecterLayout.
 	NodeRespecterLayout();
 
 	//! Destroys an instance of the NodeRespecterLayout.
-	~NodeRespecterLayout(){}
+	~NodeRespecterLayout() { }
 
 	//! Calls the layout algorithm for the GraphAttributes \p attr.
-	virtual void call(GraphAttributes &attr) override;
+	virtual void call(GraphAttributes& attr) override;
 
 	//! Sets whether unnecessary edge bends should be filtered out in a
 	//! post-processing step.
 	enum class PostProcessingMode {
-		None,               //!< Keep all bends.
+		None, //!< Keep all bends.
 		KeepMultiEdgeBends, //!< Activate post-processing but keep all bends on
-		                    //!< multi-edges and self-loops (such that the
-		                    //!< corresponding edges are visible).
-		Complete            //!< Activate post-processing: Remove all bends that
-		                    //!< do not prevent edge-node intersections.
+		//!< multi-edges and self-loops (such that the
+		//!< corresponding edges are visible).
+		Complete //!< Activate post-processing: Remove all bends that
+		//!< do not prevent edge-node intersections.
 	};
 
 	//! \name Setters for Algorithm Parameters
@@ -343,38 +341,38 @@ private:
 	void freeData();
 
 	//! Creates bends in \p attr at the coordinates of dummy nodes in \p copy.
-	void createBends(const ArrayBuffer<edge> &origEdges, GraphAttributes &attr);
+	void createBends(const ArrayBuffer<edge>& origEdges, GraphAttributes& attr);
 
 	//! Computes new impulses and updates positions for random permutations
 	//! of \p nodes until #m_numberOfIterations iterations are over or
 	//! #m_globalTemperature drops below #m_minimalTemperature.
-	void updateNodeLoop(SListPure<node> &nodes);
+	void updateNodeLoop(SListPure<node>& nodes);
 
 	//! Returns the new impulse for node \p v.
-	std::pair<double,double> computeImpulse(node v);
+	std::pair<double, double> computeImpulse(node v);
 
 	//! Updates the node data for node \p v using \p newImpulse as the x- and
 	//! y-coordinate of the new impulse onto \p v.
-	void updateNode(node v, std::pair<double,double> newImpulse);
+	void updateNode(node v, std::pair<double, double> newImpulse);
 
 	//! Adds dummy nodes to incident edges of \p v if they are too long.
-	void addDummies(node v, SListPure<node> &nodes);
+	void addDummies(node v, SListPure<node>& nodes);
 
 	//! Returns the radius of the smallest circle surrounding the shape of \p v
 	//! (while still having its center at the position of \p v).
-	inline double radius(const GraphAttributes &attr, node v) const {
+	inline double radius(const GraphAttributes& attr, node v) const {
 		switch (attr.shape(v)) {
-			case Shape::Pentagon:
-			case Shape::Octagon:
-			case Shape::Hexagon:
-			case Shape::Rhomb:
-			case Shape::Ellipse:
-				return std::max(attr.height(v), attr.width(v)) / 2.0;
+		case Shape::Pentagon:
+		case Shape::Octagon:
+		case Shape::Hexagon:
+		case Shape::Rhomb:
+		case Shape::Ellipse:
+			return std::max(attr.height(v), attr.width(v)) / 2.0;
 
-			default:
-				// For Rect, RoundedRect, Triangle, Trapeze, Parallelogram, InvTriangle,
-				// InvTrapeze, InvParallelogram, Image and unknown shapes.
-				return std::hypot(attr.height(v), attr.width(v)) / 2.0;
+		default:
+			// For Rect, RoundedRect, Triangle, Trapeze, Parallelogram, InvTriangle,
+			// InvTrapeze, InvParallelogram, Image and unknown shapes.
+			return std::hypot(attr.height(v), attr.width(v)) / 2.0;
 		}
 	}
 
@@ -384,8 +382,8 @@ private:
 	//! returns false.
 	inline bool haveSameOriginalEdge(node v, node w) const {
 		if (m_copy.isDummy(v) && m_copy.isDummy(w)) {
-			return m_copy.original(v->firstAdj()->theEdge()) ==
-			       m_copy.original(w->firstAdj()->theEdge());
+			return m_copy.original(v->firstAdj()->theEdge())
+					== m_copy.original(w->firstAdj()->theEdge());
 		} else if (m_copy.isDummy(v)) {
 			return m_copy.original(v->firstAdj()->theEdge())->isIncident(w);
 		} else if (m_copy.isDummy(w)) {
@@ -396,9 +394,7 @@ private:
 	}
 
 	//! Returns the weight of node \p v according to its degree.
-	inline double weight(node v) const {
-		return v->degree() / m_degreeSum;
-	}
+	inline double weight(node v) const { return v->degree() / m_degreeSum; }
 
 	OGDF_NEW_DELETE
 };

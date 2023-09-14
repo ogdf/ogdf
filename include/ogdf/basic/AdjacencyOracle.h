@@ -50,7 +50,7 @@ public:
 	 * Builds the bottom-left part of an adjacency matrix for the subset of nodes
 	 * with degree above \p degreeThreshold.
 	 */
-	explicit AdjacencyOracle(const Graph &G, int degreeThreshold = 32);
+	explicit AdjacencyOracle(const Graph& G, int degreeThreshold = 32);
 
 	//! The destructor
 	~AdjacencyOracle() { }

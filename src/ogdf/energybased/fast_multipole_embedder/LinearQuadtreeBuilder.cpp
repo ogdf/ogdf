@@ -35,11 +35,11 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-void LinearQuadtreeBuilder::prepareNodeAndLeaf(LinearQuadtree::PointID leafPos, LinearQuadtree::PointID nextLeafPos)
-{
+void LinearQuadtreeBuilder::prepareNodeAndLeaf(LinearQuadtree::PointID leafPos,
+		LinearQuadtree::PointID nextLeafPos) {
 	numLeaves++;
 	// first init the leaf on its layer
-	tree.initLeaf(leafPos, leafPos, nextLeafPos-leafPos, nextLeafPos);
+	tree.initLeaf(leafPos, leafPos, nextLeafPos - leafPos, nextLeafPos);
 	// second the node on the inner node layer
 	tree.initInnerNode(leafPos + n, leafPos, nextLeafPos, CAL(leafPos, nextLeafPos), nextLeafPos + n);
 
@@ -47,19 +47,15 @@ void LinearQuadtreeBuilder::prepareNodeAndLeaf(LinearQuadtree::PointID leafPos, 
 	lastLeaf = leafPos;
 }
 
-
-void LinearQuadtreeBuilder::prepareTree(LinearQuadtree::PointID begin,  LinearQuadtree::PointID end)
-{
+void LinearQuadtreeBuilder::prepareTree(LinearQuadtree::PointID begin, LinearQuadtree::PointID end) {
 	LinearQuadtree::PointID i = begin;
 	firstLeaf = begin;
-	firstInner = firstLeaf+n;
+	firstInner = firstLeaf + n;
 	numLeaves = 0;
 	numInnerNodes = 0;
-	while (i<end)
-	{
+	while (i < end) {
 		LinearQuadtree::PointID leafPos = i;
-		while ((i<end) && (tree.mortonNr(leafPos) == tree.mortonNr(i)))
-		{
+		while ((i < end) && (tree.mortonNr(leafPos) == tree.mortonNr(i))) {
 			tree.setPointLeaf(i, leafPos);
 			i++;
 		}
@@ -67,47 +63,33 @@ void LinearQuadtreeBuilder::prepareTree(LinearQuadtree::PointID begin,  LinearQu
 	}
 }
 
+void LinearQuadtreeBuilder::prepareTree() { prepareTree(0, n); }
 
-void LinearQuadtreeBuilder::prepareTree()
-{
-	prepareTree(0, n);
-}
-
-
-void LinearQuadtreeBuilder::mergeWithNext(LinearQuadtree::NodeID curr)
-{
+void LinearQuadtreeBuilder::mergeWithNext(LinearQuadtree::NodeID curr) {
 	LinearQuadtree::NodeID next = tree.nextNode(curr);
-	for (uint32_t i = 1; i < tree.numberOfChilds(next); i++)
-	{
+	for (uint32_t i = 1; i < tree.numberOfChilds(next); i++) {
 		tree.setChild(curr, tree.numberOfChilds(curr), tree.child(next, i));
-		tree.setNumberOfChilds(curr, tree.numberOfChilds(curr)+1);
+		tree.setNumberOfChilds(curr, tree.numberOfChilds(curr) + 1);
 	}
 	tree.setNextNode(curr, tree.nextNode(next));
 }
 
-
-LinearQuadtree::NodeID LinearQuadtreeBuilder::buildHierarchy(LinearQuadtree::NodeID curr, uint32_t maxLevel)
-{
-	while ((tree.nextNode(curr)!=lastInner) && (tree.level(tree.nextNode(curr)) < maxLevel))
-	{
+LinearQuadtree::NodeID LinearQuadtreeBuilder::buildHierarchy(LinearQuadtree::NodeID curr,
+		uint32_t maxLevel) {
+	while ((tree.nextNode(curr) != lastInner) && (tree.level(tree.nextNode(curr)) < maxLevel)) {
 		LinearQuadtree::NodeID curr_next = tree.nextNode(curr);
-		if (tree.level(curr) == tree.level(curr_next))
-		{
+		if (tree.level(curr) == tree.level(curr_next)) {
 			mergeWithNext(curr);
-		}
-		else
-		if (tree.level(curr) < tree.level(curr_next))
-		{
+		} else if (tree.level(curr) < tree.level(curr_next)) {
 			tree.setChild(curr_next, 0, curr);
 #if 0
 			pushBackChain(curr);
 #endif
 			curr = curr_next;
-		}
-		else // if tree.level(curr) > tree.level(curr_next)
+		} else // if tree.level(curr) > tree.level(curr_next)
 		{
 			LinearQuadtree::NodeID right_node = buildHierarchy(curr_next, tree.level(curr));
-			tree.setChild(curr, tree.numberOfChilds(curr)-1, right_node);
+			tree.setChild(curr, tree.numberOfChilds(curr) - 1, right_node);
 			tree.setNextNode(curr, tree.nextNode(right_node));
 		}
 	}
@@ -117,17 +99,13 @@ LinearQuadtree::NodeID LinearQuadtreeBuilder::buildHierarchy(LinearQuadtree::Nod
 	return curr;
 }
 
-
-void LinearQuadtreeBuilder::buildHierarchy()
-{
+void LinearQuadtreeBuilder::buildHierarchy() {
 	tree.clear();
 	restoreChainLastNode = 0;
 	tree.m_root = buildHierarchy(n, 128);
 }
 
-
-void LinearQuadtreeBuilder::build()
-{
+void LinearQuadtreeBuilder::build() {
 	numInnerNodes = 0;
 	buildHierarchy();
 	restoreChain();

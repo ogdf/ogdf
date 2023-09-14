@@ -32,11 +32,9 @@
 
 #include <ogdf/decomposition/BCTree.h>
 
-
 namespace ogdf {
 
-void BCTree::initBasic(node vG)
-{
+void BCTree::initBasic(node vG) {
 	m_numB = 0;
 	m_numC = 0;
 
@@ -64,8 +62,7 @@ void BCTree::initBasic(node vG)
 	biComp(nullptr, vG);
 }
 
-void BCTree::initEdges()
-{
+void BCTree::initEdges() {
 	// first clear temporaries
 	m_number.init();
 	m_lowpt.init();
@@ -81,15 +78,12 @@ void BCTree::initEdges()
 	}
 }
 
-void BCTree::init (node vG)
-{
+void BCTree::init(node vG) {
 	initBasic(vG);
 	initEdges();
 }
 
-
-void BCTree::initNotConnected (node vG)
-{
+void BCTree::initNotConnected(node vG) {
 	initBasic(vG);
 
 	// call biComp for all nodes that are not in the
@@ -104,9 +98,7 @@ void BCTree::initNotConnected (node vG)
 	initEdges();
 }
 
-
-void BCTree::initNotConnected (List<node> &vG)
-{
+void BCTree::initNotConnected(List<node>& vG) {
 	auto it = vG.begin();
 	initBasic(*it);
 	it++;
@@ -121,22 +113,24 @@ void BCTree::initNotConnected (List<node> &vG)
 	initEdges();
 }
 
-
-void BCTree::biComp (adjEntry adjuG, node vG)
-{
+void BCTree::biComp(adjEntry adjuG, node vG) {
 	m_lowpt[vG] = m_number[vG] = ++m_count;
 
-	for(adjEntry adj : vG->adjEntries) {
+	for (adjEntry adj : vG->adjEntries) {
 #if 0
 		edge eG = adj->theEdge();
 #endif
 		node wG = adj->twinNode();
-		if ((adjuG != nullptr) && (adj == adjuG->twin())) continue;
-		if (m_number[wG]==0) {
+		if ((adjuG != nullptr) && (adj == adjuG->twin())) {
+			continue;
+		}
+		if (m_number[wG] == 0) {
 			m_eStack.push(adj);
-			biComp(adj,wG);
-			if (m_lowpt[wG]<m_lowpt[vG]) m_lowpt[vG] = m_lowpt[wG];
-			if (m_lowpt[wG]>=m_number[vG]) {
+			biComp(adj, wG);
+			if (m_lowpt[wG] < m_lowpt[vG]) {
+				m_lowpt[vG] = m_lowpt[wG];
+			}
+			if (m_lowpt[wG] >= m_number[vG]) {
 				node bB = m_B.newNode();
 				m_bNode_type[bB] = BNodeType::BComp;
 				m_bNode_isMarked[bB] = false;
@@ -148,9 +142,11 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 				do {
 					adjfG = m_eStack.popRet();
 					edge fG = adjfG->theEdge();
-					for (int i=0; i<=1; ++i) {
+					for (int i = 0; i <= 1; ++i) {
 						node xG = i ? fG->target() : fG->source();
-						if (m_gNode_isMarked[xG]) continue;
+						if (m_gNode_isMarked[xG]) {
+							continue;
+						}
 						m_gNode_isMarked[xG] = true;
 						m_nodes.pushBack(xG);
 						m_bNode_numNodes[bB]++;
@@ -159,8 +155,9 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 						m_hNode_gNode[zH] = xG;
 						m_gtoh[xG] = zH;
 						node xH = m_gNode_hNode[xG];
-						if (!xH) m_gNode_hNode[xG] = zH;
-						else {
+						if (!xH) {
+							m_gNode_hNode[xG] = zH;
+						} else {
 							node xB = m_hNode_bNode[xH];
 							if (!m_bNode_hRefNode[xB]) {
 								node cB = m_B.newNode();
@@ -176,8 +173,7 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 								m_bNode_hParNode[cB] = zH;
 								m_bNode_numNodes[cB] = 1;
 								m_numC++;
-							}
-							else {
+							} else {
 								node yH = m_bNode_hParNode[xB];
 								node yB = m_hNode_bNode[yH];
 								m_bNode_hParNode[yB] = xH;
@@ -186,106 +182,147 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 							}
 						}
 					}
-					edge fH = m_H.newEdge(m_gtoh[fG->source()],m_gtoh[fG->target()]);
+					edge fH = m_H.newEdge(m_gtoh[fG->source()], m_gtoh[fG->target()]);
 					m_bNode_hEdges[bB].pushBack(fH);
 					m_hEdge_bNode[fH] = bB;
 					m_hEdge_gEdge[fH] = fG;
 					m_gEdge_hEdge[fG] = fH;
-				} while (adj!=adjfG);
-				while (!m_nodes.empty()) m_gNode_isMarked[m_nodes.popFrontRet()] = false;
+				} while (adj != adjfG);
+				while (!m_nodes.empty()) {
+					m_gNode_isMarked[m_nodes.popFrontRet()] = false;
+				}
 			}
-		}
-		else if (m_number[wG]<m_number[vG]) {
+		} else if (m_number[wG] < m_number[vG]) {
 			m_eStack.push(adj);
-			if (m_number[wG]<m_lowpt[vG]) m_lowpt[vG] = m_number[wG];
+			if (m_number[wG] < m_lowpt[vG]) {
+				m_lowpt[vG] = m_number[wG];
+			}
 		}
 	}
 }
 
-
-node BCTree::parent (node vB) const
-{
-	if (!vB) return nullptr;
+node BCTree::parent(node vB) const {
+	if (!vB) {
+		return nullptr;
+	}
 	node vH = m_bNode_hParNode[vB];
-	if (!vH) return nullptr;
+	if (!vH) {
+		return nullptr;
+	}
 	return m_hNode_bNode[vH];
 }
 
-
-node BCTree::bComponent (node uG, node vG) const
-{
+node BCTree::bComponent(node uG, node vG) const {
 	node uB = bcproper(uG);
 	node vB = bcproper(vG);
-	if (uB==vB) return uB;
-	if (typeOfBNode(uB)==BNodeType::BComp) {
-		if (typeOfBNode(vB)==BNodeType::BComp) return nullptr;
-		if (parent(uB)==vB) return uB;
-		if (parent(vB)==uB) return uB;
+	if (uB == vB) {
+		return uB;
+	}
+	if (typeOfBNode(uB) == BNodeType::BComp) {
+		if (typeOfBNode(vB) == BNodeType::BComp) {
+			return nullptr;
+		}
+		if (parent(uB) == vB) {
+			return uB;
+		}
+		if (parent(vB) == uB) {
+			return uB;
+		}
 		return nullptr;
 	}
-	if (typeOfBNode(vB)==BNodeType::BComp) {
-		if (parent(uB)==vB) return vB;
-		if (parent(vB)==uB) return vB;
+	if (typeOfBNode(vB) == BNodeType::BComp) {
+		if (parent(uB) == vB) {
+			return vB;
+		}
+		if (parent(vB) == uB) {
+			return vB;
+		}
 		return nullptr;
 	}
 	node pB = parent(uB);
 	node qB = parent(vB);
-	if (pB==qB) return pB;
-	if (parent(pB)==vB) return pB;
-	if (parent(qB)==uB) return qB;
+	if (pB == qB) {
+		return pB;
+	}
+	if (parent(pB) == vB) {
+		return pB;
+	}
+	if (parent(qB) == uB) {
+		return qB;
+	}
 	return nullptr;
 }
 
-
-node BCTree::findNCA (node uB, node vB) const
-{
-	if (m_bNode_isMarked[uB]) return uB;
+node BCTree::findNCA(node uB, node vB) const {
+	if (m_bNode_isMarked[uB]) {
+		return uB;
+	}
 	m_bNode_isMarked[uB] = true;
 	node wB = parent(uB);
-	if (wB) wB = findNCA(vB,wB);
-	else for (wB=vB; !m_bNode_isMarked[wB]; wB=parent(wB));
+	if (wB) {
+		wB = findNCA(vB, wB);
+	} else {
+		for (wB = vB; !m_bNode_isMarked[wB]; wB = parent(wB)) {
+			;
+		}
+	}
 	m_bNode_isMarked[uB] = false;
 	return wB;
 }
 
-
-SList<node>& BCTree::findPath (node sG, node tG) const
-{
+SList<node>& BCTree::findPath(node sG, node tG) const {
 	SList<node>& pB = *new SList<node>;
 	node sB = bcproper(sG);
 	node tB = bcproper(tG);
-	node nB = findNCA(sB,tB);
-	for (pB.pushBack(sB); sB!=nB; pB.pushBack(sB)) sB = parent(sB);
-	for (SListIterator<node> iB=pB.backIterator(); tB!=nB; tB=parent(tB)) pB.insertAfter(tB,iB);
+	node nB = findNCA(sB, tB);
+	for (pB.pushBack(sB); sB != nB; pB.pushBack(sB)) {
+		sB = parent(sB);
+	}
+	for (SListIterator<node> iB = pB.backIterator(); tB != nB; tB = parent(tB)) {
+		pB.insertAfter(tB, iB);
+	}
 	return pB;
 }
 
-
-SList<node>* BCTree::findPathBCTree (node sB, node tB) const
-{
-	SList<node> *pB = new SList<node>;
-	node nB = findNCA(sB,tB);
-	for (pB->pushBack(sB); sB!=nB; pB->pushBack(sB)) sB = parent(sB);
-	for (SListIterator<node> iB=pB->backIterator(); tB!=nB; tB=parent(tB)) pB->insertAfter(tB,iB);
+SList<node>* BCTree::findPathBCTree(node sB, node tB) const {
+	SList<node>* pB = new SList<node>;
+	node nB = findNCA(sB, tB);
+	for (pB->pushBack(sB); sB != nB; pB->pushBack(sB)) {
+		sB = parent(sB);
+	}
+	for (SListIterator<node> iB = pB->backIterator(); tB != nB; tB = parent(tB)) {
+		pB->insertAfter(tB, iB);
+	}
 	return pB;
 }
 
-
-node BCTree::repVertex (node uG, node vB) const
-{
+node BCTree::repVertex(node uG, node vB) const {
 	node uB = bcproper(uG);
-	if (uB==vB) return m_gNode_hNode[uG];
-	if (typeOfBNode(uB)==BNodeType::BComp) return nullptr;
-	if (parent(uB)==vB) return m_bNode_hParNode[uB];
-	if (uB==parent(vB)) return m_bNode_hRefNode[vB];
+	if (uB == vB) {
+		return m_gNode_hNode[uG];
+	}
+	if (typeOfBNode(uB) == BNodeType::BComp) {
+		return nullptr;
+	}
+	if (parent(uB) == vB) {
+		return m_bNode_hParNode[uB];
+	}
+	if (uB == parent(vB)) {
+		return m_bNode_hRefNode[vB];
+	}
 	return nullptr;
 }
 
-node BCTree::cutVertex (node uB, node vB) const
-{
-	if (uB==vB) return typeOfBNode(uB)==BNodeType::CComp ? m_bNode_hRefNode[vB] : nullptr;
-	if (parent(uB)==vB) return m_bNode_hParNode[uB];
-	if (uB==parent(vB)) return m_bNode_hRefNode[vB];
+node BCTree::cutVertex(node uB, node vB) const {
+	if (uB == vB) {
+		return typeOfBNode(uB) == BNodeType::CComp ? m_bNode_hRefNode[vB] : nullptr;
+	}
+	if (parent(uB) == vB) {
+		return m_bNode_hParNode[uB];
+	}
+	if (uB == parent(vB)) {
+		return m_bNode_hRefNode[vB];
+	}
 	return nullptr;
 }
 

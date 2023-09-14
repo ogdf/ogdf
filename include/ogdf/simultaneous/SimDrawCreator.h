@@ -33,8 +33,7 @@
 
 #include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
-namespace ogdf
-{
+namespace ogdf {
 //! Creates variety of possible SimDraw creations
 /**
  * This class is used for creating simdraw instances.
@@ -42,21 +41,19 @@ namespace ogdf
  * or clearing the edgeSubgraph value and changing the subGraphBits.
  */
 
-class OGDF_EXPORT SimDrawCreator : public SimDrawManipulatorModule
-{
-
+class OGDF_EXPORT SimDrawCreator : public SimDrawManipulatorModule {
 public:
 	//! constructor
-	explicit SimDrawCreator(SimDraw &SD) : SimDrawManipulatorModule(SD) {}
+	explicit SimDrawCreator(SimDraw& SD) : SimDrawManipulatorModule(SD) { }
 
 	//! returns SubGraphBits from edge e
-	uint32_t &SubGraphBits(edge e) { return m_GA->subGraphBits(e); }
+	uint32_t& SubGraphBits(edge e) { return m_GA->subGraphBits(e); }
 
 	//! returns SubGraphBits from edge e
-	uint32_t &SubGraphBits(edge e) const { return m_GA->subGraphBits(e); }
+	uint32_t& SubGraphBits(edge e) const { return m_GA->subGraphBits(e); }
 
 	//! reads a Graph
-	void readGraph(const Graph &G) { *m_G = G; }
+	void readGraph(const Graph& G) { *m_G = G; }
 
 	//! randomly chose edgeSubGraphs value for two graphs
 	/**
@@ -106,7 +103,6 @@ public:
 	* to generate \p numberOfBasicGraphs basic graphs.
 	*/
 	void createRandom(int numberOfNodes, int numberOfEdges, int numberOfBasicGraphs);
-
 };
 
 }

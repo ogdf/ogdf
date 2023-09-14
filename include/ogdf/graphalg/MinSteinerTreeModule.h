@@ -33,14 +33,15 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/energybased/FMMMLayout.h>
-#include <ogdf/graphalg/Dijkstra.h>
-#include <ogdf/graphalg/steiner_tree/Triple.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/AStarSearch.h>
+#include <ogdf/graphalg/Dijkstra.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/Triple.h>
+
 #include <sstream>
 
 namespace ogdf {
@@ -70,11 +71,8 @@ public:
 	 * @param finalSteinerTree The final Steiner tree
 	 * @return The total cost of the final Steiner tree
 	 */
-	virtual T call(const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			EdgeWeightedGraphCopy<T> *&finalSteinerTree
-			);
+	virtual T call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree);
 
 	//! @name Auxiliary post-processing functions
 	//! @{
@@ -86,7 +84,8 @@ public:
 	 * @param isTerminal Incidence vector indicating terminal nodes
 	 * @return The total cost of the removed edges (achieved improvement)
 	 */
-	static T pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal);
+	static T pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T>& steinerTree,
+			const NodeArray<bool>& isTerminal);
 
 	/**
 	 * Prunes the dangling Steiner path beginning at a given nonterminal leaf only
@@ -96,21 +95,24 @@ public:
 	 * @param start A nonterminal leaf to start pruning at
 	 * @return The total cost of the removed edges (achieved improvement)
 	 */
-	static T pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, node start);
+	static T pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T>& steinerTree,
+			const NodeArray<bool>& isTerminal, node start);
 
 	/**
 	 * Prunes dangling Steiner paths beginning at given nonterminal leaves only
 	 *
 	 * @see pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, node start)
 	 */
-	static T pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const List<node> &start);
+	static T pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T>& steinerTree,
+			const NodeArray<bool>& isTerminal, const List<node>& start);
 
 	/**
 	 * Remove remaining cycles from a Steiner "almost" tree
 	 *
 	 * @return The edge weights of the removed edges (achieved improvement)
 	 */
-	static T removeCyclesFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal);
+	static T removeCyclesFrom(EdgeWeightedGraphCopy<T>& steinerTree,
+			const NodeArray<bool>& isTerminal);
 
 	//! @}
 	//! @name Special SSSP and APSP algorithms used in component-based approximation algorithms
@@ -131,10 +133,13 @@ public:
 	 * @param distance Distance matrix result
 	 * @param pred Resulting shortest path such that \p pred[s][t] contains last edge of an s-t-path
 	 */
-	static void singleSourceShortestPathsPreferringTerminals(const EdgeWeightedGraph<T> &G, node source, const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred);
+	static void singleSourceShortestPathsPreferringTerminals(const EdgeWeightedGraph<T>& G,
+			node source, const NodeArray<bool>& isTerminal, NodeArray<T>& distance,
+			NodeArray<edge>& pred);
 
 	//! Standard single-source-shortest-paths algoritm (%Dijkstra)
-	static void singleSourceShortestPathsStandard(const EdgeWeightedGraph<T>& G, node source, const NodeArray<bool>&, NodeArray<T>& distance, NodeArray<edge>& pred) {
+	static void singleSourceShortestPathsStandard(const EdgeWeightedGraph<T>& G, node source,
+			const NodeArray<bool>&, NodeArray<T>& distance, NodeArray<edge>& pred) {
 		Dijkstra<T> sssp;
 		sssp.call(G, G.edgeWeights(), source, pred, distance);
 	}
@@ -151,66 +156,54 @@ public:
 	}
 
 	//! Runs #singleSourceShortestPathsStandard from all terminals
-	static void allTerminalShortestPathsStandard(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred)
-	{
-		allTerminalShortestPaths(G, terminals, isTerminal, distance, pred, singleSourceShortestPathsStandard);
+	static void allTerminalShortestPathsStandard(const EdgeWeightedGraph<T>& G,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
+		allTerminalShortestPaths(G, terminals, isTerminal, distance, pred,
+				singleSourceShortestPathsStandard);
 	}
 
 	//! Runs #singleSourceShortestPathsPreferringTerminals from all terminals
-	static void allTerminalShortestPathsPreferringTerminals(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred)
-	{
-		allTerminalShortestPaths(G, terminals, isTerminal, distance, pred, singleSourceShortestPathsPreferringTerminals);
+	static void allTerminalShortestPathsPreferringTerminals(const EdgeWeightedGraph<T>& G,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
+		allTerminalShortestPaths(G, terminals, isTerminal, distance, pred,
+				singleSourceShortestPathsPreferringTerminals);
 	}
 
 	//! Runs a given (or the default) single-source-shortest-paths function from all terminals
-	static void allTerminalShortestPaths(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred,
-			std::function<void(const EdgeWeightedGraph<T>&, node, const NodeArray<bool>&, NodeArray<T>&, NodeArray<edge>&)> ssspFunc = singleSourceShortestPaths) {
+	static void allTerminalShortestPaths(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, NodeArray<NodeArray<T>>& distance,
+			NodeArray<NodeArray<edge>>& pred,
+			std::function<void(const EdgeWeightedGraph<T>&, node, const NodeArray<bool>&,
+					NodeArray<T>&, NodeArray<edge>&)>
+					ssspFunc = singleSourceShortestPaths) {
 		allNodesByListShortestPaths(G, terminals, isTerminal, terminals, distance, pred, ssspFunc);
 	}
 
 	//! Runs #singleSourceShortestPathsStandard from all nodes
-	static void allNodeShortestPathsStandard(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred) {
-		allNodeShortestPaths(G, terminals, isTerminal, distance, pred, singleSourceShortestPathsStandard);
+	static void allNodeShortestPathsStandard(const EdgeWeightedGraph<T>& G,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
+		allNodeShortestPaths(G, terminals, isTerminal, distance, pred,
+				singleSourceShortestPathsStandard);
 	}
 
 	//! Runs #singleSourceShortestPathsPreferringTerminals from all nodes
-	static void allNodeShortestPathsPreferringTerminals(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred) {
-		allNodeShortestPaths(G, terminals, isTerminal, distance, pred, singleSourceShortestPathsPreferringTerminals);
+	static void allNodeShortestPathsPreferringTerminals(const EdgeWeightedGraph<T>& G,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
+		allNodeShortestPaths(G, terminals, isTerminal, distance, pred,
+				singleSourceShortestPathsPreferringTerminals);
 	}
 
 	//! Runs a given (or the default) single-source-shortest-paths function from all nodes
-	static void allNodeShortestPaths(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred,
-			std::function<void(const EdgeWeightedGraph<T>&, node, const NodeArray<bool>&, NodeArray<T>&, NodeArray<edge>&)> ssspFunc = singleSourceShortestPaths) {
+	static void allNodeShortestPaths(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, NodeArray<NodeArray<T>>& distance,
+			NodeArray<NodeArray<edge>>& pred,
+			std::function<void(const EdgeWeightedGraph<T>&, node, const NodeArray<bool>&,
+					NodeArray<T>&, NodeArray<edge>&)>
+					ssspFunc = singleSourceShortestPaths) {
 		allNodesByListShortestPaths(G, terminals, isTerminal, G.nodes, distance, pred, ssspFunc);
 	}
 
@@ -223,14 +216,18 @@ public:
 	 * @param distance Distance matrix result
 	 * @param pred Resulting shortest path such that \p pred[s][t] contains last edge of an s-t-path
 	 */
-	static void allPairShortestPathsPreferringTerminals(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred);
+	static void allPairShortestPathsPreferringTerminals(const EdgeWeightedGraph<T>& G,
+			const NodeArray<bool>& isTerminal, NodeArray<NodeArray<T>>& distance,
+			NodeArray<NodeArray<edge>>& pred);
 
 	//! Standard all-pair-shortest-paths algorithm (%Floyd-Warshall)
-	static void allPairShortestPathsStandard(const EdgeWeightedGraph<T>& G, const NodeArray<bool>&, NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred);
+	static void allPairShortestPathsStandard(const EdgeWeightedGraph<T>& G, const NodeArray<bool>&,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred);
 
 	//! The default all-pair-shortest-paths algorithm
 	//! @sa #allPairShortestPathsPreferringTerminals, #allPairShortestPathsStandard
-	static void allPairShortestPaths(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal, NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
+	static void allPairShortestPaths(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
 #ifdef OGDF_MINSTEINERTREEMODULE_SHORTEST_PATHS_STANDARD
 		allPairShortestPathsStandard(G, isTerminal, distance, pred);
 #else
@@ -250,7 +247,8 @@ public:
 	 * @param steinerTree The Steiner tree of the given graph
 	 * @param filename The name of the output file
 	 */
-	static void drawSVG(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const EdgeWeightedGraphCopy<T> &steinerTree, const char *filename);
+	static void drawSVG(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal,
+			const EdgeWeightedGraphCopy<T>& steinerTree, const char* filename);
 
 	/**
 	 * Writes an SVG file of the instance graph
@@ -259,7 +257,8 @@ public:
 	 * @param isTerminal Incidence vector indicating terminal nodes
 	 * @param filename The name of the output file
 	 */
-	static void drawSVG(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const char *filename) {
+	static void drawSVG(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal,
+			const char* filename) {
 		EdgeWeightedGraphCopy<T> emptySteinerTree;
 		emptySteinerTree.createEmpty(G);
 		drawSVG(G, isTerminal, emptySteinerTree, filename);
@@ -272,7 +271,8 @@ public:
 	 * @param isTerminal Incidence vector indicating terminal nodes
 	 * @param filename The name of the output file
 	 */
-	static void drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const char *filename);
+	static void drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T>& steinerTree,
+			const NodeArray<bool>& isTerminal, const char* filename);
 
 	//! @}
 
@@ -285,7 +285,8 @@ public:
 	 * @param steinerTree The Steiner tree to be checked
 	 * @return true iff the given Steiner tree is actually one, false otherwise
 	 */
-	static bool isSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, const EdgeWeightedGraphCopy<T> &steinerTree);
+	static bool isSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, const EdgeWeightedGraphCopy<T>& steinerTree);
 
 	/**
 	 * Checks in O(n + m) time if a given Steiner tree problem instance is quasi-bipartite
@@ -294,7 +295,7 @@ public:
 	 * @param isTerminal A bool array of terminals
 	 * @return true iff the given Steiner tree problem instance is quasi-bipartite
 	 */
-	static bool isQuasiBipartite(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal);
+	static bool isQuasiBipartite(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal);
 
 	/**
 	 * Generates a list (as List<node>) of all terminals
@@ -303,8 +304,8 @@ public:
 	 * @param G The weighted input graph
 	 * @param isTerminal A bool array of terminals
 	 */
-	static inline void getTerminals(List<node> &terminals, const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal)
-	{
+	static inline void getTerminals(List<node>& terminals, const EdgeWeightedGraph<T>& G,
+			const NodeArray<bool>& isTerminal) {
 		for (node v : G.nodes) {
 			if (isTerminal[v]) {
 				terminals.pushBack(v);
@@ -313,8 +314,7 @@ public:
 	}
 
 	//! Sort terminals by index
-	static inline void sortTerminals(List<node> &terminals)
-	{
+	static inline void sortTerminals(List<node>& terminals) {
 		terminals.quicksort(GenericComparer<node, int>([](node v) { return v->index(); }));
 	}
 
@@ -325,8 +325,8 @@ public:
 	 * @param G The weighted input graph
 	 * @param isTerminal A bool array of terminals
 	 */
-	static inline void getNonterminals(ArrayBuffer<node> &nonterminals, const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal)
-	{
+	static inline void getNonterminals(ArrayBuffer<node>& nonterminals,
+			const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal) {
 		for (node v : G.nodes) {
 			if (!isTerminal[v]) {
 				nonterminals.push(v);
@@ -340,21 +340,20 @@ protected:
 	 *
 	 * @return The total cost of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(const EdgeWeightedGraph<T> &G,
-	    const List<node> &terminals,
-	    const NodeArray<bool> &isTerminal,
-	    EdgeWeightedGraphCopy<T> *&finalSteinerTree
-	  ) = 0;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) = 0;
 
 private:
 	//! Common initialization routine for APSP algorithms
-	static void apspInit(const EdgeWeightedGraph<T> &G, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred);
+	static void apspInit(const EdgeWeightedGraph<T>& G, NodeArray<NodeArray<T>>& distance,
+			NodeArray<NodeArray<edge>>& pred);
 	//! Common initialization routine for SSSP algorithms
-	static void ssspInit(const EdgeWeightedGraph<T> &G, node source, PrioritizedMapQueue<node, T> &queue, NodeArray<T> &distance, NodeArray<edge> &pred);
+	static void ssspInit(const EdgeWeightedGraph<T>& G, node source,
+			PrioritizedMapQueue<node, T>& queue, NodeArray<T>& distance, NodeArray<edge>& pred);
 
 	//! The inner loop for APSP algorithm to avoid code duplication
-	inline static void apspInnerLoop(node v, const EdgeWeightedGraph<T> &G, NodeArray<NodeArray<T>> &distance, std::function<void(node, node, T)> func)
-	{
+	inline static void apspInnerLoop(node v, const EdgeWeightedGraph<T>& G,
+			NodeArray<NodeArray<T>>& distance, std::function<void(node, node, T)> func) {
 		for (node u : G.nodes) {
 			const T duv = distance[u][v];
 			if (duv < std::numeric_limits<T>::max()) {
@@ -369,14 +368,12 @@ private:
 
 	//! Runs a given (or the default) single-source-shortest-paths function from all \p nodes
 	template<typename NODELIST>
-	inline static void allNodesByListShortestPaths(
-			const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			const NODELIST& nodes,
-			NodeArray<NodeArray<T>> &distance,
-			NodeArray<NodeArray<edge>> &pred,
-			std::function<void(const EdgeWeightedGraph<T>&, node, const NodeArray<bool>&, NodeArray<T>&, NodeArray<edge>&)> ssspFunc) {
+	inline static void allNodesByListShortestPaths(const EdgeWeightedGraph<T>& G,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal, const NODELIST& nodes,
+			NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred,
+			std::function<void(const EdgeWeightedGraph<T>&, node, const NodeArray<bool>&,
+					NodeArray<T>&, NodeArray<edge>&)>
+					ssspFunc) {
 		distance.init(G);
 		pred.init(G);
 		for (node u : nodes) {
@@ -386,12 +383,8 @@ private:
 };
 
 template<typename T>
-T MinSteinerTreeModule<T>::call(const EdgeWeightedGraph<T> &G,
-			const List<node> &terminals,
-			const NodeArray<bool> &isTerminal,
-			EdgeWeightedGraphCopy<T> *&finalSteinerTree
-			)
-{
+T MinSteinerTreeModule<T>::call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+		const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	OGDF_ASSERT(isConnected(G));
 
 	if (terminals.size() > 2) {
@@ -424,19 +417,16 @@ T MinSteinerTreeModule<T>::call(const EdgeWeightedGraph<T> &G,
 }
 
 template<typename T>
-bool MinSteinerTreeModule<T>::isSteinerTree(
-	const EdgeWeightedGraph<T> &G,
-	const List<node> &terminals,
-	const NodeArray<bool> &isTerminal,
-	const EdgeWeightedGraphCopy<T> &steinerTree)
-{
+bool MinSteinerTreeModule<T>::isSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		const EdgeWeightedGraphCopy<T>& steinerTree) {
 	// the Steiner tree is actually a tree
 	if (!isTree(steinerTree)) {
 		return false;
 	}
 
 	// all terminal nodes are in the graph and have degree >= 1
-	for(node v : terminals) {
+	for (node v : terminals) {
 		const node u = steinerTree.copy(v);
 		if (!u || (terminals.size() > 1 && u->degree() < 1)) {
 			return false;
@@ -444,9 +434,8 @@ bool MinSteinerTreeModule<T>::isSteinerTree(
 	}
 
 	// all Steiner nodes are inner nodes
-	for(node u : steinerTree.nodes) {
-		if (!isTerminal[steinerTree.original(u)]
-		 && u->degree() <= 1) {
+	for (node u : steinerTree.nodes) {
+		if (!isTerminal[steinerTree.original(u)] && u->degree() <= 1) {
 			return false;
 		}
 	}
@@ -455,8 +444,8 @@ bool MinSteinerTreeModule<T>::isSteinerTree(
 }
 
 template<typename T>
-bool MinSteinerTreeModule<T>::isQuasiBipartite(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal)
-{
+bool MinSteinerTreeModule<T>::isQuasiBipartite(const EdgeWeightedGraph<T>& G,
+		const NodeArray<bool>& isTerminal) {
 	for (node v = G.firstNode(); v; v = v->succ()) {
 		if (!isTerminal[v]) {
 			for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
@@ -470,13 +459,12 @@ bool MinSteinerTreeModule<T>::isQuasiBipartite(const EdgeWeightedGraph<T> &G, co
 }
 
 template<typename T>
-T MinSteinerTreeModule<T>::pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const node start)
-{
+T MinSteinerTreeModule<T>::pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T>& steinerTree,
+		const NodeArray<bool>& isTerminal, const node start) {
 	OGDF_ASSERT(isConnected(steinerTree));
 	T delWeights(0);
 	node u = start;
-	while (u->degree() == 1
-	    && !isTerminal[steinerTree.original(u)]) {
+	while (u->degree() == 1 && !isTerminal[steinerTree.original(u)]) {
 		const adjEntry adj = u->firstAdj();
 		const node v = adj->twinNode();
 		delWeights += steinerTree.weight(adj->theEdge());
@@ -487,8 +475,8 @@ T MinSteinerTreeModule<T>::pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T>
 }
 
 template<typename T>
-T MinSteinerTreeModule<T>::pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const List<node> &start)
-{
+T MinSteinerTreeModule<T>::pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T>& steinerTree,
+		const NodeArray<bool>& isTerminal, const List<node>& start) {
 	T delWeights(0);
 	for (node v : start) {
 		delWeights += pruneDanglingSteinerPathFrom(steinerTree, isTerminal, v);
@@ -497,12 +485,11 @@ T MinSteinerTreeModule<T>::pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T
 }
 
 template<typename T>
-T MinSteinerTreeModule<T>::pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal)
-{
+T MinSteinerTreeModule<T>::pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T>& steinerTree,
+		const NodeArray<bool>& isTerminal) {
 	List<node> start;
 	for (node u : steinerTree.nodes) {
-		if (u->degree() == 1
-		 && !isTerminal[steinerTree.original(u)]) {
+		if (u->degree() == 1 && !isTerminal[steinerTree.original(u)]) {
 			start.pushBack(u);
 		}
 	}
@@ -511,8 +498,8 @@ T MinSteinerTreeModule<T>::pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T>
 }
 
 template<typename T>
-T MinSteinerTreeModule<T>::removeCyclesFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal)
-{
+T MinSteinerTreeModule<T>::removeCyclesFrom(EdgeWeightedGraphCopy<T>& steinerTree,
+		const NodeArray<bool>& isTerminal) {
 	if (steinerTree.numberOfEdges() > steinerTree.numberOfNodes() - 1) {
 		EdgeArray<bool> isInTree(steinerTree);
 		T oldCost(0);
@@ -532,15 +519,16 @@ T MinSteinerTreeModule<T>::removeCyclesFrom(EdgeWeightedGraphCopy<T> &steinerTre
 				steinerTree.delEdge(e);
 			}
 		}
-		newCost -= MinSteinerTreeModule<T>::pruneDanglingSteinerPathsFrom(steinerTree, isTerminal, pendant);
+		newCost -= MinSteinerTreeModule<T>::pruneDanglingSteinerPathsFrom(steinerTree, isTerminal,
+				pendant);
 		return oldCost - newCost;
 	}
 	return 0;
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::ssspInit(const EdgeWeightedGraph<T> &G, node source, PrioritizedMapQueue<node, T> &queue, NodeArray<T> &distance, NodeArray<edge> &pred)
-{
+void MinSteinerTreeModule<T>::ssspInit(const EdgeWeightedGraph<T>& G, node source,
+		PrioritizedMapQueue<node, T>& queue, NodeArray<T>& distance, NodeArray<edge>& pred) {
 	distance.init(G, std::numeric_limits<T>::max());
 	distance[source] = 0;
 
@@ -552,9 +540,9 @@ void MinSteinerTreeModule<T>::ssspInit(const EdgeWeightedGraph<T> &G, node sourc
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::singleSourceShortestPathsPreferringTerminals(const EdgeWeightedGraph<T> &G, node source,
-		const NodeArray<bool> &isTerminal, NodeArray<T> &distance, NodeArray<edge> &pred)
-{
+void MinSteinerTreeModule<T>::singleSourceShortestPathsPreferringTerminals(
+		const EdgeWeightedGraph<T>& G, node source, const NodeArray<bool>& isTerminal,
+		NodeArray<T>& distance, NodeArray<edge>& pred) {
 	PrioritizedMapQueue<node, T> queue(G);
 	ssspInit(G, source, queue, distance, pred);
 
@@ -565,7 +553,8 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsPreferringTerminals(const
 	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		node w = adj->twinNode();
-		if (distance[w] > G.weight(e)) { // this check is only necessary for multigraphs, otherwise this is always true
+		if (distance[w] > G.weight(
+					e)) { // this check is only necessary for multigraphs, otherwise this is always true
 			queue.decrease(w, (distance[w] = G.weight(e)));
 			pred[w] = e;
 		}
@@ -589,9 +578,7 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsPreferringTerminals(const
 			if (distance[w] > dist) {
 				queue.decrease(w, (distance[w] = dist));
 				setPredecessor(w, e);
-			} else
-			if (distance[w] == dist
-			 && pred[w] != nullptr) { // tie
+			} else if (distance[w] == dist && pred[w] != nullptr) { // tie
 				setPredecessor(w, e);
 			}
 		}
@@ -600,7 +587,8 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsPreferringTerminals(const
 
 template<typename T>
 void MinSteinerTreeModule<T>::allPairShortestPathsPreferringTerminals(const EdgeWeightedGraph<T>& G,
-		const NodeArray<bool>& isTerminal, NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
+		const NodeArray<bool>& isTerminal, NodeArray<NodeArray<T>>& distance,
+		NodeArray<NodeArray<edge>>& pred) {
 	apspInit(G, distance, pred);
 
 	for (node v : G.nodes) {
@@ -627,8 +615,8 @@ void MinSteinerTreeModule<T>::allPairShortestPathsPreferringTerminals(const Edge
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::apspInit(const EdgeWeightedGraph<T> &G, NodeArray<NodeArray<T>> &distance, NodeArray<NodeArray<edge>> &pred)
-{
+void MinSteinerTreeModule<T>::apspInit(const EdgeWeightedGraph<T>& G,
+		NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
 	distance.init(G);
 	pred.init(G);
 	for (node u : G.nodes) {
@@ -643,8 +631,8 @@ void MinSteinerTreeModule<T>::apspInit(const EdgeWeightedGraph<T> &G, NodeArray<
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::allPairShortestPathsStandard(const EdgeWeightedGraph<T>& G, const NodeArray<bool>&, NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred)
-{
+void MinSteinerTreeModule<T>::allPairShortestPathsStandard(const EdgeWeightedGraph<T>& G,
+		const NodeArray<bool>&, NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred) {
 	apspInit(G, distance, pred);
 
 	for (node v : G.nodes) {
@@ -662,15 +650,12 @@ void MinSteinerTreeModule<T>::allPairShortestPathsStandard(const EdgeWeightedGra
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const char *filename)
-{
+void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T>& steinerTree,
+		const NodeArray<bool>& isTerminal, const char* filename) {
 	GraphAttributes GA(steinerTree,
-	  GraphAttributes::nodeGraphics |
-	  GraphAttributes::nodeStyle |
-	  GraphAttributes::nodeLabel |
-	  GraphAttributes::edgeGraphics |
-	  GraphAttributes::edgeStyle |
-	  GraphAttributes::edgeLabel);
+			GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::nodeLabel
+					| GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle
+					| GraphAttributes::edgeLabel);
 
 	GA.directed() = false;
 
@@ -705,15 +690,13 @@ void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> 
 }
 
 template<typename T>
-void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const EdgeWeightedGraphCopy<T> &steinerTree, const char *filename)
-{
+void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T>& G,
+		const NodeArray<bool>& isTerminal, const EdgeWeightedGraphCopy<T>& steinerTree,
+		const char* filename) {
 	GraphAttributes GA(G,
-	  GraphAttributes::nodeGraphics |
-	  GraphAttributes::nodeStyle |
-	  GraphAttributes::nodeLabel |
-	  GraphAttributes::edgeGraphics |
-	  GraphAttributes::edgeStyle |
-	  GraphAttributes::edgeLabel);
+			GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::nodeLabel
+					| GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle
+					| GraphAttributes::edgeLabel);
 
 	GA.directed() = false;
 

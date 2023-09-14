@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/layered/HierarchyLayoutModule.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
 
 namespace ogdf {
 
@@ -73,64 +73,48 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT FastHierarchyLayout : public HierarchyLayoutModule
-{
+class OGDF_EXPORT FastHierarchyLayout : public HierarchyLayoutModule {
 protected:
-	virtual void doCall(const HierarchyLevelsBase &levels, GraphAttributes &AGC) override;
+	virtual void doCall(const HierarchyLevelsBase& levels, GraphAttributes& AGC) override;
 
 public:
 	//! Creates an instance of fast hierarchy layout.
 	FastHierarchyLayout();
 
 	//! Copy constructor.
-	FastHierarchyLayout(const FastHierarchyLayout &);
+	FastHierarchyLayout(const FastHierarchyLayout&);
 
 	// destructor
 	virtual ~FastHierarchyLayout() { }
 
-
 	//! Assignment operator
-	FastHierarchyLayout &operator=(const FastHierarchyLayout &);
-
+	FastHierarchyLayout& operator=(const FastHierarchyLayout&);
 
 	//! Returns the option <i>node distance</i>.
-	double nodeDistance() const {
-		return m_minNodeDist;
-	}
+	double nodeDistance() const { return m_minNodeDist; }
 
 	//! Sets the option node distance to \p dist.
-	void nodeDistance(double dist) {
-		m_minNodeDist = dist;
-	}
+	void nodeDistance(double dist) { m_minNodeDist = dist; }
 
 	//! Returns the option <i>layer distance</i>.
-	double layerDistance() const {
-		return m_minLayerDist;
-	}
+	double layerDistance() const { return m_minLayerDist; }
 
 	//! Sets the option layer distance to \p dist.
-	void layerDistance(double dist) {
-		m_minLayerDist = dist;
-	}
+	void layerDistance(double dist) { m_minLayerDist = dist; }
 
 	//! Returns the option <i>fixed layer distance</i>.
-	bool fixedLayerDistance() const {
-		return m_fixedLayerDist;
-	}
+	bool fixedLayerDistance() const { return m_fixedLayerDist; }
 
 	//! Sets the option fixed layer distance to \p b.
-	void fixedLayerDistance(bool b) {
-		m_fixedLayerDist = b;
-	}
+	void fixedLayerDistance(bool b) { m_fixedLayerDist = b; }
 
 
 private:
-
-	int n;      //!< The number of nodes including virtual nodes.
-	int m;      //!< The number edge sections.
-	int k;      //!< The number of layers.
-	int *layer; //!< Stores for every node its layer.
-	int *first; //!< Stores for every layer the index of the first node.
+	int n; //!< The number of nodes including virtual nodes.
+	int m; //!< The number edge sections.
+	int k; //!< The number of layers.
+	int* layer; //!< Stores for every node its layer.
+	int* first; //!< Stores for every layer the index of the first node.
 
 
 	// nodes are numbered top down and from left to right.
@@ -144,7 +128,7 @@ private:
 	 * for every node : adj[0][node] list of neighbors in previous layer;
 	 * for every node : adj[1][node] list of neighbors in next layer
 	 */
-	List<int> *adj[2];
+	List<int>* adj[2];
 
 	/**
 	 * \brief The nodes belonging to a long edge.
@@ -152,49 +136,47 @@ private:
 	 * for every node : longEdge[node] is a pointer to a list containing all
 	 * nodes that belong to the same long edge as node.
 	 */
-	List<int> **longEdge;
+	List<int>** longEdge;
 
 	double m_minNodeDist; //!< The minimal node distance on a layer.
-	double m_minLayerDist;//!< The minimal distance between layers.
-	double *breadth;      //!< for every node : breadth[node] = width of the node.
-	double *height;       //!< for every layer : height[layer] = height of max{height of node on layer}.
-	double *y;            //!< for every layer : y coordinate of layer.
-	double *x;            //!< for every node : x coordinate of node.
+	double m_minLayerDist; //!< The minimal distance between layers.
+	double* breadth; //!< for every node : breadth[node] = width of the node.
+	double* height; //!< for every layer : height[layer] = height of max{height of node on layer}.
+	double* y; //!< for every layer : y coordinate of layer.
+	double* x; //!< for every node : x coordinate of node.
 	/**
 	 * for every node : minimal possible distance between the center of a node
 	 * and first[layer[node]].
 	 */
-	double *totalB;
+	double* totalB;
 
-	double *mDist; //!< Similar to totalB, used for temporary storage.
+	double* mDist; //!< Similar to totalB, used for temporary storage.
 
 	bool m_fixedLayerDist; //!< 0 if distance between layers should be variable, 1 otherwise.
-	bool *virt; //!< for every node : virt[node] = 1 if node is virtual, 0 otherwise.
+	bool* virt; //!< for every node : virt[node] = 1 if node is virtual, 0 otherwise.
 
 	void incrTo(double& d, double t) {
-		if(d < t) d = t;
+		if (d < t) {
+			d = t;
+		}
 	}
 
 	void decrTo(double& d, double t) {
-		if(d > t) d = t;
+		if (d > t) {
+			d = t;
+		}
 	}
 
 	bool sameLayer(int n1, int n2) const {
-		return n1 >= 0 && n1 < n
-		    && n2 >= 0 && n2 < n
-		    && layer[n1] == layer[n2];
+		return n1 >= 0 && n1 < n && n2 >= 0 && n2 < n && layer[n1] == layer[n2];
 	}
 
 	bool isFirst(int actNode) const {
-		return actNode < 0
-		    || actNode >= n
-		    || actNode == first[layer[actNode]];
+		return actNode < 0 || actNode >= n || actNode == first[layer[actNode]];
 	}
 
 	bool isLast(int actNode) const {
-		return actNode < 0
-		    || actNode >= n
-		    || actNode == first[layer[actNode] + 1] - 1;
+		return actNode < 0 || actNode >= n || actNode == first[layer[actNode] + 1] - 1;
 	}
 
 	/**
@@ -228,7 +210,8 @@ private:
 	 *   edge (see exD) and its direct right (left) sibling if the sibling
 	 *   belongs to ANOTHER block. if exD is 0, dist is not relevant.
 	 */
-	void sortLongEdges(int actNode, int dir, double *pos, bool &exD, double &dist, int *block, bool *marked);
+	void sortLongEdges(int actNode, int dir, double* pos, bool& exD, double& dist, int* block,
+			bool* marked);
 
 	/**
 	 * Places a sequence of nonvirtual nodes containing exactly one node.
@@ -252,7 +235,7 @@ private:
 	 * The funcion returns 0 if actNode does not have neighbours on the previous
 	 * (next) layer, 1 otherwise.
 	 */
-	bool placeSingleNode(int leftBnd, int rightBnd, int actNode, double &best, int d);
+	bool placeSingleNode(int leftBnd, int rightBnd, int actNode, double& best, int d);
 
 	/**
 	 * Places a sequence of nonvirtual nodes.
@@ -301,7 +284,7 @@ private:
 	 *   0 if there is no preference
 	 * @param marked Array for all nodes. Stores for every node, whether moveLongEdge has already been applied to it.
 	*/
-	void moveLongEdge(int actNode, int dir, bool *marked);
+	void moveLongEdge(int actNode, int dir, bool* marked);
 
 	/**
 	 * Tries to remove a bend at the position of the virtual node by straightening the edge.
@@ -315,7 +298,7 @@ private:
 	 * the current node, the function straightenEdge is first applied recursively to
 	 * this node.
 	 */
-	void straightenEdge(int actNode, bool *marked);
+	void straightenEdge(int actNode, bool* marked);
 
 	//! Computes the layout of an embedded layered graph.
 	void findPlacement();

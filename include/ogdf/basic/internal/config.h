@@ -31,13 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/internal/version.h>
 #include <ogdf/basic/internal/config_autogen.h>
+#include <ogdf/basic/internal/version.h>
+
 #include <iostream>
 #include <string>
 
 #if defined(OGDF_DEBUG) && defined(NDEBUG)
-# error "Contradicting configuration: Macros OGDF_DEBUG and NDEBUG are defined."
+#	error "Contradicting configuration: Macros OGDF_DEBUG and NDEBUG are defined."
 #endif
 
 namespace ogdf {
@@ -49,42 +50,43 @@ using std::to_string;
 // detection of the system
 
 #if defined(unix) || defined(__unix__) || defined(__unix) || defined(_AIX) || defined(__APPLE__)
-#define OGDF_SYSTEM_UNIX
+#	define OGDF_SYSTEM_UNIX
 #endif
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__NT__)
-#define OGDF_SYSTEM_WINDOWS
+#	define OGDF_SYSTEM_WINDOWS
 #endif
 
 // Note: Apple OS X machines will be both OGDF_SYSTEM_UNIX and OGDF_SYSTEM_OSX
 #if defined(__APPLE__)
-#define OGDF_SYSTEM_OSX
+#	define OGDF_SYSTEM_OSX
 #endif
 
 // C++11 standard
 
 #if __cplusplus < 201103
 
-#if defined(_MSC_VER)
-#if _MSC_VER < 1700
-#error "Compiling OGDF requires Visual C++ 11 (Visual Studio 2012) or higher!"
-#endif
+#	if defined(_MSC_VER)
+#		if _MSC_VER < 1700
+#			error "Compiling OGDF requires Visual C++ 11 (Visual Studio 2012) or higher!"
+#		endif
 
-#elif defined(__GNUC__)
-#ifndef __GXX_EXPERIMENTAL_CXX0X__
-#error "No C++11 support activated for g++ (compile with -std=c++0x or -std=c++11)!"
-#endif
+#	elif defined(__GNUC__)
+#		ifndef __GXX_EXPERIMENTAL_CXX0X__
+#			error "No C++11 support activated for g++ (compile with -std=c++0x or -std=c++11)!"
+#		endif
 
-#else
-#error "Compiling OGDF requires a C++11 compliant compiler!"
-#endif
+#	else
+#		error "Compiling OGDF requires a C++11 compliant compiler!"
+#	endif
 
 #endif
 
 #ifdef __has_cpp_attribute
-# define OGDF_HAS_CPP_ATTRIBUTE(x) (__has_cpp_attribute(x) && __cplusplus >= __has_cpp_attribute(x))
+#	define OGDF_HAS_CPP_ATTRIBUTE(x) \
+		(__has_cpp_attribute(x) && __cplusplus >= __has_cpp_attribute(x))
 #else
-# define OGDF_HAS_CPP_ATTRIBUTE(x) 0
+#	define OGDF_HAS_CPP_ATTRIBUTE(x) 0
 #endif
 
 //! @name Important when compiling OGDF as DLL
@@ -99,14 +101,14 @@ using std::to_string;
 #define OGDF_EXPORT
 
 #ifdef OGDF_SYSTEM_WINDOWS
-# ifdef OGDF_DLL
-#  undef OGDF_EXPORT
-#  ifdef OGDF_INSTALL
-#   define OGDF_EXPORT __declspec(dllexport)
-#  else
-#   define OGDF_EXPORT __declspec(dllimport)
-#  endif
-# endif
+#	ifdef OGDF_DLL
+#		undef OGDF_EXPORT
+#		ifdef OGDF_INSTALL
+#			define OGDF_EXPORT __declspec(dllexport)
+#		else
+#			define OGDF_EXPORT __declspec(dllimport)
+#		endif
+#	endif
 #endif
 
 //! @}
@@ -118,14 +120,14 @@ using std::to_string;
 #define OGDF_DEPRECATED(reason)
 
 #if OGDF_HAS_CPP_ATTRIBUTE(deprecated)
-# undef OGDF_DEPRECATED
-# define OGDF_DEPRECATED(reason) [[deprecated(reason)]]
+#	undef OGDF_DEPRECATED
+#	define OGDF_DEPRECATED(reason) [[deprecated(reason)]]
 #elif defined(_MSC_VER)
-# undef OGDF_DEPRECATED
-# define OGDF_DEPRECATED(reason) __declspec(deprecated(reason))
+#	undef OGDF_DEPRECATED
+#	define OGDF_DEPRECATED(reason) __declspec(deprecated(reason))
 #elif defined(__GNUC__)
-# undef OGDF_DEPRECATED
-# define OGDF_DEPRECATED(reason) __attribute__((deprecated(reason)))
+#	undef OGDF_DEPRECATED
+#	define OGDF_DEPRECATED(reason) __attribute__((deprecated(reason)))
 #endif
 
 //! @}
@@ -138,29 +140,29 @@ using std::to_string;
  * Usage: \code if (OGDF_LIKELY(i >= 0)) { likely branch } else { unlikely branch } \endcode
  * @ingroup macros
  */
-#define OGDF_LIKELY(x)    (x)
+#define OGDF_LIKELY(x) (x)
 
 /**
  * Specify the unlikely branch in a condition.
  * Usage: \code if (OGDF_UNLIKELY(set.empty())) { unlikely branch } else { likely branch } \endcode
  * @ingroup macros
  */
-#define OGDF_UNLIKELY(x)  (x)
+#define OGDF_UNLIKELY(x) (x)
 
 //! Specify the minimum alignment (in bytes) of a type to be \p b. This is used in type declarations.
 //! @ingroup macros
 #define OGDF_DECL_ALIGN(b)
 
 #ifdef _MSC_VER // Visual C++ compiler
-# undef OGDF_DECL_ALIGN
-# define OGDF_DECL_ALIGN(b) __declspec(align(b))
+#	undef OGDF_DECL_ALIGN
+#	define OGDF_DECL_ALIGN(b) __declspec(align(b))
 #elif defined(__GNUC__) // GNU gcc compiler (also Intel compiler)
-# undef OGDF_LIKELY
-# define OGDF_LIKELY(x)    __builtin_expect((x),1)
-# undef OGDF_UNLIKELY
-# define OGDF_UNLIKELY(x)  __builtin_expect((x),0)
-# undef OGDF_DECL_ALIGN
-# define OGDF_DECL_ALIGN(b) __attribute__ ((aligned(b)))
+#	undef OGDF_LIKELY
+#	define OGDF_LIKELY(x) __builtin_expect((x), 1)
+#	undef OGDF_UNLIKELY
+#	define OGDF_UNLIKELY(x) __builtin_expect((x), 0)
+#	undef OGDF_DECL_ALIGN
+#	define OGDF_DECL_ALIGN(b) __attribute__((aligned(b)))
 #endif
 
 //! @}
@@ -168,29 +170,29 @@ using std::to_string;
 //! An attribute to mark cases (in switch) that fall through to the next case
 #define OGDF_CASE_FALLTHROUGH
 #if OGDF_HAS_CPP_ATTRIBUTE(fallthrough)
-# undef OGDF_CASE_FALLTHROUGH
-# define OGDF_CASE_FALLTHROUGH [[fallthrough]]
+#	undef OGDF_CASE_FALLTHROUGH
+#	define OGDF_CASE_FALLTHROUGH [[fallthrough]]
 #elif defined(__GNUC__) && __GNUC__ >= 7
-# undef OGDF_CASE_FALLTHROUGH
-# define OGDF_CASE_FALLTHROUGH __attribute__((fallthrough))
+#	undef OGDF_CASE_FALLTHROUGH
+#	define OGDF_CASE_FALLTHROUGH __attribute__((fallthrough))
 #endif
 
 // compiler adaptions
 
 #ifdef _MSC_VER
 
-#ifdef OGDF_DLL
+#	ifdef OGDF_DLL
 // disable useless warnings
 // missing dll-interface
 
 // warning C4251: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
-#pragma warning(disable : 4251)
+#		pragma warning(disable : 4251)
 // warning C4275: non-DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
-#pragma warning(disable : 4275)
-#endif
+#		pragma warning(disable : 4275)
+#	endif
 
 // warning C4355: 'this' : used in base member initializer list
-#pragma warning (disable : 4355)
+#	pragma warning(disable : 4355)
 
 #endif
 
@@ -204,18 +206,18 @@ public:
 	enum class System {
 		Unknown, //!< not known (inproper configuration)
 		Windows, //!< Windows
-		Unix,    //!< Unix/Linux
-		OSX,     //!< Apple OSX
+		Unix, //!< Unix/Linux
+		OSX, //!< Apple OSX
 		STOP
 	};
 
 	//! Specifies the LP-solver used by OGDF.
 	enum class LPSolver {
-		None,     //!< no LP-solver available
-		Clp,      //!< COIN-OR LP-solver (Clp)
+		None, //!< no LP-solver available
+		Clp, //!< COIN-OR LP-solver (Clp)
 		Symphony, //!< Symphony
-		CPLEX,    //!< CPLEX (commercial)
-		Gurobi,   //!< Gurobi (commercial)
+		CPLEX, //!< CPLEX (commercial)
+		Gurobi, //!< Gurobi (commercial)
 		STOP
 	};
 
@@ -246,9 +248,8 @@ public:
 	 * always returns true.
 	 */
 	OGDF_DEPRECATED("OGDF always has LP solver support since 2015.05")
-	static constexpr bool haveLPSolver() {
-		return true;
-	}
+
+	static constexpr bool haveLPSolver() { return true; }
 
 	//! Returns the LP-solver used by OGDF.
 	static constexpr LPSolver whichLPSolver() {
@@ -261,7 +262,7 @@ public:
 #elif defined(COIN_OSI_GRB)
 		return LPSolver::Gurobi;
 #else
-# error "OGDF is compiled without LP solver. Check your build configuration."
+#	error "OGDF is compiled without LP solver. Check your build configuration."
 #endif
 	}
 
@@ -273,9 +274,8 @@ public:
 	 * Now this function always returns true.
 	 */
 	OGDF_DEPRECATED("OGDF always has COIN-OR since 2015.05")
-	static constexpr bool haveCoin() {
-		return true;
-	}
+
+	static constexpr bool haveCoin() { return true; }
 
 	//! Returns whether OGDF has been configured with ABACUS support.
 	/**
@@ -285,9 +285,8 @@ public:
 	 * Now this function always returns true.
 	 */
 	OGDF_DEPRECATED("OGDF always has ABACUS since 2015.05")
-	static constexpr bool haveAbacus() {
-		return true;
-	}
+
+	static constexpr bool haveAbacus() { return true; }
 
 	/**
 	 * Returns the memory manager used by OGDF.
@@ -306,38 +305,34 @@ public:
 #elif defined(OGDF_MEMORY_MALLOC_TS)
 		return MemoryManager::Malloc;
 #else
-# error "OGDF is compiled without memory manager. Check your build configuration."
+#	error "OGDF is compiled without memory manager. Check your build configuration."
 #endif
 	}
 
 	//! Converts \p sys to a (readable) string.
-	static const string &toString(System sys);
+	static const string& toString(System sys);
 
 	//! Converts \p lps to a (readable) string.
-	static const string &toString(LPSolver lps);
+	static const string& toString(LPSolver lps);
 
 	//! Converts \p mm to a (readable) string.
-	static const string &toString(MemoryManager mm);
+	static const string& toString(MemoryManager mm);
 };
 
-
 //! Output operator for Configuration::System (uses Configuration::toString(Configuration::System)).
-inline std::ostream &operator<<(std::ostream &os, Configuration::System sys)
-{
+inline std::ostream& operator<<(std::ostream& os, Configuration::System sys) {
 	os << Configuration::toString(sys);
 	return os;
 }
 
 //! Output operator for Configuration::LPSolver (uses Configuration::toString(Configuration::LPSolver)).
-inline std::ostream &operator<<(std::ostream &os, Configuration::LPSolver lps)
-{
+inline std::ostream& operator<<(std::ostream& os, Configuration::LPSolver lps) {
 	os << Configuration::toString(lps);
 	return os;
 }
 
 //! Output operator for Configuration::MemoryManager (uses Configuration::toString(Configuration::MemoryManager)).
-inline std::ostream &operator<<(std::ostream &os, Configuration::MemoryManager mm)
-{
+inline std::ostream& operator<<(std::ostream& os, Configuration::MemoryManager mm) {
 	os << Configuration::toString(mm);
 	return os;
 }

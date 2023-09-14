@@ -36,12 +36,11 @@
 namespace ogdf {
 namespace embedder {
 
-class CrossingStructure
-{
+class CrossingStructure {
 public:
 	CrossingStructure() : m_numCrossings(0), m_weightedCrossingNumber(0) { }
 
-	void init(GraphCopy &PG, int weightedCrossingNumber);
+	void init(GraphCopy& PG, int weightedCrossingNumber);
 
 	/**
 	 * @warning The order of adjEntries around each node will not be restored.
@@ -50,16 +49,18 @@ public:
 	 * planarEmbed() and pseudo crossings can be removed afterwards via
 	 * GraphCopy::removePseudoCrossings().
 	 */
-	void restore(PlanRep &PG, int cc);
+	void restore(PlanRep& PG, int cc);
 
 	int numberOfCrossings() const { return m_numCrossings; }
+
 	int weightedCrossingNumber() const { return m_weightedCrossingNumber; }
-	const SListPure<int> &crossings(edge e) const { return m_crossings[e]; }
+
+	const SListPure<int>& crossings(edge e) const { return m_crossings[e]; }
 
 private:
 	int m_numCrossings;
 	int m_weightedCrossingNumber;
-	EdgeArray<SListPure<int> > m_crossings;
+	EdgeArray<SListPure<int>> m_crossings;
 };
 
 }

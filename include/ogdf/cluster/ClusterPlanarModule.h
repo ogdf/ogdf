@@ -40,16 +40,15 @@ namespace ogdf {
 class OGDF_EXPORT ClusterPlanarModule : public Module {
 public:
 	ClusterPlanarModule() { }
+
 	virtual ~ClusterPlanarModule() { }
 
 	//! Returns true, if CG is c-planar, false otherwise.
-	virtual bool isClusterPlanar(const ClusterGraph &CG) {
-		return doTest(CG);
-	}
+	virtual bool isClusterPlanar(const ClusterGraph& CG) { return doTest(CG); }
 
 protected:
 	//! Performs a c-planarity test on CG.
-	virtual bool doTest(const ClusterGraph &CG) = 0;
+	virtual bool doTest(const ClusterGraph& CG) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

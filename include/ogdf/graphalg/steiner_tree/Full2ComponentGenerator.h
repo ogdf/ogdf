@@ -43,17 +43,12 @@ namespace steiner_tree {
  * but has no terminal in between.
  */
 template<typename T>
-class Full2ComponentGenerator
-{
+class Full2ComponentGenerator {
 public:
 	//! Generate full 2-components and call \p generateFunction for each full 2-component
-	inline void call(
-	  const EdgeWeightedGraph<T> &G,
-	  const List<node> &terminals,
-	  const NodeArray<NodeArray<T>> &distance,
-	  const NodeArray<NodeArray<edge>> &pred,
-	  std::function<void(node, node, T)> generateFunction) const
-	{
+	inline void call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred,
+			std::function<void(node, node, T)> generateFunction) const {
 		for (ListConstIterator<node> it_u = terminals.begin(); it_u.valid(); ++it_u) {
 			const node u = *it_u;
 			for (ListConstIterator<node> it_v = it_u.succ(); it_v.valid(); ++it_v) {

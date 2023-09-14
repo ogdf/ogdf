@@ -33,25 +33,26 @@
 #pragma once
 
 #include <ogdf/basic/basic.h>
+
 #include <functional>
 
 namespace ogdf {
-namespace fast_multipole_embedder{
+namespace fast_multipole_embedder {
 
 //! Information about incident edges (16 bytes).
 class NodeAdjInfo {
 public:
-	uint32_t degree;     //!< Total count of pairs where is either the first or second node.
+	uint32_t degree; //!< Total count of pairs where is either the first or second node.
 	uint32_t firstEntry; //!< The first pair in the edges chain.
-	uint32_t lastEntry;  //!< The last pair in the edges chain.
-	uint32_t unused;     //!< Not used yet. Only for 16-byte alignment of array elements.
+	uint32_t lastEntry; //!< The last pair in the edges chain.
+	uint32_t unused; //!< Not used yet. Only for 16-byte alignment of array elements.
 };
 
 //! Information about an edge (16 bytes).
 class EdgeAdjInfo {
 public:
-	uint32_t a;      //!< First node of the pair.
-	uint32_t b;      //!< Second node of the pair.
+	uint32_t a; //!< First node of the pair.
+	uint32_t b; //!< Second node of the pair.
 	uint32_t a_next; //!< Next pair in the chain of the first node.
 	uint32_t b_next; //!< Next pair in the chain of the second node.
 
@@ -69,10 +70,8 @@ public:
 };
 
 //! Helper method used by ArrayGraph and WSPD.
-void pushBackEdge(uint32_t a, uint32_t b,
-                  std::function<EdgeAdjInfo&(uint32_t)> edgeInform,
-                  std::function<NodeAdjInfo&(uint32_t)> nodeInform,
-                  int e_index);
+void pushBackEdge(uint32_t a, uint32_t b, std::function<EdgeAdjInfo&(uint32_t)> edgeInform,
+		std::function<NodeAdjInfo&(uint32_t)> nodeInform, int e_index);
 
 }
 }

@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GridLayout.h>
-
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
@@ -60,19 +59,16 @@ public:
 	// destruction
 	virtual ~MixedModelCrossingsBeautifierModule() { }
 
-
 	/*
 	 * \brief Calls the Mixed-Model crossings beautifier module for graph \p PG and grid layout \p gl.
 	 *
 	 * @param PG is the input graph.
 	 * @param gl is the grid layout of \p PG.
 	 */
-	void call(const PlanRep &PG, GridLayout &gl);
+	void call(const PlanRep& PG, GridLayout& gl);
 
 	//! Returns the number of processed crossings.
-	int numberOfCrossings() const {
-		return m_nCrossings;
-	}
+	int numberOfCrossings() const { return m_nCrossings; }
 
 
 protected:
@@ -83,7 +79,7 @@ protected:
 	 * @param gl is the grid layout of \p PG.
 	 * @param L is the list of crossing nodes.
 	 */
-	virtual void doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L) = 0;
+	virtual void doCall(const PlanRep& PG, GridLayout& gl, const List<node>& L) = 0;
 
 private:
 	int m_nCrossings; //!< the number of processed crossings.
@@ -91,17 +87,15 @@ private:
 	OGDF_MALLOC_NEW_DELETE
 };
 
-
 //! Dummy implementation of Mixed-Model crossings beautifier.
 /**
  * This implementation does no beautification at all and can thus be used
  * for obtaining the original Mixed-Model layout.
  */
-class MMDummyCrossingsBeautifier : public MixedModelCrossingsBeautifierModule
-{
+class MMDummyCrossingsBeautifier : public MixedModelCrossingsBeautifierModule {
 protected:
 	//! Dummy implementation.
-	virtual void doCall(const PlanRep &, GridLayout &, const List<node> &) override { }
+	virtual void doCall(const PlanRep&, GridLayout&, const List<node>&) override { }
 };
 
 }

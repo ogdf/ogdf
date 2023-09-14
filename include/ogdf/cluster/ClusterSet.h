@@ -32,10 +32,8 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/List.h>
-
-
+#include <ogdf/cluster/ClusterArray.h>
 
 namespace ogdf {
 
@@ -53,7 +51,7 @@ namespace ogdf {
 class OGDF_EXPORT ClusterSetSimple {
 public:
 	//! Creates an empty cluster set associated with clustered graph \p C.
-	explicit ClusterSetSimple(const ClusterGraph &C) : m_isContained(C, false) { }
+	explicit ClusterSetSimple(const ClusterGraph& C) : m_isContained(C, false) { }
 
 	// destructor
 	~ClusterSetSimple() { }
@@ -66,13 +64,12 @@ public:
 	 */
 	void insert(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_isContained.graphOf());
-		bool &isContained = m_isContained[c];
+		bool& isContained = m_isContained[c];
 		if (!isContained) {
 			isContained = true;
 			m_clusters.pushFront(c);
 		}
 	}
-
 
 	//! Removes all clusters from \a S.
 	/**
@@ -82,12 +79,11 @@ public:
 	 */
 	void clear() {
 		SListIterator<cluster> it;
-		for(it = m_clusters.begin(); it.valid(); ++it) {
+		for (it = m_clusters.begin(); it.valid(); ++it) {
 			m_isContained[*it] = false;
 		}
 		m_clusters.clear();
 	}
-
 
 	//! Returns true if cluster \p c is contained in \a S, false otherwise.
 	/**
@@ -104,9 +100,7 @@ public:
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const SListPure<cluster> &clusters() const {
-		return m_clusters;
-	}
+	const SListPure<cluster>& clusters() const { return m_clusters; }
 
 private:
 	//! m_isContained[\a c] is true iff \a c is contained in \a S
@@ -115,8 +109,6 @@ private:
 	//! The list of clusters contained in \a S
 	SListPure<cluster> m_clusters;
 };
-
-
 
 //! Cluster sets.
 /**
@@ -134,7 +126,7 @@ private:
 class OGDF_EXPORT ClusterSetPure {
 public:
 	//! Creates an empty cluster set associated with clustered graph \p C.
-	explicit ClusterSetPure(const ClusterGraph &C) : m_it(C,ListIterator<cluster>()) { }
+	explicit ClusterSetPure(const ClusterGraph& C) : m_it(C, ListIterator<cluster>()) { }
 
 	// destructor
 	~ClusterSetPure() { }
@@ -147,9 +139,10 @@ public:
 	 */
 	void insert(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster> &itV = m_it[c];
-		if (!itV.valid())
+		ListIterator<cluster>& itV = m_it[c];
+		if (!itV.valid()) {
 			itV = m_clusters.pushBack(c);
+		}
 	}
 
 	//! Removes cluster \p c from \a S.
@@ -160,13 +153,12 @@ public:
 	 */
 	void remove(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster> &itV = m_it[c];
+		ListIterator<cluster>& itV = m_it[c];
 		if (itV.valid()) {
 			m_clusters.del(itV);
 			itV = ListIterator<cluster>();
 		}
 	}
-
 
 	//! Removes all clusters from \a S.
 	/**
@@ -176,12 +168,11 @@ public:
 	 */
 	void clear() {
 		ListIterator<cluster> it;
-		for(it = m_clusters.begin(); it.valid(); ++it) {
+		for (it = m_clusters.begin(); it.valid(); ++it) {
 			m_it[*it] = ListIterator<cluster>();
 		}
 		m_clusters.clear();
 	}
-
 
 	//! Returns true if cluster \p c is contained in \a S, false otherwise.
 	/**
@@ -198,20 +189,16 @@ public:
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const ListPure<cluster> &clusters() const {
-		return m_clusters;
-	}
+	const ListPure<cluster>& clusters() const { return m_clusters; }
 
 private:
 	//! #m_it[\a c] contains the list iterator pointing to \a c if \a c is contained in \a S,
 	//! an invalid list iterator otherwise.
-	ClusterArray<ListIterator<cluster> > m_it;
+	ClusterArray<ListIterator<cluster>> m_it;
 
 	//! The list of clusters contained in \a S.
 	ListPure<cluster> m_clusters;
 };
-
-
 
 //! Cluster sets.
 /**
@@ -229,7 +216,7 @@ private:
 class OGDF_EXPORT ClusterSet {
 public:
 	//! Creates an empty cluster set associated with clustered graph \p C.
-	explicit ClusterSet(const ClusterGraph &C) : m_it(C, ListIterator<cluster>()) { }
+	explicit ClusterSet(const ClusterGraph& C) : m_it(C, ListIterator<cluster>()) { }
 
 	// destructor
 	~ClusterSet() { }
@@ -242,9 +229,10 @@ public:
 	 */
 	void insert(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster> &itV = m_it[c];
-		if (!itV.valid())
+		ListIterator<cluster>& itV = m_it[c];
+		if (!itV.valid()) {
 			itV = m_clusters.pushBack(c);
+		}
 	}
 
 	//! Removes cluster \p c from \a S.
@@ -255,13 +243,12 @@ public:
 	 */
 	void remove(cluster c) {
 		OGDF_ASSERT(c->graphOf() == m_it.graphOf());
-		ListIterator<cluster> &itV = m_it[c];
+		ListIterator<cluster>& itV = m_it[c];
 		if (itV.valid()) {
 			m_clusters.del(itV);
 			itV = ListIterator<cluster>();
 		}
 	}
-
 
 	//! Removes all clusters from \a S.
 	/**
@@ -271,12 +258,11 @@ public:
 	 */
 	void clear() {
 		ListIterator<cluster> it;
-		for(it = m_clusters.begin(); it.valid(); ++it) {
+		for (it = m_clusters.begin(); it.valid(); ++it) {
 			m_it[*it] = ListIterator<cluster>();
 		}
 		m_clusters.clear();
 	}
-
 
 	//! Returns true if cluster \p c is contained in \a S, false otherwise.
 	/**
@@ -293,22 +279,18 @@ public:
 	/**
 	 * This operation has constant runtime.
 	 */
-	int size() const {
-		return m_clusters.size();
-	}
+	int size() const { return m_clusters.size(); }
 
 	//! Returns a reference to the list of clusters contained in \a S.
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const List<cluster> &clusters() const {
-		return m_clusters;
-	}
+	const List<cluster>& clusters() const { return m_clusters; }
 
 private:
 	//! #m_it[\a c] contains the list iterator pointing to \a c if \a c is contained in \a S,
 	//! an invalid list iterator otherwise.
-	ClusterArray<ListIterator<cluster> > m_it;
+	ClusterArray<ListIterator<cluster>> m_it;
 
 	//! The list of clusters contained in \a S.
 	List<cluster> m_clusters;

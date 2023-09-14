@@ -31,14 +31,12 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
-
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
 class OGDF_EXPORT SPQRTree;
-
 
 //! %Skeleton graphs of nodes in an SPQR-tree.
 /**
@@ -58,10 +56,8 @@ class OGDF_EXPORT SPQRTree;
  * Then there exists exactly one edge \a e' in another skeleton \a S' of \a T that
  * corresponds to \a eT as well. We call \a e' the twin edge of \a e.
  */
-class OGDF_EXPORT Skeleton
-{
+class OGDF_EXPORT Skeleton {
 public:
-
 	// constructor
 
 	//! Creates a skeleton \a S with owner tree \a T and corresponding node \p vT.
@@ -73,77 +69,67 @@ public:
 	 */
 	explicit Skeleton(node vT) : m_treeNode(vT) { }
 
-
 	// destructor
 	virtual ~Skeleton() { }
 
-
 	//! Returns the owner tree \a T.
-	virtual const SPQRTree &owner() const=0;
+	virtual const SPQRTree& owner() const = 0;
 
 	//! Returns the corresponding node in the owner tree \a T to which \a S belongs.
-	node treeNode() const {
-		return m_treeNode;
-	}
+	node treeNode() const { return m_treeNode; }
 
 	//! Returns the reference edge of \a S in \a M.
 	/**
 	 * The reference edge is a real edge if \a S is the skeleton of the root node
 	 * of \a T, and a virtual edge otherwise.
 	 */
-	edge referenceEdge() const {
-		return m_referenceEdge;
-	}
+	edge referenceEdge() const { return m_referenceEdge; }
 
 	//! Returns a reference to the skeleton graph \a M.
-	const Graph &getGraph() const {
-		return m_M;
-	}
+	const Graph& getGraph() const { return m_M; }
 
 	//! Returns a reference to the skeleton graph \a M.
-	Graph &getGraph() {
-		return m_M;
-	}
+	Graph& getGraph() { return m_M; }
 
 	//! Returns the vertex in the original graph \a G that corresponds to \p v.
 	/**
 	 * \pre \p v is a node in \a M.
 	 */
-	virtual node original (node v) const=0;
+	virtual node original(node v) const = 0;
 
 	//! Returns true iff \p e is a virtual edge.
 	/**
 	 * \pre \p e is an edge in \a M
 	 */
-	virtual bool isVirtual (edge e) const=0;
+	virtual bool isVirtual(edge e) const = 0;
 
 	//! Returns the real edge that corresponds to skeleton edge \p e
 	/**
 	 * If \p e is virtual edge, then 0 is returned.
 	 * \pre \p e is an edge in \a M
 	 */
-	virtual edge realEdge (edge e) const=0;
+	virtual edge realEdge(edge e) const = 0;
 
 	//! Returns the twin edge of skeleton edge \p e.
 	/**
 	 * If \p e is not a virtual edge, then 0 is returned.
 	 * \pre \p e is an edge in \a M
 	 */
-	virtual edge twinEdge (edge e) const=0;
+	virtual edge twinEdge(edge e) const = 0;
 
 	//! Returns the tree node in T containing the twin edge of skeleton edge \p e.
 	/**
 	 * If \p e is not a virtual edge, then 0 is returned.
 	 * \pre \p e is an edge in \a M
 	 */
-	virtual node twinTreeNode (edge e) const=0;
+	virtual node twinTreeNode(edge e) const = 0;
 
 	OGDF_NEW_DELETE
 
 protected:
-	node  m_treeNode;       //!< corresp. tree node in owner tree
-	edge  m_referenceEdge;  //!< reference edge
-	Graph m_M;              //!< actual skeleton graph
+	node m_treeNode; //!< corresp. tree node in owner tree
+	edge m_referenceEdge; //!< reference edge
+	Graph m_M; //!< actual skeleton graph
 };
 
 }

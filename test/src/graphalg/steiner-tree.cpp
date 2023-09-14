@@ -29,19 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <string>
-#include <vector>
 #include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
-#include <ogdf/graphalg/MinSteinerTreeKou.h>
-#include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
-#include <ogdf/graphalg/MinSteinerTreeRZLoss.h>
-#include <ogdf/graphalg/MinSteinerTreeZelikovsky.h>
-#include <ogdf/graphalg/MinSteinerTreeShore.h>
-#include <ogdf/graphalg/MinSteinerTreePrimalDual.h>
+#include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
 #include <ogdf/graphalg/MinSteinerTreeDualAscent.h>
 #include <ogdf/graphalg/MinSteinerTreeGoemans139.h>
+#include <ogdf/graphalg/MinSteinerTreeKou.h>
+#include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
+#include <ogdf/graphalg/MinSteinerTreePrimalDual.h>
+#include <ogdf/graphalg/MinSteinerTreeRZLoss.h>
+#include <ogdf/graphalg/MinSteinerTreeShore.h>
+#include <ogdf/graphalg/MinSteinerTreeZelikovsky.h>
+
+#include <string>
+#include <vector>
+
 #include <resources.h>
 
 template<typename T>
@@ -60,8 +62,10 @@ template<typename T>
 using Modules = std::vector<ModuleData<T>>;
 
 template<typename T>
-static void addModule(Modules<T>& modules, const std::string& name, MinSteinerTreeModule<T>* alg, double ratio, std::vector<int> sizes = {35, 50}) {
-	modules.emplace_back(ModuleData<T>{name, std::unique_ptr<MinSteinerTreeModule<T>>(alg), ratio, sizes});
+static void addModule(Modules<T>& modules, const std::string& name, MinSteinerTreeModule<T>* alg,
+		double ratio, std::vector<int> sizes = {35, 50}) {
+	modules.emplace_back(
+			ModuleData<T> {name, std::unique_ptr<MinSteinerTreeModule<T>>(alg), ratio, sizes});
 }
 
 /**
@@ -81,21 +85,16 @@ static void addModule(Modules<T>& modules, const std::string& name, MinSteinerTr
  *	an optimal Steiner tree for this graph.
  */
 template<typename T>
-T randomOptimalSteiner(
-  int n,
-  EdgeWeightedGraph<T> &graph,
-  List<node> &terminals,
-  NodeArray<bool> &isTerminal,
-  EdgeWeightedGraphCopy<T> &tree
-)
-{
+T randomOptimalSteiner(int n, EdgeWeightedGraph<T>& graph, List<node>& terminals,
+		NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>& tree) {
 	OGDF_ASSERT(n >= 4);
 
 	terminals.clear();
 
-	int numberOfTerminals = max(3, randomNumber(n/4, n/2));
+	int numberOfTerminals = max(3, randomNumber(n / 4, n / 2));
 	int numberOfNonterminals = n - numberOfTerminals;
-	int numberOfEdges = randomNumber(numberOfTerminals-1 + numberOfNonterminals*2, (n*(n-1))/2);
+	int numberOfEdges =
+			randomNumber(numberOfTerminals - 1 + numberOfNonterminals * 2, (n * (n - 1)) / 2);
 
 	randomTree(graph, numberOfTerminals);
 	isTerminal.init(graph, false);
@@ -111,21 +110,19 @@ T randomOptimalSteiner(
 	tree.init(graph);
 	T result = tree.numberOfEdges();
 
-	for(int i = numberOfTerminals-1; i < numberOfEdges;) {
+	for (int i = numberOfTerminals - 1; i < numberOfEdges;) {
 		node v = graph.chooseNode();
 		node u = graph.chooseNode([&](node w) { return w != v; });
 		OGDF_ASSERT(u != nullptr);
 
-		if(numberOfNonterminals > 0) {
+		if (numberOfNonterminals > 0) {
 			node w = graph.newNode();
 			graph.newEdge(v, w, n);
 			graph.newEdge(w, u, n);
 			numberOfNonterminals--;
 			i += 2;
-		}
-		else {
-			if (graph.searchEdge(v, u) == nullptr
-			 && graph.searchEdge(u, v) == nullptr) {
+		} else {
+			if (graph.searchEdge(v, u) == nullptr && graph.searchEdge(u, v) == nullptr) {
 				graph.newEdge(v, u, n);
 				i++;
 			}
@@ -155,16 +152,12 @@ T randomOptimalSteiner(
  * \param isTerminal stores which node is a terminal
  */
 template<typename T>
-void randomSteinerTreeInstance(
-  int n,
-  EdgeWeightedGraph<T> &graph,
-  List<node> &terminals,
-  NodeArray<bool> &isTerminal)
-{
+void randomSteinerTreeInstance(int n, EdgeWeightedGraph<T>& graph, List<node>& terminals,
+		NodeArray<bool>& isTerminal) {
 	OGDF_ASSERT(n >= 3);
 
-	randomSimpleConnectedGraph(graph, n, randomNumber(2*n - 3, n*(n-1)/2));
-	int numberOfTerminals = max(3, randomNumber(n/4, 2*n/3));
+	randomSimpleConnectedGraph(graph, n, randomNumber(2 * n - 3, n * (n - 1) / 2));
+	int numberOfTerminals = max(3, randomNumber(n / 4, 2 * n / 3));
 
 	for (edge e : graph.edges) {
 		graph.setWeight(e, randomNumber(1, 100));
@@ -187,8 +180,7 @@ void randomSteinerTreeInstance(
  * Test if modules generates a valid/reasonable Steiner tree for a graph with given number of nodes
  */
 template<typename T>
-void testModuleOnRandomGraph(MinSteinerTreeModule<T> &alg, int n, double factor = 0)
-{
+void testModuleOnRandomGraph(MinSteinerTreeModule<T>& alg, int n, double factor = 0) {
 	it("generates a valid Steiner tree for a random graph of " + to_string(n) + " nodes", [&]() {
 		EdgeWeightedGraph<T> graph;
 		NodeArray<bool> isTerminal(graph, false);
@@ -213,7 +205,8 @@ void testModuleOnRandomGraph(MinSteinerTreeModule<T> &alg, int n, double factor 
 		}
 
 		AssertThat(actualCost, Equals(returnedCost));
-		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *solution), Equals(true));
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *solution),
+				Equals(true));
 	});
 
 	it("finds a reasonable Steiner tree for a graph of " + to_string(n) + " nodes", [&]() {
@@ -229,24 +222,25 @@ void testModuleOnRandomGraph(MinSteinerTreeModule<T> &alg, int n, double factor 
 		T algCost = alg.call(graph, terminals, isTerminal, make_solution);
 		std::unique_ptr<EdgeWeightedGraphCopy<T>> solution(make_solution);
 
-		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *solution), IsTrue());
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *solution),
+				IsTrue());
 
 		// only check optimum approximation
 		// for algorithms with factor of 2 or better
-		if(factor >= 1 && factor <= 2) {
+		if (factor >= 1 && factor <= 2) {
 			AssertThat(algCost, Equals(cost));
 			AssertThat(solution->numberOfNodes(), Equals(tree.numberOfNodes()));
 			AssertThat(solution->numberOfEdges(), Equals(tree.numberOfEdges()));
 
 			List<node> nodes;
 			tree.allNodes(nodes);
-			for(node v : nodes) {
+			for (node v : nodes) {
 				AssertThat(solution->copy(tree.original(v)), !IsNull());
 			}
 
 			List<edge> edges;
 			tree.allEdges(edges);
-			for(edge e : edges) {
+			for (edge e : edges) {
 				AssertThat(solution->copy(tree.original(e)), !IsNull());
 			}
 		}
@@ -257,14 +251,13 @@ void testModuleOnRandomGraph(MinSteinerTreeModule<T> &alg, int n, double factor 
  * Tests one subclass of MinSteinerTreeModule for a specific type.
  */
 template<typename T>
-void testModule(const ModuleData<T>& module)
-{
+void testModule(const ModuleData<T>& module) {
 	describe(module.name, [&]() {
 		for (int n : module.sizes) {
 			testModuleOnRandomGraph(*module.alg, n, module.ratio);
 		}
 
-		for_each_file("steiner", [&](const ResourceFile* file){
+		for_each_file("steiner", [&](const ResourceFile* file) {
 			// optimal solution value is extracted from the filename
 			string filename = file->name();
 			string tmp = filename.substr(0, filename.length() - 4);
@@ -276,26 +269,31 @@ void testModule(const ModuleData<T>& module)
 				ss >> opt;
 			}
 
-			it("yields correct results on " + file->fullPath() + " (optimum is " + (opt == 0 ? "unknown" : to_string(opt)) + ")", [&] {
-				EdgeWeightedGraph<T> graph;
-				List<node> terminals;
-				NodeArray<bool> isTerminal;
+			it("yields correct results on " + file->fullPath() + " (optimum is "
+							+ (opt == 0 ? "unknown" : to_string(opt)) + ")",
+					[&] {
+						EdgeWeightedGraph<T> graph;
+						List<node> terminals;
+						NodeArray<bool> isTerminal;
 
-				std::stringstream is{file->data()};
-				GraphIO::readSTP(graph, terminals, isTerminal, is);
+						std::stringstream is {file->data()};
+						GraphIO::readSTP(graph, terminals, isTerminal, is);
 
-				EdgeWeightedGraphCopy<T>* make_solution;
-				T algCost = module.alg->call(graph, terminals, isTerminal, make_solution);
-				std::unique_ptr<EdgeWeightedGraphCopy<T>> solution(make_solution);
+						EdgeWeightedGraphCopy<T>* make_solution;
+						T algCost = module.alg->call(graph, terminals, isTerminal, make_solution);
+						std::unique_ptr<EdgeWeightedGraphCopy<T>> solution(make_solution);
 
-				AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *solution), IsTrue());
-				if (opt > 0) {
-					AssertThat(algCost, IsGreaterThan(opt) || Equals(opt));
-					if (module.ratio != 0) {
-						AssertThat(algCost, IsLessThan(module.ratio*opt) || Equals(module.ratio*opt));
-					}
-				}
-			});
+						AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals,
+										   isTerminal, *solution),
+								IsTrue());
+						if (opt > 0) {
+							AssertThat(algCost, IsGreaterThan(opt) || Equals(opt));
+							if (module.ratio != 0) {
+								AssertThat(algCost,
+										IsLessThan(module.ratio * opt) || Equals(module.ratio * opt));
+							}
+						}
+					});
 		});
 	});
 }
@@ -304,35 +302,36 @@ struct MaxFlowFactoryBase {
 	virtual MaxFlowModule<double>* create() = 0;
 	virtual ~MaxFlowFactoryBase() = default;
 };
+
 template<typename MaxFlowModuleType>
 struct MaxFlowFactory : MaxFlowFactoryBase {
-	MaxFlowModule<double>* create() override {
-		return new MaxFlowModuleType();
-	}
+	MaxFlowModule<double>* create() override { return new MaxFlowModuleType(); }
 };
 
 /**
  * Registers one instance of the MinSteinerTreeDirectedCut class for each of its variants
  */
-template <typename T>
-static void
-registerDirectedCutVariants(Modules<T> &modules)
-{
+template<typename T>
+static void registerDirectedCutVariants(Modules<T>& modules) {
 	using AlgPair = std::pair<MaxFlowFactoryBase*, std::string>;
 	std::unique_ptr<MaxFlowFactoryBase> flowEK(new MaxFlowFactory<MaxFlowEdmondsKarp<double>>());
 	std::unique_ptr<MaxFlowFactoryBase> flowGT(new MaxFlowFactory<MaxFlowEdmondsKarp<double>>());
 
 	using BoolPair = std::pair<bool, std::string>;
+
 	struct VerboseTrueFalse : public std::vector<BoolPair> {
-		VerboseTrueFalse(std::string&& trueString, std::string&& falseString = "") : std::vector<BoolPair>({{true, trueString}, {false, falseString}}) {}
+		VerboseTrueFalse(std::string&& trueString, std::string&& falseString = "")
+			: std::vector<BoolPair>({{true, trueString}, {false, falseString}}) { }
 	};
 
-	for (auto maxFlow : {AlgPair{flowEK.get(), "Edmonds-Karp"}, AlgPair{flowGT.get(), "Goldberg-Tarjan"}}) {
-		for (auto useBackCuts : VerboseTrueFalse{", back cuts"}) {
-			for (auto useMinCardinalityCuts : VerboseTrueFalse{", min cardinality cuts"}) {
-				for (auto useNestedCuts : VerboseTrueFalse{", nested cuts"}) {
-					for (auto useExtraConstraints : VerboseTrueFalse{"all extra constraints", "only necessary constraints"}) {
-						MinSteinerTreeDirectedCut<T> *alg = new MinSteinerTreeDirectedCut<T>();
+	for (auto maxFlow :
+			{AlgPair {flowEK.get(), "Edmonds-Karp"}, AlgPair {flowGT.get(), "Goldberg-Tarjan"}}) {
+		for (auto useBackCuts : VerboseTrueFalse {", back cuts"}) {
+			for (auto useMinCardinalityCuts : VerboseTrueFalse {", min cardinality cuts"}) {
+				for (auto useNestedCuts : VerboseTrueFalse {", nested cuts"}) {
+					for (auto useExtraConstraints : VerboseTrueFalse {
+								 "all extra constraints", "only necessary constraints"}) {
+						MinSteinerTreeDirectedCut<T>* alg = new MinSteinerTreeDirectedCut<T>();
 
 						std::stringstream ss;
 						ss << "DirectedCut";
@@ -366,10 +365,8 @@ registerDirectedCutVariants(Modules<T> &modules)
 /**
  * Registers one instance of the MinSteinerTreeZelikovsky class for each of its variants
  */
-template <typename T>
-static void
-registerZelikovskyVariants(Modules<T> &modules)
-{
+template<typename T>
+static void registerZelikovskyVariants(Modules<T>& modules) {
 	using WCalc = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::WinCalculation>;
 	using TGen = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::TripleGeneration>;
 	using TRed = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::TripleReduction>;
@@ -378,43 +375,42 @@ registerZelikovskyVariants(Modules<T> &modules)
 	using APSPStrategy = std::tuple<std::string, bool>;
 
 	std::vector<WCalc> winCalculations = {
-		WCalc("absolute win function", MinSteinerTreeZelikovsky<T>::WinCalculation::absolute),
-		WCalc("relative win function", MinSteinerTreeZelikovsky<T>::WinCalculation::relative)
-	};
+			WCalc("absolute win function", MinSteinerTreeZelikovsky<T>::WinCalculation::absolute),
+			WCalc("relative win function", MinSteinerTreeZelikovsky<T>::WinCalculation::relative)};
 	std::vector<TGen> tripleGenStrategies = {
-		TGen("exhaustive triple generation", MinSteinerTreeZelikovsky<T>::TripleGeneration::exhaustive),
-		TGen("Voronoi triple generation", MinSteinerTreeZelikovsky<T>::TripleGeneration::voronoi),
-		TGen("direct triple generation", MinSteinerTreeZelikovsky<T>::TripleGeneration::ondemand)
-	};
+			TGen("exhaustive triple generation",
+					MinSteinerTreeZelikovsky<T>::TripleGeneration::exhaustive),
+			TGen("Voronoi triple generation", MinSteinerTreeZelikovsky<T>::TripleGeneration::voronoi),
+			TGen("direct triple generation", MinSteinerTreeZelikovsky<T>::TripleGeneration::ondemand)};
 	std::vector<TRed> tripleReductStrategies = {
-		TRed("enabled reduction", MinSteinerTreeZelikovsky<T>::TripleReduction::on),
-		TRed("disabled reduction", MinSteinerTreeZelikovsky<T>::TripleReduction::off),
+			TRed("enabled reduction", MinSteinerTreeZelikovsky<T>::TripleReduction::on),
+			TRed("disabled reduction", MinSteinerTreeZelikovsky<T>::TripleReduction::off),
 	};
 	std::vector<SCalc> saveCalculations = {
-		SCalc("static enumeration save calculation", MinSteinerTreeZelikovsky<T>::SaveCalculation::staticEnum),
-		SCalc("static LCATree save calculation", MinSteinerTreeZelikovsky<T>::SaveCalculation::staticLCATree),
-		SCalc("dynamic LCATree save calculation", MinSteinerTreeZelikovsky<T>::SaveCalculation::dynamicLCATree),
-		SCalc("hybrid save calculation", MinSteinerTreeZelikovsky<T>::SaveCalculation::hybrid)
-	};
-	std::vector<Pass> passes = {
-		Pass("one-pass", MinSteinerTreeZelikovsky<T>::Pass::one),
-		Pass("multi-pass", MinSteinerTreeZelikovsky<T>::Pass::multi)
-	};
+			SCalc("static enumeration save calculation",
+					MinSteinerTreeZelikovsky<T>::SaveCalculation::staticEnum),
+			SCalc("static LCATree save calculation",
+					MinSteinerTreeZelikovsky<T>::SaveCalculation::staticLCATree),
+			SCalc("dynamic LCATree save calculation",
+					MinSteinerTreeZelikovsky<T>::SaveCalculation::dynamicLCATree),
+			SCalc("hybrid save calculation", MinSteinerTreeZelikovsky<T>::SaveCalculation::hybrid)};
+	std::vector<Pass> passes = {Pass("one-pass", MinSteinerTreeZelikovsky<T>::Pass::one),
+			Pass("multi-pass", MinSteinerTreeZelikovsky<T>::Pass::multi)};
 	std::vector<APSPStrategy> apspStrategies = {
-		APSPStrategy("forced APSP", true),
-		APSPStrategy("SSSP", false),
+			APSPStrategy("forced APSP", true),
+			APSPStrategy("SSSP", false),
 	};
 
-	std::vector<typename decltype(winCalculations)::size_type>
-	  choice = { 0, 0, 0, 0, 0, 0 },
-	  maxchoice = {
-	    winCalculations.size(),
-	    tripleGenStrategies.size(),
-	    tripleReductStrategies.size(),
-	    saveCalculations.size(),
-	    passes.size(),
-	    apspStrategies.size(),
-	  };
+	std::vector<typename decltype(winCalculations)::size_type> choice = {0, 0, 0, 0, 0, 0},
+															   maxchoice = {
+																	   winCalculations.size(),
+																	   tripleGenStrategies.size(),
+																	   tripleReductStrategies.size(),
+																	   saveCalculations.size(),
+																	   passes.size(),
+																	   apspStrategies.size(),
+															   };
+
 	enum indices {
 		winIdx = 0,
 		tgenIdx,
@@ -442,7 +438,7 @@ registerZelikovskyVariants(Modules<T> &modules)
 	do {
 		string desc = "Zelikovsky: ";
 
-		MinSteinerTreeZelikovsky<T> *module = new MinSteinerTreeZelikovsky<T>();
+		MinSteinerTreeZelikovsky<T>* module = new MinSteinerTreeZelikovsky<T>();
 
 		Pass pass = passes[choice[passIdx]];
 		desc += std::get<0>(pass);
@@ -470,13 +466,15 @@ registerZelikovskyVariants(Modules<T> &modules)
 
 		// check for invalid configurations
 		if (module->tripleGeneration() == MinSteinerTreeZelikovsky<T>::TripleGeneration::ondemand
-		 && ((module->winCalculation() != MinSteinerTreeZelikovsky<T>::WinCalculation::absolute)
-		  || (module->saveCalculation() == MinSteinerTreeZelikovsky<T>::SaveCalculation::hybrid)
-		  || (module->tripleReduction() == MinSteinerTreeZelikovsky<T>::TripleReduction::off)
-		  || (module->pass() == MinSteinerTreeZelikovsky<T>::Pass::one))) {
+				&& ((module->winCalculation() != MinSteinerTreeZelikovsky<T>::WinCalculation::absolute)
+						|| (module->saveCalculation()
+								== MinSteinerTreeZelikovsky<T>::SaveCalculation::hybrid)
+						|| (module->tripleReduction()
+								== MinSteinerTreeZelikovsky<T>::TripleReduction::off)
+						|| (module->pass() == MinSteinerTreeZelikovsky<T>::Pass::one))) {
 			delete module;
 		} else {
-			addModule(modules, desc, module, 11/6.0);
+			addModule(modules, desc, module, 11 / 6.0);
 		};
 	} while (nextChoice());
 }
@@ -484,32 +482,29 @@ registerZelikovskyVariants(Modules<T> &modules)
 /**
  * Registers one instance of the MinSteinerTreeRZLoss class for each of its variants
  */
-template <typename T>
-static void
-registerRZLossVariants(Modules<T> &modules)
-{
+template<typename T>
+static void registerRZLossVariants(Modules<T>& modules) {
 	// RZLoss for different maximum component sizes
-	for(int maxCompSize = 3; maxCompSize < 6; ++maxCompSize) {
-		MinSteinerTreeRZLoss<T> *alg = new MinSteinerTreeRZLoss<T>();
+	for (int maxCompSize = 3; maxCompSize < 6; ++maxCompSize) {
+		MinSteinerTreeRZLoss<T>* alg = new MinSteinerTreeRZLoss<T>();
 		// APSP is only being used for maximum component size of 3
 		alg->setMaxComponentSize(maxCompSize);
-		addModule(modules, "RZLoss with maximum component size of " + to_string(maxCompSize), alg, 2, {14, 25});
+		addModule(modules, "RZLoss with maximum component size of " + to_string(maxCompSize), alg,
+				2, {14, 25});
 	}
 }
 
 /**
  * Registers one instance of the MinSteinerTreeGoemans139 class for each of its variants
  */
-template <typename T>
-static void
-registerGoemans139Variants(Modules<T> &modules)
-{
+template<typename T>
+static void registerGoemans139Variants(Modules<T>& modules) {
 	// Goemans139 for different maximum component sizes
-	for(int maxCompSize = 3; maxCompSize < 6; ++maxCompSize) {
+	for (int maxCompSize = 3; maxCompSize < 6; ++maxCompSize) {
 		// and for standard and stronger LP relaxation
 		for (int strongerLP = 0; strongerLP < 2; ++strongerLP) {
 			for (int use2approx = 0; use2approx < 2; ++use2approx) {
-				MinSteinerTreeGoemans139<T> *alg = new MinSteinerTreeGoemans139<T>();
+				MinSteinerTreeGoemans139<T>* alg = new MinSteinerTreeGoemans139<T>();
 				std::string info = "Goemans139 with maximum component size ";
 				info += to_string(maxCompSize);
 				alg->setMaxComponentSize(maxCompSize);
@@ -532,8 +527,7 @@ registerGoemans139Variants(Modules<T> &modules)
  * template parameter, like int or double.
  */
 template<typename T>
-void registerSuite(const std::string typeName)
-{
+void registerSuite(const std::string typeName) {
 	describe("for graphs with " + typeName + "-typed costs:", [] {
 		Modules<T> modules;
 		addModule(modules, "DirectedCut default", new MinSteinerTreeDirectedCut<T>(), 1);
@@ -545,7 +539,7 @@ void registerSuite(const std::string typeName)
 		addModule(modules, "Shore", new MinSteinerTreeShore<T>(), 1, {10, 20});
 		addModule(modules, "Primal-Dual", new MinSteinerTreePrimalDual<T>(), 2);
 		addModule(modules, "DualAscent", new MinSteinerTreeDualAscent<T>(), 0);
-		addModule(modules, "Zelikovsky default", new MinSteinerTreeZelikovsky<T>(), 11/6.0);
+		addModule(modules, "Zelikovsky default", new MinSteinerTreeZelikovsky<T>(), 11 / 6.0);
 
 		registerDirectedCutVariants<T>(modules);
 		registerZelikovskyVariants<T>(modules);
@@ -560,7 +554,7 @@ void registerSuite(const std::string typeName)
 	});
 }
 
-go_bandit([](){
+go_bandit([]() {
 	describe("Steiner tree algorithms", []() {
 		registerSuite<int>("int");
 		registerSuite<double>("double");

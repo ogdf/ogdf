@@ -34,7 +34,6 @@
 #include <ogdf/decomposition/DynamicSPQRTree.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
 
-
 namespace ogdf {
 
 //! SPQR-trees of planar graphs.
@@ -51,8 +50,7 @@ namespace ogdf {
  * around its poles, and swap(v,e_1,e_2), which exchanges the
  * positions of the edges e_1 and e_2 in the skeleton of a P-node v.
  */
-class OGDF_EXPORT DynamicPlanarSPQRTree : public DynamicSPQRTree, public PlanarSPQRTree
-{
+class OGDF_EXPORT DynamicPlanarSPQRTree : public DynamicSPQRTree, public PlanarSPQRTree {
 public:
 	// constructors
 
@@ -64,9 +62,7 @@ public:
 	 * \pre \p G is planar and biconnected and contains at least 3 nodes,
 	 *      or \p G has exactly 2 nodes and at least 3 edges.
 	 */
-	explicit DynamicPlanarSPQRTree(Graph &G, bool isEmbedded = false) :
-		DynamicSPQRTree(G)
-	{
+	explicit DynamicPlanarSPQRTree(Graph& G, bool isEmbedded = false) : DynamicSPQRTree(G) {
 		PlanarSPQRTree::init(isEmbedded);
 	}
 
@@ -79,9 +75,7 @@ public:
 	 * contains at least 3 nodes, or \p G has exactly 2 nodes and at least 3
 	 * edges.
 	 */
-	DynamicPlanarSPQRTree(Graph &G, edge e, bool isEmbedded = false) :
-		DynamicSPQRTree(G,e)
-	{
+	DynamicPlanarSPQRTree(Graph& G, edge e, bool isEmbedded = false) : DynamicSPQRTree(G, e) {
 		PlanarSPQRTree::init(isEmbedded);
 	}
 };

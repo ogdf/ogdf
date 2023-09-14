@@ -32,14 +32,12 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/tuples.h>
-#include <ogdf/basic/SList.h>
-
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/NodeSet.h>
-
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/tuples.h>
 
 namespace ogdf {
 
@@ -51,23 +49,22 @@ namespace ogdf {
  * Maintains types of edges (generalization, association) and nodes,
  * and the connected components of the graph.
  */
-class OGDF_EXPORT PlanRepExpansion : public Graph
-{
+class OGDF_EXPORT PlanRepExpansion : public Graph {
 public:
 	struct Crossing {
 		Crossing() { m_adj = nullptr; }
+
 		explicit Crossing(adjEntry adj) { m_adj = adj; }
 
 		adjEntry m_adj;
 		SList<adjEntry> m_partitionLeft;
 		SList<adjEntry> m_partitionRight;
 
-		friend std::ostream &operator<<(std::ostream &os, const Crossing &c) {
+		friend std::ostream& operator<<(std::ostream& os, const Crossing& c) {
 			os << "(" << c.m_adj << ")";
 			return os;
 		}
 	};
-
 
 	/**
 	 * \brief Representation of a node split in a planarized expansion.
@@ -75,8 +72,7 @@ public:
 	 * Stores in particular the insertion path of the node split (just like the
 	 * chain of an original edge).
 	 */
-	class NodeSplit
-	{
+	class NodeSplit {
 	public:
 		/**
 		 * \brief Creates an empty node split.
@@ -96,7 +92,7 @@ public:
 		/**
 		 * \brief Returns the last node on the node split's insertion path.
 		 */
-		node target() const { return m_path.back ()->target(); }
+		node target() const { return m_path.back()->target(); }
 
 		List<edge> m_path; //!< The insertion path of the node split.
 		ListIterator<NodeSplit> m_nsIterator; //!< This node split's iterator in the list of all node splits.
@@ -120,24 +116,23 @@ public:
 	 * @param G is the original graph of this planarized expansion.
 	 * @param splittableNodes contains all the nodes in \p G that are splittable.
 	 */
-	PlanRepExpansion(const Graph& G, const List<node> &splittableNodes);
+	PlanRepExpansion(const Graph& G, const List<node>& splittableNodes);
 
-	~PlanRepExpansion() {}
-
+	~PlanRepExpansion() { }
 
 	/**
 	 * @name Acess methods
 	 */
-	//@{
+	//! @{
 
 	//! Returns a reference to the original graph.
-	const Graph &original() const { return *m_pGraph; }
+	const Graph& original() const { return *m_pGraph; }
 
 	//! Returns the original node of \p v, or 0 if \p v is a dummy.
 	node original(node v) const { return m_vOrig[v]; }
 
 	//! Returns the list of copy nodes of \p vOrig.
-	const List<node> &expansion(node vOrig) const { return m_vCopy[vOrig]; }
+	const List<node>& expansion(node vOrig) const { return m_vCopy[vOrig]; }
 
 	//! Returns the first copy node of \p vOrig.
 	node copy(node vOrig) const { return m_vCopy[vOrig].front(); }
@@ -146,7 +141,7 @@ public:
 	edge originalEdge(edge e) const { return m_eOrig[e]; }
 
 	//! Returns the insertion path of edge \p eOrig.
-	const List<edge> &chain(edge eOrig) const { return m_eCopy[eOrig]; }
+	const List<edge>& chain(edge eOrig) const { return m_eCopy[eOrig]; }
 
 	//! Returns the first edge in \p eOrig's insertion path.
 	edge copy(edge eOrig) const { return m_eCopy[eOrig].front(); }
@@ -158,14 +153,15 @@ public:
 	bool splittableOrig(node vOrig) const { return m_splittableOrig[vOrig]; }
 
 	//! Returns the node split associated with \p e, or 0 if none (e.g., \p e belongs to an original edge).
-	NodeSplit *nodeSplitOf(edge e) const { return m_eNodeSplit[e]; }
+	NodeSplit* nodeSplitOf(edge e) const { return m_eNodeSplit[e]; }
 
 	//! Returns the number of node splits.
 	int numberOfNodeSplits() const { return m_nodeSplits.size(); }
+
 	int numberOfSplittedNodes() const;
 
 	//! Returns the list of node splits.
-	List<NodeSplit> &nodeSplits() { return m_nodeSplits; }
+	List<NodeSplit>& nodeSplits() { return m_nodeSplits; }
 
 	/**
 	 * \brief Sets the original edge and corresponding node split of \p e and returns the corresponding insertion path.
@@ -176,7 +172,7 @@ public:
 	 * @return a reference to the insertion path containing \p e; this is either the insertion
 	 *         path of \p eOrig (if this is not 0), or of \p ns.
 	 */
-	List<edge> &setOrigs(edge e, edge &eOrig, nodeSplit &ns);
+	List<edge>& setOrigs(edge e, edge& eOrig, nodeSplit& ns);
 
 	ListConstIterator<edge> position(edge e) const { return m_eIterator[e]; }
 
@@ -185,42 +181,34 @@ public:
 	//! Computes the number of crossings.
 	int computeNumberOfCrossings() const;
 
-	//@}
+	//! @}
 	/**
 	 * @name Processing connected components
 	 */
-	//@{
+	//! @{
 
 
-	 /**
+	/**
 	 * \brief Returns the number of connected components in the original graph.
 	 */
-	int numberOfCCs() const {
-		return m_nodesInCC.size();
-	}
+	int numberOfCCs() const { return m_nodesInCC.size(); }
 
 	/**
 	 * \brief Returns the index of the current connected component (-1 if not yet initialized).
 	 */
-	int currentCC() const {
-		return m_currentCC;
-	}
+	int currentCC() const { return m_currentCC; }
 
 	/**
 	 * \brief Returns the list of (original) nodes in connected component \p i.
 	 *
 	 * Note that connected components are numbered 0,1,...
 	 */
-	const List<node> &nodesInCC(int i) const {
-		return m_nodesInCC[i];
-	}
+	const List<node>& nodesInCC(int i) const { return m_nodesInCC[i]; }
 
 	/**
 	 * \brief Returns the list of (original) nodes in the current connected component.
 	 */
-	const List<node> &nodesInCC() const {
-		return m_nodesInCC[m_currentCC];
-	}
+	const List<node>& nodesInCC() const { return m_nodesInCC[m_currentCC]; }
 
 	/**
 	 * \brief Initializes the planarized representation for connected component \p i.
@@ -233,11 +221,11 @@ public:
 	void initCC(int i);
 
 
-	//@}
+	//! @}
 	/**
 	 * @name Update operations
 	 */
-	//@{
+	//! @{
 
 	edge split(edge e) override;
 
@@ -249,14 +237,8 @@ public:
 	//! Embeds the planarized expansion; returns true iff it is planar.
 	bool embed();
 
-	void insertEdgePath(
-		edge eOrig,
-		nodeSplit ns,
-		node vStart,
-		node vEnd,
-		List<Crossing> &eip,
-		edge eSrc,
-		edge eTgt);
+	void insertEdgePath(edge eOrig, nodeSplit ns, node vStart, node vEnd, List<Crossing>& eip,
+			edge eSrc, edge eTgt);
 
 	/**
 	 * \brief Inserts an edge or a node split according to insertion path \p crossedEdges.
@@ -270,11 +252,8 @@ public:
 	 * \pre Not both \p eOrig and \p ns may be 0.
 	 * \see GraphCopy::insertEdgePathEmbedded() for a specification of \p crossedEdges.
 	 */
-	void insertEdgePathEmbedded(
-		edge eOrig,
-		nodeSplit ns,
-		CombinatorialEmbedding &E,
-		const List<Tuple2<adjEntry,adjEntry> > &crossedEdges);
+	void insertEdgePathEmbedded(edge eOrig, nodeSplit ns, CombinatorialEmbedding& E,
+			const List<Tuple2<adjEntry, adjEntry>>& crossedEdges);
 
 	/**
 	 * \brief Removes the insertion path of \p eOrig or \p ns.
@@ -289,14 +268,8 @@ public:
 	 * @param oldTgt is assigned the target node of the removed insertion path.
 	 * \pre Not both \p eOrig and \p ns may be 0.
 	 */
-	void removeEdgePathEmbedded(
-		CombinatorialEmbedding &E,
-		edge eOrig,
-		nodeSplit ns,
-		FaceSet<false> &newFaces,
-		NodeSet<false> &mergedNodes,
-		node &oldSrc,
-		node &oldTgt);
+	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, nodeSplit ns,
+			FaceSet<false>& newFaces, NodeSet<false>& mergedNodes, node& oldSrc, node& oldTgt);
 
 	/**
 	 * \brief Removes the insertion path of \p eOrig or \p ns.
@@ -307,11 +280,7 @@ public:
 	 * @param oldTgt is assigned the target node of the removed insertion path.
 	 * \pre Not both \p eOrig and \p ns may be 0.
 	 */
-	void removeEdgePath(
-		edge eOrig,
-		nodeSplit ns,
-		node &oldSrc,
-		node &oldTgt);
+	void removeEdgePath(edge eOrig, nodeSplit ns, node& oldSrc, node& oldTgt);
 
 	/**
 	 * \brief Removes an (unneccessary) node split consisting of a single edge.
@@ -321,7 +290,7 @@ public:
 	 * @param ns is the node split to be removed.
 	 * @param E is an embedding of the planarized expansion.
 	 */
-	void contractSplit(nodeSplit ns, CombinatorialEmbedding &E);
+	void contractSplit(nodeSplit ns, CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Removes an (unneccessary) node split consisting of a single edge.
@@ -342,11 +311,7 @@ public:
 	 *        that gets enlarged.
 	 * @param E is an embedding of the planarized expansion.
 	 */
-	edge unsplitExpandNode(
-		node u,
-		edge eContract,
-		edge eExpand,
-		CombinatorialEmbedding &E);
+	edge unsplitExpandNode(node u, edge eContract, edge eExpand, CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Unsplits a superfluous expansion node of degree 2.
@@ -357,10 +322,7 @@ public:
 	 * @param eExpand is the edge incident to \p u which belongs to the insertion path
 	 *        that gets enlarged.
 	 */
-	edge unsplitExpandNode(
-		node u,
-		edge eContract,
-		edge eExpand);
+	edge unsplitExpandNode(node u, edge eContract, edge eExpand);
 
 	/**
 	 * \brief Splits edge \p e and introduces a new node split starting at \p v.
@@ -373,7 +335,7 @@ public:
 	 * @return the newly created edge; the node resulting from splitting \p e is the
 	 *         target node of this edge.
 	 */
-	edge enlargeSplit(node v, edge e, CombinatorialEmbedding &E);
+	edge enlargeSplit(node v, edge e, CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Splits edge \p e and introduces a new node split starting at \p v.
@@ -396,7 +358,7 @@ public:
 	 * @return the newly created edge;  the node resulting from splitting \p e is the
 	 *         target node of this edge.
 	 */
-	edge splitNodeSplit(edge e, CombinatorialEmbedding &E);
+	edge splitNodeSplit(edge e, CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Introduces a new node split by splitting an exisiting node split.
@@ -416,7 +378,7 @@ public:
 	 * @param e must be a self loop in the planarized expansion.
 	 * @param E is an embedding of the planarized expansion.
 	 */
-	void removeSelfLoop(edge e, CombinatorialEmbedding &E);
+	void removeSelfLoop(edge e, CombinatorialEmbedding& E);
 
 	void removeSelfLoop(edge e);
 
@@ -431,56 +393,47 @@ public:
 	 * @param vOrig is an original node.
 	 * @param ns is a node split that can be reused for connecting \a x with \p u.
 	 */
-	PlanRepExpansion::nodeSplit convertDummy(
-		node u,
-		node vOrig,
-		PlanRepExpansion::nodeSplit ns);
+	PlanRepExpansion::nodeSplit convertDummy(node u, node vOrig, PlanRepExpansion::nodeSplit ns);
 
-	edge separateDummy(
-		adjEntry adj_1,
-		adjEntry adj_2,
-		node vStraight,
-		bool isSrc);
+	edge separateDummy(adjEntry adj_1, adjEntry adj_2, node vStraight, bool isSrc);
 
 	void resolvePseudoCrossing(node v);
 
-	//@}
+	//! @}
 	/**
 	 * @name Miscelleaneous
 	 */
-	//@{
+	//! @{
 
 #ifdef OGDF_DEBUG
 	void consistencyCheck() const;
 #endif
 
-	//@}
+	//! @}
 
 private:
-	void doInit(const Graph &G, const List<node> &splittableNodes);
-	void prepareNodeSplit(
-		const SList<adjEntry> &partitionLeft,
-		adjEntry &adjLeft,
-		adjEntry &adjRight);
+	void doInit(const Graph& G, const List<node>& splittableNodes);
+	void prepareNodeSplit(const SList<adjEntry>& partitionLeft, adjEntry& adjLeft,
+			adjEntry& adjRight);
 
-	const Graph *m_pGraph;                      //!< The original graph.
-	NodeArray<node> m_vOrig;                    //!< The corresponding node in the original graph.
-	EdgeArray<edge> m_eOrig;                    //!< The corresponding edge in the original graph.
-	EdgeArray<ListIterator<edge> > m_eIterator; //!< The position of copy edge in the list.
-	EdgeArray<List<edge> > m_eCopy;             //!< The corresponding list of edges in the graph copy.
-	NodeArray<ListIterator<node> > m_vIterator; //!< The position of copy node in the list.
-	NodeArray<List<node> > m_vCopy;             //!< The corresponding list of nodes in the graph copy.
+	const Graph* m_pGraph; //!< The original graph.
+	NodeArray<node> m_vOrig; //!< The corresponding node in the original graph.
+	EdgeArray<edge> m_eOrig; //!< The corresponding edge in the original graph.
+	EdgeArray<ListIterator<edge>> m_eIterator; //!< The position of copy edge in the list.
+	EdgeArray<List<edge>> m_eCopy; //!< The corresponding list of edges in the graph copy.
+	NodeArray<ListIterator<node>> m_vIterator; //!< The position of copy node in the list.
+	NodeArray<List<node>> m_vCopy; //!< The corresponding list of nodes in the graph copy.
 
 	NodeArray<bool> m_splittable;
 	NodeArray<bool> m_splittableOrig;
-	EdgeArray<NodeSplit *> m_eNodeSplit;
+	EdgeArray<NodeSplit*> m_eNodeSplit;
 	List<NodeSplit> m_nodeSplits;
 
 	int m_currentCC; //!< The index of the current component.
-	int m_numCC;     //!< The number of components in the original graph.
+	int m_numCC; //!< The number of components in the original graph.
 
-	Array<List<node> >  m_nodesInCC; //!< The list of original nodes in each component.
-	EdgeArray<edge>     m_eAuxCopy; // auxiliary
+	Array<List<node>> m_nodesInCC; //!< The list of original nodes in each component.
+	EdgeArray<edge> m_eAuxCopy; // auxiliary
 };
 
 }

@@ -29,16 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <typeinfo>
-
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Math.h>
+
+#include <typeinfo>
 
 #include <testing.h>
 
 template<typename T>
-static void testGcdAndLcm(const char *type)
-{
+static void testGcdAndLcm(const char* type) {
 	it("computes gcd of large numbers of type " + string(type), [] {
 		T big = std::numeric_limits<T>::max();
 		AssertThat(Math::gcd(big, big), Equals(big));
@@ -49,14 +48,13 @@ static void testGcdAndLcm(const char *type)
 	});
 }
 
-static void testHarmonic()
-{
+static void testHarmonic() {
 	it("computes harmonic numbers correctly", []() {
 		EpsilonTest eps;
 		AssertThat(eps.equal(Math::harmonic(0), 1.0), IsTrue());
 		AssertThat(eps.equal(Math::harmonic(1), 1.0), IsTrue());
 		AssertThat(eps.equal(Math::harmonic(2), 1.5), IsTrue());
-		AssertThat(eps.equal(Math::harmonic(3), 1.5 + 1/3.0), IsTrue());
+		AssertThat(eps.equal(Math::harmonic(3), 1.5 + 1 / 3.0), IsTrue());
 		AssertThat(Math::harmonic(10), IsLessThan(3));
 		AssertThat(Math::harmonic(11), IsGreaterThan(3));
 		AssertThat(Math::harmonic(30), IsLessThan(4));
@@ -93,7 +91,7 @@ void testJump(int exponent) {
 }
 
 template<typename T>
-void test(const string &name, int maxExponent = sizeof(T)*8 - 1) {
+void test(const string& name, int maxExponent = sizeof(T) * 8 - 1) {
 	it("works with " + name, [&] {
 		testSingle<T>(0, 0);
 		testSingle<T>(1, 1);
@@ -107,7 +105,7 @@ void test(const string &name, int maxExponent = sizeof(T)*8 - 1) {
 
 template<typename T>
 void testUnSigned(string name) {
-	test<typename std::make_signed<T>::type>(name, sizeof(T)* 8 - 2);
+	test<typename std::make_signed<T>::type>(name, sizeof(T) * 8 - 2);
 	test<typename std::make_unsigned<T>::type>("unsigned " + name);
 }
 
@@ -116,13 +114,13 @@ void testUnSigned(string name) {
 go_bandit([]() {
 	describe("Math.h", []() {
 		it("computes gcd with two arguments", []() {
-			AssertThat(Math::gcd(5,7), Equals(1));
-			AssertThat(Math::gcd(5,15), Equals(5));
-			AssertThat(Math::gcd(6,9), Equals(3));
+			AssertThat(Math::gcd(5, 7), Equals(1));
+			AssertThat(Math::gcd(5, 15), Equals(5));
+			AssertThat(Math::gcd(6, 9), Equals(3));
 		});
 		it("computes gcd with array of arguments", []() {
-			AssertThat(Math::gcd(Array<int>({5,7,11})), Equals(1));
-			AssertThat(Math::gcd(Array<int>({6,12,45})), Equals(3));
+			AssertThat(Math::gcd(Array<int>({5, 7, 11})), Equals(1));
+			AssertThat(Math::gcd(Array<int>({6, 12, 45})), Equals(3));
 		});
 		testGcdAndLcm<int>("int");
 		testGcdAndLcm<unsigned int>("unsigned int");

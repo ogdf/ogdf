@@ -1,0 +1,212 @@
+# Based on clang-format version 15.0.7
+---
+Language: Cpp
+DisableFormat: false
+BasedOnStyle: WebKit # for all options not explicitly set
+
+## comments
+CommentPragmas: '' # comments with special meaning that should not be changed
+ReflowComments: false # do not touch comments due to commented out code
+FixNamespaceComments: false
+
+## macros that receive special treatment
+AttributeMacros: []
+ForEachMacros:
+  - foreach
+  - forall_cluster_adj
+  - forall_cluster_rev_adj
+  - forall_cluster_adj_edges
+  - forall_clusters
+  - forall_postOrderClusters
+  - forall_adj_elements
+  - forall_hypernodes
+  - forall_rev_hypernodes
+  - forall_hyperedges
+  - forall_rev_hyperedges
+IfMacros: []
+MacroBlockBegin: ''
+MacroBlockEnd: ''
+NamespaceMacros: []
+StatementMacros: # macros that do not need an additional ";"
+  - OGDF_MM
+  - OGDF_NEW_DELETE
+  - OGDF_MALLOC_NEW_DELETE
+  - OGDF_STD_COMPARER
+  - OGDF_AUGMENT_COMPARER
+  - OGDF_AUGMENT_STATICCOMPARER
+  - OGDF_DECLARE_COMPARER
+  - OGDF_OCM_REF_ATTR
+  - OGDF_OCM_REF_ATTR_DEF
+  - OGDF_OCM_PARAM_ATTR
+  - OGDF_OCM_PARAM_ATTR_DEF
+  - READ_FILENAME
+  - WRITE_FILENAME
+  - READ_STREAM
+StatementAttributeLikeMacros: []
+TypenameMacros: []
+WhitespaceSensitiveMacros: []
+
+## single line statements
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+
+## breaking lines
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: true
+BinPackParameters: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Attach
+BreakBeforeConceptDeclarations: Always
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeColon
+BreakStringLiterals: false
+CompactNamespaces: false
+PackConstructorInitializers: NextLine
+RequiresClausePosition: OwnLine
+
+## penalties: when to break line if it becomes too long
+ColumnLimit: 100
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakTemplateDeclaration: 0
+PenaltyIndentedWhitespace: 0
+PenaltyBreakAssignment: 1
+PenaltyBreakOpenParenthesis: 1
+PenaltyExcessCharacter: 10
+PenaltyBreakBeforeFirstCallParameter: 50
+PenaltyReturnTypeOnItsOwnLine: 100
+PenaltyBreakString: 200
+PenaltyBreakComment: 500 # avoid line breaks in commented out code
+
+## sorting includes and "using"s
+# note: <testing.h> must come after other <...>-includes!
+SortIncludes: true
+SortUsingDeclarations: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<ogdf/lib/.*\.h>'
+    Priority:        2
+    SortPriority:    0
+  - Regex:           '^<ogdf/basic/.*\.h>'
+    Priority:        1
+    SortPriority:    0
+  - Regex:           '^<ogdf/.*\.h>'
+    Priority:        1
+    SortPriority:    1
+  - Regex:           '^<coin/.*\.hpp>'
+    Priority:        2
+    SortPriority:    1
+  - Regex:           '^<.*\.h>'
+    Priority:        4
+    SortPriority:    0
+  - Regex:           '^<.*>'
+    Priority:        3
+    SortPriority:    0
+  - Regex:           '.*'
+    Priority:        5
+    SortPriority:    0
+IncludeIsMainRegex: '$'
+IncludeIsMainSourceRegex: ''
+
+## line endings
+DeriveLineEnding: false
+UseCRLF: false
+
+## empty lines
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 2
+SeparateDefinitionBlocks: Always
+
+## (tab) indentation
+UseTab: ForContinuationAndIndentation
+TabWidth: 4
+AccessModifierOffset: -4 # in/outdent public private etc.
+NamespaceIndentation: None
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 8 # to separate function content from params
+IndentAccessModifiers: false
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentExternBlock: AfterExternBlock
+IndentRequiresClause: true
+IndentGotoLabels: false
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+IndentWrappedFunctionNames: false
+LambdaBodyIndentation: Signature
+PPIndentWidth: -1 # use IndentWidth
+
+## (no) alignment
+AlignAfterOpenBracket: false
+AlignArrayOfStructures: None
+AlignConsecutiveAssignments: false
+AlignConsecutiveBitFields: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+AlignEscapedNewlines: Left
+AlignOperands: false
+AlignTrailingComments: false
+
+## spaces
+BitFieldColonSpacing: Both
+SpacesBeforeTrailingComments: 1
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatementsExceptControlMacros
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: true
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Cpp11BracedListStyle: true
+
+## pointer/qualifier/reference alignment
+DerivePointerAlignment: false
+PointerAlignment: Left
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+
+## inserting braces for single-line control statements
+InsertBraces: true
+
+# for strings containing code
+# RawStringFormats:
+  # - Language: Cpp
+  #   Delimiters:
+  #     - cc
+  #     - CC
+  #     - cpp
+  #     - Cpp
+  #     - CPP
+  #     - 'c++'
+  #     - 'C++'
+  #   CanonicalDelimiter: ''
+  #   BasedOnStyle: WebKit
+
+...

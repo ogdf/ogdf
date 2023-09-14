@@ -33,13 +33,12 @@
 
 #include <ogdf/basic/basic.h>
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACKTRACE
-#include <ogdf/lib/backward/backward.hpp>
+#	include <ogdf/lib/backward/backward.hpp>
 #endif
 
 namespace ogdf {
 
-void get_stacktrace(std::ostream &stream)
-{
+void get_stacktrace(std::ostream& stream) {
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACKTRACE
 	stream << "\n";
 	backward::StackTrace st;

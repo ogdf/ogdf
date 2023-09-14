@@ -38,16 +38,13 @@ namespace embedding_inserter {
 
 //! Bucket function for sorting edges by decreasing number of crossings
 template<typename PLANREP>
-class CrossingsBucket : public BucketFunc<edge>
-{
-	const PLANREP *m_pPG;
+class CrossingsBucket : public BucketFunc<edge> {
+	const PLANREP* m_pPG;
 
 public:
-	explicit CrossingsBucket(const PLANREP *pPG) : m_pPG(pPG) { }
+	explicit CrossingsBucket(const PLANREP* pPG) : m_pPG(pPG) { }
 
-	int getBucket(const edge &e) override {
-		return -m_pPG->chain(e).size();
-	}
+	int getBucket(const edge& e) override { return -m_pPG->chain(e).size(); }
 };
 
 }

@@ -6,6 +6,8 @@ Here you find the release notes (usually a summary of noteworthy changes)
 for our OGDF releases. If you want information of compatibility-breaking
 changes for a specific release, check the [Porting Guide](porting.md).
 
+  * [2023.09 (Elderberry)](relnotes/elderberry.md)
+  * [2022.02 (Dogwood)](relnotes/dogwood.md)
   * [2020.02 (Catalpa)](relnotes/catalpa.md)
   * [2015.05 (Baobab)](relnotes/baobab.md)
   * [2012.07 (Sakura)](relnotes/sakura.md)

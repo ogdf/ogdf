@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/basic/Module.h>
-
+#include <ogdf/planarity/PlanRepExpansion.h>
 
 namespace ogdf {
 
@@ -59,7 +58,7 @@ public:
 	 *        of \p PG) that have to be inserted.
 	 * \return the status of the result.
 	 */
-	ReturnType call(PlanRepExpansion &PG, const List<edge> &origEdges) {
+	ReturnType call(PlanRepExpansion& PG, const List<edge>& origEdges) {
 		return doCall(PG, origEdges, nullptr);
 	}
 
@@ -73,10 +72,8 @@ public:
 	 *        forbidden to be crossed.
 	 * \return the status of the result.
 	 */
-	ReturnType call(PlanRepExpansion &PG,
-		const List<edge> &origEdges,
-		const EdgeArray<bool> &forbiddenEdgeOrig)
-	{
+	ReturnType call(PlanRepExpansion& PG, const List<edge>& origEdges,
+			const EdgeArray<bool>& forbiddenEdgeOrig) {
 		return doCall(PG, origEdges, &forbiddenEdgeOrig);
 	}
 
@@ -90,8 +87,8 @@ protected:
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */
-	virtual ReturnType doCall(PlanRepExpansion &PG,
-		const List<edge> &origEdges, const EdgeArray<bool> *forbiddenEdgeOrig) = 0;
+	virtual ReturnType doCall(PlanRepExpansion& PG, const List<edge>& origEdges,
+			const EdgeArray<bool>* forbiddenEdgeOrig) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

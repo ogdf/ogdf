@@ -32,10 +32,10 @@
 
 #pragma once
 
-#include <ogdf/tree/LCA.h>
 #include <ogdf/graphalg/steiner_tree/Save.h>
 #include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
+#include <ogdf/tree/LCA.h>
 
 namespace ogdf {
 namespace steiner_tree {
@@ -47,7 +47,7 @@ namespace steiner_tree {
  */
 //#define OGDF_SAVEDYNAMIC_CHANGE_TST
 template<typename T>
-class SaveDynamic: public Save<T> {
+class SaveDynamic : public Save<T> {
 public:
 	/*!
 	 * \brief Builds a weighted binary tree based on the given terminal spanning tree.
@@ -55,21 +55,17 @@ public:
 	 * Additionally the LCA data structure is initialized.
 	 * @param steinerTree the given terminal spanning tree
 	 */
-	explicit SaveDynamic(EdgeWeightedGraphCopy<T> &steinerTree)
-	  : Save<T>()
-	  , m_tree()
-	  , m_treeEdge(m_tree, nullptr)
-	  , m_steinerTree(&steinerTree)
-	  , m_cTerminals(*m_steinerTree, nullptr)
-	{
+	explicit SaveDynamic(EdgeWeightedGraphCopy<T>& steinerTree)
+		: Save<T>()
+		, m_tree()
+		, m_treeEdge(m_tree, nullptr)
+		, m_steinerTree(&steinerTree)
+		, m_cTerminals(*m_steinerTree, nullptr) {
 		m_root = buildHeaviestEdgeInComponentTree(*m_steinerTree, m_cTerminals, m_treeEdge, m_tree);
 		m_lca = new LCA(m_tree, m_root);
 	}
 
-	virtual ~SaveDynamic()
-	{
-		delete m_lca;
-	}
+	virtual ~SaveDynamic() { delete m_lca; }
 
 	/*!
 	 * \brief Returns the gain (sum of save edge costs) of the given triple, calculated by an LCA query
@@ -79,8 +75,7 @@ public:
 	 * @param w Third terminal
 	 * @return The gain (sum of save edge costs) of the given triple
 	 */
-	virtual T gain(node u, node v, node w) const
-	{
+	virtual T gain(node u, node v, node w) const {
 		node save1 = lca(m_steinerTree->copy(u), m_steinerTree->copy(v));
 		node save2 = lca(m_steinerTree->copy(u), m_steinerTree->copy(w));
 		if (save1 == save2) {
@@ -96,10 +91,7 @@ public:
 	 * @param v First node
 	 * @return Weight of the save edge between two given nodes
 	 */
-	virtual T saveWeight(node u, node v) const
-	{
-		return weight(saveEdge(u, v));
-	}
+	virtual T saveWeight(node u, node v) const { return weight(saveEdge(u, v)); }
 
 	/*!
 	 * \brief Determines the save edge between two nodes by a LCA query
@@ -108,8 +100,7 @@ public:
 	 * @param v First node
 	 * @return The save edge between two given nodes
 	 */
-	virtual edge saveEdge(node u, node v) const
-	{
+	virtual edge saveEdge(node u, node v) const {
 		OGDF_ASSERT(m_steinerTree->copy(u));
 		OGDF_ASSERT(m_steinerTree->copy(v));
 		node anc = lca(m_steinerTree->copy(u), m_steinerTree->copy(v));
@@ -125,8 +116,7 @@ public:
 	 * to the terminals in the triple. It takes time O(height of m_tree).
 	 * @param t The contracted triple
 	 */
-	virtual void update(const Triple<T> &t)
-	{
+	virtual void update(const Triple<T>& t) {
 #ifdef OGDF_SAVEDYNAMIC_CHANGE_TST
 		edge se0 = saveEdge(t.s0(), t.s1());
 		edge se1 = saveEdge(t.s0(), t.s2());
@@ -190,9 +180,8 @@ public:
 			}
 			// now v0 is the node with the least weight... if equal, with the highest level.
 
-			if (v0 != save1
-			 && v0 != save2) {
-				for(adjEntry adj : currentNode->adjEntries) {
+			if (v0 != save1 && v0 != save2) {
+				for (adjEntry adj : currentNode->adjEntries) {
 					edge e = adj->theEdge();
 					if (e->target() == currentNode) {
 						m_tree.delEdge(e);
@@ -207,7 +196,7 @@ public:
 			v = v0;
 			v0 = nullptr;
 			edge e = nullptr;
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				e = adj->theEdge();
 				if (e->target() == v) {
 					v0 = e->source();
@@ -240,7 +229,6 @@ public:
 	}
 
 protected:
-
 	/*!
 	 * \brief Returns the node in m_tree that is the LCA of two nodes
 	 *
@@ -248,24 +236,17 @@ protected:
 	 * @param v second node
 	 * @return the LCA of u and v
 	 */
-	node lca(node u, node v) const
-	{
+	node lca(node u, node v) const {
 		OGDF_ASSERT(u);
 		OGDF_ASSERT(v);
 		return m_lca->call(m_cTerminals[u], m_cTerminals[v]);
 	}
 
 	//! Returns the weight of an edge in the terminal tree or 0
-	T weight(edge e) const
-	{
-		return e ? m_steinerTree->weight(e) : 0;
-	}
+	T weight(edge e) const { return e ? m_steinerTree->weight(e) : 0; }
 
 	//! Returns the associated weight of a node v in m_tree, or 0 if it is not associated.
-	T weight(node v) const
-	{
-		return weight(m_treeEdge[v]);
-	}
+	T weight(node v) const { return weight(m_treeEdge[v]); }
 
 private:
 	Graph m_tree; //!< The weighted binary tree to represent the edge weight hierarchy
@@ -274,9 +255,9 @@ private:
 #ifndef OGDF_SAVEDYNAMIC_CHANGE_TST
 	const
 #endif
-	EdgeWeightedGraphCopy<T> *m_steinerTree; //!< The underlying terminal spanning tree this weighted tree instance represents
+			EdgeWeightedGraphCopy<T>* m_steinerTree; //!< The underlying terminal spanning tree this weighted tree instance represents
 	NodeArray<node> m_cTerminals; //!< Connects terminal nodes in the terminal spanning tree to their leafs in the weighted tree
-	LCA *m_lca; //!< Data structure for calculating the LCAs
+	LCA* m_lca; //!< Data structure for calculating the LCAs
 };
 
 }

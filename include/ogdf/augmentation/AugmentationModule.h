@@ -54,13 +54,14 @@ class OGDF_EXPORT AugmentationModule {
 public:
 	//! Initializes an augmentation module.
 	AugmentationModule() : m_nAddedEdges(0) { }
+
 	// destruction
 	virtual ~AugmentationModule() { }
 
 	//! Calls the augmentation module for graph \p G.
 	void call(Graph& G) {
 		List<edge> L;
-		call(G,L);
+		call(G, L);
 	}
 
 	//! Calls the augmentation module for graph \p G.
@@ -71,8 +72,8 @@ public:
 	 *
 	 * Returns the list of added edges in \p L.
 	 */
-	void call(Graph& G, List<edge> &L) {
-		doCall(G,L);
+	void call(Graph& G, List<edge>& L) {
+		doCall(G, L);
 		m_nAddedEdges = L.size();
 	}
 
@@ -81,12 +82,10 @@ public:
 	 *
 	 * Returns the list of added edges in \p L.
 	 */
-	void operator()(Graph& G, List<edge> &L) { call(G,L); }
+	void operator()(Graph& G, List<edge>& L) { call(G, L); }
 
 	//! Returns the number of added edges.
-	int numberOfAddedEdges() const {
-		return m_nAddedEdges;
-	}
+	int numberOfAddedEdges() const { return m_nAddedEdges; }
 
 protected:
 	/**
@@ -94,7 +93,7 @@ protected:
 	 *
 	 * Returns the list of added edges in \p L.
 	 */
-	virtual void doCall(Graph& G, List<edge> &L) = 0;
+	virtual void doCall(Graph& G, List<edge>& L) = 0;
 
 private:
 	int m_nAddedEdges;

@@ -33,17 +33,16 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 #include <ogdf/planarlayout/LeftistOrdering.h>
-#include <sstream>
 
+#include <sstream>
 
 namespace ogdf {
 
-class BitonicOrdering
-{
+class BitonicOrdering {
 public:
 	// constructs a bitonic st ordering for G and embeds G accordingly.
 	// Requires G to be planar, embedded, biconnected
@@ -55,18 +54,12 @@ public:
 #endif
 
 	// returns the index in the st order of v
-	int getIndex(node v) const
-	{
-		return m_orderIndex[v];
-	}
+	int getIndex(node v) const { return m_orderIndex[v]; }
 
 	// returns the i-th node in the bitonic st order
-	node getNode(int i) const
-	{
-		return m_indexToNode[i];
-	}
-private:
+	node getNode(int i) const { return m_indexToNode[i]; }
 
+private:
 	// used to distinguish between the three cases below
 	void handleCase(node v_T);
 
@@ -82,16 +75,14 @@ private:
 	// transforms the result of the canonical ordering into two arrays,
 	// one holding the index in the temporary order for a node,
 	// the other is the reverse map. Function assumes proper init for indices and vertices
-	void partitionToOrderIndices(const List<List<node> >& partitionlist,
-	                             NodeArray<int>& indices,
-	                             Array<node>& vertices) const;
+	void partitionToOrderIndices(const List<List<node>>& partitionlist, NodeArray<int>& indices,
+			Array<node>& vertices) const;
 
 	// the R-node case
 	void handleRigidCase(node v_T);
 
 	// label a new node
-	void assignLabel(node v_T, node v)
-	{
+	void assignLabel(node v_T, node v) {
 		// the real graph node
 		node v_G = m_tree.skeleton(v_T).original(v);
 
@@ -103,8 +94,7 @@ private:
 	}
 
 	// returns the label of a node v in the skeleton of v_T
-	int getLabel(node v_T, node v) const
-	{
+	int getLabel(node v_T, node v) const {
 		// the real graph node
 		node v_G = m_tree.skeleton(v_T).original(v);
 
@@ -113,16 +103,10 @@ private:
 	}
 
 	// mark a skeleton as temporarily flipped
-	void setFlipped(node v_T, bool flag)
-	{
-		m_flipped[v_T] = flag;
-	}
+	void setFlipped(node v_T, bool flag) { m_flipped[v_T] = flag; }
 
 	// returns true if a skeleton is temporarily flipped
-	bool isFlipped(node v_T) const
-	{
-		return m_flipped[v_T];
-	}
+	bool isFlipped(node v_T) const { return m_flipped[v_T]; }
 
 	// the graph
 	Graph& m_graph;

@@ -30,101 +30,99 @@
  */
 
 
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>
-
 
 namespace ogdf {
 
 const int BoyerMyrvoldPlanar::DirectionCCW = 0;
-const int BoyerMyrvoldPlanar::DirectionCW  = 1;
+const int BoyerMyrvoldPlanar::DirectionCW = 1;
 
 // constructor
-BoyerMyrvoldPlanar::BoyerMyrvoldPlanar(
-	Graph& g,
-	bool bundles,
-	int embeddingGrade, // see enumeration EmbeddingGrade for options
-	bool limitStructures, // limits number of structures to embeddingGrade
-	SListPure<KuratowskiStructure>& output,
-	double randomness, // creates a random DFS-Tree, if in [0,1[
-	                   // a value of 1 will always chose the edges with highest cost not be deleted
-	bool avoidE2Minors, // avoids multiple identical minors (type AE2/E2)
-	bool extractSubgraph, // will extract planar subgraph
-	const EdgeArray<int> *edgeCosts) // costs for removing each edge
-:
-m_g(g),
-	m_bundles(bundles),
-	m_embeddingGrade(embeddingGrade),
-	m_limitStructures(limitStructures),
-	m_randomness(randomness),
-	m_avoidE2Minors(avoidE2Minors),
-	m_edgeCosts(edgeCosts),
-	m_extractSubgraph(extractSubgraph),
+BoyerMyrvoldPlanar::BoyerMyrvoldPlanar(Graph& g, bool bundles,
+		int embeddingGrade, // see enumeration EmbeddingGrade for options
+		bool limitStructures, // limits number of structures to embeddingGrade
+		SListPure<KuratowskiStructure>& output,
+		double randomness, // creates a random DFS-Tree, if in [0,1[
+		// a value of 1 will always chose the edges with highest cost not be deleted
+		bool avoidE2Minors, // avoids multiple identical minors (type AE2/E2)
+		bool extractSubgraph, // will extract planar subgraph
+		const EdgeArray<int>* edgeCosts) // costs for removing each edge
+	: m_g(g)
+	, m_bundles(bundles)
+	, m_embeddingGrade(embeddingGrade)
+	, m_limitStructures(limitStructures)
+	, m_randomness(randomness)
+	, m_avoidE2Minors(avoidE2Minors)
+	, m_edgeCosts(edgeCosts)
+	, m_extractSubgraph(extractSubgraph)
+	,
 
 	// BoyerMyrvoldInit members
-	m_realVertex(g,nullptr),
-	m_dfi(g,0),
-	m_nodeFromDFI(-g.numberOfNodes(),g.numberOfNodes(),nullptr),
-	m_adjParent(g,nullptr),
-	m_leastAncestor(g), // doesn't need initialization
-	m_edgeType(g,BoyerMyrvoldEdgeType::Undefined),
-	m_lowPoint(g), // doesn't need initialization
-	m_separatedDFSChildList(g),
-	m_pNodeInParent(g), // doesn't need initialization
+	m_realVertex(g, nullptr)
+	, m_dfi(g, 0)
+	, m_nodeFromDFI(-g.numberOfNodes(), g.numberOfNodes(), nullptr)
+	, m_adjParent(g, nullptr)
+	, m_leastAncestor(g)
+	, // doesn't need initialization
+	m_edgeType(g, BoyerMyrvoldEdgeType::Undefined)
+	, m_lowPoint(g)
+	, // doesn't need initialization
+	m_separatedDFSChildList(g)
+	, m_pNodeInParent(g)
+	, // doesn't need initialization
 
 	// Walkup & Walkdown members
-	m_visited(g,0),
-	m_flipped(g,false),
-	m_backedgeFlags(g),
-	m_pertinentRoots(g),
-	m_output(output)
-{
+	m_visited(g, 0)
+	, m_flipped(g, false)
+	, m_backedgeFlags(g)
+	, m_pertinentRoots(g)
+	, m_output(output) {
 	m_rand.seed(rand());
-	m_link[BoyerMyrvoldPlanar::DirectionCCW].init(g,nullptr);
-	m_link[BoyerMyrvoldPlanar::DirectionCW].init(g,nullptr);
-	m_beforeSCE[BoyerMyrvoldPlanar::DirectionCCW].init(g,nullptr);
-	m_beforeSCE[BoyerMyrvoldPlanar::DirectionCW].init(g,nullptr);
+	m_link[BoyerMyrvoldPlanar::DirectionCCW].init(g, nullptr);
+	m_link[BoyerMyrvoldPlanar::DirectionCW].init(g, nullptr);
+	m_beforeSCE[BoyerMyrvoldPlanar::DirectionCCW].init(g, nullptr);
+	m_beforeSCE[BoyerMyrvoldPlanar::DirectionCW].init(g, nullptr);
 	m_output.clear();
 	// apply this only, if FIND-procedure will be called
 	if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
-		m_pointsToRoot.init(g,nullptr);
-		m_visitedWithBackedge.init(g,nullptr);
-		m_numUnembeddedBackedgesInBicomp.init(g,0);
+		m_pointsToRoot.init(g, nullptr);
+		m_visitedWithBackedge.init(g, nullptr);
+		m_numUnembeddedBackedgesInBicomp.init(g, 0);
 		m_highestSubtreeDFI.init(g); // doesn't need initialization
 	}
 	m_flippedNodes = 0;
 }
-
 
 // walk upon external face in the given direction, see getSucessorOnExternalFace
 // the difference is, that all inactive vertices are skipped, i.e. the returned node
 // is active in relation to the node with dfi v
 // in the special case of degree-one nodes the direction is not changed
 // info returns the dynamic nodetype of the endnode
-node BoyerMyrvoldPlanar::activeSuccessor(node w, int& direction, int v, int& info) const
-{
-	OGDF_ASSERT(w!=nullptr);
-	OGDF_ASSERT(w->degree()>0);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][w]!=nullptr);
-	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][w]!=nullptr);
+node BoyerMyrvoldPlanar::activeSuccessor(node w, int& direction, int v, int& info) const {
+	OGDF_ASSERT(w != nullptr);
+	OGDF_ASSERT(w->degree() > 0);
+	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][w] != nullptr);
+	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][w] != nullptr);
 	node next;
 	adjEntry adj;
 
 	do {
 		adj = m_link[direction][w];
 		next = adj->theNode();
-		OGDF_ASSERT(next!=nullptr);
-		OGDF_ASSERT(next->degree()>0);
-		OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][next]!=nullptr);
-		OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][next]!=nullptr);
+		OGDF_ASSERT(next != nullptr);
+		OGDF_ASSERT(next->degree() > 0);
+		OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][next] != nullptr);
+		OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][next] != nullptr);
 
-		if (w->degree() > 1)
-			direction = adj==beforeShortCircuitEdge(next,BoyerMyrvoldPlanar::DirectionCCW)->twin();
-		w=next;
-		info = infoAboutNode(next,v);
+		if (w->degree() > 1) {
+			direction = adj == beforeShortCircuitEdge(next, BoyerMyrvoldPlanar::DirectionCCW)->twin();
+		}
+		w = next;
+		info = infoAboutNode(next, v);
 
-	} while (info==0); // until not inactive
+	} while (info == 0); // until not inactive
 	return next;
 }
 
@@ -182,46 +180,47 @@ void BoyerMyrvoldPlanar::mergeBiconnectedComponent(ArrayBuffer<int>& stack) {
 		OGDF_ASSERT(e->target() != x);
 		// this allows also self-loops when moving adjacency entries
 		if (e->source() == w) {
-			if (!doEmbed) { m_g.moveSource(e, x); }
-			else { m_g.moveSource(e, mergeEntry, dir); }
+			if (!doEmbed) {
+				m_g.moveSource(e, x);
+			} else {
+				m_g.moveSource(e, mergeEntry, dir);
+			}
 		} else {
-			if (!doEmbed) { m_g.moveTarget(e, x); }
-			else { m_g.moveTarget(e, mergeEntry, dir); }
+			if (!doEmbed) {
+				m_g.moveTarget(e, x);
+			} else {
+				m_g.moveTarget(e, mergeEntry, dir);
+			}
 		}
 		adj = temp;
 	}
 
 	// remove w from pertinent roots of x
-	OGDF_ASSERT( !doEmbed || !m_pertinentRoots[x].empty() );
-	OGDF_ASSERT( m_pertinentRoots[x].front() == w );
+	OGDF_ASSERT(!doEmbed || !m_pertinentRoots[x].empty());
+	OGDF_ASSERT(m_pertinentRoots[x].front() == w);
 	m_pertinentRoots[x].popFront();
 
 	// consider x's unique dfs-successor in pertinent bicomp:
 	// remove this successor from separatedChildList of x using
 	// saved pointer pNodeInParent in constant time
-	OGDF_ASSERT( !doEmbed || !m_separatedDFSChildList[x].empty() );
-	OGDF_ASSERT( m_pNodeInParent[w_child].valid() );
+	OGDF_ASSERT(!doEmbed || !m_separatedDFSChildList[x].empty());
+	OGDF_ASSERT(m_pNodeInParent[w_child].valid());
 	m_separatedDFSChildList[x].del(m_pNodeInParent[w_child]);
 
 	// delete virtual vertex, it must not contain any edges any more
-	OGDF_ASSERT( w->firstAdj() == nullptr );
+	OGDF_ASSERT(w->firstAdj() == nullptr);
 	m_nodeFromDFI[m_dfi[w]] = nullptr;
 	m_g.delNode(w);
 }
 
-void BoyerMyrvoldPlanar::embedBackedges(
-	const node v,
-	const int v_dir,
-	const node w,
-	const int w_dir)
-{
-	OGDF_ASSERT( v != nullptr );
-	OGDF_ASSERT( w != nullptr );
-	OGDF_ASSERT( !m_backedgeFlags[w].empty() );
-	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCCW][v] != nullptr );
-	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCW][v] != nullptr );
-	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCCW][w] != nullptr );
-	OGDF_ASSERT( m_link[BoyerMyrvoldPlanar::DirectionCW][w] != nullptr );
+void BoyerMyrvoldPlanar::embedBackedges(const node v, const int v_dir, const node w, const int w_dir) {
+	OGDF_ASSERT(v != nullptr);
+	OGDF_ASSERT(w != nullptr);
+	OGDF_ASSERT(!m_backedgeFlags[w].empty());
+	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][v] != nullptr);
+	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][v] != nullptr);
+	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCCW][w] != nullptr);
+	OGDF_ASSERT(m_link[BoyerMyrvoldPlanar::DirectionCW][w] != nullptr);
 
 	bool doEmbed = m_embeddingGrade != EmbeddingGrade::doNotEmbed;
 
@@ -235,15 +234,14 @@ void BoyerMyrvoldPlanar::embedBackedges(
 		// the adjEntry of w, used for inserting backedges
 		mergeEntryW = beforeShortCircuitEdge(w, !w_dir)->twin();
 		insertw = (w_dir == BoyerMyrvoldPlanar::DirectionCCW) ? Direction::before : Direction::after;
-
 	}
 
 	// the first/last (last iff !doEmbed) backedge in the backedgeFlags-list will be the new external face adjEntry
 	adjEntry saveBack = doEmbed ? m_backedgeFlags[w].front() : m_backedgeFlags[w].back();
-	for (adjEntry adj: m_backedgeFlags[w]) {
+	for (adjEntry adj : m_backedgeFlags[w]) {
 		// embed backedge
 		edge e = adj->theEdge();
-		OGDF_ASSERT( e->isIncident(w) );
+		OGDF_ASSERT(e->isIncident(w));
 
 		// insert backedge to v (and backedge to w iff doEmbed)
 		if (e->source() == w) {
@@ -274,41 +272,34 @@ void BoyerMyrvoldPlanar::embedBackedges(
 	if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
 		node bicompRoot = m_pointsToRoot[m_backedgeFlags[w].front()->theEdge()];
 		m_numUnembeddedBackedgesInBicomp[bicompRoot] -= m_backedgeFlags[w].size();
-		OGDF_ASSERT( m_extractSubgraph || m_numUnembeddedBackedgesInBicomp[bicompRoot] >= 0 );
+		OGDF_ASSERT(m_extractSubgraph || m_numUnembeddedBackedgesInBicomp[bicompRoot] >= 0);
 	}
 
 	// delete BackedgeFlags
 	m_backedgeFlags[w].clear();
 }
 
-
 // create short circuit edge from node v with direction v_dir to node w with outgoing
 // direction w_dir.
-void BoyerMyrvoldPlanar::createShortCircuitEdge(
-	const node v,
-	const int v_dir,
-	const node w,
-	const int w_dir)
-{
+void BoyerMyrvoldPlanar::createShortCircuitEdge(const node v, const int v_dir, const node w,
+		const int w_dir) {
 	// save former neighbors
-	if (m_beforeSCE[v_dir][v]==nullptr) m_beforeSCE[v_dir][v]=m_link[v_dir][v];
-	if (m_beforeSCE[!w_dir][w]==nullptr) m_beforeSCE[!w_dir][w]=m_link[!w_dir][w];
+	if (m_beforeSCE[v_dir][v] == nullptr) {
+		m_beforeSCE[v_dir][v] = m_link[v_dir][v];
+	}
+	if (m_beforeSCE[!w_dir][w] == nullptr) {
+		m_beforeSCE[!w_dir][w] = m_link[!w_dir][w];
+	}
 	// set new short circuit edge
 	adjEntry temp = m_beforeSCE[!w_dir][w]->twin();
 	m_link[!w_dir][w] = m_beforeSCE[v_dir][v]->twin();
 	m_link[v_dir][v] = temp;
 }
 
-
 // Walkup
 // finds pertinent subgraph for descendant w of v.
 // marks visited nodes with marker and returns the last traversed node.
-node BoyerMyrvoldPlanar::walkup(
-	const node v,
-	const node w,
-	const int marker,
-	const edge back)
-{
+node BoyerMyrvoldPlanar::walkup(const node v, const node w, const int marker, const edge back) {
 	const int i = m_dfi[v];
 	node x = w;
 	node y = w;
@@ -316,8 +307,7 @@ node BoyerMyrvoldPlanar::walkup(
 	int x_dir = BoyerMyrvoldPlanar::DirectionCW;
 	int y_dir = BoyerMyrvoldPlanar::DirectionCCW;
 
-	while (m_visited[x]!=marker && m_visited[y]!=marker)
-	{
+	while (m_visited[x] != marker && m_visited[y] != marker) {
 		m_visited[x] = marker;
 		m_visited[y] = marker;
 		if (m_embeddingGrade > EmbeddingGrade::doNotFind) {
@@ -327,10 +317,12 @@ node BoyerMyrvoldPlanar::walkup(
 
 		// is x or y root vertex?
 		if (m_realVertex[x] != nullptr) {
-			temp=x;
+			temp = x;
 		} else if (m_realVertex[y] != nullptr) {
-			temp=y;
-		} else temp=nullptr;
+			temp = y;
+		} else {
+			temp = nullptr;
+		}
 
 		if (temp != nullptr) {
 			// put pertinent root into the list of its non-virtual vertex.
@@ -341,20 +333,22 @@ node BoyerMyrvoldPlanar::walkup(
 			x = m_realVertex[temp];
 			y = x;
 
-			OGDF_ASSERT(m_extractSubgraph || m_visited[x]==marker || m_pertinentRoots[x].empty());
+			OGDF_ASSERT(m_extractSubgraph || m_visited[x] == marker || m_pertinentRoots[x].empty());
 			// push pertinent root
 			if (m_lowPoint[m_nodeFromDFI[-m_dfi[temp]]] < i) {
 				m_pertinentRoots[x].pushBack(temp);
-			} else m_pertinentRoots[x].pushFront(temp);
+			} else {
+				m_pertinentRoots[x].pushFront(temp);
+			}
 			// found v, finish walkup and return last traversed node
-			if (x==v) {
+			if (x == v) {
 				m_visited[x] = marker;
 				return temp;
 			}
 		} else {
 			// traverse to external face successors
-			x = successorOnExternalFace(x,x_dir);
-			y = successorOnExternalFace(y,y_dir);
+			x = successorOnExternalFace(x, x_dir);
+			y = successorOnExternalFace(y, y_dir);
 		}
 	}
 
@@ -362,16 +356,13 @@ node BoyerMyrvoldPlanar::walkup(
 	return (m_visited[x] == marker) ? x : y;
 }
 
-
 // Walkdown
 // for DFS-child w of the current processed vertex v': embed all backedges
 // to the virtual node v of v'
 // returns 1, iff the embedding process found a stopping configuration
-int BoyerMyrvoldPlanar::walkdown(
-	const int i, // dfi of rootvertex v'
-	const node v, // v is virtual node of v'
-	FindKuratowskis *findKuratowskis)
-{
+int BoyerMyrvoldPlanar::walkdown(const int i, // dfi of rootvertex v'
+		const node v, // v is virtual node of v'
+		FindKuratowskis* findKuratowskis) {
 	ArrayBuffer<int> stack;
 	node stopX = nullptr;
 
@@ -379,14 +370,14 @@ int BoyerMyrvoldPlanar::walkdown(
 
 	// in both directions
 	// j=current outgoing direction of current embedded node v
-	for (int j: {BoyerMyrvoldPlanar::DirectionCCW, BoyerMyrvoldPlanar::DirectionCW}) {
+	for (int j : {BoyerMyrvoldPlanar::DirectionCCW, BoyerMyrvoldPlanar::DirectionCW}) {
 		int w_dir = j; // direction of traversal of node w
 
-		node w = successorOnExternalFace(v,w_dir); // current node
+		node w = successorOnExternalFace(v, w_dir); // current node
 
 		while (w != v) {
 			// assert, that CCW[] and CW[] return that adjEntry of the neighbor
-			OGDF_ASSERT(beforeShortCircuitEdge(w,w_dir)->twinNode()==w);
+			OGDF_ASSERT(beforeShortCircuitEdge(w, w_dir)->twinNode() == w);
 
 			// if backedgeFlag is set
 			if (!m_backedgeFlags[w].empty()) {
@@ -402,7 +393,7 @@ int BoyerMyrvoldPlanar::walkdown(
 				// y is root of pertinent child bicomp
 				node root = m_pertinentRoots[w].front();
 
-				if(m_extractSubgraph && root->degree() == 0) {
+				if (m_extractSubgraph && root->degree() == 0) {
 					m_pertinentRoots[w].popFront();
 					continue;
 				}
@@ -418,34 +409,37 @@ int BoyerMyrvoldPlanar::walkdown(
 				int x_dir = BoyerMyrvoldPlanar::DirectionCCW;
 				int y_dir = BoyerMyrvoldPlanar::DirectionCW;
 				int infoX, infoY; // gives information about the type of endnode in that direction
-				node x = activeSuccessor(root,x_dir,i,infoX);
-				node y = activeSuccessor(root,y_dir,i,infoY);
+				node x = activeSuccessor(root, x_dir, i, infoX);
+				node y = activeSuccessor(root, y_dir, i, infoY);
 
 				OGDF_ASSERT(x != root);
 				OGDF_ASSERT(y != root);
-				createShortCircuitEdge(root,BoyerMyrvoldPlanar::DirectionCCW,x,x_dir);
-				createShortCircuitEdge(root,BoyerMyrvoldPlanar::DirectionCW,y,y_dir);
+				createShortCircuitEdge(root, BoyerMyrvoldPlanar::DirectionCCW, x, x_dir);
+				createShortCircuitEdge(root, BoyerMyrvoldPlanar::DirectionCW, y, y_dir);
 
 				// push counterclockwise resp. clockwise active successor
 				// in pertinent bicomp
 				if (infoX == infoY) {
 					// if both attributes are externally active and non-pertinent,
 					// save stopping nodes
-					if (infoX==3) {
-						if(!m_extractSubgraph) {
+					if (infoX == 3) {
+						if (!m_extractSubgraph) {
 							OGDF_ASSERT(x != y);
-							if (m_embeddingGrade <= EmbeddingGrade::doNotFind) return true;
+							if (m_embeddingGrade <= EmbeddingGrade::doNotFind) {
+								return true;
+							}
 						}
 
 						// extract Kuratowskis
 						stoppingNodesFound = 1;
-						if(!m_extractSubgraph) {
+						if (!m_extractSubgraph) {
 							// check, if we have found enough kuratowski structures
-							if (m_embeddingGrade > 0 &&
-									findKuratowskis->getAllKuratowskis().size() >= m_embeddingGrade) {
+							if (m_embeddingGrade > 0
+									&& findKuratowskis->getAllKuratowskis().size()
+											>= m_embeddingGrade) {
 								return 2;
 							}
-							findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i],root,x,y);
+							findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i], root, x, y);
 						}
 
 						// go to the pertinent starting node on father bicomp
@@ -468,8 +462,8 @@ int BoyerMyrvoldPlanar::walkdown(
 
 							node otherActiveNode = m_link[!w_dir][w]->theNode();
 
-							OGDF_ASSERT(otherActiveNode == constActiveSuccessor(w,!w_dir,i,infoX));
-							OGDF_ASSERT(externallyActive(otherActiveNode,i));
+							OGDF_ASSERT(otherActiveNode == constActiveSuccessor(w, !w_dir, i, infoX));
+							OGDF_ASSERT(externallyActive(otherActiveNode, i));
 							OGDF_ASSERT(lastActiveNode == m_link[w_dir][w]->theNode());
 							if (pertinent(otherActiveNode)) {
 								// push adapted information about actual bicomp in stack
@@ -483,22 +477,23 @@ int BoyerMyrvoldPlanar::walkdown(
 								stack.pop();
 								// if there are two stopping vertices, that are not pertinent
 								// there could be another kuratowski structure
-								if (!m_extractSubgraph && lastActiveNode != otherActiveNode &&
-										wNodesExist(w,lastActiveNode,otherActiveNode)) {
+								if (!m_extractSubgraph && lastActiveNode != otherActiveNode
+										&& wNodesExist(w, lastActiveNode, otherActiveNode)) {
 									// check, if we have found enough kuratowski structures
-									if (m_embeddingGrade > 0 &&
-											findKuratowskis->getAllKuratowskis().size() >= m_embeddingGrade) {
+									if (m_embeddingGrade > 0
+											&& findKuratowskis->getAllKuratowskis().size()
+													>= m_embeddingGrade) {
 										return 2;
 									}
 									// different stopping nodes:
 									// try to extract kuratowski structure and put the two
 									// stopping nodes in the right traversal order
-									if (w_dir==BoyerMyrvoldPlanar::DirectionCCW) {
-										findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i],
-														w,lastActiveNode,otherActiveNode);
+									if (w_dir == BoyerMyrvoldPlanar::DirectionCCW) {
+										findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i], w,
+												lastActiveNode, otherActiveNode);
 									} else {
-										findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i],
-														w,otherActiveNode,lastActiveNode);
+										findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i], w,
+												otherActiveNode, lastActiveNode);
 									}
 								}
 
@@ -510,7 +505,7 @@ int BoyerMyrvoldPlanar::walkdown(
 						}
 					}
 					// if both attributes are the same: minimize flips
-					else if (w_dir==BoyerMyrvoldPlanar::DirectionCCW) {
+					else if (w_dir == BoyerMyrvoldPlanar::DirectionCCW) {
 						w = x;
 						w_dir = x_dir;
 						stack.push(BoyerMyrvoldPlanar::DirectionCCW);
@@ -522,43 +517,48 @@ int BoyerMyrvoldPlanar::walkdown(
 					}
 				} else if (infoX <= infoY) {
 					// push x
-					w=x; w_dir=x_dir;
+					w = x;
+					w_dir = x_dir;
 					stack.push(BoyerMyrvoldPlanar::DirectionCCW);
 
 				} else {
 					// push y
-					w=y; w_dir=y_dir;
+					w = y;
+					w_dir = y_dir;
 					stack.push(BoyerMyrvoldPlanar::DirectionCW);
 				}
 
-			} else if (inactive(w,i)) {
+			} else if (inactive(w, i)) {
 				// w is an inactive vertex
-				w = successorOnExternalFace(w,w_dir);
+				w = successorOnExternalFace(w, w_dir);
 
 			} else {
 				// w must be a stopping vertex
-				OGDF_ASSERT(externallyActive(w,i));
+				OGDF_ASSERT(externallyActive(w, i));
 				OGDF_ASSERT(m_lowPoint[m_nodeFromDFI[-m_dfi[v]]] < i);
 
 				// embed shortCircuitEdge
-				/*if (stack.empty())*/ createShortCircuitEdge(v,j,w,w_dir);
+				/*if (stack.empty())*/ createShortCircuitEdge(v, j, w, w_dir);
 
 				// only save single stopping nodes, if we don't have already one
-				if (j==BoyerMyrvoldPlanar::DirectionCCW) {
+				if (j == BoyerMyrvoldPlanar::DirectionCCW) {
 					stopX = w;
 				} else if (w != stopX) {
-					OGDF_ASSERT(stopX!=nullptr);
+					OGDF_ASSERT(stopX != nullptr);
 
-					if (m_embeddingGrade <= EmbeddingGrade::doNotFind) return false;
+					if (m_embeddingGrade <= EmbeddingGrade::doNotFind) {
+						return false;
+					}
 					// check, if some backedges were not embedded (=> nonplanar)
 					// note, that this is performed at most one time per virtual root
 					if (m_numUnembeddedBackedgesInBicomp[v] > 0) {
 						// some backedges are left on this bicomp
 						stoppingNodesFound = 1;
 						// check, if we have found enough kuratowski structures
-						if(!m_extractSubgraph) {
-							if (m_embeddingGrade > 0 &&
-								findKuratowskis->getAllKuratowskis().size() >= m_embeddingGrade) {
+						if (!m_extractSubgraph) {
+							if (m_embeddingGrade > 0
+									&& findKuratowskis->getAllKuratowskis().size()
+											>= m_embeddingGrade) {
 								return 2;
 							}
 							findKuratowskis->addKuratowskiStructure(m_nodeFromDFI[i], v, stopX, w);
@@ -576,32 +576,32 @@ int BoyerMyrvoldPlanar::walkdown(
 }
 
 // embed graph m_g node by node in descending DFI-order beginning with dfi i
-bool BoyerMyrvoldPlanar::embed()
-{
-	bool nonplanar=false; // true, if graph is not planar
+bool BoyerMyrvoldPlanar::embed() {
+	bool nonplanar = false; // true, if graph is not planar
 
 #if 0
 	FindKuratowskis findKuratowskis(this);
 #else
 	FindKuratowskis* findKuratowskis =
-		(m_embeddingGrade <= EmbeddingGrade::doNotFind) ? nullptr : new FindKuratowskis(this);
+			(m_embeddingGrade <= EmbeddingGrade::doNotFind) ? nullptr : new FindKuratowskis(this);
 #endif
 
-	for (int i = m_nodeFromDFI.high(); i >= 1; --i)
-	{
+	for (int i = m_nodeFromDFI.high(); i >= 1; --i) {
 		const node v = m_nodeFromDFI[i];
 
 		// call Walkup
 		// for all sources of backedges of v: find pertinent subgraph
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode(); // dfs-descendant of v
 			edge e = adj->theEdge();
 			if (m_dfi[w] > i && m_edgeType[e] == BoyerMyrvoldEdgeType::Back) {
 				m_backedgeFlags[w].pushBack(adj);
 
-				node x = walkup(v,w,i,e);
-				if (m_embeddingGrade <= EmbeddingGrade::doNotFind) continue;
+				node x = walkup(v, w, i, e);
+				if (m_embeddingGrade <= EmbeddingGrade::doNotFind) {
+					continue;
+				}
 
 				// divide children bicomps
 				if (m_realVertex[x] == v) {
@@ -624,10 +624,10 @@ bool BoyerMyrvoldPlanar::embed()
 		// embed all backedges to v
 		SListPure<node>& pert(m_pertinentRoots[v]);
 		while (!pert.empty()) {
-			OGDF_ASSERT(pert.front()->degree()==1);
-			int result = walkdown(i,pert.popFrontRet(),findKuratowskis);
+			OGDF_ASSERT(pert.front()->degree() == 1);
+			int result = walkdown(i, pert.popFrontRet(), findKuratowskis);
 			if (!m_extractSubgraph) {
-				if(result == 2) {
+				if (result == 2) {
 					m_output = findKuratowskis->getAllKuratowskis();
 					delete findKuratowskis;
 					return false;
@@ -635,17 +635,18 @@ bool BoyerMyrvoldPlanar::embed()
 					// found stopping configuration
 					nonplanar = true;
 					// NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks): findKuratowskis has to be nullptr since m_embeddingGrade never changes.
-					if (m_embeddingGrade <= EmbeddingGrade::doNotFind) return false;
+					if (m_embeddingGrade <= EmbeddingGrade::doNotFind) {
+						return false;
+					}
 				}
 			}
 		}
 
 		// if !embed, check, if there are any backedges left
 		if (!m_extractSubgraph && m_embeddingGrade <= EmbeddingGrade::doNotFind) {
-			for(adjEntry adj : v->adjEntries) {
-				if (m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Back &&
-						m_dfi[adj->twinNode()] > m_dfi[v])
-				{
+			for (adjEntry adj : v->adjEntries) {
+				if (m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Back
+						&& m_dfi[adj->twinNode()] > m_dfi[v]) {
 					delete findKuratowskis;
 					return false; // nonplanar
 				}
@@ -655,19 +656,19 @@ bool BoyerMyrvoldPlanar::embed()
 
 	// embed and flip bicomps, if necessary
 	if (nonplanar) {
-		if(findKuratowskis)
+		if (findKuratowskis) {
 			m_output = findKuratowskis->getAllKuratowskis();
-	} else
+		}
+	} else {
 		postProcessEmbedding(); // flip graph and embed self-loops, etc.
+	}
 
 	delete findKuratowskis;
 	return !nonplanar;
 }
 
-
 // merge unprocessed virtual nodes such as the dfs-roots
-void BoyerMyrvoldPlanar::mergeUnprocessedNodes()
-{
+void BoyerMyrvoldPlanar::mergeUnprocessedNodes() {
 	node v = m_g.firstNode();
 	while (v) {
 		node next = v->succ();
@@ -678,17 +679,18 @@ void BoyerMyrvoldPlanar::mergeUnprocessedNodes()
 			while (adj) {
 				edge e = adj->theEdge();
 				adj = adj->succ();
-				if (e->source()==v) {
-					m_g.moveSource(e,w);
-				} else m_g.moveTarget(e,w);
+				if (e->source() == v) {
+					m_g.moveSource(e, w);
+				} else {
+					m_g.moveTarget(e, w);
+				}
 			}
-			m_nodeFromDFI[m_dfi[v]]=nullptr;
+			m_nodeFromDFI[m_dfi[v]] = nullptr;
 			m_g.delNode(v);
 		}
 		v = next;
 	}
 }
-
 
 // flips all nodes of the bicomp with unique real root-child c as necessary.
 // in addition all connected components with dfs-root c without virtual
@@ -696,15 +698,12 @@ void BoyerMyrvoldPlanar::mergeUnprocessedNodes()
 // marker has to be an non-existing int in array visited.
 // if wholeGraph ist true, all bicomps of all connected components will be traversed.
 // if deleteFlipFlags ist true, the flipping flags will be deleted after flipping
-void BoyerMyrvoldPlanar::flipBicomp(
-	int c,
-	int marker,
-	NodeArray<int>& visited,
-	bool wholeGraph,
-	bool deleteFlipFlags)
-{
+void BoyerMyrvoldPlanar::flipBicomp(int c, int marker, NodeArray<int>& visited, bool wholeGraph,
+		bool deleteFlipFlags) {
 	if (m_flippedNodes == 0) {
-		if (wholeGraph) mergeUnprocessedNodes();
+		if (wholeGraph) {
+			mergeUnprocessedNodes();
+		}
 		return;
 	}
 
@@ -712,8 +711,9 @@ void BoyerMyrvoldPlanar::flipBicomp(
 
 	if (wholeGraph) {
 		mergeUnprocessedNodes();
-		for (int i = 1; i <= m_g.numberOfNodes(); ++i)
+		for (int i = 1; i <= m_g.numberOfNodes(); ++i) {
 			stack.push(-i);
+		}
 	}
 
 	// flip bicomps, if the flipped-flag is set
@@ -730,7 +730,9 @@ void BoyerMyrvoldPlanar::flipBicomp(
 			v = m_nodeFromDFI[stackTop];
 		}
 		if (wholeGraph) {
-			if (visited[v]==marker) continue;
+			if (visited[v] == marker) {
+				continue;
+			}
 			// mark visited nodes
 			visited[v] = marker;
 		}
@@ -750,34 +752,34 @@ void BoyerMyrvoldPlanar::flipBicomp(
 			m_g.reverseAdjEdges(v);
 			if (deleteFlipFlags) {
 				adjEntry tmp = m_link[BoyerMyrvoldPlanar::DirectionCCW][v];
-				m_link[BoyerMyrvoldPlanar::DirectionCCW][v] = m_link[BoyerMyrvoldPlanar::DirectionCW][v];
+				m_link[BoyerMyrvoldPlanar::DirectionCCW][v] =
+						m_link[BoyerMyrvoldPlanar::DirectionCW][v];
 				m_link[BoyerMyrvoldPlanar::DirectionCW][v] = tmp;
 
 				tmp = m_beforeSCE[BoyerMyrvoldPlanar::DirectionCCW][v];
-				m_beforeSCE[BoyerMyrvoldPlanar::DirectionCCW][v] = m_beforeSCE[BoyerMyrvoldPlanar::DirectionCW][v];
+				m_beforeSCE[BoyerMyrvoldPlanar::DirectionCCW][v] =
+						m_beforeSCE[BoyerMyrvoldPlanar::DirectionCW][v];
 				m_beforeSCE[BoyerMyrvoldPlanar::DirectionCW][v] = tmp;
 			}
 		}
 
 		// go along the dfs-edges
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			int temp = m_dfi[adj->twinNode()];
 			OGDF_ASSERT(m_edgeType[adj->theEdge()] != BoyerMyrvoldEdgeType::Undefined);
-			if (temp > m_dfi[v] && m_edgeType[adj->theEdge()]==BoyerMyrvoldEdgeType::Dfs) {
+			if (temp > m_dfi[v] && m_edgeType[adj->theEdge()] == BoyerMyrvoldEdgeType::Dfs) {
 				stack.push(flip ? temp : -temp);
 			}
 		}
 	}
 }
 
-
 // postprocess the embedding, so that all unprocessed virtual vertices are
 // merged with their non-virtual counterpart. Furthermore all bicomps
 // are flipped, if necessary and parallel edges and self-loops are embedded.
-void BoyerMyrvoldPlanar::postProcessEmbedding()
-{
+void BoyerMyrvoldPlanar::postProcessEmbedding() {
 	ArrayBuffer<int> stack; // stack for dfs-traversal
-	node v,w;
+	node v, w;
 	adjEntry adj;
 	int temp;
 
@@ -786,20 +788,24 @@ void BoyerMyrvoldPlanar::postProcessEmbedding()
 	// flip bicomps, if the flipped-flag is set, i.e. postprocessing in
 	// reverse dfi-order
 	bool flip;
-	for(int i=1; i<=m_g.numberOfNodes(); ++i) {
-		if (m_visited[m_nodeFromDFI[i]] == -1) continue;
+	for (int i = 1; i <= m_g.numberOfNodes(); ++i) {
+		if (m_visited[m_nodeFromDFI[i]] == -1) {
+			continue;
+		}
 		stack.push(-i); // negative numbers: flip=false, otherwise flip=true
 
 		while (!stack.empty()) {
 			temp = stack.popRet();
 			if (temp < 0) {
-				flip=false;
+				flip = false;
 				v = m_nodeFromDFI[-temp];
 			} else {
-				flip=true;
+				flip = true;
 				v = m_nodeFromDFI[temp];
 			}
-			if (m_visited[v]==-1) continue;
+			if (m_visited[v] == -1) {
+				continue;
+			}
 			// mark visited nodes with visited[v]==-1
 			m_visited[v] = -1;
 
@@ -808,42 +814,43 @@ void BoyerMyrvoldPlanar::postProcessEmbedding()
 				m_flipped[v] = false;
 				flip = !flip;
 			}
-			if (flip) m_g.reverseAdjEdges(v);
+			if (flip) {
+				m_g.reverseAdjEdges(v);
+			}
 
-			adj=v->firstAdj();
+			adj = v->firstAdj();
 			while (adj) {
 				w = adj->twinNode();
 				BoyerMyrvoldEdgeType tempType = m_edgeType[adj->theEdge()];
-				if (tempType==BoyerMyrvoldEdgeType::Dfs) {
+				if (tempType == BoyerMyrvoldEdgeType::Dfs) {
 					// go along the dfs-edges
 					stack.push(flip ? m_dfi[w] : -m_dfi[w]);
-					adj=adj->succ();
-				} else if (tempType==BoyerMyrvoldEdgeType::Selfloop) {
+					adj = adj->succ();
+				} else if (tempType == BoyerMyrvoldEdgeType::Selfloop) {
 					// embed self-loops
-					m_g.moveAdjBefore(adj->twin(),adj);
-					adj=adj->succ();
-				} else if (tempType==BoyerMyrvoldEdgeType::DfsParallel &&
-							m_adjParent[v]!=nullptr &&
-							w == m_adjParent[v]->theNode()) {
+					m_g.moveAdjBefore(adj->twin(), adj);
+					adj = adj->succ();
+				} else if (tempType == BoyerMyrvoldEdgeType::DfsParallel
+						&& m_adjParent[v] != nullptr && w == m_adjParent[v]->theNode()) {
 					// embed edges that are parallel to dfs-edges
 					// it is only possible to deal with the parallel edges to the
 					// parent, since children nodes could be flipped later
 					adjEntry tmp = adj->succ();
-					m_g.moveAdjAfter(adj,m_adjParent[v]->twin());
-					m_g.moveAdjBefore(adj->twin(),m_adjParent[v]);
+					m_g.moveAdjAfter(adj, m_adjParent[v]->twin());
+					m_g.moveAdjBefore(adj->twin(), m_adjParent[v]);
 					adj = tmp;
-				} else adj=adj->succ();
+				} else {
+					adj = adj->succ();
+				}
 			}
 		}
 	}
 }
 
-
 // tests Graph m_g for planarity
 // if graph should be embedded, a planar embedding or a kuratowski subdivision
 // of m_g is returned in addition, depending on whether m_g is planar
-bool BoyerMyrvoldPlanar::start()
-{
+bool BoyerMyrvoldPlanar::start() {
 	boyer_myrvold::BoyerMyrvoldInit bmi(this);
 	bmi.computeDFS();
 	bmi.computeLowPoints();

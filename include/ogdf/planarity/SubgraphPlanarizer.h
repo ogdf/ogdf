@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <ogdf/planarity/EdgeInsertionModule.h>
-#include <ogdf/planarity/CrossingMinimizationModule.h>
-#include <ogdf/planarity/PlanarSubgraphModule.h>
-#include <memory>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/EdgeInsertionModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 
+#include <memory>
 #include <random>
 
 namespace ogdf {
@@ -103,43 +103,34 @@ namespace ogdf {
  *   </tr>
  * </table>
 */
-class OGDF_EXPORT SubgraphPlanarizer : public CrossingMinimizationModule, public Logger
-{
+class OGDF_EXPORT SubgraphPlanarizer : public CrossingMinimizationModule, public Logger {
 	class ThreadMaster;
 	class Worker;
 
 protected:
 	//! Implements the algorithm call.
-	virtual ReturnType doCall(PlanRep &pr,
-		int cc,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs,
-		int& crossingNumber) override;
+	virtual ReturnType doCall(PlanRep& pr, int cc, const EdgeArray<int>* pCostOrig,
+			const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubGraphs,
+			int& crossingNumber) override;
 
 public:
 	//! Creates an instance of subgraph planarizer with default settings.
 	SubgraphPlanarizer();
 
 	//! Creates an instance of subgraph planarizer with the same settings as \p planarizer.
-	SubgraphPlanarizer(const SubgraphPlanarizer &planarizer);
+	SubgraphPlanarizer(const SubgraphPlanarizer& planarizer);
 
 	//! Returns a new instance of subgraph planarizer with the same option settings.
-	virtual CrossingMinimizationModule *clone() const override;
+	virtual CrossingMinimizationModule* clone() const override;
 
 	//! Assignment operator. Copies option settings only.
-	SubgraphPlanarizer &operator=(const SubgraphPlanarizer &planarizer);
-
+	SubgraphPlanarizer& operator=(const SubgraphPlanarizer& planarizer);
 
 	//! Sets the module option for the computation of the planar subgraph.
-	void setSubgraph(PlanarSubgraphModule<int> *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(PlanarSubgraphModule<int>* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! Sets the module option for the edge insertion module.
-	void setInserter(EdgeInsertionModule *pInserter) {
-		m_inserter.reset(pInserter);
-	}
+	void setInserter(EdgeInsertionModule* pInserter) { m_inserter.reset(pInserter); }
 
 	//! Returns the number of permutations.
 	int permutations() { return m_permutations; }
@@ -164,25 +155,20 @@ public:
 	}
 
 private:
-	static void doWorkHelper(ThreadMaster &master, EdgeInsertionModule &inserter, std::minstd_rand &rng);
+	static void doWorkHelper(ThreadMaster& master, EdgeInsertionModule& inserter,
+			std::minstd_rand& rng);
 
-	static bool doSinglePermutation(
-		PlanRepLight &prl,
-		int cc,
-		const EdgeArray<int>  *pCost,
-		const EdgeArray<bool> *pForbid,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs,
-		Array<edge> &deletedEdges,
-		EdgeInsertionModule &inserter,
-		std::minstd_rand &rng,
-		int &crossingNumber);
+	static bool doSinglePermutation(PlanRepLight& prl, int cc, const EdgeArray<int>* pCost,
+			const EdgeArray<bool>* pForbid, const EdgeArray<uint32_t>* pEdgeSubGraphs,
+			Array<edge>& deletedEdges, EdgeInsertionModule& inserter, std::minstd_rand& rng,
+			int& crossingNumber);
 
-	std::unique_ptr<PlanarSubgraphModule<int>>  m_subgraph; //!< The planar subgraph algorithm.
-	std::unique_ptr<EdgeInsertionModule>   m_inserter; //!< The edge insertion module.
+	std::unique_ptr<PlanarSubgraphModule<int>> m_subgraph; //!< The planar subgraph algorithm.
+	std::unique_ptr<EdgeInsertionModule> m_inserter; //!< The edge insertion module.
 
-	int m_permutations;	//!< The number of permutations.
-	bool m_setTimeout;	//!< The option for setting timeouts in submodules.
-	unsigned int m_maxThreads;	//!< The maximal number of used threads.
+	int m_permutations; //!< The number of permutations.
+	bool m_setTimeout; //!< The option for setting timeouts in submodules.
+	unsigned int m_maxThreads; //!< The maximal number of used threads.
 };
 
 }

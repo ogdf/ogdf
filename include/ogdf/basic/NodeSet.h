@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
@@ -53,10 +53,11 @@ namespace ogdf {
 template<bool SupportFastSizeQuery = true>
 class NodeSet {
 public:
-	using ListType = typename std::conditional<SupportFastSizeQuery, List<node>, ListPure<node>>::type;
+	using ListType =
+			typename std::conditional<SupportFastSizeQuery, List<node>, ListPure<node>>::type;
 
 	//! Creates an empty node set associated with graph \p G.
-	explicit NodeSet(const Graph &G) : m_it(G) { }
+	explicit NodeSet(const Graph& G) : m_it(G) { }
 
 	//! Inserts node \p v into this set.
 	/**
@@ -67,7 +68,7 @@ public:
 	 */
 	void insert(node v) {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
-		ListIterator<node> &itV = m_it[v];
+		ListIterator<node>& itV = m_it[v];
 
 		if (!itV.valid()) {
 			itV = m_nodes.pushBack(v);
@@ -83,7 +84,7 @@ public:
 	 */
 	void remove(node v) {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
-		ListIterator<node> &itV = m_it[v];
+		ListIterator<node>& itV = m_it[v];
 
 		if (itV.valid()) {
 			m_nodes.del(itV);
@@ -113,22 +114,16 @@ public:
 	}
 
 	//! Returns a reference to the list of nodes contained in this set.
-	const ListType &nodes() const {
-		return m_nodes;
-	}
+	const ListType& nodes() const { return m_nodes; }
 
 	//! Returns the associated graph
-	const Graph& graphOf() const {
-		return *m_it.graphOf();
-	}
+	const Graph& graphOf() const { return *m_it.graphOf(); }
 
 	//! Returns the number of nodes in this set.
 	/**
 	 * This operation has either linear or constant runtime, depending on \a SupportFastSizeQuery.
 	 */
-	int size() const {
-		return m_nodes.size();
-	}
+	int size() const { return m_nodes.size(); }
 
 	//! Copy constructor.
 	template<bool OtherSupportsFastSizeQuery>
@@ -138,10 +133,10 @@ public:
 
 	//! Assignment operator.
 	template<bool OtherSupportsFastSizeQuery>
-	NodeSet &operator=(const NodeSet<OtherSupportsFastSizeQuery> &other) {
+	NodeSet& operator=(const NodeSet<OtherSupportsFastSizeQuery>& other) {
 		m_nodes.clear();
 		m_it.init(other.graphOf());
-		for(node v : other.nodes()) {
+		for (node v : other.nodes()) {
 			insert(v);
 		}
 	}

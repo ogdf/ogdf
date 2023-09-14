@@ -63,7 +63,7 @@ struct FullComponentDecisions {
 			return true;
 		}
 
-		double density{computeDensity(n, m)};
+		double density {computeDensity(n, m)};
 		if (density > 0.5) {
 			return false;
 		}
@@ -105,9 +105,7 @@ struct FullComponentDecisions {
 	 * @param n number of nodes
 	 * @param m number of edges
 	 */
-	static inline bool shouldUseErickson(int n, int m) {
-		return computeDensity(n, m) < 0.0029;
-	}
+	static inline bool shouldUseErickson(int n, int m) { return computeDensity(n, m) < 0.0029; }
 };
 
 }

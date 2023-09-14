@@ -1,0 +1,15 @@
+sonar.projectKey=ogdf
+sonar.projectName=OGDF
+sonar.sources=src/ogdf, include/ogdf, test/src
+sonar.language=c++
+
+sonar.cxx.cppcheck.reportPath=log/cppcheck.xml
+
+sonar.cxx.coverage.reportPath=log/gcovr.xml
+sonar.cxx.coverage.forceZeroCoverage=true
+
+sonar.cxx.compiler.parser=GCC
+sonar.cxx.compiler.reportPath=log/gcc.log
+sonar.cxx.compiler.charset=UTF-8
+sonar.cxx.compiler.regex=^(.*):([0-9]+):[0-9]+: warning: (.*)\\[(.*)\\]$
+sonar.exclusions=src/ogdf/lib/**/*, include/ogdf/lib/**/*

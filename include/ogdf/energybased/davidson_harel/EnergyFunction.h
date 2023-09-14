@@ -44,11 +44,10 @@ namespace davidson_harel {
 /**
  * It is used in the class DavidsonHarel.
  */
-class EnergyFunction
-{
+class EnergyFunction {
 public:
 	//! Initializes data dtructures to speed up later computations
-	EnergyFunction(const string &funcname, GraphAttributes &AG);
+	EnergyFunction(const string& funcname, GraphAttributes& AG);
 
 	virtual ~EnergyFunction() { }
 
@@ -56,14 +55,14 @@ public:
 	virtual void computeEnergy() = 0;
 
 	//! sets m_testNode, m_testX and m_testY and computes the energy for the new configuration (vertex v moves to newPos)
-	double computeCandidateEnergy(
-		const node v,
-		const DPoint &newPos);
+	double computeCandidateEnergy(const node v, const DPoint& newPos);
 
 	//! prints the name of the energy function
 	string getName() const { return m_name; }
 
-	//! Changes m_currentX and m_currentY by setting the position of m_testNode to m_testX and m_testY. Sets m_energy to m_candidateEnergy. Computes the energy of the layout stored in AG.
+	//! Changes m_currentX and m_currentY by setting the position of m_testNode
+	//! to m_testX and m_testY. Sets m_energy to m_candidateEnergy. Computes the
+	//! energy of the layout stored in AG.
 	void candidateTaken();
 
 #ifdef OGDF_DEBUG
@@ -74,7 +73,7 @@ public:
 	double energy() const { return m_energy; }
 
 protected:
-	const Graph &m_G; //!< the graph that should be drawn
+	const Graph& m_G; //!< the graph that should be drawn
 	const string m_name; //!< name of the energy function
 	double m_candidateEnergy; //!< the energy of the layout if the candidate layout is chosen
 	double m_energy; //!< energy of the current layout
@@ -100,14 +99,15 @@ protected:
 
 private:
 	//! the copy constructor is fake and can not be used.
-	EnergyFunction(const EnergyFunction &e) : m_G(e.m_G), m_name(e.m_name), m_AG(e.m_AG) { }
+	EnergyFunction(const EnergyFunction& e) : m_G(e.m_G), m_name(e.m_name), m_AG(e.m_AG) { }
 
 	//! the assignment operator is fake and can not be used.
-	EnergyFunction& operator=(const EnergyFunction &e);
+	EnergyFunction& operator=(const EnergyFunction& e);
 
 	GraphAttributes& m_AG; //!< This stores the graph with its graphical attributes and the current positions for the vertices
 	node m_testNode; //!< The node that changed position in the candidate
 	DPoint m_testPos; //!< New candidate positions for m_testNode
 };
 
-}}
+}
+}

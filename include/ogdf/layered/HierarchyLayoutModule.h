@@ -32,9 +32,9 @@
 
 #pragma once
 
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
+#include <ogdf/layered/Hierarchy.h>
 
 namespace ogdf {
 
@@ -56,14 +56,14 @@ public:
 	 * @param levels is the input hierarchy.
 	 * @param GA is assigned the hierarchy layout.
 	 */
-	void call(const HierarchyLevelsBase &levels, GraphAttributes &GA) {
+	void call(const HierarchyLevelsBase& levels, GraphAttributes& GA) {
 		GraphAttributes AGC(levels.hierarchy());
 
 		// Copy over relevant nodeGraphics attributes that may be used by doCall
 		// or need to be preserved. edgeGraphics' bend points need to be cleared
 		// and are not copied over.
 		if (GA.has(GraphAttributes::nodeGraphics)) {
-			const GraphCopy &GC = dynamic_cast<const GraphCopy&>(AGC.constGraph());
+			const GraphCopy& GC = dynamic_cast<const GraphCopy&>(AGC.constGraph());
 			for (node vOrig : GA.constGraph().nodes) {
 				node v = GC.copy(vOrig);
 				if (v != nullptr) {
@@ -74,7 +74,7 @@ public:
 			}
 		}
 
-		doCall(levels,AGC);
+		doCall(levels, AGC);
 		AGC.transferToOriginal(GA);
 	}
 
@@ -106,23 +106,25 @@ public:
 	static void addBends(GraphAttributes &AGC, HierarchyLevels &levels);
 #endif
 
-	static void dynLayerDistance(GraphAttributes &AGC, HierarchyLevelsBase &levels);
+	static void dynLayerDistance(GraphAttributes& AGC, HierarchyLevelsBase& levels);
 
 private:
-
 	//! after calling, ci (cj) contains the number of nodes of level i (j=i-1) which overlap the edge (s,t)
-	static void overlap(GraphAttributes &AGC, HierarchyLevelsBase &levels, node s, node t, int i, int &ci, int &cj);
+	static void overlap(GraphAttributes& AGC, HierarchyLevelsBase& levels, node s, node t, int i,
+			int& ci, int& cj);
 
 protected:
 	//! Returns the \p GA width of node \p v or 0 if it is a dummy node in the hierarchy of \p levels.
-	static inline double getWidth(const GraphAttributes &GA, const HierarchyLevelsBase &levels, node v) {
-		const GraphCopy &GC = levels.hierarchy();
+	static inline double getWidth(const GraphAttributes& GA, const HierarchyLevelsBase& levels,
+			node v) {
+		const GraphCopy& GC = levels.hierarchy();
 		return GC.isDummy(v) ? 0.0 : GA.width(v);
 	}
 
 	//! Returns the \p GA height of node \p v or 0 if it is a dummy node in the hierarchy of \p levels.
-	static inline double getHeight(const GraphAttributes &GA, const HierarchyLevelsBase &levels, node v) {
-		const GraphCopy &GC = levels.hierarchy();
+	static inline double getHeight(const GraphAttributes& GA, const HierarchyLevelsBase& levels,
+			node v) {
+		const GraphCopy& GC = levels.hierarchy();
 		return GC.isDummy(v) ? 0.0 : GA.height(v);
 	}
 
@@ -134,10 +136,9 @@ protected:
 	 * @param levels is the input hierarchy.
 	 * @param AGC    has to be assigned the hierarchy layout.
 	 */
-	virtual void doCall(const HierarchyLevelsBase &levels, GraphAttributes &AGC) = 0;
+	virtual void doCall(const HierarchyLevelsBase& levels, GraphAttributes& AGC) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
-
 };
 
 }

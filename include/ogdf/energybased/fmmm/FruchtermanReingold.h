@@ -32,54 +32,48 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/energybased/fmmm/NodeAttributes.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/fmmm/EdgeAttributes.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
 
 namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-class OGDF_EXPORT FruchtermanReingold
-{
+class OGDF_EXPORT FruchtermanReingold {
 public:
 	//! Constructor
 	FruchtermanReingold();
 
 	//! Calculate exact rep. forces for each node.
-	void calculate_exact_repulsive_forces(
-		const Graph &G,
-		NodeArray<NodeAttributes>& A,
-		NodeArray<DPoint>& F_rep);
+	void calculate_exact_repulsive_forces(const Graph& G, NodeArray<NodeAttributes>& A,
+			NodeArray<DPoint>& F_rep);
 
 	//! Grid approximation of rep.forces for each node.
-	void calculate_approx_repulsive_forces(
-		const Graph &G,
-		NodeArray<NodeAttributes>& A,
-		NodeArray<DPoint>& F_rep);
+	void calculate_approx_repulsive_forces(const Graph& G, NodeArray<NodeAttributes>& A,
+			NodeArray<DPoint>& F_rep);
 
 	//! Make all initialisations that are needed for FruchtermanReingold.
-	void make_initialisations (
-		double boxlength,
-		DPoint down_left_corner,
-		int grid_quotient);
+	void make_initialisations(double boxlength, DPoint down_left_corner, int grid_quotient);
 
 	//! Import updated information of the drawing area.
 	void update_boxlength_and_cornercoordinate(double b_l, DPoint d_l_c) {
-		boxlength = b_l; down_left_corner = d_l_c;
+		boxlength = b_l;
+		down_left_corner = d_l_c;
 	}
 
 private:
-	int _grid_quotient;//!< for coarsening the FrRe-grid
+	int _grid_quotient; //!< for coarsening the FrRe-grid
 	int max_gridindex; //!< maximum index of a grid row/column
-	double boxlength;  //!< length of drawing box
-	DPoint down_left_corner;//!< down left corner of drawing box
+	double boxlength; //!< length of drawing box
+	DPoint down_left_corner; //!< down left corner of drawing box
 
 	//! The number k of rows and colums of the grid is sqrt(|V|) / frGridQuotient()
 	//! (Note that in [FrRe] frGridQuotient() is 2.)
-	void grid_quotient(int p) { _grid_quotient = ((0<=p) ? p : 2);}
-	int grid_quotient() const {return _grid_quotient;}
+	void grid_quotient(int p) { _grid_quotient = ((0 <= p) ? p : 2); }
+
+	int grid_quotient() const { return _grid_quotient; }
 };
 
 }

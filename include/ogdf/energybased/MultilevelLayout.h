@@ -33,13 +33,13 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
 #include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
-#include <ogdf/basic/PreprocessorLayout.h>
 
 namespace ogdf {
 
@@ -47,14 +47,13 @@ namespace ogdf {
 /**
  * @ingroup gd-energy
  */
-class OGDF_EXPORT MultilevelLayout : public LayoutModule
-{
+class OGDF_EXPORT MultilevelLayout : public LayoutModule {
 public:
 	//! Constructor
 	MultilevelLayout();
 
 	//! Calculates a drawing for the Graph GA.
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	//Setting of the three main phases' methods
 	//! Sets the single level layout

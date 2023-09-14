@@ -32,28 +32,25 @@
 
 
 #include <ogdf/cluster/ClusterOrthoLayout.h>
-
-#include <ogdf/orthogonal/LongestPathCompaction.h>
-#include <ogdf/orthogonal/FlowCompaction.h>
-#include <ogdf/orthogonal/EdgeRouter.h>
 #include <ogdf/cluster/ClusterOrthoShaper.h>
-
+#include <ogdf/orthogonal/EdgeRouter.h>
+#include <ogdf/orthogonal/FlowCompaction.h>
+#include <ogdf/orthogonal/LongestPathCompaction.h>
 
 namespace ogdf {
 
 
-ClusterOrthoLayout::ClusterOrthoLayout()
-{
+ClusterOrthoLayout::ClusterOrthoLayout() {
 	//drawing object distances
 	m_separation = 40.0;
-	m_cOverhang  = 0.2;
-	m_margin     = 40.0;
+	m_cOverhang = 0.2;
+	m_margin = 40.0;
 	//preferred hierarchy direction is North, but we use South since gml's are flipped!
 	m_preferedDir = OrthoDir::South;
 	m_optionProfile = 0;
 	//edge costs
-	m_costAssoc   = 1;
-	m_costGen     = 4;
+	m_costAssoc = 1;
+	m_costGen = 4;
 	//align hierarchy nodes on same level
 	m_align = false;
 	//scale layout while improving it during compaction
@@ -63,12 +60,8 @@ ClusterOrthoLayout::ClusterOrthoLayout()
 	m_orthoStyle = 0; //traditional 0, progressive 1
 }
 
-
 // calling function without non-planar edges
-void ClusterOrthoLayout::call(ClusterPlanRep &PG,
-	adjEntry adjExternal,
-	Layout &drawing)
-{
+void ClusterOrthoLayout::call(ClusterPlanRep& PG, adjEntry adjExternal, Layout& drawing) {
 	List<edge> origEdges; //is empty
 	Graph G;
 	call(PG, adjExternal, drawing, origEdges, G);
@@ -78,25 +71,21 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 // external face (adjentry), the layout to be filled,
 // a list of non-planar edges, a list of inserted edges
 // and the original graph as input
-void ClusterOrthoLayout::call(ClusterPlanRep &PG,
-	adjEntry adjExternal,
-	Layout &drawing,
-	List<edge>& origEdges,
-	Graph& originalGraph)
-{
+void ClusterOrthoLayout::call(ClusterPlanRep& PG, adjEntry adjExternal, Layout& drawing,
+		List<edge>& origEdges, Graph& originalGraph) {
 	// We don't care about UML hierarchies and therefore do not allow alignment
 	OGDF_ASSERT(!m_align);
 
 	// if we have only one vertex in PG ...
-	if(PG.numberOfNodes() == 1) {
+	if (PG.numberOfNodes() == 1) {
 		node v1 = PG.firstNode();
 		node vOrig = PG.original(v1);
 		double w = PG.widthOrig(vOrig);
 		double h = PG.heightOrig(vOrig);
 
-		drawing.x(v1) = m_margin + w/2;
-		drawing.y(v1) = m_margin + h/2;
-		m_boundingBox = DPoint(w + 2*m_margin, h + 2*m_margin);
+		drawing.x(v1) = m_margin + w / 2;
+		drawing.y(v1) = m_margin + h / 2;
+		m_boundingBox = DPoint(w + 2 * m_margin, h + 2 * m_margin);
 		return;
 	}
 
@@ -108,8 +97,7 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	// insert non-planar edges
 	CombinatorialEmbedding* CE = new CombinatorialEmbedding(PG);
-	if (!origEdges.empty())
-	{
+	if (!origEdges.empty()) {
 		CPlanarEdgeInserter CEI;
 		CEI.call(PG, *CE, originalGraph, origEdges);
 	}
@@ -119,20 +107,16 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	int maximum = 0;
 	edge e, eSucc;
 
-	for(e = PG.firstEdge(); e; e = eSucc)
-	{
+	for (e = PG.firstEdge(); e; e = eSucc) {
 		eSucc = e->succ();
-		if ( PG.clusterOfEdge(e) == PG.getClusterGraph().rootCluster() )
-		{
+		if (PG.clusterOfEdge(e) == PG.getClusterGraph().rootCluster()) {
 			int asSize = CE->rightFace(e->adjSource())->size();
-			if ( asSize > maximum)
-			{
+			if (asSize > maximum) {
 				maximum = asSize;
 				extAdj = e->adjSource();
 			}
 			int atSize = CE->rightFace(e->adjTarget())->size();
-			if ( atSize > maximum)
-			{
+			if (atSize > maximum) {
 				maximum = atSize;
 				extAdj = e->adjTarget();
 			}
@@ -150,10 +134,9 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	//First, the layout is blown up and then shrunk again in several steps
 	//We change the separation value and save the original value.
 	double l_orsep = m_separation;
-	if (m_useScalingCompaction)
-	{
+	if (m_useScalingCompaction) {
 		double scaleFactor = double(int(1 << m_scalingSteps));
-		m_separation = scaleFactor*m_separation; //reduce this step by step in compaction
+		m_separation = scaleFactor * m_separation; //reduce this step by step in compaction
 	}
 
 	// PHASE 1: determine orthogonal shape
@@ -203,27 +186,29 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	OR.normalize();
 	OR.dissect();
 
-	OR.orientate(PG,m_preferedDir);
+	OR.orientate(PG, m_preferedDir);
 
 	OGDF_ASSERT(OR.check(msg));
 
 	// compute cage information and routing channels
 	OR.computeCageInfoUML(PG);
 	//temporary grid layout
-	GridLayoutMapped gridDrawing(PG,OR,m_separation,m_cOverhang,4);
+	GridLayoutMapped gridDrawing(PG, OR, m_separation, m_cOverhang, 4);
 
-	RoutingChannel<int> rcGrid(PG,gridDrawing.toGrid(m_separation),m_cOverhang);
+	RoutingChannel<int> rcGrid(PG, gridDrawing.toGrid(m_separation), m_cOverhang);
 	rcGrid.computeRoutingChannels(OR, m_align);
 
-	const OrthoRep::VertexInfoUML *pInfoExp;
-	for(node v : PG.nodes) {
+	const OrthoRep::VertexInfoUML* pInfoExp;
+	for (node v : PG.nodes) {
 		pInfoExp = OR.cageInfo(v);
-		if (pInfoExp) break;
+		if (pInfoExp) {
+			break;
+		}
 	}
 	OGDF_ASSERT(pInfoExp);
 
-	FlowCompaction fca(0,m_costGen,m_costAssoc);
-	fca.constructiveHeuristics(PG,OR,rcGrid,gridDrawing);
+	FlowCompaction fca(0, m_costGen, m_costAssoc);
+	fca.constructiveHeuristics(PG, OR, rcGrid, gridDrawing);
 
 	OR.undissect(m_align);
 
@@ -233,13 +218,15 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	//apply improvement compaction heuristics
 	// call flow compaction on grid
-	FlowCompaction fc(0,m_costGen,m_costAssoc);
+	FlowCompaction fc(0, m_costGen, m_costAssoc);
 	fc.align(m_align);
 	fc.scalingSteps(m_scalingSteps);
 
-	fc.improvementHeuristics(PG,OR,rcGrid,gridDrawing);
+	fc.improvementHeuristics(PG, OR, rcGrid, gridDrawing);
 
-	if (m_align) OR.undissect(false);
+	if (m_align) {
+		OR.undissect(false);
+	}
 
 	// PHASE 3: routing of edges
 
@@ -248,8 +235,8 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	EdgeRouter router;
 	MinimumEdgeDistances<int> minDistGrid(PG, gridDrawing.toGrid(m_separation));
 	//router.setOrSep(int(gridDrawing.toGrid(l_orsep))); //scaling test
-	router.call(PG,OR,gridDrawing,E,rcGrid,minDistGrid, gridDrawing.width(),
-		gridDrawing.height(), m_align);
+	router.call(PG, OR, gridDrawing, E, rcGrid, minDistGrid, gridDrawing.width(),
+			gridDrawing.height(), m_align);
 
 	OGDF_ASSERT(OR.check(msg));
 
@@ -267,10 +254,10 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	// collapse all expanded vertices by introducing a new node in the center
 	// of each cage representing the original vertex
-	PG.collapseVertices(OR,drawing);
+	PG.collapseVertices(OR, drawing);
 
 	// finally set the bounding box
-	computeBoundingBox(PG,drawing);
+	computeBoundingBox(PG, drawing);
 
 	//set the separation again to the input value
 	m_separation = l_orsep;
@@ -278,36 +265,39 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 // compute bounding box and move final drawing such that it is 0 aligned
 // respecting margins
-void ClusterOrthoLayout::computeBoundingBox(
-	const ClusterPlanRep &PG,
-	Layout &drawing)
-{
+void ClusterOrthoLayout::computeBoundingBox(const ClusterPlanRep& PG, Layout& drawing) {
 	double minX, maxX, minY, maxY;
 
 	minX = maxX = drawing.x(PG.firstNode());
 	minY = maxY = drawing.y(PG.firstNode());
 
-	for(node v : PG.nodes)
-	{
+	for (node v : PG.nodes) {
 		double x = drawing.x(v);
-		if (x < minX) minX = x;
-		if (x > maxX) maxX = x;
+		if (x < minX) {
+			minX = x;
+		}
+		if (x > maxX) {
+			maxX = x;
+		}
 
 		double y = drawing.y(v);
-		if (y < minY) minY = y;
-		if (y > maxY) maxY = y;
+		if (y < minY) {
+			minY = y;
+		}
+		if (y > maxY) {
+			maxY = y;
+		}
 	}
 
 	double deltaX = m_margin - minX;
 	double deltaY = m_margin - minY;
 
-	for(node v : PG.nodes)
-	{
+	for (node v : PG.nodes) {
 		drawing.x(v) += deltaX;
 		drawing.y(v) += deltaY;
 	}
 
-	m_boundingBox = DPoint(maxX+deltaX+m_margin, maxY+deltaY+m_margin);
+	m_boundingBox = DPoint(maxX + deltaX + m_margin, maxY + deltaY + m_margin);
 }
 
 }

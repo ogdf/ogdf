@@ -29,19 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/upward/FUPSSimple.h>
-#include <ogdf/upward/UpwardPlanarity.h>
-#include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
-
+#include <ogdf/upward/FUPSSimple.h>
+#include <ogdf/upward/FaceSinkGraph.h>
+#include <ogdf/upward/UpwardPlanarity.h>
 
 namespace ogdf {
 
-Module::ReturnType FUPSSimple::doCall(
-	UpwardPlanRep &UPR,
-	List<edge> &delEdges)
-{
-
+Module::ReturnType FUPSSimple::doCall(UpwardPlanRep& UPR, List<edge>& delEdges) {
 	delEdges.clear();
 	computeFUPS(UPR, delEdges);
 	for (int i = 1; i < m_nRuns; ++i) {
@@ -58,11 +53,8 @@ Module::ReturnType FUPSSimple::doCall(
 	return Module::ReturnType::Feasible;
 }
 
-
-
-void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
-{
-	const Graph &G = UPR.original();
+void FUPSSimple::computeFUPS(UpwardPlanRep& UPR, List<edge>& delEdges) {
+	const Graph& G = UPR.original();
 	GraphCopy FUPS(G);
 	node s_orig;
 	hasSingleSource(G, s_orig);
@@ -73,35 +65,22 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 
 	CombinatorialEmbedding Gamma(FUPS);
 
-	if (random)
+	if (random) {
 		nonTreeEdges_orig.permute(); // random order
+	}
 
 	adjEntry extFaceHandle = nullptr;
 
 	//insert nonTreeEdges
 	while (!nonTreeEdges_orig.empty()) {
-
-#if 0
-		GraphAttributes AG(FUPS, GraphAttributes::nodeGraphics |
-		                         GraphAttributes::edgeGraphics |
-		                         GraphAttributes::nodeStyle |
-		                         GraphAttributes::edgeStyle |
-		                         GraphAttributes::nodeLabel |
-		                         GraphAttributes::edgeLabel);
-		// label the nodes with their index
-		for(node v : AG.constGraph().nodes) {
-			AG.label(v) = to_string(v->index());
-		}
-		AG.writeGML("c:/temp/spannTree.gml");
-#endif
-
 		// make identical copy FUPSCopy of FUPS
 		//and insert e_orig in FUPSCopy
-		GraphCopy FUPSCopy((const GraphCopy &) FUPS);
+		GraphCopy FUPSCopy((const GraphCopy&)FUPS);
 		edge e_orig = nonTreeEdges_orig.popFrontRet();
 		FUPSCopy.newEdge(e_orig);
 
-		if (UpwardPlanarity::upwardPlanarEmbed_singleSource(FUPSCopy)) { //upward embedded the fups and check feasibility
+		if (UpwardPlanarity::upwardPlanarEmbed_singleSource(
+					FUPSCopy)) { //upward embedded the fups and check feasibility
 			CombinatorialEmbedding Beta(FUPSCopy);
 
 			//choose a arbitrary feasibel ext. face
@@ -131,49 +110,48 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 				std::cout << "no ext. face set." << std::endl;
 #endif
 
-			GraphCopy M((const GraphCopy &) FUPSCopy); // use a identical copy of FUPSCopy to construct the merge graph of FUPSCopy
-			adjEntry extFaceHandle_cur = getAdjEntry(Beta, FUPSCopy.copy(s_orig), Beta.externalFace());
+			GraphCopy M((const GraphCopy&)FUPSCopy); // use a identical copy of FUPSCopy to construct the merge graph of FUPSCopy
+			adjEntry extFaceHandle_cur =
+					getAdjEntry(Beta, FUPSCopy.copy(s_orig), Beta.externalFace());
 			adjEntry adj_orig = FUPSCopy.original(extFaceHandle_cur->theEdge())->adjSource();
 
 			List<edge> missingEdges = nonTreeEdges_orig, listTmp = delEdges;
 			missingEdges.conc(listTmp);
 			if (constructMergeGraph(M, adj_orig, missingEdges)) {
 				FUPS = FUPSCopy;
-				extFaceHandle = FUPS.copy(FUPSCopy.original(extFaceHandle_cur->theEdge()))->adjSource();
+				extFaceHandle =
+						FUPS.copy(FUPSCopy.original(extFaceHandle_cur->theEdge()))->adjSource();
 				continue;
-			}
-			else {
+			} else {
 				//Beta is not feasible
 				delEdges.pushBack(e_orig);
 			}
-		}
-		else {
+		} else {
 			// not ok, GC is not feasible
 			delEdges.pushBack(e_orig);
 		}
 	}
-	UpwardPlanRep fups_tmp (FUPS, extFaceHandle);
+	UpwardPlanRep fups_tmp(FUPS, extFaceHandle);
 	UPR = fups_tmp;
 }
 
-
-void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
-{
-	if (GC.numberOfNodes() == 1)
+void FUPSSimple::getSpanTree(GraphCopy& GC, List<edge>& delEdges, bool random) {
+	if (GC.numberOfNodes() == 1) {
 		return; // nothing to do
+	}
 
 	node s;
 	hasSingleSource(GC, s);
 	NodeArray<bool> visited(GC, false);
-	EdgeArray<bool> isTreeEdge(GC,false);
+	EdgeArray<bool> isTreeEdge(GC, false);
 	List<node> toDo;
 
 	//mark the incident edges e1..e_i of super source s and the incident edges of the target node of the edge e1.._e_i as tree edge.
 	visited[s] = true;
-	for(adjEntry adj : s->adjEntries) {
+	for (adjEntry adj : s->adjEntries) {
 		isTreeEdge[adj] = true;
 		visited[adj->theEdge()->target()];
-		for(adjEntry adjTmp : adj->theEdge()->target()->adjEntries) {
+		for (adjEntry adjTmp : adj->theEdge()->target()->adjEntries) {
 			isTreeEdge[adjTmp] = true;
 			node tgt = adjTmp->theEdge()->target();
 			if (!visited[tgt]) {
@@ -184,19 +162,21 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 	}
 
 	//traversing with dfs
-	for(node start : toDo) {
-		for(adjEntry adj : start->adjEntries) {
+	for (node start : toDo) {
+		for (adjEntry adj : start->adjEntries) {
 			node v = adj->theEdge()->target();
-			if (!visited[v])
+			if (!visited[v]) {
 				dfs_visit(GC, adj->theEdge(), visited, isTreeEdge, random);
+			}
 		}
 	}
 
 	// delete all non tree edgesEdges to obtain a span tree
 	List<edge> list;
-	for(edge e : GC.edges) {
-		if (!isTreeEdge[e])
+	for (edge e : GC.edges) {
+		if (!isTreeEdge[e]) {
 			list.pushBack(e);
+		}
 	}
 	while (!list.empty()) {
 		edge e = list.popFrontRet();
@@ -205,34 +185,27 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 	}
 }
 
-
-
-void FUPSSimple::dfs_visit(
-	const Graph &G,
-	edge e,
-	NodeArray<bool> &visited,
-	EdgeArray<bool> &treeEdges,
-	bool random)
-{
+void FUPSSimple::dfs_visit(const Graph& G, edge e, NodeArray<bool>& visited,
+		EdgeArray<bool>& treeEdges, bool random) {
 	treeEdges[e] = true;
 	List<edge> elist;
 	e->target()->outEdges(elist);
 	if (!elist.empty()) {
-		if (random)
+		if (random) {
 			elist.permute();
+		}
 		ListIterator<edge> it;
 		for (it = elist.begin(); it.valid(); ++it) {
 			edge ee = *it;
-			if (!visited[ee->target()])
+			if (!visited[ee->target()]) {
 				dfs_visit(G, ee, visited, treeEdges, random);
+			}
 		}
 	}
 	visited[e->target()] = true;
 }
 
-
-bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List<edge> &orig_edges)
-{
+bool FUPSSimple::constructMergeGraph(GraphCopy& M, adjEntry adj_orig, const List<edge>& orig_edges) {
 	CombinatorialEmbedding Beta(M);
 
 	//set ext. face of Beta
@@ -267,25 +240,10 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 
 	fsg.stAugmentation(v_ext, M, aug_nodes, aug_edges);
 
-#if 0
-	GraphAttributes AG(M, GraphAttributes::nodeGraphics|
-						GraphAttributes::edgeGraphics |
-						GraphAttributes::nodeStyle |
-						GraphAttributes::edgeStyle |
-						GraphAttributes::nodeLabel |
-						GraphAttributes::edgeLabel
-						);
-	// label the nodes with their index
-	for(node v : AG.constGraph().nodes) {
-		AG.label(v) = to_string(v->index());
-	}
-	AG.writeGML("c:/temp/MergeFUPS.gml");
-#endif
-
 	OGDF_ASSERT(isStGraph(M));
 
 	//add the deleted edges
-	for(edge eOrig : orig_edges) {
+	for (edge eOrig : orig_edges) {
 		node a = M.copy(eOrig->source());
 		node b = M.copy(eOrig->target());
 		M.newEdge(a, b);

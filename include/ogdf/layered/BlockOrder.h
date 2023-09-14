@@ -32,32 +32,30 @@
 #pragma once
 
 #include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/NodeArray.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
 
 namespace ogdf {
 
 //! The simple implementation of LevelBase interface.
 class ArrayLevel : public LevelBase {
-
 private:
 	Array<node> m_nodes;
-public:
 
+public:
 	explicit ArrayLevel(unsigned int size) : m_nodes(size) { }
 
-	explicit ArrayLevel(const Array<node> &nodes) : m_nodes(nodes) { }
+	explicit ArrayLevel(const Array<node>& nodes) : m_nodes(nodes) { }
 
-	const node &operator[](int i) const override { return m_nodes[i]; }
+	const node& operator[](int i) const override { return m_nodes[i]; }
 
-	node &operator[](int i) override { return m_nodes[i]; }
+	node& operator[](int i) override { return m_nodes[i]; }
 
 	int size() const override { return m_nodes.size(); }
 
 	int high() const override { return m_nodes.high(); }
-
 };
 
 
@@ -70,8 +68,8 @@ class BlockOrder;
  * For more information see papers and BlockOrder.
  */
 class OGDF_EXPORT Block {
-
 	friend class BlockOrder;
+
 private:
 	int m_index = 0; //!< The index of this block in BlockOrder.
 
@@ -87,7 +85,7 @@ private:
 
 	Array<int> m_NeighboursOutgoing; //!< Indices of neighbouring outgoing blocks.
 
-	Array<int> m_InvertedOutgoing;  //!< Positions of this block in m_NeighboursIncoming of neighbours.
+	Array<int> m_InvertedOutgoing; //!< Positions of this block in m_NeighboursIncoming of neighbours.
 
 	// exactly one of those below is non null!
 	node m_Node = nullptr; //!< The node for which this block was created.
@@ -108,7 +106,6 @@ public:
 
 	//! Creates new edge block for an edge \p e.
 	explicit Block(edge e);
-
 };
 
 /**
@@ -123,7 +120,6 @@ public:
  * this information in \a translation to Hierarchy and HierarchyLevelsBase.
  */
 class OGDF_EXPORT BlockOrder : public HierarchyLevelsBase {
-
 private:
 	enum class Direction { Plus, Minus };
 
@@ -147,9 +143,9 @@ private:
 	unsigned int m_currentCrossings;
 #endif
 
-	Array<Block *> m_Blocks; //!< The array of all blocks.
-	NodeArray<Block *> m_NodeBlocks; //!< The array of all vertex blocks.
-	EdgeArray<Block *> m_EdgeBlocks; //!< The array of all edge blocks.
+	Array<Block*> m_Blocks; //!< The array of all blocks.
+	NodeArray<Block*> m_NodeBlocks; //!< The array of all vertex blocks.
+	EdgeArray<Block*> m_EdgeBlocks; //!< The array of all edge blocks.
 
 	EdgeArray<bool> m_isActiveEdge; //!< Stores information about active edge blocks.
 
@@ -158,44 +154,37 @@ private:
 #endif
 	int m_activeBlocksCount;
 
-	Hierarchy &m_hierarchy; //!< The hierarchy on grid- and globalsifting operates.
+	Hierarchy& m_hierarchy; //!< The hierarchy on grid- and globalsifting operates.
 
 	void deconstruct(); //!< Deletes levels and blocks owned by this instance of BlockOrder.
 
 	NodeArray<int> m_pos; //!< The position of a node on its level.
 
-	Array<ArrayLevel *> m_levels; //!< The array of all levels.
+	Array<ArrayLevel*> m_levels; //!< The array of all levels.
 
-	NodeArray<Array<node> > m_lowerAdjNodes; //!< (Sorted) adjacent nodes on lower level.
-	NodeArray<Array<node> > m_upperAdjNodes; //!< (Sorted) adjacent nodes on upper level.
+	NodeArray<Array<node>> m_lowerAdjNodes; //!< (Sorted) adjacent nodes on lower level.
+	NodeArray<Array<node>> m_upperAdjNodes; //!< (Sorted) adjacent nodes on upper level.
 
 	NodeArray<int> m_nSet; //!< (Only used by buildAdjNodes().)
 
 public:
-
 	//! \name HierarchyLevelsBase members
 	//! @{
 
 	//! Returns the <i>i</i>-th level.
-	const ArrayLevel &operator[](int i) const override {
-		return *(m_levels[i]);
-	}
-	//! Returns the position of node \p v on its level.
-	int pos(node v) const override {
-		return m_pos[v];
-	}
-	//! Returns the number of levels.
-	int size() const override {
-		return m_levels.size();
-	}
+	const ArrayLevel& operator[](int i) const override { return *(m_levels[i]); }
 
-	const Hierarchy &hierarchy() const override {
-		return m_hierarchy;
-	}
+	//! Returns the position of node \p v on its level.
+	int pos(node v) const override { return m_pos[v]; }
+
+	//! Returns the number of levels.
+	int size() const override { return m_levels.size(); }
+
+	const Hierarchy& hierarchy() const override { return m_hierarchy; }
 
 	//! Returns the adjacent nodes of \p v.
-	const Array<node> &adjNodes(node v, TraversingDir dir) const override {
-		if ( dir == TraversingDir::upward ) {
+	const Array<node>& adjNodes(node v, TraversingDir dir) const override {
+		if (dir == TraversingDir::upward) {
 			return m_upperAdjNodes[v];
 		} else {
 			return m_lowerAdjNodes[v];
@@ -217,11 +206,11 @@ public:
 	explicit BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly = true);
 
 	//! Calls the global sifting algorithm on graph (its hierarchy).
-	void globalSifting( int rho = 1, int nRepeats = 10, int *pNumCrossings = nullptr );
+	void globalSifting(int rho = 1, int nRepeats = 10, int* pNumCrossings = nullptr);
 
 private:
 	//! Does some initialization.
-	void doInit( bool longEdgesOnly = true);
+	void doInit(bool longEdgesOnly = true);
 #if 0
 	void doInit( bool longEdgesOnly = true, const NodeArray<int> &ranks);
 #endif
@@ -241,7 +230,7 @@ private:
 	 * blocks are swapped.
 	 * See UPDATE-ADJACENCIES in papers.
 	 */
-	void updateAdjacencies(Block *blockOfA, Block *blockOfB, Direction d);
+	void updateAdjacencies(Block* blockOfA, Block* blockOfB, Direction d);
 
 	/**
 	 * \brief Calculates change of crossings made by a single swap.
@@ -250,21 +239,21 @@ private:
 	 * blocks in current permutation.
 	 * See USWAP in papers.
 	 */
-	int uswap(Block *blockOfA, Block *blockOfB, Direction d, int level);
+	int uswap(Block* blockOfA, Block* blockOfB, Direction d, int level);
 
 	/**
 	 * \brief Swaps two consecutive blocks.
 	 *
 	 * See SIFTING-STEP in papers.
 	 */
-	int siftingSwap(Block *blockOfA, Block *blockOfB);
+	int siftingSwap(Block* blockOfA, Block* blockOfB);
 
 	/**
 	 * \brief Performs sifting for a single block.
 	 *
 	 * See SIFTING-STEP in papers.
 	 */
-	int siftingStep( Block *blockOfA );
+	int siftingStep(Block* blockOfA);
 
 	/**
 	 * \brief Builds levels of vertices from original graph.
@@ -284,14 +273,12 @@ private:
 	/**
 	 * \brief Builds arrays that allow using BlockOrder as HierarchyLevelsBase implementation.
 	 */
-	void buildHierarchy()
-	{
+	void buildHierarchy() {
 		buildDummyNodesLists();
 		buildLevels();
 		buildAdjNodes();
 		m_storedCrossings = calculateCrossings();
 	}
-
 
 	//! \name GridSifting
 	//! @{
@@ -299,26 +286,27 @@ private:
 	/**
 	 * \brief Moves block to next level.
 	 */
-	int verticalSwap( Block *b, int level );
+	int verticalSwap(Block* b, int level);
 
 	//! Only used in verticalSwap().
-	int localCountCrossings( const Array<int> &levels );
+	int localCountCrossings(const Array<int>& levels);
 
 	/**
 	 * \brief Performs vertical step for block b.
 	 *
 	 * See VERTICAL-STEP in papers.
 	 */
-	void verticalStep( Block *b );
+	void verticalStep(Block* b);
 
 	Array<int> m_nNodesOnLvls;
+
 public:
 	int m_verticalStepsBound;
 
 	/**
 	 * \brief Calls the grid sifting algorithm on a graph (its hierarchy).
 	 */
-	void gridSifting( int nRepeats = 10 );
+	void gridSifting(int nRepeats = 10);
 
 	//! @}
 };

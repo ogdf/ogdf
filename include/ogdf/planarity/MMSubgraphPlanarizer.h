@@ -32,8 +32,9 @@
 #pragma once
 
 #include <ogdf/planarity/MMCrossingMinimizationModule.h>
-#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/planarity/MMEdgeInsertionModule.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
+
 #include <memory>
 
 namespace ogdf {
@@ -43,21 +44,16 @@ namespace ogdf {
  *
  * @ingroup ga-crossmin
  */
-class OGDF_EXPORT MMSubgraphPlanarizer : public MMCrossingMinimizationModule
-{
+class OGDF_EXPORT MMSubgraphPlanarizer : public MMCrossingMinimizationModule {
 public:
 	//! Creates a subgraph planarizer for minor-monotone crossing minimization.
 	MMSubgraphPlanarizer();
 
 	//! Sets the module option for the computation of the planar subgraph.
-	void setSubgraph(PlanarSubgraphModule<int> *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(PlanarSubgraphModule<int>* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! Sets the module option for minor-monotone edge insertion.
-	void setInserter(MMEdgeInsertionModule *pInserter) {
-		m_inserter.reset(pInserter);
-	}
+	void setInserter(MMEdgeInsertionModule* pInserter) { m_inserter.reset(pInserter); }
 
 	//! Returns the number of performed permutations in the edge insertion step.
 	int permutations() { return m_permutations; }
@@ -66,18 +62,14 @@ public:
 	void permutations(int p) { m_permutations = p; }
 
 protected:
-	virtual ReturnType doCall(PlanRepExpansion &PG,
-		int cc,
-		const EdgeArray<bool> *forbid,
-		int& crossingNumber,
-		int& numNS,
-		int& numSN) override;
+	virtual ReturnType doCall(PlanRepExpansion& PG, int cc, const EdgeArray<bool>* forbid,
+			int& crossingNumber, int& numNS, int& numSN) override;
 
 private:
 	std::unique_ptr<PlanarSubgraphModule<int>> m_subgraph; //!< The planar subgraph module.
 	std::unique_ptr<MMEdgeInsertionModule> m_inserter; //!< The minor-monotone edge insertion module.
 
-	int m_permutations;	//!< The number of permutations.
+	int m_permutations; //!< The number of permutations.
 };
 
 }

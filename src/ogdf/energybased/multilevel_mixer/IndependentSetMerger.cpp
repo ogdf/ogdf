@@ -33,36 +33,31 @@
 
 namespace ogdf {
 
-IndependentSetMerger::IndependentSetMerger()
-:m_base(2.f)
-{
-}
+IndependentSetMerger::IndependentSetMerger() : m_base(2.f) { }
 
-
-void IndependentSetMerger::buildAllLevels(MultilevelGraph &MLG)
-{
+void IndependentSetMerger::buildAllLevels(MultilevelGraph& MLG) {
 	m_numLevels = 1;
 	MLG.updateReverseIndizes();
 
-	std::vector< std::vector<node> > levelNodes;
-	Graph &G = MLG.getGraph();
+	std::vector<std::vector<node>> levelNodes;
+	Graph& G = MLG.getGraph();
 
 	// calc MIS
 	NodeArray<bool> nodeMarks(G, false);
 	std::vector<node> IScandidates;
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		IScandidates.push_back(v);
 	}
 	levelNodes.push_back(std::vector<node>());
-	while(!IScandidates.empty()) {
+	while (!IScandidates.empty()) {
 		// select random node
-		int index = randomNumber(0, (int)IScandidates.size()-1);
+		int index = randomNumber(0, (int)IScandidates.size() - 1);
 		node ISnode = IScandidates[index];
 		IScandidates[index] = IScandidates.back();
 		IScandidates.pop_back();
 
-		if(!nodeMarks[ISnode]) {
-			for(adjEntry adj : ISnode->adjEntries) {
+		if (!nodeMarks[ISnode]) {
+			for (adjEntry adj : ISnode->adjEntries) {
 				nodeMarks[adj->twinNode()] = true;
 			}
 			levelNodes[0].push_back(ISnode);
@@ -74,7 +69,7 @@ void IndependentSetMerger::buildAllLevels(MultilevelGraph &MLG)
 	do {
 		std::vector<node> lvl = prebuildLevel(G, levelNodes[i], i);
 		end = lvl.size() <= 2;
-		if(!end) {
+		if (!end) {
 			levelNodes.push_back(std::vector<node>(lvl));
 			i++;
 		}
@@ -91,9 +86,8 @@ void IndependentSetMerger::buildAllLevels(MultilevelGraph &MLG)
 	MLG.updateReverseIndizes();
 }
 
-
-std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std::vector<node> &oldLevel, int level)
-{
+std::vector<node> IndependentSetMerger::prebuildLevel(const Graph& G,
+		const std::vector<node>& oldLevel, int level) {
 	std::vector<node> levelNodes;
 	std::vector<node> oldLevelNodes;
 	std::map<node, int> marks;
@@ -103,7 +97,7 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 	}
 
 	while (!oldLevelNodes.empty()) {
-		int index = randomNumber(0, (int)oldLevelNodes.size()-1);
+		int index = randomNumber(0, (int)oldLevelNodes.size() - 1);
 		node oldNode = oldLevelNodes[index];
 		oldLevelNodes[index] = oldLevelNodes.back();
 		oldLevelNodes.pop_back();
@@ -117,7 +111,7 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 			levelNodes.push_back(oldNode);
 			// BFS bis m_base^level
 			unsigned int depth = 0;
-			while(!stacks[one].empty()) {
+			while (!stacks[one].empty()) {
 				node bfsNode = stacks[one].back();
 				stacks[one].pop_back();
 
@@ -126,7 +120,7 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 						marks[bfsNode] = 2;
 					}
 					seen[bfsNode] = true;
-					for(adjEntry adj : bfsNode->adjEntries) {
+					for (adjEntry adj : bfsNode->adjEntries) {
 						stacks[two].push_back(adj->twinNode());
 					}
 				}
@@ -146,10 +140,8 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 	return levelNodes;
 }
 
-
-bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node> &levelNodes)
-{
-	Graph &G = MLG.getGraph();
+bool IndependentSetMerger::buildOneLevel(MultilevelGraph& MLG, std::vector<node>& levelNodes) {
+	Graph& G = MLG.getGraph();
 	int level = MLG.getLevel() + 1;
 
 	int numNodes = G.numberOfNodes();
@@ -159,7 +151,7 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 	}
 
 	std::map<node, node> parents;
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		parents[v] = nullptr;
 	}
 
@@ -168,7 +160,7 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 	std::vector<node> stacks[2];
 	int one = 1;
 	int two = 0;
-	for(node v : levelNodes) {
+	for (node v : levelNodes) {
 		stacks[one].push_back(v);
 		parents[v] = v;
 	}
@@ -179,10 +171,10 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 
 		if (!seen[bfsNode]) {
 			seen[bfsNode] = true;
-			for(adjEntry adj : bfsNode->adjEntries) {
+			for (adjEntry adj : bfsNode->adjEntries) {
 				node twin = adj->twinNode();
 				stacks[two].push_back(twin);
-				if(parents[twin] == nullptr) {
+				if (parents[twin] == nullptr) {
 					parents[twin] = bfsNode;
 					mergeOrder.push_back(twin);
 				}
@@ -197,20 +189,20 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 
 	for (node mergeNode : mergeOrder) {
 		node parent = mergeNode;
-		while(parents[parent] != parent) {
+		while (parents[parent] != parent) {
 			parent = parents[parent];
 		}
 
-		NodeMerge * NM = new NodeMerge(level);
+		NodeMerge* NM = new NodeMerge(level);
 		bool ret;
 #ifdef OGDF_DEBUG
 		ret =
 #endif
-			MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
-		OGDF_ASSERT( ret );
+				MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
+		OGDF_ASSERT(ret);
 		MLG.moveEdgesToParent(NM, mergeNode, parent, true, m_adjustEdgeLengths);
 		ret = MLG.postMerge(NM, mergeNode);
-		if( !ret ) {
+		if (!ret) {
 			delete NM;
 		}
 	}
@@ -218,9 +210,6 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 	return true;
 }
 
-void IndependentSetMerger::setSearchDepthBase( float base )
-{
-	m_base = base;
-}
+void IndependentSetMerger::setSearchDepthBase(float base) { m_base = base; }
 
 }

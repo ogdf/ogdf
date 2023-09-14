@@ -34,6 +34,7 @@
 
 #include <ogdf/cluster/LayoutClusterPlanRepModule.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
+
 #include <memory>
 
 namespace ogdf {
@@ -77,16 +78,13 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT ClusterPlanarizationLayout
-{
+class OGDF_EXPORT ClusterPlanarizationLayout {
 public:
 	//! Creates an instance of cluster planarization layout.
 	ClusterPlanarizationLayout();
 
 	//! Destruction
 	virtual ~ClusterPlanarizationLayout() { }
-
-
 
 	//! Calls cluster planarization layout with cluster-graph attributes \p acGraph.
 	/**
@@ -95,11 +93,8 @@ public:
 	 * @param cGraph is the input cluster graph.
 	 * @param simpleCConnect If set to true, c-connectivity is achieved by adding arbitrary edges (fast).
 	 */
-	virtual void call(
-		Graph& G,
-		ClusterGraphAttributes& acGraph,
-		ClusterGraph& cGraph,
-		bool simpleCConnect = true);
+	virtual void call(Graph& G, ClusterGraphAttributes& acGraph, ClusterGraph& cGraph,
+			bool simpleCConnect = true);
 	//! Calls cluster planarization layout with cluster-graph attributes \p acGraph.
 	/**
 	 * @param G is the input graph.
@@ -108,33 +103,22 @@ public:
 	 * @param edgeWeight allows to prefer lightweight edges for planar subgraph computation.
 	 * @param simpleCConnect If set to true, c-connectivity is achieved by adding arbitrary edges (fast).
 	 */
-	virtual void call(
-		Graph& G,
-		ClusterGraphAttributes& acGraph,
-		ClusterGraph& cGraph,
-		EdgeArray<double>& edgeWeight,
-		bool simpleCConnect = true);
-
+	virtual void call(Graph& G, ClusterGraphAttributes& acGraph, ClusterGraph& cGraph,
+			EdgeArray<double>& edgeWeight, bool simpleCConnect = true);
 
 	//! Returns the current page ratio (= desired width / height of layout).
-	double pageRatio() const {
-		return m_pageRatio;
-	}
+	double pageRatio() const { return m_pageRatio; }
 
 	//! Sets the page ratio to \p ratio.
-	void pageRatio(double ratio) {
-		m_pageRatio = ratio;
-	}
+	void pageRatio(double ratio) { m_pageRatio = ratio; }
 
 	//! Sets the module option for the planar layout algorithm to \p pPlanarLayouter.
-	void setPlanarLayouter(LayoutClusterPlanRepModule *pPlanarLayouter) {
+	void setPlanarLayouter(LayoutClusterPlanRepModule* pPlanarLayouter) {
 		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
 	//! Sets the module option for the arrangement of connected components to \p pPacker.
-	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.reset(pPacker);
-	}
+	void setPacker(CCLayoutPackModule* pPacker) { m_packer.reset(pPacker); }
 
 #if 0
 	//! Returns the number of crossings in the layout produced in last call.
@@ -145,24 +129,21 @@ public:
 
 
 protected:
-	struct ClusterPosition
-	{
+	struct ClusterPosition {
 		double m_minx, m_maxx, m_miny, m_maxy, m_width, m_height;
 	};
 
-	void computeClusterPositions(
-		ClusterPlanRep& CP,
-		Layout drawing,
-		HashArray<int, ClusterPosition>& CA);
+	void computeClusterPositions(ClusterPlanRep& CP, Layout drawing,
+			HashArray<int, ClusterPosition>& CA);
 
 
 private:
 	std::unique_ptr<LayoutClusterPlanRepModule> m_planarLayouter; //!< The planar layouter.
-	std::unique_ptr<CCLayoutPackModule>         m_packer; //!< The packing algorithm.
+	std::unique_ptr<CCLayoutPackModule> m_packer; //!< The packing algorithm.
 
 	double m_pageRatio; //!< The page ratio.
 
-	int m_nCrossings;//!< The number of crossings (not yet used!).
+	int m_nCrossings; //!< The number of crossings (not yet used!).
 };
 
 }

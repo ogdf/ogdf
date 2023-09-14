@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+#
+# This script removes old (merged) branches.
+
+if [ "$(git rev-parse --abbrev-ref HEAD)" != master ]
+then
+	echo "Please run this script from master."
+	exit 1
+fi
+
+git fetch -p
+for branch in $(git branch --merged master | grep -v '^*')
+do
+	git branch -d "$branch"
+done

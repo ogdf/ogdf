@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/PriorityQueue.h>
 
 namespace ogdf {
@@ -60,14 +60,13 @@ private:
 	EpsilonTest m_et;
 
 	NodeArray<bool> m_folded;
-	const EdgeArray<T> *m_cost = nullptr;
+	const EdgeArray<T>* m_cost = nullptr;
 	std::function<T(node)> m_heuristic;
-	NodeArray<edge> *m_predecessor = nullptr;
+	NodeArray<edge>* m_predecessor = nullptr;
 	NodeArray<T> m_distance;
-	NodeQueue *m_queue = nullptr;
+	NodeQueue* m_queue = nullptr;
 
 public:
-
 	/**
 	 * Initializes a new A* search algorithm.
 	 *
@@ -76,11 +75,9 @@ public:
 	 *               The default of 1 leads to an optimal solution.
 	 * @param et The ::ogdf::EpsilonTest to be used for comparing edge costs
 	 */
-	explicit AStarSearch(const bool directed = false, const double maxGap = 1, const EpsilonTest &et = EpsilonTest())
-	: m_directed(directed)
-	, m_maxGap(maxGap)
-	, m_et(et)
-	{
+	explicit AStarSearch(const bool directed = false, const double maxGap = 1,
+			const EpsilonTest& et = EpsilonTest())
+		: m_directed(directed), m_maxGap(maxGap), m_et(et) {
 		OGDF_ASSERT(m_et.geq(maxGap, 1.0));
 	}
 
@@ -98,19 +95,15 @@ public:
 	 *                  The default heuristic will always return the trivial lower bound of zero.
 	 * @return The total length of the found path
 	 */
-	T call(const Graph &graph,
-	       const EdgeArray<T> &cost,
-	       const node source,
-	       const node target,
-	       NodeArray<edge> &predecessor,
-	       std::function<T(node)> heuristic = [](node) {
+	T call(
+			const Graph& graph, const EdgeArray<T>& cost, const node source, const node target,
+			NodeArray<edge>& predecessor, std::function<T(node)> heuristic = [](node) {
 #ifdef _MSC_VER
-			return 0;
+				return 0;
 #else
 			return T(0);
 #endif
-		})
-	{
+			}) {
 		// initialize auxiliary structures
 		m_cost = &cost;
 		m_distance.init(graph);
@@ -127,12 +120,12 @@ public:
 		m_queue->push(source, 0);
 
 		// investigate each node
-		while(!m_queue->empty()) {
+		while (!m_queue->empty()) {
 			node v = queue.topElement();
 			queue.pop();
 			m_folded[v] = true;
 
-			if(v == target) {
+			if (v == target) {
 				queue.clear();
 			} else {
 				investigateNode(v);
@@ -145,14 +138,13 @@ public:
 	}
 
 private:
-
 #ifdef OGDF_DEBUG
 	bool validatePath(const node source, const node target) const {
 		NodeArray<bool> visited(*m_predecessor->graphOf(), false);
 
 		OGDF_ASSERT(m_et.equal(m_distance[source], T(0)));
 
-		for(node v = target; v != source;) {
+		for (node v = target; v != source;) {
 			OGDF_ASSERT(!visited[v]);
 
 			visited[v] = true;
@@ -172,17 +164,17 @@ private:
 #endif
 
 	void investigateNode(const node v) {
-		for(adjEntry adj = v->firstAdj(); adj != nullptr; adj = adj->succ()) {
+		for (adjEntry adj = v->firstAdj(); adj != nullptr; adj = adj->succ()) {
 			edge e = adj->theEdge();
-			if(!m_directed || e->target() != v) {
+			if (!m_directed || e->target() != v) {
 				node w = e->opposite(v);
 				T distanceW = m_distance[v] + (*m_cost)[e];
-				if(!m_folded(w) && (!m_queue->contains(w) || m_et.less(distanceW, m_distance[w]))) {
+				if (!m_folded(w) && (!m_queue->contains(w) || m_et.less(distanceW, m_distance[w]))) {
 					m_distance[w] = distanceW;
 					(*m_predecessor)[w] = e;
 					T priority = (T)(m_distance[w] + m_maxGap * m_heuristic(w));
 
-					if(!m_queue->contains(w)) {
+					if (!m_queue->contains(w)) {
 						m_queue->push(w, priority);
 					} else {
 						m_queue->decrease(w, priority);

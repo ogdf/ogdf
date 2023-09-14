@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunctional.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 
 #define OGDF_LQ_M2L_MIN_BOUND 8
 #define OGDF_LQ_WSPD_BRANCH_BOUND 16
@@ -44,77 +44,78 @@ namespace fast_multipole_embedder {
 class LinearQuadtreeBuilder;
 class WSPD;
 
-class LinearQuadtree
-{
+class LinearQuadtree {
 	friend class LinearQuadtreeBuilder;
 	friend class LinearQuadtreeBuilderList;
+
 public:
 	using NodeID = unsigned int;
 	using PointID = unsigned int;
 
-	struct LQPoint				// 16 byte
+	struct LQPoint // 16 byte
 	{
-		MortonNR mortonNr;		// 8 byte
-		uint32_t node;			// 4 byte
-		uint32_t ref;			// 4 byte
+		MortonNR mortonNr; // 8 byte
+		uint32_t node; // 4 byte
+		uint32_t ref; // 4 byte
 	};
 
-	struct LQNode				// 27 byte
+	struct LQNode // 27 byte
 	{
-		uint32_t level;			// 4 byte
-		NodeID next;			// 4 byte
-		NodeID child[4];		// 4 byte *4 = 16 byte
-		uint32_t numChilds;		// 4 byte
-		PointID firstPoint;		// 4 byte
-		uint32_t numPoints;		// 4 byte
-		bool fence;				// 1 byte
+		uint32_t level; // 4 byte
+		NodeID next; // 4 byte
+		NodeID child[4]; // 4 byte *4 = 16 byte
+		uint32_t numChilds; // 4 byte
+		PointID firstPoint; // 4 byte
+		uint32_t numPoints; // 4 byte
+		bool fence; // 1 byte
 	};
 
-	struct LQWSPair
-	{
+	struct LQWSPair {
 		LQWSPair(NodeID c, NodeID d) : a(c), b(d) {};
 		NodeID a;
 		NodeID b;
 	};
 
-	struct is_fence_condition_functor
-	{
+	struct is_fence_condition_functor {
 		const LinearQuadtree& tree;
+
 		is_fence_condition_functor(const LinearQuadtree& t) : tree(t) { }
-		inline bool operator()(NodeID u) {	return tree.isFence(u); }
+
+		inline bool operator()(NodeID u) { return tree.isFence(u); }
 	};
 
 	//! creator
-	inline is_fence_condition_functor is_fence_condition() const { 	return is_fence_condition_functor(*this); }
+	inline is_fence_condition_functor is_fence_condition() const {
+		return is_fence_condition_functor(*this);
+	}
 
-
-	struct is_leaf_condition_functor
-	{
+	struct is_leaf_condition_functor {
 		const LinearQuadtree& tree;
+
 		is_leaf_condition_functor(const LinearQuadtree& t) : tree(t) { }
-		inline bool operator()(NodeID u) {	return tree.isLeaf(u); }
+
+		inline bool operator()(NodeID u) { return tree.isLeaf(u); }
 	};
 
 	//! creator
-	inline is_leaf_condition_functor is_leaf_condition() const { return is_leaf_condition_functor(*this); }
-
+	inline is_leaf_condition_functor is_leaf_condition() const {
+		return is_leaf_condition_functor(*this);
+	}
 
 	//! simple functor for iterating over all nodes
 	template<typename F>
-	struct forall_tree_nodes_functor
-	{
+	struct forall_tree_nodes_functor {
 		const LinearQuadtree& tree;
 		F func;
 		NodeID begin;
 		uint32_t numNodes;
 
-		forall_tree_nodes_functor(const LinearQuadtree& t, F f, NodeID b, uint32_t num) : tree(t), func(f), begin(b), numNodes(num) { }
+		forall_tree_nodes_functor(const LinearQuadtree& t, F f, NodeID b, uint32_t num)
+			: tree(t), func(f), begin(b), numNodes(num) { }
 
-		inline void operator()()
-		{
+		inline void operator()() {
 			NodeID it = begin;
-			for (uint32_t i=0; i<numNodes; i++)
-			{
+			for (uint32_t i = 0; i < numNodes; i++) {
 				func(it);
 				it = tree.nextNode(it);
 			}
@@ -123,367 +124,312 @@ public:
 
 	//! creator
 	template<typename F>
-	inline forall_tree_nodes_functor<F> forall_tree_nodes(F f, NodeID begin, uint32_t num) const
-	{
+	inline forall_tree_nodes_functor<F> forall_tree_nodes(F f, NodeID begin, uint32_t num) const {
 		return forall_tree_nodes_functor<F>(*this, f, begin, num);
 	}
 
 	//! simple functor for iterating over all children of a node
 	template<typename F>
-	struct forall_children_functor
-	{
+	struct forall_children_functor {
 		const LinearQuadtree& tree;
 		F func;
 
 		forall_children_functor(const LinearQuadtree& t, F f) : tree(t), func(f) { }
 
-		inline void operator()(NodeID u)
-		{
-			if (tree.isLeaf(u)) return;
-			for (uint32_t i = 0; i < tree.numberOfChilds(u); i++) func(tree.child(u, i));
+		inline void operator()(NodeID u) {
+			if (tree.isLeaf(u)) {
+				return;
+			}
+			for (uint32_t i = 0; i < tree.numberOfChilds(u); i++) {
+				func(tree.child(u, i));
+			}
 		}
 	};
 
 	//! creator
 	template<typename F>
-	inline forall_children_functor<F> forall_children(F f) const
-	{
+	inline forall_children_functor<F> forall_children(F f) const {
 		return forall_children_functor<F>(*this, f);
 	}
 
-
 	//! simple functor for iterating over all points of a node
 	template<typename Func>
-	struct forall_points_functor
-	{
+	struct forall_points_functor {
 		const LinearQuadtree& tree;
 		Func func;
 
 		forall_points_functor(const LinearQuadtree& t, const Func& f) : tree(t), func(f) { }
 
-		inline void operator()(NodeID u)
-		{
+		inline void operator()(NodeID u) {
 			PointID firstPoint = tree.firstPoint(u);
 			PointID end = firstPoint + tree.numberOfPoints(u);
-			for (PointID i = firstPoint; i < end; i++)
+			for (PointID i = firstPoint; i < end; i++) {
 				func(i);
+			}
 		}
 	};
 
 	//! creator
 	template<typename Func>
-	inline forall_points_functor<Func> forall_points(const Func& func) const
-	{
+	inline forall_points_functor<Func> forall_points(const Func& func) const {
 		return forall_points_functor<Func>(*this, func);
 	}
 
 	//! functor for iterating over all ordered pairs of children of a node
 	template<typename F>
-	struct forall_ordered_pairs_of_children_functor
-	{
+	struct forall_ordered_pairs_of_children_functor {
 		const LinearQuadtree& tree;
 		F func;
 
-		forall_ordered_pairs_of_children_functor(const LinearQuadtree& t, F f) : tree(t), func(f) { }
+		forall_ordered_pairs_of_children_functor(const LinearQuadtree& t, F f)
+			: tree(t), func(f) { }
 
-		inline void operator()(NodeID u)
-		{
-			if (tree.isLeaf(u)) return;
-			for (uint32_t i = 0; i < tree.numberOfChilds(u); i++)
-				for (uint32_t j = i+1; j < tree.numberOfChilds(u); j++)
+		inline void operator()(NodeID u) {
+			if (tree.isLeaf(u)) {
+				return;
+			}
+			for (uint32_t i = 0; i < tree.numberOfChilds(u); i++) {
+				for (uint32_t j = i + 1; j < tree.numberOfChilds(u); j++) {
 					func(tree.child(u, i), tree.child(u, j));
+				}
+			}
 		}
 	};
 
 	//! creator
 	template<typename F>
-	inline forall_ordered_pairs_of_children_functor<F> forall_ordered_pairs_of_children(F f)  const
-	{
+	inline forall_ordered_pairs_of_children_functor<F> forall_ordered_pairs_of_children(F f) const {
 		return forall_ordered_pairs_of_children_functor<F>(*this, f);
 	}
 
 	//! top down traversal of the subtree of a given node
 	template<typename F, typename CondType = true_condition>
-	struct top_down_traversal_functor
-	{
+	struct top_down_traversal_functor {
 		const LinearQuadtree& tree;
 		F func;
 		CondType cond;
 
 		top_down_traversal_functor(const LinearQuadtree& t, F f) : tree(t), func(f) { }
-		top_down_traversal_functor(const LinearQuadtree& t, F f, CondType c) : tree(t), func(f), cond(c) { }
 
-		inline void operator()(NodeID u)
-		{
-			if (cond(u)) {	func(u); tree.forall_children(*this)(u); };
+		top_down_traversal_functor(const LinearQuadtree& t, F f, CondType c)
+			: tree(t), func(f), cond(c) { }
+
+		inline void operator()(NodeID u) {
+			if (cond(u)) {
+				func(u);
+				tree.forall_children (*this)(u);
+			};
 		}
 	};
 
 	//! creator
 	template<typename F>
-	inline top_down_traversal_functor<F> top_down_traversal(F f) const
-	{
+	inline top_down_traversal_functor<F> top_down_traversal(F f) const {
 		return top_down_traversal_functor<F>(*this, f);
 	}
 
 	//! creator
 	template<typename F, typename Cond>
-	inline top_down_traversal_functor<F, Cond> top_down_traversal(F f, Cond cond) const
-	{
+	inline top_down_traversal_functor<F, Cond> top_down_traversal(F f, Cond cond) const {
 		return top_down_traversal_functor<F, Cond>(*this, f, cond);
 	}
 
-
 	//! bottom up traversal of the subtree of a given node
 	template<typename F, typename CondType = true_condition>
-	struct bottom_up_traversal_functor
-	{
+	struct bottom_up_traversal_functor {
 		const LinearQuadtree& tree;
 		F func;
 		CondType cond;
 
 		bottom_up_traversal_functor(const LinearQuadtree& t, F f) : tree(t), func(f) { }
-		bottom_up_traversal_functor(const LinearQuadtree& t, F f, CondType c) : tree(t), func(f), cond(c) { }
 
-		inline void operator()(NodeID u)
-		{
-			if (cond(u)) { tree.forall_children(*this)(u); func(u); };
+		bottom_up_traversal_functor(const LinearQuadtree& t, F f, CondType c)
+			: tree(t), func(f), cond(c) { }
+
+		inline void operator()(NodeID u) {
+			if (cond(u)) {
+				tree.forall_children (*this)(u);
+				func(u);
+			};
 		}
 	};
 
 	//! creator
 	template<typename F>
-	inline bottom_up_traversal_functor<F> bottom_up_traversal(F f) const
-	{
+	inline bottom_up_traversal_functor<F> bottom_up_traversal(F f) const {
 		return bottom_up_traversal_functor<F>(*this, f);
 	}
 
 	//! creator
 	template<typename F, typename Cond>
-	inline bottom_up_traversal_functor<F, Cond> bottom_up_traversal(F f, Cond cond) const
-	{
+	inline bottom_up_traversal_functor<F, Cond> bottom_up_traversal(F f, Cond cond) const {
 		return bottom_up_traversal_functor<F, Cond>(*this, f, cond);
 	}
 
-
-	template<typename WSPairFuncType, typename DPairFuncType, typename DNodeFuncType, typename BranchCondType = true_condition>
-	struct wspd_functor
-	{
+	template<typename WSPairFuncType, typename DPairFuncType, typename DNodeFuncType,
+			typename BranchCondType = true_condition>
+	struct wspd_functor {
 		const LinearQuadtree& tree;
 		WSPairFuncType WSFunction;
 		DPairFuncType DPairFunction;
 		DNodeFuncType DNodeFunction;
 		BranchCondType BranchCondFunction;
 
-		wspd_functor(const LinearQuadtree& t, WSPairFuncType& wsf, DPairFuncType& dpf, DNodeFuncType& dnf)
-		  : tree(t), WSFunction(wsf),  DPairFunction(dpf),  DNodeFunction(dnf) { }
+		wspd_functor(const LinearQuadtree& t, WSPairFuncType& wsf, DPairFuncType& dpf,
+				DNodeFuncType& dnf)
+			: tree(t), WSFunction(wsf), DPairFunction(dpf), DNodeFunction(dnf) { }
 
-		wspd_functor(const LinearQuadtree& t, WSPairFuncType& wsf, DPairFuncType& dpf, DNodeFuncType& dnf, BranchCondType& bc)
-		  : tree(t), WSFunction(wsf),  DPairFunction(dpf),  DNodeFunction(dnf), BranchCondFunction(bc) { }
+		wspd_functor(const LinearQuadtree& t, WSPairFuncType& wsf, DPairFuncType& dpf,
+				DNodeFuncType& dnf, BranchCondType& bc)
+			: tree(t)
+			, WSFunction(wsf)
+			, DPairFunction(dpf)
+			, DNodeFunction(dnf)
+			, BranchCondFunction(bc) { }
 
-		inline void operator()(NodeID u)
-		{
-			if (BranchCondFunction(u))
-			{
-				if (tree.isLeaf(u) || tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BOUND)
-				{
-					if (tree.numberOfPoints(u) > 1)
+		inline void operator()(NodeID u) {
+			if (BranchCondFunction(u)) {
+				if (tree.isLeaf(u) || tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BOUND) {
+					if (tree.numberOfPoints(u) > 1) {
 						DNodeFunction(u);
-				} else
-				{
-					tree.forall_children(*this)(u);
-					tree.forall_ordered_pairs_of_children(*this)(u);
+					}
+				} else {
+					tree.forall_children (*this)(u);
+					tree.forall_ordered_pairs_of_children (*this)(u);
 				}
 			}
 		}
 
-
-		inline void operator()(NodeID u, NodeID v)
-		{
-			if (tree.isWS(u, v))
-			{
-				if (tree.numberOfPoints(u) < OGDF_LQ_M2L_MIN_BOUND && tree.numberOfPoints(v) < OGDF_LQ_M2L_MIN_BOUND)
+		inline void operator()(NodeID u, NodeID v) {
+			if (tree.isWS(u, v)) {
+				if (tree.numberOfPoints(u) < OGDF_LQ_M2L_MIN_BOUND
+						&& tree.numberOfPoints(v) < OGDF_LQ_M2L_MIN_BOUND) {
 					DPairFunction(u, v);
-				else
+				} else {
 					WSFunction(u, v);
-			}
-			else
-			{
-				if ((tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BRANCH_BOUND && tree.numberOfPoints(v) <= OGDF_LQ_WSPD_BRANCH_BOUND) ||
-						tree.isLeaf(u) || tree.isLeaf(v))
-				{
-					DPairFunction(u, v);
 				}
-				else
-				{
-					if (tree.level(u) >= tree.level(v))
+			} else {
+				if ((tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BRANCH_BOUND
+							&& tree.numberOfPoints(v) <= OGDF_LQ_WSPD_BRANCH_BOUND)
+						|| tree.isLeaf(u) || tree.isLeaf(v)) {
+					DPairFunction(u, v);
+				} else {
+					if (tree.level(u) >= tree.level(v)) {
 						tree.forall_children(pair_call(*this, v))(u);
-					else
+					} else {
 						tree.forall_children(pair_call(*this, u))(v);
+					}
 				}
 			}
 		}
 	};
 
 	template<typename A, typename B, typename C, typename ConditionType>
-	inline wspd_functor<A, B, C, ConditionType> forall_well_separated_pairs(A a, B b, C c, ConditionType cond)
-	{
+	inline wspd_functor<A, B, C, ConditionType> forall_well_separated_pairs(A a, B b, C c,
+			ConditionType cond) {
 		return wspd_functor<A, B, C, ConditionType>(*this, a, b, c, cond);
 	}
 
 	template<typename A, typename B, typename C>
-	inline wspd_functor<A, B, C> forall_well_separated_pairs(A a, B b, C c)
-	{
+	inline wspd_functor<A, B, C> forall_well_separated_pairs(A a, B b, C c) {
 		return wspd_functor<A, B, C>(*this, a, b, c);
 	}
 
-	struct StoreWSPairFunctor
-	{
+	struct StoreWSPairFunctor {
 		LinearQuadtree& tree;
+
 		StoreWSPairFunctor(LinearQuadtree& t) : tree(t) { }
+
 		inline void operator()(NodeID a, NodeID b) { tree.addWSPD(a, b); }
 	};
 
 	StoreWSPairFunctor inline StoreWSPairFunction() { return StoreWSPairFunctor(*this); }
 
-
-	struct StoreDirectPairFunctor
-	{
+	struct StoreDirectPairFunctor {
 		LinearQuadtree& tree;
+
 		StoreDirectPairFunctor(LinearQuadtree& t) : tree(t) { }
+
 		inline void operator()(NodeID a, NodeID b) { tree.addDirectPair(a, b); }
 	};
 
-	StoreDirectPairFunctor inline StoreDirectPairFunction() { return StoreDirectPairFunctor(*this); }
+	StoreDirectPairFunctor inline StoreDirectPairFunction() {
+		return StoreDirectPairFunctor(*this);
+	}
 
-
-	struct StoreDirectNodeFunctor
-	{
+	struct StoreDirectNodeFunctor {
 		LinearQuadtree& tree;
+
 		StoreDirectNodeFunctor(LinearQuadtree& t) : tree(t) { }
+
 		inline void operator()(NodeID a) { tree.addDirect(a); }
 	};
 
-	StoreDirectNodeFunctor inline StoreDirectNodeFunction() { return StoreDirectNodeFunctor(*this); }
-
-	inline NodeID level(NodeID nodeID) const
-	{
-		return m_tree[nodeID].level;
+	StoreDirectNodeFunctor inline StoreDirectNodeFunction() {
+		return StoreDirectNodeFunctor(*this);
 	}
 
-	inline NodeID nextNode(NodeID nodeID) const
-	{
-		return m_tree[nodeID].next;
-	}
+	inline NodeID level(NodeID nodeID) const { return m_tree[nodeID].level; }
 
-	inline void setNextNode(NodeID nodeID, NodeID next)
-	{
-		m_tree[nodeID].next = next;
-	}
+	inline NodeID nextNode(NodeID nodeID) const { return m_tree[nodeID].next; }
 
-	inline void setLevel(NodeID nodeID, uint32_t level)
-	{
-		m_tree[nodeID].level = level;
-	}
+	inline void setNextNode(NodeID nodeID, NodeID next) { m_tree[nodeID].next = next; }
 
-	inline PointID firstPoint(NodeID nodeID) const
-	{
-		return m_tree[nodeID].firstPoint;
-	}
+	inline void setLevel(NodeID nodeID, uint32_t level) { m_tree[nodeID].level = level; }
 
-	inline void setFirstPoint(NodeID nodeID, PointID firstPoint)
-	{
+	inline PointID firstPoint(NodeID nodeID) const { return m_tree[nodeID].firstPoint; }
+
+	inline void setFirstPoint(NodeID nodeID, PointID firstPoint) {
 		m_tree[nodeID].firstPoint = firstPoint;
 	}
 
-	inline LQPoint& point(PointID pointID)
-	{
-		return m_points[pointID];
-	}
+	inline LQPoint& point(PointID pointID) { return m_points[pointID]; }
 
-	inline const LQPoint& point(PointID pointID) const
-	{
-		return m_points[pointID];
-	}
+	inline const LQPoint& point(PointID pointID) const { return m_points[pointID]; }
 
-	inline MortonNR mortonNr(PointID point) const
-	{
-		return m_points[point].mortonNr;
-	}
+	inline MortonNR mortonNr(PointID point) const { return m_points[point].mortonNr; }
 
 	//! returns the number of children of node \p nodeID. for an inner node this is 1..4 and
 	//! can be accessed by child(i). For a leaf the number of points in this leaf is returned
 	//! starting with point child(0)
-	inline uint32_t numberOfChilds(NodeID nodeID) const
-	{
-		return m_tree[nodeID].numChilds;
-	}
+	inline uint32_t numberOfChilds(NodeID nodeID) const { return m_tree[nodeID].numChilds; }
 
 	//! sets the number of children of a node
-	inline void setNumberOfChilds(NodeID nodeID, uint32_t numChilds)
-	{
+	inline void setNumberOfChilds(NodeID nodeID, uint32_t numChilds) {
 		m_tree[nodeID].numChilds = numChilds;
 	}
 
 	//! returns the \p i th child index of node \p nodeID
-	inline NodeID child(NodeID nodeID, uint32_t i) const
-	{
-		return m_tree[nodeID].child[i];
-	}
+	inline NodeID child(NodeID nodeID, uint32_t i) const { return m_tree[nodeID].child[i]; }
 
 	//! sets the \p i th child index of node \p nodeID
-	inline void setChild(NodeID nodeID, uint32_t i, NodeID c)
-	{
-		m_tree[nodeID].child[i] = c;
-	}
+	inline void setChild(NodeID nodeID, uint32_t i, NodeID c) { m_tree[nodeID].child[i] = c; }
 
 	//! returns true if the given node index is a leaf
-	inline bool isLeaf(NodeID nodeID) const
-	{
-		return !m_tree[nodeID].numChilds;
-	}
+	inline bool isLeaf(NodeID nodeID) const { return !m_tree[nodeID].numChilds; }
 
 	//! sets the fence flag for node \p nodeID
-	inline bool isFence(NodeID nodeID) const
-	{
-		return m_tree[nodeID].fence;
-	}
+	inline bool isFence(NodeID nodeID) const { return m_tree[nodeID].fence; }
 
 	//! returns the number of points contained in the subtree of node \p nodeID
-	inline uint32_t numberOfPoints(NodeID nodeID) const
-	{
-		return m_tree[nodeID].numPoints;
-	}
+	inline uint32_t numberOfPoints(NodeID nodeID) const { return m_tree[nodeID].numPoints; }
 
 	//! sets the number of nodes containted in node \p nodeID
-	inline void setNumberOfPoints(NodeID nodeID, uint32_t numPoints)
-	{
+	inline void setNumberOfPoints(NodeID nodeID, uint32_t numPoints) {
 		m_tree[nodeID].numPoints = numPoints;
 	}
 
 	//! returns the index of the root
-	inline NodeID root() const
-	{
-		return m_root;
-	}
+	inline NodeID root() const { return m_root; }
 
 	//! returns the number of points in this tree
-	inline uint32_t numberOfPoints() const
-	{
-		return m_numPoints;
-	}
+	inline uint32_t numberOfPoints() const { return m_numPoints; }
 
 	//! returns the number of nodes in this tree
-	inline uint32_t numberOfNodes() const
-	{
-		return m_numInnerNodes + m_numLeaves;
-	}
+	inline uint32_t numberOfNodes() const { return m_numInnerNodes + m_numLeaves; }
 
 	//! the upper bound for a compressed quadtree (2*numPoints)
-	inline uint32_t maxNumberOfNodes() const
-	{
-		return m_maxNumNodes;
-	}
+	inline uint32_t maxNumberOfNodes() const { return m_maxNumNodes; }
 
 	//! resets the tree
 	void clear();
@@ -496,15 +442,9 @@ public:
 
 	uint64_t sizeInBytes() const;
 
-	inline NodeID pointLeaf(PointID point) const
-	{
-		return m_points[point].node;
-	}
+	inline NodeID pointLeaf(PointID point) const { return m_points[point].node; }
 
-	inline void setPointLeaf(PointID point, NodeID leaf)
-	{
-		m_points[point].node = leaf;
-	}
+	inline void setPointLeaf(PointID point, NodeID leaf) { m_points[point].node = leaf; }
 
 	inline float pointX(PointID point) const { return m_pointXPos[point]; }
 
@@ -522,7 +462,7 @@ public:
 
 	inline void setNodeX(NodeID nodeID, float x) { m_nodeXPos[nodeID] = x; }
 
-	inline float nodeY(NodeID nodeID) const {	return m_nodeYPos[nodeID]; }
+	inline float nodeY(NodeID nodeID) const { return m_nodeYPos[nodeID]; }
 
 	inline void setNodeY(NodeID nodeID, float y) { m_nodeYPos[nodeID] = y; }
 
@@ -530,57 +470,43 @@ public:
 
 	inline void setNodeSize(NodeID nodeID, float size) { m_nodeSize[nodeID] = size; }
 
-	void setPoint(PointID id, float x, float y, uint32_t ref)
-	{
+	void setPoint(PointID id, float x, float y, uint32_t ref) {
 		m_pointXPos[id] = x;
 		m_pointYPos[id] = y;
 		m_points[id].ref = ref;
 	}
 
-	void updatePointPositionSize(PointID id)
-	{
+	void updatePointPositionSize(PointID id) {
 		uint32_t ref = m_points[id].ref;
 		m_pointXPos[id] = m_origXPos[ref];
 		m_pointYPos[id] = m_origYPos[ref];
 		m_pointSize[id] = m_origSize[ref];
 	}
 
-	void setPoint(PointID id, float x, float y, float r, uint32_t ref)
-	{
+	void setPoint(PointID id, float x, float y, float r, uint32_t ref) {
 		m_pointXPos[id] = x;
 		m_pointYPos[id] = y;
 		m_pointSize[id] = r;
 		m_points[id].ref = ref;
 	}
 
-	void setPoint(PointID id, float x, float y, float r)
-	{
+	void setPoint(PointID id, float x, float y, float r) {
 		m_pointXPos[id] = x;
 		m_pointYPos[id] = y;
 		m_pointSize[id] = r;
 	}
 
-	inline uint32_t refOfPoint(PointID id) const
-	{
-		return m_points[id].ref;
-	}
+	inline uint32_t refOfPoint(PointID id) const { return m_points[id].ref; }
 
-	inline NodeID nodeOfPoint(PointID id) const
-	{
-		return m_points[id].node;
-	}
+	inline NodeID nodeOfPoint(PointID id) const { return m_points[id].node; }
 
-	inline void nodeFence(NodeID nodeID)
-	{
-		m_tree[nodeID].fence = true;
-	}
+	inline void nodeFence(NodeID nodeID) { m_tree[nodeID].fence = true; }
 
-	inline bool isWS(NodeID a, NodeID b) const
-	{
+	inline bool isWS(NodeID a, NodeID b) const {
 		float s = 0.00000001f;
 		float dx = nodeX(a) - nodeX(b);
 		float dy = nodeY(a) - nodeY(b);
-		float d_sq = dx*dx+dy*dy;
+		float d_sq = dx * dx + dy * dy;
 		float size = max(nodeSize(a), nodeSize(b));
 		return d_sq > (s * 0.5 + 1) * (s * 0.5 + 1) * 2 * size * size;
 	}
@@ -597,7 +523,6 @@ public:
 
 	inline uint32_t numberOfLeaves() const { return m_numLeaves; }
 
-
 	uint32_t numberOfWSP() const { return m_numWSP; }
 
 	uint32_t numberOfDirectPairs() const { return m_numNotWSP; }
@@ -610,19 +535,21 @@ public:
 
 	inline NodeID directNodeB(uint32_t i) const { return m_notWspd[i].b; }
 
-
-	WSPD* wspd() const{ return m_WSPD; };
+	WSPD* wspd() const { return m_WSPD; };
 
 	void init(float min_x, float min_y, float max_x, float max_y);
+
 	inline float minX() const { return m_min_x; }
+
 	inline float minY() const { return m_min_y; }
+
 	inline float maxX() const { return m_max_x; }
+
 	inline float maxY() const { return m_max_y; }
+
 	inline double scaleInv() const { return m_scaleInv; }
 
-
-	inline void computeCoords(NodeID nodeIndex)
-	{
+	inline void computeCoords(NodeID nodeIndex) {
 		uint32_t ix, iy;
 		uint32_t level = this->level(nodeIndex);
 		float s = (float)(m_cellSize * (1 << level));
@@ -631,8 +558,12 @@ public:
 		mnr = mnr >> (level * 2);
 		mnr = mnr << (level * 2);
 		mortonNumberInv<uint64_t, uint32_t>(mnr, ix, iy);
-		this->setNodeX(nodeIndex, (float)((m_sideLengthPoints*((float)ix)-0.5)/m_sideLengthGrid + (float)m_min_x + (float)s*0.5f));
-		this->setNodeY(nodeIndex, (float)((m_sideLengthPoints*((float)iy)-0.5)/m_sideLengthGrid + (float)m_min_y + (float)s*0.5f));
+		this->setNodeX(nodeIndex,
+				(float)((m_sideLengthPoints * ((float)ix) - 0.5) / m_sideLengthGrid + (float)m_min_x
+						+ (float)s * 0.5f));
+		this->setNodeY(nodeIndex,
+				(float)((m_sideLengthPoints * ((float)iy) - 0.5) / m_sideLengthGrid + (float)m_min_y
+						+ (float)s * 0.5f));
 	}
 
 	LQPoint* pointArray() { return m_points; }
@@ -646,8 +577,7 @@ private:
 	//! helper function for releasing memory
 	void deallocate();
 
-	inline void initLeaf(NodeID leaf, PointID firstPoint, uint32_t numPoints, NodeID next)
-	{
+	inline void initLeaf(NodeID leaf, PointID firstPoint, uint32_t numPoints, NodeID next) {
 		m_tree[leaf].numChilds = 0;
 		m_tree[leaf].next = next;
 		m_tree[leaf].fence = 0;
@@ -656,8 +586,8 @@ private:
 		m_tree[leaf].numPoints = numPoints;
 	}
 
-	inline void initInnerNode(NodeID nodeID, NodeID leftChild, NodeID rightChild, uint32_t level, NodeID next)
-	{
+	inline void initInnerNode(NodeID nodeID, NodeID leftChild, NodeID rightChild, uint32_t level,
+			NodeID next) {
 		m_tree[nodeID].numChilds = 2;
 		m_tree[nodeID].child[0] = leftChild;
 		m_tree[nodeID].child[1] = rightChild;
@@ -669,15 +599,13 @@ private:
 	}
 
 	//! appends one child index. Assumes childCount < 4 and not leaf
-	inline void nodeAppendChild(NodeID nodeID, NodeID child)
-	{
+	inline void nodeAppendChild(NodeID nodeID, NodeID child) {
 		m_tree[nodeID].child[m_tree[nodeID].numChilds++] = child;
 		m_tree[nodeID].numPoints += m_tree[child].numPoints;
 	}
 
 	//! appends an successing point by simply increasing childcount of a leaf. Assumes isLeaf
-	inline void leafAppendPoint(NodeID leaf, PointID point)
-	{
+	inline void leafAppendPoint(NodeID leaf, PointID point) {
 		m_points[point].node = leaf;
 		m_tree[leaf].numPoints++;
 	}
@@ -716,35 +644,35 @@ private:
 	double m_sideLengthGrid;
 
 	//! point x coord in graph order
-	float*	 m_origXPos;
+	float* m_origXPos;
 
 	//! point y coord in graph order
-	float*	 m_origYPos;
+	float* m_origYPos;
 
 	//! point size in graph order
-	float*	 m_origSize;
+	float* m_origSize;
 
 	//! point x coord in tree order
-	float*   m_pointXPos;
+	float* m_pointXPos;
 
 	//! point y coord in tree order
-	float*	 m_pointYPos;
+	float* m_pointYPos;
 
 	//! point size in tree order
-	float*   m_pointSize;
+	float* m_pointSize;
 
 	//! node x coord
-	float*   m_nodeXPos;
+	float* m_nodeXPos;
 
 
 	//! node y coord
-	float*   m_nodeYPos;
+	float* m_nodeYPos;
 
 	//! node size
-	float*   m_nodeSize;
+	float* m_nodeSize;
 
 	//! the main tree array containing all nodes (including leaves)
-	LQNode*  m_tree;
+	LQNode* m_tree;
 
 	//! the maximum number of nodes (2*n here instead of 2*n-1)
 	uint32_t m_maxNumNodes;
@@ -780,11 +708,9 @@ private:
 
 	//! number of inner nodes in the chain
 	uint32_t m_numInnerNodes;
-
 };
 
-inline bool LQPointComparer(const LinearQuadtree::LQPoint& a, const LinearQuadtree::LQPoint& b)
-{
+inline bool LQPointComparer(const LinearQuadtree::LQPoint& a, const LinearQuadtree::LQPoint& b) {
 	return a.mortonNr < b.mortonNr;
 }
 

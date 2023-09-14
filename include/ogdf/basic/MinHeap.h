@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include<ogdf/basic/Array.h>
-#include<ogdf/basic/comparer.h>
-
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/comparer.h>
 
 namespace ogdf {
 
@@ -54,14 +53,16 @@ namespace ogdf {
 template<class X, class INDEX = int>
 class BinaryHeapSimple {
 private:
-	Array<X,INDEX> data; // array starts at index 1
+	Array<X, INDEX> data; // array starts at index 1
 	INDEX num;
+
 public:
 	//! Construtor, giving initial array size
-	explicit BinaryHeapSimple(INDEX size) : data(1, size), num(0) {}
+	explicit BinaryHeapSimple(INDEX size) : data(1, size), num(0) { }
 
 	//! Returns true if the heap is empty
 	bool empty() const { return num == 0; }
+
 	//! Returns the number of elements in the heap
 	INDEX size() const { return num; }
 
@@ -69,42 +70,36 @@ public:
 	void clear() { num = 0; }
 
 	//! Returns a reference to the top (i.e., smallest) element of the heap. It does not remove it. [Same as getMin(), O(1)]
-	const X& top() const {
-		return data[1];
-	}
+	const X& top() const { return data[1]; }
+
 	//! Returns a reference to the top (i.e., smallest) element of the heap. It does not remove it. [Same as top(), O(1)]
-	inline const X& getMin() const {
-		return top();
-	}
+	inline const X& getMin() const { return top(); }
 
 	//! Adds an element to the heap [Same as insert(), O(log n)]
 	void push(X& x) {
 		X y;
-		if(num == capacity())
-			data.grow(capacity(),y); // double the size & init with nulls
+		if (num == capacity()) {
+			data.grow(capacity(), y); // double the size & init with nulls
+		}
 		data[++num] = x;
 		heapup(num);
 	}
+
 	//! Adds an element to the heap [Same as push(), O(log n)]
-	inline void insert(X& x) {
-		push(x);
-	}
+	inline void insert(X& x) { push(x); }
 
 	//! Returns the top (i.e., smallest) element and removed it from the heap [Same as extractMin(), O(log n)]
 	X pop() {
 		data.swap(1, num--);
 		heapdown();
-		return data[num+1];
-	}
-	//! Returns the top (i.e., smallest) element and removed it from the heap [Same as  pop(), O(log n)]
-	inline X extractMin() {
-		return pop();
+		return data[num + 1];
 	}
 
+	//! Returns the top (i.e., smallest) element and removed it from the heap [Same as  pop(), O(log n)]
+	inline X extractMin() { return pop(); }
+
 	//! obtain const references to the element at index \p idx (the smallest array index is 0, as for traditional C-arrays)
-	const X& operator[](INDEX idx) const {
-		return data[idx+1];
-	}
+	const X& operator[](INDEX idx) const { return data[idx + 1]; }
 
 
 protected:
@@ -113,24 +108,29 @@ protected:
 
 	void heapup(INDEX idx) {
 		INDEX papa;
-		while( (papa = idx/2) > 0) {
-			if( data[papa] > data[idx] ) {
+		while ((papa = idx / 2) > 0) {
+			if (data[papa] > data[idx]) {
 				data.swap(papa, idx);
 				idx = papa;
-			} else return; //done
+			} else {
+				return; //done
+			}
 		}
 	}
 
 	void heapdown() {
 		INDEX papa = 1;
 		INDEX son;
-		while(true) {
-			if( (son = 2*papa) < num && data[son+1] < data[son] )
+		while (true) {
+			if ((son = 2 * papa) < num && data[son + 1] < data[son]) {
 				son++;
-			if( son <= num && data[son] < data[papa]) {
+			}
+			if (son <= num && data[son] < data[papa]) {
 				data.swap(papa, son);
 				papa = son;
-			} else return;
+			} else {
+				return;
+			}
 		}
 	}
 };
@@ -145,28 +145,30 @@ protected:
  * Prioritized < Priority,X > to bind both together and use within BinaryHeapSimple.
  */
 template<class X, class INDEX = int>
-class Top10Heap : protected BinaryHeapSimple<X,INDEX> { // favors the 10 highest values...
+class Top10Heap : protected BinaryHeapSimple<X, INDEX> { // favors the 10 highest values...
 public:
 	//! The type for results of a Top10Heap::push operation
 	enum class PushResult { Accepted, Rejected, Swapped };
 
 	//! Convenience function: Returns true if the PushResults states that the newly pushed element is new in the heap
 	static bool successful(PushResult r) { return r != PushResult::Rejected; }
+
 	//! Convenience function: Returns true if the PushResults states that push caused an element to be not/no-longer in the heap
 	static bool returnedSomething(PushResult r) { return r != PushResult::Accepted; }
 
 	//! Constructor generating a heap which holds the 10 elements with highest value ever added to the heap
-	Top10Heap() : BinaryHeapSimple<X,INDEX>(10) {}
-	using BinaryHeapSimple<X,INDEX>::BinaryHeapSimple;
+	Top10Heap() : BinaryHeapSimple<X, INDEX>(10) { }
+
+	using BinaryHeapSimple<X, INDEX>::BinaryHeapSimple;
 
 	//! Returns true if the heap is completely filled (i.e. the next push operation will return something)
 	bool full() const { return size() == capacity(); }
 
-	using BinaryHeapSimple<X,INDEX>::empty;
-	using BinaryHeapSimple<X,INDEX>::size;
-	using BinaryHeapSimple<X,INDEX>::capacity;
-	using BinaryHeapSimple<X,INDEX>::clear;
-	using BinaryHeapSimple<X,INDEX>::top;
+	using BinaryHeapSimple<X, INDEX>::empty;
+	using BinaryHeapSimple<X, INDEX>::size;
+	using BinaryHeapSimple<X, INDEX>::capacity;
+	using BinaryHeapSimple<X, INDEX>::clear;
+	using BinaryHeapSimple<X, INDEX>::top;
 
 	//! Tries to push the element \p x onto the heap (and may return a removed element as \p out).
 	/**
@@ -185,48 +187,50 @@ public:
 	 * You may want to use the convenience funtions #successful and #returnedSomething on the
 	 * return-value if you are only interested certain aspects of the push.
 	 */
-	PushResult push(X& x, X& out) { // returns element that got kicked out - out is uninitialized if heap wasn't full (i.e. PushResult equals Accepted)
+	PushResult push(X& x, X& out) {
+		// returns element that got kicked out -
+		// out is uninitialized if heap wasn't full (i.e. PushResult equals Accepted)
 		PushResult ret = PushResult::Accepted;
-		if(capacity() == size()) {
-			if(BinaryHeapSimple<X,INDEX>::top() >= x) {// reject new item since it's too bad
+		if (capacity() == size()) {
+			if (BinaryHeapSimple<X, INDEX>::top() >= x) { // reject new item since it's too bad
 				out = x;
 				return PushResult::Rejected;
 			}
-			out = BinaryHeapSimple<X,INDEX>::pop(); // remove worst first
+			out = BinaryHeapSimple<X, INDEX>::pop(); // remove worst first
 			ret = PushResult::Swapped;
 		}
-		BinaryHeapSimple<X,INDEX>::push(x);
+		BinaryHeapSimple<X, INDEX>::push(x);
 		return ret;
 	}
+
 	//! Alternative name for push().
-	inline PushResult insert(X& x, X& out) {
-		return push(x, out);
-	}
+	inline PushResult insert(X& x, X& out) { return push(x, out); }
 
 	//! Simple (and slightly faster) variant of Top10Heap::push.
 	/**
 	 * The behavior is the identical to Top10Heap::push, but there is nothing reported to the outside
 	 */
 	void pushBlind(X& x) {
-		if(capacity() == size()) {
-			if(BinaryHeapSimple<X,INDEX>::top() >= x) // reject new item since it's too bad
+		if (capacity() == size()) {
+			if (BinaryHeapSimple<X, INDEX>::top() >= x) { // reject new item since it's too bad
 				return;
-			BinaryHeapSimple<X,INDEX>::pop(); // remove worst first
+			}
+			BinaryHeapSimple<X, INDEX>::pop(); // remove worst first
 		}
-		BinaryHeapSimple<X,INDEX>::push(x);
+		BinaryHeapSimple<X, INDEX>::push(x);
 	}
+
 	//! Alternative name for pushBlind().
-	inline void insertBlind(X& x) {
-		pushBlind(x);
-	}
+	inline void insertBlind(X& x) { pushBlind(x); }
 
 	//! obtain const references to the element at index \p idx
 	/**
 	 * The smallest array index is 0, as for traditional C-arrays.
 	 * Useful, e.g., when iterating through the final heap elements.
 	 */
-	const X& operator[](INDEX idx) const { // ATTN: simulate index starting at 0, to be "traditional" to the outside!!!
-		return BinaryHeapSimple<X,INDEX>::operator[](idx);
+	const X& operator[](
+			INDEX idx) const { // ATTN: simulate index starting at 0, to be "traditional" to the outside!!!
+		return BinaryHeapSimple<X, INDEX>::operator[](idx);
 	}
 };
 
@@ -239,11 +243,12 @@ public:
  * The datastructure also allows for non-duplicate insertions, i.e., a new element can be rejected if it is
  * already in the heap. Note that only the compare function has to work
  */
-template<class X, class Priority=double, class STATICCOMPARER=StdComparer<X>, class INDEX = int >
-class DeletingTop10Heap : public Top10Heap<Prioritized<X*,Priority>,INDEX > {
+template<class X, class Priority = double, class STATICCOMPARER = StdComparer<X>, class INDEX = int>
+class DeletingTop10Heap : public Top10Heap<Prioritized<X*, Priority>, INDEX> {
 public:
 	//! Construct a DeletingTop10Heap of given maximal capacity
-	explicit DeletingTop10Heap(int size) : Top10Heap<Prioritized<X*, Priority>,INDEX >(size) {}
+	explicit DeletingTop10Heap(int size) : Top10Heap<Prioritized<X*, Priority>, INDEX>(size) { }
+
 	//! Inserts the element \p x into the heap with priority \p p and deletes the element with smallest priority if the heap is full
 	/**
 	 * Like the Top10Heap, this function pushes the element \p x onto the heap with priority \p p, and extracts the element with
@@ -253,36 +258,36 @@ public:
 	void pushAndDelete(X* x, Priority p) {
 		Prioritized<X*, Priority> vo;
 		Prioritized<X*, Priority> nv(x, p);
-		if(this->returnedSomething( Top10Heap<Prioritized<X*, Priority>,INDEX >::push(nv, vo) ))
+		if (this->returnedSomething(Top10Heap<Prioritized<X*, Priority>, INDEX>::push(nv, vo))) {
 			delete vo.item();
+		}
 	}
+
 	//! Alternative name for pushAndDelete().
-	inline void insertAndDelete(X* x, Priority p) {
-		pushAndDelete(x, p);
-	}
+	inline void insertAndDelete(X* x, Priority p) { pushAndDelete(x, p); }
+
 	//! Analogous to pushandDelete(), but furthermore rejects (and deletes) an element if an equal element is already in the heap.
 	/**
 	 * This function takes linear time in the worst case, and uses the \c compare function of the specified \a COMP template
 	 * paremeter class, which can be any function returning \c true if two objects should be considered equal, and \c false otherwise.
 	 */
 	void pushAndDeleteNoRedundancy(X* x, Priority p) {
-		for(INDEX i = Top10Heap<Prioritized<X*,Priority>,INDEX >::size(); i-- > 0;) {
-			X* k = Top10Heap<Prioritized<X*,Priority>,INDEX >::operator[](i).item();
+		for (INDEX i = Top10Heap<Prioritized<X*, Priority>, INDEX>::size(); i-- > 0;) {
+			X* k = Top10Heap<Prioritized<X*, Priority>, INDEX>::operator[](i).item();
 #if 0
 			OGDF_ASSERT(x);
 			OGDF_ASSERT(k);
 #endif
-			if(TargetComparer<X,STATICCOMPARER>::equal(k,x)) {
+			if (TargetComparer<X, STATICCOMPARER>::equal(k, x)) {
 				delete x;
 				return;
 			}
 		}
 		pushAndDelete(x, p);
 	}
+
 	//! Alternative name for pushAndKillNoRedundancy().
-	inline void insertAndDeleteNoRedundancy(X* x, Priority p) {
-		pushAndDeleteNoRedundancy(p, x);
-	}
+	inline void insertAndDeleteNoRedundancy(X* x, Priority p) { pushAndDeleteNoRedundancy(p, x); }
 };
 
 }

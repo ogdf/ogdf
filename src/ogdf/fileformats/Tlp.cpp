@@ -31,60 +31,58 @@
 
 #include <ogdf/fileformats/Tlp.h>
 
-
 namespace ogdf {
 
 namespace tlp {
 
 
-std::string toString(const Attribute &attr)
-{
-	switch(attr) {
-	case Attribute::label: return "viewLabel";
-	case Attribute::color: return "viewColor";
-	case Attribute::strokeColor: return "viewStrokeColor";
-	case Attribute::strokeType: return "viewStrokeType";
-	case Attribute::strokeWidth: return "viewStrokeWidth";
-	case Attribute::fillPattern: return "viewFillPattern";
-	case Attribute::fillBackground: return "viewFillBackgroundColor";
-	case Attribute::position: return "viewLayout";
-	case Attribute::size: return "viewSize";
-	case Attribute::shape: return "viewShape";
-	default: return "unknown";
+std::string toString(const Attribute& attr) {
+	switch (attr) {
+	case Attribute::label:
+		return "viewLabel";
+	case Attribute::color:
+		return "viewColor";
+	case Attribute::strokeColor:
+		return "viewStrokeColor";
+	case Attribute::strokeType:
+		return "viewStrokeType";
+	case Attribute::strokeWidth:
+		return "viewStrokeWidth";
+	case Attribute::fillPattern:
+		return "viewFillPattern";
+	case Attribute::fillBackground:
+		return "viewFillBackgroundColor";
+	case Attribute::position:
+		return "viewLayout";
+	case Attribute::size:
+		return "viewSize";
+	case Attribute::shape:
+		return "viewShape";
+	default:
+		return "unknown";
 	}
 }
 
-
-Attribute toAttribute(const std::string &str)
-{
-	if(str == "viewLabel") {
+Attribute toAttribute(const std::string& str) {
+	if (str == "viewLabel") {
 		return Attribute::label;
-	}
-	else if(str == "viewColor") {
+	} else if (str == "viewColor") {
 		return Attribute::color;
-	}
-	else if(str == "viewStrokeColor") {
+	} else if (str == "viewStrokeColor") {
 		return Attribute::strokeColor;
-	}
-	else if(str == "viewStrokeType") {
+	} else if (str == "viewStrokeType") {
 		return Attribute::strokeType;
-	}
-	else if(str == "viewFillPattern") {
+	} else if (str == "viewFillPattern") {
 		return Attribute::fillPattern;
-	}
-	else if(str == "viewFillBackgroundColor") {
+	} else if (str == "viewFillBackgroundColor") {
 		return Attribute::fillBackground;
-	}
-	else if(str == "viewLayout") {
+	} else if (str == "viewLayout") {
 		return Attribute::position;
-	}
-	else if(str == "viewSize") {
+	} else if (str == "viewSize") {
 		return Attribute::size;
-	}
-	else if(str == "viewShape") {
+	} else if (str == "viewShape") {
 		return Attribute::shape;
-	}
-	else if(str == "viewStrokeWidth") {
+	} else if (str == "viewStrokeWidth") {
 		return Attribute::strokeWidth;
 	}
 	return Attribute::unknown;

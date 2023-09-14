@@ -36,15 +36,15 @@ namespace ogdf {
 
 double LayoutStandards::s_defNodeWidth = 20.0;
 double LayoutStandards::s_defNodeHeight = 20.0;
-Shape  LayoutStandards::s_defNodeShape = Shape::Rect;
+Shape LayoutStandards::s_defNodeShape = Shape::Rect;
 Stroke LayoutStandards::s_defNodeStroke(Color::Name::Black);
-Fill   LayoutStandards::s_defNodeFill(Color::Name::White);
+Fill LayoutStandards::s_defNodeFill(Color::Name::White);
 
-Stroke    LayoutStandards::s_defEdgeStroke(Color::Name::Black);
+Stroke LayoutStandards::s_defEdgeStroke(Color::Name::Black);
 EdgeArrow LayoutStandards::s_defEdgeArrow = EdgeArrow::Last;
 
 Stroke LayoutStandards::s_defClusterStroke(Color::Name::Gray);
-Fill   LayoutStandards::s_defClusterFill(Color::Name::White, FillPattern::None);
+Fill LayoutStandards::s_defClusterFill(Color::Name::White, FillPattern::None);
 
 double LayoutStandards::s_defNodeSeparation = 20.0;
 double LayoutStandards::s_defCCSeparation = 30.0;

@@ -31,19 +31,19 @@
 
 #pragma once
 
+#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/EdgeArray.h>
 
 namespace ogdf {
 
 //! Output operator for nodes; prints node index (or "nil").
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::node v);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::node v);
 
 //! Output operator for edges; prints source and target indices (or "nil").
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::edge e);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::edge e);
 
 //! Output operator for adjacency entries; prints node and twin indices (or "nil").
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::adjEntry adj);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::adjEntry adj);
 
 }

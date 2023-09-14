@@ -33,35 +33,31 @@
 
 namespace ogdf {
 
-void SolarPlacer::placeOneLevel(MultilevelGraph &MLG)
-{
+void SolarPlacer::placeOneLevel(MultilevelGraph& MLG) {
 	int level = MLG.getLevel();
-	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
-	{
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr) {
 		placeOneNode(MLG);
 	}
 }
 
-
-void SolarPlacer::placeOneNode(MultilevelGraph &MLG)
-{
-	NodeMerge * lastNM = MLG.getLastMerge();
+void SolarPlacer::placeOneNode(MultilevelGraph& MLG) {
+	NodeMerge* lastNM = MLG.getLastMerge();
 	double x = 0.0;
 	double y = 0.0;
 	int i = 0;
 
 	node sun = MLG.getNode(lastNM->m_changedNodes.front());
-	std::vector< std::pair<int, double> > positions = lastNM->m_position;
+	std::vector<std::pair<int, double>> positions = lastNM->m_position;
 
 	node merged = MLG.undoLastMerge();
 
 	if (positions.size() > 0) {
-		for (const std::pair<int, double> &p : positions) {
+		for (const std::pair<int, double>& p : positions) {
 			double factor = p.second;
 			node other_sun = MLG.getNode(p.first);
 			i++;
-			x += MLG.x(sun) * factor + MLG.x(other_sun) * (1.0f-factor);
-			y += MLG.y(sun) * factor + MLG.y(other_sun) * (1.0f-factor);
+			x += MLG.x(sun) * factor + MLG.x(other_sun) * (1.0f - factor);
+			y += MLG.y(sun) * factor + MLG.y(other_sun) * (1.0f - factor);
 		}
 	} else {
 		i++;

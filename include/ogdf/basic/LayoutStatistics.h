@@ -34,7 +34,6 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 
-
 namespace ogdf {
 
 
@@ -42,8 +41,7 @@ namespace ogdf {
 /**
  * @ingroup graph-drawing
  */
-class OGDF_EXPORT LayoutStatistics
-{
+class OGDF_EXPORT LayoutStatistics {
 public:
 	//! Computes the edge length for each edge in the layout \p ga.
 	/**
@@ -51,9 +49,7 @@ public:
 	 * \param considerSelfLoops Determines whether the lengths of self-loops are considered.
 	 * \return                  The edge length for each edge.
 	 */
-	static ArrayBuffer<double> edgeLengths(
-		const GraphAttributes &ga,
-		bool considerSelfLoops = false);
+	static ArrayBuffer<double> edgeLengths(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 
 	//! Computes the number of bends (i.e. bend-points) for each edge in the layout \p ga.
@@ -62,9 +58,7 @@ public:
 	 * \param considerSelfLoops Determines whether the bends of self-loops are considered.
 	 * \return                  The number of bends for each edge.
 	 */
-	static ArrayBuffer<int> numberOfBends(
-		const GraphAttributes &ga,
-		bool considerSelfLoops = false);
+	static ArrayBuffer<int> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 
 	//! Computes the angle for each pair of adjacent edge segments of the layout \p ga.
@@ -75,9 +69,7 @@ public:
 	 * \param considerBends Determines whether bend points of edges shall be considered.
 	 * \return              The angle for each two adjacent edge segments.
 	 */
-	static ArrayBuffer<double> angles(
-		const GraphAttributes &ga,
-		bool considerBends = true);
+	static ArrayBuffer<double> angles(const GraphAttributes& ga, bool considerBends = true);
 
 
 	//! Computes the number of edge crossings for each edge in the layout \p ga.
@@ -95,7 +87,7 @@ public:
 	             Otherwise, a straight-line drawing is assumed.
 	 * \return   The number of crossings for each edge.
 	 */
-	static ArrayBuffer<int> numberOfCrossings(const GraphAttributes &ga);
+	static ArrayBuffer<int> numberOfCrossings(const GraphAttributes& ga);
 
 
 	//! Computes the number of crossings through a non-incident node for each
@@ -111,7 +103,7 @@ public:
 	             Otherwise, a straight-line drawing is assumed.
 	 * \return   The number of node crossings for each edge.
 	 */
-	static ArrayBuffer<int> numberOfNodeCrossings(const GraphAttributes &ga);
+	static ArrayBuffer<int> numberOfNodeCrossings(const GraphAttributes& ga);
 
 
 	//! Computes the number of node overlaps for each node in the layout \p ga.
@@ -125,7 +117,7 @@ public:
 	 * \param ga Input layout.
 	 * \return   The number of node overlaps for each node.
 	 */
-	static ArrayBuffer<int> numberOfNodeOverlaps(const GraphAttributes &ga);
+	static ArrayBuffer<int> numberOfNodeOverlaps(const GraphAttributes& ga);
 
 
 	//! Computes the intersection graph \p H of the line segments in the layout given by \p ga.
@@ -144,10 +136,12 @@ public:
 	                    Otherwise, a straight-line drawing is assumed.
 	 * \param H         Is assigned the intersection graph.
 	 * \param points    Maps nodes in \p H to their geometric position in the layout.
-	 * \param origNode  Maps nodes in \p H to nodes in \p ga's graph. Points that are only intersection points of segments are mapped to \c nullptr.
+	 * \param origNode  Maps nodes in \p H to nodes in \p ga's graph.
+	 * Points that are only intersection points of segments are mapped to \c nullptr.
 	 * \param origEdge  Maps edges in \p H to the corresponding edges in \p ga's graph.
 	 */
-	static void intersectionGraph(const GraphAttributes &ga, Graph &H, NodeArray<DPoint> &points, NodeArray<node> &origNode, EdgeArray<edge> &origEdge);
+	static void intersectionGraph(const GraphAttributes& ga, Graph& H, NodeArray<DPoint>& points,
+			NodeArray<node>& origNode, EdgeArray<edge>& origEdge);
 };
 
 }

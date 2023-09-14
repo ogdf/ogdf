@@ -39,24 +39,17 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT CirclePlacer : public InitialPlacer
-{
+class OGDF_EXPORT CirclePlacer : public InitialPlacer {
 public:
-
-	enum class NodeSelection {
-		New,
-		Old,
-		All
-	};
+	enum class NodeSelection { New, Old, All };
 
 	CirclePlacer();
 	void setRadiusFixed(bool fixed);
 	void setCircleSize(float sizeIncrease);
 	void setNodeSelection(NodeSelection nodeSel);
-	void placeOneLevel(MultilevelGraph &MLG) override;
+	void placeOneLevel(MultilevelGraph& MLG) override;
 
 private:
-
 	float m_circleSize;
 	bool m_fixedRadius;
 	NodeSelection m_nodeSelection;

@@ -33,8 +33,7 @@
 
 #include <ogdf/simultaneous/SimDrawCreator.h>
 
-namespace ogdf
-{
+namespace ogdf {
 //! Offers predefined SimDraw creations.
 /**
  * This class offers some predefined SimDraw creations, such as
@@ -43,12 +42,10 @@ namespace ogdf
  * (GD'04).
  */
 
-class OGDF_EXPORT SimDrawCreatorSimple : public SimDrawCreator
-{
-
+class OGDF_EXPORT SimDrawCreatorSimple : public SimDrawCreator {
 public:
 	//! constructor
-	explicit SimDrawCreatorSimple(SimDraw &SD) : SimDrawCreator(SD) {}
+	explicit SimDrawCreatorSimple(SimDraw& SD) : SimDrawCreator(SD) { }
 
 	//! creates pair-of-tree instance from Geyer, Kaufmann, Vrto (GD'05)
 	void createTrees_GKV05(int n);

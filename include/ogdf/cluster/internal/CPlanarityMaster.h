@@ -35,20 +35,18 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/basic/ArrayBuffer.h>
-
-#include <ogdf/cluster/internal/basics.h>
-#include <ogdf/cluster/internal/CPlanarEdgeVar.h>
-#include <ogdf/cluster/internal/CP_MasterBase.h>
 #include <ogdf/cluster/ClusterAnalysis.h>
+#include <ogdf/cluster/internal/CP_MasterBase.h>
+#include <ogdf/cluster/internal/CPlanarEdgeVar.h>
+#include <ogdf/cluster/internal/basics.h>
 
 namespace ogdf {
 namespace cluster_planarity {
 
 class CPlanarityMaster : public CP_MasterBase {
-
 	friend class CPlanaritySub;
 
 #if 0
@@ -65,70 +63,77 @@ class CPlanarityMaster : public CP_MasterBase {
 #endif
 
 public:
-
 	// Construction and default values
-	explicit CPlanarityMaster(const ClusterGraph &C,
+	explicit CPlanarityMaster(const ClusterGraph& C,
 			//Check what we really still need here
-			int heuristicLevel=0,
-			int heuristicRuns=2,
-			double heuristicOEdgeBound=0.3,
-			int heuristicNPermLists=5,
-			int kuratowskiIterations=3,
-			int subdivisions=10,
-			int kSupportGraphs=3,
-			double kuratowskiHigh=0.75,
-			double kuratowskiLow=0.3,
-			bool perturbation=false,
-			double branchingGap=0.4,
-			const char *time="00:20:00" /* maximum computation time */ );
+			int heuristicLevel = 0, int heuristicRuns = 2, double heuristicOEdgeBound = 0.3,
+			int heuristicNPermLists = 5, int kuratowskiIterations = 3, int subdivisions = 10,
+			int kSupportGraphs = 3, double kuratowskiHigh = 0.75, double kuratowskiLow = 0.3,
+			bool perturbation = false, double branchingGap = 0.4,
+			const char* time = "00:20:00" /* maximum computation time */);
 
 	//! Destruction
 	virtual ~CPlanarityMaster();
 
 	// Initialization of the first Subproblem
-	virtual abacus::Sub *firstSub() override;
+	virtual abacus::Sub* firstSub() override;
 
 	// Returns the number of variables
-	int nMaxVars() const {return m_nMaxVars;}
+	int nMaxVars() const { return m_nMaxVars; }
 
 	// Returns a pointer to the underlying Graph
-	const Graph *getGraph() const {return m_G;}
+	const Graph* getGraph() const { return m_G; }
 
 	// Returns a pointer to the given Clustergraph.
-	const ClusterGraph *getClusterGraph() const {return m_C;}
+	const ClusterGraph* getClusterGraph() const { return m_C; }
 
 	// Returns a pointer on the search space graph, which is
 	// a copy of the input graph with all edges added that
 	// correspond to variables add at initialization.
 	// Be aware that this is not dynamically updated, e.g. for pricing.
 
-	const GraphCopy *searchSpaceGraph() const {return m_ssg; }
+	const GraphCopy* searchSpaceGraph() const { return m_ssg; }
+
 	// Updates the "best" Subgraph #m_solutionGraph found so far and fills edge lists with
 	// corresponding edges (nodePairs).
-	void updateBestSubGraph(List<NodePair> &connection) override;
+	void updateBestSubGraph(List<NodePair>& connection) override;
 
 	// Returns the optimal solution induced Clustergraph
-	Graph *solutionInducedGraph() override {return static_cast<Graph*>(m_solutionGraph);}
+	Graph* solutionInducedGraph() override { return static_cast<Graph*>(m_solutionGraph); }
 
 	// Returns nodePairs of connecting optimal solution edges in list \p edges.
-	void getConnectionOptimalSolutionEdges(List<NodePair> &egdes) const override;
+	void getConnectionOptimalSolutionEdges(List<NodePair>& egdes) const override;
 
 	// Get parameters
-	int getKIterations() const {return m_nKuratowskiIterations;}
-	int getNSubdivisions() const {return m_nSubdivisions;}
-	int getNKuratowskiSupportGraphs() const {return m_nKuratowskiSupportGraphs;}
-	int getHeuristicLevel() const {return m_heuristicLevel;}
-	int getHeuristicRuns() const {return m_nHeuristicRuns;}
-	double getKBoundHigh() const {return m_kuratowskiBoundHigh;}
-	double getKBoundLow() const {return m_kuratowskiBoundLow;}
-	bool perturbation() const {return m_usePerturbation;}
-	double branchingOEdgeSelectGap() const {return m_branchingGap;}
-	double getHeuristicFractionalBound() const {return m_heuristicFractionalBound;}
-	int numberOfHeuristicPermutationLists() const {return m_nHeuristicPermutationLists;}
-	bool getMPHeuristic() const {return m_mpHeuristic;}
-	int getNumAddVariables() const {return m_numAddVariables;}
-	double getStrongConstraintViolation() const {return m_strongConstraintViolation;}
-	double getStrongVariableViolation() const {return m_strongVariableViolation;}
+	int getKIterations() const { return m_nKuratowskiIterations; }
+
+	int getNSubdivisions() const { return m_nSubdivisions; }
+
+	int getNKuratowskiSupportGraphs() const { return m_nKuratowskiSupportGraphs; }
+
+	int getHeuristicLevel() const { return m_heuristicLevel; }
+
+	int getHeuristicRuns() const { return m_nHeuristicRuns; }
+
+	double getKBoundHigh() const { return m_kuratowskiBoundHigh; }
+
+	double getKBoundLow() const { return m_kuratowskiBoundLow; }
+
+	bool perturbation() const { return m_usePerturbation; }
+
+	double branchingOEdgeSelectGap() const { return m_branchingGap; }
+
+	double getHeuristicFractionalBound() const { return m_heuristicFractionalBound; }
+
+	int numberOfHeuristicPermutationLists() const { return m_nHeuristicPermutationLists; }
+
+	bool getMPHeuristic() const { return m_mpHeuristic; }
+
+	int getNumAddVariables() const { return m_numAddVariables; }
+
+	double getStrongConstraintViolation() const { return m_strongConstraintViolation; }
+
+	double getStrongVariableViolation() const { return m_strongVariableViolation; }
 
 #if 0
 	// Read global constraint counter, i.e. the number of added constraints of specific type.
@@ -138,24 +143,39 @@ public:
 
 
 	// Set parameters
-	void setKIterations(int n) {m_nKuratowskiIterations = n;}
-	void setNSubdivisions(int n) {m_nSubdivisions = n;}
-	void setNKuratowskiSupportGraphs(int n) {m_nKuratowskiSupportGraphs = n;}
-	void setNHeuristicRuns(int n) {m_nHeuristicRuns = n;}
-	void setKBoundHigh(double n) {m_kuratowskiBoundHigh = ((n>0.0 && n<1.0) ? n : 0.8);}
-	void setKBoundLow(double n) {m_kuratowskiBoundLow = ((n>0.0 && n<1.0) ? n : 0.2);}
-	void heuristicLevel(int level) {m_heuristicLevel = level;}
-	void setHeuristicRuns(int n) {m_nHeuristicRuns = n;}
-	void setPertubation(bool b) {m_usePerturbation = b;}
-	void setHeuristicFractionalBound(double b) {m_heuristicFractionalBound = b;}
-	void setHeuristicPermutationLists(int n) {m_nHeuristicPermutationLists = n;}
+	void setKIterations(int n) { m_nKuratowskiIterations = n; }
+
+	void setNSubdivisions(int n) { m_nSubdivisions = n; }
+
+	void setNKuratowskiSupportGraphs(int n) { m_nKuratowskiSupportGraphs = n; }
+
+	void setNHeuristicRuns(int n) { m_nHeuristicRuns = n; }
+
+	void setKBoundHigh(double n) { m_kuratowskiBoundHigh = ((n > 0.0 && n < 1.0) ? n : 0.8); }
+
+	void setKBoundLow(double n) { m_kuratowskiBoundLow = ((n > 0.0 && n < 1.0) ? n : 0.2); }
+
+	void heuristicLevel(int level) { m_heuristicLevel = level; }
+
+	void setHeuristicRuns(int n) { m_nHeuristicRuns = n; }
+
+	void setPertubation(bool b) { m_usePerturbation = b; }
+
+	void setHeuristicFractionalBound(double b) { m_heuristicFractionalBound = b; }
+
+	void setHeuristicPermutationLists(int n) { m_nHeuristicPermutationLists = n; }
+
 	//! Switches use of lower bound heuristic
-	void setMPHeuristic(bool b) {m_mpHeuristic = b;}
-	void setNumAddVariables(int i) {m_numAddVariables=i;}
-	void setStrongConstraintViolation(double d) { m_strongConstraintViolation=d;}
-	void setStrongVariableViolation(double d) { m_strongVariableViolation=d;}
+	void setMPHeuristic(bool b) { m_mpHeuristic = b; }
+
+	void setNumAddVariables(int i) { m_numAddVariables = i; }
+
+	void setStrongConstraintViolation(double d) { m_strongConstraintViolation = d; }
+
+	void setStrongVariableViolation(double d) { m_strongVariableViolation = d; }
+
 	//! Toggles reduction of search space (using only some bag/satchel connections) on/off
-	void setSearchSpaceShrinking(bool b) {m_shrink = b;}
+	void setSearchSpaceShrinking(bool b) { m_shrink = b; }
 
 #if 0
 	//! Updating global constraint counter
@@ -180,35 +200,29 @@ public:
 #ifdef OGDF_DEBUG
 	//! Simple output function to print the given graph to the console.
 	//! Used for debugging only.
-	void printGraph(const Graph &G);
+	void printGraph(const Graph& G);
 #endif
 
 	//! The name of the file that contains the standard, i.e., non-cut,
 	//! constraints (may be deleted by ABACUS and shouldn't be stored twice)
-	const char* getStdConstraintsFileName()
-	{
-		return "StdConstraints.txt";
-	}
+	const char* getStdConstraintsFileName() { return "StdConstraints.txt"; }
 
-	int getNumInactiveVars() { return m_inactiveVariables.size();}
+	int getNumInactiveVars() { return m_inactiveVariables.size(); }
 
 	//! Returns reference to cluster nodes member list for \p c.
-	const List<node> &getClusterNodes(cluster c) const {
-		return m_cNodes[c];
-	}
+	const List<node>& getClusterNodes(cluster c) const { return m_cNodes[c]; }
+
 	//! Copies cluster nodes from member list to parameter list.
 	//! Should be used if node list needs to be altered.
-	void getClusterNodes(cluster c, List<node> &nodeList) const {
+	void getClusterNodes(cluster c, List<node>& nodeList) const {
 		ListConstIterator<node> it = m_cNodes[c].begin();
-		while (it.valid())
-		{
+		while (it.valid()) {
 			nodeList.pushBack(*it);
 			++it;
 		}
 	}
 
 protected:
-
 	// Initializes constraints and variables and an initial dual bound.
 	virtual void initializeOptimization() override;
 
@@ -240,7 +254,6 @@ protected:
 	bool goodVar(node a, node b) override;
 
 private:
-
 	//! Computes a dual bound for the optimal solution.
 	//! Tries to find as many edge-disjoint Kuratowski subdivisions as possible.
 	//! If k edge-disjoint groups of subdivisions are found, the upper bound can be
@@ -248,13 +261,13 @@ private:
 	double heuristicInitialUpperBound() override;
 
 	//! Is invoked by heuristicInitialLowerBound()
-	double clusterConnection(cluster c, GraphCopy &GC) override;
+	double clusterConnection(cluster c, GraphCopy& GC) override;
 
 	//! Creates variables for complete connectivity
 	void createCompConnVars(List<CPlanarEdgeVar*>& initVars) override;
 
 	//! Computes the graphtheoretical distances of edges incident to node \p u.
-	void nodeDistances(node u, NodeArray<NodeArray<int> > &dist) override;
+	void nodeDistances(node u, NodeArray<NodeArray<int>>& dist) override;
 
 
 	// Parameters
@@ -330,7 +343,7 @@ private:
 #endif
 
 	//! Switch to minimization of additional edges, no delta necessary
-	virtual double nextConnectCoeff() override {return 1.0;}
+	virtual double nextConnectCoeff() override { return 1.0; }
 #if 0
 	double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; };
 #endif
@@ -344,6 +357,7 @@ private:
 		m_varCreated[(*it).source][(*it).target] = true;
 		return v;
 	}
+
 	//! Variable creation for pair of nodes with lower bound
 	virtual CPlanarEdgeVar* createVariable(node a, node b, double lbound) {
 		OGDF_ASSERT(!(m_varCreated[a][b] || m_varCreated[b][a]));
@@ -354,6 +368,7 @@ private:
 		m_varCreated[a][b] = true;
 		return v;
 	}
+
 	//! Variable creation for pair of nodes which is not stored in m_inactiveVariables.
 	virtual CPlanarEdgeVar* createVariable(node a, node b) override {
 		OGDF_ASSERT(!(m_varCreated[a][b] || m_varCreated[b][a]));
@@ -370,7 +385,8 @@ private:
 #endif
 
 	//used in initialization
-	virtual void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
+	virtual void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons,
+			List<CPlanarEdgeVar*>& connectVars);
 
 #if 0
 	//! Keeps track of created variables
@@ -379,8 +395,8 @@ private:
 
 	//! writes coefficients of all orig and connect variables in constraint con into
 	//! emptied list coeffs
-	virtual void getCoefficients(abacus::Constraint* con, const List<CPlanarEdgeVar* > & connect,
-			List<double> & coeffs) override;
+	virtual void getCoefficients(abacus::Constraint* con, const List<CPlanarEdgeVar*>& connect,
+			List<double>& coeffs) override;
 
 	//! Used to check if variables are truly needed wrt to search space
 	//! reduction (Chimani/Klein)
@@ -392,7 +408,7 @@ private:
 	bool m_shrink;
 	GraphCopy* m_ssg; //!< Search space graph, input graph plus edges modelled by initial variables.
 	int m_nSep; //!< Stores number of separation calls
-	ClusterArray<List<node> > m_cNodes; //!< Static storage of cluster node lists to avoid repeated computation.
+	ClusterArray<List<node>> m_cNodes; //!< Static storage of cluster node lists to avoid repeated computation.
 };
 
 }

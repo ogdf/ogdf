@@ -36,7 +36,6 @@
 #include <ogdf/basic/Timeouter.h>
 #include <ogdf/planarity/PlanRepLight.h>
 
-
 namespace ogdf {
 
 //! Interface for edge insertion algorithms.
@@ -49,13 +48,13 @@ public:
 	EdgeInsertionModule() { }
 
 	//! Initializes an edge insertion module (copy constructor).
-	EdgeInsertionModule(const EdgeInsertionModule &eim) : Timeouter(eim) { }
+	EdgeInsertionModule(const EdgeInsertionModule& eim) : Timeouter(eim) { }
 
 	//! Destructor.
 	virtual ~EdgeInsertionModule() { }
 
 	//! Returns a new instance of the edge insertion module with the same option settings.
-	virtual EdgeInsertionModule *clone() const = 0;
+	virtual EdgeInsertionModule* clone() const = 0;
 
 	//! Inserts all edges in \p origEdges into \p pr.
 	/**
@@ -64,7 +63,7 @@ public:
 	 *                  that have to be inserted.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepLight &pr, const Array<edge> &origEdges) {
+	ReturnType call(PlanRepLight& pr, const Array<edge>& origEdges) {
 		return doCall(pr, origEdges, nullptr, nullptr, nullptr);
 	}
 
@@ -77,13 +76,9 @@ public:
 	 *                  that have to be inserted.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepLight &pr,
-		const EdgeArray<int> &costOrig,
-		const Array<edge>    &origEdges)
-	{
+	ReturnType call(PlanRepLight& pr, const EdgeArray<int>& costOrig, const Array<edge>& origEdges) {
 		return doCall(pr, origEdges, &costOrig, nullptr, nullptr);
 	}
-
 
 	//! Inserts all edges in \p origEdges with given costs and subgraphs (for simultaneous drawing) into \p pr.
 	/**
@@ -95,14 +90,10 @@ public:
 	 * @param edgeSubGraphs is an edge array specifying to which subgraph an edge belongs.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepLight &pr,
-		const EdgeArray<int>      &costOrig,
-		const Array<edge>         &origEdges,
-		const EdgeArray<uint32_t> &edgeSubGraphs)
-	{
+	ReturnType call(PlanRepLight& pr, const EdgeArray<int>& costOrig, const Array<edge>& origEdges,
+			const EdgeArray<uint32_t>& edgeSubGraphs) {
 		return doCall(pr, origEdges, &costOrig, nullptr, &edgeSubGraphs);
 	}
-
 
 	//! Inserts all edges in \p origEdges with given forbidden edges into \p pr.
 	/**
@@ -114,10 +105,8 @@ public:
 	 *                      that have to be inserted.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepLight &pr,
-		const EdgeArray<bool> &forbiddenOrig,
-		const Array<edge>     &origEdges)
-	{
+	ReturnType call(PlanRepLight& pr, const EdgeArray<bool>& forbiddenOrig,
+			const Array<edge>& origEdges) {
 		return doCall(pr, origEdges, nullptr, &forbiddenOrig, nullptr);
 	}
 
@@ -133,14 +122,10 @@ public:
 	 *                      that have to be inserted.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepLight &pr,
-		const EdgeArray<int>  &costOrig,
-		const EdgeArray<bool> &forbiddenOrig,
-		const Array<edge>     &origEdges)
-	{
+	ReturnType call(PlanRepLight& pr, const EdgeArray<int>& costOrig,
+			const EdgeArray<bool>& forbiddenOrig, const Array<edge>& origEdges) {
 		return doCall(pr, origEdges, &costOrig, &forbiddenOrig, nullptr);
 	}
-
 
 	//! Inserts all edges in \p origEdges with given costs, forbidden edges, and subgraphs (for simultaneous drawing) into \p pr.
 	/**
@@ -155,15 +140,11 @@ public:
 	 * @param edgeSubGraphs is an edge array specifying to which subgraph an edge belongs.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepLight &pr,
-		const EdgeArray<int>      &costOrig,
-		const EdgeArray<bool>     &forbiddenOrig,
-		const Array<edge>         &origEdges,
-		const EdgeArray<uint32_t> &edgeSubGraphs)
-	{
+	ReturnType call(PlanRepLight& pr, const EdgeArray<int>& costOrig,
+			const EdgeArray<bool>& forbiddenOrig, const Array<edge>& origEdges,
+			const EdgeArray<uint32_t>& edgeSubGraphs) {
 		return doCall(pr, origEdges, &costOrig, &forbiddenOrig, &edgeSubGraphs);
 	}
-
 
 	//! Inserts all edges in \p origEdges into \p pr, optionally costs, forbidden edges, and subgraphs (for simultaneous drawing) may be given.
 	/**
@@ -178,13 +159,10 @@ public:
 	 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.
 	 * @return the status of the result.
 	 */
-	ReturnType callEx(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig = nullptr,
-		const EdgeArray<bool>     *pForbiddenOrig = nullptr,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs = nullptr)
-	{
+	ReturnType callEx(PlanRepLight& pr, const Array<edge>& origEdges,
+			const EdgeArray<int>* pCostOrig = nullptr,
+			const EdgeArray<bool>* pForbiddenOrig = nullptr,
+			const EdgeArray<uint32_t>* pEdgeSubGraphs = nullptr) {
 		return doCall(pr, origEdges, pCostOrig, pForbiddenOrig, pEdgeSubGraphs);
 	}
 
@@ -201,12 +179,9 @@ protected:
 	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
 	 * @return the status of the result.
 	 */
-	virtual ReturnType doCall(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs) = 0;
+	virtual ReturnType doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+			const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+			const EdgeArray<uint32_t>* pEdgeSubGraphs) = 0;
 
 
 	OGDF_MALLOC_NEW_DELETE

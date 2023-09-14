@@ -31,18 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/LayoutStatistics.h>
+#include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
+#include <ogdf/planarity/PlanarSubgraphCactus.h>
+
 #include <iomanip>
 #include <random>
 #include <regex>
-
-#include <ogdf/basic/DisjointSets.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/LayoutStatistics.h>
-
-#include <ogdf/planarity/PlanarSubgraphCactus.h>
-#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 
 #include <graphs.h>
 
@@ -52,7 +51,7 @@
 
 #ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 namespace layout_helpers {
-	int drawingCounter = 0;
+int drawingCounter = 0;
 }
 #endif
 
@@ -68,10 +67,8 @@ namespace layout_helpers {
  * calculated instead of the mean.
  */
 template<typename Container>
-inline void printLayoutStatistics(const std::string &measure,
-	const Container &values,
-	bool angularResolution = false)
-{
+inline void printLayoutStatistics(const std::string& measure, const Container& values,
+		bool angularResolution = false) {
 	const int infoLength = 39;
 	const int spaces = infoLength - measure.length() - 2;
 	const std::string indent = "        ";
@@ -80,9 +77,8 @@ inline void printLayoutStatistics(const std::string &measure,
 	if (values.empty()) {
 		std::cout << "N/A" << std::endl;
 	} else {
-		double result = angularResolution ?
-			(Math::minValue(values)*100) / (2*Math::pi) :
-			Math::mean(values);
+		double result = angularResolution ? (Math::minValue(values) * 100) / (2 * Math::pi)
+										  : Math::mean(values);
 
 		std::cout << std::setprecision(2) << std::fixed << result << std::endl;
 
@@ -93,17 +89,16 @@ inline void printLayoutStatistics(const std::string &measure,
 	}
 }
 
-inline void getRandomLayout(GraphAttributes &GA)
-{
-	const Graph &G = GA.constGraph();
+inline void getRandomLayout(GraphAttributes& GA) {
+	const Graph& G = GA.constGraph();
 	double max_x = 2.0 * sqrt(G.numberOfNodes());
 	double max_y = max_x;
 
 	std::minstd_rand rng(randomSeed());
-	std::uniform_real_distribution<> rand_x(0.0,max_x);
-	std::uniform_real_distribution<> rand_y(0.0,max_y);
+	std::uniform_real_distribution<> rand_x(0.0, max_x);
+	std::uniform_real_distribution<> rand_y(0.0, max_y);
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		GA.x(v) = rand_x(rng);
 		GA.y(v) = rand_y(rng);
 	}
@@ -122,9 +117,11 @@ inline void getRandomLayout(GraphAttributes &GA)
  * @param instanceIsPlanar Whether \p L is a planar graph.
  *
  **/
-inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, long extraAttributes, bool algoPlanarizes, bool algoRequiresPlanar, bool instanceIsPlanar)
-{
-	GraphAttributes GA(G, extraAttributes | GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
+inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, long extraAttributes,
+		bool algoPlanarizes, bool algoRequiresPlanar, bool instanceIsPlanar) {
+	GraphAttributes GA(G,
+			extraAttributes | GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle
+					| GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
 	getRandomLayout(GA);
 
 	// Initialize the node attributes which are not changed by layout algorithms
@@ -167,7 +164,7 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 		GA.label(v) = to_string(v->index());
 	}
 
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		GA.strokeWidth(e) = 1;
 		GA.strokeColor(e) = Color::Name::Blue;
 		GA.arrowType(e) = EdgeArrow::Last;
@@ -180,8 +177,8 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 	string filename = name;
 	std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 	std::ofstream of("drawing-" + std::regex_replace(filename, reg, "_")
-	               + "-n=" + to_string(G.numberOfNodes()) + "-m=" + to_string(G.numberOfEdges())
-	               + "-" + to_string(layout_helpers::drawingCounter) + ".svg");
+			+ "-n=" + to_string(G.numberOfNodes()) + "-m=" + to_string(G.numberOfEdges()) + "-"
+			+ to_string(layout_helpers::drawingCounter) + ".svg");
 	GraphIO::drawSVG(GA, of);
 	layout_helpers::drawingCounter++;
 #endif
@@ -191,14 +188,16 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 	printLayoutStatistics("angular resolution", LayoutStatistics::angles(GA), true);
 	printLayoutStatistics("average edge length", LayoutStatistics::edgeLengths(GA));
 	printLayoutStatistics("average bends per edge", LayoutStatistics::numberOfBends(GA));
-	printLayoutStatistics("average node crossings per edge", LayoutStatistics::numberOfNodeCrossings(GA));
-	printLayoutStatistics("average node overlaps per node", LayoutStatistics::numberOfNodeOverlaps(GA));
+	printLayoutStatistics("average node crossings per edge",
+			LayoutStatistics::numberOfNodeCrossings(GA));
+	printLayoutStatistics("average node overlaps per node",
+			LayoutStatistics::numberOfNodeOverlaps(GA));
 
 	// Assert that we do not have any needless bendpoints
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		DPolyline bends = GA.bends(e);
 
-		if(!bends.empty()) {
+		if (!bends.empty()) {
 			AssertThat(bends.front(), !Equals(GA.point(e->source())));
 			AssertThat(bends.back(), !Equals(GA.point(e->target())));
 		}
@@ -209,16 +208,17 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
 	}
 
 	// Assume that any layout algorithm that requires planar graphs or planarize produces planar drawings
-	if(algoPlanarizes || algoRequiresPlanar) {
+	if (algoPlanarizes || algoRequiresPlanar) {
 		int crossingNumber = Math::sum(LayoutStatistics::numberOfCrossings(GA)) / 2;
-		std::cout << "        " << "crossing number: " << std::setw(22) << crossingNumber << std::endl;
+		std::cout << "        "
+				  << "crossing number: " << std::setw(22) << crossingNumber << std::endl;
 
 		// When our layout algorithms produce nodes that are very close together, the crossing test fails
 		// due to inprecision. Limit checking it to instances where this does not happen. This limit value
 		// is selected arbritarily and should be adjusted if it can be shown to be too narrow or wide.
 		double minimumAngleThreshold = 1e-12;
 		auto angles = LayoutStatistics::angles(GA);
-		if(instanceIsPlanar && (angles.empty() || Math::minValue(angles) > minimumAngleThreshold)) {
+		if (instanceIsPlanar && (angles.empty() || Math::minValue(angles) > minimumAngleThreshold)) {
 			AssertThat(crossingNumber, Equals(0));
 		}
 	}
@@ -246,32 +246,28 @@ inline int64_t callLayout(const string& name, const Graph &G, LayoutModule &L, l
  * \param skipMe
  *  set this to true to skip the entire test
  */
-inline void describeLayout(
-  const std::string name,
-  LayoutModule &L,
-  long extraAttributes = 0,
-  std::set<GraphProperty> req = {},
-  bool planarizes = false,
-  const GraphSizes& sizes = GraphSizes(),
-  bool skipMe = false)
-{
-	describe(name, [&] {
-		forEachGraphItWorks(req, [&](const Graph& G, const std::string& graphName, const std::set<GraphProperty>& props) {
-			callLayout(graphName, G, L, extraAttributes, planarizes,
-					doesInclude({GraphProperty::planar}, req),
-					doesInclude({GraphProperty::planar}, props));
-		}, sizes);
-	}, skipMe);
+inline void describeLayout(const std::string name, LayoutModule& L, long extraAttributes = 0,
+		std::set<GraphProperty> req = {}, bool planarizes = false,
+		const GraphSizes& sizes = GraphSizes(), bool skipMe = false) {
+	describe(
+			name,
+			[&] {
+				forEachGraphItWorks(
+						req,
+						[&](const Graph& G, const std::string& graphName,
+								const std::set<GraphProperty>& props) {
+							callLayout(graphName, G, L, extraAttributes, planarizes,
+									doesInclude({GraphProperty::planar}, req),
+									doesInclude({GraphProperty::planar}, props));
+						},
+						sizes);
+			},
+			skipMe);
 }
 
 template<typename T>
-inline void describeLayout(
-  const string &name,
-  int extraAttr = 0,
-  std::set<GraphProperty> req = {},
-  bool planarizes = false,
-  const GraphSizes& sizes = GraphSizes(),
-  bool skipMe = false) {
+inline void describeLayout(const string& name, int extraAttr = 0, std::set<GraphProperty> req = {},
+		bool planarizes = false, const GraphSizes& sizes = GraphSizes(), bool skipMe = false) {
 	T layout;
 	describeLayout(name, layout, extraAttr, req, planarizes, sizes, skipMe);
 }

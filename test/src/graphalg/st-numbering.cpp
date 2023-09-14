@@ -29,10 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/STNumbering.h>
-#include <testing.h>
+#include <ogdf/basic/graph_generators.h>
+
 #include <graphs.h>
+#include <testing.h>
 
 /**
  * Assert that calling computeSTNumbering() on a Graph returns a valid st-numbering.
@@ -41,7 +42,7 @@
  * @param source is the source node for the st-numbering.
  * @param target is the target node for the st-numbering.
  */
-void stNumberingAssert(const Graph &G, node source = nullptr, node target = nullptr) {
+void stNumberingAssert(const Graph& G, node source = nullptr, node target = nullptr) {
 	NodeArray<int> numbering(G);
 	int result = computeSTNumbering(G, numbering, source, target);
 	AssertThat(result, Equals(G.numberOfNodes()));
@@ -56,14 +57,16 @@ void stNumberingAssert(const Graph &G, node source = nullptr, node target = null
 	}
 }
 
-
 void describeComputeSTNumbering() {
-	forEachGraphItWorks({GraphProperty::biconnected, GraphProperty::simple}, [](const Graph &G) {
-		stNumberingAssert(G);
-		stNumberingAssert(G, G.firstNode());
-		stNumberingAssert(G, nullptr, G.firstNode());
-		stNumberingAssert(G, G.firstNode(), G.firstNode()->firstAdj()->twinNode());
-	}, GraphSizes(), 2);
+	forEachGraphItWorks(
+			{GraphProperty::biconnected, GraphProperty::simple},
+			[](const Graph& G) {
+				stNumberingAssert(G);
+				stNumberingAssert(G, G.firstNode());
+				stNumberingAssert(G, nullptr, G.firstNode());
+				stNumberingAssert(G, G.firstNode(), G.firstNode()->firstAdj()->twinNode());
+			},
+			GraphSizes(), 2);
 
 	it("works on a large simple biconnected graph", []() {
 		Graph G;
@@ -74,9 +77,6 @@ void describeComputeSTNumbering() {
 }
 
 go_bandit([]() {
-	describe("st-Numbering", []() {
-		describe("computeSTNumbering", []() {
-			describeComputeSTNumbering();
-		});
-	});
+	describe("st-Numbering",
+			[]() { describe("computeSTNumbering", []() { describeComputeSTNumbering(); }); });
 });

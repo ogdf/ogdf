@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/extended_graph_alg.h>
 
 namespace ogdf {
 
@@ -57,8 +57,8 @@ public:
 	 * nullptr elsewise.
 	 * @return Indicates success.
 	 */
-	virtual bool call(const Graph &graph, const EdgeArray<TCost> &weight, node s, node t, List<edge> &edgeList,
-	                  edge e_st = nullptr) = 0;
+	virtual bool call(const Graph& graph, const EdgeArray<TCost>& weight, node s, node t,
+			List<edge>& edgeList, edge e_st = nullptr) = 0;
 
 	/**
 	 * The actual algorithm call.
@@ -72,11 +72,10 @@ public:
 	 * nullptr elsewise.
 	 * @return Indicates success.
 	 */
-	virtual bool call(const Graph &graph, node s, node t, List<edge> &edgeList, edge e_st = nullptr) = 0;
+	virtual bool call(const Graph& graph, node s, node t, List<edge>& edgeList,
+			edge e_st = nullptr) = 0;
 
-	virtual ~MinSTCutModule() {
-		delete m_gc;
-	}
+	virtual ~MinSTCutModule() { delete m_gc; }
 
 	/**
 	 * Returns the direction of \p e in the cut.
@@ -93,7 +92,7 @@ public:
 
 protected:
 	EdgeArray<int> m_direction;
-	GraphCopy *m_gc = nullptr;
+	GraphCopy* m_gc = nullptr;
 
 	/**
 	 * This method preprocesses \p gc for minstcut calculations, by adding an st-edge if needed and embedding \p gc.
@@ -106,12 +105,8 @@ protected:
 	 * @param e_st If not nullptr, this edge is meant to split the external face of the embedded \p gc.
 	 * @return
 	 */
-	bool preprocessingDual(const Graph &graph,
-	                       GraphCopy &gc,
-	                       CombinatorialEmbedding &CE,
-	                       node source,
-	                       node target,
-	                       edge e_st) {
+	bool preprocessingDual(const Graph& graph, GraphCopy& gc, CombinatorialEmbedding& CE,
+			node source, node target, edge e_st) {
 		node gcS(gc.copy(source));
 		node gcT(gc.copy(target));
 		adjEntry adjT, adjS;
@@ -121,7 +116,7 @@ protected:
 			adjS = CE.findCommonFace(gcS, gcT, adjT, false);
 			isSTplanarEmbeded = (adjS != nullptr);
 		}
-		if(isSTplanarEmbeded) {
+		if (isSTplanarEmbeded) {
 			if (e_st == nullptr) {
 				CE.splitFace(adjS, adjT);
 			}
@@ -129,7 +124,7 @@ protected:
 			if (e_st == nullptr) {
 				gc.newEdge(gcS, gcT);
 			}
-			if(!planarSTEmbed(gc, gcS, gcT)) {
+			if (!planarSTEmbed(gc, gcS, gcT)) {
 				return false;
 			}
 			CE.init(gc);

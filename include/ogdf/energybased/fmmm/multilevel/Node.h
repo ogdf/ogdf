@@ -40,37 +40,44 @@ namespace fmmm {
 
 //! Data structure for representing nodes and an int value (needed for class ogdf/list)
 //! to perform bucket sort.
-class Node
-{
+class Node {
 	friend int value(const Node& A) { return A.value; }
 
-	friend std::ostream &operator<< (std::ostream & output,const Node & A)
-	{
-		output <<"node index ";
-		if(A.vertex == nullptr)
-			output<<"nil";
-		else
-			output<<A.vertex->index();
-		output<<" value "<< A.value;
+	friend std::ostream& operator<<(std::ostream& output, const Node& A) {
+		output << "node index ";
+		if (A.vertex == nullptr) {
+			output << "nil";
+		} else {
+			output << A.vertex->index();
+		}
+		output << " value " << A.value;
 		return output;
 	}
 
-	friend std::istream &operator>> (std::istream & input,Node & A) {
+	friend std::istream& operator>>(std::istream& input, Node& A) {
 		input >> A.value;
 		return input;
 	}
 
 public:
 	//! Constructor
-	Node() { vertex = nullptr; value = 0; }
+	Node() {
+		vertex = nullptr;
+		value = 0;
+	}
 
-	void set_Node(node v,int a) { vertex = v; value = a; }
-	int  get_value() const { return value; }
+	void set_Node(node v, int a) {
+		vertex = v;
+		value = a;
+	}
+
+	int get_value() const { return value; }
+
 	node get_node() const { return vertex; }
 
 private:
 	node vertex;
-	int value ;
+	int value;
 };
 
 }

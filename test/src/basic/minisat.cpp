@@ -31,14 +31,14 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/external/Minisat.h>
+
 #include <resources.h>
 
-static void satisfiableTest()
-{
+static void satisfiableTest() {
 	Minisat::Formula F;
 	Minisat::Model model;
 
-	F.addClause(std::vector<int>{-1, -2, -3, 4});
+	F.addClause(std::vector<int> {-1, -2, -3, 4});
 
 	F.newVars(11);
 
@@ -46,11 +46,10 @@ static void satisfiableTest()
 		Minisat::clause c = F.newClause();
 		if (i % 2 == 0) {
 			c->add(i);
-		}
-		else {
+		} else {
 			c->add(-i);
 		}
-		c->add(i+1);
+		c->add(i + 1);
 		F.finalizeClause(c);
 	}
 
@@ -67,45 +66,38 @@ static void satisfiableTest()
 #endif
 }
 
-static void nonsatisfiableTest()
-{
+static void nonsatisfiableTest() {
 	Minisat::Formula F;
 	Minisat::Model model;
-	F.addClause(std::vector<int>{1, 2});
-	F.addClause(std::vector<int>{1, -2, 3});
-	F.addClause(std::vector<int>{-1, 2});
-	F.addClause(std::vector<int>{-1, -2});
-	F.addClause(std::vector<int>{-3});
+	F.addClause(std::vector<int> {1, 2});
+	F.addClause(std::vector<int> {1, -2, 3});
+	F.addClause(std::vector<int> {-1, 2});
+	F.addClause(std::vector<int> {-1, -2});
+	F.addClause(std::vector<int> {-3});
 
 	bool satisfiable = F.solve(model);
 
 	AssertThat(satisfiable, IsFalse());
 }
 
-static void readDIMACSTest()
-{
+static void readDIMACSTest() {
 	Minisat::Formula formula;
-	std::stringstream ss{ResourceFile::data("minisat/satisfiable.txt")};
+	std::stringstream ss {ResourceFile::data("minisat/satisfiable.txt")};
 	AssertThat(formula.readDimacs(ss), IsTrue());
 	Minisat::Model model;
 	bool satisfiable = formula.solve(model);
 	AssertThat(satisfiable, IsTrue());
 
-	formula.addClause(std::vector<int>{3});
+	formula.addClause(std::vector<int> {3});
 	satisfiable = formula.solve(model);
 	AssertThat(satisfiable, IsFalse());
 }
 
 go_bandit([]() {
 	describe("Minisat wrapper", []() {
-		it("solves a satisfiable formula", []() {
-			satisfiableTest();
-		});
-		it("solves a non-satisfiable formula", []() {
-			nonsatisfiableTest();
-		});
-		it("reads a DIMACS file and is able to solve the formula and change it", []() {
-			readDIMACSTest();
-		});
+		it("solves a satisfiable formula", []() { satisfiableTest(); });
+		it("solves a non-satisfiable formula", []() { nonsatisfiableTest(); });
+		it("reads a DIMACS file and is able to solve the formula and change it",
+				[]() { readDIMACSTest(); });
 	});
 });

@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#
+# Push a new feature branch to origin
+#
+# Author: Stephan Beyer
+
+if [ "$(git rev-parse --abbrev-ref HEAD)" = "HEAD" ]
+then
+	echo "Error: please checkout an unpushed feature branch!"
+	exit 1
+fi
+
+git push --set-upstream origin "$(git rev-parse --abbrev-ref HEAD)"

@@ -30,16 +30,17 @@
  */
 
 #include <ogdf/basic/AdjacencyOracle.h>
+
 #include <graphs.h>
 
 static void describeAdjacencyOracleWithDegreeThreshold(string title, int degreeThreshold) {
 	describe(title + " (degree threshold = " + std::to_string(degreeThreshold) + ")", [&] {
-		forEachGraphItWorks({}, [&] (const Graph& graph) {
-			AdjacencyOracle oracle{graph, degreeThreshold};
+		forEachGraphItWorks({}, [&](const Graph& graph) {
+			AdjacencyOracle oracle {graph, degreeThreshold};
 
 			for (node u : graph.nodes) {
 				for (node v : graph.nodes) {
-					bool isContained{graph.searchEdge(u, v) != nullptr};
+					bool isContained {graph.searchEdge(u, v) != nullptr};
 					AssertThat(oracle.adjacent(u, v), Equals(isContained));
 				}
 			}

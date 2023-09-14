@@ -29,25 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include<ogdf/simultaneous/SimDrawManipulatorModule.h>
+#include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
 namespace ogdf {
 
 // default constructor
-SimDrawManipulatorModule::SimDrawManipulatorModule()
-{
+SimDrawManipulatorModule::SimDrawManipulatorModule() {
 	m_SD = new SimDraw;
 	m_G = &(m_SD->m_G);
 	m_GA = &(m_SD->m_GA);
 }
 
 // initializing base instance
-void SimDrawManipulatorModule::init(SimDraw &SD)
-{
+void SimDrawManipulatorModule::init(SimDraw& SD) {
 	m_SD = &SD;
 	m_G = &(SD.m_G);
 	m_GA = &(SD.m_GA);
-	OGDF_ASSERT( &(*m_G) == &(m_GA->constGraph()) );
+	OGDF_ASSERT(&(*m_G) == &(m_GA->constGraph()));
 }
 
 }

@@ -34,14 +34,14 @@
 
 #pragma once
 
-#include <ogdf/orthogonal/internal/RoutingChannel.h>
-#include <ogdf/orthogonal/MinimumEdgeDistances.h>
-#include <ogdf/basic/Layout.h>
 #include <ogdf/basic/GridLayout.h>
 #include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/edge_router/NodeInfo.h>
+#include <ogdf/orthogonal/internal/RoutingChannel.h>
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
@@ -49,29 +49,20 @@ namespace ogdf {
  * Places node boxes in replacement areas of orthogonal
  * drawing step and route edges to minimize bends
  */
-class OGDF_EXPORT EdgeRouter
-{
+class OGDF_EXPORT EdgeRouter {
 	using NodeInfo = edge_router::NodeInfo;
+
 public:
 	//constructor
 	EdgeRouter() { }
 
-	EdgeRouter(
-		PlanRep& pru,
-		OrthoRep& H,
-		GridLayoutMapped& L,
-		CombinatorialEmbedding& E,
-		RoutingChannel<int>& rou,
-		MinimumEdgeDistances<int>& med,
-		NodeArray<int>& nodewidth,
-		NodeArray<int>& nodeheight);
+	EdgeRouter(PlanRep& pru, OrthoRep& H, GridLayoutMapped& L, CombinatorialEmbedding& E,
+			RoutingChannel<int>& rou, MinimumEdgeDistances<int>& med, NodeArray<int>& nodewidth,
+			NodeArray<int>& nodeheight);
 
 	virtual ~EdgeRouter() { }
 
-	void init(
-		PlanRep& pru,
-		RoutingChannel<int>& rou,
-		bool align = false);
+	void init(PlanRep& pru, RoutingChannel<int>& rou, bool align = false);
 
 	//! sets the computed distances in structure MinimumEdgeDistance m_med
 	void setDistances();
@@ -80,22 +71,15 @@ public:
 	void call();
 
 	//! places nodes in cages and routes incident edges
-	void call(
-		PlanRep& pru,
-		OrthoRep& H,
-		GridLayoutMapped& L,
-		CombinatorialEmbedding& E,
-		RoutingChannel<int>& rou,
-		MinimumEdgeDistances<int>& med,
-		NodeArray<int>& nodewidth,
-		NodeArray<int>& nodeheight,
-		bool align = false);
+	void call(PlanRep& pru, OrthoRep& H, GridLayoutMapped& L, CombinatorialEmbedding& E,
+			RoutingChannel<int>& rou, MinimumEdgeDistances<int>& med, NodeArray<int>& nodewidth,
+			NodeArray<int>& nodeheight, bool align = false);
 
 	//! applies precomputed placement
-	void place(node v/*, int l_sep, int l_overh*/);
+	void place(node v /*, int l_sep, int l_overh*/);
 
 	//! computes placement
-	void compute_place(node v, NodeInfo& inf/*, int sep = 10.0, int overh = 2*/);
+	void compute_place(node v, NodeInfo& inf /*, int sep = 10.0, int overh = 2*/);
 
 	//! computes routing after compute_place
 	void compute_routing(node v);
@@ -135,18 +119,20 @@ public:
 
 	//! adjEntries for edges in inLists
 	adjEntry outEntry(NodeInfo& inf, OrthoDir d, int pos) {
-		if (inf.is_in_edge(d, pos))
+		if (inf.is_in_edge(d, pos)) {
 			return (*inf.inList(d).get(pos))->adjTarget();
-		else
-			return (*inf.inList(d).get(pos))->adjSource();//we only bend on outentries
+		} else {
+			return (*inf.inList(d).get(pos))->adjSource(); //we only bend on outentries
+		}
 	}
 
 	//! adjEntries for edges in inLists
 	adjEntry inEntry(NodeInfo& inf, OrthoDir d, int pos) {
-		if (inf.is_in_edge(d, pos))
+		if (inf.is_in_edge(d, pos)) {
 			return (*inf.inList(d).get(pos))->adjSource();
-		else
+		} else {
 			return (*inf.inList(d).get(pos))->adjTarget();
+		}
 	}
 
 	//! sets position for node v in layout to value x,y, invoked to have central control over change
@@ -218,9 +204,9 @@ private:
 
 	NodeArray<NodeInfo> infos; //!< holds the cage and placement information
 
-	int    m_sep;   //!< minimum separation
-	int    m_overh; //!< minimum overhang
-	double Cconst;  //!< relative sep to overhang / delta to eps
+	int m_sep; //!< minimum separation
+	int m_overh; //!< minimum overhang
+	double Cconst; //!< relative sep to overhang / delta to eps
 
 	BendType abendType(adjEntry ae) { return m_abends[ae]; }
 
@@ -242,9 +228,9 @@ private:
 	bool oppositeExpander(adjEntry ae) {
 		Graph::NodeType nt;
 		nt = m_prup->typeOf(oppositeNode(ae));
-		return nt == Graph::NodeType::highDegreeExpander
-		    || nt == Graph::NodeType::lowDegreeExpander;
+		return nt == Graph::NodeType::highDegreeExpander || nt == Graph::NodeType::lowDegreeExpander;
 	}
+
 	//if yes, set its m_oppositeBendType value according to the newly introduced bend
 
 	//! computes the beta value described in the paper
@@ -260,45 +246,20 @@ private:
 	 */
 	int compute_move(OrthoDir s_from, OrthoDir s_to, int& kflip, node v);
 
-	int updateBends(
-			const node v,
-			ListIterator<edge> &it,
-			const bool updateX,
-			const OrthoDir dir,
-			const bool bendLeft,
-			const bool bendUp,
-			int pos = 0);
+	int updateBends(const node v, ListIterator<edge>& it, const bool updateX, const OrthoDir dir,
+			const bool bendLeft, const bool bendUp, int pos = 0);
 
-	void updateBends(
-			const node v,
-			ListIterator<edge> &it,
-			int &pos,
-			int &lastunbend,
-			const bool updateX,
-			const OrthoDir dir,
-			const bool bendLeft,
-			const bool bendUp,
+	void updateBends(const node v, ListIterator<edge>& it, int& pos, int& lastunbend,
+			const bool updateX, const OrthoDir dir, const bool bendLeft, const bool bendUp,
 			const bool subtract);
 
-	void updateLowerEdgesBends(
-			const node v,
-			ListIterator<edge> &it,
-			int &pos,
-			int &base,
-			const bool updateX,
-			const OrthoDir dir,
-			const bool bendLeft);
+	void updateLowerEdgesBends(const node v, ListIterator<edge>& it, int& pos, int& base,
+			const bool updateX, const OrthoDir dir, const bool bendLeft);
 
-	void updateOneBend(
-			const bool isDoubleBend,
-			const adjEntry adj,
-			const node v,
-			const OrthoDir dir,
-			const bool bendLeft,
-			const BendType btSingle,
-			const BendType btDouble) {
+	void updateOneBend(const bool isDoubleBend, const adjEntry adj, const node v, const OrthoDir dir,
+			const bool bendLeft, const BendType btSingle, const BendType btDouble) {
 		const OrthoDir dirB = bendLeft ? OrthoRep::nextDir(dir) : OrthoRep::prevDir(dir);
-		auto &inf = infos[v];
+		auto& inf = infos[v];
 
 		if (isDoubleBend) { // paper E^
 			// must be double-bend
@@ -313,11 +274,11 @@ private:
 
 	NodeArray<int> m_newx, m_newy; //!< new placement position for original node
 	NodeArray<bool> m_fixed; //!< saves info about changed position, no further change is allowed
-	EdgeArray<int>  lowe, uppe, lefte, righte; //!< max box borders for bendfree edges
-	AdjEntryArray<int>  alowe, auppe, alefte, arighte;
-	AdjEntryArray<int>  m_agp_x, m_agp_y; //!< because edges can connect two replacement cages
+	EdgeArray<int> lowe, uppe, lefte, righte; //!< max box borders for bendfree edges
+	AdjEntryArray<int> alowe, auppe, alefte, arighte;
+	AdjEntryArray<int> m_agp_x, m_agp_y; //!< because edges can connect two replacement cages
 	AdjEntryArray<node> m_cage_point; //!< newly introduced bends destroy edge to point connection
-	AdjEntryArray<int>  m_acp_x, m_acp_y;//!< edge connection point coordinates before treatment
+	AdjEntryArray<int> m_acp_x, m_acp_y; //!< edge connection point coordinates before treatment
 
 	//! bends
 	/**

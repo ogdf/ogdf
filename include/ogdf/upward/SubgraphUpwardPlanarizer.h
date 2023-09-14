@@ -1,4 +1,4 @@
- /** \file
+/** \file
  * \brief Declaration of class SubgraphUpwardPlanarizer.
  *
  * \author Hoi-Ming Wong
@@ -31,16 +31,17 @@
 
 #pragma once
 
-#include <memory>
+#include <ogdf/decomposition/BCTree.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/layered/GreedyCycleRemoval.h>
 #include <ogdf/upward/FUPSModule.h>
-#include <ogdf/upward/UpwardEdgeInserterModule.h>
-#include <ogdf/upward/UpwardPlanarizerModule.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/FUPSSimple.h>
 #include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
-#include <ogdf/decomposition/BCTree.h>
-#include <ogdf/layered/GreedyCycleRemoval.h>
+#include <ogdf/upward/UpwardEdgeInserterModule.h>
+#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -63,13 +64,10 @@ namespace ogdf {
  *  sup.call(U, 0, 0);
  * \endcode
  */
-class OGDF_EXPORT SubgraphUpwardPlanarizer : public UpwardPlanarizerModule
-{
-
+class OGDF_EXPORT SubgraphUpwardPlanarizer : public UpwardPlanarizerModule {
 public:
 	//! Creates an instance of subgraph planarizer.
-	SubgraphUpwardPlanarizer()
-	{
+	SubgraphUpwardPlanarizer() {
 		m_runs = 1;
 		//set default module
 		m_subgraph.reset(new FUPSSimple());
@@ -78,28 +76,23 @@ public:
 	}
 
 	//! Sets the module option for the computation of the feasible upward planar subgraph.
-	void setSubgraph(FUPSModule *FUPS) {
-		m_subgraph.reset(FUPS);
-	}
+	void setSubgraph(FUPSModule* FUPS) { m_subgraph.reset(FUPS); }
 
 	//! Sets the module option for the edge insertion module.
-	void setInserter(UpwardEdgeInserterModule *pInserter) {
-		m_inserter.reset(pInserter);
-	}
+	void setInserter(UpwardEdgeInserterModule* pInserter) { m_inserter.reset(pInserter); }
 
 	//! Sets the module option for acyclic subgraph module.
-	void setAcyclicSubgraphModule(AcyclicSubgraphModule *acyclicMod) {
+	void setAcyclicSubgraphModule(AcyclicSubgraphModule* acyclicMod) {
 		m_acyclicMod.reset(acyclicMod);
 	}
 
-	int runs() {return m_runs;}
-	void runs(int n) {m_runs = n;}
+	int runs() { return m_runs; }
+
+	void runs(int n) { m_runs = n; }
 
 protected:
-
-	virtual ReturnType doCall(UpwardPlanRep &UPR,
-		const EdgeArray<int>  &cost,
-		const EdgeArray<bool> &forbid) override;
+	virtual ReturnType doCall(UpwardPlanRep& UPR, const EdgeArray<int>& cost,
+			const EdgeArray<bool>& forbid) override;
 
 	std::unique_ptr<FUPSModule> m_subgraph; //!< The upward planar subgraph algorithm.
 	std::unique_ptr<UpwardEdgeInserterModule> m_inserter; //!< The edge insertion module.
@@ -107,25 +100,17 @@ protected:
 	int m_runs;
 
 private:
-
-	void constructComponentGraphs(BCTree &BC, NodeArray<GraphCopy> &biComps);
+	void constructComponentGraphs(BCTree& BC, NodeArray<GraphCopy>& biComps);
 
 	//! traversion the BTree and merge the component to a common graph
-	void dfsMerge(const GraphCopy &GC,
-	              BCTree &BC,
-	              NodeArray<GraphCopy> &biComps,
-	              NodeArray<UpwardPlanRep> &uprs,
-	              UpwardPlanRep &UPR_res,
-	              node parent_BC,
-	              node current_BC,
-	              NodeArray<bool> &nodesDone);
+	void dfsMerge(const GraphCopy& GC, BCTree& BC, NodeArray<GraphCopy>& biComps,
+			NodeArray<UpwardPlanRep>& uprs, UpwardPlanRep& UPR_res, node parent_BC, node current_BC,
+			NodeArray<bool>& nodesDone);
 
 
 	//! add UPR to UPR_res.
-	void merge(const GraphCopy &GC,
-	           UpwardPlanRep &UPR_res,
-	           const GraphCopy &block,
-	           UpwardPlanRep &UPR);
+	void merge(const GraphCopy& GC, UpwardPlanRep& UPR_res, const GraphCopy& block,
+			UpwardPlanRep& UPR);
 };
 
 }

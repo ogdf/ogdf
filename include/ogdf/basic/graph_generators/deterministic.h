@@ -47,7 +47,7 @@ namespace ogdf {
  * @copydoc ogdf::customGraph(Graph &G, int n, List<std::pair<int,int>> edges)
  * @param nodes resulting array mapping node index to the actual node
  */
-OGDF_EXPORT void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Array<node> &nodes);
+OGDF_EXPORT void customGraph(Graph& G, int n, List<std::pair<int, int>> edges, Array<node>& nodes);
 
 //! Creates a custom graph using a list of pairs to determine the graph's edges.
 /**
@@ -56,7 +56,7 @@ OGDF_EXPORT void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Ar
  * @param edges is a list of pairs, each one representing two nodes that should
  *        be connected by an edge in the generated graph.
  */
-inline void customGraph(Graph &G, int n, List<std::pair<int,int>> edges) {
+inline void customGraph(Graph& G, int n, List<std::pair<int, int>> edges) {
 	Array<node> nodes;
 	customGraph(G, n, edges, nodes);
 }
@@ -77,7 +77,7 @@ inline void customGraph(Graph &G, int n, List<std::pair<int,int>> edges) {
  * ogdf::circulantGraph(G, 11, ogdf::Array<int>({1,2,4}));
  * @endcode
  */
-OGDF_EXPORT void circulantGraph (Graph &G, int n, Array<int> jumps);
+OGDF_EXPORT void circulantGraph(Graph& G, int n, Array<int> jumps);
 
 //! Creates a regular lattice graph.
 /**
@@ -90,7 +90,7 @@ OGDF_EXPORT void circulantGraph (Graph &G, int n, Array<int> jumps);
  * @param k is the degree of each node.
  * @pre \p n must be at least 4, \p k must be an even number between 0 and \p n-2.
  */
-OGDF_EXPORT void regularLatticeGraph(Graph &G, int n, int k);
+OGDF_EXPORT void regularLatticeGraph(Graph& G, int n, int k);
 
 //! Creates a regular tree.
 /**
@@ -109,7 +109,7 @@ OGDF_EXPORT void regularTree(Graph& G, int n, int children);
  * @param G is assigned the generated graph.
  * @param n is the number of nodes of the generated graph.
  */
-OGDF_EXPORT void completeGraph(Graph &G, int n);
+OGDF_EXPORT void completeGraph(Graph& G, int n);
 
 //! Creates the complete k-partite graph \a K_{k1,k2,...,kn}.
 /**
@@ -118,7 +118,7 @@ OGDF_EXPORT void completeGraph(Graph &G, int n);
  * @param G is assigned the generated graph.
  * @param signature contains the positive values k1, k2, ..., kn.
  */
-OGDF_EXPORT void completeKPartiteGraph(Graph &G, const Array<int> &signature);
+OGDF_EXPORT void completeKPartiteGraph(Graph& G, const Array<int>& signature);
 
 //! Creates the complete bipartite graph \a K_{n,m}.
 /**
@@ -128,7 +128,7 @@ OGDF_EXPORT void completeKPartiteGraph(Graph &G, const Array<int> &signature);
  * @param n is the number of nodes of the first partition set.
  * @param m is the number of nodes of the second partition set.
  */
-OGDF_EXPORT void completeBipartiteGraph(Graph &G, int n, int m);
+OGDF_EXPORT void completeBipartiteGraph(Graph& G, int n, int m);
 
 //! Creates the graph \a W_n: A wheel graph.
 /**
@@ -136,14 +136,25 @@ OGDF_EXPORT void completeBipartiteGraph(Graph &G, int n, int m);
  * @param n is the number of nodes on the rim of the wheel (W_n).
  * @pre \p n must be at least 2.
  */
-OGDF_EXPORT void wheelGraph(Graph &G, int n);
+OGDF_EXPORT void wheelGraph(Graph& G, int n);
 
 //! Creates the graph \a Q^n: A <tt>n</tt>-cube graph.
 /**
  * @param G is assigned the generated graph.
  * @param n is the number of the cube's dimensions (n>=0).
  */
-OGDF_EXPORT void cubeGraph(Graph &G, int n);
+OGDF_EXPORT void cubeGraph(Graph& G, int n);
+
+//! Creates a globe graph with a given number of meridians and latitudes.
+/**
+ * The graph will contain a node at each crossing of a meridian and a latitude,
+ * and a node at each pole, hence \p meridians * \p latitudes + 2 nodes overall.
+ *
+ * @param G is assigned the generated graph.
+ * @param meridians is the number of meridians.
+ * @param latitudes is the number of latitudes.
+ */
+OGDF_EXPORT void globeGraph(Graph& G, int meridians, int latitudes);
 
 //! Modifies \p G by adding its <tt>s</tt>-th suspension.
 /**
@@ -154,7 +165,7 @@ OGDF_EXPORT void cubeGraph(Graph &G, int n);
  * @param G is the graph to extend.
  * @param s is the amount of suspension nodes to add.
  */
-OGDF_EXPORT void suspension(Graph &G, int s);
+OGDF_EXPORT void suspension(Graph& G, int s);
 
 //! Creates a (toroidal) grid graph on \p n x \p m nodes.
 /**
@@ -164,7 +175,7 @@ OGDF_EXPORT void suspension(Graph &G, int s);
  * @param loopN if the grid is cyclic on first axis
  * @param loopM if the grid is cyclic on second axis
  */
-OGDF_EXPORT void gridGraph(Graph &G, int n, int m, bool loopN, bool loopM);
+OGDF_EXPORT void gridGraph(Graph& G, int n, int m, bool loopN, bool loopM);
 
 //! Creates a generalized Petersen graph.
 /**
@@ -180,14 +191,14 @@ OGDF_EXPORT void gridGraph(Graph &G, int n, int m, bool loopN, bool loopM);
  * @param n is the number of nodes on the outer cycle.
  * @param m is the length of jumps for the inner part.
  */
-OGDF_EXPORT void petersenGraph(Graph &G, int n = 5, int m = 2);
+OGDF_EXPORT void petersenGraph(Graph& G, int n = 5, int m = 2);
 
 //! Creates a graph with \p nodes nodes and no edges.
 /**
  * @param G is assigned the generated graph.
  * @param nodes is the number of nodes of the generated graph.
  */
-OGDF_EXPORT void emptyGraph(Graph &G, int nodes);
+OGDF_EXPORT void emptyGraph(Graph& G, int nodes);
 
 //! @}
 

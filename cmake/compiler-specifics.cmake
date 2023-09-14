@@ -44,12 +44,21 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(available_default_warning_flags "-Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas \
       -Wno-error=sign-compare -Wno-error=conversion -Wno-error=strict-aliasing")
   if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    if(OGDF_INCLUDE_CGAL AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+      message(WARNING "Cannot compile with CGAL enabled with clang<10.0")
+    endif()
     set(available_default_warning_flags "${available_default_warning_flags} -Wno-error=zero-length-array -Wno-error=uninitialized")
   else()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
       set(available_default_warning_flags "${available_default_warning_flags} -Wshadow")
     else()
       set(available_default_warning_flags "${available_default_warning_flags} -Wno-error=array-bounds")
+    endif()
+
+    # GCC seems to detect many false positives for the "stringop-overread" warning.
+    # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99578
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11.0 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.2)
+      set(available_default_warning_flags "${available_default_warning_flags} -Wno-error=stringop-overread")
     endif()
     set(available_default_warning_flags "${available_default_warning_flags} -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-parameter")
     set(available_default_warning_flags_release "-Wno-error=unused-but-set-variable -Wno-error=strict-overflow")

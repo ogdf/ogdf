@@ -33,35 +33,28 @@
 
 namespace ogdf {
 
-void GridLayoutModule::call(GraphAttributes &AG)
-{
-	const Graph &G = AG.constGraph();
+void GridLayoutModule::call(GraphAttributes& AG) {
+	const Graph& G = AG.constGraph();
 
 	// compute grid layout
 	GridLayout gridLayout(G);
-	doCall(G,gridLayout,m_gridBoundingBox);
+	doCall(G, gridLayout, m_gridBoundingBox);
 
 	// transform grid layout to real layout
-	mapGridLayout(G,gridLayout,AG);
+	mapGridLayout(G, gridLayout, AG);
 }
 
-
-void GridLayoutModule::callGrid(const Graph &G, GridLayout &gridLayout)
-{
+void GridLayoutModule::callGrid(const Graph& G, GridLayout& gridLayout) {
 	gridLayout.init(G);
-	doCall(G,gridLayout,m_gridBoundingBox);
+	doCall(G, gridLayout, m_gridBoundingBox);
 }
 
-
-void GridLayoutModule::mapGridLayout(const Graph &G,
-	GridLayout &gridLayout,
-	GraphAttributes &AG)
-{
+void GridLayoutModule::mapGridLayout(const Graph& G, GridLayout& gridLayout, GraphAttributes& AG) {
 	// maximum width of columns and rows
 	double maxWidth = 0;
 	double yMax = 0;
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		Math::updateMax<double>(maxWidth, AG.width(v));
 		Math::updateMax<double>(maxWidth, AG.height(v));
 		Math::updateMax<double>(yMax, gridLayout.y(v));
@@ -70,38 +63,38 @@ void GridLayoutModule::mapGridLayout(const Graph &G,
 	maxWidth += m_separation;
 
 	// set position of nodes
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		AG.x(v) = gridLayout.x(v) * maxWidth;
 		AG.y(v) = (yMax - gridLayout.y(v)) * maxWidth;
 	}
 
 	// transform bend points of edges
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		IPolyline ipl = gridLayout.polyline(e);
 
 		// Remove superfluous bendpoints
 		node v = e->source();
-		while(!ipl.empty() && ipl.front() == IPoint(gridLayout.x(v), gridLayout.y(v))) {
+		while (!ipl.empty() && ipl.front() == IPoint(gridLayout.x(v), gridLayout.y(v))) {
 			ipl.popFront();
 		}
 		v = e->target();
-		while(!ipl.empty() && ipl.back() == IPoint(gridLayout.x(v), gridLayout.y(v))) {
+		while (!ipl.empty() && ipl.back() == IPoint(gridLayout.x(v), gridLayout.y(v))) {
 			ipl.popBack();
 		}
 
-		DPolyline &dpl = AG.bends(e);
+		DPolyline& dpl = AG.bends(e);
 		dpl.clear();
 
-		for (const IPoint &ip : ipl) {
-			dpl.pushBack(DPoint(ip.m_x*maxWidth, (yMax-ip.m_y)*maxWidth));
+		for (const IPoint& ip : ipl) {
+			dpl.pushBack(DPoint(ip.m_x * maxWidth, (yMax - ip.m_y) * maxWidth));
 		}
 
 		dpl.normalize();
 	}
 }
 
-bool PlanarGridLayoutModule::handleTrivial(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox)
-{
+bool PlanarGridLayoutModule::handleTrivial(const Graph& G, GridLayout& gridLayout,
+		IPoint& boundingBox) {
 	// handle special case of graphs with less than 3 nodes
 	node v1, v2;
 	switch (G.numberOfNodes()) {
@@ -124,9 +117,8 @@ bool PlanarGridLayoutModule::handleTrivial(const Graph &G, GridLayout &gridLayou
 	return false;
 }
 
-void PlanarGridLayoutModule::callFixEmbed(GraphAttributes &AG, adjEntry adjExternal)
-{
-	const Graph &G = AG.constGraph();
+void PlanarGridLayoutModule::callFixEmbed(GraphAttributes& AG, adjEntry adjExternal) {
+	const Graph& G = AG.constGraph();
 
 	// compute grid layout
 	GridLayout gridLayout(G);
@@ -135,48 +127,34 @@ void PlanarGridLayoutModule::callFixEmbed(GraphAttributes &AG, adjEntry adjExter
 	}
 
 	// transform grid layout to real layout
-	mapGridLayout(G,gridLayout,AG);
+	mapGridLayout(G, gridLayout, AG);
 }
 
-
-void PlanarGridLayoutModule::callGridFixEmbed(
-	const Graph &G,
-	GridLayout &gridLayout,
-	adjEntry adjExternal)
-{
+void PlanarGridLayoutModule::callGridFixEmbed(const Graph& G, GridLayout& gridLayout,
+		adjEntry adjExternal) {
 	gridLayout.init(G);
 	if (!handleTrivial(G, gridLayout, m_gridBoundingBox)) {
 		doCall(G, adjExternal, gridLayout, m_gridBoundingBox, true);
 	}
 }
 
-
-void GridLayoutPlanRepModule::callGrid(PlanRep &PG, GridLayout &gridLayout)
-{
+void GridLayoutPlanRepModule::callGrid(PlanRep& PG, GridLayout& gridLayout) {
 	gridLayout.init(PG);
 	if (!handleTrivial(PG, gridLayout, m_gridBoundingBox)) {
 		doCall(PG, nullptr, gridLayout, m_gridBoundingBox, false);
 	}
 }
 
-void GridLayoutPlanRepModule::callGridFixEmbed(
-	PlanRep &PG,
-	GridLayout &gridLayout,
-	adjEntry adjExternal)
-{
+void GridLayoutPlanRepModule::callGridFixEmbed(PlanRep& PG, GridLayout& gridLayout,
+		adjEntry adjExternal) {
 	gridLayout.init(PG);
 	if (!handleTrivial(PG, gridLayout, m_gridBoundingBox)) {
 		doCall(PG, adjExternal, gridLayout, m_gridBoundingBox, true);
 	}
 }
 
-void GridLayoutPlanRepModule::doCall(
-	const Graph &G,
-	adjEntry adjExternal,
-	GridLayout &gridLayout,
-	IPoint &boundingBox,
-	bool fixEmbedding)
-{
+void GridLayoutPlanRepModule::doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+		IPoint& boundingBox, bool fixEmbedding) {
 	if (G.numberOfNodes() < 2) {
 		return;
 	}
@@ -187,28 +165,29 @@ void GridLayoutPlanRepModule::doCall(
 	GridLayout glPG(PG);
 
 	// determine adjacency entry on external face of PG (if required)
-	if(adjExternal != nullptr) {
-		edge eG  = adjExternal->theEdge();
+	if (adjExternal != nullptr) {
+		edge eG = adjExternal->theEdge();
 		edge ePG = PG.copy(eG);
 		adjExternal = (adjExternal == eG->adjSource()) ? ePG->adjSource() : ePG->adjTarget();
 	}
 
 	// call algorithm for copy
-	doCall(PG,adjExternal,glPG,boundingBox,fixEmbedding);
+	doCall(PG, adjExternal, glPG, boundingBox, fixEmbedding);
 
 	// extract layout for original graph
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		node vPG = PG.copy(v);
 		gridLayout.x(v) = glPG.x(vPG);
 		gridLayout.y(v) = glPG.y(vPG);
 	}
 
-	for(edge e : G.edges) {
-		IPolyline &ipl = gridLayout.bends(e);
+	for (edge e : G.edges) {
+		IPolyline& ipl = gridLayout.bends(e);
 		ipl.clear();
 
-		for(edge ec : PG.chain(e))
+		for (edge ec : PG.chain(e)) {
 			ipl.conc(glPG.bends(ec));
+		}
 	}
 }
 

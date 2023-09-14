@@ -34,7 +34,6 @@
 #include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 
-
 namespace ogdf {
 
 //! Embedder that minimizes block-nesting depth for given embedded blocks.
@@ -43,12 +42,10 @@ namespace ogdf {
  *
  * For details see the paper "Minimum Depth Graph Drawing" by M. Pizzonia and R. Tamassia.
  */
-class OGDF_EXPORT EmbedderMinDepthPiTa : public embedder::EmbedderBCTreeBase<false>
-{
+class OGDF_EXPORT EmbedderMinDepthPiTa : public embedder::EmbedderBCTreeBase<false> {
 public:
 	//constructor
-	EmbedderMinDepthPiTa()
-		: m_useExtendedDepthDefinition(true), pm_blockCutfaceTree(nullptr) {}
+	EmbedderMinDepthPiTa() : m_useExtendedDepthDefinition(true), pm_blockCutfaceTree(nullptr) { }
 
 	/**
 	 * \brief Computes an embedding of \p G.
@@ -59,10 +56,11 @@ public:
 	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
 	bool useExtendedDepthDefinition() const { return m_useExtendedDepthDefinition; }
+
 	void useExtendedDepthDefinition(bool b) { m_useExtendedDepthDefinition = b; }
 
 protected:
-	adjEntry trivialInit(Graph &G) override {
+	adjEntry trivialInit(Graph& G) override {
 		planarEmbed(G);
 		CombinatorialEmbedding CE(G);
 		adjEntry result = CE.chooseFace()->firstAdj();
@@ -134,11 +132,8 @@ private:
 	 *   graph of the associated block of bDG.
 	 * \param childBlocks
 	 */
-	node computeBlockMapping(
-		const node& bDG,
-		const node& parent,
-		List<node>& blocksNodes,
-		List<node>& childBlocks);
+	node computeBlockMapping(const node& bDG, const node& parent, List<node>& blocksNodes,
+			List<node>& childBlocks);
 
 	/**
 	 * \brief Computes the eccentricity of a node nT in the block-cutface tree
@@ -162,14 +157,14 @@ private:
 	 *
 	 * \param bT is a block-node of the BC-tree.
 	 */
-	int depthBlock(const node&  bT);
+	int depthBlock(const node& bT);
 
 	/**
 	 * \brief Computes the depth of an embedding Gamma(c).
 	 *
 	 * \param cT is a cutvertex-node of the BC-tree.
 	 */
-	int depthCutvertex(const node&  cT);
+	int depthCutvertex(const node& cT);
 
 	/**
 	 * \brief Deletes inserted dummy nodes. If adjExternal is an adjacency entry
@@ -194,19 +189,19 @@ private:
 	NodeArray<Graph> blockG;
 
 	/** a mapping of nodes in the auxiliaryGraph of the BC-tree to blockG */
-	NodeArray< NodeArray<node> > nH_to_nBlockEmbedding;
+	NodeArray<NodeArray<node>> nH_to_nBlockEmbedding;
 
 	/** a mapping of edges in the auxiliaryGraph of the BC-tree to blockG */
-	NodeArray< EdgeArray<edge> > eH_to_eBlockEmbedding;
+	NodeArray<EdgeArray<edge>> eH_to_eBlockEmbedding;
 
 	/** a mapping of nodes in blockG to the auxiliaryGraph of the BC-tree */
-	NodeArray< NodeArray<node> > nBlockEmbedding_to_nH;
+	NodeArray<NodeArray<node>> nBlockEmbedding_to_nH;
 
 	/** a mapping of edges in blockG to the auxiliaryGraph of the BC-tree */
-	NodeArray< EdgeArray<edge> > eBlockEmbedding_to_eH;
+	NodeArray<EdgeArray<edge>> eBlockEmbedding_to_eH;
 
 	/** saving for each node in the block graphs its length */
-	NodeArray< NodeArray<int> > nodeLength;
+	NodeArray<NodeArray<int>> nodeLength;
 
 	/** an array saving the length for each edge in the BC-tree */
 	EdgeArray<int> m_cB;
@@ -215,7 +210,7 @@ private:
 	 * M_B = {cH in B | m_B(cH) = m_B} with \a m_B = max{m_B(c) : c in B}
 	 *  and m_B(c) = max( {0} cup {m_{c, B'} | c in B', B' != B}).
 	 */
-	NodeArray< List<node> > M_B;
+	NodeArray<List<node>> M_B;
 
 	/** Saving edge lengths for the block-cutface tree. */
 	EdgeArray<int> edgeLength_blockCutfaceTree;
@@ -242,7 +237,7 @@ private:
 	 * a list of all faces in G, a face in this list is containing a list of all
 	 * adjacency entries
 	 */
-	List< List<adjEntry> > faces;
+	List<List<adjEntry>> faces;
 
 	/** mapping faces (by ID) in G to nodes in DG */
 	ArrayBuffer<node> fPG_to_nDG;
@@ -287,7 +282,7 @@ private:
 	List<node> dummyNodes;
 
 	/** saves for every node of G the new adjacency list */
-	NodeArray< List<adjEntry> > newOrder;
+	NodeArray<List<adjEntry>> newOrder;
 
 	/**
 	 * given a node nT (cutvertex or block), G_nT is the subgraph of G
@@ -296,16 +291,16 @@ private:
 	NodeArray<Graph> G_nT;
 
 	/** a mapping of nodes in G_nT to nodes in G */
-	NodeArray< NodeArray<node> > nG_nT_to_nPG;
+	NodeArray<NodeArray<node>> nG_nT_to_nPG;
 
 	/** a mapping of nodes in G to nodes in G_nT */
-	NodeArray< NodeArray<node> > nPG_to_nG_nT;
+	NodeArray<NodeArray<node>> nPG_to_nG_nT;
 
 	/** a mapping of edges in G_nT to edges in G */
-	NodeArray< EdgeArray<edge> > eG_nT_to_ePG;
+	NodeArray<EdgeArray<edge>> eG_nT_to_ePG;
 
 	/** a mapping of edges in G to edges in G_nT */
-	NodeArray< EdgeArray<edge> > ePG_to_eG_nT;
+	NodeArray<EdgeArray<edge>> ePG_to_eG_nT;
 
 	/** adjacency entry of the external face of G_nT[nT] */
 	NodeArray<adjEntry> Gamma_adjExt_nT;

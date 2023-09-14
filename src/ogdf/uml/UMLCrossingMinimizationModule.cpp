@@ -34,25 +34,25 @@
 namespace ogdf {
 
 
-bool UMLCrossingMinimizationModule::checkCrossingGens(const PlanRepUML &prUML)
-{
-	for(edge e : prUML.edges) {
+bool UMLCrossingMinimizationModule::checkCrossingGens(const PlanRepUML& prUML) {
+	for (edge e : prUML.edges) {
 		Graph::EdgeType et = prUML.typeOf(e);
-		if (et != Graph::EdgeType::generalization && et != Graph::EdgeType::association)
+		if (et != Graph::EdgeType::generalization && et != Graph::EdgeType::association) {
 			return false;
+		}
 	}
 
-	for(node v : prUML.nodes)
-	{
+	for (node v : prUML.nodes) {
 		if (prUML.typeOf(v) == PlanRepUML::NodeType::dummy && v->degree() == 4) {
 			adjEntry adj = v->firstAdj();
 
 			edge e1 = adj->theEdge();
 			edge e2 = adj->succ()->theEdge();
 
-			if (prUML.typeOf(e1) == Graph::EdgeType::generalization &&
-				prUML.typeOf(e2) == Graph::EdgeType::generalization)
+			if (prUML.typeOf(e1) == Graph::EdgeType::generalization
+					&& prUML.typeOf(e2) == Graph::EdgeType::generalization) {
 				return false;
+			}
 		}
 	}
 

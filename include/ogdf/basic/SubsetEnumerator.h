@@ -92,8 +92,7 @@ protected:
 	ArrayBuffer<T> m_subset;
 	Array<int> m_index;
 
-	void initSubset(int card)
-	{
+	void initSubset(int card) {
 		if (card >= 0 && card <= m_subset.size()) {
 			m_index.init(card);
 			for (int i = 0; i < card; ++i) {
@@ -110,19 +109,15 @@ public:
 	 * @param set The container of elements we want to enumerate subsets for.
 	 */
 	template<typename ContainerType>
-	explicit SubsetEnumerator(const ContainerType &set)
-	  : m_valid(false)
-	  , m_maxCard(-1)
-	  , m_subset(set.size())
-	{
+	explicit SubsetEnumerator(const ContainerType& set)
+		: m_valid(false), m_maxCard(-1), m_subset(set.size()) {
 		for (auto x : set) {
 			m_subset.push(x);
 		}
 	}
 
 	//! Initializes the SubsetEnumerator to enumerate subsets of cardinalities from low to high.
-	void begin(int low, int high)
-	{
+	void begin(int low, int high) {
 		if (high >= low) {
 			m_maxCard = high;
 			m_maxCard = min(m_maxCard, m_subset.size());
@@ -133,40 +128,24 @@ public:
 	}
 
 	//! Initializes the SubsetEnumerator to enumerate subsets of given cardinality.
-	void begin(int card)
-	{
-		begin(card, card);
-	}
+	void begin(int card) { begin(card, card); }
 
 	//! Initializes the SubsetEnumerator to enumerate all subsets.
-	void begin()
-	{
-		begin(0, m_subset.size());
-	}
+	void begin() { begin(0, m_subset.size()); }
 
 	//! Returns the cardinality of the subset.
-	int size() const
-	{
-		return m_index.size();
-	}
+	int size() const { return m_index.size(); }
 
 	//! Returns the cardinality of the (super-)set.
 	//! This is the maximum size that can be used for a subset.
-	int numberOfMembersAndNonmembers() const
-	{
-		return m_subset.size();
-	}
+	int numberOfMembersAndNonmembers() const { return m_subset.size(); }
 
 	//! Checks if the current subset is valid.
 	//! If not, the subset is either not initialized or all subsets have already been enumerated.
-	bool valid() const
-	{
-		return m_valid;
-	}
+	bool valid() const { return m_valid; }
 
 	//! Checks in O(subset cardinality) whether \p element is a member of the subset.
-	bool hasMember(const T &element) const
-	{
+	bool hasMember(const T& element) const {
 		for (int index : m_index) {
 			if (element == m_subset[index]) {
 				return true;
@@ -176,16 +155,14 @@ public:
 	}
 
 	//! Gets a member of subset by index (starting from 0).
-	T operator[](int i) const
-	{
+	T operator[](int i) const {
 		OGDF_ASSERT(i >= 0);
 		OGDF_ASSERT(i < m_index.size());
 		return m_subset[m_index[i]];
 	}
 
 	//! Obtains the next subset if possible. The result should be checked using the #valid() method.
-	void next()
-	{
+	void next() {
 		if (m_valid) {
 			const int t = m_index.size();
 			if (t == 0) { // last (empty) subset has been found
@@ -215,24 +192,19 @@ public:
 	}
 
 	//! Calls \p func for each member in the subset.
-	void forEachMember(std::function<void(const T &)> func) const
-	{
+	void forEachMember(std::function<void(const T&)> func) const {
 		for (int index : m_index) {
 			func(m_subset[index]);
 		}
 	}
 
 	//! Obtains (appends) a list of the subset members.
-	void list(List<T> &subset) const
-	{
-		forEachMember([&](const T &member) {
-			subset.pushBack(member);
-		});
+	void list(List<T>& subset) const {
+		forEachMember([&](const T& member) { subset.pushBack(member); });
 	}
 
 	//! Obtains an array of the subset members.
-	void array(Array<T> &array) const
-	{
+	void array(Array<T>& array) const {
 		array.init(m_index.size());
 		for (int i = 0; i < m_index.size(); ++i) {
 			array[i] = m_subset[m_index[i]];
@@ -240,8 +212,8 @@ public:
 	}
 
 	//! Calls \p funcIn for each subset member and \p funcNotIn for each other element of the set.
-	void forEachMemberAndNonmember(std::function<void(const T &)> funcIn, std::function<void(const T &)> funcNotIn) const
-	{
+	void forEachMemberAndNonmember(std::function<void(const T&)> funcIn,
+			std::function<void(const T&)> funcNotIn) const {
 		for (int i = 0, j = 0; i < m_subset.size(); ++i) {
 			if (j < m_index.size() && m_index[j] == i) {
 				funcIn(m_subset[i]);
@@ -254,26 +226,20 @@ public:
 
 	//! Obtains a container of the subset members and a container of the other elements of the set.
 	template<typename ContainerType>
-	void getSubsetAndComplement(ContainerType &subset, ContainerType &complement, std::function<void(ContainerType &, T)> func) const
-	{
-		forEachMemberAndNonmember([&](const T &member) {
-			func(subset, member);
-		}, [&](const T &nonmember) {
-			func(complement, nonmember);
-		});
+	void getSubsetAndComplement(ContainerType& subset, ContainerType& complement,
+			std::function<void(ContainerType&, T)> func) const {
+		forEachMemberAndNonmember([&](const T& member) { func(subset, member); },
+				[&](const T& nonmember) { func(complement, nonmember); });
 	}
 
 	//! Obtains (appends) a list of the subset members and a list of the other elements of the set.
-	void list(List<T> &subset, List<T> &complement) const
-	{
-		getSubsetAndComplement<List<T>>(subset, complement, [](List<T> &lc, T element) {
-			lc.pushBack(element);
-		});
+	void list(List<T>& subset, List<T>& complement) const {
+		getSubsetAndComplement<List<T>>(subset, complement,
+				[](List<T>& lc, T element) { lc.pushBack(element); });
 	}
 
 	//! Tests \p predicate for all subset members.
-	bool testForAll(std::function<bool(const T&)> predicate) const
-	{
+	bool testForAll(std::function<bool(const T&)> predicate) const {
 		for (int index : m_index) {
 			if (!predicate(m_subset[index])) {
 				return false;
@@ -283,8 +249,7 @@ public:
 	}
 
 	//! Prints subset to output stream \p os using delimiter \p delim
-	void print(std::ostream &os, string delim = " ") const
-	{
+	void print(std::ostream& os, string delim = " ") const {
 		if (valid()) {
 			if (size() > 0) {
 				os << m_subset[m_index[0]];
@@ -299,8 +264,7 @@ public:
 };
 
 template<class T>
-std::ostream &operator<<(std::ostream &os, const SubsetEnumerator<T> &subset)
-{
+std::ostream& operator<<(std::ostream& os, const SubsetEnumerator<T>& subset) {
 	subset.print(os);
 	return os;
 }

@@ -29,29 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/StarInserter.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/graphalg/Dijkstra.h>
+#include <ogdf/planarity/StarInserter.h>
+
 #include <set>
 
 namespace ogdf {
 
-StarInserter &StarInserter::operator=(const StarInserter &inserter)
-{
-	return *this;
-}
+StarInserter& StarInserter::operator=(const StarInserter& inserter) { return *this; }
 
-node StarInserter::getOptimalDualNode(node origNode,
-		const EdgeArray<int> *pCostOrig,
-		PredecessorMap &predecessors)
-{
-	const Graph &dualGraph {m_dual->getGraph()};
+node StarInserter::getOptimalDualNode(node origNode, const EdgeArray<int>* pCostOrig,
+		PredecessorMap& predecessors) {
+	const Graph& dualGraph {m_dual->getGraph()};
 
 	// Setup parameters for shortest path computations.
 	EdgeArray<int> weight {dualGraph}; // weights of edges in dualGraph
 	for (edge e : dualGraph.edges) {
-		weight[e] = pCostOrig == nullptr ? 1 :
-			(*pCostOrig)[m_graphCopy->original(m_dual->primalEdge(e))];
+		weight[e] = pCostOrig == nullptr
+				? 1
+				: (*pCostOrig)[m_graphCopy->original(m_dual->primalEdge(e))];
 	}
 	NodeArray<int> distance {dualGraph}; // tmp result for each Dijkstra run
 	NodeArray<int> distanceSum {dualGraph, 0}; // sums over all Dijkstra runs
@@ -74,14 +71,13 @@ node StarInserter::getOptimalDualNode(node origNode,
 		}
 
 		// Get shortest paths starting at collected sources.
-		predecessors[w].reset(new NodeArray<edge>{dualGraph});
-		dijkstra.call(dualGraph, weight, sources,
-			*(predecessors[w]), distance, false);
+		predecessors[w].reset(new NodeArray<edge> {dualGraph});
+		dijkstra.call(dualGraph, weight, sources, *(predecessors[w]), distance, false);
 
 		// Update the distance sums for every dual node.
 		for (auto dualNode : dualGraph.nodes) {
-			distanceSum[dualNode] += distance[dualNode] *
-				(pCostOrig == nullptr ? 1 : (*pCostOrig)[origEdge]);
+			distanceSum[dualNode] +=
+					distance[dualNode] * (pCostOrig == nullptr ? 1 : (*pCostOrig)[origEdge]);
 		}
 	}
 
@@ -98,10 +94,8 @@ node StarInserter::getOptimalDualNode(node origNode,
 	return optimalDualNode;
 }
 
-void StarInserter::makePredsConsistent(node origNode,
-		node optimalDualNode,
-		PredecessorMap &predecessors)
-{
+void StarInserter::makePredsConsistent(node origNode, node optimalDualNode,
+		PredecessorMap& predecessors) {
 	std::unordered_map<node, node> dualNodeNeighbor;
 	NodeArray<edge> successor {*m_dual, nullptr};
 
@@ -143,10 +137,9 @@ void StarInserter::makePredsConsistent(node origNode,
 	}
 }
 
-adjEntry StarInserter::getCrossedAdjEntry(edge primalEdgeToSplit, node leftDualNode)
-{
-	OGDF_ASSERT((*m_edgeInChainToSplit)[primalEdgeToSplit] == nullptr ||
-		(*m_edgeInChainToSplit)[primalEdgeToSplit] == primalEdgeToSplit);
+adjEntry StarInserter::getCrossedAdjEntry(edge primalEdgeToSplit, node leftDualNode) {
+	OGDF_ASSERT((*m_edgeInChainToSplit)[primalEdgeToSplit] == nullptr
+			|| (*m_edgeInChainToSplit)[primalEdgeToSplit] == primalEdgeToSplit);
 	face leftFace {m_dual->primalFace(leftDualNode)};
 
 	adjEntry adjSrc {primalEdgeToSplit->adjSource()};
@@ -159,10 +152,7 @@ adjEntry StarInserter::getCrossedAdjEntry(edge primalEdgeToSplit, node leftDualN
 	}
 }
 
-adjEntry StarInserter::getAdjEntry(node primalNode,
-		node rightDualNode,
-		node otherPrimalNode)
-{
+adjEntry StarInserter::getAdjEntry(node primalNode, node rightDualNode, node otherPrimalNode) {
 	if (primalNode->degree() <= 1) {
 		// If there only exists one adjEntry, return it.
 		// Return nullptr if no adjEntry exists.
@@ -182,17 +172,14 @@ adjEntry StarInserter::getAdjEntry(node primalNode,
 	}
 
 	// Otherwise return the common face of primalNode and otherPrimalNode.
-	adjEntry adj {
-		m_combEmbedding->findCommonFace(primalNode, otherPrimalNode, false)
-	};
+	adjEntry adj {m_combEmbedding->findCommonFace(primalNode, otherPrimalNode, false)};
 	OGDF_ASSERT((*m_newToOldFace)[m_combEmbedding->rightFace(adj)] == rightFace);
 	return adj;
 }
 
-adjEntry StarInserter::getAdjEntry(node primalNode, node rightDualNode, edge primalEdge, bool first)
-{
-	OGDF_ASSERT((*m_edgeInChainToSplit)[primalEdge] == nullptr ||
-		(*m_edgeInChainToSplit)[primalEdge] == primalEdge);
+adjEntry StarInserter::getAdjEntry(node primalNode, node rightDualNode, edge primalEdge, bool first) {
+	OGDF_ASSERT((*m_edgeInChainToSplit)[primalEdge] == nullptr
+			|| (*m_edgeInChainToSplit)[primalEdge] == primalEdge);
 	if (primalNode->degree() <= 1) {
 		// If there only exists one adjEntry, return it.
 		// Return nullptr if no adjEntry exists.
@@ -215,14 +202,12 @@ adjEntry StarInserter::getAdjEntry(node primalNode, node rightDualNode, edge pri
 
 	// Cycle through adjEntries of the face in clockwise order, starting at adj
 	// of primalEdge. Return the first adj at the correct primal node.
-	adjEntry adjNext {first ? adjStart->clockwiseFacePred() :
-		adjStart->clockwiseFaceSucc()};
+	adjEntry adjNext {first ? adjStart->clockwiseFacePred() : adjStart->clockwiseFaceSucc()};
 	while (adjNext != adjStart) {
 		if (adjNext->theNode() == primalNode) {
 			return adjNext;
 		}
-		adjNext = first ? adjNext->clockwiseFacePred() :
-			adjNext->clockwiseFaceSucc();
+		adjNext = first ? adjNext->clockwiseFacePred() : adjNext->clockwiseFaceSucc();
 	}
 
 	// primalNode and primalEdge have no common face. This should not happen.
@@ -230,12 +215,8 @@ adjEntry StarInserter::getAdjEntry(node primalNode, node rightDualNode, edge pri
 	return nullptr;
 }
 
-edge StarInserter::collectAdjEntries(node w,
-		node insertedNode,
-		node optimalDualNode,
-		const PredecessorMap &predecessors,
-		List<adjEntry> &crossedEdges)
-{
+edge StarInserter::collectAdjEntries(node w, node insertedNode, node optimalDualNode,
+		const PredecessorMap& predecessors, List<adjEntry>& crossedEdges) {
 	// Follow predecessors of optimal dual node in the insertion path and
 	// collect crossed edges for use in GraphCopy::insertEdgePathEmbedded().
 	edge dualPredEdge {(*predecessors.at(w))[optimalDualNode]};
@@ -246,9 +227,7 @@ edge StarInserter::collectAdjEntries(node w,
 	if (dualPredEdge) {
 		// In case the edge has been split already by some insertion path,
 		// determine the correct edge in the chain to split.
-		edgeToSplit = (*m_edgeInChainToSplit)[
-			(*m_originalEdge)[m_dual->primalEdge(dualPredEdge)]
-		];
+		edgeToSplit = (*m_edgeInChainToSplit)[(*m_originalEdge)[m_dual->primalEdge(dualPredEdge)]];
 		dualPredEdge = m_dual->dualEdge(edgeToSplit);
 		crossedEdges.pushBack(getAdjEntry(insertedNode, lastDualNode, edgeToSplit, true));
 
@@ -257,8 +236,7 @@ edge StarInserter::collectAdjEntries(node w,
 		if (oldPrimalFace(dualPredEdge->source()) == oldPrimalFace(lastDualNode)) {
 			lastDualNode = dualPredEdge->source();
 		} else {
-			OGDF_ASSERT(oldPrimalFace(dualPredEdge->target())
-				== oldPrimalFace(lastDualNode));
+			OGDF_ASSERT(oldPrimalFace(dualPredEdge->target()) == oldPrimalFace(lastDualNode));
 			lastDualNode = dualPredEdge->target();
 		}
 	} else {
@@ -274,8 +252,7 @@ edge StarInserter::collectAdjEntries(node w,
 		if (oldPrimalFace(dualPredEdge->source()) == oldPrimalFace(lastDualNode)) {
 			lastDualNode = dualPredEdge->target();
 		} else {
-			OGDF_ASSERT(oldPrimalFace(dualPredEdge->target())
-				== oldPrimalFace(lastDualNode));
+			OGDF_ASSERT(oldPrimalFace(dualPredEdge->target()) == oldPrimalFace(lastDualNode));
 			lastDualNode = dualPredEdge->source();
 		}
 
@@ -284,23 +261,18 @@ edge StarInserter::collectAdjEntries(node w,
 		// Get the next predecessor edge. In case the edge has been split
 		// already by some insertion path, determine the correct edge in the
 		// chain to split.
-		dualPredEdge = (*predecessors.at(w))[
-			m_dual->dualNode(oldPrimalFace(lastDualNode))
-		];
+		dualPredEdge = (*predecessors.at(w))[m_dual->dualNode(oldPrimalFace(lastDualNode))];
 		if (dualPredEdge) {
-			edgeToSplit = (*m_edgeInChainToSplit)[
-				(*m_originalEdge)[m_dual->primalEdge(dualPredEdge)]
-			];
+			edgeToSplit =
+					(*m_edgeInChainToSplit)[(*m_originalEdge)[m_dual->primalEdge(dualPredEdge)]];
 			dualPredEdge = m_dual->dualEdge(edgeToSplit);
 		}
 	}
 
 	// Lastly, the adjEntry of w with lastDualNode to its right.
-	crossedEdges.pushBack(
-		lastDualPredEdge ?
-		getAdjEntry(w, lastDualNode, m_dual->primalEdge(lastDualPredEdge), false) :
-		getAdjEntry(w, lastDualNode, insertedNode)
-	);
+	crossedEdges.pushBack(lastDualPredEdge
+					? getAdjEntry(w, lastDualNode, m_dual->primalEdge(lastDualPredEdge), false)
+					: getAdjEntry(w, lastDualNode, insertedNode));
 
 	// If the first adjEntry is nullptr, we are in the first iteration of the
 	// main loop and the inserted node has no incident edges yet (and hence no
@@ -311,18 +283,15 @@ edge StarInserter::collectAdjEntries(node w,
 	if (*itStart == nullptr) {
 		++itStart;
 		dummyEdge = m_dual->addEdgeToIsolatedNodePrimal(insertedNode,
-			lastDualPredEdge ? (*itStart)->twin() : *itStart);
+				lastDualPredEdge ? (*itStart)->twin() : *itStart);
 		crossedEdges.popFront();
 		crossedEdges.pushFront(insertedNode->firstAdj());
 	}
 	return dummyEdge;
 }
 
-void StarInserter::transferCrossedEdges(
-	const List<adjEntry> &crossedEdges,
-	SList<adjEntry> &finalCrossedEdges,
-	bool startAtSource)
-{
+void StarInserter::transferCrossedEdges(const List<adjEntry>& crossedEdges,
+		SList<adjEntry>& finalCrossedEdges, bool startAtSource) {
 	// GraphCopy::insertEdgePathEmbedded() expects an SList, not a List.
 	// If the inserted edge is directed from insertedNode to w, just copy the
 	// list elements.
@@ -346,39 +315,34 @@ void StarInserter::transferCrossedEdges(
 	// The final adjEntries can be used for insertEdgePathEmbedded().
 	SListConstIterator<adjEntry> it {finalCrossedEdges.begin()};
 	for (; it.valid() && it.succ().valid() && it.succ().succ().valid(); it++) {
-		OGDF_ASSERT(m_combEmbedding->rightFace(*it) ==
-		            m_combEmbedding->leftFace(*(it.succ())));
+		OGDF_ASSERT(m_combEmbedding->rightFace(*it) == m_combEmbedding->leftFace(*(it.succ())));
 	}
-	OGDF_ASSERT(m_combEmbedding->rightFace(*it) ==
-				m_combEmbedding->rightFace(*(it.succ())));
+	OGDF_ASSERT(m_combEmbedding->rightFace(*it) == m_combEmbedding->rightFace(*(it.succ())));
 #endif
 }
 
-void StarInserter::initMemberData(GraphCopy &graphCopy, DynamicDualGraph &dualGraph)
-{
+void StarInserter::initMemberData(GraphCopy& graphCopy, DynamicDualGraph& dualGraph) {
 	m_graphCopy = &graphCopy;
 	m_combEmbedding = &dualGraph.getPrimalEmbedding();
 	m_dual = &dualGraph;
 
 	// Remember which faces existed before star insertion paths were inserted.
-	m_newToOldFace = new FaceArray<face>{*m_combEmbedding, nullptr};
+	m_newToOldFace = new FaceArray<face> {*m_combEmbedding, nullptr};
 	for (face f : m_combEmbedding->faces) {
 		(*m_newToOldFace)[f] = f;
 	}
 
 	// Remember the edges in the GraphCopy before insertion paths were inserted.
 	// For each such edge, specify the part of its chain that should be split.
-	m_edgeInChainToSplit = new EdgeArray<edge>{*m_combEmbedding, nullptr};
-	m_originalEdge = new EdgeArray<edge>{*m_combEmbedding, nullptr};
+	m_edgeInChainToSplit = new EdgeArray<edge> {*m_combEmbedding, nullptr};
+	m_originalEdge = new EdgeArray<edge> {*m_combEmbedding, nullptr};
 	for (edge e : m_combEmbedding->getGraph().edges) {
 		(*m_edgeInChainToSplit)[e] = e;
 		(*m_originalEdge)[e] = e;
 	}
-
 }
 
-void StarInserter::updateMemberData(edge origEdge, bool startAtSource)
-{
+void StarInserter::updateMemberData(edge origEdge, bool startAtSource) {
 	// Traverse the chain of the newly inserted edge.
 	edge prevCopyEdge {nullptr};
 	for (edge copyEdge : m_graphCopy->chain(origEdge)) {
@@ -436,12 +400,8 @@ void StarInserter::updateMemberData(edge origEdge, bool startAtSource)
 	}
 }
 
-void StarInserter::call(
-	GraphCopy &graphCopy,
-	DynamicDualGraph &dualGraph,
-	node origNode,
-	const EdgeArray<int> *pCostOrig)
-{
+void StarInserter::call(GraphCopy& graphCopy, DynamicDualGraph& dualGraph, node origNode,
+		const EdgeArray<int>* pCostOrig) {
 	OGDF_ASSERT(graphCopy.representsCombEmbedding());
 
 	initMemberData(graphCopy, dualGraph);
@@ -460,8 +420,7 @@ void StarInserter::call(
 	for (adjEntry adj : origNode->adjEntries) {
 		sortedEdges.push(adj->theEdge());
 	}
-	EdgeOrderComparer comp(origNode, optimalDualNode, predecessors,
-		*m_graphCopy, m_dual);
+	EdgeOrderComparer comp(origNode, optimalDualNode, predecessors, *m_graphCopy, m_dual);
 	sortedEdges.quicksort(comp);
 
 	// Insert origNode (in optimal face given by optimalDualNode).
@@ -479,16 +438,15 @@ void StarInserter::call(
 		// path. Transfer them to an SList and pass them to
 		// GraphCopy::insertEdgePathEmbedded() to embed origEdge.
 		List<adjEntry> crossedEdges;
-		edge createdEdge {collectAdjEntries(w, insertedNode, optimalDualNode,
-			predecessors, crossedEdges)};
+		edge createdEdge {
+				collectAdjEntries(w, insertedNode, optimalDualNode, predecessors, crossedEdges)};
 		if (dummyEdge == nullptr && createdEdge != nullptr) {
 			dummyEdge = createdEdge;
 		}
 
 		SList<adjEntry> finalCrossedEdges;
 		transferCrossedEdges(crossedEdges, finalCrossedEdges, startAtSource);
-		m_graphCopy->insertEdgePathEmbedded(origEdge, *m_combEmbedding, *m_dual,
-			finalCrossedEdges);
+		m_graphCopy->insertEdgePathEmbedded(origEdge, *m_combEmbedding, *m_dual, finalCrossedEdges);
 		updateMemberData(origEdge, startAtSource);
 	}
 

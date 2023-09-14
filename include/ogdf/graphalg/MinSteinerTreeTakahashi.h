@@ -33,9 +33,9 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 namespace ogdf {
 
@@ -54,7 +54,7 @@ namespace ogdf {
  * MIC 2001, pages 429-433, 2001)
  */
 template<typename T>
-class MinSteinerTreeTakahashi: public MinSteinerTreeModule<T> {
+class MinSteinerTreeTakahashi : public MinSteinerTreeModule<T> {
 public:
 	MinSteinerTreeTakahashi() { }
 
@@ -67,12 +67,9 @@ public:
 	 *
 	 * @see MinSteinerTreeModule::call
 	 */
-	virtual T call(const EdgeWeightedGraph<T> &G,
-	               const List<node> &terminals,
-	               const NodeArray<bool> &isTerminal,
-	               EdgeWeightedGraphCopy<T> *&finalSteinerTree,
-	               const node startNode)
-	{
+	virtual T call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree,
+			const node startNode) {
 		return call(G, terminals, isTerminal, isTerminal, finalSteinerTree, startNode);
 	}
 
@@ -83,13 +80,11 @@ public:
 	 *
 	 * @see MinSteinerTreeModule::call
 	 */
-	virtual T call(const EdgeWeightedGraph<T> &G,
-	               const List<node> &terminals,
-	               const NodeArray<bool> &isTerminal,
-	               const NodeArray<bool> &isOriginalTerminal,
-	               EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-	{
-		return call(G, terminals, isTerminal, isOriginalTerminal, finalSteinerTree, terminals.front());
+	virtual T call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, const NodeArray<bool>& isOriginalTerminal,
+			EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
+		return call(G, terminals, isTerminal, isOriginalTerminal, finalSteinerTree,
+				terminals.front());
 	}
 
 	using MinSteinerTreeModule<T>::call;
@@ -102,20 +97,13 @@ public:
 	 *
 	 * @see MinSteinerTreeModule::call
 	 */
-	virtual T call(const EdgeWeightedGraph<T> &G,
-	               const List<node> &terminals,
-	               const NodeArray<bool> &isTerminal,
-	               const NodeArray<bool> &isOriginalTerminal,
-	               EdgeWeightedGraphCopy<T> *&finalSteinerTree,
-	               const node startNode);
+	virtual T call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, const NodeArray<bool>& isOriginalTerminal,
+			EdgeWeightedGraphCopy<T>*& finalSteinerTree, const node startNode);
 
 protected:
-	virtual T computeSteinerTree(
-		const EdgeWeightedGraph<T> &G,
-		const List<node> &terminals,
-		const NodeArray<bool> &isTerminal,
-		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override
-	{
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override {
 		return call(G, terminals, isTerminal, isTerminal, finalSteinerTree, terminals.front());
 	}
 
@@ -128,21 +116,15 @@ protected:
 	 * @param isTerminal terminal incivende vector
 	 * @return the weight of the intermediateTerminalSpanningTree
 	 */
-	T terminalDijkstra(const EdgeWeightedGraph<T> &wG,
-	                   EdgeWeightedGraphCopy<T> &intermediateTerminalSpanningTree,
-	                   const node s,
-	                   int numberOfTerminals,
-	                   const NodeArray<bool> &isTerminal);
+	T terminalDijkstra(const EdgeWeightedGraph<T>& wG,
+			EdgeWeightedGraphCopy<T>& intermediateTerminalSpanningTree, const node s,
+			int numberOfTerminals, const NodeArray<bool>& isTerminal);
 };
 
 template<typename T>
-T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T> &G,
-                                   const List<node> &terminals,
-                                   const NodeArray<bool> &isTerminal,
-                                   const NodeArray<bool> &isOriginalTerminal,
-                                   EdgeWeightedGraphCopy<T> *&finalSteinerTree,
-                                   const node startNode)
-{
+T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+		const NodeArray<bool>& isTerminal, const NodeArray<bool>& isOriginalTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree, const node startNode) {
 	OGDF_ASSERT(isConnected(G));
 
 	EdgeWeightedGraphCopy<T> terminalSpanningTree;
@@ -150,23 +132,23 @@ T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T> &G,
 	terminalDijkstra(G, terminalSpanningTree, startNode, terminals.size(), isTerminal);
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>(G);
-	for(node u : G.nodes) {
+	for (node u : G.nodes) {
 		if (!terminalSpanningTree.copy(u)) {
 			finalSteinerTree->delNode(finalSteinerTree->copy(u));
 		}
 	}
 
 	T mstWeight = makeMinimumSpanningTree(*finalSteinerTree, finalSteinerTree->edgeWeights());
-	mstWeight -= MinSteinerTreeModule<T>::pruneAllDanglingSteinerPaths(*finalSteinerTree, isOriginalTerminal);
+	mstWeight -= MinSteinerTreeModule<T>::pruneAllDanglingSteinerPaths(*finalSteinerTree,
+			isOriginalTerminal);
 
 	return mstWeight;
 }
 
 template<typename T>
-T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
-		EdgeWeightedGraphCopy<T> &intermediateTerminalSpanningTree, const node s, int numberOfTerminals,
-		const NodeArray<bool> &isTerminal)
-{
+T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T>& wG,
+		EdgeWeightedGraphCopy<T>& intermediateTerminalSpanningTree, const node s,
+		int numberOfTerminals, const NodeArray<bool>& isTerminal) {
 	NodeArray<edge> predecessor(wG, nullptr);
 	NodeArray<T> distance(wG, std::numeric_limits<T>::max());
 	distance[s] = 0;
@@ -186,8 +168,7 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 		queue.pop();
 		isInQueue[v] = false;
 		bestDistance[v] = distance[v];
-		if (isTerminal[v]
-		 && distance[v] > 0) {
+		if (isTerminal[v] && distance[v] > 0) {
 			++terminalsFound;
 			// insert path from new node to old tree
 			node tmpT = intermediateTerminalSpanningTree.newNode(v);
@@ -214,11 +195,10 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 				v = w;
 			}
 		} else { // !isTerminal[v] || distance[v] == 0
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
-				if (distance[w] > distance[v] + wG.weight(e)
-				 && bestDistance[w] >= distance[w]) {
+				if (distance[w] > distance[v] + wG.weight(e) && bestDistance[w] >= distance[w]) {
 					distance[w] = distance[v] + wG.weight(e);
 					if (!isInQueue[w]) {
 						queue.push(w, distance[w]);

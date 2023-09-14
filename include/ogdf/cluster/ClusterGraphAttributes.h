@@ -37,17 +37,15 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/cluster/ClusterArray.h>
 
-
 namespace ogdf {
 
 //! Stores additional attributes of a clustered graph (like layout information).
 /**
  * @ingroup graph-containers graph-drawing
  */
-class OGDF_EXPORT ClusterGraphAttributes : public GraphAttributes
-{
+class OGDF_EXPORT ClusterGraphAttributes : public GraphAttributes {
 protected:
-	const ClusterGraph* m_pClusterGraph;//!< Only points to existing graphs.
+	const ClusterGraph* m_pClusterGraph; //!< Only points to existing graphs.
 
 	ClusterArray<double> m_x; //!< X-position of lower left corner
 	ClusterArray<double> m_y; //!< Y-position of lower left corner
@@ -82,23 +80,23 @@ public:
 	//! Enables all available flags.
 	static const long all;
 
-	//!@}
+	//! @}
 
 	// Don't hide these inherited methods by overloading.
+	using GraphAttributes::height;
+	using GraphAttributes::width;
 	using GraphAttributes::x;
 	using GraphAttributes::y;
-	using GraphAttributes::width;
-	using GraphAttributes::height;
 
 	using GraphAttributes::label;
 
-	using GraphAttributes::strokeType;
 	using GraphAttributes::strokeColor;
+	using GraphAttributes::strokeType;
 	using GraphAttributes::strokeWidth;
 
-	using GraphAttributes::fillPattern;
-	using GraphAttributes::fillColor;
 	using GraphAttributes::fillBgColor;
+	using GraphAttributes::fillColor;
+	using GraphAttributes::fillPattern;
 
 	/**
 	 * @name Construction and management of attributes
@@ -110,8 +108,7 @@ public:
 
 	//! Constructs cluster graph attributes for cluster graph \p cg with attributes \p initAttributes.
 	explicit ClusterGraphAttributes(const ClusterGraph& cg,
-			long initAttributes = nodeGraphics | edgeGraphics | clusterGraphics
-	);
+			long initAttributes = nodeGraphics | edgeGraphics | clusterGraphics);
 
 	virtual ~ClusterGraphAttributes() { }
 
@@ -140,7 +137,7 @@ public:
 	 * \warning All attributes that were allocated before are destroyed by this function!
 	 *  If you wish to extend the set of allocated attributes, use #addAttributes.
 	 */
-	void init(ClusterGraph &cg, long attr = 0);
+	void init(ClusterGraph& cg, long attr = 0);
 
 	//! Re-initializes the ClusterGraphAttributes while maintaining the associated CluterGraph.
 	//! @see init(const ClusterGraph&, long)
@@ -154,7 +151,6 @@ public:
 
 	//! Returns the associated cluster graph.
 	const ClusterGraph& constClusterGraph() const { return *m_pClusterGraph; }
-
 
 	/**
 	 * @}
@@ -238,7 +234,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	const StrokeType &strokeType(cluster c) const {
+	const StrokeType& strokeType(cluster c) const {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_stroke[c].m_type;
 	}
@@ -247,7 +243,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	StrokeType &strokeType(cluster c) {
+	StrokeType& strokeType(cluster c) {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_stroke[c].m_type;
 	}
@@ -256,7 +252,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	const Color &strokeColor(cluster c) const {
+	const Color& strokeColor(cluster c) const {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_stroke[c].m_color;
 	}
@@ -265,7 +261,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	Color &strokeColor(cluster c) {
+	Color& strokeColor(cluster c) {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_stroke[c].m_color;
 	}
@@ -274,7 +270,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	const float &strokeWidth(cluster c) const {
+	const float& strokeWidth(cluster c) const {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_stroke[c].m_width;
 	}
@@ -283,7 +279,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	float &strokeWidth(cluster c) {
+	float& strokeWidth(cluster c) {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_stroke[c].m_width;
 	}
@@ -292,7 +288,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	const FillPattern &fillPattern(cluster c) const {
+	const FillPattern& fillPattern(cluster c) const {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_fill[c].m_pattern;
 	}
@@ -301,7 +297,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	FillPattern &fillPattern(cluster c) {
+	FillPattern& fillPattern(cluster c) {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_fill[c].m_pattern;
 	}
@@ -310,7 +306,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	const Color &fillColor(cluster c) const {
+	const Color& fillColor(cluster c) const {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_fill[c].m_color;
 	}
@@ -319,7 +315,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	Color &fillColor(cluster c) {
+	Color& fillColor(cluster c) {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_fill[c].m_color;
 	}
@@ -328,7 +324,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	const Color &fillBgColor(cluster c) const {
+	const Color& fillBgColor(cluster c) const {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_fill[c].m_bgColor;
 	}
@@ -337,7 +333,7 @@ public:
 	/**
 	 * \pre #clusterStyle is enabled
 	 */
-	Color &fillBgColor(cluster c) {
+	Color& fillBgColor(cluster c) {
 		OGDF_ASSERT(has(clusterStyle));
 		return m_fill[c].m_bgColor;
 	}
@@ -346,7 +342,7 @@ public:
 	/**
 	 * \pre #clusterLabel is enabled
 	 */
-	const string &label(cluster c) const {
+	const string& label(cluster c) const {
 		OGDF_ASSERT(has(clusterLabel));
 		return m_label[c];
 	}
@@ -355,7 +351,7 @@ public:
 	/**
 	 * \pre #clusterLabel is enabled
 	 */
-	string &label(cluster c) {
+	string& label(cluster c) {
 		OGDF_ASSERT(has(clusterLabel));
 		return m_label[c];
 	}
@@ -364,7 +360,7 @@ public:
 	/**
 	 * \pre #clusterTemplate is enabled
 	 */
-	const string &templateCluster(cluster c) const {
+	const string& templateCluster(cluster c) const {
 		OGDF_ASSERT(has(clusterTemplate));
 		return m_clusterTemplate[c];
 	}
@@ -373,7 +369,7 @@ public:
 	/**
 	 * \pre #clusterTemplate is enabled
 	 */
-	string &templateCluster(cluster c) {
+	string& templateCluster(cluster c) {
 		OGDF_ASSERT(has(clusterTemplate));
 		return m_clusterTemplate[c];
 	}
@@ -381,12 +377,12 @@ public:
 	/**
 	 * @}
 	 * @name Layout transformations
-	 * @}
+	 * @{
 	 */
 
-	using GraphAttributes::scale;
-	using GraphAttributes::flipVertical;
 	using GraphAttributes::flipHorizontal;
+	using GraphAttributes::flipVertical;
+	using GraphAttributes::scale;
 
 	//! Scales the layout by (\p sx,\p sy).
 	/**
@@ -410,20 +406,20 @@ public:
 	* The whole layout is flipped and then moved such that the part that was in \p box before
 	* flipping is moved to this area.
 	*/
-	virtual void flipVertical(const DRect &box) override;
+	virtual void flipVertical(const DRect& box) override;
 
 	//! Flips the (whole) layout horizontally such that the part in \p box remains in this area.
 	/**
 	* The whole layout is flipped and then moved such that the part that was in \p box before
 	* flipping is moved to this area.
 	*/
-	virtual void flipHorizontal(const DRect &box) override;
+	virtual void flipHorizontal(const DRect& box) override;
 
-	//@}
+	//! @}
 	/**
 	 * @name Utility functions
 	 */
-	//@{
+	//! @{
 
 	//! Returns the bounding box of the layout.
 	virtual DRect boundingBox() const override;
@@ -434,7 +430,7 @@ public:
 	//! Returns the parent cluster of node \p v.
 	cluster clusterOf(node v) { return m_pClusterGraph->clusterOf(v); }
 
-	//@}
+	//! @}
 };
 
 }

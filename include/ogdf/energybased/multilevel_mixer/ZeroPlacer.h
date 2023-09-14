@@ -39,15 +39,13 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT ZeroPlacer : public InitialPlacer
-{
-	void placeOneNode(MultilevelGraph &MLG);
+class OGDF_EXPORT ZeroPlacer : public InitialPlacer {
+	void placeOneNode(MultilevelGraph& MLG);
 
 	double m_randomRange;
 
 public:
-
-	void placeOneLevel(MultilevelGraph &MLG) override;
+	void placeOneLevel(MultilevelGraph& MLG) override;
 	ZeroPlacer();
 	void setRandomRange(double range);
 };

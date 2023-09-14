@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/layered/LayerByLayerSweep.h>
 #include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
 
@@ -40,51 +40,43 @@ namespace ogdf {
 /**
  * @ingroup gd-layered-crossmin
  */
-class OGDF_EXPORT SiftingHeuristic : public LayerByLayerSweep
-{
+class OGDF_EXPORT SiftingHeuristic : public LayerByLayerSweep {
 public:
 	//! Creates a new instance of the sifting heuristic with default option settings.
 	SiftingHeuristic();
 
 	//! Creates a new instance of the sifting heuristic with the same option settings as \p crossMin.
-	SiftingHeuristic(const SiftingHeuristic &crossMin);
+	SiftingHeuristic(const SiftingHeuristic& crossMin);
 
 	~SiftingHeuristic();
 
 	//! Returns a new instance of the sifting heuristic with the same option settings.
-	virtual LayerByLayerSweep *clone() const override
-	{
-		return new SiftingHeuristic(*this);
-	}
+	virtual LayerByLayerSweep* clone() const override { return new SiftingHeuristic(*this); }
 
 	//! Enumerates the different sifting strategies
 	enum class Strategy { LeftToRight, DescDegree, Random };
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	virtual void init (const HierarchyLevels &levels) override;
+	virtual void init(const HierarchyLevels& levels) override;
 
 	//! Calls the sifting heuristic for level \p L.
-	virtual void call (Level &L) override;
+	virtual void call(Level& L) override;
 
 	//! Does some clean-up after calls.
-	virtual void cleanup () override;
+	virtual void cleanup() override;
 
 	//! Get for Strategy.
-	Strategy strategy() const {
-		return m_strategy;
-	}
+	Strategy strategy() const { return m_strategy; }
 
 	/**
 	 * \brief Set for Strategy.
 	 *
 	 * @param strategy is the Strategy to be set
 	 */
-	void strategy (Strategy strategy) {
-		m_strategy = strategy;
-	}
+	void strategy(Strategy strategy) { m_strategy = strategy; }
 
 private:
-	CrossingsMatrix *m_crossingMatrix;
+	CrossingsMatrix* m_crossingMatrix;
 	Strategy m_strategy;
 };
 

@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <stdexcept>
-
 #include <ogdf/basic/basic.h>
+
+#include <stdexcept>
 
 namespace ogdf {
 
@@ -46,40 +46,32 @@ namespace ogdf {
  * @tparam T The type of values to be stored.
  * @tparam C The comparator used to order the stored values.
  */
-template<
-  typename IMPL,
-  typename H,
-  typename T,
-  typename C
->
-class HeapBase
-{
-
+template<typename IMPL, typename H, typename T, typename C>
+class HeapBase {
 	C m_comp;
 
 public:
-
 	/**
 	 * The type of handle used to identify stored values.
 	 * The handle type accessible from outside of the heap will always be a pointer.
 	 */
 	using Handle = H*;
 
-	explicit HeapBase(C const &comp = C()) : m_comp(comp) {}
+	explicit HeapBase(const C& comp = C()) : m_comp(comp) { }
 
 	/**
 	 * Returns the comparator used to sort the values in the heap.
 	 *
 	 * @return The comparator for sorting the heaps values
 	 */
-	virtual const C &comparator() const { return m_comp; }
+	virtual const C& comparator() const { return m_comp; }
 
 	/**
 	 * Returns the topmost value in the heap.
 	 *
 	 * @return the topmost value
 	 */
-	virtual const T &top() const = 0;
+	virtual const T& top() const = 0;
 
 	/**
 	 * Inserts a value into the heap.
@@ -87,7 +79,7 @@ public:
 	 * @param value The value to be inserted
 	 * @return A handle to access and modify the value
 	 */
-	virtual Handle push(const T &value) = 0;
+	virtual Handle push(const T& value) = 0;
 
 	/**
 	 * Removes the topmost value from the heap.
@@ -100,7 +92,7 @@ public:
 	 * @param handle The handle of the value to be decreased
 	 * @param value The decreased value. This must be less than the former value
 	 */
-	virtual void decrease(Handle handle, const T &value) = 0;
+	virtual void decrease(Handle handle, const T& value) = 0;
 
 	/**
 	 * Returns the value of that handle.
@@ -108,7 +100,7 @@ public:
 	 * @param handle The handle
 	 * @return The value
 	 */
-	virtual const T &value(const Handle handle) const = 0;
+	virtual const T& value(const Handle handle) const = 0;
 
 	/**
 	 * Merges in values of \p other heap.
@@ -117,18 +109,11 @@ public:
 	 *
 	 * @param other A heap to be merged in.
 	 */
-	virtual void merge(IMPL &other);
-
+	virtual void merge(IMPL& other);
 };
 
-
-template<
-  typename IMPL,
-  typename H,
-  typename T,
-  typename C
->
-void HeapBase<IMPL, H, T, C>::merge(IMPL &/*other*/) {
+template<typename IMPL, typename H, typename T, typename C>
+void HeapBase<IMPL, H, T, C>::merge(IMPL& /*other*/) {
 	throw std::runtime_error("Merging two binary heaps is not supported");
 }
 

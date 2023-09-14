@@ -31,14 +31,15 @@
 
 #pragma once
 
-#include <ogdf/uml/UMLLayoutModule.h>
-#include <ogdf/uml/UMLCrossingMinimizationModule.h>
-#include <ogdf/uml/LayoutPlanRepUMLModule.h>
-#include <ogdf/packing/CCLayoutPackModule.h>
-#include <memory>
-#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/uml/LayoutPlanRepUMLModule.h>
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>
+#include <ogdf/uml/UMLLayoutModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -111,8 +112,7 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT PlanarizationLayoutUML : public UMLLayoutModule
-{
+class OGDF_EXPORT PlanarizationLayoutUML : public UMLLayoutModule {
 public:
 	//! Creates an instance of planarization layout and sets options to default values.
 	PlanarizationLayoutUML();
@@ -130,19 +130,17 @@ public:
 	 * \pre The graph has no self-loops.
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	void call(GraphAttributes &GA) {
-		doSimpleCall(GA);
-	}
+	void call(GraphAttributes& GA) { doSimpleCall(GA); }
 
 	/**
 	 * \brief Calls planarization layout for UML-graph \p umlGraph and computes a mixed-upward layout.
 	 * \pre The graph has no self-loops.
 	 * @param umlGraph is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(UMLGraph &umlGraph) override;
+	virtual void call(UMLGraph& umlGraph) override;
 
 	//! Simple call function that does not care about cliques etc.
-	void simpleCall(UMLGraph &umlGraph) {
+	void simpleCall(UMLGraph& umlGraph) {
 		//this simple call method does not care about any special treatments
 		//of subgraphs, layout informations etc., therefore we save the
 		//option status and set them back later on
@@ -172,8 +170,7 @@ public:
 	}
 
 	//! Simple call function.
-	void simpleCall(GraphAttributes &GA)
-	{
+	void simpleCall(GraphAttributes& GA) {
 		doSimpleCall(GA);
 		GA.removeUnnecessaryBendsHV();
 	}
@@ -199,9 +196,8 @@ public:
 	 * graph (indicated by fixedNodes(Edges)==true), embeds it using the input layout,
 	 * then inserts the remaining part into this embedding.
 	 */
-	virtual void callIncremental(UMLGraph &umlgraph,
-		NodeArray<bool> &fixedNodes, const EdgeArray<bool> &fixedEdges);
-
+	virtual void callIncremental(UMLGraph& umlgraph, NodeArray<bool>& fixedNodes,
+			const EdgeArray<bool>& fixedEdges);
 
 	/** @}
 	 *  @name Optional parameters
@@ -214,28 +210,24 @@ public:
 	 * This option specifies the desired ration width / height of the computed
 	 * layout. It is currently only used for packing connected components.
 	 */
-	double pageRatio() const {
-		return m_pageRatio;
-	}
+	double pageRatio() const { return m_pageRatio; }
 
 	//! Sets the option pageRatio to \p ratio.
-	void pageRatio(double ratio) {
-		m_pageRatio = ratio;
-	}
-
+	void pageRatio(double ratio) { m_pageRatio = ratio; }
 
 	//set the option field for the planar layouter
 	void setLayouterOptions(int ops) { m_planarLayouter->setOptions(ops); }
 
 	//draw hierarchy nodes corresponding to their level
-	void alignSons(bool b)
-	{
+	void alignSons(bool b) {
 		int opts = m_planarLayouter->getOptions();
 
-		if (b) m_planarLayouter->setOptions(opts | UMLOpt::OpAlign);
-		else  m_planarLayouter->setOptions(opts & ~UMLOpt::OpAlign);
+		if (b) {
+			m_planarLayouter->setOptions(opts | UMLOpt::OpAlign);
+		} else {
+			m_planarLayouter->setOptions(opts & ~UMLOpt::OpAlign);
+		}
 	}
-
 
 	/** @}
 	 *  @name Module options
@@ -243,9 +235,7 @@ public:
 	 */
 
 	//! Sets the module option for UML crossing minimization.
-	void setCrossMin(UMLCrossingMinimizationModule *pCrossMin) {
-		m_crossMin.reset(pCrossMin);
-	}
+	void setCrossMin(UMLCrossingMinimizationModule* pCrossMin) { m_crossMin.reset(pCrossMin); }
 
 	/**
 	 * \brief Sets the module option for the graph embedding algorithm.
@@ -254,9 +244,7 @@ public:
 	 * in which crossings are replaced by dummy nodes. The embedding
 	 * module then computes a planar embedding of this planar graph.
 	 */
-	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.reset(pEmbedder);
-	}
+	void setEmbedder(EmbedderModule* pEmbedder) { m_embedder.reset(pEmbedder); }
 
 	/**
 	 * \brief Sets the module option for the planar layout algorithm.
@@ -268,7 +256,7 @@ public:
 	 * algorithm obtains a planar graph as input. By default, the planar
 	 * layout algorithm produces an orthogonal drawing.
 	 */
-	void setPlanarLayouter(LayoutPlanRepUMLModule *pPlanarLayouter) {
+	void setPlanarLayouter(LayoutPlanRepUMLModule* pPlanarLayouter) {
 		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
@@ -279,9 +267,7 @@ public:
 	 * the input graph seperately, and then arranges the resulting drawings
 	 * using a packing algorithm.
 	 */
-	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.reset(pPacker);
-	}
+	void setPacker(CCLayoutPackModule* pPacker) { m_packer.reset(pPacker); }
 
 	/** @}
 	 *  @name Further information
@@ -289,9 +275,7 @@ public:
 	 */
 
 	//! Returns the number of crossings in computed layout.
-	int numberOfCrossings() const {
-		return m_nCrossings;
-	}
+	int numberOfCrossings() const { return m_nCrossings; }
 
 	//! \pre \p umlGraph may not violate a precondition of planarization layout.
 	void assureDrawability(UMLGraph& umlGraph);
@@ -299,41 +283,38 @@ public:
 	//! @}
 
 protected:
-	void doSimpleCall(GraphAttributes &GA);
+	void doSimpleCall(GraphAttributes& GA);
 
 	//sorts the additional nodes for piecewise insertion
-	void sortIncrementalNodes(List<node> &addNodes, const NodeArray<bool> &fixedNodes);
-	void getFixationDistance(node startNode, HashArray<int, int> &distance,
-		const NodeArray<bool> &fixedNodes);
+	void sortIncrementalNodes(List<node>& addNodes, const NodeArray<bool>& fixedNodes);
+	void getFixationDistance(node startNode, HashArray<int, int>& distance,
+			const NodeArray<bool>& fixedNodes);
 	//reembeds already planarized PG in case of errors
-	void reembed(PlanRepUML &PG, int ccNumber, bool l_align = false,
-		bool l_gensExist = false);
+	void reembed(PlanRepUML& PG, int ccNumber, bool l_align = false, bool l_gensExist = false);
 
-	virtual void preProcess(UMLGraph &UG);
+	virtual void preProcess(UMLGraph& UG);
 	virtual void postProcess(UMLGraph& UG); //redo changes at original
 
-	void arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<DPoint> &boundingBox);
+	void arrangeCCs(PlanRep& PG, GraphAttributes& GA, Array<DPoint>& boundingBox);
 
 private:
-	face findBestExternalFace(
-		const PlanRep &PG,
-		const CombinatorialEmbedding &E);
+	face findBestExternalFace(const PlanRep& PG, const CombinatorialEmbedding& E);
 
 	//! The moule for UML crossing minimization
 	std::unique_ptr<UMLCrossingMinimizationModule> m_crossMin;
 
 	//! The module for planar embedding.
-	std::unique_ptr<EmbedderModule>       m_embedder;
+	std::unique_ptr<EmbedderModule> m_embedder;
 
 	//! The module for computing a planar layout.
-	std::unique_ptr<LayoutPlanRepUMLModule>  m_planarLayouter;
+	std::unique_ptr<LayoutPlanRepUMLModule> m_planarLayouter;
 
 	//! The module for arranging connected components.
-	std::unique_ptr<CCLayoutPackModule>   m_packer;
+	std::unique_ptr<CCLayoutPackModule> m_packer;
 
-	double m_pageRatio;    //!< The desired page ratio.
-	int m_nCrossings;      //!< The number of crossings in the computed layout.
-	bool m_arrangeLabels;  //!< Option for re-arranging labels.
+	double m_pageRatio; //!< The desired page ratio.
+	int m_nCrossings; //!< The number of crossings in the computed layout.
+	bool m_arrangeLabels; //!< Option for re-arranging labels.
 
 	// temporary changes to avoid errors
 	List<edge> m_fakedGens; // made to associations

@@ -47,24 +47,21 @@ namespace ogdf {
  * @tparam CF The type of the clique finder to use on R-nodes.
  */
 class OGDF_EXPORT CliqueFinderSPQR : public CliqueFinderModule {
-
 public:
 	/**
 	 * Creates a new CliqueFinderSPQR.
 	 * @param cliqueFinder The clique finder to use on R-nodes.
 	 * During doCall(), its min size parameter is set to the min size of this.
 	 */
-	explicit CliqueFinderSPQR(CliqueFinderModule &cliqueFinder)
-		: CliqueFinderModule()
-		, m_cliqueFinder(cliqueFinder)
-	{ }
+	explicit CliqueFinderSPQR(CliqueFinderModule& cliqueFinder)
+		: CliqueFinderModule(), m_cliqueFinder(cliqueFinder) { }
 
 protected:
 	//! @copydoc CliqueFinderModule::doCall
 	void doCall() override;
 
 private:
-	CliqueFinderModule &m_cliqueFinder; //!< The clique finder to use on R-nodes.
+	CliqueFinderModule& m_cliqueFinder; //!< The clique finder to use on R-nodes.
 };
 
 }

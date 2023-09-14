@@ -33,26 +33,25 @@
 
 namespace ogdf {
 
-void MedianHeuristic::call(Level &L)
-{
-	const HierarchyLevels &levels = L.levels();
+void MedianHeuristic::call(Level& L) {
+	const HierarchyLevels& levels = L.levels();
 
 	for (int i = 0; i <= L.high(); ++i) {
 		node v = L[i];
 
-		const Array<node> &adjNodes = L.adjNodes(v);
+		const Array<node>& adjNodes = L.adjNodes(v);
 		const int high = adjNodes.high();
 
 		if (high < 0) {
 			m_weight[v] = 0;
 		} else if (high & 1) {
-			m_weight[v] = levels.pos(adjNodes[high/2]) + levels.pos(adjNodes[1+high/2]);
+			m_weight[v] = levels.pos(adjNodes[high / 2]) + levels.pos(adjNodes[1 + high / 2]);
 		} else {
-			m_weight[v] = 2*levels.pos(adjNodes[high/2]);
+			m_weight[v] = 2 * levels.pos(adjNodes[high / 2]);
 		}
 	}
 
-	L.sort(m_weight, 0, 2*levels.adjLevel(L.index()).high());
+	L.sort(m_weight, 0, 2 * levels.adjLevel(L.index()).high());
 }
 
 }

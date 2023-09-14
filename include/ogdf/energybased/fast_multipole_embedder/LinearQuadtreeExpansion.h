@@ -36,8 +36,7 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-class LinearQuadtreeExpansion
-{
+class LinearQuadtreeExpansion {
 public:
 	//! constructor
 	LinearQuadtreeExpansion(uint32_t precision, const LinearQuadtree& tree);
@@ -61,7 +60,7 @@ public:
 	void L2P(uint32_t source, uint32_t point, float& fx, float& fy);
 
 	//! returns the size in bytes
-	uint32_t sizeInBytes() const { return m_numExp*m_numCoeff*(uint32_t)sizeof(double)*4; }
+	uint32_t sizeInBytes() const { return m_numExp * m_numCoeff * (uint32_t)sizeof(double) * 4; }
 
 	//! returns the array with multipole coefficients
 	inline double* multiExp() const { return m_multiExp; }
@@ -74,8 +73,8 @@ public:
 
 	//! the quadtree
 	const LinearQuadtree& tree() { return m_tree; }
-private:
 
+private:
 	//! allocates the space for the coeffs
 	void allocate();
 
@@ -84,6 +83,7 @@ private:
 
 	//! the Quadtree reference
 	const LinearQuadtree& m_tree;
+
 public:
 	//! the big multipole expansione coeff array
 	double* m_multiExp;

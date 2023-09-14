@@ -30,52 +30,38 @@
  */
 
 #include <ogdf/basic/Math.h>
-#include <ogdf/energybased/multilevel_mixer/CirclePlacer.h>
 #include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/CirclePlacer.h>
 
 namespace ogdf {
 
 CirclePlacer::CirclePlacer()
-:m_circleSize(0.0f), m_fixedRadius(false), m_nodeSelection(NodeSelection::New)
-{
-}
+	: m_circleSize(0.0f), m_fixedRadius(false), m_nodeSelection(NodeSelection::New) { }
 
+void CirclePlacer::setRadiusFixed(bool fixed) { m_fixedRadius = fixed; }
 
-void CirclePlacer::setRadiusFixed(bool fixed)
-{
-	m_fixedRadius = fixed;
-}
+void CirclePlacer::setCircleSize(float sizeIncrease) { m_circleSize = sizeIncrease; }
 
+void CirclePlacer::setNodeSelection(NodeSelection nodeSel) { m_nodeSelection = nodeSel; }
 
-void CirclePlacer::setCircleSize(float sizeIncrease)
-{
-	m_circleSize = sizeIncrease;
-}
-
-
-void CirclePlacer::setNodeSelection(NodeSelection nodeSel)
-{
-	m_nodeSelection = nodeSel;
-}
-
-
-void CirclePlacer::placeOneLevel(MultilevelGraph &MLG)
-{
+void CirclePlacer::placeOneLevel(MultilevelGraph& MLG) {
 	DPoint center(0.0, 0.0);
 	double radius = 0.0;
 
 	std::map<node, bool> oldNodes;
-	Graph &G = MLG.getGraph();
+	Graph& G = MLG.getGraph();
 	double n = G.numberOfNodes();
 	if (n > 0) {
-		for(node v : G.nodes) {
+		for (node v : G.nodes) {
 			oldNodes[v] = true;
-			center = center + DPoint( MLG.x(v), MLG.y(v) );
+			center = center + DPoint(MLG.x(v), MLG.y(v));
 		}
 		center = DPoint(center.m_x / n, center.m_y / n);
-		for(node v : G.nodes) {
-			double r = sqrt( MLG.x(v) * MLG.x(v) + MLG.y(v) * MLG.y(v) );
-			if (r > radius) radius = r;
+		for (node v : G.nodes) {
+			double r = sqrt(MLG.x(v) * MLG.x(v) + MLG.y(v) * MLG.y(v));
+			if (r > radius) {
+				radius = r;
+			}
 		}
 		radius += m_circleSize;
 	} else {
@@ -85,17 +71,17 @@ void CirclePlacer::placeOneLevel(MultilevelGraph &MLG)
 	BarycenterPlacer BP;
 	BP.placeOneLevel(MLG);
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		if (!m_fixedRadius) {
 			radius = (float)center.distance(DPoint(MLG.x(v), MLG.y(v))) + m_circleSize;
 		}
 		if (m_nodeSelection == NodeSelection::All
-			|| (m_nodeSelection == NodeSelection::New && oldNodes[v])
-			|| (m_nodeSelection == NodeSelection::Old && !oldNodes[v]))
-		{
-			float angle = (float)(atan2( MLG.x(v) - center.m_x, -MLG.y(v) + center.m_y) - 0.5 * Math::pi);
-			MLG.x(v, cos(angle) * radius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
-			MLG.y(v, sin(angle) * radius + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
+				|| (m_nodeSelection == NodeSelection::New && oldNodes[v])
+				|| (m_nodeSelection == NodeSelection::Old && !oldNodes[v])) {
+			float angle =
+					(float)(atan2(MLG.x(v) - center.m_x, -MLG.y(v) + center.m_y) - 0.5 * Math::pi);
+			MLG.x(v, cos(angle) * radius + ((m_randomOffset) ? (float)randomDouble(-1.0, 1.0) : 0.f));
+			MLG.y(v, sin(angle) * radius + ((m_randomOffset) ? (float)randomDouble(-1.0, 1.0) : 0.f));
 		}
 	}
 }

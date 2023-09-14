@@ -5,7 +5,7 @@
  * Based on chapter 3.1.1 Radial Drawings of Graph Drawing by
  * Di Battista, Eades, Tamassia, Tollis.
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Mirko H. Wagner
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -49,105 +49,62 @@ namespace ogdf {
  *   <tr>
  *     <th><i>Option</i><th><i>Type</i><th><i>Default</i><th><i>Description</i>
  *   </tr><tr>
- *     <td><i>levelDistance</i><td>double<td>50.0
+ *     <td><i>levelDistance</i><td>double<td>30.0
  *     <td>The minimal vertical distance required between levels.
- *   </tr><tr>
- *     <td><i>connectedComponentDistance</i><td>double<td>50.0
- *     <td>The minimal horizontal distance required between trees in the forest.
  *   </tr><tr>
  *     <td><i>rootSelection</i><td> #RootSelectionType <td> RootSelectionType::Center
  *     <td>Specifies how to select the root of the tree.
  *   </tr>
  * </table>
 */
-class OGDF_EXPORT RadialTreeLayout : public LayoutModule
-{
+class OGDF_EXPORT RadialTreeLayout : public LayoutModule {
 public:
 	//! Selection strategies for root of the tree.
 	enum class RootSelectionType {
 		Source, //!< Select a source in the graph.
-		Sink,   //!< Select a sink in the graph.
-		Center  //!< Select the center of the tree.
+		Sink, //!< Select a sink in the graph.
+		Center //!< Select the center of the tree.
 	};
 
 private:
-	double m_levelDistance;          //!< The minimal distance between levels.
-	double m_connectedComponentDistance; //!< The minimal distance between trees.
+	double m_levelDistance; //!< The minimal distance between levels.
 
-	RootSelectionType m_selectRoot;  //!< Specifies how to determine the root.
+	RootSelectionType m_selectRoot; //!< Specifies how to determine the root.
 
-	node            m_root;          //!< The root of the tree.
+	node m_root; //!< The root of the tree.
 
-	int             m_numLevels;     //!< The number of levels (root is on level 0).
-	NodeArray<int>  m_level;         //!< The level of a node.
-	NodeArray<node> m_parent;        //!< The parent of a node (0 if root).
-	NodeArray<double> m_leaves;      //!< The weighted number of leaves in subtree.
-	Array<SListPure<node> > m_nodes; //!< The nodes at a level.
+	int m_numLevels; //!< The number of levels (root is on level 0).
+	NodeArray<int> m_level; //!< The level of a node.
+	NodeArray<node> m_parent; //!< The parent of a node (nullptr if root).
+	Array<SListPure<node>> m_nodes; //!< The nodes at a level.
+	NodeArray<SListPure<node>> m_children; //!< The children of a node.
 
-	NodeArray<double> m_angle;       //!< The angle of node center (for placement).
-	NodeArray<double> m_wedge;       //!< The wedge reserved for subtree.
+	NodeArray<double> m_relWidth; //!< The relative width of the subtree.
+	//!< A nodes relative width is the greater of the sum of its childrens widths
+	//!< and its diameter divided by its childrens level.
 
-	NodeArray<double> m_diameter;    //!< The diameter of a circle bounding a node.
-	Array<double>     m_width;       //!< The width of a circle.
+	NodeArray<double> m_absWidth; //!< the absolute width of the subtree.
 
-	Array<double>   m_radius;        //!< The width of a level.
-	double          m_outerRadius;   //!< The radius of circle bounding the drawing.
+	NodeArray<double> m_angle; //!< The angle of node center (for placement).
+	NodeArray<double> m_wedge; //!< The wedge reserved for subtree.
 
-	struct Group
-	{
-		RadialTreeLayout *m_data;
+	NodeArray<double> m_diameter; //!< The diameter of a circle bounding a node.
+	Array<double> m_maxDiameter; //!< The maximal diameter on a level.
 
-		bool            m_leafGroup;
-		SListPure<node> m_nodes;
-		double          m_sumD;
-		double          m_sumW;
-		double          m_leftAdd;
-		double          m_rightAdd;
-
-		Group(RadialTreeLayout *data, node v) {
-			m_data = data;
-			m_leafGroup = (v->degree() == 1);
-			m_nodes.pushBack(v);
-			m_sumD = m_data->diameter()[v] + m_data->levelDistance();
-			m_sumW = m_data->leaves()[v];
-			m_leftAdd = m_rightAdd = 0.0;
-		}
-
-		bool isSameType(node v) const {
-			return m_leafGroup == (v->degree() == 1);
-		}
-
-		void append(node v) {
-			m_nodes.pushBack(v);
-			m_sumD += m_data->diameter()[v] + m_data->levelDistance();
-			m_sumW += m_data->leaves()[v];
-		}
-
-		double add() const { return m_leftAdd + m_rightAdd; }
-		node leftVertex () const { return m_nodes.front(); }
-		node rightVertex() const { return m_nodes.back (); }
-	};
-
-	class Grouping : public List<Group>
-	{
-	public:
-		void computeAdd(double &D, double &W);
-	};
-
-	NodeArray<Grouping> m_grouping;
+	Array<double> m_radius; //!< The width of a level.
 
 public:
 	//! Creates an instance of radial tree layout and sets options to default values.
 	RadialTreeLayout();
 
 	//! Copy constructor.
-	RadialTreeLayout(const RadialTreeLayout &tl);
+	RadialTreeLayout(const RadialTreeLayout& tl);
 
 	//! Destructor.
 	~RadialTreeLayout() = default;
 
 	//! Assignment operator.
-	RadialTreeLayout &operator=(const RadialTreeLayout &tl);
+	RadialTreeLayout& operator=(const RadialTreeLayout& tl);
 
 	//! Calls the algorithm for graph attributes \p GA.
 	/**
@@ -157,8 +114,7 @@ public:
 	 * \pre The graph is a tree.
 	 * @param GA represents the input graph and is assigned the computed layout.
 	 */
-	virtual void call(GraphAttributes &GA) override;
-
+	virtual void call(GraphAttributes& GA) override;
 
 	// option that determines the minimal vertical distance
 	// required between levels
@@ -169,15 +125,6 @@ public:
 	//! Sets the option <i>levelDistance</i> to \p x.
 	void levelDistance(double x) { m_levelDistance = x; }
 
-	// option that determines the minimal horizontal distance
-	// required between trees in the forest
-
-	//! Returns the option <i>connectedComponentDistance</i>.
-	double connectedComponentDistance() const { return m_connectedComponentDistance; }
-
-	//! Sets the option <i>connectedComponentDistance</i> to \p x.
-	void connectedComponentDistance(double x) { m_connectedComponentDistance = x; }
-
 	// option that determines if the root is on the top or on the bottom
 
 	//! Returns the option <i>rootSelection</i>.
@@ -186,16 +133,15 @@ public:
 	//! Sets the option <i>rootSelection</i> to \p sel.
 	void rootSelection(RootSelectionType sel) { m_selectRoot = sel; }
 
-	const NodeArray<double> &diameter() const { return m_diameter; }
-	const NodeArray<double> &leaves()   const { return m_leaves;   }
+	const NodeArray<double>& diameter() const { return m_diameter; }
 
 private:
-	void FindRoot(const Graph &G);
-	void ComputeLevels(const Graph &G);
-	void ComputeDiameters(GraphAttributes &AG);
-	void ComputeAngles(const Graph &G);
-	void ComputeCoordinates(GraphAttributes &AG);
-	void ComputeGrouping(int i);
+	void FindRoot(const Graph& G);
+	void ComputeLevels(const Graph& G);
+	void ComputeDiameters(GraphAttributes& AG);
+	void ComputeAngles(const Graph& G);
+	void ComputeCoordinates(GraphAttributes& AG);
+	void ComputeGroupings(const Graph& G);
 
 	OGDF_NEW_DELETE
 };

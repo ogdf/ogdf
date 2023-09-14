@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/layered/SugiyamaLayout.h>
 #include <ogdf/layered/BlockOrder.h>
 #include <ogdf/layered/LayeredCrossMinModule.h>
+#include <ogdf/layered/SugiyamaLayout.h>
 
 namespace ogdf {
 
@@ -61,12 +61,13 @@ public:
 	int nRepeats() { return m_nRepeats; }
 
 	//! Sets the option nRepeats to \p num.
-	void nRepeats( int num ) { m_nRepeats = num; }
+	void nRepeats(int num) { m_nRepeats = num; }
 
 	//! Implementation of interface LateredCrossMinModule.
-	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) {
-		BlockOrder *pBlockOrder = new BlockOrder(H,true);
-		pBlockOrder -> globalSifting( sugi.runs(), m_nRepeats, &nCrossings );
+	const HierarchyLevelsBase* reduceCrossings(const SugiyamaLayout& sugi, Hierarchy& H,
+			int& nCrossings) {
+		BlockOrder* pBlockOrder = new BlockOrder(H, true);
+		pBlockOrder->globalSifting(sugi.runs(), m_nRepeats, &nCrossings);
 
 		return pBlockOrder;
 	}
@@ -98,10 +99,11 @@ public:
 	 *
 	 * \warning \p nCrossings is not set by this implementation!
 	 */
-	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) override {
-		BlockOrder *pBlockOrder = new BlockOrder(H,false);
-		pBlockOrder -> m_verticalStepsBound = m_verticalStepsBound;
-		pBlockOrder -> gridSifting( sugi.runs() );
+	const HierarchyLevelsBase* reduceCrossings(const SugiyamaLayout& sugi, Hierarchy& H,
+			int& nCrossings) override {
+		BlockOrder* pBlockOrder = new BlockOrder(H, false);
+		pBlockOrder->m_verticalStepsBound = m_verticalStepsBound;
+		pBlockOrder->gridSifting(sugi.runs());
 
 		return pBlockOrder;
 	}
@@ -115,7 +117,7 @@ public:
 	int verticalStepsBound() { return m_verticalStepsBound; }
 
 	//! Sets the option verticalStepsBound to \p b.
-	void verticalStepsBound( int b ) { m_verticalStepsBound = b; }
+	void verticalStepsBound(int b) { m_verticalStepsBound = b; }
 
 private:
 	int m_verticalStepsBound = 10;

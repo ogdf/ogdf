@@ -29,22 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/FPPLayout.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarlayout/FPPLayout.h>
 
 namespace ogdf {
 
-FPPLayout::FPPLayout() : PlanarGridLayoutModule() {
-}
+FPPLayout::FPPLayout() : PlanarGridLayoutModule() { }
 
-void FPPLayout::doCall(
-	const Graph &G,
-	adjEntry adjExternal,
-	GridLayout &gridLayout,
-	IPoint &boundingBox,
-	bool fixEmbedding)
-{
+void FPPLayout::doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+		IPoint& boundingBox, bool fixEmbedding) {
 	if (G.numberOfNodes() < 2) {
 		return;
 	} else if (G.numberOfNodes() == 2) {
@@ -79,37 +73,28 @@ void FPPLayout::doCall(
 	// get edges for outer face (triangle)
 	adjEntry e_12;
 	if (adjExternal != nullptr) {
-		edge eG  = adjExternal->theEdge();
+		edge eG = adjExternal->theEdge();
 		edge eGC = GC.copy(eG);
 		e_12 = (adjExternal == eG->adjSource()) ? eGC->adjSource() : eGC->adjTarget();
-	}
-	else {
+	} else {
 		e_12 = GC.firstEdge()->adjSource();
 	}
 	adjEntry e_2n = e_12->faceCycleSucc();
 
-	NodeArray<int>  num(GC);
+	NodeArray<int> num(GC);
 
 	NodeArray<adjEntry> e_wp(GC); // List of predecessors on circle C_k
 	NodeArray<adjEntry> e_wq(GC); // List of successors on circle  C_k
 
-	computeOrder(GC, num , e_wp, e_wq, e_12, e_2n, e_2n->faceCycleSucc());
+	computeOrder(GC, num, e_wp, e_wq, e_12, e_2n, e_2n->faceCycleSucc());
 	computeCoordinates(GC, boundingBox, gridLayout, num, e_wp, e_wq);
 }
 
-
-void FPPLayout::computeOrder(
-	const GraphCopy &G,
-	NodeArray<int> &num,
-	NodeArray<adjEntry> &e_wp,
-	NodeArray<adjEntry> &e_wq,
-	adjEntry e_12,
-	adjEntry e_2n,
-	adjEntry e_n1)
-{
+void FPPLayout::computeOrder(const GraphCopy& G, NodeArray<int>& num, NodeArray<adjEntry>& e_wp,
+		NodeArray<adjEntry>& e_wq, adjEntry e_12, adjEntry e_2n, adjEntry e_n1) {
 	NodeArray<int> num_diag(G, 0); // number of chords
 	// link[v] = Iterator in possible, that points to v (if diag[v] = 0 and outer[v] = TRUE)
-	NodeArray<ListIterator<node> > link(G, nullptr);
+	NodeArray<ListIterator<node>> link(G, nullptr);
 	// outer[v] = TRUE <=> v is a node of the actual outer face
 	NodeArray<bool> outer(G, false);
 	// List of all nodes v with outer[v] = TRUE and diag[v] = 0
@@ -147,14 +132,14 @@ void FPPLayout::computeOrder(
 		num[v_k] = k;
 
 		// predecessor wp and successor wq from vk in C_k (actual outer face)
-		node wq = (e_wq [v_k])->twinNode();
-		node wp = (e_wp [v_k])->twinNode();
+		node wq = (e_wq[v_k])->twinNode();
+		node wp = (e_wp[v_k])->twinNode();
 
 		// v_k not in C_k-1 anymore
 		outer[v_k] = false;
 
 		// shortfall of a chord?
-		if (e_wq[wp]->cyclicSucc()->twinNode() == wq) {   // wp, wq is the only successor of vk in G_k
+		if (e_wq[wp]->cyclicSucc()->twinNode() == wq) { // wp, wq is the only successor of vk in G_k
 			// wp, wq loose a chord
 			if (--num_diag[wp] == 0) {
 				link[wp] = possible.pushBack(wp);
@@ -179,9 +164,7 @@ void FPPLayout::computeOrder(
 				node w = e2->twinNode();
 				if (outer[w]) {
 					++num_diag[u];
-					if (w != v_1
-					 && w != v_2
-					 && ++num_diag[w] == 1) {
+					if (w != v_1 && w != v_2 && ++num_diag[w] == 1) {
 						possible.del(link[w]);
 					}
 				}
@@ -194,21 +177,20 @@ void FPPLayout::computeOrder(
 	}
 }
 
-
-void FPPLayout::computeCoordinates(const GraphCopy &G, IPoint &boundingBox, GridLayout &gridLayout, NodeArray<int> &num,
-									NodeArray<adjEntry> &e_wp, NodeArray<adjEntry> &e_wq) {
-	NodeArray<int> &x = gridLayout.x();
-	NodeArray<int> &y = gridLayout.y();
+void FPPLayout::computeCoordinates(const GraphCopy& G, IPoint& boundingBox, GridLayout& gridLayout,
+		NodeArray<int>& num, NodeArray<adjEntry>& e_wp, NodeArray<adjEntry>& e_wq) {
+	NodeArray<int>& x = gridLayout.x();
+	NodeArray<int>& y = gridLayout.y();
 
 	const int n = G.numberOfNodes();
-	NodeArray<int>  x_rel(G);
+	NodeArray<int> x_rel(G);
 	NodeArray<node> upper(G);
 	NodeArray<node> next(G);
 	Array<node, int> v(1, n);
 	node vk, wp, wq;
 	int k;
 
-	for(node w : G.nodes) {
+	for (node w : G.nodes) {
 		v[num[w]] = w;
 	}
 
@@ -222,16 +204,15 @@ void FPPLayout::computeCoordinates(const GraphCopy &G, IPoint &boundingBox, Grid
 
 	for (k = 3; k <= n; k++) {
 		vk = v[k];
-		wp = e_wp [vk]->twinNode();
-		wq = e_wq [vk]->twinNode();
+		wp = e_wp[vk]->twinNode();
+		wq = e_wq[vk]->twinNode();
 
 		int xq = 2;
 		node w = wp;
 		do {
-			w = next [w];
+			w = next[w];
 			xq += x_rel[w];
-		}
-		while (w != wq);
+		} while (w != wq);
 
 		x_rel[vk] = (xq + y[G.original(wq)] - y[G.original(wp)]) / 2;
 		y[G.original(vk)] = (xq + y[G.original(wq)] + y[G.original(wp)]) / 2;

@@ -34,29 +34,26 @@
 
 namespace ogdf {
 
-Module::ReturnType PlanarSubgraphBoyerMyrvold::doCall(
-	const Graph &graph,
-	const List<edge> &preferedEdges,
-	List<edge> &delEdges,
-	const EdgeArray<int>  *pCosts,
-	bool /* unused parameter */)
-{
+Module::ReturnType PlanarSubgraphBoyerMyrvold::doCall(const Graph& graph,
+		const List<edge>& preferedEdges, List<edge>& delEdges, const EdgeArray<int>* pCosts,
+		bool /* unused parameter */) {
 	int bestCost = -1;
 
-	for(int i = 0; i < m_runs; i++) {
+	for (int i = 0; i < m_runs; i++) {
 		SListPure<KuratowskiStructure> tmp;
 		GraphCopy copy(graph);
-		EdgeArray<int> *costs = nullptr;
+		EdgeArray<int>* costs = nullptr;
 
-		if(pCosts != nullptr) {
+		if (pCosts != nullptr) {
 			costs = new EdgeArray<int>(copy);
 
-			for(edge e : copy.edges) {
+			for (edge e : copy.edges) {
 				(*costs)[e] = (*pCosts)[copy.original(e)];
 			}
 		}
 
-		BoyerMyrvoldPlanar bmp(copy, false, BoyerMyrvoldPlanar::EmbeddingGrade::doFindUnlimited, false, tmp, m_randomness, true, true, costs);
+		BoyerMyrvoldPlanar bmp(copy, false, BoyerMyrvoldPlanar::EmbeddingGrade::doFindUnlimited,
+				false, tmp, m_randomness, true, true, costs);
 		std::minstd_rand rand(m_rand());
 		bmp.seed(rand);
 		bmp.start();
@@ -65,19 +62,19 @@ Module::ReturnType PlanarSubgraphBoyerMyrvold::doCall(
 		OGDF_ASSERT(copy.numberOfEdges() == graph.numberOfEdges());
 
 		int totalCost = 0;
-		if(i != 0) {
-			for(edge e : graph.edges) {
-				if(isRemoved(copy, e)) {
+		if (i != 0) {
+			for (edge e : graph.edges) {
+				if (isRemoved(copy, e)) {
 					totalCost += costs == nullptr ? 1 : (*pCosts)[e];
 				}
 			}
 		}
 
-		if(i == 0 || totalCost < bestCost) {
+		if (i == 0 || totalCost < bestCost) {
 			bestCost = totalCost;
 			delEdges.clear();
-			for(edge e : graph.edges) {
-				if(isRemoved(copy, e)) {
+			for (edge e : graph.edges) {
+				if (isRemoved(copy, e)) {
 					delEdges.pushBack(e);
 				}
 			}

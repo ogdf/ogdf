@@ -31,10 +31,11 @@
 
 #pragma once
 
-#include <ogdf/planarity/EmbedderModule.h>
-#include <memory>
-#include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+#include <ogdf/graphalg/MinCostFlowModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -45,55 +46,34 @@ namespace ogdf {
  * See paper "Optimal Orthogonal Graph Drawing with Convex Bend Costs"
  * by Thomas Blasius, Ignaz Rutter, Dorothea Wagner (2012) for details.
  */
-class OGDF_EXPORT EmbedderOptimalFlexDraw : public EmbedderModule
-{
+class OGDF_EXPORT EmbedderOptimalFlexDraw : public EmbedderModule {
 public:
 	EmbedderOptimalFlexDraw();
 
-	virtual void doCall(Graph &G, adjEntry &adjExternal) override;
+	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
 	/// Sets the module option to compute min-cost flow.
-	void setMinCostFlowComputer(MinCostFlowModule<int> *pMinCostFlowComputer) {
+	void setMinCostFlowComputer(MinCostFlowModule<int>* pMinCostFlowComputer) {
 		m_minCostFlowComputer.reset(pMinCostFlowComputer);
 	}
 
 	/// Sets bend costs for each edge.
-	void cost(EdgeArray<int> *cost) {
-		m_cost = cost;
-	}
+	void cost(EdgeArray<int>* cost) { m_cost = cost; }
 
 private:
-
 	std::unique_ptr<MinCostFlowModule<int>> m_minCostFlowComputer;
 
-	EdgeArray<int> *m_cost;
+	EdgeArray<int>* m_cost;
 
-	void createNetwork(
-			node parent,
-		node mu,
-		int bends,
-		NodeArray<int> cost[],
-		Skeleton &skeleton,
-		EdgeArray<node> &edgeNode,
-		Graph &N,
-		EdgeArray<int> &upper,
-		EdgeArray<int> &perUnitCost,
-		NodeArray<int> &supply);
+	void createNetwork(node parent, node mu, int bends, NodeArray<int> cost[], Skeleton& skeleton,
+			EdgeArray<node>& edgeNode, Graph& N, EdgeArray<int>& upper, EdgeArray<int>& perUnitCost,
+			NodeArray<int>& supply);
 
-	void optimizeOverEmbeddings(
-		StaticPlanarSPQRTree &T,
-		node parent,
-		node mu,
-		int bends,
-		NodeArray<int> cost[],
-		NodeArray<long long> embedding[]);
+	void optimizeOverEmbeddings(StaticPlanarSPQRTree& T, node parent, node mu, int bends,
+			NodeArray<int> cost[], NodeArray<long long> embedding[]);
 
-	void computePrincipalSplitComponentCost(
-		StaticPlanarSPQRTree &T,
-		NodeArray<int> cost[],
-		NodeArray<long long> embedding[],
-		node parent,
-		node mu);
+	void computePrincipalSplitComponentCost(StaticPlanarSPQRTree& T, NodeArray<int> cost[],
+			NodeArray<long long> embedding[], node parent, node mu);
 };
 
 }

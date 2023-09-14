@@ -39,12 +39,11 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT RandomMerger : public MultilevelBuilder
-{
+class OGDF_EXPORT RandomMerger : public MultilevelBuilder {
 private:
 	double m_levelSizeFactor;
 
-	bool buildOneLevel(MultilevelGraph &MLG) override;
+	bool buildOneLevel(MultilevelGraph& MLG) override;
 
 public:
 	RandomMerger();

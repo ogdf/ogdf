@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
+#include <ogdf/layered/Hierarchy.h>
 
 namespace ogdf {
 
@@ -53,7 +53,6 @@ class SugiyamaLayout;
 
 class OGDF_EXPORT LayeredCrossMinModule {
 public:
-
 	//! Creates empty module.
 	LayeredCrossMinModule() { }
 
@@ -61,7 +60,8 @@ public:
 	virtual ~LayeredCrossMinModule() { }
 
 	//! Calls the actual crossing minimization algorithm.
-	virtual const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) = 0;
+	virtual const HierarchyLevelsBase* reduceCrossings(const SugiyamaLayout& sugi, Hierarchy& H,
+			int& nCrossings) = 0;
 
 	//! Performs clean-up.
 	virtual void cleanup() { }

@@ -34,15 +34,11 @@
 namespace ogdf {
 
 template<class POINT>
-bool CCLayoutPackModule::checkOffsetsTP(
-	const Array<POINT> &box,
-	const Array<POINT> &offset)
-{
+bool CCLayoutPackModule::checkOffsetsTP(const Array<POINT>& box, const Array<POINT>& offset) {
 	OGDF_ASSERT(box.size() == offset.size());
 	const int n = box.size();
 
-	for (int i = 0; i < n; ++i)
-	{
+	for (int i = 0; i < n; ++i) {
 		auto xl = offset[i].m_x;
 		auto xr = xl + box[i].m_x;
 		auto yb = offset[i].m_y;
@@ -51,31 +47,27 @@ bool CCLayoutPackModule::checkOffsetsTP(
 		OGDF_ASSERT(xl <= xr);
 		OGDF_ASSERT(yb <= yt);
 
-		for (int j = i+1; j < n; ++j)
-		{
+		for (int j = i + 1; j < n; ++j) {
 			auto xl2 = offset[j].m_x;
 			auto xr2 = xl2 + box[j].m_x;
 			auto yb2 = offset[j].m_y;
 			auto yt2 = yb2 + box[j].m_y;
 
-			if (xr2 > xl && xl2 < xr && yt2 > yb && yb2 < yt)
+			if (xr2 > xl && xl2 < xr && yt2 > yb && yb2 < yt) {
 				return false;
+			}
 		}
 	}
 
 	return true;
 }
 
-bool CCLayoutPackModule::checkOffsets(const Array<DPoint> &box,
-	const Array<DPoint> &offset)
-{
-	return checkOffsetsTP(box,offset);
+bool CCLayoutPackModule::checkOffsets(const Array<DPoint>& box, const Array<DPoint>& offset) {
+	return checkOffsetsTP(box, offset);
 }
 
-bool CCLayoutPackModule::checkOffsets(const Array<IPoint> &box,
-	const Array<IPoint> &offset)
-{
-	return checkOffsetsTP(box,offset);
+bool CCLayoutPackModule::checkOffsets(const Array<IPoint>& box, const Array<IPoint>& offset) {
+	return checkOffsetsTP(box, offset);
 }
 
 }

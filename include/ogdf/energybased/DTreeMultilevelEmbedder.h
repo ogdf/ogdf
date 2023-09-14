@@ -28,16 +28,15 @@
 
 #pragma once
 
-#include <ogdf/energybased/dtree/DTreeEmbedder.h>
-#include <ogdf/energybased/dtree/GalaxyLevel.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/dtree/DTreeEmbedder.h>
+#include <ogdf/energybased/dtree/GalaxyLevel.h>
 
 namespace ogdf {
 
 template<int Dim>
-class DTreeMultilevelEmbedder
-{
+class DTreeMultilevelEmbedder {
 public:
 	struct NodeCoords {
 		double coords[Dim];
@@ -51,7 +50,7 @@ public:
 		if (m_useMultilevelWeights) {
 			m_scaleFactorPerLevel = 1.71;
 		} else {
-			m_scaleFactorPerLevel = 3.71;//3.71;//3.71;
+			m_scaleFactorPerLevel = 3.71; //3.71;//3.71;
 		}
 
 		m_maxIterationsPerLevel = 1000;
@@ -87,11 +86,9 @@ private:
 	double m_scaleFactorPerLevel;
 };
 
-class DTreeMultilevelEmbedder2D : public DTreeMultilevelEmbedder<2>, public LayoutModule
-{
+class DTreeMultilevelEmbedder2D : public DTreeMultilevelEmbedder<2>, public LayoutModule {
 public:
-	void call(GraphAttributes& GA) override
-	{
+	void call(GraphAttributes& GA) override {
 		// the graph
 		const Graph& G = GA.constGraph();
 
@@ -109,11 +106,9 @@ public:
 	}
 };
 
-class DTreeMultilevelEmbedder3D : public DTreeMultilevelEmbedder<3>, public LayoutModule
-{
+class DTreeMultilevelEmbedder3D : public DTreeMultilevelEmbedder<3>, public LayoutModule {
 public:
-	void call(GraphAttributes& GA) override
-	{
+	void call(GraphAttributes& GA) override {
 		// assert 3d
 		OGDF_ASSERT(GA.has(GraphAttributes::threeD));
 
@@ -135,10 +130,8 @@ public:
 	}
 };
 
-
 template<int Dim>
-void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords>& resultCoords)
-{
+void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords>& resultCoords) {
 	using namespace energybased::dtree;
 	using Embedder = DTreeEmbedder<Dim>;
 
@@ -161,15 +154,13 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 	double currNumIterations = m_numIterationsFinestLevel;
 	double currThreshold = m_thresholdFinestLevel;
 
-	int numLevels = 0;
 	// loop from the coarsest to the finest level
-	for (GalaxyLevel* pCurrLevel = &levelBegin; pCurrLevel != nullptr; pCurrLevel = pCurrLevel->nextCoarser()) {
-		numLevels++;
+	for (GalaxyLevel* pCurrLevel = &levelBegin; pCurrLevel != nullptr;
+			pCurrLevel = pCurrLevel->nextCoarser()) {
 		currNumIterations *= m_numIterationsFactorPerLevel;
 		currThreshold *= m_thresholdFactorPerLevel;
 	}
 
-	int currLevelIndex = numLevels - 1;
 	// now we loop from the coarsest to the finest level
 	for (GalaxyLevel* pCurrLevel = pLevelEnd; pCurrLevel; pCurrLevel = pCurrLevel->nextFiner()) {
 		currNumIterations /= m_numIterationsFactorPerLevel;
@@ -217,13 +208,17 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 			}
 		}
 
-		const int numIterationsMaybe = pCurrLevel->isCoarsestLevel() ? m_numIterationsCoarsestLevel : currNumIterations;
-		const int numIterations = std::min(std::max(m_minIterationsPerLevel, numIterationsMaybe), m_maxIterationsPerLevel);
+		const int numIterationsMaybe =
+				pCurrLevel->isCoarsestLevel() ? m_numIterationsCoarsestLevel : currNumIterations;
+		const int numIterations = std::min(std::max(m_minIterationsPerLevel, numIterationsMaybe),
+				m_maxIterationsPerLevel);
 
 		embedder.scaleNodes(3.0);
-		embedder.doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 1>, AttrForceFunctionPow<Dim, 2>);
+		embedder.doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 1>,
+				AttrForceFunctionPow<Dim, 2>);
 		embedder.scaleNodes(1.0 / 3.0);
-		embedder.doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 2>, AttrForceFunctionPow<Dim, 2>);
+		embedder.doIterationsNewton(numIterations, currThreshold, RepForceFunctionNewton<Dim, 2>,
+				AttrForceFunctionPow<Dim, 2>);
 		// run the layout
 
 		// we now have to backup the positions before getting rid of the embedder
@@ -236,8 +231,6 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 				parentPosition[v].coords[d] = embedder.position(v, d);
 			}
 		}
-
-		currLevelIndex--;
 	}
 
 	// we are done with the layout. It is saved now in the parentposition nodearray.

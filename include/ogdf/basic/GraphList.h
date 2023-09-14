@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/internal/graph_iterators.h>
 
 namespace ogdf {
@@ -53,98 +53,106 @@ class OGDF_EXPORT GraphListBase;
  * for these objects.
  */
 class OGDF_EXPORT GraphElement {
-
 	friend class ogdf::Graph;
 	friend class GraphListBase;
 
 protected:
-
-	GraphElement *m_next = nullptr; //!< The successor in the list.
-	GraphElement *m_prev = nullptr; //!< The predecessor in the list.
+	GraphElement* m_next = nullptr; //!< The successor in the list.
+	GraphElement* m_prev = nullptr; //!< The predecessor in the list.
 
 	OGDF_NEW_DELETE
 };
 
 //! Base class for GraphElement lists.
 class OGDF_EXPORT GraphListBase {
-
 protected:
-
-	int m_size;           //!< The size of the list.
-	GraphElement *m_head; //!< Pointer to the first element in the list.
-	GraphElement *m_tail; //!< Pointer to the last element in the list.
+	int m_size; //!< The size of the list.
+	GraphElement* m_head; //!< Pointer to the first element in the list.
+	GraphElement* m_tail; //!< Pointer to the last element in the list.
 
 public:
-
 	//! Constructs an empty list.
-	GraphListBase() { m_head = m_tail = nullptr; m_size = 0; }
+	GraphListBase() {
+		m_head = m_tail = nullptr;
+		m_size = 0;
+	}
 
 	//! Destruction
 	~GraphListBase() { }
 
 	//! Returns the size of the list.
-	int size() const
-	{
-		return m_size;
-	}
+	int size() const { return m_size; }
 
 	//! Adds element \p pX at the end of the list.
-	void pushBack(GraphElement *pX) {
+	void pushBack(GraphElement* pX) {
 		pX->m_next = nullptr;
 		pX->m_prev = m_tail;
-		if (m_head)
+		if (m_head) {
 			m_tail = m_tail->m_next = pX;
-		else
+		} else {
 			m_tail = m_head = pX;
+		}
 		++m_size;
 	}
 
 	//! Inserts element \p pX after element \p pY.
-	void insertAfter(GraphElement *pX, GraphElement *pY) {
+	void insertAfter(GraphElement* pX, GraphElement* pY) {
 		pX->m_prev = pY;
-		GraphElement *pYnext = pX->m_next = pY->m_next;
+		GraphElement* pYnext = pX->m_next = pY->m_next;
 		pY->m_next = pX;
-		if (pYnext) pYnext->m_prev = pX;
-		else m_tail = pX;
+		if (pYnext) {
+			pYnext->m_prev = pX;
+		} else {
+			m_tail = pX;
+		}
 		++m_size;
 	}
 
 	//! Inserts element \p pX before element \p pY.
-	void insertBefore(GraphElement *pX, GraphElement *pY) {
+	void insertBefore(GraphElement* pX, GraphElement* pY) {
 		pX->m_next = pY;
-		GraphElement *pYprev = pX->m_prev = pY->m_prev;
+		GraphElement* pYprev = pX->m_prev = pY->m_prev;
 		pY->m_prev = pX;
-		if (pYprev) pYprev->m_next = pX;
-		else m_head = pX;
+		if (pYprev) {
+			pYprev->m_next = pX;
+		} else {
+			m_head = pX;
+		}
 		++m_size;
 	}
 
 	//! Removes element \p pX from the list.
-	void del(GraphElement *pX) {
+	void del(GraphElement* pX) {
 		GraphElement *pxPrev = pX->m_prev, *pxNext = pX->m_next;
 
-		if (pxPrev)
+		if (pxPrev) {
 			pxPrev->m_next = pxNext;
-		else
+		} else {
 			m_head = pxNext;
-		if (pxNext)
+		}
+		if (pxNext) {
 			pxNext->m_prev = pxPrev;
-		else
+		} else {
 			m_tail = pxPrev;
+		}
 		m_size--;
 	}
 
 	//! Sorts the list according to \p newOrder.
 	template<class LIST>
-	void sort(const LIST &newOrder) {
-		GraphElement *pPred = nullptr;
+	void sort(const LIST& newOrder) {
+		GraphElement* pPred = nullptr;
 		typename LIST::const_iterator it = newOrder.begin();
-		if (!it.valid()) return;
+		if (!it.valid()) {
+			return;
+		}
 
 		m_head = *it;
 		for (; it.valid(); ++it) {
-			GraphElement *p = *it;
-			if ((p->m_prev = pPred) != nullptr) pPred->m_next = p;
+			GraphElement* p = *it;
+			if ((p->m_prev = pPred) != nullptr) {
+				pPred->m_next = p;
+			}
 			pPred = p;
 		}
 
@@ -153,54 +161,56 @@ public:
 
 	//! Reverses the order of the list elements.
 	void reverse() {
-		GraphElement *pX = m_head;
+		GraphElement* pX = m_head;
 		m_head = m_tail;
 		m_tail = pX;
 		while (pX) {
-			GraphElement *pY = pX->m_next;
+			GraphElement* pY = pX->m_next;
 			pX->m_next = pX->m_prev;
 			pX = pX->m_prev = pY;
 		}
 	}
 
 	//! Exchanges the positions of \p pX and \p pY in the list.
-	void swap(GraphElement *pX, GraphElement *pY) {
+	void swap(GraphElement* pX, GraphElement* pY) {
 		if (pX->m_next == pY) {
 			pX->m_next = pY->m_next;
 			pY->m_prev = pX->m_prev;
 			pY->m_next = pX;
 			pX->m_prev = pY;
 
-		}
-		else if (pY->m_next == pX) {
+		} else if (pY->m_next == pX) {
 			pY->m_next = pX->m_next;
 			pX->m_prev = pY->m_prev;
 			pX->m_next = pY;
 			pY->m_prev = pX;
 
-		}
-		else {
+		} else {
 			std::swap(pX->m_next, pY->m_next);
 			std::swap(pX->m_prev, pY->m_prev);
 		}
 
-		if (pX->m_prev)
+		if (pX->m_prev) {
 			pX->m_prev->m_next = pX;
-		else
+		} else {
 			m_head = pX;
-		if (pX->m_next)
+		}
+		if (pX->m_next) {
 			pX->m_next->m_prev = pX;
-		else
+		} else {
 			m_tail = pX;
+		}
 
-		if (pY->m_prev)
+		if (pY->m_prev) {
 			pY->m_prev->m_next = pY;
-		else
+		} else {
 			m_head = pY;
-		if (pY->m_next)
+		}
+		if (pY->m_next) {
 			pY->m_next->m_prev = pY;
-		else
+		} else {
 			m_tail = pY;
+		}
 
 #ifdef OGDF_DEBUG
 		consistencyCheck();
@@ -209,22 +219,22 @@ public:
 
 	//! Permutes all list elements.
 	template<class RNG>
-	void permute(RNG &rng) {
-		Array<GraphElement*> A(m_size+2);
-		A[0] = A[m_size+1] = nullptr;
+	void permute(RNG& rng) {
+		Array<GraphElement*> A(m_size + 2);
+		A[0] = A[m_size + 1] = nullptr;
 
 		int i = 1;
-		GraphElement *pX;
+		GraphElement* pX;
 		for (pX = m_head; pX; pX = pX->m_next) {
 			A[i++] = pX;
 		}
 
-		A.permute(1,m_size,rng);
+		A.permute(1, m_size, rng);
 
 		for (i = 1; i <= m_size; i++) {
 			pX = A[i];
-			pX->m_next = A[i+1];
-			pX->m_prev = A[i-1];
+			pX->m_next = A[i + 1];
+			pX->m_prev = A[i - 1];
 		}
 
 		m_head = A[1];
@@ -250,7 +260,7 @@ public:
 			OGDF_ASSERT(m_head->m_prev == nullptr);
 			OGDF_ASSERT(m_tail->m_next == nullptr);
 
-			for (GraphElement *pX = m_head; pX; pX = pX->m_next) {
+			for (GraphElement* pX = m_head; pX; pX = pX->m_next) {
 				if (pX->m_prev) {
 					OGDF_ASSERT(pX->m_prev->m_next == pX);
 				} else {
@@ -274,83 +284,76 @@ public:
 /**
  * The template type \a T must be a class derived from GraphElement.
  */
-template<class T> class GraphList : protected GraphListBase {
-
+template<class T>
+class GraphList : protected GraphListBase {
 public:
-
 	//! Constructs an empty list.
 	GraphList() { }
 
 	//! Destruction: deletes all elements
 	~GraphList() {
-		if (m_head)
+		if (m_head) {
 			OGDF_ALLOCATOR::deallocateList(sizeof(T), m_head, m_tail);
+		}
 	}
 
 	//! Returns the size of the list.
 	int size() const { return m_size; }
 
 	//! Returns the first element in the list.
-	T *head() const { return static_cast<T *>(m_head); }
+	T* head() const { return static_cast<T*>(m_head); }
 
 	//! Returns the last element in the list.
-	T *tail() const { return static_cast<T *>(m_tail); }
+	T* tail() const { return static_cast<T*>(m_tail); }
 
 	//! Returns true iff the list is empty.
 	bool empty() const { return m_size == 0; }
 
 	//! Adds element \p pX at the end of the list.
-	void pushBack(T *pX) {
-		GraphListBase::pushBack(pX);
-	}
+	void pushBack(T* pX) { GraphListBase::pushBack(pX); }
 
 	//! Inserts element \p pX after element \p pY.
-	void insertAfter(T *pX, T *pY) {
-		GraphListBase::insertAfter(pX, pY);
-	}
+	void insertAfter(T* pX, T* pY) { GraphListBase::insertAfter(pX, pY); }
 
 	//! Inserts element \p pX before element \p pY.
-	void insertBefore(T *pX, T *pY) {
-		GraphListBase::insertBefore(pX, pY);
-	}
+	void insertBefore(T* pX, T* pY) { GraphListBase::insertBefore(pX, pY); }
 
 	//! Moves element \p pX to list \p L and inserts it before or after \p pY.
-	void move(T *pX, GraphList<T> &L, T *pY, Direction dir) {
+	void move(T* pX, GraphList<T>& L, T* pY, Direction dir) {
 		GraphListBase::del(pX);
-		if (dir == Direction::after)
+		if (dir == Direction::after) {
 			L.insertAfter(pX, pY);
-		else
+		} else {
 			L.insertBefore(pX, pY);
+		}
 	}
 
 	//! Moves element \p pX to list \p L and inserts it at the end.
-	void move(T *pX, GraphList<T> &L) {
+	void move(T* pX, GraphList<T>& L) {
 		GraphListBase::del(pX);
 		L.pushBack(pX);
 	}
 
 	//! Moves element \p pX from its current position to a position after \p pY.
-	void moveAfter(T *pX, T *pY){
+	void moveAfter(T* pX, T* pY) {
 		GraphListBase::del(pX);
 		insertAfter(pX, pY);
 	}
 
 	//! Moves element \p pX from its current position to a position before \p pY.
-	void moveBefore(T *pX, T *pY){
+	void moveBefore(T* pX, T* pY) {
 		GraphListBase::del(pX);
 		insertBefore(pX, pY);
 	}
 
 	//! Removes element \p pX from the list and deletes it.
-	void del(T *pX) {
+	void del(T* pX) {
 		GraphListBase::del(pX);
 		delete pX;
 	}
 
 	//! Only removes element \p pX from the list; does not delete it.
-	void delPure(T *pX) {
-		GraphListBase::del(pX);
-	}
+	void delPure(T* pX) { GraphListBase::del(pX); }
 
 	//! Removes all elements from the list and deletes them.
 	void clear() {
@@ -363,20 +366,15 @@ public:
 
 	//! Sorts all elements according to \p newOrder.
 	template<class T_LIST>
-	void sort(const T_LIST &newOrder) {
+	void sort(const T_LIST& newOrder) {
 		GraphListBase::sort(newOrder);
 	}
 
-
 	//! Reverses the order of the list elements.
-	void reverse() {
-		GraphListBase::reverse();
-	}
+	void reverse() { GraphListBase::reverse(); }
 
 	//! Exchanges the positions of \p pX and \p pY in the list.
-	void swap(T *pX, T *pY) {
-		GraphListBase::swap(pX, pY);
-	}
+	void swap(T* pX, T* pY) { GraphListBase::swap(pX, pY); }
 
 	using GraphListBase::permute;
 #ifdef OGDF_DEBUG
@@ -388,7 +386,6 @@ public:
 
 template<class GraphObject>
 class GraphObjectContainer : private GraphList<GraphObject> {
-
 	friend class ogdf::Graph;
 	friend class ogdf::ClusterGraph;
 	friend class ogdf::ConstCombinatorialEmbedding;

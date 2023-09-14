@@ -31,12 +31,13 @@
 
 #pragma once
 
-#include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
+#include <ogdf/decomposition/StaticSPQRTree.h>
 
 namespace ogdf {
 
-template<class A, class B> class Tuple2;
+template<class A, class B>
+class Tuple2;
 
 //! SPQR-trees of planar graphs.
 /**
@@ -52,8 +53,7 @@ template<class A, class B> class Tuple2;
  * around its poles, and swap(v,e_1,e_2), which exchanges the
  * positions of the edges e_1 and e_2 in the skeleton of a P-node v.
  */
-class OGDF_EXPORT StaticPlanarSPQRTree : public StaticSPQRTree, public PlanarSPQRTree
-{
+class OGDF_EXPORT StaticPlanarSPQRTree : public StaticSPQRTree, public PlanarSPQRTree {
 public:
 	// constructors
 
@@ -65,9 +65,7 @@ public:
 	 * \pre \p G is planar and biconnected and contains at least 3 nodes,
 	 *      or \p G has exactly 2 nodes and at least 3  edges.
 	 */
-	explicit StaticPlanarSPQRTree(const Graph &G, bool isEmbedded = false) :
-		StaticSPQRTree(G)
-	{
+	explicit StaticPlanarSPQRTree(const Graph& G, bool isEmbedded = false) : StaticSPQRTree(G) {
 		PlanarSPQRTree::init(isEmbedded);
 	}
 
@@ -80,9 +78,7 @@ public:
 	 * contains at least 3 nodes, or \p G has exactly 2 nodes and at least 3
 	 * edges.
 	 */
-	StaticPlanarSPQRTree(const Graph &G, edge e, bool isEmbedded = false) :
-		StaticSPQRTree(G,e)
-	{
+	StaticPlanarSPQRTree(const Graph& G, edge e, bool isEmbedded = false) : StaticSPQRTree(G, e) {
 		PlanarSPQRTree::init(isEmbedded);
 	}
 };

@@ -29,44 +29,44 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>
 
 namespace ogdf {
 namespace boyer_myrvold {
 
 // constructor
-BoyerMyrvoldInit::BoyerMyrvoldInit(BoyerMyrvoldPlanar* pBM) :
-	m_g(pBM->m_g),
+BoyerMyrvoldInit::BoyerMyrvoldInit(BoyerMyrvoldPlanar* pBM)
+	: m_g(pBM->m_g)
+	,
 	// initialize Members of BoyerMyrvoldPlanar
-	m_embeddingGrade(pBM->m_embeddingGrade),
-	m_randomness(pBM->m_randomness),
-	m_edgeCosts(pBM->m_edgeCosts),
-	m_rand(pBM->m_rand),
+	m_embeddingGrade(pBM->m_embeddingGrade)
+	, m_randomness(pBM->m_randomness)
+	, m_edgeCosts(pBM->m_edgeCosts)
+	, m_rand(pBM->m_rand)
+	,
 
-	m_realVertex(pBM->m_realVertex),
-	m_dfi(pBM->m_dfi),
-	m_nodeFromDFI(pBM->m_nodeFromDFI),
-	m_link(pBM->m_link),
-	m_adjParent(pBM->m_adjParent),
-	m_leastAncestor(pBM->m_leastAncestor),
-	m_edgeType(pBM->m_edgeType),
-	m_lowPoint(pBM->m_lowPoint),
-	m_highestSubtreeDFI(pBM->m_highestSubtreeDFI),
-	m_separatedDFSChildList(pBM->m_separatedDFSChildList),
-	m_pNodeInParent(pBM->m_pNodeInParent)
-{
+	m_realVertex(pBM->m_realVertex)
+	, m_dfi(pBM->m_dfi)
+	, m_nodeFromDFI(pBM->m_nodeFromDFI)
+	, m_link(pBM->m_link)
+	, m_adjParent(pBM->m_adjParent)
+	, m_leastAncestor(pBM->m_leastAncestor)
+	, m_edgeType(pBM->m_edgeType)
+	, m_lowPoint(pBM->m_lowPoint)
+	, m_highestSubtreeDFI(pBM->m_highestSubtreeDFI)
+	, m_separatedDFSChildList(pBM->m_separatedDFSChildList)
+	, m_pNodeInParent(pBM->m_pNodeInParent) {
 	OGDF_ASSERT(pBM != nullptr);
-	OGDF_ASSERT(m_embeddingGrade <= BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind ||
-				m_highestSubtreeDFI.graphOf() == &m_g);
+	OGDF_ASSERT(m_embeddingGrade <= BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind
+			|| m_highestSubtreeDFI.graphOf() == &m_g);
 }
 
 // start DFS-traversal
-void BoyerMyrvoldInit::computeDFS()
-{
+void BoyerMyrvoldInit::computeDFS() {
 	// compute random edge costs
 	EdgeArray<int> costs;
-	const EdgeArray<int> *costsToUse = nullptr;
+	const EdgeArray<int>* costsToUse = nullptr;
 
 	if (m_edgeCosts != nullptr) { // do we have edge costs?
 		if (m_randomness > 0) {
@@ -76,14 +76,16 @@ void BoyerMyrvoldInit::computeDFS()
 			int minCost = std::numeric_limits<int>::max();
 			int maxCost = std::numeric_limits<int>::min();
 
-			for(edge e : m_g.edges) {
+			for (edge e : m_g.edges) {
 				int c = (*m_edgeCosts)[e];
 				Math::updateMin(minCost, c);
 				Math::updateMax(maxCost, c);
 			}
 
-			for(edge e : m_g.edges) {
-				costs[e] = minCost + (int)((1 - m_randomness) * ((*m_edgeCosts)[e] - minCost) + m_randomness * (maxCost - minCost) * randomDouble(0, 1));
+			for (edge e : m_g.edges) {
+				costs[e] = minCost
+						+ (int)((1 - m_randomness) * ((*m_edgeCosts)[e] - minCost)
+								+ m_randomness * (maxCost - minCost) * randomDouble(0, 1));
 			}
 
 			costsToUse = &costs;
@@ -128,10 +130,14 @@ void BoyerMyrvoldInit::computeDFS()
 		adjEntry prnt = stack.popRet();
 		node v = prnt->theNode();
 		// check, if node v was visited before.
-		if (m_dfi[v] != 0) continue;
+		if (m_dfi[v] != 0) {
+			continue;
+		}
 		// parentNode=nullptr on first node on connected component
 		node parentNode = prnt->twinNode();
-		if (m_dfi[parentNode] == 0) parentNode = nullptr;
+		if (m_dfi[parentNode] == 0) {
+			parentNode = nullptr;
+		}
 
 		// if not, mark node as visited and initialize NodeArrays
 		m_dfi[v] = nextDFI;
@@ -140,9 +146,11 @@ void BoyerMyrvoldInit::computeDFS()
 		++nextDFI;
 
 		// push all adjacent nodes onto stack
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
-			if (adj == prnt && parentNode != nullptr) continue;
+			if (adj == prnt && parentNode != nullptr) {
+				continue;
+			}
 
 			// check for self-loops and dfs- and dfs-parallel edges
 			node w = adj->twinNode();
@@ -171,8 +179,9 @@ void BoyerMyrvoldInit::computeDFS()
 					// found backedge
 					m_edgeType[e] = BoyerMyrvoldEdgeType::Back;
 					// set least Ancestor
-					if (m_dfi[w] < m_leastAncestor[v])
+					if (m_dfi[w] < m_leastAncestor[v]) {
 						m_leastAncestor[v] = m_dfi[w];
+					}
 				}
 			}
 		}
@@ -181,8 +190,7 @@ void BoyerMyrvoldInit::computeDFS()
 
 // creates a virtual vertex of vertex father and embeds it as
 // root in the biconnected child component containing of one edge
-void BoyerMyrvoldInit::createVirtualVertex(const adjEntry father)
-{
+void BoyerMyrvoldInit::createVirtualVertex(const adjEntry father) {
 	// check that adjEntry is valid
 	OGDF_ASSERT(father != nullptr);
 
@@ -200,25 +208,26 @@ void BoyerMyrvoldInit::createVirtualVertex(const adjEntry father)
 	edge e = father->theEdge();
 	if (e->source() == father->theNode()) {
 		// e is outgoing edge
-		m_g.moveSource(e,virt);
+		m_g.moveSource(e, virt);
 	} else {
 		// e is ingoing edge
-		m_g.moveTarget(e,virt);
+		m_g.moveTarget(e, virt);
 	}
 }
 
 // calculates the lowpoints
-void BoyerMyrvoldInit::computeLowPoints()
-{
+void BoyerMyrvoldInit::computeLowPoints() {
 	node w;
-	adjEntry adj,lastAdj;
+	adjEntry adj, lastAdj;
 
 	for (int i = m_g.numberOfNodes(); i >= 1; --i) {
 		const node v = m_nodeFromDFI[i];
 
 		// initialize lowpoints with least Ancestors and highpoints with dfi of node
 		m_lowPoint[v] = m_leastAncestor[v];
-		if (m_embeddingGrade > BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind) m_highestSubtreeDFI[v] = i;
+		if (m_embeddingGrade > BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind) {
+			m_highestSubtreeDFI[v] = i;
+		}
 
 		// set the lowPoint of v by minimizing over its children lowPoints
 		// create virtual vertex for each child
@@ -228,17 +237,24 @@ void BoyerMyrvoldInit::computeLowPoints()
 			adj = adj->succ();
 
 			// avoid self-loops, parallel- and backedges
-			if (m_edgeType[lastAdj->theEdge()] != BoyerMyrvoldEdgeType::Dfs) continue;
+			if (m_edgeType[lastAdj->theEdge()] != BoyerMyrvoldEdgeType::Dfs) {
+				continue;
+			}
 			w = lastAdj->twinNode();
 
 			// avoid parent dfs-node
-			if (m_dfi[w] <= i) continue;
+			if (m_dfi[w] <= i) {
+				continue;
+			}
 
 			// set lowPoints and highpoints
-			if (m_lowPoint[w] < m_lowPoint[v]) m_lowPoint[v] = m_lowPoint[w];
-			if (m_embeddingGrade > BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind &&
-									m_highestSubtreeDFI[w] > m_highestSubtreeDFI[v])
+			if (m_lowPoint[w] < m_lowPoint[v]) {
+				m_lowPoint[v] = m_lowPoint[w];
+			}
+			if (m_embeddingGrade > BoyerMyrvoldPlanar::EmbeddingGrade::doNotFind
+					&& m_highestSubtreeDFI[w] > m_highestSubtreeDFI[v]) {
 				m_highestSubtreeDFI[v] = m_highestSubtreeDFI[w];
+			}
 
 			// create virtual vertex for each dfs-child
 			createVirtualVertex(lastAdj);
@@ -254,22 +270,22 @@ void BoyerMyrvoldInit::computeDFSChildLists() {
 	// Parameter lowPoint may not be deleted til destruction of this class.
 	class BucketLowPoint : public BucketFunc<node> {
 	public:
-		explicit BucketLowPoint(const NodeArray<int> &lowPoint) : m_pLow(&lowPoint) { }
+		explicit BucketLowPoint(const NodeArray<int>& lowPoint) : m_pLow(&lowPoint) { }
 
 		// This function has to be derived from BucketFunc, it gets the buckets from lowPoint-Array
-		int getBucket(const node &v) override {
-			return (*m_pLow)[v];
-		}
+		int getBucket(const node& v) override { return (*m_pLow)[v]; }
+
 	private:
 		// Stored to be able to get the buckets
-		const NodeArray<int> *m_pLow;
+		const NodeArray<int>* m_pLow;
 	} blp(m_lowPoint);
 
 	// copy all non-virtual nodes in a list and sort them with Bucketsort
 	SListPure<node> allNodes;
 	for (node v : m_g.nodes) {
-		if (m_dfi[v] > 0)
+		if (m_dfi[v] > 0) {
 			allNodes.pushBack(v);
+		}
 	}
 	allNodes.bucketSort(1, m_nodeFromDFI.high(), blp);
 
@@ -283,12 +299,14 @@ void BoyerMyrvoldInit::computeDFSChildLists() {
 		if (m_adjParent[v] != nullptr) {
 			OGDF_ASSERT(m_realVertex[m_adjParent[v]->theNode()] != nullptr);
 
-			m_pNodeInParent[v] = m_separatedDFSChildList[m_realVertex[m_adjParent[v]->theNode()]].pushBack(v);
+			m_pNodeInParent[v] =
+					m_separatedDFSChildList[m_realVertex[m_adjParent[v]->theNode()]].pushBack(v);
 
 			OGDF_ASSERT(m_pNodeInParent[v].valid());
 			OGDF_ASSERT(v == *m_pNodeInParent[v]);
+		} else {
+			m_pNodeInParent[v] = nullptr;
 		}
-		else m_pNodeInParent[v] = nullptr;
 	}
 }
 

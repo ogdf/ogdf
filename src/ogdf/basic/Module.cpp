@@ -33,14 +33,26 @@
 
 namespace ogdf {
 
-std::ostream & operator<<(std::ostream &os, const Module::ReturnType &r) {
+std::ostream& operator<<(std::ostream& os, const Module::ReturnType& r) {
 	switch (r) {
-		case Module::ReturnType::Feasible:           os << "Feasible";           break;
-		case Module::ReturnType::Optimal:            os << "Optimal";            break;
-		case Module::ReturnType::NoFeasibleSolution: os << "NoFeasibleSolution"; break;
-		case Module::ReturnType::TimeoutFeasible:    os << "TimeoutFeasible";    break;
-		case Module::ReturnType::TimeoutInfeasible:  os << "TimeoutInfeasible";  break;
-		case Module::ReturnType::Error:              os << "Error";              break;
+	case Module::ReturnType::Feasible:
+		os << "Feasible";
+		break;
+	case Module::ReturnType::Optimal:
+		os << "Optimal";
+		break;
+	case Module::ReturnType::NoFeasibleSolution:
+		os << "NoFeasibleSolution";
+		break;
+	case Module::ReturnType::TimeoutFeasible:
+		os << "TimeoutFeasible";
+		break;
+	case Module::ReturnType::TimeoutInfeasible:
+		os << "TimeoutInfeasible";
+		break;
+	case Module::ReturnType::Error:
+		os << "Error";
+		break;
 	}
 	return os;
 }

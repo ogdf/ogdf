@@ -29,39 +29,32 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/PlanarizerChordlessCycle.h>
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/planarity/PlanarizerChordlessCycle.h>
 #ifdef OGDF_DEBUG
-# include <ogdf/basic/simple_graph_alg.h>
+#	include <ogdf/basic/simple_graph_alg.h>
 #endif
 #include <set>
 
 namespace ogdf {
 
 PlanarizerChordlessCycle::PlanarizerChordlessCycle()
-	: CrossingMinimizationModule(), m_inserter{}
-	{ }
+	: CrossingMinimizationModule(), m_inserter {} { }
 
-PlanarizerChordlessCycle::PlanarizerChordlessCycle(
-	const PlanarizerChordlessCycle &planarizer)
-	: CrossingMinimizationModule()
-	{ }
+PlanarizerChordlessCycle::PlanarizerChordlessCycle(const PlanarizerChordlessCycle& planarizer)
+	: CrossingMinimizationModule() { }
 
-CrossingMinimizationModule *PlanarizerChordlessCycle::clone() const {
+CrossingMinimizationModule* PlanarizerChordlessCycle::clone() const {
 	return new PlanarizerChordlessCycle(*this);
 }
 
-PlanarizerChordlessCycle &PlanarizerChordlessCycle::operator=(
-	const PlanarizerChordlessCycle &planarizer)
-{
+PlanarizerChordlessCycle& PlanarizerChordlessCycle::operator=(
+		const PlanarizerChordlessCycle& planarizer) {
 	return *this;
 }
 
-bool PlanarizerChordlessCycle::findChordlessCycle(
-	const Graph &G,
-	List<node> &cycle)
-{
+bool PlanarizerChordlessCycle::findChordlessCycle(const Graph& G, List<node>& cycle) {
 	Queue<node> queue;
 	NodeArray<bool> seen {G, false};
 	NodeArray<edge> pred {G, nullptr};
@@ -73,24 +66,24 @@ bool PlanarizerChordlessCycle::findChordlessCycle(
 
 	// Breadth-first search: As soon as an already visited node is found, the
 	// predecessors of this and the current node form a chordless cycle.
-	[&]{
-	while (!queue.empty()) {
-		node v {queue.pop()};
-		for (adjEntry adj : v->adjEntries) {
-			node w {adj->twinNode()};
-			if (pred[v] == nullptr || w != pred[v]->opposite(v)) {
-				if (seen[w]) {
-					connectingEdge = adj->theEdge();
-					return; // break out of lambda
-				}
-				if (w != v) {
-					seen[w] = true;
-					pred[w] = adj->theEdge();
-					queue.append(w);
+	[&] {
+		while (!queue.empty()) {
+			node v {queue.pop()};
+			for (adjEntry adj : v->adjEntries) {
+				node w {adj->twinNode()};
+				if (pred[v] == nullptr || w != pred[v]->opposite(v)) {
+					if (seen[w]) {
+						connectingEdge = adj->theEdge();
+						return; // break out of lambda
+					}
+					if (w != v) {
+						seen[w] = true;
+						pred[w] = adj->theEdge();
+						queue.append(w);
+					}
 				}
 			}
 		}
-	}
 	}();
 
 	// No cycle found:
@@ -136,15 +129,9 @@ bool PlanarizerChordlessCycle::findChordlessCycle(
 	return true;
 }
 
-
-void PlanarizerChordlessCycle::addToGraphCopy(
-	GraphCopy &graphCopy,
-	GraphCopy &copyCopy,
-	DynamicDualGraph &dual,
-	node vOrig,
-	const EdgeArray<int> *pCostOrig,
-	EdgeArray<int> *pCostCopy)
-{
+void PlanarizerChordlessCycle::addToGraphCopy(GraphCopy& graphCopy, GraphCopy& copyCopy,
+		DynamicDualGraph& dual, node vOrig, const EdgeArray<int>* pCostOrig,
+		EdgeArray<int>* pCostCopy) {
 	node vCopy {graphCopy.newNode(vOrig)};
 
 	// Add edges in graphCopy between vCopy and other nodes in graphCopy.
@@ -162,11 +149,8 @@ void PlanarizerChordlessCycle::addToGraphCopy(
 	m_inserter.call(copyCopy, dual, vCopy, pCostCopy);
 }
 
-void PlanarizerChordlessCycle::transferToPlanRep(
-	PlanRep &pr,
-	const GraphCopy &graphCopy,
-	const GraphCopy &copyCopy)
-{
+void PlanarizerChordlessCycle::transferToPlanRep(PlanRep& pr, const GraphCopy& graphCopy,
+		const GraphCopy& copyCopy) {
 	EdgeArray<SListPure<int>> crossings {pr.original()};
 
 	// Get number of crossing in the planarization copyCopy.
@@ -192,7 +176,7 @@ void PlanarizerChordlessCycle::transferToPlanRep(
 
 	// For all edges ePr in pr:
 	// Create crossings in ePr as remembered in the crossings edge array.
-	Array<node> id2Node(0, numCrossings-1, nullptr);
+	Array<node> id2Node(0, numCrossings - 1, nullptr);
 	SListPure<edge> edges;
 	pr.allEdges(edges);
 
@@ -216,14 +200,9 @@ void PlanarizerChordlessCycle::transferToPlanRep(
 	}
 }
 
-Module::ReturnType PlanarizerChordlessCycle::doCall(
-	PlanRep &pr,
-	int cc,
-	const EdgeArray<int> *pCostOrig,
-	const EdgeArray<bool> *pForbiddenOrig,
-	const EdgeArray<uint32_t> *pEdgeSubGraphs,
-	int &crossingNumber)
-{
+Module::ReturnType PlanarizerChordlessCycle::doCall(PlanRep& pr, int cc,
+		const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+		const EdgeArray<uint32_t>* pEdgeSubGraphs, int& crossingNumber) {
 	OGDF_ASSERT(isSimpleUndirected(pr));
 	crossingNumber = 0;
 	pr.initCC(cc);
@@ -231,7 +210,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(
 	// The graph copies used here are as follows:
 	// G -copy-> graphCopy (building up copy) -copy-> copyCopy (planarization)
 	// G -copy-> pr (final planarization, assigned at the end)
-	const Graph &G {pr.original()};
+	const Graph& G {pr.original()};
 	GraphCopy graphCopy;
 	graphCopy.createEmpty(G);
 
@@ -242,7 +221,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(
 #ifdef OGDF_DEBUG
 		bool planar =
 #endif
-			planarEmbed(pr);
+				planarEmbed(pr);
 		OGDF_ASSERT(planar);
 		crossingNumber = 0;
 		return ReturnType::Optimal;
@@ -261,7 +240,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(
 	OGDF_ASSERT(graphCopy.numberOfEdges() == cycle.size());
 
 	// Create array for edge costs in graphCopy.
-	EdgeArray<int> *pCostCopy {nullptr};
+	EdgeArray<int>* pCostCopy {nullptr};
 	if (pCostOrig) {
 		pCostCopy = new EdgeArray<int> {graphCopy};
 		for (edge eCopy : graphCopy.edges) {
@@ -270,7 +249,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(
 	}
 
 	// Initialize planarization copyCopy and corresponding dual graph.
-	GraphCopy copyCopy {dynamic_cast<const Graph &>(graphCopy)};
+	GraphCopy copyCopy {dynamic_cast<const Graph&>(graphCopy)};
 	CombinatorialEmbedding emb {copyCopy};
 	DynamicDualGraph copyCopyDual {emb};
 
@@ -288,8 +267,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(
 				// If a neighbor is not yet in graphCopy/copyCopy, add it to
 				// them and push it on the stack.
 				if (graphCopy.copy(wOrig) == nullptr) {
-					addToGraphCopy(graphCopy, copyCopy, copyCopyDual,
-							wOrig, pCostOrig, pCostCopy);
+					addToGraphCopy(graphCopy, copyCopy, copyCopyDual, wOrig, pCostOrig, pCostCopy);
 					stack.push(wOrig);
 				}
 			}
@@ -309,7 +287,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(
 #ifdef OGDF_DEBUG
 	bool planar =
 #endif
-		planarEmbed(pr);
+			planarEmbed(pr);
 	OGDF_ASSERT(planar);
 	pr.removePseudoCrossings();
 	crossingNumber = computeCrossingNumber(pr, pCostOrig, pEdgeSubGraphs);

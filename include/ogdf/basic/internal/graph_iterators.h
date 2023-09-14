@@ -31,17 +31,21 @@
 
 #pragma once
 
-#include <functional>
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/basic.h>
+
+#include <functional>
 
 namespace ogdf {
 
 namespace internal {
 
-template<class GraphObjectPtr, bool isReverse> class GraphIteratorBase;
-template<class GraphObjectPtr> using GraphIterator = GraphIteratorBase<GraphObjectPtr,false>;
-template<class GraphObjectPtr> using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr,true>;
+template<class GraphObjectPtr, bool isReverse>
+class GraphIteratorBase;
+template<class GraphObjectPtr>
+using GraphIterator = GraphIteratorBase<GraphObjectPtr, false>;
+template<class GraphObjectPtr>
+using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr, true>;
 
 template<class GraphObjectPtr, bool isReverse>
 class GraphIteratorBase {
@@ -51,25 +55,24 @@ class GraphIteratorBase {
 
 public:
 	GraphIteratorBase() : m_ptr(nullptr) { }
+
 	GraphIteratorBase(GraphObjectPtr ptr) : m_ptr(ptr) { }
 
 	template<bool isArgReverse>
-	GraphIteratorBase(GraphIteratorBase<GraphObjectPtr, isArgReverse> &it) : m_ptr(it.m_ptr) { }
+	GraphIteratorBase(GraphIteratorBase<GraphObjectPtr, isArgReverse>& it) : m_ptr(it.m_ptr) { }
 
-	bool operator==(const GraphIteratorBase<GraphObjectPtr, isReverse> &other) const {
+	bool operator==(const GraphIteratorBase<GraphObjectPtr, isReverse>& other) const {
 		return m_ptr == other.m_ptr;
 	}
 
-	bool operator!=(const GraphIteratorBase<GraphObjectPtr, isReverse> &other) const {
+	bool operator!=(const GraphIteratorBase<GraphObjectPtr, isReverse>& other) const {
 		return m_ptr != other.m_ptr;
 	}
 
-	GraphObjectPtr& operator*() {
-		return m_ptr;
-	}
+	GraphObjectPtr& operator*() { return m_ptr; }
 
 	//! Increment operator (prefix).
-	GraphIteratorBase<GraphObjectPtr, isReverse> &operator++() {
+	GraphIteratorBase<GraphObjectPtr, isReverse>& operator++() {
 		OGDF_ASSERT(m_ptr != nullptr);
 		m_ptr = isReverse ? m_ptr->pred() : m_ptr->succ();
 		return *this;
@@ -84,7 +87,7 @@ public:
 	}
 
 	//! Decrement operator (prefix).
-	GraphIteratorBase<GraphObjectPtr, isReverse> &operator--() {
+	GraphIteratorBase<GraphObjectPtr, isReverse>& operator--() {
 		OGDF_ASSERT(m_ptr != nullptr);
 		m_ptr = isReverse ? m_ptr->succ() : m_ptr->pred();
 		return *this;
@@ -99,41 +102,45 @@ public:
 	}
 };
 
-template<class ArrayType, bool isConst> class GraphArrayIteratorBase;
-template<class ArrayType> using GraphArrayIterator = GraphArrayIteratorBase<ArrayType, false>;
-template<class ArrayType> using GraphArrayConstIterator = GraphArrayIteratorBase<ArrayType, true>;
+template<class ArrayType, bool isConst>
+class GraphArrayIteratorBase;
+template<class ArrayType>
+using GraphArrayIterator = GraphArrayIteratorBase<ArrayType, false>;
+template<class ArrayType>
+using GraphArrayConstIterator = GraphArrayIteratorBase<ArrayType, true>;
 
-template<class ArrayType, bool isConst> class GraphArrayIteratorBase {
+template<class ArrayType, bool isConst>
+class GraphArrayIteratorBase {
 	friend class GraphArrayIteratorBase<ArrayType, true>;
 
 public:
 	//! Index type of the associated array.
 	using key_type = typename ArrayType::key_type;
 	//! Value type of the associated array.
-	using value_type = typename std::conditional<isConst, const typename ArrayType::value_type, typename ArrayType::value_type>::type;
+	using value_type = typename std::conditional<isConst, const typename ArrayType::value_type,
+			typename ArrayType::value_type>::type;
 	//! Type of the array.
 	using array_pointer_type = typename std::conditional<isConst, const ArrayType*, ArrayType*>::type;
 
 	//! Constructor.
-	GraphArrayIteratorBase()
-	: m_key(nullptr), m_array(nullptr) {}
+	GraphArrayIteratorBase() : m_key(nullptr), m_array(nullptr) { }
 
 	//! Constructor.
-	GraphArrayIteratorBase(key_type key, array_pointer_type a)
-	: m_key(key), m_array(a) { }
+	GraphArrayIteratorBase(key_type key, array_pointer_type a) : m_key(key), m_array(a) { }
 
 	//! Constructor.
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0>
-	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isArgConst> &iter)
-	: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
+	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isArgConst>& iter)
+		: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
 
 	//! Copy constructor.
 	// gcc9 complains since it cannot match the templated constructor above (-Werror=deprecated-copy).
-	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isConst> &iter)
-	: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
+	GraphArrayIteratorBase(const GraphArrayIteratorBase<ArrayType, isConst>& iter)
+		: GraphArrayIteratorBase(iter.m_key, iter.m_array) { }
 
 	//! Copy assignment operator.
-	GraphArrayIteratorBase<ArrayType, isConst> &operator=(const GraphArrayIteratorBase<ArrayType, isConst> &iter) {
+	GraphArrayIteratorBase<ArrayType, isConst>& operator=(
+			const GraphArrayIteratorBase<ArrayType, isConst>& iter) {
 		m_key = iter.m_key;
 		m_array = iter.m_array;
 		return *this;
@@ -143,23 +150,23 @@ public:
 	key_type key() const { return m_key; }
 
 	//! Value of #m_array at index #m_key.
-	value_type &value() const { return (*m_array)[m_key]; }
+	value_type& value() const { return (*m_array)[m_key]; }
 
 	//! Value of #m_array at index #m_key.
-	value_type &operator*() const { return (*m_array)[m_key]; }
+	value_type& operator*() const { return (*m_array)[m_key]; }
 
 	//! Equality operator.
-	bool operator==(const GraphArrayIteratorBase<ArrayType, isConst> &iter) const {
+	bool operator==(const GraphArrayIteratorBase<ArrayType, isConst>& iter) const {
 		return m_key == iter.m_key && m_array == iter.m_array;
 	}
 
 	//! Inequality operator.
-	bool operator!=(const GraphArrayIteratorBase<ArrayType, isConst> &iter) const {
+	bool operator!=(const GraphArrayIteratorBase<ArrayType, isConst>& iter) const {
 		return !operator==(iter);
 	}
 
 	//! Increment operator (prefix).
-	GraphArrayIteratorBase<ArrayType, isConst> &operator++() {
+	GraphArrayIteratorBase<ArrayType, isConst>& operator++() {
 		OGDF_ASSERT(m_key != nullptr);
 		m_key = ArrayType::findSuccKey(m_key);
 		return *this;
@@ -173,7 +180,7 @@ public:
 	}
 
 	//! Decrement operator (prefix).
-	GraphArrayIteratorBase<ArrayType, isConst> &operator--() {
+	GraphArrayIteratorBase<ArrayType, isConst>& operator--() {
 		OGDF_ASSERT(m_key != nullptr);
 		m_key = ArrayType::findPredKey(m_key);
 		return *this;

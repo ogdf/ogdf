@@ -33,7 +33,6 @@
 
 #include <ogdf/basic/Graph.h>
 
-
 namespace ogdf {
 
 
@@ -58,10 +57,10 @@ public:
 	 * @param G is the input digraph.
 	 * @param rank is assigned the node ranking.
 	 */
-	virtual void call(const Graph &G, NodeArray<int> &rank) = 0;
+	virtual void call(const Graph& G, NodeArray<int>& rank) = 0;
 
-	virtual void call(const Graph &G, const EdgeArray<int> & /* length */, const EdgeArray<int> & /* cost */, NodeArray<int> &rank)
-	{
+	virtual void call(const Graph& G, const EdgeArray<int>& /* length */,
+			const EdgeArray<int>& /* cost */, NodeArray<int>& rank) {
 		call(G, rank);
 	}
 
@@ -71,9 +70,7 @@ public:
 	 * @param G is the input digraph.
 	 * @param rank is assigned the node ranking.
 	 */
-	void operator()(const Graph &G, NodeArray<int> &rank) {
-		call(G,rank);
-	}
+	void operator()(const Graph& G, NodeArray<int>& rank) { call(G, rank); }
 
 	OGDF_MALLOC_NEW_DELETE
 };

@@ -39,14 +39,13 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT EdgeCoverMerger : public MultilevelBuilder
-{
+class OGDF_EXPORT EdgeCoverMerger : public MultilevelBuilder {
 private:
 	double m_levelSizeFactor;
 	NodeArray<node> m_substituteNodes;
 
-	bool doMerge(MultilevelGraph &MLG, node parent, node mergePartner, int level);
-	bool buildOneLevel(MultilevelGraph &MLG) override;
+	bool doMerge(MultilevelGraph& MLG, node parent, node mergePartner, int level);
+	bool buildOneLevel(MultilevelGraph& MLG) override;
 
 public:
 	EdgeCoverMerger();

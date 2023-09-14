@@ -29,18 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Queue.h>
+#include <ogdf/fileformats/SvgPrinter.h>
+
 #include <algorithm>
 #include <cmath>
-
-#include <ogdf/fileformats/SvgPrinter.h>
-#include <ogdf/basic/Queue.h>
 
 using namespace ogdf;
 
 GraphIO::SVGSettings GraphIO::svgSettings;
 
-GraphIO::SVGSettings::SVGSettings()
-{
+GraphIO::SVGSettings::SVGSettings() {
 	m_margin = 1;
 	m_curviness = 0;
 	m_bezierInterpolation = false;
@@ -51,12 +50,11 @@ GraphIO::SVGSettings::SVGSettings()
 	m_height = "";
 }
 
-bool SvgPrinter::draw(std::ostream &os)
-{
+bool SvgPrinter::draw(std::ostream& os) {
 	pugi::xml_document doc;
 	pugi::xml_node rootNode = writeHeader(doc);
 
-	if(m_clsAttr) {
+	if (m_clsAttr) {
 		drawClusters(rootNode);
 	}
 
@@ -68,8 +66,7 @@ bool SvgPrinter::draw(std::ostream &os)
 	return true;
 }
 
-pugi::xml_node SvgPrinter::writeHeader(pugi::xml_document &doc)
-{
+pugi::xml_node SvgPrinter::writeHeader(pugi::xml_document& doc) {
 	pugi::xml_node rootNode = doc.append_child("svg");
 	rootNode.append_attribute("xmlns") = "http://www.w3.org/2000/svg";
 	rootNode.append_attribute("xmlns:xlink") = "http://www.w3.org/1999/xlink";
@@ -77,11 +74,11 @@ pugi::xml_node SvgPrinter::writeHeader(pugi::xml_document &doc)
 	rootNode.append_attribute("version") = "1.1";
 	rootNode.append_attribute("baseProfile") = "full";
 
-	if(!m_settings.width().empty()) {
+	if (!m_settings.width().empty()) {
 		rootNode.append_attribute("width") = m_settings.width().c_str();
 	}
 
-	if(!m_settings.height().empty()) {
+	if (!m_settings.height().empty()) {
 		rootNode.append_attribute("height") = m_settings.height().c_str();
 	}
 
@@ -91,30 +88,31 @@ pugi::xml_node SvgPrinter::writeHeader(pugi::xml_document &doc)
 	std::stringstream is;
 	is << (m_bbox.p1().m_x - margin);
 	is << " " << (m_bbox.p1().m_y - margin);
-	is << " " << (m_bbox.width() + 2*margin);
-	is << " " << (m_bbox.height() + 2*margin);
+	is << " " << (m_bbox.width() + 2 * margin);
+	is << " " << (m_bbox.height() + 2 * margin);
 	rootNode.append_attribute("viewBox") = is.str().c_str();
 
 	return rootNode;
 }
 
-void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, double lineWidth)
-{
-	if(lineStyle != StrokeType::None && lineStyle != StrokeType::Solid) {
+void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, double lineWidth) {
+	if (lineStyle != StrokeType::None && lineStyle != StrokeType::Solid) {
 		std::stringstream is;
 
-		switch(lineStyle) {
+		switch (lineStyle) {
 		case StrokeType::Dash:
-			is << 4*lineWidth << "," << 2*lineWidth;
+			is << 4 * lineWidth << "," << 2 * lineWidth;
 			break;
 		case StrokeType::Dot:
-			is << 1*lineWidth << "," << 2*lineWidth;
+			is << 1 * lineWidth << "," << 2 * lineWidth;
 			break;
 		case StrokeType::Dashdot:
-			is << 4*lineWidth << "," << 2*lineWidth << "," << 1*lineWidth << "," << 2*lineWidth;
+			is << 4 * lineWidth << "," << 2 * lineWidth << "," << 1 * lineWidth << ","
+			   << 2 * lineWidth;
 			break;
 		case StrokeType::Dashdotdot:
-			is << 4*lineWidth << "," << 2*lineWidth << "," << 1*lineWidth << "," << 2*lineWidth << "," << 1*lineWidth << "," << 2*lineWidth;
+			is << 4 * lineWidth << "," << 2 * lineWidth << "," << 1 * lineWidth << ","
+			   << 2 * lineWidth << "," << 1 * lineWidth << "," << 2 * lineWidth;
 			break;
 		default:
 			// will never happen
@@ -125,19 +123,17 @@ void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, do
 	}
 }
 
-void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
-{
+void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 #if 1
-	const double
-	  hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
-	  pentagonHalfWidth = 0.475528258147577 * m_attr.width(v),
-	  pentagonSmallHeight = 0.154508497187474 * m_attr.height(v),
-	  pentagonSmallWidth = 0.293892626146236 * m_attr.width(v),
-	  pentagonHalfHeight = 0.404508497187474 * m_attr.height(v),
-	  octagonHalfWidth = 0.461939766255643 * m_attr.width(v),
-	  octagonSmallWidth = 0.191341716182545 * m_attr.width(v),
-	  octagonHalfHeight  = 0.461939766255643 * m_attr.height(v),
-	  octagonSmallHeight = 0.191341716182545 * m_attr.height(v);
+	const double hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
+				 pentagonHalfWidth = 0.475528258147577 * m_attr.width(v),
+				 pentagonSmallHeight = 0.154508497187474 * m_attr.height(v),
+				 pentagonSmallWidth = 0.293892626146236 * m_attr.width(v),
+				 pentagonHalfHeight = 0.404508497187474 * m_attr.height(v),
+				 octagonHalfWidth = 0.461939766255643 * m_attr.width(v),
+				 octagonSmallWidth = 0.191341716182545 * m_attr.width(v),
+				 octagonHalfHeight = 0.461939766255643 * m_attr.height(v),
+				 octagonSmallHeight = 0.191341716182545 * m_attr.height(v);
 #endif
 	pugi::xml_node shape;
 	std::stringstream is;
@@ -155,94 +151,71 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 		shape.append_attribute("ry") = m_attr.height(v) / 2;
 		break;
 	case Shape::Triangle:
-		shape = drawPolygon(xmlNode, {
-					x, y - m_attr.height(v)/2,
-					x - m_attr.width(v)/2, y + m_attr.height(v)/2,
-					x + m_attr.width(v)/2, y + m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x, y - m_attr.height(v) / 2, x - m_attr.width(v) / 2, y + m_attr.height(v) / 2,
+						x + m_attr.width(v) / 2, y + m_attr.height(v) / 2});
 		break;
 	case Shape::InvTriangle:
-		shape = drawPolygon(xmlNode, {x, y + m_attr.height(v)/2,
-					x - m_attr.width(v)/2, y - m_attr.height(v)/2,
-					x + m_attr.width(v)/2,y - m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x, y + m_attr.height(v) / 2, x - m_attr.width(v) / 2, y - m_attr.height(v) / 2,
+						x + m_attr.width(v) / 2, y - m_attr.height(v) / 2});
 		break;
 	case Shape::Pentagon:
-		shape = drawPolygon(xmlNode, {
-					x, y - m_attr.height(v)/2,
-					x + pentagonHalfWidth, y - pentagonSmallHeight,
-					x + pentagonSmallWidth, y + pentagonHalfHeight,
-					x - pentagonSmallWidth, y + pentagonHalfHeight,
-					x - pentagonHalfWidth, y - pentagonSmallHeight
-				});
+		shape = drawPolygon(xmlNode,
+				{x, y - m_attr.height(v) / 2, x + pentagonHalfWidth, y - pentagonSmallHeight,
+						x + pentagonSmallWidth, y + pentagonHalfHeight, x - pentagonSmallWidth,
+						y + pentagonHalfHeight, x - pentagonHalfWidth, y - pentagonSmallHeight});
 		break;
 	case Shape::Hexagon:
-		shape = drawPolygon(xmlNode, {
-					x + m_attr.width(v)/4, y + hexagonHalfHeight,
-					x - m_attr.width(v)/4, y + hexagonHalfHeight,
-					x - m_attr.width(v)/2, y,
-					x - m_attr.width(v)/4, y - hexagonHalfHeight,
-					x + m_attr.width(v)/4, y - hexagonHalfHeight,
-					x + m_attr.width(v)/2, y
-				});
+		shape = drawPolygon(xmlNode,
+				{x + m_attr.width(v) / 4, y + hexagonHalfHeight, x - m_attr.width(v) / 4,
+						y + hexagonHalfHeight, x - m_attr.width(v) / 2, y, x - m_attr.width(v) / 4,
+						y - hexagonHalfHeight, x + m_attr.width(v) / 4, y - hexagonHalfHeight,
+						x + m_attr.width(v) / 2, y});
 		break;
 	case Shape::Octagon:
-		shape = drawPolygon(xmlNode, {
-					x + octagonHalfWidth, y + octagonSmallHeight,
-					x + octagonSmallWidth, y + octagonHalfHeight,
-					x - octagonSmallWidth, y + octagonHalfHeight,
-					x - octagonHalfWidth, y + octagonSmallHeight,
-					x - octagonHalfWidth, y - octagonSmallHeight,
-					x - octagonSmallWidth, y - octagonHalfHeight,
-					x + octagonSmallWidth, y - octagonHalfHeight,
-					x + octagonHalfWidth, y - octagonSmallHeight
-				});
+		shape = drawPolygon(xmlNode,
+				{x + octagonHalfWidth, y + octagonSmallHeight, x + octagonSmallWidth,
+						y + octagonHalfHeight, x - octagonSmallWidth, y + octagonHalfHeight,
+						x - octagonHalfWidth, y + octagonSmallHeight, x - octagonHalfWidth,
+						y - octagonSmallHeight, x - octagonSmallWidth, y - octagonHalfHeight,
+						x + octagonSmallWidth, y - octagonHalfHeight, x + octagonHalfWidth,
+						y - octagonSmallHeight});
 		break;
 	case Shape::Rhomb:
-		shape = drawPolygon(xmlNode, {
-					x + m_attr.width(v)/2, y,
-					x, y + m_attr.height(v)/2,
-					x - m_attr.width(v)/2, y,
-					x, y - m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x + m_attr.width(v) / 2, y, x, y + m_attr.height(v) / 2, x - m_attr.width(v) / 2,
+						y, x, y - m_attr.height(v) / 2});
 		break;
 	case Shape::Trapeze:
-		shape = drawPolygon(xmlNode, {
-					x - m_attr.width(v)/2, y + m_attr.height(v)/2,
-					x + m_attr.width(v)/2, y + m_attr.height(v)/2,
-					x + m_attr.width(v)/4, y - m_attr.height(v)/2,
-					x - m_attr.width(v)/4, y - m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x - m_attr.width(v) / 2, y + m_attr.height(v) / 2, x + m_attr.width(v) / 2,
+						y + m_attr.height(v) / 2, x + m_attr.width(v) / 4, y - m_attr.height(v) / 2,
+						x - m_attr.width(v) / 4, y - m_attr.height(v) / 2});
 		break;
 	case Shape::InvTrapeze:
-		shape = drawPolygon(xmlNode, {
-					x - m_attr.width(v)/2, y - m_attr.height(v)/2,
-					x + m_attr.width(v)/2, y - m_attr.height(v)/2,
-					x + m_attr.width(v)/4, y + m_attr.height(v)/2,
-					x - m_attr.width(v)/4, y + m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x - m_attr.width(v) / 2, y - m_attr.height(v) / 2, x + m_attr.width(v) / 2,
+						y - m_attr.height(v) / 2, x + m_attr.width(v) / 4, y + m_attr.height(v) / 2,
+						x - m_attr.width(v) / 4, y + m_attr.height(v) / 2});
 		break;
 	case Shape::Parallelogram:
-		shape = drawPolygon(xmlNode, {
-					x - m_attr.width(v)/2, y + m_attr.height(v)/2,
-					x + m_attr.width(v)/4, y + m_attr.height(v)/2,
-					x + m_attr.width(v)/2, y - m_attr.height(v)/2,
-					x - m_attr.width(v)/4, y - m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x - m_attr.width(v) / 2, y + m_attr.height(v) / 2, x + m_attr.width(v) / 4,
+						y + m_attr.height(v) / 2, x + m_attr.width(v) / 2, y - m_attr.height(v) / 2,
+						x - m_attr.width(v) / 4, y - m_attr.height(v) / 2});
 		break;
 	case Shape::InvParallelogram:
-		shape = drawPolygon(xmlNode, {
-					x - m_attr.width(v)/2, y - m_attr.height(v)/2,
-					x + m_attr.width(v)/4, y - m_attr.height(v)/2,
-					x + m_attr.width(v)/2, y + m_attr.height(v)/2,
-					x - m_attr.width(v)/4, y + m_attr.height(v)/2
-				});
+		shape = drawPolygon(xmlNode,
+				{x - m_attr.width(v) / 2, y - m_attr.height(v) / 2, x + m_attr.width(v) / 4,
+						y - m_attr.height(v) / 2, x + m_attr.width(v) / 2, y + m_attr.height(v) / 2,
+						x - m_attr.width(v) / 4, y + m_attr.height(v) / 2});
 		break;
 	// unsupported shapes are rendered as rectangle
 	default:
 		shape = xmlNode.append_child("rect");
-		shape.append_attribute("x") = x - m_attr.width(v)/2;
-		shape.append_attribute("y") = y - m_attr.height(v)/2;
+		shape.append_attribute("x") = x - m_attr.width(v) / 2;
+		shape.append_attribute("y") = y - m_attr.height(v) / 2;
 		shape.append_attribute("width") = m_attr.width(v);
 		shape.append_attribute("height") = m_attr.height(v);
 
@@ -256,9 +229,10 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 		shape.append_attribute("fill") = m_attr.fillColor(v).toString().c_str();
 		shape.append_attribute("stroke-width") = (to_string(m_attr.strokeWidth(v)) + "px").c_str();
 
-		StrokeType lineStyle = m_attr.has(GraphAttributes::nodeStyle) ? m_attr.strokeType(v) : StrokeType::Solid;
+		StrokeType lineStyle =
+				m_attr.has(GraphAttributes::nodeStyle) ? m_attr.strokeType(v) : StrokeType::Solid;
 
-		if(lineStyle == StrokeType::None) {
+		if (lineStyle == StrokeType::None) {
 			shape.append_attribute("stroke") = "none";
 		} else {
 			shape.append_attribute("stroke") = m_attr.strokeColor(v).toString().c_str();
@@ -277,15 +251,14 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 		label.append_attribute("fill") = m_settings.fontColor().c_str();
 		label.text() = m_attr.label(v).c_str();
 
-		if(m_attr.has(GraphAttributes::nodeLabelPosition)) {
+		if (m_attr.has(GraphAttributes::nodeLabelPosition)) {
 			label.attribute("x") = m_attr.x(v) + m_attr.xLabel(v);
 			label.attribute("y") = m_attr.y(v) + m_attr.yLabel(v);
 		}
 	}
 }
 
-void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c)
-{
+void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c) {
 	OGDF_ASSERT(m_clsAttr);
 
 	pugi::xml_node clusterXmlNode = xmlNode.append_child("rect");
@@ -296,16 +269,18 @@ void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c)
 		clusterXmlNode.append_attribute("height") = m_clsAttr->height(c);
 	}
 	if (m_clsAttr->has(ClusterGraphAttributes::clusterStyle)) {
-		clusterXmlNode.append_attribute("fill") =
-				m_clsAttr->fillPattern(c) == FillPattern::None ? "none" : m_clsAttr->fillColor(c).toString().c_str();
-		clusterXmlNode.append_attribute("stroke") =
-				m_clsAttr->strokeType(c) == StrokeType::None ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
-		clusterXmlNode.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
+		clusterXmlNode.append_attribute("fill") = m_clsAttr->fillPattern(c) == FillPattern::None
+				? "none"
+				: m_clsAttr->fillColor(c).toString().c_str();
+		clusterXmlNode.append_attribute("stroke") = m_clsAttr->strokeType(c) == StrokeType::None
+				? "none"
+				: m_clsAttr->strokeColor(c).toString().c_str();
+		clusterXmlNode.append_attribute("stroke-width") =
+				(to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
 	}
 	if (m_clsAttr->has(ClusterGraphAttributes::clusterLabel)) {
-		DRect cbox(m_clsAttr->x(c), m_clsAttr->y(c),
-				   m_clsAttr->x(c) + m_clsAttr->width(c),
-				   m_clsAttr->y(c) + m_clsAttr->height(c));
+		DRect cbox(m_clsAttr->x(c), m_clsAttr->y(c), m_clsAttr->x(c) + m_clsAttr->width(c),
+				m_clsAttr->y(c) + m_clsAttr->height(c));
 		cbox.normalize();
 		double top = m_bbox.p2().m_y - cbox.p2().m_y;
 		double bottom = cbox.p1().m_y - m_bbox.p1().m_y;
@@ -333,8 +308,7 @@ void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c)
 	}
 }
 
-void SvgPrinter::drawNodes(pugi::xml_node xmlNode)
-{
+void SvgPrinter::drawNodes(pugi::xml_node xmlNode) {
 	List<node> nodes;
 	m_attr.constGraph().allNodes(nodes);
 
@@ -342,48 +316,53 @@ void SvgPrinter::drawNodes(pugi::xml_node xmlNode)
 		nodes.quicksort(GenericComparer<node, double>([&](node v) { return m_attr.z(v); }));
 	}
 
-	for(node v : nodes) {
+	for (node v : nodes) {
 		drawNode(xmlNode, v);
 	}
 }
 
-void SvgPrinter::drawClusters(pugi::xml_node xmlNode)
-{
+void SvgPrinter::drawClusters(pugi::xml_node xmlNode) {
 	OGDF_ASSERT(m_clsAttr);
 
 	Queue<cluster> queue;
 	queue.append(m_clsAttr->constClusterGraph().rootCluster());
 
-	while(!queue.empty()) {
+	while (!queue.empty()) {
 		cluster c = queue.pop();
 		drawCluster(xmlNode.append_child("g"), c);
 
-		for(cluster child : c->children) {
+		for (cluster child : c->children) {
 			queue.append(child);
 		}
 	}
 }
 
-void SvgPrinter::drawEdges(pugi::xml_node xmlNode)
-{
+void SvgPrinter::drawEdges(pugi::xml_node xmlNode) {
 	if (m_attr.has(GraphAttributes::edgeGraphics)) {
 		xmlNode = xmlNode.append_child("g");
 
-		for(edge e : m_attr.constGraph().edges) {
+		for (edge e : m_attr.constGraph().edges) {
 			drawEdge(xmlNode, e);
 		}
 	}
 }
 
-void SvgPrinter::appendLineStyle(pugi::xml_node line, edge e) {
+void SvgPrinter::appendLineStyle(pugi::xml_node line, edge e, bool isArrowHead) {
+	StrokeType lineStyle =
+			m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeType(e) : StrokeType::Solid;
 
-	StrokeType lineStyle = m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeType(e) : StrokeType::Solid;
-
-	if(lineStyle != StrokeType::None) {
+	if (lineStyle != StrokeType::None) {
 		if (m_attr.has(GraphAttributes::edgeStyle)) {
-			line.append_attribute("stroke") = m_attr.strokeColor(e).toString().c_str();
+			std::string lineColor = m_attr.strokeColor(e).toString();
+			line.append_attribute("stroke") = lineColor.c_str();
 			line.append_attribute("stroke-width") = (to_string(m_attr.strokeWidth(e)) + "px").c_str();
-			writeDashArray(line, lineStyle, m_attr.strokeWidth(e));
+
+			// Arrow heads should not be dashed but filled with the line color.
+			if (isArrowHead) {
+				line.append_attribute("fill") = lineColor.c_str();
+			} else {
+				writeDashArray(line, lineStyle, m_attr.strokeWidth(e));
+			}
 		} else {
 			line.append_attribute("stroke") = "#000000";
 		}
@@ -395,10 +374,8 @@ pugi::xml_node SvgPrinter::drawPolygon(pugi::xml_node xmlNode, const std::list<d
 	OGDF_ASSERT(points.size() % 2 == 0);
 
 	std::stringstream is;
-	bool writeSpace = false;
-
-	for(double p : points) {
-		is << p << (writeSpace ? " " : ",");
+	for (double p : points) {
+		is << p << " ";
 	}
 
 	result.append_attribute("points") = is.str().c_str();
@@ -409,22 +386,21 @@ pugi::xml_node SvgPrinter::drawPolygon(pugi::xml_node xmlNode, const std::list<d
 bool SvgPrinter::isArrowEnabled(adjEntry adj) {
 	bool result = false;
 
-	if(m_attr.has(GraphAttributes::edgeArrow)) {
-		switch(m_attr.arrowType(*adj)) {
-			case EdgeArrow::Undefined:
-				result = !adj->isSource() && m_attr.directed();
-				break;
-			case EdgeArrow::First:
-				result = adj->isSource();
-				break;
-			case EdgeArrow::Last:
-				result = !adj->isSource();
-				break;
-			case EdgeArrow::Both:
-				result = true;
-				break;
-			case EdgeArrow::None:
-				;
+	if (m_attr.has(GraphAttributes::edgeArrow)) {
+		switch (m_attr.arrowType(*adj)) {
+		case EdgeArrow::Undefined:
+			result = !adj->isSource() && m_attr.directed();
+			break;
+		case EdgeArrow::First:
+			result = adj->isSource();
+			break;
+		case EdgeArrow::Last:
+			result = !adj->isSource();
+			break;
+		case EdgeArrow::Both:
+			result = true;
+			break;
+		case EdgeArrow::None:;
 		}
 	} else {
 		result = !adj->isSource() && m_attr.directed();
@@ -436,23 +412,25 @@ bool SvgPrinter::isArrowEnabled(adjEntry adj) {
 double SvgPrinter::getArrowSize(adjEntry adj) {
 	double result = 0;
 
-	if(isArrowEnabled(adj)) {
-		const double minSize = (m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeWidth(adj->theEdge()) : 1) * 3;
+	if (isArrowEnabled(adj)) {
+		const double minSize =
+				(m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeWidth(adj->theEdge()) : 1) * 3;
 		node v = adj->theNode();
 		node w = adj->twinNode();
-		result = std::max(minSize, (m_attr.width(v) + m_attr.height(v) + m_attr.width(w) + m_attr.height(w)) / 16.0);
+		result = std::max(minSize,
+				(m_attr.width(v) + m_attr.height(v) + m_attr.width(w) + m_attr.height(w)) / 16.0);
 	}
 
 	return result;
 }
 
-bool SvgPrinter::isCoveredBy(const DPoint &point, adjEntry adj) {
+bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) {
 	node v = adj->theNode();
 
-	return point.m_x >= m_attr.x(v) - m_attr.width(v)/2
-	    && point.m_x <= m_attr.x(v) + m_attr.width(v)/2
-	    && point.m_y >= m_attr.y(v) - m_attr.height(v)/2
-	    && point.m_y <= m_attr.y(v) + m_attr.height(v)/2;
+	return point.m_x >= m_attr.x(v) - m_attr.width(v) / 2
+			&& point.m_x <= m_attr.x(v) + m_attr.width(v) / 2
+			&& point.m_y >= m_attr.y(v) - m_attr.height(v) / 2
+			&& point.m_y <= m_attr.y(v) + m_attr.height(v) / 2;
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
@@ -463,7 +441,7 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 	bool drawLabel = m_attr.has(GraphAttributes::edgeLabel) && !m_attr.label(e).empty();
 	pugi::xml_node label;
 
-	if(drawLabel) {
+	if (drawLabel) {
 		label = xmlNode.append_child("text");
 		label.append_attribute("text-anchor") = "middle";
 		label.append_attribute("dominant-baseline") = "middle";
@@ -484,13 +462,13 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 
 	List<DPoint> points;
 
-	for(ListConstIterator<DPoint> it = path.begin(); it.succ().valid() && !finished; it++) {
+	for (ListConstIterator<DPoint> it = path.begin(); it.succ().valid() && !finished; it++) {
 		DPoint p1 = *it;
 		DPoint p2 = *(it.succ());
 
 		// leaving segment at source node ?
-		if(isCoveredBy(p1, e->adjSource()) && !isCoveredBy(p2, e->adjSource())) {
-			if(!drawSegment && drawSourceArrow) {
+		if (isCoveredBy(p1, e->adjSource()) && !isCoveredBy(p2, e->adjSource())) {
+			if (!drawSegment && drawSourceArrow) {
 				drawArrowHead(xmlNode, p2, p1, e->adjSource());
 			}
 
@@ -498,58 +476,60 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 		}
 
 		// entering segment at target node ?
-		if(!isCoveredBy(p1, e->adjTarget()) && isCoveredBy(p2, e->adjTarget())) {
+		if (!isCoveredBy(p1, e->adjTarget()) && isCoveredBy(p2, e->adjTarget())) {
 			finished = true;
 
-			if(drawTargetArrow) {
+			if (drawTargetArrow) {
 				drawArrowHead(xmlNode, p1, p2, e->adjTarget());
 			}
 		}
 
-		if(drawSegment && drawLabel) {
+		if (drawSegment && drawLabel) {
 			label.append_attribute("x") = (p1.m_x + p2.m_x) / 2;
 			label.append_attribute("y") = (p1.m_y + p2.m_y) / 2;
 
 			drawLabel = false;
 		}
 
-		if(drawSegment) {
+		if (drawSegment) {
 			points.pushBack(p1);
 		}
 
-		if(finished) {
+		if (finished) {
 			points.pushBack(p2);
 		}
 	}
 
-	if(points.size() < 2) {
-		GraphIO::logger.lout() << "Could not draw edge since nodes are overlapping: " << e << std::endl;
+	if (points.size() < 2) {
+		GraphIO::logger.lout()
+				<< "Could not draw edge since nodes are overlapping: " << e << std::endl;
 	} else {
 		drawCurve(xmlNode, e, points);
 	}
 }
 
-void SvgPrinter::drawLine(std::stringstream &ss, const DPoint &p1, const DPoint &p2) {
+void SvgPrinter::drawLine(std::stringstream& ss, const DPoint& p1, const DPoint& p2) {
 	ss << " M" << p1.m_x << "," << p1.m_y << " L" << p2.m_x << "," << p2.m_y;
 }
 
-
-void SvgPrinter::drawBezier(std::stringstream &ss, const DPoint &p1, const DPoint &p2, const DPoint &c1, const DPoint &c2) {
-	ss << " M" << p1.m_x << "," << p1.m_y << " C" << c1.m_x << "," << c1.m_y << "  " << c2.m_x << "," << c2.m_y << " " << p2.m_x << "," << p2.m_y;
+void SvgPrinter::drawBezier(std::stringstream& ss, const DPoint& p1, const DPoint& p2,
+		const DPoint& c1, const DPoint& c2) {
+	ss << " M" << p1.m_x << "," << p1.m_y << " C" << c1.m_x << "," << c1.m_y << "  " << c2.m_x
+	   << "," << c2.m_y << " " << p2.m_x << "," << p2.m_y;
 }
 
-void SvgPrinter::drawBezierPath(std::stringstream &ss, List<DPoint> &points) {
+void SvgPrinter::drawBezierPath(std::stringstream& ss, List<DPoint>& points) {
 	const double c = m_settings.curviness();
 	DPoint cLast = 0.5 * (points.front() + *points.get(1));
 
-	while(points.size() >= 3) {
+	while (points.size() >= 3) {
 		const DPoint p1 = points.popFrontRet();
 		const DPoint p2 = points.front();
 		const DPoint p3 = *points.get(1);
 
-		const DPoint delta = p2 - 0.5 * (p1+p3);
-		const DPoint c1 = p1 + c * delta + (1-c) * (p2-p1);
-		const DPoint c2 = p3 + c * delta + (1-c) * (p2-p3);
+		const DPoint delta = p2 - 0.5 * (p1 + p3);
+		const DPoint c1 = p1 + c * delta + (1 - c) * (p2 - p1);
+		const DPoint c2 = p3 + c * delta + (1 - c) * (p2 - p3);
 
 		drawBezier(ss, p1, p2, cLast, c1);
 
@@ -563,15 +543,15 @@ void SvgPrinter::drawBezierPath(std::stringstream &ss, List<DPoint> &points) {
 	drawBezier(ss, p1, p2, cLast, c1);
 }
 
-void SvgPrinter::drawRoundPath(std::stringstream &ss, List<DPoint> &points) {
+void SvgPrinter::drawRoundPath(std::stringstream& ss, List<DPoint>& points) {
 	const double c = m_settings.curviness();
 
 	DPoint p1 = points.front();
 	DPoint p2 = *points.get(1);
 
-	drawLine(ss, p1, .5 * ((p1+p2) + (1-c) * (p2-p1)));
+	drawLine(ss, p1, .5 * ((p1 + p2) + (1 - c) * (p2 - p1)));
 
-	while(points.size() >= 3) {
+	while (points.size() >= 3) {
 		p1 = points.popFrontRet();
 		p2 = points.front();
 		DPoint p3 = *points.get(1);
@@ -587,44 +567,45 @@ void SvgPrinter::drawRoundPath(std::stringstream &ss, List<DPoint> &points) {
 		DPoint pA = p2 + v1;
 		DPoint pB = p2 + v2;
 
-		drawLine(ss, 0.5 * (p1+p2), pA);
-		drawLine(ss, 0.5 * (p3+p2), pB);
+		drawLine(ss, 0.5 * (p1 + p2), pA);
+		drawLine(ss, 0.5 * (p3 + p2), pB);
 
 		DPoint vA = p2 - p1;
 		DPoint vB = p3 - p1;
-		bool doSweep = vA.m_x*vB.m_y - vA.m_y*vB.m_x > 0;
+		bool doSweep = vA.m_x * vB.m_y - vA.m_y * vB.m_x > 0;
 
-		ss << " M" << pA.m_x << "," << pA.m_y << " A" << length << "," << length << " 0 0 " << (doSweep ? 1 : 0) << " " << pB.m_x << "," << pB.m_y << "";
+		ss << " M" << pA.m_x << "," << pA.m_y << " A" << length << "," << length << " 0 0 "
+		   << (doSweep ? 1 : 0) << " " << pB.m_x << "," << pB.m_y << "";
 	}
 
 	p1 = points.popFrontRet();
 	p2 = points.popFrontRet();
 
-	drawLine(ss, p2, .5 * ((p1 + p2) + (1-c) * (p1-p2)));
+	drawLine(ss, p2, .5 * ((p1 + p2) + (1 - c) * (p1 - p2)));
 }
 
-void SvgPrinter::drawLines(std::stringstream &ss, List<DPoint> &points) {
-	while(points.size() > 1) {
+void SvgPrinter::drawLines(std::stringstream& ss, List<DPoint>& points) {
+	while (points.size() > 1) {
 		DPoint p = points.popFrontRet();
 		drawLine(ss, p, points.front());
 	}
 }
 
-pugi::xml_node SvgPrinter::drawCurve(pugi::xml_node xmlNode, edge e, List<DPoint> &points) {
+pugi::xml_node SvgPrinter::drawCurve(pugi::xml_node xmlNode, edge e, List<DPoint>& points) {
 	OGDF_ASSERT(points.size() >= 2);
 
 	pugi::xml_node line = xmlNode.append_child("path");
 	std::stringstream ss;
 
-	if(points.size() == 2) {
+	if (points.size() == 2) {
 		const DPoint p1 = points.popFrontRet();
 		const DPoint p2 = points.popFrontRet();
 
 		drawLine(ss, p1, p2);
 	} else {
-		if(m_settings.curviness() == 0) {
+		if (m_settings.curviness() == 0) {
 			drawLines(ss, points);
-		} else if(m_settings.bezierInterpolation()) {
+		} else if (m_settings.bezierInterpolation()) {
 			drawBezierPath(ss, points);
 		} else {
 			drawRoundPath(ss, points);
@@ -638,8 +619,8 @@ pugi::xml_node SvgPrinter::drawCurve(pugi::xml_node xmlNode, edge e, List<DPoint
 	return line;
 }
 
-void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoint &end, adjEntry adj)
-{
+void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoint& end,
+		adjEntry adj) {
 	const double dx = end.m_x - start.m_x;
 	const double dy = end.m_y - start.m_y;
 	const double size = getArrowSize(adj);
@@ -647,31 +628,29 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoi
 
 	pugi::xml_node arrowHead;
 
-	if(dx == 0) {
+	if (dx == 0) {
 		int sign = dy > 0 ? 1 : -1;
-		double y = m_attr.y(v) - m_attr.height(v)/2 * sign;
+		double y = m_attr.y(v) - m_attr.height(v) / 2 * sign;
 		end.m_y = y - sign * size;
 
-		arrowHead = drawPolygon(xmlNode, {
-				end.m_x, y,
-				end.m_x - size/4, y - size*sign,
-				end.m_x + size/4, y - size*sign
-		});
+		arrowHead = drawPolygon(xmlNode,
+				{end.m_x, y, end.m_x - size / 4, y - size * sign, end.m_x + size / 4,
+						y - size * sign});
 	} else {
 		// identify the position of the tip
 
 		double slope = dy / dx;
 		int sign = dx > 0 ? 1 : -1;
 
-		double x = m_attr.x(v) - m_attr.width(v)/2 * sign;
+		double x = m_attr.x(v) - m_attr.width(v) / 2 * sign;
 		double delta = x - start.m_x;
-		double y = start.m_y + delta*slope;
+		double y = start.m_y + delta * slope;
 
-		if(!isCoveredBy(DPoint(x,y), adj)) {
+		if (!isCoveredBy(DPoint(x, y), adj)) {
 			sign = dy > 0 ? 1 : -1;
-			y = m_attr.y(v) - m_attr.height(v)/2 * sign;
+			y = m_attr.y(v) - m_attr.height(v) / 2 * sign;
 			delta = y - start.m_y;
-			x = start.m_x + delta/slope;
+			x = start.m_x + delta / slope;
 		}
 
 		end.m_x = x;
@@ -681,21 +660,21 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoi
 
 		double dx2 = end.m_x - start.m_x;
 		double dy2 = end.m_y - start.m_y;
-		double length = std::sqrt(dx2*dx2 + dy2*dy2);
+		double length = std::sqrt(dx2 * dx2 + dy2 * dy2);
 		dx2 /= length;
 		dy2 /= length;
 
 		double mx = end.m_x - size * dx2;
 		double my = end.m_y - size * dy2;
 
-		double x2 = mx - size/4 * dy2;
-		double y2 = my + size/4 * dx2;
+		double x2 = mx - size / 4 * dy2;
+		double y2 = my + size / 4 * dx2;
 
-		double x3 = mx + size/4 * dy2;
-		double y3 = my - size/4 * dx2;
+		double x3 = mx + size / 4 * dy2;
+		double y3 = my - size / 4 * dx2;
 
 		arrowHead = drawPolygon(xmlNode, {end.m_x, end.m_y, x2, y2, x3, y3});
 	}
 
-	appendLineStyle(arrowHead, *adj);
+	appendLineStyle(arrowHead, *adj, true);
 }

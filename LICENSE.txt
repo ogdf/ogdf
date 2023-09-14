@@ -13,10 +13,10 @@ LICENSE_GPL_v3.txt included in the packaging of this file.
 In addition, as a special exception, you have permission to link
 this software with
 
-  - Tulip (http://www.tulip-software.org)
+  - Tulip (https://tulip.labri.fr/site/)
 
   - the libraries of the COIN-OR Osi project (see
-    http://www.coin-or.org/projects/Osi.xml);
+    https://github.com/coin-or/Osi);
 
   - all libraries required by Osi;
 
@@ -45,7 +45,7 @@ Third-party software:
 This distribution integrates source code from
 
   - the ABACUS framework, licensed under the GNU LGPL
-    (see http://www.informatik.uni-koeln.de/abacus/).
+    (see https://software.cs.uni-koeln.de/abacus/).
     The files are located in {src,include}/ogdf/lib/abacus.
 
   - the Bandit unit testing framework, licensed under MIT license
@@ -62,7 +62,7 @@ This distribution integrates source code from
     https://github.com/ogdf/bandit
 
   - the COIN-OR project, licensed under the Eclipse Public License 1.0
-    (see http://www.eclipse.org/legal/epl-v10.html).
+    (see https://www.eclipse.org/legal/epl-v10.html).
     The files are located in {src,include}/coin.
 
   - the Minisat project, licensed under the MIT license

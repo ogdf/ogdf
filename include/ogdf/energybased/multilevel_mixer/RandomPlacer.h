@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
 #include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
 
 namespace ogdf {
 
@@ -40,15 +40,14 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT RandomPlacer : public InitialPlacer
-{
-	void placeOneNode(MultilevelGraph &MLG, double radius);
+class OGDF_EXPORT RandomPlacer : public InitialPlacer {
+	void placeOneNode(MultilevelGraph& MLG, double radius);
 
 	double m_circleSizeFactor;
 
 public:
 	RandomPlacer() : m_circleSizeFactor(1.0) {};
-	void placeOneLevel(MultilevelGraph &MLG) override;
+	void placeOneLevel(MultilevelGraph& MLG) override;
 	void setCircleSize(double factor);
 };
 

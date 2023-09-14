@@ -49,31 +49,31 @@ public:
 
 	// Status Definitions
 	enum class PQNodeStatus {
-		Empty       = 1,
-		Partial     = 2,
-		Full        = 3,
-		Pertinent   = 4,
+		Empty = 1,
+		Partial = 2,
+		Full = 3,
+		Pertinent = 4,
 		ToBeDeleted = 5,
 
 		//! Indicator for extra node status defines
-		Indicator   = 6,
+		Indicator = 6,
 		//! Nodes removed during the template reduction are marked as
 		//! as Eliminated. Their memory is not freed. They are kept
 		//! for parent pointer update.
-		Eliminated  = 6,
+		Eliminated = 6,
 		//! Nodes that need to be removed in order to obtain a
 		//! maximal pertinent sequence are marked WhaDelete.
-		WhaDelete  = 7,
+		WhaDelete = 7,
 		//! The pertinent Root is marked PertRoot during the clean up
 		//! after a reduction. Technical.
-		PertRoot    = 8
+		PertRoot = 8
 	};
 
 	// Mark Definitions for Bubble Phase
 	enum class PQNodeMark { Unmarked = 0, Queued = 1, Blocked = 2, Unblocked = 3 };
 
-
 	PQNodeRoot() { }
+
 	virtual ~PQNodeRoot() { }
 
 	OGDF_NEW_DELETE

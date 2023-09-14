@@ -48,13 +48,12 @@ namespace steiner_tree {
  * shortest path algorithms in ogdf::MinSteinerTreeModule<T>.)
  */
 template<typename T>
-class FullComponentGeneratorDreyfusWagner
-{
-	const EdgeWeightedGraph<T> &m_G; //!< A reference to the graph instance
-	const List<node> &m_terminals; //!< A reference to the index-sorted list of terminals
+class FullComponentGeneratorDreyfusWagner {
+	const EdgeWeightedGraph<T>& m_G; //!< A reference to the graph instance
+	const List<node>& m_terminals; //!< A reference to the index-sorted list of terminals
 	const NodeArray<bool>& m_isTerminal; //!< A reference to the terminal incidence vector
-	const NodeArray<NodeArray<T>> &m_distance; //!< A reference to the full distance matrix
-	const NodeArray<NodeArray<edge>> &m_pred; //!< A reference to the full predecessor matrix
+	const NodeArray<NodeArray<T>>& m_distance; //!< A reference to the full distance matrix
+	const NodeArray<NodeArray<edge>>& m_pred; //!< A reference to the full predecessor matrix
 	SubsetEnumerator<node> m_terminalSubset; //!< Handling subsets of terminals
 
 	using NodePairs = ArrayBuffer<NodePair>;
@@ -64,8 +63,10 @@ class FullComponentGeneratorDreyfusWagner
 		T cost;
 		NodePairs nodepairs;
 		ArrayBuffer<const DWMData*> subgraphs;
-		DWMData(T _cost, NodePairs _nodepairs) : cost(_cost), nodepairs(_nodepairs) {}
-		explicit DWMData(T _cost = std::numeric_limits<T>::max()) : cost(_cost) {}
+
+		DWMData(T _cost, NodePairs _nodepairs) : cost(_cost), nodepairs(_nodepairs) { }
+
+		explicit DWMData(T _cost = std::numeric_limits<T>::max()) : cost(_cost) { }
 
 		//! Invalidates the data
 		void invalidate() {
@@ -74,9 +75,7 @@ class FullComponentGeneratorDreyfusWagner
 		}
 
 		//! Returns true iff the data is valid
-		bool valid() const {
-			return cost == 0 || !(nodepairs.empty() && subgraphs.empty());
-		}
+		bool valid() const { return cost == 0 || !(nodepairs.empty() && subgraphs.empty()); }
 
 		//! Adds \p other subgraph to ours
 		void add(const DWMData* other) {
@@ -126,14 +125,14 @@ class FullComponentGeneratorDreyfusWagner
 	Hashing<List<node>, DWMData, SortedNodeListHashFunc> m_map;
 
 	//! Returns a pointer to the relevant data of the partial solution given by \p key
-	const DWMData* dataOf(const List<node> &key) const {
+	const DWMData* dataOf(const List<node>& key) const {
 		OGDF_ASSERT(key.size() > 1);
 		OGDF_ASSERT(m_map.member(key));
 		return &m_map.lookup(key)->info();
 	}
 
 	//! Returns the cost of the partial solution given by \p key
-	T costOf(const List<node> &key) const {
+	T costOf(const List<node>& key) const {
 		OGDF_ASSERT(key.size() > 1);
 		if (key.size() == 2) { // a shortcut to avoid using the hash table
 #ifdef OGDF_FULL_COMPONENT_GENERATION_TERMINAL_SSSP_AWARE
@@ -151,14 +150,12 @@ class FullComponentGeneratorDreyfusWagner
 	}
 
 	//! Checks overflow-safe if \p summand1 plus \p summand2 is less than \p compareValue
-	bool safeIfSumSmaller(const T summand1, const T summand2, const T compareValue) const
-	{
+	bool safeIfSumSmaller(const T summand1, const T summand2, const T compareValue) const {
 #ifdef OGDF_FULL_COMPONENT_GENERATION_ALWAYS_SAFE
 		return summand1 + summand2 < compareValue;
 #else
-		return summand1 < std::numeric_limits<T>::max()
-		    && summand2 < std::numeric_limits<T>::max()
-		    && summand1 + summand2 < compareValue;
+		return summand1 < std::numeric_limits<T>::max() && summand2 < std::numeric_limits<T>::max()
+				&& summand1 + summand2 < compareValue;
 #endif
 	}
 
@@ -173,8 +170,7 @@ class FullComponentGeneratorDreyfusWagner
 	 * @param inserted Whether \p newNode was inserted; must be initialized to \c false
 	 * @param newNode New node to be inserted into the list
 	 */
-	static void sortedInserter(node w, List<node> &list, bool &inserted, node newNode)
-	{
+	static void sortedInserter(node w, List<node>& list, bool& inserted, node newNode) {
 		if (!inserted && w->index() > newNode->index()) {
 			list.pushBack(newNode);
 			inserted = true;
@@ -183,8 +179,7 @@ class FullComponentGeneratorDreyfusWagner
 	}
 
 	//! Makes a list from the current terminal subset including an correctly inserted node \p v
-	void makeKey(List<node>& newSubset, node v) const
-	{
+	void makeKey(List<node>& newSubset, node v) const {
 		bool inserted = false;
 		m_terminalSubset.forEachMember([&](node w) { sortedInserter(w, newSubset, inserted, v); });
 		if (!inserted) {
@@ -193,14 +188,14 @@ class FullComponentGeneratorDreyfusWagner
 	}
 
 	//! Makes a list from \p subset and its complement, each including an correctly inserted node \p v
-	void makeKey(List<node>& newSubset, List<node>& newComplement, const SubsetEnumerator<node>& subset, node v) const
-	{
+	void makeKey(List<node>& newSubset, List<node>& newComplement,
+			const SubsetEnumerator<node>& subset, node v) const {
 		bool insertedIntoSubset = false;
 		bool insertedIntoComplement = false;
 		// Interestingly std::bind is much slower than using lambdas (at least on g++ 6.3)
 		subset.forEachMemberAndNonmember(
-		    [&](node w) { sortedInserter(w, newSubset, insertedIntoSubset, v); },
-		    [&](node w) { sortedInserter(w, newComplement, insertedIntoComplement, v); });
+				[&](node w) { sortedInserter(w, newSubset, insertedIntoSubset, v); },
+				[&](node w) { sortedInserter(w, newComplement, insertedIntoComplement, v); });
 		if (!insertedIntoSubset) {
 			newSubset.pushBack(v);
 		}
@@ -214,13 +209,14 @@ class FullComponentGeneratorDreyfusWagner
 	 *
 	 * Note that it is not guaranteed that any resulting collection of node pairs represents a tree.
 	 */
-	void computeSplit(NodeArray<DWMSplit> &split, node v, SubsetEnumerator<node> &subset) const {
+	void computeSplit(NodeArray<DWMSplit>& split, node v, SubsetEnumerator<node>& subset) const {
 		if (split[v].subgraph1 != nullptr) { // already computed
 			return;
 		}
 
 		DWMSplit& best = split[v];
-		for (subset.begin(1, subset.numberOfMembersAndNonmembers() / 2); subset.valid(); subset.next()) {
+		for (subset.begin(1, subset.numberOfMembersAndNonmembers() / 2); subset.valid();
+				subset.next()) {
 			List<node> newSubset, newComplement;
 			makeKey(newSubset, newComplement, subset, v);
 
@@ -231,11 +227,8 @@ class FullComponentGeneratorDreyfusWagner
 	}
 
 	//! Computes a partial solution for given \p terminals and node \p v
-	void computePartialSolution(NodeArray<DWMSplit> &split,
-			node v,
-			SubsetEnumerator<node> &subset,
-			const List<node> &terminals)
-	{
+	void computePartialSolution(NodeArray<DWMSplit>& split, node v, SubsetEnumerator<node>& subset,
+			const List<node>& terminals) {
 		List<node> newSubset;
 		makeKey(newSubset, v);
 
@@ -357,25 +350,25 @@ public:
 	/** The constructor
 	 * \pre The list of terminals has to be sorted by index (use MinSteinerTreeModule<T>::sortTerminals)
 	 */
-	FullComponentGeneratorDreyfusWagner(const EdgeWeightedGraph<T>& G,
-			const List<node>& terminals, const NodeArray<bool>& isTerminal,
-			const NodeArray<NodeArray<T>>& distance, const NodeArray<NodeArray<edge>>& pred)
-	  : m_G(G)
-	  , m_terminals(terminals)
-	  , m_isTerminal(isTerminal)
-	  , m_distance(distance)
-	  , m_pred(pred)
-	  , m_terminalSubset(m_terminals)
-	  , m_map(1 << 22) // we initially allocate 4MB*sizeof(DWMData) for hashing
+	FullComponentGeneratorDreyfusWagner(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, const NodeArray<NodeArray<T>>& distance,
+			const NodeArray<NodeArray<edge>>& pred)
+		: m_G(G)
+		, m_terminals(terminals)
+		, m_isTerminal(isTerminal)
+		, m_distance(distance)
+		, m_pred(pred)
+		, m_terminalSubset(m_terminals)
+		, m_map(1 << 22) // we initially allocate 4MB*sizeof(DWMData) for hashing
 	{
 		initializeMap();
 	}
 
-	void call(int restricted)
-	{
+	void call(int restricted) {
 		OGDF_ASSERT(restricted >= 2);
 		Math::updateMin(restricted, m_terminals.size());
-		for (m_terminalSubset.begin(2, restricted-1); m_terminalSubset.valid(); m_terminalSubset.next()) {
+		for (m_terminalSubset.begin(2, restricted - 1); m_terminalSubset.valid();
+				m_terminalSubset.next()) {
 			if (m_terminalSubset.size() != restricted - 1) {
 				computePartialSolutions(m_G.nodes);
 			} else { // maximal terminal subset
@@ -401,7 +394,7 @@ public:
 		}
 		for (node v : graph.nodes) {
 			if (m_isTerminal[graph.original(v)] // is a terminal
-			 && v->degree() > 1) { // but not a leaf
+					&& v->degree() > 1) { // but not a leaf
 				return false;
 			}
 		}
@@ -410,22 +403,17 @@ public:
 };
 
 template<typename T>
-class FullComponentGeneratorDreyfusWagner<T>::SortedNodeListHashFunc
-{
+class FullComponentGeneratorDreyfusWagner<T>::SortedNodeListHashFunc {
 	static const unsigned int c_prime = 0x7fffffff; // mersenne prime 2**31 - 1
 	// would be nicer: 0x1fffffffffffffff; // mersenne prime 2**61 - 1
 	const int m_random;
 
 public:
 	//! Initializes the random number
-	SortedNodeListHashFunc()
-	  : m_random(randomNumber(2, c_prime - 1))
-	{
-	}
+	SortedNodeListHashFunc() : m_random(randomNumber(2, c_prime - 1)) { }
 
 	//! The actual hash function
-	unsigned int hash(const List<node> &key) const
-	{
+	unsigned int hash(const List<node>& key) const {
 		unsigned int hash = 0;
 		for (node v : key) {
 			hash = (hash * m_random + v->index()) % c_prime;

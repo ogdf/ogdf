@@ -29,28 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <vector>
-#include <queue>
-#include <set>
-#include <algorithm>
-#include <numeric>
-
+#include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/graphalg/Dijkstra.h>
-
 #include <ogdf/basic/heap/BinaryHeap.h>
 #include <ogdf/basic/heap/BinomialHeap.h>
 #include <ogdf/basic/heap/FibonacciHeap.h>
+#include <ogdf/basic/heap/HotQueue.h>
 #include <ogdf/basic/heap/RMHeap.h>
 #include <ogdf/basic/heap/RadixHeap.h>
-#include <ogdf/basic/heap/HotQueue.h>
+#include <ogdf/graphalg/Dijkstra.h>
+
+#include <algorithm>
+#include <numeric>
+#include <queue>
+#include <set>
+#include <vector>
 
 #include <testing.h>
 
-static std::vector<int> randomVector(size_t n)
-{
+static std::vector<int> randomVector(size_t n) {
 	std::default_random_engine rng(n);
 	std::uniform_int_distribution<int> dist;
 
@@ -63,11 +61,10 @@ static std::vector<int> randomVector(size_t n)
 }
 
 template<template<typename T, typename C> class H>
-void simpleScenarioTest(bool supportsDecrease, bool supportsMerge)
-{
+void simpleScenarioTest(bool supportsDecrease, bool supportsMerge) {
 	describe("simple scenario test", [&]() {
 		using Handle = typename H<int, std::less<int>>::Handle;
-		constexpr void *invalidHandle = nullptr;
+		constexpr void* invalidHandle = nullptr;
 		Handle handle = nullptr;
 
 		it("pushes values", [&]() {
@@ -130,7 +127,7 @@ void simpleScenarioTest(bool supportsDecrease, bool supportsMerge)
 			});
 		}
 
-		if(supportsMerge) {
+		if (supportsMerge) {
 			it("merges two heaps", []() {
 				H<int, std::less<int>> h1, h2;
 				h1.push(3);
@@ -160,14 +157,13 @@ void simpleScenarioTest(bool supportsDecrease, bool supportsMerge)
 }
 
 template<typename T, typename C, template<typename X, typename Y> class H>
-void sortingDatasetTest(const std::vector<T> &values)
-{
+void sortingDatasetTest(const std::vector<T>& values) {
 	using Handle = typename H<T, C>::Handle;
 
 	it("pushes and pops values in correct order", [&]() {
 		H<T, C> heap;
 
-		for(const T &v : values) {
+		for (const T& v : values) {
 			Handle node = heap.push(v);
 			AssertThat(heap.value(node), Equals(v));
 		}
@@ -176,7 +172,7 @@ void sortingDatasetTest(const std::vector<T> &values)
 		std::vector<int> sorted(values);
 		std::sort(sorted.begin(), sorted.end(), compare);
 
-		for (const T &v : sorted) {
+		for (const T& v : sorted) {
 			// compare is either "greater" or "less"
 			AssertThat(compare(heap.top(), v), IsFalse());
 			AssertThat(compare(v, heap.top()), IsFalse());
@@ -186,18 +182,17 @@ void sortingDatasetTest(const std::vector<T> &values)
 }
 
 template<typename T, typename C, template<typename X, typename Y> class H>
-void mergingDatasetTest(const std::vector<T> &a, const std::vector<T> &b)
-{
+void mergingDatasetTest(const std::vector<T>& a, const std::vector<T>& b) {
 	using Handle = typename H<T, C>::Handle;
 
 	it("pushes values and merges heaps", [&]() {
 		H<T, C> heapA, heapB;
 
-		for(const T &v : a) {
+		for (const T& v : a) {
 			Handle node = heapA.push(v);
 			AssertThat(heapA.value(node), Equals(v));
 		}
-		for(const T &v : b) {
+		for (const T& v : b) {
 			Handle node = heapB.push(v);
 			AssertThat(heapB.value(node), Equals(v));
 		}
@@ -205,14 +200,12 @@ void mergingDatasetTest(const std::vector<T> &a, const std::vector<T> &b)
 		std::vector<int> merged, sortedA(a), sortedB(b);
 		std::sort(sortedA.begin(), sortedA.end(), C());
 		std::sort(sortedB.begin(), sortedB.end(), C());
-		std::merge(
-				sortedA.begin(), sortedA.end(),
-				sortedB.begin(), sortedB.end(),
+		std::merge(sortedA.begin(), sortedA.end(), sortedB.begin(), sortedB.end(),
 				std::back_inserter(merged));
 
 		heapA.merge(heapB);
 
-		for(const T &v : merged) {
+		for (const T& v : merged) {
 			AssertThat(heapA.top(), Equals(v));
 			heapA.pop();
 		}
@@ -220,63 +213,54 @@ void mergingDatasetTest(const std::vector<T> &a, const std::vector<T> &b)
 }
 
 template<template<typename T, typename C> class H>
-void sortingRandomTest(size_t n)
-{
+void sortingRandomTest(size_t n) {
 	std::string desc = "sorting on " + std::to_string(n) + " random values";
 	describe(desc.data(), [&]() {
 		std::vector<int> data;
 
-		before_each([&](){
-			data = randomVector(n);
-		});
+		before_each([&]() { data = randomVector(n); });
 
 		sortingDatasetTest<int, std::less<int>, H>(data);
 	});
 }
 
 template<template<typename T, typename C> class H>
-void sortingComparerTest(size_t n)
-{
-	std::string descStandard = "sorting on " + std::to_string(n) + " random values with standard comparer";
+void sortingComparerTest(size_t n) {
+	std::string descStandard =
+			"sorting on " + std::to_string(n) + " random values with standard comparer";
 	describe(descStandard.data(), [&]() {
 		std::vector<int> data;
 
-		before_each([&](){
-			data = randomVector(n);
-		});
+		before_each([&]() { data = randomVector(n); });
 
 		sortingDatasetTest<int, ogdf::StlGreater<int, ogdf::StdComparer<int>>, H>(data);
 	});
 
 	class ModComparer {
 	public:
-		static int compare(const int &x, const int &y) {
-			return x % 3 - y % 3;
-		}
-	OGDF_AUGMENT_STATICCOMPARER(int)
+		static int compare(const int& x, const int& y) { return x % 3 - y % 3; }
+		OGDF_AUGMENT_STATICCOMPARER(int)
 	};
 
-	std::string descCustom = "sorting on " + std::to_string(n) + " random values with custom comparer";
+	std::string descCustom =
+			"sorting on " + std::to_string(n) + " random values with custom comparer";
 	describe(descCustom.data(), [&]() {
 		std::vector<int> data;
 
-		before_each([&](){
-			data = randomVector(n);
-		});
+		before_each([&]() { data = randomVector(n); });
 
 		sortingDatasetTest<int, ogdf::StlLess<int, ModComparer>, H>(data);
 	});
 }
 
 template<template<typename T, typename C> class H>
-void mergingRandomTest(size_t n)
-{
+void mergingRandomTest(size_t n) {
 	std::string desc = "merging on " + std::to_string(n) + " random values";
 	describe(desc.data(), [&]() {
 		std::vector<int> a;
 		std::vector<int> b;
 
-		before_each([&](){
+		before_each([&]() {
 			a = (randomVector(n / 3));
 			b = (randomVector(2 * (n / 3) + n % 3));
 		});
@@ -286,8 +270,7 @@ void mergingRandomTest(size_t n)
 }
 
 template<template<typename T, typename C> class H>
-void destructorTest()
-{
+void destructorTest() {
 	describe("destructor test", []() {
 		size_t N = 1000;
 
@@ -310,8 +293,8 @@ void destructorTest()
 			std::vector<int> data(randomVector(N));
 
 			H<int, std::less<int>> h;
-			for(size_t i = 0; i < N; i++) {
-				if(i % 3 < 2) {
+			for (size_t i = 0; i < N; i++) {
+				if (i % 3 < 2) {
 					h.push(data[i]);
 				} else {
 					h.pop();
@@ -322,11 +305,9 @@ void destructorTest()
 }
 
 template<template<typename T, class C> class Impl>
-void prioritizedQueueWrapperTest(std::size_t n)
-{
+void prioritizedQueueWrapperTest(std::size_t n) {
 	std::string desc = "prioritized queue wrapper test on " + std::to_string(n) + " rands";
 	describe(desc.data(), [&]() {
-
 		std::default_random_engine rng(n);
 
 		it("works for integers", [&]() {
@@ -334,15 +315,15 @@ void prioritizedQueueWrapperTest(std::size_t n)
 			PrioritizedQueue<int, int, std::greater<int>, Impl> queue;
 
 			std::set<int> indices;
-			for(int i = 0; i < static_cast<int>(data.size()); i++) {
+			for (int i = 0; i < static_cast<int>(data.size()); i++) {
 				indices.insert(i);
 			}
 
 			std::uniform_int_distribution<int> dist;
 
 			// randomly insert elements
-			for(int i = 0; i < static_cast<int>(data.size()); i++) {
-				int pos = dist(rng) % (int) indices.size();
+			for (int i = 0; i < static_cast<int>(data.size()); i++) {
+				int pos = dist(rng) % (int)indices.size();
 				std::set<int>::iterator it = indices.begin();
 				advance(it, pos);
 				queue.push(data[*it], *it);
@@ -352,7 +333,7 @@ void prioritizedQueueWrapperTest(std::size_t n)
 			AssertThat(queue.size(), Equals(data.size()));
 
 			// pop elements in order
-			for(int i = (int) queue.size() - 1; !queue.empty(); i--) {
+			for (int i = (int)queue.size() - 1; !queue.empty(); i--) {
 				AssertThat(queue.topElement(), Equals(data.back()));
 				AssertThat(queue.topPriority(), Equals(i));
 				queue.pop();
@@ -363,23 +344,23 @@ void prioritizedQueueWrapperTest(std::size_t n)
 		});
 
 		it("works for nodes", [&]() {
-			std::uniform_int_distribution<int> dist(0, (int) n);
+			std::uniform_int_distribution<int> dist(0, (int)n);
 
 			Graph graph;
-			int m = (int) dist(rng);
-			randomGraph(graph, (int) std::sqrt(m), m);
+			int m = (int)dist(rng);
+			randomGraph(graph, (int)std::sqrt(m), m);
 			PrioritizedMapQueue<node, int, std::less<int>, Impl> queue(graph);
 
-			for(node v : graph.nodes) {
+			for (node v : graph.nodes) {
 				AssertThat(queue.contains(v), Is().False());
 				queue.push(v, v->degree());
 				AssertThat(queue.contains(v), Is().True());
 			}
 
-			AssertThat((int) queue.size(), Equals(graph.numberOfNodes()));
+			AssertThat((int)queue.size(), Equals(graph.numberOfNodes()));
 
 			int lastDegree = 0;
-			while(!queue.empty()) {
+			while (!queue.empty()) {
 				node v = queue.topElement();
 				AssertThat(queue.contains(v), Is().True());
 				AssertThat(v->degree(), Equals(queue.topPriority()));
@@ -394,18 +375,18 @@ void prioritizedQueueWrapperTest(std::size_t n)
 
 		it("works for edges", [&]() {
 			Graph graph;
-			randomTree(graph, (int)(n+1));
+			randomTree(graph, (int)(n + 1));
 			PrioritizedMapQueue<edge, int, std::less<int>, Impl> queue(graph);
 
-			for(edge e : graph.edges) {
+			for (edge e : graph.edges) {
 				AssertThat(queue.contains(e), Is().False());
 				queue.push(e, e->index());
 				AssertThat(queue.contains(e), Is().True());
 			}
 
-			AssertThat((int) queue.size(), Equals(graph.numberOfEdges()));
+			AssertThat((int)queue.size(), Equals(graph.numberOfEdges()));
 
-			for(int i = 0; i < graph.numberOfEdges(); i++) {
+			for (int i = 0; i < graph.numberOfEdges(); i++) {
 				edge e = queue.topElement();
 				AssertThat(queue.contains(e), Is().True());
 				AssertThat(e->index(), Equals(i));
@@ -420,17 +401,16 @@ void prioritizedQueueWrapperTest(std::size_t n)
 }
 
 template<template<typename T, class C> class Impl>
-void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
-{
+void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true) {
 	using PQ = PriorityQueue<int, std::greater<int>, Impl>;
 
 	std::string desc = "queue wrapper test on " + std::to_string(n) + " rands";
 	describe(desc.data(), [&]() {
 		std::vector<int> data;
-		auto init = { 3, 1, 6, -20, 4, 2, -4, 1, 6 };
+		auto init = {3, 1, 6, -20, 4, 2, -4, 1, 6};
 		PQ ogdfPQ;
 
-		before_each([&](){
+		before_each([&]() {
 			ogdfPQ.clear();
 			data = randomVector(n);
 		});
@@ -438,7 +418,7 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 		it("behaves like std::priority_queue", [&]() {
 			std::priority_queue<int> stdPQ;
 
-			for(int e : data) {
+			for (int e : data) {
 				ogdfPQ.push(e);
 				stdPQ.push(e);
 
@@ -446,7 +426,7 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 				AssertThat(ogdfPQ.top(), Equals(stdPQ.top()));
 			}
 
-			while(!stdPQ.empty()) {
+			while (!stdPQ.empty()) {
 				AssertThat(ogdfPQ.empty(), IsFalse());
 				AssertThat(ogdfPQ.top(), Equals(stdPQ.top()));
 				AssertThat(ogdfPQ.size(), Equals(stdPQ.size()));
@@ -464,7 +444,7 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 			AssertThat(ogdfPQ.size(), Equals(init.size()));
 			std::vector<int> elems = init;
 
-			while(!ogdfPQ.empty()) {
+			while (!ogdfPQ.empty()) {
 				int value = ogdfPQ.top();
 				auto it = std::find(elems.begin(), elems.end(), value);
 
@@ -481,7 +461,7 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 			AssertThat(tmp.size() == init.size(), IsTrue());
 			std::vector<int> elems = init;
 
-			while(!tmp.empty()) {
+			while (!tmp.empty()) {
 				int value = tmp.top();
 				auto it = std::find(elems.begin(), elems.end(), value);
 
@@ -496,7 +476,7 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 			ogdfPQ.clear();
 			AssertThat(ogdfPQ.size(), Equals(0u));
 
-			PQ tmp = { 1, 2, 3 };
+			PQ tmp = {1, 2, 3};
 
 			using std::swap;
 			swap(tmp, ogdfPQ);
@@ -509,12 +489,12 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 				ogdfPQ = init;
 				AssertThat(ogdfPQ.size(), Equals(init.size()));
 
-				PQ tmp = { 1, 2, 3 };
+				PQ tmp = {1, 2, 3};
 				ogdfPQ.merge(tmp);
 				AssertThat(ogdfPQ.size(), Equals(init.size() + 3));
 				AssertThat(tmp.size(), Equals(0u));
 
-				tmp = { 1, 2, 3 };
+				tmp = {1, 2, 3};
 				PQ orig = init;
 				while (!tmp.empty() && !orig.empty()) {
 					AssertThat(ogdfPQ.empty(), IsFalse());
@@ -522,8 +502,7 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 					AssertThat((val == orig.top() || val == tmp.top()), IsTrue());
 					if (val == orig.top()) {
 						orig.pop();
-					}
-					else { // val == tmp.top()
+					} else { // val == tmp.top()
 						tmp.pop();
 					}
 					ogdfPQ.pop();
@@ -533,33 +512,30 @@ void priorityQueueWrapperTest(std::size_t n, bool supportsMerge = true)
 	});
 }
 
-void radixHeapSortingTest(std::size_t n)
-{
+void radixHeapSortingTest(std::size_t n) {
 	std::string desc = "sorting test on " + std::to_string(n) + " rands";
 	describe(desc.data(), [&]() {
 		using RadixHeapType = RadixHeap<std::string, std::size_t>;
 		std::unique_ptr<RadixHeapType> heap;
 
-		before_each([&](){
+		before_each([&]() {
 			std::default_random_engine rng(n);
 			std::uniform_int_distribution<std::size_t> size_dist(1, 100);
-			std::uniform_int_distribution<char> char_dist('a', 'z');
+			std::uniform_int_distribution<std::size_t> char_dist('a', 'z');
 
 			heap.reset(new RadixHeapType());
 
-			for(std::size_t i = 0; i < n; i++) {
+			for (std::size_t i = 0; i < n; i++) {
 				std::string str(size_dist(rng), char_dist(rng));
 				heap->push(str, str.length());
 			}
 		});
 
-		it("has correct size after insertions", [&]() {
-			AssertThat(heap->size(), Equals(n));
-		});
+		it("has correct size after insertions", [&]() { AssertThat(heap->size(), Equals(n)); });
 
 		it("correctly sorts inserted values", [&]() {
 			std::size_t last = 0;
-			while(!heap->empty()) {
+			while (!heap->empty()) {
 				std::string str = heap->pop();
 				AssertThat(str.size(), Is().Not().LessThan(last));
 				last = str.size();
@@ -569,8 +545,7 @@ void radixHeapSortingTest(std::size_t n)
 }
 
 template<template<typename T, class C> class H>
-void hotQueueSimpleScenario(std::size_t levels, bool supportsDecrease)
-{
+void hotQueueSimpleScenario(std::size_t levels, bool supportsDecrease) {
 	using Queue = HotQueue<std::string, int, H>;
 
 	it("creates empty queue", [&]() {
@@ -628,10 +603,8 @@ void hotQueueSimpleScenario(std::size_t levels, bool supportsDecrease)
 }
 
 template<template<typename T, class C> class H>
-void hotQueueSimpleTest(std::size_t levels, bool supportsDecrease)
-{
-	std::string desc =
-			"simple scenario test using " + std::to_string(levels) + " levels";
+void hotQueueSimpleTest(std::size_t levels, bool supportsDecrease) {
+	std::string desc = "simple scenario test using " + std::to_string(levels) + " levels";
 	describe(desc.data(), [&]() {
 		/*
 		 * clang parser crashes from too many lambdas or something, so this
@@ -643,16 +616,15 @@ void hotQueueSimpleTest(std::size_t levels, bool supportsDecrease)
 }
 
 template<template<typename T, class C> class H>
-void dijkstraTest(int n)
-{
-	std::string title =
-			"yields the same result as the PairingHeap for Dijkstra on a graph with " + to_string(n) + " nodes";
+void dijkstraTest(int n) {
+	std::string title = "yields the same result as the PairingHeap for Dijkstra on a graph with "
+			+ to_string(n) + " nodes";
 	it(title.data(), [&]() {
 		Graph graph;
-		randomBiconnectedGraph(graph, n, randomNumber(n, n*(n-1)/2));
+		randomBiconnectedGraph(graph, n, randomNumber(n, n * (n - 1) / 2));
 		EdgeArray<int> costs(graph);
 
-		for(edge e : graph.edges) {
+		for (edge e : graph.edges) {
 			costs[e] = randomNumber(1, n);
 		}
 
@@ -666,7 +638,7 @@ void dijkstraTest(int n)
 		dijkstra.call(graph, costs, source, preds, distances);
 		dijkstraCustom.call(graph, costs, source, preds, distancesCustom);
 
-		for(node v : graph.nodes) {
+		for (node v : graph.nodes) {
 			AssertThat(distancesCustom[v], Equals(distances[v]));
 		}
 	});
@@ -680,7 +652,7 @@ void describeHeapBasic(bool supportsDecrease, bool supportsMerge) {
 	sortingRandomTest<H>(100);
 	sortingRandomTest<H>(10000);
 	sortingRandomTest<H>(1000000);
-	if(supportsMerge) {
+	if (supportsMerge) {
 		mergingRandomTest<H>(100);
 		mergingRandomTest<H>(10000);
 		mergingRandomTest<H>(1000000);
@@ -699,8 +671,8 @@ void describeHeapBasic(bool supportsDecrease, bool supportsMerge) {
 }
 
 template<template<typename T, class C> class H>
-void describeHeap(const char *title, bool supportsDecrease = true,  bool supportsMerge = true) {
-	describe(title, [&](){
+void describeHeap(const char* title, bool supportsDecrease = true, bool supportsMerge = true) {
+	describe(title, [&]() {
 		describeHeapBasic<H>(supportsDecrease, supportsMerge);
 
 		describe("Heap-on-Top queue", [&]() {
@@ -713,14 +685,14 @@ void describeHeap(const char *title, bool supportsDecrease = true,  bool support
 }
 
 go_bandit([]() {
-	describe("Heaps", [](){
+	describe("Heaps", []() {
 		describeHeap<BinaryHeap>("Binary heap", true, false);
 		describeHeap<PairingHeap>("Pairing heap");
 		describeHeap<BinomialHeap>("Binomial heap", false);
 		describeHeap<FibonacciHeap>("Fibonacci heap");
 		describeHeap<RMHeap>("Randomized mergable heap");
 
-		describe("Radix heap", [](){
+		describe("Radix heap", []() {
 			radixHeapSortingTest(1000);
 			radixHeapSortingTest(10000);
 			radixHeapSortingTest(100000);

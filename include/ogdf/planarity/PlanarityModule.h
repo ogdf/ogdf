@@ -46,23 +46,22 @@ namespace ogdf {
  * ogdf::planarEmbedPlanarGraph), which use the most efficient BoyerMyrvold algorithm.
  */
 class PlanarityModule {
-
 public:
-
 	PlanarityModule() { }
+
 	virtual ~PlanarityModule() { }
 
 	//! Returns true, if G is planar, false otherwise.
-	virtual bool isPlanar(const Graph &G) = 0;
+	virtual bool isPlanar(const Graph& G) = 0;
 
 	//! Returns true, if G is planar, false otherwise. In the graph is non-planar, the graph may be arbitrariliy changed after the call.
 	/**
 	 * This variant may be slightly faster than the default isPlanar
 	 */
-	virtual bool isPlanarDestructive(Graph &G) = 0;
+	virtual bool isPlanarDestructive(Graph& G) = 0;
 
 	//! Returns true, if G is planar, false otherwise. If true, G contains a planar embedding.
-	virtual bool planarEmbed(Graph &G) = 0;
+	virtual bool planarEmbed(Graph& G) = 0;
 
 	//! Constructs a planar embedding of \p G. \p G \b has to be planar!
 	/**
@@ -73,8 +72,7 @@ public:
 	 * This routine may be slightly faster than planarEmbed, but requires \p G to be planar.
 	 * If \p G is not planar, the graph will be (partially) destroyed while trying to embed it!
 	 */
-	virtual bool planarEmbedPlanarGraph(Graph &G) = 0;
-
+	virtual bool planarEmbedPlanarGraph(Graph& G) = 0;
 };
 
 }

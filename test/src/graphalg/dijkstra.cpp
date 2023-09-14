@@ -29,19 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <tuple>
 #include <ogdf/basic/graph_generators/deterministic.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
-#include <testing.h>
+#include <tuple>
+
 #include <graphs.h>
+#include <testing.h>
 
 //! Storage container for an edge with a weight, indexed by integers
 //! We use this instead of std::tuple to make use of aggregate initialization
 template<typename T>
-struct DijkstraTestEdge
-{
+struct DijkstraTestEdge {
 	DijkstraTestEdge(int from, int to, T weight) : m_from(from), m_to(to), m_weight(weight) { }
+
 	int m_from;
 	int m_to;
 	T m_weight;
@@ -49,9 +50,10 @@ struct DijkstraTestEdge
 
 //! Storage container for a node with a distance, indexed by integers
 template<typename T>
-struct DijkstraTestNode
-{
-	DijkstraTestNode(int idx, int predecessor, T distance) : m_idx(idx), m_pred(predecessor), m_distance(distance) { }
+struct DijkstraTestNode {
+	DijkstraTestNode(int idx, int predecessor, T distance)
+		: m_idx(idx), m_pred(predecessor), m_distance(distance) { }
+
 	int m_idx;
 	int m_pred;
 	T m_distance;
@@ -59,12 +61,11 @@ struct DijkstraTestNode
 
 //! An instance of a graph Dijkstra can be called on, with expected resulting shortest path tree.
 template<typename T>
-struct DijkstraTestInstance
-{
-
+struct DijkstraTestInstance {
 	//! Constructs a new test instance.
 	//! @note In order to be valid, an instance needs to be supplied with a size using setSize(int).
-	DijkstraTestInstance() : m_size(-1), m_directed(false), m_terminationTarget(-1), m_terminationDistance(-1) { }
+	DijkstraTestInstance()
+		: m_size(-1), m_directed(false), m_terminationTarget(-1), m_terminationDistance(-1) { }
 
 	//! Configures the size of the instance.
 	/**
@@ -129,7 +130,8 @@ struct DijkstraTestInstance
 	 *        as this distance has been exhausted.
 	 * @copydetails expectedPredecessorRelation(Array<DijkstraTestNode<T>>)
 	 */
-	DijkstraTestInstance& terminationDistance(T distance, Array<DijkstraTestNode<T>> expectedNodeData) {
+	DijkstraTestInstance& terminationDistance(T distance,
+			Array<DijkstraTestNode<T>> expectedNodeData) {
 		m_terminationDistance = distance;
 		m_terminationDistance_nodes = expectedNodeData;
 		return *this;
@@ -137,14 +139,12 @@ struct DijkstraTestInstance
 
 	//! Call the standard Dijkstra algorithm and check the resulting predecessor relation
 	//! @note needs to be called from within \c bandit::it()
-	void testBasic() const {
-		performTest({-1, -1, std::numeric_limits<T>::max()}, m_nodes);
-	}
+	void testBasic() const { performTest({-1, -1, std::numeric_limits<T>::max()}, m_nodes); }
 
 	//! Call the early terminated Dijkstra with parameters that are equal to the last expected node.
 	//! This should produce the same result as the basic test.
 	void testEarlyTerminationSafe() const {
-		DijkstraTestNode<T> c{0, 0, 0};
+		DijkstraTestNode<T> c {0, 0, 0};
 		for (auto n : m_nodes) {
 			if (n.m_distance > c.m_distance) {
 				c = n;
@@ -157,7 +157,8 @@ struct DijkstraTestInstance
 	void testEarlyTerminationTarget() const {
 		// Only test if a scenario has been configured
 		if (m_terminationTarget != -1) {
-			performTest({m_terminationTarget, -1, std::numeric_limits<T>::max()}, m_terminationTarget_nodes);
+			performTest({m_terminationTarget, -1, std::numeric_limits<T>::max()},
+					m_terminationTarget_nodes);
 		}
 	}
 
@@ -177,7 +178,8 @@ protected:
 	 *        is used as the maximum distance for early termination.
 	 * @param expectedNodeData expected results of Dijkstra
 	 */
-	void performTest(DijkstraTestNode<T> target, const Array<DijkstraTestNode<T>>& expectedNodeData) const {
+	void performTest(DijkstraTestNode<T> target,
+			const Array<DijkstraTestNode<T>>& expectedNodeData) const {
 		OGDF_ASSERT(m_size > 0);
 		Graph G;
 		Array<node> nodes;
@@ -193,16 +195,17 @@ protected:
 		NodeArray<T> distance(G);
 
 		node targ = (target.m_idx == -1 ? nullptr : nodes[target.m_idx]);
-		dij.call(G, weights, nodes[0], predecessor, distance, m_directed, false, targ, target.m_distance);
+		dij.call(G, weights, nodes[0], predecessor, distance, m_directed, false, targ,
+				target.m_distance);
 
 		for (int i = 0; i < m_size; ++i) {
 			node current = nodes[expectedNodeData[i].m_idx];
 			if (expectedNodeData[i].m_pred == -1) {
 				AssertThat(predecessor[current], IsNull());
-			}
-			else {
+			} else {
 				AssertThat(predecessor[current], !IsNull());
-				AssertThat(predecessor[current]->opposite(current), Equals(nodes[expectedNodeData[i].m_pred]));
+				AssertThat(predecessor[current]->opposite(current),
+						Equals(nodes[expectedNodeData[i].m_pred]));
 			}
 			AssertThat(distance[current], Equals(expectedNodeData[i].m_distance));
 		}
@@ -218,11 +221,10 @@ protected:
 	Array<DijkstraTestNode<T>> m_terminationDistance_nodes;
 };
 
-
 template<typename T>
 void forAllInstances(std::function<void(const DijkstraTestInstance<T>&)> doTest) {
-
-	auto testInstance = [&](const string& desc, std::function<void(DijkstraTestInstance<T>&)> populateInstance) {
+	auto testInstance = [&](const string& desc,
+								std::function<void(DijkstraTestInstance<T>&)> populateInstance) {
 		it("works on a " + desc, [&] {
 			DijkstraTestInstance<T> instance;
 			populateInstance(instance);
@@ -231,173 +233,78 @@ void forAllInstances(std::function<void(const DijkstraTestInstance<T>&)> doTest)
 	};
 
 	testInstance("three node graph", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(3).edges({
-			{0, 1,  5},
-			{0, 2, 10},
-			{1, 2,  4}
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, 0, 5},
-			{2, 1, 9}
-		}).terminationTarget(1, {
-			{0, -1, 0},
-			{1, 0, 5},
-			{2, 0, 10}
-		});
+		instance.setSize(3)
+				.edges({{0, 1, 5}, {0, 2, 10}, {1, 2, 4}})
+				.expectedPredecessorRelation({{0, -1, 0}, {1, 0, 5}, {2, 1, 9}})
+				.terminationTarget(1, {{0, -1, 0}, {1, 0, 5}, {2, 0, 10}});
 	});
 
 	testInstance("K5 with uniform weights", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(5).edges({
-			{0, 1, 1},
-			{0, 2, 1},
-			{0, 3, 1},
-			{0, 4, 1},
-			{1, 2, 1},
-			{1, 3, 1},
-			{1, 4, 1},
-			{2, 3, 1},
-			{2, 4, 1},
-			{3, 4, 1}
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, 0, 1},
-			{2, 0, 1},
-			{3, 0, 1},
-			{4, 0, 1}
-		}).terminationTarget(2, {
-			{0, -1, 0},
-			{1, 0, 1},
-			{2, 0, 1},
-			{3, 0, 1},
-			{4, 0, 1}
-		});
+		instance.setSize(5)
+				.edges({{0, 1, 1}, {0, 2, 1}, {0, 3, 1}, {0, 4, 1}, {1, 2, 1}, {1, 3, 1}, {1, 4, 1},
+						{2, 3, 1}, {2, 4, 1}, {3, 4, 1}})
+				.expectedPredecessorRelation({{0, -1, 0}, {1, 0, 1}, {2, 0, 1}, {3, 0, 1}, {4, 0, 1}})
+				.terminationTarget(2, {{0, -1, 0}, {1, 0, 1}, {2, 0, 1}, {3, 0, 1}, {4, 0, 1}});
 	});
 
 	testInstance("disconnected graph", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(5).edges({
-			{0, 1, 5},
-			{0, 2, 3},
-			{1, 2, 1},
-			{3, 4, 2}
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, 2, 4},
-			{2, 0, 3},
-			{3, -1, std::numeric_limits<T>::max()},
-			{4, -1, std::numeric_limits<T>::max()}
-		}).terminationDistance(3, {
-			{0, -1, 0},
-			{1, -1, std::numeric_limits<T>::max()},
-			{2, 0, 3},
-			{3, -1, std::numeric_limits<T>::max()},
-			{4, -1, std::numeric_limits<T>::max()}
-		});
+		instance.setSize(5)
+				.edges({{0, 1, 5}, {0, 2, 3}, {1, 2, 1}, {3, 4, 2}})
+				.expectedPredecessorRelation(
+						{{0, -1, 0}, {1, 2, 4}, {2, 0, 3}, {3, -1, std::numeric_limits<T>::max()},
+								{4, -1, std::numeric_limits<T>::max()}})
+				.terminationDistance(3,
+						{{0, -1, 0}, {1, -1, std::numeric_limits<T>::max()}, {2, 0, 3},
+								{3, -1, std::numeric_limits<T>::max()},
+								{4, -1, std::numeric_limits<T>::max()}});
 	});
 
 	testInstance("graph without edges", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(7).edges({
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, -1, std::numeric_limits<T>::max()},
-			{2, -1, std::numeric_limits<T>::max()},
-			{3, -1, std::numeric_limits<T>::max()},
-			{4, -1, std::numeric_limits<T>::max()},
-			{5, -1, std::numeric_limits<T>::max()},
-			{6, -1, std::numeric_limits<T>::max()}
-		});
+		instance.setSize(7).edges({}).expectedPredecessorRelation({{0, -1, 0},
+				{1, -1, std::numeric_limits<T>::max()}, {2, -1, std::numeric_limits<T>::max()},
+				{3, -1, std::numeric_limits<T>::max()}, {4, -1, std::numeric_limits<T>::max()},
+				{5, -1, std::numeric_limits<T>::max()}, {6, -1, std::numeric_limits<T>::max()}});
 	});
 
 	testInstance("graph with similar path lengths", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(4).edges({
-			{0, 1, 20},
-			{0, 2, 20},
-			{1, 3, 30},
-			{2, 3, 29}
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, 0, 20},
-			{2, 0, 20},
-			{3, 2, 49}
-		});
+		instance.setSize(4)
+				.edges({{0, 1, 20}, {0, 2, 20}, {1, 3, 30}, {2, 3, 29}})
+				.expectedPredecessorRelation({{0, -1, 0}, {1, 0, 20}, {2, 0, 20}, {3, 2, 49}});
 	});
 
-	testInstance("graph with similar path lengths on two symmetric sides", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(8).edges({
-			{0, 1, 1},
-			{1, 2, 2},
-			{1, 3, 5},
-			{1, 4, 10},
-			{2, 3, 2},
-			{3, 4, 5},
-			{0, 5, 1},
-			{5, 6, 2},
-			{5, 7, 5},
-			{5, 4, 10},
-			{6, 7, 2},
-			{7, 4, 4}
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, 0, 1},
-			{2, 1, 3},
-			{3, 2, 5},
-			{4, 7, 9},
-			{5, 0, 1},
-			{6, 5, 3},
-			{7, 6, 5}
-		}).terminationTarget(2, {
-			{0, -1, 0},
-			{1, 0, 1},
-			{2, 1, 3},
-			{3, 1, 6},
-			{4, 5, 11},
-			{5, 0, 1},
-			{6, 5, 3},
-			{7, 5, 6}
-		}).terminationDistance(5, {
-			{0, -1, 0},
-			{1, 0, 1},
-			{2, 1, 3},
-			{3, 2, 5},
-			{4, -1, std::numeric_limits<T>::max()},
-			{5, 0, 1},
-			{6, 5, 3},
-			{7, 6, 5}
-		});
-	});
+	testInstance("graph with similar path lengths on two symmetric sides",
+			[](DijkstraTestInstance<T>& instance) {
+				instance.setSize(8)
+						.edges({{0, 1, 1}, {1, 2, 2}, {1, 3, 5}, {1, 4, 10}, {2, 3, 2}, {3, 4, 5},
+								{0, 5, 1}, {5, 6, 2}, {5, 7, 5}, {5, 4, 10}, {6, 7, 2}, {7, 4, 4}})
+						.expectedPredecessorRelation({{0, -1, 0}, {1, 0, 1}, {2, 1, 3}, {3, 2, 5},
+								{4, 7, 9}, {5, 0, 1}, {6, 5, 3}, {7, 6, 5}})
+						.terminationTarget(2,
+								{{0, -1, 0}, {1, 0, 1}, {2, 1, 3}, {3, 1, 6}, {4, 5, 11}, {5, 0, 1},
+										{6, 5, 3}, {7, 5, 6}})
+						.terminationDistance(5,
+								{{0, -1, 0}, {1, 0, 1}, {2, 1, 3}, {3, 2, 5},
+										{4, -1, std::numeric_limits<T>::max()}, {5, 0, 1},
+										{6, 5, 3}, {7, 6, 5}});
+			});
 
 	testInstance("directed graph", [](DijkstraTestInstance<T>& instance) {
-		instance.setSize(5).setDirected().edges({
-			{0, 1, 4},
-			{0, 2, 2},
-			{1, 2, 1},
-			{2, 3, 5},
-			{3, 4, 1},
-			{4, 0, 1}
-		}).expectedPredecessorRelation({
-			{0, -1, 0},
-			{1, 0, 4},
-			{2, 0, 2},
-			{3, 2, 7},
-			{4, 3, 8}
-		}).terminationTarget(2, {
-			{0, -1, 0},
-			{1, 0, 4},
-			{2, 0, 2},
-			{3, -1, std::numeric_limits<T>::max()},
-			{4, -1, std::numeric_limits<T>::max()}
-		}).terminationDistance(3, {
-			{0, -1, 0},
-			{1, -1, std::numeric_limits<T>::max()},
-			{2, 0, 2},
-			{3, -1, std::numeric_limits<T>::max()},
-			{4, -1, std::numeric_limits<T>::max()}
-		});
+		instance.setSize(5)
+				.setDirected()
+				.edges({{0, 1, 4}, {0, 2, 2}, {1, 2, 1}, {2, 3, 5}, {3, 4, 1}, {4, 0, 1}})
+				.expectedPredecessorRelation({{0, -1, 0}, {1, 0, 4}, {2, 0, 2}, {3, 2, 7}, {4, 3, 8}})
+				.terminationTarget(2,
+						{{0, -1, 0}, {1, 0, 4}, {2, 0, 2}, {3, -1, std::numeric_limits<T>::max()},
+								{4, -1, std::numeric_limits<T>::max()}})
+				.terminationDistance(3,
+						{{0, -1, 0}, {1, -1, std::numeric_limits<T>::max()}, {2, 0, 2},
+								{3, -1, std::numeric_limits<T>::max()},
+								{4, -1, std::numeric_limits<T>::max()}});
 	});
 }
 
 template<typename T>
-void compareDijkstraAlgorithms(const Graph &G, bool testMultipleSource)
-{
+void compareDijkstraAlgorithms(const Graph& G, bool testMultipleSource) {
 	EdgeArray<T> weights(G, 1);
 
 	Dijkstra<T, PairingHeap> dij;
@@ -414,8 +321,7 @@ void compareDijkstraAlgorithms(const Graph &G, bool testMultipleSource)
 		sources.pushBack(G.chooseNode([&](node s) { return !sources.search(s).valid(); }));
 		sources.pushBack(G.chooseNode([&](node s) { return !sources.search(s).valid(); }));
 		dij.callUnbound(G, weights, sources, predecessorBasic, distanceBasic, false);
-	}
-	else {
+	} else {
 		dij.callUnbound(G, weights, G.firstNode(), predecessorBasic, distanceBasic, false);
 	}
 
@@ -428,12 +334,15 @@ void compareDijkstraAlgorithms(const Graph &G, bool testMultipleSource)
 		}
 	}
 	if (testMultipleSource) {
-		dij.callBound(G, weights, sources, predecessorEarlyTerminated, distanceEarlyTerminated, false, false, lastNode, maxDistance);
-		dij.callBound(G, weights, sources, predecessorNotEarlyTerminated, distanceNotEarlyTerminated, false, false, nullptr, std::numeric_limits<T>::max());
-	}
-	else {
-		dij.callBound(G, weights, G.firstNode(), predecessorEarlyTerminated, distanceEarlyTerminated, false, false, lastNode, maxDistance);
-		dij.callBound(G, weights, G.firstNode(), predecessorNotEarlyTerminated, distanceNotEarlyTerminated, false, false, nullptr, std::numeric_limits<T>::max());
+		dij.callBound(G, weights, sources, predecessorEarlyTerminated, distanceEarlyTerminated,
+				false, false, lastNode, maxDistance);
+		dij.callBound(G, weights, sources, predecessorNotEarlyTerminated,
+				distanceNotEarlyTerminated, false, false, nullptr, std::numeric_limits<T>::max());
+	} else {
+		dij.callBound(G, weights, G.firstNode(), predecessorEarlyTerminated,
+				distanceEarlyTerminated, false, false, lastNode, maxDistance);
+		dij.callBound(G, weights, G.firstNode(), predecessorNotEarlyTerminated,
+				distanceNotEarlyTerminated, false, false, nullptr, std::numeric_limits<T>::max());
 	}
 
 	// We cannot compare predecessorBasic with the other predecessor relations, as the early
@@ -445,18 +354,16 @@ void compareDijkstraAlgorithms(const Graph &G, bool testMultipleSource)
 }
 
 template<typename T>
-void performTestsSingleSource()
-{
+void performTestsSingleSource() {
 	describe("Finding a shortest path tree on simple instances", [] {
-		forAllInstances<T>([](const DijkstraTestInstance<T>& instance) {
-			instance.testBasic();
-		});
+		forAllInstances<T>([](const DijkstraTestInstance<T>& instance) { instance.testBasic(); });
 	});
-	describe("Finding the same shortest path tree with early termination parameters set to last node", [] {
-		forAllInstances<T>([](const DijkstraTestInstance<T>& instance) {
-			instance.testEarlyTerminationSafe();
-		});
-	});
+	describe("Finding the same shortest path tree with early termination parameters set to last node",
+			[] {
+				forAllInstances<T>([](const DijkstraTestInstance<T>& instance) {
+					instance.testEarlyTerminationSafe();
+				});
+			});
 	describe("Terminating early on a given target node", [] {
 		forAllInstances<T>([](const DijkstraTestInstance<T>& instance) {
 			instance.testEarlyTerminationTarget();
@@ -468,34 +375,30 @@ void performTestsSingleSource()
 		});
 	});
 	describe("Finding the same shortest paths using different setups", [] {
-		forEachGraphItWorks({}, [&] (const Graph& G) {
-			if (G.numberOfNodes() == 0) return;
+		forEachGraphItWorks({}, [&](const Graph& G) {
+			if (G.numberOfNodes() == 0) {
+				return;
+			}
 			compareDijkstraAlgorithms<T>(G, false);
 		});
 	});
 }
 
 template<typename T>
-void performTestsMultipleSource()
-{
+void performTestsMultipleSource() {
 	describe("Finding the same shortest paths using different setups", [] {
-		forEachGraphItWorks({}, [&] (const Graph& G) {
-			if (G.numberOfNodes() < 3) return;
+		forEachGraphItWorks({}, [&](const Graph& G) {
+			if (G.numberOfNodes() < 3) {
+				return;
+			}
 			compareDijkstraAlgorithms<T>(G, true);
 		});
 	});
 }
+
 go_bandit([] {
-	describe("Dijkstra<int> single source", [] {
-		performTestsSingleSource<int>();
-	});
-	describe("Dijkstra<double> single source", [] {
-		performTestsSingleSource<double>();
-	});
-	describe("Dijkstra<int> multiple sources", [] {
-		performTestsMultipleSource<int>();
-	});
-	describe("Dijkstra<double> multiple sources", [] {
-		performTestsMultipleSource<double>();
-	});
+	describe("Dijkstra<int> single source", [] { performTestsSingleSource<int>(); });
+	describe("Dijkstra<double> single source", [] { performTestsSingleSource<double>(); });
+	describe("Dijkstra<int> multiple sources", [] { performTestsMultipleSource<int>(); });
+	describe("Dijkstra<double> multiple sources", [] { performTestsMultipleSource<double>(); });
 });

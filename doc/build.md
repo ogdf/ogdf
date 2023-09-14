@@ -1,4 +1,4 @@
-[OGDF](../README.md) » Build Guide
+[OGDF](../README.md) » [Developer's Guide](dev-guide.md) » Build Guide
 
 # Build Guide {#build}
 
@@ -87,6 +87,15 @@ Scanning dependencies of target OGDF
 ...
 ```
 
+If the compilation of your code results in an error containing `-Werror` or `C2220`,
+change the default configuration using
+
+```
+$ cmake -DOGDF_WARNING_ERRORS=OFF .
+```
+
+and retry building the project.
+
 ### Out-of-Source Build
 
 An out-of-source build does not modify the source directory.
@@ -130,6 +139,7 @@ $ ccmake .
  OGDF_MEMORY_MANAGER              POOL_TS
  OGDF_SEPARATE_TESTS              OFF
  OGDF_USE_ASSERT_EXCEPTIONS       OFF
+ OGDF_WARNING_ERRORS              OFF
 
 BUILD_SHARED_LIBS: Whether to build shared libraries instead of static ones.
 Press [enter] to edit option
@@ -150,6 +160,7 @@ Press [t] to toggle advanced mode (Currently Off)
  OGDF_SEPARATE_TESTS              OFF
  OGDF_USE_ASSERT_EXCEPTIONS       ON
  OGDF_USE_ASSERT_EXCEPTIONS_WIT   ON_LIBDW
+ OGDF_WARNING_ERRORS              OFF
 
 OGDF_MEMORY_MANAGER: Memory manager to be used.
 Press [enter] to edit option

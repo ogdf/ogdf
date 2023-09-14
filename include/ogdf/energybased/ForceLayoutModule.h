@@ -42,8 +42,7 @@ namespace ogdf {
  * \brief Interface of general layout algorithms.
  *
  */
-class OGDF_EXPORT ForceLayoutModule : public LayoutModule
-{
+class OGDF_EXPORT ForceLayoutModule : public LayoutModule {
 	// holds index of the current level in multilevel hierarchy
 	int m_currentLevel;
 
@@ -53,7 +52,7 @@ public:
 
 	virtual ~ForceLayoutModule() { }
 
-	virtual void call(GraphAttributes &GA) override = 0;
+	virtual void call(GraphAttributes& GA) override = 0;
 
 	/**
 	 * \brief Computes a layout of graph \a MLG.
@@ -77,7 +76,7 @@ public:
 	 *
 	 * @param MLG is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(MultilevelGraph &MLG) {
+	virtual void call(MultilevelGraph& MLG) {
 		m_currentLevel = MLG.getLevel();
 		GraphAttributes GA(MLG.getGraph());
 		MLG.exportAttributesSimple(GA);

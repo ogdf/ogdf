@@ -32,10 +32,8 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/basic/Layout.h>
-
-
+#include <ogdf/cluster/ClusterPlanRep.h>
 
 namespace ogdf {
 
@@ -61,25 +59,20 @@ public:
 	 * @param origEdges are edges in the original graph.
 	 * @param originalGraph must be the original graph of \p PG.
 	 */
-	virtual void call(
-		ClusterPlanRep &PG,
-		adjEntry adjExternal,
-		Layout &drawing,
-		List<edge>& origEdges,
-		Graph& originalGraph) = 0;
-
+	virtual void call(ClusterPlanRep& PG, adjEntry adjExternal, Layout& drawing,
+			List<edge>& origEdges, Graph& originalGraph) = 0;
 
 	//! Returns the bounding box of the computed layout.
-	const DPoint &getBoundingBox() const {
-		return m_boundingBox;
-	}
+	const DPoint& getBoundingBox() const { return m_boundingBox; }
 
 	//! Sets the (generic) options; derived classes have to cope with the interpretation)
 	virtual void setOptions(int /* optionField */) { }
+
 	// don't make it abstract!
 
 	//! Returns the (generic) options.
 	virtual int getOptions() { return 0; }
+
 	// don't make it abstract!
 
 	//! Returns the minimal allowed distance between edges and vertices.

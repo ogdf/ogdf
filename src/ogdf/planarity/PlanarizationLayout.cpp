@@ -33,32 +33,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/PlanarizationLayout.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/orthogonal/OrthoLayout.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/clique/CliqueFinderSPQR.h>
 #include <ogdf/clique/CliqueFinderHeuristic.h>
+#include <ogdf/clique/CliqueFinderSPQR.h>
+#include <ogdf/orthogonal/OrthoLayout.h>
+#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/planarity/PlanarizationLayout.h>
+#include <ogdf/planarity/SimpleEmbedder.h>
+#include <ogdf/planarity/SubgraphPlanarizer.h>
 
 namespace ogdf {
 
-PlanarizationLayout::PlanarizationLayout()
-{
+PlanarizationLayout::PlanarizationLayout() {
 	//modules
-	m_crossMin      .reset(new SubgraphPlanarizer);
+	m_crossMin.reset(new SubgraphPlanarizer);
 	m_planarLayouter.reset(new OrthoLayout);
-	m_packer        .reset(new TileToRowsCCPacker);
-	m_embedder      .reset(new SimpleEmbedder);
+	m_packer.reset(new TileToRowsCCPacker);
+	m_embedder.reset(new SimpleEmbedder);
 
 	//parameters
 	m_pageRatio = 1.0;
 	m_cliqueSize = 10;
 }
 
-
-void PlanarizationLayout::call(GraphAttributes &ga)
-{
+void PlanarizationLayout::call(GraphAttributes& ga) {
 	m_nCrossings = 0;
 
 	PlanRep pr(ga);
@@ -66,8 +63,7 @@ void PlanarizationLayout::call(GraphAttributes &ga)
 
 	Array<DPoint> boundingBox(numCC);
 
-	for(int cc = 0; cc < numCC; ++cc)
-	{
+	for (int cc = 0; cc < numCC; ++cc) {
 		// 1. crossing minimization
 		int cr;
 		m_crossMin->call(pr, cc, cr);
@@ -83,15 +79,16 @@ void PlanarizationLayout::call(GraphAttributes &ga)
 		Layout drawing(pr);
 		m_planarLayouter->call(pr, adjExternal, drawing);
 
-		for(int i = pr.startNode(); i < pr.stopNode(); ++i) {
+		for (int i = pr.startNode(); i < pr.stopNode(); ++i) {
 			node vG = pr.v(i);
 
 			ga.x(vG) = drawing.x(pr.copy(vG));
 			ga.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEntries) {
-				if ((adj->index() & 1) == 0)
+			for (adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) {
 					continue;
+				}
 				edge eG = adj->theEdge();
 				drawing.computePolylineClear(pr, eG, ga.bends(eG));
 			}
@@ -106,17 +103,15 @@ void PlanarizationLayout::call(GraphAttributes &ga)
 	ga.removeUnnecessaryBendsHV();
 }
 
-
 // special call with clique processing (changes graph g temporarily)
 // this has been derived from the old implementation
 // drawback is that the graph g is changed, it would be better to work on a copy
 // where the cliques are replaced
-void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
-{
+void PlanarizationLayout::call(GraphAttributes& ga, Graph& g) {
 	OGDF_ASSERT(&ga.constGraph() == &g);
 
 	ga.clearAllBends();
-	CliqueReplacer cliqueReplacer(ga,g);
+	CliqueReplacer cliqueReplacer(ga, g);
 	preprocessCliques(g, cliqueReplacer);
 
 	m_nCrossings = 0;
@@ -124,8 +119,8 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 	PlanRep pr(ga);
 	const int numCC = pr.numberOfCCs();
 
-	EdgeArray<bool> forbiddenOrig(g,false);
-	EdgeArray<int>  costOrig(g,1);
+	EdgeArray<bool> forbiddenOrig(g, false);
+	EdgeArray<int> costOrig(g, 1);
 
 	// In the case of clique processing we have to prevent the
 	// clique replacement (star) edges from being crossed.
@@ -134,8 +129,7 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 	// all deleted and replacement edges to generalization to
 	// avoid crossings
 
-	for(edge eOrig : g.edges)
-	{
+	for (edge eOrig : g.edges) {
 		if (cliqueReplacer.isReplacement(eOrig)) {
 			costOrig[eOrig] = 10;
 			forbiddenOrig[eOrig] = true;
@@ -144,8 +138,7 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 
 	Array<DPoint> boundingBox(numCC);
 
-	for(int cc = 0; cc < numCC; ++cc)
-	{
+	for (int cc = 0; cc < numCC; ++cc) {
 		// 1. crossing minimization
 		int cr;
 		m_crossMin->call(pr, cc, cr, &costOrig, &forbiddenOrig);
@@ -162,9 +155,8 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 		// and compute a representation layout for the cliques
 		// (is needed to guarantee the size of the replacement boundary)
 		// conserve external face information
-		const SListPure<node> &centerNodes = cliqueReplacer.centerNodes();
-		for(node centerNode : centerNodes)
-		{
+		const SListPure<node>& centerNodes = cliqueReplacer.centerNodes();
+		for (node centerNode : centerNodes) {
 			pr.insertBoundary(centerNode, adjExternal);
 		}
 
@@ -181,8 +173,7 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 		// end of this if and can later be removed
 		NodeArray<bool> isClique(pr, false);
 
-		for(node centerNode : centerNodes)
-		{
+		for (node centerNode : centerNodes) {
 			adjEntry adjBoundary = pr.boundaryAdj(centerNode);
 			// derive the boundary size
 			// if the boundary does not exist (connected component is clique), we
@@ -190,37 +181,53 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 			double minx, maxx, miny, maxy;
 			minx = miny = std::numeric_limits<double>::max();
 			maxx = maxy = std::numeric_limits<double>::lowest();
-			if (adjBoundary)
-			{
+			if (adjBoundary) {
 				adjEntry adjRunner = adjBoundary;
 				// explore the dimension and position of the boundary rectangle
 				// TODO: guarantee (edge types?) that we run around a boundary
 				do {
 					double vx = drawing.x(adjRunner->theNode());
 					double vy = drawing.y(adjRunner->theNode());
-					if (vx < minx) minx = vx;
-					if (vx > maxx) maxx = vx;
-					if (vy < miny) miny = vy;
-					if (vy > maxy) maxy = vy;
+					if (vx < minx) {
+						minx = vx;
+					}
+					if (vx > maxx) {
+						maxx = vx;
+					}
+					if (vy < miny) {
+						miny = vy;
+					}
+					if (vy > maxy) {
+						maxy = vy;
+					}
 
 					// are we at a bend or a crossing?
 					OGDF_ASSERT(adjRunner->twinNode()->degree() == 2
-						 || adjRunner->twinNode()->degree() == 4);
+							|| adjRunner->twinNode()->degree() == 4);
 					// bend
-					if (adjRunner->twinNode()->degree() < 4)
+					if (adjRunner->twinNode()->degree() < 4) {
 						adjRunner = adjRunner->faceCycleSucc();
-					else adjRunner = adjRunner->faceCycleSucc()->cyclicPred();
+					} else {
+						adjRunner = adjRunner->faceCycleSucc()->cyclicPred();
+					}
 				} while (adjRunner != adjBoundary);
 			} else {
-				for(adjEntry adjCenterNode : centerNode->adjEntries)
-				{
+				for (adjEntry adjCenterNode : centerNode->adjEntries) {
 					node w = adjCenterNode->twinNode();
 					double vx = drawing.x(pr.copy(w));
 					double vy = drawing.y(pr.copy(w));
-					if (vx < minx) minx = vx;
-					if (vx > maxx) maxx = vx;
-					if (vy < miny) miny = vy;
-					if (vy > maxy) maxy = vy;
+					if (vx < minx) {
+						minx = vx;
+					}
+					if (vx > maxx) {
+						maxx = vx;
+					}
+					if (vy < miny) {
+						miny = vy;
+					}
+					if (vy > maxy) {
+						maxy = vy;
+					}
 				}
 			}
 
@@ -240,54 +247,50 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 			fillAdjNodes(adjNodes, pr, centerNode, isClique, drawing);
 
 			// compute clique node positions
-			cliqueReplacer.computeCliquePosition(adjNodes, centerNode, min(maxx-minx,maxy-miny));
+			cliqueReplacer.computeCliquePosition(adjNodes, centerNode, min(maxx - minx, maxy - miny));
 			//testend
 
-			double centralX = (maxx-minx)/2.0+minx;
-			double centralY = (maxy-miny)/2.0+miny;
-			double circleX  = cliqueReplacer.cliqueRect(centerNode).width()/2.0;
-			double circleY  = cliqueReplacer.cliqueRect(centerNode).height()/2.0;
+			double centralX = (maxx - minx) / 2.0 + minx;
+			double centralY = (maxy - miny) / 2.0 + miny;
+			double circleX = cliqueReplacer.cliqueRect(centerNode).width() / 2.0;
+			double circleY = cliqueReplacer.cliqueRect(centerNode).height() / 2.0;
 
 			// now we have the position and size of the rectangle around
 			// the clique
 
 			// assign shifted coordinates to drawing
-			for(adjEntry adjCenterNode : centerNode->adjEntries)
-			{
+			for (adjEntry adjCenterNode : centerNode->adjEntries) {
 				node w = adjCenterNode->twinNode();
-				drawing.x(pr.copy(w)) = centralX-circleX+cliqueReplacer.cliquePos(w).m_x;
-				drawing.y(pr.copy(w)) = centralY-circleY+cliqueReplacer.cliquePos(w).m_y;
+				drawing.x(pr.copy(w)) = centralX - circleX + cliqueReplacer.cliquePos(w).m_x;
+				drawing.y(pr.copy(w)) = centralY - circleY + cliqueReplacer.cliquePos(w).m_y;
 			}
 		}
 
 		// simple strategy to move anchor positions too (they are not needed:
 		// move to same position)
-		for(node w : pr.nodes)
-		{
+		for (node w : pr.nodes) {
 			// forall clique nodes shift the anchor points
-			if (isClique[w])
-			{
+			if (isClique[w]) {
 				adjEntry adRun = w->firstAdj();
-				do
-				{
+				do {
 					node wOpp = adRun->twinNode();
 					drawing.x(wOpp) = drawing.x(w);
 					drawing.y(wOpp) = drawing.y(w);
 					adRun = adRun->cyclicSucc();
 				} while (adRun != w->firstAdj());
-
 			}
 		}
 
-		for(int i = pr.startNode(); i < pr.stopNode(); ++i) {
+		for (int i = pr.startNode(); i < pr.stopNode(); ++i) {
 			node vG = pr.v(i);
 
 			ga.x(vG) = drawing.x(pr.copy(vG));
 			ga.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEntries) {
-				if ((adj->index() & 1) == 0)
+			for (adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) {
 					continue;
+				}
 				edge eG = adj->theEdge();
 				drawing.computePolylineClear(pr, eG, ga.bends(eG));
 			}
@@ -303,9 +306,7 @@ void PlanarizationLayout::call(GraphAttributes &ga, Graph &g)
 	cliqueReplacer.undoStars();
 }
 
-
-void PlanarizationLayout::preprocessCliques(Graph &G, CliqueReplacer &cliqueReplacer)
-{
+void PlanarizationLayout::preprocessCliques(Graph& G, CliqueReplacer& cliqueReplacer) {
 	cliqueReplacer.setDefaultCliqueCenterSize(m_planarLayouter->separation());
 
 	CliqueFinderHeuristic heurCf;
@@ -318,14 +319,9 @@ void PlanarizationLayout::preprocessCliques(Graph &G, CliqueReplacer &cliqueRepl
 	cliqueReplacer.replaceByStar(cliques);
 }
 
-
 // collects and stores nodes adjacent to centerNode in adjNodes
-void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
-	PlanRep& PG,
-	node centerNode,
-	NodeArray<bool>& isClique,
-	Layout& drawing)
-{
+void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes, PlanRep& PG, node centerNode,
+		NodeArray<bool>& isClique, Layout& drawing) {
 	// at this point, cages are collapsed, i.e. we have a center node
 	// in the planrep representing the copy of the original node
 	node cCopy = PG.copy(centerNode);
@@ -342,8 +338,7 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 	// attached edges
 
 	adjEntry adjRun = cCopy->firstAdj();
-	do
-	{
+	do {
 		// we search for the edge outside the node cage
 		// anchor node
 		OGDF_ASSERT(adjRun->twinNode()->degree() == 4);
@@ -353,8 +348,9 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 		adjEntry outerEdgeAdj = adjRun->twin()->cyclicSucc();
 		// this may fail in case of bends if there are no orig edges, but there
 		// always is one!?
-		while (!PG.original(outerEdgeAdj->theEdge()))
+		while (!PG.original(outerEdgeAdj->theEdge())) {
 			outerEdgeAdj = outerEdgeAdj->cyclicSucc();
+		}
 		OGDF_ASSERT(outerEdgeAdj != adjRun);
 
 		// hier besser: if... und alle anderen ignorieren
@@ -370,13 +366,13 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 		node uCopy = PG.copy(u);
 		OGDF_ASSERT(uCopy);
 		adjEntry adjURun = uCopy->firstAdj();
-		do
-		{
+		do {
 			// we search for the edge outside the node cage
 			OGDF_ASSERT(adjURun->twinNode()->degree() == 4);
 			adjEntry outerEdgeUAdj = adjURun->twin()->cyclicSucc();
-			while (!PG.original(outerEdgeUAdj->theEdge()))
+			while (!PG.original(outerEdgeUAdj->theEdge())) {
 				outerEdgeUAdj = outerEdgeUAdj->cyclicSucc();
+			}
 			OGDF_ASSERT(outerEdgeUAdj != adjRun);
 			// outerEdgeUAdj points outwards, edge does too per implementation,
 			// but we don't want to rely on that fact
@@ -394,10 +390,8 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 			}
 			// we erase bends and should check the node type here, but the only
 			// case that can happen is bend
-			while (splitter->degree() == 2)
-			{
-				if (outwards)
-				{
+			while (splitter->degree() == 2) {
+				if (outwards) {
 					PG.unsplit(potKill, potKill->adjTarget()->cyclicSucc()->theEdge());
 					splitter = potKill->target();
 
@@ -414,8 +408,9 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 
 		// check if node is better suited to lie at the right position
 		if (rightNode != nullptr) {
-			if (drawing.x(PG.copy(u)) > drawing.x(PG.copy(rightNode)))
+			if (drawing.x(PG.copy(u)) > drawing.x(PG.copy(rightNode))) {
 				rightNode = u;
+			}
 
 		} else {
 			rightNode = u;
@@ -425,32 +420,29 @@ void PlanarizationLayout::fillAdjNodes(List<node>& adjNodes,
 	} while (adjRun != cCopy->firstAdj());
 
 	// adjust ordering to start with rightNode
-	while (adjNodes.front() != rightNode)
-	{
+	while (adjNodes.front() != rightNode) {
 		node tempV = adjNodes.popFrontRet();
 		adjNodes.pushBack(tempV);
 	}
 }
 
-
-void PlanarizationLayout::callSimDraw(GraphAttributes &ga)
-{
-	const Graph &g = ga.constGraph();
+void PlanarizationLayout::callSimDraw(GraphAttributes& ga) {
+	const Graph& g = ga.constGraph();
 	m_nCrossings = 0;
 
-	EdgeArray<int> costOrig(g,1);
-	EdgeArray<uint32_t> esgOrig(g,0);
+	EdgeArray<int> costOrig(g, 1);
+	EdgeArray<uint32_t> esgOrig(g, 0);
 
-	for(edge e : g.edges)
+	for (edge e : g.edges) {
 		esgOrig[e] = ga.subGraphBits(e);
+	}
 
 	PlanRep pr(ga);
 	const int numCC = pr.numberOfCCs();
 
 	Array<DPoint> boundingBox(numCC);
 
-	for(int cc = 0; cc < numCC; ++cc)
-	{
+	for (int cc = 0; cc < numCC; ++cc) {
 		// 1. crossing minimization
 		int cr;
 		m_crossMin->call(pr, cc, cr, &costOrig, nullptr, &esgOrig);
@@ -466,15 +458,16 @@ void PlanarizationLayout::callSimDraw(GraphAttributes &ga)
 		Layout drawing(pr);
 		m_planarLayouter->call(pr, adjExternal, drawing);
 
-		for(int i = pr.startNode(); i < pr.stopNode(); ++i) {
+		for (int i = pr.startNode(); i < pr.stopNode(); ++i) {
 			node vG = pr.v(i);
 
 			ga.x(vG) = drawing.x(pr.copy(vG));
 			ga.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEntries) {
-				if ((adj->index() & 1) == 0)
+			for (adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) {
 					continue;
+				}
 				edge eG = adj->theEdge();
 				drawing.computePolylineClear(pr, eG, ga.bends(eG));
 			}
@@ -489,32 +482,31 @@ void PlanarizationLayout::callSimDraw(GraphAttributes &ga)
 	ga.removeUnnecessaryBendsHV();
 }
 
-
-void PlanarizationLayout::arrangeCCs(PlanRep &pr, GraphAttributes &ga, Array<DPoint> &boundingBox) const
-{
+void PlanarizationLayout::arrangeCCs(PlanRep& pr, GraphAttributes& ga,
+		Array<DPoint>& boundingBox) const {
 	const int numCC = pr.numberOfCCs();
 	Array<DPoint> offset(numCC);
 	m_packer->call(boundingBox, offset, m_pageRatio);
 
-	for(int cc = 0; cc < numCC; ++cc) {
-
+	for (int cc = 0; cc < numCC; ++cc) {
 		const double dx = offset[cc].m_x;
 		const double dy = offset[cc].m_y;
 
 		// iterate over all nodes in ith CC
-		for(int i = pr.startNode(cc); i < pr.stopNode(cc); ++i)
-		{
+		for (int i = pr.startNode(cc); i < pr.stopNode(cc); ++i) {
 			node v = pr.v(i);
 
 			ga.x(v) += dx;
 			ga.y(v) += dy;
 
-			for(adjEntry adj : v->adjEntries) {
-				if ((adj->index() & 1) == 0) continue;
+			for (adjEntry adj : v->adjEntries) {
+				if ((adj->index() & 1) == 0) {
+					continue;
+				}
 				edge e = adj->theEdge();
 
-				DPolyline &dpl = ga.bends(e);
-				for(DPoint &dp : dpl) {
+				DPolyline& dpl = ga.bends(e);
+				for (DPoint& dp : dpl) {
 					dp.m_x += dx;
 					dp.m_y += dy;
 				}

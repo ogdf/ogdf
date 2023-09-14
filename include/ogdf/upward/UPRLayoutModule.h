@@ -34,7 +34,6 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/upward/UpwardPlanRep.h>
 
-
 namespace ogdf {
 
 
@@ -55,9 +54,7 @@ public:
 	 * @param UPR is the upward planarized representation of the input graph. The original graph of UPR muss be the input graph.
 	 * @param AG is assigned the hierarchy layout.
 	 */
-	void call(const UpwardPlanRep &UPR, GraphAttributes &AG) {
-		doCall(UPR, AG);
-	}
+	void call(const UpwardPlanRep& UPR, GraphAttributes& AG) { doCall(UPR, AG); }
 
 	int numberOfLevels;
 
@@ -70,7 +67,7 @@ protected:
 	 * @param UPR is the upward planarized representation of the input graph. The original graph of UPR muss be the input graph.
 	 * @param AG has to be assigned the hierarchy layout.
 	 */
-	virtual void doCall(const UpwardPlanRep &UPR, GraphAttributes &AG) = 0;
+	virtual void doCall(const UpwardPlanRep& UPR, GraphAttributes& AG) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

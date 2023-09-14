@@ -33,7 +33,6 @@
 
 #include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 
-
 namespace ogdf {
 
 
@@ -47,7 +46,7 @@ struct ExternE {
 	node theNode;
 	SListPure<int> startnodes;
 	SListPure<node> endnodes;
-	SListPure<SListPure<edge> > externalPaths;
+	SListPure<SListPure<edge>> externalPaths;
 };
 
 //! Saves information about a pertinent node w between two stopping vertices.
@@ -58,11 +57,11 @@ struct WInfo {
 
 	//!  All possible base minortypes on w
 	enum class MinorType {
-		A=0x0001, // minor A
-		B=0x0002, // minor B
-		C=0x0004, // minor C
-		D=0x0008, // minor D
-		E=0x0010  // minor E
+		A = 0x0001, // minor A
+		B = 0x0002, // minor B
+		C = 0x0004, // minor C
+		D = 0x0008, // minor D
+		E = 0x0010 // minor E
 	};
 	int minorType;
 
@@ -72,18 +71,16 @@ struct WInfo {
 	bool pxAboveStopX;
 	bool pyAboveStopY;
 
-	SListPure<SListPure<edge> > pertinentPaths;
+	SListPure<SListPure<edge>> pertinentPaths;
 
 	SListIterator<ExternE> externEStart;
 	SListIterator<ExternE> externEEnd;
 	node firstExternEAfterW;
 };
 
-inline int operator & (int lhs, WInfo::MinorType rhs) {
-	return lhs & static_cast<int>(rhs);
-}
+inline int operator&(int lhs, WInfo::MinorType rhs) { return lhs & static_cast<int>(rhs); }
 
-inline int operator |= (int& lhs, WInfo::MinorType rhs) {
+inline int operator|=(int& lhs, WInfo::MinorType rhs) {
 	lhs |= static_cast<int>(rhs);
 	return lhs;
 }
@@ -92,16 +89,16 @@ inline int operator |= (int& lhs, WInfo::MinorType rhs) {
 class OGDF_EXPORT KuratowskiStructure {
 	friend class FindKuratowskis;
 	friend class ExtractKuratowskis;
+
 public:
 	//! Constructor
 	KuratowskiStructure() { }
+
 	//! Destructor
 	~KuratowskiStructure() { }
 
 	//! Copy constructor
-	KuratowskiStructure(const KuratowskiStructure& orig) {
-		copy(orig);
-	}
+	KuratowskiStructure(const KuratowskiStructure& orig) { copy(orig); }
 
 	//! Assignment
 	KuratowskiStructure& operator=(const KuratowskiStructure& orig) {
@@ -184,27 +181,23 @@ class FindKuratowskis {
 public:
 	//! Constructor
 	explicit FindKuratowskis(BoyerMyrvoldPlanar* bm);
+
 	//! Destructor
 	~FindKuratowskis() { }
 
 	//! Adds Kuratowski Structure on current node with root \p root and stopping nodes \p stopx and \p stopy
-	void addKuratowskiStructure(
-					const node currentNode,
-					const node root,
-					const node stopx,
-					const node stopy);
+	void addKuratowskiStructure(const node currentNode, const node root, const node stopx,
+			const node stopy);
 
 	//! Get-method for the list of all KuratowskiStructures
-	inline SListPure<KuratowskiStructure>& getAllKuratowskis() {
-		return allKuratowskis;
-	}
+	inline SListPure<KuratowskiStructure>& getAllKuratowskis() { return allKuratowskis; }
 
 	//! Constant get-method for the list of all KuratowskiStructures
 	inline const SListPure<KuratowskiStructure>& getAllKuratowskis() const {
 		return allKuratowskis;
 	}
 
-	FindKuratowskis &operator=(const FindKuratowskis &) = delete;
+	FindKuratowskis& operator=(const FindKuratowskis&) = delete;
 
 protected:
 	//! Link to class BoyerMyrvoldPlanar
@@ -249,7 +242,7 @@ protected:
 	//! Links to opposite adjacency entries on external face in clockwise resp. ccw order
 	/** m_link[0]=CCW, m_link[1]=CW
 	 */
-	const NodeArray<adjEntry>(& m_link)[2];
+	const NodeArray<adjEntry> (&m_link)[2];
 
 	//! The adjEntry which goes from DFS-parent to current vertex
 	const NodeArray<adjEntry>& m_adjParent;
@@ -271,7 +264,7 @@ protected:
 	//! A list to all separated DFS-children of node
 	/** The list is sorted by lowpoint values (in linear time)
 	*/
-	const NodeArray<ListPure<node> >& m_separatedDFSChildList;
+	const NodeArray<ListPure<node>>& m_separatedDFSChildList;
 
 	//! Identifies the rootnode of the child bicomp the given backedge points to
 	const EdgeArray<node>& m_pointsToRoot;
@@ -287,10 +280,10 @@ protected:
 	/** This information refers to the adjEntries on the targetnode
 	 * and is used during the walkdown
 	 */
-	NodeArray<SListPure<adjEntry> >& m_backedgeFlags;
+	NodeArray<SListPure<adjEntry>>& m_backedgeFlags;
 
 	//! List of virtual bicomp roots, that are pertinent to the current embedded node
-	NodeArray<SListPure<node> >& m_pertinentRoots;
+	NodeArray<SListPure<node>>& m_pertinentRoots;
 
 	//! Finds root node of the bicomp containing the stopping node \p stopX
 	node findRoot(node stopX) const;
@@ -299,29 +292,18 @@ protected:
 	void extractHighestFacePath(ArrayBuffer<adjEntry>& highestFacePath, int marker);
 
 	//! Extracts externalFacePath in direction CCW and splits highestFacePath in highestXYPaths
-	void extractExternalFacePath(
-				SListPure<adjEntry>& externalFacePath,
-				const ArrayBuffer<adjEntry>& highestFacePath,
-				int marker,
-				int highMarker);
+	void extractExternalFacePath(SListPure<adjEntry>& externalFacePath,
+			const ArrayBuffer<adjEntry>& highestFacePath, int marker, int highMarker);
 
 	//! Assign pertinent nodes to the different minortypes and extracts inner externalPaths
-	void splitInMinorTypes(
-			const SListPure<adjEntry>& externalFacePath,
-			int marker);
+	void splitInMinorTypes(const SListPure<adjEntry>& externalFacePath, int marker);
 
 	//! Extracts external subgraph from node \p stop to ancestors of node with DFI \p root (without bundles)
-	void extractExternalSubgraph(
-			const node stop,
-			int root,
-			SListPure<int>& externalStartnodes,
+	void extractExternalSubgraph(const node stop, int root, SListPure<int>& externalStartnodes,
 			SListPure<node>& externalEndnodes);
 	//! Extracts external subgraph from node \p stop to ancestors of node with DFI \p root (with bundles)
-	void extractExternalSubgraphBundles(
-			const node stop,
-			int root,
-			SListPure<edge>& externalSubgraph,
-			int nodeMarker);
+	void extractExternalSubgraphBundles(const node stop, int root,
+			SListPure<edge>& externalSubgraph, int nodeMarker);
 
 	//! Extracts pertinent subgraph from all wNodes to \a V (without bundles)
 #if 1
@@ -331,11 +313,8 @@ protected:
 #endif
 
 	//! Extracts pertinent subgraph from all wNodes to \a V (with bundles)
-	void extractPertinentSubgraphBundles(
-			const SListPure<WInfo>& W_All,
-			const node V,
-			SListPure<edge>& pertinentSubgraph,
-			int nodeMarker);
+	void extractPertinentSubgraphBundles(const SListPure<WInfo>& W_All, const node V,
+			SListPure<edge>& pertinentSubgraph, int nodeMarker);
 };
 
 }

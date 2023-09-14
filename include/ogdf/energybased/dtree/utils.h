@@ -36,8 +36,8 @@ namespace energybased {
 namespace dtree {
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim != 1 && Dim != 2, bool>::type
-mortonComparerEqual(const IntType a[Dim], const IntType b[Dim]) {
+inline typename std::enable_if<Dim != 1 && Dim != 2, bool>::type mortonComparerEqual(
+		const IntType a[Dim], const IntType b[Dim]) {
 	// loop over the dimension
 	for (int d = Dim - 1; d >= 0; d--) {
 		// if the block is different
@@ -50,21 +50,21 @@ mortonComparerEqual(const IntType a[Dim], const IntType b[Dim]) {
 
 // special tuned version for unsigned int and dim = 1
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 1, bool>::type
-mortonComparerEqual(const IntType a[Dim], const IntType b[Dim]) {
+inline typename std::enable_if<Dim == 1, bool>::type mortonComparerEqual(const IntType a[Dim],
+		const IntType b[Dim]) {
 	return a[0] == b[0];
 }
 
 // special tuned version for unsigned int and dim = 2
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 2, bool>::type
-mortonComparerEqual(const IntType a[Dim], const IntType b[Dim]) {
+inline typename std::enable_if<Dim == 2, bool>::type mortonComparerEqual(const IntType a[Dim],
+		const IntType b[Dim]) {
 	return a[0] == b[0] && a[1] == b[1];
 }
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim != 1 && Dim != 2, bool>::type
-mortonComparerLess(const IntType a[Dim], const IntType b[Dim]) {
+inline typename std::enable_if<Dim != 1 && Dim != 2, bool>::type mortonComparerLess(
+		const IntType a[Dim], const IntType b[Dim]) {
 	// loop over the dimension
 	for (int d = Dim - 1; d >= 0; d--) {
 		// if the block is different
@@ -77,21 +77,21 @@ mortonComparerLess(const IntType a[Dim], const IntType b[Dim]) {
 
 // special tuned version for unsigned int and dim = 1
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 1, bool>::type
-mortonComparerLess(const unsigned int a[Dim], const unsigned int b[Dim]) {
+inline typename std::enable_if<Dim == 1, bool>::type mortonComparerLess(const unsigned int a[Dim],
+		const unsigned int b[Dim]) {
 	return a[0] < b[0];
 }
 
 // special tuned version for unsigned int and dim = 2
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 2, bool>::type
-mortonComparerLess(const unsigned int a[Dim], const unsigned int b[Dim]) {
+inline typename std::enable_if<Dim == 2, bool>::type mortonComparerLess(const unsigned int a[Dim],
+		const unsigned int b[Dim]) {
 	return (a[1] == b[1]) ? a[0] < b[0] : a[1] < b[1];
 }
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim != 1 && Dim != 2, void>::type
-interleaveBits(const IntType coords[Dim], IntType mnr[Dim]) {
+inline typename std::enable_if<Dim != 1 && Dim != 2, void>::type interleaveBits(
+		const IntType coords[Dim], IntType mnr[Dim]) {
 	// number of bits of the grid coord type
 	const int BitLength = sizeof(IntType) << 3;
 
@@ -109,7 +109,7 @@ interleaveBits(const IntType coords[Dim], IntType mnr[Dim]) {
 		// loop over the dimension
 		for (int d = 0; d < Dim; d++) {
 			// set the k-th bit in the correct block at the k % position
-			mnr[k / BitLength] |= ((coords[d] >> i) & 0x1) << ( k % BitLength);
+			mnr[k / BitLength] |= ((coords[d] >> i) & 0x1) << (k % BitLength);
 
 			// stupid increment
 			k++;
@@ -118,16 +118,16 @@ interleaveBits(const IntType coords[Dim], IntType mnr[Dim]) {
 }
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 1, void>::type
-interleaveBits(const unsigned int coords[Dim], unsigned int mnr[Dim]) {
+inline typename std::enable_if<Dim == 1, void>::type interleaveBits(const unsigned int coords[Dim],
+		unsigned int mnr[Dim]) {
 	mnr[0] = coords[0];
 }
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 2, void>::type
-interleaveBits(const unsigned int coords[Dim], unsigned int mnr[Dim]) {
+inline typename std::enable_if<Dim == 2, void>::type interleaveBits(const unsigned int coords[Dim],
+		unsigned int mnr[Dim]) {
 	// half the bit length = #bytes * 4
-	const size_t HalfBitLength  = sizeof(unsigned int) << 2;
+	const size_t HalfBitLength = sizeof(unsigned int) << 2;
 
 	// reset the mnr
 	mnr[0] = 0x0;
@@ -135,15 +135,15 @@ interleaveBits(const unsigned int coords[Dim], unsigned int mnr[Dim]) {
 
 	// this variable is used to generate an alternating pattern for the
 	// lower half bits of both coords (the higher half will be shifted out later)
-	unsigned int x_lo[2] = { coords[0], coords[1] };
+	unsigned int x_lo[2] = {coords[0], coords[1]};
 
 	// this one is used for the higher half, thus, we shift them to right
-	unsigned int x_hi[2] = { coords[0] >> HalfBitLength, coords[1] >> HalfBitLength };
+	unsigned int x_hi[2] = {coords[0] >> HalfBitLength, coords[1] >> HalfBitLength};
 
 	// a mask full of 1's
 	unsigned int mask = ~0x0;
 
-	for (unsigned int i = (HalfBitLength);i > 0; i = i >> 1) {
+	for (unsigned int i = (HalfBitLength); i > 0; i = i >> 1) {
 		// increase frequency
 		// generates step by step: ..., 11110000, 11001100, 10101010
 		mask = mask ^ (mask << i);
@@ -163,10 +163,8 @@ interleaveBits(const unsigned int coords[Dim], unsigned int mnr[Dim]) {
 	mnr[1] = x_hi[0] | (x_hi[1] << 1);
 }
 
-
 template<typename IntType>
-inline int mostSignificantBit(IntType x)
-{
+inline int mostSignificantBit(IntType x) {
 	// number of bits of the int type
 	const size_t BitLength = sizeof(IntType) << 3;
 
@@ -176,7 +174,7 @@ inline int mostSignificantBit(IntType x)
 	// binary search on the bits of x
 	for (unsigned int i = (BitLength >> 1); i > 0; i = i >> 1) {
 		// check if anything left of i - 1 is set
-		if ( x >> i) {
+		if (x >> i) {
 			// it is msb must be in that half
 			x = x >> i;
 
@@ -190,8 +188,8 @@ inline int mostSignificantBit(IntType x)
 }
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim != 1, int>::type
-lowestCommonAncestorLevel(const IntType a[Dim], const IntType b[Dim]) {
+inline typename std::enable_if<Dim != 1, int>::type lowestCommonAncestorLevel(const IntType a[Dim],
+		const IntType b[Dim]) {
 	// number of bits of the grid coord type
 	const size_t BitLength = sizeof(IntType) << 3;
 
@@ -210,9 +208,11 @@ lowestCommonAncestorLevel(const IntType a[Dim], const IntType b[Dim]) {
 }
 
 template<typename IntType, int Dim>
-inline typename std::enable_if<Dim == 1, int>::type
-lowestCommonAncestorLevel(const unsigned int a[Dim], const unsigned int b[Dim]) {
+inline typename std::enable_if<Dim == 1, int>::type lowestCommonAncestorLevel(
+		const unsigned int a[Dim], const unsigned int b[Dim]) {
 	return mostSignificantBit<unsigned int>(a[0] ^ b[0]);
 }
 
-}}}
+}
+}
+}

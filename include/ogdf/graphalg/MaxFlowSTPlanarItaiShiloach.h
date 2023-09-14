@@ -34,10 +34,11 @@
 
 #pragma once
 
-#include <limits>
-#include <ogdf/graphalg/MaxFlowModule.h>
-#include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
+
+#include <limits>
 
 namespace ogdf {
 
@@ -46,26 +47,20 @@ namespace ogdf {
  * @ingroup ga-flow
  */
 template<typename TCap>
-class MaxFlowSTPlanarItaiShiloach : public MaxFlowModule<TCap>
-{
+class MaxFlowSTPlanarItaiShiloach : public MaxFlowModule<TCap> {
 private:
-
 	/**
 	 * \brief To work with unsigned, we need a priority shifting of the elements in the priority queue.
 	 * @param e edge in #m_prioritizedEdges
 	 * @return unshifted priority
 	 */
-	TCap unshiftedPriority(edge e) {
-		return m_prioritizedEdges->priority(e) - TCap(1);
-	}
+	TCap unshiftedPriority(edge e) { return m_prioritizedEdges->priority(e) - TCap(1); }
 
 	/**
 	 * see #unshiftedPriority
 	 * @return unshifted priority of top element
 	 */
-	TCap unshiftedTopPriority() {
-		return m_prioritizedEdges->topPriority() - TCap(1);
-	}
+	TCap unshiftedTopPriority() { return m_prioritizedEdges->topPriority() - TCap(1); }
 
 	/**
 	 * see #unshiftedPriority
@@ -80,23 +75,14 @@ private:
 	/**
 	 * Each node has a certain type depending on its participation in any path.
 	 */
-	enum class NodeType {
-		New,
-		Path,
-		Done
-	};
+	enum class NodeType { New, Path, Done };
 
 	/**
 	 * Each edge may be part of the source or target path.
 	 * We do not store this information. It is only a temporary
 	 * variable in two routines.
 	 */
-	enum class EdgePathType {
-		NoPath,
-		SourcePath,
-		TargetPath,
-		Unknown
-	};
+	enum class EdgePathType { NoPath, SourcePath, TargetPath, Unknown };
 
 	adjEntry m_commonFaceAdj;
 
@@ -113,7 +99,7 @@ private:
 	NodeArray<NodeType> m_status;
 
 	/** A priority queue for storing all edges currently in a path */
-	PrioritizedMapQueue<edge, TCap> *m_prioritizedEdges = nullptr;
+	PrioritizedMapQueue<edge, TCap>* m_prioritizedEdges = nullptr;
 
 	/** The flow reached thus far (monotonically increasing). */
 	TCap m_partialFlow;
@@ -122,9 +108,7 @@ public:
 	/**
 	 * Free allocated ressources.
 	 */
-	~MaxFlowSTPlanarItaiShiloach() {
-		delete m_prioritizedEdges;
-	}
+	~MaxFlowSTPlanarItaiShiloach() { delete m_prioritizedEdges; }
 
 	/**
 	 * Computes the maximal flow from source to sink.
@@ -135,19 +119,19 @@ public:
 	 * @param source the source node
 	 * @param target the sink node
 	 */
-	TCap computeValue(const EdgeArray<TCap> &originalCapacities, const node &source, const node &target)
-	{
+	TCap computeValue(const EdgeArray<TCap>& originalCapacities, const node& source,
+			const node& target) {
 		OGDF_ASSERT(source != target);
 		OGDF_ASSERT(isSTPlanar(*this->m_G, source, target));
 
 		// initialize auxiliary structures
 
-		m_partialFlow = (TCap) 0;
+		m_partialFlow = (TCap)0;
 
 		this->m_s = &source;
 		this->m_t = &target;
 		this->m_cap = &originalCapacities;
-		this->m_flow->init(*this->m_G, (TCap) 0);
+		this->m_flow->init(*this->m_G, (TCap)0);
 		OGDF_ASSERT(this->isFeasibleInstance());
 
 		// establish s-t-planarity
@@ -172,8 +156,7 @@ public:
 		// saturate all paths
 
 		edge lastSaturated = nullptr;
-		while(findUppermostPath(lastSaturated)) {
-
+		while (findUppermostPath(lastSaturated)) {
 			lastSaturated = m_prioritizedEdges->topElement();
 			m_partialFlow = unshiftedTopPriority();
 			m_prioritizedEdges->pop();
@@ -195,8 +178,7 @@ public:
 	 * However, there might be some edges remaining (as part of tangling paths
 	 * from source and sink).
 	 */
-	void computeFlowAfterValue()
-	{
+	void computeFlowAfterValue() {
 		// the flow value is only computed if the edge is deleted
 		while (!m_prioritizedEdges->empty()) {
 			edge e = m_prioritizedEdges->topElement();
@@ -212,14 +194,12 @@ public:
 	using MaxFlowModule<TCap>::init;
 
 private:
-
 	/**
 	 * Establishes the next uppermost path.
 	 *
 	 * @param saturatedEdge The edge saturated most recently
 	 */
-	bool findUppermostPath(const edge saturatedEdge)
-	{
+	bool findUppermostPath(const edge saturatedEdge) {
 		node v;
 		adjEntry initialAdj;
 
@@ -235,35 +215,29 @@ private:
 
 		OGDF_ASSERT(v != *this->m_t);
 
-		for(adjEntry adj = initialAdj;
-			m_edgeCounter[v] < v->degree();
-			adj = adj->cyclicSucc())
-		{
+		for (adjEntry adj = initialAdj; m_edgeCounter[v] < v->degree(); adj = adj->cyclicSucc()) {
 			m_edgeCounter[v]++;
 			edge e = adj->theEdge();
 
 			bool visited = m_visited[e];
 			m_visited[e] = true;
 
-			if(!visited
-				&& e->target() != v
-				&& m_status[e->target()] != NodeType::Done)
-			{
+			if (!visited && e->target() != v && m_status[e->target()] != NodeType::Done) {
 				EdgePathType pathType = getPathType(e);
 				OGDF_ASSERT(pathType != EdgePathType::Unknown);
 
-				if(pathType == EdgePathType::NoPath) {
+				if (pathType == EdgePathType::NoPath) {
 					// extend the path
 					appendEdge(e);
 					adj = e->adjTarget();
 					v = e->target();
-				} else if(pathType == EdgePathType::TargetPath) {
+				} else if (pathType == EdgePathType::TargetPath) {
 					// merge path
 					node w = e->target();
 
 					// remove tangling target path
 					edge f;
-					while(m_pred[w] != nullptr) {
+					while (m_pred[w] != nullptr) {
 						f = m_pred[w];
 						w = f->source();
 						dropEdge(f);
@@ -279,9 +253,9 @@ private:
 					node w = e->target();
 
 					node formerSource;
-					while(e->source() != w) {
+					while (e->source() != w) {
 						formerSource = e->source();
-						if(e->target() != w) {
+						if (e->target() != w) {
 							dropEdge(e);
 						}
 						e = m_pred[formerSource]->adjSource()->theEdge();
@@ -295,7 +269,7 @@ private:
 		}
 
 		// v is a deadend
-		if(v == *this->m_s) {
+		if (v == *this->m_s) {
 			return false;
 		} else {
 			edge e = m_pred[v];
@@ -362,14 +336,15 @@ private:
 		node v = e->source();
 		node w = e->target();
 
-		EdgePathType result = m_status[w] == NodeType::Path ? EdgePathType::Unknown : EdgePathType::NoPath;
+		EdgePathType result =
+				m_status[w] == NodeType::Path ? EdgePathType::Unknown : EdgePathType::NoPath;
 
-		while(result == EdgePathType::Unknown) {
-			if(v == e->target() || w == *this->m_s) {
+		while (result == EdgePathType::Unknown) {
+			if (v == e->target() || w == *this->m_s) {
 				result = EdgePathType::SourcePath;
-			} else if(m_pred[v] == nullptr || m_pred[w] == nullptr) {
+			} else if (m_pred[v] == nullptr || m_pred[w] == nullptr) {
 				result = EdgePathType::TargetPath;
-			} else if(m_pred[w]->source() == *this->m_s) {
+			} else if (m_pred[w]->source() == *this->m_s) {
 				result = EdgePathType::SourcePath;
 			} else {
 				OGDF_ASSERT(w != m_pred[w]->source());

@@ -31,9 +31,9 @@
 
 #pragma once
 
+#include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
-#include <ogdf/decomposition/StaticSPQRTree.h>
 
 namespace ogdf {
 
@@ -44,8 +44,7 @@ namespace ogdf {
  * See the paper "Graph Embedding with Minimum Depth and Maximum External Face"
  * by C. Gutwenger and P. Mutzel (2004) for details.
  */
-class OGDF_EXPORT EmbedderMaxFace : public embedder::EmbedderBCTreeBase<false>
-{
+class OGDF_EXPORT EmbedderMaxFace : public embedder::EmbedderBCTreeBase<false> {
 public:
 	/**
 	 * \brief Computes an embedding of \p G with maximum external face.
@@ -64,7 +63,7 @@ protected:
 		}
 	}
 
-	void computeNodeLength(node bT, std::function<int &(node)> setter) {
+	void computeNodeLength(node bT, std::function<int&(node)> setter) {
 		forEachIngoingNeighbor(bT, [&](node vT) {
 			node vH = pBCTree->cutVertex(vT, bT);
 			int length_v_in_block = 0;
@@ -79,27 +78,16 @@ protected:
 		});
 	}
 
-	void internalMaximumFaceRec(
-			const node& bT,
-			node& bT_opt,
-			int& ell_opt,
-			Graph &blockGraph,
-			NodeArray<int> &paramNodeLength,
-			StaticSPQRTree *spqrTree,
-			std::function<node &(node)> getBENode,
-			std::function<int &(node, node)> getCstrLength,
-			std::function<int &(node, node)> getNodeLength,
-			int * const maxFaceSizeToUpdate = nullptr) {
+	void internalMaximumFaceRec(const node& bT, node& bT_opt, int& ell_opt, Graph& blockGraph,
+			NodeArray<int>& paramNodeLength, StaticSPQRTree* spqrTree,
+			std::function<node&(node)> getBENode, std::function<int&(node, node)> getCstrLength,
+			std::function<int&(node, node)> getNodeLength, int* const maxFaceSizeToUpdate = nullptr) {
 		node tmp_bT_opt = bT;
 		NodeArray<EdgeArray<int>> edgeLengthSkel;
 		EdgeArray<int> edgeLengthForEllOpt(blockGraph, 1);
 
-		int tmp_ell_opt = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-				blockGraph,
-				paramNodeLength,
-				edgeLengthForEllOpt,
-				spqrTree,
-				edgeLengthSkel);
+		int tmp_ell_opt = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(blockGraph,
+				paramNodeLength, edgeLengthForEllOpt, spqrTree, edgeLengthSkel);
 
 		if (maxFaceSizeToUpdate != nullptr) {
 			*maxFaceSizeToUpdate = tmp_ell_opt;
@@ -114,12 +102,9 @@ protected:
 				uniformLengths.init(blockGraph, 1);
 			}
 
-			getCstrLength(bT, cH) = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-					blockGraph,
-					getBENode(cH),
-					paramNodeLength,
-					maxFaceSizeToUpdate == nullptr ? uniformLengths : edgeLengthForEllOpt,
-					spqrTree,
+			getCstrLength(bT, cH) = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(blockGraph,
+					getBENode(cH), paramNodeLength,
+					maxFaceSizeToUpdate == nullptr ? uniformLengths : edgeLengthForEllOpt, spqrTree,
 					edgeLengthSkel);
 
 			int L = 0;
@@ -155,19 +140,13 @@ protected:
 	}
 
 	template<typename T>
-	void internalEmbedBlock(
-			const node bT,
-			const node cT,
-			ListIterator<adjEntry>& after,
-			Graph &blockGraph,
-			NodeArray<T> &paramNodeLength,
-			EdgeArray<T> &paramEdgeLength,
-			NodeArray<node> &mapNodeToH,
-			EdgeArray<edge> &mapEdgeToH,
-			const node nodeInBlock) {
+	void internalEmbedBlock(const node bT, const node cT, ListIterator<adjEntry>& after,
+			Graph& blockGraph, NodeArray<T>& paramNodeLength, EdgeArray<T>& paramEdgeLength,
+			NodeArray<node>& mapNodeToH, EdgeArray<edge>& mapEdgeToH, const node nodeInBlock) {
 		// 1. Compute embedding of block
 		adjEntry m_adjExternal = nullptr;
-		EmbedderMaxFaceBiconnectedGraphs<T>::embed(blockGraph, m_adjExternal, paramNodeLength, paramEdgeLength, nodeInBlock);
+		EmbedderMaxFaceBiconnectedGraphs<T>::embed(blockGraph, m_adjExternal, paramNodeLength,
+				paramEdgeLength, nodeInBlock);
 
 		// 2. Copy block embedding into graph embedding and call recursively
 		//    embedBlock for all cut vertices in bT
@@ -189,7 +168,8 @@ protected:
 			node nH = mapNodeToH[nSG];
 			node nG = pBCTree->original(nH);
 			adjEntry ae = nSG->firstAdj();
-			ListIterator<adjEntry>* pAfter = pBCTree->bcproper(nG) == cT ? &after : new ListIterator<adjEntry>;
+			ListIterator<adjEntry>* pAfter =
+					pBCTree->bcproper(nG) == cT ? &after : new ListIterator<adjEntry>;
 
 			if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex) {
 				node cT2 = pBCTree->bcproper(nG);
@@ -219,7 +199,6 @@ protected:
 						ae = aeFace->succ() == nullptr ? nSG->firstAdj() : aeFace->succ();
 						break;
 					}
-
 				}
 
 				if (doRecurse) {
@@ -235,7 +214,8 @@ protected:
 
 			// embed all edges of block bT:
 			bool after_ae = true;
-			for (adjEntry aeNode = ae; after_ae || aeNode != ae; aeNode = aeNode->succ() == nullptr ? nSG->firstAdj() : aeNode->succ()) {
+			for (adjEntry aeNode = ae; after_ae || aeNode != ae;
+					aeNode = aeNode->succ() == nullptr ? nSG->firstAdj() : aeNode->succ()) {
 				edge e = pBCTree->original(mapEdgeToH[aeNode->theEdge()]);
 				if (nG == e->source()) {
 					if (pAfter->valid()) {
@@ -311,25 +291,25 @@ protected:
 	NodeArray<Graph> blockG;
 
 	/** a mapping of nodes in the auxiliaryGraph of the BC-tree to blockG */
-	NodeArray< NodeArray<node> > nH_to_nBlockEmbedding;
+	NodeArray<NodeArray<node>> nH_to_nBlockEmbedding;
 
 	/** a mapping of edges in the auxiliaryGraph of the BC-tree to blockG */
-	NodeArray< EdgeArray<edge> > eH_to_eBlockEmbedding;
+	NodeArray<EdgeArray<edge>> eH_to_eBlockEmbedding;
 
 	/** a mapping of nodes in blockG to the auxiliaryGraph of the BC-tree */
-	NodeArray< NodeArray<node> > nBlockEmbedding_to_nH;
+	NodeArray<NodeArray<node>> nBlockEmbedding_to_nH;
 
 	/** a mapping of edges in blockG to the auxiliaryGraph of the BC-tree */
-	NodeArray< EdgeArray<edge> > eBlockEmbedding_to_eH;
+	NodeArray<EdgeArray<edge>> eBlockEmbedding_to_eH;
 
 	/** saving for each node in the block graphs its length */
-	NodeArray< NodeArray<int> > nodeLength;
+	NodeArray<NodeArray<int>> nodeLength;
 
 	/** is saving for each node in the block graphs its cstrLength */
-	NodeArray< NodeArray<int> > cstrLength;
+	NodeArray<NodeArray<int>> cstrLength;
 
 	/** saves for every node of PG the new adjacency list */
-	NodeArray< List<adjEntry> > newOrder;
+	NodeArray<List<adjEntry>> newOrder;
 
 	/** treeNodeTreated saves for all block nodes in the
 	 *  BC-tree if it has already been treated or not. */

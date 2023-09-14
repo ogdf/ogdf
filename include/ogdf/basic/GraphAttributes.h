@@ -35,12 +35,11 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/exceptions.h>
-
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
 
@@ -65,52 +64,50 @@ namespace ogdf {
  */
 
 class OGDF_EXPORT GraphAttributes {
-
 protected:
-	const Graph *m_pGraph; //!< associated graph
+	const Graph* m_pGraph; //!< associated graph
 
 	bool m_directed; //!< whether or not the graph is directed
 
 	// graphical representation of nodes
-	NodeArray<double>       m_x;				//!< x-coordinate of a node
-	NodeArray<double>       m_y;				//!< y-coordinate of a node
-	NodeArray<double>       m_z;				//!< z-coordinate of a node
-	NodeArray<double>       m_nodeLabelPosX;		//!< x-coordinate of a node label
-	NodeArray<double>       m_nodeLabelPosY;		//!< y-coordinate of a node label
-	NodeArray<double>       m_nodeLabelPosZ;		//!< z-coordinate of a node label
-	NodeArray<double>       m_width;			//!< width of a node's bounding box
-	NodeArray<double>       m_height;			//!< height of a nodes's bounding box
-	NodeArray<Shape>        m_nodeShape;		//!< shape of a node
-	NodeArray<string>       m_nodeLabel;		//!< label of a node
-	NodeArray<Stroke>       m_nodeStroke;		//!< stroke of a node
-	NodeArray<Fill>         m_nodeFill;			//!< fill of a node
-	NodeArray<string>       m_nodeTemplate;		//!< name of template of a node
+	NodeArray<double> m_x; //!< x-coordinate of a node
+	NodeArray<double> m_y; //!< y-coordinate of a node
+	NodeArray<double> m_z; //!< z-coordinate of a node
+	NodeArray<double> m_nodeLabelPosX; //!< x-coordinate of a node label
+	NodeArray<double> m_nodeLabelPosY; //!< y-coordinate of a node label
+	NodeArray<double> m_nodeLabelPosZ; //!< z-coordinate of a node label
+	NodeArray<double> m_width; //!< width of a node's bounding box
+	NodeArray<double> m_height; //!< height of a nodes's bounding box
+	NodeArray<Shape> m_nodeShape; //!< shape of a node
+	NodeArray<string> m_nodeLabel; //!< label of a node
+	NodeArray<Stroke> m_nodeStroke; //!< stroke of a node
+	NodeArray<Fill> m_nodeFill; //!< fill of a node
+	NodeArray<string> m_nodeTemplate; //!< name of template of a node
 
 	// other node attributes
-	NodeArray<int>             m_nodeId;		//!< user ID of a node
-	NodeArray<int>             m_nodeIntWeight;	//!< (integer) weight of a node
-	NodeArray<Graph::NodeType> m_vType;			//!< type (vertex, dummy, generalizationMerger)
+	NodeArray<int> m_nodeId; //!< user ID of a node
+	NodeArray<int> m_nodeIntWeight; //!< (integer) weight of a node
+	NodeArray<Graph::NodeType> m_vType; //!< type (vertex, dummy, generalizationMerger)
 
 	// graphical representation of edges
-	EdgeArray<DPolyline>       m_bends;			//!< list of bend points of an edge
-	EdgeArray<string>          m_edgeLabel;		//!< label of an edge
-	EdgeArray<EdgeArrow>       m_edgeArrow;		//!< arrow type of an edge
-	EdgeArray<Stroke>          m_edgeStroke;	//!< stroke of an edge
+	EdgeArray<DPolyline> m_bends; //!< list of bend points of an edge
+	EdgeArray<string> m_edgeLabel; //!< label of an edge
+	EdgeArray<EdgeArrow> m_edgeArrow; //!< arrow type of an edge
+	EdgeArray<Stroke> m_edgeStroke; //!< stroke of an edge
 
 	// other edge attributes
-	EdgeArray<int>             m_intWeight;		//!< (integer) weight of an edge
-	EdgeArray<double>          m_doubleWeight;	//!< (real number) weight of an edge
-	EdgeArray<Graph::EdgeType> m_eType;			//!< type of an edge (association or generalization)
-	EdgeArray<uint32_t>        m_subGraph;		//!< is element of subgraphs given by bitvector
+	EdgeArray<int> m_intWeight; //!< (integer) weight of an edge
+	EdgeArray<double> m_doubleWeight; //!< (real number) weight of an edge
+	EdgeArray<Graph::EdgeType> m_eType; //!< type of an edge (association or generalization)
+	EdgeArray<uint32_t> m_subGraph; //!< is element of subgraphs given by bitvector
 
-	long m_attributes;	//!< bit vector of currently used attributes
+	long m_attributes; //!< bit vector of currently used attributes
 
 public:
-
 	/**
 	 * @name Flags for enabling attributes.
 	 */
-	//!@{
+	//! @{
 
 	//! Corresponds to node attributes #x(node), #y(node), #width(node), #height(node), and #shape(node).
 	static const long nodeGraphics;
@@ -168,12 +165,12 @@ public:
 	//! Enables all available flags.
 	static const long all;
 
-	//!@}
+	//! @}
 
 	/**
 	 * @name Construction and management of attributes
 	 */
-	//!@{
+	//! @{
 
 	//! Constructs graph attributes for no associated graph (default constructor).
 	/**
@@ -186,7 +183,7 @@ public:
 	 * @param G is the associated graph.
 	 * @param attr specifies the set of attributes that can be accessed.
 	 */
-	explicit GraphAttributes(const Graph &G, long attr = nodeGraphics | edgeGraphics);
+	explicit GraphAttributes(const Graph& G, long attr = nodeGraphics | edgeGraphics);
 
 	//! Copy constructor.
 	GraphAttributes(const GraphAttributes&) = default;
@@ -194,18 +191,13 @@ public:
 	//! Copy assignment operator.
 	GraphAttributes& operator=(const GraphAttributes&) = default;
 
-	virtual ~GraphAttributes() {
-	}
+	virtual ~GraphAttributes() { }
 
 	//! Returns currently accessible attributes.
-	long attributes() const {
-		return m_attributes;
-	}
+	long attributes() const { return m_attributes; }
 
 	//! Returns true iff all attributes in \p attr are available.
-	inline bool has(long attr) const {
-		return (m_attributes & attr) == attr;
-	}
+	inline bool has(long attr) const { return (m_attributes & attr) == attr; }
 
 	//! Initializes the graph attributes for graph \p G.
 	/**
@@ -215,7 +207,7 @@ public:
 	 * \warning All attributes that were allocated before are destroyed by this function!
 	 *  If you wish to extend the set of allocated attributes, use #addAttributes.
 	 */
-	virtual void init(const Graph &G, long attr);
+	virtual void init(const Graph& G, long attr);
 
 	//! Re-initializes the graph attributes while maintaining the associated graph.
 	//! @see init(const Graph&, long)
@@ -228,31 +220,25 @@ public:
 	void destroyAttributes(long attr);
 
 	//! Returns a reference to the associated graph.
-	const Graph& constGraph() const {
-		return *m_pGraph;
-	}
+	const Graph& constGraph() const { return *m_pGraph; }
 
-	//!@}
+	//! @}
 	/**
 	 * @name General attributes
 	 */
-	//!@{
+	//! @{
 
 	//! Returns if the graph is directed.
-	bool directed() const {
-		return m_directed;
-	}
+	bool directed() const { return m_directed; }
 
 	//! Returns if the graph is directed.
-	bool &directed() {
-		return m_directed;
-	}
+	bool& directed() { return m_directed; }
 
-	//!@}
+	//! @}
 	/**
 	 * @name Node attributes
 	 */
-	//!@{
+	//! @{
 
 	//! Returns the x-coordinate of node \p v.
 	/**
@@ -263,16 +249,14 @@ public:
 		return m_x[v];
 	}
 
-
 	//! Returns the x-coordinate of node \p v.
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	double &x(node v) {
+	double& x(node v) {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_x[v];
 	}
-
 
 	//! Returns the y-coordinate of node \p v.
 	/**
@@ -283,16 +267,14 @@ public:
 		return m_y[v];
 	}
 
-
 	//! Returns the y-coordinate of node \p v.
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	double &y(node v) {
+	double& y(node v) {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_y[v];
 	}
-
 
 	//! Returns the z-coordinate of node \p v.
 	/**
@@ -303,16 +285,14 @@ public:
 		return m_z[v];
 	}
 
-
 	//! Returns the z-coordinate of node \p v.
 	/**
 	 * \pre #threeD is enabled
 	 */
-	double &z(node v) {
+	double& z(node v) {
 		OGDF_ASSERT(has(threeD));
 		return m_z[v];
 	}
-
 
 	//! Returns the label x-coordinate of node \p v.
 	/**
@@ -327,11 +307,10 @@ public:
 	/**
 	 * \pre #nodeLabelPosition is enabled
 	 */
-	double &xLabel(node v) {
+	double& xLabel(node v) {
 		OGDF_ASSERT(has(nodeLabelPosition));
 		return m_nodeLabelPosX[v];
 	}
-
 
 	//! Returns the label y-coordinate of node \p v.
 	/**
@@ -346,11 +325,10 @@ public:
 	/**
 	 * \pre #nodeLabelPosition is enabled
 	 */
-	double &yLabel(node v) {
+	double& yLabel(node v) {
 		OGDF_ASSERT(has(nodeLabelPosition));
 		return m_nodeLabelPosY[v];
 	}
-
 
 	//! Returns the label z-coordinate of node \p v.
 	/**
@@ -366,12 +344,11 @@ public:
 	/**
 	 * \pre #nodeLabelPosition and #threeD are enabled
 	 */
-	double &zLabel(node v) {
+	double& zLabel(node v) {
 		OGDF_ASSERT(has(nodeLabelPosition));
 		OGDF_ASSERT(has(threeD));
 		return m_nodeLabelPosZ[v];
 	}
-
 
 	//! Returns the width of the bounding box of node \p v.
 	/**
@@ -386,17 +363,16 @@ public:
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	double &width(node v) {
+	double& width(node v) {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_width[v];
 	}
-
 
 	//! Returns a reference to the node array #m_width.
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	const NodeArray<double> &width() const {
+	const NodeArray<double>& width() const {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_width;
 	}
@@ -405,11 +381,10 @@ public:
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	NodeArray<double> &width() {
+	NodeArray<double>& width() {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_width;
 	}
-
 
 	//! Returns the height of the bounding box of node \p v.
 	/**
@@ -424,17 +399,16 @@ public:
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	double &height(node v) {
+	double& height(node v) {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_height[v];
 	}
 
-
 	//! Returns a reference to the node array #m_height.
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	const NodeArray<double> &height() const {
+	const NodeArray<double>& height() const {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_height;
 	}
@@ -443,11 +417,10 @@ public:
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	NodeArray<double> &height() {
+	NodeArray<double>& height() {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_height;
 	}
-
 
 	//! Returns the shape type of node \p v.
 	/**
@@ -462,11 +435,10 @@ public:
 	/**
 	 * \pre #nodeGraphics is enabled
 	 */
-	Shape &shape(node v) {
+	Shape& shape(node v) {
 		OGDF_ASSERT(has(nodeGraphics));
 		return m_nodeShape[v];
 	}
-
 
 	//! Returns the stroke type of node \p v.
 	/**
@@ -481,17 +453,16 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	StrokeType &strokeType(node v) {
+	StrokeType& strokeType(node v) {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_type;
 	}
 
-
 	//! Returns the stroke color of node \p v.
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	const Color &strokeColor(node v) const {
+	const Color& strokeColor(node v) const {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_color;
 	}
@@ -500,11 +471,10 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	Color &strokeColor(node v) {
+	Color& strokeColor(node v) {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_color;
 	}
-
 
 	//! Returns the stroke width of node \p v.
 	/**
@@ -519,7 +489,7 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	float &strokeWidth(node v) {
+	float& strokeWidth(node v) {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_width;
 	}
@@ -537,7 +507,7 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	FillPattern &fillPattern(node v) {
+	FillPattern& fillPattern(node v) {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_pattern;
 	}
@@ -546,7 +516,7 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	const Color &fillColor(node v) const {
+	const Color& fillColor(node v) const {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_color;
 	}
@@ -555,17 +525,16 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	Color &fillColor(node v) {
+	Color& fillColor(node v) {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_color;
 	}
 
-
 	//! Returns the background color of fill patterns for node \p v.
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	const Color &fillBgColor(node v) const {
+	const Color& fillBgColor(node v) const {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_bgColor;
 	}
@@ -574,17 +543,16 @@ public:
 	/**
 	 * \pre #nodeStyle is enabled
 	 */
-	Color &fillBgColor(node v) {
+	Color& fillBgColor(node v) {
 		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_bgColor;
 	}
 
-
 	//! Returns the label of node \p v.
 	/**
 	 * \pre #nodeLabel is enabled
 	 */
-	const string &label(node v) const {
+	const string& label(node v) const {
 		OGDF_ASSERT(has(nodeLabel));
 		return m_nodeLabel[v];
 	}
@@ -593,17 +561,16 @@ public:
 	/**
 	 * \pre #nodeLabel is enabled
 	 */
-	string &label(node v) {
+	string& label(node v) {
 		OGDF_ASSERT(has(nodeLabel));
 		return m_nodeLabel[v];
 	}
 
-
 	//! Returns the template name of node \p v.
 	/**
 	 * \pre #nodeTemplate is enabled
 	 */
-	const string &templateNode(node v) const {
+	const string& templateNode(node v) const {
 		OGDF_ASSERT(has(nodeTemplate));
 		return m_nodeTemplate[v];
 	}
@@ -612,11 +579,10 @@ public:
 	/**
 	 * \pre #nodeTemplate is enabled
 	 */
-	string &templateNode(node v) {
+	string& templateNode(node v) {
 		OGDF_ASSERT(has(nodeTemplate));
 		return m_nodeTemplate[v];
 	}
-
 
 	//! Returns the weight of node \p v.
 	/**
@@ -631,11 +597,10 @@ public:
 	/**
 	 * \pre #nodeWeight is enabled
 	 */
-	int &weight(node v) {
+	int& weight(node v) {
 		OGDF_ASSERT(has(nodeWeight));
 		return m_nodeIntWeight[v];
 	}
-
 
 	//! Returns the type of node \p v.
 	/**
@@ -650,11 +615,10 @@ public:
 	/**
 	 * \pre #nodeType is enabled
 	 */
-	Graph::NodeType &type(node v) {
+	Graph::NodeType& type(node v) {
 		OGDF_ASSERT(has(nodeType));
 		return m_vType[v];
 	}
-
 
 	//! Returns the user ID of node \p v.
 	/**
@@ -673,7 +637,7 @@ public:
 	 *
 	 * \pre #nodeId is enabled
 	 */
-	int &idNode(node v) {
+	int& idNode(node v) {
 		OGDF_ASSERT(has(nodeId));
 		if (m_nodeId[v] == -1) {
 			m_nodeId[v] = v->index();
@@ -681,11 +645,11 @@ public:
 		return m_nodeId[v];
 	}
 
-	//!@}
+	//! @}
 	/**
 	 * @name Edge attributes
 	 */
-	//!@{
+	//! @{
 
 
 	//! Returns the list of bend points of edge \p e.
@@ -697,7 +661,7 @@ public:
 	 *
 	 * \pre #edgeGraphics is enabled
 	 */
-	const DPolyline &bends(edge e) const {
+	const DPolyline& bends(edge e) const {
 		OGDF_ASSERT(has(edgeGraphics));
 		return m_bends[e];
 	}
@@ -708,11 +672,10 @@ public:
 	 *
 	 * \pre #edgeGraphics is enabled
 	 */
-	DPolyline &bends(edge e) {
+	DPolyline& bends(edge e) {
 		OGDF_ASSERT(has(edgeGraphics));
 		return m_bends[e];
 	}
-
 
 	//! Returns the arrow type of edge \p e.
 	/**
@@ -727,11 +690,10 @@ public:
 	/**
 	 * \pre #edgeArrow is enabled
 	 */
-	EdgeArrow &arrowType(edge e) {
+	EdgeArrow& arrowType(edge e) {
 		OGDF_ASSERT(has(edgeArrow));
 		return m_edgeArrow[e];
 	}
-
 
 	//! Returns the stroke type of edge \p e.
 	/**
@@ -746,17 +708,16 @@ public:
 	/**
 	 * \pre #edgeStyle is enabled
 	 */
-	StrokeType &strokeType(edge e) {
+	StrokeType& strokeType(edge e) {
 		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_type;
 	}
 
-
 	//! Returns the stroke color of edge \p e.
 	/**
 	 * \pre #edgeStyle is enabled
 	 */
-	const Color &strokeColor(edge e) const {
+	const Color& strokeColor(edge e) const {
 		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_color;
 	}
@@ -765,11 +726,10 @@ public:
 	/**
 	 * \pre #edgeStyle is enabled
 	 */
-	Color &strokeColor(edge e) {
+	Color& strokeColor(edge e) {
 		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_color;
 	}
-
 
 	//! Returns the stroke width of edge \p e.
 	/**
@@ -784,17 +744,16 @@ public:
 	/**
 	 * \pre #edgeStyle is enabled
 	 */
-	float &strokeWidth(edge e) {
+	float& strokeWidth(edge e) {
 		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_width;
 	}
 
-
 	//! Returns the label of edge \p e.
 	/**
 	 * \pre #edgeLabel is enabled
 	 */
-	const string &label(edge e) const {
+	const string& label(edge e) const {
 		OGDF_ASSERT(has(edgeLabel));
 		return m_edgeLabel[e];
 	}
@@ -803,11 +762,10 @@ public:
 	/**
 	 * \pre #edgeLabel is enabled
 	 */
-	string &label(edge e) {
+	string& label(edge e) {
 		OGDF_ASSERT(has(edgeLabel));
 		return m_edgeLabel[e];
 	}
-
 
 	//! Returns the (integer) weight of edge \p e.
 	/**
@@ -822,11 +780,10 @@ public:
 	/**
 	 * \pre #edgeIntWeight is enabled
 	 */
-	int &intWeight(edge e) {
+	int& intWeight(edge e) {
 		OGDF_ASSERT(has(edgeIntWeight));
 		return m_intWeight[e];
 	}
-
 
 	//! Returns the (real number) weight of edge \p e.
 	/**
@@ -841,11 +798,10 @@ public:
 	/**
 	 * \pre #edgeDoubleWeight is enabled
 	 */
-	double &doubleWeight(edge e) {
+	double& doubleWeight(edge e) {
 		OGDF_ASSERT(has(edgeDoubleWeight));
 		return m_doubleWeight[e];
 	}
-
 
 	//! Returns the type of edge \p e.
 	/**
@@ -860,11 +816,10 @@ public:
 	/**
 	 * \pre #edgeType is enabled
 	 */
-	Graph::EdgeType &type(edge e) {
+	Graph::EdgeType& type(edge e) {
 		OGDF_ASSERT(has(edgeType));
 		return m_eType[e];
 	}
-
 
 	//! Returns the edgesubgraph value of an edge \p e.
 	/**
@@ -879,11 +834,10 @@ public:
 	/**
 	 * \pre #edgeSubGraphs is enabled
 	 */
-	uint32_t &subGraphBits(edge e) {
+	uint32_t& subGraphBits(edge e) {
 		OGDF_ASSERT(has(edgeSubGraphs));
 		return m_subGraph[e];
 	}
-
 
 	//! Checks whether edge \p e belongs to basic graph \p n.
 	/**
@@ -891,11 +845,10 @@ public:
 	 */
 	bool inSubGraph(edge e, int n) const {
 		OGDF_ASSERT(has(edgeSubGraphs));
-		OGDF_ASSERT(n>=0);
-		OGDF_ASSERT(n<32);
+		OGDF_ASSERT(n >= 0);
+		OGDF_ASSERT(n < 32);
 		return (m_subGraph[e] & (1 << n)) != 0;
 	}
-
 
 	//! Adds edge \p e to basic graph \p n.
 	/**
@@ -903,11 +856,10 @@ public:
 	 */
 	void addSubGraph(edge e, int n) {
 		OGDF_ASSERT(has(edgeSubGraphs));
-		OGDF_ASSERT(n>=0);
-		OGDF_ASSERT(n<32);
+		OGDF_ASSERT(n >= 0);
+		OGDF_ASSERT(n < 32);
 		m_subGraph[e] |= (1 << n);
 	}
-
 
 	//! Removes edge \p e from basic graph \p n.
 	/**
@@ -915,16 +867,16 @@ public:
 	 */
 	void removeSubGraph(edge e, int n) {
 		OGDF_ASSERT(has(edgeSubGraphs));
-		OGDF_ASSERT(n>=0);
-		OGDF_ASSERT(n<32);
+		OGDF_ASSERT(n >= 0);
+		OGDF_ASSERT(n < 32);
 		m_subGraph[e] &= ~(1 << n);
 	}
 
-	//!@}
+	//! @}
 	/**
 	* @name Layout transformations
 	*/
-	//!@{
+	//! @{
 
 	//! Scales the layout by (\p sx,\p sy).
 	/**
@@ -971,7 +923,7 @@ public:
 	 * The whole layout is flipped and then moved such that the part that was in \p box before
 	 * flipping is moved to this area.
 	 */
-	virtual void flipVertical(const DRect &box);
+	virtual void flipVertical(const DRect& box);
 
 	//! Flips the layout horizontally within its bounding box.
 	/**
@@ -985,7 +937,7 @@ public:
 	* The whole layout is flipped and then moved such that the part that was in \p box before
 	* flipping is moved to this area.
 	*/
-	virtual void flipHorizontal(const DRect &box);
+	virtual void flipHorizontal(const DRect& box);
 
 	//! Scales the layout by (\p sx,\p sy) and then translates it by (\p dx,\p dy).
 	/**
@@ -998,7 +950,8 @@ public:
 	* \param dy         is the translation in y-direction.
 	* \param scaleNodes determines if nodes size are scaled as well (true) or not.
 	*/
-	virtual void scaleAndTranslate(double sx, double sy, double dx, double dy, bool scaleNodes = true);
+	virtual void scaleAndTranslate(double sx, double sy, double dx, double dy,
+			bool scaleNodes = true);
 
 	//! Scales the layout by \p s and then translates it by (\p dx,\p dy).
 	/**
@@ -1020,11 +973,78 @@ public:
 	//! Rotates the layout by 90 degree (in counter-clockwise direction) around the origin.
 	virtual void rotateLeft90();
 
-	//!@}
+	//! @}
 	/**
 	 * @name Utility functions
 	 */
-	//!@{
+	//! @{
+
+	//! type of node attribute getter functions
+	template<typename T>
+	using NodeAttributeGetter = T (GraphAttributes::*)(node) const;
+
+	//! type of edge attribute getter functions
+	template<typename T>
+	using EdgeAttributeGetter = T (GraphAttributes::*)(edge) const;
+
+	//! Checks whether a certain attribute has the same value for all nodes.
+	/**
+	 * @pre The necessary attribute flag is enabled.
+	 *
+	 * @tparam T return type of the attribute getter function
+	 * @param attribute node attribute getter function
+	 * @return true iff the specified attribute has the same value for all nodes
+	 */
+	template<typename T>
+	bool isUniformForNodes(NodeAttributeGetter<T> attribute) const {
+		OGDF_ASSERT(attribute != nullptr);
+		if (constGraph().numberOfNodes() == 0) {
+			return true;
+		}
+
+		T firstAttr = (this->*attribute)(*constGraph().nodes.begin());
+		for (node n : constGraph().nodes) {
+			if ((this->*attribute)(n) != firstAttr) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//! Checks whether a certain attribute has the same value for all edges.
+	/**
+	 * @pre The necessary attribute flag is enabled.
+	 *
+	 * @tparam T return type of the attribute getter function
+	 * @param attribute edge attribute getter function
+	 * @return true iff the specified attribute has the same value for all edges
+	 */
+	template<typename T>
+	bool isUniformForEdges(EdgeAttributeGetter<T> attribute) const {
+		OGDF_ASSERT(attribute != nullptr);
+		if (constGraph().numberOfEdges() == 0) {
+			return true;
+		}
+
+		T firstAttr = (this->*attribute)(*constGraph().edges.begin());
+		for (edge e : constGraph().edges) {
+			if ((this->*attribute)(e) != firstAttr) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Check whether all of the attributes associated with the bitflags in
+	 * \p attributes (that are also enabled for this ogdf::GraphAttributes
+	 * instance) are uniform, i.e. have the same value.
+	 *
+	 * @param attributes bitmask for all attribute flags to query
+	 * @return true iff the associated attributes of all enabled flags in
+	 * \p attributes are uniform
+	 */
+	bool isUniform(long attributes) const;
 
 	//! Returns a DPoint corresponding to the x- and y-coordinates of \p v.
 	inline DPoint point(node v) const { return DPoint(m_x[v], m_y[v]); }
@@ -1042,7 +1062,7 @@ public:
 	 *
 	 * @param origAttr is the GraphAttributes of the original graph.
 	 */
-	void transferToOriginal(GraphAttributes &origAttr) const;
+	void transferToOriginal(GraphAttributes& origAttr) const;
 
 	//! Copies attributes of this to \p copyAttr.
 	/**
@@ -1058,7 +1078,7 @@ public:
 	 *
 	 * @param copyAttr is the GraphAttributes of the GraphCopy.
 	 */
-	void transferToCopy(GraphAttributes &copyAttr) const;
+	void transferToCopy(GraphAttributes& copyAttr) const;
 
 	//! Returns the bounding box of the graph.
 	/**
@@ -1073,12 +1093,12 @@ public:
 	 * \pre #nodeGraphics is enabled
 	 */
 	template<class Rectangle = DRect>
-	void nodeBoundingBoxes(NodeArray<Rectangle> &boundingBoxes) const {
+	void nodeBoundingBoxes(NodeArray<Rectangle>& boundingBoxes) const {
 		for (node v : constGraph().nodes) {
-			double vHalfWidth  = width(v)  / 2.0;
+			double vHalfWidth = width(v) / 2.0;
 			double vHalfHeight = height(v) / 2.0;
-			boundingBoxes[v] = Rectangle(x(v) - vHalfWidth, y(v) - vHalfHeight,
-			                             x(v) + vHalfWidth, y(v) + vHalfHeight);
+			boundingBoxes[v] = Rectangle(x(v) - vHalfWidth, y(v) - vHalfHeight, x(v) + vHalfWidth,
+					y(v) + vHalfHeight);
 		}
 	}
 
@@ -1135,9 +1155,7 @@ public:
 	 *
 	 * \pre #nodeGraphics are enabled
 	 */
-	bool isAssociationClass(node v) const {
-		return type(v) == Graph::NodeType::associationClass;
-	}
+	bool isAssociationClass(node v) const { return type(v) == Graph::NodeType::associationClass; }
 
 	//! Returns a list of all inheritance hierarchies in the graph.
 	/**
@@ -1148,7 +1166,7 @@ public:
 	 *
 	 * \return Returns the number of generalization hierarchies.
 	 */
-	int hierarchyList(List<List<node>*> &list) const;
+	int hierarchyList(List<List<node>*>& list) const;
 
 	//! Returns a list of all inheritance hierarchies in the graph.
 	/**
@@ -1159,16 +1177,16 @@ public:
 	 *
 	 * \return Returns the number of generalization hierarchies.
 	 */
-	int hierarchyList(List<List<edge>*> &list) const;
+	int hierarchyList(List<List<edge>*>& list) const;
 
-	//!@}
+	//! @}
 
 private:
 	//! Copies all attributes \p attrs of \p vFrom to \p toAttr for \p vTo.
-	void copyNodeAttributes(GraphAttributes &toAttr, node vFrom, node vTo, long attrs) const;
+	void copyNodeAttributes(GraphAttributes& toAttr, node vFrom, node vTo, long attrs) const;
 
 	//! Copies all attributes \p attrs except bends (!) of \p eFrom to \p toAttr for \p eTo.
-	void copyEdgeAttributes(GraphAttributes &toAttr, edge eFrom, edge eTo, long attrs) const;
+	void copyEdgeAttributes(GraphAttributes& toAttr, edge eFrom, edge eTo, long attrs) const;
 };
 
 }

@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <memory>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 #include <ogdf/graphalg/steiner_tree/goemans/BlowupComponents.h>
 #include <ogdf/graphalg/steiner_tree/goemans/CoreEdgeRandomSpanningTree.h>
+
+#include <memory>
 
 //#define OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
 
@@ -45,12 +46,11 @@ namespace goemans {
 
 //! The actual 1.39-approximation algorithm by Goemans et al. with a set of terminalized nodes as result
 template<typename T>
-class Approximation
-{
-	const EdgeWeightedGraph<T> &m_G;
-	const NodeArray<bool> &m_isTerminal;
-	const List<node> &m_terminals;
-	const FullComponentWithExtraStore<T, double> &m_fullCompStore; //!< all enumerated full components, with solution
+class Approximation {
+	const EdgeWeightedGraph<T>& m_G;
+	const NodeArray<bool>& m_isTerminal;
+	const List<node>& m_terminals;
+	const FullComponentWithExtraStore<T, double>& m_fullCompStore; //!< all enumerated full components, with solution
 
 	const double m_eps; //!< epsilon for double operations
 
@@ -59,7 +59,7 @@ class Approximation
 	//! Add edges into a blowup graph and delete them on destruction
 	struct TemporaryEdges : ArrayBuffer<edge> {
 		//! Construct object for a specific \p blowupGraph
-		TemporaryEdges(BlowupGraph<T>& blowupGraph) : m_blowupGraph(blowupGraph) {}
+		TemporaryEdges(BlowupGraph<T>& blowupGraph) : m_blowupGraph(blowupGraph) { }
 
 		//! Add a temporary edge to the blowup graph
 		edge add(node v, node w, T cost, int capacity) {
@@ -69,27 +69,23 @@ class Approximation
 		}
 
 		//! Remove the edges again
-		~TemporaryEdges() {
-			m_blowupGraph.delEdges(*this);
-		}
+		~TemporaryEdges() { m_blowupGraph.delEdges(*this); }
 
 	private:
 		BlowupGraph<T>& m_blowupGraph;
 	};
 
 	//! Computes the rank of the gammoid (given by the blowup graph)
-	int gammoidGetRank(const BlowupGraph<T> &blowupGraph) const
-	{
+	int gammoidGetRank(const BlowupGraph<T>& blowupGraph) const {
 		MaxFlowGoldbergTarjan<int> maxFlow(blowupGraph.getGraph());
-		return maxFlow.computeValue(blowupGraph.capacities(), blowupGraph.getSource(), blowupGraph.getTarget());
+		return maxFlow.computeValue(blowupGraph.capacities(), blowupGraph.getSource(),
+				blowupGraph.getTarget());
 	}
 
 	//! Finds the best component and its maximum-weight basis in the given blowup graph with given core and witness set
 	//! \return The component id of the best component
-	int findComponentAndMaxBasis(std::unique_ptr<ArrayBuffer<std::pair<node,int>>> &maxBasis,
-	                             BlowupGraph<T> &blowupGraph,
-	                             const BlowupComponents<T> &gamma)
-	{
+	int findComponentAndMaxBasis(std::unique_ptr<ArrayBuffer<std::pair<node, int>>>& maxBasis,
+			BlowupGraph<T>& blowupGraph, const BlowupComponents<T>& gamma) {
 		// there should always be saturated flow to the component roots
 		// (contracted matroid)
 		EdgeArray<int> lB(blowupGraph.getGraph(), 0);
@@ -106,7 +102,8 @@ class Approximation
 			double weight = blowupGraph.computeCoreWeight(v);
 
 			// add edges from source to core edges v
-			edge e = sourceCoreEdges.add(blowupGraph.getSource(), v, 0, blowupGraph.getCoreCapacity(v));
+			edge e = sourceCoreEdges.add(blowupGraph.getSource(), v, 0,
+					blowupGraph.getCoreCapacity(v));
 			cost[e] = -weight;
 		}
 
@@ -142,13 +139,15 @@ class Approximation
 			// add edges from component's terminals to target
 			TemporaryEdges Q_to_target(blowupGraph);
 			for (node t : gamma.terminals(id)) {
-				Q_to_target.add(t, blowupGraph.getTarget(), 0, blowupGraph.getLCM() * blowupGraph.getY());
+				Q_to_target.add(t, blowupGraph.getTarget(), 0,
+						blowupGraph.getLCM() * blowupGraph.getY());
 				// the last value is an upper bound for the capacity
 			}
 			// TODO: we could also use static edges from all terminals to the target
 			// and just change their capacities each time; needs extra data structures
 
-			std::unique_ptr<ArrayBuffer<std::pair<node,int>>> basis(new ArrayBuffer<std::pair<node,int>>);
+			std::unique_ptr<ArrayBuffer<std::pair<node, int>>> basis(
+					new ArrayBuffer<std::pair<node, int>>);
 
 			int rank = gammoidGetRank(blowupGraph);
 			OGDF_ASSERT(rank >= blowupGraph.getY() + blowupGraph.getLCM());
@@ -156,7 +155,8 @@ class Approximation
 			supply[blowupGraph.getTarget()] = -rank;
 
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
-			std::cout << "Computing min-cost flow for blowup component " << id << " of " << gamma.size() << std::endl;
+			std::cout << "Computing min-cost flow for blowup component " << id << " of "
+					  << gamma.size() << std::endl;
 			std::cout << " * terminals of component are " << gamma.terminals(id) << std::endl;
 			for (node v : blowupGraph.getGraph().nodes) {
 				if (supply[v] > 0) {
@@ -167,12 +167,9 @@ class Approximation
 				}
 			}
 			for (edge e : blowupGraph.getGraph().edges) {
-				std::cout
-				  << " * edge " << e
-				  << " with cost " << blowupGraph.getCost(e)
-				  << " and flow bounds [" << lB[e]
-				  << ", " << blowupGraph.getCapacity(e)
-				  << "]" << std::endl;
+				std::cout << " * edge " << e << " with cost " << blowupGraph.getCost(e)
+						  << " and flow bounds [" << lB[e] << ", " << blowupGraph.getCapacity(e)
+						  << "]" << std::endl;
 			}
 #endif
 
@@ -180,9 +177,11 @@ class Approximation
 #ifdef OGDF_DEBUG
 			bool feasible =
 #endif
-			  mcf.call(blowupGraph.getGraph(), lB, blowupGraph.capacities(), cost, supply, flow);
+					mcf.call(blowupGraph.getGraph(), lB, blowupGraph.capacities(), cost, supply,
+							flow);
 			OGDF_ASSERT(feasible);
-			OGDF_ASSERT(mcf.checkComputedFlow(blowupGraph.getGraph(), lB, blowupGraph.capacities(), cost, supply, flow));
+			OGDF_ASSERT(mcf.checkComputedFlow(blowupGraph.getGraph(), lB, blowupGraph.capacities(),
+					cost, supply, flow));
 
 			double weight(0);
 			for (edge e : sourceCoreEdges) {
@@ -193,12 +192,10 @@ class Approximation
 			}
 
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
-			std::cout
-			  << "Basis weight is " << weight << std::endl
-			  << "Checking if "
-			  << gamma.cost(id) << "(component cost) * " << blowupGraph.getLCM()
-			  << "(lcm) <= " << weight
-			  << "(basis weight)" << std::endl;
+			std::cout << "Basis weight is " << weight << std::endl
+					  << "Checking if " << gamma.cost(id) << "(component cost) * "
+					  << blowupGraph.getLCM() << "(lcm) <= " << weight << "(basis weight)"
+					  << std::endl;
 #endif
 
 			// we choose the component with max cost*N <= weight
@@ -215,10 +212,9 @@ class Approximation
 
 	//! For the end of the algorithm: find cheapest component and choose all remaining core edges as basis
 	//! \return The component id of the cheapest component
-	int findCheapestComponentAndRemainingBasis(std::unique_ptr<ArrayBuffer<std::pair<node,int>>> &maxBasis,
-	                                           const BlowupGraph<T> &blowupGraph,
-	                                           const BlowupComponents<T> &gamma)
-	{
+	int findCheapestComponentAndRemainingBasis(
+			std::unique_ptr<ArrayBuffer<std::pair<node, int>>>& maxBasis,
+			const BlowupGraph<T>& blowupGraph, const BlowupComponents<T>& gamma) {
 		// find cheapest component
 		int compId = 0;
 		double cost = 0;
@@ -229,7 +225,7 @@ class Approximation
 			}
 		}
 		// use all core edges as basis
-		maxBasis.reset(new ArrayBuffer<std::pair<node,int>>());
+		maxBasis.reset(new ArrayBuffer<std::pair<node, int>>());
 		for (node v : blowupGraph.core()) {
 			maxBasis->push(std::make_pair(v, blowupGraph.getCoreCapacity(v)));
 		}
@@ -237,8 +233,8 @@ class Approximation
 	}
 
 	//! Add a component of the blowup graph to the final solution (by changing nonterminals to terminals)
-	void addComponent(NodeArray<bool> &isNewTerminal, const BlowupGraph<T> &blowupGraph, const edge rootEdge)
-	{
+	void addComponent(NodeArray<bool>& isNewTerminal, const BlowupGraph<T>& blowupGraph,
+			const edge rootEdge) {
 		OGDF_ASSERT(blowupGraph.isTerminal(rootEdge->source()));
 		ArrayBuffer<node> stack;
 		stack.push(rootEdge->target());
@@ -261,10 +257,8 @@ class Approximation
 	}
 
 	//! Remove a given basis and cleanup, the basis may be given fractionally
-	void removeFractionalBasisAndCleanup(ArrayBuffer<std::pair<node,int>> &basis,
-	                                     BlowupGraph<T> &blowupGraph,
-	                                     BlowupComponents<T> &gamma)
-	{
+	void removeFractionalBasisAndCleanup(ArrayBuffer<std::pair<node, int>>& basis,
+			BlowupGraph<T>& blowupGraph, BlowupComponents<T>& gamma) {
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
 		std::cout << "Remove basis from blowup graph" << std::endl;
 #endif
@@ -278,10 +272,11 @@ class Approximation
 			int origCap = blowupGraph.getCoreCapacity(v);
 			OGDF_ASSERT(count <= origCap);
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
-			std::cout << " * node " << v << " with count " << count << " (of " << origCap << ")" << std::endl;
+			std::cout << " * node " << v << " with count " << count << " (of " << origCap << ")"
+					  << std::endl;
 #endif
 			if (count < origCap) { // only remove a fraction?
-				fractionalCoreEdges.push(Prioritized<node,int>(v, -count));
+				fractionalCoreEdges.push(Prioritized<node, int>(v, -count));
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
 				std::cout << "   -> deferred because fractional" << std::endl;
 #endif
@@ -318,27 +313,24 @@ class Approximation
 
 public:
 	//! Initialize everything
-	Approximation(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
-	              const FullComponentWithExtraStore<T, double> &fullCompStore,
-	              const std::minstd_rand &rng, double eps = 1e-8)
-	  : m_G(G)
-	  , m_isTerminal(isTerminal)
-	  , m_terminals(terminals)
-	  , m_fullCompStore(fullCompStore)
-	  , m_eps(eps)
-	  , m_rng(rng)
-	{
-	}
+	Approximation(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal,
+			const FullComponentWithExtraStore<T, double>& fullCompStore,
+			const std::minstd_rand& rng, double eps = 1e-8)
+		: m_G(G)
+		, m_isTerminal(isTerminal)
+		, m_terminals(terminals)
+		, m_fullCompStore(fullCompStore)
+		, m_eps(eps)
+		, m_rng(rng) { }
 
 	//! Perform the actual approximation algorithm on the LP solution
 	//! @param isNewTerminal is an input/output parameter where new terminals are set to true
-	void solve(NodeArray<bool> &isNewTerminal);
+	void solve(NodeArray<bool>& isNewTerminal);
 };
 
 template<typename T>
-void
-Approximation<T>::solve(NodeArray<bool> &isNewTerminal)
-{
+void Approximation<T>::solve(NodeArray<bool>& isNewTerminal) {
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
 	std::cout << "Start solving based on LP solution" << std::endl;
 	int iteration = 0;
@@ -348,17 +340,18 @@ Approximation<T>::solve(NodeArray<bool> &isNewTerminal)
 
 	while (blowupGraph.terminals().size() > 1) { // T is not a Steiner tree
 #ifdef OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
-		std::cout << "Iteration " << ++iteration << " with " << blowupGraph.terminals().size() << " terminals" << std::endl;
+		std::cout << "Iteration " << ++iteration << " with " << blowupGraph.terminals().size()
+				  << " terminals" << std::endl;
 #endif
 		BlowupComponents<T> gamma(blowupGraph); // Gamma(X)
 
 		OGDF_ASSERT(isLoopFree(blowupGraph.getGraph()));
 
 		// take a component Q in Gamma(X)
-		std::unique_ptr<ArrayBuffer<std::pair<node,int>>> maxBasis;
+		std::unique_ptr<ArrayBuffer<std::pair<node, int>>> maxBasis;
 		int compId = blowupGraph.getY() > 0
-		     ? findComponentAndMaxBasis(maxBasis, blowupGraph, gamma)
-		     : findCheapestComponentAndRemainingBasis(maxBasis, blowupGraph, gamma);
+				? findComponentAndMaxBasis(maxBasis, blowupGraph, gamma)
+				: findCheapestComponentAndRemainingBasis(maxBasis, blowupGraph, gamma);
 		OGDF_ASSERT(compId != 0);
 
 		// add component Q to T

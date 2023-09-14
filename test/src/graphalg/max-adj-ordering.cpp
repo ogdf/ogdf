@@ -29,55 +29,69 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/MaxAdjOrdering.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/graphalg/MaxAdjOrdering.h>
 
 #include <graphs.h>
 #include <testing.h>
 
-void testAllMAOs(const Graph &G)
-{
+void testAllMAOs(const Graph& G) {
 	Graph P;
 	emptyGraph(P, G.numberOfNodes());
 	MaxAdjOrdering perms;
 	ListPure<ListPure<node>> allPerms;
-	perms.calcAll(&P,&allPerms);
+	perms.calcAll(&P, &allPerms);
 
 	MaxAdjOrdering m;
 	ListPure<ListPure<node>> MAOs;
-	m.calcAll(&G,&MAOs);
+	m.calcAll(&G, &MAOs);
 
-	AssertThat(m.testIfAllMAOs(&G,&MAOs,&allPerms), IsTrue());
+	AssertThat(m.testIfAllMAOs(&G, &MAOs, &allPerms), IsTrue());
 }
 
-void testMAOBfs(const Graph &G)
-{
+void testMAOBfs(const Graph& G) {
 	MaxAdjOrdering m;
 	ListPure<node> MAO;
-	m.calcBfs(&G,&MAO);
+	m.calcBfs(&G, &MAO);
 
-	AssertThat(m.testIfMAO(&G,&MAO), IsTrue());
-	AssertThat(m.testIfMAOBfs(&G,&MAO), IsTrue());
+	AssertThat(m.testIfMAO(&G, &MAO), IsTrue());
+	AssertThat(m.testIfMAOBfs(&G, &MAO), IsTrue());
+
+	// Calculate forest decomposition.
+	ListPure<ListPure<edge>> forestDecomp;
+	m.calcForest(G, MAO, &forestDecomp);
+	for (auto& forest : forestDecomp) {
+		GraphCopy GC;
+		GC.createEmpty(G);
+		for (edge e : forest) {
+			if (GC.copy(e->source()) == nullptr) {
+				GC.newNode(e->source());
+			}
+			if (GC.copy(e->target()) == nullptr) {
+				GC.newNode(e->target());
+			}
+			GC.newEdge(e);
+		}
+		AssertThat(isAcyclicUndirected(GC), IsTrue());
+	}
 }
 
-go_bandit([](){
-	describe("Maximum Adjacency Orderings", [](){
-		describe("calculate exactly all MAOs", [](){
+go_bandit([]() {
+	describe("Maximum Adjacency Orderings", []() {
+		describe("calculate exactly all MAOs", []() {
 			constexpr int MIN_N = 4;
 			constexpr int MAX_N = 8;
 
-			forEachGraphItWorks({GraphProperty::simple}, testAllMAOs,
-				GraphSizes(MIN_N, MAX_N, 1), 0, MAX_N
-			);
+			forEachGraphItWorks({GraphProperty::simple}, testAllMAOs, GraphSizes(MIN_N, MAX_N, 1),
+					0, MAX_N);
 		});
 
-		describe("calculate MAOs with correct lex-bfs tie breaking", [](){
+		describe("calculate MAOs with correct lex-bfs tie breaking", []() {
 			constexpr int MIN_N = 10;
 			constexpr int MAX_N = 20;
 
-			forEachGraphItWorks({GraphProperty::simple}, testMAOBfs,
-				GraphSizes(MIN_N, MAX_N, 1), 0, MAX_N
-			);
+			forEachGraphItWorks({GraphProperty::simple}, testMAOBfs, GraphSizes(MIN_N, MAX_N, 1), 0,
+					MAX_N);
 		});
 	});
 });

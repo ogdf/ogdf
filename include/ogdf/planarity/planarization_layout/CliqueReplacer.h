@@ -38,9 +38,8 @@ namespace ogdf {
 namespace planarization_layout {
 
 class OGDF_EXPORT CliqueReplacer {
-
-	Graph &m_G;
-	GraphAttributes &m_ga;
+	Graph& m_G;
+	GraphAttributes& m_ga;
 	Graph::HiddenEdgeSet m_hiddenEdges;
 
 	double m_cliqueCenterSize; //default size of inserted clique replacement center nodes
@@ -53,13 +52,13 @@ class OGDF_EXPORT CliqueReplacer {
 	NodeArray<DPoint> m_cliqueCirclePos; //save the position of the node in the circular drawing of the clique
 
 public:
-	CliqueReplacer(GraphAttributes &ga, Graph &G);
+	CliqueReplacer(GraphAttributes& ga, Graph& G);
 
 	// replace (dense) subgraphs given in list clique by
 	// inserting a center node connected to each node (=>star)
 	// and deleting all edges between nodes in clique
 	// returns center node
-	void replaceByStar(List<List<node>*> &cliques);
+	void replaceByStar(List<List<node>*>& cliques);
 
 	// undo clique replacements
 	void undoStars();
@@ -68,14 +67,9 @@ public:
 	void undoStar(node center, bool restoreAllEdges);
 
 	//returns the size of a circular drawing for a clique around center v
-	DRect cliqueRect(node v) const
-	{
-		return m_cliqueCircleSize[v];
-	}
-	DPoint cliquePos(node v) const
-	{
-		return m_cliqueCirclePos[v];
-	}
+	DRect cliqueRect(node v) const { return m_cliqueCircleSize[v]; }
+
+	DPoint cliquePos(node v) const { return m_cliqueCirclePos[v]; }
 
 	//compute circle positions for all nodes around center
 	//using the ordering given in this UMLGraph, calls
@@ -85,15 +79,15 @@ public:
 #if 1
 	void computeCliquePosition(node center, double rectMin);
 #else
-	void computeCliquePosition(node center, double rectMin, const adjEntry &startAdj);
+	void computeCliquePosition(node center, double rectMin, const adjEntry& startAdj);
 #endif
 
 	//compute positions for the nodes in adjNodes on a circle
 	//tries to keep the relative placement of the nodes in the clique
 	//rectangle (left, right,...) to avoid clique crossings of outgoing edges
-	void computeCliquePosition(List<node> &adjNodes, node center, double rectMin = -1.0);
+	void computeCliquePosition(List<node>& adjNodes, node center, double rectMin = -1.0);
 
-	const SListPure<node> &centerNodes() { return m_centerNodes; }
+	const SListPure<node>& centerNodes() { return m_centerNodes; }
 
 	//default size of inserted clique replacement center nodes
 	void setDefaultCliqueCenterSize(double i) { m_cliqueCenterSize = max(i, 1.0); }
@@ -101,15 +95,14 @@ public:
 	double getDefaultCliqueCenterSize() { return m_cliqueCenterSize; }
 
 	//! returns true if edge was inserted during clique replacement
-	bool isReplacement(edge e)
-	{
+	bool isReplacement(edge e) {
 		// TODO: check here how to guarantee that value is defined,
 		// edgearray is only valid if there are cliques replaced
 		return m_replacementEdge[e];
 	}
 
 private:
-	node replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum);
+	node replaceByStar(List<node>& clique, NodeArray<int>& cliqueNum);
 	DRect circularBound(node center);
 };
 

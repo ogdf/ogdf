@@ -35,12 +35,12 @@
 namespace ogdf {
 
 
-void MixedModelCrossingsBeautifierModule::call(const PlanRep &PG, GridLayout &gl)
-{
+void MixedModelCrossingsBeautifierModule::call(const PlanRep& PG, GridLayout& gl) {
 	List<node> crossings;
 	for (node v : PG.nodes) {
-		if (PG.isDummy(v))
+		if (PG.isDummy(v)) {
 			crossings.pushBack(v);
+		}
 	}
 
 	gl.compactAllBends();

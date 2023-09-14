@@ -39,10 +39,9 @@
 #include <ogdf/fileformats/TlpLexer.h>
 
 #include <iostream>
-#include <string>
-#include <sstream>
 #include <map>
-
+#include <sstream>
+#include <string>
 
 namespace ogdf {
 
@@ -55,47 +54,35 @@ private:
 	std::map<int, node> m_idNode;
 	std::map<int, edge> m_idEdge;
 
-	std::istream &m_istream;
+	std::istream& m_istream;
 	Iterator m_begin, m_end;
 
-	bool readEdge(Graph &G);
-	bool readNodes(Graph &G, ClusterGraph *C, cluster c);
-	bool readCluster(Graph &G, ClusterGraph *C, cluster c);
-	bool readProperty(Graph &G, GraphAttributes *GA);
+	bool readEdge(Graph& G);
+	bool readNodes(Graph& G, ClusterGraph* C, cluster c);
+	bool readCluster(Graph& G, ClusterGraph* C, cluster c);
+	bool readProperty(Graph& G, GraphAttributes* GA);
 
-	bool readClusterStatement(
-		Graph &G, ClusterGraph *C, cluster c);
-	bool readStatement(
-		Graph &G, GraphAttributes *GA, ClusterGraph *C);
-	bool readPropertyStatement(
-		GraphAttributes *GA, const Attribute &attr,
-		NodeArray<bool> &nodeDone, std::string &nodeDefault,
-		EdgeArray<bool> &edgeDone, std::string &edgeDefault);
+	bool readClusterStatement(Graph& G, ClusterGraph* C, cluster c);
+	bool readStatement(Graph& G, GraphAttributes* GA, ClusterGraph* C);
+	bool readPropertyStatement(GraphAttributes* GA, const Attribute& attr, NodeArray<bool>& nodeDone,
+			std::string& nodeDefault, EdgeArray<bool>& edgeDone, std::string& edgeDefault);
 
-	bool readGraph(Graph &G, GraphAttributes *GA, ClusterGraph *C);
+	bool readGraph(Graph& G, GraphAttributes* GA, ClusterGraph* C);
 
-	inline bool applyNodes(
-		Graph &G, ClusterGraph *C, cluster c,
-		const std::string &str);
-	inline void tokenError(const char *str, bool got = true);
-	inline void tokenError(const std::string &str, bool got = true);
+	inline bool applyNodes(Graph& G, ClusterGraph* C, cluster c, const std::string& str);
+	inline void tokenError(const char* str, bool got = true);
+	inline void tokenError(const std::string& str, bool got = true);
 
 public:
-	explicit Parser(std::istream &is);
+	explicit Parser(std::istream& is);
 
-	bool read(Graph &G) {
-		return readGraph(G, nullptr, nullptr);
-	}
+	bool read(Graph& G) { return readGraph(G, nullptr, nullptr); }
 
-	bool read(Graph &G, GraphAttributes &GA) {
-		return readGraph(G, &GA, nullptr);
-	}
+	bool read(Graph& G, GraphAttributes& GA) { return readGraph(G, &GA, nullptr); }
 
-	bool read(Graph &G, ClusterGraph &C) {
-		return readGraph(G, nullptr, &C);
-	}
+	bool read(Graph& G, ClusterGraph& C) { return readGraph(G, nullptr, &C); }
 
-	bool read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA) {
+	bool read(Graph& G, ClusterGraph& C, ClusterGraphAttributes& CA) {
 		return readGraph(G, &CA, &C);
 	}
 };

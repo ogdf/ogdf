@@ -31,10 +31,10 @@
 
 #pragma once
 
-#include <ogdf/clique/CliqueFinderModule.h>
 #include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/clique/CliqueFinderModule.h>
 
-namespace ogdf{
+namespace ogdf {
 
 //! Finds cliques and dense subgraphs using a heuristic.
 /**
@@ -45,7 +45,6 @@ namespace ogdf{
  * heuristic.
  */
 class OGDF_EXPORT CliqueFinderHeuristic : public CliqueFinderModule {
-
 public:
 	//! Creates a CliqueFinderHeuristic.
 	explicit CliqueFinderHeuristic();
@@ -55,9 +54,7 @@ public:
 	 *
 	 * @param postProcess Whether postprocessing should be activated.
 	 */
-	inline void setPostProcessing(bool postProcess) {
-		m_postProcess = postProcess;
-	}
+	inline void setPostProcessing(bool postProcess) { m_postProcess = postProcess; }
 
 	/**
 	 * Sets the density needed for subgraphs to be detected.
@@ -95,7 +92,7 @@ protected:
 	 *
 	 * @param cliqueList The cliques to postprocess.
 	 */
-	void postProcessCliques(List<List<node>*> &cliqueList);
+	void postProcessCliques(List<List<node>*>& cliqueList);
 
 	/**
 	 * Checks whether \p v is adjacent to (at least #m_density times) all nodes
@@ -128,14 +125,14 @@ protected:
 	 * \p v. Is assigned a list of nodes that actually forms a clique/dense
 	 * subgraph together with \p v.
 	 */
-	void findClique(node v, List<node> &neighbours);
+	void findClique(node v, List<node>& neighbours);
 
 private:
 	double m_density; //!< Value in [0,1] defining how dense subgraphs need to be.
 
 	bool m_postProcess; //!< Whether postprocessing should be activated.
 
-	AdjacencyOracle *m_adjOracle; //!< Adjacency oracle for #m_pCopy.
+	AdjacencyOracle* m_adjOracle; //!< Adjacency oracle for #m_pCopy.
 
 	NodeArray<bool> m_usedNode; //!< Whether the node is already assigned to a clique.
 };

@@ -39,9 +39,7 @@ namespace fmmm {
 
 //! Helping data structure that stores the information needed to represent
 //! the modified quadtree in the New Multipole Method (NMM)
-class QuadTreeNM
-{
-
+class QuadTreeNM {
 public:
 	//! Constructor
 	QuadTreeNM();
@@ -50,12 +48,12 @@ public:
 	void delete_tree(QuadTreeNodeNM* node_ptr);
 
 	//! Deletes the tree starting at node_ptr and counts the nodes of the subtree.
-	void delete_tree_and_count_nodes(QuadTreeNodeNM* node_ptr,int& nodecounter);
+	void delete_tree_and_count_nodes(QuadTreeNodeNM* node_ptr, int& nodecounter);
 
 	//! Pre_order traversal of the tree rooted at node_ptr (with or without
 	//! output of the M,L-lists from 0 to precision).
 	void cout_preorder(QuadTreeNodeNM* node_ptr);
-	void cout_preorder(QuadTreeNodeNM* node_ptr,int precision);
+	void cout_preorder(QuadTreeNodeNM* node_ptr, int precision);
 
 	//! Creates the root node and lets act_ptr and root_ptr point to the root node.
 	void init_tree() {
@@ -64,43 +62,28 @@ public:
 	}
 
 	//! Sets act_ptr to the root_ptr.
-	void start_at_root()
-	{
-		act_ptr = root_ptr;
-	}
+	void start_at_root() { act_ptr = root_ptr; }
 
 	//! Sets act_ptr to the father_ptr.
-	void go_to_father()
-	{
-		if (act_ptr->get_father_ptr() != nullptr)
+	void go_to_father() {
+		if (act_ptr->get_father_ptr() != nullptr) {
 			act_ptr = act_ptr->get_father_ptr();
-		else
+		} else {
 			std::cout << "Error QuadTreeNM: No father Node exists";
+		}
 	}
 
 	//! Sets act_ptr to the left_top_child_ptr.
-	void go_to_lt_child()
-	{
-		act_ptr = act_ptr->get_child_lt_ptr();
-	}
+	void go_to_lt_child() { act_ptr = act_ptr->get_child_lt_ptr(); }
 
 	//! Sets act_ptr to the right_top_child_ptr.
-	void go_to_rt_child()
-	{
-		act_ptr = act_ptr->get_child_rt_ptr();
-	}
+	void go_to_rt_child() { act_ptr = act_ptr->get_child_rt_ptr(); }
 
 	//! Sets act_ptr to the left_bottom_child_ptr.
-	void go_to_lb_child()
-	{
-		act_ptr = act_ptr->get_child_lb_ptr();
-	}
+	void go_to_lb_child() { act_ptr = act_ptr->get_child_lb_ptr(); }
 
 	//! Sets act_ptr to the right_bottom_child_ptr.
-	void go_to_rb_child()
-	{
-		act_ptr = act_ptr->get_child_rb_ptr();
-	}
+	void go_to_rb_child() { act_ptr = act_ptr->get_child_rb_ptr(); }
 
 	//! Creates a new left_top_child of the actual node (importing L_x(y)_ptr).
 	void create_new_lt_child(List<ParticleInfo>* L_x_ptr, List<ParticleInfo>* L_y_ptr);
@@ -120,6 +103,7 @@ public:
 
 	//! Returns the actual/root node pointer of the tree.
 	QuadTreeNodeNM* get_act_ptr() const { return act_ptr; }
+
 	QuadTreeNodeNM* get_root_ptr() const { return root_ptr; }
 
 	//! Sets root_ptr to r_ptr.
@@ -133,8 +117,7 @@ public:
 
 private:
 	QuadTreeNodeNM* root_ptr; //!< points to the root node
-	QuadTreeNodeNM* act_ptr;  //!< points to the actual node
-
+	QuadTreeNodeNM* act_ptr; //!< points to the actual node
 };
 
 }

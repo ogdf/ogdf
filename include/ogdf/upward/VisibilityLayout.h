@@ -35,40 +35,37 @@
 
 #pragma once
 
-#include <ogdf/upward/UpwardPlanarizerModule.h>
-#include <ogdf/basic/LayoutModule.h>
-#include <memory>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/FaceArray.h>
-#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
-class OGDF_EXPORT VisibilityLayout : public LayoutModule
-{
+class OGDF_EXPORT VisibilityLayout : public LayoutModule {
 public:
-
 	VisibilityLayout() {
 		m_grid_dist = 1;
 		// set default module
 		m_upPlanarizer.reset(new SubgraphUpwardPlanarizer());
 	}
 
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
-	void layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig);
+	void layout(GraphAttributes& GA, const UpwardPlanRep& UPROrig);
 
-	void setUpwardPlanarizer(UpwardPlanarizerModule *upPlanarizer) {
+	void setUpwardPlanarizer(UpwardPlanarizerModule* upPlanarizer) {
 		m_upPlanarizer.reset(upPlanarizer);
 	}
 
-	void setMinGridDistance(int dist) {m_grid_dist = dist;}
-
+	void setMinGridDistance(int dist) { m_grid_dist = dist; }
 
 
 private:
-
 	//min grid distance
 	int m_grid_dist;
 
@@ -94,15 +91,9 @@ private:
 
 	std::unique_ptr<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
 
-	void constructDualGraph(
-			const UpwardPlanRep& UPR,
-			Graph& D,
-			node& s_D,
-			node& t_D,
-			FaceArray<node>& faceToNode,
-			NodeArray<face>& leftFace_node,
-			NodeArray<face>& rightFace_node,
-			EdgeArray<face>& leftFace_edge,
+	void constructDualGraph(const UpwardPlanRep& UPR, Graph& D, node& s_D, node& t_D,
+			FaceArray<node>& faceToNode, NodeArray<face>& leftFace_node,
+			NodeArray<face>& rightFace_node, EdgeArray<face>& leftFace_edge,
 			EdgeArray<face>& rightFace_edge);
 
 	void constructVisibilityRepresentation(const UpwardPlanRep& UPR);

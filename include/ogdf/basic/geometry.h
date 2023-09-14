@@ -32,10 +32,11 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/Hashing.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+
 #include <cfloat>
 
 namespace ogdf {
@@ -47,14 +48,14 @@ enum class Orientation {
 	topToBottom, //!< Edges are oriented from top to bottom.
 	bottomToTop, //!< Edges are oriented from bottom to top.
 	leftToRight, //!< Edges are oriented from left to right.
-	rightToLeft  //!< Edges are oriented from right to left.
+	rightToLeft //!< Edges are oriented from right to left.
 };
 
 //! Determines the type of intersection of two geometric objects.
 enum class IntersectionType {
-	None,        //!< Two geometric objects do not intersect.
+	None, //!< Two geometric objects do not intersect.
 	SinglePoint, //!< Two geometric objects intersect in a single point.
-	Overlapping  //!< Two geometric objects intersect in infinitely many points.
+	Overlapping //!< Two geometric objects intersect in infinitely many points.
 };
 
 /**
@@ -69,8 +70,7 @@ enum class IntersectionType {
  * vector.
  */
 template<typename T>
-class GenericPoint
-{
+class GenericPoint {
 public:
 	//! The type for coordinates of the point.
 	using numberType = T;
@@ -82,10 +82,10 @@ public:
 	explicit GenericPoint(T x = 0, T y = 0) : m_x(x), m_y(y) { }
 
 	//! Copy constructor.
-	GenericPoint(const GenericPoint<T> &p) : m_x(p.m_x), m_y(p.m_y) { }
+	GenericPoint(const GenericPoint<T>& p) : m_x(p.m_x), m_y(p.m_y) { }
 
 	//! Assignment operator.
-	GenericPoint<T> &operator=(const GenericPoint<T> &p) {
+	GenericPoint<T>& operator=(const GenericPoint<T>& p) {
 		if (this != &p) {
 			m_x = p.m_x;
 			m_y = p.m_y;
@@ -94,28 +94,24 @@ public:
 	}
 
 	//! Equality operator.
-	bool operator==(const GenericPoint<T> &dp) const {
+	bool operator==(const GenericPoint<T>& dp) const {
 		// OGDF_GEOM_ET uses different methods for integers and floats
-		return OGDF_GEOM_ET.equal(m_x, dp.m_x) && OGDF_GEOM_ET.equal(m_y,dp.m_y);
+		return OGDF_GEOM_ET.equal(m_x, dp.m_x) && OGDF_GEOM_ET.equal(m_y, dp.m_y);
 	}
 
 	//! Inequality operator.
-	bool operator!=(const GenericPoint<T> &p) const {
-		return !(*this == p);
-	}
+	bool operator!=(const GenericPoint<T>& p) const { return !(*this == p); }
 
 	//! Operator 'less'. Returns \c true iff the \a x coordinate of this is less than the \a x
 	//! coordinate of \p p or, if they are equal, the same check is done for the \a y coordinate.
-	bool operator<(const GenericPoint<T> &p) const {
+	bool operator<(const GenericPoint<T>& p) const {
 		// OGDF_GEOM_ET uses different methods for integers and floats
 		return OGDF_GEOM_ET.less(m_x, p.m_x)
-		    || (OGDF_GEOM_ET.equal(m_x, p.m_x) && OGDF_GEOM_ET.less(m_y, p.m_y));
+				|| (OGDF_GEOM_ET.equal(m_x, p.m_x) && OGDF_GEOM_ET.less(m_y, p.m_y));
 	}
 
 	//! Operator 'greater'. Returns \c true iff \p p is less than this.
-	bool operator>(const GenericPoint<T> &p) const {
-		return p < *this;
-	}
+	bool operator>(const GenericPoint<T>& p) const { return p < *this; }
 
 	//! Addition of points.
 	GenericPoint<T> operator+(const GenericPoint<T>& p) const {
@@ -138,7 +134,9 @@ public:
 		}
 
 		double phi = std::atan2(dy2, dx2) - std::atan2(dy1, dx1);
-		if (phi < 0) { phi += 2*Math::pi; }
+		if (phi < 0) {
+			phi += 2 * Math::pi;
+		}
 
 		return phi;
 	}
@@ -149,69 +147,63 @@ public:
 	}
 
 	//! Returns the %Euclidean distance between \p p and this point.
-	double distance(const GenericPoint<T> &p) const {
+	double distance(const GenericPoint<T>& p) const {
 		double dx = p.m_x - m_x;
 		double dy = p.m_y - m_y;
-		return sqrt( dx * dx + dy * dy );
+		return sqrt(dx * dx + dy * dy);
 	}
 
 	//! Returns the norm of the point.
-	double norm() const {
-		return sqrt(m_x*m_x + m_y*m_y);
-	}
+	double norm() const { return sqrt(m_x * m_x + m_y * m_y); }
 
 	//! Adds \p p to this.
-	GenericPoint<T> &operator+=(const GenericPoint<T> &p) {
+	GenericPoint<T>& operator+=(const GenericPoint<T>& p) {
 		m_x += p.m_x;
 		m_y += p.m_y;
 		return *this;
 	}
 
 	//! Subtracts \p p from this.
-	GenericPoint<T> &operator-=(const GenericPoint<T> &p) {
+	GenericPoint<T>& operator-=(const GenericPoint<T>& p) {
 		m_x -= p.m_x;
 		m_y -= p.m_y;
 		return *this;
 	}
 
 	//! Point-wise multiplies this with \p c.
-	GenericPoint<T> &operator*=(T c) {
+	GenericPoint<T>& operator*=(T c) {
 		m_x *= c;
 		m_y *= c;
 		return *this;
 	}
 
 	//! Point-wise multiplies \p p with \p c.
-	friend GenericPoint<T> operator*(T c, const GenericPoint<T> &p) {
-		return GenericPoint<T>(c*p.m_x, c*p.m_y);
+	friend GenericPoint<T> operator*(T c, const GenericPoint<T>& p) {
+		return GenericPoint<T>(c * p.m_x, c * p.m_y);
 	}
 
 	//! Point-wise multiplies \p p with \p c.
-	friend GenericPoint<T> operator*(const GenericPoint<T> &p, T c) {
-		return GenericPoint<T>(c*p.m_x, c*p.m_y);
+	friend GenericPoint<T> operator*(const GenericPoint<T>& p, T c) {
+		return GenericPoint<T>(c * p.m_x, c * p.m_y);
 	}
 
 	//! Point-wise divide this by \p c.
-	GenericPoint<T> &operator/=(T c) {
+	GenericPoint<T>& operator/=(T c) {
 		m_x /= c;
 		m_y /= c;
 		return *this;
 	}
 
 	//! Point-wise divide \p p by \p c.
-	friend GenericPoint<T> operator/(const GenericPoint<T> &p, double c) {
-		return GenericPoint<T>(p.m_x/c, p.m_y/c);
+	friend GenericPoint<T> operator/(const GenericPoint<T>& p, double c) {
+		return GenericPoint<T>(p.m_x / c, p.m_y / c);
 	}
 
 	//! Returns the determinant of the matrix (\c this, \p dv).
-	T determinant(const GenericPoint<T> &dv) const {
-		return (m_x * dv.m_y) - (m_y * dv.m_x);
-	}
+	T determinant(const GenericPoint<T>& dv) const { return (m_x * dv.m_y) - (m_y * dv.m_x); }
 
 	//! Returns the scalar product of this and \p dv.
-	T operator*(const GenericPoint<T> &dv) const {
-		return (m_x * dv.m_x) + (m_y * dv.m_y);
-	}
+	T operator*(const GenericPoint<T>& dv) const { return (m_x * dv.m_x) + (m_y * dv.m_y); }
 
 	/**
 	 * Returns a vector that is orthogonal to this vector.
@@ -222,7 +214,7 @@ public:
 	GenericPoint<T> orthogonal() const {
 		GenericPoint<T> ret(1, 1);
 		if (m_x != 0.0) {
-			ret.m_x = - m_y / m_x;
+			ret.m_x = -m_y / m_x;
 		} else {
 			ret.m_y = 0.0;
 		}
@@ -232,7 +224,7 @@ public:
 
 //! Output operator for generic points.
 template<typename T>
-std::ostream &operator<<(std::ostream &os, const GenericPoint<T>& p) {
+std::ostream& operator<<(std::ostream& os, const GenericPoint<T>& p) {
 	os << "(" << p.m_x << "," << p.m_y << ")";
 	return os;
 }
@@ -243,12 +235,10 @@ using IPoint = GenericPoint<int>;
 //! Representing two-dimensional point with real coordinates.
 using DPoint = GenericPoint<double>;
 
-template<> class DefHashFunc<IPoint>
-{
+template<>
+class DefHashFunc<IPoint> {
 public:
-	int hash(const IPoint &ip) const {
-		return 7*ip.m_x + 23*ip.m_y;
-	}
+	int hash(const IPoint& ip) const { return 7 * ip.m_x + 23 * ip.m_y; }
 };
 
 /**
@@ -266,14 +256,14 @@ public:
 	GenericPolyline() { }
 
 	//! Creates a polyline using the list of points \p pl.
-	GenericPolyline(const List<PointType> &pl) : List<PointType>(pl) { }
+	GenericPolyline(const List<PointType>& pl) : List<PointType>(pl) { }
 
 	//! Copy constructor.
-	GenericPolyline(const GenericPolyline<PointType> &pl) : List<PointType>(pl) { }
+	GenericPolyline(const GenericPolyline<PointType>& pl) : List<PointType>(pl) { }
 
 	//! Assignment operator.
-	GenericPolyline<PointType> &operator=(const GenericPolyline &pl) {
-		List<PointType>::operator =(pl);
+	GenericPolyline<PointType>& operator=(const GenericPolyline& pl) {
+		List<PointType>::operator=(pl);
 		return *this;
 	}
 
@@ -304,11 +294,13 @@ public:
 	 * @param len is the given length, or the length of the polyline if \p len < 0.
 	 */
 	DPoint position(const double fraction, double len = -1.0) const {
-		OGDF_ASSERT( !this->empty() );
-		OGDF_ASSERT( fraction >= 0.0 );
-		OGDF_ASSERT( fraction <= 1.0 );
-		if (len < 0.0) { len = length(); }
-		OGDF_ASSERT( len >= 0.0 );
+		OGDF_ASSERT(!this->empty());
+		OGDF_ASSERT(fraction >= 0.0);
+		OGDF_ASSERT(fraction <= 1.0);
+		if (len < 0.0) {
+			len = length();
+		}
+		OGDF_ASSERT(len >= 0.0);
 
 		DPoint p = *(this->begin());
 		double liter = 0.0;
@@ -324,10 +316,11 @@ public:
 		while (iter.valid()) {
 			DX = (*iter).m_x - (*pred).m_x;
 			DY = (*iter).m_y - (*pred).m_y;
-			seglen = sqrt( DX*DX + DY*DY );
+			seglen = sqrt(DX * DX + DY * DY);
 			liter += seglen;
-			if (liter >= pos)
+			if (liter >= pos) {
 				break;
+			}
 			++pred;
 			++iter;
 		}
@@ -335,8 +328,9 @@ public:
 		if (!iter.valid()) { // position not inside the polyline, return last point!
 			p = *(this->rbegin());
 		} else {
-			if (seglen == 0.0) // *pred == *iter and pos is inbetween
+			if (seglen == 0.0) { // *pred == *iter and pos is inbetween
 				return *pred;
+			}
 
 			double segpos = seglen + pos - liter;
 
@@ -353,14 +347,17 @@ public:
 
 	//! Deletes all successive points with equal coordinates.
 	void unify() {
-		if (this->empty()) return;
+		if (this->empty()) {
+			return;
+		}
 		ListIterator<PointType> iter, next;
 		for (iter = next = this->begin(), ++next; next.valid() && (this->size() > 2); ++next) {
 			if (*iter == *next) {
 				this->del(next);
 				next = iter;
-			} else
+			} else {
 				iter = next;
+			}
 		}
 	}
 
@@ -374,20 +371,25 @@ protected:
 		OGDF_ASSERT(OGDF_GEOM_ET.geq(minAngle, 0.0));
 		OGDF_ASSERT(OGDF_GEOM_ET.leq(minAngle, Math::pi));
 
-		double maxAngle = 2*Math::pi - minAngle;
+		double maxAngle = 2 * Math::pi - minAngle;
 		ListIterator<PointType> iter = this->begin();
 		ListIterator<PointType> next, onext;
 
 		while (iter.valid()) {
-			next  = iter; ++next;
-			if (!next.valid())  { break; }
-			onext = next; ++onext;
-			if (!onext.valid()) { break; }
+			next = iter;
+			++next;
+			if (!next.valid()) {
+				break;
+			}
+			onext = next;
+			++onext;
+			if (!onext.valid()) {
+				break;
+			}
 			double phi = (*next).angle(*iter, *onext);
 
 			// Is *next on the way from *iter to *onext?
-			if (OGDF_GEOM_ET.geq(phi, minAngle) &&
-				OGDF_GEOM_ET.leq(phi, maxAngle)) {
+			if (OGDF_GEOM_ET.geq(phi, minAngle) && OGDF_GEOM_ET.leq(phi, maxAngle)) {
 				this->del(next);
 				if (iter != this->begin()) {
 					--iter;
@@ -444,7 +446,6 @@ using DPolyline = GenericPolyline<DPoint>;
 //! Infinite lines.
 template<class PointType>
 class GenericLine {
-
 public:
 	using numberType = typename PointType::numberType;
 
@@ -460,31 +461,29 @@ protected:
 
 public:
 	//! Creates an empty line.
-	GenericLine() : m_p1(), m_p2() {}
+	GenericLine() : m_p1(), m_p2() { }
 
 	//! Creates a line through the points \p p1 and \p p2.
-	GenericLine(const PointType &p1, const PointType &p2) : m_p1(p1), m_p2(p2) {}
+	GenericLine(const PointType& p1, const PointType& p2) : m_p1(p1), m_p2(p2) { }
 
 	//! Copy constructor.
-	GenericLine(const GenericLine<PointType> &dl) : m_p1(dl.m_p1), m_p2(dl.m_p2) {}
+	GenericLine(const GenericLine<PointType>& dl) : m_p1(dl.m_p1), m_p2(dl.m_p2) { }
 
 	//! Creates a line through the points (\p x1,\p y1) and (\p x2,\p y2).
 	GenericLine(numberType x1, numberType y1, numberType x2, numberType y2)
-	: GenericLine(PointType(x1, y1), PointType(x2, y2)) {}
+		: GenericLine(PointType(x1, y1), PointType(x2, y2)) { }
 
 	//! Equality operator.
-	bool operator==(const GenericLine<PointType> &dl) const {
-		return isVertical() ? dl.isVertical() && m_p1.m_x == dl.m_p1.m_x :
-		                      slope() == dl.slope() && yAbs() == dl.yAbs();
+	bool operator==(const GenericLine<PointType>& dl) const {
+		return isVertical() ? dl.isVertical() && m_p1.m_x == dl.m_p1.m_x
+							: slope() == dl.slope() && yAbs() == dl.yAbs();
 	}
 
 	//! Inequality operator.
-	bool operator!=(const GenericLine<PointType> &dl) const {
-		return !(*this == dl);
-	}
+	bool operator!=(const GenericLine<PointType>& dl) const { return !(*this == dl); }
 
 	//! Assignment operator.
-	GenericLine<PointType> &operator=(const GenericLine<PointType> &dl) {
+	GenericLine<PointType>& operator=(const GenericLine<PointType>& dl) {
 		if (this != &dl) { // don't assign myself
 			m_p1 = dl.m_p1;
 			m_p2 = dl.m_p2;
@@ -499,9 +498,7 @@ public:
 	bool isHorizontal() const { return OGDF_GEOM_ET.equal(dy(), 0.0); }
 
 	//! Returns the slope of the line.
-	double slope() const {
-		return isVertical() ? std::numeric_limits<double>::max() : dy()/dx();
-	}
+	double slope() const { return isVertical() ? std::numeric_limits<double>::max() : dy() / dx(); }
 
 	//! Returns the value y' such that (0,y') lies on the unlimited
 	//! straight-line defined by this line.
@@ -516,7 +513,7 @@ public:
 	 * \return a positive number if \p line is left of this line, and
 	 *         a negative number if \p line is right of this line.
 	 */
-	double det(const GenericLine<PointType> &line) const {
+	double det(const GenericLine<PointType>& line) const {
 		return dx() * line.dy() - dy() * line.dx();
 	}
 
@@ -528,11 +525,11 @@ public:
 	 * @param inter is assigned an intersection point if
 	 * IntersectionType::SinglePoint or IntersectionType::Overlapping is returned.
 	 */
-	IntersectionType intersection(const GenericLine<PointType> &line, DPoint &inter) const {
+	IntersectionType intersection(const GenericLine<PointType>& line, DPoint& inter) const {
 		if (isVertical() && line.isVertical()) {
 			inter = m_p1;
-			return OGDF_GEOM_ET.equal(m_p1.m_x, line.m_p1.m_x) ?
-			       IntersectionType::Overlapping : IntersectionType::None;
+			return OGDF_GEOM_ET.equal(m_p1.m_x, line.m_p1.m_x) ? IntersectionType::Overlapping
+															   : IntersectionType::None;
 		} else if (isVertical()) {
 			inter = DPoint(m_p1.m_x, line.slope() * m_p1.m_x + line.yAbs());
 			return IntersectionType::SinglePoint;
@@ -542,8 +539,8 @@ public:
 		} else if (OGDF_GEOM_ET.equal(slope(), line.slope())) {
 			// For parallel lines only return true if the lines are equal.
 			inter = m_p1;
-			return OGDF_GEOM_ET.equal(yAbs(), line.yAbs()) ?
-			       IntersectionType::Overlapping : IntersectionType::None;
+			return OGDF_GEOM_ET.equal(yAbs(), line.yAbs()) ? IntersectionType::Overlapping
+														   : IntersectionType::None;
 		} else {
 			double ix = (line.yAbs() - yAbs()) / (slope() - line.slope());
 			inter = DPoint(ix, slope() * ix + yAbs());
@@ -552,7 +549,7 @@ public:
 	}
 
 	//! Returns true iff \p p lies on this line.
-	virtual bool contains(const DPoint &p) const {
+	virtual bool contains(const DPoint& p) const {
 		if (p == m_p1 || p == m_p2) {
 			return true;
 		}
@@ -569,9 +566,8 @@ public:
 			return false;
 		}
 
-		return OGDF_GEOM_ET.equal(slope(), (dy2p/dx2p));
+		return OGDF_GEOM_ET.equal(slope(), (dy2p / dx2p));
 	}
-
 
 	/**
 	 * \brief Computes the intersection of this line and the horizontal line through y = \p horAxis.
@@ -581,13 +577,12 @@ public:
 	 *
 	 * \return the IntersectionType of the intersection between this line and \p horAxis.
 	 */
-	virtual IntersectionType horIntersection(const double horAxis, double &crossing) const {
+	virtual IntersectionType horIntersection(const double horAxis, double& crossing) const {
 		if (isHorizontal()) {
 			crossing = 0.0;
 			return m_p1.m_y == horAxis ? IntersectionType::Overlapping : IntersectionType::None;
 		}
-		crossing = (m_p1.m_x * (m_p2.m_y - horAxis) -
-					m_p2.m_x * (m_p1.m_y - horAxis)   ) / dy();
+		crossing = (m_p1.m_x * (m_p2.m_y - horAxis) - m_p2.m_x * (m_p1.m_y - horAxis)) / dy();
 		return IntersectionType::SinglePoint;
 	}
 
@@ -599,24 +594,23 @@ public:
 	 *
 	 * \return the IntersectionType of the intersection between this line and \p verAxis.
 	 */
-	virtual IntersectionType verIntersection(const double verAxis, double &crossing) const {
+	virtual IntersectionType verIntersection(const double verAxis, double& crossing) const {
 		if (isVertical()) {
 			crossing = 0.0;
 			return m_p1.m_x == verAxis ? IntersectionType::Overlapping : IntersectionType::None;
 		}
-		crossing = (m_p1.m_y * (m_p2.m_x - verAxis) -
-		            m_p2.m_y * (m_p1.m_x - verAxis)   ) / dx();
+		crossing = (m_p1.m_y * (m_p2.m_x - verAxis) - m_p2.m_y * (m_p1.m_x - verAxis)) / dx();
 		return IntersectionType::SinglePoint;
 	}
 };
 
 //! Output operator for lines.
 template<class PointType>
-std::ostream &operator<<(std::ostream &os, const GenericLine<PointType> &line) {
+std::ostream& operator<<(std::ostream& os, const GenericLine<PointType>& line) {
 	if (line.isVertical()) {
-		os << "Line: vertical with x = " << line.m_p1.m_x ;
+		os << "Line: vertical with x = " << line.m_p1.m_x;
 	} else {
-		os << "Line: f(x) = " << line.slope() << "x + " << line.yAbs() ;
+		os << "Line: f(x) = " << line.slope() << "x + " << line.yAbs();
 	}
 	return os;
 }
@@ -627,7 +621,6 @@ using DLine = GenericLine<DPoint>;
 //! Finite line segments.
 template<class PointType>
 class GenericSegment : public GenericLine<PointType> {
-
 private:
 	//! Returns whether \p p lies in the rectangle which has #m_p1 and #m_p2 as
 	//! opposing corners.
@@ -636,73 +629,60 @@ private:
 	 * @param includeBorders determines whether true is also returned when \p
 	 * lies on the borders of the rectangle given by #m_p1 and #m_p2.
 	 */
-	bool inBoundingRect(const PointType &p, bool includeBorders = true) const {
+	bool inBoundingRect(const PointType& p, bool includeBorders = true) const {
 		double minx = min(this->m_p1.m_x, this->m_p2.m_x);
 		double miny = min(this->m_p1.m_y, this->m_p2.m_y);
 		double maxx = max(this->m_p1.m_x, this->m_p2.m_x);
 		double maxy = max(this->m_p1.m_y, this->m_p2.m_y);
 
 		if (includeBorders) {
-			return OGDF_GEOM_ET.geq(p.m_x, minx) &&
-			       OGDF_GEOM_ET.leq(p.m_x, maxx) &&
-			       OGDF_GEOM_ET.geq(p.m_y, miny) &&
-			       OGDF_GEOM_ET.leq(p.m_y, maxy);
+			return OGDF_GEOM_ET.geq(p.m_x, minx) && OGDF_GEOM_ET.leq(p.m_x, maxx)
+					&& OGDF_GEOM_ET.geq(p.m_y, miny) && OGDF_GEOM_ET.leq(p.m_y, maxy);
 		} else {
-			return OGDF_GEOM_ET.greater(p.m_x, minx) &&
-			       OGDF_GEOM_ET.less   (p.m_x, maxx) &&
-			       OGDF_GEOM_ET.greater(p.m_y, miny) &&
-			       OGDF_GEOM_ET.less   (p.m_y, maxy);
+			return OGDF_GEOM_ET.greater(p.m_x, minx) && OGDF_GEOM_ET.less(p.m_x, maxx)
+					&& OGDF_GEOM_ET.greater(p.m_y, miny) && OGDF_GEOM_ET.less(p.m_y, maxy);
 		}
 	}
 
 public:
-
 	//! Creates an empty line segment.
-	GenericSegment() : GenericLine<PointType>() {}
+	GenericSegment() : GenericLine<PointType>() { }
 
 	//! Creates a line segment from \p p1 to \p p2.
-	GenericSegment(const PointType &p1, const PointType &p2)
-	: GenericLine<PointType>(p1, p2) {}
+	GenericSegment(const PointType& p1, const PointType& p2) : GenericLine<PointType>(p1, p2) { }
 
 	//! Creates a line segment defined by the start and end point of line \p dl.
-	explicit GenericSegment(const GenericLine<PointType> &dl)
-	: GenericLine<PointType>(dl) {}
+	explicit GenericSegment(const GenericLine<PointType>& dl) : GenericLine<PointType>(dl) { }
 
 	//! Creates a line segment from (\p x1,\p y1) to (\p x2,\p y2).
 	GenericSegment(double x1, double y1, double x2, double y2)
-	: GenericLine<PointType>(x1, y1, x2, y2) {}
+		: GenericLine<PointType>(x1, y1, x2, y2) { }
 
 	//! Copy constructor.
-	GenericSegment(const GenericSegment<PointType> &ds) = default;
+	GenericSegment(const GenericSegment<PointType>& ds) = default;
 
 	//! Copy assignment operator.
-	GenericSegment& operator=(const GenericSegment<PointType> &ds) = default;
+	GenericSegment& operator=(const GenericSegment<PointType>& ds) = default;
 
 	//! Equality operator.
-	bool operator==(const GenericSegment<PointType> &dl) const {
+	bool operator==(const GenericSegment<PointType>& dl) const {
 		return this->m_p1 == dl.m_p1 && this->m_p2 == dl.m_p2;
 	}
 
 	//! Inequality operator.
-	bool operator!=(const GenericSegment<PointType> &dl) const {
-		return !(*this == dl);
-	}
+	bool operator!=(const GenericSegment<PointType>& dl) const { return !(*this == dl); }
 
 	//! Returns the start point of the line segment.
-	const PointType &start() const { return this->m_p1; }
+	const PointType& start() const { return this->m_p1; }
 
 	//! Returns the end point of the line segment.
-	const PointType &end() const { return this->m_p2; }
+	const PointType& end() const { return this->m_p2; }
 
 	//! Returns the x-coordinate of the difference (end point - start point).
-	typename GenericLine<PointType>::numberType dx() const {
-		return GenericLine<PointType>::dx();
-	}
+	typename GenericLine<PointType>::numberType dx() const { return GenericLine<PointType>::dx(); }
 
 	//! Returns the y-coordinate of the difference (end point - start point).
-	typename GenericLine<PointType>::numberType dy() const {
-		return GenericLine<PointType>::dy();
-	}
+	typename GenericLine<PointType>::numberType dy() const { return GenericLine<PointType>::dy(); }
 
 	/**
 	 * Returns an IntersectionType specifying whether \p segment and this line
@@ -714,29 +694,26 @@ public:
 	 * @param endpoints determines if common endpoints are treated as potential
 	 * intersection points.
 	 */
-	IntersectionType intersection(const GenericSegment<PointType> &segment, PointType &inter, bool endpoints = true) const {
+	IntersectionType intersection(const GenericSegment<PointType>& segment, PointType& inter,
+			bool endpoints = true) const {
 		IntersectionType lineIntersection = GenericLine<PointType>::intersection(segment, inter);
 
 		if (lineIntersection == IntersectionType::None) {
 			return IntersectionType::None;
 		} else if (lineIntersection == IntersectionType::SinglePoint) {
-			return inBoundingRect(inter, endpoints)
-			    && segment.inBoundingRect(inter, endpoints) ?
-				IntersectionType::SinglePoint : IntersectionType::None;
+			return inBoundingRect(inter, endpoints) && segment.inBoundingRect(inter, endpoints)
+					? IntersectionType::SinglePoint
+					: IntersectionType::None;
 		} else {
 			// Let inter be the second smallest point of this/the given segment.
 			Array<DPoint> points({this->m_p1, this->m_p2, segment.m_p1, segment.m_p2});
-			std::sort(points.begin(), points.end(), [](DPoint p1, DPoint p2) {
-				return p1 < p2;
-			});
+			std::sort(points.begin(), points.end(), [](DPoint p1, DPoint p2) { return p1 < p2; });
 			inter = points[1];
 
-			if (!inBoundingRect(inter, endpoints) ||
-				!segment.inBoundingRect(inter, endpoints)) {
+			if (!inBoundingRect(inter, endpoints) || !segment.inBoundingRect(inter, endpoints)) {
 				return IntersectionType::None;
-			} else if (points[1] == points[2] &&
-				!(this->m_p1 == inter && this->m_p2 == inter) &&
-				!(segment.m_p1 == inter && segment.m_p2 == inter)) {
+			} else if (points[1] == points[2] && !(this->m_p1 == inter && this->m_p2 == inter)
+					&& !(segment.m_p1 == inter && segment.m_p2 == inter)) {
 				// There is an intersection at a single point inter, which is
 				// both an endpoint of this and an endpoint of the other segment.
 				return IntersectionType::SinglePoint;
@@ -747,14 +724,12 @@ public:
 	}
 
 	//! Returns true iff \p p lies on this line segment.
-	bool contains(const PointType &p) const override {
+	bool contains(const PointType& p) const override {
 		return GenericLine<PointType>::contains(p) && inBoundingRect(p);
 	}
 
 	//! Returns the length (Euclidean distance between start and end point) of this line segment.
-	double length() const {
-		return this->m_p1.distance(this->m_p2);
-	}
+	double length() const { return this->m_p1.distance(this->m_p2); }
 
 	/**
 	 * \brief Computes the intersection of this line segment and the horizontal line through y = \p horAxis.
@@ -765,7 +740,7 @@ public:
 	 * \return the IntersectionType of the intersection between this line
 	 *         segment and \p horAxis.
 	 */
-	IntersectionType horIntersection(const double horAxis, double &crossing) const override {
+	IntersectionType horIntersection(const double horAxis, double& crossing) const override {
 		IntersectionType result = GenericLine<PointType>::horIntersection(horAxis, crossing);
 		if (result != IntersectionType::SinglePoint) {
 			return result;
@@ -786,7 +761,7 @@ public:
 	 * \return the IntersectionType of the intersection between this line
 	 *         segment and \p verAxis.
 	 */
-	IntersectionType verIntersection(const double verAxis, double &crossing) const override {
+	IntersectionType verIntersection(const double verAxis, double& crossing) const override {
 		IntersectionType result = GenericLine<PointType>::verIntersection(verAxis, crossing);
 		if (result != IntersectionType::SinglePoint) {
 			return result;
@@ -801,7 +776,7 @@ public:
 
 //! Output operator for line segments.
 template<class PointType>
-std::ostream &operator<<(std::ostream &os, const GenericSegment<PointType> &dl) {
+std::ostream& operator<<(std::ostream& os, const GenericSegment<PointType>& dl) {
 	os << "Segment-Start: " << dl.start() << ", Segment-End: " << dl.end();
 	return os;
 }
@@ -813,8 +788,7 @@ using DSegment = GenericSegment<DPoint>;
  * \brief Rectangles with real coordinates.
  */
 class OGDF_EXPORT DRect {
-
-	friend OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const DRect &dr);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const DRect& dr);
 
 protected:
 	DPoint m_p1; //!< The lower left point of the rectangle.
@@ -825,38 +799,27 @@ public:
 	DRect() = default;
 
 	//! Creates a rectangle with lower left point \p p1 and upper right point \p p2.
-	DRect(const DPoint &p1, const DPoint &p2)
-	: m_p1(p1)
-	, m_p2(p2)
-	{ normalize(); }
+	DRect(const DPoint& p1, const DPoint& p2) : m_p1(p1), m_p2(p2) { normalize(); }
 
 	//! Copy constructor
-	DRect(const DRect& dr)
-	: m_p1(dr.m_p1)
-	, m_p2(dr.m_p2) {}
+	DRect(const DRect& dr) : m_p1(dr.m_p1), m_p2(dr.m_p2) { }
 
 	//! Creates a rectangle with lower left point (\p x1,\p y1) and upper right point (\p x2,\p y2).
-	DRect(double x1, double y1, double x2, double y2)
-	: DRect(DPoint(x1,y1), DPoint(x2,y2)) {}
+	DRect(double x1, double y1, double x2, double y2) : DRect(DPoint(x1, y1), DPoint(x2, y2)) { }
 
 	//! Creates a rectangle defined by the end points of line segment \p dl.
-	explicit DRect(const DSegment &dl)
-	: DRect(dl.start(), dl.end()) {}
+	explicit DRect(const DSegment& dl) : DRect(dl.start(), dl.end()) { }
 
 	virtual ~DRect() = default;
 
 	//! Equality operator: both rectangles have the same coordinates
-	bool operator==(const DRect &dr) const {
-		return m_p1 == dr.m_p1 && m_p2 == dr.m_p2;
-	}
+	bool operator==(const DRect& dr) const { return m_p1 == dr.m_p1 && m_p2 == dr.m_p2; }
 
 	//! Inequality operator.
-	bool operator!=(const DRect &dr) const {
-		return !(*this == dr);
-	}
+	bool operator!=(const DRect& dr) const { return !(*this == dr); }
 
 	//! Assignment operator.
-	DRect &operator= (const DRect &dr) {
+	DRect& operator=(const DRect& dr) {
 		if (this != &dr) { // don't assign myself
 			m_p1 = dr.m_p1;
 			m_p2 = dr.m_p2;
@@ -865,14 +828,10 @@ public:
 	}
 
 	//! Returns the width of the rectangle.
-	double width() const {
-		return m_p2.m_x - m_p1.m_x;
-	}
+	double width() const { return m_p2.m_x - m_p1.m_x; }
 
 	//! Returns the height of the rectangle.
-	double height() const {
-		return m_p2.m_y - m_p1.m_y;
-	}
+	double height() const { return m_p2.m_y - m_p1.m_y; }
 
 	/**
 	 * \brief Normalizes the rectangle.
@@ -881,34 +840,38 @@ public:
 	 * right point.
 	 */
 	void normalize() {
-		if (width() < 0) std::swap(m_p2.m_x, m_p1.m_x);
-		if (height() < 0) std::swap(m_p2.m_y, m_p1.m_y);
+		if (width() < 0) {
+			std::swap(m_p2.m_x, m_p1.m_x);
+		}
+		if (height() < 0) {
+			std::swap(m_p2.m_y, m_p1.m_y);
+		}
 	}
 
 	//! Returns the lower left point of the rectangle.
-	const DPoint &p1() const { return m_p1; }
+	const DPoint& p1() const { return m_p1; }
 
 	//! Returns the upper right point of the rectangle.
-	const DPoint &p2() const { return m_p2; }
+	const DPoint& p2() const { return m_p2; }
 
 	//! Returns the top side of the rectangle.
 	const DSegment top() const {
-		return DSegment( DPoint(m_p1.m_x, m_p2.m_y), DPoint(m_p2.m_x, m_p2.m_y));
+		return DSegment(DPoint(m_p1.m_x, m_p2.m_y), DPoint(m_p2.m_x, m_p2.m_y));
 	}
 
 	//! Returns the right side of the rectangle.
 	const DSegment right() const {
-		return DSegment( DPoint(m_p2.m_x, m_p2.m_y), DPoint(m_p2.m_x, m_p1.m_y));
+		return DSegment(DPoint(m_p2.m_x, m_p2.m_y), DPoint(m_p2.m_x, m_p1.m_y));
 	}
 
 	//! Returns the left side of the rectangle.
 	const DSegment left() const {
-		return DSegment( DPoint(m_p1.m_x, m_p1.m_y), DPoint(m_p1.m_x, m_p2.m_y));
+		return DSegment(DPoint(m_p1.m_x, m_p1.m_y), DPoint(m_p1.m_x, m_p2.m_y));
 	}
 
 	//! Returns the bottom side of the rectangle.
 	const DSegment bottom() const {
-		return DSegment( DPoint(m_p2.m_x, m_p1.m_y), DPoint(m_p1.m_x, m_p1.m_y));
+		return DSegment(DPoint(m_p2.m_x, m_p1.m_y), DPoint(m_p1.m_x, m_p1.m_y));
 	}
 
 	//! Swaps the y-coordinates of the two points.
@@ -918,28 +881,26 @@ public:
 	void xInvert() { std::swap(m_p1.m_x, m_p2.m_x); }
 
 	//! Returns true iff \p p lies within this rectangle, modulo the comparison epsilon #OGDF_GEOM_ET.
-	bool contains(const DPoint &p) const {
-		return OGDF_GEOM_ET.geq(p.m_x, m_p1.m_x)
-			&& OGDF_GEOM_ET.leq(p.m_x, m_p2.m_x)
-			&& OGDF_GEOM_ET.geq(p.m_y, m_p1.m_y)
-			&& OGDF_GEOM_ET.leq(p.m_y, m_p2.m_y);
+	bool contains(const DPoint& p) const {
+		return OGDF_GEOM_ET.geq(p.m_x, m_p1.m_x) && OGDF_GEOM_ET.leq(p.m_x, m_p2.m_x)
+				&& OGDF_GEOM_ET.geq(p.m_y, m_p1.m_y) && OGDF_GEOM_ET.leq(p.m_y, m_p2.m_y);
 	}
 
 	//! Returns true iff \p segment intersects this DRect.
-	bool intersection(const DSegment &segment) const {
+	bool intersection(const DSegment& segment) const {
 		DPoint inter;
-		return segment.intersection(top(),    inter) != IntersectionType::None
-		    || segment.intersection(bottom(), inter) != IntersectionType::None
-		    || segment.intersection(right(),  inter) != IntersectionType::None
-		    || segment.intersection(left(),   inter) != IntersectionType::None;
+		return segment.intersection(top(), inter) != IntersectionType::None
+				|| segment.intersection(bottom(), inter) != IntersectionType::None
+				|| segment.intersection(right(), inter) != IntersectionType::None
+				|| segment.intersection(left(), inter) != IntersectionType::None;
 	}
 
 protected:
 	//! Computes distance between parallel line segments.
-	double parallelDist(const DSegment &d1, const DSegment &d2) const;
+	double parallelDist(const DSegment& d1, const DSegment& d2) const;
 
 	//! Computes distance between two points.
-	double pointDist(const DPoint &p1, const DPoint &p2) const {
+	double pointDist(const DPoint& p1, const DPoint& p2) const {
 		return sqrt((p1.m_y - p2.m_y) * (p1.m_y - p2.m_y) + (p1.m_x - p2.m_x) * (p1.m_x - p2.m_x));
 	}
 };
@@ -951,8 +912,7 @@ protected:
  * intersection with other rectangles.
  */
 class OGDF_EXPORT DIntersectableRect : public DRect {
-
-	friend OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const DIntersectableRect &dr);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const DIntersectableRect& dr);
 
 	double m_area = 0.0;
 	DPoint m_center;
@@ -968,27 +928,23 @@ public:
 	DIntersectableRect() = default;
 
 	//! Creates a rectangle with lower left point \p p1 and upper right point \p p2.
-	DIntersectableRect(const DPoint &p1, const DPoint &p2)
-	: DRect(p1, p2)
-	{ initAreaAndCenter(); }
+	DIntersectableRect(const DPoint& p1, const DPoint& p2) : DRect(p1, p2) { initAreaAndCenter(); }
 
 	//! Creates a rectangle with lower left point (\p x1,\p y1) and upper right point (\p x1,\p y2).
 	DIntersectableRect(double x1, double y1, double x2, double y2)
-	: DIntersectableRect(DPoint(x1,y1), DPoint(x2,y2)) {}
+		: DIntersectableRect(DPoint(x1, y1), DPoint(x2, y2)) { }
 
 	//! Copy constructor
 	DIntersectableRect(const DIntersectableRect& dr)
-	: DRect(static_cast<DRect>(dr))
-	, m_area(dr.m_area)
-	, m_center(dr.m_center) {}
+		: DRect(static_cast<DRect>(dr)), m_area(dr.m_area), m_center(dr.m_center) { }
 
 	//! Constructs a rectangle from the \p center point, \p width and \p height
-	DIntersectableRect(const DPoint &center, double width, double height)
-	: DIntersectableRect(DPoint(center.m_x-width/2,center.m_y-height/2),
-	                     DPoint(center.m_x+width/2,center.m_y+height/2)) {};
+	DIntersectableRect(const DPoint& center, double width, double height)
+		: DIntersectableRect(DPoint(center.m_x - width / 2, center.m_y - height / 2),
+				DPoint(center.m_x + width / 2, center.m_y + height / 2)) {};
 
 	//! Assignment operator.
-	DIntersectableRect &operator= (const DIntersectableRect &dr) {
+	DIntersectableRect& operator=(const DIntersectableRect& dr) {
 		if (this != &dr) { // don't assign myself
 			m_p1 = dr.m_p1;
 			m_p2 = dr.m_p2;
@@ -1005,27 +961,25 @@ public:
 	double area() const { return m_area; }
 
 	//! Tests if this and the argument \p rectangle intersect
-	bool intersects(const DIntersectableRect &rectangle) const;
+	bool intersects(const DIntersectableRect& rectangle) const;
 
 	//! Returns the rectangle resulting from intersection of this and \p other.
 	//! Returns a rectangle with zero width and height and center (0,0) if intersection
 	//! is empty.
-	DIntersectableRect intersection(const DIntersectableRect &other) const;
+	DIntersectableRect intersection(const DIntersectableRect& other) const;
 
 	//! Computes distance between two rectangles.
-	double distance(const DIntersectableRect &other) const;
+	double distance(const DIntersectableRect& other) const;
 
 	//! Moves the rectangle such that its center is at the given \p point
-	void move(const DPoint &point);
+	void move(const DPoint& point);
 };
 
 /**
  * \brief Polygons with real coordinates.
  */
 class OGDF_EXPORT DPolygon : public DPolyline {
-
 protected:
-
 	bool m_counterclock; //!< If true points are given in conter-clockwise order.
 
 public:
@@ -1038,49 +992,43 @@ public:
 	DPolygon(bool cc = true) : m_counterclock(cc) { }
 
 	//! Creates a polgon from a rectangle.
-	explicit DPolygon(const DRect &rect, bool cc = true) : m_counterclock(cc) {
-		operator=(rect);
-	}
+	explicit DPolygon(const DRect& rect, bool cc = true) : m_counterclock(cc) { operator=(rect); }
 
 	//! Copy constructor.
-	DPolygon(const DPolygon &dop) : DPolyline(dop), m_counterclock(dop.m_counterclock) { }
+	DPolygon(const DPolygon& dop) : DPolyline(dop), m_counterclock(dop.m_counterclock) { }
 
 	//! Returns true iff points are given in counter-clockwise order.
 	bool counterclock() { return m_counterclock; }
 
 	//! Assignment operator.
-	DPolygon &operator=(const DPolygon &dop) {
-		List<DPoint>::operator =(dop);
+	DPolygon& operator=(const DPolygon& dop) {
+		List<DPoint>::operator=(dop);
 		m_counterclock = dop.m_counterclock;
 		return *this;
 	}
 
 	//! Assignment operator (for assigning from a rectangle).
-	DPolygon &operator=(const DRect &rect);
+	DPolygon& operator=(const DRect& rect);
 
 	//! Returns the line segment that starts at position \p it.
 	DSegment segment(ListConstIterator<DPoint> it) const;
 
-
 	//! Inserts point \p p, that must lie on a polygon segment.
-	ListIterator<DPoint> insertPoint(const DPoint &p) {
-		return insertPoint(p, begin(), begin());
-	}
+	ListIterator<DPoint> insertPoint(const DPoint& p) { return insertPoint(p, begin(), begin()); }
 
 	/**
 	 * \brief Inserts point \p p, but just searching from point \p p1 to \p p2.
 	 *
 	 * That is, from the segment starting at \p p1 to the segment ending at \p p2.
 	 */
-	ListIterator<DPoint> insertPoint(const DPoint &p,
-		ListIterator<DPoint> p1,
-		ListIterator<DPoint> p2);
+	ListIterator<DPoint> insertPoint(const DPoint& p, ListIterator<DPoint> p1,
+			ListIterator<DPoint> p2);
 
 	//! Inserts point p on every segment (a,b) with \p p in the open range ]a, b[.
-	void insertCrossPoint(const DPoint &p);
+	void insertCrossPoint(const DPoint& p);
 
 	//! Returns the list of intersection points of this polygon with \p p.
-	int getCrossPoints(const DPolygon &p, List<DPoint> &crossPoints) const;
+	int getCrossPoints(const DPolygon& p, List<DPoint>& crossPoints) const;
 
 	//! Deletes all consecutive points that are equal.
 	void unify();
@@ -1094,17 +1042,15 @@ public:
 	 * \par p the Point to check.
 	 * return true if Point is inside.
 	 */
-	bool containsPoint(DPoint &p) const;
+	bool containsPoint(DPoint& p) const;
 };
 
 //! Output operator for polygons.
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const DPolygon &dop);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const DPolygon& dop);
 
-int orientation(const DPoint &p, const DPoint &q, const DPoint &r);
+int orientation(const DPoint& p, const DPoint& q, const DPoint& r);
 
-
-inline int orientation(const DSegment &s, const DPoint &p)
-{
+inline int orientation(const DSegment& s, const DPoint& p) {
 	return orientation(s.start(), s.end(), p);
 }
 

@@ -33,14 +33,10 @@
 
 namespace ogdf {
 
-RandomMerger::RandomMerger()
-:m_levelSizeFactor(2.0)
-{
-}
+RandomMerger::RandomMerger() : m_levelSizeFactor(2.0) { }
 
-bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
-{
-	Graph &G = MLG.getGraph();
+bool RandomMerger::buildOneLevel(MultilevelGraph& MLG) {
+	Graph& G = MLG.getGraph();
 	int level = MLG.getLevel() + 1;
 	int numNodes = G.numberOfNodes();
 
@@ -50,24 +46,23 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 
 	int index = 0;
 	Array<node> candidates(numNodes);
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		candidates[index] = v;
 		index++;
 	}
 
 	int candSize = candidates.size();
-	while (candSize > numNodes / m_levelSizeFactor)
-	{
-		index = randomNumber(0, candSize-1);
+	while (candSize > numNodes / m_levelSizeFactor) {
+		index = randomNumber(0, candSize - 1);
 		node mergeNode = candidates[index];
-		candidates[index] = candidates[candSize-1];
+		candidates[index] = candidates[candSize - 1];
 		candSize--;
 		node parent = nullptr;
 
 		if (mergeNode->degree() > 0) {
-			int randomIndex = randomNumber(0, mergeNode->degree()-1);
+			int randomIndex = randomNumber(0, mergeNode->degree() - 1);
 			int i = 0;
-			for(adjEntry adj : mergeNode->adjEntries) {
+			for (adjEntry adj : mergeNode->adjEntries) {
 				if (i == randomIndex) {
 					parent = adj->twinNode();
 					break;
@@ -77,23 +72,23 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 			}
 		} else {
 			do {
-				index = randomNumber(0, candSize-1);
+				index = randomNumber(0, candSize - 1);
 				parent = candidates[index];
 			} while (parent == mergeNode);
-			candidates[index] = candidates[candSize-1];
+			candidates[index] = candidates[candSize - 1];
 			candSize--;
 		}
 
-		NodeMerge * NM = new NodeMerge(level);
+		NodeMerge* NM = new NodeMerge(level);
 		bool ret;
 #ifdef OGDF_DEBUG
 		ret =
 #endif
-			MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
-		OGDF_ASSERT( ret );
+				MLG.changeNode(NM, parent, MLG.radius(parent), mergeNode);
+		OGDF_ASSERT(ret);
 		MLG.moveEdgesToParent(NM, mergeNode, parent, true, m_adjustEdgeLengths);
 		ret = MLG.postMerge(NM, mergeNode);
-		if( !ret ) {
+		if (!ret) {
 			delete NM;
 		}
 	}
@@ -101,10 +96,6 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 	return true;
 }
 
-
-void RandomMerger::setFactor(double factor)
-{
-	m_levelSizeFactor = factor;
-}
+void RandomMerger::setFactor(double factor) { m_levelSizeFactor = factor; }
 
 }

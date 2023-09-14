@@ -105,10 +105,11 @@ namespace ogdf {
  * PQNodeKey and internalKey. These functions enable the client to
  * access the information stored at a node.
  */
-template<class T,class X, class Y> class PQNode;
+template<class T, class X, class Y>
+class PQNode;
 
-template<class T,class X,class Y>
-class PQBasicKey: public PQBasicKeyRoot {
+template<class T, class X, class Y>
+class PQBasicKey : public PQBasicKeyRoot {
 public:
 	//! Constructor
 	PQBasicKey() : m_nodePointer(nullptr) { }
@@ -132,7 +133,7 @@ public:
 	 * over the informations stored at different nodes and to access
 	 * nodes with specified informations in constant time.
 	 */
-	PQNode<T,X,Y>* nodePointer() { return m_nodePointer; }
+	PQNode<T, X, Y>* nodePointer() { return m_nodePointer; }
 
 	/**
 	 * The function print() is a virtual function, that can be overloaded
@@ -141,7 +142,7 @@ public:
 	 * format for printing out the information. Currently, the return value
 	 * of the function print() is an empty string.
 	 */
-	virtual std::ostream &print(std::ostream &os) { return os; }
+	virtual std::ostream& print(std::ostream& os) { return os; }
 
 	/**
 	 * The function setNodePointer() sets the private member
@@ -150,22 +151,22 @@ public:
 	 * Using this function enables the client to identify
 	 * certain informations with a node in the PQ-tree.
 	 */
-	void setNodePointer(PQNode<T,X,Y>* pqNode) { m_nodePointer = pqNode; }
+	void setNodePointer(PQNode<T, X, Y>* pqNode) { m_nodePointer = pqNode; }
 
 	//! Returns the key of a leaf.
-	virtual T userStructKey()  = 0;
+	virtual T userStructKey() = 0;
 
 	//! Returns the information of any node.
-	virtual X userStructInfo()  = 0;
+	virtual X userStructInfo() = 0;
 
 	//! Returns the information of any internal node.
-	virtual Y userStructInternal()  = 0;
+	virtual Y userStructInternal() = 0;
 
 private:
 	/** Stores the adress of a node. This node has to
 	 * be specified by the client via the function #setNodePointer.
 	 */
-	PQNode<T,X,Y>* m_nodePointer;
+	PQNode<T, X, Y>* m_nodePointer;
 };
 
 }

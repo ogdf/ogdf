@@ -36,49 +36,30 @@
 namespace ogdf {
 
 template<typename T>
-class EdgeWeightedGraph: public Graph {
+class EdgeWeightedGraph : public Graph {
 public:
-	EdgeWeightedGraph()
-	  : Graph()
-	  , m_edgeWeight(*this, 0)
-	{
-	}
+	EdgeWeightedGraph() : Graph(), m_edgeWeight(*this, 0) { }
 
-	explicit EdgeWeightedGraph(GraphCopy &gC)
-	{
-	}
+	explicit EdgeWeightedGraph(GraphCopy& gC) { }
 
-	virtual ~EdgeWeightedGraph()
-	{
-	}
+	virtual ~EdgeWeightedGraph() { }
 
-	edge newEdge(node v, node w, T weight)
-	{
+	edge newEdge(node v, node w, T weight) {
 		edge e = Graph::newEdge(v, w);
 		m_edgeWeight[e] = weight;
 		return e;
 	}
 
-	node newNode()
-	{
+	node newNode() {
 		node u = Graph::newNode();
 		return u;
 	}
 
-	T weight(const edge e) const
-	{
-		return m_edgeWeight[e];
-	}
+	T weight(const edge e) const { return m_edgeWeight[e]; }
 
-	const EdgeArray<T> &edgeWeights() const
-	{
-		return m_edgeWeight;
-	}
+	const EdgeArray<T>& edgeWeights() const { return m_edgeWeight; }
 
-	void setWeight(const edge e, T weight)
-	{
-		m_edgeWeight[e] = weight;
-	}
+	void setWeight(const edge e, T weight) { m_edgeWeight[e] = weight; }
 
 protected:
 	EdgeArray<T> m_edgeWeight;

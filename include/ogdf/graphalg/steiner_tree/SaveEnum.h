@@ -32,10 +32,10 @@
 
 #pragma once
 
-#include <ogdf/basic/Queue.h>
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/graphalg/steiner_tree/Triple.h>
+#include <ogdf/basic/Queue.h>
 #include <ogdf/graphalg/steiner_tree/Save.h>
+#include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 
 namespace ogdf {
@@ -45,24 +45,20 @@ namespace steiner_tree {
  * \brief This class computes save edges recursively and stores for every node pair their save edge in a HashArray.
  */
 template<typename T>
-class SaveEnum: public Save<T> {
-
+class SaveEnum : public Save<T> {
 public:
 	/*!
 	 * \brief Initializes the data structures and calculates a MST of the given complete terminal graph
 	 * @param steinerTree the given terminal spanning tree
 	 */
-	explicit SaveEnum(EdgeWeightedGraphCopy<T> &steinerTree)
-	  : Save<T>()
-	  , m_save(0, steinerTree.maxNodeIndex(), 0, steinerTree.maxNodeIndex())
-	  , m_steinerTree(&steinerTree)
-	{
+	explicit SaveEnum(EdgeWeightedGraphCopy<T>& steinerTree)
+		: Save<T>()
+		, m_save(0, steinerTree.maxNodeIndex(), 0, steinerTree.maxNodeIndex())
+		, m_steinerTree(&steinerTree) {
 		build();
 	}
 
-	virtual ~SaveEnum()
-	{
-	}
+	virtual ~SaveEnum() { }
 
 	/*!
 	 * \brief Determines the weight of the save edge between two nodes by a table lookup
@@ -70,11 +66,11 @@ public:
 	 * @param v Second terminal
 	 * @return Weight of the save edge between two given nodes
 	 */
-	virtual T saveWeight(node u, node v) const
-	{
+	virtual T saveWeight(node u, node v) const {
 		OGDF_ASSERT(u);
 		OGDF_ASSERT(v);
-		return m_steinerTree->weight(m_save(m_steinerTree->copy(u)->index(), m_steinerTree->copy(v)->index()));
+		return m_steinerTree->weight(
+				m_save(m_steinerTree->copy(u)->index(), m_steinerTree->copy(v)->index()));
 	}
 
 	/*!
@@ -83,8 +79,7 @@ public:
 	 * @param v Second terminal
 	 * @return The save edge between two given nodes
 	 */
-	virtual edge saveEdge(node u, node v) const
-	{
+	virtual edge saveEdge(node u, node v) const {
 		OGDF_ASSERT(u);
 		OGDF_ASSERT(v);
 		return m_save(m_steinerTree->copy(u)->index(), m_steinerTree->copy(v)->index());
@@ -97,8 +92,7 @@ public:
 	 * @param w Third triple node
 	 * @return Sum of the save edges between the three nodes
 	 */
-	virtual T gain(node u, node v, node w) const
-	{
+	virtual T gain(node u, node v, node w) const {
 		const int uIndex = m_steinerTree->copy(u)->index();
 		const int vIndex = m_steinerTree->copy(v)->index();
 		const int wIndex = m_steinerTree->copy(w)->index();
@@ -114,8 +108,7 @@ public:
 	/*!
 	 * \brief Rebuild the lookup table (necessary if the tree has changed)
 	 */
-	void rebuild()
-	{
+	void rebuild() {
 		m_save.init(0, m_steinerTree->maxNodeIndex(), 0, m_steinerTree->maxNodeIndex());
 		build();
 	}
@@ -127,23 +120,21 @@ public:
 	 * the two save edges. Afterward the lookup table is rebuild.
 	 * @param t The contracted triple
 	 */
-	virtual void update(const Triple<T> &t)
-	{
+	virtual void update(const Triple<T>& t) {
 		const int uIndex = m_steinerTree->copy(t.s0())->index();
 		const int vIndex = m_steinerTree->copy(t.s1())->index();
 		const int wIndex = m_steinerTree->copy(t.s2())->index();
-		contractTripleInSteinerTree(t, *m_steinerTree, m_save(uIndex, vIndex), m_save(vIndex, wIndex), m_save(uIndex, wIndex));
+		contractTripleInSteinerTree(t, *m_steinerTree, m_save(uIndex, vIndex),
+				m_save(vIndex, wIndex), m_save(uIndex, wIndex));
 		build();
 	}
 
 
 protected:
-
 	/*!
 	 * \brief Build the lookup table
 	 */
-	inline void build()
-	{
+	inline void build() {
 		m_save.fill(nullptr);
 		EdgeArray<bool> hidden(*m_steinerTree, false);
 		List<node> processedNodes;
@@ -162,8 +153,7 @@ protected:
 	 * @param u Starting node for traversing a partition in order to find a maximum weighted edge
 	 * @param processedNodes List of seen nodes during the traversing (all nodes of the component)
 	 */
-	void buildRecursively(EdgeArray<bool> &hidden, node u, List<node> &processedNodes)
-	{
+	void buildRecursively(EdgeArray<bool>& hidden, node u, List<node>& processedNodes) {
 		Queue<node> q;
 		q.append(u);
 
@@ -213,8 +203,7 @@ protected:
 
 private:
 	Array2D<edge> m_save; //!< Data structure for the lookup table
-	EdgeWeightedGraphCopy<T> *m_steinerTree; //!< The current terminal spanning tree
-
+	EdgeWeightedGraphCopy<T>* m_steinerTree; //!< The current terminal spanning tree
 };
 
 }

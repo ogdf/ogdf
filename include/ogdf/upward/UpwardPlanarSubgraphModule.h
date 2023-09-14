@@ -34,7 +34,6 @@
 
 #include <ogdf/basic/GraphCopy.h>
 
-
 namespace ogdf {
 
 /**
@@ -56,14 +55,10 @@ public:
 	 * @param delEdges is assigned the set of edges which have to be deleted in \p G
 	 *        to obtain the upward planar subgraph.
 	 */
-	virtual void call(const Graph &G, List<edge> &delEdges) = 0;
-
+	virtual void call(const Graph& G, List<edge>& delEdges) = 0;
 
 	//! Computes set of edges \p delEdges which have to be deleted to obtain the upward planar subgraph.
-	void operator()(const Graph &G, List<edge> &delEdges) {
-		call(G,delEdges);
-	}
-
+	void operator()(const Graph& G, List<edge>& delEdges) { call(G, delEdges); }
 
 	/**
 	 * \brief Makes \p GC upward planar by deleting edges.
@@ -71,7 +66,7 @@ public:
 	 * @param delOrigEdges is the set of original edges whose copies have been
 	 *        deleted in \p GC.
 	 */
-	void callAndDelete(GraphCopy &GC, List<edge> &delOrigEdges);
+	void callAndDelete(GraphCopy& GC, List<edge>& delOrigEdges);
 
 	OGDF_MALLOC_NEW_DELETE
 };

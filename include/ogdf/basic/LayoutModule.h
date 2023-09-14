@@ -55,14 +55,14 @@ public:
 	 * derived classes.
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(GraphAttributes &GA) = 0;
+	virtual void call(GraphAttributes& GA) = 0;
 
 	/**
 	 * \brief Computes a layout of graph \p GA.
 	 *
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	void operator()(GraphAttributes &GA) { call(GA); }
+	void operator()(GraphAttributes& GA) { call(GA); }
 
 	OGDF_MALLOC_NEW_DELETE
 };

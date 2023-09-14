@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/LayoutModule.h>
 
 namespace ogdf {
 
@@ -70,8 +70,7 @@ struct ClusterStructure;
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT CircularLayout : public LayoutModule
-{
+class OGDF_EXPORT CircularLayout : public LayoutModule {
 public:
 	//! Creates an instance of circular layout.
 	CircularLayout();
@@ -79,15 +78,13 @@ public:
 	// destructor
 	~CircularLayout() { }
 
-
 	/**
 	 *  @name The algorithm call
 	 *  @{
 	 */
 
 	//! Computes a circular layout for graph attributes \p GA.
-	virtual void call(GraphAttributes &GA) override;
-
+	virtual void call(GraphAttributes& GA) override;
 
 	/** @}
 	 *  @name Optional parameters
@@ -127,28 +124,23 @@ public:
 	//! @}
 
 private:
-	double m_minDistCircle;  //!< The minimal distance between nodes on a circle.
-	double m_minDistLevel;   //!< The minimal distance between father and child circle.
+	double m_minDistCircle; //!< The minimal distance between nodes on a circle.
+	double m_minDistLevel; //!< The minimal distance between father and child circle.
 	double m_minDistSibling; //!< The minimal distance between circles on same level.
-	double m_minDistCC;      //!< The minimal distance between connected components.
-	double m_pageRatio;      //!< The page ratio used for packing connected components.
+	double m_minDistCC; //!< The minimal distance between connected components.
+	double m_pageRatio; //!< The page ratio used for packing connected components.
 
-	void doCall(GraphAttributes &AG, ClusterStructure &C);
+	void doCall(GraphAttributes& AG, ClusterStructure& C);
 
-	void assignClustersByBiconnectedComponents(ClusterStructure &C);
+	void assignClustersByBiconnectedComponents(ClusterStructure& C);
 
 	int sizeBC(node vB);
 
-	void computePreferedAngles(
-		ClusterStructure &C,
-		const Array<double> &outerRadius,
-		Array<double> &preferedAngle);
+	void computePreferedAngles(ClusterStructure& C, const Array<double>& outerRadius,
+			Array<double>& preferedAngle);
 
-	void assignPrefAngle(ClusterStructure &C,
-		const Array<double> &outerRadius,
-		Array<double> &preferedAngle,
-		int c,
-		double r1);
+	void assignPrefAngle(ClusterStructure& C, const Array<double>& outerRadius,
+			Array<double>& preferedAngle, int c, double r1);
 };
 
 }

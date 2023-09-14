@@ -34,8 +34,6 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 
-
-
 namespace ogdf {
 
 
@@ -67,9 +65,7 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	virtual void call(Array<DPoint> &box,
-		Array<DPoint> &offset,
-		double pageRatio = 1.0) = 0;
+	virtual void call(Array<DPoint>& box, Array<DPoint>& offset, double pageRatio = 1.0) = 0;
 
 	/**
 	 * \brief Arranges the rectangles given by \p box.
@@ -83,11 +79,8 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	void operator()(Array<DPoint> &box,
-		Array<DPoint> &offset,
-		double pageRatio = 1.0)
-	{
-		call(box,offset,pageRatio);
+	void operator()(Array<DPoint>& box, Array<DPoint>& offset, double pageRatio = 1.0) {
+		call(box, offset, pageRatio);
 	}
 
 	/**
@@ -105,9 +98,7 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	virtual void call(Array<IPoint> &box,
-		Array<IPoint> &offset,
-		double pageRatio = 1.0) = 0;
+	virtual void call(Array<IPoint>& box, Array<IPoint>& offset, double pageRatio = 1.0) = 0;
 
 	/**
 	 * \brief Arranges the rectangles given by \p box.
@@ -121,11 +112,8 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	void operator()(Array<IPoint> &box,
-		Array<IPoint> &offset,
-		double pageRatio = 1.0)
-	{
-		call(box,offset,pageRatio);
+	void operator()(Array<IPoint>& box, Array<IPoint>& offset, double pageRatio = 1.0) {
+		call(box, offset, pageRatio);
 	}
 
 	/**
@@ -136,8 +124,7 @@ public:
 	 * @param box is the array of rectangles.
 	 * @param offset is the array of corresponding offsets.
 	 */
-	static bool checkOffsets(const Array<DPoint> &box,
-		const Array<DPoint> &offset);
+	static bool checkOffsets(const Array<DPoint>& box, const Array<DPoint>& offset);
 
 	/**
 	 * \brief Checks if the rectangles in \p box do not overlap for given offsets.
@@ -147,8 +134,7 @@ public:
 	 * @param box is the array of rectangles.
 	 * @param offset is the array of corresponding offsets.
 	 */
-	static bool checkOffsets(const Array<IPoint> &box,
-		const Array<IPoint> &offset);
+	static bool checkOffsets(const Array<IPoint>& box, const Array<IPoint>& offset);
 
 
 	OGDF_MALLOC_NEW_DELETE
@@ -162,9 +148,7 @@ private:
 	 * @tparam POINT is the generic point type.
 	 */
 	template<class POINT>
-	static bool checkOffsetsTP(
-		const Array<POINT> &box,
-		const Array<POINT> &offset);
+	static bool checkOffsetsTP(const Array<POINT>& box, const Array<POINT>& offset);
 };
 
 }

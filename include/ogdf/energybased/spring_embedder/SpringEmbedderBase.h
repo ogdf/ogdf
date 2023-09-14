@@ -31,11 +31,11 @@
 
 #pragma once
 
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/energybased/SpringForceModel.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/GraphCopy.h>
 
 namespace ogdf {
 namespace spring_embedder {
@@ -45,24 +45,24 @@ class SpringEmbedderBase : public LayoutModule {
 public:
 	//! The scaling method used by the algorithm.
 	enum class Scaling {
-		input,             //!< bounding box of input is used.
-		userBoundingBox,   //!< bounding box set by userBoundingBox() is used.
-		scaleFunction,     //!< automatic scaling is used with parameter set by scaleFunctionFactor() (larger factor, larger b-box).
+		input, //!< bounding box of input is used.
+		userBoundingBox, //!< bounding box set by userBoundingBox() is used.
+		scaleFunction, //!< automatic scaling is used with parameter set by scaleFunctionFactor() (larger factor, larger b-box).
 		useIdealEdgeLength //!< use the given ideal edge length to scale the layout suitably.
 	};
 
 	//! Constructor
 	SpringEmbedderBase() {
 		// default parameters
-		m_iterations        = 400;
+		m_iterations = 400;
 		m_iterationsImprove = 200;
-		m_coolDownFactor    = 0.999;
-		m_forceLimitStep    = 0.25;
+		m_coolDownFactor = 0.999;
+		m_forceLimitStep = 0.25;
 
 		m_boundingBox = DRect(0, 0, 250, 250);
 		m_noise = true;
 
-		m_forceModel        = SpringForceModel::FruchtermanReingold;
+		m_forceModel = SpringForceModel::FruchtermanReingold;
 		m_forceModelImprove = SpringForceModel::FruchtermanReingoldModRep;
 
 		m_avgConvergenceFactor = 0.1;
@@ -80,13 +80,15 @@ public:
 
 		double def_nw = LayoutStandards::defaultNodeWidth();
 		double def_nh = LayoutStandards::defaultNodeHeight();
-		m_idealEdgeLength = LayoutStandards::defaultNodeSeparation() + sqrt(def_nw*def_nw + def_nh*def_nh);
+		m_idealEdgeLength =
+				LayoutStandards::defaultNodeSeparation() + sqrt(def_nw * def_nw + def_nh * def_nh);
 	}
 
-	virtual void call(GraphAttributes &GA) override {
-		const Graph &G = GA.constGraph();
-		if(G.empty())
+	virtual void call(GraphAttributes& GA) override {
+		const Graph& G = GA.constGraph();
+		if (G.empty()) {
 			return;
+		}
 
 		// all edges straight-line
 		GA.clearAllBends();
@@ -96,29 +98,29 @@ public:
 
 		// compute connected component of G
 		NodeArray<int> component(G);
-		int numCC = connectedComponents(G,component);
+		int numCC = connectedComponents(G, component);
 
 		// intialize the array of lists of nodes contained in a CC
-		Array<List<node> > nodesInCC(numCC);
+		Array<List<node>> nodesInCC(numCC);
 
-		for(node v : G.nodes)
+		for (node v : G.nodes) {
 			nodesInCC[component[v]].pushBack(v);
+		}
 
 		EdgeArray<edge> auxCopy(G);
 		Array<DPoint> boundingBox(numCC);
 
-		for(int i = 0; i < numCC; ++i)
-		{
-			GC.initByNodes(nodesInCC[i],auxCopy);
+		for (int i = 0; i < numCC; ++i) {
+			GC.initByNodes(nodesInCC[i], auxCopy);
 			makeSimpleUndirected(GC);
 
 			const int n = GC.numberOfNodes();
 
 			// special case: just one node
-			if(n == 1) {
+			if (n == 1) {
 				node vOrig = GC.original(GC.firstNode());
 				GA.x(vOrig) = GA.y(vOrig) = 0;
-				boundingBox[i] = DPoint(0,0);
+				boundingBox[i] = DPoint(0, 0);
 				continue;
 			}
 
@@ -129,22 +131,21 @@ public:
 
 		Array<DPoint> offset(numCC);
 		TileToRowsCCPacker packer;
-		packer.call(boundingBox,offset,m_pageRatio);
+		packer.call(boundingBox, offset, m_pageRatio);
 
 		// The arrangement is given by offset to the origin of the coordinate
 		// system. We still have to shift each node and edge by the offset
 		// of its connected component.
 
-		for(int i = 0; i < numCC; ++i)
-		{
-			const List<node> &nodes = nodesInCC[i];
+		for (int i = 0; i < numCC; ++i) {
+			const List<node>& nodes = nodesInCC[i];
 
 			const double dx = offset[i].m_x;
 			const double dy = offset[i].m_y;
 
 			// iterate over all nodes in ith CC
 			ListConstIterator<node> it;
-			for(node v : nodes) {
+			for (node v : nodes) {
 				GA.x(v) += dx;
 				GA.y(v) += dy;
 			}
@@ -152,24 +153,16 @@ public:
 	}
 
 	//! Returns the currently used force model.
-	SpringForceModel forceModel() const {
-		return m_forceModel;
-	}
+	SpringForceModel forceModel() const { return m_forceModel; }
 
 	//! Sets the used force model to \p fm.
-	void forceModel(SpringForceModel fm) {
-		m_forceModel = fm;
-	}
+	void forceModel(SpringForceModel fm) { m_forceModel = fm; }
 
 	//! Returns the currently used force model for the improvement step.
-	SpringForceModel forceModelImprove() const {
-		return m_forceModelImprove;
-	}
+	SpringForceModel forceModelImprove() const { return m_forceModelImprove; }
 
 	//! Sets the used force model for the improvement step to \p fm.
-	void forceModelImprove(SpringForceModel fm) {
-		m_forceModelImprove = fm;
-	}
+	void forceModelImprove(SpringForceModel fm) { m_forceModelImprove = fm; }
 
 	//! Returns the currently used <i>average convergence factor</i>.
 	/**
@@ -177,14 +170,13 @@ public:
 	 * With respect to the average displacement of a node in a single step, we assume
 	 * to have convergence if it is at most #m_avgConvergenceFactor * #m_idealEdgeLength.
 	 */
-	double avgConvergenceFactor() const {
-		return m_avgConvergenceFactor;
-	}
+	double avgConvergenceFactor() const { return m_avgConvergenceFactor; }
 
 	//! Sets the <i>average convergence factor</i> to \p f.
 	void avgConvergenceFactor(double f) {
-		if(f >= 0)
+		if (f >= 0) {
 			m_avgConvergenceFactor = f;
+		}
 	}
 
 	//! Returns the currently used <i>maximum</i> convergence factor.
@@ -193,14 +185,13 @@ public:
 	 * With respect to the maximum displacement of a node in a single step, we assume
 	 * to have convergence if it is at most #m_maxConvergenceFactor * #m_idealEdgeLength.
 	 */
-	double maxConvergenceFactor() const {
-		return m_maxConvergenceFactor;
-	}
+	double maxConvergenceFactor() const { return m_maxConvergenceFactor; }
 
 	//! Sets the <i>maximum</i> convergence factor to \p f.
 	void maxConvergenceFactor(double f) {
-		if(f >= 0)
+		if (f >= 0) {
 			m_maxConvergenceFactor = f;
+		}
 	}
 
 	//! Returns the current setting of iterations.
@@ -208,58 +199,44 @@ public:
 	 * This setting limits the number of optimization rounds. If convergence (with respect to node displacement)
 	 * is detected, the optimization process is immediately finished.
 	 */
-	int iterations() const {
-		return m_iterations;
-	}
+	int iterations() const { return m_iterations; }
 
 	//! Sets the number of iterations to \p i.
 	void iterations(int i) {
-		if (i >= 0)
+		if (i >= 0) {
 			m_iterations = i;
+		}
 	}
 
 	//! Returns the current setting of iterations for the improvement phase.
-	int iterationsImprove() const {
-		return m_iterationsImprove;
-	}
+	int iterationsImprove() const { return m_iterationsImprove; }
 
 	//! Sets the number of iterations for the improvement phase to \p i.
 	void iterationsImprove(int i) {
-		if (i >= 0)
+		if (i >= 0) {
 			m_iterationsImprove = i;
+		}
 	}
 
-	double coolDownFactor() const {
-		return m_coolDownFactor;
-	}
+	double coolDownFactor() const { return m_coolDownFactor; }
 
-	double forceLimitStep() const {
-		return m_forceLimitStep;
-	}
+	double forceLimitStep() const { return m_forceLimitStep; }
 
 	//! Returns the current setting of ideal edge length.
-	double idealEdgeLength() const {
-		return m_idealEdgeLength;
-	}
+	double idealEdgeLength() const { return m_idealEdgeLength; }
 
 	//! Sets the ideal edge length to \p len.
 	/**
 	 * Edge lengths are measured between the centers of the two nodes, i.e.,
 	 * node sizes are not taken into account.
 	 */
-	void idealEdgeLength(double len) {
-		m_idealEdgeLength = len;
-	}
+	void idealEdgeLength(double len) { m_idealEdgeLength = len; }
 
 	//! Returns the current setting of noise.
-	bool noise() const {
-		return m_noise;
-	}
+	bool noise() const { return m_noise; }
 
 	//! Sets the parameter noise to \p on.
-	void noise(bool on) {
-		m_noise = on;
-	}
+	void noise(bool on) { m_noise = on; }
 
 	//! Returns the minimum distance between connected components.
 	double minDistCC() const { return m_minDistCC; }
@@ -274,24 +251,16 @@ public:
 	void pageRatio(double x) { m_pageRatio = x; }
 
 	//! Returns the current scaling method.
-	Scaling scaling() const {
-		return m_scaling;
-	}
+	Scaling scaling() const { return m_scaling; }
 
 	//! Sets the method for scaling the inital layout to \p sc.
-	void scaling(Scaling sc) {
-		m_scaling = sc;
-	}
+	void scaling(Scaling sc) { m_scaling = sc; }
 
 	//! Returns the current scale function factor.
-	double scaleFunctionFactor() const {
-		return m_scaleFactor;
-	}
+	double scaleFunctionFactor() const { return m_scaleFactor; }
 
 	//! Sets the scale function factor to \p f.
-	void scaleFunctionFactor(double f) {
-		m_scaleFactor = f;
-	}
+	void scaleFunctionFactor(double f) { m_scaleFactor = f; }
 
 	//! Sets the user bounding box (used if scaling method is scUserBoundingBox).
 	void userBoundingBox(double xmin, double ymin, double xmax, double ymax) {
@@ -299,9 +268,7 @@ public:
 	}
 
 	//! Gets the user bounding box.
-	DRect userBoundingBox() const {
-		return m_userBoundingBox;
-	}
+	DRect userBoundingBox() const { return m_userBoundingBox; }
 
 	//! Returns the maximal number of used threads.
 	unsigned int maxThreads() const { return m_maxThreads; }
@@ -312,9 +279,9 @@ public:
 protected:
 	virtual void callMaster(const GraphCopy& copy, GraphAttributes& attr, DPoint& box) = 0;
 
-	int    m_iterations;         //!< The number of iterations.
-	int    m_iterationsImprove;  //!< The number of iterations for the improvement phase.
-	double m_idealEdgeLength;    //!< The ideal edge length.
+	int m_iterations; //!< The number of iterations.
+	int m_iterationsImprove; //!< The number of iterations for the improvement phase.
+	double m_idealEdgeLength; //!< The ideal edge length.
 	double m_coolDownFactor;
 	double m_forceLimitStep;
 
@@ -322,9 +289,9 @@ protected:
 
 	SpringForceModel m_forceModel; //! The used force model.
 	SpringForceModel m_forceModelImprove; //! The used force model for the improvement phase.
-	bool m_noise;            //!< Perform random perturbations?
+	bool m_noise; //!< Perform random perturbations?
 
-	Scaling m_scaling;    //!< The scaling method.
+	Scaling m_scaling; //!< The scaling method.
 	double m_scaleFactor; //!< The factor used if scaling type is scScaleFunction.
 
 	DRect m_userBoundingBox;
@@ -338,4 +305,5 @@ protected:
 	unsigned int m_maxThreads; //!< The maximal number of used threads.
 };
 
-}}
+}
+}

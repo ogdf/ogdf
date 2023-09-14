@@ -46,14 +46,15 @@ private:
 	int m_timelimit;
 
 protected:
-	Module::ReturnType doCall(UpwardPlanRep &UPR, List<edge> &delEdges) override;
+	Module::ReturnType doCall(UpwardPlanRep& UPR, List<edge>& delEdges) override;
 
 public:
 #if 0
 	int computeMFUPS(GraphCopy &GC);
 #endif
-	int getTimelimit()                 { return m_timelimit;      }
-	void setTimelimit(int timelimit)   { m_timelimit = timelimit; }
+	int getTimelimit() { return m_timelimit; }
+
+	void setTimelimit(int timelimit) { m_timelimit = timelimit; }
 };
 
 }

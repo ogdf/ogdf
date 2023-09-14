@@ -1,0 +1,35 @@
+RUN apt -y update \
+ && apt -y install python3-pip graphviz unzip wget git time ccache \
+ && apt -y upgrade ca-certificates
+
+# cmake
+ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.14.5/cmake-3.14.5-Linux-x86_64.tar.gz
+RUN wget -q -O cmake.tar.gz $CMAKE_URL && mkdir -p cmake && \
+ tar -xzf cmake.tar.gz -C cmake --strip-components 1 && \
+ rm cmake.tar.gz && \
+ DIR=`pwd` && ln -s $DIR/cmake/bin/cmake /bin
+
+# doxygen
+ARG DOXYGEN_INSTALL=false
+RUN [ "$DOXYGEN_INSTALL" = "false" ] || { \
+ wget -q -O doxygen.tar.gz https://sourceforge.net/projects/doxygen/files/rel-1.9.3/doxygen-1.9.3.linux.bin.tar.gz/download && \
+ mkdir -p doxygen && \
+ tar -xzf doxygen.tar.gz -C doxygen --strip-components 1 && \
+ DIR=`pwd` && ln -s $DIR/doxygen/bin/doxygen /bin && \
+ rm doxygen.tar.gz ;}
+
+# gcovr
+RUN python3 -c 'import sys; sys.exit(int(sys.version_info >= (3,5)))' \
+ || pip3 install 'gcovr==4.2'
+
+# cgal
+ARG CGAL_INSTALL=false
+RUN [ "$CGAL_INSTALL" = "false" ] || { \
+  apt -y install libgmp-dev libmpfr-dev libboost-thread-dev && \
+  wget -q -O CGAL.zip https://github.com/CGAL/cgal/releases/download/v5.5.2/CGAL-5.5.2-library.zip && \
+  unzip -q CGAL.zip && \
+  rm CGAL.zip && \
+  mkdir CGAL-5.5.2/build && \
+  cd CGAL-5.5.2/build && \
+  cmake -DCMAKE_BUILD_TYPE=Release .. && \
+  make --silent install ;}

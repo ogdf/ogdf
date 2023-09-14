@@ -36,71 +36,59 @@
  */
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 #include <ogdf/cluster/internal/MaxCPlanarSub.h>
-#include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/extended_graph_alg.h>
 //heuristics in case only max planar subgraph is computed
-#include <ogdf/planarity/PlanarSubgraphFast.h>
-#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
 #ifdef OGDF_DEBUG
-void MaxCPlanarMaster::printGraph(const Graph &G) {
-	int i=0;
+void MaxCPlanarMaster::printGraph(const Graph& G) {
+	int i = 0;
 	Logger::slout() << "The Given Graph" << std::endl;
-	for(edge e : G.edges) {
-		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << std::endl;
+	for (edge e : G.edges) {
+		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << ","
+						<< e->target()->index() << ") " << std::endl;
 	}
 }
 #endif
 
-MaxCPlanarMaster::MaxCPlanarMaster(
-	const ClusterGraph &C,
-	const EdgeArray<double> *pCost,
-	int heuristicLevel,
-	int heuristicRuns,
-	double heuristicOEdgeBound,
-	int heuristicNPermLists,
-	int kuratowskiIterations,
-	int subdivisions,
-	int kSupportGraphs,
-	double kHigh,
-	double kLow,
-	bool perturbation,
-	double branchingGap,
-	const char *time,
-	bool dopricing,
-	bool checkCPlanar,
-	int numAddVariables,
-	double strongConstraintViolation,
-	double strongVariableViolation) : 	Master("MaxCPlanar", true, dopricing, OptSense::Max),
-	m_pCost(pCost),
+MaxCPlanarMaster::MaxCPlanarMaster(const ClusterGraph& C, const EdgeArray<double>* pCost,
+		int heuristicLevel, int heuristicRuns, double heuristicOEdgeBound, int heuristicNPermLists,
+		int kuratowskiIterations, int subdivisions, int kSupportGraphs, double kHigh, double kLow,
+		bool perturbation, double branchingGap, const char* time, bool dopricing, bool checkCPlanar,
+		int numAddVariables, double strongConstraintViolation, double strongVariableViolation)
+	: Master("MaxCPlanar", true, dopricing, OptSense::Max)
+	, m_pCost(pCost)
+	,
 #ifdef OGDF_DEBUG
-	m_solByHeuristic(false),
+	m_solByHeuristic(false)
+	,
 #endif
-	m_numAddVariables(numAddVariables),
-	m_strongConstraintViolation(strongConstraintViolation),
-	m_strongVariableViolation(strongVariableViolation),
-	m_fastHeuristicRuns(25),
-	m_cutConnPool(nullptr),
-	m_cutKuraPool(nullptr),
-	m_useDefaultCutPool(true),
-	m_checkCPlanar(checkCPlanar),
-	m_porta(false)
-{
+	m_numAddVariables(numAddVariables)
+	, m_strongConstraintViolation(strongConstraintViolation)
+	, m_strongVariableViolation(strongVariableViolation)
+	, m_fastHeuristicRuns(25)
+	, m_cutConnPool(nullptr)
+	, m_cutKuraPool(nullptr)
+	, m_useDefaultCutPool(true)
+	, m_checkCPlanar(checkCPlanar)
+	, m_porta(false) {
 	// Reference to the given ClusterGraph and the underlying Graph.
 	m_C = &C;
 	m_G = &(C.constGraph());
 
 #ifdef OGDF_DEBUG
-	if(m_pCost != nullptr) {
+	if (m_pCost != nullptr) {
 		OGDF_ASSERT(m_G == m_pCost->graphOf());
 	}
 #endif
@@ -114,18 +102,19 @@ MaxCPlanarMaster::MaxCPlanarMaster(
 
 	//Max number of edges
 	//KK: Check this change, added div 2
-	int nComplete = (m_G->numberOfNodes()*(m_G->numberOfNodes()-1)) / 2;
+	int nComplete = (m_G->numberOfNodes() * (m_G->numberOfNodes() - 1)) / 2;
 	m_nMaxVars = nComplete;
 	//to use less variables in case we have only the root cluster,
 	//we temporarily set m_nMaxVars to the number of edges
-	if ( (m_C->numberOfClusters() == 1) && (isConnected(*m_G)) )
+	if ((m_C->numberOfClusters() == 1) && (isConnected(*m_G))) {
 		m_nMaxVars = m_G->numberOfEdges();
+	}
 
 	// Computing the main objective function coefficient for the connection edges.
 #if 0
 	int nConnectionEdges = nComplete - m_G->numberOfEdges();
 #endif
-	m_epsilon = (double)(0.2/(2*(m_G->numberOfNodes())));
+	m_epsilon = (double)(0.2 / (2 * (m_G->numberOfNodes())));
 
 	// Setting parameters
 	m_nKuratowskiIterations = kuratowskiIterations;
@@ -158,21 +147,16 @@ MaxCPlanarMaster::MaxCPlanarMaster(
 	m_repairStat.init(100);
 }
 
-
 MaxCPlanarMaster::~MaxCPlanarMaster() {
 	delete m_maxCpuTime;
 	delete m_solutionGraph;
 }
 
-
-Sub *MaxCPlanarMaster::firstSub() {
-	return new MaxCPlanarSub(this);
-}
-
+Sub* MaxCPlanarMaster::firstSub() { return new MaxCPlanarSub(this); }
 
 // Replaces current m_solutionGraph by new GraphCopy based on \p connection list
-void MaxCPlanarMaster::updateBestSubGraph(List<NodePair> &original, List<NodePair> &connection, List<edge> &deleted) {
-
+void MaxCPlanarMaster::updateBestSubGraph(List<NodePair>& original, List<NodePair>& connection,
+		List<edge>& deleted) {
 	// Creates a new GraphCopy #m_solutionGraph and deletes all edges
 	// TODO: Extend GraphCopySimple to be usable here: Allow
 	// edge deletion and add pure node initialization
@@ -182,7 +166,7 @@ void MaxCPlanarMaster::updateBestSubGraph(List<NodePair> &original, List<NodePai
 	m_solutionGraph = new GraphCopy(*m_G);
 	edge e = m_solutionGraph->firstEdge();
 	edge succ;
-	while (e!=nullptr) {
+	while (e != nullptr) {
 		succ = e->succ();
 		m_solutionGraph->delEdge(e);
 		e = succ;
@@ -195,29 +179,27 @@ void MaxCPlanarMaster::updateBestSubGraph(List<NodePair> &original, List<NodePai
 	m_deletedOriginalEdges.clear();
 
 	// Update the edge lists according to new solution
-	for(const NodePair &np : original) {
-
+	for (const NodePair& np : original) {
 		// Add all original edges to #m_solutionGraph
 		node cv = m_solutionGraph->copy(np.source);
 		node cw = m_solutionGraph->copy(np.target);
-		m_solutionGraph->newEdge(cv,cw);
+		m_solutionGraph->newEdge(cv, cw);
 
 		m_allOneEdges.pushBack(np);
 		m_originalOneEdges.pushBack(np);
 	}
 
-	for(const NodePair &np : connection)
-	{
+	for (const NodePair& np : connection) {
 		// Add all new connection edges to #m_solutionGraph
 		node cv = m_solutionGraph->copy(np.source);
 		node cw = m_solutionGraph->copy(np.target);
-		m_solutionGraph->newEdge(cv,cw);
+		m_solutionGraph->newEdge(cv, cw);
 
 		m_allOneEdges.pushBack(np);
 		m_connectionOneEdges.pushBack(np);
 	}
 
-	for(edge ed : deleted) {
+	for (edge ed : deleted) {
 		m_deletedOriginalEdges.pushBack(ed);
 	}
 
@@ -229,57 +211,48 @@ void MaxCPlanarMaster::updateBestSubGraph(List<NodePair> &original, List<NodePai
 	NodeArray<node> na(*m_G);
 	ClusterGraph CG(*m_C, GG, ca, na);
 	List<edge> le;
-	for(const NodePair &np : connection)
-	{
+	for (const NodePair& np : connection) {
 		// Add all new connection edges to #m_solutionGraph
 		node cv = na[np.source];
 		node cw = na[np.target];
-		le.pushBack(GG.newEdge(cv,cw));
+		le.pushBack(GG.newEdge(cv, cw));
 	}
-	ClusterGraphAttributes CGA(CG, GraphAttributes::edgeType | GraphAttributes::nodeType |
-			GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
-	for(edge ei : le)
-	{
-#ifdef OGDF_DEBUG
+	ClusterGraphAttributes CGA(CG,
+			GraphAttributes::edgeType | GraphAttributes::nodeType | GraphAttributes::nodeGraphics
+					| GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle);
+	for (edge ei : le) {
+#	ifdef OGDF_DEBUG
 		std::cout << ei->graphOf() << "\n";
 		std::cout << &GG << "\n";
-#endif
+#	endif
 		CGA.strokeColor(ei) = Color::Name::Red;
 	}
 	GraphIO::write(CGA, "PlanarExtensionMCPSP.gml", GraphIO::writeGML);
 #endif
 }
 
-
-void MaxCPlanarMaster::getAllOptimalSolutionEdges(List<NodePair> &edges) const
-{
+void MaxCPlanarMaster::getAllOptimalSolutionEdges(List<NodePair>& edges) const {
 	edges.clear();
-	for (const NodePair &np : m_allOneEdges) {
+	for (const NodePair& np : m_allOneEdges) {
 		edges.pushBack(np);
 	}
 }
 
-
-void MaxCPlanarMaster::getOriginalOptimalSolutionEdges(List<NodePair> &edges) const
-{
+void MaxCPlanarMaster::getOriginalOptimalSolutionEdges(List<NodePair>& edges) const {
 	edges.clear();
-	for (const NodePair &np : m_originalOneEdges) {
+	for (const NodePair& np : m_originalOneEdges) {
 		edges.pushBack(np);
 	}
 }
 
-
-void MaxCPlanarMaster::getConnectionOptimalSolutionEdges(List<NodePair> &edges) const
-{
+void MaxCPlanarMaster::getConnectionOptimalSolutionEdges(List<NodePair>& edges) const {
 	edges.clear();
-	for (const NodePair &np : m_connectionOneEdges) {
+	for (const NodePair& np : m_connectionOneEdges) {
 		edges.pushBack(np);
 	}
 }
 
-
-void MaxCPlanarMaster::getDeletedEdges(List<edge> &edges) const
-{
+void MaxCPlanarMaster::getDeletedEdges(List<edge>& edges) const {
 	edges.clear();
 	for (edge e : m_deletedOriginalEdges) {
 		edges.pushBack(e);
@@ -287,17 +260,18 @@ void MaxCPlanarMaster::getDeletedEdges(List<edge> &edges) const
 }
 
 //todo: is called only once, but could be sped up the same way as the co-conn check
-void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upperBoundC) {
+void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy& gc, double& upperBoundC) {
 	// For better performance, a node array is used to indicate which nodes are contained
 	// in the currently considered cluster.
-	NodeArray<bool> vInC(gc,false);
+	NodeArray<bool> vInC(gc, false);
 	// First check, if the current cluster \p c is a leaf cluster.
 	// If so, compute the number of edges that have at least to be added
 	// to make the cluster induced graph connected.
-	if (c->cCount()==0) { 	//cluster \p c is a leaf cluster
+	if (c->cCount() == 0) { //cluster \p c is a leaf cluster
 		GraphCopy inducedC((const Graph&)gc);
 		List<node> clusterNodes;
-		c->getClusterNodes(clusterNodes); // \a clusterNodes now contains all (original) nodes of cluster \p c.
+		c->getClusterNodes(
+				clusterNodes); // \a clusterNodes now contains all (original) nodes of cluster \p c.
 		for (node w : clusterNodes) {
 			vInC[gc.copy(w)] = true;
 		}
@@ -305,23 +279,24 @@ void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upper
 		// Delete all nodes from \a inducedC that do not belong to the cluster,
 		// in order to obtain the cluster induced graph.
 		node v = inducedC.firstNode();
-		while (v!=nullptr)  {
+		while (v != nullptr) {
 			node w = v->succ();
-			if (!vInC[inducedC.original(v)]) inducedC.delNode(v);
+			if (!vInC[inducedC.original(v)]) {
+				inducedC.delNode(v);
+			}
 			v = w;
 		}
 
 		// Determine number of connected components of cluster induced graph.
 		//Todo: check could be skipped
 		if (!isConnected(inducedC)) {
-
 			NodeArray<int> conC(inducedC);
 			int nCC = connectedComponents(inducedC, conC);
 			//at least #connected components - 1 edges have to be added.
-			upperBoundC -= (nCC-1)*m_largestConnectionCoeff;
+			upperBoundC -= (nCC - 1) * m_largestConnectionCoeff;
 		}
-	// Cluster \a c is an "inner" cluster. Process all child clusters first.
-	} else {	//c->cCount is != 0, process all child clusters first
+		// Cluster \a c is an "inner" cluster. Process all child clusters first.
+	} else { //c->cCount is != 0, process all child clusters first
 
 		for (cluster ci : c->children) {
 			clusterConnection(ci, gc, upperBoundC);
@@ -330,14 +305,17 @@ void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upper
 		// Create cluster induced graph.
 		GraphCopy inducedC((const Graph&)gc);
 		List<node> clusterNodes;
-		c->getClusterNodes(clusterNodes); //\a clusterNodes now contains all (original) nodes of cluster \p c.
+		c->getClusterNodes(
+				clusterNodes); //\a clusterNodes now contains all (original) nodes of cluster \p c.
 		for (node w : clusterNodes) {
 			vInC[gc.copy(w)] = true;
 		}
 		node v = inducedC.firstNode();
-		while (v!=nullptr)  {
+		while (v != nullptr) {
 			node w = v->succ();
-			if (!vInC[inducedC.original(v)]) inducedC.delNode(v);
+			if (!vInC[inducedC.original(v)]) {
+				inducedC.delNode(v);
+			}
 			v = w;
 		}
 
@@ -357,23 +335,20 @@ void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upper
 		}
 		// Now, check \a inducedC for connectivity.
 		if (!isConnected(inducedC)) {
-
 			NodeArray<int> conC(inducedC);
 			int nCC = connectedComponents(inducedC, conC);
 			//at least #connected components - 1 edges have to added.
-			upperBoundC -= (nCC-1)*m_largestConnectionCoeff;
+			upperBoundC -= (nCC - 1) * m_largestConnectionCoeff;
 		}
 	}
 }
 
-double MaxCPlanarMaster::heuristicInitialLowerBound()
-{
+double MaxCPlanarMaster::heuristicInitialLowerBound() {
 	double lbound = 0.0;
 	//In case we only have a single (root) cluster, we can
 	//use the result of a fast Max Planar Subgraph heuristic
 	//to initialize the lower bound
-	if ( (m_C->numberOfClusters() == 1) && (m_mpHeuristic) )
-	{
+	if ((m_C->numberOfClusters() == 1) && (m_mpHeuristic)) {
 		//we run both heuristics that currently exist in OGDF
 		//MaxSimple
 		MaximalPlanarSubgraphSimple<double> simpleHeur;
@@ -381,30 +356,31 @@ double MaxCPlanarMaster::heuristicInitialLowerBound()
 		PlanarSubgraphFast<double> fastHeur;
 		fastHeur.runs(m_fastHeuristicRuns);
 		List<edge> delEdgesListFast;
-		List<edge> *delEdges;
+		List<edge>* delEdges;
 
-		if(m_pCost == nullptr) {
+		if (m_pCost == nullptr) {
 			simpleHeur.call(*m_G, delEdgesList);
 			fastHeur.call(*m_G, delEdgesListFast);
 
-			delEdges = delEdgesList.size() < delEdgesListFast.size() ? &delEdgesList : &delEdgesListFast;
-			lbound = m_G->numberOfEdges()-min(delEdgesList.size(), delEdgesListFast.size());
+			delEdges = delEdgesList.size() < delEdgesListFast.size() ? &delEdgesList
+																	 : &delEdgesListFast;
+			lbound = m_G->numberOfEdges() - min(delEdgesList.size(), delEdgesListFast.size());
 		} else {
 			simpleHeur.call(*m_G, *m_pCost, delEdgesList);
 			fastHeur.call(*m_G, *m_pCost, delEdgesListFast);
 
 			int total = 0;
-			for(edge e : m_G->edges) {
+			for (edge e : m_G->edges) {
 				total += (*m_pCost)[e];
 			}
 
 			int del = 0;
-			for(edge e : delEdgesList) {
+			for (edge e : delEdgesList) {
 				del += (*m_pCost)[e];
 			}
 
 			int delFast = 0;
-			for(edge e : delEdgesListFast) {
+			for (edge e : delEdgesListFast) {
 				delFast += (*m_pCost)[e];
 			}
 
@@ -413,23 +389,24 @@ double MaxCPlanarMaster::heuristicInitialLowerBound()
 		}
 
 		m_deletedOriginalEdges.clear();
-		for(edge e : *delEdges) {
+		for (edge e : *delEdges) {
 			m_deletedOriginalEdges.pushBack(e);
 		}
 
-		if (!isConnected(*m_G)) lbound = lbound-1.0; //#edges*epsilon
+		if (!isConnected(*m_G)) {
+			lbound = lbound - 1.0; //#edges*epsilon
+		}
 	}
 	return lbound;
 }
 
 double MaxCPlanarMaster::heuristicInitialUpperBound() {
-
-	double upperBoundO( m_G->numberOfEdges() );
+	double upperBoundO(m_G->numberOfEdges());
 	double upperBoundC = 0.0;
 
-	if(m_pCost != nullptr) {
+	if (m_pCost != nullptr) {
 		upperBoundO = 0;
-		for(edge e : m_G->edges) {
+		for (edge e : m_G->edges) {
 			upperBoundO += (*m_pCost)[e];
 		}
 	}
@@ -439,7 +416,6 @@ double MaxCPlanarMaster::heuristicInitialUpperBound() {
 	GraphCopy gc(*m_G);
 	BoyerMyrvold bm;
 	if (!bm.isPlanarDestructive(gc)) {
-
 		// Extract all possible Kuratowski subdivisions.
 		// Compare extracted subdivisions and try to obtain the
 		// maximum number of independent subdivisions, i.e. a maximum
@@ -452,7 +428,7 @@ double MaxCPlanarMaster::heuristicInitialUpperBound() {
 		GraphCopy gCopy(*m_G);
 		SList<KuratowskiWrapper> subDivs;
 
-		bm.planarEmbedDestructive(gCopy, subDivs,-1);
+		bm.planarEmbedDestructive(gCopy, subDivs, -1);
 		//we store a representative and its status for each edge
 		//note that there might be an overlap, in that case
 		//we keep a representative with status false if existing
@@ -464,31 +440,28 @@ double MaxCPlanarMaster::heuristicInitialUpperBound() {
 		if (subDivs.size() > 0) { // At least one edge has to be deleted to obtain planarity.
 
 			// We run over all subdivisions and check for overlaps
-			for(const KuratowskiWrapper &kw : subDivs)
-			{
+			for (const KuratowskiWrapper& kw : subDivs) {
 				bool covered = false; //may the sd already be covered by a decrease in ub
 				//for each edge we set the representative to be the first edge of sd
 				edge sdRep = kw.edgeList.front(); //sd is always non-empty
 				//we check if any of the edges in sd were already visited and if
 				//the representative has status false, in this case, we are not
 				//allowed to decrease the ub
-				for (edge e : kw.edgeList)
-				{
+				for (edge e : kw.edgeList) {
 					//we already encountered this edge
-					if (subRep[e] != nullptr)
-					{
+					if (subRep[e] != nullptr) {
 						//and decreased ub for an enclosing sd
 						//(could we just break in the if case?)
-						if (coverStatus[subRep[e]])
+						if (coverStatus[subRep[e]]) {
 							covered = true;
-						else
+						} else {
 							subRep[e] = sdRep; //might need an update
-					}
-					else
+						}
+					} else {
 						subRep[e] = sdRep;
+					}
 				}
-				if (!covered)
-				{
+				if (!covered) {
 					coverStatus[sdRep] = true;
 					upperBoundO--;
 				}
@@ -518,28 +491,27 @@ double MaxCPlanarMaster::heuristicInitialUpperBound() {
 	return upperBoundO + upperBoundC;
 }
 
-void MaxCPlanarMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
-
+void MaxCPlanarMaster::nodeDistances(node u, NodeArray<NodeArray<int>>& dist) {
 	// Computing the graphtheoretical distances of node u
 	NodeArray<bool> visited(*m_G);
 	List<node> queue;
 	visited.fill(false);
 	visited[u] = true;
 	int nodesVisited = 1;
-	for(adjEntry adj : u->adjEntries) {
+	for (adjEntry adj : u->adjEntries) {
 		visited[adj->twinNode()] = true;
 		nodesVisited++;
 		dist[u][adj->twinNode()] += 1;
 		queue.pushBack(adj->twinNode());
 	}
-	while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
+	while (!queue.empty() || nodesVisited != m_G->numberOfNodes()) {
 		node v = queue.front();
 		queue.popFront();
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (!visited[adj->twinNode()]) {
 				visited[adj->twinNode()] = true;
 				nodesVisited++;
-				dist[u][adj->twinNode()] += (dist[u][v]+1);
+				dist[u][adj->twinNode()] += (dist[u][v] + 1);
 				queue.pushBack(adj->twinNode());
 			}
 		}
@@ -550,15 +522,14 @@ bool MaxCPlanarMaster::goodVar(node a, node b) {
 	return true; //add all variables even if they are bad (paper submission)
 	Logger::slout() << "Good Var? " << a << "->" << b << ": ";
 	GraphCopy GC(*m_G);
-	GC.newEdge(GC.copy(a),GC.copy(b));
+	GC.newEdge(GC.copy(a), GC.copy(b));
 	BoyerMyrvold bm;
-	bool ret =  bm.isPlanarDestructive(GC);
+	bool ret = bm.isPlanarDestructive(GC);
 	Logger::slout() << ret << "\n";
 	return ret;
 }
 
 void MaxCPlanarMaster::initializeOptimization() {
-
 	//we don't try heuristic improvement (edge addition) in MaxCPlanarSub
 	//when only checking c-planarity
 	if (m_checkCPlanar) {
@@ -569,29 +540,31 @@ void MaxCPlanarMaster::initializeOptimization() {
 #endif
 	}
 
-	if (pricing())
+	if (pricing()) {
 		varElimMode(NoVarElim);
-	else
+	} else {
 		varElimMode(ReducedCost);
+	}
 	conElimMode(Basic);
-	if(pricing())
+	if (pricing()) {
 		pricingFreq(1);
+	}
 
 	// Creation of Variables
 
 	// Lists for original and connection edges
-	List<EdgeVar*> origVars;    // MCh: ArrayBuffer would speed this up
+	List<EdgeVar*> origVars; // MCh: ArrayBuffer would speed this up
 	List<EdgeVar*> connectVars; // MCh: ArrayBuffer would speed this up
 
 	//cluster connectivity only necessary if there are clusters (not for max planar subgraph)
-	bool toBeConnected = (!( (m_C->numberOfClusters() == 1) && (isConnected(*m_G)) ) );
+	bool toBeConnected = (!((m_C->numberOfClusters() == 1) && (isConnected(*m_G))));
 
-	int nComplete = (m_G->numberOfNodes()*(m_G->numberOfNodes()-1))/2;
+	int nComplete = (m_G->numberOfNodes() * (m_G->numberOfNodes() - 1)) / 2;
 	int nConnectionEdges = nComplete - m_G->numberOfEdges();
 
-	double perturbMe = (m_usePerturbation)? 0.2*m_epsilon : 0;
+	double perturbMe = (m_usePerturbation) ? 0.2 * m_epsilon : 0;
 	m_deltaCount = nConnectionEdges;
-	m_delta  = (m_deltaCount > 0) ? perturbMe/m_deltaCount : 0;
+	m_delta = (m_deltaCount > 0) ? perturbMe / m_deltaCount : 0;
 #if 0
 	double coeff;
 #endif
@@ -600,20 +573,24 @@ void MaxCPlanarMaster::initializeOptimization() {
 	// we use the largest connection edge coefficient for each C-edge
 	// to lower the upper bound (since these coeffs are negative,
 	// this corresponds to the coeff that is closest to 0).
-	m_largestConnectionCoeff = 0.8*m_epsilon;
+	m_largestConnectionCoeff = 0.8 * m_epsilon;
 	m_varsMax = 0;
-	for(node u : m_G->nodes) {
+	for (node u : m_G->nodes) {
 		node v = u->succ();
-		while (v!=nullptr) {//todo could skip searchedge if toBeConnected
-			edge e = m_G->searchEdge(u,v);
-			if(e != nullptr)
-				origVars.pushBack(new EdgeVar(this, (m_pCost == nullptr ? 1 : (*m_pCost)[e]) + rand()*perturbMe,EdgeVar::EdgeType::Original,u,v));
-			else if (toBeConnected) {
-				if( (!m_checkCPlanar) || goodVar(u,v)) {
-					if(pricing())
-						m_inactiveVariables.pushBack(NodePair(u,v));
-					else
-						connectVars.pushBack( new EdgeVar(this, nextConnectCoeff(), EdgeVar::EdgeType::Connect, u,v) );
+		while (v != nullptr) { //todo could skip searchedge if toBeConnected
+			edge e = m_G->searchEdge(u, v);
+			if (e != nullptr) {
+				origVars.pushBack(new EdgeVar(this,
+						(m_pCost == nullptr ? 1 : (*m_pCost)[e]) + rand() * perturbMe,
+						EdgeVar::EdgeType::Original, u, v));
+			} else if (toBeConnected) {
+				if ((!m_checkCPlanar) || goodVar(u, v)) {
+					if (pricing()) {
+						m_inactiveVariables.pushBack(NodePair(u, v));
+					} else {
+						connectVars.pushBack(new EdgeVar(this, nextConnectCoeff(),
+								EdgeVar::EdgeType::Connect, u, v));
+					}
 				}
 				++m_varsMax;
 			}
@@ -636,8 +613,7 @@ void MaxCPlanarMaster::initializeOptimization() {
 	NodeArray<node> orig2new;
 
 	// Iterate over all clusters of the Graph
-	for(cluster c : m_C->clusters) {
-
+	for (cluster c : m_C->clusters) {
 		List<node> clusterNodes;
 		c->getClusterNodes(clusterNodes);
 
@@ -647,34 +623,37 @@ void MaxCPlanarMaster::initializeOptimization() {
 
 		// Compute the number of connected components
 		NodeArray<int> components(subGraph);
-		int nCC = connectedComponents(subGraph,components);
-		nChunks+=nCC;
+		int nCC = connectedComponents(subGraph, components);
+		nChunks += nCC;
 		// If the cluster consists of more than one connected component,
 		// ChunkConnection constraints can be created.
 		if (nCC > 1) {
-
 			// Determine each connected component (chunk) of the current cluster-induced Graph
-			for (int i=0; i<nCC; ++i) {
-
+			for (int i = 0; i < nCC; ++i) {
 				ArrayBuffer<node> cC(subGraph.numberOfNodes());
 				ArrayBuffer<node> cCComplement(subGraph.numberOfNodes());
-				for(node v : m_G->nodes/*subGraph*/) {
+				for (node v : m_G->nodes /*subGraph*/) {
 					node n = orig2new[v];
-					if(n) {
-						if (components[n] == i) cC.push(v);
-						else cCComplement.push(v);
+					if (n) {
+						if (components[n] == i) {
+							cC.push(v);
+						} else {
+							cCComplement.push(v);
+						}
 					}
 				}
 				// Creating corresponding constraint
 				constraintsCC.pushBack(new ChunkConnection(this, cC, cCComplement));
 				// Avoiding duplicates if cluster consists of 2 chunks
-				if (nCC == 2) break;
-
+				if (nCC == 2) {
+					break;
+				}
 			}
 		}
 	}
-	if(pricing())
+	if (pricing()) {
 		generateVariablesForFeasibility(constraintsCC, connectVars);
+	}
 
 	// Creation of MinimalClusterConnection-Constraints
 #if 0
@@ -730,30 +709,33 @@ void MaxCPlanarMaster::initializeOptimization() {
 
 	List<MaxPlanarEdgesConstraint*> constraintsMPE;
 
-	int nMaxPlanarEdges = 3*m_G->numberOfNodes() - 6;
-	constraintsMPE.pushBack(new MaxPlanarEdgesConstraint(this,nMaxPlanarEdges));
+	int nMaxPlanarEdges = 3 * m_G->numberOfNodes() - 6;
+	constraintsMPE.pushBack(new MaxPlanarEdgesConstraint(this, nMaxPlanarEdges));
 
 	List<node> clusterNodes;
 	List<NodePair> clusterEdges;
-	for(cluster c : m_C->clusters) {
-
-		if (c == m_C->rootCluster()) continue;
-		clusterNodes.clear(); clusterEdges.clear();
+	for (cluster c : m_C->clusters) {
+		if (c == m_C->rootCluster()) {
+			continue;
+		}
+		clusterNodes.clear();
+		clusterEdges.clear();
 		c->getClusterNodes(clusterNodes);
 		if (clusterNodes.size() >= 4) {
 			NodePair np;
 			ListConstIterator<node> it;
 			ListConstIterator<node> it_succ;
-			for (it=clusterNodes.begin(); it.valid(); ++it) {
+			for (it = clusterNodes.begin(); it.valid(); ++it) {
 				it_succ = it.succ();
 				while (it_succ.valid()) {
-					np.source = (*it); np.target = (*it_succ);
+					np.source = (*it);
+					np.target = (*it_succ);
 					clusterEdges.pushBack(np);
 					++it_succ;
 				}
 			}
-			int maxPlanarEdges = 3*clusterNodes.size() - 6;
-			constraintsMPE.pushBack(new MaxPlanarEdgesConstraint(this,maxPlanarEdges,clusterEdges));
+			int maxPlanarEdges = 3 * clusterNodes.size() - 6;
+			constraintsMPE.pushBack(new MaxPlanarEdgesConstraint(this, maxPlanarEdges, clusterEdges));
 		}
 	}
 
@@ -761,10 +743,11 @@ void MaxCPlanarMaster::initializeOptimization() {
 	// Adding Constraints to the Pool
 
 	// Adding constraints to the standardpool
-	ArrayBuffer<Constraint *> initConstraints(constraintsCC.size()/*+constraintsMCC.size()*/+constraintsMPE.size(),false);
+	ArrayBuffer<Constraint*> initConstraints(
+			constraintsCC.size() /*+constraintsMCC.size()*/ + constraintsMPE.size(), false);
 
 	updateAddedCCons(constraintsCC.size());
-	for (ChunkConnection *cc : constraintsCC) {
+	for (ChunkConnection* cc : constraintsCC) {
 		initConstraints.push(cc);
 	}
 #if 0
@@ -773,24 +756,22 @@ void MaxCPlanarMaster::initializeOptimization() {
 		initConstraints.push(*mccIt);
 	}
 #endif
-	for (MaxPlanarEdgesConstraint *mpe : constraintsMPE) {
+	for (MaxPlanarEdgesConstraint* mpe : constraintsMPE) {
 		initConstraints.push(mpe);
 	}
 	//output these constraints in a file that can be read by the module
-	if (m_porta)
-	{
-
+	if (m_porta) {
 		std::ofstream ofs(getStdConstraintsFileName());
-		if (!ofs) std::cerr << "Could not open output stream for PORTA constraints file\n";
-		else
-		{
+		if (!ofs) {
+			std::cerr << "Could not open output stream for PORTA constraints file\n";
+		} else {
 			ofs << "# Chunkconnection constraints\n";
 			//holds the coefficients in a single constraint for all vars defined
 			//so far
 			List<double> theCoeffs;
-			for(ChunkConnection *cs : constraintsCC) {
+			for (ChunkConnection* cs : constraintsCC) {
 				getCoefficients(cs, origVars, connectVars, theCoeffs);
-				for(double d : theCoeffs) {
+				for (double d : theCoeffs) {
 					ofs << d << " ";
 				}
 				//check csense here
@@ -813,9 +794,9 @@ void MaxCPlanarMaster::initializeOptimization() {
 			}
 #endif
 			ofs << "# MaxPlanarEdges constraints\n";
-			for (MaxPlanarEdgesConstraint *mpe : constraintsMPE) {
+			for (MaxPlanarEdgesConstraint* mpe : constraintsMPE) {
 				getCoefficients(mpe, origVars, connectVars, theCoeffs);
-				for(double d : theCoeffs) {
+				for (double d : theCoeffs) {
 					ofs << d << " ";
 				}
 				ofs << "<= " << mpe->rhs();
@@ -828,11 +809,11 @@ void MaxCPlanarMaster::initializeOptimization() {
 	// Adding Variables to the Pool
 
 	// Adding variables to the standardpool
-	ArrayBuffer<Variable *> edgeVariables(origVars.size()+connectVars.size(),false);
-	for (EdgeVar *ev : origVars) {
+	ArrayBuffer<Variable*> edgeVariables(origVars.size() + connectVars.size(), false);
+	for (EdgeVar* ev : origVars) {
 		edgeVariables.push(ev);
 	}
-	for (EdgeVar *ev : connectVars) {
+	for (EdgeVar* ev : connectVars) {
 		edgeVariables.push(ev);
 	}
 
@@ -840,10 +821,9 @@ void MaxCPlanarMaster::initializeOptimization() {
 	// Initializing the Pools
 
 	int poolsize = (getGraph()->numberOfNodes() * getGraph()->numberOfNodes());
-	if (m_useDefaultCutPool)
+	if (m_useDefaultCutPool) {
 		initializePools(initConstraints, edgeVariables, m_nMaxVars, poolsize, true);
-	else
-	{
+	} else {
 		initializePools(initConstraints, edgeVariables, m_nMaxVars, 0, false);
 		//TODO: How many of them?
 		m_cutConnPool = new StandardPool<Constraint, Variable>(this, poolsize, true);
@@ -854,12 +834,11 @@ void MaxCPlanarMaster::initializeOptimization() {
 	// Initialize Upper Bound
 
 	//if we check only for c-planarity, we cannot set bounds
-	if (!m_checkCPlanar)
-	{
+	if (!m_checkCPlanar) {
 		double upperBound = heuristicInitialUpperBound(); // TODO-TESTING
 		dualBound(upperBound); // TODO-TESTING
 
-	// Initialize Lower Bound
+		// Initialize Lower Bound
 
 		primalBound(heuristicInitialLowerBound()); // TODO-TESTING
 #if 0
@@ -879,26 +858,21 @@ void MaxCPlanarMaster::initializeOptimization() {
 	Logger::ssout() << "#Edges: " << m_G->numberOfEdges() << "\n";
 	Logger::ssout() << "#Clusters: " << m_C->numberOfClusters() << "\n";
 	Logger::ssout() << "#Chunks: " << nChunks << "\n";
-
-
 }
 
 // returns coefficients of all variables in orig and connect in constraint con
 // as list coeffs
-void MaxCPlanarMaster::getCoefficients(Constraint* con,  const List<EdgeVar* > & orig,
-	const List<EdgeVar* > & connect, List<double> & coeffs)
-{
+void MaxCPlanarMaster::getCoefficients(Constraint* con, const List<EdgeVar*>& orig,
+		const List<EdgeVar*>& connect, List<double>& coeffs) {
 	coeffs.clear();
-	for (EdgeVar *ev : orig) {
+	for (EdgeVar* ev : orig) {
 		coeffs.pushBack(con->coeff(ev));
 	}
 
-	for (EdgeVar *ev : connect) {
+	for (EdgeVar* ev : connect) {
 		coeffs.pushBack(con->coeff(ev));
 	}
-
 }
-
 
 //output statistics
 //and change the list of deleted edges in case only c-planarity is tested
@@ -908,20 +882,22 @@ void MaxCPlanarMaster::terminateOptimization() {
 	Logger::slout() << "Terminate Optimization:\n";
 	Logger::slout() << "(primal Bound: " << primalBound() << ")\n";
 	Logger::slout() << "(dual Bound: " << dualBound() << ")\n";
-	Logger::slout() << "*** " << (m_deletedOriginalEdges.size() == 0 ? "" : "NON ") << "C-PLANAR ***\n";
+	Logger::slout()
+			<< "*** " << (m_deletedOriginalEdges.size() == 0 ? "" : "NON ") << "C-PLANAR ***\n";
 	Logger::slout() << "*** " << (feasibleFound() ? "" : "NO ") << "feasible solution found ***\n";
 	Logger::slout() << "=================================================\n";
 
 	Logger::ssout() << "\n";
 
-	Logger::ssout() << "C-Planar: " << (feasibleFound() && (m_deletedOriginalEdges.size() == 0)) << "\n";
+	Logger::ssout()
+			<< "C-Planar: " << (feasibleFound() && (m_deletedOriginalEdges.size() == 0)) << "\n";
 	Logger::ssout() << "FeasibleFound: " << feasibleFound() << "\n";
-	Logger::ssout() << "Time: "<< getDoubleTime(totalTime()) << "\n";
+	Logger::ssout() << "Time: " << getDoubleTime(totalTime()) << "\n";
 	Logger::ssout() << "LP-Time: " << getDoubleTime(lpSolverTime()) << "\n";
 	Logger::ssout() << "\n";
 	Logger::ssout() << "#BB-nodes: " << nSub() << "\n";
 	Logger::ssout() << "#LP-relax: " << m_solvesLP << "\n";
-	Logger::ssout() << "Added Edges: " <<m_connectionOneEdges.size()<<"\n";
+	Logger::ssout() << "Added Edges: " << m_connectionOneEdges.size() << "\n";
 
 	Logger::ssout() << "#Cut Constraints: " << m_nCConsAdded << "\n";
 	Logger::ssout() << "#Kura Constraints: " << m_nKConsAdded << "\n";
@@ -935,16 +911,18 @@ void MaxCPlanarMaster::terminateOptimization() {
 	Logger::ssout() << "#Vars-branch: " << m_varsBranch << "\n";
 	Logger::ssout() << "#Vars-unused: " << m_inactiveVariables.size() << "\n";
 	Logger::ssout() << "KuraRepair-Stat: <";
-	for(auto &elem : m_repairStat) {
+	for (auto& elem : m_repairStat) {
 		Logger::ssout() << elem << ",";
 	}
 	Logger::ssout() << ">\n";
 
-	for(node n : m_G->nodes) {
-		for(node m : m_G->nodes) {
-			if(m->index()<=n->index()) continue;
-			for(adjEntry adj : n->adjEntries) {
-				if(adj->twinNode()==m) {
+	for (node n : m_G->nodes) {
+		for (node m : m_G->nodes) {
+			if (m->index() <= n->index()) {
+				continue;
+			}
+			for (adjEntry adj : n->adjEntries) {
+				if (adj->twinNode() == m) {
 					Logger::slout() << "ORIG: " << n << "-" << m << "\n";
 					continue;
 				}
@@ -953,19 +931,21 @@ void MaxCPlanarMaster::terminateOptimization() {
 	}
 	for (node n : m_G->nodes) {
 		for (node m : m_G->nodes) {
-			if (m->index() <= n->index()) continue;
-			for(adjEntry adj : n->adjEntries) {
+			if (m->index() <= n->index()) {
+				continue;
+			}
+			for (adjEntry adj : n->adjEntries) {
 				if (adj->twinNode() == m) {
 					goto wup;
 				}
 			}
-			for (const NodePair &p : m_inactiveVariables) {
+			for (const NodePair& p : m_inactiveVariables) {
 				if ((p.source == n && p.target == m) || (p.target == n && p.source == m)) {
 					goto wup;
 				}
 			}
 			Logger::slout() << "CONN: " << n << "-" << m << "\n";
-		wup:;
+wup:;
 		}
 	}
 
@@ -973,7 +953,8 @@ void MaxCPlanarMaster::terminateOptimization() {
 	globalDualBound = dualBound();
 }
 
-void MaxCPlanarMaster::generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<EdgeVar*>& connectVars) {
+void MaxCPlanarMaster::generateVariablesForFeasibility(const List<ChunkConnection*>& ccons,
+		List<EdgeVar*>& connectVars) {
 	List<ChunkConnection*> cpy(ccons);
 #if 0
 	for(ChunkConnection *cc : cpy) {
@@ -981,40 +962,43 @@ void MaxCPlanarMaster::generateVariablesForFeasibility(const List<ChunkConnectio
 	}
 #endif
 
-	ArrayBuffer<ListIterator<NodePair> > creationBuffer(ccons.size());
+	ArrayBuffer<ListIterator<NodePair>> creationBuffer(ccons.size());
 	for (ListIterator<NodePair> npit = m_inactiveVariables.begin(); npit.valid(); ++npit) {
 		bool select = false;
 #if 0
 		(*npit).printMe();
 #endif
 		ListIterator<ChunkConnection*> ccit = cpy.begin();
-		while(ccit.valid()) {
-			if((*ccit)->coeff(*npit)) {
+		while (ccit.valid()) {
+			if ((*ccit)->coeff(*npit)) {
 				ListIterator<ChunkConnection*> delme = ccit;
 				++ccit;
 				cpy.del(delme);
 				select = true;
-			} else
+			} else {
 				++ccit;
+			}
 		}
-		if(select) {
+		if (select) {
 #if 0
 			Logger::slout() << "<--CREATE";
 #endif
 			creationBuffer.push(npit);
 		}
-		if(cpy.size()==0) break;
+		if (cpy.size() == 0) {
+			break;
+		}
 	}
 #if 0
 	for(ChunkConnection *cc : cpy) {
 		cc->printMe();
 	}
 #endif
-	OGDF_ASSERT(cpy.size()==0);
+	OGDF_ASSERT(cpy.size() == 0);
 	Logger::slout() << "Creating " << creationBuffer.size() << " Connect-Variables for feasibility\n";
 	m_varsInit = creationBuffer.size();
 	// realize creationList
-	for(int i = creationBuffer.size(); i-- > 0;) {
-		connectVars.pushBack( createVariable( creationBuffer[i] ) );
+	for (int i = creationBuffer.size(); i-- > 0;) {
+		connectVars.pushBack(createVariable(creationBuffer[i]));
 	}
 }

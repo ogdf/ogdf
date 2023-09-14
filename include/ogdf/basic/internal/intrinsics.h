@@ -34,5 +34,5 @@
 #include <ogdf/basic/basic.h>
 
 #ifdef OGDF_SSE3_EXTENSIONS
-# include OGDF_SSE3_EXTENSIONS
+#	include OGDF_SSE3_EXTENSIONS
 #endif

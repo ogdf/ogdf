@@ -29,10 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <sstream>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/tree/LCA.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/tree/LCA.h>
+
+#include <sstream>
+
 #include <graphs.h>
 #include <testing.h>
 
@@ -85,14 +87,8 @@ static void trivial() {
 }
 
 static void interesting() {
-	const List<std::pair<int,int>> arborescence({
-		{4, 0},
-		{5, 1}, {5, 2}, {5, 3}, {5, 4},
-		{7, 6}, {7, 5},
-		{13, 9}, {13, 11}, {13, 12},
-		{11, 10},
-		{9, 8}, {9, 7}
-	});
+	const List<std::pair<int, int>> arborescence({{4, 0}, {5, 1}, {5, 2}, {5, 3}, {5, 4}, {7, 6},
+			{7, 5}, {13, 9}, {13, 11}, {13, 12}, {11, 10}, {9, 8}, {9, 7}});
 	Graph G;
 	Array<node> nodes;
 	customGraph(G, 14, arborescence, nodes);
@@ -133,29 +129,24 @@ static void interesting() {
 
 go_bandit([] {
 	describe("Lowest Common Ancestor algorithm", [] {
-		describe("on trivial arborescences", [] {
-			trivial();
-		});
+		describe("on trivial arborescences", [] { trivial(); });
 
-		describe("on more interesting arborescence", [] {
-			interesting();
-		});
+		describe("on more interesting arborescence", [] { interesting(); });
 
 		describe("on arborescences of varying sizes", [] {
 			forEachGraphItWorks(
-				{GraphProperty::arborescenceForest, GraphProperty::connected},
-				[&](const Graph& G) {
-					LCA lca(G);
-					for (node v : G.nodes) {
-						for (node w : G.nodes) {
-							int lcaLevel = lca.level(lca.call(v, w));
-							AssertThat(lcaLevel, IsLessThanOrEqualTo(lca.level(v)));
-							AssertThat(lcaLevel, IsLessThanOrEqualTo(lca.level(w)));
+					{GraphProperty::arborescenceForest, GraphProperty::connected},
+					[&](const Graph& G) {
+						LCA lca(G);
+						for (node v : G.nodes) {
+							for (node w : G.nodes) {
+								int lcaLevel = lca.level(lca.call(v, w));
+								AssertThat(lcaLevel, IsLessThanOrEqualTo(lca.level(v)));
+								AssertThat(lcaLevel, IsLessThanOrEqualTo(lca.level(w)));
+							}
 						}
-					}
-				},
-				GraphSizes(10, 1000, 10)
-			);
+					},
+					GraphSizes(10, 1000, 10));
 		});
 	});
 });

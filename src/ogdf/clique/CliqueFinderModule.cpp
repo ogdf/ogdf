@@ -29,27 +29,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/clique/CliqueFinderModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/clique/CliqueFinderModule.h>
 
 namespace ogdf {
 
-void CliqueFinderModule::call(const Graph &G, NodeArray<int> &cliqueNumber)
-{
+void CliqueFinderModule::call(const Graph& G, NodeArray<int>& cliqueNumber) {
 	beginCall(G);
 	setResults(cliqueNumber);
 	endCall();
 }
 
-void CliqueFinderModule::call(const Graph &G, List<List<node>*> &cliqueLists)
-{
+void CliqueFinderModule::call(const Graph& G, List<List<node>*>& cliqueLists) {
 	beginCall(G);
 	setResults(cliqueLists);
 	endCall();
 }
 
-void CliqueFinderModule::beginCall(const Graph &G)
-{
+void CliqueFinderModule::beginCall(const Graph& G) {
 	m_pGraph = &G;
 	m_pCopy = new GraphCopy(G);
 	makeSimpleUndirected(*m_pCopy); // ignore multi-edges
@@ -60,15 +57,13 @@ void CliqueFinderModule::beginCall(const Graph &G)
 	}
 }
 
-void CliqueFinderModule::endCall()
-{
+void CliqueFinderModule::endCall() {
 	m_copyCliqueNumber.init();
 	m_pGraph = nullptr;
 	delete m_pCopy;
 }
 
-void CliqueFinderModule::setResults(NodeArray<int> &cliqueNum)
-{
+void CliqueFinderModule::setResults(NodeArray<int>& cliqueNum) {
 	cliqueNum.fill(-1);
 
 	for (node v : m_pGraph->nodes) {
@@ -81,14 +76,13 @@ void CliqueFinderModule::setResults(NodeArray<int> &cliqueNum)
 	}
 }
 
-void CliqueFinderModule::setResults(List<List<node>*> &cliqueLists)
-{
+void CliqueFinderModule::setResults(List<List<node>*>& cliqueLists) {
 	cliqueLists.clear();
 
 	List<List<node>*> copyCliqueLists;
 	cliqueNumberToList(*m_pCopy, m_copyCliqueNumber, copyCliqueLists);
-	for (List<node> *copyClique : copyCliqueLists) {
-		List<node> *clique = new List<node>();
+	for (List<node>* copyClique : copyCliqueLists) {
+		List<node>* clique = new List<node>();
 		for (node vCopy : *copyClique) {
 			clique->pushBack(m_pCopy->original(vCopy));
 		}
@@ -125,14 +119,12 @@ bool CliqueFinderModule::handleTrivialCases() {
 	return false;
 }
 
-void CliqueFinderModule::cliqueListToNumber(const Graph &G,
-		const List<List<node>*> &cliqueLists,
-		NodeArray<int> &cliqueNumber)
-{
+void CliqueFinderModule::cliqueListToNumber(const Graph& G, const List<List<node>*>& cliqueLists,
+		NodeArray<int>& cliqueNumber) {
 	int nextCliqueNum = 0;
 	cliqueNumber.init(G, -1);
 
-	for (List<node> *clique : cliqueLists) {
+	for (List<node>* clique : cliqueLists) {
 		for (node v : *clique) {
 			cliqueNumber[v] = nextCliqueNum;
 		}
@@ -140,17 +132,15 @@ void CliqueFinderModule::cliqueListToNumber(const Graph &G,
 	}
 }
 
-void CliqueFinderModule::cliqueNumberToList(const Graph &G,
-		const NodeArray<int> &cliqueNumber,
-		List<List<node>*> &cliqueLists)
-{
+void CliqueFinderModule::cliqueNumberToList(const Graph& G, const NodeArray<int>& cliqueNumber,
+		List<List<node>*>& cliqueLists) {
 	cliqueLists.clear();
 
 	List<node> nodesByCliqueNumber;
 	G.allNodes(nodesByCliqueNumber);
 	nodesByCliqueNumber.quicksort(GenericComparer<node, int>(cliqueNumber));
 
-	List<node> *curClique = nullptr;
+	List<node>* curClique = nullptr;
 	for (auto itNode = nodesByCliqueNumber.begin(); itNode.valid(); itNode++) {
 		node v = *itNode;
 		// Ignore nodes with clique number -1.
@@ -163,8 +153,7 @@ void CliqueFinderModule::cliqueNumberToList(const Graph &G,
 
 			// If we are at the end or the next node is in a new clique,
 			// push the clique to cliqueLists and reset the current clique.
-			if (!itNode.succ().valid() ||
-			    cliqueNumber[v] != cliqueNumber[*(itNode.succ())]) {
+			if (!itNode.succ().valid() || cliqueNumber[v] != cliqueNumber[*(itNode.succ())]) {
 				cliqueLists.pushBack(curClique);
 				curClique = nullptr;
 			}
@@ -172,17 +161,13 @@ void CliqueFinderModule::cliqueNumberToList(const Graph &G,
 	}
 }
 
-void CliqueFinderModule::cliqueGraphAttributes(const Graph &G,
-		const NodeArray<int> &cliqueNumber,
-		GraphAttributes &GA)
-{
+void CliqueFinderModule::cliqueGraphAttributes(const Graph& G, const NodeArray<int>& cliqueNumber,
+		GraphAttributes& GA) {
 	const int RGB_MAX = 256;
 	const int RGB_MAX_HALF = RGB_MAX / 2;
 
-	GA.addAttributes(GraphAttributes::nodeGraphics
-		| GraphAttributes::nodeStyle
-		| GraphAttributes::nodeLabel
-	);
+	GA.addAttributes(GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle
+			| GraphAttributes::nodeLabel);
 
 	for (node v : G.nodes) {
 		int num = cliqueNumber[v];
@@ -190,8 +175,7 @@ void CliqueFinderModule::cliqueGraphAttributes(const Graph &G,
 
 		setSeed(num);
 		for (int i = 0; i < 3; ++i) {
-			colVals[i] = num < 0 ? RGB_MAX - 1 :
-				randomNumber(0, RGB_MAX_HALF) + RGB_MAX_HALF;
+			colVals[i] = num < 0 ? RGB_MAX - 1 : randomNumber(0, RGB_MAX_HALF) + RGB_MAX_HALF;
 		}
 
 		GA.fillColor(v) = Color(colVals[0], colVals[1], colVals[2]);
@@ -199,13 +183,10 @@ void CliqueFinderModule::cliqueGraphAttributes(const Graph &G,
 	}
 }
 
-bool CliqueFinderModule::cliqueOK(const Graph &G,
-		List<node> *clique,
-		double density)
-{
+bool CliqueFinderModule::cliqueOK(const Graph& G, List<node>* clique, double density) {
 	// Get desired number of edges in clique/dense subgraph (times two).
 	int k = clique->size();
-	int desiredCliqueEdges = int(ceil(density * k * (k-1)));
+	int desiredCliqueEdges = int(ceil(density * k * (k - 1)));
 
 	NodeArray<int> inClique(G, 0);
 	for (node v : *clique) {

@@ -39,29 +39,25 @@ namespace ogdf {
 /**
  * @ingroup gd-layered-crossmin
  */
-class OGDF_EXPORT BarycenterHeuristic : public LayerByLayerSweep
-{
+class OGDF_EXPORT BarycenterHeuristic : public LayerByLayerSweep {
 public:
 	//! Creates a new instance of the barycenter heuristic.
 	BarycenterHeuristic() { }
 
 	//! Creates a new instance of the barycenter heuristic.
-	BarycenterHeuristic(const BarycenterHeuristic &crossMin) { }
+	BarycenterHeuristic(const BarycenterHeuristic& crossMin) { }
 
 	//! Returns a new instance of the barycenter heuristic with the same option settings.
-	virtual LayerByLayerSweep *clone() const override
-	{
-		return new BarycenterHeuristic(*this);
-	}
+	virtual LayerByLayerSweep* clone() const override { return new BarycenterHeuristic(*this); }
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	virtual void init (const HierarchyLevels &levels) override { m_weight.init(levels.hierarchy()); }
+	virtual void init(const HierarchyLevels& levels) override { m_weight.init(levels.hierarchy()); }
 
 	//! Calls the barycenter heuristic for level \p L.
-	virtual void call (Level &L) override;
+	virtual void call(Level& L) override;
 
 	//! Does some clean-up after calls.
-	virtual void cleanup () override { m_weight.init(); }
+	virtual void cleanup() override { m_weight.init(); }
 
 private:
 	NodeArray<double> m_weight; //!< The  barycenter weight of the nodes.

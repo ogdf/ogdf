@@ -31,10 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/Logger.h>
-#include <ogdf/lib/abacus/osiinclude.h>
-
 #include <coin/CoinPackedVector.hpp> // not used here but always necessary when using COIN
+
+#include <ogdf/basic/Logger.h>
+
+#include <ogdf/lib/abacus/osiinclude.h>
 
 namespace ogdf {
 
@@ -50,14 +51,14 @@ public:
 	//! Get a new solver and set its initial log level according to the level of CoinLog.
 	static OsiSolverInterface* createCorrectOsiSolverInterface() {
 #ifdef COIN_OSI_CPX
-		OsiCpxSolverInterface *ret = new OsiCpxSolverInterface(); // CPLEX
+		OsiCpxSolverInterface* ret = new OsiCpxSolverInterface(); // CPLEX
 #elif defined(COIN_OSI_GRB)
-		OsiGrbSolverInterface *ret = new OsiGrbSolverInterface(); // Gurobi
+		OsiGrbSolverInterface* ret = new OsiGrbSolverInterface(); // Gurobi
 #elif defined(COIN_OSI_SYM)
-		OsiSymSolverInterface *ret = new OsiSymSolverInterface(); // Symphony
+		OsiSymSolverInterface* ret = new OsiSymSolverInterface(); // Symphony
 		ret->setSymParam(OsiSymVerbosity, -2);
 #else // COIN_OSI_CLP
-		OsiClpSolverInterface *ret = new OsiClpSolverInterface(); // Coin-OR LP
+		OsiClpSolverInterface* ret = new OsiClpSolverInterface(); // Coin-OR LP
 #endif
 		updateLogging(ret);
 		return ret;
@@ -69,29 +70,29 @@ public:
 			osi->messageHandler()->setLogLevel(0);
 		} else {
 			switch (CoinLog.effectiveLogLevel()) {
-				//- 0 - none
-				//- 1 - minimal
-				//- 2 - normal low
-				//- 3 - normal high
-				//- 4 - verbose
-				case Logger::Level::Minor:
-					osi->messageHandler()->setLogLevel(4);
-					break;
-				case Logger::Level::Medium:
-					osi->messageHandler()->setLogLevel(3);
-					break;
-				case Logger::Level::Default:
-					osi->messageHandler()->setLogLevel(2);
-					break;
-				case Logger::Level::High:
-					osi->messageHandler()->setLogLevel(1);
-					break;
-				case Logger::Level::Alarm:
-					osi->messageHandler()->setLogLevel(0);
-					break;
-				case Logger::Level::Force:
-					osi->messageHandler()->setLogLevel(0);
-					break;
+			//- 0 - none
+			//- 1 - minimal
+			//- 2 - normal low
+			//- 3 - normal high
+			//- 4 - verbose
+			case Logger::Level::Minor:
+				osi->messageHandler()->setLogLevel(4);
+				break;
+			case Logger::Level::Medium:
+				osi->messageHandler()->setLogLevel(3);
+				break;
+			case Logger::Level::Default:
+				osi->messageHandler()->setLogLevel(2);
+				break;
+			case Logger::Level::High:
+				osi->messageHandler()->setLogLevel(1);
+				break;
+			case Logger::Level::Alarm:
+				osi->messageHandler()->setLogLevel(0);
+				break;
+			case Logger::Level::Force:
+				osi->messageHandler()->setLogLevel(0);
+				break;
 			}
 		}
 	}

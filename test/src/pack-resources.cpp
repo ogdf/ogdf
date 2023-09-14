@@ -31,11 +31,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <algorithm>
 #include <fstream>
 #include <functional>
 #include <iostream>
 #include <string>
-#include <algorithm>
+
 #include <tinydir.h>
 
 /*
@@ -49,9 +50,9 @@ std::ofstream gfs;
 
 // VisualStudio does not like string literals over 16380 bytes.
 #ifdef _MSC_VER
-#define STRING_LITERAL_MAX_LENGTH 16379
+#	define STRING_LITERAL_MAX_LENGTH 16379
 #else
-#define STRING_LITERAL_MAX_LENGTH 65530
+#	define STRING_LITERAL_MAX_LENGTH 65530
 #endif
 
 /**
@@ -79,7 +80,8 @@ void load_file(const std::string& directory, const std::string& filename) {
 	char next;
 
 	// Write file path and name, but strip the common resource folder prefix
-	gfs << "  registerResource(\"" << directory.substr(RESOURCE_DIR.length() + 1) << "\", \"" << filename << "\", std::string(\"";
+	gfs << "  registerResource(\"" << directory.substr(RESOURCE_DIR.length() + 1) << "\", \""
+		<< filename << "\", std::string(\"";
 	int count = 0;
 	while (fs.get(next)) {
 		if (count == STRING_LITERAL_MAX_LENGTH) {
@@ -90,12 +92,23 @@ void load_file(const std::string& directory, const std::string& filename) {
 		}
 		// Escape special characters to not accidentally close the string early
 		switch (next) {
-		case '\t': gfs << "\\t"; break;
-		case '\r': gfs << "\\r"; break;
-		case '\n': gfs << "\\n"; break;
-		case '\\': gfs << "\\\\"; break;
-		case '"': gfs << "\\\""; break;
-		default: gfs << next;
+		case '\t':
+			gfs << "\\t";
+			break;
+		case '\r':
+			gfs << "\\r";
+			break;
+		case '\n':
+			gfs << "\\n";
+			break;
+		case '\\':
+			gfs << "\\\\";
+			break;
+		case '"':
+			gfs << "\\\"";
+			break;
+		default:
+			gfs << next;
 		}
 		count++;
 	}
@@ -138,13 +151,15 @@ bool load_files(const std::string& directory) {
 int main(int argc, char** argv) {
 	if (!resourceCheck()) {
 		std::cerr << "Could not find the resource directory.\n"
-		    << "Make sure you run this program from within the OGDF source directory." << std::endl;
+				  << "Make sure you run this program from within the OGDF source directory."
+				  << std::endl;
 		return 1;
 	}
 
 	if (argc != 2) {
 		std::cerr << "Usage: " << argv[0] << " <generated source path>\n"
-		    << "Make sure you run this program from within the OGDF source directory." << std::endl;
+				  << "Make sure you run this program from within the OGDF source directory."
+				  << std::endl;
 		return 1;
 	}
 
@@ -156,15 +171,15 @@ int main(int argc, char** argv) {
 	}
 
 	gfs << "/* FILE GENERATED AUTOMATICALLY BY " __FILE__ ". DO NOT EDIT. */\n"
-		"#include <resources.h>\n"
-		"namespace resources {\n"
-		"using internal::registerResource;\n"
-		"void load_resources() {\n";
+		   "#include <resources.h>\n"
+		   "namespace resources {\n"
+		   "using internal::registerResource;\n"
+		   "void load_resources() {\n";
 
 	load_files(RESOURCE_DIR);
 
 	gfs << "}\n"
-		"}\n";
+		   "}\n";
 	gfs.close();
 
 	return 0;

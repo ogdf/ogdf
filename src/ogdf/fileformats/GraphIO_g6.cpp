@@ -30,8 +30,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
 
@@ -39,7 +39,7 @@ namespace ogdf {
 class G6Abstract {
 protected:
 	G6Abstract(string header_, unsigned char startCharacter_ = static_cast<unsigned char>(0))
-	: startCharacter(startCharacter_), header(header_) { }
+		: startCharacter(startCharacter_), header(header_) { }
 
 	virtual ~G6Abstract() = default;
 
@@ -50,7 +50,7 @@ public:
 	}
 
 	//! Writes header information of the child class to a a stream \p os
-	virtual void writeHeader(std::ostream &os) const {
+	virtual void writeHeader(std::ostream& os) const {
 		os << ">>" << header << "<<";
 		if (hasStartCharacter()) {
 			os << startCharacter;
@@ -80,15 +80,15 @@ class G6AbstractReader : public G6AbstractInstance<Implementation> {
 public:
 	//! Internal reader state
 	enum class State {
-		Start,         //!< Initial reader state. Reads header if applicable, then starts the graph.
-		GraphStart,    //!< Extra intermediary state to support graphs with a starting character.
-		EighteenBit,   //!< Header: size of graph encoded in multiple bytes.
+		Start, //!< Initial reader state. Reads header if applicable, then starts the graph.
+		GraphStart, //!< Extra intermediary state to support graphs with a starting character.
+		EighteenBit, //!< Header: size of graph encoded in multiple bytes.
 		RemainingBits, //!< Header: working state if we do have a multi-byte size.
-		Body           //!< Main graph body.
+		Body //!< Main graph body.
 	};
 
-	G6AbstractReader(Graph &G, std::istream &is, bool forceHeader)
-	: G6AbstractInstance<Implementation>(), m_forceHeader(forceHeader), m_G(G), m_is(is) { }
+	G6AbstractReader(Graph& G, std::istream& is, bool forceHeader)
+		: G6AbstractInstance<Implementation>(), m_forceHeader(forceHeader), m_G(G), m_is(is) { }
 
 	//! Executes the read.
 	/**
@@ -124,9 +124,7 @@ public:
 	}
 
 	//! Returns true if the parsed number of nodes equal the number in the graph
-	bool good() const {
-		return m_numberOfNodes == m_G.numberOfNodes();
-	}
+	bool good() const { return m_numberOfNodes == m_G.numberOfNodes(); }
 
 private:
 	//! Tries to read the header from the input stream.
@@ -190,7 +188,7 @@ private:
 		case State::RemainingBits:
 			if (byte >= '?' && byte <= '~') {
 				--m_remainingBits;
-				m_numberOfNodes |= ((byte - c_asciishift) << (6*m_remainingBits));
+				m_numberOfNodes |= ((byte - c_asciishift) << (6 * m_remainingBits));
 				if (m_remainingBits == 0) {
 					addNodes();
 				}
@@ -264,8 +262,8 @@ protected:
 	State m_state = State::Start;
 	//! Indices for every node
 	Array<node> m_index;
-	Graph &m_G;
-	std::istream &m_is;
+	Graph& m_G;
+	std::istream& m_is;
 	using G6AbstractInstance<Implementation>::c_asciishift;
 	using G6AbstractInstance<Implementation>::m_implementation;
 };
@@ -273,8 +271,8 @@ protected:
 template<typename Implementation>
 class G6AbstractWriter : G6AbstractInstance<Implementation> {
 public:
-	G6AbstractWriter(const Graph &G, std::ostream &os)
-	: G6AbstractInstance<Implementation>(), m_G(G), m_os(os) { }
+	G6AbstractWriter(const Graph& G, std::ostream& os)
+		: G6AbstractInstance<Implementation>(), m_G(G), m_os(os) { }
 
 	//! Execute the write.
 	bool write() {
@@ -297,7 +295,8 @@ public:
 
 	//! Convert the nth sixtet \p sixtet of the number of nodes to a printable ASCII character
 	unsigned char sixtetChar(int sixtet) const {
-		return static_cast<unsigned char>(((m_G.numberOfNodes() >> (6*sixtet)) & c_asciishift) + c_asciishift);
+		return static_cast<unsigned char>(
+				((m_G.numberOfNodes() >> (6 * sixtet)) & c_asciishift) + c_asciishift);
 	}
 
 	//! Convert an integer \p value to a printable ASCII character
@@ -308,32 +307,22 @@ public:
 	}
 
 	//! Writes the size of the graph to the output stream
-	void writeSize(int n, std::ostream &os) const {
+	void writeSize(int n, std::ostream& os) const {
 		if (n < 63) {
 			os << sixtetChar(0);
 		} else if (n < 258048) {
-			os
-			<< '~'
-			<< sixtetChar(2)
-			<< sixtetChar(1)
-			<< sixtetChar(0);
+			os << '~' << sixtetChar(2) << sixtetChar(1) << sixtetChar(0);
 		} else { // XXX: < 68719476736
-			os
-			<< "~~"
-			<< sixtetChar(5)
-			<< sixtetChar(4)
-			<< sixtetChar(3)
-			<< sixtetChar(2)
-			<< sixtetChar(1)
-			<< sixtetChar(0);
+			os << "~~" << sixtetChar(5) << sixtetChar(4) << sixtetChar(3) << sixtetChar(2)
+			   << sixtetChar(1) << sixtetChar(0);
 		}
 	}
 
 protected:
 	virtual bool writeBody() = 0;
 
-	const Graph &m_G;
-	std::ostream &m_os;
+	const Graph& m_G;
+	std::ostream& m_os;
 	using G6AbstractInstance<Implementation>::c_asciishift;
 	using G6AbstractInstance<Implementation>::m_implementation;
 };
@@ -367,8 +356,8 @@ public:
 	}
 
 protected:
-	G6AbstractReaderWithAdjacencyMatrix(Graph &G, std::istream &is, bool forceHeader)
-	: G6AbstractReader<Implementation>(G, is, forceHeader) { }
+	G6AbstractReaderWithAdjacencyMatrix(Graph& G, std::istream& is, bool forceHeader)
+		: G6AbstractReader<Implementation>(G, is, forceHeader) { }
 
 	//! Adds an edge if \p add is true. In any case, increase internal matrix indices in \p reader.
 	virtual void tryAddEdge(bool add) {
@@ -401,7 +390,6 @@ protected:
 	using G6AbstractReader<Implementation>::good;
 };
 
-
 class Graph6Implementation : public G6Abstract {
 public:
 	Graph6Implementation() : G6Abstract("graph6") { }
@@ -409,13 +397,11 @@ public:
 
 class Graph6Reader : public G6AbstractReaderWithAdjacencyMatrix<Graph6Implementation> {
 public:
-	Graph6Reader(Graph &G, std::istream &is, bool forceHeader)
-	: G6AbstractReaderWithAdjacencyMatrix<Graph6Implementation>(G, is, forceHeader) { }
+	Graph6Reader(Graph& G, std::istream& is, bool forceHeader)
+		: G6AbstractReaderWithAdjacencyMatrix<Graph6Implementation>(G, is, forceHeader) { }
 
 private:
-	void init() override {
-		m_targetIdx = 1;
-	}
+	void init() override { m_targetIdx = 1; }
 
 #ifdef OGDF_DEBUG
 	void additionalAssertions() const override {
@@ -425,14 +411,13 @@ private:
 	}
 #endif
 
-	bool finishedRow() const override {
-		return (m_sourceIdx == m_targetIdx);
-	}
+	bool finishedRow() const override { return (m_sourceIdx == m_targetIdx); }
 };
 
 class Graph6Writer : public G6AbstractWriter<Graph6Implementation> {
 public:
-	Graph6Writer(const Graph &G, std::ostream &os) : G6AbstractWriter<Graph6Implementation>(G, os) { }
+	Graph6Writer(const Graph& G, std::ostream& os)
+		: G6AbstractWriter<Graph6Implementation>(G, os) { }
 
 private:
 	bool writeBody() override {
@@ -461,7 +446,6 @@ private:
 	}
 };
 
-
 class Sparse6Implementation : public G6Abstract {
 public:
 	Sparse6Implementation() : G6Abstract("sparse6", ':') { }
@@ -469,8 +453,8 @@ public:
 
 class Sparse6Reader : public G6AbstractReader<Sparse6Implementation> {
 public:
-	Sparse6Reader(Graph &G, std::istream &is, bool forceHeader)
-	: G6AbstractReader<Sparse6Implementation>(G, is, forceHeader) { }
+	Sparse6Reader(Graph& G, std::istream& is, bool forceHeader)
+		: G6AbstractReader<Sparse6Implementation>(G, is, forceHeader) { }
 
 private:
 	bool parseByteBody(int byte) override {
@@ -509,14 +493,11 @@ private:
 		return true;
 	}
 
-	void init() override {
-		m_sourceIdx = -1;
-	}
+	void init() override { m_sourceIdx = -1; }
 
 	bool finalize() override {
-		if (m_remainingBits == 0 && m_sourceIdx >= 0
-		 && m_sourceIdx < m_G.numberOfNodes()
-		 && m_targetIdx <= m_sourceIdx) {
+		if (m_remainingBits == 0 && m_sourceIdx >= 0 && m_sourceIdx < m_G.numberOfNodes()
+				&& m_targetIdx <= m_sourceIdx) {
 			// Last edge has not been read yet
 			m_G.newEdge(m_index[m_targetIdx], m_index[m_sourceIdx]);
 		}
@@ -532,7 +513,7 @@ private:
 		if (m_numberOfNodes == 1) {
 			m_length = 1;
 		} else {
-			m_length = static_cast<int>(std::log2(m_numberOfNodes-1)) + 1;
+			m_length = static_cast<int>(std::log2(m_numberOfNodes - 1)) + 1;
 		}
 		m_remainingBits = 0;
 		return true;
@@ -544,15 +525,16 @@ private:
 
 class Sparse6Writer : public G6AbstractWriter<Sparse6Implementation> {
 public:
-	Sparse6Writer(const Graph &G, std::ostream &os) : G6AbstractWriter<Sparse6Implementation>(G, os) { }
+	Sparse6Writer(const Graph& G, std::ostream& os)
+		: G6AbstractWriter<Sparse6Implementation>(G, os) { }
 
 private:
 	bool writeBody() override {
 		int n = m_G.numberOfNodes();
 		int sixtet = 0;
-		int nbit = 6;   // current bit in buffer (counting starts at 1)
+		int nbit = 6; // current bit in buffer (counting starts at 1)
 		// Maximum length of x in bit
-		const int x_len = (n == 1 ? 1 : static_cast<int>(std::log2(n-1)) + 1);
+		const int x_len = (n == 1 ? 1 : static_cast<int>(std::log2(n - 1)) + 1);
 
 		auto write_tuple = [&](bool b, int x) {
 			sixtet |= (b << (nbit - 1));
@@ -592,7 +574,7 @@ private:
 							write_tuple(0, index[v]);
 						}
 						// bit b is 1 iff we increase by one from previous edge
-						write_tuple((index[v] == last+1), index[w]);
+						write_tuple((index[v] == last + 1), index[w]);
 						last = index[v];
 					}
 				}
@@ -601,8 +583,8 @@ private:
 
 		if (nbit != 6) { // pad and output remaining sixtet
 			if ((n == 2 || n == 4 || n == 8 || n == 16)
-			 && (last == n-2) /* vertex n-2 has edge and n-1 does not */
-			 && (nbit >= x_len)) {
+					&& (last == n - 2) /* vertex n-2 has edge and n-1 does not */
+					&& (nbit >= x_len)) {
 				// one 0 bit
 				nbit--;
 			}
@@ -615,7 +597,6 @@ private:
 	}
 };
 
-
 class Digraph6Implementation : public G6Abstract {
 public:
 	Digraph6Implementation() : G6Abstract("digraph6", '&') { }
@@ -623,18 +604,17 @@ public:
 
 class Digraph6Reader : public G6AbstractReaderWithAdjacencyMatrix<Digraph6Implementation> {
 public:
-	Digraph6Reader(Graph &G, std::istream &is, bool forceHeader)
-	: G6AbstractReaderWithAdjacencyMatrix<Digraph6Implementation>(G, is, forceHeader) { }
+	Digraph6Reader(Graph& G, std::istream& is, bool forceHeader)
+		: G6AbstractReaderWithAdjacencyMatrix<Digraph6Implementation>(G, is, forceHeader) { }
 
 private:
-	bool finishedRow() const override {
-		return (m_sourceIdx == m_numberOfNodes);
-	}
+	bool finishedRow() const override { return (m_sourceIdx == m_numberOfNodes); }
 };
 
 class Digraph6Writer : public G6AbstractWriter<Digraph6Implementation> {
 public:
-	Digraph6Writer(const Graph &G, std::ostream &os) : G6AbstractWriter<Digraph6Implementation>(G, os) { }
+	Digraph6Writer(const Graph& G, std::ostream& os)
+		: G6AbstractWriter<Digraph6Implementation>(G, os) { }
 
 private:
 	bool writeBody() override {
@@ -674,40 +654,32 @@ private:
 	}
 };
 
-
-bool GraphIO::readGraph6(Graph &G, std::istream &is, bool forceHeader)
-{
+bool GraphIO::readGraph6(Graph& G, std::istream& is, bool forceHeader) {
 	Graph6Reader reader(G, is, forceHeader);
 	return reader.read();
 }
 
-bool GraphIO::writeGraph6(const Graph &G, std::ostream &os)
-{
+bool GraphIO::writeGraph6(const Graph& G, std::ostream& os) {
 	Graph6Writer writer(G, os);
 	return writer.write();
 }
 
-bool GraphIO::readDigraph6(Graph &G, std::istream &is, bool forceHeader)
-{
+bool GraphIO::readDigraph6(Graph& G, std::istream& is, bool forceHeader) {
 	Digraph6Reader reader(G, is, forceHeader);
 	return reader.read();
 }
 
-
-bool GraphIO::writeDigraph6(const Graph &G, std::ostream &os)
-{
+bool GraphIO::writeDigraph6(const Graph& G, std::ostream& os) {
 	Digraph6Writer writer(G, os);
 	return writer.write();
 }
 
-bool GraphIO::readSparse6(Graph &G, std::istream &is, bool forceHeader)
-{
+bool GraphIO::readSparse6(Graph& G, std::istream& is, bool forceHeader) {
 	Sparse6Reader reader(G, is, forceHeader);
 	return reader.read();
 }
 
-bool GraphIO::writeSparse6(const Graph &G, std::ostream &os)
-{
+bool GraphIO::writeSparse6(const Graph& G, std::ostream& os) {
 	Sparse6Writer writer(G, os);
 	return writer.write();
 }

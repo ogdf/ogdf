@@ -32,10 +32,10 @@
 #pragma once
 
 #include <ogdf/basic/EdgeArray.h>
-#include <ogdf/layered/Level.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
+#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/Level.h>
 
 namespace ogdf {
 
@@ -44,40 +44,34 @@ namespace ogdf {
  * \see Level, SugiyamaLayout
  */
 class OGDF_EXPORT HierarchyLevels : public HierarchyLevelsBase {
-
 public:
-
 	friend class Level;
 	friend class LayerBasedUPRLayout;
 
 private:
-	const Hierarchy &m_H;
+	const Hierarchy& m_H;
 
-	Array<Level *> m_pLevel; //!< The array of all levels.
-	NodeArray<int> m_pos;    //!< The position of a node on its level.
+	Array<Level*> m_pLevel; //!< The array of all levels.
+	NodeArray<int> m_pos; //!< The position of a node on its level.
 
-	NodeArray<Array<node> > m_lowerAdjNodes; //!< (Sorted) adjacent nodes on lower level.
-	NodeArray<Array<node> > m_upperAdjNodes; //!< (Sorted) adjacent nodes on upper level.
+	NodeArray<Array<node>> m_lowerAdjNodes; //!< (Sorted) adjacent nodes on lower level.
+	NodeArray<Array<node>> m_upperAdjNodes; //!< (Sorted) adjacent nodes on upper level.
 
 	NodeArray<int> m_nSet; //!< (Only used by buildAdjNodes().)
 
 	TraversingDir m_direction; //!< The current direction of layer-by-layer sweep.
 
 public:
-	explicit HierarchyLevels(const Hierarchy &H);
+	explicit HierarchyLevels(const Hierarchy& H);
 	~HierarchyLevels();
 
-	const Hierarchy &hierarchy() const override { return m_H; }
+	const Hierarchy& hierarchy() const override { return m_H; }
 
 	//! Returns the current direction of layer-by-layer sweep.
-	TraversingDir direction() const {
-		return m_direction;
-	}
+	TraversingDir direction() const { return m_direction; }
 
 	//! Sets the current direction of layer-by-layer sweep.
-	void direction (TraversingDir dir) {
-		m_direction = dir;
-	}
+	void direction(TraversingDir dir) { m_direction = dir; }
 
 	//! Returns the number of levels.
 	int size() const override { return m_pLevel.size(); }
@@ -89,50 +83,48 @@ public:
 	int pos(node v) const override { return m_pos[v]; }
 
 	//! Returns the adjacent nodes of \p v (according to direction()).
-	const Array<node> &adjNodes(node v) const {
-		return (m_direction == TraversingDir::downward) ? m_lowerAdjNodes[v] :
-		m_upperAdjNodes[v];
+	const Array<node>& adjNodes(node v) const {
+		return (m_direction == TraversingDir::downward) ? m_lowerAdjNodes[v] : m_upperAdjNodes[v];
 	}
 
 	//! Returns the adjacent nodes of \p v.
-	const Array<node> &adjNodes(node v, TraversingDir dir) const override {
-		return (dir == TraversingDir::downward) ? m_lowerAdjNodes[v] :
-		m_upperAdjNodes[v];
+	const Array<node>& adjNodes(node v, TraversingDir dir) const override {
+		return (dir == TraversingDir::downward) ? m_lowerAdjNodes[v] : m_upperAdjNodes[v];
 	}
 
 	//! Returns the adjacent level of level \p i (according to direction()).
-	const Level &adjLevel(int i) const {
-		return (m_direction == TraversingDir::downward) ? *m_pLevel[i-1] : *m_pLevel[i+1];
+	const Level& adjLevel(int i) const {
+		return (m_direction == TraversingDir::downward) ? *m_pLevel[i - 1] : *m_pLevel[i + 1];
 	}
 
 	//! Returns the <i>i</i>-th level.
-	const Level &operator[](int i) const override { return *m_pLevel[i]; }
+	const Level& operator[](int i) const override { return *m_pLevel[i]; }
 
 	//! Returns the <i>i</i>-th level.
-	Level &operator[](int i) { return *m_pLevel[i]; }
+	Level& operator[](int i) { return *m_pLevel[i]; }
 
 	//! Computes the number of crossings between level \p i and \p i+1 (for simultaneous drawing).
-	int calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t> *edgeSubGraphs) const;
+	int calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t>* edgeSubGraphs) const;
 	//! Computes the total number of crossings (for simultaneous drawing).
-	int calculateCrossingsSimDraw(const EdgeArray<uint32_t> *edgeSubGraphs) const;
+	int calculateCrossingsSimDraw(const EdgeArray<uint32_t>* edgeSubGraphs) const;
 
 	//! Stores the position of nodes in \p oldPos.
-	void storePos (NodeArray<int> &oldPos) const;
+	void storePos(NodeArray<int>& oldPos) const;
 	//! Restores the position of nodes from \p newPos.
-	void restorePos (const NodeArray<int> &newPos);
+	void restorePos(const NodeArray<int>& newPos);
 
 	//! Permutes the order of nodes on each level.
 	void permute();
 
 	template<class RNG>
-	void permute(RNG &rng);
+	void permute(RNG& rng);
 
 	//! Adjusts node positions such that nodes are ordered according to components numbers.
-	void separateCCs(int numCC, const NodeArray<int> &component);
+	void separateCCs(int numCC, const NodeArray<int>& component);
 
 	bool transpose(node v);
 
-	void print(std::ostream &os) const;
+	void print(std::ostream& os) const;
 
 	void buildAdjNodes(int i);
 	void buildAdjNodes();
@@ -140,20 +132,19 @@ public:
 	void check() const;
 
 private:
-	int transposePart(const Array<node> &adjV, const Array<node> &adjW);
+	int transposePart(const Array<node>& adjV, const Array<node>& adjW);
 
 	OGDF_MALLOC_NEW_DELETE
 };
 
-
 template<class RNG>
-void HierarchyLevels::permute(RNG &rng)
-{
-	for(int i = 0; i < m_pLevel.high(); ++i) {
-		Level &level = *m_pLevel[i];
+void HierarchyLevels::permute(RNG& rng) {
+	for (int i = 0; i < m_pLevel.high(); ++i) {
+		Level& level = *m_pLevel[i];
 		level.m_nodes.permute(rng);
-		for(int j = 0; j <= level.high(); ++j)
+		for (int j = 0; j <= level.high(); ++j) {
 			m_pos[level[j]] = j;
+		}
 	}
 
 	buildAdjNodes();

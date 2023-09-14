@@ -39,17 +39,19 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT IndependentSetMerger : public MultilevelBuilder
-{
+class OGDF_EXPORT IndependentSetMerger : public MultilevelBuilder {
 private:
 	float m_base;
 
-	std::vector<node> prebuildLevel(const Graph &G, const std::vector<node> &oldLevelNodes, int level);
-	bool buildOneLevel(MultilevelGraph &MLG) override { return false; }
-	bool buildOneLevel(MultilevelGraph &MLG, std::vector<node> &levelNodes);
+	std::vector<node> prebuildLevel(const Graph& G, const std::vector<node>& oldLevelNodes,
+			int level);
+
+	bool buildOneLevel(MultilevelGraph& MLG) override { return false; }
+
+	bool buildOneLevel(MultilevelGraph& MLG, std::vector<node>& levelNodes);
 
 public:
-	void buildAllLevels(MultilevelGraph &MLG) override;
+	void buildAllLevels(MultilevelGraph& MLG) override;
 	void setSearchDepthBase(float base);
 
 	IndependentSetMerger();

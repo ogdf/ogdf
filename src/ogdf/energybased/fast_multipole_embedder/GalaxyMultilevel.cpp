@@ -34,59 +34,49 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-void GalaxyMultilevelBuilder::computeSystemMass()
-{
-	for (node v : m_pGraph->nodes)
-	{
+void GalaxyMultilevelBuilder::computeSystemMass() {
+	for (node v : m_pGraph->nodes) {
 		m_nodeState[v].sysMass = (*m_pNodeInfo)[v].mass;
 		m_nodeState[v].label = 0;
 		m_nodeState[v].lastVisitor = v;
 	}
 
-	for (node v : m_pGraph->nodes)
-	{
-		for (adjEntry adj : v->adjEntries)
-		{
+	for (node v : m_pGraph->nodes) {
+		for (adjEntry adj : v->adjEntries) {
 			m_nodeState[v].sysMass += (*m_pNodeInfo)[adj->twinNode()].mass;
 		}
 
-		if (v->degree() == 1)
+		if (v->degree() == 1) {
 			m_nodeState[v].sysMass *= m_pGraph->numberOfNodes();
+		}
 	}
 }
 
-
-void GalaxyMultilevelBuilder::sortNodesBySystemMass()
-{
+void GalaxyMultilevelBuilder::sortNodesBySystemMass() {
 	int i = 0;
 	node v = nullptr;
 	m_pRandomSet = new RandomNodeSet(*m_pGraph);
-	for (i=0;i<m_pGraph->numberOfNodes();i++)
-	{
+	for (i = 0; i < m_pGraph->numberOfNodes(); i++) {
 		v = m_pRandomSet->chooseNode();
 		m_pRandomSet->removeNode(v);
 		m_nodeMassOrder[i].theNode = v;
 	}
 
 	delete m_pRandomSet;
-	std::sort(m_nodeMassOrder, m_nodeMassOrder+(m_pGraph->numberOfNodes()), NodeMassComparer( m_nodeState ));
+	std::sort(m_nodeMassOrder, m_nodeMassOrder + (m_pGraph->numberOfNodes()),
+			NodeMassComparer(m_nodeState));
 }
 
-
-void GalaxyMultilevelBuilder::labelSystem(node u, node v, int d, float df)
-{
-	if (d>0)
-	{
-		for(adjEntry adj : v->adjEntries)
-		{
+void GalaxyMultilevelBuilder::labelSystem(node u, node v, int d, float df) {
+	if (d > 0) {
+		for (adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode();
 			// this node may have been labeled before but its closer to the current sun
-			if (m_nodeState[w].label < d)
-			{
-				float currDistFromSun = (*m_pEdgeInfo)[adj->theEdge()].length + df /*+ (*m_pNodeInfo)[w].radius*/;
+			if (m_nodeState[w].label < d) {
+				float currDistFromSun =
+						(*m_pEdgeInfo)[adj->theEdge()].length + df /*+ (*m_pNodeInfo)[w].radius*/;
 				// check if we relabeling by a new sun
-				if (m_nodeState[w].lastVisitor != u)
-				{
+				if (m_nodeState[w].lastVisitor != u) {
 					// maybe this node has never been labeled
 					m_nodeState[w].lastVisitor = u;
 					m_nodeState[w].edgeLengthFromSun = currDistFromSun;
@@ -94,44 +84,38 @@ void GalaxyMultilevelBuilder::labelSystem(node u, node v, int d, float df)
 				// finally relabel it
 				Math::updateMin(m_nodeState[w].edgeLengthFromSun, currDistFromSun);
 				m_nodeState[w].label = d;
-				labelSystem(u, w, d-1, currDistFromSun /*+(*m_pNodeInfo)[w].radius*/);
+				labelSystem(u, w, d - 1, currDistFromSun /*+(*m_pNodeInfo)[w].radius*/);
 			}
 		}
 	}
 }
 
-
-void GalaxyMultilevelBuilder::labelSystem()
-{
+void GalaxyMultilevelBuilder::labelSystem() {
 	m_sunNodeList.clear();
-	for(node v : m_pGraph->nodes)
-	{
+	for (node v : m_pGraph->nodes) {
 		m_nodeState[v].sysMass = 0;
 		m_nodeState[v].label = 0;
 		m_nodeState[v].lastVisitor = v;
 	}
 
-	for (int i=0; i < m_pGraph->numberOfNodes(); i++)
-	{
+	for (int i = 0; i < m_pGraph->numberOfNodes(); i++) {
 		node v = m_nodeMassOrder[i].theNode;
-		if (m_nodeState[v].label == 0)
-		{
+		if (m_nodeState[v].label == 0) {
 			m_sunNodeList.pushBack(v);
-			m_nodeState[v].label = (m_dist+1);
-			m_nodeState[v].edgeLengthFromSun = 0.0;//(*m_pNodeInfo)[v].radius;
+			m_nodeState[v].label = (m_dist + 1);
+			m_nodeState[v].edgeLengthFromSun = 0.0; //(*m_pNodeInfo)[v].radius;
 			labelSystem(v, v, m_dist, m_nodeState[v].edgeLengthFromSun);
 		}
 	}
 }
 
-
-GalaxyMultilevel* GalaxyMultilevelBuilder::build(GalaxyMultilevel* pMultiLevel)
-{
+GalaxyMultilevel* GalaxyMultilevelBuilder::build(GalaxyMultilevel* pMultiLevel) {
 	m_dist = 2;
 	m_pGraph = pMultiLevel->m_pGraph;
 	m_pNodeInfo = pMultiLevel->m_pNodeInfo;
 	m_pEdgeInfo = pMultiLevel->m_pEdgeInfo;
-	m_nodeMassOrder = static_cast<NodeOrderInfo*>(OGDF_MALLOC_16(sizeof(NodeOrderInfo)*m_pGraph->numberOfNodes()));
+	m_nodeMassOrder = static_cast<NodeOrderInfo*>(
+			OGDF_MALLOC_16(sizeof(NodeOrderInfo) * m_pGraph->numberOfNodes()));
 	m_nodeState.init(*m_pGraph);
 
 	this->computeSystemMass();
@@ -145,16 +129,13 @@ GalaxyMultilevel* GalaxyMultilevelBuilder::build(GalaxyMultilevel* pMultiLevel)
 	return pMultiLevelResult;
 }
 
-
-void GalaxyMultilevelBuilder::createResult(GalaxyMultilevel* pMultiLevelResult)
-{
+void GalaxyMultilevelBuilder::createResult(GalaxyMultilevel* pMultiLevelResult) {
 	pMultiLevelResult->m_pGraph = new Graph();
 	m_pGraphResult = pMultiLevelResult->m_pGraph;
 
 	NodeArray<node> toResultNode(*m_pGraph, nullptr);
 	// create all sun nodes
-	for(node v : m_sunNodeList)
-	{
+	for (node v : m_sunNodeList) {
 		node vResult = m_pGraphResult->newNode();
 		toResultNode[v] = vResult;
 	}
@@ -163,17 +144,15 @@ void GalaxyMultilevelBuilder::createResult(GalaxyMultilevel* pMultiLevelResult)
 	m_pNodeInfoResult = pMultiLevelResult->m_pNodeInfo;
 
 	// calculate the real system mass. this may not be the same as calculated before
-	for(node u : m_pGraphResult->nodes)
-	{
+	for (node u : m_pGraphResult->nodes) {
 		(*m_pNodeInfoResult)[u].radius = 0.0f;
 		(*m_pNodeInfoResult)[u].mass = 0.0f;
 	}
-	for(node u : m_pGraph->nodes)
-	{
+	for (node u : m_pGraph->nodes) {
 		node uSun = m_nodeState[u].lastVisitor;
 		node uSunResult = toResultNode[uSun];
 		(*m_pNodeInfo)[u].parent = uSunResult;
-		(*m_pNodeInfoResult)[uSunResult].mass +=((*m_pNodeInfo)[u].mass);
+		(*m_pNodeInfoResult)[uSunResult].mass += ((*m_pNodeInfo)[u].mass);
 		Math::updateMax((*m_pNodeInfoResult)[uSunResult].radius, m_nodeState[u].edgeLengthFromSun);
 		// or = m_nodeState[u].edgeLengthFromSun;?
 	}
@@ -181,37 +160,35 @@ void GalaxyMultilevelBuilder::createResult(GalaxyMultilevel* pMultiLevelResult)
 	pMultiLevelResult->m_pEdgeInfo = new EdgeArray<GalaxyMultilevel::LevelEdgeInfo>(*m_pGraphResult);
 	m_pEdgeInfoResult = pMultiLevelResult->m_pEdgeInfo;
 
-	for(edge e : m_pGraph->edges)
-	{
+	for (edge e : m_pGraph->edges) {
 		node v = e->source();
 		node w = e->target();
 		node vSun = m_nodeState[v].lastVisitor;
 		node wSun = m_nodeState[w].lastVisitor;
-		if (vSun != wSun)
-		{
+		if (vSun != wSun) {
 			node vSunResult = toResultNode[vSun];
 			node wSunResult = toResultNode[wSun];
 			edge eResult = m_pGraphResult->newEdge(vSunResult, wSunResult);
-			(*m_pEdgeInfoResult)[eResult].length = m_nodeState[v].edgeLengthFromSun + (*m_pEdgeInfo)[e].length + m_nodeState[w].edgeLengthFromSun;
+			(*m_pEdgeInfoResult)[eResult].length = m_nodeState[v].edgeLengthFromSun
+					+ (*m_pEdgeInfo)[e].length + m_nodeState[w].edgeLengthFromSun;
 		}
 	}
 
 	// make fast parallel free
 	NodeArray<node> lastVisit(*m_pGraphResult, nullptr);
-	for(node v : m_pGraphResult->nodes)
-	{
-		if (v->degree()>1)
-		{
+	for (node v : m_pGraphResult->nodes) {
+		if (v->degree() > 1) {
 			adjEntry adj = v->firstAdj();
-			do{
+			do {
 				node w = adj->twinNode();
 				edge e = adj->theEdge();
 				adj = adj->cyclicSucc();
-				if (lastVisit[w] ==v)
+				if (lastVisit[w] == v) {
 					m_pGraphResult->delEdge(e);
-				else
+				} else {
 					lastVisit[w] = v;
-			} while (adj !=v->firstAdj());
+				}
+			} while (adj != v->firstAdj());
 		}
 	}
 }

@@ -32,10 +32,11 @@
 
 #pragma once
 
-#include <random>
-#include <limits>
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
+
+#include <limits>
+#include <random>
 
 namespace ogdf {
 namespace boyer_myrvold {
@@ -64,7 +65,7 @@ public:
 
 	// avoid automatic creation of assignment operator
 	//! Assignment operator is undefined!
-	BoyerMyrvoldInit &operator=(const BoyerMyrvoldInit &);
+	BoyerMyrvoldInit& operator=(const BoyerMyrvoldInit&);
 
 private:
 	//! The input graph
@@ -73,7 +74,7 @@ private:
 	//! Some parameters... see BoyerMyrvold.h for further instructions
 	const int& m_embeddingGrade;
 	const double& m_randomness;
-	const EdgeArray<int> *m_edgeCosts;
+	const EdgeArray<int>* m_edgeCosts;
 	std::minstd_rand m_rand;
 
 	//! Link to non-virtual vertex of a virtual Vertex.
@@ -112,12 +113,12 @@ private:
 	//! A list to all separated DFS-children of node
 	/** The list is sorted by lowpoint values (in linear time)
 	*/
-	NodeArray<ListPure<node> >& m_separatedDFSChildList;
+	NodeArray<ListPure<node>>& m_separatedDFSChildList;
 
 	//! Pointer to node contained in the DFSChildList of his parent, if exists.
 	/** If node isn't in list or list doesn't exist, the pointer is set to nullptr.
 	*/
-	NodeArray<ListIterator<node> >& m_pNodeInParent;
+	NodeArray<ListIterator<node>>& m_pNodeInParent;
 
 	//! Creates and links a virtual vertex of the node belonging to \p father
 	void createVirtualVertex(const adjEntry father);

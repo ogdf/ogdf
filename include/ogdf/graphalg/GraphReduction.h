@@ -32,11 +32,10 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-
+#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/SList.h>
 
 namespace ogdf {
 
@@ -49,10 +48,9 @@ namespace ogdf {
  */
 class OGDF_EXPORT GraphReduction : public Graph {
 protected:
-
-	const Graph *m_pGraph; // original graph
+	const Graph* m_pGraph; // original graph
 	NodeArray<node> m_vOrig; // corresponding node in original graph
-	EdgeArray<List<edge> > m_eOrig; // corresponding edge in original graph
+	EdgeArray<List<edge>> m_eOrig; // corresponding edge in original graph
 
 	NodeArray<node> m_vReduction; // corresponding node in graph copy
 	EdgeArray<edge> m_eReduction; // corresponding chain of edges in graph copy
@@ -62,18 +60,21 @@ protected:
 public:
 	// construction
 	explicit GraphReduction(const Graph& G);
+
 	virtual ~GraphReduction() { }
 
 	// returns original graph
-	const Graph &original() const { return *m_pGraph; }
+	const Graph& original() const { return *m_pGraph; }
 
 	// returns original node
 	node original(node v) const { return m_vOrig[v]; }
+
 	// returns original edges
-	const List<edge> &original(edge e) const { return m_eOrig[e]; }
+	const List<edge>& original(edge e) const { return m_eOrig[e]; }
 
 	// returns reduction of node v (0 if none)
 	node reduction(node v) const { return m_vReduction[v]; }
+
 	// returns reduction of edge e
 	edge reduction(edge e) const { return m_eReduction[e]; }
 };

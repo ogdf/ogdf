@@ -34,66 +34,53 @@
 
 namespace ogdf {
 
-void EmbedderMinDepthMaxFaceLayers::embedBlock(
-	const node& bT,
-	const node& cT,
-	ListIterator<adjEntry>& after)
-{
+void EmbedderMinDepthMaxFaceLayers::embedBlock(const node& bT, const node& cT,
+		ListIterator<adjEntry>& after) {
 	treeNodeTreated[bT] = true;
 	node cH = nullptr;
-	if (cT != nullptr)
+	if (cT != nullptr) {
 		cH = pBCTree->cutVertex(cT, bT);
+	}
 
 	// 1. Compute MinDepth node lengths depending on M_B, M2 and cT
-	if (cT != nullptr && md_M_B[bT].size() == 1 && *(md_M_B[bT].begin()) == cH)
-	{
+	if (cT != nullptr && md_M_B[bT].size() == 1 && *(md_M_B[bT].begin()) == cH) {
 		//set node length to 1 if node is in M2 and 0 otherwise
-		for (ListIterator<node> iterator = M2[bT].begin(); iterator.valid(); ++iterator)
+		for (ListIterator<node> iterator = M2[bT].begin(); iterator.valid(); ++iterator) {
 			md_nodeLength[*iterator] = 1;
-	}
-	else
-	{
+		}
+	} else {
 		//set node length to 1 if node is in M_B and 0 otherwise
-		for (ListIterator<node> iterator = md_M_B[bT].begin(); iterator.valid(); ++iterator)
+		for (ListIterator<node> iterator = md_M_B[bT].begin(); iterator.valid(); ++iterator) {
 			md_nodeLength[*iterator] = 1;
+		}
 	}
 
 	// 2. Set MinDepthMaxFace node lengths
 
 	//create subgraph (block bT):
 	node nodeInBlock = cH;
-	if (nodeInBlock == nullptr)
+	if (nodeInBlock == nullptr) {
 		nodeInBlock = (*(pBCTree->hEdges(bT).begin()))->source();
+	}
 	Graph SG;
 	NodeArray<MDMFLengthAttribute> nodeLengthSG;
 	EdgeArray<MDMFLengthAttribute> edgeLengthSG;
 	NodeArray<node> nSG_to_nG;
 	EdgeArray<edge> eSG_to_eG;
 	node nodeInBlockSG;
-	embedder::ConnectedSubgraph<MDMFLengthAttribute>::call(
-		pBCTree->auxiliaryGraph(), SG,
-		nodeInBlock, nodeInBlockSG,
-		nSG_to_nG, eSG_to_eG,
-		mdmf_nodeLength, nodeLengthSG,
-		edgeLength, edgeLengthSG);
+	embedder::ConnectedSubgraph<MDMFLengthAttribute>::call(pBCTree->auxiliaryGraph(), SG,
+			nodeInBlock, nodeInBlockSG, nSG_to_nG, eSG_to_eG, mdmf_nodeLength, nodeLengthSG,
+			edgeLength, edgeLengthSG);
 
 	//copy (0, 1)-min depth node lengths into nodeLengthSG "a" component and max
 	//face sice node lengths into "b" component:
-	for(node nSG : SG.nodes)
-	{
+	for (node nSG : SG.nodes) {
 		nodeLengthSG[nSG].a = md_nodeLength[nSG_to_nG[nSG]];
 		nodeLengthSG[nSG].b = mf_nodeLength[nSG_to_nG[nSG]];
 	}
 
-	internalEmbedBlock(
-			SG,
-			nodeLengthSG,
-			edgeLengthSG,
-			nSG_to_nG,
-			eSG_to_eG,
-			cH == nullptr ? nullptr : nodeInBlockSG,
-			cT,
-			after);
+	internalEmbedBlock(SG, nodeLengthSG, edgeLengthSG, nSG_to_nG, eSG_to_eG,
+			cH == nullptr ? nullptr : nodeInBlockSG, cT, after);
 }
 
 }

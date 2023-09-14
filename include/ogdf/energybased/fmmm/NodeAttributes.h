@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
 namespace energybased {
@@ -41,21 +41,18 @@ namespace fmmm {
 
 //! helping data structure that stores the graphical attributes of a node
 //! that are needed for the force-directed algorithms.
-class OGDF_EXPORT NodeAttributes
-{
+class OGDF_EXPORT NodeAttributes {
 	//! outputstream for NodeAttributes
-	friend OGDF_EXPORT std::ostream &operator<< (std::ostream &, const NodeAttributes &);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream&, const NodeAttributes&);
 
 	//! inputstream for NodeAttributes
-	friend OGDF_EXPORT std::istream &operator>> (std::istream &, NodeAttributes &);
+	friend OGDF_EXPORT std::istream& operator>>(std::istream&, NodeAttributes&);
 
 public:
 	//! Constructor
 	NodeAttributes();
 
-	void set_NodeAttributes(double w, double h, DPoint pos,node v_low,node
-		v_high)
-	{
+	void set_NodeAttributes(double w, double h, DPoint pos, node v_low, node v_high) {
 		width = w;
 		height = h;
 		position = pos;
@@ -63,105 +60,138 @@ public:
 		v_higher_level = v_high;
 	}
 
-	void set_position(DPoint pos) {position = pos;}
-	void set_width(double w) {width = w;}
-	void set_height(double h) {height = h;}
-	void set_x(double x) {position.m_x = x;}
-	void set_y(double y) {position.m_y = y;}
+	void set_position(DPoint pos) { position = pos; }
+
+	void set_width(double w) { width = w; }
+
+	void set_height(double h) { height = h; }
+
+	void set_x(double x) { position.m_x = x; }
+
+	void set_y(double y) { position.m_y = y; }
 
 	DPoint get_position() const { return position; }
-	double get_x() const {return position.m_x;}
-	double get_y() const {return position.m_y;}
-	double get_width() const {return width;}
-	double get_height() const {return height;}
 
+	double get_x() const { return position.m_x; }
 
-	//! \name for preprocessing step in FMMM @{
+	double get_y() const { return position.m_y; }
 
-	void set_original_node (node v) {v_lower_level = v;}
-	void set_copy_node (node v) {v_higher_level = v;}
-	node get_original_node() const {return v_lower_level;}
-	node get_copy_node() const {return v_higher_level;}
+	double get_width() const { return width; }
 
-	//! @}
-	//! \name for divide et impera step in FMMM (set/get_original_node() are needed, too) @{
+	double get_height() const { return height; }
 
-	void set_subgraph_node (node v) {v_higher_level = v;}
-	node get_subgraph_node() const {return v_higher_level;}
+	//! @{
+	//! @name for preprocessing step in FMMM
 
-	//! @}
-	//! \name for the multilevel step in FMMM @{
+	void set_original_node(node v) { v_lower_level = v; }
 
-	void set_lower_level_node (node v) {v_lower_level = v;}
-	void set_higher_level_node (node v) {v_higher_level = v;}
-	node get_lower_level_node() const {return v_lower_level;}
-	node get_higher_level_node() const {return v_higher_level;}
-	void set_mass(int m) {mass = m;}
-	void set_type(int t) {type = t;}
-	void set_dedicated_sun_node(node v){dedicated_sun_node = v;}
-	void set_dedicated_sun_distance(double d) {dedicated_sun_distance = d;}
-	void set_dedicated_pm_node(node v) {dedicated_pm_node = v;}
-	void place(){placed = true;}
-	void set_angle_1(double a) {angle_1 = a;}
-	void set_angle_2(double a) {angle_2 = a;}
+	void set_copy_node(node v) { v_higher_level = v; }
+
+	node get_original_node() const { return v_lower_level; }
+
+	node get_copy_node() const { return v_higher_level; }
 
 	//! @}
+	//! @{
+	//! @name for divide et impera step in FMMM (set/get_original_node() are needed, too)
 
-	int get_mass() const {return mass;}
-	int get_type() const {return type;}
-	node get_dedicated_sun_node() const {return dedicated_sun_node;}
-	double get_dedicated_sun_distance() const {return dedicated_sun_distance;}
-	node get_dedicated_pm_node() const {return dedicated_pm_node;}
-	bool is_placed() const {return placed;}
-	double get_angle_1() const {return angle_1;}
-	double get_angle_2() const {return angle_2;}
+	void set_subgraph_node(node v) { v_higher_level = v; }
 
+	node get_subgraph_node() const { return v_higher_level; }
 
-	List<double>* get_lambda_List_ptr() {return lambda_List_ptr;}
-	List<node>* get_neighbour_sun_node_List_ptr() {return neighbour_s_node_List_ptr;}
-	List<node>* get_dedicated_moon_node_List_ptr() {return moon_List_ptr;}
+	//! @}
+	//! @{
+	//! @name for the multilevel step in FMMM
 
+	void set_lower_level_node(node v) { v_lower_level = v; }
+
+	void set_higher_level_node(node v) { v_higher_level = v; }
+
+	node get_lower_level_node() const { return v_lower_level; }
+
+	node get_higher_level_node() const { return v_higher_level; }
+
+	void set_mass(int m) { mass = m; }
+
+	void set_type(int t) { type = t; }
+
+	void set_dedicated_sun_node(node v) { dedicated_sun_node = v; }
+
+	void set_dedicated_sun_distance(double d) { dedicated_sun_distance = d; }
+
+	void set_dedicated_pm_node(node v) { dedicated_pm_node = v; }
+
+	void place() { placed = true; }
+
+	void set_angle_1(double a) { angle_1 = a; }
+
+	void set_angle_2(double a) { angle_2 = a; }
+
+	//! @}
+
+	int get_mass() const { return mass; }
+
+	int get_type() const { return type; }
+
+	node get_dedicated_sun_node() const { return dedicated_sun_node; }
+
+	double get_dedicated_sun_distance() const { return dedicated_sun_distance; }
+
+	node get_dedicated_pm_node() const { return dedicated_pm_node; }
+
+	bool is_placed() const { return placed; }
+
+	double get_angle_1() const { return angle_1; }
+
+	double get_angle_2() const { return angle_2; }
+
+	List<double>* get_lambda_List_ptr() { return lambda_List_ptr; }
+
+	List<node>* get_neighbour_sun_node_List_ptr() { return neighbour_s_node_List_ptr; }
+
+	List<node>* get_dedicated_moon_node_List_ptr() { return moon_List_ptr; }
 
 	//! initialzes all values needed for multilevel representations
 	void init_mult_values();
 
 private:
-
 	DPoint position;
 	double width;
 	double height;
 
-	//! \name for the multilevel and divide et impera and preprocessing step @{
+	//! @{
+	//! @name for the multilevel and divide et impera and preprocessing step
 
 	node v_lower_level; //!< the corresponding node in the lower level graph
-	node v_higher_level;//!< the corresponding node in the higher level graph
+	node v_higher_level; //!< the corresponding node in the higher level graph
 	//! for divide et impera v_lower_level is the original graph and
 	//! v_higher_level is the copy of the copy of this node in the
 	//! maximum connected subraph
 
 	//! @}
-	//! \name for the multilevel step @{
+	//! @{
+	//! @name for the multilevel step
 
 	int mass; //!< the mass (= number of previously collapsed nodes) of this node
 	int type; //!< 1 = sun node (s_node); 2 = planet node (p_node) without a dedicate moon
 	//! 3 = planet node with dedicated moons (pm_node);4 = moon node (m_node)
 	node dedicated_sun_node; //!< the dedicates s_node of the solar system of this node
-	double dedicated_sun_distance;//!< the distance to the dedicated sun node of the galaxy
+	double dedicated_sun_distance; //!< the distance to the dedicated sun node of the galaxy
 	//! of this node
-	node dedicated_pm_node;//!< if type == 4 the dedicated_pm_node is saved here
+	node dedicated_pm_node; //!< if type == 4 the dedicated_pm_node is saved here
 	List<double> lambda; //!< the factors lambda for scaling the length of this edge
 	//! relative to the pass between v's sun and the sun of a
 	//! neighbour solar system
-	List<node> neighbour_s_node;//!< this is the list of the neighbour solar systems suns
+	List<node> neighbour_s_node; //!< this is the list of the neighbour solar systems suns
 	//! lambda[i] corresponds to neighbour_s_node[i]
 	List<double>* lambda_List_ptr; //!< a pointer to the lambda list
 	List<node>* neighbour_s_node_List_ptr; //!< a pointer to to the neighbour_s_node list
-	List<node>  moon_List;//!< the list of all dedicated moon nodes (!= nil if type == 3)
-	List<node>* moon_List_ptr;//!< a pointer to the moon_List
-	bool placed;   //!< indicates weather an initial position has been assigned to this
+	List<node> moon_List; //!< the list of all dedicated moon nodes (!= nil if type == 3)
+	List<node>* moon_List_ptr; //!< a pointer to the moon_List
+	bool placed; //!< indicates weather an initial position has been assigned to this
 	//! node or not
-	double angle_1;//!< describes the sector where nodes that are not adjacent to other
-	double angle_2;//!< solar systems have to be placed
+	double angle_1; //!< describes the sector where nodes that are not adjacent to other
+	double angle_2; //!< solar systems have to be placed
 
 	//! @}
 };

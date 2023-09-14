@@ -39,20 +39,16 @@ namespace energybased {
 namespace fmmm {
 
 //! Helping data structure for building up the reduced quad tree by NMM.
-class OGDF_EXPORT ParticleInfo
-{
+class OGDF_EXPORT ParticleInfo {
 	//! Output stream for ParticleInfo.
-	friend std::ostream &operator<< (std::ostream & output, const ParticleInfo & A)
-	{
-		output
-		  << " node_index " << A.vertex->index()
-		  << " x_y_coord  " << A.x_y_coord
-		  << (A.marked ? " marked " : " unmarked ")
-		  << " sublist_ptr ";
-		if (A.subList_ptr == nullptr)
-			output<<"nullptr";
-		else
-			output<<A.subList_ptr;
+	friend std::ostream& operator<<(std::ostream& output, const ParticleInfo& A) {
+		output << " node_index " << A.vertex->index() << " x_y_coord  " << A.x_y_coord
+			   << (A.marked ? " marked " : " unmarked ") << " sublist_ptr ";
+		if (A.subList_ptr == nullptr) {
+			output << "nullptr";
+		} else {
+			output << A.subList_ptr;
+		}
 		return output;
 	}
 
@@ -66,37 +62,48 @@ class OGDF_EXPORT ParticleInfo
 #endif
 
 public:
-
 	//! constructor
-	ParticleInfo() :
-		vertex(nullptr),
-		x_y_coord(0),
-		cross_ref_item(nullptr),
-		subList_ptr(nullptr),
-		copy_item(nullptr),
-		marked(false),
-		tmp_item(nullptr)
-	{ }
+	ParticleInfo()
+		: vertex(nullptr)
+		, x_y_coord(0)
+		, cross_ref_item(nullptr)
+		, subList_ptr(nullptr)
+		, copy_item(nullptr)
+		, marked(false)
+		, tmp_item(nullptr) { }
 
 	void set_vertex(node v) { vertex = v; }
+
 	void set_x_y_coord(double c) { x_y_coord = c; }
-	void set_cross_ref_item (ListIterator<ParticleInfo> it) { cross_ref_item = it; }
+
+	void set_cross_ref_item(ListIterator<ParticleInfo> it) { cross_ref_item = it; }
+
 	void set_subList_ptr(List<ParticleInfo>* ptr) { subList_ptr = ptr; }
-	void set_copy_item (ListIterator<ParticleInfo> it) { copy_item = it; }
+
+	void set_copy_item(ListIterator<ParticleInfo> it) { copy_item = it; }
+
 	void mark() { marked = true; }
+
 	void unmark() { marked = false; }
+
 	void set_tmp_cross_ref_item(ListIterator<ParticleInfo> it) { tmp_item = it; }
 
 	node get_vertex() const { return vertex; }
+
 	double get_x_y_coord() const { return x_y_coord; }
+
 	ListIterator<ParticleInfo> get_cross_ref_item() const { return cross_ref_item; }
+
 	List<ParticleInfo>* get_subList_ptr() const { return subList_ptr; }
-	ListIterator<ParticleInfo> get_copy_item() const{return copy_item;}
+
+	ListIterator<ParticleInfo> get_copy_item() const { return copy_item; }
+
 	bool is_marked() const { return marked; }
+
 	ListIterator<ParticleInfo> get_tmp_cross_ref_item() const { return tmp_item; }
 
 private:
-	node vertex;      //!< the vertex of G that is associated with this attributes
+	node vertex; //!< the vertex of G that is associated with this attributes
 	double x_y_coord; //!< the x (resp. y) coordinate of the actual position of the vertex
 
 	//! the Listiterator of the

@@ -140,7 +140,7 @@ public:
 	 * computation of coefficients. The following functions provide this
 	 * feature.
 	 */
-	//@{
+	//! @{
 
 	//! Returns true if the expanded format of a constraint/variable is available, false otherwise.
 	bool expanded() const { return expanded_; }
@@ -175,7 +175,7 @@ public:
 		return !(nReferences_ || nLocks_);
 	}
 
-	//@}
+	//! @}
 
 	//! Writes the constraint/variable to the output stream \a out.
 	/**
@@ -373,7 +373,7 @@ private:
 	 * locking mechanism for constraints/variables by the following
 	 * three functions.
 	 */
-	//@{
+	//! @{
 
 	//! Returns true if at least one lock is set on the constraint/variable, false otherwise.
 	bool locked() const { return (nLocks_ != 0); }
@@ -386,7 +386,7 @@ private:
 	//! Removes one lock from the constraint/variable.
 	void unlock();
 
-	//@}
+	//! @}
 };
 
 

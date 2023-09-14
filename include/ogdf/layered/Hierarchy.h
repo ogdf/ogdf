@@ -34,7 +34,6 @@
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/GraphCopy.h>
 
-
 namespace ogdf {
 
 //! Representation of proper hierarchies used by Sugiyama-layout.
@@ -42,7 +41,6 @@ namespace ogdf {
  * \see Level, SugiyamaLayout
  */
 class OGDF_EXPORT Hierarchy {
-
 	friend class LayerBasedUPRLayout;
 
 	GraphCopy m_GC; //!< The graph copy representing the topology of the proper hierarchy.
@@ -52,19 +50,18 @@ class OGDF_EXPORT Hierarchy {
 public:
 	//! Creates an empty hierarchy.
 	Hierarchy() { }
+
 	//! Creates an hierarchy of graph \p G with node ranks \p rank.
-	Hierarchy(const Graph &G, const NodeArray<int> &rank);
+	Hierarchy(const Graph& G, const NodeArray<int>& rank);
 
 	// destruction
 	~Hierarchy() { }
 
-	void createEmpty(const Graph &G);
-	void initByNodes(const List<node> &nodes,
-		EdgeArray<edge> &eCopy,
-		const NodeArray<int> &rank);
+	void createEmpty(const Graph& G);
+	void initByNodes(const List<node>& nodes, EdgeArray<edge>& eCopy, const NodeArray<int>& rank);
 
 	//! Conversion to const GraphCopy reference.
-	operator const GraphCopy &() const { return m_GC; }
+	operator const GraphCopy&() const { return m_GC; }
 
 	//! Returns the rank (level) of node \p v.
 	int rank(node v) const { return m_rank[v]; }
@@ -73,12 +70,10 @@ public:
 
 	int size(int i) const { return m_size[i]; }
 
-	bool isLongEdgeDummy(node v) const {
-		return m_GC.isDummy(v) && v->outdeg() == 1;
-	}
+	bool isLongEdgeDummy(node v) const { return m_GC.isDummy(v) && v->outdeg() == 1; }
 
 private:
-	void doInit(const NodeArray<int> &rank);
+	void doInit(const NodeArray<int>& rank);
 };
 
 }

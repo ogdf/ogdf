@@ -31,15 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/SList.h>
-
 
 namespace ogdf {
 
-class OGDF_EXPORT UMLGraph : public GraphAttributes
-{
+class OGDF_EXPORT UMLGraph : public GraphAttributes {
 public:
 	// construction
 
@@ -50,7 +48,7 @@ public:
 	/**
 	 * By default, all edges are associations.
 	 */
-	explicit UMLGraph(Graph &G, long initAttributes = 0);
+	explicit UMLGraph(Graph& G, long initAttributes = 0);
 
 	//! Destructor.
 	virtual ~UMLGraph();
@@ -63,8 +61,7 @@ public:
 	 * \warning All attributes that were allocated before are destroyed by this function!
 	 *  If you wish to extend the set of allocated attributes, use initAttributes().
 	 */
-	virtual void init(Graph &G, long initAttr)
-	{
+	virtual void init(Graph& G, long initAttr) {
 		m_pG = &G;
 		GraphAttributes::init(G, initAttr);
 		m_hierarchyParent.init(constGraph(), nullptr);
@@ -74,8 +71,8 @@ public:
 		m_hiddenEdges = new Graph::HiddenEdgeSet(G);
 	}
 
-	virtual void init(const Graph &G, long initAttr) override {
-		init(const_cast<Graph &>(G), initAttr);
+	virtual void init(const Graph& G, long initAttr) override {
+		init(const_cast<Graph&>(G), initAttr);
 	}
 
 	//! \name Structural changes
@@ -84,7 +81,7 @@ public:
 	//! Merges generalizations at a common superclass
 	void insertGenMergers();
 	//! Inserts mergers per node with given edges
-	node doInsertMergers(node v, SList<edge> &inGens);
+	node doInsertMergers(node v, SList<edge>& inGens);
 	void undoGenMergers();
 
 	//! @}
@@ -95,7 +92,7 @@ public:
 	//! inserting a center node connected to each node (=>star)
 	//! and deleting all edges between nodes in clique
 	//! returns center node
-	void replaceByStar(List< List<node> > &cliques);
+	void replaceByStar(List<List<node>>& cliques);
 
 	//! Undo clique replacements
 	void undoStars();
@@ -103,14 +100,9 @@ public:
 	void undoStar(node center, bool restoreAllEdges);
 
 	//! Returns the size of a circular drawing for a clique around center v
-	DRect cliqueRect(node v)
-	{
-		return m_cliqueCircleSize[v];
-	}
-	DPoint cliquePos(node v)
-	{
-		return m_cliqueCirclePos[v];
-	}
+	DRect cliqueRect(node v) { return m_cliqueCircleSize[v]; }
+
+	DPoint cliquePos(node v) { return m_cliqueCirclePos[v]; }
 
 #if 0
 	//compute circle positions for all nodes around center
@@ -128,17 +120,17 @@ public:
 	 * Tries to keep the relative placement of the nodes in the clique
 	 * rectangle (left, right,...) to avoid clique crossings of outgoing edges
 	 */
-	void computeCliquePosition(List<node> &adjNodes, node center, double rectMin = -1.0);
+	void computeCliquePosition(List<node>& adjNodes, node center, double rectMin = -1.0);
 
-	const SListPure<node> &centerNodes() {return m_centerNodes;}
+	const SListPure<node>& centerNodes() { return m_centerNodes; }
 
 	//! Default size of inserted clique replacement center nodes
-	void setDefaultCliqueCenterSize(double i) {m_cliqueCenterSize = max(i, 1.0);}
-	double getDefaultCliqueCenterSize() {return m_cliqueCenterSize;}
+	void setDefaultCliqueCenterSize(double i) { m_cliqueCenterSize = max(i, 1.0); }
+
+	double getDefaultCliqueCenterSize() { return m_cliqueCenterSize; }
 
 	//! Returns true if edge was inserted during clique replacement
-	bool isReplacement(edge e)
-	{
+	bool isReplacement(edge e) {
 		// TODO: check here how to guarantee that value is defined,
 		// edgearray is only valid if there are cliques replaced
 		return m_replacementEdge[e];
@@ -155,14 +147,15 @@ public:
 #endif
 
 	//! Sets status of edges to be specially embedded (if alignment)
-	void setUpwards(adjEntry a, bool b) {m_upwardEdge[a] = b;}
-	bool upwards(adjEntry a) const {return m_upwardEdge[a];}
+	void setUpwards(adjEntry a, bool b) { m_upwardEdge[a] = b; }
+
+	bool upwards(adjEntry a) const { return m_upwardEdge[a]; }
 
 	//! Writes attributed graph in GML format to file fileName
-	void writeGML(const char *fileName);
+	void writeGML(const char* fileName);
 
 	//! Writes attributed graph in GML format to output stream os
-	void writeGML(std::ostream &os);
+	void writeGML(std::ostream& os);
 
 	//! Adjusts the parent field for all nodes after insertion of
 	//! mergers. If insertion is done per node via doinsert, adjust
@@ -179,25 +172,24 @@ public:
 	//! Modelling of association classes
 	class AssociationClass {
 	public:
-		explicit AssociationClass(edge e, double width = 1.0, double height = 1.0,
-			double x = 0.0, double y = 0.0)
-			: m_width(width), m_height(height), m_x(x), m_y(y), m_edge(e), m_node(nullptr)
-		{ }
+		explicit AssociationClass(edge e, double width = 1.0, double height = 1.0, double x = 0.0,
+				double y = 0.0)
+			: m_width(width), m_height(height), m_x(x), m_y(y), m_edge(e), m_node(nullptr) { }
 
 		double m_width;
 		double m_height;
 		double m_x;
 		double m_y;
-		edge   m_edge;
-		node   m_node;
+		edge m_edge;
+		node m_node;
 	};
-	const SListPure<AssociationClass*> &assClassList() const {return m_assClassList;}
 
-	const AssociationClass*  assClass(edge e) const {return m_assClass[e];}
+	const SListPure<AssociationClass*>& assClassList() const { return m_assClassList; }
+
+	const AssociationClass* assClass(edge e) const { return m_assClass[e]; }
 
 	//! Adds association class to edge e
-	node createAssociationClass(edge e, double width = 1.0, double height = 1.0)
-	{
+	node createAssociationClass(edge e, double width = 1.0, double height = 1.0) {
 		AssociationClass* ac = new AssociationClass(e, width, height);
 		m_assClass[e] = ac;
 		m_assClassList.pushBack(ac);
@@ -206,12 +198,11 @@ public:
 		//class and information later on
 		node v = m_pG->newNode();
 		m_height[v] = ac->m_height;
-		m_width[v]  = ac->m_width;
+		m_width[v] = ac->m_width;
 		m_associationClassModel[ac->m_edge] = v;
 		ac->m_node = v;
 		//guarantee correct angle at edge to edge connection
-		if (m_attributes & GraphAttributes::nodeType)
-		{
+		if (m_attributes & GraphAttributes::nodeType) {
 			m_vType[v] = Graph::NodeType::associationClass;
 		}
 		return v;
@@ -220,44 +211,41 @@ public:
 	//this modelling should only take place in the preprocessing steps
 	//of the drawing algorithms?
 	//! Inserts representation for association class in underlying graph
-	void modelAssociationClasses()
-	{
+	void modelAssociationClasses() {
 		SListIterator<UMLGraph::AssociationClass*> it = m_assClassList.begin();
-		while (it.valid())
-		{
+		while (it.valid()) {
 			modelAssociationClass((*it));
 			++it;
 		}
 	}
-	node modelAssociationClass(AssociationClass* ac)
-	{
+
+	node modelAssociationClass(AssociationClass* ac) {
 		node dummy = m_pG->split(ac->m_edge)->source();
 
 		m_height[dummy] = 1; //just a dummy size
-		m_width[dummy]  = 1;
+		m_width[dummy] = 1;
 		OGDF_ASSERT(ac->m_node);
 		m_pG->newEdge(ac->m_node, dummy);
 
 		return dummy;
 	}
 
-	void undoAssociationClasses()
-	{
+	void undoAssociationClasses() {
 		SListIterator<UMLGraph::AssociationClass*> it = m_assClassList.begin();
-		while (it.valid())
-		{
+		while (it.valid()) {
 			undoAssociationClass((*it));
 			++it;
 		}
 	}
 
 	//! Removes the modeling of the association class without removing the information
-	void undoAssociationClass(AssociationClass* ac)
-	{
+	void undoAssociationClass(AssociationClass* ac) {
 		node v = m_associationClassModel[ac->m_edge];
 		OGDF_ASSERT(v);
 		OGDF_ASSERT(v->degree() == 1);
-		if (v->degree() != 1) throw AlgorithmFailureException(AlgorithmFailureCode::Label);
+		if (v->degree() != 1) {
+			throw AlgorithmFailureException(AlgorithmFailureCode::Label);
+		}
 		//save layout information
 		ac->m_x = x(v);
 		ac->m_y = y(v);
@@ -283,14 +271,13 @@ protected:
 	//! \name Cliques
 	//! @{
 
-	node replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum);
+	node replaceByStar(List<node>& clique, NodeArray<int>& cliqueNum);
 	DRect circularBound(node center);
 
 	//! @}
 
 private:
-
-	Graph *m_pG;
+	Graph* m_pG;
 
 	//! \name Cliques
 	//! @{
@@ -321,8 +308,8 @@ private:
 	//structures for association classes
 	//may be replaced later by generic structures for different types
 	SListPure<AssociationClass*> m_assClassList; //!< saves all accociation classes
-	EdgeArray<AssociationClass*> m_assClass;     //!< association class for list
-	EdgeArray<node> m_associationClassModel;     //!< modelled classes are stored
+	EdgeArray<AssociationClass*> m_assClass; //!< association class for list
+	EdgeArray<node> m_associationClassModel; //!< modelled classes are stored
 
 	//! \name Only set and updated in insertgenmergers
 	//! @{
@@ -337,7 +324,7 @@ private:
 
 	//! @}
 
-	Graph::HiddenEdgeSet *m_hiddenEdges;
+	Graph::HiddenEdgeSet* m_hiddenEdges;
 };
 
 }

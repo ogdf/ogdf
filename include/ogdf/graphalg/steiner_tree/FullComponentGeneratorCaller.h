@@ -41,25 +41,24 @@ template<typename T>
 class FullComponentGeneratorCaller {
 public:
 	//! Computes distance and predecessor matrix
-	static void computeDistanceMatrix(NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred,
-			const EdgeWeightedGraph<T>& graph,
-			const List<node>& terminals,
-			const NodeArray<bool>& isTerminal,
-			int restricted);
+	static void computeDistanceMatrix(NodeArray<NodeArray<T>>& distance,
+			NodeArray<NodeArray<edge>>& pred, const EdgeWeightedGraph<T>& graph,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal, int restricted);
 };
 
 template<typename T>
-void FullComponentGeneratorCaller<T>::computeDistanceMatrix(NodeArray<NodeArray<T>>& distance, NodeArray<NodeArray<edge>>& pred,
-		const EdgeWeightedGraph<T>& graph,
-		const List<node>& terminals,
-		const NodeArray<bool>& isTerminal,
-		int restricted) {
-	if (steiner_tree::FullComponentDecisions::shouldUseDijkstra(restricted, graph.numberOfNodes(), graph.numberOfEdges(), terminals.size())) {
+void FullComponentGeneratorCaller<T>::computeDistanceMatrix(NodeArray<NodeArray<T>>& distance,
+		NodeArray<NodeArray<edge>>& pred, const EdgeWeightedGraph<T>& graph,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal, int restricted) {
+	if (steiner_tree::FullComponentDecisions::shouldUseDijkstra(restricted, graph.numberOfNodes(),
+				graph.numberOfEdges(), terminals.size())) {
 		if (restricted <= 3) {
 			// for 2- and 3-restricted computations, it is ok to use SSSP from all terminals
-			MinSteinerTreeModule<T>::allTerminalShortestPaths(graph, terminals, isTerminal, distance, pred);
+			MinSteinerTreeModule<T>::allTerminalShortestPaths(graph, terminals, isTerminal,
+					distance, pred);
 		} else {
-			MinSteinerTreeModule<T>::allNodeShortestPaths(graph, terminals, isTerminal, distance, pred);
+			MinSteinerTreeModule<T>::allNodeShortestPaths(graph, terminals, isTerminal, distance,
+					pred);
 		}
 	} else {
 		MinSteinerTreeModule<T>::allPairShortestPaths(graph, isTerminal, distance, pred);

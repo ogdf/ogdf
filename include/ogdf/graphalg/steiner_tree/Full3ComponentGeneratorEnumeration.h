@@ -38,25 +38,23 @@ namespace steiner_tree {
 
 //! Full 3-component generation using enumeration
 template<typename T>
-class Full3ComponentGeneratorEnumeration : public Full3ComponentGeneratorModule<T>
-{
+class Full3ComponentGeneratorEnumeration : public Full3ComponentGeneratorModule<T> {
 public:
-	void call(const EdgeWeightedGraph<T> &G,
-	          const List<node> &terminals,
-	          const NodeArray<bool> &isTerminal,
-	          const NodeArray<NodeArray<T>> &distance,
-	          const NodeArray<NodeArray<edge>> &pred,
-	          std::function<void(node, node, node, node, T)> generateFunction) const
-	{
+	void call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, const NodeArray<NodeArray<T>>& distance,
+			const NodeArray<NodeArray<edge>>& pred,
+			std::function<void(node, node, node, node, T)> generateFunction) const {
 		this->forAllTerminalTriples(terminals, distance,
-		  [&](node u, node v, node w, const NodeArray<T> &uDistance, const NodeArray<T> &vDistance, const NodeArray<T> &wDistance) {
-			node center = nullptr;
-			T minCost = std::numeric_limits<T>::max();
-			for (node x : G.nodes) {
-				this->updateBestCenter(x, center, minCost, uDistance, vDistance, wDistance);
-			}
-			this->checkAndGenerateFunction(u, v, w, center, minCost, pred, isTerminal, generateFunction);
-		});
+				[&](node u, node v, node w, const NodeArray<T>& uDistance,
+						const NodeArray<T>& vDistance, const NodeArray<T>& wDistance) {
+					node center = nullptr;
+					T minCost = std::numeric_limits<T>::max();
+					for (node x : G.nodes) {
+						this->updateBestCenter(x, center, minCost, uDistance, vDistance, wDistance);
+					}
+					this->checkAndGenerateFunction(u, v, w, center, minCost, pred, isTerminal,
+							generateFunction);
+				});
 	}
 };
 

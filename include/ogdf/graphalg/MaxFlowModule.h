@@ -31,28 +31,26 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
 
 namespace ogdf {
 
-template <typename T>
-class MaxFlowModule
-{
+template<typename T>
+class MaxFlowModule {
 protected:
-	EpsilonTest *m_et; //!< Pointer to the used EpsilonTest.
-	EdgeArray<T> *m_flow; //!< Pointer to (extern) flow array.
-	const Graph *m_G; //!< Pointer to the given graph.
-	const EdgeArray<T> *m_cap; //!< Pointer to the given capacity array.
-	const node *m_s; //!< Pointer to the source node.
-	const node *m_t; //!< Pointer to the sink node.
+	EpsilonTest* m_et; //!< Pointer to the used EpsilonTest.
+	EdgeArray<T>* m_flow; //!< Pointer to (extern) flow array.
+	const Graph* m_G; //!< Pointer to the given graph.
+	const EdgeArray<T>* m_cap; //!< Pointer to the given capacity array.
+	const node* m_s; //!< Pointer to the source node.
+	const node* m_t; //!< Pointer to the sink node.
 
 private:
 	bool usingExternFlow = false; //!< Is an extern flow array given in the constructor?
 	bool doingAReInit = false; //!< Is the next "init" call a re-init?
 
-	void destroy()
-	{
+	void destroy() {
 		if (!usingExternFlow) {
 			delete m_flow;
 		}
@@ -70,17 +68,13 @@ public:
 	 * @param flow is an optional argument that can be used to force the
 	 * algorithm to work on an user given "external" EdgeArray \p flow
 	 */
-	explicit MaxFlowModule(const Graph &graph, EdgeArray<T> *flow = nullptr)
-		: m_s(nullptr), m_t(nullptr)
-	{
+	explicit MaxFlowModule(const Graph& graph, EdgeArray<T>* flow = nullptr)
+		: m_s(nullptr), m_t(nullptr) {
 		init(graph, flow);
 	}
 
 	//! Destructor that deletes m_flow if it is an internal flow array.
-	virtual ~MaxFlowModule()
-	{
-		destroy();
-	}
+	virtual ~MaxFlowModule() { destroy(); }
 
 	//! Initialize the problem with a graph and optional flow array.
 	//! If no \p flow array is given, a new ("internal") array will be created.
@@ -90,8 +84,7 @@ public:
 	 * @param flow is an optional argument that can be used to force the
 	 * algorithm to work on an user given "external" EdgeArray \p flow
 	 */
-	virtual void init(const Graph &graph, EdgeArray<T> *flow = nullptr)
-	{
+	virtual void init(const Graph& graph, EdgeArray<T>* flow = nullptr) {
 		// if re-init after an init with internal flow:
 		if (doingAReInit) {
 			destroy();
@@ -100,8 +93,7 @@ public:
 		if (flow) {
 			m_flow = flow;
 			usingExternFlow = true;
-		}
-		else {
+		} else {
 			usingExternFlow = false; // in case of a re-init
 			m_flow = new EdgeArray<T>(*m_G, 0);
 		}
@@ -114,8 +106,7 @@ public:
 	/**
 	 * @param eps use an EpsilonTest with epsilon
 	 */
-	void useEpsilonTest(const double &eps)
-	{
+	void useEpsilonTest(const double& eps) {
 		delete m_et;
 		m_et = new EpsilonTest(eps);
 	}
@@ -133,7 +124,7 @@ public:
 	 * @param s is the source.
 	 * @param t is the sink.
 	 */
-	virtual T computeValue(const EdgeArray<T> &cap, const node &s, const node &t) = 0;
+	virtual T computeValue(const EdgeArray<T>& cap, const node& s, const node& t) = 0;
 
 	//! Compute the flow itself after the flow value is already computed. Only
 	//! used in algorithms with 2 phases. The flow is stored in the array that
@@ -146,8 +137,7 @@ public:
 	/**
 	 * @param flow The "internal" flow array is given in \p flow.
 	 */
-	void computeFlowAfterValue(EdgeArray<T> &flow)
-	{
+	void computeFlowAfterValue(EdgeArray<T>& flow) {
 		computeFlowAfterValue();
 		flow = *m_flow;
 	}
@@ -171,8 +161,7 @@ public:
 	 * @param t is the sink.
 	 * @param flow A copy of the "internal" flow array is given in \p flow.
 	 */
-	T computeFlow(EdgeArray<T> &cap, node &s, node &t, EdgeArray<T> &flow)
-	{
+	T computeFlow(EdgeArray<T>& cap, node& s, node& t, EdgeArray<T>& flow) {
 		T val = computeValue(cap, s, t);
 		computeFlowAfterValue(flow);
 		return val;

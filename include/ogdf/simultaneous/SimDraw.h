@@ -34,9 +34,7 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
 
-
-namespace ogdf
-{
+namespace ogdf {
 
 //! The Base class for simultaneous graph drawing.
 /**
@@ -49,8 +47,7 @@ namespace ogdf
  * Several functions are outsourced in corresponding manipulator modules.
  */
 
-class OGDF_EXPORT SimDraw
-{
+class OGDF_EXPORT SimDraw {
 	friend class SimDrawManipulatorModule;
 	friend class SimDrawCaller;
 	friend class SimDrawColorizer;
@@ -60,15 +57,15 @@ class OGDF_EXPORT SimDraw
 public:
 	//! Types for node comparison
 	enum class CompareBy {
-		index,                  //!< nodes are compared by their indices
-		label                   //!< nodes are compared by their labels
+		index, //!< nodes are compared by their indices
+		label //!< nodes are compared by their labels
 	};
 
 private:
-	Graph m_G;                  //!< the underlying graph
-	GraphAttributes m_GA;       //!< the underlying graphattributes
-	CompareBy m_compareBy;      //!< compare mode
-	NodeArray<bool> m_isDummy;  //!< dummy nodes may be colored differently
+	Graph m_G; //!< the underlying graph
+	GraphAttributes m_GA; //!< the underlying graphattributes
+	CompareBy m_compareBy; //!< compare mode
+	NodeArray<bool> m_isDummy; //!< dummy nodes may be colored differently
 
 
 public:
@@ -79,46 +76,50 @@ public:
 	*/
 	SimDraw();
 
+	//! returns graph
+	const Graph& constGraph() const { return m_G; }
 
 	//! returns graph
-	const Graph &constGraph() const { return m_G; }
-	//! returns graph
-	Graph &constGraph() { return m_G; }
+	Graph& constGraph() { return m_G; }
+
 	//! returns graphattributes
-	const GraphAttributes &constGraphAttributes() const { return m_GA; }
+	const GraphAttributes& constGraphAttributes() const { return m_GA; }
+
 	//! returns graphattributes
-	GraphAttributes &constGraphAttributes() { return m_GA; }
+	GraphAttributes& constGraphAttributes() { return m_GA; }
 
 	//! empty graph
 	void clear() { m_G.clear(); }
 
 	//! returns compare mode
-	const CompareBy &compareBy() const { return m_compareBy; }
+	const CompareBy& compareBy() const { return m_compareBy; }
+
 	//! returns compare mode
 	/*
 	* The usage of comparison by label makes only sense if the
 	* attribute nodeLabel is activated and labels are set properly.
 	*/
-	CompareBy &compareBy() { return m_compareBy; }
+	CompareBy& compareBy() { return m_compareBy; }
 
 	//! returns true if node \p v is marked as dummy
 	/**
 	* All dummy node features are introduced for usage when running
 	* callSubgraphPlanarizer of SimDrawCaller.
 	*/
-	const bool &isDummy(node v) const { return m_isDummy[v]; }
+	const bool& isDummy(node v) const { return m_isDummy[v]; }
+
 	//! returns true if node \p v is marked as dummy
-	bool &isDummy(node v) { return m_isDummy[v]; }
+	bool& isDummy(node v) { return m_isDummy[v]; }
+
 	//! returns true if node \p v is a cost zero dummy node
-	bool isPhantomDummy(node v) const
-	{
-		return isDummy(v) && !isProperDummy(v);
-	}
+	bool isPhantomDummy(node v) const { return isDummy(v) && !isProperDummy(v); }
+
 	//! returns true if node \p v is a cost greater zero dummy node
 	bool isProperDummy(node v) const;
 
 	//! returns number of nodes
 	int numberOfNodes() const { return m_G.numberOfNodes(); }
+
 	//! returns number of dummy nodes
 	int numberOfDummyNodes() const;
 	//! returns number of phantom dummy nodes
@@ -148,9 +149,9 @@ public:
 	int numberOfBasicGraphs() const;
 
 	//! calls GraphAttributes::readGML
-	void readGML(const char *fileName);
+	void readGML(const char* fileName);
 	//! calls GraphAttributes::writeGML
-	void writeGML(const char *fileName) const;
+	void writeGML(const char* fileName) const;
 
 	//! returns graph consisting of all edges and nodes from SubGraph \p i
 	const Graph getBasicGraph(int i) const;
@@ -160,7 +161,7 @@ public:
 	* nodeGraphics, edgeGraphics, edgeLabel, nodeLabel, nodeId,
 	* edgeIntWeight and edgeColor.
 	*/
-	void getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G);
+	void getBasicGraphAttributes(int i, GraphAttributes& GA, Graph& G);
 
 	//! adds new GraphAttributes to m_G
 	/**
@@ -170,7 +171,7 @@ public:
 	* Otherwise this function returns false.
 	* The function uses the current compare mode.
 	*/
-	bool addGraphAttributes(const GraphAttributes & GA);
+	bool addGraphAttributes(const GraphAttributes& GA);
 
 	//! adds the graph g to the instance m_G
 	/**
@@ -179,13 +180,13 @@ public:
 	* \p G to m_G and return true.
 	* Otherwise this function returns false.
 	*/
-	bool addGraph(const Graph & G);
+	bool addGraph(const Graph& G);
 
 	//! gives access to new attribute if not already given
-	void addAttribute(long attr)
-	{
-		if(!m_GA.has(attr))
+	void addAttribute(long attr) {
+		if (!m_GA.has(attr)) {
 			m_GA.addAttributes(attr);
+		}
 	}
 
 private:
@@ -198,8 +199,7 @@ private:
 	* and set properly.
 	* Otherwise it is recommended to use compareById.
 	*/
-	bool compareByLabel(const GraphAttributes &vGA, node v, const GraphAttributes &wGA, node w) const
-	{
+	bool compareByLabel(const GraphAttributes& vGA, node v, const GraphAttributes& wGA, node w) const {
 		return vGA.label(v) == wGA.label(w);
 	}
 
@@ -208,9 +208,7 @@ private:
 	* This method checks whether m_compareBy was set to index or label and
 	* uses the corresponding compare method.
 	*/
-	bool compare(const GraphAttributes &vGA, node v,
-		const GraphAttributes &wGA, node w) const;
-
+	bool compare(const GraphAttributes& vGA, node v, const GraphAttributes& wGA, node w) const;
 };
 
 }

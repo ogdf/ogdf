@@ -39,14 +39,14 @@ namespace goemans {
 
 //! Interface for core edge finder algorithms
 template<typename T>
-class CoreEdgeModule
-{
+class CoreEdgeModule {
 public:
 	//! Compute a set of core edges
 	//! @param graph The input graph
 	//! @param terminals The terminals of the given graph
 	//! @param isInTree The resulting EdgeArray where an edge is true iff it is not a core edge
-	virtual void call(const Graph &graph, const List<node> &terminals, EdgeArray<bool> &isInTree) const = 0;
+	virtual void call(const Graph& graph, const List<node>& terminals,
+			EdgeArray<bool>& isInTree) const = 0;
 };
 
 }

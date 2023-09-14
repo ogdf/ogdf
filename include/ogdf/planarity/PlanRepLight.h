@@ -33,7 +33,6 @@
 
 #include <ogdf/planarity/PlanRep.h>
 
-
 namespace ogdf {
 
 
@@ -41,17 +40,16 @@ namespace ogdf {
 /**
  * @ingroup plan-rep
  */
-class PlanRepLight : public GraphCopy
-{
-	const CCsInfo &m_ccInfo;
-	const PlanRep &m_pr;
+class PlanRepLight : public GraphCopy {
+	const CCsInfo& m_ccInfo;
+	const PlanRep& m_pr;
 
 	int m_currentCC;
 	EdgeArray<edge> m_eAuxCopy;
 
 public:
 	//! Creates a light-weight planarized representation.
-	PlanRepLight(const PlanRep &pr);
+	PlanRepLight(const PlanRep& pr);
 
 	//! Returns the number of connected components in the original graph.
 	int numberOfCCs() const { return m_ccInfo.numberOfCCs(); }
@@ -60,7 +58,7 @@ public:
 	int currentCC() const { return m_currentCC; }
 
 	//! Returns the connected component info structure.
-	const CCsInfo &ccInfo() const { return m_ccInfo; }
+	const CCsInfo& ccInfo() const { return m_ccInfo; }
 
 	//! Returns the original edge with index \p i.
 	edge e(int i) const { return m_ccInfo.e(i); }

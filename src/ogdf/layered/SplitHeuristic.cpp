@@ -32,24 +32,20 @@
 
 #include <ogdf/layered/SplitHeuristic.h>
 
-namespace ogdf
-{
+namespace ogdf {
 
-void SplitHeuristic::init (const HierarchyLevels &levels)
-{
+void SplitHeuristic::init(const HierarchyLevels& levels) {
 	cleanup();
 	m_cm = new CrossingsMatrix(levels);
 }
 
-void SplitHeuristic::cleanup()
-{
+void SplitHeuristic::cleanup() {
 	delete m_cm;
 	m_cm = nullptr;
 }
 
 // ordinary call
-void SplitHeuristic::call(Level &L)
-{
+void SplitHeuristic::call(Level& L) {
 	m_cm->init(L);
 	m_buffer = Array<node>(L.size());
 
@@ -59,8 +55,7 @@ void SplitHeuristic::call(Level &L)
 }
 
 // SimDraw call
-void SplitHeuristic::call(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
-{
+void SplitHeuristic::call(Level& L, const EdgeArray<uint32_t>* edgeSubGraphs) {
 	// only difference to call is the different calculation of the crossingsmatrix
 	m_cm->init(L, edgeSubGraphs);
 	m_buffer = Array<node>(L.size());
@@ -70,43 +65,42 @@ void SplitHeuristic::call(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 	m_buffer = Array<node>(-1);
 }
 
-void SplitHeuristic::recCall(Level &L, int low, int high)
-{
-	if (high <= low) return;
+void SplitHeuristic::recCall(Level& L, int low, int high) {
+	if (high <= low) {
+		return;
+	}
 
-	const HierarchyLevels &levels = L.levels();
-	CrossingsMatrix &crossings = *m_cm;
+	const HierarchyLevels& levels = L.levels();
+	CrossingsMatrix& crossings = *m_cm;
 	int up = high, down = low;
 
 	// chooses L[low] as pivot
 	int i;
-	for (i = low+1; i <= high; i++)
-	{
-		if (crossings(i,low) < crossings(low,i))
+	for (i = low + 1; i <= high; i++) {
+		if (crossings(i, low) < crossings(low, i)) {
 			m_buffer[down++] = L[i];
+		}
 	}
 
 	// use two for-loops in order to keep the number of swaps low
-	for (i = high; i >= low+1; i--)
-	{
-		if (crossings(i,low) >= crossings(low,i))
+	for (i = high; i >= low + 1; i--) {
+		if (crossings(i, low) >= crossings(low, i)) {
 			m_buffer[up--] = L[i];
+		}
 	}
 
 	m_buffer[down] = L[low];
 
-	for (i = low; i < high; i++)
-	{
+	for (i = low; i < high; i++) {
 		int j = levels.pos(m_buffer[i]);
-		if (i != j)
-		{
-			L.swap(i,j);
-			crossings.swap(i,j);
+		if (i != j) {
+			L.swap(i, j);
+			crossings.swap(i, j);
 		}
 	}
 
-	recCall(L,low,down-1);
-	recCall(L,up+1,high);
+	recCall(L, low, down - 1);
+	recCall(L, up + 1, high);
 }
 
 }

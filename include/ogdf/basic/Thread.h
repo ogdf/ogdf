@@ -33,8 +33,8 @@
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
-#include <thread>
 
+#include <thread>
 
 namespace ogdf {
 
@@ -50,31 +50,35 @@ namespace ogdf {
  * (instead of just using std::thread), or you need to call the flushPool()
  * function of the memory allocator manually (see Thread's constructor for an example).
  */
-class Thread : public std::thread
-{
+class Thread : public std::thread {
 public:
 	Thread() : thread() { }
-	Thread(Thread &&other) : thread(std::move((thread&&)other)) { }
+
+	Thread(Thread&& other) : thread(std::move((thread &&) other)) { }
 
 	// Visual C++ 2013 Preview cannot compile that combination of variadic templates and lambda function (though it should).
 	// Therefore we use the version without function arguments for MSVC untils this works.
 #ifdef _MSC_VER
 	template<class Function>
-	explicit Thread(Function && f) : thread([&]{
-		f();
-		OGDF_ALLOCATOR::flushPool();
-	}) { }
+	explicit Thread(Function&& f)
+		: thread([&] {
+			f();
+			OGDF_ALLOCATOR::flushPool();
+		}) { }
 
 #else
-	template<class Function, class ... Args>
-	explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... tArgs){
-		f(std::forward<Args>(tArgs)...);
-		OGDF_ALLOCATOR::flushPool();
-	}, std::forward<Args>(args)...) { }
+	template<class Function, class... Args>
+	explicit Thread(Function&& f, Args&&... args)
+		: thread(
+				[&](Args&&... tArgs) {
+					f(std::forward<Args>(tArgs)...);
+					OGDF_ALLOCATOR::flushPool();
+				},
+				std::forward<Args>(args)...) { }
 #endif
 
-	Thread &operator=(Thread &&other) {
-		thread::operator=(std::move((thread&&)other));
+	Thread& operator=(Thread&& other) {
+		thread::operator=(std::move((thread &&) other));
 		return *this;
 	}
 };

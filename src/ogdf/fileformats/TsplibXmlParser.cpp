@@ -78,7 +78,8 @@ bool TsplibXmlParser::read(Graph& G, GraphAttributes* GA) {
 	}
 
 	// 2D double array for costs.
-	std::vector<std::vector<double>> costs(n, std::vector<double>(n, std::numeric_limits<double>::quiet_NaN()));
+	std::vector<std::vector<double>> costs(n,
+			std::vector<double>(n, std::numeric_limits<double>::quiet_NaN()));
 
 	// read costs
 	int sourceVertexIndex = 0;
@@ -88,8 +89,10 @@ bool TsplibXmlParser::read(Graph& G, GraphAttributes* GA) {
 			int targetVertexIndex;
 			try {
 				targetVertexIndex = std::stoi(edgeNode.child_value());
-			} catch(...) {
-				GraphIO::logger.lout() << "invalid vertex index encountered: " << edgeNode.child_value() << std::endl;
+			} catch (...) {
+				GraphIO::logger.lout()
+						<< "invalid vertex index encountered: " << edgeNode.child_value()
+						<< std::endl;
 				return false;
 			}
 
@@ -98,18 +101,21 @@ bool TsplibXmlParser::read(Graph& G, GraphAttributes* GA) {
 			}
 
 			if (targetVertexIndex >= n || targetVertexIndex < 0) {
-				GraphIO::logger.lout() << "invalid vertex index encountered: " << targetVertexIndex << std::endl;
+				GraphIO::logger.lout()
+						<< "invalid vertex index encountered: " << targetVertexIndex << std::endl;
 				return false;
 			}
 
 			pugi::xml_attribute costAttr = edgeNode.first_attribute();
 			if (costAttr == nullptr) {
-				GraphIO::logger.lout() << "no cost attribute found for source node " << sourceVertexIndex
-					<< " and target node " << targetVertexIndex << std::endl;
+				GraphIO::logger.lout()
+						<< "no cost attribute found for source node " << sourceVertexIndex
+						<< " and target node " << targetVertexIndex << std::endl;
 				return false;
 			}
 			if (std::string(costAttr.name()) != "cost") {
-				GraphIO::logger.lout() << "invalid attribute encountered: " << costAttr.name() << std::endl;
+				GraphIO::logger.lout()
+						<< "invalid attribute encountered: " << costAttr.name() << std::endl;
 				return false;
 			}
 
@@ -121,11 +127,9 @@ bool TsplibXmlParser::read(Graph& G, GraphAttributes* GA) {
 	// the graph is directed if any costs for arcs (i, j) and (j, i) are different or not set (NaN).
 	bool directed = false;
 	for (int i = 0; i < n; i++) {
-		for (int j = i+1; j < n; j++) {
-			if (
-				std::isnan(costs[i][j]) != std::isnan(costs[j][i]) ||
-				(!std::isnan(costs[i][j]) && costs[i][j] != costs[j][i])
-			) {
+		for (int j = i + 1; j < n; j++) {
+			if (std::isnan(costs[i][j]) != std::isnan(costs[j][i])
+					|| (!std::isnan(costs[i][j]) && costs[i][j] != costs[j][i])) {
 				directed = true;
 				break;
 			}
@@ -148,7 +152,7 @@ bool TsplibXmlParser::read(Graph& G, GraphAttributes* GA) {
 		}
 	} else {
 		for (int i = 0; i < n; i++) {
-			for (int j = i+1; j < n; j++) {
+			for (int j = i + 1; j < n; j++) {
 				if (!std::isnan(costs[i][j])) {
 					edge e = G.newEdge(indexToNode[i], indexToNode[j]);
 					if (GA) {
@@ -165,11 +169,9 @@ bool TsplibXmlParser::read(Graph& G, GraphAttributes* GA) {
 	return true;
 }
 
-bool TsplibXmlParser::read(Graph &G) {
-	return read(G, nullptr);
-}
+bool TsplibXmlParser::read(Graph& G) { return read(G, nullptr); }
 
-bool TsplibXmlParser::read(Graph &G, GraphAttributes &GA) {
+bool TsplibXmlParser::read(Graph& G, GraphAttributes& GA) {
 	GA.init(G, GraphAttributes::edgeDoubleWeight);
 	return read(G, &GA);
 }

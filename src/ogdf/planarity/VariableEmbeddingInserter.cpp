@@ -35,19 +35,14 @@
 namespace ogdf {
 
 // clone method
-EdgeInsertionModule *VariableEmbeddingInserter::clone() const
-{
+EdgeInsertionModule* VariableEmbeddingInserter::clone() const {
 	return new VariableEmbeddingInserter(*this);
 }
 
 // actual call method
-Module::ReturnType VariableEmbeddingInserter::doCall(
-	PlanRepLight &pr,
-	const Array<edge> &origEdges,
-	const EdgeArray<int> *pCostOrig,
-	const EdgeArray<bool> *pForbiddenOrig,
-	const EdgeArray<uint32_t> *pEdgeSubgraph)
-{
+Module::ReturnType VariableEmbeddingInserter::doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+		const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+		const EdgeArray<uint32_t>* pEdgeSubgraph) {
 	VarEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraph);
 	core.timeLimit(timeLimit());
 
@@ -57,13 +52,9 @@ Module::ReturnType VariableEmbeddingInserter::doCall(
 }
 
 // actual call method for postprocessing only
-Module::ReturnType VariableEmbeddingInserter::doCallPostprocessing(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraphs)
-{
+Module::ReturnType VariableEmbeddingInserter::doCallPostprocessing(PlanRepLight& pr,
+		const Array<edge>& origEdges, const EdgeArray<int>* pCostOrig,
+		const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubgraphs) {
 	VarEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
 	core.timeLimit(timeLimit());
 

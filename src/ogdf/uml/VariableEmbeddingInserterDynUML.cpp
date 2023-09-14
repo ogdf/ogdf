@@ -29,36 +29,34 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/uml/VariableEmbeddingInserterDynUML.h>
 #include <ogdf/planarity/embedding_inserter/VarEdgeInserterDynCore.h>
+#include <ogdf/uml/VariableEmbeddingInserterDynUML.h>
 
 namespace ogdf {
 
 // constructor
 // sets default values for options
-VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML()
-{
+VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML() {
 	m_rrOption = RemoveReinsertType::None;
 	m_percentMostCrossed = 25;
 }
 
 // copy constructor
-VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML &inserter)
-	: UMLEdgeInsertionModule(inserter)
-{
+VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML(
+		const VariableEmbeddingInserterDynUML& inserter)
+	: UMLEdgeInsertionModule(inserter) {
 	m_rrOption = inserter.m_rrOption;
 	m_percentMostCrossed = inserter.m_percentMostCrossed;
 }
 
 // clone method
-UMLEdgeInsertionModule *VariableEmbeddingInserterDynUML::clone() const
-{
+UMLEdgeInsertionModule* VariableEmbeddingInserterDynUML::clone() const {
 	return new VariableEmbeddingInserterDynUML(*this);
 }
 
 // assignment operator
-VariableEmbeddingInserterDynUML &VariableEmbeddingInserterDynUML::operator=(const VariableEmbeddingInserterDynUML &inserter)
-{
+VariableEmbeddingInserterDynUML& VariableEmbeddingInserterDynUML::operator=(
+		const VariableEmbeddingInserterDynUML& inserter) {
 	m_timeLimit = inserter.m_timeLimit;
 	m_rrOption = inserter.m_rrOption;
 	m_percentMostCrossed = inserter.m_percentMostCrossed;
@@ -66,12 +64,9 @@ VariableEmbeddingInserterDynUML &VariableEmbeddingInserterDynUML::operator=(cons
 }
 
 // actual call method
-Module::ReturnType VariableEmbeddingInserterDynUML::doCall(
-	PlanRepLight              &pr,
-	const Array<edge>         &origEdges,
-	const EdgeArray<int>      *pCostOrig,
-	const EdgeArray<uint32_t> *pEdgeSubgraph)
-{
+Module::ReturnType VariableEmbeddingInserterDynUML::doCall(PlanRepLight& pr,
+		const Array<edge>& origEdges, const EdgeArray<int>* pCostOrig,
+		const EdgeArray<uint32_t>* pEdgeSubgraph) {
 	VarEdgeInserterDynUMLCore core(pr, pCostOrig, pEdgeSubgraph);
 	core.timeLimit(timeLimit());
 

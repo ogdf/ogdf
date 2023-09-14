@@ -38,9 +38,10 @@ namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-inline void calculate_forces_inside_contained_nodes(NodeArray<DPoint> &F_rep, const NodeArray<NodeAttributes> &A, const List<node> &contained_nodes) {
+inline void calculate_forces_inside_contained_nodes(NodeArray<DPoint>& F_rep,
+		const NodeArray<NodeAttributes>& A, const List<node>& contained_nodes) {
 	int length = contained_nodes.size();
-	Array<node> numbered_nodes(length+1);
+	Array<node> numbered_nodes(length + 1);
 	int i = 1;
 	for (node v : contained_nodes) {
 		numbered_nodes[i] = v;

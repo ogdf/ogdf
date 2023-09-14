@@ -31,29 +31,21 @@
  */
 
 
-#include <ogdf/orthogonal/LongestPathCompaction.h>
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
-
+#include <ogdf/orthogonal/LongestPathCompaction.h>
 
 namespace ogdf {
 
 
 // constructor
-LongestPathCompaction::LongestPathCompaction(bool tighten,
-	int maxImprovementSteps)
-{
-	m_tighten             = tighten;
+LongestPathCompaction::LongestPathCompaction(bool tighten, int maxImprovementSteps) {
+	m_tighten = tighten;
 	m_maxImprovementSteps = maxImprovementSteps;
 }
 
-
 // constructive heuristics for orthogonal representation OR
-void LongestPathCompaction::constructiveHeuristics(
-	PlanRep &PG,
-	OrthoRep &OR,
-	const RoutingChannel<int> &rc,
-	GridLayoutMapped &drawing)
-{
+void LongestPathCompaction::constructiveHeuristics(PlanRep& PG, OrthoRep& OR,
+		const RoutingChannel<int>& rc, GridLayoutMapped& drawing) {
 	OGDF_ASSERT(OR.isOrientated());
 
 	// x-coordinates of vertical segments
@@ -71,25 +63,22 @@ void LongestPathCompaction::constructiveHeuristics(
 	computeCoords(Dy, yDy);
 
 	// final coordinates of vertices
-	for(node v : PG.nodes) {
+	for (node v : PG.nodes) {
 		drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 	}
 }
 
-
 // improvement heuristics for orthogonal drawing
-void LongestPathCompaction::improvementHeuristics(
-	PlanRep &PG,
-	OrthoRep &OR,
-	const RoutingChannel<int> &rc,
-	GridLayoutMapped &drawing)
-{
+void LongestPathCompaction::improvementHeuristics(PlanRep& PG, OrthoRep& OR,
+		const RoutingChannel<int>& rc, GridLayoutMapped& drawing) {
 	OGDF_ASSERT(OR.isOrientated());
 
 	int costs, lastCosts;
 	int steps = 0, maxSteps = m_maxImprovementSteps;
-	if (maxSteps == 0) maxSteps = std::numeric_limits<int>::max();
+	if (maxSteps == 0) {
+		maxSteps = std::numeric_limits<int>::max();
+	}
 
 	// OPTIMIZATION POTENTIAL:
 	// update constraint graphs "incrementally" by only re-inserting
@@ -102,13 +91,13 @@ void LongestPathCompaction::improvementHeuristics(
 		// x-coordinates of vertical segments
 		CompactionConstraintGraph<int> Dx(OR, PG, OrthoDir::East, rc.separation());
 		Dx.insertVertexSizeArcs(PG, drawing.width(), rc);
-		Dx.insertVisibilityArcs(PG, drawing.x(),drawing.y());
+		Dx.insertVisibilityArcs(PG, drawing.x(), drawing.y());
 
 		NodeArray<int> xDx(Dx.getGraph(), 0);
 		computeCoords(Dx, xDx);
 
 		// final x-coordinates of vertices
-		for(node v : PG.nodes) {
+		for (node v : PG.nodes) {
 			drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		}
 
@@ -116,13 +105,13 @@ void LongestPathCompaction::improvementHeuristics(
 		// y-coordinates of horizontal segments
 		CompactionConstraintGraph<int> Dy(OR, PG, OrthoDir::North, rc.separation());
 		Dy.insertVertexSizeArcs(PG, drawing.height(), rc);
-		Dy.insertVisibilityArcs(PG, drawing.y(),drawing.x());
+		Dy.insertVisibilityArcs(PG, drawing.y(), drawing.x());
 
 		NodeArray<int> yDy(Dy.getGraph(), 0);
 		computeCoords(Dy, yDy);
 
 		// final y-coordinates of vertices
-		for(node v : PG.nodes) {
+		for (node v : PG.nodes) {
 			drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 		}
 
@@ -131,37 +120,34 @@ void LongestPathCompaction::improvementHeuristics(
 	} while (steps < maxSteps && (steps == 1 || costs < lastCosts));
 }
 
-
-
 // computes coordinates pos of horizontal (resp. vertical) segments by
 // computing longest paths in the constraint graph D
-void LongestPathCompaction::computeCoords(
-	const CompactionConstraintGraph<int> &D,
-	NodeArray<int> &pos)
-{
-	const Graph &Gd = D.getGraph();
+void LongestPathCompaction::computeCoords(const CompactionConstraintGraph<int>& D,
+		NodeArray<int>& pos) {
+	const Graph& Gd = D.getGraph();
 
 	// compute a first ranking with usual longest paths
-	applyLongestPaths(D,pos);
+	applyLongestPaths(D, pos);
 
 
-	if (m_tighten)
-	{
+	if (m_tighten) {
 		// improve cost of ranking by moving pseudo-components
-		moveComponents(D,pos);
+		moveComponents(D, pos);
 
 
 		// find node with minimal position
 		SListConstIterator<node> it = m_pseudoSources.begin();
 		int min = pos[*it];
-		for(++it; it.valid(); ++it) {
-			if (pos[*it] < min)
+		for (++it; it.valid(); ++it) {
+			if (pos[*it] < min) {
 				min = pos[*it];
+			}
 		}
 
 		// move all nodes such that node with minimum position has position 0
-		for(node v : Gd.nodes)
+		for (node v : Gd.nodes) {
 			pos[v] -= min;
+		}
 	}
 
 	// free resources
@@ -169,44 +155,42 @@ void LongestPathCompaction::computeCoords(
 	m_component.init();
 }
 
-
-void LongestPathCompaction::applyLongestPaths(
-	const CompactionConstraintGraph<int> &D,
-	NodeArray<int> &pos)
-{
-	const Graph &Gd = D.getGraph();
+void LongestPathCompaction::applyLongestPaths(const CompactionConstraintGraph<int>& D,
+		NodeArray<int>& pos) {
+	const Graph& Gd = D.getGraph();
 
 	m_component.init(Gd);
 
 	NodeArray<int> indeg(Gd);
 	ArrayBuffer<node> sources;
 
-	for(node v : Gd.nodes) {
+	for (node v : Gd.nodes) {
 		indeg[v] = v->indeg();
-		if(indeg[v] == 0)
+		if (indeg[v] == 0) {
 			sources.push(v);
+		}
 	}
 
-	while(!sources.empty())
-	{
+	while (!sources.empty()) {
 		node v = sources.popRet();
 
 		int predComp = -1; // means "unset"
 		bool isPseudoSource = true;
 
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
-			if(e->source() != v) {
+			if (e->source() != v) {
 				// incoming edge
 				if (D.cost(e) > 0) {
 					isPseudoSource = false;
 					node w = e->source();
 					// is tight?
 					if (pos[w] + D.length(e) == pos[v]) {
-						if (predComp == -1)
+						if (predComp == -1) {
 							predComp = m_component[w];
-						else if (predComp != m_component[w])
+						} else if (predComp != m_component[w]) {
 							predComp = 0; // means "vertex is in no pseudo-comp.
+						}
 					}
 				}
 
@@ -214,18 +198,21 @@ void LongestPathCompaction::applyLongestPaths(
 				// outgoing edge
 				node w = e->target();
 
-				if (pos[w] < pos[v] + D.length(e))
+				if (pos[w] < pos[v] + D.length(e)) {
 					pos[w] = pos[v] + D.length(e);
+				}
 
-				if (--indeg[w] == 0)
+				if (--indeg[w] == 0) {
 					sources.push(w);
+				}
 			}
 		}
 
-		if (predComp == -1)
+		if (predComp == -1) {
 			predComp = 0;
+		}
 
-		if( isPseudoSource) {
+		if (isPseudoSource) {
 			m_pseudoSources.pushFront(v);
 			m_component[v] = m_pseudoSources.size();
 		} else {
@@ -234,72 +221,70 @@ void LongestPathCompaction::applyLongestPaths(
 	}
 }
 
-
-
-void LongestPathCompaction::moveComponents(
-	const CompactionConstraintGraph<int> &D,
-	NodeArray<int> &pos)
-{
-	const Graph &Gd = D.getGraph();
+void LongestPathCompaction::moveComponents(const CompactionConstraintGraph<int>& D,
+		NodeArray<int>& pos) {
+	const Graph& Gd = D.getGraph();
 
 	// compute for each component the list of nodes contained
-	Array<SListPure<node> > nodesInComp(1,m_pseudoSources.size());
+	Array<SListPure<node>> nodesInComp(1, m_pseudoSources.size());
 
-	for(node v : Gd.nodes) {
-		if (m_component[v] > 0)
-		nodesInComp[m_component[v]].pushBack(v);
+	for (node v : Gd.nodes) {
+		if (m_component[v] > 0) {
+			nodesInComp[m_component[v]].pushBack(v);
+		}
 	}
 
 
 	// iterate over all pseudo-sources in reverse topological order
-	for(node v : m_pseudoSources)
-	{
+	for (node v : m_pseudoSources) {
 		int c = m_component[v];
 
 		// list of outgoing/incoming edges of pseudo-component C(v)
 		SListPure<edge> outCompV, inCompV;
 
 		//std::cout << "component " << c << std::endl;
-		for(node w : nodesInComp[c])
-		{
+		for (node w : nodesInComp[c]) {
 			//std::cout << " " << w;
-			for(adjEntry adj : w->adjEntries) {
+			for (adjEntry adj : w->adjEntries) {
 				edge e = adj->theEdge();
-				if(m_component[e->target()] != c) {
+				if (m_component[e->target()] != c) {
 					outCompV.pushBack(e);
-				} else if (m_component[e->source()] != c)
+				} else if (m_component[e->source()] != c) {
 					inCompV.pushBack(e);
+				}
 			}
 		}
 		//std::cout << std::endl;
 
-		if(outCompV.empty())
+		if (outCompV.empty()) {
 			continue;
+		}
 
 		SListConstIterator<edge> itE = outCompV.begin();
 		int costOut = D.cost(*itE);
-		int delta = (pos[(*itE)->target()] - pos[(*itE)->source()]) -
-						D.length(*itE);
+		int delta = (pos[(*itE)->target()] - pos[(*itE)->source()]) - D.length(*itE);
 
-		for(++itE; itE.valid(); ++itE) {
+		for (++itE; itE.valid(); ++itE) {
 			costOut += D.cost(*itE);
-			int d = (pos[(*itE)->target()] - pos[(*itE)->source()]) -
-						D.length(*itE);
-			if (d < delta)
+			int d = (pos[(*itE)->target()] - pos[(*itE)->source()]) - D.length(*itE);
+			if (d < delta) {
 				delta = d;
+			}
 		}
 
 		//std::cout << "  delta = " << delta << ", costOut = " << costOut << std::endl;
 
 		// if all outgoing edges have cost 0, we wouldn't save any cost!
-		if (costOut == 0) continue;
+		if (costOut == 0) {
+			continue;
+		}
 
 		// move component up by delta; this shortens all outgoing edges and
 		// enlarges all incoming edges (which have cost 0)
-		for(node w : nodesInComp[c])
+		for (node w : nodesInComp[c]) {
 			pos[w] += delta;
+		}
 	}
-
 }
 
 

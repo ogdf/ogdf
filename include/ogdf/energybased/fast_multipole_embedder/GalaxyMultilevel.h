@@ -32,48 +32,42 @@
 #pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/tuples.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/tuples.h>
 #include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-class GalaxyMultilevel
-{
+class GalaxyMultilevel {
 public:
-	using NearSunList = List<Tuple2<node,int>>;
+	using NearSunList = List<Tuple2<node, int>>;
 
-	struct LevelNodeInfo
-	{
+	struct LevelNodeInfo {
 		float mass;
 		float radius;
 		node parent;
 		NearSunList nearSuns;
 	};
 
-	struct LevelEdgeInfo
-	{
+	struct LevelEdgeInfo {
 		float length;
 	};
 
-	explicit GalaxyMultilevel(Graph* pGraph)
-	{
+	explicit GalaxyMultilevel(Graph* pGraph) {
 		m_pFinerMultiLevel = nullptr;
 		m_pCoarserMultiLevel = nullptr;
 		m_pGraph = pGraph;
 		m_pNodeInfo = new NodeArray<LevelNodeInfo>(*m_pGraph);
 		m_pEdgeInfo = new EdgeArray<LevelEdgeInfo>(*m_pGraph);
-		for(node v : m_pGraph->nodes)
-		{
+		for (node v : m_pGraph->nodes) {
 			(*m_pNodeInfo)[v].mass = 1.0;
 		}
 		levelNumber = 0;
 	}
 
-	GalaxyMultilevel(GalaxyMultilevel* prev)
-	{
+	GalaxyMultilevel(GalaxyMultilevel* prev) {
 		m_pCoarserMultiLevel = nullptr;
 		m_pFinerMultiLevel = prev;
 		m_pFinerMultiLevel->m_pCoarserMultiLevel = this;
@@ -92,20 +86,16 @@ public:
 	int levelNumber;
 };
 
-
-class GalaxyMultilevelBuilder
-{
+class GalaxyMultilevelBuilder {
 public:
-	struct LevelNodeState
-	{
+	struct LevelNodeState {
 		node lastVisitor;
 		double sysMass;
 		int label;
 		float edgeLengthFromSun;
 	};
 
-	struct NodeOrderInfo
-	{
+	struct NodeOrderInfo {
 		node theNode;
 	};
 
@@ -131,20 +121,19 @@ private:
 	int m_dist = 0;
 };
 
-
-class NodeMassComparer
-{
+class NodeMassComparer {
 public:
-	explicit NodeMassComparer(const NodeArray< GalaxyMultilevelBuilder::LevelNodeState>& nodeState) : m_nodeState(nodeState) { }
+	explicit NodeMassComparer(const NodeArray<GalaxyMultilevelBuilder::LevelNodeState>& nodeState)
+		: m_nodeState(nodeState) { }
 
 	// used for std::sort
-	inline bool operator()(const GalaxyMultilevelBuilder::NodeOrderInfo& a, const GalaxyMultilevelBuilder::NodeOrderInfo& b) const
-	{
+	inline bool operator()(const GalaxyMultilevelBuilder::NodeOrderInfo& a,
+			const GalaxyMultilevelBuilder::NodeOrderInfo& b) const {
 		return m_nodeState[a.theNode].sysMass < m_nodeState[b.theNode].sysMass;
 	}
 
 private:
-	const NodeArray< GalaxyMultilevelBuilder::LevelNodeState >& m_nodeState;
+	const NodeArray<GalaxyMultilevelBuilder::LevelNodeState>& m_nodeState;
 };
 
 }

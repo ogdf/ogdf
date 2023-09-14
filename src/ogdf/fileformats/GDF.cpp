@@ -32,90 +32,106 @@
 #include <ogdf/fileformats/GDF.h>
 #include <ogdf/fileformats/Utils.h>
 
-
 namespace ogdf {
 
 namespace gdf {
 
 
-std::string toString(const NodeAttribute &attr)
-{
-	switch(attr) {
-	case NodeAttribute::Name: return "name";
-	case NodeAttribute::X: return "x";
-	case NodeAttribute::Y: return "y";
-	case NodeAttribute::Z: return "z";
-	case NodeAttribute::FillColor: return "color";
-	case NodeAttribute::FillBgColor: return "fillbg";
-	case NodeAttribute::FillPattern: return "fillpattern";
-	case NodeAttribute::StrokeColor: return "strokecolor";
-	case NodeAttribute::StrokeType: return "stroketype";
-	case NodeAttribute::StrokeWidth: return "strokewidth";
-	case NodeAttribute::Shape: return "style";
-	case NodeAttribute::Width: return "width";
-	case NodeAttribute::Height: return "height";
-	case NodeAttribute::Label: return "label";
-	case NodeAttribute::Template: return "template";
-	case NodeAttribute::Weight: return "weight";
-	case NodeAttribute::Unknown: return "unknown";
+std::string toString(const NodeAttribute& attr) {
+	switch (attr) {
+	case NodeAttribute::Name:
+		return "name";
+	case NodeAttribute::X:
+		return "x";
+	case NodeAttribute::Y:
+		return "y";
+	case NodeAttribute::Z:
+		return "z";
+	case NodeAttribute::FillColor:
+		return "color";
+	case NodeAttribute::FillBgColor:
+		return "fillbg";
+	case NodeAttribute::FillPattern:
+		return "fillpattern";
+	case NodeAttribute::StrokeColor:
+		return "strokecolor";
+	case NodeAttribute::StrokeType:
+		return "stroketype";
+	case NodeAttribute::StrokeWidth:
+		return "strokewidth";
+	case NodeAttribute::Shape:
+		return "style";
+	case NodeAttribute::Width:
+		return "width";
+	case NodeAttribute::Height:
+		return "height";
+	case NodeAttribute::Label:
+		return "label";
+	case NodeAttribute::Template:
+		return "template";
+	case NodeAttribute::Weight:
+		return "weight";
+	case NodeAttribute::Unknown:
+		return "unknown";
 	}
 
 	return "";
 }
 
-
-std::string toString(const EdgeAttribute &attr)
-{
-	switch(attr) {
-	case EdgeAttribute::Label: return "label";
-	case EdgeAttribute::Source: return "node1";
-	case EdgeAttribute::Target: return "node2";
-	case EdgeAttribute::Weight: return "weight";
-	case EdgeAttribute::Directed: return "directed";
-	case EdgeAttribute::Color: return "color";
-	case EdgeAttribute::Bends: return "bends";
-	case EdgeAttribute::Unknown: return "unknown";
+std::string toString(const EdgeAttribute& attr) {
+	switch (attr) {
+	case EdgeAttribute::Label:
+		return "label";
+	case EdgeAttribute::Source:
+		return "node1";
+	case EdgeAttribute::Target:
+		return "node2";
+	case EdgeAttribute::Weight:
+		return "weight";
+	case EdgeAttribute::Directed:
+		return "directed";
+	case EdgeAttribute::Color:
+		return "color";
+	case EdgeAttribute::Bends:
+		return "bends";
+	case EdgeAttribute::Unknown:
+		return "unknown";
 	}
 
 	return "";
 }
 
-
-std::string toString(const Shape &shape)
-{
+std::string toString(const Shape& shape) {
 	/*
 	 * Based on official documentation:
 	 * http://guess.wikispot.org/The_GUESS_.gdf_format
 	 */
-	switch(shape) {
-	case Shape::Rect: return "1";
-	case Shape::Ellipse: return "2";
-	case Shape::RoundedRect: return "3";
-	case Shape::Image: return "7";
-	default: return "1";
+	switch (shape) {
+	case Shape::Rect:
+		return "1";
+	case Shape::Ellipse:
+		return "2";
+	case Shape::RoundedRect:
+		return "3";
+	case Shape::Image:
+		return "7";
+	default:
+		return "1";
 	}
 }
 
-
-NodeAttribute toNodeAttribute(const std::string &str)
-{
-	return toEnum(
-		str, toString,
-		static_cast<NodeAttribute>(0), NodeAttribute::Unknown, NodeAttribute::Unknown);
+NodeAttribute toNodeAttribute(const std::string& str) {
+	return toEnum(str, toString, static_cast<NodeAttribute>(0), NodeAttribute::Unknown,
+			NodeAttribute::Unknown);
 }
 
-EdgeAttribute toEdgeAttribute(const std::string &str)
-{
-	return toEnum(
-		str, toString,
-		static_cast<EdgeAttribute>(0), EdgeAttribute::Unknown, EdgeAttribute::Unknown);
+EdgeAttribute toEdgeAttribute(const std::string& str) {
+	return toEnum(str, toString, static_cast<EdgeAttribute>(0), EdgeAttribute::Unknown,
+			EdgeAttribute::Unknown);
 }
 
-Shape toShape(const std::string &str)
-{
-	return toEnum(
-		str, toString,
-		Shape::Rect, Shape::Image, Shape::Rect);
+Shape toShape(const std::string& str) {
+	return toEnum(str, toString, Shape::Rect, Shape::Image, Shape::Rect);
 }
 
 }

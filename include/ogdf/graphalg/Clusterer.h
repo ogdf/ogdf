@@ -48,77 +48,69 @@ namespace ogdf {
  *
  * \pre Input graph has to be connected
  */
-class OGDF_EXPORT Clusterer : public ClustererModule
-{
+class OGDF_EXPORT Clusterer : public ClustererModule {
 public:
 	//! Constructor taking a graph G to be clustered
-	explicit Clusterer(const Graph &G);
+	explicit Clusterer(const Graph& G);
 
 	/**Default constructor allowing to cluster multiple
 	*graphs with the same instance of the Clusterer
 	*graphs */
 	Clusterer();
 
-	virtual ~Clusterer() {}
+	virtual ~Clusterer() { }
 
 	//The clustering can be done recursively (use single threshold
 	//on component to delete weak edges (recompute strengths)) or
 	//by applying a set of thresholds, set the behaviour in
 	//function setRecursive
-	virtual void computeClustering(SList<SimpleCluster*> &sl) override;
+	virtual void computeClustering(SList<SimpleCluster*>& sl) override;
 
 	//set the thresholds defining the hierarchy assignment decision
 	//should be dependent on the used metrics
-	void setClusteringThresholds(const List<double> &threshs);
+	void setClusteringThresholds(const List<double>& threshs);
 
 	//thresholds are computed from edge strengths to split off
 	//at least some edges as long as there is a difference between
 	//min and max strength (progressive clustering)
 	//set this value to 0 to use your own or the default values
-	void setAutomaticThresholds(int numValues)
-	{
-		m_autoThreshNum = numValues;
-	}
+	void setAutomaticThresholds(int numValues) { m_autoThreshNum = numValues; }
 
 	//for recursive clustering, only the first threshold is used
 	void setRecursive(bool b) { m_recursive = b; }
 
 	//preliminary
-	void computeEdgeStrengths(EdgeArray<double> & strength);
-	void computeEdgeStrengths(const Graph &G, EdgeArray<double> & strength);
+	void computeEdgeStrengths(EdgeArray<double>& strength);
+	void computeEdgeStrengths(const Graph& G, EdgeArray<double>& strength);
 
-	virtual void createClusterGraph(ClusterGraph &C) override;
+	virtual void createClusterGraph(ClusterGraph& C) override;
 
 	void setStopIndex(double stop) { m_stopIndex = stop; }
 
 	//compute a clustering index for node v
 	//number of connections in neighborhood compared to clique
-	virtual double computeCIndex(node v) override
-	{
-		return computeCIndex(*m_pGraph, v);
-	}
+	virtual double computeCIndex(node v) override { return computeCIndex(*m_pGraph, v); }
 
-	virtual double computeCIndex(const Graph &G, node v) override
-	{
+	virtual double computeCIndex(const Graph& G, node v) override {
 		OGDF_ASSERT(v->graphOf() == &G);
-		if (v->degree() < 2) return 1.0;
+		if (v->degree() < 2) {
+			return 1.0;
+		}
 		int conns = 0; //connections, without v
 		NodeArray<bool> neighbor(G, false);
-		for (adjEntry adjE : v->adjEntries)
-		{
+		for (adjEntry adjE : v->adjEntries) {
 			neighbor[adjE->twinNode()] = true;
 		}
-		for (adjEntry adjE : v->adjEntries)
-		{
-			for (adjEntry adjEE : adjE->twinNode()->adjEntries)
-			{
-				if (neighbor[adjEE->twinNode()])
+		for (adjEntry adjE : v->adjEntries) {
+			for (adjEntry adjEE : adjE->twinNode()->adjEntries) {
+				if (neighbor[adjEE->twinNode()]) {
 					conns++;
+				}
 			}
 		}
 		//connections were counted twice
 		double index = conns / 2.0;
-		return index / (v->degree()*(v->degree() - 1));
+		return index / (v->degree() * (v->degree() - 1));
 	}
 
 protected:

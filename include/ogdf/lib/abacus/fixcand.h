@@ -102,8 +102,6 @@ private:
 	 * \param addVarBuffer Inactive variables which are fixed to a nonzero
 	 *                     value are added to \a addVarBuffer to be activated
 	 *                     in the next iteration.
-	 *
-	 * \return 1 If contradictions to the variables statuses of \a sub are detected; 0 otherwise.
 	 */
 	void fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer);
 

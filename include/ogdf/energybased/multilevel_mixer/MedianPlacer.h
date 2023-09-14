@@ -39,13 +39,12 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT MedianPlacer : public InitialPlacer
-{
+class OGDF_EXPORT MedianPlacer : public InitialPlacer {
 public:
-	void placeOneLevel(MultilevelGraph &MLG) override;
+	void placeOneLevel(MultilevelGraph& MLG) override;
 
 private:
-	void placeOneNode(MultilevelGraph &MLG);
+	void placeOneNode(MultilevelGraph& MLG);
 };
 
 }

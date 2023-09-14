@@ -34,40 +34,50 @@
 namespace ogdf {
 namespace Math {
 
-int binomial(int n, int k)
-{
-	if(k>n/2) k = n-k;
-	if(k == 0) return 1;
+int binomial(int n, int k) {
+	if (k > n / 2) {
+		k = n - k;
+	}
+	if (k == 0) {
+		return 1;
+	}
 	int r = n;
-	for(int i = 2; i<=k; ++i)
-		r = (r * (n+1-i))/i;
+	for (int i = 2; i <= k; ++i) {
+		r = (r * (n + 1 - i)) / i;
+	}
 	return r;
 }
 
-double binomial_d(int n, int k)
-{
-	if(k>n/2) k = n-k;
-	if(k == 0) return 1.0;
+double binomial_d(int n, int k) {
+	if (k > n / 2) {
+		k = n - k;
+	}
+	if (k == 0) {
+		return 1.0;
+	}
 	double r = n;
-	for(int i = 2; i<=k; ++i)
-		r = (r * (n+1-i))/i;
+	for (int i = 2; i <= k; ++i) {
+		r = (r * (n + 1 - i)) / i;
+	}
 	return r;
 }
 
-constexpr double compiletimeHarmonic(unsigned n)
-{
-	return n <= 1 ? 1.0 : (compiletimeHarmonic(n-1) + 1.0 / n);
+constexpr double compiletimeHarmonic(unsigned n) {
+	return n <= 1 ? 1.0 : (compiletimeHarmonic(n - 1) + 1.0 / n);
 }
 
 //! @cond
 // Doxygen will complain about recursive class relation if not hidden this way
 template<unsigned... Is>
 struct seq { };
+
 // rec_seq<3>{} : rec_seq<2,2>{} : rec_seq<1,1,2>{} : rec_seq<0,0,1,2> : seq<0,1,2>
 template<unsigned N, unsigned... Is>
-struct rec_seq : rec_seq<N-1, N-1, Is...> { };
+struct rec_seq : rec_seq<N - 1, N - 1, Is...> { };
+
 template<unsigned... Is>
 struct rec_seq<0, Is...> : seq<Is...> { };
+
 //! @endcond
 
 constexpr unsigned compiletimeLimit = 128;
@@ -77,15 +87,13 @@ struct compiletimeTable {
 };
 
 template<unsigned... Is>
-constexpr compiletimeTable generateCompiletimeHarmonics(seq<Is...>)
-{
+constexpr compiletimeTable generateCompiletimeHarmonics(seq<Is...>) {
 	return {{compiletimeHarmonic(Is)...}};
 }
 
-double harmonic(unsigned n)
-{
+double harmonic(unsigned n) {
 	if (n < compiletimeLimit) {
-		return generateCompiletimeHarmonics(rec_seq<compiletimeLimit>{}).value[n];
+		return generateCompiletimeHarmonics(rec_seq<compiletimeLimit> {}).value[n];
 	}
 
 	const double n_recip = 1.0 / n;
@@ -101,4 +109,5 @@ double harmonic(unsigned n)
 	return n8_term - n6_term + n4_term - n2_term + n_term + gamma + std::log(n);
 }
 
-}}
+}
+}

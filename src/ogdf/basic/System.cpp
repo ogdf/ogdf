@@ -29,50 +29,50 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/System.h>
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/memory.h>
-#include <ogdf/basic/System.h>
 
+// clang-format off
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-#define WIN32_EXTRA_LEAN
-#define WIN32_LEAN_AND_MEAN
-#undef NOMINMAX
-#define NOMINMAX
+#    define WIN32_EXTRA_LEAN
+#    define WIN32_LEAN_AND_MEAN
+#    undef NOMINMAX
+#    define NOMINMAX
 
-#include <windows.h>
-#include <Psapi.h>
-#ifdef _MSC_VER
-#pragma comment(lib, "psapi.lib")
+#    include <windows.h>
+#    include <psapi.h>
+#    ifdef _MSC_VER
+#        pragma comment(lib, "psapi.lib")
+#    endif
 #endif
-#endif
-
 
 #ifdef __APPLE__
-#include <stdlib.h>
-#include <malloc/malloc.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <sys/utsname.h>
-#include <mach/vm_statistics.h>
-#include <mach/mach.h>
-#include <mach/machine.h>
+#    include <stdlib.h>
+#    include <malloc/malloc.h>
+#    include <sys/types.h>
+#    include <sys/sysctl.h>
+#    include <sys/utsname.h>
+#    include <mach/vm_statistics.h>
+#    include <mach/mach.h>
+#    include <mach/machine.h>
 #elif defined(OGDF_SYSTEM_UNIX)
-#include <malloc.h>
+#    include <malloc.h>
 #endif
 
 #if defined(_MSC_VER)
-# include <intrin.h>
+#    include <intrin.h>
 #elif defined(OGDF_SYSTEM_UNIX) || (defined(__MINGW32__) && !defined(__MINGW64__))
-# include <unistd.h>
-# include <fcntl.h>
-# include <sys/time.h>
+#    include <unistd.h>
+#    include <fcntl.h>
+#    include <sys/time.h>
 #endif
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
-# include <cpuid.h>
+#    include <cpuid.h>
 #endif
+// clang-format on
 
-static inline void cpuid(int CPUInfo[4], int infoType)
-{
+static inline void cpuid(int CPUInfo[4], int infoType) {
 #if defined(OGDF_SYSTEM_WINDOWS) && !defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 	__cpuid(CPUInfo, infoType);
 #else
@@ -81,9 +81,9 @@ static inline void cpuid(int CPUInfo[4], int infoType)
 	uint32_t c = 0;
 	uint32_t d = 0;
 
-# if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+#	if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 	__get_cpuid(infoType, &a, &b, &c, &d);
-# endif
+#	endif
 
 	CPUInfo[0] = a;
 	CPUInfo[1] = b;
@@ -91,7 +91,6 @@ static inline void cpuid(int CPUInfo[4], int infoType)
 	CPUInfo[3] = d;
 #endif
 }
-
 
 namespace ogdf {
 
@@ -105,41 +104,61 @@ int System::s_numberOfProcessors = 1;
 int64_t System::s_HPCounterFrequency;
 #endif
 
-unsigned int operator|=(unsigned int &i, CPUFeatureMask fm){
+unsigned int operator|=(unsigned int& i, CPUFeatureMask fm) {
 	i |= static_cast<unsigned int>(fm);
 	return i;
 }
 
-void System::init()
-{
+void System::init() {
 	int CPUInfo[4] = {-1};
 	cpuid(CPUInfo, 0);
 
 	unsigned int nIds = CPUInfo[0];
-	if(nIds >= 1)
-	{
+	if (nIds >= 1) {
 		cpuid(CPUInfo, 1);
 
 		int featureInfoECX = CPUInfo[2];
 		int featureInfoEDX = CPUInfo[3];
 
-		if(featureInfoEDX & (1 << 23)) s_cpuFeatures |= CPUFeatureMask::MMX;
-		if(featureInfoEDX & (1 << 25)) s_cpuFeatures |= CPUFeatureMask::SSE;
-		if(featureInfoEDX & (1 << 26)) s_cpuFeatures |= CPUFeatureMask::SSE2;
-		if(featureInfoECX & (1 <<  0)) s_cpuFeatures |= CPUFeatureMask::SSE3;
-		if(featureInfoECX & (1 <<  9)) s_cpuFeatures |= CPUFeatureMask::SSSE3;
-		if(featureInfoECX & (1 << 19)) s_cpuFeatures |= CPUFeatureMask::SSE4_1;
-		if(featureInfoECX & (1 << 20)) s_cpuFeatures |= CPUFeatureMask::SSE4_2;
-		if(featureInfoECX & (1 <<  5)) s_cpuFeatures |= CPUFeatureMask::VMX;
-		if(featureInfoECX & (1 <<  6)) s_cpuFeatures |= CPUFeatureMask::SMX;
-		if(featureInfoECX & (1 <<  7)) s_cpuFeatures |= CPUFeatureMask::EST;
-		if(featureInfoECX & (1 <<  3)) s_cpuFeatures |= CPUFeatureMask::MONITOR;
+		if (featureInfoEDX & (1 << 23)) {
+			s_cpuFeatures |= CPUFeatureMask::MMX;
+		}
+		if (featureInfoEDX & (1 << 25)) {
+			s_cpuFeatures |= CPUFeatureMask::SSE;
+		}
+		if (featureInfoEDX & (1 << 26)) {
+			s_cpuFeatures |= CPUFeatureMask::SSE2;
+		}
+		if (featureInfoECX & (1 << 0)) {
+			s_cpuFeatures |= CPUFeatureMask::SSE3;
+		}
+		if (featureInfoECX & (1 << 9)) {
+			s_cpuFeatures |= CPUFeatureMask::SSSE3;
+		}
+		if (featureInfoECX & (1 << 19)) {
+			s_cpuFeatures |= CPUFeatureMask::SSE4_1;
+		}
+		if (featureInfoECX & (1 << 20)) {
+			s_cpuFeatures |= CPUFeatureMask::SSE4_2;
+		}
+		if (featureInfoECX & (1 << 5)) {
+			s_cpuFeatures |= CPUFeatureMask::VMX;
+		}
+		if (featureInfoECX & (1 << 6)) {
+			s_cpuFeatures |= CPUFeatureMask::SMX;
+		}
+		if (featureInfoECX & (1 << 7)) {
+			s_cpuFeatures |= CPUFeatureMask::EST;
+		}
+		if (featureInfoECX & (1 << 3)) {
+			s_cpuFeatures |= CPUFeatureMask::MONITOR;
+		}
 	}
 
 	cpuid(CPUInfo, 0x80000000);
 	unsigned int nExIds = CPUInfo[0];
 
-	if(nExIds >= 0x80000006) {
+	if (nExIds >= 0x80000006) {
 		cpuid(CPUInfo, 0x80000006);
 		s_cacheLine = CPUInfo[2] & 0xff;
 		s_cacheSize = (CPUInfo[2] >> 16) & 0xffff;
@@ -153,7 +172,7 @@ void System::init()
 	s_pageSize = siSysInfo.dwPageSize;
 	s_numberOfProcessors = siSysInfo.dwNumberOfProcessors;
 #elif defined(OGDF_SYSTEM_UNIX)
-# if defined(__APPLE__)
+#	if defined(__APPLE__)
 	unsigned long long value;
 	size_t size = sizeof(value);
 	if (sysctlbyname("hw.pagesize", &value, &size, nullptr, 0) != -1) {
@@ -162,94 +181,81 @@ void System::init()
 	if (sysctlbyname("hw.ncpu", &value, &size, nullptr, 0) != -1) {
 		s_numberOfProcessors = (int)value;
 	}
-# else
+#	else
 	s_pageSize = (int)sysconf(_SC_PAGESIZE);
 	s_numberOfProcessors = (int)sysconf(_SC_NPROCESSORS_CONF);
-# endif
+#	endif
 #endif
 }
 
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-void System::getHPCounter(int64_t &counter)
-{
+void System::getHPCounter(int64_t& counter) {
 	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&counter));
 }
 
-
-double System::elapsedSeconds(
-	const int64_t &startCounter,
-	const int64_t &endCounter)
-{
+double System::elapsedSeconds(const int64_t& startCounter, const int64_t& endCounter) {
 	return double(endCounter - startCounter) / s_HPCounterFrequency;
 }
 
-
-int64_t System::usedRealTime(int64_t &t)
-{
+int64_t System::usedRealTime(int64_t& t) {
 	int64_t tStart = t;
-#if _WIN32_WINNT >= 0x0600
+#	if _WIN32_WINNT >= 0x0600
 	t = GetTickCount64();
-#else
+#	else
 	t = GetTickCount();
-#endif
+#	endif
 	return t - tStart;
 }
 
-int64_t System::realTime()
-{
-#if _WIN32_WINNT >= 0x0600
+int64_t System::realTime() {
+#	if _WIN32_WINNT >= 0x0600
 	return GetTickCount64();
-#else
+#	else
 	return GetTickCount();
-#endif
+#	endif
 }
 
-
-long long System::physicalMemory()
-{
-#if !defined(__CYGWIN__) || (_WIN32_WINNT >= 0x0500)
+long long System::physicalMemory() {
+#	if !defined(__CYGWIN__) || (_WIN32_WINNT >= 0x0500)
 	MEMORYSTATUSEX statex;
-	statex.dwLength = sizeof (statex);
+	statex.dwLength = sizeof(statex);
 
-	GlobalMemoryStatusEx (&statex);
+	GlobalMemoryStatusEx(&statex);
 	return statex.ullTotalPhys;
-#else
+#	else
 	MEMORYSTATUS stat;
-	stat.dwLength = sizeof (stat);
+	stat.dwLength = sizeof(stat);
 
-	GlobalMemoryStatus (&stat);
+	GlobalMemoryStatus(&stat);
 	return stat.dwTotalPhys;
-#endif
+#	endif
 }
 
-long long System::availablePhysicalMemory()
-{
-#if !defined(__CYGWIN__) || (_WIN32_WINNT >= 0x0500)
+long long System::availablePhysicalMemory() {
+#	if !defined(__CYGWIN__) || (_WIN32_WINNT >= 0x0500)
 	MEMORYSTATUSEX statex;
-	statex.dwLength = sizeof (statex);
+	statex.dwLength = sizeof(statex);
 
-	GlobalMemoryStatusEx (&statex);
+	GlobalMemoryStatusEx(&statex);
 	return statex.ullAvailPhys;
-#else
+#	else
 	MEMORYSTATUS stat;
-	stat.dwLength = sizeof (stat);
+	stat.dwLength = sizeof(stat);
 
-	GlobalMemoryStatus (&stat);
+	GlobalMemoryStatus(&stat);
 	return stat.dwAvailPhys;
-#endif
+#	endif
 }
 
-size_t System::memoryUsedByProcess()
-{
+size_t System::memoryUsedByProcess() {
 	PROCESS_MEMORY_COUNTERS pmc;
 	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
 
 	return pmc.WorkingSetSize;
 }
 
-size_t System::peakMemoryUsedByProcess()
-{
+size_t System::peakMemoryUsedByProcess() {
 	PROCESS_MEMORY_COUNTERS pmc;
 	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
 
@@ -258,56 +264,53 @@ size_t System::peakMemoryUsedByProcess()
 
 #elif __APPLE__
 
-long long System::physicalMemory()
-{
+long long System::physicalMemory() {
 	unsigned long long value;
-	size_t  size = sizeof( value );
-	if (sysctlbyname("hw.memsize", &value, &size, nullptr, 0) !=-1)
+	size_t size = sizeof(value);
+	if (sysctlbyname("hw.memsize", &value, &size, nullptr, 0) != -1) {
 		return value;
-	else
+	} else {
 		return 0;
+	}
 }
 
-long long System::availablePhysicalMemory()
-{
+long long System::availablePhysicalMemory() {
 	unsigned long long pageSize;
 	long long result;
-	size_t  size = sizeof( pageSize );
+	size_t size = sizeof(pageSize);
 	sysctlbyname("hw.pagesize", &pageSize, &size, nullptr, 0);
 
 	vm_statistics_data_t vm_stat;
-	int count = ((mach_msg_type_number_t) (sizeof(vm_statistics_data_t)/sizeof(integer_t)));
-	host_statistics(mach_host_self(), HOST_VM_INFO, (integer_t*)&vm_stat, (mach_msg_type_number_t*)&count);
+	int count = ((mach_msg_type_number_t)(sizeof(vm_statistics_data_t) / sizeof(integer_t)));
+	host_statistics(mach_host_self(), HOST_VM_INFO, (integer_t*)&vm_stat,
+			(mach_msg_type_number_t*)&count);
 	result = (unsigned long long)(vm_stat.free_count + vm_stat.inactive_count) * pageSize;
 	return result;
 }
 
-
-size_t System::memoryUsedByProcess()
-{
+size_t System::memoryUsedByProcess() {
 	// not implemented
 	return 0;
 }
 
 #else
 // LINUX, NOT MAC OS
-long long System::physicalMemory()
-{
+long long System::physicalMemory() {
 	return (long long)(sysconf(_SC_PHYS_PAGES)) * sysconf(_SC_PAGESIZE);
 }
 
-long long System::availablePhysicalMemory()
-{
+long long System::availablePhysicalMemory() {
 	return (long long)(sysconf(_SC_AVPHYS_PAGES)) * sysconf(_SC_PAGESIZE);
 }
 
-size_t System::memoryUsedByProcess()
-{
+size_t System::memoryUsedByProcess() {
 	int pid = getpid();
 	string filename = string("/proc/") + to_string(pid) + "/statm";
 
 	std::ifstream is(filename.c_str());
-	if(!is) OGDF_THROW(Exception);
+	if (!is) {
+		OGDF_THROW(Exception);
+	}
 
 	//	size:      total program size (in pages)
 	//	resident:  number of resident set (non-swapped) pages (4k)
@@ -319,7 +322,7 @@ size_t System::memoryUsedByProcess()
 	long size, resident, share, trs, lrs, drs, dt;
 	is >> size >> resident >> share >> trs >> lrs >> drs >> dt;
 
-	return size*4*1024;
+	return size * 4 * 1024;
 }
 
 #endif
@@ -327,33 +330,31 @@ size_t System::memoryUsedByProcess()
 
 #ifdef OGDF_SYSTEM_WINDOWS
 
-size_t System::memoryAllocatedByMalloc()
-{
+size_t System::memoryAllocatedByMalloc() {
 	_HEAPINFO hinfo;
 	int heapstatus;
 	hinfo._pentry = nullptr;
 
 	size_t allocMem = 0;
-	while((heapstatus = _heapwalk(&hinfo)) == _HEAPOK)
-	{
-		if(hinfo._useflag == _USEDENTRY)
+	while ((heapstatus = _heapwalk(&hinfo)) == _HEAPOK) {
+		if (hinfo._useflag == _USEDENTRY) {
 			allocMem += hinfo._size;
+		}
 	}
 
 	return allocMem;
 }
 
-size_t System::memoryInFreelistOfMalloc()
-{
+size_t System::memoryInFreelistOfMalloc() {
 	_HEAPINFO hinfo;
 	int heapstatus;
 	hinfo._pentry = nullptr;
 
 	size_t allocMem = 0;
-	while((heapstatus = _heapwalk(&hinfo)) == _HEAPOK)
-	{
-		if(hinfo._useflag == _FREEENTRY)
+	while ((heapstatus = _heapwalk(&hinfo)) == _HEAPOK) {
+		if (hinfo._useflag == _FREEENTRY) {
 			allocMem += hinfo._size;
+		}
 	}
 
 	return allocMem;
@@ -361,86 +362,66 @@ size_t System::memoryInFreelistOfMalloc()
 
 #elif __APPLE__
 
-size_t System::memoryAllocatedByMalloc()
-{
-	return mstats().bytes_used;
-}
+size_t System::memoryAllocatedByMalloc() { return mstats().bytes_used; }
 
-size_t System::memoryInFreelistOfMalloc()
-{
-	return mstats().bytes_free;
-}
+size_t System::memoryInFreelistOfMalloc() { return mstats().bytes_free; }
 #else
 
-size_t System::memoryAllocatedByMalloc()
-{
-#ifdef OGDF_HAS_MALLINFO2
+size_t System::memoryAllocatedByMalloc() {
+#	ifdef OGDF_HAS_MALLINFO2
 	return mallinfo2().uordblks;
-#else
+#	else
 	return mallinfo().uordblks;
-#endif
+#	endif
 }
 
-size_t System::memoryInFreelistOfMalloc()
-{
-#ifdef OGDF_HAS_MALLINFO2
+size_t System::memoryInFreelistOfMalloc() {
+#	ifdef OGDF_HAS_MALLINFO2
 	return mallinfo2().fordblks;
-#else
+#	else
 	return mallinfo().fordblks;
-#endif
+#	endif
 }
 
 #endif
 
 #if !defined(OGDF_SYSTEM_WINDOWS) && !defined(__CYGWIN__)
-int64_t System::usedRealTime(int64_t &t)
-{
+int64_t System::usedRealTime(int64_t& t) {
 	int64_t tStart = t;
 	timeval tv;
 	gettimeofday(&tv, nullptr);
-	t = int64_t(tv.tv_sec) * 1000 + tv.tv_usec/1000;
+	t = int64_t(tv.tv_sec) * 1000 + tv.tv_usec / 1000;
 	return t - tStart;
 }
 
-int64_t System::realTime()
-{
+int64_t System::realTime() {
 	timeval tv;
 	gettimeofday(&tv, nullptr);
-	return int64_t(tv.tv_sec) * 1000 + tv.tv_usec/1000;
+	return int64_t(tv.tv_sec) * 1000 + tv.tv_usec / 1000;
 }
 #endif
 
 
-size_t System::memoryAllocatedByMemoryManager()
-{
+size_t System::memoryAllocatedByMemoryManager() {
 	return OGDF_ALLOCATOR::memoryAllocatedInBlocks();
 }
 
-size_t System::memoryInGlobalFreeListOfMemoryManager()
-{
+size_t System::memoryInGlobalFreeListOfMemoryManager() {
 	return OGDF_ALLOCATOR::memoryInGlobalFreeList();
 }
 
-size_t System::memoryInThreadFreeListOfMemoryManager()
-{
+size_t System::memoryInThreadFreeListOfMemoryManager() {
 	return OGDF_ALLOCATOR::memoryInThreadFreeList();
 }
-
 
 // TODO: Untested for cygwin, mingw!
 #ifdef OGDF_SYSTEM_WINDOWS
 
-int System::getProcessID()
-{
-	return GetCurrentProcessId();
-}
+int System::getProcessID() { return GetCurrentProcessId(); }
 
 #else
 
-int System::getProcessID()
-{
-	return getpid();
-}
+int System::getProcessID() { return getpid(); }
 
 #endif
 

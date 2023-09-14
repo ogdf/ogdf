@@ -34,7 +34,6 @@
 
 #include <ogdf/planarlayout/ShellingOrder.h>
 
-
 namespace ogdf {
 
 
@@ -42,8 +41,7 @@ namespace ogdf {
  * \brief Base class for modules that compute a shelling order of a graph.
  *
  */
-class OGDF_EXPORT ShellingOrderModule
-{
+class OGDF_EXPORT ShellingOrderModule {
 public:
 	//! Computes a shelling order of an embedded graph G such that \p adj lies on the external face.
 	/**
@@ -52,7 +50,7 @@ public:
 	 * @param adj is an adjacency entry on the external face; if \p adj is 0, a suitable
 	 *        external face is chosen.
 	 */
-	void call(const Graph &G, ShellingOrder &order, adjEntry adj = nullptr);
+	void call(const Graph& G, ShellingOrder& order, adjEntry adj = nullptr);
 
 	//! Computes a lefmost shelling order of an embedded graph G such that \p adj lies on the external face.
 	/**
@@ -61,13 +59,13 @@ public:
 	 * @param adj is an adjacency entry on the external face; if \p adj is 0, a suitable
 	 *        external face is chosen.
 	 */
-	void callLeftmost(const Graph &G, ShellingOrder &order, adjEntry adj = nullptr);
+	void callLeftmost(const Graph& G, ShellingOrder& order, adjEntry adj = nullptr);
 
 	//! Sets the option <i>base ratio</i> to \p x.
-	void baseRatio(double x) {m_baseRatio = x;}
+	void baseRatio(double x) { m_baseRatio = x; }
 
 	//! Returns the current setting of the option <b>base ratio</b>.
-	double baseRatio() const {return m_baseRatio;}
+	double baseRatio() const { return m_baseRatio; }
 
 	virtual ~ShellingOrderModule() { }
 
@@ -81,9 +79,7 @@ protected:
 	 * @param adj is an adjacency entry on the external face.
 	 * @param partition returns the coputed shelling order.
 	 */
-	virtual void doCall(const Graph &G,
-		adjEntry adj,
-		List<ShellingOrderSet> &partition) = 0;
+	virtual void doCall(const Graph& G, adjEntry adj, List<ShellingOrderSet>& partition) = 0;
 
 	double m_baseRatio; //! The option <i>base ratio</i>.
 };

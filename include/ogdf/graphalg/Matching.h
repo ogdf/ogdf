@@ -1,7 +1,7 @@
 /** \file
  * \brief Declares simple matching functions
  *
- * \author Stephan Beyer
+ * \author Stephan Beyer, Thomas Klein
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -42,7 +42,7 @@ namespace Matching {
 //! @ingroup ga-matching
 template<typename EdgeContainer>
 inline bool isMatching(const Graph& graph, const EdgeContainer& matching) {
-	NodeArray<bool> covered{graph, false};
+	NodeArray<bool> covered {graph, false};
 
 	for (edge e : matching) {
 		for (node v : e->nodes()) {
@@ -65,7 +65,7 @@ template<typename EdgeContainer>
 bool isMaximal(const Graph& graph, const EdgeContainer& matching, edge& addable) {
 	addable = nullptr;
 
-	EdgeArray<bool> covered{graph, false};
+	EdgeArray<bool> covered {graph, false};
 
 	for (edge e : matching) {
 		for (node v : e->nodes()) {
@@ -117,6 +117,20 @@ inline bool isPerfectMatching(const Graph& graph, const EdgeContainer& matching)
 //! Obtains a maximal matching in O(|E|) time
 //! @ingroup ga-matching
 OGDF_EXPORT void findMaximalMatching(const Graph& graph, ArrayBuffer<edge>& matching);
+
+/**
+ * Finds a maximum cardinality matching in the bipartite graph \p G = (U+V, E)
+ * in O(sqrt(|U+V|) * |E|) time by using the Hopcroft-Karp-Karzanov algorithm.
+ *
+ * @param G the bipartite graph
+ * @param U all nodes in the first half of \p G
+ * @param V all nodes in the second half of \p G
+ * @param matching will hold the matching
+ * @return the cardinality of the matching
+ */
+//! @ingroup ga-matching
+OGDF_EXPORT int findMaximumCardinalityMatching(const Graph& G, const List<node>& U,
+		const List<node>& V, EdgeArray<bool>& matching);
 
 }
 }

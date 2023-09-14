@@ -36,11 +36,12 @@
 
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/internal/graph_iterators.h>
+
 #include <array>
 #include <mutex>
 
 #ifdef OGDF_DEBUG
-# include <set>
+#	include <set>
 #endif
 
 namespace ogdf {
@@ -70,7 +71,6 @@ using edge = EdgeElement*;
 //! @ingroup graphs
 using adjEntry = AdjElement*;
 
-
 //! Class for adjacency list elements.
 /**
  * Adjacency list elements represent the occurrence of an edges in
@@ -81,23 +81,27 @@ class OGDF_EXPORT AdjElement : private internal::GraphElement {
 	friend class internal::GraphListBase;
 	friend class internal::GraphList<AdjElement>;
 
-	AdjElement *m_twin; //!< The corresponding adjacency entry (same edge)
+	AdjElement* m_twin; //!< The corresponding adjacency entry (same edge)
 	edge m_edge; //!< The associated edge.
 	node m_node; //!< The node whose adjacency list contains this entry.
-	int m_id;    //!< The (unique) index of the adjacency entry.
+	int m_id; //!< The (unique) index of the adjacency entry.
 
 	//! Constructs an adjacency element for a given node.
 	explicit AdjElement(node v) : m_twin(nullptr), m_edge(nullptr), m_node(v), m_id(0) { }
+
 	//! Constructs an adjacency entry for a given edge and index.
 	AdjElement(edge e, int id) : m_twin(nullptr), m_edge(e), m_node(nullptr), m_id(id) { }
 
 public:
 	//! Returns the edge associated with this adjacency entry.
 	edge theEdge() const { return m_edge; }
+
 	//! Conversion to edge.
 	operator edge() const { return m_edge; }
+
 	//! Returns the node whose adjacency list contains this element.
 	node theNode() const { return m_node; }
+
 	//! Casts to the node whose adjacency list contains this element.
 	operator node() const { return m_node; }
 
@@ -130,22 +134,26 @@ public:
 
 	//! Returns the clockwise successor in face. Use faceCycleSucc instead!
 	adjEntry clockwiseFaceSucc() const { return m_twin->cyclicPred(); }
+
 	//! Returns the clockwise predecessor in face.  Use faceCycleSucc instead!
 	adjEntry clockwiseFacePred() const { return cyclicSucc()->m_twin; }
+
 	//! Returns the counter-clockwise successor in face.
 	adjEntry counterClockwiseFaceSucc() const { return m_twin->cyclicSucc(); }
+
 	//! Returns the counter-clockwise predecessor in face.
 	adjEntry counterClockwiseFacePred() const { return cyclicPred()->m_twin; }
 
 	// default is traversing faces in clockwise order
 	//! Returns the cyclic successor in face.
 	adjEntry faceCycleSucc() const { return clockwiseFaceSucc(); }
+
 	//! Returns the cyclic predecessor in face.
 	adjEntry faceCyclePred() const { return clockwiseFacePred(); }
 
-
 	//! Returns the successor in the adjacency list.
 	adjEntry succ() const { return static_cast<adjEntry>(m_next); }
+
 	//! Returns the predecessor in the adjacency list.
 	adjEntry pred() const { return static_cast<adjEntry>(m_prev); }
 
@@ -155,11 +163,11 @@ public:
 	adjEntry cyclicPred() const;
 
 #ifdef OGDF_DEBUG
-	const Graph *graphOf() const;
+	const Graph* graphOf() const;
 #endif
 
 	//! Standard Comparer
-	static int compare(const AdjElement& x,const AdjElement& y) { return x.m_id-y.m_id; }
+	static int compare(const AdjElement& x, const AdjElement& y) { return x.m_id - y.m_id; }
 	OGDF_AUGMENT_STATICCOMPARER(AdjElement)
 
 	OGDF_NEW_DELETE
@@ -171,13 +179,13 @@ class OGDF_EXPORT NodeElement : private internal::GraphElement {
 	friend class internal::GraphList<NodeElement>;
 
 	//GraphList<AdjElement> m_adjEdges; //!< The adjacency list of the node.
-	int m_indeg;  //!< The indegree of the node.
+	int m_indeg; //!< The indegree of the node.
 	int m_outdeg; //!< The outdegree of the node.
-	int m_id;     //!< The (unique) index of the node.
+	int m_id; //!< The (unique) index of the node.
 
 #ifdef OGDF_DEBUG
 	// we store the graph containing this node for debugging purposes
-	const Graph *m_pGraph; //!< The graph containg this node (debug only).
+	const Graph* m_pGraph; //!< The graph containg this node (debug only).
 #endif
 
 
@@ -188,8 +196,8 @@ class OGDF_EXPORT NodeElement : private internal::GraphElement {
 	 * It is used, e.g., by NodeArray for checking if a node belongs to
 	 * the correct graph.
 	 */
-	NodeElement(const Graph *pGraph, int id) :
-		m_indeg(0), m_outdeg(0), m_id(id), m_pGraph(pGraph) { }
+	NodeElement(const Graph* pGraph, int id)
+		: m_indeg(0), m_outdeg(0), m_id(id), m_pGraph(pGraph) { }
 #else
 	NodeElement(int id) : m_indeg(0), m_outdeg(0), m_id(id) { }
 #endif
@@ -204,18 +212,22 @@ public:
 
 	//! Returns the indegree of the node.
 	int indeg() const { return m_indeg; }
+
 	//! Returns the outdegree of the node.
 	int outdeg() const { return m_outdeg; }
+
 	//! Returns the degree of the node (indegree + outdegree).
 	int degree() const { return m_indeg + m_outdeg; }
 
 	//! Returns the first entry in the adjaceny list.
-	adjEntry firstAdj() const { return adjEntries.head();  }
+	adjEntry firstAdj() const { return adjEntries.head(); }
+
 	//! Returns the last entry in the adjacency list.
-	adjEntry lastAdj () const { return adjEntries.tail(); }
+	adjEntry lastAdj() const { return adjEntries.tail(); }
 
 	//! Returns the successor in the list of all nodes.
 	node succ() const { return static_cast<node>(m_next); }
+
 	//! Returns the predecessor in the list of all nodes.
 	node pred() const { return static_cast<node>(m_prev); }
 
@@ -225,9 +237,9 @@ public:
 	 * @param  adjList is assigned the list of all adjacency entries of this node.
 	 */
 	template<class ADJLIST>
-	void allAdjEntries(ADJLIST &adjList) const {
+	void allAdjEntries(ADJLIST& adjList) const {
 		adjList.clear();
-		for(adjEntry adj : this->adjEntries) {
+		for (adjEntry adj : this->adjEntries) {
 			adjList.pushBack(adj);
 		}
 	}
@@ -241,9 +253,9 @@ public:
 	 *                  (including incoming and outcoming edges).
 	 */
 	template<class EDGELIST>
-	void adjEdges(EDGELIST &edgeList) const {
+	void adjEdges(EDGELIST& edgeList) const {
 		edgeList.clear();
-		for(adjEntry adj : this->adjEntries) {
+		for (adjEntry adj : this->adjEntries) {
 			edgeList.pushBack(adj->theEdge());
 		}
 	}
@@ -254,7 +266,7 @@ public:
 	 * @param  edgeList is assigned the list of all incoming edges incident to this node.
 	 */
 	template<class EDGELIST>
-	void inEdges(EDGELIST &edgeList) const;
+	void inEdges(EDGELIST& edgeList) const;
 
 	//! Returns a list with all outgoing edges of this node.
 	/**
@@ -262,31 +274,27 @@ public:
 	 * @param  edgeList is assigned the list of all outgoing edges incident to this node.
 	 */
 	template<class EDGELIST>
-	void outEdges(EDGELIST &edgeList) const;
+	void outEdges(EDGELIST& edgeList) const;
 
 #ifdef OGDF_DEBUG
 	//! Returns the graph containing this node (debug only).
-	const Graph *graphOf() const { return m_pGraph; }
+	const Graph* graphOf() const { return m_pGraph; }
 #endif
 
 	//! Standard Comparer
-	static int compare(const NodeElement& x,const NodeElement& y) { return x.m_id-y.m_id; }
+	static int compare(const NodeElement& x, const NodeElement& y) { return x.m_id - y.m_id; }
 	OGDF_AUGMENT_STATICCOMPARER(NodeElement)
 
 	OGDF_NEW_DELETE
 };
 
-inline adjEntry AdjElement::cyclicSucc() const
-{
+inline adjEntry AdjElement::cyclicSucc() const {
 	return (m_next) ? static_cast<adjEntry>(m_next) : m_node->firstAdj();
 }
 
-inline adjEntry AdjElement::cyclicPred() const
-{
+inline adjEntry AdjElement::cyclicPred() const {
 	return (m_prev) ? static_cast<adjEntry>(m_prev) : m_node->lastAdj();
 }
-
-
 
 //! Class for the representation of edges.
 class OGDF_EXPORT EdgeElement : private internal::GraphElement {
@@ -295,8 +303,8 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 
 	node m_src; //!< The source node of the edge.
 	node m_tgt; //!< The target node of the edge.
-	AdjElement *m_adjSrc; //!< Corresponding adjacancy entry at source node.
-	AdjElement *m_adjTgt; //!< Corresponding adjacancy entry at target node.
+	AdjElement* m_adjSrc; //!< Corresponding adjacancy entry at source node.
+	AdjElement* m_adjTgt; //!< Corresponding adjacancy entry at target node.
 	int m_id; // The (unique) index of the node.
 
 	//! Constructs an edge element (\p src,\p tgt).
@@ -307,8 +315,8 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 	 * @param adjTgt is the corresponding adjacency entry at target node.
 	 * @param id is the index of the edge.
 	 */
-	EdgeElement(node src, node tgt, AdjElement *adjSrc, AdjElement *adjTgt, int id) :
-		m_src(src), m_tgt(tgt), m_adjSrc(adjSrc), m_adjTgt(adjTgt), m_id(id) { }
+	EdgeElement(node src, node tgt, AdjElement* adjSrc, AdjElement* adjTgt, int id)
+		: m_src(src), m_tgt(tgt), m_adjSrc(adjSrc), m_adjTgt(adjTgt), m_id(id) { }
 
 	//! Constructs an edge element (\p src,\p tgt).
 	/**
@@ -316,21 +324,25 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 	 * @param tgt is the target node of the edge.
 	 * @param id is the index of the edge.
 	 */
-	EdgeElement(node src, node tgt, int id) :
-		m_src(src), m_tgt(tgt), m_adjSrc(nullptr), m_adjTgt(nullptr), m_id(id) { }
+	EdgeElement(node src, node tgt, int id)
+		: m_src(src), m_tgt(tgt), m_adjSrc(nullptr), m_adjTgt(nullptr), m_id(id) { }
 
 public:
 	//! Returns the index of the edge.
 	int index() const { return m_id; }
+
 	//! Returns the source node of the edge.
 	node source() const { return m_src; }
+
 	//! Returns the target node of the edge.
 	node target() const { return m_tgt; }
+
 	//! Returns a list of adjacent nodes. If this edge is a self-loop, both entries will be the same node.
-	std::array<node, 2> nodes() const { return std::array<node, 2>{{m_src, m_tgt}}; }
+	std::array<node, 2> nodes() const { return std::array<node, 2> {{m_src, m_tgt}}; }
 
 	//! Returns the corresponding adjacancy entry at source node.
 	adjEntry adjSource() const { return m_adjSrc; }
+
 	//! Returns the corresponding adjacancy entry at target node.
 	adjEntry adjTarget() const { return m_adjTgt; }
 
@@ -350,16 +362,19 @@ public:
 	bool isParallelDirected(edge e) const { return m_src == e->source() && m_tgt == e->target(); }
 
 	//! Returns true iff edge \p e is parallel to this (undirected) edge (or if it is the same edge)
-	bool isParallelUndirected(edge e) const { return isParallelDirected(e) || isInvertedDirected(e); }
+	bool isParallelUndirected(edge e) const {
+		return isParallelDirected(e) || isInvertedDirected(e);
+	}
 
 	//! Returns the successor in the list of all edges.
 	edge succ() const { return static_cast<edge>(m_next); }
+
 	//! Returns the predecessor in the list of all edges.
 	edge pred() const { return static_cast<edge>(m_prev); }
 
 #ifdef OGDF_DEBUG
 	//! Returns the graph containing this node (debug only).
-	const Graph *graphOf() const { return m_src->graphOf(); }
+	const Graph* graphOf() const { return m_src->graphOf(); }
 #endif
 
 	//! Returns true iff \p v is incident to the edge.
@@ -369,7 +384,11 @@ public:
 	bool isAdjacent(edge e) const { return isIncident(e->m_src) || isIncident(e->m_tgt); }
 
 	//! Returns the common node of the edge and \p e. Returns nullptr if the two edges are not adjacent.
-	node commonNode(edge e) const { return (m_src==e->m_src || m_src==e->m_tgt) ? m_src : ((m_tgt==e->m_src || m_tgt==e->m_tgt) ? m_tgt: nullptr); }
+	node commonNode(edge e) const {
+		return (m_src == e->m_src || m_src == e->m_tgt)
+				? m_src
+				: ((m_tgt == e->m_src || m_tgt == e->m_tgt) ? m_tgt : nullptr);
+	}
 
 	//! Returns an adjacency entry of this edge at node \c v.
 	//! If this is a self-loop the source adjacency entry will always be returned.
@@ -379,7 +398,7 @@ public:
 	}
 
 	//! Standard Comparer
-	static int compare(const EdgeElement& x,const EdgeElement& y) { return x.m_id-y.m_id; }
+	static int compare(const EdgeElement& x, const EdgeElement& y) { return x.m_id - y.m_id; }
 	OGDF_AUGMENT_STATICCOMPARER(EdgeElement)
 
 	OGDF_NEW_DELETE
@@ -391,14 +410,10 @@ private:
 };
 
 #ifdef OGDF_DEBUG
-inline const Graph *AdjElement::graphOf() const {
-	return m_node->graphOf();
-}
+inline const Graph* AdjElement::graphOf() const { return m_node->graphOf(); }
 #endif
 
-inline bool AdjElement::isSource() const {
-	return this == m_edge->adjSource();
-}
+inline bool AdjElement::isSource() const { return this == m_edge->adjSource(); }
 
 inline bool AdjElement::isBetween(adjEntry adjBefore, adjEntry adjAfter) const {
 #ifdef OGDF_DEBUG
@@ -410,7 +425,9 @@ inline bool AdjElement::isBetween(adjEntry adjBefore, adjEntry adjAfter) const {
 
 	if (result) {
 		adjEntry adj = adjBefore;
-		for (; adj != this && adj != adjAfter; adj = adj->cyclicSucc());
+		for (; adj != this && adj != adjAfter; adj = adj->cyclicSucc()) {
+			;
+		}
 		result = adj == this;
 	}
 
@@ -418,34 +435,43 @@ inline bool AdjElement::isBetween(adjEntry adjBefore, adjEntry adjAfter) const {
 }
 
 template<class EDGELIST>
-void NodeElement::inEdges(EDGELIST &edgeList) const {
+void NodeElement::inEdges(EDGELIST& edgeList) const {
 	edgeList.clear();
-	for(adjEntry adj : this->adjEntries) {
+	for (adjEntry adj : this->adjEntries) {
 		edge e = adj->theEdge();
-		if (adj == e->adjTarget()) edgeList.pushBack(e);
+		if (adj == e->adjTarget()) {
+			edgeList.pushBack(e);
+		}
 	}
 }
 
 template<class EDGELIST>
-void NodeElement::outEdges(EDGELIST &edgeList) const {
+void NodeElement::outEdges(EDGELIST& edgeList) const {
 	edgeList.clear();
-	for(adjEntry adj : this->adjEntries) {
+	for (adjEntry adj : this->adjEntries) {
 		edge e = adj->theEdge();
-		if (adj == e->adjSource()) edgeList.pushBack(e);
+		if (adj == e->adjSource()) {
+			edgeList.pushBack(e);
+		}
 	}
 }
 
 class NodeArrayBase;
 class EdgeArrayBase;
 class AdjEntryArrayBase;
-template<class T> class NodeArray;
-template<class T> class EdgeArray;
-template<class T> class AdjEntryArray;
+template<class T>
+class NodeArray;
+template<class T>
+class EdgeArray;
+template<class T>
+class AdjEntryArray;
 class OGDF_EXPORT GraphObserver;
 
 namespace internal {
-template<typename CONTAINER> inline void getAllNodes(const Graph& G, CONTAINER& nodes);
-template<typename CONTAINER> inline void getAllEdges(const Graph& G, CONTAINER& edges);
+template<typename CONTAINER>
+inline void getAllNodes(const Graph& G, CONTAINER& nodes);
+template<typename CONTAINER>
+inline void getAllEdges(const Graph& G, CONTAINER& edges);
 }
 
 //! Data type for general directed graphs (adjacency list representation).
@@ -492,10 +518,10 @@ template<typename CONTAINER> inline void getAllEdges(const Graph& G, CONTAINER& 
  * </ul>
  */
 
-class OGDF_EXPORT Graph
-{
+class OGDF_EXPORT Graph {
 public:
 	class HiddenEdgeSet;
+
 private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
 	int m_edgeIdCount; //!< The Index that will be assigned to the next created edge.
@@ -505,7 +531,7 @@ private:
 
 	mutable ListPure<NodeArrayBase*> m_regNodeArrays; //!< The registered node arrays.
 	mutable ListPure<EdgeArrayBase*> m_regEdgeArrays; //!< The registered edge arrays.
-	mutable ListPure<AdjEntryArrayBase*> m_regAdjArrays;  //!< The registered adjEntry arrays.
+	mutable ListPure<AdjEntryArrayBase*> m_regAdjArrays; //!< The registered adjEntry arrays.
 	mutable ListPure<GraphObserver*> m_regStructures; //!< The registered graph structures.
 
 #ifndef OGDF_MEMORY_POOL_NTS
@@ -515,13 +541,12 @@ private:
 	List<HiddenEdgeSet*> m_hiddenEdgeSets; //!< The list of hidden edges.
 
 public:
-
 	/**
 	* @name Iterators
 	* These types are used for graph object iterators, which are returned by graph object containers
 	* like nodes and edges.
 	*/
-	//@{
+	//! @{
 
 	//! Provides a bidirectional iterator to a node in a graph.
 	using node_iterator = internal::GraphIterator<node>;
@@ -530,19 +555,15 @@ public:
 	//! Provides a bidirectional iterator to an entry in an adjacency list.
 	using adjEntry_iterator = internal::GraphIterator<adjEntry>;
 
-	//@}
+	//! @}
 	/**
 	* @name Enumerations
 	* These enumerations are mainly meant for advanced or internal usage scenarios.
 	*/
-	//@{
+	//! @{
 
 	//! The type of edges (only used in derived classes).
-	enum class EdgeType {
-		association = 0,
-		generalization = 1,
-		dependency = 2
-	};
+	enum class EdgeType { association = 0, generalization = 1, dependency = 2 };
 
 	//! The type of nodes.
 	enum class NodeType {
@@ -555,14 +576,14 @@ public:
 		associationClass = 6
 	};
 
-	//@}
+	//! @}
 
 
 	/**
 	* @name Graph object containers
 	* These containers maintain the nodes and edges of the graph, and provide node and edge iterators.
 	*/
-	//@{
+	//! @{
 
 	//! The container containing all node objects.
 	internal::GraphObjectContainer<NodeElement> nodes;
@@ -570,7 +591,7 @@ public:
 	//! The container containing all edge objects.
 	internal::GraphObjectContainer<EdgeElement> edges;
 
-	//@}
+	//! @}
 
 
 	//! Constructs an empty graph.
@@ -584,7 +605,7 @@ public:
 	 *
 	 * @param G is the graph that will be copied.
 	 */
-	Graph(const Graph &G);
+	Graph(const Graph& G);
 
 	//! Destructor.
 	virtual ~Graph();
@@ -592,7 +613,7 @@ public:
 	/**
 	 * @name Access methods
 	 */
-	//@{
+	//! @{
 
 	//! Returns true iff the graph is empty, i.e., contains no nodes.
 	bool empty() const { return nodes.empty(); }
@@ -604,28 +625,34 @@ public:
 	int numberOfEdges() const { return edges.size(); }
 
 	//! Returns the largest used node index.
-	int maxNodeIndex() const { return m_nodeIdCount-1; }
+	int maxNodeIndex() const { return m_nodeIdCount - 1; }
+
 	//! Returns the largest used edge index.
-	int maxEdgeIndex() const { return m_edgeIdCount-1; }
+	int maxEdgeIndex() const { return m_edgeIdCount - 1; }
+
 	//! Returns the largest used adjEntry index.
-	int maxAdjEntryIndex() const { return (m_edgeIdCount<<1)-1; }
+	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
 	//! Returns the table size of node arrays associated with this graph.
 	int nodeArrayTableSize() const { return m_nodeArrayTableSize; }
+
 	//! Returns the table size of edge arrays associated with this graph.
 	int edgeArrayTableSize() const { return m_edgeArrayTableSize; }
+
 	//! Returns the table size of adjEntry arrays associated with this graph.
 	int adjEntryArrayTableSize() const { return m_edgeArrayTableSize << 1; }
 
 	//! Returns the first node in the list of all nodes.
 	node firstNode() const { return nodes.head(); }
+
 	//! Returns the last node in the list of all nodes.
-	node lastNode () const { return nodes.tail(); }
+	node lastNode() const { return nodes.tail(); }
 
 	//! Returns the first edge in the list of all edges.
 	edge firstEdge() const { return edges.head(); }
+
 	//! Returns the last edge in the list of all edges.
-	edge lastEdge () const { return edges.tail(); }
+	edge lastEdge() const { return edges.tail(); }
 
 	/**
 	 * Returns a random node.
@@ -634,7 +661,9 @@ public:
 	 *
 	 * @see chooseIteratorFrom
 	 */
-	node chooseNode(std::function<bool(node)> includeNode = [](node) { return true; }, bool isFastTest = true) const;
+	node chooseNode(
+			std::function<bool(node)> includeNode = [](node) { return true; },
+			bool isFastTest = true) const;
 
 	/**
 	 * Returns a random edge.
@@ -643,7 +672,9 @@ public:
 	 *
 	 * @see chooseIteratorFrom
 	 */
-	edge chooseEdge(std::function<bool(edge)> includeEdge = [](edge) { return true; }, bool isFastTest = true) const;
+	edge chooseEdge(
+			std::function<bool(edge)> includeEdge = [](edge) { return true; },
+			bool isFastTest = true) const;
 
 	//! Returns a container with all nodes of the graph.
 	/**
@@ -661,15 +692,15 @@ public:
 	 * @param edgeContainer is assigned the list of all edges.
 	 */
 	template<class CONTAINER>
-	void allEdges(CONTAINER &edgeContainer) const {
+	void allEdges(CONTAINER& edgeContainer) const {
 		internal::getAllEdges<CONTAINER>(*this, edgeContainer);
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Creation of new nodes and edges
 	 */
-	//@{
+	//! @{
 
 	//! Creates a new node and returns it.
 	node newNode();
@@ -751,11 +782,11 @@ public:
 	edge newEdge(adjEntry adjSrc, node w);
 
 
-	//@}
+	//! @}
 	/**
 	 * @name Removing nodes and edges
 	 */
-	//@{
+	//! @{
 
 	//! Removes node \p v and all incident edges from the graph.
 	virtual void delNode(node v);
@@ -766,7 +797,7 @@ public:
 	//! Removes all nodes and all edges from the graph.
 	virtual void clear();
 
-	//@}
+	//! @}
 
 	/**
 	 * @brief Functionality for temporarily hiding edges in constant time.
@@ -787,8 +818,7 @@ public:
 	 * Do not hide edges while iterating over the edges of a ogdf::Graph.
 	 * Instead, iterate over a copied list of all edges.
 	 */
-	class OGDF_EXPORT HiddenEdgeSet
-	{
+	class OGDF_EXPORT HiddenEdgeSet {
 		friend class Graph;
 		friend class EdgeElement;
 
@@ -798,16 +828,14 @@ public:
 		*
 		* @param graph the graph to be modified
 		*/
-		explicit HiddenEdgeSet(Graph &graph) : m_graph(&graph)
-		{
+		explicit HiddenEdgeSet(Graph& graph) : m_graph(&graph) {
 			m_it = m_graph->m_hiddenEdgeSets.pushFront(this);
 		}
 
 		/**
 		* Restores all hidden edges.
 		*/
-		~HiddenEdgeSet()
-		{
+		~HiddenEdgeSet() {
 			if (m_graph) {
 				restore();
 				m_graph->m_hiddenEdgeSets.del(m_it);
@@ -846,7 +874,7 @@ public:
 	private:
 		internal::GraphList<EdgeElement> m_edges;
 		ListIterator<HiddenEdgeSet*> m_it;
-		Graph *m_graph;
+		Graph* m_graph;
 
 		// prevent copying
 		HiddenEdgeSet(const HiddenEdgeSet&);
@@ -856,19 +884,19 @@ public:
 	/**
 	 * @name Advanced modification methods
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * @copydoc ogdf::Graph::insert(const Graph&)
 	 * @param nodeMap is assigned a mapping from nodes in \p G to nodes in this Graph.
 	 */
-	void insert(const Graph &G, NodeArray<node> &nodeMap);
+	void insert(const Graph& G, NodeArray<node>& nodeMap);
 
 	//! Inserts Graph \p G as a subgraph into this Graph.
 	/**
 	 * @param G is the Graph to be inserted into this Graph.
 	 */
-	void insert(const Graph &G);
+	void insert(const Graph& G);
 
 	//! Splits edge \p e into two edges introducing a new node.
 	/**
@@ -885,13 +913,12 @@ public:
 	//! Undoes a split operation.
 	/**
 	 * Removes node \p u by joining the two edges adjacent to \p u. The
-	 * outgoing edge of \p u is removed and the incoming edge \a e is reused
+	 * outgoing edge of \p u is removed and the incoming edge is reused
 	 *
 	 * \pre \p u has exactly one incoming and one outgoing edge, and
 	 *    none of them is a self-loop.
 	 *
 	 * @param u is the node to be unsplit.
-	 * @return The edge \a e.
 	 */
 	void unsplit(node u);
 
@@ -959,8 +986,7 @@ public:
 	 *               of \p e will be inserted.
 	 * @param dirTgt specifies if the target adjacency entry of \p e will be inserted before or after \p adjTgt.
 	 */
-	void move(edge e, adjEntry adjSrc, Direction dirSrc,
-		adjEntry adjTgt, Direction dirTgt);
+	void move(edge e, adjEntry adjSrc, Direction dirSrc, adjEntry adjTgt, Direction dirTgt);
 
 	//! Moves the target node of edge \p e to node \p w.
 	/**
@@ -1011,7 +1037,7 @@ public:
 	 * @return an edge (\p v,\p w) (or (\p w,\p v) for !\p directed)
 	 * if such an edge exists, nullptr otherwise.
 	 */
-	edge searchEdge (node v, node w, bool directed = false) const;
+	edge searchEdge(node v, node w, bool directed = false) const;
 
 	//! Reverses the edge \p e, i.e., exchanges source and target node.
 	void reverseEdge(edge e);
@@ -1027,22 +1053,21 @@ public:
 	 * @param  nodesToCollapse is the list of nodes that will be collapsed. This list will be empty after the call.
 	 */
 	template<class NODELIST>
-	void collapse(NODELIST &nodesToCollapse){
+	void collapse(NODELIST& nodesToCollapse) {
 		node v = nodesToCollapse.popFrontRet();
-		while (!nodesToCollapse.empty())
-		{
+		while (!nodesToCollapse.empty()) {
 			node w = nodesToCollapse.popFrontRet();
 			adjEntry adj = w->firstAdj();
-			while (adj != nullptr)
-			{
+			while (adj != nullptr) {
 				adjEntry succ = adj->succ();
 				edge e = adj->theEdge();
-				if (e->source() == v || e->target() == v)
+				if (e->source() == v || e->target() == v) {
 					delEdge(e);
-				else if (e->source() == w)
-					moveSource(e,v);
-				else
-					moveTarget(e,v);
+				} else if (e->source() == w) {
+					moveSource(e, v);
+				} else {
+					moveTarget(e, v);
+				}
 				adj = succ;
 			}
 			delNode(w);
@@ -1058,12 +1083,12 @@ public:
 	 * @param  newOrder       is the list of adjacency entries of \p v in the new order.
 	 */
 	template<class ADJ_ENTRY_LIST>
-	void sort(node v, const ADJ_ENTRY_LIST &newOrder) {
+	void sort(node v, const ADJ_ENTRY_LIST& newOrder) {
 #ifdef OGDF_DEBUG
 		std::set<int> entries;
 		int counter = 0;
 
-		for(adjEntry adj : newOrder) {
+		for (adjEntry adj : newOrder) {
 			entries.insert(adj->index());
 			OGDF_ASSERT(adj->theNode() == v);
 			counter++;
@@ -1079,9 +1104,7 @@ public:
 	/**
 	 * @param v is the node whose adjacency list will be reveresed.
 	 */
-	void reverseAdjEdges(node v) {
-		v->adjEntries.reverse();
-	}
+	void reverseAdjEdges(node v) { v->adjEntries.reverse(); }
 
 	//! Moves adjacency entry \p adjMove before or after \p adjPos.
 	/**
@@ -1096,7 +1119,7 @@ public:
 		OGDF_ASSERT(adjPos != nullptr);
 		OGDF_ASSERT(adjMove->graphOf() == this);
 		OGDF_ASSERT(adjPos->graphOf() == this);
-		internal::GraphList<AdjElement> &adjList = adjMove->m_node->adjEntries;
+		internal::GraphList<AdjElement>& adjList = adjMove->m_node->adjEntries;
 		adjList.move(adjMove, adjList, adjPos, dir);
 	}
 
@@ -1112,7 +1135,7 @@ public:
 		OGDF_ASSERT(adjAfter != nullptr);
 		OGDF_ASSERT(adjMove->graphOf() == this);
 		OGDF_ASSERT(adjAfter->graphOf() == this);
-		adjMove->m_node->adjEntries.moveAfter(adjMove,adjAfter);
+		adjMove->m_node->adjEntries.moveAfter(adjMove, adjAfter);
 	}
 
 	//! Moves adjacency entry \p adjMove before \p adjBefore.
@@ -1127,7 +1150,7 @@ public:
 		OGDF_ASSERT(adjBefore != nullptr);
 		OGDF_ASSERT(adjMove->graphOf() == this);
 		OGDF_ASSERT(adjBefore->graphOf() == this);
-		adjMove->m_node->adjEntries.moveBefore(adjMove,adjBefore);
+		adjMove->m_node->adjEntries.moveBefore(adjMove, adjBefore);
 	}
 
 	//! Reverses all adjacency lists.
@@ -1144,15 +1167,14 @@ public:
 		OGDF_ASSERT(adj1->theNode() == adj2->theNode());
 		OGDF_ASSERT(adj1->graphOf() == this);
 
-		adj1->theNode()->adjEntries.swap(adj1,adj2);
+		adj1->theNode()->adjEntries.swap(adj1, adj2);
 	}
 
-
-	//@}
+	//! @}
 	/**
 	 * @name Miscellaneous
 	 */
-	//@{
+	//! @{
 
 	//! Returns the genus of the graph's embedding.
 	/**
@@ -1171,22 +1193,20 @@ public:
 	/**
 	 * @return true if the current embedding (given by the adjacency lists) represents a combinatorial embedding, false otherwise.
 	 */
-	bool representsCombEmbedding() const {
-		return genus() == 0;
-	}
+	bool representsCombEmbedding() const { return genus() == 0; }
 
 #ifdef OGDF_DEBUG
 	//! Asserts that this graph is consistent.
 	void consistencyCheck() const;
 #endif
 
-	//@}
+	//! @}
 	/**
 	 * @name Registering arrays and observers
 	 * These methods are used by various graph array types like NodeArray or EdgeArray.
 	 * There should be no need to use them directly in user code.
 	 */
-	//@{
+	//! @{
 
 	//! Registers a node array.
 	/**
@@ -1196,7 +1216,7 @@ public:
 	 * @return an iterator pointing to the entry for the registered node array in the list of registered node arrays.
 	 *         This iterator is required for unregistering the node array again.
 	 */
-	ListIterator<NodeArrayBase*> registerArray(NodeArrayBase *pNodeArray) const;
+	ListIterator<NodeArrayBase*> registerArray(NodeArrayBase* pNodeArray) const;
 
 	//! Registers an edge array.
 	/**
@@ -1206,7 +1226,7 @@ public:
 	 * @return an iterator pointing to the entry for the registered edge array in the list of registered edge arrays.
 	 *         This iterator is required for unregistering the edge array again.
 	 */
-	ListIterator<EdgeArrayBase*> registerArray(EdgeArrayBase *pEdgeArray) const;
+	ListIterator<EdgeArrayBase*> registerArray(EdgeArrayBase* pEdgeArray) const;
 
 	//! Registers an adjEntry array.
 	/**
@@ -1217,7 +1237,7 @@ public:
 	 * @return an iterator pointing to the entry for the registered adjacency entry array in the list of registered
 	 *         adjacency entry arrays. This iterator is required for unregistering the adjacency entry array again.
 	 */
-	ListIterator<AdjEntryArrayBase*> registerArray(AdjEntryArrayBase *pAdjArray) const;
+	ListIterator<AdjEntryArrayBase*> registerArray(AdjEntryArrayBase* pAdjArray) const;
 
 	//! Registers a graph observer (e.g. a ClusterGraph).
 	/**
@@ -1226,7 +1246,7 @@ public:
 	 * @return an iterator pointing to the entry for the registered graph observer in the list of registered
 	 *         graph observers. This iterator is required for unregistering the graph observer again.
 	 */
-	ListIterator<GraphObserver*> registerStructure(GraphObserver *pStructure) const;
+	ListIterator<GraphObserver*> registerStructure(GraphObserver* pStructure) const;
 
 	//! Unregisters a node array.
 	/**
@@ -1258,7 +1278,7 @@ public:
 
 	//! Move the registration \p it of an graph element array to \p pArray (used with move semantics for graph element arrays).
 	template<class ArrayBase>
-	void moveRegisterArray(ListIterator<ArrayBase*> it, ArrayBase *pArray) const {
+	void moveRegisterArray(ListIterator<ArrayBase*> it, ArrayBase* pArray) const {
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
@@ -1294,11 +1314,11 @@ public:
 	void resetEdgeIdCount(int maxId);
 
 
-	//@}
+	//! @}
 	/**
 	 * @name Operators
 	 */
-	//@{
+	//! @{
 	//! Assignment operator.
 	/**
 	 * The assignment operature assures that the adjacency lists of nodes in the
@@ -1308,24 +1328,22 @@ public:
 	 * @param G is the graph to be copied.
 	 * @return this graph.
 	 */
-	Graph &operator=(const Graph &G);
+	Graph& operator=(const Graph& G);
 
 	OGDF_MALLOC_NEW_DELETE
 
-	//@}
+	//! @}
 
 public:
-
 	//! Info structure for maintaining connected components.
 	class OGDF_EXPORT CCsInfo {
-
-		const Graph *m_graph; //!< points to the associated graph.
+		const Graph* m_graph; //!< points to the associated graph.
 		int m_numCC; //!< the number of connected components.
 
 		Array<node> m_nodes; //!< array of all nodes.
 		Array<edge> m_edges; //!< array of all edges.
-		Array<int>  m_startNode; //!< start node of each connected component in m_nodes.
-		Array<int>  m_startEdge; //!< start edge of each connected component in m_edges.
+		Array<int> m_startNode; //!< start node of each connected component in m_nodes.
+		Array<int> m_startEdge; //!< start edge of each connected component in m_edges.
 
 	public:
 		//! Creates a info structure associated with no graph.
@@ -1335,7 +1353,7 @@ public:
 		explicit CCsInfo(const Graph& G);
 
 		//! Returns the associated graph.
-		const Graph &constGraph() const { return *m_graph; }
+		const Graph& constGraph() const { return *m_graph; }
 
 		//! Returns the number of connected components.
 		int numberOfCCs() const { return m_numCC; }
@@ -1350,13 +1368,13 @@ public:
 		int startNode(int cc) const { return m_startNode[cc]; }
 
 		//! Returns the index of (one past) the last node in connected component \p cc.
-		int stopNode (int cc) const { return m_startNode[cc+1]; }
+		int stopNode(int cc) const { return m_startNode[cc + 1]; }
 
 		//! Returns the index of the first edge in connected component \p cc.
 		int startEdge(int cc) const { return m_startEdge[cc]; }
 
 		//! Returns the index of (one past) the last edge in connected component \p cc.
-		int stopEdge (int cc) const { return m_startEdge[cc+1]; }
+		int stopEdge(int cc) const { return m_startEdge[cc + 1]; }
 
 		//! Returns the node with index \p i.
 		node v(int i) const { return m_nodes[i]; }
@@ -1366,38 +1384,28 @@ public:
 	};
 
 protected:
-	void construct(const Graph &G, NodeArray<node> &mapNode, EdgeArray<edge> &mapEdge);
+	void construct(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
 
-	void assign(const Graph &G, NodeArray<node> &mapNode, EdgeArray<edge> &mapEdge);
+	void assign(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
 
 	//! Constructs a copy of the subgraph of \p G induced by \p nodeList.
 	/**
 	 * This method preserves the order in the adjacency lists, i.e., if
 	 * \p G is embedded, its embedding induces the embedding of the copy.
 	 */
-	void constructInitByNodes(
-		const Graph &G,
-		const List<node> &nodeList,
-		NodeArray<node> &mapNode,
-		EdgeArray<edge> &mapEdge);
+	void constructInitByNodes(const Graph& G, const List<node>& nodeList, NodeArray<node>& mapNode,
+			EdgeArray<edge>& mapEdge);
 
-	void constructInitByActiveNodes(
-		const List<node> &nodeList,
-		const NodeArray<bool> &activeNodes,
-		NodeArray<node> &mapNode,
-		EdgeArray<edge> &mapEdge);
+	void constructInitByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
+			NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
 
 	//! Constructs a copy of connected component \p cc in \p info.
-	void constructInitByCC(
-		const CCsInfo &info,
-		int cc,
-		NodeArray<node> &mapNode,
-		EdgeArray<edge> &mapEdge);
+	void constructInitByCC(const CCsInfo& info, int cc, NodeArray<node>& mapNode,
+			EdgeArray<edge>& mapEdge);
 
 private:
-	void copy(const Graph &G, NodeArray<node> &mapNode,
-		EdgeArray<edge> &mapEdge);
-	void copy(const Graph &G);
+	void copy(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
+	void copy(const Graph& G);
 
 	edge createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt);
 	node pureNewNode();
@@ -1413,7 +1421,6 @@ private:
 	//! Re-initializes registed arrays with respect to the current sizes.
 	//! Calls #resetTableSizes() if \p doResetTableSizes is \c true (default).
 	void reinitArrays(bool doResetTableSizes = true);
-	void reinitStructures();
 	void resetAdjEntryIndex(int newIndex, int oldIndex);
 
 	/**
@@ -1422,20 +1429,20 @@ private:
 	void restoreAllEdges();
 };
 
-OGDF_EXPORT std::ostream & operator<<(std::ostream &os, const Graph::EdgeType &et);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et);
 
 //! Bucket function using the index of an edge's source node as bucket.
 class OGDF_EXPORT BucketSourceIndex : public BucketFunc<edge> {
 public:
 	//! Returns source index of \p e.
-	int getBucket(const edge &e) override { return e->source()->index(); }
+	int getBucket(const edge& e) override { return e->source()->index(); }
 };
 
 //! Bucket function using the index of an edge's target node as bucket.
 class OGDF_EXPORT BucketTargetIndex : public BucketFunc<edge> {
 public:
 	//! Returns target index of \p e.
-	int getBucket(const edge &e) override { return e->target()->index(); }
+	int getBucket(const edge& e) override { return e->target()->index(); }
 };
 
 namespace internal {
@@ -1480,10 +1487,11 @@ struct NodePair {
 	node source = nullptr;
 	node target = nullptr;
 	NodePair() = default;
-	NodePair(node src, node tgt) : source(src), target(tgt) {}
+
+	NodePair(node src, node tgt) : source(src), target(tgt) { }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const NodePair& np) {
+inline std::ostream& operator<<(std::ostream& os, const NodePair& np) {
 	os << "(" << np.source << "," << np.target << ")";
 	return os;
 }

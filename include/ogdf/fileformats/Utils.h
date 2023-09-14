@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <map>
-
 #include <ogdf/basic/basic.h>
+
+#include <map>
 
 namespace ogdf {
 
@@ -44,24 +44,21 @@ private:
 	char m_c;
 
 public:
-	explicit TokenIgnorer(const char c): m_c(c) {};
+	explicit TokenIgnorer(const char c) : m_c(c) {};
 
-	friend std::istream &operator >>(std::istream &is, TokenIgnorer c);
+	friend std::istream& operator>>(std::istream& is, TokenIgnorer c);
 };
 
+std::istream& operator>>(std::istream& is, TokenIgnorer token);
 
-std::istream &operator >>(std::istream &is, TokenIgnorer token);
-
-template <typename E>
-static inline E toEnum(
-	const std::string &str, // A string we want to convert.
-	std::string toString(const E&),
-	const E first, const E last, const E def) // Enum informations.
+template<typename E>
+static inline E toEnum(const std::string& str, // A string we want to convert.
+		std::string toString(const E&), const E first, const E last, const E def) // Enum informations.
 {
 	static std::map<std::string, E> map; // A map to be lazily evaluated.
-	if(map.empty()) {
+	if (map.empty()) {
 		// Iterating over enums is potentially unsafe... (fixable in C++11).
-		for(int it = static_cast<int>(last); it >= static_cast<int>(first); it--) {
+		for (int it = static_cast<int>(last); it >= static_cast<int>(first); it--) {
 			const E e = static_cast<E>(it);
 			map[toString(e)] = e;
 		}

@@ -37,7 +37,7 @@ class PLUMock : public LayoutModule {
 	PlanarizationLayoutUML layout;
 
 public:
-	virtual void call(GraphAttributes &attr) override {
+	virtual void call(GraphAttributes& attr) override {
 		const Graph& G = attr.constGraph();
 		GraphCopy copyG(G);
 		UMLGraph umlGraph(copyG, attr.attributes());
@@ -57,5 +57,7 @@ public:
 };
 
 go_bandit([] {
-	describeLayout<PLUMock>("PlanarizationLayoutUML", GraphAttributes::edgeType | GraphAttributes::nodeType, {GraphProperty::simple, GraphProperty::sparse}, true);
+	describeLayout<PLUMock>("PlanarizationLayoutUML",
+			GraphAttributes::edgeType | GraphAttributes::nodeType,
+			{GraphProperty::simple, GraphProperty::sparse}, true);
 });

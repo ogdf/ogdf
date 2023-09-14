@@ -49,8 +49,8 @@ namespace ogdf {
  * and diploma thesis  "Algorithmen zur Bestimmung von guten Graph-Einbettungen für orthogonale Zeichnungen" (in German)
  * by Thorsten Kerkhof (2007) for details.
  */
-class OGDF_EXPORT EmbedderMinDepthMaxFaceLayers : public embedder::LayersBlockEmbedder<EmbedderMinDepthMaxFace, embedder::MDMFLengthAttribute>
-{
+class OGDF_EXPORT EmbedderMinDepthMaxFaceLayers
+	: public embedder::LayersBlockEmbedder<EmbedderMinDepthMaxFace, embedder::MDMFLengthAttribute> {
 protected:
 	void embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after) override;
 };

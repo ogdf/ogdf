@@ -37,21 +37,22 @@
 
 #include "layout_helpers.h"
 
-#define TEST_HIERARCHY_LAYOUT(TYPE, SKIP, ...) describeHierarchyLayout<TYPE>(#TYPE, SKIP, {__VA_ARGS__})
+#define TEST_HIERARCHY_LAYOUT(TYPE, SKIP, ...) \
+	describeHierarchyLayout<TYPE>(#TYPE, SKIP, {__VA_ARGS__})
 
 template<class Layout, class Levels>
 class HierarchyMock : public LayoutModule {
 	Layout layout;
 
 public:
-	virtual void call(GraphAttributes &attr) override {
+	virtual void call(GraphAttributes& attr) override {
 		const Graph& G = attr.constGraph();
 		NodeArray<int> nodeRank(G);
 
 		int numberOfRanks = sqrt(G.numberOfNodes());
 
 		int i = 0;
-		for(node v : G.nodes) {
+		for (node v : G.nodes) {
 			// each rank must contain at least one node
 			nodeRank[v] = i < numberOfRanks ? i++ : randomNumber(0, numberOfRanks);
 		}
@@ -63,16 +64,21 @@ public:
 };
 
 template<class Layout>
-void describeHierarchyLayout(const string& name, bool skipMe, std::initializer_list<GraphProperty> requirements) {
+void describeHierarchyLayout(const string& name, bool skipMe,
+		std::initializer_list<GraphProperty> requirements) {
 	std::set<GraphProperty> reqs(requirements);
 	reqs.insert(GraphProperty::sparse);
 	// TODO BlockOrder is infested by bugs. It is skipped for now.
-	describeLayout<HierarchyMock<Layout, BlockOrder>>(name + " with BlockOrder", 0, reqs, false, GraphSizes(), true);
-	describeLayout<HierarchyMock<Layout, HierarchyLevels>>(name + " with HierarchyLevels", 0, reqs, false, GraphSizes(), skipMe);
+	describeLayout<HierarchyMock<Layout, BlockOrder>>(name + " with BlockOrder", 0, reqs, false,
+			GraphSizes(), true);
+	describeLayout<HierarchyMock<Layout, HierarchyLevels>>(name + " with HierarchyLevels", 0, reqs,
+			false, GraphSizes(), skipMe);
 }
 
-go_bandit([] { describe("Layered layouts", [] {
-	TEST_HIERARCHY_LAYOUT(FastHierarchyLayout, false);
-	TEST_HIERARCHY_LAYOUT(FastSimpleHierarchyLayout, false);
-	TEST_HIERARCHY_LAYOUT(OptimalHierarchyLayout, false, GraphProperty::simple);
-}); });
+go_bandit([] {
+	describe("Layered layouts", [] {
+		TEST_HIERARCHY_LAYOUT(FastHierarchyLayout, false);
+		TEST_HIERARCHY_LAYOUT(FastSimpleHierarchyLayout, false);
+		TEST_HIERARCHY_LAYOUT(OptimalHierarchyLayout, false, GraphProperty::simple);
+	});
+});

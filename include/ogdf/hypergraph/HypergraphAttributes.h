@@ -32,9 +32,9 @@
 
 #pragma once
 
-#include <ogdf/hypergraph/HypergraphArray.h>
-#include <ogdf/hypergraph/EdgeStandardRep.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/hypergraph/EdgeStandardRep.h>
+#include <ogdf/hypergraph/HypergraphArray.h>
 
 namespace ogdf {
 
@@ -51,12 +51,10 @@ namespace ogdf {
  * Similarly to GraphAttributes, attributes are simply stored in hypernode
  * or hyperedge arrays.
  */
-class OGDF_EXPORT HypergraphAttributes
-{
+class OGDF_EXPORT HypergraphAttributes {
 protected:
-
 	//! Only points to an existing hypergraph.
-	const Hypergraph * m_hypergraph;
+	const Hypergraph* m_hypergraph;
 
 	//! Label of a hypernode.
 	HypernodeArray<string> m_label;
@@ -74,97 +72,56 @@ protected:
 	HypernodeArray<double> m_height;
 
 	//! Shape of a hypernode.
-	HypernodeArray<int>    m_shape;
+	HypernodeArray<int> m_shape;
 
 public:
+	//! Initializes new instance of class HypergraphAttributes.
+	HypergraphAttributes() : m_hypergraph(nullptr) { }
 
 	//! Initializes new instance of class HypergraphAttributes.
-	HypergraphAttributes()
-	  : m_hypergraph(nullptr)
-	{
-	}
-
-	//! Initializes new instance of class HypergraphAttributes.
-	explicit HypergraphAttributes(const Hypergraph &H)
-	  : m_hypergraph(&H)
-	{
+	explicit HypergraphAttributes(const Hypergraph& H) : m_hypergraph(&H) {
 		m_x.init(H, 0.0);
 		m_y.init(H, 0.0);
-		m_width .init(H,10.0);
-		m_height.init(H,10.0);
+		m_width.init(H, 10.0);
+		m_height.init(H, 10.0);
 		m_label.init(H);
 		m_shape.init(H, static_cast<int>(Shape::Ellipse));
 	}
 
 	//! Destructor.
-	virtual ~HypergraphAttributes()
-	{
-	}
+	virtual ~HypergraphAttributes() { }
 
-	const Hypergraph & constHypergraph() const
-	{
-		return *m_hypergraph;
-	}
+	const Hypergraph& constHypergraph() const { return *m_hypergraph; }
 
 	//! Returns the x-coordinate of hypernode \p v.
-	const double &x(hypernode v)
-	{
-		return m_x[v];
-	}
+	const double& x(hypernode v) { return m_x[v]; }
 
 	//! Sets the x-coordinate of hypernode \p v.
-	void setX(hypernode v, double pX)
-	{
-		m_x[v] = pX;
-	}
+	void setX(hypernode v, double pX) { m_x[v] = pX; }
 
 	//! Returns the y-coordinate of hypernode \p v.
-	const double &y(hypernode v) {
-		return m_y[v];
-	}
+	const double& y(hypernode v) { return m_y[v]; }
 
 	//! Sets the y-coordinate of hypernode \p v.
-	void setY(hypernode v, double pY)
-	{
-		m_y[v] = pY;
-	}
+	void setY(hypernode v, double pY) { m_y[v] = pY; }
 
 	//! Returns the width of the bounding box of hypernode \p v.
-	const double &width(hypernode v)
-	{
-		return m_width[v];
-	}
+	const double& width(hypernode v) { return m_width[v]; }
 
 	//! Sets the the width of hypernode \p v.
-	void setWidth(hypernode v, int pWidth)
-	{
-		m_width[v] = pWidth;
-	}
+	void setWidth(hypernode v, int pWidth) { m_width[v] = pWidth; }
 
 	//! Returns the height of the bounding box of hypernode \p v.
-	const double &height(hypernode v)
-	{
-		return m_height[v];
-	}
+	const double& height(hypernode v) { return m_height[v]; }
 
 	//! Sets the the height of hypernode \p v.
-	void setHeight(hypernode v, int pHeight)
-	{
-		m_height[v] = pHeight;
-	}
+	void setHeight(hypernode v, int pHeight) { m_height[v] = pHeight; }
 
 	//! Returns the shape of hypernode \p v.
-	int shape(hypernode v)
-	{
-		return m_shape[v];
-	}
+	int shape(hypernode v) { return m_shape[v]; }
 
 	//! Returns the label of hypernode \p v.
-	string &label(hypernode v)
-	{
-		return m_label[v];
-	}
-
+	string& label(hypernode v) { return m_label[v]; }
 };
 
 /**
@@ -179,170 +136,131 @@ public:
  *
  * Superclass is declared as pure virtual to make dynamic casting possible.
  */
-class OGDF_EXPORT HypergraphAttributesES : virtual public HypergraphAttributes
-{
+class OGDF_EXPORT HypergraphAttributesES : virtual public HypergraphAttributes {
 private:
-
 	//! Wrapped graph attributes reference.
-	GraphAttributes *m_repGA;
+	GraphAttributes* m_repGA;
 
 	//! Edge standard representation reference.
-	EdgeStandardRep *m_repG;
+	EdgeStandardRep* m_repG;
 
 	//! The type of of edge standard representation.
 	EdgeStandardType m_type;
 
 public:
+	//! Initializes new instance of class HypergraphAttributes.
+	HypergraphAttributesES() : m_repGA(nullptr), m_repG(nullptr) { }
 
 	//! Initializes new instance of class HypergraphAttributes.
-	HypergraphAttributesES()
-	  : m_repGA(nullptr), m_repG(nullptr)
-	{
-	}
-
-	//! Initializes new instance of class HypergraphAttributes.
-	explicit HypergraphAttributesES(const Hypergraph &pH, EdgeStandardType pType = EdgeStandardType::star)
-	  : HypergraphAttributes(pH)
-	{
+	explicit HypergraphAttributesES(const Hypergraph& pH,
+			EdgeStandardType pType = EdgeStandardType::star)
+		: HypergraphAttributes(pH) {
 		m_repG = new EdgeStandardRep(pH, pType);
 
-		m_repGA = new  GraphAttributes(m_repG->constGraph(),
-				GraphAttributes::nodeGraphics |
-				GraphAttributes::edgeGraphics);
+		m_repGA = new GraphAttributes(m_repG->constGraph(),
+				GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
 
 		m_repGA->directed() = true;
 	}
 
 	//! Destructor.
-	virtual ~HypergraphAttributesES()
-	{
+	virtual ~HypergraphAttributesES() {
 		delete m_repGA;
 		delete m_repG;
 	}
 
-	EdgeStandardType type() const
-	{
-		return m_type;
-	}
+	EdgeStandardType type() const { return m_type; }
 
-	const Graph & repGraph() const
-	{
-		return m_repG->constGraph();
-	}
+	const Graph& repGraph() const { return m_repG->constGraph(); }
 
-	const GraphAttributes & repGA() const
-	{
-		return *m_repGA;
-	}
+	const GraphAttributes& repGA() const { return *m_repGA; }
 
 	//! Returns the type of representation node \p v.
-	HypernodeElement::Type type(hypernode v)
-	{
-		return v->type();
-	}
+	HypernodeElement::Type type(hypernode v) { return v->type(); }
 
 	//! Returns the type of representation node \p v.
-	HypernodeElement::Type type(node v)
-	{
-		if (m_repG->hypernodeMap(v))
+	HypernodeElement::Type type(node v) {
+		if (m_repG->hypernodeMap(v)) {
 			return m_repG->hypernodeMap(v)->type();
-		else
+		} else {
 			return HypernodeElement::Type::dummy;
+		}
 	}
 
 	//! Returns the x-coordinate of representation node \p v.
-	const double &x(node v)
-	{
-		return m_repGA->x(v);
-	}
+	const double& x(node v) { return m_repGA->x(v); }
 
 	//! Sets the x-coordinate of a representation node \p v.
-	void setX(node v, double pX)
-	{
-		if (m_repG->hypernodeMap(v))
+	void setX(node v, double pX) {
+		if (m_repG->hypernodeMap(v)) {
 			setX(m_repG->hypernodeMap(v), pX);
-		else
+		} else {
 			m_repGA->x(v) = pX;
+		}
 	}
 
 	//! Sets the x-coordinate of hypernode \p v.
-	void setX(hypernode v, double pX)
-	{
+	void setX(hypernode v, double pX) {
 		m_x[v] = pX;
 		m_repGA->x(m_repG->nodeMap(v)) = pX;
 	}
 
 	//! Returns the y-coordinate of a representation node \p v.
-	const double &y(node v)
-	{
-		return m_repGA->y(v);
-	}
+	const double& y(node v) { return m_repGA->y(v); }
 
 	//! Sets the x-coordinate of hypernode \p v.
-	void setY(hypernode v, double pY)
-	{
+	void setY(hypernode v, double pY) {
 		m_y[v] = pY;
 		m_repGA->y(m_repG->nodeMap(v)) = pY;
 	}
 
 	//! Sets the y-coordinate of a representation node \p v.
-	void setY(node v, double pY)
-	{
-		if (m_repG->hypernodeMap(v))
+	void setY(node v, double pY) {
+		if (m_repG->hypernodeMap(v)) {
 			setY(m_repG->hypernodeMap(v), pY);
-		else
+		} else {
 			m_repGA->y(v) = pY;
+		}
 	}
 
 	//! Returns the width of a representation node \p v.
-	const double &width(node v)
-	{
-		return m_repGA->width(v);
-	}
+	const double& width(node v) { return m_repGA->width(v); }
 
 	//! Sets the the width of hypernode \p v.
-	void setWidth(hypernode v, double pWidth)
-	{
+	void setWidth(hypernode v, double pWidth) {
 		m_width[v] = pWidth;
 		m_repGA->width(m_repG->nodeMap(v)) = pWidth;
 	}
 
 	//! Sets the the width of a representation node \p v.
-	void setWidth(node v, double pWidth)
-	{
-		if (m_repG->hypernodeMap(v))
+	void setWidth(node v, double pWidth) {
+		if (m_repG->hypernodeMap(v)) {
 			setWidth(m_repG->hypernodeMap(v), pWidth);
-		else
+		} else {
 			m_repGA->width(v) = pWidth;
+		}
 	}
 
 	//! Returns the height of a representation node \p v.
-	const double &height(node v)
-	{
-		return m_repGA->height(v);
-	}
+	const double& height(node v) { return m_repGA->height(v); }
 
 	//! Sets the the height of hypernode \p v.
-	void setHeight(hypernode v, double pHeight)
-	{
+	void setHeight(hypernode v, double pHeight) {
 		m_height[v] = pHeight;
 		m_repGA->height(m_repG->nodeMap(v)) = pHeight;
 	}
 
 	//! Sets the the height of a representation node \p v.
-	void setHeight(node v, double pHeight)
-	{
-		if (m_repG->hypernodeMap(v))
+	void setHeight(node v, double pHeight) {
+		if (m_repG->hypernodeMap(v)) {
 			setHeight(m_repG->hypernodeMap(v), pHeight);
-		else
+		} else {
 			m_repGA->height(v) = pHeight;
+		}
 	}
 
 	//! Returns the list of bend points of edge \p e.
-	DPolyline &bends(edge e)
-	{
-		return m_repGA->bends(e);
-	}
+	DPolyline& bends(edge e) { return m_repGA->bends(e); }
 
 #if 0
 	//! Writes the hypergraph (edge standard representation) into SVG format.
@@ -358,22 +276,13 @@ public:
 	}
 #endif
 
-	void clearAllBends()
-	{
-		m_repGA->clearAllBends();
-	}
+	void clearAllBends() { m_repGA->clearAllBends(); }
 
 	//! Removes unnecessary bend points in orthogonal segements.
-	void removeUnnecessaryBendsHV()
-	{
-		m_repGA->removeUnnecessaryBendsHV();
-	}
+	void removeUnnecessaryBendsHV() { m_repGA->removeUnnecessaryBendsHV(); }
 
 	//! Returns the bounding box of the hypergraph.
-	const DRect boundingBox() const
-	{
-		return m_repGA->boundingBox();
-	}
+	const DRect boundingBox() const { return m_repGA->boundingBox(); }
 };
 
 }

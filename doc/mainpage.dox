@@ -192,6 +192,10 @@
  * @ingroup graph-algs
  * \brief Provides functions for orienting graphs like st-numbering.
  *
+ * @defgroup ga-plansep Planar Separator Algorithms
+ * @ingroup graph-algs
+ * \brief Functions for computing separators in planar graphs.
+ *
  * @defgroup decomp Graph Decomposition
  * \brief This module contains data structures for decomposing graphs.
  *

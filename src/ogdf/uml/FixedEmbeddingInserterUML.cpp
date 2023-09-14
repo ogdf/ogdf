@@ -30,33 +30,30 @@
  */
 
 
-#include <ogdf/uml/FixedEmbeddingInserterUML.h>
 #include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>
+#include <ogdf/uml/FixedEmbeddingInserterUML.h>
 
 namespace ogdf {
 
 // constructor
 // sets default values for options
-FixedEmbeddingInserterUML::FixedEmbeddingInserterUML()
-{
+FixedEmbeddingInserterUML::FixedEmbeddingInserterUML() {
 	m_rrOption = RemoveReinsertType::None;
 	m_percentMostCrossed = 25;
 	m_keepEmbedding = false;
 }
 
 // copy constructor
-FixedEmbeddingInserterUML::FixedEmbeddingInserterUML(const FixedEmbeddingInserterUML &inserter)
-	: UMLEdgeInsertionModule()
-{
+FixedEmbeddingInserterUML::FixedEmbeddingInserterUML(const FixedEmbeddingInserterUML& inserter)
+	: UMLEdgeInsertionModule() {
 	m_rrOption = inserter.m_rrOption;
 	m_percentMostCrossed = inserter.m_percentMostCrossed;
 	m_keepEmbedding = inserter.m_keepEmbedding;
 }
 
 // clone method
-UMLEdgeInsertionModule *FixedEmbeddingInserterUML::clone() const
-{
-	FixedEmbeddingInserterUML *pInserter = new FixedEmbeddingInserterUML;
+UMLEdgeInsertionModule* FixedEmbeddingInserterUML::clone() const {
+	FixedEmbeddingInserterUML* pInserter = new FixedEmbeddingInserterUML;
 	pInserter->m_rrOption = m_rrOption;
 	pInserter->m_percentMostCrossed = m_percentMostCrossed;
 	pInserter->m_keepEmbedding = m_keepEmbedding;
@@ -65,8 +62,8 @@ UMLEdgeInsertionModule *FixedEmbeddingInserterUML::clone() const
 }
 
 // assignment operator
-FixedEmbeddingInserterUML &FixedEmbeddingInserterUML::operator=(const FixedEmbeddingInserterUML &inserter)
-{
+FixedEmbeddingInserterUML& FixedEmbeddingInserterUML::operator=(
+		const FixedEmbeddingInserterUML& inserter) {
 	m_rrOption = inserter.m_rrOption;
 	m_percentMostCrossed = inserter.m_percentMostCrossed;
 	m_keepEmbedding = inserter.m_keepEmbedding;
@@ -74,12 +71,8 @@ FixedEmbeddingInserterUML &FixedEmbeddingInserterUML::operator=(const FixedEmbed
 }
 
 // actual call method
-Module::ReturnType FixedEmbeddingInserterUML::doCall(
-	PlanRepLight              &pr,
-	const Array<edge>         &origEdges,
-	const EdgeArray<int>      *pCostOrig,
-	const EdgeArray<uint32_t> *pEdgeSubgraph)
-{
+Module::ReturnType FixedEmbeddingInserterUML::doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+		const EdgeArray<int>* pCostOrig, const EdgeArray<uint32_t>* pEdgeSubgraph) {
 	FixEdgeInserterUMLCore core(pr, pCostOrig, pEdgeSubgraph);
 	core.timeLimit(timeLimit());
 

@@ -1,3 +1,3 @@
 #pragma once
 
-#define OGDF_VERSION "2022.02"
+#define OGDF_VERSION "2023.09"

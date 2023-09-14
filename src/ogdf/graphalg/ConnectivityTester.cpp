@@ -29,13 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/graphalg/ConnectivityTester.h>
 
 namespace ogdf {
 
-void ConnectivityTester::duplicateEdges(Graph & graph)
-{
+void ConnectivityTester::duplicateEdges(Graph& graph) {
 	List<edge> edges;
 	graph.allEdges(edges);
 
@@ -44,8 +43,7 @@ void ConnectivityTester::duplicateEdges(Graph & graph)
 	}
 }
 
-void ConnectivityTester::restrictNodes(Graph & graph)
-{
+void ConnectivityTester::restrictNodes(Graph& graph) {
 	List<node> nodes;
 	graph.allNodes(nodes);
 
@@ -71,16 +69,15 @@ void ConnectivityTester::restrictNodes(Graph & graph)
 	}
 }
 
-void ConnectivityTester::prepareGraph(const Graph &graph)
-{
-	if(m_graphCopied) {
+void ConnectivityTester::prepareGraph(const Graph& graph) {
+	if (m_graphCopied) {
 		delete m_graph;
 	}
 
 	m_graphCopied = m_nodeConnectivity || !m_directed;
 
 	if (m_graphCopied) {
-		Graph *copy = new GraphCopy(graph);
+		Graph* copy = new GraphCopy(graph);
 
 		if (!m_directed) {
 			duplicateEdges(*copy);
@@ -96,8 +93,7 @@ void ConnectivityTester::prepareGraph(const Graph &graph)
 	}
 }
 
-int ConnectivityTester::computeConnectivity(node v, node u)
-{
+int ConnectivityTester::computeConnectivity(node v, node u) {
 	OGDF_ASSERT(v != u);
 
 	m_flowAlgo->init(*m_graph);
@@ -106,12 +102,11 @@ int ConnectivityTester::computeConnectivity(node v, node u)
 	return m_flowAlgo->computeValue(cap, v, u);
 }
 
-int ConnectivityTester::computeConnectivity(NodeArray<NodeArray<int>> &Connectivity)
-{
+int ConnectivityTester::computeConnectivity(NodeArray<NodeArray<int>>& Connectivity) {
 	node v = m_graph->firstNode();
 	int result = m_graph->numberOfNodes();
 
-	if(m_graphCopied) {
+	if (m_graphCopied) {
 		v = ((GraphCopy*)m_graph)->original().firstNode();
 	}
 
@@ -134,14 +129,13 @@ int ConnectivityTester::computeConnectivity(NodeArray<NodeArray<int>> &Connectiv
 	return result;
 }
 
-node ConnectivityTester::copyOf(node v, bool isSource) const
-{
+node ConnectivityTester::copyOf(node v, bool isSource) const {
 	node result = v;
 
-	if(m_graphCopied) {
-		result = ((GraphCopy*) m_graph)->copy(v);
+	if (m_graphCopied) {
+		result = ((GraphCopy*)m_graph)->copy(v);
 
-		if(isSource && m_nodeConnectivity) {
+		if (isSource && m_nodeConnectivity) {
 			result = (*m_source)[result];
 		}
 	}

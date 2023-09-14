@@ -34,11 +34,10 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
-{
-	FMELocalContext*  localContext	= m_pLocalContext;
+void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition) {
+	FMELocalContext* localContext = m_pLocalContext;
 	FMEGlobalContext* globalContext = m_pGlobalContext;
-	LinearQuadtree&	tree			= *globalContext->pQuadtree;
+	LinearQuadtree& tree = *globalContext->pQuadtree;
 
 	// precompute the bounding box for the quadtree points from the graph nodes
 	for_loop(pointPartition, min_max_x_function(localContext));
@@ -48,20 +47,19 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 	sync();
 
 	// let the main thread computed the bounding box of the bounding boxes
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		globalContext->min_x = globalContext->pLocalContext[0]->min_x;
 		globalContext->min_y = globalContext->pLocalContext[0]->min_y;
 		globalContext->max_x = globalContext->pLocalContext[0]->max_x;
 		globalContext->max_y = globalContext->pLocalContext[0]->max_y;
-		for (uint32_t j=1; j < numThreads(); j++)
-		{
+		for (uint32_t j = 1; j < numThreads(); j++) {
 			Math::updateMin(globalContext->min_x, globalContext->pLocalContext[j]->min_x);
 			Math::updateMin(globalContext->min_y, globalContext->pLocalContext[j]->min_y);
 			Math::updateMax(globalContext->max_x, globalContext->pLocalContext[j]->max_x);
 			Math::updateMax(globalContext->max_y, globalContext->pLocalContext[j]->max_y);
 		}
-		tree.init(globalContext->min_x, globalContext->min_y, globalContext->max_x, globalContext->max_y);
+		tree.init(globalContext->min_x, globalContext->min_y, globalContext->max_x,
+				globalContext->max_y);
 		globalContext->coolDown *= 0.999f;
 		tree.clear();
 	}
@@ -77,8 +75,7 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 	LinearQuadtree::LQPoint* points = tree.pointArray();
 	sort_parallel(points, tree.numberOfPoints(), LQPointComparer);
 #else
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		LinearQuadtree::LQPoint* points = tree.pointArray();
 		sort_single(points, tree.numberOfPoints(), LQPointComparer);
 	}
@@ -86,14 +83,13 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 	// wait because the quadtree builder needs the sorted order
 	sync();
 	// if not a parallel run, we can do the easy way
-	if (isSingleThreaded())
-	{
+	if (isSingleThreaded()) {
 		LinearQuadtreeBuilder builder(tree);
 		// prepare the tree
 		builder.prepareTree();
 		// and link it
 		builder.build();
-		LQPartitioner partitioner( localContext );
+		LQPartitioner partitioner(localContext);
 		partitioner.partition();
 	} else // the more difficult part
 	{
@@ -101,10 +97,11 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 		LinearQuadtree::PointID beginPoint = tree.findFirstPointInCell(pointPartition.begin);
 		LinearQuadtree::PointID endPoint_plus_one;
 		// if this thread is the last one, no snapping required for the right point
-		if (threadNr()==numThreads()-1)
+		if (threadNr() == numThreads() - 1) {
 			endPoint_plus_one = tree.numberOfPoints();
-		else // find the left point of the next thread
-			endPoint_plus_one = tree.findFirstPointInCell(pointPartition.end+1);
+		} else { // find the left point of the next thread
+			endPoint_plus_one = tree.findFirstPointInCell(pointPartition.end + 1);
+		}
 
 		// now we can prepare the snapped interval
 		LinearQuadtreeBuilder builder(tree);
@@ -122,8 +119,7 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 		sync();
 
 		// now the main thread has to link the tree
-		if (isMainThread())
-		{
+		if (isMainThread()) {
 			// with his own builder
 			LinearQuadtreeBuilder sbuilder(tree);
 			// first we need the complete chain data
@@ -131,13 +127,12 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 			sbuilder.firstLeaf = globalContext->pLocalContext[0]->firstLeaf;
 			sbuilder.numInnerNodes = globalContext->pLocalContext[0]->numInnerNodes;
 			sbuilder.numLeaves = globalContext->pLocalContext[0]->numLeaves;
-			for (uint32_t j=1; j < numThreads(); j++)
-			{
+			for (uint32_t j = 1; j < numThreads(); j++) {
 				sbuilder.numLeaves += globalContext->pLocalContext[j]->numLeaves;
 				sbuilder.numInnerNodes += globalContext->pLocalContext[j]->numInnerNodes;
 			}
-			sbuilder.lastInner = globalContext->pLocalContext[numThreads()-1]->lastInnerNode;
-			sbuilder.lastLeaf = globalContext->pLocalContext[numThreads()-1]->lastLeaf;
+			sbuilder.lastInner = globalContext->pLocalContext[numThreads() - 1]->lastInnerNode;
+			sbuilder.lastLeaf = globalContext->pLocalContext[numThreads() - 1]->lastLeaf;
 			// Link the tree
 			sbuilder.build();
 			// and run the partitions
@@ -150,97 +145,89 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 	// now update the copy of the point data
 	for_loop(pointPartition, LQPointUpdateFunctor(localContext));
 	// compute the nodes coordinates and sizes
-	tree.forall_tree_nodes(LQCoordsFunctor(localContext), localContext->innerNodePartition.begin, localContext->innerNodePartition.numNodes)();
-	tree.forall_tree_nodes(LQCoordsFunctor(localContext), localContext->leafPartition.begin, localContext->leafPartition.numNodes)();
+	tree.forall_tree_nodes(LQCoordsFunctor(localContext), localContext->innerNodePartition.begin,
+			localContext->innerNodePartition.numNodes)();
+	tree.forall_tree_nodes(LQCoordsFunctor(localContext), localContext->leafPartition.begin,
+			localContext->leafPartition.numNodes)();
 }
 
-void FMEMultipoleKernel::multipoleApproxSingleThreaded(ArrayPartition& nodePointPartition)
-{
-	FMELocalContext*  localContext	= m_pLocalContext;
+void FMEMultipoleKernel::multipoleApproxSingleThreaded(ArrayPartition& nodePointPartition) {
+	FMELocalContext* localContext = m_pLocalContext;
 	FMEGlobalContext* globalContext = m_pGlobalContext;
-	LinearQuadtree&	tree			= *globalContext->pQuadtree;
-	if (isMainThread())
-	{
+	LinearQuadtree& tree = *globalContext->pQuadtree;
+	if (isMainThread()) {
 		tree.bottom_up_traversal( // do a bottom up traversal M2M pass
-			if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-				p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-				m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-			)
-		)(tree.root());
+				if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
+						p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+						m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+						))(tree.root());
 
 		tree.forall_well_separated_pairs( // do a wspd traversal M2L direct eval
-			pair_vice_versa(m2l_function(localContext)),// M2L for a well-separated pair
-			p2p_function(localContext), // direct evaluation
-			p2p_function(localContext) // direct evaluation
-		)(tree.root());
+				pair_vice_versa(m2l_function(localContext)), // M2L for a well-separated pair
+				p2p_function(localContext), // direct evaluation
+				p2p_function(localContext) // direct evaluation
+				)(tree.root());
 
 		tree.top_down_traversal( // top down traversal
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with this case later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			)
-		)(tree.root());// start at the root
+				if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+						do_nothing(), // then do nothing, we will deal with this case later
+						l2l_function(localContext) // else shift the nodes local coeffs to the children
+						))(tree.root()); // start at the root
 
 		// evaluate all leaves and store the forces in the threads array
 		for_loop(nodePointPartition, // loop over points
-			func_comp( // composition of two statements
-				l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
-				collect_force_function // collect the forces of all threads with the following options:
-				<
-					FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
-					FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
-					FMECollect::ZeroThreadArray // reset threads array
-				>(localContext)
-			)
-		);
+				func_comp( // composition of two statements
+						l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
+						collect_force_function // collect the forces of all threads with the following options:
+						<FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
+								FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
+								FMECollect::ZeroThreadArray // reset threads array
+								>(localContext)));
 	}
 }
 
 //! the original algorithm which runs the WSPD completely single threaded
-void FMEMultipoleKernel::multipoleApproxSingleWSPD(ArrayPartition& nodePointPartition)
-{
-	FMELocalContext*  localContext	= m_pLocalContext;
+void FMEMultipoleKernel::multipoleApproxSingleWSPD(ArrayPartition& nodePointPartition) {
+	FMELocalContext* localContext = m_pLocalContext;
 	FMEGlobalContext* globalContext = m_pGlobalContext;
-	LinearQuadtree&	tree			= *globalContext->pQuadtree;
+	LinearQuadtree& tree = *globalContext->pQuadtree;
 
 	// let the main thread run the WSPD
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		// The Well-separated pairs decomposition
 		tree.forall_well_separated_pairs( // do a wspd traversal
 				tree.StoreWSPairFunction(), // store the ws pairs in the WSPD
 				tree.StoreDirectPairFunction(), // store the direct pairs
 				tree.StoreDirectNodeFunction() // store the direct nodes
-			)(tree.root()); // start at the root
+				)(tree.root()); // start at the root
 	}
 
 	// Note: dont wait for the WSPD to finish. We dont need it yet for
 	// the big multihreaded bottom up traversal.
 	for_tree_partition( // for all roots in the threads tree partition
-		tree.bottom_up_traversal( // do a bottom up traversal
-			if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-				p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-				m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-			)
-		)
-	);
+			tree.bottom_up_traversal( // do a bottom up traversal
+					if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
+							p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+							m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+							)));
 	sync();
 	// top of the tree has to be done by the main thread
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		tree.bottom_up_traversal( // start a bottom up traversal
 				if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-					p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-					m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-				),
+						p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+						m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+						),
 				not_condition(tree.is_fence_condition()) // stop when the fence to the threads is reached
-			)(tree.root());// start at the root
+				)(tree.root()); // start at the root
 	}
 	// wait until all nodes in the quadtree have their mulipole coeff
 	sync();
 	// M2L pass with the WSPD
-	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->innerNodePartition.begin, localContext->innerNodePartition.numNodes)();
-	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->leafPartition.begin, localContext->leafPartition.numNodes)();
+	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->innerNodePartition.begin,
+			localContext->innerNodePartition.numNodes)();
+	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->leafPartition.begin,
+			localContext->leafPartition.numNodes)();
 	// D2D pass and store in the thread force array
 	for_loop(arrayPartition(tree.numberOfDirectPairs()), D2DFunctor(localContext));
 	// D pass and store in the thread force array
@@ -248,169 +235,151 @@ void FMEMultipoleKernel::multipoleApproxSingleWSPD(ArrayPartition& nodePointPart
 	// wait until all local coeffs and all direct forces are computed
 	sync();
 	// big multihreaded top down traversal. top of the tree has to be done by the main thread
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		tree.top_down_traversal( // top down traversal
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with L2P pass later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			),
-			not_condition(tree.is_fence_condition()) //stop when the fence to the threads is reached
-		)(tree.root());// start at the root
+				if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+						do_nothing(), // then do nothing, we will deal with L2P pass later
+						l2l_function(localContext) // else shift the nodes local coeffs to the children
+						),
+				not_condition(tree.is_fence_condition()) //stop when the fence to the threads is reached
+				)(tree.root()); // start at the root
 	}
 	sync();
 	// the rest is done by the threads
 	for_tree_partition( // for all roots in the threads tree partition
-		tree.top_down_traversal( // do a top down traversal
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with L2P pass later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			)
-		)
-	);
+			tree.top_down_traversal( // do a top down traversal
+					if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+							do_nothing(), // then do nothing, we will deal with L2P pass later
+							l2l_function(localContext) // else shift the nodes local coeffs to the children
+							)));
 	// wait until the traversal is finished and all leaves have their accumulated local coeffs
 	sync();
-	// evaluate all leaves and store the forces in the threads array (Note: we can store them in the global array but then we have to use random access)
+	// evaluate all leaves and store the forces in the threads array (Note: we
+	// can store them in the global array but then we have to use random access)
 	// we can start immediately to collect the forces because we evaluated before point by point
 	for_loop(nodePointPartition, // loop over threads points
-		func_comp( // composition of two statements
-			l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
-			collect_force_function // collect the forces of all threads with the following options:
-			<
-				FMECollect::RepulsiveFactor| // multiply by the repulsive factor stored in the global options
-				FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
-				FMECollect::ZeroThreadArray // reset threads array to zero
-			>(localContext)
-		)
-	);
+			func_comp( // composition of two statements
+					l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
+					collect_force_function // collect the forces of all threads with the following options:
+					<FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
+							FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
+							FMECollect::ZeroThreadArray // reset threads array to zero
+							>(localContext)));
 }
 
-
 //! new but slower method, parallel wspd computation without using the wspd structure
-void FMEMultipoleKernel::multipoleApproxNoWSPDStructure(ArrayPartition& nodePointPartition)
-{
-	FMELocalContext*  localContext	= m_pLocalContext;
+void FMEMultipoleKernel::multipoleApproxNoWSPDStructure(ArrayPartition& nodePointPartition) {
+	FMELocalContext* localContext = m_pLocalContext;
 	FMEGlobalContext* globalContext = m_pGlobalContext;
-	LinearQuadtree&	tree			= *globalContext->pQuadtree;
+	LinearQuadtree& tree = *globalContext->pQuadtree;
 	// big multihreaded bottom up traversal.
 	for_tree_partition( // for all roots in the threads tree partition
-		tree.bottom_up_traversal( // do a bottom up traversal
-			if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-				p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-				m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-			)
-		)
-	);
+			tree.bottom_up_traversal( // do a bottom up traversal
+					if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
+							p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+							m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+							)));
 	sync();
 
 	// top of the tree has to be done by the main thread
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		tree.bottom_up_traversal( // start a bottom up traversal
-			if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-				p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-				m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-			),
-			not_condition(tree.is_fence_condition()))(tree.root());// start at the root, stop when the fence to the threads is reached
+				if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
+						p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+						m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+						),
+				not_condition(tree.is_fence_condition()))(
+				tree.root()); // start at the root, stop when the fence to the threads is reached
 
 		tree.forall_well_separated_pairs( // do a wspd traversal
-			pair_vice_versa(m2l_function(localContext)), // M2L for a well-separated pair
-			p2p_function(localContext), // direct evaluation
-			p2p_function(localContext), // direct evaluation
-			not_condition(tree.is_fence_condition()))(tree.root());
+				pair_vice_versa(m2l_function(localContext)), // M2L for a well-separated pair
+				p2p_function(localContext), // direct evaluation
+				p2p_function(localContext), // direct evaluation
+				not_condition(tree.is_fence_condition()))(tree.root());
 	}
 	// wait until all local coeffs and all direct forces are computed
 	sync();
 
 	// now a wspd traversal for the roots in the tree partition
-	for_tree_partition(
-		tree.forall_well_separated_pairs( // do a wspd traversal
+	for_tree_partition(tree.forall_well_separated_pairs( // do a wspd traversal
 			pair_vice_versa(m2l_function(localContext)), // M2L for a well-separated pair
 			p2p_function(localContext), // direct evaluation
 			p2p_function(localContext) // direct evaluation
-		)
-	);
+			));
 	// wait until all local coeffs and all direct forces are computed
 	sync();
 
 	// big multihreaded top down traversal. Top of the tree has to be done by the main thread
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		tree.top_down_traversal( // top down traversal
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with this case later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			),
-			not_condition(tree.is_fence_condition()) //stop when the fence to the threads is reached
-		)(tree.root());								 // start at the root
+				if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+						do_nothing(), // then do nothing, we will deal with this case later
+						l2l_function(localContext) // else shift the nodes local coeffs to the children
+						),
+				not_condition(tree.is_fence_condition()) //stop when the fence to the threads is reached
+				)(tree.root()); // start at the root
 	}
 	// wait until the traversal is finished and all roots of the threads have their coefficients
 	sync();
 
 	for_tree_partition( // for all roots in the threads tree partition
-		tree.top_down_traversal( // do a top down traversal
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with this case later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			)
-		)
-	);
+			tree.top_down_traversal( // do a top down traversal
+					if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+							do_nothing(), // then do nothing, we will deal with this case later
+							l2l_function(localContext) // else shift the nodes local coeffs to the children
+							)));
 	// wait until the traversal is finished and all leaves have their accumulated local coeffs
 	sync();
-	// evaluate all leaves and store the forces in the threads array (Note we can store them in the global array but then we have to use random access)
+	// evaluate all leaves and store the forces in the threads array (Note we
+	// can store them in the global array but then we have to use random access)
 	// we can start immediately to collect the forces because we evaluated before point by point
 	for_loop(nodePointPartition, // loop over threads points
-		func_comp( // composition of two statements
-			l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
-			collect_force_function // collect the forces of all threads with the following options:
-			<
-				FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
-				FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
-				FMECollect::ZeroThreadArray // reset threads array
-			>(localContext)
-		)
-	);
+			func_comp( // composition of two statements
+					l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
+					collect_force_function // collect the forces of all threads with the following options:
+					<FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
+							FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
+							FMECollect::ZeroThreadArray // reset threads array
+							>(localContext)));
 }
 
-
 //! the final approximation algorithm which runs the wspd parallel without storing it in the threads subtrees
-void FMEMultipoleKernel::multipoleApproxFinal(ArrayPartition& nodePointPartition)
-{
-	FMELocalContext*  localContext	= m_pLocalContext;
+void FMEMultipoleKernel::multipoleApproxFinal(ArrayPartition& nodePointPartition) {
+	FMELocalContext* localContext = m_pLocalContext;
 	FMEGlobalContext* globalContext = m_pGlobalContext;
-	LinearQuadtree&	tree			= *globalContext->pQuadtree;
+	LinearQuadtree& tree = *globalContext->pQuadtree;
 	// big multihreaded bottom up traversal.
 	for_tree_partition( // for all roots in the threads tree partition
-		tree.bottom_up_traversal( // do a bottom up traversal
-			if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-				p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-				m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-			)
-		)
-	);
+			tree.bottom_up_traversal( // do a bottom up traversal
+					if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
+							p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+							m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+							)));
 	sync();
 	// top of the tree has to be done by the main thread
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		tree.bottom_up_traversal( // start a bottom up traversal
-			if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
-				p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
-				m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
-			),
-			not_condition(tree.is_fence_condition()))(tree.root());// start at the root, stop when the fence to the threads is reached
+				if_then_else(tree.is_leaf_condition(), // if the current node is a leaf
+						p2m_function(localContext), // then calculate the multipole coeff. due to the points in the leaf
+						m2m_function(localContext) // else shift the coefficents of all children to center of the inner node
+						),
+				not_condition(tree.is_fence_condition()))(
+				tree.root()); // start at the root, stop when the fence to the threads is reached
 
 		tree.forall_well_separated_pairs( // do a wspd traversal
-			tree.StoreWSPairFunction(), // store the ws pairs in the WSPD
-			tree.StoreDirectPairFunction(), // store the direct pairs
-			tree.StoreDirectNodeFunction(), // store the direct nodes
-			not_condition(tree.is_fence_condition()))(tree.root());
+				tree.StoreWSPairFunction(), // store the ws pairs in the WSPD
+				tree.StoreDirectPairFunction(), // store the direct pairs
+				tree.StoreDirectNodeFunction(), // store the direct nodes
+				not_condition(tree.is_fence_condition()))(tree.root());
 	}
 	// wait for the main thread to finish
 	sync();
 
 	// M2L pass with the WSPD for the result of the single threaded pass above
-	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->innerNodePartition.begin, localContext->innerNodePartition.numNodes)();
-	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->leafPartition.begin, localContext->leafPartition.numNodes)();
+	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->innerNodePartition.begin,
+			localContext->innerNodePartition.numNodes)();
+	tree.forall_tree_nodes(M2LFunctor(localContext), localContext->leafPartition.begin,
+			localContext->leafPartition.numNodes)();
 
 	// D2D pass and store in the thread force array
 	for_loop(arrayPartition(tree.numberOfDirectPairs()), D2DFunctor(localContext));
@@ -420,68 +389,60 @@ void FMEMultipoleKernel::multipoleApproxFinal(ArrayPartition& nodePointPartition
 	sync();
 
 	// the rest of the WSPD can be done on the fly by the thread
-	for_tree_partition(
-		tree.forall_well_separated_pairs( // do a wspd traversal
+	for_tree_partition(tree.forall_well_separated_pairs( // do a wspd traversal
 			pair_vice_versa(m2l_function(localContext)), // M2L for a well-separated pair
 			p2p_function(localContext), // direct evaluation
 			p2p_function(localContext) // direct evaluation
-		)
-	);
+			));
 	// wait until all local coeffs and all direct forces are computed
 	sync();
 
 	// big multihreaded top down traversal. top of the tree has to be done by the main thread
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		tree.top_down_traversal( // top down traversal L2L pass
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with this case later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			),
-			not_condition(tree.is_fence_condition()) // stop when the fence to the threads is reached
-		)(tree.root()); // start at the root,
+				if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+						do_nothing(), // then do nothing, we will deal with this case later
+						l2l_function(localContext) // else shift the nodes local coeffs to the children
+						),
+				not_condition(tree.is_fence_condition()) // stop when the fence to the threads is reached
+				)(tree.root()); // start at the root,
 	}
 	// wait for the top of the tree
 	sync();
 
 	for_tree_partition( // for all roots in the threads tree partition L2L pass
-		tree.top_down_traversal( // do a top down traversal
-			if_then_else( tree.is_leaf_condition(), // if the node is a leaf
-				do_nothing(), // then do nothing, we will deal with this case later
-				l2l_function(localContext) // else shift the nodes local coeffs to the children
-			)
-		)
-	);
+			tree.top_down_traversal( // do a top down traversal
+					if_then_else(tree.is_leaf_condition(), // if the node is a leaf
+							do_nothing(), // then do nothing, we will deal with this case later
+							l2l_function(localContext) // else shift the nodes local coeffs to the children
+							)));
 	// wait until the traversal is finished and all leaves have their accumulated local coeffs
 	sync();
-	// evaluate all leaves and store the forces in the threads array (Note we can store them in the global array but then we have to use random access)
+	// evaluate all leaves and store the forces in the threads array (Note we
+	// can store them in the global array but then we have to use random access)
 	// we can start immediately to collect the forces because we evaluated before point by point
 	for_loop(nodePointPartition, // loop over threads points
-		func_comp( // composition of two statements
-			l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
-			collect_force_function // collect the forces of all threads with the following options:
-			<
-				FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
-				FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
-				FMECollect::ZeroThreadArray // reset threads array
-			>(localContext)
-		)
-	);
+			func_comp( // composition of two statements
+					l2p_function(localContext), // evaluate the forces due to the local expansion in the corresponding leaf
+					collect_force_function // collect the forces of all threads with the following options:
+					<FMECollect::RepulsiveFactor | // multiply by the repulsive factor stored in the global options
+							FMECollect::Tree2GraphOrder | // threads data is stored in quadtree leaf order, transform it into graph order
+							FMECollect::ZeroThreadArray // reset threads array
+							>(localContext)));
 }
 
-void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
-{
-	uint32_t					maxNumIterations    =  globalContext->pOptions->maxNumIterations;
-	uint32_t					minNumIterations    =  globalContext->pOptions->minNumIterations;
-	ArrayGraph&					graph				= *globalContext->pGraph;
-	LinearQuadtree&				tree				= *globalContext->pQuadtree;
-	LinearQuadtreeExpansion&	treeExp				= *globalContext->pExpansion;
-	FMELocalContext*			localContext		= globalContext->pLocalContext[threadNr()];
-	FMEGlobalOptions*			options				= globalContext->pOptions;
-	float*						threadsForceArrayX	= localContext->forceX;
-	float*						threadsForceArrayY	= localContext->forceY;
-	float*						globalForceArrayX	= globalContext->globalForceX;
-	float*						globalForceArrayY	= globalContext->globalForceY;
+void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext) {
+	uint32_t maxNumIterations = globalContext->pOptions->maxNumIterations;
+	uint32_t minNumIterations = globalContext->pOptions->minNumIterations;
+	ArrayGraph& graph = *globalContext->pGraph;
+	LinearQuadtree& tree = *globalContext->pQuadtree;
+	LinearQuadtreeExpansion& treeExp = *globalContext->pExpansion;
+	FMELocalContext* localContext = globalContext->pLocalContext[threadNr()];
+	FMEGlobalOptions* options = globalContext->pOptions;
+	float* threadsForceArrayX = localContext->forceX;
+	float* threadsForceArrayY = localContext->forceY;
+	float* globalForceArrayX = globalContext->globalForceX;
+	float* globalForceArrayY = globalContext->globalForceY;
 
 	ArrayPartition edgePartition = arrayPartition(graph.numEdges());
 	ArrayPartition nodePointPartition = arrayPartition(graph.numNodes());
@@ -496,40 +457,37 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 	for_loop_array_set(threadNr(), numThreads(), globalForceArrayY, tree.numberOfPoints(), 0.0f);
 
 	// reset the threads force array
-	for (uint32_t i = 0; i < tree.numberOfPoints(); i++)
-	{
+	for (uint32_t i = 0; i < tree.numberOfPoints(); i++) {
 		threadsForceArrayX[i] = 0.0f;
 		threadsForceArrayY[i] = 0.0f;
 	}
 
 	uint32_t maxNumIt = options->preProcMaxNumIterations;
-	for (uint32_t currNumIteration = 0; currNumIteration < maxNumIt; currNumIteration++)
-	{
+	for (uint32_t currNumIteration = 0; currNumIteration < maxNumIt; currNumIteration++) {
 		// iterate over all edges and store the resulting forces in the threads array
+		// divide the forces by degree of the node to avoid oscilation
 		for_loop(edgePartition,
-			edge_force_function< static_cast<int>(FMEEdgeForce::DivDegree) > (localContext) // divide the forces by degree of the node to avoid oscilation
-			);
+				edge_force_function<static_cast<int>(FMEEdgeForce::DivDegree)>(localContext));
 		// wait until all edges are done
 		sync();
 		// now collect the forces in parallel and put the sum into the global array and move the nodes accordingly
 		for_loop(nodePointPartition,
-			func_comp(
-			collect_force_function<FMECollect::EdgeFactorRep | FMECollect::ZeroThreadArray >(localContext),
-			node_move_function<TIME_STEP_PREP | ZERO_GLOBAL_ARRAY>(localContext)
-			)
-			);
+				func_comp(collect_force_function<FMECollect::EdgeFactorRep | FMECollect::ZeroThreadArray>(
+								  localContext),
+						node_move_function<TIME_STEP_PREP | ZERO_GLOBAL_ARRAY>(localContext)));
 	}
-	if (isMainThread())
-	{
+	if (isMainThread()) {
 		globalContext->coolDown = 1.0f;
 	}
 	sync();
 
-	for (uint32_t currNumIteration = 0; currNumIteration < maxNumIterations && !globalContext->earlyExit; currNumIteration++)
-	{
+	for (uint32_t currNumIteration = 0;
+			currNumIteration < maxNumIterations && !globalContext->earlyExit; currNumIteration++) {
 		// reset the coefficients
-		for_loop_array_set(threadNr(), numThreads(), treeExp.m_multiExp, treeExp.m_numExp*(treeExp.m_numCoeff << 1), 0.0);
-		for_loop_array_set(threadNr(), numThreads(), treeExp.m_localExp, treeExp.m_numExp*(treeExp.m_numCoeff << 1), 0.0);
+		for_loop_array_set(threadNr(), numThreads(), treeExp.m_multiExp,
+				treeExp.m_numExp * (treeExp.m_numCoeff << 1), 0.0);
+		for_loop_array_set(threadNr(), numThreads(), treeExp.m_localExp,
+				treeExp.m_numExp * (treeExp.m_numCoeff << 1), 0.0);
 
 		localContext->maxForceSq = 0.0;
 		localContext->avgForce = 0.0;
@@ -539,39 +497,38 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 		// wait for all threads to finish
 		sync();
 
-		if (isSingleThreaded()) // if is single threaded run the simple approximation
+		if (isSingleThreaded()) { // if is single threaded run the simple approximation
 			multipoleApproxSingleThreaded(nodePointPartition);
-		else // otherwise use the partitioning
+		} else { // otherwise use the partitioning
 			multipoleApproxFinal(nodePointPartition);
+		}
 		// now wait until all forces are summed up in the global array and mapped to graph node order
 		sync();
 
 		// run the edge forces
+		// divide the forces by degree of the node to avoid oscilation
 		for_loop(edgePartition, // iterate over all edges and sum up the forces in the threads array
-			edge_force_function< static_cast<int>(FMEEdgeForce::DivDegree) >(localContext) // divide the forces by degree of the node to avoid oscilation
-		);
+				edge_force_function<static_cast<int>(FMEEdgeForce::DivDegree)>(localContext));
 		// wait until edges are finished
 		sync();
 
 		// collect the edge forces and move nodes without waiting
 		for_loop(nodePointPartition,
-			func_comp(
-				collect_force_function<FMECollect::EdgeFactorRep | FMECollect::ZeroThreadArray>(localContext),
-				node_move_function<TIME_STEP_NORMAL | ZERO_GLOBAL_ARRAY>(localContext)
-			)
-		);
+				func_comp(collect_force_function<FMECollect::EdgeFactorRep | FMECollect::ZeroThreadArray>(
+								  localContext),
+						node_move_function<TIME_STEP_NORMAL | ZERO_GLOBAL_ARRAY>(localContext)));
 		// wait so we can decide if we need another iteration
 		sync();
 		// check the max force square for all threads
-		if (isMainThread())
-		{
+		if (isMainThread()) {
 			double maxForceSq = 0.0;
-			for (uint32_t j=0; j < numThreads(); j++)
+			for (uint32_t j = 0; j < numThreads(); j++) {
 				Math::updateMax(maxForceSq, globalContext->pLocalContext[j]->maxForceSq);
+			}
 
 			// if we are allowed to quit and the max force sq falls under the threshold tell all threads we are done
-			if ((currNumIteration >= minNumIterations) && (maxForceSq < globalContext->pOptions->stopCritForce ))
-			{
+			if ((currNumIteration >= minNumIterations)
+					&& (maxForceSq < globalContext->pOptions->stopCritForce)) {
 				globalContext->earlyExit = true;
 			}
 		}
@@ -581,38 +538,37 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 }
 
 //! allcates the global context and for all threads a local context
-FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph, FMEGlobalOptions* pOptions, uint32_t numThreads)
-{
+FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph,
+		FMEGlobalOptions* pOptions, uint32_t numThreads) {
 	FMEGlobalContext* globalContext = new FMEGlobalContext();
 
 	globalContext->numThreads = numThreads;
 	globalContext->pOptions = pOptions;
 	globalContext->pGraph = pGraph;
-	globalContext->pQuadtree = new LinearQuadtree(pGraph->numNodes(), pGraph->nodeXPos(), pGraph->nodeYPos(), pGraph->nodeSize());
+	globalContext->pQuadtree = new LinearQuadtree(pGraph->numNodes(), pGraph->nodeXPos(),
+			pGraph->nodeYPos(), pGraph->nodeSize());
 	globalContext->pWSPD = globalContext->pQuadtree->wspd();
-	globalContext->pExpansion = new LinearQuadtreeExpansion(globalContext->pOptions->multipolePrecision, (*globalContext->pQuadtree));
+	globalContext->pExpansion = new LinearQuadtreeExpansion(
+			globalContext->pOptions->multipolePrecision, (*globalContext->pQuadtree));
 	uint32_t numPoints = globalContext->pQuadtree->numberOfPoints();
 	using FMELocalContextPtr = FMELocalContext*;
 
 	globalContext->pLocalContext = new FMELocalContextPtr[numThreads];
-	globalContext->globalForceX = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
-	globalContext->globalForceY = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
-	for (uint32_t i=0; i < numThreads; i++)
-	{
+	globalContext->globalForceX = (float*)OGDF_MALLOC_16(sizeof(float) * numPoints);
+	globalContext->globalForceY = (float*)OGDF_MALLOC_16(sizeof(float) * numPoints);
+	for (uint32_t i = 0; i < numThreads; i++) {
 		globalContext->pLocalContext[i] = new FMELocalContext;
-		globalContext->pLocalContext[i]->forceX = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
-		globalContext->pLocalContext[i]->forceY = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
+		globalContext->pLocalContext[i]->forceX = (float*)OGDF_MALLOC_16(sizeof(float) * numPoints);
+		globalContext->pLocalContext[i]->forceY = (float*)OGDF_MALLOC_16(sizeof(float) * numPoints);
 		globalContext->pLocalContext[i]->pGlobalContext = globalContext;
 	}
 	return globalContext;
 }
 
 //! frees the memory for all contexts
-void FMEMultipoleKernel::deallocateContext(FMEGlobalContext* globalContext)
-{
+void FMEMultipoleKernel::deallocateContext(FMEGlobalContext* globalContext) {
 	uint32_t numThreads = globalContext->numThreads;
-	for (uint32_t i=0; i < numThreads; i++)
-	{
+	for (uint32_t i = 0; i < numThreads; i++) {
 		OGDF_FREE_16(globalContext->pLocalContext[i]->forceX);
 		OGDF_FREE_16(globalContext->pLocalContext[i]->forceY);
 		delete globalContext->pLocalContext[i];

@@ -29,21 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <random>
-
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
 
+#include <random>
+
 #ifdef OGDF_SYSTEM_WINDOWS
-# define WIN32_EXTRA_LEAN
-# define WIN32_LEAN_AND_MEAN
-# undef NOMINMAX
-# define NOMINMAX
-# include <windows.h>
+#	define WIN32_EXTRA_LEAN
+#	define WIN32_LEAN_AND_MEAN
+#	undef NOMINMAX
+#	define NOMINMAX
+#	include <windows.h>
 #endif
 #ifdef OGDF_SYSTEM_UNIX
-# include <unistd.h>
-# include <sys/times.h>
+#	include <sys/times.h>
+#	include <unistd.h>
 #endif
 
 // When OGDF_DLL is not set, we use the static initializer object
@@ -65,15 +65,13 @@
 // the pool manager is already deinitialized.
 static int initializerCount = 0;
 
-static void initializeOGDF()
-{
+static void initializeOGDF() {
 	if (initializerCount++ == 0) {
 		ogdf::System::init();
 	}
 }
 
-static void deinitializeOGDF()
-{
+static void deinitializeOGDF() {
 	if (--initializerCount == 0) {
 		ogdf::PoolMemoryAllocator::cleanup();
 	}
@@ -87,42 +85,30 @@ bool debugMode = true;
 bool debugMode = false;
 #endif
 
-Initialization::Initialization()
-{
-	initializeOGDF();
-}
+Initialization::Initialization() { initializeOGDF(); }
 
-Initialization::~Initialization()
-{
-	deinitializeOGDF();
-}
+Initialization::~Initialization() { deinitializeOGDF(); }
 
-inline bool charCompareIgnoreCase(char a, char b)
-{
-	return toupper(a) == toupper(b);
-}
+inline bool charCompareIgnoreCase(char a, char b) { return toupper(a) == toupper(b); }
 
-void removeTrailingWhitespace(std::string &str)
-{
+void removeTrailingWhitespace(std::string& str) {
 	std::size_t found = str.find_last_not_of(" \t\v\f\n\r");
 	if (found != std::string::npos) {
-		str.erase(found+1);
+		str.erase(found + 1);
 	} else { // string consists only of whitespacae
 		str.clear();
 	}
 }
 
-bool equalIgnoreCase(const string &str1, const string &str2)
-{
+bool equalIgnoreCase(const string& str1, const string& str2) {
 	return str1.size() == str2.size()
-	    && std::equal(str1.begin(), str1.end(), str2.begin(), charCompareIgnoreCase);
+			&& std::equal(str1.begin(), str1.end(), str2.begin(), charCompareIgnoreCase);
 }
 
-bool prefixIgnoreCase(const string &prefix, const string &str)
-{
+bool prefixIgnoreCase(const string& prefix, const string& str) {
 	string::size_type len = prefix.length();
 	return str.size() >= len
-	    && std::equal(prefix.begin(), prefix.end(), str.begin(), charCompareIgnoreCase);
+			&& std::equal(prefix.begin(), prefix.end(), str.begin(), charCompareIgnoreCase);
 }
 
 static std::mt19937 s_random;
@@ -131,24 +117,19 @@ static std::mt19937 s_random;
 static std::mutex s_randomMutex;
 #endif
 
-long unsigned int randomSeed()
-{
+long unsigned int randomSeed() {
 #ifndef OGDF_MEMORY_POOL_NTS
 	std::lock_guard<std::mutex> guard(s_randomMutex);
 #endif
-	return 7*s_random()+3;  // do not directly return seed, add a bit of variation
+	return 7 * s_random() + 3; // do not directly return seed, add a bit of variation
 }
 
-void setSeed(int val)
-{
-	s_random.seed(val);
-}
+void setSeed(int val) { s_random.seed(val); }
 
-int randomNumber(int low, int high)
-{
+int randomNumber(int low, int high) {
 	OGDF_ASSERT(low <= high);
 
-	std::uniform_int_distribution<> dist(low,high);
+	std::uniform_int_distribution<> dist(low, high);
 
 #ifndef OGDF_MEMORY_POOL_NTS
 	std::lock_guard<std::mutex> guard(s_randomMutex);
@@ -156,11 +137,10 @@ int randomNumber(int low, int high)
 	return dist(s_random);
 }
 
-double randomDouble(double low, double high)
-{
+double randomDouble(double low, double high) {
 	OGDF_ASSERT(low <= high);
 
-	std::uniform_real_distribution<> dist(low,high);
+	std::uniform_real_distribution<> dist(low, high);
 
 #ifndef OGDF_MEMORY_POOL_NTS
 	std::lock_guard<std::mutex> guard(s_randomMutex);
@@ -168,8 +148,7 @@ double randomDouble(double low, double high)
 	return dist(s_random);
 }
 
-double randomDoubleExponential(double beta)
-{
+double randomDoubleExponential(double beta) {
 	OGDF_ASSERT(beta > 0);
 
 	std::exponential_distribution<> dist(beta);
@@ -180,8 +159,7 @@ double randomDoubleExponential(double beta)
 	return dist(s_random);
 }
 
-double usedTime(double& T)
-{
+double usedTime(double& T) {
 	double t = T;
 
 #ifdef OGDF_SYSTEM_WINDOWS
@@ -198,7 +176,7 @@ double usedTime(double& T)
 
 #else
 	struct tms now;
-	times (&now);
+	times(&now);
 	T = (double)now.tms_utime / (double)sysconf(_SC_CLK_TCK);
 #endif
 

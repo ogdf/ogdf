@@ -45,13 +45,16 @@ namespace davidson_harel {
  * distance between two adjacent vertices depends on the size of
  * the two vertices.
  */
-class Attraction: public NodePairEnergy {
+class Attraction : public NodePairEnergy {
 public:
 	//Initializes data structures to speed up later computations
-	explicit Attraction(GraphAttributes &AG);
-	~Attraction() {}
+	explicit Attraction(GraphAttributes& AG);
+
+	~Attraction() { }
+
 	//! set the preferred edge length
-	void setPreferredEdgelength(double length) {m_preferredEdgeLength = length;}
+	void setPreferredEdgelength(double length) { m_preferredEdgeLength = length; }
+
 	//! set multiplier for the edge length with repspect to node size to multi
 	void reinitializeEdgeLength(double multi);
 #ifdef OGDF_DEBUG
@@ -63,7 +66,8 @@ private:
 	//! the length that that all edges should ideally have
 	double m_preferredEdgeLength;
 	//! computes the energy contributed by the two nodes if they are placed at the two given positions
-	double computeCoordEnergy(node,node, const DPoint&, const DPoint &) const override;
+	double computeCoordEnergy(node, node, const DPoint&, const DPoint&) const override;
 };
 
-}}
+}
+}

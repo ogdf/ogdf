@@ -31,15 +31,14 @@
 
 #pragma once
 
-#include <ogdf/energybased/ForceLayoutModule.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/energybased/ForceLayoutModule.h>
 
 namespace ogdf {
 
 //! Fruchterman-Reingold algorithm with (exact) layout.
-class OGDF_EXPORT SpringEmbedderFRExact : public ForceLayoutModule
-{
+class OGDF_EXPORT SpringEmbedderFRExact : public ForceLayoutModule {
 public:
 	enum class CoolingFunction { Factor, Logarithmic };
 
@@ -47,12 +46,10 @@ public:
 	SpringEmbedderFRExact();
 
 	//! Calls the layout algorithm for graph attributes \p GA.
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	//! Returns the current setting of iterations.
-	int iterations() const {
-		return m_iterations;
-	}
+	int iterations() const { return m_iterations; }
 
 	//! Sets the number of iterations to \p i.
 	void iterations(int i) {
@@ -61,28 +58,19 @@ public:
 	}
 
 	//! Returns the current setting of nodes.
-	bool noise() const {
-		return m_noise;
-	}
+	bool noise() const { return m_noise; }
 
 	//! Sets the parameter noise to \p on.
-	void noise(bool on) {
-		m_noise = on;
-	}
+	void noise(bool on) { m_noise = on; }
 
 	//! Switches use of node weights given in GraphAttributtes
-	void nodeWeights(bool on) {
-		m_useNodeWeight = on;
-	}
+	void nodeWeights(bool on) { m_useNodeWeight = on; }
+
 	//! Returns the current setting for the cooling function.
-	CoolingFunction coolingFunction() const {
-		return m_coolingFunction;
-	}
+	CoolingFunction coolingFunction() const { return m_coolingFunction; }
 
 	//! Sets the parameter coolingFunction to \p f.
-	void coolingFunction(CoolingFunction f) {
-		m_coolingFunction = f;
-	}
+	void coolingFunction(CoolingFunction f) { m_coolingFunction = f; }
 
 	//! Returns the ideal edge length.
 	double idealEdgeLength() const { return m_idealEdgeLength; }
@@ -102,57 +90,62 @@ public:
 	//! Sets the page ration to \p x.
 	void pageRatio(double x) { m_pageRatio = x; }
 
-	void checkConvergence(bool b) {m_checkConvergence = b;}
-	bool checkConvergence() {return m_checkConvergence;}
-	void convTolerance(double tol) {m_convTolerance = tol;}
+	void checkConvergence(bool b) { m_checkConvergence = b; }
+
+	bool checkConvergence() { return m_checkConvergence; }
+
+	void convTolerance(double tol) { m_convTolerance = tol; }
 
 private:
-	class ArrayGraph
-	{
+	class ArrayGraph {
 		int m_numNodes;
 		int m_numEdges;
 		int m_numCC;
 
-		GraphAttributes *m_ga;
-		node *m_orig;
-		Array<SList<node> > m_nodesInCC;
-		NodeArray<int>      m_mapNode;
+		GraphAttributes* m_ga;
+		node* m_orig;
+		Array<SList<node>> m_nodesInCC;
+		NodeArray<int> m_mapNode;
 
 	public:
-		explicit ArrayGraph(GraphAttributes &ga);
+		explicit ArrayGraph(GraphAttributes& ga);
 		~ArrayGraph();
 
 		void initCC(int i);
 
 		int numberOfCCs() const { return m_numCC; }
+
 		int numberOfNodes() const { return m_numNodes; }
+
 		int numberOfEdges() const { return m_numEdges; }
 
 		node original(int v) const { return m_orig[v]; }
-		const SList<node> &nodesInCC(int i) const { return m_nodesInCC[i]; }
 
-		int *m_src;
-		int *m_tgt;
-		double *m_x;
-		double *m_y;
-		double *m_nodeWeight;
+		const SList<node>& nodesInCC(int i) const { return m_nodesInCC[i]; }
+
+		int* m_src;
+		int* m_tgt;
+		double* m_x;
+		double* m_y;
+		double* m_nodeWeight;
 		//this should be part of a multilevel layout interface class later on
 		bool m_useNodeWeight; //should given nodeweights be used or all set to 1.0?
 	};
 
 	double log2(double x) { return log(x) / log(2.0); }
+
 	double mylog2(int x) {
 		double result = 0.0;
-		while(x > 0) {
+		while (x > 0) {
 			result++;
 			x >>= 1;
 		}
-		return result/2;
+		return result / 2;
 	}
 
-	void initialize(ArrayGraph &component);
-	void mainStep(ArrayGraph &component);
-	void mainStep_sse3(ArrayGraph &component);
+	void initialize(ArrayGraph& component);
+	void mainStep(ArrayGraph& component);
+	void mainStep_sse3(ArrayGraph& component);
 
 #if 0
 	// Fruchterman, Reingold
@@ -165,10 +158,10 @@ private:
 #endif
 
 	// cooling function
-	void cool(double &tx, double &ty, int &cF);
+	void cool(double& tx, double& ty, int& cF);
 
-	int    m_iterations; //!< The number of iterations.
-	bool   m_noise;      //!< Perform random perturbations?
+	int m_iterations; //!< The number of iterations.
+	bool m_noise; //!< Perform random perturbations?
 	CoolingFunction m_coolingFunction; //!< The selected cooling function
 
 #if 0
@@ -180,8 +173,8 @@ private:
 	double m_coolFactor_y;
 
 	double m_idealEdgeLength; //!< The ideal edge length.
-	double m_minDistCC;       //!< The minimal distance between connected components.
-	double m_pageRatio;       //!< The page ratio.
+	double m_minDistCC; //!< The minimal distance between connected components.
+	double m_pageRatio; //!< The page ratio.
 
 #if 0
 	int m_cF;

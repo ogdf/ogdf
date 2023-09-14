@@ -31,16 +31,15 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
 namespace cluster_planarity {
 
 //! Constructs a c-planar subclustered spanning tree of the input by setting edgearray values
-class CPlanarSubClusteredST
-{
+class CPlanarSubClusteredST {
 public:
 	CPlanarSubClusteredST() { }
 
@@ -48,31 +47,22 @@ public:
 	virtual void call(const ClusterGraph& CG, EdgeArray<bool>& inST);
 	//! sets values in inST according to membership in c-planar STGraph,
 	//! computes minimum spanning tree according to weight in \p weight
-	virtual void call(const ClusterGraph& CG,
-		EdgeArray<bool>& inST,
-		EdgeArray<double>& weight);
+	virtual void call(const ClusterGraph& CG, EdgeArray<bool>& inST, EdgeArray<double>& weight);
 
 private:
-
 	//! builds spanning tree on original graph out of repgraphs STs
 	void dfsBuildOriginalST(/*ClusterGraph& CG,*/
-	node v,
-	ClusterArray< EdgeArray<bool> > &treeEdges,    //edges in repgraph
-	EdgeArray<bool>& inST,                         //original edges
-	NodeArray<bool> &visited);
+			node v,
+			ClusterArray<EdgeArray<bool>>& treeEdges, //edges in repgraph
+			EdgeArray<bool>& inST, //original edges
+			NodeArray<bool>& visited);
 	//builds spanning tree on graph of node v in treeEdges
-	void dfsBuildSpanningTree(node v,
-	                          EdgeArray<bool> &treeEdges,
-	                          NodeArray<bool> &visited);
+	void dfsBuildSpanningTree(node v, EdgeArray<bool>& treeEdges, NodeArray<bool>& visited);
 
 	//! constructs for every cluster a graph representing its
 	//! main structure (children & their connections)
 	//! only insert nodes here
-	void constructRepresentationGraphNodes(const ClusterGraph& CG,
-	                                       Graph& g,
-	                                       cluster c)
-	{
-
+	void constructRepresentationGraphNodes(const ClusterGraph& CG, Graph& g, cluster c) {
 		// insert nodes for all child clusters
 		ListConstIterator<cluster> it;
 		for (auto child : c->children) {
@@ -88,48 +78,36 @@ private:
 	}
 
 	//! insert rep edges for all edges in clustergraph
-	void constructRepresentationGraphEdges(const ClusterGraph& CG,
-										   ClusterArray<Graph*>& RepGraph)
-	{
-		for(edge e : CG.constGraph().edges)
-		{
+	void constructRepresentationGraphEdges(const ClusterGraph& CG, ClusterArray<Graph*>& RepGraph) {
+		for (edge e : CG.constGraph().edges) {
 			//insert representation in RepGraph[allocation cluster]
 			//defined by lowest common ancestor of end points
 			node u = e->source();
 			node v = e->target();
 			cluster uAncestor, vAncestor;
-			cluster allocCluster =
-				CG.commonClusterLastAncestors(u,v, uAncestor, vAncestor);
+			cluster allocCluster = CG.commonClusterLastAncestors(u, v, uAncestor, vAncestor);
 			m_allocCluster[e] = allocCluster;
 			//now derive the real ancestors (maybe the nodes themselves from
 			//the supplied clusters
 
 			//Case1: both nodes in same cluster => connect the nodes in the
 			//cluster representation graph
-			if (uAncestor == vAncestor)
-			{
-				m_repEdge[e] = RepGraph[uAncestor]->newEdge(
-								m_vRepNode[u], m_vRepNode[v]);
+			if (uAncestor == vAncestor) {
+				m_repEdge[e] = RepGraph[uAncestor]->newEdge(m_vRepNode[u], m_vRepNode[v]);
 			} else {
-				OGDF_ASSERT(uAncestor != CG.rootCluster()
-				         || vAncestor != CG.rootCluster());
+				OGDF_ASSERT(uAncestor != CG.rootCluster() || vAncestor != CG.rootCluster());
 				//now only one node can be directly in rootcluster
 				//this case now seems to fall together with else else...
-				if (uAncestor == CG.rootCluster())
-				{
-					m_repEdge[e] = RepGraph[uAncestor]->newEdge(
-								m_vRepNode[u], m_cRepNode[vAncestor]);
+				if (uAncestor == CG.rootCluster()) {
+					m_repEdge[e] = RepGraph[uAncestor]->newEdge(m_vRepNode[u], m_cRepNode[vAncestor]);
 				} else if (vAncestor == CG.rootCluster()) {
-					m_repEdge[e] = RepGraph[vAncestor]->newEdge(
-								m_cRepNode[uAncestor], m_vRepNode[v]);
+					m_repEdge[e] = RepGraph[vAncestor]->newEdge(m_cRepNode[uAncestor], m_vRepNode[v]);
 				} else {
 					OGDF_ASSERT(allocCluster != nullptr);
 					//now create edge in lowest common cluster
 					node v1, v2;
-					v1 = ( (uAncestor == nullptr) ? m_vRepNode[u] :
-								m_cRepNode[uAncestor]);
-					v2 = ( (vAncestor == nullptr) ? m_vRepNode[v] :
-								m_cRepNode[vAncestor]);
+					v1 = ((uAncestor == nullptr) ? m_vRepNode[u] : m_cRepNode[uAncestor]);
+					v2 = ((vAncestor == nullptr) ? m_vRepNode[v] : m_cRepNode[vAncestor]);
 					m_repEdge[e] = RepGraph[allocCluster]->newEdge(v1, v2);
 				}
 			}
@@ -137,20 +115,16 @@ private:
 	}
 
 	//! Computes representation graphs used for spanning tree computation
-	void computeRepresentationGraphs(const ClusterGraph& CG,
-	                                 ClusterArray<Graph*>& RepGraph)
-	{
-		for(cluster c : CG.clusters) {
+	void computeRepresentationGraphs(const ClusterGraph& CG, ClusterArray<Graph*>& RepGraph) {
+		for (cluster c : CG.clusters) {
 			RepGraph[c] = new Graph;
 			constructRepresentationGraphNodes(CG, *RepGraph[c], c);
 		}
 		constructRepresentationGraphEdges(CG, RepGraph);
 	}
 
-	void deleteRepresentationGraphs(const ClusterGraph& CG,
-	                                ClusterArray<Graph*>& RepGraph)
-	{
-		for(cluster c : CG.clusters) {
+	void deleteRepresentationGraphs(const ClusterGraph& CG, ClusterArray<Graph*>& RepGraph) {
+		for (cluster c : CG.clusters) {
 			delete RepGraph[c];
 		}
 	}

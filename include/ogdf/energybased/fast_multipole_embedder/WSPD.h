@@ -31,15 +31,14 @@
 
 #pragma once
 
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
 #include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
 
 namespace ogdf {
 namespace fast_multipole_embedder {
 
 //! Class for the Well-Separated-Pairs-Decomposition (%WSPD)
-class WSPD
-{
+class WSPD {
 public:
 	using NodeID = LinearQuadtree::NodeID;
 
@@ -50,28 +49,16 @@ public:
 	~WSPD();
 
 	//! Returns the maximum number of nodes. Equals the maximum number of nodes in the LinearQuadtree.
-	inline uint32_t maxNumNodes() const
-	{
-		return m_maxNumNodes;
-	}
+	inline uint32_t maxNumNodes() const { return m_maxNumNodes; }
 
 	//! Returns the number of well separated nodes for node \p a.
-	inline uint32_t numWSNodes(NodeID a) const
-	{
-		return m_nodeInfo[a].degree;
-	}
+	inline uint32_t numWSNodes(NodeID a) const { return m_nodeInfo[a].degree; }
 
 	//! Returns the total number of pairs.
-	inline uint32_t numPairs() const
-	{
-		return m_numPairs;
-	}
+	inline uint32_t numPairs() const { return m_numPairs; }
 
 	//! Returns the maximum number of pairs.
-	inline uint32_t maxNumPairs() const
-	{
-		return m_maxNumPairs;
-	}
+	inline uint32_t maxNumPairs() const { return m_maxNumPairs; }
 
 	//! Resets the array #m_nodeInfo.
 	void clear();
@@ -80,34 +67,23 @@ public:
 	void addWSP(NodeID a, NodeID b);
 
 	//! Returns the pair info for index \p pairIndex.
-	inline EdgeAdjInfo& pairInfo(uint32_t pairIndex) const
-	{
-		return m_pairs[pairIndex];
-	}
+	inline EdgeAdjInfo& pairInfo(uint32_t pairIndex) const { return m_pairs[pairIndex]; }
 
 	//! Returns the node info for index \p nodeID.
-	inline NodeAdjInfo& nodeInfo(NodeID nodeID) const
-	{
-		return m_nodeInfo[nodeID];
-	}
+	inline NodeAdjInfo& nodeInfo(NodeID nodeID) const { return m_nodeInfo[nodeID]; }
 
 	//! Returns the index of the next pair of \p currPairIndex of the node with index \p a.
-	inline uint32_t nextPair(uint32_t currPairIndex, NodeID a) const
-	{
+	inline uint32_t nextPair(uint32_t currPairIndex, NodeID a) const {
 		return pairInfo(currPairIndex).nextEdgeAdjIndex(a);
 	}
 
 	//! Returns the other node (not \p a) of the pair with index \p currPairIndex.
-	inline uint32_t wsNodeOfPair(uint32_t currPairIndex, NodeID a) const
-	{
+	inline uint32_t wsNodeOfPair(uint32_t currPairIndex, NodeID a) const {
 		return pairInfo(currPairIndex).twinNode(a);
 	}
 
 	//! Returns the index of the first pair of node \p nodeID.
-	inline uint32_t firstPairEntry(NodeID nodeID) const
-	{
-		return m_nodeInfo[nodeID].firstEntry;
-	}
+	inline uint32_t firstPairEntry(NodeID nodeID) const { return m_nodeInfo[nodeID].firstEntry; }
 
 	// Returns the size excluding small member vars (for profiling only).
 	unsigned long sizeInBytes() const;

@@ -44,9 +44,8 @@ namespace ogdf {
  * template of the abstract base class template PQNode
  * that is allowed to have a key.
  */
-template<class T,class X,class Y>
-class PQLeaf : public PQNode<T,X,Y>
-{
+template<class T, class X, class Y>
+class PQLeaf : public PQNode<T, X, Y> {
 public:
 	/**
 	 * The client may choose between two different constructors.
@@ -64,13 +63,9 @@ public:
 	 * Both constructors will automatically set the PQBasicKey::m_nodePointer of the
 	 * \p keyPtr to the newly allocated PQLeaf.
 	 */
-	PQLeaf(
-		int count,
-		PQNodeRoot::PQNodeStatus stat,
-		PQLeafKey<T,X,Y>* keyPtr,
-		PQNodeKey<T,X,Y>* infoPtr)
-		: PQNode<T,X,Y>(count,infoPtr)
-	{
+	PQLeaf(int count, PQNodeRoot::PQNodeStatus stat, PQLeafKey<T, X, Y>* keyPtr,
+			PQNodeKey<T, X, Y>* infoPtr)
+		: PQNode<T, X, Y>(count, infoPtr) {
 		m_status = stat;
 		m_pointerToKey = keyPtr;
 		m_mark = PQNodeRoot::PQNodeMark::Unmarked;
@@ -78,12 +73,8 @@ public:
 	}
 
 	// Constructor
-	PQLeaf(
-		int count,
-		PQNodeRoot::PQNodeStatus stat,
-		PQLeafKey<T,X,Y>* keyPtr)
-		: PQNode<T,X,Y>(count)
-	{
+	PQLeaf(int count, PQNodeRoot::PQNodeStatus stat, PQLeafKey<T, X, Y>* keyPtr)
+		: PQNode<T, X, Y>(count) {
 		m_status = stat;
 		m_pointerToKey = keyPtr;
 		m_mark = PQNodeRoot::PQNodeMark::Unmarked;
@@ -101,7 +92,7 @@ public:
 	 * with an appropriate destructor, or make use of the function
 	 * CleanNode() of the class template PQTree.
 	 */
-	virtual ~PQLeaf() {}
+	virtual ~PQLeaf() { }
 
 	/**
 	 * getKey() returns a pointer to the PQLeafKey
@@ -110,7 +101,7 @@ public:
 	 * The key contains informations of the element that is represented by
 	 * the PQLeaf in the PQ-tree and is of type PQLeafKey.
 	 */
-	virtual PQLeafKey<T,X,Y>* getKey() const { return m_pointerToKey; }
+	virtual PQLeafKey<T, X, Y>* getKey() const { return m_pointerToKey; }
 
 	/**
 	 * setKey() sets the pointer variable #m_pointerToKey to the
@@ -124,16 +115,14 @@ public:
 	 * to this PQLeaf. The return value is always 1 unless \p pointerKey
 	 * was equal to 0.
 	 */
-	virtual bool setKey(PQLeafKey<T,X,Y>* pointerToKey)
-	{
+	virtual bool setKey(PQLeafKey<T, X, Y>* pointerToKey) {
 		m_pointerToKey = pointerToKey;
-		if (pointerToKey != nullptr)
-		{
+		if (pointerToKey != nullptr) {
 			m_pointerToKey->setNodePointer(this);
 			return true;
-		}
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -143,7 +132,7 @@ public:
 	 * the node is supposed to have internal information. The class
 	 * template PQLeaf does not have PQInternalKey information.
 	 */
-	virtual PQInternalKey<T,X,Y>* getInternal() const { return nullptr; }
+	virtual PQInternalKey<T, X, Y>* getInternal() const { return nullptr; }
 
 	/**
 	 * setInternal() accepts only pointers \p pointerToInternal = 0.
@@ -159,12 +148,12 @@ public:
 	 * \p pointerToInternal = 0. The return value then is 1.
 	 * In case that \p pointerToInternal != 0, the return value is 0.
 	 */
-	virtual bool setInternal(PQInternalKey<T,X,Y>* pointerToInternal)
-	{
-		if (pointerToInternal != nullptr)
+	virtual bool setInternal(PQInternalKey<T, X, Y>* pointerToInternal) {
+		if (pointerToInternal != nullptr) {
 			return false;
-		else
+		} else {
 			return true;
+		}
 	}
 
 	//! Returns the variable #m_mark.
@@ -174,7 +163,7 @@ public:
 	 * PQLeaf is either marked \b BLOCKED, \b UNBLOCKED or \b QUEUED (see
 	 * PQNode).
 	 */
-	virtual PQNodeRoot::PQNodeMark  mark() const { return m_mark; }
+	virtual PQNodeRoot::PQNodeMark mark() const { return m_mark; }
 
 	//! Sets the variable #m_mark.
 	virtual void mark(PQNodeRoot::PQNodeMark m) { m_mark = m; }
@@ -208,7 +197,6 @@ public:
 	virtual void type(PQNodeRoot::PQNodeType) { }
 
 private:
-
 	/**
 	 * #m_mark is a variable, storing if the PQLeaf is
 	 * \b QUEUEUD, \b BLOCKED or \b UNBLOCKED (see PQNode)
@@ -223,7 +211,7 @@ private:
 	 * client in order to represent different sets of elements, where
 	 * possible permutations have to be examined by the PQ-tree.
 	 */
-	PQLeafKey<T,X,Y>* m_pointerToKey;
+	PQLeafKey<T, X, Y>* m_pointerToKey;
 
 	/**
 	 * #m_status is a variable storing the status of a PQLeaf.

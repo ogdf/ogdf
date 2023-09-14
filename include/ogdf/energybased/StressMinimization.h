@@ -1,5 +1,5 @@
 /** \file
- * \brief Declration of stress minimized layout based on majorization.
+ * \brief Declaration of stress minimized layout based on majorization.
  * It can be applied to connected as well as unconnected graphs. If
  * the graph is disconnected either the infinite distances will be
  * replaced by the average edge costs times sqrt(n) or the components
@@ -36,8 +36,8 @@
 #pragma once
 
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 
@@ -47,24 +47,27 @@ namespace ogdf {
 /**
  * @ingroup gd-energy
  */
-class OGDF_EXPORT StressMinimization: public LayoutModule {
-
+class OGDF_EXPORT StressMinimization : public LayoutModule {
 public:
-	enum class TerminationCriterion {
-		None, PositionDifference, Stress
-	};
+	enum class TerminationCriterion { None, PositionDifference, Stress };
 
 	//! Constructor: Constructs instance of stress majorization.
-	StressMinimization() :
-			m_hasEdgeCostsAttribute(false), m_hasInitialLayout(false), m_numberOfIterations(
-					200), m_edgeCosts(100), m_avgEdgeCosts(-1), m_componentLayout(
-					false), m_terminationCriterion(TerminationCriterion::None), m_fixXCoords(false), m_fixYCoords(
-					false), m_fixZCoords(false) {
-	}
+	StressMinimization()
+		: m_hasEdgeCostsAttribute(false)
+		, m_hasInitialLayout(false)
+		, m_numberOfIterations(200)
+		, m_edgeCosts(100)
+		, m_avgEdgeCosts(-1)
+		, m_componentLayout(false)
+		, m_terminationCriterion(TerminationCriterion::None)
+		, m_fixXCoords(false)
+		, m_fixYCoords(false)
+		, m_fixZCoords(false)
+		, m_forcing2DLayout(false)
+		, m_use3D(false) { }
 
 	//! Destructor.
-	~StressMinimization() {
-	}
+	~StressMinimization() { }
 
 	//! Calls the layout algorithm with uniform edge costs.
 	virtual void call(GraphAttributes& GA) override;
@@ -100,8 +103,16 @@ public:
 	//! Tells whether the edge costs are uniform or defined by some edge costs attribute.
 	inline void useEdgeCostsAttribute(bool useEdgeCostsAttribute);
 
-private:
+	//! Sets whether a 2D-layout should be calculated even when
+	//! GraphAttributes::threeD is set.
+	/**
+	 * If hasInitialLayout() is set to false, the initial layout will also be 2D only.
+	 * The z-coordinates will never be changed and they will not influence the computation.
+	 * This setting overrules fixZCoordinates().
+	 */
+	inline void setForcing2DLayout(bool forcing2DLayout);
 
+private:
 	//! Convergence constant.
 	const static double EPSILON;
 
@@ -140,77 +151,68 @@ private:
 	//! Indicates whether the z coordinates will be modified or not.
 	bool m_fixZCoords;
 
+	//! Indicates whether a 2D-layout is calculated even when
+	//! GraphAttributes::threeD is set.
+	bool m_forcing2DLayout;
+
+	//! Indicates whether a 3D-layout is computed.
+	bool m_use3D;
+
 	//! Calculates the stress for the given layout
-	double calcStress(const GraphAttributes& GA,
-			NodeArray<NodeArray<double> >& shortestPathMatrix,
-			NodeArray<NodeArray<double> >& weightMatrix);
+	double calcStress(const GraphAttributes& GA, NodeArray<NodeArray<double>>& shortestPathMatrix,
+			NodeArray<NodeArray<double>>& weightMatrix);
 
 	//! Runs the stress for a given Graph, shortest path and weight matrix.
-	void call(GraphAttributes& GA,
-			NodeArray<NodeArray<double> >& shortestPathMatrix,
-			NodeArray<NodeArray<double> >& weightMatrix);
+	void call(GraphAttributes& GA, NodeArray<NodeArray<double>>& shortestPathMatrix,
+			NodeArray<NodeArray<double>>& weightMatrix);
 
 	//! Calculates the weight matrix of the shortest path matrix. This is done by w_ij = s_ij^{-2}
-	void calcWeights(const Graph& G,
-			NodeArray<NodeArray<double> >& shortestPathMatrix,
-			NodeArray<NodeArray<double> >& weightMatrix);
+	void calcWeights(const Graph& G, NodeArray<NodeArray<double>>& shortestPathMatrix,
+			NodeArray<NodeArray<double>>& weightMatrix);
 
 	//! Calculates the intial layout of the graph if necessary.
 	void computeInitialLayout(GraphAttributes& GA);
 
 	//! Convenience method copying the layout of the graph in case of epsilon convergence.
-	void copyLayout(const GraphAttributes& GA, NodeArray<double>& newX,
-			NodeArray<double>& newY);
+	void copyLayout(const GraphAttributes& GA, NodeArray<double>& newX, NodeArray<double>& newY);
 
 	//! Convenience method copying the layout of the graph in case of epsilon convergence for 3D.
-	void copyLayout(const GraphAttributes& GA, NodeArray<double>& newX,
-			NodeArray<double>& newY, NodeArray<double>& newZ);
+	void copyLayout(const GraphAttributes& GA, NodeArray<double>& newX, NodeArray<double>& newY,
+			NodeArray<double>& newZ);
 
 	//! Checks for epsilon convergence and whether the performed number of iterations
 	//! exceed the predefined maximum number of iterations.
 	bool finished(GraphAttributes& GA, int numberOfPerformedIterations,
-			NodeArray<double>& prevXCoords, NodeArray<double>& prevYCoords,
-			const double prevStress, const double curStress);
+			NodeArray<double>& prevXCoords, NodeArray<double>& prevYCoords, const double prevStress,
+			const double curStress);
 
 	//! Convenience method to initialize the matrices.
-	void initMatrices(const Graph& G,
-			NodeArray<NodeArray<double> >& shortestPathMatrix,
-			NodeArray<NodeArray<double> >& weightMatrix);
+	void initMatrices(const Graph& G, NodeArray<NodeArray<double>>& shortestPathMatrix,
+			NodeArray<NodeArray<double>>& weightMatrix);
 
 	//! Minimizes the stress for each component separately given
 	//! the shortest path matrix and the weight matrix.
-	void minimizeStress(GraphAttributes& GA,
-			NodeArray<NodeArray<double> >& shortestPathMatrix,
-			NodeArray<NodeArray<double> >& weightMatrix);
+	void minimizeStress(GraphAttributes& GA, NodeArray<NodeArray<double>>& shortestPathMatrix,
+			NodeArray<NodeArray<double>>& weightMatrix);
 
 	//! Runs the next iteration of the stress minimization process. Note that serial update
 	//! is used.
-	void nextIteration(GraphAttributes& GA,
-			NodeArray<NodeArray<double> >& shortestPathMatrix,
-			NodeArray<NodeArray<double> >& weightMatrix);
+	void nextIteration(GraphAttributes& GA, NodeArray<NodeArray<double>>& shortestPathMatrix,
+			NodeArray<NodeArray<double>>& weightMatrix);
 
 	//! Replaces infinite distances to the given value
-	void replaceInfinityDistances(
-			NodeArray<NodeArray<double> >& shortestPathMatrix, double newVal);
+	void replaceInfinityDistances(NodeArray<NodeArray<double>>& shortestPathMatrix, double newVal);
+};
 
-}
-;
+void StressMinimization::fixXCoordinates(bool fix) { m_fixXCoords = fix; }
 
-void StressMinimization::fixXCoordinates(bool fix) {
-	m_fixXCoords = fix;
-}
-
-void StressMinimization::fixYCoordinates(bool fix) {
-	m_fixYCoords = fix;
-}
+void StressMinimization::fixYCoordinates(bool fix) { m_fixYCoords = fix; }
 
 void StressMinimization::hasInitialLayout(bool hasInitialLayout) {
 	m_hasInitialLayout = hasInitialLayout;
 }
 
-void StressMinimization::layoutComponentsSeparately(bool separate) {
-	m_componentLayout = separate;
-}
+void StressMinimization::layoutComponentsSeparately(bool separate) { m_componentLayout = separate; }
 
 void StressMinimization::setEdgeCosts(double edgeCosts) {
 	m_edgeCosts = (edgeCosts > 0) ? edgeCosts : 100;
@@ -226,6 +228,10 @@ void StressMinimization::convergenceCriterion(TerminationCriterion criterion) {
 
 void StressMinimization::useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
 	m_hasEdgeCostsAttribute = useEdgeCostsAttribute;
+}
+
+void StressMinimization::setForcing2DLayout(bool forcing2DLayout) {
+	m_forcing2DLayout = forcing2DLayout;
 }
 
 }

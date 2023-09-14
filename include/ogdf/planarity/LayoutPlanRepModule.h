@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/Layout.h>
-
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
@@ -60,19 +59,15 @@ public:
 	 * @param adjExternal is an adjacenty entry on the external face.
 	 * @param drawing     is the computed layout of \p PG.
 	 */
-	virtual void call(PlanRep &PG,
-		adjEntry adjExternal,
-		Layout &drawing) = 0;
+	virtual void call(PlanRep& PG, adjEntry adjExternal, Layout& drawing) = 0;
 
 	//! Computes a planar layout of \p PG in \p drawing.
-	void operator()(PlanRep &PG, adjEntry adjExternal, Layout &drawing) {
-		call(PG,adjExternal,drawing);
+	void operator()(PlanRep& PG, adjEntry adjExternal, Layout& drawing) {
+		call(PG, adjExternal, drawing);
 	}
 
 	//! Returns the bounding box of the computed layout.
-	const DPoint &getBoundingBox() const {
-		return m_boundingBox;
-	}
+	const DPoint& getBoundingBox() const { return m_boundingBox; }
 
 	//! Returns the minimal allowed distance between edges and vertices.
 	virtual double separation() const = 0;
@@ -92,7 +87,7 @@ protected:
 	 * An algorithm can call setBoundingBox() for setting the
 	 * m_boundingBox variable if no faster implementation is available.
 	 */
-	void setBoundingBox(PlanRep &PG, Layout &drawing) {
+	void setBoundingBox(PlanRep& PG, Layout& drawing) {
 		m_boundingBox = drawing.computeBoundingBox(PG);
 	}
 

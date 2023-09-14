@@ -31,32 +31,31 @@
 
 #pragma once
 
-#include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
 
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-struct ArrayPartition
-{
+struct ArrayPartition {
 	uint32_t begin;
 	uint32_t end;
 
 	template<typename Func>
-	void for_loop(Func& func)
-	{
-		for(uint32_t i=begin; i<=end; i++) func(i);
+	void for_loop(Func& func) {
+		for (uint32_t i = begin; i <= end; i++) {
+			func(i);
+		}
 	}
 };
 
-
-class FMEMultipoleKernel : public FMEKernel
-{
+class FMEMultipoleKernel : public FMEKernel {
 public:
 	explicit FMEMultipoleKernel(FMEThread* pThread) : FMEKernel(pThread) { }
 
 	//! allocate the global and local contexts used by an instance of this kernel
-	static FMEGlobalContext* allocateContext(ArrayGraph* pGraph, FMEGlobalOptions* pOptions, uint32_t numThreads);
+	static FMEGlobalContext* allocateContext(ArrayGraph* pGraph, FMEGlobalOptions* pOptions,
+			uint32_t numThreads);
 
 	//! free the global and local context
 	static void deallocateContext(FMEGlobalContext* globalContext);
@@ -80,43 +79,34 @@ public:
 	void operator()(FMEGlobalContext* globalContext);
 
 	//! creates an array partition with a default chunksize of 16
-	inline ArrayPartition arrayPartition(uint32_t n)
-	{
+	inline ArrayPartition arrayPartition(uint32_t n) {
 		return arrayPartition(n, threadNr(), numThreads(), 16);
 	}
 
 	//! returns an array partition for the given threadNr and thread count
-	inline ArrayPartition arrayPartition(uint32_t n, uint32_t threadNr, uint32_t numThreads, uint32_t chunkSize)
-	{
+	inline ArrayPartition arrayPartition(uint32_t n, uint32_t threadNr, uint32_t numThreads,
+			uint32_t chunkSize) {
 		ArrayPartition result;
-		if (!n)
-		{
+		if (!n) {
 			result.begin = 1;
 			result.end = 0;
 			return result;
 		}
-		if (n>=numThreads*chunkSize)
-		{
-			uint32_t s = n/(numThreads*chunkSize);
-			uint32_t o = s*chunkSize*threadNr;
-			if (threadNr == numThreads-1)
-			{
+		if (n >= numThreads * chunkSize) {
+			uint32_t s = n / (numThreads * chunkSize);
+			uint32_t o = s * chunkSize * threadNr;
+			if (threadNr == numThreads - 1) {
 				result.begin = o;
-				result.end = n-1;
-			}
-			else
-			{
+				result.end = n - 1;
+			} else {
 				result.begin = o;
-				result.end = o+s*chunkSize-1;
+				result.end = o + s * chunkSize - 1;
 			}
-		} else
-		{
-			if (threadNr == 0)
-			{
+		} else {
+			if (threadNr == 0) {
 				result.begin = 0;
-				result.end = n-1;
-			} else
-			{
+				result.end = n - 1;
+			} else {
 				result.begin = 1;
 				result.end = 0;
 			}
@@ -126,65 +116,65 @@ public:
 
 	//! for loop on a partition
 	template<typename F>
-	inline void for_loop(const ArrayPartition& partition, F func)
-	{
-		if (partition.begin > partition.end)
+	inline void for_loop(const ArrayPartition& partition, F func) {
+		if (partition.begin > partition.end) {
 			return;
-		for (uint32_t i=partition.begin; i<= partition.end; i++) func(i);
+		}
+		for (uint32_t i = partition.begin; i <= partition.end; i++) {
+			func(i);
+		}
 	}
 
 	//! for loop on the tree partition
 	template<typename F>
-	inline void for_tree_partition(F functor)
-	{
-		for (LinearQuadtree::NodeID id : m_pLocalContext->treePartition.nodes)
-		{
+	inline void for_tree_partition(F functor) {
+		for (LinearQuadtree::NodeID id : m_pLocalContext->treePartition.nodes) {
 			functor(id);
 		}
 	}
 
 	//! sorting single threaded
 	template<typename T, typename C>
-	inline void sort_single(T* ptr, uint32_t n, C comparer)
-	{
-		if (isMainThread())
-		{
+	inline void sort_single(T* ptr, uint32_t n, C comparer) {
+		if (isMainThread()) {
 			std::sort(ptr, ptr + n, comparer);
 		}
 	}
 
 	//! lazy parallel sorting for num_threads = power of two
 	template<typename T, typename C>
-	inline void sort_parallel(T* ptr, uint32_t n, C comparer)
-	{
-		if (n < numThreads() * 1000 || numThreads() == 1)
+	inline void sort_parallel(T* ptr, uint32_t n, C comparer) {
+		if (n < numThreads() * 1000 || numThreads() == 1) {
 			sort_single(ptr, n, comparer);
-		else
+		} else {
 			sort_parallel(ptr, n, comparer, 0, numThreads());
+		}
 	}
 
 	//! lazy parallel sorting for num_threads = power of two
 	template<typename T, typename C>
-	inline void sort_parallel(T* ptr, uint32_t n, C comparer, uint32_t threadNrBegin, uint32_t numThreads)
-	{
-		if (n <= 1) return;
-		if (numThreads == 1)
-		{
-			std::sort(ptr, ptr + n, comparer);
+	inline void sort_parallel(T* ptr, uint32_t n, C comparer, uint32_t threadNrBegin,
+			uint32_t numThreads) {
+		if (n <= 1) {
+			return;
 		}
-		else
-		{
+		if (numThreads == 1) {
+			std::sort(ptr, ptr + n, comparer);
+		} else {
 			uint32_t half = n >> 1;
 			uint32_t halfThreads = numThreads >> 1;
-			if (this->threadNr() < threadNrBegin + halfThreads)
+			if (this->threadNr() < threadNrBegin + halfThreads) {
 				sort_parallel(ptr, half, comparer, threadNrBegin, halfThreads);
-			else
-				sort_parallel(ptr + half, n - half, comparer, threadNrBegin + halfThreads, halfThreads);
+			} else {
+				sort_parallel(ptr + half, n - half, comparer, threadNrBegin + halfThreads,
+						halfThreads);
+			}
 
 			// wait until all threads are ready.
 			sync();
-			if (this->threadNr() == threadNrBegin)
+			if (this->threadNr() == threadNrBegin) {
 				std::inplace_merge(ptr, ptr + half, ptr + n, comparer);
+			}
 		}
 	}
 

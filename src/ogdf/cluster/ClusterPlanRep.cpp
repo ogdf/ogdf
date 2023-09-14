@@ -29,22 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/basic/simple_graph_alg.h>
 
 #include <iomanip>
 
-
 namespace ogdf {
 
-ClusterPlanRep::ClusterPlanRep(
-	const ClusterGraphAttributes &acGraph,
-	const ClusterGraph &clusterGraph)
-	:
-	PlanRep(acGraph),
-	m_pClusterGraph(&clusterGraph)
-{
+ClusterPlanRep::ClusterPlanRep(const ClusterGraphAttributes& acGraph, const ClusterGraph& clusterGraph)
+	: PlanRep(acGraph), m_pClusterGraph(&clusterGraph) {
 	OGDF_ASSERT(&clusterGraph.constGraph() == &acGraph.constGraph());
 
 	m_edgeClusterID.init(*this, -1);
@@ -63,12 +57,12 @@ ClusterPlanRep::ClusterPlanRep(
 	m_rootAdj = nullptr;
 
 	//cluster numbers don't need to be consecutive
-	for(cluster ci : clusterGraph.clusters)
+	for (cluster ci : clusterGraph.clusters) {
 		m_clusterOfIndex[ci->index()] = ci; //numbers are unique
+	}
 }
 
-void ClusterPlanRep::initCC(int i)
-{
+void ClusterPlanRep::initCC(int i) {
 	PlanRep::initCC(i);
 
 	//this means that for every reinitialization IDs are set
@@ -77,19 +71,18 @@ void ClusterPlanRep::initCC(int i)
 	//in CCs are not yet initialized then
 	//they are maintained for original nodes and for crossings
 	//nodes on cluster boundaries
-	const Graph &CG = *m_pClusterGraph;
-	for(node v : CG.nodes)
-	{
+	const Graph& CG = *m_pClusterGraph;
+	for (node v : CG.nodes) {
 		m_nodeClusterID[copy(v)] = m_pClusterGraph->clusterOf(v)->index();
 	}
 
 	//todo: initialize dummy node ids for different CCs
 
 	//initialize all edges totally contained in a single cluster
-	for(edge e : edges)
-	{
-		if (ClusterID(e->source()) == ClusterID(e->target()))
+	for (edge e : edges) {
+		if (ClusterID(e->source()) == ClusterID(e->target())) {
 			m_edgeClusterID[e] = ClusterID(e->source());
+		}
 	}
 }
 
@@ -98,19 +91,17 @@ void ClusterPlanRep::initCC(int i)
  * This is only an insertion for graphs with already modeled
  * boundary edges, otherwise cluster recognition won't work
  * */
-void ClusterPlanRep::insertEdgePathEmbedded(
-	edge eOrig,
-	CombinatorialEmbedding &E,
-	const SList<adjEntry> &crossedEdges)
-{
+void ClusterPlanRep::insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E,
+		const SList<adjEntry>& crossedEdges) {
 	//inherited insert
-	PlanRep::insertEdgePathEmbedded(eOrig,E,crossedEdges);
+	PlanRep::insertEdgePathEmbedded(eOrig, E, crossedEdges);
 
 	//update node cluster ids for crossing dummies
-	for(edge e : chain(eOrig))
-	{
+	for (edge e : chain(eOrig)) {
 		node dummy = e->target();
-		if (dummy == copy(eOrig->target())) continue;
+		if (dummy == copy(eOrig->target())) {
+			continue;
+		}
 
 		OGDF_ASSERT(dummy->degree() == 4);
 
@@ -139,8 +130,7 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 
 		//should only be used with modeled boundaries
 		cluster c1, c2;
-		if (orV1 && orV2)
-		{
+		if (orV1 && orV2) {
 			OGDF_ASSERT(m_pClusterGraph->clusterOf(orV1) == m_pClusterGraph->clusterOf(orV2));
 			OGDF_ASSERT(m_nodeClusterID[v1] != -1);
 			m_nodeClusterID[dummy] = m_nodeClusterID[v1];
@@ -150,44 +140,45 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 		{
 			node orV = (orV1 ? orV1 : orV2);
 			//node vOr = (orV1 ? v1 : v2);
-			node vD  = (orV1 ? v2 : v1);
+			node vD = (orV1 ? v2 : v1);
 			cluster orC = m_pClusterGraph->clusterOf(orV);
-			cluster dC  = clusterOfDummy(vD);
+			cluster dC = clusterOfDummy(vD);
 
 			OGDF_ASSERT(orC == dC // original and crossing
-			         || orC == dC->parent() // original and boundary
-			         || orC->parent() == dC);
+					|| orC == dC->parent() // original and boundary
+					|| orC->parent() == dC);
 
-			if (orC == dC) m_nodeClusterID[dummy] = orC->index();
-			else if (orC == dC->parent()) m_nodeClusterID[dummy] = orC->index();
-			else OGDF_THROW (AlgorithmFailureException);
+			if (orC == dC) {
+				m_nodeClusterID[dummy] = orC->index();
+			} else if (orC == dC->parent()) {
+				m_nodeClusterID[dummy] = orC->index();
+			} else {
+				OGDF_THROW(AlgorithmFailureException);
+			}
 			continue;
 		}
 		//no originals, only crossings/boundaries
 		c1 = clusterOfDummy(v1);
 		c2 = clusterOfDummy(v2);
 		OGDF_ASSERT(c1 == c2 // min. one crossing
-		         || c1 == c2->parent() // min. one boundary
-		         || c1->parent() == c2
-		         || c1->parent() == c2->parent());
+				|| c1 == c2->parent() // min. one boundary
+				|| c1->parent() == c2 || c1->parent() == c2->parent());
 
-		if (c1 == c2)
+		if (c1 == c2) {
 			m_nodeClusterID[dummy] = c1->index();
-		else if (c1 == c2->parent())
+		} else if (c1 == c2->parent()) {
 			m_nodeClusterID[dummy] = c1->index();
-		else if (c2 == c1->parent())
+		} else if (c2 == c1->parent()) {
 			m_nodeClusterID[dummy] = c2->index();
-		else
+		} else {
 			m_nodeClusterID[dummy] = c1->parent()->index();
+		}
 		continue;
-
 	}
-
 }
 
 //use cluster structure to insert edges representing the cluster boundaries
-void ClusterPlanRep::ModelBoundaries()
-{
+void ClusterPlanRep::ModelBoundaries() {
 	//clusters hold their adjacent adjEntries and edges in lists, but after
 	//insertion of boundaries these lists are outdated due to edge splittings
 
@@ -204,28 +195,28 @@ void ClusterPlanRep::ModelBoundaries()
 }
 
 //recursively insert cluster boundaries for all clusters in cluster tree
-void ClusterPlanRep::convertClusterGraph(cluster act,
-                                         AdjEntryArray<edge>& currentEdge,
-                                         AdjEntryArray<int>& outEdge)
-{
+void ClusterPlanRep::convertClusterGraph(cluster act, AdjEntryArray<edge>& currentEdge,
+		AdjEntryArray<int>& outEdge) {
 	//are we at the first call (no real cluster)
 	bool isRoot = (act == m_pClusterGraph->rootCluster());
 
 	//check if we have to set the external face adj by hand
-	if (isRoot && !act->cBegin().valid())
+	if (isRoot && !act->cBegin().valid()) {
 		m_rootAdj = firstEdge()->adjSource(); //only root cluster present
+	}
 	//check if leaf cluster in cluster tree (most inner)
 	bool isLeaf = false;
 	if (!act->cBegin().valid() && !isRoot) {
 		isLeaf = true;
 	}
 	// Test children first
-	safeForEach(act->children, [&](cluster child) {
-		convertClusterGraph(child, currentEdge, outEdge);
-	});
+	safeForEach(act->children,
+			[&](cluster child) { convertClusterGraph(child, currentEdge, outEdge); });
 
 	//do not convert root cluster
-	if (isRoot) return;
+	if (isRoot) {
+		return;
+	}
 
 	insertBoundary(act, currentEdge, outEdge, isLeaf);
 }
@@ -235,11 +226,8 @@ void ClusterPlanRep::convertClusterGraph(cluster act,
 //current (new) edge, if cluster is leafcluster, we check and set the edge
 //direction and the adjacent edge corresponding to the adjEntries in the clusters
 //adjEntry List
-void ClusterPlanRep::insertBoundary(cluster C,
-									AdjEntryArray<edge>& currentEdge,
-									AdjEntryArray<int>& outEdge,
-									bool clusterIsLeaf)
-{
+void ClusterPlanRep::insertBoundary(cluster C, AdjEntryArray<edge>& currentEdge,
+		AdjEntryArray<int>& outEdge, bool clusterIsLeaf) {
 	//we insert edges to represent the cluster boundary
 	//by splitting the outgoing edges and connecting the
 	//split nodes
@@ -261,17 +249,18 @@ void ClusterPlanRep::insertBoundary(cluster C,
 	//if no outAdj exist, we have a connected component
 	//and dont need a boundary, change this when unconnected
 	//graphs are allowed
-	if (!it.valid()) return;
+	if (!it.valid()) {
+		return;
+	}
 
-	while (it.valid())
-	{
+	while (it.valid()) {
 		//if clusterIsLeaf, save the corresponding direction and edge
-		if (clusterIsLeaf)
-		{
+		if (clusterIsLeaf) {
 			//save the current, unsplitted edge
 			//be careful with clusterleaf connecting, layered cl
-			if (currentEdge[*it] == nullptr)
+			if (currentEdge[*it] == nullptr) {
 				currentEdge[*it] = copy((*it)->theEdge());
+			}
 			//set twin here?
 
 			//check direction, adjEntry is outgoing, compare with edge
@@ -279,11 +268,11 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		}
 
 		//workaround for nonleaf edges
-		if (outEdge[*it] == 2)
+		if (outEdge[*it] == 2) {
 			outEdge[*it] = (*it)->isSource() ? 1 : 0;
+		}
 
-		if (currentEdge[*it] == nullptr)
-		{
+		if (currentEdge[*it] == nullptr) {
 			//may already be splitted from head
 			currentEdge[*it] = copy((*it)->theEdge());
 		}
@@ -298,8 +287,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		edge newEdge = split(splitEdge);
 
 		//store the adjEntries depending on in/out direction
-		if (isOut)
-		{
+		if (isOut) {
 			//splitresults "upper" edge to old target is newEdge!?
 			//only update for outgoing edges, ingoing stay actual
 			currentEdge[*it] = newEdge;
@@ -308,7 +296,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 			targetEntries.pushBack(splitEdge->adjTarget());
 
 			m_nodeClusterID[newEdge->source()] = C->index();
-				//m_nodeClusterID[splitEdge->source()];
+			//m_nodeClusterID[splitEdge->source()];
 		} else {
 			sourceEntries.pushBack(splitEdge->adjTarget());
 			targetEntries.pushBack(newEdge->adjSource());
@@ -317,8 +305,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		}
 
 		//always set some rootAdj for external face
-		if ( (C->parent() == m_pClusterGraph->rootCluster()) && !(it.succ().valid()))
-		{
+		if ((C->parent() == m_pClusterGraph->rootCluster()) && !(it.succ().valid())) {
 			//save the adjentry corresponding to new splitresult edge
 			m_rootAdj = currentEdge[*it]->adjSource();
 			OGDF_ASSERT(m_rootAdj != nullptr);
@@ -336,9 +323,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 	targetEntries.pushBack(flipper);
 
 	//connect the new nodes to form the boundary
-	while (!targetEntries.empty())
-	{
-
+	while (!targetEntries.empty()) {
 		edge e = newEdge(sourceEntries.popFrontRet(), targetEntries.popFrontRet());
 		//set type of new edges
 		setClusterBoundary(e);
@@ -350,30 +335,22 @@ void ClusterPlanRep::insertBoundary(cluster C,
 	OGDF_ASSERT(this->representsCombEmbedding());
 }
 
-
-
-void ClusterPlanRep::expand(bool lowDegreeExpand)
-{
+void ClusterPlanRep::expand(bool lowDegreeExpand) {
 	PlanRep::expand(lowDegreeExpand);
 	//update cluster info
-	for(node v : nodes)
-	{
-		if (expandedNode(v) != nullptr)
-		{
+	for (node v : nodes) {
+		if (expandedNode(v) != nullptr) {
 			OGDF_ASSERT(m_nodeClusterID[expandedNode(v)] != -1);
 			m_nodeClusterID[v] = m_nodeClusterID[expandedNode(v)];
 		}
 	}
 }
 
-void ClusterPlanRep::expandLowDegreeVertices(OrthoRep &OR)
-{
+void ClusterPlanRep::expandLowDegreeVertices(OrthoRep& OR) {
 	PlanRep::expandLowDegreeVertices(OR);
 	//update cluster info
-	for(node v : nodes)
-	{
-		if (expandedNode(v) != nullptr)
-		{
+	for (node v : nodes) {
+		if (expandedNode(v) != nullptr) {
 			OGDF_ASSERT(m_nodeClusterID[expandedNode(v)] != -1);
 			m_nodeClusterID[v] = m_nodeClusterID[expandedNode(v)];
 		}
@@ -382,24 +359,19 @@ void ClusterPlanRep::expandLowDegreeVertices(OrthoRep &OR)
 
 //file output
 
-void ClusterPlanRep::writeGML(const char *fileName, const Layout &drawing)
-{
+void ClusterPlanRep::writeGML(const char* fileName, const Layout& drawing) {
 	std::ofstream os(fileName);
-	writeGML(os,drawing);
+	writeGML(os, drawing);
 }
 
-
-void ClusterPlanRep::writeGML(const char *fileName)
-{
+void ClusterPlanRep::writeGML(const char* fileName) {
 	Layout drawing(*this);
 	std::ofstream os(fileName);
-	writeGML(os,drawing);
+	writeGML(os, drawing);
 }
 
-
-void ClusterPlanRep::writeGML(std::ostream &os, const Layout &drawing)
-{
-	const Graph &G = *this;
+void ClusterPlanRep::writeGML(std::ostream& os, const Layout& drawing) {
+	const Graph& G = *this;
 
 	NodeArray<int> id(*this);
 	int nextId = 0;
@@ -411,8 +383,7 @@ void ClusterPlanRep::writeGML(std::ostream &os, const Layout &drawing)
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	for(node v : G.nodes) {
-
+	for (node v : G.nodes) {
 		node ori = original(v);
 
 		os << "  node [\n";
@@ -429,33 +400,32 @@ void ClusterPlanRep::writeGML(std::ostream &os, const Layout &drawing)
 		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
-		}
-		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
+		} else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
-		}
-		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
-			typeOf(v) == Graph::NodeType::lowDegreeExpander)
+		} else if (typeOf(v) == Graph::NodeType::highDegreeExpander
+				|| typeOf(v) == Graph::NodeType::lowDegreeExpander) {
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::NodeType::dummy)
+		} else if (typeOf(v) == Graph::NodeType::dummy) {
 			os << "      type \"oval\"\n";
+		}
 
-		else
-		if (m_pClusterGraph->clusterOf(ori)->index() != 0) //cluster
+		else if (m_pClusterGraph->clusterOf(ori)->index() != 0) //cluster
 		{
 			//only < 16
 			os << "      fill \"#" << std::hex << std::setw(6) << std::setfill('0')
-				<< m_pClusterGraph->clusterOf(ori)->index()*256*256+
-					m_pClusterGraph->clusterOf(ori)->index()*256+
-					m_pClusterGraph->clusterOf(ori)->index()*4 << std::dec << "\"\n";
-		}
-		else
-		{
-		if (v->degree() > 4)
-			os << "      fill \"#FFFF00\"\n";
+			   << m_pClusterGraph->clusterOf(ori)->index() * 256 * 256
+							+ m_pClusterGraph->clusterOf(ori)->index() * 256
+							+ m_pClusterGraph->clusterOf(ori)->index() * 4
+			   << std::dec << "\"\n";
+		} else {
+			if (v->degree() > 4) {
+				os << "      fill \"#FFFF00\"\n";
+			}
 
-		else
-			os << "      fill \"#000000\"\n";
+			else {
+				os << "      fill \"#000000\"\n";
+			}
 		}
 
 		os << "    ]\n"; // graphics
@@ -464,7 +434,7 @@ void ClusterPlanRep::writeGML(std::ostream &os, const Layout &drawing)
 	}
 
 
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		os << "  edge [\n";
 
 		os << "    source " << id[e->source()] << "\n";
@@ -476,41 +446,38 @@ void ClusterPlanRep::writeGML(std::ostream &os, const Layout &drawing)
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::EdgeType::generalization)
-		{
+		if (typeOf(e) == Graph::EdgeType::generalization) {
 			os << "      arrow \"last\"\n";
 
 			os << "      fill \"#FF0000\"\n";
 			os << "      width 3.0\n";
-		}
-		else
-		{
-
-			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
-				typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
-				typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
-				typeOf(e->target()) == Graph::NodeType::generalizationMerger)
-			{
+		} else {
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander
+					|| typeOf(e->source()) == Graph::NodeType::generalizationMerger
+					|| typeOf(e->target()) == Graph::NodeType::generalizationExpander
+					|| typeOf(e->target()) == Graph::NodeType::generalizationMerger) {
 				os << "      arrow \"none\"\n";
-				if (isBrother(e))
+				if (isBrother(e)) {
 					os << "      fill \"#F0F000\"\n"; //gelb
-				else if (isHalfBrother(e))
+				} else if (isHalfBrother(e)) {
 					os << "      fill \"#FF00AF\"\n";
-				else if (isClusterBoundary(e))
+				} else if (isClusterBoundary(e)) {
 					os << "      fill \"#FF0000\"\n";
-				else
+				} else {
 					os << "      fill \"#FF0000\"\n";
-			}
-			else
+				}
+			} else {
 				os << "      arrow \"none\"\n";
-			if (isBrother(e))
+			}
+			if (isBrother(e)) {
 				os << "      fill \"#F0F000\"\n"; //gelb
-			else if (isHalfBrother(e))
+			} else if (isHalfBrother(e)) {
 				os << "      fill \"#FF00AF\"\n";
-			else if (isClusterBoundary(e))
+			} else if (isClusterBoundary(e)) {
 				os << "      fill \"#FF0000\"\n";
-			else
+			} else {
 				os << "      fill \"#00000F\"\n";
+			}
 			os << "      width 1.0\n";
 		}
 		os << "    ]\n"; // graphics

@@ -29,49 +29,54 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
-#include <graphs.h>
+
 #include <sstream>
+
+#include <graphs.h>
 
 go_bandit([]() {
 	describe("ConnectivityTester", []() {
-		for(bool directed : {true, false}) {
+		for (bool directed : {true, false}) {
 			std::stringstream ss;
-			if(!directed) {
+			if (!directed) {
 				ss << "un";
 			}
 			ss << "directed";
 			describe(ss.str().c_str(), [&]() {
-				for(bool nodeConnectivity : {true, false}) {
+				for (bool nodeConnectivity : {true, false}) {
 					ss.str(nodeConnectivity ? "node" : "edge");
 					ss << "-connectivity";
 					describe(ss.str().c_str(), [&]() {
-						forEachGraphItWorks({GraphProperty::simple}, [&](const Graph& G) {
-							NodeArray<NodeArray<int>> matrix(G, NodeArray<int>(G));
-							ConnectivityTester con(nodeConnectivity, directed);
-							int value = con.computeConnectivity(G, matrix);
-							bool valueFound = G.numberOfNodes() < 2;
+						forEachGraphItWorks(
+								{GraphProperty::simple},
+								[&](const Graph& G) {
+									NodeArray<NodeArray<int>> matrix(G, NodeArray<int>(G));
+									ConnectivityTester con(nodeConnectivity, directed);
+									int value = con.computeConnectivity(G, matrix);
+									bool valueFound = G.numberOfNodes() < 2;
 
-							for(node v : G.nodes) {
-								for(node w : G.nodes) {
-									if(v != w) {
-										if(!directed) {
-											AssertThat(matrix[v][w], Equals(matrix[w][v]));
+									for (node v : G.nodes) {
+										for (node w : G.nodes) {
+											if (v != w) {
+												if (!directed) {
+													AssertThat(matrix[v][w], Equals(matrix[w][v]));
+												}
+												AssertThat(matrix[v][w], !IsLessThan(value));
+												valueFound |= matrix[v][w] == value;
+												AssertThat(matrix[v][w],
+														Equals(con.computeConnectivity(G, v, w)));
+											}
 										}
-										AssertThat(matrix[v][w], !IsLessThan(value));
-										valueFound |= matrix[v][w] == value;
-										AssertThat(matrix[v][w], Equals(con.computeConnectivity(G, v, w)));
 									}
-								}
-							}
 
-							AssertThat(valueFound, IsTrue());
-						}, GraphSizes(5, 20, 5));
+									AssertThat(valueFound, IsTrue());
+								},
+								GraphSizes(5, 20, 5));
 					});
-
 				}
 			});
 		}

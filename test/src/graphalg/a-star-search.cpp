@@ -29,29 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <iomanip>
-#include <chrono>
-
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/AStarSearch.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
+#include <chrono>
+#include <iomanip>
+
 #include <testing.h>
 
 template<typename T>
-void validatePath(
-		const node source,
-		const node target,
-		const Graph &graph,
-		const EdgeArray<T> &cost,
-		const NodeArray<edge> &pred,
-		const T expectedCost) {
-
+void validatePath(const node source, const node target, const Graph& graph,
+		const EdgeArray<T>& cost, const NodeArray<edge>& pred, const T expectedCost) {
 	T actualCost = 0;
 
 	NodeArray<bool> visited(graph, false);
 
-	for(node v = target; v != source; v = pred[v]->opposite(v)) {
+	for (node v = target; v != source; v = pred[v]->opposite(v)) {
 		AssertThat(visited[v], IsFalse());
 		actualCost += cost[pred[v]];
 		visited[v] = true;
@@ -61,19 +55,10 @@ void validatePath(
 }
 
 template<typename T>
-void performSingleTest(
-		const Graph &graph,
-		const node source,
-		const node target,
-		const EdgeArray<T> cost,
-		const double maxGap,
-		const bool directed,
-		Dijkstra<T> &dijkstra,
-		AStarSearch<T> &astar,
-		long &ticksDijkstra,
-		long &ticksUninformedAStar,
-		long &ticksAStarHeuristic)
-{
+void performSingleTest(const Graph& graph, const node source, const node target,
+		const EdgeArray<T> cost, const double maxGap, const bool directed, Dijkstra<T>& dijkstra,
+		AStarSearch<T>& astar, long& ticksDijkstra, long& ticksUninformedAStar,
+		long& ticksAStarHeuristic) {
 	NodeArray<T> distance(graph, -1);
 	NodeArray<edge> pred(graph);
 
@@ -83,7 +68,7 @@ void performSingleTest(
 	bool foundPath = pred[target] != nullptr;
 	T opt = distance[target];
 
-	if(foundPath) {
+	if (foundPath) {
 		validatePath(source, target, graph, cost, pred, distance[target]);
 
 		distance.init(graph, -1);
@@ -106,7 +91,7 @@ void performSingleTest(
 	ticksUninformedAStar += (std::chrono::system_clock::now() - start).count();
 
 	AssertThat(pred[target] != nullptr, Equals(foundPath));
-	if(foundPath) {
+	if (foundPath) {
 		validatePath(source, target, graph, cost, pred, result);
 		AssertThat(distance[target], IsLessThan(opt * maxGap + 1));
 	}
@@ -125,24 +110,24 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 	long ticksUninformedAStar = 0;
 	long ticksAStarHeuristic = 0;
 
-	for(int i = 0; i < NUMBER_OF_GRAPHS; i++) {
+	for (int i = 0; i < NUMBER_OF_GRAPHS; i++) {
 		Graph graph;
 		EdgeArray<T> cost(graph);
 		node source = nullptr;
 		node target = nullptr;
 		int n = randomNumber(MIN_NODES, MAX_NODES);
 
-		if(pathLike) {
+		if (pathLike) {
 			completeGraph(graph, n);
 			cost.init(graph, n);
 
 			source = graph.chooseNode();
 			node v = source;
 
-			for(int k = 0; k < n/2 || v == source; k++) {
+			for (int k = 0; k < n / 2 || v == source; k++) {
 				adjEntry adj = v->firstAdj();
 
-				for(int j = randomNumber(0, v->degree()-1); j > 0; j--) {
+				for (int j = randomNumber(0, v->degree() - 1); j > 0; j--) {
 					adj = adj->succ();
 				}
 
@@ -153,9 +138,9 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 
 			target = v;
 		} else {
-			randomBiconnectedGraph(graph, n, randomNumber(n, (n*(n-1) / 2)));
+			randomBiconnectedGraph(graph, n, randomNumber(n, (n * (n - 1) / 2)));
 
-			for(edge e : graph.edges) {
+			for (edge e : graph.edges) {
 				cost[e] = randomNumber(1, graph.numberOfEdges());
 			}
 
@@ -168,22 +153,25 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 	}
 
 	std::cout << std::endl;
-	std::cout << std::left << "    Dijkstra              : " << std::right << std::setw(16) << ticksDijkstra << std::endl;
-	std::cout << std::left << "    A* uninformed         : " << std::right << std::setw(16) << ticksUninformedAStar << std::endl;
-	std::cout << std::left << "    A* perfect heuristic  : " << std::right << std::setw(16) << ticksAStarHeuristic << std::endl;
+	std::cout << std::left << "    Dijkstra              : " << std::right << std::setw(16)
+			  << ticksDijkstra << std::endl;
+	std::cout << std::left << "    A* uninformed         : " << std::right << std::setw(16)
+			  << ticksUninformedAStar << std::endl;
+	std::cout << std::left << "    A* perfect heuristic  : " << std::right << std::setw(16)
+			  << ticksAStarHeuristic << std::endl;
 	std::cout << std::left;
 }
 
 template<typename T>
 void registerTests(string typeName) {
 	EpsilonTest et;
-	for(int i = 0; i < 16; i++) {
+	for (int i = 0; i < 16; i++) {
 		bool pathLike = i % 2;
 		bool directed = (i / 2) % 2;
-		double maxGap =  1 + (i / 4) / (double) 2;
+		double maxGap = 1 + (i / 4) / (double)2;
 
 		string title = "yields the same result as Dijkstra";
-		if(!et.equal(maxGap, 1.0)) {
+		if (!et.equal(maxGap, 1.0)) {
 			title = "approximates the optimal solution with a maxmimum gap of " + to_string(maxGap);
 		}
 
@@ -194,14 +182,12 @@ void registerTests(string typeName) {
 		title += (pathLike ? "path-like" : "biconnected");
 		title += " graphs";
 
-		it(title, [&](){
-			performTests<T>(directed, maxGap, pathLike);
-		});
+		it(title, [&]() { performTests<T>(directed, maxGap, pathLike); });
 	}
 }
 
-go_bandit([](){
-	describe("A* Informed Search Algorithm", [](){
+go_bandit([]() {
+	describe("A* Informed Search Algorithm", []() {
 		registerTests<int>("int");
 		registerTests<double>("double");
 	});

@@ -71,9 +71,11 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 	public:
 		//! Constructs a copy of the original graph with an added source node having edges to all other nodes
 		AuxiliaryGraph(const EdgeWeightedGraph<T>& orig, const List<node>& terminals)
-		  : m_original(orig), m_copyOfNode(m_original),
-		    m_origOfNode(m_copy, nullptr), m_origOfEdge(m_copy, nullptr),
-		    m_isTerminal(m_copy, false) {
+			: m_original(orig)
+			, m_copyOfNode(m_original)
+			, m_origOfNode(m_copy, nullptr)
+			, m_origOfEdge(m_copy, nullptr)
+			, m_isTerminal(m_copy, false) {
 			// copy nodes and edges
 			for (node v : m_original.nodes) {
 				node vCopy = m_copy.newNode();
@@ -81,7 +83,8 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 				m_origOfNode[vCopy] = v;
 			}
 			for (edge e : m_original.edges) {
-				edge eCopy = m_copy.newEdge(copy(e->source()), copy(e->target()), m_original.weight(e));
+				edge eCopy =
+						m_copy.newEdge(copy(e->source()), copy(e->target()), m_original.weight(e));
 				m_origOfEdge[eCopy] = e;
 			}
 
@@ -116,19 +119,13 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 		}
 
 		//! Returns the source node
-		node source() const {
-			return m_source;
-		}
+		node source() const { return m_source; }
 
 		//! Returns a const reference to the graph
-		const EdgeWeightedGraph<T>& graph() const {
-			return m_copy;
-		}
+		const EdgeWeightedGraph<T>& graph() const { return m_copy; }
 
 		//! Returns a const reference to #m_isTerminal
-		const NodeArray<bool>& terminalArray() const {
-			return m_isTerminal;
-		}
+		const NodeArray<bool>& terminalArray() const { return m_isTerminal; }
 
 		//! Returns the weight of a copied edge
 		T weight(edge e) const {
@@ -151,8 +148,10 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 		T cost;
 		ArrayBuffer<edge> edges;
 		ArrayBuffer<const DWMData*> subgraphs;
-		DWMData(T _cost, ArrayBuffer<edge> _edges) : cost(_cost), edges(_edges) {}
-		explicit DWMData(T _cost = std::numeric_limits<T>::max()) : cost(_cost) {}
+
+		DWMData(T _cost, ArrayBuffer<edge> _edges) : cost(_cost), edges(_edges) { }
+
+		explicit DWMData(T _cost = std::numeric_limits<T>::max()) : cost(_cost) { }
 
 		//! Invalidates the data
 		void invalidate() {
@@ -161,9 +160,7 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 		}
 
 		//! Returns true iff the data is valid
-		bool valid() const {
-			return cost == 0 || !(edges.empty() && subgraphs.empty());
-		}
+		bool valid() const { return cost == 0 || !(edges.empty() && subgraphs.empty()); }
 
 		//! Adds \p other subgraph to ours
 		void add(const DWMData* other) {
@@ -230,9 +227,8 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 #ifdef OGDF_FULL_COMPONENT_GENERATION_ALWAYS_SAFE
 		return summand1 + summand2 < compareValue;
 #else
-		return summand1 < std::numeric_limits<T>::max()
-		    && summand2 < std::numeric_limits<T>::max()
-		    && summand1 + summand2 < compareValue;
+		return summand1 < std::numeric_limits<T>::max() && summand2 < std::numeric_limits<T>::max()
+				&& summand1 + summand2 < compareValue;
 #endif
 	}
 
@@ -265,13 +261,14 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 	}
 
 	//! Makes a list from \p subset and its complement, each including an correctly inserted node \p v
-	void makeKey(List<node>& newSubset, List<node>& newComplement, const SubsetEnumerator<node>& subset, node v) const {
+	void makeKey(List<node>& newSubset, List<node>& newComplement,
+			const SubsetEnumerator<node>& subset, node v) const {
 		bool insertedIntoSubset = false;
 		bool insertedIntoComplement = false;
 		// Interestingly std::bind is much slower than using lambdas (at least on g++ 6.3)
 		subset.forEachMemberAndNonmember(
-		    [&](node w) { sortedInserter(w, newSubset, insertedIntoSubset, v); },
-		    [&](node w) { sortedInserter(w, newComplement, insertedIntoComplement, v); });
+				[&](node w) { sortedInserter(w, newSubset, insertedIntoSubset, v); },
+				[&](node w) { sortedInserter(w, newComplement, insertedIntoComplement, v); });
 		if (!insertedIntoSubset) {
 			newSubset.pushBack(v);
 		}
@@ -291,7 +288,8 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 		OGDF_ASSERT(split[v].subgraph2 == nullptr);
 
 		DWMSplit& best = split[v];
-		for (subset.begin(1, subset.numberOfMembersAndNonmembers() / 2); subset.valid(); subset.next()) {
+		for (subset.begin(1, subset.numberOfMembersAndNonmembers() / 2); subset.valid();
+				subset.next()) {
 			List<node> newSubset, newComplement;
 			makeKey(newSubset, newComplement, subset, v);
 
@@ -317,7 +315,8 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 		// compute shortest-paths tree on graph
 		NodeArray<T> distance;
 		NodeArray<edge> pred;
-		MinSteinerTreeModule<T>::singleSourceShortestPaths(m_auxG.graph(), m_auxG.source(), m_auxG.terminalArray(), distance, pred);
+		MinSteinerTreeModule<T>::singleSourceShortestPaths(m_auxG.graph(), m_auxG.source(),
+				m_auxG.terminalArray(), distance, pred);
 
 		// insert best subtrees
 		insertBestSubtrees(targets, split, pred, distance, terminals);
@@ -399,7 +398,8 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 	}
 
 	//! Inserts the valid best subtree (based on the SSSP computation) into the hash map
-	void insertValidBestSubtree(node v, const NodeArray<DWMSplit>& split, const NodeArray<edge>& pred, const List<node>& newSubset, const List<node>& terminals) {
+	void insertValidBestSubtree(node v, const NodeArray<DWMSplit>& split,
+			const NodeArray<edge>& pred, const List<node>& newSubset, const List<node>& terminals) {
 		OGDF_ASSERT(v->graphOf() == &m_auxG.graph());
 		OGDF_ASSERT(v != m_auxG.source());
 		DWMData best(0);
@@ -419,7 +419,8 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix {
 
 	//! Inserts the best subtrees into the hash map
 	template<typename CONTAINER>
-	void insertBestSubtrees(const CONTAINER& targets, const NodeArray<DWMSplit>& split, const NodeArray<edge>& pred, const NodeArray<T>& distance, const List<node>& terminals) {
+	void insertBestSubtrees(const CONTAINER& targets, const NodeArray<DWMSplit>& split,
+			const NodeArray<edge>& pred, const NodeArray<T>& distance, const List<node>& terminals) {
 		for (node v : targets) {
 			if (!m_terminalSubset.hasMember(v)) {
 				List<node> newSubset;
@@ -477,24 +478,27 @@ public:
 	 * The constructor
 	 * \pre The list of terminals has to be sorted by index (use MinSteinerTreeModule<T>::sortTerminals)
 	 */
-	FullComponentGeneratorDreyfusWagnerWithoutMatrix(const EdgeWeightedGraph<T>& G, const List<node>& terminals, const NodeArray<bool>& isTerminal)
-	  : m_G(G),
-	    m_terminals(terminals),
-	    m_isTerminal(isTerminal),
-	    m_auxG(m_G, m_terminals),
-	    m_terminalSubset(m_terminals),
-	    m_map(1 << 22) { // we initially allocate 4MB*sizeof(DWMData) for hashing
+	FullComponentGeneratorDreyfusWagnerWithoutMatrix(const EdgeWeightedGraph<T>& G,
+			const List<node>& terminals, const NodeArray<bool>& isTerminal)
+		: m_G(G)
+		, m_terminals(terminals)
+		, m_isTerminal(isTerminal)
+		, m_auxG(m_G, m_terminals)
+		, m_terminalSubset(m_terminals)
+		, m_map(1 << 22) { // we initially allocate 4MB*sizeof(DWMData) for hashing
 	}
 
 	void call(int restricted) {
 		OGDF_ASSERT(restricted >= 2);
 		Math::updateMin(restricted, m_terminals.size());
 		initializeMap();
-		for (m_terminalSubset.begin(2, restricted - 2); m_terminalSubset.valid(); m_terminalSubset.next()) {
+		for (m_terminalSubset.begin(2, restricted - 2); m_terminalSubset.valid();
+				m_terminalSubset.next()) {
 			computePartialSolutions(m_G.nodes);
 		}
 		// save time by only adding terminals instead of all nodes
-		for (m_terminalSubset.begin(restricted - 1); m_terminalSubset.valid(); m_terminalSubset.next()) {
+		for (m_terminalSubset.begin(restricted - 1); m_terminalSubset.valid();
+				m_terminalSubset.next()) {
 			computePartialSolutions(m_terminals);
 		}
 	}
@@ -516,7 +520,7 @@ public:
 		for (node v : tree.nodes) {
 			OGDF_ASSERT(v->degree() > 1 || m_isTerminal[tree.original(v)]);
 			if (m_isTerminal[tree.original(v)] // is a terminal
-			 && v->degree() > 1) { // but not a leaf
+					&& v->degree() > 1) { // but not a leaf
 				return false;
 			}
 		}
@@ -532,7 +536,7 @@ class FullComponentGeneratorDreyfusWagnerWithoutMatrix<T>::SortedNodeListHashFun
 
 public:
 	//! Initializes the random number
-	SortedNodeListHashFunc() : m_random(randomNumber(2, c_prime - 1)) {}
+	SortedNodeListHashFunc() : m_random(randomNumber(2, c_prime - 1)) { }
 
 	//! The actual hash function
 	unsigned int hash(const List<node>& key) const {

@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanarSubgraphModule.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 
 namespace ogdf {
 
@@ -51,10 +51,8 @@ namespace ogdf {
  * Weighted edges are heuristically respected but there is no approximation guarantee in the weighted case.
  */
 template<typename TCost>
-class PlanarSubgraphTriangles : public PlanarSubgraphModule<TCost>
-{
+class PlanarSubgraphTriangles : public PlanarSubgraphModule<TCost> {
 public:
-
 	//! Creates a planarization module based on triangle or diamond matching
 	/**
 	 * @param onlyTriangles If true, only search for triangles. If false (default), search for diamonds
@@ -63,17 +61,13 @@ public:
 	PlanarSubgraphTriangles(bool onlyTriangles = false) : m_onlyTriangles(onlyTriangles) { }
 
 	//! Returns a new instance of the planarization module with the same settings
-	virtual PlanarSubgraphTriangles *clone() const override {
+	virtual PlanarSubgraphTriangles* clone() const override {
 		return new PlanarSubgraphTriangles(m_onlyTriangles);
 	}
 
 protected:
-	virtual Module::ReturnType doCall(const Graph &graph,
-		const List<edge> &,
-		List<edge> &delEdges,
-		const EdgeArray<TCost> *pCost,
-		bool preferredImplyPlanar = false) override
-	{
+	virtual Module::ReturnType doCall(const Graph& graph, const List<edge>&, List<edge>& delEdges,
+			const EdgeArray<TCost>* pCost, bool preferredImplyPlanar = false) override {
 		OGDF_ASSERT(isConnected(graph));
 		OGDF_ASSERT(isSimpleUndirected(graph));
 
@@ -84,12 +78,14 @@ protected:
 		EdgeArray<bool> includeEdges(copy, false);
 
 		// sort weighted edges
-		if(pCost != nullptr) {
-			GenericComparer<edge, TCost, false> edgeCmp([&](edge e) { return (*pCost)[copy.original(e)]; });
-			GenericComparer<adjEntry, TCost, false> adjCmp([&](adjEntry a) { return (*pCost)[copy.original(a->theEdge())]; });
+		if (pCost != nullptr) {
+			GenericComparer<edge, TCost, false> edgeCmp(
+					[&](edge e) { return (*pCost)[copy.original(e)]; });
+			GenericComparer<adjEntry, TCost, false> adjCmp(
+					[&](adjEntry a) { return (*pCost)[copy.original(a->theEdge())]; });
 			edges.quicksort(edgeCmp);
 
-			for(node v : copy.nodes) {
+			for (node v : copy.nodes) {
 				List<adjEntry> newOrder;
 				v->allAdjEntries(newOrder);
 				newOrder.quicksort(adjCmp);
@@ -106,9 +102,10 @@ protected:
 		if (!m_onlyTriangles) {
 			// First step: Find as many diamonds as we can.
 			for (edge currentEdge : edges) {
-
 				// Skip if we already include this edge
-				if (includeEdges[currentEdge]) continue;
+				if (includeEdges[currentEdge]) {
+					continue;
+				}
 
 				// We assume this edge to be the cord of our diamond. This means we have to find two
 				// distinct triangles to make a diamond, and we will try to prefer ones with higher
@@ -126,7 +123,9 @@ protected:
 					// We know that each individually found triangle does not have two nodes in the
 					// same component, so we only have to check the opposite ones.
 					int potentialSet = components.find(set[v]);
-					if (potentialSet == triangleSet) return false; // This is not a triangle we can use, keep looking!
+					if (potentialSet == triangleSet) {
+						return false; // This is not a triangle we can use, keep looking!
+					}
 
 					if (triangleNode == nullptr) {
 						// We don't have a triangle yet, mark this one down as the best we can find from this edge.
@@ -135,17 +134,19 @@ protected:
 						triangleEdge2 = e2;
 						triangleSet = potentialSet;
 						return false; // continue searching for a second triangle to make our diamond
-					}
-					else {
+					} else {
 						// We already found a triangle before, so this is the second-best triangle we can find,
 						// making a diamond.
-						includeEdges[currentEdge] = includeEdges[triangleEdge1] = includeEdges[triangleEdge2]
-						                          = includeEdges[e1] = includeEdges[e2] = true;
+						includeEdges[currentEdge] = includeEdges[triangleEdge1] =
+								includeEdges[triangleEdge2] = includeEdges[e1] = includeEdges[e2] =
+										true;
 
 						// Link up diamond nodes' components. These cannot be on the same connected subgraph yet.
 						int sourceSet = components.find(set[source]);
 						int targetSet = components.find(set[target]);
-						components.link(components.link(components.link(sourceSet, targetSet), triangleSet), potentialSet);
+						components.link(
+								components.link(components.link(sourceSet, targetSet), triangleSet),
+								potentialSet);
 						return true; // stop looking
 					}
 				});
@@ -154,13 +155,14 @@ protected:
 
 		// Second step: Find as many triangles as we can.
 		for (edge currentEdge : edges) {
-
-			if (includeEdges[currentEdge]) continue;
+			if (includeEdges[currentEdge]) {
+				continue;
+			}
 
 			node source = currentEdge->source();
 			node target = currentEdge->target();
 
-			findTriangle(copy, currentEdge, pCost, components, set,[&](node v, edge e1, edge e2) {
+			findTriangle(copy, currentEdge, pCost, components, set, [&](node v, edge e1, edge e2) {
 				includeEdges[currentEdge] = includeEdges[e1] = includeEdges[e2] = true;
 				int potentialSet = components.find(set[v]);
 				int sourceSet = components.find(set[source]);
@@ -168,7 +170,6 @@ protected:
 				components.link(components.link(sourceSet, targetSet), potentialSet);
 				return true;
 			});
-
 		}
 
 		// Third step: Link unconnected sub graphs
@@ -182,7 +183,9 @@ protected:
 				components.link(sourceSet, targetSet);
 			}
 
-			if (!includeEdges[currentEdge]) delEdges.pushBack(copy.original(currentEdge));
+			if (!includeEdges[currentEdge]) {
+				delEdges.pushBack(copy.original(currentEdge));
+			}
 		}
 
 		return Module::ReturnType::Feasible;
@@ -228,9 +231,9 @@ private:
 	 * as defined by \p pCost. If the callback returns true, stop the search, otherwise a new
 	 * triangle will be searched for.
 	 */
-	void findTriangle(GraphCopy& copy, edge currentEdge, const EdgeArray<TCost> *pCost,
-	                  DisjointSets<>& components, NodeArray<int>& set,
-	                  std::function<bool(node, edge, edge)> callback) {
+	void findTriangle(GraphCopy& copy, edge currentEdge, const EdgeArray<TCost>* pCost,
+			DisjointSets<>& components, NodeArray<int>& set,
+			std::function<bool(node, edge, edge)> callback) {
 		node source = currentEdge->source();
 		node target = currentEdge->target();
 		auto sourceIt = source->adjEntries.begin();
@@ -238,7 +241,9 @@ private:
 		int sourceSet = components.find(set[source]);
 		int targetSet = components.find(set[target]);
 		// Our nodes cannot be in the same set.
-		if (sourceSet == targetSet) return;
+		if (sourceSet == targetSet) {
+			return;
+		}
 
 		while (sourceIt != source->adjEntries.end() && targetIt != target->adjEntries.end()) {
 			if ((*sourceIt)->theEdge() == currentEdge) {
@@ -255,13 +260,14 @@ private:
 			adjEntry potentialConnector;
 			node potentialConnection;
 			internal::GraphIterator<adjEntry> potentialConnectionIterator;
-			if (pCost == nullptr || (*pCost)[copy.original((*sourceIt)->theEdge())] > (*pCost)[copy.original((*targetIt)->theEdge())]) {
+			if (pCost == nullptr
+					|| (*pCost)[copy.original((*sourceIt)->theEdge())]
+							> (*pCost)[copy.original((*targetIt)->theEdge())]) {
 				potentialConnector = *sourceIt;
 				potentialConnection = target;
 				potentialConnectionIterator = targetIt;
 				sourceIt++;
-			}
-			else {
+			} else {
 				potentialConnector = *targetIt;
 				potentialConnection = source;
 				potentialConnectionIterator = sourceIt;
@@ -274,7 +280,8 @@ private:
 
 			// Only use this edge if it doesn't connect back to one of the components
 			if (potentialSet != sourceSet && potentialSet != targetSet) {
-				edge potentialEdge = searchEdge(potentialNode, potentialConnection, potentialConnectionIterator);
+				edge potentialEdge =
+						searchEdge(potentialNode, potentialConnection, potentialConnectionIterator);
 				if (potentialEdge != nullptr) {
 					// We found a triangle.
 					// If our callback returns true, it's signalling that we're done and don't

@@ -33,9 +33,9 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/Voronoi.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/graphalg/MinSteinerTreeModule.h>
 
 namespace ogdf {
 
@@ -60,12 +60,14 @@ public:
 	 * \brief Builds a complete terminal graph
 	 * @param wG the original graph
 	 * @param terminals list of terminals
-	 * @param voronoi Voronoi regions (providing a mapping from each edge in the complete terminal graph to the shortest path in the original graph)
+	 * @param voronoi Voronoi regions (providing a mapping from each edge in the
+	 * complete terminal graph to the shortest path in the original graph)
 	 * @param bridges list of edges connecting terminal nodes by voronoi regions
 	 * @param completeTerminalGraph the resulting complete terminal graph
 	 */
-	static void calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, const Voronoi<T> &voronoi,
-			EdgeArray<edge> &bridges, EdgeWeightedGraphCopy<T> &completeTerminalGraph);
+	static void calculateCompleteGraph(const EdgeWeightedGraph<T>& wG, const List<node>& terminals,
+			const Voronoi<T>& voronoi, EdgeArray<edge>& bridges,
+			EdgeWeightedGraphCopy<T>& completeTerminalGraph);
 
 protected:
 	/*!
@@ -76,24 +78,22 @@ protected:
 	 * @param finalSteinerTree The final Steiner tree
 	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(
-		const EdgeWeightedGraph<T> &G,
-		const List<node> &terminals,
-		const NodeArray<bool> &isTerminal,
-		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override;
 
 	/*!
 	 * \brief Swaps an edge in the complete terminal graph with the corresponding shortest path in the original graph
 	 * @param completeTerminalGraph the complete terminal graph
-	 * @param voronoi Voronoi regions (providing a mapping from each edge in the complete terminal graph to the shortest path in the original graph)
+	 * @param voronoi Voronoi regions (providing a mapping from each edge in the
+	 * complete terminal graph to the shortest path in the original graph)
 	 * @param mstPred predecessor data structure of a minimum terminal spanning tree
 	 * @param bridges list of edges connecting terminal nodes by voronoi regions
 	 * @param finalSteinerTree the resulting Steiner tree
 	 * @param wG the original graph
 	 */
-	void reinsertShortestPaths(EdgeWeightedGraphCopy<T> &completeTerminalGraph, const Voronoi<T> &voronoi,
-			const NodeArray<edge> &mstPred, const EdgeArray<edge> &bridges, EdgeWeightedGraphCopy<T> &finalSteinerTree,
-			const EdgeWeightedGraph<T> &wG);
+	void reinsertShortestPaths(EdgeWeightedGraphCopy<T>& completeTerminalGraph,
+			const Voronoi<T>& voronoi, const NodeArray<edge>& mstPred, const EdgeArray<edge>& bridges,
+			EdgeWeightedGraphCopy<T>& finalSteinerTree, const EdgeWeightedGraph<T>& wG);
 
 	/*!
 	 * \brief Inserts a shortest path corresponding to an edge in the complete terminal graph
@@ -102,8 +102,8 @@ protected:
 	 * @param finalSteinerTree the resulting Steiner tree
 	 * @param wG the original graph
 	 */
-	void insertPath(node u, const Voronoi<T> &voronoi,
-			EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG);
+	void insertPath(node u, const Voronoi<T>& voronoi, EdgeWeightedGraphCopy<T>& finalSteinerTree,
+			const EdgeWeightedGraph<T>& wG);
 
 	/*!
 	 * \brief Represents a triple as specified in the algorithms description (see paper)
@@ -118,7 +118,7 @@ protected:
 	/*!
 	 * \brief Helper class to sort MehlhornTriples lexicographically
 	 */
-	class MehlhornTripleBucketMaxFunc: public BucketFunc<MehlhornTriple> {
+	class MehlhornTripleBucketMaxFunc : public BucketFunc<MehlhornTriple> {
 	public:
 		MehlhornTripleBucketMaxFunc() { }
 
@@ -126,17 +126,18 @@ protected:
 			int source_index = MT.u->index();
 			int target_index = MT.v->index();
 			OGDF_ASSERT(source_index != target_index);
-			if (source_index < target_index)
+			if (source_index < target_index) {
 				return target_index;
-			else
+			} else {
 				return source_index;
+			}
 		}
 	};
 
 	/*!
 	 * \brief Helper class to sort MehlhornTriples lexicographically
 	 */
-	class MehlhornTripleBucketMinFunc: public BucketFunc<MehlhornTriple> {
+	class MehlhornTripleBucketMinFunc : public BucketFunc<MehlhornTriple> {
 	public:
 		MehlhornTripleBucketMinFunc() { }
 
@@ -144,20 +145,19 @@ protected:
 			int source_index = MT.u->index();
 			int target_index = MT.v->index();
 			OGDF_ASSERT(source_index != target_index);
-			if (source_index < target_index)
+			if (source_index < target_index) {
 				return source_index;
-			else
+			} else {
 				return target_index;
+			}
 		}
 	};
 };
 
 template<typename T>
-T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
-                                                const List<node> &terminals,
-                                                const NodeArray<bool> &isTerminal,
-                                                EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	EdgeWeightedGraphCopy<T> completeTerminalGraph;
 	EdgeArray<edge> bridges;
 	Voronoi<T> voronoi(G, G.edgeWeights(), terminals);
@@ -179,12 +179,9 @@ T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 }
 
 template<typename T>
-void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG,
-                                                       const List<node> &terminals,
-                                                       const Voronoi<T> &voronoi,
-                                                       EdgeArray<edge> &bridges,
-                                                       EdgeWeightedGraphCopy<T> &completeTerminalGraph)
-{
+void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T>& wG,
+		const List<node>& terminals, const Voronoi<T>& voronoi, EdgeArray<edge>& bridges,
+		EdgeWeightedGraphCopy<T>& completeTerminalGraph) {
 	completeTerminalGraph.createEmpty(wG);
 
 	for (node v : terminals) {
@@ -197,12 +194,13 @@ void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T
 
 	// extract complete graph edges
 	List<MehlhornTriple> triples;
-	for(edge e : wG.edges) {
+	for (edge e : wG.edges) {
 		MehlhornTriple triple;
 		triple.u = voronoi.seed(e->source());
 		triple.v = voronoi.seed(e->target());
 		if (triple.u != triple.v) {
-			triple.value = voronoi.distance(e->source()) + voronoi.distance(e->target()) + wG.weight(e);
+			triple.value =
+					voronoi.distance(e->source()) + voronoi.distance(e->target()) + wG.weight(e);
 			triple.bridge = e;
 			triples.pushBack(triple);
 		}
@@ -222,7 +220,7 @@ void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T
 
 	for (ListConstIterator<MehlhornTriple> mtIt = triples.begin().succ(); mtIt.valid(); ++mtIt) {
 		if (((*mtIt).u->index() == currentSource && (*mtIt).v->index() == currentTarget)
-		 || ((*mtIt).u->index() == currentTarget && (*mtIt).v->index() == currentSource)) {
+				|| ((*mtIt).u->index() == currentTarget && (*mtIt).v->index() == currentSource)) {
 			if ((*mtIt).value < (*minTriple).value) {
 				minTriple = mtIt;
 			}
@@ -246,32 +244,26 @@ void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T
 }
 
 template<typename T>
-void MinSteinerTreeMehlhorn<T>::reinsertShortestPaths(EdgeWeightedGraphCopy<T> &completeTerminalGraph,
-                                                      const Voronoi<T> &voronoi,
-                                                      const NodeArray<edge> &mstPred,
-                                                      const EdgeArray<edge> &bridges,
-                                                      EdgeWeightedGraphCopy<T> &finalSteinerTree,
-                                                      const EdgeWeightedGraph<T> &wG)
-{
-	for(node u : completeTerminalGraph.nodes) {
+void MinSteinerTreeMehlhorn<T>::reinsertShortestPaths(EdgeWeightedGraphCopy<T>& completeTerminalGraph,
+		const Voronoi<T>& voronoi, const NodeArray<edge>& mstPred, const EdgeArray<edge>& bridges,
+		EdgeWeightedGraphCopy<T>& finalSteinerTree, const EdgeWeightedGraph<T>& wG) {
+	for (node u : completeTerminalGraph.nodes) {
 		if (mstPred[u] != nullptr) {
 			edge bridge = bridges[mstPred[u]];
 			node v = bridge->source();
 			node w = bridge->target();
 			insertPath(v, voronoi, finalSteinerTree, wG);
 			insertPath(w, voronoi, finalSteinerTree, wG);
-			edge e = finalSteinerTree.newEdge(finalSteinerTree.copy(v), finalSteinerTree.copy(w), wG.weight(bridge));
+			edge e = finalSteinerTree.newEdge(finalSteinerTree.copy(v), finalSteinerTree.copy(w),
+					wG.weight(bridge));
 			finalSteinerTree.setEdge(bridge, e);
 		}
 	}
 }
 
 template<typename T>
-void MinSteinerTreeMehlhorn<T>::insertPath(node u,
-                                           const Voronoi<T> &voronoi,
-                                           EdgeWeightedGraphCopy<T> &finalSteinerTree,
-                                           const EdgeWeightedGraph<T> &wG)
-{
+void MinSteinerTreeMehlhorn<T>::insertPath(node u, const Voronoi<T>& voronoi,
+		EdgeWeightedGraphCopy<T>& finalSteinerTree, const EdgeWeightedGraph<T>& wG) {
 	node currentSource;
 	node currentTarget = finalSteinerTree.copy(u);
 	if (!currentTarget) {
@@ -280,8 +272,11 @@ void MinSteinerTreeMehlhorn<T>::insertPath(node u,
 	edge e = voronoi.predecessorEdge(u);
 	edge newE;
 	while (e && finalSteinerTree.chain(e).empty()) { // e is not in ST yet
-		if ((currentSource = finalSteinerTree.copy(e->opposite(finalSteinerTree.original(currentTarget)))) == nullptr) {
-			currentSource = finalSteinerTree.newNode(e->opposite(finalSteinerTree.original(currentTarget)));
+		if ((currentSource = finalSteinerTree.copy(
+					 e->opposite(finalSteinerTree.original(currentTarget))))
+				== nullptr) {
+			currentSource =
+					finalSteinerTree.newNode(e->opposite(finalSteinerTree.original(currentTarget)));
 		}
 		if (finalSteinerTree.original(currentSource) == e->source()) {
 			newE = finalSteinerTree.newEdge(currentSource, currentTarget, wG.weight(e));
@@ -298,12 +293,12 @@ namespace steiner_tree {
 
 template<typename T>
 T constructTerminalSpanningTreeUsingVoronoiRegions(EdgeWeightedGraphCopy<T>& terminalSpanningTree,
-		const EdgeWeightedGraph<T>& graph,
-		const List<node>& terminals) {
+		const EdgeWeightedGraph<T>& graph, const List<node>& terminals) {
 	EdgeArray<edge> bridges;
 	Voronoi<T> voronoi(graph, graph.edgeWeights(), terminals);
 
-	MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(graph, terminals, voronoi, bridges, terminalSpanningTree);
+	MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(graph, terminals, voronoi, bridges,
+			terminalSpanningTree);
 
 	return makeMinimumSpanningTree(terminalSpanningTree, terminalSpanningTree.edgeWeights());
 }

@@ -35,12 +35,10 @@
 #include <ogdf/basic/Timeouter.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
-
-#include <ogdf/planarity/PlanarSubgraphModule.h>
-#include <ogdf/cluster/MaximumCPlanarSubgraph.h>
 #include <ogdf/cluster/ClusterGraph.h>
-
+#include <ogdf/cluster/MaximumCPlanarSubgraph.h>
 #include <ogdf/external/abacus.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 
 namespace ogdf {
 
@@ -49,15 +47,15 @@ namespace ogdf {
  * @ingroup ga-plansub
  */
 template<typename TCost>
-class MaximumPlanarSubgraph : public PlanarSubgraphModule<TCost>
-{
+class MaximumPlanarSubgraph : public PlanarSubgraphModule<TCost> {
 public:
 	// Construction
-	MaximumPlanarSubgraph() {}
-	// Destruction
-	virtual ~MaximumPlanarSubgraph() {}
+	MaximumPlanarSubgraph() { }
 
-	virtual MaximumPlanarSubgraph *clone() const override { return new MaximumPlanarSubgraph(); }
+	// Destruction
+	virtual ~MaximumPlanarSubgraph() { }
+
+	virtual MaximumPlanarSubgraph* clone() const override { return new MaximumPlanarSubgraph(); }
 
 protected:
 	// Implements the Planar Subgraph interface.
@@ -67,63 +65,57 @@ protected:
 	// in order to get a planar subgraph; edges in preferredEdges
 	// should be contained in planar subgraph.
 	// Status: pCost and preferredEdges are ignored in current implementation.
-	virtual Module::ReturnType doCall(
-		const Graph &G,
-		const List<edge> &preferredEdges,
-		List<edge> &delEdges,
-		const EdgeArray<TCost> *pCost,
-		bool preferredImplyPlanar) override
-	{
-		if (G.numberOfEdges() < 9)
+	virtual Module::ReturnType doCall(const Graph& G, const List<edge>& preferredEdges,
+			List<edge>& delEdges, const EdgeArray<TCost>* pCost, bool preferredImplyPlanar) override {
+		if (G.numberOfEdges() < 9) {
 			return Module::ReturnType::Optimal;
+		}
 
 		//if the graph is planar, we don't have to do anything
-		if (isPlanar(G))
+		if (isPlanar(G)) {
 			return Module::ReturnType::Optimal;
+		}
 
 		//Exact ILP
 		MaximumCPlanarSubgraph mc;
 
 		delEdges.clear();
 
-		NodeArray<node> tableNodes(G,nullptr);
-		EdgeArray<edge> tableEdges(G,nullptr);
-		NodeArray<bool> mark(G,0);
+		NodeArray<node> tableNodes(G, nullptr);
+		EdgeArray<edge> tableEdges(G, nullptr);
+		NodeArray<bool> mark(G, 0);
 
 		EdgeArray<int> componentID(G);
 
 		// Determine biconnected components
-		int bcCount = biconnectedComponents(G,componentID);
+		int bcCount = biconnectedComponents(G, componentID);
 		OGDF_ASSERT(bcCount >= 1);
 
 		// Determine edges per biconnected component
-		Array<SList<edge> > blockEdges(0,bcCount-1);
-		for(edge e : G.edges)
-		{
-			if (!e->isSelfLoop())
+		Array<SList<edge>> blockEdges(0, bcCount - 1);
+		for (edge e : G.edges) {
+			if (!e->isSelfLoop()) {
 				blockEdges[componentID[e]].pushFront(e);
+			}
 		}
 
 		// Determine nodes per biconnected component.
-		Array<SList<node> > blockNodes(0,bcCount-1);
+		Array<SList<node>> blockNodes(0, bcCount - 1);
 		int i;
-		for (i = 0; i < bcCount; i++)
-		{
-			for (edge e : blockEdges[i])
-			{
-				if (!mark[e->source()])
-				{
+		for (i = 0; i < bcCount; i++) {
+			for (edge e : blockEdges[i]) {
+				if (!mark[e->source()]) {
 					blockNodes[i].pushBack(e->source());
 					mark[e->source()] = true;
 				}
-				if (!mark[e->target()])
-				{
+				if (!mark[e->target()]) {
 					blockNodes[i].pushBack(e->target());
 					mark[e->target()] = true;
 				}
 			}
-			for (node v : blockNodes[i])
+			for (node v : blockNodes[i]) {
 				mark[v] = false;
+			}
 		}
 
 
@@ -131,26 +123,21 @@ protected:
 		Module::ReturnType mr;
 		if (bcCount == 1) {
 			mr = callWithDouble(mc, G, pCost, delEdges);
-		}
-		else
-		{
-			for (i = 0; i < bcCount; i++)
-			{
+		} else {
+			for (i = 0; i < bcCount; i++) {
 				Graph C;
 
-				for (node v : blockNodes[i])
-				{
+				for (node v : blockNodes[i]) {
 					node w = C.newNode();
 					tableNodes[v] = w;
 				}
 
 				EdgeArray<double> cost(C);
 
-				for (edge e : blockEdges[i])
-				{
-					edge f = C.newEdge(tableNodes[e->source()],tableNodes[e->target()]);
+				for (edge e : blockEdges[i]) {
+					edge f = C.newEdge(tableNodes[e->source()], tableNodes[e->target()]);
 					tableEdges[e] = f;
-					if(pCost != nullptr) {
+					if (pCost != nullptr) {
 						cost[tableEdges[e]] = (*pCost)[e];
 					}
 				}
@@ -159,9 +146,10 @@ protected:
 				// Necessary, since edges are deleted in a new graph
 				// that represents the current biconnected component
 				// of the original graph.
-				EdgeArray<edge> backTableEdges(C,nullptr);
-				for (edge e : blockEdges[i])
+				EdgeArray<edge> backTableEdges(C, nullptr);
+				for (edge e : blockEdges[i]) {
 					backTableEdges[tableEdges[e]] = e;
+				}
 
 				// The deleted edges of the biconnected component
 				List<edge> delEdgesOfBC;
@@ -170,14 +158,15 @@ protected:
 				mr = mc.call(CG, pCost == nullptr ? nullptr : &cost, delEdgesOfBC);
 
 				// Abort if no optimal solution found, i.e., feasible is also not allowed
-				if (mr != Module::ReturnType::Optimal)
+				if (mr != Module::ReturnType::Optimal) {
 					break;
+				}
 
 				// Get the original edges that are deleted and
 				// put them on the list delEdges.
-				while (!delEdgesOfBC.empty())
+				while (!delEdgesOfBC.empty()) {
 					delEdges.pushBack(backTableEdges[delEdgesOfBC.popFrontRet()]);
-
+				}
 			}
 		}
 		return mr;
@@ -188,11 +177,11 @@ private:
 	// Call algorithm with costs as double. All underlying algorithms cast the costs to double on use eventually.
 	// However, only convert the costs if they are not given as double already.
 	template<typename U = TCost>
-	Module::ReturnType callWithDouble(MaximumCPlanarSubgraph &mc, const Graph &G, const EdgeArray<U> *pCost, List<edge> &delEdges) {
+	Module::ReturnType callWithDouble(MaximumCPlanarSubgraph& mc, const Graph& G,
+			const EdgeArray<U>* pCost, List<edge>& delEdges) {
 		if (pCost == nullptr) {
 			return callWithDouble(mc, G, nullptr, delEdges);
-		}
-		else {
+		} else {
 			EdgeArray<double> dCost(G);
 			for (auto it = pCost->begin(); it != pCost->end(); ++it) {
 				dCost[it.key()] = it.value();
@@ -200,7 +189,9 @@ private:
 			return callWithDouble(mc, G, &dCost, delEdges);
 		}
 	}
-	Module::ReturnType callWithDouble(MaximumCPlanarSubgraph &mc, const Graph &G, const EdgeArray<double> *pCost, List<edge> &delEdges) {
+
+	Module::ReturnType callWithDouble(MaximumCPlanarSubgraph& mc, const Graph& G,
+			const EdgeArray<double>* pCost, List<edge>& delEdges) {
 		ClusterGraph CG(G);
 		return mc.call(CG, pCost, delEdges);
 	}

@@ -32,13 +32,14 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
-template<bool isConst> class DualGraphBase;
+template<bool isConst>
+class DualGraphBase;
 
 using DualGraph = DualGraphBase<true>;
 
@@ -52,18 +53,16 @@ using DynamicDualGraph = DualGraphBase<false>;
  * @ingroup graphs
  */
 template<bool isConst>
-class OGDF_EXPORT DualGraphBase : public CombinatorialEmbedding
-{
+class OGDF_EXPORT DualGraphBase : public CombinatorialEmbedding {
 public:
-	using Embedding = typename std::conditional<isConst,
-		  const ConstCombinatorialEmbedding, CombinatorialEmbedding>::type;
+	using Embedding = typename std::conditional<isConst, const ConstCombinatorialEmbedding,
+			CombinatorialEmbedding>::type;
 
 	//! Constructor; creates dual graph and its combinatorial embedding
-	explicit DualGraphBase(Embedding &CE) : m_primalEmbedding(CE)
-	{
-		const Graph &primalGraph = CE.getGraph();
+	explicit DualGraphBase(Embedding& CE) : m_primalEmbedding(CE) {
+		const Graph& primalGraph = CE.getGraph();
 		init(*(new Graph));
-		Graph &dualGraph = getGraph();
+		Graph& dualGraph = getGraph();
 
 		m_dualNode.init(CE);
 		m_dualEdge.init(primalGraph);
@@ -77,16 +76,14 @@ public:
 		m_primalEdge.init(dualGraph);
 
 		// create dual nodes
-		for(face f : CE.faces)
-		{
+		for (face f : CE.faces) {
 			node vDual = dualGraph.newNode();
 			m_dualNode[f] = vDual;
 			m_primalFace[vDual] = f;
 		}
 
 		// create dual edges
-		for(edge e : primalGraph.edges)
-		{
+		for (edge e : primalGraph.edges) {
 			adjEntry aE = e->adjSource();
 			node vDualSource = m_dualNode[CE.rightFace(aE)];
 			node vDualTarget = m_dualNode[CE.leftFace(aE)];
@@ -96,17 +93,15 @@ public:
 		}
 
 		// sort adjElements of every dual node corresponding to dual embedding
-		for(face f : CE.faces)
-		{
+		for (face f : CE.faces) {
 			node vDual = m_dualNode[f];
 			List<adjEntry> newOrder;
 
-			for(adjEntry adj : f->entries) {
+			for (adjEntry adj : f->entries) {
 				edge e = adj->theEdge();
 				edge eDual = m_dualEdge[e];
 				bool isSource = adj == e->adjSource();
-				adjEntry adjDual = isSource ?
-					eDual->adjSource() : eDual->adjTarget();
+				adjEntry adjDual = isSource ? eDual->adjSource() : eDual->adjTarget();
 				newOrder.pushBack(adjDual);
 			}
 
@@ -116,13 +111,13 @@ public:
 		// calculate dual faces and links to corresponding primal nodes
 		computeFaces();
 
-		for(node v : primalGraph.nodes)
-		{
+		for (node v : primalGraph.nodes) {
 			edge ePrimal = v->firstAdj()->theEdge();
 			edge eDual = m_dualEdge[ePrimal];
 			face fDual = rightFace(eDual->adjSource());
-			if(ePrimal->source()==v)
+			if (ePrimal->source() == v) {
 				fDual = leftFace(eDual->adjSource());
+			}
 
 			OGDF_ASSERT(m_primalNode[fDual] == nullptr);
 
@@ -132,17 +127,16 @@ public:
 	}
 
 	//! Destructor
-	~DualGraphBase<isConst>()
-	{
+	~DualGraphBase() {
 		clear();
 		delete m_cpGraph;
 	}
 
 	//! Returns a reference to the combinatorial embedding of the primal graph
-	Embedding &getPrimalEmbedding() const { return m_primalEmbedding; }
+	Embedding& getPrimalEmbedding() const { return m_primalEmbedding; }
 
 	//! Returns a reference to the primal graph
-	const Graph &getPrimalGraph() const { return m_primalEmbedding.getGraph(); }
+	const Graph& getPrimalGraph() const { return m_primalEmbedding.getGraph(); }
 
 	//! @name Lookup functions
 	//! @{
@@ -152,42 +146,42 @@ public:
 	* @param f is a face in the embedding of the dual graph
 	* \return the corresponding node in the primal graph
 	*/
-	const node &primalNode(face f) const { return m_primalNode[f]; }
+	const node& primalNode(face f) const { return m_primalNode[f]; }
 
 	//! Returns the edge in the primal graph corresponding to \p e.
 	/**
 	* @param e is an edge in the dual graph
 	* \return the corresponding edge in the primal graph
 	*/
-	const edge &primalEdge(edge e) const { return m_primalEdge[e]; }
+	const edge& primalEdge(edge e) const { return m_primalEdge[e]; }
 
 	//! Returns the face in the embedding of the primal graph corresponding to \p v.
 	/**
 	* @param v is a node in the dual graph
 	* \return the corresponding face in the embedding of the primal graph
 	*/
-	const face &primalFace(node v) const { return m_primalFace[v]; }
+	const face& primalFace(node v) const { return m_primalFace[v]; }
 
 	//! Returns the node in the dual graph corresponding to \p f.
 	/**
 	* @param f is a face in the embedding of the primal graph
 	* \return the corresponding node in the dual graph
 	*/
-	const node &dualNode(face f) const { return m_dualNode[f]; }
+	const node& dualNode(face f) const { return m_dualNode[f]; }
 
 	//! Returns the edge in the dual graph corresponding to \p e.
 	/**
 	* @param e is an edge in the primal graph
 	* \return the corresponding edge in the dual graph
 	*/
-	const edge &dualEdge(edge e) const { return m_dualEdge[e]; }
+	const edge& dualEdge(edge e) const { return m_dualEdge[e]; }
 
 	//! Returns the face in the embedding of the dual graph corresponding to \p v.
 	/**
 	* @param v is a node in the primal graph
 	* \return the corresponding face in the embedding of the dual graph
 	*/
-	const face &dualFace(node v) const { return m_dualFace[v]; }
+	const face& dualFace(node v) const { return m_dualFace[v]; }
 
 	//! @}
 	//! @name Updating the dual graph (also updates primal embedding)
@@ -208,8 +202,7 @@ public:
 		node newPrimalNode {newPrimalEdge->source()};
 
 		// Create new edge in the dual graph.
-		edge newDualEdge {CombinatorialEmbedding::splitFace(
-				oldDualEdge->adjSource(),
+		edge newDualEdge {CombinatorialEmbedding::splitFace(oldDualEdge->adjSource(),
 				oldDualEdge->adjSource()->faceCycleSucc())};
 		face newDualFace {leftFace(newDualEdge->adjSource())};
 
@@ -261,10 +254,8 @@ public:
 		// Split face in the dual graph.
 		adjEntry dualAdjLeft {dualAdj(adjStartLeft, true)};
 		adjEntry dualAdjRight {dualAdj(adjStartRight, true)};
-		OGDF_ASSERT(dualAdjLeft->theNode() ==
-			m_dualNode[m_primalEmbedding.leftFace(adjStartLeft)]);
-		OGDF_ASSERT(dualAdjRight->theNode() ==
-			m_dualNode[m_primalEmbedding.leftFace(adjStartRight)]);
+		OGDF_ASSERT(dualAdjLeft->theNode() == m_dualNode[m_primalEmbedding.leftFace(adjStartLeft)]);
+		OGDF_ASSERT(dualAdjRight->theNode() == m_dualNode[m_primalEmbedding.leftFace(adjStartRight)]);
 		edge newDualEdge {CombinatorialEmbedding::splitFace(dualAdjLeft, dualAdjRight)};
 		face newDualFace {leftFace(newDualEdge->adjSource())};
 
@@ -391,7 +382,7 @@ public:
 #ifdef OGDF_DEBUG
 		face newDualFace =
 #endif
-			CombinatorialEmbedding::joinFaces(dualEdge);
+				CombinatorialEmbedding::joinFaces(dualEdge);
 
 		OGDF_ASSERT(m_dualFace[otherPrimalNode] == newDualFace);
 		OGDF_ASSERT(m_primalNode[newDualFace] == otherPrimalNode);
@@ -417,8 +408,8 @@ public:
 	void consistencyCheck() const {
 		Embedding::consistencyCheck();
 
-		const Graph &primalGraph {m_primalEmbedding.getGraph()};
-		const Graph &dualGraph {getGraph()};
+		const Graph& primalGraph {m_primalEmbedding.getGraph()};
+		const Graph& dualGraph {getGraph()};
 		OGDF_ASSERT(primalGraph.numberOfNodes() == numberOfFaces());
 		OGDF_ASSERT(primalGraph.numberOfEdges() == dualGraph.numberOfEdges());
 		OGDF_ASSERT(m_primalEmbedding.numberOfFaces() == dualGraph.numberOfNodes());
@@ -430,10 +421,8 @@ public:
 			OGDF_ASSERT(m_dualEdge[m_primalEdge[eDual]] == eDual);
 
 			// A dual edge leads from the right to the left face of its primal edge.
-			OGDF_ASSERT(leftFace(eDual->adjSource()) ==
-				m_dualFace[m_primalEdge[eDual]->source()]);
-			OGDF_ASSERT(rightFace(eDual->adjSource()) ==
-				m_dualFace[m_primalEdge[eDual]->target()]);
+			OGDF_ASSERT(leftFace(eDual->adjSource()) == m_dualFace[m_primalEdge[eDual]->source()]);
+			OGDF_ASSERT(rightFace(eDual->adjSource()) == m_dualFace[m_primalEdge[eDual]->target()]);
 		}
 		for (face fDual : Embedding::faces) {
 			OGDF_ASSERT(m_dualFace[m_primalNode[fDual]] == fDual);
@@ -442,7 +431,7 @@ public:
 #endif
 
 protected:
-	Embedding &m_primalEmbedding; //!< The embedding of the primal graph.
+	Embedding& m_primalEmbedding; //!< The embedding of the primal graph.
 	FaceArray<node> m_primalNode; //!< The corresponding node in the primal graph.
 	NodeArray<face> m_primalFace; //!< The corresponding facee in the embedding of the primal graph.
 	EdgeArray<edge> m_primalEdge; //!< The corresponding edge in the primal graph.
@@ -462,10 +451,8 @@ private:
 		face oldDualFace {m_dualFace[oldPrimalNode]};
 
 		adjEntry primalAdj {adj->faceCyclePred()};
-		edge newPrimalEdge {adjSrc ?
-			m_primalEmbedding.addEdgeToIsolatedNode(adj, v) :
-			m_primalEmbedding.addEdgeToIsolatedNode(v, adj)
-		};
+		edge newPrimalEdge {adjSrc ? m_primalEmbedding.addEdgeToIsolatedNode(adj, v)
+								   : m_primalEmbedding.addEdgeToIsolatedNode(v, adj)};
 		// If the new primal edge goes from v to adj, the new dual self-loop has to
 		// go from its right to its left side. Hence, we pass !adjSrc to splitFace().
 		adjEntry dualAdjEntry {dualAdj(primalAdj)};
@@ -501,9 +488,8 @@ private:
 	//! Returns the corresponding adjEntry of the dual edge of \p primalAdj
 	//! (or the opposite adjEntry of the dual edge if \p reverse is set).
 	inline adjEntry dualAdj(adjEntry primalAdj, bool reverse = false) {
-		return primalAdj->isSource() != reverse ?
-			m_dualEdge[primalAdj->theEdge()]->adjSource() :
-			m_dualEdge[primalAdj->theEdge()]->adjTarget();
+		return primalAdj->isSource() != reverse ? m_dualEdge[primalAdj->theEdge()]->adjSource()
+												: m_dualEdge[primalAdj->theEdge()]->adjTarget();
 	}
 };
 

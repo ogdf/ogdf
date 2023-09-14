@@ -35,31 +35,27 @@
  */
 
 #include <ogdf/basic/basic.h>
-
 #include <ogdf/cluster/internal/ClusterKuratowskiConstraint.h>
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
-ClusterKuratowskiConstraint::ClusterKuratowskiConstraint(Master *master, int nEdges, SListPure<NodePair> &ks) :
-	Constraint(master, nullptr, CSense::Less, nEdges-1, true, false, true)
-{
-	for (const NodePair &np : ks) {
+ClusterKuratowskiConstraint::ClusterKuratowskiConstraint(Master* master, int nEdges,
+		SListPure<NodePair>& ks)
+	: Constraint(master, nullptr, CSense::Less, nEdges - 1, true, false, true) {
+	for (const NodePair& np : ks) {
 		m_subdivision.pushBack(np);
 	}
 }
 
+ClusterKuratowskiConstraint::~ClusterKuratowskiConstraint() { }
 
-ClusterKuratowskiConstraint::~ClusterKuratowskiConstraint() {}
-
-
-double ClusterKuratowskiConstraint::coeff(const Variable *v) const {
-	const EdgeVar *e = static_cast<const EdgeVar*>(v);
-	for (const NodePair &np : m_subdivision) {
-		if( (np.source == e->sourceNode() && np.target == e->targetNode()) ||
-			(np.source == e->targetNode() && np.target == e->sourceNode()) )
-		{
+double ClusterKuratowskiConstraint::coeff(const Variable* v) const {
+	const EdgeVar* e = static_cast<const EdgeVar*>(v);
+	for (const NodePair& np : m_subdivision) {
+		if ((np.source == e->sourceNode() && np.target == e->targetNode())
+				|| (np.source == e->targetNode() && np.target == e->sourceNode())) {
 			return 1.0;
 		}
 	}

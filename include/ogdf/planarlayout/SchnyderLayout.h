@@ -33,8 +33,8 @@
 #pragma once
 
 #include <ogdf/basic/Graph_d.h>
-#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 
 namespace ogdf {
 
@@ -58,7 +58,6 @@ namespace ogdf {
  * Order 5.4 (1989): 323-343.
  */
 class OGDF_EXPORT SchnyderLayout : public PlanarGridLayoutModule {
-
 public:
 	SchnyderLayout();
 
@@ -69,12 +68,12 @@ public:
 	 */
 	enum class CombinatorialObjects {
 		VerticesMinusDepth, //!< Count the number of vertices in each region i and
-		                    //!< subtract the depth of the (i-1)-path of the node.
-		                    //!< This approach is outlined in [Sch90].
-		                    //!< The grid layout size is (n - 2) × (n - 2).
-		Faces               //!< Count the number of faces in each region i.
-		                    //!< This approach is outlined in [Sch89].
-		                    //!< The grid layout size is (2n - 5) × (2n - 5).
+		//!< subtract the depth of the (i-1)-path of the node.
+		//!< This approach is outlined in [Sch90].
+		//!< The grid layout size is (n - 2) × (n - 2).
+		Faces //!< Count the number of faces in each region i.
+		//!< This approach is outlined in [Sch89].
+		//!< The grid layout size is (2n - 5) × (2n - 5).
 	};
 
 	//! Returns the type of combinatorial objects whose number corresponds to the node coordinates.
@@ -86,46 +85,24 @@ public:
 	}
 
 protected:
-	virtual void doCall(
-		const Graph &G,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding) override;
+	virtual void doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+			IPoint& boundingBox, bool fixEmbedding) override;
 
 private:
 	void contract(Graph& G, node a, node b, node c, List<node>& L);
 
-	void realizer(
-		GraphCopy& G,
-		const List<node>& L,
-		node a,
-		node b,
-		node c,
-		EdgeArray<int>& rValues,
-		GraphCopy& T);
+	void realizer(GraphCopy& G, const List<node>& L, node a, node b, node c,
+			EdgeArray<int>& rValues, GraphCopy& T);
 
-	void subtreeSizes(
-		EdgeArray<int>& rValues,
-		int i,
-		node r,
-		NodeArray<int>& size);
+	void subtreeSizes(EdgeArray<int>& rValues, int i, node r, NodeArray<int>& size);
 
-	void prefixSum(
-		EdgeArray<int>& rValues,
-		int i,
-		node r,
-		const NodeArray<int>& val,
-		NodeArray<int>& sum);
+	void prefixSum(EdgeArray<int>& rValues, int i, node r, const NodeArray<int>& val,
+			NodeArray<int>& sum);
 
-	void schnyderEmbedding(
-		GraphCopy& GC,
-		GridLayout &gridLayout,
-		adjEntry adjExternal);
+	void schnyderEmbedding(GraphCopy& GC, GridLayout& gridLayout, adjEntry adjExternal);
 
 	//! Determines how the barycentric coordinates of each node are computed.
 	CombinatorialObjects m_combinatorialObjects;
-
 };
 
 }

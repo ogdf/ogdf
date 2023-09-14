@@ -52,9 +52,8 @@ namespace ogdf {
  *        > 0 is chosen and its first neighbor is used as t.
  * @return the number assigned to \p t, or 0 if no st-numbering could be computed.
  */
-OGDF_EXPORT int computeSTNumbering(const Graph &G, NodeArray<int> &numbering,
-                                   node s = nullptr, node t = nullptr,
-                                   bool randomized = false);
+OGDF_EXPORT int computeSTNumbering(const Graph& G, NodeArray<int>& numbering, node s = nullptr,
+		node t = nullptr, bool randomized = false);
 
 //! Tests, whether a numbering of the nodes is an st-numbering.
 /**
@@ -63,6 +62,6 @@ OGDF_EXPORT int computeSTNumbering(const Graph &G, NodeArray<int> &numbering,
  * \pre \p G must be biconnected and simple, with the exception that
  * the graph is allowed to have isolated nodes.
  */
-OGDF_EXPORT bool isSTNumbering(const Graph &G, NodeArray<int> &st_no, int max);
+OGDF_EXPORT bool isSTNumbering(const Graph& G, NodeArray<int>& st_no, int max);
 
 }

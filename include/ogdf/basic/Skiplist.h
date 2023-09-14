@@ -36,7 +36,8 @@
 
 namespace ogdf {
 
-template<class X> class SkiplistIterator;
+template<class X>
+class SkiplistIterator;
 
 //! A randomized skiplist
 /**
@@ -47,7 +48,8 @@ template<class X> class SkiplistIterator;
  * \warning The code expects the type \a X to be a pointer! If \a X is not a pointer,
  * compiler errors will occur!
  */
-template<class X> class Skiplist {
+template<class X>
+class Skiplist {
 	friend class SkiplistIterator<X>;
 	friend class Element;
 
@@ -60,26 +62,22 @@ template<class X> class Skiplist {
 		Element** next; // successor elements
 
 		// construction
-		Element(const X &item, int height) :
-		entry(item) {
-			next = (Element**)malloc(height*sizeof(Element*));
+		Element(const X& item, int height) : entry(item) {
+			next = (Element**)malloc(height * sizeof(Element*));
 		}
 
-		~Element() {
-			free(next);
-		}
+		~Element() { free(next); }
 
 		OGDF_NEW_DELETE
 	};
 
 public:
-
 	//! Construct an initially empty skiplist
 	Skiplist() : m_lSize(0) {
 		srand((unsigned int)time(nullptr));
 		m_realheight = 5;
 		m_height = 1;
-		m_start = (Element**)malloc(m_realheight*sizeof(Element*));
+		m_start = (Element**)malloc(m_realheight * sizeof(Element*));
 		m_start[0] = nullptr;
 	}
 
@@ -92,11 +90,12 @@ public:
 	bool isElement(X item) const {
 		int h = m_height - 1;
 		Element** cur = m_start; // wheeha!
-		while(true)	{
-			if( cur[h] && *(cur[h]->entry) < *item ) //nxt != nullptr
+		while (true) {
+			if (cur[h] && *(cur[h]->entry) < *item) { //nxt != nullptr
 				cur = cur[h]->next;
-			else if(--h < 0)
+			} else if (--h < 0) {
 				return cur[0] && *(cur[0]->entry) == *item;
+			}
 		}
 	}
 
@@ -106,21 +105,23 @@ public:
 
 		int nh = random_height();
 		Element* n = new Element(item, nh);
-		if(nh > m_height)
+		if (nh > m_height) {
 			grow(nh);
+		}
 
 		int h = m_height - 1;
 		Element** cur = m_start; // wheeha!
-		while(true)	 {
-			if( cur[h] && *(cur[h]->entry) < *item ) //nxt != nullptr
+		while (true) {
+			if (cur[h] && *(cur[h]->entry) < *item) { //nxt != nullptr
 				cur = cur[h]->next;
-			else {
-				if(h < nh) { // add only if new element is high enough
+			} else {
+				if (h < nh) { // add only if new element is high enough
 					n->next[h] = cur[h];
 					cur[h] = n;
 				}
-				if(--h < 0)
+				if (--h < 0) {
 					return;
+				}
 			}
 		}
 	}
@@ -138,11 +139,12 @@ public:
 	*/
 	void clear(bool killData = false) {
 		Element* item = m_start[0];
-		while(item) {
+		while (item) {
 			Element* old = item;
 			item = item->next[0];
-			if(killData)
+			if (killData) {
 				delete old->entry;
+			}
 			delete old;
 		}
 		m_lSize = 0;
@@ -164,48 +166,51 @@ private:
 
 	int random_height() {
 		int h = 1;
-		while(rand() > RAND_MAX/2) h++;
+		while (rand() > RAND_MAX / 2) {
+			h++;
+		}
 		return h;
 	}
 
 	void grow(int newheight) {
-		if(newheight > m_realheight) {
+		if (newheight > m_realheight) {
 			m_realheight = newheight;
-			Element** newStart = static_cast<Element**>(realloc(m_start, m_realheight*sizeof(Element*)));
+			Element** newStart =
+					static_cast<Element**>(realloc(m_start, m_realheight * sizeof(Element*)));
 			if (newStart == nullptr) {
 				free(m_start);
 			} else {
 				m_start = newStart;
 			}
 		}
-		for(int i = newheight; i-- > m_height;) {
+		for (int i = newheight; i-- > m_height;) {
 			m_start[i] = nullptr;
 		}
 		m_height = newheight;
 	}
-
 };
 
 //! Forward-Iterator for Skiplists
-template<class X> class SkiplistIterator {
+template<class X>
+class SkiplistIterator {
 	friend class Skiplist<X>;
 
-	const typename Skiplist<X>::Element *el;
+	const typename Skiplist<X>::Element* el;
 
-	SkiplistIterator(const typename Skiplist<X>::Element *e) { el = e; }
+	SkiplistIterator(const typename Skiplist<X>::Element* e) { el = e; }
 
 public:
-
 	//! Returns the item to which the iterator points
-	const X &operator*() const { return el->entry; }
+	const X& operator*() const { return el->entry; }
 
 	bool valid() const { return el != nullptr; }
 
 	//! Move the iterator one item forward (prefix notation)
-	SkiplistIterator<X> &operator++() {
+	SkiplistIterator<X>& operator++() {
 		el = el->next[0];
 		return *this;
 	}
+
 	//! Move the iterator one item forward (prefix notation)
 	SkiplistIterator<X> operator++(int) {
 		SkiplistIterator<X> it = *this;
@@ -213,13 +218,9 @@ public:
 		return it;
 	}
 
-	bool operator==(const SkiplistIterator<X> other) const {
-		return el == other.el;
-	}
+	bool operator==(const SkiplistIterator<X> other) const { return el == other.el; }
 
-	bool operator!=(const SkiplistIterator<X> other) const {
-		return !operator==(other);
-	}
+	bool operator!=(const SkiplistIterator<X> other) const { return !operator==(other); }
 };
 
 }

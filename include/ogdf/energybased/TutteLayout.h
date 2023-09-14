@@ -31,11 +31,11 @@
 
 #pragma once
 
+#include <coin/CoinPackedMatrix.hpp>
+
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/external/coin.h>
-
-#include <coin/CoinPackedMatrix.hpp>
 
 namespace ogdf {
 
@@ -53,43 +53,32 @@ namespace ogdf {
  *
  * \pre Input graphs need to be triconnected.
  */
-class OGDF_EXPORT TutteLayout : public LayoutModule
-{
+class OGDF_EXPORT TutteLayout : public LayoutModule {
 public:
 	TutteLayout();
 
-	DRect bbox () const {
-		return m_bbox;
-	}
+	DRect bbox() const { return m_bbox; }
 
-	void bbox (const DRect &bb) {
-		m_bbox = bb;
-	}
+	void bbox(const DRect& bb) { m_bbox = bb; }
 
-	virtual void call(GraphAttributes &AG) override;
-	void call(GraphAttributes &AG, const List<node> &givenNodes);
+	virtual void call(GraphAttributes& AG) override;
+	void call(GraphAttributes& AG, const List<node>& givenNodes);
 
 private:
-	static bool solveLP(
-		int cols,
-		const CoinPackedMatrix &Matrix,
-		const Array<double> &rightHandSide,
-		Array<double> &x);
+	static bool solveLP(int cols, const CoinPackedMatrix& Matrix,
+			const Array<double>& rightHandSide, Array<double>& x);
 
-	void setFixedNodes(const Graph &G, List<node> &nodes,
-		List<DPoint> &pos, double radius = 1.0);
+	void setFixedNodes(const Graph& G, List<node>& nodes, List<DPoint>& pos, double radius = 1.0);
 
 	/*! sets the positions of the nodes in a largest face of $G$ in the
 	*  form of a regular $k$-gon with the prescribed radius. The
 	*  corresponding nodes and their positions are stored in nodes
 	*  and pos, respectively. $G$ does not have to be planar!
 	*/
-	void setFixedNodes(const Graph &G, List<node> &nodes, const List<node> &givenNodes,
-		List<DPoint> &pos, double radius = 1.0);
+	void setFixedNodes(const Graph& G, List<node>& nodes, const List<node>& givenNodes,
+			List<DPoint>& pos, double radius = 1.0);
 
-	bool doCall(GraphAttributes &AG,
-		const List<node> &fixedNodes,
-		List<DPoint> &fixedPositions);
+	bool doCall(GraphAttributes& AG, const List<node>& fixedNodes, List<DPoint>& fixedPositions);
 
 	DRect m_bbox;
 };

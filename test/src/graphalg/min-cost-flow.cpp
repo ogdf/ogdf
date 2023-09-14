@@ -29,12 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "ogdf/graphalg/MinCostFlowReinelt.h"
+#include <ogdf/graphalg/MinCostFlowReinelt.h>
+
 #include <testing.h>
 
 template<typename TCost>
-void testModule(const char *name, MinCostFlowModule<TCost> *alg, TCost base)
-{
+void testModule(const char* name, MinCostFlowModule<TCost>* alg, TCost base) {
 	describe(name, [&]() {
 		Graph G;
 		node s = G.newNode();
@@ -67,8 +67,8 @@ void testModule(const char *name, MinCostFlowModule<TCost> *alg, TCost base)
 		it("works with non-negative cost", [&]() {
 			EdgeArray<int> cap(G, 10000);
 			cap[ab] = 1;
-			EdgeArray<TCost> cost(G, 100*base);
-			cost[at] = 99*base;
+			EdgeArray<TCost> cost(G, 100 * base);
+			cost[at] = 99 * base;
 			cost[ab] = 0;
 			cost[sa] = base;
 			cost[bt] = base;
@@ -121,9 +121,11 @@ void testModule(const char *name, MinCostFlowModule<TCost> *alg, TCost base)
 }
 
 go_bandit([]() {
-describe("Min-Cost Flow algorithms", []() {
-	testModule<int>("MinCostFlowReinelt with integral cost", new MinCostFlowReinelt<int>(), 1);
-	testModule<double>("MinCostFlowReinelt wit real (double) cost [1]", new MinCostFlowReinelt<double>(), 1.92);
-	testModule<double>("MinCostFlowReinelt wit real (double) cost [2]", new MinCostFlowReinelt<double>(), 0.1432);
-});
+	describe("Min-Cost Flow algorithms", []() {
+		testModule<int>("MinCostFlowReinelt with integral cost", new MinCostFlowReinelt<int>(), 1);
+		testModule<double>("MinCostFlowReinelt wit real (double) cost [1]",
+				new MinCostFlowReinelt<double>(), 1.92);
+		testModule<double>("MinCostFlowReinelt wit real (double) cost [2]",
+				new MinCostFlowReinelt<double>(), 0.1432);
+	});
 });

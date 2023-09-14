@@ -36,46 +36,45 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/basic/PQTree.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 #include <ogdf/planarity/planar_subgraph_fast/MaxSequencePQTree.h>
 
 namespace ogdf {
 
-class OGDF_EXPORT PlanarSubgraphPQTree: public MaxSequencePQTree<edge,bool> {
+class OGDF_EXPORT PlanarSubgraphPQTree : public MaxSequencePQTree<edge, bool> {
 public:
 	using PlanarLeafKey = booth_lueker::PlanarLeafKey<whaInfo*>;
 
-	PlanarSubgraphPQTree() : MaxSequencePQTree<edge,bool>() { }
+	PlanarSubgraphPQTree() : MaxSequencePQTree<edge, bool>() { }
 
 	virtual ~PlanarSubgraphPQTree() { }
 
 	//! Initializes a new PQ-tree with a set of leaves.
-	virtual int Initialize(SListPure<PlanarLeafKey*> &leafKeys);
+	virtual int Initialize(SListPure<PlanarLeafKey*>& leafKeys);
 
-	int Initialize(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) override {
-		return MaxSequencePQTree<edge,bool>::Initialize(leafKeys);
+	int Initialize(SListPure<PQLeafKey<edge, whaInfo*, bool>*>& leafKeys) override {
+		return MaxSequencePQTree<edge, bool>::Initialize(leafKeys);
 	}
 
 	//! Replaces the pertinent subtree by a set of new leaves.
-	void ReplaceRoot(SListPure<PlanarLeafKey*> &leafKeys);
+	void ReplaceRoot(SListPure<PlanarLeafKey*>& leafKeys);
 
 	//! Reduces a set of leaves.
-	virtual bool Reduction(
-		SListPure<PlanarLeafKey*> &leafKeys,
-		SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys);
+	virtual bool Reduction(SListPure<PlanarLeafKey*>& leafKeys,
+			SList<PQLeafKey<edge, whaInfo*, bool>*>& eliminatedKeys);
 
-	bool Reduction(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) override {
-		return MaxSequencePQTree<edge,bool>::Reduction(leafKeys);
+	bool Reduction(SListPure<PQLeafKey<edge, whaInfo*, bool>*>& leafKeys) override {
+		return MaxSequencePQTree<edge, bool>::Reduction(leafKeys);
 	}
 
 private:
 	//! Replaces a pertinet subtree by a set of new leaves if the root is full.
-	void ReplaceFullRoot(SListPure<PlanarLeafKey*> &leafKeys);
+	void ReplaceFullRoot(SListPure<PlanarLeafKey*>& leafKeys);
 
 	//! Replaces a pertinet subtree by a set of new leaves if the root is partial.
-	void ReplacePartialRoot(SListPure<PlanarLeafKey*> &leafKeys);
+	void ReplacePartialRoot(SListPure<PlanarLeafKey*>& leafKeys);
 
 	/**
 	 * Removes the leaves that have been marked for elimination from the PQ-tree.
@@ -96,7 +95,7 @@ private:
 	 *     of the base class template [[PQTree]] from the $PQ$-tree have to be
 	 *     kept but marked as nonexisting.
 	 */
-	void removeEliminatedLeaves(SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys);
+	void removeEliminatedLeaves(SList<PQLeafKey<edge, whaInfo*, bool>*>& eliminatedKeys);
 };
 
 }

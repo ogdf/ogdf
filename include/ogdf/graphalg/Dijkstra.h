@@ -31,10 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/PriorityQueue.h>
-
 
 namespace ogdf {
 
@@ -68,14 +67,9 @@ public:
 	 * @param arcsReversed True if the arcs should be followed in reverse. It has only
 	 * an effect when setting \p directed to true
 	 */
-	void callUnbound(const Graph &G,
-		  const EdgeArray<T> &weight,
-		  const List<node> &sources,
-		  NodeArray<edge> &predecessor,
-		  NodeArray<T> &distance,
-		  bool directed = false,
-		  bool arcsReversed = false)
-	{
+	void callUnbound(const Graph& G, const EdgeArray<T>& weight, const List<node>& sources,
+			NodeArray<edge>& predecessor, NodeArray<T>& distance, bool directed = false,
+			bool arcsReversed = false) {
 		PrioritizedMapQueue<node, T, std::less<T>, H> queue(G);
 		distance.init(G, std::numeric_limits<T>::max());
 		predecessor.init(G, nullptr);
@@ -107,13 +101,15 @@ public:
 			node v = queue.topElement();
 			queue.pop();
 			if (!predecessor[v]
-			 && m_eps.greater(distance[v], static_cast<T>(0))) { // v is unreachable, ignore
+					&& m_eps.greater(distance[v], static_cast<T>(0))) { // v is unreachable, ignore
 				continue;
 			}
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				node w = adj->twinNode();
-				if (directed && ((!arcsReversed && e->target() == v) || (arcsReversed && e->target() != v))) {
+				if (directed
+						&& ((!arcsReversed && e->target() == v)
+								|| (arcsReversed && e->target() != v))) {
 					continue;
 				}
 
@@ -139,16 +135,9 @@ public:
 	 * @param target A target node. Terminate once the shortest path to this node is found
 	 * @param maxLength Upper bound on path length
 	 */
-	void callBound(const Graph &G,
-		  const EdgeArray<T> &weight,
-		  const List<node> &sources,
-		  NodeArray<edge> &predecessor,
-		  NodeArray<T> &distance,
-		  bool directed,
-		  bool arcsReversed,
-		  node target,
-		  T maxLength = std::numeric_limits<T>::max())
-	{
+	void callBound(const Graph& G, const EdgeArray<T>& weight, const List<node>& sources,
+			NodeArray<edge>& predecessor, NodeArray<T>& distance, bool directed, bool arcsReversed,
+			node target, T maxLength = std::numeric_limits<T>::max()) {
 		PrioritizedMapQueue<node, T, std::less<T>, H> queue(G);
 		distance.init(G, std::numeric_limits<T>::max());
 		predecessor.init(G, nullptr);
@@ -172,13 +161,15 @@ public:
 
 			queue.pop();
 			if (!predecessor[v]
-			 && m_eps.greater(distance[v], static_cast<T>(0))) { // v is unreachable, ignore
+					&& m_eps.greater(distance[v], static_cast<T>(0))) { // v is unreachable, ignore
 				continue;
 			}
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				node w = adj->twinNode();
-				if (directed && ((!arcsReversed && e->target() == v) || (arcsReversed && e->target() != v))) {
+				if (directed
+						&& ((!arcsReversed && e->target() == v)
+								|| (arcsReversed && e->target() != v))) {
 					continue;
 				}
 
@@ -213,14 +204,8 @@ public:
 	 * @param arcsReversed True if the arcs should be followed in reverse. It has only
 	 * an effect when setting \p directed to true
 	 */
-	void callUnbound(const Graph &G,
-		  const EdgeArray<T> &weight,
-		  node s,
-		  NodeArray<edge> &predecessor,
-		  NodeArray<T> &distance,
-		  bool directed = false,
-		  bool arcsReversed = false)
-	{
+	void callUnbound(const Graph& G, const EdgeArray<T>& weight, node s, NodeArray<edge>& predecessor,
+			NodeArray<T>& distance, bool directed = false, bool arcsReversed = false) {
 		List<node> sources;
 		sources.pushBack(s);
 		callUnbound(G, weight, sources, predecessor, distance, directed, arcsReversed);
@@ -238,19 +223,13 @@ public:
 	 * @param target A target node. Terminate once the shortest path to this node is found
 	 * @param maxLength Upper bound on path length
 	 */
-	void callBound(const Graph &G,
-		  const EdgeArray<T> &weight,
-		  node s,
-		  NodeArray<edge> &predecessor,
-		  NodeArray<T> &distance,
-		  bool directed,
-		  bool arcsReversed,
-		  node target,
-		  T maxLength = std::numeric_limits<T>::max())
-	{
+	void callBound(const Graph& G, const EdgeArray<T>& weight, node s, NodeArray<edge>& predecessor,
+			NodeArray<T>& distance, bool directed, bool arcsReversed, node target,
+			T maxLength = std::numeric_limits<T>::max()) {
 		List<node> sources;
 		sources.pushBack(s);
-		callBound(G, weight, sources, predecessor, distance, directed, arcsReversed, target, maxLength);
+		callBound(G, weight, sources, predecessor, distance, directed, arcsReversed, target,
+				maxLength);
 	}
 
 	//! @copydoc ::callUnbound(const Graph&, const EdgeArray<T>&, const List<node>&, NodeArray<edge>&, NodeArray<T>&, bool, bool)
@@ -264,21 +243,15 @@ public:
 	 *
 	 * @see callBound(const Graph&, const EdgeArray<T>&, const List<node>&, NodeArray<edge>&, NodeArray<T>&, bool, node, T)
 	 */
-	void call(const Graph &G,
-		  const EdgeArray<T> &weight,
-		  const List<node> &sources,
-		  NodeArray<edge> &predecessor,
-		  NodeArray<T> &distance,
-		  bool directed = false,
-		  bool arcsReversed = false,
-		  node target = nullptr,
-		  T maxLength = std::numeric_limits<T>::max())
-	{
+	void call(const Graph& G, const EdgeArray<T>& weight, const List<node>& sources,
+			NodeArray<edge>& predecessor, NodeArray<T>& distance, bool directed = false,
+			bool arcsReversed = false, node target = nullptr,
+			T maxLength = std::numeric_limits<T>::max()) {
 		if (target == nullptr && maxLength == std::numeric_limits<T>::max()) {
 			callUnbound(G, weight, sources, predecessor, distance, directed, arcsReversed);
-		}
-		else {
-			callBound(G, weight, sources, predecessor, distance, directed, arcsReversed, target, maxLength);
+		} else {
+			callBound(G, weight, sources, predecessor, distance, directed, arcsReversed, target,
+					maxLength);
 		}
 	}
 
@@ -293,24 +266,15 @@ public:
 	 *
 	 * @see callBound(const Graph&, const EdgeArray<T>&, node, NodeArray<edge>&, NodeArray<T>&, bool, node, T)
 	 */
-	void call(const Graph &G,
-		  const EdgeArray<T> &weight,
-		  const node s,
-		  NodeArray<edge> &predecessor,
-		  NodeArray<T> &distance,
-		  bool directed = false,
-		  bool arcsReversed = false,
-		  node target = nullptr,
-		  T maxLength = std::numeric_limits<T>::max())
-	{
+	void call(const Graph& G, const EdgeArray<T>& weight, const node s, NodeArray<edge>& predecessor,
+			NodeArray<T>& distance, bool directed = false, bool arcsReversed = false,
+			node target = nullptr, T maxLength = std::numeric_limits<T>::max()) {
 		if (target == nullptr && maxLength == std::numeric_limits<T>::max()) {
 			callUnbound(G, weight, s, predecessor, distance, directed, arcsReversed);
-		}
-		else {
+		} else {
 			callBound(G, weight, s, predecessor, distance, directed, arcsReversed, target, maxLength);
 		}
 	}
-
 };
 
 }

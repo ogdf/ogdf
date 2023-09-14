@@ -32,13 +32,13 @@
 
 #pragma once
 
-#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+
 #include <sstream>
 #include <unordered_map>
-
 
 namespace ogdf {
 
@@ -47,8 +47,7 @@ namespace ogdf {
 /**
  * @ingroup graphs graph-drawing
  */
-class GraphIO
-{
+class GraphIO {
 public:
 	static OGDF_EXPORT Logger logger;
 
@@ -71,7 +70,8 @@ public:
 	using ClusterWriterFunc = bool (*)(const ClusterGraph&, std::ostream&);
 
 	//! Type of cluster graph attributes reader functions working on streams
-	using ClusterAttrReaderFunc = bool (*)(ClusterGraphAttributes&, ClusterGraph&, Graph&, std::istream&);
+	using ClusterAttrReaderFunc = bool (*)(ClusterGraphAttributes&, ClusterGraph&, Graph&,
+			std::istream&);
 
 	//! Type of cluster graph attributes writer functions working on streams
 	using ClusterAttrWriterFunc = bool (*)(const ClusterGraphAttributes&, std::ostream&);
@@ -91,35 +91,31 @@ public:
 		ClusterAttrReaderFunc auto_cluster_attr_reader_func;
 		ClusterAttrWriterFunc cluster_attr_writer_func;
 
-		explicit FileType(std::vector<std::string> extensions,
-				 ReaderFunc readerFunc = nullptr,
-				 WriterFunc writerFunc = nullptr,
-				 AttrReaderFunc attrReaderFunc = nullptr,
-				 AttrWriterFunc attrWriterFunc = nullptr,
-				 ClusterReaderFunc clusterReaderFunc = nullptr,
-				 ClusterWriterFunc clusterWriterFunc = nullptr,
-				 ClusterAttrReaderFunc clusterAttrReaderFunc = nullptr,
-				 ClusterAttrWriterFunc clusterAttrWriterFunc = nullptr);
+		explicit FileType(std::vector<std::string> extensions, ReaderFunc readerFunc = nullptr,
+				WriterFunc writerFunc = nullptr, AttrReaderFunc attrReaderFunc = nullptr,
+				AttrWriterFunc attrWriterFunc = nullptr,
+				ClusterReaderFunc clusterReaderFunc = nullptr,
+				ClusterWriterFunc clusterWriterFunc = nullptr,
+				ClusterAttrReaderFunc clusterAttrReaderFunc = nullptr,
+				ClusterAttrWriterFunc clusterAttrWriterFunc = nullptr);
 
-		FileType &replaceAutoReaders(
-				ReaderFunc readerFunc = nullptr,
+		FileType& replaceAutoReaders(ReaderFunc readerFunc = nullptr,
 				AttrReaderFunc attrReaderFunc = nullptr,
 				ClusterReaderFunc clusterReaderFunc = nullptr,
 				ClusterAttrReaderFunc clusterAttrReaderFunc = nullptr);
 	};
 
 	static const OGDF_EXPORT std::vector<FileType> FILE_TYPES;
-	static OGDF_EXPORT std::unordered_map<string, const FileType *> FILE_TYPE_MAP;
+	static OGDF_EXPORT std::unordered_map<string, const FileType*> FILE_TYPE_MAP;
 
-	static OGDF_EXPORT const std::unordered_map<string, const FileType *> &getFileTypeMap();
+	static OGDF_EXPORT const std::unordered_map<string, const FileType*>& getFileTypeMap();
 
-	static OGDF_EXPORT const FileType *getFileType(const string &filename);
+	static OGDF_EXPORT const FileType* getFileType(const string& filename);
 
 	//! Condensed settings for drawing SVGs
-	class OGDF_EXPORT SVGSettings
-	{
+	class OGDF_EXPORT SVGSettings {
 		double m_margin;
-		int    m_fontSize;
+		int m_fontSize;
 		double m_curviness;
 		bool m_bezierInterpolation;
 		string m_fontColor;
@@ -143,16 +139,16 @@ public:
 		int fontSize() const { return m_fontSize; }
 
 		//! Returns the default font color.
-		const string &fontColor() const { return m_fontColor; }
+		const string& fontColor() const { return m_fontColor; }
 
 		//! Returns the default font family.
-		const string &fontFamily() const { return m_fontFamily; }
+		const string& fontFamily() const { return m_fontFamily; }
 
 		//! Returns the default width
-		const string &width() const { return m_width; }
+		const string& width() const { return m_width; }
 
 		//! Returns the default height
-		const string &height() const { return m_height; }
+		const string& height() const { return m_height; }
 
 		//! Sets the size of the margin around the drawing to \p m.
 		void margin(double m) { m_margin = m; }
@@ -172,31 +168,36 @@ public:
 		void fontSize(int fs) { m_fontSize = fs; }
 
 		//! Sets the default font color to \p fc.
-		void fontColor(const string &fc) { m_fontColor = fc; }
+		void fontColor(const string& fc) { m_fontColor = fc; }
 
 		//! Sets the default font family to \p fm.
-		void fontFamily(const string &fm) { m_fontFamily = fm; }
+		void fontFamily(const string& fm) { m_fontFamily = fm; }
 
 		//! Sets the width.
 		/**
 		 * The value should include a unit of measure (e.g., percentage for relative width or pixel values).
 		 */
-		void width(const string &width) { m_width = width; }
+		void width(const string& width) { m_width = width; }
 
 		//! Sets the height.
 		/**
 		 * The value should include a unit of measure (e.g., percentage for relative height or pixel values).
 		 */
-		void height(const string &height) { m_height = height; }
+		void height(const string& height) { m_height = height; }
 	};
 
 	/**
 	 * @name Graphs
-	 * These functions read and write graphs (instances of type Graph) in various graph formats.
-	 * If you have a stream object and know the file format beforehand, you can call the corresponding method directly (e.g. #readGML or #writeGML).
-	 * If you have a filename and the format is fixed, you can use the following methods and pass the desired method for your format.
-	 * If you have a filename and the format should be determined from the file extension, use the following methods without passing a method.
-	 * If you have a stream and the format should be determined from its contents, use #read and pass your stream.
+	 * These functions read and write graphs (instances of type Graph) in
+	 * various graph formats.
+	 * If you have a stream object and know the file format beforehand, you can
+	 * call the corresponding method directly (e.g. #readGML or #writeGML).
+	 * If you have a filename and the format is fixed, you can use the following
+	 * methods and pass the desired method for your format.
+	 * If you have a filename and the format should be determined from the file
+	 * extension, use the following methods without passing a method.
+	 * If you have a stream and the format should be determined from its
+	 * contents, use #read and pass your stream.
 	 *
 	 * <table>
 	 * <caption id="multi_row">Supported File Types</caption>
@@ -281,19 +282,29 @@ public:
 	 * 	<td>.mtx
 	 * 	<td>X<td> <td> <td> <td> <td> <td> <td>
 	 * <tr>
+	 * 	<td>TikZ
+	 * 	<td>.tex
+	 * 	<td> <td> <td> <td>X<td> <td> <td> <td>X
+	 * <tr>
 	 * 	<td>TsplibXml
 	 * 	<td>.xml
 	 * 	<td>X<td> <td>X<td> <td> <td> <td> <td>
 	 * </table>
 	 *
-	 * Note: The Rome and MatrixMarket formats won't be guessed from an input stream, as they would also wrongly interpret files of other formats.
-	 * Use a filename matching "*.rome" or "grafo*.*" / "*.mtx" or pass the readRome / readMatrixMarket reader explicitly if you are reading Rome / MatrixMarket files.
-	 * Similarly, (Di)Graph6/Sparse6 files will only be guessed from an input stream if they include the header specified as optional by the file format.
-	 * If you have a (Di)Graph6/Sparse6 file without a header, pass it using its filename (with the appropriate extension) or pass the right reader function explicitly.
+	 * Note: The Rome and MatrixMarket formats won't be guessed from an input
+	 * stream, as they would also wrongly interpret files of other formats.
+	 * Use a filename matching "*.rome" or "grafo*.*" / "*.mtx" or pass the
+	 * readRome / readMatrixMarket reader explicitly if you are reading Rome /
+	 * MatrixMarket files.
+	 * Similarly, (Di)Graph6/Sparse6 files will only be guessed from an input
+	 * stream if they include the header specified as optional by the file
+	 * format. If you have a (Di)Graph6/Sparse6 file without a header, pass it
+	 * using its filename (with the appropriate extension) or pass the right
+	 * reader function explicitly.
 	 *
 	 * \sa std::vector<FileType> FILE_TYPES
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * Reads graph \p G from a file with name \p filename and infers the used format from the file's extension.
@@ -304,7 +315,7 @@ public:
 	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(Graph &G, const string &filename, ReaderFunc reader = nullptr);
+	static OGDF_EXPORT bool read(Graph& G, const string& filename, ReaderFunc reader = nullptr);
 
 	/**
 	 * Reads graph \p G and its attributes \p GA from a file with name \p filename and infers the used format from the file's extension.
@@ -316,7 +327,8 @@ public:
 	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(GraphAttributes &GA, Graph &G, const string &filename, AttrReaderFunc reader = nullptr);
+	static OGDF_EXPORT bool read(GraphAttributes& GA, Graph& G, const string& filename,
+			AttrReaderFunc reader = nullptr);
 
 	/**
 	 * Reads graph \p G and a clustering \p CG of G from a file with name \p filename and infers the used format from the file's extension.
@@ -328,10 +340,13 @@ public:
 	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(ClusterGraph &CG, Graph &G, const string &filename, ClusterReaderFunc reader = nullptr);
+	static OGDF_EXPORT bool read(ClusterGraph& CG, Graph& G, const string& filename,
+			ClusterReaderFunc reader = nullptr);
 
 	/**
-	 * Reads graph \p G, a clustering \p CG of G and their attributes \p CGA from a file with name \p filename and infers the used format from the file's extension.
+	 * Reads graph \p G, a clustering \p CG of G and their attributes \p CGA
+	 * from a file with name \p filename and infers the used format from the
+	 * file's extension.
 	 *
 	 * @param G the Graph
 	 * @param CG its clusters
@@ -341,7 +356,8 @@ public:
 	 * 		or #read(Graph &G, std::istream &is) for trying all available readers
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, const string &filename, ClusterAttrReaderFunc reader = nullptr);
+	static OGDF_EXPORT bool read(ClusterGraphAttributes& GA, ClusterGraph& CG, Graph& G,
+			const string& filename, ClusterAttrReaderFunc reader = nullptr);
 
 	/**
 	 * Reads graph \p G from a stream \p is and try to guess the contained format by trying all available readers.
@@ -352,7 +368,7 @@ public:
 	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool read(Graph& G, std::istream& is);
 
 	/**
 	 * Reads graph \p G and its attributes \p GA from a stream \p is and try to guess the contained format by trying all available readers.
@@ -364,7 +380,7 @@ public:
 	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(GraphAttributes &GA, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool read(GraphAttributes& GA, Graph& G, std::istream& is);
 
 	/**
 	 * Reads graph \p G and a clustering \p CG of G from a stream \p is and try to guess the contained format by trying all available readers.
@@ -376,10 +392,12 @@ public:
 	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(ClusterGraph &CG, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool read(ClusterGraph& CG, Graph& G, std::istream& is);
 
 	/**
-	 * Reads graph \p G, a clustering \p CG of G and their attributes \p GA from a stream \p is and try to guess the contained format by trying all available readers.
+	 * Reads graph \p G, a clustering \p CG of G and their attributes \p GA from
+	 * a stream \p is and try to guess the contained format by trying all
+	 * available readers.
 	 *
 	 * @sa read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, const string &filename, ClusterAttrReaderFunc reader = nullptr)
 	 *
@@ -389,7 +407,8 @@ public:
 	 * @param is stream for reading, must support seekg.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool read(ClusterGraphAttributes &GA, ClusterGraph &CG, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool read(ClusterGraphAttributes& GA, ClusterGraph& CG, Graph& G,
+			std::istream& is);
 
 	/**
 	 * Writes graph \p G to a file with name \p filename and infers the format to use from the file's extension.
@@ -399,7 +418,8 @@ public:
 	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool write(const Graph &G, const string &filename, WriterFunc writer = nullptr);
+	static OGDF_EXPORT bool write(const Graph& G, const string& filename,
+			WriterFunc writer = nullptr);
 
 	/**
 	 * Writes graph \p G and its attributes \p GA to a file with name \p filename and infers the format to use from the file's extension.
@@ -409,7 +429,8 @@ public:
 	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool write(const GraphAttributes &GA, const string &filename, AttrWriterFunc writer = nullptr);
+	static OGDF_EXPORT bool write(const GraphAttributes& GA, const string& filename,
+			AttrWriterFunc writer = nullptr);
 
 	/**
 	 * Writes graph \p G and a clustering \p CG of G to a file with name \p filename and infers the format to use from the file's extension.
@@ -419,19 +440,23 @@ public:
 	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool write(const ClusterGraph &CG, const string &filename, ClusterWriterFunc writer = nullptr);
+	static OGDF_EXPORT bool write(const ClusterGraph& CG, const string& filename,
+			ClusterWriterFunc writer = nullptr);
 
 	/**
-	 * Writes graph \p G, a clustering \p CG of G and their attributes \p CGA to a file with name \p filename and infers the format to use from the file's extension.
+	 * Writes graph \p G, a clustering \p CG of G and their attributes \p CGA to
+	 * a file with name \p filename and infers the format to use from the file's
+	 * extension.
 	 *
 	 * @param GA their attributes
 	 * @param filename the file
 	 * @param writer format to be used (e.g. #writeGML), use nullptr (the default) for automated detection from filename extension
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool write(const ClusterGraphAttributes &GA, const string &filename, ClusterAttrWriterFunc writer = nullptr);
+	static OGDF_EXPORT bool write(const ClusterGraphAttributes& GA, const string& filename,
+			ClusterAttrWriterFunc writer = nullptr);
 
-	//@}
+	//! @}
 
 #pragma mark GML
 	/**
@@ -439,7 +464,7 @@ public:
 	 *
 	 * %Graph Modelling Language: https://en.wikipedia.org/wiki/Graph_Modelling_Language
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in GML format from input stream \p is.
 	/**
@@ -454,7 +479,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGML(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGML(Graph& G, std::istream& is);
 
 	//! Writes graph \p G in GML format to output stream \p os.
 	/**
@@ -469,7 +494,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGML(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeGML(const Graph& G, std::ostream& os);
 
 	//! Reads clustered graph (\p C, \p G) in GML format from input stream \p is.
 	/**
@@ -481,7 +506,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGML(ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGML(ClusterGraph& C, Graph& G, std::istream& is);
 
 	//! Writes clustered graph \p C in GML format to output stream \p os.
 	/**
@@ -491,7 +516,7 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGML(const ClusterGraph &C, std::ostream &os);
+	static OGDF_EXPORT bool writeGML(const ClusterGraph& C, std::ostream& os);
 
 	//! Reads clustered graph (\p C, \p G) with attributes \p A in GML format from input stream \p is.
 	/**
@@ -504,7 +529,8 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGML(ClusterGraphAttributes& A, ClusterGraph& C, Graph& G,
+			std::istream& is);
 
 	//! Writes graph with attributes \p A in GML format to output stream \p os.
 	/**
@@ -514,7 +540,7 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGML(const ClusterGraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGML(const ClusterGraphAttributes& A, std::ostream& os);
 
 	//! Reads graph \p G with attributes \p A in GML format from input stream \p is.
 	/**
@@ -526,7 +552,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGML(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGML(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Writes graph with attributes \p A in GML format to output stream \p os.
 	/**
@@ -536,9 +562,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGML(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGML(const GraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark Rome
 	/**
@@ -546,7 +572,7 @@ public:
 	 *
 	 * Rome-Lib format: http://www.graphdrawing.org/data/
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Rome-Lib format from input stream \p is.
 	/**
@@ -562,7 +588,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readRome(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readRome(Graph& G, std::istream& is);
 
 	//! Writes graph \p G in Rome-Lib format to output stream \p os.
 	/**
@@ -572,9 +598,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeRome(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeRome(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark LEDA
 	/**
@@ -582,7 +608,7 @@ public:
 	 *
 	 * LEDA Native File Format for Graphs: http://www.algorithmic-solutions.info/leda_guide/graphs/leda_native_graph_fileformat.html
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in LEDA graph format from input stream \p is.
 	/**
@@ -598,7 +624,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readLEDA(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readLEDA(Graph& G, std::istream& is);
 
 	//! Writes graph \p G in LEDA graph format to output stream \p os.
 	/**
@@ -614,9 +640,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeLEDA(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeLEDA(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark Chaco
 	/**
@@ -624,7 +650,7 @@ public:
 	 *
 	 * https://cfwebprod.sandia.gov/cfdocs/CompResearch/docs/guide.pdf
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Chaco format from input stream \p is.
 	/**
@@ -640,7 +666,7 @@ public:
 	 * @param is is the input stream to be read.
 	 * \return true if successful, false otherwise.
 	 * */
-	static OGDF_EXPORT bool readChaco(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readChaco(Graph& G, std::istream& is);
 
 	//! Writes graph \p G in Chaco format to output stream \p os.
 	/**
@@ -656,9 +682,9 @@ public:
 	 * @param os is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeChaco(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeChaco(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark PMDissGraph
 	/**
@@ -666,7 +692,7 @@ public:
 	 *
 	 * %Graph file format from [Petra Mutzel, The maximum planar subgraph problem, PhD Thesis, Köln University, 1994]
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in a simple format as used in Petra Mutzel's thesis from input stream \p is.
 	/**
@@ -684,7 +710,7 @@ public:
 	 * @param is is the input stream to be read.
 	 * \return true if successful, false otherwise.
 	 * */
-	static OGDF_EXPORT bool readPMDissGraph(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readPMDissGraph(Graph& G, std::istream& is);
 
 	//! Writes graph \p G in a simple format as used in Petra Mutzel's thesis to output stream \p os.
 	/**
@@ -702,9 +728,9 @@ public:
 	 * @param os is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writePMDissGraph(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writePMDissGraph(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark YGraph
 	/**
@@ -712,7 +738,7 @@ public:
 	 *
 	 * http://www3.cs.stonybrook.edu/~algorith/implement/nauty/distrib/makebg.c
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Y-graph format from input stream \p is.
 	/**
@@ -735,9 +761,9 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readYGraph(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readYGraph(Graph& G, std::istream& is);
 
-	//@}
+	//! @}
 
 #pragma mark Graph6
 	/**
@@ -748,7 +774,7 @@ public:
 	 * between 0x3F and 0x7E.
 	 * <a href="http://cs.anu.edu.au/~bdm/data/formats.txt">See the specification for more information.</a>
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Graph6 format from input stream \p is.
 	/**
@@ -759,7 +785,7 @@ public:
 	 * @param forceHeader if the file has to start with '>>graph6<<'.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGraph6(Graph &G, std::istream &is, bool forceHeader = false);
+	static OGDF_EXPORT bool readGraph6(Graph& G, std::istream& is, bool forceHeader = false);
 
 	//! Writes graph \p G in Graph6 format to output stream \p os.
 	/**
@@ -769,9 +795,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGraph6(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeGraph6(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark Digraph6
 	/**
@@ -781,7 +807,7 @@ public:
 	 * as a string containing printable characters between 0x3F and 0x7E.
 	 * <a href="http://cs.anu.edu.au/~bdm/data/formats.txt">See the specification for more information.</a>
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Digraph6 format from input stream \p is.
 	/**
@@ -792,7 +818,7 @@ public:
 	 * @param forceHeader if the file has to start with '>>digraph6<<'.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDigraph6(Graph &G, std::istream &is, bool forceHeader = false);
+	static OGDF_EXPORT bool readDigraph6(Graph& G, std::istream& is, bool forceHeader = false);
 
 	//! Writes graph \p G in Digraph6 format to output stream \p os.
 	/**
@@ -802,9 +828,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDigraph6(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeDigraph6(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark Sparse6
 	/**
@@ -814,7 +840,7 @@ public:
 	 * as a string containing printable characters between 0x3F and 0x7E.
 	 * <a href="http://cs.anu.edu.au/~bdm/data/formats.txt">See the specification for more information.</a>
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Sparse6 format from input stream \p is.
 	/**
@@ -825,7 +851,7 @@ public:
 	 * @param forceHeader if the file has to start with '>>sparse6<<'.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readSparse6(Graph &G, std::istream &is, bool forceHeader = false);
+	static OGDF_EXPORT bool readSparse6(Graph& G, std::istream& is, bool forceHeader = false);
 
 	//! Writes graph \p G in Sparse6 format to output stream \p os.
 	/**
@@ -835,9 +861,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeSparse6(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeSparse6(const Graph& G, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark MatrixMarket
 	/**
@@ -845,7 +871,7 @@ public:
 	 *
 	 * http://math.nist.gov/MatrixMarket/formats.html
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in Matrix Market exchange format from stream \p inStream.
 	/**
@@ -853,15 +879,15 @@ public:
 	 * @param inStream is the input stream to read from
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readMatrixMarket(Graph& G, std::istream &inStream);
+	static OGDF_EXPORT bool readMatrixMarket(Graph& G, std::istream& inStream);
 
-	//@}
+	//! @}
 
 #pragma mark Rudy
 	/**
 	 * @name Rudy
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G with edge weights stored in \p A in Rudy format from input stream \p is.
 	/**
@@ -873,7 +899,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readRudy(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readRudy(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Reads graph \p G in Rudy format from input stream \p is.
 	/**
@@ -883,7 +909,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readRudy(Graph &G, std::istream &is) {
+	static OGDF_EXPORT bool readRudy(Graph& G, std::istream& is) {
 		GraphAttributes A(G, GraphAttributes::edgeDoubleWeight);
 		return readRudy(A, G, is);
 	}
@@ -897,15 +923,15 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeRudy(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeRudy(const GraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark BENCH
 	/**
 	 * @name BENCH
 	 */
-	//@{
+	//! @{
 
 	//!  Reads a hypergraph (as point-based expansion) in BENCH format from input stream \p is.
 	/**
@@ -925,15 +951,16 @@ public:
 	 * @param is         is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readBENCH(Graph &G, List<node>& hypernodes, List<edge> *shell, std::istream &is);
+	static OGDF_EXPORT bool readBENCH(Graph& G, List<node>& hypernodes, List<edge>* shell,
+			std::istream& is);
 
-	//@}
+	//! @}
 
 #pragma mark PLA
 	/**
 	 * @name PLA
 	 */
-	//@{
+	//! @{
 
 	//!  Reads a hypergraph (as point-based expansion) in PLA format from input stream \p is.
 	/**
@@ -953,9 +980,10 @@ public:
 	 * @param is         is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readPLA(Graph &G, List<node>& hypernodes, List<edge> *shell, std::istream &is);
+	static OGDF_EXPORT bool readPLA(Graph& G, List<node>& hypernodes, List<edge>* shell,
+			std::istream& is);
 
-	//@}
+	//! @}
 
 #pragma mark ChallengeGraph
 	/**
@@ -964,7 +992,7 @@ public:
 	 * %Graph %Drawing %Challenge: %Area %Minimization for %Orthogonal %Grid %Layouts
 	 * http://graphdrawing.de/contest2013/challenge.html
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G with grid layout \p gl in GD-Challenge-format from input stream \p is.
 	/**
@@ -976,7 +1004,7 @@ public:
 	 * @param is is the input stream from which the graph is read.
 	 * \return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readChallengeGraph(Graph &G, GridLayout &gl, std::istream &is);
+	static OGDF_EXPORT bool readChallengeGraph(Graph& G, GridLayout& gl, std::istream& is);
 
 	//! Writes graph \p G with grid layout \p gl in GD-Challenge-format to output stream \p os.
 	/**
@@ -988,9 +1016,10 @@ public:
 	 * @param os is the output stream to which the graph is written.
 	 * \return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeChallengeGraph(const Graph &G, const GridLayout &gl, std::ostream &os);
+	static OGDF_EXPORT bool writeChallengeGraph(const Graph& G, const GridLayout& gl,
+			std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark GraphML
 	/**
@@ -998,7 +1027,7 @@ public:
 	 *
 	 * %Graph %Markup %Language: http://graphml.graphdrawing.org/
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in GraphML format from input stream \p is.
 	/**
@@ -1008,7 +1037,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGraphML(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGraphML(Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) in GraphML format from input stream \p is.
 	/**
@@ -1020,7 +1049,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGraphML(ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGraphML(ClusterGraph& C, Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p A in GraphML format from input stream \p is.
 	/**
@@ -1032,7 +1061,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGraphML(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGraphML(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) with attributes \p A in GraphML format from input stream \p is.
 	/**
@@ -1045,7 +1074,8 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGraphML(ClusterGraphAttributes& A, ClusterGraph& C, Graph& G,
+			std::istream& is);
 
 	//! Writes graph \p G in GraphML format to output stream \p os.
 	/**
@@ -1054,7 +1084,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGraphML(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeGraphML(const Graph& G, std::ostream& os);
 
 	//! Writes clustered graph \p C in GraphML format to output stream \p os.
 	/**
@@ -1063,7 +1093,7 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGraphML(const ClusterGraph &C, std::ostream &os);
+	static OGDF_EXPORT bool writeGraphML(const ClusterGraph& C, std::ostream& os);
 
 	//! Writes graph with attributes \p A in GraphML format to output stream \p os.
 	/**
@@ -1072,7 +1102,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGraphML(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGraphML(const GraphAttributes& A, std::ostream& os);
 
 	//! Writes graph with attributes \p A in GraphML format to output stream \p os.
 	/**
@@ -1081,9 +1111,9 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGraphML(const ClusterGraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGraphML(const ClusterGraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark DOT
 	/**
@@ -1091,7 +1121,7 @@ public:
 	 *
 	 * http://www.graphviz.org/doc/info/lang.html
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in DOT format from input stream \p is.
 	/**
@@ -1101,7 +1131,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDOT(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readDOT(Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) in DOT format from input stream \p is.
 	/**
@@ -1113,7 +1143,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDOT(ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readDOT(ClusterGraph& C, Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p A in DOT format from input stream \p is.
 	/**
@@ -1125,7 +1155,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDOT(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readDOT(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) with attributes \p A in DOT format from input stream \p is.
 	/**
@@ -1138,7 +1168,8 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readDOT(ClusterGraphAttributes& A, ClusterGraph& C, Graph& G,
+			std::istream& is);
 
 	//! Writes graph \p G in DOT format to output stream \p os.
 	/**
@@ -1147,7 +1178,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDOT(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeDOT(const Graph& G, std::ostream& os);
 
 	//! Writes clustered graph \p C in DOT format to output stream \p os.
 	/**
@@ -1156,7 +1187,7 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDOT(const ClusterGraph &C, std::ostream &os);
+	static OGDF_EXPORT bool writeDOT(const ClusterGraph& C, std::ostream& os);
 
 	//! Writes graph with attributes \p A in DOT format to output stream \p os.
 	/**
@@ -1165,7 +1196,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDOT(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeDOT(const GraphAttributes& A, std::ostream& os);
 
 	//! Writes graph with attributes \p A in DOT format to output stream \p os.
 	/**
@@ -1174,9 +1205,9 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDOT(const ClusterGraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeDOT(const ClusterGraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark GEXF
 	/**
@@ -1184,7 +1215,7 @@ public:
 	 *
 	 * %Graph %Exchange %XML %Format: https://gephi.org/gexf/format/
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in GEXF format from input stream \p is.
 	/**
@@ -1194,7 +1225,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGEXF(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGEXF(Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) in GEXF format from input stream \p is.
 	/**
@@ -1206,7 +1237,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGEXF(ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGEXF(ClusterGraph& C, Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p A in GEXF format from input stream \p is.
 	/**
@@ -1218,7 +1249,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGEXF(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGEXF(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) with attributes \p A in GEXF format from input stream \p is.
 	/**
@@ -1231,7 +1262,8 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGEXF(ClusterGraphAttributes& A, ClusterGraph& C, Graph& G,
+			std::istream& is);
 
 	//! Writes graph \p G in GEXF format to output stream \p os.
 	/**
@@ -1240,7 +1272,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGEXF(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeGEXF(const Graph& G, std::ostream& os);
 
 	//! Writes clustered graph \p C in GEXF format to output stream \p os.
 	/**
@@ -1249,7 +1281,7 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGEXF(const ClusterGraph &C, std::ostream &os);
+	static OGDF_EXPORT bool writeGEXF(const ClusterGraph& C, std::ostream& os);
 
 	//! Writes graph with attributes \p A in GEXF format to output stream \p os.
 	/**
@@ -1258,7 +1290,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGEXF(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGEXF(const GraphAttributes& A, std::ostream& os);
 
 	//! Writes graph with attributes \p A in GEXF format to output stream \p os.
 	/**
@@ -1267,9 +1299,9 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGEXF(const ClusterGraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGEXF(const ClusterGraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark GDF
 	/**
@@ -1277,7 +1309,7 @@ public:
 	 *
 	 * %GUESS %Database %File: http://graphexploration.cond.org/manual.html
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in GDF format from input stream \p is.
 	/**
@@ -1287,7 +1319,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGDF(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGDF(Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p A in GDF format from input stream \p is.
 	/**
@@ -1299,7 +1331,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readGDF(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readGDF(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Writes graph \p G in GDF format to output stream \p os.
 	/**
@@ -1308,7 +1340,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGDF(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeGDF(const Graph& G, std::ostream& os);
 
 	//! Writes graph with attributes \p A in GDF format to output stream \p os.
 	/**
@@ -1317,9 +1349,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeGDF(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeGDF(const GraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark TLP
 	/**
@@ -1327,7 +1359,7 @@ public:
 	 *
 	 * Tulip software graph format: http://tulip.labri.fr/TulipDrupal/?q=tlp-file-format
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in TLP format from input stream \p is.
 	/**
@@ -1337,7 +1369,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readTLP(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readTLP(Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) in TLP format from input stream \p is.
 	/**
@@ -1349,7 +1381,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readTLP(ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readTLP(ClusterGraph& C, Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p A in TLP format from input stream \p is.
 	/**
@@ -1361,7 +1393,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readTLP(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readTLP(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Reads clustered graph (\p C, \p G) with attributes \p A in TLP format from input stream \p is.
 	/**
@@ -1374,7 +1406,8 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readTLP(ClusterGraphAttributes& A, ClusterGraph& C, Graph& G,
+			std::istream& is);
 
 	//! Writes graph \p G in TLP format to output stream \p os.
 	/**
@@ -1383,7 +1416,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeTLP(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeTLP(const Graph& G, std::ostream& os);
 
 	//! Writes clustered graph \p C in TLP format to output stream \p os.
 	/**
@@ -1392,7 +1425,7 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeTLP(const ClusterGraph &C, std::ostream &os);
+	static OGDF_EXPORT bool writeTLP(const ClusterGraph& C, std::ostream& os);
 
 	//! Writes graph with attributes \p A in TLP format to output stream \p os.
 	/**
@@ -1401,7 +1434,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeTLP(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeTLP(const GraphAttributes& A, std::ostream& os);
 
 	//! Writes graph with attributes \p A in TLP format to output stream \p os.
 	/**
@@ -1410,17 +1443,17 @@ public:
 	 * @param os  is the output stream to which the clustered graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeTLP(const ClusterGraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeTLP(const ClusterGraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark DL
 	/**
 	 * @name DL
 	 *
-	 * %UCINET %DL format: https://sites.google.com/site/ucinetsoftware/document/ucinethelp.htm
+	 * %UCINET %DL format: http://www.analytictech.com/ucinet/help/hs5000.htm
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in DL format from input stream \p is.
 	/**
@@ -1430,7 +1463,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDL(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readDL(Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p A in DL format from input stream \p is.
 	/**
@@ -1442,7 +1475,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDL(GraphAttributes &A, Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readDL(GraphAttributes& A, Graph& G, std::istream& is);
 
 	//! Writes graph \p G in DL format to output stream \p os.
 	/**
@@ -1451,7 +1484,7 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDL(const Graph &G, std::ostream &os);
+	static OGDF_EXPORT bool writeDL(const Graph& G, std::ostream& os);
 
 	//! Writes graph with attributes \p A in DL format to output stream \p os.
 	/**
@@ -1460,9 +1493,9 @@ public:
 	 * @param os  is the output stream to which the graph will be written.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeDL(const GraphAttributes &A, std::ostream &os);
+	static OGDF_EXPORT bool writeDL(const GraphAttributes& A, std::ostream& os);
 
-	//@}
+	//! @}
 
 #pragma mark STP
 	/**
@@ -1470,7 +1503,7 @@ public:
 	 *
 	 * %SteinLib %STP %Data %Format: http://steinlib.zib.de/format.php
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * @copydoc readSTP(GraphAttributes&, Graph&, std::istream&)
@@ -1479,7 +1512,8 @@ public:
 	 * 		in case of a directed graph the root will be at the lists front position
 	 * @param isTerminal maps whether each node is a terminal or a Steiner node
 	 */
-	static OGDF_EXPORT bool readSTP(GraphAttributes &attr, Graph &G, List<node> &terminals, NodeArray<bool> &isTerminal, std::istream &is);
+	static OGDF_EXPORT bool readSTP(GraphAttributes& attr, Graph& G, List<node>& terminals,
+			NodeArray<bool>& isTerminal, std::istream& is);
 
 	/**
 	 * @copydoc readSTP(Graph&, std::istream&)
@@ -1491,7 +1525,7 @@ public:
 	 * 		in shape as described above) as well as whether the read graph is directed
 	 * @pre in \p attr GraphAttributes::intWeight Xor GraphAttributes::doubleWeight has to be set
 	 */
-	static OGDF_EXPORT bool readSTP(GraphAttributes &attr, Graph &G, std::istream &is) {
+	static OGDF_EXPORT bool readSTP(GraphAttributes& attr, Graph& G, std::istream& is) {
 		List<node> terminals;
 		NodeArray<bool> isTerminal;
 		return readSTP(attr, G, terminals, isTerminal, is);
@@ -1504,7 +1538,7 @@ public:
 	 * @param is is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readSTP(Graph &G, std::istream &is) {
+	static OGDF_EXPORT bool readSTP(Graph& G, std::istream& is) {
 		GraphAttributes attr(G);
 		return readSTP(attr, G, is);
 	}
@@ -1523,12 +1557,8 @@ public:
 	 * @return true if the STP was read successfully, false otherwise
 	 */
 	template<typename T>
-	static bool readSTP(
-		EdgeWeightedGraph<T> &wG,
-		List<node> &terminals,
-		NodeArray<bool> &isTerminal,
-		std::istream &is)
-	{
+	static bool readSTP(EdgeWeightedGraph<T>& wG, List<node>& terminals,
+			NodeArray<bool>& isTerminal, std::istream& is) {
 		wG.clear();
 		GraphAttributes attr(wG, getEdgeWeightFlag<T>());
 		bool res = readSTP(attr, wG, terminals, isTerminal, is);
@@ -1555,11 +1585,8 @@ public:
 	 *
 	 * @return true if the write operation succeeded, false otherwise
 	 */
-	static OGDF_EXPORT bool writeSTP(
-		const GraphAttributes &attr,
-		const List<node> &terminals,
-		std::ostream &os,
-		const string &comments = "");
+	static OGDF_EXPORT bool writeSTP(const GraphAttributes& attr, const List<node>& terminals,
+			std::ostream& os, const string& comments = "");
 
 	/**
 	 * Writes an Steiner problem instance to an STP file.
@@ -1574,12 +1601,8 @@ public:
 	 * @return true if the write operation succeeded, false otherwise
 	 */
 	template<typename T>
-	static bool writeSTP(
-		const EdgeWeightedGraph<T> &wG,
-		const List<node> &terminals,
-		std::ostream &os,
-		const string &comments = "")
-	{
+	static bool writeSTP(const EdgeWeightedGraph<T>& wG, const List<node>& terminals,
+			std::ostream& os, const string& comments = "") {
 		GraphAttributes attr(wG, getEdgeWeightFlag<T>());
 		for (edge e : wG.edges) {
 			getEdgeWeightAttribute<T>(attr, e) = wG.weight(e);
@@ -1587,7 +1610,7 @@ public:
 		return writeSTP(attr, terminals, os, comments);
 	}
 
-	//@}
+	//! @}
 
 #pragma mark DMF
 	/**
@@ -1595,14 +1618,15 @@ public:
 	 *
 	 * DIMACS Max Flow Challenge: ftp://dimacs.rutgers.edu/pub/netflow/
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * @copydoc readDMF(GraphAttributes&, Graph&, std::istream&)
 	 * @param source will contain the flow source
 	 * @param sink will contain the flow sink
 	 */
-	static OGDF_EXPORT bool readDMF(GraphAttributes &attr, Graph &graph, node &source, node &sink, std::istream &is);
+	static OGDF_EXPORT bool readDMF(GraphAttributes& attr, Graph& graph, node& source, node& sink,
+			std::istream& is);
 
 	/**
 	 * Reads a maximum flow instance in DIMACS format.
@@ -1613,7 +1637,7 @@ public:
 	 * @param is input stream
 	 * @return \c true iff the instance was parsed successfully
 	 */
-	static OGDF_EXPORT bool readDMF(GraphAttributes &attr, Graph &graph, std::istream &is) {
+	static OGDF_EXPORT bool readDMF(GraphAttributes& attr, Graph& graph, std::istream& is) {
 		node sink;
 		node source;
 		return readDMF(attr, graph, sink, source, is);
@@ -1632,7 +1656,8 @@ public:
 	 * @return \c true iff the instance was parsed successfully
 	 */
 	template<typename T>
-	static bool readDMF(Graph &graph, EdgeArray<T> &weights, node &source, node &sink, std::istream &is) {
+	static bool readDMF(Graph& graph, EdgeArray<T>& weights, node& source, node& sink,
+			std::istream& is) {
 		GraphAttributes attr(graph, getEdgeWeightFlag<T>());
 		bool result = readDMF(attr, graph, source, sink, is);
 		weights.init(graph);
@@ -1650,7 +1675,7 @@ public:
 	 * @param is is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readDMF(Graph &graph, std::istream &is) {
+	static OGDF_EXPORT bool readDMF(Graph& graph, std::istream& is) {
 		GraphAttributes attr(graph);
 		node source;
 		node sink;
@@ -1670,11 +1695,8 @@ public:
 	 *
 	 * @return \c true if the write operation succeeded, false otherwise
 	 */
-	static OGDF_EXPORT bool writeDMF(
-			const GraphAttributes &attr,
-			const node source,
-			const node sink,
-			std::ostream &os);
+	static OGDF_EXPORT bool writeDMF(const GraphAttributes& attr, const node source,
+			const node sink, std::ostream& os);
 
 	/**
 	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
@@ -1688,13 +1710,8 @@ public:
 	 * @return \c true if the write operation succeeded, false otherwise
 	 */
 	template<typename T>
-	static bool writeDMF(
-			const Graph &graph,
-			const EdgeArray<T> &weights,
-			const node source,
-			const node sink,
-			std::ostream &os)
-	{
+	static bool writeDMF(const Graph& graph, const EdgeArray<T>& weights, const node source,
+			const node sink, std::ostream& os) {
 		GraphAttributes attr(graph, getEdgeWeightFlag<T>());
 		for (edge e : graph.edges) {
 			getEdgeWeightAttribute<T>(attr, e) = weights[e];
@@ -1708,7 +1725,7 @@ public:
 	 *
 	 * Unified xml format of Tsplib instances: http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G in TsplibXml format from input stream \p is.
 	/**
@@ -1716,7 +1733,7 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readTsplibXml(Graph &G, std::istream &is);
+	static OGDF_EXPORT bool readTsplibXml(Graph& G, std::istream& is);
 
 	//! Reads graph \p G with attributes \p GA in TsplibXml format from input stream \p is.
 	/**
@@ -1727,16 +1744,16 @@ public:
 	 * @param is  is the input stream to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readTsplibXml(GraphAttributes &GA, Graph &G, std::istream &is);
-	//@}
+	static OGDF_EXPORT bool readTsplibXml(GraphAttributes& GA, Graph& G, std::istream& is);
+	//! @}
 
-	//@}
+	//! @}
 	/**
 	 * @name Graphs with subgraph
 	 * These functions read and write graphs in a simple text-based file format that also specifies
 	 * a subgraph (given as a list of edges).
 	 */
-	//@{
+	//! @{
 
 	//! Reads graph \p G with subgraph defined by \p delEdges from stream \p is.
 	/**
@@ -1747,7 +1764,7 @@ public:
 	 * @param          is is the input stream from which the graph is read.
 	 * \return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool readEdgeListSubgraph(Graph &G, List<edge> &delEdges, std::istream &is);
+	static OGDF_EXPORT bool readEdgeListSubgraph(Graph& G, List<edge>& delEdges, std::istream& is);
 
 	//! Writes graph \p G with subgraph defined by \p delEdges to stream \p os.
 	/**
@@ -1758,42 +1775,69 @@ public:
 	 * @param os       is the output stream to which the graph will be written.
 	 * \return true if successful, false otherwise.
 	 */
-	static OGDF_EXPORT bool writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, std::ostream &os);
+	static OGDF_EXPORT bool writeEdgeListSubgraph(const Graph& G, const List<edge>& delEdges,
+			std::ostream& os);
 
-	//@}
+	//! @}
 	/**
 	 * @name Graphics formats
-	 * These functions draw graphs and export them as SVG (Scalable Vector Graphics) vectors graphics.
+	 * These functions draw graphs and export them as SVG (Scalable Vector Graphics) or LaTeX+TikZ vectors graphics.
 	 */
-	//@{
+	//! @{
 
-	static OGDF_EXPORT bool drawSVG(const GraphAttributes &A, std::ostream &os, const SVGSettings &settings);
-	static inline bool drawSVG(const GraphAttributes &A, std::ostream &os) {
+	static OGDF_EXPORT bool drawSVG(const GraphAttributes& A, std::ostream& os,
+			const SVGSettings& settings);
+
+	static inline bool drawSVG(const GraphAttributes& A, std::ostream& os) {
 		// we may not use a defaulted argument settings=svgSettings here if drawSVG should be a AttrWriterFunc:
 		// https://stackoverflow.com/a/2225426/805569
 		return drawSVG(A, os, svgSettings);
 	}
-	static inline bool drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings=svgSettings) {
+
+	static inline bool drawSVG(const GraphAttributes& A, const string& filename,
+			const SVGSettings& settings = svgSettings) {
 		std::ofstream os(filename);
-		return os.good() && drawSVG(A, os, svgSettings);
+		return os.good() && drawSVG(A, os, settings);
 	}
 
-	static OGDF_EXPORT bool drawSVG(const ClusterGraphAttributes &A, std::ostream &os, const SVGSettings &settings);
-	static inline bool drawSVG(const ClusterGraphAttributes &A, std::ostream &os) {
+	static OGDF_EXPORT bool drawSVG(const ClusterGraphAttributes& A, std::ostream& os,
+			const SVGSettings& settings);
+
+	static inline bool drawSVG(const ClusterGraphAttributes& A, std::ostream& os) {
 		return drawSVG(A, os, svgSettings);
 	}
-	static inline bool drawSVG(const ClusterGraphAttributes &A, const string &filename, const SVGSettings &settings=svgSettings) {
+
+	static inline bool drawSVG(const ClusterGraphAttributes& A, const string& filename,
+			const SVGSettings& settings = svgSettings) {
 		std::ofstream os(filename);
-		return os.good() && drawSVG(A, os, svgSettings);
+		return os.good() && drawSVG(A, os, settings);
 	}
 
-	//@}
+	/**
+	 * Draws a graph from its attributes in LaTeX+TikZ format
+	 *
+	 * @param A the graph's attributes
+	 * @param os output stream
+	 * @return true iff successful
+	 */
+	static OGDF_EXPORT bool drawTikz(const GraphAttributes& A, std::ostream& os);
+
+	/**
+	 * Draws a cluster graph from its attributes in LaTeX+TikZ format
+	 *
+	 * @param A the cluster graph's attributes
+	 * @param os output stream
+	 * @return true iff successful
+	 */
+	static OGDF_EXPORT bool drawTikz(const ClusterGraphAttributes& A, std::ostream& os);
+
+	//! @}
 	/**
 	 * @name Utility functions for indentation
 	 * Text based write methods that use indentation for better readability of the produced text files
 	 * apply a customizable indentation character and indentation width.
 	 */
-	//@{
+	//! @{
 
 	//! Returns the currently used indentation character.
 	static char indentChar() { return s_indentChar; }
@@ -1816,20 +1860,21 @@ public:
 	 * Setting the indentation width to 0 suppresses indentation.
 	 */
 	static void setIndentWidth(int w) {
-		if(w >= 0) s_indentWidth = w;
+		if (w >= 0) {
+			s_indentWidth = w;
+		}
 	}
 
 	//! Prints indentation for indentation \p depth to output stream \p os and returns \p os.
-	static OGDF_EXPORT std::ostream &indent(std::ostream &os, int depth);
+	static OGDF_EXPORT std::ostream& indent(std::ostream& os, int depth);
 
-	//@}
+	//! @}
 	//! @name Other utility functions
-	//@{
+	//! @{
 
 	//! Set a color value (R/G/B/A) based on an integer.
 	//! Checks if the value is in the right range.
-	static OGDF_EXPORT bool setColorValue(int value, std::function<void(uint8_t)> setFunction)
-	{
+	static OGDF_EXPORT bool setColorValue(int value, std::function<void(uint8_t)> setFunction) {
 		if (value < 0 || value > 255) {
 			GraphIO::logger.lout() << "Error: color value is not between 0 and 255." << std::endl;
 			return false;
@@ -1863,7 +1908,7 @@ public:
 	 * the respective GraphAttributes::xxxWeight(edge e) function
 	 */
 	template<typename T, typename std::enable_if<std::is_integral<T>::value, bool>::type = 0>
-	static int &getEdgeWeightAttribute(GraphAttributes &attr, edge e) {
+	static int& getEdgeWeightAttribute(GraphAttributes& attr, edge e) {
 		return attr.intWeight(e);
 	}
 
@@ -1874,11 +1919,11 @@ public:
 	 * the respective GraphAttributes::xxxWeight(edge e) function
 	 */
 	template<typename T, typename std::enable_if<std::is_floating_point<T>::value, bool>::type = 0>
-	static double &getEdgeWeightAttribute(GraphAttributes &attr, edge e) {
+	static double& getEdgeWeightAttribute(GraphAttributes& attr, edge e) {
 		return attr.doubleWeight(e);
 	}
 
-	//@}
+	//! @}
 
 	static SVGSettings OGDF_EXPORT svgSettings;
 

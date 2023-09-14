@@ -32,14 +32,10 @@
 #include <ogdf/basic/graph_generators/operations.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
-
 namespace ogdf {
 
-void graphUnion(Graph &G1, const Graph &G2,
-	NodeArray<node> &map2to1,
-	bool parallelfree,
-	bool directed)
-{
+void graphUnion(Graph& G1, const Graph& G2, NodeArray<node>& map2to1, bool parallelfree,
+		bool directed) {
 	for (node v2 : G2.nodes) {
 		if (map2to1[v2] == nullptr) {
 			map2to1[v2] = G1.newNode();
@@ -59,10 +55,8 @@ void graphUnion(Graph &G1, const Graph &G2,
 	}
 }
 
-
-void graphProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct,
-	const std::function<void(node, node)> &addEdges)
-{
+void graphProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct,
+		const std::function<void(node, node)>& addEdges) {
 	nodeInProduct.init(G1);
 
 	// Clear product.
@@ -84,53 +78,41 @@ void graphProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nod
 	}
 }
 
-
-void cartesianProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct)
-{
+void cartesianProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		node srcInProduct = nodeInProduct[v1][v2];
 
 		// Add G2-edges between copies of G1.
 		for (adjEntry adj2 : v2->adjEntries) {
 			if (adj2->isSource()) {
-				product.newEdge(srcInProduct,
-					nodeInProduct[v1][adj2->twinNode()]
-				);
+				product.newEdge(srcInProduct, nodeInProduct[v1][adj2->twinNode()]);
 			}
 		}
 
 		// Add G1-edges between copies of G2.
 		for (adjEntry adj1 : v1->adjEntries) {
 			if (adj1->isSource()) {
-				product.newEdge(srcInProduct,
-					nodeInProduct[adj1->twinNode()][v2]
-				);
+				product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][v2]);
 			}
 		}
 	});
 }
 
-
-void tensorProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct)
-{
+void tensorProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		// Add edges between adjacent node pairs.
 		for (adjEntry adj1 : v1->adjEntries) {
 			for (adjEntry adj2 : v2->adjEntries) {
 				if (adj2->isSource()) {
-					product.newEdge(
-						nodeInProduct[v1][v2],
-						nodeInProduct[adj1->twinNode()][adj2->twinNode()]
-					);
+					product.newEdge(nodeInProduct[v1][v2],
+							nodeInProduct[adj1->twinNode()][adj2->twinNode()]);
 				}
 			}
 		}
 	});
 }
 
-
-void lexicographicalProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct)
-{
+void lexicographicalProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		node srcInProduct = nodeInProduct[v1][v2];
 
@@ -138,9 +120,7 @@ void lexicographicalProduct(const Graph &G1, const Graph &G2, Graph &product, No
 		for (node v2Tgt : G2.nodes) {
 			for (adjEntry adj1 : v1->adjEntries) {
 				if (adj1->isSource()) {
-					product.newEdge(srcInProduct,
-						nodeInProduct[adj1->twinNode()][v2Tgt]
-					);
+					product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][v2Tgt]);
 				}
 			}
 		}
@@ -148,34 +128,27 @@ void lexicographicalProduct(const Graph &G1, const Graph &G2, Graph &product, No
 		// Add G2-edges between copies of G1.
 		for (adjEntry adj2 : v2->adjEntries) {
 			if (adj2->isSource()) {
-				product.newEdge(srcInProduct,
-					nodeInProduct[v1][adj2->twinNode()]
-				);
+				product.newEdge(srcInProduct, nodeInProduct[v1][adj2->twinNode()]);
 			}
 		}
 	});
 }
 
-
-void strongProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct)
-{
+void strongProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		node srcInProduct = nodeInProduct[v1][v2];
 
 		// Add G2-edges between copies of G1.
 		for (adjEntry adj2 : v2->adjEntries) {
 			if (adj2->isSource()) {
-				product.newEdge(srcInProduct,
-					nodeInProduct[v1][adj2->twinNode()]);
+				product.newEdge(srcInProduct, nodeInProduct[v1][adj2->twinNode()]);
 			}
 		}
 
 		// Add G1-edges between copies of G2.
 		for (adjEntry adj1 : v1->adjEntries) {
 			if (adj1->isSource()) {
-				product.newEdge(srcInProduct,
-					nodeInProduct[adj1->twinNode()][v2]
-				);
+				product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][v2]);
 			}
 		}
 
@@ -183,18 +156,14 @@ void strongProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &no
 		for (adjEntry adj1 : v1->adjEntries) {
 			for (adjEntry adj2 : v2->adjEntries) {
 				if (adj2->isSource()) {
-					product.newEdge(srcInProduct,
-						nodeInProduct[adj1->twinNode()][adj2->twinNode()]
-					);
+					product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][adj2->twinNode()]);
 				}
 			}
 		}
 	});
 }
 
-
-void coNormalProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct)
-{
+void coNormalProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		node srcInProduct = nodeInProduct[v1][v2];
 
@@ -202,9 +171,7 @@ void coNormalProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &
 		for (node v2Tgt : G2.nodes) {
 			for (adjEntry adj1 : v1->adjEntries) {
 				if (adj1->isSource()) {
-					product.newEdge(srcInProduct,
-						nodeInProduct[adj1->twinNode()][v2Tgt]
-					);
+					product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][v2Tgt]);
 				}
 			}
 		}
@@ -213,18 +180,14 @@ void coNormalProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &
 		for (node v1Tgt : G1.nodes) {
 			for (adjEntry adj2 : v2->adjEntries) {
 				if (adj2->isSource()) {
-					product.newEdge(srcInProduct,
-						nodeInProduct[v1Tgt][adj2->twinNode()]
-					);
+					product.newEdge(srcInProduct, nodeInProduct[v1Tgt][adj2->twinNode()]);
 				}
 			}
 		}
 	});
 }
 
-
-void modularProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &nodeInProduct)
-{
+void modularProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		node srcInProduct = nodeInProduct[v1][v2];
 		NodeArray<bool> adjacentToV1(G1, false);
@@ -235,9 +198,7 @@ void modularProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &n
 			adjacentToV1[adj1->twinNode()] = true;
 			for (adjEntry adj2 : v2->adjEntries) {
 				if (adj2->isSource()) {
-					product.newEdge(srcInProduct,
-						nodeInProduct[adj1->twinNode()][adj2->twinNode()]
-					);
+					product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][adj2->twinNode()]);
 				}
 			}
 		}
@@ -254,9 +215,7 @@ void modularProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &n
 				// Only to nodes "after" v2 so edges are not inserted twice.
 				for (node neighbour2 = v2->succ(); neighbour2; neighbour2 = neighbour2->succ()) {
 					if (!adjacentToV2[neighbour2]) {
-						product.newEdge(srcInProduct,
-							nodeInProduct[neighbour1][neighbour2]
-						);
+						product.newEdge(srcInProduct, nodeInProduct[neighbour1][neighbour2]);
 					}
 				}
 			}
@@ -264,19 +223,15 @@ void modularProduct(const Graph &G1, const Graph &G2, Graph &product, NodeMap &n
 	});
 }
 
-
-void rootedProduct(const Graph &G1, const Graph &G2, Graph &product,
-	NodeMap &nodeInProduct, node rootInG2)
-{
+void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& nodeInProduct,
+		node rootInG2) {
 	graphProduct(G1, G2, product, nodeInProduct, [&](node v1, node v2) {
 		node srcInProduct = nodeInProduct[v1][v2];
 
 		// Add G2-edges between copies of G1.
 		for (adjEntry adj2 : v2->adjEntries) {
 			if (adj2->isSource()) {
-				product.newEdge(srcInProduct,
-					nodeInProduct[v1][adj2->twinNode()]
-				);
+				product.newEdge(srcInProduct, nodeInProduct[v1][adj2->twinNode()]);
 			}
 		}
 
@@ -284,9 +239,7 @@ void rootedProduct(const Graph &G1, const Graph &G2, Graph &product,
 		if (v2 == rootInG2) {
 			for (adjEntry adj1 : v1->adjEntries) {
 				if (adj1->isSource()) {
-					product.newEdge(srcInProduct,
-						nodeInProduct[adj1->twinNode()][v2]
-					);
+					product.newEdge(srcInProduct, nodeInProduct[adj1->twinNode()][v2]);
 				}
 			}
 		}

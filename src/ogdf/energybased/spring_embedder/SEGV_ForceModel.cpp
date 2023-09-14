@@ -33,10 +33,9 @@
 
 namespace ogdf {
 
-DPoint SpringEmbedderGridVariant::ForceModelBase::
-computeRepulsiveForce(int j, double boxLength, int idealExponent, int normExponent) const
-{
-	const NodeInfo &vj = m_vInfo[j];
+DPoint SpringEmbedderGridVariant::ForceModelBase::computeRepulsiveForce(int j, double boxLength,
+		int idealExponent, int normExponent) const {
+	const NodeInfo& vj = m_vInfo[j];
 	int grid_x = vj.m_gridX;
 	int grid_y = vj.m_gridY;
 
@@ -51,8 +50,8 @@ computeRepulsiveForce(int j, double boxLength, int idealExponent, int normExpone
 				DPoint dist = vj.m_pos - m_vInfo[u].m_pos;
 				double d = dist.norm();
 
-				if(d < boxLength) {
-					dist /= std::pow(d, normExponent+1) + eps();
+				if (d < boxLength) {
+					dist /= std::pow(d, normExponent + 1) + eps();
 					force += dist;
 				}
 			}
@@ -64,14 +63,12 @@ computeRepulsiveForce(int j, double boxLength, int idealExponent, int normExpone
 	return force;
 }
 
-DPoint SpringEmbedderGridVariant::ForceModelBase::
-computeMixedForcesDisplacement(int j, int boxLength,
-                               std::function<DPoint(double, const DPoint &)> attractiveChange,
-                               std::function<double()> attractiveFinal) const
-{
+DPoint SpringEmbedderGridVariant::ForceModelBase::computeMixedForcesDisplacement(int j,
+		int boxLength, std::function<DPoint(double, const DPoint&)> attractiveChange,
+		std::function<double()> attractiveFinal) const {
 	DPoint disp(computeRepulsiveForce(j, boxLength, 2));
 
-	const NodeInfo &vj = m_vInfo[j];
+	const NodeInfo& vj = m_vInfo[j];
 
 	DPoint forceAttr(0, 0);
 	DPoint forceRep(0, 0); // subtract rep. force on adjacent vertices
@@ -96,54 +93,86 @@ computeMixedForcesDisplacement(int j, int boxLength,
 }
 
 // Fruchterman / Reingold
-DPoint SpringEmbedderGridVariant::ForceModelFR::computeDisplacement(int j, double boxLength) const
-{
+DPoint SpringEmbedderGridVariant::ForceModelFR::computeDisplacement(int j, double boxLength) const {
 	return computeRepulsiveForce(j, boxLength, 2) + computeFruchtermanReingoldAttractiveForce(j, 1);
 }
 
 // Fruchterman / Reingold with modified attractive forces
-DPoint SpringEmbedderGridVariant::ForceModelFRModAttr::computeDisplacement(int j, double boxLength) const
-{
+DPoint SpringEmbedderGridVariant::ForceModelFRModAttr::computeDisplacement(int j,
+		double boxLength) const {
 	return computeRepulsiveForce(j, boxLength, 3) + computeFruchtermanReingoldAttractiveForce(j, 1);
 }
 
 // Fruchterman / Reingold with modified repulsive
-DPoint SpringEmbedderGridVariant::ForceModelFRModRep::computeDisplacement(int j, double boxLength) const
-{
-	return computeRepulsiveForce(j, boxLength, 2, 2) + computeFruchtermanReingoldAttractiveForce(j, 2);
+DPoint SpringEmbedderGridVariant::ForceModelFRModRep::computeDisplacement(int j,
+		double boxLength) const {
+	return computeRepulsiveForce(j, boxLength, 2, 2)
+			+ computeFruchtermanReingoldAttractiveForce(j, 2);
 }
 
 // Eades
-DPoint SpringEmbedderGridVariant::ForceModelEades::computeDisplacement(int j, double boxLength) const
-{
-	return computeMixedForcesDisplacement(j, boxLength, [=](double d, const DPoint &dist) {
-		// attractive forces on j: F_attr(d) = -c iel log_2(d/iel)
-		return std::log2(normByIdealEdgeLength(d)) * dist;
-	}, [=] {
-		return 0.1 * m_idealEdgeLength;
-	});
+DPoint SpringEmbedderGridVariant::ForceModelEades::computeDisplacement(int j, double boxLength) const {
+#if __cplusplus >= 202002L
+	return computeMixedForcesDisplacement(
+			j, boxLength,
+			[=, this](double d, const DPoint& dist) {
+				// attractive forces on j: F_attr(d) = -c iel log_2(d/iel)
+				return std::log2(normByIdealEdgeLength(d)) * dist;
+			},
+			[=, this] { return 0.1 * m_idealEdgeLength; });
+#else
+	return computeMixedForcesDisplacement(
+			j, boxLength,
+			[=](double d, const DPoint& dist) {
+				// attractive forces on j: F_attr(d) = -c iel log_2(d/iel)
+				return std::log2(normByIdealEdgeLength(d)) * dist;
+			},
+			[=] { return 0.1 * m_idealEdgeLength; });
+#endif
 }
 
 // Hachul (new method)
-DPoint SpringEmbedderGridVariant::ForceModelHachul::computeDisplacement(int j, double boxLength) const
-{
-	return computeMixedForcesDisplacement(j, boxLength, [=](double d, const DPoint &dist) {
-		// attractive forces on j: F_attr(d) = -d^2 log_2(d/iel) / iel
-		return d * std::log2(normByIdealEdgeLength(d)) * dist;
-	}, [=] {
-		return 1.0 / m_idealEdgeLength;
-	});
+DPoint SpringEmbedderGridVariant::ForceModelHachul::computeDisplacement(int j,
+		double boxLength) const {
+#if __cplusplus >= 202002L
+	return computeMixedForcesDisplacement(
+			j, boxLength,
+			[=, this](double d, const DPoint& dist) {
+				// attractive forces on j: F_attr(d) = -d^2 log_2(d/iel) / iel
+				return d * std::log2(normByIdealEdgeLength(d)) * dist;
+			},
+			[=, this] { return 1.0 / m_idealEdgeLength; });
+#else
+	return computeMixedForcesDisplacement(
+			j, boxLength,
+			[=](double d, const DPoint& dist) {
+				// attractive forces on j: F_attr(d) = -d^2 log_2(d/iel) / iel
+				return d * std::log2(normByIdealEdgeLength(d)) * dist;
+			},
+			[=] { return 1.0 / m_idealEdgeLength; });
+#endif
 }
 
 // Gronemann
-DPoint SpringEmbedderGridVariant::ForceModelGronemann::computeDisplacement(int j, double boxLength) const
-{
-	return computeMixedForcesDisplacement(j, boxLength, [=](double d, const DPoint &dist) {
-		// attractive forces on j: F_attr(d) = c / deg(v) * ln(d/iel)
-		return log(normByIdealEdgeLength(d)) * dist;
-	}, [=] {
-		return 0.5 * (m_vInfo[j].m_adjStop - m_vInfo[j].m_adjBegin);
-	});
+DPoint SpringEmbedderGridVariant::ForceModelGronemann::computeDisplacement(int j,
+		double boxLength) const {
+#if __cplusplus >= 202002L
+	return computeMixedForcesDisplacement(
+			j, boxLength,
+			[=, this](double d, const DPoint& dist) {
+				// attractive forces on j: F_attr(d) = c / deg(v) * ln(d/iel)
+				return log(normByIdealEdgeLength(d)) * dist;
+			},
+			[=, this] { return 0.5 * (m_vInfo[j].m_adjStop - m_vInfo[j].m_adjBegin); });
+#else
+	return computeMixedForcesDisplacement(
+			j, boxLength,
+			[=](double d, const DPoint& dist) {
+				// attractive forces on j: F_attr(d) = c / deg(v) * ln(d/iel)
+				return log(normByIdealEdgeLength(d)) * dist;
+			},
+			[=] { return 0.5 * (m_vInfo[j].m_adjStop - m_vInfo[j].m_adjBegin); });
+#endif
 }
 
 }

@@ -32,14 +32,13 @@
 
 #pragma once
 
-#include <ogdf/planarity/LayoutPlanRepModule.h>
 #include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/planarity/LayoutPlanRepModule.h>
 
 namespace ogdf {
 
 //! The Orthogonal layout algorithm for planar graphs.
-class OGDF_EXPORT OrthoLayout : public LayoutPlanRepModule
-{
+class OGDF_EXPORT OrthoLayout : public LayoutPlanRepModule {
 public:
 	//! Creates an instance of Orthogonal layout and sets options to default values.
 	OrthoLayout();
@@ -58,48 +57,36 @@ public:
 	 *                    face of the drawing.
 	 * @param drawing     is assigned the final layout.
 	 */
-	virtual void call(PlanRep &PG, adjEntry adjExternal, Layout &drawing) override;
+	virtual void call(PlanRep& PG, adjEntry adjExternal, Layout& drawing) override;
 
-	/** @}
+	/**
 	 *  @name Optional parameters
 	 *  @{
 	 */
 
 	//! Returns the minimum distance between edges and vertices.
-	double separation() const override {
-		return m_separation;
-	}
+	double separation() const override { return m_separation; }
 
 	//! Sets the minimum distance between vertices.
-	void separation(double sep) override {
-		m_separation = sep;
-	}
+	void separation(double sep) override { m_separation = sep; }
 
 	//! Returns the option #m_cOverhang, which specifies the minimal distance of incident edges to the corner of a vertex.
 	/**
 	 * #m_cOverhang * #m_separation is the minimum distance between the glue point of an edge and a corner of the vertex boundary.
 	 */
-	double cOverhang() const {
-		return m_cOverhang;
-	}
+	double cOverhang() const { return m_cOverhang; }
 
 	//! Sets the option #m_cOverhang, which specifies the minimal distance of incident edges to the corner of a vertex.
-	void cOverhang(double c) {
-		m_cOverhang = c;
-	}
+	void cOverhang(double c) { m_cOverhang = c; }
 
 	//! Returns the desired margin around the drawing.
 	/**
 	 * This is the distance between the tight bounding box and the boundary of the drawing.
 	 */
-	double margin() const {
-		return m_margin;
-	}
+	double margin() const { return m_margin; }
 
 	//! Sets the desired margin around the drawing.
-	void margin(double m) {
-		m_margin = m;
-	}
+	void margin(double m) { m_margin = m; }
 
 	//! Returns whether the currently selected orthogonaliaztion model is \a progressive.
 	bool progressive() const { return m_progressive; }
@@ -118,7 +105,9 @@ public:
 
 	//! Set bound on the number of bends
 	void bendBound(int i) {
-		if(i >= 0) m_bendBound = i;
+		if (i >= 0) {
+			m_bendBound = i;
+		}
 	}
 
 	//! @}
@@ -126,7 +115,7 @@ public:
 private:
 	// compute bounding box and move final drawing such that it is 0 aligned
 	// respecting margins
-	void computeBoundingBox(const PlanRep &PG, Layout &drawing);
+	void computeBoundingBox(const PlanRep& PG, Layout& drawing);
 
 	// options
 

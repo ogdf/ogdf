@@ -45,16 +45,15 @@ namespace ogdf {
 template<typename T>
 class Reverse {
 	//! The container for which reverse iterators should be provided.
-	T &m_container;
+	T& m_container;
 
 public:
 	//! Creates a reverse iteration wrapper for \p container.
-	explicit Reverse(T &container) : m_container(container) { }
+	explicit Reverse(T& container) : m_container(container) { }
 
 	//! Provides a reverse iterator disguised a normal iterator.
 	using iterator = typename std::conditional<std::is_const<T>::value,
-	                 typename T::const_reverse_iterator,
-	                 typename T::reverse_iterator>::type;
+			typename T::const_reverse_iterator, typename T::reverse_iterator>::type;
 
 	//! Returns a reverse iterator to the last element of #m_container.
 	iterator begin() { return m_container.rbegin(); }
@@ -72,7 +71,7 @@ public:
  * @param container is the container to be reversed.
  */
 template<typename T>
-Reverse<T> reverse(T &container) {
+Reverse<T> reverse(T& container) {
 	return Reverse<T>(container);
 }
 

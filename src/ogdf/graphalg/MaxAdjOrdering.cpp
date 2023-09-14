@@ -31,20 +31,13 @@
 
 #include <ogdf/graphalg/MaxAdjOrdering.h>
 
-
 namespace ogdf {
 
-MaxAdjOrdering::MaxAdjOrdering()
-{
-}
+MaxAdjOrdering::MaxAdjOrdering() { }
 
-MaxAdjOrdering::~MaxAdjOrdering()
-{
-}
+MaxAdjOrdering::~MaxAdjOrdering() { }
 
-void MaxAdjOrdering::calc(const Graph *G,
-                          ListPure<node> *MAO)
-{
+void MaxAdjOrdering::calc(const Graph* G, ListPure<node>* MAO) {
 	//node count
 	int n = G->numberOfNodes();
 
@@ -53,7 +46,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	NodeArray<int> r{*G, 0};
+	NodeArray<int> r {*G, 0};
 
 	//currently maximal node
 	node curMaxNode(*(unsortedNodes.begin()));
@@ -74,7 +67,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 		unsortedNodes.del(unsortedNodes.search(lastAdded));
 
 		//set maximal node to first unsorted
-		if (i < n-1) {
+		if (i < n - 1) {
 			curMaxNode = unsortedNodes.front();
 			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
@@ -110,9 +103,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	}
 }
 
-void MaxAdjOrdering::calcBfs(const Graph *G,
-                             ListPure<node> *MAO)
-{
+void MaxAdjOrdering::calcBfs(const Graph* G, ListPure<node>* MAO) {
 	//node count
 	int n = G->numberOfNodes();
 	if (n < 1) {
@@ -129,7 +120,7 @@ void MaxAdjOrdering::calcBfs(const Graph *G,
 	node curMaxTieNode(*(unsortedNodes.begin()));
 
 	//neighbourhood counter
-	NodeArray<int> r{*G, 0};
+	NodeArray<int> r {*G, 0};
 
 	//currently maximal node
 	node curMaxNode(*(unsortedNodes.begin()));
@@ -151,7 +142,7 @@ void MaxAdjOrdering::calcBfs(const Graph *G,
 		unsortedNodes.del(unsortedNodes.search(lastAdded));
 
 		//set maximal node to first unsorted
-		if (i < n-1) {
+		if (i < n - 1) {
 			//reset the tied nodes
 			tiedNodes.clear();
 			tiedNodes.pushBack(unsortedNodes.front());
@@ -164,7 +155,7 @@ void MaxAdjOrdering::calcBfs(const Graph *G,
 
 			for (auto& u : unsortedNodes) {
 				//if we find a node tha currently also attains the maximum, we add it to the tiedNodes
-				if ((r[u] == curMaxVal)&&(u != tiedNodes.front())) {
+				if ((r[u] == curMaxVal) && (u != tiedNodes.front())) {
 					tiedNodes.pushBack(u);
 				}
 				//if the maximum changes we need to clear the tied nodes
@@ -244,19 +235,17 @@ void MaxAdjOrdering::calcBfs(const Graph *G,
 			}
 		}
 
-		Logger::slout(Logger::Level::Minor) << "Tied nodes with maximal tie value -" << curMaxTie << "- among the nodes: ";
+		Logger::slout(Logger::Level::Minor)
+				<< "Tied nodes with maximal tie value -" << curMaxTie << "- among the nodes: ";
 		for (auto& t : tiedNodes) {
 			Logger::slout(Logger::Level::Minor) << t->index() << ",";
 		}
-		Logger::slout(Logger::Level::Minor) <<" and  node "<< curMaxTieNode->index() << " wins." << std::endl;
-
+		Logger::slout(Logger::Level::Minor)
+				<< " and  node " << curMaxTieNode->index() << " wins." << std::endl;
 	}
 }
 
-void MaxAdjOrdering::calc(const Graph *G,
-                          ListPure<node> *MAO,
-                          ListPure<ListPure<edge>> *Forests)
-{
+void MaxAdjOrdering::calc(const Graph* G, ListPure<node>* MAO, ListPure<ListPure<edge>>* Forests) {
 	//node count
 	int n(G->numberOfNodes());
 
@@ -265,7 +254,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	NodeArray<int> r{*G, 0};
+	NodeArray<int> r {*G, 0};
 
 	//currently maximal node
 	node curMaxNode(*(unsortedNodes.begin()));
@@ -286,7 +275,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 		unsortedNodes.del(unsortedNodes.search(lastAdded));
 
 		//set maximal node to currently maximal unsorted
-		if (i < n-1) {
+		if (i < n - 1) {
 			curMaxNode = unsortedNodes.front();
 			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
@@ -318,16 +307,13 @@ void MaxAdjOrdering::calc(const Graph *G,
 				if (r_ >= Forests->size()) {
 					Forests->pushBack(ListPure<edge>());
 				}
-				(*(Forests->get(r_-1))).pushBack(e);
+				(*(Forests->get(r_ - 1))).pushBack(e);
 			}
 		}
 	}
 }
 
-void MaxAdjOrdering::calc(const Graph *G,
-                          node s,
-                          ListPure<node> *MAO)
-{
+void MaxAdjOrdering::calc(const Graph* G, node s, ListPure<node>* MAO) {
 	//node count
 	int n = G->numberOfNodes();
 
@@ -336,7 +322,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	NodeArray<int> r{*G, 0};
+	NodeArray<int> r {*G, 0};
 
 	//currently maximal node
 	node curMaxNode = s;
@@ -356,7 +342,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 		//delete it from unsorted nodes
 		unsortedNodes.del(unsortedNodes.search(lastAdded));
 
-		if (i < n-1) {
+		if (i < n - 1) {
 			curMaxNode = unsortedNodes.front();
 			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
@@ -390,11 +376,8 @@ void MaxAdjOrdering::calc(const Graph *G,
 	}
 }
 
-void MaxAdjOrdering::calc(const Graph *G,
-                          node s,
-                          ListPure<node> *MAO,
-                          ListPure<ListPure<edge>> *Forests)
-{
+void MaxAdjOrdering::calc(const Graph* G, node s, ListPure<node>* MAO,
+		ListPure<ListPure<edge>>* Forests) {
 	//node count
 	int n = G->numberOfNodes();
 
@@ -403,7 +386,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 	G->allNodes(unsortedNodes);
 
 	//neighbourhood counter
-	NodeArray<int> r{*G, 0};
+	NodeArray<int> r {*G, 0};
 
 	//currently maximal node
 	node curMaxNode = s;
@@ -424,7 +407,7 @@ void MaxAdjOrdering::calc(const Graph *G,
 		unsortedNodes.del(unsortedNodes.search(lastAdded));
 
 		//set maximal node to first unsorted
-		if (i < n-1) {
+		if (i < n - 1) {
 			curMaxNode = unsortedNodes.front();
 			curMaxVal = r[curMaxNode];
 			for (auto& u : unsortedNodes) {
@@ -457,15 +440,13 @@ void MaxAdjOrdering::calc(const Graph *G,
 				if (r_ >= Forests->size()) {
 					Forests->pushBack(ListPure<edge>());
 				}
-				(*(Forests->get(r_-1))).pushBack(e);
+				(*(Forests->get(r_ - 1))).pushBack(e);
 			}
 		}
 	}
 }
 
-void MaxAdjOrdering::calcAll(const Graph *G,
-                             ListPure<ListPure<node>> *MAOs)
-{
+void MaxAdjOrdering::calcAll(const Graph* G, ListPure<ListPure<node>>* MAOs) {
 	//initialize backtrackstack
 	ListPure<node> nodes;
 	G->allNodes(nodes);
@@ -477,21 +458,12 @@ void MaxAdjOrdering::calcAll(const Graph *G,
 		ListPure<node> unsorted = nodes;
 		unsorted.del(unsorted.search(it));
 		start.pushBack(it);
-		m_calcAllMAOs_recursion(G->numberOfNodes(),
-		                        start,
-		                        unsorted,
-		                        NodeArray<int>{*G, 0},
-		                        MAOs);
+		m_calcAllMAOs_recursion(G->numberOfNodes(), start, unsorted, NodeArray<int> {*G, 0}, MAOs);
 	}
 }
 
-
-void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
-                                             ListPure<node> currentOrder,
-                                             ListPure<node> currentUnsorted,
-                                             NodeArray<int> r,
-                                             ListPure<ListPure<node>> *MAOs)
-{
+void MaxAdjOrdering::m_calcAllMAOs_recursion(int n, ListPure<node> currentOrder,
+		ListPure<node> currentUnsorted, NodeArray<int> r, ListPure<ListPure<node>>* MAOs) {
 	if (currentUnsorted.empty()) {
 		//one MAO is done!
 		MAOs->pushBack(currentOrder);
@@ -565,18 +537,12 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 
 		//the current node needs to be removed from the unsorted for the next step
 		nextUnsorted.del(nextUnsorted.search(it));
-		m_calcAllMAOs_recursion(n,
-		                        nextOrder,
-		                        nextUnsorted,
-		                        r,
-		                        MAOs);
+		m_calcAllMAOs_recursion(n, nextOrder, nextUnsorted, r, MAOs);
 	}
 }
 
-void MaxAdjOrdering::calcAll(const Graph *G,
-                             ListPure<ListPure<node>> *MAOs,
-                             ListPure<ListPure<ListPure<edge>>> *Fs)
-{
+void MaxAdjOrdering::calcAll(const Graph* G, ListPure<ListPure<node>>* MAOs,
+		ListPure<ListPure<ListPure<edge>>>* Fs) {
 	//initialize backtrackstack
 	ListPure<node> nodes;
 	G->allNodes(nodes);
@@ -589,24 +555,14 @@ void MaxAdjOrdering::calcAll(const Graph *G,
 		ListPure<node> unsorted = nodes;
 		unsorted.del(unsorted.search(it));
 		start.pushBack(it);
-		m_calcAllMAOs_recursion(G->numberOfNodes(),
-		                        start,
-		                        ListPure<ListPure<edge>>(),
-		                        unsorted,
-		                        NodeArray<int>{*G, 0},
-		                        MAOs,
-		                        Fs);
+		m_calcAllMAOs_recursion(G->numberOfNodes(), start, ListPure<ListPure<edge>>(), unsorted,
+				NodeArray<int> {*G, 0}, MAOs, Fs);
 	}
 }
 
-void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
-                                             ListPure<node> currentOrder,
-                                             ListPure<ListPure<edge>> currentForest,
-                                             ListPure<node> currentUnsorted,
-                                             NodeArray<int> r,
-                                             ListPure<ListPure<node>> *MAOs,
-                                             ListPure<ListPure<ListPure<edge>>> *Fs)
-{
+void MaxAdjOrdering::m_calcAllMAOs_recursion(int n, ListPure<node> currentOrder,
+		ListPure<ListPure<edge>> currentForest, ListPure<node> currentUnsorted, NodeArray<int> r,
+		ListPure<ListPure<node>>* MAOs, ListPure<ListPure<ListPure<edge>>>* Fs) {
 	if (currentUnsorted.empty()) {
 		//one MAO is done!
 		MAOs->pushBack(currentOrder);
@@ -669,7 +625,7 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 			if (r_ >= currentForest.size()) {
 				currentForest.pushBack(ListPure<edge>());
 			}
-			(*currentForest.get(r_-1)).pushBack(e);
+			(*currentForest.get(r_ - 1)).pushBack(e);
 		}
 	}
 
@@ -684,21 +640,14 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(int n,
 		//the current node is the next one in the next calculated order
 		nextOrder.pushBack(it);
 
-		m_calcAllMAOs_recursion(n,
-		                        nextOrder,
-		                        currentForest,
-		                        nextUnsorted,
-		                        r,
-		                        MAOs,
-		                        Fs);
+		m_calcAllMAOs_recursion(n, nextOrder, currentForest, nextUnsorted, r, MAOs, Fs);
 	}
 }
 
-bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<node> *Ordering)
-{
+bool MaxAdjOrdering::testIfMAO(const Graph* G, ListPure<node>* Ordering) {
 	unsigned int i = 0;
 	unsigned int n = Ordering->size();
-	NodeArray<unsigned int> r(*G,0);
+	NodeArray<unsigned int> r(*G, 0);
 	node op;
 	ListPure<node> tested;
 	for (auto& o : *Ordering) {
@@ -712,13 +661,13 @@ bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<node> *Ordering)
 				r[op]++;
 			}
 		}
-		if (i < n-1) {
+		if (i < n - 1) {
 			/**go through all following nodes and check if
 			 * neighbourhood is bigger than then one in the
 			 * ordering. If yes - return false because no MAO.
 			 */
-			for (ListIterator<node> next = Ordering->get(i+1); next != Ordering->end(); next++) {
-				if (r[*next] > r[*(Ordering->get(i+1))]) {
+			for (ListIterator<node> next = Ordering->get(i + 1); next != Ordering->end(); next++) {
+				if (r[*next] > r[*(Ordering->get(i + 1))]) {
 					return 0;
 				}
 			}
@@ -728,11 +677,10 @@ bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<node> *Ordering)
 	return 1;
 }
 
-bool MaxAdjOrdering::testIfMAOBfs(const Graph *G, ListPure<node> *Ordering)
-{
+bool MaxAdjOrdering::testIfMAOBfs(const Graph* G, ListPure<node>* Ordering) {
 	unsigned int i = 0;
-	NodeArray<unsigned int> r(*G,0);
-	NodeArray<unsigned int> nbh(*G,0);
+	NodeArray<unsigned int> r(*G, 0);
+	NodeArray<unsigned int> nbh(*G, 0);
 	node op;
 	ListPure<node> tested;
 	for (auto& o : *Ordering) {
@@ -745,9 +693,9 @@ bool MaxAdjOrdering::testIfMAOBfs(const Graph *G, ListPure<node> *Ordering)
 				r[op]++;
 			}
 		}
-		for (ListIterator<node> next = Ordering->get(i); next.valid();next++) {
+		for (ListIterator<node> next = Ordering->get(i); next.valid(); next++) {
 			nbh[*next] *= 2;
-			if (G->searchEdge(o,*next)) {
+			if (G->searchEdge(o, *next)) {
 				nbh[*next]++;
 			}
 		}
@@ -756,12 +704,13 @@ bool MaxAdjOrdering::testIfMAOBfs(const Graph *G, ListPure<node> *Ordering)
 		 * neighbourhood is bigger than then one in the
 		 * ordering. If yes - return false because no MAO.
 		 */
-		for (ListIterator<node> next = Ordering->get(i+2); next.valid(); next++) {
-			if (r[*next] > r[*(Ordering->get(i+1))]) {
+		for (ListIterator<node> next = Ordering->get(i + 2); next.valid(); next++) {
+			if (r[*next] > r[*(Ordering->get(i + 1))]) {
 				return 0;
 			}
 
-			if ((nbh[*next] > nbh[*(Ordering->get(i+1))])&&(r[*next] == r[*(Ordering->get(i+1))])) {
+			if ((nbh[*next] > nbh[*(Ordering->get(i + 1))])
+					&& (r[*next] == r[*(Ordering->get(i + 1))])) {
 				return 0;
 			}
 		}
@@ -771,10 +720,38 @@ bool MaxAdjOrdering::testIfMAOBfs(const Graph *G, ListPure<node> *Ordering)
 	return 1;
 }
 
-bool MaxAdjOrdering::testIfAllMAOs(const Graph *G,
-                                   ListPure<ListPure<node>> *Orderings,
-                                   ListPure<ListPure<node>> *Perms)
-{
+void MaxAdjOrdering::calcForest(const Graph& G, ListPure<node>* MAO, ListPure<ListPure<edge>>* F) {
+	calcForest(G, *MAO, F);
+}
+
+void MaxAdjOrdering::calcForest(const Graph& G, const ListPure<node>& MAO,
+		ListPure<ListPure<edge>>* F) {
+	// lazy way to compute forest for given MAO with adjacency oracle
+	AdjacencyOracle o = AdjacencyOracle(G, 1);
+
+	//TODO: n is iterator over ALL nodes, computes adjacency for all nodes
+	ListPure<node> maoLeftTail(MAO);
+
+	// go over all nodes *n of MAO from last to first
+	for (ListConstIterator<node> n = MAO.rbegin(); n.valid(); n--) {
+		maoLeftTail.popBack();
+		int r = 0;
+		for (ListIterator<node> m = maoLeftTail.begin(); m.valid(); m++) {
+			// in case of adjacency, put the edge (*n,*m) in the corresponding tree of the forest
+			if (o.adjacent(*n, *m)) {
+				r++;
+				if (r >= F->size()) {
+					F->pushBack(ListPure<edge>());
+				}
+				edge e = G.searchEdge(*n, *m);
+				(*F->get(r - 1)).pushBack(e);
+			}
+		}
+	}
+}
+
+bool MaxAdjOrdering::testIfAllMAOs(const Graph* G, ListPure<ListPure<node>>* Orderings,
+		ListPure<ListPure<node>>* Perms) {
 	ListPure<node> nodes;
 	G->allNodes(nodes);
 	int n = nodes.size();
@@ -790,32 +767,31 @@ bool MaxAdjOrdering::testIfAllMAOs(const Graph *G,
 		}
 
 		//check if testPerm is a MAO - this way we find all MAOs
-		if (testIfMAO(G,&testPerm)) {
+		if (testIfMAO(G, &testPerm)) {
 			//if we don't find the testPerm in our provided list, we will not have generated
 			//all MAOs
 			ListIterator<ListPure<node>> pIt = Orderings->search(testPerm);
-			if (!pIt.valid())
+			if (!pIt.valid()) {
 				return 0;
-		}
-		else {
+			}
+		} else {
 			//if we find the testPerm in the list we did calculate to many MAOs
 			ListIterator<ListPure<node>> pIt = Orderings->search(testPerm);
-			if (pIt.valid())
+			if (pIt.valid()) {
 				return 0;
+			}
 		}
 	}
 
 	return 1;
 }
 
-void MaxAdjOrdering::visualize(GraphAttributes *GA,
-                               ListPure<node> *MAO)
-{
+void MaxAdjOrdering::visualize(GraphAttributes* GA, ListPure<node>* MAO) {
 	const Graph& G = GA->constGraph();
 	List<node> nodes;
 	G.allNodes(nodes);
 
-	LinearLayout layout(600,*MAO);
+	LinearLayout layout(600, *MAO);
 	layout.setCustomOrder(1);
 	layout.call(*GA);
 
@@ -830,26 +806,28 @@ void MaxAdjOrdering::visualize(GraphAttributes *GA,
 	}
 }
 
-void MaxAdjOrdering::visualize(GraphAttributes *GA,
-                               ListPure<node> *MAO,
-                               ListPure<ListPure<edge>> *F)
-{
+void MaxAdjOrdering::visualize(GraphAttributes* GA, ListPure<node>* MAO, ListPure<ListPure<edge>>* F) {
+	visualize(GA, *MAO, F);
+}
+
+void MaxAdjOrdering::visualize(GraphAttributes* GA, const ListPure<node>& MAO,
+		ListPure<ListPure<edge>>* F) {
 	const Graph& G = GA->constGraph();
 	List<node> nodes;
 	G.allNodes(nodes);
 
-	LinearLayout layout(140*nodes.size(),*MAO);
+	LinearLayout layout(140 * nodes.size(), MAO);
 	layout.setCustomOrder(1);
 	layout.call(*GA);
 
 	int k = 1;
-	for (auto& n : *MAO) {
+	for (auto& n : MAO) {
 		GA->height(n) = 15;
 		GA->width(n) = 30;
-		GA->label(n) = std::to_string(k++) + std::string(",") + std::to_string(n->index()+1);
+		GA->yLabel(n) = 4;
+		GA->xLabel(n) = 0;
+		GA->label(n) = std::to_string(k++) + std::string(",") + std::to_string(n->index());
 		GA->shape(n) = Shape::Ellipse;
-		GA->strokeColor(n) = Color(Color::Name::Black);
-		GA->fillColor(n) = Color(Color::Name::Red);
 	}
 
 	k = 1;

@@ -34,31 +34,28 @@
 namespace ogdf {
 
 BlockOrder::BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly)
-  : m_GC(hierarchy.operator const ogdf::GraphCopy &().original())
-  , m_ranks(m_GC,0)
-  , m_storedPerm()
-  , m_currentPerm()
-  , m_bestPerm()
-  , m_currentPermInv()
-  , m_storedCrossings(std::numeric_limits<int>::max())
-  , m_bestCrossings(std::numeric_limits<int>::max())
-  , m_Blocks()
-  , m_NodeBlocks(m_GC,nullptr)
-  , m_EdgeBlocks(m_GC,nullptr)
-  , m_isActiveEdge(m_GC,false)
-  , m_activeBlocksCount(0)
-  , m_hierarchy(hierarchy)
-  , m_levels(0,-1,nullptr)
-  , m_verticalStepsBound(0)
-{
+	: m_GC(hierarchy.operator const ogdf::GraphCopy&().original())
+	, m_ranks(m_GC, 0)
+	, m_storedPerm()
+	, m_currentPerm()
+	, m_bestPerm()
+	, m_currentPermInv()
+	, m_storedCrossings(std::numeric_limits<int>::max())
+	, m_bestCrossings(std::numeric_limits<int>::max())
+	, m_Blocks()
+	, m_NodeBlocks(m_GC, nullptr)
+	, m_EdgeBlocks(m_GC, nullptr)
+	, m_isActiveEdge(m_GC, false)
+	, m_activeBlocksCount(0)
+	, m_hierarchy(hierarchy)
+	, m_levels(0, -1, nullptr)
+	, m_verticalStepsBound(0) {
 	doInit(longEdgesOnly);
 }
 
-
-void BlockOrder::doInit(bool longEdgesOnly)
-{
-	const GraphCopy &GC = m_hierarchy;
-	NodeArray<bool> nodesInCC(m_GC,false);
+void BlockOrder::doInit(bool longEdgesOnly) {
+	const GraphCopy& GC = m_hierarchy;
+	NodeArray<bool> nodesInCC(m_GC, false);
 
 	unsigned int countBlocks = 0;
 
@@ -68,7 +65,7 @@ void BlockOrder::doInit(bool longEdgesOnly)
 	m_nNodesOnLvls.init(minLvl, maxLvl, 0);
 
 	// one block for every node
-	for(node v : GC.nodes) {
+	for (node v : GC.nodes) {
 		//m_GC may contain nodes from another CC
 		if (GC.original(v) != nullptr) {
 			m_ranks[GC.original(v)] = m_hierarchy.rank(v);
@@ -79,7 +76,7 @@ void BlockOrder::doInit(bool longEdgesOnly)
 	}
 
 	//one block for every long edge
-	for(edge e : m_GC.edges) {
+	for (edge e : m_GC.edges) {
 		node src = e->source();
 		node tgt = e->target();
 
@@ -101,7 +98,7 @@ void BlockOrder::doInit(bool longEdgesOnly)
 	m_currentPermInv.init(countBlocks);
 
 	int i = 0;
-	for(node v : GC.nodes) {
+	for (node v : GC.nodes) {
 		node vOrig = GC.original(v);
 		if (vOrig != nullptr) {
 			m_Blocks[i] = m_NodeBlocks[vOrig] = new Block(vOrig);
@@ -112,7 +109,7 @@ void BlockOrder::doInit(bool longEdgesOnly)
 		}
 	}
 
-	for(edge e : m_GC.edges) {
+	for (edge e : m_GC.edges) {
 		node src = e->source();
 		node tgt = e->target();
 
@@ -130,50 +127,50 @@ void BlockOrder::doInit(bool longEdgesOnly)
 			if (top + 1 < bot) {
 				m_isActiveEdge[e] = true;
 				m_activeBlocksCount += 1;
-			} else
+			} else {
 				m_isActiveEdge[e] = false;
+			}
 		}
 	}
 }
 
-
 Block::Block(edge e)
-: m_NeighboursIncoming(1)
-, m_InvertedIncoming(1)
-, m_NeighboursOutgoing(1)
-, m_InvertedOutgoing(1)
-, m_Edge(e)
-, m_isEdgeBlock(true)
-, m_isNodeBlock(false)
-{ }
-
+	: m_NeighboursIncoming(1)
+	, m_InvertedIncoming(1)
+	, m_NeighboursOutgoing(1)
+	, m_InvertedOutgoing(1)
+	, m_Edge(e)
+	, m_isEdgeBlock(true)
+	, m_isNodeBlock(false) { }
 
 Block::Block(node v)
-: m_NeighboursIncoming(v->indeg())
-, m_InvertedIncoming(v->indeg())
-, m_NeighboursOutgoing(v->outdeg())
-, m_InvertedOutgoing(v->outdeg())
-, m_Node(v)
-, m_isEdgeBlock(false)
-, m_isNodeBlock(true)
-{ }
+	: m_NeighboursIncoming(v->indeg())
+	, m_InvertedIncoming(v->indeg())
+	, m_NeighboursOutgoing(v->outdeg())
+	, m_InvertedOutgoing(v->outdeg())
+	, m_Node(v)
+	, m_isEdgeBlock(false)
+	, m_isNodeBlock(true) { }
 
+void BlockOrder::sortAdjacencies() {
+	Block* processedBlock; // A in paper
 
-void BlockOrder::sortAdjacencies()
-{
-
-	Block *processedBlock; // A in paper
-
-	EdgeArray<int> p(m_GC, 0);  // array P in paper
+	EdgeArray<int> p(m_GC, 0); // array P in paper
 	EdgeArray<int> longEdgeP(m_GC, 0); // additional P for long edges
 	// explanation:
-	// Bachmaier et al. in their paper convert long edge u ---> v to three blocks and two edges: u -> [block for edge] -> v.
-	// I decided to use edges and vertices from original graph (thus I am able to use Node- and EdgeArrays).
+	// Bachmaier et al. in their paper convert long edge u ---> v to three
+	// blocks and two edges: u -> [block for edge] -> v.
+	// I decided to use edges and vertices from original graph (thus I am able
+	// to use Node- and EdgeArrays).
 	// It implies that (block for a long) edge u ---> v is traversed four times
-	// (i.e. twice when blocks for vertices u and v are processed, and then twice, when block for this edge is processed)
-	// and since that, some information can be overwritten and lost.
-	// To avoid this, for any long edge u--->v , array p stores information about source vertex u, and longEdgeP stores information about target vertex v
-	// Later an attempt to delete this array can be made since long edge block have exactly one neighbour incoming and one outgoing.
+	// (i.e. twice when blocks for vertices u and v are processed, and then
+	// twice, when block for this edge is processed) and since that, some
+	// information can be overwritten and lost.
+	// To avoid this, for any long edge u--->v , array p stores information
+	// about source vertex u, and longEdgeP stores information about target
+	// vertex v
+	// Later an attempt to delete this array can be made since long edge block
+	// have exactly one neighbour incoming and one outgoing.
 
 	//Array to store number of items inserted to arrays of neighbours in N+
 	// These arrays store next free position in arrays N+ and  N-
@@ -188,22 +185,22 @@ void BlockOrder::sortAdjacencies()
 			node v = processedBlock->m_Node;
 
 			//foreach s in { (u,v) in E' | v=upper(A)}
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				if (v == e->target()) {
 					// if e is a short edge
 					if (!m_isActiveEdge[e]) {
-
 						node u = e->source();
-						Block *blockOfU = m_NodeBlocks[u];
+						Block* blockOfU = m_NodeBlocks[u];
 
 						// insert v at the next free position j of N+[u]
 						int j = NPlusItemsCount[blockOfU->m_index];
-						NPlusItemsCount [blockOfU->m_index] += 1;
+						NPlusItemsCount[blockOfU->m_index] += 1;
 						blockOfU->m_NeighboursOutgoing[j] = processedBlock->m_index;
 
 
-						if (m_currentPerm[processedBlock->m_index] < m_currentPerm[blockOfU->m_index]) {
+						if (m_currentPerm[processedBlock->m_index]
+								< m_currentPerm[blockOfU->m_index]) {
 							//first traversal of e
 							p[e] = j;
 						} else {
@@ -213,7 +210,7 @@ void BlockOrder::sortAdjacencies()
 						}
 					} else {
 						// e is a long edge
-						Block *blockOfU = m_EdgeBlocks[e];
+						Block* blockOfU = m_EdgeBlocks[e];
 
 						// insert v at the next free position j of N+[u]
 						int j = NPlusItemsCount[blockOfU->m_index];
@@ -222,7 +219,8 @@ void BlockOrder::sortAdjacencies()
 
 						// here we count "edges" outgoing from block u
 						// thus we should use longEdgeP
-						if (m_currentPerm[processedBlock->m_index] < m_currentPerm[blockOfU ->m_index]) {
+						if (m_currentPerm[processedBlock->m_index]
+								< m_currentPerm[blockOfU->m_index]) {
 							//first traversal of e
 							longEdgeP[e] = j;
 						} else {
@@ -236,31 +234,31 @@ void BlockOrder::sortAdjacencies()
 
 			node w = processedBlock->m_Node;
 			// foreach s in { (w,x) in E' | w = lower(A) }
-			for(adjEntry adj : w->adjEntries) {
+			for (adjEntry adj : w->adjEntries) {
 				edge e = adj->theEdge();
 				if (w == e->source()) {
 					// if e is a short edge
 					if (!m_isActiveEdge[e]) {
-
 						node x = e->target();
-						Block *blockOfX = m_NodeBlocks[x];
+						Block* blockOfX = m_NodeBlocks[x];
 
 						// insert w at the next free position j of N-[x]
 						int j = NMinusItemsCount[blockOfX->m_index];
 						NMinusItemsCount[blockOfX->m_index] += 1;
 						blockOfX->m_NeighboursIncoming[j] = processedBlock->m_index;
 
-						if (m_currentPerm[processedBlock->m_index] < m_currentPerm[blockOfX->m_index]) {
+						if (m_currentPerm[processedBlock->m_index]
+								< m_currentPerm[blockOfX->m_index]) {
 							// first traversal of e
 							p[e] = j;
 						} else {
 							//second traversal of e
 							blockOfX->m_InvertedIncoming[j] = p[e];
-							processedBlock->m_InvertedOutgoing [p[e]] = j;
+							processedBlock->m_InvertedOutgoing[p[e]] = j;
 						}
 					} else {
 						// e is a long edge
-						Block *blockOfX = m_EdgeBlocks[e];
+						Block* blockOfX = m_EdgeBlocks[e];
 
 						// insert v at the next free position j of N-(x)
 						int j = NMinusItemsCount[blockOfX->m_index];
@@ -270,7 +268,8 @@ void BlockOrder::sortAdjacencies()
 						// here we count "edges" incoming to edge block
 						// thus we use p instead of LongEdgeP
 
-						if (m_currentPerm[processedBlock->m_index] < m_currentPerm[blockOfX->m_index]) {
+						if (m_currentPerm[processedBlock->m_index]
+								< m_currentPerm[blockOfX->m_index]) {
 							//first traversal of e
 							p[e] = j;
 						} else {
@@ -284,14 +283,13 @@ void BlockOrder::sortAdjacencies()
 		}
 
 		if (processedBlock->isEdgeBlock()) {
-
 			edge e = processedBlock->m_Edge;
 
 			node u = e->source();
 			node x = e->target();
 
-			Block *blockOfU = m_NodeBlocks[u];
-			Block *blockOfX = m_NodeBlocks[x];
+			Block* blockOfU = m_NodeBlocks[u];
+			Block* blockOfX = m_NodeBlocks[x];
 
 
 			// first foreach loop
@@ -320,7 +318,7 @@ void BlockOrder::sortAdjacencies()
 
 				int j = NMinusItemsCount[blockOfX->m_index];
 				NMinusItemsCount[blockOfX->m_index] += 1;
-				blockOfX->m_NeighboursIncoming[j] = processedBlock->m_index ;
+				blockOfX->m_NeighboursIncoming[j] = processedBlock->m_index;
 
 				if (m_currentPerm[processedBlock->m_index] < m_currentPerm[blockOfX->m_index]) {
 					//first traversal of e
@@ -335,27 +333,24 @@ void BlockOrder::sortAdjacencies()
 	}
 }
 
-void BlockOrder::deconstruct()
-{
-	for (auto &elem : m_Blocks) {
+void BlockOrder::deconstruct() {
+	for (auto& elem : m_Blocks) {
 		delete elem;
 	}
-	for (auto &elem : m_levels) {
+	for (auto& elem : m_levels) {
 		delete elem;
 	}
 }
 
-
-void BlockOrder::updateAdjacencies(Block *blockOfA, Block *blockOfB, Direction d)
-{
-	Array<int> &NdA = (d == Direction::Minus) ? blockOfA->m_NeighboursIncoming
-	                                          : blockOfA->m_NeighboursOutgoing;
-	Array<int> &IdA = (d == Direction::Minus) ? blockOfA->m_InvertedIncoming
-	                                          : blockOfA->m_InvertedOutgoing;
-	Array<int> &NdB = (d == Direction::Minus) ? blockOfB->m_NeighboursIncoming
-	                                          : blockOfB->m_NeighboursOutgoing;
-	Array<int> &IdB = (d == Direction::Minus) ? blockOfB->m_InvertedIncoming
-	                                          : blockOfB->m_InvertedOutgoing;
+void BlockOrder::updateAdjacencies(Block* blockOfA, Block* blockOfB, Direction d) {
+	Array<int>& NdA = (d == Direction::Minus) ? blockOfA->m_NeighboursIncoming
+											  : blockOfA->m_NeighboursOutgoing;
+	Array<int>& IdA =
+			(d == Direction::Minus) ? blockOfA->m_InvertedIncoming : blockOfA->m_InvertedOutgoing;
+	Array<int>& NdB = (d == Direction::Minus) ? blockOfB->m_NeighboursIncoming
+											  : blockOfB->m_NeighboursOutgoing;
+	Array<int>& IdB =
+			(d == Direction::Minus) ? blockOfB->m_InvertedIncoming : blockOfB->m_InvertedOutgoing;
 
 	int i = 0, j = 0;
 
@@ -364,40 +359,43 @@ void BlockOrder::updateAdjacencies(Block *blockOfA, Block *blockOfB, Direction d
 
 	while (i < r && j < s) {
 		// if pi (block(xi)) < pi(block (yj))
-		if (m_currentPerm[NdA[i]] < m_currentPerm[NdB[j]])
+		if (m_currentPerm[NdA[i]] < m_currentPerm[NdB[j]]) {
 			++i;
-		else if (m_currentPerm[NdA[i]] > m_currentPerm[NdB[j]])
+		} else if (m_currentPerm[NdA[i]] > m_currentPerm[NdB[j]]) {
 			++j;
-		else {
-			Block *z = m_Blocks[NdA[i]]; // = yj;
+		} else {
+			Block* z = m_Blocks[NdA[i]]; // = yj;
 			if (d == Direction::Plus) {
-
 				z->m_NeighboursIncoming.swap(IdA[i], IdB[j]);
 				z->m_InvertedIncoming.swap(IdA[i], IdB[j]);
 			} else {
 				z->m_NeighboursOutgoing.swap(IdA[i], IdB[j]);
 				z->m_InvertedOutgoing.swap(IdA[i], IdB[j]);
 			}
-			IdA[i] +=  1;
+			IdA[i] += 1;
 			IdB[j] += -1;
-			++i; ++j;
+			++i;
+			++j;
 		}
 	}
 }
 
-
-int BlockOrder::uswap(Block *blockOfA, Block *blockOfB, Direction d, int level)
-{
-	Array<int> &NdA = (d == Direction::Minus) ? blockOfA->m_NeighboursIncoming
-	                                          : blockOfA->m_NeighboursOutgoing;
-	Array<int> &NdB = (d == Direction::Minus) ? blockOfB->m_NeighboursIncoming
-	                                          : blockOfB->m_NeighboursOutgoing;
+int BlockOrder::uswap(Block* blockOfA, Block* blockOfB, Direction d, int level) {
+	Array<int>& NdA = (d == Direction::Minus) ? blockOfA->m_NeighboursIncoming
+											  : blockOfA->m_NeighboursOutgoing;
+	Array<int>& NdB = (d == Direction::Minus) ? blockOfB->m_NeighboursIncoming
+											  : blockOfB->m_NeighboursOutgoing;
 
 	int nextLevel;
-	if (d == Direction::Minus)
-		for (nextLevel = level - 1; m_nNodesOnLvls[nextLevel] == 0; --nextLevel);
-	else
-		for (nextLevel = level + 1; m_nNodesOnLvls[nextLevel] == 0; ++nextLevel);
+	if (d == Direction::Minus) {
+		for (nextLevel = level - 1; m_nNodesOnLvls[nextLevel] == 0; --nextLevel) {
+			;
+		}
+	} else {
+		for (nextLevel = level + 1; m_nNodesOnLvls[nextLevel] == 0; ++nextLevel) {
+			;
+		}
+	}
 
 
 	int c = 0;
@@ -408,7 +406,8 @@ int BlockOrder::uswap(Block *blockOfA, Block *blockOfB, Direction d, int level)
 	int s = NdB.size();
 
 	if ((d == Direction::Minus && nextLevel < blockOfA->m_upper && nextLevel < blockOfB->m_upper)
-	 || (d == Direction::Plus  && nextLevel > blockOfA->m_lower && nextLevel > blockOfB->m_lower)) {
+			|| (d == Direction::Plus && nextLevel > blockOfA->m_lower
+					&& nextLevel > blockOfB->m_lower)) {
 		while (i < r && j < s) {
 			if (m_currentPerm[NdA[i]] < m_currentPerm[NdB[j]]) {
 				c = c + (s - j);
@@ -422,29 +421,28 @@ int BlockOrder::uswap(Block *blockOfA, Block *blockOfB, Direction d, int level)
 				j += 1;
 			}
 		}
-	} else
-	if ((d == Direction::Minus && nextLevel >= blockOfA->m_upper)
-	 || (d == Direction::Plus  && nextLevel <= blockOfA->m_lower)) {
+	} else if ((d == Direction::Minus && nextLevel >= blockOfA->m_upper)
+			|| (d == Direction::Plus && nextLevel <= blockOfA->m_lower)) {
 		// edge in block A is an internal edge
 		int pi = m_currentPerm[blockOfA->m_index];
-		for (j = 0; j < s && m_currentPerm[NdB[j]] < pi ;)
+		for (j = 0; j < s && m_currentPerm[NdB[j]] < pi;) {
 			++j;
+		}
 		// j is the number of blocks on level level that are neighbours of b and are before a in current permutation
 		c = s - 2 * j;
 	} else {
 		// edge in block B is an internal edge
 		int pi = m_currentPerm[blockOfB->m_index];
-		for (i = 0 ; i < r && m_currentPerm[NdA[i]] < pi;)
+		for (i = 0; i < r && m_currentPerm[NdA[i]] < pi;) {
 			++i;
+		}
 		// j is the number of blocks on level level that are neighbours of a and are before b in current permutation
 		c = 2 * i - s;
 	}
 	return c;
 }
 
-
-int BlockOrder::siftingSwap(Block *blockOfA, Block *blockOfB)
-{
+int BlockOrder::siftingSwap(Block* blockOfA, Block* blockOfB) {
 	int Delta = 0;
 
 	if (blockOfA->m_upper > blockOfB->m_lower || blockOfA->m_lower < blockOfB->m_upper) {
@@ -453,19 +451,19 @@ int BlockOrder::siftingSwap(Block *blockOfA, Block *blockOfB)
 	} else {
 		// intersection of A.levels and B.levels is nonempty
 		// top = max(upper(A),upper(B))
-		int top = (blockOfA->m_upper > blockOfB->m_upper) ? blockOfA->m_upper
-		                                                  : blockOfB->m_upper;
+		int top = (blockOfA->m_upper > blockOfB->m_upper) ? blockOfA->m_upper : blockOfB->m_upper;
 		// bottom = min(lower(A),lower(B))
-		int bottom = (blockOfA->m_lower < blockOfB->m_lower) ? blockOfA->m_lower
-		                                                     : blockOfB->m_lower;
+		int bottom = (blockOfA->m_lower < blockOfB->m_lower) ? blockOfA->m_lower : blockOfB->m_lower;
 
 		Delta += uswap(blockOfA, blockOfB, Direction::Minus, top);
-		if (top == blockOfA->m_upper && top == blockOfB->m_upper)
+		if (top == blockOfA->m_upper && top == blockOfB->m_upper) {
 			updateAdjacencies(blockOfA, blockOfB, Direction::Minus);
+		}
 
 		Delta += uswap(blockOfA, blockOfB, Direction::Plus, bottom);
-		if (bottom == blockOfA->m_lower && bottom == blockOfB->m_lower)
+		if (bottom == blockOfA->m_lower && bottom == blockOfB->m_lower) {
 			updateAdjacencies(blockOfA, blockOfB, Direction::Plus);
+		}
 	}
 
 	// swap positions of A and B in permutation
@@ -475,29 +473,28 @@ int BlockOrder::siftingSwap(Block *blockOfA, Block *blockOfB)
 	m_currentPermInv[c] = blockOfB->m_index;
 	m_currentPermInv[d] = blockOfA->m_index;
 
-	m_currentPerm[blockOfA->m_index] +=  1;
+	m_currentPerm[blockOfA->m_index] += 1;
 	m_currentPerm[blockOfB->m_index] += -1;
 
 	return Delta;
 }
 
-
-int BlockOrder::siftingStep(Block *blockOfA)
-{
-
+int BlockOrder::siftingStep(Block* blockOfA) {
 	// new order with A put to front
 	int positionOfA = m_storedPerm[blockOfA->m_index];
 	for (int i = 0; i < m_storedPerm.size(); ++i) {
-		if (m_storedPerm[i] < positionOfA && m_storedPerm[i] != -1)
+		if (m_storedPerm[i] < positionOfA && m_storedPerm[i] != -1) {
 			m_currentPerm[i] = m_storedPerm[i] + 1;
-		else
+		} else {
 			m_currentPerm[i] = m_storedPerm[i];
+		}
 	}
 	m_currentPerm[blockOfA->m_index] = 0;
 
 	for (int i = 0; i < m_currentPerm.size(); ++i) {
-		if (m_currentPerm[i] != -1)
+		if (m_currentPerm[i] != -1) {
 			m_currentPermInv[m_currentPerm[i]] = i;
+		}
 	}
 	sortAdjacencies();
 
@@ -530,38 +527,37 @@ int BlockOrder::siftingStep(Block *blockOfA)
 	return bestChi - oldChi;
 }
 
-
-void BlockOrder::globalSifting(int rho, int nRepeats, int *pNumCrossings)
-{
+void BlockOrder::globalSifting(int rho, int nRepeats, int* pNumCrossings) {
 	Array<int> storedPermInv(m_activeBlocksCount);
 	int p = 0;
 
-	for (auto &elem : m_storedPerm) {
+	for (auto& elem : m_storedPerm) {
 		elem = -1;
 	}
 
-	for (int i = 0; i < m_Blocks.size(); ++i)
+	for (int i = 0; i < m_Blocks.size(); ++i) {
 		if (m_Blocks[i]->isVertexBlock()
-		 || (m_Blocks[i]->isEdgeBlock() && m_isActiveEdge[m_Blocks[i]->m_Edge])) {
+				|| (m_Blocks[i]->isEdgeBlock() && m_isActiveEdge[m_Blocks[i]->m_Edge])) {
 			storedPermInv[p] = i;
 			m_storedPerm[i] = p;
 			++p;
 		}
+	}
 	m_bestCrossings = std::numeric_limits<int>().max();
-
 
 
 	while (rho-- > 0) {
 		storedPermInv.permute(0, m_activeBlocksCount - 1);
 
-		for (int i = 0; i < m_activeBlocksCount; ++i)
+		for (int i = 0; i < m_activeBlocksCount; ++i) {
 			m_storedPerm[storedPermInv[i]] = i;
+		}
 
 		int times = nRepeats;
 		while (times-- > 0) {
-			for (auto &block : m_Blocks) {
+			for (auto& block : m_Blocks) {
 				if (block->isVertexBlock()
-				 || (block->isEdgeBlock() && m_isActiveEdge[block->m_Edge])) {
+						|| (block->isEdgeBlock() && m_isActiveEdge[block->m_Edge])) {
 					siftingStep(block);
 				}
 			}
@@ -582,14 +578,13 @@ void BlockOrder::globalSifting(int rho, int nRepeats, int *pNumCrossings)
 	}
 	m_storedCrossings = m_bestCrossings;
 	buildHierarchy();
-	if(pNumCrossings)
+	if (pNumCrossings) {
 		*pNumCrossings = m_storedCrossings;
+	}
 }
 
-
-void BlockOrder::buildDummyNodesLists()
-{
-	const GraphCopy &GC = m_hierarchy;
+void BlockOrder::buildDummyNodesLists() {
+	const GraphCopy& GC = m_hierarchy;
 	NodeArray<bool> mark(GC, false);
 
 	NodeArray<int> ranks(GC);
@@ -600,14 +595,14 @@ void BlockOrder::buildDummyNodesLists()
 			int rank = m_ranks[v];
 			b->m_nodes.init(rank, rank, nullptr);
 
-		} else if (m_isActiveEdge[b->m_Edge]) 	{
+		} else if (m_isActiveEdge[b->m_Edge]) {
 			//m_Blocks[i] is EdgeBlock
 			b->m_nodes.init(b->m_upper, b->m_lower, nullptr);
 		}
 	}
 
 	// init m_nodes for vertex blocks
-	for(node v : GC.nodes) {
+	for (node v : GC.nodes) {
 		ranks[v] = m_hierarchy.rank(v);
 		node vOrig = GC.original(v);
 		if (vOrig != nullptr) {
@@ -617,9 +612,8 @@ void BlockOrder::buildDummyNodesLists()
 	}
 
 	//init m_nodes for edge blocks
-	for(node v : GC.nodes) {
-		if (m_hierarchy.isLongEdgeDummy(v)
-		 && !mark[v]) {
+	for (node v : GC.nodes) {
+		if (m_hierarchy.isLongEdgeDummy(v) && !mark[v]) {
 			// find the edge from original graph corresponding to this node
 			node low = v;
 			node high = v;
@@ -647,8 +641,7 @@ void BlockOrder::buildDummyNodesLists()
 				}
 			}
 
-			Block *edgeBlock = m_EdgeBlocks[m_GC.searchEdge(GC.original(high),
-			                                                GC.original(low))];
+			Block* edgeBlock = m_EdgeBlocks[m_GC.searchEdge(GC.original(high), GC.original(low))];
 			for (node u : nodesInBlock) {
 				if (!mark[u]) {
 					edgeBlock->m_nodes[ranks[u]] = u;
@@ -659,19 +652,18 @@ void BlockOrder::buildDummyNodesLists()
 	}
 }
 
-
-void BlockOrder::buildLevels()
-{
+void BlockOrder::buildLevels() {
 	Array<int> storedPermInv(m_activeBlocksCount);
 
 	for (int i = 0; i < m_storedPerm.size(); ++i) {
-		if (m_storedPerm[i] != -1)
+		if (m_storedPerm[i] != -1) {
 			storedPermInv[m_storedPerm[i]] = i;
+		}
 	}
 
 
-	m_pos = NodeArray<int>(m_hierarchy,0);
-	for (auto &level : m_levels) {
+	m_pos = NodeArray<int>(m_hierarchy, 0);
+	for (auto& level : m_levels) {
 		delete level;
 	}
 
@@ -680,27 +672,32 @@ void BlockOrder::buildLevels()
 	// find maximum level index
 	int maxLevel = 0;
 
-	for (int i = 0; i < m_activeBlocksCount; ++i)
+	for (int i = 0; i < m_activeBlocksCount; ++i) {
 		maxLevel = max<int>(maxLevel, m_Blocks[storedPermInv[i]]->m_lower);
+	}
 
 	// number of nodes (on each level)
 	Array<int> levelNodes(0, maxLevel, 0);
 
-	for (int i = 0; i < m_activeBlocksCount; ++i)
-		for (int level = m_Blocks[storedPermInv[i]]->m_upper; level <= m_Blocks[storedPermInv[i]]->m_lower; ++level)
+	for (int i = 0; i < m_activeBlocksCount; ++i) {
+		for (int level = m_Blocks[storedPermInv[i]]->m_upper;
+				level <= m_Blocks[storedPermInv[i]]->m_lower; ++level) {
 			levelNodes[level] += 1;
+		}
+	}
 
 
 	m_levels.init(0, maxLevel);
-	for (int i = 0; i <= maxLevel; ++i)
+	for (int i = 0; i <= maxLevel; ++i) {
 		m_levels[i] = new ArrayLevel(levelNodes[i]);
+	}
 
 	Array<int> itemsOnLevelCtr(0, maxLevel, 0);
 
-	for (int i = 0; i < m_activeBlocksCount; ++i){
-		Block *b = m_Blocks[storedPermInv[i]];
+	for (int i = 0; i < m_activeBlocksCount; ++i) {
+		Block* b = m_Blocks[storedPermInv[i]];
 		for (int level = b->m_upper; level <= b->m_lower; ++level) {
-			ArrayLevel &lvl = *m_levels[level];
+			ArrayLevel& lvl = *m_levels[level];
 			lvl[itemsOnLevelCtr[level]] = b->m_nodes[level];
 			m_pos[b->m_nodes[level]] = itemsOnLevelCtr[level];
 			++itemsOnLevelCtr[level];
@@ -709,38 +706,39 @@ void BlockOrder::buildLevels()
 }
 
 // copied from HierarchyLevels
-void BlockOrder::buildAdjNodes()
-{
-	m_nSet = NodeArray<int>(m_hierarchy,0);
-	m_lowerAdjNodes = NodeArray<Array<node> >(m_hierarchy);
-	m_upperAdjNodes = NodeArray<Array<node> >(m_hierarchy);
+void BlockOrder::buildAdjNodes() {
+	m_nSet = NodeArray<int>(m_hierarchy, 0);
+	m_lowerAdjNodes = NodeArray<Array<node>>(m_hierarchy);
+	m_upperAdjNodes = NodeArray<Array<node>>(m_hierarchy);
 
-	const GraphCopy &GC = m_hierarchy;
-	for(node v : GC.nodes) {
+	const GraphCopy& GC = m_hierarchy;
+	for (node v : GC.nodes) {
 		m_lowerAdjNodes[v].init(v->indeg());
 		m_upperAdjNodes[v].init(v->outdeg());
 	}
 
 
-	for (int i = 0; i<= high(); ++i){
+	for (int i = 0; i <= high(); ++i) {
 		if (i > 0) {
-			const ArrayLevel &lowerLevel = *m_levels[i-1];
+			const ArrayLevel& lowerLevel = *m_levels[i - 1];
 
-			for(int j = 0; j <= lowerLevel.high(); ++j)
+			for (int j = 0; j <= lowerLevel.high(); ++j) {
 				m_nSet[lowerLevel[j]] = 0;
+			}
 		}
 
 		if (i < high()) {
-			const ArrayLevel &upperLevel = *m_levels[i+1];
+			const ArrayLevel& upperLevel = *m_levels[i + 1];
 
-			for(int j = 0; j <= upperLevel.high(); ++j)
+			for (int j = 0; j <= upperLevel.high(); ++j) {
 				m_nSet[upperLevel[j]] = 0;
+			}
 		}
 
-		const ArrayLevel &level = *m_levels[i];
-		for(int j = 0; j <= level.high(); ++j) {
+		const ArrayLevel& level = *m_levels[i];
+		for (int j = 0; j <= level.high(); ++j) {
 			node v = level[j];
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				if (e->source() == v) {
 					(m_lowerAdjNodes[e->target()])[m_nSet[e->target()]++] = v;
@@ -752,13 +750,12 @@ void BlockOrder::buildAdjNodes()
 	}
 }
 
-
-int BlockOrder::localCountCrossings(const Array<int> &levels)
-{
-
-	if (levels.size() < 2) return 0;
+int BlockOrder::localCountCrossings(const Array<int>& levels) {
+	if (levels.size() < 2) {
+		return 0;
+	}
 	// set m_currentPerm
-	for (auto &level : m_levels) {
+	for (auto& level : m_levels) {
 		delete level;
 	}
 
@@ -782,7 +779,7 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 
 	// create vertices used to calculate number of crossings
 	for (int i = 0; i < m_Blocks.size(); ++i) {
-		Block *block = m_Blocks[i];
+		Block* block = m_Blocks[i];
 		if (m_storedPerm[i] != -1) {
 			block->m_nodes.init(levels[0], levels[levels.high()], nullptr);
 
@@ -795,9 +792,10 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 			}
 		} else {
 			edge currentEdge = block->m_Edge;
-			Block *targetBlock = m_NodeBlocks[currentEdge->target()];
+			Block* targetBlock = m_NodeBlocks[currentEdge->target()];
 			for (int level = levels.low(); level <= levels.high(); ++level) {
-				if (block->m_upper <= levels[level] && levels[level] <= block->m_lower && targetBlock->m_nodes[levels[level]] == nullptr) {
+				if (block->m_upper <= levels[level] && levels[level] <= block->m_lower
+						&& targetBlock->m_nodes[levels[level]] == nullptr) {
 					itemsOnLevelCtr[level] += 1;
 					targetBlock->m_nodes[levels[level]] = G.newNode();
 				}
@@ -806,8 +804,9 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 	}
 
 	m_levels.init(levels.size());
-	for (int j = 0; j < levels.size(); ++j)
+	for (int j = 0; j < levels.size(); ++j) {
 		m_levels[j] = new ArrayLevel(itemsOnLevelCtr[j]);
+	}
 
 	m_pos.init(G);
 	m_upperAdjNodes.init(G);
@@ -816,7 +815,7 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 
 	// build m_levels and m_pos
 	for (int i = 0; i < m_activeBlocksCount; ++i) {
-		Block *block = m_Blocks[storedPermInv[i]];
+		Block* block = m_Blocks[storedPermInv[i]];
 		for (int j = 0; j < levels.size(); ++j) {
 			if (block->m_nodes[levels[j]] != nullptr) {
 				(*m_levels[j])[itemsOnLevelCtr[j]] = block->m_nodes[levels[j]];
@@ -828,21 +827,21 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 
 	// build m_upperAdjNodes
 	for (int i = 0; i < m_activeBlocksCount; ++i) {
-		Block *block = m_Blocks[storedPermInv[i]];
+		Block* block = m_Blocks[storedPermInv[i]];
 		for (int j = 0; j < levels.high(); ++j) {
 			int currentLevel = levels[j];
 
-			int nextLevel = levels[j+1];
-			if (block->m_upper <= currentLevel && block->m_lower >= currentLevel) 	{
-				if (nextLevel > block->m_lower) 	{
-					Array<node> &upperAdj = m_upperAdjNodes[block->m_nodes[currentLevel]];
+			int nextLevel = levels[j + 1];
+			if (block->m_upper <= currentLevel && block->m_lower >= currentLevel) {
+				if (nextLevel > block->m_lower) {
+					Array<node>& upperAdj = m_upperAdjNodes[block->m_nodes[currentLevel]];
 					upperAdj.init(block->m_NeighboursOutgoing.size());
 					for (int k = 0; k < block->m_NeighboursOutgoing.size(); ++k) {
 						upperAdj[k] = m_Blocks[block->m_NeighboursOutgoing[k]]->m_nodes[nextLevel];
 					}
 				} else {
-					m_upperAdjNodes[block->m_nodes[currentLevel]]
-						.init(0, 0, block->m_nodes[nextLevel]);
+					m_upperAdjNodes[block->m_nodes[currentLevel]].init(0, 0,
+							block->m_nodes[nextLevel]);
 				}
 			}
 		}
@@ -850,9 +849,7 @@ int BlockOrder::localCountCrossings(const Array<int> &levels)
 	return calculateCrossings();
 }
 
-
-int BlockOrder::verticalSwap(Block *b, int level)
-{
+int BlockOrder::verticalSwap(Block* b, int level) {
 	int Delta = 0;
 
 	int minLvl = level;
@@ -874,29 +871,61 @@ int BlockOrder::verticalSwap(Block *b, int level)
 	Array<int> levels;
 	if (level % 2 == 0) {
 		int ctr = 0;
-		if (minLvl <= level - 2 && level - 2 <= maxLvl) ++ctr;
-		if (minLvl <= level - 1 && level - 1 <= maxLvl) ++ctr;
-		if (minLvl <= level     && level     <= maxLvl) ++ctr;
-		if (minLvl <= level + 1 && level + 1 <= maxLvl) ++ctr;
-		if (minLvl <= level + 2 && level + 2 <= maxLvl) ++ctr;
+		if (minLvl <= level - 2 && level - 2 <= maxLvl) {
+			++ctr;
+		}
+		if (minLvl <= level - 1 && level - 1 <= maxLvl) {
+			++ctr;
+		}
+		if (minLvl <= level && level <= maxLvl) {
+			++ctr;
+		}
+		if (minLvl <= level + 1 && level + 1 <= maxLvl) {
+			++ctr;
+		}
+		if (minLvl <= level + 2 && level + 2 <= maxLvl) {
+			++ctr;
+		}
 		levels.init(ctr);
 		ctr = 0;
-		if (minLvl <= level - 2 && level - 2 <= maxLvl) levels[ctr++] = level - 2;
-		if (minLvl <= level - 1 && level - 1 <= maxLvl) levels[ctr++] = level - 1;
-		if (minLvl <= level     && level     <= maxLvl) levels[ctr++] = level;
-		if (minLvl <= level + 1 && level + 1 <= maxLvl) levels[ctr++] = level + 1;
-		if (minLvl <= level + 2 && level + 2 <= maxLvl) levels[ctr++] = level + 2;
+		if (minLvl <= level - 2 && level - 2 <= maxLvl) {
+			levels[ctr++] = level - 2;
+		}
+		if (minLvl <= level - 1 && level - 1 <= maxLvl) {
+			levels[ctr++] = level - 1;
+		}
+		if (minLvl <= level && level <= maxLvl) {
+			levels[ctr++] = level;
+		}
+		if (minLvl <= level + 1 && level + 1 <= maxLvl) {
+			levels[ctr++] = level + 1;
+		}
+		if (minLvl <= level + 2 && level + 2 <= maxLvl) {
+			levels[ctr++] = level + 2;
+		}
 	} else {
 		int ctr = 0;
-		if (minLvl <= level - 3 && level - 3 <= maxLvl) ++ctr;
-		if (minLvl <= level - 1 && level - 1 <= maxLvl) ++ctr;
-		if (minLvl <= level + 1 && level + 1 <= maxLvl) ++ctr;
+		if (minLvl <= level - 3 && level - 3 <= maxLvl) {
+			++ctr;
+		}
+		if (minLvl <= level - 1 && level - 1 <= maxLvl) {
+			++ctr;
+		}
+		if (minLvl <= level + 1 && level + 1 <= maxLvl) {
+			++ctr;
+		}
 
 		levels.init(ctr);
 		ctr = 0;
-		if (minLvl <= level - 3 && level - 3 <= maxLvl) levels[ctr++] = level - 3;
-		if (minLvl <= level - 1 && level - 1 <= maxLvl) levels[ctr++] = level - 1;
-		if (minLvl <= level + 1 && level + 1 <= maxLvl) levels[ctr++] = level + 1;
+		if (minLvl <= level - 3 && level - 3 <= maxLvl) {
+			levels[ctr++] = level - 3;
+		}
+		if (minLvl <= level - 1 && level - 1 <= maxLvl) {
+			levels[ctr++] = level - 1;
+		}
+		if (minLvl <= level + 1 && level + 1 <= maxLvl) {
+			levels[ctr++] = level + 1;
+		}
 	}
 
 	Delta -= localCountCrossings(levels);
@@ -910,15 +939,16 @@ int BlockOrder::verticalSwap(Block *b, int level)
 	int last = std::numeric_limits<int>::max();
 	for (int i = nextExistingLvl.high(); i >= nextExistingLvl.low(); --i) {
 		nextExistingLvl[i] = last;
-		if (m_nNodesOnLvls[i] > 0)
+		if (m_nNodesOnLvls[i] > 0) {
 			last = i;
+		}
 	}
 
 	node v = b->m_Node;
 
-	for(adjEntry adj : v->adjEntries) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		Block *BlockOfE = m_EdgeBlocks[e];
+		Block* BlockOfE = m_EdgeBlocks[e];
 		if (v == e->source()) {
 			BlockOfE->m_upper = level + 1;
 		} else {
@@ -927,9 +957,9 @@ int BlockOrder::verticalSwap(Block *b, int level)
 		}
 	}
 
-	for(edge e : m_GC.edges) {
+	for (edge e : m_GC.edges) {
 		if (m_EdgeBlocks[e] != nullptr) {
-			Block *blockOfE = m_EdgeBlocks[e];
+			Block* blockOfE = m_EdgeBlocks[e];
 
 			int top = blockOfE->m_upper;
 			int bot = blockOfE->m_lower;
@@ -958,7 +988,7 @@ int BlockOrder::verticalSwap(Block *b, int level)
 	}
 
 	// bucketsort
-	Array<List<int> > buckets(-1, m_storedPerm.size());
+	Array<List<int>> buckets(-1, m_storedPerm.size());
 	for (int i = 0; i < m_storedPerm.size(); ++i) {
 		buckets[m_storedPerm[i]].pushBack(i);
 		m_storedPerm[i] = -1;
@@ -989,35 +1019,63 @@ int BlockOrder::verticalSwap(Block *b, int level)
 
 	if (level % 2 == 0) {
 		ctr = 0;
-		if (minLvl <= level - 2 && level - 2 <= maxLvl) ctr++;
-		if (minLvl <= level     && level     <= maxLvl) ctr++;
-		if (minLvl <= level + 2 && level + 2 <= maxLvl) ctr++;
+		if (minLvl <= level - 2 && level - 2 <= maxLvl) {
+			ctr++;
+		}
+		if (minLvl <= level && level <= maxLvl) {
+			ctr++;
+		}
+		if (minLvl <= level + 2 && level + 2 <= maxLvl) {
+			ctr++;
+		}
 		levels.init(ctr);
 
 		ctr = 0;
-		if (minLvl <= level - 2 && level - 2 <= maxLvl) levels[ctr++] = level - 2;
-		if (minLvl <= level     && level     <= maxLvl) levels[ctr++] = level;
-		if (minLvl <= level + 2 && level + 2 <= maxLvl) levels[ctr++] = level + 2;
+		if (minLvl <= level - 2 && level - 2 <= maxLvl) {
+			levels[ctr++] = level - 2;
+		}
+		if (minLvl <= level && level <= maxLvl) {
+			levels[ctr++] = level;
+		}
+		if (minLvl <= level + 2 && level + 2 <= maxLvl) {
+			levels[ctr++] = level + 2;
+		}
 	} else {
 		ctr = 0;
-		if (minLvl <= level - 3 && level - 3 <= maxLvl) ctr++;
-		if (minLvl <= level - 1 && level - 1 <= maxLvl) ctr++;
-		if (minLvl <= level     && level     <= maxLvl) ctr++;
-		if (minLvl <= level + 1 && level + 1 <= maxLvl) ctr++;
+		if (minLvl <= level - 3 && level - 3 <= maxLvl) {
+			ctr++;
+		}
+		if (minLvl <= level - 1 && level - 1 <= maxLvl) {
+			ctr++;
+		}
+		if (minLvl <= level && level <= maxLvl) {
+			ctr++;
+		}
+		if (minLvl <= level + 1 && level + 1 <= maxLvl) {
+			ctr++;
+		}
 		levels.init(ctr);
 
 		ctr = 0;
-		if (minLvl <= level - 3 && level - 3 <= maxLvl) levels[ctr++] = level - 3;
-		if (minLvl <= level - 1 && level - 1 <= maxLvl) levels[ctr++] = level - 1;
-		if (minLvl <= level     && level     <= maxLvl) levels[ctr++] = level;
-		if (minLvl <= level + 1 && level + 1 <= maxLvl) levels[ctr++] = level + 1;
+		if (minLvl <= level - 3 && level - 3 <= maxLvl) {
+			levels[ctr++] = level - 3;
+		}
+		if (minLvl <= level - 1 && level - 1 <= maxLvl) {
+			levels[ctr++] = level - 1;
+		}
+		if (minLvl <= level && level <= maxLvl) {
+			levels[ctr++] = level;
+		}
+		if (minLvl <= level + 1 && level + 1 <= maxLvl) {
+			levels[ctr++] = level + 1;
+		}
 	}
 
 	Delta += localCountCrossings(levels);
 
 	// do horizontal steps
 	v = b->m_Node;
-	for(adjEntry adj : v->adjEntries) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (m_isActiveEdge[e]) {
 			int delta = siftingStep(m_EdgeBlocks[e]);
@@ -1031,9 +1089,7 @@ int BlockOrder::verticalSwap(Block *b, int level)
 	return Delta;
 }
 
-
-void BlockOrder::verticalStep(Block *b)
-{
+void BlockOrder::verticalStep(Block* b) {
 	int maxLevel = 0;
 	//normalize levels to 2,4,6,8,...
 	for (auto currentBlock : m_Blocks) {
@@ -1047,13 +1103,14 @@ void BlockOrder::verticalStep(Block *b)
 			currentBlock->m_lower = m_NodeBlocks[e->target()]->m_upper - 1;
 		}
 
-		if (currentBlock->m_lower > maxLevel)
+		if (currentBlock->m_lower > maxLevel) {
 			maxLevel = currentBlock->m_lower;
+		}
 	}
 
 	m_nNodesOnLvls.init(1, maxLevel + 1, 0);
 
-	for (auto &block : m_Blocks) {
+	for (auto& block : m_Blocks) {
 		if (block->isVertexBlock()) {
 			m_nNodesOnLvls[block->m_upper] += 1;
 		}
@@ -1062,19 +1119,21 @@ void BlockOrder::verticalStep(Block *b)
 	int lMin = 1;
 	int lMax = maxLevel + 1;
 	node v = b->m_Node;
-	for(adjEntry adj : v->adjEntries) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (v == e->source()) {
 			lMax = min<int>(lMax, m_NodeBlocks[e->target()]->m_upper - 1);
 		} else {
-		  // v == e->target()
+			// v == e->target()
 			lMin = max<int>(lMin, m_NodeBlocks[e->source()]->m_lower + 1);
 		}
 	}
-	if (lMin < b->m_upper - m_verticalStepsBound)
+	if (lMin < b->m_upper - m_verticalStepsBound) {
 		lMin = b->m_upper - m_verticalStepsBound;
-	if (lMax > b->m_lower + m_verticalStepsBound)
+	}
+	if (lMax > b->m_lower + m_verticalStepsBound) {
 		lMax = b->m_lower + m_verticalStepsBound;
+	}
 
 	Array<int> startingPerm(0, m_storedPerm.high(), -1);
 
@@ -1098,7 +1157,7 @@ void BlockOrder::verticalStep(Block *b)
 
 	// store starting embedding
 	for (int i = 0; i < m_Blocks.size(); ++i) {
-		startingPerm[i]    = m_storedPerm[i];
+		startingPerm[i] = m_storedPerm[i];
 		startingM_lower[i] = m_Blocks[i]->m_lower;
 		startingM_upper[i] = m_Blocks[i]->m_upper;
 	}
@@ -1112,7 +1171,7 @@ void BlockOrder::verticalStep(Block *b)
 		if (currentChi < bestChi) {
 			// store currentEmbedding as best found
 			for (int i = 0; i < m_Blocks.size(); ++i) {
-				bestPerm[i]    = m_storedPerm[i];
+				bestPerm[i] = m_storedPerm[i];
 				bestM_lower[i] = m_Blocks[i]->m_lower;
 				bestM_upper[i] = m_Blocks[i]->m_upper;
 			}
@@ -1137,7 +1196,7 @@ void BlockOrder::verticalStep(Block *b)
 
 	m_nNodesOnLvls.init(1, maxLevel + 1, 0);
 
-	for (auto &block : m_Blocks) {
+	for (auto& block : m_Blocks) {
 		if (block->isVertexBlock()) {
 			m_nNodesOnLvls[block->m_upper] += 1;
 		}
@@ -1150,7 +1209,7 @@ void BlockOrder::verticalStep(Block *b)
 		if (currentChi < bestChi) {
 			// store currentEmbedding as best found
 			for (int i = 0; i < m_Blocks.size(); ++i) {
-				bestPerm[i]    = m_storedPerm[i];
+				bestPerm[i] = m_storedPerm[i];
 				bestM_lower[i] = m_Blocks[i]->m_lower;
 				bestM_upper[i] = m_Blocks[i]->m_upper;
 			}
@@ -1174,7 +1233,7 @@ void BlockOrder::verticalStep(Block *b)
 	// delete empty levels
 	m_nNodesOnLvls.init(1, maxLevel + 1, 0);
 
-	for (auto &block : m_Blocks) {
+	for (auto& block : m_Blocks) {
 		if (block->isVertexBlock()) {
 			m_nNodesOnLvls[block->m_upper] += 1;
 		}
@@ -1195,18 +1254,14 @@ void BlockOrder::verticalStep(Block *b)
 			currentBlock->m_lower = normalizedLvl[currentBlock->m_lower];
 		} else { // currentBlock->isEdgeBlock()
 			edge e = currentBlock->m_Edge;
-			currentBlock->m_upper = m_NodeBlocks[e->source()]->m_lower  + 1;
-			currentBlock->m_lower = m_NodeBlocks[e->target()]->m_upper  - 1;
+			currentBlock->m_upper = m_NodeBlocks[e->source()]->m_lower + 1;
+			currentBlock->m_lower = m_NodeBlocks[e->target()]->m_upper - 1;
 		}
 	}
 }
 
-
-void BlockOrder::gridSifting(int nRepeats)
-{
-#if 0
-	while (rho-- > 0)
-#endif
+void BlockOrder::gridSifting(int nRepeats) {
+	// while (rho-- > 0)
 	{
 		Array<int> storedPermInv(0, m_Blocks.high(), -1);
 		m_storedPerm.init(0, m_Blocks.high(), -1);
@@ -1214,7 +1269,7 @@ void BlockOrder::gridSifting(int nRepeats)
 
 		for (int i = 0; i < m_Blocks.size(); ++i) {
 			if (m_Blocks[i]->isVertexBlock()
-			 || (m_Blocks[i]->isEdgeBlock() && m_isActiveEdge[m_Blocks[i]->m_Edge])) {
+					|| (m_Blocks[i]->isEdgeBlock() && m_isActiveEdge[m_Blocks[i]->m_Edge])) {
 				storedPermInv[p] = i;
 				m_storedPerm[i] = p;
 				++p;
@@ -1224,14 +1279,15 @@ void BlockOrder::gridSifting(int nRepeats)
 		// initialize with random permutation
 		storedPermInv.permute(0, m_activeBlocksCount - 1);
 
-		for (int i = 0; i < m_activeBlocksCount; ++i)
+		for (int i = 0; i < m_activeBlocksCount; ++i) {
 			m_storedPerm[storedPermInv[i]] = i;
+		}
 
 
 		int times = nRepeats;
 		while (times-- > 0) {
-			for(node v : m_GC.nodes) {
-				Block *currentBlock = m_NodeBlocks[v];
+			for (node v : m_GC.nodes) {
+				Block* currentBlock = m_NodeBlocks[v];
 				if (currentBlock != nullptr) {
 					verticalStep(currentBlock);
 				}
@@ -1243,7 +1299,7 @@ void BlockOrder::gridSifting(int nRepeats)
 	m_ranks.init(m_GC, 0);
 	EdgeArray<edge> auxCopy(m_GC);
 	List<node> nodes;
-	for(node v : m_GC.nodes) {
+	for (node v : m_GC.nodes) {
 		if (m_NodeBlocks[v] != nullptr) {
 			m_ranks[v] = m_NodeBlocks[v]->m_upper;
 			nodes.pushBack(v);

@@ -29,22 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/SugiyamaLayout.h>
+#include <ogdf/layered/BarycenterHeuristic.h>
+#include <ogdf/layered/CoffmanGrahamRanking.h>
+#include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/layered/FastHierarchyLayout.h>
+#include <ogdf/layered/FastSimpleHierarchyLayout.h>
+#include <ogdf/layered/GreedyCycleRemoval.h>
+#include <ogdf/layered/GreedyInsertHeuristic.h>
+#include <ogdf/layered/GreedySwitchHeuristic.h>
+#include <ogdf/layered/GridSifting.h>
+#include <ogdf/layered/LongestPathRanking.h>
 #include <ogdf/layered/MedianHeuristic.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/OptimalRanking.h>
-#include <ogdf/layered/GreedyCycleRemoval.h>
-#include <ogdf/layered/CoffmanGrahamRanking.h>
-#include <ogdf/layered/LongestPathRanking.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
-#include <ogdf/layered/FastSimpleHierarchyLayout.h>
-#include <ogdf/layered/GridSifting.h>
-#include <ogdf/layered/BarycenterHeuristic.h>
-#include <ogdf/layered/GreedyInsertHeuristic.h>
-#include <ogdf/layered/GreedySwitchHeuristic.h>
-#include <ogdf/layered/SplitHeuristic.h>
 #include <ogdf/layered/SiftingHeuristic.h>
+#include <ogdf/layered/SplitHeuristic.h>
+#include <ogdf/layered/SugiyamaLayout.h>
 
 #include "layout_helpers.h"
 
@@ -53,13 +53,15 @@
 #define DESCRIBE_SUGI_CROSSMIN(TYPE, ...) describeSugiCrossMin<TYPE>(#TYPE, __VA_ARGS__)
 
 template<class CrossMin>
-void describeSugiCrossMin(const std::string& name, SugiyamaLayout& sugi, const std::set<GraphProperty>& reqs, bool skipMe = false) {
+void describeSugiCrossMin(const std::string& name, SugiyamaLayout& sugi,
+		const std::set<GraphProperty>& reqs, bool skipMe = false) {
 	sugi.setCrossMin(new CrossMin);
 	describeLayout(name, sugi, 0, reqs, false, GraphSizes(16, 32, 16), skipMe);
 }
 
 template<class Ranking>
-void describeSugiRanking(const std::string& name, SugiyamaLayout& sugi, const std::set<GraphProperty>& reqs, Ranking* ranking = nullptr) {
+void describeSugiRanking(const std::string& name, SugiyamaLayout& sugi,
+		const std::set<GraphProperty>& reqs, Ranking* ranking = nullptr) {
 	describe(name, [&] {
 		sugi.setRanking(ranking == nullptr ? new Ranking : ranking);
 
@@ -102,6 +104,7 @@ go_bandit([] {
 	describe("SugiyamaLayout", [] {
 		DESCRIBE_SUGI_LAYOUT(FastHierarchyLayout, {GraphProperty::sparse});
 		DESCRIBE_SUGI_LAYOUT(FastSimpleHierarchyLayout, {GraphProperty::sparse});
-		describeSugi<OptimalHierarchyLayout>("OptimalHierarchyLayout", {GraphProperty::simple, GraphProperty::sparse});
+		describeSugi<OptimalHierarchyLayout>("OptimalHierarchyLayout",
+				{GraphProperty::simple, GraphProperty::sparse});
 	});
 });

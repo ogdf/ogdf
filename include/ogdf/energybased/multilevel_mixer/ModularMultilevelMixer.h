@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <memory>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 #include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -69,10 +70,8 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT ModularMultilevelMixer : public LayoutModule
-{
+class OGDF_EXPORT ModularMultilevelMixer : public LayoutModule {
 private:
-
 	//! The layout algorithm applied on each level.
 	/**
 	 * The one-level layout module should not completely discard the initial Layout
@@ -110,34 +109,29 @@ private:
 	bool m_randomize; //!< Determines if initial random layout is computed.
 
 public:
-
 	//! Error codes for calls.
 	enum class erc {
-		None,       //!< no error
-		LevelBound  //!< level bound exceeded by merger step
+		None, //!< no error
+		LevelBound //!< level bound exceeded by merger step
 	};
 
 	ModularMultilevelMixer();
 
 	//! Sets the one-level layout module to \p levelLayout.
-	void setLevelLayoutModule(LayoutModule *levelLayout) {
+	void setLevelLayoutModule(LayoutModule* levelLayout) {
 		m_oneLevelLayoutModule.reset(levelLayout);
 	}
 
 	//! Sets the final layout module to \p finalLayout.
-	void setFinalLayoutModule(LayoutModule *finalLayout) {
-		m_finalLayoutModule.reset(finalLayout);
-	}
+	void setFinalLayoutModule(LayoutModule* finalLayout) { m_finalLayoutModule.reset(finalLayout); }
 
 	//! Sets the multilevel builder module to \p levelBuilder.
-	void setMultilevelBuilder(MultilevelBuilder *levelBuilder) {
+	void setMultilevelBuilder(MultilevelBuilder* levelBuilder) {
 		m_multilevelBuilder.reset(levelBuilder);
 	}
 
 	//! Sets the initial placer module to \p placement.
-	void setInitialPlacer(InitialPlacer *placement) {
-		m_initialPlacement.reset(placement);
-	}
+	void setInitialPlacer(InitialPlacer* placement) { m_initialPlacement.reset(placement); }
 
 	//! Determines how many times the one-level layout will be called.
 	void setLayoutRepeats(int times = 1) { m_times = times; }
@@ -155,7 +149,7 @@ public:
 	void setLevelBound(bool b) { m_levelBound = b; }
 
 	//! Calls the multilevel layout algorithm for graph attributes \p GA.
-	void call(GraphAttributes &GA) override;
+	void call(GraphAttributes& GA) override;
 
 	/**
 	 * \brief Calls the multilevel layout algorithm for multilevel graph \a MLG.
@@ -175,7 +169,7 @@ public:
 		MLG.importAttributesSimple(GA);
 	};
 #else
-	virtual void call(MultilevelGraph &MLG);
+	virtual void call(MultilevelGraph& MLG);
 #endif
 
 	//! Returns the error code of last call.

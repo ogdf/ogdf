@@ -45,27 +45,28 @@ public:
 
 	//! Returns true, iff subdivision is a K3,3-minor
 	inline bool isK33() const { return subdivisionType != SubdivisionType::E5; }
+
 	//! Returns true, iff subdivision is a K5-minor
 	inline bool isK5() const { return subdivisionType == SubdivisionType::E5; }
 
 	//! Possible minortypes of a Kuratowski Subdivision
 	enum class SubdivisionType {
-		A=0,
-		AB=1,
-		AC=2,
-		AD=3,
-		AE1=4,
-		AE2=5,
-		AE3=6,
-		AE4=7,
-		B=8,
-		C=9,
-		D=10,
-		E1=11,
-		E2=12,
-		E3=13,
-		E4=14,
-		E5=15
+		A = 0,
+		AB = 1,
+		AC = 2,
+		AD = 3,
+		AE1 = 4,
+		AE2 = 5,
+		AE3 = 6,
+		AE4 = 7,
+		B = 8,
+		C = 9,
+		D = 10,
+		E1 = 11,
+		E2 = 12,
+		E3 = 13,
+		E4 = 14,
+		E5 = 15
 	};
 	//! Minortype of the Kuratowski Subdivision
 	SubdivisionType subdivisionType;
@@ -77,7 +78,7 @@ public:
 	SListPure<edge> edgeList;
 };
 
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, const KuratowskiWrapper::SubdivisionType &obj);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const KuratowskiWrapper::SubdivisionType& obj);
 
 //! Extracts multiple Kuratowski Subdivisions
 /**
@@ -89,24 +90,23 @@ class ExtractKuratowskis {
 public:
 	//! Constructor
 	explicit ExtractKuratowskis(BoyerMyrvoldPlanar& bm);
+
 	//! Destructor
 	~ExtractKuratowskis() { }
 
 	//! Extracts all Kuratowski Subdivisions and adds them to \p output (without bundles)
-	void extract(
-			const SListPure<KuratowskiStructure>& allKuratowskis,
+	void extract(const SListPure<KuratowskiStructure>& allKuratowskis,
 			SList<KuratowskiWrapper>& output);
 
 	//! Extracts all Kuratowski Subdivisions and adds them to \p output (with bundles)
-	void extractBundles(
-			const SListPure<KuratowskiStructure>& allKuratowskis,
+	void extractBundles(const SListPure<KuratowskiStructure>& allKuratowskis,
 			SList<KuratowskiWrapper>& output);
 
 	//! Enumeration over Kuratowski Type none, K33, K5
 	enum class KuratowskiType {
-		none	= 0, //!< no kuratowski subdivision exists
-		K33		= 1, //!< a K3,3 subdivision exists
-		K5		= 2  //!< a K5 subdivision exists
+		none = 0, //!< no kuratowski subdivision exists
+		K33 = 1, //!< a K3,3 subdivision exists
+		K5 = 2 //!< a K5 subdivision exists
 	};
 
 	//! Checks, if \p list forms a valid Kuratowski Subdivision and returns the type
@@ -116,9 +116,7 @@ public:
 	 *           - K33 = the K3,3
 	 *           - K5 = the K5
 	 */
-	static KuratowskiType whichKuratowski(
-			const Graph& m_g,
-			const NodeArray<int>& dfi,
+	static KuratowskiType whichKuratowski(const Graph& m_g, const NodeArray<int>& dfi,
 			const SListPure<edge>& list);
 
 	//! Checks, if edges in Array \p edgenumber form a valid Kuratowski Subdivision and returns the type
@@ -129,17 +127,14 @@ public:
 	 *           - K33 = the K3,3
 	 *           - K5 = the K5
 	 */
-	static KuratowskiType whichKuratowskiArray(
-			const Graph& g,
+	static KuratowskiType whichKuratowskiArray(const Graph& g,
 #if 0
 			const NodeArray<int>& m_dfi,
 #endif
 			EdgeArray<int>& edgenumber);
 
 	//! Returns true, iff the Kuratowski is not already contained in output
-	static bool isANewKuratowski(
-			const Graph& g,
-			const SListPure<edge>& kuratowski,
+	static bool isANewKuratowski(const Graph& g, const SListPure<edge>& kuratowski,
 			const SList<KuratowskiWrapper>& output);
 	//! Returns true, iff the Kuratowski is not already contained in output
 	/** \pre Kuratowski Edges are all edges != 0 in the Array.
@@ -148,12 +143,11 @@ public:
 #if 0
 			const Graph& g,
 #endif
-			const EdgeArray<int>& test,
-			const SList<KuratowskiWrapper>& output);
+			const EdgeArray<int>& test, const SList<KuratowskiWrapper>& output);
 
 	// avoid automatic creation of assignment operator
 	//! Assignment operator is undefined!
-	ExtractKuratowskis &operator=(const ExtractKuratowskis &);
+	ExtractKuratowskis& operator=(const ExtractKuratowskis&);
 
 protected:
 	//! Link to class BoyerMyrvoldPlanar
@@ -184,9 +178,7 @@ protected:
 	const NodeArray<adjEntry>& m_adjParent;
 
 	//! Adds external face edges to \p list
-	inline void addExternalFacePath(
-						SListPure<edge>& list,
-						const SListPure<adjEntry>& externPath) {
+	inline void addExternalFacePath(SListPure<edge>& list, const SListPure<adjEntry>& externPath) {
 		SListConstIterator<adjEntry> itExtern;
 		for (itExtern = externPath.begin(); itExtern.valid(); ++itExtern) {
 			list.pushBack((*itExtern)->theEdge());
@@ -211,153 +203,78 @@ protected:
 	inline void truncateEdgelist(SListPure<edge>& list1, const SListPure<edge>& list2);
 
 	//! Extracts minortype A and adds it to list \p output
-	void extractMinorA(
-			SList<KuratowskiWrapper>& output,
-			const KuratowskiStructure& k,
+	void extractMinorA(SList<KuratowskiWrapper>& output, const KuratowskiStructure& k,
 #if 0
 			const WInfo& info,
 #endif
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW);
+			const SListPure<edge>& pathX, const node endnodeX, const SListPure<edge>& pathY,
+			const node endnodeY, const SListPure<edge>& pathW);
 	//! Extracts minortype B and adds it to list \p output (no bundles)
-	void extractMinorB(
-			SList<KuratowskiWrapper>& output,
+	void extractMinorB(SList<KuratowskiWrapper>& output,
 			//NodeArray<int>& nodeflags,
 			//const int nodemarker,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
+			const KuratowskiStructure& k, const WInfo& info, const SListPure<edge>& pathX,
+			const node endnodeX, const SListPure<edge>& pathY, const node endnodeY,
 			const SListPure<edge>& pathW);
 	//! Extracts minortype B and adds it to list \p output (with bundles)
-	void extractMinorBBundles(
-			SList<KuratowskiWrapper>& output,
-			NodeArray<int>& nodeflags,
-			const int nodemarker,
-			const KuratowskiStructure& k,
-			EdgeArray<int>& flags,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW);
+	void extractMinorBBundles(SList<KuratowskiWrapper>& output, NodeArray<int>& nodeflags,
+			const int nodemarker, const KuratowskiStructure& k, EdgeArray<int>& flags,
+			const WInfo& info, const SListPure<edge>& pathX, const node endnodeX,
+			const SListPure<edge>& pathY, const node endnodeY, const SListPure<edge>& pathW);
 	//! Extracts minortype C and adds it to list \p output
-	void extractMinorC(
-			SList<KuratowskiWrapper>& output,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW);
+	void extractMinorC(SList<KuratowskiWrapper>& output, const KuratowskiStructure& k,
+			const WInfo& info, const SListPure<edge>& pathX, const node endnodeX,
+			const SListPure<edge>& pathY, const node endnodeY, const SListPure<edge>& pathW);
 	//! Extracts minortype D and adds it to list \p output
-	void extractMinorD(
-			SList<KuratowskiWrapper>& output,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW);
+	void extractMinorD(SList<KuratowskiWrapper>& output, const KuratowskiStructure& k,
+			const WInfo& info, const SListPure<edge>& pathX, const node endnodeX,
+			const SListPure<edge>& pathY, const node endnodeY, const SListPure<edge>& pathW);
 	//! Extracts minortype E and adds it to list \p output (no bundles)
-	void extractMinorE(
-			SList<KuratowskiWrapper>& output,
-			bool firstXPath,
-			bool firstPath,
-			bool firstWPath,
-			bool firstWOnHighestXY,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW);
+	void extractMinorE(SList<KuratowskiWrapper>& output, bool firstXPath, bool firstPath,
+			bool firstWPath, bool firstWOnHighestXY, const KuratowskiStructure& k,
+			const WInfo& info, const SListPure<edge>& pathX, const node endnodeX,
+			const SListPure<edge>& pathY, const node endnodeY, const SListPure<edge>& pathW);
 	//! Extracts minortype E and adds it to list \p output (bundles)
-	void extractMinorEBundles(
-			SList<KuratowskiWrapper>& output,
-			bool firstXPath,
-			bool firstPath,
-			bool firstWPath,
-			bool firstWOnHighestXY,
-			NodeArray<int>& nodeflags,
-			const int nodemarker,
-			const KuratowskiStructure& k,
-			EdgeArray<int>& flags,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW);
+	void extractMinorEBundles(SList<KuratowskiWrapper>& output, bool firstXPath, bool firstPath,
+			bool firstWPath, bool firstWOnHighestXY, NodeArray<int>& nodeflags,
+			const int nodemarker, const KuratowskiStructure& k, EdgeArray<int>& flags,
+			const WInfo& info, const SListPure<edge>& pathX, const node endnodeX,
+			const SListPure<edge>& pathY, const node endnodeY, const SListPure<edge>& pathW);
+
 	//! Checks for minortype E1
-	inline bool isMinorE1(
-			int before,
-			bool firstXPath,
-			bool firstYPath) const
-	{
-		return (before == -1 && firstXPath)
-		    || (before == 1 && firstYPath);
+	inline bool isMinorE1(int before, bool firstXPath, bool firstYPath) const {
+		return (before == -1 && firstXPath) || (before == 1 && firstYPath);
 	}
+
 	//! Extracts minorsubtype E1 and adds it to list \p output
-	void extractMinorE1(
-			SList<KuratowskiWrapper>& output,
-			int before,
+	void extractMinorE1(SList<KuratowskiWrapper>& output, int before,
 #if 0
 			const node z,
 #endif
-			const node px,
-			const node py,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW,
-			const SListPure<edge>& pathZ,
+			const node px, const node py, const KuratowskiStructure& k, const WInfo& info,
+			const SListPure<edge>& pathX, const node endnodeX, const SListPure<edge>& pathY,
+			const node endnodeY, const SListPure<edge>& pathW, const SListPure<edge>& pathZ,
 			const node endnodeZ);
 	//! Checks for minortype E2 preconditions
-	inline bool checkMinorE2(
-			bool firstWPath,
-			bool firstWOnHighestXY) const
-	{
-		return !m_avoidE2Minors
-		    && firstWPath
-		    && firstWOnHighestXY;
+	inline bool checkMinorE2(bool firstWPath, bool firstWOnHighestXY) const {
+		return !m_avoidE2Minors && firstWPath && firstWOnHighestXY;
 	}
+
 	//! Checks for minortype E2
-	inline bool isMinorE2(
-			const node endnodeX,
-			const node endnodeY,
-			const node endnodeZ) const
-	{
-		return m_dfi[endnodeZ] > m_dfi[endnodeX]
-		    && m_dfi[endnodeZ] > m_dfi[endnodeY];
+	inline bool isMinorE2(const node endnodeX, const node endnodeY, const node endnodeZ) const {
+		return m_dfi[endnodeZ] > m_dfi[endnodeX] && m_dfi[endnodeZ] > m_dfi[endnodeY];
 	}
+
 	//! Extracts minorsubtype E2 and adds it to list \p output
-	void extractMinorE2(
-			SList<KuratowskiWrapper>& output,
+	void extractMinorE2(SList<KuratowskiWrapper>& output,
 #if 0
 			int before,
 			const node z,
 			const node px,
 			const node py,
 #endif
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
+			const KuratowskiStructure& k, const WInfo& info, const SListPure<edge>& pathX,
+			const node endnodeX, const SListPure<edge>& pathY, const node endnodeY,
 #if 0
 			const SListPure<edge>& pathW,
 #endif
@@ -365,96 +282,53 @@ protected:
 #if 0
 			, const node endnodeZ
 #endif
-			);
+	);
 	//! Checks for minortype E3
-	inline bool isMinorE3(
-			const node endnodeX,
-			const node endnodeY,
-			const node endnodeZ) const
-	{
+	inline bool isMinorE3(const node endnodeX, const node endnodeY, const node endnodeZ) const {
 		return endnodeX != endnodeY
-		    && (m_dfi[endnodeX] > m_dfi[endnodeZ]
-		     || m_dfi[endnodeY] > m_dfi[endnodeZ]);
+				&& (m_dfi[endnodeX] > m_dfi[endnodeZ] || m_dfi[endnodeY] > m_dfi[endnodeZ]);
 	}
+
 	//! Extracts minorsubtype E3 and adds it to list \p output
-	void extractMinorE3(
-			SList<KuratowskiWrapper>& output,
-			int before,
-			const node z,
-			const node px,
-			const node py,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW,
-			const SListPure<edge>& pathZ,
+	void extractMinorE3(SList<KuratowskiWrapper>& output, int before, const node z, const node px,
+			const node py, const KuratowskiStructure& k, const WInfo& info,
+			const SListPure<edge>& pathX, const node endnodeX, const SListPure<edge>& pathY,
+			const node endnodeY, const SListPure<edge>& pathW, const SListPure<edge>& pathZ,
 			const node endnodeZ);
+
 	//! Checks for minortype E4
-	inline bool isMinorE4(
-			const node px,
-			const node py,
-			const KuratowskiStructure& k,
-			const WInfo& info) const
-	{
-		return (px != k.stopX && !info.pxAboveStopX)
-		    || (py != k.stopY && !info.pyAboveStopY);
+	inline bool isMinorE4(const node px, const node py, const KuratowskiStructure& k,
+			const WInfo& info) const {
+		return (px != k.stopX && !info.pxAboveStopX) || (py != k.stopY && !info.pyAboveStopY);
 	}
+
 	//! Extracts minorsubtype E4 and adds it to list \p output
-	void extractMinorE4(
-			SList<KuratowskiWrapper>& output,
-			int before,
-			const node z,
-			const node px,
-			const node py,
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW,
-			const SListPure<edge>& pathZ,
+	void extractMinorE4(SList<KuratowskiWrapper>& output, int before, const node z, const node px,
+			const node py, const KuratowskiStructure& k, const WInfo& info,
+			const SListPure<edge>& pathX, const node endnodeX, const SListPure<edge>& pathY,
+			const node endnodeY, const SListPure<edge>& pathW, const SListPure<edge>& pathZ,
 			const node endnodeZ);
+
 	//! Checks for minortype E5 (K5)
-	inline bool isMinorE5(
-			const node px,
-			const node py,
-			const KuratowskiStructure& k,
-			const node endnodeX,
-			const node endnodeY,
-			const node endnodeZ) const
-	{
-		return px == k.stopX
-		    && py == k.stopY
-		    && k.V == k.RReal
-		    && ((endnodeX == endnodeY
-		      && m_dfi[endnodeZ] <= m_dfi[endnodeX])
-		     || (endnodeX == endnodeZ
-		      && m_dfi[endnodeY] <= m_dfi[endnodeX])
-		     || (endnodeY == endnodeZ
-		      && m_dfi[endnodeX] <= m_dfi[endnodeY]));
+	inline bool isMinorE5(const node px, const node py, const KuratowskiStructure& k,
+			const node endnodeX, const node endnodeY, const node endnodeZ) const {
+		return px == k.stopX && py == k.stopY && k.V == k.RReal
+				&& ((endnodeX == endnodeY && m_dfi[endnodeZ] <= m_dfi[endnodeX])
+						|| (endnodeX == endnodeZ && m_dfi[endnodeY] <= m_dfi[endnodeX])
+						|| (endnodeY == endnodeZ && m_dfi[endnodeX] <= m_dfi[endnodeY]));
 	}
+
 	//! Extracts minorsubtype E5 and adds it to list \p output
-	void extractMinorE5(
-			SList<KuratowskiWrapper>& output,
+	void extractMinorE5(SList<KuratowskiWrapper>& output,
 #if 0
 			int before,
 			const node z,
 			const node px,
 			const node py,
 #endif
-			const KuratowskiStructure& k,
-			const WInfo& info,
-			const SListPure<edge>& pathX,
-			const node endnodeX,
-			const SListPure<edge>& pathY,
-			const node endnodeY,
-			const SListPure<edge>& pathW,
-			const SListPure<edge>& pathZ,
-			const node endnodeZ);
+			const KuratowskiStructure& k, const WInfo& info, const SListPure<edge>& pathX,
+			const node endnodeX, const SListPure<edge>& pathY, const node endnodeY,
+			const SListPure<edge>& pathW, const SListPure<edge>& pathZ, const node endnodeZ);
 };
 
 }

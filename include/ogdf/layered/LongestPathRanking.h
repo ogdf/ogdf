@@ -31,14 +31,15 @@
 
 #pragma once
 
-#include <ogdf/layered/RankingModule.h>
-#include <ogdf/layered/AcyclicSubgraphModule.h>
-#include <memory>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/tuples.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/layered/RankingModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -94,18 +95,17 @@ namespace ogdf {
  * </table>
  */
 class OGDF_EXPORT LongestPathRanking : public RankingModule {
-
 	std::unique_ptr<AcyclicSubgraphModule> m_subgraph; //!< The acyclic sugraph module.
 	bool m_sepDeg0; //!< Put isolated nodes on a separate layer?
 	bool m_separateMultiEdges; //!< Separate multi-edges?
 	bool m_optimizeEdgeLength; //!< Optimize for short edges.
-	bool m_alignBaseClasses;   //!< Align base classes (callUML only).
-	bool m_alignSiblings;      //!< Align siblings (callUML only).
+	bool m_alignBaseClasses; //!< Align base classes (callUML only).
+	bool m_alignSiblings; //!< Align siblings (callUML only).
 
 	int m_offset, m_maxN;
 
 	NodeArray<bool> m_isSource, m_finished;
-	NodeArray<SListPure<Tuple2<node,int> > > m_adjacent;
+	NodeArray<SListPure<Tuple2<node, int>>> m_adjacent;
 	NodeArray<int> m_ingoing;
 
 public:
@@ -119,7 +119,7 @@ public:
 	 */
 
 	//! Computes a node ranking of \p G in \p rank.
-	virtual void call(const Graph &G, NodeArray<int> &rank) override;
+	virtual void call(const Graph& G, NodeArray<int>& rank) override;
 
 	//! Computes a node ranking of \p G with given minimal edge length in \p rank.
 	/**
@@ -127,7 +127,7 @@ public:
 	 * @param length specifies the minimal length of each edge.
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
-	void call(const Graph &G, const EdgeArray<int> &length, NodeArray<int> &rank);
+	void call(const Graph& G, const EdgeArray<int>& length, NodeArray<int>& rank);
 
 	//! Computes a node ranking of \p G with given minimal edge length in \p rank.
 	/**
@@ -138,18 +138,13 @@ public:
 	 * @param cost specifies the edge costs (ignored)
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
-	virtual void call(
-		const Graph &G,
-		const EdgeArray<int> & length,
-		const EdgeArray<int> & cost,
-		NodeArray<int> &rank) override
-	{
+	virtual void call(const Graph& G, const EdgeArray<int>& length, const EdgeArray<int>& cost,
+			NodeArray<int>& rank) override {
 		call(G, length, rank);
 	}
 
 	//! Call for UML graphs with special treatement of inheritance hierarchies.
-	void callUML(const GraphAttributes &AG, NodeArray<int> &rank);
-
+	void callUML(const GraphAttributes& AG, NodeArray<int>& rank);
 
 	/** @}
 	 *  @name Optional parameters
@@ -163,7 +158,7 @@ public:
 	bool separateDeg0Layer() const { return m_sepDeg0; }
 
 	//! Sets the option separateDeg0Layer to \p sdl.
-	void separateDeg0Layer (bool sdl) { m_sepDeg0 = sdl; }
+	void separateDeg0Layer(bool sdl) { m_sepDeg0 = sdl; }
 
 	//! Returns the current setting of option separateMultiEdges.
 	/**
@@ -200,35 +195,27 @@ public:
 	//! Sets the option for alignment of siblings to \p b.
 	void alignSiblings(bool b) { m_alignSiblings = b; }
 
-
 	/** @}
 	 *  @name Module options
 	 *  @{
 	 */
 
 	//! Sets the module for the computation of the acyclic subgraph.
-	void setSubgraph(AcyclicSubgraphModule *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(AcyclicSubgraphModule* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! @}
 
 private:
 	//! Implements the algorithm call.
-	void doCall(const Graph& G,
-		NodeArray<int> &rank,
-		EdgeArray<bool> &reversed,
-		const EdgeArray<int> &length);
+	void doCall(const Graph& G, NodeArray<int>& rank, EdgeArray<bool>& reversed,
+			const EdgeArray<int>& length);
 
-	void join(
-		GraphCopySimple &GC,
-		NodeArray<node> &superNode,
-		NodeArray<SListPure<node> > &joinedNodes,
-		node v, node w);
+	void join(GraphCopySimple& GC, NodeArray<node>& superNode,
+			NodeArray<SListPure<node>>& joinedNodes, node v, node w);
 
 	void dfs(node v);
-	void getTmpRank(node v, NodeArray<int> &rank);
-	void dfsAdd(node v, NodeArray<int> &rank);
+	void getTmpRank(node v, NodeArray<int>& rank);
+	void dfsAdd(node v, NodeArray<int>& rank);
 };
 
 }

@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/graphalg/MinCostFlowModule.h>
 
 namespace ogdf {
 
@@ -41,13 +41,9 @@ namespace ogdf {
  * @ingroup ga-flow
  */
 template<typename TCost>
-class MinCostFlowReinelt : public MinCostFlowModule<TCost>
-{
+class MinCostFlowReinelt : public MinCostFlowModule<TCost> {
 public:
-	MinCostFlowReinelt()
-	  : m_eps()
-	{
-	}
+	MinCostFlowReinelt() : m_eps() { }
 
 	using MinCostFlowModule<TCost>::call;
 
@@ -66,89 +62,76 @@ public:
 	* @param dual is assigned the computed dual variables.
 	* \return true iff a feasible min-cost flow exists.
 	*/
-	virtual bool call(
-		const Graph &G,                   // directed graph
-		const EdgeArray<int> &lowerBound, // lower bound for flow
-		const EdgeArray<int> &upperBound, // upper bound for flow
-		const EdgeArray<TCost> &cost,     // cost of an edge
-		const NodeArray<int> &supply,     // supply (if neg. demand) of a node
-		EdgeArray<int> &flow,			  // computed flow
-		NodeArray<TCost> &dual) override;   // computed dual variables
+	virtual bool call(const Graph& G, // directed graph
+			const EdgeArray<int>& lowerBound, // lower bound for flow
+			const EdgeArray<int>& upperBound, // upper bound for flow
+			const EdgeArray<TCost>& cost, // cost of an edge
+			const NodeArray<int>& supply, // supply (if neg. demand) of a node
+			EdgeArray<int>& flow, // computed flow
+			NodeArray<TCost>& dual) override; // computed dual variables
 
 	int infinity() const { return std::numeric_limits<int>::max(); }
 
 private:
-
 	struct arctype;
 
 	struct nodetype {
-		nodetype *father;     /* ->father in basis tree */
-		nodetype *successor;  /* ->successor in preorder */
-		arctype *arc_id;      /* ->arc (node,father) */
-		bool orientation;     /* false<=>basic arc=(father->node)*/
-		TCost dual;             /* value of dual variable */
-		int flow;             /* flow in basic arc (node,father) */
-		int name;             /* identification of node = node-nr*/
-		nodetype *last;       /* last node in subtree */
-		int nr_of_nodes;      /* number of nodes in subtree */
+		nodetype* father; /* ->father in basis tree */
+		nodetype* successor; /* ->successor in preorder */
+		arctype* arc_id; /* ->arc (node,father) */
+		bool orientation; /* false<=>basic arc=(father->node)*/
+		TCost dual; /* value of dual variable */
+		int flow; /* flow in basic arc (node,father) */
+		int name; /* identification of node = node-nr*/
+		nodetype* last; /* last node in subtree */
+		int nr_of_nodes; /* number of nodes in subtree */
 	};
 
 	struct arctype {
-		arctype *next_arc;    /* -> next arc in list */
-		nodetype *tail;       /* -> tail of arc */
-		nodetype *head;       /* -> head of arc */
-		TCost cost;           /* cost of unit flow */
-		int upper_bound;      /* capacity of arc */
-		int arcnum;           /* number of arc in input */
+		arctype* next_arc; /* -> next arc in list */
+		nodetype* tail; /* -> tail of arc */
+		nodetype* head; /* -> head of arc */
+		TCost cost; /* cost of unit flow */
+		int upper_bound; /* capacity of arc */
+		int arcnum; /* number of arc in input */
 
 		OGDF_NEW_DELETE
 	};
 
+	int mcf(int mcfNrNodes, int mcfNrArcs, Array<int>& mcfSupply, Array<int>& mcfTail,
+			Array<int>& mcfHead, Array<int>& mcfLb, Array<int>& mcfUb, Array<TCost>& mcfCost,
+			Array<int>& mcfFlow, Array<TCost>& mcfDual, TCost* mcfObj);
 
-	int mcf(
-		int mcfNrNodes,
-		int mcfNrArcs,
-		Array<int> &mcfSupply,
-		Array<int> &mcfTail,
-		Array<int> &mcfHead,
-		Array<int> &mcfLb,
-		Array<int> &mcfUb,
-		Array<TCost> &mcfCost,
-		Array<int> &mcfFlow,
-		Array<TCost> &mcfDual,
-		TCost *mcfObj
-	);
+	void start(Array<int>& supply);
 
-	void start(Array<int> &supply);
-
-	void beacircle(arctype **eplus, arctype **pre, bool *from_ub);
-	void beadouble(arctype **eplus, arctype **pre, bool *from_ub);
+	void beacircle(arctype** eplus, arctype** pre, bool* from_ub);
+	void beadouble(arctype** eplus, arctype** pre, bool* from_ub);
 
 	EpsilonTest m_eps;
 
-	Array<nodetype> nodes;     /* node space */
-	Array<arctype> arcs;       /* arc space */
+	Array<nodetype> nodes; /* node space */
+	Array<arctype> arcs; /* arc space */
 	//Array<nodetype *> p;    /*used for starting procedure*/
 
-	nodetype *root = nullptr;         /*->root of basis tree*/
+	nodetype* root = nullptr; /*->root of basis tree*/
 	nodetype rootStruct;
 
-	arctype *last_n1 = nullptr;       /*->start for search for entering arc in N' */
-	arctype *last_n2 = nullptr;       /*->start for search for entering arc in N''*/
-	arctype *start_arc = nullptr;     /* -> initial arc list*/
-	arctype *start_b = nullptr;       /* -> first basic arc*/
-	arctype *start_n1 = nullptr;      /* -> first nonbasic arc in n'*/
-	arctype *start_n2 = nullptr;      /* -> first nonbasic arc in n''*/
-	arctype *startsearch = nullptr;   /* ->start of search for basis entering arc */
-	arctype *searchend = nullptr;     /* ->end of search for entering arc in bea */
-	arctype *searchend_n1 = nullptr;  /*->end of search for entering arc in N' */
-	arctype *searchend_n2 = nullptr;  /*->end of search for entering arc in N''*/
+	arctype* last_n1 = nullptr; /*->start for search for entering arc in N' */
+	arctype* last_n2 = nullptr; /*->start for search for entering arc in N''*/
+	arctype* start_arc = nullptr; /* -> initial arc list*/
+	arctype* start_b = nullptr; /* -> first basic arc*/
+	arctype* start_n1 = nullptr; /* -> first nonbasic arc in n'*/
+	arctype* start_n2 = nullptr; /* -> first nonbasic arc in n''*/
+	arctype* startsearch = nullptr; /* ->start of search for basis entering arc */
+	arctype* searchend = nullptr; /* ->end of search for entering arc in bea */
+	arctype* searchend_n1 = nullptr; /*->end of search for entering arc in N' */
+	arctype* searchend_n2 = nullptr; /*->end of search for entering arc in N''*/
 
 	//int artvalue;          /*cost and upper_bound of artificial arc */
 	TCost m_maxCost = std::numeric_limits<TCost>::lowest(); // maximum of the cost of all input arcs
 
-	int nn = 0;                /*number of original nodes*/
-	int mm = 0;                /*number of original arcs*/
+	int nn = 0; /*number of original nodes*/
+	int mm = 0; /*number of original arcs*/
 };
 
 }
@@ -160,15 +143,9 @@ namespace ogdf {
 // computes min-cost-flow, call front-end for mcf()
 // returns true if a feasible minimum cost flow could be found
 template<typename TCost>
-bool MinCostFlowReinelt<TCost>::call(
-	const Graph &G,
-	const EdgeArray<int> &lowerBound,
-	const EdgeArray<int> &upperBound,
-	const EdgeArray<TCost> &cost,
-	const NodeArray<int> &supply,
-	EdgeArray<int> &flow,
-	NodeArray<TCost> &dual)
-{
+bool MinCostFlowReinelt<TCost>::call(const Graph& G, const EdgeArray<int>& lowerBound,
+		const EdgeArray<int>& upperBound, const EdgeArray<TCost>& cost,
+		const NodeArray<int>& supply, EdgeArray<int>& flow, NodeArray<TCost>& dual) {
 	OGDF_ASSERT(this->checkProblem(G, lowerBound, upperBound, supply));
 
 	const int n = G.numberOfNodes();
@@ -181,7 +158,7 @@ bool MinCostFlowReinelt<TCost>::call(
 	Array<int> mcfSupply(n);
 
 	int i = 0;
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		mcfSupply[i] = supply[v];
 		vIndex[v] = ++i;
 	}
@@ -194,7 +171,7 @@ bool MinCostFlowReinelt<TCost>::call(
 	Array<int> mcfUb(m);
 	Array<TCost> mcfCost(m);
 	Array<int> mcfFlow(m);
-	Array<TCost> mcfDual(n+1); // dual[n] = dual variable of root struct
+	Array<TCost> mcfDual(n + 1); // dual[n] = dual variable of root struct
 
 	// set input data in edge arrays
 	int nSelfLoops = 0;
@@ -218,7 +195,7 @@ bool MinCostFlowReinelt<TCost>::call(
 
 
 	int retCode = 0; // return (error or success) code
-	TCost objVal;  // value of flow
+	TCost objVal; // value of flow
 
 	// call actual min-cost-flow function
 	// mcf does not support single nodes
@@ -230,7 +207,8 @@ bool MinCostFlowReinelt<TCost>::call(
 				flow[eFirst] = lowerBound[eFirst];
 			}
 		} else {
-			retCode = mcf(n, m - nSelfLoops, mcfSupply, mcfTail, mcfHead, mcfLb, mcfUb, mcfCost, mcfFlow, mcfDual, &objVal);
+			retCode = mcf(n, m - nSelfLoops, mcfSupply, mcfTail, mcfHead, mcfLb, mcfUb, mcfCost,
+					mcfFlow, mcfDual, &objVal);
 		}
 	}
 
@@ -261,10 +239,8 @@ bool MinCostFlowReinelt<TCost>::call(
 	return retCode == 0;
 }
 
-
 template<typename TCost>
-void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
-{
+void MinCostFlowReinelt<TCost>::start(Array<int>& supply) {
 	// determine intial basis tree and initialize data structure
 
 	/* initialize artificial root node */
@@ -278,10 +254,10 @@ void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
 	root->last = &nodes[nn];
 	root->name = nn + 1;
 	// artificials = nn; moved to mcf() [CG]
-	TCost highCost = 1 + (nn+1) * m_maxCost;
+	TCost highCost = 1 + (nn + 1) * m_maxCost;
 
-	for (int i = 1; i <= nn; ++i) {   /* for every node an artificial arc is created */
-		arctype *ep = new arctype;
+	for (int i = 1; i <= nn; ++i) { /* for every node an artificial arc is created */
+		arctype* ep = new arctype;
 		if (supply[i - 1] >= 0) {
 			ep->tail = &nodes[i];
 			ep->head = root;
@@ -295,10 +271,11 @@ void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
 		ep->next_arc = start_b;
 		start_b = ep;
 		nodes[i].father = root;
-		if (i < nn)
-			nodes[i].successor = &nodes[i+1];
-		else
+		if (i < nn) {
+			nodes[i].successor = &nodes[i + 1];
+		} else {
 			nodes[i].successor = root;
+		}
 		if (supply[i - 1] < 0) {
 			nodes[i].orientation = false;
 			nodes[i].dual = -highCost;
@@ -310,22 +287,17 @@ void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
 		nodes[i].nr_of_nodes = 1;
 		nodes[i].last = &nodes[i];
 		nodes[i].arc_id = ep;
-	}  /* for i */
+	} /* for i */
 	start_n1 = start_arc;
-}  /*start*/
-
+} /*start*/
 
 // circle variant for determine basis entering arc
 template<typename TCost>
-void MinCostFlowReinelt<TCost>::beacircle(
-	arctype **eplus,
-	arctype **pre,
-	bool *from_ub)
-{
+void MinCostFlowReinelt<TCost>::beacircle(arctype** eplus, arctype** pre, bool* from_ub) {
 	//the first arc with negative reduced costs is taken, but the search is
 	//started at the successor of the successor of eplus in the last iteration
 
-	bool found = false;   /* true<=>entering arc found */
+	bool found = false; /* true<=>entering arc found */
 
 	*pre = startsearch;
 	if (*pre != nullptr) {
@@ -336,17 +308,16 @@ void MinCostFlowReinelt<TCost>::beacircle(
 	searchend = *eplus;
 
 	if (!*from_ub) {
-
 		while (*eplus != nullptr && !found) { /* search in n' for an arc with negative reduced costs */
 			if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 				found = true;
 			} else {
-				*pre = *eplus;   /* save predecessor */
-				*eplus = (*eplus)->next_arc;   /* go to next arc */
+				*pre = *eplus; /* save predecessor */
+				*eplus = (*eplus)->next_arc; /* go to next arc */
 			}
-		}  /* while */
+		} /* while */
 
-		if (!found) {  /* entering arc still not found */
+		if (!found) { /* entering arc still not found */
 			/* search in n'' */
 			*from_ub = true;
 			*eplus = start_n2;
@@ -356,13 +327,13 @@ void MinCostFlowReinelt<TCost>::beacircle(
 				if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 					found = true;
 				} else {
-					*pre = *eplus;   /* save predecessor */
-					*eplus = (*eplus)->next_arc;   /* go to next arc */
+					*pre = *eplus; /* save predecessor */
+					*eplus = (*eplus)->next_arc; /* go to next arc */
 				}
-			}  /* while */
+			} /* while */
 
 
-			if (!found) {   /* search again in n' */
+			if (!found) { /* search again in n' */
 				*from_ub = false;
 				*eplus = start_n1;
 				*pre = nullptr;
@@ -371,26 +342,26 @@ void MinCostFlowReinelt<TCost>::beacircle(
 					if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 						found = true;
 					} else {
-						*pre = *eplus;   /* save predecessor */
-						*eplus = (*eplus)->next_arc;   /* go to next arc */
+						*pre = *eplus; /* save predecessor */
+						*eplus = (*eplus)->next_arc; /* go to next arc */
 					}
-				}  /* while */
+				} /* while */
 
-			}  /* search in n'' */
-		}  /* serch again in n' */
-	}  /* if from_ub */
-	else {  /* startsearch in n'' */
+			} /* search in n'' */
+		} /* serch again in n' */
+	} /* if from_ub */
+	else { /* startsearch in n'' */
 
 		while (*eplus != nullptr && !found) {
 			if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 				found = true;
 			} else {
-				*pre = *eplus;   /* save predecessor */
-				*eplus = (*eplus)->next_arc;   /* go to next arc */
+				*pre = *eplus; /* save predecessor */
+				*eplus = (*eplus)->next_arc; /* go to next arc */
 			}
-		}  /* while */
+		} /* while */
 
-		if (!found) {   /* search now in n' */
+		if (!found) { /* search now in n' */
 			*from_ub = false;
 			*eplus = start_n1;
 			*pre = nullptr;
@@ -399,13 +370,13 @@ void MinCostFlowReinelt<TCost>::beacircle(
 				if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 					found = true;
 				} else {
-					*pre = *eplus;   /* save predecessor */
-					*eplus = (*eplus)->next_arc;   /* go to next arc */
+					*pre = *eplus; /* save predecessor */
+					*eplus = (*eplus)->next_arc; /* go to next arc */
 				}
-			}  /* while */
+			} /* while */
 
 
-			if (!found) {   /* search again in n'' */
+			if (!found) { /* search again in n'' */
 				*from_ub = true;
 				*eplus = start_n2;
 				*pre = nullptr;
@@ -414,15 +385,14 @@ void MinCostFlowReinelt<TCost>::beacircle(
 					if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 						found = true;
 					} else {
-						*pre = *eplus;   /* save predecessor */
-						*eplus = (*eplus)->next_arc;   /* go to next arc */
+						*pre = *eplus; /* save predecessor */
+						*eplus = (*eplus)->next_arc; /* go to next arc */
 					}
-				}  /* while */
+				} /* while */
 
-			}  /* search in n' */
-		}  /* search in n'' */
-	}  /* from_ub = true */
-
+			} /* search in n' */
+		} /* search in n'' */
+	} /* from_ub = true */
 
 
 	if (!found) {
@@ -432,59 +402,56 @@ void MinCostFlowReinelt<TCost>::beacircle(
 		startsearch = (*eplus)->next_arc;
 	}
 
-}  /* beacircle */
-
+} /* beacircle */
 
 // doublecircle variant for determine basis entering arc
 template<typename TCost>
-void MinCostFlowReinelt<TCost>::beadouble(
-	arctype **eplus,
-	arctype **pre,
-	bool *from_ub)
-{
+void MinCostFlowReinelt<TCost>::beadouble(arctype** eplus, arctype** pre, bool* from_ub) {
 	/* search as in procedure beacircle, but in each list the search started is
 	at the last movement
 	*/
-	bool found = false;   /* true<=>entering arc found */
+	bool found = false; /* true<=>entering arc found */
 
 	if (!*from_ub) {
 		*pre = last_n1;
-		if (*pre != nullptr)
+		if (*pre != nullptr) {
 			*eplus = (*pre)->next_arc;
-		else
+		} else {
 			*eplus = nullptr;
+		}
 		searchend_n1 = *eplus;
 
-		while (*eplus != nullptr && !found) {  /* search in n' for an arc with negative reduced costs */
+		while (*eplus != nullptr && !found) { /* search in n' for an arc with negative reduced costs */
 			if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 				found = true;
 			} else {
-				*pre = *eplus;   /* save predecessor */
-				*eplus = (*eplus)->next_arc;   /* go to next arc */
+				*pre = *eplus; /* save predecessor */
+				*eplus = (*eplus)->next_arc; /* go to next arc */
 			}
-		}  /* while */
+		} /* while */
 
-		if (!found) {  /* entering arc still not found */
+		if (!found) { /* entering arc still not found */
 			/* search in n'' beginning at the last movement */
 			*from_ub = true;
 			*pre = last_n2;
-			if (*pre != nullptr)
+			if (*pre != nullptr) {
 				*eplus = (*pre)->next_arc;
-			else
+			} else {
 				*eplus = nullptr;
+			}
 			searchend_n2 = *eplus;
 
 			while (*eplus != nullptr && !found) {
 				if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 					found = true;
 				} else {
-					*pre = *eplus;   /* save predecessor */
-					*eplus = (*eplus)->next_arc;   /* go to next arc */
+					*pre = *eplus; /* save predecessor */
+					*eplus = (*eplus)->next_arc; /* go to next arc */
 				}
 
-			}  /* while */
+			} /* while */
 
-			if (!found) {   /* entering arc still not found */
+			if (!found) { /* entering arc still not found */
 				/* search in n'' in the first part of the list */
 				*eplus = start_n2;
 				*pre = nullptr;
@@ -493,11 +460,11 @@ void MinCostFlowReinelt<TCost>::beadouble(
 					if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 						found = true;
 					} else {
-						*pre = *eplus;   /* save predecessor */
-						*eplus = (*eplus)->next_arc;   /* go to next arc */
+						*pre = *eplus; /* save predecessor */
+						*eplus = (*eplus)->next_arc; /* go to next arc */
 					}
 
-				}  /* while */
+				} /* while */
 
 
 				if (!found) {
@@ -510,51 +477,53 @@ void MinCostFlowReinelt<TCost>::beadouble(
 						if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 							found = true;
 						} else {
-							*pre = *eplus;   /* save predecessor */
-							*eplus = (*eplus)->next_arc;  /* go to next arc */
+							*pre = *eplus; /* save predecessor */
+							*eplus = (*eplus)->next_arc; /* go to next arc */
 						}
-					}  /* while */
-				}  /* first part n' */
-			}  /* first part n'' */
-		}  /* second part n'' */
-	}  /* if from_ub */
-	else {  /* startsearch in n'' */
+					} /* while */
+				} /* first part n' */
+			} /* first part n'' */
+		} /* second part n'' */
+	} /* if from_ub */
+	else { /* startsearch in n'' */
 		*pre = last_n2;
-		if (*pre != nullptr)
+		if (*pre != nullptr) {
 			*eplus = (*pre)->next_arc;
-		else
+		} else {
 			*eplus = nullptr;
+		}
 		searchend_n2 = *eplus;
 
 		while (*eplus != nullptr && !found) {
 			if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 				found = true;
 			} else {
-				*pre = *eplus;   /* save predecessor */
-				*eplus = (*eplus)->next_arc;   /* go to next arc */
+				*pre = *eplus; /* save predecessor */
+				*eplus = (*eplus)->next_arc; /* go to next arc */
 			}
-		}  /* while */
+		} /* while */
 
-		if (!found) {   /* search now in n' beginning at the last movement */
+		if (!found) { /* search now in n' beginning at the last movement */
 			*from_ub = false;
 			*pre = last_n1;
-			if (*pre != nullptr)
+			if (*pre != nullptr) {
 				*eplus = (*pre)->next_arc;
-			else
+			} else {
 				*eplus = nullptr;
+			}
 			searchend_n1 = *eplus;
 
 			while (*eplus != nullptr && !found) {
 				if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 					found = true;
 				} else {
-					*pre = *eplus;   /* save predecessor */
-					*eplus = (*eplus)->next_arc;   /* go to next arc */
+					*pre = *eplus; /* save predecessor */
+					*eplus = (*eplus)->next_arc; /* go to next arc */
 				}
-			}  /* while */
+			} /* while */
 
 
-			if (!found) {   /* search now in n' in the first part */
+			if (!found) { /* search now in n' in the first part */
 				*eplus = start_n1;
 				*pre = nullptr;
 
@@ -562,13 +531,13 @@ void MinCostFlowReinelt<TCost>::beadouble(
 					if (m_eps.less((*eplus)->cost + (*eplus)->head->dual, (*eplus)->tail->dual)) {
 						found = true;
 					} else {
-						*pre = *eplus;   /* save predecessor */
-						*eplus = (*eplus)->next_arc;   /* go to next arc */
+						*pre = *eplus; /* save predecessor */
+						*eplus = (*eplus)->next_arc; /* go to next arc */
 					}
-				}  /* while */
+				} /* while */
 
 
-				if (!found) {   /* search again in n'' in the first part */
+				if (!found) { /* search again in n'' in the first part */
 					*from_ub = true;
 					*eplus = start_n2;
 					*pre = nullptr;
@@ -577,15 +546,14 @@ void MinCostFlowReinelt<TCost>::beadouble(
 						if (m_eps.less((*eplus)->tail->dual, (*eplus)->head->dual + (*eplus)->cost)) {
 							found = true;
 						} else {
-							*pre = *eplus;   /* save predecessor */
-							*eplus = (*eplus)->next_arc;   /* go to next arc */
+							*pre = *eplus; /* save predecessor */
+							*eplus = (*eplus)->next_arc; /* go to next arc */
 						}
-					}  /* while */
-				}  /* first part of n'' */
-			}  /* first part of n' */
-		}  /* second part of n' */
-	}  /* from_ub = true */
-
+					} /* while */
+				} /* first part of n'' */
+			} /* first part of n' */
+		} /* second part of n' */
+	} /* from_ub = true */
 
 
 	if (!found) {
@@ -594,31 +562,21 @@ void MinCostFlowReinelt<TCost>::beadouble(
 		return;
 	}
 
-	if (*from_ub)
+	if (*from_ub) {
 		last_n2 = (*eplus)->next_arc;
-	else
+	} else {
 		last_n1 = (*eplus)->next_arc;
+	}
 
-}  /* beadouble */
-
+} /* beadouble */
 
 // Min Cost Flow Function
 template<typename TCost>
-int MinCostFlowReinelt<TCost>::mcf(
-	int mcfNrNodes,
-	int mcfNrArcs,
-	Array<int> &supply,
-	Array<int> &mcfTail,
-	Array<int> &mcfHead,
-	Array<int> &mcfLb,
-	Array<int> &mcfUb,
-	Array<TCost> &mcfCost,
-	Array<int> &mcfFlow,
-	Array<TCost> &mcfDual,
-	TCost *mcfObj)
-{
+int MinCostFlowReinelt<TCost>::mcf(int mcfNrNodes, int mcfNrArcs, Array<int>& supply,
+		Array<int>& mcfTail, Array<int>& mcfHead, Array<int>& mcfLb, Array<int>& mcfUb,
+		Array<TCost>& mcfCost, Array<int>& mcfFlow, Array<TCost>& mcfDual, TCost* mcfObj) {
 	int i;
-	int low,up;
+	int low, up;
 
 	/* 1: Allocations (malloc's no longer required) */
 
@@ -637,18 +595,19 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 
 	/* Node space and pointers to nodes */
-	nodes.init(nn+1);
+	nodes.init(nn + 1);
 	nodes[0].name = -1; // for debuggin, should not occur(?)
-	for(i = 1; i <= nn; ++i)
+	for (i = 1; i <= nn; ++i) {
 		nodes[i].name = i;
+	}
 
 	/* Arc space and arc data */
-	arcs.init(mm+1);
+	arcs.init(mm + 1);
 
 	TCost lb_cost = 0; // cost of lower bound
 	m_maxCost = 0;
 	int from = mcfTail[0]; // name of tail (input)
-	int toh = mcfHead[0];  // name of head (input)
+	int toh = mcfHead[0]; // name of head (input)
 	low = mcfLb[0];
 	up = mcfUb[0];
 	TCost c = mcfCost[0]; // cost (input)
@@ -670,15 +629,15 @@ int MinCostFlowReinelt<TCost>::mcf(
 	supply[toh - 1] += low;
 	lb_cost += start_arc->cost * low;
 
-	arctype *e = start_arc;
+	arctype* e = start_arc;
 
 	int lower; // lower bound (input)
 	for (lower = 2; lower <= mm; ++lower) {
-		from = mcfTail[lower-1];
-		toh = mcfHead[lower-1];
-		low = mcfLb[lower-1];
-		up = mcfUb[lower-1];
-		c = mcfCost[lower-1];
+		from = mcfTail[lower - 1];
+		toh = mcfHead[lower - 1];
+		low = mcfLb[lower - 1];
+		up = mcfUb[lower - 1];
+		c = mcfCost[lower - 1];
 		if (from <= 0 || from > nn || toh <= 0 || toh > nn || up < 0 || low > up || low < 0) {
 			return 4;
 		}
@@ -687,15 +646,15 @@ int MinCostFlowReinelt<TCost>::mcf(
 			m_maxCost = abs_c;
 		}
 
-		arctype *ep = &arcs[lower];
+		arctype* ep = &arcs[lower];
 		e->next_arc = ep;
 		ep->tail = &nodes[from];
 		ep->head = &nodes[toh];
 		ep->cost = c;
 		ep->upper_bound = up - low;
-		ep->arcnum = lower-1;
-		supply[from-1] -= low;
-		supply[toh-1] += low;
+		ep->arcnum = lower - 1;
+		supply[from - 1] -= low;
+		supply[toh - 1] += low;
 		lb_cost += ep->cost * low;
 		e = ep;
 	}
@@ -713,8 +672,6 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 	start(supply);
 
-	int step = 1;   /* initialize iteration counter */
-
 	/* 4: Iteration loop */
 
 	/* 4.1: Determine basis entering arc */
@@ -729,28 +686,27 @@ int MinCostFlowReinelt<TCost>::mcf(
 #endif
 	last_n1 = nullptr;
 	last_n2 = nullptr;
-	nodetype *np; // general nodeptr
+	nodetype* np; // general nodeptr
 
 	do {
-		arctype *eplus; // ->basis entering arc
-		arctype *pre;   // ->predecessor of eplus in list
+		arctype* eplus; // ->basis entering arc
+		arctype* pre; // ->predecessor of eplus in list
 		beacircle(&eplus, &pre, &from_ub);
 
 		if (eplus == nullptr) {
 			finished = true;
 		} else {
-
-			nodetype *iplus = eplus->tail; // -> tail of basis entering arc
-			nodetype *jplus = eplus->head; // -> head of basis entering arc
+			nodetype* iplus = eplus->tail; // -> tail of basis entering arc
+			nodetype* jplus = eplus->head; // -> head of basis entering arc
 
 			/* 4.2: Determine leaving arc and maximal flow change */
 
 			int delta = eplus->upper_bound; // maximal flow change
-			nodetype *iminus = nullptr; // -> tail of basis leaving arc
-			nodetype *p1 = iplus;
-			nodetype *p2 = jplus;
+			nodetype* iminus = nullptr; // -> tail of basis leaving arc
+			nodetype* p1 = iplus;
+			nodetype* p2 = jplus;
 
-			bool to_ub;   // to_ub = true <=> leaving arc goes to upperbound
+			bool to_ub; // to_ub = true <=> leaving arc goes to upperbound
 			bool xchange; // xchange = true <=> exchange iplus and jplus
 			while (p1 != p2) {
 				if (p1->nr_of_nodes <= p2->nr_of_nodes) {
@@ -762,8 +718,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 							xchange = false;
 							to_ub = true;
 						}
-					}
-					else if (delta > np->flow) {
+					} else if (delta > np->flow) {
 						iminus = np;
 						delta = np->flow;
 						xchange = false;
@@ -780,8 +735,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 						xchange = true;
 						to_ub = true;
 					}
-				}
-				else if (delta > np->flow) {
+				} else if (delta > np->flow) {
 					iminus = np;
 					delta = np->flow;
 					xchange = true;
@@ -790,18 +744,17 @@ int MinCostFlowReinelt<TCost>::mcf(
 				p2 = np->father;
 			}
 			// paths from iplus and jplus to root meet at w
-			nodetype *w = p1;
-			nodetype *iw;
-			nodetype *jminus;  // -> head of basis leaving arc
+			nodetype* w = p1;
+			nodetype* iw;
+			nodetype* jminus; // -> head of basis leaving arc
 
-			arctype *eminus; /// ->basis leaving arc
+			arctype* eminus; /// ->basis leaving arc
 			if (iminus == nullptr) {
 				to_ub = !from_ub;
 				eminus = eplus;
 				iminus = iplus;
 				jminus = jplus;
-			}
-			else {
+			} else {
 				if (xchange) {
 					iw = jplus;
 					jplus = iplus;
@@ -818,18 +771,18 @@ int MinCostFlowReinelt<TCost>::mcf(
 					if (jplus != root && iplus != root) {
 						artificials--;
 						artif_to_lb = true;
-					}
-					else if (eminus == eplus) {
+					} else if (eminus == eplus) {
 						if (from_ub) {
 							artificials--;
 							artif_to_lb = true;
-						} else
+						} else {
 							artificials++;
+						}
 					}
-				}
-				else {
-					if (iplus == root || jplus == root)
+				} else {
+					if (iplus == root || jplus == root) {
 						artificials++;
+					}
 				}
 			}
 
@@ -838,7 +791,9 @@ int MinCostFlowReinelt<TCost>::mcf(
 			TCost sigma; // change of dual variables
 
 			if (eminus == eplus) {
-				if (from_ub) delta = -delta;
+				if (from_ub) {
+					delta = -delta;
+				}
 
 				bool s_orientation;
 				s_orientation = eminus->tail == iplus;
@@ -847,8 +802,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 				while (np != w) {
 					if (np->orientation == s_orientation) {
 						np->flow -= delta;
-					}
-					else {
+					} else {
 						np->flow += delta;
 					}
 					np = np->father;
@@ -858,8 +812,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 				while (np != w) {
 					if (np->orientation == s_orientation) {
 						np->flow += delta;
-					}
-					else {
+					} else {
 						np->flow -= delta;
 					}
 					np = np->father;
@@ -868,23 +821,24 @@ int MinCostFlowReinelt<TCost>::mcf(
 			} else {
 				/* 4.3.2.1 : initialize sigma */
 
-				if (eplus->tail == iplus)
+				if (eplus->tail == iplus) {
 					sigma = eplus->cost + jplus->dual - iplus->dual;
-				else
+				} else {
 					sigma = jplus->dual - iplus->dual - eplus->cost;
+				}
 
 				// 4.3.2.2 : find new succ. of jminus if current succ. is iminus
 
-				nodetype *newsuc = jminus->successor; // -> new successor
+				nodetype* newsuc = jminus->successor; // -> new successor
 				if (newsuc == iminus) {
-					for (i= 1; i <= iminus->nr_of_nodes; ++i) {
+					for (i = 1; i <= iminus->nr_of_nodes; ++i) {
 						newsuc = newsuc->successor;
 					}
 				}
 
 				/* 4.3.2.3 : initialize data for iplus */
 
-				nodetype *s_father = jplus; // save area
+				nodetype* s_father = jplus; // save area
 				bool s_orientation = (eplus->tail != jplus);
 
 				// eplus_ori = true <=> eplus = (iplus,jplus)
@@ -898,17 +852,19 @@ int MinCostFlowReinelt<TCost>::mcf(
 					s_flow = delta;
 				}
 
-				arctype *s_arc_id = eminus;
+				arctype* s_arc_id = eminus;
 				int oldnumber = 0;
-				nodetype *nd = iplus;     // -> current node
-				nodetype *f = nd->father; // ->father of nd
+				nodetype* nd = iplus; // -> current node
+				nodetype* f = nd->father; // ->father of nd
 
 				/* 4.3.2.4 : traverse subtree under iminus */
 
 				while (nd != jminus) {
-					nodetype *pred = f; // ->predecessor of current node
-					while (pred->successor != nd) pred = pred->successor;
-					nodetype *lastnode = nd; // -> last node of subtree
+					nodetype* pred = f; // ->predecessor of current node
+					while (pred->successor != nd) {
+						pred = pred->successor;
+					}
+					nodetype* lastnode = nd; // -> last node of subtree
 					i = 1;
 					int non = nd->nr_of_nodes - oldnumber;
 					while (i < non) {
@@ -919,11 +875,14 @@ int MinCostFlowReinelt<TCost>::mcf(
 					nd->dual += sigma;
 					pred->successor = lastnode->successor;
 
-					if (nd != iminus) lastnode->successor = f;
-					else lastnode->successor = jplus->successor;
+					if (nd != iminus) {
+						lastnode->successor = f;
+					} else {
+						lastnode->successor = jplus->successor;
+					}
 
-					nodetype *w_father = nd; // save area
-					arctype *w_arc_id = nd->arc_id; // save area
+					nodetype* w_father = nd; // save area
+					arctype* w_arc_id = nd->arc_id; // save area
 
 					bool w_orientation;
 					w_orientation = nd->arc_id->tail != nd;
@@ -931,8 +890,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 					int w_flow;
 					if (w_orientation == eplus_ori) {
 						w_flow = nd->flow + delta;
-					}
-					else {
+					} else {
 						w_flow = nd->flow - delta;
 					}
 
@@ -948,7 +906,6 @@ int MinCostFlowReinelt<TCost>::mcf(
 					oldnumber = nd->nr_of_nodes;
 					nd = f;
 					f = f->father;
-
 				}
 
 				jminus->successor = newsuc;
@@ -972,8 +929,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 					np->nr_of_nodes -= oldnumber;
 					if (np->orientation != eplus_ori) {
 						np->flow += delta;
-					}
-					else {
+					} else {
 						np->flow -= delta;
 					}
 					np = np->father;
@@ -986,31 +942,31 @@ int MinCostFlowReinelt<TCost>::mcf(
 					np->nr_of_nodes += oldnumber;
 					if (np->orientation == eplus_ori) {
 						np->flow += delta;
-					}
-					else {
+					} else {
 						np->flow -= delta;
 					}
 					np = np->father;
 				}
-
 			}
 
 			/* 4.4: Update lists B, N' and N'' */
 
 			if (eminus == eplus) {
 				if (!from_ub) {
-					if (pre == nullptr)
+					if (pre == nullptr) {
 						start_n1 = eminus->next_arc;
-					else
+					} else {
 						pre->next_arc = eminus->next_arc;
+					}
 
 					eminus->next_arc = start_n2;
 					start_n2 = eminus;
 				} else {
-					if (pre == nullptr)
+					if (pre == nullptr) {
 						start_n2 = eminus->next_arc;
-					else
+					} else {
 						pre->next_arc = eminus->next_arc;
+					}
 					eminus->next_arc = start_n1;
 					start_n1 = eminus;
 				}
@@ -1018,8 +974,8 @@ int MinCostFlowReinelt<TCost>::mcf(
 				TCost wcost = eminus->cost;
 				int wub = eminus->upper_bound;
 				int wnum = eminus->arcnum;
-				nodetype *w_head = eminus->head;
-				nodetype *w_tail = eminus->tail;
+				nodetype* w_head = eminus->head;
+				nodetype* w_tail = eminus->tail;
 				eminus->tail = eplus->tail;
 				eminus->head = eplus->head;
 				eminus->upper_bound = eplus->upper_bound;
@@ -1030,13 +986,16 @@ int MinCostFlowReinelt<TCost>::mcf(
 				eplus->upper_bound = wub;
 				eplus->cost = wcost;
 				eplus->arcnum = wnum;
-				arctype *ep = eplus;
+				arctype* ep = eplus;
 
-				if (pre != nullptr)
+				if (pre != nullptr) {
 					pre->next_arc = ep->next_arc;
-				else {
-					if (from_ub) start_n2 = ep->next_arc;
-					else start_n1 = ep->next_arc;
+				} else {
+					if (from_ub) {
+						start_n2 = ep->next_arc;
+					} else {
+						start_n1 = ep->next_arc;
+					}
 				}
 
 				if (to_ub) {
@@ -1050,16 +1009,14 @@ int MinCostFlowReinelt<TCost>::mcf(
 				}
 			}
 
-			step++;
-
 			/* 4.5: Eliminate artificial arcs and artificial root node */
 
 			if (artificials == 1) {
 				artificials = 0;
-				nodetype *nd = root->successor;
-				arctype *e1 = nd->arc_id;
+				nodetype* nd = root->successor;
+				arctype* e1 = nd->arc_id;
 
-				if (nd->flow>0) {
+				if (nd->flow > 0) {
 					feasible = false;
 					finished = true;
 				} else {
@@ -1068,8 +1025,9 @@ int MinCostFlowReinelt<TCost>::mcf(
 						start_b = e1->next_arc;
 					} else {
 						e = start_b;
-						while (e->next_arc != e1)
+						while (e->next_arc != e1) {
 							e = e->next_arc;
+						}
 						e->next_arc = e1->next_arc;
 					}
 
@@ -1086,11 +1044,8 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 					np->dual -= sigma;
 					np->successor = root;
-
 				}
-
 			}
-
 		}
 
 	} while (!finished);
@@ -1098,25 +1053,25 @@ int MinCostFlowReinelt<TCost>::mcf(
 	/* 5: Return results */
 
 	/* Feasible solution? */
-	if (artificials != 0
-	 && feasible) {
+	if (artificials != 0 && feasible) {
 		np = root->successor;
 		do {
-			if (np->father == root
-			 && np->flow > 0) {
+			if (np->father == root && np->flow > 0) {
 				feasible = false;
 				np = root;
-			}
-			else
+			} else {
 				np = np->successor;
+			}
 		} while (np != root);
 
-		arctype *ep = start_n2;
+		arctype* ep = start_n2;
 		while (ep != nullptr && feasible) {
-			if (ep == nullptr)
+			if (ep == nullptr) {
 				break;
-			if (ep->tail == root && ep->head == root)
+			}
+			if (ep->tail == root && ep->head == root) {
 				feasible = false;
+			}
 			ep = ep->next_arc;
 		}
 	}
@@ -1133,7 +1088,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 			}
 			np = np->successor;
 		}
-		arctype *ep = start_n2;
+		arctype* ep = start_n2;
 		while (ep != nullptr) {
 			zfw += ep->cost * ep->upper_bound;
 			ep = ep->next_arc;
@@ -1144,22 +1099,24 @@ int MinCostFlowReinelt<TCost>::mcf(
 		// CG: removed computation of duals
 		np = root->successor;
 		while (np != root) {
-			mcfDual[np->name-1] = np->dual;
+			mcfDual[np->name - 1] = np->dual;
 			np = np->successor;
 		}
-		mcfDual[root->name-1] = root->dual;
+		mcfDual[root->name - 1] = root->dual;
 
 		/* Arc flows */
-		for (i = 0; i < mm; ++i)
+		for (i = 0; i < mm; ++i) {
 			mcfFlow[i] = mcfLb[i];
+		}
 
 		np = root->successor;
 		while (np != root) {
 			// flow on artificial arcs has to be 0 to be ignored! [CG]
 			OGDF_ASSERT(np->arc_id->arcnum < mm || np->flow == 0);
 
-			if (np->arc_id->arcnum < mm)
+			if (np->arc_id->arcnum < mm) {
 				mcfFlow[np->arc_id->arcnum] += np->flow;
+			}
 
 			np = np->successor;
 		}
@@ -1175,7 +1132,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 	}
 
 	// deallocate artificial arcs
-	for(i = 1; i <= nn; ++i)
+	for (i = 1; i <= nn; ++i)
 #if 0
 		delete p[i]->arc_id;
 #endif

@@ -33,20 +33,17 @@
 
 namespace ogdf {
 
-void GreedySwitchHeuristic::init(const HierarchyLevels &levels)
-{
+void GreedySwitchHeuristic::init(const HierarchyLevels& levels) {
 	delete m_crossingMatrix;
 	m_crossingMatrix = new CrossingsMatrix(levels);
 }
 
-void GreedySwitchHeuristic::cleanup()
-{
+void GreedySwitchHeuristic::cleanup() {
 	delete m_crossingMatrix;
 	m_crossingMatrix = nullptr;
 }
 
-void GreedySwitchHeuristic::call(Level &L)
-{
+void GreedySwitchHeuristic::call(Level& L) {
 	m_crossingMatrix->init(L);
 	int index;
 	bool nolocalmin;
@@ -55,12 +52,11 @@ void GreedySwitchHeuristic::call(Level &L)
 		nolocalmin = false;
 
 		for (index = 0; index < L.size() - 1; index++) {
-			if ((*m_crossingMatrix)(index,index+1) > (*m_crossingMatrix)(index+1,index)) {
-
+			if ((*m_crossingMatrix)(index, index + 1) > (*m_crossingMatrix)(index + 1, index)) {
 				nolocalmin = true;
 
-				L.swap(index,index+1);
-				m_crossingMatrix->swap(index,index+1);
+				L.swap(index, index + 1);
+				m_crossingMatrix->swap(index, index + 1);
 			}
 		}
 	} while (nolocalmin);

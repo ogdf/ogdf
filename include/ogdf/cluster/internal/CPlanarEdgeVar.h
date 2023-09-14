@@ -35,6 +35,7 @@
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
+
 #include <ogdf/lib/abacus/variable.h>
 
 namespace ogdf {
@@ -42,24 +43,21 @@ namespace cluster_planarity {
 
 class CPlanarEdgeVar : public EdgeVar {
 	friend class MaxCPlanarSub;
+
 public:
-	CPlanarEdgeVar(abacus::Master *master, double obj, node source, node target) :
-		EdgeVar(master, obj, source, target)
-	{
+	CPlanarEdgeVar(abacus::Master* master, double obj, node source, node target)
+		: EdgeVar(master, obj, source, target) { }
 
-	}
-	CPlanarEdgeVar(abacus::Master *master, double obj, double lbound, node source, node target) :
-			EdgeVar(master, obj, lbound, source, target)
-	{
+	CPlanarEdgeVar(abacus::Master* master, double obj, double lbound, node source, node target)
+		: EdgeVar(master, obj, lbound, source, target) { }
 
-	}
-
-	virtual ~CPlanarEdgeVar() {}
+	virtual ~CPlanarEdgeVar() { }
 
 	void printMe(std::ostream& out) override {
-		out << "[Var: " << sourceNode() << "->" << targetNode() << " (" << "connect" << ") ZF=" << obj() << "]";
+		out << "[Var: " << sourceNode() << "->" << targetNode() << " ("
+			<< "connect"
+			<< ") ZF=" << obj() << "]";
 	}
-
 };
 
 }

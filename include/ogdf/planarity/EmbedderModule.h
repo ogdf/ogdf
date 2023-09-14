@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/extended_graph_alg.h>
 
 namespace ogdf {
 
@@ -74,7 +74,6 @@ public:
 
 	OGDF_MALLOC_NEW_DELETE
 protected:
-
 	/**
 	 * \brief Calls the embedder algorithm for graph \p G.
 	 * \p G is guaranteed to be planar.

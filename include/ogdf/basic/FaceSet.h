@@ -52,10 +52,11 @@ namespace ogdf {
 template<bool SupportFastSizeQuery = true>
 class FaceSet {
 public:
-	using ListType = typename std::conditional<SupportFastSizeQuery, List<face>, ListPure<face>>::type;
+	using ListType =
+			typename std::conditional<SupportFastSizeQuery, List<face>, ListPure<face>>::type;
 
 	//! Creates an empty face set associated with combinatorial embedding \p E.
-	explicit FaceSet(const CombinatorialEmbedding &E) : m_it(E) { }
+	explicit FaceSet(const CombinatorialEmbedding& E) : m_it(E) { }
 
 	//! Inserts face \p f into this set.
 	/**
@@ -66,7 +67,7 @@ public:
 	 */
 	void insert(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
-		ListIterator<face> &itF = m_it[f];
+		ListIterator<face>& itF = m_it[f];
 
 		if (!itF.valid()) {
 			itF = m_faces.pushBack(f);
@@ -82,7 +83,7 @@ public:
 	 */
 	void remove(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
-		ListIterator<face> &itF = m_it[f];
+		ListIterator<face>& itF = m_it[f];
 
 		if (itF.valid()) {
 			m_faces.del(itF);
@@ -112,22 +113,16 @@ public:
 	}
 
 	//! Returns a reference to the list of faces contained in this set.
-	const ListType &faces() const {
-		return m_faces;
-	}
+	const ListType& faces() const { return m_faces; }
 
 	//! Returns the associated combinatorial embedding
-	const ConstCombinatorialEmbedding& embeddingOf() const {
-		return *m_it.embeddingOf();
-	}
+	const ConstCombinatorialEmbedding& embeddingOf() const { return *m_it.embeddingOf(); }
 
 	//! Returns the number of faces in this set.
 	/**
 	 * This operation has either linear or constant runtime, depending on \a SupportFastSizeQuery.
 	 */
-	int size() const {
-		return m_faces.size();
-	}
+	int size() const { return m_faces.size(); }
 
 	//! Copy constructor.
 	template<bool OtherSupportsFastSizeQuery>
@@ -137,10 +132,10 @@ public:
 
 	//! Assignment operator.
 	template<bool OtherSupportsFastSizeQuery>
-	FaceSet &operator=(const FaceSet<OtherSupportsFastSizeQuery> &other) {
+	FaceSet& operator=(const FaceSet<OtherSupportsFastSizeQuery>& other) {
 		m_faces.clear();
 		m_it.init(other.embeddingOf());
-		for(face f : other.faces()) {
+		for (face f : other.faces()) {
 			insert(f);
 		}
 	}

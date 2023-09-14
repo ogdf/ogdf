@@ -72,7 +72,7 @@ namespace ogdf {
  *     <td>Determines whether edges are routed in an orthogonal
  *     or straight-line fashion.
  *   </tr><tr>
- *     <td><i>orientation</i><td> #Orientation <td> #topToBottom
+ *     <td><i>orientation</i><td> #Orientation <td> Orientation::topToBottom
  *     <td>Determines if the tree is laid out in a top-to-bottom,
  *     bottom-to-top, left-to-right, or right-to-left fashion.
  *   </tr><tr>
@@ -95,26 +95,26 @@ public:
 	//! Determines how to select the root of the tree.
 	enum class RootSelectionType {
 		Source, //!< Select a source in the graph.
-		Sink,   //!< Select a sink in the graph.
-		ByCoord   //!< Use the coordinates, e.g., select the topmost node if orientation is topToBottom.
+		Sink, //!< Select a sink in the graph.
+		ByCoord //!< Use the coordinates, e.g., select the topmost node if orientation is topToBottom.
 	};
 
 private:
-	double m_siblingDistance;        //!< The minimal distance between siblings.
-	double m_subtreeDistance;        //!< The minimal distance between subtrees.
-	double m_levelDistance;          //!< The minimal distance between levels.
-	double m_treeDistance;           //!< The minimal distance between trees.
+	double m_siblingDistance; //!< The minimal distance between siblings.
+	double m_subtreeDistance; //!< The minimal distance between subtrees.
+	double m_levelDistance; //!< The minimal distance between levels.
+	double m_treeDistance; //!< The minimal distance between trees.
 
-	bool m_orthogonalLayout;         //!< Option for orthogonal style (yes/no).
-	Orientation m_orientation;       //!< Option for orientation of tree layout.
-	RootSelectionType m_selectRoot;  //!< Option for how to determine the root.
+	bool m_orthogonalLayout; //!< Option for orthogonal style (yes/no).
+	Orientation m_orientation; //!< Option for orientation of tree layout.
+	RootSelectionType m_selectRoot; //!< Option for how to determine the root.
 
 public:
 	//! Creates an instance of tree layout and sets options to default values.
 	TreeLayout();
 
 	//! Copy constructor.
-	TreeLayout(const TreeLayout &tl);
+	TreeLayout(const TreeLayout& tl);
 
 	//! Destructor.
 	~TreeLayout() = default;
@@ -134,7 +134,7 @@ public:
 	 *
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	/**
 	 * \brief Calls tree layout for graph attributes \p GA.
@@ -146,8 +146,7 @@ public:
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 * @param G is the graph associated with \p GA.
 	 */
-	void callSortByPositions(GraphAttributes &GA, Graph &G);
-
+	void callSortByPositions(GraphAttributes& GA, Graph& G);
 
 	/** @}
 	 *  @name Optional parameters
@@ -196,14 +195,13 @@ public:
 	//! Sets the option that determines how the root is selected to \p rootSelection.
 	void rootSelection(RootSelectionType rootSelection) { m_selectRoot = rootSelection; }
 
-
 	/** @}
 	 *  @name Operators
 	 *  @{
 	 */
 
 	//! Assignment operator.
-	TreeLayout &operator=(const TreeLayout &tl);
+	TreeLayout& operator=(const TreeLayout& tl);
 
 	//! @}
 
@@ -211,37 +209,33 @@ private:
 	class AdjComparer;
 	struct TreeStructure;
 
-	void adjustEdgeDirections(Graph &G, SListPure<edge> &reversedEdges, node v, node parent);
-	void setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reversedEdges);
-	void undoReverseEdges(GraphAttributes &AG, Graph &tree, SListPure<edge> &reversedEdges);
+	void adjustEdgeDirections(Graph& G, SListPure<edge>& reversedEdges, node v, node parent);
+	void setRoot(GraphAttributes& AG, Graph& tree, SListPure<edge>& reversedEdges);
+	void undoReverseEdges(GraphAttributes& AG, Graph& tree, SListPure<edge>& reversedEdges);
 
 	// recursive bottom up traversal of the tree for computing
 	// preliminary x-coordinates
-	void firstWalk(TreeStructure &ts, node subtree, bool upDown);
+	void firstWalk(TreeStructure& ts, node subtree, bool upDown);
 
 	// space out the small subtrees on the left hand side of subtree
 	// defaultAncestor is used for all nodes with obsolete m_ancestor
-	void apportion(
-		TreeStructure &ts,
-		node subtree,
-		node &defaultAncestor,
-		bool upDown);
+	void apportion(TreeStructure& ts, node subtree, node& defaultAncestor, bool upDown);
 
 	// recursive top down traversal of the tree for computing final
 	// x-coordinates
-	void secondWalkX(TreeStructure &ts, node subtree, double modifierSum);
-	void secondWalkY(TreeStructure &ts, node subtree, double modifierSum);
+	void secondWalkX(TreeStructure& ts, node subtree, double modifierSum);
+	void secondWalkY(TreeStructure& ts, node subtree, double modifierSum);
 
 	// compute y-coordinates and edge shapes
-	void computeYCoordinatesAndEdgeShapes(node root,GraphAttributes &AG);
-	void computeXCoordinatesAndEdgeShapes(node root,GraphAttributes &AG);
+	void computeYCoordinatesAndEdgeShapes(node root, GraphAttributes& AG);
+	void computeXCoordinatesAndEdgeShapes(node root, GraphAttributes& AG);
 
-	void findMinX(GraphAttributes &AG, node root, double &minX);
-	void findMinY(GraphAttributes &AG, node root, double &minY);
-	void findMaxX(GraphAttributes &AG, node root, double &maxX);
-	void findMaxY(GraphAttributes &AG, node root, double &maxY);
-	void shiftTreeX(GraphAttributes &AG, node root, double shift);
-	void shiftTreeY(GraphAttributes &AG, node root, double shift);
+	void findMinX(GraphAttributes& AG, node root, double& minX);
+	void findMinY(GraphAttributes& AG, node root, double& minY);
+	void findMaxX(GraphAttributes& AG, node root, double& maxX);
+	void findMaxY(GraphAttributes& AG, node root, double& maxY);
+	void shiftTreeX(GraphAttributes& AG, node root, double shift);
+	void shiftTreeY(GraphAttributes& AG, node root, double shift);
 };
 
 }

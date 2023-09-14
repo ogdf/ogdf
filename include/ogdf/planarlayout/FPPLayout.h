@@ -35,8 +35,7 @@
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>
 
-namespace ogdf
-{
+namespace ogdf {
 
 /**
  * The class FPPLayout represents the layout algorithm by
@@ -55,29 +54,14 @@ public:
 	FPPLayout();
 
 private:
-	virtual void doCall(
-		const Graph &G,
-		adjEntry adjExternal,
-		GridLayout &gridLayout,
-		IPoint &boundingBox,
-		bool fixEmbedding ) override;
+	virtual void doCall(const Graph& G, adjEntry adjExternal, GridLayout& gridLayout,
+			IPoint& boundingBox, bool fixEmbedding) override;
 
-	void computeOrder(
-		const GraphCopy &G,
-		NodeArray<int> &num,
-		NodeArray<adjEntry> &e_wp,
-		NodeArray<adjEntry> &e_wq,
-		adjEntry e_12,
-		adjEntry e_2n,
-		adjEntry e_n1 );
+	void computeOrder(const GraphCopy& G, NodeArray<int>& num, NodeArray<adjEntry>& e_wp,
+			NodeArray<adjEntry>& e_wq, adjEntry e_12, adjEntry e_2n, adjEntry e_n1);
 
-	void computeCoordinates(
-		const GraphCopy &G,
-		IPoint &boundingBox,
-		GridLayout &gridLayout,
-		NodeArray<int> &num,
-		NodeArray<adjEntry> &e_wp,
-		NodeArray<adjEntry> &e_wq );
+	void computeCoordinates(const GraphCopy& G, IPoint& boundingBox, GridLayout& gridLayout,
+			NodeArray<int>& num, NodeArray<adjEntry>& e_wp, NodeArray<adjEntry>& e_wq);
 };
 
 }

@@ -31,29 +31,26 @@
 
 #pragma once
 
-#include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
-
+#include <ogdf/uml/PlanRepUML.h>
 
 namespace ogdf {
 
 //! Base class for UML crossing minimization algorithms.
-class OGDF_EXPORT UMLCrossingMinimizationModule : public Module, public Timeouter
-{
+class OGDF_EXPORT UMLCrossingMinimizationModule : public Module, public Timeouter {
 public:
 	//! Initializes a UML crossing minimization module (default constructor).
 	UMLCrossingMinimizationModule() { }
 
 	//! Initializes a UML crossing minimization module (copy constructor).
-	UMLCrossingMinimizationModule(const UMLCrossingMinimizationModule &cmm) : Timeouter(cmm) { }
+	UMLCrossingMinimizationModule(const UMLCrossingMinimizationModule& cmm) : Timeouter(cmm) { }
 
 	//! Destructor.
 	virtual ~UMLCrossingMinimizationModule() { }
 
 	//! Returns a new instance of the UML crossing minimization module with the same option settings.
-	virtual UMLCrossingMinimizationModule *clone() const = 0;
-
+	virtual UMLCrossingMinimizationModule* clone() const = 0;
 
 	//! Computes a planarized representation of the input graph.
 	/**
@@ -67,11 +64,8 @@ public:
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
 	 * @return the status of the result.
 	 */
-	ReturnType call(PlanRepUML &prUML,
-		int cc,
-		int&  crossingNumber,
-		const EdgeArray<int>  *pCostOrig = nullptr)
-	{
+	ReturnType call(PlanRepUML& prUML, int cc, int& crossingNumber,
+			const EdgeArray<int>* pCostOrig = nullptr) {
 		return doCall(prUML, cc, pCostOrig, crossingNumber);
 	}
 
@@ -87,16 +81,13 @@ public:
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
 	 * @return the status of the result.
 	 */
-	ReturnType operator()(PlanRepUML &prUML,
-		int cc,
-		int & crossingNumber,
-		const EdgeArray<int>  *pCostOrig = nullptr)
-	{
+	ReturnType operator()(PlanRepUML& prUML, int cc, int& crossingNumber,
+			const EdgeArray<int>* pCostOrig = nullptr) {
 		return doCall(prUML, cc, pCostOrig, crossingNumber);
 	}
 
 	//! Checks if the planarized represenation contains crossing generalizations.
-	static bool checkCrossingGens(const PlanRepUML &prUML);
+	static bool checkCrossingGens(const PlanRepUML& prUML);
 
 protected:
 	//! Actual algorithm call that needs to be implemented by derived classes.
@@ -111,10 +102,8 @@ protected:
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
 	 * @return the status of the result.
 	 */
-	virtual ReturnType doCall(PlanRepUML &prUML,
-		int cc,
-		const EdgeArray<int>  *pCostOrig,
-		int &crossingNumber) = 0;
+	virtual ReturnType doCall(PlanRepUML& prUML, int cc, const EdgeArray<int>* pCostOrig,
+			int& crossingNumber) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

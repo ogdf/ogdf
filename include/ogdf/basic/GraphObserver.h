@@ -36,8 +36,8 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 
 namespace ogdf {
 
@@ -65,22 +65,24 @@ public:
 	 *\brief Constructs instance of GraphObserver class
 	 * \param G is the graph to be watched
 	 */
-	explicit GraphObserver(const Graph* G) : m_pGraph(G)
-	{
-		m_itGList = G->registerStructure(this);
-	}
+	explicit GraphObserver(const Graph* G) : m_pGraph(G) { m_itGList = G->registerStructure(this); }
 
 	//! Destroys the instance, unregisters it from watched graph
-	virtual ~GraphObserver()
-	{
-		if (m_pGraph) m_pGraph->unregisterStructure(m_itGList);
+	virtual ~GraphObserver() {
+		if (m_pGraph) {
+			m_pGraph->unregisterStructure(m_itGList);
+		}
 	}
 
 	//! Associates observer instance with graph \p G
-	void reregister(const Graph *pG) {
+	void reregister(const Graph* pG) {
 		//small speedup: check if == m_pGraph
-		if (m_pGraph) m_pGraph->unregisterStructure(m_itGList);
-		if ((m_pGraph = pG) != nullptr) m_itGList = pG->registerStructure(this);
+		if (m_pGraph) {
+			m_pGraph->unregisterStructure(m_itGList);
+		}
+		if ((m_pGraph = pG) != nullptr) {
+			m_itGList = pG->registerStructure(this);
+		}
 	}
 
 	//! Called by watched graph when a node is deleted
@@ -89,7 +91,7 @@ public:
 
 	//! Called by watched graph when a node is added
 	//! Has to be implemented by derived classes
-	virtual void nodeAdded(node v)   = 0;
+	virtual void nodeAdded(node v) = 0;
 
 	//! Called by watched graph when an edge is deleted
 	//! Has to be implemented by derived classes
@@ -97,17 +99,13 @@ public:
 
 	//! Called by watched graph when an edge is added
 	//! Has to be implemented by derived classes
-	virtual void edgeAdded(edge e)   = 0;
-
-	//! Called by watched graph when it is reinitialized
-	//! Has to be implemented by derived classes
-	virtual void reInit()            = 0;
+	virtual void edgeAdded(edge e) = 0;
 
 	//! Called by watched graph when its clear function is called
 	//! Has to be implemented by derived classes
-	virtual void cleared()           = 0;
+	virtual void cleared() = 0;
 
-	const Graph*  getGraph() const { return m_pGraph; }
+	const Graph* getGraph() const { return m_pGraph; }
 
 protected:
 	const Graph* m_pGraph; //! watched graph

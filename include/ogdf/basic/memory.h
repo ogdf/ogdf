@@ -32,10 +32,10 @@
 
 #pragma once
 
-#include <new>
-
-#include <ogdf/basic/memory/PoolMemoryAllocator.h>
 #include <ogdf/basic/memory/MallocMemoryAllocator.h>
+#include <ogdf/basic/memory/PoolMemoryAllocator.h>
+
+#include <new>
 
 namespace ogdf {
 
@@ -49,31 +49,31 @@ namespace ogdf {
  * managed by the respective memory manager.
  * Throws an ogdf::InsufficientMemoryException if no more memory is available.
  */
-#define OGDF_MM(Alloc) \
-public: \
-static void *operator new(size_t nBytes) { \
-	if(OGDF_LIKELY(Alloc::checkSize(nBytes))) \
-		return Alloc::allocate(nBytes); \
-	else \
-	return ogdf::MallocMemoryAllocator::allocate(nBytes); \
-} \
-\
-static void operator delete(void *p, size_t nBytes) { \
-	if(OGDF_LIKELY(p != 0)) { \
-		if(OGDF_LIKELY(Alloc::checkSize(nBytes))) \
-			Alloc::deallocate(nBytes, p); \
-		else \
-			ogdf::MallocMemoryAllocator::deallocate(nBytes, p); \
-	} \
-} \
-static void *operator new(size_t, void *p) { return p; } \
-static void operator delete(void *, void *) { }
+#define OGDF_MM(Alloc)                                              \
+public:                                                             \
+	static void* operator new(size_t nBytes) {                      \
+		if (OGDF_LIKELY(Alloc::checkSize(nBytes)))                  \
+			return Alloc::allocate(nBytes);                         \
+		else                                                        \
+			return ogdf::MallocMemoryAllocator::allocate(nBytes);   \
+	}                                                               \
+                                                                    \
+	static void operator delete(void* p, size_t nBytes) {           \
+		if (OGDF_LIKELY(p != 0)) {                                  \
+			if (OGDF_LIKELY(Alloc::checkSize(nBytes)))              \
+				Alloc::deallocate(nBytes, p);                       \
+			else                                                    \
+				ogdf::MallocMemoryAllocator::deallocate(nBytes, p); \
+		}                                                           \
+	}                                                               \
+	static void* operator new(size_t, void* p) { return p; }        \
+	static void operator delete(void*, void*) { }
 
 #ifdef OGDF_MEMORY_MALLOC_TS
-#define OGDF_ALLOCATOR ogdf::MallocMemoryAllocator
+#	define OGDF_ALLOCATOR ogdf::MallocMemoryAllocator
 #else
 //! The used memory manager
-#define OGDF_ALLOCATOR ogdf::PoolMemoryAllocator
+#	define OGDF_ALLOCATOR ogdf::PoolMemoryAllocator
 #endif
 
 /**

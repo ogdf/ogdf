@@ -29,16 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
 
-MultilevelGraph::~MultilevelGraph()
-{
+MultilevelGraph::~MultilevelGraph() {
 	// delete all Nodemerges!
-	while(!m_changes.empty()) {
+	while (!m_changes.empty()) {
 		delete m_changes.back();
 		m_changes.pop_back();
 	}
@@ -46,7 +45,7 @@ MultilevelGraph::~MultilevelGraph()
 	delete m_GA;
 	m_reverseNodeIndex.clear();
 	//only delete the Graph if it was created!
-	if (m_createdGraph)	{
+	if (m_createdGraph) {
 		delete m_G;
 	}
 
@@ -54,17 +53,14 @@ MultilevelGraph::~MultilevelGraph()
 }
 
 //initialize internal structures such as the GraphAttributes that store the layout
-void MultilevelGraph::initInternal()
-{
+void MultilevelGraph::initInternal() {
 	OGDF_ASSERT(m_G != nullptr);
 	m_GA = new GraphAttributes(*m_G);
 }
 
-MultilevelGraph::MultilevelGraph()
-:m_createdGraph(true)
-{
+MultilevelGraph::MultilevelGraph() : m_createdGraph(true) {
 	m_G = new Graph();
-	if(m_G == nullptr) {
+	if (m_G == nullptr) {
 		OGDF_THROW(InsufficientMemoryException);
 	}
 
@@ -79,12 +75,9 @@ MultilevelGraph::MultilevelGraph()
 	initReverseIndizes();
 }
 
-
-MultilevelGraph::MultilevelGraph(GraphAttributes &GA)
-:m_createdGraph(true)
-{
+MultilevelGraph::MultilevelGraph(GraphAttributes& GA) : m_createdGraph(true) {
 	m_G = new Graph();
-	if(m_G == nullptr) {
+	if (m_G == nullptr) {
 		OGDF_THROW(InsufficientMemoryException);
 	}
 
@@ -104,10 +97,7 @@ MultilevelGraph::MultilevelGraph(GraphAttributes &GA)
 #endif
 }
 
-
-MultilevelGraph::MultilevelGraph(Graph &G)
-:m_createdGraph(false), m_G(nullptr)
-{
+MultilevelGraph::MultilevelGraph(Graph& G) : m_createdGraph(false), m_G(nullptr) {
 	m_G = &G;
 
 	//replaces layout info stuff below
@@ -121,10 +111,8 @@ MultilevelGraph::MultilevelGraph(Graph &G)
 	initReverseIndizes();
 }
 
-
-MultilevelGraph::MultilevelGraph(GraphAttributes &GA, Graph &G)
-:m_createdGraph(false), m_G(nullptr)
-{
+MultilevelGraph::MultilevelGraph(GraphAttributes& GA, Graph& G)
+	: m_createdGraph(false), m_G(nullptr) {
 	m_G = &G;
 	m_nodeAssociations.init(*m_G, 0);
 	m_edgeAssociations.init(*m_G, 0);
@@ -139,12 +127,9 @@ MultilevelGraph::MultilevelGraph(GraphAttributes &GA, Graph &G)
 	initReverseIndizes();
 }
 
-
-MultilevelGraph::MultilevelGraph(std::istream &is)
-:m_createdGraph(true)
-{
+MultilevelGraph::MultilevelGraph(std::istream& is) : m_createdGraph(true) {
 	m_G = new Graph();
-	if(m_G == nullptr) {
+	if (m_G == nullptr) {
 		OGDF_THROW(InsufficientMemoryException);
 	}
 	m_nodeAssociations.init(*m_G);
@@ -163,11 +148,9 @@ MultilevelGraph::MultilevelGraph(std::istream &is)
 	initReverseIndizes();
 }
 
-
-MultilevelGraph::MultilevelGraph(const char *filename) : m_createdGraph(true)
-{
+MultilevelGraph::MultilevelGraph(const char* filename) : m_createdGraph(true) {
 	m_G = new Graph();
-	if(m_G == nullptr) {
+	if (m_G == nullptr) {
 		OGDF_THROW(InsufficientMemoryException);
 	}
 	m_nodeAssociations.init(*m_G);
@@ -186,9 +169,7 @@ MultilevelGraph::MultilevelGraph(const char *filename) : m_createdGraph(true)
 	initReverseIndizes();
 }
 
-
-void MultilevelGraph::prepareGraphAttributes(GraphAttributes &GA) const
-{
+void MultilevelGraph::prepareGraphAttributes(GraphAttributes& GA) const {
 	long additionalAttributes = 0;
 	if (!GA.has(GraphAttributes::edgeDoubleWeight)) {
 		additionalAttributes |= GraphAttributes::edgeDoubleWeight;
@@ -199,19 +180,18 @@ void MultilevelGraph::prepareGraphAttributes(GraphAttributes &GA) const
 	GA.addAttributes(additionalAttributes);
 }
 
-
-void MultilevelGraph::copyFromGraph(const Graph &G, NodeArray<int> & /*nodeAssociations*/, EdgeArray<int> & /* edgeAssociations */)
-{
+void MultilevelGraph::copyFromGraph(const Graph& G, NodeArray<int>& /*nodeAssociations*/,
+		EdgeArray<int>& /* edgeAssociations */) {
 	NodeArray<node> tempAssociations(G);
 	EdgeArray<edge> tempEdgeAssociations(G);
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		node v_new = m_G->newNode();
 		m_nodeAssociations[v_new] = v->index();
 		tempAssociations[v] = v_new;
 	}
 
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		edge e_new = m_G->newEdge(tempAssociations[e->source()], tempAssociations[e->target()]);
 		m_edgeAssociations[e_new] = e->index();
 		tempEdgeAssociations[e] = e_new;
@@ -230,35 +210,28 @@ void MultilevelGraph::copyFromGraph(const Graph &G, NodeArray<int> & /*nodeAssoc
 	initReverseIndizes();
 }
 
-
-int MultilevelGraph::getLevel()
-{
-	if (m_changes.size() == 0)
-	{
+int MultilevelGraph::getLevel() {
+	if (m_changes.size() == 0) {
 		return 0;
-	}
-	else
-	{
+	} else {
 		return m_changes.back()->m_level;
 	}
 }
 
-
 // assumes, that the Graphs of MultilevelGraph and GA are the same, not copies!
-void MultilevelGraph::exportAttributesSimple(GraphAttributes &GA) const
-{
+void MultilevelGraph::exportAttributesSimple(GraphAttributes& GA) const {
 	OGDF_ASSERT(&(GA.constGraph()) == m_G);
 
 	prepareGraphAttributes(GA);
 
-	for(node v : m_G->nodes) {
-		GA.x(v) =  m_GA->x(v);
-		GA.y(v) =  m_GA->y(v);
+	for (node v : m_G->nodes) {
+		GA.x(v) = m_GA->x(v);
+		GA.y(v) = m_GA->y(v);
 		//TODO: Check what this w,h computation does
 		double w = GA.width(v);
 		double h = GA.height(v);
-		if(w > 0 || h > 0) {
-			double factor =  m_radius[v] / sqrt(w*w + h*h) * 2.0f;
+		if (w > 0 || h > 0) {
+			double factor = m_radius[v] / sqrt(w * w + h * h) * 2.0f;
 			w *= factor;
 			h *= factor;
 		} else {
@@ -269,34 +242,32 @@ void MultilevelGraph::exportAttributesSimple(GraphAttributes &GA) const
 		GA.weight(v) = m_reverseNodeMergeWeight[v->index()];
 	}
 
-	for(edge e : m_G->edges) {
+	for (edge e : m_G->edges) {
 		GA.doubleWeight(e) = m_weight[e];
 	}
 }
 
-
-void MultilevelGraph::exportAttributes(GraphAttributes &GA) const
-{
+void MultilevelGraph::exportAttributes(GraphAttributes& GA) const {
 	OGDF_ASSERT(GA.constGraph().numberOfNodes() == m_G->numberOfNodes());
 	OGDF_ASSERT(GA.constGraph().numberOfEdges() == m_G->numberOfEdges());
 
 	prepareGraphAttributes(GA);
 
 	std::vector<node> tempNodeAssociations;
-	const Graph &cG = GA.constGraph();
-	tempNodeAssociations.resize(cG.maxNodeIndex()+1, nullptr);
+	const Graph& cG = GA.constGraph();
+	tempNodeAssociations.resize(cG.maxNodeIndex() + 1, nullptr);
 
-	for(node v : cG.nodes) {
+	for (node v : cG.nodes) {
 		tempNodeAssociations[v->index()] = v;
 	}
 
-	for(node v : m_G->nodes) {
-		GA.x(tempNodeAssociations[m_nodeAssociations[v]]) =  m_GA->x(v);
-		GA.y(tempNodeAssociations[m_nodeAssociations[v]]) =  m_GA->y(v);
+	for (node v : m_G->nodes) {
+		GA.x(tempNodeAssociations[m_nodeAssociations[v]]) = m_GA->x(v);
+		GA.y(tempNodeAssociations[m_nodeAssociations[v]]) = m_GA->y(v);
 		double w = GA.width(tempNodeAssociations[m_nodeAssociations[v]]);
 		double h = GA.height(tempNodeAssociations[m_nodeAssociations[v]]);
-		if(w > 0 || h > 0) {
-			double factor =  m_radius[v] / sqrt(w*w + h*h) * 2.0f;
+		if (w > 0 || h > 0) {
+			double factor = m_radius[v] / sqrt(w * w + h * h) * 2.0f;
 			w *= factor;
 			h *= factor;
 		} else {
@@ -308,28 +279,26 @@ void MultilevelGraph::exportAttributes(GraphAttributes &GA) const
 	}
 
 	std::vector<edge> tempEdgeAssociations;
-	tempEdgeAssociations.resize(cG.maxEdgeIndex()+1, nullptr);
-	for(edge e :cG.edges) {
+	tempEdgeAssociations.resize(cG.maxEdgeIndex() + 1, nullptr);
+	for (edge e : cG.edges) {
 		tempEdgeAssociations[e->index()] = e;
 	}
 
-	for(edge e : m_G->edges) {
+	for (edge e : m_G->edges) {
 		GA.doubleWeight(tempEdgeAssociations[m_edgeAssociations[e]]) = m_weight[e];
 	}
 }
 
-
-void MultilevelGraph::importAttributesSimple(const GraphAttributes &GA)
-{
+void MultilevelGraph::importAttributesSimple(const GraphAttributes& GA) {
 	OGDF_ASSERT(&(GA.constGraph()) == m_G);
 
 	m_avgRadius = 0.0;
 
-	for(node v : m_G->nodes) {
+	for (node v : m_G->nodes) {
 		double w = GA.width(v);
 		double h = GA.height(v);
-		if(w > 0 || h > 0) {
-			m_radius[v] = sqrt(w*w + h*h) / 2.0f;
+		if (w > 0 || h > 0) {
+			m_radius[v] = sqrt(w * w + h * h) / 2.0f;
 		} else {
 			m_radius[v] = 1.0f;
 		}
@@ -341,32 +310,29 @@ void MultilevelGraph::importAttributesSimple(const GraphAttributes &GA)
 	}
 	m_avgRadius /= m_G->numberOfNodes();
 
-	for(edge e : m_G->edges) {
+	for (edge e : m_G->edges) {
 		m_weight[e] = GA.doubleWeight(e);
 	}
 }
 
-
-void MultilevelGraph::importAttributes(const GraphAttributes &GA)
-{
+void MultilevelGraph::importAttributes(const GraphAttributes& GA) {
 	OGDF_ASSERT(GA.constGraph().numberOfNodes() == m_G->numberOfNodes());
 	OGDF_ASSERT(GA.constGraph().numberOfEdges() == m_G->numberOfEdges());
 
 	m_avgRadius = 0.0;
 
 	std::vector<node> tempNodeAssociations;
-	const Graph &cG = GA.constGraph();
-	tempNodeAssociations.resize(cG.maxNodeIndex()+1, nullptr);
-	for(node v : cG.nodes) {
+	const Graph& cG = GA.constGraph();
+	tempNodeAssociations.resize(cG.maxNodeIndex() + 1, nullptr);
+	for (node v : cG.nodes) {
 		tempNodeAssociations[v->index()] = v;
 	}
 
-	for(node v : m_G->nodes) {
-
+	for (node v : m_G->nodes) {
 		double w = GA.width(tempNodeAssociations[m_nodeAssociations[v]]);
 		double h = GA.height(tempNodeAssociations[m_nodeAssociations[v]]);
-		if(w > 0 || h > 0) {
-			m_radius[v] = sqrt(w*w + h*h) / 2.0f;
+		if (w > 0 || h > 0) {
+			m_radius[v] = sqrt(w * w + h * h) / 2.0f;
 		} else {
 			m_radius[v] = 1.0f;
 		}
@@ -382,49 +348,42 @@ void MultilevelGraph::importAttributes(const GraphAttributes &GA)
 	m_avgRadius /= m_G->numberOfNodes();
 
 	std::vector<edge> tempEdgeAssociations;
-	tempEdgeAssociations.resize(cG.maxEdgeIndex()+1, nullptr);
-	for(edge e : cG.edges) {
+	tempEdgeAssociations.resize(cG.maxEdgeIndex() + 1, nullptr);
+	for (edge e : cG.edges) {
 		tempEdgeAssociations[e->index()] = e;
 	}
 
-	for(edge e : m_G->edges) {
+	for (edge e : m_G->edges) {
 		m_weight[e] = GA.doubleWeight(tempEdgeAssociations[m_edgeAssociations[e]]);
 	}
 }
 
-
-void MultilevelGraph::reInsertGraph(MultilevelGraph &MLG)
-{
+void MultilevelGraph::reInsertGraph(MultilevelGraph& MLG) {
 	std::map<node, node> tempNodeAssociations;
 
-	for(node v : MLG.m_G->nodes) {
+	for (node v : MLG.m_G->nodes) {
 		MLG.copyNodeTo(v, *this, tempNodeAssociations, false, MLG.m_nodeAssociations[v]);
 	}
 
-	for(edge e : MLG.m_G->edges) {
+	for (edge e : MLG.m_G->edges) {
 		MLG.copyEdgeTo(e, *this, tempNodeAssociations, false, MLG.m_edgeAssociations[e]);
 	}
 
 	initReverseIndizes();
 }
 
-
-void MultilevelGraph::reInsertAll(std::vector<MultilevelGraph *> &components)
-{
-	for(MultilevelGraph *g : components)
-	{
+void MultilevelGraph::reInsertAll(std::vector<MultilevelGraph*>& components) {
+	for (MultilevelGraph* g : components) {
 		reInsertGraph(*g);
 	}
 }
-
 
 // keeps Changes
 // keeps Node and Edge Associations
 // deletes Nodes and Eges from Graph
 // deletes Attributes
-std::vector<MultilevelGraph *> MultilevelGraph::splitIntoComponents()
-{
-	std::vector<MultilevelGraph *> components;
+std::vector<MultilevelGraph*> MultilevelGraph::splitIntoComponents() {
+	std::vector<MultilevelGraph*> components;
 
 	NodeArray<int> componentNumbers(*m_G);
 	int numComponents = connectedComponents(*m_G, componentNumbers);
@@ -432,14 +391,14 @@ std::vector<MultilevelGraph *> MultilevelGraph::splitIntoComponents()
 		return components;
 	}
 
-	std::vector< std::vector<node> > componentArray;
+	std::vector<std::vector<node>> componentArray;
 	componentArray.resize(numComponents);
-	for(node v : m_G->nodes) {
+	for (node v : m_G->nodes) {
 		componentArray[componentNumbers[v]].push_back(v);
 	}
 
 	for (auto componentSubArray : componentArray) {
-		MultilevelGraph * component = removeOneCC(componentSubArray);
+		MultilevelGraph* component = removeOneCC(componentSubArray);
 		components.push_back(component);
 	}
 
@@ -452,9 +411,8 @@ std::vector<MultilevelGraph *> MultilevelGraph::splitIntoComponents()
 	return components;
 }
 
-
-void MultilevelGraph::copyNodeTo(node v, MultilevelGraph &MLG, std::map<node, node> &tempNodeAssociations, bool associate, int index)
-{
+void MultilevelGraph::copyNodeTo(node v, MultilevelGraph& MLG,
+		std::map<node, node>& tempNodeAssociations, bool associate, int index) {
 	node v_new;
 	if (index == -1) {
 		v_new = MLG.m_G->newNode();
@@ -463,7 +421,7 @@ void MultilevelGraph::copyNodeTo(node v, MultilevelGraph &MLG, std::map<node, no
 	}
 
 	tempNodeAssociations[v] = v_new;
-	if(associate) {
+	if (associate) {
 		MLG.m_nodeAssociations[v_new] = v->index();
 	}
 	MLG.m_radius[v_new] = m_radius[v];
@@ -471,9 +429,8 @@ void MultilevelGraph::copyNodeTo(node v, MultilevelGraph &MLG, std::map<node, no
 	MLG.y(v_new, y(v));
 }
 
-
-void MultilevelGraph::copyEdgeTo(edge e, MultilevelGraph &MLG, std::map<node, node> &tempNodeAssociations, bool associate, int index)
-{
+void MultilevelGraph::copyEdgeTo(edge e, MultilevelGraph& MLG,
+		std::map<node, node>& tempNodeAssociations, bool associate, int index) {
 	node source = e->source();
 	node target = e->target();
 	edge e_new;
@@ -483,16 +440,14 @@ void MultilevelGraph::copyEdgeTo(edge e, MultilevelGraph &MLG, std::map<node, no
 		e_new = MLG.m_G->newEdge(tempNodeAssociations[source], tempNodeAssociations[target], index);
 	}
 
-	if(associate) {
+	if (associate) {
 		MLG.m_edgeAssociations[e_new] = e->index();
 	}
 	MLG.m_weight[e_new] = m_weight[e];
 }
 
-
-MultilevelGraph * MultilevelGraph::removeOneCC(std::vector<node> &componentSubArray)
-{
-	MultilevelGraph * MLGcomponent = new MultilevelGraph();
+MultilevelGraph* MultilevelGraph::removeOneCC(std::vector<node>& componentSubArray) {
+	MultilevelGraph* MLGcomponent = new MultilevelGraph();
 	std::map<node, node> tempNodeAssociations;
 
 	// copy nodes
@@ -505,7 +460,7 @@ MultilevelGraph * MultilevelGraph::removeOneCC(std::vector<node> &componentSubAr
 #if 0
 		std::vector<edge> toDelete;
 #endif
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if (e->source() == v) {
 				copyEdgeTo(e, *MLGcomponent, tempNodeAssociations, true);
@@ -535,9 +490,7 @@ MultilevelGraph * MultilevelGraph::removeOneCC(std::vector<node> &componentSubAr
 	return MLGcomponent;
 }
 
-
-bool MultilevelGraph::postMerge(NodeMerge * NM, node merged)
-{
+bool MultilevelGraph::postMerge(NodeMerge* NM, node merged) {
 	// merged has no more edges!
 	int index = merged->index();
 	if (merged->degree() == 0 && NM->m_changedNodes.size() > 0) {
@@ -552,15 +505,14 @@ bool MultilevelGraph::postMerge(NodeMerge * NM, node merged)
 	}
 }
 
-
-bool MultilevelGraph::changeNode(NodeMerge * NM, node theNode, double newRadius, node merged)
-{
+bool MultilevelGraph::changeNode(NodeMerge* NM, node theNode, double newRadius, node merged) {
 	int index = theNode->index();
 	//we assume that changeNode is called exactly onces when a node is merged
 	//with its parent with parameter theNode being the parent and add 1 to
 	//the parents merge weight
 	m_reverseNodeMergeWeight[index] += m_reverseNodeMergeWeight[merged->index()];
-	std::vector<int>::iterator pos = find(NM->m_changedNodes.begin(), NM->m_changedNodes.end(), index);
+	std::vector<int>::iterator pos =
+			find(NM->m_changedNodes.begin(), NM->m_changedNodes.end(), index);
 
 	if (pos == NM->m_changedNodes.end()) {
 		NM->m_changedNodes.push_back(index);
@@ -571,11 +523,11 @@ bool MultilevelGraph::changeNode(NodeMerge * NM, node theNode, double newRadius,
 	return true;
 }
 
-
-bool MultilevelGraph::changeEdge(NodeMerge * NM, edge theEdge, double newWeight, node newSource, node newTarget)
-{
+bool MultilevelGraph::changeEdge(NodeMerge* NM, edge theEdge, double newWeight, node newSource,
+		node newTarget) {
 	int index = theEdge->index();
-	std::vector<int>::iterator pos = find(NM->m_changedEdges.begin(), NM->m_changedEdges.end(), index);
+	std::vector<int>::iterator pos =
+			find(NM->m_changedEdges.begin(), NM->m_changedEdges.end(), index);
 
 	if (pos == NM->m_changedEdges.end()) {
 		NM->m_changedEdges.push_back(index);
@@ -591,9 +543,7 @@ bool MultilevelGraph::changeEdge(NodeMerge * NM, edge theEdge, double newWeight,
 	return true;
 }
 
-
-bool MultilevelGraph::deleteEdge(NodeMerge * NM, edge theEdge)
-{
+bool MultilevelGraph::deleteEdge(NodeMerge* NM, edge theEdge) {
 	int index = theEdge->index();
 
 	NM->m_deletedEdges.push_back(index);
@@ -607,32 +557,29 @@ bool MultilevelGraph::deleteEdge(NodeMerge * NM, edge theEdge)
 	return true;
 }
 
-
-std::vector<edge> MultilevelGraph::moveEdgesToParent(NodeMerge * NM, node theNode, node parent, bool deleteDoubleEdges, int adjustEdgeLengths)
-{
+std::vector<edge> MultilevelGraph::moveEdgesToParent(NodeMerge* NM, node theNode, node parent,
+		bool deleteDoubleEdges, int adjustEdgeLengths) {
 	OGDF_ASSERT(theNode != parent);
 
 	std::vector<edge> doubleEdges;
 	std::vector<edge> adjEdges;
 
-	for(adjEntry adj : theNode->adjEntries) {
+	for (adjEntry adj : theNode->adjEntries) {
 		adjEdges.push_back(adj->theEdge());
 	}
 
 	double nodeToParentLen = 0.0;
-	for (edge e : adjEdges)
-	{
+	for (edge e : adjEdges) {
 		node newSource = e->source();
 		node newTarget = e->target();
 		if ((newSource == theNode && newTarget == parent)
-		|| (newSource == parent && newTarget == theNode)){
+				|| (newSource == parent && newTarget == theNode)) {
 			nodeToParentLen = m_weight[e];
 			break;
 		}
 	}
 
-	for (edge e : adjEdges)
-	{
+	for (edge e : adjEdges) {
 		node newSource = e->source();
 		node newTarget = e->target();
 
@@ -645,15 +592,17 @@ std::vector<edge> MultilevelGraph::moveEdgesToParent(NodeMerge * NM, node theNod
 
 		bool exists = false;
 		edge twinEdge = nullptr;
-		for(adjEntry adj : parent->adjEntries) {
-			if (adj->twinNode() != parent && (adj->twinNode() == newSource || adj->twinNode() == newTarget)) {
+		for (adjEntry adj : parent->adjEntries) {
+			if (adj->twinNode() != parent
+					&& (adj->twinNode() == newSource || adj->twinNode() == newTarget)) {
 				exists = true;
 				twinEdge = adj->theEdge();
 				double extraLength = 0.0;
-				if(adjustEdgeLengths != 0) {
+				if (adjustEdgeLengths != 0) {
 					extraLength = m_weight[twinEdge] + adjustEdgeLengths * nodeToParentLen;
 				}
-				changeEdge(NM, twinEdge, (m_weight[twinEdge] + m_weight[e] + extraLength) * 0.5f, twinEdge->source(), twinEdge->target());
+				changeEdge(NM, twinEdge, (m_weight[twinEdge] + m_weight[e] + extraLength) * 0.5f,
+						twinEdge->source(), twinEdge->target());
 				break;
 			}
 		}
@@ -679,19 +628,13 @@ std::vector<edge> MultilevelGraph::moveEdgesToParent(NodeMerge * NM, node theNod
 	return doubleEdges;
 }
 
+NodeMerge* MultilevelGraph::getLastMerge() { return m_changes.back(); }
 
-NodeMerge * MultilevelGraph::getLastMerge()
-{
-	return m_changes.back();
-}
-
-
-node MultilevelGraph::undoLastMerge()
-{
+node MultilevelGraph::undoLastMerge() {
 	if (m_changes.empty()) {
 		return nullptr;
 	}
-	NodeMerge * merge = m_changes.back();
+	NodeMerge* merge = m_changes.back();
 	m_changes.pop_back();
 
 	// reinsert merged node
@@ -701,14 +644,16 @@ node MultilevelGraph::undoLastMerge()
 
 	// add deleted edges
 	for (int index : merge->m_deletedEdges) {
-		m_reverseEdgeIndex[index] = m_G->newEdge(m_reverseNodeIndex[merge->m_source[index]], m_reverseNodeIndex[merge->m_target[index]], index);
+		m_reverseEdgeIndex[index] = m_G->newEdge(m_reverseNodeIndex[merge->m_source[index]],
+				m_reverseNodeIndex[merge->m_target[index]], index);
 		m_weight[m_reverseEdgeIndex[index]] = merge->m_doubleWeight[index];
 	}
 
 	// undo edge changes
 	for (int index : merge->m_changedEdges) {
 		m_G->delEdge(m_reverseEdgeIndex[index]);
-		m_reverseEdgeIndex[index] = m_G->newEdge(m_reverseNodeIndex[merge->m_source[index]], m_reverseNodeIndex[merge->m_target[index]], index);
+		m_reverseEdgeIndex[index] = m_G->newEdge(m_reverseNodeIndex[merge->m_source[index]],
+				m_reverseNodeIndex[merge->m_target[index]], index);
 		m_weight[m_reverseEdgeIndex[index]] = merge->m_doubleWeight[index];
 	}
 
@@ -722,91 +667,76 @@ node MultilevelGraph::undoLastMerge()
 	return merged;
 }
 
-
-edge MultilevelGraph::getEdge(unsigned int index)
-{
+edge MultilevelGraph::getEdge(unsigned int index) {
 	if (index >= m_reverseEdgeIndex.size()) {
 		return nullptr;
 	}
 	return m_reverseEdgeIndex[index];
 }
 
-
-node MultilevelGraph::getNode(unsigned int index)
-{
+node MultilevelGraph::getNode(unsigned int index) {
 	if (index >= m_reverseNodeIndex.size()) {
 		return nullptr;
 	}
 	return m_reverseNodeIndex[index];
 }
 
-
-void MultilevelGraph::initReverseIndizes()
-{
+void MultilevelGraph::initReverseIndizes() {
 	if (m_G->numberOfNodes() > 0) {
-		m_reverseNodeIndex.resize(m_G->maxNodeIndex()+1, nullptr);
+		m_reverseNodeIndex.resize(m_G->maxNodeIndex() + 1, nullptr);
 	}
 	if (m_G->numberOfNodes() > 0) {
-		m_reverseNodeMergeWeight.resize(m_G->maxNodeIndex()+1, 1);
+		m_reverseNodeMergeWeight.resize(m_G->maxNodeIndex() + 1, 1);
 	}
 	if (m_G->numberOfEdges() > 0) {
-		m_reverseEdgeIndex.resize(m_G->maxEdgeIndex()+1, nullptr);
+		m_reverseEdgeIndex.resize(m_G->maxEdgeIndex() + 1, nullptr);
 	}
 }
 
-
-void MultilevelGraph::updateMergeWeights()
-{
-	for(node v : m_G->nodes) {
+void MultilevelGraph::updateMergeWeights() {
+	for (node v : m_G->nodes) {
 		m_reverseNodeMergeWeight[v->index()] = 1;
 	}
 }
 
-
-void MultilevelGraph::updateReverseIndizes()
-{
-	if ((unsigned int)m_G->maxNodeIndex() >= m_reverseNodeIndex.size() || (unsigned int)m_G->maxEdgeIndex() >= m_reverseEdgeIndex.size()) {
+void MultilevelGraph::updateReverseIndizes() {
+	if ((unsigned int)m_G->maxNodeIndex() >= m_reverseNodeIndex.size()
+			|| (unsigned int)m_G->maxEdgeIndex() >= m_reverseEdgeIndex.size()) {
 		initReverseIndizes();
 	}
 
-	for(node v : m_G->nodes) {
+	for (node v : m_G->nodes) {
 		m_reverseNodeIndex[v->index()] = v;
 	}
 
-	for(edge e : m_G->edges) {
+	for (edge e : m_G->edges) {
 		m_reverseEdgeIndex[e->index()] = e;
 	}
 }
 
-
-void MultilevelGraph::writeGML(std::ostream &os)
-{
+void MultilevelGraph::writeGML(std::ostream& os) {
 	GraphAttributes GA(*m_G);
 	exportAttributesSimple(GA);
 
 	GraphIO::writeGML(GA, os);
 }
 
-
-void MultilevelGraph::writeGML(const char *fileName)
-{
+void MultilevelGraph::writeGML(const char* fileName) {
 	std::ofstream os(fileName);
 	writeGML(os);
 }
 
-
-void MultilevelGraph::moveToZero()
-{
+void MultilevelGraph::moveToZero() {
 	// move Graph to zero
 	double avg_x = 0.0;
 	double avg_y = 0.0;
-	for(node v : getGraph().nodes) {
+	for (node v : getGraph().nodes) {
 		avg_x += x(v);
 		avg_y += y(v);
 	}
 	avg_x /= getGraph().numberOfNodes();
 	avg_y /= getGraph().numberOfNodes();
-	for(node v : getGraph().nodes) {
+	for (node v : getGraph().nodes) {
 		x(v, x(v) - avg_x);
 		y(v, y(v) - avg_y);
 	}

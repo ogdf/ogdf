@@ -1494,7 +1494,7 @@ CoinPackedMatrix::minorAppendSameOrdered(const CoinPackedMatrix& matrix)
       std::transform(matrix.index_ + matrix.start_[i],
 		matrix.index_ + (matrix.start_[i] + l),
 		index_ + (start_[i] + length_[i]),
-		std::bind2nd(std::plus<int>(), minorDim_));
+		std::bind(std::plus<int>(), std::placeholders::_1, minorDim_));
       CoinMemcpyN(matrix.element_ + matrix.start_[i], l,
 		       element_ + (start_[i] + length_[i]));
       length_[i] += l;

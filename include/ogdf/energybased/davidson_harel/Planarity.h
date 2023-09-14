@@ -33,16 +33,16 @@
 
 #pragma once
 
-#include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 #include <ogdf/basic/Array2D.h>
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 
 namespace ogdf {
 namespace davidson_harel {
 
-class Planarity: public EnergyFunction {
+class Planarity : public EnergyFunction {
 public:
 	//! Initializes data structures to speed up later computations.
-	explicit Planarity(GraphAttributes &AG);
+	explicit Planarity(GraphAttributes& AG);
 
 	~Planarity();
 
@@ -66,15 +66,14 @@ private:
 	void internalCandidateTaken() override;
 
 	//! Tests if two lines given by four points intersect.
-	bool lowLevelIntersect(const DPoint&, const DPoint&, const DPoint&,
-	                       const DPoint&) const;
+	bool lowLevelIntersect(const DPoint&, const DPoint&, const DPoint&, const DPoint&) const;
 
 #ifdef OGDF_DEBUG
 	virtual void printInternalData() const override;
 #endif
 
-	EdgeArray<int> *m_edgeNums; //!< numbers of edges
-	Array2D<bool> *m_crossingMatrix; //!< stores for each pair of edges if they cross
+	EdgeArray<int>* m_edgeNums; //!< numbers of edges
+	Array2D<bool>* m_crossingMatrix; //!< stores for each pair of edges if they cross
 
 	/**
 	 * stores for all edges incident to the test node
@@ -85,4 +84,5 @@ private:
 	List<edge> m_nonSelfLoops; //!< list of edges that are not slef loops
 };
 
-}}
+}
+}

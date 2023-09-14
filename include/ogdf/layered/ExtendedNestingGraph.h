@@ -33,74 +33,69 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
 
-struct OGDF_EXPORT RCCrossings
-{
+struct OGDF_EXPORT RCCrossings {
 	RCCrossings() {
 		m_cnClusters = 0;
-		m_cnEdges    = 0;
+		m_cnEdges = 0;
 	}
 
 	RCCrossings(int cnClusters, int cnEdges) {
 		m_cnClusters = cnClusters;
-		m_cnEdges    = cnEdges;
+		m_cnEdges = cnEdges;
 	}
 
-	void incEdges(int cn) {
-		m_cnEdges += cn;
-	}
+	void incEdges(int cn) { m_cnEdges += cn; }
 
-	void incClusters() {
-		++m_cnClusters;
-	}
+	void incClusters() { ++m_cnClusters; }
 
-	RCCrossings &operator+=(const RCCrossings &cr) {
+	RCCrossings& operator+=(const RCCrossings& cr) {
 		m_cnClusters += cr.m_cnClusters;
-		m_cnEdges    += cr.m_cnEdges;
+		m_cnEdges += cr.m_cnEdges;
 		return *this;
 	}
 
-	RCCrossings operator+(const RCCrossings &cr) const {
-		return RCCrossings(m_cnClusters+cr.m_cnClusters, m_cnEdges+cr.m_cnEdges);
+	RCCrossings operator+(const RCCrossings& cr) const {
+		return RCCrossings(m_cnClusters + cr.m_cnClusters, m_cnEdges + cr.m_cnEdges);
 	}
 
-	RCCrossings operator-(const RCCrossings &cr) const {
-		return RCCrossings(m_cnClusters-cr.m_cnClusters, m_cnEdges-cr.m_cnEdges);
+	RCCrossings operator-(const RCCrossings& cr) const {
+		return RCCrossings(m_cnClusters - cr.m_cnClusters, m_cnEdges - cr.m_cnEdges);
 	}
 
-	bool operator<=(const RCCrossings &cr) const {
-		if(m_cnClusters == cr.m_cnClusters)
+	bool operator<=(const RCCrossings& cr) const {
+		if (m_cnClusters == cr.m_cnClusters) {
 			return m_cnEdges <= cr.m_cnEdges;
-		else
+		} else {
 			return m_cnClusters <= cr.m_cnClusters;
+		}
 	}
 
-	bool operator<(const RCCrossings &cr) const {
-		if(m_cnClusters == cr.m_cnClusters)
+	bool operator<(const RCCrossings& cr) const {
+		if (m_cnClusters == cr.m_cnClusters) {
 			return m_cnEdges < cr.m_cnEdges;
-		else
+		} else {
 			return m_cnClusters < cr.m_cnClusters;
+		}
 	}
 
-	bool isZero() const {
-		return m_cnClusters == 0 && m_cnEdges == 0;
-	}
+	bool isZero() const { return m_cnClusters == 0 && m_cnEdges == 0; }
 
-	RCCrossings &setInfinity() {
+	RCCrossings& setInfinity() {
 		m_cnClusters = m_cnEdges = std::numeric_limits<int>::max();
 		return *this;
 	}
 
-	static int compare(const RCCrossings &x, const RCCrossings &y)
-	{
+	static int compare(const RCCrossings& x, const RCCrossings& y) {
 		int dc = y.m_cnClusters - x.m_cnClusters;
-		if(dc != 0)
+		if (dc != 0) {
 			return dc;
+		}
 		return y.m_cnEdges - x.m_cnEdges;
 	}
 
@@ -108,35 +103,43 @@ struct OGDF_EXPORT RCCrossings
 	int m_cnEdges;
 };
 
-OGDF_EXPORT std::ostream& operator<<(std::ostream &os, const RCCrossings &cr);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const RCCrossings& cr);
 
-class OGDF_EXPORT LHTreeNode
-{
+class OGDF_EXPORT LHTreeNode {
 public:
 	enum class Type { Compound, Node, AuxNode };
 
-	struct Adjacency
-	{
-		Adjacency() { m_u = nullptr; m_v = nullptr; m_weight = 0; }
-		Adjacency(node u, LHTreeNode *vNode, int weight = 1) {
-			m_u      = u;
-			m_v      = vNode;
+	struct Adjacency {
+		Adjacency() {
+			m_u = nullptr;
+			m_v = nullptr;
+			m_weight = 0;
+		}
+
+		Adjacency(node u, LHTreeNode* vNode, int weight = 1) {
+			m_u = u;
+			m_v = vNode;
 			m_weight = weight;
 		}
 
-		node          m_u;
-		LHTreeNode   *m_v;
-		int           m_weight;
+		node m_u;
+		LHTreeNode* m_v;
+		int m_weight;
 
 		OGDF_NEW_DELETE
 	};
 
-	struct ClusterCrossing
-	{
-		ClusterCrossing() { m_uc = nullptr; m_u = nullptr; m_cNode = nullptr; m_uNode = nullptr; }
-		ClusterCrossing(node uc, LHTreeNode *cNode, node u, LHTreeNode *uNode, edge e) {
+	struct ClusterCrossing {
+		ClusterCrossing() {
+			m_uc = nullptr;
+			m_u = nullptr;
+			m_cNode = nullptr;
+			m_uNode = nullptr;
+		}
+
+		ClusterCrossing(node uc, LHTreeNode* cNode, node u, LHTreeNode* uNode, edge e) {
 			m_uc = uc;
-			m_u  = u;
+			m_u = u;
 			m_cNode = cNode;
 			m_uNode = uNode;
 
@@ -145,32 +148,33 @@ public:
 
 		node m_uc;
 		node m_u;
-		LHTreeNode *m_cNode;
-		LHTreeNode *m_uNode;
+		LHTreeNode* m_cNode;
+		LHTreeNode* m_uNode;
 
 		edge m_edge;
 	};
 
 	// Construction
-	LHTreeNode(cluster c, LHTreeNode *up) {
-		m_parent      = nullptr;
+	LHTreeNode(cluster c, LHTreeNode* up) {
+		m_parent = nullptr;
 		m_origCluster = c;
-		m_node        = nullptr;
-		m_type        = Type::Compound;
-		m_down        = nullptr;
+		m_node = nullptr;
+		m_type = Type::Compound;
+		m_down = nullptr;
 
 		m_up = up;
-		if(up)
+		if (up) {
 			up->m_down = this;
+		}
 	}
 
-	LHTreeNode(LHTreeNode *parent, node v, Type t = Type::Node) {
-		m_parent      = parent;
+	LHTreeNode(LHTreeNode* parent, node v, Type t = Type::Node) {
+		m_parent = parent;
 		m_origCluster = nullptr;
-		m_node        = v;
-		m_type        = t;
-		m_up          = nullptr;
-		m_down        = nullptr;
+		m_node = v;
+		m_type = t;
+		m_up = nullptr;
+		m_down = nullptr;
 	}
 
 	// Access functions
@@ -178,30 +182,37 @@ public:
 
 	int numberOfChildren() const { return m_child.size(); }
 
-	const LHTreeNode *parent() const { return m_parent; }
-	const LHTreeNode *child(int i) const { return m_child[i]; }
+	const LHTreeNode* parent() const { return m_parent; }
+
+	const LHTreeNode* child(int i) const { return m_child[i]; }
 
 	cluster originalCluster() const { return m_origCluster; }
-	node    getNode()         const { return m_node; }
 
-	const LHTreeNode *up  () const { return m_up; }
-	const LHTreeNode *down() const { return m_down; }
+	node getNode() const { return m_node; }
+
+	const LHTreeNode* up() const { return m_up; }
+
+	const LHTreeNode* down() const { return m_down; }
 
 	int pos() const { return m_pos; }
 
-
 	// Modification functions
-	LHTreeNode *parent() { return m_parent; }
-	void setParent(LHTreeNode *p) { m_parent = p; }
+	LHTreeNode* parent() { return m_parent; }
 
-	LHTreeNode *child(int i) { return m_child[i]; }
+	void setParent(LHTreeNode* p) { m_parent = p; }
+
+	LHTreeNode* child(int i) { return m_child[i]; }
+
 	void initChild(int n) { m_child.init(n); }
-	void setChild(int i, LHTreeNode *p) { m_child[i] = p; }
+
+	void setChild(int i, LHTreeNode* p) { m_child[i] = p; }
 
 	void setPos();
 
 	void store() { m_storedChild = m_child; }
+
 	void restore() { m_child = m_storedChild; }
+
 	void permute() { m_child.permute(); }
 
 	void removeAuxChildren();
@@ -212,33 +223,34 @@ public:
 	List<ClusterCrossing> m_lowerClusterCrossing;
 
 private:
-	LHTreeNode        *m_parent;
+	LHTreeNode* m_parent;
 
-	cluster            m_origCluster;
-	node               m_node;
-	Type               m_type;
+	cluster m_origCluster;
+	node m_node;
+	Type m_type;
 
 	Array<LHTreeNode*> m_child;
 	Array<LHTreeNode*> m_storedChild;
 
-	LHTreeNode        *m_up;
-	LHTreeNode        *m_down;
-	int                m_pos;
+	LHTreeNode* m_up;
+	LHTreeNode* m_down;
+	int m_pos;
 
 	OGDF_NEW_DELETE
 };
 
 //! Represents layer in an extended nesting graph
-class OGDF_EXPORT ENGLayer
-{
+class OGDF_EXPORT ENGLayer {
 public:
 	ENGLayer() { m_root = nullptr; }
+
 	~ENGLayer();
 
-	const LHTreeNode *root() const { return m_root; }
-	LHTreeNode *root() { return m_root; }
+	const LHTreeNode* root() const { return m_root; }
 
-	void setRoot(LHTreeNode *r) { m_root = r; }
+	LHTreeNode* root() { return m_root; }
+
+	void setRoot(LHTreeNode* r) { m_root = r; }
 
 	void store();
 	void restore();
@@ -248,25 +260,24 @@ public:
 	void removeAuxNodes();
 
 private:
-	void simplifyAdjacencies(List<LHTreeNode::Adjacency> &adjs);
+	void simplifyAdjacencies(List<LHTreeNode::Adjacency>& adjs);
 
-	LHTreeNode *m_root;
+	LHTreeNode* m_root;
 };
 
 class OGDF_EXPORT ExtendedNestingGraph;
 
-class OGDF_EXPORT ClusterGraphCopy : public ClusterGraph
-{
+class OGDF_EXPORT ClusterGraphCopy : public ClusterGraph {
 public:
-
 	ClusterGraphCopy();
-	ClusterGraphCopy(const ExtendedNestingGraph &H, const ClusterGraph &CG);
+	ClusterGraphCopy(const ExtendedNestingGraph& H, const ClusterGraph& CG);
 
-	void init(const ExtendedNestingGraph &H, const ClusterGraph &CG);
+	void init(const ExtendedNestingGraph& H, const ClusterGraph& CG);
 
-	const ClusterGraph &getOriginalClusterGraph() const { return *m_pCG; }
+	const ClusterGraph& getOriginalClusterGraph() const { return *m_pCG; }
 
 	cluster copy(cluster cOrig) const { return m_copy[cOrig]; }
+
 	cluster original(cluster cCopy) const { return m_original[cCopy]; }
 
 	void setParent(node v, cluster c);
@@ -274,59 +285,66 @@ public:
 private:
 	void createClusterTree(cluster cOrig);
 
-	const ClusterGraph         *m_pCG;
-	const ExtendedNestingGraph *m_pH;
+	const ClusterGraph* m_pCG;
+	const ExtendedNestingGraph* m_pH;
 
 	ClusterArray<cluster> m_copy;
 	ClusterArray<cluster> m_original;
 };
 
-class OGDF_EXPORT ExtendedNestingGraph : public Graph
-{
+class OGDF_EXPORT ExtendedNestingGraph : public Graph {
 public:
 	// the type of a node in this copy
 	enum class NodeType { Node, ClusterTop, ClusterBottom, Dummy, ClusterTopBottom };
 
-	explicit ExtendedNestingGraph(const ClusterGraph &CG);
+	explicit ExtendedNestingGraph(const ClusterGraph& CG);
 
-	const ClusterGraphCopy &getClusterGraph() const { return m_CGC; }
-	const ClusterGraph &getOriginalClusterGraph() const { return m_CGC.getOriginalClusterGraph(); }
+	const ClusterGraphCopy& getClusterGraph() const { return m_CGC; }
 
-	node copy  (node v)    const { return m_copy[v]; }
-	node top   (cluster cOrig) const { return m_topNode[cOrig]; }
+	const ClusterGraph& getOriginalClusterGraph() const { return m_CGC.getOriginalClusterGraph(); }
+
+	node copy(node v) const { return m_copy[v]; }
+
+	node top(cluster cOrig) const { return m_topNode[cOrig]; }
+
 	node bottom(cluster cOrig) const { return m_bottomNode[cOrig]; }
 
-	int topRank   (cluster c) const { return m_topRank[c]; }
+	int topRank(cluster c) const { return m_topRank[c]; }
+
 	int bottomRank(cluster c) const { return m_bottomRank[c]; }
 
-
 	NodeType type(node v) const { return m_type[v]; }
-	node    origNode   (node v) const { return m_origNode[v]; }
-	edge    origEdge   (edge e) const { return m_origEdge[e]; }
+
+	node origNode(node v) const { return m_origNode[v]; }
+
+	edge origEdge(edge e) const { return m_origEdge[e]; }
 
 	cluster originalCluster(node v) const { return m_CGC.original(m_CGC.clusterOf(v)); }
+
 	cluster parent(node v) const { return m_CGC.clusterOf(v); }
+
 	cluster parent(cluster c) const { return c->parent(); }
+
 	bool isVirtual(cluster c) const { return m_CGC.original(c) == nullptr; }
 
-	const List<edge> &chain(edge e) const { return m_copyEdge[e]; }
+	const List<edge>& chain(edge e) const { return m_copyEdge[e]; }
 
 	// is edge e reversed ?
-	bool isReversed (edge e) const {
-		return e->source() != origNode(chain(e).front()->source());
-	}
+	bool isReversed(edge e) const { return e->source() != origNode(chain(e).front()->source()); }
 
-	bool isLongEdgeDummy(node v) const {
-		return type(v) == NodeType::Dummy && v->outdeg() == 1;
-	}
+	bool isLongEdgeDummy(node v) const { return type(v) == NodeType::Dummy && v->outdeg() == 1; }
 
 	bool verticalSegment(edge e) const { return m_vertical[e]; }
 
 	int numberOfLayers() const { return m_numLayers; }
+
 	int rank(node v) const { return m_rank[v]; }
+
 	int pos(node v) const { return m_pos[v]; }
-	const LHTreeNode *layerHierarchyTree(int i) const { return m_layer[i].root(); }
-	const ENGLayer &layer(int i) const { return m_layer[i]; }
+
+	const LHTreeNode* layerHierarchyTree(int i) const { return m_layer[i].root(); }
+
+	const ENGLayer& layer(int i) const { return m_layer[i]; }
 
 	RCCrossings reduceCrossings(int i, bool dirTopDown);
 	void storeCurrentPos();
@@ -339,29 +357,23 @@ public:
 
 protected:
 	cluster lca(node u, node v) const;
-	LHTreeNode *lca(
-		LHTreeNode *uNode,
-		LHTreeNode *vNode,
-		LHTreeNode **uChild,
-		LHTreeNode **vChild) const;
+	LHTreeNode* lca(LHTreeNode* uNode, LHTreeNode* vNode, LHTreeNode** uChild,
+			LHTreeNode** vChild) const;
 
 	edge addEdge(node u, node v, bool addAlways = false);
-	void assignAeLevel(cluster c, int &count);
-	bool reachable(node v, node u, SListPure<node> &successors);
-	void moveDown(node v, const SListPure<node> &successors, NodeArray<int> &level);
-	bool tryEdge(node u, node v, Graph &G, NodeArray<int> &level);
+	void assignAeLevel(cluster c, int& count);
+	bool reachable(node v, node u, SListPure<node>& successors);
+	void moveDown(node v, const SListPure<node>& successors, NodeArray<int>& level);
+	bool tryEdge(node u, node v, Graph& G, NodeArray<int>& level);
 
-	RCCrossings reduceCrossings(LHTreeNode *cNode, bool dirTopDown);
-	void assignPos(const LHTreeNode *vNode, int &count);
+	RCCrossings reduceCrossings(LHTreeNode* cNode, bool dirTopDown);
+	void assignPos(const LHTreeNode* vNode, int& count);
 
 private:
 	void computeRanking();
 	void createDummyNodes();
 	void createVirtualClusters();
-	void createVirtualClusters(
-		cluster c,
-		NodeArray<node> &vCopy,
-		ClusterArray<node> &cCopy);
+	void createVirtualClusters(cluster c, NodeArray<node>& vCopy, ClusterArray<node>& cCopy);
 	void buildLayers();
 	void removeAuxNodes();
 
@@ -374,12 +386,12 @@ private:
 #endif
 
 	// mapping: nodes in CG <-> nodes in this copy
-	NodeArray<node>    m_copy;
-	NodeArray<node>    m_origNode;
+	NodeArray<node> m_copy;
+	NodeArray<node> m_origNode;
 
 	// mapping: clusters in CG <-> nodes in this copy
-	ClusterArray<node> m_topNode;     // the node representing top-most part of cluster (min. rank)
-	ClusterArray<node> m_bottomNode;  // the node representing bottom-most part of cluster (max. rank)
+	ClusterArray<node> m_topNode; // the node representing top-most part of cluster (min. rank)
+	ClusterArray<node> m_bottomNode; // the node representing bottom-most part of cluster (max. rank)
 	ClusterArray<int> m_topRank;
 	ClusterArray<int> m_bottomRank;
 
@@ -387,32 +399,32 @@ private:
 	NodeArray<NodeType> m_type;
 
 	// mapping: edges in CG <-> edges in this copy
-	EdgeArray<List<edge> > m_copyEdge;
-	EdgeArray<edge>        m_origEdge;
+	EdgeArray<List<edge>> m_copyEdge;
+	EdgeArray<edge> m_origEdge;
 
 	// level of each node
-	NodeArray<int>     m_rank;
-	int                m_numLayers;
+	NodeArray<int> m_rank;
+	int m_numLayers;
 
 	// the layers
 	Array<ENGLayer> m_layer;
 	// positions within a layer
-	NodeArray<int>  m_pos;
+	NodeArray<int> m_pos;
 
 	// can an edge segment be drawn vertically?
 	EdgeArray<bool> m_vertical;
 
 	// temporary data for "addEdge()"
-	NodeArray<int>  m_aeLevel;
+	NodeArray<int> m_aeLevel;
 	NodeArray<bool> m_aeVisited;
-	NodeArray<int>  m_auxDeg;
+	NodeArray<int> m_auxDeg;
 
 	// temporary data for "lca()"
 	mutable ClusterArray<cluster> m_mark;
-	mutable SListPure<cluster>    m_markedClusters;
-	mutable cluster               m_secondPath;
-	mutable node                  m_secondPathTo;
-	mutable SListPure<cluster>    m_markedClustersTree;
+	mutable SListPure<cluster> m_markedClusters;
+	mutable cluster m_secondPath;
+	mutable node m_secondPathTo;
+	mutable SListPure<cluster> m_markedClustersTree;
 	mutable ClusterArray<LHTreeNode*> m_markTree;
 };
 

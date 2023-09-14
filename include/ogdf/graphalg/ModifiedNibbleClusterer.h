@@ -34,6 +34,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/geometry.h>
+
 #include <vector>
 
 namespace ogdf {
@@ -52,21 +53,17 @@ namespace ogdf {
  * (Remove trees first, then use BC, SPQR,)
  */
 class ModifiedNibbleClusterer {
-
 public:
 	ModifiedNibbleClusterer()
-	  : m_clusterThreshold(3)
-	  , m_maxClusterSize(100)
-	  , maxClusterNum(100)
-	  , m_spreadProbability(0.8)
-	  , m_pG(nullptr)
-	  , m_pGC(nullptr)
-	  , m_sns(StartNodeStrategy::MaxDeg)
-	{
-	}
+		: m_clusterThreshold(3)
+		, m_maxClusterSize(100)
+		, maxClusterNum(100)
+		, m_spreadProbability(0.8)
+		, m_pG(nullptr)
+		, m_pGC(nullptr)
+		, m_sns(StartNodeStrategy::MaxDeg) { }
 
-	~ModifiedNibbleClusterer()
-	{
+	~ModifiedNibbleClusterer() {
 #if 0
 		delete m_pGC;
 #endif
@@ -76,7 +73,7 @@ public:
 
 	//! Call method: Creates a clustering of G
 	//! Returns number of created clusters and sets cluster index for each node in clusterNum
-	long call(Graph &G, NodeArray<long> &clusterNum);
+	long call(Graph& G, NodeArray<long>& clusterNum);
 
 	//! A convenience method. Due to the characteristics of the algorithm (not very accurate,
 	//! fast for large graphs), we could have a medium number (several hundreds) of clusters,
@@ -84,54 +81,51 @@ public:
 	//! clustering does not make much sense as after a second level there will be not to many
 	//! clusters left.
 	//! topLevelNum keeps a cluster number in the top level of the two level cluster hierarchy
-	long call(Graph &G, NodeArray<long> &clusterNum, NodeArray<long> &topLevelNum);
+	long call(Graph& G, NodeArray<long>& clusterNum, NodeArray<long>& topLevelNum);
 
 	//! Call method: Creates a clustering of G in C
 	//! Returns number of created clusters
 	// TODO long call(ClusterGraph &C, Graph & G) {}
-	void setMaxClusterNum(int i) {maxClusterNum = i;}
-	void setMaxClusterSize(long i) {m_maxClusterSize = i;}
+	void setMaxClusterNum(int i) { maxClusterNum = i; }
+
+	void setMaxClusterSize(long i) { m_maxClusterSize = i; }
+
 	// Smaller clusters are joint with a neighbor (non-recursive) as a postprocessing
-	void setClusterSizeThreshold(int threshold)
-	{
+	void setClusterSizeThreshold(int threshold) {
 		if (threshold > 0) {
 			m_clusterThreshold = threshold;
 		}
 	}
 
-	enum class StartNodeStrategy {MinDeg, MaxDeg, Random};
+	enum class StartNodeStrategy { MinDeg, MaxDeg, Random };
 
 protected:
 	void initialize(); //1< Initialize values for calculation before first step
 	node selectStartNode(); //!< select start node according to some strategy
-	void modifiedNibble(node snode, std::vector<node> &bestCluster); //!< main step with walks starting from snode
-	double findBestCluster(NodeArray<bool> &isActive, std::vector<node> &activeNodes, std::vector<node> &cluster);
-	void spreadValues(NodeArray<bool> &isActive, std::vector<node> &activeNodes, NodeArray<double> & probUpdate);
+	void modifiedNibble(node snode,
+			std::vector<node>& bestCluster); //!< main step with walks starting from snode
+	double findBestCluster(NodeArray<bool>& isActive, std::vector<node>& activeNodes,
+			std::vector<node>& cluster);
+	void spreadValues(NodeArray<bool>& isActive, std::vector<node>& activeNodes,
+			NodeArray<double>& probUpdate);
 
-	inline long maxClusterSize() {
-		return m_maxClusterSize;
-	}
+	inline long maxClusterSize() { return m_maxClusterSize; }
 
 	// Arithmetic plus Geometric Progression
-	int aPGP(int i)
-	{
+	int aPGP(int i) {
 		const int a = 2;
 		const int d = 7;
 		const double r = 1.5;
-		return static_cast<int>(ceil(a * pot(r, i))) + i*d + a;
+		return static_cast<int>(ceil(a * pot(r, i))) + i * d + a;
 	}
 
 	// TODO we expect i to be very small, but do this efficiently anyway
-	double pot(double r, long i)
-	{
-		return pow(r, static_cast<double>(i));
-	}
+	double pot(double r, long i) { return pow(r, static_cast<double>(i)); }
 
-	long activeNodeBound()
-	{
+	long activeNodeBound() {
 		const int factor = 25; //!< f in publication Rose Catherine K., S. Sudarshan
 		//does not make sense to set it to 500 as they did, as we want less clusters.
-		return factor*m_maxClusterSize;
+		return factor * m_maxClusterSize;
 	}
 
 	void postProcess();
@@ -150,10 +144,9 @@ private:
 	StartNodeStrategy m_sns;
 
 	// Tests
-	bool testSpreadSum()
-	{
+	bool testSpreadSum() {
 		double sum = 0.0;
-		for(node v : m_pGC->nodes) {
+		for (node v : m_pGC->nodes) {
 			sum += m_prob[v];
 		}
 		return OGDF_GEOM_ET.equal(sum, 1.0);

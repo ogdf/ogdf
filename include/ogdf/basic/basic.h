@@ -44,17 +44,17 @@
 #define OGDF_HEAVY_ASSERT(expr)
 
 #ifdef OGDF_DEBUG
-# ifdef OGDF_HEAVY_DEBUG
-#  undef OGDF_HEAVY_ASSERT
-#  define OGDF_HEAVY_ASSERT(expr) OGDF_ASSERT(expr)
-# endif
-# undef OGDF_ASSERT
-# ifndef OGDF_USE_ASSERT_EXCEPTIONS
-#  include <cassert>
-#  define OGDF_ASSERT(expr) assert(expr)
-# else
-#  include <stdexcept>
-#  include <sstream>
+#	ifdef OGDF_HEAVY_DEBUG
+#		undef OGDF_HEAVY_ASSERT
+#		define OGDF_HEAVY_ASSERT(expr) OGDF_ASSERT(expr)
+#	endif
+#	undef OGDF_ASSERT
+#	ifndef OGDF_USE_ASSERT_EXCEPTIONS
+#		include <cassert>
+#		define OGDF_ASSERT(expr) assert(expr)
+#	else
+#		include <sstream>
+#		include <stdexcept>
 
 namespace ogdf {
 /**
@@ -66,17 +66,17 @@ class AssertionFailed : public std::runtime_error {
 };
 }
 
-#  define OGDF_ASSERT(expr) do { \
-	if (!(expr)) { \
-		std::stringstream ogdf_assert_ss; \
-		ogdf_assert_ss \
-		 << "OGDF assertion `" #expr "' failed at " __FILE__ ":" \
-		 << __LINE__ \
-		 << "(" << OGDF_FUNCTION_NAME << ")"; \
-		ogdf::get_stacktrace(ogdf_assert_ss); \
-		throw ogdf::AssertionFailed(ogdf_assert_ss.str()); \
-	} } while (false)
-# endif
+#		define OGDF_ASSERT(expr)                                                          \
+			do {                                                                           \
+				if (!(expr)) {                                                             \
+					std::stringstream ogdf_assert_ss;                                      \
+					ogdf_assert_ss << "OGDF assertion `" #expr "' failed at " __FILE__ ":" \
+								   << __LINE__ << "(" << OGDF_FUNCTION_NAME << ")";        \
+					ogdf::get_stacktrace(ogdf_assert_ss);                                  \
+					throw ogdf::AssertionFailed(ogdf_assert_ss.str());                     \
+				}                                                                          \
+			} while (false)
+#	endif
 #endif
 
 //! @}
@@ -84,16 +84,16 @@ class AssertionFailed : public std::runtime_error {
 // g++ 4.8/4.9 does not have is_trivially_copyable,
 // but clang 3.5 (which is also __GNUC__ < 5) has it.
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5
-#define OGDF_TRIVIALLY_COPYABLE std::has_trivial_copy_assign
+#	define OGDF_TRIVIALLY_COPYABLE std::has_trivial_copy_assign
 #else
-#define OGDF_TRIVIALLY_COPYABLE std::is_trivially_copyable
+#	define OGDF_TRIVIALLY_COPYABLE std::is_trivially_copyable
 #endif
 
-#include <cstdint>
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <ctime>
 #include <fstream>
-#include <algorithm>
 #include <limits>
 
 //! The namespace for all OGDF objects.
@@ -103,8 +103,8 @@ namespace ogdf {
 OGDF_EXPORT extern bool debugMode;
 
 // generally used <algorithm> members
-using std::min;
 using std::max;
+using std::min;
 
 /**
  *  The class Initialization is used for initializing global variables.
@@ -128,7 +128,7 @@ static Initialization s_ogdfInitializer;
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
 //! Output a mangled stack backtrace of the caller function to stream
-extern void get_stacktrace(std::ostream &);
+OGDF_EXPORT extern void get_stacktrace(std::ostream& stream);
 #endif
 
 enum class Direction { before, after };
@@ -162,20 +162,19 @@ OGDF_EXPORT double randomDouble(double low, double high);
 
 //! Returns a random double value from the normal distribution
 //! with mean m and standard deviation sd
-inline double randomDoubleNormal(double m, double sd)
-{
+inline double randomDoubleNormal(double m, double sd) {
 	double x1, y1, w;
 
 	do {
-		double rndVal = randomDouble(0,1);
+		double rndVal = randomDouble(0, 1);
 		x1 = 2.0 * rndVal - 1.0;
-		rndVal = randomDouble(0,1);
+		rndVal = randomDouble(0, 1);
 		double x2 = 2.0 * rndVal - 1.0;
-		w = x1*x1 + x2*x2;
+		w = x1 * x1 + x2 * x2;
 	} while (w >= 1.0);
 
-	w = sqrt((-2.0 * log(w))/w) ;
-	y1 = x1*w;
+	w = sqrt((-2.0 * log(w)) / w);
+	y1 = x1 * w;
 
 	return m + y1 * sd;
 }
@@ -196,13 +195,13 @@ OGDF_EXPORT double randomDoubleExponential(double beta);
 OGDF_EXPORT double usedTime(double& T);
 
 //! Removes trailing space, horizontal and vertical tab, feed, newline, and carriage return  from \p str.
-OGDF_EXPORT void removeTrailingWhitespace(string &str);
+OGDF_EXPORT void removeTrailingWhitespace(string& str);
 
 //! Compares the two strings \p str1 and \p str2, ignoring the case of characters.
-OGDF_EXPORT bool equalIgnoreCase(const string &str1, const string &str2);
+OGDF_EXPORT bool equalIgnoreCase(const string& str1, const string& str2);
 
 //! Tests if \p prefix is a prefix of \p str, ignoring the case of characters.
-OGDF_EXPORT bool prefixIgnoreCase(const string &prefix, const string &str);
+OGDF_EXPORT bool prefixIgnoreCase(const string& prefix, const string& str);
 
 //! @addtogroup container-functions
 //! @{
@@ -217,13 +216,13 @@ OGDF_EXPORT bool prefixIgnoreCase(const string &prefix, const string &str);
  * \return the position of the first occurrence of \p x in \p C (positions start with 0), or -1 if
  *         \p x is not in \p C.
  */
-template< typename CONTAINER, typename T>
-int searchPos(const CONTAINER &C, const T &x)
-{
+template<typename CONTAINER, typename T>
+int searchPos(const CONTAINER& C, const T& x) {
 	int pos = 0;
-	for (const T &y : C) {
-		if (x == y)
+	for (const T& y : C) {
+		if (x == y) {
 			return pos;
+		}
 		++pos;
 	}
 
@@ -238,13 +237,13 @@ int searchPos(const CONTAINER &C, const T &x)
  * for bucket functions. Derived classes have to implement #getBucket().
  * Bucket functions are used by bucket sort functions for container types.
  */
-template<class E> class BucketFunc
-{
+template<class E>
+class BucketFunc {
 public:
 	virtual ~BucketFunc() { }
 
 	//! Returns the bucket of \p x.
-	virtual int getBucket(const E &x) = 0;
+	virtual int getBucket(const E& x) = 0;
 };
 
 }

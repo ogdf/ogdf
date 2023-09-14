@@ -33,31 +33,29 @@
 
 #pragma once
 
+#include <ogdf/basic/pqtree/PQInternalKey.h>
 #include <ogdf/basic/pqtree/PQNode.h>
 #include <ogdf/basic/pqtree/PQNodeKey.h>
-#include <ogdf/basic/pqtree/PQInternalKey.h>
 #include <ogdf/planarity/booth_lueker/IndInfo.h>
 
 namespace ogdf {
 namespace booth_lueker {
 
-class EmbedIndicator : public PQNode<edge,IndInfo*,bool>
-{
+class EmbedIndicator : public PQNode<edge, IndInfo*, bool> {
 public:
-
-	EmbedIndicator(int count, PQNodeKey<edge,IndInfo*,bool>* infoPtr)
-		: PQNode<edge,IndInfo*,bool>(count,infoPtr) { }
+	EmbedIndicator(int count, PQNodeKey<edge, IndInfo*, bool>* infoPtr)
+		: PQNode<edge, IndInfo*, bool>(count, infoPtr) { }
 
 	virtual ~EmbedIndicator() {
 		delete getNodeInfo()->userStructInfo();
 		delete getNodeInfo();
 	}
 
-	PQNodeType  type() const override { return PQNodeType::Leaf; }
+	PQNodeType type() const override { return PQNodeType::Leaf; }
 
 	void type(PQNodeType) override { }
 
-	PQNodeStatus  status() const override { return PQNodeRoot::PQNodeStatus::Indicator; }
+	PQNodeStatus status() const override { return PQNodeRoot::PQNodeStatus::Indicator; }
 
 	void status(PQNodeStatus) override { }
 
@@ -65,15 +63,15 @@ public:
 
 	void mark(PQNodeMark) override { }
 
-	PQLeafKey<edge,IndInfo*,bool>* getKey() const override { return nullptr; }
+	PQLeafKey<edge, IndInfo*, bool>* getKey() const override { return nullptr; }
 
-	bool setKey(PQLeafKey<edge,IndInfo*,bool>* pointerToKey) override {
+	bool setKey(PQLeafKey<edge, IndInfo*, bool>* pointerToKey) override {
 		return pointerToKey == nullptr;
 	}
 
-	PQInternalKey<edge,IndInfo*,bool>* getInternal() const override { return nullptr; }
+	PQInternalKey<edge, IndInfo*, bool>* getInternal() const override { return nullptr; }
 
-	bool setInternal(PQInternalKey<edge,IndInfo*,bool>* pointerToInternal) override {
+	bool setInternal(PQInternalKey<edge, IndInfo*, bool>* pointerToInternal) override {
 		return pointerToInternal == nullptr;
 	}
 };

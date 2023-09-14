@@ -34,78 +34,90 @@
 
 using std::istringstream;
 
-
 namespace ogdf {
 
-static bool read_next_line(std::istream &is, string &buffer)
-{
-	while(std::getline(is,buffer)) {
-		if(!buffer.empty() && buffer[0] != '#')
+static bool read_next_line(std::istream& is, string& buffer) {
+	while (std::getline(is, buffer)) {
+		if (!buffer.empty() && buffer[0] != '#') {
 			return true;
+		}
 	}
 	return false;
 }
 
-
-static bool buffer_equal(const string &buffer, const char *str)
-{
+static bool buffer_equal(const string& buffer, const char* str) {
 	string::size_type n = buffer.length();
 	string::size_type left = 0, ns = n;
-	while(left < n && isspace(buffer[left])) ++left;
-	while(ns > 0 && isspace(buffer[ns-1])) --ns;
+	while (left < n && isspace(buffer[left])) {
+		++left;
+	}
+	while (ns > 0 && isspace(buffer[ns - 1])) {
+		--ns;
+	}
 	return buffer.compare(left, ns, str) == 0;
 }
 
-
-bool GraphIO::readLEDA(Graph &G, std::istream &is)
-{
+bool GraphIO::readLEDA(Graph& G, std::istream& is) {
 	G.clear();
 
 	// header
 
 	try {
 		string buffer;
-		if(!read_next_line(is,buffer))
+		if (!read_next_line(is, buffer)) {
 			return false;
-		if(!buffer_equal(buffer, "LEDA.GRAPH")) // check type
+		}
+		if (!buffer_equal(buffer, "LEDA.GRAPH")) { // check type
 			return false;
-		if(!read_next_line(is,buffer)) // skip node type (ignored)
+		}
+		if (!read_next_line(is, buffer)) { // skip node type (ignored)
 			return false;
-		if(!read_next_line(is,buffer)) // skip edge type (ignored)
+		}
+		if (!read_next_line(is, buffer)) { // skip edge type (ignored)
 			return false;
+		}
 
 		// nodes
 
 		// check if next line specifies direction (-1 = directed, -2 = undirected) or nodes
-		if(!read_next_line(is,buffer))
+		if (!read_next_line(is, buffer)) {
 			return false;
+		}
 
 		int n = std::stoi(buffer);
-		if(n < 0) {
-			if(!read_next_line(is,buffer))
+		if (n < 0) {
+			if (!read_next_line(is, buffer)) {
 				return false;
+			}
 			n = std::stoi(buffer);
 		}
-		if(n < 0) return false; // makes no sense
+		if (n < 0) {
+			return false; // makes no sense
+		}
 
-		Array<node> nodes(1,n);
-		for(int i = 1; i <= n; ++i) {
-			if (!read_next_line(is, buffer))
+		Array<node> nodes(1, n);
+		for (int i = 1; i <= n; ++i) {
+			if (!read_next_line(is, buffer)) {
 				return false;
+			}
 			nodes[i] = G.newNode();
 		}
 
 		// edges
 
-		if(!read_next_line(is,buffer))
+		if (!read_next_line(is, buffer)) {
 			return false;
+		}
 
 		int m = std::stoi(buffer);
-		if(m < 0) return false; // makes no sense
+		if (m < 0) {
+			return false; // makes no sense
+		}
 
-		for(int i = 1; i <= m; ++i) {
-			if (!read_next_line(is, buffer))
+		for (int i = 1; i <= m; ++i) {
+			if (!read_next_line(is, buffer)) {
 				return false;
+			}
 			istringstream iss(buffer);
 
 			// read index of source and target node
@@ -113,30 +125,29 @@ bool GraphIO::readLEDA(Graph &G, std::istream &is)
 			iss >> src >> tgt;
 
 			// indices valid?
-			if (src < 1 || n < src || tgt < 1 || n < tgt)
+			if (src < 1 || n < src || tgt < 1 || n < tgt) {
 				return false;
+			}
 
-			G.newEdge(nodes[src],nodes[tgt]);
+			G.newEdge(nodes[src], nodes[tgt]);
 		}
 
-	} catch(...) {
+	} catch (...) {
 		return false;
 	}
 
 	return true;
 }
 
-
-bool GraphIO::writeLEDA(const Graph &G, std::ostream &os)
-{
+bool GraphIO::writeLEDA(const Graph& G, std::ostream& os) {
 	bool result = os.good();
 
-	if(result) {
+	if (result) {
 		// write header
-		os << "LEDA.GRAPH\n";    // format specification
-		os << "void\n";            // no node type
-		os << "void\n";            // no edge type
-		os << "-1\n";            // directed graph
+		os << "LEDA.GRAPH\n"; // format specification
+		os << "void\n"; // no node type
+		os << "void\n"; // no edge type
+		os << "-1\n"; // directed graph
 
 		// write nodes and assign indices 1, 2, ..., n
 		os << G.numberOfNodes() << "\n";
@@ -154,7 +165,6 @@ bool GraphIO::writeLEDA(const Graph &G, std::ostream &os)
 		for (edge e : G.edges) {
 			os << index[e->source()] << " " << index[e->target()] << " 0 |{}|\n";
 		}
-
 	}
 
 	return result;

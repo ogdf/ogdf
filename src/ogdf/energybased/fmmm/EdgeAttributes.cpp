@@ -35,37 +35,37 @@ namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-std::ostream &operator<< (std::ostream & output, const EdgeAttributes & A)
-{
-	output <<"length: "<< A.length;
-	output<<"  index of original edge ";
-	if (A.e_original == nullptr)
-		output <<"nullptr";
-	else output<<A.e_original->index();
-	output<<"  index of subgraph edge ";
-	if (A.e_subgraph == nullptr)
-		output <<"nullptr";
-	if (A.moon_edge)
-		output<<" is moon edge ";
-	else
-		output <<" no moon edge ";
-	if (A.extra_edge)
-		output<<" is extra edge ";
-	else
-		output <<" no extra edge ";
+std::ostream& operator<<(std::ostream& output, const EdgeAttributes& A) {
+	output << "length: " << A.length;
+	output << "  index of original edge ";
+	if (A.e_original == nullptr) {
+		output << "nullptr";
+	} else {
+		output << A.e_original->index();
+	}
+	output << "  index of subgraph edge ";
+	if (A.e_subgraph == nullptr) {
+		output << "nullptr";
+	}
+	if (A.moon_edge) {
+		output << " is moon edge ";
+	} else {
+		output << " no moon edge ";
+	}
+	if (A.extra_edge) {
+		output << " is extra edge ";
+	} else {
+		output << " no extra edge ";
+	}
 	return output;
 }
 
-
-std::istream &operator>> (std::istream & input,  EdgeAttributes & A)
-{
+std::istream& operator>>(std::istream& input, EdgeAttributes& A) {
 	input >> A.length;
 	return input;
 }
 
-
-EdgeAttributes::EdgeAttributes()
-{
+EdgeAttributes::EdgeAttributes() {
 	length = 0;
 	e_original = nullptr;
 	e_subgraph = nullptr;

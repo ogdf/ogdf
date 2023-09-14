@@ -34,7 +34,6 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/cluster/ClusterGraph.h>
 
-
 namespace ogdf {
 
 //! Abstract base class for cluster arrays.
@@ -52,26 +51,33 @@ class ClusterArrayBase {
 	ListIterator<ClusterArrayBase*> m_it;
 
 public:
-	const ClusterGraph *m_pClusterGraph; //!< The associated cluster graph.
+	const ClusterGraph* m_pClusterGraph; //!< The associated cluster graph.
 
 	//! Initializes a cluster array not associated with a cluster graph.
 	ClusterArrayBase() : m_pClusterGraph(nullptr) { }
 
 	//! Initializes a cluster array associated with \p pC.
-	explicit ClusterArrayBase(const ClusterGraph *pC) : m_pClusterGraph(pC) {
-		if(pC) m_it = pC->registerArray(this);
+	explicit ClusterArrayBase(const ClusterGraph* pC) : m_pClusterGraph(pC) {
+		if (pC) {
+			m_it = pC->registerArray(this);
+		}
 	}
 
 	//! Moves cluster array \p base to this cluster array.
-	ClusterArrayBase(ClusterArrayBase &base) : m_it(base.m_it), m_pClusterGraph(base.m_pClusterGraph) {
-		if(m_pClusterGraph) m_pClusterGraph->moveRegisterArray(m_it, this);
+	ClusterArrayBase(ClusterArrayBase& base)
+		: m_it(base.m_it), m_pClusterGraph(base.m_pClusterGraph) {
+		if (m_pClusterGraph) {
+			m_pClusterGraph->moveRegisterArray(m_it, this);
+		}
 		base.m_pClusterGraph = nullptr;
-		base.m_it            = ListIterator<ClusterArrayBase*>();
+		base.m_it = ListIterator<ClusterArrayBase*>();
 	}
 
 	// destructor, unregisters the array
 	virtual ~ClusterArrayBase() {
-		if (m_pClusterGraph) m_pClusterGraph->unregisterArray(m_it);
+		if (m_pClusterGraph) {
+			m_pClusterGraph->unregisterArray(m_it);
+		}
 	}
 
 	// event interface used by Graph
@@ -83,20 +89,27 @@ public:
 	virtual void disconnect() = 0;
 
 	//! Associates the array with a new cluster graph.
-	void reregister(const ClusterGraph *pC) {
-		if (m_pClusterGraph) m_pClusterGraph->unregisterArray(m_it);
-		if ((m_pClusterGraph = pC) != nullptr) m_it = pC->registerArray(this);
+	void reregister(const ClusterGraph* pC) {
+		if (m_pClusterGraph) {
+			m_pClusterGraph->unregisterArray(m_it);
+		}
+		if ((m_pClusterGraph = pC) != nullptr) {
+			m_it = pC->registerArray(this);
+		}
 	}
 
 	//! Moves array registration from \p base to this array.
-	void moveRegister(ClusterArrayBase &base) {
-		if (m_pClusterGraph) m_pClusterGraph->unregisterArray(m_it);
+	void moveRegister(ClusterArrayBase& base) {
+		if (m_pClusterGraph) {
+			m_pClusterGraph->unregisterArray(m_it);
+		}
 		m_pClusterGraph = base.m_pClusterGraph;
-		m_it            = base.m_it;
+		m_it = base.m_it;
 		base.m_pClusterGraph = nullptr;
-		base.m_it            = ListIterator<ClusterArrayBase*>();
-		if (m_pClusterGraph != nullptr)
+		base.m_it = ListIterator<ClusterArrayBase*>();
+		if (m_pClusterGraph != nullptr) {
 			m_pClusterGraph->moveRegisterArray(m_it, this);
+		}
 	}
 };
 
@@ -107,7 +120,8 @@ public:
  *
  * @warn_undef_behavior_array
  */
-template<class T> class ClusterArray : private Array<T>, protected ClusterArrayBase {
+template<class T>
+class ClusterArray : private Array<T>, protected ClusterArrayBase {
 	T m_x; //!< The default value for array elements.
 
 public:
@@ -121,23 +135,20 @@ public:
 	//! The type for cluster array const iterators.
 	using const_iterator = internal::GraphArrayConstIterator<ClusterArray<T>>;
 
-
 	//! Constructs an empty cluster array associated with no graph.
 	ClusterArray() : Array<T>(), ClusterArrayBase() { }
 
 	//! Constructs a cluster array associated with \p C.
-	ClusterArray(const ClusterGraph &C) :
-		Array<T>(C.clusterArrayTableSize()),
-		ClusterArrayBase(&C) { }
+	ClusterArray(const ClusterGraph& C)
+		: Array<T>(C.clusterArrayTableSize()), ClusterArrayBase(&C) { }
 
 	//! Constructs a cluster array associated with \p C.
 	/**
 	 * @param C is the associated cluster graph.
 	 * @param x is the default value for all array elements.
 	 */
-	ClusterArray(const ClusterGraph &C, const T &x) :
-		Array<T>(0,C.clusterArrayTableSize()-1,x),
-		ClusterArrayBase(&C), m_x(x) { }
+	ClusterArray(const ClusterGraph& C, const T& x)
+		: Array<T>(0, C.clusterArrayTableSize() - 1, x), ClusterArrayBase(&C), m_x(x) { }
 
 	//! Constructs a cluster array associated with \p C and a given
 	//! size (for static use).
@@ -146,85 +157,80 @@ public:
 	 * @param x is the default value for all array elements.
 	 * @param size is the size of the array.
 	 */
-	ClusterArray(const ClusterGraph &C, const T &x, int size) :
-		Array<T>(0,size-1,x),
-		ClusterArrayBase(&C), m_x(x) { }
+	ClusterArray(const ClusterGraph& C, const T& x, int size)
+		: Array<T>(0, size - 1, x), ClusterArrayBase(&C), m_x(x) { }
 
 	//! Constructs a cluster array that is a copy of \p A.
 	/**
 	 * Associates the array with the same cluster graph as \p A and copies all elements.
 	 */
-	ClusterArray(const ClusterArray<T> &A) :
-		Array<T>(A),
-		ClusterArrayBase(A.m_pClusterGraph), m_x(A.m_x) { }
+	ClusterArray(const ClusterArray<T>& A)
+		: Array<T>(A), ClusterArrayBase(A.m_pClusterGraph), m_x(A.m_x) { }
 
 	//! Constructs a cluster array containing the elements of \p A (move semantics).
 	/**
 	 * Cluster array \p A is empty afterwards and not associated with any cluster graph.
 	 */
-	ClusterArray(ClusterArray<T> &&A) : Array<T>(std::move(A)), ClusterArrayBase(A), m_x(A.m_x) { }
-
+	ClusterArray(ClusterArray<T>&& A) : Array<T>(std::move(A)), ClusterArrayBase(A), m_x(A.m_x) { }
 
 	/**
 	 * @name Access methods
 	 * These methods provide access to elements, size, and corresponding embedding.
 	 */
-	//@{
+	//! @{
 
 	//! Returns true iff the array is associated with a graph.
 	bool valid() const { return Array<T>::low() <= Array<T>::high(); }
 
 	//! Returns a pointer to the associated cluster graph.
-	const ClusterGraph *graphOf() const {
-		return m_pClusterGraph;
+	const ClusterGraph* graphOf() const { return m_pClusterGraph; }
+
+	//! Returns a reference to the element with index \p c.
+	const T& operator[](cluster c) const {
+		OGDF_ASSERT(c != nullptr);
+		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
+		return Array<T>::operator[](c->index());
 	}
 
 	//! Returns a reference to the element with index \p c.
-	const T &operator[](cluster c) const {
+	T& operator[](cluster c) {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
-		return Array<T>::operator [](c->index());
+		return Array<T>::operator[](c->index());
 	}
 
 	//! Returns a reference to the element with index \p c.
-	T &operator[](cluster c) {
+	const T& operator()(cluster c) const {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
-		return Array<T>::operator [](c->index());
+		return Array<T>::operator[](c->index());
 	}
 
 	//! Returns a reference to the element with index \p c.
-	const T &operator()(cluster c) const {
+	T& operator()(cluster c) {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
-		return Array<T>::operator [](c->index());
-	}
-
-	//! Returns a reference to the element with index \p c.
-	T &operator()(cluster c) {
-		OGDF_ASSERT(c != nullptr);
-		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
-		return Array<T>::operator [](c->index());
+		return Array<T>::operator[](c->index());
 	}
 
 	//! Returns a reference to the element with index \p index.
 	//! \attention Make sure that \p index is a valid index for a cluster in the associated cluster graph!
 	OGDF_DEPRECATED("Cluster arrays should be indexed by a cluster, not an integer index.")
-	const T &operator[](int index) const
-		{ return Array<T>::operator [](index); }
+
+	const T& operator[](int index) const { return Array<T>::operator[](index); }
 
 	//! Returns a reference to the element with index \p index.
 	//!\attention Make sure that \p index is a valid index for a cluster in the associated cluster graph!
 	OGDF_DEPRECATED("Cluster arrays should be indexed by a cluster, not an integer index.")
-	T &operator[](int index)
-		{ return Array<T>::operator [](index); }
 
-	//@}
+	T& operator[](int index) { return Array<T>::operator[](index); }
+
+	//! @}
 	/**
 	 * @name Iterators
 	 * These methods return bidirectional iterators to elements in the array.
 	 */
-	//@{
+	//! @{
 
 	//! Returns an iterator to the first entry in the cluster array.
 	/**
@@ -262,21 +268,23 @@ public:
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
 
-	//@}
+	//! @}
 	/**
 	 * @name Initialization and assignment
 	 * These methods can be used to reinitialize the array, or to initialize all elements with a given value.
 	 */
-	//@{
+	//! @{
 
 	//! Reinitializes the array. Associates the array with no cluster graph.
 	void init() {
-		Array<T>::init(); reregister(nullptr);
+		Array<T>::init();
+		reregister(nullptr);
 	}
 
 	//! Reinitializes the array. Associates the array with \p C.
-	void init(const ClusterGraph &C) {
-		Array<T>::init( C.clusterArrayTableSize() ); reregister(&C);
+	void init(const ClusterGraph& C) {
+		Array<T>::init(C.clusterArrayTableSize());
+		reregister(&C);
 	}
 
 	//! Reinitializes the array. Associates the array with \p C.
@@ -284,20 +292,22 @@ public:
 	 * @param C is the associated cluster graph.
 	 * @param x is the default value.
 	 */
-	void init(const ClusterGraph &C, const T &x) {
-		Array<T>::init(0,C.clusterArrayTableSize()-1, m_x = x); reregister(&C);
+	void init(const ClusterGraph& C, const T& x) {
+		Array<T>::init(0, C.clusterArrayTableSize() - 1, m_x = x);
+		reregister(&C);
 	}
 
 	//! Sets all array elements to \p x.
-	void fill(const T &x) {
+	void fill(const T& x) {
 		int high = m_pClusterGraph->maxClusterIndex();
-		if(high >= 0)
-			Array<T>::fill(0,high,x);
+		if (high >= 0) {
+			Array<T>::fill(0, high, x);
+		}
 	}
 
 	//! Assignment operator.
-	ClusterArray<T> &operator=(const ClusterArray<T> &a) {
-		Array<T>::operator =(a);
+	ClusterArray<T>& operator=(const ClusterArray<T>& a) {
+		Array<T>::operator=(a);
 		m_x = a.m_x;
 		reregister(a.m_pClusterGraph);
 		return *this;
@@ -307,34 +317,30 @@ public:
 	/**
 	 * Cluster array \p a is empty afterwards and not associated with any cluster graph.
 	 */
-	ClusterArray<T> &operator=(ClusterArray<T> &&a) {
+	ClusterArray<T>& operator=(ClusterArray<T>&& a) {
 		Array<T>::operator=(std::move(a));
 		m_x = a.m_x;
 		moveRegister(a);
 		return *this;
 	}
 
-
-	//@}
+	//! @}
 	/**
 	 * @name Helper functions
 	 * These methods are mainly intended for internal use.
 	 */
-	//@{
+	//! @{
 
 	static key_type findSuccKey(key_type key) { return key->succ(); }
+
 	static key_type findPredKey(key_type key) { return key->pred(); }
 
-	//@}
+	//! @}
 
 private:
-	virtual void enlargeTable(int newTableSize) {
-		Array<T>::resize(newTableSize,m_x);
-	}
+	virtual void enlargeTable(int newTableSize) { Array<T>::resize(newTableSize, m_x); }
 
-	virtual void reinit(int initTableSize) {
-		Array<T>::init(0,initTableSize-1,m_x);
-	}
+	virtual void reinit(int initTableSize) { Array<T>::init(0, initTableSize - 1, m_x); }
 
 	virtual void disconnect() {
 		Array<T>::init();
@@ -342,7 +348,6 @@ private:
 	}
 
 	OGDF_NEW_DELETE
-
 };
 
 }

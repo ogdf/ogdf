@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include <ogdf/layered/HierarchyClusterLayoutModule.h>
 #include <ogdf/basic/tuples.h>
+#include <ogdf/layered/HierarchyClusterLayoutModule.h>
 
 namespace ogdf {
 
@@ -77,22 +77,19 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT OptimalHierarchyClusterLayout : public HierarchyClusterLayoutModule
-{
+class OGDF_EXPORT OptimalHierarchyClusterLayout : public HierarchyClusterLayoutModule {
 public:
 	//! Creates an instance of optimal hierarchy layout for clusters.
 	OptimalHierarchyClusterLayout();
 
 	//! Copy constructor.
-	OptimalHierarchyClusterLayout(const OptimalHierarchyClusterLayout &);
+	OptimalHierarchyClusterLayout(const OptimalHierarchyClusterLayout&);
 
 	// destructor
 	~OptimalHierarchyClusterLayout() { }
 
-
 	//! Assignment operator.
-	OptimalHierarchyClusterLayout &operator=(const OptimalHierarchyClusterLayout &);
-
+	OptimalHierarchyClusterLayout& operator=(const OptimalHierarchyClusterLayout&);
 
 	/**
 	 *  @name Optional parameters
@@ -100,25 +97,23 @@ public:
 	 */
 
 	//! Returns the minimal allowed x-distance between nodes on a layer.
-	double nodeDistance() const {
-		return m_nodeDistance;
-	}
+	double nodeDistance() const { return m_nodeDistance; }
 
 	//! Sets the minimal allowed x-distance between nodes on a layer to \p x.
 	void nodeDistance(double x) {
-		if(x >= 0)
+		if (x >= 0) {
 			m_nodeDistance = x;
+		}
 	}
 
 	//! Returns the minimal allowed y-distance between layers.
-	double layerDistance() const {
-		return m_layerDistance;
-	}
+	double layerDistance() const { return m_layerDistance; }
 
 	//! Sets the minimal allowed y-distance between layers to \p x.
 	void layerDistance(double x) {
-		if(x >= 0)
+		if (x >= 0) {
 			m_layerDistance = x;
+		}
 	}
 
 	//! Returns the current setting of option <i>fixedLayerDistance</i>.
@@ -126,86 +121,73 @@ public:
 	 * If set to true, the distance is always layerDistance; otherwise
 	 * the distance is adjusted (increased) to improve readability.
 	 */
-	bool fixedLayerDistance() const {
-		return m_fixedLayerDistance;
-	}
+	bool fixedLayerDistance() const { return m_fixedLayerDistance; }
 
 	//! Sets the option <i>fixedLayerDistance</i> to \p b.
-	void fixedLayerDistance(bool b) {
-		m_fixedLayerDistance = b;
-	}
+	void fixedLayerDistance(bool b) { m_fixedLayerDistance = b; }
 
 	//! Returns the weight of edge segments connecting to vertical segments.
-	double weightSegments() const {
-		return m_weightSegments;
-	}
+	double weightSegments() const { return m_weightSegments; }
 
 	//! Sets the weight of edge segments connecting to vertical segments to \p w.
 	void weightSegments(double w) {
-		if(w > 0.0 && w <= 100.0)
+		if (w > 0.0 && w <= 100.0) {
 			m_weightSegments = w;
+		}
 	}
 
 	//! Returns the weight for balancing successors below a node; 0.0 means no balancing.
-	double weightBalancing() const {
-		return m_weightBalancing;
-	}
+	double weightBalancing() const { return m_weightBalancing; }
 
 	//! Sets the weight for balancing successors below a node to \p w; 0.0 means no balancing.
 	void weightBalancing(double w) {
-		if(w >= 0.0 && w <= 100.0)
+		if (w >= 0.0 && w <= 100.0) {
 			m_weightBalancing = w;
+		}
 	}
 
 	//! Returns the weight for cluster boundary variables.
-	double weightClusters() const {
-		return m_weightClusters;
-	}
+	double weightClusters() const { return m_weightClusters; }
 
 	//! Sets the weight for cluster boundary variables to \p w.
 	void weightClusters(double w) {
-		if(w > 0.0 && w <= 100.0)
+		if (w > 0.0 && w <= 100.0) {
 			m_weightClusters = w;
+		}
 	}
 
 	//! @}
 
 protected:
 	//! Implements the algorithm call.
-	virtual void doCall(const ExtendedNestingGraph& H,ClusterGraphCopyAttributes &ACGC) override;
+	virtual void doCall(const ExtendedNestingGraph& H, ClusterGraphCopyAttributes& ACGC) override;
 
 private:
-	void buildLayerList(
-		const LHTreeNode *vNode,
-		List<Tuple2<int,double> > &L);
+	void buildLayerList(const LHTreeNode* vNode, List<Tuple2<int, double>>& L);
 
-	void computeXCoordinates(
-		const ExtendedNestingGraph& H,
-		ClusterGraphCopyAttributes &AGC);
-	void computeYCoordinates(
-		const ExtendedNestingGraph& H,
-		ClusterGraphCopyAttributes &AGC);
+	void computeXCoordinates(const ExtendedNestingGraph& H, ClusterGraphCopyAttributes& AGC);
+	void computeYCoordinates(const ExtendedNestingGraph& H, ClusterGraphCopyAttributes& AGC);
 
 	// options
-	double m_nodeDistance;       //!< The minimal distance between nodes.
-	double m_layerDistance;      //!< The minimal distance between layers.
-	bool   m_fixedLayerDistance; //!< Use fixed layer distances?
+	double m_nodeDistance; //!< The minimal distance between nodes.
+	double m_layerDistance; //!< The minimal distance between layers.
+	bool m_fixedLayerDistance; //!< Use fixed layer distances?
 
-	double m_weightSegments;  //!< The weight of edge segments.
+	double m_weightSegments; //!< The weight of edge segments.
 	double m_weightBalancing; //!< The weight for balancing.
-	double m_weightClusters;  //!< The weight for cluster boundary variables.
+	double m_weightClusters; //!< The weight for cluster boundary variables.
 
 	// auxiliary data
-	ClusterGraphCopyAttributes *m_pACGC;
-	const ExtendedNestingGraph *m_pH;
+	ClusterGraphCopyAttributes* m_pACGC;
+	const ExtendedNestingGraph* m_pH;
 
 	int m_vertexOffset;
 	int m_segmentOffset;
 	int m_clusterLeftOffset;
 	int m_clusterRightOffset;
 
-	NodeArray<bool>   m_isVirtual;
-	NodeArray<int>    m_vIndex;
+	NodeArray<bool> m_isVirtual;
+	NodeArray<int> m_vIndex;
 	ClusterArray<int> m_cIndex;
 };
 

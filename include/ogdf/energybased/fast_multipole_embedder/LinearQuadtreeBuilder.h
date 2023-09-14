@@ -38,13 +38,20 @@ namespace ogdf {
 namespace fast_multipole_embedder {
 
 //! the builder for the LinearQuadtree
-class LinearQuadtreeBuilder
-{
+class LinearQuadtreeBuilder {
 public:
 	//! constructor
 	explicit LinearQuadtreeBuilder(LinearQuadtree& treeRef)
-		: firstInner(0), firstLeaf(0), lastInner(0), lastLeaf(0), numInnerNodes(0), numLeaves(0),
-		tree(treeRef), restoreChainLastNode(0) { n = tree.numberOfPoints(); }
+		: firstInner(0)
+		, firstLeaf(0)
+		, lastInner(0)
+		, lastLeaf(0)
+		, numInnerNodes(0)
+		, numLeaves(0)
+		, tree(treeRef)
+		, restoreChainLastNode(0) {
+		n = tree.numberOfPoints();
+	}
 
 	//! the main build call
 	void build();
@@ -53,7 +60,7 @@ public:
 	void prepareNodeAndLeaf(LinearQuadtree::PointID leafPos, LinearQuadtree::PointID nextLeafPos);
 
 	//! prepares the node and leaf layer from position begin until end (excluding end)
-	void prepareTree(LinearQuadtree::PointID begin,  LinearQuadtree::PointID end);
+	void prepareTree(LinearQuadtree::PointID begin, LinearQuadtree::PointID end);
 
 	//! prepares the node and leaf layer for the complete tree from 0 to n (excluding n)
 	void prepareTree();
@@ -68,50 +75,55 @@ public:
 	void buildHierarchy();
 
 	//! used by restore chain
-	inline void restorePushBackChain(LinearQuadtree::NodeID curr)
-	{
-		if (restoreChainLastNode) tree.setNextNode(restoreChainLastNode, curr); else firstInner = curr;
+	inline void restorePushBackChain(LinearQuadtree::NodeID curr) {
+		if (restoreChainLastNode) {
+			tree.setNextNode(restoreChainLastNode, curr);
+		} else {
+			firstInner = curr;
+		}
 		restoreChainLastNode = curr;
 		numInnerNodes++;
 	}
 
-	inline void restoreChain(LinearQuadtree::NodeID curr)
-	{
-		if (tree.isLeaf(curr))
+	inline void restoreChain(LinearQuadtree::NodeID curr) {
+		if (tree.isLeaf(curr)) {
 			return;
-		else
-		{
-			restoreChain(tree.child(curr,0));
+		} else {
+			restoreChain(tree.child(curr, 0));
 			tree.setFirstPoint(curr, tree.firstPoint(tree.child(curr, 0)));
 			restorePushBackChain(curr);
-			for (uint32_t i = 1; i < tree.numberOfChilds(curr); i++)
+			for (uint32_t i = 1; i < tree.numberOfChilds(curr); i++) {
 				restoreChain(tree.child(curr, i));
+			}
 
-			uint32_t lastPoint = tree.firstPoint(tree.child(curr, tree.numberOfChilds(curr)-1)) + tree.numberOfPoints(tree.child(curr, tree.numberOfChilds(curr)-1));
+			uint32_t lastPoint = tree.firstPoint(tree.child(curr, tree.numberOfChilds(curr) - 1))
+					+ tree.numberOfPoints(tree.child(curr, tree.numberOfChilds(curr) - 1));
 			tree.setNumberOfPoints(curr, lastPoint - tree.firstPoint(curr));
 		}
 	}
 
-	inline void restoreChain()
-	{
+	inline void restoreChain() {
 		restoreChainLastNode = 0;
 		numInnerNodes = 0;
-		if (!tree.isLeaf(tree.root()))
+		if (!tree.isLeaf(tree.root())) {
 			restoreChain(tree.root());
-		if (restoreChainLastNode)
+		}
+		if (restoreChainLastNode) {
 			tree.setNextNode(restoreChainLastNode, 0);
+		}
 	}
 
 	//! returns the level of the first common ancestor of a and b
-	inline uint32_t CAL(LinearQuadtree::PointID a, LinearQuadtree::PointID b)
-	{
+	inline uint32_t CAL(LinearQuadtree::PointID a, LinearQuadtree::PointID b) {
 		// 64 bit version
 #if 0
 		// FIXME: a < 0 is always true (PointID is unsigned int)
 		if (a < 0) return 64;
 #endif
-		if (b>=tree.numberOfPoints()) return 64;
-		uint32_t res = (32-((mostSignificantBit(tree.mortonNr(a) ^ tree.mortonNr(b)))/2));
+		if (b >= tree.numberOfPoints()) {
+			return 64;
+		}
+		uint32_t res = (32 - ((mostSignificantBit(tree.mortonNr(a) ^ tree.mortonNr(b))) / 2));
 		return res;
 	}
 

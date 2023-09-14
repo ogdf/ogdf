@@ -38,14 +38,14 @@
 // recursion depth
 //#define OGDF_MINSTEINERTREE_SHORE_LOGGING
 
-#include <memory>
-
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/NodeSet.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -60,9 +60,8 @@ namespace ogdf {
  * @ingroup ga-steiner
  */
 template<typename T>
-class MinSteinerTreeShore: public MinSteinerTreeModule<T> {
+class MinSteinerTreeShore : public MinSteinerTreeModule<T> {
 public:
-
 	MinSteinerTreeShore() : MAX_WEIGHT(std::numeric_limits<T>::max()) {};
 	virtual ~MinSteinerTreeShore() {};
 
@@ -82,13 +81,14 @@ protected:
 	 * \return
 	 * 	The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
-			EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override;
 
 	const T MAX_WEIGHT;
+
 private:
-	const EdgeWeightedGraph<T> *m_originalGraph;
-	const List<node> *m_originalTerminals;
+	const EdgeWeightedGraph<T>* m_originalGraph;
+	const List<node>* m_originalTerminals;
 
 	Graph m_graph;
 	std::unique_ptr<NodeSet<>> m_terminals;
@@ -134,7 +134,7 @@ private:
 	 *	note: This might be higher then the actual solution if no solution
 	 *	satisfying the upper bound can be found.
 	 */
-	T bnbInternal(T prevCost, List<edge> &currentEdges);
+	T bnbInternal(T prevCost, List<edge>& currentEdges);
 
 	/**
 	 * Removes the specified edge from the graph.
@@ -254,7 +254,7 @@ private:
 	 * \param chosenEdges
 	 * 	will hold the included edges
 	 */
-	T solve(List<edge> &chosenEdges);
+	T solve(List<edge>& chosenEdges);
 
 	/**
 	 * Prints the current recursion status
@@ -264,8 +264,9 @@ private:
 };
 
 template<typename T>
-T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	m_originalGraph = &G;
 	m_originalTerminals = &terminals;
 
@@ -278,19 +279,18 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, cons
 
 	NodeArray<node> copiedNodes(*m_originalGraph);
 
-	for(node v : m_originalGraph->nodes) {
+	for (node v : m_originalGraph->nodes) {
 		node copiedNode = m_graph.newNode();
 		copiedNodes[v] = copiedNode;
 	}
 
-	for(edge e : m_originalGraph->edges) {
-		node source = copiedNodes[e->source()],
-		     target = copiedNodes[e->target()];
+	for (edge e : m_originalGraph->edges) {
+		node source = copiedNodes[e->source()], target = copiedNodes[e->target()];
 
 		newEdge(source, target, e);
 	}
 
-	for(node v : *m_originalTerminals) {
+	for (node v : *m_originalTerminals) {
 		setTerminal(copiedNodes[v], true);
 	}
 
@@ -300,7 +300,7 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, cons
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
 	finalSteinerTree->createEmpty(*m_originalGraph);
 
-	for(edge e : chosenEdges) {
+	for (edge e : chosenEdges) {
 		node v = e->source();
 		node w = e->target();
 
@@ -310,10 +310,10 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, cons
 		OGDF_ASSERT(v->graphOf() == m_originalGraph);
 		OGDF_ASSERT(w->graphOf() == m_originalGraph);
 
-		if(finalSteinerTree->copy(v) == nullptr) {
+		if (finalSteinerTree->copy(v) == nullptr) {
 			finalSteinerTree->newNode(v);
 		}
-		if(finalSteinerTree->copy(w) == nullptr) {
+		if (finalSteinerTree->copy(w) == nullptr) {
 			finalSteinerTree->newNode(w);
 		}
 		finalSteinerTree->newEdge(e, m_originalGraph->weight(e));
@@ -323,11 +323,10 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, cons
 }
 
 template<typename T>
-T MinSteinerTreeShore<T>::weightOf(const edge e) const
-{
+T MinSteinerTreeShore<T>::weightOf(const edge e) const {
 	T result = MAX_WEIGHT;
 
-	if(e != nullptr) {
+	if (e != nullptr) {
 		OGDF_ASSERT(e->graphOf() == &m_graph);
 		OGDF_ASSERT(m_mapping[e] != nullptr);
 		OGDF_ASSERT(m_mapping[e]->graphOf() == m_originalGraph);
@@ -338,8 +337,7 @@ T MinSteinerTreeShore<T>::weightOf(const edge e) const
 }
 
 template<typename T>
-bool MinSteinerTreeShore<T>::validateMapping() const
-{
+bool MinSteinerTreeShore<T>::validateMapping() const {
 	for (edge e : m_graph.edges) {
 		OGDF_ASSERT(m_mapping[e] != nullptr);
 		OGDF_ASSERT(m_mapping[e]->graphOf() == m_originalGraph);
@@ -348,21 +346,17 @@ bool MinSteinerTreeShore<T>::validateMapping() const
 }
 
 template<typename T>
-edge MinSteinerTreeShore<T>::lookupEdge(const node u, const node v) const
-{
+edge MinSteinerTreeShore<T>::lookupEdge(const node u, const node v) const {
 	return m_edges(u->index(), v->index());
 }
 
 template<typename T>
-void MinSteinerTreeShore<T>::setEdgeLookup(const node u, const node v, const edge e)
-{
-	m_edges(u->index(), v->index()) =
-	  m_edges(v->index(), u->index()) = e;
+void MinSteinerTreeShore<T>::setEdgeLookup(const node u, const node v, const edge e) {
+	m_edges(u->index(), v->index()) = m_edges(v->index(), u->index()) = e;
 }
 
 template<typename T>
-edge MinSteinerTreeShore<T>::deleteEdge(edge e)
-{
+edge MinSteinerTreeShore<T>::deleteEdge(edge e) {
 	edge result = m_mapping[e];
 	setEdgeLookup(e->source(), e->target(), nullptr);
 	m_graph.delEdge(e);
@@ -372,8 +366,7 @@ edge MinSteinerTreeShore<T>::deleteEdge(edge e)
 }
 
 template<typename T>
-edge MinSteinerTreeShore<T>::newEdge(node source, node target, edge e)
-{
+edge MinSteinerTreeShore<T>::newEdge(node source, node target, edge e) {
 	edge result = m_graph.newEdge(source, target);
 	m_mapping[result] = e;
 	setEdgeLookup(source, target, result);
@@ -382,8 +375,7 @@ edge MinSteinerTreeShore<T>::newEdge(node source, node target, edge e)
 }
 
 template<typename T>
-void MinSteinerTreeShore<T>::moveSource(edge e, node v)
-{
+void MinSteinerTreeShore<T>::moveSource(edge e, node v) {
 	OGDF_ASSERT(e != nullptr);
 	setEdgeLookup(e->source(), e->target(), nullptr);
 	setEdgeLookup(v, e->target(), e);
@@ -391,8 +383,7 @@ void MinSteinerTreeShore<T>::moveSource(edge e, node v)
 }
 
 template<typename T>
-void MinSteinerTreeShore<T>::moveTarget(edge e, node v)
-{
+void MinSteinerTreeShore<T>::moveTarget(edge e, node v) {
 	OGDF_ASSERT(e != nullptr);
 	setEdgeLookup(e->source(), e->target(), nullptr);
 	setEdgeLookup(e->source(), v, e);
@@ -400,14 +391,12 @@ void MinSteinerTreeShore<T>::moveTarget(edge e, node v)
 }
 
 template<typename T>
-bool MinSteinerTreeShore<T>::isTerminal(const node v) const
-{
+bool MinSteinerTreeShore<T>::isTerminal(const node v) const {
 	return m_terminals->isMember(v);
 }
 
 template<typename T>
-void MinSteinerTreeShore<T>::setTerminal(const node v, bool makeTerminal)
-{
+void MinSteinerTreeShore<T>::setTerminal(const node v, bool makeTerminal) {
 	if (makeTerminal) {
 		m_terminals->insert(v);
 	} else {
@@ -416,15 +405,14 @@ void MinSteinerTreeShore<T>::setTerminal(const node v, bool makeTerminal)
 }
 
 template<typename T>
-T MinSteinerTreeShore<T>::solve(List<edge> &chosenEdges)
-{
+T MinSteinerTreeShore<T>::solve(List<edge>& chosenEdges) {
 	m_chosenEdges.clear();
 
 	m_recursionDepth = 0;
 	List<edge> tmp;
 	T result = bnbInternal(0, tmp);
 
-	for(edge e : m_chosenEdges) {
+	for (edge e : m_chosenEdges) {
 		chosenEdges.pushFront(e);
 	}
 
@@ -432,8 +420,7 @@ T MinSteinerTreeShore<T>::solve(List<edge> &chosenEdges)
 }
 
 template<typename T>
-edge MinSteinerTreeShore<T>::determineBranchingEdge(T prevCost) const
-{
+edge MinSteinerTreeShore<T>::determineBranchingEdge(T prevCost) const {
 	edge result = nullptr;
 	T maxPenalty = -1;
 
@@ -441,59 +428,53 @@ edge MinSteinerTreeShore<T>::determineBranchingEdge(T prevCost) const
 	T sumOfMinWeights = 0; // b
 	T sumOfMinTermWeights = 0; // c
 	T absoluteMinTermWeight = MAX_WEIGHT;
-	for(ListConstIterator<node> it = m_terminals->nodes().begin();
-	  sumOfMinWeights < MAX_WEIGHT && it.valid();
-	  ++it) {
+	for (ListConstIterator<node> it = m_terminals->nodes().begin();
+			sumOfMinWeights < MAX_WEIGHT && it.valid(); ++it) {
 		const node t = *it;
-		T minTermWeight = MAX_WEIGHT,
-		  minWeight = MAX_WEIGHT,
-		  secondMinWeight = MAX_WEIGHT;
+		T minTermWeight = MAX_WEIGHT, minWeight = MAX_WEIGHT, secondMinWeight = MAX_WEIGHT;
 		edge minEdge = nullptr;
 
 		// investigate all edges of each terminal
 		// calculate lower boundary and find branching edge
-		for(adjEntry adj = t->firstAdj(); adj; adj = adj->succ()) {
+		for (adjEntry adj = t->firstAdj(); adj; adj = adj->succ()) {
 			edge e = adj->theEdge();
-			if(weightOf(e) < minWeight) {
+			if (weightOf(e) < minWeight) {
 				secondMinWeight = minWeight;
 				minWeight = weightOf(e);
 				minEdge = e;
-			}
-			else {
-				if(weightOf(e) < secondMinWeight) {
+			} else {
+				if (weightOf(e) < secondMinWeight) {
 					secondMinWeight = weightOf(e);
 				}
 			}
 
-			if(isTerminal(adj->twinNode()) && weightOf(e) < minTermWeight) {
+			if (isTerminal(adj->twinNode()) && weightOf(e) < minTermWeight) {
 				minTermWeight = weightOf(e);
-				if(minTermWeight < absoluteMinTermWeight) {
+				if (minTermWeight < absoluteMinTermWeight) {
 					absoluteMinTermWeight = minTermWeight;
 				}
 			}
 		}
 
-		if(sumOfMinTermWeights < MAX_WEIGHT && minTermWeight < MAX_WEIGHT) {
+		if (sumOfMinTermWeights < MAX_WEIGHT && minTermWeight < MAX_WEIGHT) {
 			sumOfMinTermWeights += minTermWeight;
-		}
-		else {
+		} else {
 			sumOfMinTermWeights = MAX_WEIGHT;
 		}
 		OGDF_ASSERT(absoluteMinTermWeight <= sumOfMinTermWeights);
 
 		// is terminal isolated or has only one edge?
 		// if so we can break here
-		if(minWeight == MAX_WEIGHT ||
-		   secondMinWeight == MAX_WEIGHT) {
+		if (minWeight == MAX_WEIGHT || secondMinWeight == MAX_WEIGHT) {
 			result = minEdge;
-			if(minWeight == MAX_WEIGHT) {
+			if (minWeight == MAX_WEIGHT) {
 				sumOfMinWeights = MAX_WEIGHT;
 			}
 		} else {
 			sumOfMinWeights += minWeight;
 			// update branching edge if need be
 			T penalty = secondMinWeight - minWeight;
-			if(penalty > maxPenalty) {
+			if (penalty > maxPenalty) {
 				maxPenalty = penalty;
 				result = minEdge;
 			}
@@ -501,12 +482,12 @@ edge MinSteinerTreeShore<T>::determineBranchingEdge(T prevCost) const
 	}
 
 	// compare bounds for this graph
-	if(result != nullptr) {
+	if (result != nullptr) {
 		T maxCost = m_upperBound - prevCost;
-		if(sumOfMinTermWeights < MAX_WEIGHT) {
+		if (sumOfMinTermWeights < MAX_WEIGHT) {
 			sumOfMinTermWeights -= absoluteMinTermWeight;
 		}
-		if(maxCost <= sumOfMinWeights && maxCost <= sumOfMinTermWeights) {
+		if (maxCost <= sumOfMinWeights && maxCost <= sumOfMinTermWeights) {
 			result = nullptr;
 		}
 	}
@@ -515,8 +496,7 @@ edge MinSteinerTreeShore<T>::determineBranchingEdge(T prevCost) const
 }
 
 template<typename T>
-T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
-{
+T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge>& currentEdges) {
 	T result = MAX_WEIGHT;
 	m_recursionDepth++;
 
@@ -524,33 +504,33 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 	printSVG();
 #endif
 
-	if(prevCost <= m_upperBound) {
-		if(m_terminals->size() < 2) {
+	if (prevCost <= m_upperBound) {
+		if (m_terminals->size() < 2) {
 			// update currently chosen edges
-			if(prevCost != m_upperBound || m_chosenEdges.empty()) {
-
+			if (prevCost != m_upperBound || m_chosenEdges.empty()) {
 				m_chosenEdges = List<edge>(currentEdges);
 			}
 			// all terminals are connected
 			m_upperBound = prevCost;
 			result = prevCost;
-		}
-		else {
+		} else {
 			edge branchingEdge = determineBranchingEdge(prevCost);
 			T branchingEdgeWeight = weightOf(branchingEdge);
 
 #ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
-			for(int i = 0; i < m_recursionDepth; i++) std::cout << " ";
+			for (int i = 0; i < m_recursionDepth; i++) {
+				std::cout << " ";
+			}
 			std::cout << "branching on edge: " << branchingEdge << std::endl;
 #endif
 			// branching edge has been found or there is no feasible solution
-			if(branchingEdgeWeight < MAX_WEIGHT) {
+			if (branchingEdgeWeight < MAX_WEIGHT) {
 				// chose node to remove
 				node nodeToRemove = branchingEdge->source();
 				node targetNode = branchingEdge->target();
 
 				// This seems to speed up things.
-				if(nodeToRemove->degree() < targetNode->degree()) {
+				if (nodeToRemove->degree() < targetNode->degree()) {
 					nodeToRemove = branchingEdge->target();
 					targetNode = branchingEdge->source();
 				}
@@ -567,14 +547,14 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 				OGDF_ASSERT(nodeToRemove != nullptr);
 
 				// remove edges in case of multigraph
-				while(m_graph.searchEdge(targetNode, nodeToRemove) != nullptr) {
+				while (m_graph.searchEdge(targetNode, nodeToRemove) != nullptr) {
 					edge e = m_graph.searchEdge(targetNode, nodeToRemove);
 					delEdges.pushFront(e->target());
 					delEdges.pushFront(e->source());
 					origDelEdges.pushFront(m_mapping[e]);
 					deleteEdge(e);
 				}
-				while(m_graph.searchEdge(nodeToRemove, targetNode) != nullptr) {
+				while (m_graph.searchEdge(nodeToRemove, targetNode) != nullptr) {
 					edge e = m_graph.searchEdge(targetNode, nodeToRemove);
 					delEdges.pushFront(e->target());
 					delEdges.pushFront(e->source());
@@ -586,7 +566,7 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 				OGDF_ASSERT(m_graph.searchEdge(nodeToRemove, targetNode) == nullptr);
 
 				adjEntry adjNext;
-				for(adjEntry adj = nodeToRemove->firstAdj(); adj; adj = adjNext) {
+				for (adjEntry adj = nodeToRemove->firstAdj(); adj; adj = adjNext) {
 					adjNext = adj->succ();
 					edge e = adj->theEdge();
 
@@ -596,29 +576,27 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 
 					edge f = lookupEdge(targetNode, adj->twinNode());
 					bool deletedEdgeE = false;
-					if(f != nullptr) {
-						if(weightOf(f) < weightOf(e)) {
+					if (f != nullptr) {
+						if (weightOf(f) < weightOf(e)) {
 							delEdges.pushFront(e->target());
 							delEdges.pushFront(e->source());
 							origDelEdges.pushFront(m_mapping[e]);
 							deleteEdge(e);
 
 							deletedEdgeE = true;
-						}
-						else {
+						} else {
 							delEdges.pushFront(f->target());
 							delEdges.pushFront(f->source());
 							origDelEdges.pushFront(m_mapping[f]);
 							deleteEdge(f);
 						}
 					}
-					if(!deletedEdgeE) {
-						if(e->target() == nodeToRemove) {
+					if (!deletedEdgeE) {
+						if (e->target() == nodeToRemove) {
 							OGDF_ASSERT(e->source() != targetNode);
 							movedEdges.pushFront(e->source());
 							moveTarget(e, targetNode);
-						}
-						else {
+						} else {
 							OGDF_ASSERT(e->source() == nodeToRemove);
 							OGDF_ASSERT(e->target() != targetNode);
 							movedEdges.pushFront(e->target());
@@ -632,15 +610,17 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 
 				// remove node from terminals too
 				bool targetNodeIsTerminal = isTerminal(targetNode),
-				     nodeToRemoveIsTerminal = isTerminal(nodeToRemove);
+					 nodeToRemoveIsTerminal = isTerminal(nodeToRemove);
 
 				OGDF_ASSERT(targetNodeIsTerminal || nodeToRemoveIsTerminal);
 				setTerminal(nodeToRemove, false);
 				setTerminal(targetNode, true);
 
 #ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
-				for(int i = 0; i < m_recursionDepth; i++) std::cout << " ";
-				std::cout << "inclusion branch"  << std::endl;
+				for (int i = 0; i < m_recursionDepth; i++) {
+					std::cout << " ";
+				}
+				std::cout << "inclusion branch" << std::endl;
 #endif
 				// calculate result on modified graph
 				currentEdges.pushFront(origBranchingEdge);
@@ -655,23 +635,22 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 				setTerminal(targetNode, targetNodeIsTerminal);
 
 				// restore moved edges
-				while(!movedEdges.empty()) {
+				while (!movedEdges.empty()) {
 					node v = movedEdges.popFrontRet();
 
 					edge e = lookupEdge(v, targetNode);
 					OGDF_ASSERT(e != nullptr);
 					OGDF_ASSERT(e->opposite(targetNode) != nodeToRemove);
 
-					if(e->source() == v) {
+					if (e->source() == v) {
 						moveTarget(e, nodeToRemove);
-					}
-					else {
+					} else {
 						moveSource(e, nodeToRemove);
 					}
 				}
 
 				// restore deleted edges
-				while(!delEdges.empty()) {
+				while (!delEdges.empty()) {
 					OGDF_ASSERT(!origDelEdges.empty());
 
 					node source = delEdges.popFrontRet();
@@ -682,14 +661,16 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 				OGDF_ASSERT(origDelEdges.empty());
 
 #ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
-				for(int i = 0; i < m_recursionDepth; i++) std::cout << " ";
-				std::cout << "exclusion branch"  << std::endl;
+				for (int i = 0; i < m_recursionDepth; i++) {
+					std::cout << " ";
+				}
+				std::cout << "exclusion branch" << std::endl;
 #endif
 				// sencond branch: Exclusion of the edge
 				T exEdgeResult = bnbInternal(prevCost, currentEdges);
 
 				// decide which branch returned best result
-				if(exEdgeResult < result) {
+				if (exEdgeResult < result) {
 					result = exEdgeResult;
 				}
 
@@ -710,13 +691,13 @@ void MinSteinerTreeShore<T>::printSVG() {
 	List<node> nodes;
 	m_graph.allNodes(nodes);
 	NodeArray<bool> copiedIsTerminal(m_graph);
-	for(node v : nodes) {
+	for (node v : nodes) {
 		copiedGraph.newNode(v);
 		copiedIsTerminal[v] = isTerminal(v);
 	}
 	List<edge> edges;
 	m_graph.allEdges(edges);
-	for(edge e : edges) {
+	for (edge e : edges) {
 		copiedGraph.newEdge(e, weightOf(e));
 	}
 	std::stringstream filename;

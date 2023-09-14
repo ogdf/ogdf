@@ -33,14 +33,9 @@
 
 namespace ogdf {
 
-PreprocessorLayout::PreprocessorLayout()
-: m_randomize(false)
-{
-}
+PreprocessorLayout::PreprocessorLayout() : m_randomize(false) { }
 
-
-void PreprocessorLayout::call(GraphAttributes &GA)
-{
+void PreprocessorLayout::call(GraphAttributes& GA) {
 	if (m_secondaryLayout) {
 		MultilevelGraph MLG(GA);
 		call(MLG);
@@ -48,16 +43,16 @@ void PreprocessorLayout::call(GraphAttributes &GA)
 	}
 }
 
-
-void PreprocessorLayout::call(MultilevelGraph &MLG)
-{
+void PreprocessorLayout::call(MultilevelGraph& MLG) {
 	m_deletedEdges.clear();
-	Graph * G = &(MLG.getGraph());
+	Graph* G = &(MLG.getGraph());
 
 	double sqrsize = 0;
-	if (m_randomize) sqrsize = 2.0*sqrt((double)G->numberOfNodes())*MLG.averageRadius();
+	if (m_randomize) {
+		sqrsize = 2.0 * sqrt((double)G->numberOfNodes()) * MLG.averageRadius();
+	}
 
-	for(node v : G->nodes) {
+	for (node v : G->nodes) {
 		if (MLG.radius(v) <= 0) {
 			MLG.radius(v, 1.0);
 		}
@@ -73,7 +68,7 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 		m_secondaryLayout->call(MLG.getGraphAttributes());
 		MLG.updateReverseIndizes();
 
-		for( const EdgeData &ed : m_deletedEdges ) {
+		for (const EdgeData& ed : m_deletedEdges) {
 			int index = ed.edgeIndex;
 			edge temp = G->newEdge(MLG.getNode(ed.sourceIndex), MLG.getNode(ed.targetIndex), index);
 			MLG.weight(temp, (float)ed.weight);
@@ -81,21 +76,21 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 	}
 }
 
-
-void PreprocessorLayout::call(Graph &G, MultilevelGraph &MLG)
-{
+void PreprocessorLayout::call(Graph& G, MultilevelGraph& MLG) {
 	std::vector<edge> deletedEdges;
 
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		int index = e->index();
 		if (e->isSelfLoop()) {
 			deletedEdges.push_back(e);
-			m_deletedEdges.push_back(EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));
+			m_deletedEdges.push_back(
+					EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));
 		} else {
-			for(adjEntry adj : e->source()->adjEntries) {
+			for (adjEntry adj : e->source()->adjEntries) {
 				if (adj->theEdge()->index() < index && adj->twinNode() == e->target()) {
 					deletedEdges.push_back(e);
-					m_deletedEdges.push_back(EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));
+					m_deletedEdges.push_back(EdgeData(index, e->source()->index(),
+							e->target()->index(), MLG.weight(e)));
 					break;
 				}
 			}

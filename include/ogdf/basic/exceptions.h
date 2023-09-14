@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 
@@ -40,8 +40,7 @@ namespace ogdf {
 //! @{
 
 //! Flushes some output streams
-#define OGDF_FLUSH_OUTPUTS \
-	std::cout << std::flush, ::ogdf::Logger::sfout() << std::flush
+#define OGDF_FLUSH_OUTPUTS std::cout << std::flush, ::ogdf::Logger::sfout() << std::flush
 
 /**
  * Replacement for \c throw.
@@ -52,8 +51,7 @@ namespace ogdf {
  *        by the exception calls.
  * @ingroup macros
  */
-#define OGDF_THROW_PARAM(CLASS, PARAM) \
-	OGDF_FLUSH_OUTPUTS, throw CLASS(PARAM)
+#define OGDF_THROW_PARAM(CLASS, PARAM) OGDF_FLUSH_OUTPUTS, throw CLASS(PARAM)
 
 /**
  * Replacement for \c throw.
@@ -62,16 +60,14 @@ namespace ogdf {
  * @param CLASS is the name of the exception class.
  * @ingroup macros
  */
-#define OGDF_THROW(CLASS) \
-	OGDF_FLUSH_OUTPUTS, throw CLASS()
+#define OGDF_THROW(CLASS) OGDF_FLUSH_OUTPUTS, throw CLASS()
 
 #ifdef OGDF_DEBUG
-# undef OGDF_THROW_PARAM
-# define OGDF_THROW_PARAM(CLASS, PARAM) \
-	OGDF_FLUSH_OUTPUTS, throw CLASS(PARAM, __FILE__, __LINE__)
-# undef OGDF_THROW
-# define OGDF_THROW(CLASS) \
-	OGDF_FLUSH_OUTPUTS, throw CLASS(__FILE__, __LINE__)
+#	undef OGDF_THROW_PARAM
+#	define OGDF_THROW_PARAM(CLASS, PARAM) \
+		OGDF_FLUSH_OUTPUTS, throw CLASS(PARAM, __FILE__, __LINE__)
+#	undef OGDF_THROW
+#	define OGDF_THROW(CLASS) OGDF_FLUSH_OUTPUTS, throw CLASS(__FILE__, __LINE__)
 #endif
 
 //! @}
@@ -85,13 +81,13 @@ namespace ogdf {
 enum class AlgorithmFailureCode {
 	Unknown,
 	IllegalParameter, //!< function parameter is illegal
-	NoFlow,           //!< min-cost flow could not find a legal flow
-	Sort,             //!< sequence not sorted
-	Label,            //!< labelling failed
-	ExternalFace,     //!< external face not correct
-	ForbiddenCrossing,//!< crossing forbidden but necessary
-	TimelimitExceeded,//!< it took too long
-	NoSolutionFound,  //!< couldn't solve the problem
+	NoFlow, //!< min-cost flow could not find a legal flow
+	Sort, //!< sequence not sorted
+	Label, //!< labelling failed
+	ExternalFace, //!< external face not correct
+	ForbiddenCrossing, //!< crossing forbidden but necessary
+	TimelimitExceeded, //!< it took too long
+	NoSolutionFound, //!< couldn't solve the problem
 	IndexOutOfBounds, //!< index out of bounds
 
 	// The following codes are used by Abacus (think about changing them to
@@ -141,7 +137,7 @@ enum class AlgorithmFailureCode {
 	Paramaster,
 	InfeasCon,
 
-	STOP              // INSERT NEW CODES BEFORE afcSTOP!
+	STOP // INSERT NEW CODES BEFORE afcSTOP!
 };
 
 //! Code for the library which was intended to get used, but its use is not supported.
@@ -151,11 +147,12 @@ enum class AlgorithmFailureCode {
  */
 enum class LibraryNotSupportedCode {
 	Unknown,
-	Coin,                          //!< COIN not supported
-	Abacus,                        //!< ABACUS not supported
-	FunctionNotImplemented,        //!< the used library doesn't support that function
+	Coin, //!< COIN not supported
+	Abacus, //!< ABACUS not supported
+	Cgal, //!< CGAL not supported
+	FunctionNotImplemented, //!< the used library doesn't support that function
 	MissingCallbackImplementation, //
-	STOP                           // INSERT NEW CODES BEFORE nscSTOP!
+	STOP // INSERT NEW CODES BEFORE nscSTOP!
 };
 
 //! Base class of all ogdf exceptions.
@@ -163,11 +160,9 @@ enum class LibraryNotSupportedCode {
  * @ingroup exceptions
  */
 class OGDF_EXPORT Exception {
-
 private:
-
-	const char *m_file; //!< Source file where exception occurred.
-	int         m_line; //!< Line number where exception occurred.
+	const char* m_file; //!< Source file where exception occurred.
+	int m_line; //!< Line number where exception occurred.
 
 public:
 	//! Constructs an exception.
@@ -175,16 +170,13 @@ public:
 	 * @param file is the name of the source file where exception was thrown.
 	 * @param line is the line number in the source file where the exception was thrown.
 	 */
-	explicit Exception(const char *file = nullptr, int line = -1) :
-		m_file(file),
-		m_line(line)
-		{ }
+	explicit Exception(const char* file = nullptr, int line = -1) : m_file(file), m_line(line) { }
 
 	//! Returns the name of the source file where exception was thrown.
 	/**
 	 * Returns a null pointer if the name of the source file is unknown.
 	 */
-	const char *file() const { return m_file; }
+	const char* file() const { return m_file; }
 
 	//! Returns the line number where the exception was thrown.
 	/**
@@ -193,30 +185,27 @@ public:
 	int line() const { return m_line; }
 };
 
-
 //! %Exception thrown when result of cast is 0.
 /**
 * @ingroup exceptions
 */
 class OGDF_EXPORT DynamicCastFailedException : public Exception {
-
 public:
 	//! Constructs a dynamic cast failed exception.
-	explicit DynamicCastFailedException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
+	explicit DynamicCastFailedException(const char* file = nullptr, int line = -1)
+		: Exception(file, line) { }
 };
-
 
 //! %Exception thrown when not enough memory is available to execute an algorithm.
 /**
 * @ingroup exceptions
 */
 class OGDF_EXPORT InsufficientMemoryException : public Exception {
-
 public:
 	//! Constructs an insufficient memory exception.
-	explicit InsufficientMemoryException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
+	explicit InsufficientMemoryException(const char* file = nullptr, int line = -1)
+		: Exception(file, line) { }
 };
-
 
 //! %Exception thrown when a required standard comparer has not been specialized.
 /**
@@ -228,47 +217,37 @@ public:
  * quicksort and binary search).
  */
 class OGDF_EXPORT NoStdComparerException : public Exception {
-
 public:
 	//! Constructs a no standard comparer available exception.
-	explicit NoStdComparerException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
+	explicit NoStdComparerException(const char* file = nullptr, int line = -1)
+		: Exception(file, line) { }
 };
-
 
 //! %Exception thrown when a data type is not supported by a generic function.
 /**
 * @ingroup exceptions
 */
 class OGDF_EXPORT TypeNotSupportedException : public Exception {
-
 public:
 	//! Constructs a type-not-supported exception.
-	explicit TypeNotSupportedException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
+	explicit TypeNotSupportedException(const char* file = nullptr, int line = -1)
+		: Exception(file, line) { }
 };
 
 //! %Exception thrown when an algorithm realizes an internal bug that prevents it from continuing.
 /**
 * @ingroup exceptions
 */
-class OGDF_EXPORT AlgorithmFailureException : public Exception
-{
+class OGDF_EXPORT AlgorithmFailureException : public Exception {
 public:
+	//! Constructs an algorithm failure exception.
+	explicit AlgorithmFailureException(AlgorithmFailureCode code, const char* file = nullptr,
+			int line = -1)
+		: Exception(file, line), m_exceptionCode(code) { }
 
 	//! Constructs an algorithm failure exception.
-	explicit AlgorithmFailureException(AlgorithmFailureCode code,
-		const char *file = nullptr,
-		int line = -1) :
-	Exception(file, line),
-	m_exceptionCode(code)
-	{}
-
-	//! Constructs an algorithm failure exception.
-	explicit AlgorithmFailureException(
-		const char *file = nullptr,
-		int line = -1) :
-	Exception(file, line),
-	m_exceptionCode(AlgorithmFailureCode::Unknown)
-	{}
+	explicit AlgorithmFailureException(const char* file = nullptr, int line = -1)
+		: Exception(file, line), m_exceptionCode(AlgorithmFailureCode::Unknown) { }
 
 	//! Returns the error code of the exception.
 	AlgorithmFailureCode exceptionCode() const { return m_exceptionCode; }
@@ -282,22 +261,15 @@ private:
 * @ingroup exceptions
 */
 class OGDF_EXPORT LibraryNotSupportedException : public Exception {
-	public:
+public:
 	//! Constructs a library not supported exception.
-		explicit LibraryNotSupportedException(LibraryNotSupportedCode code,
-			const char *file = nullptr,
-			int line = -1) :
-		Exception(file, line),
-		m_exceptionCode(code)
-		{}
+	explicit LibraryNotSupportedException(LibraryNotSupportedCode code, const char* file = nullptr,
+			int line = -1)
+		: Exception(file, line), m_exceptionCode(code) { }
 
 	//! Constructs a library not supported exception.
-		explicit LibraryNotSupportedException(
-			const char *file = nullptr,
-			int line = -1) :
-		Exception(file, line),
-		m_exceptionCode(LibraryNotSupportedCode::Unknown)
-		{}
+	explicit LibraryNotSupportedException(const char* file = nullptr, int line = -1)
+		: Exception(file, line), m_exceptionCode(LibraryNotSupportedCode::Unknown) { }
 
 	//! Returns the error code of the exception.
 	LibraryNotSupportedCode exceptionCode() const { return m_exceptionCode; }

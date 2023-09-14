@@ -35,7 +35,8 @@
 
 namespace ogdf {
 
-template<class T,class X,class Y> class PQNode;
+template<class T, class X, class Y>
+class PQNode;
 
 /**
  * The class template PQLeafKey is a derived class of class template
@@ -82,9 +83,8 @@ template<class T,class X,class Y> class PQNode;
  * PQ-tree but still allows the user to identify and acces leaves
  * with a certain informations in constant time.
  */
-template<class T,class X,class Y>
-class PQLeafKey : public PQBasicKey<T,X,Y>
-{
+template<class T, class X, class Y>
+class PQLeafKey : public PQBasicKey<T, X, Y> {
 public:
 	/**
 	 * The #m_userStructKey has to be overloaded by the client. This
@@ -95,17 +95,16 @@ public:
 	T m_userStructKey;
 
 	// Constructor
-	explicit PQLeafKey(T element)
-		: PQBasicKey<T,X,Y>() { m_userStructKey = element; }
+	explicit PQLeafKey(T element) : PQBasicKey<T, X, Y>() { m_userStructKey = element; }
 
 	//Destructor
-	virtual ~PQLeafKey() {}
+	virtual ~PQLeafKey() { }
 
 	//! Returns 0
 	virtual X userStructInfo() { return nullptr; }
 
 	//! Returns 0
-	virtual Y userStructInternal() {return 0; }
+	virtual Y userStructInternal() { return 0; }
 
 	//! Returns #m_userStructKey.
 	virtual T userStructKey() { return m_userStructKey; }

@@ -39,37 +39,34 @@
  */
 
 #include <ogdf/basic/basic.h>
-
 #include <ogdf/cluster/internal/ChunkConnection.h>
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
-ChunkConnection::ChunkConnection(Master *master, const ArrayBuffer<node>& chunk, const ArrayBuffer<node>& cochunk) :
-	BaseConstraint(master, nullptr, CSense::Greater, 1.0, false, false, true)
-{
+ChunkConnection::ChunkConnection(Master* master, const ArrayBuffer<node>& chunk,
+		const ArrayBuffer<node>& cochunk)
+	: BaseConstraint(master, nullptr, CSense::Greater, 1.0, false, false, true) {
 	chunk.compactCopy(m_chunk);
 	cochunk.compactCopy(m_cochunk);
 }
 
-
-ChunkConnection::~ChunkConnection() {}
-
+ChunkConnection::~ChunkConnection() { }
 
 int ChunkConnection::coeff(node n1, node n2) const {
 	//TODO: speedup
-	for(node v : m_chunk) {
-		if(v == n1) {
-			for(node w : m_cochunk) {
-				if(w == n2) {
+	for (node v : m_chunk) {
+		if (v == n1) {
+			for (node w : m_cochunk) {
+				if (w == n2) {
 					return 1;
 				}
 			}
 			return 0;
-		} else if(v == n2) {
-			for(node w : m_cochunk) {
-				if(w == n1) {
+		} else if (v == n2) {
+			for (node w : m_cochunk) {
+				if (w == n1) {
 					return 1;
 				}
 			}

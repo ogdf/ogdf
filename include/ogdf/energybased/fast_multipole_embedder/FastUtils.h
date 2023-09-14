@@ -34,11 +34,11 @@
 #include <ogdf/basic/GraphAttributes.h>
 
 #ifdef OGDF_SYSTEM_UNIX
-#include <sys/time.h>
+#	include <sys/time.h>
 #endif
 
 #ifdef OGDF_FME_KERNEL_USE_SSE
-#include <ogdf/basic/internal/intrinsics.h>
+#	include <ogdf/basic/internal/intrinsics.h>
 #endif
 
 namespace ogdf {
@@ -53,8 +53,7 @@ namespace fast_multipole_embedder {
 // use SSE for direct interaction (this is slower than the normal direct computation)
 //#define OGDF_FME_KERNEL_USE_SSE_DIRECT
 
-inline void OGDF_FME_Print_Config()
-{
+inline void OGDF_FME_Print_Config() {
 #ifdef OGDF_FME_KERNEL_USE_SSE
 	std::cout << "OGDF_FME_KERNEL_USE_SSE" << std::endl;
 #endif
@@ -70,48 +69,48 @@ using MortonNR = uint64_t;
 using CoordInt = uint32_t;
 
 template<typename T>
-inline bool is_align_16(T* ptr)
-{
+inline bool is_align_16(T* ptr) {
 	return !(((size_t)(void*)ptr) & 0x0F);
 }
 
 template<typename T>
-inline T* align_16_prev_ptr(T* t)
-{
-	return (T*)(((size_t)((void*)t))&~ 0x0F);
+inline T* align_16_prev_ptr(T* t) {
+	return (T*)(((size_t)((void*)t)) & ~0x0F);
 }
 
 template<typename T>
-inline T* align_16_next_ptr(T* t)
-{
-	return (T*)((((size_t)((void*)t)) + 15)&~ 0x0F);
+inline T* align_16_next_ptr(T* t) {
+	return (T*)((((size_t)((void*)t)) + 15) & ~0x0F);
 }
 
 #ifdef OGDF_SYSTEM_UNIX
-inline timeval GetDiffTime(timeval _then, double& dtime)
-{
-	timeval then = (timeval) _then;
+inline timeval GetDiffTime(timeval _then, double& dtime) {
+	timeval then = (timeval)_then;
 	timeval now;
 	gettimeofday(&now, nullptr);
 	timeval diff;
 
 	diff.tv_sec = now.tv_sec - then.tv_sec;
 	diff.tv_usec = now.tv_usec - then.tv_usec;
-	while(diff.tv_usec < 0)
-	{
+	while (diff.tv_usec < 0) {
 		diff.tv_sec--;
 		diff.tv_usec = 1000000 + now.tv_usec - then.tv_usec;
 	}
 
-	dtime = (double) diff.tv_sec;
-	dtime += (double) diff.tv_usec / 1e6;
+	dtime = (double)diff.tv_sec;
+	dtime += (double)diff.tv_usec / 1e6;
 
-	return (timeval) now;
+	return (timeval)now;
 }
 #endif
 
-inline void printProfiledTime(double t, const char* text) { std::cout << t <<"s\t" << text << std::endl; }
-inline void printProfiledTime(double t, double sum, const char* text) { std::cout << t <<"s\t" << text << "\t" << (t / sum)*100.0 <<"%"<< std::endl; }
+inline void printProfiledTime(double t, const char* text) {
+	std::cout << t << "s\t" << text << std::endl;
+}
+
+inline void printProfiledTime(double t, double sum, const char* text) {
+	std::cout << t << "s\t" << text << "\t" << (t / sum) * 100.0 << "%" << std::endl;
+}
 
 //! 16-byte aligned memory allocation macro
 #define OGDF_MALLOC_16(s) System::alignedMemoryAlloc16((s))
@@ -121,8 +120,7 @@ inline void printProfiledTime(double t, double sum, const char* text) { std::cou
 
 //! common template for bit-interleaving to compute the morton number  assumes sizeOf(MNR_T) = 2*sizeOf(C_T)
 template<typename MNR_T, typename C_T>
-inline MNR_T mortonNumber(C_T ix, C_T iy)
-{
+inline MNR_T mortonNumber(C_T ix, C_T iy) {
 	MNR_T x = (MNR_T)ix;
 	MNR_T y = (MNR_T)iy;
 	// bit length of the result
@@ -131,7 +129,7 @@ inline MNR_T mortonNumber(C_T ix, C_T iy)
 	MNR_T mask = 0x0;
 	mask = ~mask;
 
-	for (unsigned int i = (BIT_LENGTH >> 1);i>0; i = i >> 1) {
+	for (unsigned int i = (BIT_LENGTH >> 1); i > 0; i = i >> 1) {
 		// increase frequency
 		mask = mask ^ (mask << i);
 		x = (x | (x << i)) & mask;
@@ -140,19 +138,16 @@ inline MNR_T mortonNumber(C_T ix, C_T iy)
 	return x | (y << 1);
 }
 
-
 //! common template for extracting the coordinates from a morton number assumes sizeOf(MNR_T) = 2*sizeOf(C_T)
 template<typename MNR_T, typename C_T>
-inline void mortonNumberInv(MNR_T mnr, C_T& x, C_T& y)
-{
+inline void mortonNumberInv(MNR_T mnr, C_T& x, C_T& y) {
 	// bit length of the coordinates
 	unsigned int BIT_LENGTH = static_cast<unsigned int>(sizeof(C_T)) << 3;
 	// set least significant bit
 	MNR_T mask = 0x1;
 	// set coords to zero
 	x = y = 0;
-	for (unsigned int i=0; i < BIT_LENGTH; i++)
-	{
+	for (unsigned int i = 0; i < BIT_LENGTH; i++) {
 		x = (C_T)(x | (mnr & mask));
 		mnr = mnr >> 1;
 		y = (C_T)(y | (mnr & mask));
@@ -162,30 +157,27 @@ inline void mortonNumberInv(MNR_T mnr, C_T& x, C_T& y)
 
 //! returns the index of the most signficant bit set. 0 = most signif, bitlength-1 = least signif
 template<typename T>
-inline uint32_t mostSignificantBit(T n)
-{
+inline uint32_t mostSignificantBit(T n) {
 	uint32_t BIT_LENGTH = static_cast<uint32_t>(sizeof(T)) << 3;
 	T mask = 0x1;
 	mask = mask << (BIT_LENGTH - 1);
-	for (uint32_t i = 0; i < BIT_LENGTH; i++)
-	{
-		if (mask & n)
+	for (uint32_t i = 0; i < BIT_LENGTH; i++) {
+		if (mask & n) {
 			return i;
+		}
 		mask = mask >> 1;
 	}
 	return BIT_LENGTH;
 }
 
 //! returns the prev power of two
-inline uint32_t prevPowerOfTwo(uint32_t n)
-{
+inline uint32_t prevPowerOfTwo(uint32_t n) {
 	uint32_t msb = 32 - mostSignificantBit(n);
 	return 0x1 << (msb - 1);
 }
 
 //! utility class to select multiple nodes randomly
-class RandomNodeSet
-{
+class RandomNodeSet {
 public:
 	//! init the random node set with the given graph. takes O(n)
 	explicit RandomNodeSet(const Graph& G) : m_graph(G) { allocate(); }
@@ -194,15 +186,15 @@ public:
 	~RandomNodeSet() { deallocate(); }
 
 	//! chooses a node from the available nodes in O(1)
-	node chooseNode() const
-	{
-		int i = m_numNodesChoosen + ogdf::randomNumber(0,nodesLeft()-1);//(int)((double)nodesLeft()*rand()/(RAND_MAX+1.0));
+	node chooseNode() const {
+		int i = m_numNodesChoosen
+				+ ogdf::randomNumber(0,
+						nodesLeft() - 1); //(int)((double)nodesLeft()*rand()/(RAND_MAX+1.0));
 		return m_array[i];
 	}
 
 	//! removes a node from available nodes (assumes v is available) in O(1)
-	void removeNode(node v)
-	{
+	void removeNode(node v) {
 		int i = m_nodeIndex[v];
 		int j = m_numNodesChoosen;
 		node w = m_array[j];
@@ -218,25 +210,20 @@ public:
 	int nodesLeft() const { return m_numNodes - m_numNodesChoosen; }
 
 private:
-	void allocate()
-	{
+	void allocate() {
 		m_array = new node[m_graph.numberOfNodes()];
 		m_nodeIndex.init(m_graph);
 		m_numNodes = m_graph.numberOfNodes();
 		m_numNodesChoosen = 0;
 		int i = 0;
-		for(node v : m_graph.nodes)
-		{
+		for (node v : m_graph.nodes) {
 			m_array[i] = v;
 			m_nodeIndex[v] = i;
 			i++;
 		}
 	}
 
-	void deallocate()
-	{
-		delete[] m_array;
-	}
+	void deallocate() { delete[] m_array; }
 
 	//! the graph
 	const Graph& m_graph;
@@ -254,26 +241,22 @@ private:
 	int m_numNodesChoosen;
 };
 
-inline void gridGraph(Graph& G, int n, int m)
-{
+inline void gridGraph(Graph& G, int n, int m) {
 	G.clear();
 	node v;
 	node* topRow = new node[m];
 	topRow[0] = G.newNode();
-	for (int j=1; j<m; j++)
-	{
+	for (int j = 1; j < m; j++) {
 		topRow[j] = G.newNode();
-		G.newEdge(topRow[j-1], topRow[j]);
+		G.newEdge(topRow[j - 1], topRow[j]);
 	}
-	for (int i=1; i<n; i++)
-	{
+	for (int i = 1; i < n; i++) {
 		v = G.newNode();
 		G.newEdge(topRow[0], v);
 		topRow[0] = v;
-		for (int j=1; j<m; j++)
-		{
+		for (int j = 1; j < m; j++) {
 			v = G.newNode();
-			G.newEdge(topRow[j-1], v);
+			G.newEdge(topRow[j - 1], v);
 			G.newEdge(topRow[j], v);
 			topRow[j] = v;
 		}
@@ -281,14 +264,12 @@ inline void gridGraph(Graph& G, int n, int m)
 	delete[] topRow;
 }
 
-inline void randomGridGraph(Graph& G, int n, int m, double missinNodesPercentage = 0.03)
-{
+inline void randomGridGraph(Graph& G, int n, int m, double missinNodesPercentage = 0.03) {
 	gridGraph(G, n, m);
 	int numberOfNodesToDelete = (int)((double)G.numberOfNodes() * missinNodesPercentage);
 
 	RandomNodeSet rndSet(G);
-	for(int i=0; i<numberOfNodesToDelete;i++)
-	{
+	for (int i = 0; i < numberOfNodesToDelete; i++) {
 		node v = rndSet.chooseNode();
 		rndSet.removeNode(v);
 		G.delNode(v);
@@ -297,55 +278,44 @@ inline void randomGridGraph(Graph& G, int n, int m, double missinNodesPercentage
 
 //! binomial coeffs from Hachuls FMMM
 template<class TYP>
-class BinCoeff
-{
+class BinCoeff {
 public:
-	explicit BinCoeff(unsigned int n) : m_max_n(n) {	init_array(); }
+	explicit BinCoeff(unsigned int n) : m_max_n(n) { init_array(); }
 
 	~BinCoeff() { free_array(); }
 
 	//! Init BK -matrix for values n, k in 0 to t.
-	void init_array()
-	{
+	void init_array() {
 		using ptr = TYP*;
-		unsigned int i,j;
-		m_binCoeffs = new ptr[m_max_n+1];
-		for(i = 0;i<= m_max_n ;i++)
-		{
-			m_binCoeffs[i]=  new TYP[i+1];
+		unsigned int i, j;
+		m_binCoeffs = new ptr[m_max_n + 1];
+		for (i = 0; i <= m_max_n; i++) {
+			m_binCoeffs[i] = new TYP[i + 1];
 		}
 
 		//Pascalsches Dreieck
-		for (i = 0; i <= m_max_n;i++)
-		{
+		for (i = 0; i <= m_max_n; i++) {
 			m_binCoeffs[i][0] = m_binCoeffs[i][i] = 1;
 		}
 
-		for (i = 2; i <= m_max_n; i ++)
-		{
-			for (j = 1; j < i; j++)
-			{
-				m_binCoeffs[i][j] = m_binCoeffs[i-1][j-1]+m_binCoeffs[i-1][j];
+		for (i = 2; i <= m_max_n; i++) {
+			for (j = 1; j < i; j++) {
+				m_binCoeffs[i][j] = m_binCoeffs[i - 1][j - 1] + m_binCoeffs[i - 1][j];
 			}
 		}
 	}
 
 	//! Free space for BK.
-	void free_array()
-	{
+	void free_array() {
 		unsigned int i;
-		for(i = 0;i<= m_max_n;i++)
-		{
+		for (i = 0; i <= m_max_n; i++) {
 			delete[] m_binCoeffs[i];
 		}
 		delete[] m_binCoeffs;
 	}
 
 	//Returns n over k.
-	inline TYP value(unsigned int n, unsigned int k) const
-	{
-		return m_binCoeffs[n][k];
-	}
+	inline TYP value(unsigned int n, unsigned int k) const { return m_binCoeffs[n][k]; }
 
 private:
 	unsigned int m_max_n;
@@ -354,26 +324,28 @@ private:
 	TYP** m_binCoeffs;
 };
 
-
 // nothing
-struct EmptyArgType {};
+struct EmptyArgType { };
 
 //
 // Function Invoker for 8 args
 //
-template<typename FunctionType,
-         typename ArgType1 = EmptyArgType,
-         typename ArgType2 = EmptyArgType,
-         typename ArgType3 = EmptyArgType,
-         typename ArgType4 = EmptyArgType,
-         typename ArgType5 = EmptyArgType,
-         typename ArgType6 = EmptyArgType,
-         typename ArgType7 = EmptyArgType,
-         typename ArgType8 = EmptyArgType>
-struct FuncInvoker
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7, ArgType8 _arg8) :
-		function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4), arg5(_arg5), arg6(_arg6), arg7(_arg7), arg8(_arg8) { }
+template<typename FunctionType, typename ArgType1 = EmptyArgType, typename ArgType2 = EmptyArgType,
+		typename ArgType3 = EmptyArgType, typename ArgType4 = EmptyArgType,
+		typename ArgType5 = EmptyArgType, typename ArgType6 = EmptyArgType,
+		typename ArgType7 = EmptyArgType, typename ArgType8 = EmptyArgType>
+struct FuncInvoker {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+			ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7, ArgType8 _arg8)
+		: function(f)
+		, arg1(_arg1)
+		, arg2(_arg2)
+		, arg3(_arg3)
+		, arg4(_arg4)
+		, arg5(_arg5)
+		, arg6(_arg6)
+		, arg7(_arg7)
+		, arg8(_arg8) { }
 
 	inline void operator()() { function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); }
 
@@ -388,15 +360,23 @@ struct FuncInvoker
 	ArgType8 arg8;
 };
 
-
 //
 // Function Invoker for 7 args
 //
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5, typename ArgType6, typename ArgType7>
-struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7) :
-		function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4), arg5(_arg5), arg6(_arg6), arg7(_arg7) { }
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5, typename ArgType6, typename ArgType7>
+struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6,
+		ArgType7, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+			ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7)
+		: function(f)
+		, arg1(_arg1)
+		, arg2(_arg2)
+		, arg3(_arg3)
+		, arg4(_arg4)
+		, arg5(_arg5)
+		, arg6(_arg6)
+		, arg7(_arg7) { }
 
 	inline void operator()() { function(arg1, arg2, arg3, arg4, arg5, arg6, arg7); }
 
@@ -413,11 +393,13 @@ struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType
 //
 // Function Invoker for 6 args
 //
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5, typename ArgType6>
-struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5, ArgType6 _arg6) :
-		function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4), arg5(_arg5), arg6(_arg6) { }
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5, typename ArgType6>
+struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6,
+		EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+			ArgType5 _arg5, ArgType6 _arg6)
+		: function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4), arg5(_arg5), arg6(_arg6) { }
 
 	inline void operator()() { function(arg1, arg2, arg3, arg4, arg5, arg6); }
 
@@ -433,11 +415,13 @@ struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType
 //
 // Function Invoker for 5 args
 //
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5>
-struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, EmptyArgType, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5) :
-		function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4), arg5(_arg5) { }
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5>
+struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, EmptyArgType,
+		EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+			ArgType5 _arg5)
+		: function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4), arg5(_arg5) { }
 
 	inline void operator()() { function(arg1, arg2, arg3, arg4, arg5); }
 
@@ -453,10 +437,10 @@ struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType
 // Function Invoker for 4 args
 //
 template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4>
-struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4) :
-		function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4) { }
+struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, EmptyArgType, EmptyArgType,
+		EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4)
+		: function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3), arg4(_arg4) { }
 
 	inline void operator()() { function(arg1, arg2, arg3, arg4); }
 
@@ -471,10 +455,10 @@ struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, EmptyAr
 // Function Invoker for 3 args
 //
 template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3>
-struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3) :
-		function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3) { }
+struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, EmptyArgType, EmptyArgType,
+		EmptyArgType, EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3)
+		: function(f), arg1(_arg1), arg2(_arg2), arg3(_arg3) { }
 
 	inline void operator()() { function(arg1, arg2, arg3); }
 
@@ -488,10 +472,10 @@ struct FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, EmptyArgType, Emp
 // Function Invoker for 2 args
 //
 template<typename FunctionType, typename ArgType1, typename ArgType2>
-struct FuncInvoker<FunctionType, ArgType1, ArgType2, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2) :
-		function(f), arg1(_arg1), arg2(_arg2) { }
+struct FuncInvoker<FunctionType, ArgType1, ArgType2, EmptyArgType, EmptyArgType, EmptyArgType,
+		EmptyArgType, EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1, ArgType2 _arg2)
+		: function(f), arg1(_arg1), arg2(_arg2) { }
 
 	inline void operator()() { function(arg1, arg2); }
 
@@ -504,10 +488,9 @@ struct FuncInvoker<FunctionType, ArgType1, ArgType2, EmptyArgType, EmptyArgType,
 // Function Invoker for 1 args
 //
 template<typename FunctionType, typename ArgType1>
-struct FuncInvoker<FunctionType, ArgType1, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f, ArgType1 _arg1) :
-		function(f), arg1(_arg1) { }
+struct FuncInvoker<FunctionType, ArgType1, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType,
+		EmptyArgType, EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f, ArgType1 _arg1) : function(f), arg1(_arg1) { }
 
 	inline void operator()() { function(arg1); }
 
@@ -519,77 +502,77 @@ struct FuncInvoker<FunctionType, ArgType1, EmptyArgType, EmptyArgType, EmptyArgT
 // Function Invoker for 0 args
 //
 template<typename FunctionType>
-struct FuncInvoker<FunctionType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType>
-{
-	FuncInvoker(FunctionType f) :
-		function(f) { }
+struct FuncInvoker<FunctionType, EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType,
+		EmptyArgType, EmptyArgType, EmptyArgType, EmptyArgType> {
+	FuncInvoker(FunctionType f) : function(f) { }
 
 	inline void operator()() { function(); }
 
 	FunctionType function;
 };
 
-
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5, typename ArgType6, typename ArgType7, typename ArgType8>
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5, typename ArgType6, typename ArgType7, typename ArgType8>
 FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7, ArgType8 _arg8)
-{
-	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8>(func, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8);
+createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+		ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7, ArgType8 _arg8) {
+	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6,
+			ArgType7, ArgType8>(func, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8);
 }
 
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5, typename ArgType6, typename ArgType7, typename ArgType8>
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5, typename ArgType6, typename ArgType7, typename ArgType8>
 FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7)
-{
-	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, EmptyArgType>(func, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7);
+createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+		ArgType5 _arg5, ArgType6 _arg6, ArgType7 _arg7) {
+	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6,
+			ArgType7, EmptyArgType>(func, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7);
 }
 
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5, typename ArgType6>
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5, typename ArgType6>
 FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5, ArgType6 _arg6)
-{
-	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6>(func, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6);
+createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+		ArgType5 _arg5, ArgType6 _arg6) {
+	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6>(
+			func, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6);
 }
 
-template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4, typename ArgType5>
-FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4, ArgType5 _arg5)
-{
-	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5>(func, _arg1, _arg2, _arg3, _arg4, _arg5);
+template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3,
+		typename ArgType4, typename ArgType5>
+FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5> createFuncInvoker(
+		FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4,
+		ArgType5 _arg5) {
+	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5>(func, _arg1,
+			_arg2, _arg3, _arg4, _arg5);
 }
 
 template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3, typename ArgType4>
-FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4)
-{
-	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4>(func, _arg1, _arg2, _arg3, _arg4);
+FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4> createFuncInvoker(
+		FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3, ArgType4 _arg4) {
+	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3, ArgType4>(func, _arg1, _arg2,
+			_arg3, _arg4);
 }
 
 template<typename FunctionType, typename ArgType1, typename ArgType2, typename ArgType3>
-FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3)
-{
+FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3> createFuncInvoker(FunctionType func,
+		ArgType1 _arg1, ArgType2 _arg2, ArgType3 _arg3) {
 	return FuncInvoker<FunctionType, ArgType1, ArgType2, ArgType3>(func, _arg1, _arg2, _arg3);
 }
 
 template<typename FunctionType, typename ArgType1, typename ArgType2>
-FuncInvoker<FunctionType, ArgType1, ArgType2>
-createFuncInvoker(FunctionType func, ArgType1 _arg1, ArgType2 _arg2)
-{
+FuncInvoker<FunctionType, ArgType1, ArgType2> createFuncInvoker(FunctionType func, ArgType1 _arg1,
+		ArgType2 _arg2) {
 	return FuncInvoker<FunctionType, ArgType1, ArgType2>(func, _arg1, _arg2);
 }
 
 template<typename FunctionType, typename ArgType1>
-FuncInvoker<FunctionType, ArgType1>
-createFuncInvoker(FunctionType func, ArgType1 _arg1)
-{
+FuncInvoker<FunctionType, ArgType1> createFuncInvoker(FunctionType func, ArgType1 _arg1) {
 	return FuncInvoker<FunctionType, ArgType1>(func, _arg1);
 }
 
 template<typename FunctionType>
-FuncInvoker<FunctionType>
-createFuncInvoker(FunctionType func)
-{
+FuncInvoker<FunctionType> createFuncInvoker(FunctionType func) {
 	return FuncInvoker<FunctionType>(func);
 }
 

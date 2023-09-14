@@ -36,18 +36,14 @@
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/uml/PlanRepUML.h>
 
-
 namespace ogdf {
 
-class OGDF_EXPORT OrthoShaper
-{
+class OGDF_EXPORT OrthoShaper {
 public:
 	//! Types of network nodes: nodes and faces
 	enum class NetworkNodeType { low, high, inner, outer };
 
-	OrthoShaper() {
-		setDefaultSettings();
-	}
+	OrthoShaper() { setDefaultSettings(); }
 
 	~OrthoShaper() { }
 
@@ -57,57 +53,59 @@ public:
 	// with a flow network where every flow unit defines 90 degree angle
 	// in traditional mode.
 
-	void call(PlanRepUML &PG,
-		CombinatorialEmbedding &E,
-		OrthoRep &OR,
-		bool fourPlanar = true);
+	void call(PlanRepUML& PG, CombinatorialEmbedding& E, OrthoRep& OR, bool fourPlanar = true);
 
-	void call(PlanRep &PG,
-		CombinatorialEmbedding &E,
-		OrthoRep &OR,
-		bool fourPlanar = true);
+	void call(PlanRep& PG, CombinatorialEmbedding& E, OrthoRep& OR, bool fourPlanar = true);
 
 	//sets the default settings used in the standard constructor
-	void setDefaultSettings()
-	{
+	void setDefaultSettings() {
 		m_distributeEdges = true; // true;  //try to distribute edges to all node sides
-		m_fourPlanar      = true;  //do not allow zero degree angles at high degree
-		m_allowLowZero    = false; //do allow zero degree at low degree nodes
-		m_multiAlign      = true;//true;  //start/end side of multi edges match
-		m_traditional     = true;//true;  //prefer 3/1 flow at degree 2 (false: 2/2)
-		m_deg4free        = false; //allow free angle assignment at degree four
-		m_align           = false; //align nodes on same hierarchy level
+		m_fourPlanar = true; //do not allow zero degree angles at high degree
+		m_allowLowZero = false; //do allow zero degree at low degree nodes
+		m_multiAlign = true; //true;  //start/end side of multi edges match
+		m_traditional = true; //true;  //prefer 3/1 flow at degree 2 (false: 2/2)
+		m_deg4free = false; //allow free angle assignment at degree four
+		m_align = false; //align nodes on same hierarchy level
 		m_startBoundBendsPerEdge = 0; //don't use bound on bend number per edge
 	}
 
 	// returns option distributeEdges
 	bool distributeEdges() { return m_distributeEdges; }
+
 	// sets option distributeEdges to b
 	void distributeEdges(bool b) { m_distributeEdges = b; }
 
 	// returns option multiAlign
 	bool multiAlign() { return m_multiAlign; }
+
 	// sets option multiAlign to b
 	void multiAlign(bool b) { m_multiAlign = b; }
 
 	// returns option traditional
 	bool traditional() { return m_traditional; }
+
 	// sets option traditional to b
 	void traditional(bool b) { m_traditional = b; }
 
 	//returns option deg4free
 	bool fixDegreeFourAngles() { return m_deg4free; }
+
 	//sets option deg4free
 	void fixDegreeFourAngles(bool b) { m_deg4free = b; }
 
 	//alignment of brothers in hierarchies
-	void align(bool al) {m_align = al;}
-	bool align() {return m_align;}
+	void align(bool al) { m_align = al; }
+
+	bool align() { return m_align; }
 
 	//! Set bound for number of bends per edge (none if set to 0). If shape
 	//! flow computation is unsuccessful, the bound is increased iteratively.
-	void setBendBound(int i){ OGDF_ASSERT(i >= 0); m_startBoundBendsPerEdge = i;}
-	int getBendBound(){return m_startBoundBendsPerEdge;}
+	void setBendBound(int i) {
+		OGDF_ASSERT(i >= 0);
+		m_startBoundBendsPerEdge = i;
+	}
+
+	int getBendBound() { return m_startBoundBendsPerEdge; }
 
 private:
 	//! distribute edges among all sides if degree > 4
@@ -156,14 +154,8 @@ private:
 
 	//! Set angle boundary.
 	//! Warning: sets upper AND lower bounds, therefore may interfere with existing bounds
-	void setAngleBound(
-		edge netArc,
-		int angle,
-		EdgeArray<int>& lowB,
-		EdgeArray<int>& upB,
-		EdgeArray<edge>& aTwin,
-		bool maxBound = true)
-	{
+	void setAngleBound(edge netArc, int angle, EdgeArray<int>& lowB, EdgeArray<int>& upB,
+			EdgeArray<edge>& aTwin, bool maxBound = true) {
 		// preliminary
 		OGDF_ASSERT(!m_traditional);
 

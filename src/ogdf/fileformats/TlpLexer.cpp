@@ -30,18 +30,16 @@
  */
 
 #include <ogdf/basic/basic.h>
-#include <ogdf/fileformats/TlpLexer.h>
 #include <ogdf/fileformats/GraphIO.h>
-
+#include <ogdf/fileformats/TlpLexer.h>
 
 namespace ogdf {
 
 namespace tlp {
 
 
-std::ostream &operator <<(std::ostream &os, const Token &token)
-{
-	switch(token.type) {
+std::ostream& operator<<(std::ostream& os, const Token& token) {
+	switch (token.type) {
 	case Token::Type::leftParen:
 		os << "tok_(";
 		break;
@@ -59,27 +57,19 @@ std::ostream &operator <<(std::ostream &os, const Token &token)
 	return os;
 }
 
-
-Token::Token(const Type &tokenType, size_t tokenLine, size_t tokenColumn)
-: type(tokenType), line(tokenLine), column(tokenColumn)
-{
-	if(type == Type::identifier || type == Type::string) {
+Token::Token(const Type& tokenType, size_t tokenLine, size_t tokenColumn)
+	: type(tokenType), line(tokenLine), column(tokenColumn) {
+	if (type == Type::identifier || type == Type::string) {
 		value = new std::string;
 	} else {
 		value = nullptr;
 	}
 }
 
+bool Lexer::isIdentifier(char c) { return isalnum(c) || c == '_' || c == '.' || c == '-'; }
 
-bool Lexer::isIdentifier(char c)
-{
-	return isalnum(c) || c == '_' || c == '.' || c == '-';
-}
-
-
-bool Lexer::fetchBuffer()
-{
-	if(!std::getline(m_istream, m_buffer)) {
+bool Lexer::fetchBuffer() {
+	if (!std::getline(m_istream, m_buffer)) {
 		return false;
 	}
 
@@ -90,35 +80,23 @@ bool Lexer::fetchBuffer()
 	return true;
 }
 
-
-void Lexer::cleanValues()
-{
-	for(const Token &t : m_tokens)
-	{
+void Lexer::cleanValues() {
+	for (const Token& t : m_tokens) {
 		delete t.value;
 	}
 }
 
+Lexer::Lexer(std::istream& is) : m_istream(is) { }
 
-Lexer::Lexer(std::istream &is) : m_istream(is)
-{
-}
+Lexer::~Lexer() { cleanValues(); }
 
-
-Lexer::~Lexer()
-{
-	cleanValues();
-}
-
-
-bool Lexer::tokenize()
-{
+bool Lexer::tokenize() {
 	cleanValues();
 	m_tokens.clear();
 
 	m_line = 0;
-	while(fetchBuffer()) {
-		if(!tokenizeLine()) {
+	while (fetchBuffer()) {
+		if (!tokenizeLine()) {
 			return false;
 		}
 	}
@@ -126,63 +104,61 @@ bool Lexer::tokenize()
 	return true;
 }
 
-
-bool Lexer::tokenizeLine()
-{
-	while(m_begin != m_end && isspace(*m_begin)) {
+bool Lexer::tokenizeLine() {
+	while (m_begin != m_end && isspace(*m_begin)) {
 		++m_begin;
 	}
 
 	// We got an end of a line or a comment.
-	if(m_begin == m_end || *m_begin == ';') {
+	if (m_begin == m_end || *m_begin == ';') {
 		return true;
 	}
 
-	if(*m_begin == '(') {
+	if (*m_begin == '(') {
 		m_tokens.push_back(Token(Token::Type::leftParen, line(), column()));
 		++m_begin;
 		return tokenizeLine();
 	}
 
-	if(*m_begin == ')') {
+	if (*m_begin == ')') {
 		m_tokens.push_back(Token(Token::Type::rightParen, line(), column()));
 		++m_begin;
 		return tokenizeLine();
 	}
 
-	if(*m_begin == '"') {
+	if (*m_begin == '"') {
 		return tokenizeString() && tokenizeLine();
 	}
 
-	if(isIdentifier(*m_begin)) {
+	if (isIdentifier(*m_begin)) {
 		return tokenizeIdentifier() && tokenizeLine();
 	}
 
-	GraphIO::logger.lout() << "Unexpected character \"" << *m_begin << "\" at (" << line() << ", " << column() << ")." << std::endl;
+	GraphIO::logger.lout() << "Unexpected character \"" << *m_begin << "\" at (" << line() << ", "
+						   << column() << ")." << std::endl;
 	return false;
 }
 
-
-bool Lexer::tokenizeString()
-{
+bool Lexer::tokenizeString() {
 	++m_begin;
 
 	Token token(Token::Type::string, line(), column());
 
-	for(;;) {
+	for (;;) {
 		// Check whether we need to refill the buffer.
-		if(m_begin == m_end && !fetchBuffer()) {
-			GraphIO::logger.lout() << "End of input while parsing a string at (" << token.line << ", " << token.column << ")." << std::endl;
+		if (m_begin == m_end && !fetchBuffer()) {
+			GraphIO::logger.lout() << "End of input while parsing a string at (" << token.line
+								   << ", " << token.column << ")." << std::endl;
 			delete token.value;
 			return false;
 		}
 
-		if(m_begin == m_end) {
+		if (m_begin == m_end) {
 			continue;
 		}
 
 		// Check whether we got a end of a string.
-		if(*m_begin == '"') {
+		if (*m_begin == '"') {
 			m_tokens.push_back(token);
 			++m_begin;
 			return true;
@@ -197,12 +173,10 @@ bool Lexer::tokenizeString()
 	return true;
 }
 
-
-bool Lexer::tokenizeIdentifier()
-{
+bool Lexer::tokenizeIdentifier() {
 	Token token(Token::Type::identifier, line(), column());
 
-	while(m_begin != m_end && isIdentifier(*m_begin)) {
+	while (m_begin != m_end && isIdentifier(*m_begin)) {
 		*(token.value) += *m_begin;
 		++m_begin;
 	}

@@ -28,32 +28,35 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include "array_helper.h"
 #include <ogdf/basic/AdjEntryArray.h>
+
+#include "array_helper.h"
 
 using namespace ogdf;
 using namespace bandit;
 
 go_bandit([]() {
-	auto chooseAdjEntry = [](const Graph &graph) {
+	auto chooseAdjEntry = [](const Graph& graph) {
 		edge e = graph.chooseEdge();
 		return randomNumber(0, 1) ? e->adjSource() : e->adjTarget();
 	};
 
-	auto allAdjEntries = [](const Graph &graph, List<adjEntry> &list) {
+	auto allAdjEntries = [](const Graph& graph, List<adjEntry>& list) {
 		list.clear();
 
-		for(edge e : graph.edges) {
+		for (edge e : graph.edges) {
 			list.pushBack(e->adjSource());
 			list.pushBack(e->adjTarget());
 		}
 	};
 
-	auto createAdjEntry = [](Graph &graph) {
+	auto createAdjEntry = [](Graph& graph) {
 		edge e = graph.newEdge(graph.chooseNode(), graph.chooseNode());
 		return randomNumber(0, 1) ? e->adjSource() : e->adjTarget();
 	};
 
-	describeArray<AdjEntryArray, adjEntry, int>("AdjEntryArray filled with ints", 42, 43, chooseAdjEntry, allAdjEntries, createAdjEntry);
-	describeArray<AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints", {1, 2, 3}, {42}, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	describeArray<AdjEntryArray, adjEntry, int>("AdjEntryArray filled with ints", 42, 43,
+			chooseAdjEntry, allAdjEntries, createAdjEntry);
+	describeArray<AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints",
+			{1, 2, 3}, {42}, chooseAdjEntry, allAdjEntries, createAdjEntry);
 });

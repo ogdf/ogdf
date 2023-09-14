@@ -31,12 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/Graph.h>
-
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 
-class OGDF_EXPORT KuratowskiSubdivision : public Array<List<edge> > { };
+class OGDF_EXPORT KuratowskiSubdivision : public Array<List<edge>> { };
 
 }

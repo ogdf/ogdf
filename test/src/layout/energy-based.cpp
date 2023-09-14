@@ -30,10 +30,10 @@
  */
 
 #include <ogdf/basic/graph_generators/randomized.h>
-#include <ogdf/energybased/DavidsonHarelLayout.h>
 #include <ogdf/energybased/DTreeMultilevelEmbedder.h>
-#include <ogdf/energybased/FastMultipoleEmbedder.h>
+#include <ogdf/energybased/DavidsonHarelLayout.h>
 #include <ogdf/energybased/FMMMLayout.h>
+#include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/energybased/GEMLayout.h>
 #include <ogdf/energybased/MultilevelLayout.h>
 #include <ogdf/energybased/NodeRespecterLayout.h>
@@ -46,7 +46,8 @@
 
 #include "layout_helpers.h"
 
-#define TEST_ENERGY_BASED_LAYOUT(NAME, EXTRA_ATTR, ...) describeEnergyBasedLayout<NAME>(#NAME, EXTRA_ATTR, {__VA_ARGS__})
+#define TEST_ENERGY_BASED_LAYOUT(NAME, EXTRA_ATTR, ...) \
+	describeEnergyBasedLayout<NAME>(#NAME, EXTRA_ATTR, {__VA_ARGS__})
 
 template<class T>
 void init(T& layout) {
@@ -101,7 +102,8 @@ void init(StressMinimization& layout) {
 }
 
 template<class T>
-void describeEnergyBasedLayout(const string &name, int extraAttr, std::initializer_list<GraphProperty> requirements) {
+void describeEnergyBasedLayout(const string& name, int extraAttr,
+		std::initializer_list<GraphProperty> requirements) {
 	T layout;
 	init(layout);
 	describeLayout(name, layout, extraAttr, requirements);
@@ -162,34 +164,36 @@ void describeFMMM() {
 	});
 }
 
-go_bandit([] { describe("Energy-based layouts", [] {
-	TEST_ENERGY_BASED_LAYOUT(DavidsonHarelLayout, 0);
+go_bandit([] {
+	describe("Energy-based layouts", [] {
+		TEST_ENERGY_BASED_LAYOUT(DavidsonHarelLayout, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(DTreeMultilevelEmbedder2D, 0, GraphProperty::connected);
-	TEST_ENERGY_BASED_LAYOUT(DTreeMultilevelEmbedder3D, GraphAttributes::threeD, GraphProperty::connected);
+		TEST_ENERGY_BASED_LAYOUT(DTreeMultilevelEmbedder2D, 0, GraphProperty::connected);
+		TEST_ENERGY_BASED_LAYOUT(DTreeMultilevelEmbedder3D, GraphAttributes::threeD,
+				GraphProperty::connected);
 
-	TEST_ENERGY_BASED_LAYOUT(FastMultipoleEmbedder, 0, GraphProperty::connected);
-	TEST_ENERGY_BASED_LAYOUT(FastMultipoleMultilevelEmbedder, 0, GraphProperty::connected);
+		TEST_ENERGY_BASED_LAYOUT(FastMultipoleEmbedder, 0, GraphProperty::connected);
+		TEST_ENERGY_BASED_LAYOUT(FastMultipoleMultilevelEmbedder, 0, GraphProperty::connected);
 
-	describeFMMM();
+		describeFMMM();
 
-	TEST_ENERGY_BASED_LAYOUT(GEMLayout, 0);
+		TEST_ENERGY_BASED_LAYOUT(GEMLayout, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(MultilevelLayout, 0);
+		TEST_ENERGY_BASED_LAYOUT(MultilevelLayout, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(NodeRespecterLayout, 0);
+		TEST_ENERGY_BASED_LAYOUT(NodeRespecterLayout, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(PivotMDS, 0, GraphProperty::connected);
+		TEST_ENERGY_BASED_LAYOUT(PivotMDS, 0, GraphProperty::connected);
 
-	TEST_ENERGY_BASED_LAYOUT(SpringEmbedderFRExact, 0);
+		TEST_ENERGY_BASED_LAYOUT(SpringEmbedderFRExact, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(SpringEmbedderGridVariant, 0);
+		TEST_ENERGY_BASED_LAYOUT(SpringEmbedderGridVariant, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(SpringEmbedderKK, 0, GraphProperty::connected);
+		TEST_ENERGY_BASED_LAYOUT(SpringEmbedderKK, 0, GraphProperty::connected);
 
-	TEST_ENERGY_BASED_LAYOUT(StressMinimization, 0);
+		TEST_ENERGY_BASED_LAYOUT(StressMinimization, 0);
 
-	TEST_ENERGY_BASED_LAYOUT(TutteLayout, 0, GraphProperty::triconnected, GraphProperty::planar, GraphProperty::simple);
-});
-
+		TEST_ENERGY_BASED_LAYOUT(TutteLayout, 0, GraphProperty::triconnected, GraphProperty::planar,
+				GraphProperty::simple);
+	});
 });

@@ -33,14 +33,14 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
-#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorEnumeration.h>
-#include <ogdf/graphalg/steiner_tree/SaveStatic.h>
-#include <ogdf/graphalg/steiner_tree/SaveEnum.h>
-#include <ogdf/graphalg/steiner_tree/SaveDynamic.h>
-#include <ogdf/graphalg/steiner_tree/Triple.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorEnumeration.h>
+#include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
+#include <ogdf/graphalg/steiner_tree/SaveDynamic.h>
+#include <ogdf/graphalg/steiner_tree/SaveEnum.h>
+#include <ogdf/graphalg/steiner_tree/SaveStatic.h>
+#include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 
 namespace ogdf {
@@ -63,22 +63,24 @@ namespace ogdf {
  * tree problems, Technical Report, 2006)
  */
 template<typename T>
-class MinSteinerTreeZelikovsky: public MinSteinerTreeModule<T> {
+class MinSteinerTreeZelikovsky : public MinSteinerTreeModule<T> {
 public:
-	template<typename TYPE> using Save = steiner_tree::Save<TYPE>;
-	template<typename TYPE> using Triple = steiner_tree::Triple<TYPE>;
+	template<typename TYPE>
+	using Save = steiner_tree::Save<TYPE>;
+	template<typename TYPE>
+	using Triple = steiner_tree::Triple<TYPE>;
 
 	//! Choice of objective function
 	enum class WinCalculation {
 		absolute, //!< win=gain-cost
-		relative  //!< win=gain/cost
+		relative //!< win=gain/cost
 	};
 
 	//! Choice of triple generation
 	enum class TripleGeneration {
 		exhaustive, //!< try all possibilities
 		voronoi, //!< use voronoi regions
-		ondemand  //!< generate triples "on the fly", only usable with WinCalculation::absolute
+		ondemand //!< generate triples "on the fly", only usable with WinCalculation::absolute
 	};
 
 	//! Switches immediate triple dropping
@@ -114,23 +116,20 @@ public:
 	};
 
 	MinSteinerTreeZelikovsky(WinCalculation wc = WinCalculation::absolute,
-	                         TripleGeneration tg = TripleGeneration::voronoi,
-	                         SaveCalculation sc = SaveCalculation::hybrid,
-	                         TripleReduction tr = TripleReduction::on,
-	                         Pass pass = Pass::multi)
-	 : m_winCalculation(wc)
-	 , m_tripleGeneration(tg)
-	 , m_saveCalculation(sc)
-	 , m_tripleReduction(tr)
-	 , m_pass(pass)
-	 , m_ssspDistances(true)
-	{
-	}
+			TripleGeneration tg = TripleGeneration::voronoi,
+			SaveCalculation sc = SaveCalculation::hybrid, TripleReduction tr = TripleReduction::on,
+			Pass pass = Pass::multi)
+		: m_winCalculation(wc)
+		, m_tripleGeneration(tg)
+		, m_saveCalculation(sc)
+		, m_tripleReduction(tr)
+		, m_pass(pass)
+		, m_ssspDistances(true) { }
 
 	virtual ~MinSteinerTreeZelikovsky() { }
 
-	virtual T call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree) override
-	{
+	virtual T call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override {
 		m_triplesGenerated = 0;
 		m_tripleLookUps = 0;
 		m_triplesContracted = 0;
@@ -142,87 +141,46 @@ public:
 	 *  instead of doing a full APSP. In case a full APSP is faster, use this method.
 	 * @param force True to force APSP instead of SSSP.
 	 */
-	void forceAPSP(bool force = true)
-	{
-		m_ssspDistances = !force;
-	}
+	void forceAPSP(bool force = true) { m_ssspDistances = !force; }
 
 	//! Sets type of gain calculation \see MinSteinerTreeZelikovsky::WinCalculation
-	void winCalculation(WinCalculation wc)
-	{
-		m_winCalculation = wc;
-	}
+	void winCalculation(WinCalculation wc) { m_winCalculation = wc; }
 
 	//! Returns type of gain calculation currently in use \see MinSteinerTreeZelikovsky::WinCalculation
-	WinCalculation winCalculation() const
-	{
-		return m_winCalculation;
-	}
+	WinCalculation winCalculation() const { return m_winCalculation; }
 
 	//! Sets type of triple generation \see MinSteinerTreeZelikovsky::TripleGeneration
-	void tripleGeneration(TripleGeneration tg)
-	{
-		m_tripleGeneration = tg;
-	}
+	void tripleGeneration(TripleGeneration tg) { m_tripleGeneration = tg; }
 
 	//! Returns type of triple generation currently in use \see MinSteinerTreeZelikovsky::TripleGeneration
-	TripleGeneration tripleGeneration() const
-	{
-		return m_tripleGeneration;
-	}
+	TripleGeneration tripleGeneration() const { return m_tripleGeneration; }
 
 	//! Sets type of triple reduction \see MinSteinerTreeZelikovsky::TripleReduction
-	void tripleReduction(TripleReduction tr)
-	{
-		m_tripleReduction = tr;
-	}
+	void tripleReduction(TripleReduction tr) { m_tripleReduction = tr; }
 
 	//! Returns type of triple reduction currently in use \see MinSteinerTreeZelikovsky::TripleReduction
-	TripleReduction tripleReduction() const
-	{
-		return m_tripleReduction;
-	}
+	TripleReduction tripleReduction() const { return m_tripleReduction; }
 
 	//! Sets type of save calculation \see MinSteinerTreeZelikovsky::SaveCalculation
-	void saveCalculation(SaveCalculation sv)
-	{
-		m_saveCalculation = sv;
-	}
+	void saveCalculation(SaveCalculation sv) { m_saveCalculation = sv; }
 
 	//! Returns type of save calculation currently in use \see MinSteinerTreeZelikovsky::SaveCalculation
-	SaveCalculation saveCalculation() const
-	{
-		return m_saveCalculation;
-	}
+	SaveCalculation saveCalculation() const { return m_saveCalculation; }
 
 	//! Sets type of pass \see MinSteinerTreeZelikovsky::Pass
-	void pass(Pass p) {
-		m_pass = p;
-	}
+	void pass(Pass p) { m_pass = p; }
 
 	//! Returns type of pass currently in use \see MinSteinerTreeZelikovsky::Pass
-	Pass pass() const
-	{
-		return m_pass;
-	}
+	Pass pass() const { return m_pass; }
 
 	//! Returns the number of generated triples
-	long numberOfGeneratedTriples() const
-	{
-		return m_triplesGenerated;
-	}
+	long numberOfGeneratedTriples() const { return m_triplesGenerated; }
 
 	//! Returns the number of contracted triples
-	long numberOfContractedTriples() const
-	{
-		return m_triplesContracted;
-	}
+	long numberOfContractedTriples() const { return m_triplesContracted; }
 
 	//! Returns the number of triple lookups during execution time
-	long numberOfTripleLookUps() const
-	{
-		return m_tripleLookUps;
-	}
+	long numberOfTripleLookUps() const { return m_tripleLookUps; }
 
 protected:
 	/*!
@@ -233,11 +191,8 @@ protected:
 	 * @param finalSteinerTree The final Steiner tree
 	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(
-		const EdgeWeightedGraph<T> &G,
-		const List<node> &terminals,
-		const NodeArray<bool> &isTerminal,
-		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override;
 
 	/*!
 	 * \brief Computes the distance matrix for the original graph
@@ -247,12 +202,11 @@ protected:
 	/*!
 	 * \brief Add a found triple to the triples list. (Just a helper to avoid code duplication.)
 	 */
-	inline void generateTriple(node u, node v, node w, node center, const T &minCost, const Save<T> &save)
-	{
+	inline void generateTriple(node u, node v, node w, node center, const T& minCost,
+			const Save<T>& save) {
 		const double gain = save.gain(u, v, w);
 		const double win = calcWin(gain, minCost);
-		if (tripleReduction() == TripleReduction::off
-		 || win > 0) {
+		if (tripleReduction() == TripleReduction::off || win > 0) {
 			++m_triplesGenerated;
 			OGDF_ASSERT(center);
 			Triple<T> triple(u, v, w, center, minCost, win);
@@ -265,20 +219,19 @@ protected:
 	 * @param save data structure for calculation save edges
 	 * @param fcg the chosen full 3-component generator
 	 */
-	inline void generateTriples(const Save<T> &save, const steiner_tree::Full3ComponentGeneratorModule<T> &fcg)
-	{
+	inline void generateTriples(const Save<T>& save,
+			const steiner_tree::Full3ComponentGeneratorModule<T>& fcg) {
 		fcg.call(*m_originalGraph, *m_terminals, *m_isTerminal, m_distance, m_pred,
-		  [this, &save](node u, node v, node w, node center, T minCost) {
-			generateTriple(u, v, w, center, minCost, save);
-		});
+				[this, &save](node u, node v, node w, node center, T minCost) {
+					generateTriple(u, v, w, center, minCost, save);
+				});
 	}
 
 	/*!
 	 * \brief Generates triples according to the chosen option \see TripleGeneration
 	 * @param save data structure for calculation save edges
 	 */
-	inline void generateTriples(const Save<T> &save)
-	{
+	inline void generateTriples(const Save<T>& save) {
 		OGDF_ASSERT(tripleGeneration() != TripleGeneration::ondemand);
 		if (tripleGeneration() == TripleGeneration::voronoi) {
 			steiner_tree::Full3ComponentGeneratorVoronoi<T> fcg;
@@ -296,8 +249,7 @@ protected:
 	 * @param save save data structure
 	 * @param isNewTerminal true for nodes to be interpreted as terminals
 	 */
-	void contractTriple(const Triple<T> &triple, Save<T> &save, NodeArray<bool> &isNewTerminal)
-	{
+	void contractTriple(const Triple<T>& triple, Save<T>& save, NodeArray<bool>& isNewTerminal) {
 		++m_triplesContracted;
 		save.update(triple);
 		isNewTerminal[triple.z()] = true;
@@ -308,7 +260,7 @@ protected:
 	 * @param save save data structure
 	 * @param isNewTerminal true for nodes to be interpreted as terminals
 	 */
-	void tripleOnDemand(Save<T> &save, NodeArray<bool> &isNewTerminal);
+	void tripleOnDemand(Save<T>& save, NodeArray<bool>& isNewTerminal);
 
 	/**
 	 * \brief Find the best triple for a given nonterminal center
@@ -317,8 +269,7 @@ protected:
 	 * @param maxTriple the improved triple (output parameter)
 	 * @return True iff maxTriple is updated
 	 */
-	bool findBestTripleForCenter(node center, const Save<T> &save, Triple<T> &maxTriple) const
-	{
+	bool findBestTripleForCenter(node center, const Save<T>& save, Triple<T>& maxTriple) const {
 		bool updated = false; // return value
 
 		// find s0, nearest terminal to center
@@ -338,8 +289,7 @@ protected:
 		node s1 = nullptr;
 		T save1Val(0);
 		for (node s : *m_terminals) {
-			if (s != s0
-			 && m_pred[s][center] != nullptr) {
+			if (s != s0 && m_pred[s][center] != nullptr) {
 				OGDF_ASSERT(m_distance[s][center] != std::numeric_limits<T>::max());
 				T tmpVal = save.saveWeight(s, s0);
 				T tmp = tmpVal - m_distance[s][center];
@@ -356,13 +306,12 @@ protected:
 			T save2Val(0);
 			const edge save1 = save.saveEdge(s0, s1);
 			for (node s : *m_terminals) {
-				if (s != s0
-				 && s != s1
-				 && m_pred[s][center] != nullptr) {
+				if (s != s0 && s != s1 && m_pred[s][center] != nullptr) {
 					OGDF_ASSERT(m_distance[s][center] != std::numeric_limits<T>::max());
 					const edge tmp = save.saveEdge(s0, s);
 					save2Val = save.saveWeight(tmp == save1 ? s1 : s0, s);
-					T tmpWin = save1Val + save2Val - m_distance[s0][center] - m_distance[s1][center] - m_distance[s][center];
+					T tmpWin = save1Val + save2Val - m_distance[s0][center] - m_distance[s1][center]
+							- m_distance[s][center];
 					if (!s2 || best < tmpWin) {
 						best = tmpWin;
 						s2 = s;
@@ -371,7 +320,7 @@ protected:
 			}
 
 			if (s2 // it may happen that s2 does not exist
-			 && best > maxTriple.win()) { // best win is better than previous best; also positive
+					&& best > maxTriple.win()) { // best win is better than previous best; also positive
 				OGDF_ASSERT(m_pred[s2][center]);
 				maxTriple.s0(s0);
 				maxTriple.s1(s1);
@@ -390,20 +339,19 @@ protected:
 	 * @param save save data structure
 	 * @param isNewTerminal true for nodes to be interpreted as terminals
 	 */
-	void multiPass(Save<T> &save, NodeArray<bool> &isNewTerminal);
+	void multiPass(Save<T>& save, NodeArray<bool>& isNewTerminal);
 
 	/*!
 	 * \brief Contraction phase for the one pass heuristic \see MinSteinerTreeZelikovsky::one
 	 * @param save save data structure
 	 * @param isNewTerminal true for nodes to be interpreted as terminals
 	 */
-	void onePass(Save<T> &save, NodeArray<bool> &isNewTerminal);
+	void onePass(Save<T>& save, NodeArray<bool>& isNewTerminal);
 
 	/*!
 	 * \brief Calculate the win
 	 */
-	double calcWin(double gain, T cost) const
-	{
+	double calcWin(double gain, T cost) const {
 		switch (winCalculation()) {
 		case WinCalculation::relative:
 			return gain / cost - 1.0;
@@ -413,14 +361,13 @@ protected:
 		}
 	}
 
-	void generateInitialTerminalSpanningTree(EdgeWeightedGraphCopy<T> &steinerTree)
-	{
+	void generateInitialTerminalSpanningTree(EdgeWeightedGraphCopy<T>& steinerTree) {
 		// generate complete graph
 		for (node v : *m_terminals) {
 			steinerTree.newNode(v);
 		}
 		for (node u : steinerTree.nodes) {
-			const NodeArray<T> &dist = m_distance[steinerTree.original(u)];
+			const NodeArray<T>& dist = m_distance[steinerTree.original(u)];
 			for (node v = u->succ(); v; v = v->succ()) {
 				steinerTree.newEdge(u, v, dist[steinerTree.original(v)]);
 			}
@@ -437,9 +384,9 @@ private:
 	Pass m_pass; //!< Chosen option for pass \see Pass
 	bool m_ssspDistances; //!< True iff we only compute SSSP from terminals instead of APSP for full component construction
 
-	const EdgeWeightedGraph<T> *m_originalGraph; //!< The original edge-weighted graph
-	const NodeArray<bool> *m_isTerminal; //!< Incidence vector for terminal nodes
-	const List<node> *m_terminals; //!< List of terminal nodes
+	const EdgeWeightedGraph<T>* m_originalGraph; //!< The original edge-weighted graph
+	const NodeArray<bool>* m_isTerminal; //!< Incidence vector for terminal nodes
+	const List<node>* m_terminals; //!< List of terminal nodes
 	NodeArray<NodeArray<T>> m_distance; //!< The distance matrix
 	NodeArray<NodeArray<edge>> m_pred; //!< The predecessor matrix
 	List<Triple<T>> m_triples; //!< The list of triples during the algorithm
@@ -447,16 +394,16 @@ private:
 	long m_triplesGenerated; //!< Number of generated triples
 	long m_triplesContracted; //!< Number of contracted triples
 	long m_tripleLookUps; //!< Number of triple lookups
-
 };
 
 template<typename T>
-T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
-	OGDF_ASSERT(tripleGeneration() != TripleGeneration::ondemand // combinations that only work with ondemand:
-	 || (winCalculation() == WinCalculation::absolute
-	  && saveCalculation() != SaveCalculation::hybrid
-	  && pass() != Pass::one));
+T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
+	OGDF_ASSERT(tripleGeneration()
+					!= TripleGeneration::ondemand // combinations that only work with ondemand:
+			|| (winCalculation() == WinCalculation::absolute
+					&& saveCalculation() != SaveCalculation::hybrid && pass() != Pass::one));
 
 	m_originalGraph = &G;
 	m_terminals = &terminals;
@@ -476,7 +423,7 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 		steinerTree.createEmpty(G);
 		generateInitialTerminalSpanningTree(steinerTree);
 
-		Save<T> *save = nullptr;
+		Save<T>* save = nullptr;
 		switch (saveCalculation()) {
 		case SaveCalculation::staticEnum:
 			save = new steiner_tree::SaveEnum<T>(steinerTree);
@@ -519,18 +466,18 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 }
 
 template<typename T>
-void MinSteinerTreeZelikovsky<T>::computeDistanceMatrix()
-{
+void MinSteinerTreeZelikovsky<T>::computeDistanceMatrix() {
 	if (m_ssspDistances) {
-		MinSteinerTreeModule<T>::allTerminalShortestPaths(*m_originalGraph, *m_terminals, *m_isTerminal, m_distance, m_pred);
+		MinSteinerTreeModule<T>::allTerminalShortestPaths(*m_originalGraph, *m_terminals,
+				*m_isTerminal, m_distance, m_pred);
 	} else {
-		MinSteinerTreeModule<T>::allPairShortestPaths(*m_originalGraph, *m_isTerminal, m_distance, m_pred);
+		MinSteinerTreeModule<T>::allPairShortestPaths(*m_originalGraph, *m_isTerminal, m_distance,
+				m_pred);
 	}
 }
 
 template<typename T>
-void MinSteinerTreeZelikovsky<T>::tripleOnDemand(Save<T> &save, NodeArray<bool> &isNewTerminal)
-{
+void MinSteinerTreeZelikovsky<T>::tripleOnDemand(Save<T>& save, NodeArray<bool>& isNewTerminal) {
 	Triple<T> maxTriple;
 	ArrayBuffer<node> nonterminals;
 	MinSteinerTreeModule<T>::getNonterminals(nonterminals, *m_originalGraph, *m_isTerminal);
@@ -548,13 +495,12 @@ void MinSteinerTreeZelikovsky<T>::tripleOnDemand(Save<T> &save, NodeArray<bool> 
 	} while (maxTriple.win() > 0);
 }
 
-
 template<typename T>
-void MinSteinerTreeZelikovsky<T>::onePass(Save<T> &save, NodeArray<bool> &isNewTerminal)
-{
-	m_triples.quicksort(GenericComparer<Triple<T>, double>([](const Triple<T>& x) -> double { return -x.win(); }));
+void MinSteinerTreeZelikovsky<T>::onePass(Save<T>& save, NodeArray<bool>& isNewTerminal) {
+	m_triples.quicksort(GenericComparer<Triple<T>, double>(
+			[](const Triple<T>& x) -> double { return -x.win(); }));
 
-	for (const Triple<T> &t : m_triples) {
+	for (const Triple<T>& t : m_triples) {
 		++m_tripleLookUps;
 		if (calcWin(double(save.gain(t.s0(), t.s1(), t.s2())), t.cost()) > 0) {
 			contractTriple(t, save, isNewTerminal);
@@ -562,10 +508,8 @@ void MinSteinerTreeZelikovsky<T>::onePass(Save<T> &save, NodeArray<bool> &isNewT
 	}
 }
 
-
 template<typename T>
-void MinSteinerTreeZelikovsky<T>::multiPass(Save<T> &save, NodeArray<bool> &isNewTerminal)
-{
+void MinSteinerTreeZelikovsky<T>::multiPass(Save<T>& save, NodeArray<bool>& isNewTerminal) {
 	double win = 0;
 	ListIterator<Triple<T>> maxTriple;
 
@@ -575,14 +519,13 @@ void MinSteinerTreeZelikovsky<T>::multiPass(Save<T> &save, NodeArray<bool> &isNe
 		for (ListIterator<Triple<T>> it = m_triples.begin(); it.valid(); it = nextIt) {
 			nextIt = it.succ();
 			++m_tripleLookUps;
-			Triple<T> &t = *it;
+			Triple<T>& t = *it;
 			t.win(calcWin(double(save.gain(t.s0(), t.s1(), t.s2())), t.cost()));
 			if (t.win() > win) {
 				win = t.win();
 				maxTriple = it;
 			} else {
-				if (tripleReduction() == TripleReduction::on
-				 && t.win() <= 0) {
+				if (tripleReduction() == TripleReduction::on && t.win() <= 0) {
 					m_triples.del(it);
 				}
 			}

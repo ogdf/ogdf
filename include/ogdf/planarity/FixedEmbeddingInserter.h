@@ -45,24 +45,22 @@ namespace ogdf {
  *
  * @ingroup ga-insert
  */
-class OGDF_EXPORT FixedEmbeddingInserter : public EdgeInsertionModule
-{
+class OGDF_EXPORT FixedEmbeddingInserter : public EdgeInsertionModule {
 public:
 	//! Creates an instance of fixed embedding edge inserter with default settings.
 	FixedEmbeddingInserter();
 
 	//! Creates an instance of fixed embedding edge inserter with the same settings as \p inserter.
-	FixedEmbeddingInserter(const FixedEmbeddingInserter &inserter);
+	FixedEmbeddingInserter(const FixedEmbeddingInserter& inserter);
 
 	//! Destructor.
 	~FixedEmbeddingInserter() { }
 
 	//! Returns a new instance of the fixed embedding inserter with the same option settings.
-	virtual EdgeInsertionModule *clone() const override;
+	virtual EdgeInsertionModule* clone() const override;
 
 	//! Assignment operator. Copies option settings only.
-	FixedEmbeddingInserter &operator=(const FixedEmbeddingInserter &inserter);
-
+	FixedEmbeddingInserter& operator=(const FixedEmbeddingInserter& inserter);
 
 	/**
 	 *  @name Optional parameters
@@ -74,29 +72,20 @@ public:
 	 *
 	 * This might alter the input embedding.
 	 */
-	void removeReinsert(RemoveReinsertType rrOption) {
-		m_rrOption = rrOption;
-	}
+	void removeReinsert(RemoveReinsertType rrOption) { m_rrOption = rrOption; }
 
 	//! Returns the current setting of the remove-reinsert postprocessing method.
-	RemoveReinsertType removeReinsert() const {
-		return m_rrOption;
-	}
-
+	RemoveReinsertType removeReinsert() const { return m_rrOption; }
 
 	//! Sets the option <i>percentMostCrossed</i> to \p percent.
 	/**
 	 * This option determines the portion of most crossed edges used if the remove-reinsert
 	 * method is set to RemoveReinsertType::MostCrossed. This portion is number of edges * percentMostCrossed() / 100.
 	 */
-	void percentMostCrossed(double percent) {
-		m_percentMostCrossed = percent;
-	}
+	void percentMostCrossed(double percent) { m_percentMostCrossed = percent; }
 
 	//! Returns the current setting of option percentMostCrossed.
-	double percentMostCrossed() const {
-		return m_percentMostCrossed;
-	}
+	double percentMostCrossed() const { return m_percentMostCrossed; }
 
 	//! Sets the option <i>keepEmbedding</i> to \p keep.
 	/**
@@ -104,14 +93,10 @@ public:
 	 * is preserved, or if always a new embedding is computed. If <i>keepEmbedding</i> is set to true,
 	 * \a PG must always be planarly embedded.
 	 */
-	void keepEmbedding(bool keep) {
-		m_keepEmbedding = keep;
-	}
+	void keepEmbedding(bool keep) { m_keepEmbedding = keep; }
 
 	//! Returns the current setting of option <i>keepEmbedding</i>.
-	bool keepEmbeding() const {
-		return m_keepEmbedding;
-	}
+	bool keepEmbeding() const { return m_keepEmbedding; }
 
 	/** @}
 	 *  @name Further information
@@ -119,23 +104,18 @@ public:
 	 */
 
 	//! Returns the number of runs performed by the remove-reinsert method after the algorithm has been called.
-	int runsPostprocessing() const {
-		return m_runsPostprocessing;
-	}
+	int runsPostprocessing() const { return m_runsPostprocessing; }
 
 	//! @}
 
 private:
 	//! Implements the algorithm call.
-	virtual ReturnType doCall(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *costOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs) override;
+	virtual ReturnType doCall(PlanRepLight& pr, const Array<edge>& origEdges,
+			const EdgeArray<int>* costOrig, const EdgeArray<bool>* pForbiddenOrig,
+			const EdgeArray<uint32_t>* pEdgeSubGraphs) override;
 
 	RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
-	double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
+	double m_percentMostCrossed; //!< The portion of most crossed edges considered.
 	bool m_keepEmbedding;
 
 	int m_runsPostprocessing; //!< Runs of remove-reinsert method.

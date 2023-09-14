@@ -33,8 +33,8 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
 #include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>
 
 namespace ogdf {
@@ -43,8 +43,7 @@ namespace ogdf {
 /**
  * @ingroup gd-energy
  */
-class OGDF_EXPORT FastMultipoleEmbedder : public LayoutModule
-{
+class OGDF_EXPORT FastMultipoleEmbedder : public LayoutModule {
 	using ArrayGraph = fast_multipole_embedder::ArrayGraph;
 	using FMEGlobalOptions = fast_multipole_embedder::FMEGlobalOptions;
 	using FMEGlobalContext = fast_multipole_embedder::FMEGlobalContext;
@@ -59,18 +58,15 @@ public:
 	~FastMultipoleEmbedder();
 
 	//! Calls the algorithm for graph \p G with the given edgelength and returns the layout information in \p nodeXPosition, \p nodeYPosition.
-	void call(
-		const Graph& G,
-		NodeArray<float>& nodeXPosition,
-		NodeArray<float>& nodeYPosition,
-		const EdgeArray<float>& edgeLength,
-		const NodeArray<float>& nodeSize);
+	void call(const Graph& G, NodeArray<float>& nodeXPosition, NodeArray<float>& nodeYPosition,
+			const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
 
 	//! Calls the algorithm for graph \p GA with the given \p edgeLength and returns the layout information in \p GA.
-	void call(GraphAttributes &GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
+	void call(GraphAttributes& GA, const EdgeArray<float>& edgeLength,
+			const NodeArray<float>& nodeSize);
 
 	//! Calls the algorithm for graph \p GA and returns the layout information in \p GA.
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	//! sets the maximum number of iterations
 	void setNumIterations(uint32_t numIterations) { m_numIterations = numIterations; }
@@ -135,43 +131,41 @@ private:
 	uint32_t m_maxNumberOfThreads;
 };
 
-
 //! The fast multipole multilevel embedder approach for force-directed multilevel layout.
 /**
  * @ingroup gd-energy
  */
-class OGDF_EXPORT FastMultipoleMultilevelEmbedder : public LayoutModule
-{
+class OGDF_EXPORT FastMultipoleMultilevelEmbedder : public LayoutModule {
 	using GalaxyMultilevel = fast_multipole_embedder::GalaxyMultilevel;
 	using GalaxyMultilevelBuilder = fast_multipole_embedder::GalaxyMultilevelBuilder;
 
 public:
 	//! Constructor, just sets number of maximum threads
 	FastMultipoleMultilevelEmbedder()
-	: m_iMaxNumThreads(1)
-	, m_iNumLevels(0)
-	, m_multiLevelNumNodesBound(10)
-	, m_iCurrentLevelNr(-1)
-	{ }
+		: m_iMaxNumThreads(1), m_iNumLevels(0), m_multiLevelNumNodesBound(10), m_iCurrentLevelNr(-1) { }
+
 	//! Calls the algorithm for graph \p GA and returns the layout information in \p GA.
-	void call(GraphAttributes &GA) override;
+	void call(GraphAttributes& GA) override;
 
 	//! sets the bound for the number of nodes for multilevel step
 	void multilevelUntilNumNodesAreLess(int nodesBound) { m_multiLevelNumNodesBound = nodesBound; }
 
 	void maxNumThreads(int numThreads) { m_iMaxNumThreads = numThreads; }
+
 private:
 	//! internal function to compute a good edgelength
-	void computeAutoEdgeLength(const GraphAttributes& GA, EdgeArray<float>& edgeLength, float factor = 1.0f);
+	void computeAutoEdgeLength(const GraphAttributes& GA, EdgeArray<float>& edgeLength,
+			float factor = 1.0f);
 
 	//! internal main function for the multilevel layout
 	void run(GraphAttributes& GA, const EdgeArray<float>& edgeLength);
 
 	//! creates all multilevels
-	void createMultiLevelGraphs(Graph* pGraph, GraphAttributes& GA, const EdgeArray<float>& edgeLength);
+	void createMultiLevelGraphs(Graph* pGraph, GraphAttributes& GA,
+			const EdgeArray<float>& edgeLength);
 
 	//! init the original graphs multilevel
-	void initFinestLevel(GraphAttributes &GA, const EdgeArray<float>& edgeLength);
+	void initFinestLevel(GraphAttributes& GA, const EdgeArray<float>& edgeLength);
 
 	//! calls the fast multipole embedder on current level
 	void layoutCurrentLevel();
@@ -192,26 +186,26 @@ private:
 	void deleteMultiLevelGraphs();
 
 	//! for debugging only
-	void dumpCurrentLevel(const char *filename);
+	void dumpCurrentLevel(const char* filename);
 
 	//! computes the maximum number of iterations by level nr
 	uint32_t numberOfIterationsByLevelNr(uint32_t levelNr);
 
-	int				  m_iMaxNumThreads;
-	int				  m_iNumLevels;
-	int				  m_multiLevelNumNodesBound;
+	int m_iMaxNumThreads;
+	int m_iNumLevels;
+	int m_multiLevelNumNodesBound;
 
 	GalaxyMultilevel* m_pCurrentLevel = nullptr;
 	GalaxyMultilevel* m_pFinestLevel = nullptr;
 	GalaxyMultilevel* m_pCoarsestLevel = nullptr;
 
-	Graph*			  m_pCurrentGraph = nullptr;
+	Graph* m_pCurrentGraph = nullptr;
 	NodeArray<float>* m_pCurrentNodeXPos = nullptr;
 	NodeArray<float>* m_pCurrentNodeYPos = nullptr;
 	EdgeArray<float>* m_pCurrentEdgeLength = nullptr;
 	NodeArray<float>* m_pCurrentNodeSize = nullptr;
-	NodeArray<float>  m_adjustedNodeSize;
-	int				  m_iCurrentLevelNr;
+	NodeArray<float> m_adjustedNodeSize;
+	int m_iCurrentLevelNr;
 
 	NodeArray<float>* m_pLastNodeXPos = nullptr;
 	NodeArray<float>* m_pLastNodeYPos = nullptr;

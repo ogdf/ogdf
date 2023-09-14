@@ -36,13 +36,12 @@
 
 #pragma once
 
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphObserver.h>
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/uml/UMLGraph.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphObserver.h>
-#include <ogdf/basic/Array2D.h>
-
 
 namespace ogdf {
 
@@ -52,15 +51,14 @@ namespace ogdf {
  * As incremental layout only makes sense with a given layout, this PlanRepInc copes
  * with layout information and embedding.
  */
-class OGDF_EXPORT PlanRepInc : public PlanRepUML, public GraphObserver
-{
+class OGDF_EXPORT PlanRepInc : public PlanRepUML, public GraphObserver {
 public:
 	//! Constructor for interactive updates (parts added step by step)
 	explicit PlanRepInc(const UMLGraph& UG);
 
 	//! Constructor for incremental updates (whole graph already given).
 	//! The part to stay fixed has fixed value set to true
-	PlanRepInc(const UMLGraph& UG, const NodeArray<bool> &fixed);
+	PlanRepInc(const UMLGraph& UG, const NodeArray<bool>& fixed);
 
 	//! Inits a CC only with active elements
 	void initActiveCC(int i);
@@ -75,8 +73,7 @@ public:
 	virtual void nodeAdded(node v) override;
 	virtual void edgeDeleted(edge e) override;
 	virtual void edgeAdded(edge e) override;
-	virtual void reInit() override;
-	virtual void cleared() override;//Graph cleared
+	virtual void cleared() override; //Graph cleared
 	//! @}
 
 	//! Sets activity status to true and updates the structures.
@@ -98,27 +95,28 @@ public:
 	//! Deletes an edge again
 	//! @{
 	void deleteTreeConnection(int i, int j);
-	void deleteTreeConnection(int i, int j, CombinatorialEmbedding &E);
+	void deleteTreeConnection(int i, int j, CombinatorialEmbedding& E);
 	//! @}
 
 	//! Sets a list of adjentries on "external" faces of
 	//! unconnected active parts of the current CC
-	void getExtAdjs(List<adjEntry> &extAdjs);
-	adjEntry getExtAdj(GraphCopy &GC, CombinatorialEmbedding &E);
+	void getExtAdjs(List<adjEntry>& extAdjs);
+	adjEntry getExtAdj(GraphCopy& GC, CombinatorialEmbedding& E);
 
 	//! Component number
-	int& componentNumber(node v) {return m_component[v];}
+	int& componentNumber(node v) { return m_component[v]; }
 
-	bool& treeEdge(edge e) {return m_treeEdge[e];}
+	bool& treeEdge(edge e) { return m_treeEdge[e]; }
+
 	//only valid if m_eTreeArray initialized, should be replaced later
-	edge treeEdge(int i, int j) const
-	{
+	edge treeEdge(int i, int j) const {
 		if (m_treeInit) {
 			return m_eTreeArray(i, j);
 		}
 		return nullptr;
 	}
-	bool treeInit() {return m_treeInit;}
+
+	bool treeInit() { return m_treeInit; }
 
 	//! \name Extension of methods defined by GraphCopy/PlanRep
 	//! @{
@@ -126,39 +124,38 @@ public:
 	//! Splits edge e, can be removed when edge status in edgetype
 	//! m_treedge can be removed afterwards
 	virtual edge split(edge e) override {
-
 		edge eNew = PlanRepUML::split(e);
-		if (m_treeEdge[e]) m_treeEdge[eNew] = true;
+		if (m_treeEdge[e]) {
+			m_treeEdge[eNew] = true;
+		}
 
 		return eNew;
-
 	}
 
 	//debug output
 #ifdef OGDF_DEBUG
-	void writeGML(const char *fileName)
-	{
-		const GraphAttributes &AG = getUMLGraph();
+	void writeGML(const char* fileName) {
+		const GraphAttributes& AG = getUMLGraph();
 		std::ofstream os(fileName);
-		writeGML(os, AG);//getUMLGraph());//l);
+		writeGML(os, AG); //getUMLGraph());//l);
 	}
-	void writeGML(const char *fileName, const Layout &drawing)
-	{
+
+	void writeGML(const char* fileName, const Layout& drawing) {
 		std::ofstream os(fileName);
 		writeGML(os, drawing);
 	}
 
-	void writeGML(std::ostream &os, const GraphAttributes &AG);
-	void writeGML(std::ostream &os, const Layout &drawing, bool colorEmbed = true);
+	void writeGML(std::ostream& os, const GraphAttributes& AG);
+	void writeGML(std::ostream& os, const Layout& drawing, bool colorEmbed = true);
 
 	//outputs a drawing if genus != 0
-	int genusLayout(Layout &drawing) const;
+	int genusLayout(Layout& drawing) const;
 #endif
 
 	//! @}
 
 protected:
-	void initMembers(const UMLGraph &UG);
+	void initMembers(const UMLGraph& UG);
 
 	//! Initializes CC with active nodes (minNode ? at least one node)
 	node initActiveCCGen(int i, bool minNode);

@@ -38,32 +38,26 @@ namespace ogdf {
 namespace spring_embedder {
 
 template<typename NodeInfo>
-class CommonForceModelBase
-{
+class CommonForceModelBase {
 public:
-	CommonForceModelBase(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, double idealEdgeLength) :
-	  m_vInfo(vInfo),
-	  m_adjLists(adjLists),
-	  m_idealEdgeLength(idealEdgeLength)
-	{
-	}
+	CommonForceModelBase(const Array<NodeInfo>& vInfo, const Array<int>& adjLists,
+			double idealEdgeLength)
+		: m_vInfo(vInfo), m_adjLists(adjLists), m_idealEdgeLength(idealEdgeLength) { }
 
-	double eps() const { return 0.01*m_idealEdgeLength; }
+	double eps() const { return 0.01 * m_idealEdgeLength; }
 
 protected:
-	const Array<NodeInfo> &m_vInfo;
-	const Array<int>      &m_adjLists;
+	const Array<NodeInfo>& m_vInfo;
+	const Array<int>& m_adjLists;
 
 	double m_idealEdgeLength;
 
-	double normByIdealEdgeLength(double norm) const
-	{
+	double normByIdealEdgeLength(double norm) const {
 		return (norm + eps()) / (m_idealEdgeLength + eps());
 	}
 
-	DPoint computeFruchtermanReingoldAttractiveForce(int j, int idealExponent) const
-	{
-		const NodeInfo &vj = m_vInfo[j];
+	DPoint computeFruchtermanReingoldAttractiveForce(int j, int idealExponent) const {
+		const NodeInfo& vj = m_vInfo[j];
 
 		// attractive forces on j: F_attr(d) = -d^2 / iel
 		DPoint force(0, 0);

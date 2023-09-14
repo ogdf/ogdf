@@ -39,13 +39,12 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT MatchingMerger : public MultilevelBuilder
-{
+class OGDF_EXPORT MatchingMerger : public MultilevelBuilder {
 private:
 	NodeArray<unsigned int> m_mass;
 	bool m_selectByMass;
 
-	bool buildOneLevel(MultilevelGraph &MLG) override;
+	bool buildOneLevel(MultilevelGraph& MLG) override;
 
 public:
 	MatchingMerger();

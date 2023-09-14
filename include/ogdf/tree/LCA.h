@@ -60,7 +60,7 @@ public:
 	 * @param root optional root of the arborescence
 	 * @pre Each node in \p G is reachable from the root via a unique directed path, that is, \p G is an arborescence.
 	 */
-	explicit LCA(const Graph &G, node root = nullptr);
+	explicit LCA(const Graph& G, node root = nullptr);
 
 	/**
 	 * Returns the %LCA of two nodes \p u and \p v.
@@ -71,10 +71,7 @@ public:
 	node call(node u, node v) const;
 
 	//! Returns the level of a node. The level of the root is 0.
-	int level(node v) const
-	{
-		return m_n == 1 ? 0 : m_level[m_representative[v]];
-	}
+	int level(node v) const { return m_n == 1 ? 0 : m_level[m_representative[v]]; }
 
 private:
 	const node m_root; //!< the root of the tree
@@ -90,7 +87,7 @@ private:
 	 * Performs an Euler tour (actually a DFS with virtual back-edges) through the underlying tree
 	 * and fills Euler tour and %Level arrays.
 	 */
-	void dfs(const Graph &G, node root);
+	void dfs(const Graph& G, node root);
 
 	/**
 	 * Fills the O(\a n log \a n)-space matrix with auxiliary data
@@ -104,14 +101,10 @@ private:
 	 * @pre 0 <= \p i < #m_len and 1 <= \p j <= #m_rangeJ
 	 */
 	//! @{
-	const int &sparseTable(int i, int j) const
-	{
-		return m_table[i * m_rangeJ + j - 1];
-	}
-	int &sparseTable(int i, int j)
-	{
-		return m_table[i * m_rangeJ + j - 1];
-	}
+	const int& sparseTable(int i, int j) const { return m_table[i * m_rangeJ + j - 1]; }
+
+	int& sparseTable(int i, int j) { return m_table[i * m_rangeJ + j - 1]; }
+
 	//! @}
 
 	/**

@@ -32,8 +32,8 @@
 #pragma once
 
 #include <ogdf/augmentation/AugmentationModule.h>
-#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/augmentation/planar/PALabel.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
@@ -44,7 +44,6 @@ namespace ogdf {
  * @ingroup ga-augment
  */
 class OGDF_EXPORT PlanarAugmentationFix : public AugmentationModule {
-
 public:
 	//! Creates an instance of planar augmentation with fixed embedding.
 	PlanarAugmentationFix() { }

@@ -33,7 +33,6 @@
 
 #include <string>
 
-
 namespace ogdf {
 
 namespace tlp {
@@ -53,8 +52,8 @@ enum class Attribute {
 	unknown
 };
 
-std::string toString(const Attribute &attr);
-Attribute toAttribute(const std::string &str);
+std::string toString(const Attribute& attr);
+Attribute toAttribute(const std::string& str);
 
 }
 }

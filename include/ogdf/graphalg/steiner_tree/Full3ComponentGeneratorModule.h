@@ -44,20 +44,16 @@ namespace steiner_tree {
  * the so-called center.
  */
 template<typename T>
-class Full3ComponentGeneratorModule
-{
+class Full3ComponentGeneratorModule {
 public:
 	Full3ComponentGeneratorModule() = default;
 	virtual ~Full3ComponentGeneratorModule() = default;
 
 	//! Generate full components and call \p generateFunction for each full component
-	virtual void call(
-	  const EdgeWeightedGraph<T> &G,
-	  const List<node> &terminals,
-	  const NodeArray<bool> &isTerminal,
-	  const NodeArray<NodeArray<T>> &distance,
-	  const NodeArray<NodeArray<edge>> &pred,
-	  std::function<void(node, node, node, node, T)> generateFunction) const = 0;
+	virtual void call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, const NodeArray<NodeArray<T>>& distance,
+			const NodeArray<NodeArray<edge>>& pred,
+			std::function<void(node, node, node, node, T)> generateFunction) const = 0;
 
 protected:
 	/*!
@@ -69,14 +65,13 @@ protected:
 	 * @param dist2 SSSP distance vector of the second terminal
 	 * @param dist3 SSSP distance vector of the third terminal
 	 */
-	inline void updateBestCenter(node x, node &center, T &minCost, const NodeArray<T> &dist1, const NodeArray<T> &dist2, const NodeArray<T> &dist3) const
-	{
+	inline void updateBestCenter(node x, node& center, T& minCost, const NodeArray<T>& dist1,
+			const NodeArray<T>& dist2, const NodeArray<T>& dist3) const {
 #ifdef OGDF_FULL_COMPONENT_GENERATION_ALWAYS_SAFE
 		if (true) {
 #else
-		if (dist1[x] < std::numeric_limits<T>::max()
-		 && dist2[x] < std::numeric_limits<T>::max()
-		 && dist3[x] < std::numeric_limits<T>::max()) {
+		if (dist1[x] < std::numeric_limits<T>::max() && dist2[x] < std::numeric_limits<T>::max()
+				&& dist3[x] < std::numeric_limits<T>::max()) {
 #endif
 			const T tmp = dist1[x] + dist2[x] + dist3[x];
 			if (tmp < minCost) {
@@ -86,11 +81,11 @@ protected:
 		}
 	}
 
-	inline void forAllTerminalTriples(
-	  const List<node> &terminals,
-	  const NodeArray<NodeArray<T>> &distance,
-	  std::function<void(node, node, node, const NodeArray<T> &, const NodeArray<T> &, const NodeArray<T> &)> func) const
-	{
+	inline void forAllTerminalTriples(const List<node>& terminals,
+			const NodeArray<NodeArray<T>>& distance,
+			std::function<void(node, node, node, const NodeArray<T>&, const NodeArray<T>&,
+					const NodeArray<T>&)>
+					func) const {
 		for (ListConstIterator<node> it_u = terminals.begin(); it_u.valid(); ++it_u) {
 			for (ListConstIterator<node> it_v = it_u.succ(); it_v.valid(); ++it_v) {
 				for (ListConstIterator<node> it_w = it_v.succ(); it_w.valid(); ++it_w) {
@@ -101,15 +96,9 @@ protected:
 	}
 
 	inline void checkAndGenerateFunction(node u, node v, node w, node center, T minCost,
-	                                     const NodeArray<NodeArray<edge>> &pred,
-	                                     const NodeArray<bool> &isTerminal,
-	                                     std::function<void(node, node, node, node, T)> generateFunction) const
-	{
-		if (center
-		 && !isTerminal[center]
-		 && pred[u][center]
-		 && pred[v][center]
-		 && pred[w][center]) {
+			const NodeArray<NodeArray<edge>>& pred, const NodeArray<bool>& isTerminal,
+			std::function<void(node, node, node, node, T)> generateFunction) const {
+		if (center && !isTerminal[center] && pred[u][center] && pred[v][center] && pred[w][center]) {
 			generateFunction(u, v, w, center, minCost);
 		}
 	}

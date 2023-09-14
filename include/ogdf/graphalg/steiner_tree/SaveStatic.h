@@ -32,10 +32,10 @@
 
 #pragma once
 
-#include <ogdf/tree/LCA.h>
 #include <ogdf/graphalg/steiner_tree/Save.h>
 #include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
+#include <ogdf/tree/LCA.h>
 
 namespace ogdf {
 namespace steiner_tree {
@@ -45,23 +45,19 @@ namespace steiner_tree {
  *  that the update of the weighted graph is not done dynamically here
  */
 template<typename T>
-class SaveStatic: public Save<T> {
+class SaveStatic : public Save<T> {
 public:
-	explicit SaveStatic(EdgeWeightedGraphCopy<T> &steinerTree)
-	  : Save<T>()
-	  , m_tree()
-	  , m_treeEdge(m_tree, nullptr)
-	  , m_steinerTree(&steinerTree)
-	  , m_cTerminals(*m_steinerTree, nullptr)
-	{
+	explicit SaveStatic(EdgeWeightedGraphCopy<T>& steinerTree)
+		: Save<T>()
+		, m_tree()
+		, m_treeEdge(m_tree, nullptr)
+		, m_steinerTree(&steinerTree)
+		, m_cTerminals(*m_steinerTree, nullptr) {
 		m_root = buildHeaviestEdgeInComponentTree(*m_steinerTree, m_cTerminals, m_treeEdge, m_tree);
 		m_lca = new LCA(m_tree, m_root);
 	}
 
-	virtual ~SaveStatic()
-	{
-		delete m_lca;
-	}
+	virtual ~SaveStatic() { delete m_lca; }
 
 	/*!
 	 * \brief Determines the weight of the save edge between two nodes by a LCA query
@@ -69,10 +65,7 @@ public:
 	 * @param v First node
 	 * @return Weight of the save edge between two given nodes
 	 */
-	virtual T saveWeight(node u, node v) const
-	{
-		return m_steinerTree->weight(saveEdge(u, v));
-	}
+	virtual T saveWeight(node u, node v) const { return m_steinerTree->weight(saveEdge(u, v)); }
 
 	/*!
 	 * \brief Determines the save edge between two nodes by a LCA query
@@ -80,8 +73,7 @@ public:
 	 * @param v First node
 	 * @return The save edge between two given nodes
 	 */
-	virtual edge saveEdge(node u, node v) const
-	{
+	virtual edge saveEdge(node u, node v) const {
 		OGDF_ASSERT(m_steinerTree->copy(u));
 		OGDF_ASSERT(m_steinerTree->copy(v));
 		node anc = lca(m_steinerTree->copy(u), m_steinerTree->copy(v));
@@ -96,22 +88,20 @@ public:
 	 * @param w Third triple node
 	 * @return Sum of the save edges between the three nodes
 	 */
-	virtual T gain(node u, node v, node w) const
-	{
+	virtual T gain(node u, node v, node w) const {
 		node save0 = lca(m_steinerTree->copy(u), m_steinerTree->copy(v));
 		node save1 = lca(m_steinerTree->copy(u), m_steinerTree->copy(w));
 		if (save0 == save1) {
 			save1 = lca(m_steinerTree->copy(v), m_steinerTree->copy(w));
 		}
 		return (save0 ? m_steinerTree->weight(m_treeEdge[save0]) : 0)
-		     + (save1 ? m_steinerTree->weight(m_treeEdge[save1]) : 0);
+				+ (save1 ? m_steinerTree->weight(m_treeEdge[save1]) : 0);
 	}
 
 	/*!
 	 * \brief Rebuild the data structure (necessary if the tree has changed)
 	 */
-	void rebuild()
-	{
+	void rebuild() {
 		m_tree.clear();
 		m_cTerminals.fill(nullptr);
 		m_root = buildHeaviestEdgeInComponentTree(*m_steinerTree, m_cTerminals, m_treeEdge, m_tree);
@@ -127,8 +117,7 @@ public:
 	 * structure is rebuilt as well.
 	 * @param t The contracted triple
 	 */
-	virtual void update(const Triple<T> &t)
-	{
+	virtual void update(const Triple<T>& t) {
 		const edge save0 = saveEdge(t.s0(), t.s1());
 		const edge save1 = saveEdge(t.s0(), t.s2());
 		const edge save2 = saveEdge(t.s1(), t.s2());
@@ -143,19 +132,15 @@ public:
 	 * @param v Second node
 	 * @return The LCA of u and v
 	 */
-	node lca(node u, node v) const
-	{
-		return m_lca->call(m_cTerminals[u], m_cTerminals[v]);
-	}
+	node lca(node u, node v) const { return m_lca->call(m_cTerminals[u], m_cTerminals[v]); }
 
 protected:
-
 private:
 	Graph m_tree; //!< The weighted binary tree to represent the edge weight hierarchy
 	NodeArray<edge> m_treeEdge; //!< Maps each inner node of m_tree to an edge in m_steinerTree
-	EdgeWeightedGraphCopy<T> *m_steinerTree; //!< A pointer to the tree we represent the save for
+	EdgeWeightedGraphCopy<T>* m_steinerTree; //!< A pointer to the tree we represent the save for
 	node m_root; //!< The root of m_tree
-	LCA *m_lca; //!< The LCA data structure for m_tree
+	LCA* m_lca; //!< The LCA data structure for m_tree
 	NodeArray<node> m_cTerminals;
 };
 

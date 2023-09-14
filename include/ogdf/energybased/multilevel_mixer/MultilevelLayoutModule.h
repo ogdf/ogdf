@@ -56,7 +56,7 @@ public:
 	 * derived classes.
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(GraphAttributes &GA) override = 0;
+	virtual void call(GraphAttributes& GA) override = 0;
 
 	/**
 	 * \brief Computes a layout of graph \a MLG.
@@ -80,7 +80,7 @@ public:
 	 *
 	 * @param MLG is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(MultilevelGraph &MLG) {
+	virtual void call(MultilevelGraph& MLG) {
 		GraphAttributes GA(MLG.getGraph());
 		MLG.exportAttributesSimple(GA);
 		call(GA);

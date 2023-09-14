@@ -34,8 +34,8 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
-#include <string>
 
+#include <string>
 
 namespace ogdf {
 
@@ -95,21 +95,21 @@ enum class Key {
 };
 
 
-std::string toString(const Key &attr);
-std::string toString(const EdgeArrow &arrow);
-std::string toString(const Graph::NodeType &type);
+std::string toString(const Key& attr);
+std::string toString(const EdgeArrow& arrow);
+std::string toString(const Graph::NodeType& type);
 
-Key toKey(const std::string &str);
-EdgeArrow toArrow(const std::string &str);
-Graph::NodeType toNodeType(const std::string &str);
+Key toKey(const std::string& str);
+EdgeArrow toArrow(const std::string& str);
+Graph::NodeType toNodeType(const std::string& str);
 
 }
 }
 
 // Implement hash for gml::Key so we can use it as a key in unordered_map.
 namespace std {
-	template<>
-	struct hash<ogdf::gml::Key> {
-		std::size_t operator()(const ogdf::gml::Key& t) const { return size_t(t); }
-	};
+template<>
+struct hash<ogdf::gml::Key> {
+	std::size_t operator()(const ogdf::gml::Key& t) const { return size_t(t); }
+};
 }

@@ -31,10 +31,9 @@
 
 #pragma once
 
-#include<ogdf/simultaneous/SimDraw.h>
+#include <ogdf/simultaneous/SimDraw.h>
 
-namespace ogdf
-{
+namespace ogdf {
 //! Interface for simdraw manipulators
 /**
  *  To avoid class SimDraw to become too large, several functions
@@ -56,18 +55,16 @@ namespace ogdf
  *  SDCo.addColor();
  *  \endcode
  */
-class OGDF_EXPORT SimDrawManipulatorModule
-{
-
+class OGDF_EXPORT SimDrawManipulatorModule {
 protected:
 	//! pointer to current simdraw instance
-	SimDraw *m_SD;
+	SimDraw* m_SD;
 
 	//! pointer to current graph
-	Graph *m_G;
+	Graph* m_G;
 
 	//! pointer to current graphattributes
-	GraphAttributes *m_GA;
+	GraphAttributes* m_GA;
 
 public:
 	//! default constructor
@@ -76,13 +73,13 @@ public:
 	SimDrawManipulatorModule();
 
 	//! constructor
-	explicit SimDrawManipulatorModule(SimDraw &SD) { init(SD); }
+	explicit SimDrawManipulatorModule(SimDraw& SD) { init(SD); }
 
 	//! initializing base instance
-	void init(SimDraw &SD);
+	void init(SimDraw& SD);
 
 	//! returns base instance
-	const SimDraw &constSimDraw() const { return *m_SD; }
+	const SimDraw& constSimDraw() const { return *m_SD; }
 };
 
 }

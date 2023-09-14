@@ -33,18 +33,12 @@
 
 namespace ogdf {
 
-ConvexHull::ConvexHull()
-{
-}
+ConvexHull::ConvexHull() { }
 
+ConvexHull::~ConvexHull() { }
 
-ConvexHull::~ConvexHull()
-{
-}
-
-
-bool ConvexHull::sameDirection(const DPoint &start, const DPoint &end, const DPoint &s, const DPoint &e) const
-{
+bool ConvexHull::sameDirection(const DPoint& start, const DPoint& end, const DPoint& s,
+		const DPoint& e) const {
 	DPoint a = (start - end);
 	DPoint b = (s - e);
 	DPoint c = a + b;
@@ -55,24 +49,20 @@ bool ConvexHull::sameDirection(const DPoint &start, const DPoint &end, const DPo
 	return len2_c > max(len2_a, len2_b);
 }
 
-
-DPoint ConvexHull::calcNormal(const DPoint &start, const DPoint &end) const
-{
-	double len = sqrt((end.m_x-start.m_x)*(end.m_x-start.m_x) + (end.m_y-start.m_y)*(end.m_y-start.m_y));
+DPoint ConvexHull::calcNormal(const DPoint& start, const DPoint& end) const {
+	double len = sqrt((end.m_x - start.m_x) * (end.m_x - start.m_x)
+			+ (end.m_y - start.m_y) * (end.m_y - start.m_y));
 	return DPoint((start.m_y - end.m_y) / len, (end.m_x - start.m_x) / len);
 }
 
-
-double ConvexHull::leftOfLine(const DPoint &normal, const DPoint &point, const DPoint &pointOnLine) const
-{
+double ConvexHull::leftOfLine(const DPoint& normal, const DPoint& point,
+		const DPoint& pointOnLine) const {
 	return (point.m_x - pointOnLine.m_x) * normal.m_x + (point.m_y - pointOnLine.m_y) * normal.m_y;
 }
 
-
 // calculates a convex hull very quickly but only works with cross-free Polygons!
 // polygon order (cw/ccw) must be set correctly
-DPolygon ConvexHull::conv(const DPolygon &poly) const
-{
+DPolygon ConvexHull::conv(const DPolygon& poly) const {
 	DPolygon res(poly);
 
 	DPolygon::iterator lastChange = res.cyclicPred(res.begin());
@@ -86,13 +76,14 @@ DPolygon ConvexHull::conv(const DPolygon &poly) const
 			continue;
 		}
 
-		if (g == i)	{
+		if (g == i) {
 			i = res.cyclicSucc(i);
 			continue;
 		}
 
 		DPoint norm = calcNormal(*h, *i);
-		if ((res.counterclock() && leftOfLine(norm, *g, *h) <= 0.0) || (!res.counterclock() && leftOfLine(norm, *g, *h) >= 0.0)) {
+		if ((res.counterclock() && leftOfLine(norm, *g, *h) <= 0.0)
+				|| (!res.counterclock() && leftOfLine(norm, *g, *h) >= 0.0)) {
 			res.del(h);
 			lastChange = g;
 		} else {
@@ -103,15 +94,14 @@ DPolygon ConvexHull::conv(const DPolygon &poly) const
 	return res;
 }
 
-
-void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end, DPolygon &hullPoly) const
-{
+void ConvexHull::leftHull(std::vector<DPoint> points, DPoint& start, DPoint& end,
+		DPolygon& hullPoly) const {
 	// delete points faster by switching with last in vector!
 	DPoint q1;
 	DPoint q2;
 	unsigned int indexQ1;
 	unsigned int indexQ2;
-	for( ; ; ) {
+	for (;;) {
 		if (points.size() == 1) {
 			hullPoly.pushBack(points.front());
 		}
@@ -119,9 +109,9 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 			return;
 		}
 
-		indexQ1 = randomNumber(0, (int)points.size()-1);
+		indexQ1 = randomNumber(0, (int)points.size() - 1);
 		q1 = points[indexQ1];
-		indexQ2 = randomNumber(0, (int)points.size()-1);
+		indexQ2 = randomNumber(0, (int)points.size() - 1);
 		q2 = points[indexQ2];
 
 		if (q1 == q2) {
@@ -154,7 +144,8 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 		break;
 	}
 
-	if ((leftOfLine(calcNormal(q1, q2), start, q1) >= 0.0) && (leftOfLine(calcNormal(q1, q2), end, q1) >= 0.0)) {
+	if ((leftOfLine(calcNormal(q1, q2), start, q1) >= 0.0)
+			&& (leftOfLine(calcNormal(q1, q2), end, q1) >= 0.0)) {
 		std::swap(q1, q2);
 		std::swap(indexQ1, indexQ2);
 	}
@@ -192,7 +183,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 	unsigned int indexQ = 0;
 	DPoint q(points[qCandidates[0]]);
 	for (unsigned int i = 0; i < qCandidates.size(); i++) {
-		if (indexQ != i && sameDirection(points[qCandidates[i]], q, q1, q2) ) {
+		if (indexQ != i && sameDirection(points[qCandidates[i]], q, q1, q2)) {
 			q = points[qCandidates[i]];
 			indexQ = i;
 		}
@@ -205,12 +196,11 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 	del[0] = indexQ;
 	del[1] = indexQ1;
 	del[2] = indexQ2;
-	std::sort(del, del+3);
+	std::sort(del, del + 3);
 
 	int last = (int)points.size();
-	for(int i = 2; i >= 0; i--) {
-		if (del[i] < last)
-		{
+	for (int i = 2; i >= 0; i--) {
+		if (del[i] < last) {
 			points[del[i]] = points.back();
 			points.pop_back();
 			last = del[i];
@@ -222,8 +212,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 	DPoint sqNormal = calcNormal(start, q);
 	DPoint qeNormal = calcNormal(q, end);
 
-	if (indexQ1 != indexQ)
-	{
+	if (indexQ1 != indexQ) {
 		if (OGDF_GEOM_ET.greater(leftOfLine(sqNormal, q1, q), 0.0)) {
 			lPoints.push_back(q1);
 			OGDF_ASSERT(!OGDF_GEOM_ET.greater(leftOfLine(qeNormal, q1, q), 0.0));
@@ -232,8 +221,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 		}
 	}
 
-	if (indexQ2 != indexQ)
-	{
+	if (indexQ2 != indexQ) {
 		if (OGDF_GEOM_ET.greater(leftOfLine(sqNormal, q2, q), 0.0)) {
 			lPoints.push_back(q2);
 			OGDF_ASSERT(!OGDF_GEOM_ET.greater(leftOfLine(qeNormal, q2, q), 0.0));
@@ -242,8 +230,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 		}
 	}
 
-	if (!points.empty())
-	{
+	if (!points.empty()) {
 		DPolygon inner(false);
 		inner.pushBack(start);
 		inner.pushBack(q1);
@@ -253,7 +240,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 		inner = conv(inner);
 
 		while (!points.empty()) {
-			int indexP = randomNumber(0, (int)points.size()-1);
+			int indexP = randomNumber(0, (int)points.size() - 1);
 			DPoint p = points[indexP];
 			points[indexP] = points.back();
 			points.pop_back();
@@ -284,7 +271,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 				DPoint r;
 				int indexR;
 				do {
-					indexR = randomNumber(0, (int)points.size()-1);
+					indexR = randomNumber(0, (int)points.size() - 1);
 					r = points[indexR];
 					if (inner2.containsPoint(r)) {
 						points[indexR] = points.back();
@@ -294,7 +281,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 					} else {
 						times--;
 					}
-				} while(times > 0 && points.size() > 0);
+				} while (times > 0 && points.size() > 0);
 
 				if ((deletes > 0 && inner2.size() <= 10) || inner2.size() <= inner.size()) {
 					inner = inner2;
@@ -318,20 +305,16 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 	leftHull(rPoints, q, end, hullPoly);
 }
 
-
-DPolygon ConvexHull::call(std::vector<DPoint> points) const
-{
+DPolygon ConvexHull::call(std::vector<DPoint> points) const {
 	DPolygon hullPoly(false);
 	if (points.empty()) {
 		return hullPoly;
 	}
 
-	if (points.size() <= 2)
-	{
+	if (points.size() <= 2) {
 		hullPoly.pushBack(points.front());
 
-		if (points.back() != points.front())
-		{
+		if (points.back() != points.front()) {
 			hullPoly.pushBack(points.back());
 		}
 		return hullPoly;
@@ -341,7 +324,7 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 	DPoint xpoints[8];
 	double extremes[8];
 	unsigned int xIndex[8];
-	for (int i=0; i<8; i++)	{
+	for (int i = 0; i < 8; i++) {
 		xpoints[i] = *(points.begin());
 		extremes[i] = 0.0;
 		xIndex[i] = 0;
@@ -353,7 +336,7 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 			if (ix == 0 && iy == 0) {
 				continue;
 			}
-			DPoint zero(0.0,0.0);
+			DPoint zero(0.0, 0.0);
 			DPoint normal = calcNormal(zero, DPoint(ix, iy));
 			for (unsigned int it = 0; it < points.size(); it++) {
 				double dist = leftOfLine(normal, points[it], zero);
@@ -367,7 +350,7 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 		}
 	}
 
-	std::sort(xIndex, xIndex+8);
+	std::sort(xIndex, xIndex + 8);
 
 	// delete known extremes
 	unsigned int last = (unsigned int)points.size();
@@ -398,9 +381,9 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 		DPolygon::iterator j = poly.cyclicSucc(i);
 		normals.push_back(calcNormal(*i, *j));
 	}
-	std::vector< std::vector<DPoint> > pointArray;
+	std::vector<std::vector<DPoint>> pointArray;
 	pointArray.resize(poly.size());
-	for (const DPoint &p : points) {
+	for (const DPoint& p : points) {
 		int component = 0;
 		DPolygon::iterator sp = poly.begin();
 		DPolygon::iterator spn = poly.cyclicSucc(sp);
@@ -423,24 +406,20 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 	return conv(hullPoly);
 }
 
-
-DPolygon ConvexHull::call(MultilevelGraph &MLG) const
-{
+DPolygon ConvexHull::call(MultilevelGraph& MLG) const {
 	std::vector<DPoint> points;
 
-	for(node v : MLG.getGraph().nodes) {
+	for (node v : MLG.getGraph().nodes) {
 		points.push_back(DPoint(MLG.x(v), MLG.y(v)));
 	}
 
 	return call(points);
 }
 
-
-DPolygon ConvexHull::call(GraphAttributes &GA) const
-{
+DPolygon ConvexHull::call(GraphAttributes& GA) const {
 	std::vector<DPoint> points;
 
-	for(node v : GA.constGraph().nodes) {
+	for (node v : GA.constGraph().nodes) {
 		points.push_back(GA.point(v));
 	}
 

@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/decomposition/BCTree.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
 
@@ -42,7 +42,9 @@ namespace embedder {
 //! Common base for embedder algorithms based on BC trees.
 template<bool EnableLayers, bool IsEmbedderMinDepth = false>
 class OGDF_EXPORT EmbedderBCTreeBase : public EmbedderModule {
-	using BicompEmbedder = typename std::conditional<EnableLayers, EmbedderMaxFaceBiconnectedGraphsLayers<int>, EmbedderMaxFaceBiconnectedGraphs<int>>::type;
+	using BicompEmbedder = typename std::conditional<EnableLayers,
+			EmbedderMaxFaceBiconnectedGraphsLayers<int>, EmbedderMaxFaceBiconnectedGraphs<int>>::type;
+
 protected:
 	//! BC-tree of the original graph
 	BCTree* pBCTree = nullptr;
@@ -52,7 +54,7 @@ protected:
 
 	//! Initialization code for biconnected input.
 	//! Returns an adjacency entry that lies on the external face.
-	virtual adjEntry trivialInit(Graph &G) {
+	virtual adjEntry trivialInit(Graph& G) {
 		NodeArray<int> m_nodeLength(G, 0);
 		EdgeArray<int> m_edgeLength(G, IsEmbedderMinDepth ? 0 : 1);
 		adjEntry m_adjExternal;
@@ -63,7 +65,7 @@ protected:
 
 	//! Initializes #pBCTree and returns the root node of this tree
 	//! or \c nullptr if \p G is biconnected.
-	node initBCTree(Graph &G) {
+	node initBCTree(Graph& G) {
 		node result = nullptr;
 
 		// HINT: Edges are directed from child to parent in BC-trees
@@ -89,4 +91,5 @@ protected:
 	}
 };
 
-}}
+}
+}

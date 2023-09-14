@@ -35,33 +35,30 @@
 namespace ogdf {
 
 
-static void writeMatrix(
-	std::ostream &os,
-	const Graph &G, const GraphAttributes *GA,
-	const NodeArray<int> &index)
-{
+static void writeMatrix(std::ostream& os, const Graph& G, const GraphAttributes* GA,
+		const NodeArray<int>& index) {
 	os << "DATA:\n";
 	const long attrs = GA ? GA->attributes() : 0;
 	const int n = G.numberOfNodes();
 	std::vector<double> matrix(n * n, 0);
 
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		const int vs = index[e->source()];
 		const int vt = index[e->target()];
 
-		if(attrs & GraphAttributes::edgeDoubleWeight) {
+		if (attrs & GraphAttributes::edgeDoubleWeight) {
 			matrix[vs * n + vt] = GA->doubleWeight(e);
-		} else if(attrs & GraphAttributes::edgeIntWeight) {
+		} else if (attrs & GraphAttributes::edgeIntWeight) {
 			matrix[vs * n + vt] = GA->intWeight(e);
 		} else {
 			matrix[vs * n + vt] = 1;
 		}
 	}
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		bool space = false;
-		for(node u : G.nodes) {
-			if(space) {
+		for (node u : G.nodes) {
+			if (space) {
 				os << " ";
 			}
 			space = true;
@@ -73,21 +70,17 @@ static void writeMatrix(
 	}
 }
 
-
-static void writeEdges(
-	std::ostream &os,
-	const Graph &G, const GraphAttributes *GA,
-	const NodeArray<int> &index)
-{
+static void writeEdges(std::ostream& os, const Graph& G, const GraphAttributes* GA,
+		const NodeArray<int>& index) {
 	os << "DATA:\n";
 	const long attrs = GA ? GA->attributes() : 0;
 
-	for(edge e : G.edges) {
+	for (edge e : G.edges) {
 		os << (index[e->source()] + 1) << " " << (index[e->target()] + 1);
 
-		if(attrs & GraphAttributes::edgeDoubleWeight) {
+		if (attrs & GraphAttributes::edgeDoubleWeight) {
 			os << " " << GA->doubleWeight(e);
-		} else if(attrs & GraphAttributes::edgeIntWeight) {
+		} else if (attrs & GraphAttributes::edgeIntWeight) {
 			os << " " << GA->intWeight(e);
 		}
 
@@ -95,17 +88,13 @@ static void writeEdges(
 	}
 }
 
-
-static bool writeGraph(
-	std::ostream &os,
-	const Graph &G, const GraphAttributes *GA)
-{
+static bool writeGraph(std::ostream& os, const Graph& G, const GraphAttributes* GA) {
 	std::ios_base::fmtflags currentFlags = os.flags();
 	os.flags(currentFlags | std::ios::fixed);
 
 	bool result = os.good();
 
-	if(result) {
+	if (result) {
 		const long long n = G.numberOfNodes(), m = G.numberOfEdges();
 
 		os << "DL N = " << n << "\n";
@@ -117,7 +106,8 @@ static bool writeGraph(
 		//   * (2n + 1) n is the length of the matrix representation.
 		//   * 6m is a rough estimate for the length of the edge list representation.
 		enum class Format {
-			Matrix, Edges
+			Matrix,
+			Edges
 		} format = isParallelFree(G) && (2 * n + 1) * n < 6 * m ? Format::Matrix : Format::Edges;
 
 		// Specify output format.
@@ -128,18 +118,18 @@ static bool writeGraph(
 			os << "edgelist1\n";
 		}
 
-		NodeArray<int> indices{G};
-		int index{0};
+		NodeArray<int> indices {G};
+		int index {0};
 		for (node v : G.nodes) {
 			indices[v] = index++;
 		}
 
 		const long attrs = GA ? GA->attributes() : 0;
-		if(attrs & GraphAttributes::nodeLabel) {
+		if (attrs & GraphAttributes::nodeLabel) {
 			os << "LABELS:\n";
 			bool comma = false;
-			for(node v : G.nodes) {
-				if(comma) {
+			for (node v : G.nodes) {
+				if (comma) {
 					os << ",";
 				}
 				comma = true;
@@ -160,15 +150,9 @@ static bool writeGraph(
 	return result;
 }
 
+bool GraphIO::writeDL(const Graph& G, std::ostream& os) { return writeGraph(os, G, nullptr); }
 
-bool GraphIO::writeDL(const Graph &G, std::ostream &os)
-{
-	return writeGraph(os, G, nullptr);
-}
-
-
-bool GraphIO::writeDL(const GraphAttributes &GA, std::ostream &os)
-{
+bool GraphIO::writeDL(const GraphAttributes& GA, std::ostream& os) {
 	return writeGraph(os, GA.constGraph(), &GA);
 }
 

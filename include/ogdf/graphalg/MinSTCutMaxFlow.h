@@ -31,9 +31,10 @@
 
 #pragma once
 
-#include <memory>
-#include <ogdf/graphalg/MinSTCutModule.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
+#include <ogdf/graphalg/MinSTCutModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -45,8 +46,9 @@ namespace ogdf {
  * @ingroup ga-cut
  */
 template<typename TCost>
-class MinSTCutMaxFlow: public MinSTCutModule<TCost> {
+class MinSTCutMaxFlow : public MinSTCutModule<TCost> {
 	using MinSTCutModule<TCost>::m_gc;
+
 public:
 	/**
 	 * Constructor
@@ -63,23 +65,27 @@ public:
 	 * @param epsilonTest The module used for epsilon tests.
 	 * The module will be deleted, when the lifetime of this object is over.
 	 */
-	explicit MinSTCutMaxFlow(bool treatAsUndirected = true, MaxFlowModule<TCost> *mfModule = new MaxFlowGoldbergTarjan<TCost>(),
-	                bool primaryCut = true, bool calculateOtherCut = true,
-	                EpsilonTest *epsilonTest = new EpsilonTest()) :
-		m_mfModule(mfModule), m_treatAsUndirected(treatAsUndirected), m_primaryCut(primaryCut),
-		m_calculateOtherCut(calculateOtherCut), m_et(epsilonTest)
-	{ }
+	explicit MinSTCutMaxFlow(bool treatAsUndirected = true,
+			MaxFlowModule<TCost>* mfModule = new MaxFlowGoldbergTarjan<TCost>(),
+			bool primaryCut = true, bool calculateOtherCut = true,
+			EpsilonTest* epsilonTest = new EpsilonTest())
+		: m_mfModule(mfModule)
+		, m_treatAsUndirected(treatAsUndirected)
+		, m_primaryCut(primaryCut)
+		, m_calculateOtherCut(calculateOtherCut)
+		, m_et(epsilonTest) { }
 
 	/**
 	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
-	virtual bool call(const Graph &graph, const EdgeArray<TCost> &weight, node s, node t,
-	                  List<edge> &edgeList, edge e_st = nullptr) override;
+	virtual bool call(const Graph& graph, const EdgeArray<TCost>& weight, node s, node t,
+			List<edge>& edgeList, edge e_st = nullptr) override;
 
 	/**
 	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
 	 */
-	virtual bool call(const Graph &graph, node s, node t, List<edge> &edgeList, edge e_st = nullptr) override {
+	virtual bool call(const Graph& graph, node s, node t, List<edge>& edgeList,
+			edge e_st = nullptr) override {
 		EdgeArray<TCost> weight(graph, 1);
 		return call(graph, weight, s, t, edgeList, e_st);
 	}
@@ -93,7 +99,8 @@ public:
 	 * @param source The source of the min cut
 	 * @param target the target (aka sink) of the minimum cut
 	 */
-	void call(const Graph &graph, const EdgeArray<TCost> &weights, const EdgeArray<TCost> &flow, const node source, const node target);
+	void call(const Graph& graph, const EdgeArray<TCost>& weights, const EdgeArray<TCost>& flow,
+			const node source, const node target);
 
 	/**
 	 * The three types of cuts.
@@ -107,10 +114,7 @@ public:
 	/**
 	 * Assigns a new epsilon test.
 	 */
-	void setEpsilonTest(EpsilonTest *et)
-	{
-		m_et.reset(et);
-	}
+	void setEpsilonTest(EpsilonTest* et) { m_et.reset(et); }
 
 	/**
 	 * Returns whether the front cut is the complement of
@@ -118,8 +122,7 @@ public:
 	 * one of both cut types.
 	 * @pre \c calculateOtherCut has to be set to true in the constructor
 	 */
-	bool frontCutIsComplementOfBackCut() const
-	{
+	bool frontCutIsComplementOfBackCut() const {
 		OGDF_ASSERT(m_calculateOtherCut);
 		return m_backCutCount + m_frontCutCount == m_totalCount;
 	}
@@ -127,29 +130,26 @@ public:
 	/**
 	 * Returns whether this edge is leaving the front cut.
 	 */
-	bool isFrontCutEdge(const edge e) const
-	{
+	bool isFrontCutEdge(const edge e) const {
 		OGDF_ASSERT(m_calculateOtherCut || m_primaryCut);
 		return m_nodeSet[e->source()] == cutType::FRONT_CUT
-			   && m_nodeSet[e->target()] != cutType::FRONT_CUT;
+				&& m_nodeSet[e->target()] != cutType::FRONT_CUT;
 	}
 
 	/**
 	 * Returns whether this edge is entering the back cut.
 	 */
-	bool isBackCutEdge(const edge e) const
-	{
+	bool isBackCutEdge(const edge e) const {
 		OGDF_ASSERT(m_calculateOtherCut || !m_primaryCut);
 		return m_nodeSet[e->target()] == cutType::BACK_CUT
-			   && m_nodeSet[e->source()] != cutType::BACK_CUT;
+				&& m_nodeSet[e->source()] != cutType::BACK_CUT;
 	}
 
 	/**
 	 * Returns whether this node is part of the front cut.
 	 * Meaning it is located in the same set as the source.
 	 */
-	bool isInFrontCut(const node v) const
-	{
+	bool isInFrontCut(const node v) const {
 		OGDF_ASSERT(m_calculateOtherCut || m_primaryCut);
 		return m_nodeSet[v] == cutType::FRONT_CUT;
 	}
@@ -160,8 +160,7 @@ public:
 	 *
 	 * @param v The node in question.
 	 */
-	bool isInBackCut(const node v) const
-	{
+	bool isInBackCut(const node v) const {
 		OGDF_ASSERT(m_calculateOtherCut || !m_primaryCut);
 		return m_nodeSet[v] == cutType::BACK_CUT;
 	}
@@ -177,10 +176,7 @@ public:
 	 * \return
 	 * 	true if the node is contained in the specified cut
 	 */
-	bool isOfType(const node v, cutType type) const
-	{
-		return m_nodeSet[v] == type;
-	}
+	bool isOfType(const node v, cutType type) const { return m_nodeSet[v] == type; }
 
 private:
 	//! the module used for calculating the maxflow
@@ -224,10 +220,10 @@ private:
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
 				if (m_nodeSet[origNode(w)] == cutType::NO_CUT
-				    && (((frontCut ? e->source() :e->target()) == v &&
-						m_et->less(m_flow[e], m_weight[e]))
-					|| ((frontCut ? e->target() : e->source()) == v &&
-						m_et->greater(m_flow[e], TCost(0))))) {
+						&& (((frontCut ? e->source() : e->target()) == v
+									&& m_et->less(m_flow[e], m_weight[e]))
+								|| ((frontCut ? e->target() : e->source()) == v
+										&& m_et->greater(m_flow[e], TCost(0))))) {
 					queue.pushBack(w);
 					m_nodeSet[origNode(w)] = (frontCut ? cutType::FRONT_CUT : cutType::BACK_CUT);
 					frontCut ? m_frontCutCount++ : m_backCutCount++;
@@ -246,8 +242,9 @@ private:
 	 * @param target The target node.
 	 * @param edgeList A list in which the edges of the cut are stored in.
 	 */
-	void computeCut(const Graph &graph, std::function<edge(edge)> origEdge, std::function<node(node)> origNode,
-	                const node source, const node target, List<edge> &edgeList) {
+	void computeCut(const Graph& graph, std::function<edge(edge)> origEdge,
+			std::function<node(node)> origNode, const node source, const node target,
+			List<edge>& edgeList) {
 		m_frontCutCount = 0;
 		m_backCutCount = 0;
 		m_totalCount = graph.numberOfNodes();
@@ -256,12 +253,12 @@ private:
 		List<node> queue;
 		m_nodeSet.init(graph, cutType::NO_CUT);
 
-		if(m_primaryCut || m_calculateOtherCut) {
+		if (m_primaryCut || m_calculateOtherCut) {
 			// front cut
 			markCut(source, true, origNode);
 		}
 
-		if(!m_primaryCut || m_calculateOtherCut) {
+		if (!m_primaryCut || m_calculateOtherCut) {
 			// back cut
 			markCut(target, false, origNode);
 		}
@@ -277,9 +274,7 @@ private:
 			stack.push(startAdj->theEdge());
 		}
 		for (adjEntry adj = (m_primaryCut ? startAdj->cyclicSucc() : startAdj->cyclicPred());
-		     adj != startAdj;
-		     adj = (m_primaryCut ? adj->cyclicSucc() : adj->cyclicPred()))
-		{
+				adj != startAdj; adj = (m_primaryCut ? adj->cyclicSucc() : adj->cyclicPred())) {
 			if (adj->theEdge()->adjTarget() != adj) {
 				stack.push(adj->theEdge());
 			}
@@ -290,19 +285,18 @@ private:
 				continue;
 			}
 			visited[origEdge(e)] = true;
-			if (m_nodeSet[origNode(e->source())] == cutType::FRONT_CUT &&
-			    m_nodeSet[origNode(e->target())] != cutType::FRONT_CUT) {
+			if (m_nodeSet[origNode(e->source())] == cutType::FRONT_CUT
+					&& m_nodeSet[origNode(e->target())] != cutType::FRONT_CUT) {
 				edgeList.pushBack(origEdge(e));
 
-				if(m_gc->numberOfEdges() != 0) {
+				if (m_gc->numberOfEdges() != 0) {
 					MinSTCutModule<TCost>::m_direction[origEdge(e)] = m_gc->copy(origEdge(e)) == e;
 				}
 			} else {
 				startAdj = e->adjTarget();
 				for (adjEntry adj = (m_primaryCut ? startAdj->cyclicSucc() : startAdj->cyclicPred());
-				     adj != startAdj;
-				     adj = (m_primaryCut ? adj->cyclicSucc() : adj->cyclicPred()))
-				{
+						adj != startAdj;
+						adj = (m_primaryCut ? adj->cyclicSucc() : adj->cyclicPred())) {
 					if (adj->theEdge()->adjTarget() != adj) {
 						stack.push(adj->theEdge());
 					}
@@ -313,8 +307,8 @@ private:
 };
 
 template<typename TCost>
-bool MinSTCutMaxFlow<TCost>::call(const Graph &graph, const EdgeArray<TCost> &weight,
-                                  node source, node target, List<edge> &edgeList, edge e_st) {
+bool MinSTCutMaxFlow<TCost>::call(const Graph& graph, const EdgeArray<TCost>& weight, node source,
+		node target, List<edge>& edgeList, edge e_st) {
 	MinSTCutModule<TCost>::m_direction.init(graph, -1);
 	delete m_gc;
 	m_gc = new GraphCopy(graph);
@@ -331,7 +325,8 @@ bool MinSTCutMaxFlow<TCost>::call(const Graph &graph, const EdgeArray<TCost> &we
 		if (m_treatAsUndirected) {
 			// a reversed edge is made and placed directly next to e
 			edge revEdge = m_gc->newEdge(e->target(), e->source());
-			m_gc->move(revEdge, e->adjTarget(), ogdf::Direction::before, e->adjSource(), ogdf::Direction::after);
+			m_gc->move(revEdge, e->adjTarget(), ogdf::Direction::before, e->adjSource(),
+					ogdf::Direction::after);
 			originalEdge[revEdge] = m_gc->original(e);
 		}
 		originalEdge[e] = m_gc->original(e);
@@ -348,27 +343,23 @@ bool MinSTCutMaxFlow<TCost>::call(const Graph &graph, const EdgeArray<TCost> &we
 	m_mfModule->init(*m_gc);
 	m_mfModule->computeFlow(m_weight, s, t, m_flow);
 
-	computeCut(graph,
-	           [&](edge e) -> edge {return originalEdge[e];},
-	           [&](node v) -> node {return m_gc->original(v);},
-	           s, t, edgeList);
+	computeCut(
+			graph, [&](edge e) -> edge { return originalEdge[e]; },
+			[&](node v) -> node { return m_gc->original(v); }, s, t, edgeList);
 
 	return true;
 }
 
 template<typename TCost>
-void MinSTCutMaxFlow<TCost>::call(const Graph &graph,
-                                  const EdgeArray<TCost> &weights,
-                                  const EdgeArray<TCost> &flow,
-                                  const node source, const node target) {
+void MinSTCutMaxFlow<TCost>::call(const Graph& graph, const EdgeArray<TCost>& weights,
+		const EdgeArray<TCost>& flow, const node source, const node target) {
 	delete m_gc;
 	m_gc = new GraphCopy();
 	m_flow = flow;
 	m_weight = weights;
 	List<edge> edgeList;
-	computeCut(graph,
-	           [&](edge e) -> edge {return e;},
-	           [&](node v) -> node {return v;},
-	           source, target, edgeList);
+	computeCut(
+			graph, [&](edge e) -> edge { return e; }, [&](node v) -> node { return v; }, source,
+			target, edgeList);
 }
 }

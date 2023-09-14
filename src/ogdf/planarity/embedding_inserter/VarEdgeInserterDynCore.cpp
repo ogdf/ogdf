@@ -30,55 +30,53 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
 #include <ogdf/planarity/embedding_inserter/VarEdgeInserterDynCore.h>
-#include <ogdf/decomposition/DynamicSPQRForest.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/FaceArray.h>
 
 namespace ogdf {
 
-class VarEdgeInserterDynCore::BCandSPQRtrees
-{
+class VarEdgeInserterDynCore::BCandSPQRtrees {
 protected:
-	PlanRepLight              &m_pr;
-	DynamicSPQRForest          m_dynamicSPQRForest;
+	PlanRepLight& m_pr;
+	DynamicSPQRForest m_dynamicSPQRForest;
 
-	const EdgeArray<int>*      m_costOrig;
-	EdgeArray<int>             m_cost;
+	const EdgeArray<int>* m_costOrig;
+	EdgeArray<int> m_cost;
 
 public:
+	BCandSPQRtrees(PlanRepLight& pr, const EdgeArray<int>* costOrig);
 
-	BCandSPQRtrees(PlanRepLight &pr, const EdgeArray<int>* costOrig);
 	virtual ~BCandSPQRtrees() { }
 
 	DynamicSPQRForest& dynamicSPQRForest() { return m_dynamicSPQRForest; }
+
 	virtual void insertEdgePath(edge eOrig, const SList<adjEntry>& crossedEdges);
 
 	void cost(edge e, int c) { m_cost[e] = c; }
+
 	int cost(edge e) const { return m_cost[e]; }
 };
 
-
-class VarEdgeInserterDynUMLCore::BCandSPQRtreesUML : public VarEdgeInserterDynCore::BCandSPQRtrees
-{
+class VarEdgeInserterDynUMLCore::BCandSPQRtreesUML : public VarEdgeInserterDynCore::BCandSPQRtrees {
 private:
 	EdgeArray<Graph::EdgeType> m_typeOf;
 
 public:
-	BCandSPQRtreesUML(PlanRepLight &pr, const EdgeArray<int>* costOrig);
+	BCandSPQRtreesUML(PlanRepLight& pr, const EdgeArray<int>* costOrig);
 
 	void insertEdgePath(edge eOrig, const SList<adjEntry>& crossedEdges) override;
 
 	void typeOf(edge e, Graph::EdgeType et) { m_typeOf[e] = et; }
+
 	Graph::EdgeType typeOf(edge e) const { return m_typeOf[e]; }
 };
 
-
-VarEdgeInserterDynCore::BCandSPQRtrees::BCandSPQRtrees(
-	PlanRepLight &pr, const EdgeArray<int>* costOrig)
-	: m_pr(pr), m_dynamicSPQRForest(pr), m_costOrig(costOrig)
-{
+VarEdgeInserterDynCore::BCandSPQRtrees::BCandSPQRtrees(PlanRepLight& pr,
+		const EdgeArray<int>* costOrig)
+	: m_pr(pr), m_dynamicSPQRForest(pr), m_costOrig(costOrig) {
 	const Graph& H = m_dynamicSPQRForest.auxiliaryGraph();
 	m_cost.init(H);
 	for (edge f : H.edges) {
@@ -86,16 +84,15 @@ VarEdgeInserterDynCore::BCandSPQRtrees::BCandSPQRtrees(
 		if (m_costOrig) {
 			edge eOrig = m_pr.original(e);
 			m_cost[f] = eOrig ? (*m_costOrig)[eOrig] : 0;
+		} else {
+			m_cost[f] = 1;
 		}
-		else m_cost[f] = 1;
 	}
 }
 
-
-VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::BCandSPQRtreesUML(
-	PlanRepLight &pr, const EdgeArray<int>* costOrig)
-	: BCandSPQRtrees(pr, costOrig)
-{
+VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::BCandSPQRtreesUML(PlanRepLight& pr,
+		const EdgeArray<int>* costOrig)
+	: BCandSPQRtrees(pr, costOrig) {
 	const Graph& H = m_dynamicSPQRForest.auxiliaryGraph();
 	m_typeOf.init(H);
 	for (edge f : H.edges) {
@@ -104,10 +101,8 @@ VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::BCandSPQRtreesUML(
 	}
 }
 
-
-void VarEdgeInserterDynCore::BCandSPQRtrees::insertEdgePath(
-	edge eOrig, const SList<adjEntry>& crossedEdges)
-{
+void VarEdgeInserterDynCore::BCandSPQRtrees::insertEdgePath(edge eOrig,
+		const SList<adjEntry>& crossedEdges) {
 	SList<edge> ti;
 	SList<node> tj;
 	for (adjEntry adj : crossedEdges) {
@@ -128,14 +123,17 @@ void VarEdgeInserterDynCore::BCandSPQRtrees::insertEdgePath(
 		edge e = *it;
 		node u = e->target();
 		adjEntry a;
-		for (a = u->firstAdj(); a->theEdge()->target() != *jt; a = a->succ())
+		for (a = u->firstAdj(); a->theEdge()->target() != *jt; a = a->succ()) {
 			;
+		}
 		edge f = a->theEdge();
 		m_dynamicSPQRForest.updateInsertedNode(e, f);
 		e = m_dynamicSPQRForest.rep(e);
 		f = m_dynamicSPQRForest.rep(f);
 		m_cost[f] = m_cost[e];
-		for (a = u->firstAdj(); a->theEdge()->source() != v; a = a->succ());
+		for (a = u->firstAdj(); a->theEdge()->source() != v; a = a->succ()) {
+			;
+		}
 		f = a->theEdge();
 		m_dynamicSPQRForest.updateInsertedEdge(f);
 		f = m_dynamicSPQRForest.rep(f);
@@ -144,18 +142,17 @@ void VarEdgeInserterDynCore::BCandSPQRtrees::insertEdgePath(
 	}
 	node u = m_pr.copy(eOrig->target());
 	adjEntry a;
-	for (a = v->firstAdj(); a->theEdge()->target() != u; a = a->succ())
+	for (a = v->firstAdj(); a->theEdge()->target() != u; a = a->succ()) {
 		;
+	}
 	edge f = a->theEdge();
 	m_dynamicSPQRForest.updateInsertedEdge(f);
 	f = m_dynamicSPQRForest.rep(f);
 	m_cost[f] = costOfEOrig;
 }
 
-
-void VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::insertEdgePath(
-	edge eOrig, const SList<adjEntry>& crossedEdges)
-{
+void VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::insertEdgePath(edge eOrig,
+		const SList<adjEntry>& crossedEdges) {
 	SList<edge> ti;
 	SList<node> tj;
 	OGDF_ASSERT(eOrig != nullptr);
@@ -177,15 +174,18 @@ void VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::insertEdgePath(
 		edge e = *it;
 		node u = e->target();
 		adjEntry a;
-		for (a = u->firstAdj(); a->theEdge()->target() != *jt; a = a->succ())
+		for (a = u->firstAdj(); a->theEdge()->target() != *jt; a = a->succ()) {
 			;
+		}
 		edge f = a->theEdge();
 		m_dynamicSPQRForest.updateInsertedNode(e, f);
 		e = m_dynamicSPQRForest.rep(e);
 		f = m_dynamicSPQRForest.rep(f);
 		m_typeOf[f] = m_typeOf[e];
 		m_cost[f] = m_cost[e];
-		for (a = u->firstAdj(); a->theEdge()->source() != v; a = a->succ());
+		for (a = u->firstAdj(); a->theEdge()->source() != v; a = a->succ()) {
+			;
+		}
 		f = a->theEdge();
 		m_dynamicSPQRForest.updateInsertedEdge(f);
 		f = m_dynamicSPQRForest.rep(f);
@@ -195,8 +195,9 @@ void VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::insertEdgePath(
 	}
 	node u = m_pr.copy(eOrig->target());
 	adjEntry a;
-	for (a = v->firstAdj(); a->theEdge()->target() != u; a = a->succ())
+	for (a = v->firstAdj(); a->theEdge()->target() != u; a = a->succ()) {
 		;
+	}
 	edge f = a->theEdge();
 	m_dynamicSPQRForest.updateInsertedEdge(f);
 	f = m_dynamicSPQRForest.rep(f);
@@ -204,34 +205,34 @@ void VarEdgeInserterDynUMLCore::BCandSPQRtreesUML::insertEdgePath(
 	m_cost[f] = costOfEOrig;
 }
 
-
 // ExpandedGraph represents the (partially) expanded graph with
 // its augmented dual
-class VarEdgeInserterDynCore::ExpandedGraph
-{
+class VarEdgeInserterDynCore::ExpandedGraph {
 protected:
-	BCandSPQRtrees &m_BC;
-	const GraphCopy				&m_gc;
-	const EdgeArray<bool>		*m_pForbidden;
+	BCandSPQRtrees& m_BC;
+	const GraphCopy& m_gc;
+	const EdgeArray<bool>* m_pForbidden;
 
 	NodeArray<node> m_GtoExp;
-	List<node>      m_nodesG;
-	Graph           m_exp;   // expanded graph
+	List<node> m_nodesG;
+	Graph m_exp; // expanded graph
 	ConstCombinatorialEmbedding m_E;
 	AdjEntryArray<adjEntry> m_expToG;
-	edge            m_eS, m_eT; // (virtual) edges in exp representing s and t (if any)
+	edge m_eS, m_eT; // (virtual) edges in exp representing s and t (if any)
 
-	Graph           m_dual;  // augmented dual graph of exp
+	Graph m_dual; // augmented dual graph of exp
 	EdgeArray<adjEntry> m_primalEdge;
 
-	node            m_vS, m_vT; // augmented nodes in dual representing s and t
+	node m_vS, m_vT; // augmented nodes in dual representing s and t
 
 public:
-	ExpandedGraph(BCandSPQRtrees &BC, const GraphCopy &gc, const EdgeArray<bool> *pForbidden = nullptr)
-		: m_BC(BC), m_gc(gc), m_pForbidden(pForbidden),
-		m_GtoExp(BC.dynamicSPQRForest().auxiliaryGraph(), nullptr),
-		m_expToG(m_exp, nullptr),
-		m_primalEdge(m_dual, nullptr) { }
+	ExpandedGraph(BCandSPQRtrees& BC, const GraphCopy& gc, const EdgeArray<bool>* pForbidden = nullptr)
+		: m_BC(BC)
+		, m_gc(gc)
+		, m_pForbidden(pForbidden)
+		, m_GtoExp(BC.dynamicSPQRForest().auxiliaryGraph(), nullptr)
+		, m_expToG(m_exp, nullptr)
+		, m_primalEdge(m_dual, nullptr) { }
 
 	virtual ~ExpandedGraph() { }
 
@@ -239,8 +240,9 @@ public:
 
 	virtual void constructDual(node s, node t);
 
-	void findShortestPath(List<adjEntry> &L, Graph::EdgeType eType = Graph::EdgeType::association);
-	void findWeightedShortestPath(List<adjEntry> &L, Graph::EdgeType eType = Graph::EdgeType::association);
+	void findShortestPath(List<adjEntry>& L, Graph::EdgeType eType = Graph::EdgeType::association);
+	void findWeightedShortestPath(List<adjEntry>& L,
+			Graph::EdgeType eType = Graph::EdgeType::association);
 
 	int costDual(edge eDual) const {
 		adjEntry adjExp = m_primalEdge[eDual];
@@ -248,41 +250,40 @@ public:
 	}
 
 	// avoid automatic creation of assignment operator
-	ExpandedGraph &operator=(const ExpandedGraph &);
+	ExpandedGraph& operator=(const ExpandedGraph&);
 
 protected:
-	virtual void appendCandidates(List<edge> &queue, node v, Graph::EdgeType eType);
-	virtual void appendCandidates(Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist);
+	virtual void appendCandidates(List<edge>& queue, node v, Graph::EdgeType eType);
+	virtual void appendCandidates(Array<SListPure<edge>>& nodesAtDist, int maxCost, node v,
+			Graph::EdgeType eType, int currentDist);
 
 	edge insertEdge(node vG, node wG, edge eG);
 	void expandSkeleton(node v, edge e1, edge e2);
 };
 
-
-class VarEdgeInserterDynUMLCore::ExpandedGraphUML : public VarEdgeInserterDynCore::ExpandedGraph
-{
+class VarEdgeInserterDynUMLCore::ExpandedGraphUML : public VarEdgeInserterDynCore::ExpandedGraph {
 public:
-	ExpandedGraphUML(BCandSPQRtreesUML &BC, const GraphCopy &gc)
+	ExpandedGraphUML(BCandSPQRtreesUML& BC, const GraphCopy& gc)
 		: ExpandedGraph(BC, gc), m_primalIsGen(m_dual, false) { }
 
 	void constructDual(node s, node t) override;
 
 protected:
-	void appendCandidates(List<edge> &queue, node v, Graph::EdgeType eType) override;
-	void appendCandidates(Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist) override;
+	void appendCandidates(List<edge>& queue, node v, Graph::EdgeType eType) override;
+	void appendCandidates(Array<SListPure<edge>>& nodesAtDist, int maxCost, node v,
+			Graph::EdgeType eType, int currentDist) override;
 
-	EdgeArray<bool>     m_primalIsGen; // true iff corresponding primal edge is a generalization
+	EdgeArray<bool> m_primalIsGen; // true iff corresponding primal edge is a generalization
 };
-
 
 // build expanded graph (by expanding skeleton(v), nodes vPred and
 // vSucc are the predecessor and successor tree nodes of v on the
 // path from v1 to v2
-void VarEdgeInserterDynCore::ExpandedGraph::expand(node v, node vPred, node vSucc)
-{
+void VarEdgeInserterDynCore::ExpandedGraph::expand(node v, node vPred, node vSucc) {
 	m_exp.clear();
-	while (!m_nodesG.empty())
+	while (!m_nodesG.empty()) {
 		m_GtoExp[m_nodesG.popBackRet()] = nullptr;
+	}
 
 	edge eInS = nullptr;
 	if (vPred != nullptr) {
@@ -301,30 +302,27 @@ void VarEdgeInserterDynCore::ExpandedGraph::expand(node v, node vPred, node vSuc
 	m_E.init(m_exp);
 }
 
-
 // expand one skeleton (recursive construction)
-void VarEdgeInserterDynCore::ExpandedGraph::expandSkeleton(node v, edge e1, edge e2)
-{
-	for (edge ei : m_BC.dynamicSPQRForest().hEdgesSPQR(v))
-	{
+void VarEdgeInserterDynCore::ExpandedGraph::expandSkeleton(node v, edge e1, edge e2) {
+	for (edge ei : m_BC.dynamicSPQRForest().hEdgesSPQR(v)) {
 		edge et = m_BC.dynamicSPQRForest().twinEdge(ei);
 
-		if (et == nullptr)
+		if (et == nullptr) {
 			insertEdge(ei->source(), ei->target(), ei);
+		}
 
 		// do not expand virtual edges corresponding to tree edges e1 or e2
-		else if (ei != e1 && ei != e2)
+		else if (ei != e1 && ei != e2) {
 			expandSkeleton(m_BC.dynamicSPQRForest().spqrproper(et), et, nullptr);
+		}
 	}
 }
 
-
 // insert edge in exp (from a node corresponding to vG in G to a node
 // corresponding to wG)
-edge VarEdgeInserterDynCore::ExpandedGraph::insertEdge(node vG, node wG, edge eG)
-{
-	node &rVG = m_GtoExp[vG];
-	node &rWG = m_GtoExp[wG];
+edge VarEdgeInserterDynCore::ExpandedGraph::insertEdge(node vG, node wG, edge eG) {
+	node& rVG = m_GtoExp[vG];
+	node& rWG = m_GtoExp[wG];
 
 	if (rVG == nullptr) {
 		rVG = m_exp.newNode();
@@ -340,8 +338,7 @@ edge VarEdgeInserterDynCore::ExpandedGraph::insertEdge(node vG, node wG, edge eG
 	if (eG != nullptr) {
 		m_expToG[e1->adjSource()] = eG->adjSource();
 		m_expToG[e1->adjTarget()] = eG->adjTarget();
-	}
-	else {
+	} else {
 		m_expToG[e1->adjSource()] = nullptr;
 		m_expToG[e1->adjTarget()] = nullptr;
 	}
@@ -349,10 +346,8 @@ edge VarEdgeInserterDynCore::ExpandedGraph::insertEdge(node vG, node wG, edge eG
 	return e1;
 }
 
-
 // construct augmented dual of exp
-void VarEdgeInserterDynCore::ExpandedGraph::constructDual(node s, node t)
-{
+void VarEdgeInserterDynCore::ExpandedGraph::constructDual(node s, node t) {
 	m_dual.clear();
 
 	FaceArray<node> faceNode(m_E);
@@ -363,19 +358,21 @@ void VarEdgeInserterDynCore::ExpandedGraph::constructDual(node s, node t)
 	}
 
 	// construct dual edges (for primal edges in exp)
-	for (node v : m_exp.nodes)
-	{
-		for (adjEntry adj : v->adjEntries)
-		{
+	for (node v : m_exp.nodes) {
+		for (adjEntry adj : v->adjEntries) {
 			// cannot cross edges that does not correspond to real edges
 			adjEntry adjG = m_expToG[adj];
-			if (adjG == nullptr)
+			if (adjG == nullptr) {
 				continue;
+			}
 
 			// Do not insert edges into dual if crossing the original edge
 			// is forbidden
-			if (m_pForbidden && (*m_pForbidden)[m_gc.original(m_BC.dynamicSPQRForest().original(m_expToG[adj]->theEdge()))])
+			if (m_pForbidden
+					&& (*m_pForbidden)[m_gc.original(
+							m_BC.dynamicSPQRForest().original(m_expToG[adj]->theEdge()))]) {
 				continue;
+			}
 
 			node vLeft = faceNode[m_E.leftFace(adj)];
 			node vRight = faceNode[m_E.rightFace(adj)];
@@ -386,35 +383,29 @@ void VarEdgeInserterDynCore::ExpandedGraph::constructDual(node s, node t)
 
 	// augment dual by m_vS and m_vT
 	m_vS = m_dual.newNode();
-	if (m_GtoExp[s] != nullptr)
-	{
-		for (adjEntry adj : m_GtoExp[s]->adjEntries)
+	if (m_GtoExp[s] != nullptr) {
+		for (adjEntry adj : m_GtoExp[s]->adjEntries) {
 			m_dual.newEdge(m_vS, faceNode[m_E.rightFace(adj)]);
-	}
-	else
-	{
+		}
+	} else {
 		m_dual.newEdge(m_vS, faceNode[m_E.rightFace(m_eS->adjSource())]);
 		m_dual.newEdge(m_vS, faceNode[m_E.rightFace(m_eS->adjTarget())]);
 	}
 
 	m_vT = m_dual.newNode();
-	if (m_GtoExp[t] != nullptr)
-	{
-		for (adjEntry adj : m_GtoExp[t]->adjEntries)
+	if (m_GtoExp[t] != nullptr) {
+		for (adjEntry adj : m_GtoExp[t]->adjEntries) {
 			m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
-	}
-	else
-	{
+		}
+	} else {
 		m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
 		m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjTarget())], m_vT);
 	}
 }
 
-
-void VarEdgeInserterDynUMLCore::ExpandedGraphUML::constructDual(node s, node t)
-{
-	VarEdgeInserterDynUMLCore::BCandSPQRtreesUML &BC
-		= dynamic_cast<VarEdgeInserterDynUMLCore::BCandSPQRtreesUML&>(m_BC);
+void VarEdgeInserterDynUMLCore::ExpandedGraphUML::constructDual(node s, node t) {
+	VarEdgeInserterDynUMLCore::BCandSPQRtreesUML& BC =
+			dynamic_cast<VarEdgeInserterDynUMLCore::BCandSPQRtreesUML&>(m_BC);
 	m_dual.clear();
 
 	FaceArray<node> faceNode(m_E);
@@ -432,8 +423,9 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::constructDual(node s, node t)
 		for (adjEntry adj : v->adjEntries) {
 			// cannot cross edges that does not correspond to real edges
 			adjEntry adjG = m_expToG[adj];
-			if (adjG == nullptr)
+			if (adjG == nullptr) {
 				continue;
+			}
 
 			node vLeft = faceNode[m_E.leftFace(adj)];
 			node vRight = faceNode[m_E.rightFace(adj)];
@@ -442,8 +434,9 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::constructDual(node s, node t)
 			m_primalEdge[e] = adj;
 
 			// mark dual edges corresponding to generalizations
-			if (adjG && BC.typeOf(adjG->theEdge()) == Graph::EdgeType::generalization)
+			if (adjG && BC.typeOf(adjG->theEdge()) == Graph::EdgeType::generalization) {
 				m_primalIsGen[e] = true;
+			}
 
 			OGDF_ASSERT(m_primalEdge[e] == nullptr || m_expToG[m_primalEdge[e]] != nullptr);
 		}
@@ -456,20 +449,20 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::constructDual(node s, node t)
 #ifdef OGDF_DEBUG
 			eDual =
 #endif
-			m_dual.newEdge(m_vS, faceNode[m_E.rightFace(adj)]);
+					m_dual.newEdge(m_vS, faceNode[m_E.rightFace(adj)]);
 			OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 		}
 	} else {
 #ifdef OGDF_DEBUG
 		eDual =
 #endif
-		m_dual.newEdge(m_vS, faceNode[m_E.rightFace(m_eS->adjSource())]);
+				m_dual.newEdge(m_vS, faceNode[m_E.rightFace(m_eS->adjSource())]);
 		OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 
 #ifdef OGDF_DEBUG
 		eDual =
 #endif
-		m_dual.newEdge(m_vS, faceNode[m_E.rightFace(m_eS->adjTarget())]);
+				m_dual.newEdge(m_vS, faceNode[m_E.rightFace(m_eS->adjTarget())]);
 		OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 	}
 
@@ -479,39 +472,39 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::constructDual(node s, node t)
 #ifdef OGDF_DEBUG
 			eDual =
 #endif
-			m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
+					m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
 			OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 		}
 	} else {
 #ifdef OGDF_DEBUG
 		eDual =
 #endif
-		m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
+				m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
 		OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 
 #ifdef OGDF_DEBUG
 		eDual =
 #endif
-		m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjTarget())], m_vT);
+				m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjTarget())], m_vT);
 		OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 	}
 }
 
-
 // find shortest path in dual from m_vS to m_vT; output this path
 // in L by omitting first and last edge, and translating edges to G
-void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(List<edge> &queue, node v, Graph::EdgeType /* eType */)
-{
-	for(adjEntry adj : v->adjEntries) {
+void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(List<edge>& queue, node v,
+		Graph::EdgeType /* eType */) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if (v == e->source())
+		if (v == e->source()) {
 			queue.pushBack(e);
+		}
 	}
 }
 
-void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(List<edge> &queue, node v, Graph::EdgeType eType)
-{
-	for(adjEntry adj : v->adjEntries) {
+void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(List<edge>& queue, node v,
+		Graph::EdgeType eType) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			queue.pushBack(e);
@@ -519,13 +512,13 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(List<edge> &q
 	}
 }
 
-void VarEdgeInserterDynCore::ExpandedGraph::findShortestPath(List<adjEntry> &L, Graph::EdgeType eType)
-{
+void VarEdgeInserterDynCore::ExpandedGraph::findShortestPath(List<adjEntry>& L,
+		Graph::EdgeType eType) {
 	NodeArray<edge> spPred(m_dual, nullptr); // predecessor in shortest path tree
 	List<edge> queue; // candidate edges
 
 	// start with all edges leaving from m_vS
-	for(adjEntry adj : m_vS->adjEntries) {
+	for (adjEntry adj : m_vS->adjEntries) {
 		edge e = adj->theEdge();
 		queue.pushBack(e);
 	}
@@ -543,8 +536,9 @@ void VarEdgeInserterDynCore::ExpandedGraph::findShortestPath(List<adjEntry> &L, 
 				// build path from shortest path tree
 				while (v != m_vS) {
 					adjEntry adjExp = m_primalEdge[spPred[v]];
-					if (adjExp != nullptr) // == nil for first and last edge
+					if (adjExp != nullptr) { // == nil for first and last edge
 						L.pushFront(m_expToG[adjExp]);
+					}
 					v = spPred[v]->source();
 				}
 				return;
@@ -556,13 +550,11 @@ void VarEdgeInserterDynCore::ExpandedGraph::findShortestPath(List<adjEntry> &L, 
 	}
 }
 
-
 // find weighted shortest path in dual from m_vS to m_vT; output this path
 // in L by omitting first and last edge, and translating edges to G
-void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(
-	Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType /* unused parameter */, int currentDist)
-{
-	for(adjEntry adj : v->adjEntries) {
+void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(Array<SListPure<edge>>& nodesAtDist,
+		int maxCost, node v, Graph::EdgeType /* unused parameter */, int currentDist) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (v == e->source()) {
 			int listPos = (currentDist + costDual(e)) % maxCost;
@@ -571,10 +563,9 @@ void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(
 	}
 }
 
-void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(
-	Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist)
-{
-	for(adjEntry adj : v->adjEntries) {
+void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(Array<SListPure<edge>>& nodesAtDist,
+		int maxCost, node v, Graph::EdgeType eType, int currentDist) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (v == e->source() && (eType != Graph::EdgeType::generalization || !m_primalIsGen[e])) {
 			int listPos = (currentDist + costDual(e)) % maxCost;
@@ -583,21 +574,23 @@ void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(
 	}
 }
 
-void VarEdgeInserterDynCore::ExpandedGraph::findWeightedShortestPath(List<adjEntry> &L, Graph::EdgeType eType)
-{
+void VarEdgeInserterDynCore::ExpandedGraph::findWeightedShortestPath(List<adjEntry>& L,
+		Graph::EdgeType eType) {
 	int maxCost = 0;
 	for (edge eDual : m_dual.edges) {
 		int c = costDual(eDual);
-		if (c > maxCost) maxCost = c;
+		if (c > maxCost) {
+			maxCost = c;
+		}
 	}
 
 	++maxCost;
-	Array<SListPure<edge> > nodesAtDist(maxCost);
+	Array<SListPure<edge>> nodesAtDist(maxCost);
 
 	NodeArray<edge> spPred(m_dual, nullptr); // predecessor in shortest path tree
 
 	// start with all edges leaving from m_vS
-	for(adjEntry adj : m_vS->adjEntries) {
+	for (adjEntry adj : m_vS->adjEntries) {
 		edge e = adj->theEdge();
 		nodesAtDist[0].pushBack(e);
 	}
@@ -606,8 +599,9 @@ void VarEdgeInserterDynCore::ExpandedGraph::findWeightedShortestPath(List<adjEnt
 	int currentDist = 0;
 	for (;;) {
 		// next candidate edge
-		while (nodesAtDist[currentDist % maxCost].empty())
+		while (nodesAtDist[currentDist % maxCost].empty()) {
 			++currentDist;
+		}
 
 		edge eCand = nodesAtDist[currentDist % maxCost].popFrontRet();
 		node v = eCand->target();
@@ -624,8 +618,9 @@ void VarEdgeInserterDynCore::ExpandedGraph::findWeightedShortestPath(List<adjEnt
 				// adjacency entries in G)
 				while (v != m_vS) {
 					adjEntry adjExp = m_primalEdge[spPred[v]];
-					if (adjExp != nullptr) // == nil for first and last edge
+					if (adjExp != nullptr) { // == nil for first and last edge
 						L.pushFront(m_expToG[adjExp]);
+					}
 					v = spPred[v]->source();
 				}
 				return;
@@ -637,41 +632,36 @@ void VarEdgeInserterDynCore::ExpandedGraph::findWeightedShortestPath(List<adjEnt
 	}
 }
 
-VarEdgeInserterDynCore::BCandSPQRtrees *VarEdgeInserterDynCore::createBCandSPQRtrees()
-{
+VarEdgeInserterDynCore::BCandSPQRtrees* VarEdgeInserterDynCore::createBCandSPQRtrees() {
 	return new BCandSPQRtrees(m_pr, m_pCost);
 }
 
-VarEdgeInserterDynCore::BCandSPQRtrees *VarEdgeInserterDynUMLCore::createBCandSPQRtrees()
-{
+VarEdgeInserterDynCore::BCandSPQRtrees* VarEdgeInserterDynUMLCore::createBCandSPQRtrees() {
 	return new BCandSPQRtreesUML(m_pr, m_pCost);
 }
 
-
 // actual algorithm call
-Module::ReturnType VarEdgeInserterDynCore::call(
-	const Array<edge> &origEdges,
-	RemoveReinsertType rrPost,
-	double percentMostCrossed)
-{
+Module::ReturnType VarEdgeInserterDynCore::call(const Array<edge>& origEdges,
+		RemoveReinsertType rrPost, double percentMostCrossed) {
 	double T;
 	usedTime(T);
 
 	Module::ReturnType retValue = Module::ReturnType::Feasible;
 	m_runsPostprocessing = 0;
 
-	if (origEdges.size() == 0)
-		return Module::ReturnType::Optimal;  // nothing to do
+	if (origEdges.size() == 0) {
+		return Module::ReturnType::Optimal; // nothing to do
+	}
 
 	SListPure<edge> currentOrigEdges;
 
 	if (rrPost == RemoveReinsertType::Incremental) {
-		for (edge e : m_pr.edges)
+		for (edge e : m_pr.edges) {
 			currentOrigEdges.pushBack(m_pr.original(e));
+		}
 
 		// insertion of edges
-		for (int i = origEdges.low(); i <= origEdges.high(); ++i)
-		{
+		for (int i = origEdges.low(); i <= origEdges.high(); ++i) {
 			edge eOrig = origEdges[i];
 			storeTypeOfCurrentEdge(eOrig);
 
@@ -688,10 +678,12 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 				++m_runsPostprocessing;
 				improved = false;
 
-				for (edge eOrigRR : currentOrigEdges)
-				{
-					int pathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
-					if (pathLength == 0) continue; // cannot improve
+				for (edge eOrigRR : currentOrigEdges) {
+					int pathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR)
+														  : (m_pr.chain(eOrigRR).size() - 1);
+					if (pathLength == 0) {
+						continue; // cannot improve
+					}
 
 					m_pr.removeEdgePath(eOrigRR);
 
@@ -703,23 +695,22 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 					m_pr.insertEdgePath(eOrigRR, iep);
 					delete m_pBC;
 
-					int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
+					int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR)
+															 : (m_pr.chain(eOrigRR).size() - 1);
 					OGDF_ASSERT(newPathLength <= pathLength);
 
-					if (newPathLength < pathLength)
+					if (newPathLength < pathLength) {
 						improved = true;
+					}
 				}
 			} while (improved);
 		}
 
-	}
-	else {
-
+	} else {
 		// insertion of edges
 		m_pBC = createBCandSPQRtrees();
 
-		for (int i = origEdges.low(); i <= origEdges.high(); ++i)
-		{
+		for (int i = origEdges.low(); i <= origEdges.high(); ++i) {
 			edge eOrig = origEdges[i];
 			storeTypeOfCurrentEdge(eOrig);
 
@@ -734,17 +725,18 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 		const int m = m_pr.original().numberOfEdges();
 		SListPure<edge> rrEdges;
 
-		switch (rrPost)
-		{
+		switch (rrPost) {
 		case RemoveReinsertType::All:
 		case RemoveReinsertType::MostCrossed:
-			for (int i = m_pr.startEdge(); i < m_pr.stopEdge(); ++i)
+			for (int i = m_pr.startEdge(); i < m_pr.stopEdge(); ++i) {
 				rrEdges.pushBack(m_pr.e(i));
+			}
 			break;
 
 		case RemoveReinsertType::Inserted:
-			for (int i = origEdges.low(); i <= origEdges.high(); ++i)
+			for (int i = origEdges.low(); i <= origEdges.high(); ++i) {
 				rrEdges.pushBack(origEdges[i]);
+			}
 			break;
 
 		case RemoveReinsertType::None:
@@ -768,8 +760,7 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 			++m_runsPostprocessing;
 			improved = false;
 
-			if (rrPost == RemoveReinsertType::MostCrossed)
-			{
+			if (rrPost == RemoveReinsertType::MostCrossed) {
 				embedding_inserter::CrossingsBucket<PlanRepLight> bucket(&m_pr);
 				rrEdges.bucketSort(bucket);
 
@@ -778,12 +769,14 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 			}
 
 			SListConstIterator<edge> it;
-			for (it = rrEdges.begin(); it != itStop; ++it)
-			{
+			for (it = rrEdges.begin(); it != itStop; ++it) {
 				edge eOrig = *it;
 
-				int pathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
-				if (pathLength == 0) continue; // cannot improve
+				int pathLength =
+						(m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+				if (pathLength == 0) {
+					continue; // cannot improve
+				}
 
 				m_pr.removeEdgePath(eOrig);
 
@@ -796,11 +789,13 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 				delete m_pBC;
 
 				// we cannot find a shortest path that is longer than before!
-				int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+				int newPathLength =
+						(m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 				OGDF_ASSERT(newPathLength <= pathLength);
 
-				if (newPathLength < pathLength)
+				if (newPathLength < pathLength) {
 					improved = true;
+				}
 			}
 
 		} while (improved);
@@ -810,7 +805,7 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 #ifdef OGDF_DEBUG
 	bool isPlanar =
 #endif
-		planarEmbed(m_pr);
+			planarEmbed(m_pr);
 
 	OGDF_ASSERT(isPlanar);
 
@@ -820,39 +815,39 @@ Module::ReturnType VarEdgeInserterDynCore::call(
 	return retValue;
 }
 
-static edge crossedEdge(adjEntry adj)
-{
+static edge crossedEdge(adjEntry adj) {
 	edge e = adj->theEdge();
 
 	adj = adj->cyclicSucc();
-	while (adj->theEdge() == e)
+	while (adj->theEdge() == e) {
 		adj = adj->cyclicSucc();
+	}
 
 	return adj->theEdge();
 }
 
-
-int VarEdgeInserterDynCore::costCrossed(edge eOrig) const
-{
+int VarEdgeInserterDynCore::costCrossed(edge eOrig) const {
 	int c = 0;
 
-	const List<edge> &L = m_pr.chain(eOrig);
+	const List<edge>& L = m_pr.chain(eOrig);
 
 	ListConstIterator<edge> it = L.begin();
 	if (m_pSubgraph != nullptr) {
 		for (++it; it.valid(); ++it) {
 			int counter = 0;
 			edge e = m_pr.original(crossedEdge((*it)->adjSource()));
-			for (int i = 0; i < 32; i++)
-			if ((*m_pSubgraph)[eOrig] & (*m_pSubgraph)[e] & (1 << i))
-				counter++;
+			for (int i = 0; i < 32; i++) {
+				if ((*m_pSubgraph)[eOrig] & (*m_pSubgraph)[e] & (1 << i)) {
+					counter++;
+				}
+			}
 			c += counter * (*m_pCost)[e];
 		}
 		c *= c_bigM;
-		if (c == 0)
+		if (c == 0) {
 			c = 1;
-	}
-	else {
+		}
+	} else {
 		for (++it; it.valid(); ++it) {
 			c += (*m_pCost)[m_pr.original(crossedEdge((*it)->adjSource()))];
 		}
@@ -861,11 +856,9 @@ int VarEdgeInserterDynCore::costCrossed(edge eOrig) const
 	return c;
 }
 
-
 // find optimal edge insertion path from s to t in connected
 // graph G
-void VarEdgeInserterDynCore::insert(edge eOrig, SList<adjEntry>& eip)
-{
+void VarEdgeInserterDynCore::insert(edge eOrig, SList<adjEntry>& eip) {
 	eip.clear();
 	node s = m_pr.copy(eOrig->source());
 	node t = m_pr.copy(eOrig->target());
@@ -892,31 +885,30 @@ void VarEdgeInserterDynCore::insert(edge eOrig, SList<adjEntry>& eip)
 				for (adjEntry kt : L) {
 					edge e = kt->theEdge();
 					eip.pushBack(e->adjSource() == kt ? dSPQRF.original(e)->adjSource()
-						: dSPQRF.original(e)->adjTarget());
+													  : dSPQRF.original(e)->adjTarget());
 				}
 			}
-			if (jt.valid()) repS = dSPQRF.cutVertex(*it, *jt);
+			if (jt.valid()) {
+				repS = dSPQRF.cutVertex(*it, *jt);
+			}
 		}
 	}
 	delete &path;
 }
 
-
 // find optimal edge insertion path from s to t for biconnected
 // graph G (OptimalBlockInserter)
-VarEdgeInserterDynCore::ExpandedGraph *VarEdgeInserterDynCore::createExpandedGraph(BCandSPQRtrees &BC)
-{
+VarEdgeInserterDynCore::ExpandedGraph* VarEdgeInserterDynCore::createExpandedGraph(
+		BCandSPQRtrees& BC) {
 	return new ExpandedGraph(BC, m_pr, m_pForbidden);
 }
 
-VarEdgeInserterDynCore::ExpandedGraph *VarEdgeInserterDynUMLCore::createExpandedGraph(BCandSPQRtrees &BC)
-{
-	return new ExpandedGraphUML(dynamic_cast<BCandSPQRtreesUML &>(BC), m_pr);
+VarEdgeInserterDynCore::ExpandedGraph* VarEdgeInserterDynUMLCore::createExpandedGraph(
+		BCandSPQRtrees& BC) {
+	return new ExpandedGraphUML(dynamic_cast<BCandSPQRtreesUML&>(BC), m_pr);
 }
 
-
-void VarEdgeInserterDynCore::blockInsert(node s, node t, List<adjEntry> &L)
-{
+void VarEdgeInserterDynCore::blockInsert(node s, node t, List<adjEntry>& L) {
 	L.clear();
 
 	// find path in SPQR-tree from an allocation node of s
@@ -924,18 +916,18 @@ void VarEdgeInserterDynCore::blockInsert(node s, node t, List<adjEntry> &L)
 	SList<node>& path = m_pBC->dynamicSPQRForest().findPathSPQR(s, t);
 
 	// call build_subpath for every R-node building the list L of crossed edges
-	ExpandedGraph *pExp = createExpandedGraph(*m_pBC);
+	ExpandedGraph* pExp = createExpandedGraph(*m_pBC);
 
 	node vPred = nullptr;
 	path.pushBack(nullptr);
 	SListConstIterator<node> it;
-	for (it = path.begin(); *it; ++it)
-	{
+	for (it = path.begin(); *it; ++it) {
 		node v = *it;
 		node vSucc = *it.succ();
 
-		if (m_pBC->dynamicSPQRForest().typeOfTNode(v) == DynamicSPQRForest::TNodeType::RComp)
+		if (m_pBC->dynamicSPQRForest().typeOfTNode(v) == DynamicSPQRForest::TNodeType::RComp) {
 			buildSubpath(v, vPred, vSucc, L, *pExp, s, t);
+		}
 
 		vPred = v;
 	}
@@ -944,18 +936,10 @@ void VarEdgeInserterDynCore::blockInsert(node s, node t, List<adjEntry> &L)
 	delete pExp;
 }
 
-
 // find the shortest path from represent. of s to represent. of t in
 // the dual of the (partially) expanded skeleton of v
-void VarEdgeInserterDynCore::buildSubpath(
-	node v,
-	node vPred,
-	node vSucc,
-	List<adjEntry> &L,
-	ExpandedGraph &Exp,
-	node s,
-	node t)
-{
+void VarEdgeInserterDynCore::buildSubpath(node v, node vPred, node vSucc, List<adjEntry>& L,
+		ExpandedGraph& Exp, node s, node t) {
 	// build expanded graph Exp
 	Exp.expand(v, vPred, vSucc);
 
@@ -964,23 +948,17 @@ void VarEdgeInserterDynCore::buildSubpath(
 
 	// find shortest path in augmented dual
 	List<adjEntry> subpath;
-	if (m_pCost != nullptr)
+	if (m_pCost != nullptr) {
 		Exp.findWeightedShortestPath(subpath);
-	else
+	} else {
 		Exp.findShortestPath(subpath);
+	}
 
 	L.conc(subpath);
 }
 
-void VarEdgeInserterDynUMLCore::buildSubpath(
-	node v,
-	node vPred,
-	node vSucc,
-	List<adjEntry> &L,
-	ExpandedGraph &Exp,
-	node s,
-	node t)
-{
+void VarEdgeInserterDynUMLCore::buildSubpath(node v, node vPred, node vSucc, List<adjEntry>& L,
+		ExpandedGraph& Exp, node s, node t) {
 	// build expanded graph Exp
 	Exp.expand(v, vPred, vSucc);
 
@@ -989,10 +967,11 @@ void VarEdgeInserterDynUMLCore::buildSubpath(
 
 	// find shortest path in augmented dual
 	List<adjEntry> subpath;
-	if (m_pCost != nullptr)
+	if (m_pCost != nullptr) {
 		Exp.findWeightedShortestPath(subpath, m_typeOfCurrentEdge);
-	else
+	} else {
 		Exp.findShortestPath(subpath, m_typeOfCurrentEdge);
+	}
 
 	L.conc(subpath);
 }

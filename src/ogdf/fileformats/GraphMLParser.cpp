@@ -29,14 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphMLParser.h>
 #include <ogdf/fileformats/GraphML.h>
+#include <ogdf/fileformats/GraphMLParser.h>
 
 namespace ogdf {
 
 
-GraphMLParser::GraphMLParser(std::istream &in) : m_error(false)
-{
+GraphMLParser::GraphMLParser(std::istream& in) : m_error(false) {
 	pugi::xml_parse_result result = m_xml.load(in);
 
 	if (!result) {
@@ -47,7 +46,7 @@ GraphMLParser::GraphMLParser(std::istream &in) : m_error(false)
 
 	pugi::xml_node root = m_xml.child("graphml");
 
-	if(!root) {
+	if (!root) {
 		GraphIO::logger.lout() << "File root tag is not a <graphml>." << std::endl;
 		m_error = true;
 		return;
@@ -61,36 +60,31 @@ GraphMLParser::GraphMLParser(std::istream &in) : m_error(false)
 		return;
 	}
 
-	for (const pugi::xml_node &keyTag : root.children("key")) {
+	for (const pugi::xml_node& keyTag : root.children("key")) {
 		pugi::xml_attribute idAttr = keyTag.attribute("id");
 		pugi::xml_attribute nameAttr = keyTag.attribute("attr.name");
+		pugi::xml_attribute yfilesAttr = keyTag.attribute("yfiles.type");
 
 		if (!idAttr) {
 			GraphIO::logger.lout() << "Key does not have an id attribute." << std::endl;
 			m_error = true;
 			return;
 		}
-		if (!nameAttr) {
+		// Some tags in GraphML files produced by yFiles yEd have no attr.name,
+		// only a yfiles.type.
+		if (!nameAttr && !yfilesAttr) {
 			GraphIO::logger.lout() << "Key does not have an attr.name attribute." << std::endl;
 			m_error = true;
 			return;
 		}
 
-		m_attrName[idAttr.value()] = nameAttr.value();
+		m_attrName[idAttr.value()] = nameAttr ? nameAttr.value() : yfilesAttr.value();
 	}
 }
 
+GraphMLParser::~GraphMLParser() { }
 
-GraphMLParser::~GraphMLParser()
-{
-}
-
-
-bool GraphMLParser::readData(
-	GraphAttributes &GA,
-	const node &v,
-	const pugi::xml_node nodeData)
-{
+bool GraphMLParser::readData(GraphAttributes& GA, const node& v, const pugi::xml_node nodeData) {
 	pugi::xml_attribute keyId = nodeData.attribute("key");
 
 	if (!keyId) {
@@ -104,37 +98,38 @@ bool GraphMLParser::readData(
 
 	switch (graphml::toAttribute(m_attrName[keyId.value()])) {
 	case graphml::Attribute::NodeId:
-		if(attrs & GraphAttributes::nodeId) {
+		if (attrs & GraphAttributes::nodeId) {
 			GA.idNode(v) = text.as_int();
 		}
 		break;
 	case graphml::Attribute::NodeLabel:
-		if(attrs & GraphAttributes::nodeLabel) {
+		if (attrs & GraphAttributes::nodeLabel) {
 			GA.label(v) = text.get();
 		}
 		break;
 	case graphml::Attribute::X:
-		if(attrs & GraphAttributes::nodeGraphics) {
+		if (attrs & GraphAttributes::nodeGraphics) {
 			GA.x(v) = text.as_double();
 		}
 		break;
 	case graphml::Attribute::Y:
-		if(attrs & GraphAttributes::nodeGraphics) {
-			GA.y(v) = text.as_double();;
+		if (attrs & GraphAttributes::nodeGraphics) {
+			GA.y(v) = text.as_double();
+			;
 		}
 		break;
 	case graphml::Attribute::Width:
-		if(attrs & GraphAttributes::nodeGraphics) {
+		if (attrs & GraphAttributes::nodeGraphics) {
 			GA.width(v) = text.as_double();
 		}
 		break;
 	case graphml::Attribute::Height:
-		if(attrs & GraphAttributes::nodeGraphics) {
+		if (attrs & GraphAttributes::nodeGraphics) {
 			GA.height(v) = text.as_double();
 		}
 		break;
 	case graphml::Attribute::Size:
-		if(attrs & GraphAttributes::nodeGraphics) {
+		if (attrs & GraphAttributes::nodeGraphics) {
 			double size = text.as_double();
 
 			// We want to set a new size only if width and height was not set.
@@ -144,12 +139,12 @@ bool GraphMLParser::readData(
 		}
 		break;
 	case graphml::Attribute::Shape:
-		if(attrs & GraphAttributes::nodeGraphics) {
+		if (attrs & GraphAttributes::nodeGraphics) {
 			GA.shape(v) = graphml::toShape(text.get());
 		}
 		break;
 	case graphml::Attribute::Z:
-		if(attrs & GraphAttributes::threeD) {
+		if (attrs & GraphAttributes::threeD) {
 			GA.z(v) = text.as_double();
 		}
 		break;
@@ -170,75 +165,74 @@ bool GraphMLParser::readData(
 		break;
 	case graphml::Attribute::R:
 		if (attrs & GraphAttributes::nodeStyle
-		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).red(val); })) {
+				&& !GraphIO::setColorValue(text.as_int(),
+						[&](uint8_t val) { GA.fillColor(v).red(val); })) {
 			return false;
 		}
 		break;
 	case graphml::Attribute::G:
-		if(attrs & GraphAttributes::nodeStyle
-		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).green(val); })) {
+		if (attrs & GraphAttributes::nodeStyle
+				&& !GraphIO::setColorValue(text.as_int(),
+						[&](uint8_t val) { GA.fillColor(v).green(val); })) {
 			return false;
 		}
 		break;
 	case graphml::Attribute::B:
-		if(attrs & GraphAttributes::nodeStyle
-		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).blue(val); })) {
+		if (attrs & GraphAttributes::nodeStyle
+				&& !GraphIO::setColorValue(text.as_int(),
+						[&](uint8_t val) { GA.fillColor(v).blue(val); })) {
 			return false;
 		}
 		break;
 	case graphml::Attribute::NodeFillPattern:
-		if(attrs & GraphAttributes::nodeStyle) {
+		if (attrs & GraphAttributes::nodeStyle) {
 			GA.fillPattern(v) = FillPattern(text.as_int());
 		}
 		break;
 	case graphml::Attribute::NodeFillBackground:
-		if(attrs & GraphAttributes::nodeStyle) {
+		if (attrs & GraphAttributes::nodeStyle) {
 			GA.fillBgColor(v) = text.get();
 		}
 		break;
 	case graphml::Attribute::NodeStrokeColor:
-		if(attrs & GraphAttributes::nodeStyle) {
+		if (attrs & GraphAttributes::nodeStyle) {
 			GA.strokeColor(v) = text.get();
 		}
 		break;
 	case graphml::Attribute::NodeStrokeType:
-		if(attrs & GraphAttributes::nodeStyle) {
+		if (attrs & GraphAttributes::nodeStyle) {
 			GA.strokeType(v) = StrokeType(text.as_int());
 		}
 		break;
 	case graphml::Attribute::NodeStrokeWidth:
-		if(attrs & GraphAttributes::nodeStyle) {
+		if (attrs & GraphAttributes::nodeStyle) {
 			GA.strokeWidth(v) = text.as_float();
 		}
 		break;
 	case graphml::Attribute::NodeType:
-		if(attrs & GraphAttributes::nodeType) {
+		if (attrs & GraphAttributes::nodeType) {
 			GA.type(v) = Graph::NodeType(text.as_int());
 		}
 		break;
 	case graphml::Attribute::Template:
-		if(attrs & GraphAttributes::nodeTemplate) {
+		if (attrs & GraphAttributes::nodeTemplate) {
 			GA.templateNode(v) = text.get();
 		}
 		break;
 	case graphml::Attribute::NodeWeight:
-		if(attrs & GraphAttributes::nodeWeight) {
+		if (attrs & GraphAttributes::nodeWeight) {
 			GA.weight(v) = text.as_int();
 		}
 		break;
 	default:
-		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown node attribute: \"" << keyId.value() << "\"." << std::endl;
+		GraphIO::logger.lout(Logger::Level::Minor)
+				<< "Unknown node attribute: \"" << keyId.value() << "\"." << std::endl;
 	}
 
 	return true;
 }
 
-
-bool GraphMLParser::readData(
-	GraphAttributes &GA,
-	const edge &e,
-	const pugi::xml_node edgeData)
-{
+bool GraphMLParser::readData(GraphAttributes& GA, const edge& e, const pugi::xml_node edgeData) {
 	pugi::xml_attribute keyId = edgeData.attribute("key");
 	if (!keyId) {
 		GraphIO::logger.lout() << "Edge data does not have a key." << std::endl;
@@ -248,79 +242,74 @@ bool GraphMLParser::readData(
 	const long attrs = GA.attributes();
 	pugi::xml_text text = edgeData.text();
 
-	switch(graphml::toAttribute(m_attrName[keyId.value()])) {
+	switch (graphml::toAttribute(m_attrName[keyId.value()])) {
 	case graphml::Attribute::EdgeLabel:
-		if(attrs & GraphAttributes::edgeLabel) {
+		if (attrs & GraphAttributes::edgeLabel) {
 			GA.label(e) = text.get();
 		}
 		break;
 	case graphml::Attribute::EdgeWeight:
-		if(attrs & GraphAttributes::edgeDoubleWeight) {
+		if (attrs & GraphAttributes::edgeDoubleWeight) {
 			GA.doubleWeight(e) = text.as_double();
-		} else if(attrs & GraphAttributes::edgeIntWeight) {
+		} else if (attrs & GraphAttributes::edgeIntWeight) {
 			GA.intWeight(e) = text.as_int();
 		}
 		break;
 	case graphml::Attribute::EdgeType:
-		if(attrs & GraphAttributes::edgeType) {
+		if (attrs & GraphAttributes::edgeType) {
 			GA.type(e) = graphml::toEdgeType(text.get());
 		}
 		break;
 	case graphml::Attribute::EdgeArrow:
-		if(attrs & GraphAttributes::edgeArrow) {
+		if (attrs & GraphAttributes::edgeArrow) {
 			GA.arrowType(e) = graphml::toArrow(text.get());
 		}
 		break;
 	case graphml::Attribute::EdgeStrokeColor:
-		if(attrs & GraphAttributes::edgeStyle) {
+		if (attrs & GraphAttributes::edgeStyle) {
 			GA.strokeColor(e) = text.get();
 		}
 		break;
 	case graphml::Attribute::EdgeStrokeType:
-		if(attrs & GraphAttributes::edgeStyle) {
+		if (attrs & GraphAttributes::edgeStyle) {
 			GA.strokeType(e) = StrokeType(text.as_int());
 		}
 		break;
 	case graphml::Attribute::EdgeStrokeWidth:
-		if(attrs & GraphAttributes::edgeStyle) {
+		if (attrs & GraphAttributes::edgeStyle) {
 			GA.strokeWidth(e) = text.as_float();
 		}
 		break;
 	case graphml::Attribute::EdgeBends:
-		if(attrs & GraphAttributes::edgeGraphics) {
+		if (attrs & GraphAttributes::edgeGraphics) {
 			std::stringstream is(text.get());
 			double x, y;
 			DPolyline& polyline = GA.bends(e);
 			polyline.clear();
-			while(is >> x && is >> y) {
+			while (is >> x && is >> y) {
 				polyline.pushBack(DPoint(x, y));
 			}
 		}
 		break;
 	case graphml::Attribute::EdgeSubGraph:
-		if(attrs & GraphAttributes::edgeSubGraphs) {
+		if (attrs & GraphAttributes::edgeSubGraphs) {
 			std::stringstream sstream(text.get());
 			int sg;
-			while(sstream >> sg) {
+			while (sstream >> sg) {
 				GA.addSubGraph(e, sg);
 			}
 		}
 		break;
 	default:
-		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown edge attribute with \""
-		             << keyId.value()
-		             << "\"." << std::endl;
+		GraphIO::logger.lout(Logger::Level::Minor)
+				<< "Unknown edge attribute with \"" << keyId.value() << "\"." << std::endl;
 	}
 
 	return true;
 }
 
-
-bool GraphMLParser::readData(
-	ClusterGraphAttributes &CA,
-	const cluster &c,
-	const pugi::xml_node clusterData)
-{
+bool GraphMLParser::readData(ClusterGraphAttributes& CA, const cluster& c,
+		const pugi::xml_node clusterData) {
 	auto keyId = clusterData.attribute("key");
 	if (!keyId) {
 		GraphIO::logger.lout() << "Cluster data does not have a key." << std::endl;
@@ -371,24 +360,19 @@ bool GraphMLParser::readData(
 		CA.strokeColor(c) = text.get();
 		break;
 	default:
-		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown cluster attribute with \""
-		             << keyId.value()
-		             << "--enum: " << m_attrName[keyId.value()] << "--"
-		             << "\"." << std::endl;
+		GraphIO::logger.lout(Logger::Level::Minor)
+				<< "Unknown cluster attribute with \"" << keyId.value()
+				<< "--enum: " << m_attrName[keyId.value()] << "--"
+				<< "\"." << std::endl;
 	}
 
 	return true;
 }
 
-
-bool GraphMLParser::readNodes(
-	Graph &G,
-	GraphAttributes *GA,
-	const pugi::xml_node rootTag)
-{
-	for(pugi::xml_node nodeTag : rootTag.children("node")) {
+bool GraphMLParser::readNodes(Graph& G, GraphAttributes* GA, const pugi::xml_node rootTag) {
+	for (pugi::xml_node nodeTag : rootTag.children("node")) {
 		pugi::xml_attribute idAttr = nodeTag.attribute("id");
-		if(!idAttr) {
+		if (!idAttr) {
 			GraphIO::logger.lout() << "Node is missing id attribute." << std::endl;
 			return false;
 		}
@@ -397,13 +381,14 @@ bool GraphMLParser::readNodes(
 		m_nodeId[idAttr.value()] = v;
 
 		// Search for data-key attributes if GA given.
-		if(GA && !readAttributes(*GA, v, nodeTag)) {
+		if (GA && !readAttributes(*GA, v, nodeTag)) {
 			return false;
 		}
 
 		pugi::xml_node clusterTag = nodeTag.child("graph");
 		if (clusterTag) {
-			GraphIO::logger.lout(Logger::Level::Minor) << "Nested graphs are not fully supported." << std::endl;
+			GraphIO::logger.lout(Logger::Level::Minor)
+					<< "Nested graphs are not fully supported." << std::endl;
 			return readNodes(G, GA, clusterTag);
 		}
 	}
@@ -411,12 +396,7 @@ bool GraphMLParser::readNodes(
 	return readEdges(G, GA, rootTag);
 }
 
-
-bool GraphMLParser::readEdges(
-	Graph &G,
-	GraphAttributes *GA,
-	const pugi::xml_node rootTag)
-{
+bool GraphMLParser::readEdges(Graph& G, GraphAttributes* GA, const pugi::xml_node rootTag) {
 	for (pugi::xml_node edgeTag : rootTag.children("edge")) {
 		pugi::xml_attribute sourceId = edgeTag.attribute("source");
 		pugi::xml_attribute targetId = edgeTag.attribute("target");
@@ -432,24 +412,24 @@ bool GraphMLParser::readEdges(
 
 		auto sourceIt = m_nodeId.find(sourceId.value());
 		if (sourceIt == std::end(m_nodeId)) {
-			GraphIO::logger.lout() << "Edge source node \""
-			           << sourceId.value()
-			           << "\" is incorrect.\n" << std::endl;
+			GraphIO::logger.lout()
+					<< "Edge source node \"" << sourceId.value() << "\" is incorrect.\n"
+					<< std::endl;
 			return false;
 		}
 
 		auto targetIt = m_nodeId.find(targetId.value());
 		if (targetIt == std::end(m_nodeId)) {
-			GraphIO::logger.lout() << "Edge source node \""
-			           << targetId.value()
-			           << "\" is incorrect.\n" << std::endl;
+			GraphIO::logger.lout()
+					<< "Edge source node \"" << targetId.value() << "\" is incorrect.\n"
+					<< std::endl;
 			return false;
 		}
 
 		const edge e = G.newEdge(sourceIt->second, targetIt->second);
 
 		// Search for data-key attributes if GA given, return false on error.
-		if(GA && !readAttributes(*GA, e, edgeTag)) {
+		if (GA && !readAttributes(*GA, e, edgeTag)) {
 			return false;
 		}
 	}
@@ -457,15 +437,9 @@ bool GraphMLParser::readEdges(
 	return true;
 }
 
-
-bool GraphMLParser::readClusters(
-	Graph &G,
-	ClusterGraph &C,
-	ClusterGraphAttributes *CA,
-	const cluster &rootCluster,
-	const pugi::xml_node rootTag)
-{
-	for(pugi::xml_node nodeTag : rootTag.children("node")) {
+bool GraphMLParser::readClusters(Graph& G, ClusterGraph& C, ClusterGraphAttributes* CA,
+		const cluster& rootCluster, const pugi::xml_node rootTag) {
+	for (pugi::xml_node nodeTag : rootTag.children("node")) {
 		pugi::xml_attribute idAttr = nodeTag.attribute("id");
 		pugi::xml_node clusterTag = nodeTag.child("graph");
 
@@ -481,7 +455,7 @@ bool GraphMLParser::readClusters(
 			C.reassignNode(v, rootCluster);
 
 			// Read attributes when CA given and return false if error.
-			if(CA && !readAttributes(*CA, v, nodeTag)) {
+			if (CA && !readAttributes(*CA, v, nodeTag)) {
 				return false;
 			}
 		} else {
@@ -492,7 +466,7 @@ bool GraphMLParser::readClusters(
 			}
 
 			// Read attributes when CA given and return false if error.
-			if(CA && !readAttributes(*CA, c, nodeTag)) {
+			if (CA && !readAttributes(*CA, c, nodeTag)) {
 				return false;
 			}
 		}
@@ -501,10 +475,8 @@ bool GraphMLParser::readClusters(
 	return readEdges(G, CA, rootTag);
 }
 
-
-bool GraphMLParser::read(Graph &G)
-{
-	if(m_error) {
+bool GraphMLParser::read(Graph& G) {
+	if (m_error) {
 		return false;
 	}
 
@@ -514,14 +486,12 @@ bool GraphMLParser::read(Graph &G)
 	return readNodes(G, nullptr, m_graphTag);
 }
 
-
-bool GraphMLParser::read(Graph &G, GraphAttributes &GA)
-{
+bool GraphMLParser::read(Graph& G, GraphAttributes& GA) {
 	// Check whether graph is directed or not (directed by default).
 	pugi::xml_attribute edgeDefaultAttr = m_graphTag.attribute("edgedefault");
 	GA.directed() = (!edgeDefaultAttr || string(edgeDefaultAttr.value()) == "directed");
 
-	if(m_error) {
+	if (m_error) {
 		return false;
 	}
 
@@ -531,10 +501,8 @@ bool GraphMLParser::read(Graph &G, GraphAttributes &GA)
 	return readNodes(G, &GA, m_graphTag);
 }
 
-
-bool GraphMLParser::read(Graph &G, ClusterGraph &C)
-{
-	if(m_error) {
+bool GraphMLParser::read(Graph& G, ClusterGraph& C) {
+	if (m_error) {
 		return false;
 	}
 
@@ -544,10 +512,8 @@ bool GraphMLParser::read(Graph &G, ClusterGraph &C)
 	return readClusters(G, C, nullptr, C.rootCluster(), m_graphTag);
 }
 
-
-bool GraphMLParser::read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA)
-{
-	if(m_error) {
+bool GraphMLParser::read(Graph& G, ClusterGraph& C, ClusterGraphAttributes& CA) {
+	if (m_error) {
 		return false;
 	}
 

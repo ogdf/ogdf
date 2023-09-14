@@ -37,11 +37,10 @@
 namespace ogdf {
 
 //! The Davidson-Harel approach for drawing graphs.
-class OGDF_EXPORT DavidsonHarel
-{
+class OGDF_EXPORT DavidsonHarel {
 	using EnergyFunction = davidson_harel::EnergyFunction;
-public:
 
+public:
 	//! Creates an instance of Davidsen-Harel base class.
 	DavidsonHarel();
 
@@ -54,7 +53,7 @@ public:
 	void setNumberOfIterations(int steps);
 
 	//! Adds an energy function \p F with a certain weight.
-	void addEnergyFunction(EnergyFunction *F, double weight);
+	void addEnergyFunction(EnergyFunction* F, double weight);
 
 	//! Returns a list of the names of the energy functions.
 	List<string> returnEnergyFunctionNames();
@@ -63,7 +62,7 @@ public:
 	List<double> returnEnergyFunctionWeights();
 
 	//! Calls the Davidson-Harel method for graph \p GA.
-	void call(GraphAttributes &GA);
+	void call(GraphAttributes& GA);
 
 private:
 	//! The default starting temperature.
@@ -77,11 +76,11 @@ private:
 	//! the constant by which the radius of the circle around each vertex is shrunk when the temperature is lowered
 	const static double m_shrinkFactor;
 
-	int m_temperature;          //!< The temperature during the annealing process.
-	double m_shrinkingFactor;   //!< The factor for radius.
-	double m_diskRadius;        //!< The radius of the disk around the old position of a vertex where the new position will be.
-	double m_energy;            //!< The current energy of the system.
-	int m_numberOfIterations;   //!< The number of iterations per temperature step.
+	int m_temperature; //!< The temperature during the annealing process.
+	double m_shrinkingFactor; //!< The factor for radius.
+	double m_diskRadius; //!< The radius of the disk around the old position of a vertex where the new position will be.
+	double m_energy; //!< The current energy of the system.
+	int m_numberOfIterations; //!< The number of iterations per temperature step.
 
 	List<EnergyFunction*> m_energyFunctions; //!< The list of the energy functions.
 	List<double> m_weightsOfEnergyFunctions; //!< The list of the weights for the energy functions.
@@ -92,7 +91,7 @@ private:
 	void initParameters();
 
 	//! Randomly computes a node and a new position for that node.
-	node computeCandidateLayout(const GraphAttributes &, DPoint &) const;
+	node computeCandidateLayout(const GraphAttributes&, DPoint&) const;
 
 	//! Tests if new energy value satisfies annealing property (only better if m_fineTune).
 	bool testEnergyValue(double newVal);
@@ -101,18 +100,19 @@ private:
 	double randNum() const;
 
 	//! Computes the first disk radius as the half the diamter of the enclosing rectangle.
-	void computeFirstRadius(const GraphAttributes &AG);
+	void computeFirstRadius(const GraphAttributes& AG);
 
 	//! Computes the energy of the initial layout and stores it in #m_energy.
 	void computeInitialEnergy();
 
 	//! Computes positions for the vertices of degree zero.
-	void placeIsolatedNodes(GraphAttributes &AG) const;
+	void placeIsolatedNodes(GraphAttributes& AG) const;
 
 	//! Fake assignment operator (dummy to avoid copying)
-	DavidsonHarel& operator=(const DavidsonHarel &dh);
+	DavidsonHarel& operator=(const DavidsonHarel& dh);
+
 	//! Fake copy constructor (dummy to avoid copying)
-	DavidsonHarel(const DavidsonHarel &) { }
+	DavidsonHarel(const DavidsonHarel&) { }
 };
 
 }

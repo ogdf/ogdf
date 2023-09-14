@@ -32,18 +32,16 @@
 #pragma once
 
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/LayerBasedUPRLayout.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+#include <ogdf/upward/UpwardPlanRep.h>
 
 namespace ogdf {
 
-class UpwardPlanarizationLayout : public LayoutModule
-{
+class UpwardPlanarizationLayout : public LayoutModule {
 public:
 	// constructor: sets options to default values
-	UpwardPlanarizationLayout()
-	{
+	UpwardPlanarizationLayout() {
 		m_cr_nr = 0;
 		// set default module
 		m_layout.reset(new LayerBasedUPRLayout());
@@ -52,9 +50,8 @@ public:
 
 	// calls the algorithm for attributed graph GA
 	// returns layout information in GA
-	virtual void call(GraphAttributes &GA) override
-	{
-		if(GA.constGraph().numberOfNodes() > 2) {
+	virtual void call(GraphAttributes& GA) override {
+		if (GA.constGraph().numberOfNodes() > 2) {
 			UpwardPlanRep UPR;
 			UPR.createEmpty(GA.constGraph());
 			m_UpwardPlanarizer->call(UPR);
@@ -65,11 +62,9 @@ public:
 	}
 
 	// module option for the computation of the final layout
-	void setUPRLayout(UPRLayoutModule *pLayout) {
-		m_layout.reset(pLayout);
-	}
+	void setUPRLayout(UPRLayoutModule* pLayout) { m_layout.reset(pLayout); }
 
-	void setUpwardPlanarizer(UpwardPlanarizerModule *pUpwardPlanarizer) {
+	void setUpwardPlanarizer(UpwardPlanarizerModule* pUpwardPlanarizer) {
 		m_UpwardPlanarizer.reset(pUpwardPlanarizer);
 	}
 

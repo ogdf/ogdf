@@ -207,7 +207,7 @@ public:
 	 * The functions \a initializeIteration() and \a next()
 	 * can be used to iterate through all items stored in the hash table having the same key.
 	 */
-	//@{
+	//! @{
 
 	//! This function retrieves the first item.
 	/**
@@ -241,7 +241,6 @@ public:
 	 *         item with this key in the hash table.
 	 */
 	ItemType *next(const KeyType &key);
-	//@}
 
 	//! This function can be used to go to the next item in the hash table with key \a key.
 	/**
@@ -257,7 +256,7 @@ public:
 	 *         item with this key in the hash table.
 	 */
 	const ItemType *next(const KeyType &key) const;
-	//@}
+	//! @}
 
 	//! Removes the first item with a given key from the hash table.
 	/**

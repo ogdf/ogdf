@@ -41,31 +41,34 @@ using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
-MaxPlanarEdgesConstraint::MaxPlanarEdgesConstraint(Master *master, int edgeBound, List<NodePair> &edges) :
-	Constraint(master, nullptr, CSense::Less, edgeBound, false, false, true)
-{
+MaxPlanarEdgesConstraint::MaxPlanarEdgesConstraint(Master* master, int edgeBound,
+		List<NodePair>& edges)
+	: Constraint(master, nullptr, CSense::Less, edgeBound, false, false, true) {
 	m_graphCons = false;
-	for (const NodePair &p : edges) {
+	for (const NodePair& p : edges) {
 		m_edges.pushBack(p);
 	}
 }
 
-MaxPlanarEdgesConstraint::MaxPlanarEdgesConstraint(Master *master, int edgeBound) :
-	Constraint(master, nullptr, CSense::Less, edgeBound, false, false, true)
-{
+MaxPlanarEdgesConstraint::MaxPlanarEdgesConstraint(Master* master, int edgeBound)
+	: Constraint(master, nullptr, CSense::Less, edgeBound, false, false, true) {
 	m_graphCons = true;
 }
 
-MaxPlanarEdgesConstraint::~MaxPlanarEdgesConstraint() {}
+MaxPlanarEdgesConstraint::~MaxPlanarEdgesConstraint() { }
 
-double MaxPlanarEdgesConstraint::coeff(const Variable *v) const {
+double MaxPlanarEdgesConstraint::coeff(const Variable* v) const {
 	//TODO: speedup, we know between which nodepairs edges exist...
-	if (m_graphCons) return 1.0;
+	if (m_graphCons) {
+		return 1.0;
+	}
 
-	const EdgeVar *e = static_cast<const EdgeVar*>(v);
-	for (const NodePair &p : m_edges) {
-		if ( (p.source == e->sourceNode() && p.target == e->targetNode()) || (p.source == e->targetNode() && p.target == e->sourceNode()) )
+	const EdgeVar* e = static_cast<const EdgeVar*>(v);
+	for (const NodePair& p : m_edges) {
+		if ((p.source == e->sourceNode() && p.target == e->targetNode())
+				|| (p.source == e->targetNode() && p.target == e->sourceNode())) {
 			return 1.0;
+		}
 	}
 	return 0.0;
 }

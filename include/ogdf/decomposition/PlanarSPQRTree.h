@@ -49,17 +49,14 @@ namespace ogdf {
  * around its poles, and swap(v,e_1,e_2), which exchanges the
  * positions of the edges e_1 and e_2 in the skeleton of a P-node v.
  */
-class OGDF_EXPORT PlanarSPQRTree : public virtual SPQRTree
-{
+class OGDF_EXPORT PlanarSPQRTree : public virtual SPQRTree {
 public:
 	//
 	// a) Access operations
 	//
 
 	//! Returns the number of possible embeddings of G.
-	double numberOfEmbeddings() const {
-		return numberOfEmbeddings(rootNode());
-	}
+	double numberOfEmbeddings() const { return numberOfEmbeddings(rootNode()); }
 
 	//! Returns the number of possible embeddings of the pertinent graph of node \p v.
 	/**
@@ -103,7 +100,7 @@ public:
 	/**
 	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
-	void embed(Graph &G);
+	void embed(Graph& G);
 
 	//! Embeds all skeleton graphs randomly.
 	void randomEmbed();
@@ -112,7 +109,7 @@ public:
 	/**
 	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
-	void randomEmbed(Graph &G) {
+	void randomEmbed(Graph& G) {
 		randomEmbed();
 		embed(G);
 	}
@@ -121,7 +118,7 @@ public:
 	/**
 	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
-	void firstEmbedding(Graph &G);
+	void firstEmbedding(Graph& G);
 
 	//! Embeds the original graph \p G with the next embedding.
 	/**
@@ -129,40 +126,31 @@ public:
 	 * \pre To work correctly it has to start with firstEmbedding(G)
 	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
-	bool nextEmbedding(Graph &G);
+	bool nextEmbedding(Graph& G);
 
 	//! Embeds the skeleton of the node vT with the specific embedding numbered by x.
 	/**
 	 * \pre To work correctly vT has to be a node of the SPQR-tree and 0 &le; x &le; number of embeddings of vT's skeleton
 	 * \pre It does not work at the same time with firstEmbedding and nextEmbedding
 	 */
-	void embed(node &vT, long long x);
+	void embed(node& vT, long long x);
 
 
 protected:
 	//! Initialization (adaption of embeding).
 	void init(bool isEmbedded);
 	void adoptEmbedding();
-	void setPosInEmbedding(
-		NodeArray<SListPure<adjEntry> > &adjEdges,
-		NodeArray<node> &currentCopy,
-		NodeArray<adjEntry> &lastAdj,
-		SListPure<node> &current,
-		const Skeleton &S,
-		adjEntry adj);
+	void setPosInEmbedding(NodeArray<SListPure<adjEntry>>& adjEdges, NodeArray<node>& currentCopy,
+			NodeArray<adjEntry>& lastAdj, SListPure<node>& current, const Skeleton& S, adjEntry adj);
 
 	// Embeda original graph according to embeddings of skeletons.
-	void expandVirtualEmbed(node vT,
-		adjEntry adjVirt,
-		SListPure<adjEntry> &adjEdges);
-	void createInnerVerticesEmbed(Graph &G, node vT);
+	void expandVirtualEmbed(node vT, adjEntry adjVirt, SListPure<adjEntry>& adjEdges);
+	void createInnerVerticesEmbed(Graph& G, node vT);
 
 	// Enumeration of all embeddings
-	void firstEmbedding(node &vT);
-	void reverse(node &nP,
-		adjEntry &first,
-		adjEntry &last);
-	bool nextEmbedding(node &vT);
+	void firstEmbedding(node& vT);
+	void reverse(node& nP, adjEntry& first, adjEntry& last);
+	bool nextEmbedding(node& vT);
 	bool nextEmbedding(ListIterator<node> it);
 
 	bool m_finished;

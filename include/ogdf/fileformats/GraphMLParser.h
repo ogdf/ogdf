@@ -31,9 +31,9 @@
 
 #pragma once
 
+#include <ogdf/basic/HashArray.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-#include <ogdf/basic/HashArray.h>
 #include <ogdf/lib/pugixml/pugixml.h>
 
 #include <sstream>
@@ -46,28 +46,22 @@ private:
 	pugi::xml_document m_xml;
 	pugi::xml_node m_graphTag; // "Almost root" tag.
 
-	 // Maps GraphML node id to Graph node.
+	// Maps GraphML node id to Graph node.
 	std::unordered_map<string, node> m_nodeId;
 
 	// Maps attribute id to its name.
 	std::unordered_map<string, string> m_attrName;
 
-	bool readData(
-		GraphAttributes &GA,
-		const node &v, const pugi::xml_node nodeData);
-	bool readData(
-		GraphAttributes &GA,
-		const edge &e, const pugi::xml_node edgeData);
-	bool readData(
-		ClusterGraphAttributes &CA,
-		const cluster &c, const pugi::xml_node clusterData);
+	bool readData(GraphAttributes& GA, const node& v, const pugi::xml_node nodeData);
+	bool readData(GraphAttributes& GA, const edge& e, const pugi::xml_node edgeData);
+	bool readData(ClusterGraphAttributes& CA, const cluster& c, const pugi::xml_node clusterData);
 
 	// Finds all data-keys for given element and calls appropiate "readData".
-	template <typename A, typename T>
-	bool readAttributes(A &GA, const T &elem, const pugi::xml_node xmlElem) {
+	template<typename A, typename T>
+	bool readAttributes(A& GA, const T& elem, const pugi::xml_node xmlElem) {
 		for (pugi::xml_node dataTag : xmlElem.children("data")) {
 			const bool result = readData(GA, elem, dataTag);
-			if(!result) {
+			if (!result) {
 				return false;
 			}
 		}
@@ -75,26 +69,21 @@ private:
 		return true;
 	}
 
-	bool readNodes(
-		Graph &G, GraphAttributes *GA,
-		const pugi::xml_node rootTag);
-	bool readEdges(
-		Graph &G, GraphAttributes *GA,
-		const pugi::xml_node rootTag);
-	bool readClusters(
-		Graph &G, ClusterGraph &C, ClusterGraphAttributes *CA,
-		const cluster &rootCluster, const pugi::xml_node clusterRoot);
+	bool readNodes(Graph& G, GraphAttributes* GA, const pugi::xml_node rootTag);
+	bool readEdges(Graph& G, GraphAttributes* GA, const pugi::xml_node rootTag);
+	bool readClusters(Graph& G, ClusterGraph& C, ClusterGraphAttributes* CA,
+			const cluster& rootCluster, const pugi::xml_node clusterRoot);
 
 	bool m_error;
 
 public:
-	explicit GraphMLParser(std::istream &in);
+	explicit GraphMLParser(std::istream& in);
 	~GraphMLParser();
 
-	bool read(Graph &G);
-	bool read(Graph &G, GraphAttributes &GA);
-	bool read(Graph &G, ClusterGraph &C);
-	bool read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA);
+	bool read(Graph& G);
+	bool read(Graph& G, GraphAttributes& GA);
+	bool read(Graph& G, ClusterGraph& C);
+	bool read(Graph& G, ClusterGraph& C, ClusterGraphAttributes& CA);
 };
 
 }

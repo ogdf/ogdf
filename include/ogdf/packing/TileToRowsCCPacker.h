@@ -37,9 +37,9 @@ namespace ogdf {
 
 
 //! The tile-to-rows algorithm for packing drawings of connected components.
-class OGDF_EXPORT TileToRowsCCPacker : public CCLayoutPackModule
-{
-	template<class POINT> struct RowInfo;
+class OGDF_EXPORT TileToRowsCCPacker : public CCLayoutPackModule {
+	template<class POINT>
+	struct RowInfo;
 
 public:
 	//! Creates an instance of tile-to-rows packer.
@@ -59,9 +59,7 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	virtual void call(Array<DPoint> &box,
-		Array<DPoint> &offset,
-		double pageRatio = 1.0) override;
+	virtual void call(Array<DPoint>& box, Array<DPoint>& offset, double pageRatio = 1.0) override;
 
 	/**
 	 * \brief Arranges the rectangles given by \p box.
@@ -75,21 +73,15 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	virtual void call(Array<IPoint> &box,
-		Array<IPoint> &offset,
-		double pageRatio = 1.0) override;
+	virtual void call(Array<IPoint>& box, Array<IPoint>& offset, double pageRatio = 1.0) override;
 
 private:
 	template<class POINT>
-	static void callGeneric(Array<POINT> &box,
-		Array<POINT> &offset,
-		double pageRatio);
+	static void callGeneric(Array<POINT>& box, Array<POINT>& offset, double pageRatio);
 
 	template<class POINT>
-	static int findBestRow(Array<RowInfo<POINT> > &row,
-		int nRows,
-		double pageRatio,
-		const POINT &rect);
+	static int findBestRow(Array<RowInfo<POINT>>& row, int nRows, double pageRatio,
+			const POINT& rect);
 };
 
 }

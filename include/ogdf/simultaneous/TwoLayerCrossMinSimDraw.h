@@ -36,14 +36,13 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT TwoLayerCrossMinSimDraw : public LayerByLayerSweep
-{
+class OGDF_EXPORT TwoLayerCrossMinSimDraw : public LayerByLayerSweep {
 public:
 	//! Initializes a two-layer crossing minimization module.
 	TwoLayerCrossMinSimDraw() : LayerByLayerSweep() { }
 
 	//! Returns a new instance of the two-layer crossing minimization module with the same option settings.
-	virtual TwoLayerCrossMinSimDraw *clone() const = 0;
+	virtual TwoLayerCrossMinSimDraw* clone() const = 0;
 
 	/**
 	* \brief Performs crossing minimization for level \p L.
@@ -54,9 +53,9 @@ public:
 	*        an edge belongs; there are up to 32 possible subgraphs each of which
 	*        is represented by a bit of an <code>uint32_t</code>.
 	*/
-	virtual void call(Level &L, const EdgeArray<uint32_t> *esg) = 0;
+	virtual void call(Level& L, const EdgeArray<uint32_t>* esg) = 0;
 
-	void call(Level &L) = 0;
+	void call(Level& L) = 0;
 };
 
 }

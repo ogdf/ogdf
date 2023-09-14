@@ -33,11 +33,11 @@
 
 #pragma once
 
-#include <limits>
-
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
-#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+
+#include <limits>
 
 //#define OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
 
@@ -56,13 +56,13 @@ namespace ogdf {
 template<typename T>
 class MinSteinerTreePrimalDual : public MinSteinerTreeModule<T> {
 private:
-	const EdgeWeightedGraph<T> *m_pGraph;
-	const List<node> *m_pTerminals;
-	const NodeArray<bool> *m_pIsTerminal;
+	const EdgeWeightedGraph<T>* m_pGraph;
+	const List<node>* m_pTerminals;
+	const NodeArray<bool>* m_pIsTerminal;
 	const T MAX_VALUE = std::numeric_limits<T>::max();
 
 	NodeArray<int> m_componentMapping;
-	DisjointSets<> *m_pComponents;
+	DisjointSets<>* m_pComponents;
 	HashArray<int, ListIterator<int>> m_activeComponentIterators;
 	List<int> m_activeComponents;
 	double m_lowerBound;
@@ -80,7 +80,6 @@ private:
 	 * Marks the specified component as active.
 	 *
 	 * @param component the component to be activated.
-	 * @return
 	 */
 	void makeActive(int component);
 
@@ -104,7 +103,7 @@ private:
 	 * @param nextEdge the found edge
 	 * @return the adjusted weight (aka epsilon) for the found edge
 	 */
-	double getNextEdge(edge *nextEdge);
+	double getNextEdge(edge* nextEdge);
 
 	/**
 	 * Must be called after merging any two components.
@@ -135,12 +134,12 @@ protected:
 	 * \return
 	 * 	The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
-			EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
+	virtual T computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override;
 
 public:
-	virtual T call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree) override
-	{
+	virtual T call(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) override {
 		m_lowerBound = 0;
 		return MinSteinerTreeModule<T>::call(G, terminals, isTerminal, finalSteinerTree);
 	}
@@ -154,8 +153,7 @@ public:
 };
 
 template<typename T>
-void MinSteinerTreePrimalDual<T>::init()
-{
+void MinSteinerTreePrimalDual<T>::init() {
 	m_activeComponentIterators.clear();
 	m_activeComponents.clear();
 	m_componentMapping.init(*m_pGraph);
@@ -163,79 +161,72 @@ void MinSteinerTreePrimalDual<T>::init()
 }
 
 template<typename T>
-int MinSteinerTreePrimalDual<T>::getComponent(const node v) const
-{
+int MinSteinerTreePrimalDual<T>::getComponent(const node v) const {
 	return m_pComponents->find(m_componentMapping[v]);
 }
 
 template<typename T>
-bool MinSteinerTreePrimalDual<T>::isActive(int component) const
-{
+bool MinSteinerTreePrimalDual<T>::isActive(int component) const {
 	return m_activeComponentIterators[component].valid();
 }
 
 template<typename T>
-void MinSteinerTreePrimalDual<T>::makeActive(int comp)
-{
+void MinSteinerTreePrimalDual<T>::makeActive(int comp) {
 	m_activeComponentIterators[comp] = m_activeComponents.pushBack(comp);
 }
 
 template<typename T>
-void MinSteinerTreePrimalDual<T>::mergeComponents(const node v, const node w)
-{
-
+void MinSteinerTreePrimalDual<T>::mergeComponents(const node v, const node w) {
 	int compV = getComponent(v);
 	int compW = getComponent(w);
 
 	// remove former components
-	if(isActive(compV)) {
+	if (isActive(compV)) {
 		m_activeComponents.del(m_activeComponentIterators[compV]);
 	}
-	if(isActive(compW)) {
+	if (isActive(compW)) {
 		m_activeComponents.del(m_activeComponentIterators[compW]);
 	}
 
 	// craete new component
 	int compNew = m_pComponents->link(compV, compW);
-	if(!m_activeComponents.empty()) {
+	if (!m_activeComponents.empty()) {
 		makeActive(compNew);
 	}
 }
 
 template<typename T>
-void MinSteinerTreePrimalDual<T>::updatePriorities(double eps)
-{
+void MinSteinerTreePrimalDual<T>::updatePriorities(double eps) {
 	List<node> nodes;
 	m_pGraph->allNodes(nodes);
-	for(node v : nodes) {
-		if(isActive(getComponent(v))) {
+	for (node v : nodes) {
+		if (isActive(getComponent(v))) {
 			m_priorities(v) += eps;
 		}
 	}
 }
 
 template<typename T>
-double MinSteinerTreePrimalDual<T>::getNextEdge(edge *nextEdge)
-{
+double MinSteinerTreePrimalDual<T>::getNextEdge(edge* nextEdge) {
 	double result = MAX_VALUE;
 	*nextEdge = nullptr;
 
 	List<edge> edges;
 	m_pGraph->allEdges(edges);
-	for(edge e : edges) {
+	for (edge e : edges) {
 		node v = e->source();
 		node w = e->target();
 		int compV = getComponent(v);
 		int compW = getComponent(w);
-		if(compV != compW) { // spanning different components ?
+		if (compV != compW) { // spanning different components ?
 			double value = m_pGraph->weight(e) - m_priorities(v) - m_priorities(w);
 			int divisor = isActive(compV) + isActive(compW);
-			if(divisor == 0) {
+			if (divisor == 0) {
 				value = MAX_VALUE;
 			} else {
 				value /= divisor;
 			}
-			if(*nextEdge == nullptr || value < result) {
+			if (*nextEdge == nullptr || value < result) {
 				*nextEdge = e;
 				result = value;
 			}
@@ -245,8 +236,9 @@ double MinSteinerTreePrimalDual<T>::getNextEdge(edge *nextEdge)
 }
 
 template<typename T>
-T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
+		const List<node>& terminals, const NodeArray<bool>& isTerminal,
+		EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	m_pGraph = &G;
 	m_pTerminals = &terminals;
 	m_pIsTerminal = &isTerminal;
@@ -261,10 +253,10 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	// initialize components
 	List<node> nodes;
 	m_pGraph->allNodes(nodes);
-	for(node v : nodes) {
+	for (node v : nodes) {
 		int comp = m_pComponents->makeSet();
 		m_componentMapping[v] = comp;
-		if(isTerminal(v)) {
+		if (isTerminal(v)) {
 			makeActive(comp);
 		}
 	}
@@ -272,7 +264,7 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
 	std::cout << "Goemans primal-dual starting..." << std::endl;
 	std::cout << "terminals:";
-	for(node v : *m_pTerminals) {
+	for (node v : *m_pTerminals) {
 		std::cout << " " << v;
 	}
 	std::cout << std::endl;
@@ -281,7 +273,7 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 #endif
 
 	T result = 0;
-	while(!m_activeComponents.empty()) {
+	while (!m_activeComponents.empty()) {
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
 		std::cout << "active component exists" << std::endl;
 #endif
@@ -291,16 +283,17 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 		OGDF_ASSERT(minEdge != nullptr);
 
 #ifdef OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
-		std::cout << "minEdge found: " << minEdge << ", weight is " << m_pGraph->weight(minEdge) << ", adjusted weight is " << minValue << std::endl;
+		std::cout << "minEdge found: " << minEdge << ", weight is " << m_pGraph->weight(minEdge)
+				  << ", adjusted weight is " << minValue << std::endl;
 #endif
 		node v = minEdge->source();
 		node w = minEdge->target();
 
 		// include nodes in Steiner tree
-		if(finalSteinerTree->copy(v) == nullptr) {
+		if (finalSteinerTree->copy(v) == nullptr) {
 			finalSteinerTree->newNode(v);
 		}
-		if(finalSteinerTree->copy(w) == nullptr) {
+		if (finalSteinerTree->copy(w) == nullptr) {
 			finalSteinerTree->newNode(w);
 		}
 
@@ -324,8 +317,7 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 }
 
 template<typename T>
-double MinSteinerTreePrimalDual<T>::getLastLowerBound() const
-{
+double MinSteinerTreePrimalDual<T>::getLastLowerBound() const {
 	return m_lowerBound;
 }
 

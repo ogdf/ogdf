@@ -33,32 +33,19 @@
 
 namespace ogdf {
 
-static string system_str[static_cast<int>(Configuration::System::STOP)+1] = {
-	"unknown", "Windows", "Unix/linux", "Apple OSX", "STOP"
-};
+static string system_str[static_cast<int>(Configuration::System::STOP) + 1] = {
+		"unknown", "Windows", "Unix/linux", "Apple OSX", "STOP"};
 
-static string lpsolver_str[static_cast<int>(Configuration::LPSolver::STOP)+1] = {
-	"N/A", "COIN-OR LP (Clp)", "Symphony", "CPLEX", "Gurobi", "STOP"
-};
+static string lpsolver_str[static_cast<int>(Configuration::LPSolver::STOP) + 1] = {
+		"N/A", "COIN-OR LP (Clp)", "Symphony", "CPLEX", "Gurobi", "STOP"};
 
-static string mm_str[static_cast<int>(Configuration::MemoryManager::STOP)+1] = {
-	"pool allocator (thread-safe)", "pool allocator (not thread-safe)", "malloc", "STOP"
-};
+static string mm_str[static_cast<int>(Configuration::MemoryManager::STOP) + 1] = {
+		"pool allocator (thread-safe)", "pool allocator (not thread-safe)", "malloc", "STOP"};
 
+const string& Configuration::toString(System sys) { return system_str[static_cast<int>(sys)]; }
 
-const string &Configuration::toString(System sys)
-{
-	return system_str[static_cast<int>(sys)];
-}
+const string& Configuration::toString(LPSolver lps) { return lpsolver_str[static_cast<int>(lps)]; }
 
-const string &Configuration::toString(LPSolver lps)
-{
-	return lpsolver_str[static_cast<int>(lps)];
-}
-
-const string &Configuration::toString(MemoryManager mm)
-{
-	return mm_str[static_cast<int>(mm)];
-}
+const string& Configuration::toString(MemoryManager mm) { return mm_str[static_cast<int>(mm)]; }
 
 }

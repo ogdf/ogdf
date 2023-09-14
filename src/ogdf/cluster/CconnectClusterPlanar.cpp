@@ -31,34 +31,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/STNumbering.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/CconnectClusterPlanar.h>
 
 namespace ogdf {
 
 using namespace booth_lueker;
 
 // Constructor
-CconnectClusterPlanar::CconnectClusterPlanar()
-{
-	m_errorCode = ErrorCode::none;
-}
+CconnectClusterPlanar::CconnectClusterPlanar() { m_errorCode = ErrorCode::none; }
 
 // Tests if a ClusterGraph is C-planar
-bool CconnectClusterPlanar::call(const ClusterGraph &C)
-{
+bool CconnectClusterPlanar::call(const ClusterGraph& C) {
 	Graph G;
-	ClusterGraph Cp(C,G);
+	ClusterGraph Cp(C, G);
 #ifdef OGDF_DEBUG
 	Cp.consistencyCheck();
 #endif
 	OGDF_ASSERT(&G == &Cp.constGraph());
 
-	m_clusterPQTree.init(Cp,nullptr);
+	m_clusterPQTree.init(Cp, nullptr);
 
-	bool cPlanar = preProcess(Cp,G);
+	bool cPlanar = preProcess(Cp, G);
 
 	m_parallelEdges.init();
 	m_isParallel.init();
@@ -85,16 +81,13 @@ bool CconnectClusterPlanar::call(const ClusterGraph &C)
 //						doTest(Graph &G,NodeArray<int> &numbering,cluster &cl)
 //
 
-bool CconnectClusterPlanar::preProcess(ClusterGraph &C,Graph &G)
-{
-	if (!isCConnected(C))
-	{
+bool CconnectClusterPlanar::preProcess(ClusterGraph& C, Graph& G) {
+	if (!isCConnected(C)) {
 		m_errorCode = ErrorCode::nonCConnected;
 		return false;
 	}
 
-	if (!isPlanar(C))
-	{
+	if (!isPlanar(C)) {
 		m_errorCode = ErrorCode::nonPlanar;
 		return false;
 	}
@@ -102,59 +95,51 @@ bool CconnectClusterPlanar::preProcess(ClusterGraph &C,Graph &G)
 	cluster c;
 
 	SListPure<node> selfLoops;
-	makeLoopFree(G,selfLoops);
+	makeLoopFree(G, selfLoops);
 
 	c = C.rootCluster();
 
-	bool cPlanar = planarityTest(C,c,G);
+	bool cPlanar = planarityTest(C, c, G);
 
 	return cPlanar;
 }
 
 // Recursive call for testing c-planarity of the clustered graph
 // that is induced by cluster act
-bool CconnectClusterPlanar::planarityTest(
-	ClusterGraph &C,
-	const cluster act,
-	Graph &G)
-{
+bool CconnectClusterPlanar::planarityTest(ClusterGraph& C, const cluster act, Graph& G) {
 	// Test children first
-	if (!safeTestForEach(act->children, [&](cluster child) {
-		return planarityTest(C, child, G);
-	})) {
+	if (!safeTestForEach(act->children, [&](cluster child) { return planarityTest(C, child, G); })) {
 		return false;
 	}
 
 	// Get induced subgraph of cluster act and test it for planarity
 
 	List<node> subGraphNodes;
-	for (node s : act->nodes)
+	for (node s : act->nodes) {
 		subGraphNodes.pushBack(s);
+	}
 
 	Graph subGraph;
 	NodeArray<node> table;
-	inducedSubGraph(G,subGraphNodes.begin(),subGraph,table);
+	inducedSubGraph(G, subGraphNodes.begin(), subGraph, table);
 
 	// Introduce super sink and add edges corresponding
 	// to outgoing edges of the cluster
 
 	node superSink = subGraph.newNode();
-	EdgeArray<node> outgoingTable(subGraph,nullptr);
+	EdgeArray<node> outgoingTable(subGraph, nullptr);
 
-	for (node w : act->nodes)
-	{
-		for(adjEntry adj : w->adjEntries)
-		{
+	for (node w : act->nodes) {
+		for (adjEntry adj : w->adjEntries) {
 			edge e = adj->theEdge();
 			edge cor = nullptr;
 			if (table[e->source()] == nullptr) // edge is connected to a node outside the cluster
 			{
-				cor = subGraph.newEdge(table[e->target()],superSink);
+				cor = subGraph.newEdge(table[e->target()], superSink);
 				outgoingTable[cor] = e->source();
-			}
-			else if (table[e->target()] == nullptr) // dito
+			} else if (table[e->target()] == nullptr) // dito
 			{
-				cor = subGraph.newEdge(table[e->source()],superSink);
+				cor = subGraph.newEdge(table[e->source()], superSink);
 				outgoingTable[cor] = e->target();
 			}
 
@@ -168,15 +153,13 @@ bool CconnectClusterPlanar::planarityTest(
 	}
 
 
-	bool cPlanar = preparation(subGraph,act,superSink);
+	bool cPlanar = preparation(subGraph, act, superSink);
 
 
-	if (cPlanar && act != C.rootCluster())
-	{
+	if (cPlanar && act != C.rootCluster()) {
 		// Remove induced subgraph and the cluster act.
 		// Replace it by a wheel graph
-		while (!subGraphNodes.empty())
-		{
+		while (!subGraphNodes.empty()) {
 			node w = subGraphNodes.popFrontRet();
 #if 0
 			C.unassignNode(w);
@@ -186,8 +169,9 @@ bool CconnectClusterPlanar::planarityTest(
 
 		cluster parent = act->parent();
 
-		if (superSink && m_clusterPQTree[act])
-			constructWheelGraph(C,G,parent,m_clusterPQTree[act],outgoingTable);
+		if (superSink && m_clusterPQTree[act]) {
+			constructWheelGraph(C, G, parent, m_clusterPQTree[act], outgoingTable);
+		}
 
 		if (m_clusterPQTree[act] != nullptr) // if query necessary for clusters with just one child
 		{
@@ -203,21 +187,17 @@ bool CconnectClusterPlanar::planarityTest(
 	return cPlanar;
 }
 
-void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
-												Graph &G,
-												cluster &parent,
-												PlanarPQTree* T,
-												EdgeArray<node> &outgoingTable)
-{
-	const PQNode<edge,IndInfo*,bool>* root = T->root();
-	const PQNode<edge,IndInfo*,bool>*  checkNode = nullptr;
+void CconnectClusterPlanar::constructWheelGraph(ClusterGraph& C, Graph& G, cluster& parent,
+		PlanarPQTree* T, EdgeArray<node>& outgoingTable) {
+	const PQNode<edge, IndInfo*, bool>* root = T->root();
+	const PQNode<edge, IndInfo*, bool>* checkNode = nullptr;
 
-	Queue<const PQNode<edge,IndInfo*,bool>*> treeNodes;
+	Queue<const PQNode<edge, IndInfo*, bool>*> treeNodes;
 	treeNodes.append(root);
 
 	node correspond = G.newNode(); // Corresponds to the root node.
-								   // root node is either a Leaf or a P-node
-	C.reassignNode(correspond,parent);
+			// root node is either a Leaf or a P-node
+	C.reassignNode(correspond, parent);
 
 	Queue<node> graphNodes;
 	graphNodes.append(correspond);
@@ -227,67 +207,56 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 	node pre;
 	node newNode; // corresponds to anchor of a hub or a cut node
 
-	while (!treeNodes.empty())
-	{
+	while (!treeNodes.empty()) {
 		checkNode = treeNodes.pop();
 		correspond = graphNodes.pop();
 
-		PQNode<edge,IndInfo*,bool>*  firstSon  = nullptr;
-		PQNode<edge,IndInfo*,bool>*  nextSon   = nullptr;
-		PQNode<edge,IndInfo*,bool>*  oldSib    = nullptr;
-		PQNode<edge,IndInfo*,bool>*  holdSib   = nullptr;
+		PQNode<edge, IndInfo*, bool>* firstSon = nullptr;
+		PQNode<edge, IndInfo*, bool>* nextSon = nullptr;
+		PQNode<edge, IndInfo*, bool>* oldSib = nullptr;
+		PQNode<edge, IndInfo*, bool>* holdSib = nullptr;
 
 
-		if (checkNode->type() == PQNodeRoot::PQNodeType::PNode)
-		{
+		if (checkNode->type() == PQNodeRoot::PQNodeType::PNode) {
 			// correspond is a cut node
 
 			OGDF_ASSERT(checkNode->referenceChild());
 			firstSon = checkNode->referenceChild();
 
-			if (firstSon->type() != PQNodeRoot::PQNodeType::Leaf)
-			{
+			if (firstSon->type() != PQNodeRoot::PQNodeType::Leaf) {
 				treeNodes.append(firstSon);
 				newNode = G.newNode();
-				C.reassignNode(newNode,parent);
+				C.reassignNode(newNode, parent);
 				graphNodes.append(newNode);
-				G.newEdge(correspond,newNode);
-			}
-			else
-			{
+				G.newEdge(correspond, newNode);
+			} else {
 				// insert Edge to the outside
-				PQLeaf<edge,IndInfo*,bool>* leaf =
-					(PQLeaf<edge,IndInfo*,bool>*) firstSon;
+				PQLeaf<edge, IndInfo*, bool>* leaf = (PQLeaf<edge, IndInfo*, bool>*)firstSon;
 				edge f = leaf->getKey()->m_userStructKey;
 #if 0
 				node x = outgoingTable[f];
 #endif
-				G.newEdge(correspond,outgoingTable[f]);
+				G.newEdge(correspond, outgoingTable[f]);
 				delete leaf->getKey();
 			}
 
 			nextSon = firstSon->getNextSib(oldSib);
 			oldSib = firstSon;
-			while (nextSon && nextSon != firstSon)
-			{
-				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)
-				{
+			while (nextSon && nextSon != firstSon) {
+				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf) {
 					treeNodes.append(nextSon);
 					newNode = G.newNode(); // new node corresponding to anchor or cutnode
-					C.reassignNode(newNode,parent);
+					C.reassignNode(newNode, parent);
 					graphNodes.append(newNode);
-					G.newEdge(correspond,newNode);
-				}
-				else
-				{
+					G.newEdge(correspond, newNode);
+				} else {
 					// insert Edge to the outside
-					PQLeaf<edge,IndInfo*,bool>* leaf =
-						(PQLeaf<edge,IndInfo*,bool>*) nextSon;
+					PQLeaf<edge, IndInfo*, bool>* leaf = (PQLeaf<edge, IndInfo*, bool>*)nextSon;
 					edge f = leaf->getKey()->m_userStructKey;
 #if 0
 					node x = outgoingTable[f];
 #endif
-					G.newEdge(correspond,outgoingTable[f]);
+					G.newEdge(correspond, outgoingTable[f]);
 					delete leaf->getKey();
 				}
 				holdSib = nextSon->getNextSib(oldSib);
@@ -295,76 +264,64 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 				nextSon = holdSib;
 			}
 
-		}
-		else if (checkNode->type() == PQNodeRoot::PQNodeType::QNode)
-		{
+		} else if (checkNode->type() == PQNodeRoot::PQNodeType::QNode) {
 			// correspond is the anchor of a hub
 			OGDF_ASSERT(checkNode->getEndmost(PQNodeRoot::SibDirection::Left));
 			firstSon = checkNode->getEndmost(PQNodeRoot::SibDirection::Left);
 
 			hub = G.newNode();
-			C.reassignNode(hub,parent);
-			G.newEdge(hub,correspond); // link anchor and hub
-			next = G.newNode();   // for first son
-			C.reassignNode(next,parent);
-			G.newEdge(hub,next);
-			G.newEdge(correspond,next);
+			C.reassignNode(hub, parent);
+			G.newEdge(hub, correspond); // link anchor and hub
+			next = G.newNode(); // for first son
+			C.reassignNode(next, parent);
+			G.newEdge(hub, next);
+			G.newEdge(correspond, next);
 
-			if (firstSon->type() != PQNodeRoot::PQNodeType::Leaf)
-			{
+			if (firstSon->type() != PQNodeRoot::PQNodeType::Leaf) {
 				treeNodes.append(firstSon);
 				newNode = G.newNode();
-				C.reassignNode(newNode,parent);
+				C.reassignNode(newNode, parent);
 				graphNodes.append(newNode);
-				G.newEdge(next,newNode);
-			}
-			else
-			{
+				G.newEdge(next, newNode);
+			} else {
 				// insert Edge to the outside
-				PQLeaf<edge,IndInfo*,bool>* leaf =
-					(PQLeaf<edge,IndInfo*,bool>*) firstSon;
+				PQLeaf<edge, IndInfo*, bool>* leaf = (PQLeaf<edge, IndInfo*, bool>*)firstSon;
 				edge f = leaf->getKey()->m_userStructKey;
 #if 0
 				node x = outgoingTable[f];
 #endif
-				G.newEdge(next,outgoingTable[f]);
+				G.newEdge(next, outgoingTable[f]);
 				delete leaf->getKey();
 			}
 
 			nextSon = firstSon->getNextSib(oldSib);
 			oldSib = firstSon;
 			pre = next;
-			while (nextSon)
-			{
+			while (nextSon) {
 				next = G.newNode();
-				C.reassignNode(next,parent);
-				G.newEdge(hub,next);
-				G.newEdge(pre,next);
-				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf)
-				{
+				C.reassignNode(next, parent);
+				G.newEdge(hub, next);
+				G.newEdge(pre, next);
+				if (nextSon->type() != PQNodeRoot::PQNodeType::Leaf) {
 					treeNodes.append(nextSon);
 					newNode = G.newNode(); // new node corresponding to anchor or cutnode
-					C.reassignNode(newNode,parent);
+					C.reassignNode(newNode, parent);
 					graphNodes.append(newNode);
 
-					G.newEdge(next,newNode);
-				}
-				else
-				{
+					G.newEdge(next, newNode);
+				} else {
 					// insert Edge to the outside
-					PQLeaf<edge,IndInfo*,bool>* leaf =
-						(PQLeaf<edge,IndInfo*,bool>*) nextSon;
+					PQLeaf<edge, IndInfo*, bool>* leaf = (PQLeaf<edge, IndInfo*, bool>*)nextSon;
 					edge f = leaf->getKey()->m_userStructKey;
-					G.newEdge(next,outgoingTable[f]);
+					G.newEdge(next, outgoingTable[f]);
 					delete leaf->getKey();
 				}
 				holdSib = nextSon->getNextSib(oldSib);
 				oldSib = nextSon;
 				nextSon = holdSib;
 				pre = next;
-
 			}
-			G.newEdge(next,correspond);
+			G.newEdge(next, correspond);
 		}
 	}
 
@@ -376,12 +333,8 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 //
 // Prepare planarity test for one cluster
 //
-bool CconnectClusterPlanar::preparation(
-	Graph  &G,
-	const cluster cl,
-	node superSink)
-{
-	int  bcIdSuperSink = -1; // ID of biconnected component that contains superSink
+bool CconnectClusterPlanar::preparation(Graph& G, const cluster cl, node superSink) {
+	int bcIdSuperSink = -1; // ID of biconnected component that contains superSink
 	// Initialization with -1 necessary for assertion
 	bool cPlanar = true;
 
@@ -397,24 +350,20 @@ bool CconnectClusterPlanar::preparation(
 	int bcCount = biconnectedComponents(G, componentID);
 
 	// Determine edges per biconnected component
-	Array<SList<edge> > blockEdges(0, bcCount - 1);
+	Array<SList<edge>> blockEdges(0, bcCount - 1);
 	for (edge e : G.edges) {
 		blockEdges[componentID[e]].pushFront(e);
 	}
 
 	// Determine nodes per biconnected component.
-	Array<SList<node> > blockNodes(0, bcCount - 1);
-	for (int i = 0; i < bcCount; i++)
-	{
-		for (edge e : blockEdges[i])
-		{
-			if (!mark[e->source()])
-			{
+	Array<SList<node>> blockNodes(0, bcCount - 1);
+	for (int i = 0; i < bcCount; i++) {
+		for (edge e : blockEdges[i]) {
+			if (!mark[e->source()]) {
 				blockNodes[i].pushBack(e->source());
 				mark[e->source()] = true;
 			}
-			if (!mark[e->target()])
-			{
+			if (!mark[e->target()]) {
 				blockNodes[i].pushBack(e->target());
 				mark[e->target()] = true;
 			}
@@ -426,9 +375,9 @@ bool CconnectClusterPlanar::preparation(
 		}
 
 		for (node v : blockNodes[i]) {
-			if (mark[v])
+			if (mark[v]) {
 				mark[v] = false;
-			else {
+			} else {
 				OGDF_ASSERT(mark[v]); // v has been placed two times on the list.
 			}
 		}
@@ -436,100 +385,90 @@ bool CconnectClusterPlanar::preparation(
 
 	// Perform planarity test for every biconnected component
 
-	if (bcCount == 1)
-	{
+	if (bcCount == 1) {
 		// Compute st-numbering
-		NodeArray<int> numbering(G,0);
+		NodeArray<int> numbering(G, 0);
 #ifdef OGDF_HEAVY_DEBUG
 		int n =
 #endif
-		(superSink) ? computeSTNumbering(G, numbering, nullptr, superSink)
-		            : computeSTNumbering(G, numbering);
+				(superSink) ? computeSTNumbering(G, numbering, nullptr, superSink)
+							: computeSTNumbering(G, numbering);
 		OGDF_HEAVY_ASSERT(isSTNumbering(G, numbering, n));
 
-		EdgeArray<edge> backTableEdges(G,nullptr);
-		for(edge e : G.edges)
+		EdgeArray<edge> backTableEdges(G, nullptr);
+		for (edge e : G.edges) {
 			backTableEdges[e] = e;
+		}
 
-		cPlanar = doTest(G,numbering,cl,superSink,backTableEdges);
-	}
-	else
-	{
-		for (int i = 0; i < bcCount; i++)
-		{
+		cPlanar = doTest(G, numbering, cl, superSink, backTableEdges);
+	} else {
+		for (int i = 0; i < bcCount; i++) {
 #ifdef OGDF_HEAVY_DEBUG
 			Logger::slout() << std::endl << std::endl << "-----------------------------------";
-			Logger::slout() << std::endl << std::endl << "Component " << i <<std::endl;
+			Logger::slout() << std::endl << std::endl << "Component " << i << std::endl;
 #endif
 
 			Graph C;
 
-			for (node v : blockNodes[i])
-			{
+			for (node v : blockNodes[i]) {
 				node w = C.newNode();
 				tableNodes[v] = w;
 
 #ifdef OGDF_HEAVY_DEBUG
-			Logger::slout() << "Original: " << v << " New: " << w << std::endl;
+				Logger::slout() << "Original: " << v << " New: " << w << std::endl;
 #endif
 			}
 
-			NodeArray<node> backTableNodes(C,nullptr);
+			NodeArray<node> backTableNodes(C, nullptr);
 
-			for (edge e : blockEdges[i])
-			{
-				edge f = C.newEdge(tableNodes[e->source()],tableNodes[e->target()]);
+			for (edge e : blockEdges[i]) {
+				edge f = C.newEdge(tableNodes[e->source()], tableNodes[e->target()]);
 				tableEdges[e] = f;
 			}
 
-			EdgeArray<edge> backTableEdges(C,nullptr);
-			for (edge e : blockEdges[i])
+			EdgeArray<edge> backTableEdges(C, nullptr);
+			for (edge e : blockEdges[i]) {
 				backTableEdges[tableEdges[e]] = e;
+			}
 
 			// Compute st-numbering
-			NodeArray<int> numbering(C,0);
+			NodeArray<int> numbering(C, 0);
 			if (bcIdSuperSink == i) {
 #ifdef OGDF_HEAVY_DEBUG
 				int n =
 #endif
-				computeSTNumbering(C, numbering, nullptr, tableNodes[superSink]);
-				OGDF_HEAVY_ASSERT(isSTNumbering(C ,numbering, n));
-				cPlanar = doTest(C,numbering,cl,tableNodes[superSink],backTableEdges);
+						computeSTNumbering(C, numbering, nullptr, tableNodes[superSink]);
+				OGDF_HEAVY_ASSERT(isSTNumbering(C, numbering, n));
+				cPlanar = doTest(C, numbering, cl, tableNodes[superSink], backTableEdges);
 			} else {
 #ifdef OGDF_HEAVY_DEBUG
 				int n =
 #endif
-				computeSTNumbering(C, numbering);
+						computeSTNumbering(C, numbering);
 				OGDF_HEAVY_ASSERT(isSTNumbering(C, numbering, n));
-				cPlanar = doTest(C,numbering,cl,nullptr,backTableEdges);
+				cPlanar = doTest(C, numbering, cl, nullptr, backTableEdges);
 			}
 
-			if (!cPlanar)
+			if (!cPlanar) {
 				break;
+			}
 		}
 	}
 
 	return cPlanar;
 }
 
-
 // Performs a planarity test on a biconnected component
 // of G. numbering contains an st-numbering of the component.
-bool CconnectClusterPlanar::doTest(
-	Graph &G,
-	NodeArray<int> &numbering,
-	const cluster cl,
-	node superSink,
-	EdgeArray<edge> &edgeTable)
-{
+bool CconnectClusterPlanar::doTest(Graph& G, NodeArray<int>& numbering, const cluster cl,
+		node superSink, EdgeArray<edge>& edgeTable) {
 	bool cPlanar = true;
 
-	NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > > inLeaves(G);
-	NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > > outLeaves(G);
-	Array<node> table(G.numberOfNodes()+1);
+	NodeArray<SListPure<PlanarLeafKey<IndInfo*>*>> inLeaves(G);
+	NodeArray<SListPure<PlanarLeafKey<IndInfo*>*>> outLeaves(G);
+	Array<node> table(G.numberOfNodes() + 1);
 
-	for(node v : G.nodes)
-	{
+	for (node v : G.nodes) {
 		for (adjEntry adj : v->adjEntries) {
 			if (numbering[adj->twinNode()] > numbering[v]) { // side-effect: loops are ignored
 				PlanarLeafKey<IndInfo*>* L = new PlanarLeafKey<IndInfo*>(adj->theEdge());
@@ -539,10 +478,8 @@ bool CconnectClusterPlanar::doTest(
 		table[numbering[v]] = v;
 	}
 
-	for(node v : G.nodes)
-	{
-		for (PlanarLeafKey<IndInfo*>* L : inLeaves[v])
-		{
+	for (node v : G.nodes) {
+		for (PlanarLeafKey<IndInfo*>* L : inLeaves[v]) {
 			outLeaves[L->userStructKey()->opposite(v)].pushFront(L);
 		}
 	}
@@ -550,22 +487,17 @@ bool CconnectClusterPlanar::doTest(
 	PlanarPQTree* T = new PlanarPQTree();
 
 	T->Initialize(inLeaves[table[1]]);
-	for (int i = 2; i < G.numberOfNodes(); i++)
-	{
-		if (T->Reduction(outLeaves[table[i]]))
-		{
+	for (int i = 2; i < G.numberOfNodes(); i++) {
+		if (T->Reduction(outLeaves[table[i]])) {
 			T->ReplaceRoot(inLeaves[table[i]]);
 			T->emptyAllPertinentNodes();
 
-		}
-		else
-		{
+		} else {
 			cPlanar = false;
 			break;
 		}
 	}
-	if (cPlanar && cl && superSink)
-	{
+	if (cPlanar && cl && superSink) {
 		// Keep the PQTree to construct a wheelgraph
 		// Replace the edge stored in the keys of T
 		// by the original edges.
@@ -575,25 +507,21 @@ bool CconnectClusterPlanar::doTest(
 
 		int n = G.numberOfNodes();
 
-		for (PlanarLeafKey<IndInfo*>* info : outLeaves[table[n]])
-		{
-			PQLeafKey<edge,IndInfo*,bool>* key = (PQLeafKey<edge,IndInfo*,bool>*) info;
+		for (PlanarLeafKey<IndInfo*>* info : outLeaves[table[n]]) {
+			PQLeafKey<edge, IndInfo*, bool>* key = (PQLeafKey<edge, IndInfo*, bool>*)info;
 			key->m_userStructKey = edgeTable[key->m_userStructKey];
 		}
 
 		m_clusterPQTree[cl] = T;
 
-	}
-	else //if (cPlanar)
+	} else { //if (cPlanar)
 		delete T;
+	}
 
 	// Cleanup
-	for(node v : G.nodes)
-	{
-		if (v != superSink || !cPlanar)
-		{
-			while (!outLeaves[v].empty())
-			{
+	for (node v : G.nodes) {
+		if (v != superSink || !cPlanar) {
+			while (!outLeaves[v].empty()) {
 				PlanarLeafKey<IndInfo*>* L = outLeaves[v].popFrontRet();
 				delete L;
 			}
@@ -603,20 +531,16 @@ bool CconnectClusterPlanar::doTest(
 	return cPlanar;
 }
 
-void CconnectClusterPlanar::prepareParallelEdges(Graph &G)
-{
+void CconnectClusterPlanar::prepareParallelEdges(Graph& G) {
 	// Stores for one reference edge all parallel edges.
 	m_parallelEdges.init(G);
 	// Is true for any multiedge, except for the reference edge.
-	m_isParallel.init(G,false);
-	getParallelFreeUndirected(G,m_parallelEdges);
+	m_isParallel.init(G, false);
+	getParallelFreeUndirected(G, m_parallelEdges);
 	m_parallelCount = 0;
-	for(edge e : G.edges)
-	{
-		if (!m_parallelEdges[e].empty())
-		{
-			for (edge f : m_parallelEdges[e])
-			{
+	for (edge e : G.edges) {
+		if (!m_parallelEdges[e].empty()) {
+			for (edge f : m_parallelEdges[e]) {
 				m_isParallel[f] = true;
 				m_parallelCount++;
 			}

@@ -32,45 +32,52 @@
 #include <ogdf/fileformats/GEXF.h>
 #include <ogdf/fileformats/Utils.h>
 
-
 namespace ogdf {
 
 namespace gexf {
 
 
-std::string toString(const Shape &shape)
-{
-	switch(shape) {
-	case Shape::Rect: return "square";
-	case Shape::RoundedRect: return "rect"; // Not supported.
-	case Shape::Ellipse: return "disc";
-	case Shape::Triangle: return "triangle";
-	case Shape::Rhomb: return "diamond";
-	case Shape::Image: return "image";
-	default: return "disc";
+std::string toString(const Shape& shape) {
+	switch (shape) {
+	case Shape::Rect:
+		return "square";
+	case Shape::RoundedRect:
+		return "rect"; // Not supported.
+	case Shape::Ellipse:
+		return "disc";
+	case Shape::Triangle:
+		return "triangle";
+	case Shape::Rhomb:
+		return "diamond";
+	case Shape::Image:
+		return "image";
+	default:
+		return "disc";
 	}
 }
 
-
-Shape toShape(const std::string &str)
-{
+Shape toShape(const std::string& str) {
 	return toEnum(str, toString, Shape::Rect, Shape::Image, Shape::Rect);
 }
 
-std::string toGEXFStrokeType(const StrokeType &type)
-{
-	switch(type) {
-	case StrokeType::Solid: return "solid";
-	case StrokeType::Dot: return "dotted";
-	case StrokeType::Dash: return "dashed";
-	case StrokeType::Dashdot: return "dashdot";
-	case StrokeType::Dashdotdot: return "dashdotdot";
-	default: return "";
+std::string toGEXFStrokeType(const StrokeType& type) {
+	switch (type) {
+	case StrokeType::Solid:
+		return "solid";
+	case StrokeType::Dot:
+		return "dotted";
+	case StrokeType::Dash:
+		return "dashed";
+	case StrokeType::Dashdot:
+		return "dashdot";
+	case StrokeType::Dashdotdot:
+		return "dashdotdot";
+	default:
+		return "";
 	}
 }
 
-StrokeType toStrokeType(const std::string &str)
-{
+StrokeType toStrokeType(const std::string& str) {
 	// GEXF supports solid, dotted, dashed, double.
 	// We don't support double, but dashdot and dashdotdot instead.
 	return toEnum(str, toGEXFStrokeType, StrokeType::None, StrokeType::Dashdotdot, StrokeType::Solid);

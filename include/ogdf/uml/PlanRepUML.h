@@ -31,13 +31,12 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
-#include <ogdf/uml/UMLGraph.h>
-
-#include <ogdf/planarity/EdgeTypePatterns.h>
-#include <ogdf/planarity/NodeTypePatterns.h>
 #include <ogdf/basic/Layout.h>
 #include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/planarity/EdgeTypePatterns.h>
+#include <ogdf/planarity/NodeTypePatterns.h>
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/uml/UMLGraph.h>
 
 namespace ogdf {
 
@@ -48,39 +47,39 @@ class GridLayoutMapped;
 //! in the graph
 class OGDF_EXPORT PlanRepUML : public PlanRep {
 public:
-
 	//! Construction
 	//! @{
-	explicit PlanRepUML(const UMLGraph &umlGraph);
-	explicit PlanRepUML(const GraphAttributes &GA);
+	explicit PlanRepUML(const UMLGraph& umlGraph);
+	explicit PlanRepUML(const GraphAttributes& GA);
+
 	//! @}
 
 	//! Deconstruction
-	~PlanRepUML() {}
+	~PlanRepUML() { }
 
 	void initCC(int i);
 
 	//! Returns true if an edge splits a face into two subfaces to
 	//! guarantee generalizations to be on opposite sides of a node.
-	bool faceSplitter(edge e) const{
-		return m_faceSplitter[e];
-	}
+	bool faceSplitter(edge e) const { return m_faceSplitter[e]; }
 
 	//! Removes all face splitting edges.
-	void removeFaceSplitter(){
-		for(edge e : edges)
-			if (m_faceSplitter[e])
+	void removeFaceSplitter() {
+		for (edge e : edges) {
+			if (m_faceSplitter[e]) {
 				delEdge(e);
+			}
+		}
 	}
 
 	//! \name Incremental drawing
 	//! @{
 
 	//! Initializes incremental stuff, e.g. insert incremental mergers
-	void setupIncremental(int indexCC, CombinatorialEmbedding &E);
+	void setupIncremental(int indexCC, CombinatorialEmbedding& E);
 
 	//! Returns the list of inserted incremental mergers
-	const SList<node>&  incrementalMergers(int indexCC) const { return m_incMergers[indexCC]; }
+	const SList<node>& incrementalMergers(int indexCC) const { return m_incMergers[indexCC]; }
 
 	//! @}
 	//! \name Set generic types
@@ -89,29 +88,28 @@ public:
 	//the edges that are embedded next to outgoing generalizations if alignment set
 	//attention: this information is NOT updated during graph changes and only
 	//to be used during the embedding phase
-	bool alignUpward(adjEntry ae) {return m_alignUpward[ae];}
-	void alignUpward(adjEntry ae, bool b) {m_alignUpward[ae] = b;}
+	bool alignUpward(adjEntry ae) { return m_alignUpward[ae]; }
+
+	void alignUpward(adjEntry ae, bool b) { m_alignUpward[ae] = b; }
 
 	//! @}
 
-	const UMLGraph &getUMLGraph() const {
-		return *m_pUmlGraph;
-	}
+	const UMLGraph& getUMLGraph() const { return *m_pUmlGraph; }
 
 	//! \name Structural alterations
 	//! @{
 
 	//! Inserts a generalization merge node for all incoming
 	//! generalizations of \p v and returns its conserving embedding
-	node insertGenMerger(node v, const SList<edge> &inGens, CombinatorialEmbedding &E);
+	node insertGenMerger(node v, const SList<edge>& inGens, CombinatorialEmbedding& E);
 
 	//! Expands nodes with degree > 4 and merge nodes for generalizations
 	void expand(bool lowDegreeExpand = false) override;
 
 	//! Expands nodes with degree <= 4 and aligns opposite edges at degree 2 nodes
-	void expandLowDegreeVertices(OrthoRep &OR, bool alignSmallDegree = false);
+	void expandLowDegreeVertices(OrthoRep& OR, bool alignSmallDegree = false);
 
-	void collapseVertices(const OrthoRep &OR, Layout &drawing);
+	void collapseVertices(const OrthoRep& OR, Layout& drawing);
 
 	//! @}
 	//! \name Extension of methods defined by GraphCopy/PlanRep
@@ -122,33 +120,37 @@ public:
 		edge eNew = PlanRep::split(e);
 
 		//check this
-		if (m_alignUpward[e->adjSource()]) m_alignUpward[eNew->adjSource()] = true;
-		if (m_alignUpward[e->adjTarget()]) m_alignUpward[eNew->adjTarget()] = true;
+		if (m_alignUpward[e->adjSource()]) {
+			m_alignUpward[eNew->adjSource()] = true;
+		}
+		if (m_alignUpward[e->adjTarget()]) {
+			m_alignUpward[eNew->adjTarget()] = true;
+		}
 
 		return eNew;
 	}
 
 	//! Writes attributed graph in GML format to file \p fileName (for debugging only)
 	//! @{
-	void writeGML(const char *fileName, const Layout &drawing);
-	void writeGML(const char *fileName);
-	void writeGML(const char *fileName, GraphAttributes &AG);
+	void writeGML(const char* fileName, const Layout& drawing);
+	void writeGML(const char* fileName);
+	void writeGML(const char* fileName, GraphAttributes& AG);
 	//! @}
 
 	//! Writes attributed graph in GML format to output stream \p os (for debugging only)
 	//! @{
-	void writeGML(std::ostream &os, const Layout &drawing);
-	void writeGML(const char *fileName, const OrthoRep &OR, const Layout &drawing);
-	void writeGML(std::ostream &os, const OrthoRep &OR, const Layout &drawing);
-	void writeGML(const char *fileName, const OrthoRep &OR, const GridLayoutMapped &drawing);
-	void writeGML(std::ostream &os, const OrthoRep &OR, const GridLayoutMapped &drawing);
+	void writeGML(std::ostream& os, const Layout& drawing);
+	void writeGML(const char* fileName, const OrthoRep& OR, const Layout& drawing);
+	void writeGML(std::ostream& os, const OrthoRep& OR, const Layout& drawing);
+	void writeGML(const char* fileName, const OrthoRep& OR, const GridLayoutMapped& drawing);
+	void writeGML(std::ostream& os, const OrthoRep& OR, const GridLayoutMapped& drawing);
 	//! @}
 
 	//! @}
 
 protected:
 	//insert mergers of generalizations in copy
-	void prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &E);
+	void prepareIncrementalMergers(int indexCC, CombinatorialEmbedding& E);
 
 protected:
 	//still some AdjEntry type: used by alignment procedures
@@ -157,12 +159,12 @@ protected:
 	AdjEntryArray<bool> m_alignUpward;
 
 private:
-	const UMLGraph *m_pUmlGraph;
+	const UMLGraph* m_pUmlGraph;
 
-	EdgeArray<bool>     m_faceSplitter;
+	EdgeArray<bool> m_faceSplitter;
 
-	SListPure<edge>     m_mergeEdges;
-	Array<SList<node>>  m_incMergers; //!< Stores all incremental mergers in CC
+	SListPure<edge> m_mergeEdges;
+	Array<SList<node>> m_incMergers; //!< Stores all incremental mergers in CC
 };
 
 }

@@ -38,44 +38,41 @@
 namespace ogdf {
 
 //! Implements a simple memory manager using \c malloc() and \c free().
-class OGDF_EXPORT MallocMemoryAllocator
-{
-	struct MemElem { MemElem *m_next; };
+class OGDF_EXPORT MallocMemoryAllocator {
+	struct MemElem {
+		MemElem* m_next;
+	};
+
 	using MemElemPtr = MemElem*;
 
 public:
-
 	MallocMemoryAllocator() { }
+
 	~MallocMemoryAllocator() { }
 
 	static void cleanup() { }
 
 	//! Allocates memory of size \p nBytes.
-	static inline void *allocate(size_t nBytes, const char *, int) {
-		return allocate(nBytes);
-	}
+	static inline void* allocate(size_t nBytes, const char*, int) { return allocate(nBytes); }
 
 	//! Allocates memory of size \p nBytes.
-	static inline void *allocate(size_t nBytes)
-	{
-		void *p = malloc(nBytes);
-		if (OGDF_UNLIKELY(p == nullptr)) OGDF_THROW(ogdf::InsufficientMemoryException);
+	static inline void* allocate(size_t nBytes) {
+		void* p = malloc(nBytes);
+		if (OGDF_UNLIKELY(p == nullptr)) {
+			OGDF_THROW(ogdf::InsufficientMemoryException);
+		}
 		return p;
 	}
 
-
 	//! Deallocates memory at address \p p.
 	//! We do not keep track of the size of the deallocated object.
-	static inline void deallocate(size_t, void *p) {
-		free(p);
-	}
+	static inline void deallocate(size_t, void* p) { free(p); }
 
 	//! Deallocate a complete list starting at \p pHead and ending at \p pTail.
 	/**
 	 * The elements are assumed to be chained using the first word of each element.
 	 */
-	static void deallocateList(size_t /* nBytes */, void *pHead, void *pTail)
-	{
+	static void deallocateList(size_t /* nBytes */, void* pHead, void* pTail) {
 		MemElemPtr q, pStop = MemElemPtr(pTail)->m_next;
 		while (pHead != pStop) {
 			q = MemElemPtr(pHead)->m_next;
@@ -85,32 +82,23 @@ public:
 	}
 
 	static void flushPool() { }
+
 	static void flushPool(uint16_t /* nBytes */) { }
 
 	//! Always returns true since we simply trust malloc().
-	static constexpr bool checkSize(size_t) {
-		return true;
-	}
+	static constexpr bool checkSize(size_t) { return true; }
 
 	//! Always returns 0, since no blocks are allocated.
-	static constexpr size_t memoryAllocatedInBlocks() {
-		return 0;
-	}
+	static constexpr size_t memoryAllocatedInBlocks() { return 0; }
 
 	//! Always returns 0, since no blocks are allocated.
-	static constexpr size_t memoryInFreelist() {
-		return 0;
-	}
+	static constexpr size_t memoryInFreelist() { return 0; }
 
 	//! Always returns 0, since no blocks are allocated.
-	static constexpr size_t memoryInGlobalFreeList() {
-		return 0;
-	}
+	static constexpr size_t memoryInGlobalFreeList() { return 0; }
 
 	//! Always returns 0, since no blocks are allocated.
-	static constexpr size_t memoryInThreadFreeList() {
-		return 0;
-	}
+	static constexpr size_t memoryInThreadFreeList() { return 0; }
 };
 
 }

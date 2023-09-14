@@ -45,6 +45,7 @@
 
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
+
 #include <ogdf/lib/abacus/constraint.h>
 
 namespace ogdf {
@@ -52,12 +53,12 @@ namespace cluster_planarity {
 
 class MinimalClusterConnection : public abacus::Constraint {
 public:
-	MinimalClusterConnection(abacus::Master *master, List<NodePair> &edges);
+	MinimalClusterConnection(abacus::Master* master, List<NodePair>& edges);
 
 	virtual ~MinimalClusterConnection();
 
 	// Computes and returns the coefficient for the given variable
-	virtual double coeff(const abacus::Variable *v) const override;
+	virtual double coeff(const abacus::Variable* v) const override;
 
 private:
 	// The node pairs corresponding to the constraint

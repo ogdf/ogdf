@@ -37,98 +37,131 @@ namespace ogdf {
 namespace dot {
 
 
-std::string toString(const Attribute &attr)
-{
-	switch(attr) {
-		case Attribute::Id: return "id";
-		case Attribute::Label: return "label";
-		case Attribute::Template: return "comment";
-		case Attribute::Width: return "width";
-		case Attribute::Height: return "height";
-		case Attribute::Shape: return "shape";
-		case Attribute::Position: return "pos";
-		case Attribute::LabelPosition: return "labelpos";
-		case Attribute::Stroke: return "color";
-		case Attribute::StrokeType: return "stroketype";
-		case Attribute::Fill: return "fillcolor";
-		case Attribute::Weight: return "weight";
-		case Attribute::Arrow: return "arrow";
-		case Attribute::StrokeWidth: return "strokewidth";
-		case Attribute::FillPattern: return "fillpattern";
-		case Attribute::FillBackground: return "fillbgcolor";
-		case Attribute::Type: return "type";
-		case Attribute::Dir: return "dir";
-		case Attribute::SubGraphs: return "available_for";
-		default: return "comment";
+std::string toString(const Attribute& attr) {
+	switch (attr) {
+	case Attribute::Id:
+		return "id";
+	case Attribute::Label:
+		return "label";
+	case Attribute::Template:
+		return "comment";
+	case Attribute::Width:
+		return "width";
+	case Attribute::Height:
+		return "height";
+	case Attribute::Shape:
+		return "shape";
+	case Attribute::Position:
+		return "pos";
+	case Attribute::LabelPosition:
+		return "labelpos";
+	case Attribute::Stroke:
+		return "color";
+	case Attribute::StrokeType:
+		return "stroketype";
+	case Attribute::Fill:
+		return "fillcolor";
+	case Attribute::Weight:
+		return "weight";
+	case Attribute::Arrow:
+		return "arrow";
+	case Attribute::StrokeWidth:
+		return "strokewidth";
+	case Attribute::FillPattern:
+		return "fillpattern";
+	case Attribute::FillBackground:
+		return "fillbgcolor";
+	case Attribute::Type:
+		return "type";
+	case Attribute::Dir:
+		return "dir";
+	case Attribute::SubGraphs:
+		return "available_for";
+	default:
+		return "comment";
 	}
 }
 
-
-std::string toString(const Shape &shape)
-{
-	switch(shape) {
-		case Shape::Rect:             return "rect";
-		case Shape::RoundedRect:      return "roundedrect";
-		case Shape::Ellipse:          return "ellipse";
-		case Shape::Triangle:         return "triangle";
-		case Shape::Pentagon:         return "pentagon";
-		case Shape::Hexagon:          return "hexagon";
-		case Shape::Octagon:          return "octagon";
-		case Shape::Rhomb:            return "diamond";
-		case Shape::Trapeze:          return "trapezium";
-		case Shape::Parallelogram:    return "parallelogram";
-		case Shape::InvTriangle:      return "invtriangle";
-		case Shape::InvTrapeze:       return "invtrapezium";
-		case Shape::InvParallelogram: return "invparallelogram";
-		case Shape::Image:            return "image";
+std::string toString(const Shape& shape) {
+	switch (shape) {
+	case Shape::Rect:
+		return "rect";
+	case Shape::RoundedRect:
+		return "roundedrect";
+	case Shape::Ellipse:
+		return "ellipse";
+	case Shape::Triangle:
+		return "triangle";
+	case Shape::Pentagon:
+		return "pentagon";
+	case Shape::Hexagon:
+		return "hexagon";
+	case Shape::Octagon:
+		return "octagon";
+	case Shape::Rhomb:
+		return "diamond";
+	case Shape::Trapeze:
+		return "trapezium";
+	case Shape::Parallelogram:
+		return "parallelogram";
+	case Shape::InvTriangle:
+		return "invtriangle";
+	case Shape::InvTrapeze:
+		return "invtrapezium";
+	case Shape::InvParallelogram:
+		return "invparallelogram";
+	case Shape::Image:
+		return "image";
 	}
 	OGDF_ASSERT(false);
 	return "UNKNOWN";
 }
 
-
-std::string toString(const EdgeArrow &arrow)
-{
-	switch(arrow) {
-		case EdgeArrow::None:      return "none";
-		case EdgeArrow::Last:      return "forward";
-		case EdgeArrow::First:     return "back";
-		case EdgeArrow::Both:      return "both";
-		case EdgeArrow::Undefined: return "none"; // Not supported.
+std::string toString(const EdgeArrow& arrow) {
+	switch (arrow) {
+	case EdgeArrow::None:
+		return "none";
+	case EdgeArrow::Last:
+		return "forward";
+	case EdgeArrow::First:
+		return "back";
+	case EdgeArrow::Both:
+		return "both";
+	case EdgeArrow::Undefined:
+		return "none"; // Not supported.
 	}
 	OGDF_ASSERT(false);
 	return "UNKNOWN";
 }
 
-
-std::string toString(const Graph::EdgeType &type)
-{
-	switch(type) {
-		case Graph::EdgeType::association:    return "association";
-		case Graph::EdgeType::generalization: return "generalization";
-		case Graph::EdgeType::dependency:     return "dependency";
+std::string toString(const Graph::EdgeType& type) {
+	switch (type) {
+	case Graph::EdgeType::association:
+		return "association";
+	case Graph::EdgeType::generalization:
+		return "generalization";
+	case Graph::EdgeType::dependency:
+		return "dependency";
 	}
 	OGDF_ASSERT(false);
 	return "UNKNOWN";
 }
 
-
-Attribute toAttribute(const std::string &str)
-{
+Attribute toAttribute(const std::string& str) {
 	return toEnum(str, toString, static_cast<Attribute>(0), Attribute::Unknown, Attribute::Unknown);
 }
 
-Shape toShape(const std::string &str) {
+Shape toShape(const std::string& str) {
 	return toEnum(str, toString, Shape::Rect, Shape::Image, Shape::Rect);
 }
 
-EdgeArrow toArrow(const std::string &str)
-{
+EdgeArrow toArrow(const std::string& str) {
 	return toEnum(str, toString, EdgeArrow::None, EdgeArrow::Undefined, EdgeArrow::Undefined);
 }
 
-Graph::EdgeType toEdgeType(const std::string &str) {
-	return toEnum(str, toString, Graph::EdgeType::association, Graph::EdgeType::dependency, Graph::EdgeType::association);
+Graph::EdgeType toEdgeType(const std::string& str) {
+	return toEnum(str, toString, Graph::EdgeType::association, Graph::EdgeType::dependency,
+			Graph::EdgeType::association);
 }
 
 }

@@ -40,30 +40,22 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class OGDF_EXPORT CPlanarSubClusteredGraph
-{
+class OGDF_EXPORT CPlanarSubClusteredGraph {
 public:
 	CPlanarSubClusteredGraph() { }
 
 	virtual void call(const ClusterGraph& CG, EdgeArray<bool>& inSub);
 
-	virtual void call(
-		const ClusterGraph& CGO,
-		EdgeArray<bool>& inSub,
-		List<edge>& leftOver);
+	virtual void call(const ClusterGraph& CGO, EdgeArray<bool>& inSub, List<edge>& leftOver);
 
 	//! Uses \p edgeWeight to compute clustered planar subgraph
-	virtual void call(
-		const ClusterGraph& CGO,
-		EdgeArray<bool>& inSub,
-		List<edge>& leftOver,
-		EdgeArray<double>& edgeWeight);
+	virtual void call(const ClusterGraph& CGO, EdgeArray<bool>& inSub, List<edge>& leftOver,
+			EdgeArray<double>& edgeWeight);
 
 private:
 	//! Store status of original edge: in subclustered graph?
 	//! Also used to check spanning tree
 	EdgeArray<int> m_edgeStatus;
-
 };
 
 }

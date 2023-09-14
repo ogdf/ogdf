@@ -34,6 +34,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
+
 #include <string>
 
 namespace ogdf {
@@ -43,8 +44,11 @@ enum class Attribute {
 	NodeLabel = 0,
 	EdgeLabel,
 
-	X, Y, Z,
-	Width, Height,
+	X,
+	Y,
+	Z,
+	Width,
+	Height,
 	Size, // Gephi compatibility (size = max(width, height)).
 	Shape,
 
@@ -61,7 +65,9 @@ enum class Attribute {
 	ClusterStroke,
 	NodeFillPattern,
 	NodeFillBackground,
-	R, G, B, // Gephi compatibility (fill compounds).
+	R,
+	G,
+	B, // Gephi compatibility (fill compounds).
 
 	NodeWeight,
 	EdgeWeight,
@@ -79,17 +85,17 @@ enum class Attribute {
 	Unknown // Has to be the last one!
 };
 
-std::string toString(const Attribute &attr);
-std::string toString(const Shape &shape);
-std::string toString(const EdgeArrow &arrow);
-std::string toString(const Graph::NodeType &type);
-std::string toString(const Graph::EdgeType &type);
+std::string toString(const Attribute& attr);
+std::string toString(const Shape& shape);
+std::string toString(const EdgeArrow& arrow);
+std::string toString(const Graph::NodeType& type);
+std::string toString(const Graph::EdgeType& type);
 
-Attribute toAttribute(const std::string &str);
-Shape toShape(const std::string &str);
-EdgeArrow toArrow(const std::string &str);
-Graph::NodeType toNodeType(const std::string &str);
-Graph::EdgeType toEdgeType(const std::string &str);
+Attribute toAttribute(const std::string& str);
+Shape toShape(const std::string& str);
+EdgeArrow toArrow(const std::string& str);
+Graph::NodeType toNodeType(const std::string& str);
+Graph::EdgeType toEdgeType(const std::string& str);
 
 }
 }

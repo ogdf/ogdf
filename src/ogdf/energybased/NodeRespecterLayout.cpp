@@ -49,123 +49,104 @@ NodeRespecterLayout::NodeRespecterLayout()
 	, m_minimalTemperature(1.0)
 	, m_initialTemperature(10.0)
 	, m_temperatureDecreaseOffset(0.0)
-	, m_gravitation(1.0/16.0)
+	, m_gravitation(1.0 / 16.0)
 	, m_oscillationAngle(Math::pi_2)
 	, m_desiredMinEdgeLength(LayoutStandards::defaultNodeSeparation())
 	, m_initDummiesPerEdge(1)
 	, m_maxDummiesPerEdge(3)
 	, m_dummyInsertionThreshold(5)
 	, m_maxDisturbance(0)
-	, m_repulsionDistance(2*m_desiredMinEdgeLength)
+	, m_repulsionDistance(2 * m_desiredMinEdgeLength)
 	, m_minDistCC(LayoutStandards::defaultCCSeparation())
-	, m_pageRatio(1.0)
-    { }
+	, m_pageRatio(1.0) { }
 
-void NodeRespecterLayout::setRandomInitialPlacement(bool randomInitialPlacement)
-{
+void NodeRespecterLayout::setRandomInitialPlacement(bool randomInitialPlacement) {
 	m_randomInitialPlacement = randomInitialPlacement;
 }
 
-void NodeRespecterLayout::setPostProcessing(PostProcessingMode postProcessing)
-{
+void NodeRespecterLayout::setPostProcessing(PostProcessingMode postProcessing) {
 	m_postProcessing = postProcessing;
 }
 
-void NodeRespecterLayout::setBendNormalizationAngle(double bendNormalizationAngle)
-{
+void NodeRespecterLayout::setBendNormalizationAngle(double bendNormalizationAngle) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(bendNormalizationAngle, 0.0));
 	OGDF_ASSERT(OGDF_GEOM_ET.leq(bendNormalizationAngle, Math::pi));
 	m_bendNormalizationAngle = bendNormalizationAngle;
 }
 
-void NodeRespecterLayout::setNumberOfIterations(int numberOfIterations)
-{
+void NodeRespecterLayout::setNumberOfIterations(int numberOfIterations) {
 	OGDF_ASSERT(numberOfIterations >= 0);
 	m_numberOfIterations = numberOfIterations;
 }
 
-void NodeRespecterLayout::setMinimalTemperature(double minimalTemperature)
-{
+void NodeRespecterLayout::setMinimalTemperature(double minimalTemperature) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(minimalTemperature, 0.0));
 	m_minimalTemperature = minimalTemperature;
 }
 
-void NodeRespecterLayout::setInitialTemperature(double initialTemperature)
-{
+void NodeRespecterLayout::setInitialTemperature(double initialTemperature) {
 	OGDF_ASSERT(OGDF_GEOM_ET.greater(initialTemperature, m_minimalTemperature));
 	m_initialTemperature = initialTemperature;
 }
 
-void NodeRespecterLayout::setTemperatureDecreaseOffset(double temperatureDecreaseOffset)
-{
+void NodeRespecterLayout::setTemperatureDecreaseOffset(double temperatureDecreaseOffset) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(temperatureDecreaseOffset, 0.0));
 	OGDF_ASSERT(OGDF_GEOM_ET.leq(temperatureDecreaseOffset, 1.0));
 	m_temperatureDecreaseOffset = temperatureDecreaseOffset;
 }
 
-void NodeRespecterLayout::setGravitation(double gravitation)
-{
+void NodeRespecterLayout::setGravitation(double gravitation) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(gravitation, 0.0));
 	m_gravitation = gravitation;
 }
 
-void NodeRespecterLayout::setOscillationAngle(double oscillationAngle)
-{
+void NodeRespecterLayout::setOscillationAngle(double oscillationAngle) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(oscillationAngle, 0.0));
 	OGDF_ASSERT(OGDF_GEOM_ET.leq(oscillationAngle, Math::pi));
 	m_oscillationAngle = oscillationAngle;
 }
 
-void NodeRespecterLayout::setDesiredMinEdgeLength(double desiredMinEdgeLength)
-{
+void NodeRespecterLayout::setDesiredMinEdgeLength(double desiredMinEdgeLength) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(desiredMinEdgeLength, 0.0));
 	m_desiredMinEdgeLength = desiredMinEdgeLength;
 }
 
-void NodeRespecterLayout::setInitDummiesPerEdge(int initDummiesPerEdge)
-{
+void NodeRespecterLayout::setInitDummiesPerEdge(int initDummiesPerEdge) {
 	OGDF_ASSERT(initDummiesPerEdge >= 0);
 	m_initDummiesPerEdge = initDummiesPerEdge;
 }
 
-void NodeRespecterLayout::setMaxDummiesPerEdge(int maxDummiesPerEdge)
-{
+void NodeRespecterLayout::setMaxDummiesPerEdge(int maxDummiesPerEdge) {
 	OGDF_ASSERT(maxDummiesPerEdge >= m_initDummiesPerEdge);
 	m_maxDummiesPerEdge = maxDummiesPerEdge;
 }
 
-void NodeRespecterLayout::setDummyInsertionThreshold(double dummyInsertionThreshold)
-{
+void NodeRespecterLayout::setDummyInsertionThreshold(double dummyInsertionThreshold) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(dummyInsertionThreshold, 1.0));
 	m_dummyInsertionThreshold = dummyInsertionThreshold;
 }
 
-void NodeRespecterLayout::setMaxDisturbance(double maxDisturbance)
-{
+void NodeRespecterLayout::setMaxDisturbance(double maxDisturbance) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(maxDisturbance, 0.0));
 	m_maxDisturbance = maxDisturbance;
 }
 
-void NodeRespecterLayout::setRepulsionDistance(double repulsionDistance)
-{
+void NodeRespecterLayout::setRepulsionDistance(double repulsionDistance) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(repulsionDistance, 0.0));
 	m_repulsionDistance = repulsionDistance;
 }
 
-void NodeRespecterLayout::setMinDistCC(double minDistCC)
-{
+void NodeRespecterLayout::setMinDistCC(double minDistCC) {
 	OGDF_ASSERT(OGDF_GEOM_ET.geq(minDistCC, 0.0));
 	m_minDistCC = minDistCC;
 }
 
-void NodeRespecterLayout::setPageRatio(double pageRatio)
-{
+void NodeRespecterLayout::setPageRatio(double pageRatio) {
 	OGDF_ASSERT(OGDF_GEOM_ET.greater(pageRatio, 0.0));
 	m_pageRatio = pageRatio;
 }
 
-void NodeRespecterLayout::initData()
-{
+void NodeRespecterLayout::initData() {
 	m_impulseX.init(m_copy, 0);
 	m_impulseY.init(m_copy, 0);
 	m_localTemperature.init(m_copy, m_initialTemperature);
@@ -176,14 +157,13 @@ void NodeRespecterLayout::initData()
 	m_barycenterY = 0;
 	m_iterCounter = m_numberOfIterations;
 	m_globalTemperature = m_initialTemperature;
-	m_factor = m_temperatureDecreaseOffset <= 0.0 ? 0.0 :
-		(m_initialTemperature - m_minimalTemperature) /
-		(m_numberOfIterations * m_temperatureDecreaseOffset);
+	m_factor = m_temperatureDecreaseOffset <= 0.0 ? 0.0
+												  : (m_initialTemperature - m_minimalTemperature)
+					/ (m_numberOfIterations * m_temperatureDecreaseOffset);
 	m_cos = cos(m_oscillationAngle / 2.0);
 }
 
-void NodeRespecterLayout::freeData()
-{
+void NodeRespecterLayout::freeData() {
 	m_impulseX.init();
 	m_impulseY.init();
 	m_localTemperature.init();
@@ -191,9 +171,7 @@ void NodeRespecterLayout::freeData()
 	m_desiredDistance.init();
 }
 
-
-void NodeRespecterLayout::createBends(const ArrayBuffer<edge> &origEdges, GraphAttributes &attr)
-{
+void NodeRespecterLayout::createBends(const ArrayBuffer<edge>& origEdges, GraphAttributes& attr) {
 	DPoint inter;
 
 	// Get bounding rectangles of all nodes.
@@ -203,30 +181,29 @@ void NodeRespecterLayout::createBends(const ArrayBuffer<edge> &origEdges, GraphA
 	}
 
 	auto toSegment = [&](node v, node w) {
-		return DSegment(m_copyAttr.x(v), m_copyAttr.y(v),
-		                m_copyAttr.x(w), m_copyAttr.y(w));
+		return DSegment(m_copyAttr.x(v), m_copyAttr.y(v), m_copyAttr.x(w), m_copyAttr.y(w));
 	};
 
 	// For all dummy nodes (in the correct order for each edge):
 	for (edge eOrig : origEdges) {
-		DPolyline &bendLine = attr.bends(eOrig);
+		DPolyline& bendLine = attr.bends(eOrig);
 		List<edge> chain = m_copy.chain(eOrig);
 		node last = chain.popFrontRet()->source();
 
 		for (edge e : chain) {
 			// Get last --> v --> next where v is a dummy node.
-			node v    = e->source();
+			node v = e->source();
 			node next = e->target();
 #ifdef OGDF_DEBUG
 			OGDF_ASSERT(m_copy.isDummy(v));
 #endif
 			DSegment segmentLastNext = toSegment(last, next);
-			DSegment segmentLastV    = toSegment(last, v);
-			DSegment segmentVNext    = toSegment(v, next);
+			DSegment segmentLastV = toSegment(last, v);
+			DSegment segmentVNext = toSegment(v, next);
 
-			if (m_postProcessing == PostProcessingMode::Complete ||
-			    (m_postProcessing == PostProcessingMode::KeepMultiEdgeBends &&
-			     !m_hasParEdges[eOrig] && !eOrig->isSelfLoop())) {
+			if (m_postProcessing == PostProcessingMode::Complete
+					|| (m_postProcessing == PostProcessingMode::KeepMultiEdgeBends
+							&& !m_hasParEdges[eOrig] && !eOrig->isSelfLoop())) {
 				int nIntersectionsDummy = 0;
 				int nIntersectionsNoDummy = 0;
 
@@ -269,20 +246,17 @@ void NodeRespecterLayout::createBends(const ArrayBuffer<edge> &origEdges, GraphA
 		}
 
 		// Normalize the DPolyline of bend points.
-		if (m_postProcessing != PostProcessingMode::Complete ||
-			!OGDF_GEOM_ET.equal(m_bendNormalizationAngle, Math::pi)) {
+		if (m_postProcessing != PostProcessingMode::Complete
+				|| !OGDF_GEOM_ET.equal(m_bendNormalizationAngle, Math::pi)) {
 			node src = eOrig->source();
 			node tgt = eOrig->target();
-			bendLine.normalize(attr.point(src), attr.point(tgt),
-			                   m_bendNormalizationAngle);
+			bendLine.normalize(attr.point(src), attr.point(tgt), m_bendNormalizationAngle);
 		}
 	}
 }
 
-
-void NodeRespecterLayout::call(GraphAttributes &attr)
-{
-	const Graph &G = attr.constGraph();
+void NodeRespecterLayout::call(GraphAttributes& attr) {
+	const Graph& G = attr.constGraph();
 
 	if (G.empty()) {
 		return;
@@ -374,7 +348,7 @@ void NodeRespecterLayout::call(GraphAttributes &attr)
 				double borderDelta = delta - m_nodeRadius[v] - m_nodeRadius[w];
 
 				// If v- and w-circles do not overlap.
-				if  (borderDelta > 0.0) {
+				if (borderDelta > 0.0) {
 					// Get cos/sin of angle in center of v between center of w
 					// and horizontal line.
 					double cosPhi = deltaX / delta;
@@ -392,8 +366,8 @@ void NodeRespecterLayout::call(GraphAttributes &attr)
 				for (int j = 0; j < m_initDummiesPerEdge; j++) {
 					edgeToSplit = m_copy.split(edgeToSplit);
 					node dummy = edgeToSplit->source();
-					double distRatio = (static_cast<double>(j+1) /
-							static_cast<double>(m_initDummiesPerEdge + 1));
+					double distRatio = (static_cast<double>(j + 1)
+							/ static_cast<double>(m_initDummiesPerEdge + 1));
 					m_copyAttr.x(dummy) = vBorderPointX - deltaX * distRatio;
 					m_copyAttr.y(dummy) = vBorderPointY - deltaY * distRatio;
 				}
@@ -406,20 +380,20 @@ void NodeRespecterLayout::call(GraphAttributes &attr)
 		for (node v : m_copy.nodes) {
 			m_desiredDistance[v].init(m_copy);
 			for (node w : m_copy.nodes) {
-				m_desiredDistance[v][w] = m_copy.isDummy(v) || m_copy.isDummy(w) ?
-				    halfDesiredEdgeLength : m_desiredMinEdgeLength;
+				m_desiredDistance[v][w] = m_copy.isDummy(v) || m_copy.isDummy(w)
+						? halfDesiredEdgeLength
+						: m_desiredMinEdgeLength;
 				m_desiredDistance[v][w] += m_nodeRadius[v] + m_nodeRadius[w];
 			}
 		}
 
 		if (m_initDummiesPerEdge > 0) {
-			int desiredDummyEdgeLength = m_desiredMinEdgeLength /
-			                             (m_initDummiesPerEdge + 1);
+			int desiredDummyEdgeLength = m_desiredMinEdgeLength / (m_initDummiesPerEdge + 1);
 			for (edge e : m_copy.edges) {
 				node v = e->source();
 				node w = e->target();
 				m_desiredDistance[v][w] = m_desiredDistance[w][v] =
-					desiredDummyEdgeLength + m_nodeRadius[v] + m_nodeRadius[w];
+						desiredDummyEdgeLength + m_nodeRadius[v] + m_nodeRadius[w];
 			}
 		}
 
@@ -431,16 +405,14 @@ void NodeRespecterLayout::call(GraphAttributes &attr)
 		// Get bounding box of connected component,
 		// respect minimal distance between connected components.
 		node vFirst = m_copy.firstNode();
-		double minX = m_copyAttr.x(vFirst),
-			   maxX = m_copyAttr.x(vFirst),
-			   minY = m_copyAttr.y(vFirst),
-			   maxY = m_copyAttr.y(vFirst);
+		double minX = m_copyAttr.x(vFirst), maxX = m_copyAttr.x(vFirst),
+			   minY = m_copyAttr.y(vFirst), maxY = m_copyAttr.y(vFirst);
 
 		for (node vCopy : m_copy.nodes) {
-			Math::updateMin(minX, m_copyAttr.x(vCopy) - m_copyAttr.width(vCopy)/2);
-			Math::updateMin(minY, m_copyAttr.y(vCopy) - m_copyAttr.height(vCopy)/2);
-			Math::updateMax(maxX, m_copyAttr.x(vCopy) + m_copyAttr.width(vCopy)/2);
-			Math::updateMax(maxY, m_copyAttr.y(vCopy) + m_copyAttr.height(vCopy)/2);
+			Math::updateMin(minX, m_copyAttr.x(vCopy) - m_copyAttr.width(vCopy) / 2);
+			Math::updateMin(minY, m_copyAttr.y(vCopy) - m_copyAttr.height(vCopy) / 2);
+			Math::updateMax(maxX, m_copyAttr.x(vCopy) + m_copyAttr.width(vCopy) / 2);
+			Math::updateMax(maxY, m_copyAttr.y(vCopy) + m_copyAttr.height(vCopy) / 2);
 		}
 
 		minX -= m_minDistCC;
@@ -479,7 +451,7 @@ void NodeRespecterLayout::call(GraphAttributes &attr)
 		}
 
 		for (edge e : edgesInCC[i]) {
-			for (DPoint &bendPoint : attr.bends(e)) {
+			for (DPoint& bendPoint : attr.bends(e)) {
 				bendPoint.m_x += dx;
 				bendPoint.m_y += dy;
 			}
@@ -489,12 +461,9 @@ void NodeRespecterLayout::call(GraphAttributes &attr)
 	freeData();
 }
 
-
-void NodeRespecterLayout::updateNodeLoop(SListPure<node> &nodes)
-{
+void NodeRespecterLayout::updateNodeLoop(SListPure<node>& nodes) {
 	SListIterator<node> iter = SListIterator<node>();
-	while (OGDF_GEOM_ET.greater(m_globalTemperature, m_minimalTemperature) &&
-	       m_iterCounter-- > 0) {
+	while (OGDF_GEOM_ET.greater(m_globalTemperature, m_minimalTemperature) && m_iterCounter-- > 0) {
 		// Choose nodes by permuting them randomly.
 		// Move one node per iteration.
 		if (!iter.valid()) {
@@ -518,9 +487,7 @@ void NodeRespecterLayout::updateNodeLoop(SListPure<node> &nodes)
 	}
 }
 
-
-std::pair<double,double> NodeRespecterLayout::computeImpulse(node v)
-{
+std::pair<double, double> NodeRespecterLayout::computeImpulse(node v) {
 	double deltaX, deltaY, delta;
 
 	// Disturb randomly.
@@ -548,7 +515,7 @@ std::pair<double,double> NodeRespecterLayout::computeImpulse(node v)
 				// Note: shiftDist can be any constant [0.1 ... 2*(r1+r2)], it
 				// barely affects the results.
 				const double shiftDist = 0.5;
-				double angle = randomDouble(0.0, 2.0*Math::pi);
+				double angle = randomDouble(0.0, 2.0 * Math::pi);
 				newImpulseX += cos(angle) * shiftDist;
 				newImpulseY += sin(angle) * shiftDist;
 				delta = shiftDist;
@@ -556,8 +523,7 @@ std::pair<double,double> NodeRespecterLayout::computeImpulse(node v)
 
 			// Repulsion formula (if v or w is a dummy node, only use the
 			// formula if the distance between them is small enough):
-			if (delta < m_repulsionDistance ||
-			    (!m_copy.isDummy(v) && !m_copy.isDummy(w))) {
+			if (delta < m_repulsionDistance || (!m_copy.isDummy(v) && !m_copy.isDummy(w))) {
 				double deltaSqu = delta * delta;
 				double desired = m_desiredDistance[v][w];
 				double desiredSqu = desired * desired;
@@ -591,12 +557,10 @@ std::pair<double,double> NodeRespecterLayout::computeImpulse(node v)
 		newImpulseY *= m_localTemperature[v] / impulseLength;
 	}
 
-	return std::pair<double,double>(newImpulseX, newImpulseY);
+	return std::pair<double, double>(newImpulseX, newImpulseY);
 }
 
-
-void NodeRespecterLayout::updateNode(node v, std::pair<double,double> newImpulse)
-{
+void NodeRespecterLayout::updateNode(node v, std::pair<double, double> newImpulse) {
 	int n = m_copy.numberOfNodes();
 	double newImpulseX = std::get<0>(newImpulse);
 	double newImpulseY = std::get<1>(newImpulse);
@@ -623,16 +587,15 @@ void NodeRespecterLayout::updateNode(node v, std::pair<double,double> newImpulse
 		if (OGDF_GEOM_ET.greater(impulseLength, 0.0)) {
 			// Check for oscillation (angle between impulse and previous impulse
 			// close to 180°), update local temperature.
-			double cosBeta = (newImpulseX * m_impulseX[v] +
-	                          newImpulseY * m_impulseY[v]) / impulseLength;
-			if (OGDF_GEOM_ET.greater(std::abs(cosBeta), m_cos)){
+			double cosBeta =
+					(newImpulseX * m_impulseX[v] + newImpulseY * m_impulseY[v]) / impulseLength;
+			if (OGDF_GEOM_ET.greater(std::abs(cosBeta), m_cos)) {
 				m_localTemperature[v] *= (1.0 + cosBeta * 0.3);
 			}
 
-			double currentMaxTemp =
-				m_iterCounter <= m_numberOfIterations * m_temperatureDecreaseOffset ?
-				m_iterCounter * m_factor + m_minimalTemperature :
-				m_initialTemperature;
+			double currentMaxTemp = m_iterCounter <= m_numberOfIterations * m_temperatureDecreaseOffset
+					? m_iterCounter * m_factor + m_minimalTemperature
+					: m_initialTemperature;
 
 			if (OGDF_GEOM_ET.geq(m_localTemperature[v], m_initialTemperature)) {
 				m_localTemperature[v] = m_initialTemperature;
@@ -653,9 +616,7 @@ void NodeRespecterLayout::updateNode(node v, std::pair<double,double> newImpulse
 	m_globalTemperature += m_localTemperature[v] / n;
 }
 
-
-void NodeRespecterLayout::addDummies(node v, SListPure<node> &nodes)
-{
+void NodeRespecterLayout::addDummies(node v, SListPure<node>& nodes) {
 	double halfDesiredEdgeLength = 0.5 * m_desiredMinEdgeLength;
 
 	// For each incident edge, add dummy if there is too much space between
@@ -680,8 +641,8 @@ void NodeRespecterLayout::addDummies(node v, SListPure<node> &nodes)
 				// Place dummy directly between the borders of v and w.
 				double cosPhi = deltaX / delta;
 				double sinPhi = deltaY / delta;
-				double halfBorderDelta = m_nodeRadius[v] +
-					(delta - m_nodeRadius[v] - m_nodeRadius[w]) * 0.5;
+				double halfBorderDelta =
+						m_nodeRadius[v] + (delta - m_nodeRadius[v] - m_nodeRadius[w]) * 0.5;
 				m_copyAttr.x(dummy) = m_copyAttr.x(v) - cosPhi * halfBorderDelta;
 				m_copyAttr.y(dummy) = m_copyAttr.y(v) - sinPhi * halfBorderDelta;
 
@@ -689,7 +650,7 @@ void NodeRespecterLayout::addDummies(node v, SListPure<node> &nodes)
 				m_desiredDistance[dummy].init(m_copy);
 				for (node u : m_copy.nodes) {
 					m_desiredDistance[u][dummy] = m_desiredDistance[dummy][u] =
-						halfDesiredEdgeLength + m_nodeRadius[u] + m_nodeRadius[dummy];
+							halfDesiredEdgeLength + m_nodeRadius[u] + m_nodeRadius[dummy];
 				}
 
 				// Update desired distance for all nodes on the same original edge.
@@ -698,7 +659,7 @@ void NodeRespecterLayout::addDummies(node v, SListPure<node> &nodes)
 					node srcCopy = eCopy->source();
 					node tgtCopy = eCopy->target();
 					m_desiredDistance[srcCopy][tgtCopy] = m_desiredDistance[tgtCopy][srcCopy] =
-						desiredDummyEdgeLength + m_nodeRadius[srcCopy] + m_nodeRadius[tgtCopy];
+							desiredDummyEdgeLength + m_nodeRadius[srcCopy] + m_nodeRadius[tgtCopy];
 				}
 			}
 		}

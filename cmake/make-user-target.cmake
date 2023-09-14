@@ -9,4 +9,9 @@ endfunction()
 function(make_user_target TARGET)
   make_some_target(${TARGET} ${PROJECT_BINARY_DIR}/include)
   target_link_libraries(${TARGET} OGDF)
+
+  # link CGAL if enabled
+  if(${OGDF_INCLUDE_CGAL})
+    target_link_libraries(${TARGET} CGAL::CGAL CGAL::CGAL_Core)
+  endif()
 endfunction()

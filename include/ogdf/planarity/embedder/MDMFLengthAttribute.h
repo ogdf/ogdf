@@ -42,8 +42,7 @@ namespace embedder {
  * It contains two components (\a a, \a b) and a linear order is defined by:
  * (\a a, \a b) > (\a a', \a b') iff \a a > \a a' or (\a a = \a a' and \a b > \a b')
  */
-class MDMFLengthAttribute
-{
+class MDMFLengthAttribute {
 public:
 	//! Default constructor for (0, 0)
 	MDMFLengthAttribute() { a = b = 0; }
@@ -57,19 +56,19 @@ public:
 	//! Destructor
 	~MDMFLengthAttribute() { }
 
-	MDMFLengthAttribute &operator=(const MDMFLengthAttribute& x) {
+	MDMFLengthAttribute& operator=(const MDMFLengthAttribute& x) {
 		a = x.a;
 		b = x.b;
 		return *this;
 	}
 
-	MDMFLengthAttribute &operator+=(const MDMFLengthAttribute& x) {
+	MDMFLengthAttribute& operator+=(const MDMFLengthAttribute& x) {
 		a += x.a;
 		b += x.b;
 		return *this;
 	}
 
-	MDMFLengthAttribute &operator-=(const MDMFLengthAttribute& x) {
+	MDMFLengthAttribute& operator-=(const MDMFLengthAttribute& x) {
 		a -= x.a;
 		b -= x.b;
 		return *this;
@@ -92,9 +91,7 @@ inline bool operator<(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y
 	return x.a < y.a || (x.a == y.a && x.b < y.b);
 }
 
-inline bool operator>(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y) {
-	return y < x;
-}
+inline bool operator>(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y) { return y < x; }
 
 inline bool operator>=(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y) {
 	return !(x < y);

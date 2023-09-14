@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/graph_generators.h>
+
 #include <testing.h>
 
 /**
@@ -48,14 +49,10 @@
  * @param createKey a function to create a new key element in the graph
  */
 template<template<typename> class ArrayType, typename KeyType, typename ElementType>
-void describeArray(
-		const std::string &title,
-		const ElementType &fillElement,
-		const ElementType &secondElement,
-		std::function<KeyType (const Graph&)> chooseKey,
-		std::function<void (const Graph&, List<KeyType>&)> getAllKeys,
-		std::function<KeyType (Graph&)> createKey)
-{
+void describeArray(const std::string& title, const ElementType& fillElement,
+		const ElementType& secondElement, std::function<KeyType(const Graph&)> chooseKey,
+		std::function<void(const Graph&, List<KeyType>&)> getAllKeys,
+		std::function<KeyType(Graph&)> createKey) {
 	using MyArrayType = ArrayType<ElementType>;
 	using const_iterator = typename MyArrayType::const_iterator;
 	using iterator = typename MyArrayType::iterator;
@@ -65,9 +62,7 @@ void describeArray(
 		Graph graph;
 		randomGraph(graph, 42, 168);
 
-		before_each([&]() {
-			array.reset(new MyArrayType());
-		});
+		before_each([&]() { array.reset(new MyArrayType()); });
 
 		it("handles nested arrays well", [&]() {
 			Graph G;
@@ -199,9 +194,7 @@ void describeArray(
 		});
 
 		describe("iterators", [&]() {
-			before_each([&]() {
-				array->init(graph, fillElement);
-			});
+			before_each([&]() { array->init(graph, fillElement); });
 
 			it("iterates over the array", [&]() {
 				List<KeyType> list;
@@ -209,19 +202,19 @@ void describeArray(
 
 				const MyArrayType cArray(*array);
 				int counter = 0;
-				for(const_iterator it = cArray.begin(); it != cArray.end(); it++){
+				for (const_iterator it = cArray.begin(); it != cArray.end(); it++) {
 					counter++;
 				}
 				AssertThat(counter, Equals(list.size()));
 
 				counter = 0;
-				for(iterator it = array->begin(); it != array->end(); it++){
+				for (iterator it = array->begin(); it != array->end(); it++) {
 					counter++;
 				}
 				AssertThat(counter, Equals(list.size()));
 
 				counter = 0;
-				for(const_iterator it = cArray.cbegin(); it != cArray.cend(); it++){
+				for (const_iterator it = cArray.cbegin(); it != cArray.cend(); it++) {
 					counter++;
 				}
 				AssertThat(counter, Equals(list.size()));

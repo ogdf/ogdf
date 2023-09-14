@@ -17,9 +17,9 @@ else()
   unset(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE CACHE)
 endif()
 option(OGDF_WARNING_ERRORS "Whether to treat compiler warnings as errors; may break compilation!" OFF)
-mark_as_advanced(OGDF_WARNING_ERRORS)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND OGDF_MEMORY_MANAGER STREQUAL MALLOC_TS)
-  option(OGDF_LEAK_CHECK "Whether to use the address sanitizer for the MALLOC_TS memory manager." OFF)
+  option(OGDF_LEAK_CHECK "Whether to use the address sanitizer for the MALLOC_TS memory manager \
+  (and for COIN)." OFF)
 else()
   unset(OGDF_LEAK_CHECK CACHE)
 endif()
@@ -47,6 +47,14 @@ if(OGDF_USE_ASSERT_EXCEPTIONS)
     set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBUNWIND")
   endif()
 endif()
+
+# find CGAL if enabled
+if (OGDF_INCLUDE_CGAL)
+  find_package(CGAL REQUIRED COMPONENTS Core)
+  find_package(OpenMP REQUIRED)
+  set(extra_flags "${extra_flags} ${OpenMP_CXX_FLAGS}")
+endif()
+
 set(extra_flags_desc "Extra compiler flags for compiling OGDF, tests, and examples")
 set(OGDF_EXTRA_CXX_FLAGS "${available_default_warning_flags}" CACHE
     STRING "${extra_flags_desc}.")
@@ -100,9 +108,13 @@ function (add_ogdf_extra_flags TARGET_NAME)
     set(extra_flags "${warnings_as_errors_flag} ${extra_flags}")
   endif()
   if(OGDF_LEAK_CHECK)
-    set(leak_flags "-fsanitize=address -fno-omit-frame-pointer")
+    set(leak_flag_list "-fsanitize=address" "-fno-omit-frame-pointer")
+    string(REPLACE ";" " " leak_flags "${leak_flag_list}")
     set(extra_flags "${extra_flags} ${leak_flags}")
     set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY LINK_FLAGS " ${leak_flags} ")
+    # If OGDF is compiled with ASAN, compile COIN with ASAN as well.
+    # This avoids container-overflow false positives.
+    target_compile_options(COIN PRIVATE ${leak_flag_list})
   endif()
   set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY COMPILE_FLAGS " ${extra_flags} ")
 endfunction()
@@ -149,10 +161,8 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # autogen header variables for mallinfo2
-include(check-mallinfo2)
-if(has_mallinfo2)
-  set(OGDF_HAS_MALLINFO2 1)
-endif()
+include(CheckCXXSymbolExists)
+CHECK_CXX_SYMBOL_EXISTS(mallinfo2 "malloc.h" OGDF_HAS_MALLINFO2)
 
 # autogen header variables for SSE3
 include(check-sse3)

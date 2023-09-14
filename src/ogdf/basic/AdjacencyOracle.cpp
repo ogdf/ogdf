@@ -34,14 +34,10 @@
 namespace ogdf {
 
 //! Returns the base index of row \p j for an array containing a lower triangular matrix
-inline static int getRowIndex(int j) {
-	return (j + 1) * j / 2;
-}
+inline static int getRowIndex(int j) { return (j + 1) * j / 2; }
 
-AdjacencyOracle::AdjacencyOracle(const Graph &G, int degreeThreshold)
-  : m_nodeNum{G, -1}
-{
-	int i{0};
+AdjacencyOracle::AdjacencyOracle(const Graph& G, int degreeThreshold) : m_nodeNum {G, -1} {
+	int i {0};
 	for (node v : G.nodes) {
 		if (v->degree() > degreeThreshold) {
 			m_nodeNum[v] = i++;
@@ -53,7 +49,7 @@ AdjacencyOracle::AdjacencyOracle(const Graph &G, int degreeThreshold)
 	for (node v : G.nodes) {
 		if (m_nodeNum[v] >= 0) {
 			for (adjEntry adj : v->adjEntries) {
-				node w{adj->twinNode()};
+				node w {adj->twinNode()};
 				if (m_nodeNum[w] >= 0) {
 					m_adjacencies[index(v, w)] = true;
 				}
@@ -81,8 +77,8 @@ bool AdjacencyOracle::adjacent(node v, node w) const {
 }
 
 int AdjacencyOracle::index(node v, node w) const {
-	int i{m_nodeNum[v]};
-	int j{m_nodeNum[w]};
+	int i {m_nodeNum[v]};
+	int j {m_nodeNum[w]};
 	if (i > j) {
 		std::swap(i, j);
 	}

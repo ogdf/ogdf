@@ -31,9 +31,9 @@
 
 #pragma once
 
+#include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
-#include <ogdf/decomposition/StaticSPQRTree.h>
 
 namespace ogdf {
 
@@ -44,8 +44,7 @@ namespace ogdf {
  * See paper "Graph Embedding with Minimum Depth and Maximum External Face"
  * by C. Gutwenger and P. Mutzel (2004) for details.
  */
-class OGDF_EXPORT EmbedderMinDepth : public embedder::EmbedderBCTreeBase<false, true>
-{
+class OGDF_EXPORT EmbedderMinDepth : public embedder::EmbedderBCTreeBase<false, true> {
 public:
 	/**
 	 * \brief Computes an embedding of \p G with minimum depth.
@@ -114,19 +113,19 @@ private:
 	NodeArray<Graph> blockG;
 
 	/** a mapping of nodes in the auxiliaryGraph of the BC-tree to blockG */
-	NodeArray< NodeArray<node> > nH_to_nBlockEmbedding;
+	NodeArray<NodeArray<node>> nH_to_nBlockEmbedding;
 
 	/** a mapping of edges in the auxiliaryGraph of the BC-tree to blockG */
-	NodeArray< EdgeArray<edge> > eH_to_eBlockEmbedding;
+	NodeArray<EdgeArray<edge>> eH_to_eBlockEmbedding;
 
 	/** a mapping of nodes in blockG to the auxiliaryGraph of the BC-tree */
-	NodeArray< NodeArray<node> > nBlockEmbedding_to_nH;
+	NodeArray<NodeArray<node>> nBlockEmbedding_to_nH;
 
 	/** a mapping of edges in blockG to the auxiliaryGraph of the BC-tree */
-	NodeArray< EdgeArray<edge> > eBlockEmbedding_to_eH;
+	NodeArray<EdgeArray<edge>> eBlockEmbedding_to_eH;
 
 	/** saving for each node in the block graphs its length */
-	NodeArray< NodeArray<int> > nodeLength;
+	NodeArray<NodeArray<int>> nodeLength;
 
 	/** an array containing the minimum depth of each block */
 	NodeArray<int> minDepth;
@@ -138,17 +137,17 @@ private:
 	 * M_B = {cH in B | m_B(cH) = m_B} with m_B = max_{m_B(c) : c in B}
 	 * and m_B(c) = max( {0} cup {m_{c, B'} | c in B', B' != B}.
 	 */
-	NodeArray< List<node> > M_B;
+	NodeArray<List<node>> M_B;
 
 	/**
 	 * M2 is empty, if |M_B| != 1, otherwise M_B = {cH}
 	 * M2 = {cH' in V_B \ {v} | m_B(cH') = m2} with
 	 * m2 = max{m_B(vH) : vH in V_B, vH != cH}.
 	 */
-	NodeArray< List<node> > M2;
+	NodeArray<List<node>> M2;
 
 	/** saves for every node of G the new adjacency list */
-	NodeArray< List<adjEntry> > newOrder;
+	NodeArray<List<adjEntry>> newOrder;
 
 	/** treeNodeTreated saves for all block nodes in the
 	 *  BC-tree if it has already been treated or not. */

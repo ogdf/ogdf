@@ -33,8 +33,7 @@
 
 #include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
-namespace ogdf
-{
+namespace ogdf {
 
 //! Adds color to a graph
 /** SimDrawColorizer adds colors to the edges (and nodes) of a simdraw
@@ -51,13 +50,10 @@ namespace ogdf
  *  [...]
  *  \endcode
  */
-class OGDF_EXPORT SimDrawColorizer : public SimDrawManipulatorModule
-{
-
+class OGDF_EXPORT SimDrawColorizer : public SimDrawManipulatorModule {
 public:
 	//! types for colorschemes
-	enum class colorScheme
-	{
+	enum class colorScheme {
 		none, //!< <= 32 different colors
 		bluYel, //!< blue and yellow <= 2 colors
 		redGre, //!< red and green <= 2 colors
@@ -73,14 +69,15 @@ private:
 
 public:
 	//! constructor assigns default color scheme
-	explicit SimDrawColorizer(SimDraw &SD) : SimDrawManipulatorModule(SD)
-	{ m_colorScheme = colorScheme::none; }
+	explicit SimDrawColorizer(SimDraw& SD) : SimDrawManipulatorModule(SD) {
+		m_colorScheme = colorScheme::none;
+	}
 
 	//! returns current color scheme
-	const colorScheme &ColorScheme() const { return m_colorScheme; }
+	const colorScheme& ColorScheme() const { return m_colorScheme; }
 
 	//! assigns a new color scheme
-	colorScheme &ColorScheme() { return m_colorScheme; }
+	colorScheme& ColorScheme() { return m_colorScheme; }
 
 	//! adds color to a graph including nodes
 	void addColorNodeVersion();
@@ -108,8 +105,7 @@ public:
 	*  number (e.g. two or three) of basic graphs. The default color
 	*  scheme can be used for up to 32 basic graphs.
 	*/
-	class SimDrawColorScheme
-	{
+	class SimDrawColorScheme {
 	private:
 		//! stores the current colorscheme (set by constructor)
 		colorScheme m_intScheme;
@@ -118,23 +114,23 @@ public:
 		/** stores the values of the red color component for every graph
 		*  according to colorscheme
 		*/
-		int *red;
+		int* red;
 
 		//! green color component
 		/** stores the values of the green color component for every graph
 		*  according to colorscheme
 		*/
-		int *green;
+		int* green;
 
 		//! blue color component
 		/** stores the values of the blue color component for every graph
 		*  according to colorscheme
 		*/
-		int *blue;
+		int* blue;
 
 	public:
 		//! constructor
-		SimDrawColorScheme (colorScheme colorScm, int numberOfGraphs);
+		SimDrawColorScheme(colorScheme colorScm, int numberOfGraphs);
 
 		//! destructor
 		~SimDrawColorScheme();
@@ -145,7 +141,6 @@ public:
 		//! sets the color component arrays according to colorschemeXS
 		void assignColScm(int numberOfGraphs);
 	};
-
 };
 
 }

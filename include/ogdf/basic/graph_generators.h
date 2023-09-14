@@ -31,5 +31,5 @@
 
 #pragma once
 
-#include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/basic/graph_generators/deterministic.h>
+#include <ogdf/basic/graph_generators/randomized.h>

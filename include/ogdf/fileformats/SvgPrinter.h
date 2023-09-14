@@ -31,13 +31,14 @@
 
 #pragma once
 
-#include <list>
-#include <sstream>
-#include <ogdf/lib/pugixml/pugixml.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-namespace ogdf
-{
+#include <ogdf/lib/pugixml/pugixml.h>
+
+#include <list>
+#include <sstream>
+
+namespace ogdf {
 
 /**
  * \brief SVG Writer
@@ -48,22 +49,16 @@ namespace ogdf
  * Set the curviness to a value greater than 0 to obtain curved edges.
  * There are two modes for drawing curved edges: Bézier curves and circular arcs.
  */
-class SvgPrinter
-{
+class SvgPrinter {
 public:
-
 	/**
 	 * Creates a new SVG Printer for a ogdf::Graph.
 	 *
 	 * \param attr The attributes of the graph
 	 * \param settings The SVG configuration
 	 */
-	SvgPrinter(const GraphAttributes &attr, const GraphIO::SVGSettings &settings)
-	  : m_attr(attr)
-	  , m_clsAttr(nullptr)
-	  , m_settings(settings)
-	{
-	}
+	SvgPrinter(const GraphAttributes& attr, const GraphIO::SVGSettings& settings)
+		: m_attr(attr), m_clsAttr(nullptr), m_settings(settings) { }
 
 	/**
 	 * Creates a new SVG Printer for a ogdf::ClusterGraph.
@@ -71,32 +66,28 @@ public:
 	 * \param attr The attributes of the graph
 	 * \param settings The SVG configuration
 	 */
-	SvgPrinter(const ClusterGraphAttributes &attr, const GraphIO::SVGSettings &settings)
-	  : m_attr(attr)
-	  , m_clsAttr(&attr)
-	  , m_settings(settings)
-	{
-	}
+	SvgPrinter(const ClusterGraphAttributes& attr, const GraphIO::SVGSettings& settings)
+		: m_attr(attr), m_clsAttr(&attr), m_settings(settings) { }
 
 	/**
 	 * Prints the graph and attributes of this printer to the given output stream.
 	 *
 	 * @param os The stream to print to
 	 */
-	bool draw(std::ostream &os);
+	bool draw(std::ostream& os);
 
 private:
 	//! attributes of the graph to be visualized
-	const GraphAttributes &m_attr;
+	const GraphAttributes& m_attr;
 
 	//! attributes of the cluster graph (\c nullptr if no cluster graph)
-	const ClusterGraphAttributes *m_clsAttr;
+	const ClusterGraphAttributes* m_clsAttr;
 
 	//! cached bounding box of the graph to be visualized
 	DRect m_bbox;
 
 	//! SVG configuration
-	const GraphIO::SVGSettings &m_settings;
+	const GraphIO::SVGSettings& m_settings;
 
 	/**
 	 * Draws a rectangle for each cluster in the ogdf::ClusterGraph.
@@ -133,7 +124,7 @@ private:
 	 * \param e the edge depicted by the curve
 	 * \return the XML-node of the curve
 	 */
-	pugi::xml_node drawCurve(pugi::xml_node xmlNode, edge e, List<DPoint> &points);
+	pugi::xml_node drawCurve(pugi::xml_node xmlNode, edge e, List<DPoint>& points);
 
 	/**
 	 * Draws the path corresponding to a single line to the stream.
@@ -142,7 +133,7 @@ private:
 	 * \param p1 the first point of the line
 	 * \param p2 the second point of the line
 	 */
-	void drawLine(std::stringstream &ss, const DPoint &p1, const DPoint &p2);
+	void drawLine(std::stringstream& ss, const DPoint& p1, const DPoint& p2);
 
 	/**
 	 * Draws a list of points using cubic Bézier interpolation.
@@ -150,7 +141,7 @@ private:
 	 * \param ss the output stream
 	 * \param points the points to be connected by lines
 	 */
-	void drawBezierPath(std::stringstream &ss, List<DPoint> &points);
+	void drawBezierPath(std::stringstream& ss, List<DPoint>& points);
 
 	/**
 	 * Draws a list of points as straight lines connected by circular arcs.
@@ -158,7 +149,7 @@ private:
 	 * \param ss the output stream
 	 * \param points the points to be connected by lines
 	 */
-	void drawRoundPath(std::stringstream &ss, List<DPoint> &points);
+	void drawRoundPath(std::stringstream& ss, List<DPoint>& points);
 
 	/**
 	 * Draws a list of points as straight lines.
@@ -166,7 +157,7 @@ private:
 	 * \param ss the output stream
 	 * \param points the points to be connected by lines
 	 */
-	void drawLines(std::stringstream &ss, List<DPoint> &points);
+	void drawLines(std::stringstream& ss, List<DPoint>& points);
 
 	/**
 	 * Draws a cubic Bezíer path.
@@ -177,7 +168,8 @@ private:
 	 * \param c1 the first control point of the line
 	 * \param c2 the second control point of the line
 	 */
-	void drawBezier(std::stringstream &ss, const DPoint &p1, const DPoint &p2, const DPoint &c1, const DPoint &c2);
+	void drawBezier(std::stringstream& ss, const DPoint& p1, const DPoint& p2, const DPoint& c1,
+			const DPoint& c2);
 
 	/**
 	 * Draws all nodes of the graph.
@@ -192,7 +184,7 @@ private:
 	 * \param doc the XML-document
 	 * \return the root SVG-node
 	 */
-	pugi::xml_node writeHeader(pugi::xml_document &doc);
+	pugi::xml_node writeHeader(pugi::xml_document& doc);
 
 	/**
 	 * Generates a string that describes the requested dash type.
@@ -225,7 +217,7 @@ private:
 	 * \param point the candidate arrow tip
 	 * \param adj the adjacency entry
 	 */
-	bool isCoveredBy(const DPoint &point, adjEntry adj);
+	bool isCoveredBy(const DPoint& point, adjEntry adj);
 
 	/**
 	 * Draws an arrow head at the end of the edge.
@@ -236,7 +228,7 @@ private:
 	 * \param end the end point of the edge segment the arrow head will be placed on, this will usually be modified
 	 * \param adj the adjacency entry
 	 */
-	void drawArrowHead(pugi::xml_node xmlNode, const DPoint &start, DPoint &end, adjEntry adj);
+	void drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoint& end, adjEntry adj);
 
 	/**
 	 * Returns whether an edge arrow is to be drawn.
@@ -258,8 +250,9 @@ private:
 	 *
 	 * \param line the XML-node depicting the line
 	 * \param e the edge associated with that line
+	 * \param isArrowHead whether \p line is an arrow head polygon
 	 */
-	void appendLineStyle(pugi::xml_node line, edge e);
+	void appendLineStyle(pugi::xml_node line, edge e, bool isArrowHead = false);
 
 	/**
 	 * Draws a polygon with the respective points.

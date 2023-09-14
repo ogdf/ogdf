@@ -36,10 +36,9 @@
  */
 
 #include <ogdf/basic/basic.h>
-
-#include <ogdf/cluster/internal/CP_MasterBase.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/internal/CP_MasterBase.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 using namespace ogdf;
@@ -47,39 +46,31 @@ using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
 #ifdef OGDF_DEBUG
-void CP_MasterBase::printGraph(const Graph &G) {
-	int i=0;
+void CP_MasterBase::printGraph(const Graph& G) {
+	int i = 0;
 	Logger::slout() << "The Given Graph" << std::endl;
-	for(edge e : G.edges) {
-		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << "," << e->target()->index() << ") " << std::endl;
+	for (edge e : G.edges) {
+		Logger::slout() << "Edge " << i++ << ": (" << e->source()->index() << ","
+						<< e->target()->index() << ") " << std::endl;
 	}
 }
 #endif
 
 
-CP_MasterBase::CP_MasterBase(
-	const ClusterGraph &C,
-	int heuristicLevel,
-	int heuristicRuns,
-	double heuristicOEdgeBound,
-	int heuristicNPermLists,
-	int kuratowskiIterations,
-	int subdivisions,
-	int kSupportGraphs,
-	double kHigh,
-	double kLow,
-	bool perturbation,
-	double branchingGap,
-	const char *time) :
-	Master("CPlanarity", true, false, OptSense::Min), //no pricing so far
+CP_MasterBase::CP_MasterBase(const ClusterGraph& C, int heuristicLevel, int heuristicRuns,
+		double heuristicOEdgeBound, int heuristicNPermLists, int kuratowskiIterations,
+		int subdivisions, int kSupportGraphs, double kHigh, double kLow, bool perturbation,
+		double branchingGap, const char* time)
+	: Master("CPlanarity", true, false, OptSense::Min)
+	, //no pricing so far
 #ifdef OGDF_DEBUG
-	m_solByHeuristic(false),
+	m_solByHeuristic(false)
+	,
 #endif
-	m_solState(solutionState::Undefined),
-	m_cutConnPool(nullptr),
-	m_cutKuraPool(nullptr),
-	m_useDefaultCutPool(true)
-{
+	m_solState(solutionState::Undefined)
+	, m_cutConnPool(nullptr)
+	, m_cutKuraPool(nullptr)
+	, m_useDefaultCutPool(true) {
 
 	// Reference to the given ClusterGraph and the underlying Graph.
 	m_C = &C;
@@ -93,18 +84,17 @@ CP_MasterBase::CP_MasterBase(
 
 	//Max number of edges and extension edges, to be compared
 	//with actual number of variables used.
-	int nComplete = (m_G->numberOfNodes()*(m_G->numberOfNodes()-1)) / 2;
-	m_nMaxVars = nComplete-m_G->numberOfEdges();
+	int nComplete = (m_G->numberOfNodes() * (m_G->numberOfNodes() - 1)) / 2;
+	m_nMaxVars = nComplete - m_G->numberOfEdges();
 
 	// Initialize the node array to keep track of created variables
 	m_varCreated.init(*m_G);
-	for(node v : m_G->nodes)
-	{
+	for (node v : m_G->nodes) {
 		m_varCreated[v].init(*m_G, false);
 	}
 
 	// Computing the main objective function coefficient for the connection edges.
-	m_epsilon = (double)(0.2/(2*(m_G->numberOfNodes())));
+	m_epsilon = (double)(0.2 / (2 * (m_G->numberOfNodes())));
 
 	// Setting parameters
 	m_nKuratowskiIterations = kuratowskiIterations;
@@ -137,7 +127,6 @@ CP_MasterBase::CP_MasterBase(
 	m_repairStat.init(100);
 }
 
-
 CP_MasterBase::~CP_MasterBase() {
 	delete m_maxCpuTime;
 	delete m_solutionGraph;
@@ -152,8 +141,7 @@ Sub *CP_MasterBase::firstSub() {
 
 
 // Replaces current m_solutionGraph by new GraphCopy based on \p connection list
-void CP_MasterBase::updateBestSubGraph(List<NodePair> &connection) {
-
+void CP_MasterBase::updateBestSubGraph(List<NodePair>& connection) {
 	// Creates a new GraphCopy #m_solutionGraph and deletes all edges
 	// TODO: Extend GraphCopySimple to be usable here: Allow
 	// edge deletion and add pure node initialization.
@@ -165,12 +153,11 @@ void CP_MasterBase::updateBestSubGraph(List<NodePair> &connection) {
 	// Delete all edges that have been stored previously in edge lists
 	m_connectionOneEdges.clear();
 
-	for(const NodePair &np : connection)
-	{
+	for (const NodePair& np : connection) {
 		// Add all new connection edges to #m_solutionGraph
 		node cv = m_solutionGraph->copy(np.source);
 		node cw = m_solutionGraph->copy(np.target);
-		m_solutionGraph->newEdge(cv,cw);
+		m_solutionGraph->newEdge(cv, cw);
 
 		m_connectionOneEdges.pushBack(np);
 	}
@@ -180,31 +167,29 @@ void CP_MasterBase::updateBestSubGraph(List<NodePair> &connection) {
 #endif
 }
 
-
-void CP_MasterBase::getConnectionOptimalSolutionEdges(List<NodePair> &edges) const
-{
+void CP_MasterBase::getConnectionOptimalSolutionEdges(List<NodePair>& edges) const {
 	edges.clear();
 
-	for (const NodePair &np : m_connectionOneEdges) {
+	for (const NodePair& np : m_connectionOneEdges) {
 		edges.pushBack(np);
 	}
 }
 
-
 //todo: is called only once, but could be sped up the same way as the co-conn check
 //Returns number of edges to be added to achieve cluster connectivity for \p c
-double CP_MasterBase::clusterConnection(cluster c, GraphCopy &gc) {
+double CP_MasterBase::clusterConnection(cluster c, GraphCopy& gc) {
 	// For better performance, a node array is used to indicate which nodes are contained
 	// in the currently considered cluster.
-	NodeArray<bool> vInC(gc,false);
+	NodeArray<bool> vInC(gc, false);
 	double connectNum = 0.0; //Minimum number of connection edges
 	// First check, if the current cluster \p c is a leaf cluster.
 	// If so, compute the number of edges that have at least to be added
 	// to make the cluster induced graph connected.
-	if (c->cCount()==0) { 	//cluster \p c is a leaf cluster
-		GraphCopy *inducedC = new GraphCopy((const Graph&)gc);
+	if (c->cCount() == 0) { //cluster \p c is a leaf cluster
+		GraphCopy* inducedC = new GraphCopy((const Graph&)gc);
 		List<node> clusterNodes;
-		c->getClusterNodes(clusterNodes); // \a clusterNodes now contains all (original) nodes of cluster \p c.
+		c->getClusterNodes(
+				clusterNodes); // \a clusterNodes now contains all (original) nodes of cluster \p c.
 		for (node v : clusterNodes) {
 			vInC[gc.copy(v)] = true;
 		}
@@ -212,38 +197,42 @@ double CP_MasterBase::clusterConnection(cluster c, GraphCopy &gc) {
 		// Delete all nodes from \a inducedC that do not belong to the cluster,
 		// in order to obtain the cluster induced graph.
 		node v = inducedC->firstNode();
-		while (v!=nullptr)  {
+		while (v != nullptr) {
 			node w = v->succ();
-			if (!vInC[inducedC->original(v)]) inducedC->delNode(v);
+			if (!vInC[inducedC->original(v)]) {
+				inducedC->delNode(v);
+			}
 			v = w;
 		}
 
 		// Determine number of connected components of cluster induced graph.
 		//Todo: check could be skipped
 		if (!isConnected(*inducedC)) {
-
 			NodeArray<int> conC(*inducedC);
 			//at least #connected components - 1 edges have to be added.
-			connectNum = connectedComponents(*inducedC,conC) - 1;
+			connectNum = connectedComponents(*inducedC, conC) - 1;
 		}
 		delete inducedC;
-	// Cluster \p c is an "inner" cluster. Process all child clusters first.
-	} else {	//c->cCount is != 0, process all child clusters first
+		// Cluster \p c is an "inner" cluster. Process all child clusters first.
+	} else { //c->cCount is != 0, process all child clusters first
 		for (cluster cc : c->children) {
-			connectNum += clusterConnection(cc,gc);
+			connectNum += clusterConnection(cc, gc);
 		}
 
 		// Create cluster induced graph.
-		GraphCopy *inducedC = new GraphCopy((const Graph&)gc);
+		GraphCopy* inducedC = new GraphCopy((const Graph&)gc);
 		List<node> clusterNodes;
-		c->getClusterNodes(clusterNodes); //\a clusterNodes now contains all (original) nodes of cluster \p c.
+		c->getClusterNodes(
+				clusterNodes); //\a clusterNodes now contains all (original) nodes of cluster \p c.
 		for (node v : clusterNodes) {
 			vInC[gc.copy(v)] = true;
 		}
 		node v = inducedC->firstNode();
-		while (v!=nullptr)  {
+		while (v != nullptr) {
 			node w = v->succ();
-			if (!vInC[inducedC->original(v)]) inducedC->delNode(v);
+			if (!vInC[inducedC->original(v)]) {
+				inducedC->delNode(v);
+			}
 			v = w;
 		}
 
@@ -263,18 +252,16 @@ double CP_MasterBase::clusterConnection(cluster c, GraphCopy &gc) {
 		}
 		// Now, check \a inducedC for connectivity.
 		if (!isConnected(*inducedC)) {
-
 			NodeArray<int> conC(*inducedC);
 			//at least #connected components - 1 edges have to added.
-			connectNum += connectedComponents(*inducedC,conC) - 1;
+			connectNum += connectedComponents(*inducedC, conC) - 1;
 		}
 		delete inducedC;
 	}
 	return connectNum;
 }
 
-double CP_MasterBase::heuristicInitialLowerBound()
-{
+double CP_MasterBase::heuristicInitialLowerBound() {
 	//Heuristics?
 	/*
 		 * Heuristic can be improved by checking, how many additional C-edges have to be added at least.
@@ -295,35 +282,33 @@ double CP_MasterBase::heuristicInitialLowerBound()
 }
 
 double CP_MasterBase::heuristicInitialUpperBound() {
-
 	//Todo: Nice heuristic
 	//Can we just use the number of edges needed
 	//to make both the clusters and their complement connected?
 	return m_nMaxVars;
 }
 
-void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
-
+void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int>>& dist) {
 	// Computing the graphtheoretical distances of node u
 	NodeArray<bool> visited(*m_G);
 	List<node> queue;
 	visited.fill(false);
 	visited[u] = true;
 	int nodesVisited = 1;
-	for(adjEntry adj : u->adjEntries) {
+	for (adjEntry adj : u->adjEntries) {
 		visited[adj->twinNode()] = true;
 		nodesVisited++;
 		dist[u][adj->twinNode()] += 1;
 		queue.pushBack(adj->twinNode());
 	}
-	while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
+	while (!queue.empty() || nodesVisited != m_G->numberOfNodes()) {
 		node v = queue.front();
 		queue.popFront();
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (!visited[adj->twinNode()]) {
 				visited[adj->twinNode()] = true;
 				nodesVisited++;
-				dist[u][adj->twinNode()] += (dist[u][v]+1);
+				dist[u][adj->twinNode()] += (dist[u][v] + 1);
 				queue.pushBack(adj->twinNode());
 			}
 		}
@@ -331,8 +316,7 @@ void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 }
 
 // Create variables for complete connectivity - any solution allowed
-void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
-{
+void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars) {
 #if 0
 	initVars.clear(); // We don't care if there are already vars added
 #endif
@@ -345,8 +329,7 @@ void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 	ClusterGraph cg(*m_C, G, oriCluster, copyNode);
 
 	NodeArray<node> oriNode(G);
-	for(node w : m_G->nodes)
-	{
+	for (node w : m_G->nodes) {
 		oriNode[copyNode[w]] = w;
 	}
 
@@ -355,8 +338,7 @@ void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 	//Todo: Use post order traversal to do this without recursion
 	//forall_postOrderClusters(c,C)
 	makeCConnected(cg, G, addedEdges, true); //use simple cc method
-	for (edge e : addedEdges)
-	{
+	for (edge e : addedEdges) {
 		node u = e->source();
 		node v = e->target();
 		initVars.pushBack(createVariable(oriNode[u], oriNode[v]));
@@ -367,7 +349,6 @@ void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 
 	// Now complement connnectivity (TODO)
 	// TODO: do this optionally, experimentally compare performance
-
 }
 
 #if 0
@@ -375,8 +356,9 @@ void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 void CP_MasterBase::createInitialVariables(List<CPlanarEdgeVar*>& initVars) {
 	// In case of pricing, create an initial variable pool allowing
 	// connectivity
-	if (pricing())
+	if (pricing()) {
 		createCompConnVars(initVars);
+	}
 }
 
 //! Checks which of the inactive vars are needed to cover all chunk connection constraints.
@@ -386,11 +368,11 @@ void CP_MasterBase::generateVariablesForFeasibility(
 		List<CPlanarEdgeVar*>& connectVars)
 {
 	List<ChunkConnection*> cpy(ccons);
-#if 0
+#	if 0
 	for(ChunkConnection *cc : cpy) {
 		cc->printMe();
 	}
-#endif
+#	endif
 
 	//First we check which of the constraints are already covered by existing
 	//connect vars and delete them.
@@ -442,17 +424,13 @@ void CP_MasterBase::generateVariablesForFeasibility(
 
 // returns coefficients of all variables in connect in constraint con
 // as list coeffs
-void CP_MasterBase::getCoefficients(
-	Constraint* con,
-	const List<CPlanarEdgeVar* > &connect,
-	List<double> &coeffs)
-{
+void CP_MasterBase::getCoefficients(Constraint* con, const List<CPlanarEdgeVar*>& connect,
+		List<double>& coeffs) {
 	coeffs.clear();
-	for(CPlanarEdgeVar *cv : connect) {
+	for (CPlanarEdgeVar* cv : connect) {
 		coeffs.pushBack(con->coeff(cv));
 	}
 }
-
 
 //output statistics
 void CP_MasterBase::terminateOptimization() {
@@ -460,21 +438,17 @@ void CP_MasterBase::terminateOptimization() {
 	Logger::slout() << "Terminate Optimization:\n";
 	Logger::slout() << "(primal Bound: " << primalBound() << ")\n";
 	Logger::slout() << "(dual Bound: " << dualBound() << ")\n";
-#if 0
-	if(m_checkCPlanar2) {
-#endif
+	// if(m_checkCPlanar2) {
 	Logger::slout() << "*** " << (isCP() ? "" : "NON ") << "C-PLANAR ***\n";
-#if 0
-	} else {
-		Logger::slout() << "*** " << (feasibleFound() ? "" : "NON ") << "C-PLANAR ***\n";
-	}
-#endif
+	// } else {
+	// 	Logger::slout() << "*** " << (feasibleFound() ? "" : "NON ") << "C-PLANAR ***\n";
+	// }
 	Logger::slout() << "=================================================\n";
 
 	Logger::ssout() << "\n";
 
 	Logger::ssout() << "C-Planar: " << isCP() << "\n";
-	Logger::ssout() << "Time: "<< getDoubleTime(totalTime()) << "\n";
+	Logger::ssout() << "Time: " << getDoubleTime(totalTime()) << "\n";
 	Logger::ssout() << "LP-Time: " << getDoubleTime(lpSolverTime()) << "\n";
 	Logger::ssout() << "\n";
 	Logger::ssout() << "#BB-nodes: " << nSub() << "\n";
@@ -492,16 +466,18 @@ void CP_MasterBase::terminateOptimization() {
 	Logger::ssout() << "#Vars-branch: " << m_varsBranch << "\n";
 	Logger::ssout() << "#Vars-unused: " << m_inactiveVariables.size() << "\n";
 	Logger::ssout() << "KuraRepair-Stat: <";
-	for(auto &elem : m_repairStat) {
+	for (auto& elem : m_repairStat) {
 		Logger::ssout() << elem << ",";
 	}
 	Logger::ssout() << ">\n";
 
-	for(node n : m_G->nodes) {
-		for(node m : m_G->nodes) {
-			if(m->index()<=n->index()) continue;
-			for(adjEntry adj : n->adjEntries) {
-				if(adj->twinNode()==m) {
+	for (node n : m_G->nodes) {
+		for (node m : m_G->nodes) {
+			if (m->index() <= n->index()) {
+				continue;
+			}
+			for (adjEntry adj : n->adjEntries) {
+				if (adj->twinNode() == m) {
 					Logger::slout() << "ORIG: " << n << "-" << m << "\n";
 					continue;
 				}
@@ -510,19 +486,21 @@ void CP_MasterBase::terminateOptimization() {
 	}
 	for (node n : m_G->nodes) {
 		for (node m : m_G->nodes) {
-			if (m->index() <= n->index()) continue;
-			for(adjEntry adj : n->adjEntries) {
+			if (m->index() <= n->index()) {
+				continue;
+			}
+			for (adjEntry adj : n->adjEntries) {
 				if (adj->twinNode() == m) {
 					goto wup;
 				}
 			}
-			for (const NodePair &p : m_inactiveVariables) {
+			for (const NodePair& p : m_inactiveVariables) {
 				if ((p.source == n && p.target == m) || (p.target == n && p.source == m)) {
 					goto wup;
 				}
 			}
 			Logger::slout() << "CONN: " << n << "-" << m << "\n";
-		wup:;
+wup:;
 		}
 	}
 

@@ -35,6 +35,7 @@
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/Logger.h>
+
 #include <ogdf/lib/abacus/variable.h>
 
 namespace ogdf {
@@ -42,27 +43,33 @@ namespace cluster_planarity {
 
 class EdgeVar : public abacus::Variable {
 	friend class MaxCPlanarSub;
-public:
-	enum class EdgeType {Original, Connect};
 
-	EdgeVar(abacus::Master *master, double obj, EdgeType eType, node source, node target);
+public:
+	enum class EdgeType { Original, Connect };
+
+	EdgeVar(abacus::Master* master, double obj, EdgeType eType, node source, node target);
 	//! Simple version for cplanarity testing (only connect edges allowed)
-	EdgeVar(abacus::Master *master, double obj, node source, node target);
+	EdgeVar(abacus::Master* master, double obj, node source, node target);
 	//! Simple version for cplanarity testing (only connect edges allowed, lower bound given)
-	EdgeVar(abacus::Master *master, double obj, double lbound, node source, node target);
+	EdgeVar(abacus::Master* master, double obj, double lbound, node source, node target);
 
 	virtual ~EdgeVar();
 
-	edge theEdge() const {return m_edge;}
-	node sourceNode() const {return m_source;}
-	node targetNode() const {return m_target;}
-	EdgeType theEdgeType() const {return m_eType;}
+	edge theEdge() const { return m_edge; }
+
+	node sourceNode() const { return m_source; }
+
+	node targetNode() const { return m_target; }
+
+	EdgeType theEdgeType() const { return m_eType; }
 #if 0
 	double objCoeff() const {return m_objCoeff;}
 #endif
 
 	virtual void printMe(std::ostream& out) {
-		out << "[Var: " << sourceNode() << "->" << targetNode() << " (" << ((theEdgeType()==EdgeVar::EdgeType::Original)?"original":"connect") << ") ZF=" << obj() << "]";
+		out << "[Var: " << sourceNode() << "->" << targetNode() << " ("
+			<< ((theEdgeType() == EdgeVar::EdgeType::Original) ? "original" : "connect")
+			<< ") ZF=" << obj() << "]";
 	}
 
 private:

@@ -33,11 +33,12 @@
 
 #pragma once
 
-#include <ogdf/cluster/internal/basics.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/cluster/internal/CPlanarEdgeVar.h>
-#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/cluster/internal/CPlanarEdgeVar.h>
+#include <ogdf/cluster/internal/basics.h>
+
 #include <ogdf/lib/abacus/master.h>
 
 namespace ogdf {
@@ -45,24 +46,16 @@ namespace cluster_planarity {
 
 class CP_MasterBase : public abacus::Master {
 public:
-
-	enum class solutionState {Undefined, CPlanar, NonCPlanar};
+	enum class solutionState { Undefined, CPlanar, NonCPlanar };
 
 	//! Construction and default values.
-	explicit CP_MasterBase(const ClusterGraph &C,
+	explicit CP_MasterBase(const ClusterGraph& C,
 			//Check what we really still need here
-			int heuristicLevel=1,
-			int heuristicRuns=2,
-			double heuristicOEdgeBound=0.3,
-			int heuristicNPermLists=5,
-			int kuratowskiIterations=3,
-			int subdivisions=10,
-			int kSupportGraphs=3,
-			double kuratowskiHigh=0.7,
-			double kuratowskiLow=0.3,
-			bool perturbation=false,
-			double branchingGap=0.4,
-			const char *time="00:05:00" /* maximum computation time */);
+			int heuristicLevel = 1, int heuristicRuns = 2, double heuristicOEdgeBound = 0.3,
+			int heuristicNPermLists = 5, int kuratowskiIterations = 3, int subdivisions = 10,
+			int kSupportGraphs = 3, double kuratowskiHigh = 0.7, double kuratowskiLow = 0.3,
+			bool perturbation = false, double branchingGap = 0.4,
+			const char* time = "00:05:00" /* maximum computation time */);
 
 	//! Destruction
 	virtual ~CP_MasterBase();
@@ -73,132 +66,164 @@ public:
 #endif
 
 	//! Returns the objective function coefficient of \a C-edges.
-	double epsilon() const {return m_epsilon;}
+	double epsilon() const { return m_epsilon; }
 
 	//! Returns the number of variables.
-	int nMaxVars() const {return m_nMaxVars;}
+	int nMaxVars() const { return m_nMaxVars; }
 
 	//! Returns a pointer to the underlying Graph.
-	const Graph *getGraph() const {return m_G;}
+	const Graph* getGraph() const { return m_G; }
 
 	//! Returns a pointer to the given Clustergraph.
-	const ClusterGraph *getClusterGraph() const {return m_C;}
+	const ClusterGraph* getClusterGraph() const { return m_C; }
 
 	//! Updates the "best" Subgraph #m_solutionGraph found so far and fills \p connection with
 	// corresponding edges (::nodePair).
-	virtual void updateBestSubGraph(List<NodePair> &connection);
+	virtual void updateBestSubGraph(List<NodePair>& connection);
 
 	//! Returns the optimal solution induced Clustergraph.
-	virtual Graph *solutionInducedGraph() {return static_cast<Graph*>(m_solutionGraph);}
+	virtual Graph* solutionInducedGraph() { return static_cast<Graph*>(m_solutionGraph); }
 
 	//! Returns nodePairs of connecting optimal solution edges in list \p edges.
-	virtual void getConnectionOptimalSolutionEdges(List<NodePair> &edges) const;
+	virtual void getConnectionOptimalSolutionEdges(List<NodePair>& edges) const;
 
-	void setTimeLimit(const char* s) {delete m_maxCpuTime; m_maxCpuTime = new string(s);}
+	void setTimeLimit(const char* s) {
+		delete m_maxCpuTime;
+		m_maxCpuTime = new string(s);
+	}
 
 	// Get parameters
-	int getKIterations() const {return m_nKuratowskiIterations;}
-	int getNSubdivisions() const {return m_nSubdivisions;}
-	int getNKuratowskiSupportGraphs() const {return m_nKuratowskiSupportGraphs;}
-	int getHeuristicLevel() const {return m_heuristicLevel;}
-	int getHeuristicRuns() const {return m_nHeuristicRuns;}
-	double getKBoundHigh() const {return m_kuratowskiBoundHigh;}
-	double getKBoundLow() const {return m_kuratowskiBoundLow;}
-	bool perturbation() const {return m_usePerturbation;}
+	int getKIterations() const { return m_nKuratowskiIterations; }
+
+	int getNSubdivisions() const { return m_nSubdivisions; }
+
+	int getNKuratowskiSupportGraphs() const { return m_nKuratowskiSupportGraphs; }
+
+	int getHeuristicLevel() const { return m_heuristicLevel; }
+
+	int getHeuristicRuns() const { return m_nHeuristicRuns; }
+
+	double getKBoundHigh() const { return m_kuratowskiBoundHigh; }
+
+	double getKBoundLow() const { return m_kuratowskiBoundLow; }
+
+	bool perturbation() const { return m_usePerturbation; }
 #if 0
 	double branchingOEdgeSelectGap() const {return m_branchingGap;}
 #endif
-	double getHeuristicFractionalBound() const {return m_heuristicFractionalBound;}
-	int numberOfHeuristicPermutationLists() const {return m_nHeuristicPermutationLists;}
-	bool getMPHeuristic() const {return m_mpHeuristic;}
-	int getNumAddVariables() const {return m_numAddVariables;}
-	double getStrongConstraintViolation() const {return m_strongConstraintViolation;}
-	double getStrongVariableViolation() const {return m_strongVariableViolation;}
+	double getHeuristicFractionalBound() const { return m_heuristicFractionalBound; }
+
+	int numberOfHeuristicPermutationLists() const { return m_nHeuristicPermutationLists; }
+
+	bool getMPHeuristic() const { return m_mpHeuristic; }
+
+	int getNumAddVariables() const { return m_numAddVariables; }
+
+	double getStrongConstraintViolation() const { return m_strongConstraintViolation; }
+
+	double getStrongVariableViolation() const { return m_strongVariableViolation; }
 
 	// Read global constraint counter, i.e. the number of added constraints of specific type.
-	int addedKConstraints() const {return m_nKConsAdded;}
-	int addedCConstraints() const {return m_nCConsAdded;}
+	int addedKConstraints() const { return m_nKConsAdded; }
 
+	int addedCConstraints() const { return m_nCConsAdded; }
 
 	// Set parameters
-	void setKIterations(int n) {m_nKuratowskiIterations = n;}
-	void setNSubdivisions(int n) {m_nSubdivisions = n;}
-	void setNKuratowskiSupportGraphs(int n) {m_nKuratowskiSupportGraphs = n;}
-	void setNHeuristicRuns(int n) {m_nHeuristicRuns = n;}
-	void setKBoundHigh(double n) {m_kuratowskiBoundHigh = ((n>0.0 && n<1.0) ? n : 0.8);}
-	void setKBoundLow(double n) {m_kuratowskiBoundLow = ((n>0.0 && n<1.0) ? n : 0.2);}
-	void heuristicLevel(int level) {m_heuristicLevel = level;}
-	void setHeuristicRuns(int n) {m_nHeuristicRuns = n;}
-	void setPertubation(bool b) {m_usePerturbation = b;}
-	void setHeuristicFractionalBound(double b) {m_heuristicFractionalBound = b;}
-	void setHeuristicPermutationLists(int n) {m_nHeuristicPermutationLists = n;}
+	void setKIterations(int n) { m_nKuratowskiIterations = n; }
+
+	void setNSubdivisions(int n) { m_nSubdivisions = n; }
+
+	void setNKuratowskiSupportGraphs(int n) { m_nKuratowskiSupportGraphs = n; }
+
+	void setNHeuristicRuns(int n) { m_nHeuristicRuns = n; }
+
+	void setKBoundHigh(double n) { m_kuratowskiBoundHigh = ((n > 0.0 && n < 1.0) ? n : 0.8); }
+
+	void setKBoundLow(double n) { m_kuratowskiBoundLow = ((n > 0.0 && n < 1.0) ? n : 0.2); }
+
+	void heuristicLevel(int level) { m_heuristicLevel = level; }
+
+	void setHeuristicRuns(int n) { m_nHeuristicRuns = n; }
+
+	void setPertubation(bool b) { m_usePerturbation = b; }
+
+	void setHeuristicFractionalBound(double b) { m_heuristicFractionalBound = b; }
+
+	void setHeuristicPermutationLists(int n) { m_nHeuristicPermutationLists = n; }
+
 	//! Switches use of lower bound heuristic
-	void setMPHeuristic(bool b) {m_mpHeuristic = b;}
-	void setNumAddVariables(int i) {m_numAddVariables=i;}
-	void setStrongConstraintViolation(double d) { m_strongConstraintViolation=d;}
-	void setStrongVariableViolation(double d) { m_strongVariableViolation=d;}
+	void setMPHeuristic(bool b) { m_mpHeuristic = b; }
+
+	void setNumAddVariables(int i) { m_numAddVariables = i; }
+
+	void setStrongConstraintViolation(double d) { m_strongConstraintViolation = d; }
+
+	void setStrongVariableViolation(double d) { m_strongVariableViolation = d; }
 
 	//! If set to true, PORTA output is written in a file
-	void setPortaFile(bool b) {m_porta = b;}
+	void setPortaFile(bool b) { m_porta = b; }
 
 	// Updating global constraint counter
-	void updateAddedCCons(int n) {m_nCConsAdded += n;}
-	void updateAddedKCons(int n) {m_nKConsAdded += n;}
+	void updateAddedCCons(int n) { m_nCConsAdded += n; }
+
+	void updateAddedKCons(int n) { m_nKConsAdded += n; }
 
 	// Returns global primal and dual bounds.
-	double getPrimalBound() {return globalPrimalBound;}
-	double getDualBound() {return globalDualBound;}
+	double getPrimalBound() { return globalPrimalBound; }
+
+	double getDualBound() { return globalDualBound; }
 
 	// Cut pools for connectivity and planarity
 	//! Returns cut pool for connectivity
-	abacus::StandardPool<abacus::Constraint, abacus::Variable> *getCutConnPool() {return m_cutConnPool;}
+	abacus::StandardPool<abacus::Constraint, abacus::Variable>* getCutConnPool() {
+		return m_cutConnPool;
+	}
+
 	//! Returns cut pool for planarity
-	abacus::StandardPool<abacus::Constraint, abacus::Variable> *getCutKuraPool() {return m_cutKuraPool;}
+	abacus::StandardPool<abacus::Constraint, abacus::Variable>* getCutKuraPool() {
+		return m_cutKuraPool;
+	}
 
 	//! Returns true if default cut pool is used. Otherwise, separate
 	//! connectivity and Kuratowski pools are generated and used.
-	bool &useDefaultCutPool() { return m_useDefaultCutPool;}
+	bool& useDefaultCutPool() { return m_useDefaultCutPool; }
 
 	//! Returns a value that allows to distinguish result values
 	//! when connection edges (tiny negative cost) are added.
-	double intGap() {return 0.79;}
+	double intGap() { return 0.79; }
 
 #ifdef OGDF_DEBUG
 	bool m_solByHeuristic; //solution computed by heuristic or ILP
-		// Simple output function to print the given graph to the console.
+			// Simple output function to print the given graph to the console.
 	// Used for debugging only.
-	void printGraph(const Graph &G);
+	void printGraph(const Graph& G);
 #endif
 
 	//! The name of the file that contains the standard, i.e., non-cut,
 	//! constraints (may be deleted by ABACUS and shouldn't be stored twice)
-	const char* getStdConstraintsFileName()
-	{
-		return "StdConstraints.txt";
-	}
+	const char* getStdConstraintsFileName() { return "StdConstraints.txt"; }
 
-	int getNumInactiveVars() { return m_inactiveVariables.size();}
+	int getNumInactiveVars() { return m_inactiveVariables.size(); }
 
 	solutionState m_solState; //! stores optimization success state
 
 protected:
-
-	List<NodePair> m_connectionOneEdges;  //<! Contains connection nodePairs whose variable is set to 1.0
+	List<NodePair> m_connectionOneEdges; //<! Contains connection nodePairs whose variable is set to 1.0
 
 	//! Pointers to the given Clustergraph and underlying Graph are stored.
-	const ClusterGraph *m_C;
-	const Graph *m_G;
+	const ClusterGraph* m_C;
+	const Graph* m_G;
 
 	// Each time the primal bound is improved, the integer solution induced Graph is built.
 	// #m_solutionGraph is a pointer to the currently best solution induced Graph.
 	// #m_solutionGraph is deleted in the destructor.
-	GraphCopy *m_solutionGraph;
+	GraphCopy* m_solutionGraph;
 
 	//! Cut pools for connectivity and Kuratowski constraints
-	abacus::StandardPool< abacus::Constraint, abacus::Variable > *m_cutConnPool; //!< Connectivity Cuts
-	abacus::StandardPool< abacus::Constraint, abacus::Variable > *m_cutKuraPool; //!< Kuratowski Cuts
+	abacus::StandardPool<abacus::Constraint, abacus::Variable>* m_cutConnPool; //!< Connectivity Cuts
+	abacus::StandardPool<abacus::Constraint, abacus::Variable>* m_cutKuraPool; //!< Kuratowski Cuts
 
-	string *m_maxCpuTime; //!< Time threshold for optimization
+	string* m_maxCpuTime; //!< Time threshold for optimization
 
 	// Initializes constraints and variables and an initial dual bound.
 	virtual void initializeOptimization() override = 0;
@@ -224,14 +249,14 @@ protected:
 	virtual bool isCP() = 0;
 
 	// Node pair is potential candidate for new edge variable
-	virtual bool goodVar(node a, node b) { return true;}
+	virtual bool goodVar(node a, node b) { return true; }
 
 	List<NodePair> m_inactiveVariables; //! Keeps track of variables that are currently inactive during optimization
 #if 0
 	//used in initialization
 	void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
 #endif
-	NodeArray< NodeArray<bool> > m_varCreated; //! Keeps track of created variables
+	NodeArray<NodeArray<bool>> m_varCreated; //! Keeps track of created variables
 
 
 	// Parameters
@@ -253,7 +278,7 @@ protected:
 
 	int m_numAddVariables; // how many variables should i add maximally per pricing round?
 	double m_strongConstraintViolation; // when do i consider a constraint strongly violated -> separate in first stage
-	double m_strongVariableViolation;   // when do i consider a variable strongly violated (red.cost) -> separate in first stage
+	double m_strongVariableViolation; // when do i consider a variable strongly violated (red.cost) -> separate in first stage
 
 	// Counters for the number of added constraints
 	int m_nCConsAdded;
@@ -269,8 +294,9 @@ protected:
 	int m_varsBranch;
 	int m_activeRepairs;
 	ArrayBuffer<int> m_repairStat;
+
 	inline void clearActiveRepairs() {
-		if(m_activeRepairs) {
+		if (m_activeRepairs) {
 			m_repairStat.push(m_activeRepairs);
 			m_activeRepairs = 0;
 		}
@@ -280,8 +306,9 @@ protected:
 	double globalDualBound;
 
 	inline double getDoubleTime(const Stopwatch* act) {
-		int64_t tempo = act->centiSeconds()+100*act->seconds()+6000*act->minutes()+360000*act->hours();
-		return  ((double) tempo)/ 100.0;
+		int64_t tempo = act->centiSeconds() + 100 * act->seconds() + 6000 * act->minutes()
+				+ 360000 * act->hours();
+		return ((double)tempo) / 100.0;
 	}
 
 #if 0
@@ -291,13 +318,13 @@ protected:
 
 private:
 	// Is invoked by heuristicInitialLowerBound()
-	virtual double clusterConnection(cluster c, GraphCopy &GC);
+	virtual double clusterConnection(cluster c, GraphCopy& GC);
 
 	//! Creates variables for complete connectivity
 	virtual void createCompConnVars(List<CPlanarEdgeVar*>& initVars);
 
 	// Computes the (here: graphtheoretical) distances of edges incident to node \p u.
-	virtual void nodeDistances(node u, NodeArray<NodeArray<int> > &dist);
+	virtual void nodeDistances(node u, NodeArray<NodeArray<int>>& dist);
 
 	// The basic objective function coefficient for connection edges.
 	double m_epsilon;
@@ -318,9 +345,9 @@ private:
 #endif
 	//Switch to minimization of additional edges, no delta necessary
 #if 1
-	virtual double nextConnectCoeff() {return 1.0;}
+	virtual double nextConnectCoeff() { return 1.0; }
 #else
-	virtual double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; }
+	virtual double nextConnectCoeff() { return -1 + m_deltaCount-- * m_delta; }
 #endif
 	//! Variable creation for nodePair
 	virtual CPlanarEdgeVar* createVariable(ListIterator<NodePair>& it) {
@@ -332,6 +359,7 @@ private:
 		m_varCreated[(*it).source][(*it).target] = true;
 		return v;
 	}
+
 	//! Variable creation for pair of nodes which is not stored in m_inactiveVariables.
 	virtual CPlanarEdgeVar* createVariable(node a, node b) {
 		OGDF_ASSERT(!(m_varCreated[a][b] || m_varCreated[b][a]));
@@ -356,8 +384,8 @@ private:
 	bool m_porta;
 	//! writes coefficients of all orig and connect variables in constraint con into
 	//! emptied list coeffs
-	virtual void getCoefficients(abacus::Constraint* con, const List<CPlanarEdgeVar* > & connect,
-			List<double> & coeffs);
+	virtual void getCoefficients(abacus::Constraint* con, const List<CPlanarEdgeVar*>& connect,
+			List<double>& coeffs);
 };
 
 }

@@ -36,8 +36,7 @@
 namespace ogdf {
 
 
-class OGDF_EXPORT FUPSSimple : public FUPSModule{
-
+class OGDF_EXPORT FUPSSimple : public FUPSModule {
 public:
 	//! Creates an instance of feasible subgraph algorithm.
 	FUPSSimple() : m_nRuns(0) { }
@@ -45,25 +44,18 @@ public:
 	// destructor
 	~FUPSSimple() { }
 
-
 	// options
 
 	//! Sets the number of randomized runs to \p nRuns.
-	void runs (int nRuns) {
-		m_nRuns = nRuns;
-	}
+	void runs(int nRuns) { m_nRuns = nRuns; }
 
 	//! Returns the current number of randomized runs.
-	int runs() const {
-		return m_nRuns;
-	}
-
+	int runs() const { return m_nRuns; }
 
 	//! return a adjEntry of node v which right face is f. Be Carefully! The adjEntry is not always unique.
-	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f)
-	{
+	adjEntry getAdjEntry(const CombinatorialEmbedding& Gamma, node v, face f) {
 		adjEntry adjFound = nullptr;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (Gamma.rightFace(adj) == f) {
 				adjFound = adj;
 				break;
@@ -76,7 +68,6 @@ public:
 	}
 
 protected:
-
 	/**
 	 * \brief Computes a feasible upward planar subgraph of the input graph.
 	 *
@@ -86,16 +77,13 @@ protected:
 	 * @param delEdges is the deleted edges in order to obtain the subgraph. The edges are edges of the original graph G.
 	 * \return the status of the result.
 	 */
-	virtual Module::ReturnType doCall(UpwardPlanRep &UPR,
-		List<edge> &delEdges) override;
+	virtual Module::ReturnType doCall(UpwardPlanRep& UPR, List<edge>& delEdges) override;
 
 
 private:
+	int m_nRuns; //!< The number of runs for randomization.
 
-	int m_nRuns;  //!< The number of runs for randomization.
-
-	void computeFUPS(UpwardPlanRep &UPR,
-					List<edge> &delEdges);
+	void computeFUPS(UpwardPlanRep& UPR, List<edge>& delEdges);
 
 	//! Compute a (random) span tree of the input sT-Graph.
 	/*
@@ -105,17 +93,22 @@ private:
 	 * @multisource true, if the original graph got multisources. In this case, the incident edges of
 	 *  the source are allways included in the span tree
 	 */
-	void getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random);
+	void getSpanTree(GraphCopy& GC, List<edge>& delEdges, bool random);
 
 	/*
 	 * Function use by geSpannTree to compute the spannig tree.
 	 */
-	void dfs_visit(const Graph &G, edge e, NodeArray<bool> &visited, EdgeArray<bool> &treeEdges, bool random);
+	void dfs_visit(const Graph& G, edge e, NodeArray<bool>& visited, EdgeArray<bool>& treeEdges,
+			bool random);
 
 	// construct a merge graph with repsect to gamma and its test acyclicity
-	bool constructMergeGraph(GraphCopy &M, // copy of the original graph, muss be embedded
-							adjEntry adj_orig, // the adjEntry of the original graph, which right face is the ext. Face and adj->theNode() is the source
-							const List<edge> &del_orig); // deleted edges
+	/**
+	 * @param M  copy of the original graph, muss be embedded
+	 * @param adj_orig the adjEntry of the original graph, which right face is
+	 * the ext. Face and adj->theNode() is the source
+	 * @param del_orig deleted edges
+	 */
+	bool constructMergeGraph(GraphCopy& M, adjEntry adj_orig, const List<edge>& del_orig);
 };
 
 }

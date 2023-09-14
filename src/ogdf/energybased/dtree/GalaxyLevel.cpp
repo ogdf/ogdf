@@ -29,15 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/dtree/GalaxyLevel.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/dtree/GalaxyLevel.h>
 
 using namespace ogdf;
 using namespace ogdf::energybased::dtree;
 
 // public constructor for creating a coarser level
-GalaxyLevel::GalaxyLevel(const Graph& graph)
-{
+GalaxyLevel::GalaxyLevel(const Graph& graph) {
 	// sets the input graph by some not so nice cast
 	// but we are not changing it anyways so it is fine
 	m_pGraph = const_cast<Graph*>(&graph);
@@ -59,8 +58,7 @@ GalaxyLevel::GalaxyLevel(const Graph& graph)
 }
 
 // private constructor for creating a coarser level
-GalaxyLevel::GalaxyLevel(GalaxyLevel* pNextFiner)
-{
+GalaxyLevel::GalaxyLevel(GalaxyLevel* pNextFiner) {
 	// create a new empty graph
 	m_pGraph = new Graph();
 
@@ -83,8 +81,7 @@ GalaxyLevel::GalaxyLevel(GalaxyLevel* pNextFiner)
 	m_edgeWeight.init(*m_pGraph, 0.0);
 }
 
-GalaxyLevel::~GalaxyLevel()
-{
+GalaxyLevel::~GalaxyLevel() {
 	// delete the rest of the chain
 	delete m_pNextCoarser;
 
@@ -99,8 +96,7 @@ GalaxyLevel::~GalaxyLevel()
 	}
 }
 
-struct SunWeightComparer
-{
+struct SunWeightComparer {
 	// constructor with a node array for the weight
 	explicit SunWeightComparer(const NodeArray<double>& weight) : m_weight(weight) { }
 
@@ -111,8 +107,7 @@ struct SunWeightComparer
 	const NodeArray<double>& m_weight;
 };
 
-GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
-{
+GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels) {
 	// make sure the graph is connected
 	OGDF_ASSERT(isConnected(*m_pGraph));
 
@@ -136,7 +131,7 @@ GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
 	m_pGraph->allNodes(sortedOrder);
 
 	// shuffle them to avoid artifacts from the initial order
-	std::random_shuffle(sortedOrder.begin(), sortedOrder.end());
+	sortedOrder.permute();
 
 	// sort them, we want the suns with low weight
 	std::sort(sortedOrder.begin(), sortedOrder.end(), SunWeightComparer(sunWeight));
@@ -151,13 +146,14 @@ GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
 	List<node> sunList;
 
 	// while there is something to do
-	for (int i  = 0; i < m_pGraph->numberOfNodes(); i++) {
+	for (int i = 0; i < m_pGraph->numberOfNodes(); i++) {
 		// get a node
 		node s = sortedOrder[i];
 
 		// check if this is labeled
-		if (label[s] < numLabels)
+		if (label[s] < numLabels) {
 			continue;
+		}
 
 		// a nice queue
 		List<node> Q;
@@ -183,8 +179,9 @@ GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
 			int newLabel = label[u] + 1;
 
 			// if we reached the limit do nothing
-			if (newLabel >= numLabels)
+			if (newLabel >= numLabels) {
 				continue;
+			}
 
 			// label all adjacent nodes that are closer
 			for (adjEntry adj = u->firstAdj(); adj; adj = adj->succ()) {
@@ -240,8 +237,9 @@ GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
 		node t_new = parent(e->target());
 
 		// check if parents are the same node
-		if (s_new == t_new)
+		if (s_new == t_new) {
 			continue;
+		}
 
 		// create a new edge
 		edge e_new = pNewLevel->m_pGraph->newEdge(s_new, t_new);
@@ -257,8 +255,7 @@ GalaxyLevel* GalaxyLevel::buildNextCoarserLevel(int numLabels)
 	return pNewLevel;
 }
 
-void GalaxyLevel::removeParEdgesWithWeight()
-{
+void GalaxyLevel::removeParEdgesWithWeight() {
 	// keeps for each node the adj element from where we visited it
 	NodeArray<adjEntry> visitedFrom(*m_pGraph, nullptr);
 
@@ -295,8 +292,7 @@ void GalaxyLevel::removeParEdgesWithWeight()
 	}
 }
 
-GalaxyLevel* GalaxyLevel::buildLevelsUntil(int maxNumNodes)
-{
+GalaxyLevel* GalaxyLevel::buildLevelsUntil(int maxNumNodes) {
 	// we start with this
 	GalaxyLevel* pLevel = this;
 
@@ -317,61 +313,31 @@ GalaxyLevel* GalaxyLevel::buildLevelsUntil(int maxNumNodes)
 }
 
 // returns the graph
-const Graph& GalaxyLevel::graph() const
-{
-	return *m_pGraph;
-}
+const Graph& GalaxyLevel::graph() const { return *m_pGraph; }
 
 // returns the parent node of a node on the coarser level
-node GalaxyLevel::parent(node v) const
-{
-	return m_parent[v];
-}
+node GalaxyLevel::parent(node v) const { return m_parent[v]; }
 
 // returns the weight of a node
-double GalaxyLevel::weight(node v) const
-{
-	return m_nodeWeight[v];
-}
+double GalaxyLevel::weight(node v) const { return m_nodeWeight[v]; }
 
 // returns the weight of a node
-double GalaxyLevel::edgeWeight(edge e) const
-{
-	return m_edgeWeight[e];
-}
+double GalaxyLevel::edgeWeight(edge e) const { return m_edgeWeight[e]; }
 
 // sets the weight of a node
-void GalaxyLevel::setWeight(node v, double weight)
-{
-	m_nodeWeight[v] = weight;
-}
+void GalaxyLevel::setWeight(node v, double weight) { m_nodeWeight[v] = weight; }
 
 // sets the edge weight of e
-void GalaxyLevel::setEdgeWeight(edge e, double weight)
-{
-	m_edgeWeight[e] = weight;
-}
+void GalaxyLevel::setEdgeWeight(edge e, double weight) { m_edgeWeight[e] = weight; }
 
 // returns true if this is the level of the original graph
-bool GalaxyLevel::isFinestLevel() const
-{
-	return m_pNextFiner == nullptr;
-}
+bool GalaxyLevel::isFinestLevel() const { return m_pNextFiner == nullptr; }
 
 // returns true if this is coarsest level in the chain
-bool GalaxyLevel::isCoarsestLevel() const
-{
-	return m_pNextCoarser == nullptr;
-}
+bool GalaxyLevel::isCoarsestLevel() const { return m_pNextCoarser == nullptr; }
 
 // return the next coarser one
-GalaxyLevel* GalaxyLevel::nextCoarser()
-{
-	return m_pNextCoarser;
-}
+GalaxyLevel* GalaxyLevel::nextCoarser() { return m_pNextCoarser; }
 
 // return the next finer one
-GalaxyLevel* GalaxyLevel::nextFiner()
-{
-	return m_pNextFiner;
-}
+GalaxyLevel* GalaxyLevel::nextFiner() { return m_pNextFiner; }

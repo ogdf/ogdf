@@ -33,41 +33,37 @@
 
 namespace ogdf {
 
-void MedianPlacer::placeOneLevel(MultilevelGraph &MLG)
-{
+void MedianPlacer::placeOneLevel(MultilevelGraph& MLG) {
 	int level = MLG.getLevel();
-	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
-	{
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr) {
 		placeOneNode(MLG);
 	}
 }
 
-
-void MedianPlacer::placeOneNode(MultilevelGraph &MLG)
-{
+void MedianPlacer::placeOneNode(MultilevelGraph& MLG) {
 	node merged = MLG.undoLastMerge();
 	int i = 0;
 	std::vector<double> xVector;
 	std::vector<double> yVector;
-	for(adjEntry adj : merged->adjEntries) {
+	for (adjEntry adj : merged->adjEntries) {
 		i++;
 		xVector.push_back(MLG.x(adj->twinNode()));
 		yVector.push_back(MLG.y(adj->twinNode()));
 	}
-	std::nth_element(xVector.begin(), xVector.begin()+(i/2), xVector.end());
-	std::nth_element(yVector.begin(), yVector.begin()+(i/2), yVector.end());
-	double x = xVector[i/2];
-	double y = yVector[i/2];
+	std::nth_element(xVector.begin(), xVector.begin() + (i / 2), xVector.end());
+	std::nth_element(yVector.begin(), yVector.begin() + (i / 2), yVector.end());
+	double x = xVector[i / 2];
+	double y = yVector[i / 2];
 	if (i % 2 == 0) {
-		std::nth_element(xVector.begin(), xVector.begin()+(i/2)-1, xVector.end());
-		std::nth_element(yVector.begin(), yVector.begin()+(i/2)-1, yVector.end());
-		x += xVector[i/2 - 1];
-		y += yVector[i/2 - 1];
+		std::nth_element(xVector.begin(), xVector.begin() + (i / 2) - 1, xVector.end());
+		std::nth_element(yVector.begin(), yVector.begin() + (i / 2) - 1, yVector.end());
+		x += xVector[i / 2 - 1];
+		y += yVector[i / 2 - 1];
 		x /= 2.0;
 		y /= 2.0;
 	}
-	MLG.x(merged, x + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
-	MLG.y(merged, y + ((m_randomOffset)?(float)randomDouble(-1.0, 1.0):0.f));
+	MLG.x(merged, x + ((m_randomOffset) ? (float)randomDouble(-1.0, 1.0) : 0.f));
+	MLG.y(merged, y + ((m_randomOffset) ? (float)randomDouble(-1.0, 1.0) : 0.f));
 }
 
 }

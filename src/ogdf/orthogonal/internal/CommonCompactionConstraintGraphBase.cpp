@@ -29,33 +29,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>
 
 namespace ogdf {
 
-CommonCompactionConstraintGraphBase::CommonCompactionConstraintGraphBase(const OrthoRep &OR, const PlanRep &PG, OrthoDir arcDir, int costAssoc)
-  : m_pOR(&OR)
-  , m_pPR(&PG) // only used in detecting cage visibility arcs
-  , m_path(*this)
-  , m_pathNode(OR)
-  , m_edgeToBasicArc(OR, nullptr)
-  , m_cost(*this, costAssoc)
-  , m_type(*this, ConstraintEdgeType::BasicArc)
-  , m_border(*this, false)
-  , m_extraNode(*this, false)
-  , m_arcDir(arcDir)
-  , m_oppArcDir(OR.oppDir(arcDir))
-  , m_originalEdge(*this, nullptr)
-{
-	OGDF_ASSERT(&PG == &(const Graph &)OR);
+CommonCompactionConstraintGraphBase::CommonCompactionConstraintGraphBase(const OrthoRep& OR,
+		const PlanRep& PG, OrthoDir arcDir, int costAssoc)
+	: m_pOR(&OR)
+	, m_pPR(&PG) // only used in detecting cage visibility arcs
+	, m_path(*this)
+	, m_pathNode(OR)
+	, m_edgeToBasicArc(OR, nullptr)
+	, m_cost(*this, costAssoc)
+	, m_type(*this, ConstraintEdgeType::BasicArc)
+	, m_border(*this, false)
+	, m_extraNode(*this, false)
+	, m_arcDir(arcDir)
+	, m_oppArcDir(OR.oppDir(arcDir))
+	, m_originalEdge(*this, nullptr) {
+	OGDF_ASSERT(&PG == &(const Graph&)OR);
 }
 
 // embeds constraint graph such that all sources and sinks lie in a common
 // face
 void CommonCompactionConstraintGraphBase::embed() {
 	NodeArray<bool> onExternal(*this, false);
-	const CombinatorialEmbedding &E = *m_pOR;
+	const CombinatorialEmbedding& E = *m_pOR;
 	face fExternal = E.externalFace();
 
 	for (adjEntry adj : fExternal->entries) {
@@ -118,7 +118,7 @@ void CommonCompactionConstraintGraphBase::embed() {
 //   used in order to serve as sorting criteria for respecting the given
 //   embedding, e.g., when computing visibility arcs and allowing edges
 //   with length 0.
-void CommonCompactionConstraintGraphBase::computeTopologicalSegmentNum(NodeArray<int> &topNum) {
+void CommonCompactionConstraintGraphBase::computeTopologicalSegmentNum(NodeArray<int>& topNum) {
 	NodeArray<int> indeg(*this);
 	ArrayBuffer<node> sources;
 
@@ -152,7 +152,8 @@ void CommonCompactionConstraintGraphBase::computeTopologicalSegmentNum(NodeArray
 
 // remove "arcs" from visibArcs which we already have in the constraint graph
 // (as basic arcs)
-void CommonCompactionConstraintGraphBase::removeRedundantVisibArcs(SListPure<Tuple2<node, node>> &visibArcs) {
+void CommonCompactionConstraintGraphBase::removeRedundantVisibArcs(
+		SListPure<Tuple2<node, node>>& visibArcs) {
 	// bucket sort list of all edges
 	SListPure<edge> all;
 	allEdges(all);
@@ -160,17 +161,15 @@ void CommonCompactionConstraintGraphBase::removeRedundantVisibArcs(SListPure<Tup
 
 	// bucket sort visibArcs
 	struct : public BucketFunc<Tuple2<node, node>> {
-		int getBucket(const Tuple2<node, node> &t) override {
-			return t.x1()->index();
-		}
+		int getBucket(const Tuple2<node, node>& t) override { return t.x1()->index(); }
 	} bucketSrc;
+
 	visibArcs.bucketSort(0, maxNodeIndex(), bucketSrc);
 
 	struct : public BucketFunc<Tuple2<node, node>> {
-		int getBucket(const Tuple2<node, node> &t) override {
-			return t.x2()->index();
-		}
+		int getBucket(const Tuple2<node, node>& t) override { return t.x2()->index(); }
 	} bucketTgt;
+
 	visibArcs.bucketSort(0, maxNodeIndex(), bucketTgt);
 
 	// now, in both lists, arcs are sorted by increasing target index,
@@ -191,22 +190,23 @@ void CommonCompactionConstraintGraphBase::removeRedundantVisibArcs(SListPure<Tup
 		}
 
 		// no more arcs => no more duplicates, so return
-		if (!itAll.valid()) break;
+		if (!itAll.valid()) {
+			break;
+		}
 
 		// if target index is j, we also skip all arcs with target index i
 		// and source index smaller than i
-		while (itAll.valid()
-		    && (*itAll)->target()->index() == j
-		    && (*itAll)->source()->index() < i) {
+		while (itAll.valid() && (*itAll)->target()->index() == j && (*itAll)->source()->index() < i) {
 			++itAll;
 		}
 
 		// no more arcs => no more duplicates, so return
-		if (!itAll.valid()) break;
+		if (!itAll.valid()) {
+			break;
+		}
 
 		// if (i,j) is already present, we delete it from visibArcs
-		if ((*itAll)->source()->index() == i
-		 && (*itAll)->target()->index() == j) {
+		if ((*itAll)->source()->index() == i && (*itAll)->target()->index() == j) {
 			// visibArcs.del(it);
 			if (itPrev.valid()) {
 				visibArcs.delSucc(itPrev);
@@ -246,16 +246,14 @@ void CommonCompactionConstraintGraphBase::removeRedundantVisibArcs(SListPure<Tup
 			node firstn = nullptr, secondn = nullptr;
 			for (node n : m_path[(*it).x1()]) {
 				node en = m_pPR->expandedNode(n);
-				if (en != nullptr
-				 && m_pPR->typeOf(n) == Graph::NodeType::generalizationExpander) {
+				if (en != nullptr && m_pPR->typeOf(n) == Graph::NodeType::generalizationExpander) {
 					firstn = en;
 					break;
 				}
 			}
 			for (node n : m_path[(*it).x2()]) {
 				node en = m_pPR->expandedNode(n);
-				if (en != nullptr
-				 && m_pPR->typeOf(n) == Graph::NodeType::generalizationExpander) {
+				if (en != nullptr && m_pPR->typeOf(n) == Graph::NodeType::generalizationExpander) {
 					secondn = en;
 					break;
 				}
@@ -275,29 +273,28 @@ void CommonCompactionConstraintGraphBase::removeRedundantVisibArcs(SListPure<Tup
 
 #ifdef OGDF_DEBUG
 
-void CommonCompactionConstraintGraphBase::writeGML(const char *filename) const {
+void CommonCompactionConstraintGraphBase::writeGML(const char* filename) const {
 	std::ofstream os(filename);
 	writeGML(os);
 }
 
-void CommonCompactionConstraintGraphBase::writeGML(const char *filename, const NodeArray<bool> &one) const {
+void CommonCompactionConstraintGraphBase::writeGML(const char* filename,
+		const NodeArray<bool>& one) const {
 	std::ofstream os(filename);
 	writeGML(os, one);
 }
 
-void CommonCompactionConstraintGraphBase::writeGML(std::ostream &os) const {
+void CommonCompactionConstraintGraphBase::writeGML(std::ostream& os) const {
 	NodeArray<bool> one(*this, false);
 	writeGML(os, one);
 }
 
-void CommonCompactionConstraintGraphBase::writeGML(std::ostream &os, const NodeArray<bool> &one) const {
-	const Graph &G = *this;
+void CommonCompactionConstraintGraphBase::writeGML(std::ostream& os,
+		const NodeArray<bool>& one) const {
+	const Graph& G = *this;
 	GraphAttributes GA(G,
-	  GraphAttributes::nodeGraphics |
-	  GraphAttributes::nodeStyle |
-	  GraphAttributes::edgeGraphics |
-	  GraphAttributes::edgeLabel |
-	  GraphAttributes::edgeStyle);
+			GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::edgeGraphics
+					| GraphAttributes::edgeLabel | GraphAttributes::edgeStyle);
 
 	GA.directed() = true;
 

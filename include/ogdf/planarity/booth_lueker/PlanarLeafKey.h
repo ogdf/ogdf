@@ -38,15 +38,13 @@ namespace ogdf {
 namespace booth_lueker {
 
 template<class X>
-class PlanarLeafKey : public PQLeafKey<edge,X,bool>
-{
+class PlanarLeafKey : public PQLeafKey<edge, X, bool> {
 public:
-	explicit PlanarLeafKey(edge e) : PQLeafKey<edge,X,bool>(e) { }
+	explicit PlanarLeafKey(edge e) : PQLeafKey<edge, X, bool>(e) { }
 
 	virtual ~PlanarLeafKey() { }
 
-	std::ostream &print(std::ostream &os)
-	{
+	std::ostream& print(std::ostream& os) {
 		int sId = this->m_userStructKey->source()->index();
 		int tId = this->m_userStructKey->target()->index();
 

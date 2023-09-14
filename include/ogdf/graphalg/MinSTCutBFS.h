@@ -32,12 +32,12 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/basic/DualGraph.h>
-#include <ogdf/graphalg/MinSTCutModule.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/graphalg/Dijkstra.h>
+#include <ogdf/graphalg/MinSTCutModule.h>
 
 namespace ogdf {
 
@@ -53,21 +53,21 @@ namespace ogdf {
 template<typename TCost>
 class MinSTCutBFS : public MinSTCutModule<TCost> {
 public:
-	MinSTCutBFS() {	}
+	MinSTCutBFS() { }
 
 	/**
 	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,node,node,List<edge>&,edge)
 	 */
-	virtual bool
-	call(const Graph &graph, node s, node t, List <edge> &edgeList, edge e_st = nullptr) override {
+	virtual bool call(const Graph& graph, node s, node t, List<edge>& edgeList,
+			edge e_st = nullptr) override {
 		return call(graph, nullptr, s, t, edgeList, e_st);
 	}
 
 	/**
 	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
-	virtual bool call(const Graph &graph, const EdgeArray <TCost> &weight, node s, node t,
-	                  List <edge> &edgeList, edge e_st = nullptr) override {
+	virtual bool call(const Graph& graph, const EdgeArray<TCost>& weight, node s, node t,
+			List<edge>& edgeList, edge e_st = nullptr) override {
 		return call(graph, &weight, s, t, edgeList, e_st);
 	}
 
@@ -79,13 +79,13 @@ private:
 	 *
 	 * @copydoc ogdf::MinSTCutModule<TCost>::call(const Graph&,const EdgeArray<TCost>&,node,node,List<edge>&,edge)
 	 */
-	bool call(const Graph &graph, const EdgeArray <TCost> *weight, node s, node t, List <edge> &edgeList, edge e_st);
-
+	bool call(const Graph& graph, const EdgeArray<TCost>* weight, node s, node t,
+			List<edge>& edgeList, edge e_st);
 };
 
 template<typename TCost>
-bool MinSTCutBFS<TCost>::call(const Graph &graph, const EdgeArray <TCost> *weight, node s, node t,
-                              List <edge> &edgeList, edge e_st) {
+bool MinSTCutBFS<TCost>::call(const Graph& graph, const EdgeArray<TCost>* weight, node s, node t,
+		List<edge>& edgeList, edge e_st) {
 	bool weighted = (weight != nullptr);
 	delete m_gc;
 	m_gc = new GraphCopy(graph);
@@ -93,28 +93,29 @@ bool MinSTCutBFS<TCost>::call(const Graph &graph, const EdgeArray <TCost> *weigh
 	GraphCopy m_weightedGc;
 	EdgeArray<edge> mapE(m_weightedGc, nullptr);
 
-	std::function<edge(edge)> orig = [&](edge e) -> edge { return m_gc->original(e);};
+	std::function<edge(edge)> orig = [&](edge e) -> edge { return m_gc->original(e); };
 
-	if(weighted) {
+	if (weighted) {
 		m_weightedGc.init(graph);
-		if(e_st != nullptr) {
+		if (e_st != nullptr) {
 			e_st = m_weightedGc.copy(e_st);
 		}
 		s = m_weightedGc.copy(s);
 		t = m_weightedGc.copy(t);
 		List<edge> edges;
 		graph.allEdges(edges);
-		for(edge e : edges) {
+		for (edge e : edges) {
 			mapE[m_weightedGc.copy(e)] = e;
-			if(m_weightedGc.copy(e) == e_st) {
+			if (m_weightedGc.copy(e) == e_st) {
 				continue;
 			}
 			OGDF_ASSERT((*weight)[e] >= 1);
 			TCost i = 1;
-			for(; i < (*weight)[e]; i++) {
+			for (; i < (*weight)[e]; i++) {
 				edge copyEdge = m_weightedGc.copy(e);
 				edge newEdge = m_weightedGc.newEdge(copyEdge->source(), copyEdge->target());
-				m_weightedGc.move(newEdge, copyEdge->adjSource(), ogdf::Direction::before, copyEdge->adjTarget(), ogdf::Direction::after);
+				m_weightedGc.move(newEdge, copyEdge->adjSource(), ogdf::Direction::before,
+						copyEdge->adjTarget(), ogdf::Direction::after);
 				mapE[newEdge] = e;
 			}
 			OGDF_ASSERT((*weight)[e] == i);
@@ -124,7 +125,7 @@ bool MinSTCutBFS<TCost>::call(const Graph &graph, const EdgeArray <TCost> *weigh
 		delete m_gc;
 		m_gc = new GraphCopy();
 		m_gc->init(m_weightedGc);
-		orig = [&](edge e) -> edge { return mapE[m_gc->original(e)];};
+		orig = [&](edge e) -> edge { return mapE[m_gc->original(e)]; };
 		MinSTCutModule<TCost>::preprocessingDual(m_weightedGc, *m_gc, CE, s, t, e_st);
 	} else {
 		MinSTCutModule<TCost>::preprocessingDual(graph, *m_gc, CE, s, t, e_st);
@@ -197,10 +198,10 @@ bool MinSTCutBFS<TCost>::call(const Graph &graph, const EdgeArray <TCost> *weigh
 			}
 		}
 	}
-	if(weighted) {
+	if (weighted) {
 		auto prevIt = edgeList.begin();
-		for(auto it = prevIt.succ(); it != edgeList.end(); prevIt = it++) {
-			if(*prevIt == *it) {
+		for (auto it = prevIt.succ(); it != edgeList.end(); prevIt = it++) {
+			if (*prevIt == *it) {
 				edgeList.del(prevIt);
 			}
 		}

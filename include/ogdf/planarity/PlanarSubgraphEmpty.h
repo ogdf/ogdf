@@ -43,16 +43,10 @@ namespace ogdf {
 template<typename TCost>
 class PlanarSubgraphEmpty : public PlanarSubgraphModule<TCost> {
 public:
-	virtual PlanarSubgraphEmpty *clone() const override{
-		return new PlanarSubgraphEmpty();
-	}
+	virtual PlanarSubgraphEmpty* clone() const override { return new PlanarSubgraphEmpty(); }
 
-	virtual Module::ReturnType doCall(
-			const Graph &graph,
-			const List<edge> &preferredEdges,
-			List<edge> &delEdges,
-			const EdgeArray<TCost> *pCost,
-			bool preferedImplyPlanar) override{
+	virtual Module::ReturnType doCall(const Graph& graph, const List<edge>& preferredEdges,
+			List<edge>& delEdges, const EdgeArray<TCost>* pCost, bool preferedImplyPlanar) override {
 		graph.allEdges(delEdges);
 		return Module::ReturnType::Feasible;
 	}

@@ -38,26 +38,22 @@ namespace energybased {
 namespace fmmm {
 
 //! Helping data structure for MAARPacking.
-class PackingRowInfo
-{
+class PackingRowInfo {
 	//! Outputstream for PackingRowInfo
-	friend std::ostream &operator<< (std::ostream & output, const PackingRowInfo & A)
-	{
-		output <<" max_height "<<A.max_height<<" total_width "<<A.total_width<<" row_index "
-			<< A.row_index;
+	friend std::ostream& operator<<(std::ostream& output, const PackingRowInfo& A) {
+		output << " max_height " << A.max_height << " total_width " << A.total_width
+			   << " row_index " << A.row_index;
 		return output;
 	}
 
 	//! Inputstream for PackingRowInfo
-	friend std::istream &operator>> (std::istream & input,  PackingRowInfo & A)
-	{
-		input >>A.max_height>>A.total_width>>A.row_index;
+	friend std::istream& operator>>(std::istream& input, PackingRowInfo& A) {
+		input >> A.max_height >> A.total_width >> A.row_index;
 		return input;
 	}
 
 public:
-
-	PackingRowInfo()      //!< constructor
+	PackingRowInfo() //!< constructor
 	{
 		total_width = 0;
 		max_height = 0;
@@ -65,17 +61,21 @@ public:
 	}
 
 	void set_max_height(double h) { max_height = h; }
+
 	void set_total_width(double w) { total_width = w; }
+
 	void set_row_index(int i) { row_index = i; }
 
 	double get_max_height() { return max_height; }
+
 	double get_total_width() { return total_width; }
+
 	int get_row_index() { return row_index; }
 
 private:
-	double max_height;  //!< the maximum height of a rectangle placed in this row
+	double max_height; //!< the maximum height of a rectangle placed in this row
 	double total_width; //!< the sum of the width of all rectsngles in this row
-	int row_index;      //!< the index of the row (first row in packing has index 0)
+	int row_index; //!< the index of the row (first row in packing has index 0)
 };
 
 }

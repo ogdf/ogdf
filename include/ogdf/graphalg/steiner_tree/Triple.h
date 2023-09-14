@@ -43,65 +43,33 @@ namespace steiner_tree {
 template<typename T>
 class Triple {
 public:
-	explicit Triple(const node s0 = nullptr, const node s1 = nullptr, const node s2 = nullptr, const node z = nullptr, T cost = 0, double win = 0)
-	  : m_s0(s0)
-	  , m_s1(s1)
-	  , m_s2(s2)
-	  , m_z(z)
-	  , m_cost(cost)
-	  , m_win(win)
-	{
-	}
+	explicit Triple(const node s0 = nullptr, const node s1 = nullptr, const node s2 = nullptr,
+			const node z = nullptr, T cost = 0, double win = 0)
+		: m_s0(s0), m_s1(s1), m_s2(s2), m_z(z), m_cost(cost), m_win(win) { }
 
-	node s0() const
-	{
-		return m_s0;
-	}
-	node s1() const
-	{
-		return m_s1;
-	}
-	node s2() const
-	{
-		return m_s2;
-	}
-	node z() const
-	{
-		return m_z;
-	}
-	T cost() const
-	{
-		return m_cost;
-	}
-	double win() const
-	{
-		return m_win;
-	}
+	node s0() const { return m_s0; }
 
-	void s0(node u)
-	{
-		m_s0 = u;
-	}
-	void s1(node u)
-	{
-		m_s1 = u;
-	}
-	void s2(node u)
-	{
-		m_s2 = u;
-	}
-	void z(node u)
-	{
-		m_z = u;
-	}
-	void cost(T c)
-	{
-		m_cost = c;
-	}
-	void win(double w)
-	{
-		m_win = w;
-	}
+	node s1() const { return m_s1; }
+
+	node s2() const { return m_s2; }
+
+	node z() const { return m_z; }
+
+	T cost() const { return m_cost; }
+
+	double win() const { return m_win; }
+
+	void s0(node u) { m_s0 = u; }
+
+	void s1(node u) { m_s1 = u; }
+
+	void s2(node u) { m_s2 = u; }
+
+	void z(node u) { m_z = u; }
+
+	void cost(T c) { m_cost = c; }
+
+	void win(double w) { m_win = w; }
 
 private:
 	node m_s0, m_s1, m_s2; //!< terminal nodes

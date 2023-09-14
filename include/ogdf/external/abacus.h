@@ -36,12 +36,12 @@
 
 #include <ogdf/basic/basic.h>
 
-#include <ogdf/lib/abacus/variable.h>
-#include <ogdf/lib/abacus/constraint.h>
-#include <ogdf/lib/abacus/master.h>
-#include <ogdf/lib/abacus/sub.h>
-#include <ogdf/lib/abacus/row.h>
-#include <ogdf/lib/abacus/nonduplpool.h>
 #include <ogdf/lib/abacus/active.h>
 #include <ogdf/lib/abacus/branchrule.h>
 #include <ogdf/lib/abacus/conbranchrule.h>
+#include <ogdf/lib/abacus/constraint.h>
+#include <ogdf/lib/abacus/master.h>
+#include <ogdf/lib/abacus/nonduplpool.h>
+#include <ogdf/lib/abacus/row.h>
+#include <ogdf/lib/abacus/sub.h>
+#include <ogdf/lib/abacus/variable.h>

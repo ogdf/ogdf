@@ -32,9 +32,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
-#include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
 
 namespace ogdf {
 
@@ -42,10 +42,8 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class OGDF_EXPORT CconnectClusterPlanar
-{
+class OGDF_EXPORT CconnectClusterPlanar {
 public:
-
 	//aus CCCPE oder CCCP wieder entfernen
 	enum class ErrorCode {
 		none = 0,
@@ -57,7 +55,6 @@ public:
 
 	ErrorCode errCode() { return m_errorCode; }
 
-
 	//! Constructor.
 	CconnectClusterPlanar();
 
@@ -65,44 +62,36 @@ public:
 	virtual ~CconnectClusterPlanar() { }
 
 	//! Tests if a cluster graph is c-planar.
-	virtual bool call(const ClusterGraph &C);
+	virtual bool call(const ClusterGraph& C);
 
 private:
 	using PlanarPQTree = booth_lueker::PlanarPQTree;
 
 	//! Recursive planarity test for clustered graph induced by \p act.
-	bool planarityTest(ClusterGraph &C, const cluster act, Graph &G);
+	bool planarityTest(ClusterGraph& C, const cluster act, Graph& G);
 
 	//! Preprocessing that initializes data structures, used in call.
-	bool preProcess(ClusterGraph &C,Graph &G);
+	bool preProcess(ClusterGraph& C, Graph& G);
 
 	//! Prepares the planarity test for one cluster.
-	bool preparation(Graph &G, const cluster C, node superSink);
+	bool preparation(Graph& G, const cluster C, node superSink);
 
 	//! Performs a planarity test on a biconnected component.
-	bool doTest(
-		Graph &G,
-		NodeArray<int> &numbering,
-		const cluster cl,
-		node superSink,
-		EdgeArray<edge> &edgeTable);
+	bool doTest(Graph& G, NodeArray<int>& numbering, const cluster cl, node superSink,
+			EdgeArray<edge>& edgeTable);
 
-	void prepareParallelEdges(Graph &G);
+	void prepareParallelEdges(Graph& G);
 
 	//! Constructs the replacement wheel graphs
-	void constructWheelGraph(
-		ClusterGraph &C,
-		Graph &G,
-		cluster &parent,
-		PlanarPQTree* T,
-		EdgeArray<node> &outgoingTable);
+	void constructWheelGraph(ClusterGraph& C, Graph& G, cluster& parent, PlanarPQTree* T,
+			EdgeArray<node>& outgoingTable);
 
 
 	//private Members for handling parallel edges
-	EdgeArray<ListPure<edge> >	m_parallelEdges;
-	EdgeArray<bool>				m_isParallel;
+	EdgeArray<ListPure<edge>> m_parallelEdges;
+	EdgeArray<bool> m_isParallel;
 	ClusterArray<PlanarPQTree*> m_clusterPQTree;
-	int	m_parallelCount;
+	int m_parallelCount;
 
 	ErrorCode m_errorCode;
 };

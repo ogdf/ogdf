@@ -38,15 +38,15 @@
 // for additional planarity checks after each "round"
 //#define OGDF_PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
 
-#if defined(OGDF_PLANAR_AUGMENTATION_FIX_DEBUG) || defined(OGDF_PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK)
- #include <ogdf/basic/extended_graph_alg.h>
- #include <ogdf/basic/simple_graph_alg.h>
+#if defined(OGDF_PLANAR_AUGMENTATION_FIX_DEBUG) \
+		|| defined(OGDF_PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK)
+#	include <ogdf/basic/extended_graph_alg.h>
+#	include <ogdf/basic/simple_graph_alg.h>
 #endif
 
 namespace ogdf {
 
-void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
-{
+void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list) {
 	list.clear();
 	m_pResult = &list;
 
@@ -58,44 +58,46 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << "original graph:" << std::endl;
-	for(node n : m_pGraph->nodes) {
+	for (node n : m_pGraph->nodes) {
 		std::cout << n->index() << ": ";
-		for(adjEntry nAdj : n->adjEntries)
+		for (adjEntry nAdj : n->adjEntries) {
 			std::cout << nAdj << " ";
+		}
 		std::cout << std::endl;
 	}
 #endif
 
 	List<face> faces;
 
-	for(face actFace : m_pEmbedding->faces) {
+	for (face actFace : m_pEmbedding->faces) {
 		faces.pushBack(actFace);
 	}
 
 	m_eCopy.init(*m_pGraph, nullptr);
 	m_graphCopy.createEmpty(*m_pGraph);
 
-	while (faces.size() > 0){
+	while (faces.size() > 0) {
 		face actFace = faces.popFrontRet();
 
 		adjEntry adjOuterFace = nullptr;
 
 		adjEntry adjFirst = actFace->firstAdj();
-		if (m_pEmbedding->leftFace(adjFirst) != actFace)
+		if (m_pEmbedding->leftFace(adjFirst) != actFace) {
 			adjFirst = adjFirst->twin();
+		}
 
 		adjEntry adjFace = adjFirst;
 
-		if (m_pEmbedding->numberOfFaces() == 1){
+		if (m_pEmbedding->numberOfFaces() == 1) {
 			// we just have only one face (this is the outer face)
 			adjOuterFace = adjFace;
 		}
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-		std::cout
-		  << "======================" << std::endl
-		  << "face " << actFace->index() <<":" << std::endl
-		  << adjFace->theNode()->index() << "(" << adjFace << ")"<< ", ";
+		std::cout << "======================" << std::endl
+				  << "face " << actFace->index() << ":" << std::endl
+				  << adjFace->theNode()->index() << "(" << adjFace << ")"
+				  << ", ";
 #endif
 
 		activeNodesList.pushBack(adjFace->theNode());
@@ -104,16 +106,19 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 
 		bool augmentationRequired = false;
 
-		while (adjFace != adjFirst){
-			if ((adjOuterFace == nullptr) && (m_pEmbedding->leftFace(adjFace) != m_pEmbedding->rightFace(adjFace)))
+		while (adjFace != adjFirst) {
+			if ((adjOuterFace == nullptr)
+					&& (m_pEmbedding->leftFace(adjFace) != m_pEmbedding->rightFace(adjFace))) {
 				adjOuterFace = adjFace;
+			}
 
 			if (!activeNodes[adjFace->theNode()]) {
 				activeNodesList.pushBack(adjFace->theNode());
 				activeNodes[adjFace->theNode()] = true;
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-				std::cout << adjFace->theNode()->index() << "(" << adjFace << ")"<< ", ";
+				std::cout << adjFace->theNode()->index() << "(" << adjFace << ")"
+						  << ", ";
 #endif
 			} else {
 				augmentationRequired = true;
@@ -126,17 +131,19 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 			adjFace = adjFace->twin()->cyclicSucc();
 		}
 
-		if (augmentationRequired){
+		if (augmentationRequired) {
 			m_graphCopy.createEmpty(*m_pGraph);
 			m_graphCopy.initByActiveNodes(activeNodesList, activeNodes, m_eCopy);
 			m_graphCopy.setOriginalEmbedding();
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 			std::cout << " graphCopy:" << std::endl;
-			for(node n : m_graphCopy.nodes) {
-				std::cout << n->index() << "(" << (m_graphCopy.original(n))->index() << "):" << std::flush;
-				for(adjEntry nAdj : n->adjEntries) {
-					std::cout << nAdj << "(" << nAdj->theEdge() << "[" << nAdj->index() << "]) " << std::flush;
+			for (node n : m_graphCopy.nodes) {
+				std::cout << n->index() << "(" << (m_graphCopy.original(n))->index()
+						  << "):" << std::flush;
+				for (adjEntry nAdj : n->adjEntries) {
+					std::cout << nAdj << "(" << nAdj->theEdge() << "[" << nAdj->index() << "]) "
+							  << std::flush;
 				}
 				std::cout << std::endl;
 			}
@@ -144,8 +151,9 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 
 			OGDF_ASSERT(adjOuterFace != nullptr);
 			adjEntry adjOuterFaceCopy = (m_graphCopy.copy(adjOuterFace->theEdge()))->adjSource();
-			if (adjOuterFaceCopy->theNode() != m_graphCopy.copy(adjOuterFace->theNode()))
+			if (adjOuterFaceCopy->theNode() != m_graphCopy.copy(adjOuterFace->theNode())) {
 				adjOuterFaceCopy = adjOuterFaceCopy->twin();
+			}
 
 			augment(adjOuterFaceCopy);
 		} else {
@@ -159,7 +167,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 		//  for next iteration
 		for (node v : activeNodesList) {
 			activeNodes[v] = false;
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				m_eCopy[adj->theEdge()] = nullptr;
 			}
 		}
@@ -168,29 +176,27 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list)
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 		std::cout << "======================" << std::endl;
 #endif
-
 	}
 
 	delete m_pEmbedding;
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-	if (isBiconnected(*m_pGraph))
+	if (isBiconnected(*m_pGraph)) {
 		std::cout << " graph is biconnected" << std::endl;
-	else
+	} else {
 		std::cout << " graph is NOT biconnected!!!" << std::endl;
+	}
 
-	if (isPlanar(*m_pGraph))
+	if (isPlanar(*m_pGraph)) {
 		std::cout << " graph is planar" << std::endl;
-	else
+	} else {
 		std::cout << " graph is NOT planar!!!" << std::endl;
+	}
 #endif
 }
 
-
-
 // the main augmentation function
-void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
-{
+void PlanarAugmentationFix::augment(adjEntry adjOuterFace) {
 	CombinatorialEmbedding* actComb = new CombinatorialEmbedding(m_graphCopy);
 	m_pActEmbedding = actComb;
 
@@ -210,8 +216,8 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 	node root = nullptr;
 
 	// init pendants
-	for (node v : m_pBCTree->bcTree().nodes){
-		if (m_pBCTree->parent(v) == nullptr){
+	for (node v : m_pBCTree->bcTree().nodes) {
+		if (m_pBCTree->parent(v) == nullptr) {
 			root = v;
 		}
 		if (v->degree() == 1 && v != bFaceNode) { // pendant
@@ -220,28 +226,29 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 	}
 	OGDF_ASSERT(root);
 
-	if (root != bFaceNode){
+	if (root != bFaceNode) {
 		// change root of the bc-tree to the b-node that includes the actual face
 		modifyBCRoot(root, bFaceNode);
 	}
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << " augment(): pendants:" << std::flush;
-	for(node v : m_pBCTree->bcTree().nodes) {
-		if (m_pBCTree->parent(v) == 0){
+	for (node v : m_pBCTree->bcTree().nodes) {
+		if (m_pBCTree->parent(v) == 0) {
 			std::cout << "[root: " << v->index() << std::flush;
-			if (m_pBCTree->typeOfBNode(v) == BCTree::BNodeType::BComp)
+			if (m_pBCTree->typeOfBNode(v) == BCTree::BNodeType::BComp) {
 				std::cout << "(b)], " << std::flush;
-			else
+			} else {
 				std::cout << "(c)], " << std::flush;
-		}
-		if (v->degree() == 1){
-			// pendant
-			if (v != bFaceNode){
-				std::cout << v->index() << ", " << std::flush;
 			}
-			else
+		}
+		if (v->degree() == 1) {
+			// pendant
+			if (v != bFaceNode) {
+				std::cout << v->index() << ", " << std::flush;
+			} else {
 				std::cout << v->index() << "(is root), " << std::flush;
+			}
 		}
 	}
 	std::cout << std::endl;
@@ -256,18 +263,16 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 	}
 
 	// main augmentation loop
-	while (m_labels.size() > 0){
-
+	while (m_labels.size() > 0) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-		std::cout
-		  << std::endl
-		  << " *-----------------------------------" << std::endl
-		  << " * augment(): #labels  : " << m_labels.size() << std::endl;
+		std::cout << std::endl
+				  << " *-----------------------------------" << std::endl
+				  << " * augment(): #labels  : " << m_labels.size() << std::endl;
 
 		int lNr = 1;
 		for (pa_label label : m_labels) {
 			std::cout << " * label in list with position " << lNr << " : " << std::flush;
-			for(node v : label->m_pendants) {
+			for (node v : label->m_pendants) {
 				std::cout << v->index() << " " << std::flush;
 			}
 			std::cout << std::endl;
@@ -277,38 +282,38 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 #endif
 
 
-		if (m_labels.size() == 1){
+		if (m_labels.size() == 1) {
 			connectSingleLabel();
-		}
-		else{
+		} else {
 			node pendant1, pendant2;
 			adjEntry adjV1, adjV2;
 			bool foundMatching = findMatching(pendant1, pendant2, adjV1, adjV2);
-			if (!foundMatching)
+			if (!foundMatching) {
 				findMatchingRev(pendant1, pendant2, adjV1, adjV2);
+			}
 
 			connectPendants(pendant1, pendant2, adjV1, adjV2);
 		}
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
-		if (isPlanar(m_graphCopy))
+		if (isPlanar(m_graphCopy)) {
 			std::cout << " graphCopy is planar" << std::endl;
-		else{
+		} else {
 			std::cout << " graphCopy is NOT planar!!!" << std::endl;
 		}
 #endif
 	}
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
-	if (isBiconnected(m_graphCopy))
+	if (isBiconnected(m_graphCopy)) {
 		std::cout << " graphCopy is biconnected" << std::endl;
-	else{
+	} else {
 		std::cout << " graphCopy is NOT biconnected!!!" << std::endl;
 	}
 
-	if (isPlanar(m_graphCopy))
+	if (isPlanar(m_graphCopy)) {
 		std::cout << " graphCopy is planar" << std::endl;
-	else{
+	} else {
 		std::cout << " graphCopy is NOT planar!!!" << std::endl;
 	}
 #endif
@@ -319,15 +324,15 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 	delete actBCTree;
 }
 
-void PlanarAugmentationFix::reduceChain(node pendant)
-{
+void PlanarAugmentationFix::reduceChain(node pendant) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << "reduceChain() " << pendant->index();
-	if (m_pBCTree->typeOfBNode(pendant) == BCTree::BNodeType::BComp)
-		std::cout << "[b]"<< std::flush;
-	else
-		std::cout << "[c]"<< std::flush;
- #endif
+	if (m_pBCTree->typeOfBNode(pendant) == BCTree::BNodeType::BComp) {
+		std::cout << "[b]" << std::flush;
+	} else {
+		std::cout << "[c]" << std::flush;
+	}
+#endif
 
 	// parent = parent of pendant in the BC-Tree
 	// if pendant is the root, then parent == 0
@@ -343,7 +348,7 @@ void PlanarAugmentationFix::reduceChain(node pendant)
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << ", stopCause == ";
-	switch(stopCause){
+	switch (stopCause) {
 	case PALabel::StopCause::Planarity:
 		// cannot occur
 		break;
@@ -359,11 +364,11 @@ void PlanarAugmentationFix::reduceChain(node pendant)
 	}
 #endif
 
-	if (stopCause == PALabel::StopCause::CDegree || stopCause == PALabel::StopCause::Root){
-
-		if (m_isLabel[last].valid()){
+	if (stopCause == PALabel::StopCause::CDegree || stopCause == PALabel::StopCause::Root) {
+		if (m_isLabel[last].valid()) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-			std::cout << "reduceChain(): add " << pendant->index() << " to another label" << std::endl;
+			std::cout << "reduceChain(): add " << pendant->index() << " to another label"
+					  << std::endl;
 #endif
 			// label that last is the head of
 			pa_label label = *m_isLabel[last];
@@ -373,55 +378,56 @@ void PlanarAugmentationFix::reduceChain(node pendant)
 			label->stopCause(stopCause);
 		} else {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-			std::cout << "reduceChain(): creating a new label with pendant " << pendant->index() << std::endl;
+			std::cout << "reduceChain(): creating a new label with pendant " << pendant->index()
+					  << std::endl;
 #endif
-			newLabel(last, nullptr,  pendant, stopCause);
+			newLabel(last, nullptr, pendant, stopCause);
 		}
-	}
-	else{
+	} else {
 		// stopCause == PALabel::StopCause::BDegree
 		parent = m_pBCTree->parent(last);
 
-		if (m_isLabel[parent].valid()){
+		if (m_isLabel[parent].valid()) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-			std::cout << "reduceChain(): add " << pendant->index() << " to another label" << std::endl;
+			std::cout << "reduceChain(): add " << pendant->index() << " to another label"
+					  << std::endl;
 #endif
 			addPendant(pendant, *m_isLabel[parent]);
 		} else {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-			std::cout << "reduceChain(): creating a new label with pendant " << pendant->index() << std::endl;
+			std::cout << "reduceChain(): creating a new label with pendant " << pendant->index()
+					  << std::endl;
 #endif
 			newLabel(last, parent, pendant, PALabel::StopCause::BDegree);
 		}
 	}
 }
 
-PALabel::StopCause PlanarAugmentationFix::followPath(node v, node& last)
-{
+PALabel::StopCause PlanarAugmentationFix::followPath(node v, node& last) {
 	last = nullptr;
 	node bcNode = m_pBCTree->find(v);
 
-	if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp){
+	if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp) {
 		last = bcNode;
 	}
 
-	while (bcNode != nullptr){
+	while (bcNode != nullptr) {
 		int deg = m_pBCTree->m_bNode_degree[bcNode];
 
-		if (deg > 2){
-			if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp){
+		if (deg > 2) {
+			if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp) {
 				last = bcNode;
 				return PALabel::StopCause::CDegree;
-			}
-			else{
-				if (m_pBCTree->DynamicBCTree::parent(bcNode) == nullptr)
+			} else {
+				if (m_pBCTree->DynamicBCTree::parent(bcNode) == nullptr) {
 					return PALabel::StopCause::Root;
-				else
+				} else {
 					return PALabel::StopCause::BDegree;
+				}
 			}
 		}
 
-		if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp){
+		if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp) {
 			last = bcNode;
 		}
 
@@ -431,8 +437,8 @@ PALabel::StopCause PlanarAugmentationFix::followPath(node v, node& last)
 	return PALabel::StopCause::Root;
 }
 
-bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntry& adjV1, adjEntry& adjV2)
-{
+bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntry& adjV1,
+		adjEntry& adjV2) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << "findMatching()" << std::endl;
 #endif
@@ -445,15 +451,15 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 
 	node cutV = m_pBCTree->m_hNode_gNode[m_pBCTree->m_bNode_hParNode[pendant1]];
 	adjEntry adj = cutV->firstAdj();
-	if (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == pendant1){
-		while (m_pBCTree->DynamicBCTree::bcproper(adj->twinNode()) == pendant1){
+	if (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == pendant1) {
+		while (m_pBCTree->DynamicBCTree::bcproper(adj->twinNode()) == pendant1) {
 			adjV1 = adj->twin();
 			adj = adj->cyclicSucc();
 		}
-	}
-	else{
-		while (m_pBCTree->DynamicBCTree::bcproper(adj->twinNode()) != pendant1)
+	} else {
+		while (m_pBCTree->DynamicBCTree::bcproper(adj->twinNode()) != pendant1) {
 			adj = adj->cyclicPred();
+		}
 		adjV1 = adj->twin();
 		adj = adj->cyclicSucc();
 	}
@@ -469,54 +475,53 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 	node cutvBFNode = nullptr;
 	bool dominatingTree = false;
 
-	while (loop){
-
-		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::GNodeType::CutVertex){
-			if (!dominatingTree){
-				if (adj->theNode() == cutvBFNode){
+	while (loop) {
+		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::GNodeType::CutVertex) {
+			if (!dominatingTree) {
+				if (adj->theNode() == cutvBFNode) {
 					dominatingTree = true;
-				}
-				else{
-					if ((cutvBFNode == nullptr) && (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == m_actBCRoot))
+				} else {
+					if ((cutvBFNode == nullptr)
+							&& (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == m_actBCRoot)) {
 						cutvBFNode = adj->theNode();
+					}
 				}
 			}
-		}
-		else{
+		} else {
 			node actPendant = m_pBCTree->DynamicBCTree::bcproper(adj->theNode());
 
-			if ((m_pBCTree->m_bNode_degree[actPendant] == 1) && (actPendant != m_actBCRoot) && (actPendant != pendant1)){
-
-				if (m_belongsTo[actPendant] == label){
+			if ((m_pBCTree->m_bNode_degree[actPendant] == 1) && (actPendant != m_actBCRoot)
+					&& (actPendant != pendant1)) {
+				if (m_belongsTo[actPendant] == label) {
 					// found pendant of same label
 					adjV1 = adj->cyclicPred();
 					pendant1 = actPendant;
 					label->m_pendants.del(m_belongsToIt[pendant1]);
 					m_belongsToIt[pendant1] = label->m_pendants.pushFront(pendant1);
-					if (dominatingTree){
+					if (dominatingTree) {
 						cutvBFNode = nullptr;
-					 }
-				}
-				else{
+					}
+				} else {
 					// found pendant of different label
-					if (dominatingTree){
+					if (dominatingTree) {
 						// we have a dominating tree
-						if (cutvBFNode != nullptr){
+						if (cutvBFNode != nullptr) {
 							// corrupt situation
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-							std::cout << "findMatching(): found dominating tree: corrupt situation " << std::endl;
+							std::cout << "findMatching(): found dominating tree: corrupt situation "
+									  << std::endl;
 #endif
 
 							pendant1 = pendantFirst;
 							loop = false;
 							found = false;
-						}
-						else{
+						} else {
 							// correct situation
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-							std::cout << "findMatching(): found dominating tree: correct situation " << std::endl;
+							std::cout << "findMatching(): found dominating tree: correct situation "
+									  << std::endl;
 #endif
 
 							adjV2 = adj->cyclicPred();
@@ -524,8 +529,7 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 							loop = false;
 							found = true;
 						}
-					}
-					else{
+					} else {
 						// no dominating tree
 						adjV2 = adj->cyclicPred();
 						pendant2 = actPendant;
@@ -540,14 +544,14 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 	}
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-	std::cout << "findMatching() finished with found == "<< found << std::endl;
+	std::cout << "findMatching() finished with found == " << found << std::endl;
 #endif
 
 	return found;
 }
 
-void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjEntry& adjV1, adjEntry& adjV2)
-{
+void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjEntry& adjV1,
+		adjEntry& adjV2) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << "findMatchingRev() " << std::endl;
 #endif
@@ -559,43 +563,38 @@ void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjE
 
 	node cutV = m_pBCTree->m_hNode_gNode[m_pBCTree->m_bNode_hParNode[pendant1]];
 	adjEntry adj = cutV->firstAdj();
-	if (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == pendant1){
-		while (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == pendant1){
+	if (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == pendant1) {
+		while (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == pendant1) {
 			adjV1 = adj->twin();
 			adj = adj->cyclicPred();
 		}
-	}
-	else{
-		while (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) != pendant1)
+	} else {
+		while (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) != pendant1) {
 			adj = adj->cyclicSucc();
+		}
 		adjV1 = adj->twin();
 		adj = adj->cyclicPred();
 	}
 
 	bool loop = true;
 
-	while (loop){
-
-		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::GNodeType::Normal){
-
+	while (loop) {
+		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::GNodeType::Normal) {
 			node actPendant = m_pBCTree->DynamicBCTree::bcproper(adj->theNode());
 
-			if (m_pBCTree->m_bNode_degree[actPendant] == 1){
-
-				if (m_belongsTo[actPendant] == label){
+			if (m_pBCTree->m_bNode_degree[actPendant] == 1) {
+				if (m_belongsTo[actPendant] == label) {
 					// found pendant of same label
 					adjV1 = adj;
 					pendant1 = actPendant;
 					label->m_pendants.del(m_belongsToIt[pendant1]);
 					m_belongsToIt[pendant1] = label->m_pendants.pushBack(pendant1);
-				}
-				else{
+				} else {
 					// found pendant of different label
 					adjV2 = adj;
 					pendant2 = actPendant;
 					loop = false;
 				}
-
 			}
 		}
 
@@ -603,23 +602,26 @@ void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjE
 	}
 }
 
-void PlanarAugmentationFix::connectPendants(node pendant1, node pendant2, adjEntry adjV1, adjEntry adjV2)
-{
+void PlanarAugmentationFix::connectPendants(node pendant1, node pendant2, adjEntry adjV1,
+		adjEntry adjV2) {
 	edge newEdgeCopy = m_pActEmbedding->splitFace(adjV1, adjV2);
 
 	adjEntry adjOrigV1 = (m_graphCopy.original(adjV1->theEdge()))->adjSource();
-	if (adjOrigV1->theNode() != m_graphCopy.original(adjV1->theNode()))
+	if (adjOrigV1->theNode() != m_graphCopy.original(adjV1->theNode())) {
 		adjOrigV1 = adjOrigV1->twin();
+	}
 
 	adjEntry adjOrigV2 = (m_graphCopy.original(adjV2->theEdge()))->adjSource();
-	if (adjOrigV2->theNode() != m_graphCopy.original(adjV2->theNode()))
+	if (adjOrigV2->theNode() != m_graphCopy.original(adjV2->theNode())) {
 		adjOrigV2 = adjOrigV2->twin();
+	}
 
 	edge newEdgeOrig = m_pEmbedding->splitFace(adjOrigV1, adjOrigV2);
 	m_pResult->pushBack(newEdgeOrig);
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-	std::cout << "connectPendants(" << pendant1->index() << ", " << pendant2->index() << ", " << adjV1 << ", " << adjV2 << ")" << std::endl;
+	std::cout << "connectPendants(" << pendant1->index() << ", " << pendant2->index() << ", "
+			  << adjV1 << ", " << adjV2 << ")" << std::endl;
 	std::cout << "                leads to edge " << newEdgeCopy << std::endl;
 	std::cout << "                and new edge in the orig. " << newEdgeOrig << std::endl;
 #endif
@@ -633,44 +635,42 @@ void PlanarAugmentationFix::connectPendants(node pendant1, node pendant2, adjEnt
 	deletePendant(pendant1);
 	deletePendant(pendant2);
 
-	if (l2->size() > 0){
-		if (l2->size() == 1){
+	if (l2->size() > 0) {
+		if (l2->size() == 1) {
 			node pendant = l2->getFirstPendant();
 			deleteLabel(l2);
 			reduceChain(pendant);
-		}
-		else{
+		} else {
 			removeLabel(l2);
 			insertLabel(l2);
 		}
-	}
-	else
+	} else {
 		deleteLabel(l2);
+	}
 
-	if (l1->size() > 0){
-		if (l1->size() == 1){
+	if (l1->size() > 0) {
+		if (l1->size() == 1) {
 			node pendant = l1->getFirstPendant();
 			deleteLabel(l1);
 			reduceChain(pendant);
-		}
-		else{
+		} else {
 			removeLabel(l1);
 			insertLabel(l1);
 		}
-	}
-	else
+	} else {
 		deleteLabel(l1);
+	}
 
 	m_actBCRoot = m_pBCTree->find(m_actBCRoot);
 
 	node bcNode = m_pBCTree->DynamicBCTree::bcproper(newEdgeCopy);
 	if ((bcNode != pendant1) && (bcNode != pendant2) && (m_pBCTree->m_bNode_degree[bcNode] == 1)
-	&& (bcNode != m_actBCRoot))
+			&& (bcNode != m_actBCRoot)) {
 		reduceChain(bcNode);
+	}
 }
 
-void PlanarAugmentationFix::connectSingleLabel()
-{
+void PlanarAugmentationFix::connectSingleLabel() {
 	pa_label label = m_labels.front();
 	node pendant1 = label->getFirstPendant();
 
@@ -678,14 +678,14 @@ void PlanarAugmentationFix::connectSingleLabel()
 	adjEntry adjRun = cutV->firstAdj();
 	m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge());
 
-	if (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1){
-		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1){
+	if (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1) {
+		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1) {
 			adjRun = adjRun->cyclicSucc();
 		}
-	}
-	else{
-		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) != pendant1)
+	} else {
+		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) != pendant1) {
 			adjRun = adjRun->cyclicPred();
+		}
 		adjRun = adjRun->cyclicSucc();
 	}
 	adjEntry adj = adjRun->twin();
@@ -698,14 +698,14 @@ void PlanarAugmentationFix::connectSingleLabel()
 		singleEdgePendant = true;
 	}
 
-	std::cout
-	  << "connectSinlgeLabel(): cutv=" << cutV << ", adj=" << adj << ", adjRun=" << adjRun << "(pred=" << adjRun->cyclicPred() <<")"
-	  << ", adjFirst=" << adjFirst << ", singleEdgePendant=" << singleEdgePendant << std::endl;
+	std::cout << "connectSinlgeLabel(): cutv=" << cutV << ", adj=" << adj << ", adjRun=" << adjRun
+			  << "(pred=" << adjRun->cyclicPred() << ")"
+			  << ", adjFirst=" << adjFirst << ", singleEdgePendant=" << singleEdgePendant
+			  << std::endl;
 #endif
 
-	if (label->size() > 1){
-
-		bool connectLeft  = false;
+	if (label->size() > 1) {
+		bool connectLeft = false;
 		bool connectRight = false;
 		node adjBNode = nullptr;
 		node lastConnectedPendant = nullptr;
@@ -716,27 +716,25 @@ void PlanarAugmentationFix::connectSingleLabel()
 		adjBNode = m_pBCTree->bcproper(adj->theEdge());
 
 		// first connect pendants "on the right" of the first pendant
-		while (loop){
-
-			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::GNodeType::CutVertex){
-				if (adjRun->theNode() == cutvBFNode){
+		while (loop) {
+			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::GNodeType::CutVertex) {
+				if (adjRun->theNode() == cutvBFNode) {
 					loop = false;
-				}
-				else{
-					if ((cutvBFNode == nullptr) && (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot))
+				} else {
+					if ((cutvBFNode == nullptr)
+							&& (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot)) {
 						cutvBFNode = adjRun->theNode();
+					}
 				}
-			}
-			else{
+			} else {
 				node actPendant = m_pBCTree->DynamicBCTree::bcproper(adjRun->theNode());
 
 				if ((m_pBCTree->m_bNode_degree[actPendant] == 1)
-				&& (actPendant != m_pBCTree->find(adjBNode))
-				&& (actPendant != lastConnectedPendant)
-				&& (actPendant != m_actBCRoot)){
-
-					if (!connectRight)
+						&& (actPendant != m_pBCTree->find(adjBNode))
+						&& (actPendant != lastConnectedPendant) && (actPendant != m_actBCRoot)) {
+					if (!connectRight) {
 						connectRight = true;
+					}
 
 					lastConnectedPendant = actPendant;
 					adjRun = adjRun->cyclicPred();
@@ -744,19 +742,23 @@ void PlanarAugmentationFix::connectSingleLabel()
 					edge newEdgeCopy = m_pActEmbedding->splitFace(adj, adjRun);
 
 					adjEntry adjOrigV1 = (m_graphCopy.original(adj->theEdge()))->adjSource();
-					if (adjOrigV1->theNode() != m_graphCopy.original(adj->theNode()))
+					if (adjOrigV1->theNode() != m_graphCopy.original(adj->theNode())) {
 						adjOrigV1 = adjOrigV1->twin();
+					}
 					adjEntry adjOrigV2 = (m_graphCopy.original(adjRun->theEdge()))->adjSource();
-					if (adjOrigV2->theNode() != m_graphCopy.original(adjRun->theNode()))
+					if (adjOrigV2->theNode() != m_graphCopy.original(adjRun->theNode())) {
 						adjOrigV2 = adjOrigV2->twin();
+					}
 
 					edge newEdgeOrig = m_pEmbedding->splitFace(adjOrigV1, adjOrigV2);
 					m_pResult->pushBack(newEdgeOrig);
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-					std::cout << "connectSingleLabel(): splitFace (on the right) with " << adj << " and " << adjRun << std::endl;
+					std::cout << "connectSingleLabel(): splitFace (on the right) with " << adj
+							  << " and " << adjRun << std::endl;
 					std::cout << "                      leads to edge " << newEdgeCopy << std::endl;
-					std::cout << "                      newEdge in the orig. graph " << newEdgeOrig << std::endl;
+					std::cout << "                      newEdge in the orig. graph " << newEdgeOrig
+							  << std::endl;
 #endif
 
 					m_graphCopy.setEdge(newEdgeOrig, newEdgeCopy);
@@ -768,51 +770,54 @@ void PlanarAugmentationFix::connectSingleLabel()
 
 		// now connect pendants "on the left" of the first pendant
 		adjRun = adjFirst->twin();
-		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1)
+		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1) {
 			adjRun = adjRun->cyclicPred();
+		}
 		adj = adjRun->cyclicSucc()->twin();
 
 		cutvBFNode = nullptr;
 		loop = true;
 
-		while (loop){
-
-			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::GNodeType::CutVertex){
-				if (adjRun->theNode() == cutvBFNode){
+		while (loop) {
+			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::GNodeType::CutVertex) {
+				if (adjRun->theNode() == cutvBFNode) {
 					loop = false;
-				}
-				else{
-					if ((cutvBFNode == nullptr) && (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot))
+				} else {
+					if ((cutvBFNode == nullptr)
+							&& (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot)) {
 						cutvBFNode = adjRun->theNode();
+					}
 				}
-			}
-			else{
+			} else {
 				node actPendant = m_pBCTree->DynamicBCTree::bcproper(adjRun->theNode());
-				if  ((m_pBCTree->m_bNode_degree[actPendant] == 1)
-				&& (actPendant != m_pBCTree->find(adjBNode))
-				&& (actPendant != lastConnectedPendant)
-				&& (actPendant != m_actBCRoot)){
-
-					if (!connectLeft)
+				if ((m_pBCTree->m_bNode_degree[actPendant] == 1)
+						&& (actPendant != m_pBCTree->find(adjBNode))
+						&& (actPendant != lastConnectedPendant) && (actPendant != m_actBCRoot)) {
+					if (!connectLeft) {
 						connectLeft = true;
+					}
 
 					lastConnectedPendant = actPendant;
 					edge newEdgeCopy = m_pActEmbedding->splitFace(adj, adjRun);
 
 					adjEntry adjOrigV1 = (m_graphCopy.original(adj->theEdge()))->adjSource();
-					if (adjOrigV1->theNode() != m_graphCopy.original(adj->theNode()))
+					if (adjOrigV1->theNode() != m_graphCopy.original(adj->theNode())) {
 						adjOrigV1 = adjOrigV1->twin();
+					}
 					adjEntry adjOrigV2 = (m_graphCopy.original(adjRun->theEdge()))->adjSource();
-					if (adjOrigV2->theNode() != m_graphCopy.original(adjRun->theNode()))
+					if (adjOrigV2->theNode() != m_graphCopy.original(adjRun->theNode())) {
 						adjOrigV2 = adjOrigV2->twin();
+					}
 
 					edge newEdgeOrig = m_pEmbedding->splitFace(adjOrigV1, adjOrigV2);
 					m_pResult->pushBack(newEdgeOrig);
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-					std::cout << "connectSingleLabel(): splitFace (on the left) with " << adj << " and " << adjRun << std::endl;
+					std::cout << "connectSingleLabel(): splitFace (on the left) with " << adj
+							  << " and " << adjRun << std::endl;
 					std::cout << "                      leads to edge " << newEdgeCopy << std::endl;
-					std::cout << "                      newEdge in the orig. graph " << newEdgeOrig << std::endl;
+					std::cout << "                      newEdge in the orig. graph " << newEdgeOrig
+							  << std::endl;
 #endif
 
 					m_graphCopy.setEdge(newEdgeOrig, newEdgeCopy);
@@ -826,7 +831,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 
 	adjRun = adj->cyclicSucc();
 
-	while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theNode()) != m_pBCTree->find(m_actBCRoot)){
+	while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theNode()) != m_pBCTree->find(m_actBCRoot)) {
 		adjRun = adjRun->twin()->cyclicSucc();
 	}
 	adjRun = adjRun->cyclicPred();
@@ -834,17 +839,20 @@ void PlanarAugmentationFix::connectSingleLabel()
 	edge newEdgeCopy = m_pActEmbedding->splitFace(adj, adjRun);
 
 	adjEntry adjOrigV1 = (m_graphCopy.original(adj->theEdge()))->adjSource();
-	if (adjOrigV1->theNode() != m_graphCopy.original(adj->theNode()))
+	if (adjOrigV1->theNode() != m_graphCopy.original(adj->theNode())) {
 		adjOrigV1 = adjOrigV1->twin();
+	}
 	adjEntry adjOrigV2 = (m_graphCopy.original(adjRun->theEdge()))->adjSource();
-	if (adjOrigV2->theNode() != m_graphCopy.original(adjRun->theNode()))
+	if (adjOrigV2->theNode() != m_graphCopy.original(adjRun->theNode())) {
 		adjOrigV2 = adjOrigV2->twin();
+	}
 
 	edge newEdgeOrig = m_pEmbedding->splitFace(adjOrigV1, adjOrigV2);
 	m_pResult->pushBack(newEdgeOrig);
 
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
-	std::cout << "connectSingleLabel(): splitFace (last edge) with " << adj << " and " << adjRun << std::endl;
+	std::cout << "connectSingleLabel(): splitFace (last edge) with " << adj << " and " << adjRun
+			  << std::endl;
 	std::cout << "                      leads to edge " << newEdgeCopy << std::endl;
 	std::cout << "                      newEdge in the orig. graph " << newEdgeOrig << std::endl;
 #endif
@@ -854,29 +862,30 @@ void PlanarAugmentationFix::connectSingleLabel()
 	deleteLabel(label);
 }
 
-pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node pendant, PALabel::StopCause whyStop)
-{
+pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node pendant,
+		PALabel::StopCause whyStop) {
 	pa_label label;
 	label = new PALabel(parent, cutvertex, whyStop);
 
 	m_belongsTo[pendant] = label;
 	m_belongsToIt[pendant] = (label->m_pendants).pushBack(pendant);
 
-	if (parent != nullptr)
+	if (parent != nullptr) {
 		m_isLabel[parent] = m_labels.pushBack(label);
-	else
+	} else {
 		m_isLabel[cutvertex] = m_labels.pushBack(label);
+	}
 
 	return label;
 }
 
-void PlanarAugmentationFix::deleteLabel(pa_label& label){
+void PlanarAugmentationFix::deleteLabel(pa_label& label) {
 	ListIterator<pa_label> labelIt = m_isLabel[label->parent()];
 
 	m_labels.del(labelIt);
 	m_isLabel[label->parent()] = nullptr;
 
-	for(node v : label->m_pendants) {
+	for (node v : label->m_pendants) {
 		m_belongsTo[v] = nullptr;
 		m_belongsToIt[v] = nullptr;
 	}
@@ -885,14 +894,13 @@ void PlanarAugmentationFix::deleteLabel(pa_label& label){
 	label = nullptr;
 }
 
-void PlanarAugmentationFix::removeLabel(pa_label& label){
+void PlanarAugmentationFix::removeLabel(pa_label& label) {
 	ListIterator<pa_label> labelIt = m_isLabel[label->parent()];
 
 	m_labels.del(labelIt);
 }
 
-void PlanarAugmentationFix::addPendant(node pendant, pa_label& label)
-{
+void PlanarAugmentationFix::addPendant(node pendant, pa_label& label) {
 	m_belongsTo[pendant] = label;
 	m_belongsToIt[pendant] = (label->m_pendants).pushBack(pendant);
 
@@ -902,41 +910,39 @@ void PlanarAugmentationFix::addPendant(node pendant, pa_label& label)
 	m_isLabel[newParent] = insertLabel(label);
 }
 
-void PlanarAugmentationFix::deletePendant(node pendant){
+void PlanarAugmentationFix::deletePendant(node pendant) {
 	(m_belongsTo[pendant])->removePendant(m_belongsToIt[pendant]);
 	m_belongsTo[pendant] = nullptr;
 	m_belongsToIt[pendant] = nullptr;
 }
 
-ListIterator<pa_label> PlanarAugmentationFix::insertLabel(pa_label label)
-{
-	if (m_labels.size() == 0){
+ListIterator<pa_label> PlanarAugmentationFix::insertLabel(pa_label label) {
+	if (m_labels.size() == 0) {
 		return m_labels.pushFront(label);
-	}
-	else{
+	} else {
 		ListIterator<pa_label> it = m_labels.begin();
-		while (it.valid() && ((*it)->size() > label->size())){
+		while (it.valid() && ((*it)->size() > label->size())) {
 			++it;
 		}
-		if (!it.valid())
+		if (!it.valid()) {
 			return m_labels.pushBack(label);
-		else
+		} else {
 			return m_labels.insert(label, it, Direction::before);
+		}
 	}
 }
 
-void PlanarAugmentationFix::modifyBCRoot(node oldRoot, node newRoot)
-{
+void PlanarAugmentationFix::modifyBCRoot(node oldRoot, node newRoot) {
 #ifdef OGDF_PLANAR_AUGMENTATION_FIX_DEBUG
 	std::cout << "modifyBCRoot()" << std::endl;
 #endif
 
-	SList<node> *path = m_pBCTree->findPathBCTree(oldRoot, newRoot);
+	SList<node>* path = m_pBCTree->findPathBCTree(oldRoot, newRoot);
 	SListIterator<node> it = path->begin();
 	SListIterator<node> it2 = path->begin();
 
-	while (it.valid()){
-		if (it2 != it){
+	while (it.valid()) {
+		if (it2 != it) {
 			changeBCRoot((*it2), (*it));
 		}
 
@@ -947,8 +953,7 @@ void PlanarAugmentationFix::modifyBCRoot(node oldRoot, node newRoot)
 	delete path;
 }
 
-void PlanarAugmentationFix::changeBCRoot(node oldRoot, node newRoot)
-{
+void PlanarAugmentationFix::changeBCRoot(node oldRoot, node newRoot) {
 	//   for the old root:
 	m_pBCTree->m_bNode_hRefNode[oldRoot] = m_pBCTree->m_bNode_hParNode[newRoot];
 	m_pBCTree->m_bNode_hParNode[oldRoot] = m_pBCTree->m_bNode_hRefNode[newRoot];

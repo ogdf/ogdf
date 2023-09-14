@@ -1,0 +1,46 @@
+#/usr/bin/env sh
+#
+# If you accidentally commited to master instead of a new branch,
+# use this script with a new branch as argument. Then the commits
+# are moved to that new branch and master is reset to origin/master.
+#
+# Author: Stephan Beyer
+
+NEWBRANCH="$1"
+WRONGBRANCH=master
+RESETTO=origin/master
+
+if [ -z "$NEWBRANCH" ]
+then
+	echo "Usage: $0 new-branch-name"
+	exit 1
+fi
+
+if [ "$(git rev-parse --abbrev-ref HEAD)" != "$WRONGBRANCH" ]
+then
+	echo "You have to invoke this script on $WRONGBRANCH."
+	exit 2
+fi
+
+if [ "$(git rev-parse "$WRONGBRANCH")" = "$(git rev-parse "$RESETTO")" ]
+then
+	echo "No unpushed commits on $WRONGBRANCH. Nothing to do."
+	exit 1
+fi
+
+if ! git diff-index --quiet HEAD --ignore-submodules --
+then
+	echo "Error: there are unstaged/uncommited changes!"
+	exit 2
+fi
+
+if [ -n "$(git branch --list "$NEWBRANCH")" ]
+then
+	echo "Error: branch $NEWBRANCH already exists."
+	exit 2
+fi
+
+git branch $NEWBRANCH &&
+git reset --hard $RESETTO &&
+git checkout $NEWBRANCH &&
+echo "Succesfully moved commits to new branch $NEWBRANCH"

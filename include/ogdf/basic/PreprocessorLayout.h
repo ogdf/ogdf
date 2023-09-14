@@ -31,8 +31,9 @@
 
 #pragma once
 
-#include <memory>
 #include <ogdf/energybased/multilevel_mixer/MultilevelLayoutModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -47,19 +48,16 @@ namespace ogdf {
  * After the layout has been computed, the edges are inserted back into the
  * graph, as they may have been relevant for the user.
  */
-class OGDF_EXPORT PreprocessorLayout : public MultilevelLayoutModule
-{
+class OGDF_EXPORT PreprocessorLayout : public MultilevelLayoutModule {
 private:
 	/** \brief Deleted Edges are stored in EdgeData
 	 *
 	 * EdgeData stores the deleted edges to allow restauration of the original
 	 * graph after the layout has been computed.
 	 */
-	struct EdgeData
-	{
+	struct EdgeData {
 		EdgeData(int edgeInd, int sourceInd, int targetInd, double edgeWeight)
-			:edgeIndex(edgeInd), sourceIndex(sourceInd), targetIndex(targetInd), weight(edgeWeight)
-		{ }
+			: edgeIndex(edgeInd), sourceIndex(sourceInd), targetIndex(targetInd), weight(edgeWeight) { }
 
 		int edgeIndex;
 		int sourceIndex;
@@ -71,34 +69,28 @@ private:
 	std::vector<EdgeData> m_deletedEdges;
 	bool m_randomize;
 
-	void call(Graph &G, MultilevelGraph &MLG);
+	void call(Graph& G, MultilevelGraph& MLG);
 
 public:
-
 	//! Constructor
 	PreprocessorLayout();
 
 	//! Destructor
 	~PreprocessorLayout() { }
 
-
 	using MultilevelLayoutModule::call;
 
 	//! Calculates a drawing for the Graph \p MLG.
-	virtual void call(MultilevelGraph &MLG) override;
+	virtual void call(MultilevelGraph& MLG) override;
 
 	//! Calculates a drawing for the Graph \p GA.
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	//! Sets the secondary layout.
-	void setLayoutModule(LayoutModule *layout) {
-		m_secondaryLayout.reset(layout);
-	}
+	void setLayoutModule(LayoutModule* layout) { m_secondaryLayout.reset(layout); }
 
 	//! Defines whether the positions of the node are randomized before the secondary layout call.
-	void setRandomizePositions(bool on) {
-		m_randomize = on;
-	}
+	void setRandomizePositions(bool on) { m_randomize = on; }
 };
 
 }

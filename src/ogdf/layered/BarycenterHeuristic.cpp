@@ -33,21 +33,19 @@
 
 namespace ogdf {
 
-void BarycenterHeuristic::call(Level &L)
-{
-	const HierarchyLevels &levels = L.levels();
+void BarycenterHeuristic::call(Level& L) {
+	const HierarchyLevels& levels = L.levels();
 
 	for (int i = 0; i <= L.high(); ++i) {
 		node v = L[i];
 		long sumpos = 0L;
 
-		const Array<node> &adjNodes = L.adjNodes(v);
+		const Array<node>& adjNodes = L.adjNodes(v);
 		for (int j = 0; j <= adjNodes.high(); ++j) {
 			sumpos += levels.pos(adjNodes[j]);
 		}
 
-		m_weight[v] = (adjNodes.high() < 0)
-		  ? 0.0 : double(sumpos) / double(adjNodes.size());
+		m_weight[v] = (adjNodes.high() < 0) ? 0.0 : double(sumpos) / double(adjNodes.size());
 	}
 
 	L.sort(m_weight);

@@ -35,7 +35,8 @@
 
 namespace ogdf {
 
-template<class T,class X,class Y> class PQNode;
+template<class T, class X, class Y>
+class PQNode;
 
 /**
  * The class template PQNodeKey is a derived class of class template
@@ -52,15 +53,14 @@ template<class T,class X,class Y> class PQNode;
  * be identified and  accessed by her in constant time. This makes
  * the adaption of algorithms fast and easy.
  */
-template<class T,class X,class Y>
-class PQNodeKey : public PQBasicKey<T,X,Y>
-{
+template<class T, class X, class Y>
+class PQNodeKey : public PQBasicKey<T, X, Y> {
 public:
 	//! Stores the information. Has to be overloaded by the client.
 	X m_userStructInfo;
 
 	// Constructor
-	explicit PQNodeKey(X info):PQBasicKey<T,X,Y>() { m_userStructInfo = info; }
+	explicit PQNodeKey(X info) : PQBasicKey<T, X, Y>() { m_userStructInfo = info; }
 
 	// Destructor
 	virtual ~PQNodeKey() { }

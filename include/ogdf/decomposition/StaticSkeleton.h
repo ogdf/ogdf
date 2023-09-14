@@ -33,11 +33,9 @@
 
 #include <ogdf/decomposition/Skeleton.h>
 
-
 namespace ogdf {
 
 class OGDF_EXPORT StaticSPQRTree;
-
 
 //! %Skeleton graphs of nodes in a static SPQR-tree.
 /**
@@ -57,12 +55,10 @@ class OGDF_EXPORT StaticSPQRTree;
  * Then there exists exactly one edge \a e' in another skeleton \a S' of \a T that
  * corresponds to \a eT as well. We call \a e' the twin edge of \a e.
  */
-class OGDF_EXPORT StaticSkeleton : public Skeleton
-{
+class OGDF_EXPORT StaticSkeleton : public Skeleton {
 	friend class OGDF_EXPORT StaticSPQRTree;
 
 public:
-
 	// constructor
 
 	//! Creates a skeleton \a S with owner tree \a T and corresponding node \p vT.
@@ -72,71 +68,61 @@ public:
 	 * \remarks Skeletons are created by the constructor of SPQRTree
 	 *          and can be accessed with the skeleton() function of SPQRTree.
 	 */
-	StaticSkeleton(const StaticSPQRTree *T, node vT);
-
+	StaticSkeleton(const StaticSPQRTree* T, node vT);
 
 	// destructor
 	~StaticSkeleton() { }
 
-
 	//! Returns the owner tree \a T.
-	const SPQRTree &owner() const override;
+	const SPQRTree& owner() const override;
 
 	//! Returns the vertex in the original graph \a G that corresponds to \p v.
 	/**
 	 * \pre \p v is a node in \a M.
 	 */
-	node original (node v) const override {
-		return m_orig[v];
-	}
+	node original(node v) const override { return m_orig[v]; }
 
 	//! Returns true iff \p e is a virtual edge.
 	/**
 	 * \pre \p e is an edge in \a M
 	 */
-	bool isVirtual (edge e) const override {
-		return m_real[e] == nullptr;
-	}
+	bool isVirtual(edge e) const override { return m_real[e] == nullptr; }
 
 	//! Returns the real edge that corresponds to skeleton edge \p e
 	/**
 	 * If \p e is virtual edge, then 0 is returned.
 	 * \pre \p e is an edge in \a M
 	 */
-	edge realEdge (edge e) const override {
-		return m_real[e];
-	}
+	edge realEdge(edge e) const override { return m_real[e]; }
 
 	//! Returns the twin edge of skeleton edge \p e.
 	/**
 	 * If \p e is not a virtual edge, then 0 is returned.
 	 * \pre \p e is an edge in \a M
 	 */
-	edge twinEdge (edge e) const override;
+	edge twinEdge(edge e) const override;
 
 	//! Returns the tree node in T containing the twin edge of skeleton edge \p e.
 	/**
 	 * If \p e is not a virtual edge, then 0 is returned.
 	 * \pre \p e is an edge in \a M
 	 */
-	node twinTreeNode (edge e) const override;
+	node twinTreeNode(edge e) const override;
 
 	//! Returns the tree edge which is associated with skeleton edge \p e.
 	/**
 	 * If \p e is not a virtual edge, then 0 is retuned.
 	 * \pre \p e is an edge in \a M
 	 */
-	edge treeEdge (edge e) const {
-		return m_treeEdge[e];
-	}
+	edge treeEdge(edge e) const { return m_treeEdge[e]; }
 
 	OGDF_MALLOC_NEW_DELETE
 
 protected:
-	const StaticSPQRTree *m_owner;     //!< owner tree
-	NodeArray<node>       m_orig;      //!< corresp. original node
-	EdgeArray<edge>       m_real;      //!< corresp. original edge (0 if virtual)
-	EdgeArray<edge>       m_treeEdge;  //!< corresp. tree edge (0 if real)
+	const StaticSPQRTree* m_owner; //!< owner tree
+	NodeArray<node> m_orig; //!< corresp. original node
+	EdgeArray<edge> m_real; //!< corresp. original edge (0 if virtual)
+	EdgeArray<edge> m_treeEdge; //!< corresp. tree edge (0 if real)
 };
 
 }

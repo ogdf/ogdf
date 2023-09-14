@@ -35,9 +35,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/EdgeComparer.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
@@ -49,26 +49,24 @@ namespace topology_module {
  *  allowed in the representation) or crossings. There can be multiple EdgeLegs associated to one
  * copy edge in the PlanRep because of bends.
  */
-class EdgeLeg
-{
+class EdgeLeg {
 public:
-	EdgeLeg()
-	: m_xp(0.0, 0.0)
-	, m_topDown(false)
-	, m_copyEdge(nullptr)
-	, m_number(0) { }
+	EdgeLeg() : m_xp(0.0, 0.0), m_topDown(false), m_copyEdge(nullptr), m_number(0) { }
 
 	EdgeLeg(edge e, int number, DPoint p1, DPoint p2)
-	: m_xp(DPoint(0.0,0.0))
-	, m_topDown(false)
-	, m_copyEdge(e)
-	, m_p1(p1)
-	, m_p2(p2)
-	, m_number(number) { }
+		: m_xp(DPoint(0.0, 0.0))
+		, m_topDown(false)
+		, m_copyEdge(e)
+		, m_p1(p1)
+		, m_p2(p2)
+		, m_number(number) { }
 
 	DPoint& start() { return m_p1; }
-	DPoint& end()   { return m_p2; }
-	int& number()    { return m_number; }
+
+	DPoint& end() { return m_p2; }
+
+	int& number() { return m_number; }
+
 	edge& copyEdge() { return m_copyEdge; }
 
 	//! to avoid sorting both edgelegs and crossing points,
@@ -81,12 +79,12 @@ public:
 
 	//! each edgeLeg holds an entry with a ListIterator pointing to
 	//! its entry in a <edgeLeg*> List for an original edge
-	ListIterator< EdgeLeg* > m_eIterator;
+	ListIterator<EdgeLeg*> m_eIterator;
 
 private:
 	edge m_copyEdge; //!< the edge in the PlanRep copy corresponding to the EdgeLeg
 	DPoint m_p1, m_p2; //!< "Starting" and "End" point of the EdgeLeg
-	int    m_number; //!< the order nuumber on the edge, starting at 0
+	int m_number; //!< the order nuumber on the edge, starting at 0
 };
 
 }
@@ -100,8 +98,7 @@ private:
  *   - setEmbeddingFromGraph(PlanRep &PG, GraphAttributes &GA)
  *   - sortEdgesFromLayout(GraphAttributes &GA)
  */
-class OGDF_EXPORT TopologyModule
-{
+class OGDF_EXPORT TopologyModule {
 public:
 	//! The (pre/post)processing options
 	/**
@@ -124,20 +121,19 @@ public:
 	};
 
 private:
-	friend int operator | (int, TopologyModule::Options);
-	friend int operator | (TopologyModule::Options, TopologyModule::Options);
+	friend int operator|(int, TopologyModule::Options);
+	friend int operator|(TopologyModule::Options, TopologyModule::Options);
 
 public:
-
 	TopologyModule()
-	: m_options(Options::DegOneCrossings | Options::GenToAss | Options::CrossFlip | Options::Loop | Options::FlipUML) {}
+		: m_options(Options::DegOneCrossings | Options::GenToAss | Options::CrossFlip
+				| Options::Loop | Options::FlipUML) { }
 
-	virtual ~TopologyModule() {}
+	virtual ~TopologyModule() { }
 
 	void setOptions(int i) { m_options = i; }
-	void addOption(TopologyModule::Options o)  {
-		m_options = m_options | o;
-	}
+
+	void addOption(TopologyModule::Options o) { m_options = m_options | o; }
 
 	//! Uses the layout \p GA to determine an embedding for \p PG.
 	/**
@@ -155,12 +151,8 @@ public:
 	 *                         this cannot work correctly
 	 * @return false if planarization fails; true otherwise.
 	 */
-	bool setEmbeddingFromGraph(
-		PlanRep &PG,
-		GraphAttributes &GA,
-		adjEntry &adjExternal,
-		bool setExternal = true,
-		bool reuseGAEmbedding = false);
+	bool setEmbeddingFromGraph(PlanRep& PG, GraphAttributes& GA, adjEntry& adjExternal,
+			bool setExternal = true, bool reuseGAEmbedding = false);
 
 	//! Sorts the edges around all nodes of \p GA corresponding to the layout given in \p GA.
 	/**
@@ -169,30 +161,29 @@ public:
 	 * @param G  is the input graph whose adjacency lists get sorted.
 	 * @param GA is the input layout.
 	 */
-	void sortEdgesFromLayout(Graph &G, GraphAttributes &GA);
+	void sortEdgesFromLayout(Graph& G, GraphAttributes& GA);
 
-	face getExternalFace(PlanRep &PG, const GraphAttributes &AG);
+	face getExternalFace(PlanRep& PG, const GraphAttributes& AG);
 
-	double faceSum(PlanRep &PG, const GraphAttributes &AG, face f);
+	double faceSum(PlanRep& PG, const GraphAttributes& AG, face f);
 
 protected:
 	//compute a planarization, i.e. insert crossing vertices,
 	//corresponding to the AG layout
-	void planarizeFromLayout(PlanRep &PG, GraphAttributes &AG);
+	void planarizeFromLayout(PlanRep& PG, GraphAttributes& AG);
 	//compute crossing point and return if existing
 	bool hasCrossing(topology_module::EdgeLeg* legA, topology_module::EdgeLeg* legB, DPoint& xp);
 	//check if node v is a crossing of two edges with a common
 	//endpoint adjacent to v, crossing is removed if flip is set
-	bool checkFlipCrossing(PlanRep &PG,node v, bool flip = true);
+	bool checkFlipCrossing(PlanRep& PG, node v, bool flip = true);
 
-	void postProcess(PlanRep &PG);
-	void handleImprecision(PlanRep &PG);
+	void postProcess(PlanRep& PG);
+	void handleImprecision(PlanRep& PG);
 	bool skipable(topology_module::EdgeLeg* legA, topology_module::EdgeLeg* legB);
 
 private:
 	//compare vectors for sorting
-	int compare_vectors(const double& x1, const double& y1,
-						const double& x2, const double& y2);
+	int compare_vectors(const double& x1, const double& y1, const double& x2, const double& y2);
 	//compute and return the angle defined by p-q,p-r
 	double angle(DPoint p, DPoint q, DPoint r);
 	//we have to save the position of the inserted crossing vertices
@@ -201,23 +192,18 @@ private:
 
 	//we save a list of EdgeLegs for all original edges in
 	//AG
-	EdgeArray< List<topology_module::EdgeLeg*> > m_eLegs;
+	EdgeArray<List<topology_module::EdgeLeg*>> m_eLegs;
 
 	//option settings as bits
 	int m_options;
-
 };
 
-inline int operator & (int i, TopologyModule::Options b) {
-	return i & static_cast<int>(b);
-}
+inline int operator&(int i, TopologyModule::Options b) { return i & static_cast<int>(b); }
 
-inline int operator | (TopologyModule::Options a, TopologyModule::Options b) {
+inline int operator|(TopologyModule::Options a, TopologyModule::Options b) {
 	return static_cast<int>(a) | static_cast<int>(b);
 }
 
-inline int operator | (int i, TopologyModule::Options b) {
-	return i | static_cast<int>(b);
-}
+inline int operator|(int i, TopologyModule::Options b) { return i | static_cast<int>(b); }
 
 }

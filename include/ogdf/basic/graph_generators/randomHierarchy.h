@@ -53,13 +53,8 @@ namespace ogdf {
  * @param longEdges determines if the graph has long edges (spanning 2 layers
  *        or more); otherwise the graph is proper.
  */
-OGDF_EXPORT void randomHierarchy(
-	Graph &G,
-	int n,
-	int m,
-	bool planar,
-	bool singleSource,
-	bool longEdges);
+OGDF_EXPORT void randomHierarchy(Graph& G, int n, int m, bool planar, bool singleSource,
+		bool longEdges);
 
 //! @}
 

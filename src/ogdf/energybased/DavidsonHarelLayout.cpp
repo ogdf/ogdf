@@ -37,11 +37,11 @@
 
 #include <ogdf/energybased/DavidsonHarel.h>
 #include <ogdf/energybased/DavidsonHarelLayout.h>
-#include <ogdf/energybased/davidson_harel/Repulsion.h>
 #include <ogdf/energybased/davidson_harel/Attraction.h>
 #include <ogdf/energybased/davidson_harel/Overlap.h>
 #include <ogdf/energybased/davidson_harel/Planarity.h>
 #include <ogdf/energybased/davidson_harel/PlanarityGrid.h>
+#include <ogdf/energybased/davidson_harel/Repulsion.h>
 
 #define DEFAULT_REPULSION_WEIGHT 1e6
 #define DEFAULT_ATTRACTION_WEIGHT 1e2
@@ -52,7 +52,9 @@
 
 namespace ogdf {
 
-struct InputValueInvalid : Exception { InputValueInvalid() : Exception(__FILE__, __LINE__) { } };
+struct InputValueInvalid : Exception {
+	InputValueInvalid() : Exception(__FILE__, __LINE__) { }
+};
 
 struct WeightLessThanZeroException : InputValueInvalid { };
 
@@ -60,9 +62,7 @@ struct IterationsNonPositive : InputValueInvalid { };
 
 struct TemperatureNonPositive : InputValueInvalid { };
 
-
-DavidsonHarelLayout::DavidsonHarelLayout()
-{
+DavidsonHarelLayout::DavidsonHarelLayout() {
 	m_repulsionWeight = DEFAULT_REPULSION_WEIGHT;
 	m_attractionWeight = DEFAULT_ATTRACTION_WEIGHT;
 	m_nodeOverlapWeight = DEFAULT_OVERLAP_WEIGHT;
@@ -70,25 +70,35 @@ DavidsonHarelLayout::DavidsonHarelLayout()
 	m_numberOfIterations = DEFAULT_ITERATIONS;
 	m_itAsFactor = false;
 	m_startTemperature = DEFAULT_START_TEMPERATURE;
-	m_speed    = SpeedParameter::Medium;
+	m_speed = SpeedParameter::Medium;
 	m_multiplier = 2.0;
 	m_prefEdgeLength = 0.0;
 	m_crossings = false;
 }
 
-
-void DavidsonHarelLayout::fixSettings(SettingsParameter sp)
-{
+void DavidsonHarelLayout::fixSettings(SettingsParameter sp) {
 	double r, a, p, o;
 	switch (sp) {
 	case SettingsParameter::Standard:
-		r = 900; a = 250; o = 1450; p = 300; m_crossings = false;
+		r = 900;
+		a = 250;
+		o = 1450;
+		p = 300;
+		m_crossings = false;
 		break;
 	case SettingsParameter::Repulse:
-		r = 9000; a = 250; o = 1450; p = 300; m_crossings = false;
+		r = 9000;
+		a = 250;
+		o = 1450;
+		p = 300;
+		m_crossings = false;
 		break;
 	case SettingsParameter::Planar:
-		r = 900; a = 250; o = 1450; p = 3000; m_crossings = true;
+		r = 900;
+		a = 250;
+		o = 1450;
+		p = 3000;
+		m_crossings = true;
 		break;
 	default:
 		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::IllegalParameter);
@@ -99,58 +109,62 @@ void DavidsonHarelLayout::fixSettings(SettingsParameter sp)
 	setPlanarityWeight(p);
 }
 
-void DavidsonHarelLayout::setSpeed(SpeedParameter sp)
-{
+void DavidsonHarelLayout::setSpeed(SpeedParameter sp) {
 	m_speed = sp;
 	m_numberOfIterations = 0;
 }
 
-void DavidsonHarelLayout::setRepulsionWeight(double w)
-{
-	if(w < 0) throw WeightLessThanZeroException();
-	else m_repulsionWeight = w;
+void DavidsonHarelLayout::setRepulsionWeight(double w) {
+	if (w < 0) {
+		throw WeightLessThanZeroException();
+	} else {
+		m_repulsionWeight = w;
+	}
 }
 
-
-void DavidsonHarelLayout::setAttractionWeight(double w)
-{
-	if(w < 0) throw WeightLessThanZeroException();
-	else m_attractionWeight = w;
+void DavidsonHarelLayout::setAttractionWeight(double w) {
+	if (w < 0) {
+		throw WeightLessThanZeroException();
+	} else {
+		m_attractionWeight = w;
+	}
 }
 
-
-void DavidsonHarelLayout::setNodeOverlapWeight(double w)
-{
-	if(w < 0) throw WeightLessThanZeroException();
-	else m_nodeOverlapWeight = w;
+void DavidsonHarelLayout::setNodeOverlapWeight(double w) {
+	if (w < 0) {
+		throw WeightLessThanZeroException();
+	} else {
+		m_nodeOverlapWeight = w;
+	}
 }
 
-
-void DavidsonHarelLayout::setPlanarityWeight(double w)
-{
-	if(w < 0) throw WeightLessThanZeroException();
-	else m_planarityWeight = w;
+void DavidsonHarelLayout::setPlanarityWeight(double w) {
+	if (w < 0) {
+		throw WeightLessThanZeroException();
+	} else {
+		m_planarityWeight = w;
+	}
 }
 
-
-void DavidsonHarelLayout::setNumberOfIterations(int w)
-{
-	if(w < 0) throw IterationsNonPositive();
-	else m_numberOfIterations = w;
+void DavidsonHarelLayout::setNumberOfIterations(int w) {
+	if (w < 0) {
+		throw IterationsNonPositive();
+	} else {
+		m_numberOfIterations = w;
+	}
 }
 
-
-void DavidsonHarelLayout::setStartTemperature (int w)
-{
-	if(w < 0) throw TemperatureNonPositive();
-	else m_startTemperature = w;
+void DavidsonHarelLayout::setStartTemperature(int w) {
+	if (w < 0) {
+		throw TemperatureNonPositive();
+	} else {
+		m_startTemperature = w;
+	}
 }
-
 
 //this sets the parameters of the class DavidsonHarel, adds the energy functions and
 //starts the optimization process
-void DavidsonHarelLayout::call(GraphAttributes &AG)
-{
+void DavidsonHarelLayout::call(GraphAttributes& AG) {
 	// all edges straight-line
 	AG.clearAllBends();
 
@@ -166,18 +180,21 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 #endif
 
 	// Either use a fixed value...
-	if (OGDF_GEOM_ET.greater(m_prefEdgeLength, 0.0))
-	{
+	if (OGDF_GEOM_ET.greater(m_prefEdgeLength, 0.0)) {
 		atr.setPreferredEdgelength(m_prefEdgeLength);
 	}
 	// ...or set it depending on vertex sizes
-	else atr.reinitializeEdgeLength(m_multiplier);
+	else {
+		atr.reinitializeEdgeLength(m_multiplier);
+	}
 
 
-	dh.addEnergyFunction(&rep,m_repulsionWeight);
-	dh.addEnergyFunction(&atr,m_attractionWeight);
-	dh.addEnergyFunction(&over,m_nodeOverlapWeight);
-	if (m_crossings) dh.addEnergyFunction(&plan,m_planarityWeight);
+	dh.addEnergyFunction(&rep, m_repulsionWeight);
+	dh.addEnergyFunction(&atr, m_attractionWeight);
+	dh.addEnergyFunction(&over, m_nodeOverlapWeight);
+	if (m_crossings) {
+		dh.addEnergyFunction(&plan, m_planarityWeight);
+	}
 #if 0
 	dh.addEnergyFunction(&ni,2000.0);
 
@@ -186,30 +203,30 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 #endif
 	const Graph& G = AG.constGraph();
 	//TODO: Number of iterations always depending on size
-	if (m_numberOfIterations == 0)
-	{
-		switch (m_speed)  //todo: function setSpeedParameters
+	if (m_numberOfIterations == 0) {
+		switch (m_speed) //todo: function setSpeedParameters
 		{
 		case SpeedParameter::Fast:
-			m_numberOfIterations = max(75, 3*G.numberOfNodes());
+			m_numberOfIterations = max(75, 3 * G.numberOfNodes());
 			m_startTemperature = 400;
 			break;
 		case SpeedParameter::Medium:
-			m_numberOfIterations = 10*G.numberOfNodes();
+			m_numberOfIterations = 10 * G.numberOfNodes();
 			m_startTemperature = 1500;
 			break;
 		case SpeedParameter::HQ:
-			m_numberOfIterations = 2500*G.numberOfNodes(); //should be: isolate
+			m_numberOfIterations = 2500 * G.numberOfNodes(); //should be: isolate
 			m_startTemperature = 2000;
 			break;
 		default:
 			OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::IllegalParameter);
 		}
 	} else {
-		if (m_itAsFactor)
-			dh.setNumberOfIterations(200+m_numberOfIterations*G.numberOfNodes());
-		else
+		if (m_itAsFactor) {
+			dh.setNumberOfIterations(200 + m_numberOfIterations * G.numberOfNodes());
+		} else {
 			dh.setNumberOfIterations(m_numberOfIterations);
+		}
 	}
 	dh.setStartTemperature(m_startTemperature);
 	dh.call(AG);

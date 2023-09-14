@@ -34,17 +34,16 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/external/coin.h>
 
-
 namespace ogdf {
 
-class OGDF_EXPORT LPSolver
-{
+class OGDF_EXPORT LPSolver {
 public:
 	enum class OptimizationGoal { Minimize, Maximize };
 	enum class Status { Optimal, Infeasible, Unbounded };
 
 	// Constructor
 	LPSolver();
+
 	~LPSolver() { delete osi; }
 
 	double infinity() const;
@@ -69,31 +68,29 @@ public:
 	// The return value indicates the status of the solution. If an optimum solitions has
 	// been found, the result is Optimal
 
-	Status optimize(
-		OptimizationGoal goal,  // goal of optimization (minimize or maximize)
-		Array<double> &obj,            // objective function vector
-		Array<int>    &matrixBegin,    // matrixBegin[i] = begin of column i
-		Array<int>    &matrixCount,    // matrixCount[i] = number of nonzeroes in column i
-		Array<int>    &matrixIndex,    // matrixIndex[n] = index of matrixValue[n] in its column
-		Array<double> &matrixValue,	   // matrixValue[n] = non-zero value in matrix
-		Array<double> &rightHandSide,  // right-hand side of LP constraints
-		Array<char>   &equationSense,  // 'E' ==   'G' >=   'L' <=
-		Array<double> &lowerBound,     // lower bound of x[i]
-		Array<double> &upperBound,     // upper bound of x[i]
-		double &optimum,               // optimum value of objective function (if result is Optimal)
-		Array<double> &x               // x-vector of optimal solution (if result is Optimal)
+	Status optimize(OptimizationGoal goal, // goal of optimization (minimize or maximize)
+			Array<double>& obj, // objective function vector
+			Array<int>& matrixBegin, // matrixBegin[i] = begin of column i
+			Array<int>& matrixCount, // matrixCount[i] = number of nonzeroes in column i
+			Array<int>& matrixIndex, // matrixIndex[n] = index of matrixValue[n] in its column
+			Array<double>& matrixValue, // matrixValue[n] = non-zero value in matrix
+			Array<double>& rightHandSide, // right-hand side of LP constraints
+			Array<char>& equationSense, // 'E' ==   'G' >=   'L' <=
+			Array<double>& lowerBound, // lower bound of x[i]
+			Array<double>& upperBound, // upper bound of x[i]
+			double& optimum, // optimum value of objective function (if result is Optimal)
+			Array<double>& x // x-vector of optimal solution (if result is Optimal)
 	);
 
-	bool checkFeasibility(
-		const Array<int>    &matrixBegin,   // matrixBegin[i] = begin of column i
-		const Array<int>    &matrixCount,   // matrixCount[i] = number of nonzeroes in column i
-		const Array<int>    &matrixIndex,   // matrixIndex[n] = index of matrixValue[n] in its column
-		const Array<double> &matrixValue,	// matrixValue[n] = non-zero value in matrix
-		const Array<double> &rightHandSide, // right-hand side of LP constraints
-		const Array<char>   &equationSense, // 'E' ==   'G' >=   'L' <=
-		const Array<double> &lowerBound,    // lower bound of x[i]
-		const Array<double> &upperBound,    // upper bound of x[i]
-		const Array<double> &x              // x-vector of optimal solution (if result is Optimal)
+	bool checkFeasibility(const Array<int>& matrixBegin, // matrixBegin[i] = begin of column i
+			const Array<int>& matrixCount, // matrixCount[i] = number of nonzeroes in column i
+			const Array<int>& matrixIndex, // matrixIndex[n] = index of matrixValue[n] in its column
+			const Array<double>& matrixValue, // matrixValue[n] = non-zero value in matrix
+			const Array<double>& rightHandSide, // right-hand side of LP constraints
+			const Array<char>& equationSense, // 'E' ==   'G' >=   'L' <=
+			const Array<double>& lowerBound, // lower bound of x[i]
+			const Array<double>& upperBound, // upper bound of x[i]
+			const Array<double>& x // x-vector of optimal solution (if result is Optimal)
 	) const;
 
 private:

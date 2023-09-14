@@ -31,19 +31,27 @@
 
 #pragma once
 
-#include <ogdf/basic/internal/list_templates.h>
 #include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/internal/list_templates.h>
+
 #include <random>
 
 namespace ogdf {
 
-template<class E> class List;
-template<class E> class ListPure;
-template<class E, bool isConst, bool isReverse> class ListIteratorBase;
-template<class E> using ListConstIterator = ListIteratorBase<E, true, false>;
-template<class E> using ListIterator = ListIteratorBase<E, false, false>;
-template<class E> using ListConstReverseIterator = ListIteratorBase<E, true, true>;
-template<class E> using ListReverseIterator = ListIteratorBase<E, false, true>;
+template<class E>
+class List;
+template<class E>
+class ListPure;
+template<class E, bool isConst, bool isReverse>
+class ListIteratorBase;
+template<class E>
+using ListConstIterator = ListIteratorBase<E, true, false>;
+template<class E>
+using ListIterator = ListIteratorBase<E, false, false>;
+template<class E>
+using ListConstReverseIterator = ListIteratorBase<E, true, true>;
+template<class E>
+using ListReverseIterator = ListIteratorBase<E, false, true>;
 
 //! Structure for elements of doubly linked lists.
 template<class E>
@@ -55,26 +63,28 @@ class ListElement {
 	friend class ListIteratorBase<E, true, false>;
 	friend class ListIteratorBase<E, false, false>;
 
-	ListElement<E> *m_next; //!< Pointer to successor element.
-	ListElement<E> *m_prev; //!< Pointer to predecessor element.
+	ListElement<E>* m_next; //!< Pointer to successor element.
+	ListElement<E>* m_prev; //!< Pointer to predecessor element.
 	E m_x; //!< Stores the content.
 #ifdef OGDF_DEBUG
-	ListPure<E> *m_list; //!< List object that the element belongs to.
+	ListPure<E>* m_list; //!< List object that the element belongs to.
 #endif
 
 	//! Constructs a ListElement.
-	ListElement(ListPure<E> *list, const E &x, ListElement<E> *next, ListElement<E> *prev)
-			: m_next(next), m_prev(prev), m_x(x) {
+	ListElement(ListPure<E>* list, const E& x, ListElement<E>* next, ListElement<E>* prev)
+		: m_next(next), m_prev(prev), m_x(x) {
 #ifdef OGDF_DEBUG
 		m_list = list;
 #endif
 	}
+
 	//! Constructs a ListElement.
-	ListElement(ListPure<E> *list, const E &x) : ListElement(list, x, nullptr, nullptr) { }
+	ListElement(ListPure<E>* list, const E& x) : ListElement(list, x, nullptr, nullptr) { }
+
 	//! Constructs a ListElement with given arguments \p args for constructor of element type.
-	template<class ... Args>
-	ListElement(ListPure<E> *list, ListElement<E> *next, ListElement<E> *prev, Args && ... args)
-			: ListElement(list, E(std::forward<Args>(args)...), next, prev) { }
+	template<class... Args>
+	ListElement(ListPure<E>* list, ListElement<E>* next, ListElement<E>* prev, Args&&... args)
+		: ListElement(list, E(std::forward<Args>(args)...), next, prev) { }
 
 	OGDF_NEW_DELETE
 };
@@ -89,7 +99,8 @@ class ListElement {
  * @tparam isConst True iff this iterator allows only const-access to the element.
  * @tparam isReverse True iff this iterator is a reverse iterator.
  */
-template<class E, bool isConst, bool isReverse> class ListIteratorBase {
+template<class E, bool isConst, bool isReverse>
+class ListIteratorBase {
 	friend class ListIteratorBase<E, !isConst, isReverse>;
 	friend class ListIteratorBase<E, isConst, !isReverse>;
 	friend class ListIteratorBase<E, !isConst, !isReverse>;
@@ -100,25 +111,27 @@ template<class E, bool isConst, bool isReverse> class ListIteratorBase {
 	using Elem = typename std::conditional<isConst, const E, E>::type;
 
 	//! pointer to list element
-	ListElem *m_pX;
+	ListElem* m_pX;
 
 	//! Conversion to pointer to list element.
-	operator ListElem *() { return m_pX; }
+	operator ListElem*() { return m_pX; }
 
 public:
 	//! Constructs an iterator that points to \p pX.
-	ListIteratorBase(ListElem *pX) : m_pX(pX) { }
+	ListIteratorBase(ListElem* pX) : m_pX(pX) { }
 
 	//! Constructs an invalid iterator.
 	ListIteratorBase() : ListIteratorBase(nullptr) { }
 
 	//! Constructs an iterator that is a copy of \p it.
 	template<bool isArgConst, typename std::enable_if<isConst || !isArgConst, int>::type = 0, bool isArgReverse>
-	ListIteratorBase(const ListIteratorBase<E,isArgConst,isArgReverse> &it) : ListIteratorBase(it.m_pX) { }
+	ListIteratorBase(const ListIteratorBase<E, isArgConst, isArgReverse>& it)
+		: ListIteratorBase(it.m_pX) { }
 
 	//! Copy constructor.
 	// gcc9 complains since it cannot match the templated constructor above (-Werror=deprecated-copy).
-	ListIteratorBase(const ListIteratorBase<E, isConst, isReverse> &it) : ListIteratorBase(it.m_pX) { }
+	ListIteratorBase(const ListIteratorBase<E, isConst, isReverse>& it)
+		: ListIteratorBase(it.m_pX) { }
 
 	//! Returns true iff the iterator points to an element.
 	bool valid() const { return m_pX != nullptr; }
@@ -126,18 +139,18 @@ public:
 #ifdef OGDF_DEBUG
 	//! Returns the list that this iterator belongs to.
 	//! \pre This iterator is valid.
-	ListPure<E> *listOf() {
+	ListPure<E>* listOf() {
 		OGDF_ASSERT(valid());
 		return m_pX->m_list;
 	}
 #endif
 	//! Equality operator.
-	bool operator==(const ListIteratorBase<E, isConst, isReverse> &it) const {
+	bool operator==(const ListIteratorBase<E, isConst, isReverse>& it) const {
 		return m_pX == it.m_pX;
 	}
 
 	//! Inequality operator.
-	bool operator!=(const ListIteratorBase<E, isConst, isReverse> &it) const {
+	bool operator!=(const ListIteratorBase<E, isConst, isReverse>& it) const {
 		return m_pX != it.m_pX;
 	}
 
@@ -152,16 +165,17 @@ public:
 	}
 
 	//! Returns a reference to the element content.
-	Elem &operator*() const { return m_pX->m_x; }
+	Elem& operator*() const { return m_pX->m_x; }
 
 	//! Assignment operator.
-	ListIteratorBase<E, isConst, isReverse> &operator=(const ListIteratorBase<E, isConst, isReverse> &it) {
+	ListIteratorBase<E, isConst, isReverse>& operator=(
+			const ListIteratorBase<E, isConst, isReverse>& it) {
 		m_pX = it.m_pX;
 		return *this;
 	}
 
 	//! Increment operator (prefix).
-	ListIteratorBase<E, isConst, isReverse> &operator++() {
+	ListIteratorBase<E, isConst, isReverse>& operator++() {
 		m_pX = isReverse ? m_pX->m_prev : m_pX->m_next;
 		return *this;
 	}
@@ -174,7 +188,7 @@ public:
 	}
 
 	//! Decrement operator (prefix).
-	ListIteratorBase<E, isConst, isReverse> &operator--() {
+	ListIteratorBase<E, isConst, isReverse>& operator--() {
 		m_pX = isReverse ? m_pX->m_next : m_pX->m_prev;
 		return *this;
 	}
@@ -199,10 +213,11 @@ public:
  *
  * @tparam E is the data type stored in list elements.
  */
-template<class E> class ListPure {
+template<class E>
+class ListPure {
 protected:
-	ListElement<E> *m_head; //!< Pointer to first element.
-	ListElement<E> *m_tail; //!< Pointer to last element.
+	ListElement<E>* m_head; //!< Pointer to first element.
+	ListElement<E>* m_tail; //!< Pointer to last element.
 
 public:
 	//! Represents the data type stored in a list element.
@@ -225,20 +240,19 @@ public:
 
 	//! Constructs a doubly linked list containing the elements in \p init.
 	ListPure(std::initializer_list<E> init) : m_head(nullptr), m_tail(nullptr) {
-		for (const E &x : init)
+		for (const E& x : init) {
 			pushBack(x);
+		}
 	}
 
 	//! Constructs a doubly linked list that is a copy of \p L.
-	ListPure(const ListPure<E> &L) : m_head(nullptr), m_tail(nullptr) {
-		copy(L);
-	}
+	ListPure(const ListPure<E>& L) : m_head(nullptr), m_tail(nullptr) { copy(L); }
 
 	//! Constructs a doubly linked list containing the elements of \p L (move semantics).
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	ListPure(ListPure<E> &&L) : m_head(L.m_head), m_tail(L.m_tail) {
+	ListPure(ListPure<E>&& L) : m_head(L.m_head), m_tail(L.m_tail) {
 		reassignListRefs();
 		L.m_head = L.m_tail = nullptr;
 	}
@@ -246,12 +260,11 @@ public:
 	//! Destructor.
 	virtual ~ListPure() { clear(); }
 
-
 	/**
 	 * @name Access methods
 	 * These methods provide simple access without changing the list.
 	 */
-	//@{
+	//! @{
 
 	//! Returns true iff the list is empty.
 	bool empty() const { return m_head == nullptr; }
@@ -263,8 +276,9 @@ public:
 	 */
 	virtual int size() const {
 		int count = 0;
-		for (ListElement<E> *pX = m_head; pX; pX = pX->m_next)
+		for (ListElement<E>* pX = m_head; pX; pX = pX->m_next) {
 			++count;
+		}
 		return count;
 	}
 
@@ -309,9 +323,12 @@ public:
 	 * The running time of this method is linear in \p pos.
 	 */
 	const_iterator get(int pos) const {
-		ListElement<E> *pX;
-		for(pX = m_head; pX != nullptr; pX = pX->m_next)
-			if (pos-- == 0) break;
+		ListElement<E>* pX;
+		for (pX = m_head; pX != nullptr; pX = pX->m_next) {
+			if (pos-- == 0) {
+				break;
+			}
+		}
 		return pX;
 	}
 
@@ -320,9 +337,12 @@ public:
 	 * The running time of this method is linear in \p pos.
 	 */
 	iterator get(int pos) {
-		ListElement<E> *pX;
-		for(pX = m_head; pX != nullptr; pX = pX->m_next)
-			if (pos-- == 0) break;
+		ListElement<E>* pX;
+		for (pX = m_head; pX != nullptr; pX = pX->m_next) {
+			if (pos-- == 0) {
+				break;
+			}
+		}
 		return pX;
 	}
 
@@ -333,18 +353,20 @@ public:
 	int pos(const_iterator it) const {
 		OGDF_ASSERT(it.listOf() == this);
 		int p = 0;
-		for(ListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next, ++p)
-			if (pX == it) break;
+		for (ListElement<E>* pX = m_head; pX != nullptr; pX = pX->m_next, ++p) {
+			if (pX == (const ListElement<E>*)it) {
+				break;
+			}
+		}
 		return p;
 	}
 
-
-	//@}
+	//! @}
 	/**
 	 * @name Iterators
 	 * These methods return bidirectional iterators to elements in the list and allow to iterate over the elements in linear or cyclic order.
 	 */
-	//@{
+	//! @{
 
 	//! Returns an iterator to the first element of the list.
 	/**
@@ -424,7 +446,7 @@ public:
 	 */
 	const_iterator cyclicSucc(const_iterator it) const {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		const ListElement<E> *pX = it;
+		const ListElement<E>* pX = it;
 		return (pX && pX->m_next) ? pX->m_next : m_head;
 	}
 
@@ -434,7 +456,7 @@ public:
 	 */
 	iterator cyclicSucc(iterator it) {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		ListElement<E> *pX = it;
+		ListElement<E>* pX = it;
 		return (pX && pX->m_next) ? pX->m_next : m_head;
 	}
 
@@ -443,7 +465,7 @@ public:
 	 */
 	const_reverse_iterator cyclicSucc(const_reverse_iterator it) const {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		const ListElement<E> *pX = it;
+		const ListElement<E>* pX = it;
 		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
@@ -452,7 +474,7 @@ public:
 	 */
 	reverse_iterator cyclicSucc(reverse_iterator it) {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		ListElement<E> *pX = it;
+		ListElement<E>* pX = it;
 		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
@@ -462,7 +484,7 @@ public:
 	 */
 	const_iterator cyclicPred(const_iterator it) const {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		const ListElement<E> *pX = it;
+		const ListElement<E>* pX = it;
 		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
@@ -472,7 +494,7 @@ public:
 	 */
 	iterator cyclicPred(iterator it) {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		ListElement<E> *pX = it;
+		ListElement<E>* pX = it;
 		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
@@ -481,7 +503,7 @@ public:
 	 */
 	const_reverse_iterator cyclicPred(const_reverse_iterator it) const {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		const ListElement<E> *pX = it;
+		const ListElement<E>* pX = it;
 		return (pX && pX->m_next) ? pX->m_next : m_head;
 	}
 
@@ -490,20 +512,21 @@ public:
 	 */
 	reverse_iterator cyclicPred(reverse_iterator it) {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		ListElement<E> *pX = it;
+		ListElement<E>* pX = it;
 		return (pX && pX->m_next) ? pX->m_next : m_head;
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Operators
 	 * The following operators are provided by lists.
 	 */
-	//@{
+	//! @{
 
 	//! Assignment operator.
-	ListPure<E> &operator=(const ListPure<E> &L) {
-		clear(); copy(L);
+	ListPure<E>& operator=(const ListPure<E>& L) {
+		clear();
+		copy(L);
 		return *this;
 	}
 
@@ -511,7 +534,7 @@ public:
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	ListPure<E> &operator=(ListPure<E> &&L) {
+	ListPure<E>& operator=(ListPure<E>&& L) {
 		clear();
 		m_head = L.m_head;
 		m_tail = L.m_tail;
@@ -521,11 +544,12 @@ public:
 	}
 
 	//! Equality operator.
-	bool operator==(const ListPure<E> &L) const {
-		ListElement<E> *pX = m_head, *pY = L.m_head;
-		while(pX != nullptr && pY != nullptr) {
-			if(pX->m_x != pY->m_x)
+	bool operator==(const ListPure<E>& L) const {
+		ListElement<E>*pX = m_head, *pY = L.m_head;
+		while (pX != nullptr && pY != nullptr) {
+			if (pX->m_x != pY->m_x) {
 				return false;
+			}
 			pX = pX->m_next;
 			pY = pY->m_next;
 		}
@@ -533,24 +557,23 @@ public:
 	}
 
 	//! Inequality operator.
-	bool operator!=(const ListPure<E> &L) const {
-		return !operator==(L);
-	}
+	bool operator!=(const ListPure<E>& L) const { return !operator==(L); }
 
-	//@}
+	//! @}
 	/**
 	 * @name Adding elements
 	 * These method add elements to the list.
 	 */
-	//@{
+	//! @{
 
 	//! Adds element \p x at the beginning of the list.
-	iterator pushFront(const E &x) {
-		ListElement<E> *pX = new ListElement<E>(this, x, m_head, nullptr);
-		if (m_head)
+	iterator pushFront(const E& x) {
+		ListElement<E>* pX = new ListElement<E>(this, x, m_head, nullptr);
+		if (m_head) {
 			m_head = m_head->m_prev = pX;
-		else
+		} else {
 			m_head = m_tail = pX;
+		}
 		return m_head;
 	}
 
@@ -558,23 +581,25 @@ public:
 	/**
 	 * The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
 	 */
-	template<class ... Args>
-	iterator emplaceFront(Args && ... args) {
-		ListElement<E> *pX = new ListElement<E>(this, m_head, nullptr, std::forward<Args>(args)...);
-		if (m_head)
+	template<class... Args>
+	iterator emplaceFront(Args&&... args) {
+		ListElement<E>* pX = new ListElement<E>(this, m_head, nullptr, std::forward<Args>(args)...);
+		if (m_head) {
 			m_head = m_head->m_prev = pX;
-		else
+		} else {
 			m_head = m_tail = pX;
+		}
 		return m_head;
 	}
 
 	//! Adds element \p x at the end of the list.
-	iterator pushBack(const E &x) {
-		ListElement<E> *pX = new ListElement<E>(this, x, nullptr, m_tail);
-		if (m_head)
+	iterator pushBack(const E& x) {
+		ListElement<E>* pX = new ListElement<E>(this, x, nullptr, m_tail);
+		if (m_head) {
 			m_tail = m_tail->m_next = pX;
-		else
+		} else {
 			m_tail = m_head = pX;
+		}
 		return m_tail;
 	}
 
@@ -582,13 +607,14 @@ public:
 	/**
 	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
 	*/
-	template<class ... Args>
-	iterator emplaceBack(Args && ... args) {
-		ListElement<E> *pX = new ListElement<E>(this, nullptr, m_tail, std::forward<Args>(args)...);
-		if (m_head)
+	template<class... Args>
+	iterator emplaceBack(Args&&... args) {
+		ListElement<E>* pX = new ListElement<E>(this, nullptr, m_tail, std::forward<Args>(args)...);
+		if (m_head) {
 			m_tail = m_tail->m_next = pX;
-		else
+		} else {
 			m_tail = m_head = pX;
+		}
 		return m_tail;
 	}
 
@@ -600,19 +626,25 @@ public:
 	 *   Possible values are ogdf::before and ogdf::after.
 	 * \pre \p it points to an element in this list.
 	 */
-	iterator insert(const E &x, iterator it, Direction dir = Direction::after) {
+	iterator insert(const E& x, iterator it, Direction dir = Direction::after) {
 		OGDF_ASSERT(it.listOf() == this);
-		ListElement<E> *pY = it, *pX;
+		ListElement<E>*pY = it, *pX;
 		if (dir == Direction::after) {
-			ListElement<E> *pYnext = pY->m_next;
+			ListElement<E>* pYnext = pY->m_next;
 			pY->m_next = pX = new ListElement<E>(this, x, pYnext, pY);
-			if (pYnext) pYnext->m_prev = pX;
-			else m_tail = pX;
+			if (pYnext) {
+				pYnext->m_prev = pX;
+			} else {
+				m_tail = pX;
+			}
 		} else {
-			ListElement<E> *pYprev = pY->m_prev;
+			ListElement<E>* pYprev = pY->m_prev;
 			pY->m_prev = pX = new ListElement<E>(this, x, pY, pYprev);
-			if (pYprev) pYprev->m_next = pX;
-			else m_head = pX;
+			if (pYprev) {
+				pYprev->m_next = pX;
+			} else {
+				m_head = pX;
+			}
 		}
 		return pX;
 	}
@@ -621,13 +653,16 @@ public:
 	/**
 	 * \pre \p it points to an element in this list.
 	 */
-	iterator insertBefore(const E &x, iterator it) {
+	iterator insertBefore(const E& x, iterator it) {
 		OGDF_ASSERT(it.listOf() == this);
-		ListElement<E> *pY = it, *pX;
-		ListElement<E> *pYprev = pY->m_prev;
+		ListElement<E>*pY = it, *pX;
+		ListElement<E>* pYprev = pY->m_prev;
 		pY->m_prev = pX = new ListElement<E>(this, x, pY, pYprev);
-		if (pYprev) pYprev->m_next = pX;
-		else m_head = pX;
+		if (pYprev) {
+			pYprev->m_next = pX;
+		} else {
+			m_head = pX;
+		}
 		return pX;
 	}
 
@@ -635,22 +670,25 @@ public:
 	/**
 	 * \pre \p it points to an element in this list.
 	 */
-	iterator insertAfter(const E &x, iterator it) {
+	iterator insertAfter(const E& x, iterator it) {
 		OGDF_ASSERT(it.listOf() == this);
-		ListElement<E> *pY = it, *pX;
-		ListElement<E> *pYnext = pY->m_next;
+		ListElement<E>*pY = it, *pX;
+		ListElement<E>* pYnext = pY->m_next;
 		pY->m_next = pX = new ListElement<E>(this, x, pYnext, pY);
-		if (pYnext) pYnext->m_prev = pX;
-		else m_tail = pX;
+		if (pYnext) {
+			pYnext->m_prev = pX;
+		} else {
+			m_tail = pX;
+		}
 		return pX;
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Removing elements
 	 * These method remove elements from the list.
 	 */
-	//@{
+	//! @{
 
 	//! Removes the first element from the list.
 	/**
@@ -658,11 +696,14 @@ public:
 	 */
 	void popFront() {
 		OGDF_ASSERT(m_head != nullptr);
-		ListElement<E> *pX = m_head;
+		ListElement<E>* pX = m_head;
 		m_head = m_head->m_next;
 		delete pX;
-		if (m_head) m_head->m_prev = nullptr;
-		else m_tail = nullptr;
+		if (m_head) {
+			m_head->m_prev = nullptr;
+		} else {
+			m_tail = nullptr;
+		}
 	}
 
 	//! Removes the first element from the list and returns it.
@@ -681,11 +722,14 @@ public:
 	 */
 	void popBack() {
 		OGDF_ASSERT(m_tail != nullptr);
-		ListElement<E> *pX = m_tail;
+		ListElement<E>* pX = m_tail;
 		m_tail = m_tail->m_prev;
 		delete pX;
-		if (m_tail) m_tail->m_next = nullptr;
-		else m_head = nullptr;
+		if (m_tail) {
+			m_tail->m_next = nullptr;
+		} else {
+			m_head = nullptr;
+		}
 	}
 
 	//! Removes the last element from the list and returns it.
@@ -704,12 +748,18 @@ public:
 	 */
 	void del(iterator it) {
 		OGDF_ASSERT(it.listOf() == this);
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		delete pX;
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 	}
 
 	//! Removes the first occurrence of \p x (if any) from the list.
@@ -719,33 +769,38 @@ public:
 	 *
 	 * \return true if one element has been removed, false otherwise.
 	 */
-	bool removeFirst(const E &x) {
-		for(ListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next)
-			if(pX->m_x == x) {
-				del(pX); return true;
+	bool removeFirst(const E& x) {
+		for (ListElement<E>* pX = m_head; pX != nullptr; pX = pX->m_next) {
+			if (pX->m_x == x) {
+				del(pX);
+				return true;
 			}
+		}
 		return false;
 	}
 
 	//! Removes all elements from the list.
 	void clear() {
-		if (m_head == nullptr) return;
+		if (m_head == nullptr) {
+			return;
+		}
 
 		if (!std::is_trivially_destructible<E>::value) {
-			for(ListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next)
+			for (ListElement<E>* pX = m_head; pX != nullptr; pX = pX->m_next) {
 				pX->m_x.~E();
+			}
 		}
-		OGDF_ALLOCATOR::deallocateList(sizeof(ListElement<E>),m_head,m_tail);
+		OGDF_ALLOCATOR::deallocateList(sizeof(ListElement<E>), m_head, m_tail);
 
 		m_head = m_tail = nullptr;
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Moving elements
 	 * The method allow to change the order of elements within the list, or to move elements to another list.
 	 */
-	//@{
+	//! @{
 
 	//! Exchanges the positions of \p it1 and \p it2 in the list.
 	/**
@@ -755,32 +810,46 @@ public:
 		OGDF_ASSERT(it1.valid());
 		OGDF_ASSERT(it2.valid());
 		OGDF_ASSERT(it1 != it2);
-		ListElement<E> *pX = it1, *pY = it2;
+		ListElement<E>*pX = it1, *pY = it2;
 
-		std::swap(pX->m_next,pY->m_next);
-		std::swap(pX->m_prev,pY->m_prev);
+		std::swap(pX->m_next, pY->m_next);
+		std::swap(pX->m_prev, pY->m_prev);
 #ifdef OGDF_DEBUG
-		std::swap(pX->m_list,pY->m_list);
+		std::swap(pX->m_list, pY->m_list);
 #endif
 
-		if(pX->m_next == pX) {
-			pX->m_next = pY; pY->m_prev = pX;
+		if (pX->m_next == pX) {
+			pX->m_next = pY;
+			pY->m_prev = pX;
 		}
-		if(pX->m_prev == pX) {
-			pX->m_prev = pY; pY->m_next = pX;
+		if (pX->m_prev == pX) {
+			pX->m_prev = pY;
+			pY->m_next = pX;
 		}
 
-		if(pX->m_prev) pX->m_prev->m_next = pX;
-		else m_head = pX;
+		if (pX->m_prev) {
+			pX->m_prev->m_next = pX;
+		} else {
+			m_head = pX;
+		}
 
-		if(pY->m_prev) pY->m_prev->m_next = pY;
-		else m_head = pY;
+		if (pY->m_prev) {
+			pY->m_prev->m_next = pY;
+		} else {
+			m_head = pY;
+		}
 
-		if(pX->m_next) pX->m_next->m_prev = pX;
-		else m_tail = pX;
+		if (pX->m_next) {
+			pX->m_next->m_prev = pX;
+		} else {
+			m_tail = pX;
+		}
 
-		if(pY->m_next) pY->m_next->m_prev = pY;
-		else m_tail = pY;
+		if (pY->m_next) {
+			pY->m_next->m_prev = pY;
+		} else {
+			m_tail = pY;
+		}
 	}
 
 	//! Moves \p it to the begin of the list.
@@ -790,14 +859,21 @@ public:
 	void moveToFront(iterator it) {
 		OGDF_ASSERT(it.listOf() == this);
 		// remove it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		//already at front
-		if (!pPrev) return;
+		if (!pPrev) {
+			return;
+		}
 
 		//update old position
-		if (pPrev) pPrev->m_next = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// insert it at front
 		pX->m_prev = nullptr;
 		pX->m_next = m_head;
@@ -811,14 +887,21 @@ public:
 	void moveToBack(iterator it) {
 		OGDF_ASSERT(it.listOf() == this);
 		// remove it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		//already at back
-		if (!pNext) return;
+		if (!pNext) {
+			return;
+		}
 
 		//update old position
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		}
 		// insert it at back
 		pX->m_prev = m_tail;
 		pX->m_next = nullptr;
@@ -833,21 +916,32 @@ public:
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(itBefore.listOf() == this);
 		// move it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		//the same of already in place
-		ListElement<E> *pY = itBefore;
-		if(pX == pY || pPrev == pY) return;
+		ListElement<E>* pY = itBefore;
+		if (pX == pY || pPrev == pY) {
+			return;
+		}
 
 		// update old position
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// move it after itBefore
-		ListElement<E> *pYnext = pX->m_next = pY->m_next;
+		ListElement<E>* pYnext = pX->m_next = pY->m_next;
 		(pX->m_prev = pY)->m_next = pX;
-		if (pYnext) pYnext->m_prev = pX;
-		else m_tail = pX;
+		if (pYnext) {
+			pYnext->m_prev = pX;
+		} else {
+			m_tail = pX;
+		}
 	}
 
 	//! Moves \p it before \p itAfter.
@@ -858,42 +952,60 @@ public:
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(itAfter.listOf() == this);
 		// move it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		//the same of already in place
-		ListElement<E> *pY = itAfter;
-		if(pX == pY || pNext == pY) return;
+		ListElement<E>* pY = itAfter;
+		if (pX == pY || pNext == pY) {
+			return;
+		}
 
 		// update old position
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// move it before itAfter
-		ListElement<E> *pYprev = pX->m_prev = pY->m_prev;
+		ListElement<E>* pYprev = pX->m_prev = pY->m_prev;
 		(pX->m_next = pY)->m_prev = pX;
-		if (pYprev) pYprev->m_next = pX;
-		else m_head = pX;
+		if (pYprev) {
+			pYprev->m_next = pX;
+		} else {
+			m_head = pX;
+		}
 	}
 
 	//! Moves \p it to the begin of \p L2.
 	/**
 	 * \pre \p it points to an element in this list.
 	 */
-	void moveToFront(iterator it, ListPure<E> &L2) {
+	void moveToFront(iterator it, ListPure<E>& L2) {
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(this != &L2);
 		// remove it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// insert it at front of L2
 		pX->m_prev = nullptr;
-		if ((pX->m_next = L2.m_head) != nullptr)
+		if ((pX->m_next = L2.m_head) != nullptr) {
 			L2.m_head = L2.m_head->m_prev = pX;
-		else
+		} else {
 			L2.m_head = L2.m_tail = pX;
+		}
 
 #ifdef OGDF_DEBUG
 		pX->m_list = &L2;
@@ -904,21 +1016,28 @@ public:
 	/**
 	 * \pre \p it points to an element in this list.
 	 */
-	void moveToBack(iterator it, ListPure<E> &L2) {
+	void moveToBack(iterator it, ListPure<E>& L2) {
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(this != &L2);
 		// remove it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// insert it at back of L2
 		pX->m_next = nullptr;
-		if ((pX->m_prev = L2.m_tail) != nullptr)
+		if ((pX->m_prev = L2.m_tail) != nullptr) {
 			L2.m_tail = L2.m_tail->m_next = pX;
-		else
+		} else {
 			L2.m_head = L2.m_tail = pX;
+		}
 
 #ifdef OGDF_DEBUG
 		pX->m_list = this;
@@ -930,22 +1049,31 @@ public:
 	 * \pre \p it points to an element in this list, and \p itBefore
 	 *      points to an element in \p L2.
 	 */
-	void moveToSucc(iterator it, ListPure<E> &L2, iterator itBefore) {
+	void moveToSucc(iterator it, ListPure<E>& L2, iterator itBefore) {
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(itBefore.listOf() == &L2);
 		OGDF_ASSERT(this != &L2);
 		// remove it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// insert it in list L2 after itBefore
-		ListElement<E> *pY = itBefore;
-		ListElement<E> *pYnext = pX->m_next = pY->m_next;
+		ListElement<E>* pY = itBefore;
+		ListElement<E>* pYnext = pX->m_next = pY->m_next;
 		(pX->m_prev = pY)->m_next = pX;
-		if (pYnext) pYnext->m_prev = pX;
-		else L2.m_tail = pX;
+		if (pYnext) {
+			pYnext->m_prev = pX;
+		} else {
+			L2.m_tail = pX;
+		}
 
 #ifdef OGDF_DEBUG
 		pX->m_list = &L2;
@@ -957,22 +1085,31 @@ public:
 	 * \pre \p it points to an element in this list, and \p itAfter
 	 *      points to an element in \p L2.
 	 */
-	void moveToPrec(iterator it, ListPure<E> &L2, iterator itAfter) {
+	void moveToPrec(iterator it, ListPure<E>& L2, iterator itAfter) {
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(itAfter.listOf() == &L2);
 		OGDF_ASSERT(this != &L2);
 		// remove it
-		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
-		if (pPrev) pPrev->m_next = pNext;
-		else m_head = pNext;
-		if (pNext) pNext->m_prev = pPrev;
-		else m_tail = pPrev;
+		ListElement<E>*pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
+		if (pPrev) {
+			pPrev->m_next = pNext;
+		} else {
+			m_head = pNext;
+		}
+		if (pNext) {
+			pNext->m_prev = pPrev;
+		} else {
+			m_tail = pPrev;
+		}
 		// insert it in list L2 after itBefore
-		ListElement<E> *pY = itAfter;
-		ListElement<E> *pYprev = pX->m_prev = pY->m_prev;
+		ListElement<E>* pY = itAfter;
+		ListElement<E>* pYprev = pX->m_prev = pY->m_prev;
 		(pX->m_next = pY)->m_prev = pX;
-		if (pYprev) pYprev->m_next = pX;
-		else L2.m_head = pX;
+		if (pYprev) {
+			pYprev->m_next = pX;
+		} else {
+			L2.m_head = pX;
+		}
 
 #ifdef OGDF_DEBUG
 		pX->m_list = &L2;
@@ -980,12 +1117,13 @@ public:
 	}
 
 	//! Appends \p L2 to this list and makes \p L2 empty.
-	void conc(ListPure<E> &L2) {
+	void conc(ListPure<E>& L2) {
 		OGDF_ASSERT(this != &L2);
-		if (m_head)
+		if (m_head) {
 			m_tail->m_next = L2.m_head;
-		else
+		} else {
 			m_head = L2.m_head;
+		}
 		if (L2.m_head) {
 			L2.m_head->m_prev = m_tail;
 			m_tail = L2.m_tail;
@@ -997,12 +1135,13 @@ public:
 	}
 
 	//! Prepends \p L2 to this list and makes \p L2 empty.
-	void concFront(ListPure<E> &L2) {
+	void concFront(ListPure<E>& L2) {
 		OGDF_ASSERT(this != &L2);
-		if (m_head)
+		if (m_head) {
 			m_head->m_prev = L2.m_tail;
-		else
+		} else {
 			m_tail = L2.m_tail;
+		}
 		if (L2.m_head) {
 			L2.m_tail->m_next = m_head;
 			m_head = L2.m_head;
@@ -1014,7 +1153,7 @@ public:
 	}
 
 	//! Exchanges the contents of this list and \p other in constant time.
-	void swap(ListPure<E> &other) {
+	void swap(ListPure<E>& other) {
 		std::swap(m_head, other.m_head);
 		std::swap(m_tail, other.m_tail);
 
@@ -1032,19 +1171,22 @@ public:
 	 * \pre \p it points to an element in this list.
 	 */
 
-	void split(iterator it,ListPure<E> &L1,ListPure<E> &L2,Direction dir = Direction::before) {
+	void split(iterator it, ListPure<E>& L1, ListPure<E>& L2, Direction dir = Direction::before) {
 		OGDF_ASSERT(!it.valid() || it.listOf() == this);
-		if (&L1 != this) L1.clear();
-		if (&L2 != this) L2.clear();
+		if (&L1 != this) {
+			L1.clear();
+		}
+		if (&L2 != this) {
+			L2.clear();
+		}
 
-		if (it.valid()){
+		if (it.valid()) {
 			L1.m_head = m_head;
 			L2.m_tail = m_tail;
-			if (dir == Direction::before){
+			if (dir == Direction::before) {
 				L2.m_head = it;
 				L1.m_tail = L2.m_head->m_prev;
-			}
-			else {
+			} else {
 				L1.m_tail = it;
 				L2.m_head = L1.m_tail->m_next;
 			}
@@ -1065,11 +1207,11 @@ public:
 	}
 
 	//! Splits the list after \p it.
-	void splitAfter(iterator it, ListPure<E> &L2) {
+	void splitAfter(iterator it, ListPure<E>& L2) {
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(this != &L2);
 		L2.clear();
-		ListElement<E> *pX = it;
+		ListElement<E>* pX = it;
 		if (pX != m_tail) {
 			(L2.m_head = pX->m_next)->m_prev = nullptr;
 			pX->m_next = nullptr;
@@ -1081,16 +1223,18 @@ public:
 	}
 
 	//! Splits the list before \p it.
-	void splitBefore(iterator it, ListPure<E> &L2) {
+	void splitBefore(iterator it, ListPure<E>& L2) {
 		OGDF_ASSERT(it.listOf() == this);
 		OGDF_ASSERT(this != &L2);
 		L2.clear();
-		ListElement<E> *pX = it;
-		L2.m_head = pX; L2.m_tail = m_tail;
-		if ((m_tail = pX->m_prev) == nullptr)
+		ListElement<E>* pX = it;
+		L2.m_head = pX;
+		L2.m_tail = m_tail;
+		if ((m_tail = pX->m_prev) == nullptr) {
 			m_head = nullptr;
-		else
+		} else {
 			m_tail->m_next = nullptr;
+		}
 		pX->m_prev = nullptr;
 
 		L2.reassignListRefs();
@@ -1098,66 +1242,82 @@ public:
 
 	//! Reverses the order of the list elements.
 	void reverse() {
-		ListElement<E> *pX = m_head;
+		ListElement<E>* pX = m_head;
 		m_head = m_tail;
 		m_tail = pX;
-		while(pX) {
-			ListElement<E> *pY = pX->m_next;
+		while (pX) {
+			ListElement<E>* pY = pX->m_next;
 			pX->m_next = pX->m_prev;
 			pX = pX->m_prev = pY;
 		}
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Searching and sorting
 	 * These methods provide searching for values and sorting the list.
 	 */
-	//@{
+	//! @{
 
-	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	//! Scans the list for the specified element and returns an iterator to the
+	//! first occurrence in the list, or an invalid iterator if not found.
 	ListConstIterator<E> search(const E& e) const {
 		ListConstIterator<E> i;
-		for (i = begin(); i.valid(); ++i)
-			if (*i == e) return i;
+		for (i = begin(); i.valid(); ++i) {
+			if (*i == e) {
+				return i;
+			}
+		}
 		return i;
 	}
 
-	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	//! Scans the list for the specified element and returns an iterator to the
+	//! first occurrence in the list, or an invalid iterator if not found.
 	ListIterator<E> search(const E& e) {
 		ListIterator<E> i;
-		for (i = begin(); i.valid(); ++i)
-			if (*i == e) return i;
+		for (i = begin(); i.valid(); ++i) {
+			if (*i == e) {
+				return i;
+			}
+		}
 		return i;
 	}
 
-	//! Scans the list for the specified element (using the user-defined comparer) and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	//! Scans the list for the specified element (using the user-defined
+	//! comparer) and returns an iterator to the first occurrence in the list, or
+	//! an invalid iterator if not found.
 	template<class COMPARER>
-	ListConstIterator<E> search(const E &e, const COMPARER &comp) const {
+	ListConstIterator<E> search(const E& e, const COMPARER& comp) const {
 		ListConstIterator<E> i;
-		for (i = begin(); i.valid(); ++i)
-			if (comp.equal(*i, e)) return i;
+		for (i = begin(); i.valid(); ++i) {
+			if (comp.equal(*i, e)) {
+				return i;
+			}
+		}
 		return i;
 	}
 
-	//! Scans the list for the specified element (using the user-defined comparer) and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	//! Scans the list for the specified element (using the user-defined
+	//! comparer) and returns an iterator to the first occurrence in the list, or
+	//! an invalid iterator if not found.
 	template<class COMPARER>
-	ListIterator<E> search(const E &e, const COMPARER &comp) {
+	ListIterator<E> search(const E& e, const COMPARER& comp) {
 		ListIterator<E> i;
-		for (i = begin(); i.valid(); ++i)
-			if (comp.equal(*i, e)) return i;
+		for (i = begin(); i.valid(); ++i) {
+			if (comp.equal(*i, e)) {
+				return i;
+			}
+		}
 		return i;
 	}
 
 	//! Sorts the list using Quicksort.
-	void quicksort() {
-		ogdf::quicksortTemplate(*this);
-	}
+	void quicksort() { ogdf::quicksortTemplate(*this); }
 
 	//! Sorts the list using Quicksort and comparer \p comp.
 	template<class COMPARER>
-	void quicksort(const COMPARER &comp) {
-		ogdf::quicksortTemplate(*this,comp);
+	void quicksort(const COMPARER& comp) {
+		ogdf::quicksortTemplate(*this, comp);
 	}
 
 	//! Sorts the list using bucket sort.
@@ -1168,14 +1328,14 @@ public:
 	 * \pre The bucket function \p f will only return bucket values between \p l
 	 * and \p h for this list.
 	 */
-	void bucketSort(int l, int h, BucketFunc<E> &f);
+	void bucketSort(int l, int h, BucketFunc<E>& f);
 
-	//@}
+	//! @}
 	/**
 	 * @name Random elements and permutations
 	 * These methods allow to select a random element in the list, or to randomly permute the list.
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * Returns an iterator to a random element.
@@ -1231,27 +1391,28 @@ public:
 
 	//! Randomly permutes the elements in the list using random number generator \p rng.
 	template<class RNG>
-	void permute(RNG &rng) {
+	void permute(RNG& rng) {
 		permute(size(), rng);
 	}
 
-	//@}
+	//! @}
 
 protected:
-	void copy(const ListPure<E> &L) {
-		for(ListElement<E> *pX = L.m_head; pX != nullptr; pX = pX->m_next)
+	void copy(const ListPure<E>& L) {
+		for (ListElement<E>* pX = L.m_head; pX != nullptr; pX = pX->m_next) {
 			pushBack(pX->m_x);
+		}
 	}
 
 	template<class RNG>
 
 	//! permutes elements in list randomly; n is the length of the list
-	void permute(const int n, RNG &rng);
+	void permute(const int n, RNG& rng);
 
 	//! Sets the debug reference of all list elements starting at \p start to \c this.
-	inline void reassignListRefs(ListElement<E> *start = nullptr) {
+	inline void reassignListRefs(ListElement<E>* start = nullptr) {
 #ifdef OGDF_DEBUG
-		for(auto e = start == nullptr ? m_head : start; e != nullptr; e = e->m_next) {
+		for (auto e = start == nullptr ? m_head : start; e != nullptr; e = e->m_next) {
 			e->m_list = this;
 		}
 #endif
@@ -1290,21 +1451,19 @@ public:
 	List(std::initializer_list<E> init) : ListPure<E>(init), m_count((int)init.size()) { }
 
 	//! Constructs a doubly linked list that is a copy of \p L.
-	List(const List<E> &L) : ListPure<E>(L), m_count(L.m_count) { }
+	List(const List<E>& L) : ListPure<E>(L), m_count(L.m_count) { }
 
 	//! Constructs a doubly linked list containing the elements of \p L (move semantics).
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	List(List<E> &&L) : ListPure<E>(std::move(L)), m_count(L.m_count) {
-		L.m_count = 0;
-	}
+	List(List<E>&& L) : ListPure<E>(std::move(L)), m_count(L.m_count) { L.m_count = 0; }
 
 	/**
 	 * @name Access methods
 	 * These methods provide simple access without changing the list.
 	 */
-	//@{
+	//! @{
 
 	//! Returns the number of elements in the list.
 	/**
@@ -1313,17 +1472,17 @@ public:
 	int size() const { return m_count; }
 
 	//! Conversion to const ListPure.
-	const ListPure<E> &getListPure() const { return *this; }
+	const ListPure<E>& getListPure() const { return *this; }
 
-	//@}
+	//! @}
 	/**
 	 * @name Operators
 	 * The following operators are provided by lists.
 	 */
-	//@{
+	//! @{
 
 	//! Assignment operator.
-	List<E> &operator=(const List<E> &L) {
+	List<E>& operator=(const List<E>& L) {
 		ListPure<E>::operator=(L);
 		m_count = L.m_count;
 		return *this;
@@ -1333,7 +1492,7 @@ public:
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	List<E> &operator=(List<E> &&L) {
+	List<E>& operator=(List<E>&& L) {
 		m_count = L.m_count;
 		ListPure<E>::operator=(std::move(L));
 		L.m_count = 0;
@@ -1341,72 +1500,70 @@ public:
 	}
 
 	//! @copydoc ogdf::ListPure::operator==
-	bool operator==(const List<E> &L) const {
+	bool operator==(const List<E>& L) const {
 		return (m_count == L.m_count) && ListPure<E>::operator==(L);
 	}
 
 	//! @copydoc ogdf::ListPure::operator!=
-	bool operator!=(const List<E> &L) const {
-		return !operator==(L);
-	}
+	bool operator!=(const List<E>& L) const { return !operator==(L); }
 
-	//@}
+	//! @}
 	/**
 	 * @name Adding elements
 	 * These method add elements to the list.
 	 */
-	//@{
+	//! @{
 
 	//! @copydoc ogdf::ListPure::pushFront
-	iterator pushFront(const E &x) {
+	iterator pushFront(const E& x) {
 		++m_count;
 		return ListPure<E>::pushFront(x);
 	}
 
 	//! @copydoc ogdf::ListPure::emplaceFront
-	template<class ... Args>
-	iterator emplaceFront(Args && ... args) {
+	template<class... Args>
+	iterator emplaceFront(Args&&... args) {
 		++m_count;
 		return ListPure<E>::emplaceFront(std::forward<Args>(args)...);
 	}
 
 	//! @copydoc ogdf::ListPure::pushBack
-	iterator pushBack(const E &x) {
+	iterator pushBack(const E& x) {
 		++m_count;
 		return ListPure<E>::pushBack(x);
 	}
 
 	//! @copydoc ogdf::ListPure::emplaceBack
-	template<class ... Args>
-	iterator emplaceBack(Args && ... args) {
+	template<class... Args>
+	iterator emplaceBack(Args&&... args) {
 		++m_count;
 		return ListPure<E>::emplaceBack(std::forward<Args>(args)...);
 	}
 
 	//! @copydoc ogdf::ListPure::insert
-	iterator insert(const E &x, iterator it, Direction dir = Direction::after) {
+	iterator insert(const E& x, iterator it, Direction dir = Direction::after) {
 		++m_count;
-		return ListPure<E>::insert(x,it,dir);
+		return ListPure<E>::insert(x, it, dir);
 	}
 
 	//! @copydoc ogdf::ListPure::insertBefore
-	iterator insertBefore(const E &x, iterator it) {
+	iterator insertBefore(const E& x, iterator it) {
 		++m_count;
-		return ListPure<E>::insertBefore(x,it);
+		return ListPure<E>::insertBefore(x, it);
 	}
 
 	//! @copydoc ogdf::ListPure::insertAfter
-	iterator insertAfter(const E &x, iterator it) {
+	iterator insertAfter(const E& x, iterator it) {
 		++m_count;
-		return ListPure<E>::insertAfter(x,it);
+		return ListPure<E>::insertAfter(x, it);
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Removing elements
 	 * These method remove elements from the list.
 	 */
-	//@{
+	//! @{
 
 	//! @copydoc ogdf::ListPure::popFront
 	void popFront() {
@@ -1441,10 +1598,11 @@ public:
 	}
 
 	//! @copydoc ogdf::ListPure::removeFirst
-	bool removeFirst(const E &x) {
+	bool removeFirst(const E& x) {
 		bool hasRemoved = ListPure<E>::removeFirst(x);
-		if(hasRemoved)
+		if (hasRemoved) {
 			--m_count;
+		}
 		return hasRemoved;
 	}
 
@@ -1454,67 +1612,74 @@ public:
 		ListPure<E>::clear();
 	}
 
-	//@}
+	//! @}
 	/**
 	 * @name Moving elements
 	 * The method allow to change the order of elements within the list, or to move elements to another list.
 	 */
-	//@{
+	//! @{
 
 	//! @copydoc ogdf::ListPure::moveToFront
-	void moveToFront(iterator it, List<E> &L2) {
-		ListPure<E>::moveToFront(it,L2);
-		--m_count; ++L2.m_count;
+	void moveToFront(iterator it, List<E>& L2) {
+		ListPure<E>::moveToFront(it, L2);
+		--m_count;
+		++L2.m_count;
 	}
 
 	//! @copydoc ogdf::ListPure::moveToBack
-	void moveToBack(iterator it, List<E> &L2) {
-		ListPure<E>::moveToBack(it,L2);
-		--m_count; ++L2.m_count;
+	void moveToBack(iterator it, List<E>& L2) {
+		ListPure<E>::moveToBack(it, L2);
+		--m_count;
+		++L2.m_count;
 	}
 
 	//! @copydoc ogdf::ListPure::moveToSucc
-	void moveToSucc(iterator it, List<E> &L2, iterator itBefore) {
-		ListPure<E>::moveToSucc(it,L2,itBefore);
-		--m_count; ++L2.m_count;
+	void moveToSucc(iterator it, List<E>& L2, iterator itBefore) {
+		ListPure<E>::moveToSucc(it, L2, itBefore);
+		--m_count;
+		++L2.m_count;
 	}
 
 	//! @copydoc ogdf::ListPure::moveToPrec
-	void moveToPrec(iterator it, List<E> &L2, iterator itAfter) {
-		ListPure<E>::moveToPrec(it,L2,itAfter);
-		--m_count; ++L2.m_count;
+	void moveToPrec(iterator it, List<E>& L2, iterator itAfter) {
+		ListPure<E>::moveToPrec(it, L2, itAfter);
+		--m_count;
+		++L2.m_count;
 	}
 
 	//! @copydoc ogdf::ListPure::conc
-	void conc(List<E> &L2) {
+	void conc(List<E>& L2) {
 		ListPure<E>::conc(L2);
 		m_count += L2.m_count;
 		L2.m_count = 0;
 	}
 
 	//! @copydoc ogdf::ListPure::concFront
-	void concFront(List<E> &L2) {
+	void concFront(List<E>& L2) {
 		ListPure<E>::concFront(L2);
 		m_count += L2.m_count;
 		L2.m_count = 0;
 	}
 
 	//! @copydoc ogdf::ListPure::swap
-	void swap(List<E> &other) {
+	void swap(List<E>& other) {
 		ListPure<E>::swap(other);
 		std::swap(m_count, other.m_count);
 	}
 
 	//! @copydoc ogdf::ListPure::split
-	void split(iterator it, List<E> &L1, List<E> &L2, Direction dir = Direction::before) {
-		ListPure<E>::split(it,L1,L2,dir);
+	void split(iterator it, List<E>& L1, List<E>& L2, Direction dir = Direction::before) {
+		ListPure<E>::split(it, L1, L2, dir);
 		int countL = m_count, countL1 = 0;
-		for(ListElement<E> *pX = L1.m_head; pX != nullptr; pX = pX->m_next)
+		for (ListElement<E>* pX = L1.m_head; pX != nullptr; pX = pX->m_next) {
 			++countL1;
+		}
 
 		L1.m_count = countL1;
 		L2.m_count = countL - countL1;
-		if (this->m_head == nullptr) m_count = 0;
+		if (this->m_head == nullptr) {
+			m_count = 0;
+		}
 	}
 
 	using ListPure<E>::empty;
@@ -1549,29 +1714,32 @@ public:
 };
 
 template<class E>
-void ListPure<E>::bucketSort(int l, int h, BucketFunc<E> &f)
-{
-	if (m_head == m_tail) return;
-
-	Array<ListElement<E> *> head(l,h,nullptr), tail(l,h);
-
-	ListElement<E> *pX;
-	for (pX = m_head; pX; pX = pX->m_next) {
-		int i = f.getBucket(pX->m_x);
-		if (head[i])
-			tail[i] = ((pX->m_prev = tail[i])->m_next = pX);
-		else
-			head[i] = tail[i] = pX;
+void ListPure<E>::bucketSort(int l, int h, BucketFunc<E>& f) {
+	if (m_head == m_tail) {
+		return;
 	}
 
-	ListElement<E> *pY = nullptr;
+	Array<ListElement<E>*> head(l, h, nullptr), tail(l, h);
+
+	ListElement<E>* pX;
+	for (pX = m_head; pX; pX = pX->m_next) {
+		int i = f.getBucket(pX->m_x);
+		if (head[i]) {
+			tail[i] = ((pX->m_prev = tail[i])->m_next = pX);
+		} else {
+			head[i] = tail[i] = pX;
+		}
+	}
+
+	ListElement<E>* pY = nullptr;
 	for (int i = l; i <= h; i++) {
 		pX = head[i];
 		if (pX) {
 			if (pY) {
 				(pY->m_next = pX)->m_prev = pY;
-			} else
+			} else {
 				(m_head = pX)->m_prev = nullptr;
+			}
 			pY = tail[i];
 		}
 	}
@@ -1582,25 +1750,27 @@ void ListPure<E>::bucketSort(int l, int h, BucketFunc<E> &f)
 
 template<class E>
 template<class RNG>
-void ListPure<E>::permute(const int n, RNG &rng)
-{
+void ListPure<E>::permute(const int n, RNG& rng) {
 	//if n==0 do nothing
-	if (n == 0) { return; }
+	if (n == 0) {
+		return;
+	}
 
-	Array<ListElement<E> *> A(n+2);
-	A[0] = A[n+1] = nullptr;
+	Array<ListElement<E>*> A(n + 2);
+	A[0] = A[n + 1] = nullptr;
 
 	int i = 1;
-	ListElement<E> *pX;
-	for (pX = m_head; pX; pX = pX->m_next)
+	ListElement<E>* pX;
+	for (pX = m_head; pX; pX = pX->m_next) {
 		A[i++] = pX;
+	}
 
-	A.permute(1,n,rng);
+	A.permute(1, n, rng);
 
 	for (i = 1; i <= n; i++) {
 		pX = A[i];
-		pX->m_next = A[i+1];
-		pX->m_prev = A[i-1];
+		pX->m_next = A[i + 1];
+		pX->m_prev = A[i - 1];
 	}
 
 	m_head = A[1];
@@ -1609,35 +1779,32 @@ void ListPure<E>::permute(const int n, RNG &rng)
 
 //! Prints list \p L to output stream \p os using delimiter \p delim.
 template<class E>
-void print(std::ostream &os, const ListPure<E> &L, char delim = ' ')
-{
+void print(std::ostream& os, const ListPure<E>& L, char delim = ' ') {
 	typename ListPure<E>::const_iterator pX = L.begin();
 	if (pX.valid()) {
 		os << *pX;
-		for(++pX; pX.valid(); ++pX)
+		for (++pX; pX.valid(); ++pX) {
 			os << delim << *pX;
+		}
 	}
 }
 
 //! Prints list \p L to output stream \p os using delimiter \p delim.
 template<class E>
-void print(std::ostream &os, const List<E> &L, char delim = ' ')
-{
+void print(std::ostream& os, const List<E>& L, char delim = ' ') {
 	print(os, L.getListPure(), delim);
 }
 
 //! Prints list \p L to output stream \p os.
 template<class E>
-std::ostream &operator<<(std::ostream &os, const ListPure<E> &L)
-{
-	print(os,L);
+std::ostream& operator<<(std::ostream& os, const ListPure<E>& L) {
+	print(os, L);
 	return os;
 }
 
 //! Prints list \p L to output stream \p os.
 template<class E>
-std::ostream &operator<<(std::ostream &os, const List<E> &L)
-{
+std::ostream& operator<<(std::ostream& os, const List<E>& L) {
 	return os << L.getListPure();
 }
 

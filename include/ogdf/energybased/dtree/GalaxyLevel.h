@@ -35,8 +35,7 @@ namespace energybased {
 namespace dtree {
 
 //! Simple implementation of the slightly modified version of Hachul by Gronemann
-class OGDF_EXPORT GalaxyLevel
-{
+class OGDF_EXPORT GalaxyLevel {
 public:
 	//! constructor for the finest level i.e. the original graph
 	//! \pre the graph has to be connected
@@ -113,4 +112,6 @@ private:
 	EdgeArray<double> m_edgeWeight;
 };
 
-}}}
+}
+}
+}

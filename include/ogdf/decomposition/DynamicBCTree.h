@@ -86,7 +86,7 @@ protected:
 	/** @{
 	 * Initialization of \a m_bNode_owner and \a m_bNode_degree.
 	 */
-	void init ();
+	void init();
 	//! @}
 
 	/** @{
@@ -100,7 +100,7 @@ protected:
 	 * \pre \p uB and \p wB have to be adjacent to \p vB.
 	 * \return the vertex properly representing the condensed B-component.
 	 */
-	node unite (node uB, node vB, node wB);
+	node unite(node uB, node vB, node wB);
 
 	/**
 	 * The FIND function of the UNION/FIND structure.
@@ -108,7 +108,7 @@ protected:
 	 * \return the owner of \p vB properly representing a biconnected component,
 	 * i.e. the root of the UNION/FIND-tree of \p vB.
 	 */
-	node find (node vB) const;
+	node find(node vB) const;
 	//! @}
 
 	/** @{
@@ -118,7 +118,7 @@ protected:
 	 * root of the BC-tree, and \a nullptr, if \p vB is \a nullptr or the root of the
 	 * BC-tree. The UNION/FIND-tree structures are considered.
 	 */
-	node parent (node vB) const override;
+	node parent(node vB) const override;
 
 	/**
 	 * Performs path condensation.
@@ -130,7 +130,7 @@ protected:
 	 * \param tG is a vertex of the original graph.
 	 * \return the proper representant of the resulting B-component.
 	 */
-	node condensePath (node sG, node tG);
+	node condensePath(node sG, node tG);
 	//! @}
 
 public:
@@ -143,7 +143,10 @@ public:
 	 * \param G is the original graph.
 	 * \param callInitConnected decides which init is called, default call is init().
 	 */
-	explicit DynamicBCTree (Graph& G, bool callInitConnected = false) : BCTree(G, callInitConnected) { init(); }
+	explicit DynamicBCTree(Graph& G, bool callInitConnected = false)
+		: BCTree(G, callInitConnected) {
+		init();
+	}
 
 	/**
 	 * A constructor.
@@ -153,7 +156,11 @@ public:
 	 * \param vG is the vertex of the original graph which the DFS algorithm starts with.
 	 * \param callInitConnected decides which init is called, default call is init().
 	 */
-	DynamicBCTree (Graph& G, node vG, bool callInitConnected = false) : BCTree(G,vG, callInitConnected) { init(); }
+	DynamicBCTree(Graph& G, node vG, bool callInitConnected = false)
+		: BCTree(G, vG, callInitConnected) {
+		init();
+	}
+
 	//! @}
 
 	/** @{
@@ -171,7 +178,7 @@ public:
 	 * The difference between BCTree::bcproper() and DynamicBCTree::bcproper() is,
 	 * that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node bcproper (node vG) const override;
+	node bcproper(node vG) const override;
 
 	/**
 	 * Returns the BC-tree-vertex representing the biconnected component
@@ -183,7 +190,8 @@ public:
 	 * The difference between BCTree::bcproper() and DynamicBCTree::bcproper() is,
 	 * that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node bcproper (edge eG) const override;
+	node bcproper(edge eG) const override;
+
 	//! @}
 
 	/** @{
@@ -202,7 +210,7 @@ public:
 	 * The difference between BCTree::repVertex() and DynamicBCTree::repVertex()
 	 * is, that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node repVertex (node uG, node vB) const override { return BCTree::repVertex(uG,find(vB)); }
+	node repVertex(node uG, node vB) const override { return BCTree::repVertex(uG, find(vB)); }
 
 	/**
 	 * Returns the copy of a cut-vertex in the biconnected components graph
@@ -236,7 +244,10 @@ public:
 	 * The difference between BCTree::cutVertex() and DynamicBCTree::cutVertex()
 	 * is, that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node cutVertex (node uB, node vB) const override { return BCTree::cutVertex(find(uB),find(vB)); }
+	node cutVertex(node uB, node vB) const override {
+		return BCTree::cutVertex(find(uB), find(vB));
+	}
+
 	//! @}
 
 	/** @{
@@ -255,7 +266,7 @@ public:
 	 * number of such operations.
 	 * \return the new edge of the original graph.
 	 */
-	virtual edge updateInsertedEdge (edge eG);
+	virtual edge updateInsertedEdge(edge eG);
 
 	/**
 	 * Update of the dynamic BC-tree after vertex insertion into the
@@ -274,7 +285,7 @@ public:
 	 * updated by this member funtion. It takes \a O(1) time.
 	 * \return the new vertex of the original graph.
 	 */
-	virtual node updateInsertedNode (edge eG, edge fG);
+	virtual node updateInsertedNode(edge eG, edge fG);
 
 	/**
 	 * Inserts a new edge into the original graph and updates the BC-tree.
@@ -285,7 +296,7 @@ public:
 	 * \param tG is a vertex of the original graph.
 	 * \return the new edge of the original graph.
 	 */
-	edge insertEdge (node sG, node tG) { return updateInsertedEdge(m_G.newEdge(sG,tG)); }
+	edge insertEdge(node sG, node tG) { return updateInsertedEdge(m_G.newEdge(sG, tG)); }
 
 	/**
 	 * Inserts a new vertex into the original graph and updates the BC-tree.
@@ -295,7 +306,8 @@ public:
 	 * \param eG is an edge of the original graph.
 	 * \return the new vertex of the original graph.
 	 */
-	node insertNode (edge eG) { return updateInsertedNode(eG,m_G.split(eG)); }
+	node insertNode(edge eG) { return updateInsertedNode(eG, m_G.split(eG)); }
+
 	//! @}
 
 	/** @{
@@ -312,7 +324,7 @@ public:
 	 * The difference between BCTree::bComponent() and DynamicBCTree::bComponent()
 	 * is, that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node bComponent (node uG, node vG) const;
+	node bComponent(node uG, node vG) const;
 
 	//! @}
 };

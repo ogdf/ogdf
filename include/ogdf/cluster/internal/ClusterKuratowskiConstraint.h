@@ -37,9 +37,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
 
 #include <ogdf/lib/abacus/constraint.h>
 
@@ -48,26 +48,24 @@ namespace cluster_planarity {
 
 class ClusterKuratowskiConstraint : public abacus::Constraint {
 public:
-	ClusterKuratowskiConstraint(abacus::Master *master, int nEdges, SListPure<NodePair> &ks);
+	ClusterKuratowskiConstraint(abacus::Master* master, int nEdges, SListPure<NodePair>& ks);
 
 	virtual ~ClusterKuratowskiConstraint();
 
 	// Computes and returns the coefficient for the given variable
-	virtual double coeff(const abacus::Variable *v) const override;
+	virtual double coeff(const abacus::Variable* v) const override;
 
 	void printMe(std::ostream& out) const {
 		out << "[KuraCon: ";
-		for(const NodePair &p : m_subdivision) {
+		for (const NodePair& p : m_subdivision) {
 			out << p << ",";
 		}
 		out << "]";
 	}
 
 private:
-
 	// The subdivision containing edges forming a SubGraph that is not planar
 	List<NodePair> m_subdivision;
-
 };
 
 }

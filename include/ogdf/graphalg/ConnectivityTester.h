@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/graphalg/MaxFlowModule.h>
-#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 
 namespace ogdf {
 
@@ -48,13 +48,13 @@ namespace ogdf {
  */
 class OGDF_EXPORT ConnectivityTester {
 private:
-	MaxFlowModule<int> *m_flowAlgo;
-	NodeArray<node> *m_source;
+	MaxFlowModule<int>* m_flowAlgo;
+	NodeArray<node>* m_source;
 	bool m_usingDefaultMaxFlow;
 	bool m_graphCopied;
 	bool m_nodeConnectivity;
 	bool m_directed;
-	const Graph *m_graph;
+	const Graph* m_graph;
 
 	/**
 	* Prepares the graph.
@@ -63,7 +63,7 @@ private:
 	*
 	* @param graph The original graph
 	*/
-	void prepareGraph(const Graph &graph);
+	void prepareGraph(const Graph& graph);
 
 	/**
 	* Computes the connectivity of two nodes of the transformed graph.
@@ -81,14 +81,14 @@ private:
 	*               The connectivity of a node with itself is returned as 0.
 	* @return The minimal connectivity of any two nodes in the graph.
 	*/
-	int computeConnectivity(NodeArray<NodeArray<int>> &result);
+	int computeConnectivity(NodeArray<NodeArray<int>>& result);
 
 	/**
 	* Makes the graph bi-directed.
 	*
 	* @param graph The graph to be altered.
 	*/
-	void duplicateEdges(Graph &graph);
+	void duplicateEdges(Graph& graph);
 
 	/**
 	* Restricts the flow through each node to 1.
@@ -96,7 +96,7 @@ private:
 	*
 	* @param graph The graph to be altered.
 	*/
-	void restrictNodes(Graph &graph);
+	void restrictNodes(Graph& graph);
 
 	/**
 	* Retuns the node of the transformed graph corresponding to node \p v.
@@ -114,8 +114,8 @@ public:
 	* @param nodeConnectivity Whether to compute node connectivity instead of edge connectivity
 	* @param directed Whether to consider edges to be directed
 	*/
-	explicit ConnectivityTester(bool nodeConnectivity = true, bool directed = false) :
-	  ConnectivityTester(new MaxFlowGoldbergTarjan<int>(), nodeConnectivity, directed) {
+	explicit ConnectivityTester(bool nodeConnectivity = true, bool directed = false)
+		: ConnectivityTester(new MaxFlowGoldbergTarjan<int>(), nodeConnectivity, directed) {
 		m_usingDefaultMaxFlow = true;
 	}
 
@@ -126,15 +126,15 @@ public:
 	* @param nodeConnectivity Whether to compute node connectivity instead of edge connectivity
 	* @param directed Whether to consider edges to be directed
 	*/
-	ConnectivityTester(MaxFlowModule<int> *flowAlgo, bool nodeConnectivity = true, bool directed = false) :
-	  m_flowAlgo(flowAlgo),
-	  m_source(nullptr),
-	  m_usingDefaultMaxFlow(false),
-	  m_graphCopied(false),
-	  m_nodeConnectivity(nodeConnectivity),
-	  m_directed(directed),
-	  m_graph(nullptr) {
-	}
+	ConnectivityTester(MaxFlowModule<int>* flowAlgo, bool nodeConnectivity = true,
+			bool directed = false)
+		: m_flowAlgo(flowAlgo)
+		, m_source(nullptr)
+		, m_usingDefaultMaxFlow(false)
+		, m_graphCopied(false)
+		, m_nodeConnectivity(nodeConnectivity)
+		, m_directed(directed)
+		, m_graph(nullptr) { }
 
 	/**
 	* Destroys the connectivity tester and frees allocated memory.
@@ -160,7 +160,7 @@ public:
 	* @param v The source node
 	* @param u The target node
 	*/
-	int computeConnectivity(const Graph &graph, node v, node u) {
+	int computeConnectivity(const Graph& graph, node v, node u) {
 		prepareGraph(graph);
 
 		return computeConnectivity(copyOf(v, true), copyOf(u));
@@ -175,7 +175,7 @@ public:
 	*               The connectivity of a node with itself is returned as 0.
 	* @return The minimal connectivity of any two nodes in the graph.
 	*/
-	int computeConnectivity(const Graph &graph, NodeArray<NodeArray<int>> &result) {
+	int computeConnectivity(const Graph& graph, NodeArray<NodeArray<int>>& result) {
 		prepareGraph(graph);
 
 		return computeConnectivity(result);

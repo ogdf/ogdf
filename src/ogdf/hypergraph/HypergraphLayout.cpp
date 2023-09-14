@@ -31,26 +31,22 @@
 
 #include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/HypergraphLayout.h>
-
+#include <ogdf/orthogonal/OrthoLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-
-#include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/planarity/FixedEmbeddingInserter.h>
-
-#include <ogdf/orthogonal/OrthoLayout.h>
+#include <ogdf/planarity/SubgraphPlanarizer.h>
 
 namespace ogdf {
 
-HypergraphLayoutES::HypergraphLayoutES()
-{
+HypergraphLayoutES::HypergraphLayoutES() {
 	m_profile = HypergraphLayoutES::Profile::Normal;
 	m_crossings = 0;
 	m_ratio = 1.0;
 	m_constraintIO = false;
 	m_constraintPorts = false;
-	SubgraphPlanarizer *crossMin = new SubgraphPlanarizer;
+	SubgraphPlanarizer* crossMin = new SubgraphPlanarizer;
 	crossMin->setSubgraph(new PlanarSubgraphFast<int>);
 	crossMin->setInserter(new FixedEmbeddingInserter);
 	m_crossingMinimizationModule.reset(crossMin);
@@ -58,22 +54,20 @@ HypergraphLayoutES::HypergraphLayoutES()
 	m_embeddingModule.reset(new SimpleEmbedder);
 }
 
-
-void HypergraphLayoutES::call(HypergraphAttributes &pHA)
-{
-	if (pHA.constHypergraph().empty())
+void HypergraphLayoutES::call(HypergraphAttributes& pHA) {
+	if (pHA.constHypergraph().empty()) {
 		return;
+	}
 
-	HypergraphAttributesES &HA = dynamic_cast<HypergraphAttributesES &>(pHA);
+	HypergraphAttributesES& HA = dynamic_cast<HypergraphAttributesES&>(pHA);
 
 	GraphCopySimple gc(HA.repGraph());
 	GraphAttributes ga(gc,
-	  GraphAttributes::nodeGraphics | GraphAttributes::nodeType |
-	  GraphAttributes::edgeType);
+			GraphAttributes::nodeGraphics | GraphAttributes::nodeType | GraphAttributes::edgeType);
 
-	for(node v : gc.nodes) {
+	for (node v : gc.nodes) {
 		node vOrig = gc.original(v);
-		ga.width(v)  = HA.repGA().width(vOrig);
+		ga.width(v) = HA.repGA().width(vOrig);
 		ga.height(v) = HA.repGA().width(vOrig);
 	}
 
@@ -81,21 +75,21 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	if (m_constraintIO) {
 		List<node> src;
 		List<node> tgt;
-		for(node v : gc.nodes) {
+		for (node v : gc.nodes) {
 			if (HA.type(gc.original(v)) == HypernodeElement::Type::INPUT) {
 				src.pushBack(v);
-			} else if (HA.type(gc.original(v)) ==
-				HypernodeElement::Type::OUTPUT) {
-					tgt.pushBack(v);
+			} else if (HA.type(gc.original(v)) == HypernodeElement::Type::OUTPUT) {
+				tgt.pushBack(v);
 			}
 		}
 		insertShell(gc, src, tgt, fixedShell);
 	}
 
-	EdgeArray<bool> forbid(gc,false);
+	EdgeArray<bool> forbid(gc, false);
 	ListConstIterator<edge> it;
-	for(it = fixedShell.begin(); it.valid(); ++it)
+	for (it = fixedShell.begin(); it.valid(); ++it) {
 		forbid[*it] = true;
+	}
 
 
 	if (m_constraintPorts) {
@@ -109,8 +103,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	Array<DPoint> bounding(connectedComponentsCount);
 
 	// Now we planarize each connected component of planarRep separately.
-	for (int i = 0; i < connectedComponentsCount; i++)
-	{
+	for (int i = 0; i < connectedComponentsCount; i++) {
 		// Planarize.
 		int cr;
 		m_crossingMinimizationModule->call(planarRep, i, cr, nullptr, &forbid);
@@ -127,7 +120,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 		m_planarLayoutModule->call(planarRep, adjExternal, ccPlaneRep);
 
 		// Copy drawing of this CC into the planar representation.
-		for(int j = planarRep.startNode(); j < planarRep.stopNode(); ++j) {
+		for (int j = planarRep.startNode(); j < planarRep.stopNode(); ++j) {
 			node vGC = planarRep.v(j);
 			node vG = gc.original(vGC);
 
@@ -136,16 +129,14 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 
 			for (adjEntry adj : vG->adjEntries) {
 				if ((adj->index() & 1) != 0) {
-					ccPlaneRep.computePolylineClear(planarRep,
-					  gc.copy(adj->theEdge()),
-					  HA.bends(adj->theEdge()));
+					ccPlaneRep.computePolylineClear(planarRep, gc.copy(adj->theEdge()),
+							HA.bends(adj->theEdge()));
 				}
 			}
 		}
 
 		// Store current bounding box and the number of crossings.
 		bounding[i] = m_planarLayoutModule->getBoundingBox();
-
 	}
 
 	// Pack all components together.
@@ -168,11 +159,8 @@ void HypergraphLayoutES::planarizeCC(PlanRep &ccPlanarRep,
 }
 #endif
 
-void HypergraphLayoutES::packAllCC(const PlanRep &planarRep,
-                                   const GraphCopySimple &gc,
-                                   HypergraphAttributesES &pHA,
-                                   Array<DPoint> &bounding)
-{
+void HypergraphLayoutES::packAllCC(const PlanRep& planarRep, const GraphCopySimple& gc,
+		HypergraphAttributesES& pHA, Array<DPoint>& bounding) {
 	int componentsCount = planarRep.numberOfCCs();
 
 	// There is only one packing module implemented in OGDF now.
@@ -194,7 +182,7 @@ void HypergraphLayoutES::packAllCC(const PlanRep &planarRep,
 			pHA.setY(vG, pHA.y(vG) + position[i].m_y);
 
 			for (adjEntry entry : vG->adjEntries) {
-				for (auto &dp : pHA.bends(entry->theEdge())) {
+				for (auto& dp : pHA.bends(entry->theEdge())) {
 					dp.m_x += position[i].m_x;
 					dp.m_y += position[i].m_y;
 				}
@@ -203,38 +191,33 @@ void HypergraphLayoutES::packAllCC(const PlanRep &planarRep,
 	}
 }
 
-
-void HypergraphLayoutES::insertShell
-	(GraphCopySimple &G, List<node> &src, List<node> &tgt, List<edge> &fixedShell)
-{
+void HypergraphLayoutES::insertShell(GraphCopySimple& G, List<node>& src, List<node>& tgt,
+		List<edge>& fixedShell) {
 	OGDF_ASSERT(src.size() > 0);
 	OGDF_ASSERT(tgt.size() > 0);
 
 	node s = G.newNode();
-	for (ListIterator<node> it = src.begin(); it.valid(); ++it)
+	for (ListIterator<node> it = src.begin(); it.valid(); ++it) {
 		fixedShell.pushBack(G.newEdge(s, *it));
+	}
 
 	node t = G.newNode();
-	for (ListIterator<node> it = tgt.begin(); it.valid(); ++it)
+	for (ListIterator<node> it = tgt.begin(); it.valid(); ++it) {
 		fixedShell.pushBack(G.newEdge(*it, t));
+	}
 
 	G.newEdge(s, t);
 }
 
-
-void HypergraphLayoutES::removeShell(PlanRep &G, NodePair &st)
-{
+void HypergraphLayoutES::removeShell(PlanRep& G, NodePair& st) {
 	G.delNode(st.source);
 	G.delNode(st.target);
 }
 
-
-void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
-{
+void HypergraphLayoutES::applyProfile(HypergraphAttributesES& HA) {
 	switch (m_profile) {
-
-		case HypergraphLayoutES::Profile::Normal:
-		for(node v_g : HA.repGraph().nodes) {
+	case HypergraphLayoutES::Profile::Normal:
+		for (node v_g : HA.repGraph().nodes) {
 			HA.setWidth(v_g, 5);
 			HA.setHeight(v_g, 5);
 		}
@@ -245,7 +228,7 @@ void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 		}
 		break;
 
-		case HypergraphLayoutES::Profile::ElectricCircuit:
+	case HypergraphLayoutES::Profile::ElectricCircuit:
 
 		// TODO:
 		// a) all gates should be depicted

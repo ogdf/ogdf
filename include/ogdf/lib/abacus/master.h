@@ -262,7 +262,7 @@ public:
 	 * sense of the optimization.
 	 *
 	 */
-	//@{
+	//! @{
 
 	//! Returns the value of the global lower bound.
 	double lowerBound() const;
@@ -336,7 +336,7 @@ public:
 	 * \return true If a feasible solution of the optimization problem has been found, false otherwise.
 	 */
 	bool feasibleFound() const;
-	//@}
+	//! @}
 
 	//! Returns the enumeration strategy.
 	ENUMSTRAT enumerationStrategy() const { return enumerationStrategy_; }
@@ -574,7 +574,7 @@ public:
 
 	//! Returns the maximal depth up to which the enumeration should be performed.
 	/**
-	 *  By default the maximal enumeration depth is \a INT\_MAX.
+	 *  By default the maximal enumeration depth is \a INT_MAX.
 	 */
 	int maxLevel() const { return maxLevel_; }
 
@@ -588,7 +588,7 @@ public:
 
 	//! Returns the maximal number of subproblems to be processed.
 	/**
-	 * By default this number is \a INT\_MAX.
+	 * By default this number is \a INT_MAX.
 	 */
 	int maxNSub() const { return maxNSub_; }
 
@@ -1109,7 +1109,7 @@ protected:
 	/**
 	 * Is only a dummy. This function can be used to initialize parameters of derived classes
 	 * and to overwrite parameters read from the file <tt>.abacus</tt> by the
-	 * function \a \_initializeParameters().
+	 * function \a _initializeParameters().
 	 */
 	virtual void initializeParameters() { }
 

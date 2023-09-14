@@ -53,7 +53,7 @@ namespace ogdf {
  * @pre \p n * \p d must be even
  * @warning This method is not guaranteed to terminate!
  */
-OGDF_EXPORT void randomRegularGraph(Graph &G, int n, int d);
+OGDF_EXPORT void randomRegularGraph(Graph& G, int n, int d);
 
 //! Creates a random graph.
 /**
@@ -61,7 +61,7 @@ OGDF_EXPORT void randomRegularGraph(Graph &G, int n, int d);
  * @param n is the number of nodes of the generated graph.
  * @param m is the number of edges of the generated graph.
  */
-OGDF_EXPORT void randomGraph(Graph &G, int n, int m);
+OGDF_EXPORT void randomGraph(Graph& G, int n, int m);
 
 //! Creates a random simple graph.
 /**
@@ -69,7 +69,7 @@ OGDF_EXPORT void randomGraph(Graph &G, int n, int m);
  * @param n is the number of nodes of the generated graph.
  * @param m is the number of edges of the generated graph.
  */
-OGDF_EXPORT bool randomSimpleGraph(Graph &G, int n, int m);
+OGDF_EXPORT bool randomSimpleGraph(Graph& G, int n, int m);
 
 //! Creates a random simple graph.
 /**
@@ -83,7 +83,7 @@ OGDF_EXPORT bool randomSimpleGraph(Graph &G, int n, int m);
  * @param pEdge is the probability for each edge to be added into the graph.
  * @pre /p pEdge is in [0, 1]
  */
-OGDF_EXPORT bool randomSimpleGraphByProbability(Graph &G, int n, double pEdge);
+OGDF_EXPORT bool randomSimpleGraphByProbability(Graph& G, int n, double pEdge);
 
 //! Creates a random simple and connected graph.
 /**
@@ -91,7 +91,7 @@ OGDF_EXPORT bool randomSimpleGraphByProbability(Graph &G, int n, double pEdge);
  * @param n is the number of nodes of the generated graph.
  * @param m is the number of edges of the generated graph.
  */
-OGDF_EXPORT bool randomSimpleConnectedGraph(Graph &G, int n, int m);
+OGDF_EXPORT bool randomSimpleConnectedGraph(Graph& G, int n, int m);
 
 //! Creates a random biconnected graph.
 /**
@@ -102,7 +102,7 @@ OGDF_EXPORT bool randomSimpleConnectedGraph(Graph &G, int n, int m);
  * If the parameters are smaller than that, they get increased prior
  * to the algorithm.
  */
-OGDF_EXPORT void randomBiconnectedGraph(Graph &G, int n, int m);
+OGDF_EXPORT void randomBiconnectedGraph(Graph& G, int n, int m);
 
 //! Creates a random connected (simple) planar (embedded) graph.
 /**
@@ -113,7 +113,7 @@ OGDF_EXPORT void randomBiconnectedGraph(Graph &G, int n, int m);
  * \p n and an upper bound of \f$3n-6\f$. The supplied values are
  * adjusted if they are out of these bounds.
  */
-OGDF_EXPORT void randomPlanarConnectedGraph(Graph &G, int n, int m);
+OGDF_EXPORT void randomPlanarConnectedGraph(Graph& G, int n, int m);
 
 //! Creates a random planar biconnected (embedded) graph.
 /**
@@ -126,7 +126,7 @@ OGDF_EXPORT void randomPlanarConnectedGraph(Graph &G, int n, int m);
  * \p n and an upper bound of \f$3n-6\f$. The supplied values are
  * adjusted if they are out of these bounds.
  */
-OGDF_EXPORT void randomPlanarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges = false);
+OGDF_EXPORT void randomPlanarBiconnectedGraph(Graph& G, int n, int m, bool multiEdges = false);
 
 //! Creates a random planar biconnected acyclic (embedded) digraph.
 /**
@@ -141,7 +141,8 @@ OGDF_EXPORT void randomPlanarBiconnectedGraph(Graph &G, int n, int m, bool multi
  * \p n and an upper bound of \f$3n-6\f$. The supplied values are
  * adjusted if they are out of these bounds.
  */
-OGDF_EXPORT void randomPlanarBiconnectedDigraph(Graph &G, int n, int m, double p = 0, bool multiEdges = false);
+OGDF_EXPORT void randomPlanarBiconnectedDigraph(Graph& G, int n, int m, double p = 0,
+		bool multiEdges = false);
 
 //! Creates a random upward planar biconnected (embedded) digraph.
 /**
@@ -152,7 +153,7 @@ OGDF_EXPORT void randomPlanarBiconnectedDigraph(Graph &G, int n, int m, double p
  * \p n and an upper bound of \f$3n-6\f$. The supplied values are
  * adjusted if they are out of these bounds.
  */
-OGDF_EXPORT void randomUpwardPlanarBiconnectedDigraph(Graph &G, int n, int m);
+OGDF_EXPORT void randomUpwardPlanarBiconnectedDigraph(Graph& G, int n, int m);
 
 //! Creates a random planar graph, that is connected, but not biconnected.
 /**
@@ -163,7 +164,7 @@ OGDF_EXPORT void randomUpwardPlanarBiconnectedDigraph(Graph &G, int n, int m);
  *
  * @pre It holds that n > 1, m >= n (unless n = 2, m = 1) and b > 1.
  */
-OGDF_EXPORT void randomPlanarCNBGraph(Graph &G, int n, int m,	int b);
+OGDF_EXPORT void randomPlanarCNBGraph(Graph& G, int n, int m, int b);
 
 //! Creates a random triconnected (and simple) graph.
 /**
@@ -193,7 +194,7 @@ OGDF_EXPORT void randomPlanarCNBGraph(Graph &G, int n, int m,	int b);
  *      \p p1 + \p p2 <= 1.0.
  * @note \p n has a lower bound of 4 and will get increased to this if smaller.
  */
-OGDF_EXPORT void randomTriconnectedGraph(Graph &G, int n, double p1, double p2);
+OGDF_EXPORT void randomTriconnectedGraph(Graph& G, int n, double p1, double p2);
 
 //! Creates a random planar triconnected (and simple) graph.
 /**
@@ -215,7 +216,7 @@ OGDF_EXPORT void randomTriconnectedGraph(Graph &G, int n, double p1, double p2);
  *   - 1.5\p n <= \p m <= 3\p n -6; otherwise, \p m is adjusted
  *     to a feasible value.
  */
-OGDF_EXPORT void randomPlanarTriconnectedGraph(Graph &G, int n, int m);
+OGDF_EXPORT void randomPlanarTriconnectedGraph(Graph& G, int n, int m);
 
 //! Creates a random planar triconnected (and simple) graph.
 /**
@@ -235,7 +236,7 @@ OGDF_EXPORT void randomPlanarTriconnectedGraph(Graph &G, int n, int m);
  * @param p2 is the probability for the second additional edge to be added.
  * @note \p n has a lower bound of 4 and will get increased to this if smaller.
  */
-OGDF_EXPORT void randomPlanarTriconnectedGraph(Graph &G, int n, double p1, double p2);
+OGDF_EXPORT void randomPlanarTriconnectedGraph(Graph& G, int n, double p1, double p2);
 
 //! Creates a random tree (simpler version.
 /**
@@ -252,7 +253,7 @@ OGDF_EXPORT void randomTree(Graph& G, int n);
  * @param maxWidth is the maximal allowed width of a level; 0 means no restriction.
  * @note if \p maxDeg or \p maxWidth are 0 (or negative), they are set to \p n
  */
-OGDF_EXPORT void randomTree(Graph &G, int n, int maxDeg, int maxWidth);
+OGDF_EXPORT void randomTree(Graph& G, int n, int maxDeg, int maxWidth);
 
 //! Assigns random clusters to a given graph \p G.
 /**
@@ -264,7 +265,7 @@ OGDF_EXPORT void randomTree(Graph &G, int n, int maxDeg, int maxWidth);
  * @param cNum is the maximal number of Clusters introduced.
  * \pre \p G is connected and not empty and \a C is initialized with \a G.
  */
-OGDF_EXPORT void randomClusterPlanarGraph(ClusterGraph &C,Graph &G,int cNum);
+OGDF_EXPORT void randomClusterPlanarGraph(ClusterGraph& C, Graph& G, int cNum);
 
 //! Assigns random clusters to a given graph \p G.
 /**
@@ -274,7 +275,7 @@ OGDF_EXPORT void randomClusterPlanarGraph(ClusterGraph &C,Graph &G,int cNum);
  * @param cNum is the maximal number of clusters introduced.
  * \pre \p G is connected and not empty and \p C is initialized with \p G.
  */
-OGDF_EXPORT void randomClusterGraph(ClusterGraph &C,Graph &G,int cNum);
+OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, Graph& G, int cNum);
 
 //! Assigns a specified cluster structure to a given graph \p G, and assigns vertices to clusters.
 /**
@@ -291,7 +292,8 @@ OGDF_EXPORT void randomClusterGraph(ClusterGraph &C,Graph &G,int cNum);
  *        vertices than inner clusters
  * \pre \p G contains at least twice as many nodes as \a T has leaves.
  */
-OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, const Graph& G, const node root, int moreInLeaves);
+OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, const Graph& G, const node root,
+		int moreInLeaves);
 
 //! Creates a random (simple) directed graph.
 /**
@@ -299,7 +301,7 @@ OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, const Graph& G, const node 
  * @param n is the number of nodes in the generated graph.
  * @param p is the probability that an edge is created (for each node pair)
  */
-OGDF_EXPORT void randomDigraph(Graph &G, int n, double p);
+OGDF_EXPORT void randomDigraph(Graph& G, int n, double p);
 
 //! Creates a random (simple, biconnected) series parallel DAG.
 /**
@@ -314,7 +316,7 @@ OGDF_EXPORT void randomDigraph(Graph &G, int n, double p);
  * @param flt = up to edges*flt edges will be reversed preversing acyclicity; default = 0.0
  * @pre \p p is in \f$[0.0, 1.0]\f$, and \p flt is in \f$[0.0, 1.0)\f$.
  */
-OGDF_EXPORT void randomSeriesParallelDAG(Graph &G, int edges, double p = 0.5, double flt = 0.0);
+OGDF_EXPORT void randomSeriesParallelDAG(Graph& G, int edges, double p = 0.5, double flt = 0.0);
 
 //! Creates a random geometric graph by laying out nodes in a unit n-cube.
 //! Nodes with a distance < threshold are connected,
@@ -325,7 +327,7 @@ OGDF_EXPORT void randomSeriesParallelDAG(Graph &G, int edges, double p = 0.5, do
  * @param threshold is threshold radius of nodes which will be connected.
  * @param dimension is the dimension of the cube.
  */
-OGDF_EXPORT void randomGeometricCubeGraph(Graph &G, int nodes, double threshold, int dimension = 2);
+OGDF_EXPORT void randomGeometricCubeGraph(Graph& G, int nodes, double threshold, int dimension = 2);
 
 //! Generates a Waxman graph where nodes are uniformly randomly placed in a grid, then edges
 //! are inserted based on nodes' euclidean distances.
@@ -346,7 +348,8 @@ OGDF_EXPORT void randomGeometricCubeGraph(Graph &G, int nodes, double threshold,
  * @param width is the width of the area the nodes are distributed in.
  * @param height is the height of the area the nodes are distributed in.
  */
-OGDF_EXPORT void randomWaxmanGraph(Graph &G, int nodes, double alpha, double beta, double width = 1.0, double height = 1.0);
+OGDF_EXPORT void randomWaxmanGraph(Graph& G, int nodes, double alpha, double beta,
+		double width = 1.0, double height = 1.0);
 
 //! Creates a graph where new nodes are more likely to connect to nodes with high degree.
 /**
@@ -365,7 +368,7 @@ OGDF_EXPORT void randomWaxmanGraph(Graph &G, int nodes, double alpha, double bet
  * @param nodes is the number of nodes to be added to graph.
  * @param minDegree is the minimum degree of new nodes.
  */
-OGDF_EXPORT void preferentialAttachmentGraph(Graph &G, int nodes, int minDegree);
+OGDF_EXPORT void preferentialAttachmentGraph(Graph& G, int nodes, int minDegree);
 
 //! Creates a "small world" graph as described by Watts & Strogatz
 /**
@@ -384,7 +387,7 @@ OGDF_EXPORT void preferentialAttachmentGraph(Graph &G, int nodes, int minDegree)
  * @param probability determines how likely each edge is rewired. A probability of 0 will not
  *        modify the graph, while one of 1 will cause full randomness.
  */
-OGDF_EXPORT void randomWattsStrogatzGraph(Graph &G, int n, int k, double probability);
+OGDF_EXPORT void randomWattsStrogatzGraph(Graph& G, int n, int k, double probability);
 
 //! Creates a graph where edges are inserted based on given weights
 /**
@@ -409,7 +412,7 @@ OGDF_EXPORT void randomWattsStrogatzGraph(Graph &G, int n, int k, double probabi
  * @param expectedDegreeDistribution is a list of expected degrees, or weights,
  *        for the individual nodes. Its length defines the number of nodes \a n.
  */
-OGDF_EXPORT void randomChungLuGraph(Graph &G, Array<int> expectedDegreeDistribution);
+OGDF_EXPORT void randomChungLuGraph(Graph& G, Array<int> expectedDegreeDistribution);
 
 //! Inserts edges into the given graph based on probabilities given by a callback function
 /**
@@ -425,7 +428,7 @@ OGDF_EXPORT void randomChungLuGraph(Graph &G, Array<int> expectedDegreeDistribut
  * @param probability is a callback function that, for any given pair of nodes, returns a probability
  *        between 0 and 1 for the two nodes to be connected.
  */
-OGDF_EXPORT void randomEdgesGraph(Graph &G, std::function<double(node, node)> probability);
+OGDF_EXPORT void randomEdgesGraph(Graph& G, std::function<double(node, node)> probability);
 
 //! @}
 

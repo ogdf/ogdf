@@ -33,18 +33,16 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/HashArray.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
-#include <ogdf/basic/HashArray.h>
-
 #include <ogdf/fileformats/DOT.h>
 #include <ogdf/fileformats/DotLexer.h>
 
 #include <cstdio>
-#include <vector>
 #include <set>
 #include <string>
-
+#include <vector>
 
 namespace ogdf {
 
@@ -137,43 +135,29 @@ private:
 	const Tokens m_tokens;
 	const Iterator m_tend;
 
-	Graph *m_graph;
+	Graph* m_graph;
 
-	Graph *parseGraph(
-		Iterator current, Iterator &rest);
-	Subgraph *parseSubgraph(
-		Iterator current, Iterator &rest);
-	NodeStmt *parseNodeStmt(
-		Iterator current, Iterator &rest);
-	EdgeStmt *parseEdgeStmt(
-		Iterator current, Iterator &rest);
-	AttrStmt *parseAttrStmt(
-		Iterator current, Iterator &rest);
-	AsgnStmt *parseAsgnStmt(
-		Iterator current, Iterator &rest);
-	EdgeRhs *parseEdgeRhs(
-		Iterator current, Iterator &rest);
-	NodeId *parseNodeId(
-		Iterator current, Iterator &rest);
-	Stmt *parseStmt(
-		Iterator current, Iterator &rest);
-	StmtList *parseStmtList(
-		Iterator current, Iterator &rest);
-	AttrList *parseAttrList(
-		Iterator current, Iterator &rest);
-	AList *parseAList(
-		Iterator current, Iterator &rest);
-	Port *parsePort(
-		Iterator current, Iterator &rest);
-	CompassPt *parseCompassPt(
-		Iterator current, Iterator &rest);
+	Graph* parseGraph(Iterator current, Iterator& rest);
+	Subgraph* parseSubgraph(Iterator current, Iterator& rest);
+	NodeStmt* parseNodeStmt(Iterator current, Iterator& rest);
+	EdgeStmt* parseEdgeStmt(Iterator current, Iterator& rest);
+	AttrStmt* parseAttrStmt(Iterator current, Iterator& rest);
+	AsgnStmt* parseAsgnStmt(Iterator current, Iterator& rest);
+	EdgeRhs* parseEdgeRhs(Iterator current, Iterator& rest);
+	NodeId* parseNodeId(Iterator current, Iterator& rest);
+	Stmt* parseStmt(Iterator current, Iterator& rest);
+	StmtList* parseStmtList(Iterator current, Iterator& rest);
+	AttrList* parseAttrList(Iterator current, Iterator& rest);
+	AList* parseAList(Iterator current, Iterator& rest);
+	Port* parsePort(Iterator current, Iterator& rest);
+	CompassPt* parseCompassPt(Iterator current, Iterator& rest);
 
 public:
 	//! Initializes AST building but does not trigger the process itself.
 	/**
 	 * @param tokens DOT format token list to build the AST.
 	 */
-	explicit Ast(const Tokens &tokens);
+	explicit Ast(const Tokens& tokens);
 	~Ast();
 
 	//! Builds the DOT format AST.
@@ -183,208 +167,154 @@ public:
 	bool build();
 
 	//! Returns the root of the AST (nullptr if none).
-	Graph *root() const;
+	Graph* root() const;
 
 	struct Graph {
 		const bool strict;
 		const bool directed;
-		std::string *id;
+		std::string* id;
 
-		StmtList *statements;
+		StmtList* statements;
 
-		Graph(
-			const bool &paramStrict,
-			const bool &dir,
-			std::string *idString,
-			StmtList *statementList);
+		Graph(const bool& paramStrict, const bool& dir, std::string* idString,
+				StmtList* statementList);
 		~Graph();
 
-		bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA);
+		bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA);
 	};
 
 	struct StmtList {
-		Stmt *head;
-		StmtList *tail;
+		Stmt* head;
+		StmtList* tail;
 
-		StmtList(
-			Stmt *headSTMT,
-			StmtList *tailStatementList);
+		StmtList(Stmt* headSTMT, StmtList* tailStatementList);
 		~StmtList();
 	};
 
 	struct Stmt {
 		virtual ~Stmt() = 0;
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) = 0;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) = 0;
 	};
 
 	struct NodeStmt : public Stmt {
-		NodeId *nodeId;
-		AttrList *attrs;
+		NodeId* nodeId;
+		AttrList* attrs;
 
-		NodeStmt(
-			NodeId *nodeID,
-			AttrList *attrList);
+		NodeStmt(NodeId* nodeID, AttrList* attrList);
 		~NodeStmt();
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) override;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) override;
 	};
 
 	struct EdgeStmt : public Stmt {
-		EdgeLhs *lhs;
-		EdgeRhs *rhs;
-		AttrList *attrs;
+		EdgeLhs* lhs;
+		EdgeRhs* rhs;
+		AttrList* attrs;
 
-		EdgeStmt(
-			EdgeLhs *edgeLHS,
-			EdgeRhs *edgeRHS,
-			AttrList *attrList);
+		EdgeStmt(EdgeLhs* edgeLHS, EdgeRhs* edgeRHS, AttrList* attrList);
 		~EdgeStmt();
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) override;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) override;
 	};
 
 	struct AsgnStmt : public Stmt {
 		const std::string lhs;
 		const std::string rhs;
 
-		AsgnStmt(
-			const std::string &lhsString,
-			const std::string &rhsString);
+		AsgnStmt(const std::string& lhsString, const std::string& rhsString);
 		~AsgnStmt();
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) override;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) override;
 	};
 
 	struct AttrStmt : public Stmt {
 		enum class Type { graph, edge, node };
 
 		Type type;
-		AttrList *attrs;
+		AttrList* attrs;
 
-		AttrStmt(
-			const Type &paramType,
-			AttrList *attrList);
+		AttrStmt(const Type& paramType, AttrList* attrList);
 		~AttrStmt();
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) override;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) override;
 	};
 
 	struct EdgeLhs {
 		virtual ~EdgeLhs() = 0;
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) = 0;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) = 0;
 	};
 
 	struct Subgraph : public Stmt, EdgeLhs {
-		std::string *id;
-		StmtList *statements;
+		std::string* id;
+		StmtList* statements;
 
-		Subgraph(
-			std::string *idString,
-			StmtList *statementList);
+		Subgraph(std::string* idString, StmtList* statementList);
 		~Subgraph();
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) override;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) override;
 	};
 
 	struct NodeId : public EdgeLhs {
 		const std::string id;
-		Port *port;
+		Port* port;
 
-		NodeId(
-			const std::string &idString,
-			Port *paramPort);
+		NodeId(const std::string& idString, Port* paramPort);
 		~NodeId();
 
-		virtual bool read(
-			Parser &P,
-			ogdf::Graph &G, GraphAttributes *GA,
-			ClusterGraph *C, ClusterGraphAttributes *CA,
-			const SubgraphData &data) override;
+		virtual bool read(Parser& P, ogdf::Graph& G, GraphAttributes* GA, ClusterGraph* C,
+				ClusterGraphAttributes* CA, const SubgraphData& data) override;
 	};
 
 	struct CompassPt {
 		enum class Type { n, ne, e, se, s, sw, w, nw, c, wildcard };
 		Type type;
 
-		CompassPt(
-			const Type &paramType);
+		CompassPt(const Type& paramType);
 		~CompassPt();
 	};
 
 	struct Port {
-		std::string *id;
-		CompassPt *compassPt;
+		std::string* id;
+		CompassPt* compassPt;
 
-		Port(
-			std::string *idString,
-			CompassPt *compassPT);
+		Port(std::string* idString, CompassPt* compassPT);
 		~Port();
 	};
 
 	struct EdgeRhs {
-		EdgeLhs *head;
-		EdgeRhs *tail;
+		EdgeLhs* head;
+		EdgeRhs* tail;
 
-		EdgeRhs(
-			EdgeLhs *headEdgeLHS,
-			EdgeRhs *tailEdgeRHS);
+		EdgeRhs(EdgeLhs* headEdgeLHS, EdgeRhs* tailEdgeRHS);
 		~EdgeRhs();
 	};
 
 	struct AttrList {
-		AList *head;
-		AttrList *tail;
+		AList* head;
+		AttrList* tail;
 
-		AttrList(
-			AList *headAList,
-			AttrList *tailAttrList);
+		AttrList(AList* headAList, AttrList* tailAttrList);
 		~AttrList();
 	};
 
 	struct AList {
-		AsgnStmt *head;
-		AList *tail;
+		AsgnStmt* head;
+		AList* tail;
 
-		AList(
-			AsgnStmt *headAsgnStmt,
-			AList *tailAList);
+		AList(AsgnStmt* headAsgnStmt, AList* tailAList);
 		~AList();
 	};
 };
-
 
 //! DOT format parser class.
 /**
@@ -396,23 +326,21 @@ public:
  */
 class Parser {
 private:
-	std::istream &m_in;
+	std::istream& m_in;
 
 	// Maps node id to Graph node.
 	HashArray<std::string, node> m_nodeId;
 
-	bool readGraph(
-		Graph &G, GraphAttributes *GA,
-		ClusterGraph *C, ClusterGraphAttributes *CA);
+	bool readGraph(Graph& G, GraphAttributes* GA, ClusterGraph* C, ClusterGraphAttributes* CA);
 
 public:
 	//! Initializes parser class with given input (but does nothing to it).
-	explicit Parser(std::istream &in);
+	explicit Parser(std::istream& in);
 
-	bool read(Graph &G);
-	bool read(Graph &G, GraphAttributes &GA);
-	bool read(Graph &G, ClusterGraph &C);
-	bool read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA);
+	bool read(Graph& G);
+	bool read(Graph& G, GraphAttributes& GA);
+	bool read(Graph& G, ClusterGraph& C);
+	bool read(Graph& G, ClusterGraph& C, ClusterGraphAttributes& CA);
 
 	//! Perfoms a node \a query, returning node for given attribute.
 	/**
@@ -426,19 +354,16 @@ public:
 	 * @param id Identifier of requested node.
 	 * @return Requested node.
 	 */
-	node requestNode(
-		Graph &G, GraphAttributes *GA, ClusterGraph *C,
-		const SubgraphData &data,
-		const std::string &id);
+	node requestNode(Graph& G, GraphAttributes* GA, ClusterGraph* C, const SubgraphData& data,
+			const std::string& id);
 };
-
 
 //! A helper structure containing information for recursive graph reading.
 struct SubgraphData {
 	cluster rootCluster;
-	std::vector<Ast::AttrList *> &nodeDefaults;
-	std::vector<Ast::AttrList *> &edgeDefaults;
-	std::set<node> &nodes;
+	std::vector<Ast::AttrList*>& nodeDefaults;
+	std::vector<Ast::AttrList*>& edgeDefaults;
+	std::set<node>& nodes;
 
 	//! Initializes structure with given data.
 	/**
@@ -447,24 +372,18 @@ struct SubgraphData {
 	 * @param edgeDefaultsVector Edge default attributes.
 	 * @param nodeSet Nodes in current subgraph.
 	 */
-	SubgraphData(
-		cluster root,
-		std::vector<Ast::AttrList *> &nodeDefaultsVector,
-		std::vector<Ast::AttrList *> &edgeDefaultsVector,
-		std::set<node> &nodeSet);
+	SubgraphData(cluster root, std::vector<Ast::AttrList*>& nodeDefaultsVector,
+			std::vector<Ast::AttrList*>& edgeDefaultsVector, std::set<node>& nodeSet);
 
 
 	//! Returns almost the same structure, but with root cluster.
-	SubgraphData withCluster(
-		cluster newRootCluster) const;
+	SubgraphData withCluster(cluster newRootCluster) const;
 
 	//! Returns almost the same structure, but with new defaults.
-	SubgraphData withDefaults(
-		std::vector<Ast::AttrList *> &newNodeDefaults,
-		std::vector<Ast::AttrList *> &newEdgeDefaults) const;
+	SubgraphData withDefaults(std::vector<Ast::AttrList*>& newNodeDefaults,
+			std::vector<Ast::AttrList*>& newEdgeDefaults) const;
 	//! Returns almost the same structure, but with new node list.
-	SubgraphData withNodes(
-		std::set<node> &newNodes) const;
+	SubgraphData withNodes(std::set<node>& newNodes) const;
 };
 
 }

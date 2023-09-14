@@ -35,9 +35,9 @@
 #include <ogdf/basic/basic.h>
 
 #if defined(OGDF_SYSTEM_OSX)
-#include <stdlib.h>
+#	include <stdlib.h>
 #elif defined(OGDF_SYSTEM_UNIX) || defined(__MINGW32__)
-#include <malloc.h>
+#	include <malloc.h>
 #endif
 
 // detect processor architecture we're compiling for
@@ -50,17 +50,17 @@
 // OGDF_ARCH_SPARC_V9  SUN SPARC V9
 
 #if defined(_M_X64) || defined(__x86_64__)
-#define OGDF_ARCH_X64
+#	define OGDF_ARCH_X64
 #elif defined(_M_IX86) || defined(__i386__)
-#define OGDF_ARCH_X86
+#	define OGDF_ARCH_X86
 #elif defined(_M_IA64) || defined(__ia64__)
-#define OGDF_ARCH_IA64
+#	define OGDF_ARCH_IA64
 #elif defined(_M_MPPC) || defined(_M_PPC) || defined(__powerpc__)
-#define OGDF_ARCH_PPC
+#	define OGDF_ARCH_PPC
 #elif defined(__sparc__)
-#define OGDF_ARCH_SPARC
+#	define OGDF_ARCH_SPARC
 #elif defined(__sparc_v9__)
-#define OGDF_ARCH_SPARC_V9
+#	define OGDF_ARCH_SPARC_V9
 #endif
 
 namespace ogdf {
@@ -74,16 +74,16 @@ namespace ogdf {
  * such as SSE.
  */
 enum class CPUFeature {
-	MMX,    //!< Intel MMX Technology
-	SSE,    //!< Streaming SIMD Extensions (SSE)
-	SSE2,   //!< Streaming SIMD Extensions 2 (SSE2)
-	SSE3,   //!< Streaming SIMD Extensions 3 (SSE3)
-	SSSE3,  //!< Supplemental Streaming SIMD Extensions 3 (SSSE3)
+	MMX, //!< Intel MMX Technology
+	SSE, //!< Streaming SIMD Extensions (SSE)
+	SSE2, //!< Streaming SIMD Extensions 2 (SSE2)
+	SSE3, //!< Streaming SIMD Extensions 3 (SSE3)
+	SSSE3, //!< Supplemental Streaming SIMD Extensions 3 (SSSE3)
 	SSE4_1, //!< Streaming SIMD Extensions 4.1 (SSE4.1)
 	SSE4_2, //!< Streaming SIMD Extensions 4.2 (SSE4.2)
-	VMX,    //!< Virtual Machine Extensions
-	SMX,    //!< Safer Mode Extensions
-	EST,    //!< Enhanced Intel SpeedStep Technology
+	VMX, //!< Virtual Machine Extensions
+	SMX, //!< Safer Mode Extensions
+	EST, //!< Enhanced Intel SpeedStep Technology
 	MONITOR //!< Processor supports MONITOR/MWAIT instructions
 };
 
@@ -92,20 +92,20 @@ enum class CPUFeature {
  * @ingroup system
  */
 enum class CPUFeatureMask : unsigned int {
-	MMX     = 1 << static_cast<int>(CPUFeature::MMX),    //!< Intel MMX Technology
-	SSE     = 1 << static_cast<int>(CPUFeature::SSE),    //!< Streaming SIMD Extensions (SSE)
-	SSE2    = 1 << static_cast<int>(CPUFeature::SSE2),   //!< Streaming SIMD Extensions 2 (SSE2)
-	SSE3    = 1 << static_cast<int>(CPUFeature::SSE3),   //!< Streaming SIMD Extensions 3 (SSE3)
-	SSSE3   = 1 << static_cast<int>(CPUFeature::SSSE3),  //!< Supplemental Streaming SIMD Extensions 3 (SSSE3)
-	SSE4_1  = 1 << static_cast<int>(CPUFeature::SSE4_1), //!< Streaming SIMD Extensions 4.1 (SSE4.1)
-	SSE4_2  = 1 << static_cast<int>(CPUFeature::SSE4_2), //!< Streaming SIMD Extensions 4.2 (SSE4.2)
-	VMX     = 1 << static_cast<int>(CPUFeature::VMX),    //!< Virtual Machine Extensions
-	SMX     = 1 << static_cast<int>(CPUFeature::SMX),    //!< Safer Mode Extensions
-	EST     = 1 << static_cast<int>(CPUFeature::EST),    //!< Enhanced Intel SpeedStep Technology
+	MMX = 1 << static_cast<int>(CPUFeature::MMX), //!< Intel MMX Technology
+	SSE = 1 << static_cast<int>(CPUFeature::SSE), //!< Streaming SIMD Extensions (SSE)
+	SSE2 = 1 << static_cast<int>(CPUFeature::SSE2), //!< Streaming SIMD Extensions 2 (SSE2)
+	SSE3 = 1 << static_cast<int>(CPUFeature::SSE3), //!< Streaming SIMD Extensions 3 (SSE3)
+	SSSE3 = 1 << static_cast<int>(CPUFeature::SSSE3), //!< Supplemental Streaming SIMD Extensions 3 (SSSE3)
+	SSE4_1 = 1 << static_cast<int>(CPUFeature::SSE4_1), //!< Streaming SIMD Extensions 4.1 (SSE4.1)
+	SSE4_2 = 1 << static_cast<int>(CPUFeature::SSE4_2), //!< Streaming SIMD Extensions 4.2 (SSE4.2)
+	VMX = 1 << static_cast<int>(CPUFeature::VMX), //!< Virtual Machine Extensions
+	SMX = 1 << static_cast<int>(CPUFeature::SMX), //!< Safer Mode Extensions
+	EST = 1 << static_cast<int>(CPUFeature::EST), //!< Enhanced Intel SpeedStep Technology
 	MONITOR = 1 << static_cast<int>(CPUFeature::MONITOR) //!< Processor supports MONITOR/MWAIT instructions
 };
 
-OGDF_EXPORT unsigned int operator|=(unsigned int &i, CPUFeatureMask fm);
+OGDF_EXPORT unsigned int operator|=(unsigned int& i, CPUFeatureMask fm);
 
 //! %System specific functionality.
 /**
@@ -119,21 +119,20 @@ OGDF_EXPORT unsigned int operator|=(unsigned int &i, CPUFeatureMask fm);
  *   - Query CPU specific information.
  */
 class OGDF_EXPORT System {
-
 public:
 	/**
 	 * @name Memory
 	 * These methods allow to allocate aligned memory and to query the amount of memory used.
 	 */
-	//@{
+	//! @{
 
-	static void *alignedMemoryAlloc16(size_t size) {
+	static void* alignedMemoryAlloc16(size_t size) {
 #ifdef OGDF_SYSTEM_WINDOWS
-# ifdef __MINGW64__
+#	ifdef __MINGW64__
 		return __mingw_aligned_malloc(size, 16);
-# else
+#	else
 		return _aligned_malloc(size, 16);
-# endif
+#	endif
 #elif defined(OGDF_SYSTEM_OSX)
 		// malloc returns 16 byte aligned memory on OS X.
 		return malloc(size);
@@ -142,13 +141,13 @@ public:
 #endif
 	}
 
-	static void alignedMemoryFree(void *p) {
+	static void alignedMemoryFree(void* p) {
 #ifdef OGDF_SYSTEM_WINDOWS
-# ifdef __MINGW64__
+#	ifdef __MINGW64__
 		__mingw_aligned_free(p);
-# else
+#	else
 		_aligned_free(p);
-# endif
+#	endif
 #else
 		free(p);
 #endif
@@ -205,22 +204,20 @@ public:
 	static size_t memoryInFreelistOfMalloc();
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-	//@}
+	//! @}
 	/**
 	 * @name Measuring time
 	 * These methods provide various ways to measure time. The high-performance
 	 * counter (Windows and Cygwin only) can be used to measure real time
 	 * periods with a better resolution than the standard system time function.
 	 */
-	//@{
+	//! @{
 
 	//! Returns the current value of the high-performance counter in \p counter.
-	static void getHPCounter(int64_t &counter);
+	static void getHPCounter(int64_t& counter);
 
 	//! Returns the elapsed time (in seconds) between \p startCounter and \p endCounter.
-	static double elapsedSeconds(
-		const int64_t &startCounter,
-		const int64_t &endCounter);
+	static double elapsedSeconds(const int64_t& startCounter, const int64_t& endCounter);
 #endif
 
 	//! Returns the elapsed time (in milliseconds) between \p t and now.
@@ -230,7 +227,7 @@ public:
 	 * after performing some computation by calling usedRealTime(t) again; this time
 	 * the return value gives you the elapsed time in milliseconds.
 	 */
-	static int64_t usedRealTime(int64_t &t);
+	static int64_t usedRealTime(int64_t& t);
 
 	//! Returns the current time point of the real time wall clock.
 	/**
@@ -240,23 +237,23 @@ public:
 	static int64_t realTime();
 
 
-	//@}
+	//! @}
 	/**
 	 * @name Process information
 	 */
-	//@{
+	//! @{
 
 	//! Returns the process ID of the current process.
 	static int getProcessID();
 
-	//@}
+	//! @}
 	/**
 	 * @name Processor information
 	 * These methods allow to query information about the current processor such as
 	 * supported instruction sets (e.g., SSE extensions), cache size, and number of
 	 * installed processors.
 	 */
-	//@{
+	//! @{
 
 	//! Returns the bit vector describing the CPU features supported on current system.
 	static int cpuFeatures() { return s_cpuFeatures; }
@@ -275,14 +272,14 @@ public:
 	//! Returns the number of processors (cores) available on the current system.
 	static int numberOfProcessors() { return s_numberOfProcessors; }
 
-	//@}
+	//! @}
 
 private:
 	static unsigned int s_cpuFeatures; //!< Supported CPU features.
-	static int          s_cacheSize;   //!< Cache size in KBytes.
-	static int          s_cacheLine;   //!< Bytes in a cache line.
-	static int          s_numberOfProcessors; //!< Number of processors (cores) available.
-	static int          s_pageSize;    //!< The page size of virtual memory.
+	static int s_cacheSize; //!< Cache size in KBytes.
+	static int s_cacheLine; //!< Bytes in a cache line.
+	static int s_numberOfProcessors; //!< Number of processors (cores) available.
+	static int s_pageSize; //!< The page size of virtual memory.
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
 	static int64_t s_HPCounterFrequency; //!< Frequency of high-performance counter.

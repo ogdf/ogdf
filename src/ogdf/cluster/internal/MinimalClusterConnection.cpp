@@ -40,30 +40,27 @@
  */
 
 #include <ogdf/basic/basic.h>
-
 #include <ogdf/cluster/internal/MinimalClusterConnection.h>
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;
 
-MinimalClusterConnection::MinimalClusterConnection(Master *master, List<NodePair> &edges) :
-	Constraint(master, nullptr, CSense::Less, 1.0, false, false, true)
-{
-	for (const NodePair &np : edges) {
+MinimalClusterConnection::MinimalClusterConnection(Master* master, List<NodePair>& edges)
+	: Constraint(master, nullptr, CSense::Less, 1.0, false, false, true) {
+	for (const NodePair& np : edges) {
 		m_edges.pushBack(np);
 	}
 }
 
-MinimalClusterConnection::~MinimalClusterConnection() {}
+MinimalClusterConnection::~MinimalClusterConnection() { }
 
-double MinimalClusterConnection::coeff(const Variable *v) const {
+double MinimalClusterConnection::coeff(const Variable* v) const {
 	//TODO: speedup, we know between which nodepairs edges exist...
-	const EdgeVar *e = static_cast<const EdgeVar *>(v);
-	for (const NodePair &np : m_edges) {
-		if ( (np.source == e->sourceNode() && np.target == e->targetNode()) ||
-			 (np.target == e->sourceNode() && np.source == e->targetNode()) )
-		{
+	const EdgeVar* e = static_cast<const EdgeVar*>(v);
+	for (const NodePair& np : m_edges) {
+		if ((np.source == e->sourceNode() && np.target == e->targetNode())
+				|| (np.target == e->sourceNode() && np.source == e->targetNode())) {
 			return 1.0;
 		}
 	}

@@ -73,22 +73,19 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT OptimalHierarchyLayout : public HierarchyLayoutModule
-{
+class OGDF_EXPORT OptimalHierarchyLayout : public HierarchyLayoutModule {
 public:
 	//! Creates an instance of optimal hierarchy layout.
 	OptimalHierarchyLayout();
 
 	//! Copy constructor.
-	OptimalHierarchyLayout(const OptimalHierarchyLayout &);
+	OptimalHierarchyLayout(const OptimalHierarchyLayout&);
 
 	// destructor
 	~OptimalHierarchyLayout() { }
 
-
 	//! Assignment operator.
-	OptimalHierarchyLayout &operator=(const OptimalHierarchyLayout &);
-
+	OptimalHierarchyLayout& operator=(const OptimalHierarchyLayout&);
 
 	/**
 	 *  @name Optional parameters
@@ -96,25 +93,23 @@ public:
 	 */
 
 	//! Returns the minimal allowed x-distance between nodes on a layer.
-	double nodeDistance() const {
-		return m_nodeDistance;
-	}
+	double nodeDistance() const { return m_nodeDistance; }
 
 	//! Sets the minimal allowed x-distance between nodes on a layer to \p x.
 	void nodeDistance(double x) {
-		if(x >= 0)
+		if (x >= 0) {
 			m_nodeDistance = x;
+		}
 	}
 
 	//! Returns the minimal allowed y-distance between layers.
-	double layerDistance() const {
-		return m_layerDistance;
-	}
+	double layerDistance() const { return m_layerDistance; }
 
 	//! Sets the minimal allowed y-distance between layers to \p x.
 	void layerDistance(double x) {
-		if(x >= 0)
+		if (x >= 0) {
 			m_layerDistance = x;
+		}
 	}
 
 	//! Returns the current setting of option <i>fixedLayerDistance</i>.
@@ -122,57 +117,47 @@ public:
 	 * If set to true, the distance is always layerDistance; otherwise
 	 * the distance is adjusted (increased) to improve readability.
 	 */
-	bool fixedLayerDistance() const {
-		return m_fixedLayerDistance;
-	}
+	bool fixedLayerDistance() const { return m_fixedLayerDistance; }
 
 	//! Sets the option <i>fixedLayerDistance</i> to \p b.
-	void fixedLayerDistance(bool b) {
-		m_fixedLayerDistance = b;
-	}
+	void fixedLayerDistance(bool b) { m_fixedLayerDistance = b; }
 
 	//! Returns the weight of edge segments connecting to vertical segments.
-	double weightSegments() const {
-		return m_weightSegments;
-	}
+	double weightSegments() const { return m_weightSegments; }
 
 	//! Sets the weight of edge segments connecting to vertical segments to \p w.
 	void weightSegments(double w) {
-		if(w > 0.0 && w <= 100.0)
+		if (w > 0.0 && w <= 100.0) {
 			m_weightSegments = w;
+		}
 	}
 
 	//! Returns the weight for balancing successors below a node; 0.0 means no balancing.
-	double weightBalancing() const {
-		return m_weightBalancing;
-	}
+	double weightBalancing() const { return m_weightBalancing; }
 
 	//! Sets the weight for balancing successors below a node to \p w; 0.0 means no balancing.
 	void weightBalancing(double w) {
-		if(w >= 0.0 && w <= 100.0)
+		if (w >= 0.0 && w <= 100.0) {
 			m_weightBalancing = w;
+		}
 	}
 
 	//! @}
 
 protected:
 	//! Implements the algorithm call.
-	virtual void doCall(const HierarchyLevelsBase &levels,GraphAttributes &AGC) override;
+	virtual void doCall(const HierarchyLevelsBase& levels, GraphAttributes& AGC) override;
 
 private:
-	void computeXCoordinates(
-		const HierarchyLevelsBase &levels,
-		GraphAttributes &AGC);
-	void computeYCoordinates(
-		const HierarchyLevelsBase &levels,
-		GraphAttributes &AGC);
+	void computeXCoordinates(const HierarchyLevelsBase& levels, GraphAttributes& AGC);
+	void computeYCoordinates(const HierarchyLevelsBase& levels, GraphAttributes& AGC);
 
 	// options
-	double m_nodeDistance;  //!< The minimal distance between nodes.
+	double m_nodeDistance; //!< The minimal distance between nodes.
 	double m_layerDistance; //!< The minimal distance between layers.
-	bool   m_fixedLayerDistance; //!< Use fixed layer distances?
+	bool m_fixedLayerDistance; //!< Use fixed layer distances?
 
-	double m_weightSegments;  //!< The weight of edge segments.
+	double m_weightSegments; //!< The weight of edge segments.
 	double m_weightBalancing; //!< The weight for balancing.
 };
 

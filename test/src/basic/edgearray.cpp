@@ -34,18 +34,16 @@ using namespace ogdf;
 using namespace bandit;
 
 go_bandit([]() {
-	auto chooseEdge = [](const Graph &graph) {
-		return graph.chooseEdge();
-	};
+	auto chooseEdge = [](const Graph& graph) { return graph.chooseEdge(); };
 
-	auto allEdges = [](const Graph &graph, List<edge> &list) {
-		graph.allEdges(list);
-	};
+	auto allEdges = [](const Graph& graph, List<edge>& list) { graph.allEdges(list); };
 
-	auto createEdge = [](Graph &graph) {
+	auto createEdge = [](Graph& graph) {
 		return graph.newEdge(graph.chooseNode(), graph.chooseNode());
 	};
 
-	describeArray<EdgeArray, edge, int>("EdgeArray filled with ints", 42, 43, chooseEdge, allEdges, createEdge);
-	describeArray<EdgeArray, edge, List<int>>("EdgeArray filled with lists of ints", {1, 2, 3}, {42}, chooseEdge, allEdges, createEdge);
+	describeArray<EdgeArray, edge, int>("EdgeArray filled with ints", 42, 43, chooseEdge, allEdges,
+			createEdge);
+	describeArray<EdgeArray, edge, List<int>>("EdgeArray filled with lists of ints", {1, 2, 3},
+			{42}, chooseEdge, allEdges, createEdge);
 });

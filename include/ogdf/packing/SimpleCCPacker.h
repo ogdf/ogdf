@@ -31,8 +31,9 @@
 
 #pragma once
 
-#include <memory>
 #include <ogdf/basic/LayoutModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -41,20 +42,18 @@ namespace ogdf {
  * Simple proxy class that uses the TileToRowsCCPacker.
  * Use it for layouts that do not support disconnected graphs.
  */
-class OGDF_EXPORT SimpleCCPacker : public LayoutModule
-{
+class OGDF_EXPORT SimpleCCPacker : public LayoutModule {
 public:
 	//! Constructor
-	explicit SimpleCCPacker(LayoutModule* pSubLayoutModule = nullptr) : m_pSubLayoutModule(pSubLayoutModule)
-	{
+	explicit SimpleCCPacker(LayoutModule* pSubLayoutModule = nullptr)
+		: m_pSubLayoutModule(pSubLayoutModule) {
 		m_leftMargin = 10.0;
 		m_rightMargin = 10.0;
 		m_bottomMargin = 10.0;
 		m_topMargin = 10.0;
 	}
 
-	void setMargins(double left, double top, double right, double bottom)
-	{
+	void setMargins(double left, double top, double right, double bottom) {
 		m_leftMargin = left;
 		m_rightMargin = right;
 		m_bottomMargin = bottom;
@@ -71,7 +70,8 @@ protected:
 
 	std::unique_ptr<LayoutModule> m_pSubLayoutModule;
 
-	void computeBoundingBox(const GraphAttributes& graphAttributes, DPoint& min_coord, DPoint& max_coord);
+	void computeBoundingBox(const GraphAttributes& graphAttributes, DPoint& min_coord,
+			DPoint& max_coord);
 };
 
 }

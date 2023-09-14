@@ -29,47 +29,35 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <functional>
 #include <ogdf/energybased/fmmm/Set.h>
+
+#include <functional>
 
 namespace ogdf {
 namespace energybased {
 namespace fmmm {
 
-Set::Set()
-{
+Set::Set() {
 	last_selectable_index_of_S_node = -1;
 	S_node = nullptr;
 }
 
+Set::~Set() { delete[] S_node; }
 
-Set::~Set()
-{
-	delete[] S_node;
-}
+void Set::set_seed(int rand_seed) { setSeed(rand_seed); }
 
-
-void Set::set_seed(int rand_seed)
-{
-	setSeed(rand_seed);
-}
-
-
-void Set::init_node_set(Graph& G)
-{
+void Set::init_node_set(Graph& G) {
 	S_node = new node[G.numberOfNodes()];
 	position_in_node_set.init(G);
 
-	for (node v : G.nodes)
-	{
+	for (node v : G.nodes) {
 		S_node[v->index()] = v;
 		position_in_node_set[v] = v->index();
 	}
 	last_selectable_index_of_S_node = G.numberOfNodes() - 1;
 }
 
-void Set::delete_node(node del_node)
-{
+void Set::delete_node(node del_node) {
 	int del_node_index = position_in_node_set[del_node];
 	node last_selectable_node = S_node[last_selectable_index_of_S_node];
 
@@ -77,19 +65,17 @@ void Set::delete_node(node del_node)
 	S_node[del_node_index] = last_selectable_node;
 	position_in_node_set[del_node] = last_selectable_index_of_S_node;
 	position_in_node_set[last_selectable_node] = del_node_index;
-	last_selectable_index_of_S_node -=1;
+	last_selectable_index_of_S_node -= 1;
 }
-
 
 // for set of nodes with uniform probability
 
-node Set::get_random_node()
-{
-	return get_random_node_common(randomNumber(0,last_selectable_index_of_S_node), last_selectable_index_of_S_node);
+node Set::get_random_node() {
+	return get_random_node_common(randomNumber(0, last_selectable_index_of_S_node),
+			last_selectable_index_of_S_node);
 }
 
-node Set::get_random_node_common(int rand_index, int &last_trie_index)
-{
+node Set::get_random_node_common(int rand_index, int& last_trie_index) {
 	node random_node = S_node[rand_index];
 	node last_trie_node = S_node[last_trie_index];
 
@@ -101,23 +87,21 @@ node Set::get_random_node_common(int rand_index, int &last_trie_index)
 	return random_node;
 }
 
-
 // for set of nodes with weighted  probability
 
-void Set::init_node_set(Graph& G, NodeArray<NodeAttributes>& A)
-{
+void Set::init_node_set(Graph& G, NodeArray<NodeAttributes>& A) {
 	init_node_set(G);
 	mass_of_star.init(G);
-	for (node v : G.nodes)
-	{
+	for (node v : G.nodes) {
 		mass_of_star[v] = A[v].get_mass();
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e_adj = adj->theEdge();
 			node v_adj;
-			if (e_adj->source() != v)
+			if (e_adj->source() != v) {
 				v_adj = e_adj->source();
-			else
+			} else {
 				v_adj = e_adj->target();
+			}
 			mass_of_star[v] += A[v_adj].get_mass();
 		}
 	}
@@ -126,8 +110,7 @@ void Set::init_node_set(Graph& G, NodeArray<NodeAttributes>& A)
 // for set of nodes with "lower mass" or "higher mass" probability
 
 template<typename Comp>
-node Set::get_random_node_with_some_star_mass(int rand_tries, Comp comp)
-{
+node Set::get_random_node_with_some_star_mass(int rand_tries, Comp comp) {
 	int rand_index = -1;
 	int cmp_mass(0);
 
@@ -151,13 +134,11 @@ node Set::get_random_node_with_some_star_mass(int rand_tries, Comp comp)
 	return get_random_node_common(rand_index, last_selectable_index_of_S_node);
 }
 
-node Set::get_random_node_with_lowest_star_mass(int rand_tries)
-{
+node Set::get_random_node_with_lowest_star_mass(int rand_tries) {
 	return get_random_node_with_some_star_mass<std::less<int>>(rand_tries);
 }
 
-node Set::get_random_node_with_highest_star_mass(int rand_tries)
-{
+node Set::get_random_node_with_highest_star_mass(int rand_tries) {
 	return get_random_node_with_some_star_mass<std::greater<int>>(rand_tries);
 }
 

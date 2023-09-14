@@ -40,8 +40,7 @@ namespace ogdf {
 /**
  * @ingroup ga-sp
  */
-class OGDF_EXPORT ShortestPathWithBFM : public ShortestPathModule
-{
+class OGDF_EXPORT ShortestPathWithBFM : public ShortestPathModule {
 public:
 	ShortestPathWithBFM() { }
 
@@ -49,13 +48,11 @@ public:
 	// Precond.:
 	//
 	// returns false iff the graph contains a negative cycle
-	virtual bool call(
-		const Graph &G,                   // directed graph
-		const node s,					  // source node
-		const EdgeArray<int> &length,     // length of an edge
-		NodeArray<int> &d,				  // contains shortest path distances after call
-		NodeArray<edge> &pi
-	) override;
+	virtual bool call(const Graph& G, // directed graph
+			const node s, // source node
+			const EdgeArray<int>& length, // length of an edge
+			NodeArray<int>& d, // contains shortest path distances after call
+			NodeArray<edge>& pi) override;
 };
 
 }

@@ -31,13 +31,13 @@
 
 #pragma once
 
-#include <ogdf/planarity/MMEdgeInsertionModule.h>
-#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/tuples.h>
+#include <ogdf/planarity/MMEdgeInsertionModule.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 
 namespace ogdf {
 
@@ -45,15 +45,13 @@ namespace ogdf {
 /**
  * @ingroup ga-insert
  */
-class OGDF_EXPORT MMFixedEmbeddingInserter : public MMEdgeInsertionModule
-{
+class OGDF_EXPORT MMFixedEmbeddingInserter : public MMEdgeInsertionModule {
 public:
 	//! Creates a minor-monotone fixed embedding inserter.
 	MMFixedEmbeddingInserter();
 
 	// destruction
 	virtual ~MMFixedEmbeddingInserter() { }
-
 
 	/**
 	 * Sets the remove-reinsert option for postprocessing.
@@ -66,10 +64,7 @@ public:
 	}
 
 	//! Returns the current setting of the remove-reinsert option.
-	RemoveReinsertType removeReinsert() const {
-		return m_rrOption;
-	}
-
+	RemoveReinsertType removeReinsert() const { return m_rrOption; }
 
 	//! Sets the portion of most crossed edges used during postprocessing.
 	/**
@@ -77,14 +72,10 @@ public:
 	 * The number of edges used in postprocessing is then
 	 * number of edges * percentMostCrossed() / 100.
 	 */
-	void percentMostCrossed(double percent) {
-		m_percentMostCrossed = percent;
-	}
+	void percentMostCrossed(double percent) { m_percentMostCrossed = percent; }
 
 	//! Returns the current setting of the option percentMostCrossed.
-	double percentMostCrossed() const {
-		return m_percentMostCrossed;
-	}
+	double percentMostCrossed() const { return m_percentMostCrossed; }
 
 
 private:
@@ -97,19 +88,15 @@ private:
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */
-	virtual ReturnType doCall(
-		PlanRepExpansion &PG,
-		const List<edge> &origEdges,
-		const EdgeArray<bool> *forbiddenEdgeOrig) override;
+	virtual ReturnType doCall(PlanRepExpansion& PG, const List<edge>& origEdges,
+			const EdgeArray<bool>* forbiddenEdgeOrig) override;
 
 	//! Constructs the search network (extended dual graph).
 	/**
 	 * @param PG is the planarized expansion.
 	 * @param E is the corresponding embeddding.
 	 */
-	void constructDual(
-		const PlanRepExpansion &PG,
-		const CombinatorialEmbedding &E);
+	void constructDual(const PlanRepExpansion& PG, const CombinatorialEmbedding& E);
 
 	//! Finds a shortest insertion path for an edge.
 	/**
@@ -127,27 +114,17 @@ private:
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */
-	void findShortestPath(
-		const PlanRepExpansion &PG,
-		const CombinatorialEmbedding &E,
-		const List<node> &sources,
-		const List<node> &targets,
-		List<Tuple2<adjEntry,adjEntry> > &crossed,
-		const EdgeArray<bool> *forbiddenEdgeOrig);
+	void findShortestPath(const PlanRepExpansion& PG, const CombinatorialEmbedding& E,
+			const List<node>& sources, const List<node>& targets,
+			List<Tuple2<adjEntry, adjEntry>>& crossed, const EdgeArray<bool>* forbiddenEdgeOrig);
 
-	void prepareAnchorNode(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		adjEntry &adjStart,
-		node srcOrig);
+	void prepareAnchorNode(PlanRepExpansion& PG, CombinatorialEmbedding& E, adjEntry& adjStart,
+			node srcOrig);
 
-	void preprocessInsertionPath(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		node srcOrig,
-		node tgtOrig,
-		//PlanRepExpansion::nodeSplit ns,
-		List<Tuple2<adjEntry,adjEntry> > &crossed);
+	void preprocessInsertionPath(PlanRepExpansion& PG, CombinatorialEmbedding& E, node srcOrig,
+			node tgtOrig,
+			//PlanRepExpansion::nodeSplit ns,
+			List<Tuple2<adjEntry, adjEntry>>& crossed);
 
 	/**
 	 * \brief Inserts an edge according to a given insertion path and updates the search network.
@@ -164,14 +141,9 @@ private:
 	 * @param nodeSplit is the node split that has to be inserted.
 	 * @param crossed is the insertion path as described with findShortestPath().
 	 */
-	void insertEdge(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		edge eOrig,
-		node srcOrig,
-		node tgtOrig,
-		PlanRepExpansion::NodeSplit *nodeSplit,
-		List<Tuple2<adjEntry,adjEntry> > &crossed);
+	void insertEdge(PlanRepExpansion& PG, CombinatorialEmbedding& E, edge eOrig, node srcOrig,
+			node tgtOrig, PlanRepExpansion::NodeSplit* nodeSplit,
+			List<Tuple2<adjEntry, adjEntry>>& crossed);
 
 	/**
 	 * \brief Removes the insertion path of an original edge or a node split and updates the search network.
@@ -185,13 +157,8 @@ private:
 	 * @param oldTgt is assigned the target node of the removed insertion path
 	 *        (might be changed during path removal!).
 	 */
-	void removeEdge(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		edge eOrig,
-		PlanRepExpansion::NodeSplit *nodeSplit,
-		node &oldSrc,
-		node &oldTgt);
+	void removeEdge(PlanRepExpansion& PG, CombinatorialEmbedding& E, edge eOrig,
+			PlanRepExpansion::NodeSplit* nodeSplit, node& oldSrc, node& oldTgt);
 
 	/**
 	 * \brief Inserts dual edges between vertex node \p vDual and left face of \p adj.
@@ -200,7 +167,7 @@ private:
 	 * @param adj is an adjacency entry in the planarized expansion.
 	 * @param E is the corresponding embeddding.
 	 */
-	void insertDualEdge(node vDual, adjEntry adj, const CombinatorialEmbedding &E);
+	void insertDualEdge(node vDual, adjEntry adj, const CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Inserts all dual edges incident to \p v's dual node.
@@ -208,7 +175,7 @@ private:
 	 * @param v is a node in the planarized expansion.
 	 * @param E is the corresponding embeddding.
 	 */
-	void insertDualEdges(node v, const CombinatorialEmbedding &E);
+	void insertDualEdges(node v, const CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Removes a (redundant) node split consisting of a single edge.
@@ -217,10 +184,8 @@ private:
 	 * @param E is the corresponding embeddding.
 	 * @param nodeSplit is a node split whose insertion path consists of a single edge.
 	 */
-	void contractSplit(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		PlanRepExpansion::NodeSplit *nodeSplit);
+	void contractSplit(PlanRepExpansion& PG, CombinatorialEmbedding& E,
+			PlanRepExpansion::NodeSplit* nodeSplit);
 
 	/**
 	 * \brief Reduces the insertion path of a node split at node \p u if required.
@@ -231,21 +196,14 @@ private:
 	 * @param u is a node in the planarized expansion.
 	 * @param nsCurrent is a node split which may not be contracted.
 	 */
-	void contractSplitIfReq(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		node u,
-		const PlanRepExpansion::nodeSplit nsCurrent = nullptr);
+	void contractSplitIfReq(PlanRepExpansion& PG, CombinatorialEmbedding& E, node u,
+			const PlanRepExpansion::nodeSplit nsCurrent = nullptr);
 
 	/**
 	 * \brief Converts a dummy node to a copy of an original node.
 	 */
-	void convertDummy(
-		PlanRepExpansion &PG,
-		CombinatorialEmbedding &E,
-		node u,
-		node vOrig,
-		PlanRepExpansion::nodeSplit ns);
+	void convertDummy(PlanRepExpansion& PG, CombinatorialEmbedding& E, node u, node vOrig,
+			PlanRepExpansion::nodeSplit ns);
 
 	/**
 	 * \brief Collects all anchor nodes (including dummies) of a node.
@@ -256,11 +214,8 @@ private:
 	 * @param nsParent is the parent node split.
 	 * @param PG is the planarized expansion.
 	 */
-	void collectAnchorNodes(
-		node v,
-		NodeSet<> &nodes,
-		const PlanRepExpansion::NodeSplit *nsParent,
-		const PlanRepExpansion &PG) const;
+	void collectAnchorNodes(node v, NodeSet<>& nodes, const PlanRepExpansion::NodeSplit* nsParent,
+			const PlanRepExpansion& PG) const;
 
 	/**
 	 * \brief Returns all anchor nodes of \p vOrig in n \p nodes.
@@ -269,10 +224,7 @@ private:
 	 * @param nodes ia assigned the set of anchor nodes.
 	 * @param PG is the planarized expansion.
 	 */
-	void anchorNodes(
-		node vOrig,
-		NodeSet<> &nodes,
-		const PlanRepExpansion &PG) const;
+	void anchorNodes(node vOrig, NodeSet<>& nodes, const PlanRepExpansion& PG) const;
 
 	/**
 	 * \brief Finds the set of anchor nodes of \p src and \p tgt.
@@ -283,11 +235,8 @@ private:
 	 * @param targets ia assigned the set of anchor nodes of \p tgt's original node.
 	 * @param PG is the planarized expansion.
 	 */
-	void findSourcesAndTargets(
-		node src, node tgt,
-		NodeSet<> &sources,
-		NodeSet<> &targets,
-		const PlanRepExpansion &PG) const;
+	void findSourcesAndTargets(node src, node tgt, NodeSet<>& sources, NodeSet<>& targets,
+			const PlanRepExpansion& PG) const;
 
 	/**
 	 * \brief Returns a common dummy node in \p sources and \p targets, or 0 of no such node exists.
@@ -295,66 +244,68 @@ private:
 	 * @param sources is a set of anchor nodes.
 	 * @param targets is a set of anchor nodes.
 	 */
-	node commonDummy(
-		NodeSet<> &sources,
-		NodeSet<> &targets);
+	node commonDummy(NodeSet<>& sources, NodeSet<>& targets);
 
 	//! Performs several consistency checks on the seach network.
-	bool checkDualGraph(PlanRepExpansion &PG, const CombinatorialEmbedding &E) const;
+	bool checkDualGraph(PlanRepExpansion& PG, const CombinatorialEmbedding& E) const;
 
-	bool checkSplitDeg(PlanRepExpansion &PG) const;
+	bool checkSplitDeg(PlanRepExpansion& PG) const;
 
-	bool origOfDualForbidden(
-		edge e,
-		const PlanRepExpansion &PG,
-		const EdgeArray<bool> *forbiddenEdgeOrig) const
-	{
-		if(forbiddenEdgeOrig == nullptr)
+	bool origOfDualForbidden(edge e, const PlanRepExpansion& PG,
+			const EdgeArray<bool>* forbiddenEdgeOrig) const {
+		if (forbiddenEdgeOrig == nullptr) {
 			return false;
+		}
 
-		if(e->source() == m_vS || e->target() == m_vT)
+		if (e->source() == m_vS || e->target() == m_vT) {
 			return false;
+		}
 
-		if(m_primalNode[e->source()] != nullptr)
+		if (m_primalNode[e->source()] != nullptr) {
 			return false;
-		if(m_primalNode[e->target()] != nullptr)
+		}
+		if (m_primalNode[e->target()] != nullptr) {
 			return false;
+		}
 
 		adjEntry adj = m_primalAdj[e];
-		if(adj == nullptr) return false;
+		if (adj == nullptr) {
+			return false;
+		}
 
 		edge eOrig = PG.originalEdge(adj->theEdge());
-		if(eOrig != nullptr) {
+		if (eOrig != nullptr) {
 #if 0
-			if((*forbiddenEdgeOrig)[eOrig])
+			if((*forbiddenEdgeOrig)[eOrig]) {
 				std::cout << "forbidden: " << eOrig << ", dual: " << e << std::endl;
+			}
 #endif
 			return (*forbiddenEdgeOrig)[eOrig];
-		} else return false;
+		} else {
+			return false;
+		}
 	}
 
-	void drawDual(
-		const PlanRepExpansion &PG,
-		const EdgeArray<bool> *forbiddenEdgeOrig);
+	void drawDual(const PlanRepExpansion& PG, const EdgeArray<bool>* forbiddenEdgeOrig);
 
 	RemoveReinsertType m_rrOption; //!< The remove-reinsert option.
-	double m_percentMostCrossed;   //!< The percentMostCrossed option.
+	double m_percentMostCrossed; //!< The percentMostCrossed option.
 
-	Graph m_dual;                      //!< The search network (extended dual graph).
-	FaceArray<node>     m_dualOfFace;  //!< The node in dual corresponding to face in primal.
-	NodeArray<node>     m_dualOfNode;  //!< The node in dual corresponding to node in primal.
-	NodeArray<node>     m_primalNode;  //!< The node in PG corresponding to dual node (0 if face).
-	EdgeArray<adjEntry> m_primalAdj;   //!< The adjacency entry in primal graph corresponding to edge in dual.
-	AdjEntryArray<edge> m_dualEdge;    //!< The dual edge corresponding to crossing the adjacency entry.
-	EdgeArray<int>      m_dualCost;    //!< The cost of an edge in the seach network.
+	Graph m_dual; //!< The search network (extended dual graph).
+	FaceArray<node> m_dualOfFace; //!< The node in dual corresponding to face in primal.
+	NodeArray<node> m_dualOfNode; //!< The node in dual corresponding to node in primal.
+	NodeArray<node> m_primalNode; //!< The node in PG corresponding to dual node (0 if face).
+	EdgeArray<adjEntry> m_primalAdj; //!< The adjacency entry in primal graph corresponding to edge in dual.
+	AdjEntryArray<edge> m_dualEdge; //!< The dual edge corresponding to crossing the adjacency entry.
+	EdgeArray<int> m_dualCost; //!< The cost of an edge in the seach network.
 
 	node m_vS; //!< Represents the start node for the path search.
 	node m_vT; //!< Represents the end node for the path search.
 	int m_maxCost; //!< The maximal cost of an edge in the search network + 1.
 
-	FaceSet<false> *m_delFaces;
-	FaceSet<false> *m_newFaces;
-	NodeSet<false> *m_mergedNodes;
+	FaceSet<false>* m_delFaces;
+	FaceSet<false>* m_newFaces;
+	NodeSet<false>* m_mergedNodes;
 };
 
 }

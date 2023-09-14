@@ -34,7 +34,6 @@
 
 #include <ogdf/cluster/ClusterGraphCopyAttributes.h>
 
-
 namespace ogdf {
 
 
@@ -55,9 +54,9 @@ public:
 	 * @param H is the input clustered hierarchy.
 	 * @param ACG is assigned the cluster hierarchy layout.
 	 */
-	void callCluster(const ExtendedNestingGraph& H, ClusterGraphAttributes &ACG) {
-		ClusterGraphCopyAttributes ACGC(H,ACG);
-		doCall(H,ACGC);
+	void callCluster(const ExtendedNestingGraph& H, ClusterGraphAttributes& ACG) {
+		ClusterGraphCopyAttributes ACGC(H, ACG);
+		doCall(H, ACGC);
 		ACGC.transform();
 	}
 
@@ -70,9 +69,7 @@ protected:
 	 * @param H is the input clustered hierarchy.
 	 * @param ACGC has to be assigned the cluster hierarchy layout.
 	 */
-	virtual void doCall(
-		const ExtendedNestingGraph& H,
-		ClusterGraphCopyAttributes &ACGC) = 0;
+	virtual void doCall(const ExtendedNestingGraph& H, ClusterGraphCopyAttributes& ACGC) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

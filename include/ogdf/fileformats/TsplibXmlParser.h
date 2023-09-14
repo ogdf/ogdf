@@ -31,9 +31,9 @@
 
 #pragma once
 
+#include <ogdf/basic/HashArray.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-#include <ogdf/basic/HashArray.h>
 #include <ogdf/lib/pugixml/pugixml.h>
 
 #include <sstream>
@@ -65,6 +65,7 @@ private:
 
 	// Unified read with all the logic.
 	bool read(Graph& G, GraphAttributes* GA);
+
 public:
 	explicit TsplibXmlParser(std::istream& in);
 	~TsplibXmlParser() = default;

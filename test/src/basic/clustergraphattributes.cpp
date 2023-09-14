@@ -32,6 +32,7 @@
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>
+
 #include <resources.h>
 
 using GA = GraphAttributes;
@@ -51,15 +52,10 @@ using CGA = ClusterGraphAttributes;
  * \tparam Element Type of the graph element that has the property.
  */
 template<class Attribute, class Element>
-void testAttribute(
-	std::function<List<Element>(const ClusterGraph&)> elemFunc,
-	std::function<Attribute& (CGA&, Element)> refFunc,
-	std::function<Attribute (const CGA&, Element)> constRefFunc,
-	Attribute defaultValue,
-	Attribute secondValue,
-	long neededAttributes,
-	string attributeName)
-{
+void testAttribute(std::function<List<Element>(const ClusterGraph&)> elemFunc,
+		std::function<Attribute&(CGA&, Element)> refFunc,
+		std::function<Attribute(const CGA&, Element)> constRefFunc, Attribute defaultValue,
+		Attribute secondValue, long neededAttributes, string attributeName) {
 	describe(attributeName, [&] {
 		Graph graph;
 		ClusterGraph cGraph(graph);
@@ -89,15 +85,15 @@ void testAttribute(
 #endif
 
 		it("gets the value", [&] {
-			for(Element elem : elements) {
+			for (Element elem : elements) {
 				AssertThat(constRefFunc(attr, elem), Equals(defaultValue));
 				AssertThat(refFunc(attr, elem), Equals(defaultValue));
 			}
 		});
 
 		it("sets the value", [&] {
-			for(Element elem : elements) {
-				Attribute &value = refFunc(attr, elem);
+			for (Element elem : elements) {
+				Attribute& value = refFunc(attr, elem);
 				value = secondValue;
 				AssertThat(refFunc(attr, elem), Equals(secondValue));
 				AssertThat(constRefFunc(attr, elem), Equals(secondValue));
@@ -114,149 +110,139 @@ void testAttribute(
 //! @see testAttribute
 template<class Attribute, class... Args>
 void testClusterAttribute(Args... args) {
-	testAttribute<Attribute, cluster>([](const ClusterGraph &graph) {
-		List<cluster> result;
-		graph.allClusters(result);
-		return result;
-	}, std::forward<Args>(args)...);
+	testAttribute<Attribute, cluster>(
+			[](const ClusterGraph& graph) {
+				List<cluster> result;
+				graph.allClusters(result);
+				return result;
+			},
+			std::forward<Args>(args)...);
 }
 
 go_bandit([] {
-describe("ClusterGraphAttributes", [] {
-	const long defaultAttrs = GA::edgeType | GA::nodeType | GA::nodeGraphics | GA::edgeGraphics;
+	describe("ClusterGraphAttributes", [] {
+		const long defaultAttrs = GA::edgeType | GA::nodeType | GA::nodeGraphics | GA::edgeGraphics;
 
-	it("initializes with no attributes by default", [] {
-		CGA attr;
-		AssertThat(attr.attributes(), Equals(0));
+		it("initializes with no attributes by default", [] {
+			CGA attr;
+			AssertThat(attr.attributes(), Equals(0));
+		});
+
+		it("initializes with a ClusterGraph and flags", [&defaultAttrs] {
+			Graph graph;
+			ClusterGraph cGraph(graph);
+			CGA attr(cGraph, CGA::clusterGraphics);
+			AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
+			AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics));
+		});
+
+		it("initializes with a ClusterGraph", [&defaultAttrs] {
+			Graph graph;
+			ClusterGraph cGraph(graph);
+			CGA attr(cGraph);
+			AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
+			AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics));
+		});
+
+		it("initializes using explicit init", [] {
+			Graph graph;
+			ClusterGraph cGraph(graph);
+			CGA attr;
+			attr.init(cGraph, CGA::clusterGraphics);
+			AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
+			AssertThat(attr.attributes(), Equals(CGA::clusterGraphics));
+		});
+
+		it("destroys its attributes", [&defaultAttrs] {
+			Graph graph;
+			ClusterGraph cGraph(graph);
+			CGA attr(cGraph, CGA::clusterGraphics | CGA::clusterLabel);
+			AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
+			AssertThat(attr.attributes(),
+					Equals(defaultAttrs | CGA::clusterGraphics | CGA::clusterLabel));
+			attr.destroyAttributes(CGA::clusterGraphics | CGA::clusterTemplate);
+			AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterLabel));
+		});
+
+		it("adds new attributes", [&defaultAttrs] {
+			Graph graph;
+			ClusterGraph cGraph(graph);
+			CGA attr(cGraph, CGA::clusterGraphics | CGA::clusterLabel);
+			AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
+			AssertThat(attr.attributes(),
+					Equals(defaultAttrs | CGA::clusterGraphics | CGA::clusterLabel));
+			attr.addAttributes(CGA::clusterTemplate | CGA::clusterLabel);
+			AssertThat(attr.attributes(),
+					Equals(defaultAttrs | CGA::clusterGraphics | CGA::clusterLabel
+							| CGA::clusterTemplate));
+		});
+
+		it("knows its currently enabled attributes", [] {
+			Graph graph;
+			ClusterGraph cGraph(graph);
+			CGA attr(cGraph, CGA::clusterGraphics | CGA::clusterLabel);
+			AssertThat(attr.has(CGA::clusterGraphics | CGA::clusterLabel), IsTrue());
+			AssertThat(attr.has(CGA::clusterGraphics), IsTrue());
+			AssertThat(attr.has(CGA::clusterGraphics | CGA::clusterTemplate), IsFalse());
+			AssertThat(attr.has(CGA::clusterTemplate), IsFalse());
+		});
+
+		describe("attributes", [] {
+			testClusterAttribute<double>([](CGA& a, cluster c) -> double& { return a.x(c); },
+					[](const CGA& a, cluster c) { return a.x(c); }, 0, 42, CGA::clusterGraphics, "x");
+
+			testClusterAttribute<double>([](CGA& a, cluster c) -> double& { return a.y(c); },
+					[](const CGA& a, cluster c) { return a.y(c); }, 0, 42, CGA::clusterGraphics, "y");
+
+			testClusterAttribute<double>([](CGA& a, cluster c) -> double& { return a.width(c); },
+					[](const CGA& a, cluster c) { return a.width(c); }, 0, 42, CGA::clusterGraphics,
+					"width");
+
+			testClusterAttribute<double>([](CGA& a, cluster c) -> double& { return a.height(c); },
+					[](const CGA& a, cluster c) { return a.height(c); }, 0, 42,
+					CGA::clusterGraphics, "height");
+
+			testClusterAttribute<float>([](CGA& a, cluster c) -> float& { return a.strokeWidth(c); },
+					[](const CGA& a, cluster c) { return a.strokeWidth(c); },
+					LayoutStandards::defaultClusterStroke().m_width, 42,
+					CGA::clusterStyle | CGA::clusterGraphics, "strokeWidth");
+
+			testClusterAttribute<StrokeType>(
+					[](CGA& a, cluster c) -> StrokeType& { return a.strokeType(c); },
+					[](const CGA& a, cluster c) { return a.strokeType(c); },
+					LayoutStandards::defaultClusterStroke().m_type, StrokeType::Dot,
+					CGA::clusterStyle | CGA::clusterGraphics, "strokeType");
+
+			testClusterAttribute<Color>([](CGA& a, cluster c) -> Color& { return a.strokeColor(c); },
+					[](const CGA& a, cluster c) { return a.strokeColor(c); },
+					LayoutStandards::defaultClusterStroke().m_color, ogdf::Color::Name::Turquoise,
+					CGA::clusterStyle | CGA::clusterGraphics, "strokeColor");
+
+			testClusterAttribute<Color>([](CGA& a, cluster c) -> Color& { return a.fillBgColor(c); },
+					[](const CGA& a, cluster c) { return a.fillBgColor(c); },
+					LayoutStandards::defaultClusterFill().m_bgColor, ogdf::Color::Name::Turquoise,
+					CGA::clusterStyle | CGA::clusterGraphics, "fillBgColor");
+
+			testClusterAttribute<Color>([](CGA& a, cluster c) -> Color& { return a.fillColor(c); },
+					[](const CGA& a, cluster c) { return a.fillColor(c); },
+					LayoutStandards::defaultClusterFill().m_color,
+					Color(ogdf::Color::Name::Turquoise), CGA::clusterStyle | CGA::clusterGraphics,
+					"fillColor");
+
+			testClusterAttribute<FillPattern>(
+					[](CGA& a, cluster c) -> FillPattern& { return a.fillPattern(c); },
+					[](const CGA& a, cluster c) { return a.fillPattern(c); },
+					LayoutStandards::defaultClusterFill().m_pattern, FillPattern::Cross,
+					CGA::clusterStyle | CGA::clusterGraphics, "fillPattern");
+
+			testClusterAttribute<string>([](CGA& a, cluster c) -> string& { return a.label(c); },
+					[](const CGA& a, cluster c) { return a.label(c); }, "", "42", CGA::clusterLabel,
+					"label");
+
+			testClusterAttribute<string>(
+					[](CGA& a, cluster c) -> string& { return a.templateCluster(c); },
+					[](const CGA& a, cluster c) { return a.templateCluster(c); }, "", "42",
+					CGA::clusterTemplate, "templateCluster");
+		});
 	});
-
-	it("initializes with a ClusterGraph and flags", [&defaultAttrs] {
-		Graph graph;
-		ClusterGraph cGraph(graph);
-		CGA attr(cGraph, CGA::clusterGraphics);
-		AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
-		AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics));
-	});
-
-	it("initializes with a ClusterGraph", [&defaultAttrs] {
-		Graph graph;
-		ClusterGraph cGraph(graph);
-		CGA attr(cGraph);
-		AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
-		AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics));
-	});
-
-	it("initializes using explicit init", [] {
-		Graph graph;
-		ClusterGraph cGraph(graph);
-		CGA attr;
-		attr.init(cGraph, CGA::clusterGraphics);
-		AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
-		AssertThat(attr.attributes(), Equals(CGA::clusterGraphics));
-	});
-
-	it("destroys its attributes", [&defaultAttrs] {
-		Graph graph;
-		ClusterGraph cGraph(graph);
-		CGA attr(cGraph, CGA::clusterGraphics | CGA::clusterLabel);
-		AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
-		AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics | CGA::clusterLabel));
-		attr.destroyAttributes(CGA::clusterGraphics | CGA::clusterTemplate);
-		AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterLabel));
-	});
-
-	it("adds new attributes", [&defaultAttrs] {
-		Graph graph;
-		ClusterGraph cGraph(graph);
-		CGA attr(cGraph, CGA::clusterGraphics | CGA::clusterLabel);
-		AssertThat(&attr.constClusterGraph(), Equals(&cGraph));
-		AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics | CGA::clusterLabel));
-		attr.addAttributes(CGA::clusterTemplate | CGA::clusterLabel);
-		AssertThat(attr.attributes(), Equals(defaultAttrs | CGA::clusterGraphics | CGA::clusterLabel | CGA::clusterTemplate));
-	});
-
-	it("knows its currently enabled attributes", [] {
-		Graph graph;
-		ClusterGraph cGraph(graph);
-		CGA attr(cGraph, CGA::clusterGraphics | CGA::clusterLabel);
-		AssertThat(attr.has(CGA::clusterGraphics | CGA::clusterLabel), IsTrue());
-		AssertThat(attr.has(CGA::clusterGraphics), IsTrue());
-		AssertThat(attr.has(CGA::clusterGraphics | CGA::clusterTemplate), IsFalse());
-		AssertThat(attr.has(CGA::clusterTemplate), IsFalse());
-	});
-
-	describe("attributes", [] {
-		testClusterAttribute<double>(
-			[](CGA &a, cluster c) -> double& { return a.x(c); },
-			[](const CGA &a, cluster c) { return a.x(c); },
-			0, 42,
-			CGA::clusterGraphics, "x");
-
-		testClusterAttribute<double>(
-			[](CGA &a, cluster c) -> double& { return a.y(c); },
-			[](const CGA &a, cluster c) { return a.y(c); },
-			0, 42,
-			CGA::clusterGraphics, "y");
-
-		testClusterAttribute<double>(
-			[](CGA &a, cluster c) -> double& { return a.width(c); },
-			[](const CGA &a, cluster c) { return a.width(c); },
-			0, 42,
-			CGA::clusterGraphics, "width");
-
-		testClusterAttribute<double>(
-			[](CGA &a, cluster c) -> double& { return a.height(c); },
-			[](const CGA &a, cluster c) { return a.height(c); },
-			0, 42,
-			CGA::clusterGraphics, "height");
-
-		testClusterAttribute<float>(
-			[](CGA &a, cluster c) -> float& { return a.strokeWidth(c); },
-			[](const CGA &a, cluster c) { return a.strokeWidth(c); },
-			LayoutStandards::defaultClusterStroke().m_width, 42,
-			CGA::clusterStyle | CGA::clusterGraphics, "strokeWidth");
-
-		testClusterAttribute<StrokeType>(
-			[](CGA &a, cluster c) -> StrokeType& { return a.strokeType(c); },
-			[](const CGA &a, cluster c) { return a.strokeType(c); },
-			LayoutStandards::defaultClusterStroke().m_type, StrokeType::Dot,
-			CGA::clusterStyle | CGA::clusterGraphics, "strokeType");
-
-		testClusterAttribute<Color>(
-			[](CGA &a, cluster c) -> Color& { return a.strokeColor(c); },
-			[](const CGA &a, cluster c) { return a.strokeColor(c); },
-			LayoutStandards::defaultClusterStroke().m_color, ogdf::Color::Name::Turquoise,
-			CGA::clusterStyle | CGA::clusterGraphics, "strokeColor");
-
-		testClusterAttribute<Color>(
-			[](CGA &a, cluster c) -> Color& { return a.fillBgColor(c); },
-			[](const CGA &a, cluster c) { return a.fillBgColor(c); },
-			LayoutStandards::defaultClusterFill().m_bgColor, ogdf::Color::Name::Turquoise,
-			CGA::clusterStyle | CGA::clusterGraphics, "fillBgColor");
-
-		testClusterAttribute<Color>(
-			[](CGA &a, cluster c) -> Color& { return a.fillColor(c); },
-			[](const CGA &a, cluster c) { return a.fillColor(c); },
-			LayoutStandards::defaultClusterFill().m_color,  Color(ogdf::Color::Name::Turquoise),
-			CGA::clusterStyle | CGA::clusterGraphics, "fillColor");
-
-		testClusterAttribute<FillPattern>(
-			[](CGA &a, cluster c) -> FillPattern& { return a.fillPattern(c); },
-			[](const CGA &a, cluster c) { return a.fillPattern(c); },
-			LayoutStandards::defaultClusterFill().m_pattern, FillPattern::Cross,
-			CGA::clusterStyle | CGA::clusterGraphics, "fillPattern");
-
-		testClusterAttribute<string>(
-			[](CGA &a, cluster c) -> string& { return a.label(c); },
-			[](const CGA &a, cluster c) { return a.label(c); },
-			"", "42",
-			CGA::clusterLabel, "label");
-
-		testClusterAttribute<string>(
-			[](CGA &a, cluster c) -> string& { return a.templateCluster(c); },
-			[](const CGA &a, cluster c) { return a.templateCluster(c); },
-			"", "42",
-			CGA::clusterTemplate, "templateCluster");
-	});
-});
 });

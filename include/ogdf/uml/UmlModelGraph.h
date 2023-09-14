@@ -32,14 +32,13 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
 //! This class represents the complete UML Model in a graph-like data structure.
 class OGDF_EXPORT UmlModelGraph : public Graph {
-
 private:
 	/** The name of the model. */
 	string m_modelName;
@@ -58,7 +57,6 @@ private:
 	NodeArray<Graph::NodeType> m_vType;
 
 public:
-
 	/** Constructor. */
 	UmlModelGraph();
 
@@ -66,29 +64,28 @@ public:
 	~UmlModelGraph();
 
 	/** Sets the name of the model. */
-	void setModelName(const string &name) { m_modelName = name; }
+	void setModelName(const string& name) { m_modelName = name; }
 
 	/** Returns a const reference to the label of the given node. */
-	const string &getNodeLabel(node v) const { return m_nodeLabel[v]; }
+	const string& getNodeLabel(node v) const { return m_nodeLabel[v]; }
 
 	/** Returns a reference to the label of the given node. */
-	string &label(node v) { return m_nodeLabel[v]; }
+	string& label(node v) { return m_nodeLabel[v]; }
 
 	/** Returns a const reference to the type of the given edge. */
-	const Graph::EdgeType &type(edge e) const { return m_eType[e]; }
+	const Graph::EdgeType& type(edge e) const { return m_eType[e]; }
 
 	/** Returns a reference to the type of the given edge. */
-	Graph::EdgeType &type(edge e) { return m_eType[e]; }
+	Graph::EdgeType& type(edge e) { return m_eType[e]; }
 
 	/** Returns a const reference to the type of the given node. */
-	const Graph::NodeType &type(node v) const { return m_vType[v]; }
+	const Graph::NodeType& type(node v) const { return m_vType[v]; }
 
 	/** Returns a reference to the type of the given node. */
-	Graph::NodeType &type(node v) { return m_vType[v]; }
-
+	Graph::NodeType& type(node v) { return m_vType[v]; }
 };
 
 /** Output operator for UmlModelGraph. */
-std::ostream &operator<<(std::ostream &os, const UmlModelGraph &modelGraph);
+std::ostream& operator<<(std::ostream& os, const UmlModelGraph& modelGraph);
 
 }

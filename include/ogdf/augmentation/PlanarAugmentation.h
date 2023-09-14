@@ -32,8 +32,8 @@
 #pragma once
 
 #include <ogdf/augmentation/AugmentationModule.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/augmentation/planar/PALabel.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
@@ -57,7 +57,6 @@ namespace ogdf {
  * Augmentation Problem</i>. Proc. SODA 1998, pp. 260-269.
  */
 class OGDF_EXPORT PlanarAugmentation : public AugmentationModule {
-
 public:
 	//! Creates an instance of the planar augmentation algorithm.
 	PlanarAugmentation() { }
@@ -233,7 +232,7 @@ private:
 	 *
 	 * \param newEdges is a list of all new edges.
 	 */
-	void updateNewEdges(const SList<edge> &newEdges);
+	void updateNewEdges(const SList<edge>& newEdges);
 
 	//! Cleanup.
 	void terminate();

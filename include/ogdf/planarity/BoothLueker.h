@@ -49,69 +49,58 @@ namespace ogdf {
  * Generally, it is suggested to use the direct function calls isPlanar and planarEmbed in extended_graph_alg.h (which in turn use BoyerMyrvold).
  */
 class OGDF_EXPORT BoothLueker : public PlanarityModule {
-
 public:
-
 	BoothLueker() { }
+
 	~BoothLueker() { }
 
 	//! Returns true, if G is planar, false otherwise.
-	virtual bool isPlanarDestructive(Graph &G) override;
+	virtual bool isPlanarDestructive(Graph& G) override;
 
 	//! Returns true, if G is planar, false otherwise.
-	virtual bool isPlanar(const Graph &G) override;
+	virtual bool isPlanar(const Graph& G) override;
 
 	//! Returns true, if G is planar, false otherwise. If true, G contains a planar embedding.
-	virtual bool planarEmbed(Graph &G) override {
-		return preparation(G,true);
-	}
+	virtual bool planarEmbed(Graph& G) override { return preparation(G, true); }
 
 	//! Returns true, if G is planar, false otherwise. If true, G contains a planar embedding.
 	/**
 	 * For BoothLueker, this procedure is exactly the same as planarEmbed. (See PlanarityModule or
 	 * BoyerMyrvold for the rationale of this function's existence.
 	 */
-	virtual bool planarEmbedPlanarGraph(Graph &G) override {
-		return preparation(G,true);
-	}
+	virtual bool planarEmbedPlanarGraph(Graph& G) override { return preparation(G, true); }
 
 private:
-
 	//! Prepares the planarity test and the planar embedding
-	bool preparation(Graph &G, bool embed);
+	bool preparation(Graph& G, bool embed);
 
 	/**
 	 * Performs a planarity test on a biconnected component of \p G.
 	 *
 	 * \p numbering contains an st-numbering of the component.
 	 */
-	bool doTest(Graph &G,NodeArray<int> &numbering);
+	bool doTest(Graph& G, NodeArray<int>& numbering);
 
 	/**
 	 * Performs a planarity test on a biconnected component of \p G and embedds it planar.
 	 *
 	 * \p numbering contains an st-numbering of the component.
 	 */
-	bool doEmbed(Graph &G,
-		NodeArray<int>  &numbering,
-		EdgeArray<edge> &backTableEdges,
-		EdgeArray<edge> &forwardTableEdges);
+	bool doEmbed(Graph& G, NodeArray<int>& numbering, EdgeArray<edge>& backTableEdges,
+			EdgeArray<edge>& forwardTableEdges);
 
 	// Used by doEmbed. Computes an entire embedding from an
 	// upward embedding.
-	void entireEmbed(Graph &G,
-		NodeArray<SListPure<adjEntry> > &entireEmbedding,
-		NodeArray<SListIterator<adjEntry> > &adjMarker,
-		NodeArray<bool> &mark,
-		node v);
+	void entireEmbed(Graph& G, NodeArray<SListPure<adjEntry>>& entireEmbedding,
+			NodeArray<SListIterator<adjEntry>>& adjMarker, NodeArray<bool>& mark, node v);
 
-	void prepareParallelEdges(Graph &G);
+	void prepareParallelEdges(Graph& G);
 
 
 	//private Members for handling parallel edges
-	EdgeArray<ListPure<edge> > m_parallelEdges;
+	EdgeArray<ListPure<edge>> m_parallelEdges;
 	EdgeArray<bool> m_isParallel;
-	int	m_parallelCount;
+	int m_parallelCount;
 };
 
 }

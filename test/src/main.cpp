@@ -31,19 +31,19 @@
  */
 
 #include <iostream>
+
 #include <resources.h>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
 	bool verbose = false;
 	bool help = false;
 
-	for(int i = 1; i < argc; i++) {
+	for (int i = 1; i < argc; i++) {
 		verbose |= string(argv[i]) == "--ogdf-verbose";
 		help |= string(argv[i]) == "--help";
 	}
 
-	if(!verbose) {
+	if (!verbose) {
 		Logger::globalLogLevel(Logger::Level::Force);
 	}
 
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 
 	int result = run(argc, argv);
 
-	if(help) {
+	if (help) {
 		std::cout << "OGDF specific options:" << std::endl;
 		std::cout << "  --ogdf-verbose\t\tEnable verbose OGDF logging." << std::endl;
 	}

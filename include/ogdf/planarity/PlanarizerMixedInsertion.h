@@ -34,7 +34,6 @@
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
 
-
 namespace ogdf {
 
 /**
@@ -67,19 +66,15 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT PlanarizerMixedInsertion : public CrossingMinimizationModule
-{
+class OGDF_EXPORT PlanarizerMixedInsertion : public CrossingMinimizationModule {
 protected:
 	//! Implements the algorithm call.
 	/**
 	 * @pre \p pr must be simple.
 	 */
-	virtual ReturnType doCall(PlanRep &pr,
-		int cc,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs,
-		int &crossingNumber) override;
+	virtual ReturnType doCall(PlanRep& pr, int cc, const EdgeArray<int>* pCostOrig,
+			const EdgeArray<bool>* pForbiddenOrig, const EdgeArray<uint32_t>* pEdgeSubGraphs,
+			int& crossingNumber) override;
 	// (The algorithm may still work when pr is not simple and the checking
 	// assertion is removed as long as only edge insertion is used.)
 
@@ -91,9 +86,9 @@ public:
 		HigherDegree, //!< The endpoint of e with the higher degree.
 		LowerDegree, //!< The endpoint of e with the lower degree.
 		HigherNonPlanarDegree, //!< The endpoint of e with the higher number of
-		                       //!< incident edges not in the planar subgraph.
+		//!< incident edges not in the planar subgraph.
 		LowerNonPlanarDegree, //!< The endpoint of e with the lower number of
-		                      //!< incident edges not in the planar subgraph.
+		//!< incident edges not in the planar subgraph.
 		BothEndpoints //!< Both the source and the target of e.
 	};
 
@@ -101,26 +96,22 @@ public:
 	PlanarizerMixedInsertion();
 
 	//! Creates a PlanarizerMixedInsertion with the same settings as \p planarizer.
-	PlanarizerMixedInsertion(const PlanarizerMixedInsertion &planarizer);
+	PlanarizerMixedInsertion(const PlanarizerMixedInsertion& planarizer);
 
 	//! Returns a new PlanarizerMixedInsertion with the same option settings.
-	virtual CrossingMinimizationModule *clone() const override;
+	virtual CrossingMinimizationModule* clone() const override;
 
 	//! Assignment operator, copies option settings only.
-	PlanarizerMixedInsertion &operator=(const PlanarizerMixedInsertion &planarizer);
+	PlanarizerMixedInsertion& operator=(const PlanarizerMixedInsertion& planarizer);
 
 	//! Sets the module option for the computation of the planar subgraph.
-	void setSubgraph(PlanarSubgraphModule<int> *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(PlanarSubgraphModule<int>* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! Returns the used method of selecting nodes to reinsert.
 	NodeSelectionMethod nodeSelectionMethod() { return m_nodeSelectionMethod; }
 
 	//! Sets the used method of selecting nodes to reinsert.
-	void nodeSelectionMethod(NodeSelectionMethod method) {
-		m_nodeSelectionMethod = method;
-	}
+	void nodeSelectionMethod(NodeSelectionMethod method) { m_nodeSelectionMethod = method; }
 
 private:
 	//!< The planar subgraph algorithm.

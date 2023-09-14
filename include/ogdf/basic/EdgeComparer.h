@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
@@ -45,8 +45,7 @@ namespace ogdf {
  * @ingroup comparer
  * @todo Check if sorting order fits adjacency list.
  */
-class OGDF_EXPORT EdgeComparer : public VComparer<adjEntry>
-{
+class OGDF_EXPORT EdgeComparer : public VComparer<adjEntry> {
 public:
 	/**
 	 * Constructor for a given PlanRep and given GraphAttributes
@@ -64,28 +63,25 @@ public:
 	 *
 	 * Compares the edges directly in \p AG.
 	 */
-	explicit EdgeComparer(const GraphAttributes &AG) : m_AG(&AG), m_PR(nullptr) {}
+	explicit EdgeComparer(const GraphAttributes& AG) : m_AG(&AG), m_PR(nullptr) { }
 
-	int compare(const adjEntry &e1, const adjEntry &e2) const override;
+	int compare(const adjEntry& e1, const adjEntry& e2) const override;
 
 	/**
 	 * Checks if vector from \p u to \p v lies within the 180-degree halfcircle before
 	 * the vector from \p u to \p w in clockwise order (i.e. twelve o'clock lies before 1).
 	 */
-	bool before(const DPoint &u, const DPoint &v, const DPoint &w) const;
+	bool before(const DPoint& u, const DPoint& v, const DPoint& w) const;
 
 private:
 	/**
 	 * Returns 1 if \p v lies to the left of the line through \p u and \p w,
 	 * -1 if it lies to the right, and 0 if it lies on that line.
 	 */
-	int orientation(
-		const DPoint &u,
-		const DPoint &v,
-		const DPoint &w) const;
+	int orientation(const DPoint& u, const DPoint& v, const DPoint& w) const;
 
-	const GraphAttributes *m_AG;
-	const PlanRep *m_PR;
+	const GraphAttributes* m_AG;
+	const PlanRep* m_PR;
 };
 
 }

@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <memory>
-#include <unordered_map>
 #include <ogdf/basic/DualGraph.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/comparer.h>
+
+#include <memory>
+#include <unordered_map>
 
 namespace ogdf {
 
@@ -65,11 +66,11 @@ private:
 	 * An insertion path is given by the predecessor edge of each node on a
 	 * path from #m_rootDualNode to one leaf the insertion path tree.
 	 */
-	const PredecessorMap &m_predecessors;
+	const PredecessorMap& m_predecessors;
 
-	const GraphCopy &m_graphCopy; //!< Planarization.
+	const GraphCopy& m_graphCopy; //!< Planarization.
 
-	const DynamicDualGraph *m_dualGraph; //!< Dual graph of #m_graphCopy.
+	const DynamicDualGraph* m_dualGraph; //!< Dual graph of #m_graphCopy.
 
 public:
 	/**
@@ -81,18 +82,13 @@ public:
 	 * @param graphCopy Planarization.
 	 * @param dualGraph Dual graph of #m_graphCopy.
 	 */
-	EdgeOrderComparer(
-			node origNode,
-			node rootDualNode,
-			const PredecessorMap &predecessors,
-			const GraphCopy &graphCopy,
-			const DynamicDualGraph *dualGraph)
-	: m_origNode(origNode)
-	, m_rootDualNode(rootDualNode)
-	, m_predecessors(predecessors)
-	, m_graphCopy(graphCopy)
-	, m_dualGraph(dualGraph)
-	{}
+	EdgeOrderComparer(node origNode, node rootDualNode, const PredecessorMap& predecessors,
+			const GraphCopy& graphCopy, const DynamicDualGraph* dualGraph)
+		: m_origNode(origNode)
+		, m_rootDualNode(rootDualNode)
+		, m_predecessors(predecessors)
+		, m_graphCopy(graphCopy)
+		, m_dualGraph(dualGraph) { }
 
 	/**
 	 * Returns the lowest common ancestor of \p w1 and \p w2 in the insertion
@@ -105,9 +101,9 @@ public:
 	 * @return lowest common ancestor of \p w1 and \p w2 in the insertion path
 	 * tree rooted at \p root
 	 */
-	node findLCAInInsertionPathTree(node w1, node w2, edge &parentOfLCA) const {
-		const NodeArray<edge> &preds1 {*m_predecessors.at(w1)};
-		const NodeArray<edge> &preds2 {*m_predecessors.at(w2)};
+	node findLCAInInsertionPathTree(node w1, node w2, edge& parentOfLCA) const {
+		const NodeArray<edge>& preds1 {*m_predecessors.at(w1)};
+		const NodeArray<edge>& preds2 {*m_predecessors.at(w2)};
 
 		// Go backwards from root until predecessor path diverges.
 		node lastDualNode1 {m_rootDualNode};
@@ -121,8 +117,7 @@ public:
 
 			// Go further down.
 			edgeToChild = preds1[lastDualNode1];
-			if (preds1[lastDualNode1] == nullptr ||
-			    preds2[lastDualNode2] == nullptr) {
+			if (preds1[lastDualNode1] == nullptr || preds2[lastDualNode2] == nullptr) {
 				// If either node has no child in the insertion path tree,
 				// the lca cannot be lower.
 				break;
@@ -141,7 +136,7 @@ public:
 	 * @param e1 first edge to compare
 	 * @param e2 second edge to compare
 	 */
-	int compare(const edge &e1, const edge &e2) const {
+	int compare(const edge& e1, const edge& e2) const {
 		node w1 {m_graphCopy.copy(e1->opposite(m_origNode))};
 		node w2 {m_graphCopy.copy(e2->opposite(m_origNode))};
 		if (w1 == w2) {
@@ -172,8 +167,7 @@ public:
 			adjEntry sourceAdj {primalParentOfLCA->adjSource()};
 			adjEntry targetAdj {primalParentOfLCA->adjTarget()};
 
-			const ConstCombinatorialEmbedding &embedding =
-				m_dualGraph->getPrimalEmbedding();
+			const ConstCombinatorialEmbedding& embedding = m_dualGraph->getPrimalEmbedding();
 			if (embedding.rightFace(sourceAdj) == lcaFace) {
 				parentAdj = sourceAdj;
 			} else {
@@ -227,34 +221,32 @@ public:
 	OGDF_AUGMENT_COMPARER(edge)
 };
 
-
 /**
  * @ingroup ga-insert
  *
  * Inserts a star (a vertex and its incident edges) optimally into an
  * embedding.
  */
-class OGDF_EXPORT StarInserter
-{
+class OGDF_EXPORT StarInserter {
 private:
-	GraphCopy *m_graphCopy; //!< Planarization.
+	GraphCopy* m_graphCopy; //!< Planarization.
 
-	CombinatorialEmbedding *m_combEmbedding; //!< Embedding of #m_graphCopy.
+	CombinatorialEmbedding* m_combEmbedding; //!< Embedding of #m_graphCopy.
 
-	DynamicDualGraph *m_dual; //!< Dual graph of #m_combEmbedding.
+	DynamicDualGraph* m_dual; //!< Dual graph of #m_combEmbedding.
 
 	//! Maps new faces (created after the insertion of edge paths) to old
 	//! (non-split) faces. Computed insertion paths refer to the old faces.
-	FaceArray<face> *m_newToOldFace;
+	FaceArray<face>* m_newToOldFace;
 
 	//! Maps each edge e originally contained in #m_graphCopy to the edge in the
 	//! same chain which should be split next if the dual of e is part of an
 	//! insertion path.
-	EdgeArray<edge> *m_edgeInChainToSplit;
+	EdgeArray<edge>* m_edgeInChainToSplit;
 
 	//! Maps the parts of a chain in #m_graphCopy to the respective copy edge
 	//! contained in #m_graphCopy before any insertion paths were embedded.
-	EdgeArray<edge> *m_originalEdge;
+	EdgeArray<edge>* m_originalEdge;
 
 	//! Returns the primal face of \p dualNode which existed before any new
 	//! edges were inserted.
@@ -277,9 +269,8 @@ private:
 	 * given as edges in the dual graph, starting at the returned dual node.
 	 * @return the node of #m_dual in which \p origNode should be inserted.
 	 */
-	node getOptimalDualNode(node origNode,
-			const EdgeArray<int> *pCostOrig,
-			PredecessorMap &predecessors);
+	node getOptimalDualNode(node origNode, const EdgeArray<int>* pCostOrig,
+			PredecessorMap& predecessors);
 
 	/**
 	 * Modify the insertion paths \p predecessors such that they do not cross
@@ -291,9 +282,7 @@ private:
 	 * @param predecessors is assigned the predecessor edge of each node in the
 	 * insertion path arborescence. The predecessors will not cross each other.
 	 */
-	void makePredsConsistent(node origNode,
-			node optimalDualNode,
-			PredecessorMap &predecessors);
+	void makePredsConsistent(node origNode, node optimalDualNode, PredecessorMap& predecessors);
 
 	/**
 	 * Returns the adjEntry of \p primalEdgeToSplit whose left face corresponds
@@ -369,12 +358,8 @@ private:
 	 * @return newly created dummy edge incident to \p insertedNode (which has
 	 * to be deleted later), or \c nullptr if no dummy edge was created.
 	 */
-	edge collectAdjEntries(
-		node w,
-		node insertedNode,
-		node optimalDualNode,
-		const PredecessorMap &predecessors,
-		List<adjEntry> &crossedEdges);
+	edge collectAdjEntries(node w, node insertedNode, node optimalDualNode,
+			const PredecessorMap& predecessors, List<adjEntry>& crossedEdges);
 
 	/**
 	 * Transfers the adjEntries from the List \p crossedEdges to the SList
@@ -392,10 +377,8 @@ private:
 	 * \p crossedEdges is ordered such that the first adjEntry starts at the
 	 * source of the edge to embed)
 	 */
-	void transferCrossedEdges(
-		const List<adjEntry> &crossedEdges,
-		SList<adjEntry> &finalCrossedEdges,
-		bool startAtSource);
+	void transferCrossedEdges(const List<adjEntry>& crossedEdges,
+			SList<adjEntry>& finalCrossedEdges, bool startAtSource);
 
 	/**
 	 * Initialize all member variables.
@@ -403,7 +386,7 @@ private:
 	 * @param graphCopy initial planarization
 	 * @param dualGraph dual graph of \p graphCopy
 	 */
-	void initMemberData(GraphCopy &graphCopy, DynamicDualGraph &dualGraph);
+	void initMemberData(GraphCopy& graphCopy, DynamicDualGraph& dualGraph);
 
 	/**
 	 * Update member variables, in particular #m_newToOldFace and
@@ -417,22 +400,19 @@ private:
 
 public:
 	//! Creates a StarInserter instance with default settings.
-	StarInserter()
-		: m_combEmbedding{nullptr}
-		, m_dual{nullptr}
-	{ }
+	StarInserter() : m_combEmbedding {nullptr}, m_dual {nullptr} { }
 
 	//! Creates a StarInserter instance with the same settings as \p inserter.
 	/**
 	 * @param inserter StarInserter to be copied
 	 */
-	StarInserter(const StarInserter &inserter) { }
+	StarInserter(const StarInserter& inserter) { }
 
 	//! Destructor.
 	~StarInserter() { }
 
 	//! Assignment operator, copies option settings only.
-	StarInserter &operator=(const StarInserter &inserter);
+	StarInserter& operator=(const StarInserter& inserter);
 
 	//! Inserts the node \p origNode and its incident edges into \p graphCopy.
 	/**
@@ -445,10 +425,8 @@ public:
 	 * edges; edges in \p graphCopy without an original edge have zero costs.
 	 * May be nullptr, in which case all edges have cost 1.
 	 */
-	virtual void call(GraphCopy &graphCopy,
-		DynamicDualGraph &dualGraph,
-		node origNode,
-		const EdgeArray<int> *pCostOrig);
+	virtual void call(GraphCopy& graphCopy, DynamicDualGraph& dualGraph, node origNode,
+			const EdgeArray<int>* pCostOrig);
 };
 
 }

@@ -29,14 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <limits>
 #include <ogdf/fileformats/Utils.h>
+
+#include <limits>
 
 namespace ogdf {
 
 
-std::istream &operator >>(std::istream &is, TokenIgnorer token)
-{
+std::istream& operator>>(std::istream& is, TokenIgnorer token) {
 	is.ignore(std::numeric_limits<std::streamsize>::max(), token.m_c);
 	return is;
 }

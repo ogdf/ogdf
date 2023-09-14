@@ -35,28 +35,17 @@
 namespace ogdf {
 
 //! Sets the single level layout
-void MultilevelLayout::setLayout(LayoutModule* L)
-{
-	m_mixer->setLevelLayoutModule(L);
-}
-
+void MultilevelLayout::setLayout(LayoutModule* L) { m_mixer->setLevelLayoutModule(L); }
 
 //! Sets the method used for coarsening
-void MultilevelLayout::setMultilevelBuilder(MultilevelBuilder* B)
-{
+void MultilevelLayout::setMultilevelBuilder(MultilevelBuilder* B) {
 	m_mixer->setMultilevelBuilder(B);
 }
 
-
 //! Sets the placement method used when refining the levels again.
-void MultilevelLayout::setPlacer(InitialPlacer* P)
-{
-	m_mixer->setInitialPlacer(P);
-}
+void MultilevelLayout::setPlacer(InitialPlacer* P) { m_mixer->setInitialPlacer(P); }
 
-
-MultilevelLayout::MultilevelLayout()
-{
+MultilevelLayout::MultilevelLayout() {
 	// For the layout, we set a scaling layout with
 	// standard level layout FR. This scales the layout
 	// on each level (with a constant factor) and then applies the FR.
@@ -83,9 +72,7 @@ MultilevelLayout::MultilevelLayout()
 	m_preproc.setRandomizePositions(true);
 }
 
-
-void MultilevelLayout::call(GraphAttributes &GA)
-{
+void MultilevelLayout::call(GraphAttributes& GA) {
 	MultilevelGraph MLG(GA);
 
 	// Call the nested call, including preprocessing,

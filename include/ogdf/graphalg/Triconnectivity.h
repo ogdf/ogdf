@@ -33,24 +33,23 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
 //! realizes Hopcroft/Tarjan algorithm for finding the triconnected
 //! components of a biconnected multi-graph
 //! @ingroup ga-connectivity
-class OGDF_EXPORT Triconnectivity
-{
+class OGDF_EXPORT Triconnectivity {
 public:
 	/**
 	 * Divides G into triconnected components.
 	 * \param G graph
 	 */
-	explicit Triconnectivity(const Graph &G);
+	explicit Triconnectivity(const Graph& G);
 
 	/**
 	 * Tests G for triconnectivity.
@@ -59,9 +58,9 @@ public:
 	 * \param s1 first vertex of separation pair if G is biconnected, cut vertex of G if G is not biconnected, nullptr if G is not connected.
 	 * \param s2 second vertex of separation pair if G is biconnected, nullptr otherwise.
 	 */
-	Triconnectivity(const Graph &G, bool &isTric, node &s1, node &s2);
+	Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s2);
 
-	Triconnectivity(const Triconnectivity &) = delete;
+	Triconnectivity(const Triconnectivity&) = delete;
 
 	~Triconnectivity();
 
@@ -73,7 +72,7 @@ public:
 		List<edge> m_edges;
 		CompType m_type;
 
-		CompStruct &operator<<(edge e) {
+		CompStruct& operator<<(edge e) {
 			m_edges.pushBack(e);
 			return *this;
 		}
@@ -85,7 +84,7 @@ public:
 	};
 
 	//! copy of G containing also virtual edges
-	GraphCopySimple  *m_pGC;
+	GraphCopySimple* m_pGC;
 	//! array of components
 	Array<CompStruct> m_component;
 	//! number of components
@@ -110,30 +109,24 @@ private:
 	int m_top;
 
 	//! push a triple on TSTACK
-	void TSTACK_push (int h, int a, int b) {
+	void TSTACK_push(int h, int a, int b) {
 		m_TSTACK_h[++m_top] = h;
 		m_TSTACK_a[m_top] = a;
 		m_TSTACK_b[m_top] = b;
 	}
 
 	//! push end-of-stack marker on TSTACK
-	void TSTACK_pushEOS() {
-		m_TSTACK_a[++m_top] = -1;
-	}
+	void TSTACK_pushEOS() { m_TSTACK_a[++m_top] = -1; }
 
 	//! returns true iff end-of-stack marker is not on top of TSTACK
-	bool TSTACK_notEOS() {
-		return m_TSTACK_a[m_top] != -1;
-	}
+	bool TSTACK_notEOS() { return m_TSTACK_a[m_top] != -1; }
 
 	//! create a new empty component
-	CompStruct &newComp() {
-		return m_component[m_numComp++];
-	}
+	CompStruct& newComp() { return m_component[m_numComp++]; }
 
 	//! create a new empty component of type t
-	CompStruct &newComp(CompType t) {
-		CompStruct &C = m_component[m_numComp++];
+	CompStruct& newComp(CompType t) {
+		CompStruct& C = m_component[m_numComp++];
 		C.m_type = t;
 		return C;
 	}
@@ -142,20 +135,20 @@ private:
 	enum class EdgeType { unseen, tree, frond, removed };
 
 	//! first dfs traversal
-	void DFS1 (const Graph& G, node v, node u);
+	void DFS1(const Graph& G, node v, node u);
 	//! special version for triconnectivity tes
-	void DFS1 (const Graph& G, node v, node u, node &s1);
+	void DFS1(const Graph& G, node v, node u, node& s1);
 
 	//! constructs ordered adjaceny lists
-	void buildAcceptableAdjStruct (const Graph& G);
+	void buildAcceptableAdjStruct(const Graph& G);
 	//! the second dfs traversal
-	void DFS2 (const Graph& G);
+	void DFS2(const Graph& G);
 	void pathFinder(const Graph& G, node v);
 
 	//! finding of split components
-	void pathSearch (const Graph& G, node v);
+	void pathSearch(const Graph& G, node v);
 
-	bool pathSearch (const Graph &G, node v, node &s1, node &s2);
+	bool pathSearch(const Graph& G, node v, node& s1, node& s2);
 
 	//! merges split-components into triconnected components
 	void assembleTriconnectedComponents();
@@ -165,9 +158,7 @@ private:
 	void printStacks();
 
 	//! returns high(v) value
-	int high(node v) {
-		return (m_HIGHPT[v].empty()) ? 0 : m_HIGHPT[v].front();
-	}
+	int high(node v) { return (m_HIGHPT[v].empty()) ? 0 : m_HIGHPT[v].front(); }
 
 	void delHigh(edge e) {
 		ListIterator<int> it = m_IN_HIGH[e];
@@ -177,26 +168,26 @@ private:
 		}
 	}
 
-	NodeArray<int>   m_NUMBER; //!< (first) dfs-number of v
-	NodeArray<int>   m_LOWPT1;
-	NodeArray<int>   m_LOWPT2;
-	NodeArray<int>   m_ND;     //!< number of descendants in palm tree
-	NodeArray<int>   m_DEGREE; //!< degree of v
-	Array<node>      m_NODEAT; //!< node with number i
-	NodeArray<node> m_FATHER;  //!< father of v in palm tree
+	NodeArray<int> m_NUMBER; //!< (first) dfs-number of v
+	NodeArray<int> m_LOWPT1;
+	NodeArray<int> m_LOWPT2;
+	NodeArray<int> m_ND; //!< number of descendants in palm tree
+	NodeArray<int> m_DEGREE; //!< degree of v
+	Array<node> m_NODEAT; //!< node with number i
+	NodeArray<node> m_FATHER; //!< father of v in palm tree
 	EdgeArray<EdgeType> m_TYPE; //!< type of edge e
-	NodeArray<List<edge> > m_A; //!< adjacency list of v
+	NodeArray<List<edge>> m_A; //!< adjacency list of v
 	NodeArray<int> m_NEWNUM; //!< (second) dfs-number of v
 	EdgeArray<bool> m_START; //!< edge starts a path
 	NodeArray<edge> m_TREE_ARC; //!< tree arc entering v
-	NodeArray<List<int> > m_HIGHPT; //!< list of fronds entering v in the order they are visited
+	NodeArray<List<int>> m_HIGHPT; //!< list of fronds entering v in the order they are visited
 	EdgeArray<ListIterator<edge>> m_IN_ADJ; //!< pointer to element in adjacency list containing e
 	EdgeArray<ListIterator<int>> m_IN_HIGH; //!< pointer to element in HIGHPT list containing e
 	ArrayBuffer<edge> m_ESTACK; //!< stack of currently active edges
 
-	node m_start;     //!< start node of dfs traversal
-	int  m_numCount;  //!< counter for dfs-traversal
-	bool m_newPath;   //!< true iff we start a new path
+	node m_start; //!< start node of dfs traversal
+	int m_numCount; //!< counter for dfs-traversal
+	bool m_newPath; //!< true iff we start a new path
 };
 
 }

@@ -32,10 +32,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRepExpansion.h>
-#include <ogdf/basic/Module.h>
 #include <ogdf/basic/Logger.h>
-
+#include <ogdf/basic/Module.h>
+#include <ogdf/planarity/PlanRepExpansion.h>
 
 namespace ogdf {
 
@@ -43,8 +42,7 @@ namespace ogdf {
  * \brief Interface for minor-monotone crossing minimization algorithms.
  *
  */
-class OGDF_EXPORT MMCrossingMinimizationModule : public Module
-{
+class OGDF_EXPORT MMCrossingMinimizationModule : public Module {
 public:
 	//! Initializes a minor-monotone crossing minimization module.
 	MMCrossingMinimizationModule() : m_nodeSplits(0), m_splittedNodes(0) { }
@@ -67,11 +65,8 @@ public:
 	 *        forbidden.
 	 * \return the status of the result.
 	 */
-	ReturnType call(PlanRepExpansion &PG,
-			int cc,
-			int&  crossingNumber,
-			const EdgeArray<bool> *forbid = nullptr)
-	{
+	ReturnType call(PlanRepExpansion& PG, int cc, int& crossingNumber,
+			const EdgeArray<bool>* forbid = nullptr) {
 		return doCall(PG, cc, forbid, crossingNumber, m_nodeSplits, m_splittedNodes);
 	};
 
@@ -85,7 +80,7 @@ public:
 	 *        forbidden.
 	 * \return the status of the result.
 	 */
-	ReturnType call(const Graph &G, int &cr, const EdgeArray<bool> *forbid = nullptr);
+	ReturnType call(const Graph& G, int& cr, const EdgeArray<bool>* forbid = nullptr);
 
 	/**
 	 * \brief Performs minor-monotone crossing minimization on \p G for given splittable nodes.
@@ -98,10 +93,8 @@ public:
 	 *        forbidden.
 	 * \return the status of the result.
 	 */
-	ReturnType call(const Graph &G,
-		const List<node> &splittableNodes,
-		int &cr,
-		const EdgeArray<bool> *forbid = nullptr);
+	ReturnType call(const Graph& G, const List<node>& splittableNodes, int& cr,
+			const EdgeArray<bool>* forbid = nullptr);
 
 	/**
 	 * \brief Returns the number of required node splits after the call.
@@ -126,15 +119,11 @@ protected:
 	 * @param numSN needs to be assigned the number of splitted nodes.
 	 * \return the status of the result.
 	 */
-	virtual ReturnType doCall(PlanRepExpansion &PG,
-		int cc,
-		const EdgeArray<bool> *forbid,
-		int& crossingNumber,
-		int& numNS,
-		int& numSN) = 0;
+	virtual ReturnType doCall(PlanRepExpansion& PG, int cc, const EdgeArray<bool>* forbid,
+			int& crossingNumber, int& numNS, int& numSN) = 0;
 
 private:
-	int m_nodeSplits;    //!< The number of required node splits.
+	int m_nodeSplits; //!< The number of required node splits.
 	int m_splittedNodes; //!< The number of nodes that are split.
 
 	OGDF_MALLOC_NEW_DELETE

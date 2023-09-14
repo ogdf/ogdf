@@ -35,22 +35,18 @@
 
 #include <ogdf/orthogonal/OrthoRep.h>
 
-
 namespace ogdf {
 
 
 //! Maintains input sizes for improvement compaction (deltas and epsilons)
-template <class ATYPE>
+template<class ATYPE>
 class MinimumEdgeDistances {
 public:
 	// constructor
-	MinimumEdgeDistances(const Graph &G, ATYPE sep) : m_delta(G), m_epsilon(G)
-	{
-		m_sep = sep;
-	}
+	MinimumEdgeDistances(const Graph& G, ATYPE sep) : m_delta(G), m_epsilon(G) { m_sep = sep; }
 
 	// returns delta_s(v)^i (with i = 0 => l, i = 1 => r)
-	const ATYPE &delta(node v, OrthoDir s, int i) const {
+	const ATYPE& delta(node v, OrthoDir s, int i) const {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
@@ -58,7 +54,7 @@ public:
 		return m_delta[v].info[static_cast<int>(s)][i];
 	}
 
-	ATYPE &delta(node v, OrthoDir s, int i) {
+	ATYPE& delta(node v, OrthoDir s, int i) {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
@@ -67,7 +63,7 @@ public:
 	}
 
 	// returns epsilon_s(v)^i (with i = 0 => l, i = 1 => r)
-	const ATYPE &epsilon(node v, OrthoDir s, int i) const {
+	const ATYPE& epsilon(node v, OrthoDir s, int i) const {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
@@ -75,7 +71,7 @@ public:
 		return m_epsilon[v].info[static_cast<int>(s)][i];
 	}
 
-	ATYPE &epsilon(node v, OrthoDir s, int i) {
+	ATYPE& epsilon(node v, OrthoDir s, int i) {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
@@ -83,11 +79,9 @@ public:
 		return m_epsilon[v].info[static_cast<int>(s)][i];
 	}
 
-	ATYPE separation() const {
-		return m_sep;
-	}
+	ATYPE separation() const { return m_sep; }
 
-	void separation(ATYPE sep) {m_sep = sep;}
+	void separation(ATYPE sep) { m_sep = sep; }
 
 
 private:

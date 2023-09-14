@@ -34,14 +34,16 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <cmath>
-#include <math.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+
+#include <cmath>
+
+#include <math.h>
 
 namespace ogdf {
 
@@ -57,18 +59,15 @@ private:
 	//! Contains a custom ordering for putting the graphs next to each other
 	ListPure<node> m_nodeOrder;
 	double m_outWidth;
-public:
 
+public:
 	/**
 	 * Constructor that takes a desired width and a custom ordering
 	 *
 	 * @param w Width of the output
 	 * @param o custom order
 	 */
-	LinearLayout(
-		double w,
-		ListPure<node> o
-	);
+	LinearLayout(double w, ListPure<node> o);
 
 	//! Constructor that uses a standard width and no custom order of the nodes
 	LinearLayout();

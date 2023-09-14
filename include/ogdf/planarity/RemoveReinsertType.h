@@ -39,12 +39,12 @@ namespace ogdf {
  * @ingroup ga-insert
  */
 enum class RemoveReinsertType {
-	None,        //!< No postprocessing.
-	Inserted,    //!< Postprocessing only with the edges that have to be inserted.
+	None, //!< No postprocessing.
+	Inserted, //!< Postprocessing only with the edges that have to be inserted.
 	MostCrossed, //!< Postprocessing with the edges involved in the most crossings.
-	All,         //!< Postproceesing with all edges.
+	All, //!< Postproceesing with all edges.
 	Incremental, //!< Full postprocessing after each edge insertion.
-	IncInserted  //!< Postprocessing for (so far) inserted edges after each edge insertion.
+	IncInserted //!< Postprocessing for (so far) inserted edges after each edge insertion.
 };
 
 }

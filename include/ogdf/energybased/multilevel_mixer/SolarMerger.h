@@ -33,15 +33,13 @@
 
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 
-
 namespace ogdf {
 
 //! The solar merger for multilevel layout.
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT SolarMerger : public MultilevelBuilder
-{
+class OGDF_EXPORT SolarMerger : public MultilevelBuilder {
 	struct PathData {
 		explicit PathData(int targetSunParam = 0, double len = 0.0f, int num = 0)
 			: targetSun(targetSunParam), length(len), number(num) { }
@@ -58,22 +56,22 @@ class OGDF_EXPORT SolarMerger : public MultilevelBuilder
 	NodeArray<int> m_celestial; // 0 = unknown, 1 = sun, 2 = planet, 3 = moon
 	NodeArray<node> m_orbitalCenter;
 	NodeArray<double> m_distanceToOrbit;
-	NodeArray< std::vector<PathData> > m_pathDistances;
-	std::map< int, std::map<int, PathData> > m_interSystemPaths;
+	NodeArray<std::vector<PathData>> m_pathDistances;
+	std::map<int, std::map<int, PathData>> m_interSystemPaths;
 
 	node sunOf(node object);
-	double distanceToSun(node object, MultilevelGraph &MLG);
+	double distanceToSun(node object, MultilevelGraph& MLG);
 	void addPath(node sourceSun, node targetSun, double distance);
-	void findInterSystemPaths(Graph &G, MultilevelGraph &MLG);
+	void findInterSystemPaths(Graph& G, MultilevelGraph& MLG);
 	int calcSystemMass(node v);
-	bool collapseSolarSystem(MultilevelGraph &MLG, node sun, int level);
-	bool buildOneLevel(MultilevelGraph &MLG) override;
-	std::vector<node> selectSuns(MultilevelGraph &MLG);
+	bool collapseSolarSystem(MultilevelGraph& MLG, node sun, int level);
+	bool buildOneLevel(MultilevelGraph& MLG) override;
+	std::vector<node> selectSuns(MultilevelGraph& MLG);
 
 public:
 	explicit SolarMerger(bool simple = false, bool massAsNodeRadius = false);
 
-	void buildAllLevels(MultilevelGraph &MLG) override;
+	void buildAllLevels(MultilevelGraph& MLG) override;
 };
 
 }

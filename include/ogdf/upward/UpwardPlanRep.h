@@ -34,7 +34,6 @@
 
 #include <ogdf/basic/GraphCopy.h>
 
-
 namespace ogdf {
 
 
@@ -48,10 +47,8 @@ namespace ogdf {
  * with t. Then we connect t with t_hat. The edge (t,t_hat) is called the external face handle.
  * Because the right face of the adjEntry of this edge should be the external face.
  */
-class OGDF_EXPORT UpwardPlanRep : public GraphCopy
-{
+class OGDF_EXPORT UpwardPlanRep : public GraphCopy {
 public:
-
 	friend class SubgraphUpwardPlanarizer;
 
 #if 0
@@ -65,29 +62,34 @@ public:
 	 * Precondition: the graph is a single source graph
 	 */
 
-	explicit UpwardPlanRep(const CombinatorialEmbedding &Gamma); //upward planar embedding with a fixed ext. face
+	explicit UpwardPlanRep(
+			const CombinatorialEmbedding& Gamma); //upward planar embedding with a fixed ext. face
 
-	UpwardPlanRep(const GraphCopy &GC, // must be upward embedded and single source
-		adjEntry adj_ext); // the right face of this adjEntry is the external face
+	UpwardPlanRep(const GraphCopy& GC, // must be upward embedded and single source
+			adjEntry adj_ext); // the right face of this adjEntry is the external face
 
 	//! copy constructor
-	UpwardPlanRep(const UpwardPlanRep &UPR);
+	UpwardPlanRep(const UpwardPlanRep& UPR);
 
 	//! standart constructor
-	UpwardPlanRep(): GraphCopy(), isAugmented(false), t_hat(nullptr), s_hat(nullptr), extFaceHandle(nullptr), crossings(0) // multisources(false)
+	UpwardPlanRep()
+		: GraphCopy()
+		, isAugmented(false)
+		, t_hat(nullptr)
+		, s_hat(nullptr)
+		, extFaceHandle(nullptr)
+		, crossings(0)
+	// multisources(false)
 	{
 		m_Gamma.init(*this);
 		m_isSinkArc.init(*this, false);
 		m_isSourceArc.init(*this, false);
 	}
 
-	virtual ~UpwardPlanRep() {}
+	virtual ~UpwardPlanRep() { }
 
 	//! same as insertEdgePath, but assumes that the graph is embedded
-	void insertEdgePathEmbedded(
-		edge eOrig,
-		SList<adjEntry> crossedEdges,
-		EdgeArray<int> &cost);
+	void insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEdges, EdgeArray<int>& cost);
 
 	//! convert to a single source single sink graph (result is not necessary a st-graph!).
 	// pred. the graph muss be a sinlge source graph
@@ -99,38 +101,38 @@ public:
 	bool augmented() const { return isAugmented; }
 
 	//! return the upward planar embedding
-	const CombinatorialEmbedding & getEmbedding() const {return m_Gamma;}
+	const CombinatorialEmbedding& getEmbedding() const { return m_Gamma; }
 
-	CombinatorialEmbedding & getEmbedding() {return m_Gamma;}
+	CombinatorialEmbedding& getEmbedding() { return m_Gamma; }
 
-	node getSuperSink() const {return t_hat;}
+	node getSuperSink() const { return t_hat; }
 
-	node getSuperSource() const {return s_hat;}
+	node getSuperSource() const { return s_hat; }
 
-	int numberOfCrossings() const {return crossings;}
+	int numberOfCrossings() const { return crossings; }
 
 	//! Assignment operator.
-	UpwardPlanRep &operator=(const UpwardPlanRep &copy);
+	UpwardPlanRep& operator=(const UpwardPlanRep& copy);
 
-	bool isSinkArc(edge e) const {return m_isSinkArc[e];}
+	bool isSinkArc(edge e) const { return m_isSinkArc[e]; }
 
-	bool isSourceArc(edge e) const {return m_isSourceArc[e];}
+	bool isSourceArc(edge e) const { return m_isSourceArc[e]; }
 
 	//! 0 if node v is not a sink switch (not the top sink switch !!) of an internal face.
 	//! else v is sink-switch of the right face of the adjEntry.
-	adjEntry sinkSwitchOf(node v) {return m_sinkSwitchOf[v];}
+	adjEntry sinkSwitchOf(node v) { return m_sinkSwitchOf[v]; }
 
 	//! return the adjEntry of v which right face is f.
-	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f) const;
+	adjEntry getAdjEntry(const CombinatorialEmbedding& Gamma, node v, face f) const;
 
 	//return the left in edge of node v.
-	adjEntry leftInEdge(node v) const
-	{
-		if (v->indeg() == 0)
+	adjEntry leftInEdge(node v) const {
+		if (v->indeg() == 0) {
 			return nullptr;
+		}
 
 		adjEntry adjFound = nullptr;
-		for(adjEntry adj : v->adjEntries) {
+		for (adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->target() == v && adj->cyclicSucc()->theEdge()->source() == v) {
 				adjFound = adj;
 				break;
@@ -140,7 +142,7 @@ public:
 	}
 
 	// debug
-	void outputFaces(const CombinatorialEmbedding &embedding) const {
+	void outputFaces(const CombinatorialEmbedding& embedding) const {
 		std::cout << std::endl << "Face UPR " << std::endl;
 		for (face f : embedding.faces) {
 			std::cout << "face " << f->index() << ": ";
@@ -151,15 +153,16 @@ public:
 			} while (adjNext != f->firstAdj());
 			std::cout << std::endl;
 		}
-		if (embedding.externalFace() != nullptr)
-			std::cout << "ext. face of the graph is: " << embedding.externalFace()->index() << std::endl;
-		else
+		if (embedding.externalFace() != nullptr) {
+			std::cout << "ext. face of the graph is: " << embedding.externalFace()->index()
+					  << std::endl;
+		} else {
 			std::cout << "no ext. face set." << std::endl;
+		}
 	}
 
 
 protected:
-
 	bool isAugmented; //!< the UpwardPlanRep is augmented to a single source and single sink graph
 
 	CombinatorialEmbedding m_Gamma; //! < embedding og this UpwardPlanRep
@@ -190,9 +193,9 @@ private:
 	//! only for planarizer !!!
 	void initMe();
 
-	void copyMe(const UpwardPlanRep &UPR);
+	void copyMe(const UpwardPlanRep& UPR);
 
-	void removeSinkArcs(SList<adjEntry> &crossedEdges);
+	void removeSinkArcs(SList<adjEntry>& crossedEdges);
 
 	void constructSinkArcs(face f, node t);
 };

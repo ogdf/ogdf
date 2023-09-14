@@ -33,7 +33,6 @@
 
 #include <ogdf/basic/Graph.h>
 
-
 namespace ogdf {
 
 /**
@@ -43,8 +42,7 @@ namespace ogdf {
  *   The head node is a cutvertex in the correspondign BC-Tree.
  *   The pendants can be connected by edges so planarity is maintained.
  */
-class PALabel
-{
+class PALabel {
 	friend class PlanarAugmentation;
 	friend class PlanarAugmentationFix;
 
@@ -57,82 +55,51 @@ public:
 		m_stopCause = sc;
 	}
 
-	bool isBLabel() {
-		return m_parent != nullptr;
-	}
+	bool isBLabel() { return m_parent != nullptr; }
 
-	bool isCLabel() {
-		return m_parent == nullptr;
-	}
+	bool isCLabel() { return m_parent == nullptr; }
 
 	//! return pendant with number nr, starts counting at 0
-	node getPendant(int nr) {
-		return nr < m_pendants.size() ? *m_pendants.get(nr) : nullptr;
-	}
+	node getPendant(int nr) { return nr < m_pendants.size() ? *m_pendants.get(nr) : nullptr; }
 
-	node getFirstPendant() {
-		return (m_pendants.size() > 0) ? m_pendants.front() : nullptr;
-	}
+	node getFirstPendant() { return (m_pendants.size() > 0) ? m_pendants.front() : nullptr; }
 
-	node getLastPendant() {
-		return (m_pendants.size() > 0) ? m_pendants.back() : nullptr;
-	}
+	node getLastPendant() { return (m_pendants.size() > 0) ? m_pendants.back() : nullptr; }
 
 	//! return number of pendants
-	int size() {
-		return m_pendants.size();
-	}
+	int size() { return m_pendants.size(); }
 
 	void removePendant(node pendant);
 
-	void removePendant(ListIterator<node> it){
-		m_pendants.del(it);
-	}
+	void removePendant(ListIterator<node> it) { m_pendants.del(it); }
 
 	void removeFirstPendant() {
-		if (m_pendants.size() > 0){
+		if (m_pendants.size() > 0) {
 			m_pendants.popFront();
 		}
 	}
 
-	void addPendant(node pendant) {
-		m_pendants.pushBack(pendant);
-	}
+	void addPendant(node pendant) { m_pendants.pushBack(pendant); }
 
-	void deleteAllPendants() {
-		m_pendants.clear();
-	}
+	void deleteAllPendants() { m_pendants.clear(); }
 
 	//! return the parent node. If the label is a c-label it returns m_head
-	node parent() {
-		return (m_parent != nullptr) ? m_parent : m_head;
-	}
+	node parent() { return (m_parent != nullptr) ? m_parent : m_head; }
 
 	//! returns the head node
-	node head() {
-		return m_head;
-	}
+	node head() { return m_head; }
 
-	void setParent(node newParent){
-		m_parent = newParent;
-	}
+	void setParent(node newParent) { m_parent = newParent; }
 
-	void setHead(node newHead){
-		m_head = newHead;
-	}
+	void setHead(node newHead) { m_head = newHead; }
 
-	StopCause stopCause(){
-		return m_stopCause;
-	}
+	StopCause stopCause() { return m_stopCause; }
 
-	void stopCause(StopCause sc){
-		m_stopCause = sc;
-	}
+	void stopCause(StopCause sc) { m_stopCause = sc; }
 
 	OGDF_NEW_DELETE
 
 private:
-
 	/**
 	 * \brief the "parent" of the pendants in the BC-Tree, m_parent is a b-vertex or a c-vertex
 	 * if it is a b-vertex m_parent != 0
@@ -145,7 +112,9 @@ private:
 
 	List<node> m_pendants; //!< list with all pendants of the label
 
-	StopCause m_stopCause;  //!< the stop cause that occurs when traversing from the pendants to the bc-tree-root computed in PlanarAugmentation::followPath()
+	//! the stop cause that occurs when traversing from the pendants to the
+	//! bc-tree-root computed in PlanarAugmentation::followPath()
+	StopCause m_stopCause;
 };
 
 using pa_label = PALabel*;

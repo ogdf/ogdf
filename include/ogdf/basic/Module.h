@@ -44,8 +44,7 @@ namespace ogdf {
  * inherit Module as a base class. These module types define the interface
  * implemented by the module.
  */
-class OGDF_EXPORT Module
-{
+class OGDF_EXPORT Module {
 public:
 	//! The return type of a module.
 	enum class ReturnType {
@@ -64,10 +63,11 @@ public:
 
 	//! Returns true iff \p ret indicates that the module returned a feasible solution.
 	static bool isSolution(ReturnType ret) {
-		return ret == ReturnType::Feasible || ret == ReturnType::Optimal || ret == ReturnType::TimeoutFeasible;
+		return ret == ReturnType::Feasible || ret == ReturnType::Optimal
+				|| ret == ReturnType::TimeoutFeasible;
 	}
 };
 
-OGDF_EXPORT std::ostream & operator<<(std::ostream &os, const Module::ReturnType &r);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Module::ReturnType& r);
 
 }

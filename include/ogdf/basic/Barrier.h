@@ -33,9 +33,8 @@
 
 #include <ogdf/basic/basic.h>
 
-#include <mutex>
 #include <condition_variable>
-
+#include <mutex>
 
 namespace ogdf {
 
@@ -48,7 +47,6 @@ namespace ogdf {
  * may proceed executing code after the barrier.
  */
 class Barrier {
-
 	std::condition_variable m_allThreadsReachedSync;
 	std::mutex m_numThreadsReachedSyncLock;
 
@@ -57,7 +55,6 @@ class Barrier {
 	uint32_t m_syncNumber; //!< number of current synchronization point.
 
 public:
-
 	//! Creates a barrier for a group of \p numThreads threads.
 	explicit Barrier(uint32_t numThreads) : m_threadCount(numThreads) {
 		m_numThreadsReachedSync = 0;
@@ -80,10 +77,9 @@ public:
 			m_numThreadsReachedSync = 0;
 
 		} else {
-			m_allThreadsReachedSync.wait(lk, [syncNr,this]{return syncNr != m_syncNumber; });
+			m_allThreadsReachedSync.wait(lk, [syncNr, this] { return syncNr != m_syncNumber; });
 		}
 	}
-
 };
 
 }

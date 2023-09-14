@@ -32,9 +32,9 @@
 
 #pragma once
 
-#include <ogdf/layered/HierarchyLayoutModule.h>
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
 
 namespace ogdf {
 
@@ -83,17 +83,16 @@ namespace ogdf {
  *   </tr>
  * </table>
  */
-class OGDF_EXPORT FastSimpleHierarchyLayout : public HierarchyLayoutModule
-{
+class OGDF_EXPORT FastSimpleHierarchyLayout : public HierarchyLayoutModule {
 private:
-	double m_minXSep;	//!< stores the option <i>node distance</i>.
-	double m_ySep;		//!< stores the option <i>layer distance</i>.
-	bool   m_balanced;	//!< stores the option <i>balanced</i>.
-	bool   m_downward;	//!< stores the option <i>downward</i>.
-	bool   m_leftToRight;	//!< stores the option <i>left-to-right</i>.
+	double m_minXSep; //!< stores the option <i>node distance</i>.
+	double m_ySep; //!< stores the option <i>layer distance</i>.
+	bool m_balanced; //!< stores the option <i>balanced</i>.
+	bool m_downward; //!< stores the option <i>downward</i>.
+	bool m_leftToRight; //!< stores the option <i>left-to-right</i>.
 
 protected:
-	virtual void doCall(const HierarchyLevelsBase &levels, GraphAttributes &AGC) override;
+	virtual void doCall(const HierarchyLevelsBase& levels, GraphAttributes& AGC) override;
 
 public:
 	//! Creates an instance of fast simple hierarchy layout.
@@ -106,65 +105,43 @@ public:
 
 
 	//! Copy constructor.
-	FastSimpleHierarchyLayout(const FastSimpleHierarchyLayout &);
+	FastSimpleHierarchyLayout(const FastSimpleHierarchyLayout&);
 
 	// destructor
 	virtual ~FastSimpleHierarchyLayout() { }
 
-
 	//! Assignment operator
-	FastSimpleHierarchyLayout &operator=(const FastSimpleHierarchyLayout &);
-
+	FastSimpleHierarchyLayout& operator=(const FastSimpleHierarchyLayout&);
 
 	//! Returns the option <i>node distance</i>.
-	double nodeDistance() const {
-		return m_minXSep;
-	}
+	double nodeDistance() const { return m_minXSep; }
 
 	//! Sets the option node distance to \p dist.
-	void nodeDistance(double dist) {
-		m_minXSep = dist;
-	}
+	void nodeDistance(double dist) { m_minXSep = dist; }
 
 	//! Returns the option <i>layer distance</i>.
-	double layerDistance() const {
-		return m_ySep;
-	}
+	double layerDistance() const { return m_ySep; }
 
 	//! Sets the option <i>layer distance</i> to \p dist.
-	void layerDistance(double dist) {
-		m_ySep = dist;
-	}
+	void layerDistance(double dist) { m_ySep = dist; }
 
 	//! Returns the option <i>downward</i>.
-	bool downward() const {
-		return m_downward;
-	}
+	bool downward() const { return m_downward; }
 
 	//! Sets the option <i>downward</i> to \p d.
-	void downward(bool d) {
-		m_downward = d;
-	}
+	void downward(bool d) { m_downward = d; }
 
 	//! Returns the option <i>left-to-right</i>.
-	bool leftToRight() const {
-		return m_leftToRight;
-	}
+	bool leftToRight() const { return m_leftToRight; }
 
 	//! Sets the option <i>left-to-right</i> to \p b.
-	void leftToRight(bool b) {
-		m_leftToRight = b;
-	}
+	void leftToRight(bool b) { m_leftToRight = b; }
 
 	//! Returns the option <i>balanced</i>.
-	bool balanced() const {
-		return m_balanced;
-	}
+	bool balanced() const { return m_balanced; }
 
 	//! Sets the option <i>balanced</i> to \p b.
-	void balanced(bool b) {
-		m_balanced = b;
-	}
+	void balanced(bool b) { m_balanced = b; }
 
 
 private:
@@ -178,7 +155,8 @@ private:
 	 * @param downward The level direction
 	 * @param type1Conflicts is assigned the conflicts, (type1Conflicts[v])[u]=true means (u,v) is marked, u is the upper node
 	 */
-	void markType1Conflicts(const HierarchyLevelsBase &levels, bool downward, NodeArray<NodeArray<bool> > &type1Conflicts);
+	void markType1Conflicts(const HierarchyLevelsBase& levels, bool downward,
+			NodeArray<NodeArray<bool>>& type1Conflicts);
 
 	/**
 	 * Align each node to a node on the next higher level. The result is a blockgraph where each
@@ -191,13 +169,9 @@ private:
 	 * @param downward The level direction
 	 * @param leftToRight The node direction on each level
 	 */
-	void verticalAlignment(
-		const HierarchyLevelsBase &levels,
-		NodeArray<node> &root,
-		NodeArray<node> &align,
-		const NodeArray<NodeArray<bool> > &type1Conflicts,
-		const bool downward,
-		const bool leftToRight);
+	void verticalAlignment(const HierarchyLevelsBase& levels, NodeArray<node>& root,
+			NodeArray<node>& align, const NodeArray<NodeArray<bool>>& type1Conflicts,
+			const bool downward, const bool leftToRight);
 
 	/**
 	 * Computes the width of each block, i.e., the maximal width of a node in the block, and
@@ -208,11 +182,8 @@ private:
 	 * @param root The root for each node (calculated by this method)
 	 * @param blockWidth Is assigned the width of each block (stored for the root)
 	 */
-	void computeBlockWidths(
-		const GraphCopy &GC,
-		const GraphAttributes &GCA,
-		NodeArray<node> &root,
-		NodeArray<double> &blockWidth);
+	void computeBlockWidths(const GraphCopy& GC, const GraphAttributes& GCA, NodeArray<node>& root,
+			NodeArray<double>& blockWidth);
 
 	/**
 	 * Calculate the coordinates for each node
@@ -225,14 +196,9 @@ private:
 	 * @param leftToRight The node direction on each level
 	 * @param downward The level direction
 	 */
-	void horizontalCompactation(
-		const NodeArray<node> &align,
-		const HierarchyLevelsBase &levels,
-		const NodeArray<node> &root,
-		const NodeArray<double> &blockWidth,
-		NodeArray<double> &x,
-		const bool leftToRight,
-		bool downward);
+	void horizontalCompactation(const NodeArray<node>& align, const HierarchyLevelsBase& levels,
+			const NodeArray<node>& root, const NodeArray<double>& blockWidth, NodeArray<double>& x,
+			const bool leftToRight, bool downward);
 
 	/**
 	 * Calculate the coordinate for root nodes (placing)
@@ -247,16 +213,9 @@ private:
 	 * @param root The root for each node
 	 * @param leftToRight The node direction on each level
 	 */
-	void placeBlock(
-		node v,
-		NodeArray<node> &sink,
-		NodeArray<double> &shift,
-		NodeArray<double> &x,
-		const NodeArray<node> &align,
-		const HierarchyLevelsBase &levels,
-		const NodeArray<double> &blockWidth,
-		const NodeArray<node> &root,
-		const bool leftToRight);
+	void placeBlock(node v, NodeArray<node>& sink, NodeArray<double>& shift, NodeArray<double>& x,
+			const NodeArray<node>& align, const HierarchyLevelsBase& levels,
+			const NodeArray<double>& blockWidth, const NodeArray<node>& root, const bool leftToRight);
 
 	/**
 	 * The twin of an inner Segment
@@ -264,7 +223,8 @@ private:
 	 * @return Parent node which is connected by an inner segment.
 	 * nullptr if there is no parent segment or if the segment is not an inner segment.
 	 */
-	node virtualTwinNode(const HierarchyLevelsBase &levels, const node v, const HierarchyLevelsBase::TraversingDir dir) const;
+	node virtualTwinNode(const HierarchyLevelsBase& levels, const node v,
+			const HierarchyLevelsBase::TraversingDir dir) const;
 
 	/**
 	 * Predecessor of v on the same level,
@@ -274,7 +234,7 @@ private:
 	 * @param leftToRight If true the left predecessor is choosen. Otherwise the right predecessor.
 	 * @return Predescessor on the same level. nullptr if there is no predecessor.
 	 */
-	node pred(const node v, const HierarchyLevelsBase &levels, const bool leftToRight);
+	node pred(const node v, const HierarchyLevelsBase& levels, const bool leftToRight);
 };
 
 }

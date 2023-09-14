@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 //#define OGDF_COMMON_ALG_FIND_BEST_TAKAHASHI_ROOT
 
@@ -50,24 +50,23 @@ namespace steiner_tree {
  * @return root node of the arborescence
  */
 template<typename T>
-node buildHeaviestEdgeInComponentTree(
-		const EdgeWeightedGraphCopy<T> &inputTree, //!< the input tree
-		NodeArray<node> &externalNodes, //!< the resulting mapping from input nodes to arborescence leaves (must be nullptr'ed in input!)
-		NodeArray<edge> &treeEdge, //!< the resulting mapping from each (inner) node of the arborescence to an edge in the input tree
-		Graph &outputTree) //!< the output arborescence
+node buildHeaviestEdgeInComponentTree(const EdgeWeightedGraphCopy<T>& inputTree, //!< the input tree
+		NodeArray<node>& externalNodes, //!< the resulting mapping from input nodes to arborescence leaves (must be nullptr'ed in input!)
+		NodeArray<edge>& treeEdge, //!< the resulting mapping from each (inner) node of the arborescence to an edge in the input tree
+		Graph& outputTree) //!< the output arborescence
 {
 	// sort edges by weight
 	Array<Prioritized<edge, T>> sortEdges(inputTree.numberOfEdges());
 	int i = 0;
-	for(edge e : inputTree.edges) {
-		sortEdges[i] = Prioritized<edge,T>(e, inputTree.weight(e));
+	for (edge e : inputTree.edges) {
+		sortEdges[i] = Prioritized<edge, T>(e, inputTree.weight(e));
 		++i;
 	}
 	sortEdges.quicksort();
 
 	// insert edges into forest (which in the end makes up a tree)
-	NodeArray<node *> root(outputTree);
-	List<node *> garbage;
+	NodeArray<node*> root(outputTree);
+	List<node*> garbage;
 	node edgeNode = nullptr;
 	for (i = 0; i < inputTree.numberOfEdges(); ++i) {
 		edgeNode = outputTree.newNode();
@@ -77,7 +76,7 @@ node buildHeaviestEdgeInComponentTree(
 		node u = e->source();
 		node v = e->target();
 		if (externalNodes[u]) {
-			node *uRoot = root[externalNodes[u]];
+			node* uRoot = root[externalNodes[u]];
 			OGDF_ASSERT(uRoot);
 			while (root[*uRoot] != uRoot) {
 				*uRoot = *root[*uRoot];
@@ -87,7 +86,7 @@ node buildHeaviestEdgeInComponentTree(
 			outputTree.newEdge(edgeNode, *uRoot);
 			root[edgeNode] = uRoot;
 			if (externalNodes[v]) {
-				node *vRoot = root[externalNodes[v]];
+				node* vRoot = root[externalNodes[v]];
 				OGDF_ASSERT(vRoot);
 				while (root[*vRoot] != vRoot) {
 					*vRoot = *root[*vRoot];
@@ -102,7 +101,7 @@ node buildHeaviestEdgeInComponentTree(
 		} else {
 			externalNodes[u] = edgeNode;
 			if (externalNodes[v]) {
-				node *vRoot = root[externalNodes[v]];
+				node* vRoot = root[externalNodes[v]];
 				OGDF_ASSERT(vRoot);
 				while (root[*vRoot] != vRoot) {
 					*vRoot = *root[*vRoot];
@@ -122,13 +121,12 @@ node buildHeaviestEdgeInComponentTree(
 	OGDF_ASSERT(edgeNode);
 
 	// garbage collect
-	for(node *p : garbage) {
+	for (node* p : garbage) {
 		delete p;
 	}
 
 	return edgeNode;
 }
-
 
 /*!
  * \brief Updates the Steiner tree by deleting save edges, removing all direct connections
@@ -141,9 +139,9 @@ node buildHeaviestEdgeInComponentTree(
  * @param ne0 One of the new zero-weight edges
  * @param ne1 One of the new zero-weight edges
  */
-template <typename T>
-void contractTripleInSteinerTree(const Triple<T> &t, EdgeWeightedGraphCopy<T> &st, edge save0, edge save1, edge save2, edge &ne0, edge &ne1)
-{
+template<typename T>
+void contractTripleInSteinerTree(const Triple<T>& t, EdgeWeightedGraphCopy<T>& st, edge save0,
+		edge save1, edge save2, edge& ne0, edge& ne1) {
 	if (save0 == save1) {
 		st.delEdge(save1);
 		st.delEdge(save2);
@@ -155,17 +153,16 @@ void contractTripleInSteinerTree(const Triple<T> &t, EdgeWeightedGraphCopy<T> &s
 	ne1 = st.newEdge(st.copy(t.s0()), st.copy(t.s2()), 0);
 }
 
-template <typename T>
-inline void contractTripleInSteinerTree(const Triple<T> &t, EdgeWeightedGraphCopy<T> &st, edge e0, edge e1, edge e2)
-{
+template<typename T>
+inline void contractTripleInSteinerTree(const Triple<T>& t, EdgeWeightedGraphCopy<T>& st, edge e0,
+		edge e1, edge e2) {
 	edge ne0, ne1;
 	contractTripleInSteinerTree(t, st, e0, e1, e2, ne0, ne1);
 }
 
-
 template<typename T>
-T obtainFinalSteinerTree(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &isTerminal, const NodeArray<bool> &isOriginalTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
-{
+T obtainFinalSteinerTree(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal,
+		const NodeArray<bool>& isOriginalTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	List<node> terminals;
 	MinSteinerTreeModule<T>::getTerminals(terminals, G, isTerminal);
 
@@ -175,7 +172,7 @@ T obtainFinalSteinerTree(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &i
 	// find minimum Steiner tree of G among Takahashi approximations for each start node
 	T bestMstWeight = std::numeric_limits<T>::max();
 	for (node v : terminals) {
-		EdgeWeightedGraphCopy<T> *tmpSteinerTree;
+		EdgeWeightedGraphCopy<T>* tmpSteinerTree;
 		T tmpMstWeight = mstt.call(G, terminals, isTerminal, isOriginalTerminal, tmpSteinerTree, v);
 		if (tmpMstWeight < bestMstWeight) {
 			bestMstWeight = tmpMstWeight;

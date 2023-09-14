@@ -29,68 +29,57 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/PlanarizerMixedInsertion.h>
 #include <ogdf/planarity/StarInserter.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/embedder/CrossingStructure.h>
-#include <ogdf/basic/extended_graph_alg.h>
+
 #include <set>
 
 namespace ogdf {
 
 PlanarizerMixedInsertion::PlanarizerMixedInsertion()
-	: CrossingMinimizationModule()
-	, m_nodeSelectionMethod{NodeSelectionMethod::HigherDegree}
-{
-	PlanarSubgraphFast<int> *subgraph = new PlanarSubgraphFast<int>();
+	: CrossingMinimizationModule(), m_nodeSelectionMethod {NodeSelectionMethod::HigherDegree} {
+	PlanarSubgraphFast<int>* subgraph = new PlanarSubgraphFast<int>();
 	m_subgraph.reset(subgraph);
 }
 
-PlanarizerMixedInsertion::PlanarizerMixedInsertion(
-	const PlanarizerMixedInsertion &planarizer)
-	: CrossingMinimizationModule()
-{
+PlanarizerMixedInsertion::PlanarizerMixedInsertion(const PlanarizerMixedInsertion& planarizer)
+	: CrossingMinimizationModule() {
 	m_subgraph.reset(planarizer.m_subgraph->clone());
 	m_nodeSelectionMethod = planarizer.m_nodeSelectionMethod;
 }
 
-CrossingMinimizationModule *PlanarizerMixedInsertion::clone() const {
+CrossingMinimizationModule* PlanarizerMixedInsertion::clone() const {
 	return new PlanarizerMixedInsertion(*this);
 }
 
-PlanarizerMixedInsertion &PlanarizerMixedInsertion::operator=(
-	const PlanarizerMixedInsertion &planarizer)
-{
+PlanarizerMixedInsertion& PlanarizerMixedInsertion::operator=(
+		const PlanarizerMixedInsertion& planarizer) {
 	m_subgraph.reset(planarizer.m_subgraph->clone());
 	m_nodeSelectionMethod = planarizer.m_nodeSelectionMethod;
 	return *this;
 }
 
-Module::ReturnType PlanarizerMixedInsertion::doCall(
-	PlanRep &pr,
-	int cc,
-	const EdgeArray<int> *pCostOrig,
-	const EdgeArray<bool> *pForbiddenOrig,
-	const EdgeArray<uint32_t> *pEdgeSubGraphs,
-	int &crossingNumber)
-{
+Module::ReturnType PlanarizerMixedInsertion::doCall(PlanRep& pr, int cc,
+		const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+		const EdgeArray<uint32_t>* pEdgeSubGraphs, int& crossingNumber) {
 	OGDF_ASSERT(isSimpleUndirected(pr));
 	crossingNumber = 0;
 
 	int64_t startTime;
 	System::usedRealTime(startTime);
-	int64_t stopTime {m_timeLimit >= 0 ?
-		startTime + int64_t(1000 * m_timeLimit) : -1};
+	int64_t stopTime {m_timeLimit >= 0 ? startTime + int64_t(1000 * m_timeLimit) : -1};
 
 	pr.initCC(cc);
 
 	// Compute edges to delete for planar subgraph.
 	m_subgraph->timeLimit(m_timeLimit);
 	List<edge> delEdges;
-	ReturnType retValue {pCostOrig ?
-		m_subgraph->call(pr.original(), *pCostOrig, delEdges) :
-		m_subgraph->call(pr.original(), delEdges)};
+	ReturnType retValue {pCostOrig ? m_subgraph->call(pr.original(), *pCostOrig, delEdges)
+								   : m_subgraph->call(pr.original(), delEdges)};
 
 	if (!isSolution(retValue)) {
 		return retValue;
@@ -106,7 +95,7 @@ Module::ReturnType PlanarizerMixedInsertion::doCall(
 #ifdef OGDF_DEBUG
 	bool embeddedSuccessfully =
 #endif
-		planarEmbed(prl);
+			planarEmbed(prl);
 	OGDF_ASSERT(embeddedSuccessfully);
 
 	// If the graph is planar, return with a planar embedding.
@@ -132,13 +121,12 @@ Module::ReturnType PlanarizerMixedInsertion::doCall(
 	for (ListIterator<edge> it = delEdges.begin(); it.valid(); it = itSucc) {
 		itSucc = it.succ();
 		edge eDel {*it};
-		if (isCutVertex[prl.copy(eDel->source())] &&
-		    isCutVertex[prl.copy(eDel->target())]) {
+		if (isCutVertex[prl.copy(eDel->source())] && isCutVertex[prl.copy(eDel->target())]) {
 			cutVertexEdges.pushBack(eDel);
 			delEdges.del(it);
 		}
 	}
-	Array<edge> edgeInsertionEdges{cutVertexEdges.size()};
+	Array<edge> edgeInsertionEdges {cutVertexEdges.size()};
 	int edgeNum {0};
 	for (edge e : cutVertexEdges) {
 		edgeInsertionEdges[edgeNum++] = e;
@@ -149,8 +137,8 @@ Module::ReturnType PlanarizerMixedInsertion::doCall(
 	// postprocessing for edges which are not yet in the graph (i.e. delEdges).
 	VariableEmbeddingInserter edgeInserter;
 	edgeInserter.removeReinsert(RemoveReinsertType::None);
-	ReturnType ret {edgeInserter.callEx(prl, edgeInsertionEdges,
-		pCostOrig, pForbiddenOrig, pEdgeSubGraphs)};
+	ReturnType ret {
+			edgeInserter.callEx(prl, edgeInsertionEdges, pCostOrig, pForbiddenOrig, pEdgeSubGraphs)};
 	if (!isSolution(ret)) {
 		return ret;
 	}
@@ -158,8 +146,8 @@ Module::ReturnType PlanarizerMixedInsertion::doCall(
 	// If needed: For each node, collect number of incident edges not in the
 	// planar subgraph.
 	NodeArray<int> nonPlanarDegree;
-	if (m_nodeSelectionMethod == NodeSelectionMethod::HigherNonPlanarDegree ||
-		m_nodeSelectionMethod == NodeSelectionMethod::LowerNonPlanarDegree) {
+	if (m_nodeSelectionMethod == NodeSelectionMethod::HigherNonPlanarDegree
+			|| m_nodeSelectionMethod == NodeSelectionMethod::LowerNonPlanarDegree) {
 		nonPlanarDegree.init(prl.original(), 0);
 		for (edge eDel : delEdges) {
 			nonPlanarDegree[eDel->source()]++;
@@ -189,31 +177,29 @@ Module::ReturnType PlanarizerMixedInsertion::doCall(
 
 		// Neither node is a cut vertex.
 		switch (m_nodeSelectionMethod) {
-			case NodeSelectionMethod::Random:
-				delNodesSet.insert(randomNumber(0, 1) == 0 ? src : tgt);
-				break;
+		case NodeSelectionMethod::Random:
+			delNodesSet.insert(randomNumber(0, 1) == 0 ? src : tgt);
+			break;
 
-			case NodeSelectionMethod::HigherDegree:
-				delNodesSet.insert(src->degree() > tgt->degree() ? src : tgt);
-				break;
+		case NodeSelectionMethod::HigherDegree:
+			delNodesSet.insert(src->degree() > tgt->degree() ? src : tgt);
+			break;
 
-			case NodeSelectionMethod::LowerDegree:
-				delNodesSet.insert(src->degree() < tgt->degree() ? src : tgt);
-				break;
+		case NodeSelectionMethod::LowerDegree:
+			delNodesSet.insert(src->degree() < tgt->degree() ? src : tgt);
+			break;
 
-			case NodeSelectionMethod::HigherNonPlanarDegree:
-				delNodesSet.insert(nonPlanarDegree[src] > nonPlanarDegree[tgt] ?
-					src : tgt);
-				break;
+		case NodeSelectionMethod::HigherNonPlanarDegree:
+			delNodesSet.insert(nonPlanarDegree[src] > nonPlanarDegree[tgt] ? src : tgt);
+			break;
 
-			case NodeSelectionMethod::LowerNonPlanarDegree:
-				delNodesSet.insert(nonPlanarDegree[src] < nonPlanarDegree[tgt] ?
-					src : tgt);
-				break;
+		case NodeSelectionMethod::LowerNonPlanarDegree:
+			delNodesSet.insert(nonPlanarDegree[src] < nonPlanarDegree[tgt] ? src : tgt);
+			break;
 
-			default:
-				delNodesSet.insert(src);
-				delNodesSet.insert(tgt);
+		default:
+			delNodesSet.insert(src);
+			delNodesSet.insert(tgt);
 		}
 	}
 
@@ -254,7 +240,7 @@ Module::ReturnType PlanarizerMixedInsertion::doCall(
 #ifdef OGDF_DEBUG
 	bool planar =
 #endif
-		planarEmbed(pr);
+			planarEmbed(pr);
 	OGDF_ASSERT(planar);
 	pr.removePseudoCrossings();
 	crossingNumber = computeCrossingNumber(pr, pCostOrig, pEdgeSubGraphs);

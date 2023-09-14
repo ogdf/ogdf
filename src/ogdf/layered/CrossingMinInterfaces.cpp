@@ -36,15 +36,14 @@ namespace ogdf {
 // calculation of edge crossings between level i and i+1
 // implementation by Michael Juenger, Decembre 2000, adapted by Carsten Gutwenger
 // implements the algorithm by Barth, Juenger, Mutzel
-int HierarchyLevelsBase::calculateCrossings(int i) const
-{
+int HierarchyLevelsBase::calculateCrossings(int i) const {
 #if 0
 	const Level &L = *m_pLevel[i];             // level i
 	const int nUpper = m_pLevel[i+1]->size();  // number of nodes on level i+1
 #endif
 
-	const LevelBase &L = (*this)[i];             // level i
-	const int nUpper = (*this)[i+1].size();  // number of nodes on level i+1
+	const LevelBase& L = (*this)[i]; // level i
+	const int nUpper = (*this)[i + 1].size(); // number of nodes on level i+1
 
 	int nc = 0; // number of crossings
 
@@ -53,18 +52,19 @@ int HierarchyLevelsBase::calculateCrossings(int i) const
 		fa *= 2;
 	}
 
-	int nTreeNodes = 2*fa - 1; // number of tree nodes
+	int nTreeNodes = 2 * fa - 1; // number of tree nodes
 	--fa; // "first address:" indexincrement in tree
 
-	Array<int> nin(0,nTreeNodes-1,0);
+	Array<int> nin(0, nTreeNodes - 1, 0);
 
 	for (int j = 0; j < L.size(); ++j) {
 #if 0
 		const Array<node> &adjNodes = m_upperAdjNodes[L[j]];
 #endif
-		const Array<node> &adjNodes = this->adjNodes(L[j], TraversingDir::upward); // m_upperAdjNodes[L[j]];
+		const Array<node>& adjNodes =
+				this->adjNodes(L[j], TraversingDir::upward); // m_upperAdjNodes[L[j]];
 
-		for (auto &adjNode : adjNodes) {
+		for (auto& adjNode : adjNodes) {
 			// index of tree node for vertex adjNode[k]
 #if 0
 			int index = m_pos[adjNodes[k]] + fa;
@@ -74,7 +74,7 @@ int HierarchyLevelsBase::calculateCrossings(int i) const
 
 			while (index > 0) {
 				if (index % 2) {
-					nc += nin[index+1]; // new crossing
+					nc += nin[index + 1]; // new crossing
 				}
 				index = (index - 1) / 2;
 				nin[index]++;
@@ -85,8 +85,7 @@ int HierarchyLevelsBase::calculateCrossings(int i) const
 	return nc;
 }
 
-int HierarchyLevelsBase::calculateCrossings() const
-{
+int HierarchyLevelsBase::calculateCrossings() const {
 	int nCrossings = 0;
 
 	for (int i = 0; i < this->high(); ++i) {

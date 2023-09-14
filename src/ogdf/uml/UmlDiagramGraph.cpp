@@ -33,17 +33,11 @@
 
 namespace ogdf {
 
-UmlDiagramGraph::UmlDiagramGraph(const UmlModelGraph &umlModelGraph,
-                                 UmlDiagramType diagramType,
-                                 const string &diagramName):
-	m_modelGraph(umlModelGraph),
-	m_diagramName(diagramName),
-	m_diagramType(diagramType)
-{
-}
+UmlDiagramGraph::UmlDiagramGraph(const UmlModelGraph& umlModelGraph, UmlDiagramType diagramType,
+		const string& diagramName)
+	: m_modelGraph(umlModelGraph), m_diagramName(diagramName), m_diagramType(diagramType) { }
 
-UmlDiagramGraph::~UmlDiagramGraph()
-{
+UmlDiagramGraph::~UmlDiagramGraph() {
 	// Remove elements from lists
 	m_containedNodes.clear();
 	m_containedEdges.clear();
@@ -53,11 +47,7 @@ UmlDiagramGraph::~UmlDiagramGraph()
 	m_h.clear();
 }
 
-void UmlDiagramGraph::addNodeWithGeometry(
-	node umlNode,
-	double x, double y,
-	double w, double h)
-{
+void UmlDiagramGraph::addNodeWithGeometry(node umlNode, double x, double y, double w, double h) {
 	// Append node to the end of the list
 	m_containedNodes.pushBack(umlNode);
 
@@ -66,19 +56,15 @@ void UmlDiagramGraph::addNodeWithGeometry(
 	m_y.pushBack(y);
 	m_w.pushBack(w);
 	m_h.pushBack(h);
-
 }
 
-void UmlDiagramGraph::addEdge(edge umlEdge)
-{
+void UmlDiagramGraph::addEdge(edge umlEdge) {
 	// Append edge to the end of the list
 	m_containedEdges.pushBack(umlEdge);
 }
 
-const char *UmlDiagramGraph::getDiagramTypeString() const
-{
-	switch(m_diagramType){
-
+const char* UmlDiagramGraph::getDiagramTypeString() const {
+	switch (m_diagramType) {
 	case (UmlDiagramType::classDiagram):
 		return "Class diagram";
 		break;
@@ -102,11 +88,11 @@ const char *UmlDiagramGraph::getDiagramTypeString() const
 	}
 }
 
-std::ostream &operator<<(std::ostream &os, const UmlDiagramGraph &diagramGraph)
-{
+std::ostream& operator<<(std::ostream& os, const UmlDiagramGraph& diagramGraph) {
 	// Header with diagram name and type
-	os << "\n--- " << diagramGraph.getDiagramTypeString()
-		<< " \"" << diagramGraph.m_diagramName << "\" ---\n" << std::endl;
+	os << "\n--- " << diagramGraph.getDiagramTypeString() << " \"" << diagramGraph.m_diagramName
+	   << "\" ---\n"
+	   << std::endl;
 
 	// Nodes
 
@@ -117,14 +103,9 @@ std::ostream &operator<<(std::ostream &os, const UmlDiagramGraph &diagramGraph)
 	SListConstIterator<double> hIt = diagramGraph.m_h.begin();
 
 	// Traverse lists
-	for(node v : diagramGraph.m_containedNodes)
-	{
-		os << "Node " << diagramGraph.m_modelGraph.getNodeLabel(v)
-			<< " with geometry ("
-			<< *xIt << ", "
-			<< *yIt << ", "
-			<< *wIt << ", "
-			<< *hIt << ")." << std::endl;
+	for (node v : diagramGraph.m_containedNodes) {
+		os << "Node " << diagramGraph.m_modelGraph.getNodeLabel(v) << " with geometry (" << *xIt
+		   << ", " << *yIt << ", " << *wIt << ", " << *hIt << ")." << std::endl;
 
 		++xIt;
 		++yIt;
@@ -135,13 +116,9 @@ std::ostream &operator<<(std::ostream &os, const UmlDiagramGraph &diagramGraph)
 	// Edges
 
 	// Traverse lists
-	for(edge e : diagramGraph.m_containedEdges)
-	{
-		os << "Edge between "
-			<< diagramGraph.m_modelGraph.getNodeLabel(e->source())
-			<< " and "
-			<< diagramGraph.m_modelGraph.getNodeLabel(e->target())
-			<< std::endl;
+	for (edge e : diagramGraph.m_containedEdges) {
+		os << "Edge between " << diagramGraph.m_modelGraph.getNodeLabel(e->source()) << " and "
+		   << diagramGraph.m_modelGraph.getNodeLabel(e->target()) << std::endl;
 	}
 
 	return os;

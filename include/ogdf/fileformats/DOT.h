@@ -34,8 +34,8 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
-#include <string>
 
+#include <string>
 
 namespace ogdf {
 
@@ -65,15 +65,15 @@ enum class Attribute {
 	Unknown
 };
 
-std::string toString(const Attribute &attr);
-std::string toString(const Shape &shape);
-std::string toString(const EdgeArrow &arrow);
-std::string toString(const Graph::EdgeType &type);
+std::string toString(const Attribute& attr);
+std::string toString(const Shape& shape);
+std::string toString(const EdgeArrow& arrow);
+std::string toString(const Graph::EdgeType& type);
 
-Attribute toAttribute(const std::string &str);
-Shape toShape(const std::string &str);
-EdgeArrow toArrow(const std::string &str);
-Graph::EdgeType toEdgeType(const std::string &str);
+Attribute toAttribute(const std::string& str);
+Shape toShape(const std::string& str);
+EdgeArrow toArrow(const std::string& str);
+Graph::EdgeType toEdgeType(const std::string& str);
 
 }
 }

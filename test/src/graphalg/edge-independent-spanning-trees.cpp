@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/graphalg/EdgeIndependentSpanningTrees.h>
+
 #include <graphs.h>
 #include <testing.h>
 
@@ -41,17 +42,17 @@ go_bandit([] {
 			EdgeIndependentSpanningTrees E(G, root);
 			EdgeIndependentSpanningTrees::Solution f;
 			AssertThat(E.getRoot(), Equals(root));
-			AssertThat(E.findOne(1,f), IsFalse());
-			AssertThat(E.findOne(2,f), IsFalse());
-			AssertThat(E.findOne(3,f), IsFalse());
-			AssertThat(E.findOne(4,f), IsFalse());
+			AssertThat(E.findOne(1, f), IsFalse());
+			AssertThat(E.findOne(2, f), IsFalse());
+			AssertThat(E.findOne(3, f), IsFalse());
+			AssertThat(E.findOne(4, f), IsFalse());
 		});
 
 		it("calculates the number of edge-independent spanning trees of K4", [] {
 			Graph G;
-			completeGraph(G,4);
+			completeGraph(G, 4);
 			EdgeIndependentSpanningTrees E;
-			List<EdgeIndependentSpanningTrees::Solution> f2,f3;
+			List<EdgeIndependentSpanningTrees::Solution> f2, f3;
 			E.setGraph(G);
 			E.setRoot(G.firstNode());
 			f2 = E.findAll(2);
@@ -60,19 +61,20 @@ go_bandit([] {
 			AssertThat(f3.size(), Equals(1));
 		});
 
-		it("checks whether the number of edge-independent spanning trees with and without permutation agrees", [] {
-			Graph G;
-			randomSimpleConnectedGraph(G, 5, 9);
+		it("checks whether the number of edge-independent spanning trees with and without permutation agrees",
+				[] {
+					Graph G;
+					randomSimpleConnectedGraph(G, 5, 9);
 
-			EdgeIndependentSpanningTrees E(G);
-			List<EdgeIndependentSpanningTrees::Solution> f, g;
+					EdgeIndependentSpanningTrees E(G);
+					List<EdgeIndependentSpanningTrees::Solution> f, g;
 
-			f = E.findAll(2);
-			g = E.findAllPerm(2);
-			AssertThat(2*f.size(), Equals(g.size()));
-			f = E.findAll(3);
-			g = E.findAllPerm(3);
-			AssertThat(6*f.size(), Equals(g.size()));
-		});
+					f = E.findAll(2);
+					g = E.findAllPerm(2);
+					AssertThat(2 * f.size(), Equals(g.size()));
+					f = E.findAll(3);
+					g = E.findAllPerm(3);
+					AssertThat(6 * f.size(), Equals(g.size()));
+				});
 	});
 });

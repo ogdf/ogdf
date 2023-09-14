@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
-
+#include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 
 namespace ogdf {
 
@@ -49,13 +48,12 @@ namespace ogdf {
  * Carsten Gutwenger, Petra Mutzel, Rene Weiskircher: <i>Inserting an Edge into
  * a Planar %Graph</i>. Algorithmica 41(4), pp. 289-308, 2005.
  */
-class OGDF_EXPORT VariableEmbeddingInserter : public VariableEmbeddingInserterBase
-{
+class OGDF_EXPORT VariableEmbeddingInserter : public VariableEmbeddingInserterBase {
 public:
 	using VariableEmbeddingInserterBase::VariableEmbeddingInserterBase;
 
 	//! Returns a new instance of the variable embedding inserter with the same option settings.
-	virtual EdgeInsertionModule *clone() const override;
+	virtual EdgeInsertionModule* clone() const override;
 
 	//! Calls only the postprocessing; assumes that all edges in \p origEdges are already inserted into \p pr.
 	/**
@@ -63,25 +61,19 @@ public:
 	 * @param origEdges is the array of original edges (edges in the original graph of \p pr) that have to be inserted.
 	 * \return the status of the result.
 	 */
-	Module::ReturnType callPostprocessing(PlanRepLight &pr, const Array<edge> &origEdges) {
+	Module::ReturnType callPostprocessing(PlanRepLight& pr, const Array<edge>& origEdges) {
 		return doCallPostprocessing(pr, origEdges, nullptr, nullptr, nullptr);
 	}
 
 private:
 	//! Implements the algorithm call.
-	virtual ReturnType doCall(
-		PlanRepLight              &PG,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraph) override;
+	virtual ReturnType doCall(PlanRepLight& PG, const Array<edge>& origEdges,
+			const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+			const EdgeArray<uint32_t>* pEdgeSubgraph) override;
 
-	ReturnType doCallPostprocessing(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraphs);
+	ReturnType doCallPostprocessing(PlanRepLight& pr, const Array<edge>& origEdges,
+			const EdgeArray<int>* pCostOrig, const EdgeArray<bool>* pForbiddenOrig,
+			const EdgeArray<uint32_t>* pEdgeSubgraphs);
 };
 
 }

@@ -44,74 +44,48 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class OGDF_EXPORT CPlanarEdgeInserter
-{
+class OGDF_EXPORT CPlanarEdgeInserter {
 	//! Postprocessing options
-	enum class PostProcessType {None, RemoveReinsert};
+	enum class PostProcessType { None, RemoveReinsert };
 
 public:
-
 	CPlanarEdgeInserter() { }
 
 	virtual ~CPlanarEdgeInserter() { }
 
-	void call(
-		ClusterPlanRep& CPR,
-		CombinatorialEmbedding& E,
-		const Graph& G,
-		const List<edge>& origEdges);
+	void call(ClusterPlanRep& CPR, CombinatorialEmbedding& E, const Graph& G,
+			const List<edge>& origEdges);
 
-	void setPostProcessing(PostProcessType p)
-	{
-		m_ppType = p;
-	}
+	void setPostProcessing(PostProcessType p) { m_ppType = p; }
 
 	PostProcessType getPostProcessing() { return m_ppType; }
 
 protected:
+	void constructDualGraph(ClusterPlanRep& CPR, CombinatorialEmbedding& E,
+			EdgeArray<edge>& arcRightToLeft, EdgeArray<edge>& arcLeftToRight,
+			FaceArray<node>& nodeOfFace,
+			//NodeArray<face>& faceOfNode,
+			EdgeArray<edge>& arcTwin);
 
-	void constructDualGraph(
-		ClusterPlanRep& CPR,
-		CombinatorialEmbedding& E,
-		EdgeArray<edge>& arcRightToLeft,
-		EdgeArray<edge>& arcLeftToRight,
-		FaceArray<node>& nodeOfFace,
-		//NodeArray<face>& faceOfNode,
-		EdgeArray<edge>& arcTwin);
+	void findShortestPath(const CombinatorialEmbedding& E,
+			node s, //edge startpoint
+			node t, //edge endpoint
+			node sDummy, //representing s in network
+			node tDummy, //representing t in network
+			SList<adjEntry>& crossed, FaceArray<node>& nodeOfFace);
 
-	void findShortestPath(
-		const CombinatorialEmbedding &E,
-		node s, //edge startpoint
-		node t, //edge endpoint
-		node sDummy, //representing s in network
-		node tDummy, //representing t in network
-		SList<adjEntry> &crossed,
-		FaceArray<node>& nodeOfFace);
+	void insertEdge(ClusterPlanRep& CPR, CombinatorialEmbedding& E, edge insertMe,
+			FaceArray<node>& nodeOfFace, EdgeArray<edge>& arcRightToLeft,
+			EdgeArray<edge>& arcLeftToRight, EdgeArray<edge>& arcTwin,
+			NodeArray<cluster>& clusterOfFaceNode, const SList<adjEntry>& crossed);
 
-	void insertEdge(
-		ClusterPlanRep &CPR,
-		CombinatorialEmbedding &E,
-		edge insertMe,
-		FaceArray<node>& nodeOfFace,
-		EdgeArray<edge>& arcRightToLeft,
-		EdgeArray<edge>& arcLeftToRight,
-		EdgeArray<edge>& arcTwin,
-		NodeArray<cluster>& clusterOfFaceNode,
-		const SList<adjEntry> &crossed);
-
-	void setArcStatus(
-		edge eArc,
-		node oSrc,
-		node oTgt,
-		const ClusterGraph& CG,
-		NodeArray<cluster>& clusterOfFaceNode,
-		EdgeArray<edge>& arcTwin);
+	void setArcStatus(edge eArc, node oSrc, node oTgt, const ClusterGraph& CG,
+			NodeArray<cluster>& clusterOfFaceNode, EdgeArray<edge>& arcTwin);
 
 	//! Use heuristics to improve the result if possible.
 	void postProcess();
 
 private:
-
 	const Graph* m_originalGraph = nullptr;
 	Graph m_dualGraph;
 	EdgeArray<int> m_eStatus; //!< Status of dual graph arcs.
@@ -119,17 +93,13 @@ private:
 	PostProcessType m_ppType = PostProcessType::None; //!< Defines which kind of postprocessing to use.
 
 	//! Compute for every face the cluster that surrounds it.
-	void deriveFaceCluster(
-		ClusterPlanRep& CPR,
-		CombinatorialEmbedding& E,
-		const ClusterGraph& CG,
-		FaceArray<node>& nodeOfFace,
-		NodeArray<cluster>& clusterOfFaceNode);
+	void deriveFaceCluster(ClusterPlanRep& CPR, CombinatorialEmbedding& E, const ClusterGraph& CG,
+			FaceArray<node>& nodeOfFace, NodeArray<cluster>& clusterOfFaceNode);
 
 
 	//debug
-	void writeDual(const char *fileName);
-	void writeGML(std::ostream &os, const Layout &drawing);
+	void writeDual(const char* fileName);
+	void writeGML(std::ostream& os, const Layout& drawing);
 };
 
 }

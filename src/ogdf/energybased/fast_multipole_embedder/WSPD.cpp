@@ -34,46 +34,31 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-WSPD::WSPD(uint32_t maxNumNodes) : m_maxNumNodes(maxNumNodes)
-{
-	m_maxNumPairs = maxNumNodes*2;
+WSPD::WSPD(uint32_t maxNumNodes) : m_maxNumNodes(maxNumNodes) {
+	m_maxNumPairs = maxNumNodes * 2;
 	m_numPairs = 0;
 	allocate();
 	clear();
 }
 
+WSPD::~WSPD(void) { deallocate(); }
 
-WSPD::~WSPD(void)
-{
-	deallocate();
+unsigned long WSPD::sizeInBytes() const {
+	return m_maxNumNodes * sizeof(NodeAdjInfo) + m_maxNumPairs * sizeof(EdgeAdjInfo);
 }
 
-
-unsigned long WSPD::sizeInBytes() const
-{
-	return m_maxNumNodes*sizeof(NodeAdjInfo) +
-		m_maxNumPairs*sizeof(EdgeAdjInfo);
+void WSPD::allocate() {
+	m_nodeInfo = static_cast<NodeAdjInfo*>(OGDF_MALLOC_16(m_maxNumNodes * sizeof(NodeAdjInfo)));
+	m_pairs = static_cast<EdgeAdjInfo*>(OGDF_MALLOC_16(m_maxNumPairs * sizeof(EdgeAdjInfo)));
 }
 
-
-void WSPD::allocate()
-{
-	m_nodeInfo = static_cast<NodeAdjInfo*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(NodeAdjInfo)));
-	m_pairs = static_cast<EdgeAdjInfo*>(OGDF_MALLOC_16(m_maxNumPairs*sizeof(EdgeAdjInfo)));
-}
-
-
-void WSPD::deallocate()
-{
+void WSPD::deallocate() {
 	OGDF_FREE_16(m_nodeInfo);
 	OGDF_FREE_16(m_pairs);
 }
 
-
-void WSPD::clear()
-{
-	for (uint32_t i = 0; i < m_maxNumNodes; i++)
-	{
+void WSPD::clear() {
+	for (uint32_t i = 0; i < m_maxNumNodes; i++) {
 		m_nodeInfo[i].degree = 0;
 	}
 	m_numPairs = 0;
@@ -84,10 +69,8 @@ void WSPD::addWSP(NodeID a, NodeID b) {
 	uint32_t e_index = m_numPairs++;
 
 	pushBackEdge(
-		a, b,
-		[&](uint32_t i) -> EdgeAdjInfo& {return pairInfo(i);},
-		[&](uint32_t i) -> NodeAdjInfo& {return nodeInfo(i);},
-		e_index);
+			a, b, [&](uint32_t i) -> EdgeAdjInfo& { return pairInfo(i); },
+			[&](uint32_t i) -> NodeAdjInfo& { return nodeInfo(i); }, e_index);
 }
 
 }

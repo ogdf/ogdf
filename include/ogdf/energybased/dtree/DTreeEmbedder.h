@@ -36,8 +36,7 @@ namespace energybased {
 namespace dtree {
 
 template<int Dim>
-class DTreeEmbedder
-{
+class DTreeEmbedder {
 public:
 	//! constructor with a given graph, allocates memory and does initialization
 	explicit DTreeEmbedder(const Graph& graph);
@@ -110,13 +109,16 @@ public:
 
 	//! does multiple iterations using the given repulsive force function
 	template<typename RepForceFunc, typename AttrForceFunc, bool UseForcePrime>
-	void doIterationsTempl(int numIterations, double epsilon, RepForceFunc repForceFunc, AttrForceFunc attrForceFunc);
+	void doIterationsTempl(int numIterations, double epsilon, RepForceFunc repForceFunc,
+			AttrForceFunc attrForceFunc);
 
 	template<typename RepForceFunc, typename AttrForceFunc>
-	void doIterationsStandard(int numIterations, double epsilon, RepForceFunc repForceFunc, AttrForceFunc attrForceFunc);
+	void doIterationsStandard(int numIterations, double epsilon, RepForceFunc repForceFunc,
+			AttrForceFunc attrForceFunc);
 
 	template<typename RepForceFunc, typename AttrForceFunc>
-	void doIterationsNewton(int numIterations, double epsilon, RepForceFunc repForceFunc, AttrForceFunc attrForceFunc);
+	void doIterationsNewton(int numIterations, double epsilon, RepForceFunc repForceFunc,
+			AttrForceFunc attrForceFunc);
 
 #if 0
 	template<typename RepForceFunc>
@@ -169,8 +171,7 @@ using DTreeEmbedder2D = DTreeEmbedder<2>;
 using DTreeEmbedder3D = DTreeEmbedder<3>;
 
 template<int Dim>
-DTreeEmbedder<Dim>::DTreeEmbedder(const Graph& graph) : m_graph(graph)
-{
+DTreeEmbedder<Dim>::DTreeEmbedder(const Graph& graph) : m_graph(graph) {
 	m_pTreeForce = new DTreeForce<Dim>(m_graph.numberOfNodes());
 	m_nodeInfo.init(m_graph);
 	for (node v = m_graph.firstNode(); v; v = v->succ()) {
@@ -183,21 +184,20 @@ DTreeEmbedder<Dim>::DTreeEmbedder(const Graph& graph) : m_graph(graph)
 }
 
 template<int Dim>
-DTreeEmbedder<Dim>::~DTreeEmbedder()
-{
+DTreeEmbedder<Dim>::~DTreeEmbedder() {
 	delete m_pTreeForce;
 }
 
 template<int Dim>
 template<typename ForceFunc, bool UseForcePrime>
-void DTreeEmbedder<Dim>::computeRepForcesExact(ForceFunc forceFunc)
-{
+void DTreeEmbedder<Dim>::computeRepForcesExact(ForceFunc forceFunc) {
 	double delta[Dim];
 	double force;
 	double force_prime;
 	for (node s = m_graph.firstNode(); s; s = s->succ()) {
 		for (node t = s->succ(); t; t = t->succ()) {
-			double dist = computeDeltaAndDistance<Dim>(m_nodeInfo[s].position, m_nodeInfo[t].position, delta);
+			double dist = computeDeltaAndDistance<Dim>(m_nodeInfo[s].position,
+					m_nodeInfo[t].position, delta);
 
 			// evaluate the force function
 			forceFunc(dist, force, force_prime);
@@ -247,8 +247,7 @@ void DTreeEmbedder<Dim>::computeRepForcesExact(ForceFunc forceFunc)
 
 template<int Dim>
 template<typename ForceFunc, bool UseForcePrime>
-void DTreeEmbedder<Dim>::computeRepForcesApprox(ForceFunc forceFunc)
-{
+void DTreeEmbedder<Dim>::computeRepForcesApprox(ForceFunc forceFunc) {
 	int currIndex = 0;
 	// loop over all nodes
 	for (node v = m_graph.firstNode(); v; v = v->succ()) {
@@ -321,8 +320,7 @@ void DTreeEmbedder<Dim>::computeRepForcesApproxNewton(ForceFunc forceFunc)
 
 template<int Dim>
 template<typename ForceFunc, bool UseForcePrime>
-void DTreeEmbedder<Dim>::computeRepForces(ForceFunc forceFunc)
-{
+void DTreeEmbedder<Dim>::computeRepForces(ForceFunc forceFunc) {
 	if (m_graph.numberOfNodes() <= m_maxNumNodesExactRepForces) {
 		computeRepForcesExact<ForceFunc, UseForcePrime>(forceFunc);
 	} else {
@@ -345,8 +343,7 @@ void DTreeEmbedder<Dim>::computeRepForcesNewton(ForceFunc forceFunc)
 
 template<int Dim>
 template<typename AttrForceFunc, bool UseForcePrime>
-void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
-{
+void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc) {
 	// for all edges
 	for (edge e = m_graph.firstEdge(); e; e = e->succ()) {
 		node s = e->source();
@@ -393,8 +390,8 @@ void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
 
 		// compute delta and sum up dist_sq
 		for (int d = 0; d < Dim; d++) {
-			m_nodeInfo[s].force[d] += f * delta[d] / dist;// * s_scale;
-			m_nodeInfo[t].force[d] -= f * delta[d] / dist;// * t_scale;
+			m_nodeInfo[s].force[d] += f * delta[d] / dist; // * s_scale;
+			m_nodeInfo[t].force[d] -= f * delta[d] / dist; // * t_scale;
 		}
 	}
 }
@@ -427,17 +424,17 @@ void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
 		}
 
 		// we take the log of the squared distance here
-#if 0
+#	if 0
 		double f = log(dist_sq) * 0.5;
-#endif
+#	endif
 		double dist = (sqrt(dist_sq));
 		double f  = (dist) * (dist) * m_edgeWeight[e];
 		double f_prime = 2.0 * dist * m_edgeWeight[e];
 		// for scaling the force accordingly
-#if 0
+#	if 0
 		double s_scale = 1.0/(double)s->degree();
 		double t_scale = 1.0/(double)t->degree();
-#endif
+#	endif
 
 		m_nodeInfo[s].force_prime += f_prime;
 		m_nodeInfo[t].force_prime += f_prime;
@@ -502,8 +499,7 @@ void DTreeEmbedder<Dim>::computeEdgeForcesSq()
 #endif
 
 template<int Dim>
-double DTreeEmbedder<Dim>::moveNodesByForcePrime()
-{
+double DTreeEmbedder<Dim>::moveNodesByForcePrime() {
 	// the maximum displacement
 	double maxDispl = 0.0;
 
@@ -512,7 +508,7 @@ double DTreeEmbedder<Dim>::moveNodesByForcePrime()
 		double displ_sq = 0.0;
 		// update the position by the force vec
 		for (int d = 0; d < Dim; d++) {
-			double displ = m_nodeInfo[v].force[d] / m_nodeInfo[v].force_prime ;
+			double displ = m_nodeInfo[v].force[d] / m_nodeInfo[v].force_prime;
 			m_nodeInfo[v].position[d] += displ;
 			displ_sq += displ * displ;
 		}
@@ -527,8 +523,7 @@ double DTreeEmbedder<Dim>::moveNodesByForcePrime()
 }
 
 template<int Dim>
-double DTreeEmbedder<Dim>::moveNodes(double timeStep)
-{
+double DTreeEmbedder<Dim>::moveNodes(double timeStep) {
 	// the maximum displacement
 	double maxDispl = 0.0;
 
@@ -538,7 +533,7 @@ double DTreeEmbedder<Dim>::moveNodes(double timeStep)
 		// update the position by the force vec
 		for (int d = 0; d < Dim; d++) {
 			double displ = m_nodeInfo[v].force[d] * timeStep;
-			m_nodeInfo[v].position[d] += displ  ;
+			m_nodeInfo[v].position[d] += displ;
 			displ_sq += displ * displ;
 		}
 
@@ -553,8 +548,7 @@ double DTreeEmbedder<Dim>::moveNodes(double timeStep)
 }
 
 template<int Dim>
-void DTreeEmbedder<Dim>::resetForces()
-{
+void DTreeEmbedder<Dim>::resetForces() {
 	// loop over all nodes
 	for (node v = m_graph.firstNode(); v; v = v->succ()) {
 		// reset the force vector
@@ -643,9 +637,9 @@ void DTreeEmbedder<Dim>::doIterationsAdaptive(int numIterations, double epsilon,
 		// save the maxDisplacement
 		lastMaxDisplacement = maxDisplacement;
 		iterationsUsed++;
-#if 0
+#	if 0
 		Logger::slout() << maxDisplacement << std::endl;
-#endif
+#	endif
 	}
 	Logger::slout() << "IterationsUsed: " << iterationsUsed << " of " << numIterations << " energy: " << lastMaxDisplacement << std::endl;
 }
@@ -659,17 +653,16 @@ struct MyVec
 
 template<int Dim>
 template<typename RepForceFunc, typename AttrForceFunc, bool UseForcePrime>
-void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations,
-                                           double epsilon,
-                                           RepForceFunc repForceFunc,
-                                           AttrForceFunc attrForceFunc)
-{
+void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations, double epsilon,
+		RepForceFunc repForceFunc, AttrForceFunc attrForceFunc) {
 	if (m_graph.numberOfNodes() < 2) {
 		return;
 	}
 
 	int numIterationsUsed = 0;
-	Logger::slout() << "doIterationsNewton: V = " << m_graph.numberOfNodes() << " E = " << m_graph.numberOfEdges() << " Iterations " << numIterations << std::endl;
+	Logger::slout()
+			<< "doIterationsNewton: V = " << m_graph.numberOfNodes()
+			<< " E = " << m_graph.numberOfEdges() << " Iterations " << numIterations << std::endl;
 
 	// init the error with epsilon
 	double maxDisplacement = 10000.0;
@@ -688,9 +681,9 @@ void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations,
 
 		// move the nodes
 		if (UseForcePrime) {
-			maxDisplacement =  moveNodesByForcePrime();
+			maxDisplacement = moveNodesByForcePrime();
 		} else {
-			maxDisplacement =  moveNodes(0.1);
+			maxDisplacement = moveNodes(0.1);
 		}
 	}
 
@@ -699,21 +692,22 @@ void DTreeEmbedder<Dim>::doIterationsTempl(int numIterations,
 
 template<int Dim>
 template<typename RepForceFunc, typename AttrForceFunc>
-void DTreeEmbedder<Dim>::doIterationsStandard(int numIterations, double epsilon, RepForceFunc repForceFunc, AttrForceFunc attrForceFunc)
-{
-	doIterationsTempl<RepForceFunc, AttrForceFunc, false>(numIterations, epsilon, repForceFunc, attrForceFunc);
+void DTreeEmbedder<Dim>::doIterationsStandard(int numIterations, double epsilon,
+		RepForceFunc repForceFunc, AttrForceFunc attrForceFunc) {
+	doIterationsTempl<RepForceFunc, AttrForceFunc, false>(numIterations, epsilon, repForceFunc,
+			attrForceFunc);
 }
 
 template<int Dim>
 template<typename RepForceFunc, typename AttrForceFunc>
-void DTreeEmbedder<Dim>::doIterationsNewton(int numIterations, double epsilon, RepForceFunc repForceFunc, AttrForceFunc attrForceFunc)
-{
-	doIterationsTempl<RepForceFunc, AttrForceFunc, true>(numIterations, epsilon, repForceFunc, attrForceFunc);
+void DTreeEmbedder<Dim>::doIterationsNewton(int numIterations, double epsilon,
+		RepForceFunc repForceFunc, AttrForceFunc attrForceFunc) {
+	doIterationsTempl<RepForceFunc, AttrForceFunc, true>(numIterations, epsilon, repForceFunc,
+			attrForceFunc);
 }
 
 template<int Dim>
-void DTreeEmbedder<Dim>::centerNodesAt(double centerBBox[Dim])
-{
+void DTreeEmbedder<Dim>::centerNodesAt(double centerBBox[Dim]) {
 	double bboxMin[Dim];
 	double bboxMax[Dim];
 
@@ -743,8 +737,7 @@ void DTreeEmbedder<Dim>::centerNodesAt(double centerBBox[Dim])
 }
 
 template<int Dim>
-void DTreeEmbedder<Dim>::scaleNodes(double scaleFactor)
-{
+void DTreeEmbedder<Dim>::scaleNodes(double scaleFactor) {
 	for (node v = m_graph.firstNode(); v; v = v->succ()) {
 		for (int d = 0; d < Dim; d++) {
 			setPosition(v, d, position(v, d) * scaleFactor);
@@ -753,45 +746,40 @@ void DTreeEmbedder<Dim>::scaleNodes(double scaleFactor)
 }
 
 template<int Dim>
-double DTreeEmbedder<Dim>::position(node v, int d) const
-{
+double DTreeEmbedder<Dim>::position(node v, int d) const {
 	return m_nodeInfo[v].position[d];
 }
 
 template<int Dim>
-void DTreeEmbedder<Dim>::setPosition(node v, int d, double coord)
-{
+void DTreeEmbedder<Dim>::setPosition(node v, int d, double coord) {
 	m_nodeInfo[v].position[d] = coord;
 }
 
 template<int Dim>
-double DTreeEmbedder<Dim>::mass(node v) const
-{
+double DTreeEmbedder<Dim>::mass(node v) const {
 	return m_nodeInfo[v].mass;
 }
 
 template<int Dim>
-void DTreeEmbedder<Dim>::setMass(node v, double mass)
-{
+void DTreeEmbedder<Dim>::setMass(node v, double mass) {
 	m_nodeInfo[v].mass = mass;
 }
 
 template<int Dim>
-const Graph& DTreeEmbedder<Dim>::graph() const
-{
+const Graph& DTreeEmbedder<Dim>::graph() const {
 	return m_graph;
 }
 
 template<int Dim>
-void DTreeEmbedder<Dim>::setEdgeWeight(edge e, double weight)
-{
+void DTreeEmbedder<Dim>::setEdgeWeight(edge e, double weight) {
 	m_edgeWeight[e] = weight;
 }
 
 template<int Dim>
-double DTreeEmbedder<Dim>::edgeWeight(edge e) const
-{
+double DTreeEmbedder<Dim>::edgeWeight(edge e) const {
 	return m_edgeWeight[e];
 }
 
-}}}
+}
+}
+}

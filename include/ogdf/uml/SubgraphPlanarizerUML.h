@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <ogdf/uml/UMLCrossingMinimizationModule.h>
-#include <ogdf/planarity/PlanarSubgraphModule.h>
-#include <ogdf/uml/UMLEdgeInsertionModule.h>
-#include <memory>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>
+#include <ogdf/uml/UMLEdgeInsertionModule.h>
 
+#include <memory>
 #include <random>
 
 namespace ogdf {
@@ -101,42 +101,33 @@ namespace ogdf {
  *   </tr>
  * </table>
 */
-class OGDF_EXPORT SubgraphPlanarizerUML : public UMLCrossingMinimizationModule, public Logger
-{
+class OGDF_EXPORT SubgraphPlanarizerUML : public UMLCrossingMinimizationModule, public Logger {
 	class ThreadMaster;
 	class Worker;
 
 protected:
 	//! Implements the algorithm call.
-	virtual ReturnType doCall(
-		PlanRepUML &pr,
-		int cc,
-		const EdgeArray<int>  *pCostOrig,
-		int& crossingNumber) override;
+	virtual ReturnType doCall(PlanRepUML& pr, int cc, const EdgeArray<int>* pCostOrig,
+			int& crossingNumber) override;
 
 public:
 	//! Creates an instance of subgraph planarizer with default settings.
 	SubgraphPlanarizerUML();
 
 	//! Creates an instance of subgraph planarizer with the same settings as \p planarizer.
-	SubgraphPlanarizerUML(const SubgraphPlanarizerUML &planarizer);
+	SubgraphPlanarizerUML(const SubgraphPlanarizerUML& planarizer);
 
 	//! Returns a new instance of subgraph planarizer with the same option settings.
-	virtual UMLCrossingMinimizationModule *clone() const override;
+	virtual UMLCrossingMinimizationModule* clone() const override;
 
 	//! Assignment operator. Copies option settings only.
-	SubgraphPlanarizerUML &operator=(const SubgraphPlanarizerUML &planarizer);
-
+	SubgraphPlanarizerUML& operator=(const SubgraphPlanarizerUML& planarizer);
 
 	//! Sets the module option for the computation of the planar subgraph.
-	void setSubgraph(PlanarSubgraphModule<int> *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(PlanarSubgraphModule<int>* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! Sets the module option for the edge insertion module.
-	void setInserter(UMLEdgeInsertionModule *pInserter) {
-		m_inserter.reset(pInserter);
-	}
+	void setInserter(UMLEdgeInsertionModule* pInserter) { m_inserter.reset(pInserter); }
 
 	//! Returns the number of permutations.
 	int permutations() { return m_permutations; }
@@ -161,23 +152,19 @@ public:
 	}
 
 private:
-	static void doWorkHelper(ThreadMaster &master, UMLEdgeInsertionModule &inserter, std::minstd_rand &rng);
+	static void doWorkHelper(ThreadMaster& master, UMLEdgeInsertionModule& inserter,
+			std::minstd_rand& rng);
 
-	static bool doSinglePermutation(
-		PlanRepLight &prl,
-		int cc,
-		const EdgeArray<int>  *pCost,
-		Array<edge> &deletedEdges,
-		UMLEdgeInsertionModule &inserter,
-		std::minstd_rand &rng,
-		int &crossingNumber);
+	static bool doSinglePermutation(PlanRepLight& prl, int cc, const EdgeArray<int>* pCost,
+			Array<edge>& deletedEdges, UMLEdgeInsertionModule& inserter, std::minstd_rand& rng,
+			int& crossingNumber);
 
-	std::unique_ptr<PlanarSubgraphModule<int>>   m_subgraph; //!< The planar subgraph algorithm.
+	std::unique_ptr<PlanarSubgraphModule<int>> m_subgraph; //!< The planar subgraph algorithm.
 	std::unique_ptr<UMLEdgeInsertionModule> m_inserter; //!< The edge insertion module.
 
-	int m_permutations;	//!< The number of permutations.
-	bool m_setTimeout;	//!< The option for setting timeouts in submodules.
-	unsigned int m_maxThreads;	//!< The maximal number of used threads.
+	int m_permutations; //!< The number of permutations.
+	bool m_setTimeout; //!< The option for setting timeouts in submodules.
+	unsigned int m_maxThreads; //!< The maximal number of used threads.
 };
 
 }

@@ -53,14 +53,14 @@ class MaxPlanarEdgesConstraint : public abacus::Constraint {
 #endif
 public:
 	//construction
-	MaxPlanarEdgesConstraint(abacus::Master *master, int edgeBound, List<NodePair> &edges);
-	MaxPlanarEdgesConstraint(abacus::Master *master, int edgeBound);
+	MaxPlanarEdgesConstraint(abacus::Master* master, int edgeBound, List<NodePair>& edges);
+	MaxPlanarEdgesConstraint(abacus::Master* master, int edgeBound);
 
 	//destruction
 	virtual ~MaxPlanarEdgesConstraint();
 
 	//computes and returns the coefficient for the given variable
-	virtual double coeff(const abacus::Variable *v) const override;
+	virtual double coeff(const abacus::Variable* v) const override;
 
 private:
 	List<NodePair> m_edges;

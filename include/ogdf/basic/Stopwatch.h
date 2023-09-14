@@ -33,7 +33,6 @@
 
 #include <ogdf/basic/basic.h>
 
-
 namespace ogdf {
 
 //! Realizes a stopwatch for measuring elapsed time.
@@ -41,10 +40,9 @@ namespace ogdf {
  * @ingroup date-time
  */
 class OGDF_EXPORT Stopwatch {
-
-	int64_t m_startTime;  //!< The start time of the timer in milliseconds.
-	int64_t m_totalTime;  //!< The total time in milliseconds.
-	bool    m_running;    //!< true, if the timer is running.
+	int64_t m_startTime; //!< The start time of the timer in milliseconds.
+	int64_t m_totalTime; //!< The total time in milliseconds.
+	bool m_running; //!< true, if the timer is running.
 
 public:
 	//! Initializes a stop watch with total time 0.
@@ -61,11 +59,10 @@ public:
 	 *
 	 * \param milliSecs The intial value of the total time in milliseconds.
 	 */
-	explicit Stopwatch(int64_t milliSecs) :  m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
-
+	explicit Stopwatch(int64_t milliSecs)
+		: m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
 
 	virtual ~Stopwatch() { }
-
 
 	//! Starts the stopwatch.
 	/**
@@ -83,14 +80,12 @@ public:
 
 	//! Stops the stopwatch and sets its total time to 0.
 	void reset() {
-		m_running   = false;
+		m_running = false;
 		m_totalTime = 0;
 	}
 
-
 	//! Returns true if the stopwatch is running, false otherwise.
 	bool running() const { return m_running; }
-
 
 	//! Returns the currently elapsed time in milliseconds.
 	/**
@@ -104,43 +99,37 @@ public:
 	/**
 	 * It is not necessary to stop the timer to get the correct time.
 	 */
-	int64_t centiSeconds() const { return milliSeconds()/10; }
+	int64_t centiSeconds() const { return milliSeconds() / 10; }
 
 	//! Returns the currently elapsed time in seconds.
 	/**
 	 * It is not necessary to stop the timer to get the correct time.
 	 * The result is rounded down to the next integer value.
 	 */
-	int64_t seconds() const { return milliSeconds()/1000; }
+	int64_t seconds() const { return milliSeconds() / 1000; }
 
 	//! Returns the currently elapsed time in minutes.
 	/**
 	 * It is not necessary to stop the timer to get the correct time.
 	 * The result is rounded down to the next integer value.
 	 */
-	int64_t minutes() const { return seconds()/60; }
+	int64_t minutes() const { return seconds() / 60; }
 
 	//! Returns the currently elapsed time in hours.
 	/**
 	 * It is not necessary to stop the timer to get the correct time.
 	 * The result is rounded down to the next integer value.
 	 */
-	int64_t hours() const { return seconds()/3600; }
-
+	int64_t hours() const { return seconds() / 3600; }
 
 	//! Returns true iff the currently elapsed time exceeds \p maxSeconds.
-	bool exceeds(int64_t maxSeconds) const {
-		return seconds() >= maxSeconds;
-	}
+	bool exceeds(int64_t maxSeconds) const { return seconds() >= maxSeconds; }
 
 	//! Adds \p centiSeconds to total time.
 	/**
 	 * \param centiSeconds The number of centiseconds to be added.
 	 */
-	void addCentiSeconds(int64_t centiSeconds) {
-		m_totalTime += 10*centiSeconds;
-	}
-
+	void addCentiSeconds(int64_t centiSeconds) { m_totalTime += 10 * centiSeconds; }
 
 	//! Writes the currently elapsed time in the format <tt>hh:mm:ss.sec/100</tt> to output stream \p os.
 	/**
@@ -148,10 +137,9 @@ public:
 	 * \param stopwatch The stopwatch whose elapsed time shall be written.
 	 * \return A reference to the output stream \p os.
 	 */
-	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Stopwatch &stopwatch);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Stopwatch& stopwatch);
 
 protected:
-
 	//! Returns the current time in milliseconds (from some fixed starting point).
 	/**
 	 * This pure virtual function is used for measuring time differences.
@@ -160,9 +148,7 @@ protected:
 	 * \return The time since some starting point (e.g., the program start) in milliseconds.
 	 */
 	virtual int64_t theTime() const = 0;
-
 };
-
 
 //! Implements a stopwatch measuring CPU time.
 class OGDF_EXPORT StopwatchCPU : public Stopwatch {
@@ -189,7 +175,6 @@ private:
 	//! Returns the current CPU time in milliseconds (from some fixed starting point).
 	virtual int64_t theTime() const override;
 };
-
 
 //! Implements a stopwatch measuring wall-clock time.
 class OGDF_EXPORT StopwatchWallClock : public Stopwatch {

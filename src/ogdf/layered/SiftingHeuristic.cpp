@@ -33,34 +33,25 @@
 
 namespace ogdf {
 
-SiftingHeuristic::SiftingHeuristic() :
-  m_crossingMatrix(nullptr),
-  m_strategy(Strategy::LeftToRight) { }
+SiftingHeuristic::SiftingHeuristic()
+	: m_crossingMatrix(nullptr), m_strategy(Strategy::LeftToRight) { }
 
-SiftingHeuristic::SiftingHeuristic(const SiftingHeuristic &crossMin) :
-  m_crossingMatrix(nullptr),
-  m_strategy(crossMin.m_strategy) { }
+SiftingHeuristic::SiftingHeuristic(const SiftingHeuristic& crossMin)
+	: m_crossingMatrix(nullptr), m_strategy(crossMin.m_strategy) { }
 
-
-void SiftingHeuristic::init(const HierarchyLevels &levels)
-{
+void SiftingHeuristic::init(const HierarchyLevels& levels) {
 	cleanup();
 	m_crossingMatrix = new CrossingsMatrix(levels);
 }
 
-SiftingHeuristic::~SiftingHeuristic()
-{
-	cleanup();
-}
+SiftingHeuristic::~SiftingHeuristic() { cleanup(); }
 
-void SiftingHeuristic::cleanup()
-{
+void SiftingHeuristic::cleanup() {
 	delete m_crossingMatrix;
 	m_crossingMatrix = nullptr;
 }
 
-void SiftingHeuristic::call(Level &L)
-{
+void SiftingHeuristic::call(Level& L) {
 	List<node> vertices;
 	int i;
 
@@ -82,7 +73,9 @@ void SiftingHeuristic::call(Level &L)
 
 		for (i = 0; i < n; i++) {
 			int deg = L.adjNodes(L[i]).size();
-			if (deg > max_deg) max_deg = deg;
+			if (deg > max_deg) {
+				max_deg = deg;
+			}
 		}
 
 		Array<List<node>, int> bucket(0, max_deg);
@@ -91,37 +84,38 @@ void SiftingHeuristic::call(Level &L)
 		}
 
 		for (i = max_deg; i >= 0; i--) {
-			while(!bucket[i].empty()) {
+			while (!bucket[i].empty()) {
 				vertices.pushBack(bucket[i].popFrontRet());
 			}
 		}
 	}
 
-	for(i = 0; i< vertices.size(); i++) {
+	for (i = 0; i < vertices.size(); i++) {
 		int dev = 0;
 
 		// sifting left
-		for(; i > 0; --i) {
-			dev = dev - (*m_crossingMatrix)(i-1,i) + (*m_crossingMatrix)(i,i-1);
-			L.swap(i-1,i);
-			m_crossingMatrix->swap(i-1,i);
+		for (; i > 0; --i) {
+			dev = dev - (*m_crossingMatrix)(i - 1, i) + (*m_crossingMatrix)(i, i - 1);
+			L.swap(i - 1, i);
+			m_crossingMatrix->swap(i - 1, i);
 		}
 
 		// sifting right and searching optimal position
 		int opt = dev, opt_pos = 0;
-		for (; i < n-1; ++i) {
-			dev = dev - (*m_crossingMatrix)(i,i+1) + (*m_crossingMatrix)(i+1,i);
-			L.swap(i,i+1);
-			m_crossingMatrix->swap(i,i+1);
+		for (; i < n - 1; ++i) {
+			dev = dev - (*m_crossingMatrix)(i, i + 1) + (*m_crossingMatrix)(i + 1, i);
+			L.swap(i, i + 1);
+			m_crossingMatrix->swap(i, i + 1);
 			if (dev <= opt) {
-				opt = dev; opt_pos = i+1;
+				opt = dev;
+				opt_pos = i + 1;
 			}
 		}
 
 		// set optimal position
 		for (; i > opt_pos; --i) {
-			L.swap(i-1,i);
-			m_crossingMatrix->swap(i-1,i);
+			L.swap(i - 1, i);
+			m_crossingMatrix->swap(i - 1, i);
 		}
 	}
 }

@@ -30,13 +30,13 @@
  */
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graph_generators.h>
 
-#include <testing.h>
 #include <graphs.h>
+#include <testing.h>
 
 constexpr int NUMBER_OF_ITERATIONS = 17;
 constexpr int NUMBER_OF_NODES = 100;
@@ -44,7 +44,7 @@ constexpr int NUMBER_OF_EDGES = 200;
 
 //! Runs a single iteration of generic tests that do not modify the \c graph.
 template<typename T>
-void testConstCombinatorialEmbedding(Graph &graph) {
+void testConstCombinatorialEmbedding(Graph& graph) {
 	OGDF_ASSERT(graph.representsCombEmbedding());
 
 	T emb(graph);
@@ -61,7 +61,7 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 		AssertThat(f->pred(), IsNull());
 
 		int counter = 0;
-		for(; f != nullptr; f = f->succ()) {
+		for (; f != nullptr; f = f->succ()) {
 			counter++;
 		}
 
@@ -74,7 +74,7 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 		AssertThat(f->succ(), IsNull());
 
 		int counter = 0;
-		for(; f != nullptr; f = f->pred()) {
+		for (; f != nullptr; f = f->pred()) {
 			counter++;
 		}
 
@@ -83,7 +83,7 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 
 	it("returns a maximal face", [&] {
 		int maxSize = -1;
-		for(face f : emb.faces) {
+		for (face f : emb.faces) {
 			Math::updateMax(maxSize, f->size());
 		}
 
@@ -91,7 +91,7 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 	});
 
 	it("chooses a random face", [&] {
-		for(int i = 0; i < 20; i++) {
+		for (int i = 0; i < 20; i++) {
 			AssertThat(emb.chooseFace(), !Equals(nullptr));
 		}
 	});
@@ -105,7 +105,7 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 
 	it("creates faces with correct size", [&] {
 		int sizesSum = 0;
-		for(face f : emb.faces) {
+		for (face f : emb.faces) {
 			sizesSum += f->size();
 		}
 
@@ -115,20 +115,20 @@ void testConstCombinatorialEmbedding(Graph &graph) {
 	it("returns all left and right faces", [&] {
 		FaceArray<bool> visited(emb, false);
 
-		for(edge e : graph.edges) {
+		for (edge e : graph.edges) {
 			adjEntry adj = e->adjSource();
 			visited[emb.leftFace(adj)] = true;
 			visited[emb.rightFace(adj)] = true;
 		}
 
-		for(face f : emb.faces) {
+		for (face f : emb.faces) {
 			AssertThat(visited[f], IsTrue());
 		}
 	});
 }
 
 //! Create K4 rotation system with a single crossing
-void createBadK4(Graph &graph) {
+void createBadK4(Graph& graph) {
 	completeGraph(graph, 4);
 	planarEmbed(graph);
 	adjEntry adj = graph.chooseNode()->firstAdj();
@@ -146,7 +146,7 @@ void testConstCombinatorialEmbedding() {
 	Graph badK4;
 	createBadK4(badK4);
 
-	describe("initialization",[&] {
+	describe("initialization", [&] {
 		it("works", [&] {
 			T emb(planarGraph);
 			AssertThat(emb.valid(), IsTrue());
@@ -206,7 +206,7 @@ void testConstCombinatorialEmbedding() {
 		adjEntry adj = v->firstAdj();
 		AssertThat(emb.leftFace(adj), Equals(emb.rightFace(adj)));
 
-		for(edge f : graph.edges) {
+		for (edge f : graph.edges) {
 			AssertThat(emb.isBridge(f), Equals(f == e));
 		}
 	});
@@ -218,12 +218,12 @@ void testConstCombinatorialEmbedding() {
 
 		int counter = 0;
 		int size = 0;
-		for(face f : emb.faces){
+		for (face f : emb.faces) {
 			counter++;
 			size += f->size();
 		}
 
-		AssertThat(size, Equals(graph.numberOfEdges()*2));
+		AssertThat(size, Equals(graph.numberOfEdges() * 2));
 		AssertThat(counter, Equals(emb.numberOfFaces()));
 	});
 
@@ -253,7 +253,7 @@ void testConstCombinatorialEmbedding() {
 
 		AssertThat(emb.numberOfFaces(), Equals(1));
 
-		for(edge e : graph.edges){
+		for (edge e : graph.edges) {
 			AssertThat(emb.isBridge(e), IsTrue());
 		}
 	});
@@ -265,7 +265,7 @@ void testConstCombinatorialEmbedding() {
 		EdgeArray<bool> isBridge(graph, false);
 		node chosenNode = graph.chooseNode();
 		node v = chosenNode;
-		for(int i = 0; i < NUMBER_OF_NODES; i++) {
+		for (int i = 0; i < NUMBER_OF_NODES; i++) {
 			node u = graph.newNode();
 			edge e = graph.newEdge(v, u);
 			v = u;
@@ -274,7 +274,7 @@ void testConstCombinatorialEmbedding() {
 
 		T emb(graph);
 
-		for(edge e : graph.edges) {
+		for (edge e : graph.edges) {
 			AssertThat(emb.isBridge(e), Equals(isBridge[e]));
 		}
 
@@ -283,19 +283,19 @@ void testConstCombinatorialEmbedding() {
 
 		emb.computeFaces();
 
-		for(edge e : graph.edges) {
+		for (edge e : graph.edges) {
 			AssertThat(emb.isBridge(e), IsFalse());
 		}
 	});
 
 	it("returns a sane size of its face array", [&] {
 		Graph graph;
-		randomPlanarTriconnectedGraph(graph, NUMBER_OF_NODES*10, NUMBER_OF_EDGES*10);
+		randomPlanarTriconnectedGraph(graph, NUMBER_OF_NODES * 10, NUMBER_OF_EDGES * 10);
 		T emb(graph);
 		AssertThat(emb.faceArrayTableSize(), IsGreaterThan(emb.numberOfFaces() - 1));
 	});
 
-	for(int i = 1; i <= NUMBER_OF_ITERATIONS; i++) {
+	for (int i = 1; i <= NUMBER_OF_ITERATIONS; i++) {
 		describe("iteration #" + to_string(i), [&] {
 			Graph graph;
 			randomPlanarConnectedGraph(graph, NUMBER_OF_NODES, NUMBER_OF_EDGES);
@@ -303,30 +303,33 @@ void testConstCombinatorialEmbedding() {
 		});
 	}
 
-	forEachGraphItWorks({GraphProperty::planar, GraphProperty::connected}, [&](Graph &graph) {
-		planarEmbed(graph);
-		T emb(graph);
+	forEachGraphItWorks(
+			{GraphProperty::planar, GraphProperty::connected},
+			[&](Graph& graph) {
+				planarEmbed(graph);
+				T emb(graph);
 
-		int phi = 0;
-		int size = 0;
-		for (face f : emb.faces) {
-			phi++;
-			size += f->size();
-		}
+				int phi = 0;
+				int size = 0;
+				for (face f : emb.faces) {
+					phi++;
+					size += f->size();
+				}
 
-		// Test whether Euler's formula holds.
-		int n = graph.numberOfNodes();
-		int m = graph.numberOfEdges();
-		AssertThat(phi, Equals(emb.numberOfFaces()));
-		AssertThat(size, Equals(2*m));
-		if (graph.numberOfEdges() > 0) {
-			AssertThat(n - m + phi, Equals(2));
-		}
-	}, GraphSizes(4, NUMBER_OF_NODES, 1));
+				// Test whether Euler's formula holds.
+				int n = graph.numberOfNodes();
+				int m = graph.numberOfEdges();
+				AssertThat(phi, Equals(emb.numberOfFaces()));
+				AssertThat(size, Equals(2 * m));
+				if (graph.numberOfEdges() > 0) {
+					AssertThat(n - m + phi, Equals(2));
+				}
+			},
+			GraphSizes(4, NUMBER_OF_NODES, 1));
 }
 
 //! Performs single iteration of generic tests that modify the \c graph.
-void testCombinatorialEmbedding(Graph &graph) {
+void testCombinatorialEmbedding(Graph& graph) {
 	CombinatorialEmbedding emb(graph);
 	int numberOfNodes;
 	int numberOfEdges;
@@ -340,7 +343,7 @@ void testCombinatorialEmbedding(Graph &graph) {
 	});
 
 	describe("updating", [&] {
-		it("clears itself",[&] {
+		it("clears itself", [&] {
 			emb.clear();
 
 			AssertThat(graph.numberOfNodes(), Equals(0));
@@ -379,7 +382,7 @@ void testCombinatorialEmbedding(Graph &graph) {
 			AssertThat(emb.leftFace(splitEdgeEnd->adjSource()), Equals(leftFace));
 			AssertThat(emb.rightFace(splitEdgeEnd->adjSource()), Equals(rightFace));
 
-			if(leftFace == rightFace) {
+			if (leftFace == rightFace) {
 				AssertThat(leftFace->size(), Equals(leftFaceSize + 2));
 			} else {
 				AssertThat(leftFace->size(), Equals(leftFaceSize + 1));
@@ -405,8 +408,8 @@ void testCombinatorialEmbedding(Graph &graph) {
 		});
 
 		auto pickNode = [&] {
-			for(node v : graph.nodes) {
-				if(v->degree() > 1) {
+			for (node v : graph.nodes) {
+				if (v->degree() > 1) {
 					return v;
 				}
 			}
@@ -418,7 +421,7 @@ void testCombinatorialEmbedding(Graph &graph) {
 			node vl = pickNode();
 			int degree = vl->degree();
 			adjEntry adjStartLeft = vl->firstAdj();
-			adjEntry adjStartRight =  vl->lastAdj();
+			adjEntry adjStartRight = vl->lastAdj();
 
 			node vr = emb.splitNode(adjStartLeft, adjStartRight);
 
@@ -434,7 +437,7 @@ void testCombinatorialEmbedding(Graph &graph) {
 			node vl = pickNode();
 			int degree = vl->degree();
 			adjEntry adjStartLeft = vl->firstAdj();
-			adjEntry adjStartRight =  vl->lastAdj();
+			adjEntry adjStartRight = vl->lastAdj();
 			node vr = emb.splitNode(adjStartLeft, adjStartRight);
 
 			node contractedNode = emb.contract(graph.searchEdge(vl, vr));
@@ -486,7 +489,7 @@ void testCombinatorialEmbedding(Graph &graph) {
 		adjEntry adjFirst;
 		adjEntry adjSecond;
 
-		before_each([&](){
+		before_each([&]() {
 			fSplitMe = emb.chooseFace([](face f) { return f->size() > 4; });
 			adjFirst = fSplitMe->firstAdj();
 			adjSecond = adjFirst->faceCycleSucc()->faceCycleSucc();
@@ -568,10 +571,8 @@ void testCombinatorialEmbedding(Graph &graph) {
 
 			do {
 				w = graph.chooseEdge()->adjSource();
-			} while(emb.rightFace(v) == emb.rightFace(w) ||
-			        emb.rightFace(v) == emb.leftFace(w) ||
-			        emb.leftFace(v) == emb.rightFace(w) ||
-			        emb.leftFace(v) == emb.leftFace(w));
+			} while (emb.rightFace(v) == emb.rightFace(w) || emb.rightFace(v) == emb.leftFace(w)
+					|| emb.leftFace(v) == emb.rightFace(w) || emb.leftFace(v) == emb.leftFace(w));
 
 			AssertThrows(AssertionFailed, emb.splitFace(v, w));
 		});
@@ -596,12 +597,11 @@ void testCombinatorialEmbedding(Graph &graph) {
 }
 
 go_bandit([] {
-	describe("ConstCombinatorialEmbedding", [&] {
-		testConstCombinatorialEmbedding<ConstCombinatorialEmbedding>();
-	});
+	describe("ConstCombinatorialEmbedding",
+			[&] { testConstCombinatorialEmbedding<ConstCombinatorialEmbedding>(); });
 
 	describe("CombinatorialEmbedding", [&] {
-		for(int i = 1; i <= NUMBER_OF_ITERATIONS; i++) {
+		for (int i = 1; i <= NUMBER_OF_ITERATIONS; i++) {
 			describe("iteration #" + to_string(i), [&] {
 				Graph graph;
 

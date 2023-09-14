@@ -32,10 +32,11 @@
 
 #pragma once
 
-#include <ogdf/layered/RankingModule.h>
-#include <ogdf/layered/AcyclicSubgraphModule.h>
-#include <memory>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/layered/RankingModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -72,7 +73,6 @@ namespace ogdf {
  * </table>
  */
 class OGDF_EXPORT OptimalRanking : public RankingModule {
-
 	std::unique_ptr<AcyclicSubgraphModule> m_subgraph; // option for acyclic sugraph
 	bool m_separateMultiEdges;
 
@@ -87,7 +87,7 @@ public:
 	 */
 
 	//! Computes a node ranking of \p G in \p rank.
-	virtual void call(const Graph &G, NodeArray<int> &rank) override;
+	virtual void call(const Graph& G, NodeArray<int>& rank) override;
 
 	//! Computes a node ranking of \p G with given minimal edge length in \p rank.
 	/**
@@ -95,7 +95,7 @@ public:
 	 * @param length specifies the minimal length of each edge.
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
-	void call(const Graph &G, const EdgeArray<int> &length, NodeArray<int> &rank);
+	void call(const Graph& G, const EdgeArray<int>& length, NodeArray<int>& rank);
 
 	//! Computes a cost-minimal node ranking of \p G for given edge costs and minimal edge lengths in \p rank.
 	/**
@@ -104,12 +104,8 @@ public:
 	 * @param cost specifies the cost of each edge.
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
-	virtual void call(
-		const Graph &G,
-		const EdgeArray<int> &length,
-		const EdgeArray<int> &cost,
-		NodeArray<int> &rank) override;
-
+	virtual void call(const Graph& G, const EdgeArray<int>& length, const EdgeArray<int>& cost,
+			NodeArray<int>& rank) override;
 
 	/** @}
 	 *  @name Optional parameters
@@ -127,26 +123,20 @@ public:
 	//! Sets the option separateMultiEdges to \p b.
 	void separateMultiEdges(bool b) { m_separateMultiEdges = b; }
 
-
 	/** @}
 	 *  @name Module options
 	 *  @{
 	 */
 
 	//! Sets the module for the computation of the acyclic subgraph.
-	void setSubgraph(AcyclicSubgraphModule *pSubgraph) {
-		m_subgraph.reset(pSubgraph);
-	}
+	void setSubgraph(AcyclicSubgraphModule* pSubgraph) { m_subgraph.reset(pSubgraph); }
 
 	//! @}
 
 private:
 	//! Implements the algorithm call.
-	void doCall(const Graph& G,
-		NodeArray<int> &rank,
-		EdgeArray<bool> &reversed,
-		const EdgeArray<int> &length,
-		const EdgeArray<int> &cost);
+	void doCall(const Graph& G, NodeArray<int>& rank, EdgeArray<bool>& reversed,
+			const EdgeArray<int>& length, const EdgeArray<int>& cost);
 };
 
 }

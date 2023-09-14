@@ -34,10 +34,11 @@
 
 #pragma once
 
-#include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/Math.h>
+
 #include <random>
 
 namespace ogdf {
@@ -100,24 +101,22 @@ namespace ogdf {
  *   </tr>
  * </table>
 */
-class OGDF_EXPORT GEMLayout : public LayoutModule
-{
-
+class OGDF_EXPORT GEMLayout : public LayoutModule {
 	// algorithm parameters (see below)
 
-	int m_numberOfRounds;		    //!< The maximal number of rounds per node.
-	double m_minimalTemperature;    //!< The minimal temperature.
-	double m_initialTemperature;    //!< The initial temperature.
+	int m_numberOfRounds; //!< The maximal number of rounds per node.
+	double m_minimalTemperature; //!< The minimal temperature.
+	double m_initialTemperature; //!< The initial temperature.
 	double m_gravitationalConstant; //!< The gravitational constant.
-	double m_desiredLength;         //!< The desired edge length.
-	double m_maximalDisturbance;    //!< The maximal disturbance.
-	double m_rotationAngle;         //!< The opening angle for rotations.
-	double m_oscillationAngle;      //!< The opening angle for oscillations.
-	double m_rotationSensitivity;   //!< The rotation sensitivity.
-	double m_oscillationSensitivity;//!< The oscillation sensitivity.
-	int m_attractionFormula;        //!< The used formula for attraction.
-	double m_minDistCC;             //!< The minimal distance between connected components.
-	double m_pageRatio;             //!< The page ratio used for the layout of connected components.
+	double m_desiredLength; //!< The desired edge length.
+	double m_maximalDisturbance; //!< The maximal disturbance.
+	double m_rotationAngle; //!< The opening angle for rotations.
+	double m_oscillationAngle; //!< The opening angle for oscillations.
+	double m_rotationSensitivity; //!< The rotation sensitivity.
+	double m_oscillationSensitivity; //!< The oscillation sensitivity.
+	int m_attractionFormula; //!< The used formula for attraction.
+	double m_minDistCC; //!< The minimal distance between connected components.
+	double m_pageRatio; //!< The page ratio used for the layout of connected components.
 
 	// node data used by the algorithm
 
@@ -139,37 +138,32 @@ class OGDF_EXPORT GEMLayout : public LayoutModule
 	std::minstd_rand m_rng;
 
 public:
-
 	//! Creates an instance of GEM layout.
 	GEMLayout();
 
 	//! Copy constructor.
-	GEMLayout(const GEMLayout &fl);
+	GEMLayout(const GEMLayout& fl);
 
 	// destructor
 	~GEMLayout();
 
 	//! Assignment operator.
-	GEMLayout &operator=(const GEMLayout &fl);
+	GEMLayout& operator=(const GEMLayout& fl);
 
 	//! Calls the layout algorithm for graph attributes \p GA.
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	//! Returns the maximal number of rounds per node.
 	int numberOfRounds() const { return m_numberOfRounds; }
 
 	//! Sets the maximal number of round per node to \p n.
-	void numberOfRounds(int n) {
-		m_numberOfRounds = (n < 0) ? 0 : n;
-	}
+	void numberOfRounds(int n) { m_numberOfRounds = (n < 0) ? 0 : n; }
 
 	//! Returns the minimal temperature.
 	double minimalTemperature() const { return m_minimalTemperature; }
 
 	//! Sets the minimal temperature to \p x.
-	void minimalTemperature(double x) {
-		m_minimalTemperature = (x < 0) ? 0 : x;
-	}
+	void minimalTemperature(double x) { m_minimalTemperature = (x < 0) ? 0 : x; }
 
 	//! Returns the initial temperature.
 	double initialTemperature() const { return m_initialTemperature; }
@@ -184,33 +178,31 @@ public:
 
 	//! Sets the gravitational constant to \p x; must be >= 0.
 	//! Attention! Only (very) small values give acceptable results.
-	void gravitationalConstant(double x) {
-		m_gravitationalConstant = (x < 0) ? 0 : x;
-	}
+	void gravitationalConstant(double x) { m_gravitationalConstant = (x < 0) ? 0 : x; }
 
 	//! Returns the desired edge length.
 	double desiredLength() const { return m_desiredLength; }
 
 	//! Sets the desired edge length to \p x; must be >= 0.
-	void desiredLength(double x) {
-		m_desiredLength = (x < 0) ? 0 : x;
-	}
+	void desiredLength(double x) { m_desiredLength = (x < 0) ? 0 : x; }
 
 	//! Returns the maximal disturbance.
 	double maximalDisturbance() const { return m_maximalDisturbance; }
 
 	//! Sets the maximal disturbance to \p x; must be >= 0.
-	void maximalDisturbance(double x) {
-		m_maximalDisturbance = (x < 0) ? 0 : x;
-	}
+	void maximalDisturbance(double x) { m_maximalDisturbance = (x < 0) ? 0 : x; }
 
 	//! Returns the opening angle for rotations.
 	double rotationAngle() const { return m_rotationAngle; }
 
 	//! Sets the opening angle for rotations to \p x (0 <= \p x <= pi / 2).
 	void rotationAngle(double x) {
-		if(x < 0) x = 0;
-		if(x > Math::pi / 2.0) x = Math::pi / 2.0;
+		if (x < 0) {
+			x = 0;
+		}
+		if (x > Math::pi / 2.0) {
+			x = Math::pi / 2.0;
+		}
 		m_rotationAngle = x;
 	}
 
@@ -219,8 +211,12 @@ public:
 
 	//! Sets the opening angle for oscillations to \p x (0 <= \p x <= pi / 2).
 	void oscillationAngle(double x) {
-		if(x < 0) x = 0;
-		if(x > Math::pi / 2.0) x = Math::pi / 2.0;
+		if (x < 0) {
+			x = 0;
+		}
+		if (x > Math::pi / 2.0) {
+			x = Math::pi / 2.0;
+		}
 		m_oscillationAngle = x;
 	}
 
@@ -229,8 +225,12 @@ public:
 
 	//! Sets the rotation sensitivity to \p x (0 <= \p x <= 1).
 	void rotationSensitivity(double x) {
-		if(x < 0) x = 0;
-		if(x > 1) x = 1;
+		if (x < 0) {
+			x = 0;
+		}
+		if (x > 1) {
+			x = 1;
+		}
 		m_rotationSensitivity = x;
 	}
 
@@ -239,8 +239,12 @@ public:
 
 	//! Sets the oscillation sensitivity to \p x (0 <= \p x <= 1).
 	void oscillationSensitivity(double x) {
-		if(x < 0) x = 0;
-		if(x > 1) x = 1;
+		if (x < 0) {
+			x = 0;
+		}
+		if (x > 1) {
+			x = 1;
+		}
 		m_oscillationSensitivity = x;
 	}
 
@@ -249,7 +253,9 @@ public:
 
 	//! sets the formula for attraction to \p n (1 = Fruchterman / Reingold, 2 = GEM).
 	void attractionFormula(int n) {
-		if(n == 1 || n == 2) m_attractionFormula = n;
+		if (n == 1 || n == 2) {
+			m_attractionFormula = n;
+		}
 	}
 
 	//! Returns the minimal distance between connected components.
@@ -267,20 +273,16 @@ public:
 
 private:
 	//! Returns the length of the vector (\p x,\p y).
-	double length(double x,double y = 0) const {
-		return sqrt(x * x + y * y);
-	}
+	double length(double x, double y = 0) const { return sqrt(x * x + y * y); }
 
 	//! Returns the weight of node \p v according to its degree.
-	double weight(node v) const {
-		return (double)(v->degree()) / 2.5 + 1.0;
-	}
+	double weight(node v) const { return (double)(v->degree()) / 2.5 + 1.0; }
 
 	//! Computes the new impulse for node \p v.
-	void computeImpulse(GraphCopy &GC, GraphAttributes &AGC,node v);
+	void computeImpulse(GraphCopy& GC, GraphAttributes& AGC, node v);
 
 	//! Updates the node data for node \p v.
-	void updateNode(GraphCopy &GC, GraphAttributes &AGC,node v);
+	void updateNode(GraphCopy& GC, GraphAttributes& AGC, node v);
 
 	OGDF_NEW_DELETE
 };

@@ -31,10 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/tuples.h>
-
 
 namespace ogdf {
 
@@ -48,25 +47,24 @@ enum class OrthoBendType : char { convexBend = '0', reflexBend = '1' };
 // type of (orthogonal) directions
 // horizontal: East or West
 // vertical:   North or South
-enum class OrthoDir {
-	North     = 0,
-	East      = 1,
-	South     = 2,
-	West      = 3,
-	Undefined = 4
-};
+enum class OrthoDir { North = 0, East = 1, South = 2, West = 3, Undefined = 4 };
 
 // Option bits for orthogonal layouts, UML alignment, compaction scaling, progressive shape computation
-enum class UMLOpt {OpAlign = 0x0001, OpScale = 0x0002, OpProg = 0x0004};
+enum class UMLOpt { OpAlign = 0x0001, OpScale = 0x0002, OpProg = 0x0004 };
 
-inline int operator | (int lhs, UMLOpt rhs) { return lhs | static_cast<int>(rhs); }
-inline int operator ~ (UMLOpt rhs) { return ~static_cast<int>(rhs); }
-inline int operator & (int lhs, UMLOpt rhs) { return lhs & static_cast<int>(rhs); }
-inline int operator += (int &lhs, UMLOpt rhs) { lhs += static_cast<int>(rhs); return lhs; }
+inline int operator|(int lhs, UMLOpt rhs) { return lhs | static_cast<int>(rhs); }
+
+inline int operator~(UMLOpt rhs) { return ~static_cast<int>(rhs); }
+
+inline int operator&(int lhs, UMLOpt rhs) { return lhs & static_cast<int>(rhs); }
+
+inline int operator+=(int& lhs, UMLOpt rhs) {
+	lhs += static_cast<int>(rhs);
+	return lhs;
+}
 
 //! Represents the bends on an edge e consisting of vertical and horizontal segments
-class OGDF_EXPORT BendString
-{
+class OGDF_EXPORT BendString {
 public:
 	// constructs empty bend string
 	BendString() {
@@ -76,33 +74,23 @@ public:
 
 	// constructs bend string as given by str
 	// Precond.: str is a 0 terminated C++ string consisting of '0's and '1's
-	explicit BendString(const char *str) {
-		init(str);
-	}
+	explicit BendString(const char* str) { init(str); }
 
 	// constructs bend string consisting of n c's
 	// Precond.: c is '0' or '1'
-	BendString(char c, size_t n) {
-		init(c,n);
-	}
+	BendString(char c, size_t n) { init(c, n); }
 
 	// copy constructor
-	BendString(const BendString &bs) {
-		init(bs);
-	}
+	BendString(const BendString& bs) { init(bs); }
 
 	// copy constructor (move semantics)
-	BendString(BendString &&bs) : m_pBend(bs.m_pBend), m_len(bs.m_len) {
+	BendString(BendString&& bs) : m_pBend(bs.m_pBend), m_len(bs.m_len) {
 		bs.m_pBend = nullptr;
 		bs.m_len = 0;
 	}
 
-
 	// destructor
-	~BendString() {
-		delete[] m_pBend;
-	}
-
+	~BendString() { delete[] m_pBend; }
 
 	// returns i'th character in bend string
 	char operator[](size_t i) const {
@@ -111,26 +99,22 @@ public:
 		return m_pBend[i];
 	}
 
-	char &operator[](size_t i) {
+	char& operator[](size_t i) {
 		// range check
 		OGDF_ASSERT(i < m_len);
 		return m_pBend[i];
 	}
 
 	// returns number of characters in bend string
-	size_t size() const {
-		return m_len;
-	}
+	size_t size() const { return m_len; }
 
 	// returns a pointer to the 0 terminated string
 	// or a 0-pointer if empty
-	const char *toString() const {
-		return m_pBend;
-	}
+	const char* toString() const { return m_pBend; }
 
 	// sets bend string to the string given by str
 	// Precond.: str is a 0 terminated C++ string consisting of '0's and '1's
-	void set(const char *str) {
+	void set(const char* str) {
 		delete[] m_pBend;
 		init(str);
 	}
@@ -139,13 +123,13 @@ public:
 	// Precond.: c is '0' or '1'
 	void set(char c, size_t n) {
 		delete[] m_pBend;
-		init(c,n);
-	}
-	void set(OrthoBendType obt, size_t n) {
-		delete[] m_pBend;
-		init(static_cast<int>(obt),n);
+		init(c, n);
 	}
 
+	void set(OrthoBendType obt, size_t n) {
+		delete[] m_pBend;
+		init(static_cast<int>(obt), n);
+	}
 
 	// sets bend string to the empty bend string
 	void set() {
@@ -154,16 +138,15 @@ public:
 		m_len = 0;
 	}
 
-
 	// assignment operator
-	BendString &operator=(const BendString &bs) {
+	BendString& operator=(const BendString& bs) {
 		delete[] m_pBend;
 		init(bs);
 		return *this;
 	}
 
 	// assignment operator (move semantics)
-	BendString &operator=(BendString &&bs) {
+	BendString& operator=(BendString&& bs) {
 		if (&bs != this) {
 			delete[] m_pBend;
 			m_pBend = bs.m_pBend;
@@ -174,33 +157,32 @@ public:
 		return *this;
 	}
 
-	BendString &operator+=(const char *str) {
-		return this->operator+=(BendString(str));
-	}
+	BendString& operator+=(const char* str) { return this->operator+=(BendString(str)); }
 
-	BendString &operator+=(const BendString &bs) {
-		char* temp = new char[m_len+bs.m_len+1];
+	BendString& operator+=(const BendString& bs) {
+		char* temp = new char[m_len + bs.m_len + 1];
 
 		m_len = m_len + bs.m_len;
 
-		if (m_len == 0)
-		{
-			*temp = 0;//temp = 0;
-		}
-		else
-		{
-			char *p = temp;
-			if (m_pBend != nullptr)
-			{
-				const char *str = m_pBend;
-				while ((*p++ = *str++) != 0) ;
+		if (m_len == 0) {
+			*temp = 0; //temp = 0;
+		} else {
+			char* p = temp;
+			if (m_pBend != nullptr) {
+				const char* str = m_pBend;
+				while ((*p++ = *str++) != 0) {
+					;
+				}
+			} else {
+				*p = '0';
+				p++;
 			}
-			else {*p = '0'; p++;}
-			if (bs.m_len > 0)
-			{
+			if (bs.m_len > 0) {
 				p--;
-				const char *str1 = bs.m_pBend;
-				while ((*p++ = *str1++) != 0) ;
+				const char* str1 = bs.m_pBend;
+				while ((*p++ = *str1++) != 0) {
+					;
+				}
 			}
 		}
 
@@ -212,29 +194,29 @@ public:
 
 	// output operator
 	// example output: "001101001" or ""
-	friend std::ostream &operator<<(std::ostream &os, const BendString &bs) {
-		if (bs.size() == 0)
+	friend std::ostream& operator<<(std::ostream& os, const BendString& bs) {
+		if (bs.size() == 0) {
 			os << "\"\"";
-		else
+		} else {
 			os << "\"" << bs.m_pBend << "\"";
+		}
 		return os;
 	}
 
 private:
-	void init(const char *str);
+	void init(const char* str);
 	void init(char c, size_t n);
-	void init(const BendString &bs);
+	void init(const BendString& bs);
 
 
 	// poiner to 0 terminated character string
-	char *m_pBend;
+	char* m_pBend;
 	// length of string (number of characters without ending 0)
 	size_t m_len;
 };
 
 //! Orthogonal representation of an embedded graph
-class OGDF_EXPORT OrthoRep
-{
+class OGDF_EXPORT OrthoRep {
 public:
 	//! Information about a side of a vertex in UML diagrams
 	struct SideInfoUML {
@@ -259,20 +241,18 @@ public:
 			return nGen + m_nAttached[0] + m_nAttached[1];
 		}
 
-
 		// output operator for debugging
-		friend std::ostream &operator<<(std::ostream &os, const SideInfoUML &si)
-		{
-			os << "{ " << si.m_nAttached[0] <<
-				", " << si.m_adjGen <<
-				", " << si.m_nAttached[1] << " }";
+		friend std::ostream& operator<<(std::ostream& os, const SideInfoUML& si) {
+			os << "{ " << si.m_nAttached[0] << ", " << si.m_adjGen << ", " << si.m_nAttached[1]
+			   << " }";
 			return os;
 		}
 	};
 
 	//only for debugging purposes
-	adjEntry externalAdjEntry() const {return m_adjExternal;}
-	adjEntry alignAdjEntry() const {return m_adjAlign;}
+	adjEntry externalAdjEntry() const { return m_adjExternal; }
+
+	adjEntry alignAdjEntry() const { return m_adjAlign; }
 
 	//! Further information about the cages of vertices in UML diagrams
 	struct VertexInfoUML {
@@ -289,77 +269,53 @@ public:
 			m_corner[0] = m_corner[1] = m_corner[2] = m_corner[3] = nullptr;
 #endif
 		}
+
 		OGDF_NEW_DELETE
 	};
-
 
 	// construction
 
 	// dummy
 	OrthoRep() { m_pE = nullptr; }
+
 	// associates orthogonal representation with embedding E
-	explicit OrthoRep(CombinatorialEmbedding &E);
+	explicit OrthoRep(CombinatorialEmbedding& E);
 
 	// destruction
-	~OrthoRep() {
-		freeCageInfoUML();
-	}
+	~OrthoRep() { freeCageInfoUML(); }
 
 	// reinitialization: associates orthogonal representation with embedding E
-	void init(CombinatorialEmbedding &E);
-
+	void init(CombinatorialEmbedding& E);
 
 	//
 	// access functions
 	//
 
 	// returns associated embedding
-	operator const CombinatorialEmbedding &() const {
-		return *m_pE;
-	}
+	operator const CombinatorialEmbedding&() const { return *m_pE; }
 
 	// returns associated graph
-	operator const Graph &() const {
-		return *m_pE;
-	}
+	operator const Graph&() const { return *m_pE; }
 
 	// returns angle between adj and its successor
 	// (return value is angle divided by 90 degree)
-	int angle(adjEntry adj) const {
-		return m_angle[adj];
-	}
+	int angle(adjEntry adj) const { return m_angle[adj]; }
 
-	int &angle(adjEntry adj) {
-		return m_angle[adj];
-	}
-
+	int& angle(adjEntry adj) { return m_angle[adj]; }
 
 	// returns bend string of adjacency entry adj
-	const BendString &bend(adjEntry adj) const {
-		return m_bends[adj];
-	}
+	const BendString& bend(adjEntry adj) const { return m_bends[adj]; }
 
-	BendString &bend(adjEntry adj) {
-		return m_bends[adj];
-	}
+	BendString& bend(adjEntry adj) { return m_bends[adj]; }
 
 	// returns direction of adjacency entry
-	OrthoDir direction(adjEntry adj) const {
-		return m_dir[adj];
-	}
-
+	OrthoDir direction(adjEntry adj) const { return m_dir[adj]; }
 
 	// returns cage info
-	const VertexInfoUML *cageInfo(node v) const {
-		return m_umlCageInfo[v];
-	}
+	const VertexInfoUML* cageInfo(node v) const { return m_umlCageInfo[v]; }
 
 	// returns cage info
-	VertexInfoUML *cageInfo(node v) {
-		return m_umlCageInfo[v];
-	}
-
-
+	VertexInfoUML* cageInfo(node v) { return m_umlCageInfo[v]; }
 
 	//
 	// update functions
@@ -392,7 +348,7 @@ public:
 
 	// assigns consistent directions to adj. entries such that most
 	// generalizations are directed in preferedDir
-	void orientate(const PlanRep &PG, OrthoDir preferedDir);
+	void orientate(const PlanRep& PG, OrthoDir preferedDir);
 
 	// assigns consistent directions to adjacency entries,
 	// assigning dir to adj (fixing all others)
@@ -401,34 +357,28 @@ public:
 	// returns true iff orientate() has been called before.
 	// If not, direction() may not be called since adj. entry array is not
 	// initialized!
-	bool isOrientated() const {
-		return m_dir.valid();
-	}
-
+	bool isOrientated() const { return m_dir.valid(); }
 
 	// rotates all directions of adjacency entries by r
 	void rotate(int r);
 
 
 	// computes further information about cages
-	void computeCageInfoUML(const PlanRep &PG/*, double sep*/);
+	void computeCageInfoUML(const PlanRep& PG /*, double sep*/);
 
 
 	// checks if the orth. repr. is a legal shape description, i.e., if there
 	// is an orthogonal embedding realizing this shape (if 0-degree angles are
 	// present, the condition is necessary but not sufficient).
 	// If false is returned, error contains a description of the reason.
-	bool check(string &error) const;
-
+	bool check(string& error) const;
 
 	//
 	// static members
 	//
 
 	// exchanges '1'->'0' and vice versa
-	static char flip(char c) {
-		return (c == '0') ? '1' : '0';
-	}
+	static char flip(char c) { return (c == '0') ? '1' : '0'; }
 
 	//! Returns the opposite OrthoDir
 	static OrthoDir oppDir(OrthoDir d) {
@@ -445,18 +395,17 @@ public:
 		return static_cast<OrthoDir>((static_cast<int>(d) + 3) & 3);
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const OrthoRep &op) {
+	friend std::ostream& operator<<(std::ostream& os, const OrthoRep& op) {
 		const Graph& E = op;
-		for(edge e : E.edges)
-		{
-			os << e <<": src angle "<<op.angle(e->adjSource())<<" bend "<<op.bend(e->adjSource())
-				<<"\n"<<" tgt angle "<<op.angle(e->adjTarget())<<" bend "<<op.bend(e->adjTarget())
+		for (edge e : E.edges) {
+			os << e << ": src angle " << op.angle(e->adjSource()) << " bend "
+			   << op.bend(e->adjSource()) << "\n"
+			   << " tgt angle " << op.angle(e->adjTarget()) << " bend " << op.bend(e->adjTarget())
 
-				<<"\n";
+			   << "\n";
 		}
 		return os;
 	}
-
 
 
 private:
@@ -464,7 +413,7 @@ private:
 	void freeCageInfoUML();
 
 	// associated combinatorial embedding
-	CombinatorialEmbedding *m_pE;
+	CombinatorialEmbedding* m_pE;
 
 	// * 90 deg = angle between e and its successor
 	AdjEntryArray<int> m_angle;
@@ -475,7 +424,7 @@ private:
 
 	// information about cages of original vertices; used for orthogonal
 	// representations of PlanRep's
-	NodeArray<VertexInfoUML *> m_umlCageInfo;
+	NodeArray<VertexInfoUML*> m_umlCageInfo;
 
 	// The following members are used for undoing dissection
 	EdgeArray<bool> m_dissectionEdge; // = true iff dissection edge

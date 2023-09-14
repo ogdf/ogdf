@@ -30,78 +30,68 @@
  */
 
 
-#include <ogdf/layered/OptimalRanking.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
-#include <ogdf/basic/GraphCopy.h>
-
+#include <ogdf/layered/DfsAcyclicSubgraph.h>
+#include <ogdf/layered/OptimalRanking.h>
 
 namespace ogdf {
 
 // optimal node ranking for hierarchical graphs using min-cost flow
-OptimalRanking::OptimalRanking()
-{
+OptimalRanking::OptimalRanking() {
 	m_subgraph.reset(new DfsAcyclicSubgraph);
 	m_separateMultiEdges = true;
 }
 
-
-void OptimalRanking::call(const Graph &G, const EdgeArray<int> &length, NodeArray<int> &rank)
-{
-	EdgeArray<int> cost(G,1);
+void OptimalRanking::call(const Graph& G, const EdgeArray<int>& length, NodeArray<int>& rank) {
+	EdgeArray<int> cost(G, 1);
 	call(G, length, cost, rank);
 }
 
-
-void OptimalRanking::call(
-	const Graph &G,
-	const EdgeArray<int> &length,
-	const EdgeArray<int> &cost,
-	NodeArray<int> &rank)
-{
+void OptimalRanking::call(const Graph& G, const EdgeArray<int>& length, const EdgeArray<int>& cost,
+		NodeArray<int>& rank) {
 	List<edge> R;
 
-	m_subgraph->call(G,R);
+	m_subgraph->call(G, R);
 
-	EdgeArray<bool> reversed(G,false);
-	for (edge e : R)
+	EdgeArray<bool> reversed(G, false);
+	for (edge e : R) {
 		reversed[e] = true;
+	}
 	R.clear();
 
 	doCall(G, rank, reversed, length, cost);
 }
 
-
-void OptimalRanking::call (const Graph& G, NodeArray<int> &rank)
-{
+void OptimalRanking::call(const Graph& G, NodeArray<int>& rank) {
 	List<edge> R;
 
-	m_subgraph->call(G,R);
+	m_subgraph->call(G, R);
 
-	EdgeArray<bool> reversed(G,false);
-	for (edge e : R)
+	EdgeArray<bool> reversed(G, false);
+	for (edge e : R) {
 		reversed[e] = true;
+	}
 	R.clear();
 
-	EdgeArray<int> length(G,1);
+	EdgeArray<int> length(G, 1);
 
-	if(m_separateMultiEdges) {
+	if (m_separateMultiEdges) {
 		SListPure<edge> edges;
 		EdgeArray<int> minIndex(G), maxIndex(G);
 		parallelFreeSortUndirected(G, edges, minIndex, maxIndex);
 
 		SListConstIterator<edge> it = edges.begin();
-		if(it.valid())
-		{
+		if (it.valid()) {
 			int prevSrc = minIndex[*it];
 			int prevTgt = maxIndex[*it];
 
-			for(it = it.succ(); it.valid(); ++it) {
+			for (it = it.succ(); it.valid(); ++it) {
 				edge e = *it;
-				if (minIndex[e] == prevSrc && maxIndex[e] == prevTgt)
+				if (minIndex[e] == prevSrc && maxIndex[e] == prevTgt) {
 					length[e] = 2;
-				else {
+				} else {
 					prevSrc = minIndex[e];
 					prevTgt = maxIndex[e];
 				}
@@ -109,18 +99,12 @@ void OptimalRanking::call (const Graph& G, NodeArray<int> &rank)
 		}
 	}
 
-	EdgeArray<int> cost(G,1);
+	EdgeArray<int> cost(G, 1);
 	doCall(G, rank, reversed, length, cost);
 }
 
-
-void OptimalRanking::doCall(
-	const Graph& G,
-	NodeArray<int> &rank,
-	EdgeArray<bool> &reversed,
-	const EdgeArray<int> &length,
-	const EdgeArray<int> &costOrig)
-{
+void OptimalRanking::doCall(const Graph& G, NodeArray<int>& rank, EdgeArray<bool>& reversed,
+		const EdgeArray<int>& length, const EdgeArray<int>& costOrig) {
 	MinCostFlowReinelt<int> mcf;
 
 	// construct min-cost flow problem
@@ -129,53 +113,57 @@ void OptimalRanking::doCall(
 
 	// compute connected component of G
 	NodeArray<int> component(G);
-	int numCC = connectedComponents(G,component);
+	int numCC = connectedComponents(G, component);
 
 	// intialize the array of lists of nodes contained in a CC
-	Array<List<node> > nodesInCC(numCC);
+	Array<List<node>> nodesInCC(numCC);
 
-	for(node v : G.nodes)
+	for (node v : G.nodes) {
 		nodesInCC[component[v]].pushBack(v);
+	}
 
 	EdgeArray<edge> auxCopy(G);
 	rank.init(G);
 
-	for(int i = 0; i < numCC; ++i)
-	{
+	for (int i = 0; i < numCC; ++i) {
 		GC.initByNodes(nodesInCC[i], auxCopy);
 		makeLoopFree(GC);
 
-		for(edge e : GC.edges)
-			if(reversed[GC.original(e)])
+		for (edge e : GC.edges) {
+			if (reversed[GC.original(e)]) {
 				GC.reverseEdge(e);
+			}
+		}
 
 		// special cases:
-		if(GC.numberOfNodes() == 1) {
+		if (GC.numberOfNodes() == 1) {
 			rank[GC.original(GC.firstNode())] = 0;
 			continue;
-		} else if(GC.numberOfEdges() == 1) {
+		} else if (GC.numberOfEdges() == 1) {
 			edge e = GC.original(GC.firstEdge());
 			rank[e->source()] = 0;
 			rank[e->target()] = length[e];
 			continue;
 		}
 
-		EdgeArray<int> lowerBound(GC,0);
-		EdgeArray<int> upperBound(GC,mcf.infinity());
+		EdgeArray<int> lowerBound(GC, 0);
+		EdgeArray<int> upperBound(GC, mcf.infinity());
 		EdgeArray<int> cost(GC);
 		NodeArray<int> supply(GC);
 
-		for(edge e : GC.edges)
+		for (edge e : GC.edges) {
 			cost[e] = -length[GC.original(e)];
+		}
 
-		for(node v : GC.nodes) {
+		for (node v : GC.nodes) {
 			int s = 0;
-			for(adjEntry adj : v->adjEntries) {
+			for (adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
-				if(v == e->source())
+				if (v == e->source()) {
 					s += costOrig[GC.original(e)];
-				else
+				} else {
 					s -= costOrig[GC.original(e)];
+				}
 			}
 			supply[v] = s;
 		}
@@ -188,11 +176,12 @@ void OptimalRanking::doCall(
 #ifdef OGDF_DEBUG
 		bool feasible =
 #endif
-			mcf.call(GC, lowerBound, upperBound, cost, supply, flow, dual);
+				mcf.call(GC, lowerBound, upperBound, cost, supply, flow, dual);
 		OGDF_ASSERT(feasible);
 
-		for(node v : GC.nodes)
+		for (node v : GC.nodes) {
 			rank[GC.original(v)] = dual[v];
+		}
 	}
 }
 

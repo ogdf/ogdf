@@ -31,16 +31,15 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/basic/DualGraph.h>
-
+#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/SList.h>
 
 namespace ogdf {
 
-template<bool b> class FaceSet;
-
+template<bool b>
+class FaceSet;
 
 /**
  * \brief Copies of graphs with mapping between nodes and edges
@@ -57,9 +56,8 @@ template<bool b> class FaceSet;
  * that both edges resulting from the split are mapped to the same
  * original edge; this feature is provided by GraphCopy.
  */
-class OGDF_EXPORT GraphCopySimple : public Graph
-{
-	const Graph *m_pGraph;   //!< The original graph.
+class OGDF_EXPORT GraphCopySimple : public Graph {
+	const Graph* m_pGraph; //!< The original graph.
 	NodeArray<node> m_vOrig; //!< The corresponding node in the original graph.
 	NodeArray<node> m_vCopy; //!< The corresponding node in the graph copy.
 	EdgeArray<edge> m_eOrig; //!< The corresponding edge in the original graph.
@@ -70,21 +68,21 @@ public:
 	GraphCopySimple();
 
 	//! Constructs a copy of graph \p G.
-	explicit GraphCopySimple(const Graph &G);
+	explicit GraphCopySimple(const Graph& G);
 
 	//! Copy constructor.
-	GraphCopySimple(const GraphCopySimple &GC);
+	GraphCopySimple(const GraphCopySimple& GC);
 
 	virtual ~GraphCopySimple() { }
 
 	//! Re-initializes the copy using \p G.
-	void init(const Graph &G);
+	void init(const Graph& G);
 
 	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
-	void createEmpty(const Graph &G);
+	void createEmpty(const Graph& G);
 
 	//! Returns a reference to the original graph.
-	const Graph &original() const { return *m_pGraph; }
+	const Graph& original() const { return *m_pGraph; }
 
 	/**
 	 * \brief Returns the node in the original graph corresponding to \p v.
@@ -146,7 +144,9 @@ public:
 	 */
 	adjEntry copy(adjEntry adj) const {
 		edge f = m_eCopy[adj->theEdge()];
-		if (f == nullptr) { return nullptr; }
+		if (f == nullptr) {
+			return nullptr;
+		}
 		return adj->isSource() ? f->adjSource() : f->adjTarget();
 	}
 
@@ -163,7 +163,7 @@ public:
 	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
 
 	//! Assignment operator.
-	GraphCopySimple &operator=(const GraphCopySimple &GC);
+	GraphCopySimple& operator=(const GraphCopySimple& GC);
 
 	/**
 	 * \brief Creates a new node in the graph copy with original node \p vOrig.
@@ -212,8 +212,7 @@ public:
 	virtual void delNode(node v) override;
 
 private:
-	void initGC(const GraphCopySimple &GC, NodeArray<node> &vCopy,
-		EdgeArray<edge> &eCopy);
+	void initGC(const GraphCopySimple& GC, NodeArray<node>& vCopy, EdgeArray<edge>& eCopy);
 };
 
 /**
@@ -254,21 +253,20 @@ private:
  */
 class OGDF_EXPORT GraphCopy : public Graph {
 protected:
-
-	const Graph *m_pGraph;   //!< The original graph.
+	const Graph* m_pGraph; //!< The original graph.
 	NodeArray<node> m_vOrig; //!< The corresponding node in the original graph.
 	EdgeArray<edge> m_eOrig; //!< The corresponding edge in the original graph.
-	EdgeArray<ListIterator<edge> > m_eIterator; //!< The position of copy edge in the list.
+	EdgeArray<ListIterator<edge>> m_eIterator; //!< The position of copy edge in the list.
 
 	NodeArray<node> m_vCopy; //!< The corresponding node in the graph copy.
-	EdgeArray<List<edge> > m_eCopy; //!< The corresponding list of edges in the graph copy.
+	EdgeArray<List<edge>> m_eCopy; //!< The corresponding list of edges in the graph copy.
 
 public:
 	//! Creates a graph copy of \p G.
 	/**
 	 * See #init for details.
 	 */
-	explicit GraphCopy(const Graph &G);
+	explicit GraphCopy(const Graph& G);
 
 	//! Default constructor (does nothing!).
 	GraphCopy() : Graph(), m_pGraph(nullptr) { }
@@ -278,18 +276,17 @@ public:
 	 * Creates a graph copy that is a copy of \p GC and represents a graph
 	 * copy of the original graph of \p GC.
 	 */
-	GraphCopy(const GraphCopy &GC);
+	GraphCopy(const GraphCopy& GC);
 
 	virtual ~GraphCopy() { }
-
 
 	/**
 	 * @name Mapping between original graph and copy
 	 */
-	//@{
+	//! @{
 
 	//! Returns a reference to the original graph.
-	const Graph &original() const { return *m_pGraph; }
+	const Graph& original() const { return *m_pGraph; }
 
 	/**
 	 * \brief Returns the node in the original graph corresponding to \p v.
@@ -345,7 +342,7 @@ public:
 	 * \param e is an edge in the original graph.
 	 * \return the corresponding list of edges in the graph copy.
 	 */
-	const List<edge> &chain(edge e) const { return m_eCopy[e]; }
+	const List<edge>& chain(edge e) const { return m_eCopy[e]; }
 
 	// returns first edge in chain(e)
 	/**
@@ -392,9 +389,7 @@ public:
 	 * \brief Returns true iff edge \p e has been reversed.
 	 * @param e is an edge in the original graph.
 	 */
-	bool isReversed (edge e) const {
-		return e->source() != original(copy(e)->source());
-	}
+	bool isReversed(edge e) const { return e->source() != original(copy(e)->source()); }
 
 	/**
 	 * \brief Returns true iff \p e is reversed w.r.t. the original edge of \a e.
@@ -402,13 +397,12 @@ public:
 	 * This method assumes that the list of copy edges forms a chain
 	 * \param e is an edge in the graphcopy
 	 */
-	bool isReversedCopyEdge (edge e) const;
-
+	bool isReversedCopyEdge(edge e) const;
 
 	/**
 	 * @name Creation and deletion of nodes and edges
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * \brief Creates a new node in the graph copy with original node \p vOrig.
@@ -513,8 +507,8 @@ public:
 	 * @param dualGraph points to the dual graph of *this. Can be nullptr if
 	 * only the GraphCopy should be changed.
 	 */
-	void removeNonSimpleCrossings(SListPure<edge> &edgesToCheck,
-		DynamicDualGraph *dualGraph = nullptr);
+	void removeNonSimpleCrossings(SListPure<edge>& edgesToCheck,
+			DynamicDualGraph* dualGraph = nullptr);
 
 	/**
 	 * Removes all non-simple cossings (see hasNonSimpleCrossings() for a
@@ -525,7 +519,7 @@ public:
 	 * @param dualGraph points to the dual graph of *this. Can be nullptr if
 	 * only the GraphCopy should be changed.
 	 */
-	inline void removeNonSimpleCrossings(DynamicDualGraph *dualGraph = nullptr) {
+	inline void removeNonSimpleCrossings(DynamicDualGraph* dualGraph = nullptr) {
 		SListPure<edge> edgesToCheck;
 		m_pGraph->allEdges(edgesToCheck);
 		removeNonSimpleCrossings(edgesToCheck, dualGraph);
@@ -542,14 +536,13 @@ public:
 	 * @param dualGraph points to the dual graph of *this. Can be nullptr if
 	 * only the GraphCopy should be changed.
 	 */
-	inline void removeNonSimpleCrossings(node origNode, DynamicDualGraph *dualGraph = nullptr) {
+	inline void removeNonSimpleCrossings(node origNode, DynamicDualGraph* dualGraph = nullptr) {
 		SListPure<edge> edgesToCheck;
 		for (adjEntry adj : origNode->adjEntries) {
 			edgesToCheck.pushBack(adj->theEdge());
 		}
 		removeNonSimpleCrossings(edgesToCheck, dualGraph);
 	}
-
 
 	//! Re-inserts edge \p eOrig by "crossing" the edges in \p crossedEdges.
 	/**
@@ -561,10 +554,10 @@ public:
 	 *        all edges in the path \a v, \a u_1, ..., \a u_k, \a w.
 	 * @param crossedEdges are edges in the graph copy.
 	 */
-	void insertEdgePath(edge eOrig, const SList<adjEntry> &crossedEdges);
+	void insertEdgePath(edge eOrig, const SList<adjEntry>& crossedEdges);
 
 	//! Special version (for FixedEmbeddingUpwardEdgeInserter only).
-	void insertEdgePath(node srcOrig, node tgtOrig, const SList<adjEntry> &crossedEdges);
+	void insertEdgePath(node srcOrig, node tgtOrig, const SList<adjEntry>& crossedEdges);
 
 
 	//! Removes the complete edge path for edge \p eOrig.
@@ -590,16 +583,13 @@ public:
 	 *        \p crossedEdge from right to left, otherwise from left to right.
 	 * @return the rear edge resulting from the split operation: (\a u, \a w)
 	*/
-	edge insertCrossing(
-		edge& crossingEdge,
-		edge crossedEdge,
-		bool rightToLeft);
+	edge insertCrossing(edge& crossingEdge, edge crossedEdge, bool rightToLeft);
 
 
 	/**
 	 * @name Combinatorial Embeddings
 	 */
-	//@{
+	//! @{
 
 	//! Creates a new edge with original edge \p eOrig in an embedding \p E.
 	/**
@@ -616,7 +606,7 @@ public:
 	 * @param E is an embedding of the graph copy.
 	 * @return the created edge.
 	 */
-	edge newEdge(node v, adjEntry adj, edge eOrig, CombinatorialEmbedding &E);
+	edge newEdge(node v, adjEntry adj, edge eOrig, CombinatorialEmbedding& E);
 
 	/**
 	 * \brief Sets the embedding of the graph copy to the embedding of the original graph.
@@ -645,16 +635,11 @@ public:
 	 * @param E is an embedding of the graph copy.
 	 * @param crossedEdges are a list of adjacency entries in the graph copy.
 	 */
-	void insertEdgePathEmbedded(
-		edge eOrig,
-		CombinatorialEmbedding &E,
-		const SList<adjEntry> &crossedEdges);
+	void insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E,
+			const SList<adjEntry>& crossedEdges);
 
-	void insertEdgePathEmbedded(
-		edge eOrig,
-		CombinatorialEmbedding &E,
-		DynamicDualGraph &dual,
-		const SList<adjEntry> &crossedEdges);
+	void insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E, DynamicDualGraph& dual,
+			const SList<adjEntry>& crossedEdges);
 
 	//! Removes the complete edge path for edge \p eOrig while preserving the embedding.
 	/**
@@ -667,22 +652,16 @@ public:
 	 * @param newFaces is assigned the set of new faces resulting from joining faces
 	 *        when removing edges.
 	 */
-	void removeEdgePathEmbedded(
-		CombinatorialEmbedding &E,
-		edge                    eOrig,
-		FaceSet<false>         &newFaces);
+	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet<false>& newFaces);
 
-	void removeEdgePathEmbedded(
-		CombinatorialEmbedding &E,
-		DynamicDualGraph &dual,
-		edge eOrig);
+	void removeEdgePathEmbedded(CombinatorialEmbedding& E, DynamicDualGraph& dual, edge eOrig);
 
 
-	//@}
+	//! @}
 	/**
 	 * @name Miscellaneous
 	 */
-	//@{
+	//! @{
 
 #ifdef OGDF_DEBUG
 	//! Asserts that this copy is consistent.
@@ -697,7 +676,7 @@ public:
 	 *
 	 * \param G the graph to be copied
 	 */
-	void init(const Graph &G);
+	void init(const Graph& G);
 
 	//! Associates the graph copy with \p G, but does not create any nodes or edges.
 	/**
@@ -729,7 +708,7 @@ public:
 	 * \endcode
 	 * @param G is the graph of which this graph copy shall be a copy.
 	 */
-	void createEmpty(const Graph &G);
+	void createEmpty(const Graph& G);
 
 	//! Initializes the graph copy for the nodes in component \p cc.
 	/**
@@ -737,7 +716,7 @@ public:
 	 * @param cc    is the number of the connected component.
 	 * @param eCopy is assigned a mapping from original to copy edges.
 	 */
-	void initByCC(const CCsInfo &info, int cc, EdgeArray<edge> &eCopy);
+	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
 
 	//! Initializes the graph copy for the nodes in a component.
 	/**
@@ -756,7 +735,7 @@ public:
 	 *        copies are created in the graph copy.
 	 * @param eCopy is assigned the copy of each original edge.
 	 */
-	void initByNodes(const List<node> &origNodes, EdgeArray<edge> &eCopy);
+	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
 
 	//! Initializes the graph copy for the nodes in \p nodeList.
 	/**
@@ -771,14 +750,14 @@ public:
 	 *        otherwise.
 	 * @param eCopy is assigned the copy of each original edge.
 	 */
-	void initByActiveNodes(const List<node> &nodeList,
-		const NodeArray<bool> &activeNodes, EdgeArray<edge> &eCopy);
+	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
+			EdgeArray<edge>& eCopy);
 
-	//@}
+	//! @}
 	/**
 	 * @name Operators
 	 */
-	//@{
+	//! @{
 
 	//! Assignment operator.
 	/**
@@ -789,17 +768,13 @@ public:
 	 * constructed graph are in the same order as the adjacency lists in \a G.
 	 * This is in particular important when dealing with embedded graphs.
 	 */
-	GraphCopy &operator=(const GraphCopy &GC);
+	GraphCopy& operator=(const GraphCopy& GC);
 
 
-	//@}
+	//! @}
 
 protected:
-	void removeUnnecessaryCrossing(
-		adjEntry adjA1,
-		adjEntry adjA2,
-		adjEntry adjB1,
-		adjEntry adjB2);
+	void removeUnnecessaryCrossing(adjEntry adjA1, adjEntry adjA2, adjEntry adjB1, adjEntry adjB2);
 
 	/**
 	 * Removes the pseudo crossing that adj belongs to.
@@ -810,9 +785,7 @@ protected:
 	 * edges. adj and its successor must be part of the same original edge; the
 	 * same holds for the next two successors respectively.
 	 */
-	void removeUnnecessaryCrossing(
-		adjEntry adj,
-		DynamicDualGraph *dualGraph);
+	void removeUnnecessaryCrossing(adjEntry adj, DynamicDualGraph* dualGraph);
 
 	/**
 	 * Removes the crossing of the two adjacent edges adj1->theEdge() and
@@ -821,10 +794,7 @@ protected:
 	 * \pre adj1 and adj2 are successive adjEntries of the same node, pointing
 	 * towards the common node of both of their original edges.
 	 */
-	void removeAdjacentEdgesCrossing(
-		adjEntry adj1,
-		adjEntry adj2,
-		DynamicDualGraph *dualGraph);
+	void removeAdjacentEdgesCrossing(adjEntry adj1, adjEntry adj2, DynamicDualGraph* dualGraph);
 
 	/**
 	 * Removes the two crossings given by the adjEntries, assuming that both
@@ -835,12 +805,8 @@ protected:
 	 * the same node respectively, such that the former point towards the latter
 	 * and vice versa.
 	 */
-	void removeSameEdgesCrossing(
-		adjEntry adjFirstCrossing1,
-		adjEntry adjFirstCrossing2,
-		adjEntry adjSecondCrossing1,
-		adjEntry adjSecondCrossing2,
-		DynamicDualGraph *dualGraph);
+	void removeSameEdgesCrossing(adjEntry adjFirstCrossing1, adjEntry adjFirstCrossing2,
+			adjEntry adjSecondCrossing1, adjEntry adjSecondCrossing2, DynamicDualGraph* dualGraph);
 
 	/**
 	 * Swaps the original edges from adjCopy1 up to the common node of
@@ -851,7 +817,7 @@ protected:
 	 * at the end of their chains.
 	 */
 	void swapOriginalEdgesAtCrossing(adjEntry adjCopy1, adjEntry adjCopy2,
-			DynamicDualGraph *dual = nullptr);
+			DynamicDualGraph* dual = nullptr);
 
 	/**
 	 * Swaps the original edges from adjFirstCrossing1 up to
@@ -859,27 +825,19 @@ protected:
 	 * adjFirstCrossing2 up to adjSecondCrossing2->theNode().
 	 * Can be used to fix multiple crossings of the same two edges.
 	 */
-	void swapOriginalEdgesBetweenCrossings(
-		adjEntry adjFirstCrossing1,
-		adjEntry adjFirstCrossing2,
-		adjEntry adjSecondCrossing1,
-		adjEntry adjSecondCrossing2,
-		DynamicDualGraph *dual = nullptr);
+	void swapOriginalEdgesBetweenCrossings(adjEntry adjFirstCrossing1, adjEntry adjFirstCrossing2,
+			adjEntry adjSecondCrossing1, adjEntry adjSecondCrossing2,
+			DynamicDualGraph* dual = nullptr);
 
 	/**
 	 * Sets the original edges from adjCopy1 up to vCopy to eOrig2, and the
 	 * original edges from adjCopy2 up to vCopy to eOrig1.
 	 */
-	void setOriginalEdgeAlongCrossings(
-		adjEntry adjCopy1,
-		adjEntry adjCopy2,
-		node vCopy,
-		edge eOrig1,
-		edge eOrig2);
+	void setOriginalEdgeAlongCrossings(adjEntry adjCopy1, adjEntry adjCopy2, node vCopy,
+			edge eOrig1, edge eOrig2);
 
 private:
-	void initGC(const GraphCopy &GC,
-		NodeArray<node> &vCopy, EdgeArray<edge> &eCopy);
+	void initGC(const GraphCopy& GC, NodeArray<node>& vCopy, EdgeArray<edge>& eCopy);
 };
 
 }

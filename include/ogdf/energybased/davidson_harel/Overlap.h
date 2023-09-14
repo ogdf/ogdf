@@ -42,14 +42,17 @@
 namespace ogdf {
 namespace davidson_harel {
 
-class Overlap: public NodePairEnergy {
+class Overlap : public NodePairEnergy {
 public:
 	//Initializes private data structures
-	explicit Overlap(GraphAttributes &AG);
+	explicit Overlap(GraphAttributes& AG);
+
 	~Overlap() { }
+
 private:
 	//computes for two vertices at the given position the overlap energy
-	double computeCoordEnergy(node,node, const DPoint&, const DPoint &) const override;
+	double computeCoordEnergy(node, node, const DPoint&, const DPoint&) const override;
 };
 
-}}
+}
+}

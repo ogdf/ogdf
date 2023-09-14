@@ -44,29 +44,36 @@ namespace ogdf {
 using nodeType = long long;
 
 enum class UMLNodeTypePatterns : nodeType {
-	Primary   = 0x0000000f,
+	Primary = 0x0000000f,
 	Secondary = 0x000000f0,
-	Tertiary  = 0x00000f00,
-	Fourth    = 0x0000f000,
-	User      = 0xff000000,
-	All       = 0xffffffff
+	Tertiary = 0x00000f00,
+	Fourth = 0x0000f000,
+	User = 0xff000000,
+	All = 0xffffffff
 };
 
 enum class UMLNodeTypeConstants {
 	//primary types (should be disjoint bits)
-	PrimOriginal = 0x1, PrimCopy = 0x2,
+	PrimOriginal = 0x1,
+	PrimCopy = 0x2,
 	//secondary types: type of node (should be disjoint types, but not bits,
 	//but may not completely cover others that are allowed to be set together)
 	//preliminary: setsecondarytype deletes old type
 	//defines the structure of the diagram, e.g. as flow transmitter
-	SecStructural = 0x1, SecNonStructural = 0x2,
+	SecStructural = 0x1,
+	SecNonStructural = 0x2,
 	//tertiary
 	//crossing node, high/low degree expander
-	TerCrossing = 0x1, TerExpander = 0x2, TerHDExpander = 0x6,
+	TerCrossing = 0x1,
+	TerExpander = 0x2,
+	TerHDExpander = 0x6,
 	TerLDExpander = 0xA,
 	//fourth level types: special types
 	//flow node, simple label node, type label node, expansion corner node
-	FourFlow = 0x1, FourLabel = 0x2, FourType = 0x3, FourCorner = 0x4
+	FourFlow = 0x1,
+	FourLabel = 0x2,
+	FourType = 0x3,
+	FourCorner = 0x4
 
 	//user type hint: what you have done with the edge, e.g. brother edge
 	//that is embedded crossing free and should be drawn bend free
@@ -81,7 +88,7 @@ enum class UMLNodeTypeOffsets {
 	User = 24
 };
 
-inline int operator << (UMLNodeTypeConstants lhs, UMLNodeTypeOffsets rhs) {
+inline int operator<<(UMLNodeTypeConstants lhs, UMLNodeTypeOffsets rhs) {
 	return static_cast<int>(lhs) << static_cast<int>(rhs);
 }
 

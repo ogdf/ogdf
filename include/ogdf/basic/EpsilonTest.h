@@ -33,6 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/basic.h>
+
 #include <type_traits>
 
 namespace ogdf {
@@ -43,7 +44,7 @@ private:
 
 public:
 	//! Constructs an EpsilonTest with a given epsilon (double) for comparisons.
-	explicit EpsilonTest(double epsilon = 1.0e-8) : eps(epsilon) {}
+	explicit EpsilonTest(double epsilon = 1.0e-8) : eps(epsilon) { }
 
 	// LESS: integral and floating_point
 	//! Compare if x is LESS than y for integral types.
@@ -53,10 +54,9 @@ public:
 	 * \pre x and y are of integral type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
-		less(const T &x, const T &y) const
-	{
-			return x < y;
+	inline typename std::enable_if<std::is_integral<T>::value, bool>::type less(const T& x,
+			const T& y) const {
+		return x < y;
 	}
 
 	//! Compare if x is LESS than y for floating point types, using the given
@@ -67,10 +67,9 @@ public:
 	 * \pre x and y are of floating point type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-		less(const T &x, const T &y) const
-	{
-			return x < (y - eps);
+	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type less(const T& x,
+			const T& y) const {
+		return x < (y - eps);
 	}
 
 	// LEQ: integral and floating_point
@@ -81,10 +80,9 @@ public:
 	 * \pre x and y are of integral type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
-		leq(const T &x, const T &y) const
-	{
-			return x <= y;
+	inline typename std::enable_if<std::is_integral<T>::value, bool>::type leq(const T& x,
+			const T& y) const {
+		return x <= y;
 	}
 
 	//! Compare if x is LEQ than y for floating point types, using the given
@@ -95,10 +93,9 @@ public:
 	 * \pre x and y are of floating point type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-		leq(const T &x, const T &y) const
-	{
-			return x < (y + eps);
+	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type leq(const T& x,
+			const T& y) const {
+		return x < (y + eps);
 	}
 
 	// EQUAL: integral and floating_point
@@ -109,10 +106,9 @@ public:
 	 * \pre x and y are of integral type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
-		equal(const T &x, const T &y) const
-	{
-			return x == y;
+	inline typename std::enable_if<std::is_integral<T>::value, bool>::type equal(const T& x,
+			const T& y) const {
+		return x == y;
 	}
 
 	//! Compare if x is EQUAL to y for floating point types, using the given
@@ -123,10 +119,9 @@ public:
 	 * \pre x and y are of floating point type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-		equal(const T &x, const T &y) const
-	{
-			return leq(x, y) && geq(x, y);
+	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type equal(const T& x,
+			const T& y) const {
+		return leq(x, y) && geq(x, y);
 	}
 
 	// GEQ: integral and floating_point
@@ -137,10 +132,9 @@ public:
 	 * \pre x and y are of integral type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
-		geq(const T &x, const T &y) const
-	{
-			return x >= y;
+	inline typename std::enable_if<std::is_integral<T>::value, bool>::type geq(const T& x,
+			const T& y) const {
+		return x >= y;
 	}
 
 	//! Compare if x is GEQ to y for floating point types, using the given
@@ -151,10 +145,9 @@ public:
 	 * \pre x and y are of floating point type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-		geq(const T &x, const T &y) const
-	{
-			return x > (y - eps);
+	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type geq(const T& x,
+			const T& y) const {
+		return x > (y - eps);
 	}
 
 	// GREATER: integral and floating_point
@@ -165,10 +158,9 @@ public:
 	 * \pre x and y are of integral type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
-		greater(const T &x, const T &y) const
-	{
-			return x > y;
+	inline typename std::enable_if<std::is_integral<T>::value, bool>::type greater(const T& x,
+			const T& y) const {
+		return x > y;
 	}
 
 	//! Compare if x is GREATER than y for floating point types, using the given
@@ -179,10 +171,9 @@ public:
 	 * \pre x and y are of floating point type
 	 */
 	template<typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-		greater(const T &x, const T &y) const
-	{
-			return x > (y + eps);
+	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type greater(const T& x,
+			const T& y) const {
+		return x > (y + eps);
 	}
 };
 

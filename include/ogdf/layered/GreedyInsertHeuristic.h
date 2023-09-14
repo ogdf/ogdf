@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/layered/LayerByLayerSweep.h>
-#include <ogdf/layered/CrossingsMatrix.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
 
@@ -41,32 +41,28 @@ namespace ogdf {
 /**
  * @ingroup gd-layered-crossmin
  */
-class OGDF_EXPORT GreedyInsertHeuristic : public LayerByLayerSweep
-{
+class OGDF_EXPORT GreedyInsertHeuristic : public LayerByLayerSweep {
 public:
 	//! Creates a new instance of the greedy-insert heuristic.
 	GreedyInsertHeuristic() { }
 
 	//! Creates a new instance of the greedy-insert heuristic.
-	GreedyInsertHeuristic(const GreedyInsertHeuristic &crossMin) { }
+	GreedyInsertHeuristic(const GreedyInsertHeuristic& crossMin) { }
 
 	//! Returns a new instance of the greed-insert heuristic with the same option settings.
-	virtual LayerByLayerSweep *clone() const override
-	{
-		return new GreedyInsertHeuristic(*this);
-	}
+	virtual LayerByLayerSweep* clone() const override { return new GreedyInsertHeuristic(*this); }
 
 	//! Initializes weights and crossing minimization for hierarchy \a H.
-	virtual void init (const HierarchyLevels &levels) override;
+	virtual void init(const HierarchyLevels& levels) override;
 
 	//! Calls the greedy insert heuristic for level \p L.
-	virtual void call (Level &L) override;
+	virtual void call(Level& L) override;
 
 	//! Does some clean-up after calls.
-	virtual void cleanup () override;
+	virtual void cleanup() override;
 
 private:
-	CrossingsMatrix *m_crossingMatrix;
+	CrossingsMatrix* m_crossingMatrix;
 	NodeArray<double> m_weight;
 };
 

@@ -35,11 +35,8 @@
 namespace ogdf {
 
 
-void BasicPageRank::call(
-	const Graph& graph,
-	const EdgeArray<double>& edgeWeight,
-	NodeArray<double>& pageRankResult)
-{
+void BasicPageRank::call(const Graph& graph, const EdgeArray<double>& edgeWeight,
+		NodeArray<double>& pageRankResult) {
 	const double initialPageRank = 1.0 / (double)graph.numberOfNodes();
 	const double maxPageRankDeltaBound = initialPageRank * m_threshold;
 
@@ -52,11 +49,9 @@ void BasicPageRank::call(
 
 	NodeArray<double> nodeNorm(graph);
 
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		double sum = 0.0;
-		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ())
-		{
+		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
 			edge e = adj->theEdge();
 			sum += edgeWeight[e];
 		}
@@ -69,13 +64,11 @@ void BasicPageRank::call(
 	int numIterations = 0;
 	bool converged = false;
 	// check conditions
-	while ( !converged && (numIterations < m_maxNumIterations) )
-	{
+	while (!converged && (numIterations < m_maxNumIterations)) {
 		// init the result of this iteration
 		pNextPageRank->init(graph, (1.0 - m_dampingFactor) / (double)graph.numberOfNodes());
 		// calculate the transfer between each node
-		for (edge e = graph.firstEdge(); e; e = e->succ())
-		{
+		for (edge e = graph.firstEdge(); e; e = e->succ()) {
 			node v = e->source();
 			node w = e->target();
 
@@ -87,8 +80,7 @@ void BasicPageRank::call(
 
 		// damping and calculating change
 		double maxPageRankDelta = 0.0;
-		for (node v = graph.firstNode(); v; v = v->succ())
-		{
+		for (node v = graph.firstNode(); v; v = v->succ()) {
 			(*pNextPageRank)[v] *= m_dampingFactor;
 			double pageRankDelta = fabs((*pNextPageRank)[v] - (*pCurrPageRank)[v]);
 			maxPageRankDelta = std::max(maxPageRankDelta, pageRankDelta);
@@ -105,16 +97,14 @@ void BasicPageRank::call(
 	// normalization
 	double maxPageRank = (*pCurrPageRank)[graph.firstNode()];
 	double minPageRank = (*pCurrPageRank)[graph.firstNode()];
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		maxPageRank = std::max(maxPageRank, (*pCurrPageRank)[v]);
 		minPageRank = std::min(minPageRank, (*pCurrPageRank)[v]);
 	}
 
 	// init result
 	pageRankResult.init(graph);
-	for (node v = graph.firstNode(); v; v = v->succ())
-	{
+	for (node v = graph.firstNode(); v; v = v->succ()) {
 		double r = ((*pCurrPageRank)[v] - minPageRank) / (maxPageRank - minPageRank);
 		pageRankResult[v] = r;
 	}

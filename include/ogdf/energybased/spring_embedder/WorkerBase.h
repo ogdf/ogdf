@@ -31,11 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Barrier.h>
-#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 
 namespace ogdf {
 namespace spring_embedder {
@@ -44,8 +44,14 @@ namespace spring_embedder {
 template<class Master, class NodeInfo>
 class WorkerBase {
 public:
-	WorkerBase(unsigned int id, Master &master, int vStartIndex, int vStopIndex, node vStart, node vStop)
-			: m_id(id), m_master(master), m_vStartIndex(vStartIndex), m_vStopIndex(vStopIndex), m_vStart(vStart), m_vStop(vStop) { }
+	WorkerBase(unsigned int id, Master& master, int vStartIndex, int vStopIndex, node vStart,
+			node vStop)
+		: m_id(id)
+		, m_master(master)
+		, m_vStartIndex(vStartIndex)
+		, m_vStopIndex(vStopIndex)
+		, m_vStart(vStart)
+		, m_vStop(vStop) { }
 
 	virtual ~WorkerBase() = default;
 
@@ -53,7 +59,7 @@ public:
 
 protected:
 	unsigned int m_id;
-	Master &m_master;
+	Master& m_master;
 
 	int m_vStartIndex;
 	int m_vStopIndex;
@@ -71,28 +77,31 @@ protected:
 	double m_maxForce;
 	double m_sumLengths;
 
-	void finalScaling(Array<NodeInfo> &vInfo, const Array<int> &adjLists) {
+	void finalScaling(Array<NodeInfo>& vInfo, const Array<int>& adjLists) {
 		m_sumLengths = sumUpLengths(vInfo, adjLists);
 
 		m_master.syncThreads();
 
-		if(m_id == 0)
+		if (m_id == 0) {
 			m_master.scaleLayout(m_sumLengths);
+		}
 
 		m_master.syncThreads();
 
 		double s = m_master.scaleFactor();
 
-		const GraphCopy &gc = m_master.getGraph();
-		GraphAttributes &ga = m_master.getAttributes();
+		const GraphCopy& gc = m_master.getGraph();
+		GraphAttributes& ga = m_master.getAttributes();
 
-		double xmin = std::numeric_limits<double>::max(), xmax = std::numeric_limits<double>::lowest();
-		double ymin = std::numeric_limits<double>::max(), ymax = std::numeric_limits<double>::lowest();
+		double xmin = std::numeric_limits<double>::max(),
+			   xmax = std::numeric_limits<double>::lowest();
+		double ymin = std::numeric_limits<double>::max(),
+			   ymax = std::numeric_limits<double>::lowest();
 
 		node v = m_vStart;
-		for(int j = m_vStartIndex; j < m_vStopIndex; ++j) {
+		for (int j = m_vStartIndex; j < m_vStopIndex; ++j) {
 			node vOrig = gc.original(v);
-			NodeInfo &vj = vInfo[j];
+			NodeInfo& vj = vInfo[j];
 
 			double xv = s * vj.m_pos.m_x;
 			double yv = s * vj.m_pos.m_y;
@@ -102,45 +111,50 @@ protected:
 			double wv = ga.width(vOrig);
 			double hv = ga.height(vOrig);
 
-			Math::updateMin(xmin, xv-0.5*wv);
-			Math::updateMax(xmax, xv+0.5*wv);
-			Math::updateMin(ymin, yv-0.5*hv);
-			Math::updateMax(ymax, yv+0.5*hv);
+			Math::updateMin(xmin, xv - 0.5 * wv);
+			Math::updateMax(xmax, xv + 0.5 * wv);
+			Math::updateMin(ymin, yv - 0.5 * hv);
+			Math::updateMax(ymax, yv + 0.5 * hv);
 		}
 
-		m_xmin = xmin; m_xmax = xmax;
-		m_ymin = ymin; m_ymax = ymax;
+		m_xmin = xmin;
+		m_xmax = xmax;
+		m_ymin = ymin;
+		m_ymax = ymax;
 
 		m_master.syncThreads();
 	}
 
-	void scaling(Array<NodeInfo> &vInfo, const Array<int> &adjLists) {
+	void scaling(Array<NodeInfo>& vInfo, const Array<int>& adjLists) {
 		m_sumLengths = sumUpLengths(vInfo, adjLists);
 
 		m_master.syncThreads();
 
-		if(m_id == 0)
+		if (m_id == 0) {
 			m_master.scaleLayout(m_sumLengths);
+		}
 
 		m_master.syncThreads();
 
 		double s = m_master.scaleFactor();
-		for(int j = m_vStartIndex; j < m_vStopIndex; ++j)
+		for (int j = m_vStartIndex; j < m_vStopIndex; ++j) {
 			vInfo[j].m_pos *= s;
+		}
 
-		if(m_id == 0)
+		if (m_id == 0) {
 			m_master.initImprovementPhase();
+		}
 
 		m_master.syncThreads();
 	}
 
-	double sumUpLengths(Array<NodeInfo> &vInfo, const Array<int> &adjLists) {
+	double sumUpLengths(Array<NodeInfo>& vInfo, const Array<int>& adjLists) {
 		double sumLengths = 0.0;
-		for(int j = m_vStartIndex; j < m_vStopIndex; ++j) {
-			const NodeInfo &vj = vInfo[j];
-			for(int k = vj.m_adjBegin; k != vj.m_adjStop; ++k) {
+		for (int j = m_vStartIndex; j < m_vStopIndex; ++j) {
+			const NodeInfo& vj = vInfo[j];
+			for (int k = vj.m_adjBegin; k != vj.m_adjStop; ++k) {
 				int u = adjLists[k];
-				if(u < j) {
+				if (u < j) {
 					DPoint dist = vj.m_pos - vInfo[u].m_pos;
 					sumLengths += dist.norm();
 				}

@@ -32,12 +32,10 @@
 
 #include <ogdf/decomposition/DynamicBCTree.h>
 
-
 namespace ogdf {
 
 
-void DynamicBCTree::init ()
-{
+void DynamicBCTree::init() {
 	m_bNode_owner.init(m_B);
 	m_bNode_degree.init(m_B);
 	for (node vB : m_B.nodes) {
@@ -46,12 +44,10 @@ void DynamicBCTree::init ()
 	}
 }
 
-
-node DynamicBCTree::unite (node uB, node vB, node wB)
-{
-	node uH = cutVertex(vB,uB);
-	node vH = cutVertex(vB,vB);
-	node wH = cutVertex(vB,wB);
+node DynamicBCTree::unite(node uB, node vB, node wB) {
+	node uH = cutVertex(vB, uB);
+	node vH = cutVertex(vB, vB);
+	node wH = cutVertex(vB, wB);
 
 	node mH, sH;
 	if (uH->degree() >= wH->degree()) {
@@ -85,17 +81,14 @@ node DynamicBCTree::unite (node uB, node vB, node wB)
 		m_bNode_hParNode[vB] = mH;
 		m_bNode_hRefNode[mB] = m_bNode_hRefNode[uB];
 		m_bNode_hParNode[mB] = m_bNode_hParNode[uB];
-	}
-	else if (m_bNode_hParNode[vB] == wH) {
+	} else if (m_bNode_hParNode[vB] == wH) {
 		m_bNode_hParNode[vB] = mH;
 		m_bNode_hRefNode[mB] = m_bNode_hRefNode[wB];
 		m_bNode_hParNode[mB] = m_bNode_hParNode[wB];
-	}
-	else if (m_bNode_degree[vB] == 2) {
+	} else if (m_bNode_degree[vB] == 2) {
 		m_bNode_hRefNode[mB] = nullptr;
 		m_bNode_hParNode[mB] = nullptr;
-	}
-	else {
+	} else {
 		m_bNode_hRefNode[mB] = mH;
 		m_bNode_hParNode[mB] = vH;
 	}
@@ -104,9 +97,9 @@ node DynamicBCTree::unite (node uB, node vB, node wB)
 	while (aH) {
 		adjEntry bH = aH->succ();
 		if (aH->theEdge()->source() == sH) {
-			m_H.moveSource(aH->theEdge(),mH);
+			m_H.moveSource(aH->theEdge(), mH);
 		} else {
-			m_H.moveTarget(aH->theEdge(),mH);
+			m_H.moveTarget(aH->theEdge(), mH);
 		}
 		aH = bH;
 	}
@@ -134,63 +127,67 @@ node DynamicBCTree::unite (node uB, node vB, node wB)
 	return mB;
 }
 
-
-node DynamicBCTree::find (node vB) const
-{
-	if (!vB) return nullptr;
-	if (m_bNode_owner[vB]==vB) return vB;
+node DynamicBCTree::find(node vB) const {
+	if (!vB) {
+		return nullptr;
+	}
+	if (m_bNode_owner[vB] == vB) {
+		return vB;
+	}
 	return m_bNode_owner[vB] = find(m_bNode_owner[vB]);
 }
 
-
-node DynamicBCTree::bcproper (node vG) const
-{
-	if (!vG) return nullptr;
+node DynamicBCTree::bcproper(node vG) const {
+	if (!vG) {
+		return nullptr;
+	}
 	node vH = m_gNode_hNode[vG];
 	return m_hNode_bNode[vH] = find(m_hNode_bNode[vH]);
 }
 
-
-node DynamicBCTree::bcproper (edge eG) const
-{
-	if (!eG) return nullptr;
+node DynamicBCTree::bcproper(edge eG) const {
+	if (!eG) {
+		return nullptr;
+	}
 	edge eH = m_gEdge_hEdge[eG];
 	return m_hEdge_bNode[eH] = find(m_hEdge_bNode[eH]);
 }
 
-
-node DynamicBCTree::parent (node vB) const
-{
-	if (!vB) return nullptr;
+node DynamicBCTree::parent(node vB) const {
+	if (!vB) {
+		return nullptr;
+	}
 	node vH = m_bNode_hParNode[vB];
-	if (!vH) return nullptr;
+	if (!vH) {
+		return nullptr;
+	}
 	return m_hNode_bNode[vH] = find(m_hNode_bNode[vH]);
 }
 
-
-node DynamicBCTree::condensePath (node sG, node tG)
-{
-	SList<node>& pB = findPath(sG,tG);
+node DynamicBCTree::condensePath(node sG, node tG) {
+	SList<node>& pB = findPath(sG, tG);
 	SListConstIterator<node> iB = pB.begin();
 	node uB = *iB++;
 	if (iB.valid()) {
-		if (m_bNode_type[uB]==BNodeType::CComp) uB = *iB++;
+		if (m_bNode_type[uB] == BNodeType::CComp) {
+			uB = *iB++;
+		}
 		while (iB.valid()) {
 			node vB = *iB++;
-			if (!iB.valid()) break;
+			if (!iB.valid()) {
+				break;
+			}
 			node wB = *iB++;
-			uB = unite(uB,vB,wB);
+			uB = unite(uB, vB, wB);
 		}
 	}
 	delete &pB;
 	return uB;
 }
 
-
-edge DynamicBCTree::updateInsertedEdge (edge eG)
-{
-	node vB = condensePath(eG->source(),eG->target());
-	edge eH = m_H.newEdge(repVertex(eG->source(),vB),repVertex(eG->target(),vB));
+edge DynamicBCTree::updateInsertedEdge(edge eG) {
+	node vB = condensePath(eG->source(), eG->target());
+	edge eH = m_H.newEdge(repVertex(eG->source(), vB), repVertex(eG->target(), vB));
 	m_bNode_hEdges[vB].pushBack(eH);
 	m_hEdge_bNode[eH] = vB;
 	m_hEdge_gEdge[eH] = eG;
@@ -198,14 +195,12 @@ edge DynamicBCTree::updateInsertedEdge (edge eG)
 	return eG;
 }
 
-
-node DynamicBCTree::updateInsertedNode (edge eG, edge fG)
-{
+node DynamicBCTree::updateInsertedNode(edge eG, edge fG) {
 	node eB = bcproper(eG);
 	node uG = fG->source();
 	m_gNode_isMarked[uG] = false;
 
-	if (numberOfEdges(eB)==1) {
+	if (numberOfEdges(eB) == 1) {
 		node tG = fG->target();
 		node sH = m_gEdge_hEdge[eG]->target();
 		m_hNode_gNode[sH] = uG;
@@ -225,7 +220,7 @@ node DynamicBCTree::updateInsertedNode (edge eG, edge fG)
 		node fB = m_B.newNode();
 		node vH = m_H.newNode();
 		node wH = m_H.newNode();
-		edge fH = m_H.newEdge(vH,wH);
+		edge fH = m_H.newEdge(vH, wH);
 		m_bNode_type[fB] = BNodeType::BComp;
 		m_bNode_owner[fB] = fB;
 		m_bNode_numNodes[fB] = 2;
@@ -241,21 +236,19 @@ node DynamicBCTree::updateInsertedNode (edge eG, edge fG)
 		m_gEdge_hEdge[fG] = fH;
 
 		node tH = m_gNode_hNode[tG];
-		if (m_bNode_hParNode[eB]==tH) {
+		if (m_bNode_hParNode[eB] == tH) {
 			m_bNode_hParNode[eB] = uH;
 			m_bNode_hParNode[uB] = vH;
 			m_bNode_hRefNode[fB] = wH;
 			m_bNode_hParNode[fB] = tH;
-		}
-		else {
+		} else {
 			node tB = bcproper(tG);
 			m_bNode_hParNode[tB] = wH;
 			m_bNode_hRefNode[fB] = vH;
 			m_bNode_hParNode[fB] = uH;
 			m_bNode_hParNode[uB] = sH;
 		}
-	}
-	else {
+	} else {
 		edge fH = m_H.split(m_gEdge_hEdge[eG]);
 		m_bNode_hEdges[eB].pushBack(fH);
 		m_hEdge_bNode[fH] = eB;
@@ -270,31 +263,46 @@ node DynamicBCTree::updateInsertedNode (edge eG, edge fG)
 	return uG;
 }
 
-
-node DynamicBCTree::bComponent (node uG, node vG) const
-{
+node DynamicBCTree::bComponent(node uG, node vG) const {
 	node uB = this->bcproper(uG);
 	node vB = this->bcproper(vG);
-	if (uB==vB) return uB;
-	if (typeOfBNode(uB)==BNodeType::BComp) {
-		if (typeOfBNode(vB)==BNodeType::BComp) return nullptr;
-		if (this->parent(uB)==vB) return uB;
-		if (this->parent(vB)==uB) return uB;
+	if (uB == vB) {
+		return uB;
+	}
+	if (typeOfBNode(uB) == BNodeType::BComp) {
+		if (typeOfBNode(vB) == BNodeType::BComp) {
+			return nullptr;
+		}
+		if (this->parent(uB) == vB) {
+			return uB;
+		}
+		if (this->parent(vB) == uB) {
+			return uB;
+		}
 		return nullptr;
 	}
-	if (typeOfBNode(vB)==BNodeType::BComp) {
-		if (this->parent(uB)==vB) return vB;
-		if (this->parent(vB)==uB) return vB;
+	if (typeOfBNode(vB) == BNodeType::BComp) {
+		if (this->parent(uB) == vB) {
+			return vB;
+		}
+		if (this->parent(vB) == uB) {
+			return vB;
+		}
 		return nullptr;
 	}
 	node pB = this->parent(uB);
 	node qB = this->parent(vB);
-	if (pB==qB) return pB;
-	if (this->parent(pB)==vB) return pB;
-	if (this->parent(qB)==uB) return qB;
+	if (pB == qB) {
+		return pB;
+	}
+	if (this->parent(pB) == vB) {
+		return pB;
+	}
+	if (this->parent(qB) == uB) {
+		return qB;
+	}
 	return nullptr;
 }
-
 
 
 }

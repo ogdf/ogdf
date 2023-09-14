@@ -33,83 +33,84 @@
 
 namespace ogdf {
 
-bool MixedModelBase::hasLeft (int k) const
-{
-	const ShellingOrderSet &V = m_mmo[k];
-	const List<InOutPoint> &L = m_iops.inpoints(V[1]);
+bool MixedModelBase::hasLeft(int k) const {
+	const ShellingOrderSet& V = m_mmo[k];
+	const List<InOutPoint>& L = m_iops.inpoints(V[1]);
 
 	ListConstIterator<InOutPoint> it = L.begin();
 	return it.valid() && (*it).m_adj->twinNode() == m_mmo.m_left[k];
 }
 
-bool MixedModelBase::hasRight(int k) const
-{
-	const ShellingOrderSet &V = m_mmo[k];
-	const List<InOutPoint> &L = m_iops.inpoints(V[V.len()]);
+bool MixedModelBase::hasRight(int k) const {
+	const ShellingOrderSet& V = m_mmo[k];
+	const List<InOutPoint>& L = m_iops.inpoints(V[V.len()]);
 
 	ListConstIterator<InOutPoint> it = L.rbegin();
 	return it.valid() && (*it).m_adj->twinNode() == m_mmo.m_right[k];
 }
 
-void MixedModelBase::computeOrder(
-	AugmentationModule &augmenter,
-	EmbedderModule *pEmbedder,
-	adjEntry adjExternal,
-	ShellingOrderModule &compOrder)
-{
+void MixedModelBase::computeOrder(AugmentationModule& augmenter, EmbedderModule* pEmbedder,
+		adjEntry adjExternal, ShellingOrderModule& compOrder) {
 	// remove (temporary) deg-1-nodes;
 	removeDeg1Nodes();
 
 	// augment PG (temporary) to achieve required connectivity
 	List<edge> augmentedEdges;
-	augmenter.call(m_PG,augmentedEdges);
+	augmenter.call(m_PG, augmentedEdges);
 
 	// embed augmented graph (if required)
-	if(pEmbedder)
-		pEmbedder->call(m_PG,adjExternal);
+	if (pEmbedder) {
+		pEmbedder->call(m_PG, adjExternal);
+	}
 
 	// compute ordering of biconnected plane graph
 	m_mmo.init(m_PG, compOrder, adjExternal);
 
 	// restore deg1-nodes and mark incident edges
-	m_iops.restoreDeg1Nodes(m_PG,m_deg1RestoreStack);
+	m_iops.restoreDeg1Nodes(m_PG, m_deg1RestoreStack);
 
 	// compute in- and outpoint lists
-	for (int k = 1; k <= m_mmo.length(); ++k)
-	{
-		const ShellingOrderSet &V = m_mmo[k];
-		for (int i = 1; i <= V.len(); ++i)
-		{
+	for (int k = 1; k <= m_mmo.length(); ++k) {
+		const ShellingOrderSet& V = m_mmo[k];
+		for (int i = 1; i <= V.len(); ++i) {
 			node v = V[i];
-			node cl = (i == 1)       ? V.left () : V[i-1];
-			node cr = (i == V.len()) ? V.right() : V[i+1];
+			node cl = (i == 1) ? V.left() : V[i - 1];
+			node cr = (i == V.len()) ? V.right() : V[i + 1];
 
 			//edge e, er = 0, el = 0;
 			adjEntry adjR = nullptr, adjL = nullptr;
-			for(adjEntry adj : v->adjEntries)
-			{
+			for (adjEntry adj : v->adjEntries) {
 				node t = adj->twinNode();
-				if (t == cr) adjR = adj;
-				if (t == cl) adjL = adj;
+				if (t == cr) {
+					adjR = adj;
+				}
+				if (t == cl) {
+					adjL = adj;
+				}
 			}
 			// one of adjL and adjR is not 0 by definition of the ordering
-			if (adjR == nullptr) adjR = adjL;
+			if (adjR == nullptr) {
+				adjR = adjL;
+			}
 			OGDF_ASSERT(adjR != nullptr);
 
 			adjEntry adj = adjR;
 			do {
-				if (exists(adj))
+				if (exists(adj)) {
 					m_iops.pushInpoint(adj);
+				}
 				adj = adj->cyclicSucc();
 			} while (m_iops.marked(adj) || (m_mmo.rank(adj->twinNode()) <= k && adj != adjR));
 
-			for ( ; m_iops.marked(adj) || m_mmo.rank(adj->twinNode()) > k; adj = adj->cyclicSucc())
-				if (exists(adj))
+			for (; m_iops.marked(adj) || m_mmo.rank(adj->twinNode()) > k; adj = adj->cyclicSucc()) {
+				if (exists(adj)) {
 					m_iops.appendOutpoint(adj);
+				}
+			}
 
 			// move In-/Outpoints to deg1-nodes to appropriate places
 			adjL = m_iops.switchBeginIn(v);
-			adjR = m_iops.switchEndIn  (v);
+			adjR = m_iops.switchEndIn(v);
 
 			// has a left- or right edge ?
 			bool has_el = (adjL != nullptr);
@@ -120,85 +121,99 @@ void MixedModelBase::computeOrder(
 			}
 
 			// determine left(k) and right(k)
-			if (i == 1)       m_mmo.m_left [k] = (has_el) ? adjL->twinNode() : cl;
-			if (i == V.len()) m_mmo.m_right[k] = (has_er) ? adjR->twinNode() : cr;
+			if (i == 1) {
+				m_mmo.m_left[k] = (has_el) ? adjL->twinNode() : cl;
+			}
+			if (i == V.len()) {
+				m_mmo.m_right[k] = (has_er) ? adjR->twinNode() : cr;
+			}
 
 			int xl, xr;
-			m_iops.numDeg1(v,xl,xr,has_el || has_er);
+			m_iops.numDeg1(v, xl, xr, has_el || has_er);
 
 			int x = 0;
-			if (!has_el) x += xl;
-			if (!has_er) x += xr;
+			if (!has_el) {
+				x += xl;
+			}
+			if (!has_er) {
+				x += xr;
+			}
 
-			int x_alpha = max(0,min(x, (m_iops.in(v)-m_iops.out(v)+1+2*x-2)/2));
+			int x_alpha = max(0, min(x, (m_iops.in(v)-m_iops.out(v) + 1 + 2 * x - 2) / 2));
 			int x_beta = x - x_alpha;
 
-			if (!has_el)
-				for( ; x_beta > 0 && xl > 0; --x_beta, --xl)
+			if (!has_el) {
+				for (; x_beta > 0 && xl > 0; --x_beta, --xl) {
 					m_iops.switchBeginOut(v);
-			if (!has_er)
-				for( ; x_beta > 0 && xr > 0; --x_beta, --xr)
+				}
+			}
+			if (!has_er) {
+				for (; x_beta > 0 && xr > 0; --x_beta, --xr) {
 					m_iops.switchEndOut(v);
+				}
+			}
 		}
 	}
 
 	// remove augmented edges
-	for(edge e : augmentedEdges)
+	for (edge e : augmentedEdges) {
 		m_PG.delEdge(e);
+	}
 }
 
-void MixedModelBase::removeDeg1Nodes()
-{
+void MixedModelBase::removeDeg1Nodes() {
 	NodeArray<bool> mark(m_PG, false);
 
 	// mark all deg-1-nodes we want to remove
 	int n = m_PG.numberOfNodes();
 	for (node v : m_PG.nodes) {
-		if (n <= 3) break;
+		if (n <= 3) {
+			break;
+		}
 		if ((mark[v] = (v->degree() == 1))) {
 			node w = v->firstAdj()->twinNode();
-			if (mark[w]) mark[w] = false; else --n;
+			if (mark[w]) {
+				mark[w] = false;
+			} else {
+				--n;
+			}
 		}
 	}
 
 	m_PG.removeDeg1Nodes(m_deg1RestoreStack, mark);
 }
 
-void MixedModelBase::assignIopCoords()
-{
-	for (int k = 1; k <= m_mmo.length(); ++k)
-	{
-		const ShellingOrderSet &V = m_mmo[k];
+void MixedModelBase::assignIopCoords() {
+	for (int k = 1; k <= m_mmo.length(); ++k) {
+		const ShellingOrderSet& V = m_mmo[k];
 
-		for (int i = 1; i <= V.len(); ++i)
-		{
+		for (int i = 1; i <= V.len(); ++i) {
 			node v = V[i];
 
-			bool onlyLeft = (m_iops.in(v) == 2 &&
-				i >= 2 && m_iops.inpoints(v).front().m_adj->twinNode() == V[i-1] &&
-					m_iops.marked(m_iops.inpoints(v).back().m_adj));
-			bool onlyRight = (m_iops.in(v) == 2 &&
-				i < V.len() && m_iops.inpoints(v).back().m_adj->twinNode() == V[i+1] &&
-					m_iops.marked(m_iops.inpoints(v).front().m_adj));
+			bool onlyLeft = (m_iops.in(v) == 2 && i >= 2
+					&& m_iops.inpoints(v).front().m_adj->twinNode() == V[i - 1]
+					&& m_iops.marked(m_iops.inpoints(v).back().m_adj));
+			bool onlyRight = (m_iops.in(v) == 2 && i < V.len()
+					&& m_iops.inpoints(v).back().m_adj->twinNode() == V[i + 1]
+					&& m_iops.marked(m_iops.inpoints(v).front().m_adj));
 
-			if (m_iops.out(v) >= 1)
-			{
+			if (m_iops.out(v) >= 1) {
 				int outL = 0, outR = 0;
 
-				int outPlus  = m_iops.out(v)/2;
+				int outPlus = m_iops.out(v) / 2;
 				int outMinus = m_iops.out(v) - 1 - outPlus;
 				int deltaL = 0, deltaR = 0;
 				outL = outMinus;
 
 				if (m_iops.in(v) == 2) {
 					deltaL = (onlyRight) ? 0 : 1;
-					deltaR = (onlyLeft)  ? 0 : 1;
+					deltaR = (onlyLeft) ? 0 : 1;
 
 				} else if (m_iops.in(v) >= 3) {
 					deltaL = deltaR = 1;
 
 				} else if (m_iops.in(v) == 1) {
-					node vl = (i == 1) ? m_mmo.m_left[k] : V[i-1];
+					node vl = (i == 1) ? m_mmo.m_left[k] : V[i - 1];
 					if (m_iops.inpoints(v).front().m_adj->twinNode() != vl) {
 						outL = outPlus;
 						deltaR = 1;
@@ -210,38 +225,39 @@ void MixedModelBase::assignIopCoords()
 
 				outR = m_iops.out(v) - 1 - outL;
 
-				List<InOutPoint> &opl = m_iops.outpoints(v);
+				List<InOutPoint>& opl = m_iops.outpoints(v);
 				int j;
 				ListIterator<InOutPoint> it = opl.begin();
-				for (j = 0; j < outL; j++, ++it)
-					m_iops.setOutCoord(it,-outL+j,deltaL+j);
-				m_iops.m_height[v] = max(outL+deltaL,outR+deltaR)-1;
-				if (m_iops.m_height[v] == 0 && m_iops.marked((*it).m_adj))
+				for (j = 0; j < outL; j++, ++it) {
+					m_iops.setOutCoord(it, -outL + j, deltaL + j);
+				}
+				m_iops.m_height[v] = max(outL + deltaL, outR + deltaR) - 1;
+				if (m_iops.m_height[v] == 0 && m_iops.marked((*it).m_adj)) {
 					m_iops.m_height[v] = 1;
-				m_iops.setOutCoord(it,0,m_iops.m_height[v]);
-				for (j = 1, ++it; j <= outR; j++, ++it)
-					m_iops.setOutCoord(it,j,outR+deltaR-j);
+				}
+				m_iops.setOutCoord(it, 0, m_iops.m_height[v]);
+				for (j = 1, ++it; j <= outR; j++, ++it) {
+					m_iops.setOutCoord(it, j, outR + deltaR - j);
+				}
 			}
 
-			if (m_iops.in(v) <= 3)
-			{
-				List<InOutPoint> &ipl = m_iops.inpoints(v);
+			if (m_iops.in(v) <= 3) {
+				List<InOutPoint>& ipl = m_iops.inpoints(v);
 				int in_v = m_iops.in(v);
 
-				if ((in_v == 3 || (in_v == 2 && !onlyRight))
-				 && m_iops.marked(ipl.front().m_adj)) {
+				if ((in_v == 3 || (in_v == 2 && !onlyRight)) && m_iops.marked(ipl.front().m_adj)) {
 					m_iops.setInCoord(ipl.begin(), -1, 0);
 				}
-				if ((in_v == 3 || (in_v == 2 && !onlyLeft))
-				 && m_iops.marked(ipl.back().m_adj)) {
+				if ((in_v == 3 || (in_v == 2 && !onlyLeft)) && m_iops.marked(ipl.back().m_adj)) {
 					m_iops.setInCoord(ipl.rbegin(), 1, 0);
 				}
 				if (in_v != 0 && (in_v != 2 || onlyLeft || onlyRight)) {
 					ListIterator<InOutPoint> it = ipl.begin();
-					if (in_v == 3 || (in_v == 2 && onlyLeft))
+					if (in_v == 3 || (in_v == 2 && onlyLeft)) {
 						++it;
+					}
 					if (m_iops.marked((*it).m_adj)) {
-						m_iops.setInCoord(it,0,-1);
+						m_iops.setInCoord(it, 0, -1);
 						m_iops.m_depth[v] = 1;
 					}
 				}
@@ -251,159 +267,169 @@ void MixedModelBase::assignIopCoords()
 				int in_r = m_iops.in(v)-3 - in_l;
 
 				int j;
-				List<InOutPoint> &ipl = m_iops.inpoints(v);
+				List<InOutPoint>& ipl = m_iops.inpoints(v);
 				ListIterator<InOutPoint> it = ipl.begin();
-				m_iops.setInCoord(it,(in_l == 0 && m_iops.marked((*it).m_adj)) ? -1 : -in_l,0);
-				for (j = 1, ++it; j <= in_l; ++j, ++it)
-					m_iops.setInCoord(it,j-in_l-1,-j);
-				m_iops.setInCoord(it,0,-in_r);
-				m_iops.m_depth[v] = in_r;  // inpoint with smallest y-coordinate
-				for (j = 1, ++it; j <= in_r; ++j, ++it)
-					m_iops.setInCoord(it,j,j-in_r-1);
-				m_iops.setInCoord(it,in_r,0);
+				m_iops.setInCoord(it, (in_l == 0 && m_iops.marked((*it).m_adj)) ? -1 : -in_l, 0);
+				for (j = 1, ++it; j <= in_l; ++j, ++it) {
+					m_iops.setInCoord(it, j - in_l - 1, -j);
+				}
+				m_iops.setInCoord(it, 0, -in_r);
+				m_iops.m_depth[v] = in_r; // inpoint with smallest y-coordinate
+				for (j = 1, ++it; j <= in_r; ++j, ++it) {
+					m_iops.setInCoord(it, j, j - in_r - 1);
+				}
+				m_iops.setInCoord(it, in_r, 0);
 			}
 		}
 	}
 }
 
+void MixedModelBase::placeNodes() {
+	m_dyl.init(2, m_mmo.length());
+	m_dyr.init(2, m_mmo.length());
 
-void MixedModelBase::placeNodes()
-{
-	m_dyl.init(2,m_mmo.length());
-	m_dyr.init(2,m_mmo.length());
+	m_leftOp.init(2, m_mmo.length());
+	m_rightOp.init(2, m_mmo.length());
 
-	m_leftOp .init(2,m_mmo.length());
-	m_rightOp.init(2,m_mmo.length());
-
-	m_nextLeft .init(m_PG);
+	m_nextLeft.init(m_PG);
 	m_nextRight.init(m_PG);
-	m_dxla.init(m_PG,0);
-	m_dxra.init(m_PG,0);
+	m_dxla.init(m_PG, 0);
+	m_dxra.init(m_PG, 0);
 
 	computeXCoords();
 	computeYCoords();
 }
 
-
-void MixedModelBase::computeXCoords()
-{
-	NodeArray<int> &x = m_gridLayout.x();
+void MixedModelBase::computeXCoords() {
+	NodeArray<int>& x = m_gridLayout.x();
 
 	// representation of the contour
 	NodeArray<node> prev(m_PG), next(m_PG);
 	NodeArray<node> father(m_PG, nullptr);
 
 	// maintaining of free space for shifting
-	Array<int> shiftSpace(1,m_mmo.length(), 0);
-	NodeArray<int> comp(m_PG,0);
+	Array<int> shiftSpace(1, m_mmo.length(), 0);
+	NodeArray<int> comp(m_PG, 0);
 
-	for(node v : m_PG.nodes) {
-		m_nextLeft [v] = m_iops.firstRealOut(v);
-		m_nextRight[v] = m_iops.lastRealOut (v);
+	for (node v : m_PG.nodes) {
+		m_nextLeft[v] = m_iops.firstRealOut(v);
+		m_nextRight[v] = m_iops.lastRealOut(v);
 	}
 
 	// last_right[v] = last vertex of highest set with right vertex v
-	NodeArray<node> lastRight(m_PG,nullptr);
-	for(int k = 2; k <= m_mmo.length(); ++k) {
-		const ShellingOrderSet &V = m_mmo[k];
+	NodeArray<node> lastRight(m_PG, nullptr);
+	for (int k = 2; k <= m_mmo.length(); ++k) {
+		const ShellingOrderSet& V = m_mmo[k];
 		lastRight[m_mmo.m_right[k]] = V[V.len()];
 	}
 
-	NodeArray<int> high(m_PG,0);
-	for(node v : m_PG.nodes) {
-		for(const InOutPoint &op : m_iops.outpoints(v)) {
-			if (!m_iops.marked(op.m_adj))
+	NodeArray<int> high(m_PG, 0);
+	for (node v : m_PG.nodes) {
+		for (const InOutPoint& op : m_iops.outpoints(v)) {
+			if (!m_iops.marked(op.m_adj)) {
 				high[v] = max(m_mmo.rank(op.m_adj->twinNode()), high[v]);
+			}
 		}
 	}
 
 	// initialization
-	const ShellingOrderSet &V1 = m_mmo[1];
+	const ShellingOrderSet& V1 = m_mmo[1];
 	int p = V1.len();
 
 	x[V1[1]] = m_iops.outLeft(V1[1]);
 	for (int i = 2; i <= p; i++) {
-		x[V1[i]] = m_iops.maxRight(V1[i-1]) + m_iops.maxLeft(V1[i]) + 1;
+		x[V1[i]] = m_iops.maxRight(V1[i - 1]) + m_iops.maxLeft(V1[i]) + 1;
 	}
 
 	for (int i = 1; i <= p; i++) {
-		if (i < p) next[V1[i]] = V1[i+1];
-		if (i > 1) prev[V1[i]] = V1[i-1];
+		if (i < p) {
+			next[V1[i]] = V1[i + 1];
+		}
+		if (i > 1) {
+			prev[V1[i]] = V1[i - 1];
+		}
 	}
-	prev [V1[1]] = next [V1[p]] = nullptr;
+	prev[V1[1]] = next[V1[p]] = nullptr;
 
 	// main loop
-	for(int k = 2; k <= m_mmo.length(); ++k)
-	{
+	for (int k = 2; k <= m_mmo.length(); ++k) {
 		// consider set Vk
-		const ShellingOrderSet &Vk = m_mmo[k];
+		const ShellingOrderSet& Vk = m_mmo[k];
 		p = Vk.len();
 		node z1 = Vk[1];
 		node cl = m_mmo.m_left[k];
 		node cr = m_mmo.m_right[k];
 
 		if (!hasLeft(k)) {
-			while(lastRight[cl] && high[cl] < k && !hasRight(m_mmo.rank(lastRight[cl])))
+			while (lastRight[cl] && high[cl] < k && !hasRight(m_mmo.rank(lastRight[cl]))) {
 				cl = m_mmo.m_left[k] = lastRight[cl];
+			}
 		}
 
 		// determine temporarily the x-coordinates of c_l+1,...,c_r relative to cl
 		int sum1 = 0;
 		for (node v = next[cl]; v != cr; v = next[v]) {
-			sum1 += x[v]; x[v] = sum1;
+			sum1 += x[v];
+			x[v] = sum1;
 		}
 		x[cr] += sum1;
 
-		m_leftOp [k] = m_nextRight[cl];
-		m_rightOp[k] = m_nextLeft [cr];
+		m_leftOp[k] = m_nextRight[cl];
+		m_rightOp[k] = m_nextLeft[cr];
 
 		// compute dxl, dxr, dyl, dyr
 		int dxl, dxr;
 		m_dyl[k] = m_dyr[k] = 0;
 
 		ListConstIterator<InOutPoint> it;
-		if ((it = m_nextRight[cl]).valid())  {
+		if ((it = m_nextRight[cl]).valid()) {
 			dxl = (*it).m_dx;
-			if ((*it).m_adj->twinNode() != z1)
+			if ((*it).m_adj->twinNode() != z1) {
 				dxl++;
-			else
+			} else {
 				m_nextRight[cl] = m_iops.prevRealOut(it);
+			}
 
-			if (dxl < 0)
+			if (dxl < 0) {
 				m_dyl[k] = m_iops.m_height[cl];
-			else if ((++it).valid())
+			} else if ((++it).valid()) {
 				m_dyl[k] = (*it).m_dy;
+			}
 		} else {
 			dxl = (m_iops.out(cl) == 0) ? 0 : -m_iops.outLeft(cl);
 		}
 		if ((it = m_nextLeft[cr]).valid()) {
 			dxr = (*it).m_dx;
-			if ((*it).m_adj->twinNode() != Vk[p])
+			if ((*it).m_adj->twinNode() != Vk[p]) {
 				dxr--;
-			else
+			} else {
 				m_nextLeft[cr] = m_iops.nextRealOut(it);
+			}
 
-			if (dxr > 0)
+			if (dxr > 0) {
 				m_dyr[k] = m_iops.m_height[cr];
-			else if ((it = it.pred()).valid())
+			} else if ((it = it.pred()).valid()) {
 				m_dyr[k] = (*it).m_dy;
+			}
 		} else {
 			dxr = (m_iops.out(cr) == 0) ? 0 : m_iops.outRight(cr);
 		}
 
-		m_dxla[Vk[1]] = dxl; m_dxra[Vk[p]] = dxr;
+		m_dxla[Vk[1]] = dxl;
+		m_dxra[Vk[p]] = dxr;
 
 		int old_x_cr;
 
 		// vertex case
-		if (!m_iops.isChain(z1))
-		{
+		if (!m_iops.isChain(z1)) {
 			InOutPoint ip_ct = m_iops.middleNeighbor(z1);
 			InOutPoint op_ct = *m_iops.pointOf(ip_ct.m_adj->twin());
 			node ct = ip_ct.m_adj->twinNode();
 
 			int delta = dxl + m_iops.maxPlusLeft(z1) + ip_ct.m_dx - (x[ct] + op_ct.m_dx);
-			if (delta < 0) delta = 0;
+			if (delta < 0) {
+				delta = 0;
+			}
 			x[ct] += delta;
 
 			int x_0 = x[ct] + op_ct.m_dx - ip_ct.m_dx;
@@ -422,8 +448,9 @@ void MixedModelBase::computeXCoords()
 				}
 			}
 
-			for (node v = next[cl]; v != next[ct]; v = next[v])
+			for (node v = next[cl]; v != next[ct]; v = next[v]) {
 				x[v] += sum;
+			}
 			x_0 += sum;
 
 			sum += delta;
@@ -447,15 +474,16 @@ void MixedModelBase::computeXCoords()
 			x[cr] = max(old_x_cr, m_iops.maxPlusRight(z1) - dxr);
 
 			for (node v = next[cl]; v != cr; v = next[v]) {
-				x[v]      = x[v] - x[z1];
+				x[v] = x[v] - x[z1];
 				father[v] = z1;
 			}
 
-		// chain case
+			// chain case
 		} else {
 			int sum = x[z1] = m_iops.maxPlusLeft(z1) + dxl;
-			for (int i = 2; i <= p; i++)
-				sum += (x[Vk[i]] = m_iops.maxRight(Vk[i-1]) + m_iops.maxLeft(Vk[i]) + 1);
+			for (int i = 2; i <= p; i++) {
+				sum += (x[Vk[i]] = m_iops.maxRight(Vk[i - 1]) + m_iops.maxLeft(Vk[i]) + 1);
+			}
 
 			old_x_cr = x[cr] - sum;
 			int new_x_cr = m_iops.maxPlusRight(Vk[p]) - dxr;
@@ -463,7 +491,7 @@ void MixedModelBase::computeXCoords()
 			shiftSpace[k] = max(0, old_x_cr - new_x_cr);
 
 			for (node v = next[cl]; v != cr; v = next[v]) {
-				x[v]      = x[v] - x[z1];
+				x[v] = x[v] - x[z1];
 				father[v] = z1;
 			}
 		}
@@ -479,24 +507,28 @@ void MixedModelBase::computeXCoords()
 
 		// update contour after insertion of z1,...,zp
 		for (int i = 1; i <= p; i++) {
-			if (i < p) next[Vk[i]] = Vk[i+1];
-			if (i > 1) prev[Vk[i]] = Vk[i-1];
+			if (i < p) {
+				next[Vk[i]] = Vk[i + 1];
+			}
+			if (i > 1) {
+				prev[Vk[i]] = Vk[i - 1];
+			}
 		}
 
-		next [prev [z1]    = cl] = z1;
-		prev [next [Vk[p]] = cr] = Vk[p];
-
+		next[prev[z1] = cl] = z1;
+		prev[next[Vk[p]] = cr] = Vk[p];
 	}
 
 	// compute final x-coordinates for nodes on final contour
 	int sum = 0;
-	for (node v = V1[1]; v != nullptr; v = next[v])
-		x [v] = (sum += x[v]);
+	for (node v = V1[1]; v != nullptr; v = next[v]) {
+		x[v] = (sum += x[v]);
+	}
 
 	// compute final x-coordinates for inner nodes
 	for (int k = m_mmo.length(); k >= 1; k--) {
 		for (int i = 1; i <= m_mmo.len(k); i++) {
-			node v = m_mmo(k,i);
+			node v = m_mmo(k, i);
 			if (father[v] != nullptr) {
 				x[v] = x[v] + x[father[v]] - comp[father[v]];
 			}
@@ -504,48 +536,37 @@ void MixedModelBase::computeXCoords()
 	}
 }
 
-
-class SetYCoords
-{
+class SetYCoords {
 public:
-	SetYCoords(const Graph &G, const IOPoints &iops, const MMOrder &mmo,
-		const NodeArray<int> &x, const NodeArray<int> &y) :
-		m_iops(iops), m_mmo(mmo), m_x(x) {
-	}
+	SetYCoords(const Graph& G, const IOPoints& iops, const MMOrder& mmo, const NodeArray<int>& x,
+			const NodeArray<int>& y)
+		: m_iops(iops), m_mmo(mmo), m_x(x) { }
 
 	void init(int k);
 
-	void checkYCoord (int xleft, int xright, int ys, bool nodeSep);
-	void checkYCoord (int xs, int ys, bool nodeSep ) {
-		checkYCoord (xs, xs, ys, nodeSep);
-	}
+	void checkYCoord(int xleft, int xright, int ys, bool nodeSep);
 
-	int getYmax() const {
-		return m_ymax;
-	}
+	void checkYCoord(int xs, int ys, bool nodeSep) { checkYCoord(xs, xs, ys, nodeSep); }
 
-	SetYCoords &operator=(const SetYCoords &) = delete;
+	int getYmax() const { return m_ymax; }
+
+	SetYCoords& operator=(const SetYCoords&) = delete;
 
 private:
 	void getNextRegion();
-	node z(int j) const {
-		return (*m_V)[j];
-	}
 
-	bool marked(adjEntry adj) const {
-		return m_iops.marked(adj);
-	}
+	node z(int j) const { return (*m_V)[j]; }
 
-	const InOutPoint &outpoint(const InOutPoint &ip) {
-		return *m_iops.pointOf(ip.m_adj->twin());
-	}
+	bool marked(adjEntry adj) const { return m_iops.marked(adj); }
+
+	const InOutPoint& outpoint(const InOutPoint& ip) { return *m_iops.pointOf(ip.m_adj->twin()); }
 
 	void searchNextInpoint();
 
-	const IOPoints         &m_iops;
-	const MMOrder          &m_mmo;
-	const NodeArray<int>   &m_x;
-	const ShellingOrderSet *m_V;
+	const IOPoints& m_iops;
+	const MMOrder& m_mmo;
+	const NodeArray<int>& m_x;
+	const ShellingOrderSet* m_V;
 
 	int m_k;
 	node m_cl, m_cr;
@@ -556,28 +577,31 @@ private:
 	bool m_onBase;
 };
 
-void SetYCoords::init(int k)
-{
-	m_k = k; m_V = &m_mmo[k];
+void SetYCoords::init(int k) {
+	m_k = k;
+	m_V = &m_mmo[k];
 	m_ymax = 0;
 	m_lookAheadX = 0;
 	m_lookAheadNextX = 0;
 
 	m_i = 0;
-	m_cl = m_mmo.m_left[k]; m_cr = m_mmo.m_right[k];
+	m_cl = m_mmo.m_left[k];
+	m_cr = m_mmo.m_right[k];
 
-	m_onBase = true; m_xNext = -1;
+	m_onBase = true;
+	m_xNext = -1;
 	m_infinity = m_x[m_cr] + m_iops.outRight(m_cr) + 1;
 
 	searchNextInpoint();
-	m_itIp = m_itIpNext; m_i = m_iNext;
+	m_itIp = m_itIpNext;
+	m_i = m_iNext;
 
 	getNextRegion();
 }
 
-void SetYCoords::searchNextInpoint()
-{
-	m_iNext = m_i; m_itIpNext = m_itIp;
+void SetYCoords::searchNextInpoint() {
+	m_iNext = m_i;
+	m_itIpNext = m_itIp;
 
 	do {
 		if (!m_itIpNext.valid()) {
@@ -596,12 +620,14 @@ void SetYCoords::searchNextInpoint()
 
 		if (m_lookAheadX <= ipX) {
 			for (m_itLookAhead = m_itIpNext;
-				(*m_itLookAhead).m_dx < 0 && m_iops.marked((*m_itLookAhead).m_adj);
-				++m_itLookAhead) ;
+					(*m_itLookAhead).m_dx < 0 && m_iops.marked((*m_itLookAhead).m_adj);
+					++m_itLookAhead) {
+				;
+			}
 
-			const InOutPoint &ipLookAhead = *m_itLookAhead;
+			const InOutPoint& ipLookAhead = *m_itLookAhead;
 			m_lookAheadX = m_x[z(m_iNext)] + ipLookAhead.m_dx;
-			if(ipLookAhead.m_dx < 0) {
+			if (ipLookAhead.m_dx < 0) {
 				m_lookAheadNextX = m_x[ipLookAhead.m_adj->twinNode()] + outpoint(ipLookAhead).m_dx;
 			} else {
 				m_lookAheadNextX = m_lookAheadX;
@@ -614,9 +640,7 @@ void SetYCoords::searchNextInpoint()
 	}
 }
 
-
-void SetYCoords::getNextRegion()
-{
+void SetYCoords::getNextRegion() {
 	int xOld = m_xNext;
 
 	do {
@@ -625,51 +649,59 @@ void SetYCoords::getNextRegion()
 			if (!m_itIp.valid()) {
 				m_xNext = m_infinity;
 			} else {
-				const InOutPoint &ip = *m_itIp;
-				m_xNext = marked(ip.m_adj) ? m_x[z(m_i)] + ip.m_dx : m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx;
+				const InOutPoint& ip = *m_itIp;
+				m_xNext = marked(ip.m_adj) ? m_x[z(m_i)] + ip.m_dx
+										   : m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx;
 			}
 			m_onBase = (m_iNext != m_i);
 
 		} else {
 			OGDF_ASSERT(m_itIp.valid());
-			const InOutPoint &ip = *m_itIp;
+			const InOutPoint& ip = *m_itIp;
 			m_deltaY = -ip.m_dy;
 			searchNextInpoint();
 			if (m_itIpNext.valid() && ip.m_dx < 0) {
-				const InOutPoint &m_ipNext = *m_itIpNext;
-				m_xNext = marked(m_ipNext.m_adj) ? m_x[z(m_i)] + m_ipNext.m_dx : m_x[m_ipNext.m_adj->twinNode()] + outpoint(m_ipNext).m_dx;
+				const InOutPoint& m_ipNext = *m_itIpNext;
+				m_xNext = marked(m_ipNext.m_adj)
+						? m_x[z(m_i)] + m_ipNext.m_dx
+						: m_x[m_ipNext.m_adj->twinNode()] + outpoint(m_ipNext).m_dx;
 			} else {
-				m_xNext = marked(ip.m_adj) ? m_x[z(m_i)] + ip.m_dx + 1 : m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx + 1;
+				m_xNext = marked(ip.m_adj) ? m_x[z(m_i)] + ip.m_dx + 1
+										   : m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx + 1;
 			}
 
 			m_onBase = (m_iNext != m_i);
-			m_i = m_iNext; m_itIp = m_itIpNext;
+			m_i = m_iNext;
+			m_itIp = m_itIpNext;
 		}
 	} while (m_xNext <= xOld);
 }
 
-void SetYCoords::checkYCoord(int xleft, int xright, int ys, bool nodeSep)
-{
-	while (m_xNext <= xleft)
+void SetYCoords::checkYCoord(int xleft, int xright, int ys, bool nodeSep) {
+	while (m_xNext <= xleft) {
 		getNextRegion();
+	}
 
 	int maxDy = m_deltaY;
 
 	while (m_xNext <= xright) {
 		getNextRegion();
-		if (m_deltaY > maxDy) maxDy = m_deltaY;
+		if (m_deltaY > maxDy) {
+			maxDy = m_deltaY;
+		}
 	}
 
-	if (nodeSep && maxDy == 0)
+	if (nodeSep && maxDy == 0) {
 		maxDy = 1;
+	}
 
-	if (ys + maxDy > m_ymax)
+	if (ys + maxDy > m_ymax) {
 		m_ymax = ys + maxDy;
+	}
 }
 
-void MixedModelBase::computeYCoords()
-{
-	NodeArray<int> &x = m_gridLayout.x(), &y = m_gridLayout.y();
+void MixedModelBase::computeYCoords() {
+	NodeArray<int>&x = m_gridLayout.x(), &y = m_gridLayout.y();
 
 	int k, i;
 
@@ -677,78 +709,97 @@ void MixedModelBase::computeYCoords()
 	NodeArray<node> prev(m_PG), next(m_PG);
 
 	// initialization
-	SetYCoords setY(m_PG,m_iops,m_mmo,x,y);
+	SetYCoords setY(m_PG, m_iops, m_mmo, x, y);
 
-	const ShellingOrderSet &V1 = m_mmo[1];
+	const ShellingOrderSet& V1 = m_mmo[1];
 	int p = V1.len();
 
 	for (i = 1; i <= p; ++i) {
-		if (i < p) next[V1[i]] = V1[i+1];
-		if (i > 1) prev[V1[i]] = V1[i-1];
+		if (i < p) {
+			next[V1[i]] = V1[i + 1];
+		}
+		if (i > 1) {
+			prev[V1[i]] = V1[i - 1];
+		}
 	}
-	prev [V1[1]] = next [V1[p]] = nullptr;
+	prev[V1[1]] = next[V1[p]] = nullptr;
 
 	// main loop
-	for (k = 2; k <= m_mmo.length(); ++k)
-	{
+	for (k = 2; k <= m_mmo.length(); ++k) {
 		// consider set Vk
-		const ShellingOrderSet &Vk = m_mmo[k];
+		const ShellingOrderSet& Vk = m_mmo[k];
 		p = Vk.len();
 		node cl = m_mmo.m_left[k];
 		node cr = m_mmo.m_right[k];
 
 		setY.init(k);
 
-		for(node v = cl; v != next[cr]; v = next[v])
-		{
+		for (node v = cl; v != next[cr]; v = next[v]) {
 			ListConstIterator<InOutPoint> itFirst, itLast;
 
-			const List<InOutPoint> &out = m_iops.outpoints(v);
+			const List<InOutPoint>& out = m_iops.outpoints(v);
 
 			if (v == cl) {
-				if (!(itFirst = m_leftOp[k]).valid())
+				if (!(itFirst = m_leftOp[k]).valid()) {
 					itFirst = out.begin();
-				else if ((*itFirst).m_adj->twinNode() != Vk[1])
+				} else if ((*itFirst).m_adj->twinNode() != Vk[1]) {
 					++itFirst;
+				}
 
-				for(itLast = itFirst; itLast.valid() && (m_iops.marked((*itLast).m_adj) ||
-					(*itLast).m_adj->twinNode() == Vk[1]); ++itLast) ;
+				for (itLast = itFirst; itLast.valid()
+						&& (m_iops.marked((*itLast).m_adj) || (*itLast).m_adj->twinNode() == Vk[1]);
+						++itLast) {
+					;
+				}
 
 			} else if (v == cr) {
 				itLast = m_rightOp[k];
-				if (itLast.valid() && (*itLast).m_adj->twinNode() == Vk[p])
+				if (itLast.valid() && (*itLast).m_adj->twinNode() == Vk[p]) {
 					++itLast;
-				itFirst = (itLast.valid()) ? itLast.pred() : ListConstIterator<InOutPoint>(out.rbegin());
+				}
+				itFirst = (itLast.valid()) ? itLast.pred()
+										   : ListConstIterator<InOutPoint>(out.rbegin());
 
-				while(itFirst.valid() && (m_iops.marked((*itFirst).m_adj) ||
-					(*itFirst).m_adj->twinNode() == Vk[p]))
+				while (itFirst.valid()
+						&& (m_iops.marked((*itFirst).m_adj) || (*itFirst).m_adj->twinNode() == Vk[p])) {
 					--itFirst;
+				}
 				itFirst = (itFirst.valid()) ? itFirst.succ() : out.begin();
 
 			} else {
 				itFirst = m_nextLeft[v];
-				itFirst = (itFirst.valid()) ? itFirst.pred() : ListConstIterator<InOutPoint>(out.rbegin());
+				itFirst = (itFirst.valid()) ? itFirst.pred()
+											: ListConstIterator<InOutPoint>(out.rbegin());
 
-				while (itFirst.valid() && m_iops.marked((*itFirst).m_adj))
+				while (itFirst.valid() && m_iops.marked((*itFirst).m_adj)) {
 					--itFirst;
+				}
 
 				itFirst = (itFirst.valid()) ? itFirst.succ() : out.begin();
 
 				if (m_nextRight[v].valid() && m_nextLeft[v] == m_nextRight[v]) {
-					for (itLast = m_nextRight[v].succ(); itLast.valid() && m_iops.marked((*itLast).m_adj);
-						++itLast) ;
+					for (itLast = m_nextRight[v].succ();
+							itLast.valid() && m_iops.marked((*itLast).m_adj); ++itLast) {
+						;
+					}
 				} else {
 					itLast = m_nextLeft[v];
 				}
 			}
 			if (v != cr && itFirst != itLast && m_mmo.rank(next[v]) > m_mmo.rank(v)) {
 				int x_n_v = x[next[v]] - m_iops.outLeft(next[v]);
-				ListConstIterator<InOutPoint> it = (itLast.valid()) ? itLast.pred() : ListConstIterator<InOutPoint>(out.rbegin());
-				for( ; ; ) {
-					if(x[v]+(*it).m_dx >= x_n_v)
+				ListConstIterator<InOutPoint> it = (itLast.valid())
+						? itLast.pred()
+						: ListConstIterator<InOutPoint>(out.rbegin());
+				for (;;) {
+					if (x[v] + (*it).m_dx >= x_n_v) {
 						itLast = it;
-					else break;
-					if (it == itFirst) break;
+					} else {
+						break;
+					}
+					if (it == itFirst) {
+						break;
+					}
 					--it;
 				}
 			}
@@ -758,30 +809,34 @@ void MixedModelBase::computeYCoords()
 				int r_p_v = m_mmo.rank(prev[v]), r_v = m_mmo.rank(v);
 
 				if (r_p_v >= r_v) {
-					if (m_iops.out(prev[v]) > 0)
-						xl += 1+m_iops.outRight(prev[v]);
+					if (m_iops.out(prev[v]) > 0) {
+						xl += 1 + m_iops.outRight(prev[v]);
+					}
 				} else {
 					xl += m_dxla[v];
 				}
 				if (r_p_v <= r_v) {
-					if (m_iops.out(v) > 0)
-						xr -= 1+m_iops.outLeft(v);
+					if (m_iops.out(v) > 0) {
+						xr -= 1 + m_iops.outLeft(v);
+					}
 				} else {
 					xr += m_dxra[prev[v]];
 				}
 
-				if (xl <= xr)
-					setY.checkYCoord(xl, xr, 1+max(y[prev[v]],y[v]), false);
+				if (xl <= xr) {
+					setY.checkYCoord(xl, xr, 1 + max(y[prev[v]], y[v]), false);
+				}
 			}
 
 			for (ListConstIterator<InOutPoint> it = itFirst; it != itLast; ++it) {
-				const InOutPoint &op = *it;
+				const InOutPoint& op = *it;
 
-				if (m_iops.marked(op.m_adj))
-					setY.checkYCoord(x[v]+op.m_dx, y[v]+op.m_dy+1, false);
-				else
-					setY.checkYCoord(x[v]+op.m_dx, y[v]+op.m_dy,
-						(op.m_dx == 0 && op.m_dy == 0 && x[v] == x[op.m_adj->twinNode()]));
+				if (m_iops.marked(op.m_adj)) {
+					setY.checkYCoord(x[v] + op.m_dx, y[v] + op.m_dy + 1, false);
+				} else {
+					setY.checkYCoord(x[v] + op.m_dx, y[v] + op.m_dy,
+							(op.m_dx == 0 && op.m_dy == 0 && x[v] == x[op.m_adj->twinNode()]));
+				}
 			}
 		}
 
@@ -791,50 +846,47 @@ void MixedModelBase::computeYCoords()
 
 		// update contour after insertion of z1,...,zp
 		for (i = 1; i <= p; i++) {
-			if (i < p) next[Vk[i]] = Vk[i+1];
-			if (i > 1) prev[Vk[i]] = Vk[i-1];
+			if (i < p) {
+				next[Vk[i]] = Vk[i + 1];
+			}
+			if (i > 1) {
+				prev[Vk[i]] = Vk[i - 1];
+			}
 		}
 
-		next [prev [Vk[1]] = cl] = Vk[1];
-		prev [next [Vk[p]] = cr] = Vk[p];
+		next[prev[Vk[1]] = cl] = Vk[1];
+		prev[next[Vk[p]] = cr] = Vk[p];
 	}
 }
 
-
-void MixedModelBase::setBends ()
-{
+void MixedModelBase::setBends() {
 	//printMMOrder(std::cout);
 	//printInOutPoints(std::cout);
 	//std::cout.std::flush();
 
-	NodeArray<int> &x = m_gridLayout.x(), &y = m_gridLayout.y();
-	EdgeArray<IPolyline> &bends = m_gridLayout.bends();
+	NodeArray<int>&x = m_gridLayout.x(), &y = m_gridLayout.y();
+	EdgeArray<IPolyline>& bends = m_gridLayout.bends();
 
-	for(int k = 1; k <= m_mmo.length(); ++k)
-	{
-		for (int i = 1; i <= m_mmo[k].len(); ++i)
-		{
-			node v_s = m_mmo(k,i);
-			for(adjEntry adj : v_s->adjEntries)
-			{
+	for (int k = 1; k <= m_mmo.length(); ++k) {
+		for (int i = 1; i <= m_mmo[k].len(); ++i) {
+			node v_s = m_mmo(k, i);
+			for (adjEntry adj : v_s->adjEntries) {
 				node v_t = adj->twinNode();
 				edge e = adj->theEdge();
-				const InOutPoint &p_s = *m_iops.pointOf(adj);
+				const InOutPoint& p_s = *m_iops.pointOf(adj);
 				if (m_iops.marked(adj)) {
 					x[v_t] = x[v_s] + p_s.m_dx;
 					y[v_t] = y[v_s] + p_s.m_dy;
-				}
-				else if(e->source() == adj->theNode())
-				{
-					const InOutPoint &p_t = *m_iops.pointOf(adj->twin());
-					IPoint p1 (x[v_s] + p_s.m_dx, y[v_s] + p_s.m_dy);
-					IPoint p2 (x[v_t] + p_t.m_dx, y[v_t] + p_t.m_dy);
+				} else if (e->source() == adj->theNode()) {
+					const InOutPoint& p_t = *m_iops.pointOf(adj->twin());
+					IPoint p1(x[v_s] + p_s.m_dx, y[v_s] + p_s.m_dy);
+					IPoint p2(x[v_t] + p_t.m_dx, y[v_t] + p_t.m_dy);
 
 					bends[e].pushBack(p1);
 					if (m_mmo.rank(v_s) < m_mmo.rank(v_t)) {
-						bends[e].pushBack(IPoint(p1.m_x,p2.m_y));
+						bends[e].pushBack(IPoint(p1.m_x, p2.m_y));
 					} else {
-						bends[e].pushBack(IPoint(p2.m_x,p1.m_y));
+						bends[e].pushBack(IPoint(p2.m_x, p1.m_y));
 					}
 					bends[e].pushBack(p2);
 				}
@@ -843,35 +895,34 @@ void MixedModelBase::setBends ()
 	}
 }
 
-void MixedModelBase::postprocessing1()
-{
-	NodeArray<int> &x = m_gridLayout.x();
+void MixedModelBase::postprocessing1() {
+	NodeArray<int>& x = m_gridLayout.x();
 
-	for(int k = 2; k <= m_mmo.length(); ++k) {
-		const ShellingOrderSet &V = m_mmo[k];
+	for (int k = 2; k <= m_mmo.length(); ++k) {
+		const ShellingOrderSet& V = m_mmo[k];
 		node v = V[V.len()];
 
-		if (m_iops.in(v) != 2 || m_iops.out(v) != 2) continue;
+		if (m_iops.in(v) != 2 || m_iops.out(v) != 2) {
+			continue;
+		}
 
-		const List<InOutPoint> &in  = m_iops.inpoints (v);
-		List<InOutPoint> &out = m_iops.outpoints(v);
-		adjEntry adjL = (*in.begin ()).m_adj;
+		const List<InOutPoint>& in = m_iops.inpoints(v);
+		List<InOutPoint>& out = m_iops.outpoints(v);
+		adjEntry adjL = (*in.begin()).m_adj;
 		adjEntry adjR = (*in.rbegin()).m_adj;
 
-		if (!m_iops.marked(adjL) && !m_iops.marked(adjR) &&
-			x[adjL->twinNode()] + m_iops.pointOf(adjL->twin())->m_dx < x[v] &&
-			x[adjR->twinNode()] + m_iops.pointOf(adjR->twin())->m_dx == x[v]+1 &&
-			m_gridLayout.y(adjR->twinNode()) < m_gridLayout.y(v))
-		{
+		if (!m_iops.marked(adjL) && !m_iops.marked(adjR)
+				&& x[adjL->twinNode()] + m_iops.pointOf(adjL->twin())->m_dx < x[v]
+				&& x[adjR->twinNode()] + m_iops.pointOf(adjR->twin())->m_dx == x[v] + 1
+				&& m_gridLayout.y(adjR->twinNode()) < m_gridLayout.y(v)) {
 			x[v] += 1;
-			m_iops.setOutDx(out.begin (),-1);
+			m_iops.setOutDx(out.begin(), -1);
 			m_iops.setOutDx(out.rbegin(), 0);
 		}
 	}
 }
 
-void MixedModelBase::firstPoint(int &x, int &y, adjEntry adj)
-{
+void MixedModelBase::firstPoint(int& x, int& y, adjEntry adj) {
 	edge e = adj->theEdge();
 	bool sameDirection = (adj->theNode() == e->source());
 
@@ -880,7 +931,7 @@ void MixedModelBase::firstPoint(int &x, int &y, adjEntry adj)
 		x = m_gridLayout.x(t);
 		y = m_gridLayout.y(t);
 	} else {
-		if(sameDirection) {
+		if (sameDirection) {
 			x = m_gridLayout.bends(e).front().m_x;
 			y = m_gridLayout.bends(e).front().m_y;
 		} else {
@@ -890,120 +941,121 @@ void MixedModelBase::firstPoint(int &x, int &y, adjEntry adj)
 	}
 }
 
-bool MixedModelBase::isRedundant(int x1, int y1, int x2, int y2, int x3, int y3)
-{
+bool MixedModelBase::isRedundant(int x1, int y1, int x2, int y2, int x3, int y3) {
 	int dzy1 = x3 - x2;
 	int dzy2 = y3 - y2;
 	int dyx1 = x2 - x1;
 
-	if (dzy1 == 0) return dyx1 == 0;
+	if (dzy1 == 0) {
+		return dyx1 == 0;
+	}
 
 	int f = dyx1 * dzy2;
 
 	return f % dzy1 == 0 && y2 - y1 == f / dzy1;
 }
 
-void MixedModelBase::postprocessing2()
-{
+void MixedModelBase::postprocessing2() {
 	m_gridLayout.compactAllBends();
 
-	for(node v : m_PG.nodes)
-	{
-		if(v->degree() != 2) continue;
+	for (node v : m_PG.nodes) {
+		if (v->degree() != 2) {
+			continue;
+		}
 
 		adjEntry adj1 = v->firstAdj();
 		edge e1 = adj1->theEdge();
 		adjEntry adj2 = v->lastAdj();
 		edge e2 = adj2->theEdge();
 
-		IPolyline &bends1 = m_gridLayout.bends(e1);
-		IPolyline &bends2 = m_gridLayout.bends(e2);
+		IPolyline& bends1 = m_gridLayout.bends(e1);
+		IPolyline& bends2 = m_gridLayout.bends(e2);
 
-		if (bends1.empty() && bends2.empty()) continue;
+		if (bends1.empty() && bends2.empty()) {
+			continue;
+		}
 
-		int x1,y1,x3,y3;
-		firstPoint(x1,y1,adj1);
-		firstPoint(x3,y3,adj2);
+		int x1, y1, x3, y3;
+		firstPoint(x1, y1, adj1);
+		firstPoint(x3, y3, adj2);
 
-		if (isRedundant(x1,y1,m_gridLayout.x(v),m_gridLayout.y(v),x3,y3)) {
+		if (isRedundant(x1, y1, m_gridLayout.x(v), m_gridLayout.y(v), x3, y3)) {
 			if (!bends1.empty()) {
 				m_gridLayout.x(v) = x1;
 				m_gridLayout.y(v) = y1;
-				if(adj1->theNode() == e1->source())
+				if (adj1->theNode() == e1->source()) {
 					bends1.popFront();
-				else
+				} else {
 					bends1.popBack();
+				}
 			} else {
 				m_gridLayout.x(v) = x3;
 				m_gridLayout.y(v) = y3;
-				if(adj2->theNode() == e2->source())
+				if (adj2->theNode() == e2->source()) {
 					bends2.popFront();
-				else
+				} else {
 					bends2.popBack();
+				}
 			}
 		}
 	}
 }
 
-void MixedModelBase::printMMOrder(std::ostream &os)
-{
+void MixedModelBase::printMMOrder(std::ostream& os) {
 	int k, i;
 
 	os << "left and right:\n\n";
-	for (k = 1; k <= m_mmo.length(); ++k)
-	{
-		const ShellingOrderSet &V = m_mmo[k];
+	for (k = 1; k <= m_mmo.length(); ++k) {
+		const ShellingOrderSet& V = m_mmo[k];
 
 		os << k << ": { ";
-		for (i = 1; i <= V.len(); i++)
+		for (i = 1; i <= V.len(); i++) {
 			os << V[i] << " ";
+		}
 		os << "};";
-		if (k >= 2)
-			os << " cl = " << m_mmo.m_left[k] <<
-				", cr = " << m_mmo.m_right[k];
+		if (k >= 2) {
+			os << " cl = " << m_mmo.m_left[k] << ", cr = " << m_mmo.m_right[k];
+		}
 		os << std::endl;
-
 	}
 	os.flush();
 }
 
-void MixedModelBase::printInOutPoints(std::ostream &os)
-{
+void MixedModelBase::printInOutPoints(std::ostream& os) {
 	os << "\n\nin- and outpoint lists:\n";
-	for(node v : m_PG.nodes) {
-		const List<InOutPoint> &in  = m_iops.inpoints (v);
-		const List<InOutPoint> &out = m_iops.outpoints(v);
+	for (node v : m_PG.nodes) {
+		const List<InOutPoint>& in = m_iops.inpoints(v);
+		const List<InOutPoint>& out = m_iops.outpoints(v);
 
 		os << "\n" << v << ":\n";
 		os << "  outpoints: ";
-		for(const InOutPoint &op : out) {
-			print(os,op);
+		for (const InOutPoint& op : out) {
+			print(os, op);
 			os << " ";
 		}
 		os << "\n  inpoints:  ";
-		for(const InOutPoint &ip : in) {
-			print(os,ip);
+		for (const InOutPoint& ip : in) {
+			print(os, ip);
 			os << " ";
 		}
 	}
 	os << std::endl;
 }
 
-void MixedModelBase::print(std::ostream &os, const InOutPoint &iop)
-{
-	if(iop.m_adj)
-		os << "[(" << m_PG.original(iop.m_adj->theNode()) << "," <<
-			m_PG.original(iop.m_adj->twinNode()) << ")," <<
-			iop.m_dx << "," << iop.m_dy << "]";
-	else
+void MixedModelBase::print(std::ostream& os, const InOutPoint& iop) {
+	if (iop.m_adj) {
+		os << "[(" << m_PG.original(iop.m_adj->theNode()) << ","
+		   << m_PG.original(iop.m_adj->twinNode()) << ")," << iop.m_dx << "," << iop.m_dy << "]";
+	} else {
 		os << "[ ]";
+	}
 }
 
-void MixedModelBase::printNodeCoords(std::ostream &os)
-{
+void MixedModelBase::printNodeCoords(std::ostream& os) {
 	os << "\nx- and y-coordinates:\n\n";
-	for(node v : m_PG.nodes)
+	for (node v : m_PG.nodes) {
 		os << v << ": (" << m_gridLayout.x(v) << "," << m_gridLayout.y(v) << ")\n";
+	}
 }
 
 }

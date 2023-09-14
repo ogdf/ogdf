@@ -35,7 +35,8 @@
 
 namespace ogdf {
 
-template<class T,class X,class Y> class PQNode;
+template<class T, class X, class Y>
+class PQNode;
 
 /**
  * The class template PQInternalKey is a derived class of class template
@@ -53,9 +54,8 @@ template<class T,class X,class Y> class PQNode;
  * be identified and  accessed by him in constant time. This makes
  * the adaption of algorithms fast and easy.
  */
-template<class T,class X,class Y>
-class PQInternalKey : public PQBasicKey<T,X,Y>
-{
+template<class T, class X, class Y>
+class PQInternalKey : public PQBasicKey<T, X, Y> {
 public:
 	/**
 	 * The class template PQInternalKey has only one public member: the
@@ -70,7 +70,7 @@ public:
 	explicit PQInternalKey(Y element) { m_userStructInternal = element; }
 
 	//Destructor
-	virtual ~PQInternalKey() {}
+	virtual ~PQInternalKey() { }
 
 	//! Overloaded pure virtual function returning 0.
 	virtual T userStructKey() { return 0; }
@@ -79,7 +79,7 @@ public:
 	virtual X userStructInfo() { return 0; }
 
 	//! Overloaded pure virtual function returning #m_userStructInternal.
-	virtual Y userStructInternal() { return  m_userStructInternal; }
+	virtual Y userStructInternal() { return m_userStructInternal; }
 };
 
 }

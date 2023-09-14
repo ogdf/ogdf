@@ -32,11 +32,10 @@
 #pragma once
 
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Module.h>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/Module.h>
 #include <ogdf/basic/Thread.h>
-
+#include <ogdf/basic/Timeouter.h>
 
 namespace ogdf {
 
@@ -47,8 +46,7 @@ namespace ogdf {
  */
 template<typename TCost>
 class PlanarSubgraphModule : public Module, public Timeouter {
-
-	unsigned int m_maxThreads;	//!< The maximal number of used threads.
+	unsigned int m_maxThreads; //!< The maximal number of used threads.
 
 public:
 	//! Initializes a planar subgraph module (default constructor).
@@ -60,7 +58,6 @@ public:
 #endif
 	}
 
-
 	/**
 	 * \brief Returns the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
 	 * @param G is the input graph.
@@ -69,15 +66,10 @@ public:
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 * @param preferredImplyPlanar indicates that the edges \p preferredEdges induce a planar graph.
 	 */
-	ReturnType call(const Graph &G,
-		const EdgeArray<TCost> &cost,
-		const List<edge> &preferredEdges,
-		List<edge> &delEdges,
-		bool preferredImplyPlanar = false)
-	{
-		return doCall(G,preferredEdges,delEdges,&cost,preferredImplyPlanar);
+	ReturnType call(const Graph& G, const EdgeArray<TCost>& cost, const List<edge>& preferredEdges,
+			List<edge>& delEdges, bool preferredImplyPlanar = false) {
+		return doCall(G, preferredEdges, delEdges, &cost, preferredImplyPlanar);
 	}
-
 
 	/**
 	 * \brief Returns the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
@@ -86,14 +78,10 @@ public:
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 * @param preferredImplyPlanar indicates that the edges \p preferredEdges induce a planar graph.
 	 */
-	ReturnType call(const Graph &G,
-		const List<edge> &preferredEdges,
-		List<edge> &delEdges,
-		bool preferredImplyPlanar = false)
-	{
-		return doCall(G,preferredEdges,delEdges,nullptr,preferredImplyPlanar);
+	ReturnType call(const Graph& G, const List<edge>& preferredEdges, List<edge>& delEdges,
+			bool preferredImplyPlanar = false) {
+		return doCall(G, preferredEdges, delEdges, nullptr, preferredImplyPlanar);
 	}
-
 
 	/**
 	 * \brief Returns the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
@@ -101,9 +89,9 @@ public:
 	 * @param cost are the costs of edges.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 */
-	ReturnType call(const Graph &G, const EdgeArray<TCost> &cost, List<edge> &delEdges) {
+	ReturnType call(const Graph& G, const EdgeArray<TCost>& cost, List<edge>& delEdges) {
 		List<edge> preferredEdges;
-		return doCall(G,preferredEdges,delEdges, &cost);
+		return doCall(G, preferredEdges, delEdges, &cost);
 	}
 
 	/**
@@ -111,26 +99,19 @@ public:
 	 * @param G is the input graph.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 */
-	ReturnType call(const Graph &G, List<edge> &delEdges) {
+	ReturnType call(const Graph& G, List<edge>& delEdges) {
 		List<edge> preferredEdges;
-		return doCall(G,preferredEdges,delEdges);
-	}
-
-
-	//! Returns the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
-	ReturnType operator()(const Graph &G,
-		const List<edge> &preferredEdges,
-		List<edge> &delEdges,
-		bool preferredImplyPlanar = false)
-	{
-		return call(G,preferredEdges,delEdges,preferredImplyPlanar);
+		return doCall(G, preferredEdges, delEdges);
 	}
 
 	//! Returns the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
-	ReturnType operator()(const Graph &G, List<edge> &delEdges) {
-		return call(G,delEdges);
+	ReturnType operator()(const Graph& G, const List<edge>& preferredEdges, List<edge>& delEdges,
+			bool preferredImplyPlanar = false) {
+		return call(G, preferredEdges, delEdges, preferredImplyPlanar);
 	}
 
+	//! Returns the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
+	ReturnType operator()(const Graph& G, List<edge>& delEdges) { return call(G, delEdges); }
 
 	/**
 	 * \brief Makes \p GC planar by deleting edges.
@@ -139,14 +120,11 @@ public:
 	 * @param delOrigEdges is the set of original edges whose copy has been deleted in \p GC.
 	 * @param preferredImplyPlanar indicates that the edges \p preferredEdges induce a planar graph.
 	 */
-	ReturnType callAndDelete(GraphCopy &GC,
-		const List<edge> &preferredEdges,
-		List<edge> &delOrigEdges,
-		bool preferredImplyPlanar = false)
-	{
+	ReturnType callAndDelete(GraphCopy& GC, const List<edge>& preferredEdges,
+			List<edge>& delOrigEdges, bool preferredImplyPlanar = false) {
 		List<edge> delEdges;
 		ReturnType retValue = call(GC, preferredEdges, delEdges, preferredImplyPlanar);
-		if(isSolution(retValue)) {
+		if (isSolution(retValue)) {
 			for (edge eCopy : delEdges) {
 				delOrigEdges.pushBack(GC.original(eCopy));
 				GC.delEdge(eCopy);
@@ -160,13 +138,13 @@ public:
 	 * @param GC is a copy of the input graph.
 	 * @param delOrigEdges is the set of original edges whose copy has been deleted in \p GC.
 	 */
-	ReturnType callAndDelete(GraphCopy &GC, List<edge> &delOrigEdges) {
+	ReturnType callAndDelete(GraphCopy& GC, List<edge>& delOrigEdges) {
 		List<edge> preferredEdges;
-		return callAndDelete(GC,preferredEdges,delOrigEdges);
+		return callAndDelete(GC, preferredEdges, delOrigEdges);
 	}
 
 	//! Returns a new instance of the planar subgraph module with the same option settings.
-	virtual PlanarSubgraphModule *clone() const = 0;
+	virtual PlanarSubgraphModule* clone() const = 0;
 
 	//! Returns the maximal number of used threads.
 	unsigned int maxThreads() const { return m_maxThreads; }
@@ -195,11 +173,8 @@ protected:
 	 *        can be 0 if no costs are given (all edges have cost 1).
 	 * @param preferredImplyPlanar indicates that the edges \p preferredEdges induce a planar graph.
 	 */
-	virtual ReturnType doCall(const Graph &G,
-		const List<edge> &preferredEdges,
-		List<edge> &delEdges,
-		const EdgeArray<TCost>  *pCost = nullptr,
-		bool preferredImplyPlanar = false) = 0;
+	virtual ReturnType doCall(const Graph& G, const List<edge>& preferredEdges, List<edge>& delEdges,
+			const EdgeArray<TCost>* pCost = nullptr, bool preferredImplyPlanar = false) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

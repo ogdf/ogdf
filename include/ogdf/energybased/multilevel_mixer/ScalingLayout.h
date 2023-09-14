@@ -31,10 +31,11 @@
 
 #pragma once
 
-#include <memory>
-#include <ogdf/energybased/multilevel_mixer/MultilevelLayoutModule.h>
 #include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelLayoutModule.h>
+
+#include <memory>
 
 namespace ogdf {
 
@@ -43,8 +44,7 @@ namespace ogdf {
  * @ingroup gd-multi
  * For use with ModularMultilevelMixer.
  */
-class OGDF_EXPORT ScalingLayout : public MultilevelLayoutModule
-{
+class OGDF_EXPORT ScalingLayout : public MultilevelLayoutModule {
 public:
 	/*!
 	 * \brief To define the relative scale used for a Graph, the ScalingType is applied.
@@ -73,14 +73,14 @@ public:
 	 *
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(GraphAttributes &GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 	/**
 	 * \brief Computes a layout of graph \p MLG.
 	 *
 	 * @param MLG is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(MultilevelGraph &MLG) override;
+	virtual void call(MultilevelGraph& MLG) override;
 
 	/*!
 	 * \brief Sets the minimum and the maximum scaling factor.
@@ -129,13 +129,12 @@ public:
 	void setDesiredEdgeLength(double eLength);
 
 private:
-
 	// Usually a simple force-directed / energy-based Layout should be chosen.
 	std::unique_ptr<LayoutModule> m_secondaryLayoutModule;
 
 	double m_minScaling;
 	double m_maxScaling;
-	ModularMultilevelMixer* m_mmm;//!< Used to derive level size ratio if st_absolute
+	ModularMultilevelMixer* m_mmm; //!< Used to derive level size ratio if st_absolute
 	double m_desEdgeLength;
 
 	// 0 = scale to maxScaling only

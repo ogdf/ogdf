@@ -36,9 +36,8 @@
 #pragma once
 
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/tuples.h>
 #include <ogdf/basic/HashIterator2D.h>
-
+#include <ogdf/basic/tuples.h>
 
 namespace ogdf {
 
@@ -56,37 +55,31 @@ namespace ogdf {
  * A 2D-hash array can be used like a usual 2-dimensional array but with a general
  * index type.
  */
-template<
-	class I1,
-	class I2,
-	class E,
-	class H1 = DefHashFunc<I1>,
-	class H2 = DefHashFunc<I2> >
-class HashArray2D : private Hashing< Tuple2<I1,I2>, E, HashFuncTuple<I1,I2,H1,H2> >
-{
+template<class I1, class I2, class E, class H1 = DefHashFunc<I1>, class H2 = DefHashFunc<I2>>
+class HashArray2D : private Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>> {
 public:
 	//! The type of const-iterators for 2D-hash arrays.
-	using const_iterator = HashConstIterator2D<I1,I2,E,H1,H2>;
+	using const_iterator = HashConstIterator2D<I1, I2, E, H1, H2>;
 
 	//! Creates a 2D-hash array.
 	HashArray2D() { }
 
 	//! Creates a 2D-hash array and sets the default value to \p defaultValue.
-	explicit HashArray2D(const E &defaultValue, const H1 &hashFunc1 = H1(), const H2 &hashFunc2 = H2()) :
-		Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >(
-			256,
-			HashFuncTuple<I1,I2,H1,H2>(hashFunc1,hashFunc2)),
-		m_defaultValue(defaultValue) { }
+	explicit HashArray2D(const E& defaultValue, const H1& hashFunc1 = H1(),
+			const H2& hashFunc2 = H2())
+		: Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>(256,
+				HashFuncTuple<I1, I2, H1, H2>(hashFunc1, hashFunc2))
+		, m_defaultValue(defaultValue) { }
 
 	//! Copy constructor.
-	HashArray2D(const HashArray2D<I1,I2,E,H1,H2> &A) :
-		Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >(A),
-		m_defaultValue(A.m_defaultValue) { }
+	HashArray2D(const HashArray2D<I1, I2, E, H1, H2>& A)
+		: Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>(A)
+		, m_defaultValue(A.m_defaultValue) { }
 
 	//! Assignment operator.
-	HashArray2D &operator=(const HashArray2D<I1,I2,E,H1,H2> &A) {
+	HashArray2D& operator=(const HashArray2D<I1, I2, E, H1, H2>& A) {
 		m_defaultValue = A.m_defaultValue;
-		Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::operator=(A);
+		Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::operator=(A);
 
 		return *this;
 	}
@@ -94,53 +87,50 @@ public:
 	~HashArray2D() { }
 
 	//! Returns a const reference to entry (\p i,\p j).
-	const E &operator()(const I1 &i, const I2 &j) const {
-		HashElement<Tuple2<I1,I2>,E> *pElement =
-			Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::lookup(Tuple2<I1,I2>(i,j));
+	const E& operator()(const I1& i, const I2& j) const {
+		HashElement<Tuple2<I1, I2>, E>* pElement =
+				Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::lookup(
+						Tuple2<I1, I2>(i, j));
 		return (pElement) ? pElement->info() : m_defaultValue;
 	}
 
 	//! Returns a reference to entry (\p i,\p j).
-	E &operator()(const I1 &i, const I2 &j) {
-		Tuple2<I1,I2> t(i,j);
-		HashElement<Tuple2<I1,I2>,E> *pElement =
-			Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::lookup(t);
-		if (!pElement)
-			pElement = Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::fastInsert(t,m_defaultValue);
+	E& operator()(const I1& i, const I2& j) {
+		Tuple2<I1, I2> t(i, j);
+		HashElement<Tuple2<I1, I2>, E>* pElement =
+				Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::lookup(t);
+		if (!pElement) {
+			pElement = Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::fastInsert(t,
+					m_defaultValue);
+		}
 		return pElement->info();
 	}
 
 	//! Returns true iff entry (\p i,\p j) is defined.
-	bool isDefined(const I1 &i, const I2 &j) const {
-		return Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::member(Tuple2<I1,I2>(i,j));
+	bool isDefined(const I1& i, const I2& j) const {
+		return Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::member(
+				Tuple2<I1, I2>(i, j));
 	}
 
 	//! Undefines the entry at index (\p i,\p j).
-	void undefine(const I1 &i, const I2 &j) {
-		return Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::del(Tuple2<I1,I2>(i,j));
+	void undefine(const I1& i, const I2& j) {
+		return Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::del(Tuple2<I1, I2>(i, j));
 	}
 
 	//! Returns an iterator pointing to the first element.
-	HashConstIterator2D<I1,I2,E,H1,H2> begin() const {
-		return HashConstIterator2D<I1,I2,E>(
-			Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::begin());
+	HashConstIterator2D<I1, I2, E, H1, H2> begin() const {
+		return HashConstIterator2D<I1, I2, E>(
+				Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::begin());
 	}
 
 	//! Returns the number of defined elements in the table.
-	int size() const {
-		return Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::size();
-	}
+	int size() const { return Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::size(); }
 
 	//! Returns if any indices are defined
-	int empty() const {
-		return Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::empty();
-	}
-
+	int empty() const { return Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::empty(); }
 
 	//! Undefines all indices.
-	void clear() {
-		Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::clear();
-	}
+	void clear() { Hashing<Tuple2<I1, I2>, E, HashFuncTuple<I1, I2, H1, H2>>::clear(); }
 
 private:
 	E m_defaultValue; //!< The default value of the array.

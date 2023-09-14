@@ -31,11 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/Thread.h>
 #include <ogdf/basic/Barrier.h>
-
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+#include <ogdf/basic/Thread.h>
 #include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 #include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
 
 namespace ogdf {
@@ -47,32 +46,29 @@ class FMEThreadPool;
  * The thread task class
  * used only as an interface
 */
-class FMETask
-{
+class FMETask {
 public:
 	virtual ~FMETask() { }
 
 	virtual void doWork() = 0;
 };
 
-
 /*!
  * Class used to invoke a functor or function inside a thread.
 */
 template<typename FuncInvokerType>
-class FMEFuncInvokerTask : public FMETask
-{
+class FMEFuncInvokerTask : public FMETask {
 public:
 	//! constructor with an invoker
 	FMEFuncInvokerTask(FuncInvokerType f) : funcInvoker(f) { }
 
 	//! overrides the task doWork() method and invokes the function or functor
-	void doWork() override {	funcInvoker(); }
+	void doWork() override { funcInvoker(); }
+
 private:
 	//! the invoker
 	FuncInvokerType funcInvoker;
 };
-
 
 /*!
  * The fast multipole embedder work thread class
@@ -124,13 +120,11 @@ private:
 
 	FMETask* m_pTask;
 
-	FMEThread(const FMEThread &); // = delete
-	FMEThread &operator=(const FMEThread &); // = delete
+	FMEThread(const FMEThread&); // = delete
+	FMEThread& operator=(const FMEThread&); // = delete
 };
 
-
-class FMEThreadPool
-{
+class FMEThreadPool {
 public:
 	explicit FMEThreadPool(uint32_t numThreads);
 
@@ -143,19 +137,17 @@ public:
 	inline FMEThread* thread(uint32_t threadNr) const { return m_pThreads[threadNr]; }
 
 	//! returns the barrier instance used to sync the threads during execution
-	inline Barrier *syncBarrier() const { return m_pSyncBarrier; }
+	inline Barrier* syncBarrier() const { return m_pSyncBarrier; }
 
 	//! runs one iteration. This call blocks the main thread
 	void runThreads();
 
 	template<typename KernelType, typename ArgType1>
-	void runKernel(ArgType1 arg1)
-	{
-		for (uint32_t i=0; i < numThreads(); i++)
-		{
+	void runKernel(ArgType1 arg1) {
+		for (uint32_t i = 0; i < numThreads(); i++) {
 			KernelType kernel(thread(i));
 			FuncInvoker<KernelType, ArgType1> invoker(kernel, arg1);
-			thread(i)->setTask(new FMEFuncInvokerTask< FuncInvoker< KernelType, ArgType1 > >(invoker));
+			thread(i)->setTask(new FMEFuncInvokerTask<FuncInvoker<KernelType, ArgType1>>(invoker));
 		}
 		runThreads();
 	}
@@ -169,7 +161,7 @@ private:
 
 	FMEThread** m_pThreads;
 
-	Barrier *m_pSyncBarrier;
+	Barrier* m_pSyncBarrier;
 };
 
 }

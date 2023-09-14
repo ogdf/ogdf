@@ -34,9 +34,8 @@
 
 namespace ogdf {
 
-GraphReduction::GraphReduction(const Graph &G)
-	: m_pGraph(&G), m_vOrig(), m_eOrig(), m_vReduction(), m_eReduction()
-{
+GraphReduction::GraphReduction(const Graph& G)
+	: m_pGraph(&G), m_vOrig(), m_eOrig(), m_vReduction(), m_eReduction() {
 	Graph::construct(*m_pGraph, m_vReduction, m_eReduction);
 
 	// remove selfloops
@@ -49,15 +48,18 @@ GraphReduction::GraphReduction(const Graph &G)
 
 	m_vOrig.init(*this);
 	m_eOrig.init(*this);
-	for (node v : m_pGraph->nodes)
+	for (node v : m_pGraph->nodes) {
 		m_vOrig[m_vReduction[v]] = v;
+	}
 
-	for (edge e1 : m_pGraph->edges)
+	for (edge e1 : m_pGraph->edges) {
 		m_eOrig[m_eReduction[e1]].pushBack(e1);
+	}
 
 	List<node> next;
-	for (node v : m_pGraph->nodes)
+	for (node v : m_pGraph->nodes) {
 		next.pushBack(v);
+	}
 
 	while (next.size()) {
 		node ov = next.front();
@@ -72,18 +74,19 @@ GraphReduction::GraphReduction(const Graph &G)
 					for (edge f : m_eOrig[e1]) {
 						m_eReduction[f] = nullptr;
 					}
-				}
-				else
-				if (e1->source() == v) {
-					if (e2->source() == v) m_eOrig[e2].reverse();
+				} else if (e1->source() == v) {
+					if (e2->source() == v) {
+						m_eOrig[e2].reverse();
+					}
 					this->moveSource(e1, e2->opposite(v));
 					for (edge origEdge : reverse(m_eOrig[e2])) {
 						m_eReduction[origEdge] = e1;
 						m_eOrig[e1].pushFront(origEdge);
 					}
-				}
-				else {
-					if (e2->target() == v) m_eOrig[e2].reverse();
+				} else {
+					if (e2->target() == v) {
+						m_eOrig[e2].reverse();
+					}
 					this->moveTarget(e1, e2->opposite(v));
 					for (ListConstIterator<edge> it = m_eOrig[e2].begin(); it.valid(); ++it) {
 						m_eReduction[*it] = e1;
@@ -92,30 +95,31 @@ GraphReduction::GraphReduction(const Graph &G)
 				}
 				m_eOrig[e2].clear();
 				this->delEdge(e2);
-			}
-			else if (d == 1) {
+			} else if (d == 1) {
 				edge e1 = v->firstAdj()->theEdge();
 				const List<edge>& el = m_eOrig[e1];
 				node nv;
-				if (el.size() == 1)
+				if (el.size() == 1) {
 					nv = el.front()->opposite(ov);
-				else {
+				} else {
 					bool front_e1 = el.front()->source() == ov || el.front()->target() == ov;
 					edge e2, e3;
 					if (front_e1) {
 						e2 = el.back();
 						e3 = *(el.rbegin().succ());
-					}
-					else {
+					} else {
 						e2 = el.front();
 						e3 = *(el.begin().succ());
 					}
-					nv = (e2->source() == e3->source() || e2->source() == e3->target()) ? e2->target() : e2->source();
+					nv = (e2->source() == e3->source() || e2->source() == e3->target())
+							? e2->target()
+							: e2->source();
 				}
 				next.pushBack(nv);
 
-				for (ListIterator<edge> it = m_eOrig[e1].begin(); it.valid(); ++it)
+				for (ListIterator<edge> it = m_eOrig[e1].begin(); it.valid(); ++it) {
 					m_eReduction[*it] = nullptr;
+				}
 				this->delEdge(e1);
 			}
 			m_vReduction[ov] = nullptr;

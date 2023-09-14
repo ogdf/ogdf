@@ -46,33 +46,40 @@
 
 #include "layout_helpers.h"
 
-go_bandit([] { describe("Miscellaneous layouts", [] {
-	GraphSizes smallSizes = GraphSizes(16, 32, 16);
+go_bandit([] {
+	describe("Miscellaneous layouts", [] {
+		GraphSizes smallSizes = GraphSizes(16, 32, 16);
 
-	PreprocessorLayout preProc;
-	// CircularLayout requires simple graphs
-	preProc.setLayoutModule(new CircularLayout);
-	describeLayout("PreprocessorLayout with CircularLayout", preProc, 0);
+		PreprocessorLayout preProc;
+		// CircularLayout requires simple graphs
+		preProc.setLayoutModule(new CircularLayout);
+		describeLayout("PreprocessorLayout with CircularLayout", preProc, 0);
 
-	TEST_LAYOUT(BalloonLayout, GraphProperty::connected);
+		TEST_LAYOUT(BalloonLayout, GraphProperty::connected);
 
-	describeLayout<BertaultLayout>("BertaultLayout", 0, {GraphProperty::sparse, GraphProperty::simple}, false, smallSizes);
-	TEST_LAYOUT(CircularLayout, GraphProperty::simple);
-	TEST_LAYOUT(LinearLayout);
+		describeLayout<BertaultLayout>("BertaultLayout", 0,
+				{GraphProperty::sparse, GraphProperty::simple}, false, smallSizes);
+		TEST_LAYOUT(CircularLayout, GraphProperty::simple);
+		TEST_LAYOUT(LinearLayout);
 
-	ProcrustesSubLayout procrustesLayout(new FMMMLayout);
-	describeLayout("ProcrustesSubLayout", procrustesLayout);
+		ProcrustesSubLayout procrustesLayout(new FMMMLayout);
+		describeLayout("ProcrustesSubLayout", procrustesLayout);
 
-	TEST_LAYOUT(ComponentSplitterLayout);
+		TEST_LAYOUT(ComponentSplitterLayout);
 
-	// BalloonLayout requires connectivity
-	SimpleCCPacker packerLayout(new BalloonLayout);
-	describeLayout("SimpleCCPacker with BalloonLayout", packerLayout);
+		// BalloonLayout requires connectivity
+		SimpleCCPacker packerLayout(new BalloonLayout);
+		describeLayout("SimpleCCPacker with BalloonLayout", packerLayout);
 
-	TEST_LAYOUT(RadialTreeLayout, GraphProperty::arborescenceForest, GraphProperty::connected);
-	TEST_LAYOUT(TreeLayout, GraphProperty::arborescenceForest);
+		TEST_LAYOUT(RadialTreeLayout, GraphProperty::arborescenceForest, GraphProperty::connected);
+		TEST_LAYOUT(TreeLayout, GraphProperty::arborescenceForest);
 
-	// skip iteration with maximum number of nodes as it takes too long
-	describeLayout<DominanceLayout>("DominanceLayout", 0, {GraphProperty::connected, GraphProperty::simple, GraphProperty::sparse}, false, smallSizes);
-	describeLayout<VisibilityLayout>("VisibilityLayout", 0, {GraphProperty::connected, GraphProperty::simple, GraphProperty::sparse}, false, smallSizes);
-}); });
+		// skip iteration with maximum number of nodes as it takes too long
+		describeLayout<DominanceLayout>("DominanceLayout", 0,
+				{GraphProperty::connected, GraphProperty::simple, GraphProperty::sparse}, false,
+				smallSizes);
+		describeLayout<VisibilityLayout>("VisibilityLayout", 0,
+				{GraphProperty::connected, GraphProperty::simple, GraphProperty::sparse}, false,
+				smallSizes);
+	});
+});

@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
@@ -41,19 +41,17 @@ namespace ogdf {
  * the last bend point or the position of the adjacent node
  * given by the layout information of the graph.
  */
-class OGDF_EXPORT EdgeComparerSimple : public VComparer<adjEntry>
-{
+class OGDF_EXPORT EdgeComparerSimple : public VComparer<adjEntry> {
 public:
 	EdgeComparerSimple(const GraphAttributes& AG, const node v, bool useBends = true)
-	: m_basis(v), m_AG(&AG), m_useBends(useBends) { }
+		: m_basis(v), m_AG(&AG), m_useBends(useBends) { }
 
-	int compare(const adjEntry &e1, const adjEntry &e2) const override;
+	int compare(const adjEntry& e1, const adjEntry& e2) const override;
 
 private:
 	node m_basis;
-	const GraphAttributes *m_AG;
+	const GraphAttributes* m_AG;
 	bool m_useBends; //!< \c true iff the algorithm should consider the bend-points
-
 };
 
 }

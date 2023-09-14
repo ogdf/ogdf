@@ -35,26 +35,23 @@
 
 #include <ogdf/basic/Graph.h>
 
-
 namespace ogdf {
 
 
-class OGDF_EXPORT ShortestPathModule
-{
+class OGDF_EXPORT ShortestPathModule {
 public:
 	ShortestPathModule() { }
-	virtual ~ShortestPathModule() {}
+
+	virtual ~ShortestPathModule() { }
 
 	// computes shortest paths
 	// Precond.:
 	// returns true iff a feasible min-cost flow exists
-	virtual bool call(
-		const Graph &G,                   // directed graph
-		const node s,					  // source node
-		const EdgeArray<int> &length,     // length of an edge
-		NodeArray<int> &d,				  // contains shortest path distances after call
-		NodeArray<edge> &pi
-	) = 0;
+	virtual bool call(const Graph& G, // directed graph
+			const node s, // source node
+			const EdgeArray<int>& length, // length of an edge
+			NodeArray<int>& d, // contains shortest path distances after call
+			NodeArray<edge>& pi) = 0;
 };
 
 }

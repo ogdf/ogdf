@@ -30,32 +30,28 @@
  */
 
 #include <ogdf/basic/basic.h>
+
 #include <testing.h>
 
 static void assert_positive(int);
 
 go_bandit([] {
 	describe("OGDF_ASSERT", [] {
-		it("does not fail if the condition holds", [] {
-			assert_positive(1);
-		});
+		it("does not fail if the condition holds", [] { assert_positive(1); });
 
 #ifndef OGDF_DEBUG
-		it("does not fail if OGDF_DEBUG is not set", [] {
-			assert_positive(-1);
-		});
+		it("does not fail if OGDF_DEBUG is not set", [] { assert_positive(-1); });
 #endif
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
-		it("throws an AssertionFailed exception if the condition does not hold", [] {
-			AssertThrows(AssertionFailed, assert_positive(-1));
-		});
+		it("throws an AssertionFailed exception if the condition does not hold",
+				[] { AssertThrows(AssertionFailed, assert_positive(-1)); });
 
 		it("throws an exception with an explanatory what()", [] {
-			int fails = false;
+			bool fails = false;
 			try {
 				assert_positive(-1);
-			} catch (AssertionFailed &e) {
+			} catch (AssertionFailed& e) {
 				fails = true;
 				std::string what(e.what());
 				AssertThat(what, Contains("a > 0"));
@@ -69,10 +65,10 @@ go_bandit([] {
 
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACKTRACE
 		it("throws an exception with a stack trace in what()", [] {
-			int fails = false;
+			bool fails = false;
 			try {
 				assert_positive(-1);
-			} catch (AssertionFailed &e) {
+			} catch (AssertionFailed& e) {
 				fails = true;
 				AssertThat(std::string(e.what()), Contains("Stack trace"));
 			}
@@ -82,8 +78,7 @@ go_bandit([] {
 	});
 });
 
-static void assert_positive(int a)
-{
+static void assert_positive(int a) {
 #line 1000
 	OGDF_ASSERT(a > 0);
 }

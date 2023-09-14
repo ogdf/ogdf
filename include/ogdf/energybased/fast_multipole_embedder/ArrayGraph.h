@@ -37,8 +37,7 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-class ArrayGraph
-{
+class ArrayGraph {
 public:
 	//! Constructor. Does not allocate memory for the members.
 	ArrayGraph();
@@ -47,7 +46,8 @@ public:
 	ArrayGraph(uint32_t maxNumNodes, uint32_t maxNumEdges);
 
 	//! Constructor.
-	ArrayGraph(const GraphAttributes& GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
+	ArrayGraph(const GraphAttributes& GA, const EdgeArray<float>& edgeLength,
+			const NodeArray<float>& nodeSize);
 
 	//! Destructor. Deallocates the memory via OGDF_FREE_16 if needed.
 	~ArrayGraph();
@@ -65,7 +65,8 @@ public:
 	 * @param edgeLength the desired edge length
 	 * @param nodeSize the size of the nodes
 	 */
-	void readFrom(const GraphAttributes& GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
+	void readFrom(const GraphAttributes& GA, const EdgeArray<float>& edgeLength,
+			const NodeArray<float>& nodeSize);
 
 	//! Updates an ArrayGraph with the given positions, edge lengths and node sizes and creates the edges
 	/**
@@ -80,8 +81,8 @@ public:
 	 * @tparam SizeType type of the node sizes
 	 */
 	template<typename CoordinateType, typename LengthType, typename SizeType>
-	void readFrom(const Graph& G, NodeArray<CoordinateType>& xPos, NodeArray<CoordinateType>& yPos, const EdgeArray<LengthType>& edgeLength, const NodeArray<SizeType>& nodeSize)
-	{
+	void readFrom(const Graph& G, NodeArray<CoordinateType>& xPos, NodeArray<CoordinateType>& yPos,
+			const EdgeArray<LengthType>& edgeLength, const NodeArray<SizeType>& nodeSize) {
 		m_numNodes = 0;
 		m_numEdges = 0;
 		NodeArray<uint32_t> nodeIndex(G);
@@ -89,8 +90,7 @@ public:
 		m_numEdges = 0;
 		m_desiredAvgEdgeLength = 0;
 		m_avgNodeSize = 0;
-		for(node v : G.nodes)
-		{
+		for (node v : G.nodes) {
 			m_nodeXPos[m_numNodes] = (float)xPos[v];
 			m_nodeYPos[m_numNodes] = (float)yPos[v];
 			m_nodeSize[m_numNodes] = (float)nodeSize[v];
@@ -100,8 +100,7 @@ public:
 		}
 		m_avgNodeSize = m_avgNodeSize / (double)m_numNodes;
 
-		for(edge e : G.edges)
-		{
+		for (edge e : G.edges) {
 			pushBackEdge(nodeIndex[e->source()], nodeIndex[e->target()], (float)edgeLength[e]);
 		}
 		m_desiredAvgEdgeLength = m_desiredAvgEdgeLength / (double)m_numEdges;
@@ -126,11 +125,9 @@ public:
 	 * @tparam CoordinateType type of the \a x and \a y positions
 	 */
 	template<typename CoordinateType>
-	void writeTo(const Graph& G, NodeArray<CoordinateType>& xPos, NodeArray<CoordinateType>& yPos)
-	{
+	void writeTo(const Graph& G, NodeArray<CoordinateType>& xPos, NodeArray<CoordinateType>& yPos) {
 		uint32_t i = 0;
-		for(node v : G.nodes)
-		{
+		for (node v : G.nodes) {
 			xPos[v] = m_nodeXPos[i];
 			yPos[v] = m_nodeYPos[i];
 			i++;
@@ -138,16 +135,16 @@ public:
 	}
 
 	//! Returns the adjacency information for the node at index \p i in #m_nodeAdj.
-	inline NodeAdjInfo& nodeInfo(uint32_t i) { return m_nodeAdj[i];	}
+	inline NodeAdjInfo& nodeInfo(uint32_t i) { return m_nodeAdj[i]; }
 
 	//! Returns the adjacency information for the node at index \p i in #m_nodeAdj.
-	inline const NodeAdjInfo& nodeInfo(uint32_t i) const { return m_nodeAdj[i];	}
+	inline const NodeAdjInfo& nodeInfo(uint32_t i) const { return m_nodeAdj[i]; }
 
 	//! Returns the adjacency information for the edge at index \p i in #m_edgeAdj.
-	inline EdgeAdjInfo& edgeInfo(uint32_t i) { return m_edgeAdj[i];	}
+	inline EdgeAdjInfo& edgeInfo(uint32_t i) { return m_edgeAdj[i]; }
 
 	//! Returns the adjacency information for the edge at index \p i in #m_edgeAdj.
-	inline const EdgeAdjInfo& edgeInfo(uint32_t i) const { return m_edgeAdj[i];	}
+	inline const EdgeAdjInfo& edgeInfo(uint32_t i) const { return m_edgeAdj[i]; }
 
 	//! Returns the NodeAdjInfo array for all nodes.
 	inline NodeAdjInfo* nodeInfo() { return m_nodeAdj; }
@@ -189,28 +186,25 @@ public:
 	inline const float* desiredEdgeLength() const { return m_desiredEdgeLength; }
 
 	//! Returns the index of the first pair of the node with index \p nodeIndex in #m_nodeAdj.
-	inline uint32_t firstEdgeAdjIndex(uint32_t nodeIndex) const
-	{
+	inline uint32_t firstEdgeAdjIndex(uint32_t nodeIndex) const {
 		return nodeInfo(nodeIndex).firstEntry;
 	};
 
 	//! Returns the index of the next pair of \p currEdgeAdjIndex of the node with index \p nodeIndex.
-	inline uint32_t nextEdgeAdjIndex(uint32_t currEdgeAdjIndex, uint32_t nodeIndex) const
-	{
+	inline uint32_t nextEdgeAdjIndex(uint32_t currEdgeAdjIndex, uint32_t nodeIndex) const {
 		return edgeInfo(currEdgeAdjIndex).nextEdgeAdjIndex(nodeIndex);
 	}
 
 	//! Returns the other node (not \p nodeIndex) of the pair with index \p currEdgeAdjIndex.
-	inline uint32_t twinNodeIndex(uint32_t currEdgeAdjIndex, uint32_t nodeIndex) const
-	{
+	inline uint32_t twinNodeIndex(uint32_t currEdgeAdjIndex, uint32_t nodeIndex) const {
 		return edgeInfo(currEdgeAdjIndex).twinNode(nodeIndex);
 	}
 
 	//! Calls \p func on all nodes with indices from \p begin to \p end.
-	void for_all_nodes(uint32_t begin, uint32_t end, std::function<void(uint32_t)> func)
-	{
-		for(uint32_t i=begin; i <=end; i++)
+	void for_all_nodes(uint32_t begin, uint32_t end, std::function<void(uint32_t)> func) {
+		for (uint32_t i = begin; i <= end; i++) {
 			func(i);
+		}
 	}
 
 	//! Average edge length.
@@ -226,7 +220,6 @@ public:
 	void centerGraph();
 
 private:
-
 	//! Internal function used by #readFrom.
 	void pushBackEdge(uint32_t a, uint32_t b, float desiredEdgeLength);
 
@@ -237,10 +230,10 @@ private:
 	void deallocate();
 
 	//! Clear the arrays.
-	void clear()
-	{
-		for (uint32_t i=0; i < m_numNodes; i++)
+	void clear() {
+		for (uint32_t i = 0; i < m_numNodes; i++) {
 			nodeInfo(i).degree = 0;
+		}
 
 		m_numNodes = 0;
 		m_numEdges = 0;
@@ -252,12 +245,12 @@ private:
 	float* m_nodeXPos; //!< The \a x coordinates.
 	float* m_nodeYPos; //!< The \a y coordinates.
 
-	float* m_nodeSize;    //!< Sizes of the nodes.
+	float* m_nodeSize; //!< Sizes of the nodes.
 	double m_avgNodeSize; //!< Avg. node size.
 
 	float* m_nodeMoveRadius; //!< Maximum node movement lengths.
 
-	float* m_desiredEdgeLength;    //!< Edge lengths.
+	float* m_desiredEdgeLength; //!< Edge lengths.
 	double m_desiredAvgEdgeLength; //!< Avg. edge length.
 
 	NodeAdjInfo* m_nodeAdj; //!< Information about adjacent edges.

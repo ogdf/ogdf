@@ -1,0 +1,194 @@
+# GitLab CI configuration
+#
+# author: Tilo Wiedera, Jöran Schierbaum, Max Ilsen
+
+image: $CI_REGISTRY/gcc:7
+
+stages:
+  - test-simple
+  - test-advanced
+  - deploy
+
+style:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  script:
+    - util/test_clang_format.sh
+    - util/test_eols.sh
+    - util/test_number_newlines.sh
+    - util/test_line_length.sh
+    - util/test_tabs.sh
+    - util/test_macros.sh
+    - util/test_license.sh
+    - util/test_no_typedefs.sh
+    - util/test_no_enums.sh
+  tags:
+    - docker
+  stage: test-simple
+
+dirs:
+  except:
+    - schedules
+  script: util/test_directory_structure.sh
+  tags:
+    - docker
+  stage: test-simple
+
+docs:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  script: util/test_doxygen.sh
+  tags:
+    - docker
+  stage: test-simple
+
+self-sufficiency:
+  except:
+    - schedules
+  script: util/test_self-sufficiency.sh
+  tags:
+    - docker
+  stage: test-advanced
+
+mac-debug:
+  except:
+    - schedules
+  script: util/test_build_and_run.sh static debug default_c gurobi
+  tags:
+    - mac
+  stage: test-advanced
+
+mac-release:
+  except:
+    - schedules
+  script: util/test_build_and_run.sh static release default_c gurobi
+  tags:
+    - mac
+  stage: test-advanced
+
+gcc-7-debug:
+  except:
+    - schedules
+  script: util/test_build_and_run.sh static debug gcc gurobi -DOGDF_INCLUDE_CGAL=ON
+  tags:
+    - docker
+  stage: test-advanced
+
+gcc-10-debug:
+  except:
+    - schedules
+  image: $CI_REGISTRY/gcc:10
+  script: util/test_coverage.sh
+  tags:
+    - docker
+  stage: test-advanced
+
+clang-15-debug:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  script: util/test_build_and_run.sh static debug clang gurobi -DOGDF_INCLUDE_CGAL=ON
+  tags:
+    - docker
+  stage: test-advanced
+
+gcc-7-release:
+  except:
+    - schedules
+  script: util/test_build_and_run.sh dynamic release gcc gurobi -DOGDF_INCLUDE_CGAL=ON
+  tags:
+    - docker
+  stage: test-advanced
+
+gcc-10-release:
+  except:
+    - schedules
+  image: $CI_REGISTRY/gcc:10
+  script: util/test_build_and_run.sh static release gcc gurobi -DOGDF_INCLUDE_CGAL=ON
+  tags:
+    - docker
+  stage: test-advanced
+
+clang-15-release:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  script: util/test_build_and_run.sh static release clang gurobi -DOGDF_INCLUDE_CGAL=ON
+  tags:
+    - docker
+  stage: test-advanced
+
+vstudio-release:
+  except:
+    - schedules
+  script:
+    - powershell util\test_build_and_run.ps1 -gurobi
+  tags:
+    - windows
+  stage: test-advanced
+
+vstudio-debug:
+  except:
+    - schedules
+  script:
+    - powershell util\test_build_and_run.ps1 -debug -gurobi
+  tags:
+    - windows
+  stage: test-advanced
+
+deploy-doc-master:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  script:
+    - util/deploy_doxygen.sh master
+  tags:
+    - docker
+  stage: deploy
+  environment:
+    name: Documentation
+  only:
+    - master
+
+deploy-doc:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  script:
+    - util/deploy_doxygen.sh $CI_COMMIT_REF_SLUG
+  tags:
+    - docker
+  stage: deploy
+  environment:
+    name: doc/$CI_COMMIT_REF_NAME
+    url: ${DOXYGEN_DEPLOY_URL}/doc/${CI_COMMIT_REF_SLUG}/
+    on_stop: destroy-doc
+  only:
+    - branches
+  except:
+    - master
+
+destroy-doc:
+  except:
+    - schedules
+  image: $CI_REGISTRY/clang:15
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$DOXYGEN_DEPLOY_KEY")
+    - echo "removing documentation for $CI_COMMIT_REF_NAME from $DOXYGEN_DEPLOY_URL"
+    - ssh -o StrictHostKeyChecking=no $DOXYGEN_DEPLOY_URL "cd /var/www/html/doc/ && rm -r ${CI_COMMIT_REF_SLUG}/"
+  tags:
+    - docker
+  stage: deploy
+  environment:
+    name: doc/$CI_COMMIT_REF_NAME
+    action: stop
+  when: manual
+  only:
+    - branches
+  except:
+    - master

@@ -39,16 +39,15 @@ namespace ogdf {
 /**
  * @ingroup gd-multi
  */
-class OGDF_EXPORT BarycenterPlacer : public InitialPlacer
-{
+class OGDF_EXPORT BarycenterPlacer : public InitialPlacer {
 private:
 	bool m_weightedPositions;
 
 public:
 	BarycenterPlacer();
 
-	void placeOneLevel(MultilevelGraph &MLG) override;
-	void placeOneNode(MultilevelGraph &MLG);
+	void placeOneLevel(MultilevelGraph& MLG) override;
+	void placeOneNode(MultilevelGraph& MLG);
 	void weightedPositionPriority(bool on);
 };
 

@@ -40,7 +40,7 @@ namespace ogdf {
 using face = FaceElement*;
 
 //! Output operator for faces; prints face index (or "nil").
-OGDF_EXPORT std::ostream &operator<<(std::ostream &os, ogdf::face f);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::face f);
 
 // Definition of iterator and container types for adjacency entries in a face
 // These declarations are just internal representations
@@ -48,36 +48,34 @@ namespace internal {
 
 //! Forward iterator for adjacency entries in a face
 class FaceAdjIterator {
-
 	adjEntry m_adj;
 	adjEntry m_adjFirst;
 
 public:
 	FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
+
 	explicit FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
+
 	FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
+
 	FaceAdjIterator(const FaceAdjIterator&) = default;
 	FaceAdjIterator& operator=(const FaceAdjIterator&) = default;
 
-	bool operator==(const FaceAdjIterator &other) const {
-		return m_adj == other.m_adj;
-	}
+	bool operator==(const FaceAdjIterator& other) const { return m_adj == other.m_adj; }
 
-	bool operator!=(const FaceAdjIterator &other) const {
-		return m_adj != other.m_adj;
-	}
+	bool operator!=(const FaceAdjIterator& other) const { return m_adj != other.m_adj; }
 
 	adjEntry operator*() const { return m_adj; }
 
-	FaceAdjIterator &operator++() {
+	FaceAdjIterator& operator++() {
 		OGDF_ASSERT(m_adj != nullptr);
 		m_adj = m_adj->faceCycleSucc();
-		if (m_adj == m_adjFirst)
+		if (m_adj == m_adjFirst) {
 			m_adj = nullptr;
+		}
 		return *this;
 	}
 };
-
 
 //! Container for the adjacency entries in a face.
 /**
@@ -85,7 +83,6 @@ public:
  * in the underlying graph and by storing the first adjacency entry in the face.
  */
 class FaceAdjContainer {
-
 	friend class ogdf::FaceElement;
 	friend class ogdf::ConstCombinatorialEmbedding;
 	friend class ogdf::CombinatorialEmbedding;
@@ -93,45 +90,42 @@ class FaceAdjContainer {
 	adjEntry m_adjFirst;
 
 	FaceAdjContainer() : m_adjFirst(nullptr) { }
+
 	explicit FaceAdjContainer(adjEntry adjFirst) : m_adjFirst(adjFirst) { }
 
 public:
 	using iterator = FaceAdjIterator;
 
 	iterator begin() const { return iterator(m_adjFirst); }
+
 	iterator end() const { return iterator(); }
 };
 
 }
 
-
 /**
  * \brief Faces in a combinatorial embedding.
  */
-class OGDF_EXPORT FaceElement : private internal::GraphElement
-{
+class OGDF_EXPORT FaceElement : private internal::GraphElement {
 	friend class ConstCombinatorialEmbedding;
 	friend class CombinatorialEmbedding;
 	friend class internal::GraphList<FaceElement>;
 
 	//adjEntry m_adjFirst; //!< The first adjacency element in the face.
-	int m_id;   //!< The index of the face.
+	int m_id; //!< The index of the face.
 	int m_size; //!< The size of the face.
 
 #ifdef OGDF_DEBUG
-	const ConstCombinatorialEmbedding *m_pEmbedding;
+	const ConstCombinatorialEmbedding* m_pEmbedding;
 #endif
 
 #ifdef OGDF_DEBUG
 	//! Creates a face with given first adjacency element \p adjFirst, face index \p id and keeps track of the owner \p pEmbedding for debugging.
-	FaceElement(const ConstCombinatorialEmbedding *pEmbedding,
-		adjEntry adjFirst,
-		int id) :
-		m_id(id), m_size(0), m_pEmbedding(pEmbedding), entries(adjFirst) { }
+	FaceElement(const ConstCombinatorialEmbedding* pEmbedding, adjEntry adjFirst, int id)
+		: m_id(id), m_size(0), m_pEmbedding(pEmbedding), entries(adjFirst) { }
 #else
 	//! Creates a face with given first adjacency element \p adjFirst and face index \p id.
-	FaceElement(adjEntry adjFirst, int id) :
-		m_id(id), m_size(0), entries(adjFirst) { }
+	FaceElement(adjEntry adjFirst, int id) : m_id(id), m_size(0), entries(adjFirst) { }
 #endif
 
 public:
@@ -160,19 +154,19 @@ public:
 	}
 
 #ifdef OGDF_DEBUG
-	const ConstCombinatorialEmbedding *embeddingOf() const { return m_pEmbedding; }
+	const ConstCombinatorialEmbedding* embeddingOf() const { return m_pEmbedding; }
 #endif
 
 	//! Standard Comparer
 	static int compare(const FaceElement& x, const FaceElement& y) { return x.m_id - y.m_id; }
 	OGDF_AUGMENT_COMPARER(FaceElement)
 
-		OGDF_NEW_DELETE
+	OGDF_NEW_DELETE
 };
 
 class FaceArrayBase;
-template<class T>class FaceArray;
-
+template<class T>
+class FaceArray;
 
 /**
  * \brief Combinatorial embeddings of planar graphs.
@@ -195,10 +189,9 @@ template<class T>class FaceArray;
  * \see CombinatorialEmbedding provides additional functionality for modifying
  *      the embedding.
  */
-class OGDF_EXPORT ConstCombinatorialEmbedding
-{
+class OGDF_EXPORT ConstCombinatorialEmbedding {
 protected:
-	const Graph *m_cpGraph; //!< The associated graph.
+	const Graph* m_cpGraph; //!< The associated graph.
 
 	int m_faceIdCount; //!< The index assigned to the next created face.
 	int m_faceArrayTableSize; //!< The current table size of face arrays.
@@ -230,14 +223,14 @@ public:
 	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
-	explicit ConstCombinatorialEmbedding(const Graph &G);
+	explicit ConstCombinatorialEmbedding(const Graph& G);
 
 
 	//! Copy constructor.
-	ConstCombinatorialEmbedding(const ConstCombinatorialEmbedding &C);
+	ConstCombinatorialEmbedding(const ConstCombinatorialEmbedding& C);
 
 	//! Assignment operator.
-	ConstCombinatorialEmbedding &operator=(const ConstCombinatorialEmbedding &C);
+	ConstCombinatorialEmbedding& operator=(const ConstCombinatorialEmbedding& C);
 
 	//! Destructor
 	virtual ~ConstCombinatorialEmbedding();
@@ -250,13 +243,13 @@ public:
 	 *
 	 * \pre The associated graph exists. See #valid().
 	 */
-	const Graph &getGraph() const {
+	const Graph& getGraph() const {
 		OGDF_ASSERT(valid());
 		return *m_cpGraph;
 	}
 
 	//! Returns associated graph
-	operator const Graph &() const { return getGraph(); }
+	operator const Graph&() const { return getGraph(); }
 
 	/** @} @{
 	 * \brief Returns the first face in the list of all faces.
@@ -284,7 +277,7 @@ public:
 	/** @} @{
 	 * \brief Returns the largest used face index.
 	 */
-	int maxFaceIndex() const { return m_faceIdCount-1; }
+	int maxFaceIndex() const { return m_faceIdCount - 1; }
 
 	//! Returns the table size of face arrays associated with this embedding.
 	int faceArrayTableSize() const { return m_faceArrayTableSize; }
@@ -295,7 +288,9 @@ public:
 	 *
 	 * @see chooseIteratorFrom
 	 */
-	face chooseFace(std::function<bool(face)> includeFace = [](face) { return true; }, bool isFastTest = true) const;
+	face chooseFace(
+			std::function<bool(face)> includeFace = [](face) { return true; },
+			bool isFastTest = true) const;
 
 	//! Returns a face of maximal size.
 	face maximalFace() const;
@@ -303,9 +298,7 @@ public:
 	/** @} @{
 	 * \brief Returns the external face.
 	 */
-	face externalFace() const {
-		return m_externalFace;
-	}
+	face externalFace() const { return m_externalFace; }
 
 	/**
 	 * \brief Sets the external face to \p f.
@@ -326,7 +319,7 @@ public:
 	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
-	void init(const Graph &G);
+	void init(const Graph& G);
 
 	void init();
 
@@ -345,7 +338,7 @@ public:
 	 *
 	 * This method is only used by face arrays.
 	 */
-	ListIterator<FaceArrayBase*> registerArray(FaceArrayBase *pFaceArray) const;
+	ListIterator<FaceArrayBase*> registerArray(FaceArrayBase* pFaceArray) const;
 
 	/**
 	 * \brief Unregisters the face array identified by \p it.
@@ -355,7 +348,7 @@ public:
 	void unregisterArray(ListIterator<FaceArrayBase*> it) const;
 
 	//! Move the registration \p it of a node array to \p pFaceArray (used with move semantics for face arrays).
-	void moveRegisterArray(ListIterator<FaceArrayBase*> it, FaceArrayBase *pFaceArray) const;
+	void moveRegisterArray(ListIterator<FaceArrayBase*> it, FaceArrayBase* pFaceArray) const;
 
 	/**
 	 * Identifies a common face of two nodes and returns the respective adjacency entry.
@@ -381,7 +374,7 @@ public:
 	 *
 	 * @return The adjacency entry to the right of a common face of v and w, incident to v.
 	 */
-	adjEntry findCommonFace(const node v, const node w, adjEntry &adjW, bool left = true) const;
+	adjEntry findCommonFace(const node v, const node w, adjEntry& adjW, bool left = true) const;
 
 	/** @} */
 
@@ -406,25 +399,22 @@ protected:
  * The class Graph allows shared access of threads to const methods only.
  * If one thread executes a non-const method, shared access is no longer thread-safe.
  */
-class OGDF_EXPORT CombinatorialEmbedding : public ConstCombinatorialEmbedding
-{
+class OGDF_EXPORT CombinatorialEmbedding : public ConstCombinatorialEmbedding {
 	friend class GraphCopy;
 
-	Graph *m_pGraph; //!< The associated graph.
+	Graph* m_pGraph; //!< The associated graph.
 
 	// the following methods are explicitly deleted
 	// It is not clear which meaning copying of a comb. embedding should
 	// have since we only store a pointer to the topology (Graph)
-	CombinatorialEmbedding(const CombinatorialEmbedding &) = delete;
-	CombinatorialEmbedding &operator=(const CombinatorialEmbedding &) = delete;
+	CombinatorialEmbedding(const CombinatorialEmbedding&) = delete;
+	CombinatorialEmbedding& operator=(const CombinatorialEmbedding&) = delete;
 
 public:
 	/** @{
 	 * \brief Creates a combinatorial embedding associated with no graph.
 	 */
-	CombinatorialEmbedding() : ConstCombinatorialEmbedding() {
-		m_pGraph = nullptr;
-	}
+	CombinatorialEmbedding() : ConstCombinatorialEmbedding() { m_pGraph = nullptr; }
 
 	/**
 	 * \brief Creates a combinatorial embedding of graph \p G.
@@ -432,39 +422,34 @@ public:
 	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
-	explicit CombinatorialEmbedding(Graph &G) : ConstCombinatorialEmbedding(G) {
-		m_pGraph = &G;
-	}
+	explicit CombinatorialEmbedding(Graph& G) : ConstCombinatorialEmbedding(G) { m_pGraph = &G; }
 
-	//@}
+	//! @}
 	/**
 	 * @name Access to the associated graph
 	 */
-	//@{
+	//! @{
 
 	//! Returns the associated graph.
-	const Graph &getGraph() const
-	{
+	const Graph& getGraph() const {
 		OGDF_ASSERT(valid());
 		return *m_cpGraph;
 	}
 
-	Graph &getGraph()
-	{
+	Graph& getGraph() {
 		OGDF_ASSERT(valid());
 		return *m_pGraph;
 	}
 
-	operator const Graph &() const { return getGraph(); }
+	operator const Graph&() const { return getGraph(); }
 
-	operator Graph &() { return getGraph(); }
+	operator Graph&() { return getGraph(); }
 
-
-	//@}
+	//! @}
 	/**
 	 * @name Initialization
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * \brief Initializes the embedding for graph \p G.
@@ -472,7 +457,7 @@ public:
 	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
-	void init(Graph &G) {
+	void init(Graph& G) {
 		ConstCombinatorialEmbedding::init(G);
 		m_pGraph = &G;
 	}
@@ -483,11 +468,11 @@ public:
 	void clear();
 
 
-	//@}
+	//! @}
 	/**
 	 * @name Update of embedding
 	 */
-	//@{
+	//! @{
 
 	/**
 	 * \brief Splits edge \p e=(\a v,\a w) into \a e=(\a v,\a u) and \a e'=(\a u,\a w) creating a new node \a u.

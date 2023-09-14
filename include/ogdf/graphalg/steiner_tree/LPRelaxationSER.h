@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <ogdf/external/coin.h>
+#include <coin/CoinPackedMatrix.hpp>
+
 #include <ogdf/basic/SubsetEnumerator.h>
+#include <ogdf/external/coin.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
-
-#include <coin/CoinPackedMatrix.hpp>
 
 //#define OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
 //#define OGDF_STEINERTREE_LPRELAXATIONSER_OUTPUT_LP
@@ -49,18 +49,17 @@ namespace steiner_tree {
 //! Class managing the component-based subtour elimination LP relaxation
 //! for the Steiner tree problem and its solving
 template<typename T>
-class LPRelaxationSER
-{
-	const EdgeWeightedGraph<T> &m_G;
-	const NodeArray<bool> &m_isTerminal;
-	const List<node> &m_terminals; //!< List of terminals
-	FullComponentWithExtraStore<T, double> &m_fullCompStore; //!< all enumerated full components, with solution
+class LPRelaxationSER {
+	const EdgeWeightedGraph<T>& m_G;
+	const NodeArray<bool>& m_isTerminal;
+	const List<node>& m_terminals; //!< List of terminals
+	FullComponentWithExtraStore<T, double>& m_fullCompStore; //!< all enumerated full components, with solution
 
-	OsiSolverInterface *m_osiSolver;
-	CoinPackedMatrix *m_matrix;
-	double *m_objective;
-	double *m_lowerBounds;
-	double *m_upperBounds;
+	OsiSolverInterface* m_osiSolver;
+	CoinPackedMatrix* m_matrix;
+	double* m_objective;
+	double* m_lowerBounds;
+	double* m_upperBounds;
 
 	const T m_upperBound;
 	const int m_separateCliqueSize;
@@ -75,21 +74,21 @@ class LPRelaxationSER
 	//! Add terminal cover constraints to the LP
 	void addTerminalCoverConstraint();
 	//! Add subset cover constraints to the LP for a given subset of terminals
-	bool addSubsetCoverConstraint(const ArrayBuffer<node> &subset);
+	bool addSubsetCoverConstraint(const ArrayBuffer<node>& subset);
 	//! Add constraint that the sum of x_C over all components C spanning terminal \p t is at least 1 to ensure y_t >= 0
 	void addYConstraint(const node t);
 
 	//! Separate to ensure that the solution is connected
 	//! @return True iff new constraints have been introduced
-	bool separateConnected(const ArrayBuffer<int> &activeComponents);
+	bool separateConnected(const ArrayBuffer<int>& activeComponents);
 
 	//! Perform the general cut-based separation algorithm
 	//! @return True iff new constraints have been introduced
-	bool separateMinCut(const ArrayBuffer<int> &activeComponents);
+	bool separateMinCut(const ArrayBuffer<int>& activeComponents);
 
 	//! Perform the separation algorithm for cycle constraints (to obtain stronger LP solution)
 	//! @return True iff new constraints have been introduced
-	bool separateCycles(const ArrayBuffer<int> &activeComponents);
+	bool separateCycles(const ArrayBuffer<int>& activeComponents);
 
 	//! Perform all available separation algorithms
 	//! @return True iff new constraints have been introduced
@@ -97,12 +96,8 @@ class LPRelaxationSER
 
 	//! Generates an auxiliary multi-graph for separation (during LP solving):
 	//!  directed, with special source and target, without Steiner vertices of degree 2
-	double generateMinCutSeparationGraph(const ArrayBuffer<int> &activeComponents,
-	                                     node &source, node &target,
-	                                     GraphCopy &G,
-	                                     EdgeArray<double> &capacity,
-	                                     int &cutsFound)
-	{
+	double generateMinCutSeparationGraph(const ArrayBuffer<int>& activeComponents, node& source,
+			node& target, GraphCopy& G, EdgeArray<double>& capacity, int& cutsFound) {
 		G.createEmpty(m_G);
 		capacity.init(G);
 		source = G.newNode();
@@ -113,7 +108,7 @@ class LPRelaxationSER
 		for (int j = 0; j < activeComponents.size(); ++j) {
 			const int i = activeComponents[j];
 			const double cap = m_fullCompStore.extra(i);
-			const Array<node> &terminals = m_fullCompStore.terminals(i);
+			const Array<node>& terminals = m_fullCompStore.terminals(i);
 			// take the first terminal as root
 			// XXX: we may generate parallel edges but it's ok
 			const auto it0 = terminals.begin();
@@ -148,10 +143,9 @@ class LPRelaxationSER
 			if (y_v < -m_eps) {
 				addYConstraint(t);
 				++cutsFound;
-			}
-			else
+			} else
 #endif
-			if (y_v > 0) {
+					if (y_v > 0) {
 				capacity[G.newEdge(v, target)] = y_v;
 				y_R += y_v;
 			}
@@ -188,25 +182,24 @@ public:
 	 * @param cliqueSize the maximal clique size for stronger LP constraints (or 0 if the original LP should be solved)
 	 * @param eps epsilon used for comparisons
 	 */
-	LPRelaxationSER(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal,
-	                FullComponentWithExtraStore<T, double> &fullCompStore,
-	                T upperBound = 0, int cliqueSize = 0, double eps = 1e-8)
-	  : m_G(G)
-	  , m_isTerminal(isTerminal)
-	  , m_terminals(terminals)
-	  , m_fullCompStore(fullCompStore)
-	  , m_osiSolver(CoinManager::createCorrectOsiSolverInterface())
-	  , m_matrix(new CoinPackedMatrix)
-	  , m_objective(new double[m_fullCompStore.size()])
-	  , m_lowerBounds(new double[m_fullCompStore.size()])
-	  , m_upperBounds(new double[m_fullCompStore.size()])
-	  , m_upperBound(upperBound)
-	  , m_separateCliqueSize(cliqueSize)
+	LPRelaxationSER(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
+			const NodeArray<bool>& isTerminal, FullComponentWithExtraStore<T, double>& fullCompStore,
+			T upperBound = 0, int cliqueSize = 0, double eps = 1e-8)
+		: m_G(G)
+		, m_isTerminal(isTerminal)
+		, m_terminals(terminals)
+		, m_fullCompStore(fullCompStore)
+		, m_osiSolver(CoinManager::createCorrectOsiSolverInterface())
+		, m_matrix(new CoinPackedMatrix)
+		, m_objective(new double[m_fullCompStore.size()])
+		, m_lowerBounds(new double[m_fullCompStore.size()])
+		, m_upperBounds(new double[m_fullCompStore.size()])
+		, m_upperBound(upperBound)
+		, m_separateCliqueSize(cliqueSize)
 #ifdef OGDF_STEINERTREE_LPRELAXATIONSER_SEPARATE_CONNECTED_COMPONENTS
-	  , m_separationStage(0)
+		, m_separationStage(0)
 #endif
-	  , m_eps(eps)
-	{
+		, m_eps(eps) {
 		generateProblem();
 		addTerminalCoverConstraint();
 
@@ -217,8 +210,7 @@ public:
 #endif
 	}
 
-	~LPRelaxationSER()
-	{
+	~LPRelaxationSER() {
 		delete[] m_objective;
 		delete m_matrix;
 		delete[] m_lowerBounds;
@@ -232,9 +224,7 @@ public:
 };
 
 template<typename T>
-void
-LPRelaxationSER<T>::generateProblem()
-{
+void LPRelaxationSER<T>::generateProblem() {
 	const int n = m_fullCompStore.size();
 
 	m_matrix->setDimensions(0, n);
@@ -255,9 +245,7 @@ LPRelaxationSER<T>::generateProblem()
 }
 
 template<typename T>
-void
-LPRelaxationSER<T>::addYConstraint(const node t)
-{
+void LPRelaxationSER<T>::addYConstraint(const node t) {
 	CoinPackedVector row;
 
 	for (int i = 0; i < m_fullCompStore.size(); ++i) {
@@ -271,9 +259,7 @@ LPRelaxationSER<T>::addYConstraint(const node t)
 
 // add constraint if necessary and return if necessary
 template<typename T>
-bool
-LPRelaxationSER<T>::addSubsetCoverConstraint(const ArrayBuffer<node> &subset)
-{
+bool LPRelaxationSER<T>::addSubsetCoverConstraint(const ArrayBuffer<node>& subset) {
 	CoinPackedVector row;
 	double test = 0;
 
@@ -281,14 +267,12 @@ LPRelaxationSER<T>::addSubsetCoverConstraint(const ArrayBuffer<node> &subset)
 		// compute the intersection cardinality (linear time because terminal sets are sorted by index)
 		int intersectionCard = 0;
 		auto terminals = m_fullCompStore.terminals(i);
-		node *it1 = terminals.begin();
+		node* it1 = terminals.begin();
 		auto it2 = subset.begin();
-		while (it1 != terminals.end()
-		    && it2 != subset.end()) {
+		while (it1 != terminals.end() && it2 != subset.end()) {
 			if ((*it1)->index() < (*it2)->index()) {
 				++it1;
-			} else
-			if ((*it1)->index() > (*it2)->index()) {
+			} else if ((*it1)->index() > (*it2)->index()) {
 				++it2;
 			} else { // ==
 				++intersectionCard;
@@ -310,9 +294,7 @@ LPRelaxationSER<T>::addSubsetCoverConstraint(const ArrayBuffer<node> &subset)
 }
 
 template<typename T>
-void
-LPRelaxationSER<T>::addTerminalCoverConstraint()
-{
+void LPRelaxationSER<T>::addTerminalCoverConstraint() {
 	// we use the sum over all components C of (|C| - 1) * x_C = |R| - 1 constraint
 	// from the paper
 	CoinPackedVector row;
@@ -326,22 +308,22 @@ LPRelaxationSER<T>::addTerminalCoverConstraint()
 }
 
 template<typename T>
-bool
-LPRelaxationSER<T>::solve()
-{
+bool LPRelaxationSER<T>::solve() {
 	bool initialIteration = true;
 
 	do {
 		if (initialIteration) {
 			m_osiSolver->initialSolve();
 #ifdef OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
-			std::cout << "Objective value " << m_osiSolver->getObjValue() << " of initial solution." << std::endl;
+			std::cout << "Objective value " << m_osiSolver->getObjValue() << " of initial solution."
+					  << std::endl;
 #endif
 			initialIteration = false;
 		} else {
 			m_osiSolver->resolve();
 #ifdef OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
-			std::cout << "Objective value " << m_osiSolver->getObjValue() << " after resolve." << std::endl;
+			std::cout << "Objective value " << m_osiSolver->getObjValue() << " after resolve."
+					  << std::endl;
 #endif
 		}
 
@@ -355,7 +337,7 @@ LPRelaxationSER<T>::solve()
 		}
 	} while (separate());
 
-	const double *constSol = m_osiSolver->getColSolution();
+	const double* constSol = m_osiSolver->getColSolution();
 	const int numberOfColumns = m_osiSolver->getNumCols();
 
 	for (int i = 0; i < numberOfColumns; ++i) {
@@ -370,10 +352,8 @@ LPRelaxationSER<T>::solve()
 }
 
 template<typename T>
-bool
-LPRelaxationSER<T>::separate()
-{
-	const double *constSol = m_osiSolver->getColSolution();
+bool LPRelaxationSER<T>::separate() {
+	const double* constSol = m_osiSolver->getColSolution();
 
 	ArrayBuffer<int> activeComponents;
 	for (int i = 0; i < m_fullCompStore.size(); ++i) {
@@ -398,9 +378,7 @@ LPRelaxationSER<T>::separate()
 }
 
 template<typename T>
-bool
-LPRelaxationSER<T>::separateConnected(const ArrayBuffer<int> &activeComponents)
-{
+bool LPRelaxationSER<T>::separateConnected(const ArrayBuffer<int>& activeComponents) {
 	NodeArray<int> setID(m_G, -1); // XXX: NodeArray over terminals only would be better
 	DisjointSets<> uf(m_terminals.size());
 	for (node t : m_terminals) {
@@ -438,15 +416,14 @@ LPRelaxationSER<T>::separateConnected(const ArrayBuffer<int> &activeComponents)
 }
 
 template<typename T>
-bool
-LPRelaxationSER<T>::separateMinCut(const ArrayBuffer<int> &activeComponents)
-{
+bool LPRelaxationSER<T>::separateMinCut(const ArrayBuffer<int>& activeComponents) {
 	int cutsFound = 0;
 	node source;
 	node pseudotarget;
 	GraphCopy auxG;
 	EdgeArray<double> capacity;
-	double y_R = generateMinCutSeparationGraph(activeComponents, source, pseudotarget, auxG, capacity, cutsFound);
+	double y_R = generateMinCutSeparationGraph(activeComponents, source, pseudotarget, auxG,
+			capacity, cutsFound);
 
 #ifdef OGDF_STEINERTREE_LPRELAXATIONSER_SEPARATE_YVAR_CONSTRAINTS
 	if (cutsFound > 0) {
@@ -488,9 +465,7 @@ LPRelaxationSER<T>::separateMinCut(const ArrayBuffer<int> &activeComponents)
 }
 
 template<typename T>
-bool
-LPRelaxationSER<T>::separateCycles(const ArrayBuffer<int> &activeComponents)
-{
+bool LPRelaxationSER<T>::separateCycles(const ArrayBuffer<int>& activeComponents) {
 	int count = 0;
 
 	// generate auxiliary graph
@@ -501,20 +476,18 @@ LPRelaxationSER<T>::separateCycles(const ArrayBuffer<int> &activeComponents)
 	}
 	for (node u1 : G.nodes) {
 		const int i1 = id[u1];
-		const Array<node> &terminals1 = m_fullCompStore.terminals(i1);
+		const Array<node>& terminals1 = m_fullCompStore.terminals(i1);
 		for (node u2 = u1->succ(); u2; u2 = u2->succ()) {
 			const int i2 = id[u2];
-			const Array<node> &terminals2 = m_fullCompStore.terminals(i2);
+			const Array<node>& terminals2 = m_fullCompStore.terminals(i2);
 			// compute intersection cardinality (linear time because terminal sets are sorted by index)
 			int intersectionCard = 0;
-			const node *it1 = terminals1.begin();
-			const node *it2 = terminals2.begin();
-			while (it1 != terminals1.end()
-			    && it2 != terminals2.end()) {
+			const node* it1 = terminals1.begin();
+			const node* it2 = terminals2.begin();
+			while (it1 != terminals1.end() && it2 != terminals2.end()) {
 				if ((*it1)->index() < (*it2)->index()) {
 					++it1;
-				} else
-				if ((*it1)->index() > (*it2)->index()) {
+				} else if ((*it1)->index() > (*it2)->index()) {
 					++it2;
 				} else { // ==
 					++intersectionCard;
@@ -548,17 +521,16 @@ LPRelaxationSER<T>::separateCycles(const ArrayBuffer<int> &activeComponents)
 	}
 	NodeArray<bool> test(G, false);
 	for (int k = degrees.size(); k >= 2; --k) {
-		degrees[k-2].conc(degrees[k-1]);
-		if (degrees[k-2].size() >= k) {
-			SubsetEnumerator<node> nodeSubset(degrees[k-2]);
+		degrees[k - 2].conc(degrees[k - 1]);
+		if (degrees[k - 2].size() >= k) {
+			SubsetEnumerator<node> nodeSubset(degrees[k - 2]);
 			for (nodeSubset.begin(k); nodeSubset.valid(); nodeSubset.next()) {
-				int countEdges = (k * (k-1)) / 2;
+				int countEdges = (k * (k - 1)) / 2;
 				for (int j = 0; j < nodeSubset.size(); ++j) {
 					test[nodeSubset[j]] = true;
 				}
 				for (edge e : G.edges) {
-					if (test[e->source()]
-					 && test[e->target()]) {
+					if (test[e->source()] && test[e->target()]) {
 						countEdges -= 1;
 					}
 				}

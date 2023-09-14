@@ -42,36 +42,33 @@ namespace ogdf {
 /**
  * @ingroup gd-layered-crossmin
  */
-class OGDF_EXPORT SplitHeuristic : public TwoLayerCrossMinSimDraw
-{
+class OGDF_EXPORT SplitHeuristic : public TwoLayerCrossMinSimDraw {
 public:
 	//! Creates a new instance of the split heuristic.
 	SplitHeuristic() : m_cm(nullptr) { }
 
 	//! Creates a new instance of the split heuristic.
-	SplitHeuristic(const SplitHeuristic &crossMin) : m_cm(nullptr) { }
+	SplitHeuristic(const SplitHeuristic& crossMin) : m_cm(nullptr) { }
 
-	~SplitHeuristic() {
-		cleanup();
-	}
+	~SplitHeuristic() { cleanup(); }
 
 	//! Returns a new instance of the splitheurisitc with the same option settings.
-	TwoLayerCrossMinSimDraw *clone() const override { return new SplitHeuristic(*this); }
+	TwoLayerCrossMinSimDraw* clone() const override { return new SplitHeuristic(*this); }
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	void init (const HierarchyLevels &levels) override;
+	void init(const HierarchyLevels& levels) override;
 
 	//! Calls the split heuristic for level \p L.
-	void call (Level &L) override;
+	void call(Level& L) override;
 
 	//! Calls the median heuristic for level \p L (simultaneous drawing).
-	void call (Level &L, const EdgeArray<uint32_t> *edgeSubGraphs) override;
+	void call(Level& L, const EdgeArray<uint32_t>* edgeSubGraphs) override;
 
 	//! Does some clean-up after calls.
-	void cleanup () override;
+	void cleanup() override;
 
 private:
-	CrossingsMatrix *m_cm;
+	CrossingsMatrix* m_cm;
 	Array<node> m_buffer;
 
 	void recCall(Level&, int low, int high);

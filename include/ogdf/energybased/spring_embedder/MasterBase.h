@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Barrier.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 
 namespace ogdf {
@@ -43,20 +43,20 @@ namespace spring_embedder {
 template<typename NodeInfo, typename ForceModelBase>
 class MasterBase {
 protected:
-	const SpringEmbedderBase &m_spring;
-	const GraphCopy &m_gc;
-	GraphAttributes &m_ga;
-	DPoint &m_boundingBox;
+	const SpringEmbedderBase& m_spring;
+	const GraphCopy& m_gc;
+	GraphAttributes& m_ga;
+	DPoint& m_boundingBox;
 
 	NodeArray<int> m_index;
 	Array<NodeInfo> m_vInfo;
 	Array<DPoint> m_disp;
 	Array<int> m_adjLists;
 
-	ForceModelBase *m_forceModel;
-	ForceModelBase *m_forceModelImprove;
+	ForceModelBase* m_forceModel;
+	ForceModelBase* m_forceModelImprove;
 
-	Barrier        *m_barrier;
+	Barrier* m_barrier;
 
 	double m_idealEdgeLength;
 
@@ -70,36 +70,35 @@ protected:
 	double m_scaleFactor;
 
 public:
-	MasterBase(const SpringEmbedderBase &spring, const GraphCopy &gc, GraphAttributes &ga, DPoint &boundingBox)
-	  : m_spring(spring)
-	  , m_gc(gc)
-	  , m_ga(ga)
-	  , m_boundingBox(boundingBox)
-	  , m_index(gc)
-	  , m_vInfo(gc.numberOfNodes())
-	  , m_disp(gc.numberOfNodes())
-	  , m_adjLists(2*gc.numberOfEdges())
-	  , m_forceModel(nullptr)
-	  , m_forceModelImprove(nullptr)
-	  , m_barrier(nullptr)
-	  , m_avgDisplacement(std::numeric_limits<double>::max())
-	  , m_maxDisplacement(std::numeric_limits<double>::max())
-	{
-	}
+	MasterBase(const SpringEmbedderBase& spring, const GraphCopy& gc, GraphAttributes& ga,
+			DPoint& boundingBox)
+		: m_spring(spring)
+		, m_gc(gc)
+		, m_ga(ga)
+		, m_boundingBox(boundingBox)
+		, m_index(gc)
+		, m_vInfo(gc.numberOfNodes())
+		, m_disp(gc.numberOfNodes())
+		, m_adjLists(2 * gc.numberOfEdges())
+		, m_forceModel(nullptr)
+		, m_forceModelImprove(nullptr)
+		, m_barrier(nullptr)
+		, m_avgDisplacement(std::numeric_limits<double>::max())
+		, m_maxDisplacement(std::numeric_limits<double>::max()) { }
 
-	~MasterBase()
-	{
+	~MasterBase() {
 		delete m_barrier;
 		delete m_forceModel;
 		delete m_forceModelImprove;
 	}
 
 	int numberOfNodes() const { return m_vInfo.size(); }
+
 	int numberOfIterations() const { return m_spring.iterations(); }
+
 	int numberOfIterationsImprove() const { return m_spring.iterationsImprove(); }
 
-	void initUnfoldPhase()
-	{
+	void initUnfoldPhase() {
 		// cool down
 		m_t = m_tNull = 0.25 * m_idealEdgeLength * sqrt(numberOfNodes());
 		m_cF = 2.0;
@@ -110,10 +109,9 @@ public:
 		m_maxDisplacement = std::numeric_limits<double>::max();
 	}
 
-	void initImprovementPhase()
-	{
+	void initImprovementPhase() {
 		// cool down
-		m_t  = m_tNull;
+		m_t = m_tNull;
 		m_cF = 2.0;
 		m_coolingFactor = m_spring.coolDownFactor();
 
@@ -122,8 +120,7 @@ public:
 		m_maxDisplacement = std::numeric_limits<double>::max();
 	}
 
-	void coolDown()
-	{
+	void coolDown() {
 		m_cF += m_spring.forceLimitStep();
 		m_t = m_tNull / std::log2(m_cF);
 
@@ -131,35 +128,44 @@ public:
 	}
 
 	double maxForceLength() const { return m_t; }
+
 	double coolingFactor() const { return m_coolingFactor; }
 
 	double idealEdgeLength() const { return m_idealEdgeLength; }
+
 	bool noise() const { return m_spring.noise(); }
 
-	const GraphCopy &getGraph() const { return m_gc; }
-	GraphAttributes &getAttributes() { return m_ga; }
+	const GraphCopy& getGraph() const { return m_gc; }
 
-	const NodeArray<int> &index() const { return m_index; }
-	Array<NodeInfo> &vInfo() { return m_vInfo; }
-	Array<DPoint> &disp() { return m_disp; }
-	Array<int> &adjLists() { return m_adjLists; }
+	GraphAttributes& getAttributes() { return m_ga; }
 
-	const ForceModelBase &forceModel() const { return *m_forceModel; }
-	const ForceModelBase &forceModelImprove() const { return *m_forceModelImprove; }
+	const NodeArray<int>& index() const { return m_index; }
+
+	Array<NodeInfo>& vInfo() { return m_vInfo; }
+
+	Array<DPoint>& disp() { return m_disp; }
+
+	Array<int>& adjLists() { return m_adjLists; }
+
+	const ForceModelBase& forceModel() const { return *m_forceModel; }
+
+	const ForceModelBase& forceModelImprove() const { return *m_forceModelImprove; }
 
 	void syncThreads() {
-		if(m_barrier)
+		if (m_barrier) {
 			m_barrier->threadSync();
+		}
 	}
 
 	double scaleFactor() const { return m_scaleFactor; }
 
 	bool hasConverged() const {
 		return m_avgDisplacement <= m_spring.avgConvergenceFactor() * m_idealEdgeLength
-		    && m_maxDisplacement <= m_spring.maxConvergenceFactor() * m_idealEdgeLength;
+				&& m_maxDisplacement <= m_spring.maxConvergenceFactor() * m_idealEdgeLength;
 	}
 
 	double avgDisplacement() const { return m_avgDisplacement; }
+
 	double maxDisplacement() const { return m_maxDisplacement; }
 };
 

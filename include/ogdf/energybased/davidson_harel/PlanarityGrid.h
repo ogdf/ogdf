@@ -41,24 +41,26 @@
 namespace ogdf {
 namespace davidson_harel {
 
-class PlanarityGrid: public EnergyFunction {
+class PlanarityGrid : public EnergyFunction {
 public:
 	//initializes data structures to speed up later computations
-	explicit PlanarityGrid(GraphAttributes &AG);
+	explicit PlanarityGrid(GraphAttributes& AG);
 	~PlanarityGrid();
 	// computes energy of initial layout and stores it in m_energy
 	void computeEnergy() override;
+
 private:
 	// computes energy of candidate
 	void compCandEnergy() override;
 	// changes internal data if candidate is taken
 	void internalCandidateTaken() override;
 #ifdef OGDF_DEBUG
-		virtual void printInternalData() const override;
+	virtual void printInternalData() const override;
 #endif
-	const GraphAttributes &m_layout; //The current layout
-	UniformGrid *m_currentGrid; //stores grid for current layout
-	UniformGrid *m_candidateGrid; //stores grid for candidate layout
+	const GraphAttributes& m_layout; //The current layout
+	UniformGrid* m_currentGrid; //stores grid for current layout
+	UniformGrid* m_candidateGrid; //stores grid for candidate layout
 };
 
-}}
+}
+}

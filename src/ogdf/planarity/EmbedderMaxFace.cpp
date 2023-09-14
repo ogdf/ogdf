@@ -37,13 +37,12 @@
 
 namespace ogdf {
 
-void EmbedderMaxFace::doCall(Graph& G, adjEntry& adjExternal)
-{
+void EmbedderMaxFace::doCall(Graph& G, adjEntry& adjExternal) {
 	adjExternal = nullptr;
 	pAdjExternal = &adjExternal;
 	node rootBlockNode = initBCTree(G);
 
-	if(rootBlockNode == nullptr) {
+	if (rootBlockNode == nullptr) {
 		return;
 	}
 
@@ -57,11 +56,11 @@ void EmbedderMaxFace::doCall(Graph& G, adjEntry& adjExternal)
 	eH_to_eBlockEmbedding.init(pBCTree->bcTree());
 	nodeLength.init(pBCTree->bcTree());
 	cstrLength.init(pBCTree->bcTree());
-	spqrTrees.init(pBCTree->bcTree(),nullptr);
+	spqrTrees.init(pBCTree->bcTree(), nullptr);
 	computeBlockGraphs(rootBlockNode, nullptr);
 
 	//Bottom-Up-Traversal:
-	for(adjEntry adj : rootBlockNode->adjEntries) {
+	for (adjEntry adj : rootBlockNode->adjEntries) {
 		edge e = adj->theEdge();
 		node cT = e->source();
 		node cH = pBCTree->cutVertex(cT, rootBlockNode);
@@ -69,11 +68,12 @@ void EmbedderMaxFace::doCall(Graph& G, adjEntry& adjExternal)
 
 		//set length of v in block graph of root block node:
 		int length_v_in_rootBlock = 0;
-		for(adjEntry adjCT : cT->adjEntries) {
+		for (adjEntry adjCT : cT->adjEntries) {
 			edge e2 = adjCT->theEdge();
 			//check if edge is an incoming edge:
-			if (e2->target() != cT)
+			if (e2->target() != cT) {
 				continue;
+			}
 
 			node blockNode = e2->source();
 			node cutVertex = pBCTree->cutVertex(cT, blockNode);
@@ -92,29 +92,31 @@ void EmbedderMaxFace::doCall(Graph& G, adjEntry& adjExternal)
 	treeNodeTreated.init(pBCTree->bcTree(), false);
 	embedBlock(bT_opt);
 
-	for(node v : G.nodes)
+	for (node v : G.nodes) {
 		G.sort(v, newOrder[v]);
+	}
 
-	for(node v : pBCTree->bcTree().nodes)
+	for (node v : pBCTree->bcTree().nodes) {
 		delete spqrTrees[v];
+	}
 
 	delete pBCTree;
 }
 
-
-void EmbedderMaxFace::computeBlockGraphs(const node& bT, const node& cH)
-{
+void EmbedderMaxFace::computeBlockGraphs(const node& bT, const node& cH) {
 	//recursion:
-	for(adjEntry adj : bT->adjEntries) {
+	for (adjEntry adj : bT->adjEntries) {
 		edge e = adj->theEdge();
-		if (e->source() == bT)
+		if (e->source() == bT) {
 			continue;
+		}
 
 		node cT = e->source();
-		for(adjEntry adjCT : cT->adjEntries) {
+		for (adjEntry adjCT : cT->adjEntries) {
 			edge e2 = adjCT->theEdge();
-			if (e2->source() == cT)
+			if (e2->source() == cT) {
 				continue;
+			}
 			node cH2 = pBCTree->cutVertex(cT, e2->source());
 			computeBlockGraphs(e2->source(), cH2);
 		}
@@ -122,71 +124,55 @@ void EmbedderMaxFace::computeBlockGraphs(const node& bT, const node& cH)
 
 	//embed block bT:
 	node m_cH = cH;
-	if (m_cH == nullptr)
+	if (m_cH == nullptr) {
 		m_cH = pBCTree->cutVertex(bT->firstAdj()->twinNode(), bT);
+	}
 	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockG[bT], m_cH,
-		nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT],
-		nH_to_nBlockEmbedding[bT], eH_to_eBlockEmbedding[bT]);
+			nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT], nH_to_nBlockEmbedding[bT],
+			eH_to_eBlockEmbedding[bT]);
 	nodeLength[bT].init(blockG[bT], 0);
 	cstrLength[bT].init(blockG[bT], 0);
-	if (   !blockG[bT].empty()
-		&& blockG[bT].numberOfNodes() != 1
-		&& blockG[bT].numberOfEdges() > 2)
-	{
+	if (!blockG[bT].empty() && blockG[bT].numberOfNodes() != 1 && blockG[bT].numberOfEdges() > 2) {
 		spqrTrees[bT] = new StaticSPQRTree(blockG[bT]);
 	}
 }
 
-
-int EmbedderMaxFace::constraintMaxFace(const node& bT, const node& cH)
-{
-	computeNodeLength(bT, [&](node vH) -> int& { return nodeLength[bT][nH_to_nBlockEmbedding[bT][vH]]; });
+int EmbedderMaxFace::constraintMaxFace(const node& bT, const node& cH) {
+	computeNodeLength(bT,
+			[&](node vH) -> int& { return nodeLength[bT][nH_to_nBlockEmbedding[bT][vH]]; });
 
 	EdgeArray<int> edgeLength(blockG[bT], 1);
-	int cstrLengthBc = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-		blockG[bT],
-		nH_to_nBlockEmbedding[bT][cH],
-		nodeLength[bT],
-		edgeLength,
-		spqrTrees[bT]);
+	int cstrLengthBc = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(blockG[bT],
+			nH_to_nBlockEmbedding[bT][cH], nodeLength[bT], edgeLength, spqrTrees[bT]);
 	cstrLength[bT][nH_to_nBlockEmbedding[bT][cH]] = cstrLengthBc;
 	return cstrLengthBc;
 }
 
-
-void EmbedderMaxFace::maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt)
-{
+void EmbedderMaxFace::maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt) {
 	internalMaximumFaceRec(
-			bT, bT_opt, ell_opt,
-			blockG[bT],
-			nodeLength[bT],
-			spqrTrees[bT],
-			[&](node cH) -> node& { return  nH_to_nBlockEmbedding[bT][cH]; },
+			bT, bT_opt, ell_opt, blockG[bT], nodeLength[bT], spqrTrees[bT],
+			[&](node cH) -> node& { return nH_to_nBlockEmbedding[bT][cH]; },
 			[&](node v, node u) -> int& { return cstrLength[v][nH_to_nBlockEmbedding[v][u]]; },
 			[&](node v, node u) -> int& { return nodeLength[v][nH_to_nBlockEmbedding[v][u]]; });
 }
 
-
-void EmbedderMaxFace::embedBlock(const node& bT)
-{
+void EmbedderMaxFace::embedBlock(const node& bT) {
 	ListIterator<adjEntry> after;
 	node cT = nullptr;
 	embedBlock(bT, cT, after);
 }
 
-
-void EmbedderMaxFace::embedBlock(
-	const node& bT,
-	const node& cT,
-	ListIterator<adjEntry>& after)
-{
+void EmbedderMaxFace::embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after) {
 	treeNodeTreated[bT] = true;
 	node cH = nullptr;
-	if (cT != nullptr)
+	if (cT != nullptr) {
 		cH = pBCTree->cutVertex(cT, bT);
+	}
 
 	EdgeArray<int> edgeLength(blockG[bT], 1);
-	internalEmbedBlock(bT, cT, after, blockG[bT], nodeLength[bT], edgeLength, nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT], cH == nullptr ? nullptr : nH_to_nBlockEmbedding[bT][cH]);
+	internalEmbedBlock(bT, cT, after, blockG[bT], nodeLength[bT], edgeLength,
+			nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT],
+			cH == nullptr ? nullptr : nH_to_nBlockEmbedding[bT][cH]);
 }
 
 }

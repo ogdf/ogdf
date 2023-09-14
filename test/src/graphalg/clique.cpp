@@ -35,21 +35,18 @@
 #include <ogdf/clique/CliqueFinderSPQR.h>
 
 #ifdef OGDF_TEST_CLIQUE_PRINT_DRAWINGS
-# include <ogdf/energybased/SpringEmbedderExact.h>
-# include <regex>
+#	include <ogdf/energybased/SpringEmbedderFRExact.h>
+
+#	include <regex>
 #endif
 
 #include <graphs.h>
 #include <testing.h>
 
-static void assertCliqueCorrectness(const Graph &G,
-		const NodeArray<int> &cliqueNumber,
-		const List<List<node>*> &cliqueList,
-		int minSize,
-		double density = 1.0)
-{
+static void assertCliqueCorrectness(const Graph& G, const NodeArray<int>& cliqueNumber,
+		const List<List<node>*>& cliqueList, int minSize, double density = 1.0) {
 	NodeArray<bool> used(G, false);
-	for (List<node> *clique : cliqueList) {
+	for (List<node>* clique : cliqueList) {
 		// All cliques are greater than minSize.
 		AssertThat(clique->size(), IsGreaterThanOrEqualTo(minSize));
 
@@ -75,53 +72,50 @@ static void assertCliqueCorrectness(const Graph &G,
 }
 
 template<typename Algorithm>
-static void describeCliqueFinder(Algorithm &cf, double density = 1.0) {
-	forEachGraphDescribe({}, [&](const Graph& G,
-				const std::string &graphName,
-				const std::set<GraphProperty>&) {
-		List<List<node>*> cliqueList;
+static void describeCliqueFinder(Algorithm& cf, double density = 1.0) {
+	forEachGraphDescribe({},
+			[&](const Graph& G, const std::string& graphName, const std::set<GraphProperty>&) {
+				List<List<node>*> cliqueList;
 
-		after_each([&cliqueList] {
-			// Free memory.
-			for (List<node> *clique : cliqueList) {
-				delete clique;
-			}
-			cliqueList.clear();
-		});
+				after_each([&cliqueList] {
+					// Free memory.
+					for (List<node>* clique : cliqueList) {
+						delete clique;
+					}
+					cliqueList.clear();
+				});
 
-		// Find a reasonable maxMinSize and stepSize.
-		// Cliques bigger than maxMinSize will probably not exist.
-		int n = G.numberOfNodes();
-		double graphDensity = min(1.0, G.numberOfEdges() / (n*(n-1)/2.0));
-		int maxMinSize = max(2, int(n * graphDensity));
-		int stepSize = maxMinSize <= 9 ? 1 : 3;
+				// Find a reasonable maxMinSize and stepSize.
+				// Cliques bigger than maxMinSize will probably not exist.
+				int n = G.numberOfNodes();
+				double graphDensity = min(1.0, G.numberOfEdges() / (n * (n - 1) / 2.0));
+				int maxMinSize = max(2, int(n * graphDensity));
+				int stepSize = maxMinSize <= 9 ? 1 : 3;
 
-		for (int minSize = 1; minSize < maxMinSize + 1; minSize += stepSize) {
-			it("works with minSize " + std::to_string(minSize), [&](){
-				NodeArray<int> cliqueNumber(G);
-				cf.setMinSize(minSize);
-				cf.call(G, cliqueNumber);
-				cf.call(G, cliqueList);
+				for (int minSize = 1; minSize < maxMinSize + 1; minSize += stepSize) {
+					it("works with minSize " + std::to_string(minSize), [&]() {
+						NodeArray<int> cliqueNumber(G);
+						cf.setMinSize(minSize);
+						cf.call(G, cliqueNumber);
+						cf.call(G, cliqueList);
 
 #ifdef OGDF_TEST_CLIQUE_PRINT_DRAWINGS
-				GraphAttributes GA(G);
-				CliqueFinderModule::cliqueGraphAttributes(G, cliqueNumber, GA);
-				SpringEmbedderExact layout;
-				layout.call(GA);
-				GA.scale(3, false);
-				std::string filename =
-					std::regex_replace(graphName, std::regex("\\W+"), "_") +
-					"_density=" + std::to_string(density) +
-					"_minSize=" + std::to_string(minSize) + ".svg";
-				GraphIO::write(GA, filename, GraphIO::drawSVG);
+						GraphAttributes GA(G);
+						CliqueFinderModule::cliqueGraphAttributes(G, cliqueNumber, GA);
+						SpringEmbedderFRExact layout;
+						layout.call(GA);
+						GA.scale(3, false);
+						std::string filename = std::regex_replace(graphName, std::regex("\\W+"), "_")
+								+ "_density=" + std::to_string(density)
+								+ "_minSize=" + std::to_string(minSize) + ".svg";
+						GraphIO::write(GA, filename, GraphIO::drawSVG);
 #endif
 
-				assertCliqueCorrectness(G, cliqueNumber, cliqueList, minSize, density);
+						assertCliqueCorrectness(G, cliqueNumber, cliqueList, minSize, density);
+					});
+				}
 			});
-		}
-	});
 }
-
 
 go_bandit([] {
 	describe("Clique finding algorithms", [] {

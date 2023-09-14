@@ -35,9 +35,9 @@
 
 #pragma once
 
-#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/NodeArray.h>
+#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
 
 namespace ogdf {
 
@@ -47,94 +47,90 @@ namespace cluster_planarity {
 
 class ClusterPQContainer {
 	friend class ogdf::CconnectClusterPlanarEmbed;
-	using InfoLeafPtr = booth_lueker::PlanarLeafKey<booth_lueker::IndInfo *> *;
+	using InfoLeafPtr = booth_lueker::PlanarLeafKey<booth_lueker::IndInfo*>*;
 
 	// Definition
 	// incoming edge of v: an edge e = (v,w) with number(v) < number(w)
 
 	// Stores for every node v the keys corresponding to the incoming edges of v
-	NodeArray<SListPure<InfoLeafPtr>> *m_inLeaves;
+	NodeArray<SListPure<InfoLeafPtr>>* m_inLeaves;
 
 	// Stores for every node v the keys corresponding to the outgoing edges of v
-	NodeArray<SListPure<InfoLeafPtr>> *m_outLeaves;
+	NodeArray<SListPure<InfoLeafPtr>>* m_outLeaves;
 
 	// Stores for every node v the sequence of incoming edges of v according
 	// to the embedding
-	NodeArray<SListPure<edge> >* m_frontier;
+	NodeArray<SListPure<edge>>* m_frontier;
 
 	// Stores for every node v the nodes corresponding to the
 	// opposed sink indicators found in the frontier of v.
-	NodeArray<SListPure<node> >* m_opposed;
+	NodeArray<SListPure<node>>* m_opposed;
 
 	// Stores for every node v the nodes corresponding to the
 	// non opposed sink indicators found in the frontier of v.
-	NodeArray<SListPure<node> >* m_nonOpposed;
+	NodeArray<SListPure<node>>* m_nonOpposed;
 
 	// Table to acces for every edge its corresponding key in the PQTree
-	EdgeArray<InfoLeafPtr> *m_edge2Key;
+	EdgeArray<InfoLeafPtr>* m_edge2Key;
 
 	// Stores for every node its st-number
-	NodeArray<int> *m_numbering;
+	NodeArray<int>* m_numbering;
 
 	// Stores for every st-number the node
-	Array<node> *m_tableNumber2Node;
+	Array<node>* m_tableNumber2Node;
 
 	node m_superSink;
 
 	// the subgraph that contains the biconnected component
 	// NOT THE COPY OF THE BICONNECTED COMPONENT THAT WAS CONSTRUCTED
 	// DURING PLANARITY TESTING. THIS HAS BEEN DELETED.
-	Graph					*m_subGraph;
+	Graph* m_subGraph;
 	// corresponding PQTree
-	booth_lueker::EmbedPQTree *m_T;
+	booth_lueker::EmbedPQTree* m_T;
 	// The leaf correpsonding to the edge (s,t).
 	InfoLeafPtr m_stEdgeLeaf;
 
 public:
-
-	ClusterPQContainer():
-		m_inLeaves(nullptr),m_outLeaves(nullptr),m_frontier(nullptr),
-		m_opposed(nullptr),m_nonOpposed(nullptr),m_edge2Key(nullptr),
-		m_numbering(nullptr),m_tableNumber2Node(nullptr),
-		m_superSink(nullptr),m_subGraph(nullptr),m_T(nullptr), m_stEdgeLeaf(nullptr) { }
+	ClusterPQContainer()
+		: m_inLeaves(nullptr)
+		, m_outLeaves(nullptr)
+		, m_frontier(nullptr)
+		, m_opposed(nullptr)
+		, m_nonOpposed(nullptr)
+		, m_edge2Key(nullptr)
+		, m_numbering(nullptr)
+		, m_tableNumber2Node(nullptr)
+		, m_superSink(nullptr)
+		, m_subGraph(nullptr)
+		, m_T(nullptr)
+		, m_stEdgeLeaf(nullptr) { }
 
 	~ClusterPQContainer() { }
 
-	void init(Graph *subGraph){
+	void init(Graph* subGraph) {
 		m_subGraph = subGraph;
-		m_inLeaves
-			= new NodeArray<SListPure<InfoLeafPtr>>(*subGraph);
+		m_inLeaves = new NodeArray<SListPure<InfoLeafPtr>>(*subGraph);
 
-		m_outLeaves
-			= new NodeArray<SListPure<InfoLeafPtr>>(*subGraph);
+		m_outLeaves = new NodeArray<SListPure<InfoLeafPtr>>(*subGraph);
 
-		m_frontier
-			= new NodeArray<SListPure<edge>>(*subGraph);
+		m_frontier = new NodeArray<SListPure<edge>>(*subGraph);
 
-		m_opposed
-			= new NodeArray<SListPure<node>>(*subGraph);
+		m_opposed = new NodeArray<SListPure<node>>(*subGraph);
 
-		m_nonOpposed
-			= new NodeArray<SListPure<node>>(*subGraph);
+		m_nonOpposed = new NodeArray<SListPure<node>>(*subGraph);
 
-		m_edge2Key
-			= new EdgeArray<InfoLeafPtr>(*subGraph);
+		m_edge2Key = new EdgeArray<InfoLeafPtr>(*subGraph);
 
-		m_numbering
-			= new NodeArray<int >(*subGraph);
+		m_numbering = new NodeArray<int>(*subGraph);
 
-		m_tableNumber2Node
-			= new Array<node>(subGraph->numberOfNodes()+1);
+		m_tableNumber2Node = new Array<node>(subGraph->numberOfNodes() + 1);
 	}
 
 	void Cleanup() {
 		delete m_inLeaves;
-		if (m_outLeaves)
-		{
-			for(node v : m_subGraph->nodes)
-			{
-				while (!(*m_outLeaves)[v].empty())
-				{
+		if (m_outLeaves) {
+			for (node v : m_subGraph->nodes) {
+				while (!(*m_outLeaves)[v].empty()) {
 					InfoLeafPtr L = (*m_outLeaves)[v].popFrontRet();
 					delete L;
 				}
@@ -145,14 +141,12 @@ public:
 		delete m_opposed;
 		delete m_nonOpposed;
 		delete m_edge2Key;
-		if (m_T)
-		{
+		if (m_T) {
 			m_T->emptyAllPertinentNodes();
 			delete m_T;
 		}
 		delete m_numbering;
 		delete m_tableNumber2Node;
-
 	}
 };
 

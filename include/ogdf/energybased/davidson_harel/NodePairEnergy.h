@@ -33,17 +33,17 @@
 
 #pragma once
 
-#include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/basic/Array2D.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 
 namespace ogdf {
 namespace davidson_harel {
 
-class NodePairEnergy: public EnergyFunction {
+class NodePairEnergy : public EnergyFunction {
 public:
 	//Initializes data dtructures to speed up later computations
-	NodePairEnergy(const string energyname, GraphAttributes &AG);
+	NodePairEnergy(const string energyname, GraphAttributes& AG);
 
 	virtual ~NodePairEnergy() {
 		delete m_nodeNums;
@@ -61,7 +61,7 @@ protected:
 	int nodeNum(node v) const { return (*m_nodeNums)[v]; }
 
 	//! returns true in constant time if two vertices are adjacent.
-	bool adjacent(const node v, const node w) const { return m_adjacentOracle.adjacent(v,w); }
+	bool adjacent(const node v, const node w) const { return m_adjacentOracle.adjacent(v, w); }
 
 	//! Returns the shape of a vertex \p v as a DIntersectableRect.
 	const DIntersectableRect& shape(const node v) const { return m_shape[v]; }
@@ -71,14 +71,14 @@ protected:
 #endif
 
 private:
-	NodeArray<int> *m_nodeNums;//stores internal number of each vertex
-	Array2D<double> *m_pairEnergy;//stores for each pair of vertices its energy
-	NodeArray<double> m_candPairEnergy;//stores for each vertex its pair energy with
+	NodeArray<int>* m_nodeNums; //stores internal number of each vertex
+	Array2D<double>* m_pairEnergy; //stores for each pair of vertices its energy
+	NodeArray<double> m_candPairEnergy; //stores for each vertex its pair energy with
 	//respect to the vertex to be moved if its new position is chosen
-	NodeArray<DIntersectableRect> m_shape;//stores the shape of each vertex as
+	NodeArray<DIntersectableRect> m_shape; //stores the shape of each vertex as
 	//a DIntersectableRect
-	List<node> m_nonIsolated;//list of vertices with degree greater zero
-	const AdjacencyOracle m_adjacentOracle;//structure for constant time adjacency queries
+	List<node> m_nonIsolated; //list of vertices with degree greater zero
+	const AdjacencyOracle m_adjacentOracle; //structure for constant time adjacency queries
 
 	//function computes energy stored in a certain pair of vertices
 	double computePairEnergy(const node v, const node w) const;
@@ -91,4 +91,5 @@ private:
 	void internalCandidateTaken() override;
 };
 
-}}
+}
+}

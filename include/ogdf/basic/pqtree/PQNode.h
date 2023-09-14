@@ -42,29 +42,32 @@
 
 namespace ogdf {
 
-template<class T,class X,class Y> class PQTree;
-template<class T,class X,class Y> class PQLeafKey;
-template<class T,class X,class Y> class PQNodeKey;
-template<class T,class X,class Y> class PQInternalKey;
+template<class T, class X, class Y>
+class PQTree;
+template<class T, class X, class Y>
+class PQLeafKey;
+template<class T, class X, class Y>
+class PQNodeKey;
+template<class T, class X, class Y>
+class PQInternalKey;
 
-template<class T,class X,class Y> class PQNode: public PQNodeRoot
-{
+template<class T, class X, class Y>
+class PQNode : public PQNodeRoot {
 	/**
 	 * All members and member function of PQNode are needed
 	 * by the class template PQTree. Therefore the class PQTree
 	 * was made friendof PQNode, since this prevents the use of a large
 	 * amount of extra public functions.
 	 */
-	friend class PQTree<T,X,Y>;
+	friend class PQTree<T, X, Y>;
 
 public:
-
 	/**
 	 * The (first) constructor combines the node with its information and
 	 * will automatically set the PQBasicKey::m_nodePointer (see basicKey) of
 	 * the element of type PQNodeKey.
 	 */
-	PQNode(int count, PQNodeKey<T,X,Y>* infoPtr);
+	PQNode(int count, PQNodeKey<T, X, Y>* infoPtr);
 
 
 	/**
@@ -82,8 +85,7 @@ public:
 	 * with an appropriate destructor, or make use of the function
 	 * CleanNode() of the class template PQTree.
 	 */
-	virtual ~PQNode()
-	{
+	virtual ~PQNode() {
 		delete fullChildren;
 		delete partialChildren;
 	}
@@ -98,7 +100,7 @@ public:
 	 * replacing \p oldEnd by \p newEnd. Otherwise the function returns
 	 * 0, leaving with an error message.
 	 */
-	bool changeEndmost(PQNode<T,X,Y>* oldEnd, PQNode<T,X,Y>* newEnd);
+	bool changeEndmost(PQNode<T, X, Y>* oldEnd, PQNode<T, X, Y>* newEnd);
 
 	/**
 	 * The function changeSiblings() replaces the old sibling \p oldSib of the
@@ -110,7 +112,7 @@ public:
 	 * replacing \p oldSib by \p newSib. Otherwise the function returns
 	 * 0, leaving with an error message.
 	 */
-	bool changeSiblings(PQNode<T,X,Y>* oldSib, PQNode<T,X,Y>* newSib);
+	bool changeSiblings(PQNode<T, X, Y>* oldSib, PQNode<T, X, Y>* newSib);
 
 	/**
 	 * The function endmostChild() checks if a node is endmost child of
@@ -118,9 +120,7 @@ public:
 	 * or #m_sibRight is 0. If the node is endmost child of a Q-node,
 	 * then it has a valid parent pointer.
 	 */
-	bool endmostChild() const {
-		return m_sibLeft == nullptr || m_sibRight == nullptr;
-	}
+	bool endmostChild() const { return m_sibLeft == nullptr || m_sibRight == nullptr; }
 
 	/**
 	 * Returns one of the endmost children of node, if node is a Q-node.
@@ -131,11 +131,12 @@ public:
 	 * getEndmost() return an arbitrary endmost child (it returns the
 	 * left endmost child).
 	 */
-	PQNode<T,X,Y>* getEndmost(PQNode<T,X,Y>* other) const {
-		if (m_leftEndmost != other)
+	PQNode<T, X, Y>* getEndmost(PQNode<T, X, Y>* other) const {
+		if (m_leftEndmost != other) {
 			return m_leftEndmost;
-		else if (m_rightEndmost != other)
+		} else if (m_rightEndmost != other) {
 			return m_rightEndmost;
+		}
 
 		return nullptr;
 	}
@@ -145,28 +146,30 @@ public:
 	 * The function accepts an integer denoting a direction causing the
 	 * function to return either the left or the endmost child.
 	 */
-	PQNode<T,X,Y>* getEndmost(SibDirection side) const {
-		if (side == SibDirection::Left || side == SibDirection::NoDir)
+	PQNode<T, X, Y>* getEndmost(SibDirection side) const {
+		if (side == SibDirection::Left || side == SibDirection::NoDir) {
 			return m_leftEndmost;
-		else if(side == SibDirection::Right)
+		} else if (side == SibDirection::Right) {
 			return m_rightEndmost;
+		}
 
 		return nullptr;
 	}
 
 	//! Returns the identification number of a node.
-	PQNodeKey<T,X,Y>* getNodeInfo() const { return m_pointerToInfo; }
+	PQNodeKey<T, X, Y>* getNodeInfo() const { return m_pointerToInfo; }
 
 	/**
 	 * The function getSib() returns one of the siblings of the node.
 	 * It accepts an integer denoting a dircetion causing the
 	 * function to return either the left or the right sibling.
 	 */
-	PQNode<T,X,Y>* getSib(SibDirection side) const {
-		if (side == SibDirection::Left)
+	PQNode<T, X, Y>* getSib(SibDirection side) const {
+		if (side == SibDirection::Left) {
 			return m_sibLeft;
-		else if (side == SibDirection::Right)
+		} else if (side == SibDirection::Right) {
 			return m_sibRight;
+		}
 
 		return nullptr;
 	}
@@ -180,21 +183,21 @@ public:
 	 * This makes the function getNextSib() return an arbitrary sibling
 	 * (it returns the left sibling).
 	 */
-	PQNode<T,X,Y>* getNextSib(PQNode<T,X,Y>* other) const {
-		if (m_sibLeft != other)
+	PQNode<T, X, Y>* getNextSib(PQNode<T, X, Y>* other) const {
+		if (m_sibLeft != other) {
 			return m_sibLeft;
-		else if (m_sibRight != other)
+		} else if (m_sibRight != other) {
 			return m_sibRight;
+		}
 
 		return nullptr;
 	}
 
-
 	//! Returns the identification number of a node.
-	int  identificationNumber() const { return m_identificationNumber; }
+	int identificationNumber() const { return m_identificationNumber; }
 
 	//! Returns the number of children of a node.
-	int  childCount() const { return m_childCount; }
+	int childCount() const { return m_childCount; }
 
 	//! Sets the number of children of a node.
 	void childCount(int count) { m_childCount = count; }
@@ -206,7 +209,7 @@ public:
 	 * valid parent pointers anymore. This is no fault, the datastructur
 	 * was designed this way. See also Booth and Lueker.
 	 */
-	PQNode<T,X,Y>* parent() const { return m_parent; }
+	PQNode<T, X, Y>* parent() const { return m_parent; }
 
 	/**
 	 * Sets the parent pointer of a node. This function
@@ -215,10 +218,7 @@ public:
 	 * always needed and therefore has to be set within special functions,
 	 * used in a pre-run before applying the bubble Phase of the PQTree.
 	 */
-	PQNode<T,X,Y>* parent(PQNode<T,X,Y>* newParent)
-	{
-		return m_parent = newParent;
-	}
+	PQNode<T, X, Y>* parent(PQNode<T, X, Y>* newParent) { return m_parent = newParent; }
 
 	//! Returns the type of the parent of a node.
 	PQNodeType parentType() const { return m_parentType; }
@@ -248,8 +248,7 @@ public:
 	 *
 	 * This function will always scan the pointer to the left brother first.
 	 */
-	SibDirection putSibling(PQNode<T,X,Y>* newSib)
-	{
+	SibDirection putSibling(PQNode<T, X, Y>* newSib) {
 		if (m_sibLeft == nullptr) {
 			m_sibLeft = newSib;
 			return SibDirection::Left;
@@ -276,15 +275,14 @@ public:
 	 * to the left brother first. If the value is \a RIGHT, it scans the pointer
 	 * to the right brother first.
 	 */
-	SibDirection putSibling(PQNode<T,X,Y>* newSib, SibDirection preference)
-	{
-		if (preference == SibDirection::Left)
+	SibDirection putSibling(PQNode<T, X, Y>* newSib, SibDirection preference) {
+		if (preference == SibDirection::Left) {
 			return putSibling(newSib);
+		}
 
 		OGDF_ASSERT(preference == SibDirection::Right);
 
-		if (m_sibRight == nullptr)
-		{
+		if (m_sibRight == nullptr) {
 			m_sibRight = newSib;
 			return SibDirection::Right;
 		}
@@ -295,16 +293,15 @@ public:
 	}
 
 	//! Returns a pointer to the reference child if node is a P-node.
-	PQNode<T,X,Y>* referenceChild() const { return m_referenceChild; }
+	PQNode<T, X, Y>* referenceChild() const { return m_referenceChild; }
 
 	//! Returns the pointer to the parent if node is a reference child.
-	PQNode<T,X,Y>* referenceParent() const { return m_referenceParent; }
+	PQNode<T, X, Y>* referenceParent() const { return m_referenceParent; }
 
 	//! Sets the pointer #m_pointerToInfo to the specified adress of \p pointerToInfo.
-	bool  setNodeInfo(PQNodeKey<T,X,Y>* pointerToInfo) {
+	bool setNodeInfo(PQNodeKey<T, X, Y>* pointerToInfo) {
 		m_pointerToInfo = pointerToInfo;
-		if (pointerToInfo != nullptr)
-		{
+		if (pointerToInfo != nullptr) {
 			m_pointerToInfo->setNodePointer(this);
 			return true;
 		}
@@ -318,7 +315,7 @@ public:
 	 * class template PQLeaf.
 	 * The key contains information and is of type PQLeafKey.
 	 */
-	virtual PQLeafKey<T,X,Y>* getKey() const = 0;
+	virtual PQLeafKey<T, X, Y>* getKey() const = 0;
 
 	//! Sets a specified pointer variable in a derived class to the	specified adress of \p pointerToKey that is of type PQLeafKey.
 	/**
@@ -333,7 +330,7 @@ public:
 	 * not instantiate the corresponding variable in the derived class.
 	 * The return value is always 1 unless \p pointerKey was equal to 0.
 	 */
-	virtual bool setKey(PQLeafKey<T,X,Y>* pointerToKey) = 0;
+	virtual bool setKey(PQLeafKey<T, X, Y>* pointerToKey) = 0;
 
 	/**
 	 * getInternal() returns a pointer to the PQInternalKey
@@ -342,7 +339,7 @@ public:
 	 * such as elements of the derived class template PQInternalNode.
 	 * The internal information is of type PQInternalKey.
 	 */
-	virtual PQInternalKey<T,X,Y>* getInternal() const = 0;
+	virtual PQInternalKey<T, X, Y>* getInternal() const = 0;
 
 	/*
 	 * setInternal() sets a specified pointer variable in a derived class
@@ -363,7 +360,7 @@ public:
 	 * The return value is always 1 unless \p pointerInternal was
 	 * equal to 0.
 	 */
-	virtual bool setInternal(PQInternalKey<T,X,Y>* pointerToInternal) = 0;
+	virtual bool setInternal(PQInternalKey<T, X, Y>* pointerToInternal) = 0;
 
 	/**
 	 * mark() returns the variable PQLeaf::m_mark in the
@@ -410,8 +407,6 @@ public:
 
 
 protected:
-
-
 	// Stores the number of children of the node.
 	int m_childCount;
 
@@ -446,16 +441,16 @@ protected:
 	int m_pertLeafCount;
 
 	//! Stores a pointer to the first full child of a Q-node.
-	PQNode<T,X,Y> *m_firstFull;
+	PQNode<T, X, Y>* m_firstFull;
 
-	PQNode<T,X,Y> *m_leftEndmost;
+	PQNode<T, X, Y>* m_leftEndmost;
 
 	/**
 	 * Is a pointer to the parent. Observe that this
 	 * pointer may not be up to date after a few applications of the
 	 * reduction.
 	 */
-	PQNode<T,X,Y> *m_parent;
+	PQNode<T, X, Y>* m_parent;
 
 	/**
 	 * Stores a pointer to one child, the <b>reference child</b> of the
@@ -463,7 +458,7 @@ protected:
 	 * P-node. With the help of this pointer, it is possible to access
 	 * the children of the P-node
 	 */
-	PQNode<T,X,Y> *m_referenceChild;
+	PQNode<T, X, Y>* m_referenceChild;
 
 	/**
 	 * Is a pointer to the parent, in case that the
@@ -471,10 +466,10 @@ protected:
 	 * The pointer is needed in order to identify the reference child
 	 * among all children of a P-node.
 	 */
-	PQNode<T,X,Y> *m_referenceParent;
+	PQNode<T, X, Y>* m_referenceParent;
 
 	//! Stores the right endmost child of a Q-node.
-	PQNode<T,X,Y> *m_rightEndmost;
+	PQNode<T, X, Y>* m_rightEndmost;
 
 	/**
 	 * Stores a pointer ot the left sibling of PQNode.
@@ -483,7 +478,7 @@ protected:
 	 * all children of the P-node are linked in a circular list. In the
 	 * latter case, #m_sibLeft is never 0.
 	 */
-	PQNode<T,X,Y> *m_sibLeft;
+	PQNode<T, X, Y>* m_sibLeft;
 
 	/**
 	 * Stores a pointer ot the right sibling of PQNode.
@@ -492,20 +487,18 @@ protected:
 	 * all children of the P-node are linked in a circular list. In the
 	 * latter case, #m_sibRight is never 0.
 	 */
-	PQNode<T,X,Y> *m_sibRight;
+	PQNode<T, X, Y>* m_sibRight;
 
 	//! Stores a pointer to the corresponding information of the node.
-	PQNodeKey<T,X,Y> *m_pointerToInfo;
+	PQNodeKey<T, X, Y>* m_pointerToInfo;
 
 
 	//! Stores all full children of a node during a reduction.
-	List<PQNode<T,X,Y>*> *fullChildren;
+	List<PQNode<T, X, Y>*>* fullChildren;
 
 	//! Stores all partial children of a node during a reduction.
-	List<PQNode<T,X,Y>*> *partialChildren;
-
+	List<PQNode<T, X, Y>*>* partialChildren;
 };
-
 
 /*
 The function [[changeEndmost]] replaces the old endmost child [[oldEnd]] of
@@ -517,16 +510,12 @@ The function [[changeEndmost]] returns [[1]] if it succeeded in
 replacing [[oldEnd]] by [[newEnd]]. Otherwise the function returns
 [[0]], leaving with an error message.
 */
-template<class T,class X,class Y>
-bool PQNode<T,X,Y>::changeEndmost(PQNode<T,X,Y>* oldEnd, PQNode<T,X,Y>* newEnd)
-{
-	if (m_leftEndmost == oldEnd)
-	{
+template<class T, class X, class Y>
+bool PQNode<T, X, Y>::changeEndmost(PQNode<T, X, Y>* oldEnd, PQNode<T, X, Y>* newEnd) {
+	if (m_leftEndmost == oldEnd) {
 		m_leftEndmost = newEnd;
 		return true;
-	}
-	else if (m_rightEndmost == oldEnd)
-	{
+	} else if (m_rightEndmost == oldEnd) {
 		m_rightEndmost = newEnd;
 		return true;
 	}
@@ -545,31 +534,25 @@ The function [[changeSiblings]] returns [[1]] if it succeeded in replacing
 [[oldSib]] by [[newSib]]. Otherwise the function returns
 [[0]], leaving with an error message.
 */
-template<class T,class X,class Y>
-bool PQNode<T,X,Y>::changeSiblings(PQNode<T,X,Y>* oldSib, PQNode<T,X,Y>* newSib)
-{
-	if (m_sibLeft == oldSib)
-	{
+template<class T, class X, class Y>
+bool PQNode<T, X, Y>::changeSiblings(PQNode<T, X, Y>* oldSib, PQNode<T, X, Y>* newSib) {
+	if (m_sibLeft == oldSib) {
 		m_sibLeft = newSib;
 		return true;
-	}
-	else if (m_sibRight == oldSib)
-	{
+	} else if (m_sibRight == oldSib) {
 		m_sibRight = newSib;
 		return true;
 	}
 	return false;
 }
 
-
 /*
 The (first) constructor combines the node with its information and
 will automatically set the [[m_nodePointer]] (see \ref{basicKey}) of
 the element of type [[PQNodeKey]] (see \ref{PQNodeKey}).
 */
-template<class T,class X,class Y>
-PQNode<T,X,Y>::PQNode(int count,PQNodeKey<T,X,Y>* infoPtr)
-{
+template<class T, class X, class Y>
+PQNode<T, X, Y>::PQNode(int count, PQNodeKey<T, X, Y>* infoPtr) {
 	m_identificationNumber = count;
 	m_childCount = 0;
 	m_pertChildCount = 0;
@@ -586,21 +569,19 @@ PQNode<T,X,Y>::PQNode(int count,PQNodeKey<T,X,Y>* infoPtr)
 	m_leftEndmost = nullptr;
 	m_rightEndmost = nullptr;
 
-	fullChildren = new List<PQNode<T,X,Y>*>;
-	partialChildren = new List<PQNode<T,X,Y>*>;
+	fullChildren = new List<PQNode<T, X, Y>*>;
+	partialChildren = new List<PQNode<T, X, Y>*>;
 
 	m_pointerToInfo = infoPtr;
 	infoPtr->setNodePointer(this);
 }
 
-
 /*
 The (second) constructor is called,
 if no information is available or neccessary.
 */
-template<class T,class X,class Y>
-PQNode<T,X,Y>::PQNode(int count)
-{
+template<class T, class X, class Y>
+PQNode<T, X, Y>::PQNode(int count) {
 	m_identificationNumber = count;
 	m_childCount = 0;
 	m_pertChildCount = 0;
@@ -617,8 +598,8 @@ PQNode<T,X,Y>::PQNode(int count)
 	m_leftEndmost = nullptr;
 	m_rightEndmost = nullptr;
 
-	fullChildren = new List<PQNode<T,X,Y>*>;
-	partialChildren = new List<PQNode<T,X,Y>*>;
+	fullChildren = new List<PQNode<T, X, Y>*>;
+	partialChildren = new List<PQNode<T, X, Y>*>;
 
 	m_pointerToInfo = nullptr;
 }

@@ -33,20 +33,18 @@
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
-
 #include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
 
 //! Interface of algorithms for the computation of c-planar subgraphs.
-class CPlanarSubgraphModule : public Module, public Timeouter
-{
-
+class CPlanarSubgraphModule : public Module, public Timeouter {
 public:
 	//! Constructs a cplanar subgraph module
-	CPlanarSubgraphModule() {}
+	CPlanarSubgraphModule() { }
+
 	//! Destruction
-	virtual ~CPlanarSubgraphModule() {}
+	virtual ~CPlanarSubgraphModule() { }
 
 	/**
 	 *  \brief  Computes set of edges delEdges, which have to be deleted
@@ -57,7 +55,7 @@ public:
 	 * @param delEdges holds the edges not in the subgraph on return.
 	 *
 	 */
-	ReturnType call(const ClusterGraph &G, List<edge> &delEdges) {
+	ReturnType call(const ClusterGraph& G, List<edge>& delEdges) {
 		return call(G, nullptr, delEdges);
 	}
 
@@ -73,13 +71,12 @@ public:
 	 * @param delEdges holds the edges not in the subgraph on return.
 	 *
 	 */
-	ReturnType call(const ClusterGraph &G, const EdgeArray<double> *pCost, List<edge> &delEdges) {
+	ReturnType call(const ClusterGraph& G, const EdgeArray<double>* pCost, List<edge>& delEdges) {
 		return doCall(G, pCost, delEdges);
 	}
 
 
 protected:
-
 	/**
 	 * \brief Computes a c-planar subgraph.
 	 *
@@ -92,7 +89,8 @@ protected:
 	 *        If set to \c nullptr all edges have a weight of 1.
 	 * @param delEdges holds the set of edges that have to be deleted.
 	 */
-	virtual ReturnType doCall(const ClusterGraph &CG, const EdgeArray<double> *pCost, List<edge> &delEdges) = 0;
+	virtual ReturnType doCall(const ClusterGraph& CG, const EdgeArray<double>* pCost,
+			List<edge>& delEdges) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

@@ -33,12 +33,12 @@
 #include <ogdf/tree/LCA.h>
 
 #ifdef OGDF_DEBUG
-#include <ogdf/basic/simple_graph_alg.h>
+#	include <ogdf/basic/simple_graph_alg.h>
 #endif
 
 namespace ogdf {
 
-static node findRoot(const Graph &G) {
+static node findRoot(const Graph& G) {
 	for (node v : G.nodes) {
 		if (v->indeg() == 0) {
 			return v;
@@ -47,7 +47,7 @@ static node findRoot(const Graph &G) {
 	return nullptr;
 }
 
-LCA::LCA(const Graph &G, node root)
+LCA::LCA(const Graph& G, node root)
 	: m_root(root == nullptr ? findRoot(G) : root)
 	, m_n(G.numberOfNodes())
 	, m_len(2 * m_n - 1)
@@ -55,8 +55,7 @@ LCA::LCA(const Graph &G, node root)
 	, m_euler(m_len)
 	, m_representative(G)
 	, m_level(m_len)
-	, m_table(m_len * m_rangeJ)
-{
+	, m_table(m_len * m_rangeJ) {
 	if (m_n > 1) {
 		OGDF_ASSERT(m_root != nullptr);
 		OGDF_ASSERT(m_root->graphOf() == &G);
@@ -65,19 +64,17 @@ LCA::LCA(const Graph &G, node root)
 	}
 }
 
-node LCA::call(node u, node v) const
-{
+node LCA::call(node u, node v) const {
 	OGDF_ASSERT(u->graphOf() == m_root->graphOf());
 	OGDF_ASSERT(v->graphOf() == m_root->graphOf());
 
 	return m_n == 1 ? m_root : m_euler[rmq(m_representative[v], m_representative[u])];
 }
 
-void LCA::dfs(const Graph &G, node root)
-{
+void LCA::dfs(const Graph& G, node root) {
 	OGDF_ASSERT(isSimple(G));
 	OGDF_ASSERT(isArborescence(G));
-	ArrayBuffer<std::pair<node,int>> todo;
+	ArrayBuffer<std::pair<node, int>> todo;
 	ArrayBuffer<adjEntry> adjStack;
 	int dfscounter = 0;
 	todo.push(std::make_pair(root, 0));
@@ -98,7 +95,7 @@ void LCA::dfs(const Graph &G, node root)
 		if (adj) {
 			node v = adj->twinNode();
 			adjStack.push(adj->succ());
-			todo.push(std::pair<node,int>(v, level + 1));
+			todo.push(std::pair<node, int>(v, level + 1));
 			adjStack.push(v->firstAdj());
 		} else {
 			todo.pop();
@@ -107,22 +104,21 @@ void LCA::dfs(const Graph &G, node root)
 	}
 }
 
-void LCA::buildTable()
-{
+void LCA::buildTable() {
 	for (int i = 0; i < m_len - 1; ++i) {
-		sparseTable(i, 1) = (m_level[i] < m_level[i+1] ? i : i+1);
+		sparseTable(i, 1) = (m_level[i] < m_level[i + 1] ? i : i + 1);
 	}
 	sparseTable(m_len - 1, 1) = m_len - 1;
 
 	for (int j = 2; j <= m_rangeJ; ++j) {
 		for (int i = 0; i < m_len; ++i) {
-			int &tn = sparseTable(i, j);
-			int &t1 = sparseTable(i, j - 1);
+			int& tn = sparseTable(i, j);
+			int& t1 = sparseTable(i, j - 1);
 			OGDF_ASSERT(t1 >= 0);
 			OGDF_ASSERT(t1 < m_len);
-			int ri = i + (1 << (j-1));
+			int ri = i + (1 << (j - 1));
 			if (ri < m_len) {
-				int &t2 = sparseTable(ri, j - 1);
+				int& t2 = sparseTable(ri, j - 1);
 				OGDF_ASSERT(t2 >= 0);
 				OGDF_ASSERT(t2 < m_len);
 				if (m_level[t1] < m_level[t2]) {
@@ -137,9 +133,10 @@ void LCA::buildTable()
 	}
 }
 
-int LCA::rmq(int i, int j) const
-{
-	if (i > j) std::swap(i, j);
+int LCA::rmq(int i, int j) const {
+	if (i > j) {
+		std::swap(i, j);
+	}
 	if (j - i <= 1) {
 		if (m_level[i] < m_level[j]) {
 			return i;
