@@ -37,16 +37,10 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/graphics.h>
-#include <ogdf/basic/internal/config.h>
 
 #include <cfloat>
 
 namespace ogdf {
-
-//! The type of nodes.
-//! @ingroup graphs
-class OGDF_EXPORT NodeElement;
-using node = NodeElement*;
 
 extern OGDF_EXPORT const EpsilonTest OGDF_GEOM_ET;
 
@@ -1069,7 +1063,7 @@ inline int orientation(const DSegment& s, const DPoint& p) {
  * @param v the node.
  * @param vSize Width and height of v.
  * @param shape of the node.
- * @return true the point lies within the border of \p v.
+ * @return true if the point lies within the border of \p v.
  */
 OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, const DPoint& vSize,
 		const Shape& shape);
@@ -1084,7 +1078,7 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
  * \par vSize Width and height of v.
  */
 OGDF_EXPORT DPoint contourPointFromAngle(double angle, int n, double rotationOffset = 0,
-		DPoint center = DPoint(), DPoint vSize = DPoint(1, 1));
+		const DPoint& center = DPoint(), const DPoint& vSize = DPoint(1, 1));
 /**
  * returns the point where a vector, pointing from center in direction of angle, intersects with
  * the countour of any Shape.
@@ -1093,6 +1087,6 @@ OGDF_EXPORT DPoint contourPointFromAngle(double angle, int n, double rotationOff
  * \par center center point of the shape.
  * \par vSize Width and height of v.
  */
-OGDF_EXPORT DPoint contourPointFromAngle(double angle, Shape shape, DPoint center = DPoint(),
-		DPoint vSize = DPoint(1, 1));
+OGDF_EXPORT DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center = DPoint(),
+		const DPoint& vSize = DPoint(1, 1));
 }

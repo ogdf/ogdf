@@ -31,14 +31,8 @@
  */
 
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graphics.h>
-
-#include <cmath>
-
-#include <math.h>
 
 namespace ogdf {
 
@@ -433,7 +427,8 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
 	}
 }
 
-DPoint contourPointFromAngle(double angle, int n, double rotationOffset, DPoint center, DPoint vSize) {
+DPoint contourPointFromAngle(double angle, int n, double rotationOffset, const DPoint& center,
+		const DPoint& vSize) {
 	// math visualised: https://www.desmos.com/calculator/j6iktd7fs4
 	double nOffset = floor((angle - rotationOffset) / (2 * Math::pi / n)) * 2 * Math::pi / n;
 	double polyLineStartAngle = rotationOffset + nOffset;
@@ -449,7 +444,7 @@ DPoint contourPointFromAngle(double angle, int n, double rotationOffset, DPoint 
 	return intersectionPoint + center;
 }
 
-DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, DPoint vSize) {
+DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, const DPoint& vSize) {
 	angle = std::fmod(angle, 2 * Math::pi);
 	if (angle < 0) {
 		angle += Math::pi * 2;
@@ -459,8 +454,7 @@ DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, DPoint vS
 	case Shape::Triangle:
 		return contourPointFromAngle(angle, 3, Math::pi / 2, center, vSize);
 	case Shape::InvTriangle:
-		return contourPointFromAngle(angle + Math::pi, Shape::Triangle, DPoint(), vSize) * -1
-				+ center;
+		return center - contourPointFromAngle(angle + Math::pi, Shape::Triangle, DPoint(), vSize);
 	case Shape::Image:
 	case Shape::RoundedRect:
 	case Shape::Rect:
@@ -487,13 +481,11 @@ DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, DPoint vS
 			tLine.intersection(eLine, iPoint);
 			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
 			return iPoint + center;
-		}
-		if (angle < Math::pi * 7 / 4) {
+		} else { // angle < Math::pi * 7 / 4
 			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
 		}
-		return DPoint(); // Execution will never reach this point but it reduces warnings.
 	case Shape::InvTrapeze:
-		return contourPointFromAngle(angle + Math::pi, Shape::Trapeze, DPoint(), vSize) * -1 + center;
+		return center - contourPointFromAngle(angle + Math::pi, Shape::Trapeze, DPoint(), vSize);
 	case Shape::Parallelogram:
 		if (angle < atan(2) || angle > Math::pi * 7 / 4) {
 			DLine tLine = DLine(-.5, -1, -1, 1);
@@ -511,11 +503,9 @@ DPoint contourPointFromAngle(double angle, Shape shape, DPoint center, DPoint vS
 			tLine.intersection(eLine, iPoint);
 			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
 			return iPoint + center;
-		}
-		if (angle < Math::pi * 7 / 4) {
+		} else { // angle < Math::pi * 7 / 4
 			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
 		}
-		return DPoint(); // Execution will never reach this point but it reduces warnings.
 	case Shape::InvParallelogram: {
 		DPoint p = contourPointFromAngle(Math::pi - angle, Shape::Parallelogram, DPoint(), vSize);
 		p.m_x *= -1;

@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/basic/Queue.h>
-#include <ogdf/basic/geometry.h>
 #include <ogdf/fileformats/TikzWriter.h>
 
 #include <iomanip>

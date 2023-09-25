@@ -29,17 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
-#include <ogdf/basic/geometry.h>
-#include <ogdf/basic/graphics.h>
 #include <ogdf/fileformats/SvgPrinter.h>
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 
-#include <math.h>
 
 using namespace ogdf;
 
