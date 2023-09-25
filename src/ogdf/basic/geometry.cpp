@@ -452,7 +452,7 @@ DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, co
 
 	switch (shape) {
 	case Shape::Triangle:
-		return contourPointFromAngle(angle, 3, Math::pi / 2, center, vSize);
+		return contourPointFromAngle(angle, 3, Math::pi / 2, center, vSize * .5);
 	case Shape::InvTriangle:
 		return center - contourPointFromAngle(angle + Math::pi, Shape::Triangle, DPoint(), vSize);
 	case Shape::Image:
@@ -460,13 +460,13 @@ DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, co
 	case Shape::Rect:
 		return contourPointFromAngle(angle, 4, Math::pi / 4, center, vSize / sqrt(2));
 	case Shape::Pentagon:
-		return contourPointFromAngle(angle, 5, Math::pi / 2, center, vSize);
+		return contourPointFromAngle(angle, 5, Math::pi / 2, center, vSize / 2);
 	case Shape::Hexagon:
-		return contourPointFromAngle(angle, 6, 0, center, vSize);
+		return contourPointFromAngle(angle, 6, 0, center, vSize / 2);
 	case Shape::Octagon:
-		return contourPointFromAngle(angle, 8, Math::pi / 8, center, vSize);
+		return contourPointFromAngle(angle, 8, Math::pi / 8, center, vSize / 2);
 	case Shape::Rhomb:
-		return contourPointFromAngle(angle, 4, Math::pi / 2, center, vSize);
+		return contourPointFromAngle(angle, 4, Math::pi / 2, center, vSize / 2);
 	case Shape::Trapeze:
 		if (angle < atan(2) || angle >= Math::pi * 7 / 4) {
 			DPoint other = contourPointFromAngle(Math::pi - angle, Shape::Trapeze, DPoint(), vSize);
@@ -479,7 +479,7 @@ DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, co
 			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
 			DPoint iPoint;
 			tLine.intersection(eLine, iPoint);
-			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x * .5, iPoint.m_y * vSize.m_y * .5);
 			return iPoint + center;
 		} else { // angle < Math::pi * 7 / 4
 			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
@@ -492,7 +492,7 @@ DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, co
 			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
 			DPoint iPoint;
 			tLine.intersection(eLine, iPoint);
-			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x * .5, iPoint.m_y * vSize.m_y * .5);
 			return iPoint + center;
 		} else if (angle < Math::pi * 3 / 4) {
 			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
@@ -501,7 +501,7 @@ DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, co
 			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
 			DPoint iPoint;
 			tLine.intersection(eLine, iPoint);
-			iPoint = DPoint(iPoint.m_x * vSize.m_x, iPoint.m_y * vSize.m_y);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x * .5, iPoint.m_y * vSize.m_y * .5);
 			return iPoint + center;
 		} else { // angle < Math::pi * 7 / 4
 			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
@@ -513,7 +513,7 @@ DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, co
 	}
 	case Shape::Ellipse:
 	default:
-		return DPoint(-vSize.m_x * cos(angle), -vSize.m_y * sin(angle)) + center;
+		return DPoint(-vSize.m_x * .5 * cos(angle), -vSize.m_y * .5 * sin(angle)) + center;
 	}
 }
 
