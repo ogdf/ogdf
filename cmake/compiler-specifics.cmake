@@ -10,6 +10,33 @@ if(MSVC)
 
   # COIN has no DLL exports, must hence always be compiled as a static library
   set(COIN_LIBRARY_TYPE STATIC)
+
+  if(CMAKE_CXX_COMPILER_LAUNCHER STREQUAL "ccache.exe")
+    message(STATUS "Configuring MSVC build to use ccache.exe")
+
+    # https://github.com/ccache/ccache/wiki/MS-Visual-Studio#usage-with-cmake
+    find_program(ccache_exe ccache)
+    if(ccache_exe)
+      file(COPY_FILE
+        ${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe
+        ONLY_IF_DIFFERENT)
+
+      # By default visual studio generators will use /Zi which is not compatible
+      # with ccache for whatever reason.
+      message(STATUS "Setting MSVC debug information format to 'Embedded'")
+      set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+
+      set(CMAKE_VS_GLOBALS
+        "CLToolExe=cl.exe"
+        "CLToolPath=${CMAKE_BINARY_DIR}"
+        "TrackFileAccess=false"
+        "UseMultiToolTask=true"
+        "DebugInformationFormat=OldStyle"
+      )
+    else()
+      message(FATAL_ERROR "Could not find ccache.exe")
+    endif()
+  endif()
 endif()
 
 # use native arch (ie, activate things like SSE)
