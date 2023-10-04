@@ -23,12 +23,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND OGDF_MEMORY_MANAGER STREQUAL MA
 else()
   unset(OGDF_LEAK_CHECK CACHE)
 endif()
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  set(OGDF_ARCH "native" CACHE STRING "Target CPU (micro)architecture passed to the compiler via `-march`.")
-  mark_as_advanced(OGDF_ARCH)
-else()
-  unset(OGDF_ARCH CACHE)
-endif()
 
 # set debug mode
 if(OGDF_DEBUG_MODE STREQUAL HEAVY)

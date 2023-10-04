@@ -39,10 +39,15 @@ if(MSVC)
   endif()
 endif()
 
-# use native arch (ie, activate things like SSE)
+# use specified or native arch (ie, activate things like SSE)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
+  set(OGDF_ARCH "native" CACHE STRING "Target CPU (micro)architecture passed to the compiler via `-march`.")
+  mark_as_advanced(OGDF_ARCH)
+
   # cannot use add_definitions() here because it does not work with check-sse3.cmake
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=${OGDF_ARCH}")
+else()
+  unset(OGDF_ARCH CACHE)
 endif()
 
 # set default warning flags for OGDF and tests
