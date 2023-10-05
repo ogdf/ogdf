@@ -61,7 +61,7 @@ jobs:
     strategy:
       matrix:
         mode: [debug, release]
-        compiler: ['gcc:10', 'clang:15']
+        compiler: ['gcc:7', 'gcc:10', 'clang:15']
     runs-on: ubuntu-latest
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
@@ -158,7 +158,7 @@ jobs:
           name: ${{ github.job }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
 
-  # this is mostly used to keep the required status checks for PR merging simply
+  # this is mostly used to keep the required status checks for PR merging simple
   summary:
     needs: [build-linux, build-macos, build-windows]
     name: "All tests succeeded"
