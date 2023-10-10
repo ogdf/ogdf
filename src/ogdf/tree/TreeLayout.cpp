@@ -373,10 +373,18 @@ void TreeLayout::call(GraphAttributes& AG) {
 		return;
 	}
 
-	OGDF_ASSERT(isArborescenceForest(tree));
+#ifdef OGDF_DEBUG
+	if (m_selectRoot == RootSelectionType::Source) {
+		OGDF_ASSERT(isArborescenceForest(tree, true));
+	} else if (m_selectRoot == RootSelectionType::Sink) {
+		OGDF_ASSERT(isArborescenceForest(tree, false));
+	} else {
+		OGDF_ASSERT(isAcyclicUndirected(tree));
+	}
 	OGDF_ASSERT(m_siblingDistance > 0);
 	OGDF_ASSERT(m_subtreeDistance > 0);
 	OGDF_ASSERT(m_levelDistance > 0);
+#endif
 
 	// compute the tree structure
 	List<node> roots;

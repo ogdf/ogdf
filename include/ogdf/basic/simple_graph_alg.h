@@ -922,37 +922,43 @@ inline bool isTree(const Graph& G) {
  * @param G is the input graph.
  * @param roots is assigned the list of root nodes of the arborescences in the forest.
  * If false is returned, \p roots is undefined.
+ * @param outTree set to false if the root nodes are sinks.
  * @return true if \p G represents an arborescence forest, false otherwise.
  */
-OGDF_EXPORT bool isArborescenceForest(const Graph& G, List<node>& roots);
+OGDF_EXPORT bool isArborescenceForest(const Graph& G, List<node>& roots, bool outTree = true);
 
 //! Returns true iff \p G is a forest consisting only of arborescences.
 /**
  * @ingroup ga-tree
  *
  * @param G is the input graph.
+ * @param outTree set to false if the root nodes are sinks.
  * @return true if \p G represents an arborescence forest, false otherwise.
  */
-inline bool isArborescenceForest(const Graph& G) {
+inline bool isArborescenceForest(const Graph& G, bool outTree = true) {
 	List<node> roots;
-	return isArborescenceForest(G, roots);
+	return isArborescenceForest(G, roots, outTree);
 }
 
 
 OGDF_DEPRECATED("isArborescenceForest() should be used instead.")
 
 /**
- * @copydoc ogdf::isArborescenceForest(const Graph& G, List<node> &roots)
+ * @copydoc ogdf::isArborescenceForest(const Graph& G, List<node> &roots, bool outTree = true)
  */
-inline bool isForest(const Graph& G, List<node>& roots) { return isArborescenceForest(G, roots); }
+inline bool isForest(const Graph& G, List<node>& roots, bool outTree = true) {
+	return isArborescenceForest(G, roots, outTree);
+}
 
 
 OGDF_DEPRECATED("isArborescenceForest() should be used instead.")
 
 /**
- * @copydoc ogdf::isArborescenceForest(const Graph& G)
+ * @copydoc ogdf::isArborescenceForest(const Graph& G, bool outTree = true)
  */
-inline bool isForest(const Graph& G) { return isArborescenceForest(G); }
+inline bool isForest(const Graph& G, bool outTree = true) {
+	return isArborescenceForest(G, outTree);
+}
 
 //! Returns true iff \p G represents an arborescence.
 /**
@@ -960,20 +966,22 @@ inline bool isForest(const Graph& G) { return isArborescenceForest(G); }
  *
  * @param G    is the input graph.
  * @param root is assigned the root node (if true is returned).
+ * @param outTree set to false if the root node is a sink.
  * @return true if \p G represents an arborescence, false otherwise.
  */
-OGDF_EXPORT bool isArborescence(const Graph& G, node& root);
+OGDF_EXPORT bool isArborescence(const Graph& G, node& root, bool outTree = true);
 
 //! Returns true iff \p G represents an arborescence.
 /**
  * @ingroup ga-tree
  *
  * @param G  is the input graph.
+ * @param outTree set to false if the root node is a sink.
  * @return true if \p G represents an arborescence, false otherwise.
  */
-inline bool isArborescence(const Graph& G) {
+inline bool isArborescence(const Graph& G, bool outTree = true) {
 	node root;
-	return isArborescence(G, root);
+	return isArborescence(G, root, outTree);
 }
 
 //! @}
