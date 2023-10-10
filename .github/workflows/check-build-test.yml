@@ -3,7 +3,7 @@ name: Check, Build and Test
 on:
   push:
   pull_request:
-    branches: [main]
+    branches: [master]
   release:
     types: [published]
 
