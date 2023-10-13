@@ -1,6 +1,5 @@
 /** \file
- * \brief Declaration and implementation of class ClusterSetSimple,
- * ClusterSetPure and ClusterSet
+ * \brief Declaration and implementation of class ClusterSet
  *
  * \author Carsten Gutwenger
  *
@@ -37,7 +36,6 @@
 
 namespace ogdf {
 
-
 //! Cluster sets.
 /**
  * @ingroup graph-containers
@@ -45,14 +43,10 @@ namespace ogdf {
  * A cluster set maintains a subset \a S of the clusters contained in an associated
  * clustered graph. This kind of cluster set provides efficient operations for testing
  * membership, insertion and deletion of elements, and clearing the set.
- *
- * In contrast to ClusterSet, a ClusterSetPure does not provide efficient access
- * to the number of clusters stored in the set.
- *
- * \sa ClusterSet
  */
-class OGDF_EXPORT ClusterSetPure : public RegisteredSet<ClusterGraph, false> {
-	using RS = RegisteredSet<ClusterGraph, false>;
+template<bool SupportFastSizeQuery = true>
+class ClusterSet : public RegisteredSet<ClusterGraph, SupportFastSizeQuery> {
+	using RS = RegisteredSet<ClusterGraph, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
@@ -61,35 +55,7 @@ public:
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const ListPure<cluster>& clusters() const { return RS::elements(); }
+	const typename RS::list_type& clusters() const { return RS::elements(); }
 };
-
-//! Cluster sets.
-/**
- * @ingroup graph-containers
- *
- * A cluster set maintains a subset \a S of the clusters contained in an associated
- * clustered graph. This kind of cluster set provides efficient operations for testing
- * membership, insertion and deletion of elements, and clearing the set.
- *
- * In contrast to ClusterSetPure, a ClusterSet provides efficient access
- * to the number of clusters stored in the set.
- *
- * \sa - ClusterSetPure
- */
-class OGDF_EXPORT ClusterSet : public RegisteredSet<ClusterGraph, true> {
-	using RS = RegisteredSet<ClusterGraph, true>;
-
-public:
-	using RS::RS;
-
-	//! Returns a reference to the list of clusters contained in \a S.
-	/**
-	 * This list can be used for iterating over all clusters in \a S.
-	 */
-	const List<cluster>& clusters() const { return RS::elements(); }
-};
-
-using ClusterSetSimple = ClusterSetPure;
 
 }
