@@ -40,50 +40,50 @@ namespace ogdf {
 
 namespace internal {
 
-template<class GraphObjectPtr, bool isReverse>
+template<class GraphObjectPtr, bool isReverse, bool isConst>
 class GraphIteratorBase;
 template<class GraphObjectPtr>
-using GraphIterator = GraphIteratorBase<GraphObjectPtr, false>;
+using GraphIterator = GraphIteratorBase<GraphObjectPtr, false, false>;
 template<class GraphObjectPtr>
-using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr, true>;
+using GraphConstIterator = GraphIteratorBase<GraphObjectPtr, false, true>;
+template<class GraphObjectPtr>
+using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr, true, false>;
 
-template<class GraphObjectPtr, bool isReverse>
+template<class GraphObjectPtr, bool isReverse, bool isConst>
 class GraphIteratorBase {
-	friend class GraphIteratorBase<GraphObjectPtr, !isReverse>;
+	friend class GraphIteratorBase<GraphObjectPtr, !isReverse, isConst>;
+	using T = GraphIteratorBase<GraphObjectPtr, isReverse, isConst>;
 
 	GraphObjectPtr m_ptr;
 
 public:
-	using value_type = GraphObjectPtr;
+	using value_type = typename std::conditional<isConst, const GraphObjectPtr, GraphObjectPtr>::type;
 
 	GraphIteratorBase() : m_ptr(nullptr) { }
 
 	GraphIteratorBase(GraphObjectPtr ptr) : m_ptr(ptr) { }
 
 	template<bool isArgReverse>
-	GraphIteratorBase(GraphIteratorBase<GraphObjectPtr, isArgReverse>& it) : m_ptr(it.m_ptr) { }
+	GraphIteratorBase(GraphIteratorBase<GraphObjectPtr, isArgReverse, isConst>& it)
+		: m_ptr(it.m_ptr) { }
 
-	bool operator==(const GraphIteratorBase<GraphObjectPtr, isReverse>& other) const {
-		return m_ptr == other.m_ptr;
-	}
+	bool operator==(const T& other) const { return m_ptr == other.m_ptr; }
 
-	bool operator!=(const GraphIteratorBase<GraphObjectPtr, isReverse>& other) const {
-		return m_ptr != other.m_ptr;
-	}
+	bool operator!=(const T& other) const { return m_ptr != other.m_ptr; }
 
 	GraphObjectPtr& operator*() { return m_ptr; }
 
 	const GraphObjectPtr operator*() const { return m_ptr; }
 
 	//! Increment operator (prefix).
-	GraphIteratorBase<GraphObjectPtr, isReverse>& operator++() {
+	T& operator++() {
 		OGDF_ASSERT(m_ptr != nullptr);
 		m_ptr = isReverse ? m_ptr->pred() : m_ptr->succ();
 		return *this;
 	}
 
 	//! Increment operator (postfix).
-	GraphIteratorBase<GraphObjectPtr, isReverse> operator++(int) {
+	T operator++(int) {
 		OGDF_ASSERT(m_ptr != nullptr);
 		GraphObjectPtr ptr = m_ptr;
 		m_ptr = isReverse ? m_ptr->pred() : m_ptr->succ();
@@ -91,14 +91,14 @@ public:
 	}
 
 	//! Decrement operator (prefix).
-	GraphIteratorBase<GraphObjectPtr, isReverse>& operator--() {
+	T& operator--() {
 		OGDF_ASSERT(m_ptr != nullptr);
 		m_ptr = isReverse ? m_ptr->succ() : m_ptr->pred();
 		return *this;
 	}
 
 	//! Decrement operator (postfix).
-	GraphIteratorBase<GraphObjectPtr, isReverse> operator--(int) {
+	T operator--(int) {
 		OGDF_ASSERT(m_ptr != nullptr);
 		GraphObjectPtr ptr = m_ptr;
 		m_ptr = isReverse ? m_ptr->succ() : m_ptr->pred();
