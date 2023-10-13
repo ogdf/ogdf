@@ -411,10 +411,10 @@ class GraphObjectContainer : private GraphList<GraphObject> {
 	friend class ogdf::CombinatorialEmbedding;
 
 public:
-	using GraphList<GraphObject>::value_type;
-	using GraphList<GraphObject>::iterator;
-	using GraphList<GraphObject>::const_iterator;
-	using GraphList<GraphObject>::reverse_iterator;
+	using typename GraphList<GraphObject>::value_type;
+	using typename GraphList<GraphObject>::iterator;
+	using typename GraphList<GraphObject>::const_iterator;
+	using typename GraphList<GraphObject>::reverse_iterator;
 
 	using GraphList<GraphObject>::begin;
 	using GraphList<GraphObject>::rbegin;
