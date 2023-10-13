@@ -318,16 +318,15 @@ public:
 template<typename Key>
 class HypergraphRegistry
 	: public RegistryBase<Key*, HypergraphRegistry<Key>, internal::GraphIterator<Key*>> {
-	using iterator = internal::GraphIterator<Key*>;
-
 	Hypergraph* m_pGraph;
 	int* m_nextKeyIndex;
-	internal::GraphList<Key>* m_iterable;
 
 public:
+	using iterator = internal::GraphIterator<Key*>;
+
 	//! Constructor.
-	HypergraphRegistry(Hypergraph* graph, int* nextKeyIndex, internal::GraphList<Key>* container)
-		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container) { }
+	HypergraphRegistry(Hypergraph* graph, int* nextKeyIndex)
+		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex) { }
 
 	static inline int keyToIndex(Key* key) { return key->index(); }
 
@@ -351,13 +350,19 @@ public:
 
 	int maxKeyIndex() const { return (*m_nextKeyIndex) - 1; }
 
-	iterator begin() const override { return m_iterable->head(); }
-
-	iterator end() const override { return iterator(); }
-
 	//! Returns a pointer to the associated hypergraph
 	Hypergraph* graphOf() const { return m_pGraph; }
 };
+
+HypergraphRegistry<HypernodeElement>::iterator begin(
+		const HypergraphRegistry<HypernodeElement>& self);
+
+HypergraphRegistry<HypernodeElement>::iterator end(const HypergraphRegistry<HypernodeElement>& self);
+
+HypergraphRegistry<HyperedgeElement>::iterator begin(
+		const HypergraphRegistry<HyperedgeElement>& self);
+
+HypergraphRegistry<HyperedgeElement>::iterator end(const HypergraphRegistry<HyperedgeElement>& self);
 
 //! RegisteredArray for nodes and edges of a hypergraph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = HypergraphRegistry<Key>>

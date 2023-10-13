@@ -746,9 +746,9 @@ public:
 
 	int maxKeyIndex() const { return (m_clusterIdCount)-1; }
 
-	cluster_iterator begin() const override { return clusters.begin(); }
+	cluster_iterator begin() const { return clusters.begin(); }
 
-	cluster_iterator end() const override { return clusters.end(); }
+	cluster_iterator end() const { return clusters.end(); }
 
 	//! @}
 	/**

@@ -364,9 +364,9 @@ public:
 
 	int maxKeyIndex() const { return (m_faceIdCount)-1; }
 
-	face_iterator begin() const override { return faces.begin(); }
+	face_iterator begin() const { return faces.begin(); }
 
-	face_iterator end() const override { return faces.end(); }
+	face_iterator end() const { return faces.end(); }
 
 	/**
 	 * Identifies a common face of two nodes and returns the respective adjacency entry.

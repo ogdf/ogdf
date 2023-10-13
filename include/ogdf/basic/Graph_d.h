@@ -464,6 +464,7 @@ class OGDF_EXPORT GraphAdjIterator {
 
 public:
 	using iterator = GraphAdjIterator;
+	using const_iterator = GraphAdjIterator;
 	using value_type = adjEntry;
 
 	//! Constructor.
@@ -526,16 +527,16 @@ public:
 template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>, int Factor = 1>
 class GraphRegistry
 	: public RegistryBase<Key*, GraphRegistry<Key, Iterable, Factor>, typename Iterable::iterator> {
-	using iterator = typename Iterable::iterator;
-
 	Graph* m_pGraph;
 	int* m_nextKeyIndex;
-	Iterable* m_iterable;
 
 public:
+	using iterator = typename Iterable::iterator;
+	using const_iterator = typename Iterable::const_iterator;
+
 	//! Constructor.
-	GraphRegistry(Graph* graph, int* nextKeyIndex, Iterable* container = nullptr)
-		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex), m_iterable(container) { }
+	GraphRegistry(Graph* graph, int* nextKeyIndex)
+		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex) { }
 
 	static inline int keyToIndex(Key* key) { return key->index(); }
 
@@ -561,10 +562,6 @@ public:
 
 	int maxKeyIndex() const { return ((*m_nextKeyIndex) * Factor) - 1; }
 
-	iterator begin() const override { return m_iterable->begin(); }
-
-	iterator end() const override { return m_iterable->end(); }
-
 	//! Returns a pointer to the associated graph.
 	Graph* graphOf() const { return m_pGraph; }
 };
@@ -572,6 +569,18 @@ public:
 using GraphNodeRegistry = GraphRegistry<NodeElement>;
 using GraphEdgeRegistry = GraphRegistry<EdgeElement>;
 using GraphAdjRegistry = GraphRegistry<AdjElement, GraphAdjIterator, 2>;
+
+GraphNodeRegistry::iterator begin(const GraphNodeRegistry& self);
+
+GraphNodeRegistry::iterator end(const GraphNodeRegistry& self);
+
+GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& self);
+
+GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& self);
+
+GraphAdjRegistry::iterator begin(const GraphAdjRegistry& self);
+
+GraphAdjRegistry::iterator end(const GraphAdjRegistry& self);
 
 //! RegisteredArray for nodes, edges and adjEntries of a graph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>
@@ -773,8 +782,7 @@ private:
 
 	GraphNodeRegistry m_regNodeArrays; //!< The registered node arrays.
 	GraphEdgeRegistry m_regEdgeArrays; //!< The registered edge arrays.
-	GraphAdjRegistry m_regAdjArrays;
-	GraphAdjIterator m_adjIt;
+	GraphAdjRegistry m_regAdjArrays; //!< The registered adjEntry arrays.
 	mutable ListPure<GraphObserver*> m_regObservers; //!< The registered graph observers.
 
 #ifndef OGDF_MEMORY_POOL_NTS

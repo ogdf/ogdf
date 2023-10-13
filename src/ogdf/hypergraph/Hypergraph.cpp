@@ -38,8 +38,8 @@
 namespace ogdf {
 
 Hypergraph::Hypergraph()
-	: m_regHypernodeArrays(this, &m_hypernodeIdCount, &m_hypernodes)
-	, m_regHyperedgeArrays(this, &m_hyperedgeIdCount, &m_hyperedges) {
+	: m_regHypernodeArrays(this, &m_hypernodeIdCount)
+	, m_regHyperedgeArrays(this, &m_hyperedgeIdCount) {
 	m_nHypernodes = m_nHyperedges = 0;
 	m_hypernodeIdCount = m_hyperedgeIdCount = 0;
 	initArrays();
@@ -387,6 +387,24 @@ std::istream& operator>>(std::istream& is, ogdf::Hypergraph& H) {
 	}
 
 	return is;
+}
+
+HypergraphRegistry<HypernodeElement>::iterator begin(
+		const HypergraphRegistry<HypernodeElement>& self) {
+	return self.graphOf()->hypernodes().begin();
+}
+
+HypergraphRegistry<HypernodeElement>::iterator end(const HypergraphRegistry<HypernodeElement>& self) {
+	return self.graphOf()->hypernodes().end();
+}
+
+HypergraphRegistry<HyperedgeElement>::iterator begin(
+		const HypergraphRegistry<HyperedgeElement>& self) {
+	return self.graphOf()->hyperedges().begin();
+}
+
+HypergraphRegistry<HyperedgeElement>::iterator end(const HypergraphRegistry<HyperedgeElement>& self) {
+	return self.graphOf()->hyperedges().end();
 }
 
 void Hypergraph::readBenchHypergraph(std::istream& is) {

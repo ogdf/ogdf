@@ -45,18 +45,16 @@ using std::lock_guard;
 namespace ogdf {
 
 Graph::Graph()
-	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
-	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
-	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt)
-	, m_adjIt(this) {
+	: m_regNodeArrays(this, &m_nodeIdCount)
+	, m_regEdgeArrays(this, &m_edgeIdCount)
+	, m_regAdjArrays(this, &m_edgeIdCount) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 }
 
 Graph::Graph(const Graph& G)
-	: m_regNodeArrays(this, &m_nodeIdCount, &nodes)
-	, m_regEdgeArrays(this, &m_edgeIdCount, &edges)
-	, m_regAdjArrays(this, &m_edgeIdCount, &m_adjIt)
-	, m_adjIt(this) {
+	: m_regNodeArrays(this, &m_nodeIdCount)
+	, m_regEdgeArrays(this, &m_edgeIdCount)
+	, m_regAdjArrays(this, &m_edgeIdCount) {
 	m_nodeIdCount = m_edgeIdCount = 0;
 	insert(G);
 }
@@ -749,6 +747,30 @@ std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 		break;
 	}
 	return os;
+}
+
+GraphNodeRegistry::iterator begin(const GraphNodeRegistry& self) {
+	return self.graphOf()->nodes.begin();
+}
+
+GraphNodeRegistry::iterator end(const GraphNodeRegistry& self) {
+	return self.graphOf()->nodes.end();
+}
+
+GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& self) {
+	return self.graphOf()->edges.begin();
+}
+
+GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& self) {
+	return self.graphOf()->edges.end();
+}
+
+GraphAdjRegistry::iterator begin(const GraphAdjRegistry& self) {
+	return GraphAdjIterator(self.graphOf()).begin();
+}
+
+GraphAdjRegistry::iterator end(const GraphAdjRegistry& self) {
+	return GraphAdjIterator(self.graphOf());
 }
 
 GraphAdjIterator::GraphAdjIterator(Graph* graph, adjEntry entry)

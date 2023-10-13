@@ -153,12 +153,12 @@ public:
 	//	 * \remark To avoid frequent costly resize operations, the array size should grow in larger steps (e.g. powers of 2)
 	//	 */
 	//	OGDF_NODISCARD virtual int calculateArraySize(int add) const = 0;
-
-	//! Returns an iterator to the first key managed by this registry.
-	virtual Iterator begin() const = 0;
-
-	//! Returns the past-the-end iterator for the keys managed by this registry.
-	virtual Iterator end() const = 0;
+	//
+	//	//! Returns an iterator to the first key managed by this registry.
+	//	virtual Iterator begin() const = 0;
+	//
+	//	//! Returns the past-the-end iterator for the keys managed by this registry.
+	//	virtual Iterator end() const = 0;
 
 	//! Records the addition of a new key and resizes all registered arrays if necessary.
 	void keyAdded(Key key) {
@@ -529,22 +529,40 @@ public:
 	}
 
 	//! Returns an iterator to the first key-value pair in the array.
-	iterator begin() { return iterator(getRegistry().begin(), this); }
+	iterator begin() {
+		using std::begin;
+		return iterator(begin(getRegistry()), this);
+	}
 
 	//! Returns a const iterator to the first key-value pair in the array.
-	const_iterator begin() const { return const_iterator(getRegistry().begin(), this); }
+	const_iterator begin() const {
+		using std::begin;
+		return const_iterator(begin(getRegistry()), this);
+	}
 
 	//! Returns a const iterator to the first key-value pair in the array.
-	const_iterator cbegin() const { return const_iterator(getRegistry().begin(), this); }
+	const_iterator cbegin() const {
+		using std::begin;
+		return const_iterator(begin(getRegistry()), this);
+	}
 
 	//! Returns the past-the-end iterator of the array.
-	iterator end() { return iterator(getRegistry().end(), this); }
+	iterator end() {
+		using std::end;
+		return iterator(end(getRegistry()), this);
+	}
 
 	//! Returns the const past-the-end iterator of the array.
-	const_iterator end() const { return const_iterator(getRegistry().end(), this); }
+	const_iterator end() const {
+		using std::end;
+		return const_iterator(end(getRegistry()), this);
+	}
 
 	//! Returns the const past-the-end iterator of the array.
-	const_iterator cend() const { return const_iterator(getRegistry().end(), this); }
+	const_iterator cend() const {
+		using std::end;
+		return const_iterator(end(getRegistry()), this);
+	}
 
 	using registered_array_base::registeredAt;
 
@@ -860,16 +878,34 @@ public:
 		return reinterpret_cast<value_const_ref_type>(RA::getDefault());
 	}
 
-	iterator begin() { return iterator(RA::getRegistry().begin(), this); }
+	iterator begin() {
+		using std::begin;
+		return iterator(begin(RA::getRegistry()), this);
+	}
 
-	const_iterator begin() const { return const_iterator(RA::getRegistry().begin(), this); }
+	const_iterator begin() const {
+		using std::begin;
+		return const_iterator(begin(RA::getRegistry()), this);
+	}
 
-	const_iterator cbegin() const { return const_iterator(RA::getRegistry().begin(), this); }
+	const_iterator cbegin() const {
+		using std::begin;
+		return const_iterator(begin(RA::getRegistry()), this);
+	}
 
-	iterator end() { return iterator(RA::getRegistry().end(), this); }
+	iterator end() {
+		using std::end;
+		return iterator(end(RA::getRegistry()), this);
+	}
 
-	const_iterator end() const { return const_iterator(RA::getRegistry().end(), this); }
+	const_iterator end() const {
+		using std::end;
+		return const_iterator(end(RA::getRegistry()), this);
+	}
 
-	const_iterator cend() const { return const_iterator(RA::getRegistry().end(), this); }
+	const_iterator cend() const {
+		using std::end;
+		return const_iterator(end(RA::getRegistry()), this);
+	}
 };
 }
