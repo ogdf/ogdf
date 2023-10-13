@@ -1968,11 +1968,3 @@ inline std::ostream& operator<<(std::ostream& os, const NodePair& np) {
 }
 
 #include <ogdf/basic/InducedSubgraph.h>
-
-
-#undef OGDF_NODE_FILTER
-#undef OGDF_EDGE_FILTER
-#undef OGDF_NODE_LIST
-#undef OGDF_EDGE_LIST
-#undef OGDF_NODE_ITER
-#undef OGDF_EDGE_ITER
