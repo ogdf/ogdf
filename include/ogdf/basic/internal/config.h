@@ -131,6 +131,48 @@ using std::to_string;
 #endif
 
 //! @}
+//! @name Macros for locally disabling compiler warnings
+//! @{
+
+//! Start a new warning configuration context (i.e. do `pragma diagnostic/warning push`)
+//! @ingroup macros
+#define OGDF_DISABLE_WARNING_PUSH
+
+//! End the current warning configuration context (i.e. do `pragma diagnostic/warning pop`)
+//! @ingroup macros
+#define OGDF_DISABLE_WARNING_POP
+
+//! Disable the warning with the given number of MSVC or name of g++/clang.
+//! @ingroup macros
+#define OGDF_DISABLE_WARNING(warningNumber)
+
+//! Disable the warning that calling throw will always terminate the program in a noexept block
+//! @ingroup macros
+#define OGDF_DISABLE_WARNING_THROW_TERMINATE
+
+#if defined(_MSC_VER)
+#	undef OGDF_DISABLE_WARNING_PUSH
+#	undef OGDF_DISABLE_WARNING_POP
+#	undef OGDF_DISABLE_WARNING
+
+#	define OGDF_DISABLE_WARNING_PUSH __pragma(warning(push))
+#	define OGDF_DISABLE_WARNING_POP __pragma(warning(pop))
+#	define OGDF_DISABLE_WARNING(warningNumber) __pragma(warning(disable : warningNumber))
+#elif defined(__GNUC__) || defined(__clang__)
+#	undef OGDF_DISABLE_WARNING_PUSH
+#	undef OGDF_DISABLE_WARNING_POP
+#	undef OGDF_DISABLE_WARNING
+
+#	define OGDF_DO_PRAGMA(X) _Pragma(#X)
+#	define OGDF_DISABLE_WARNING_PUSH OGDF_DO_PRAGMA(GCC diagnostic push)
+#	define OGDF_DISABLE_WARNING_POP OGDF_DO_PRAGMA(GCC diagnostic pop)
+#	define OGDF_DISABLE_WARNING(warningName) OGDF_DO_PRAGMA(GCC diagnostic ignored #warningName)
+
+#	undef OGDF_DISABLE_WARNING_THROW_TERMINATE
+#	define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wterminate)
+#endif
+
+//! @}
 //! @name Unused results
 //! @{
 

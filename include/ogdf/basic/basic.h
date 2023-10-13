@@ -73,7 +73,10 @@ class AssertionFailed : public std::runtime_error {
 					ogdf_assert_ss << "OGDF assertion `" #expr "' failed at " __FILE__ ":" \
 								   << __LINE__ << "(" << OGDF_FUNCTION_NAME << ")";        \
 					ogdf::get_stacktrace(ogdf_assert_ss);                                  \
+					OGDF_DISABLE_WARNING_PUSH                                              \
+					OGDF_DISABLE_WARNING_THROW_TERMINATE                                   \
 					throw ogdf::AssertionFailed(ogdf_assert_ss.str());                     \
+					OGDF_DISABLE_WARNING_POP                                               \
 				}                                                                          \
 			} while (false)
 #	endif
