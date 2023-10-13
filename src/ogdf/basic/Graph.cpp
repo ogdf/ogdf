@@ -439,11 +439,6 @@ void Graph::unregisterObserver(ListIterator<GraphObserver*> it) const {
 	m_regObservers.del(it);
 }
 
-void Graph::resetAdjEntryIndex(int newIndex, int oldIndex) {
-	// TODO also for others / inline?
-	m_regAdjArrays.swapArrayEntries(newIndex, oldIndex);
-}
-
 
 #ifdef OGDF_DEBUG
 void Graph::consistencyCheck() const {
