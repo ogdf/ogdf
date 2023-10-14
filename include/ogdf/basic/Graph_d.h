@@ -570,17 +570,17 @@ using GraphNodeRegistry = GraphRegistry<NodeElement>;
 using GraphEdgeRegistry = GraphRegistry<EdgeElement>;
 using GraphAdjRegistry = GraphRegistry<AdjElement, GraphAdjIterator, 2>;
 
-GraphNodeRegistry::iterator begin(const GraphNodeRegistry& self);
+OGDF_EXPORT GraphNodeRegistry::iterator begin(const GraphNodeRegistry& self);
 
-GraphNodeRegistry::iterator end(const GraphNodeRegistry& self);
+OGDF_EXPORT GraphNodeRegistry::iterator end(const GraphNodeRegistry& self);
 
-GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& self);
+OGDF_EXPORT GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& self);
 
-GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& self);
+OGDF_EXPORT GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& self);
 
-GraphAdjRegistry::iterator begin(const GraphAdjRegistry& self);
+OGDF_EXPORT GraphAdjRegistry::iterator begin(const GraphAdjRegistry& self);
 
-GraphAdjRegistry::iterator end(const GraphAdjRegistry& self);
+OGDF_EXPORT GraphAdjRegistry::iterator end(const GraphAdjRegistry& self);
 
 //! RegisteredArray for nodes, edges and adjEntries of a graph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>

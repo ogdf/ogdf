@@ -354,15 +354,17 @@ public:
 	Hypergraph* graphOf() const { return m_pGraph; }
 };
 
-HypergraphRegistry<HypernodeElement>::iterator begin(
+OGDF_EXPORT HypergraphRegistry<HypernodeElement>::iterator begin(
 		const HypergraphRegistry<HypernodeElement>& self);
 
-HypergraphRegistry<HypernodeElement>::iterator end(const HypergraphRegistry<HypernodeElement>& self);
+OGDF_EXPORT HypergraphRegistry<HypernodeElement>::iterator end(
+		const HypergraphRegistry<HypernodeElement>& self);
 
-HypergraphRegistry<HyperedgeElement>::iterator begin(
+OGDF_EXPORT HypergraphRegistry<HyperedgeElement>::iterator begin(
 		const HypergraphRegistry<HyperedgeElement>& self);
 
-HypergraphRegistry<HyperedgeElement>::iterator end(const HypergraphRegistry<HyperedgeElement>& self);
+OGDF_EXPORT HypergraphRegistry<HyperedgeElement>::iterator end(
+		const HypergraphRegistry<HyperedgeElement>& self);
 
 //! RegisteredArray for nodes and edges of a hypergraph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = HypergraphRegistry<Key>>

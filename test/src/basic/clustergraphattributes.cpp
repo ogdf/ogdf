@@ -154,7 +154,7 @@ go_bandit([] {
 		randomClusterGraph(*CG, *G, 10);
 
 		std::unique_ptr<ClusterArray<int>> clusterArray(new ClusterArray<int>(*CG, 42));
-		std::unique_ptr<ClusterSet> clusterSet(new ClusterSet(*CG));
+		std::unique_ptr<ClusterSet<>> clusterSet(new ClusterSet<>(*CG));
 		clusterSet->insert(CG->clusters.head());
 
 		G.reset(nullptr);
