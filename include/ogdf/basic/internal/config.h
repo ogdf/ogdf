@@ -169,9 +169,14 @@ using std::to_string;
 #	define OGDF_DISABLE_WARNING(warningName) OGDF_DO_PRAGMA(GCC diagnostic ignored #warningName)
 #endif
 
-#if defined(__GNUC__) && !defined(__clang__)
-#	undef OGDF_DISABLE_WARNING_THROW_TERMINATE
-#	define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wterminate)
+#if defined(__GNUC__)
+#	if defined(__clang__)
+#		undef OGDF_DISABLE_WARNING_THROW_TERMINATE
+#		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wexceptions)
+#	else
+#		undef OGDF_DISABLE_WARNING_THROW_TERMINATE
+#		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wterminate)
+#	endif
 #endif
 
 //! @}
