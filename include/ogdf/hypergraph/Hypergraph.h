@@ -440,10 +440,10 @@ public:
 	bool empty() const { return m_nHypernodes == 0; }
 
 	//! Returns the list of all hypernodes.
-	internal::GraphList<HypernodeElement> hypernodes() const { return m_hypernodes; }
+	const internal::GraphList<HypernodeElement>& hypernodes() const { return m_hypernodes; }
 
 	//! Returns the list of all hyperedges.
-	internal::GraphList<HyperedgeElement> hyperedges() const { return m_hyperedges; }
+	const internal::GraphList<HyperedgeElement>& hyperedges() const { return m_hyperedges; }
 
 	//! Returns a reference to the registry of hypernode arrays associated with this hypergraph.
 	HypergraphRegistry<HypernodeElement>& hypernodeRegistry() { return m_regHypernodeArrays; }
