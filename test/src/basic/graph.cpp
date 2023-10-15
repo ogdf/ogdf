@@ -87,10 +87,6 @@ go_bandit([]() {
 			AssertThat(graph.maxNodeIndex(), IsLessThan(0));
 			AssertThat(graph.maxEdgeIndex(), IsLessThan(0));
 			AssertThat(graph.maxAdjEntryIndex(), IsLessThan(0));
-			// TODO allow lazy initialization?
-			//		AssertThat(graph.nodeArrayTableSize(), IsGreaterThan(0));
-			//		AssertThat(graph.edgeArrayTableSize(), IsGreaterThan(0));
-			//		AssertThat(graph.adjEntryArrayTableSize(), IsGreaterThan(0));
 			AssertThat(graph.firstNode(), IsNull());
 			AssertThat(graph.lastNode(), IsNull());
 			AssertThat(graph.firstEdge(), IsNull());

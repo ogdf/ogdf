@@ -884,15 +884,6 @@ public:
 	//! Returns the largest used adjEntry index.
 	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
-	//! Returns the table size of node arrays associated with this graph.
-	int nodeArrayTableSize() const { return m_regNodeArrays.getArraySize(); }
-
-	//! Returns the table size of edge arrays associated with this graph.
-	int edgeArrayTableSize() const { return m_regEdgeArrays.getArraySize(); }
-
-	//! Returns the table size of adjEntry arrays associated with this graph.
-	int adjEntryArrayTableSize() const { return m_regEdgeArrays.getArraySize() << 1; }
-
 	//! Returns a reference to the registry of node arrays associated with this graph.
 	GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
 

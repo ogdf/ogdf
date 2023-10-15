@@ -418,9 +418,6 @@ public:
 	//! Returns the maximal used cluster index.
 	int maxClusterIndex() const { return m_clusterIdCount - 1; }
 
-	//! Returns the table size of cluster arrays associated with this graph.
-	int clusterArrayTableSize() const { return getArraySize(); }
-
 	//! Returns the cluster to which a node belongs.
 	inline cluster clusterOf(node v) const { return m_nodeMap[v]; }
 

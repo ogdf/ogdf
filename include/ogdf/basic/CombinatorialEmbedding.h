@@ -289,9 +289,6 @@ public:
 	 */
 	int maxFaceIndex() const { return m_faceIdCount - 1; }
 
-	//! Returns the table size of face arrays associated with this embedding.
-	int faceArrayTableSize() const { return getArraySize(); }
-
 	/** @} @{
 	 * Returns a random face.
 	 * \c nullptr is returned if no feasible face exists.

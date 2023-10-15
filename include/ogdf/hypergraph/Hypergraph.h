@@ -485,12 +485,6 @@ public:
 	//! Returns the last hyperedge in the list of all hyperedges.
 	hyperedge lastHyperEdge() const { return m_hyperedges.tail(); }
 
-	//! Returns the table size of hypernode arrays with the hypergraph.
-	int hypernodeArrayTableSize() const { return m_regHypernodeArrays.getArraySize(); }
-
-	//! Returns the table size of hyperedge arrays within the hypergraph.
-	int hyperedgeArrayTableSize() const { return m_regHyperedgeArrays.getArraySize(); }
-
 	//! Creates a new hypernode and returns it.
 	hypernode newHypernode();
 
