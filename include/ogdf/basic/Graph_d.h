@@ -1648,6 +1648,13 @@ public:
 	std::pair<int, int> insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
 			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
 
+	template<OGDF_NODE_ITER NI, OGDF_EDGE_FILTER EF, bool copyEmbedding = true,
+			bool copyIDs = false, bool notifyObservers = true>
+	std::pair<int, int> insert(const Graph& G, const NI& nodesBegin, const NI& nodesEnd,
+			const EF& edgeFilter, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	// Redirecting Variants
+
 	template<OGDF_NODE_LIST NL, OGDF_EDGE_LIST EL>
 	std::pair<int, int> insert(const NL& nodeList, const EL& edgeList, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
@@ -1672,8 +1679,7 @@ public:
 			edgeMap.init(G);
 		}
 		OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
-		const std::pair<int, int>& count = insert(G.nodes.begin(), G.nodes.end(), G.edges.begin(),
-				G.edges.end(), nodeMap, edgeMap);
+		const std::pair<int, int>& count = insert(G.nodes, G.edges, nodeMap, edgeMap);
 		OGDF_ASSERT(count.first == G.numberOfNodes());
 		OGDF_ASSERT(count.second == G.numberOfEdges());
 		return count;

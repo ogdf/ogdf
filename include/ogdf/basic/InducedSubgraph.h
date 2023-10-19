@@ -193,9 +193,98 @@ std::pair<int, int> Graph::insert(const Graph& G, const NF& nodeFilter, const EF
 	}
 	OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
 	filtered_iterator<node_iterator> nodes_it {nodeFilter, G.nodes.begin(), G.nodes.end()};
-	filtered_iterator<edge_iterator> edges_it {edgeFilter, G.edges.begin(), G.edges.end()};
-	return insert<filtered_iterator<node_iterator>, filtered_iterator<edge_iterator>, copyEmbedding,
-			copyIDs, notifyObservers>(nodes_it, nodes_it.end(), edges_it, edges_it.end(), nodeMap,
-			edgeMap);
+	return insert<filtered_iterator<node_iterator>, EF, copyEmbedding, copyIDs, notifyObservers>(G,
+			nodes_it, nodes_it.end(), edgeFilter, nodeMap, edgeMap);
 }
+
+template<OGDF_NODE_ITER NI, OGDF_EDGE_FILTER EF, bool copyEmbedding, bool copyIDs, bool notifyObservers>
+std::pair<int, int> Graph::insert(const Graph& G, const NI& nodesBegin, const NI& nodesEnd,
+		const EF& edgeFilter, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+	int newNodes = 0, newEdges = 0;
+	if (nodesBegin == nodesEnd) {
+		return {newNodes, newEdges};
+	}
+
+	for (auto it = nodesBegin; it != nodesEnd; ++it) {
+		node vG = *it;
+		if (copyIDs) {
+			m_nodeIdCount = max(m_nodeIdCount, vG->index() + 1);
+		}
+		node v = nodeMap[vG] = pureNewNode(copyIDs ? vG->index() : m_nodeIdCount++);
+		if (notifyObservers) {
+			for (GraphObserver* obs : m_regObservers) {
+				obs->nodeAdded(v);
+			}
+		}
+
+		for (adjEntry adjG : vG->adjEntries) {
+			edge eG = adjG->m_edge;
+			if (!edgeFilter(eG)) {
+				continue;
+			}
+			edge e = edgeMap[eG];
+			if (e == nullptr) {
+				node twin = nodeMap[adjG->twinNode()];
+				if (twin == nullptr) {
+					continue;
+				}
+				if (copyIDs) {
+					m_edgeIdCount = max(m_edgeIdCount, eG->index() + 1);
+				}
+				if (adjG->isSource()) {
+					e = edgeMap[eG] = pureNewEdge(v, twin, copyIDs ? eG->index() : m_edgeIdCount++);
+					v->m_outdeg++;
+					twin->m_indeg++;
+					e->m_adjSrc->m_node = v;
+					e->m_adjTgt->m_node = twin;
+					v->adjEntries.pushBack(e->m_adjSrc);
+				} else {
+					e = edgeMap[eG] = pureNewEdge(twin, v, copyIDs ? eG->index() : m_edgeIdCount++);
+					twin->m_outdeg++;
+					v->m_indeg++;
+					e->m_adjSrc->m_node = twin;
+					e->m_adjTgt->m_node = v;
+					v->adjEntries.pushBack(e->m_adjTgt);
+				}
+			} else {
+				adjEntry adj = adjG->isSource() ? e->adjSource() : e->adjTarget();
+				v->adjEntries.pushBack(adj);
+				adj->m_node = v;
+
+				// FIXME at this point, other edges might still be incomplete > guarantees when observer is called?
+				//  - object exists in graph, arrays already resized
+				//  - Graph is completely valid
+				//  - some further Objects for which observers have not been notified may exist
+				//if (notifyObservers)
+				//	for (GraphObserver *obs: m_regObservers)
+				//		obs->edgeAdded(eG);
+			}
+		}
+	}
+
+	// notify observers of added edges after adjEntries are initialized
+	if (notifyObservers && !m_regObservers.empty()) {
+		for (auto it = nodesBegin; it != nodesEnd; ++it) {
+			node vG = *it;
+			for (adjEntry adjG : vG->adjEntries) {
+				edge eG = adjG->m_edge;
+				edge e = edgeMap[eG];
+				if (e == nullptr) {
+					continue;
+				}
+				for (GraphObserver* obs : m_regObservers) {
+					obs->edgeAdded(e);
+				}
+			}
+		}
+	}
+
+#ifdef OGDF_HEAVY_DEBUG
+	consistencyCheck();
+#endif
+
+	return {newNodes, newEdges};
+}
+
+
 }
