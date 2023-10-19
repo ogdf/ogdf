@@ -58,6 +58,7 @@ class GraphIteratorBase {
 
 public:
 	using value_type = typename std::conditional<isConst, const GraphObjectPtr, GraphObjectPtr>::type;
+	using difference_type = std::ptrdiff_t;
 
 	GraphIteratorBase() : m_ptr(nullptr) { }
 
@@ -71,9 +72,9 @@ public:
 
 	bool operator!=(const T& other) const { return m_ptr != other.m_ptr; }
 
-	GraphObjectPtr& operator*() { return m_ptr; }
+	// const GraphObjectPtr& operator*() { return m_ptr; } // TODO needed?
 
-	const GraphObjectPtr operator*() const { return m_ptr; }
+	const GraphObjectPtr& operator*() const { return m_ptr; }
 
 	//! Increment operator (prefix).
 	T& operator++() {

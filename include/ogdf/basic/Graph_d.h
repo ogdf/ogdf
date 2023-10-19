@@ -72,6 +72,63 @@ using edge = EdgeElement*;
 //! @ingroup graphs
 using adjEntry = AdjElement*;
 
+
+#if __cpp_concepts >= 201907
+template<typename T>
+concept OGDF_NODE_FILTER = requires(T f) {
+	{ f(node()) } -> std::convertible_to<bool>;
+};
+template<typename T>
+concept OGDF_EDGE_FILTER = requires(T f) {
+	{ f(edge()) } -> std::convertible_to<bool>;
+};
+template<typename T>
+concept OGDF_NODE_ITER = std::forward_iterator<T> && requires(T i) {
+	{ *i } -> std::convertible_to<node>;
+};
+template<typename T>
+concept OGDF_EDGE_ITER = std::forward_iterator<T> && requires(T i) {
+	{ *i } -> std::convertible_to<edge>;
+};
+using std::begin; // TODO scope pollution?
+using std::end;
+template<typename T>
+concept OGDF_NODE_LIST = requires(T l) {
+	OGDF_NODE_ITER<decltype(begin(l))>;
+	OGDF_NODE_ITER<decltype(end(l))>;
+};
+template<typename T>
+concept OGDF_EDGE_LIST = requires(T l) {
+	OGDF_EDGE_ITER<decltype(begin(l))>;
+	OGDF_EDGE_ITER<decltype(end(l))>;
+};
+
+#	define OGDF_HAS_CONCEPTS
+#	define OGDF_CHECK_CONCEPT static_assert
+
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphConstIterator<node>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphConstIterator<edge>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphIterator<node>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphIterator<edge>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphReverseIterator<node>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphReverseIterator<edge>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_LIST<internal::GraphObjectContainer<NodeElement>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_LIST<internal::GraphObjectContainer<EdgeElement>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<ListIteratorBase<node, false, false>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, false, true>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<ListIteratorBase<node, true, false>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, true, false>>); // TODO check traits everywhere
+#else
+#	define OGDF_NODE_FILTER typename
+#	define OGDF_EDGE_FILTER typename
+#	define OGDF_NODE_ITER typename
+#	define OGDF_EDGE_ITER typename
+#	define OGDF_NODE_LIST typename
+#	define OGDF_EDGE_LIST typename
+
+#	define OGDF_CHECK_CONCEPT(...)
+#endif
+
 //! Class for adjacency list elements.
 /**
  * Adjacency list elements represent the occurrence of an edges in
@@ -1581,14 +1638,6 @@ public:
 
 	//! @}
 
-#define OGDF_NODE_FILTER typename
-#define OGDF_EDGE_FILTER typename
-#define OGDF_NODE_LIST typename
-#define OGDF_EDGE_LIST typename
-#define OGDF_NODE_ITER typename
-#define OGDF_EDGE_ITER typename
-
-
 	template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding = true, bool copyIDs = false,
 			bool notifyObservers = true>
 	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
@@ -1703,25 +1752,28 @@ public:
 
 	class OGDF_EXPORT CCNodeIterator {
 	private:
-		const CCsInfo& _info;
+		const CCsInfo* _info;
 		int _cc;
 		int _cur;
 
-		CCNodeIterator(const CCsInfo& info, int cc, int cur) : _info(info), _cc(cc), _cur(cur) { }
+		CCNodeIterator(const CCsInfo& info, int cc, int cur) : _info(&info), _cc(cc), _cur(cur) { }
 
 	public:
 		using value_type = node;
+		using difference_type = std::ptrdiff_t;
+
+		CCNodeIterator() : _info(nullptr), _cc(-1), _cur(-1) { }
 
 		CCNodeIterator(const CCsInfo& info, int cc)
-			: _info(info), _cc(cc), _cur(info.startNode(cc)) { }
+			: _info(&info), _cc(cc), _cur(info.startNode(cc)) { }
 
 		CCNodeIterator begin() const { return *this; }
 
-		CCNodeIterator end() const { return {_info, _cc, _info.stopNode(_cc)}; }
+		CCNodeIterator end() const { return {*_info, _cc, _info->stopNode(_cc)}; }
 
-		node operator*() const { return _info.v(_cur); }
+		node operator*() const { return _info->v(_cur); }
 
-		NodeElement& operator->() const { return *_info.v(_cur); }
+		NodeElement& operator->() const { return *_info->v(_cur); }
 
 		CCNodeIterator& operator++() {
 			++_cur;
@@ -1741,27 +1793,32 @@ public:
 		bool operator!=(const CCNodeIterator& rhs) const { return !(rhs == *this); }
 	};
 
+	OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<CCNodeIterator>);
+
 	class OGDF_EXPORT CCEdgeIterator {
 	private:
-		const CCsInfo& _info;
+		const CCsInfo* _info;
 		int _cc;
 		int _cur;
 
-		CCEdgeIterator(const CCsInfo& info, int cc, int cur) : _info(info), _cc(cc), _cur(cur) { }
+		CCEdgeIterator(const CCsInfo& info, int cc, int cur) : _info(&info), _cc(cc), _cur(cur) { }
 
 	public:
 		using value_type = edge;
+		using difference_type = std::ptrdiff_t;
+
+		CCEdgeIterator() : _info(nullptr), _cc(-1), _cur(-1) { }
 
 		CCEdgeIterator(const CCsInfo& info, int cc)
-			: _info(info), _cc(cc), _cur(info.startEdge(cc)) { }
+			: _info(&info), _cc(cc), _cur(info.startEdge(cc)) { }
 
 		CCEdgeIterator begin() const { return *this; }
 
-		CCEdgeIterator end() const { return {_info, _cc, _info.stopEdge(_cc)}; }
+		CCEdgeIterator end() const { return {*_info, _cc, _info->stopEdge(_cc)}; }
 
-		edge operator*() const { return _info.e(_cur); }
+		edge operator*() const { return _info->e(_cur); }
 
-		EdgeElement& operator->() const { return *_info.e(_cur); }
+		EdgeElement& operator->() const { return *_info->e(_cur); }
 
 		CCEdgeIterator& operator++() {
 			++_cur;
@@ -1780,6 +1837,8 @@ public:
 
 		bool operator!=(const CCEdgeIterator& rhs) const { return !(rhs == *this); }
 	};
+
+	OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<CCEdgeIterator>);
 
 private:
 	/**

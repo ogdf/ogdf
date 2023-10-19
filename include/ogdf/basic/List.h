@@ -118,6 +118,7 @@ class ListIteratorBase {
 
 public:
 	using value_type = Elem;
+	using difference_type = std::ptrdiff_t;
 
 	//! Constructs an iterator that points to \p pX.
 	ListIteratorBase(ListElem* pX) : m_pX(pX) { }

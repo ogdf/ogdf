@@ -5,10 +5,17 @@
 
 namespace ogdf {
 
+#ifdef OGDF_HAS_CONCEPTS
+template<std::forward_iterator BaseIterator>
+#else
 template<typename BaseIterator>
-struct filtered_iterator { // TODO IteratorTraits
+#endif
+struct filtered_iterator {
 	using filter_type = std::function<bool(const typename BaseIterator::value_type&)>;
 	using value_type = typename BaseIterator::value_type;
+	using difference_type = std::ptrdiff_t;
+
+	filtered_iterator() : _cur(), _end(), _filter() {};
 
 	filtered_iterator(filter_type filter, BaseIterator base, BaseIterator end = {})
 		: _cur(base), _end(end), _filter(filter) {
@@ -48,6 +55,8 @@ private:
 	BaseIterator _end;
 	filter_type _filter;
 };
+
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<filtered_iterator<Graph::node_iterator>>);
 
 template<typename BaseIterator>
 filtered_iterator<BaseIterator> make_filtered_iterator(
