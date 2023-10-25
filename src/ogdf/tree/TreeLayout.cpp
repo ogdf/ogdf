@@ -437,7 +437,7 @@ void TreeLayout::call(GraphAttributes& AG) {
 			firstWalk(ts, root, false);
 			secondWalkY(ts, root, -ts.m_preliminary[root]);
 
-			// compute y-coordinates
+			// compute x-coordinates
 			computeXCoordinatesAndEdgeShapes(root, AG);
 
 			if (it != roots.begin()) {
