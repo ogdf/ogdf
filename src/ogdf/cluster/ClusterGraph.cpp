@@ -801,7 +801,7 @@ void ClusterGraph::delCluster(cluster c) {
 	}
 
 	clusters.del(c);
-#ifdef OGDF_DEBUG
+#ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
 #endif
 }
@@ -1256,7 +1256,15 @@ bool ClusterGraph::representsCombEmbedding() const {
 
 			// run along the outer face of the cluster until you find the next outgoing edge
 			adjEntry next = adj->cyclicSucc();
+#ifdef OGDF_DEBUG
+			int max = 2 * (constGraph().numberOfEdges() + 1);
 			while (next != succAdj) {
+				// this guards against an infinite loop if the underlying embedding is non-planar
+				OGDF_ASSERT(max >= 0);
+				max--;
+#else
+			while (next != succAdj) {
+#endif
 				if (next == adj->twin()) {
 					// we searched the whole face but didn't find our successor along the cluster border
 					return false;

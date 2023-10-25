@@ -688,6 +688,15 @@ public:
 	//! @{
 
 	//! Checks the combinatorial cluster planar embedding.
+	/**
+	 * This only works when the underlying Graph represents a planar embedding,
+	 * so check constGraph().representsCombEmbedding() first.
+	 *
+	 * Note that the current implementation can only check connected graphs.
+	 *
+	 * @return true if the current embedding (given by the adjacency lists of the clusters)
+	 *         represents a cluster planar combinatorial embedding
+	 */
 	bool representsCombEmbedding() const;
 
 #ifdef OGDF_DEBUG
