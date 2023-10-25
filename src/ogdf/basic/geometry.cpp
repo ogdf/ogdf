@@ -358,8 +358,8 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
 	auto isInRegularPolygon = [&](unsigned int sides) {
 		polygon.clear();
 		double radius = (max(vSize.m_x, vSize.m_y) / 2.0);
-		for (double angle = -(Math::pi / 2) + Math::pi / sides; angle < 1.5 * Math::pi;
-				angle += 2.0 * Math::pi / sides) {
+		for (int i = 0; i < sides; ++i) {
+			double angle = -(Math::pi / 2) + Math::pi / sides + i * (2.0 * Math::pi / sides);
 			polygon.pushBack(DPoint(radius * cos(angle), radius * sin(angle)));
 		}
 		return isInConvexCCWPolygon();
