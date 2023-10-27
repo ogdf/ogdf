@@ -271,9 +271,9 @@ bool ClusterPlanarity::doTest(const ClusterGraph& G, NodePairs& addedEdges) {
 	Master::STATUS abastatus;
 	try {
 		abastatus = cplanMaster->optimize();
-	} catch (...) {
+	} catch (const std::exception& exc) {
 #ifdef OGDF_DEBUG
-		std::cerr << "ABACUS Optimization failed...\n";
+		std::cerr << "ABACUS Optimization failed: " << exc.what() << "\n";
 #endif
 	}
 

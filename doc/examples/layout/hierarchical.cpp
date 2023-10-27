@@ -16,7 +16,7 @@ int main()
 	  GraphAttributes::edgeStyle |
 	  GraphAttributes::nodeStyle |
 	  GraphAttributes::nodeTemplate);
-	if (!GraphIO::read(GA, G, "unix-history.gml", GraphIO::readGML)) {
+	if (!GraphIO::read(GA, G, "unix-history.gml")) {
 		std::cerr << "Could not load unix-history.gml" << std::endl;
 		return 1;
 	}
@@ -32,8 +32,8 @@ int main()
 	SL.setLayout(ohl);
 
 	SL.call(GA);
-	GraphIO::write(GA, "output-unix-history-hierarchical.gml", GraphIO::writeGML);
-	GraphIO::write(GA, "output-unix-history-hierarchical.svg", GraphIO::drawSVG);
+	GraphIO::write(GA, "output-unix-history-hierarchical.gml");
+	GraphIO::write(GA, "output-unix-history-hierarchical.svg");
 
 	return 0;
 }

@@ -138,11 +138,11 @@ public:
 	using const_iterator = internal::GraphArrayConstIterator<FaceArray<T>>;
 
 	//! Constructs an empty face array associated with no combinatorial embedding.
-	FaceArray() : Array<T>(), FaceArrayBase() { }
+	FaceArray() : Array<T>(), FaceArrayBase(), m_x() { }
 
 	//! Constructs a face array associated with \p E.
 	FaceArray(const ConstCombinatorialEmbedding& E)
-		: Array<T>(E.faceArrayTableSize()), FaceArrayBase(&E) { }
+		: Array<T>(E.faceArrayTableSize()), FaceArrayBase(&E), m_x() { }
 
 	//! Constructs a face array associated with \p E.
 	/**

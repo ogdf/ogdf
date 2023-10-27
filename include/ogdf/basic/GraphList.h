@@ -141,21 +141,26 @@ public:
 	//! Sorts the list according to \p newOrder.
 	template<class LIST>
 	void sort(const LIST& newOrder) {
-		GraphElement* pPred = nullptr;
-		typename LIST::const_iterator it = newOrder.begin();
-		if (!it.valid()) {
+		using std::begin;
+		using std::end;
+		sort(begin(newOrder), end(newOrder));
+	}
+
+	//! Sorts the list according to the range defined by two iterators.
+	template<class IT>
+	void sort(IT begin, IT end) {
+		if (begin == end) {
 			return;
 		}
-
-		m_head = *it;
-		for (; it.valid(); ++it) {
+		m_head = *begin;
+		GraphElement* pPred = nullptr;
+		for (auto it = begin; it != end; ++it) {
 			GraphElement* p = *it;
 			if ((p->m_prev = pPred) != nullptr) {
 				pPred->m_next = p;
 			}
 			pPred = p;
 		}
-
 		(m_tail = pPred)->m_next = nullptr;
 	}
 
@@ -368,6 +373,12 @@ public:
 	template<class T_LIST>
 	void sort(const T_LIST& newOrder) {
 		GraphListBase::sort(newOrder);
+	}
+
+	//! Sorts the list according to the range defined by two iterators.
+	template<class IT>
+	void sort(IT begin, IT end) {
+		GraphListBase::sort(begin, end);
 	}
 
 	//! Reverses the order of the list elements.
