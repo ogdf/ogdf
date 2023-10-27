@@ -35,12 +35,6 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GmlParser.h>
 
-using std::mutex;
-
-#ifndef OGDF_MEMORY_POOL_NTS
-using std::lock_guard;
-#endif
-
 
 namespace ogdf {
 

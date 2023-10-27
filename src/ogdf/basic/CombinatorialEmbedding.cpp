@@ -37,8 +37,6 @@
 #	include <ogdf/basic/simple_graph_alg.h>
 #endif
 
-using std::lock_guard;
-using std::mutex;
 
 namespace ogdf {
 

@@ -3,6 +3,10 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/internal/config.h>
 
+#ifndef OGDF_MEMORY_POOL_NTS
+#	include <mutex>
+#endif
+
 namespace ogdf {
 
 template<typename TObserved, typename TObserver>
@@ -68,7 +72,7 @@ private:
 	 */
 	typename ListPure<TObserver*>::iterator registerObserver(TObserver* obs) const {
 #ifndef OGDF_MEMORY_POOL_NTS
-		lock_guard<mutex> guard(m_mutexRegArrays);
+		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
 		return m_regObservers.pushBack(obs);
 	}
@@ -80,7 +84,7 @@ private:
 	 */
 	void unregisterObserver(typename ListPure<TObserver*>::iterator it) const {
 #ifndef OGDF_MEMORY_POOL_NTS
-		lock_guard<mutex> guard(obs);
+		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
 		m_regObservers.del(it);
 	}
