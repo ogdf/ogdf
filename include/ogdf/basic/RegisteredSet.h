@@ -106,11 +106,22 @@ public:
 	//! Removes all elements from this set.
 	/**
 	 * After this operation, this set is empty and still associated with the same registry.
-	 * The runtime of this operations is linear in the #size().
+	 * The runtime of this operation is linear in the #size(). Implementation Detail:
+	 * If less than 10% of all elements are part of this set, they will be individually cleared.
+	 * Otherwise, \c std::vector::assign(...) will be used to clear all values.
 	 */
 	void clear() {
-		m_it.fill(ListIterator<element_type>());
-		m_elements.clear();
+		if (!registeredAt()) {
+			return;
+		}
+		if (size() * 10 < registeredAt()->getArraySize()) {
+			while (!m_elements.empty()) {
+				remove(m_elements.front());
+			}
+		} else {
+			m_it.fill(ListIterator<element_type>());
+			m_elements.clear();
+		}
 	}
 
 	//! Returns \c true iff element \p v is contained in this set.
