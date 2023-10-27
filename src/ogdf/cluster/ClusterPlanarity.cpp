@@ -79,7 +79,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 		// We can solve the c-planarity testing for all indyBags independently,
 		// and in case all are c-planar, also our input c-graph is c-planar.
 		const int numIndyBags = ca.numberOfIndyBags();
-		std::vector<GraphCopy*> theGraphs(numIndyBags); //Stores copies for the bag graphs.
+		std::vector<GraphCopy> theGraphs(numIndyBags); //Stores copies for the bag graphs.
 #ifdef OGDF_DEBUG
 		std::cout << "Number of IndyBags " << numIndyBags << "\n";
 #endif
@@ -92,8 +92,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 
 		for (int i = 0; i < numIndyBags && m_optStatus == Master::Optimal; i++) {
 			// Create underlying graph
-			theGraphs[i] = new GraphCopy();
-			theGraphs[i]->createEmpty(G);
+			theGraphs[i].createEmpty(G);
 			// Judging from the interface and the description, there are two
 			// methods in GraphCopy that allow to construct parts based on a
 			// set of vertices, initByNodes and initByActiveNodes, where the
@@ -103,8 +102,8 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 			// components, it also works for set of connected components, and
 			// an independent bag is such a creature.
 			EdgeArray<edge> eCopy(G);
-			theGraphs[i]->initByNodes(nodesInBag[i], eCopy);
-			ClusterGraph bagCG(*theGraphs[i]);
+			theGraphs[i].initByNodes(nodesInBag[i], eCopy);
+			ClusterGraph bagCG(theGraphs[i]);
 			ClusterArray<List<node>> cNodes(CG);
 			ClusterArray<List<cluster>> cChildren(CG);
 			ClusterArray<cluster> cCopy(CG);
@@ -115,7 +114,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 			// and no vertices, we delete the child again.
 			for (node u : nodesInBag[i]) {
 				cluster ct = CG.clusterOf(u);
-				cNodes[ct].pushBack(theGraphs[i]->copy(u));
+				cNodes[ct].pushBack(theGraphs[i].copy(u));
 				// Check if we need to store the parent relation on the path
 				// to the root. Indicator is: We have just added the first element.
 
@@ -151,7 +150,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 			}
 #ifdef OGDF_DEBUG
 			Logger::slout()
-					<< "Created clustered graph for indy bag with " << theGraphs[i]->numberOfNodes()
+					<< "Created clustered graph for indy bag with " << theGraphs[i].numberOfNodes()
 					<< " nodes and " << bagCG.numberOfClusters() << " clusters\n";
 			// Make sure the cluster structure is a rooted tree
 			cluster t = bagCG.rootCluster();
@@ -174,12 +173,12 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 			GraphIO::write(CGA, filename, GraphIO::writeGML);
 #endif
 			//now the actual test, similar to the one below...
-			if (theGraphs[i]->numberOfNodes() > 2) //could even start at 4...
+			if (theGraphs[i].numberOfNodes() > 2) //could even start at 4...
 			{
-				makeParallelFreeUndirected(*theGraphs[i]); //Could do this while creating copy
+				makeParallelFreeUndirected(theGraphs[i]); //Could do this while creating copy
 				Logger::slout()
-						<< "IndyBag of size n m c" << theGraphs[i]->numberOfNodes() << " "
-						<< theGraphs[i]->numberOfEdges() << " " << bagCG.numberOfClusters() << "\n";
+						<< "IndyBag of size n m c" << theGraphs[i].numberOfNodes() << " "
+						<< theGraphs[i].numberOfEdges() << " " << bagCG.numberOfClusters() << "\n";
 				NodePairs ae;
 				//Todo: Add an interface here that allows to transfer bag and
 				// activity information to the master, otherwise we have to
@@ -195,8 +194,8 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 					return result;
 				}
 				for (const auto& np : ae) {
-					addedEdges.emplaceBack(theGraphs[i]->original(np.source),
-							theGraphs[i]->original(np.target));
+					addedEdges.emplaceBack(theGraphs[i].original(np.source),
+							theGraphs[i].original(np.target));
 				}
 			}
 #ifdef OGDF_DEBUG
@@ -268,7 +267,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph& G, NodePairs& addedEdges) {
 #ifdef OGDF_DEBUG
 	std::cout << "Starting Optimization\n";
 #endif
-	Master::STATUS abastatus;
+	Master::STATUS abastatus = Master::STATUS::Error;
 	try {
 		abastatus = cplanMaster->optimize();
 	} catch (const std::exception& exc) {
