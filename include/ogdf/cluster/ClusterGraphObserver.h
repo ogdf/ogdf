@@ -37,6 +37,7 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
@@ -50,46 +51,18 @@ namespace ogdf {
  * of clusters, you can derive it from ClusterGraphObserver and override the
  * notification methods clusterDeleted, clusterAdded.
  */
-class OGDF_EXPORT ClusterGraphObserver {
-	friend class ClusterGraph;
-
+class OGDF_EXPORT ClusterGraphObserver : public Observer<ClusterGraph, ClusterGraphObserver> {
 public:
-	ClusterGraphObserver() : m_pClusterGraph(nullptr) { }
+	ClusterGraphObserver() : Observer(nullptr) { }
 
-	explicit ClusterGraphObserver(const ClusterGraph* CG) : m_pClusterGraph(CG) {
-		m_itCGList = CG->registerObserver(this);
-	}
-
-	virtual ~ClusterGraphObserver() {
-		if (m_pClusterGraph) {
-			m_pClusterGraph->unregisterObserver(m_itCGList);
-		}
-	}
-
-	// associates structure with different graph
-	void reregister(const ClusterGraph* pCG) {
-		//small speedup: check if == m_pGraph
-		if (m_pClusterGraph) {
-			m_pClusterGraph->unregisterObserver(m_itCGList);
-		}
-		if ((m_pClusterGraph = pCG) != nullptr) {
-			m_itCGList = pCG->registerObserver(this);
-		}
-	}
+	explicit ClusterGraphObserver(const ClusterGraph* CG) : Observer(CG) { }
 
 	virtual void clusterDeleted(cluster v) = 0;
 	virtual void clusterAdded(cluster v) = 0;
-#if 0
-	virtual void cleared()                 = 0;//Graph cleared
-#endif
 
-	const ClusterGraph* getGraph() const { return m_pClusterGraph; }
+	// virtual void cleared() = 0;
 
-protected:
-	const ClusterGraph* m_pClusterGraph; //underlying clustergraph
-
-	//List entry in cluster graphs list of all registered observers
-	ListIterator<ClusterGraphObserver*> m_itCGList;
+	const ClusterGraph* getGraph() const { return getObserved(); }
 };
 
 }

@@ -35,6 +35,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/internal/graph_iterators.h>
 
@@ -719,24 +720,16 @@ using AdjEntryArrayWithoutDefault = GraphRegisteredArray<AdjElement, Value, fals
  * of nodes or edges, you can derive it from GraphObserver and override the
  * notification methods nodeDeleted, nodeAdded, edgeDeleted, edgeAdded.
  */
-class OGDF_EXPORT GraphObserver {
-	friend class Graph;
-
+class OGDF_EXPORT GraphObserver : public Observer<Graph, GraphObserver> {
 public:
 	//! Constructs instance of GraphObserver class
-	GraphObserver() : m_pGraph(nullptr) { }
+	GraphObserver() : Observer(nullptr) { }
 
 	/**
 	 *\brief Constructs instance of GraphObserver class
 	 * \param G is the graph to be watched
 	 */
-	explicit GraphObserver(const Graph* G);
-
-	//! Destroys the instance, unregisters it from watched graph
-	virtual ~GraphObserver();
-
-	//! Associates observer instance with graph \p G
-	void reregister(const Graph* pG);
+	explicit GraphObserver(const Graph* G) : Observer(G) { }
 
 	//! Called by watched graph when a node is deleted
 	//! Has to be implemented by derived classes
@@ -758,14 +751,7 @@ public:
 	//! Has to be implemented by derived classes
 	virtual void cleared() = 0;
 
-	//! Called when the watched graph is deconstructed and thus no longer available
-	virtual void unregistered() { m_pGraph = nullptr; }
-
-	const Graph* getGraph() const { return m_pGraph; }
-
-protected:
-	const Graph* m_pGraph; //! watched graph
-	ListIterator<GraphObserver*> m_itGList; //! List entry in graphs list of all registered graphobservers
+	const Graph* getGraph() const { return getObserved(); }
 };
 
 namespace internal {
@@ -825,7 +811,7 @@ inline node adjToNode(node n) { return n; }
  * </ul>
  */
 
-class OGDF_EXPORT Graph {
+class OGDF_EXPORT Graph : public Observable<GraphObserver, Graph> {
 public:
 	class HiddenEdgeSet;
 	class CCsInfo;
@@ -840,11 +826,6 @@ private:
 	GraphNodeRegistry m_regNodeArrays; //!< The registered node arrays.
 	GraphEdgeRegistry m_regEdgeArrays; //!< The registered edge arrays.
 	GraphAdjRegistry m_regAdjArrays; //!< The registered adjEntry arrays.
-	mutable ListPure<GraphObserver*> m_regObservers; //!< The registered graph observers.
-
-#ifndef OGDF_MEMORY_POOL_NTS
-	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
-#endif
 
 	List<HiddenEdgeSet*> m_hiddenEdgeSets; //!< The list of hidden edges.
 
@@ -1030,7 +1011,7 @@ public:
 	node newNode(int index = -1) {
 		node v = pureNewNode(index);
 		m_regNodeArrays.keyAdded(v);
-		for (GraphObserver* obs : m_regObservers) {
+		for (GraphObserver* obs : getObservers()) {
 			obs->nodeAdded(v);
 		}
 		return v;
@@ -1140,7 +1121,7 @@ public:
 
 		m_regEdgeArrays.keyAdded(e);
 		m_regAdjArrays.keyAdded(e->adjSource());
-		for (GraphObserver* obs : m_regObservers) {
+		for (GraphObserver* obs : getObservers()) {
 			obs->edgeAdded(e);
 		}
 
@@ -1933,22 +1914,6 @@ private:
 			n->adjEntries.insertBefore(newAdj, n->adjEntries.head());
 		}
 	}
-
-	//! Registers a graph observer.
-	/**
-	 * @param pStructure is a pointer to the graph observer that shall be registered; this graph observer must be
-	 *                   associated with this graph.
-	 * @return an iterator pointing to the entry for the registered graph observer in the list of registered
-	 *         graph observers. This iterator is required for unregistering the graph observer again.
-	 */
-	ListIterator<GraphObserver*> registerObserver(GraphObserver* pStructure) const;
-
-	//! Unregisters a graph observer.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered graph observers for the graph
-	 *           observer to be unregistered.
-	 */
-	void unregisterObserver(ListIterator<GraphObserver*> it) const;
 
 	//! moves adjacency entry to node w
 	void moveAdj(adjEntry adj, node w);

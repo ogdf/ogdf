@@ -35,6 +35,7 @@
 
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
 
 //! Iteration over all adjacency list entries \p adj of a graph element \p ge.
@@ -398,7 +399,7 @@ using HyperedgeArrayWithoutDefault = HypergraphRegisteredArray<HyperedgeElement,
 
 class OGDF_EXPORT HypergraphObserver;
 
-class OGDF_EXPORT Hypergraph {
+class OGDF_EXPORT Hypergraph : public Observable<HypergraphObserver, Hypergraph> {
 	//! The registered hypernode arrays
 	HypergraphRegistry<HypernodeElement> m_regHypernodeArrays;
 
@@ -422,9 +423,6 @@ class OGDF_EXPORT Hypergraph {
 
 	//! The Index that will be assigned to the next created hyperedge.
 	int m_hyperedgeIdCount;
-
-	//! The registered hypergraph arrays & observers.
-	mutable ListPure<HypergraphObserver*> m_observers;
 
 public:
 	//! Constructs an empty hypergraph.
@@ -570,12 +568,6 @@ public:
 
 	operator const HypergraphRegistry<HyperedgeElement>&() const { return m_regHyperedgeArrays; }
 
-	//! Registers a hypergraph observer (e.g. a EdgeStandardRep).
-	ListIterator<HypergraphObserver*> registerObserver(HypergraphObserver* pObserver) const;
-
-	//! Unregisters a hypergraph observer.
-	void unregisterObserver(ListIterator<HypergraphObserver*> it) const;
-
 	Hypergraph& operator=(const Hypergraph& H);
 
 	friend std::ostream& operator<<(std::ostream& os, ogdf::Hypergraph& H);
@@ -586,8 +578,6 @@ public:
 
 private:
 	void initArrays();
-
-	void initObservers();
 
 	int nextEntry(char* buffer, int from, string stop);
 

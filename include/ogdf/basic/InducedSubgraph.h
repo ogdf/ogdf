@@ -91,7 +91,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		if (notifyObservers) {
 			m_regNodeArrays.keyAdded(v);
 			nodeInserted(cbData, vG, v);
-			for (GraphObserver* obs : m_regObservers) {
+			for (GraphObserver* obs : getObservers()) {
 				obs->nodeAdded(v);
 			}
 		}
@@ -121,7 +121,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 				m_regEdgeArrays.keyAdded(e);
 				m_regAdjArrays.keyAdded(e->adjSource());
 				edgeInserted(cbData, eG, e);
-				for (GraphObserver* obs : m_regObservers) {
+				for (GraphObserver* obs : getObservers()) {
 					obs->edgeAdded(e);
 				}
 			}
@@ -167,7 +167,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			m_regEdgeArrays.keyAdded(e);
 			m_regAdjArrays.keyAdded(e->adjSource());
 			edgeInserted(cbData, eG, e);
-			for (GraphObserver* obs : m_regObservers) {
+			for (GraphObserver* obs : getObservers()) {
 				obs->edgeAdded(e);
 			}
 		}
@@ -212,7 +212,7 @@ std::pair<int, int> Graph::insert(const Graph& G, const NI& nodesBegin, const NI
 		}
 		node v = nodeMap[vG] = pureNewNode(copyIDs ? vG->index() : m_nodeIdCount++);
 		if (notifyObservers) {
-			for (GraphObserver* obs : m_regObservers) {
+			for (GraphObserver* obs : getObservers()) {
 				obs->nodeAdded(v);
 			}
 		}
@@ -256,14 +256,14 @@ std::pair<int, int> Graph::insert(const Graph& G, const NI& nodesBegin, const NI
 				//  - Graph is completely valid
 				//  - some further Objects for which observers have not been notified may exist
 				//if (notifyObservers)
-				//	for (GraphObserver *obs: m_regObservers)
+				//	for (GraphObserver *obs: getObservers())
 				//		obs->edgeAdded(eG);
 			}
 		}
 	}
 
 	// notify observers of added edges after adjEntries are initialized
-	if (notifyObservers && !m_regObservers.empty()) {
+	if (notifyObservers && !getObservers().empty()) {
 		for (auto it = nodesBegin; it != nodesEnd; ++it) {
 			node vG = *it;
 			for (adjEntry adjG : vG->adjEntries) {
@@ -272,7 +272,7 @@ std::pair<int, int> Graph::insert(const Graph& G, const NI& nodesBegin, const NI
 				if (e == nullptr) {
 					continue;
 				}
-				for (GraphObserver* obs : m_regObservers) {
+				for (GraphObserver* obs : getObservers()) {
 					obs->edgeAdded(e);
 				}
 			}

@@ -60,12 +60,7 @@ Graph::Graph(const Graph& G)
 }
 
 Graph::~Graph() {
-	while (!m_regObservers.empty()) {
-		GraphObserver* obs = m_regObservers.popFrontRet();
-		obs->unregistered();
-		obs->m_pGraph = nullptr;
-	}
-
+	clearObservers();
 	restoreAllEdges();
 
 	// this is only necessary because GraphObjectContainer simply deallocs its memory without calling destructors
@@ -78,7 +73,7 @@ void Graph::clear() {
 	restoreAllEdges();
 
 	// tell all structures to clear their graph-initialized data
-	for (GraphObserver* obs : m_regObservers) {
+	for (GraphObserver* obs : getObservers()) {
 		obs->cleared();
 	}
 
@@ -215,7 +210,7 @@ edge Graph::split(edge e) {
 	m_regAdjArrays.copyArrayEntries(e->m_adjTgt->m_id, oldId);
 	m_regAdjArrays.copyArrayEntries(adjSrc->m_id, e->m_adjSrc->m_id);
 
-	for (GraphObserver* obs : m_regObservers) {
+	for (GraphObserver* obs : getObservers()) {
 		obs->edgeAdded(e2);
 	}
 
@@ -270,10 +265,10 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	adjTgt->m_edge = eIn;
 
 	// notify all registered observers
-	for (GraphObserver* obs : m_regObservers) {
+	for (GraphObserver* obs : getObservers()) {
 		obs->edgeDeleted(eOut);
 	}
-	for (GraphObserver* obs : m_regObservers) {
+	for (GraphObserver* obs : getObservers()) {
 		obs->nodeDeleted(u);
 	}
 
@@ -292,7 +287,7 @@ void Graph::delNode(node v) {
 	}
 
 	m_regNodeArrays.keyRemoved(v);
-	for (GraphObserver* obs : m_regObservers) {
+	for (GraphObserver* obs : getObservers()) {
 		obs->nodeDeleted(v);
 	}
 
@@ -305,7 +300,7 @@ void Graph::delEdge(edge e) {
 
 	m_regAdjArrays.keyRemoved(e->adjSource());
 	m_regEdgeArrays.keyRemoved(e);
-	for (GraphObserver* obs : m_regObservers) {
+	for (GraphObserver* obs : getObservers()) {
 		obs->edgeDeleted(e);
 	}
 
@@ -423,20 +418,6 @@ int Graph::genus() const {
 	}
 
 	return (numberOfEdges() - numberOfNodes() - nIsolated - nFaceCycles + 2 * nCC) / 2;
-}
-
-ListIterator<GraphObserver*> Graph::registerObserver(GraphObserver* pStructure) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regObservers.pushBack(pStructure);
-}
-
-void Graph::unregisterObserver(ListIterator<GraphObserver*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regObservers.del(it);
 }
 
 
@@ -709,25 +690,6 @@ void Graph::HiddenEdgeSet::restore() {
 }
 
 int Graph::HiddenEdgeSet::size() { return m_edges.size(); }
-
-ogdf::GraphObserver::GraphObserver(const Graph* G) : m_pGraph(G) {
-	m_itGList = G->registerObserver(this);
-}
-
-ogdf::GraphObserver::~GraphObserver() {
-	if (m_pGraph) {
-		m_pGraph->unregisterObserver(m_itGList);
-	}
-}
-
-void ogdf::GraphObserver::reregister(const Graph* pG) {
-	if (m_pGraph) {
-		m_pGraph->unregisterObserver(m_itGList);
-	}
-	if ((m_pGraph = pG) != nullptr) {
-		m_itGList = pG->registerObserver(this);
-	}
-}
 
 std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 	switch (et) {

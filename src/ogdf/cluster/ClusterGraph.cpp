@@ -39,11 +39,6 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphObserver.h>
 
-using std::mutex;
-#ifndef OGDF_MEMORY_POOL_NTS
-using std::lock_guard;
-#endif
-
 namespace ogdf {
 
 using Math::nextPower2;
@@ -169,6 +164,9 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G)
 }
 
 ClusterGraph::~ClusterGraph() {
+	clearObservers();
+
+
 	if (m_lcaSearch) {
 		delete m_lcaSearch;
 		delete m_vAncestor;
@@ -604,7 +602,7 @@ cluster ClusterGraph::newCluster(int id) {
 	keyAdded(c);
 
 	// notify observers
-	for (ClusterGraphObserver* obs : m_regObservers) {
+	for (ClusterGraphObserver* obs : getObservers()) {
 		obs->clusterAdded(c);
 	}
 
@@ -624,7 +622,7 @@ cluster ClusterGraph::newCluster() {
 	clusters.pushBack(c);
 	keyAdded(c);
 	// notify observers
-	for (ClusterGraphObserver* obs : m_regObservers) {
+	for (ClusterGraphObserver* obs : getObservers()) {
 		obs->clusterAdded(c);
 	}
 
@@ -747,7 +745,7 @@ void ClusterGraph::delCluster(cluster c) {
 	OGDF_ASSERT(c != m_rootCluster);
 
 	// notify observers
-	for (ClusterGraphObserver* obs : m_regObservers) {
+	for (ClusterGraphObserver* obs : getObservers()) {
 		obs->clusterDeleted(c);
 	}
 	keyRemoved(c);
@@ -1262,29 +1260,13 @@ bool ClusterGraph::representsCombEmbedding() const {
 	return true;
 }
 
-// registers a ClusterGraphObserver.
-ListIterator<ClusterGraphObserver*> ClusterGraph::registerObserver(
-		ClusterGraphObserver* pObserver) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regObservers.pushBack(pObserver);
-}
-
-// unregisters a ClusterGraphObserver.
-void ClusterGraph::unregisterObserver(ListIterator<ClusterGraphObserver*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regObservers.del(it);
-}
-
-void ClusterGraph::unregistered() {
-	if (m_lcaSearch) {
-		delete m_lcaSearch;
-		delete m_vAncestor;
-		delete m_wAncestor;
-	}
+void ClusterGraph::registrationChanged(const ogdf::Graph* newG) {
+	delete m_lcaSearch;
+	delete m_vAncestor;
+	delete m_wAncestor;
+	m_lcaSearch = nullptr;
+	m_vAncestor = nullptr;
+	m_wAncestor = nullptr;
 	m_lcaNumber = 0;
 	m_adjAvailable = false;
 	std::list<cluster> queue {m_rootCluster};
@@ -1297,7 +1279,6 @@ void ClusterGraph::unregistered() {
 		c->nodes.clear();
 		c->adjEntries.clear();
 	}
-	GraphObserver::unregistered();
 }
 
 std::ostream& operator<<(std::ostream& os, cluster c) {

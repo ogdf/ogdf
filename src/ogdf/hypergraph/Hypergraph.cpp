@@ -46,6 +46,8 @@ Hypergraph::Hypergraph()
 }
 
 Hypergraph::~Hypergraph() {
+	clearObservers();
+
 	for (hypernode v = m_hypernodes.head(); v; v = v->succ()) {
 		v->m_adjHyperedges.~GraphList<AdjHypergraphElement>();
 	}
@@ -68,9 +70,8 @@ hypernode Hypergraph::newHypernode(int pIndex) {
 
 	v->m_hypergraph = this;
 
-	for (ListIterator<HypergraphObserver*> it = m_observers.begin(); it.valid();
-			(*it)->hypernodeAdded(v), ++it) {
-		;
+	for (HypergraphObserver* obs : getObservers()) {
+		obs->hypernodeAdded(v);
 	}
 
 	return v;
@@ -107,9 +108,8 @@ hyperedge Hypergraph::newHyperedge(int pIndex, List<hypernode>& pHypernodes) {
 		m_hyperedgeIdCount = pIndex + 1;
 	}
 
-	for (ListIterator<HypergraphObserver*> it = m_observers.begin(); it.valid();
-			(*it)->hyperedgeAdded(e), ++it) {
-		;
+	for (HypergraphObserver* obs : getObservers()) {
+		obs->hyperedgeAdded(e);
 	}
 
 	for (ListIterator<hypernode> it = pHypernodes.begin(); it.valid(); ++it) {
@@ -138,9 +138,8 @@ hyperedge Hypergraph::newHyperedge(List<hypernode>& pHypernodes) {
 void Hypergraph::delHypernode(hypernode v) {
 	OGDF_ASSERT(v != nullptr);
 
-	for (ListIterator<HypergraphObserver*> it = m_observers.begin(); it.valid();
-			(*it)->hypernodeDeleted(v), ++it) {
-		;
+	for (HypergraphObserver* obs : getObservers()) {
+		obs->hypernodeDeleted(v);
 	}
 
 	--m_nHypernodes;
@@ -167,10 +166,11 @@ void Hypergraph::delHypernode(hypernode v) {
 void Hypergraph::delHyperedge(hyperedge e) {
 	OGDF_ASSERT(e != nullptr);
 
-	for (ListIterator<HypergraphObserver*> it = m_observers.begin(); it.valid();
-			(*it)->hyperedgeDeleted(e), ++it) {
-		--m_nHyperedges;
+	for (HypergraphObserver* obs : getObservers()) {
+		obs->hyperedgeDeleted(e);
 	}
+
+	--m_nHyperedges;
 
 	for (adjHypergraphEntry adj = e->m_adjHypernodes.head(); adj; adj = adj->succ()) {
 		static_cast<hypernode>(adj->element())->m_degree--;
@@ -187,9 +187,8 @@ void Hypergraph::delHyperedge(hyperedge e) {
 }
 
 void Hypergraph::clear() {
-	for (ListIterator<HypergraphObserver*> it = m_observers.begin(); it.valid();
-			(*it)->cleared(), ++it) {
-		;
+	for (HypergraphObserver* obs : getObservers()) {
+		obs->cleared();
 	}
 
 	for (hyperedge e = m_hyperedges.head(); e; e = e->succ()) {
@@ -238,27 +237,12 @@ hyperedge Hypergraph::randomHyperedge() const {
 	return e;
 }
 
-ListIterator<HypergraphObserver*> Hypergraph::registerObserver(HypergraphObserver* pObserver) const {
-	return m_observers.pushBack(pObserver);
-}
-
-void Hypergraph::unregisterObserver(ListIterator<HypergraphObserver*> it) const {
-	m_observers.del(it);
-}
-
 void Hypergraph::initArrays() {
 	m_regHypernodeArrays.resizeArrays(0);
 	m_regHypernodeArrays.resizeArrays();
 
 	m_regHyperedgeArrays.resizeArrays(0);
 	m_regHyperedgeArrays.resizeArrays();
-}
-
-void Hypergraph::initObservers() {
-	for (ListIterator<HypergraphObserver*> it = m_observers.begin(); it.valid();
-			(*it)->init(this), ++it) {
-		;
-	}
 }
 
 bool Hypergraph::consistency() const {

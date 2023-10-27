@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphObserver.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/SList.h>
 
@@ -313,7 +314,11 @@ using ClusterArrayWithoutDefault = ClusterArrayBase<Value, false>;
  * This class is derived from GraphObserver and handles hierarchical
  * clustering of the nodes in a graph, providing additional functionality.
  */
-class OGDF_EXPORT ClusterGraph : public GraphObserver, public ClusterGraphRegistry {
+class OGDF_EXPORT ClusterGraph
+	: public GraphObserver, // to get updates when graph nodes/edges added/removed
+	  public Observable<ClusterGraphObserver, ClusterGraph>, // to publish updates when clusters added/removed
+	  public ClusterGraphRegistry // for ClusterArrays
+{
 	const Graph* m_pGraph; //!< The associated graph.
 
 	int m_clusterIdCount; //!< The index assigned to the next created cluster.
@@ -327,12 +332,6 @@ class OGDF_EXPORT ClusterGraph : public GraphObserver, public ClusterGraphRegist
 	NodeArray<cluster> m_nodeMap; //!< Stores the cluster of each node.
 	//! Stores for every node its position within the children list of its cluster.
 	NodeArray<ListIterator<node>> m_itMap;
-
-	mutable ListPure<ClusterGraphObserver*> m_regObservers; //!< The registered graph observers.
-
-#ifndef OGDF_MEMORY_POOL_NTS
-	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
-#endif
 
 public:
 	/**
@@ -715,12 +714,6 @@ public:
 	 */
 	//! @{
 
-	//! Registers a cluster graph observer.
-	ListIterator<ClusterGraphObserver*> registerObserver(ClusterGraphObserver* pObserver) const;
-
-	//! Unregisters a cluster graph observer.
-	void unregisterObserver(ListIterator<ClusterGraphObserver*> it) const;
-
 	static inline int keyToIndex(cluster key) { return key->index(); }
 
 	bool isKeyAssociated(cluster key) const {
@@ -821,7 +814,7 @@ protected:
 		clear();
 	}
 
-	void unregistered() override;
+	void registrationChanged(const Graph* newG) override;
 
 	//! @}
 
