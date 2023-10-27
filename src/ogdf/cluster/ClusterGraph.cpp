@@ -63,115 +63,33 @@ void ClusterElement::getClusterInducedNodes(NodeArray<bool>& clusterNode, int& n
 	}
 }
 
-ClusterGraph::ClusterGraph() : m_pGraph(nullptr) {
-	m_clusterIdCount = 0;
-	m_postOrderStart = nullptr;
-	m_rootCluster = nullptr;
-
-	m_allowEmptyClusters = true;
-	m_updateDepth = false;
-	m_depthUpToDate = false;
-
-	m_adjAvailable = false;
-	m_lcaNumber = 0;
-	m_lcaSearch = nullptr;
-	m_vAncestor = nullptr;
-	m_wAncestor = nullptr;
-
-	resizeArrays();
-}
+ClusterGraph::ClusterGraph() { resizeArrays(); }
 
 // Construction of a new cluster graph. All nodes
 // are children of the root cluster
-ClusterGraph::ClusterGraph(const Graph& G) : GraphObserver(&G), m_pGraph(&G) {
-	m_clusterIdCount = 0;
-	m_postOrderStart = nullptr;
-	m_rootCluster = nullptr;
-
-	m_allowEmptyClusters = true;
-	m_updateDepth = false;
-	m_depthUpToDate = false;
-
-	m_lcaNumber = 0;
-	initGraph(G);
-}
+ClusterGraph::ClusterGraph(const Graph& G) { initGraph(G); }
 
 ClusterGraph::ClusterGraph(const ClusterGraph& C)
-	: GraphObserver(C.m_pGraph)
-	, ClusterGraphRegistry()
-	, m_lcaSearch(nullptr)
-	, m_vAncestor(nullptr)
-	, m_wAncestor(nullptr) {
-	m_clusterIdCount = 0;
-	m_postOrderStart = nullptr;
-	m_rootCluster = nullptr;
-
-	m_allowEmptyClusters = true;
-	m_updateDepth = false;
-	m_depthUpToDate = false;
-
-	m_lcaNumber = 0;
-
+	// need to explicitly call default parent class constructors in our copy constructor
+	: GraphObserver(), Observable(), ClusterGraphRegistry() {
 	shallowCopy(C);
 }
 
 ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G,
-		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable)
-	: GraphObserver(&G), m_lcaSearch(nullptr), m_vAncestor(nullptr), m_wAncestor(nullptr) {
-	m_clusterIdCount = 0;
-	m_postOrderStart = nullptr;
-	m_rootCluster = nullptr;
-
-	m_allowEmptyClusters = true;
-	m_updateDepth = false;
-	m_depthUpToDate = false;
-
-	m_lcaNumber = 0;
-
+		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable) {
 	deepCopy(C, G, originalClusterTable, originalNodeTable);
 }
 
 ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G,
 		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable,
-		EdgeArray<edge>& edgeCopy)
-	: GraphObserver(&G), m_lcaSearch(nullptr), m_vAncestor(nullptr), m_wAncestor(nullptr) {
-	m_clusterIdCount = 0;
-	m_postOrderStart = nullptr;
-	m_rootCluster = nullptr;
-
-	m_allowEmptyClusters = true;
-	m_updateDepth = false;
-	m_depthUpToDate = false;
-
-	m_lcaNumber = 0;
-
+		EdgeArray<edge>& edgeCopy) {
 	deepCopy(C, G, originalClusterTable, originalNodeTable, edgeCopy);
 }
 
-ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G)
-	: GraphObserver(&G), m_lcaSearch(nullptr), m_vAncestor(nullptr), m_wAncestor(nullptr) {
-	m_clusterIdCount = 0;
-	m_postOrderStart = nullptr;
-	m_rootCluster = nullptr;
-
-	m_allowEmptyClusters = true;
-	m_updateDepth = false;
-	m_depthUpToDate = false;
-
-	m_lcaNumber = 0;
-
-	deepCopy(C, G);
-}
+ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G) { deepCopy(C, G); }
 
 ClusterGraph::~ClusterGraph() {
 	clearObservers();
-
-
-	if (m_lcaSearch) {
-		delete m_lcaSearch;
-		delete m_vAncestor;
-		delete m_wAncestor;
-	}
 	// this is only necessary because GraphObjectContainer simply deallocs its memory without calling destructors
 	while (!clusters.empty()) {
 		clusters.del(clusters.head());
@@ -184,7 +102,6 @@ void ClusterGraph::init(const Graph& G) {
 	doClear();
 	m_clusterIdCount = 0;
 	m_postOrderStart = nullptr;
-	m_pGraph = &G;
 
 	m_lcaNumber = 0;
 	initGraph(G);
@@ -233,9 +150,7 @@ void ClusterGraph::constructClusterTree(const ClusterGraph& C, const Graph& G,
 void ClusterGraph::shallowCopy(const ClusterGraph& C) {
 	resizeArrays(C.numberOfClusters() + 1);
 
-	const Graph& G = C;
-	m_pGraph = &G;
-
+	const Graph& G = C.constGraph();
 	initGraph(G);
 
 	m_updateDepth = C.m_updateDepth;
@@ -247,12 +162,7 @@ void ClusterGraph::shallowCopy(const ClusterGraph& C) {
 
 // Initialize the graph
 void ClusterGraph::initGraph(const Graph& G) {
-	reregister(&G); //FIXME will in some constructors cause double registration
-
-	m_lcaNumber = 0;
-	m_lcaSearch = nullptr;
-	m_vAncestor = nullptr;
-	m_wAncestor = nullptr;
+	reregister(&G);
 
 	m_adjAvailable = false;
 
@@ -279,8 +189,6 @@ void ClusterGraph::initGraph(const Graph& G) {
 }
 
 void ClusterGraph::reinitGraph(const Graph& G) {
-	m_pGraph = &G;
-
 #ifdef OGDF_HEAVY_DEBUG
 	G.consistencyCheck();
 #endif
@@ -318,9 +226,6 @@ void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 	resizeArrays(C.numberOfClusters() + 1);
 
 	const Graph& cG = C; // original graph
-
-	m_pGraph = &G;
-
 	initGraph(G); //arrays have already to be initialized for newnode
 
 	m_updateDepth = C.m_updateDepth;
@@ -407,8 +312,8 @@ cluster ClusterGraph::commonCluster(SList<node>& nodes) {
 //note that eL is directed from v to w
 cluster ClusterGraph::commonClusterAncestorsPath(node v, node w, cluster& c1, cluster& c2,
 		List<cluster>& eL) const {
-	OGDF_ASSERT(v->graphOf() == m_pGraph);
-	OGDF_ASSERT(w->graphOf() == m_pGraph);
+	OGDF_ASSERT(v->graphOf() == &constGraph());
+	OGDF_ASSERT(w->graphOf() == &constGraph());
 
 	cluster cv = clusterOf(v);
 	cluster cw = clusterOf(w);
@@ -432,9 +337,9 @@ cluster ClusterGraph::commonClusterAncestorsPath(node v, node w, cluster& c1, cl
 		m_lcaNumber++;
 	}
 	if (!m_lcaSearch) {
-		m_lcaSearch = new ClusterArray<int>(*this, -1);
-		m_vAncestor = new ClusterArray<cluster>(*this, nullptr);
-		m_wAncestor = new ClusterArray<cluster>(*this, nullptr);
+		m_lcaSearch.reset(new ClusterArray<int>(*this, -1));
+		m_vAncestor.reset(new ClusterArray<cluster>(*this, nullptr));
+		m_wAncestor.reset(new ClusterArray<cluster>(*this, nullptr));
 	}
 
 	//CASE2: one of the nodes hangs at root: save root as ancestor
@@ -520,17 +425,11 @@ cluster ClusterGraph::commonClusterAncestorsPath(node v, node w, cluster& c1, cl
 }
 
 void ClusterGraph::copyLCA(const ClusterGraph& C) {
-	if (m_lcaSearch) {
-		delete m_lcaSearch;
-		delete m_vAncestor;
-		delete m_wAncestor;
-	}
 	if (C.m_lcaSearch) {
 		//otherwise, initialization won't work
-		m_lcaSearch = new ClusterArray<int>(*this, -1); //(*C.m_lcaSearch);
-
-		m_vAncestor = new ClusterArray<cluster>(*this, nullptr);
-		m_wAncestor = new ClusterArray<cluster>(*this, nullptr);
+		m_lcaSearch.reset(new ClusterArray<int>(*this, -1)); //(*C.m_lcaSearch);
+		m_vAncestor.reset(new ClusterArray<cluster>(*this, nullptr));
+		m_wAncestor.reset(new ClusterArray<cluster>(*this, nullptr));
 		//setting of clusters is not necessary!
 	}
 }
@@ -800,11 +699,9 @@ void ClusterGraph::pullUpSubTree(cluster c) {
 
 void ClusterGraph::doClear() {
 	//split condition
-	if (m_lcaSearch) {
-		delete m_lcaSearch;
-		delete m_vAncestor;
-		delete m_wAncestor;
-	}
+	m_lcaSearch.reset();
+	m_vAncestor.reset();
+	m_wAncestor.reset();
 	if (numberOfClusters() != 0) {
 		clearClusterTree(m_rootCluster);
 		clusters.del(m_rootCluster);
@@ -849,12 +746,9 @@ void ClusterGraph::clearClusterTree(cluster c, List<node>& attached) {
 
 //don't delete root cluster
 void ClusterGraph::clear() {
-	//split condition
-	if (m_lcaSearch) {
-		delete m_lcaSearch;
-		delete m_vAncestor;
-		delete m_wAncestor;
-	}
+	m_lcaSearch.reset();
+	m_vAncestor.reset();
+	m_wAncestor.reset();
 	if (numberOfClusters() != 0) {
 		//clear the cluster structure under root cluster
 		clearClusterTree(m_rootCluster);
@@ -1062,7 +956,7 @@ void ClusterGraph::assignNode(node v, cluster c) {
 
 //Reassigns a node to a new cluster
 void ClusterGraph::reassignNode(node v, cluster c) {
-	OGDF_ASSERT(v->graphOf() == m_pGraph);
+	OGDF_ASSERT(v->graphOf() == &constGraph());
 	OGDF_ASSERT(c->graphOf() == this);
 
 	unassignNode(v);
@@ -1145,7 +1039,7 @@ void ClusterGraph::postOrder(cluster c, SListPure<cluster>& L) const {
 #ifdef OGDF_DEBUG
 void ClusterGraph::consistencyCheck() const {
 	ClusterArray<bool> visitedClusters((*this), false);
-	NodeArray<bool> visitedNodes((*m_pGraph), false);
+	NodeArray<bool> visitedNodes(constGraph(), false);
 	int visitedClustersC = 0, visitedNodesC = 0;
 	ClusterArray<int> clusterDepth;
 	if (m_updateDepth && m_depthUpToDate) {
@@ -1187,8 +1081,8 @@ void ClusterGraph::consistencyCheck() const {
 		}
 	}
 
-	OGDF_ASSERT(visitedNodesC == m_pGraph->numberOfNodes());
-	for (node v : m_pGraph->nodes) {
+	OGDF_ASSERT(visitedNodesC == constGraph().numberOfNodes());
+	for (node v : constGraph().nodes) {
 		OGDF_ASSERT(visitedNodes[v]);
 	}
 
@@ -1261,21 +1155,12 @@ bool ClusterGraph::representsCombEmbedding() const {
 }
 
 void ClusterGraph::registrationChanged(const ogdf::Graph* newG) {
-	delete m_lcaSearch;
-	delete m_vAncestor;
-	delete m_wAncestor;
-	m_lcaSearch = nullptr;
-	m_vAncestor = nullptr;
-	m_wAncestor = nullptr;
+	m_lcaSearch.reset();
+	m_vAncestor.reset();
+	m_wAncestor.reset();
 	m_lcaNumber = 0;
 	m_adjAvailable = false;
-	std::list<cluster> queue {m_rootCluster};
-	while (!queue.empty()) {
-		cluster c = queue.front();
-		queue.pop_front();
-		for (cluster child : c->children) {
-			queue.push_back(child);
-		}
+	for (cluster c : clusters) {
 		c->nodes.clear();
 		c->adjEntries.clear();
 	}
