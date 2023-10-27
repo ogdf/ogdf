@@ -77,6 +77,8 @@ public:
 	}
 
 	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
+	OGDF_DEPRECATED("use setOriginalGraph")
+
 	void createEmpty(const Graph& G) { setOriginalGraph(&G); }
 
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
@@ -275,7 +277,7 @@ public:
 
 	std::pair<int, int> insert(const Graph& G) override {
 		if (m_pGraph == nullptr) {
-			createEmpty(G);
+			setOriginalGraph(&G);
 			return insert(G, m_vCopy, m_eCopy);
 		} else if (m_pGraph == &G) {
 			return insert(G, m_vCopy, m_eCopy);
@@ -352,7 +354,7 @@ public:
 	 * The following code snippet shows a typical application of this functionality:
 	 * \code
 	 *   GraphCopy GC;
-	 *   GC.createEmpty(G);
+	 *   GC.setOriginalGraph(&G);
 	 *
 	 *   // compute connected components of G
 	 *   NodeArray<int> component(G);
@@ -384,7 +386,7 @@ public:
 	std::pair<int, int> insert(const Graph& G) override {
 		EdgeArray<edge> edgeMap(G, nullptr);
 		if (m_pGraph == nullptr) {
-			createEmpty(G);
+			setOriginalGraph(&G);
 			return insert(G, m_vCopy, edgeMap);
 		} else if (m_pGraph == &G) {
 			return insert(G, m_vCopy, edgeMap);
@@ -711,7 +713,7 @@ public:
 	 * It is important that \p origNodes is the complete list of nodes in
 	 * a connected component. If you wish to initialize the graph copy for an
 	 * arbitrary set of nodes, use the method initByActiveNodes().
-	 * \see createEmpty() for an example.
+	 * \see setOriginalGraph() for an example.
 	 * @param origNodes is the list of nodes in the original graph for which
 	 *        copies are created in the graph copy.
 	 * @param eCopy is assigned the copy of each original edge.
@@ -725,7 +727,7 @@ public:
 	 * which are both contained in \p nodeList.
 	 * Any nodes and edges allocated before are destroyed.
 	 *
-	 * \see createEmpty()
+	 * \see setOriginalGraph()
 	 * @param nodeList is the list of nodes in the original graph for which
 	 *        copies are created in the graph copy.
 	 * @param activeNodes must be true for every node in \p nodeList, false
