@@ -56,22 +56,35 @@ inline int calculateTableSize(int actualCount) {
 	return Math::nextPower2(MIN_TABLE_SIZE, actualCount);
 }
 
-////! Returns the index of \p key.
-//template<typename Key> // template function instead of a virtual function in RegistryBase to improve performance
-//OGDF_NODISCARD inline int keyToIndex(Key key) {
-//	return key->index();
-//}
-
 //! Abstract base class for registries.
 /**
  * Defines the interface for event handling regarding the indexed keys. A registry manages one key type and stores all
  * registered arrays associated with that key. It determines the new size of all registered arrays when
  * keys are added or removed.
  *
+ * The following methods must be implemented by all subclasses as they are used via the
+ * <a href="https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern">CRTP</a>:
+ * \code{.cpp}
+ * //! Returns the index of \p key.
+ * static inline int keyToIndex(Key key);
+ *
+ * //! Returns whether \p key is associated with this registry.
+ * bool isKeyAssociated(Key key) const;
+ *
+ * //! Returns the maximum index of all keys managed by this registry.
+ * int maxKeyIndex() const;
+ *
+ * //! Returns the array size currently requested by this registry.
+ * int calculateArraySize(int add) const;
+ * \endcode
+ *
+ * \remark To avoid frequent costly resize operations, the array size returned by calculateArraySize
+ *         should grow in larger steps (e.g. powers of 2)
+ *
  * @tparam Key The key type the registry manages.
  * @tparam Registry The class that implements the interface defined in RegistryBase.
  * @tparam Iterator An iterator for all managed keys. Can be \c void if iterating the keys through the registered array
- * is not required.
+ * is not required. To allow iterating over all keys, define \c begin() and \c end() methods.
  *
  * \sa RegisteredArray
  */
@@ -141,24 +154,6 @@ public:
 #endif
 		*it = pArray;
 	}
-
-	//	//! Returns whether \p key is associated with this registry.
-	//	OGDF_NODISCARD virtual bool isKeyAssociated(Key key) const = 0;
-	//
-	//	//! Returns the maximum index of all keys managed by this registry.
-	//	OGDF_NODISCARD virtual int maxKeyIndex() const = 0;
-	//
-	//	//! Returns the array size currently requested by this registry.
-	//	/**
-	//	 * \remark To avoid frequent costly resize operations, the array size should grow in larger steps (e.g. powers of 2)
-	//	 */
-	//	OGDF_NODISCARD virtual int calculateArraySize(int add) const = 0;
-	//
-	//	//! Returns an iterator to the first key managed by this registry.
-	//	virtual Iterator begin() const = 0;
-	//
-	//	//! Returns the past-the-end iterator for the keys managed by this registry.
-	//	virtual Iterator end() const = 0;
 
 	//! Records the addition of a new key and resizes all registered arrays if necessary.
 	void keyAdded(Key key) {
