@@ -75,6 +75,7 @@ using adjEntry = AdjElement*;
 
 
 #if __cpp_concepts >= 201907
+// clang-format off
 template<typename T>
 concept OGDF_NODE_FILTER = requires(T f) {
 	{ f(node()) } -> std::convertible_to<bool>;
@@ -103,6 +104,7 @@ concept OGDF_EDGE_LIST = requires(T l) {
 	OGDF_EDGE_ITER<decltype(begin(l))>;
 	OGDF_EDGE_ITER<decltype(end(l))>;
 };
+// clang-format on
 
 #	define OGDF_HAS_CONCEPTS
 #	define OGDF_CHECK_CONCEPT static_assert
