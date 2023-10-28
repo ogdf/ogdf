@@ -723,7 +723,19 @@ class EdgeSet;
  *
  * If a class needs to keep track of changes in a graph like addition or deletion
  * of nodes or edges, you can derive it from GraphObserver and override the
- * notification methods nodeDeleted, nodeAdded, edgeDeleted, edgeAdded.
+ * notification methods nodeDeleted, nodeAdded, edgeDeleted, edgeAdded and cleared.
+ *
+ * It is guaranteed that the Graph is in a valid state (in terms of \c Graph::consistencyCheck(),
+ * that means there are no-half added edges or the like) whenever the notification methods are called.
+ * Furthermore, on addition all registered Arrays have already been resized to accommodate the new object.
+ * On compound operations like \c Graph::split or \c Graph::insert, the notifications may be batched
+ * and thus delayed, that is, when the callback is made the Graph may already contain some further
+ * (fully initialized) nodes or edges for which the respective callbacks have not been called
+ * (but will be called right after).
+ *
+ * Note that there are no callbacks for the reassignment of edge endpoints. Thus, \c Graph::split
+ * will be seen by a GraphObserver as the creation of an isolated node plus addition of a new edge to this node.
+ * Rerouting the split edge to the new node between those two callbacks will not be reported.
  */
 class OGDF_EXPORT GraphObserver : public Observer<Graph, GraphObserver> {
 public:
@@ -736,24 +748,19 @@ public:
 	 */
 	explicit GraphObserver(const Graph* G) : Observer(G) { }
 
-	//! Called by watched graph when a node is deleted
-	//! Has to be implemented by derived classes
+	//! Called by watched graph just before a node is deleted.
 	virtual void nodeDeleted(node v) = 0;
 
-	//! Called by watched graph when a node is added
-	//! Has to be implemented by derived classes
+	//! Called by watched graph after a node has been added.
 	virtual void nodeAdded(node v) = 0;
 
-	//! Called by watched graph when an edge is deleted
-	//! Has to be implemented by derived classes
+	//! Called by watched graph just before an edge is deleted.
 	virtual void edgeDeleted(edge e) = 0;
 
-	//! Called by watched graph when an edge is added
-	//! Has to be implemented by derived classes
+	//! Called by watched graph after an edge has been added.
 	virtual void edgeAdded(edge e) = 0;
 
-	//! Called by watched graph when its clear function is called
-	//! Has to be implemented by derived classes
+	//! Called by watched graph when its clear function is called, just before things are removed.
 	virtual void cleared() = 0;
 
 	const Graph* getGraph() const { return getObserved(); }
