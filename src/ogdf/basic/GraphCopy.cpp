@@ -131,23 +131,23 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 }
 
 void GraphCopyBase::setOriginalEmbedding() {
-	std::vector<adjEntry> newAdjOrder;
+	List<adjEntry> newAdjOrder;
 	for (node v : getOriginalGraph()->nodes) {
 		if (isDummy(v)) {
 			continue;
 		}
 		newAdjOrder.clear();
-		newAdjOrder.reserve(v->degree());
+		// newAdjOrder.reserve(v->degree());
 		// add from original according to their order
 		for (adjEntry adj : v->adjEntries) {
 			if (copy(adj) != nullptr) {
-				newAdjOrder.push_back(copy(adj));
+				newAdjOrder.pushBack(copy(adj));
 			}
 		}
 		// add remaining dummy edges to the end, also retaining their order
 		for (adjEntry adj : copy(v)->adjEntries) {
 			if (isDummy(adj)) {
-				newAdjOrder.push_back(adj);
+				newAdjOrder.pushBack(adj);
 			}
 		}
 		sort(copy(v), newAdjOrder);

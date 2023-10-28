@@ -79,8 +79,7 @@ public:
 	}
 
 	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
-	OGDF_DEPRECATED("use setOriginalGraph")
-
+	// OGDF_DEPRECATED("use setOriginalGraph")
 	void createEmpty(const Graph& G) { setOriginalGraph(&G); }
 
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
@@ -712,7 +711,7 @@ public:
 	 * @param cc    is the number of the connected component.
 	 * @param eCopy is assigned a mapping from original to copy edges.
 	 */
-	OGDF_DEPRECATED("use insert")
+	// OGDF_DEPRECATED("use insert")
 	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
 
 	//! Initializes the graph copy for the nodes in a component.
@@ -732,7 +731,7 @@ public:
 	 *        copies are created in the graph copy.
 	 * @param eCopy is assigned the copy of each original edge.
 	 */
-	OGDF_DEPRECATED("use insert")
+	// OGDF_DEPRECATED("use insert")
 	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
 
 	//! Initializes the graph copy for the nodes in \p nodeList.
@@ -748,7 +747,7 @@ public:
 	 *        otherwise.
 	 * @param eCopy is assigned the copy of each original edge.
 	 */
-	OGDF_DEPRECATED("use insert")
+	// OGDF_DEPRECATED("use insert")
 	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
 			EdgeArray<edge>& eCopy);
 	//! @}
