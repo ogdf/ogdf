@@ -765,6 +765,10 @@ inline void getAllEdges(const Graph& G, CONTAINER& edges);
 inline node adjToNode(adjEntry adj) { return adj->theNode(); }
 
 inline node adjToNode(node n) { return n; }
+
+bool filter_any_edge(edge e); // { return true; }
+
+bool filter_any_node(node n); // { return true; }
 }
 
 //! Data type for general directed graphs (adjacency list representation).
@@ -1641,13 +1645,20 @@ public:
 	template<OGDF_NODE_LIST NL, OGDF_EDGE_LIST EL>
 	std::pair<int, int> insert(const NL& nodeList, const EL& edgeList, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
+		m_regNodeArrays.reserveSpace(nodeList.size());
+		m_regEdgeArrays.reserveSpace(edgeList.size());
+		m_regAdjArrays.reserveSpace(edgeList.size());
 		return insert(nodeList.begin(), nodeList.end(), edgeList.begin(), edgeList.end(), nodeMap,
 				edgeMap);
 	}
 
 	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
-		const std::pair<int, int>& count = insert(info.nodes(cc), info.edges(cc), nodeMap, edgeMap);
+		m_regNodeArrays.reserveSpace(info.numberOfNodes(cc));
+		m_regEdgeArrays.reserveSpace(info.numberOfEdges(cc));
+		m_regAdjArrays.reserveSpace(info.numberOfEdges(cc));
+		auto count = insert(info.nodes(cc).begin(), info.nodes(cc).end(), internal::filter_any_edge,
+				nodeMap, edgeMap);
 		OGDF_ASSERT(count.first == info.numberOfNodes(cc));
 		OGDF_ASSERT(count.second == info.numberOfEdges(cc));
 		return count;
@@ -1662,7 +1673,11 @@ public:
 			edgeMap.init(G);
 		}
 		OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
-		const std::pair<int, int>& count = insert(G.nodes, G.edges, nodeMap, edgeMap);
+		m_regNodeArrays.reserveSpace(G.numberOfNodes());
+		m_regEdgeArrays.reserveSpace(G.numberOfEdges());
+		m_regAdjArrays.reserveSpace(G.numberOfEdges());
+		auto count =
+				insert(G.nodes.begin(), G.nodes.end(), internal::filter_any_edge, nodeMap, edgeMap);
 		OGDF_ASSERT(count.first == G.numberOfNodes());
 		OGDF_ASSERT(count.second == G.numberOfEdges());
 		return count;
