@@ -6,16 +6,25 @@
 namespace ogdf {
 
 namespace internal {
-template<class it>
-typename std::iterator_traits<it>::difference_type guess_dist(it begin, it end,
-		std::input_iterator_tag) {
-	return 0;
+template<typename T, typename = void>
+struct has_subtraction_operator : std::false_type { };
+
+template<typename T>
+struct has_subtraction_operator<T,
+		typename std::enable_if<decltype(std::declval<T>() - std::declval<T>(), std::true_type())::value>::type> {
+	static constexpr bool value = true;
+};
+
+template<typename it>
+typename std::enable_if<has_subtraction_operator<it>::value, typename it::difference_type>::type
+guess_dist(it first, it last) {
+	return last - first;
 }
 
-template<class it>
-typename std::iterator_traits<it>::difference_type guess_dist(it begin, it end,
-		std::random_access_iterator_tag) {
-	return end - begin;
+template<typename it>
+typename std::enable_if<!has_subtraction_operator<it>::value, int>::type guess_dist(it first,
+		it last) {
+	return 0;
 }
 }
 
@@ -93,8 +102,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		return {newNodes, newEdges};
 	}
 
-	int guessedNodes = internal::guess_dist(nodesBegin, nodesEnd,
-			typename std::iterator_traits<NI>::iterator_category());
+	int guessedNodes = internal::guess_dist(nodesBegin, nodesEnd);
 	if (guessedNodes > 0) {
 		m_regNodeArrays.reserveSpace(guessedNodes);
 	}
@@ -122,8 +130,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	}
 
 	if (!copyEmbedding) {
-		int guessedEdges = internal::guess_dist(edgesBegin, edgesEnd,
-				typename std::iterator_traits<EI>::iterator_category());
+		int guessedEdges = internal::guess_dist(edgesBegin, edgesEnd);
 		if (guessedEdges > 0) {
 			m_regEdgeArrays.reserveSpace(guessedEdges);
 			m_regAdjArrays.reserveSpace(guessedEdges); // registry adds factor 2 in calculateArraySize
@@ -228,8 +235,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		return {newNodes, newEdges};
 	}
 
-	int guessedNodes = internal::guess_dist(nodesBegin, nodesEnd,
-			typename std::iterator_traits<NI>::iterator_category());
+	int guessedNodes = internal::guess_dist(nodesBegin, nodesEnd);
 	if (guessedNodes > 0 && notifyObservers) {
 		m_regNodeArrays.reserveSpace(guessedNodes);
 	}
@@ -330,7 +336,7 @@ std::pair<int, int> Graph::insert(const Graph& G, const NF& nodeFilter, const EF
 	}
 	OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
 	filtered_iterator<node_iterator> nodes_it {nodeFilter, G.nodes.begin(), G.nodes.end()};
-	return insert<filtered_iterator<node_iterator>, EF, copyEmbedding, copyIDs, notifyObservers>(G,
+	return insert<filtered_iterator<node_iterator>, EF, copyEmbedding, copyIDs, notifyObservers>(
 			nodes_it, nodes_it.end(), edgeFilter, nodeMap, edgeMap);
 }
 
