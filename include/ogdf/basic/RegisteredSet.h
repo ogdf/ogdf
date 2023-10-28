@@ -144,6 +144,10 @@ public:
 	 */
 	int size() const { return m_elements.size(); }
 
+	typename list_type::iterator begin() const { return m_elements.begin(); }
+
+	typename list_type::iterator end() const { return m_elements.end(); }
+
 	//! Copy constructor.
 	template<bool OtherSupportsFastSizeQuery>
 	explicit RegisteredSet(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {

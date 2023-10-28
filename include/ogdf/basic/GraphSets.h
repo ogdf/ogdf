@@ -132,4 +132,20 @@ public:
 	}
 };
 
+template<OGDF_NODE_LIST NL>
+std::pair<int, int> Graph::insert(const NL& nodeList, const EdgeSet<true>& edgeSet,
+		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+	m_regNodeArrays.reserveSpace(nodeList.size());
+	m_regEdgeArrays.reserveSpace(edgeSet.size());
+	m_regAdjArrays.reserveSpace(edgeSet.size());
+	return insert(nodeList.begin(), nodeList.end(), edgeSet, nodeMap, edgeMap);
+}
+
+template<OGDF_NODE_LIST NL>
+std::pair<int, int> Graph::insert(const NL& nodeList, const EdgeSet<false>& edgeSet,
+		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+	m_regNodeArrays.reserveSpace(nodeList.size());
+	return insert(nodeList.begin(), nodeList.end(), edgeSet, nodeMap, edgeMap);
+}
+
 }
