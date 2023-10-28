@@ -130,6 +130,30 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 	m_eIterator.init(this, nullptr);
 }
 
+void GraphCopyBase::setOriginalEmbedding() {
+	std::vector<adjEntry> newAdjOrder;
+	for (node v : getOriginalGraph()->nodes) {
+		if (isDummy(v)) {
+			continue;
+		}
+		newAdjOrder.clear();
+		newAdjOrder.reserve(v->degree());
+		// add from original according to their order
+		for (adjEntry adj : v->adjEntries) {
+			if (copy(adj) != nullptr) {
+				newAdjOrder.push_back(copy(adj));
+			}
+		}
+		// add remaining dummy edges to the end, also retaining their order
+		for (adjEntry adj : copy(v)->adjEntries) {
+			if (isDummy(adj)) {
+				newAdjOrder.push_back(adj);
+			}
+		}
+		sort(copy(v), newAdjOrder);
+	}
+}
+
 void* GraphCopyBase::preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
 		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) {
 	// don't update the copy if we inserted something that doesn't come from our original graph
@@ -181,30 +205,6 @@ void GraphCopy::clear() {
 		m_eCopy.init(m_pGraph);
 	}
 	Graph::clear();
-}
-
-void GraphCopy::setOriginalEmbedding() {
-	OGDF_ASSERT(m_pGraph->numberOfNodes() == numberOfNodes());
-	OGDF_ASSERT(m_pGraph->numberOfEdges() == numberOfEdges());
-	for (node v : m_pGraph->nodes) {
-		OGDF_ASSERT(m_vCopy[v] != nullptr);
-		List<adjEntry> newAdjOrder;
-		newAdjOrder.clear();
-
-		for (adjEntry adjOr : v->adjEntries) {
-			OGDF_ASSERT(!m_eCopy[adjOr->theEdge()].empty());
-			// we have outgoing adjEntries for all
-			// incoming and outgoing edges, check the direction
-			// to find the correct copy adjEntry
-			bool outEdge = (adjOr == (adjOr->theEdge()->adjSource()));
-
-			OGDF_ASSERT(chain(adjOr->theEdge()).size() == 1);
-			edge cEdge = chain(adjOr->theEdge()).front();
-			adjEntry cAdj = (outEdge ? cEdge->adjSource() : cEdge->adjTarget());
-			newAdjOrder.pushBack(cAdj);
-		}
-		sort(copy(v), newAdjOrder);
-	}
 }
 
 edge GraphCopy::split(edge e) {

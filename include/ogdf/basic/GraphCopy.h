@@ -137,6 +137,26 @@ public:
 	node copy(node v) const { return m_vCopy[v]; }
 
 	/**
+	 * \brief Returns the edge in the graph copy corresponding to \p e.
+	 * Has to be defined by the implemented GraphCopyBase subclass.
+	 *
+	 * @param e is an edge in the original graph.
+	 * \return the corresponding edge in the graph copy,
+	 * or \c nullptr if it doesn't exists.
+	 */
+	virtual edge copy(edge e) const = 0;
+
+	/**
+	 * \brief Returns the adjacency entry in the graph copy corresponding to \p adj.
+	 * Has to be defined by the implemented GraphCopyBase subclass.
+	 *
+	 * @param adj is an adjacency entry in the original graph.
+	 * \return the corresponding adjacency entry in the graph copy,
+	 * or \c nullptr if it doesn't exists.
+	 */
+	virtual adjEntry copy(adjEntry adj) const = 0;
+
+	/**
 	 * \brief Returns true iff \p v has no corresponding node in the original graph.
 	 * @param v is a node in the graph copy.
 	 */
@@ -147,6 +167,12 @@ public:
 	 * @param e is an edge in the graph copy.
 	 */
 	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
+
+	/**
+	 * \brief Returns true iff \p adj->theEdge() has no corresponding edge in the original graph.
+	 * @param adj is an adjEntry in the graph copy.
+	 */
+	bool isDummy(adjEntry adj) const { return isDummy(adj->theEdge()); }
 
 	/**
 	 * \brief Creates a new node in the graph copy with original node \p vOrig.
@@ -175,6 +201,13 @@ public:
 			m_vCopy[vOrig] = nullptr;
 		}
 	}
+
+	//! Sets the embedding of the graph copy to the embedding of the original graph.
+	/**
+	 * Edges that have no copy in this graph will be left out, while dummy edges that are not present
+	 * in the original graph will be moved to the end of their nodes' adjacency lists.
+	 */
+	void setOriginalEmbedding();
 
 	bool isLinkCopiesOnInsert() const { return m_linkCopiesOnInsert; }
 
@@ -246,7 +279,7 @@ public:
 	 * \return the corresponding edge in the graph copy,
 	 * or \c nullptr if it doesn't exists.
 	 */
-	edge copy(edge e) const { return m_eCopy[e]; }
+	edge copy(edge e) const override { return m_eCopy[e]; }
 
 	/**
 	 * Returns the adjacency entry in the graph copy corresponding to \p adj.
@@ -259,7 +292,7 @@ public:
 	 * \return the corresponding adjacency entry in the graph copy,
 	 * or \c nullptr if it doesn't exists.
 	 */
-	adjEntry copy(adjEntry adj) const {
+	adjEntry copy(adjEntry adj) const override {
 		edge f = m_eCopy[adj->theEdge()];
 		if (f == nullptr) {
 			return nullptr;
@@ -400,29 +433,29 @@ public:
 
 	using GraphCopyBase::copy;
 
-	// returns first edge in chain(e)
 	/**
-	 * \brief Returns the first edge in the list of edges coresponding to edge \p e.
+	 * \brief Returns the first edge in the list of edges corresponding to edge \p e.
 	 * @param e is an edge in the original graph.
 	 * \return the first edge in the corresponding list of edges in
 	 * the graph copy or nullptr if it does not exist.
 	 */
-	edge copy(edge e) const { return m_eCopy[e].empty() ? nullptr : m_eCopy[e].front(); }
+	edge copy(edge e) const override { return m_eCopy[e].empty() ? nullptr : m_eCopy[e].front(); }
 
 	/**
-	 * Returns the adjacency entry in the copy graph corresponding to \p adj.
+	 * \brief Returns the adjacency entry in the copy graph corresponding to \p adj.
 	 *
 	 * Note that this method does not pay attention to reversed edges.
 	 * Given a source (target) adjacency entry, the first (last) source (target) adjacency entry of the
 	 * copy chain is returned.
 	 *
 	 * @param adj is an adjacency entry in the copy graph.
-	 * \return the corresponding adjacency entry in the original graph.
+	 * \return the corresponding adjacency entry in the original graph or nullptr if it does not exist.
 	 */
-	adjEntry copy(adjEntry adj) const {
+	adjEntry copy(adjEntry adj) const override {
 		edge e = adj->theEdge();
-
-		if (adj->isSource()) {
+		if (e == nullptr) {
+			return nullptr;
+		} else if (adj->isSource()) {
 			return m_eCopy[e].front()->adjSource();
 		} else {
 			return m_eCopy[e].back()->adjTarget();
@@ -621,13 +654,6 @@ public:
 	 */
 	edge newEdge(node v, adjEntry adj, edge eOrig, CombinatorialEmbedding& E);
 
-	/**
-	 * \brief Sets the embedding of the graph copy to the embedding of the original graph.
-	 * \pre The graph copy has not been changed after construction, i.e., no new nodes
-	 *      or edges have been added and no edges have been split.
-	 */
-	void setOriginalEmbedding();
-
 	//! Re-inserts edge \p eOrig by "crossing" the edges in \p crossedEdges in embedding \p E.
 	/**
 	 * Let \a v and \a w be the copies of the source and target nodes of \p eOrig,
@@ -676,10 +702,8 @@ public:
 	//! @{
 
 #ifdef OGDF_DEBUG
-
 	//! Asserts that this copy is consistent.
 	void consistencyCheck() const;
-
 #endif
 
 	//! Initializes the graph copy for the nodes in component \p cc.
