@@ -133,7 +133,7 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 void* GraphCopyBase::preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
 		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) {
 	// don't update the copy if we inserted something that doesn't come from our original graph
-	if (nodeMap.graphOf() == m_pGraph) {
+	if (nodeMap.graphOf() == m_pGraph && m_linkCopiesOnInsert) {
 		return reinterpret_cast<void*>(1);
 	} else {
 		return nullptr;

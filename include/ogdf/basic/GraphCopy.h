@@ -38,7 +38,7 @@
 
 namespace ogdf {
 
-template<bool b>
+template<bool>
 class FaceSet;
 
 class OGDF_EXPORT GraphCopyBase : public Graph {
@@ -47,6 +47,8 @@ protected:
 	NodeArray<node> m_vOrig; //!< The corresponding node in the original graph.
 	EdgeArray<edge> m_eOrig; //!< The corresponding edge in the original graph.
 	NodeArray<node> m_vCopy; //!< The corresponding node in the graph copy.
+	bool m_linkCopiesOnInsert =
+			true; //!< Whether \c insert(getOriginalGraph()) will set \c copy and \c original
 
 public:
 	//! Constructs a GraphCopySimple associated with no graph.
@@ -174,6 +176,22 @@ public:
 		}
 	}
 
+	bool isLinkCopiesOnInsert() const { return m_linkCopiesOnInsert; }
+
+	//! Whether \c insert(getOriginalGraph()) will automatically set \c copy and \c original
+	/**
+	 * Whether the inserted elements should automatically have assigned \c copy and \c original
+	 * values when calling \c ::insert with nodes and edges from \c ::getOriginalGraph().
+	 * Note that this also applies to elements inserted when calling \c ::init().
+	 *
+	 * @param linkElementsOnInsert When true, \c copy and \c original will be automatically set for
+	 *   elements from the original graph. When false, all inserted elements (no matter from which
+	 *   Graph) will be dummies.
+	 */
+	void setLinkCopiesOnInsert(bool linkCopiesOnInsert) {
+		m_linkCopiesOnInsert = linkCopiesOnInsert;
+	}
+
 protected:
 	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) override;
@@ -273,19 +291,6 @@ public:
 	 */
 	void delEdge(edge e) override;
 
-	using Graph::insert;
-
-	std::pair<int, int> insert(const Graph& G) override {
-		if (m_pGraph == nullptr) {
-			setOriginalGraph(&G);
-			return insert(G, m_vCopy, m_eCopy);
-		} else if (m_pGraph == &G) {
-			return insert(G, m_vCopy, m_eCopy);
-		} else {
-			return Graph::insert(G);
-		}
-	}
-
 protected:
 	void edgeInserted(void* userData, edge original, edge copy) override;
 };
@@ -380,21 +385,6 @@ public:
 
 	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
 	void clear() override;
-
-	using Graph::insert;
-
-	std::pair<int, int> insert(const Graph& G) override {
-		EdgeArray<edge> edgeMap(G, nullptr);
-		if (m_pGraph == nullptr) {
-			setOriginalGraph(&G);
-			return insert(G, m_vCopy, edgeMap);
-		} else if (m_pGraph == &G) {
-			return insert(G, m_vCopy, edgeMap);
-		} else {
-			NodeArray<node> nodeMap(G, nullptr);
-			return insert(G, nodeMap, edgeMap);
-		}
-	}
 
 	/**
 	 * @name Mapping between original graph and copy

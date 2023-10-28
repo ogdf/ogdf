@@ -104,6 +104,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		if (copyIDs) {
 			m_nodeIdCount = max(m_nodeIdCount, vG->index() + 1);
 		}
+		// nodeMap[vG] is overwritten if it is != nullptr
 		node v = nodeMap[vG] = pureNewNode(copyIDs ? vG->index() : m_nodeIdCount++);
 		newNodes++;
 		if (notifyObservers) {
@@ -139,6 +140,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		if (copyIDs) {
 			m_edgeIdCount = max(m_edgeIdCount, eG->index() + 1);
 		}
+		// edgeMap[eG] is overwritten if it is != nullptr
 		edge e = edgeMap[eG] = pureNewEdge(src, tgt, copyIDs ? eG->index() : m_edgeIdCount++);
 		newEdges++;
 		if (!copyEmbedding) {
@@ -172,12 +174,16 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		for (adjEntry adjG : vG->adjEntries) {
 			edge eG = adjG->m_edge;
 			edge e = edgeMap[eG];
-			// edgeMap[eG] might be an old value, so check whether the edge was overwritten this round
-			if (nodeMap[eG->source()] == nullptr || nodeMap[eG->target()] == nullptr) {
+			if (e == nullptr) {
 				continue;
 			}
-			OGDF_ASSERT(e != nullptr);
 			adjEntry adj = adjG->isSource() ? e->adjSource() : e->adjTarget();
+			// edgeMap[eG] might be an old entry that was already inserted into the list
+			// so check whether adj is already in the list, indicated by having succ or pred,
+			// or being the only entry in the list
+			if (adj->succ() != nullptr || adj->pred() != nullptr || v->adjEntries.head() == adj) {
+				continue;
+			}
 			v->adjEntries.pushBack(adj);
 		}
 	}
@@ -233,6 +239,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		if (copyIDs) {
 			m_nodeIdCount = max(m_nodeIdCount, vG->index() + 1);
 		}
+		// nodeMap[vG] is overwritten if it is != nullptr
 		node v = nodeMap[vG] = pureNewNode(copyIDs ? vG->index() : m_nodeIdCount++);
 		newNodes++;
 		if (notifyObservers) {
@@ -248,6 +255,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			if (!edgeFilter(eG)) {
 				continue;
 			}
+			// edgeMap[eG] is *not* overwritten if it is != nullptr
 			edge e = edgeMap[eG];
 			if (e == nullptr) {
 				node twin = nodeMap[adjG->twinNode()];
@@ -267,8 +275,13 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 				newEdges++;
 			} else {
 				adjEntry adj = adjG->isSource() ? e->adjSource() : e->adjTarget();
-				v->adjEntries.pushBack(adj);
-				// at this point, other edges might still be incomplete, so we cannot call observers
+				// edgeMap[eG] might be an old entry that was already inserted into the list
+				// so check whether adj is already in the list, indicated by having succ or pred,
+				// or being the only entry in the list
+				if (adj->succ() == nullptr && adj->pred() == nullptr && v->adjEntries.head() != adj) {
+					v->adjEntries.pushBack(adj);
+					// at this point, other edges might still be incomplete, so we cannot call observers
+				}
 			}
 		}
 	}
@@ -283,6 +296,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			for (adjEntry adjG : vG->adjEntries) {
 				edge eG = adjG->m_edge;
 				edge e = edgeMap[eG];
+				// we will call Observers for *all* edgeMap entries
 				if (e == nullptr) {
 					continue;
 				}

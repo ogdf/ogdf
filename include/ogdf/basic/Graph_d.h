@@ -714,7 +714,7 @@ using AdjEntryArray = GraphRegisteredArray<AdjElement, Value, true, GraphAdjRegi
 template<typename Value>
 using AdjEntryArrayWithoutDefault = GraphRegisteredArray<AdjElement, Value, false, GraphAdjRegistry>;
 
-template<bool SupportFastSizeQuery = true>
+template<bool>
 class EdgeSet;
 
 //! Abstract Base class for graph observers.
@@ -1701,7 +1701,7 @@ public:
 		return count;
 	}
 
-	virtual std::pair<int, int> insert(const Graph& G) {
+	std::pair<int, int> insert(const Graph& G) {
 		NodeArray<node> nodeMap(G, nullptr);
 		EdgeArray<edge> edgeMap(G, nullptr);
 		return insert(G, nodeMap, edgeMap);
