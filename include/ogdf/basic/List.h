@@ -113,12 +113,12 @@ class ListIteratorBase {
 	//! pointer to list element
 	ListElem* m_pX;
 
-	//! Conversion to pointer to list element.
-	operator ListElem*() { return m_pX; }
-
 public:
 	using value_type = Elem;
 	using difference_type = std::ptrdiff_t;
+
+	//! Conversion to pointer to list element.
+	operator ListElem*() { return m_pX; }
 
 	//! Constructs an iterator that points to \p pX.
 	ListIteratorBase(ListElem* pX) : m_pX(pX) { }
