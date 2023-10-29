@@ -149,6 +149,7 @@ using std::to_string;
 //! Disable the warning that calling throw will always terminate the program in a noexept block
 //! @ingroup macros
 #define OGDF_DISABLE_WARNING_THROW_TERMINATE
+#define OGDF_DISABLE_WARNING_UNUSED_VALUE
 
 #if defined(_MSC_VER)
 #	undef OGDF_DISABLE_WARNING_PUSH
@@ -176,6 +177,8 @@ using std::to_string;
 #	else
 #		undef OGDF_DISABLE_WARNING_THROW_TERMINATE
 #		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wterminate)
+#		undef OGDF_DISABLE_WARNING_UNUSED_VALUE
+#		define OGDF_DISABLE_WARNING_UNUSED_VALUE OGDF_DISABLE_WARNING(-Wunused - value)
 #	endif
 #endif
 

@@ -9,11 +9,16 @@ namespace internal {
 template<typename T, typename = void>
 struct has_subtraction_operator : std::false_type { };
 
+OGDF_DISABLE_WARNING_PUSH
+#pragma GCC diagnostic ignored "-Wunused-value"
+
 template<typename T>
 struct has_subtraction_operator<T,
 		typename std::enable_if<decltype(std::declval<T>() - std::declval<T>(), std::true_type())::value>::type> {
 	static constexpr bool value = true;
 };
+
+OGDF_DISABLE_WARNING_POP
 
 template<typename it>
 typename std::enable_if<has_subtraction_operator<it>::value, typename it::difference_type>::type

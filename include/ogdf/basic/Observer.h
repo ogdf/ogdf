@@ -92,13 +92,16 @@ private:
 protected:
 	const ListPure<TObserver*> getObservers() const { return m_regObservers; }
 
-	void clearObservers() {
-		while (!m_regObservers.empty()) {
-			TObserver* obs = m_regObservers.front();
-			obs->reregister(nullptr);
-			OGDF_ASSERT(m_regObservers.empty()
-					|| (m_regObservers.front() != obs && m_regObservers.back() != obs));
-		}
-	}
+	void clearObservers();
 };
+
+template<typename TObserver, typename TObserved>
+void Observable<TObserver, TObserved>::clearObservers() {
+	while (!m_regObservers.empty()) {
+		TObserver* obs = m_regObservers.front();
+		obs->reregister(nullptr);
+		OGDF_ASSERT(m_regObservers.empty()
+				|| (m_regObservers.front() != obs && m_regObservers.back() != obs));
+	}
+}
 }
