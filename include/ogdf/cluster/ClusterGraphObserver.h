@@ -39,30 +39,3 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Observer.h>
 #include <ogdf/cluster/ClusterGraph.h>
-
-namespace ogdf {
-
-/**
- * Abstract base class for cluster graph observers.
- *
- * @ingroup graphs
- *
- * If a class needs to keep track of changes in a clustered graph like addition or deletion
- * of clusters, you can derive it from ClusterGraphObserver and override the
- * notification methods clusterDeleted, clusterAdded.
- */
-class OGDF_EXPORT ClusterGraphObserver : public Observer<ClusterGraph, ClusterGraphObserver> {
-public:
-	ClusterGraphObserver() : Observer(nullptr) { }
-
-	explicit ClusterGraphObserver(const ClusterGraph* CG) : Observer(CG) { }
-
-	virtual void clusterDeleted(cluster v) = 0;
-	virtual void clusterAdded(cluster v) = 0;
-
-	// virtual void cleared() = 0;
-
-	const ClusterGraph* getGraph() const { return getObserved(); }
-};
-
-}
