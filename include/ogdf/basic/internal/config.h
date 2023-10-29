@@ -149,6 +149,9 @@ using std::to_string;
 //! Disable the warning that calling throw will always terminate the program in a noexept block
 //! @ingroup macros
 #define OGDF_DISABLE_WARNING_THROW_TERMINATE
+
+//! Disable the warning that some computed value is not used
+//! @ingroup macros
 #define OGDF_DISABLE_WARNING_UNUSED_VALUE
 
 #if defined(_MSC_VER)
@@ -167,18 +170,18 @@ using std::to_string;
 #	define OGDF_DO_PRAGMA(X) _Pragma(#X)
 #	define OGDF_DISABLE_WARNING_PUSH OGDF_DO_PRAGMA(GCC diagnostic push)
 #	define OGDF_DISABLE_WARNING_POP OGDF_DO_PRAGMA(GCC diagnostic pop)
-#	define OGDF_DISABLE_WARNING(warningName) OGDF_DO_PRAGMA(GCC diagnostic ignored #warningName)
+#	define OGDF_DISABLE_WARNING(warningName) OGDF_DO_PRAGMA(GCC diagnostic ignored warningName)
 #endif
 
 #if defined(__GNUC__)
+#	undef OGDF_DISABLE_WARNING_UNUSED_VALUE
+#	define OGDF_DISABLE_WARNING_UNUSED_VALUE OGDF_DISABLE_WARNING("-Wunused-value")
 #	if defined(__clang__)
 #		undef OGDF_DISABLE_WARNING_THROW_TERMINATE
-#		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wexceptions)
+#		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING("-Wexceptions")
 #	else
 #		undef OGDF_DISABLE_WARNING_THROW_TERMINATE
-#		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(-Wterminate)
-#		undef OGDF_DISABLE_WARNING_UNUSED_VALUE
-#		define OGDF_DISABLE_WARNING_UNUSED_VALUE OGDF_DISABLE_WARNING(-Wunused - value)
+#		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING("-Wterminate")
 #	endif
 #endif
 
