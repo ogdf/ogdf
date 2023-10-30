@@ -109,7 +109,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	}
 
 	int guessedNodes = internal::guess_dist(nodesBegin, nodesEnd);
-	if (guessedNodes > 0) {
+	if (guessedNodes > 0 && notifyObservers) {
 		m_regNodeArrays.reserveSpace(guessedNodes);
 	}
 
@@ -135,7 +135,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		return {newNodes, newEdges};
 	}
 
-	if (!copyEmbedding) {
+	if (!copyEmbedding && notifyObservers) {
 		int guessedEdges = internal::guess_dist(edgesBegin, edgesEnd);
 		if (guessedEdges > 0) {
 			m_regEdgeArrays.reserveSpace(guessedEdges);
@@ -178,9 +178,6 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		return {newNodes, newEdges};
 	}
 
-	m_regEdgeArrays.reserveSpace(newEdges);
-	m_regAdjArrays.reserveSpace(newEdges); // registry adds factor 2 in calculateArraySize
-
 	for (auto it = nodesBegin; it != nodesEnd; ++it) {
 		node vG = *it;
 		node v = nodeMap[vG];
@@ -203,6 +200,9 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 
 	// notify observers of added edges after adjEntries are initialized
 	if (notifyObservers) {
+		m_regEdgeArrays.reserveSpace(newEdges);
+		m_regAdjArrays.reserveSpace(newEdges); // registry adds factor 2 in calculateArraySize
+
 		for (auto it = edgesBegin; it != edgesEnd; ++it) {
 			edge eG = *it;
 			edge e = edgeMap[eG];
@@ -261,7 +261,11 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 				obs->nodeAdded(v);
 			}
 		}
+	}
 
+	for (auto it = nodesBegin; it != nodesEnd; ++it) {
+		node vG = *it;
+		node v = nodeMap[vG];
 		for (adjEntry adjG : vG->adjEntries) {
 			edge eG = adjG->m_edge;
 			if (!edgeFilter(eG)) {
@@ -270,8 +274,11 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			// edgeMap[eG] is *not* overwritten if it is != nullptr
 			edge e = edgeMap[eG];
 			if (e == nullptr) {
+				// add the first endpoint of the edge
 				node twin = nodeMap[adjG->twinNode()];
 				if (twin == nullptr) {
+					// we can be sure that the other endpoint wasn't selected and
+					// we thus cannot add this (selected) edge
 					continue;
 				}
 				if (copyIDs) {
@@ -286,6 +293,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 				}
 				newEdges++;
 			} else {
+				// complete the edge with its second endpoint
 				adjEntry adj = adjG->isSource() ? e->adjSource() : e->adjTarget();
 				// edgeMap[eG] might be an old entry that was already inserted into the list
 				// so check whether adj is already in the list, indicated by having succ or pred,
@@ -306,6 +314,9 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		for (auto it = nodesBegin; it != nodesEnd; ++it) {
 			node vG = *it;
 			for (adjEntry adjG : vG->adjEntries) {
+				if (!adjG->isSource()) {
+					continue;
+				}
 				edge eG = adjG->m_edge;
 				edge e = edgeMap[eG];
 				// we will call Observers for *all* edgeMap entries

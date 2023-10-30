@@ -1320,7 +1320,7 @@ void describeTsplibXml() {
 		auto test_simple = [](bool directed) {
 			std::string directedString = directed ? "directed" : "undirected";
 			it("reads a " + directedString + " graph with weights", [&] {
-				const string& data =
+				string data =
 						ResourceFile::data("fileformats/tsplibxml/valid/" + directedString + ".xml");
 				Graph G;
 				GraphAttributes GA;
@@ -1345,7 +1345,7 @@ void describeTsplibXml() {
 		test_simple(true);
 
 		it("reads a complete directed graph with weights", [&] {
-			const string& data =
+			const string data =
 					ResourceFile::data("fileformats/tsplibxml/valid/complete_directed.xml");
 			Graph G;
 			GraphAttributes GA;
@@ -1366,7 +1366,7 @@ void describeTsplibXml() {
 			}
 		});
 		it("reads an undirected 4 cycle", [&] {
-			const string& data =
+			const string data =
 					ResourceFile::data("fileformats/tsplibxml/valid/4cycle_undirected.xml");
 			Graph G;
 			GraphAttributes GA;
@@ -1390,8 +1390,7 @@ void describeTsplibXml() {
 			}
 		});
 		it("reads a directed 4 cycle", [&] {
-			const string& data =
-					ResourceFile::data("fileformats/tsplibxml/valid/4cycle_directed.xml");
+			const string data = ResourceFile::data("fileformats/tsplibxml/valid/4cycle_directed.xml");
 			Graph G;
 			GraphAttributes GA;
 			stringstream ss {data};

@@ -1666,7 +1666,9 @@ public:
 		m_regNodeArrays.reserveSpace(nodeList.size());
 		m_regEdgeArrays.reserveSpace(edgeList.size());
 		m_regAdjArrays.reserveSpace(edgeList.size());
-		return insert(nodeList.begin(), nodeList.end(), edgeList.begin(), edgeList.end(), nodeMap,
+		using std::begin;
+		using std::end;
+		return insert(begin(nodeList), end(nodeList), begin(edgeList), end(edgeList), nodeMap,
 				edgeMap);
 	}
 
@@ -1809,7 +1811,7 @@ public:
 		}
 
 		bool operator==(const CCNodeIterator& rhs) const {
-			return &_info == &rhs._info && _cc == rhs._cc && _cur == rhs._cur;
+			return _info == rhs._info && _cc == rhs._cc && _cur == rhs._cur;
 		}
 
 		bool operator!=(const CCNodeIterator& rhs) const { return !(rhs == *this); }
@@ -1854,7 +1856,7 @@ public:
 		}
 
 		bool operator==(const CCEdgeIterator& rhs) const {
-			return &_info == &rhs._info && _cc == rhs._cc && _cur == rhs._cur;
+			return _info == rhs._info && _cc == rhs._cc && _cur == rhs._cur;
 		}
 
 		bool operator!=(const CCEdgeIterator& rhs) const { return !(rhs == *this); }

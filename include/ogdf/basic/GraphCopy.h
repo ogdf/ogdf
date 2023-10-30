@@ -85,6 +85,9 @@ public:
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
 	virtual void setOriginalGraph(const Graph* G) = 0;
 
+	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
+	void setOriginalGraph(const Graph& G) { setOriginalGraph(&G); };
+
 	const Graph* getOriginalGraph() const { return m_pGraph; }
 
 	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
@@ -264,6 +267,8 @@ public:
 
 	GraphCopySimple& operator=(const GraphCopySimple& other);
 
+	using GraphCopyBase::setOriginalGraph;
+
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
 	void setOriginalGraph(const Graph* G) override;
 
@@ -382,6 +387,8 @@ public:
 	GraphCopy(const GraphCopy& other) : GraphCopyBase() { *this = other; }
 
 	GraphCopy& operator=(const GraphCopy& other);
+
+	using GraphCopyBase::setOriginalGraph;
 
 	//! Associates the graph copy with \p G, but does not create any nodes or edges.
 	/**

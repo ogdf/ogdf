@@ -13,7 +13,7 @@ template<typename TObserved, typename TObserver>
 class Observer {
 public:
 	//! Constructs instance of Observer class
-	Observer() : m_pObserved(nullptr) { }
+	Observer() { }
 
 	/**
 	 * \brief Constructs instance of Observer class
@@ -43,7 +43,7 @@ public:
 	const TObserved* getObserved() const { return m_pObserved; }
 
 private:
-	const TObserved* m_pObserved; //! watched instance
+	const TObserved* m_pObserved = nullptr; //! watched instance
 	typename ListPure<TObserver*>::iterator m_itObsList; //! own entry in m_pObserved's observer list
 };
 
@@ -90,18 +90,15 @@ private:
 	}
 
 protected:
-	const ListPure<TObserver*> getObservers() const { return m_regObservers; }
+	const ListPure<TObserver*>& getObservers() const { return m_regObservers; }
 
-	void clearObservers();
-};
-
-template<typename TObserver, typename TObserved>
-void Observable<TObserver, TObserved>::clearObservers() {
-	while (!m_regObservers.empty()) {
-		TObserver* obs = m_regObservers.front();
-		obs->reregister(nullptr);
-		OGDF_ASSERT(m_regObservers.empty()
-				|| (m_regObservers.front() != obs && m_regObservers.back() != obs));
+	void clearObservers() {
+		while (!m_regObservers.empty()) {
+			TObserver* obs = m_regObservers.front();
+			obs->reregister(nullptr);
+			OGDF_ASSERT(m_regObservers.empty()
+					|| (m_regObservers.front() != obs && m_regObservers.back() != obs));
+		}
 	}
-}
+};
 }

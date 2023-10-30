@@ -53,6 +53,7 @@ void assertGraphEqual(const Graph& G, const GraphCopySimple& GC) {
 
 void testFullCopy(const Graph& G) {
 	GraphCopySimple GC;
+	GC.setOriginalGraph(G);
 	GC.insert(G);
 	assertGraphEqual(G, GC);
 }

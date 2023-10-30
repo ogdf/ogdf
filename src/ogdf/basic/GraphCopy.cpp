@@ -133,7 +133,7 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 void GraphCopyBase::setOriginalEmbedding() {
 	List<adjEntry> newAdjOrder;
 	for (node v : getOriginalGraph()->nodes) {
-		if (isDummy(v)) {
+		if (copy(v) == nullptr) {
 			continue;
 		}
 		newAdjOrder.clear();
