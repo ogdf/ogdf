@@ -56,7 +56,7 @@ OGDF_DEPRECATED("use Graph::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph) {
 	NodeArray<node> nodeMap(G, nullptr);
 	EdgeArray<edge> edgeMap(G, nullptr);
-	subGraph.insert(start, G.edges, nodeMap, edgeMap);
+	subGraph.insert(start, internal::filter_any_edge, nodeMap, edgeMap);
 }
 
 //! Computes the subgraph induced by a list of nodes (plus a mapping from original nodes to new copies).
@@ -79,7 +79,7 @@ void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
 		nodeTableOrig2New.init(G);
 	}
 	OGDF_ASSERT(nodeTableOrig2New.registeredAt()->graphOf() == &G);
-	subGraph.insert(start, G.edges, nodeTableOrig2New, edgeMap);
+	subGraph.insert(start, internal::filter_any_edge, nodeTableOrig2New, edgeMap);
 }
 
 //! Computes the subgraph induced by a list of nodes (plus mappings from original nodes and edges to new copies).
@@ -106,7 +106,7 @@ void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
 		edgeTableOrig2New.init(G);
 	}
 	OGDF_ASSERT(edgeTableOrig2New.registeredAt()->graphOf() == &G);
-	subGraph.insert(start, G.edges, nodeTableOrig2New, edgeTableOrig2New);
+	subGraph.insert(start, internal::filter_any_edge, nodeTableOrig2New, edgeTableOrig2New);
 }
 
 //! Computes the subgraph induced by a list of nodes.
@@ -124,7 +124,7 @@ OGDF_DEPRECATED("use GraphCopy(Simple)::insert instead")
 void inducedSubGraph(const Graph& G, LISTITERATOR start, GraphCopySimple& subGraph) {
 	subGraph.clear();
 	subGraph.createEmpty(G);
-	subGraph.insert(start, G.edges);
+	subGraph.insert(start, internal::filter_any_edge);
 }
 
 //! Computes the edges in a node-induced subgraph.

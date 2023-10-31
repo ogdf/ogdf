@@ -6,31 +6,37 @@
 namespace ogdf {
 
 namespace internal {
-template<typename T, typename = void>
-struct has_subtraction_operator : std::false_type { };
+template<typename...>
+using void_t = void;
 
-OGDF_DISABLE_WARNING_PUSH
-OGDF_DISABLE_WARNING_UNUSED_VALUE
+template<class T, class = void>
+struct is_iterator : std::false_type { };
 
-// GCC 7 complains about the unused result of the subtraction in decltype(...)
-template<typename T>
-struct has_subtraction_operator<T,
-		typename std::enable_if<decltype(std::declval<T>() - std::declval<T>(), std::true_type())::value>::type> {
-	static constexpr bool value = true;
+template<class T>
+struct is_iterator<T, void_t<typename std::iterator_traits<T>::iterator_category>> : std::true_type {
 };
 
-OGDF_DISABLE_WARNING_POP
+template<class It>
+typename std::iterator_traits<It>::difference_type do_guess_dist(It first, It last,
+		std::input_iterator_tag) {
+	return 0;
+}
 
-template<typename it>
-typename std::enable_if<has_subtraction_operator<it>::value, typename it::difference_type>::type
-guess_dist(it first, it last) {
+template<class It>
+typename std::iterator_traits<It>::difference_type do_guess_dist(It first, It last,
+		std::random_access_iterator_tag) {
 	return last - first;
 }
 
-template<typename it>
-typename std::enable_if<!has_subtraction_operator<it>::value, int>::type guess_dist(it first,
-		it last) {
+template<class It>
+typename std::enable_if<!is_iterator<It>::value, int>::type guess_dist(It first, It last) {
 	return 0;
+}
+
+template<class It>
+typename std::enable_if<is_iterator<It>::value, typename std::iterator_traits<It>::difference_type>::type
+guess_dist(It first, It last) {
+	return do_guess_dist(first, last, typename std::iterator_traits<It>::iterator_category());
 }
 }
 
