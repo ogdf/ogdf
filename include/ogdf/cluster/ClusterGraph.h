@@ -300,14 +300,17 @@ inline bool test_forall_adj_edges_of_cluster(adjEntry& adj, edge& e) {
 
 using ClusterGraphRegistry = RegistryBase<cluster, ClusterGraph, internal::GraphIterator<cluster>>;
 
-template<class Value, bool WithDefault>
+template<typename Value, bool WithDefault>
 class ClusterArrayBase;
 
-template<class Value>
+template<typename Value>
 using ClusterArray = ClusterArrayBase<Value, true>;
 
-template<class Value>
+template<typename Value>
 using ClusterArrayWithoutDefault = ClusterArrayBase<Value, false>;
+
+template<typename Value>
+using ClusterArrayOfPtrs = ClusterArrayBase<std::unique_ptr<Value>, false>;
 
 /**
  * Abstract base class for cluster graph observers.

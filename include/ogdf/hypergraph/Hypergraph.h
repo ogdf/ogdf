@@ -392,10 +392,18 @@ template<typename Value>
 using HypernodeArrayWithoutDefault = HypergraphRegisteredArray<HypernodeElement, Value, false>;
 
 template<typename Value>
+using HypernodeArrayOfPtrs =
+		HypergraphRegisteredArray<HypernodeElement, std::unique_ptr<Value>, false>;
+
+template<typename Value>
 using HyperedgeArray = HypergraphRegisteredArray<HyperedgeElement, Value, true>;
 
 template<typename Value>
 using HyperedgeArrayWithoutDefault = HypergraphRegisteredArray<HyperedgeElement, Value, false>;
+
+template<typename Value>
+using HyperedgeArrayOfPtrs =
+		HypergraphRegisteredArray<HyperedgeElement, std::unique_ptr<Value>, false>;
 
 class OGDF_EXPORT HypergraphObserver;
 

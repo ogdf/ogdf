@@ -40,6 +40,7 @@
 #include <ogdf/basic/internal/graph_iterators.h>
 
 #include <array>
+#include <memory>
 #include <mutex>
 
 #ifdef OGDF_DEBUG
@@ -666,6 +667,9 @@ using NodeArray = GraphRegisteredArray<NodeElement, Value, true>;
 template<typename Value>
 using NodeArrayWithoutDefault = GraphRegisteredArray<NodeElement, Value, false>;
 
+template<typename Value>
+using NodeArrayOfPtrs = GraphRegisteredArray<NodeElement, std::unique_ptr<Value>, false>;
+
 //! RegisteredArray for edges of a graph.
 template<typename Value, bool WithDefault>
 class EdgeArrayBase : public GraphRegisteredArray<EdgeElement, Value, WithDefault> {
@@ -709,10 +713,16 @@ template<typename Value>
 using EdgeArrayWithoutDefault = EdgeArrayBase<Value, false>;
 
 template<typename Value>
+using EdgeArrayOfPtrs = EdgeArrayBase<std::unique_ptr<Value>, false>;
+
+template<typename Value>
 using AdjEntryArray = GraphRegisteredArray<AdjElement, Value, true, GraphAdjRegistry>;
 
 template<typename Value>
 using AdjEntryArrayWithoutDefault = GraphRegisteredArray<AdjElement, Value, false, GraphAdjRegistry>;
+
+template<typename Value>
+using AdjEntryArrayOfPtrs = GraphRegisteredArray<AdjElement, std::unique_ptr<Value>, false>;
 
 template<bool>
 class EdgeSet;

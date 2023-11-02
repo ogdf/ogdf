@@ -179,11 +179,14 @@ public:
 	ConstCombinatorialEmbedding* embeddingOf() const { return RA::registeredAt(); }
 };
 
-template<class Value>
+template<typename Value>
 using FaceArray = FaceArrayBase<Value, true>;
 
-template<class Value>
+template<typename Value>
 using FaceArrayWithoutDefault = FaceArrayBase<Value, false>;
+
+template<typename Value>
+using FaceArrayOfPtrs = FaceArrayBase<std::unique_ptr<Value>, false>;
 
 /**
  * \brief Combinatorial embeddings of planar graphs.
