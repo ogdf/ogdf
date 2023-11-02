@@ -472,10 +472,10 @@ public:
 	 * given vertex of the auxiliary graph is belonging to.
 	 * \param vH is a vertex of the auxiliary graph.
 	 * \return a vertex of the BC-tree:
-	 * - If \p vH is not a cut-vertex, then bcproper(\p vH) returns the very
+	 * - If \p vH is not a cut-vertex, then bccomp(\p vH) returns the very
 	 *   vertex of the BC-tree representing the unambiguous B-component which \p vH
 	 *   is belonging to.
-	 * - If \p vH is a cut-vertex, then bcproper(\p vH) returns the very vertex
+	 * - If \p vH is a cut-vertex, then bccomp(\p vH) returns the very vertex
 	 *   of the BC-tree representing the unambiguous C-component which \p vH is
 	 *   belonging to.
 	 */
@@ -600,7 +600,7 @@ public:
 	 * Calculates a path in the BC-tree.
 	 * \param sB is a vertex of the BC-tree.
 	 * \param tB is a vertex of the BC-tree.
-	 * \return the path from (\p sB) to bcproper(\p tB) in the BC-tree as a
+	 * \return the path from \p sB to \p tB in the BC-tree as a
 	 * linear list of vertices.
 	 * \post <b>The SList<node> instance is created by this function and has to be
 	 * destructed by the caller!</b>

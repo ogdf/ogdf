@@ -80,7 +80,7 @@ void DynamicSPQRForest::createSPQR(node vB) const {
 
 	Triconnectivity tricComp(GC);
 
-	const GraphCopySimple& GCC = *dynamic_cast<GraphCopySimple*>(tricComp.m_pG);
+	const GraphCopySimple& GCC = *dynamic_cast<const GraphCopySimple*>(tricComp.m_pG);
 
 	EdgeArray<node> partnerNode(GCC, nullptr);
 	EdgeArray<edge> partnerEdge(GCC, nullptr);

@@ -30,10 +30,9 @@
  */
 
 
+#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/decomposition/BCTree.h>
-
-#include "ogdf/basic/EdgeArray.h"
-#include "ogdf/basic/simple_graph_alg.h"
 
 namespace ogdf {
 
@@ -138,7 +137,7 @@ void BCTree::biComp(adjEntry adjuG, node vG) {
 		m_bNode_isMarked[bB] = false;
 		m_bNode_hRefNode[bB] = nullptr;
 		m_bNode_hParNode[bB] = nullptr;
-		m_bNode_numNodes[bB] = 0;
+		m_bNode_numNodes[bB] = 1;
 
 		node zH = m_H.newNode();
 		m_hNode_bNode[zH] = bB;

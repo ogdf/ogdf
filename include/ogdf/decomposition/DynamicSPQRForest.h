@@ -294,7 +294,7 @@ public:
 	 *
 	 * This constructor does only create the dynamic BC-tree rooted at the first
 	 * edge of \p G. The data structure is prepared for dealing with SPQR-trees,
-	 * but they will only be created on demand. See member functions createSPQR(node).
+	 * but they will only be created on demand. See member function createSPQR(node).
 	 * \param G is the original graph.
 	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
 	 * 	Otherwise, only the connected component of G.firstNode() will be processed.
