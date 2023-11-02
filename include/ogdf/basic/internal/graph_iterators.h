@@ -203,5 +203,26 @@ private:
 	array_pointer_type m_array; //!< The array.
 };
 
+template<typename It>
+class SimpleRange {
+	It m_begin;
+	It m_end;
+
+public:
+	SimpleRange(It&& begin, It&& end) : m_begin(std::move(begin)), m_end(std::move(end)) { }
+
+	SimpleRange(const It& begin, const It& end) : m_begin(begin), m_end(end) { }
+
+	SimpleRange() = default;
+
+	const It& begin() const { return m_begin; }
+
+	const It& end() const { return m_end; }
+
+	It& begin() { return m_begin; }
+
+	It& end() { return m_end; }
+};
+
 }
 }
