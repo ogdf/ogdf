@@ -181,8 +181,15 @@ private:
 		}
 	}
 
-	GraphCopySimple& GC() const {
-		return *dynamic_cast<GraphCopySimple*>(m_pG); // TODO use common superclass of all GraphCopies
+	//! returns \p m_pG.original(n) if m_pG is a GraphCopySimple, otherwise \p n itself
+	template<typename T>
+	T GCoriginal(T n) const {
+		if (m_deleteGraph) {
+			// TODO use common superclass of all GraphCopies
+			return dynamic_cast<GraphCopySimple*>(m_pG)->original(n);
+		} else {
+			return n;
+		}
 	}
 
 	NodeArray<int> m_NUMBER; //!< (first) dfs-number of v

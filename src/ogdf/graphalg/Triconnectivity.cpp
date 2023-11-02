@@ -102,11 +102,11 @@ Triconnectivity::Triconnectivity(Graph* G)
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nnode\tNUMBER\tFATHER\tLOWPT1\tLOWPT2\tND" << std::endl;
 	for (node v : m_pG->nodes) {
-		std::cout << GC().original(v) << ":  \t" << m_NUMBER[v] << "   \t";
+		std::cout << GCoriginal(v) << ":  \t" << m_NUMBER[v] << "   \t";
 		if (m_FATHER[v] == 0) {
 			std::cout << "nil \t";
 		} else {
-			std::cout << GC().original(m_FATHER[v]) << "   \t";
+			std::cout << GCoriginal(m_FATHER[v]) << "   \t";
 		}
 		std::cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t" << m_ND[v] << std::endl;
 	}
@@ -132,7 +132,7 @@ Triconnectivity::Triconnectivity(Graph* G)
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\nnode\tNEWNUM\tLOWPT1\tLOWPT2\tHIGHPT" << std::endl;
 	for (node v : m_pG->nodes) {
-		std::cout << GC().original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
+		std::cout << GCoriginal(v) << ":  \t" << m_NEWNUM[v] << "   \t";
 		std::cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t";
 		for (int i : m_HIGHPT[v]) {
 			std::cout << i << " ";
@@ -272,7 +272,7 @@ Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s
 
 	// graph no biconnected?
 	if (s1 != nullptr) {
-		s1 = GC().original(s1);
+		s1 = GCoriginal(s1);
 		isTric = false; // s1 is a cut vertex
 		return;
 	}
@@ -297,8 +297,8 @@ Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s
 
 	isTric = pathSearch(m_start, s1, s2);
 	if (s1) {
-		s1 = GC().original(s1);
-		s2 = GC().original(s2);
+		s1 = GCoriginal(s1);
+		s2 = GCoriginal(s2);
 	}
 
 	delete[] m_TSTACK_h;
@@ -374,7 +374,7 @@ bool Triconnectivity::checkComp() {
 	}
 
 	for (edge e : m_pG->edges) {
-		if (GC().original(e) == nullptr) {
+		if (GCoriginal(e) == nullptr) {
 			if (count[e] != 2) {
 				ok = false;
 				std::cout << "virtual edge contained " << count[e];
@@ -820,8 +820,8 @@ void Triconnectivity::pathSearch(node v) {
 					if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 						std::cout << std::endl
-								  << "\nfound type-2 separation pair " << GC().original(v) << ", "
-								  << GC().original(m_A[w].front()->target());
+								  << "\nfound type-2 separation pair " << GCoriginal(v) << ", "
+								  << GCoriginal(m_A[w].front()->target());
 #endif
 
 						edge e1 = m_ESTACK.popRet();
@@ -849,8 +849,8 @@ void Triconnectivity::pathSearch(node v) {
 
 					} else {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
-						std::cout << "\nfound type-2 separation pair " << GC().original(m_NODEAT[a])
-								  << ", " << GC().original(m_NODEAT[b]);
+						std::cout << "\nfound type-2 separation pair " << GCoriginal(m_NODEAT[a])
+								  << ", " << GCoriginal(m_NODEAT[b]);
 #endif
 
 						int h = m_TSTACK_h[m_top--];
@@ -916,8 +916,8 @@ void Triconnectivity::pathSearch(node v) {
 
 			if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[v] != m_start || outv >= 2)) {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
-				std::cout << "\nfound type-1 separation pair "
-						  << GC().original(m_NODEAT[m_LOWPT1[w]]) << ", " << GC().original(v);
+				std::cout << "\nfound type-1 separation pair " << GCoriginal(m_NODEAT[m_LOWPT1[w]])
+						  << ", " << GCoriginal(v);
 #endif
 
 				CompStruct& C = newComp();
@@ -1124,9 +1124,9 @@ bool isTriconnected(const Graph& G, node& s1, node& s2) {
 // debugging stuff
 void Triconnectivity::printOs(edge e) {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
-	std::cout << " (" << GC().original(e->source()) << "," << GC().original(e->target()) << ","
+	std::cout << " (" << GCoriginal(e->source()) << "," << GCoriginal(e->target()) << ","
 			  << e->index() << ")";
-	if (GC().original(e) == 0) {
+	if (GCoriginal(e) == 0) {
 		std::cout << "v";
 	}
 #endif
