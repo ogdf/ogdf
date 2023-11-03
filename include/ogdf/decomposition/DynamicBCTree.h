@@ -141,23 +141,23 @@ public:
 	 * DynamicBCTree(\p G) is equivalent to DynamicBCTree(<em>G</em>,
 	 * <em>G</em>.firstNode()).
 	 * \param G is the original graph.
-	 * \param callInitConnected decides which init is called, default call is init().
+	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
+	 * 	Otherwise, only the connected component of G.firstNode() will be processed.
 	 */
-	explicit DynamicBCTree(Graph& G, bool callInitConnected = false)
-		: BCTree(G, callInitConnected) {
-		init();
-	}
+	explicit DynamicBCTree(Graph& G, bool not_connected = false)
+		: DynamicBCTree(G, nullptr, not_connected) { }
 
 	/**
 	 * A constructor.
 	 *
 	 * This constructor does only call BCTree::BCTree() and DynamicBCTree::init().
 	 * \param G is the original graph.
-	 * \param vG is the vertex of the original graph which the DFS algorithm starts with.
-	 * \param callInitConnected decides which init is called, default call is init().
+	 * \param vG is the vertex of the original graph which the DFS algorithm starts, defaults to G.firstNode().
+	 * \param not_connected if set to true, will call initNotConnected() to process all connected components.
+	 * 	Otherwise, only the connected component of \p vG will be processed.
 	 */
-	DynamicBCTree(Graph& G, node vG, bool callInitConnected = false)
-		: BCTree(G, vG, callInitConnected) {
+	explicit DynamicBCTree(Graph& G, node vG, bool not_connected = false)
+		: BCTree(G, vG, not_connected) {
 		init();
 	}
 
@@ -165,32 +165,32 @@ public:
 
 	/** @{
 	 * Returns a BC-tree-vertex representing a biconnected component which a
-	 * given vertex of the original graph is belonging to.
-	 * \param vG is a vertex of the original graph.
+	 * given vertex of the auxiliary graph is belonging to.
+	 * \param vH is a vertex of the auxiliary graph.
 	 * \return a vertex of the BC-tree:
-	 * - If \p vG is not a cut-vertex, then typeOfGNode(\p vG) returns the very
-	 *   vertex of the BC-tree representing the unambiguous B-component which \p vG
+	 * - If \p vH is not a cut-vertex, then bcproper(\p vH) returns the very
+	 *   vertex of the BC-tree representing the unambiguous B-component which \p vH
 	 *   is belonging to.
-	 * - If \p vG is a cut-vertex, then typeOfGNode(\p vG) returns the very vertex
-	 *   of the BC-tree representing the unambiguous C-component which \p vG is
+	 * - If \p vH is a cut-vertex, then bcproper(\p vH) returns the very vertex
+	 *   of the BC-tree representing the unambiguous C-component which \p vH is
 	 *   belonging to.
 	 *
-	 * The difference between BCTree::bcproper() and DynamicBCTree::bcproper() is,
+	 * The difference between BCTree::bccomp() and DynamicBCTree::bccomp() is,
 	 * that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node bcproper(node vG) const override;
+	node bccomp(node vH) const override;
 
 	/**
 	 * Returns the BC-tree-vertex representing the biconnected component
-	 * which a given edge of the original graph is belonging to.
-	 * \param eG is an edge of the original graph.
-	 * \return the vertex of the BC-tree representing the B-component which \p eG
+	 * which a given edge of the auxiliary graph is belonging to.
+	 * \param eH is an edge of the auxiliary graph.
+	 * \return the vertex of the BC-tree representing the B-component which \p eH
 	 * is belonging to.
 	 *
-	 * The difference between BCTree::bcproper() and DynamicBCTree::bcproper() is,
+	 * The difference between BCTree::bccomp() and DynamicBCTree::bccomp() is,
 	 * that the latter one considers the UNION/FIND-tree structures.
 	 */
-	node bcproper(edge eG) const override;
+	node bccomp(edge eH) const override;
 
 	//! @}
 

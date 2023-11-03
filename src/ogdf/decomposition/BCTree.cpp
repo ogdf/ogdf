@@ -30,6 +30,8 @@
  */
 
 
+#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/decomposition/BCTree.h>
 
 namespace ogdf {
@@ -40,24 +42,24 @@ void BCTree::initBasic(node vG) {
 
 	m_gNode_isMarked.init(m_G, false);
 	m_gNode_hNode.init(m_G, nullptr);
-	m_gEdge_hEdge.init(m_G);
+	m_gEdge_hEdge.init(m_G, nullptr);
 
 	m_bNode_type.init(m_B);
 	m_bNode_isMarked.init(m_B, false);
-	m_bNode_hRefNode.init(m_B);
-	m_bNode_hParNode.init(m_B);
+	m_bNode_hRefNode.init(m_B, nullptr);
+	m_bNode_hParNode.init(m_B, nullptr);
 	m_bNode_hEdges.init(m_B);
-	m_bNode_numNodes.init(m_B);
+	m_bNode_numNodes.init(m_B, 0);
 
-	m_hNode_bNode.init(m_H);
-	m_hEdge_bNode.init(m_H);
-	m_hNode_gNode.init(m_H);
-	m_hEdge_gEdge.init(m_H);
+	m_hNode_bNode.init(m_H, nullptr);
+	m_hEdge_bNode.init(m_H, nullptr);
+	m_hNode_gNode.init(m_H, nullptr);
+	m_hEdge_gEdge.init(m_H, nullptr);
 
 	m_count = 0;
 	m_number.init(m_G, 0);
-	m_lowpt.init(m_G);
-	m_gtoh.init(m_G);
+	m_lowpt.init(m_G, 0);
+	m_gtoh.init(m_G, nullptr);
 
 	biComp(nullptr, vG);
 }
@@ -114,19 +116,73 @@ void BCTree::initNotConnected(List<node>& vG) {
 }
 
 void BCTree::biComp(adjEntry adjuG, node vG) {
-	m_lowpt[vG] = m_number[vG] = ++m_count;
+	struct ToDo {
+		bool complete;
+		adjEntry adjuG;
+		node vG;
+		adjEntry adj;
 
-	for (adjEntry adj : vG->adjEntries) {
-#if 0
-		edge eG = adj->theEdge();
-#endif
+		ToDo(bool _complete, adjEntry _adjuG, node _vG, adjEntry _adj)
+			: complete(_complete), adjuG(_adjuG), vG(_vG), adj(_adj) { }
+	};
+
+	if (vG == nullptr) {
+		return;
+	}
+	if (vG->degree() == 0) {
+		m_lowpt[vG] = m_number[vG] = ++m_count;
+
+		node bB = m_B.newNode();
+		m_bNode_type[bB] = BNodeType::BComp;
+		m_bNode_isMarked[bB] = false;
+		m_bNode_hRefNode[bB] = nullptr;
+		m_bNode_hParNode[bB] = nullptr;
+		m_bNode_numNodes[bB] = 1;
+
+		node zH = m_H.newNode();
+		m_hNode_bNode[zH] = bB;
+		m_hNode_gNode[zH] = vG;
+		m_gtoh[vG] = zH;
+		OGDF_ASSERT(m_gNode_hNode[vG] == nullptr);
+		m_gNode_hNode[vG] = zH;
+		m_numB++;
+		return;
+	}
+
+	std::vector<ToDo> todos;
+	todos.emplace_back(false, adjuG, vG, vG->firstAdj());
+	while (!todos.empty()) {
+		bool complete = todos.back().complete;
+		adjuG = todos.back().adjuG;
+		vG = todos.back().vG;
+		adjEntry adj = todos.back().adj;
+		todos.pop_back();
+
 		node wG = adj->twinNode();
-		if ((adjuG != nullptr) && (adj == adjuG->twin())) {
-			continue;
-		}
-		if (m_number[wG] == 0) {
-			m_eStack.push(adj);
-			biComp(adj, wG);
+		if (!complete) {
+			if (adj == vG->firstAdj()) {
+				OGDF_ASSERT(m_number[vG] == 0);
+				m_lowpt[vG] = m_number[vG] = ++m_count;
+			}
+			if (adj->succ()) {
+				todos.emplace_back(false, adjuG, vG, adj->succ());
+			}
+
+			if ((adjuG != nullptr) && (adj == adjuG->twin())) {
+				// ignore
+			} else if (m_number[wG] == 0) {
+				m_eStack.push(adj);
+				// recurse
+				todos.emplace_back(true, adjuG, vG, adj);
+				todos.emplace_back(false, adj, wG, wG->firstAdj());
+			} else if (m_number[wG] < m_number[vG]) {
+				m_eStack.push(adj);
+				if (m_number[wG] < m_lowpt[vG]) {
+					m_lowpt[vG] = m_number[wG];
+				}
+			}
+		} else {
+			// after the recursion
 			if (m_lowpt[wG] < m_lowpt[vG]) {
 				m_lowpt[vG] = m_lowpt[wG];
 			}
@@ -191,11 +247,6 @@ void BCTree::biComp(adjEntry adjuG, node vG) {
 				while (!m_nodes.empty()) {
 					m_gNode_isMarked[m_nodes.popFrontRet()] = false;
 				}
-			}
-		} else if (m_number[wG] < m_number[vG]) {
-			m_eStack.push(adj);
-			if (m_number[wG] < m_lowpt[vG]) {
-				m_lowpt[vG] = m_number[wG];
 			}
 		}
 	}
@@ -326,5 +377,56 @@ node BCTree::cutVertex(node uB, node vB) const {
 	return nullptr;
 }
 
+#ifdef OGDF_DEBUG
+void BCTree::consistencyCheck() const {
+	int g_cc = connectedComponents(originalGraph());
+	int h_cc = connectedComponents(auxiliaryGraph());
+	int b_cc = connectedComponents(bcTree());
+	OGDF_ASSERT(b_cc == g_cc);
+	OGDF_ASSERT(h_cc == numberOfBComps() + numberOfCComps());
+
+	EdgeArray<int> bicomps(originalGraph());
+	int nonempt = 0;
+	int count = biconnectedComponents(originalGraph(), bicomps, nonempt);
+	OGDF_ASSERT(count == numberOfBComps());
+	OGDF_ASSERT(nonempt <= count);
+
+	OGDF_ASSERT(isAcyclicUndirected(bcTree()));
+	OGDF_ASSERT(bcTree().numberOfNodes() == numberOfBComps() + numberOfCComps());
+	OGDF_ASSERT(bcTree().numberOfEdges() == bcTree().numberOfNodes() - b_cc);
+	OGDF_ASSERT(auxiliaryGraph().numberOfEdges() == originalGraph().numberOfEdges());
+	OGDF_ASSERT(auxiliaryGraph().numberOfNodes()
+			== originalGraph().numberOfNodes() + bcTree().numberOfEdges());
+	for (edge e : bcTree().edges) {
+		OGDF_ASSERT((typeOfBNode(e->source()) == BNodeType::BComp
+							&& typeOfBNode(e->target()) == BNodeType::CComp)
+				|| (typeOfBNode(e->source()) == BNodeType::CComp
+						&& typeOfBNode(e->target()) == BNodeType::BComp));
+	}
+
+	int edges = 0;
+	for (node n : bcTree().nodes) {
+		if (typeOfBNode(n) == BNodeType::CComp) {
+			node hNode = m_bNode_hRefNode[n];
+			OGDF_ASSERT(hNode->degree() == 0);
+			OGDF_ASSERT(m_hNode_bNode[hNode] == n);
+			OGDF_ASSERT(m_gNode_hNode[m_hNode_gNode[hNode]] == hNode);
+		} else {
+			OGDF_ASSERT(typeOfBNode(n) == BNodeType::BComp);
+			edges += m_bNode_hEdges[n].size();
+			if (m_bNode_hEdges[n].empty()) {
+				continue;
+			}
+			int nr = bicomps[m_hEdge_gEdge[m_bNode_hEdges[n].front()]];
+			for (edge e : m_bNode_hEdges[n]) {
+				OGDF_ASSERT(bicomps[m_hEdge_gEdge[e]] == nr);
+				OGDF_ASSERT(m_hEdge_bNode[e] == n);
+				OGDF_ASSERT(m_gEdge_hEdge[m_hEdge_gEdge[e]] == e);
+			}
+		}
+	}
+	OGDF_ASSERT(edges == originalGraph().numberOfEdges());
+}
+#endif
 
 }
