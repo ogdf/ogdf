@@ -41,6 +41,13 @@ jobs:
       - name: Test directory structure
         run: util/test_directory_structure.sh
 
+  docs:
+    name: "Check for Doxygen problems"
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:15
+    steps:
+      - run: util/test_doxygen.sh
+
   self-sufficiency:
     name: "Test self-sufficiency"
     runs-on: ubuntu-latest
