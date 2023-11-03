@@ -96,12 +96,6 @@ clang)
 default_c|*)
 esac
 
-# We want to enable clang-tidy only in debug mode using clang
-cmakecommandclangtidy="-DOGDF_ENABLE_CLANG_TIDY=OFF"
-if [ "$buildtype" = "debug" ] && [ "$compilertype" = "clang" ]; then
-	cmakecommandclangtidy="-DOGDF_ENABLE_CLANG_TIDY=ON"
-fi
-
 # Enable Gurobi if wanted.
 if [ "$ilpsolvertype" = "gurobi" ]; then
   library=`$OGDF_FIND $GUROBI_HOME/lib/libgurobi*.so | head -n 1`
@@ -132,12 +126,12 @@ compile || exit 1
 echo "::endgroup::"
 
 echo "::group::($(date -Iseconds)) Now recompile without custom macros"
-cmake "-DOGDF_WARNING_ERRORS=ON" "$cmakecommandclangtidy" "-D$ogdf_flags" "$tmp"
+cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags" "$tmp"
 compile || exit 1
 echo "::endgroup::"
 
 echo "::group::($(date -Iseconds)) Now recompile tests as separate tests"
-cmake "-DOGDF_WARNING_ERRORS=ON" "$cmakecommandclangtidy" -DOGDF_SEPARATE_TESTS=ON "$tmp"
+cmake "-DOGDF_WARNING_ERRORS=ON" -DOGDF_SEPARATE_TESTS=ON "$tmp"
 compile || exit 1
 echo "::endgroup::"
 
