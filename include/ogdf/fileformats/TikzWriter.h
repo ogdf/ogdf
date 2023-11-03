@@ -182,7 +182,7 @@ private:
 	 *
 	 * @param v node
 	 * @return double width that may be occupied by label text for node \p v
-	*/
+	 */
 	double getTextWidth(node v) const;
 
 	/**

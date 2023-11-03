@@ -69,7 +69,7 @@ protected:
 public:
 	//! default constructor
 	/** creates its own simdraw instance
-	*/
+	 */
 	SimDrawManipulatorModule();
 
 	//! constructor

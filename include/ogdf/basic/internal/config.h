@@ -198,8 +198,8 @@ using std::to_string;
 
 //! Provides information about how OGDF has been configured.
 /**
-* @ingroup system
-*/
+ * @ingroup system
+ */
 class OGDF_EXPORT Configuration {
 public:
 	//! Specifies the operating system for which OGDF has been configured/built.

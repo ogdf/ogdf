@@ -89,9 +89,9 @@ public:
 	// Qualitative
 	//! Returns outer activity status for vertex \p v wrt cluster \p c.
 	/**
-	*  @param c is the cluster for which vertex v's activity status is stored.
-	*  @param v is the vertex for which the activity status is returned.
-	*/
+	 *  @param c is the cluster for which vertex v's activity status is stored.
+	 *  @param v is the vertex for which the activity status is returned.
+	 */
 	bool isOuterActive(node v, cluster c) const;
 	bool isInnerActive(node v, cluster c) const;
 

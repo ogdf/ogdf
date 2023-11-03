@@ -53,95 +53,95 @@ namespace ogdf {
 class OGDF_EXPORT MaxAdjOrdering {
 private:
 	/**
-	* \brief This method gets called recursively to generate all MAOs
-	* via backtracking
-	* @param n Number of nodes
-	* @param currentOrder The partial MAO to this point
-	* @param currentUnsorted Nodes that are still left to sort
-	* @param r Values on the nodes that count the edges to the partial MAO
-	* @param MAOs The list of all MAOs to this point
-	*/
+	 * \brief This method gets called recursively to generate all MAOs
+	 * via backtracking
+	 * @param n Number of nodes
+	 * @param currentOrder The partial MAO to this point
+	 * @param currentUnsorted Nodes that are still left to sort
+	 * @param r Values on the nodes that count the edges to the partial MAO
+	 * @param MAOs The list of all MAOs to this point
+	 */
 	void m_calcAllMAOs_recursion(int n, ListPure<node> currentOrder, ListPure<node> currentUnsorted,
 			NodeArray<int> r, ListPure<ListPure<node>>* MAOs);
 
 	/**
-	* \brief This method gets called recursively to generate all MAOs and their
-	* induced forest decompositions of the edges
-	* via backtracking
-	* @param n Number of nodes
-	* @param currentOrder The partial MAO to this point
-	* @param currentForest The partial forest decomposition to this point
-	* @param currentUnsorted Nodes that are still left to sort
-	* @param r Values on the nodes that count the edges to the partial MAO
-	* @param MAOs The list of all MAOs to this point
-	* @param Fs The list of all forests to this point
-	*/
+	 * \brief This method gets called recursively to generate all MAOs and their
+	 * induced forest decompositions of the edges
+	 * via backtracking
+	 * @param n Number of nodes
+	 * @param currentOrder The partial MAO to this point
+	 * @param currentForest The partial forest decomposition to this point
+	 * @param currentUnsorted Nodes that are still left to sort
+	 * @param r Values on the nodes that count the edges to the partial MAO
+	 * @param MAOs The list of all MAOs to this point
+	 * @param Fs The list of all forests to this point
+	 */
 	void m_calcAllMAOs_recursion(int n, ListPure<node> currentOrder,
 			ListPure<ListPure<edge>> currentForest, ListPure<node> currentUnsorted, NodeArray<int> r,
 			ListPure<ListPure<node>>* MAOs, ListPure<ListPure<ListPure<edge>>>* Fs);
 
 public:
 	/**
-	* \brief Standard constructor
-	*/
+	 * \brief Standard constructor
+	 */
 	MaxAdjOrdering();
 	/**
-	* \brief Standard destructor
-	*/
+	 * \brief Standard destructor
+	 */
 	~MaxAdjOrdering();
 
 	/**
-	* \brief Calculates one MAO starting with the node with index 0
-	* @param G is the Graph to work on
-	* @param MAO is the pointer to a list that stores the MAO
-	*/
+	 * \brief Calculates one MAO starting with the node with index 0
+	 * @param G is the Graph to work on
+	 * @param MAO is the pointer to a list that stores the MAO
+	 */
 	void calc(const Graph* G, ListPure<node>* MAO);
 	/**
-	* \brief Calculates one MAO starting with the node with index 0
-	* and lex-bfs tie breaking.
-	* @param G is the Graph to work on
-	* @param MAO is the pointer to a list that stores the MAO
-	*/
+	 * \brief Calculates one MAO starting with the node with index 0
+	 * and lex-bfs tie breaking.
+	 * @param G is the Graph to work on
+	 * @param MAO is the pointer to a list that stores the MAO
+	 */
 	void calcBfs(const Graph* G, ListPure<node>* MAO);
 
 	/**
-	* \brief Calculates one MAO starting with a given node
-	* @param G is the Graph to work on
-	* @param s Node to start the MAO with
-	* @param MAO is the pointer to a list that stores the MAO
-	*/
+	 * \brief Calculates one MAO starting with a given node
+	 * @param G is the Graph to work on
+	 * @param s Node to start the MAO with
+	 * @param MAO is the pointer to a list that stores the MAO
+	 */
 	void calc(const Graph* G, node s, ListPure<node>* MAO);
 
 	/**
-	* \brief Calculates one MAO starting with the node with index 0
-	* @param G is the Graph to work on
-	* @param MAO is the pointer to a list that stores the MAO
-	* @param Forests is the pointer to a list that stores the forest decomposition associated with the MAO
-	*/
+	 * \brief Calculates one MAO starting with the node with index 0
+	 * @param G is the Graph to work on
+	 * @param MAO is the pointer to a list that stores the MAO
+	 * @param Forests is the pointer to a list that stores the forest decomposition associated with the MAO
+	 */
 	void calc(const Graph* G, ListPure<node>* MAO, ListPure<ListPure<edge>>* Forests);
 
 	/**
-	* \brief Calculates one MAO starting with a given node
-	* @param G is the Graph to work on
-	* @param s Node to start the MAO with
-	* @param MAO is the pointer to a list that stores the MAO
-	* @param Forests is the pointer to a list that stores the forest decomposition associated with the MAO
-	*/
+	 * \brief Calculates one MAO starting with a given node
+	 * @param G is the Graph to work on
+	 * @param s Node to start the MAO with
+	 * @param MAO is the pointer to a list that stores the MAO
+	 * @param Forests is the pointer to a list that stores the forest decomposition associated with the MAO
+	 */
 	void calc(const Graph* G, node s, ListPure<node>* MAO, ListPure<ListPure<edge>>* Forests);
 
 	/**
-	* \brief Calculates all MAOs of a given graph
-	* @param G is the Graph to work on
-	* @param MAOs List of all MAOs. So it must be a list of lists
-	*/
+	 * \brief Calculates all MAOs of a given graph
+	 * @param G is the Graph to work on
+	 * @param MAOs List of all MAOs. So it must be a list of lists
+	 */
 	void calcAll(const Graph* G, ListPure<ListPure<node>>* MAOs);
 
 	/**
-	* \brief Calculates all MAOs including their associated forest decompositions of a given graph
-	* @param G is the graph to work on
-	* @param MAOs List of all MAOs. So it must be a list of lists of vertices.
-	* @param Fs List of all forest decompositions. So it must be a list of lists of lists of edges.
-	*/
+	 * \brief Calculates all MAOs including their associated forest decompositions of a given graph
+	 * @param G is the graph to work on
+	 * @param MAOs List of all MAOs. So it must be a list of lists of vertices.
+	 * @param Fs List of all forest decompositions. So it must be a list of lists of lists of edges.
+	 */
 	void calcAll(const Graph* G, ListPure<ListPure<node>>* MAOs,
 			ListPure<ListPure<ListPure<edge>>>* Fs);
 
@@ -162,14 +162,14 @@ public:
 	 * \brief Test if a given ordering is a MAO
 	 * @param G is the graph to work on
 	 * @param Ordering is a ListPure that contains a permutation of the nodes
-	*/
+	 */
 	bool testIfMAO(const Graph* G, ListPure<node>* Ordering);
 
 	/**
 	 * \brief Test if a given ordering is a MAO that follows lex-bfs tie breaking
 	 * @param G is the graph to work on
 	 * @param Ordering is a ListPure that contains a permutation of the nodes
-	*/
+	 */
 	bool testIfMAOBfs(const Graph* G, ListPure<node>* Ordering);
 
 
@@ -186,16 +186,16 @@ public:
 	bool testIfAllMAOs(const Graph* G, ListPure<ListPure<node>>* Orderings,
 			ListPure<ListPure<node>>* Perms);
 	/**
-	* \brief Convenient way to visualize a MAO with the LinearLayout class.
-	* @param GA Graphattributes of the Graph to paint
-	* @param MAO Mao to use for ordering the nodes
-	*/
+	 * \brief Convenient way to visualize a MAO with the LinearLayout class.
+	 * @param GA Graphattributes of the Graph to paint
+	 * @param MAO Mao to use for ordering the nodes
+	 */
 	void visualize(GraphAttributes* GA, ListPure<node>* MAO);
 
 	/**
-	* @copydoc MaxAdjOrdering::visualize(GraphAttributes*, ListPure<node>*)
-	* @param F A forest decomposition that is also visualized
-	*/
+	 * @copydoc MaxAdjOrdering::visualize(GraphAttributes*, ListPure<node>*)
+	 * @param F A forest decomposition that is also visualized
+	 */
 	void visualize(GraphAttributes* GA, ListPure<node>* MAO, ListPure<ListPure<edge>>* F);
 
 	/**

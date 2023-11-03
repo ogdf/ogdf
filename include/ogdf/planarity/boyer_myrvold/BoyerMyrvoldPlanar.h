@@ -418,12 +418,12 @@ protected:
 
 	//! A list to all separated DFS-children of node
 	/** The list is sorted by lowpoint values (in linear time)
-	*/
+	 */
 	NodeArray<ListPure<node>> m_separatedDFSChildList;
 
 	//! Pointer to node contained in the DFSChildList of his parent, if exists.
 	/** If node isn't in list or list doesn't exist, the pointer is set to nullptr.
-	*/
+	 */
 	NodeArray<ListIterator<node>> m_pNodeInParent;
 
 	//! @}

@@ -226,7 +226,7 @@ public:
 	/**
 	 * Sets the type of the parent of a node.
 	 * This does not change the type of the parent!
-	*/
+	 */
 	void parentType(PQNodeType newParentType) { m_parentType = newParentType; }
 
 	//! Returs the number of pertinent children of a node.

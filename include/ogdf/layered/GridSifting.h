@@ -85,12 +85,9 @@ private:
  * C. Bachmaier, W. Brunner, A. Gleißner, <i>Grid Sifting: Leveling
  * and Crossing Reduction</i>, Technical Report MIP-1103, University
  * of Passau, 2011.
-
+ *
  * This class implements the interface LayeredCrossMinModule and should be
  * used as a part of the Sugiyama algorithm for drawing layered graphs.
- *
- *
- *
  */
 class GridSifting : public LayeredCrossMinModule {
 public:

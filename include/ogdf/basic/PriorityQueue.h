@@ -212,11 +212,11 @@ public:
 	size_type size() const { return m_size; }
 
 	/**
-	* Returns the priority of that handle.
-	*
-	* @param pos The handle
-	* @return The priority
-	*/
+	 * Returns the priority of that handle.
+	 *
+	 * @param pos The handle
+	 * @return The priority
+	 */
 	const T& value(handle pos) const { return m_impl->value(pos); }
 
 	//! Returns the comparator used for ordering elements.

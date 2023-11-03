@@ -143,14 +143,14 @@ public:
 
 	//! for all multiple edges, set the delta value on both sides to minimum if not m_minDelta
 	/**
-	* postprocessing function, hmm maybe preprocessing
-	*/
+	 * postprocessing function, hmm maybe preprocessing
+	 */
 	void multiDelta();
 
 	//! set alignment option: place nodes in cage at outgoing generalization
 	/**
-	* postprocessing function, hmm maybe preprocessing
-	*/
+	 * postprocessing function, hmm maybe preprocessing
+	 */
 	void align(bool b) { m_align = b; }
 
 #if 0

@@ -123,8 +123,8 @@ public:
 
 
 	/**
-	* @name Access methods
-	*/
+	 * @name Access methods
+	 */
 	//! @{
 
 #ifdef OGDF_DEBUG
@@ -196,9 +196,9 @@ public:
 
 	//! @}
 	/**
-	* @name Iteration over tree structure
-	* Alternatively you can use the containers ClusterElement::nodes, ClusterElement::children and ClusterElement::adjEntries directly.
-	*/
+	 * @name Iteration over tree structure
+	 * Alternatively you can use the containers ClusterElement::nodes, ClusterElement::children and ClusterElement::adjEntries directly.
+	 */
 	//! @{
 
 	//! Returns the first element in the list of child clusters.
@@ -330,10 +330,10 @@ class OGDF_EXPORT ClusterGraph : public GraphObserver {
 
 public:
 	/**
-	* @name Iterators
-	* These types are used for graph object iterators, which are returned by graph object containers
-	* like nodes and edges.
-	*/
+	 * @name Iterators
+	 * These types are used for graph object iterators, which are returned by graph object containers
+	 * like nodes and edges.
+	 */
 	//! @{
 
 	//! Provides a bidirectional iterator to a cluster in a clustered graph.
@@ -342,9 +342,9 @@ public:
 	//! @}
 
 	/**
-	* @name Graph object containers
-	* These containers maintain the nodes and edges of the graph, and provide node and edge iterators.
-	*/
+	 * @name Graph object containers
+	 * These containers maintain the nodes and edges of the graph, and provide node and edge iterators.
+	 */
 	//! @{
 
 	//! The container containing all cluster objects.
@@ -399,8 +399,8 @@ public:
 	virtual ~ClusterGraph();
 
 	/**
-	* @name Access methods
-	*/
+	 * @name Access methods
+	 */
 	//! @{
 
 	//! Returns the root cluster.
@@ -458,8 +458,8 @@ public:
 
 	//! @}
 	/**
-	* @name Modification methods
-	*/
+	 * @name Modification methods
+	 */
 	//! @{
 
 	//! Removes all clusters except for the root cluster.
@@ -547,8 +547,8 @@ public:
 
 
 	/**
-	* @name Cluster tree queries
-	*/
+	 * @name Cluster tree queries
+	 */
 	//! @{
 
 	//! Turns automatic update of node depth values on or off.
@@ -636,8 +636,8 @@ public:
 
 	//! @}
 	/**
-	* @name Adjacent edges
-	*/
+	 * @name Adjacent edges
+	 */
 	//! @{
 
 	//! Returns the list of all edges adjacent to cluster \p c in \p edges.
@@ -683,8 +683,8 @@ public:
 
 	//! @}
 	/**
-	* @name Miscellaneous
-	*/
+	 * @name Miscellaneous
+	 */
 	//! @{
 
 	//! Checks the combinatorial cluster planar embedding.
@@ -706,10 +706,10 @@ public:
 
 	//! @}
 	/**
-	* @name Registering arrays and observers
-	* These methods are used by ClusterArray or ClusterGraphObserver.
-	* There should be no need to use them directly in user code.
-	*/
+	 * @name Registering arrays and observers
+	 * These methods are used by ClusterArray or ClusterGraphObserver.
+	 * There should be no need to use them directly in user code.
+	 */
 	//! @{
 
 	//! Registers a cluster array.
@@ -729,8 +729,8 @@ public:
 
 	//! @}
 	/**
-	* @name Operators and conversion
-	*/
+	 * @name Operators and conversion
+	 */
 	//! @{
 
 	//! Conversion to const Graph reference (to underlying graph).

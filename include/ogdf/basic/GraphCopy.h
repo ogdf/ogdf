@@ -101,15 +101,15 @@ public:
 	edge original(edge e) const { return m_eOrig[e]; }
 
 	/**
-	* Returns the adjacency entry in the original graph corresponding to \p adj.
-	*
-	* Note that this method does not pay attention to reversed edges.
-	* Given a source (target) adjacency entry, the source (target) adjacency entry of the
-	* original edge is returned.
-	*
-	* @param adj is an adjacency entry in the copy graph.
-	* \return the corresponding adjacency entry in the original graph.
-	*/
+	 * Returns the adjacency entry in the original graph corresponding to \p adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	 * original edge is returned.
+	 *
+	 * @param adj is an adjacency entry in the copy graph.
+	 * \return the corresponding adjacency entry in the original graph.
+	 */
 	adjEntry original(adjEntry adj) const {
 		edge f = m_eOrig[adj->theEdge()];
 		return adj->isSource() ? f->adjSource() : f->adjTarget();
@@ -305,18 +305,18 @@ public:
 	edge original(edge e) const { return m_eOrig[e]; }
 
 	/**
-	* Returns the adjacency entry in the original graph corresponding to \p adj.
-	*
-	* Note that this method does not pay attention to reversed edges.
-	* Given a source (target) adjacency entry, the source (target) adjacency entry of the
-	* original edge is returned.
-	*
-	* This method must not be called on inner adjacency entries of a
-	* copy chain but only on a chain's source/target entry.
-	*
-	* @param adj is an adjacency entry in the copy graph.
-	* \return the corresponding adjacency entry in the original graph.
-	*/
+	 * Returns the adjacency entry in the original graph corresponding to \p adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	 * original edge is returned.
+	 *
+	 * This method must not be called on inner adjacency entries of a
+	 * copy chain but only on a chain's source/target entry.
+	 *
+	 * @param adj is an adjacency entry in the copy graph.
+	 * \return the corresponding adjacency entry in the original graph.
+	 */
 	adjEntry original(adjEntry adj) const {
 		edge e = adj->theEdge();
 		edge f = m_eOrig[e];
@@ -354,15 +354,15 @@ public:
 	edge copy(edge e) const { return m_eCopy[e].empty() ? nullptr : m_eCopy[e].front(); }
 
 	/**
-	* Returns the adjacency entry in the copy graph corresponding to \p adj.
-	*
-	* Note that this method does not pay attention to reversed edges.
-	* Given a source (target) adjacency entry, the first (last) source (target) adjacency entry of the
-	* copy chain is returned.
-	*
-	* @param adj is an adjacency entry in the copy graph.
-	* \return the corresponding adjacency entry in the original graph.
-	*/
+	 * Returns the adjacency entry in the copy graph corresponding to \p adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the first (last) source (target) adjacency entry of the
+	 * copy chain is returned.
+	 *
+	 * @param adj is an adjacency entry in the copy graph.
+	 * \return the corresponding adjacency entry in the original graph.
+	 */
 	adjEntry copy(adjEntry adj) const {
 		edge e = adj->theEdge();
 
@@ -582,7 +582,7 @@ public:
 	 * @param rightToLeft is used as follows: If set to true, \p crossingEdge will cross
 	 *        \p crossedEdge from right to left, otherwise from left to right.
 	 * @return the rear edge resulting from the split operation: (\a u, \a w)
-	*/
+	 */
 	edge insertCrossing(edge& crossingEdge, edge crossedEdge, bool rightToLeft);
 
 

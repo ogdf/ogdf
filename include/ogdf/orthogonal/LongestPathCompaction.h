@@ -59,7 +59,7 @@ class CompactionConstraintGraph;
  *     <td>the maximal number of steps performed by the improvement heuristic; 0 means no upper limit.</td>
  *   </tr>
  * </table>
-*/
+ */
 class OGDF_EXPORT LongestPathCompaction {
 public:
 	//! Creates an instance of the longest path compaction algorithm.

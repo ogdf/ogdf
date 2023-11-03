@@ -140,8 +140,8 @@ private:
 public:
 	//! Creates an empty DisjointSets structure.
 	/**
-	* \param maxNumberOfElements Expected number of Elements.
-	*/
+	 * \param maxNumberOfElements Expected number of Elements.
+	 */
 	explicit DisjointSets(int maxNumberOfElements = (1 << 15))
 		: m_parents(nullptr), m_parameters(nullptr), m_siblings(nullptr) {
 		init(maxNumberOfElements);
@@ -181,10 +181,10 @@ public:
 
 	//! Returns the id of the largest superset of \p set and compresses the path according to ::CompressionOptions.
 	/**
-	* \param set Set.
-	* \return Superset id
-	* \pre \p set is a non negative properly initialized id.
-	*/
+	 * \param set Set.
+	 * \return Superset id
+	 * \pre \p set is a non negative properly initialized id.
+	 */
 	int find(int set) {
 		OGDF_ASSERT(set >= 0);
 		OGDF_ASSERT(set < m_numberOfElements);
@@ -193,10 +193,10 @@ public:
 
 	//! Returns the id of the largest superset of \p set.
 	/**
-	* \param set Set.
-	* \return Superset id
-	* \pre \p set is a non negative properly initialized id.
-	*/
+	 * \param set Set.
+	 * \return Superset id
+	 * \pre \p set is a non negative properly initialized id.
+	 */
 	int getRepresentative(int set) const {
 		OGDF_ASSERT(set >= 0);
 		OGDF_ASSERT(set < m_numberOfElements);
@@ -208,8 +208,8 @@ public:
 
 	//! Initializes a singleton set.
 	/**
-	* \return Set id of the initialized singleton set.
-	*/
+	 * \return Set id of the initialized singleton set.
+	 */
 	int makeSet() {
 		if (this->m_numberOfElements == this->m_maxNumberOfElements) {
 			int* parents = this->m_parents;
@@ -249,9 +249,9 @@ public:
 
 	//! Unions \p set1 and \p set2.
 	/**
-	* \pre \p set1 and \p set2 are maximal disjoint sets.
-	* \return Set id of the union.
-	*/
+	 * \pre \p set1 and \p set2 are maximal disjoint sets.
+	 * \return Set id of the union.
+	 */
 	int link(int set1, int set2) {
 		OGDF_ASSERT(set1 == getRepresentative(set1));
 		OGDF_ASSERT(set2 == getRepresentative(set2));
@@ -264,8 +264,8 @@ public:
 
 	//! Unions the maximal disjoint sets containing \p set1 and \p set2.
 	/**
-	* \return True, if the maximal sets containing \p set1 and \p set2 were disjoint und joined correctly. False otherwise.
-	*/
+	 * \return True, if the maximal sets containing \p set1 and \p set2 were disjoint und joined correctly. False otherwise.
+	 */
 	bool quickUnion(int set1, int set2) {
 		if (set1 == set2) {
 			return false;

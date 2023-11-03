@@ -100,7 +100,7 @@ namespace ogdf {
  *     subgraph are re-inserted one-by-one, each with as few crossings as possible.
  *   </tr>
  * </table>
-*/
+ */
 class OGDF_EXPORT SubgraphPlanarizerUML : public UMLCrossingMinimizationModule, public Logger {
 	class ThreadMaster;
 	class Worker;

@@ -79,9 +79,9 @@ public: // ~Initialize vertex position module
 	}
 
 	/**set the number of edges that are randomly selected to compute the new vertex postion and the number of points that are tested within the best region.
-	* @param number_of_edge_samples  number of randomly selected edges
-	* @param number_of_point_samples number of randomly selected point
-	*/
+	 * @param number_of_edge_samples  number of randomly selected edges
+	 * @param number_of_point_samples number of randomly selected point
+	 */
 	void setSampleSize(const unsigned int number_of_edge_samples,
 			const unsigned int number_of_point_samples) {
 		m_number_of_edge_samples = number_of_edge_samples;

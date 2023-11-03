@@ -48,20 +48,20 @@ public:
 	using MinCostFlowModule<TCost>::call;
 
 	/**
-	* \brief Computes a min-cost flow in the directed graph \p G using a network simplex method.
-	*
-	* \pre \p G must be connected, \p lowerBound[\a e] <= \p upperBound[\a e]
-	*      for all edges \a e, and the sum over all supplies must be zero.
-	*
-	* @param G is the directed input graph.
-	* @param lowerBound gives the lower bound for the flow on each edge.
-	* @param upperBound gives the upper bound for the flow on each edge.
-	* @param cost gives the costs for each edge.
-	* @param supply gives the supply (or demand if negative) of each node.
-	* @param flow is assigned the computed flow on each edge.
-	* @param dual is assigned the computed dual variables.
-	* \return true iff a feasible min-cost flow exists.
-	*/
+	 * \brief Computes a min-cost flow in the directed graph \p G using a network simplex method.
+	 *
+	 * \pre \p G must be connected, \p lowerBound[\a e] <= \p upperBound[\a e]
+	 *      for all edges \a e, and the sum over all supplies must be zero.
+	 *
+	 * @param G is the directed input graph.
+	 * @param lowerBound gives the lower bound for the flow on each edge.
+	 * @param upperBound gives the upper bound for the flow on each edge.
+	 * @param cost gives the costs for each edge.
+	 * @param supply gives the supply (or demand if negative) of each node.
+	 * @param flow is assigned the computed flow on each edge.
+	 * @param dual is assigned the computed dual variables.
+	 * \return true iff a feasible min-cost flow exists.
+	 */
 	virtual bool call(const Graph& G, // directed graph
 			const EdgeArray<int>& lowerBound, // lower bound for flow
 			const EdgeArray<int>& upperBound, // upper bound for flow

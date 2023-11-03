@@ -109,7 +109,7 @@ using std::min;
 /**
  *  The class Initialization is used for initializing global variables.
  *  You should never create instances of it!
-*/
+ */
 class OGDF_EXPORT Initialization {
 public:
 	Initialization();

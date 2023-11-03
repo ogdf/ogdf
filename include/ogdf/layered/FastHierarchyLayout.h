@@ -283,7 +283,7 @@ private:
 	 *   1 if it is preferred to move the long edge to the right,
 	 *   0 if there is no preference
 	 * @param marked Array for all nodes. Stores for every node, whether moveLongEdge has already been applied to it.
-	*/
+	 */
 	void moveLongEdge(int actNode, int dir, bool* marked);
 
 	/**

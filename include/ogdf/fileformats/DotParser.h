@@ -64,33 +64,33 @@ struct SubgraphData;
  * adjustments have been made just for my convenience. Neverthless, my version
  * should be equal to the official one in terms of represented language.
  *
-<a href="http://www.graphviz.org/content/dot-language">
-official DOT specification
-</a>
+ * <a href="http://www.graphviz.org/content/dot-language">
+ * official DOT specification
+ * </a>
  *
-\verbatim
-Graph = [ 'strict' ] ( 'graph' | 'digraph' ) [ id ] '{' [ StmtList ] '}'
-Subgraph = [ 'subgraph' [ id ] ] '{' StmtList '}'
-
-StmtList = Stmt [ ';' ] [ StmtList ]
-Stmt = NodeStmt | EdgeStmt | AttrStmt | AsgnStmt | Subgraph
-
-NodeStmt = NodeId [ AttrList ]
-NodeId = id [ port ]
-
-EdgeStmt = ( NodeId | Subgraph ) EdgeRhs [ AttrList ]
-EdgeRhs = ( '--' | '->' ) ( NodeId | Subgraph) [ EdgeRhs ]
-
-AttrStmt = ( 'graph' | 'node' | 'edge' ) AttrList
-
-AsgnStmt = id '=' id
-
-AttrList = '[' [ AList ] ']' [ AttrList ]
-AList = AsgnStmt [ ',' ] [ AList ]
-
-Port = ':' id [ ':' CompassPt ] | ':' CompassPt
-CompassPt = ( 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw' | 'c' | '_' )
-\endverbatim
+ * \verbatim
+ * Graph = [ 'strict' ] ( 'graph' | 'digraph' ) [ id ] '{' [ StmtList ] '}'
+ * Subgraph = [ 'subgraph' [ id ] ] '{' StmtList '}'
+ *
+ * StmtList = Stmt [ ';' ] [ StmtList ]
+ * Stmt = NodeStmt | EdgeStmt | AttrStmt | AsgnStmt | Subgraph
+ *
+ * NodeStmt = NodeId [ AttrList ]
+ * NodeId = id [ port ]
+ *
+ * EdgeStmt = ( NodeId | Subgraph ) EdgeRhs [ AttrList ]
+ * EdgeRhs = ( '--' | '->' ) ( NodeId | Subgraph) [ EdgeRhs ]
+ *
+ * AttrStmt = ( 'graph' | 'node' | 'edge' ) AttrList
+ *
+ * AsgnStmt = id '=' id
+ *
+ * AttrList = '[' [ AList ] ']' [ AttrList ]
+ * AList = AsgnStmt [ ',' ] [ AList ]
+ *
+ * Port = ':' id [ ':' CompassPt ] | ':' CompassPt
+ * CompassPt = ( 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw' | 'c' | '_' )
+ * \endverbatim
  *
  * The AST building process tries to mirror given grammar as much as possible
  * keeping the code clean and simple. Each grammar's nonterminal symbol has

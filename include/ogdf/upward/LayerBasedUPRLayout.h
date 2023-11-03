@@ -96,7 +96,7 @@ private:
 };
 
 /**
- @ingroup gd-layered
+ * @ingroup gd-layered
  */
 class OGDF_EXPORT LayerBasedUPRLayout : public UPRLayoutModule {
 public:

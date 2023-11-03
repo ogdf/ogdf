@@ -1,6 +1,6 @@
 /** \file
  * \brief Implements planar orthogonal drawing algorithm for
-//   cluster graphs.
+ *        cluster graphs.
  *
  * \author Carsten Gutwenger, Sebastian Leipert, Karsten Klein
  *
