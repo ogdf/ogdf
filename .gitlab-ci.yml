@@ -14,15 +14,16 @@ style:
     - schedules
   image: $CI_REGISTRY/clang:15
   script:
-    - util/test_clang_format.sh
-    - util/test_eols.sh
-    - util/test_number_newlines.sh
-    - util/test_line_length.sh
-    - util/test_tabs.sh
-    - util/test_macros.sh
-    - util/test_license.sh
-    - util/test_no_typedefs.sh
-    - util/test_no_enums.sh
+    - util/style/test_clang_format.sh
+    - util/style/test_eols.sh
+    - util/style/test_number_newlines.sh
+    - util/style/test_line_length.sh
+    - util/style/test_tabs.sh
+    - util/style/test_macros.sh
+    - util/style/test_license.sh
+    - util/style/test_no_typedefs.sh
+    - util/style/test_no_enums.sh
+    - util/style/test_indent_comments.sh
   tags:
     - docker
   stage: test-simple

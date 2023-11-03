@@ -22,15 +22,16 @@ jobs:
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
-      - run: util/test_clang_format.sh
-      - run: util/test_eols.sh
-      - run: util/test_number_newlines.sh
-      - run: util/test_line_length.sh
-      - run: util/test_tabs.sh
-      - run: util/test_macros.sh
-      - run: util/test_license.sh
-      - run: util/test_no_typedefs.sh
-      - run: util/test_no_enums.sh
+      - run: util/style/test_clang_format.sh
+      - run: util/style/test_eols.sh
+      - run: util/style/test_number_newlines.sh
+      - run: util/style/test_line_length.sh
+      - run: util/style/test_tabs.sh
+      - run: util/style/test_macros.sh
+      - run: util/style/test_license.sh
+      - run: util/style/test_no_typedefs.sh
+      - run: util/style/test_no_enums.sh
+      - run: util/style/test_indent_comments.sh
 
   dirs:
     name: "Check directory structure"
