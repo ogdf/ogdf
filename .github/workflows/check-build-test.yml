@@ -46,6 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
     steps:
+      - uses: actions/checkout@v4
       - run: util/test_doxygen.sh
 
   self-sufficiency:
@@ -70,6 +71,72 @@ jobs:
           name: ${{ github.job }}
           path: ${{ github.workspace }}/ccache-debug
 
+  sonar:
+    name: "Static Analysis"
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:15
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
+    steps:
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # fetch full history for blame info
+      - name: Install tools
+        run: |
+          apt-get update
+          apt-get install -y curl gcovr
+          pip install git+https://github.com/N-Coder/clang-tidy-converter.git
+          curl https://raw.githubusercontent.com/matus-chochlik/ctcache/main/clang-tidy-cache -sSfo clang-tidy-cache
+          echo -e "#!""/bin/bash\n$(realpath clang-tidy-cache) $(which clang-tidy) \"\$@\"" >> clang-tidy
+          echo -e "#!""/bin/bash\nllvm-cov-15 gcov \"\$@\"" >> gcov
+          chmod +x clang-tidy-cache clang-tidy gcov
+        shell: bash
+      - name: Install sonar-scanner
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
+      - name: Set-up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+      - name: Set-up clang-tidy cache
+        uses: actions/cache@v3
+        with:
+          path: .ctcache
+          key: clang-tidy-cache
+      - name: Run analysis
+        env:
+          CTCACHE_DIR: .ctcache
+          # CTCACHE_DUMP: ${{ env.CCACHE_DEBUG }} # defining the var is enough to enable
+        run: |
+          PATH="$(pwd):$PATH"
+          util/sonar.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          find .ctcache -mtime +7 -delete
+          cat sonar/clang-tidy.txt | python3 -m clang_tidy_converter sq > sonar/clang-tidy.json
+        shell: bash
+      - name: Report unused files
+        run: |
+          cat sonar/unused-headers.txt
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner
+      - name: Store logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: sonar
+          path: |
+            sonar/
+      - uses: actions/upload-artifact@v3
+        name: Upload ccache debug info
+        if: ${{ env.CCACHE_DEBUG == 1 }}
+        with:
+          name: ${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ matrix.mode }}
+          path: ${{ github.workspace }}/ccache-debug
+
   build-linux:
     name: "Test ${{ matrix.mode }} build on Linux with ${{ matrix.compiler }}"
     strategy:
@@ -77,10 +144,10 @@ jobs:
         mode: [debug, release]
         compiler: ['gcc:7', 'gcc:10', 'clang:15']
     runs-on: ubuntu-latest
-    env:
-      CCACHE_COMPILERCHECK: "%compiler% -v"
     container: docker.io/ogdf/${{ matrix.compiler }}
     needs: [style, dirs, self-sufficiency]
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
       - name: Set compiler name
         run: |
@@ -174,7 +241,7 @@ jobs:
 
   # this is mostly used to keep the required status checks for PR merging simple
   summary:
-    needs: [build-linux, build-macos, build-windows]
+    needs: [build-linux, build-macos, build-windows, sonar, docs]
     name: "All tests succeeded"
     runs-on: ubuntu-latest
     steps:

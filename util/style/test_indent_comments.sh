@@ -24,4 +24,4 @@ fi
 git ls-files src include test/src test/include |
   check_filter |
   grep -e '\.\(c\|h\)\(pp\)\?$' |
-  $OGDF_XARGS -P "$cores" -I{} python util/style/indent_comments.py $args "{}" || fail_with_info
+  $OGDF_XARGS -P "$cores" -I{} python3 util/style/indent_comments.py $args "{}" || fail_with_info
