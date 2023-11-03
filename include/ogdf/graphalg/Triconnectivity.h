@@ -106,7 +106,7 @@ public:
 
 	/**
 	 * Checks if computed triconnected componets are correct.
-	 * \pre checkComp() assumes that the graph is simple and is a GraphCopySimple!
+	 * \pre checkComp() assumes that the graph is simple
 	 */
 	bool checkComp();
 

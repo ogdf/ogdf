@@ -374,27 +374,18 @@ bool Triconnectivity::checkComp() {
 	}
 
 	for (edge e : m_pG->edges) {
-		if (GCoriginal(e) == nullptr) {
-			if (count[e] != 2) {
-				ok = false;
-				std::cout << "virtual edge contained " << count[e];
-				printOs(e);
-				std::cout << std::endl;
-			}
+		if (count[e] == 2) {
 			if (!checkSepPair(e)) {
 				ok = false;
-				std::cout << "virtual edge";
+				std::cout << "edge in two components (alleged virtual edge) ";
 				printOs(e);
 				std::cout << " does not correspond to a sep. pair." << std::endl;
 			}
-
-		} else {
-			if (count[e] != 1) {
-				ok = false;
-				std::cout << "real edge contained " << count[e];
-				printOs(e);
-				std::cout << std::endl;
-			}
+		} else if (count[e] != 1) {
+			ok = false;
+			std::cout << "real edge contained " << count[e];
+			printOs(e);
+			std::cout << std::endl;
 		}
 	}
 
