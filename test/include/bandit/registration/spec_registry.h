@@ -1,12 +1,12 @@
-#ifndef BANDIT_SPEC_REGISTRY_H
-#define BANDIT_SPEC_REGISTRY_H
+#ifndef BANDIT_REGISTRATION_SPEC_REGISTRY_H
+#define BANDIT_REGISTRATION_SPEC_REGISTRY_H
 
-#include <list>
-#include <bandit/types.h>
+#include <functional>
+#include <vector>
 
 namespace bandit {
   namespace detail {
-    typedef std::list<voidfunc_t> spec_registry;
+    using spec_registry = std::vector<std::function<void()>>;
 
     inline detail::spec_registry& specs() {
       static detail::spec_registry registry;

@@ -6,7 +6,7 @@
 namespace bandit {
   namespace detail {
     struct test_run_error : public std::runtime_error {
-      test_run_error(const char* message) : std::runtime_error(message) {}
+      test_run_error(std::string message) : std::runtime_error(message) {}
     };
   }
 }
