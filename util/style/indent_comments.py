@@ -1,4 +1,5 @@
 import argparse
+import fileinput as fi
 import re
 import sys
 
@@ -16,41 +17,37 @@ if args.inplace and not args.fix:
     sys.exit(2)
 
 broken = False
+indent = None
 
-for file in args.filename:
-    with open(file, "a+t" if args.inplace else "rt") as fh:
+for line in fi.input(files=args.filename, inplace=args.inplace):
+    if fi.isfirstline():
         indent = None
-        lines = fh
-        out = sys.stdout
-        if args.inplace:
-            fh.seek(0)
-            lines = fh.readlines()
-            fh.seek(0)
-            fh.truncate()
-            out = fh
-        for nr, line in enumerate(lines, start=1):
-            if indent is not None:
-                m = re.match("^([ \t]*)(\\*.*$)", line)
-                if not m:
-                    print(
-                        f"{file}:{nr} {line!r} should be inside multi-line doxygen comment, but doesn't start with '*'",
-                        file=sys.stderr)
-                    broken = True
-                    if args.fix:
-                        print(line, end="", file=out)
-                elif args.fix:
-                    print(indent, m.group(2), file=out)  # inserts single space between args
-                elif indent + " " != m.group(1):
-                    print(f"{file}:{nr} has indent {m.group(1)!r} but should have {indent + ' '!r}")
-                    broken = True
-                if "*/" in line:
-                    indent = None
-            else:
-                if args.fix:
-                    print(line, end="", file=out)
-                m = re.match("^([ \t]*)/\\*\\*", line)
-                if not m or "*/" in line: continue
-                indent = m.group(1)
+    if indent is not None:
+        m = re.match("^([ \t]*)(\\*.*$)", line)
+        if not m:
+            print(
+                f"{fi.filename()}:{fi.filelineno()} {line!r} should be inside multi-line doxygen comment, but doesn't start with '*'",
+                file=sys.stderr)
+            broken = True
+            if args.fix:
+                print(indent, "*", line.strip())
+
+        elif args.fix:
+            print(indent, m.group(2))  # inserts single space between args
+        elif indent + " " != m.group(1):
+            print(f"{fi.filename()}:{fi.filelineno()} has indent {m.group(1)!r} but should have {indent + ' '!r}",
+                  file=sys.stderr)
+            broken = True
+
+        if "*/" in line:
+            indent = None
+
+    else:
+        if args.fix:
+            print(line, end="")
+        m = re.match("^([ \t]*)/\\*\\*", line)
+        if not m or "*/" in line: continue
+        indent = m.group(1)
 
 if broken:
     sys.exit(1)
