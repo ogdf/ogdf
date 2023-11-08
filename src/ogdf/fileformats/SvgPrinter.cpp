@@ -627,39 +627,36 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoi
 
 	pugi::xml_node arrowHead;
 
+
+	// identify the position of the tip
+	float angle;
 	if (dx == 0) {
-		int sign = dy > 0 ? 1 : -1;
-		double y = m_attr.y(v) - m_attr.height(v) / 2 * sign;
-		end.m_y = y - sign * size;
-
-		arrowHead = drawPolygon(xmlNode,
-				{end.m_x, y, end.m_x - size / 4, end.m_y, end.m_x + size / 4, end.m_y});
+		angle = .5 * Math::pi * (dy > 0 ? 1 : -1);
 	} else {
-		// identify the position of the tip
-		float angle = atan(dy / dx) + (dx < 0 ? Math::pi : 0);
-		DPoint head = contourPointFromAngle(angle, m_attr.shape(v),
-				DPoint(m_attr.x(v), m_attr.y(v)), DPoint(m_attr.width(v), m_attr.height(v)));
-
-		end.m_x = head.m_x;
-		end.m_y = head.m_y;
-
-		// draw the actual arrow head
-
-		double length = std::sqrt(dx * dx + dy * dy);
-		double dx_norm = dx / length;
-		double dy_norm = dy / length;
-
-		double mx = head.m_x - size * dx_norm;
-		double my = head.m_y - size * dy_norm;
-
-		double x2 = mx - size / 4 * dy_norm;
-		double y2 = my + size / 4 * dx_norm;
-
-		double x3 = mx + size / 4 * dy_norm;
-		double y3 = my - size / 4 * dx_norm;
-
-		arrowHead = drawPolygon(xmlNode, {head.m_x, head.m_y, x2, y2, x3, y3});
+		angle = atan(dy / dx) + (dx < 0 ? Math::pi : 0);
 	}
+	DPoint head = contourPointFromAngle(angle, m_attr.shape(v), DPoint(m_attr.x(v), m_attr.y(v)),
+			DPoint(m_attr.width(v), m_attr.height(v)));
+
+	end.m_x = head.m_x;
+	end.m_y = head.m_y;
+
+	// draw the actual arrow head
+
+	double length = std::sqrt(dx * dx + dy * dy);
+	double dx_norm = dx / length;
+	double dy_norm = dy / length;
+
+	double mx = head.m_x - size * dx_norm;
+	double my = head.m_y - size * dy_norm;
+
+	double x2 = mx - size / 4 * dy_norm;
+	double y2 = my + size / 4 * dx_norm;
+
+	double x3 = mx + size / 4 * dy_norm;
+	double y3 = my - size / 4 * dx_norm;
+
+	arrowHead = drawPolygon(xmlNode, {head.m_x, head.m_y, x2, y2, x3, y3});
 
 	appendLineStyle(arrowHead, *adj, true);
 }
