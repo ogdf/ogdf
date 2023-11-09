@@ -21,7 +21,7 @@ if [ "$fixit" = "yes" ]; then
   args="-fi"
 fi
 
-git ls-files src include test/src |
+git ls-files src include test/src test/include |
   check_filter |
   grep -e '\.\(c\|h\)\(pp\)\?$' |
   $OGDF_XARGS -P "$cores" -I{} python util/style/indent_comments.py $args "{}" || fail_with_info
