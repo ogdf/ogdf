@@ -1699,11 +1699,6 @@ public:
 	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EF& edgeFilter,
 			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
 
-	template<OGDF_NODE_FILTER NF, OGDF_EDGE_FILTER EF, bool copyEmbedding = true,
-			bool copyIDs = false, bool notifyObservers = true>
-	std::pair<int, int> insert(const Graph& G, const NF& nodeFilter, const EF& edgeFilter,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
-
 	// List short-cuts
 
 	/**
