@@ -196,6 +196,12 @@ edge Graph::split(edge e) {
 	edge e2 = new EdgeElement(u, e->m_tgt, adjSrc, e->m_adjTgt, m_edgeIdCount++);
 	edges.pushBack(e2);
 
+	e2->m_adjTgt->m_twin = adjSrc;
+	e->m_adjTgt->m_edge = adjSrc->m_edge = e2;
+
+	e->m_tgt = u;
+	e->m_adjTgt = adjTgt;
+
 	m_regEdgeArrays.keyAdded(e2); // FIXME registry observers won't see copied entry
 	m_regAdjArrays.keyAdded(e2->adjSource());
 
@@ -206,12 +212,6 @@ edge Graph::split(edge e) {
 	for (GraphObserver* obs : getObservers()) {
 		obs->edgeAdded(e2);
 	}
-
-	e2->m_adjTgt->m_twin = adjSrc;
-	e->m_adjTgt->m_edge = adjSrc->m_edge = e2;
-
-	e->m_tgt = u;
-	e->m_adjTgt = adjTgt;
 	return e2;
 }
 
@@ -240,6 +240,14 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	OGDF_ASSERT(!eIn->isSelfLoop());
 	OGDF_ASSERT(!eOut->isSelfLoop());
 
+	// notify all registered observers while everything is still valid
+	for (GraphObserver* obs : getObservers()) {
+		obs->edgeDeleted(eOut);
+	}
+	for (GraphObserver* obs : getObservers()) {
+		obs->nodeDeleted(u);
+	}
+
 	// we reuse these adjacency entries
 	adjEntry adjSrc = eIn->m_adjSrc;
 	adjEntry adjTgt = eOut->m_adjTgt;
@@ -256,14 +264,6 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	adjTgt->m_twin = adjSrc;
 
 	adjTgt->m_edge = eIn;
-
-	// notify all registered observers
-	for (GraphObserver* obs : getObservers()) {
-		obs->edgeDeleted(eOut);
-	}
-	for (GraphObserver* obs : getObservers()) {
-		obs->nodeDeleted(u);
-	}
 
 	// remove structures that are no longer used
 	edges.del(eOut);

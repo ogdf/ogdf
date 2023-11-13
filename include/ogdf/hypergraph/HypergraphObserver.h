@@ -49,10 +49,10 @@ namespace ogdf {
 class OGDF_EXPORT HypergraphObserver : public Observer<Hypergraph, HypergraphObserver> {
 public:
 	//! Constructor.
-	HypergraphObserver() : Observer(nullptr) { }
+	HypergraphObserver() { }
 
 	//! Constructor assigning \p pH hypergraph to the observer.
-	explicit HypergraphObserver(const Hypergraph* pH) : Observer(pH) { }
+	explicit HypergraphObserver(const Hypergraph* pH) { reregister(pH); }
 
 	//! Associates an observer instance with hypergraph \p pH
 	OGDF_DEPRECATED("use reregister")

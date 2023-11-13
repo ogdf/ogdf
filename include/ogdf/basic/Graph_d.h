@@ -735,13 +735,13 @@ class EdgeSet;
 class OGDF_EXPORT GraphObserver : public Observer<Graph, GraphObserver> {
 public:
 	//! Constructs instance of GraphObserver class
-	GraphObserver() : Observer(nullptr) { }
+	GraphObserver() { }
 
 	/**
 	 *\brief Constructs instance of GraphObserver class
 	 * \param G is the graph to be watched
 	 */
-	explicit GraphObserver(const Graph* G) : Observer(G) { }
+	explicit GraphObserver(const Graph* G) { reregister(G); }
 
 	//! Called by watched graph just before a node is deleted.
 	virtual void nodeDeleted(node v) = 0;

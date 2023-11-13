@@ -318,9 +318,9 @@ OGDF_DECL_REG_ARRAY(ClusterArray)
  */
 class OGDF_EXPORT ClusterGraphObserver : public Observer<ClusterGraph, ClusterGraphObserver> {
 public:
-	ClusterGraphObserver() : Observer(nullptr) { }
+	ClusterGraphObserver() { }
 
-	explicit ClusterGraphObserver(const ClusterGraph* CG) : Observer(CG) { }
+	explicit ClusterGraphObserver(const ClusterGraph* CG) { reregister(CG); }
 
 	virtual void clusterDeleted(cluster v) = 0;
 	virtual void clusterAdded(cluster v) = 0;

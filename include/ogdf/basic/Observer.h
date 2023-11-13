@@ -15,12 +15,6 @@ public:
 	//! Constructs instance of Observer class
 	Observer() { }
 
-	/**
-	 * \brief Constructs instance of Observer class
-	 * \param obs is the instance to be watched
-	 */
-	explicit Observer(const TObserved* obs) { reregister(obs); }
-
 	//! Destroys the instance, unregisters it from watched instance.
 	virtual ~Observer() { reregister(nullptr); }
 
@@ -74,6 +68,7 @@ private:
 #ifndef OGDF_MEMORY_POOL_NTS
 		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
 #endif
+		OGDF_ASSERT(obs != nullptr);
 		return m_regObservers.pushBack(obs);
 	}
 
