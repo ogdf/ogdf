@@ -303,14 +303,9 @@ using ClusterGraphRegistry = RegistryBase<cluster, ClusterGraph, internal::Graph
 template<typename Value, bool WithDefault>
 class ClusterArrayBase;
 
-template<typename Value>
-using ClusterArray = ClusterArrayBase<Value, true>;
-
-template<typename Value>
-using ClusterArrayWithoutDefault = ClusterArrayBase<Value, false>;
-
-template<typename Value>
-using ClusterArrayOfPtrs = ClusterArrayBase<std::unique_ptr<Value>, false>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) ClusterArrayBase<v, c>
+OGDF_DECL_REG_ARRAY(ClusterArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
 /**
  * Abstract base class for cluster graph observers.

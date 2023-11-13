@@ -661,14 +661,9 @@ public:
 	}
 };
 
-template<typename Value>
-using NodeArray = GraphRegisteredArray<NodeElement, Value, true>;
-
-template<typename Value>
-using NodeArrayWithoutDefault = GraphRegisteredArray<NodeElement, Value, false>;
-
-template<typename Value>
-using NodeArrayOfPtrs = GraphRegisteredArray<NodeElement, std::unique_ptr<Value>, false>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<NodeElement, v, c>
+OGDF_DECL_REG_ARRAY(NodeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
 //! RegisteredArray for edges of a graph.
 template<typename Value, bool WithDefault>
@@ -706,23 +701,13 @@ public:
 	}
 };
 
-template<typename Value>
-using EdgeArray = EdgeArrayBase<Value, true>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) EdgeArrayBase<v, c>
+OGDF_DECL_REG_ARRAY(EdgeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
-template<typename Value>
-using EdgeArrayWithoutDefault = EdgeArrayBase<Value, false>;
-
-template<typename Value>
-using EdgeArrayOfPtrs = EdgeArrayBase<std::unique_ptr<Value>, false>;
-
-template<typename Value>
-using AdjEntryArray = GraphRegisteredArray<AdjElement, Value, true, GraphAdjRegistry>;
-
-template<typename Value>
-using AdjEntryArrayWithoutDefault = GraphRegisteredArray<AdjElement, Value, false, GraphAdjRegistry>;
-
-template<typename Value>
-using AdjEntryArrayOfPtrs = GraphRegisteredArray<AdjElement, std::unique_ptr<Value>, false>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<AdjElement, v, c, GraphAdjRegistry>
+OGDF_DECL_REG_ARRAY(AdjEntryArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
 template<bool>
 class EdgeSet;

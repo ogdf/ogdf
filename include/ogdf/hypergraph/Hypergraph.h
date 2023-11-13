@@ -385,25 +385,13 @@ public:
 	}
 };
 
-template<typename Value>
-using HypernodeArray = HypergraphRegisteredArray<HypernodeElement, Value, true>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) HypergraphRegisteredArray<HypernodeElement, v, c>
+OGDF_DECL_REG_ARRAY(HypernodeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
-template<typename Value>
-using HypernodeArrayWithoutDefault = HypergraphRegisteredArray<HypernodeElement, Value, false>;
-
-template<typename Value>
-using HypernodeArrayOfPtrs =
-		HypergraphRegisteredArray<HypernodeElement, std::unique_ptr<Value>, false>;
-
-template<typename Value>
-using HyperedgeArray = HypergraphRegisteredArray<HyperedgeElement, Value, true>;
-
-template<typename Value>
-using HyperedgeArrayWithoutDefault = HypergraphRegisteredArray<HyperedgeElement, Value, false>;
-
-template<typename Value>
-using HyperedgeArrayOfPtrs =
-		HypergraphRegisteredArray<HyperedgeElement, std::unique_ptr<Value>, false>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) HypergraphRegisteredArray<HyperedgeElement, v, c>
+OGDF_DECL_REG_ARRAY(HyperedgeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
 class OGDF_EXPORT HypergraphObserver;
 

@@ -34,6 +34,7 @@
 #include <ogdf/basic/Math.h>
 
 #include <list>
+#include <memory>
 
 #ifndef OGDF_MEMORY_POOL_NTS
 
@@ -904,3 +905,9 @@ public:
 	}
 };
 }
+
+#define OGDF_DECL_REG_ARRAY(NAME)                              \
+	template<typename Value, bool WithDefault = true>          \
+	using NAME = OGDF_DECL_REG_ARRAY_TYPE(Value, WithDefault); \
+	template<typename Value>                                   \
+	using NAME##P = NAME<std::unique_ptr<Value>, false>;
