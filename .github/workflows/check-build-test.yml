@@ -42,7 +42,7 @@ jobs:
         run: util/test_directory_structure.sh
 
   docs:
-    name: "Check for Doxygen problems"
+    name: "Check Doxygen"
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
     steps:
@@ -75,6 +75,7 @@ jobs:
     name: "Static Analysis"
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
+    needs: [style, dirs, self-sufficiency, docs]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
@@ -98,7 +99,7 @@ jobs:
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+          key: ${{ github.job }}
       - name: Set-up clang-tidy cache
         uses: actions/cache@v3
         with:
@@ -115,26 +116,23 @@ jobs:
           cat sonar/clang-tidy.txt | python3 -m clang_tidy_converter sq > sonar/clang-tidy.json
         shell: bash
       - name: Report unused files
-        run: |
-          cat sonar/unused-headers.txt
+        run: cat sonar/unused-headers.txt
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner
+        run: sonar-scanner
       - name: Store logs
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: sonar
-          path: |
-            sonar/
+          path: sonar/
       - uses: actions/upload-artifact@v3
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
-          name: ${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ matrix.mode }}
+          name: ${{ github.job }}
           path: ${{ github.workspace }}/ccache-debug
 
   build-linux:
@@ -145,7 +143,7 @@ jobs:
         compiler: ['gcc:7', 'gcc:10', 'clang:15']
     runs-on: ubuntu-latest
     container: docker.io/ogdf/${{ matrix.compiler }}
-    needs: [style, dirs, self-sufficiency]
+    needs: [style, dirs, self-sufficiency, docs]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
@@ -190,7 +188,7 @@ jobs:
       matrix:
         mode: [debug, release]
     runs-on: macos-latest
-    needs: [style, dirs, self-sufficiency]
+    needs: [style, dirs, self-sufficiency, docs]
     steps:
       - uses: actions/checkout@v4
       - run: brew install coreutils findutils
@@ -219,7 +217,7 @@ jobs:
       matrix:
         mode: [debug, release]
     runs-on: windows-latest
-    needs: [style, dirs, self-sufficiency]
+    needs: [style, dirs, self-sufficiency, docs]
     steps:
       - uses: actions/checkout@v4
       - uses: microsoft/setup-msbuild@v1.3
@@ -241,10 +239,9 @@ jobs:
 
   # this is mostly used to keep the required status checks for PR merging simple
   summary:
-    needs: [build-linux, build-macos, build-windows, sonar, docs]
+    needs: [build-linux, build-macos, build-windows, sonar]
     name: "All tests succeeded"
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "Everything worked!"
+      - run: echo "Everything worked!"
         shell: bash
