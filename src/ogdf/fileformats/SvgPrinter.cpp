@@ -126,7 +126,7 @@ void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, do
 
 void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 #if 1
-	const double triangleWidth = 0.43301270189222 * m_attr.width(v),
+	const double triangleHalfWidth = 0.43301270189222 * m_attr.width(v),
 				 hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
 				 pentagonHalfWidth = 0.475528258147577 * m_attr.width(v),
 				 pentagonSmallHeight = 0.154508497187474 * m_attr.height(v),
@@ -154,13 +154,13 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 		break;
 	case Shape::Triangle:
 		shape = drawPolygon(xmlNode,
-				{x, y - m_attr.height(v) / 2, x + triangleWidth, y + m_attr.height(v) / 4,
-						x - triangleWidth, y + m_attr.height(v) / 4});
+				{x, y - m_attr.height(v) / 2, x + triangleHalfWidth, y + m_attr.height(v) / 4,
+						x - triangleHalfWidth, y + m_attr.height(v) / 4});
 		break;
 	case Shape::InvTriangle:
 		shape = drawPolygon(xmlNode,
-				{x, y + m_attr.height(v) / 2, x - triangleWidth, y - m_attr.height(v) / 4,
-						x + triangleWidth, y - m_attr.height(v) / 4});
+				{x, y + m_attr.height(v) / 2, x - triangleHalfWidth, y - m_attr.height(v) / 4,
+						x + triangleHalfWidth, y - m_attr.height(v) / 4});
 		break;
 	case Shape::Pentagon:
 		shape = drawPolygon(xmlNode,

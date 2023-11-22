@@ -339,7 +339,7 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
 		const Shape& shape) {
 	const double epsilon = 1e-6;
 	const double trapeziumWidthOffset = vSize.m_x * 0.275;
-	GenericPolyline<DPoint> polygon;
+	DPolyline polygon;
 
 	auto isInConvexCCWPolygon = [&] {
 		for (int i = 0; i < polygon.size(); i++) {
@@ -358,7 +358,7 @@ OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, cons
 	auto isInRegularPolygon = [&](unsigned int sides) {
 		polygon.clear();
 		double radius = (max(vSize.m_x, vSize.m_y) / 2.0);
-		for (int i = 0; i < sides; ++i) {
+		for (unsigned int i = 0; i < sides; ++i) {
 			double angle = -(Math::pi / 2) + Math::pi / sides + i * (2.0 * Math::pi / sides);
 			polygon.pushBack(DPoint(radius * cos(angle), radius * sin(angle)));
 		}

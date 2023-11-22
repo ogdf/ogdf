@@ -2,7 +2,10 @@
 
 # Porting from Elderberry to current unreleased version
 
-There are currently no breaking changes.
+## GraphIO
 
-## SVG node shape
-Triangle and InvTriangle are now regular instead of just isosceles.
+### SvgPrinter
+When their height is equal to their width, `Shape::Triangle` and `Shape::InvTriangle` are now drawn as regular triangles in SVGs (and not as just isosceles ones).
+
+### TikzWriter
+`TikzWriter::isCoveredBy()` was removed in favor of `isPointCoveredByNode()` in `geometry.h`.
