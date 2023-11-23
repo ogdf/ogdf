@@ -542,10 +542,10 @@ private:
 
 public:
 	/**
-	* @name Iterators
-	* These types are used for graph object iterators, which are returned by graph object containers
-	* like nodes and edges.
-	*/
+	 * @name Iterators
+	 * These types are used for graph object iterators, which are returned by graph object containers
+	 * like nodes and edges.
+	 */
 	//! @{
 
 	//! Provides a bidirectional iterator to a node in a graph.
@@ -557,9 +557,9 @@ public:
 
 	//! @}
 	/**
-	* @name Enumerations
-	* These enumerations are mainly meant for advanced or internal usage scenarios.
-	*/
+	 * @name Enumerations
+	 * These enumerations are mainly meant for advanced or internal usage scenarios.
+	 */
 	//! @{
 
 	//! The type of edges (only used in derived classes).
@@ -580,9 +580,9 @@ public:
 
 
 	/**
-	* @name Graph object containers
-	* These containers maintain the nodes and edges of the graph, and provide node and edge iterators.
-	*/
+	 * @name Graph object containers
+	 * These containers maintain the nodes and edges of the graph, and provide node and edge iterators.
+	 */
 	//! @{
 
 	//! The container containing all node objects.
@@ -813,7 +813,7 @@ public:
 	 * Hidden edge sets can be restored as a whole. Alternatively a single edge of a such a set can be restored.
 	 *
 	 * Note that all hidden edges are restored when the set of hidden edges is destroyed.
-
+	 *
 	 * Do not delete any nodes incident to hidden edges.
 	 * Do not hide edges while iterating over the edges of a ogdf::Graph.
 	 * Instead, iterate over a copied list of all edges.
@@ -824,17 +824,17 @@ public:
 
 	public:
 		/**
-		* Creates a new set of hidden edges.
-		*
-		* @param graph the graph to be modified
-		*/
+		 * Creates a new set of hidden edges.
+		 *
+		 * @param graph the graph to be modified
+		 */
 		explicit HiddenEdgeSet(Graph& graph) : m_graph(&graph) {
 			m_it = m_graph->m_hiddenEdgeSets.pushFront(this);
 		}
 
 		/**
-		* Restores all hidden edges.
-		*/
+		 * Restores all hidden edges.
+		 */
 		~HiddenEdgeSet() {
 			if (m_graph) {
 				restore();
@@ -843,32 +843,32 @@ public:
 		}
 
 		/**
-		* Hides the given edge.
-		*
-		* \pre the edge is currently not hidden.
-		* \pre the graph associated with this set does still exist.
-		*/
+		 * Hides the given edge.
+		 *
+		 * \pre the edge is currently not hidden.
+		 * \pre the graph associated with this set does still exist.
+		 */
 		void hide(edge e);
 
 		/**
-		* Reveals the given edge.
-		*
-		* \pre the edge is currently hidden using this set.
-		* \pre the graph associated with this set does still exist.
-		*/
+		 * Reveals the given edge.
+		 *
+		 * \pre the edge is currently hidden using this set.
+		 * \pre the graph associated with this set does still exist.
+		 */
 		void restore(edge e);
 
 		/**
-		* Restores all edges contained in this set.
-		* The set will remain valid.
-		*
-		* \pre the graph associated with this set does still exist.
-		*/
+		 * Restores all edges contained in this set.
+		 * The set will remain valid.
+		 *
+		 * \pre the graph associated with this set does still exist.
+		 */
 		void restore();
 
 		/**
-		* Returns the number of edges contained in this set.
-		*/
+		 * Returns the number of edges contained in this set.
+		 */
 		int size();
 
 	private:

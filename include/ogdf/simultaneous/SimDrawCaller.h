@@ -58,9 +58,9 @@ private:
 
 	//! updates m_esg
 	/**
-	*  Should be called whenever graph changed and current
-	*  basic graph membership is needed.
-	*/
+	 *  Should be called whenever graph changed and current
+	 *  basic graph membership is needed.
+	 */
 	void updateESG();
 
 public:
@@ -69,43 +69,43 @@ public:
 
 	//! runs SugiyamaLayout with modified SplitHeuristic
 	/**
-	*  Runs special call of SugiyamaLayout using
-	*  SugiyamaLayout::setSubgraphs().
-	*  Saves node coordinates and dummy node bends in current
-	*  simdraw instance.
-	*
-	*  Uses TwoLayerCrossMinSimDraw object to perform crossing
-	*  minimization. The default is SplitHeuristic.
-	*
-	*  Automatically activates GraphAttributes::nodeGraphics.\n
-	*  Automatically activates GraphAttributes::edgeGraphics.
-	*/
+	 *  Runs special call of SugiyamaLayout using
+	 *  SugiyamaLayout::setSubgraphs().
+	 *  Saves node coordinates and dummy node bends in current
+	 *  simdraw instance.
+	 *
+	 *  Uses TwoLayerCrossMinSimDraw object to perform crossing
+	 *  minimization. The default is SplitHeuristic.
+	 *
+	 *  Automatically activates GraphAttributes::nodeGraphics.\n
+	 *  Automatically activates GraphAttributes::edgeGraphics.
+	 */
 	void callSugiyamaLayout();
 
 	//! runs UMLPlanarizationLayout with modified inserter
 	/**
-	*  Runs UMLPlanarizationLayout with callSimDraw and retransfers
-	*  node coordinates and dummy node bend to current simdraw
-	*  instance.
-	*
-	*  Automatically activates GraphAttributes::nodeGraphics.\n
-	*  Automatically activates GraphAttributes::edgeGraphics.
-	*/
+	 *  Runs UMLPlanarizationLayout with callSimDraw and retransfers
+	 *  node coordinates and dummy node bend to current simdraw
+	 *  instance.
+	 *
+	 *  Automatically activates GraphAttributes::nodeGraphics.\n
+	 *  Automatically activates GraphAttributes::edgeGraphics.
+	 */
 	void callPlanarizationLayout();
 
 	//! runs SubgraphPlanarizer with modified inserter
 	/**
-	*  Runs SubgraphPlanarizer on connected component \p cc with simdraw
-	*  call. Integer edge costs of GraphAttributes are used
-	*  (1 for each edge if not available).
-	*
-	*  Modifies graph by inserting dummy nodes for each crossing.
-	*  All dummy nodes are marked as dummy.
-	*  (Method SimDrawColorizer::addColorNodeVersion is recommended
-	*  for visualizing dummy nodes.)
-	*
-	*  No layout is calculated. The result is a planar graph.
-	*/
+	 *  Runs SubgraphPlanarizer on connected component \p cc with simdraw
+	 *  call. Integer edge costs of GraphAttributes are used
+	 *  (1 for each edge if not available).
+	 *
+	 *  Modifies graph by inserting dummy nodes for each crossing.
+	 *  All dummy nodes are marked as dummy.
+	 *  (Method SimDrawColorizer::addColorNodeVersion is recommended
+	 *  for visualizing dummy nodes.)
+	 *
+	 *  No layout is calculated. The result is a planar graph.
+	 */
 	int callSubgraphPlanarizer(int cc = 0, int numberOfPermutations = 1);
 };
 

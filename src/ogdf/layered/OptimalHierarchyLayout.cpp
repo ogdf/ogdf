@@ -1,6 +1,6 @@
 /** \file
  * \brief Declaration and implementation of the optimal
-//   third phase of the sugiyama algorithm
+ *        third phase of the sugiyama algorithm
  *
  * \author Carsten Gutwenger
  *

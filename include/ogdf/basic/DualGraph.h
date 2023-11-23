@@ -143,44 +143,44 @@ public:
 
 	//! Returns the node in the primal graph corresponding to \p f.
 	/**
-	* @param f is a face in the embedding of the dual graph
-	* \return the corresponding node in the primal graph
-	*/
+	 * @param f is a face in the embedding of the dual graph
+	 * \return the corresponding node in the primal graph
+	 */
 	const node& primalNode(face f) const { return m_primalNode[f]; }
 
 	//! Returns the edge in the primal graph corresponding to \p e.
 	/**
-	* @param e is an edge in the dual graph
-	* \return the corresponding edge in the primal graph
-	*/
+	 * @param e is an edge in the dual graph
+	 * \return the corresponding edge in the primal graph
+	 */
 	const edge& primalEdge(edge e) const { return m_primalEdge[e]; }
 
 	//! Returns the face in the embedding of the primal graph corresponding to \p v.
 	/**
-	* @param v is a node in the dual graph
-	* \return the corresponding face in the embedding of the primal graph
-	*/
+	 * @param v is a node in the dual graph
+	 * \return the corresponding face in the embedding of the primal graph
+	 */
 	const face& primalFace(node v) const { return m_primalFace[v]; }
 
 	//! Returns the node in the dual graph corresponding to \p f.
 	/**
-	* @param f is a face in the embedding of the primal graph
-	* \return the corresponding node in the dual graph
-	*/
+	 * @param f is a face in the embedding of the primal graph
+	 * \return the corresponding node in the dual graph
+	 */
 	const node& dualNode(face f) const { return m_dualNode[f]; }
 
 	//! Returns the edge in the dual graph corresponding to \p e.
 	/**
-	* @param e is an edge in the primal graph
-	* \return the corresponding edge in the dual graph
-	*/
+	 * @param e is an edge in the primal graph
+	 * \return the corresponding edge in the dual graph
+	 */
 	const edge& dualEdge(edge e) const { return m_dualEdge[e]; }
 
 	//! Returns the face in the embedding of the dual graph corresponding to \p v.
 	/**
-	* @param v is a node in the primal graph
-	* \return the corresponding face in the embedding of the dual graph
-	*/
+	 * @param v is a node in the primal graph
+	 * \return the corresponding face in the embedding of the dual graph
+	 */
 	const face& dualFace(node v) const { return m_dualFace[v]; }
 
 	//! @}

@@ -78,11 +78,11 @@ public:
 	double reqlength() { return req_length; }
 
 	/** Set the initPositions of nodes. Must for graphs without node attributes
-	* c accepts character arguments:
-	* 'm' for Grid-like Layout of nodes
-	* 'c' for arranging nodes in concentric circles
-	* 'r' for random arrangement of nodes
-	*/
+	 * c accepts character arguments:
+	 * 'm' for Grid-like Layout of nodes
+	 * 'c' for arranging nodes in concentric circles
+	 * 'r' for random arrangement of nodes
+	 */
 	void initPositions(GraphAttributes& AG, char c);
 
 	//! Calculates the edge crossings in the graph corresponding to AG. Node attributes required.

@@ -55,6 +55,17 @@ then
 	exit 1
 fi
 
+missing_license=$(
+	git grep -L " \\\\par License:" |
+		grep -e "\.[hc]\(pp\)\?\$" |
+		grep -v -e "doc/examples\|include/ogdf/basic/internal/version.h\|util/" |
+		check_filter)
+if [[ -n "${missing_license// /}" ]]; then
+	echo "The following files are missing a license header:"
+	echo "$missing_license"
+	exit 1
+fi
+
 git grep -l "$filterbegin" |
  check_filter |
  $OGDF_XARGS -I{} bash -c "performTest {}"

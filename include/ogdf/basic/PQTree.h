@@ -181,7 +181,7 @@ protected:
 	/**
 	 * Gives every node that has been used once in the
 	 * PQ-tree a unique identification number.
-	*/
+	 */
 	int m_identificationNumber;
 
 	//! Stores the number of leaves.
@@ -531,7 +531,7 @@ protected:
 	 * returning 0 as soon none of the facts is fulfilled.
 	 *
 	 * @return 1 if it succeeded in adding the \p child to \p parent, otherwise 0
-	*/
+	 */
 	virtual bool addNodeToNewParent(PQNode<T, X, Y>* parent, PQNode<T, X, Y>* child,
 			PQNode<T, X, Y>* leftBrother, PQNode<T, X, Y>* rightBrother);
 

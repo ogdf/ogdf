@@ -189,8 +189,8 @@ public:
 
 //! %Exception thrown when result of cast is 0.
 /**
-* @ingroup exceptions
-*/
+ * @ingroup exceptions
+ */
 class OGDF_EXPORT DynamicCastFailedException : public Exception {
 public:
 	//! Constructs a dynamic cast failed exception.
@@ -200,8 +200,8 @@ public:
 
 //! %Exception thrown when not enough memory is available to execute an algorithm.
 /**
-* @ingroup exceptions
-*/
+ * @ingroup exceptions
+ */
 class OGDF_EXPORT InsufficientMemoryException : public Exception {
 public:
 	//! Constructs an insufficient memory exception.
@@ -227,8 +227,8 @@ public:
 
 //! %Exception thrown when a data type is not supported by a generic function.
 /**
-* @ingroup exceptions
-*/
+ * @ingroup exceptions
+ */
 class OGDF_EXPORT TypeNotSupportedException : public Exception {
 public:
 	//! Constructs a type-not-supported exception.
@@ -238,8 +238,8 @@ public:
 
 //! %Exception thrown when an algorithm realizes an internal bug that prevents it from continuing.
 /**
-* @ingroup exceptions
-*/
+ * @ingroup exceptions
+ */
 class OGDF_EXPORT AlgorithmFailureException : public Exception {
 public:
 	//! Constructs an algorithm failure exception.
@@ -264,8 +264,8 @@ private:
 
 //! %Exception thrown when an external library shall be used which is not supported.
 /**
-* @ingroup exceptions
-*/
+ * @ingroup exceptions
+ */
 class OGDF_EXPORT LibraryNotSupportedException : public Exception {
 public:
 	//! Constructs a library not supported exception.

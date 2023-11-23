@@ -56,7 +56,7 @@ namespace ogdf {
  *     <td>Specifies how to select the root of the tree.
  *   </tr>
  * </table>
-*/
+ */
 class OGDF_EXPORT RadialTreeLayout : public LayoutModule {
 public:
 	//! Selection strategies for root of the tree.

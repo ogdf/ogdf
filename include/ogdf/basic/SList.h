@@ -454,8 +454,8 @@ public:
 
 	//! Adds a new element at the beginning of the list.
 	/**
-	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
-	*/
+	 * The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
+	 */
 	template<class... Args>
 	iterator emplaceFront(Args&&... args) {
 		m_head = new SListElement<E>(this, m_head, std::forward<Args>(args)...);
@@ -478,8 +478,8 @@ public:
 
 	//! Adds a new element at the end of the list.
 	/**
-	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
-	*/
+	 * The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
+	 */
 	template<class... Args>
 	iterator emplaceBack(Args&&... args) {
 		SListElement<E>* pNew = new SListElement<E>(this, nullptr, std::forward<Args>(args)...);

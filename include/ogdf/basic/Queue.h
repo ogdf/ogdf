@@ -79,9 +79,9 @@ public:
 	~QueuePure() { }
 
 	/**
-	* @name Access methods
-	* These methods provide simple access without changing the list.
-	*/
+	 * @name Access methods
+	 * These methods provide simple access without changing the list.
+	 */
 	//! @{
 
 	//! Returns true iff the queue is empty.
@@ -101,9 +101,9 @@ public:
 
 	//! @}
 	/**
-	* @name Iterators
-	* These methods return forward iterators to elements in the queue.
-	*/
+	 * @name Iterators
+	 * These methods return forward iterators to elements in the queue.
+	 */
 	//! @{
 
 	//! Returns an iterator to the first element of the queue.
@@ -132,9 +132,9 @@ public:
 
 	//! @}
 	/**
-	* @name Operators
-	* The following operators are provided by lists.
-	*/
+	 * @name Operators
+	 * The following operators are provided by lists.
+	 */
 	//! @{
 
 	//! Assignment operator.
@@ -157,9 +157,9 @@ public:
 
 	//! @}
 	/**
-	* @name Adding and removing elements
-	* These method add elements to the list and remove elements from the list.
-	*/
+	 * @name Adding and removing elements
+	 * These method add elements to the list and remove elements from the list.
+	 */
 	//! @{
 
 	//! Adds \p x at the end of queue.
@@ -167,8 +167,8 @@ public:
 
 	//! Adds a new element at the end of the queue.
 	/**
-	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
-	*/
+	 * The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
+	 */
 	template<class... Args>
 	iterator emplace(Args&&... args) {
 		return SListPure<E>::emplaceBack(std::forward<Args>(args)...);
@@ -229,9 +229,9 @@ public:
 	~Queue() { }
 
 	/**
-	* @name Access methods
-	* These methods provide simple access without changing the list.
-	*/
+	 * @name Access methods
+	 * These methods provide simple access without changing the list.
+	 */
 	//! @{
 
 	//! Returns true iff the queue is empty.
@@ -254,9 +254,9 @@ public:
 
 	//! @}
 	/**
-	* @name Iterators
-	* These methods return forward iterators to elements in the queue.
-	*/
+	 * @name Iterators
+	 * These methods return forward iterators to elements in the queue.
+	 */
 	//! @{
 
 	//! Returns an iterator to the first element of the queue.
@@ -285,9 +285,9 @@ public:
 
 	//! @}
 	/**
-	* @name Operators
-	* The following operators are provided by lists.
-	*/
+	 * @name Operators
+	 * The following operators are provided by lists.
+	 */
 	//! @{
 
 	//! Assignment operator.
@@ -310,9 +310,9 @@ public:
 
 	//! @}
 	/**
-	* @name Adding and removing elements
-	* These method add elements to the list and remove elements from the list.
-	*/
+	 * @name Adding and removing elements
+	 * These method add elements to the list and remove elements from the list.
+	 */
 	//! @{
 
 	//! Adds \p x at the end of queue.
@@ -320,8 +320,8 @@ public:
 
 	//! Adds a new element at the end of the queue.
 	/**
-	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
-	*/
+	 * The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
+	 */
 	template<class... Args>
 	iterator emplace(Args&&... args) {
 		return SList<E>::emplaceBack(std::forward<Args>(args)...);

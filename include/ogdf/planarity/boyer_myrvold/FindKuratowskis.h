@@ -263,7 +263,7 @@ protected:
 
 	//! A list to all separated DFS-children of node
 	/** The list is sorted by lowpoint values (in linear time)
-	*/
+	 */
 	const NodeArray<ListPure<node>>& m_separatedDFSChildList;
 
 	//! Identifies the rootnode of the child bicomp the given backedge points to

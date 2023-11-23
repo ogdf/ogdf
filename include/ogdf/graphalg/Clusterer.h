@@ -54,8 +54,8 @@ public:
 	explicit Clusterer(const Graph& G);
 
 	/**Default constructor allowing to cluster multiple
-	*graphs with the same instance of the Clusterer
-	*graphs */
+	 *graphs with the same instance of the Clusterer
+	 *graphs */
 	Clusterer();
 
 	virtual ~Clusterer() { }

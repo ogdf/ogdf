@@ -94,7 +94,7 @@ using embedder::CrossingStructure;
  *     <td>The module for the computation of the planar subgraph.
  *   </tr>
  * </table>
-*/
+ */
 class OGDF_EXPORT PlanarizerStarReinsertion : public CrossingMinimizationModule {
 private:
 	//! The initial planarization algorithm.

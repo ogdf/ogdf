@@ -264,7 +264,7 @@ protected:
 	 *
 	 * It is needed for the generation of the BC-tree by DFS method. It has to be a
 	 * member of class BCTree due to recursive calls to biComp().
-	*/
+	 */
 
 	NodeArray<int> m_number;
 	/**

@@ -605,8 +605,8 @@ public:
 
 	//! Adds a new element at the end of the list.
 	/**
-	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
-	*/
+	 * The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
+	 */
 	template<class... Args>
 	iterator emplaceBack(Args&&... args) {
 		ListElement<E>* pX = new ListElement<E>(this, nullptr, m_tail, std::forward<Args>(args)...);

@@ -100,7 +100,7 @@ namespace ogdf {
  *     <td>The page ratio used for the layout of connected components.
  *   </tr>
  * </table>
-*/
+ */
 class OGDF_EXPORT GEMLayout : public LayoutModule {
 	// algorithm parameters (see below)
 

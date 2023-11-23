@@ -632,7 +632,7 @@ public:
 	 * @param crossedEdge is the edge that is replaced by two new edges.
 	 * @param topDown is used as follows: If set to true, \p crossingEdge will cross
 	 *        \p crossedEdge from right to left, otherwise from left to right.
-	*/
+	 */
 	edge insertCrossing(edge& crossingEdge, edge crossedEdge, bool topDown);
 
 	//! @}
