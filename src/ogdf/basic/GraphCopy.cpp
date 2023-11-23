@@ -1184,7 +1184,12 @@ void GraphCopy::initByActiveNodes(const List<node>& nodeList, const NodeArray<bo
 		EdgeArray<edge>& eCopy) {
 	eCopy.init(*m_pGraph);
 	clear();
-	Graph::insert(nodeList.begin(), nodeList.end(), internal::filter_any_edge, m_vCopy, eCopy);
+#ifdef OGDF_DEBUG
+	auto count =
+#endif
+			Graph::insert(nodeList.begin(), nodeList.end(), internal::filter_any_edge, m_vCopy,
+					eCopy);
+	OGDF_ASSERT(count.first == nodeList.size());
 }
 
 }
