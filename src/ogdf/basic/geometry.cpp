@@ -32,6 +32,7 @@
 
 
 #include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
 
 namespace ogdf {
 
@@ -331,6 +332,188 @@ int orientation(const DPoint& p, const DPoint& q, const DPoint& r) {
 		return 0;
 	} else {
 		return (d1 > d2) ? +1 : -1;
+	}
+}
+
+OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, const DPoint& vSize,
+		const Shape& shape) {
+	const double epsilon = 1e-6;
+	const double trapeziumWidthOffset = vSize.m_x * 0.275;
+	DPolyline polygon;
+
+	auto isInConvexCCWPolygon = [&] {
+		for (int i = 0; i < polygon.size(); i++) {
+			DPoint edgePt1 = v + *polygon.get(i);
+			DPoint edgePt2 = v + *polygon.get((i + 1) % polygon.size());
+
+			if ((edgePt2.m_x - edgePt1.m_x) * (point.m_y - edgePt1.m_y)
+							- (edgePt2.m_y - edgePt1.m_y) * (point.m_x - edgePt1.m_x)
+					< -epsilon) {
+				return false;
+			}
+		}
+		return true;
+	};
+
+	auto isInRegularPolygon = [&](unsigned int sides) {
+		polygon.clear();
+		double radius = (max(vSize.m_x, vSize.m_y) / 2.0);
+		for (unsigned int i = 0; i < sides; ++i) {
+			double angle = -(Math::pi / 2) + Math::pi / sides + i * (2.0 * Math::pi / sides);
+			polygon.pushBack(DPoint(radius * cos(angle), radius * sin(angle)));
+		}
+		return isInConvexCCWPolygon();
+	};
+
+	switch (shape) {
+	// currently these tikz polygons are only supported as regular polygons, i.e. width=height
+	case Shape::Pentagon:
+		return isInRegularPolygon(5);
+	case Shape::Hexagon:
+		return isInRegularPolygon(6);
+	case Shape::Octagon:
+		return isInRegularPolygon(8);
+	case Shape::Triangle:
+		return isInRegularPolygon(3);
+	// Non-regular polygons
+	case Shape::InvTriangle:
+		polygon.pushBack(DPoint(0, -vSize.m_y * 2.0 / 3.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0, vSize.m_y * 1.0 / 3.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0, vSize.m_y * 1.0 / 3.0));
+		return isInConvexCCWPolygon();
+	case Shape::Rhomb:
+		polygon.pushBack(DPoint(vSize.m_x / 2.0, 0));
+		polygon.pushBack(DPoint(0, vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0, 0));
+		polygon.pushBack(DPoint(0, -vSize.m_y / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::Trapeze:
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0 - trapeziumWidthOffset, +vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0 + trapeziumWidthOffset, +vSize.m_y / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::InvTrapeze:
+		polygon.pushBack(DPoint(vSize.m_x / 2.0, vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0, vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0 + trapeziumWidthOffset, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0 - trapeziumWidthOffset, -vSize.m_y / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::Parallelogram:
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0 - trapeziumWidthOffset, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0, +vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0 + trapeziumWidthOffset, +vSize.m_y / 2.0));
+		return isInConvexCCWPolygon();
+	case Shape::InvParallelogram:
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0 + trapeziumWidthOffset, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0, -vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(vSize.m_x / 2.0 - trapeziumWidthOffset, vSize.m_y / 2.0));
+		polygon.pushBack(DPoint(-vSize.m_x / 2.0, vSize.m_y / 2.0));
+		return isInConvexCCWPolygon();
+	// Ellipse
+	case Shape::Ellipse:
+		return pow((point.m_x - v.m_x) / (vSize.m_x * 0.5), 2)
+				+ pow((point.m_y - v.m_y) / (vSize.m_y * 0.5), 2)
+				< 1;
+	// Simple x y comparison
+	case Shape::Rect:
+	case Shape::RoundedRect:
+	default:
+		return point.m_x + epsilon >= v.m_x - vSize.m_x / 2.0
+				&& point.m_x - epsilon <= v.m_x + vSize.m_x / 2.0
+				&& point.m_y + epsilon >= v.m_y - vSize.m_y / 2.0
+				&& point.m_y - epsilon <= v.m_y + vSize.m_y / 2.0;
+	}
+}
+
+DPoint contourPointFromAngle(double angle, int n, double rotationOffset, const DPoint& center,
+		const DPoint& vSize) {
+	// math visualised: https://www.desmos.com/calculator/j6iktd7fs4
+	double nOffset = floor((angle - rotationOffset) / (2 * Math::pi / n)) * 2 * Math::pi / n;
+	double polyLineStartAngle = rotationOffset + nOffset;
+	double polyLineEndAngle = polyLineStartAngle + 2 * Math::pi / n;
+	DLine polyLine = DLine(-cos(polyLineStartAngle), -sin(polyLineStartAngle),
+			-cos(polyLineEndAngle), -sin(polyLineEndAngle));
+
+	DLine originLine = DLine(0, 0, cos(angle), sin(angle));
+
+	DPoint intersectionPoint;
+	originLine.intersection(polyLine, intersectionPoint);
+	intersectionPoint = DPoint(intersectionPoint.m_x * vSize.m_x, intersectionPoint.m_y * vSize.m_y);
+	return intersectionPoint + center;
+}
+
+DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center, const DPoint& vSize) {
+	angle = std::fmod(angle, 2 * Math::pi);
+	if (angle < 0) {
+		angle += Math::pi * 2;
+	}
+
+	switch (shape) {
+	case Shape::Triangle:
+		return contourPointFromAngle(angle, 3, Math::pi / 2, center, vSize * .5);
+	case Shape::InvTriangle:
+		return center - contourPointFromAngle(angle + Math::pi, Shape::Triangle, DPoint(), vSize);
+	case Shape::Image:
+	case Shape::RoundedRect:
+	case Shape::Rect:
+		return contourPointFromAngle(angle, 4, Math::pi / 4, center, vSize / sqrt(2));
+	case Shape::Pentagon:
+		return contourPointFromAngle(angle, 5, Math::pi / 2, center, vSize / 2);
+	case Shape::Hexagon:
+		return contourPointFromAngle(angle, 6, 0, center, vSize / 2);
+	case Shape::Octagon:
+		return contourPointFromAngle(angle, 8, Math::pi / 8, center, vSize / 2);
+	case Shape::Rhomb:
+		return contourPointFromAngle(angle, 4, Math::pi / 2, center, vSize / 2);
+	case Shape::Trapeze:
+		if (angle < atan(2) || angle >= Math::pi * 7 / 4) {
+			DPoint other = contourPointFromAngle(Math::pi - angle, Shape::Trapeze, DPoint(), vSize);
+			other.m_x *= -1;
+			return other + center;
+		} else if (angle < Math::pi - atan(2)) {
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
+		} else if (angle < Math::pi * 5 / 4) {
+			DLine tLine = DLine(.5, -1, 1, 1);
+			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
+			DPoint iPoint;
+			tLine.intersection(eLine, iPoint);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x * .5, iPoint.m_y * vSize.m_y * .5);
+			return iPoint + center;
+		} else { // angle < Math::pi * 7 / 4
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
+		}
+	case Shape::InvTrapeze:
+		return center - contourPointFromAngle(angle + Math::pi, Shape::Trapeze, DPoint(), vSize);
+	case Shape::Parallelogram:
+		if (angle < atan(2) || angle > Math::pi * 7 / 4) {
+			DLine tLine = DLine(-.5, -1, -1, 1);
+			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
+			DPoint iPoint;
+			tLine.intersection(eLine, iPoint);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x * .5, iPoint.m_y * vSize.m_y * .5);
+			return iPoint + center;
+		} else if (angle < Math::pi * 3 / 4) {
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
+		} else if (angle < Math::pi + atan(2)) {
+			DLine tLine = DLine(.5, 1, 1, -1);
+			DLine eLine = DLine(0, 0, 2 * cos(angle), 2 * sin(angle));
+			DPoint iPoint;
+			tLine.intersection(eLine, iPoint);
+			iPoint = DPoint(iPoint.m_x * vSize.m_x * .5, iPoint.m_y * vSize.m_y * .5);
+			return iPoint + center;
+		} else { // angle < Math::pi * 7 / 4
+			return contourPointFromAngle(angle, Shape::Rect, center, vSize);
+		}
+	case Shape::InvParallelogram: {
+		DPoint p = contourPointFromAngle(Math::pi - angle, Shape::Parallelogram, DPoint(), vSize);
+		p.m_x *= -1;
+		return p + center;
+	}
+	case Shape::Ellipse:
+	default:
+		return DPoint(-vSize.m_x * .5 * cos(angle), -vSize.m_y * .5 * sin(angle)) + center;
 	}
 }
 

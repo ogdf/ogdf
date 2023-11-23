@@ -217,7 +217,7 @@ private:
 	 * \param point the candidate arrow tip
 	 * \param adj the adjacency entry
 	 */
-	bool isCoveredBy(const DPoint& point, adjEntry adj);
+	bool isCoveredBy(const DPoint& point, adjEntry adj) const;
 
 	/**
 	 * Draws an arrow head at the end of the edge.

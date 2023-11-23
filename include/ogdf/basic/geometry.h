@@ -36,6 +36,7 @@
 #include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/graphics.h>
 
 #include <cfloat>
 
@@ -1037,7 +1038,7 @@ public:
 	void normalize();
 
 	/**
-	 * \brief Checks wether a Point /a p is inside the Poylgon or not.
+	 * \brief Checks whether a Point /a p is inside the Polygon or not.
 	 * \note Polygons with crossings have inner areas that count as outside!
 	 * \par p the Point to check.
 	 * return true if Point is inside.
@@ -1054,4 +1055,39 @@ inline int orientation(const DSegment& s, const DPoint& p) {
 	return orientation(s.start(), s.end(), p);
 }
 
+/**
+ * Check whether this point lies within a node (using
+ * node shapes with same size and aspect as in TikZ).
+ *
+ * @param point the point
+ * @param v the node.
+ * @param vSize Width and height of v.
+ * @param shape of the node.
+ * @return true if the point lies within the border of \p v.
+ */
+OGDF_EXPORT bool isPointCoveredByNode(const DPoint& point, const DPoint& v, const DPoint& vSize,
+		const Shape& shape);
+
+/**
+ * returns the point where a vector, pointing from center in direction of angle, intersects with
+ * the contour of any regular n-polygon.
+ * \par angle angle of vector.
+ * \par n number of polygon sides.
+ * \par rotationOffset rotational offset of the polygon in RAD.
+ * \par center center point of the polygon.
+ * \par vSize Width and height of v.
+ */
+OGDF_EXPORT DPoint contourPointFromAngle(double angle, int n, double rotationOffset = 0,
+		const DPoint& center = DPoint(), const DPoint& vSize = DPoint(1, 1));
+
+/**
+ * returns the point where a vector, pointing from center in direction of angle, intersects with
+ * the contour of any Shape.
+ * \par angle angle of vector.
+ * \par shape shape
+ * \par center center point of the shape.
+ * \par vSize Width and height of v.
+ */
+OGDF_EXPORT DPoint contourPointFromAngle(double angle, Shape shape, const DPoint& center = DPoint(),
+		const DPoint& vSize = DPoint(1, 1));
 }

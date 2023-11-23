@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <cmath>
 
+
 using namespace ogdf;
 
 GraphIO::SVGSettings GraphIO::svgSettings;
@@ -125,7 +126,8 @@ void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, do
 
 void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 #if 1
-	const double hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
+	const double triangleHalfWidth = 0.43301270189222 * m_attr.width(v),
+				 hexagonHalfHeight = 0.43301270189222 * m_attr.height(v),
 				 pentagonHalfWidth = 0.475528258147577 * m_attr.width(v),
 				 pentagonSmallHeight = 0.154508497187474 * m_attr.height(v),
 				 pentagonSmallWidth = 0.293892626146236 * m_attr.width(v),
@@ -152,13 +154,13 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v) {
 		break;
 	case Shape::Triangle:
 		shape = drawPolygon(xmlNode,
-				{x, y - m_attr.height(v) / 2, x - m_attr.width(v) / 2, y + m_attr.height(v) / 2,
-						x + m_attr.width(v) / 2, y + m_attr.height(v) / 2});
+				{x, y - m_attr.height(v) / 2, x + triangleHalfWidth, y + m_attr.height(v) / 4,
+						x - triangleHalfWidth, y + m_attr.height(v) / 4});
 		break;
 	case Shape::InvTriangle:
 		shape = drawPolygon(xmlNode,
-				{x, y + m_attr.height(v) / 2, x - m_attr.width(v) / 2, y - m_attr.height(v) / 2,
-						x + m_attr.width(v) / 2, y - m_attr.height(v) / 2});
+				{x, y + m_attr.height(v) / 2, x - triangleHalfWidth, y - m_attr.height(v) / 4,
+						x + triangleHalfWidth, y - m_attr.height(v) / 4});
 		break;
 	case Shape::Pentagon:
 		shape = drawPolygon(xmlNode,
@@ -424,13 +426,10 @@ double SvgPrinter::getArrowSize(adjEntry adj) {
 	return result;
 }
 
-bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) {
+bool SvgPrinter::isCoveredBy(const DPoint& point, adjEntry adj) const {
 	node v = adj->theNode();
-
-	return point.m_x >= m_attr.x(v) - m_attr.width(v) / 2
-			&& point.m_x <= m_attr.x(v) + m_attr.width(v) / 2
-			&& point.m_y >= m_attr.y(v) - m_attr.height(v) / 2
-			&& point.m_y <= m_attr.y(v) + m_attr.height(v) / 2;
+	DPoint vSize = DPoint(m_attr.width(v), m_attr.height(v));
+	return ogdf::isPointCoveredByNode(point, m_attr.point(v), vSize, m_attr.shape(v));
 }
 
 void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
@@ -628,53 +627,36 @@ void SvgPrinter::drawArrowHead(pugi::xml_node xmlNode, const DPoint& start, DPoi
 
 	pugi::xml_node arrowHead;
 
+
+	// identify the position of the tip
+	float angle;
 	if (dx == 0) {
-		int sign = dy > 0 ? 1 : -1;
-		double y = m_attr.y(v) - m_attr.height(v) / 2 * sign;
-		end.m_y = y - sign * size;
-
-		arrowHead = drawPolygon(xmlNode,
-				{end.m_x, y, end.m_x - size / 4, y - size * sign, end.m_x + size / 4,
-						y - size * sign});
+		angle = .5 * Math::pi * (dy > 0 ? 1 : -1);
 	} else {
-		// identify the position of the tip
-
-		double slope = dy / dx;
-		int sign = dx > 0 ? 1 : -1;
-
-		double x = m_attr.x(v) - m_attr.width(v) / 2 * sign;
-		double delta = x - start.m_x;
-		double y = start.m_y + delta * slope;
-
-		if (!isCoveredBy(DPoint(x, y), adj)) {
-			sign = dy > 0 ? 1 : -1;
-			y = m_attr.y(v) - m_attr.height(v) / 2 * sign;
-			delta = y - start.m_y;
-			x = start.m_x + delta / slope;
-		}
-
-		end.m_x = x;
-		end.m_y = y;
-
-		// draw the actual arrow head
-
-		double dx2 = end.m_x - start.m_x;
-		double dy2 = end.m_y - start.m_y;
-		double length = std::sqrt(dx2 * dx2 + dy2 * dy2);
-		dx2 /= length;
-		dy2 /= length;
-
-		double mx = end.m_x - size * dx2;
-		double my = end.m_y - size * dy2;
-
-		double x2 = mx - size / 4 * dy2;
-		double y2 = my + size / 4 * dx2;
-
-		double x3 = mx + size / 4 * dy2;
-		double y3 = my - size / 4 * dx2;
-
-		arrowHead = drawPolygon(xmlNode, {end.m_x, end.m_y, x2, y2, x3, y3});
+		angle = atan(dy / dx) + (dx < 0 ? Math::pi : 0);
 	}
+	DPoint head = contourPointFromAngle(angle, m_attr.shape(v), DPoint(m_attr.x(v), m_attr.y(v)),
+			DPoint(m_attr.width(v), m_attr.height(v)));
+
+	end.m_x = head.m_x;
+	end.m_y = head.m_y;
+
+	// draw the actual arrow head
+
+	double length = std::sqrt(dx * dx + dy * dy);
+	double dx_norm = dx / length;
+	double dy_norm = dy / length;
+
+	double mx = head.m_x - size * dx_norm;
+	double my = head.m_y - size * dy_norm;
+
+	double x2 = mx - size / 4 * dy_norm;
+	double y2 = my + size / 4 * dx_norm;
+
+	double x3 = mx + size / 4 * dy_norm;
+	double y3 = my - size / 4 * dx_norm;
+
+	arrowHead = drawPolygon(xmlNode, {head.m_x, head.m_y, x2, y2, x3, y3});
 
 	appendLineStyle(arrowHead, *adj, true);
 }

@@ -260,12 +260,18 @@ void TikzWriter::drawEdge(std::ostream& os, edge e) {
 		}
 	}
 	// If no bendpoint inside source node -> snap line end to source node border
-	if (edgeLine.size() == 0 || !isCoveredBy(*edgeLine.get(0), source)) {
+	DPoint vSize = DPoint(m_attr.width(source), m_attr.height(source));
+	if (edgeLine.size() == 0
+			|| !isPointCoveredByNode(*edgeLine.get(0), m_attr.point(source), vSize,
+					m_attr.shape(source))) {
 		bendPointStrings.pushFront("(Node" + std::to_string(source->index()) + ")");
 		edgeLine.pushFront(m_attr.point(source));
 	}
 	// If no bendpoint inside target node -> snap line end to target node border
-	if (edgeLine.size() == 0 || !isCoveredBy(*edgeLine.get(edgeLine.size() - 1), target)) {
+	vSize = DPoint(m_attr.width(target), m_attr.height(target));
+	if (edgeLine.size() == 0
+			|| !isPointCoveredByNode(*edgeLine.get(edgeLine.size() - 1), m_attr.point(target),
+					vSize, m_attr.shape(target))) {
 		bendPointStrings.pushBack("(Node" + std::to_string(target->index()) + ")");
 		edgeLine.pushBack(m_attr.point(target));
 	}
@@ -504,109 +510,6 @@ std::string TikzWriter::getEdgeLabel(edge e, const DPoint& previousPoint,
 	}
 
 	return "edgelabel={" + relPos + ": " + m_attr.label(e) + "}";
-}
-
-bool TikzWriter::isCoveredBy(const DPoint& pt, node v) const {
-	OGDF_ASSERT(v != nullptr);
-	const double epsilon = 1e-6;
-	const double trapeziumWidthOffset = m_attr.width(v) * 0.275;
-	DPolyline polygon;
-
-	auto isInConvexCCWPolygon = [&] {
-		for (int i = 0; i < polygon.size(); i++) {
-			DPoint edgePt1 = m_attr.point(v) + *polygon.get(i);
-			DPoint edgePt2 = m_attr.point(v) + *polygon.get((i + 1) % polygon.size());
-
-			if ((edgePt2.m_x - edgePt1.m_x) * (pt.m_y - edgePt1.m_y)
-							- (edgePt2.m_y - edgePt1.m_y) * (pt.m_x - edgePt1.m_x)
-					< -epsilon) {
-				return false;
-			}
-		}
-		return true;
-	};
-
-	auto isInRegularPolygon = [&](unsigned int sides) {
-		polygon.clear();
-		double radius = (max(m_attr.width(v), m_attr.height(v)) / 2.0);
-		for (double angle = -(Math::pi / 2) + Math::pi / sides; angle < 1.5 * Math::pi;
-				angle += 2.0 * Math::pi / sides) {
-			polygon.pushBack(DPoint(radius * cos(angle), radius * sin(angle)));
-		}
-		return isInConvexCCWPolygon();
-	};
-
-	switch (m_attr.shape(v)) {
-	// currently these tikz polygons are only supported as regular polygons, i.e. width=height
-	case Shape::Pentagon:
-		return isInRegularPolygon(5);
-	case Shape::Hexagon:
-		return isInRegularPolygon(6);
-	case Shape::Octagon:
-		return isInRegularPolygon(8);
-	// Non-regular polygons
-	case Shape::Triangle:
-		polygon.pushBack(DPoint(0, m_attr.height(v) * 2.0 / 3.0));
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, -m_attr.height(v) * 1.0 / 3.0));
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, -m_attr.height(v) * 1.0 / 3.0));
-		return isInConvexCCWPolygon();
-	case Shape::InvTriangle:
-		polygon.pushBack(DPoint(0, -m_attr.height(v) * 2.0 / 3.0));
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, m_attr.height(v) * 1.0 / 3.0));
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, m_attr.height(v) * 1.0 / 3.0));
-		return isInConvexCCWPolygon();
-	case Shape::Rhomb:
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, 0));
-		polygon.pushBack(DPoint(0, m_attr.height(v) / 2.0));
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, 0));
-		polygon.pushBack(DPoint(0, -m_attr.height(v) / 2.0));
-		return isInConvexCCWPolygon();
-	case Shape::Trapeze:
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, -m_attr.height(v) / 2.0));
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, -m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(m_attr.width(v) / 2.0 - trapeziumWidthOffset, +m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(-m_attr.width(v) / 2.0 + trapeziumWidthOffset, +m_attr.height(v) / 2.0));
-		return isInConvexCCWPolygon();
-	case Shape::InvTrapeze:
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, m_attr.height(v) / 2.0));
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(-m_attr.width(v) / 2.0 + trapeziumWidthOffset, -m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(m_attr.width(v) / 2.0 - trapeziumWidthOffset, -m_attr.height(v) / 2.0));
-		return isInConvexCCWPolygon();
-	case Shape::Parallelogram:
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, -m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(m_attr.width(v) / 2.0 - trapeziumWidthOffset, -m_attr.height(v) / 2.0));
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, +m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(-m_attr.width(v) / 2.0 + trapeziumWidthOffset, +m_attr.height(v) / 2.0));
-		return isInConvexCCWPolygon();
-	case Shape::InvParallelogram:
-		polygon.pushBack(
-				DPoint(-m_attr.width(v) / 2.0 + trapeziumWidthOffset, -m_attr.height(v) / 2.0));
-		polygon.pushBack(DPoint(m_attr.width(v) / 2.0, -m_attr.height(v) / 2.0));
-		polygon.pushBack(
-				DPoint(m_attr.width(v) / 2.0 - trapeziumWidthOffset, m_attr.height(v) / 2.0));
-		polygon.pushBack(DPoint(-m_attr.width(v) / 2.0, m_attr.height(v) / 2.0));
-		return isInConvexCCWPolygon();
-	// Ellipse
-	case Shape::Ellipse:
-		return pow((pt.m_x - m_attr.x(v)) / (m_attr.width(v) * 0.5), 2)
-				+ pow((pt.m_y - m_attr.y(v)) / (m_attr.height(v) * 0.5), 2)
-				< 1;
-	// Simple x y comparison
-	case Shape::Rect:
-	case Shape::RoundedRect:
-	default:
-		return pt.m_x + epsilon >= m_attr.x(v) - m_attr.width(v) / 2.0
-				&& pt.m_x - epsilon <= m_attr.x(v) + m_attr.width(v) / 2.0
-				&& pt.m_y + epsilon >= m_attr.y(v) - m_attr.height(v) / 2.0
-				&& pt.m_y - epsilon <= m_attr.y(v) + m_attr.height(v) / 2.0;
-	}
 }
 
 double TikzWriter::calcArrowSize() const {

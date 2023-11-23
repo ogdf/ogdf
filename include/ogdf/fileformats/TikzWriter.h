@@ -212,16 +212,6 @@ private:
 	std::string getEdgeLabel(edge e, const DPoint& previousPoint, const DPoint& labelPoint) const;
 
 	/**
-	 * Check whether a point (e.g. edge bend point) lies within a node (using
-	 * node shapes with same size and aspect as in TikZ).
-	 *
-	 * @param p point to check
-	 * @param v node to check
-	 * @return true iff \p lies within the border of \p v
-	 */
-	bool isCoveredBy(const DPoint& p, node v) const;
-
-	/**
 	 * @brief Calculates the arrow size to be used for TikZ arrows
 	 *
 	 * @return double
