@@ -590,7 +590,7 @@ protected:
 
 	//! This operation is not supported for registered arrays without default.
 	void copyEntry(int toIndex, int fromIndex) override {
-		throw std::runtime_error("RegisteredArrayWithoutDefault does not support copyEntry");
+		// silently ignored
 	}
 };
 

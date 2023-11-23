@@ -251,28 +251,33 @@ void Graph::unsplit(edge eIn, edge eOut) {
 	OGDF_ASSERT(!eOut->isSelfLoop());
 
 	// notify all registered observers while everything is still valid
+	m_regAdjArrays.keyRemoved(eOut->adjSource());
+	m_regEdgeArrays.keyRemoved(eOut);
 	for (GraphObserver* obs : getObservers()) {
 		obs->edgeDeleted(eOut);
 	}
+	m_regNodeArrays.keyRemoved(u);
 	for (GraphObserver* obs : getObservers()) {
 		obs->nodeDeleted(u);
 	}
+
+	// before:
+	// src (adjSrc) -- eIn -> u -- eOut -> (adjTgt) tgt
+	// after:
+	// src (adjSrc) -- eIn -> (adjTgt) tgt
 
 	// we reuse these adjacency entries
 	adjEntry adjSrc = eIn->m_adjSrc;
 	adjEntry adjTgt = eOut->m_adjTgt;
 
-	eIn->m_tgt = eOut->m_tgt;
-
 	// adapt adjacency entry index to hold invariant
-	m_regAdjArrays.copyArrayEntries(eIn->m_adjTgt->m_id, adjTgt->m_id);
-	adjTgt->m_id = eIn->m_adjTgt->m_id; // correct id of adjacency entry!
-
-	eIn->m_adjTgt = adjTgt;
+	m_regAdjArrays.swapArrayEntries(eIn->m_adjTgt->m_id, eOut->m_adjTgt->m_id);
+	eOut->m_adjTgt->m_id = eIn->m_adjTgt->m_id;
+	eIn->m_adjTgt = eOut->m_adjTgt;
+	eIn->m_tgt = eOut->m_tgt;
 
 	adjSrc->m_twin = adjTgt;
 	adjTgt->m_twin = adjSrc;
-
 	adjTgt->m_edge = eIn;
 
 	// remove structures that are no longer used

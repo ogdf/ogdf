@@ -81,11 +81,14 @@ go_bandit([]() {
 		it("keeps the correct values when splitting/unsplitting edges", [&]() {
 			Graph G;
 			AdjEntryArray<int> R(G, 0);
+			AdjEntryArrayP<int> P(G);
 			node n1 = G.newNode();
 			node n2 = G.newNode();
 			edge e = G.newEdge(n1, n2);
 			R[e->adjSource()] = 1;
 			R[e->adjTarget()] = 2;
+			P[e->adjSource()].reset(new int(1));
+			P[e->adjTarget()].reset(new int(2));
 
 			edge e2 = G.split(e);
 
@@ -94,13 +97,27 @@ go_bandit([]() {
 			AssertThat(R[e->adjTarget()], Equals(2));
 			AssertThat(R[e2->adjTarget()], Equals(2));
 
+			AssertThat(P[e->adjSource()].get(), !IsNull());
+			AssertThat(P[e->adjTarget()].get(), !IsNull());
+			AssertThat(*P[e->adjSource()], Equals(1));
+			AssertThat(*P[e->adjTarget()], Equals(2));
+			AssertThat(P[e2->adjSource()].get(), IsNull());
+			AssertThat(P[e2->adjTarget()].get(), IsNull());
+
 			R[e->adjTarget()] = 3;
 			R[e2->adjSource()] = 4;
+			P[e->adjTarget()].reset(new int(3));
+			P[e2->adjSource()].reset(new int(4));
+			P[e2->adjTarget()].reset(new int(5));
 
 			G.unsplit(e, e2);
 
 			AssertThat(R[e->adjSource()], Equals(1));
 			AssertThat(R[e->adjTarget()], Equals(2));
+			AssertThat(P[e->adjSource()].get(), !IsNull());
+			AssertThat(P[e->adjTarget()].get(), !IsNull());
+			AssertThat(*P[e->adjSource()], Equals(1));
+			AssertThat(*P[e->adjTarget()], Equals(5));
 		});
 	});
 });
