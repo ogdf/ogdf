@@ -130,10 +130,38 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 	m_eIterator.init(this, nullptr);
 }
 
-void GraphCopyBase::setOriginalEmbedding() {
+void GraphCopySimple::setOriginalEmbedding() {
 	List<adjEntry> newAdjOrder;
 	for (node v : getOriginalGraph()->nodes) {
-		if (copy(v) == nullptr) {
+		node u = copy(v);
+		if (u == nullptr) {
+			continue;
+		}
+		newAdjOrder.clear();
+		// newAdjOrder.reserve(v->degree());
+		// add from original according to their order
+		for (adjEntry adj : v->adjEntries) {
+			edge e = copy(adj->theEdge());
+			if (e != nullptr && e->isIncident(u)) {
+				newAdjOrder.pushBack(e->getAdj(u));
+			}
+		}
+		// add remaining dummy edges to the end, also retaining their order
+		for (adjEntry adj : u->adjEntries) {
+			if (isDummy(adj) || !copy(original(adj->theEdge()))->isIncident(u)) {
+				newAdjOrder.pushBack(adj);
+			}
+		}
+		OGDF_ASSERT(newAdjOrder.size() == u->degree());
+		sort(u, newAdjOrder);
+	}
+}
+
+void GraphCopy::setOriginalEmbedding() {
+	List<adjEntry> newAdjOrder;
+	for (node v : getOriginalGraph()->nodes) {
+		node u = copy(v);
+		if (u == nullptr) {
 			continue;
 		}
 		newAdjOrder.clear();
@@ -145,12 +173,13 @@ void GraphCopyBase::setOriginalEmbedding() {
 			}
 		}
 		// add remaining dummy edges to the end, also retaining their order
-		for (adjEntry adj : copy(v)->adjEntries) {
+		for (adjEntry adj : u->adjEntries) {
 			if (isDummy(adj)) {
 				newAdjOrder.pushBack(adj);
 			}
 		}
-		sort(copy(v), newAdjOrder);
+		OGDF_ASSERT(newAdjOrder.size() == u->degree());
+		sort(u, newAdjOrder);
 	}
 }
 
@@ -1158,7 +1187,7 @@ void GraphCopy::consistencyCheck() const {
 
 #endif
 
-void GraphCopy::initByCC(const Graph::CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
+void GraphCopyBase::initByCC(const Graph::CCsInfo& info, int cc, EdgeArray<edge>& eCopy) {
 	eCopy.init(*m_pGraph);
 	clear();
 #ifdef OGDF_DEBUG
@@ -1169,7 +1198,7 @@ void GraphCopy::initByCC(const Graph::CCsInfo& info, int cc, EdgeArray<edge>& eC
 	OGDF_ASSERT(count.second == info.numberOfEdges(cc));
 }
 
-void GraphCopy::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy) {
+void GraphCopyBase::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy) {
 	eCopy.init(*m_pGraph);
 	clear();
 #ifdef OGDF_DEBUG
@@ -1180,8 +1209,8 @@ void GraphCopy::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy)
 	OGDF_ASSERT(count.first == origNodes.size());
 }
 
-void GraphCopy::initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-		EdgeArray<edge>& eCopy) {
+void GraphCopyBase::initByActiveNodes(const List<node>& nodeList,
+		const NodeArray<bool>& activeNodes, EdgeArray<edge>& eCopy) {
 	eCopy.init(*m_pGraph);
 	clear();
 #ifdef OGDF_DEBUG

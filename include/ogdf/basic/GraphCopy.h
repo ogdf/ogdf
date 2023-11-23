@@ -209,7 +209,7 @@ public:
 	 * Edges that have no copy in this graph will be left out, while dummy edges that are not present
 	 * in the original graph will be moved to the end of their nodes' adjacency lists.
 	 */
-	void setOriginalEmbedding();
+	virtual void setOriginalEmbedding() = 0;
 
 	bool isLinkCopiesOnInsert() const { return m_linkCopiesOnInsert; }
 
@@ -226,6 +226,52 @@ public:
 	void setLinkCopiesOnInsert(bool linkCopiesOnInsert) {
 		m_linkCopiesOnInsert = linkCopiesOnInsert;
 	}
+
+	//! Initializes the graph copy for the nodes in component \p cc.
+	/**
+	 * @param info  must be a connected component info structure for the original graph.
+	 * @param cc    is the number of the connected component.
+	 * @param eCopy is assigned a mapping from original to copy edges.
+	 */
+	// OGDF_DEPRECATED("use insert")
+	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
+
+	//! Initializes the graph copy for the nodes in a component.
+	/**
+	 * Creates copies of all nodes in \p origNodes and their incident edges.
+	 * Any nodes and edges allocated before are removed.
+	 *
+	 * The order of entries in the adjacency lists is preserved, i.e., if
+	 * the original graph is embedded, its embedding induces the embedding
+	 * of the created copy.
+	 *
+	 * It is important that \p origNodes is the complete list of nodes in
+	 * a connected component. If you wish to initialize the graph copy for an
+	 * arbitrary set of nodes, use the method initByActiveNodes().
+	 * \see setOriginalGraph() for an example.
+	 * @param origNodes is the list of nodes in the original graph for which
+	 *        copies are created in the graph copy.
+	 * @param eCopy is assigned the copy of each original edge.
+	 */
+	// OGDF_DEPRECATED("use insert")
+	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
+
+	//! Initializes the graph copy for the nodes in \p nodeList.
+	/**
+	 * Creates copies of all nodes in \p nodeList and edges between two nodes
+	 * which are both contained in \p nodeList.
+	 * Any nodes and edges allocated before are destroyed.
+	 *
+	 * \see setOriginalGraph()
+	 * @param nodeList is the list of nodes in the original graph for which
+	 *        copies are created in the graph copy.
+	 * @param activeNodes must be true for every node in \p nodeList, false
+	 *        otherwise.
+	 * @param eCopy is assigned the copy of each original edge.
+	 */
+	// OGDF_DEPRECATED("use insert")
+	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
+			EdgeArray<edge>& eCopy);
 
 protected:
 	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, NodeArray<node>& nodeMap,
@@ -327,6 +373,8 @@ public:
 	 * \param e is an edge in the graph copy.
 	 */
 	void delEdge(edge e) override;
+
+	void setOriginalEmbedding() override;
 
 protected:
 	void edgeInserted(void* userData, edge original, edge copy) override;
@@ -525,6 +573,8 @@ public:
 	 */
 	void setEdge(edge eOrig, edge eCopy);
 
+	void setOriginalEmbedding() override;
+
 	//! Removes all crossing nodes which are actually only two "touching" edges.
 	void removePseudoCrossings();
 
@@ -712,51 +762,6 @@ public:
 	void consistencyCheck() const;
 #endif
 
-	//! Initializes the graph copy for the nodes in component \p cc.
-	/**
-	 * @param info  must be a connected component info structure for the original graph.
-	 * @param cc    is the number of the connected component.
-	 * @param eCopy is assigned a mapping from original to copy edges.
-	 */
-	// OGDF_DEPRECATED("use insert")
-	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
-
-	//! Initializes the graph copy for the nodes in a component.
-	/**
-	 * Creates copies of all nodes in \p origNodes and their incident edges.
-	 * Any nodes and edges allocated before are removed.
-	 *
-	 * The order of entries in the adjacency lists is preserved, i.e., if
-	 * the original graph is embedded, its embedding induces the embedding
-	 * of the created copy.
-	 *
-	 * It is important that \p origNodes is the complete list of nodes in
-	 * a connected component. If you wish to initialize the graph copy for an
-	 * arbitrary set of nodes, use the method initByActiveNodes().
-	 * \see setOriginalGraph() for an example.
-	 * @param origNodes is the list of nodes in the original graph for which
-	 *        copies are created in the graph copy.
-	 * @param eCopy is assigned the copy of each original edge.
-	 */
-	// OGDF_DEPRECATED("use insert")
-	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
-
-	//! Initializes the graph copy for the nodes in \p nodeList.
-	/**
-	 * Creates copies of all nodes in \p nodeList and edges between two nodes
-	 * which are both contained in \p nodeList.
-	 * Any nodes and edges allocated before are destroyed.
-	 *
-	 * \see setOriginalGraph()
-	 * @param nodeList is the list of nodes in the original graph for which
-	 *        copies are created in the graph copy.
-	 * @param activeNodes must be true for every node in \p nodeList, false
-	 *        otherwise.
-	 * @param eCopy is assigned the copy of each original edge.
-	 */
-	// OGDF_DEPRECATED("use insert")
-	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-			EdgeArray<edge>& eCopy);
 	//! @}
 
 protected:
