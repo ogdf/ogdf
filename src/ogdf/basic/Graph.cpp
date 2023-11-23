@@ -174,40 +174,50 @@ edge Graph::split(edge e) {
 	OGDF_ASSERT(e != nullptr);
 	OGDF_ASSERT(e->graphOf() == this);
 
+	node /* src = e->source(), */ tgt = e->target();
+	adjEntry eadjSrc = e->adjSource(), eadjTgt = e->adjTarget();
+
+	// before:
+	// src (eadjSrc) -- e -> (eadjTgt) tgt
+	// after:
+	// src (eadjSrc) -- e -> (uadjTgt) u (uadjSrc) -- e2 -> (eadjTgt) tgt
+
 	node u = newNode();
 	u->m_indeg = u->m_outdeg = 1;
 
-	adjEntry adjTgt = new AdjElement(u);
-	adjTgt->m_edge = e;
-	adjTgt->m_twin = e->m_adjSrc;
-	e->m_adjSrc->m_twin = adjTgt;
+	adjEntry uadjTgt = new AdjElement(u);
+	uadjTgt->m_twin = eadjSrc;
+	eadjSrc->m_twin = uadjTgt;
+	u->adjEntries.pushBack(uadjTgt);
 
-	// adapt adjacency entry index to hold invariant
-	adjTgt->m_id = e->m_adjTgt->m_id;
+	adjEntry uadjSrc = new AdjElement(u);
+	uadjSrc->m_twin = eadjTgt;
+	eadjTgt->m_twin = uadjSrc;
+	u->adjEntries.pushBack(uadjSrc);
 
-	u->adjEntries.pushBack(adjTgt);
-
-	adjEntry adjSrc = new AdjElement(u);
-	adjSrc->m_twin = e->m_adjTgt;
-	u->adjEntries.pushBack(adjSrc);
-
-	int oldId = e->m_adjTgt->m_id;
-	e->m_adjTgt->m_id = (adjSrc->m_id = m_edgeIdCount << 1) | 1;
-	edge e2 = new EdgeElement(u, e->m_tgt, adjSrc, e->m_adjTgt, m_edgeIdCount++);
+	edge e2 = new EdgeElement(u, tgt, uadjSrc, eadjTgt, m_edgeIdCount);
 	edges.pushBack(e2);
 
-	e2->m_adjTgt->m_twin = adjSrc;
-	e->m_adjTgt->m_edge = adjSrc->m_edge = e2;
+	// update indices
+	uadjSrc->m_id = m_edgeIdCount << 1;
+	uadjTgt->m_id = eadjTgt->m_id; // must be read before being overwritten
+	eadjTgt->m_id = (uadjSrc->m_id) | 1;
+	m_edgeIdCount++;
+
+	// update edge
+	uadjTgt->m_edge = e;
+	uadjSrc->m_edge = e2;
+	eadjTgt->m_edge = e2;
 
 	e->m_tgt = u;
-	e->m_adjTgt = adjTgt;
+	e->m_adjTgt = uadjTgt;
 
 	m_regEdgeArrays.keyAdded(e2); // FIXME registry observers won't see copied entry
 	m_regAdjArrays.keyAdded(e2->adjSource());
 
 	// copy array entries from the original adjEntries to the new ones
-	m_regAdjArrays.copyArrayEntries(e->m_adjTgt->m_id, oldId);
-	m_regAdjArrays.copyArrayEntries(adjSrc->m_id, e->m_adjSrc->m_id);
+	m_regAdjArrays.copyArrayEntries(eadjTgt->m_id, uadjTgt->m_id);
+	m_regAdjArrays.copyArrayEntries(uadjSrc->m_id, eadjSrc->m_id);
 
 	for (GraphObserver* obs : getObservers()) {
 		obs->edgeAdded(e2);
