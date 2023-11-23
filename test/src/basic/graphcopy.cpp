@@ -36,6 +36,8 @@
 
 #include <testing.h>
 
+// test GraphCopySimple, insert variants, copying Embeddings and GraphAttributes,
+
 //! Tests if a GraphCopy is initialized correctly
 /**
  * \param vCopy a List of all the Nodes that should be active

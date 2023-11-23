@@ -48,19 +48,23 @@ go_bandit([]() {
 		randomClusterGraph(C, G, 42);
 	};
 
-	describeArray<ClusterGraph, ClusterArray, cluster, int>("ClusterArray filled with ints", 42, 43,
+	describeArray<ClusterGraph, ClusterArray, cluster, int>( //
+			"ClusterArray filled with ints", //
+			42, 43, //
 			init, chooseCluster, allClusters, createCluster);
-	describeArray<ClusterGraph, ClusterArray, cluster, List<int>>(
-			"ClusterArray filled with lists of ints", {1, 2, 3}, {42}, init, chooseCluster,
-			allClusters, createCluster);
+	describeArray<ClusterGraph, ClusterArray, cluster, List<int>>( //
+			"ClusterArray filled with lists of ints", //
+			{1, 2, 3}, {42}, //
+			init, chooseCluster, allClusters, createCluster);
+	describeArray<ClusterGraph, ClusterArray, cluster, bool>( //
+			"ClusterArray filled with bools", //
+			false, true, //
+			init, chooseCluster, allClusters, createCluster);
 
-	describeArray<ClusterGraph, ClusterArray, cluster, bool>("ClusterArray filled with bools",
-			false, true, init, chooseCluster, allClusters, createCluster);
-
-	describeArrayWithoutDefault<ClusterGraph, ClusterArrayWithoutDefault, cluster, std::unique_ptr<int>>(
-			"ClusterArray filled with unique pointers", init, chooseCluster, allClusters,
-			createCluster);
-	describeArrayWithoutDefault<ClusterGraph, ClusterArrayWithoutDefault, cluster,
-			std::vector<std::unique_ptr<int>>>("ClusterArray filled with vectors of unique pointers",
+	describeArrayWithoutDefault<ClusterGraph, ClusterArray, cluster, std::unique_ptr<int>>( //
+			"ClusterArray filled with unique pointers", //
+			init, chooseCluster, allClusters, createCluster);
+	describeArrayWithoutDefault<ClusterGraph, ClusterArray, cluster, std::vector<std::unique_ptr<int>>>( //
+			"ClusterArray filled with vectors of unique pointers", //
 			init, chooseCluster, allClusters, createCluster);
 });

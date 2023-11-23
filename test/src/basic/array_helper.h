@@ -93,13 +93,13 @@ inline int unwrap(std::vector<std::unique_ptr<int>>& value) {
  * @param getAllKeys a function to generate a list of all keys
  * @param createKey a function to create a new key in the base
  */
-template<class BaseType, template<typename> class ArrayType, typename KeyType, typename ElementType>
+template<class BaseType, template<typename, bool> class ArrayType, typename KeyType, typename ElementType>
 void describeArray(const std::string& title, const ElementType& fillElement,
 		const ElementType& secondElement, std::function<void(BaseType&)> initBase,
 		std::function<KeyType(const BaseType&)> chooseKey,
 		std::function<void(const BaseType&, List<KeyType>&)> getAllKeys,
 		std::function<KeyType(BaseType&)> createKey) {
-	using MyArrayType = ArrayType<ElementType>;
+	using MyArrayType = ArrayType<ElementType, true>;
 	using RegistryType = const typename MyArrayType::registry_type;
 	using const_iterator = typename MyArrayType::const_iterator;
 	using iterator = typename MyArrayType::iterator;
@@ -121,7 +121,7 @@ void describeArray(const std::string& title, const ElementType& fillElement,
 			List<KeyType> keys;
 			getAllKeys(B, keys);
 
-			ArrayType<MyArrayType> nestedArray(B);
+			ArrayType<MyArrayType, true> nestedArray(B);
 			for (KeyType k : keys) {
 				nestedArray[k].init(B, fillElement);
 			}
@@ -352,13 +352,13 @@ void describeArray(const std::string& title, const ElementType& fillElement,
  * @param getAllKeys a function to generate a list of all keys
  * @param createKey a function to create a new key in the base
  */
-template<class BaseType, template<typename> class ArrayType, typename KeyType, typename ElementType>
+template<class BaseType, template<typename, bool> class ArrayType, typename KeyType, typename ElementType>
 void describeArrayWithoutDefault(const std::string& title, std::function<void(BaseType&)> initBase,
 		std::function<KeyType(const BaseType&)> chooseKey,
 		std::function<void(const BaseType&, List<KeyType>&)> getAllKeys,
 		std::function<KeyType(BaseType&)> createKey) {
-	using MyArrayType = ArrayType<ElementType>;
-	using RegistryBaseType = const typename MyArrayType::registry_type;
+	using MyArrayType = ArrayType<ElementType, false>;
+	using RegistryType = const typename MyArrayType::registry_type;
 	using const_iterator = typename MyArrayType::const_iterator;
 	using iterator = typename MyArrayType::iterator;
 
@@ -379,7 +379,7 @@ void describeArrayWithoutDefault(const std::string& title, std::function<void(Ba
 			List<KeyType> keys;
 			getAllKeys(B, keys);
 
-			ArrayType<MyArrayType> nestedArray(B);
+			ArrayType<MyArrayType, false> nestedArray(B);
 			for (KeyType k : keys) {
 				nestedArray[k].init(B);
 			}
@@ -396,34 +396,34 @@ void describeArrayWithoutDefault(const std::string& title, std::function<void(Ba
 
 			it("initializes w a registry", [&]() {
 				array->init(base);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)base)));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("initializes w an empty registry", [&]() {
 				BaseType B;
 				array->init(B);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)B)));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w a registry", [&]() {
 				array.reset(new MyArrayType(base));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)base)));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w an empty registry", [&]() {
 				BaseType B;
 				array.reset(new MyArrayType(B));
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)B)));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
 				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("supports move-construction", [&]() {
 				array->init(base);
 				MyArrayType copiedArray = std::move(*array);
-				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryBaseType&)base)));
+				AssertThat(copiedArray.registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
@@ -434,7 +434,7 @@ void describeArrayWithoutDefault(const std::string& title, std::function<void(Ba
 				array->init(base);
 				MyArrayType copiedArray;
 				copiedArray = (std::move(*array));
-				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryBaseType&)base)));
+				AssertThat(&(*copiedArray.registeredAt()), Equals(&((RegistryType&)base)));
 				AssertThat(array->registeredAt(), IsNull());
 				AssertThat(array->valid(), IsFalse());
 				AssertThat(copiedArray.valid(), IsTrue());
@@ -471,7 +471,7 @@ void describeArrayWithoutDefault(const std::string& title, std::function<void(Ba
 
 			it("knows its registry", [&]() {
 				array->init(base);
-				AssertThat(array->registeredAt(), Equals(&((RegistryBaseType&)base)));
+				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 			});
 
 			it("allows access with the subscript operator", [&]() {
