@@ -132,6 +132,9 @@ public:
 	 */
 	bool isMember(element_type v) const { return m_it[v].valid(); }
 
+	//! Returns the same as ::isMember to use an RegisteredSet instance as filter function.
+	bool operator()(element_type v) const { return isMember(v); }
+
 	//! Returns a reference to the list of elements contained in this set.
 	const list_type& elements() const { return m_elements; }
 
@@ -144,9 +147,9 @@ public:
 	 */
 	int size() const { return m_elements.size(); }
 
-	typename list_type::iterator begin() const { return m_elements.begin(); }
+	typename list_type::const_iterator begin() const { return m_elements.begin(); }
 
-	typename list_type::iterator end() const { return m_elements.end(); }
+	typename list_type::const_iterator end() const { return m_elements.end(); }
 
 	//! Copy constructor.
 	template<bool OtherSupportsFastSizeQuery>

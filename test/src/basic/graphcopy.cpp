@@ -36,8 +36,6 @@
 
 #include <testing.h>
 
-// test GraphCopySimple, insert variants, copying Embeddings and GraphAttributes,
-
 //! Tests if a GraphCopy is initialized correctly
 /**
  * \param graph a pointer to the graph of which graphCopy is a GraphCopy of

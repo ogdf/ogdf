@@ -274,7 +274,7 @@ public:
 			EdgeArray<edge>& eCopy);
 
 protected:
-	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, NodeArray<node>& nodeMap,
+	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) override;
 
 	void nodeInserted(void* userData, node original, node copy) override;

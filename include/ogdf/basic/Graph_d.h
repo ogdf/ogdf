@@ -1805,13 +1805,14 @@ protected:
 	 * @param copyEmbedding value of the template parameter \p copyEmbedding of the ::insert call
 	 * @param copyIDs value of the template parameter \p copyIDs of the ::insert call
 	 * @param notifyObservers value of the template parameter \p notifyObservers of the ::insert call
+	 * @param edgeFilter true if the insert variant with an edge filter instead of an iterator is used
 	 * @param nodeMap value of the template parameter \p nodeMap of the ::insert call
 	 * @param edgeMap value of the template parameter \p edgeMap of the ::insert call
 	 * @param newNodes pointer to the counter of inserted nodes, will be valid until after ::postInsert
 	 * @param newEdges pointer to the counter of inserted edges, will be valid until after ::postInsert
 	 * @return arbitrary value, which will be passed to all following callbacks
 	 */
-	virtual void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
+	virtual void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter,
 			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) {
 		return nullptr;
 	};

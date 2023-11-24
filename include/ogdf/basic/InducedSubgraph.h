@@ -47,8 +47,8 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	OGDF_ASSERT(edgeMap.valid());
 	OGDF_ASSERT(nodeMap.graphOf() == edgeMap.graphOf());
 	int newNodes = 0, newEdges = 0;
-	void* cbData = preInsert(copyEmbedding, copyIDs, notifyObservers, nodeMap, edgeMap, &newNodes,
-			&newEdges);
+	void* cbData = preInsert(copyEmbedding, copyIDs, notifyObservers, false, nodeMap, edgeMap,
+			&newNodes, &newEdges);
 	if (nodesBegin == nodesEnd) {
 		postInsert(cbData, newNodes, newEdges);
 		return {newNodes, newEdges};
@@ -180,8 +180,8 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 	OGDF_ASSERT(edgeMap.valid());
 	OGDF_ASSERT(nodeMap.graphOf() == edgeMap.graphOf());
 	int newNodes = 0, newEdges = 0;
-	void* cbData = preInsert(true, copyIDs, notifyObservers, nodeMap, edgeMap, &newNodes,
-			&newEdges);
+	void* cbData =
+			preInsert(true, copyIDs, notifyObservers, true, nodeMap, edgeMap, &newNodes, &newEdges);
 	if (nodesBegin == nodesEnd) {
 		postInsert(cbData, newNodes, newEdges);
 		return {newNodes, newEdges};
