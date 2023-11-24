@@ -100,7 +100,6 @@ jobs:
           CTCACHE_DIR: .ctcache
           # CTCACHE_DUMP: ${{ env.CCACHE_DEBUG }} # defining the var is enough to enable
         run: |
-          PATH="$(pwd):$PATH"
           util/sonar.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           find .ctcache -mtime +7 -delete
           cat sonar/clang-tidy.txt | python3 -m clang_tidy_converter sq > sonar/clang-tidy.json
