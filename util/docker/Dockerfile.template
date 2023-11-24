@@ -1,5 +1,5 @@
 RUN apt -y update \
- && apt -y install python3-pip graphviz unzip wget git time ccache \
+ && apt -y install graphviz unzip wget git time ccache \
  && apt -y upgrade ca-certificates
 
 # cmake
@@ -17,10 +17,6 @@ RUN [ "$DOXYGEN_INSTALL" = "false" ] || { \
  tar -xzf doxygen.tar.gz -C doxygen --strip-components 1 && \
  DIR=`pwd` && ln -s $DIR/doxygen/bin/doxygen /bin && \
  rm doxygen.tar.gz ;}
-
-# gcovr
-RUN python3 -c 'import sys; sys.exit(int(sys.version_info >= (3,5)))' \
- || pip3 install 'gcovr==4.2'
 
 # cgal
 ARG CGAL_INSTALL=false
