@@ -114,8 +114,11 @@ class ListIteratorBase {
 	ListElem* m_pX;
 
 public:
-	using value_type = Elem;
 	using difference_type = std::ptrdiff_t;
+	using value_type = Elem;
+	using iterator_category = std::bidirectional_iterator_tag;
+	using pointer = value_type*;
+	using reference = value_type&;
 
 	//! Conversion to pointer to list element.
 	operator ListElem*() { return m_pX; }
