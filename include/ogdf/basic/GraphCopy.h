@@ -216,8 +216,8 @@ public:
 	//! Whether \c insert(getOriginalGraph()) will automatically set \c copy and \c original
 	/**
 	 * Whether the inserted elements should automatically have assigned \c copy and \c original
-	 * values when calling \c ::insert with nodes and edges from \c ::getOriginalGraph().
-	 * Note that this also applies to elements inserted when calling \c ::init().
+	 * values when calling insert() with nodes and edges from getOriginalGraph().
+	 * Note that this also applies to elements inserted when calling init().
 	 *
 	 * @param linkCopiesOnInsert When true, \c copy and \c original will be automatically set for
 	 *   elements from the original graph. When false, all inserted elements (no matter from which
@@ -546,7 +546,7 @@ public:
 	void delEdge(edge e) override;
 
 	/**
-	 * \brief Splits edge \p e. See Graph::split for details.
+	 * \brief Splits edge \p e. See Graph::split() for details.
 	 * Both resulting edges have the same original edge.
 	 * @param e is an edge in the graph copy.
 	 */

@@ -722,7 +722,7 @@ class EdgeSet;
  * It is guaranteed that the Graph is in a valid state (in terms of \c Graph::consistencyCheck(),
  * that means there are no-half added edges or the like) whenever the notification methods are called.
  * Furthermore, on addition all registered Arrays have already been resized to accommodate the new object.
- * On compound operations like \c Graph::split or \c Graph::insert, the notifications may be batched
+ * On compound operations like Graph::split() or Graph::insert(), the notifications may be batched
  * and thus delayed, that is, when the callback is made the Graph may already contain some further
  * (fully initialized) nodes or edges for which the respective callbacks have not been called
  * (but will be called right after).
@@ -1646,7 +1646,7 @@ public:
 	 * 	Otherwise, the embedding of the inserted subgraph will be copied from the original.
 	 * @tparam copyIDs if explicitly set to true, the newly inserted nodes and edges will have the same IDs
 	 * 	as their originals. The Graph datastructure will become corrupt if one of the IDs is already present in the graph.
-	 * 	By default, new IDs are generated as by ::newNode and ::newEdge.
+	 * 	By default, new IDs are generated as by newNode() and newEdge().
 	 * @tparam notifyObservers if explicitly set to false, no GraphObservers will be notified and (Node-,Edge-,AdjEntry-)Arrays won't grow.
 	 * 	Only use if you know what you are doing!
 	 * @param nodesBegin Iterator to the first node to insert.
@@ -1680,7 +1680,7 @@ public:
 	 * @tparam EF The function type used for filtering edges, e.g. \c std::function<bool(edge)>.
 	 * @tparam copyIDs if explicitly set to true, the newly inserted nodes and edges will have the same IDs
 	 * 	as their originals. The Graph datastructure will become corrupt if one of the IDs is already present in the graph.
-	 * 	By default, new IDs are generated as by ::newNode and ::newEdge.
+	 * 	By default, new IDs are generated as by newNode() and newEdge().
 	 * @tparam notifyObservers if explicitly set to false, no GraphObservers will be notified and (Node-,Edge-,AdjEntry-)Arrays won't grow.
 	 * 	Only use if you know what you are doing!
 	 * @param nodesBegin Iterator to the first node to insert.
@@ -1703,7 +1703,7 @@ public:
 	/**
 	 * Inserts a copy of a given subgraph into this graph.
 	 *
-	 * See the other ::insert variants for details, this method is a short-cut for a container of nodes
+	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
 	 * together with an EdgeSet<true> used for filtering edges.
 	 */
 	template<OGDF_NODE_LIST NL>
@@ -1713,7 +1713,7 @@ public:
 	/**
 	 * Inserts a copy of a given subgraph into this graph.
 	 *
-	 * See the other ::insert variants for details, this method is a short-cut for a container of nodes
+	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
 	 * together with an EdgeSet<false> used for filtering edges.
 	 */
 	template<OGDF_NODE_LIST NL>
@@ -1723,7 +1723,7 @@ public:
 	/**
 	 * Inserts a copy of a given subgraph into this graph.
 	 *
-	 * See the other ::insert variants for details, this method is a short-cut for a container of nodes
+	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
 	 * together with a further container used for iterating edges.
 	 */
 	template<OGDF_NODE_LIST NL, OGDF_EDGE_LIST EL>
@@ -1743,7 +1743,7 @@ public:
 	/**
 	 * Inserts a copy of a given connected component \p cc into this graph.
 	 *
-	 * See the other ::insert variants for details, this method is a short-cut for inserting a whole
+	 * See the other insert() variants for details, this method is a short-cut for inserting a whole
 	 * connected component \p cc as described by CCsInfo \p info.
 	 */
 	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
@@ -1761,7 +1761,7 @@ public:
 	/**
 	 * Inserts a copy of a given Graph \p G into this graph.
 	 *
-	 * See the other ::insert variants for details, this method is a short-cut for inserting a whole
+	 * See the other insert() variants for details, this method is a short-cut for inserting a whole
 	 * Graph \p G.
 	 */
 	std::pair<int, int> insert(const Graph& G, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
@@ -1786,7 +1786,7 @@ public:
 	/**
 	 * Inserts a copy of a given Graph \p G into this graph.
 	 *
-	 * See the other ::insert variants for details, this method is a short-cut for inserting a whole
+	 * See the other insert() variants for details, this method is a short-cut for inserting a whole
 	 * Graph \p G without the need to specify node or edge maps.
 	 */
 	std::pair<int, int> insert(const Graph& G) {
@@ -1797,18 +1797,18 @@ public:
 
 protected:
 	/**
-	 * Callback notifying subclasses that some graph is about to be ::insert -ed.
+	 * Callback notifying subclasses that some graph is about to be insert() -ed.
 	 *
 	 * See its implementation in GraphCopy for an example.
 	 *
-	 * @param copyEmbedding value of the template parameter \p copyEmbedding of the ::insert call
-	 * @param copyIDs value of the template parameter \p copyIDs of the ::insert call
-	 * @param notifyObservers value of the template parameter \p notifyObservers of the ::insert call
+	 * @param copyEmbedding value of the template parameter \p copyEmbedding of the insert() call
+	 * @param copyIDs value of the template parameter \p copyIDs of the insert() call
+	 * @param notifyObservers value of the template parameter \p notifyObservers of the insert() call
 	 * @param edgeFilter true if the insert variant with an edge filter instead of an iterator is used
-	 * @param nodeMap value of the template parameter \p nodeMap of the ::insert call
-	 * @param edgeMap value of the template parameter \p edgeMap of the ::insert call
-	 * @param newNodes pointer to the counter of inserted nodes, will be valid until after ::postInsert
-	 * @param newEdges pointer to the counter of inserted edges, will be valid until after ::postInsert
+	 * @param nodeMap value of the template parameter \p nodeMap of the insert() call
+	 * @param edgeMap value of the template parameter \p edgeMap of the insert() call
+	 * @param newNodes pointer to the counter of inserted nodes, will be valid until after postInsert()
+	 * @param newEdges pointer to the counter of inserted edges, will be valid until after postInsert()
 	 * @return arbitrary value, which will be passed to all following callbacks
 	 */
 	virtual void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter,
@@ -1817,27 +1817,27 @@ protected:
 	};
 
 	/**
-	 * Callback notifying subclasses that ::insert copied a node.
+	 * Callback notifying subclasses that insert() copied a node.
 	 *
-	 * @param userData value returned from the initial ::preInsert call
+	 * @param userData value returned from the initial preInsert() call
 	 * @param original the original node
 	 * @param copy the created copy
 	 */
 	virtual void nodeInserted(void* userData, node original, node copy) {};
 
 	/**
-	 * Callback notifying subclasses that ::insert copied an edge.
+	 * Callback notifying subclasses that insert() copied an edge.
 	 *
-	 * @param userData value returned from the initial ::preInsert call
+	 * @param userData value returned from the initial preInsert() call
 	 * @param original the original edge
 	 * @param copy the created copy
 	 */
 	virtual void edgeInserted(void* userData, edge original, edge copy) {};
 
 	/**
-	 * Callback notifying subclasses that an ::insert call has finished.
+	 * Callback notifying subclasses that an insert() call has finished.
 	 *
-	 * @param userData value returned from the initial ::preInsert call
+	 * @param userData value returned from the initial preInsert() call
 	 * @param newNodes final number of created nodes
 	 * @param newEdges final number of created edges
 	 */

@@ -70,7 +70,7 @@ public:
 		registrationChanged(old);
 	}
 
-	//! Called after ::reregister changed the observed instance.
+	//! Called after reregister() changed the observed instance.
 	virtual void registrationChanged(const TObserved* old) { }
 
 	const TObserved* getObserved() const { return m_pObserved; }

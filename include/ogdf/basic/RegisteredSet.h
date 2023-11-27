@@ -132,7 +132,7 @@ public:
 	 */
 	bool isMember(element_type v) const { return m_it[v].valid(); }
 
-	//! Returns the same as ::isMember to use an RegisteredSet instance as filter function.
+	//! Returns the same as isMember() to use an RegisteredSet instance as filter function.
 	bool operator()(element_type v) const { return isMember(v); }
 
 	//! Returns a reference to the list of elements contained in this set.
