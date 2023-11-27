@@ -35,6 +35,11 @@
 #include <ogdf/basic/RegisteredArray.h>
 
 namespace ogdf {
+//! Bucket function for edges.
+/**
+ * The bucket of an edge is stored in an edge array which is passed
+ * by the user at construction; only a pointer is stored to that array.
+ */
 class OGDF_EXPORT BucketEdgeArray : public BucketFunc<edge> {
 	const EdgeArray<int>* m_pEdgeArray; //!< Pointer to edge array.
 

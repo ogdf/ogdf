@@ -49,10 +49,6 @@
 
 namespace ogdf {
 
-//
-// in embedded graphs, adjacency lists are given in clockwise order.
-//
-
 
 class OGDF_EXPORT Graph;
 class OGDF_EXPORT NodeElement;
@@ -631,17 +627,20 @@ using GraphNodeRegistry = GraphRegistry<NodeElement>;
 using GraphEdgeRegistry = GraphRegistry<EdgeElement>;
 using GraphAdjRegistry = GraphRegistry<AdjElement, GraphAdjIterator, 2>;
 
-OGDF_EXPORT GraphNodeRegistry::iterator begin(const GraphNodeRegistry& self);
+#ifndef DOXYGEN_IGNORE
+// doxygen has problems keeping these methods apart
+OGDF_EXPORT GraphNodeRegistry::iterator begin(const GraphNodeRegistry&);
 
-OGDF_EXPORT GraphNodeRegistry::iterator end(const GraphNodeRegistry& self);
+OGDF_EXPORT GraphNodeRegistry::iterator end(const GraphNodeRegistry&);
 
-OGDF_EXPORT GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& self);
+OGDF_EXPORT GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry&);
 
-OGDF_EXPORT GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& self);
+OGDF_EXPORT GraphEdgeRegistry::iterator end(const GraphEdgeRegistry&);
 
-OGDF_EXPORT GraphAdjRegistry::iterator begin(const GraphAdjRegistry& self);
+OGDF_EXPORT GraphAdjRegistry::iterator begin(const GraphAdjRegistry&);
 
-OGDF_EXPORT GraphAdjRegistry::iterator end(const GraphAdjRegistry& self);
+OGDF_EXPORT GraphAdjRegistry::iterator end(const GraphAdjRegistry&);
+#endif
 
 //! RegisteredArray for nodes, edges and adjEntries of a graph.
 template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>
@@ -1656,7 +1655,7 @@ public:
 	 * @param edgesEnd Iterator one past the last edge to insert (if its endpoints are also inserted).
 	 * @param nodeMap A NodeArray registered with the Graph of the nodes in \p nodesBegin ... \p nodesEnd.
 	 * 	For each of this original nodes, this map will point to the newly-created copy after this call returns.
-	 * 	Note that all (and only) edges in \p edgesBegin ... \p edgesEnd that have an non-null value in this map will be created,
+	 * 	Note that all (and only) edges in \p edgesBegin ... \p edgesEnd that have non-null endpoints in this map will be created,
 	 * 	which includes user-supplied non-null values present when the function is called.
 	 * 	It is thus recommended to pass a map with only nullptrs.
 	 * @param edgeMap An EdgeArray registered with the Graph of the edges in \p edgesBegin ... \p edgesEnd.
@@ -1675,7 +1674,7 @@ public:
 	 * Graph and, for each of these nodes, sets the corresponding value in \p nodeMap to the newly created node.
 	 * The same happens with all incident edges for which function \p edgeFilter returns \p true,
 	 * although an edge is only inserted if both its endpoint were also inserted (i.e., the corresponding
-	 * values in \p nodeMap are non-null). This method always copied the embedding of the subgraph without an overhead.
+	 * values in \p nodeMap are non-null). This method always copies the embedding of the subgraph without an overhead.
 	 *
 	 * @tparam NI The iterator type used for \p nodesBegin ... \p nodesEnd.
 	 * @tparam EF The function type used for filtering edges, e.g. \c std::function<bool(edge)>.
@@ -1686,7 +1685,7 @@ public:
 	 * 	Only use if you know what you are doing!
 	 * @param nodesBegin Iterator to the first node to insert.
 	 * @param nodesEnd Iterator one past the last node to insert.
-	 * @param edgesFilter Function returning \p true for all edges that should be inserted.
+	 * @param edgeFilter Function returning \p true for all edges that should be inserted.
 	 * @param nodeMap A NodeArray registered with the Graph of the nodes in \p nodesBegin ... \p nodesEnd.
 	 * 	For each of this original nodes, this map will point to the newly-created copy after this call returns.
 	 * 	Note that this map may only contain nullptr values, otherwise the result is undefined.

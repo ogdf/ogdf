@@ -31,6 +31,7 @@
 
 #include <ogdf/basic/AdjEntryArray.h>
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GmlParser.h>
@@ -714,29 +715,27 @@ std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 	return os;
 }
 
-GraphNodeRegistry::iterator begin(const GraphNodeRegistry& self) {
-	return self.graphOf()->nodes.begin();
+#ifndef DOXYGEN_IGNORE
+GraphNodeRegistry::iterator begin(const GraphNodeRegistry& reg) {
+	return reg.graphOf()->nodes.begin();
 }
 
-GraphNodeRegistry::iterator end(const GraphNodeRegistry& self) {
-	return self.graphOf()->nodes.end();
+GraphNodeRegistry::iterator end(const GraphNodeRegistry& reg) { return reg.graphOf()->nodes.end(); }
+
+GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& reg) {
+	return reg.graphOf()->edges.begin();
 }
 
-GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry& self) {
-	return self.graphOf()->edges.begin();
+GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& reg) { return reg.graphOf()->edges.end(); }
+
+GraphAdjRegistry::iterator begin(const GraphAdjRegistry& reg) {
+	return GraphAdjIterator(reg.graphOf()).begin();
 }
 
-GraphEdgeRegistry::iterator end(const GraphEdgeRegistry& self) {
-	return self.graphOf()->edges.end();
+GraphAdjRegistry::iterator end(const GraphAdjRegistry& reg) {
+	return GraphAdjIterator(reg.graphOf());
 }
-
-GraphAdjRegistry::iterator begin(const GraphAdjRegistry& self) {
-	return GraphAdjIterator(self.graphOf()).begin();
-}
-
-GraphAdjRegistry::iterator end(const GraphAdjRegistry& self) {
-	return GraphAdjIterator(self.graphOf());
-}
+#endif
 
 GraphAdjIterator::GraphAdjIterator(Graph* graph, adjEntry entry)
 	: m_pGraph(graph), m_entry(entry) { }

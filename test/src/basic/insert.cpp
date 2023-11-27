@@ -1,5 +1,5 @@
 /** \file
- * \brief Tests for ogdf::Graph(Copy(Simple))::insert(...).
+ * \brief Tests for ogdf::Graph::insert(...).
  *
  * \author Simon D. Fink
  *

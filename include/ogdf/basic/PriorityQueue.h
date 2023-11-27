@@ -260,7 +260,7 @@ private:
 	P m_priority;
 };
 
-//! Shortcut for the base class of ::PrioritizedQueue.
+//! Shortcut for the base class of PriorityQueue.
 template<typename E, typename P, class C, template<typename, class> class Impl>
 using SuperQueueTemplate = PriorityQueue<PairTemplate<E, P>, Compare<PairTemplate<E, P>, C>, Impl>;
 
@@ -393,7 +393,7 @@ using PrioritizedQueue = pq_internal::PrioritizedQueue<E, P, C, Impl>;
  * for decreasing the priority of the respective elements.
  *
  * If ::node (or ::edge) is specified as the type of keys to be stored, a
- * ::ogdf::NodeArray (or ::ogdf::EdgeArray) is used internally.
+ * ogdf::NodeArray (or ogdf::EdgeArray) is used internally.
  * These types should be chosen whenever possible.
  *
  * This queue does not support merge operations.

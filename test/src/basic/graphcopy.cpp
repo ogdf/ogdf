@@ -42,9 +42,9 @@
  * \param graphCopy a pointer to the GraphCopy
  * \param allAdjEdges if all or none of the nodes of a connected component should be active,
  *		every adjacent edge of an active node should be active too
-* \param vCopy a List of all the Nodes that should be active
-* \param eCopy an EdgeArray<edge> of the \p graph there every edge is assigned an edge
-* 		from GraphCopy if it is active or \c nullptr if it isn't active
+ * \param vCopy a List of all the Nodes that should be active
+ * \param eCopy an EdgeArray<edge> of the \p graph there every edge is assigned an edge
+ * 		from GraphCopy if it is active or \c nullptr if it isn't active
  */
 void testInitGraph(const Graph& graph, const GraphCopyBase& graphCopy, bool allAdjEdges,
 		const List<node>& vCopy, const EdgeArray<edge>& eCopy) {

@@ -219,7 +219,7 @@ public:
 	 * values when calling \c ::insert with nodes and edges from \c ::getOriginalGraph().
 	 * Note that this also applies to elements inserted when calling \c ::init().
 	 *
-	 * @param linkElementsOnInsert When true, \c copy and \c original will be automatically set for
+	 * @param linkCopiesOnInsert When true, \c copy and \c original will be automatically set for
 	 *   elements from the original graph. When false, all inserted elements (no matter from which
 	 *   Graph) will be dummies.
 	 */
@@ -274,8 +274,9 @@ public:
 			EdgeArray<edge>& eCopy);
 
 protected:
-	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter, NodeArray<node>& nodeMap,
-			EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) override;
+	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes,
+			int* newEdges) override;
 
 	void nodeInserted(void* userData, node original, node copy) override;
 };
