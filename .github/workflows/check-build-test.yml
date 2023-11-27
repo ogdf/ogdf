@@ -73,6 +73,9 @@ jobs:
 
   sonar:
     name: "Static Analysis"
+    if: |
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
     needs: [style, dirs, self-sufficiency, docs]
