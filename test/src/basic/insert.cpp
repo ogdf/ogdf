@@ -35,6 +35,8 @@
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
+#include <set>
+
 #include <testing.h>
 
 using namespace ogdf;

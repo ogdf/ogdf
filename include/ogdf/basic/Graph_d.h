@@ -770,9 +770,9 @@ inline node adjToNode(adjEntry adj) { return adj->theNode(); }
 
 inline node adjToNode(node n) { return n; }
 
-bool filter_any_edge(edge e); // { return true; }
+OGDF_EXPORT bool filter_any_edge(edge e); // { return true; }
 
-bool filter_any_node(node n); // { return true; }
+OGDF_EXPORT bool filter_any_node(node n); // { return true; }
 }
 
 //! Data type for general directed graphs (adjacency list representation).
