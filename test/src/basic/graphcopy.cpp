@@ -34,6 +34,7 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
 
+#include <graphs.h>
 #include <testing.h>
 
 //! Tests if a GraphCopy is initialized correctly
@@ -91,14 +92,6 @@ void testInitGraph(const Graph& graph, const GraphCopyBase& graphCopy, bool allA
 	}
 
 	testInitGraph(graph, graphCopy, allAdjEdges, vCopy, eCopy);
-}
-
-void shuffleEmbedding(Graph& graph) {
-	for (node v : graph.nodes) {
-		for (adjEntry adj : v->adjEntries) {
-			graph.swapAdjEdges(adj, randomNumber(0, 1) ? v->firstAdj() : v->lastAdj());
-		}
-	}
 }
 
 /**
