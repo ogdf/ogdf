@@ -73,6 +73,9 @@ jobs:
 
   sonar:
     name: "Static Analysis"
+    if: |
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
     needs: [style, dirs, self-sufficiency, docs]
@@ -84,16 +87,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # fetch full history for blame info
-      - name: Install tools
-        run: |
-          apt-get update
-          apt-get install -y curl gcovr
-          pip install git+https://github.com/N-Coder/clang-tidy-converter.git
-          curl https://raw.githubusercontent.com/matus-chochlik/ctcache/main/clang-tidy-cache -sSfo clang-tidy-cache
-          echo -e "#!""/bin/bash\n$(realpath clang-tidy-cache) $(which clang-tidy) \"\$@\"" >> clang-tidy
-          echo -e "#!""/bin/bash\nllvm-cov-15 gcov \"\$@\"" >> gcov
-          chmod +x clang-tidy-cache clang-tidy gcov
-        shell: bash
       - name: Install sonar-scanner
         uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Set-up ccache
@@ -110,7 +103,6 @@ jobs:
           CTCACHE_DIR: .ctcache
           # CTCACHE_DUMP: ${{ env.CCACHE_DEBUG }} # defining the var is enough to enable
         run: |
-          PATH="$(pwd):$PATH"
           util/sonar.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           find .ctcache -mtime +7 -delete
           cat sonar/clang-tidy.txt | python3 -m clang_tidy_converter sq > sonar/clang-tidy.json

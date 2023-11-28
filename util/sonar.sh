@@ -5,6 +5,10 @@
 # required tools:
 #  - clang-tidy
 #  - gcovr
+#  - llvm-cov gcov
+#
+# optional tools:
+#  - clang-tidy-cache (see https://github.com/matus-chochlik/ctcache)
 #
 # Author: Tilo Wiedera
 
@@ -63,17 +67,22 @@ diff sonar/used-headers.txt sonar/all-headers.txt | sed -ne 's/^> //p' > sonar/u
 util/run_examples.sh
 util/perform_separate_tests.sh build-sonar
 echo "::group::($(date -Iseconds)) Collect coverage"
-type -a gcov # see also gcovr --gcov-executable; needs to match compiler (here: clang -> `llvm-cov-15 gcov`)
-gcovr --object-directory=build-sonar/CMakeFiles --root=. --sonarqube=sonar/gcovr.xml
+gcovr --gcov-executable="llvm-cov gcov" \
+  --object-directory=build-sonar/CMakeFiles --root=. --sonarqube=sonar/gcovr.xml
 echo "::endgroup::"
 
 # Run clang-tidy
 echo "::group::($(date -Iseconds)) Run clang-tidy"
-echo "Using clang-tidy in $(which clang-tidy) on $cores cores"
+if command -v clang-tidy-cache > /dev/null 2>&1; then
+  clang_tidy_command="clang-tidy-cache $(which clang-tidy)"
+else
+  clang_tidy_command="$(which clang-tidy)"
+fi
+echo "Using \"$clang_tidy_command\" on $cores cores"
 type -a clang-tidy
 cat sonar/unused-headers.txt sonar/all-sources.txt \
   | $OGDF_XARGS -P "$cores" -L 10 \
-      clang-tidy -p . --quiet \
+      $clang_tidy_command -p . --quiet \
   > sonar/clang-tidy.txt
 echo "::endgroup::"
 

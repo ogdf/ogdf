@@ -54,7 +54,7 @@ fi
 
 # Build and push the image.
 image="$1"/"$2"
-sudo docker build \
+sudo docker buildx build \
   --no-cache \
   --build-arg "CGAL_INSTALL"="$cgal_install" \
   --build-arg "DOXYGEN_INSTALL"="$doxygen_install" \
