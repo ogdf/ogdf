@@ -932,24 +932,6 @@ public:
 	//! Returns the largest used adjEntry index.
 	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
-	//! Returns a reference to the registry of node arrays associated with this graph.
-	GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
-
-	//! Returns a const reference to the registry of node arrays associated with this graph.
-	const GraphNodeRegistry& nodeRegistry() const { return m_regNodeArrays; }
-
-	//! Returns a reference to the registry of edge arrays associated with this graph.
-	GraphEdgeRegistry& edgeRegistry() { return m_regEdgeArrays; }
-
-	//! Returns a const reference to the registry of edge arrays associated with this graph.
-	const GraphEdgeRegistry& edgeRegistry() const { return m_regEdgeArrays; }
-
-	//! Returns a reference to the registry of adjEntry arrays associated with this graph.
-	GraphAdjRegistry& adjEntryRegistry() { return m_regAdjArrays; }
-
-	//! Returns a const reference to the registry of adjEntry arrays associated with this graph.
-	const GraphAdjRegistry& adjEntryRegistry() const { return m_regAdjArrays; }
-
 	//! Returns the first node in the list of all nodes.
 	node firstNode() const { return nodes.head(); }
 
@@ -1572,9 +1554,27 @@ public:
 	 */
 	//! @{
 
+	//! Returns a reference to the registry of node arrays associated with this graph.
+	GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
+
+	//! Returns a const reference to the registry of node arrays associated with this graph.
+	const GraphNodeRegistry& nodeRegistry() const { return m_regNodeArrays; }
+
 	operator const GraphNodeRegistry&() const { return m_regNodeArrays; }
 
+	//! Returns a reference to the registry of edge arrays associated with this graph.
+	GraphEdgeRegistry& edgeRegistry() { return m_regEdgeArrays; }
+
+	//! Returns a const reference to the registry of edge arrays associated with this graph.
+	const GraphEdgeRegistry& edgeRegistry() const { return m_regEdgeArrays; }
+
 	operator const GraphEdgeRegistry&() const { return m_regEdgeArrays; }
+
+	//! Returns a reference to the registry of adjEntry arrays associated with this graph.
+	GraphAdjRegistry& adjEntryRegistry() { return m_regAdjArrays; }
+
+	//! Returns a const reference to the registry of adjEntry arrays associated with this graph.
+	const GraphAdjRegistry& adjEntryRegistry() const { return m_regAdjArrays; }
 
 	operator const GraphAdjRegistry&() const { return m_regAdjArrays; }
 

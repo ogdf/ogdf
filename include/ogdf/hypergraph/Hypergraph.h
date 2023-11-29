@@ -439,22 +439,6 @@ public:
 	//! Returns the list of all hyperedges.
 	const internal::GraphList<HyperedgeElement>& hyperedges() const { return m_hyperedges; }
 
-	//! Returns a reference to the registry of hypernode arrays associated with this hypergraph.
-	HypergraphRegistry<HypernodeElement>& hypernodeRegistry() { return m_regHypernodeArrays; }
-
-	//! Returns a const reference to the registry of hypernode arrays associated with this hypergraph.
-	const HypergraphRegistry<HypernodeElement>& hypernodeRegistry() const {
-		return m_regHypernodeArrays;
-	}
-
-	//! Returns a reference to the registry of hyperedge arrays associated with this hypergraph.
-	HypergraphRegistry<HyperedgeElement>& hyperedgeRegistry() { return m_regHyperedgeArrays; }
-
-	//! Returns a const reference to the registry of hyperedge arrays associated with this hypergraph.
-	const HypergraphRegistry<HyperedgeElement>& hyperedgeRegistry() const {
-		return m_regHyperedgeArrays;
-	}
-
 	//! Returns the number of hypernodes in the hypergraph.
 	int numberOfHypernodes() const { return m_nHypernodes; }
 
@@ -560,7 +544,23 @@ public:
 	//! Checks the consistency of the data structure.
 	bool consistency() const;
 
+	//! Returns a reference to the registry of hypernode arrays associated with this hypergraph.
+	HypergraphRegistry<HypernodeElement>& hypernodeRegistry() { return m_regHypernodeArrays; }
+
+	//! Returns a const reference to the registry of hypernode arrays associated with this hypergraph.
+	const HypergraphRegistry<HypernodeElement>& hypernodeRegistry() const {
+		return m_regHypernodeArrays;
+	}
+
 	operator const HypergraphRegistry<HypernodeElement>&() const { return m_regHypernodeArrays; }
+
+	//! Returns a reference to the registry of hyperedge arrays associated with this hypergraph.
+	HypergraphRegistry<HyperedgeElement>& hyperedgeRegistry() { return m_regHyperedgeArrays; }
+
+	//! Returns a const reference to the registry of hyperedge arrays associated with this hypergraph.
+	const HypergraphRegistry<HyperedgeElement>& hyperedgeRegistry() const {
+		return m_regHyperedgeArrays;
+	}
 
 	operator const HypergraphRegistry<HyperedgeElement>&() const { return m_regHyperedgeArrays; }
 
