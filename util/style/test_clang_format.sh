@@ -60,7 +60,7 @@ if ! command -v "$CLANG_FORMAT_COMMAND" > /dev/null 2>&1; then
     --user "$(id -u "$user")" \
     -v "$repo_dir":"$repo_dir":rw,z \
     "$DOCKER_IMAGE" \
-    ./util/test_clang_format.sh $original_args
+    "$0" $original_args
   exit_code=$?
   exit $exit_code
 fi
