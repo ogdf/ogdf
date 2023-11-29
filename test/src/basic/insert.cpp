@@ -231,8 +231,8 @@ void checkSameGraph(const NF& nodeFilter, const EF& edgeFilter, const NL& nodes,
 }
 
 template<bool copyEmbedding = true, bool copyIDs = false, bool notifyObservers = true>
-std::function<void()> testFiltered(Graph& orig, std::function<bool(node)> nodeFilter,
-		std::function<bool(edge)> edgeFilter) {
+std::function<void()> testFiltered(Graph& orig, const std::function<bool(node)>& nodeFilter,
+		const std::function<bool(edge)>& edgeFilter) {
 	return [&]() {
 		std::vector<node> nodes;
 		std::vector<edge> edges;
@@ -308,7 +308,7 @@ go_bandit([]() {
 		EdgeArray<int> out(orig);
 		AssertThat(biconnectedComponents(orig, out), Equals(16));
 		AssertThat(planarEmbed(orig), IsTrue());
-		orig.reverseEdge(orig.newEdge(e->adjSource(), e->adjTarget()->succ()));
+		orig.reverseEdge(orig.newEdge(e->adjSource(), e->adjTarget()->cyclicSucc()));
 		AssertThat(isPlanar(orig), IsTrue());
 	}
 
