@@ -317,8 +317,7 @@ go_bandit([]() {
 		after_each([&] {
 			checkDefaultFlags();
 			checkRes(orig.numberOfNodes(), orig.numberOfEdges());
-			checkSameGraph(internal::filter_any_node, internal::filter_any_edge, orig.nodes,
-					orig.edges);
+			checkSameGraph(filter_any_node, filter_any_edge, orig.nodes, orig.edges);
 		});
 
 		it("works via insert(G, nodeMap, edgeMap)", [&] {
@@ -354,8 +353,8 @@ go_bandit([]() {
 			AssertThat(ILG->m_edgeFilter, IsFalse());
 		});
 		it("works via insert(G.nodes.begin, G.nodes.end, filter_any_edge)", [&] {
-			res = ILG->insert(orig.nodes.begin(), orig.nodes.end(), internal::filter_any_edge,
-					nodeMap, edgeMap);
+			res = ILG->insert(orig.nodes.begin(), orig.nodes.end(), filter_any_edge, nodeMap,
+					edgeMap);
 			AssertThat(ILG->m_edgeFilter, IsTrue());
 		});
 		it("works via insert(G.nodes.begin, G.nodes.end, G.edges.begin, G.edges.end)", [&] {
@@ -368,8 +367,7 @@ go_bandit([]() {
 	describe("inserting the empty graph",
 			testFiltered(
 					orig, [](node n) { return false; }, [](edge e) { return false; }));
-	describe("inserting all nodes and edges",
-			testFiltered(orig, internal::filter_any_node, internal::filter_any_edge));
+	describe("inserting all nodes and edges", testFiltered(orig, filter_any_node, filter_any_edge));
 	describe("inserting some nodes and no edges",
 			testFiltered(
 					orig, [](node n) { return n->index() % 2 == 0; }, [](edge e) { return false; }));

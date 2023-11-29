@@ -774,8 +774,8 @@ void GraphAdjIterator::prev() {
 	}
 }
 
-bool internal::filter_any_edge(edge e) { return true; }
+bool filter_any_edge(edge e) { return true; }
 
-bool internal::filter_any_node(node n) { return true; }
+bool filter_any_node(node n) { return true; }
 
 }

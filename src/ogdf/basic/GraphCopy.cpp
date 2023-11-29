@@ -1205,8 +1205,7 @@ void GraphCopyBase::initByNodes(const List<node>& origNodes, EdgeArray<edge>& eC
 #ifdef OGDF_DEBUG
 	auto count =
 #endif
-			Graph::insert(origNodes.begin(), origNodes.end(), internal::filter_any_edge, m_vCopy,
-					eCopy);
+			Graph::insert(origNodes.begin(), origNodes.end(), filter_any_edge, m_vCopy, eCopy);
 	OGDF_ASSERT(count.first == origNodes.size());
 }
 
@@ -1217,8 +1216,7 @@ void GraphCopyBase::initByActiveNodes(const List<node>& nodeList,
 #ifdef OGDF_DEBUG
 	auto count =
 #endif
-			Graph::insert(nodeList.begin(), nodeList.end(), internal::filter_any_edge, m_vCopy,
-					eCopy);
+			Graph::insert(nodeList.begin(), nodeList.end(), filter_any_edge, m_vCopy, eCopy);
 	OGDF_ASSERT(count.first == nodeList.size());
 }
 

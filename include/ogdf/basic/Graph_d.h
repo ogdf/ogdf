@@ -769,11 +769,13 @@ inline void getAllEdges(const Graph& G, CONTAINER& edges);
 inline node adjToNode(adjEntry adj) { return adj->theNode(); }
 
 inline node adjToNode(node n) { return n; }
+}
 
+//! std::function<bool(edge)> that returns true for any edge \p e
 OGDF_EXPORT bool filter_any_edge(edge e); // { return true; }
 
+//! std::function<bool(node)> that returns true for any node \p n
 OGDF_EXPORT bool filter_any_node(node n); // { return true; }
-}
 
 //! Data type for general directed graphs (adjacency list representation).
 /**
@@ -1751,8 +1753,8 @@ public:
 		m_regNodeArrays.reserveSpace(info.numberOfNodes(cc));
 		m_regEdgeArrays.reserveSpace(info.numberOfEdges(cc));
 		m_regAdjArrays.reserveSpace(info.numberOfEdges(cc));
-		auto count = insert(info.nodes(cc).begin(), info.nodes(cc).end(), internal::filter_any_edge,
-				nodeMap, edgeMap);
+		auto count = insert(info.nodes(cc).begin(), info.nodes(cc).end(), filter_any_edge, nodeMap,
+				edgeMap);
 		OGDF_ASSERT(count.first == info.numberOfNodes(cc));
 		OGDF_ASSERT(count.second == info.numberOfEdges(cc));
 		return count;
@@ -1776,8 +1778,7 @@ public:
 		m_regNodeArrays.reserveSpace(G.numberOfNodes());
 		m_regEdgeArrays.reserveSpace(G.numberOfEdges());
 		m_regAdjArrays.reserveSpace(G.numberOfEdges());
-		auto count =
-				insert(G.nodes.begin(), G.nodes.end(), internal::filter_any_edge, nodeMap, edgeMap);
+		auto count = insert(G.nodes.begin(), G.nodes.end(), filter_any_edge, nodeMap, edgeMap);
 		OGDF_ASSERT(count.first == G.numberOfNodes());
 		OGDF_ASSERT(count.second == G.numberOfEdges());
 		return count;
