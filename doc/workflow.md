@@ -100,10 +100,10 @@ that the code adheres to a certain code style.
 For this style to be consistent, developers need to format their changes with
 the correct version of (git-)clang-format (the currently used version is given
 by the header of the `.clang-format` file).
-The script `util/test_clang_format.sh` can help to detect formatting errors and
-fix them (when passed the `-f` option). If the correct clang-format version is
-not installed locally, the script can still correctly format the code by using a
-docker image.
+The script `util/style/test_clang_format.sh` can help to detect formatting
+errors and fix them (when passed the `-f` option). If the correct clang-format
+version is not installed locally, the script can still correctly format the code
+by using a docker image.
 
 ### Pull Requests
 
