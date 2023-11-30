@@ -336,6 +336,7 @@ public:
 		OGDF_ASSERT(this != &A2);
 		if (num) {
 			A2.init(num);
+			OGDF_ASSERT(sizeof(E) <= size_t(std::numeric_limits<INDEX>::max() / num));
 			memcpy(A2.m_pStart, this->m_pStart, sizeof(E) * num);
 		} else {
 			A2.init(0);
