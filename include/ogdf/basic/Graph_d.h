@@ -4,7 +4,7 @@
  *
  * Declaration of NodeElement, EdgeElement, and Graph classes.
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Simon D. Fink
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -89,7 +89,7 @@ template<typename T>
 concept OGDF_EDGE_ITER = std::forward_iterator<T> && requires(T i) {
 	{ *i } -> std::convertible_to<edge>;
 };
-using std::begin; // TODO scope pollution?
+using std::begin;
 using std::end;
 template<typename T>
 concept OGDF_NODE_LIST = requires(T l) {
@@ -117,7 +117,7 @@ OGDF_CHECK_CONCEPT(OGDF_EDGE_LIST<internal::GraphObjectContainer<EdgeElement>>);
 OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<ListIteratorBase<node, false, false>>);
 OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, false, true>>);
 OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<ListIteratorBase<node, true, false>>);
-OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, true, false>>); // TODO check traits everywhere
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, true, false>>);
 #else
 #	define OGDF_NODE_FILTER typename
 #	define OGDF_EDGE_FILTER typename
@@ -1232,7 +1232,7 @@ public:
 	 * Let \p e=(\a v,\a w). Then, the resulting two edges are \a e=(\a v,\a u)
 	 * and \a e'=(\a u,\a w), where \a u is a new node.
 	 *
-	 * \note The edge \p e is modified by this operation.
+	 * \note The edge \p e is modified by this operation. TODO note about arrays copying and AdjArrayP
 	 *
 	 * @param e is the edge to be split.
 	 * @return The edge \a e'.
@@ -1247,6 +1247,8 @@ public:
 	 * \pre \p u has exactly one incoming and one outgoing edge, and
 	 *    none of them is a self-loop.
 	 *
+	 * \note TODO note about arrays swapping and AdjArrayP
+	 *
 	 * @param u is the node to be unsplit.
 	 */
 	void unsplit(node u);
@@ -1259,6 +1261,8 @@ public:
 	 *
 	 * \pre \p eIn and \p eOut are the only edges incident with \a u and
 	 *      none of them is a self-loop.
+	 *
+	 * \note TODO note about arrays swapping and AdjArrayP
 	 *
 	 * @param eIn  is the (only) incoming edge of \a u.
 	 * @param eOut is the (only) outgoing edge of \a u.

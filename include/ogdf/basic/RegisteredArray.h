@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration and implementation of RegisteredArray class.
  *
- * \author Niko Fink
+ * \author Simon D. Fink
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

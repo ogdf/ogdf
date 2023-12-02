@@ -6,7 +6,7 @@
 #  - clang-tidy
 #  - gcovr
 #
-# Author: Tilo Wiedera
+# Author: Tilo Wiedera, Simon D. Fink
 
 . util/util-functions.sh || exit 123
 

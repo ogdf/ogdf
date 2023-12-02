@@ -75,8 +75,6 @@ public:
 
 	bool operator!=(const T& other) const { return m_ptr != other.m_ptr; }
 
-	// const GraphObjectPtr& operator*() { return m_ptr; } // TODO needed?
-
 	const GraphObjectPtr& operator*() const { return m_ptr; }
 
 	//! Increment operator (prefix).

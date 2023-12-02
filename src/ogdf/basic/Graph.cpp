@@ -213,7 +213,7 @@ edge Graph::split(edge e) {
 	e->m_tgt = u;
 	e->m_adjTgt = uadjTgt;
 
-	m_regEdgeArrays.keyAdded(e2); // FIXME registry observers won't see copied entry
+	m_regEdgeArrays.keyAdded(e2); // note: registry observers won't see copied entry
 	m_regAdjArrays.keyAdded(e2->adjSource());
 
 	// copy array entries from the original adjEntries to the new ones

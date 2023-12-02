@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration and implementation of NodeSet, EdgeSet, and AdjEntrySet classes.
  *
- * \author Niko Fink, Matthias Pfretzschner
+ * \author Simon D. Fink, Matthias Pfretzschner
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

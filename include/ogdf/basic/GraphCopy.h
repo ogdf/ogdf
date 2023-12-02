@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of graph copy classes.
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Max Ilsen, Simon D. Fink
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
