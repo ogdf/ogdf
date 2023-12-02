@@ -10,7 +10,7 @@
 # optional tools:
 #  - clang-tidy-cache (see https://github.com/matus-chochlik/ctcache)
 #
-# Author: Tilo Wiedera
+# Author: Tilo Wiedera, Simon D. Fink
 
 . util/util-functions.sh || exit 123
 

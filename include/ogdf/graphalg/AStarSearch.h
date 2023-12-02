@@ -91,7 +91,7 @@ public:
 	 * @param predecessor Will contain the preceding edge of each node in the path
 	 *        \c predecessor[target] will be \c nullptr if no path could be found
 	 * @param heuristic The heuristic to be used.
-	 *                  Note that the type ::ogdf::NodeArray is implicitly applicable here.
+	 *                  Note that the type ogdf::NodeArray is implicitly applicable here.
 	 *                  The default heuristic will always return the trivial lower bound of zero.
 	 * @return The total length of the found path
 	 */
