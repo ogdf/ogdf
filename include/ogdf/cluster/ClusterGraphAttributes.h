@@ -110,8 +110,6 @@ public:
 	explicit ClusterGraphAttributes(const ClusterGraph& cg,
 			long initAttributes = nodeGraphics | edgeGraphics | clusterGraphics);
 
-	virtual ~ClusterGraphAttributes() { }
-
 private:
 	//! Forbidden initialization, use init(ClusterGraph &cg, long initAttributes) instead!
 	using GraphAttributes::init;
