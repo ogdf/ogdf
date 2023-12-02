@@ -73,14 +73,6 @@ void validateCopy(const Graph& graph, const GraphCopy& copy) {
 	}
 }
 
-void shuffleEmbedding(Graph& graph) {
-	for (node v : graph.nodes) {
-		for (adjEntry adj : v->adjEntries) {
-			graph.swapAdjEdges(adj, randomNumber(0, 1) ? v->firstAdj() : v->lastAdj());
-		}
-	}
-}
-
 template<typename EmbedderType>
 void testEmbedder(EmbedderType& embedder, const Graph& graph, bool repeat = true) {
 	GraphCopy copy(graph);

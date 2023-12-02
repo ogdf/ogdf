@@ -42,8 +42,25 @@ go_bandit([]() {
 		return graph.newEdge(graph.chooseNode(), graph.chooseNode());
 	};
 
-	describeArray<EdgeArray, edge, int>("EdgeArray filled with ints", 42, 43, chooseEdge, allEdges,
-			createEdge);
-	describeArray<EdgeArray, edge, List<int>>("EdgeArray filled with lists of ints", {1, 2, 3},
-			{42}, chooseEdge, allEdges, createEdge);
+	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
+
+	describeArray<Graph, EdgeArray, edge, int>( //
+			"EdgeArray filled with ints", //
+			42, 43, init, //
+			chooseEdge, allEdges, createEdge);
+	describeArray<Graph, EdgeArray, edge, List<int>>( //
+			"EdgeArray filled with lists of ints", //
+			{1, 2, 3}, {42}, //
+			init, chooseEdge, allEdges, createEdge);
+	describeArray<Graph, EdgeArray, edge, bool>( //
+			"EdgeArray filled with bools", //
+			false, true, //
+			init, chooseEdge, allEdges, createEdge);
+
+	describeArrayWithoutDefault<Graph, EdgeArray, edge, std::unique_ptr<int>>( //
+			"EdgeArray filled with unique pointers", //
+			init, chooseEdge, allEdges, createEdge);
+	describeArrayWithoutDefault<Graph, EdgeArray, edge, std::vector<std::unique_ptr<int>>>( //
+			"EdgeArray filled with vectors of unique pointers", //
+			init, chooseEdge, allEdges, createEdge);
 });

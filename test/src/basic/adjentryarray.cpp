@@ -55,8 +55,69 @@ go_bandit([]() {
 		return randomNumber(0, 1) ? e->adjSource() : e->adjTarget();
 	};
 
-	describeArray<AdjEntryArray, adjEntry, int>("AdjEntryArray filled with ints", 42, 43,
-			chooseAdjEntry, allAdjEntries, createAdjEntry);
-	describeArray<AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints",
-			{1, 2, 3}, {42}, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
+
+	describeArray<Graph, AdjEntryArray, adjEntry, int>( //
+			"AdjEntryArray filled with ints", //
+			42, 43, //
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	describeArray<Graph, AdjEntryArray, adjEntry, List<int>>( //
+			"AdjEntryArray filled with lists of ints", //
+			{1, 2, 3}, {42}, //
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	describeArray<Graph, AdjEntryArray, adjEntry, bool>( //
+			"AdjEntryArray filled with bools", //
+			false, true, //
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+
+	describeArrayWithoutDefault<Graph, AdjEntryArray, adjEntry, std::unique_ptr<int>>( //
+			"AdjEntryArray filled with unique pointers", //
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	describeArrayWithoutDefault<Graph, AdjEntryArray, adjEntry, std::vector<std::unique_ptr<int>>>( //
+			"AdjEntryArray filled with vectors of unique pointers", //
+			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+
+	describe("AdjEntryArray", [&]() {
+		it("keeps the correct values when splitting/unsplitting edges", [&]() {
+			Graph G;
+			AdjEntryArray<int> R(G, 0);
+			AdjEntryArrayP<int> P(G);
+			node n1 = G.newNode();
+			node n2 = G.newNode();
+			edge e = G.newEdge(n1, n2);
+			R[e->adjSource()] = 1;
+			R[e->adjTarget()] = 2;
+			P[e->adjSource()].reset(new int(1));
+			P[e->adjTarget()].reset(new int(2));
+
+			edge e2 = G.split(e);
+
+			AssertThat(R[e->adjSource()], Equals(1));
+			AssertThat(R[e2->adjSource()], Equals(1));
+			AssertThat(R[e->adjTarget()], Equals(2));
+			AssertThat(R[e2->adjTarget()], Equals(2));
+
+			AssertThat(P[e->adjSource()].get(), !IsNull());
+			AssertThat(P[e->adjTarget()].get(), !IsNull());
+			AssertThat(*P[e->adjSource()], Equals(1));
+			AssertThat(*P[e->adjTarget()], Equals(2));
+			AssertThat(P[e2->adjSource()].get(), IsNull());
+			AssertThat(P[e2->adjTarget()].get(), IsNull());
+
+			R[e->adjTarget()] = 3;
+			R[e2->adjSource()] = 4;
+			P[e->adjTarget()].reset(new int(3));
+			P[e2->adjSource()].reset(new int(4));
+			P[e2->adjTarget()].reset(new int(5));
+
+			G.unsplit(e, e2);
+
+			AssertThat(R[e->adjSource()], Equals(1));
+			AssertThat(R[e->adjTarget()], Equals(2));
+			AssertThat(P[e->adjSource()].get(), !IsNull());
+			AssertThat(P[e->adjTarget()].get(), !IsNull());
+			AssertThat(*P[e->adjSource()], Equals(1));
+			AssertThat(*P[e->adjTarget()], Equals(5));
+		});
+	});
 });
