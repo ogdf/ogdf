@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of graph copy classes.
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Max Ilsen, Simon D. Fink
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -38,51 +38,65 @@
 
 namespace ogdf {
 
-template<bool b>
+template<bool>
 class FaceSet;
 
-/**
- * \brief Copies of graphs with mapping between nodes and edges
- *
- * @ingroup graphs
- *
- * The class GraphCopySimple represents a copy of a graph and
- * maintains a mapping between the nodes and edges of the original
- * graph to the copy and vice versa.
- *
- * New nodes and edges can be added to the copy; the counterpart
- * of those nodes and edges is 0 indicating that there is no counterpart.
- * This class <b>does not</b> support splitting of edges in such a way
- * that both edges resulting from the split are mapped to the same
- * original edge; this feature is provided by GraphCopy.
- */
-class OGDF_EXPORT GraphCopySimple : public Graph {
-	const Graph* m_pGraph; //!< The original graph.
+class OGDF_EXPORT GraphCopyBase : public Graph {
+protected:
+	const Graph* m_pGraph = nullptr; //!< The original graph.
 	NodeArray<node> m_vOrig; //!< The corresponding node in the original graph.
-	NodeArray<node> m_vCopy; //!< The corresponding node in the graph copy.
 	EdgeArray<edge> m_eOrig; //!< The corresponding edge in the original graph.
-	EdgeArray<edge> m_eCopy; //!< The corresponding edge in the graph copy.
+	NodeArray<node> m_vCopy; //!< The corresponding node in the graph copy.
+	bool m_linkCopiesOnInsert =
+			true; //!< Whether \c insert(getOriginalGraph()) will set \c copy and \c original
 
 public:
-	//! Constructs a GraphCopySimple associated with no graph.
-	GraphCopySimple();
+	//! Constructs a GraphCopyBase associated with no graph.
+	GraphCopyBase() = default;
 
-	//! Constructs a copy of graph \p G.
-	explicit GraphCopySimple(const Graph& G);
+	GraphCopyBase(const GraphCopyBase& other) = delete;
 
-	//! Copy constructor.
-	GraphCopySimple(const GraphCopySimple& GC);
+	GraphCopyBase(GraphCopyBase&& other) noexcept = delete;
 
-	virtual ~GraphCopySimple() { }
+	GraphCopyBase& operator=(const GraphCopyBase& other) = delete;
 
-	//! Re-initializes the copy using \p G.
-	void init(const Graph& G);
+	GraphCopyBase& operator=(GraphCopyBase&& other) noexcept = delete;
+
+	//! Re-initializes the copy using \p G, creating copies for all nodes and edges in \p G.
+	void init(const Graph& G) {
+		Graph::clear();
+		setOriginalGraph(&G);
+		insert(G);
+	}
+
+	//! Re-initializes the copy using \p G (which might be null), creating copies for all nodes and edges in \p G.
+	void init(const Graph* G) {
+		Graph::clear();
+		setOriginalGraph(G);
+		if (G != nullptr) {
+			insert(*G);
+		}
+	}
 
 	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
-	void createEmpty(const Graph& G);
+	void createEmpty(const Graph& G) { setOriginalGraph(&G); }
+
+	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
+	virtual void setOriginalGraph(const Graph* G) = 0;
+
+	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
+	void setOriginalGraph(const Graph& G) { setOriginalGraph(&G); };
+
+	const Graph* getOriginalGraph() const { return m_pGraph; }
+
+	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
+	void clear() override = 0;
 
 	//! Returns a reference to the original graph.
-	const Graph& original() const { return *m_pGraph; }
+	const Graph& original() const {
+		OGDF_ASSERT(m_pGraph != nullptr);
+		return *m_pGraph;
+	}
 
 	/**
 	 * \brief Returns the node in the original graph corresponding to \p v.
@@ -119,36 +133,29 @@ public:
 	 * \brief Returns the node in the graph copy corresponding to \p v.
 	 * @param v is a node in the original graph.
 	 * \return the corresponding node in the graph copy,
-	 * or \c nullptr if it doesn't exists.
+	 * or \c nullptr if it doesn't exist.
 	 */
 	node copy(node v) const { return m_vCopy[v]; }
 
 	/**
 	 * \brief Returns the edge in the graph copy corresponding to \p e.
+	 * Has to be defined by the implemented GraphCopyBase subclass.
+	 *
 	 * @param e is an edge in the original graph.
 	 * \return the corresponding edge in the graph copy,
-	 * or \c nullptr if it doesn't exists.
+	 * or \c nullptr if it doesn't exist.
 	 */
-	edge copy(edge e) const { return m_eCopy[e]; }
+	virtual edge copy(edge e) const = 0;
 
 	/**
-	 * Returns the adjacency entry in the graph copy corresponding to \p adj.
-	 *
-	 * Note that this method does not pay attention to reversed edges.
-	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
-	 * copy edge is returned.
+	 * \brief Returns the adjacency entry in the graph copy corresponding to \p adj.
+	 * Has to be defined by the implemented GraphCopyBase subclass.
 	 *
 	 * @param adj is an adjacency entry in the original graph.
 	 * \return the corresponding adjacency entry in the graph copy,
-	 * or \c nullptr if it doesn't exists.
+	 * or \c nullptr if it doesn't exist.
 	 */
-	adjEntry copy(adjEntry adj) const {
-		edge f = m_eCopy[adj->theEdge()];
-		if (f == nullptr) {
-			return nullptr;
-		}
-		return adj->isSource() ? f->adjSource() : f->adjTarget();
-	}
+	virtual adjEntry copy(adjEntry adj) const = 0;
 
 	/**
 	 * \brief Returns true iff \p v has no corresponding node in the original graph.
@@ -162,8 +169,11 @@ public:
 	 */
 	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
 
-	//! Assignment operator.
-	GraphCopySimple& operator=(const GraphCopySimple& GC);
+	/**
+	 * \brief Returns true iff \p adj->theEdge() has no corresponding edge in the original graph.
+	 * @param adj is an adjEntry in the graph copy.
+	 */
+	bool isDummy(adjEntry adj) const { return isDummy(adj->theEdge()); }
 
 	/**
 	 * \brief Creates a new node in the graph copy with original node \p vOrig.
@@ -179,6 +189,166 @@ public:
 	}
 
 	using Graph::newNode;
+
+	/**
+	 * \brief Removes node \p v.
+	 *
+	 * \param v is a node in the graph copy.
+	 */
+	void delNode(node v) override {
+		node vOrig = m_vOrig[v];
+		Graph::delNode(v);
+		if (vOrig != nullptr) {
+			m_vCopy[vOrig] = nullptr;
+		}
+	}
+
+	//! Sets the embedding of the graph copy to the embedding of the original graph.
+	/**
+	 * Edges that have no copy in this graph will be left out, while dummy edges that are not present
+	 * in the original graph will be moved to the end of their nodes' adjacency lists.
+	 */
+	virtual void setOriginalEmbedding() = 0;
+
+	bool isLinkCopiesOnInsert() const { return m_linkCopiesOnInsert; }
+
+	//! Whether \c insert(getOriginalGraph()) will automatically set \c copy and \c original
+	/**
+	 * Whether the inserted elements should automatically have assigned \c copy and \c original
+	 * values when calling insert() with nodes and edges from getOriginalGraph().
+	 * Note that this also applies to elements inserted when calling init().
+	 *
+	 * @param linkCopiesOnInsert When true, \c copy and \c original will be automatically set for
+	 *   elements from the original graph. When false, all inserted elements (no matter from which
+	 *   Graph) will be dummies.
+	 */
+	void setLinkCopiesOnInsert(bool linkCopiesOnInsert) {
+		m_linkCopiesOnInsert = linkCopiesOnInsert;
+	}
+
+	//! Initializes the graph copy for the nodes in component \p cc.
+	/**
+	 * @param info  must be a connected component info structure for the original graph.
+	 * @param cc    is the number of the connected component.
+	 * @param eCopy is assigned a mapping from original to copy edges.
+	 */
+	// OGDF_DEPRECATED("use insert")
+	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
+
+	//! Initializes the graph copy for the nodes in a component.
+	/**
+	 * Creates copies of all nodes in \p origNodes and their incident edges.
+	 * Any nodes and edges allocated before are removed.
+	 *
+	 * The order of entries in the adjacency lists is preserved, i.e., if
+	 * the original graph is embedded, its embedding induces the embedding
+	 * of the created copy.
+	 *
+	 * It is important that \p origNodes is the complete list of nodes in
+	 * a connected component. If you wish to initialize the graph copy for an
+	 * arbitrary set of nodes, use the method initByActiveNodes().
+	 * \see setOriginalGraph() for an example.
+	 * @param origNodes is the list of nodes in the original graph for which
+	 *        copies are created in the graph copy.
+	 * @param eCopy is assigned the copy of each original edge.
+	 */
+	// OGDF_DEPRECATED("use insert")
+	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
+
+	//! Initializes the graph copy for the nodes in \p nodeList.
+	/**
+	 * Creates copies of all nodes in \p nodeList and edges between two nodes
+	 * which are both contained in \p nodeList.
+	 * Any nodes and edges allocated before are destroyed.
+	 *
+	 * \see setOriginalGraph()
+	 * @param nodeList is the list of nodes in the original graph for which
+	 *        copies are created in the graph copy.
+	 * @param activeNodes must be true for every node in \p nodeList, false
+	 *        otherwise.
+	 * @param eCopy is assigned the copy of each original edge.
+	 */
+	// OGDF_DEPRECATED("use insert")
+	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
+			EdgeArray<edge>& eCopy);
+
+protected:
+	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes,
+			int* newEdges) override;
+
+	void nodeInserted(void* userData, node original, node copy) override;
+};
+
+/**
+ * \brief Copies of graphs with mapping between nodes and edges
+ *
+ * @ingroup graphs
+ *
+ * The class GraphCopySimple represents a copy of a graph and
+ * maintains a mapping between the nodes and edges of the original
+ * graph to the copy and vice versa.
+ *
+ * New nodes and edges can be added to the copy; the counterpart
+ * of those nodes and edges is 0 indicating that there is no counterpart.
+ * This class <b>does not</b> support splitting of edges in such a way
+ * that both edges resulting from the split are mapped to the same
+ * original edge; this feature is provided by GraphCopy.
+ */
+class OGDF_EXPORT GraphCopySimple : public GraphCopyBase {
+public:
+	EdgeArray<edge> m_eCopy; //!< The corresponding edge in the graph copy.
+
+	explicit GraphCopySimple() : GraphCopySimple(nullptr) { }
+
+	explicit GraphCopySimple(const Graph& G) : GraphCopySimple(&G) { }
+
+	explicit GraphCopySimple(const Graph* G) : GraphCopyBase() {
+		if (G) {
+			init(*G);
+		}
+	}
+
+	GraphCopySimple(const GraphCopySimple& other) : GraphCopyBase() { *this = other; }
+
+	GraphCopySimple& operator=(const GraphCopySimple& other);
+
+	using GraphCopyBase::setOriginalGraph;
+
+	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.
+	void setOriginalGraph(const Graph* G) override;
+
+	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
+	void clear() override;
+
+	using GraphCopyBase::copy;
+
+	/**
+	 * \brief Returns the edge in the graph copy corresponding to \p e.
+	 * @param e is an edge in the original graph.
+	 * \return the corresponding edge in the graph copy,
+	 * or \c nullptr if it doesn't exist.
+	 */
+	edge copy(edge e) const override { return m_eCopy[e]; }
+
+	/**
+	 * Returns the adjacency entry in the graph copy corresponding to \p adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	 * copy edge is returned.
+	 *
+	 * @param adj is an adjacency entry in the original graph.
+	 * \return the corresponding adjacency entry in the graph copy,
+	 * or \c nullptr if it doesn't exist.
+	 */
+	adjEntry copy(adjEntry adj) const override {
+		edge f = m_eCopy[adj->theEdge()];
+		if (f == nullptr) {
+			return nullptr;
+		}
+		return adj->isSource() ? f->adjSource() : f->adjTarget();
+	}
 
 	/**
 	 * \brief Creates a new edge in the graph copy with original edge \p eOrig.
@@ -202,17 +372,12 @@ public:
 	 *
 	 * \param e is an edge in the graph copy.
 	 */
-	virtual void delEdge(edge e) override;
+	void delEdge(edge e) override;
 
-	/**
-	 * \brief Removes node \p v.
-	 *
-	 * \param v is a node in the graph copy.
-	 */
-	virtual void delNode(node v) override;
+	void setOriginalEmbedding() override;
 
-private:
-	void initGC(const GraphCopySimple& GC, NodeArray<node>& vCopy, EdgeArray<edge>& eCopy);
+protected:
+	void edgeInserted(void* userData, edge original, edge copy) override;
 };
 
 /**
@@ -251,91 +416,63 @@ private:
  *     original edge.
  *   - ... (better think first!)
  */
-class OGDF_EXPORT GraphCopy : public Graph {
+class OGDF_EXPORT GraphCopy : public GraphCopyBase {
 protected:
-	const Graph* m_pGraph; //!< The original graph.
-	NodeArray<node> m_vOrig; //!< The corresponding node in the original graph.
-	EdgeArray<edge> m_eOrig; //!< The corresponding edge in the original graph.
 	EdgeArray<ListIterator<edge>> m_eIterator; //!< The position of copy edge in the list.
-
-	NodeArray<node> m_vCopy; //!< The corresponding node in the graph copy.
 	EdgeArray<List<edge>> m_eCopy; //!< The corresponding list of edges in the graph copy.
 
 public:
-	//! Creates a graph copy of \p G.
+	explicit GraphCopy() : GraphCopy(nullptr) { }
+
+	explicit GraphCopy(const Graph& G) : GraphCopy(&G) { }
+
+	explicit GraphCopy(const Graph* G) : GraphCopyBase() {
+		if (G) {
+			init(*G);
+		}
+	}
+
+	GraphCopy(const GraphCopy& other) : GraphCopyBase() { *this = other; }
+
+	GraphCopy& operator=(const GraphCopy& other);
+
+	using GraphCopyBase::setOriginalGraph;
+
+	//! Associates the graph copy with \p G, but does not create any nodes or edges.
 	/**
-	 * See #init for details.
+	 * By using this method, the graph copy gets associated with \p G.
+	 * This does not modify the existing nodes and edges, but they become dummies.
+	 *
+	 * The following code snippet shows a typical application of this functionality:
+	 * \code
+	 *   GraphCopy GC;
+	 *   GC.setOriginalGraph(&G);
+	 *
+	 *   // compute connected components of G
+	 *   Graph::CCsInfo ccs = Graph::CCsInfo(graph);
+	 *
+	 *   // create and use graph copy for each connected component separately
+	 *   NodeArray<edge> nodeCopy(G);
+	 *   EdgeArray<edge> edgeCopy(G);
+	 *   for (int i = 0; i < ccs.numberOfCCs(); i++) {
+	 *     nodeCopy.init();
+	 *     edgeCopy.init();
+	 *     GC.clear();
+	 *     GC.insert(ccs, i, nodeCopy, edgeCopy);
+	 *     ...
+	 *   }
+	 * \endcode
+	 * @param G is the graph of which this graph copy shall be a copy.
 	 */
-	explicit GraphCopy(const Graph& G);
+	void setOriginalGraph(const Graph* G) override;
 
-	//! Default constructor (does nothing!).
-	GraphCopy() : Graph(), m_pGraph(nullptr) { }
-
-	//! Copy constructor.
-	/**
-	 * Creates a graph copy that is a copy of \p GC and represents a graph
-	 * copy of the original graph of \p GC.
-	 */
-	GraphCopy(const GraphCopy& GC);
-
-	virtual ~GraphCopy() { }
+	//! Removes all nodes and edges from this copy but does not break the link with the original graph.
+	void clear() override;
 
 	/**
 	 * @name Mapping between original graph and copy
 	 */
 	//! @{
-
-	//! Returns a reference to the original graph.
-	const Graph& original() const { return *m_pGraph; }
-
-	/**
-	 * \brief Returns the node in the original graph corresponding to \p v.
-	 * @param v is a node in the graph copy.
-	 * \return the corresponding node in the original graph, or 0 if no
-	 *         such node exists.
-	 */
-	node original(node v) const { return m_vOrig[v]; }
-
-	/**
-	 * \brief Returns the edge in the original graph corresponding to \p e.
-	 * @param e is an edge in the graph copy.
-	 * \return the corresponding edge in the original graph, or 0 if no
-	 *         such edge exists.
-	 */
-	edge original(edge e) const { return m_eOrig[e]; }
-
-	/**
-	 * Returns the adjacency entry in the original graph corresponding to \p adj.
-	 *
-	 * Note that this method does not pay attention to reversed edges.
-	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
-	 * original edge is returned.
-	 *
-	 * This method must not be called on inner adjacency entries of a
-	 * copy chain but only on a chain's source/target entry.
-	 *
-	 * @param adj is an adjacency entry in the copy graph.
-	 * \return the corresponding adjacency entry in the original graph.
-	 */
-	adjEntry original(adjEntry adj) const {
-		edge e = adj->theEdge();
-		edge f = m_eOrig[e];
-
-		if (adj->isSource()) {
-			OGDF_ASSERT(m_eCopy[f].front() == e);
-			return f->adjSource();
-		} else {
-			OGDF_ASSERT(m_eCopy[f].back() == e);
-			return f->adjTarget();
-		}
-	}
-
-	/**
-	 * \brief Returns the node in the graph copy corresponding to \p v.
-	 * @param v is a node in the original graph.
-	 * \return the corresponding node in the graph copy.
-	 */
-	node copy(node v) const { return m_vCopy[v]; }
 
 	/**
 	 * \brief Returns the list of edges coresponding to edge \p e.
@@ -344,46 +481,36 @@ public:
 	 */
 	const List<edge>& chain(edge e) const { return m_eCopy[e]; }
 
-	// returns first edge in chain(e)
+	using GraphCopyBase::copy;
+
 	/**
-	 * \brief Returns the first edge in the list of edges coresponding to edge \p e.
+	 * \brief Returns the first edge in the list of edges corresponding to edge \p e.
 	 * @param e is an edge in the original graph.
 	 * \return the first edge in the corresponding list of edges in
 	 * the graph copy or nullptr if it does not exist.
 	 */
-	edge copy(edge e) const { return m_eCopy[e].empty() ? nullptr : m_eCopy[e].front(); }
+	edge copy(edge e) const override { return m_eCopy[e].empty() ? nullptr : m_eCopy[e].front(); }
 
 	/**
-	 * Returns the adjacency entry in the copy graph corresponding to \p adj.
+	 * \brief Returns the adjacency entry in the copy graph corresponding to \p adj.
 	 *
 	 * Note that this method does not pay attention to reversed edges.
 	 * Given a source (target) adjacency entry, the first (last) source (target) adjacency entry of the
 	 * copy chain is returned.
 	 *
 	 * @param adj is an adjacency entry in the copy graph.
-	 * \return the corresponding adjacency entry in the original graph.
+	 * \return the corresponding adjacency entry in the original graph or nullptr if it does not exist.
 	 */
-	adjEntry copy(adjEntry adj) const {
+	adjEntry copy(adjEntry adj) const override {
 		edge e = adj->theEdge();
-
-		if (adj->isSource()) {
+		if (e == nullptr) {
+			return nullptr;
+		} else if (adj->isSource()) {
 			return m_eCopy[e].front()->adjSource();
 		} else {
 			return m_eCopy[e].back()->adjTarget();
 		}
 	}
-
-	/**
-	 * \brief Returns true iff \p v has no corresponding node in the original graph.
-	 * @param v is a node in the graph copy.
-	 */
-	bool isDummy(node v) const { return m_vOrig[v] == nullptr; }
-
-	/**
-	 * \brief Returns true iff \p e has no corresponding edge in the original graph.
-	 * @param e is an edge in the graph copy.
-	 */
-	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
 
 	/**
 	 * \brief Returns true iff edge \p e has been reversed.
@@ -398,6 +525,7 @@ public:
 	 * \param e is an edge in the graphcopy
 	 */
 	bool isReversedCopyEdge(edge e) const;
+	//@}
 
 	/**
 	 * @name Creation and deletion of nodes and edges
@@ -405,46 +533,19 @@ public:
 	//! @{
 
 	/**
-	 * \brief Creates a new node in the graph copy with original node \p vOrig.
-	 * \warning You have to make sure that the original node makes sense, in
-	 *   particular that \p vOrig is not the original node of another node in the copy.
-	 */
-	node newNode(node vOrig) {
-		OGDF_ASSERT(vOrig != nullptr);
-		OGDF_ASSERT(vOrig->graphOf() == m_pGraph);
-		node v = Graph::newNode();
-		m_vCopy[m_vOrig[v] = vOrig] = v;
-		return v;
-	}
-
-	using Graph::newNode;
-
-	/**
-	 * \brief Removes node \p v and all its adjacent edges cleaning-up their corresponding lists of original edges.
-	 *
-	 * \pre The corresponding lists oforiginal edges contain each only one edge.
-	 * \param v is a node in the graph copy.
-	 */
-	virtual void delNode(node v) override;
-
-	/**
 	 * \brief Removes edge e and clears the list of edges corresponding to \p e's original edge.
 	 *
 	 * \pre The list of edges corresponding to \p e's original edge contains only \a e.
 	 * \param e is an edge in the graph copy.
 	 */
-	virtual void delEdge(edge e) override;
-
-
-	virtual void clear() override;
+	void delEdge(edge e) override;
 
 	/**
-	 * \brief Splits edge \p e. See Graph::split for details.
+	 * \brief Splits edge \p e. See Graph::split() for details.
 	 * Both resulting edges have the same original edge.
 	 * @param e is an edge in the graph copy.
 	 */
-	virtual edge split(edge e) override;
-
+	edge split(edge e) override;
 
 	/**
 	 * \brief Undoes a previous split operation.
@@ -468,9 +569,7 @@ public:
 	 */
 	void setEdge(edge eOrig, edge eCopy);
 
-	//! Embeds the graph copy.
-	OGDF_DEPRECATED("Use ogdf::planarEmbed() instead.")
-	bool embed();
+	void setOriginalEmbedding() override;
 
 	//! Removes all crossing nodes which are actually only two "touching" edges.
 	void removePseudoCrossings();
@@ -559,7 +658,6 @@ public:
 	//! Special version (for FixedEmbeddingUpwardEdgeInserter only).
 	void insertEdgePath(node srcOrig, node tgtOrig, const SList<adjEntry>& crossedEdges);
 
-
 	//! Removes the complete edge path for edge \p eOrig.
 	/**
 	 * \@param eOrig is an edge in the original graph.
@@ -584,7 +682,7 @@ public:
 	 * @return the rear edge resulting from the split operation: (\a u, \a w)
 	 */
 	edge insertCrossing(edge& crossingEdge, edge crossedEdge, bool rightToLeft);
-
+	//@}
 
 	/**
 	 * @name Combinatorial Embeddings
@@ -607,13 +705,6 @@ public:
 	 * @return the created edge.
 	 */
 	edge newEdge(node v, adjEntry adj, edge eOrig, CombinatorialEmbedding& E);
-
-	/**
-	 * \brief Sets the embedding of the graph copy to the embedding of the original graph.
-	 * \pre The graph copy has not been changed after construction, i.e., no new nodes
-	 *      or edges have been added and no edges have been split.
-	 */
-	void setOriginalEmbedding();
 
 	//! Re-inserts edge \p eOrig by "crossing" the edges in \p crossedEdges in embedding \p E.
 	/**
@@ -656,7 +747,6 @@ public:
 
 	void removeEdgePathEmbedded(CombinatorialEmbedding& E, DynamicDualGraph& dual, edge eOrig);
 
-
 	//! @}
 	/**
 	 * @name Miscellaneous
@@ -668,112 +758,12 @@ public:
 	void consistencyCheck() const;
 #endif
 
-	//! Re-initializes the copy using the graph \p G.
-	/**
-	 * This method assures that the adjacency lists of nodes in the
-	 * constructed copy are in the same order as the adjacency lists in \p G.
-	 * This is in particular important when dealing with embedded graphs.
-	 *
-	 * \param G the graph to be copied
-	 */
-	void init(const Graph& G);
-
-	//! Associates the graph copy with \p G, but does not create any nodes or edges.
-	/**
-	 * By using this method, the graph copy gets associated with \p G.
-	 * This does not modify the existing nodes and edges, but they become dummies.
-	 *
-	 * The following code snippet shows a typical application of this functionality:
-	 * \code
-	 *   GraphCopy GC;
-	 *   GC.createEmpty(G);
-	 *
-	 *   // compute connected components of G
-	 *   NodeArray<int> component(G);
-	 *   int numCC = connectedComponents(G,component);
-	 *
-	 *   // intialize the array of lists of nodes contained in a CC
-	 *   Array<List<node> > nodesInCC(numCC);
-	 *
-	 *   for(node v : G.nodes)
-	 *	   nodesInCC[component[v]].pushBack(v);
-	 *
-	 *   EdgeArray<edge> auxCopy(G);
-	 *   Array<DPoint> boundingBox(numCC);
-	 *
-	 *   for(int i = 0; i < numCC; ++i) {
-	 *     GC.initByNodes(nodesInCC[i],auxCopy);
-	 *     ...
-	 *   }
-	 * \endcode
-	 * @param G is the graph of which this graph copy shall be a copy.
-	 */
-	void createEmpty(const Graph& G);
-
-	//! Initializes the graph copy for the nodes in component \p cc.
-	/**
-	 * @param info  must be a connected component info structure for the original graph.
-	 * @param cc    is the number of the connected component.
-	 * @param eCopy is assigned a mapping from original to copy edges.
-	 */
-	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
-
-	//! Initializes the graph copy for the nodes in a component.
-	/**
-	 * Creates copies of all nodes in \p origNodes and their incident edges.
-	 * Any nodes and edges allocated before are removed.
-	 *
-	 * The order of entries in the adjacency lists is preserved, i.e., if
-	 * the original graph is embedded, its embedding induces the embedding
-	 * of the created copy.
-	 *
-	 * It is important that \p origNodes is the complete list of nodes in
-	 * a connected component. If you wish to initialize the graph copy for an
-	 * arbitrary set of nodes, use the method initByActiveNodes().
-	 * \see createEmpty() for an example.
-	 * @param origNodes is the list of nodes in the original graph for which
-	 *        copies are created in the graph copy.
-	 * @param eCopy is assigned the copy of each original edge.
-	 */
-	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
-
-	//! Initializes the graph copy for the nodes in \p nodeList.
-	/**
-	 * Creates copies of all nodes in \p nodeList and edges between two nodes
-	 * which are both contained in \p nodeList.
-	 * Any nodes and edges allocated before are destroyed.
-	 *
-	 * \see createEmpty()
-	 * @param nodeList is the list of nodes in the original graph for which
-	 *        copies are created in the graph copy.
-	 * @param activeNodes must be true for every node in \p nodeList, false
-	 *        otherwise.
-	 * @param eCopy is assigned the copy of each original edge.
-	 */
-	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-			EdgeArray<edge>& eCopy);
-
-	//! @}
-	/**
-	 * @name Operators
-	 */
-	//! @{
-
-	//! Assignment operator.
-	/**
-	 * Creates a graph copy that is a copy of \p GC and represents a graph
-	 * copy of the original graph of \p GC.
-	 *
-	 * The constructor assures that the adjacency lists of nodes in the
-	 * constructed graph are in the same order as the adjacency lists in \a G.
-	 * This is in particular important when dealing with embedded graphs.
-	 */
-	GraphCopy& operator=(const GraphCopy& GC);
-
-
 	//! @}
 
 protected:
+	void edgeInserted(void* userData, edge original, edge copy) override;
+
+
 	void removeUnnecessaryCrossing(adjEntry adjA1, adjEntry adjA2, adjEntry adjB1, adjEntry adjB2);
 
 	/**
@@ -835,9 +825,6 @@ protected:
 	 */
 	void setOriginalEdgeAlongCrossings(adjEntry adjCopy1, adjEntry adjCopy2, node vCopy,
 			edge eOrig1, edge eOrig2);
-
-private:
-	void initGC(const GraphCopy& GC, NodeArray<node>& vCopy, EdgeArray<edge>& eCopy);
 };
 
 }
