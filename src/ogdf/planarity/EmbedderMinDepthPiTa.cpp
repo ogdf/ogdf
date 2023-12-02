@@ -384,7 +384,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal) {
 				}
 				if (numOfEntriesFromList == childrenOfKnot.size()) {
 					//i) remove embedding of blocks
-					NodeArray<NodeArray<List<adjEntry>>> adjList(pBCTree->bcTree(), G);
+					NodeArray<NodeArray<List<adjEntry>>> adjList(pBCTree->bcTree(),
+							NodeArray<List<adjEntry>>(G));
 					i = 0;
 					for (ListIterator<node> it = childrenOfKnot.begin(); it.valid(); ++it) {
 						node nG = *it;

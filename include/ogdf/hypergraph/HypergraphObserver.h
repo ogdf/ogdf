@@ -40,49 +40,24 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/hypergraph/Hypergraph.h>
 
 namespace ogdf {
 
 // HypergraphObserver
-class OGDF_EXPORT HypergraphObserver {
-	friend class Hypergraph;
-
-protected:
-	//! Observed hypergraph.
-	const Hypergraph* m_hypergraph;
-
-	//! List of all registered hypergraph observers.
-	ListIterator<HypergraphObserver*> m_itObserver;
-
+class OGDF_EXPORT HypergraphObserver : public Observer<Hypergraph, HypergraphObserver> {
 public:
 	//! Constructor.
-	HypergraphObserver() : m_hypergraph(nullptr) { }
+	HypergraphObserver() { }
 
 	//! Constructor assigning \p pH hypergraph to the observer.
-	explicit HypergraphObserver(const Hypergraph* pH) {
-		m_hypergraph = pH;
-		m_itObserver = pH->registerObserver(this);
-	}
-
-	//! Destructor.
-	virtual ~HypergraphObserver() {
-		if (m_hypergraph) {
-			m_hypergraph->unregisterObserver(m_itObserver);
-		}
-	}
+	explicit HypergraphObserver(const Hypergraph* pH) { reregister(pH); }
 
 	//! Associates an observer instance with hypergraph \p pH
-	void init(const Hypergraph* pH) {
-		if (m_hypergraph) {
-			m_hypergraph->unregisterObserver(m_itObserver);
-		}
+	OGDF_DEPRECATED("reregister() should be used instead.")
 
-		if (pH) {
-			m_hypergraph = pH;
-			m_itObserver = pH->registerObserver(this);
-		}
-	}
+	void init(const Hypergraph* pH) { reregister(pH); }
 
 	//! Called by an observed hypergraph when a hypernode is deleted.
 	virtual void hypernodeDeleted(hypernode v) = 0;
@@ -100,7 +75,7 @@ public:
 	virtual void cleared() = 0;
 
 	//! Returns the observer hypergraph.
-	const Hypergraph* hypergraph() const { return m_hypergraph; }
+	const Hypergraph* hypergraph() const { return getObserved(); }
 };
 
 }

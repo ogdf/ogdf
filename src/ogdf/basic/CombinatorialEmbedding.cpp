@@ -37,11 +37,6 @@
 #	include <ogdf/basic/simple_graph_alg.h>
 #endif
 
-using std::lock_guard;
-using std::mutex;
-
-
-#define MIN_FACE_TABLE_SIZE (1 << 4)
 
 namespace ogdf {
 
@@ -49,7 +44,6 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding() {
 	m_cpGraph = nullptr;
 	m_externalFace = nullptr;
 	m_faceIdCount = 0;
-	m_faceArrayTableSize = MIN_FACE_TABLE_SIZE;
 }
 
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph& G)
@@ -60,7 +54,11 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph& G)
 }
 
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const ConstCombinatorialEmbedding& C)
-	: m_cpGraph(C.m_cpGraph), m_rightFace(*C.m_cpGraph, nullptr) {
+	: CombinatorialEmbeddingRegistry(), m_cpGraph(C.m_cpGraph) {
+	if (C.m_cpGraph == nullptr) {
+		return;
+	}
+	m_rightFace.init(*C.m_cpGraph, nullptr);
 	computeFaces();
 
 	if (C.m_externalFace == nullptr) {
@@ -97,17 +95,17 @@ void ConstCombinatorialEmbedding::init() {
 	m_cpGraph = nullptr;
 	m_externalFace = nullptr;
 	m_faceIdCount = 0;
-	m_faceArrayTableSize = MIN_FACE_TABLE_SIZE;
 	m_rightFace.init();
 	faces.clear();
 
-	reinitArrays();
+	keysCleared();
 }
 
 void ConstCombinatorialEmbedding::computeFaces() {
 	m_externalFace = nullptr; // no longer valid!
 	m_faceIdCount = 0;
 	faces.clear();
+	keysCleared();
 
 	m_rightFace.fill(nullptr);
 
@@ -124,6 +122,7 @@ void ConstCombinatorialEmbedding::computeFaces() {
 #endif
 
 			faces.pushBack(f);
+			keyAdded(f);
 
 			adjEntry adj2 = adj;
 			do {
@@ -134,22 +133,12 @@ void ConstCombinatorialEmbedding::computeFaces() {
 		}
 	}
 
-	m_faceArrayTableSize = Math::nextPower2(MIN_FACE_TABLE_SIZE, m_faceIdCount + 1);
-	reinitArrays();
-
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
 #endif
 }
 
 face ConstCombinatorialEmbedding::createFaceElement(adjEntry adjFirst) {
-	if (m_faceIdCount == m_faceArrayTableSize) {
-		m_faceArrayTableSize <<= 1;
-		for (FaceArrayBase* fab : m_regFaceArrays) {
-			fab->enlargeTable(m_faceArrayTableSize);
-		}
-	}
-
 #ifdef OGDF_DEBUG
 	face f = new FaceElement(this, adjFirst, m_faceIdCount++);
 #else
@@ -157,6 +146,7 @@ face ConstCombinatorialEmbedding::createFaceElement(adjEntry adjFirst) {
 #endif
 
 	faces.pushBack(f);
+	keyAdded(f);
 
 	return f;
 }
@@ -351,6 +341,7 @@ face CombinatorialEmbedding::joinFaces(edge e) {
 			m_rightFace[adj] = f1;
 		} while ((adj = adj->faceCycleSucc()) != adj1);
 
+		keyRemoved(f2);
 		faces.del(f2);
 	}
 
@@ -436,10 +427,8 @@ void CombinatorialEmbedding::clear() {
 	faces.clear();
 
 	m_faceIdCount = 0;
-	m_faceArrayTableSize = MIN_FACE_TABLE_SIZE;
+	keysCleared();
 	m_externalFace = nullptr;
-
-	reinitArrays();
 
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
@@ -469,35 +458,6 @@ face ConstCombinatorialEmbedding::maximalFace() const {
 	}
 
 	return fMax;
-}
-
-ListIterator<FaceArrayBase*> ConstCombinatorialEmbedding::registerArray(
-		FaceArrayBase* pFaceArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	return m_regFaceArrays.pushBack(pFaceArray);
-}
-
-void ConstCombinatorialEmbedding::unregisterArray(ListIterator<FaceArrayBase*> it) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	m_regFaceArrays.del(it);
-}
-
-void ConstCombinatorialEmbedding::moveRegisterArray(ListIterator<FaceArrayBase*> it,
-		FaceArrayBase* pFaceArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-	lock_guard<mutex> guard(m_mutexRegArrays);
-#endif
-	*it = pFaceArray;
-}
-
-void ConstCombinatorialEmbedding::reinitArrays() {
-	for (FaceArrayBase* fab : m_regFaceArrays) {
-		fab->reinit(m_faceArrayTableSize);
-	}
 }
 
 #ifdef OGDF_DEBUG

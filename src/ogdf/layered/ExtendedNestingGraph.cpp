@@ -803,7 +803,7 @@ void ExtendedNestingGraph::buildLayers() {
 	}
 
 
-	ClusterSetPure activeClusters(m_CGC);
+	ClusterSet<false> activeClusters(m_CGC); // was ClusterSetPure
 	activeClusters.insert(m_CGC.rootCluster());
 
 	ClusterArray<LHTreeNode*> clusterToTreeNode(m_CGC, nullptr);
@@ -919,7 +919,7 @@ void ExtendedNestingGraph::buildLayers() {
 	// and foreign edges
 	m_markTree.init(m_CGC, nullptr);
 	ClusterArray<List<tuple<edge, LHTreeNode*, LHTreeNode*>>> edgeArray(m_CGC);
-	ClusterSetSimple C(m_CGC);
+	ClusterSet<false> C(m_CGC); // was ClusterSetSimple
 	for (i = 0; i < m_numLayers - 1; ++i) {
 		for (node u : L[i]) {
 			for (adjEntry adj : u->adjEntries) {
