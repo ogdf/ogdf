@@ -113,10 +113,16 @@ class ListIteratorBase {
 	//! pointer to list element
 	ListElem* m_pX;
 
+public:
+	using difference_type = std::ptrdiff_t;
+	using value_type = Elem;
+	using iterator_category = std::bidirectional_iterator_tag;
+	using pointer = value_type*;
+	using reference = value_type&;
+
 	//! Conversion to pointer to list element.
 	operator ListElem*() { return m_pX; }
 
-public:
 	//! Constructs an iterator that points to \p pX.
 	ListIteratorBase(ListElem* pX) : m_pX(pX) { }
 
@@ -252,9 +258,9 @@ public:
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	ListPure(ListPure<E>&& L) : m_head(L.m_head), m_tail(L.m_tail) {
-		reassignListRefs();
+	ListPure(ListPure<E>&& L) noexcept : m_head(L.m_head), m_tail(L.m_tail) {
 		L.m_head = L.m_tail = nullptr;
+		reassignListRefs();
 	}
 
 	//! Destructor.
@@ -1457,7 +1463,7 @@ public:
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	List(List<E>&& L) : ListPure<E>(std::move(L)), m_count(L.m_count) { L.m_count = 0; }
+	List(List<E>&& L) noexcept : ListPure<E>(std::move(L)), m_count(L.m_count) { L.m_count = 0; }
 
 	/**
 	 * @name Access methods

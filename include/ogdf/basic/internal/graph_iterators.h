@@ -40,46 +40,52 @@ namespace ogdf {
 
 namespace internal {
 
-template<class GraphObjectPtr, bool isReverse>
+template<class GraphObjectPtr, bool isReverse, bool isConst>
 class GraphIteratorBase;
 template<class GraphObjectPtr>
-using GraphIterator = GraphIteratorBase<GraphObjectPtr, false>;
+using GraphIterator = GraphIteratorBase<GraphObjectPtr, false, false>;
 template<class GraphObjectPtr>
-using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr, true>;
+using GraphConstIterator = GraphIteratorBase<GraphObjectPtr, false, true>;
+template<class GraphObjectPtr>
+using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr, true, false>;
 
-template<class GraphObjectPtr, bool isReverse>
+template<class GraphObjectPtr, bool isReverse, bool isConst>
 class GraphIteratorBase {
-	friend class GraphIteratorBase<GraphObjectPtr, !isReverse>;
+	friend class GraphIteratorBase<GraphObjectPtr, !isReverse, isConst>;
+	using T = GraphIteratorBase<GraphObjectPtr, isReverse, isConst>;
 
 	GraphObjectPtr m_ptr;
 
 public:
+	using difference_type = std::ptrdiff_t;
+	using value_type = typename std::conditional<isConst, const GraphObjectPtr, GraphObjectPtr>::type;
+	using iterator_category = std::bidirectional_iterator_tag;
+	using pointer = value_type*;
+	using reference = value_type&;
+
 	GraphIteratorBase() : m_ptr(nullptr) { }
 
 	GraphIteratorBase(GraphObjectPtr ptr) : m_ptr(ptr) { }
 
 	template<bool isArgReverse>
-	GraphIteratorBase(GraphIteratorBase<GraphObjectPtr, isArgReverse>& it) : m_ptr(it.m_ptr) { }
+	GraphIteratorBase(GraphIteratorBase<GraphObjectPtr, isArgReverse, isConst>& it)
+		: m_ptr(it.m_ptr) { }
 
-	bool operator==(const GraphIteratorBase<GraphObjectPtr, isReverse>& other) const {
-		return m_ptr == other.m_ptr;
-	}
+	bool operator==(const T& other) const { return m_ptr == other.m_ptr; }
 
-	bool operator!=(const GraphIteratorBase<GraphObjectPtr, isReverse>& other) const {
-		return m_ptr != other.m_ptr;
-	}
+	bool operator!=(const T& other) const { return m_ptr != other.m_ptr; }
 
-	GraphObjectPtr& operator*() { return m_ptr; }
+	const GraphObjectPtr& operator*() const { return m_ptr; }
 
 	//! Increment operator (prefix).
-	GraphIteratorBase<GraphObjectPtr, isReverse>& operator++() {
+	T& operator++() {
 		OGDF_ASSERT(m_ptr != nullptr);
 		m_ptr = isReverse ? m_ptr->pred() : m_ptr->succ();
 		return *this;
 	}
 
 	//! Increment operator (postfix).
-	GraphIteratorBase<GraphObjectPtr, isReverse> operator++(int) {
+	T operator++(int) {
 		OGDF_ASSERT(m_ptr != nullptr);
 		GraphObjectPtr ptr = m_ptr;
 		m_ptr = isReverse ? m_ptr->pred() : m_ptr->succ();
@@ -87,14 +93,14 @@ public:
 	}
 
 	//! Decrement operator (prefix).
-	GraphIteratorBase<GraphObjectPtr, isReverse>& operator--() {
+	T& operator--() {
 		OGDF_ASSERT(m_ptr != nullptr);
 		m_ptr = isReverse ? m_ptr->succ() : m_ptr->pred();
 		return *this;
 	}
 
 	//! Decrement operator (postfix).
-	GraphIteratorBase<GraphObjectPtr, isReverse> operator--(int) {
+	T operator--(int) {
 		OGDF_ASSERT(m_ptr != nullptr);
 		GraphObjectPtr ptr = m_ptr;
 		m_ptr = isReverse ? m_ptr->succ() : m_ptr->pred();
@@ -196,6 +202,27 @@ public:
 private:
 	key_type m_key; //!< Index in #m_array.
 	array_pointer_type m_array; //!< The array.
+};
+
+template<typename It>
+class SimpleRange {
+	It m_begin;
+	It m_end;
+
+public:
+	SimpleRange(It&& begin, It&& end) : m_begin(std::move(begin)), m_end(std::move(end)) { }
+
+	SimpleRange(const It& begin, const It& end) : m_begin(begin), m_end(end) { }
+
+	SimpleRange() = default;
+
+	const It& begin() const { return m_begin; }
+
+	const It& end() const { return m_end; }
+
+	It& begin() { return m_begin; }
+
+	It& end() { return m_end; }
 };
 
 }
