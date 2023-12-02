@@ -115,7 +115,8 @@ void PlanRepExpansion::initCC(int i) {
 	m_currentCC = i;
 
 	NodeArray<node> vCopy(*m_pGraph);
-	Graph::constructInitByNodes(*m_pGraph, m_nodesInCC[i], vCopy, m_eAuxCopy);
+	m_eAuxCopy.init(*m_pGraph);
+	insert(m_nodesInCC[i], m_pGraph->edges, vCopy, m_eAuxCopy);
 
 	ListConstIterator<node> itV;
 	for (itV = m_nodesInCC[i].begin(); itV.valid(); ++itV) {

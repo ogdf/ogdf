@@ -100,7 +100,7 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep& UPR) {
 	NodeArray<node> vCopy;
 	EdgeArray<edge> eCopy;
 
-	Graph::construct(UPR, vCopy, eCopy);
+	insert(UPR, vCopy, eCopy);
 
 	// initGC
 	m_pGraph = UPR.m_pGraph;

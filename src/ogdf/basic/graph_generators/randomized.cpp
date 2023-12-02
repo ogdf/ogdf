@@ -781,7 +781,6 @@ void randomPlanarConnectedGraph(Graph& G, int n, int m) {
 	for (int i = 1; i < n; ++i) {
 		node on = nodes[uniform_int_distribution<>(0, i - 1)(rng)];
 		node nn = nodes[i] = G.newNode();
-		G.firstNode()->degree();
 		if (on->degree() > 1) {
 			adjEntry adj = on->firstAdj();
 			for (int fwd = uniform_int_distribution<>(0, on->degree() - 1)(rng); fwd > 0; --fwd) {
@@ -1024,7 +1023,8 @@ void randomPlanarCNBGraph(Graph& G, int n, int m, int b) {
 			Graph H;
 			randomPlanarBiconnectedGraph(H, actN, actM, false);
 			NodeArray<node> nodeMap(H);
-			G.insert(H, nodeMap);
+			EdgeArray<edge> edgeMap(H);
+			G.insert(H, nodeMap, edgeMap);
 
 			node cutv2 = nodeMap[H.chooseNode()];
 			edge newE = G.newEdge(cutv2, cutv);

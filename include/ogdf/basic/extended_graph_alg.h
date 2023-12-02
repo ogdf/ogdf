@@ -38,136 +38,8 @@
 
 namespace ogdf {
 
-//! \name Methods for induced subgraphs
-//! @{
-
-//! Computes the subgraph induced by a list of nodes.
-/**
- * @ingroup ga-induced
- *
- * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
- * @param G        is the input graph.
- * @param start    is a list iterator pointing to the first element in a list of nodes, for which
- *                 an induced subgraph shall be computed.
- * @param subGraph is assigned the computed subgraph.
- */
-template<class LISTITERATOR>
-void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph) {
-	NodeArray<node> nodeTableOrig2New;
-	inducedSubGraph(G, start, subGraph, nodeTableOrig2New);
-}
-
-//! Computes the subgraph induced by a list of nodes (plus a mapping from original nodes to new copies).
-/**
- * @ingroup ga-induced
- *
- * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
- * @param G        is the input graph.
- * @param start    is a list iterator pointing to the first element in a list of nodes, for which
- *                 an induced subgraph shall be computed.
- * @param subGraph is assigned the computed subgraph.
- * @param nodeTableOrig2New is assigned a mapping from the nodes in \p G to the nodes in \p subGraph.
- */
-template<class LISTITERATOR>
-void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
-		NodeArray<node>& nodeTableOrig2New) {
-	subGraph.clear();
-	nodeTableOrig2New.init(G, nullptr);
-
-	EdgeArray<bool> mark(G, false);
-
-	LISTITERATOR its;
-	for (its = start; its.valid(); its++) {
-		node w = (*its);
-		OGDF_ASSERT(w != nullptr);
-		OGDF_ASSERT(w->graphOf() == &G);
-		nodeTableOrig2New[w] = subGraph.newNode();
-
-		for (adjEntry adj : w->adjEntries) {
-			edge e = adj->theEdge();
-			if (nodeTableOrig2New[e->source()] && nodeTableOrig2New[e->target()] && !mark[e]) {
-				subGraph.newEdge(nodeTableOrig2New[e->source()], nodeTableOrig2New[e->target()]);
-				mark[e] = true;
-			}
-		}
-	}
-}
-
-//! Computes the subgraph induced by a list of nodes (plus mappings from original nodes and edges to new copies).
-/**
- * @ingroup ga-induced
- *
- * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
- * @param G        is the input graph.
- * @param start    is a list iterator pointing to the first element in a list of nodes, for which
- *                 an induced subgraph shall be computed.
- * @param subGraph is assigned the computed subgraph.
- * @param nodeTableOrig2New is assigned a mapping from the nodes in \p G to the nodes in \p subGraph.
- * @param edgeTableOrig2New is assigned a mapping from the edges in \p G to the egdes in \p subGraph.
- */
-template<class LISTITERATOR>
-void inducedSubGraph(const Graph& G, LISTITERATOR start, Graph& subGraph,
-		NodeArray<node>& nodeTableOrig2New, EdgeArray<edge>& edgeTableOrig2New) {
-	subGraph.clear();
-	nodeTableOrig2New.init(G, nullptr);
-	edgeTableOrig2New.init(G, nullptr);
-
-	EdgeArray<bool> mark(G, false);
-
-	LISTITERATOR its;
-	for (its = start; its.valid(); its++) {
-		node w = (*its);
-		OGDF_ASSERT(w != nullptr);
-		OGDF_ASSERT(w->graphOf() == &G);
-		nodeTableOrig2New[w] = subGraph.newNode();
-
-		for (adjEntry adj : w->adjEntries) {
-			edge e = adj->theEdge();
-			if (nodeTableOrig2New[e->source()] && nodeTableOrig2New[e->target()] && !mark[e]) {
-				edgeTableOrig2New[e] = subGraph.newEdge(nodeTableOrig2New[e->source()],
-						nodeTableOrig2New[e->target()]);
-				mark[e] = true;
-			}
-		}
-	}
-}
-
-//! Computes the subgraph induced by a list of nodes.
-/**
- * @ingroup ga-induced
- *
- * @tparam LISTITERATOR is the type of iterators for the input list of nodes.
- * @param G        is the input graph.
- * @param start    is a list iterator pointing to the first element in a list of nodes, for which
- *                 an induced subgraph shall be computed.
- * @param subGraph is assigned the computed subgraph, which will be set as a copy of \p G.
- */
-template<class LISTITERATOR>
-void inducedSubGraph(const Graph& G, LISTITERATOR start, GraphCopySimple& subGraph) {
-	subGraph.clear();
-	subGraph.createEmpty(G);
-	EdgeArray<bool> mark(G, false);
-
-	LISTITERATOR its;
-	for (its = start; its.valid(); its++) {
-		node w = (*its);
-		OGDF_ASSERT(w != nullptr);
-		OGDF_ASSERT(w->graphOf() == &G);
-		subGraph.newNode(w);
-
-		for (adjEntry adj : w->adjEntries) {
-			edge e = adj->theEdge();
-			if (subGraph.copy(e->source()) && subGraph.copy(e->target()) && !subGraph.copy(e)) {
-				subGraph.newEdge(e);
-			}
-		}
-	}
-}
-
 //! Computes the edges in a node-induced subgraph.
 /**
- * @ingroup ga-induced
- *
  * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
  * @tparam EDGELIST         is the type of the returned edge list.
  * @param  G  is the input graph.
@@ -195,7 +67,6 @@ void inducedSubgraph(Graph& G, NODELISTITERATOR& it, EDGELIST& E) {
 	}
 }
 
-//! @}
 //! \name Methods for clustered graphs
 //! @{
 

@@ -70,24 +70,17 @@ private:
 			return SpannerModule<TWeight>::ReturnType::Feasible;
 		}
 
-		NodeArray<int> components(G);
-		int amountComponenets = connectedComponents(G, components);
-
+		Graph::CCsInfo ccsInfo(G);
 		SpannerBerman<TWeight> spannerBerman;
 
-		for (int c = 0; c < amountComponenets; c++) {
+		for (int c = 0; c < ccsInfo.numberOfCCs(); c++) {
 			assertTimeLeft();
-
-			List<node> nodes;
-			for (node n : G.nodes) {
-				if (components[n] == c) {
-					nodes.pushBack(n);
-				}
-			}
 
 			GraphCopySimple GC;
 			GC.createEmpty(G);
-			inducedSubGraph(G, nodes.begin(), GC);
+			NodeArray<node> nodeMap(G, nullptr);
+			EdgeArray<edge> edgeMap(G, nullptr);
+			GC.insert(ccsInfo, c, nodeMap, edgeMap);
 
 			GraphCopySimple spanner(GC);
 			EdgeArray<bool> inSpanner;
