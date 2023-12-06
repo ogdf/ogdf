@@ -41,7 +41,7 @@ namespace ogdf {
 namespace Matching {
 namespace Blossom {
 
-class Cycle {
+class OGDF_EXPORT Cycle {
 private:
 	std::unordered_set<node> m_nodes;
 

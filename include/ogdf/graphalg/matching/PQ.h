@@ -45,12 +45,14 @@ namespace Blossom {
 //! A custom priority queue for the blossom algorithm, based on the PrioritizedMapQueue. It uses a
 //! std::unordered_map to store the handles, handles merge operations correctly, can iterate over its elements
 //! and offers a remove() function.
-template<typename E, typename TWeight>
-class BlossomPQ : public PrioritizedQueue<E, TWeight>,
-				  public KeyIteratorContainer<E, typename PrioritizedQueue<E, TWeight>::Handle> {
+template<typename E, typename TWeight, typename C = std::less<TWeight>,
+		template<typename, class> class Impl = PairingHeap>
+class BlossomPQ
+	: public PrioritizedQueue<E, TWeight, C, Impl>,
+	  public KeyIteratorContainer<E, typename PrioritizedQueue<E, TWeight, C, Impl>::Handle> {
 protected:
-	using ThisQueue = BlossomPQ<E, TWeight>;
-	using SuperQueue = PrioritizedQueue<E, TWeight>;
+	using ThisQueue = BlossomPQ<E, TWeight, C, Impl>;
+	using SuperQueue = PrioritizedQueue<E, TWeight, C, Impl>;
 	using Handle = typename SuperQueue::Handle;
 
 	std::unordered_map<E, Handle> m_handles;

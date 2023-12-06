@@ -539,10 +539,10 @@ private:
 					m_auxGraph.treeAuxNode(augmentationEdge->opposite(augmentationEdgeNode));
 			// merge PQs
 			std::vector<edge> edgesToUpdate;
-			for (auto adjEntry : auxNode->graphNode()->adjEntries) {
-				auto other = m_auxGraph.auxNode(adjEntry->twinNode());
+			for (auto adj : auxNode->graphNode()->adjEntries) {
+				auto other = m_auxGraph.auxNode(adj->twinNode());
 				if (other != auxNode && other != oppositeAuxNode) {
-					auto otherEdge = m_auxGraph.auxEdge(adjEntry->theEdge());
+					auto otherEdge = m_auxGraph.auxEdge(adj->theEdge());
 					for (auto pq : {&otherEdge->evenEvenEdges(),
 								 &otherEdge->evenOddEdgesFromPerspective(other)}) {
 						for (edge e : *pq) {

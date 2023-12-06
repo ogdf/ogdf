@@ -43,7 +43,7 @@ namespace Matching {
 namespace Blossom {
 
 //! Helper class representing a pseudonode in the Blossom algorithm.
-class Pseudonode {
+class OGDF_EXPORT Pseudonode {
 	//! Helper class to store reference edges for all self loops.
 	class ReferenceEdges {
 	private:

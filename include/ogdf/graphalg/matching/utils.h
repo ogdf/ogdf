@@ -106,7 +106,7 @@ public:
 };
 
 //! Dummy class for scoped iteration of a std::unordered_map.
-template<template<typename, typename> typename Iterator, typename Key, typename Value>
+template<template<typename, typename> class Iterator, typename Key, typename Value>
 class BaseIteratorContainer {
 	using iterator = Iterator<Key, Value>;
 
