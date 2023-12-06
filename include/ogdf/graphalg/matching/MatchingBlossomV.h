@@ -53,21 +53,21 @@
 #include <vector>
 
 // Uncomment to print statistics
-#define BLOSSOMV_PRINT_STATS
+#define OGDF_BLOSSOMV_PRINT_STATS
 
 // Helper macros for statistics
-#ifdef BLOSSOMV_PRINT_STATS
-#	define START_TIMER() START_NAMED_TIMER(__timestamp)
-#	define START_NAMED_TIMER(timer) auto timer = now()
-#	define END_TIMER(stat) END_NAMED_TIMER(__timestamp, stat)
-#	define END_NAMED_TIMER(timer, stat) m_stats[stat].add(end(timer))
-#	define ADD_STAT(stat) m_stats[stat].add(0)
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
+#	define OGDF_BLOSSOMV_START_TIMER() OGDF_BLOSSOMV_START_NAMED_TIMER(__timestamp)
+#	define OGDF_BLOSSOMV_START_NAMED_TIMER(timer) auto timer = now()
+#	define OGDF_BLOSSOMV_END_TIMER(stat) OGDF_BLOSSOMV_END_NAMED_TIMER(__timestamp, stat)
+#	define OGDF_BLOSSOMV_END_NAMED_TIMER(timer, stat) m_stats[stat].add(end(timer))
+#	define OGDF_BLOSSOMV_ADD_STAT(stat) m_stats[stat].add(0)
 #else
-#	define START_TIMER()
-#	define START_NAMED_TIMER(timer)
-#	define END_TIMER(name)
-#	define END_NAMED_TIMER(timer, stat)
-#	define ADD_STAT(stat)
+#	define OGDF_BLOSSOMV_START_TIMER()
+#	define OGDF_BLOSSOMV_START_NAMED_TIMER(timer)
+#	define OGDF_BLOSSOMV_END_TIMER(name)
+#	define OGDF_BLOSSOMV_END_NAMED_TIMER(timer, stat)
+#	define OGDF_BLOSSOMV_ADD_STAT(stat)
 #endif
 
 namespace ogdf {
@@ -84,7 +84,7 @@ class MatchingBlossomV : public MatchingModule<TWeight> {
 	//! The epsilon test for floating point comparisons.
 	EpsilonTest m_eps;
 
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 	//! Structure to store statistics.
 	typedef struct {
 		int count = 0;
@@ -282,16 +282,16 @@ private:
 	bool _doCall(const Graph& G, const WeightContainer& weights, std::unordered_set<edge>& matching) {
 		// init
 		lout() << "start init" << std::endl;
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 		m_stats.clear();
 #endif
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		if (!m_helper.init(G, weights, &m_auxGraph)) {
 			return false;
 		};
-		END_TIMER("initialize");
+		OGDF_BLOSSOMV_END_TIMER("initialize");
 		lout() << "finish init" << std::endl;
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 		louth() << "Trees: " << m_auxGraph.graph().numberOfNodes() << std::endl;
 #endif
 		return findMatching(matching);
@@ -304,7 +304,7 @@ private:
 	 * @returns whether a matching was found
 	 */
 	bool findMatching(std::unordered_set<edge>& matching) {
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 		std::chrono::high_resolution_clock::time_point last_path, last_four_paths;
 		// Calculate the next power of two for the number of aux nodes for logging purposes
 		int p = 1;
@@ -317,7 +317,7 @@ private:
 #ifdef OGDF_HEAVY_DEBUG
 			assertConsistency();
 #endif
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 			if (m_auxGraph.graph().numberOfNodes() == p / 2) {
 				p /= 2;
 				lout() << "." << p << std::flush;
@@ -333,13 +333,13 @@ private:
 			}
 		}
 		lout() << "found matching" << std::endl;
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 		printParallelEdgesStats();
 #endif
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		m_helper.getOriginalMatching(matching);
-		END_TIMER("getOriginalMatching");
-#ifdef BLOSSOMV_PRINT_STATS
+		OGDF_BLOSSOMV_END_TIMER("getOriginalMatching");
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 		m_stats["extraLastPathTime"].add(end(last_path));
 		m_stats["extraLastFourPathsTime"].add(end(last_four_paths));
 		printStatistics();
@@ -382,7 +382,7 @@ private:
 	 * @return whether the matching was augmented
 	 */
 	bool findMatchingAugmentation(AuxNode<TWeight>* auxNode) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		AuxEdge<TWeight>* auxEdge;
 		AuxNode<TWeight>* other;
 		edge minEdge;
@@ -395,12 +395,12 @@ private:
 			// check if augmentation is possible
 			minEdge = m_helper.getTopEligibleElement(auxEdge->evenEvenEdges());
 			if (minEdge != nullptr) {
-				END_TIMER("findAugment");
+				OGDF_BLOSSOMV_END_TIMER("findAugment");
 				augment(minEdge);
 				return true;
 			}
 		}
-		END_TIMER("findAugment");
+		OGDF_BLOSSOMV_END_TIMER("findAugment");
 		return false;
 	}
 
@@ -410,14 +410,14 @@ private:
 	 * @return whether the tree was augmented
 	 */
 	bool findTreeAugmentation(AuxNode<TWeight>* auxNode) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		edge minEdge = m_helper.getTopEligibleElement(auxNode->evenFreeEdges());
 		if (minEdge != nullptr) {
-			END_TIMER("findGrow");
+			OGDF_BLOSSOMV_END_TIMER("findGrow");
 			grow(minEdge);
 			return true;
 		}
-		END_TIMER("findGrow");
+		OGDF_BLOSSOMV_END_TIMER("findGrow");
 		return false;
 	}
 
@@ -427,14 +427,14 @@ private:
 	 * @return whether a cycle was shrunken
 	 */
 	bool findShrinkableCycle(AuxNode<TWeight>* auxNode) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		edge minEdge = m_helper.getTopEligibleElement(auxNode->evenEvenEdges());
 		if (minEdge != nullptr) {
-			END_TIMER("findShrink");
+			OGDF_BLOSSOMV_END_TIMER("findShrink");
 			shrink(minEdge);
 			return true;
 		}
-		END_TIMER("findShrink");
+		OGDF_BLOSSOMV_END_TIMER("findShrink");
 		return false;
 	}
 
@@ -444,22 +444,22 @@ private:
 	 * @return whether a pseudonode was expanded
 	 */
 	bool findExpandablePseudonode(AuxNode<TWeight>* auxNode) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		node minNode = m_helper.getTopEligibleElement(auxNode->oddPseudonodes());
 		if (minNode != nullptr) {
 			auxNode->oddPseudonodes().pop();
 			Pseudonode* pseudonode = m_helper.pseudonode(minNode);
-			END_TIMER("findExpand");
+			OGDF_BLOSSOMV_END_TIMER("findExpand");
 			expand(pseudonode);
 			return true;
 		}
-		END_TIMER("findExpand");
+		OGDF_BLOSSOMV_END_TIMER("findExpand");
 		return false;
 	}
 
 	//! Executes a dual change step.
 	bool dualChange() {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		NodeArray<TWeight> deltas(m_auxGraph.graph(), 0);
 		TWeight delta, otherDelta;
 		AuxEdge<TWeight>* auxEdge;
@@ -525,13 +525,13 @@ private:
 			}
 			lout() << "Delta for " << auxNode->tree().root() << ": " << delta << std::endl;
 		}
-		END_TIMER("dualChange");
+		OGDF_BLOSSOMV_END_TIMER("dualChange");
 		return dualChange;
 	}
 
 	//! Augment the matching with \p augmentationEdge.
 	void augment(edge augmentationEdge) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		OGDF_ASSERT(augmentationEdge->graphOf() == &m_helper.graph());
 		for (auto augmentationEdgeNode : augmentationEdge->nodes()) {
 			auto auxNode = m_auxGraph.treeAuxNode(augmentationEdgeNode);
@@ -562,13 +562,13 @@ private:
 				an->addEvenFreeEdge(e);
 			}
 		}
-		END_TIMER("augment");
+		OGDF_BLOSSOMV_END_TIMER("augment");
 		lout() << "Matching augmented with " << augmentationEdge << std::endl;
 	}
 
 	//! Augment the corresponding tree with \p augmentationEdge.
 	void grow(edge newEdge) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		auto auxNode = m_auxGraph.auxNodeForEdge(newEdge);
 		auto& tree = auxNode->tree();
 		// (tree - u) - v -- w, where v -- w is the matching edge
@@ -630,22 +630,22 @@ private:
 				}
 			}
 		}
-		END_TIMER("grow");
+		OGDF_BLOSSOMV_END_TIMER("grow");
 		lout() << "Tree augmented with " << newEdge << std::endl;
 		if (augmentationEdge != nullptr) {
-			ADD_STAT("extraAugmentShortcut");
+			OGDF_BLOSSOMV_ADD_STAT("extraAugmentShortcut");
 			augment(augmentationEdge);
 		}
 	}
 
 	//! Shrink the odd cycle induced by \p cycleEdge and the tree determined by its endpoints.
 	void shrink(edge cycleEdge) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		auto auxNode = m_auxGraph.auxNodeForEdge(cycleEdge);
 		auto& tree = auxNode->tree();
 		Cycle* cycle = tree.getCycle(cycleEdge);
-		END_TIMER("extraGetCycle");
-		START_NAMED_TIMER(beforeShrinkTimer);
+		OGDF_BLOSSOMV_END_TIMER("extraGetCycle");
+		OGDF_BLOSSOMV_START_NAMED_TIMER(beforeShrinkTimer);
 		// update priority queues
 		std::vector<edge> oddEdges;
 		std::unordered_map<node, edge> bestEdges;
@@ -658,17 +658,17 @@ private:
 				if (isOdd) {
 					if (!cycle->contains(v)) {
 						oddEdges.push_back(e);
-						ADD_STAT("extraShrinkFoundOddEdge");
+						OGDF_BLOSSOMV_ADD_STAT("extraShrinkFoundOddEdge");
 					}
 				} else if (e->source() == v && tree.isEven(v) && cycle->contains(v)) {
 					// only remove if v is the source of the edge to prevent duplicate removal
 					auxNode->evenEvenEdges().remove(e);
-					ADD_STAT("extraShrinkRemoveEvenEvenEdge");
+					OGDF_BLOSSOMV_ADD_STAT("extraShrinkRemoveEvenEvenEdge");
 				}
 			}
 			if (isOdd && m_helper.isPseudonode(u)) {
 				auxNode->oddPseudonodes().remove(u);
-				ADD_STAT("extraShrinkOddPseudonodeChild");
+				OGDF_BLOSSOMV_ADD_STAT("extraShrinkOddPseudonodeChild");
 			}
 		}
 
@@ -677,14 +677,14 @@ private:
 			m_helper.y(u) = m_helper.realY(u);
 			m_auxGraph.setAuxNode(u, nullptr);
 		}
-		END_NAMED_TIMER(beforeShrinkTimer, "extraShrinkUpdatePQsBefore");
+		OGDF_BLOSSOMV_END_NAMED_TIMER(beforeShrinkTimer, "extraShrinkUpdatePQsBefore");
 
 		// do the actual shrinking
 		std::vector<std::tuple<edge, bool>> selfLoops;
-		START_NAMED_TIMER(actualShrinkTimer);
+		OGDF_BLOSSOMV_START_NAMED_TIMER(actualShrinkTimer);
 		Pseudonode* pseudonode = tree.shrink(cycle, selfLoops);
-		END_NAMED_TIMER(actualShrinkTimer, "extraActualShrink");
-		START_NAMED_TIMER(afterShrinkTimer);
+		OGDF_BLOSSOMV_END_NAMED_TIMER(actualShrinkTimer, "extraActualShrink");
+		OGDF_BLOSSOMV_START_NAMED_TIMER(afterShrinkTimer);
 		node newNode = pseudonode->graphNode;
 		m_auxGraph.setAuxNode(newNode, auxNode);
 		// set y to -delta so that realY is 0 (newNode is always even)
@@ -747,19 +747,19 @@ private:
 				m_auxGraph.assertCurrentEdge(other, auxNode)->addEvenOddEdgeFromPerspective(e, auxNode);
 			}
 		}
-		END_NAMED_TIMER(afterShrinkTimer, "extraShrinkUpdatePQsAfter");
-		END_TIMER("shrink");
-		ADD_STAT("extraShrinkSize" + std::to_string(cycle->nodes().size()));
+		OGDF_BLOSSOMV_END_NAMED_TIMER(afterShrinkTimer, "extraShrinkUpdatePQsAfter");
+		OGDF_BLOSSOMV_END_TIMER("shrink");
+		OGDF_BLOSSOMV_ADD_STAT("extraShrinkSize" + std::to_string(cycle->nodes().size()));
 		lout() << std::endl << "Shrank at " << cycleEdge << " into " << newNode << std::endl;
 		if (augmentationEdge != nullptr) {
-			ADD_STAT("extraAugmentShortcut");
+			OGDF_BLOSSOMV_ADD_STAT("extraAugmentShortcut");
 			augment(augmentationEdge);
 		}
 	}
 
 	//! Expand the given \p pseudonode.
 	void expand(Pseudonode* pseudonode) {
-		START_TIMER();
+		OGDF_BLOSSOMV_START_TIMER();
 		auto auxNode = m_auxGraph.treeAuxNode(pseudonode->graphNode);
 		auto& tree = auxNode->tree();
 		auto cycle = pseudonode->cycle;
@@ -844,15 +844,15 @@ private:
 			}
 		}
 		delete pseudonode;
-		END_TIMER("expand");
+		OGDF_BLOSSOMV_END_TIMER("expand");
 		lout() << std::endl << "Expanded " << nodeIndex << std::endl;
 		if (augmentationEdge != nullptr) {
-			ADD_STAT("extraAugmentShortcut");
+			OGDF_BLOSSOMV_ADD_STAT("extraAugmentShortcut");
 			augment(augmentationEdge);
 		}
 	}
 
-#ifdef BLOSSOMV_PRINT_STATS
+#ifdef OGDF_BLOSSOMV_PRINT_STATS
 	//! Print all statistics.
 	void printStatistics() {
 		long long total = 0;
