@@ -290,11 +290,14 @@ public:
 
 	//! Removes a pseudonode from the current representation structure.
 	void removePseudonode(Pseudonode* pseudonode) {
-		node v = pseudonode->graphNode;
-		m_pseudonodes.erase(v);
-		m_matching[v] = nullptr;
-		m_graph.delNode(v);
-		expandRepr(pseudonode);
+		node theNode = pseudonode->graphNode;
+		m_pseudonodes.erase(theNode);
+		m_matching[theNode] = nullptr;
+		m_repr[theNode->index()] = nullptr;
+		m_graph.delNode(theNode);
+		for (node v : pseudonode->cycle->nodes()) {
+			m_repr[v->index()] = v;
+		}
 	}
 
 	//! Expands a pseudonode in the current representation structure.
