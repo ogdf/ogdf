@@ -50,7 +50,7 @@ namespace Blossom {
 template<class TWeight>
 class AlternatingTree {
 	//! Type of callback function when iterating the tree.
-	typedef std::function<void(edge, bool)> IteratorCallback;
+	using IteratorCallback = std::function<void(edge, bool)>;
 
 	//! Reference to the helper class.
 	BlossomHelper<TWeight>& m_helper;

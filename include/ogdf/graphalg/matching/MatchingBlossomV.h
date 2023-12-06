@@ -86,7 +86,7 @@ class MatchingBlossomV : public MatchingModule<TWeight> {
 
 #ifdef OGDF_BLOSSOMV_PRINT_STATS
 	//! Structure to store statistics.
-	typedef struct {
+	struct stats {
 		int count = 0;
 		long long time = 0;
 
@@ -96,7 +96,7 @@ class MatchingBlossomV : public MatchingModule<TWeight> {
 		}
 
 		long long ms() { return time / 1000000; }
-	} stats;
+	};
 
 	//! A mapping of all statistic names to their values.
 	std::unordered_map<std::string, stats> m_stats;
