@@ -214,13 +214,13 @@ public:
 	}
 
 	//! Calculate the weight of the \p matching with the weights given in \p weights.
-	TWeight matchingWeight(const std::unordered_set<edge> matching,
+	TWeight matchingWeight(const std::unordered_set<edge>& matching,
 			const EdgeArray<TWeight>& weights) {
 		return getMatchingWeight(matching, weights);
 	}
 
 	//! Calculate the weight of the \p matching with the weights given in \p GA.
-	TWeight matchingWeight(const std::unordered_set<edge> matching, const GraphAttributes& GA) {
+	TWeight matchingWeight(const std::unordered_set<edge>& matching, const GraphAttributes& GA) {
 		return getMatchingWeight(matching, GA);
 	}
 
@@ -242,7 +242,7 @@ private:
 	}
 
 	template<class WeightContainer>
-	TWeight getMatchingWeight(const std::unordered_set<edge> matching,
+	TWeight getMatchingWeight(const std::unordered_set<edge>& matching,
 			const WeightContainer& weights) {
 		TWeight value = 0;
 		for (edge e : matching) {
