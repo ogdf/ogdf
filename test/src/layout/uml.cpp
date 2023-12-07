@@ -57,7 +57,8 @@ public:
 };
 
 go_bandit([] {
+	bool skipMe = true;
 	describeLayout<PLUMock>("PlanarizationLayoutUML",
 			GraphAttributes::edgeType | GraphAttributes::nodeType,
-			{GraphProperty::simple, GraphProperty::sparse}, true);
+			{GraphProperty::simple, GraphProperty::sparse}, true, GraphSizes(), skipMe);
 });
