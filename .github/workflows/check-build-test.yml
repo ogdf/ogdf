@@ -132,7 +132,7 @@ jobs:
     strategy:
       matrix:
         mode: [debug, release]
-        compiler: ['gcc:7', 'gcc:10', 'clang:15']
+        compiler: ['gcc:9', 'gcc:10', 'clang:15']
     runs-on: ubuntu-latest
     container: docker.io/ogdf/${{ matrix.compiler }}
     needs: [style, dirs, self-sufficiency, docs]
@@ -159,7 +159,7 @@ jobs:
       - name: Test ${{ matrix.mode }} build with ${{ matrix.compiler }} and run
         run: |
           util/test_build_and_run.sh \
-            ${{ matrix.compiler == 'gcc:7' && 'dynamic' || 'static' }} \
+            ${{ matrix.compiler == 'gcc:9' && 'dynamic' || 'static' }} \
             ${{ matrix.mode }} \
             ${{ startsWith(matrix.compiler, 'gcc') && 'gcc' || 'clang' }} \
             default_s \

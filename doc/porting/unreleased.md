@@ -2,6 +2,10 @@
 
 # Porting from Elderberry to current unreleased version
 
+## Requirements
+OGDF now requires C++17 features.
+We no longer officially support compilers older than gcc 9, clang 9 or Visual Studio 2017 15.8 (MSVC 19.15).
+
 ## GraphIO
 
 ### SvgPrinter

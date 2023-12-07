@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(OGDF-PROJECT CXX)
+set(CMAKE_CXX_STANDARD 17)
 
 set(module_dir "${PROJECT_SOURCE_DIR}/cmake")
 list(INSERT CMAKE_MODULE_PATH 0 "${module_dir}" )
@@ -17,14 +18,7 @@ else()
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
 endif()
 
-set(OGDF_INCLUDE_CGAL OFF CACHE BOOL "Indicates whether components that require CGAL ({src,include}/ogdf/geometric) should be built. Requires OpenMP and C++17 support")
-
-if (OGDF_INCLUDE_CGAL)
-  set(CMAKE_CXX_STANDARD 17)
-else()
-  set(CMAKE_CXX_STANDARD 11)
-endif()
-
+set(OGDF_INCLUDE_CGAL OFF CACHE BOOL "Indicates whether components that require CGAL ({src,include}/ogdf/geometric) should be built. Requires OpenMP")
 
 include(compiler-specifics)
 include(group-files)

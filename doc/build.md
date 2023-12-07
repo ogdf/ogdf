@@ -7,9 +7,9 @@ The OGDF build configuration is generated using [CMake](http://www.cmake.org/).
 ## Requirements
 
  * CMake 3.8+
- * C++17 compliant compiler
-   * gcc 7+
-   * clang 6+
+ * C++17 compliant compiler with `std::filesystem` support
+   * gcc 9+
+   * clang 9+
    * Microsoft Visual C++ 2017 15.8+
  * GNU Make (in most cases)
  * Doxygen 1.8.6+ (optional)

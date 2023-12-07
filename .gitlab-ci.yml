@@ -2,7 +2,7 @@
 #
 # author: Tilo Wiedera, Jöran Schierbaum, Max Ilsen
 
-image: $CI_REGISTRY/gcc:7
+image: $CI_REGISTRY/gcc:9
 
 stages:
   - test-simple
@@ -68,7 +68,7 @@ mac-release:
     - mac
   stage: test-advanced
 
-gcc-7-debug:
+gcc-9-debug:
   except:
     - schedules
   script: util/test_build_and_run.sh static debug gcc gurobi -DOGDF_INCLUDE_CGAL=ON
@@ -94,7 +94,7 @@ clang-15-debug:
     - docker
   stage: test-advanced
 
-gcc-7-release:
+gcc-9-release:
   except:
     - schedules
   script: util/test_build_and_run.sh dynamic release gcc gurobi -DOGDF_INCLUDE_CGAL=ON

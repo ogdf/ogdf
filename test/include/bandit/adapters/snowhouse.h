@@ -1,18 +1,18 @@
 #ifndef BANDIT_ADAPTERS_SNOWHOUSE_H
 #define BANDIT_ADAPTERS_SNOWHOUSE_H
 
-#include <bandit/adapters/adapter.h>
+#include <bandit/adapters/interface.h>
 #include <bandit/assertion_exception.h>
-#include <bandit/assertion_frameworks/snowhouse/snowhouse/snowhouse.h>
+#include <bandit/assertion_frameworks/snowhouse/snowhouse.h>
 
 namespace bandit {
-  namespace adapters {
-    struct snowhouse_adapter : public assertion_adapter {
-      void adapt_exceptions(detail::voidfunc_t func) override {
+  namespace adapter {
+    struct snowhouse : public interface {
+      void adapt_exceptions(std::function<void()> func) override {
         try {
           func();
-        } catch (const snowhouse::AssertionException& ex) {
-          throw bandit::detail::assertion_exception(ex.GetMessage(), ex.GetFilename(), ex.GetLineNumber());
+        } catch (const ::snowhouse::AssertionException& ex) {
+          throw detail::assertion_exception(ex.what(), ex.file(), ex.line());
         }
       }
     };
