@@ -37,6 +37,7 @@
 
 #include <set>
 
+#include <graphs.h>
 #include <testing.h>
 
 using namespace ogdf;
@@ -224,6 +225,9 @@ void checkSameGraph(const NF& nodeFilter, const EF& edgeFilter, const NL& nodes,
 			if (notifyObservers) {
 				AssertThat(cadj, Equals(ILG->copy(adj)));
 				AssertThat(cedge, Equals(ILG->copy(adj->theEdge())));
+				AssertThat(adj, Equals(ILG->original(cadj)));
+				AssertThat(adj->theEdge(), Equals(ILG->original(cedge)));
+				AssertThat(adj->theNode(), Equals(ILG->original(cadj->theNode())));
 			}
 		}
 		AssertThat(act_emb, Equals(exp_emb));
@@ -318,6 +322,16 @@ go_bandit([]() {
 			checkSameGraph(filter_any_node, filter_any_edge, orig.nodes, orig.edges);
 		});
 
+		it("works via insert(G)", [&] {
+			res = ILG->insert(orig);
+			for (node n : orig.nodes) {
+				nodeMap[n] = ILG->copy(n);
+			}
+			for (edge e : orig.edges) {
+				edgeMap[e] = ILG->copy(e);
+			}
+			AssertThat(ILG->m_edgeFilter, IsTrue());
+		});
 		it("works via insert(G, nodeMap, edgeMap)", [&] {
 			res = ILG->insert(orig, nodeMap, edgeMap);
 			AssertThat(ILG->m_edgeFilter, IsTrue());
@@ -452,6 +466,39 @@ go_bandit([]() {
 						nodeMap, edgeMap);
 				AssertThat(ILG->m_edgeFilter, IsFalse());
 			});
+		});
+	});
+
+	describe("inserting preserves direction", [] {
+		it("works forward", [] {
+			Graph G;
+			customGraph(G, 2, {{0, 1}});
+			reset(G)();
+			res = ILG->insert(G, nodeMap, edgeMap);
+
+			checkDefaultFlags();
+			checkRes(2, 1);
+			checkSameGraph(filter_any_node, filter_any_edge, G.nodes, G.edges);
+		});
+		it("works backward", [] {
+			Graph G;
+			customGraph(G, 2, {{1, 0}});
+			reset(G)();
+			res = ILG->insert(G, nodeMap, edgeMap);
+
+			checkDefaultFlags();
+			checkRes(2, 1);
+			checkSameGraph(filter_any_node, filter_any_edge, G.nodes, G.edges);
+		});
+	});
+	describe("inserting works for all kinds of graphs", [] {
+		forEachGraphItWorks({}, [](Graph& G) {
+			reset(G)();
+			res = ILG->insert(G, nodeMap, edgeMap);
+
+			checkDefaultFlags();
+			checkRes(G.numberOfNodes(), G.numberOfEdges());
+			checkSameGraph(filter_any_node, filter_any_edge, G.nodes, G.edges);
 		});
 	});
 });
