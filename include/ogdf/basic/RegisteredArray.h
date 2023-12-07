@@ -613,13 +613,11 @@ class RegisteredArrayWithDefault : public RegisteredArrayWithoutDefault<Registry
 	Value m_default;
 
 public:
-	//! Creates a new registered array associated with no registry and default value \p def.
-	explicit RegisteredArrayWithDefault(Value&& def = Value())
-		: RA(), m_default(std::forward<Value>(def)) {};
+	//! Creates a new registered array associated with no registry and a default-constructed default value.
+	explicit RegisteredArrayWithDefault() : RA(), m_default() {};
 
-	//! Creates a new registered array associated with \p registry and default value \p def.
-	explicit RegisteredArrayWithDefault(const Registry* registry, Value&& def = Value())
-		: RA(), m_default(std::forward<Value>(def)) {
+	//! Creates a new registered array associated with \p registry and a default-constructed default value.
+	explicit RegisteredArrayWithDefault(const Registry* registry) : RA(), m_default() {
 		// call init from here, as our virtual override of init is not available during initialization of the base class
 		RA::init(registry);
 	};
@@ -630,6 +628,16 @@ public:
 	//! Creates a new registered array associated with \p registry and default value \p def.
 	explicit RegisteredArrayWithDefault(const Registry* registry, const Value& def)
 		: RA(), m_default(def) {
+		// call init from here, as our virtual override of init is not available during initialization of the base class
+		RA::init(registry);
+	};
+
+	//! Creates a new registered array associated with no registry and default value \p def.
+	explicit RegisteredArrayWithDefault(Value&& def) : RA(), m_default(std::forward<Value>(def)) {};
+
+	//! Creates a new registered array associated with \p registry and default value \p def.
+	explicit RegisteredArrayWithDefault(const Registry* registry, Value&& def)
+		: RA(), m_default(std::forward<Value>(def)) {
 		// call init from here, as our virtual override of init is not available during initialization of the base class
 		RA::init(registry);
 	};
@@ -788,9 +796,9 @@ public:
 	//! Creates a new registered array associated with the matching registry of \p base.
 	explicit RegisteredArray(const Base& base) : RA(cast(&base)) {};
 
-	//! Creates a new registered array associated with the matching registry of \p base and initializes
-	//! all values with \p def.
 	/**
+	 * Creates a new registered array associated with the matching registry of \p base and initializes all values with \p def.
+	 *
 	 * \remarks This constructor is only available with \a WithDefault \= \c true.
 	 */
 	RegisteredArray(const Base& base, const Value& def) : RA(cast(&base), def) {};
@@ -798,9 +806,9 @@ public:
 	//! Creates a new registered array associated with the matching registry of \p base.
 	explicit RegisteredArray(const Base* base) : RA(cast(base)) {};
 
-	//! Creates a new registered array associated with the matching registry of \p base and initializes
-	//! all values with \p def.
 	/**
+	 * Creates a new registered array associated with the matching registry of \p base and initializes all values with \p def.
+	 *
 	 * \remarks This constructor is only available with \a WithDefault \= \c true.
 	 */
 	RegisteredArray(const Base* base, const Value& def) : RA(cast(base), def) {};
@@ -811,9 +819,9 @@ public:
 	//! Reinitializes the array. Associates the array with the matching registry of \p base.
 	void init(const Base& base) { RA::init(cast(&base)); }
 
-	//! Reinitializes the array with default value \p new_default. Associates the array with the matching
-	//! registry of \p base.
 	/**
+	 * Reinitializes the array with default value \p new_default. Associates the array with the matching registry of \p base.
+	 *
 	 * \remarks This method is only available with \a WithDefault \= \c true.
 	 */
 	void init(const Base& base, const Value& new_default) {

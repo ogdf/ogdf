@@ -135,17 +135,23 @@ public:
 template<OGDF_NODE_LIST NL>
 std::pair<int, int> Graph::insert(const NL& nodeList, const EdgeSet<true>& edgeSet,
 		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
-	m_regNodeArrays.reserveSpace(nodeList.size());
-	m_regEdgeArrays.reserveSpace(edgeSet.size());
-	m_regAdjArrays.reserveSpace(edgeSet.size());
-	return insert(nodeList.begin(), nodeList.end(), edgeSet, nodeMap, edgeMap);
+	using std::size;
+	m_regNodeArrays.reserveSpace(size(nodeList));
+	m_regEdgeArrays.reserveSpace(size(edgeSet));
+	m_regAdjArrays.reserveSpace(size(edgeSet));
+	using std::begin;
+	using std::end;
+	return insert(begin(nodeList), end(nodeList), edgeSet, nodeMap, edgeMap);
 }
 
 template<OGDF_NODE_LIST NL>
 std::pair<int, int> Graph::insert(const NL& nodeList, const EdgeSet<false>& edgeSet,
 		NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
-	m_regNodeArrays.reserveSpace(nodeList.size());
-	return insert(nodeList.begin(), nodeList.end(), edgeSet, nodeMap, edgeMap);
+	using std::size;
+	m_regNodeArrays.reserveSpace(size(nodeList));
+	using std::begin;
+	using std::end;
+	return insert(begin(nodeList), end(nodeList), edgeSet, nodeMap, edgeMap);
 }
 
 }

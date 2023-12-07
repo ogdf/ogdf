@@ -98,7 +98,7 @@ template<class T>
 struct OGDFAllocator {
 	using value_type = T;
 
-	OGDFAllocator() noexcept { }
+	OGDFAllocator() noexcept = default;
 
 	template<class U>
 	OGDFAllocator(const OGDFAllocator<U>&) noexcept { }

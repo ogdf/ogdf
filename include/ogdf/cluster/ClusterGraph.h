@@ -318,7 +318,7 @@ OGDF_DECL_REG_ARRAY(ClusterArray)
  */
 class OGDF_EXPORT ClusterGraphObserver : public Observer<ClusterGraph, ClusterGraphObserver> {
 public:
-	ClusterGraphObserver() { }
+	ClusterGraphObserver() = default;
 
 	explicit ClusterGraphObserver(const ClusterGraph* CG) { reregister(CG); }
 

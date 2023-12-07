@@ -741,7 +741,7 @@ class EdgeSet;
 class OGDF_EXPORT GraphObserver : public Observer<Graph, GraphObserver> {
 public:
 	//! Constructs instance of GraphObserver class
-	GraphObserver() { }
+	GraphObserver() = default;
 
 	/**
 	 *\brief Constructs instance of GraphObserver class
@@ -1805,6 +1805,11 @@ public:
 		EdgeArray<edge> edgeMap(G, nullptr);
 		return insert(G, nodeMap, edgeMap);
 	}
+
+private:
+	template<OGDF_NODE_ITER NI, bool notifyObservers, bool copyIDs>
+	void insertNodes(const NI& nodesBegin, const NI& nodesEnd, NodeArray<node, true>& nodeMap,
+			int& newNodes, void* cbData);
 
 protected:
 	/**
