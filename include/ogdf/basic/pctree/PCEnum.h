@@ -6,23 +6,23 @@
 #include "utils/RegisteredElementSet.h"
 
 namespace pc_tree {
-    enum class NodeLabel { Unknown, Partial, Full, Empty = Unknown };
+enum class NodeLabel { Unknown, Partial, Full, Empty = Unknown };
 
-    enum class PCNodeType { PNode, CNode, Leaf };
+enum class PCNodeType { PNode, CNode, Leaf };
 
-    class PCTree;
+class PCTree;
 
-    class PCTreeForest;
+class PCTreeForest;
 
-    template<class Key>
-    class PCTreeRegistry;
+template<class Key>
+class PCTreeRegistry;
 
-    class PCNode;
+class PCNode;
 
-    template<typename Value>
-    using PCTreeNodeArray = ogdf::RegisteredArray<PCTreeRegistry<PCNode*>, PCNode*, Value>;
+template<typename Value>
+using PCTreeNodeArray = ogdf::RegisteredArray<PCTreeRegistry<PCNode*>, PCNode*, Value>;
 
-    using PCTreeNodeSet = ogdf::RegisteredElementSet<PCNode*, PCTreeRegistry<PCNode*>>;
+using PCTreeNodeSet = ogdf::RegisteredElementSet<PCNode*, PCTreeRegistry<PCNode*>>;
 }
 
 std::ostream& operator<<(std::ostream&, pc_tree::NodeLabel);

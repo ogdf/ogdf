@@ -12,42 +12,40 @@
 #define UNIONFINDINDEX_EMPTY (-1)
 
 namespace pc_tree {
-    using UnionFindIndex = int;
+using UnionFindIndex = int;
 
-    class PCTreeForest {
-        friend class PCNode;
-        friend class PCTree;
+class PCTreeForest {
+	friend class PCNode;
+	friend class PCTree;
 
-        template<class Key>
-        friend class PCTreeRegistry;
+	template<class Key>
+	friend class PCTreeRegistry;
 
-    private:
-        std::vector<PCTree*> trees;
-        std::vector<PCNode*> cNodes;
-        ogdf::DisjointSets<> parents {1 << 8};
-        int nextNodeId = 0;
-        int timestamp = 0;
-        PCTreeRegistry<PCNode*> nodeArrayRegistry;
-        bool autodelete;
+private:
+	std::vector<PCTree*> trees;
+	std::vector<PCNode*> cNodes;
+	ogdf::DisjointSets<> parents {1 << 8};
+	int nextNodeId = 0;
+	int timestamp = 0;
+	PCTreeRegistry<PCNode*> nodeArrayRegistry;
+	bool autodelete;
 
 #ifdef PCTREE_REUSE_NODES
-        // TODO: also reuse PCTrees?
-        PCNode* reusableNodes = nullptr;
+	// TODO: also reuse PCTrees?
+	PCNode* reusableNodes = nullptr;
 #endif
 
-    public:
-        PCTreeForest(bool autodelete = true) : nodeArrayRegistry(this), autodelete(autodelete) {};
+public:
+	PCTreeForest(bool autodelete = true) : nodeArrayRegistry(this), autodelete(autodelete) {};
 
-        virtual ~PCTreeForest();
+	virtual ~PCTreeForest();
 
-        PCTree* makeTree(void);
+	PCTree* makeTree(void);
 
-        bool merge(PCTree* a, PCTree* b);
+	bool merge(PCTree* a, PCTree* b);
 
-        void clear(void);
+	void clear(void);
 
-        operator const PCTreeRegistry<PCNode*>&() const {
-            return nodeArrayRegistry;
-        }
-    };
+	operator const PCTreeRegistry<PCNode*>&() const { return nodeArrayRegistry; }
+};
 }
