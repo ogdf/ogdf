@@ -1,306 +1,311 @@
 #pragma once
 
-#include "PCTreeForest.h"
-#include "PCEnum.h"
-#include "utils/IntrusiveList.h"
-
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
 
-#include <vector>
 #include <list>
+#include <vector>
+
+#include "PCEnum.h"
+#include "PCTreeForest.h"
+#include "utils/IntrusiveList.h"
 
 namespace pc_tree {
-    struct PCNodeChildrenIterable;
-    struct PCNodeNeighborsIterable;
-
-    class ObserverCentralNode;
-
-    class PCNode : public IntrusiveList<PCNode>::node {
-    public:
-        friend class PCTree;
-
-        friend class PCTreeForest;
-
-        friend struct PCNodeChildrenIterable;
-        friend struct PCNodeNeighborsIterable;
-
-        friend std::ostream &(::operator<<)(std::ostream &, const pc_tree::PCTree *);
-
-        friend std::ostream &(::operator<<)(std::ostream &, const pc_tree::PCNode *);
-
-        struct TempInfo {
-            PCNode *predPartial = nullptr, *nextPartial = nullptr;
-            PCNode *tpPred = nullptr;
-            PCNode *tpPartialPred = nullptr;
-            int tpPartialHeight = 0;
-            PCNode *tpSucc = nullptr;
-            std::vector<PCNode *> fullNeighbors;
-            PCNode *ebEnd1 = nullptr, *fbEnd1 = nullptr,
-                    *fbEnd2 = nullptr, *ebEnd2 = nullptr;
-
-            void replaceNeighbor(PCNode *oldNeigh, PCNode *newNeigh) {
-                if (tpPred == oldNeigh) tpPred = newNeigh;
-                if (tpPartialPred == oldNeigh) tpPartialPred = newNeigh;
-                if (tpSucc == oldNeigh) tpSucc = newNeigh;
-                if (ebEnd1 == oldNeigh) ebEnd1 = newNeigh;
-                if (ebEnd2 == oldNeigh) ebEnd2 = newNeigh;
-                if (fbEnd1 == oldNeigh) fbEnd1 = newNeigh;
-                if (fbEnd2 == oldNeigh) fbEnd2 = newNeigh;
-            }
-
-            void clear() {
-                nextPartial = predPartial = nullptr;
-                tpPred = tpPartialPred = tpSucc = nullptr;
-                ebEnd1 = fbEnd1 = fbEnd2 = ebEnd2 = nullptr;
-                tpPartialHeight = 0;
-                fullNeighbors.clear();
-            }
-        };
-
-        using LeafUserData = std::array<void*, sizeof(TempInfo) / sizeof(void*)>;
-
-    private:
-        // used for serializing and debug output?
-        int id;
-
-        // global
-        PCTreeForest *forest;
-
-        // private
-        UnionFindIndex nodeListIndex = UNIONFINDINDEX_EMPTY;
-        PCNodeType nodeType;
-        PCNode *parentPNode = nullptr;
-        mutable UnionFindIndex parentCNodeId = UNIONFINDINDEX_EMPTY;
-        PCNode *sibling1 = nullptr;
-        PCNode *sibling2 = nullptr;
-        PCNode *child1 = nullptr;
-        PCNode *child2 = nullptr;
-        size_t childCount = 0;
-        mutable NodeLabel label = NodeLabel::Unknown;
-        mutable int timestamp = 0;
-        union {
-            mutable TempInfo temp;
-            LeafUserData userData;
-        };
-
-
-        PCNode(PCTreeForest* forest, int id, PCNodeType nodeType)
-            : IntrusiveList<PCNode>::node(), id(id), forest(forest), nodeType(nodeType) {
-            if (nodeType == PCNodeType::Leaf) {
-                new (&userData) LeafUserData;
-            } else {
-                new (&temp) TempInfo;
-            }
-        }
-
-        ~PCNode() {
-            if (nodeType == PCNodeType::Leaf) {
-                userData.~array();
-            } else {
-                temp.~TempInfo();
-            }
-        }
-
-    public:
-        void appendChild(PCNode *node, bool begin = false);
-
-        void insertBetween(PCNode *sib1, PCNode *sib2);
-
-        void detach();
-
-        void replaceWith(PCNode *node);
-
-        void mergeIntoParent();
+struct PCNodeChildrenIterable;
+struct PCNodeNeighborsIterable;
+
+class ObserverCentralNode;
+
+class PCNode : public IntrusiveList<PCNode>::node {
+public:
+	friend class PCTree;
+
+	friend class PCTreeForest;
+
+	friend struct PCNodeChildrenIterable;
+	friend struct PCNodeNeighborsIterable;
+
+	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCTree*);
+
+	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCNode*);
+
+	struct TempInfo {
+		PCNode *predPartial = nullptr, *nextPartial = nullptr;
+		PCNode* tpPred = nullptr;
+		PCNode* tpPartialPred = nullptr;
+		int tpPartialHeight = 0;
+		PCNode* tpSucc = nullptr;
+		std::vector<PCNode*> fullNeighbors;
+		PCNode *ebEnd1 = nullptr, *fbEnd1 = nullptr, *fbEnd2 = nullptr, *ebEnd2 = nullptr;
+
+		void replaceNeighbor(PCNode* oldNeigh, PCNode* newNeigh) {
+			if (tpPred == oldNeigh) {
+				tpPred = newNeigh;
+			}
+			if (tpPartialPred == oldNeigh) {
+				tpPartialPred = newNeigh;
+			}
+			if (tpSucc == oldNeigh) {
+				tpSucc = newNeigh;
+			}
+			if (ebEnd1 == oldNeigh) {
+				ebEnd1 = newNeigh;
+			}
+			if (ebEnd2 == oldNeigh) {
+				ebEnd2 = newNeigh;
+			}
+			if (fbEnd1 == oldNeigh) {
+				fbEnd1 = newNeigh;
+			}
+			if (fbEnd2 == oldNeigh) {
+				fbEnd2 = newNeigh;
+			}
+		}
+
+		void clear() {
+			nextPartial = predPartial = nullptr;
+			tpPred = tpPartialPred = tpSucc = nullptr;
+			ebEnd1 = fbEnd1 = fbEnd2 = ebEnd2 = nullptr;
+			tpPartialHeight = 0;
+			fullNeighbors.clear();
+		}
+	};
+
+	using LeafUserData = std::array<void*, sizeof(TempInfo) / sizeof(void*)>;
+
+private:
+	// used for serializing and debug output?
+	int id;
+
+	// global
+	PCTreeForest* forest;
+
+	// private
+	UnionFindIndex nodeListIndex = UNIONFINDINDEX_EMPTY;
+	PCNodeType nodeType;
+	PCNode* parentPNode = nullptr;
+	mutable UnionFindIndex parentCNodeId = UNIONFINDINDEX_EMPTY;
+	PCNode* sibling1 = nullptr;
+	PCNode* sibling2 = nullptr;
+	PCNode* child1 = nullptr;
+	PCNode* child2 = nullptr;
+	size_t childCount = 0;
+	mutable NodeLabel label = NodeLabel::Unknown;
+	mutable int timestamp = 0;
+
+	union {
+		mutable TempInfo temp;
+		LeafUserData userData;
+	};
+
+	PCNode(PCTreeForest* forest, int id, PCNodeType nodeType)
+		: IntrusiveList<PCNode>::node(), id(id), forest(forest), nodeType(nodeType) {
+		if (nodeType == PCNodeType::Leaf) {
+			new (&userData) LeafUserData;
+		} else {
+			new (&temp) TempInfo;
+		}
+	}
+
+	~PCNode() {
+		if (nodeType == PCNodeType::Leaf) {
+			userData.~array();
+		} else {
+			temp.~TempInfo();
+		}
+	}
 
-        void flip() {
-            std::swap(child1, child2);
-        }
+public:
+	void appendChild(PCNode* node, bool begin = false);
 
-        void replaceSibling(PCNode *oldS, PCNode *newS);
+	void insertBetween(PCNode* sib1, PCNode* sib2);
 
-        void rotateChildOutside(bool child1 = true);
+	void detach();
 
-    private:
-        void replaceOuterChild(PCNode *oldC, PCNode *newC);
+	void replaceWith(PCNode* node);
 
-        void setParent(PCNode *parent);
+	void mergeIntoParent();
 
-        void forceDetach();
+	void flip() { std::swap(child1, child2); }
 
-        void changeType(PCNodeType newType) {
-            if (nodeType == PCNodeType::Leaf && newType != PCNodeType::Leaf) {
-                userData.~array();
-                new (&temp) TempInfo;
-            } else if (nodeType != PCNodeType::Leaf && newType == PCNodeType::Leaf) {
-                temp.~TempInfo();
-                new (&userData) LeafUserData;
-            }
-            nodeType = newType;
-        }
-
-    public:
-        PCNode *getNextSibling(const PCNode *pred) const;
-
-        PCNode *getOtherOuterChild(const PCNode *child) const;
-
-        PCNode *getNextNeighbor(const PCNode *pred, const PCNode *curr) const;
-
-        void proceedToNextNeighbor(PCNode *&pred, PCNode *&curr) const;
+	void replaceSibling(PCNode* oldS, PCNode* newS);
 
-        PCNode *getParent() const;
-
-        PCNodeChildrenIterable children();
-
-        PCNodeNeighborsIterable neighbors(PCNode *first = nullptr);
-
-    public:
-        bool isDetached() const {
-            if (parentCNodeId == UNIONFINDINDEX_EMPTY && parentPNode == nullptr) {
-                return true;
-            } else {
-                OGDF_ASSERT(parentCNodeId == UNIONFINDINDEX_EMPTY || parentPNode == nullptr);
-                return false;
-            }
-        }
-
-        bool isValidNode(const PCTreeForest *ofForest = nullptr) const;
-
-        bool isLeaf() const {
-            return nodeType == PCNodeType::Leaf;
-        }
-
-        bool isParentOf(const PCNode *other) const {
-            OGDF_ASSERT(other != nullptr);
-            OGDF_ASSERT(forest == other->forest);
-            return other->getParent() == this;
-        }
-
-        bool isSiblingOf(const PCNode *other) const {
-            OGDF_ASSERT(other != nullptr);
-            OGDF_ASSERT(forest == other->forest);
-            return this->getParent() == other->getParent();
-        }
-
-        bool isSiblingAdjacent(const PCNode *sibling) const {
-            OGDF_ASSERT(isSiblingOf(sibling));
-            OGDF_ASSERT(this != sibling);
-            return sibling1 == sibling || sibling2 == sibling;
-        }
-
-        bool areNeighborsAdjacent(const PCNode *neigh1, const PCNode *neigh2) const;
-
-        bool isChildOuter(const PCNode *child) const {
-            OGDF_ASSERT(isParentOf(child));
-            return child1 == child || child2 == child;
-        }
-
-        bool isOuterChild() const {
-            return sibling1 == nullptr || sibling2 == nullptr;
-        }
-
-    public:
-        const TempInfo &constTempInfo() const {
-            checkTimestamp();
-            OGDF_ASSERT(!isLeaf());
-            return temp;
-        }
+	void rotateChildOutside(bool child1 = true);
 
-        bool isFull() const {
-            return getLabel() == NodeLabel::Full;
-        }
+private:
+	void replaceOuterChild(PCNode* oldC, PCNode* newC);
 
-        NodeLabel getLabel() const {
-            // this operation does not reset the temp info
-            return forest->timestamp == timestamp ? label : NodeLabel::Empty;
-        }
+	void setParent(PCNode* parent);
 
-        void setLabel(NodeLabel l) {
-            checkTimestamp();
-            label = l;
-        }
+	void forceDetach();
 
-        NodeLabel getLabelUnchecked() const {
-            OGDF_ASSERT(forest->timestamp == timestamp);
-            return label;
-        }
+	void changeType(PCNodeType newType) {
+		if (nodeType == PCNodeType::Leaf && newType != PCNodeType::Leaf) {
+			userData.~array();
+			new (&temp) TempInfo;
+		} else if (nodeType != PCNodeType::Leaf && newType == PCNodeType::Leaf) {
+			temp.~TempInfo();
+			new (&userData) LeafUserData;
+		}
+		nodeType = newType;
+	}
 
-        void setLabelUnchecked(NodeLabel l) {
-            OGDF_ASSERT(forest->timestamp == timestamp);
-            label = l;
-        }
+public:
+	PCNode* getNextSibling(const PCNode* pred) const;
 
-        LeafUserData& leafUserData() {
-            OGDF_ASSERT(isLeaf());
-            return userData;
-        }
+	PCNode* getOtherOuterChild(const PCNode* child) const;
 
-        const LeafUserData& leafUserData() const {
-            OGDF_ASSERT(isLeaf());
-            return userData;
-        }
+	PCNode* getNextNeighbor(const PCNode* pred, const PCNode* curr) const;
 
-        PCNode *getFullNeighInsertionPointConst(PCNode *nonFullNeigh) {
-            return getFullNeighInsertionPoint(nonFullNeigh);
-        }
+	void proceedToNextNeighbor(PCNode*& pred, PCNode*& curr) const;
 
-    private:
-        void checkTimestamp() const;
+	PCNode* getParent() const;
 
-        TempInfo &tempInfo() {
-            checkTimestamp();
-            OGDF_ASSERT(!isLeaf());
-            return temp;
-        }
+	PCNodeChildrenIterable children();
 
-        size_t addFullNeighbor(PCNode *fullNeigh) {
-            checkTimestamp();
-            OGDF_ASSERT(!isLeaf());
-            OGDF_ASSERT(fullNeigh->isFull());
-            temp.fullNeighbors.push_back(fullNeigh);
-            return temp.fullNeighbors.size();
-        }
+	PCNodeNeighborsIterable neighbors(PCNode* first = nullptr);
 
-        PCNode *&getFullNeighInsertionPoint(PCNode *nonFullNeigh) {
-            checkTimestamp();
-            OGDF_ASSERT(!isLeaf());
-            OGDF_ASSERT(nonFullNeigh != nullptr);
-            if (nonFullNeigh == temp.ebEnd1) {
-                OGDF_ASSERT(areNeighborsAdjacent(temp.ebEnd1, temp.fbEnd1));
-                return temp.fbEnd1;
-            } else {
-                OGDF_ASSERT(nonFullNeigh == temp.ebEnd2);
-                OGDF_ASSERT(areNeighborsAdjacent(temp.ebEnd2, temp.fbEnd2));
-                return temp.fbEnd2;
-            }
-        }
+public:
+	bool isDetached() const {
+		if (parentCNodeId == UNIONFINDINDEX_EMPTY && parentPNode == nullptr) {
+			return true;
+		} else {
+			OGDF_ASSERT(parentCNodeId == UNIONFINDINDEX_EMPTY || parentPNode == nullptr);
+			return false;
+		}
+	}
 
-    public:
-        int index() const { return id; }
+	bool isValidNode(const PCTreeForest* ofForest = nullptr) const;
+
+	bool isLeaf() const { return nodeType == PCNodeType::Leaf; }
+
+	bool isParentOf(const PCNode* other) const {
+		OGDF_ASSERT(other != nullptr);
+		OGDF_ASSERT(forest == other->forest);
+		return other->getParent() == this;
+	}
+
+	bool isSiblingOf(const PCNode* other) const {
+		OGDF_ASSERT(other != nullptr);
+		OGDF_ASSERT(forest == other->forest);
+		return this->getParent() == other->getParent();
+	}
 
-        PCNodeType getNodeType() const { return nodeType; }
+	bool isSiblingAdjacent(const PCNode* sibling) const {
+		OGDF_ASSERT(isSiblingOf(sibling));
+		OGDF_ASSERT(this != sibling);
+		return sibling1 == sibling || sibling2 == sibling;
+	}
 
-        int getChildCount() const { return childCount; }
+	bool areNeighborsAdjacent(const PCNode* neigh1, const PCNode* neigh2) const;
 
-        size_t getDegree() const { return isDetached() ? childCount : childCount + 1; }
+	bool isChildOuter(const PCNode* child) const {
+		OGDF_ASSERT(isParentOf(child));
+		return child1 == child || child2 == child;
+	}
 
-        PCNode *getChild1() const { return child1; }
+	bool isOuterChild() const { return sibling1 == nullptr || sibling2 == nullptr; }
 
-        PCNode *getChild2() const { return child2; }
+public:
+	const TempInfo& constTempInfo() const {
+		checkTimestamp();
+		OGDF_ASSERT(!isLeaf());
+		return temp;
+	}
 
-        PCNode *getOnlyChild() const {
-            OGDF_ASSERT(childCount == 1);
-            return child1;
-        }
+	bool isFull() const { return getLabel() == NodeLabel::Full; }
 
-        PCNode *getSibling1() const { return sibling1; }
+	NodeLabel getLabel() const {
+		// this operation does not reset the temp info
+		return forest->timestamp == timestamp ? label : NodeLabel::Empty;
+	}
 
-        PCNode *getSibling2() const { return sibling2; }
+	void setLabel(NodeLabel l) {
+		checkTimestamp();
+		label = l;
+	}
 
-        PCTreeForest* getForest() const { return forest; }
+	NodeLabel getLabelUnchecked() const {
+		OGDF_ASSERT(forest->timestamp == timestamp);
+		return label;
+	}
 
-OGDF_NEW_DELETE
-    };
+	void setLabelUnchecked(NodeLabel l) {
+		OGDF_ASSERT(forest->timestamp == timestamp);
+		label = l;
+	}
 
-    void proceedToNextSibling(PCNode *&pred, PCNode *&curr);
+	LeafUserData& leafUserData() {
+		OGDF_ASSERT(isLeaf());
+		return userData;
+	}
+
+	const LeafUserData& leafUserData() const {
+		OGDF_ASSERT(isLeaf());
+		return userData;
+	}
+
+	PCNode* getFullNeighInsertionPointConst(PCNode* nonFullNeigh) {
+		return getFullNeighInsertionPoint(nonFullNeigh);
+	}
+
+private:
+	void checkTimestamp() const;
+
+	TempInfo& tempInfo() {
+		checkTimestamp();
+		OGDF_ASSERT(!isLeaf());
+		return temp;
+	}
+
+	size_t addFullNeighbor(PCNode* fullNeigh) {
+		checkTimestamp();
+		OGDF_ASSERT(!isLeaf());
+		OGDF_ASSERT(fullNeigh->isFull());
+		temp.fullNeighbors.push_back(fullNeigh);
+		return temp.fullNeighbors.size();
+	}
+
+	PCNode*& getFullNeighInsertionPoint(PCNode* nonFullNeigh) {
+		checkTimestamp();
+		OGDF_ASSERT(!isLeaf());
+		OGDF_ASSERT(nonFullNeigh != nullptr);
+		if (nonFullNeigh == temp.ebEnd1) {
+			OGDF_ASSERT(areNeighborsAdjacent(temp.ebEnd1, temp.fbEnd1));
+			return temp.fbEnd1;
+		} else {
+			OGDF_ASSERT(nonFullNeigh == temp.ebEnd2);
+			OGDF_ASSERT(areNeighborsAdjacent(temp.ebEnd2, temp.fbEnd2));
+			return temp.fbEnd2;
+		}
+	}
+
+public:
+	int index() const { return id; }
+
+	PCNodeType getNodeType() const { return nodeType; }
+
+	int getChildCount() const { return childCount; }
+
+	size_t getDegree() const { return isDetached() ? childCount : childCount + 1; }
+
+	PCNode* getChild1() const { return child1; }
+
+	PCNode* getChild2() const { return child2; }
+
+	PCNode* getOnlyChild() const {
+		OGDF_ASSERT(childCount == 1);
+		return child1;
+	}
+
+	PCNode* getSibling1() const { return sibling1; }
+
+	PCNode* getSibling2() const { return sibling2; }
+
+	PCTreeForest* getForest() const { return forest; }
+
+	OGDF_NEW_DELETE
+};
+
+void proceedToNextSibling(PCNode*& pred, PCNode*& curr);
 }

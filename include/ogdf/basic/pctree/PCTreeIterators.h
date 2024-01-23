@@ -7,203 +7,173 @@
 #include "PCNode.h"
 
 namespace pc_tree {
-    class PCNodeIterator {
-        friend struct PCNodeChildrenIterable;
-        friend struct PCNodeNeighborsIterable;
+class PCNodeIterator {
+	friend struct PCNodeChildrenIterable;
+	friend struct PCNodeNeighborsIterable;
 
-        PCNode* const node = nullptr;
-        PCNode* pred = nullptr;
-        PCNode* curr = nullptr;
+	PCNode* const node = nullptr;
+	PCNode* pred = nullptr;
+	PCNode* curr = nullptr;
 
-        PCNodeIterator(PCNode* node, PCNode* pred, PCNode* curr)
-            : node(node), pred(pred), curr(curr) {
-        }
+	PCNodeIterator(PCNode* node, PCNode* pred, PCNode* curr)
+		: node(node), pred(pred), curr(curr) { }
 
-    public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = PCNode;
-        using pointer = PCNode*;
-        using reference = PCNode&;
-        using difference_type = std::ptrdiff_t;
+public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = PCNode;
+	using pointer = PCNode*;
+	using reference = PCNode&;
+	using difference_type = std::ptrdiff_t;
 
-        PCNodeIterator() = default;
+	PCNodeIterator() = default;
 
-        PCNode& operator->() const {
-            return *curr;
-        }
+	PCNode& operator->() const { return *curr; }
 
-        PCNode* operator*() const {
-            return curr;
-        }
+	PCNode* operator*() const { return curr; }
 
-        //! Increment operator (prefix, returns result).
-        PCNodeIterator& operator++();
+	//! Increment operator (prefix, returns result).
+	PCNodeIterator& operator++();
 
-        //! Increment operator (postfix, returns previous value).
-        PCNodeIterator operator++(int);
+	//! Increment operator (postfix, returns previous value).
+	PCNodeIterator operator++(int);
 
-        bool operator==(const PCNodeIterator& rhs) const {
-            return node == rhs.node && pred == rhs.pred && curr == rhs.curr;
-        }
+	bool operator==(const PCNodeIterator& rhs) const {
+		return node == rhs.node && pred == rhs.pred && curr == rhs.curr;
+	}
 
-        bool operator!=(const PCNodeIterator& rhs) const {
-            return !(rhs == *this);
-        }
+	bool operator!=(const PCNodeIterator& rhs) const { return !(rhs == *this); }
 
-        PCNode* nodeOf() const {
-            return node;
-        }
+	PCNode* nodeOf() const { return node; }
 
-        bool isParent();
-    };
+	bool isParent();
+};
 
-    struct PCNodeChildrenIterable {
-        PCNode* const node;
+struct PCNodeChildrenIterable {
+	PCNode* const node;
 
-        explicit PCNodeChildrenIterable(PCNode* node) : node(node) {
-        }
+	explicit PCNodeChildrenIterable(PCNode* node) : node(node) { }
 
-        PCNodeIterator begin() const noexcept;
+	PCNodeIterator begin() const noexcept;
 
-        PCNodeIterator end() const noexcept;
+	PCNodeIterator end() const noexcept;
 
-        unsigned long count() const;
-    };
+	unsigned long count() const;
+};
 
-    struct PCNodeNeighborsIterable {
-        PCNode* const node;
-        PCNode* const first;
+struct PCNodeNeighborsIterable {
+	PCNode* const node;
+	PCNode* const first;
 
-        explicit PCNodeNeighborsIterable(PCNode* node, PCNode* first = nullptr)
-            : node(node)
-            , first(first != nullptr ? first
-                                     : (node->child1 != nullptr ? node->child1 : node->getParent())) {
-            if (this->first == nullptr) {
-                OGDF_ASSERT(this->node->getDegree() == 0);
-            } else {
-                OGDF_ASSERT(
-                        this->node->isParentOf(this->first) || this->first->isParentOf(this->node));
-            }
-        }
+	explicit PCNodeNeighborsIterable(PCNode* node, PCNode* first = nullptr)
+		: node(node)
+		, first(first != nullptr ? first
+								 : (node->child1 != nullptr ? node->child1 : node->getParent())) {
+		if (this->first == nullptr) {
+			OGDF_ASSERT(this->node->getDegree() == 0);
+		} else {
+			OGDF_ASSERT(this->node->isParentOf(this->first) || this->first->isParentOf(this->node));
+		}
+	}
 
-        PCNodeIterator begin() const noexcept;
+	PCNodeIterator begin() const noexcept;
 
-        PCNodeIterator end() const noexcept;
+	PCNodeIterator end() const noexcept;
 
-        unsigned long count() const;
-    };
+	unsigned long count() const;
+};
 
-    template<bool dfs, bool reverse = false>
-    class FilteringPCTreeWalk {
-        using container_type =
-                typename std::conditional<dfs, std::vector<PCNode*>, std::deque<PCNode*>>::type;
+template<bool dfs, bool reverse = false>
+class FilteringPCTreeWalk {
+	using container_type =
+			typename std::conditional<dfs, std::vector<PCNode*>, std::deque<PCNode*>>::type;
 
-        container_type m_pending;
-        std::function<bool(PCNode*)> m_visit;
-        std::function<bool(PCNode*)> m_descend;
+	container_type m_pending;
+	std::function<bool(PCNode*)> m_visit;
+	std::function<bool(PCNode*)> m_descend;
 
-    public:
-        // iterator traits
-        using iterator_category = std::input_iterator_tag;
-        using value_type = PCNode*;
-        using difference_type = std::ptrdiff_t;
-        using pointer = PCNode**;
-        using reference = PCNode*&;
+public:
+	// iterator traits
+	using iterator_category = std::input_iterator_tag;
+	using value_type = PCNode*;
+	using difference_type = std::ptrdiff_t;
+	using pointer = PCNode**;
+	using reference = PCNode*&;
 
-        static bool return_true([[maybe_unused]] PCNode* n) {
-            return true;
-        }
+	static bool return_true([[maybe_unused]] PCNode* n) { return true; }
 
-        explicit FilteringPCTreeWalk() = default;
+	explicit FilteringPCTreeWalk() = default;
 
-        explicit FilteringPCTreeWalk([[maybe_unused]] const PCTree& T, PCNode* start,
-                std::function<bool(PCNode*)> visit = return_true,
-                std::function<bool(PCNode*)> descend_from = return_true)
-            : m_pending({start}), m_visit(std::move(visit)), m_descend(std::move(descend_from)) {
-            if (!m_pending.empty() && !m_visit(top())) {
-                next();
-            }
-        }
+	explicit FilteringPCTreeWalk([[maybe_unused]] const PCTree& T, PCNode* start,
+			std::function<bool(PCNode*)> visit = return_true,
+			std::function<bool(PCNode*)> descend_from = return_true)
+		: m_pending({start}), m_visit(std::move(visit)), m_descend(std::move(descend_from)) {
+		if (!m_pending.empty() && !m_visit(top())) {
+			next();
+		}
+	}
 
-        bool operator==(const FilteringPCTreeWalk& rhs) const {
-            return m_pending == rhs.m_pending;
-        }
+	bool operator==(const FilteringPCTreeWalk& rhs) const { return m_pending == rhs.m_pending; }
 
-        bool operator!=(const FilteringPCTreeWalk& rhs) const {
-            return m_pending != rhs.m_pending;
-        }
+	bool operator!=(const FilteringPCTreeWalk& rhs) const { return m_pending != rhs.m_pending; }
 
-        FilteringPCTreeWalk& begin() {
-            return *this;
-        }
+	FilteringPCTreeWalk& begin() { return *this; }
 
-        FilteringPCTreeWalk end() const {
-            return FilteringPCTreeWalk();
-        }
+	FilteringPCTreeWalk end() const { return FilteringPCTreeWalk(); }
 
-        PCNode* top() {
-            OGDF_ASSERT(!m_pending.empty());
-            if constexpr (dfs) {
-                return m_pending.back();
-            } else {
-                return m_pending.front();
-            }
-        }
+	PCNode* top() {
+		OGDF_ASSERT(!m_pending.empty());
+		if constexpr (dfs) {
+			return m_pending.back();
+		} else {
+			return m_pending.front();
+		}
+	}
 
-        PCNode* operator*() {
-            return top();
-        }
+	PCNode* operator*() { return top(); }
 
-        //! Increment operator (prefix, returns result).
-        FilteringPCTreeWalk& operator++() {
-            next();
-            return *this;
-        }
+	//! Increment operator (prefix, returns result).
+	FilteringPCTreeWalk& operator++() {
+		next();
+		return *this;
+	}
 
-        //! Increment operator (postfix, returns previous value).
-        OGDF_DEPRECATED("Calling FilteringPCTreeWalk++ will copy the array of pending nodes")
-        FilteringPCTreeWalk operator++(int) {
-            FilteringPCTreeWalk before = *this;
-            next();
-            return before;
-        }
+	//! Increment operator (postfix, returns previous value).
+	OGDF_DEPRECATED("Calling FilteringPCTreeWalk++ will copy the array of pending nodes")
 
-        void next() {
-            do {
-                OGDF_ASSERT(!m_pending.empty());
-                PCNode* node = top();
-                if constexpr (dfs) {
-                    m_pending.pop_back();
-                } else {
-                    m_pending.pop_front();
-                }
-                if (m_descend(node)) {
-                    std::copy(node->children().begin(), node->children().end(),
-                            std::back_inserter(m_pending));
-                    if constexpr (reverse) {
-                        std::reverse(m_pending.end() - node->getChildCount(), m_pending.end());
-                    }
-                }
-            } while (!m_pending.empty() && !m_visit(top()));
-        }
+	FilteringPCTreeWalk operator++(int) {
+		FilteringPCTreeWalk before = *this;
+		next();
+		return before;
+	}
 
-        explicit operator bool() const {
-            return valid();
-        }
+	void next() {
+		do {
+			OGDF_ASSERT(!m_pending.empty());
+			PCNode* node = top();
+			if constexpr (dfs) {
+				m_pending.pop_back();
+			} else {
+				m_pending.pop_front();
+			}
+			if (m_descend(node)) {
+				std::copy(node->children().begin(), node->children().end(),
+						std::back_inserter(m_pending));
+				if constexpr (reverse) {
+					std::reverse(m_pending.end() - node->getChildCount(), m_pending.end());
+				}
+			}
+		} while (!m_pending.empty() && !m_visit(top()));
+	}
 
-        bool valid() const {
-            return !m_pending.empty();
-        }
+	explicit operator bool() const { return valid(); }
 
-        void append(PCNode* a) {
-            m_pending.push(a);
-        }
+	bool valid() const { return !m_pending.empty(); }
 
-        int pendingCount() const {
-            return m_pending.size();
-        }
-    };
+	void append(PCNode* a) { m_pending.push(a); }
 
-    using FilteringPCTreeDFS = FilteringPCTreeWalk<true>;
-    using FilteringPCTreeBFS = FilteringPCTreeWalk<false>;
+	int pendingCount() const { return m_pending.size(); }
+};
+
+using FilteringPCTreeDFS = FilteringPCTreeWalk<true>;
+using FilteringPCTreeBFS = FilteringPCTreeWalk<false>;
 }
