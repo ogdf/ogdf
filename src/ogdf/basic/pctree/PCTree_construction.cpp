@@ -1,7 +1,7 @@
-#include <regex>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
 
-#include "PCNode.h"
-#include "PCTree.h"
+#include <regex>
 
 using namespace pc_tree;
 
@@ -231,7 +231,6 @@ void PCTree::unregisterNode(PCNode* node) {
 }
 
 PCNode* PCTree::newNode(PCNodeType type, PCNode* parent, int id) {
-	int oldTableSize = forest->nodeArrayRegistry.keyArrayTableSize();
 	PCNode* node;
 #ifdef PCTREE_REUSE_NODES
 	if (forest->reusableNodes) {
@@ -263,9 +262,7 @@ PCNode* PCTree::newNode(PCNodeType type, PCNode* parent, int id) {
 	} else if (rootNode == nullptr) {
 		rootNode = node;
 	}
-	if (oldTableSize != forest->nodeArrayRegistry.keyArrayTableSize()) {
-		forest->nodeArrayRegistry.enlargeArrayTables();
-	}
+	forest->nodeArrayRegistry.keyAdded(node);
 
 	for (auto obs : observers) {
 		obs->onNodeCreate(node);

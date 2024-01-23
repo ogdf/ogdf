@@ -1,13 +1,12 @@
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
+
 #include <queue>
 #include <stack>
 #include <variant>
 
-#include "PCNode.h"
-#include "PCTree.h"
-
 using namespace pc_tree;
 using namespace ogdf;
-using namespace Dodecahedron;
 
 bool PCTree::isTrivial() const {
 	if (leaves.empty()) {
@@ -300,7 +299,7 @@ std::ostream& PCTree::uniqueID(std::ostream& os,
 	return os;
 }
 
-std::ostream& operator<<(ostream& os, const pc_tree::PCNodeType t) {
+std::ostream& operator<<(std::ostream& os, const pc_tree::PCNodeType t) {
 	switch (t) {
 	case pc_tree::PCNodeType::Leaf:
 		return os << "Leaf";
@@ -314,7 +313,7 @@ std::ostream& operator<<(ostream& os, const pc_tree::PCNodeType t) {
 	}
 }
 
-std::ostream& operator<<(ostream& os, const pc_tree::NodeLabel l) {
+std::ostream& operator<<(std::ostream& os, const pc_tree::NodeLabel l) {
 	switch (l) {
 	case pc_tree::NodeLabel::Unknown:
 		return os << "Empty/Unknown";
@@ -347,7 +346,7 @@ bool PCTree::isValidOrder(const std::vector<PCNode*>& order) const {
 		previous = node;
 	}
 #ifdef OGDF_DEBUG
-	OGDF_ASSERT(copy.possibleOrders() == 2);
+	OGDF_ASSERT(copy.possibleOrders<int>() == 2);
 	OGDF_ASSERT(copy.makeConsecutive({leafMapping[order.front()], leafMapping[order.back()]}));
 	std::list<PCNode*> res_order;
 	copy.currentLeafOrder(res_order);
@@ -652,13 +651,14 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 	}
 }
 
-Bigint PCTree::PCTree::possibleOrders() const {
-	Bigint orders(1);
+template<typename R>
+R PCTree::PCTree::possibleOrders() const {
+	R orders(1);
 	for (PCNode* node : innerNodes()) {
 		if (node->getNodeType() == PCNodeType::CNode) {
 			orders *= 2;
 		} else {
-			int children = node->getChildCount();
+			R children(node->getChildCount());
 			if (node == rootNode) {
 				children -= 1; // don't count circular shifts
 			}

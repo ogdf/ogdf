@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ostream>
+#include <ogdf/basic/RegisteredArray.h>
+#include <ogdf/basic/RegisteredSet.h>
 
-#include "utils/RegisteredArray.h"
-#include "utils/RegisteredElementSet.h"
+#include <ostream>
 
 namespace pc_tree {
 enum class NodeLabel { Unknown, Partial, Full, Empty = Unknown };
@@ -19,10 +19,12 @@ class PCTreeRegistry;
 
 class PCNode;
 
-template<typename Value>
-using PCTreeNodeArray = ogdf::RegisteredArray<PCTreeRegistry<PCNode*>, PCNode*, Value>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) ogdf::RegisteredArray<PCTreeRegistry<PCNode*>, v, c>
+OGDF_DECL_REG_ARRAY(PCTreeNodeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
-using PCTreeNodeSet = ogdf::RegisteredElementSet<PCNode*, PCTreeRegistry<PCNode*>>;
+template<bool SupportFastSizeQuery = true>
+using PCTreeNodeSet = ogdf::RegisteredSet<PCTreeRegistry<PCNode*>, SupportFastSizeQuery>;
 }
 
 std::ostream& operator<<(std::ostream&, pc_tree::NodeLabel);

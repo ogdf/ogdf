@@ -2,23 +2,22 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
+#include <ogdf/basic/pctree/PCTreeForest.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
 
 #include <deque>
 #include <list>
 #include <sstream>
 #include <vector>
 
-#include <bigInt/bigint.h>
-
-#include "PCEnum.h"
-#include "PCNode.h"
-#include "PCRegistry.h"
-#include "PCTreeForest.h"
-#include "PCTreeIterators.h"
-#include "utils/IntrusiveList.h"
-
 namespace pc_tree {
 bool isTrivialRestriction(int restSize, int leafCount);
+
+int factorial(int n);
 
 namespace uid_utils {
 void nodeToID(std::ostream& os, PCNode* n, int pos);
@@ -324,7 +323,8 @@ public: // Getters
 	void getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 			PCNode* fixedLeaf = nullptr) const;
 
-	Dodecahedron::Bigint possibleOrders() const;
+	template<typename R>
+	R possibleOrders() const;
 
 	std::ostream& uniqueID(std::ostream&,
 			const std::function<void(std::ostream& os, PCNode*, int)>& printNode = uid_utils::nodeToID,
@@ -368,11 +368,11 @@ public: // Observers
 				[[maybe_unused]] FullLeafIter consecutiveLeaves) {};
 
 		virtual void labelsAssigned([[maybe_unused]] PCTree& tree,
-				[[maybe_unused]] PCNode* firstPartial, [[maybe_unused]] PCNode* lastPartial,
-				[[maybe_unused]] int partialCount) {};
+				[[maybe_unused]] PCNode* p_firstPartial, [[maybe_unused]] PCNode* p_lastPartial,
+				[[maybe_unused]] int p_partialCount) {};
 
 		virtual void terminalPathFound([[maybe_unused]] PCTree& tree, [[maybe_unused]] PCNode* apex,
-				[[maybe_unused]] PCNode* apexTPPred2, [[maybe_unused]] int terminalPathLength) {};
+				[[maybe_unused]] PCNode* p_apexTPPred2, [[maybe_unused]] int p_terminalPathLength) {};
 
 		virtual void centralCreated([[maybe_unused]] PCTree& tree,
 				[[maybe_unused]] PCNode* central) {};
@@ -397,7 +397,7 @@ public: // Observers
 				[[maybe_unused]] Stage stage, [[maybe_unused]] bool success) {};
 
 		virtual void onApexMoved([[maybe_unused]] PCTree& tree,
-				[[maybe_unused]] PCNode* apexCandidate, [[maybe_unused]] PCNode* central,
+				[[maybe_unused]] PCNode* p_apexCandidate, [[maybe_unused]] PCNode* central,
 				[[maybe_unused]] PCNode* parent) {};
 
 		virtual void nodeDeleted([[maybe_unused]] PCTree& tree,
@@ -433,8 +433,8 @@ public: // Observers
 };
 
 template<class Key>
-int PCTreeRegistry<Key>::keyArrayTableSize() const {
-	return ogdf::RegistryBase<Key, PCTreeRegistry<Key>>::calculateTableSize(m_pForest->nextNodeId);
+int PCTreeRegistry<Key>::calculateArraySize(int add) const {
+	return ogdf::calculateTableSize(m_pForest->nextNodeId + add);
 }
 
 template<class Key>

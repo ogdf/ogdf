@@ -1,8 +1,7 @@
-#include "PCNode.h"
-
-#include "PCTree.h"
-#include "PCTreeForest.h"
-#include "PCTreeIterators.h"
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/PCTreeForest.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
 
 using namespace pc_tree;
 

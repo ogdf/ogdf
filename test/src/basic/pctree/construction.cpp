@@ -1,7 +1,7 @@
-#include <bandit/bandit.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
 
-#include "PCNode.h"
-#include "PCTree.h"
+#include <bandit/bandit.h>
 
 using namespace pc_tree;
 using namespace snowhouse;
@@ -36,7 +36,7 @@ go_bandit([]() {
 			AssertThat(std::equal(tree.getLeaves().begin(), tree.getLeaves().end(), leaves.begin(),
 							   leaves.end()),
 					IsTrue());
-			AssertThat(tree.possibleOrders(), Equals(Dodecahedron::Bigint(24)));
+			AssertThat(tree.possibleOrders<int>(), Equals(24));
 			AssertThat(treeToString(tree), Equals("0:(5, 4, 3, 2, 1)"));
 			AssertThat(tree.uniqueID(uid_utils::nodeToPosition), Equals("5:(4, 3, 2, 1, 0)"));
 			PCNode* root = tree.getRootNode();

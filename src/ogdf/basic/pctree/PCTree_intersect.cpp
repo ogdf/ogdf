@@ -1,6 +1,6 @@
-#include <queue>
+#include <ogdf/basic/pctree/PCTree.h>
 
-#include "PCTree.h"
+#include <queue>
 
 bool pc_tree::PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping) {
 	OGDF_HEAVY_ASSERT(checkValid() && other.checkValid());

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PCEnum.h"
+#include <ogdf/basic/pctree/PCEnum.h>
 
 namespace pc_tree {
 class PCTreeForest;
@@ -12,13 +12,17 @@ class PCTreeRegistry : public ogdf::RegistryBase<Key, PCTreeRegistry<Key>> {
 public:
 	PCTreeRegistry(PCTreeForest* pcTreeForest) : m_pForest(pcTreeForest) { }
 
-	bool isKeyAssociated(Key key) const override;
+	//! Returns the index of \p key.
+	static inline int keyToIndex(Key key);
 
-	int keyToIndex(Key key) const override;
+	//! Returns whether \p key is associated with this registry.
+	bool isKeyAssociated(Key key) const;
 
-	int keyArrayTableSize() const override;
+	//! Returns the maximum index of all keys managed by this registry.
+	int maxKeyIndex() const;
 
-	int maxKeyIndex() const override;
+	//! Returns the array size currently requested by this registry.
+	int calculateArraySize(int add) const;
 
 	operator PCTreeForest&() const { return *m_pForest; }
 
@@ -37,7 +41,7 @@ bool PCTreeRegistry<Key>::isKeyAssociated(Key key) const {
 }
 
 template<class Key>
-int PCTreeRegistry<Key>::keyToIndex(Key key) const {
+int PCTreeRegistry<Key>::keyToIndex(Key key) {
 	return key->index();
 }
 }

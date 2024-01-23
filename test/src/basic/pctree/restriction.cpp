@@ -1,4 +1,6 @@
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/misclayout/CircularLayout.h>
 #include <ogdf/tree/TreeLayout.h>
@@ -8,14 +10,12 @@
 
 #include <bandit/bandit.h>
 
-#include "PCNode.h"
-#include "PCTree.h"
-
 using namespace pc_tree;
 using namespace snowhouse;
 using namespace bandit;
 using namespace ogdf;
-using namespace Dodecahedron;
+
+#define BigInt int
 
 struct CentralNode {
 	NodeLabel parentLabel; // partial is interpreted as nullptr
@@ -32,7 +32,7 @@ struct CentralNode {
 		, emptyNeighbors(emptyNeighbors)
 		, seed(seed) { }
 
-	friend ostream& operator<<(ostream& os, const CentralNode& aCase) {
+	friend std::ostream& operator<<(std::ostream& os, const CentralNode& aCase) {
 		os << "parentLabel: " << aCase.parentLabel << ", full: " << aCase.fullNeighbors
 		   << ", partial: " << aCase.partialNeighbors << ", empty: " << aCase.emptyNeighbors
 		   << ", seed: " << aCase.seed;
@@ -85,7 +85,7 @@ struct CreateCentralNode {
 	std::unique_ptr<PCTree> T;
 	std::vector<PCNode*> fullLeaves;
 	std::vector<PCNode*> emptyLeaves;
-	Bigint orders = 1;
+	BigInt orders = 1;
 	int depth = 0;
 
 	explicit CreateCentralNode(const CentralNode& central) : central(central) { }
@@ -103,11 +103,11 @@ struct CreateCentralNode {
 		bool possible = T->makeConsecutive(fullLeaves);
 		AssertThat(possible, Equals(true));
 		AssertThat(T->checkValid(), Equals(true));
-		AssertThat(T->possibleOrders(), Equals(orders));
+		AssertThat(T->possibleOrders<BigInt>(), Equals(orders));
 
 		AssertThat(T->makeConsecutive(emptyLeaves), Equals(true));
 		AssertThat(T->checkValid(), Equals(true));
-		AssertThat(T->possibleOrders(), Equals(orders));
+		AssertThat(T->possibleOrders<BigInt>(), Equals(orders));
 		T.reset(); // catch exceptions from destructor
 	}
 

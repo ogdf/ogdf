@@ -1,9 +1,9 @@
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
+
 #include <iterator>
 #include <queue>
 #include <vector>
-
-#include "PCNode.h"
-#include "PCTree.h"
 
 #ifdef LIKWID_PERFMON
 
@@ -76,6 +76,10 @@ bool pc_tree::isTrivialRestriction(int restSize, int leafCount) {
 
 bool PCTree::isTrivialRestriction(int size) const {
 	return pc_tree::isTrivialRestriction(size, getLeafCount());
+}
+
+int pc_tree::factorial(int n) {
+	return (int)std::tgamma(n + 1);
 }
 
 void PCTree::LoggingObserver::makeConsecutiveCalled(PCTree& tree, FullLeafIter consecutiveLeaves) {
@@ -777,7 +781,7 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 				for (auto obs : observers) {
 					obs->nodeDeleted(*this, tpNeigh);
 				}
-				destroyNode((PCNode* const)tpNeigh);
+				destroyNode(std::as_const(tpNeigh));
 			} else if (tpNeigh->childCount == 1) {
 				PCNode* child = tpNeigh->child1;
 				child->detach();
@@ -785,7 +789,7 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 				for (auto obs : observers) {
 					obs->nodeReplaced(*this, tpNeigh, child);
 				}
-				destroyNode((PCNode* const)tpNeigh);
+				destroyNode(std::as_const(tpNeigh));
 			}
 
 			PC_PROFILE_EXIT(2, "update_tp_pnode");
@@ -865,7 +869,7 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 				otherEndOfFullBlock = nullptr;
 			}
 			OGDF_ASSERT(tinfo.tpPred == tinfo.ebEnd2 || tinfo.tpPred == nullptr);
-			destroyNode((PCNode* const)tpNeigh);
+			destroyNode(std::as_const(tpNeigh));
 			PC_PROFILE_EXIT(2, "update_tp_cnode");
 		}
 

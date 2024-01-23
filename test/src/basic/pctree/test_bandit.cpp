@@ -1,20 +1,17 @@
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/planarity/BoothLueker.h>
 
 #include <bandit/bandit.h>
 
-#include "NodePCRotation.h"
-#include "PCNode.h"
-#include "PCTree.h"
-
 using namespace ogdf;
 using namespace pc_tree;
 using namespace snowhouse;
 using namespace bandit;
-
-using RegisteredEdgeSet = RegisteredElementSet<edge, Graph>;
 
 bool makeConsecutive(PCTree& tree, std::initializer_list<int> listIndexes) {
 	std::vector<PCNode*> restriction;
@@ -115,11 +112,11 @@ void testPlanarity(int nodes, int edges, int seed, bool forcePlanar) {
 			success = false;
 		}
 
-		node n = G.chooseNode([&G](node n) -> bool { return n != G.lastNode() && n->degree() > 2; });
-		if (n != nullptr) {
+		node last = G.chooseNode([&G](node n) -> bool { return n != G.lastNode() && n->degree() > 2; });
+		if (last != nullptr) {
 			bool success2 = true;
 			try {
-				NodePCRotation N(G, n);
+				NodePCRotation N(G, last);
 				testGeneric(N);
 			} catch (GraphNotPlanarException& e) {
 				success2 = false;
@@ -293,7 +290,7 @@ go_bandit([]() {
 			NodePCRotation test12(G12, a9, true);
 			node partner = test12.getTrivialPartnerPole();
 			AssertThat(partner != nullptr, IsTrue());
-			RegisteredEdgeSet adjEntries(G12);
+			EdgeSet adjEntries(G12);
 			for (auto leaf : test12.getLeaves()) {
 				AssertThat(test12.getPartnerEdgesForLeaf(leaf).empty(), IsFalse());
 				for (edge twinEdge : test12.getPartnerEdgesForLeaf(leaf)) {
