@@ -1,6 +1,5 @@
-#include "PCTreeForest.h"
-
-#include "PCTree.h"
+#include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/PCTreeForest.h>
 
 using namespace pc_tree;
 

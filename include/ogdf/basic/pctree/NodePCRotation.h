@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PCTree.h"
-#include "utils/RegisteredElementSet.h"
+#include <ogdf/basic/RegisteredSet.h>
+#include <ogdf/basic/pctree/PCTree.h>
 
 namespace pc_tree {
 using namespace ogdf;
@@ -75,6 +75,6 @@ public:
 
 struct GraphNotPlanarException : public std::exception {
 public:
-	virtual const char* what() { return "Graph is not planar"; }
+	[[nodiscard]] const char* what() const noexcept override { return "Graph is not planar"; }
 };
 }

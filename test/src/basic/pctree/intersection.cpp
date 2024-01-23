@@ -1,6 +1,6 @@
-#include <bandit/bandit.h>
+#include <ogdf/basic/pctree/PCTree.h>
 
-#include "PCTree.h"
+#include <bandit/bandit.h>
 
 using namespace pc_tree;
 using namespace snowhouse;

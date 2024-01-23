@@ -1,15 +1,11 @@
-#include "NodePCRotation.h"
-
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/STNumbering.h>
-
-#include "utils/FilteringBFS.h"
+#include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/util/FilteringBFS.h>
 
 using namespace ogdf;
 using namespace pc_tree;
-using namespace Dodecahedron;
-
-using RegisteredEdgeSet = RegisteredElementSet<edge, Graph>;
 
 NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdges)
 	: m_G(&G), m_n(end), incidentEdgeForLeaf(*this, nullptr), graphNodeForInnerNode(*this, nullptr) {
@@ -32,7 +28,7 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 	outEdges.reserve(maxDegree);
 	EdgeArray<PCNode*> leafRepresentation(G);
 	List<edge> twinPoleCandidateInEdges;
-	RegisteredEdgeSet bundleEdges;
+	EdgeSet bundleEdges;
 	if (mapBundleEdges) {
 		bundleEdges.init(G);
 		bundleEdgesForLeaf.init(*this);
@@ -201,7 +197,7 @@ bool NodePCRotation::isEqual(const NodePCRotation& pc) const {
 	if (getCNodeCount() != pc.getCNodeCount()) {
 		return false;
 	}
-	if (possibleOrders() != pc.possibleOrders()) {
+	if (possibleOrders<int>() != pc.possibleOrders<int>()) {
 		return false;
 	}
 

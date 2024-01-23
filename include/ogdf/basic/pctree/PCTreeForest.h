@@ -1,11 +1,11 @@
 #pragma once
 
+#include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
+
 #include <cstdint>
 #include <vector>
-
-#include "PCEnum.h"
-#include "PCRegistry.h"
-#include "ogdf/basic/DisjointSets.h"
 
 #define PCTREE_REUSE_NODES
 

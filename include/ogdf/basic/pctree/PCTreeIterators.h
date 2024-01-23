@@ -1,10 +1,10 @@
 #pragma once
 
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCNode.h>
+
 #include <deque>
 #include <utility>
-
-#include "PCEnum.h"
-#include "PCNode.h"
 
 namespace pc_tree {
 class PCNodeIterator {

@@ -2,13 +2,12 @@
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCTreeForest.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
 
 #include <list>
 #include <vector>
-
-#include "PCEnum.h"
-#include "PCTreeForest.h"
-#include "utils/IntrusiveList.h"
 
 namespace pc_tree {
 struct PCNodeChildrenIterable;
