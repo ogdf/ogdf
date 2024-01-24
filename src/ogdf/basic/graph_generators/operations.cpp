@@ -251,20 +251,34 @@ void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& no
 	});
 }
 
-void complement(Graph& G, bool keep_directionality) {
+void complement(Graph& G, bool directional, bool allow_self_loops) {
 	for (node n1 : G.nodes) {
 		for (node n2 : G.nodes) {
-			if (n1->index() >= n2->index()) {
+			if (n1->index() > n2->index()) {
+				continue;
+			}
+			if (!allow_self_loops && n1->index() == n2->index()) {
 				continue;
 			}
 
 			edge e = G.searchEdge(n1, n2, true);
 			edge er = G.searchEdge(n2, n1, true);
+
 			if (e) {
 				G.delEdge(e);
-			} else if (er) {
+			}
+			if (er) {
 				G.delEdge(er);
-			} else {
+			}
+
+			if (directional) {
+				if (!e) {
+					G.newEdge(n1, n2);
+				}
+				if (!er && !allow_self_loops) {
+					G.newEdge(n2, n1);
+				}
+			} else if (!e && !er) {
 				G.newEdge(n1, n2);
 			}
 		}
