@@ -66,8 +66,9 @@ struct PCNodeNeighborsIterable {
 
 	explicit PCNodeNeighborsIterable(PCNode* p_node, PCNode* p_first = nullptr)
 		: node(p_node)
-		, first(p_first != nullptr ? p_first
-								   : (p_node->child1 != nullptr ? p_node->child1 : p_node->getParent())) {
+		, first(p_first != nullptr
+						  ? p_first
+						  : (p_node->child1 != nullptr ? p_node->child1 : p_node->getParent())) {
 		if (this->first == nullptr) {
 			OGDF_ASSERT(this->node->getDegree() == 0);
 		} else {

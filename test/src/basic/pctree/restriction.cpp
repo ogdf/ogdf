@@ -24,8 +24,8 @@ struct CentralNode {
 	int emptyNeighbors; // 0, 1 or 2+
 	int seed;
 
-	CentralNode(NodeLabel p_parentLabel, int p_fullNeighbors, int p_partialNeighbors, int p_emptyNeighbors,
-			int p_seed)
+	CentralNode(NodeLabel p_parentLabel, int p_fullNeighbors, int p_partialNeighbors,
+			int p_emptyNeighbors, int p_seed)
 		: parentLabel(p_parentLabel)
 		, fullNeighbors(p_fullNeighbors)
 		, partialNeighbors(p_partialNeighbors)

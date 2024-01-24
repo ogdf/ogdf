@@ -112,7 +112,8 @@ void testPlanarity(int nodes, int edges, int seed, bool forcePlanar) {
 			success = false;
 		}
 
-		node last = G.chooseNode([&G](node n) -> bool { return n != G.lastNode() && n->degree() > 2; });
+		node last =
+				G.chooseNode([&G](node n) -> bool { return n != G.lastNode() && n->degree() > 2; });
 		if (last != nullptr) {
 			bool success2 = true;
 			try {
