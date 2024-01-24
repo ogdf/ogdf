@@ -1,3 +1,34 @@
+/** \file
+ * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #pragma once
 
 #include <ogdf/basic/DisjointSets.h>
@@ -7,12 +38,12 @@
 #include <cstdint>
 #include <vector>
 
-#define PCTREE_REUSE_NODES
-
-#define UNIONFINDINDEX_EMPTY (-1)
+#define OGDF_PCTREE_REUSE_NODES
 
 namespace pc_tree {
 using UnionFindIndex = int;
+
+const int UNIONFINDINDEX_EMPTY = -1;
 
 class PCTreeForest {
 	friend class PCNode;
@@ -30,7 +61,7 @@ private:
 	PCTreeRegistry<PCNode*> nodeArrayRegistry;
 	bool autodelete;
 
-#ifdef PCTREE_REUSE_NODES
+#ifdef OGDF_PCTREE_REUSE_NODES
 	// TODO: also reuse PCTrees?
 	PCNode* reusableNodes = nullptr;
 #endif
