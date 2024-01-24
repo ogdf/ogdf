@@ -37,16 +37,14 @@ namespace pc_tree {
 class OGDF_EXPORT PCTreeForest;
 
 template<class Key>
-class OGDF_EXPORT PCTreeRegistry : public ogdf::RegistryBase<Key, PCTreeRegistry<Key>> {
+class PCTreeRegistry : public ogdf::RegistryBase<Key, PCTreeRegistry<Key>> {
 	PCTreeForest* m_pForest;
 
 public:
 	PCTreeRegistry(PCTreeForest* pcTreeForest) : m_pForest(pcTreeForest) { }
 
 	//! Returns the index of \p key.
-	static inline int keyToIndex(Key key){
-		return key->index();
-	}
+	static inline int keyToIndex(Key key) { return key->index(); }
 
 	//! Returns whether \p key is associated with this registry.
 	bool isKeyAssociated(Key key) const {

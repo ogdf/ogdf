@@ -37,18 +37,18 @@
 #include <ostream>
 
 namespace pc_tree {
-enum OGDF_EXPORT class NodeLabel { Unknown, Partial, Full, Empty = Unknown };
+enum class OGDF_EXPORT NodeLabel { Unknown, Partial, Full, Empty = Unknown };
 
-enum OGDF_EXPORT class PCNodeType { PNode, CNode, Leaf };
+enum class OGDF_EXPORT PCNodeType { PNode, CNode, Leaf };
 
-OGDF_EXPORT class PCTree;
+class OGDF_EXPORT PCTree;
 
-OGDF_EXPORT class PCTreeForest;
+class OGDF_EXPORT PCTreeForest;
 
 template<class Key>
-OGDF_EXPORT class PCTreeRegistry;
+class PCTreeRegistry;
 
-OGDF_EXPORT class PCNode;
+class OGDF_EXPORT PCNode;
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) ogdf::RegisteredArray<PCTreeRegistry<PCNode*>, v, c>
 OGDF_DECL_REG_ARRAY(PCTreeNodeArray)
