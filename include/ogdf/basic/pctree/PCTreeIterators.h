@@ -115,7 +115,7 @@ struct OGDF_EXPORT PCNodeNeighborsIterable {
 };
 
 template<bool dfs, bool reverse = false>
-class OGDF_EXPORT FilteringPCTreeWalk {
+class FilteringPCTreeWalk {
 	using container_type =
 			typename std::conditional<dfs, std::vector<PCNode*>, std::deque<PCNode*>>::type;
 
