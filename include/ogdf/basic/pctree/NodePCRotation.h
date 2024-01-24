@@ -37,7 +37,7 @@
 namespace pc_tree {
 using namespace ogdf;
 
-class NodePCRotation : public PCTree {
+class OGDF_EXPORT NodePCRotation : public PCTree {
 protected:
 	const Graph* m_G;
 	node m_n;
@@ -104,7 +104,7 @@ public:
 	std::function<bool(PCNode*, PCNode*)> uidComparer() const;
 };
 
-struct GraphNotPlanarException : public std::exception {
+struct OGDF_EXPORT GraphNotPlanarException : public std::exception {
 public:
 	[[nodiscard]] const char* what() const noexcept override { return "Graph is not planar"; }
 };

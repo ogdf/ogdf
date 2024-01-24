@@ -38,7 +38,7 @@
 #include <utility>
 
 namespace pc_tree {
-class PCNodeIterator {
+class OGDF_EXPORT PCNodeIterator {
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;
 
@@ -79,7 +79,7 @@ public:
 	bool isParent();
 };
 
-struct PCNodeChildrenIterable {
+struct OGDF_EXPORT PCNodeChildrenIterable {
 	PCNode* const node;
 
 	explicit PCNodeChildrenIterable(PCNode* p_node) : node(p_node) { }
@@ -91,7 +91,7 @@ struct PCNodeChildrenIterable {
 	unsigned long count() const;
 };
 
-struct PCNodeNeighborsIterable {
+struct OGDF_EXPORT PCNodeNeighborsIterable {
 	PCNode* const node;
 	PCNode* const first;
 
@@ -115,7 +115,7 @@ struct PCNodeNeighborsIterable {
 };
 
 template<bool dfs, bool reverse = false>
-class FilteringPCTreeWalk {
+class OGDF_EXPORT FilteringPCTreeWalk {
 	using container_type =
 			typename std::conditional<dfs, std::vector<PCNode*>, std::deque<PCNode*>>::type;
 
