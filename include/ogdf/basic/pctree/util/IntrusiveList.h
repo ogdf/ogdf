@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef>
+#include <iterator>
 
 namespace pc_tree {
     template<class T>

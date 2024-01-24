@@ -122,7 +122,7 @@ PCTree::PCTree(const std::string& str, bool keep_ids) : PCTree() {
 	}
 }
 
-PCTree::PCTree::PCTree(const PCTree& other, PCTreeNodeArray<PCNode*>& nodeMapping, bool keep_ids)
+PCTree::PCTree(const PCTree& other, PCTreeNodeArray<PCNode*>& nodeMapping, bool keep_ids)
 	: PCTree() {
 	nodeMapping.init(other);
 	for (PCNode* other_node : other.allNodes()) {
