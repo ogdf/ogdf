@@ -45,7 +45,7 @@ using UnionFindIndex = int;
 
 const int UNIONFINDINDEX_EMPTY = -1;
 
-class PCTreeForest {
+class OGDF_EXPORT PCTreeForest {
 	friend class PCNode;
 	friend class PCTree;
 

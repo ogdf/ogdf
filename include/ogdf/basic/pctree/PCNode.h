@@ -42,12 +42,10 @@
 #include <vector>
 
 namespace pc_tree {
-struct PCNodeChildrenIterable;
-struct PCNodeNeighborsIterable;
+struct OGDF_EXPORT PCNodeChildrenIterable;
+struct OGDF_EXPORT PCNodeNeighborsIterable;
 
-class ObserverCentralNode;
-
-class PCNode : public IntrusiveList<PCNode>::node {
+class OGDF_EXPORT PCNode : public IntrusiveList<PCNode>::node {
 public:
 	friend class PCTree;
 
@@ -338,5 +336,5 @@ public:
 	OGDF_NEW_DELETE
 };
 
-void proceedToNextSibling(PCNode*& pred, PCNode*& curr);
+OGDF_EXPORT void proceedToNextSibling(PCNode*& pred, PCNode*& curr);
 }

@@ -46,23 +46,23 @@
 #include <vector>
 
 namespace pc_tree {
-bool isTrivialRestriction(int restSize, int leafCount);
+OGDF_EXPORT bool isTrivialRestriction(int restSize, int leafCount);
 
-int factorial(int n);
+OGDF_EXPORT int factorial(int n);
 
 namespace uid_utils {
-void nodeToID(std::ostream& os, PCNode* n, int pos);
+OGDF_EXPORT void nodeToID(std::ostream& os, PCNode* n, int pos);
 
-void nodeToPosition(std::ostream& os, PCNode* n, int pos);
+OGDF_EXPORT void nodeToPosition(std::ostream& os, PCNode* n, int pos);
 
-void leafToID(std::ostream& os, PCNode* n, int pos);
+OGDF_EXPORT void leafToID(std::ostream& os, PCNode* n, int pos);
 
-void leafToPosition(std::ostream& os, PCNode* n, int pos);
+OGDF_EXPORT void leafToPosition(std::ostream& os, PCNode* n, int pos);
 
-bool compareNodesByID(PCNode* a, PCNode* b);
+OGDF_EXPORT bool compareNodesByID(PCNode* a, PCNode* b);
 }
 
-class PCTree {
+class OGDF_EXPORT PCTree {
 	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCTree*);
 
 	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCNode*);

@@ -5,7 +5,7 @@
 
 namespace pc_tree {
 template<class T>
-class IntrusiveList {
+class OGDF_EXPORT IntrusiveList {
 	T* first = nullptr;
 	T* last = nullptr;
 	size_t count = 0;

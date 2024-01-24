@@ -5,7 +5,7 @@
 
 using namespace ogdf;
 
-class FilteringBFS {
+class OGDF_EXPORT FilteringBFS {
 	Queue<node> m_pending;
 	NodeArray<bool> m_visited;
 	std::function<bool(adjEntry)> m_visit;
