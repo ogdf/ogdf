@@ -97,9 +97,9 @@ private:
 		LeafUserData userData;
 	};
 
-	PCNode(PCTreeForest* forest, int id, PCNodeType nodeType)
-		: IntrusiveList<PCNode>::node(), id(id), forest(forest), nodeType(nodeType) {
-		if (nodeType == PCNodeType::Leaf) {
+	PCNode(PCTreeForest* p_forest, int p_id, PCNodeType p_nodeType)
+		: IntrusiveList<PCNode>::node(), id(p_id), forest(p_forest), nodeType(p_nodeType) {
+		if (p_nodeType == PCNodeType::Leaf) {
 			new (&userData) LeafUserData;
 		} else {
 			new (&temp) TempInfo;
@@ -115,13 +115,13 @@ private:
 	}
 
 public:
-	void appendChild(PCNode* node, bool begin = false);
+	void appendChild(PCNode* p_node, bool begin = false);
 
 	void insertBetween(PCNode* sib1, PCNode* sib2);
 
 	void detach();
 
-	void replaceWith(PCNode* node);
+	void replaceWith(PCNode* p_node);
 
 	void mergeIntoParent();
 
@@ -129,7 +129,7 @@ public:
 
 	void replaceSibling(PCNode* oldS, PCNode* newS);
 
-	void rotateChildOutside(bool child1 = true);
+	void rotateChildOutside(bool p_child1 = true);
 
 private:
 	void replaceOuterChild(PCNode* oldC, PCNode* newC);

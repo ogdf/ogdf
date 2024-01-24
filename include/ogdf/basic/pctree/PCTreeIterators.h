@@ -15,8 +15,8 @@ class PCNodeIterator {
 	PCNode* pred = nullptr;
 	PCNode* curr = nullptr;
 
-	PCNodeIterator(PCNode* node, PCNode* pred, PCNode* curr)
-		: node(node), pred(pred), curr(curr) { }
+	PCNodeIterator(PCNode* p_node, PCNode* p_pred, PCNode* p_curr)
+		: node(p_node), pred(p_pred), curr(p_curr) { }
 
 public:
 	using iterator_category = std::forward_iterator_tag;
@@ -51,7 +51,7 @@ public:
 struct PCNodeChildrenIterable {
 	PCNode* const node;
 
-	explicit PCNodeChildrenIterable(PCNode* node) : node(node) { }
+	explicit PCNodeChildrenIterable(PCNode* p_node) : node(p_node) { }
 
 	PCNodeIterator begin() const noexcept;
 
@@ -64,10 +64,10 @@ struct PCNodeNeighborsIterable {
 	PCNode* const node;
 	PCNode* const first;
 
-	explicit PCNodeNeighborsIterable(PCNode* node, PCNode* first = nullptr)
-		: node(node)
-		, first(first != nullptr ? first
-								 : (node->child1 != nullptr ? node->child1 : node->getParent())) {
+	explicit PCNodeNeighborsIterable(PCNode* p_node, PCNode* p_first = nullptr)
+		: node(p_node)
+		, first(p_first != nullptr ? p_first
+								   : (p_node->child1 != nullptr ? p_node->child1 : p_node->getParent())) {
 		if (this->first == nullptr) {
 			OGDF_ASSERT(this->node->getDegree() == 0);
 		} else {

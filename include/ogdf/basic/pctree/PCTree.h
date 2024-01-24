@@ -74,7 +74,7 @@ private:
 public:
 	explicit PCTree() : forest(new PCTreeForest()), externalForest(false) {};
 
-	explicit PCTree(PCTreeForest* forest) : forest(forest), externalForest(true) {};
+	explicit PCTree(PCTreeForest* p_forest) : forest(p_forest), externalForest(true) {};
 
 	explicit PCTree(int leafNum, std::vector<PCNode*>* added = nullptr);
 
@@ -345,7 +345,7 @@ public: // Observers
 		It it;
 		It end;
 
-		NextFullLeaf(It it, It an_end) : it(it), end(an_end) { }
+		NextFullLeaf(It p_it, It an_end) : it(p_it), end(an_end) { }
 
 		PCNode* operator()() {
 			if (it == end) {

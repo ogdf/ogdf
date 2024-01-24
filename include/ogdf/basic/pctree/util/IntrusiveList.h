@@ -22,7 +22,7 @@ namespace pc_tree {
             using pointer = const T*;
             using reference = T*;
 
-            explicit iterator(T* node) : node(node) {
+            explicit iterator(T* p_node) : node(p_node) {
             }
 
             iterator& operator++() {

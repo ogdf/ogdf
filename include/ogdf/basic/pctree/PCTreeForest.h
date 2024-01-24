@@ -36,7 +36,7 @@ private:
 #endif
 
 public:
-	PCTreeForest(bool autodelete = true) : nodeArrayRegistry(this), autodelete(autodelete) {};
+	PCTreeForest(bool p_autodelete = true) : nodeArrayRegistry(this), autodelete(p_autodelete) {};
 
 	virtual ~PCTreeForest();
 
