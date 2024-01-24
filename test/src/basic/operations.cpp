@@ -226,5 +226,108 @@ go_bandit([] {
 					},
 					[](int n1, int m1, int n2, int m2) { return m1 + m2 * n1; });
 		});
+
+		describe("tests for creating graph complement", []() {
+			// Tests for basic functionality
+			Graph G;
+			node n1, n2;
+			before_each([&]() {
+				G.clear();
+				n1 = G.newNode();
+				n2 = G.newNode();
+			});
+			describe("tests in a simple graph", [&]() {
+				it("creates an edge where there was none", [&]() {
+					complement(G, false, false);
+					edge edge12 = G.searchEdge(n1, n2);
+					AssertThat(edge12, Is().Not().Null());
+				});
+				it("removes an edge where there was one", [&]() {
+					G.newEdge(n1, n2);
+					complement(G, false, false);
+					edge edge12 = G.searchEdge(n1, n2);
+					AssertThat(edge12, IsNull());
+				});
+			});
+			describe("tests in a directed graph", [&]() {
+				it("reverses an existing edge", [&]() {
+					G.newEdge(n1, n2);
+					complement(G, true, false);
+					edge edge12 = G.searchEdge(n1, n2, true);
+					edge edge21 = G.searchEdge(n2, n1, true);
+					AssertThat(edge12, IsNull());
+					AssertThat(edge21, Is().Not().Null());
+				});
+				it("creates two edges where there were none", [&]() {
+					complement(G, true, false);
+					edge edge12 = G.searchEdge(n1, n2, true);
+					edge edge21 = G.searchEdge(n2, n1, true);
+					AssertThat(edge12, Is().Not().Null());
+					AssertThat(edge21, Is().Not().Null());
+				});
+				it("removes both edges between two nodes", [&]() {
+					G.newEdge(n1, n2);
+					G.newEdge(n2, n1);
+					complement(G, true, false);
+					edge edge12 = G.searchEdge(n1, n2, true);
+					edge edge21 = G.searchEdge(n2, n1, true);
+					AssertThat(edge12, IsNull());
+					AssertThat(edge21, IsNull());
+				});
+			});
+			describe("tests in a graph with self loops", [&]() {
+				it("creates a self loop where there was none", [&]() {
+					complement(G, false, true);
+					edge edge11 = G.searchEdge(n1, n1);
+					AssertThat(edge11, Is().Not().Null());
+				});
+				it("removes a self loop where there was one", [&]() {
+					G.newEdge(n1, n1);
+					complement(G, false, true);
+					edge edge11 = G.searchEdge(n1, n1);
+					AssertThat(edge11, IsNull());
+				});
+			});
+		});
+		describe("tests for joining two graphs", []() {
+			Graph G1, G2;
+			node n1a, n1b, n2a, n2b;
+			NodeArray<node> nodeMap;
+			before_each([&]() {
+				G1.clear();
+				n1a = G1.newNode();
+				n1b = G1.newNode();
+				G2.clear();
+				n2a = G2.newNode();
+				n2b = G2.newNode();
+				nodeMap = NodeArray<node>(G2);
+			});
+			it("joins two edgeless graphs without association", [&]() {
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(4));
+				AssertThat(G1.numberOfEdges(), Equals(4));
+			});
+			it("joins two edgeless graphs with associated nodes", [&]() {
+				nodeMap[n2a] = n1a;
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(3));
+				AssertThat(G1.numberOfEdges(), Equals(3));
+			});
+			it("joins two graphs without association", [&]() {
+				G1.newEdge(n1a, n1b);
+				G2.newEdge(n2a, n2b);
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(4));
+				AssertThat(G1.numberOfEdges(), Equals(6));
+			});
+			it("joins two graphs with associated nodes", [&]() {
+				G1.newEdge(n1a, n1b);
+				G2.newEdge(n2a, n2b);
+				nodeMap[n2a] = n1a;
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(3));
+				AssertThat(G1.numberOfEdges(), Equals(3));
+			});
+		});
 	});
 });

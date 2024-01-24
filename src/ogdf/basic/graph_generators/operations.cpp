@@ -31,10 +31,15 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/graph_generators/operations.h>
+#include <ogdf/basic/internal/list_templates.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
 #include <functional>
+#include <vector>
 
 namespace ogdf {
 
@@ -250,4 +255,115 @@ void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& no
 	});
 }
 
+void complement(Graph& G, bool directional, bool allow_self_loops) {
+	NodeSet<true> n1neighbors(G);
+	EdgeSet<true> newEdges(G);
+
+	safeForEach(G.nodes, [&](node n1) {
+		// deleting edges
+		safeForEach(n1->adjEntries, [&](adjEntry adj) {
+			if (n1->adjEntries.size() <= 0) {
+				return;
+			}
+			node n2 = adj->twinNode();
+
+			if (directional && !adj->isSource()) {
+				return;
+			}
+			if (!directional && n1->index() > n2->index()) {
+				return;
+			}
+			if (newEdges.isMember(adj->theEdge())) {
+				return;
+			}
+			n1neighbors.insert(n2);
+			G.delEdge(adj->theEdge());
+		});
+
+		// adding edges
+		for (node n2 : G.nodes) {
+			if (!directional && n1->index() > n2->index()) {
+				continue;
+			}
+			if (!allow_self_loops && n1->index() == n2->index()) {
+				continue;
+			}
+			if (n1neighbors.isMember(n2)) {
+				continue;
+			}
+
+			edge newEdge = G.newEdge(n1, n2);
+			newEdges.insert(newEdge);
+		}
+		n1neighbors.clear();
+	});
+}
+
+void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
+	OGDF_ASSERT(nodeMap.valid());
+	NodeSet<true> n2aNeighbors(G2);
+
+	safeForEach(G1.nodes, [&](node n1) {
+		node n2 = nodeMap[n1];
+		if (n2 == nullptr) {
+			G1.delNode(n1);
+		}
+	});
+
+	for (node n1a : G1.nodes) {
+		node n2a = nodeMap[n1a];
+		List<edge> edgelist;
+		n1a->adjEdges(edgelist);
+
+		for (adjEntry n2aadj : n2a->adjEntries) {
+			n2aNeighbors.insert(n2aadj->twinNode());
+		}
+		for (edge e1 : edgelist) {
+			node n1b = e1->opposite(n1a);
+			node n2b = nodeMap[n1b];
+
+			if (!n2aNeighbors.isMember(n2b)) {
+				G1.delEdge(e1);
+			}
+		}
+		n2aNeighbors.clear();
+	}
+}
+
+void join(Graph& G1, const Graph& G2, NodeArray<node>& mapping) {
+	OGDF_ASSERT(mapping.valid());
+
+	List<node> G1nodes {};
+	getAllNodes(G1, G1nodes);
+
+	NodeArray<node> nodeMap(G2, nullptr);
+	EdgeArray<edge> edgeMap(G2, nullptr);
+	G1.insert(G2, nodeMap, edgeMap);
+
+	for (node n2 : G2.nodes) {
+		node n1_mapped = mapping[n2];
+		if (n1_mapped == nullptr) {
+			continue;
+		}
+
+		for (adjEntry adj : n2->adjEntries) {
+			G1.newEdge(n1_mapped, nodeMap[adj->twinNode()]);
+		}
+		node n1_created = nodeMap[n2];
+		nodeMap[n2] = n1_mapped;
+		G1.delNode(n1_created);
+	}
+
+	for (node n2 : G2.nodes) {
+		for (node n1 : G1nodes) {
+			node n2_in_n1 = nodeMap[n2];
+			if (n1 != n2_in_n1) {
+				G1.newEdge(n1, n2_in_n1);
+			}
+		}
+	}
+
+	// respecting parallel edges and not accidentally creating some is requires a lot of checks.
+	makeParallelFreeUndirected(G1);
+}
 }
