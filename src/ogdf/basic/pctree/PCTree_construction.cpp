@@ -1,3 +1,34 @@
+/** \file
+ * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/basic/pctree/PCTree.h>
 
@@ -232,7 +263,7 @@ void PCTree::unregisterNode(PCNode* node) {
 
 PCNode* PCTree::newNode(PCNodeType type, PCNode* parent, int id) {
 	PCNode* node;
-#ifdef PCTREE_REUSE_NODES
+#ifdef OGDF_PCTREE_REUSE_NODES
 	if (forest->reusableNodes) {
 		node = forest->reusableNodes;
 		forest->reusableNodes = forest->reusableNodes->parentPNode;
@@ -279,7 +310,7 @@ void PCTree::destroyNode(PCNode* const& node) {
 	OGDF_ASSERT(node->child2 == nullptr);
 	OGDF_ASSERT(node != rootNode);
 	unregisterNode(node);
-#ifdef PCTREE_REUSE_NODES
+#ifdef OGDF_PCTREE_REUSE_NODES
 	node->parentPNode = forest->reusableNodes;
 	forest->reusableNodes = node;
 #else

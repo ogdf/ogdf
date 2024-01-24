@@ -1,3 +1,34 @@
+/** \file
+ * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #pragma once
 
 #include <ogdf/basic/Graph.h>
@@ -193,9 +224,9 @@ public: // Restrictions
 	}
 
 	/**
-   * Only marks leaves full, does not update partial/full info of parents.
-   * Use markFull to also update parents.
-   */
+	 * Only marks leaves full, does not update partial/full info of parents.
+	 * Use markFull to also update parents.
+	 */
 	template<typename It>
 	void markLeavesFull(It begin, It end) {
 		for (auto it = begin; it != end; ++it) {
@@ -208,9 +239,9 @@ public: // Restrictions
 	}
 
 	/**
-   * Attention: We no longer use a queue to defer processing of partial/full parents to after
-   * all leaves are done, but now directly make parents full if all of their children are full.
-   */
+	 * Attention: We no longer use a queue to defer processing of partial/full parents to after
+	 * all leaves are done, but now directly make parents full if all of their children are full.
+	 */
 	template<typename It>
 	void markFull(It begin, It end, std::vector<PCNode*>* fullNodeOrder = nullptr) {
 		if (fullNodeOrder != nullptr) {
