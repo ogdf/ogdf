@@ -124,10 +124,14 @@ void PCTree::LoggingObserver::makeConsecutiveCalled(PCTree& tree, FullLeafIter c
 void PCTree::LoggingObserver::labelsAssigned(PCTree& tree, PCNode* firstPartial,
 		PCNode* lastPartial, int partialCount) {
 	log << "Found " << partialCount << " partial nodes: [";
+#ifdef OGDF_DEBUG
 	int found = 0;
+#endif
 	for (PCNode* node = firstPartial; node != nullptr; node = node->tempInfo().nextPartial) {
 		log << node << ", ";
+#ifdef OGDF_DEBUG
 		found++;
+#endif
 	}
 	log << "]" << std::endl;
 	OGDF_ASSERT(partialCount == found);
@@ -241,9 +245,15 @@ bool PCTree::makeFullNodesConsecutive() {
 	}
 
 	PCNode::TempInfo& ctinfo = central->tempInfo();
-	int merged = updateTerminalPath(central, ctinfo.tpPred);
+#ifdef OGDF_DEBUG
+	int merged =
+#endif
+			updateTerminalPath(central, ctinfo.tpPred);
 	if (apexTPPred2 != nullptr) {
-		merged += updateTerminalPath(central, apexTPPred2);
+#ifdef OGDF_DEBUG
+		merged +=
+#endif
+				updateTerminalPath(central, apexTPPred2);
 	}
 	OGDF_ASSERT(merged == terminalPathLength - 1);
 	PC_PROFILE_EXIT(1, "update_tp");
@@ -425,7 +435,10 @@ bool PCTree::findTerminalPath() {
 			// we can stop early if the queue size reached 1 right before we removed the current node,
 			// but we have not found an apex, marking the node the remaining arc points to as apex candidate
 			log << "early stop I-shaped!" << std::endl;
-			bool s = setApexCandidate(node, false);
+#ifdef OGDF_DEBUG
+			bool s =
+#endif
+					setApexCandidate(node, false);
 			OGDF_ASSERT(s);
 		} else if (firstPartial == nullptr && apexCandidate != nullptr && apexTPPred2 != nullptr
 				&& tinfo.tpPartialPred == apexCandidate->tempInfo().tpPartialPred) {
@@ -859,7 +872,9 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 			if (tpNeigh->child1 == tinfo.fbEnd1 || tpNeigh->child1 == tinfo.fbEnd2) {
 				tpNeigh->flip();
 			}
+#ifdef OGDF_DEBUG
 			PCNode* emptyOuterChild = tpNeigh->child1;
+#endif
 			PCNode* fullOuterChild = tpNeigh->child2;
 
 			print_tp_neigh(tpNeigh, 3);
@@ -964,12 +979,15 @@ void PCTree::replaceTPNeigh(PCNode* central, PCNode* oldTPNeigh, PCNode* newTPNe
 
 size_t PCTree::findEndOfFullBlock(PCNode* node, PCNode* pred, PCNode* curr, PCNode*& fullEnd,
 		PCNode*& emptyEnd) const {
-	PCNode* start = fullEnd = pred;
+#ifdef OGDF_DEBUG
+	PCNode* start = pred;
+#endif
+	fullEnd = pred;
 	size_t count = 0;
 	while (curr->getLabel() == NodeLabel::Full) {
 		PCNode* next = node->getNextNeighbor(pred, curr);
 		OGDF_ASSERT(next != start);
-		pred = fullEnd = curr;
+		fullEnd = pred = curr;
 		curr = next;
 		count++;
 	}

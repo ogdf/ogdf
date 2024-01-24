@@ -33,6 +33,7 @@
 #include <ogdf/basic/pctree/PCTree.h>
 
 #include <regex>
+#include <stack>
 
 using namespace pc_tree;
 
@@ -324,7 +325,9 @@ PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
 		return oldType;
 	}
 
+#ifdef OGDF_DEBUG
 	UnionFindIndex oldIndex = node->nodeListIndex;
+#endif
 	unregisterNode(node);
 	node->changeType(newType);
 	registerNode(node);
@@ -332,7 +335,9 @@ PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
 	if (oldType == PCNodeType::CNode || newType == PCNodeType::CNode) {
 		PCNode* pred = nullptr;
 		PCNode* curr = node->child1;
+#ifdef OGDF_DEBUG
 		size_t children = 0;
+#endif
 		while (curr != nullptr) {
 			if (oldType == PCNodeType::CNode) {
 				OGDF_ASSERT(curr->parentPNode == nullptr);
@@ -348,7 +353,9 @@ PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
 				curr->parentPNode = node;
 				curr->parentCNodeId = UNIONFINDINDEX_EMPTY;
 			}
+#ifdef OGDF_DEBUG
 			children++;
+#endif
 			proceedToNextSibling(pred, curr);
 		}
 		OGDF_ASSERT(children == node->childCount);

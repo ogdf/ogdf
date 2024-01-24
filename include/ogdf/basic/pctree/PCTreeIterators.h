@@ -42,7 +42,7 @@ class PCNodeIterator {
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;
 
-	PCNode* const node = nullptr;
+	PCNode* node = nullptr;
 	PCNode* pred = nullptr;
 	PCNode* curr = nullptr;
 

@@ -349,7 +349,9 @@ struct CreateCentralNode {
 		if (type == PCNodeType::CNode && partial == 0 && (full == 0 || empty == 0)) {
 			orders *= 2;
 		}
+#ifdef OGDF_DEBUG
 		int sum = full + partial + empty;
+#endif
 		OGDF_ASSERT(sum >= 2);
 		depth++;
 		while (full + partial + empty > 0) {
@@ -427,5 +429,3 @@ go_bandit([]() {
 		}
 	});
 });
-
-int main(int argc, char* argv[]) { return bandit::run(argc, argv); }
