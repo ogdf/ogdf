@@ -652,7 +652,7 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 }
 
 template<typename R>
-R PCTree::PCTree::possibleOrders() const {
+R PCTree::possibleOrders() const {
 	R orders(1);
 	for (PCNode* node : innerNodes()) {
 		if (node->getNodeType() == PCNodeType::CNode) {
