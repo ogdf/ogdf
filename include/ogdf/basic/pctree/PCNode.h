@@ -37,6 +37,7 @@
 #include <ogdf/basic/pctree/PCTreeForest.h>
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 
+#include <array>
 #include <list>
 #include <vector>
 

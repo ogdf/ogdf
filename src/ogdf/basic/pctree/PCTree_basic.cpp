@@ -404,6 +404,7 @@ bool PCTree::isValidOrder(const std::vector<PCNode*>& order) const {
 }
 
 bool PCTree::checkValid(bool allow_small_deg) const {
+#ifdef OGDF_DEBUG
 	if (rootNode == nullptr) {
 		OGDF_ASSERT(leaves.size() == 0);
 		OGDF_ASSERT(pNodeCount == 0);
@@ -574,18 +575,8 @@ bool PCTree::checkValid(bool allow_small_deg) const {
 	OGDF_ASSERT(p_nodes_found == pNodeCount);
 	OGDF_ASSERT(c_nodes_found == cNodeCount);
 
-	// list c-nodes
 	OGDF_ASSERT(forest->cNodes.size() >= cNodeCount);
-	/*c_nodes_found = 0;
-    for (int cid = 0; cid < cNodes.size(); cid++) {
-        PCNode *node = cNodes.at(cid);
-        OGDF_ASSERT(node == nullptr || parents.getRepresentative(cid) == cid);
-        if (node == nullptr) continue;
-        c_nodes_found++;
-        OGDF_ASSERT(id_seen.at(node->id) == node);
-    }
-    OGDF_ASSERT(c_nodes_found == cNodeCount);*/
-
+#endif
 	return true;
 }
 
@@ -604,7 +595,9 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 			todo.push(next);
 		}
 	}
+#ifdef OGDF_DEBUG
 	PCNode* central = nullptr;
+#endif
 	while (!todo.empty()) {
 		PCNode* node = todo.front();
 		todo.pop();
@@ -630,12 +623,14 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 				}
 			}
 		}
+#ifdef OGDF_DEBUG
 		if (next == nullptr) {
 			OGDF_ASSERT(fixedLeaf == nullptr);
 			OGDF_ASSERT(central == nullptr);
 			OGDF_ASSERT(todo.empty());
 			central = node;
 		}
+#endif
 
 		PCNode* pred = nullptr;
 		for (PCNode* curr : node->neighbors(next)) {
@@ -670,6 +665,7 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 			todo.push(next);
 		}
 	}
+#ifdef OGDF_DEBUG
 	if (fixedLeaf != nullptr) {
 		OGDF_ASSERT(central == nullptr);
 		central = fixedLeaf == rootNode ? fixedLeaf->child1 : fixedLeaf->getParent();
@@ -680,23 +676,7 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 		OGDF_ASSERT(readyChildren[central] == central->getDegree());
 		OGDF_ASSERT(subtreeLeaves[central].size() == getLeafCount());
 	}
-}
-
-template<typename R>
-R PCTree::possibleOrders() const {
-	R orders(1);
-	for (PCNode* node : innerNodes()) {
-		if (node->getNodeType() == PCNodeType::CNode) {
-			orders *= 2;
-		} else {
-			R children(node->getChildCount());
-			if (node == rootNode) {
-				children -= 1; // don't count circular shifts
-			}
-			orders *= factorial(children);
-		}
-	}
-	return orders;
+#endif
 }
 
 PCNode* PCTree::setRoot(PCNode* newRoot) {

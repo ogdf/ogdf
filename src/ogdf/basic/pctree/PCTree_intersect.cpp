@@ -41,7 +41,9 @@ bool pc_tree::PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping
 		return true;
 	}
 
+#ifdef OGDF_DEBUG
 	size_t oldLeaves = leaves.size();
+#endif
 	PCTreeNodeArray<std::vector<PCNode*>> blockNodes(*this);
 	PCTreeNodeArray<std::vector<PCNode*>> subtreeNodes(*this);
 	PCTreeNodeArray<PCNode*> leafPartner(*this, nullptr);
@@ -116,7 +118,7 @@ bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNo
 			OGDF_ASSERT(partialNode);
 			OGDF_ASSERT(partialNode == applyTo.lastPartial);
 			auto& fullNeighbors = partialNode->tempInfo().fullNeighbors;
-			PCNode* ebEnd1;
+			PCNode* ebEnd1 = nullptr;
 			auto fbEnd1It = std::find_if(fullNeighbors.begin(), fullNeighbors.end(), [&](PCNode* n) {
 				PCNode* sib1 = partialNode->getNextNeighbor(nullptr, n);
 				if (!sib1->isFull()) {
@@ -130,6 +132,7 @@ bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNo
 				}
 				return false;
 			});
+			OGDF_ASSERT(ebEnd1 != nullptr);
 			OGDF_ASSERT(fbEnd1It != fullNeighbors.end());
 			PCNode* fbEnd1 = *fbEnd1It;
 			PCNode *fbEnd2, *ebEnd2;

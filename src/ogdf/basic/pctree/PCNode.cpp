@@ -356,6 +356,8 @@ bool PCNode::isValidNode(const PCTreeForest* ofForest) const {
 	if (ofForest && forest != ofForest) {
 		return false;
 	}
+
+#ifdef OGDF_DEBUG
 	if (parentCNodeId == UNIONFINDINDEX_EMPTY && parentPNode == nullptr) {
 		OGDF_ASSERT(sibling1 == nullptr && sibling2 == nullptr);
 	} else {
@@ -400,6 +402,7 @@ bool PCNode::isValidNode(const PCTreeForest* ofForest) const {
 		OGDF_ASSERT(child2 != nullptr);
 		OGDF_ASSERT(child1 != child2);
 	}
+#endif
 
 	if (nodeType == PCNodeType::CNode) {
 		OGDF_ASSERT(forest->cNodes.at(nodeListIndex) == this);

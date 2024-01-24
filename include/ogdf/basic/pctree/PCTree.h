@@ -355,7 +355,21 @@ public: // Getters
 			PCNode* fixedLeaf = nullptr) const;
 
 	template<typename R>
-	R possibleOrders() const;
+	R possibleOrders() const {
+		R orders(1);
+		for (PCNode* node : innerNodes()) {
+			if (node->getNodeType() == PCNodeType::CNode) {
+				orders *= 2;
+			} else {
+				R children(node->getChildCount());
+				if (node == rootNode) {
+					children -= 1; // don't count circular shifts
+				}
+				orders *= factorial(children);
+			}
+		}
+		return orders;
+	}
 
 	std::ostream& uniqueID(std::ostream&,
 			const std::function<void(std::ostream& os, PCNode*, int)>& printNode = uid_utils::nodeToID,
