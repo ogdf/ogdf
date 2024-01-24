@@ -5,113 +5,99 @@
 
 using namespace ogdf;
 
-
 class FilteringBFS {
-    Queue<node> m_pending;
-    NodeArray<bool> m_visited;
-    std::function<bool(adjEntry)> m_visit;
-    std::function<bool(node)> m_descend;
+	Queue<node> m_pending;
+	NodeArray<bool> m_visited;
+	std::function<bool(adjEntry)> m_visit;
+	std::function<bool(node)> m_descend;
 
 public:
-    // iterator traits
-    using iterator_category = std::input_iterator_tag;
-    using value_type = node;
-    using difference_type = std::ptrdiff_t;
-    using pointer = node*;
-    using reference = node&;
+	// iterator traits
+	using iterator_category = std::input_iterator_tag;
+	using value_type = node;
+	using difference_type = std::ptrdiff_t;
+	using pointer = node*;
+	using reference = node&;
 
-    template<typename T>
-    static bool return_true(T t) {
-        return true;
-    }
+	template<typename T>
+	static bool return_true(T t) {
+		return true;
+	}
 
-    explicit FilteringBFS() {
-    }
+	explicit FilteringBFS() { }
 
-    template<typename Container>
-    explicit FilteringBFS(const Graph& G, Container& nodes,
-            std::function<bool(adjEntry)> visit = return_true<adjEntry>,
-            std::function<bool(node)> descend_from = return_true<node>)
-        : m_pending(), m_visited(G, false), m_visit(visit), m_descend(descend_from) {
-        for (node n : nodes) {
-            m_pending.append(n);
-        }
-    }
+	template<typename Container>
+	explicit FilteringBFS(const Graph& G, Container& nodes,
+			std::function<bool(adjEntry)> visit = return_true<adjEntry>,
+			std::function<bool(node)> descend_from = return_true<node>)
+		: m_pending(), m_visited(G, false), m_visit(visit), m_descend(descend_from) {
+		for (node n : nodes) {
+			m_pending.append(n);
+		}
+	}
 
-    explicit FilteringBFS(const Graph& G, std::initializer_list<node> nodes,
-            std::function<bool(adjEntry)> visit = return_true<adjEntry>,
-            std::function<bool(node)> descend_from = return_true<node>)
-        : m_pending(nodes), m_visited(G, false), m_visit(visit), m_descend(descend_from) {
-    }
+	explicit FilteringBFS(const Graph& G, std::initializer_list<node> nodes,
+			std::function<bool(adjEntry)> visit = return_true<adjEntry>,
+			std::function<bool(node)> descend_from = return_true<node>)
+		: m_pending(nodes), m_visited(G, false), m_visit(visit), m_descend(descend_from) { }
 
-    bool operator==(const FilteringBFS& rhs) const {
-        return m_pending.getList() == rhs.m_pending.getList();
-    }
+	bool operator==(const FilteringBFS& rhs) const {
+		return m_pending.getList() == rhs.m_pending.getList();
+	}
 
-    bool operator!=(const FilteringBFS& rhs) const {
-        return m_pending.getList() != rhs.m_pending.getList();
-    }
+	bool operator!=(const FilteringBFS& rhs) const {
+		return m_pending.getList() != rhs.m_pending.getList();
+	}
 
-    FilteringBFS& begin() {
-        return *this;
-    }
+	FilteringBFS& begin() { return *this; }
 
-    FilteringBFS end() const {
-        return FilteringBFS();
-    }
+	FilteringBFS end() const { return FilteringBFS(); }
 
-    node operator*() {
-        OGDF_ASSERT(!m_pending.empty());
-        return m_pending.top();
-    }
+	node operator*() {
+		OGDF_ASSERT(!m_pending.empty());
+		return m_pending.top();
+	}
 
-    //! Increment operator (prefix, returns result).
-    FilteringBFS& operator++() {
-        next();
-        return *this;
-    }
+	//! Increment operator (prefix, returns result).
+	FilteringBFS& operator++() {
+		next();
+		return *this;
+	}
 
-    //! Increment operator (postfix, returns previous value).
-    OGDF_DEPRECATED("Calling DelimitedBFS++ will copy the array of visited nodes")
-    FilteringBFS operator++(int) {
-        FilteringBFS before = *this;
-        next();
-        return before;
-    }
+	//! Increment operator (postfix, returns previous value).
+	OGDF_DEPRECATED("Calling DelimitedBFS++ will copy the array of visited nodes")
 
-    void next() {
-        OGDF_ASSERT(!m_pending.empty());
-        node n = m_pending.pop();
-        OGDF_ASSERT(!m_visited[n]);
-        m_visited[n] = true;
-        if (m_descend(n)) {
-            for (adjEntry adj : n->adjEntries) {
-                node twin = adj->twinNode();
-                if (!m_visited[twin] && m_visit(adj))
-                    m_pending.append(twin);
-            }
-        }
-        while (!m_pending.empty() && m_visited[m_pending.top()])
-            m_pending.pop();
-    }
+	FilteringBFS operator++(int) {
+		FilteringBFS before = *this;
+		next();
+		return before;
+	}
 
-    operator bool() const {
-        return valid();
-    }
+	void next() {
+		OGDF_ASSERT(!m_pending.empty());
+		node n = m_pending.pop();
+		OGDF_ASSERT(!m_visited[n]);
+		m_visited[n] = true;
+		if (m_descend(n)) {
+			for (adjEntry adj : n->adjEntries) {
+				node twin = adj->twinNode();
+				if (!m_visited[twin] && m_visit(adj)) {
+					m_pending.append(twin);
+				}
+			}
+		}
+		while (!m_pending.empty() && m_visited[m_pending.top()]) {
+			m_pending.pop();
+		}
+	}
 
-    bool valid() const {
-        return !m_pending.empty();
-    }
+	operator bool() const { return valid(); }
 
-    void append(node n) {
-        m_pending.append(n);
-    }
+	bool valid() const { return !m_pending.empty(); }
 
-    bool hasVisited(node n) const {
-        return m_visited[n];
-    }
+	void append(node n) { m_pending.append(n); }
 
-    int pendingCount() const {
-        return m_pending.size();
-    }
+	bool hasVisited(node n) const { return m_visited[n]; }
+
+	int pendingCount() const { return m_pending.size(); }
 };
