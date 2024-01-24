@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/graph_generators/operations.h>
+#include <ogdf/basic/internal/list_templates.h>
 #include <ogdf/basic/simple_graph_alg.h>
+
+#include <vector>
 
 namespace ogdf {
 
@@ -246,4 +251,69 @@ void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& no
 	});
 }
 
+void complement(Graph& G, bool keep_directionality) {
+	for (node n1 : G.nodes) {
+		for (node n2 : G.nodes) {
+			if (n1->index() >= n2->index()) {
+				continue;
+			}
+
+			edge e = G.searchEdge(n1, n2, true);
+			edge er = G.searchEdge(n2, n1, true);
+			if (e) {
+				G.delEdge(e);
+			} else if (er) {
+				G.delEdge(er);
+			} else {
+				G.newEdge(n1, n2);
+			}
+		}
+	}
+}
+
+void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
+	OGDF_ASSERT(nodeMap.valid());
+
+	safeForEach(G1.nodes, [&](node n1) {
+		node n2 = nodeMap[n1];
+		if (n2 == nullptr) {
+			G1.delNode(n1);
+		}
+	});
+
+
+	for (node n1a : G1.nodes) {
+		node n2a = nodeMap[n1a];
+		List<edge> edgelist;
+		n1a->adjEdges(edgelist);
+
+		for (edge e1 : edgelist) {
+			node n1b = e1->opposite(n1a);
+			node n2b = nodeMap[n1b];
+			edge e2 = G2.searchEdge(n2a, n2b);
+
+			if (e2 == nullptr) {
+				G1.delEdge(e1);
+			}
+		}
+	}
+}
+
+void join(Graph& G1, const Graph& G2, NodeArray<node>& nodeMap) {
+	List<node> G1nodes {};
+	getAllNodes(G1, G1nodes);
+	int nodeCount = G1.numberOfNodes();
+
+	G1.insert(G2, nodeMap);
+
+	for (node n2 : G1.nodes) {
+		if (n2->index() < nodeCount) {
+			// this is a node from original G1 graph
+			continue;
+		}
+		for (node n1 : G1nodes) {
+			G1.newEdge(n1, n2);
+		}
+	}
+}
 }
