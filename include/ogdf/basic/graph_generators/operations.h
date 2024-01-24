@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
@@ -186,6 +187,34 @@ OGDF_EXPORT void modularProduct(const Graph& G1, const Graph& G2, Graph& product
  */
 OGDF_EXPORT void rootedProduct(const Graph& G1, const Graph& G2, Graph& product,
 		NodeMap& nodeInProduct, node rootInG2);
+
+/**
+ * Computes the complement of G.
+ *
+ * @param G is the input graph, the complement will be assigned to G.
+ * @param keep_directionality, default false. Whether directionality should be considered when computing the complement graph.
+ */
+OGDF_EXPORT void complement(Graph& G, bool keep_directionality = false);
+
+/**
+ * Computes the intersection of G1 and G2. The output will be assigned to G1.
+ *
+ * @param G1 is the first graph, the intersection will be assigned to G1.
+ * @param G1 is the second graph.
+ * @param nodeMap associates a node in G2 with a node in G1. There should be an entry for every node in G1, this entry may be a nullptr.
+ */
+OGDF_EXPORT void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap);
+
+/**
+ * Computes the joined graph of G1 and G2. The output will be assigned to G1.
+ * \f$ (V = V_1 \cup V_2, E = E_1 \cup E_2 \cup V_1 \cross V_2) \f$
+ *
+ * @param G1 is the first graph, the joined graph will be assigned to G1.
+ * @param G1 is the second graph.
+ * @param nodeMap is assigned a mapping from nodes in \p G2 to new nodes in G1. It should be initialized like this: NodeArray<node> nodeMap(G2);
+ */
+OGDF_EXPORT void join(Graph& G1, const Graph& G2, NodeArray<node>& nodeMap);
+
 
 //! @}
 
