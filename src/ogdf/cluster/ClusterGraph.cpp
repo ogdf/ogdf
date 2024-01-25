@@ -179,13 +179,14 @@ void ClusterGraph::initGraph(const Graph& G) {
 	m_clusterIdCount++;
 	m_nodeMap.init(G, m_rootCluster);
 	m_itMap.init(G);
-	keyAdded(m_rootCluster);
 	// assign already existing nodes to root cluster (new nodes are assigned over nodeadded)
 	for (node v : G.nodes) {
 		m_itMap[v] = m_rootCluster->getNodes().pushBack(v);
 	}
 
 	clusters.pushBack(m_rootCluster);
+	keyAdded(m_rootCluster);
+	// we do not notify observers about the root cluster
 }
 
 void ClusterGraph::reinitGraph(const Graph& G) {
@@ -499,8 +500,6 @@ cluster ClusterGraph::newCluster(int id) {
 #endif
 	clusters.pushBack(c);
 	keyAdded(c);
-
-	// notify observers
 	for (ClusterGraphObserver* obs : getObservers()) {
 		obs->clusterAdded(c);
 	}
@@ -520,7 +519,6 @@ cluster ClusterGraph::newCluster() {
 #endif
 	clusters.pushBack(c);
 	keyAdded(c);
-	// notify observers
 	for (ClusterGraphObserver* obs : getObservers()) {
 		obs->clusterAdded(c);
 	}
@@ -706,6 +704,9 @@ void ClusterGraph::doClear() {
 		clearClusterTree(m_rootCluster);
 		clusters.del(m_rootCluster);
 	}
+	for (ClusterGraphObserver* obs : getObservers()) {
+		obs->clustersCleared();
+	}
 	keysCleared();
 	//no clusters, so we can restart at 0
 	m_clusterIdCount = 0;
@@ -720,12 +721,15 @@ void ClusterGraph::clearClusterTree(cluster c) {
 	recurseClearClusterTreeOnChildren(c, attached);
 
 	if (parent != nullptr) {
+		for (ClusterGraphObserver* obs : getObservers()) {
+			obs->clusterDeleted(c);
+		}
+		keyRemoved(c);
 		for (node v : attached) {
 			m_nodeMap[v] = parent;
 			parent->nodes.pushBack(v);
 			m_itMap[v] = parent->getNodes().rbegin();
 		}
-		keyRemoved(c);
 		clusters.del(c);
 	} else if (c == m_rootCluster) {
 		for (node v : attached) {
@@ -738,9 +742,12 @@ void ClusterGraph::clearClusterTree(cluster c) {
 }
 
 void ClusterGraph::clearClusterTree(cluster c, List<node>& attached) {
+	for (ClusterGraphObserver* obs : getObservers()) {
+		obs->clusterDeleted(c);
+	}
+	keyRemoved(c);
 	attached.conc(c->nodes);
 	recurseClearClusterTreeOnChildren(c, attached);
-	keyRemoved(c);
 	clusters.del(c);
 }
 

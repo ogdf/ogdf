@@ -324,8 +324,7 @@ public:
 
 	virtual void clusterDeleted(cluster v) = 0;
 	virtual void clusterAdded(cluster v) = 0;
-
-	// virtual void cleared() = 0;
+	virtual void clustersCleared() = 0;
 
 	const ClusterGraph* getGraph() const { return getObserved(); }
 };
