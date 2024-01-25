@@ -210,7 +210,7 @@ public:
 	 */
 	virtual void setOriginalEmbedding() = 0;
 
-	bool isLinkCopiesOnInsert() const { return m_linkCopiesOnInsert; }
+	bool getLinkCopiesOnInsert() const { return m_linkCopiesOnInsert; }
 
 	//! Whether \c insert(getOriginalGraph()) will automatically set \c copy and \c original
 	/**

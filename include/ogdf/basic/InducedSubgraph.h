@@ -157,7 +157,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		node vG = *it;
 		node v = nodeMap[vG];
 		for (adjEntry adjG : vG->adjEntries) {
-			edge eG = adjG->m_edge;
+			edge eG = adjG->theEdge();
 			edge e = edgeMap[eG];
 			if (e == nullptr) {
 				continue;
@@ -221,7 +221,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 		node vG = *it;
 		node v = nodeMap[vG];
 		for (adjEntry adjG : vG->adjEntries) {
-			edge eG = adjG->m_edge;
+			edge eG = adjG->theEdge();
 			if (!edgeFilter(eG)) {
 				continue;
 			}
@@ -271,7 +271,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 				if (!adjG->isSource()) {
 					continue;
 				}
-				edge eG = adjG->m_edge;
+				edge eG = adjG->theEdge();
 				edge e = edgeMap[eG];
 				// we will call Observers for *all* edgeMap entries
 				if (e == nullptr) {

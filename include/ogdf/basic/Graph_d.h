@@ -1758,6 +1758,8 @@ public:
 	 */
 	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
 			EdgeArray<edge>& edgeMap) {
+		OGDF_ASSERT(&(info.constGraph()) == nodeMap.registeredAt()->graphOf());
+		OGDF_ASSERT(&(info.constGraph()) == edgeMap.registeredAt()->graphOf());
 		m_regNodeArrays.reserveSpace(info.numberOfNodes(cc));
 		m_regEdgeArrays.reserveSpace(info.numberOfEdges(cc));
 		m_regAdjArrays.reserveSpace(info.numberOfEdges(cc));
