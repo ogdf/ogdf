@@ -69,10 +69,15 @@ void ComponentSplitterLayout::call(GraphAttributes& GA) {
 		GraphCopy GC;
 		GC.setOriginalGraph(G);
 
-		EdgeArray<edge> auxCopy(G);
+		NodeArray<node> nodeCopy;
+		EdgeArray<edge> auxCopy;
 
 		for (int i = 0; i < numberOfComponents; i++) {
-			GC.initByNodes(nodesInCC[i], auxCopy);
+			nodeCopy.init(G);
+			auxCopy.init(G);
+			GC.clear();
+			GC.insert(nodesInCC[i].begin(), nodesInCC[i].end(), filter_any_edge, nodeCopy, auxCopy);
+
 			GraphAttributes cGA(GC, GA.attributes());
 			//copy information into copy GA
 			for (node v : GC.nodes) {

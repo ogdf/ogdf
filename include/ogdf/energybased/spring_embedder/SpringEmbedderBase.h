@@ -107,11 +107,15 @@ public:
 			nodesInCC[component[v]].pushBack(v);
 		}
 
+		NodeArray<node> nodeCopy(G);
 		EdgeArray<edge> auxCopy(G);
 		Array<DPoint> boundingBox(numCC);
 
 		for (int i = 0; i < numCC; ++i) {
-			GC.initByNodes(nodesInCC[i], auxCopy);
+			nodeCopy.init(G);
+			auxCopy.init(G);
+			GC.clear();
+			GC.insert(nodesInCC[i].begin(), nodesInCC[i].end(), filter_any_edge, nodeCopy, auxCopy);
 			makeSimpleUndirected(GC);
 
 			const int n = GC.numberOfNodes();

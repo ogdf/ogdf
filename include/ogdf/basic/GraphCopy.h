@@ -228,26 +228,6 @@ public:
 		m_linkCopiesOnInsert = linkCopiesOnInsert;
 	}
 
-	//! Initializes the graph copy for the nodes in a component.
-	/**
-	 * Creates copies of all nodes in \p origNodes and their incident edges.
-	 * Any nodes and edges allocated before are removed.
-	 *
-	 * The order of entries in the adjacency lists is preserved, i.e., if
-	 * the original graph is embedded, its embedding induces the embedding
-	 * of the created copy.
-	 *
-	 * It is important that \p origNodes is the complete list of nodes in
-	 * a connected component. If you wish to initialize the graph copy for an
-	 * arbitrary set of nodes, use the method initByActiveNodes().
-	 * \see setOriginalGraph() for an example.
-	 * @param origNodes is the list of nodes in the original graph for which
-	 *        copies are created in the graph copy.
-	 * @param eCopy is assigned the copy of each original edge.
-	 */
-	// OGDF_DEPRECATED("use insert")
-	void initByNodes(const List<node>& origNodes, EdgeArray<edge>& eCopy);
-
 	//! Initializes the graph copy for the nodes in \p nodeList.
 	/**
 	 * Creates copies of all nodes in \p nodeList and edges between two nodes

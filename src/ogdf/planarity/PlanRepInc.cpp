@@ -347,6 +347,7 @@ void PlanRepInc::getExtAdjs(List<adjEntry>& /* extAdjs */) {
 	NodeArray<int> component(*this);
 	int numPartialCC = connectedComponents(*this, component);
 	EdgeArray<edge> copyEdge; //copy edges in partial CC copy
+	NodeArray<node> nodeCopy;
 	//now we compute a copy for every CC
 	//initialize an array of lists of nodes contained in a CC
 	Array<List<node>> nodesInPartialCC;
@@ -361,7 +362,9 @@ void PlanRepInc::getExtAdjs(List<adjEntry>& /* extAdjs */) {
 		List<node>& theNodes = nodesInPartialCC[i];
 		GraphCopy GC;
 		GC.setOriginalGraph(*this);
-		GC.initByNodes(theNodes, copyEdge);
+		copyEdge.init(*this);
+		nodeCopy.init(*this);
+		GC.insert(theNodes.begin(), theNodes.end(), filter_any_edge, nodeCopy, copyEdge);
 		//now we derive an outer face of GC by using the
 		//layout information on it's original
 

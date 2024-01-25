@@ -944,7 +944,8 @@ void NonPlanarCore<TCost>::retransform(const GraphCopy& planarCore, GraphCopy& p
 	List<node> allNodes;
 	m_pOriginal->allNodes(allNodes);
 	EdgeArray<edge> eCopy(*m_pOriginal, nullptr);
-	m_endGraph->initByNodes(allNodes, eCopy);
+	NodeArray<node> nCopy(*m_pOriginal, nullptr);
+	m_endGraph->insert(allNodes.begin(), allNodes.end(), filter_any_edge, nCopy, eCopy);
 
 #ifdef OGDF_DEBUG
 	for (node v : m_endGraph->nodes) {

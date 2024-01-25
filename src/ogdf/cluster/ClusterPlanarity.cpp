@@ -102,7 +102,10 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 			// components, it also works for set of connected components, and
 			// an independent bag is such a creature.
 			EdgeArray<edge> eCopy(G);
-			theGraphs[i].initByNodes(nodesInBag[i], eCopy);
+			NodeArray<node> nCopy(G);
+			theGraphs[i].clear();
+			theGraphs[i].insert(nodesInBag[i].begin(), nodesInBag[i].end(), filter_any_edge, nCopy,
+					eCopy);
 			ClusterGraph bagCG(theGraphs[i]);
 			ClusterArray<List<node>> cNodes(CG);
 			ClusterArray<List<cluster>> cChildren(CG);
