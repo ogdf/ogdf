@@ -293,22 +293,30 @@ void describeGraphCopySimple(int numberOfNodes) {
 		});
 
 		it("is initialized by arbitrary nodes", [&]() {
-			eCopy = EdgeArray<edge>(graph);
-			NodeArray<bool> activeNodes(graph, false);
 			node actNode1 = graph.chooseNode();
 			node actNode2 = actNode1->lastAdj()->twin()->theNode();
-			activeNodes[actNode1] = true;
-			activeNodes[actNode2] = true;
-			origNodes.clear();
-			origNodes.pushBack(actNode1);
-			origNodes.pushBack(actNode2);
-			graphCopy->setOriginalGraph(graph);
-			graphCopy->initByActiveNodes(origNodes, activeNodes, eCopy);
-			List<node> asdf;
-			graphCopy->allNodes(asdf);
-			List<edge> asdfgh;
-			graphCopy->allEdges(asdfgh);
-			testInitGraph(graph, *graphCopy, false, origNodes, eCopy);
+
+			{
+				origNodes.clear();
+				origNodes.pushBack(actNode1);
+				origNodes.pushBack(actNode2);
+
+				graphCopy->clear();
+				graphCopy->setOriginalGraph(graph);
+				eCopy.init(graph);
+				nCopy.init(graph);
+				graphCopy->insert(origNodes.begin(), origNodes.end(), filter_any_edge, nCopy, eCopy);
+				testInitGraph(graph, *graphCopy, false, origNodes, eCopy);
+			}
+
+			{
+				graphCopy->clear();
+				graphCopy->setOriginalGraph(graph);
+				eCopy.init(graph);
+				nCopy.init(graph);
+				graphCopy->insert(origNodes, std::array<edge, 0> {}, nCopy, eCopy);
+				testInitGraph(graph, *graphCopy, false, origNodes, eCopy);
+			}
 		});
 	});
 

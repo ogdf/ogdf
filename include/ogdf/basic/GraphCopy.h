@@ -228,23 +228,6 @@ public:
 		m_linkCopiesOnInsert = linkCopiesOnInsert;
 	}
 
-	//! Initializes the graph copy for the nodes in \p nodeList.
-	/**
-	 * Creates copies of all nodes in \p nodeList and edges between two nodes
-	 * which are both contained in \p nodeList.
-	 * Any nodes and edges allocated before are destroyed.
-	 *
-	 * \see setOriginalGraph()
-	 * @param nodeList is the list of nodes in the original graph for which
-	 *        copies are created in the graph copy.
-	 * @param activeNodes must be true for every node in \p nodeList, false
-	 *        otherwise.
-	 * @param eCopy is assigned the copy of each original edge.
-	 */
-	// OGDF_DEPRECATED("use insert")
-	void initByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-			EdgeArray<edge>& eCopy);
-
 protected:
 	void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter,
 			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes,

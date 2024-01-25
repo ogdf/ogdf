@@ -116,7 +116,10 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode) {
 	m_currentCC = i;
 
 	//double feature: liste und nodearray, besser
-	GraphCopy::initByActiveNodes(activeOrigCCNodes, m_activeNodes, m_eAuxCopy);
+	m_eAuxCopy.init(getOriginalGraph());
+	NodeArray<node> n_copy(getOriginalGraph());
+	clear();
+	insert(activeOrigCCNodes.begin(), activeOrigCCNodes.end(), filter_any_edge, n_copy, m_eAuxCopy);
 
 	// set type of edges (gen. or assoc.) in the current CC
 	if (m_pGraphAttributes->has(GraphAttributes::edgeType)) {
