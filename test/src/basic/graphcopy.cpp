@@ -231,6 +231,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 	});
 
 	describe("advanced initialization", [&]() {
+		NodeArray<node> nCopy;
 		EdgeArray<edge> eCopy;
 		List<node> origNodes;
 
@@ -246,7 +247,16 @@ void describeGraphCopySimple(int numberOfNodes) {
 			graphCopy.reset(new GCType());
 			int numberOfCC = ccs.numberOfCCs() - 1;
 			graphCopy->setOriginalGraph(graph);
-			graphCopy->initByCC(ccs, numberOfCC, eCopy);
+			// inlined GraphCopy::initByCC(m_ccInfo, cc, m_eAuxCopy):
+			nCopy.init(graph);
+			eCopy.init(graph);
+#ifdef OGDF_DEBUG
+			auto count =
+#endif
+					graphCopy->insert(ccs, numberOfCC, nCopy, eCopy);
+			OGDF_ASSERT(count.first == ccs.numberOfNodes(numberOfCC));
+			OGDF_ASSERT(count.second == ccs.numberOfEdges(numberOfCC));
+
 			origNodes.clear();
 			for (int i = ccs.startNode(numberOfCC); i < ccs.stopNode(numberOfCC); i++) {
 				origNodes.pushBack(ccs.v(i));

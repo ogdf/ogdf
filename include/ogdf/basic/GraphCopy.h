@@ -228,15 +228,6 @@ public:
 		m_linkCopiesOnInsert = linkCopiesOnInsert;
 	}
 
-	//! Initializes the graph copy for the nodes in component \p cc.
-	/**
-	 * @param info  must be a connected component info structure for the original graph.
-	 * @param cc    is the number of the connected component.
-	 * @param eCopy is assigned a mapping from original to copy edges.
-	 */
-	// OGDF_DEPRECATED("use insert")
-	void initByCC(const CCsInfo& info, int cc, EdgeArray<edge>& eCopy);
-
 	//! Initializes the graph copy for the nodes in a component.
 	/**
 	 * Creates copies of all nodes in \p origNodes and their incident edges.
