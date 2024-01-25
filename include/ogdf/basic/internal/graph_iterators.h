@@ -45,8 +45,6 @@ class GraphIteratorBase;
 template<class GraphObjectPtr>
 using GraphIterator = GraphIteratorBase<GraphObjectPtr, false, false>;
 template<class GraphObjectPtr>
-using GraphConstIterator = GraphIteratorBase<GraphObjectPtr, false, true>;
-template<class GraphObjectPtr>
 using GraphReverseIterator = GraphIteratorBase<GraphObjectPtr, true, false>;
 
 template<class GraphObjectPtr, bool isReverse, bool isConst>

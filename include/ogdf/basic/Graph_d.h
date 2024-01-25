@@ -521,7 +521,6 @@ class OGDF_EXPORT GraphAdjIterator {
 
 public:
 	using iterator = GraphAdjIterator;
-	using const_iterator = GraphAdjIterator;
 	using value_type = adjEntry;
 
 	//! Constructor.
@@ -596,7 +595,6 @@ class GraphRegistry
 
 public:
 	using iterator = typename Iterable::iterator;
-	using const_iterator = typename Iterable::const_iterator;
 
 	//! Constructor.
 	GraphRegistry(Graph* graph, int* nextKeyIndex)

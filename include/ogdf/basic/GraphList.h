@@ -299,8 +299,6 @@ public:
 	using value_type = T*;
 	//! Provides a bidirectional iterator to an object in the container.
 	using iterator = GraphIterator<T*>;
-	//! Provides a bidirectional const iterator to an object in the container.
-	using const_iterator = GraphConstIterator<T*>;
 	//! Provides a bidirectional reverse iterator to an object in the container.
 	using reverse_iterator = GraphReverseIterator<T*>;
 
@@ -413,7 +411,6 @@ class GraphObjectContainer : private GraphList<GraphObject> {
 public:
 	using typename GraphList<GraphObject>::value_type;
 	using typename GraphList<GraphObject>::iterator;
-	using typename GraphList<GraphObject>::const_iterator;
 	using typename GraphList<GraphObject>::reverse_iterator;
 
 	using GraphList<GraphObject>::begin;
