@@ -279,7 +279,7 @@ void NodeRespecterLayout::call(GraphAttributes& attr) {
 	}
 
 	// Create empty graph copy associated with G.
-	m_copy.createEmpty(G);
+	m_copy.setOriginalGraph(G);
 
 	// Intialize arrays with a list of nodes/edges for each connected component.
 	NodeArray<int> component(G);

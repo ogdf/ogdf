@@ -53,7 +53,7 @@ public:
 	virtual void call(GraphAttributes& GA) override {
 		if (GA.constGraph().numberOfNodes() > 2) {
 			UpwardPlanRep UPR;
-			UPR.createEmpty(GA.constGraph());
+			UPR.setOriginalGraph(GA.constGraph());
 			m_UpwardPlanarizer->call(UPR);
 			m_layout->call(UPR, GA);
 			m_cr_nr = UPR.numberOfCrossings();

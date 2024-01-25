@@ -174,7 +174,7 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep& UPR) {
 
 UpwardPlanRep& UpwardPlanRep::operator=(const UpwardPlanRep& cp) {
 	clear();
-	createEmpty(cp.original());
+	setOriginalGraph(cp.original());
 	isAugmented = cp.isAugmented;
 	extFaceHandle = nullptr;
 	crossings = cp.crossings;

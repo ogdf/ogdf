@@ -2097,7 +2097,7 @@ T MinSteinerTreeDirectedCut<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G
 
 	// collect solution edges to build Steiner tree
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
-	finalSteinerTree->createEmpty(G);
+	finalSteinerTree->setOriginalGraph(G);
 	T weight(0);
 	for (edge e = G.firstEdge(); e; e = e->succ()) {
 		if (stpMaster.isSolutionEdge(e)) {

@@ -67,7 +67,7 @@ void ComponentSplitterLayout::call(GraphAttributes& GA) {
 		// Create copies of the connected components and corresponding
 		// GraphAttributes
 		GraphCopy GC;
-		GC.createEmpty(G);
+		GC.setOriginalGraph(G);
 
 		EdgeArray<edge> auxCopy(G);
 

@@ -62,7 +62,7 @@ void testMAOBfs(const Graph& G) {
 	m.calcForest(G, MAO, &forestDecomp);
 	for (auto& forest : forestDecomp) {
 		GraphCopy GC;
-		GC.createEmpty(G);
+		GC.setOriginalGraph(G);
 		for (edge e : forest) {
 			if (GC.copy(e->source()) == nullptr) {
 				GC.newNode(e->source());

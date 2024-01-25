@@ -117,7 +117,7 @@ private:
 				// Create neighbor graph
 				GraphCopySimple neighborGraph;
 				// Note: v is not part of the neighbor graph.
-				neighborGraph.createEmpty(m_G);
+				neighborGraph.setOriginalGraph(m_G);
 				for (adjEntry adj : v->adjEntries) {
 					neighborGraph.newNode(adj->twinNode());
 				}

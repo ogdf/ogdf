@@ -156,7 +156,7 @@ class MinSteinerTreeRZLoss<T>::Main {
 
 	//! Setup (build initial terminal-spanning tree, its save data structure, and find all components)
 	void setup(EdgeWeightedGraphCopy<T>& tree) {
-		tree.createEmpty(m_G);
+		tree.setOriginalGraph(m_G);
 
 		if (m_restricted >= 4
 				&& steiner_tree::FullComponentDecisions::shouldUseErickson(m_G.numberOfNodes(),
@@ -309,7 +309,7 @@ void MinSteinerTreeRZLoss<T>::Main::findFull3Components(const EdgeWeightedGraphC
 			[&](node t0, node t1, node t2, node minCenter, T minCost) {
 				// create a full 3-component
 				EdgeWeightedGraphCopy<T> minComp;
-				minComp.createEmpty(m_G);
+				minComp.setOriginalGraph(m_G);
 				node minCenterC = minComp.newNode(minCenter);
 				minComp.newEdge(minComp.newNode(t0), minCenterC, distance[t0][minCenter]);
 				minComp.newEdge(minComp.newNode(t1), minCenterC, distance[t1][minCenter]);

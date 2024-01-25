@@ -77,7 +77,7 @@ private:
 			assertTimeLeft();
 
 			GraphCopySimple GC;
-			GC.createEmpty(G);
+			GC.setOriginalGraph(G);
 			NodeArray<node> nodeMap(G, nullptr);
 			EdgeArray<edge> edgeMap(G, nullptr);
 			GC.insert(ccsInfo, c, nodeMap, edgeMap);

@@ -55,7 +55,7 @@ PlanRep::PlanRep(const Graph& G)
 
 	// special way of initializing GraphCopy; we start with an empty copy
 	// and add components by need
-	GraphCopy::createEmpty(G);
+	GraphCopy::setOriginalGraph(G);
 
 	m_currentCC = -1; // not yet initialized
 }
@@ -83,7 +83,7 @@ PlanRep::PlanRep(const GraphAttributes& AG)
 
 	// special way of initializing GraphCopy; we start with an empty copy
 	// and add components by need
-	GraphCopy::createEmpty(G);
+	GraphCopy::setOriginalGraph(G);
 
 	m_currentCC = -1; // not yet initialized
 }

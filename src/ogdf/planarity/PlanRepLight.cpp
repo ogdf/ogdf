@@ -37,7 +37,7 @@ namespace ogdf {
 
 PlanRepLight::PlanRepLight(const PlanRep& pr)
 	: m_ccInfo(pr.ccInfo()), m_pr(pr), m_currentCC(-1), m_eAuxCopy(pr.original()) {
-	GraphCopy::createEmpty(pr.original());
+	GraphCopy::setOriginalGraph(pr.original());
 }
 
 void PlanRepLight::initCC(int cc) {

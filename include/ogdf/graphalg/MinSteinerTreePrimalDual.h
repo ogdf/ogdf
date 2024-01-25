@@ -246,7 +246,7 @@ T MinSteinerTreePrimalDual<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 	m_pComponents = &components;
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
-	finalSteinerTree->createEmpty(*m_pGraph);
+	finalSteinerTree->setOriginalGraph(*m_pGraph);
 
 	init();
 

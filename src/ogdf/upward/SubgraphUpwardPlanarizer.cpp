@@ -82,10 +82,10 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep& UPR, const Ed
 	const Graph& bcTree = BC.bcTree();
 
 	GraphCopy G_dummy;
-	G_dummy.createEmpty(G);
+	G_dummy.setOriginalGraph(G);
 	NodeArray<GraphCopy> biComps(bcTree, G_dummy); // bicomps of G; init with an empty graph
 	UpwardPlanRep UPR_dummy;
-	UPR_dummy.createEmpty(G);
+	UPR_dummy.setOriginalGraph(G);
 	NodeArray<UpwardPlanRep> uprs(bcTree,
 			UPR_dummy); // the upward planarized representation of the bicomps; init with an empty UpwarPlanRep
 
@@ -112,7 +112,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep& UPR, const Ed
 		if (!UpwardPlanarity::upwardPlanarEmbed_singleSource(block)) {
 			for (int i = 0; i < m_runs; i++) { // i multistarts
 				UpwardPlanRep UPR_tmp;
-				UPR_tmp.createEmpty(block);
+				UPR_tmp.setOriginalGraph(block);
 				List<edge> delEdges;
 
 				m_subgraph->call(UPR_tmp, delEdges);
@@ -592,7 +592,7 @@ void SubgraphUpwardPlanarizer::constructComponentGraphs(BCTree& BC, NodeArray<Gr
 		}
 
 		GraphCopy GC;
-		GC.createEmpty(BC.originalGraph());
+		GC.setOriginalGraph(BC.originalGraph());
 		// construct i-th component graph
 		for (edge eOrig : edges_orig) {
 			node srcOrig = eOrig->source();

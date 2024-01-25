@@ -109,7 +109,7 @@ void OptimalRanking::doCall(const Graph& G, NodeArray<int>& rank, EdgeArray<bool
 
 	// construct min-cost flow problem
 	GraphCopy GC;
-	GC.createEmpty(G);
+	GC.setOriginalGraph(G);
 
 	// compute connected component of G
 	NodeArray<int> component(G);

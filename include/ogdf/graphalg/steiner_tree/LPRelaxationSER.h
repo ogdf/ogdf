@@ -98,7 +98,7 @@ class LPRelaxationSER {
 	//!  directed, with special source and target, without Steiner vertices of degree 2
 	double generateMinCutSeparationGraph(const ArrayBuffer<int>& activeComponents, node& source,
 			node& target, GraphCopy& G, EdgeArray<double>& capacity, int& cutsFound) {
-		G.createEmpty(m_G);
+		G.setOriginalGraph(m_G);
 		capacity.init(G);
 		source = G.newNode();
 		for (node t : m_terminals) { // generate all terminals

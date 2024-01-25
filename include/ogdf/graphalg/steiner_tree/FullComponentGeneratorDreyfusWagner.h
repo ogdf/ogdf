@@ -381,7 +381,7 @@ public:
 	//! Constructs a Steiner tree for the given set of terminals if it is valid,
 	//! otherwise an empty tree is returned
 	T getSteinerTreeFor(const List<node>& terminals, EdgeWeightedGraphCopy<T>& tree) const {
-		tree.createEmpty(m_G);
+		tree.setOriginalGraph(m_G);
 		T cost(getSteinerTreeFor(*dataOf(terminals), tree));
 		OGDF_ASSERT(isTree(tree));
 		return cost;

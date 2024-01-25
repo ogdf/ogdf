@@ -197,7 +197,7 @@ Hierarchy::Hierarchy(const Graph& G, const NodeArray<int>& rank) : m_GC(G), m_ra
 }
 
 void Hierarchy::createEmpty(const Graph& G) {
-	m_GC.createEmpty(G);
+	m_GC.setOriginalGraph(G);
 	m_rank.init(m_GC);
 }
 

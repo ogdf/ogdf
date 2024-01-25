@@ -212,7 +212,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(PlanRep& pr, int cc,
 	// G -copy-> pr (final planarization, assigned at the end)
 	const Graph& G {pr.original()};
 	GraphCopy graphCopy;
-	graphCopy.createEmpty(G);
+	graphCopy.setOriginalGraph(G);
 
 	// Find a chordless cycle in G. If none could be found, G is planar.
 	List<node> cycle;

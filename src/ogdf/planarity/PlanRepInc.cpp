@@ -360,7 +360,7 @@ void PlanRepInc::getExtAdjs(List<adjEntry>& /* extAdjs */) {
 	for (i = 0; i < numPartialCC; i++) {
 		List<node>& theNodes = nodesInPartialCC[i];
 		GraphCopy GC;
-		GC.createEmpty(*this);
+		GC.setOriginalGraph(*this);
 		GC.initByNodes(theNodes, copyEdge);
 		//now we derive an outer face of GC by using the
 		//layout information on it's original

@@ -42,7 +42,7 @@ void DominanceLayout::call(GraphAttributes& GA) {
 	OGDF_ASSERT(isSimpleUndirected(GA.constGraph()));
 	//call upward planarizer
 	UpwardPlanRep UPR;
-	UPR.createEmpty(GA.constGraph());
+	UPR.setOriginalGraph(GA.constGraph());
 	m_upPlanarizer->call(UPR);
 	layout(GA, UPR);
 }

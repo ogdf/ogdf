@@ -74,7 +74,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list) {
 	}
 
 	m_eCopy.init(*m_pGraph, nullptr);
-	m_graphCopy.createEmpty(*m_pGraph);
+	m_graphCopy.setOriginalGraph(*m_pGraph);
 
 	while (faces.size() > 0) {
 		face actFace = faces.popFrontRet();
@@ -132,7 +132,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& list) {
 		}
 
 		if (augmentationRequired) {
-			m_graphCopy.createEmpty(*m_pGraph);
+			m_graphCopy.setOriginalGraph(*m_pGraph);
 			m_graphCopy.initByActiveNodes(activeNodesList, activeNodes, m_eCopy);
 			m_graphCopy.setOriginalEmbedding();
 

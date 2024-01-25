@@ -298,7 +298,7 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 	T result = solve(chosenEdges);
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
-	finalSteinerTree->createEmpty(*m_originalGraph);
+	finalSteinerTree->setOriginalGraph(*m_originalGraph);
 
 	for (edge e : chosenEdges) {
 		node v = e->source();
@@ -687,7 +687,7 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge>& currentEdges) {
 template<typename T>
 void MinSteinerTreeShore<T>::printSVG() {
 	EdgeWeightedGraphCopy<T> copiedGraph;
-	copiedGraph.createEmpty(m_graph);
+	copiedGraph.setOriginalGraph(m_graph);
 	List<node> nodes;
 	m_graph.allNodes(nodes);
 	NodeArray<bool> copiedIsTerminal(m_graph);

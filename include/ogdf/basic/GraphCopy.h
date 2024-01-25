@@ -79,6 +79,8 @@ public:
 	}
 
 	//! Re-initializes the copy using \p G, but does not create any nodes or edges.
+	OGDF_DEPRECATED("setOriginalGraph() should be used instead.")
+
 	void createEmpty(const Graph& G) { setOriginalGraph(&G); }
 
 	//! Re-initializes the copy using \p G (which might be null), but does not create any nodes or edges.

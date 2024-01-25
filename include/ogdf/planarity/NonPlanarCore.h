@@ -940,7 +940,7 @@ void NonPlanarCore<TCost>::retransform(const GraphCopy& planarCore, GraphCopy& p
 	m_planarCore = &planarCore;
 	OGDF_ASSERT(!pCisPlanar || m_planarCore->genus() == 0);
 	m_endGraph->clear();
-	m_endGraph->createEmpty(*m_pOriginal);
+	m_endGraph->setOriginalGraph(*m_pOriginal);
 	List<node> allNodes;
 	m_pOriginal->allNodes(allNodes);
 	EdgeArray<edge> eCopy(*m_pOriginal, nullptr);

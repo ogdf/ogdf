@@ -92,7 +92,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 
 		for (int i = 0; i < numIndyBags && m_optStatus == Master::Optimal; i++) {
 			// Create underlying graph
-			theGraphs[i].createEmpty(G);
+			theGraphs[i].setOriginalGraph(G);
 			// Judging from the interface and the description, there are two
 			// methods in GraphCopy that allow to construct parts based on a
 			// set of vertices, initByNodes and initByActiveNodes, where the
@@ -370,7 +370,7 @@ void ClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& master
 	for (cluster c : clist) {
 		//we compute the subgraph induced by vertices in c
 		GraphCopy gcopy;
-		gcopy.createEmpty(G);
+		gcopy.setOriginalGraph(G);
 		List<node> clusterNodes;
 		//would be more efficient if we would just merge the childrens' vertices
 		//and add c's

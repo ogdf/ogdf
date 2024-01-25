@@ -59,7 +59,7 @@ namespace ogdf {
  * Example for Input "Graph G":
  * \code
  *  UpwardPlanRep U;
- *  U.createEmpty(G);
+ *  U.setOriginalGraph(G);
  *  SubgraphUpwardPlanarizer sup;
  *  sup.call(U, 0, 0);
  * \endcode

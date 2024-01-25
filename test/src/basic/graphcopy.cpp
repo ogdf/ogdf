@@ -144,7 +144,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 			it("works with an empty graph", [&]() {
 				graphCopy.reset(new GCType());
 				graph.clear();
-				graphCopy->createEmpty(graph);
+				graphCopy->setOriginalGraph(graph);
 				AssertThat(&(graphCopy->original()), Equals(&graph));
 				AssertThat(graphCopy->numberOfNodes(), Equals(0));
 				AssertThat(graphCopy->numberOfEdges(), Equals(0));
@@ -152,7 +152,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 
 			it("works with a non-empty graph", [&]() {
 				graphCopy.reset(new GCType(graph));
-				graphCopy->createEmpty(graph);
+				graphCopy->setOriginalGraph(graph);
 				AssertThat(&(graphCopy->original()), Equals(&graph));
 				AssertThat(graphCopy->numberOfNodes(), Equals(numberOfNodes));
 				AssertThat(graphCopy->numberOfEdges(), Equals(numberOfNodes * 4));
@@ -245,7 +245,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 			Graph::CCsInfo ccs = Graph::CCsInfo(graph);
 			graphCopy.reset(new GCType());
 			int numberOfCC = ccs.numberOfCCs() - 1;
-			graphCopy->createEmpty(graph);
+			graphCopy->setOriginalGraph(graph);
 			graphCopy->initByCC(ccs, numberOfCC, eCopy);
 			origNodes.clear();
 			for (int i = ccs.startNode(numberOfCC); i < ccs.stopNode(numberOfCC); i++) {
@@ -257,7 +257,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 		it("is initialized by either all or none of the nodes of a component", [&]() {
 			origNodes.clear();
 			graphCopy.reset(new GCType());
-			graphCopy->createEmpty(graph);
+			graphCopy->setOriginalGraph(graph);
 			graphCopy->initByNodes(origNodes, eCopy);
 			testInitGraph(graph, *graphCopy, true, origNodes, eCopy);
 
@@ -265,7 +265,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 			origNodes.clear();
 			graph.allNodes<List<node>>(origNodes);
 			eCopy = EdgeArray<edge>(graph);
-			graphCopy->createEmpty(graph);
+			graphCopy->setOriginalGraph(graph);
 			graphCopy->initByNodes(origNodes, eCopy);
 			testInitGraph(graph, *graphCopy, true, origNodes, eCopy);
 
@@ -289,7 +289,7 @@ void describeGraphCopySimple(int numberOfNodes) {
 			origNodes.clear();
 			origNodes.pushBack(actNode1);
 			origNodes.pushBack(actNode2);
-			graphCopy->createEmpty(graph);
+			graphCopy->setOriginalGraph(graph);
 			graphCopy->initByActiveNodes(origNodes, activeNodes, eCopy);
 			List<node> asdf;
 			graphCopy->allNodes(asdf);

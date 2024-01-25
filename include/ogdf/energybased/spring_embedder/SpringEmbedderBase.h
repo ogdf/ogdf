@@ -94,7 +94,7 @@ public:
 		GA.clearAllBends();
 
 		GraphCopy GC;
-		GC.createEmpty(G);
+		GC.setOriginalGraph(G);
 
 		// compute connected component of G
 		NodeArray<int> component(G);
