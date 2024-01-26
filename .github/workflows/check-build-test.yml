@@ -188,6 +188,11 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}-${{ matrix.mode }}
+      - name: Check CPU model
+        run: |
+          uname -av
+          sysctl machdep.cpu
+          system_profiler system_profiler SPSoftwareDataType SPHardwareDataType
       - name: Test ${{ matrix.mode }} build and run
         run: |
           util/test_build_and_run.sh \
