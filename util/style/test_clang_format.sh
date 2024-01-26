@@ -41,23 +41,33 @@ if [ -n "$GIT_REV" ]; then
     { echo "Given argument is not a valid git revision" && usage && exit 255; }
 fi
 
-# Check whether the correct clang-format is available. If not, use docker.
+# Check whether the correct clang-format is available. If not, try to find and use a container runtime.
 if ! command -v "$CLANG_FORMAT_COMMAND" > /dev/null 2>&1; then
-  echo "$CLANG_FORMAT_COMMAND not found. Using docker instead."
+  if [ -z "$DOCKER_RUN_CMD" ]; then
+    # Use podman if available
+    if command -v podman > /dev/null 2>&1; then
+      DOCKER_RUN_CMD="podman run"
+      # (changing the user ID will lead to unsafe git repo location warnings)
 
-  # If user is not in docker group, use sudo.
-  prefix="sudo "
-  user="$(whoami)"
-  if [ -n "$nosudo" ] || \
-    groups "$user" | tr " " "\n" | grep "^docker$" || \
-    [[ "$OSTYPE" == "darwin"* ]]; then
-    prefix=""
+    else
+      # If user is not in docker group, use sudo.
+      prefix="sudo "
+      user="$(whoami)"
+      if [ -n "$nosudo" ] || \
+        groups "$user" | tr " " "\n" | grep "^docker$" || \
+        [[ "$OSTYPE" == "darwin"* ]]; then
+        prefix=""
+      fi
+
+      DOCKER_RUN_CMD="${prefix}docker run --user $(id -u "$user")"
+    fi
   fi
+
+  echo "$CLANG_FORMAT_COMMAND not found. Using container (via \`$DOCKER_RUN_CMD\`) instead."
 
   # Run this script in a docker container.
   repo_dir="$(pwd)"
-  ${prefix}docker run --rm -ti -w "$repo_dir" \
-    --user "$(id -u "$user")" \
+  $DOCKER_RUN_CMD --rm -ti -w "$repo_dir" \
     -v "$repo_dir":"$repo_dir":rw,z \
     "$DOCKER_IMAGE" \
     "$0" $original_args
