@@ -55,10 +55,12 @@ void PCTree::getTree(Graph& tree, GraphAttributes* g_a, PCTreeNodeArray<ogdf::no
 		return;
 	}
 
-	bool nodeGraphics = false, nodeLabel = false;
+	bool nodeGraphics = false, nodeLabel = false, edgeStyle = false, edgeLabel = false;
 	if (g_a != nullptr) {
 		nodeGraphics = g_a->has(GraphAttributes::nodeGraphics);
 		nodeLabel = g_a->has(GraphAttributes::nodeLabel);
+		edgeStyle = g_a->has(GraphAttributes::edgeStyle);
+		edgeLabel = g_a->has(GraphAttributes::edgeLabel);
 	}
 
 	for (PCNode* pc_node : allNodes()) {
@@ -91,21 +93,29 @@ void PCTree::getTree(Graph& tree, GraphAttributes* g_a, PCTreeNodeArray<ogdf::no
 		PCNode* parent = pc_node->getParent();
 		if (parent != nullptr) {
 			ogdf::edge e = tree.newEdge(pc_repr[parent], g_node);
-			if (pc_node->parentPNode != nullptr) {
-				g_a->strokeType(e) = ogdf::StrokeType::Solid;
-			} else if (pc_node->parentCNodeId != UNIONFINDINDEX_EMPTY) {
-				g_a->strokeType(e) = ogdf::StrokeType::Dot;
-			} else {
-				g_a->strokeType(e) = ogdf::StrokeType::None;
-			}
+			if (edgeStyle) {
+				if (pc_node->parentPNode != nullptr) {
+					g_a->strokeType(e) = ogdf::StrokeType::Solid;
+				} else if (pc_node->parentCNodeId != UNIONFINDINDEX_EMPTY) {
+					g_a->strokeType(e) = ogdf::StrokeType::Dot;
+				} else {
+					g_a->strokeType(e) = ogdf::StrokeType::None;
+				}
 
-			if (parent->getChild1() == pc_node) {
-				g_a->strokeColor(e) = (Color(Color::Name::Red));
-				g_a->label(e) = "c1";
+				if (parent->getChild1() == pc_node) {
+					g_a->strokeColor(e) = (Color(Color::Name::Red));
+				}
+				if (parent->getChild2() == pc_node) {
+					g_a->strokeColor(e) = (Color(Color::Name::Green));
+				}
 			}
-			if (parent->getChild2() == pc_node) {
-				g_a->strokeColor(e) = (Color(Color::Name::Green));
-				g_a->label(e) = "c2";
+			if (edgeLabel) {
+				if (parent->getChild1() == pc_node) {
+					g_a->label(e) = "c1";
+				}
+				if (parent->getChild2() == pc_node) {
+					g_a->label(e) = "c2";
+				}
 			}
 		}
 	}
@@ -117,15 +127,23 @@ void PCTree::getTree(Graph& tree, GraphAttributes* g_a, PCTreeNodeArray<ogdf::no
 		//        PCNode* parent = pc_node->getParent();
 		if (pc_node->getSibling1() != nullptr) {
 			ogdf::edge e = tree.newEdge(g_node, pc_repr[pc_node->getSibling1()]);
-			g_a->strokeType(e) = ogdf::StrokeType::Dash;
-			g_a->strokeColor(e) = Color(Color::Name::Red);
-			g_a->label(e) = "s1";
+			if (edgeStyle) {
+				g_a->strokeType(e) = ogdf::StrokeType::Dash;
+				g_a->strokeColor(e) = Color(Color::Name::Red);
+			}
+			if (edgeLabel) {
+				g_a->label(e) = "s1";
+			}
 		}
 		if (pc_node->getSibling2() != nullptr) {
 			ogdf::edge e = tree.newEdge(g_node, pc_repr[pc_node->getSibling2()]);
-			g_a->strokeType(e) = ogdf::StrokeType::Dash;
-			g_a->strokeColor(e) = Color(Color::Name::Green);
-			g_a->label(e) = "s2";
+			if (edgeStyle) {
+				g_a->strokeType(e) = ogdf::StrokeType::Dash;
+				g_a->strokeColor(e) = Color(Color::Name::Green);
+			}
+			if (edgeLabel) {
+				g_a->label(e) = "s2";
+			}
 		}
 	}
 }
@@ -680,6 +698,7 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 }
 
 PCNode* PCTree::setRoot(PCNode* newRoot) {
+	OGDF_ASSERT(newRoot != nullptr && newRoot->isValidNode(forest));
 	OGDF_ASSERT(newRoot->isDetached());
 	PCNode* oldRoot = rootNode;
 	rootNode = newRoot;
@@ -688,6 +707,7 @@ PCNode* PCTree::setRoot(PCNode* newRoot) {
 }
 
 PCNode* PCTree::changeRoot(PCNode* newRoot) {
+	OGDF_ASSERT(newRoot != nullptr && newRoot->isValidNode(forest));
 	OGDF_ASSERT(checkValid());
 	std::stack<PCNode*> path;
 	for (PCNode* node = newRoot; node != nullptr; node = node->getParent()) {
@@ -717,6 +737,5 @@ PCNode* PCTree::changeRoot(PCNode* newRoot) {
 	}
 	OGDF_ASSERT(path.size() == 1);
 	OGDF_ASSERT(path.top() == newRoot);
-
 	return setRoot(newRoot);
 }
