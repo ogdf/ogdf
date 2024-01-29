@@ -59,43 +59,9 @@ go_bandit([]() {
 		}
 	};
 
-	describeArray<Hypergraph, HypernodeArray, hypernode, int>( //
-			"HypernodeArray filled with ints", //
-			42, 43, //
-			init, chooseHypernode, allHypernodes, createHypernode);
-	describeArray<Hypergraph, HypernodeArray, hypernode, List<int>>( //
-			"HypernodeArray filled with lists of ints", //
-			{1, 2, 3}, {42}, //
-			init, chooseHypernode, allHypernodes, createHypernode);
-	describeArray<Hypergraph, HypernodeArray, hypernode, bool>( //
-			"HypernodeArray filled with bools", //
-			false, true, init, chooseHypernode, allHypernodes, createHypernode);
+	runBasicArrayTests<Hypergraph, HypernodeArray, hypernode>( //
+			"HypernodeArray", init, chooseHypernode, allHypernodes, createHypernode);
 
-	describeArrayWithoutDefault<Hypergraph, HypernodeArray, hypernode, std::unique_ptr<int>>( //
-			"HypernodeArray filled with unique pointers", //
-			init, chooseHypernode, allHypernodes, createHypernode);
-	describeArrayWithoutDefault<Hypergraph, HypernodeArray, hypernode,
-			std::vector<std::unique_ptr<int>>>( //
-			"HypernodeArray filled with vectors of unique pointers", //
-			init, chooseHypernode, allHypernodes, createHypernode);
-
-	describeArray<Hypergraph, HyperedgeArray, hyperedge, int>( //
-			"HyperedgeArray filled with ints", //
-			42, 43, //
-			init, chooseHyperedge, allHyperedges, createHyperedge);
-	describeArray<Hypergraph, HyperedgeArray, hyperedge, List<int>>( //
-			"HyperedgeArray filled with lists of ints", //
-			{1, 2, 3}, {42}, //
-			init, chooseHyperedge, allHyperedges, createHyperedge);
-	describeArray<Hypergraph, HyperedgeArray, hyperedge, bool>( //
-			"HyperedgeArray filled with bools", //
-			false, true, init, chooseHyperedge, allHyperedges, createHyperedge);
-
-	describeArrayWithoutDefault<Hypergraph, HyperedgeArray, hyperedge, std::unique_ptr<int>>( //
-			"HyperedgeArray filled with unique pointers", //
-			init, chooseHyperedge, allHyperedges, createHyperedge);
-	describeArrayWithoutDefault<Hypergraph, HyperedgeArray, hyperedge,
-			std::vector<std::unique_ptr<int>>>( //
-			"HyperedgeArray filled with vectors of unique pointers", //
-			init, chooseHyperedge, allHyperedges, createHyperedge);
+	runBasicArrayTests<Hypergraph, HyperedgeArray, hyperedge>( //
+			"HyperedgeArray", init, chooseHyperedge, allHyperedges, createHyperedge);
 });

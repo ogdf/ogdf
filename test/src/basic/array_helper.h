@@ -536,3 +536,42 @@ void describeArrayWithoutDefault(const std::string& title, std::function<void(Ba
 		});
 	});
 }
+
+/**
+ * Perform several tests for a type of registered array.
+ *
+ * @tparam BaseType the type of the class (e.g. Graph) that maintains the registered keys
+ * @tparam ArrayType the type of array to be tested
+ * @tparam KeyType the type of registered key
+ *
+ * @param arrayType the name of the array type
+ * @param initBase a function to initialize the base
+ * @param chooseKey a function to choose an arbitrary key from the base
+ * @param getAllKeys a function to generate a list of all keys
+ * @param createKey a function to create a new key in the base
+ */
+template<class BaseType, template<typename, bool> class ArrayType, typename KeyType>
+void runBasicArrayTests(const std::string& arrayType, std::function<void(BaseType&)> initBase,
+		std::function<KeyType(const BaseType&)> chooseKey,
+		std::function<void(const BaseType&, List<KeyType>&)> getAllKeys,
+		std::function<KeyType(BaseType&)> createKey) {
+	describeArray<BaseType, ArrayType, KeyType, int>( //
+			arrayType + " filled with ints", //
+			42, 43, //
+			initBase, chooseKey, getAllKeys, createKey);
+	describeArray<BaseType, ArrayType, KeyType, List<int>>( //
+			arrayType + " filled with lists of ints", //
+			{1, 2, 3}, {42}, //
+			initBase, chooseKey, getAllKeys, createKey);
+	describeArray<BaseType, ArrayType, KeyType, bool>( //
+			arrayType + " filled with bools", //
+			false, true, //
+			initBase, chooseKey, getAllKeys, createKey);
+
+	describeArrayWithoutDefault<BaseType, ArrayType, KeyType, std::unique_ptr<int>>( //
+			arrayType + " filled with unique pointers", //
+			initBase, chooseKey, getAllKeys, createKey);
+	describeArrayWithoutDefault<BaseType, ArrayType, KeyType, std::vector<std::unique_ptr<int>>>( //
+			arrayType + " filled with vectors of unique pointers", //
+			initBase, chooseKey, getAllKeys, createKey);
+}

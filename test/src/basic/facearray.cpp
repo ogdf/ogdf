@@ -56,24 +56,6 @@ go_bandit([]() {
 		C.init(G);
 	};
 
-	describeArray<CombinatorialEmbedding, FaceArray, face, int>( //
-			"FaceArray filled with ints", //
-			42, 43, //
-			init, chooseFace, allFaces, createFace);
-	describeArray<CombinatorialEmbedding, FaceArray, face, List<int>>( //
-			"FaceArray filled with lists of ints", //
-			{1, 2, 3}, {42}, //
-			init, chooseFace, allFaces, createFace);
-	describeArray<CombinatorialEmbedding, FaceArray, face, bool>( //
-			"FaceArray filled with bools", //
-			false, true, //
-			init, chooseFace, allFaces, createFace);
-
-	describeArrayWithoutDefault<CombinatorialEmbedding, FaceArray, face, std::unique_ptr<int>>( //
-			"FaceArray filled with unique pointers", //
-			init, chooseFace, allFaces, createFace);
-	describeArrayWithoutDefault<CombinatorialEmbedding, FaceArray, face,
-			std::vector<std::unique_ptr<int>>>( //
-			"FaceArray filled with vectors of unique pointers", //
-			init, chooseFace, allFaces, createFace);
+	runBasicArrayTests<CombinatorialEmbedding, FaceArray, face>( //
+			"FaceArray", init, chooseFace, allFaces, createFace);
 });

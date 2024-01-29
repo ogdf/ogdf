@@ -57,25 +57,8 @@ go_bandit([]() {
 
 	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
 
-	describeArray<Graph, AdjEntryArray, adjEntry, int>( //
-			"AdjEntryArray filled with ints", //
-			42, 43, //
-			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
-	describeArray<Graph, AdjEntryArray, adjEntry, List<int>>( //
-			"AdjEntryArray filled with lists of ints", //
-			{1, 2, 3}, {42}, //
-			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
-	describeArray<Graph, AdjEntryArray, adjEntry, bool>( //
-			"AdjEntryArray filled with bools", //
-			false, true, //
-			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
-
-	describeArrayWithoutDefault<Graph, AdjEntryArray, adjEntry, std::unique_ptr<int>>( //
-			"AdjEntryArray filled with unique pointers", //
-			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
-	describeArrayWithoutDefault<Graph, AdjEntryArray, adjEntry, std::vector<std::unique_ptr<int>>>( //
-			"AdjEntryArray filled with vectors of unique pointers", //
-			init, chooseAdjEntry, allAdjEntries, createAdjEntry);
+	runBasicArrayTests<Graph, AdjEntryArray, adjEntry>( //
+			"AdjEntryArray", init, chooseAdjEntry, allAdjEntries, createAdjEntry);
 
 	describe("AdjEntryArray", [&]() {
 		it("keeps the correct values when splitting/unsplitting edges", [&]() {

@@ -43,24 +43,7 @@ go_bandit([]() {
 
 	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
 
-	describeArray<Graph, NodeArray, node, int>( //
-			"NodeArray filled with ints", //
-			42, 43, //
-			init, chooseNode, allNodes, createNode);
-	describeArray<Graph, NodeArray, node, List<int>>( //
-			"NodeArray filled with lists of ints", //
-			{1, 2, 3}, {42}, //
-			init, chooseNode, allNodes, createNode);
-	describeArray<Graph, NodeArray, node, bool>( //
-			"NodeArray filled with bools", //
-			false, true, init, chooseNode, allNodes, createNode);
-
-	describeArrayWithoutDefault<Graph, NodeArray, node, std::unique_ptr<int>>( //
-			"NodeArray filled with unique pointers", //
-			init, chooseNode, allNodes, createNode);
-	describeArrayWithoutDefault<Graph, NodeArray, node, std::vector<std::unique_ptr<int>>>( //
-			"NodeArray filled with vectors of unique pointers", //
-			init, chooseNode, allNodes, createNode);
+	runBasicArrayTests<Graph, NodeArray, node>("NodeArray", init, chooseNode, allNodes, createNode);
 
 	describe("NodeArray filled with pointers", [&]() {
 		Graph G;
