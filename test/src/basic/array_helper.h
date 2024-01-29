@@ -78,6 +78,43 @@ inline int unwrap(std::vector<std::unique_ptr<int>>& value) {
 	return *value.front();
 }
 
+template<class BaseType, class MyArrayType, class RegistryType>
+void runInitTests(const BaseType& base, std::unique_ptr<MyArrayType>& array) {
+	it("initializes w/o a registry", [&]() {
+		AssertThat(array->registeredAt(), IsNull());
+		AssertThat(array->valid(), IsFalse());
+		array->init();
+		AssertThat(array->registeredAt(), IsNull());
+		AssertThat(array->valid(), IsFalse());
+	});
+
+	it("initializes w a registry", [&]() {
+		array->init(base);
+		AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
+		AssertThat(array->valid(), IsTrue());
+	});
+
+	it("initializes w an empty registry", [&]() {
+		BaseType B;
+		array->init(B);
+		AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
+		AssertThat(array->valid(), IsTrue());
+	});
+
+	it("is constructed w a registry", [&]() {
+		array.reset(new MyArrayType(base));
+		AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
+		AssertThat(array->valid(), IsTrue());
+	});
+
+	it("is constructed w an empty registry", [&]() {
+		BaseType B;
+		array.reset(new MyArrayType(B));
+		AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
+		AssertThat(array->valid(), IsTrue());
+	});
+}
+
 /**
  * Perform basic tests for a map of registered keys to values.
  * @tparam BaseType the type of the class (e.g. Graph) that maintains the registered keys
@@ -128,45 +165,13 @@ void describeArray(const std::string& title, const ElementType& fillElement,
 		});
 
 		describe("init", [&]() {
-			it("initializes w/o a registry", [&]() {
-				AssertThat(array->registeredAt(), IsNull());
-				AssertThat(array->valid(), IsFalse());
-				array->init();
-				AssertThat(array->registeredAt(), IsNull());
-				AssertThat(array->valid(), IsFalse());
-			});
-
-			it("initializes w a registry", [&]() {
-				array->init(base);
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
-				AssertThat(array->valid(), IsTrue());
-			});
-
-			it("initializes w an empty registry", [&]() {
-				BaseType B;
-				array->init(B);
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
-				AssertThat(array->valid(), IsTrue());
-			});
+			runInitTests<BaseType, MyArrayType, RegistryType>(base, array);
 
 			it("initializes w a registry and filled", [&]() {
 				array->init(base, fillElement);
 				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
 				AssertThat(array->valid(), IsTrue());
 				AssertThat((*array)[chooseKey(base)], Equals(fillElement));
-			});
-
-			it("is constructed w a registry", [&]() {
-				array.reset(new MyArrayType(base));
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
-				AssertThat(array->valid(), IsTrue());
-			});
-
-			it("is constructed w an empty registry", [&]() {
-				BaseType B;
-				array.reset(new MyArrayType(B));
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
-				AssertThat(array->valid(), IsTrue());
 			});
 
 			it("is constructed w a registry and filled", [&]() {
@@ -386,39 +391,7 @@ void describeArrayWithoutDefault(const std::string& title, std::function<void(Ba
 		});
 
 		describe("init", [&]() {
-			it("initializes w/o a registry", [&]() {
-				AssertThat(array->registeredAt(), IsNull());
-				AssertThat(array->valid(), IsFalse());
-				array->init();
-				AssertThat(array->registeredAt(), IsNull());
-				AssertThat(array->valid(), IsFalse());
-			});
-
-			it("initializes w a registry", [&]() {
-				array->init(base);
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
-				AssertThat(array->valid(), IsTrue());
-			});
-
-			it("initializes w an empty registry", [&]() {
-				BaseType B;
-				array->init(B);
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
-				AssertThat(array->valid(), IsTrue());
-			});
-
-			it("is constructed w a registry", [&]() {
-				array.reset(new MyArrayType(base));
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)base)));
-				AssertThat(array->valid(), IsTrue());
-			});
-
-			it("is constructed w an empty registry", [&]() {
-				BaseType B;
-				array.reset(new MyArrayType(B));
-				AssertThat(array->registeredAt(), Equals(&((RegistryType&)B)));
-				AssertThat(array->valid(), IsTrue());
-			});
+			runInitTests<BaseType, MyArrayType, RegistryType>(base, array);
 
 			it("supports move-construction", [&]() {
 				array->init(base);
