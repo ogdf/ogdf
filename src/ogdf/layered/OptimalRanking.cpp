@@ -109,7 +109,7 @@ void OptimalRanking::doCall(const Graph& G, NodeArray<int>& rank, EdgeArray<bool
 
 	// construct min-cost flow problem
 	GraphCopy GC;
-	GC.createEmpty(G);
+	GC.setOriginalGraph(G);
 
 	// compute connected component of G
 	NodeArray<int> component(G);
@@ -122,11 +122,15 @@ void OptimalRanking::doCall(const Graph& G, NodeArray<int>& rank, EdgeArray<bool
 		nodesInCC[component[v]].pushBack(v);
 	}
 
-	EdgeArray<edge> auxCopy(G);
+	NodeArray<node> nodeCopy;
+	EdgeArray<edge> auxCopy;
 	rank.init(G);
 
 	for (int i = 0; i < numCC; ++i) {
-		GC.initByNodes(nodesInCC[i], auxCopy);
+		nodeCopy.init(G);
+		auxCopy.init(G);
+		GC.clear();
+		GC.insert(nodesInCC[i].begin(), nodesInCC[i].end(), filter_any_edge, nodeCopy, auxCopy);
 		makeLoopFree(GC);
 
 		for (edge e : GC.edges) {

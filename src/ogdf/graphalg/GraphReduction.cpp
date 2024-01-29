@@ -36,13 +36,13 @@ namespace ogdf {
 
 GraphReduction::GraphReduction(const Graph& G)
 	: m_pGraph(&G), m_vOrig(), m_eOrig(), m_vReduction(), m_eReduction() {
-	Graph::construct(*m_pGraph, m_vReduction, m_eReduction);
+	insert(*m_pGraph, m_vReduction, m_eReduction);
 
 	// remove selfloops
 	for (edge e1 : edges) {
 		if (e1->isSelfLoop()) {
 			m_eReduction[e1] = nullptr;
-			this->delEdge(e1);
+			delEdge(e1);
 		}
 	}
 
@@ -78,7 +78,7 @@ GraphReduction::GraphReduction(const Graph& G)
 					if (e2->source() == v) {
 						m_eOrig[e2].reverse();
 					}
-					this->moveSource(e1, e2->opposite(v));
+					moveSource(e1, e2->opposite(v));
 					for (edge origEdge : reverse(m_eOrig[e2])) {
 						m_eReduction[origEdge] = e1;
 						m_eOrig[e1].pushFront(origEdge);
@@ -87,14 +87,14 @@ GraphReduction::GraphReduction(const Graph& G)
 					if (e2->target() == v) {
 						m_eOrig[e2].reverse();
 					}
-					this->moveTarget(e1, e2->opposite(v));
+					moveTarget(e1, e2->opposite(v));
 					for (ListConstIterator<edge> it = m_eOrig[e2].begin(); it.valid(); ++it) {
 						m_eReduction[*it] = e1;
 						m_eOrig[e1].pushBack(*it);
 					}
 				}
 				m_eOrig[e2].clear();
-				this->delEdge(e2);
+				delEdge(e2);
 			} else if (d == 1) {
 				edge e1 = v->firstAdj()->theEdge();
 				const List<edge>& el = m_eOrig[e1];
@@ -120,10 +120,10 @@ GraphReduction::GraphReduction(const Graph& G)
 				for (ListIterator<edge> it = m_eOrig[e1].begin(); it.valid(); ++it) {
 					m_eReduction[*it] = nullptr;
 				}
-				this->delEdge(e1);
+				delEdge(e1);
 			}
 			m_vReduction[ov] = nullptr;
-			this->delNode(v);
+			delNode(v);
 		}
 	}
 }

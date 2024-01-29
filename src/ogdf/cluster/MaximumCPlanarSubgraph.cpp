@@ -159,17 +159,15 @@ void MaximumCPlanarSubgraph::writeFeasible(const char* filename, MaxCPlanarMaste
 	for (cluster c : clist) {
 		//we compute the subgraph induced by vertices in c
 		GraphCopy gcopy;
-		gcopy.createEmpty(G);
+		gcopy.setOriginalGraph(G);
 		List<node> clusterNodes;
 		//would be more efficient if we would just merge the childrens' vertices
 		//and add c's
 		c->getClusterNodes(clusterNodes);
-		NodeArray<bool> activeNodes(G, false); //true for all cluster nodes
 		EdgeArray<edge> copyEdge(G); //holds the edge copy
-		for (node v : clusterNodes) {
-			activeNodes[v] = true;
-		}
-		gcopy.initByActiveNodes(clusterNodes, activeNodes, copyEdge);
+		NodeArray<node> copyNode(G);
+		gcopy.clear();
+		gcopy.insert(clusterNodes.begin(), clusterNodes.end(), filter_any_edge, copyNode, copyEdge);
 		//gcopy now represents the cluster induced subgraph
 
 		//we compute the connected components and store all nodepairs

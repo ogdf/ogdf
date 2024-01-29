@@ -810,7 +810,7 @@ static void describeFullComponentStore(const std::string&& type) {
 			}
 
 			EdgeWeightedGraphCopy<T> path;
-			path.createEmpty(S.graph);
+			path.setOriginalGraph(S.graph);
 			path.newNode(S.v[0]);
 			path.newNode(S.v[1]);
 			path.newEdge(path.firstNode(), path.lastNode(), 4);

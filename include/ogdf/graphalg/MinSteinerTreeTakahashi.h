@@ -128,7 +128,7 @@ T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T>& G, const List<nod
 	OGDF_ASSERT(isConnected(G));
 
 	EdgeWeightedGraphCopy<T> terminalSpanningTree;
-	terminalSpanningTree.createEmpty(G);
+	terminalSpanningTree.setOriginalGraph(G);
 	terminalDijkstra(G, terminalSpanningTree, startNode, terminals.size(), isTerminal);
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>(G);

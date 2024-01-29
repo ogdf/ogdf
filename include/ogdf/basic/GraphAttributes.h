@@ -185,13 +185,7 @@ public:
 	 */
 	explicit GraphAttributes(const Graph& G, long attr = nodeGraphics | edgeGraphics);
 
-	//! Copy constructor.
-	GraphAttributes(const GraphAttributes&) = default;
-
-	//! Copy assignment operator.
-	GraphAttributes& operator=(const GraphAttributes&) = default;
-
-	virtual ~GraphAttributes() { }
+	virtual ~GraphAttributes() = default;
 
 	//! Returns currently accessible attributes.
 	long attributes() const { return m_attributes; }

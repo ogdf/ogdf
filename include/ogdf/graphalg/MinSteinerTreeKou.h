@@ -105,7 +105,7 @@ template<typename T>
 T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G, const List<node>& terminals,
 		const NodeArray<bool>& isTerminal, EdgeWeightedGraphCopy<T>*& finalSteinerTree) {
 	EdgeWeightedGraphCopy<T> completeTerminalGraph;
-	completeTerminalGraph.createEmpty(G);
+	completeTerminalGraph.setOriginalGraph(G);
 
 	for (node v : terminals) {
 		completeTerminalGraph.newNode(v);
@@ -120,7 +120,7 @@ T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G, const 
 	computeMinST(completeTerminalGraph, completeTerminalGraph.edgeWeights(), mstPred);
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
-	finalSteinerTree->createEmpty(G);
+	finalSteinerTree->setOriginalGraph(G);
 
 	reinsertShortestPaths(completeTerminalGraph, ssspPred, mstPred, *finalSteinerTree, G);
 

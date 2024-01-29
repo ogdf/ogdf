@@ -129,7 +129,7 @@ private:
 
 				// Copy solution to the members
 				m_spanner->clear();
-				m_spanner->createEmpty(G);
+				m_spanner->setOriginalGraph(G);
 				for (node n : G.nodes) {
 					m_spanner->newNode(n);
 				}

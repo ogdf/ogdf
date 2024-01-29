@@ -168,7 +168,7 @@ public:
 
 		// get reduced and original solution from compact copy solution
 		EdgeWeightedGraphCopy<T> reducedSolution;
-		reducedSolution.createEmpty(m_copyGraph);
+		reducedSolution.setOriginalGraph(m_copyGraph);
 		for (node v : m_copyGraph.nodes) {
 			if (ccSolution->copy(nCopy[v]) != nullptr) { // is in solution
 				reducedSolution.newNode(v);
@@ -692,7 +692,7 @@ template<typename T>
 void SteinerTreePreprocessing<T>::computeOriginalSolution(
 		const EdgeWeightedGraphCopy<T>& reducedGraphSolution,
 		EdgeWeightedGraphCopy<T>& correspondingOriginalSolution) {
-	correspondingOriginalSolution.createEmpty(m_origGraph); // note that it is not cleared!
+	correspondingOriginalSolution.setOriginalGraph(m_origGraph); // note that it is not cleared!
 
 	Array<bool, int> isInSolution(-(m_origGraph.numberOfNodes() + m_origGraph.numberOfEdges()), -1,
 			false);

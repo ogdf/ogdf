@@ -47,7 +47,9 @@ public:
 
 	virtual ~EdgeWeightedGraphCopy() { }
 
-	void createEmpty(const Graph& wG);
+	void setOriginalGraph(const Graph* wG) override;
+	using GraphCopy::setOriginalGraph;
+
 	void init(const EdgeWeightedGraph<T>& wG);
 	edge newEdge(node u, node v, T weight);
 	edge newEdge(edge eOrig, T weight);
@@ -153,9 +155,9 @@ void EdgeWeightedGraphCopy<T>::init(const EdgeWeightedGraph<T>& wG) {
 }
 
 template<typename T>
-void EdgeWeightedGraphCopy<T>::createEmpty(const Graph& G) {
-	GraphCopy::createEmpty(G);
-	m_pGraph = &G;
+void EdgeWeightedGraphCopy<T>::setOriginalGraph(const Graph* G) {
+	GraphCopy::setOriginalGraph(G);
+	m_pGraph = G;
 	m_edgeWeight.init(*this);
 }
 

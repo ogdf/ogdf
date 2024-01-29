@@ -310,7 +310,7 @@ void MinSteinerTreeGoemans139<T>::Main::findFull2Components(const NodeArray<Node
 	steiner_tree::Full2ComponentGenerator<T> fcg;
 	fcg.call(m_G, m_terminals, distance, pred, [&](node s, node t, T cost) {
 		EdgeWeightedGraphCopy<T> minComp;
-		minComp.createEmpty(m_G);
+		minComp.setOriginalGraph(m_G);
 		minComp.newEdge(minComp.newNode(s), minComp.newNode(t), distance[s][t]);
 		m_fullCompStore.insert(minComp);
 	});
@@ -324,7 +324,7 @@ void MinSteinerTreeGoemans139<T>::Main::findFull3Components(const NodeArray<Node
 			[&](node t0, node t1, node t2, node minCenter, T minCost) {
 				// create a full 3-component
 				EdgeWeightedGraphCopy<T> minComp;
-				minComp.createEmpty(m_G);
+				minComp.setOriginalGraph(m_G);
 				node minCenterC = minComp.newNode(minCenter);
 				minComp.newEdge(minComp.newNode(t0), minCenterC, distance[t0][minCenter]);
 				minComp.newEdge(minComp.newNode(t1), minCenterC, distance[t1][minCenter]);

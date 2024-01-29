@@ -65,10 +65,14 @@ public:
 			num_s_edges[i] = 0;
 			m_gen_pos[i] = -1;
 			m_nbf[i] = 0;
+			m_rc[i] = 0;
 			m_coord[i] = 0;
 			m_ccoord[i] = 0;
 		}
 		lu = ll = ru = rl = tl = tr = bl = br = 0;
+		cage_x_size = cage_y_size = box_x_size = box_y_size = 0;
+		m_vdegree = 0;
+		m_firstAdj = m_adj = nullptr;
 	}
 
 	//Constructor, adj holds entry for inner face edge
@@ -78,53 +82,6 @@ public:
 		init();
 		get_data(H, L, v, rc, nw, nh);
 	}
-
-	// The following two definitions are necessary because the existence
-	// of the move constructor deletes the implicitly defined copy constructor.
-	NodeInfo(const NodeInfo&) = default;
-	NodeInfo& operator=(const NodeInfo&) = default;
-
-	NodeInfo(NodeInfo&& other)
-		: m_rc(other.m_rc)
-		, m_coord(other.m_coord)
-		, m_ccoord(other.m_ccoord)
-		, m_gen_pos(other.m_gen_pos)
-		, num_s_edges(other.num_s_edges)
-		, m_nbf(other.m_nbf) {
-		cage_x_size = other.cage_x_size;
-		cage_y_size = other.cage_y_size;
-		box_x_size = other.box_x_size;
-		box_y_size = other.box_y_size;
-
-		lu = other.lu;
-		ll = other.ll;
-		ru = other.ru;
-		rl = other.rl;
-		tl = other.tl;
-		tr = other.tr;
-		bl = other.bl;
-		br = other.br;
-
-		m_firstAdj = other.m_firstAdj;
-		m_adj = other.m_adj;
-		m_vdegree = other.m_vdegree;
-
-		for (int i = 0; i < 4; ++i) {
-			// these should work with move cstrs once VC++ implements rvalue references v3
-			in_edges[i] = std::move(other.in_edges[i]);
-			point_in[i] = std::move(other.point_in[i]);
-
-			for (int j = 0; j < 4; ++j) {
-				m_delta[i][j] = other.m_delta[i][j];
-				m_eps[i][j] = other.m_eps[i][j];
-				m_routable[i][j] = other.m_routable[i][j];
-				m_flips[i][j] = other.m_flips[i][j];
-				m_nbe[i][j] = other.m_nbe[i][j];
-			}
-		}
-	}
-
-	virtual ~NodeInfo() { }
 
 	//! Returns nodeboxside coordinates (real size)
 	int coord(OrthoDir bs) const { return m_coord[static_cast<int>(bs)]; }
@@ -229,6 +186,7 @@ public:
 
 	bool is_in_edge(OrthoDir od, int pos) {
 		ListConstIterator<bool> b_it = point_in[static_cast<int>(od)].get(pos);
+		OGDF_ASSERT(b_it.valid());
 		return *b_it;
 	}
 

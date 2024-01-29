@@ -212,7 +212,7 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(PlanRep& pr, int cc,
 	// G -copy-> pr (final planarization, assigned at the end)
 	const Graph& G {pr.original()};
 	GraphCopy graphCopy;
-	graphCopy.createEmpty(G);
+	graphCopy.setOriginalGraph(G);
 
 	// Find a chordless cycle in G. If none could be found, G is planar.
 	List<node> cycle;
@@ -232,8 +232,10 @@ Module::ReturnType PlanarizerChordlessCycle::doCall(PlanRep& pr, int cc,
 	for (node cycleNodeOrig : cycle) {
 		activeNodes[cycleNodeOrig] = true;
 	}
-	EdgeArray<edge> edgeCopies {G, nullptr};
-	graphCopy.initByActiveNodes(cycle, activeNodes, edgeCopies);
+	EdgeArray<edge> edgeCopies {G};
+	NodeArray<node> nodeCopies {G};
+	graphCopy.clear();
+	graphCopy.insert(cycle.begin(), cycle.end(), filter_any_edge, nodeCopies, edgeCopies);
 
 	// Must hold for a chordless cycle:
 	OGDF_ASSERT(graphCopy.numberOfNodes() == cycle.size());

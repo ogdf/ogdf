@@ -92,7 +92,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 
 		for (int i = 0; i < numIndyBags && m_optStatus == Master::Optimal; i++) {
 			// Create underlying graph
-			theGraphs[i].createEmpty(G);
+			theGraphs[i].setOriginalGraph(G);
 			// Judging from the interface and the description, there are two
 			// methods in GraphCopy that allow to construct parts based on a
 			// set of vertices, initByNodes and initByActiveNodes, where the
@@ -102,7 +102,10 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 			// components, it also works for set of connected components, and
 			// an independent bag is such a creature.
 			EdgeArray<edge> eCopy(G);
-			theGraphs[i].initByNodes(nodesInBag[i], eCopy);
+			NodeArray<node> nCopy(G);
+			theGraphs[i].clear();
+			theGraphs[i].insert(nodesInBag[i].begin(), nodesInBag[i].end(), filter_any_edge, nCopy,
+					eCopy);
 			ClusterGraph bagCG(theGraphs[i]);
 			ClusterArray<List<node>> cNodes(CG);
 			ClusterArray<List<cluster>> cChildren(CG);
@@ -370,19 +373,15 @@ void ClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& master
 	for (cluster c : clist) {
 		//we compute the subgraph induced by vertices in c
 		GraphCopy gcopy;
-		gcopy.createEmpty(G);
+		gcopy.setOriginalGraph(G);
 		List<node> clusterNodes;
 		//would be more efficient if we would just merge the childrens' vertices
 		//and add c's
 		c->getClusterNodes(clusterNodes);
-		NodeArray<bool> activeNodes(G, false); //true for all cluster nodes
 		EdgeArray<edge> copyEdge(G); //holds the edge copy
-
-		for (node v : clusterNodes) {
-			activeNodes[v] = true;
-		}
-
-		gcopy.initByActiveNodes(clusterNodes, activeNodes, copyEdge);
+		NodeArray<node> copyNode(G);
+		gcopy.clear();
+		gcopy.insert(clusterNodes.begin(), clusterNodes.end(), filter_any_edge, copyNode, copyEdge);
 		//gcopy now represents the cluster induced subgraph
 
 		//we compute the connected components and store all nodepairs

@@ -511,7 +511,7 @@ private:
 		randomizedSelection(solution, out);
 
 		GraphCopySimple copy;
-		copy.createEmpty(*m_G);
+		copy.setOriginalGraph(*m_G);
 		for (node n : m_G->nodes) {
 			copy.newNode(n);
 		}
@@ -583,7 +583,7 @@ private:
 	void createAntispanner(const edge unsettledThinEdge, const EdgeArray<bool>& out,
 			EdgeArray<bool>& antispanner) {
 		GraphCopySimple copy;
-		copy.createEmpty(*m_G);
+		copy.setOriginalGraph(*m_G);
 		for (node n : m_G->nodes) {
 			copy.newNode(n);
 		}

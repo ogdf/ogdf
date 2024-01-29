@@ -29,8 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/cluster/ClusterSet.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>
 
 #include <resources.h>
@@ -120,6 +123,45 @@ void testClusterAttribute(Args... args) {
 }
 
 go_bandit([] {
+	describe("GraphObservers handle deconstruction after their parent", [] {
+		std::unique_ptr<Graph> G(new Graph());
+		std::unique_ptr<GraphAttributes> GAt(new GraphAttributes(*G, GraphAttributes::all));
+		randomPlanarBiconnectedGraph(*G, 100, 200);
+
+		std::unique_ptr<GraphCopy> graphCopy(new GraphCopy(*G));
+		std::unique_ptr<GraphCopySimple> graphCopySimple(new GraphCopySimple(*G));
+		std::unique_ptr<Graph::HiddenEdgeSet> hiddenEdgeSet(new Graph::HiddenEdgeSet(*G));
+		hiddenEdgeSet->hide(G->edges.head());
+		std::unique_ptr<NodeArray<int>> nodeArray(new NodeArray<int>(*G, 42));
+		std::unique_ptr<EdgeArray<int>> edgeArray(new EdgeArray<int>(*G, 42));
+		std::unique_ptr<AdjEntryArray<int>> adjEntryArray(new AdjEntryArray<int>(*G, 42));
+		std::unique_ptr<NodeSet<>> nodeSet(new NodeSet<>(*G));
+		nodeSet->insert(G->nodes.head());
+		std::unique_ptr<EdgeSet<>> edgeSet(new EdgeSet<>(*G));
+		edgeSet->insert(G->edges.head());
+		std::unique_ptr<AdjEntrySet<>> adjEntrySet(new AdjEntrySet<>(*G));
+		adjEntrySet->insert(G->edges.head()->adjSource());
+
+		std::unique_ptr<CombinatorialEmbedding> CE(new CombinatorialEmbedding(*G));
+		std::unique_ptr<ConstCombinatorialEmbedding> CCE(new ConstCombinatorialEmbedding(*G));
+		std::unique_ptr<FaceArray<int>> faceArray(new FaceArray<int>(*CCE, 42));
+		std::unique_ptr<FaceSet<>> faceSet(new FaceSet<>(*CE));
+		faceSet->insert(CE->faces.head());
+
+		std::unique_ptr<ClusterGraph> CG(new ClusterGraph(*G));
+		std::unique_ptr<ClusterGraphAttributes> CGAt(
+				new ClusterGraphAttributes(*CG, ClusterGraphAttributes::all));
+		randomClusterGraph(*CG, *G, 10);
+
+		std::unique_ptr<ClusterArray<int>> clusterArray(new ClusterArray<int>(*CG, 42));
+		std::unique_ptr<ClusterSet<>> clusterSet(new ClusterSet<>(*CG));
+		clusterSet->insert(CG->clusters.head());
+
+		G.reset(nullptr);
+		CG.reset(nullptr);
+		CE.reset(nullptr);
+		CCE.reset(nullptr);
+	});
 	describe("ClusterGraphAttributes", [] {
 		const long defaultAttrs = GA::edgeType | GA::nodeType | GA::nodeGraphics | GA::edgeGraphics;
 

@@ -157,13 +157,13 @@ void MinSteinerTreeDualAscent<T>::init() {
 
 	// create directed graph
 	// and initialize slack variables
-	m_diGraph.createEmpty(*m_pOrigGraph);
+	m_diGraph.setOriginalGraph(*m_pOrigGraph);
 	m_diGraph.clear();
 	m_edgeSlacks.init(m_diGraph);
 	m_origMapping.init(m_diGraph);
 
 	// create resulting Steiner tree
-	m_steinerGraph.createEmpty(m_diGraph);
+	m_steinerGraph.setOriginalGraph(m_diGraph);
 	m_steinerGraph.clear();
 	m_componentMapping.init(m_steinerGraph);
 
@@ -363,7 +363,7 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 
 	// create resulting Steiner tree
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
-	finalSteinerTree->createEmpty(*m_pOrigGraph);
+	finalSteinerTree->setOriginalGraph(*m_pOrigGraph);
 	T result = 0;
 
 	int comp = -1;

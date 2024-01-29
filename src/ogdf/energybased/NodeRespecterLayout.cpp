@@ -279,7 +279,7 @@ void NodeRespecterLayout::call(GraphAttributes& attr) {
 	}
 
 	// Create empty graph copy associated with G.
-	m_copy.createEmpty(G);
+	m_copy.setOriginalGraph(G);
 
 	// Intialize arrays with a list of nodes/edges for each connected component.
 	NodeArray<int> component(G);
@@ -300,8 +300,11 @@ void NodeRespecterLayout::call(GraphAttributes& attr) {
 	// For every connected component:
 	for (int i = 0; i < numCC; ++i) {
 		// Initialize graph copy and its data.
+		NodeArray<node> copyNodes(G);
 		EdgeArray<edge> copyEdges(G);
-		m_copy.initByNodes(nodesInCC[i], copyEdges);
+		m_copy.clear();
+		m_copy.insert(nodesInCC[i].begin(), nodesInCC[i].end(), filter_any_edge, copyNodes,
+				copyEdges);
 		initData();
 
 		// Initially place nodes randomly.

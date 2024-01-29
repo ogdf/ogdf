@@ -618,8 +618,9 @@ void MaxCPlanarMaster::initializeOptimization() {
 		c->getClusterNodes(clusterNodes);
 
 		// Compute the cluster-induced Subgraph
-		ListConstIterator<node> it = clusterNodes.begin();
-		inducedSubGraph(*m_G, it, subGraph, orig2new);
+		orig2new.init(*m_G);
+		EdgeArray<edge> edgeMap(*m_G, nullptr);
+		subGraph.insert(clusterNodes, (*m_G).edges, orig2new, edgeMap);
 
 		// Compute the number of connected components
 		NodeArray<int> components(subGraph);

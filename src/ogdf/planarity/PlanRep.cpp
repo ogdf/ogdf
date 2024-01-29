@@ -55,7 +55,7 @@ PlanRep::PlanRep(const Graph& G)
 
 	// special way of initializing GraphCopy; we start with an empty copy
 	// and add components by need
-	GraphCopy::createEmpty(G);
+	GraphCopy::setOriginalGraph(G);
 
 	m_currentCC = -1; // not yet initialized
 }
@@ -83,7 +83,7 @@ PlanRep::PlanRep(const GraphAttributes& AG)
 
 	// special way of initializing GraphCopy; we start with an empty copy
 	// and add components by need
-	GraphCopy::createEmpty(G);
+	GraphCopy::setOriginalGraph(G);
 
 	m_currentCC = -1; // not yet initialized
 }
@@ -102,7 +102,15 @@ void PlanRep::initCC(int cc) {
 	}
 
 	m_currentCC = cc;
-	GraphCopy::initByCC(m_ccInfo, cc, m_eAuxCopy);
+	// inlined GraphCopy::initByCC(m_ccInfo, cc, m_eAuxCopy):
+	m_eAuxCopy.init(*m_pGraph);
+	clear();
+#ifdef OGDF_DEBUG
+	auto count =
+#endif
+			insert(m_ccInfo, cc, m_vCopy, m_eAuxCopy);
+	OGDF_ASSERT(count.first == m_ccInfo.numberOfNodes(cc));
+	OGDF_ASSERT(count.second == m_ccInfo.numberOfEdges(cc));
 
 	// set type of edges (gen. or assoc.) in the current CC
 	for (edge e : edges) {

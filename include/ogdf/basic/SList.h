@@ -209,7 +209,7 @@ public:
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	SListPure(SListPure<E>&& L) : m_head(L.m_head), m_tail(L.m_tail) {
+	SListPure(SListPure<E>&& L) noexcept : m_head(L.m_head), m_tail(L.m_tail) {
 		L.m_head = L.m_tail = nullptr;
 	}
 
@@ -853,7 +853,7 @@ public:
 	/**
 	 * The list \p L is empty afterwards.
 	 */
-	SList(SList<E>&& L) : SListPure<E>(std::move(L)), m_count(L.m_count) { L.m_count = 0; }
+	SList(SList<E>&& L) noexcept : SListPure<E>(std::move(L)), m_count(L.m_count) { L.m_count = 0; }
 
 	/**
 	 * @name Access methods

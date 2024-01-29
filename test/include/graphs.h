@@ -666,3 +666,11 @@ inline void forEachGraphDescribe(std::set<GraphProperty> requirements,
 			[&](Graph& G, const std::string&, const std::set<GraphProperty>&) { doTest(G); },
 			sizes, minSize, maxSize);
 }
+
+inline void shuffleEmbedding(Graph& graph) {
+	for (node v : graph.nodes) {
+		for (adjEntry adj : v->adjEntries) {
+			graph.swapAdjEdges(adj, randomNumber(0, 1) ? v->firstAdj() : v->lastAdj());
+		}
+	}
+}

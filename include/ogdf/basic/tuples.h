@@ -49,13 +49,10 @@ public:
 	E2 m_x2; //!< The second element.
 
 	//! Constructs a 2-tuple using default constructors.
-	Tuple2() { }
+	Tuple2() = default;
 
 	//! Constructs a 2-tuple for given values.
 	Tuple2(const E1& y1, const E2& y2) : m_x1(y1), m_x2(y2) { }
-
-	//! Constructs a 2-tuple that is a copy of \p t2.
-	Tuple2(const Tuple2<E1, E2>& t2) : m_x1(t2.m_x1), m_x2(t2.m_x2) { }
 
 	//! Returns a reference the first element.
 	const E1& x1() const { return m_x1; }
@@ -68,9 +65,6 @@ public:
 
 	//! Returns a reference the second element.
 	E2& x2() { return m_x2; }
-
-	// default assignment operator
-	Tuple2& operator=(const Tuple2<E1, E2>&) = default;
 
 	OGDF_NEW_DELETE
 };

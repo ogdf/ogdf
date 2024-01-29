@@ -4,7 +4,7 @@
  *
  * Declaration of NodeElement, EdgeElement, and Graph classes.
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Simon D. Fink
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -35,9 +35,12 @@
 #pragma once
 
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Observer.h>
+#include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/internal/graph_iterators.h>
 
 #include <array>
+#include <memory>
 #include <mutex>
 
 #ifdef OGDF_DEBUG
@@ -45,10 +48,6 @@
 #endif
 
 namespace ogdf {
-
-//
-// in embedded graphs, adjacency lists are given in clockwise order.
-//
 
 
 class OGDF_EXPORT Graph;
@@ -70,6 +69,65 @@ using edge = EdgeElement*;
 //! The type of adjacency entries.
 //! @ingroup graphs
 using adjEntry = AdjElement*;
+
+
+#if __cpp_concepts >= 201907
+// clang-format off
+template<typename T>
+concept OGDF_NODE_FILTER = requires(T f) {
+	{ f(node()) } -> std::convertible_to<bool>;
+};
+template<typename T>
+concept OGDF_EDGE_FILTER = requires(T f) {
+	{ f(edge()) } -> std::convertible_to<bool>;
+};
+template<typename T>
+concept OGDF_NODE_ITER = std::forward_iterator<T> && requires(T i) {
+	{ *i } -> std::convertible_to<node>;
+};
+template<typename T>
+concept OGDF_EDGE_ITER = std::forward_iterator<T> && requires(T i) {
+	{ *i } -> std::convertible_to<edge>;
+};
+using std::begin;
+using std::end;
+template<typename T>
+concept OGDF_NODE_LIST = requires(T l) {
+	OGDF_NODE_ITER<decltype(begin(l))>;
+	OGDF_NODE_ITER<decltype(end(l))>;
+};
+template<typename T>
+concept OGDF_EDGE_LIST = requires(T l) {
+	OGDF_EDGE_ITER<decltype(begin(l))>;
+	OGDF_EDGE_ITER<decltype(end(l))>;
+};
+// clang-format on
+
+#	define OGDF_HAS_CONCEPTS
+#	define OGDF_CHECK_CONCEPT static_assert
+
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphConstIterator<node>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphConstIterator<edge>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphIterator<node>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphIterator<edge>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphReverseIterator<node>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphReverseIterator<edge>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_LIST<internal::GraphObjectContainer<NodeElement>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_LIST<internal::GraphObjectContainer<EdgeElement>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<ListIteratorBase<node, false, false>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, false, true>>);
+OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<ListIteratorBase<node, true, false>>);
+OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<ListIteratorBase<edge, true, false>>);
+#else
+#	define OGDF_NODE_FILTER typename
+#	define OGDF_EDGE_FILTER typename
+#	define OGDF_NODE_ITER typename
+#	define OGDF_EDGE_ITER typename
+#	define OGDF_NODE_LIST typename
+#	define OGDF_EDGE_LIST typename
+
+#	define OGDF_CHECK_CONCEPT(...)
+#endif
 
 //! Class for adjacency list elements.
 /**
@@ -303,9 +361,9 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 
 	node m_src; //!< The source node of the edge.
 	node m_tgt; //!< The target node of the edge.
-	AdjElement* m_adjSrc; //!< Corresponding adjacancy entry at source node.
-	AdjElement* m_adjTgt; //!< Corresponding adjacancy entry at target node.
-	int m_id; // The (unique) index of the node.
+	AdjElement* m_adjSrc; //!< Corresponding adjacency entry at source node.
+	AdjElement* m_adjTgt; //!< Corresponding adjacency entry at target node.
+	int m_id; // The (unique) index of the edge.
 
 	//! Constructs an edge element (\p src,\p tgt).
 	/**
@@ -456,26 +514,278 @@ void NodeElement::outEdges(EDGELIST& edgeList) const {
 	}
 }
 
-class NodeArrayBase;
-class EdgeArrayBase;
-class AdjEntryArrayBase;
-template<class T>
-class NodeArray;
-template<class T>
-class EdgeArray;
-template<class T>
-class AdjEntryArray;
-class OGDF_EXPORT GraphObserver;
+//! Iterator for AdjEntries of a graph.
+class OGDF_EXPORT GraphAdjIterator {
+	Graph* m_pGraph;
+	adjEntry m_entry;
+
+public:
+	using iterator = GraphAdjIterator;
+	using value_type = adjEntry;
+
+	//! Constructor.
+	GraphAdjIterator(Graph* graph = nullptr, adjEntry entry = nullptr);
+
+	//! Returns an iterator to the first adjEntry in the associated graph.
+	GraphAdjIterator begin();
+
+	//! Returns an iterator to the one-past-last adjEntry in the associated graph.
+	GraphAdjIterator end() { return GraphAdjIterator(m_pGraph); }
+
+	//! Proceeds to the next adjEntry.
+	void next();
+
+	//! Returns to the previous adjEntry.
+	void prev();
+
+	//! Returns the associated adjEntry.
+	adjEntry operator*() const { return m_entry; }
+
+	//! Returns a reference to the associated adjElement.
+	AdjElement& operator->() const { return *m_entry; }
+
+	//! Equality operator.
+	bool operator==(const GraphAdjIterator& iter) const {
+		return m_pGraph == iter.m_pGraph && m_entry == iter.m_entry;
+	}
+
+	//! Inequality operator.
+	bool operator!=(const GraphAdjIterator& iter) const { return !operator==(iter); }
+
+	//! Increment operator (prefix).
+	GraphAdjIterator& operator++() {
+		next();
+		return *this;
+	}
+
+	//! Increment operator (postfix).
+	GraphAdjIterator operator++(int) {
+		GraphAdjIterator iter = *this;
+		next();
+		return iter;
+	}
+
+	//! Decrement operator (prefix).
+	GraphAdjIterator& operator--() {
+		prev();
+		return *this;
+	}
+
+	//! Decrement operator (postfix).
+	GraphAdjIterator operator--(int) {
+		GraphAdjIterator iter = *this;
+		prev();
+		return iter;
+	}
+};
+
+//! Registry for nodes, edges and adjEntries of a graph.
+/**
+ * @tparam Key the type of registered key
+ * @tparam Iterable the type of iterable container with registered keys
+ * @tparam Factor How many array entries are created for each inserted element.
+ * This is set to 2 for GraphAdjRegistry, such that only one adjEntry has to be
+ * added and the twin adjEntry is registered automatically.
+ */
+template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>, int Factor = 1>
+class GraphRegistry
+	: public RegistryBase<Key*, GraphRegistry<Key, Iterable, Factor>, typename Iterable::iterator> {
+	Graph* m_pGraph;
+	int* m_nextKeyIndex;
+
+public:
+	using iterator = typename Iterable::iterator;
+
+	//! Constructor.
+	GraphRegistry(Graph* graph, int* nextKeyIndex)
+		: m_pGraph(graph), m_nextKeyIndex(nextKeyIndex) { }
+
+	static inline int keyToIndex(Key* key) { return key->index(); }
+
+	bool isKeyAssociated(Key* key) const {
+		if (key == nullptr) {
+			return false;
+		}
+#ifdef OGDF_DEBUG
+		if (key->graphOf() == m_pGraph) {
+			OGDF_ASSERT(keyToIndex(key) < this->getArraySize());
+			return true;
+		} else {
+			return false;
+		}
+#else
+		return true;
+#endif
+	}
+
+	int calculateArraySize(int add) const {
+		return calculateTableSize((*m_nextKeyIndex + add) * Factor);
+	}
+
+	int maxKeyIndex() const { return ((*m_nextKeyIndex) * Factor) - 1; }
+
+	//! Returns a pointer to the associated graph.
+	Graph* graphOf() const { return m_pGraph; }
+};
+
+using GraphNodeRegistry = GraphRegistry<NodeElement>;
+using GraphEdgeRegistry = GraphRegistry<EdgeElement>;
+using GraphAdjRegistry = GraphRegistry<AdjElement, GraphAdjIterator, 2>;
+
+#ifndef DOXYGEN_IGNORE
+// doxygen has problems keeping these methods apart
+OGDF_EXPORT GraphNodeRegistry::iterator begin(const GraphNodeRegistry&);
+
+OGDF_EXPORT GraphNodeRegistry::iterator end(const GraphNodeRegistry&);
+
+OGDF_EXPORT GraphEdgeRegistry::iterator begin(const GraphEdgeRegistry&);
+
+OGDF_EXPORT GraphEdgeRegistry::iterator end(const GraphEdgeRegistry&);
+
+OGDF_EXPORT GraphAdjRegistry::iterator begin(const GraphAdjRegistry&);
+
+OGDF_EXPORT GraphAdjRegistry::iterator end(const GraphAdjRegistry&);
+#endif
+
+//! RegisteredArray for nodes, edges and adjEntries of a graph.
+template<typename Key, typename Value, bool WithDefault, typename Registry = GraphRegistry<Key>>
+class GraphRegisteredArray : public RegisteredArray<Registry, Value, WithDefault, Graph> {
+	using RA = RegisteredArray<Registry, Value, WithDefault, Graph>;
+
+public:
+	using RA::RA;
+
+	//! Returns a pointer to the associated graph.
+	Graph* graphOf() const {
+		if (RA::registeredAt() == nullptr) {
+			return nullptr;
+		} else {
+			return RA::registeredAt()->graphOf();
+		}
+	}
+};
+
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<NodeElement, v, c>
+OGDF_DECL_REG_ARRAY(NodeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
+
+//! RegisteredArray for edges of a graph.
+template<typename Value, bool WithDefault>
+class EdgeArrayBase : public GraphRegisteredArray<EdgeElement, Value, WithDefault> {
+	using GRA = GraphRegisteredArray<EdgeElement, Value, WithDefault>;
+
+public:
+	using GRA::GRA;
+
+	using GRA::operator[];
+	using GRA::operator();
+
+	//! Returns a const reference to the element associated with the edge corresponding to \p adj.
+	const Value& operator[](adjEntry adj) const {
+		OGDF_ASSERT(adj != nullptr);
+		return GRA::operator[](adj->index() >> 1);
+	}
+
+	//! Returns a reference to the element associated with the edge corresponding to \p adj.
+	Value& operator[](adjEntry adj) {
+		OGDF_ASSERT(adj != nullptr);
+		return GRA::operator[](adj->index() >> 1);
+	}
+
+	//! Returns a const reference to the element associated with the edge corresponding to \p adj.
+	const Value& operator()(adjEntry adj) const {
+		OGDF_ASSERT(adj != nullptr);
+		return GRA::operator[](adj->index() >> 1);
+	}
+
+	//! Returns a reference to the element associated with the edge corresponding to \p adj.
+	Value& operator()(adjEntry adj) {
+		OGDF_ASSERT(adj != nullptr);
+		return GRA::operator[](adj->index() >> 1);
+	}
+};
+
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) EdgeArrayBase<v, c>
+OGDF_DECL_REG_ARRAY(EdgeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
+
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<AdjElement, v, c, GraphAdjRegistry>
+OGDF_DECL_REG_ARRAY(AdjEntryArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
+
+template<bool>
+class EdgeSet;
+
+//! Abstract Base class for graph observers.
+/**
+ * @ingroup graphs
+ *
+ * If a class needs to keep track of changes in a graph like addition or deletion
+ * of nodes or edges, you can derive it from GraphObserver and override the
+ * notification methods nodeDeleted, nodeAdded, edgeDeleted, edgeAdded and cleared.
+ *
+ * It is guaranteed that the Graph is in a valid state (in terms of \c Graph::consistencyCheck(),
+ * that means there are no-half added edges or the like) whenever the notification methods are called.
+ * Furthermore, on addition all registered Arrays have already been resized to accommodate the new object.
+ * On compound operations like Graph::split() or Graph::insert(), the notifications may be batched
+ * and thus delayed, that is, when the callback is made the Graph may already contain some further
+ * (fully initialized) nodes or edges for which the respective callbacks have not been called
+ * (but will be called right after).
+ *
+ * Note that there are no callbacks for the reassignment of edge endpoints. Thus, \c Graph::split
+ * will be seen by a GraphObserver as the creation of an isolated node plus addition of a new edge to this node.
+ * Rerouting the split edge to the new node between those two callbacks will not be reported.
+ */
+class OGDF_EXPORT GraphObserver : public Observer<Graph, GraphObserver> {
+public:
+	//! Constructs instance of GraphObserver class
+	GraphObserver() = default;
+
+	/**
+	 *\brief Constructs instance of GraphObserver class
+	 * \param G is the graph to be watched
+	 */
+	explicit GraphObserver(const Graph* G) { reregister(G); }
+
+	//! Called by watched graph just before a node is deleted.
+	virtual void nodeDeleted(node v) = 0;
+
+	//! Called by watched graph after a node has been added.
+	virtual void nodeAdded(node v) = 0;
+
+	//! Called by watched graph just before an edge is deleted.
+	virtual void edgeDeleted(edge e) = 0;
+
+	//! Called by watched graph after an edge has been added.
+	virtual void edgeAdded(edge e) = 0;
+
+	//! Called by watched graph when its clear function is called, just before things are removed.
+	virtual void cleared() = 0;
+
+	const Graph* getGraph() const { return getObserved(); }
+};
 
 namespace internal {
 template<typename CONTAINER>
 inline void getAllNodes(const Graph& G, CONTAINER& nodes);
 template<typename CONTAINER>
 inline void getAllEdges(const Graph& G, CONTAINER& edges);
+
+inline node adjToNode(adjEntry adj) { return adj->theNode(); }
+
+inline node adjToNode(node n) { return n; }
 }
+
+//! std::function<bool(edge)> that returns true for any edge \p e
+OGDF_EXPORT bool filter_any_edge(edge e); // { return true; }
+
+//! std::function<bool(node)> that returns true for any node \p n
+OGDF_EXPORT bool filter_any_node(node n); // { return true; }
 
 //! Data type for general directed graphs (adjacency list representation).
 /**
+ * In embedded graphs, adjacency lists are given in clockwise order.
+ *
  * @ingroup graphs
  *
  * <H3>Thread Safety</H3>
@@ -518,25 +828,19 @@ inline void getAllEdges(const Graph& G, CONTAINER& edges);
  * </ul>
  */
 
-class OGDF_EXPORT Graph {
+class OGDF_EXPORT Graph : public Observable<GraphObserver, Graph> {
 public:
 	class HiddenEdgeSet;
+	class CCsInfo;
+	friend class GraphObserver;
 
 private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
 	int m_edgeIdCount; //!< The Index that will be assigned to the next created edge.
 
-	int m_nodeArrayTableSize; //!< The current table size of node arrays associated with this graph.
-	int m_edgeArrayTableSize; //!< The current table size of edge arrays associated with this graph.
-
-	mutable ListPure<NodeArrayBase*> m_regNodeArrays; //!< The registered node arrays.
-	mutable ListPure<EdgeArrayBase*> m_regEdgeArrays; //!< The registered edge arrays.
-	mutable ListPure<AdjEntryArrayBase*> m_regAdjArrays; //!< The registered adjEntry arrays.
-	mutable ListPure<GraphObserver*> m_regStructures; //!< The registered graph structures.
-
-#ifndef OGDF_MEMORY_POOL_NTS
-	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
-#endif
+	GraphNodeRegistry m_regNodeArrays; //!< The registered node arrays.
+	GraphEdgeRegistry m_regEdgeArrays; //!< The registered edge arrays.
+	GraphAdjRegistry m_regAdjArrays; //!< The registered adjEntry arrays.
 
 	List<HiddenEdgeSet*> m_hiddenEdgeSets; //!< The list of hidden edges.
 
@@ -633,15 +937,6 @@ public:
 	//! Returns the largest used adjEntry index.
 	int maxAdjEntryIndex() const { return (m_edgeIdCount << 1) - 1; }
 
-	//! Returns the table size of node arrays associated with this graph.
-	int nodeArrayTableSize() const { return m_nodeArrayTableSize; }
-
-	//! Returns the table size of edge arrays associated with this graph.
-	int edgeArrayTableSize() const { return m_edgeArrayTableSize; }
-
-	//! Returns the table size of adjEntry arrays associated with this graph.
-	int adjEntryArrayTableSize() const { return m_edgeArrayTableSize << 1; }
-
 	//! Returns the first node in the list of all nodes.
 	node firstNode() const { return nodes.head(); }
 
@@ -703,57 +998,35 @@ public:
 	//! @{
 
 	//! Creates a new node and returns it.
-	node newNode();
-
-	//! Creates a new node with predefined index and returns it.
 	/**
-	 * \pre \p index is currently not the index of any other node in the graph.
-	 *
-	 * \attention Passing a node index that is already in use results in an inconsistent
-	 *            data structure. Only use this method if you know what you're doing!
-	 *
 	 * @param index is the index that will be assigned to the newly created node.
+	 *              If negative or not given will use the next free index \c maxNodeIndex().
+	 *              Passing a node index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created node.
 	 */
-	node newNode(int index);
+	node newNode(int index = -1) {
+		node v = pureNewNode(index);
+		m_regNodeArrays.keyAdded(v);
+		for (GraphObserver* obs : getObservers()) {
+			obs->nodeAdded(v);
+		}
+		return v;
+	}
 
 	//! Creates a new edge (\p v,\p w) and returns it.
 	/**
-	 * @param v is the source node of the newly created edge.
-	 * @param w is the target node of the newly created edge.
-	 * @return the newly created edge.
-	 */
-	edge newEdge(node v, node w);
-
-	//! Creates a new edge (\p v,\p w) with predefined index and returns it.
-	/**
-	 * \pre \p index is currently not the index of any other edge in the graph.
-	 *
-	 * \attention  Passing an edge index that is already in use results in an inconsistent
-	 *             data structure. Only use this method if you know what you're doing!
-	 *
 	 * @param v     is the source node of the newly created edge.
 	 * @param w     is the target node of the newly created edge.
 	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing an edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(node v, node w, int index);
-
-	//! Creates a new edge at predefined positions in the adjacency lists.
-	/**
-	 * Let \a v be the node whose adjacency list contains \p adjSrc,
-	 * and \a w the node whose adjacency list contains \p adjTgt. Then,
-	 * the created edge is (\a v,\a w).
-	 *
-	 * @param adjSrc is the adjacency entry after which the new edge is inserted
-	 *               in the adjacency list of \a v.
-	 * @param adjTgt is the adjacency entry after which the new edge is inserted
-	 *               in the adjacency list of \a w.
-	 * @param dir    specifies if the edge is inserted before or after the given
-	 *               adjacency entries.
-	 * @return the newly created edge.
-	 */
-	edge newEdge(adjEntry adjSrc, adjEntry adjTgt, Direction dir = Direction::after);
+	inline edge newEdge(node v, node w, int index = -1) {
+		return newEdge(v, Direction::after, w, Direction::after, index);
+	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
@@ -764,9 +1037,15 @@ public:
 	 *               of the adjacency list of \p v.
 	 * @param adjTgt is the adjacency entry after which the new edge is inserted
 	 *               in the adjacency list of \a w.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing an edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(node v, adjEntry adjTgt);
+	inline edge newEdge(node v, adjEntry adjTgt, int index = -1) {
+		return newEdge(v, Direction::after, adjTgt, Direction::after, index);
+	}
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
@@ -775,12 +1054,77 @@ public:
 	 *
 	 * @param adjSrc is the adjacency entry after which the new edge is inserted
 	 *               in the adjacency list of \a v.
-	 * @param w      is the source node of the new edge; the edge is added at the end
+	 * @param w      is the target node of the new edge; the edge is added at the end
 	 *               of the adjacency list of \p w.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing an edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
 	 * @return the newly created edge.
 	 */
-	edge newEdge(adjEntry adjSrc, node w);
+	inline edge newEdge(adjEntry adjSrc, node w, int index = -1) {
+		return newEdge(adjSrc, Direction::after, w, Direction::after, index);
+	}
 
+	//! Creates a new edge at predefined positions in the adjacency lists.
+	/**
+	 * Let \a v be the node whose adjacency list contains \p adjSrc,
+	 * and \a w the node whose adjacency list contains \p adjTgt.
+	 * Then, the created edge is (\a v,\a w).
+	 *
+	 * @param adjSrc is the adjacency entry before / after which the new edge is inserted
+	 *               in the adjacency list of \a v.
+	 * @param adjTgt is the adjacency entry before / after which the new edge is inserted
+	 *               in the adjacency list of \a w.
+	 * @param dir    specifies if the edge is inserted before or after the given
+	 *               adjacency entries.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing an edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
+	 * @return the newly created edge.
+	 */
+	inline edge newEdge(adjEntry adjSrc, adjEntry adjTgt, Direction dir = Direction::after,
+			int index = -1) {
+		return newEdge(adjSrc, dir, adjTgt, dir, index);
+	}
+
+	//! Creates a new edge at predefined positions in the adjacency lists.
+	/**
+	 * Let \a v either be the node \p src or the node whose adjacency list
+	 * contains the adjEntry \p src, and \a w either the node \p tgt or the node
+	 * whose adjacency list contains the adjEntry \p tgt.
+	 * Then, the created edge is (\a v,\a w).
+	 *
+	 * @param src is \a v or the adjacency entry before / after which the new
+	 *            edge is inserted in the adjacency list of \a v.
+	 * @param dirSrc specifies if the edge is inserted before or after \p adjSrc.
+	 * @param tgt is \a w or the adjacency entry before / after which the new
+	 *            edge is inserted in the adjacency list of \a w.
+	 * @param dirTgt specifies if the edge is inserted before or after \p adjTgt.
+	 * @param index is the index that will be assigned to the newly created edge.
+	 *              If negative or not given will use the next free index \c maxEdgeIndex().
+	 *              Passing an edge index that is already in use results in an inconsistent data structure.
+	 *              Only specify this parameter if you know what you're doing!
+	 * @return the newly created edge.
+	 */
+	template<typename S, typename T>
+	edge newEdge(S src, Direction dirSrc, T tgt, Direction dirTgt, int index) {
+		OGDF_ASSERT(src != nullptr);
+		OGDF_ASSERT(tgt != nullptr);
+		edge e = pureNewEdge(internal::adjToNode(src), internal::adjToNode(tgt), index);
+
+		insertAdjEntry(tgt, e->m_adjTgt, dirTgt);
+		insertAdjEntry(src, e->m_adjSrc, dirSrc);
+
+		m_regEdgeArrays.keyAdded(e);
+		m_regAdjArrays.keyAdded(e->adjSource());
+		for (GraphObserver* obs : getObservers()) {
+			obs->edgeAdded(e);
+		}
+
+		return e;
+	}
 
 	//! @}
 	/**
@@ -797,7 +1141,10 @@ public:
 	//! Removes all nodes and all edges from the graph.
 	virtual void clear();
 
-	//! @}
+	//! Restore all hidden edges and invalidate all HiddenEdgeSets.
+	void restoreAllEdges();
+
+	//@}
 
 	/**
 	 * @brief Functionality for temporarily hiding edges in constant time.
@@ -885,18 +1232,6 @@ public:
 	 * @name Advanced modification methods
 	 */
 	//! @{
-
-	/**
-	 * @copydoc ogdf::Graph::insert(const Graph&)
-	 * @param nodeMap is assigned a mapping from nodes in \p G to nodes in this Graph.
-	 */
-	void insert(const Graph& G, NodeArray<node>& nodeMap);
-
-	//! Inserts Graph \p G as a subgraph into this Graph.
-	/**
-	 * @param G is the Graph to be inserted into this Graph.
-	 */
-	void insert(const Graph& G);
 
 	//! Splits edge \p e into two edges introducing a new node.
 	/**
@@ -1225,82 +1560,29 @@ public:
 	 */
 	//! @{
 
-	//! Registers a node array.
-	/**
-	 * \remark This method is automatically called by node arrays; it should not be called manually.
-	 *
-	 * @param pNodeArray is a pointer to the node array's base; this node array must be associated with this graph.
-	 * @return an iterator pointing to the entry for the registered node array in the list of registered node arrays.
-	 *         This iterator is required for unregistering the node array again.
-	 */
-	ListIterator<NodeArrayBase*> registerArray(NodeArrayBase* pNodeArray) const;
+	//! Returns a reference to the registry of node arrays associated with this graph.
+	GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
 
-	//! Registers an edge array.
-	/**
-	 * \remark This method is automatically called by edge arrays; it should not be called manually.
-	 *
-	 * @param pEdgeArray is a pointer to the edge array's base; this edge array must be associated with this graph.
-	 * @return an iterator pointing to the entry for the registered edge array in the list of registered edge arrays.
-	 *         This iterator is required for unregistering the edge array again.
-	 */
-	ListIterator<EdgeArrayBase*> registerArray(EdgeArrayBase* pEdgeArray) const;
+	//! Returns a const reference to the registry of node arrays associated with this graph.
+	const GraphNodeRegistry& nodeRegistry() const { return m_regNodeArrays; }
 
-	//! Registers an adjEntry array.
-	/**
-	 * \remark This method is automatically called by adjacency entry arrays; it should not be called manually.
-	 *
-	 * @param pAdjArray is a pointer to the adjacency entry array's base; this adjacency entry array must be
-	 *                  associated with this graph.
-	 * @return an iterator pointing to the entry for the registered adjacency entry array in the list of registered
-	 *         adjacency entry arrays. This iterator is required for unregistering the adjacency entry array again.
-	 */
-	ListIterator<AdjEntryArrayBase*> registerArray(AdjEntryArrayBase* pAdjArray) const;
+	operator const GraphNodeRegistry&() const { return m_regNodeArrays; }
 
-	//! Registers a graph observer (e.g. a ClusterGraph).
-	/**
-	 * @param pStructure is a pointer to the graph observer that shall be registered; this graph observer must be
-	 *                   associated with this graph.
-	 * @return an iterator pointing to the entry for the registered graph observer in the list of registered
-	 *         graph observers. This iterator is required for unregistering the graph observer again.
-	 */
-	ListIterator<GraphObserver*> registerStructure(GraphObserver* pStructure) const;
+	//! Returns a reference to the registry of edge arrays associated with this graph.
+	GraphEdgeRegistry& edgeRegistry() { return m_regEdgeArrays; }
 
-	//! Unregisters a node array.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered node arrays for the node array to
-	 *        be unregistered.
-	 */
-	void unregisterArray(ListIterator<NodeArrayBase*> it) const;
+	//! Returns a const reference to the registry of edge arrays associated with this graph.
+	const GraphEdgeRegistry& edgeRegistry() const { return m_regEdgeArrays; }
 
-	//! Unregisters an edge array.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered edge arrays for the edge array to
-	 *        be unregistered.
-	 */
-	void unregisterArray(ListIterator<EdgeArrayBase*> it) const;
+	operator const GraphEdgeRegistry&() const { return m_regEdgeArrays; }
 
-	//! Unregisters an adjEntry array.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered adjacency entry arrays for the
-	 *           adjacency entry array to be unregistered.
-	 */
-	void unregisterArray(ListIterator<AdjEntryArrayBase*> it) const;
+	//! Returns a reference to the registry of adjEntry arrays associated with this graph.
+	GraphAdjRegistry& adjEntryRegistry() { return m_regAdjArrays; }
 
-	//! Unregisters a graph observer.
-	/**
-	 * @param it is an iterator pointing to the entry in the list of registered graph observers for the graph
-	 *           observer to be unregistered.
-	 */
-	void unregisterStructure(ListIterator<GraphObserver*> it) const;
+	//! Returns a const reference to the registry of adjEntry arrays associated with this graph.
+	const GraphAdjRegistry& adjEntryRegistry() const { return m_regAdjArrays; }
 
-	//! Move the registration \p it of an graph element array to \p pArray (used with move semantics for graph element arrays).
-	template<class ArrayBase>
-	void moveRegisterArray(ListIterator<ArrayBase*> it, ArrayBase* pArray) const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		std::lock_guard<std::mutex> guard(m_mutexRegArrays);
-#endif
-		*it = pArray;
-	}
+	operator const GraphAdjRegistry&() const { return m_regAdjArrays; }
 
 	//! Resets the edge id count to \p maxId.
 	/**
@@ -1340,7 +1622,7 @@ public:
 	//! @{
 	//! Assignment operator.
 	/**
-	 * The assignment operature assures that the adjacency lists of nodes in the
+	 * The assignment operator assures that the adjacency lists of nodes in the
 	 * constructed graph are in the same order as the adjacency lists in \p G.
 	 * This is in particular important when dealing with embedded graphs.
 	 *
@@ -1351,6 +1633,231 @@ public:
 
 	OGDF_MALLOC_NEW_DELETE
 
+	//! @}
+	/**
+	 * @name Subgraph insertion
+	 */
+	//! @{
+
+	/**
+	 * Inserts a copy of a given subgraph into this graph.
+	 *
+	 * Inserts copies of the nodes given by the iterator pair \p nodesBegin ... \p nodesEnd into this
+	 * Graph and, for each of these nodes, sets the corresponding value in \p nodeMap to the newly created node.
+	 * The same happens with the edges in \p edgesBegin ... \p edgesEnd and new edges in \p edgeMap,
+	 * although an edge is only inserted if both its endpoints were also inserted (i.e., the corresponding
+	 * values in \p nodeMap are non-null).
+	 *
+	 * @tparam NI The iterator type used for \p nodesBegin ... \p nodesEnd.
+	 * @tparam EI The iterator type used for \p edgesBegin ... \p edgesEnd.
+	 * @tparam copyEmbedding if explicitly set to false, the inserted subgraph will have an arbitrary embedding.
+	 * 	Otherwise, the embedding of the inserted subgraph will be copied from the original.
+	 * @tparam copyIDs if explicitly set to true, the newly inserted nodes and edges will have the same IDs
+	 * 	as their originals. The Graph datastructure will become corrupt if one of the IDs is already present in the graph.
+	 * 	By default, new IDs are generated as by newNode() and newEdge().
+	 * @tparam notifyObservers if explicitly set to false, no GraphObservers will be notified and (Node-,Edge-,AdjEntry-)Arrays won't grow.
+	 * 	Only use if you know what you are doing!
+	 * @param nodesBegin Iterator to the first node to insert.
+	 * @param nodesEnd Iterator one past the last node to insert.
+	 * @param edgesBegin Iterator to the first edge to insert (if its endpoints are also inserted).
+	 * @param edgesEnd Iterator one past the last edge to insert (if its endpoints are also inserted).
+	 * @param nodeMap A NodeArray registered with the Graph of the nodes in \p nodesBegin ... \p nodesEnd.
+	 * 	After this call returns, for each of these original nodes, this map will point to the newly-created copy.
+	 * 	Note that all (and only) edges in \p edgesBegin ... \p edgesEnd will be created if they have non-null endpoints after the call,
+	 * 	which includes user-supplied non-null values present when the function is called.
+	 * 	It is thus recommended to pass a map with only nullptrs.
+	 * 	However, it is possible to use the same nodeMap for multiple calls of insert using edge iterators
+	 * 	(which then of course will contain non-null values for the second call onwards).
+	 * @param edgeMap An EdgeArray registered with the Graph of the edges in \p edgesBegin ... \p edgesEnd.
+	 * 	For each of these original edges, this map will point to the newly-created copy after this call returns.
+	 * @return a pair (n, m) where n is the number of created nodes and m is the number of created edges.
+	 */
+	template<OGDF_NODE_ITER NI, OGDF_EDGE_ITER EI, bool copyEmbedding = true, bool copyIDs = false,
+			bool notifyObservers = true>
+	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EI& edgesBegin,
+			const EI& edgesEnd, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	/**
+	 * Inserts a copy of a given subgraph into this graph.
+	 *
+	 * Inserts copies of the nodes given by the iterator pair \p nodesBegin ... \p nodesEnd into this
+	 * Graph and, for each of these nodes, sets the corresponding value in \p nodeMap to the newly created node.
+	 * The same happens with all incident edges for which function \p edgeFilter returns \p true,
+	 * although an edge is only inserted if both its endpoints were also inserted (i.e., the corresponding
+	 * values in \p nodeMap are non-null). This method always copies the embedding of the subgraph without an overhead.
+	 *
+	 * @tparam NI The iterator type used for \p nodesBegin ... \p nodesEnd.
+	 * @tparam EF The function type used for filtering edges, e.g. \c std::function<bool(edge)>.
+	 * @tparam copyIDs if explicitly set to true, the newly inserted nodes and edges will have the same IDs
+	 * 	as their originals. The Graph datastructure will become corrupt if one of the IDs is already present in the graph.
+	 * 	By default, new IDs are generated as by newNode() and newEdge().
+	 * @tparam notifyObservers if explicitly set to false, no GraphObservers will be notified and (Node-,Edge-,AdjEntry-)Arrays won't grow.
+	 * 	Only use if you know what you are doing!
+	 * @param nodesBegin Iterator to the first node to insert.
+	 * @param nodesEnd Iterator one past the last node to insert.
+	 * @param edgeFilter Function returning \p true for all edges that should be inserted.
+	 * @param nodeMap A NodeArray registered with the Graph of the nodes in \p nodesBegin ... \p nodesEnd.
+	 * 	For each of these original nodes, this map will point to the newly-created copy after this call returns.
+	 * 	Note that this map may only contain nullptr values, otherwise the result is undefined.
+	 * @param edgeMap An EdgeArray registered with the Graph of the edges in \p edgesBegin ... \p edgesEnd.
+	 * 	For each of these original edges, this map will point to the newly-created copy after this call returns.
+	 * 	Note that this map may only contain nullptr values, otherwise the result is undefined.
+	 * @return a pair (n, m) where n is the number of created nodes and m is the number of created edges.
+	 */
+	template<OGDF_NODE_ITER NI, OGDF_EDGE_FILTER EF, bool copyIDs = false, bool notifyObservers = true>
+	std::pair<int, int> insert(const NI& nodesBegin, const NI& nodesEnd, const EF& edgeFilter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	// List short-cuts
+
+	/**
+	 * Inserts a copy of a given subgraph into this graph.
+	 *
+	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
+	 * together with an EdgeSet<true> used for filtering edges.
+	 */
+	template<OGDF_NODE_LIST NL>
+	std::pair<int, int> insert(const NL& nodeList, const EdgeSet<true>& edgeSet,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	/**
+	 * Inserts a copy of a given subgraph into this graph.
+	 *
+	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
+	 * together with an EdgeSet<false> used for filtering edges.
+	 */
+	template<OGDF_NODE_LIST NL>
+	std::pair<int, int> insert(const NL& nodeList, const EdgeSet<false>& edgeSet,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+	/**
+	 * Inserts a copy of a given subgraph into this graph.
+	 *
+	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
+	 * together with a further container used for iterating edges.
+	 */
+	template<OGDF_NODE_LIST NL, OGDF_EDGE_LIST EL>
+	std::pair<int, int> insert(const NL& nodeList, const EL& edgeList, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap) {
+		m_regNodeArrays.reserveSpace(nodeList.size());
+		m_regEdgeArrays.reserveSpace(edgeList.size());
+		m_regAdjArrays.reserveSpace(edgeList.size());
+		using std::begin;
+		using std::end;
+		return insert(begin(nodeList), end(nodeList), begin(edgeList), end(edgeList), nodeMap,
+				edgeMap);
+	}
+
+	// Often-used special cases
+
+	/**
+	 * Inserts a copy of a given connected component \p cc into this graph.
+	 *
+	 * See the other insert() variants for details, this method is a short-cut for inserting a whole
+	 * connected component \p cc as described by CCsInfo \p info.
+	 */
+	std::pair<int, int> insert(const CCsInfo& info, int cc, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap) {
+		OGDF_ASSERT(&(info.constGraph()) == nodeMap.registeredAt()->graphOf());
+		OGDF_ASSERT(&(info.constGraph()) == edgeMap.registeredAt()->graphOf());
+		m_regNodeArrays.reserveSpace(info.numberOfNodes(cc));
+		m_regEdgeArrays.reserveSpace(info.numberOfEdges(cc));
+		m_regAdjArrays.reserveSpace(info.numberOfEdges(cc));
+		auto count = insert(info.nodes(cc).begin(), info.nodes(cc).end(), filter_any_edge, nodeMap,
+				edgeMap);
+		OGDF_ASSERT(count.first == info.numberOfNodes(cc));
+		OGDF_ASSERT(count.second == info.numberOfEdges(cc));
+		return count;
+	}
+
+	/**
+	 * Inserts a copy of a given Graph \p G into this graph.
+	 *
+	 * See the other insert() variants for details, this method is a short-cut for inserting a whole
+	 * Graph \p G.
+	 */
+	std::pair<int, int> insert(const Graph& G, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+		if (!nodeMap.registeredAt()) {
+			nodeMap.init(G);
+		}
+		OGDF_ASSERT(nodeMap.registeredAt()->graphOf() == &G);
+		if (!edgeMap.registeredAt()) {
+			edgeMap.init(G);
+		}
+		OGDF_ASSERT(edgeMap.registeredAt()->graphOf() == &G);
+		m_regNodeArrays.reserveSpace(G.numberOfNodes());
+		m_regEdgeArrays.reserveSpace(G.numberOfEdges());
+		m_regAdjArrays.reserveSpace(G.numberOfEdges());
+		auto count = insert(G.nodes.begin(), G.nodes.end(), filter_any_edge, nodeMap, edgeMap);
+		OGDF_ASSERT(count.first == G.numberOfNodes());
+		OGDF_ASSERT(count.second == G.numberOfEdges());
+		return count;
+	}
+
+	/**
+	 * Inserts a copy of a given Graph \p G into this graph.
+	 *
+	 * See the other insert() variants for details, this method is a short-cut for inserting a whole
+	 * Graph \p G without the need to specify node or edge maps.
+	 */
+	std::pair<int, int> insert(const Graph& G) {
+		NodeArray<node> nodeMap(G, nullptr);
+		EdgeArray<edge> edgeMap(G, nullptr);
+		return insert(G, nodeMap, edgeMap);
+	}
+
+private:
+	template<OGDF_NODE_ITER NI, bool notifyObservers, bool copyIDs>
+	void insertNodes(const NI& nodesBegin, const NI& nodesEnd, NodeArray<node, true>& nodeMap,
+			int& newNodes, void* cbData);
+
+protected:
+	/**
+	 * Callback notifying subclasses that some graph is about to be insert() -ed.
+	 *
+	 * See its implementation in GraphCopy for an example.
+	 *
+	 * @param copyEmbedding value of the template parameter \p copyEmbedding of the insert() call
+	 * @param copyIDs value of the template parameter \p copyIDs of the insert() call
+	 * @param notifyObservers value of the template parameter \p notifyObservers of the insert() call
+	 * @param edgeFilter true if the insert variant with an edge filter instead of an iterator is used
+	 * @param nodeMap value of the template parameter \p nodeMap of the insert() call
+	 * @param edgeMap value of the template parameter \p edgeMap of the insert() call
+	 * @param newNodes pointer to the counter of inserted nodes, will be valid until after postInsert()
+	 * @param newEdges pointer to the counter of inserted edges, will be valid until after postInsert()
+	 * @return arbitrary value, which will be passed to all following callbacks
+	 */
+	virtual void* preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers, bool edgeFilter,
+			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap, int* newNodes, int* newEdges) {
+		return nullptr;
+	};
+
+	/**
+	 * Callback notifying subclasses that insert() copied a node.
+	 *
+	 * @param userData value returned from the initial preInsert() call
+	 * @param original the original node
+	 * @param copy the created copy
+	 */
+	virtual void nodeInserted(void* userData, node original, node copy) {};
+
+	/**
+	 * Callback notifying subclasses that insert() copied an edge.
+	 *
+	 * @param userData value returned from the initial preInsert() call
+	 * @param original the original edge
+	 * @param copy the created copy
+	 */
+	virtual void edgeInserted(void* userData, edge original, edge copy) {};
+
+	/**
+	 * Callback notifying subclasses that an insert() call has finished.
+	 *
+	 * @param userData value returned from the initial preInsert() call
+	 * @param newNodes final number of created nodes
+	 * @param newEdges final number of created edges
+	 */
+	virtual void postInsert(void* userData, int newNodes, int newEdges) {};
 	//! @}
 
 public:
@@ -1389,6 +1896,14 @@ public:
 		//! Returns the index of (one past) the last node in connected component \p cc.
 		int stopNode(int cc) const { return m_startNode[cc + 1]; }
 
+		internal::SimpleRange<Array<node>::const_iterator> nodes(int cc) const {
+			return {m_nodes.begin() + startNode(cc), m_nodes.begin() + stopNode(cc)};
+		}
+
+		internal::SimpleRange<Array<edge>::const_iterator> edges(int cc) const {
+			return {m_edges.begin() + startEdge(cc), m_edges.begin() + stopEdge(cc)};
+		}
+
 		//! Returns the index of the first edge in connected component \p cc.
 		int startEdge(int cc) const { return m_startEdge[cc]; }
 
@@ -1402,50 +1917,96 @@ public:
 		edge e(int i) const { return m_edges[i]; }
 	};
 
-protected:
-	void construct(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-
-	void assign(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-
-	//! Constructs a copy of the subgraph of \p G induced by \p nodeList.
-	/**
-	 * This method preserves the order in the adjacency lists, i.e., if
-	 * \p G is embedded, its embedding induces the embedding of the copy.
-	 */
-	void constructInitByNodes(const Graph& G, const List<node>& nodeList, NodeArray<node>& mapNode,
-			EdgeArray<edge>& mapEdge);
-
-	void constructInitByActiveNodes(const List<node>& nodeList, const NodeArray<bool>& activeNodes,
-			NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-
-	//! Constructs a copy of connected component \p cc in \p info.
-	void constructInitByCC(const CCsInfo& info, int cc, NodeArray<node>& mapNode,
-			EdgeArray<edge>& mapEdge);
-
 private:
-	void copy(const Graph& G, NodeArray<node>& mapNode, EdgeArray<edge>& mapEdge);
-	void copy(const Graph& G);
+	/**
+	 * Creates a new node object with id \p index and adds it to the list of nodes.
+	 * Registered NodeArrays won't get resized and GraphObservers also won't get notified of the new node.
+	 *
+	 * @param index The index of the new node.
+	 * @return The newly created node.
+	 */
+	inline node pureNewNode(int index) {
+		if (index < 0) {
+			index = m_nodeIdCount++;
+		} else {
+			m_nodeIdCount = max(m_nodeIdCount, index + 1);
+		}
 
-	edge createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt);
-	node pureNewNode();
+		// simple check against illegal index reuse
+		OGDF_ASSERT(nodes.empty() || index != nodes.head()->index());
+		OGDF_ASSERT(nodes.empty() || index != nodes.tail()->index());
 
-	// moves adjacency entry to node w
-	void moveAdj(adjEntry adj, node w);
-
-	//! Sets the sizes of registered node and edge arrays to the
-	//! next power of two that is no less than the current id counts.
-	//! Respects the minimum table size constants.
-	void resetTableSizes();
-
-	//! Re-initializes registed arrays with respect to the current sizes.
-	//! Calls #resetTableSizes() if \p doResetTableSizes is \c true (default).
-	void reinitArrays(bool doResetTableSizes = true);
-	void resetAdjEntryIndex(int newIndex, int oldIndex);
+#ifdef OGDF_DEBUG
+		node v = new NodeElement(this, index);
+#else
+		node v = new NodeElement(index);
+#endif
+		nodes.pushBack(v);
+		return v;
+	}
 
 	/**
-	 * Used to restore all hidden edges upon deleting the graph.
+	 * Creates a new edge object with id \p index and corresponding AdjElements and adds it to the list of edges.
+	 * Registered EdgeArrays won't get resized and GraphObservers also won't get notified of the new edge.
+	 *
+	 * @warning The adjacency lists of the passed nodes won't be updated.
+	 *
+	 * @param src The source node of the new edge.
+	 * @param tgt The target node of the new edge.
+	 * @param index The index of the new edge.
+	 * @return The newly created edge.
 	 */
-	void restoreAllEdges();
+	edge pureNewEdge(node src, node tgt, int index) {
+		OGDF_ASSERT(src != nullptr);
+		OGDF_ASSERT(tgt != nullptr);
+		OGDF_ASSERT(src->graphOf() == this);
+		OGDF_ASSERT(tgt->graphOf() == this);
+
+		if (index < 0) {
+			index = m_edgeIdCount++;
+		} else {
+			m_edgeIdCount = max(m_edgeIdCount, index + 1);
+		}
+
+		// simple check against illegal index reuse
+		OGDF_ASSERT(edges.empty() || index != edges.head()->index());
+		OGDF_ASSERT(edges.empty() || index != edges.tail()->index());
+
+		edge e = new EdgeElement(src, tgt, index);
+		edges.pushBack(e);
+
+		e->m_adjSrc = new AdjElement(e, index << 1);
+		e->m_adjTgt = new AdjElement(e, (index << 1) | 1);
+
+		e->m_adjSrc->m_twin = e->m_adjTgt;
+		e->m_adjSrc->m_node = src;
+		src->m_outdeg++;
+
+		e->m_adjTgt->m_twin = e->m_adjSrc;
+		e->m_adjTgt->m_node = tgt;
+		tgt->m_indeg++;
+
+		return e;
+	}
+
+	static inline void insertAdjEntry(adjEntry oldAdj, adjEntry newAdj, Direction dir) {
+		if (dir == Direction::after) {
+			oldAdj->theNode()->adjEntries.insertAfter(newAdj, oldAdj);
+		} else {
+			oldAdj->theNode()->adjEntries.insertBefore(newAdj, oldAdj);
+		}
+	}
+
+	static inline void insertAdjEntry(node n, adjEntry newAdj, Direction dir) {
+		if (dir == Direction::after || n->adjEntries.empty()) {
+			n->adjEntries.pushBack(newAdj);
+		} else {
+			n->adjEntries.insertBefore(newAdj, n->adjEntries.head());
+		}
+	}
+
+	//! moves adjacency entry to node w
+	void moveAdj(adjEntry adj, node w);
 };
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et);
@@ -1516,3 +2077,5 @@ inline std::ostream& operator<<(std::ostream& os, const NodePair& np) {
 }
 
 }
+
+#include <ogdf/basic/InducedSubgraph.h>

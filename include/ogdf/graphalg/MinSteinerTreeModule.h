@@ -260,7 +260,7 @@ public:
 	static void drawSVG(const EdgeWeightedGraph<T>& G, const NodeArray<bool>& isTerminal,
 			const char* filename) {
 		EdgeWeightedGraphCopy<T> emptySteinerTree;
-		emptySteinerTree.createEmpty(G);
+		emptySteinerTree.setOriginalGraph(G);
 		drawSVG(G, isTerminal, emptySteinerTree, filename);
 	}
 
@@ -392,7 +392,7 @@ T MinSteinerTreeModule<T>::call(const EdgeWeightedGraph<T>& G, const List<node>&
 	}
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>();
-	finalSteinerTree->createEmpty(G);
+	finalSteinerTree->setOriginalGraph(G);
 	if (!terminals.empty()) {
 		finalSteinerTree->newNode(terminals.back());
 	}

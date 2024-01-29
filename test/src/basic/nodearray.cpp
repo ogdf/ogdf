@@ -41,8 +41,25 @@ go_bandit([]() {
 
 	auto createNode = [](Graph& graph) { return graph.newNode(); };
 
-	describeArray<NodeArray, node, int>("NodeArray filled with ints", 42, 43, chooseNode, allNodes,
-			createNode);
-	describeArray<NodeArray, node, List<int>>("NodeArray filled with lists of ints", {1, 2, 3},
-			{42}, chooseNode, allNodes, createNode);
+	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
+
+	runBasicArrayTests<Graph, NodeArray, node>("NodeArray", init, chooseNode, allNodes, createNode);
+
+	describe("NodeArray filled with pointers", [&]() {
+		Graph G;
+		init(G);
+
+		it("initializes with nullptr values", [&]() {
+			NodeArray<int*> arr1(G);
+			NodeArray<int*, false> arr2(G);
+			AssertThat(arr1[chooseNode(G)], IsNull());
+			AssertThat(arr2[chooseNode(G)], IsNull());
+		});
+
+		it("initializes with a default value", [&]() {
+			std::unique_ptr<int> p(new int(42));
+			NodeArray<int*> arr(G, p.get());
+			AssertThat(arr[chooseNode(G)], Equals(p.get()));
+		});
+	});
 });

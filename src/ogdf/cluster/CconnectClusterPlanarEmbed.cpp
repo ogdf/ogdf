@@ -983,9 +983,9 @@ bool CconnectClusterPlanarEmbed::planarityTest(ClusterGraph& Ccopy, const cluste
 	}
 
 	Graph* subGraph = new Graph();
-	NodeArray<node> nodeTableOrig2New;
-	EdgeArray<edge> edgeTableOrig2New;
-	inducedSubGraph(Gcopy, subGraphNodes.begin(), (*subGraph), nodeTableOrig2New, edgeTableOrig2New);
+	NodeArray<node> nodeTableOrig2New(Gcopy, nullptr);
+	EdgeArray<edge> edgeTableOrig2New(Gcopy, nullptr);
+	subGraph->insert(subGraphNodes, Gcopy.edges, nodeTableOrig2New, edgeTableOrig2New);
 	NodeArray<node> nodeTableNew2Orig((*subGraph), nullptr);
 
 	// Necessary only for root cluster.

@@ -116,7 +116,10 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode) {
 	m_currentCC = i;
 
 	//double feature: liste und nodearray, besser
-	GraphCopy::initByActiveNodes(activeOrigCCNodes, m_activeNodes, m_eAuxCopy);
+	m_eAuxCopy.init(getOriginalGraph());
+	NodeArray<node> n_copy(getOriginalGraph());
+	clear();
+	insert(activeOrigCCNodes.begin(), activeOrigCCNodes.end(), filter_any_edge, n_copy, m_eAuxCopy);
 
 	// set type of edges (gen. or assoc.) in the current CC
 	if (m_pGraphAttributes->has(GraphAttributes::edgeType)) {
@@ -347,6 +350,7 @@ void PlanRepInc::getExtAdjs(List<adjEntry>& /* extAdjs */) {
 	NodeArray<int> component(*this);
 	int numPartialCC = connectedComponents(*this, component);
 	EdgeArray<edge> copyEdge; //copy edges in partial CC copy
+	NodeArray<node> nodeCopy;
 	//now we compute a copy for every CC
 	//initialize an array of lists of nodes contained in a CC
 	Array<List<node>> nodesInPartialCC;
@@ -360,8 +364,10 @@ void PlanRepInc::getExtAdjs(List<adjEntry>& /* extAdjs */) {
 	for (i = 0; i < numPartialCC; i++) {
 		List<node>& theNodes = nodesInPartialCC[i];
 		GraphCopy GC;
-		GC.createEmpty(*this);
-		GC.initByNodes(theNodes, copyEdge);
+		GC.setOriginalGraph(*this);
+		copyEdge.init(*this);
+		nodeCopy.init(*this);
+		GC.insert(theNodes.begin(), theNodes.end(), filter_any_edge, nodeCopy, copyEdge);
 		//now we derive an outer face of GC by using the
 		//layout information on it's original
 

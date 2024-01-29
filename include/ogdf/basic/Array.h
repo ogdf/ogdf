@@ -266,7 +266,7 @@ public:
 	/**
 	 * The array \p A is empty afterwards.
 	 */
-	Array(Array<E, INDEX>&& A)
+	Array(Array<E, INDEX>&& A) noexcept
 		: m_vpStart(A.m_vpStart)
 		, m_pStart(A.m_pStart)
 		, m_pStop(A.m_pStop)

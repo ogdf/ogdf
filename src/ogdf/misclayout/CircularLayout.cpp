@@ -498,7 +498,7 @@ void CircularLayout::call(GraphAttributes& AG) {
 	AG.clearAllBends();
 
 	GraphCopy GC;
-	GC.createEmpty(G);
+	GC.setOriginalGraph(G);
 
 	// compute connected component of G
 	NodeArray<int> component(G);
@@ -511,12 +511,16 @@ void CircularLayout::call(GraphAttributes& AG) {
 		nodesInCC[component[v]].pushBack(v);
 	}
 
-	EdgeArray<edge> auxCopy(G);
+	NodeArray<node> nodeCopy;
+	EdgeArray<edge> auxCopy;
 	Array<DPoint> boundingBox(numCC);
 
 	int i;
 	for (i = 0; i < numCC; ++i) {
-		GC.initByNodes(nodesInCC[i], auxCopy);
+		nodeCopy.init(G);
+		auxCopy.init(G);
+		GC.clear();
+		GC.insert(nodesInCC[i].begin(), nodesInCC[i].end(), filter_any_edge, nodeCopy, auxCopy);
 
 		GraphAttributes AGC(GC);
 

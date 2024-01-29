@@ -292,7 +292,7 @@ void testConstCombinatorialEmbedding() {
 		Graph graph;
 		randomPlanarTriconnectedGraph(graph, NUMBER_OF_NODES * 10, NUMBER_OF_EDGES * 10);
 		T emb(graph);
-		AssertThat(emb.faceArrayTableSize(), IsGreaterThan(emb.numberOfFaces() - 1));
+		AssertThat(emb.getArraySize(), IsGreaterThan(emb.numberOfFaces() - 1));
 	});
 
 	for (int i = 1; i <= NUMBER_OF_ITERATIONS; i++) {

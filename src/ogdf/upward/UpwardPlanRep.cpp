@@ -100,7 +100,7 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep& UPR) {
 	NodeArray<node> vCopy;
 	EdgeArray<edge> eCopy;
 
-	Graph::construct(UPR, vCopy, eCopy);
+	insert(UPR, vCopy, eCopy);
 
 	// initGC
 	m_pGraph = UPR.m_pGraph;
@@ -174,7 +174,7 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep& UPR) {
 
 UpwardPlanRep& UpwardPlanRep::operator=(const UpwardPlanRep& cp) {
 	clear();
-	createEmpty(cp.original());
+	setOriginalGraph(cp.original());
 	isAugmented = cp.isAugmented;
 	extFaceHandle = nullptr;
 	crossings = cp.crossings;

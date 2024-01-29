@@ -420,7 +420,7 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 
 		// init terminal-spanning tree and its save-edge data structure
 		EdgeWeightedGraphCopy<T> steinerTree; // the terminal-spanning tree to be modified
-		steinerTree.createEmpty(G);
+		steinerTree.setOriginalGraph(G);
 		generateInitialTerminalSpanningTree(steinerTree);
 
 		Save<T>* save = nullptr;

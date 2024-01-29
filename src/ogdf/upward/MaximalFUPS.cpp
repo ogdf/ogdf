@@ -47,7 +47,7 @@ Module::ReturnType MaximalFUPS::doCall(UpwardPlanRep& UPR, List<edge>& delEdges)
 	//OGDF_ASSERT( singleSource );
 
 	GraphCopy GC;
-	GC.createEmpty(G);
+	GC.setOriginalGraph(G);
 	for (node n : G.nodes) {
 		GC.newNode(n);
 	}

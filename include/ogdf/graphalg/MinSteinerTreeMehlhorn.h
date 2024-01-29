@@ -168,7 +168,7 @@ T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 	computeMinST(completeTerminalGraph, completeTerminalGraph.edgeWeights(), mstPred);
 
 	finalSteinerTree = new EdgeWeightedGraphCopy<T>;
-	finalSteinerTree->createEmpty(G);
+	finalSteinerTree->setOriginalGraph(G);
 
 	reinsertShortestPaths(completeTerminalGraph, voronoi, mstPred, bridges, *finalSteinerTree, G);
 
@@ -182,7 +182,7 @@ template<typename T>
 void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T>& wG,
 		const List<node>& terminals, const Voronoi<T>& voronoi, EdgeArray<edge>& bridges,
 		EdgeWeightedGraphCopy<T>& completeTerminalGraph) {
-	completeTerminalGraph.createEmpty(wG);
+	completeTerminalGraph.setOriginalGraph(wG);
 
 	for (node v : terminals) {
 		completeTerminalGraph.newNode(v);

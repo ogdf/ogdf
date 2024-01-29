@@ -42,7 +42,7 @@ void VisibilityLayout::call(GraphAttributes& GA) {
 
 	//call upward planarizer
 	UpwardPlanRep UPR;
-	UPR.createEmpty(GA.constGraph());
+	UPR.setOriginalGraph(GA.constGraph());
 	m_upPlanarizer->call(UPR);
 	layout(GA, UPR);
 }

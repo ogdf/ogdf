@@ -44,7 +44,7 @@ go_bandit([] {
 				[](Graph& G, const std::string& graphName, const std::set<GraphProperty>& props) {
 					// Init module
 					UpwardPlanRep U;
-					U.createEmpty(G);
+					U.setOriginalGraph(G);
 					SubgraphUpwardPlanarizer sup;
 					Module::ReturnType s = sup.call(U, nullptr, nullptr);
 					AssertThat(Module::isSolution(s), IsTrue());

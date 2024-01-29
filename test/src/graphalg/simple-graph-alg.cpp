@@ -49,8 +49,8 @@
  * @param assignedVals is the first array.
  * @param expVals is an initializer list with values for the second array.
  */
-template<template<typename> class ArrayType>
-void bijectiveMappingAssert(ArrayType<int> assignedVals, std::initializer_list<int> expVals) {
+template<typename ArrayType>
+void bijectiveMappingAssert(ArrayType assignedVals, std::initializer_list<int> expVals) {
 	std::set<int> expSet(expVals);
 	int size = expSet.size();
 	Array<int> expectedVals(expVals);

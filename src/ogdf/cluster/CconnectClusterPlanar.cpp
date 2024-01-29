@@ -120,8 +120,9 @@ bool CconnectClusterPlanar::planarityTest(ClusterGraph& C, const cluster act, Gr
 	}
 
 	Graph subGraph;
-	NodeArray<node> table;
-	inducedSubGraph(G, subGraphNodes.begin(), subGraph, table);
+	NodeArray<node> table(G, nullptr);
+	EdgeArray<edge> edgeMap(G, nullptr);
+	subGraph.insert(subGraphNodes, G.edges, table, edgeMap);
 
 	// Introduce super sink and add edges corresponding
 	// to outgoing edges of the cluster

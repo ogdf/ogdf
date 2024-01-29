@@ -197,13 +197,16 @@ Hierarchy::Hierarchy(const Graph& G, const NodeArray<int>& rank) : m_GC(G), m_ra
 }
 
 void Hierarchy::createEmpty(const Graph& G) {
-	m_GC.createEmpty(G);
+	m_GC.setOriginalGraph(G);
 	m_rank.init(m_GC);
 }
 
 void Hierarchy::initByNodes(const List<node>& nodes, EdgeArray<edge>& eCopy,
 		const NodeArray<int>& rank) {
-	m_GC.initByNodes(nodes, eCopy);
+	NodeArray<node> nCopy(m_GC.getOriginalGraph());
+	eCopy.init(m_GC.getOriginalGraph());
+	m_GC.clear();
+	m_GC.insert(nodes.begin(), nodes.end(), filter_any_edge, nCopy, eCopy);
 
 	doInit(rank);
 }
