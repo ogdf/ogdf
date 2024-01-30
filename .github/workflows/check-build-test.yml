@@ -64,7 +64,7 @@ jobs:
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           util/test_self-sufficiency.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
@@ -94,7 +94,7 @@ jobs:
         with:
           key: ${{ github.job }}
       - name: Set-up clang-tidy cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ctcache
           key: clang-tidy-cache
@@ -115,12 +115,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: sonar-scanner
       - name: Store logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sonar
           path: sonar/
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
@@ -167,7 +167,7 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         # see "Cloud hosts used by GitHub-hosted runners" in the GH Actions docs
         # for the oldest used microarchitecture to use with OGDF_ARCH
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
@@ -188,6 +188,11 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}-${{ matrix.mode }}
+      - name: Check CPU model
+        run: |
+          uname -av
+          sysctl machdep.cpu
+          system_profiler system_profiler SPSoftwareDataType SPHardwareDataType
       - name: Test ${{ matrix.mode }} build and run
         run: |
           util/test_build_and_run.sh \
@@ -196,7 +201,7 @@ jobs:
             default_c \
             default_s \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
@@ -222,7 +227,7 @@ jobs:
         env:
           CMAKE_C_COMPILER_LAUNCHER: ccache.exe
           CMAKE_CXX_COMPILER_LAUNCHER: ccache.exe
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
