@@ -276,7 +276,7 @@ public:
 	//! Rebuilds the auxiliary graph from the current graph.
 	void reset() {
 		m_graph.clear();
-		m_graph.createEmpty(m_helper.graph());
+		m_graph.setOriginalGraph(m_helper.graph());
 
 		// create all aux nodes
 		for (node v : m_helper.graph().nodes) {
