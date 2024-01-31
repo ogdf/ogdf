@@ -35,6 +35,8 @@
 
 namespace ogdf {
 
+namespace planar_separators {
+
 BFSTreeClassical::BFSTreeClassical(GraphCopy& G, node rootNode, unsigned int iterations,
 		bool findLevelsSimple)
 	: ArrayBFSTree(G, rootNode), heightMaxIterations(iterations), simple {findLevelsSimple} {
@@ -644,135 +646,6 @@ bool DMDecomposer::alternatingBFS(const Graph& G, const List<node>& startNodes,
 	return true;
 }
 
-bool PlanarSeparatorModule::separateComponents(GraphCopy& G, List<node>& separator,
-		List<node>& first, List<node>& second, bool skip) const {
-	int n = G.numberOfNodes();
-
-	OGDF_ASSERT(n != 0); // should be checked in setup
-
-	if (n == 1) { // special case
-		separator.pushBack(G.original(G.firstNode()));
-		return true;
-	}
-
-	if (n == 2) { // special case
-		if (isConnected(G)) {
-			for (node no : G.nodes) {
-				separator.pushBack(G.original(no));
-			}
-		} else {
-			first.pushBack(G.original(G.nodes.head()));
-			second.pushBack(G.original(G.nodes.tail()));
-		}
-		return true;
-	}
-
-	// if we are using this to assign nodes to lists after the algorithm has run, skip this distinction
-	// - for very small graphs, we might terminate with a connected remainder < 2/3 n
-	if (!skip) {
-		if (isConnected(G)) {
-			return false;
-		} // in this case, just run the normal algorithm
-	}
-	// otherwise, prepare to manage multiple components
-
-	NodeArray<int> comps;
-	comps.init(G);
-	std::map<int, int> componentSizes; // maps index to number of nodes of component
-
-	connectedComponents(G, comps, componentSizes);
-
-	// we need the map componentSizes sorted by value, so copy to vector and sort the vector
-	std::vector<std::pair<int, int>> vec;
-	for (const auto& item : componentSizes) {
-		vec.emplace_back(item);
-	}
-	auto cmp = [](const std::pair<int, int>& x, const std::pair<int, int>& y) {
-		return x.second > y.second;
-	};
-	std::sort(vec.begin(), vec.end(), cmp);
-
-	auto compIt = vec.begin();
-
-	// if we are using this for the dual-algorithm, we have to skip this part because the larger chunk
-	// might actually be too large, which would not matter though
-	if (!skip) {
-		// 1. if there is a component > 2/3, drop everything else into the second list and solve main component
-
-		if ((*compIt).second > 2.0 / 3.0 * n) {
-			int biggestIndex = (*compIt).first;
-			SListPure<node> markedForDeletion;
-			for (const node& no : G.nodes) {
-				if (comps[no] != biggestIndex) {
-					second.pushBack(G.original(no));
-					markedForDeletion.pushBack(no);
-				}
-			}
-			for (const node& no : markedForDeletion) {
-				G.delNode(no);
-			}
-			return false;
-		}
-	}
-
-	// 2. otherwise, just add each component to the currently smaller list
-	int fLength = first.size();
-	int sLength = second.size();
-	std::map<int, bool> targetList; // holds for each component whether to put it in first or second list
-
-	for (; compIt != vec.end(); ++compIt) {
-		int idx = (*compIt).first;
-		int size = (*compIt).second;
-		targetList[idx] = fLength < sLength;
-
-		if (fLength < sLength) {
-			fLength += size;
-		} else {
-			sLength += size;
-		}
-	}
-
-	for (const node& no : G.nodes) {
-		List<node>& list = targetList[comps[no]] ? first : second;
-		list.pushBack(G.original(no));
-	}
-	return true;
-}
-
-int PlanarSeparatorModule::connectedComponents(const Graph& G, NodeArray<int>& component,
-		std::map<int, int>& compSizes) const {
-	int nComponent = 0;
-	component.fill(-1);
-
-	ArrayBuffer<node> S;
-
-	for (node v : G.nodes) {
-		if (component[v] != -1) {
-			continue;
-		}
-
-		S.push(v);
-		component[v] = nComponent;
-		compSizes[nComponent] = 1;
-
-		while (!S.empty()) {
-			node w = S.popRet();
-			for (adjEntry adj : w->adjEntries) {
-				node x = adj->twinNode();
-				if (component[x] == -1) {
-					component[x] = nComponent;
-					compSizes[nComponent]++;
-					S.push(x);
-				}
-			}
-		}
-
-		++nComponent;
-	}
-
-	return nComponent;
-}
-
 // private constructor, for internal use only (while expanding cycle)
 Cycle::Cycle(BFSTree* bfsTree, List<node>& nodeList, List<adjEntry>& edgeList, node root,
 		bool clockwise)
@@ -1340,6 +1213,137 @@ void Cycle::fillLists(List<node>& separator, List<node>& first, List<node>& seco
 			second.pushBack(tree->getGraph()->original(no));
 		}
 	}
+}
+
+}
+
+bool PlanarSeparatorModule::separateComponents(GraphCopy& G, List<node>& separator,
+		List<node>& first, List<node>& second, bool skip) const {
+	int n = G.numberOfNodes();
+
+	OGDF_ASSERT(n != 0); // should be checked in setup
+
+	if (n == 1) { // special case
+		separator.pushBack(G.original(G.firstNode()));
+		return true;
+	}
+
+	if (n == 2) { // special case
+		if (isConnected(G)) {
+			for (node no : G.nodes) {
+				separator.pushBack(G.original(no));
+			}
+		} else {
+			first.pushBack(G.original(G.nodes.head()));
+			second.pushBack(G.original(G.nodes.tail()));
+		}
+		return true;
+	}
+
+	// if we are using this to assign nodes to lists after the algorithm has run, skip this distinction
+	// - for very small graphs, we might terminate with a connected remainder < 2/3 n
+	if (!skip) {
+		if (isConnected(G)) {
+			return false;
+		} // in this case, just run the normal algorithm
+	}
+	// otherwise, prepare to manage multiple components
+
+	NodeArray<int> comps;
+	comps.init(G);
+	std::map<int, int> componentSizes; // maps index to number of nodes of component
+
+	connectedComponents(G, comps, componentSizes);
+
+	// we need the map componentSizes sorted by value, so copy to vector and sort the vector
+	std::vector<std::pair<int, int>> vec;
+	for (const auto& item : componentSizes) {
+		vec.emplace_back(item);
+	}
+	auto cmp = [](const std::pair<int, int>& x, const std::pair<int, int>& y) {
+		return x.second > y.second;
+	};
+	std::sort(vec.begin(), vec.end(), cmp);
+
+	auto compIt = vec.begin();
+
+	// if we are using this for the dual-algorithm, we have to skip this part because the larger chunk
+	// might actually be too large, which would not matter though
+	if (!skip) {
+		// 1. if there is a component > 2/3, drop everything else into the second list and solve main component
+
+		if ((*compIt).second > 2.0 / 3.0 * n) {
+			int biggestIndex = (*compIt).first;
+			SListPure<node> markedForDeletion;
+			for (const node& no : G.nodes) {
+				if (comps[no] != biggestIndex) {
+					second.pushBack(G.original(no));
+					markedForDeletion.pushBack(no);
+				}
+			}
+			for (const node& no : markedForDeletion) {
+				G.delNode(no);
+			}
+			return false;
+		}
+	}
+
+	// 2. otherwise, just add each component to the currently smaller list
+	int fLength = first.size();
+	int sLength = second.size();
+	std::map<int, bool> targetList; // holds for each component whether to put it in first or second list
+
+	for (; compIt != vec.end(); ++compIt) {
+		int idx = (*compIt).first;
+		int size = (*compIt).second;
+		targetList[idx] = fLength < sLength;
+
+		if (fLength < sLength) {
+			fLength += size;
+		} else {
+			sLength += size;
+		}
+	}
+
+	for (const node& no : G.nodes) {
+		List<node>& list = targetList[comps[no]] ? first : second;
+		list.pushBack(G.original(no));
+	}
+	return true;
+}
+
+int PlanarSeparatorModule::connectedComponents(const Graph& G, NodeArray<int>& component,
+		std::map<int, int>& compSizes) const {
+	int nComponent = 0;
+	component.fill(-1);
+
+	ArrayBuffer<node> S;
+
+	for (node v : G.nodes) {
+		if (component[v] != -1) {
+			continue;
+		}
+
+		S.push(v);
+		component[v] = nComponent;
+		compSizes[nComponent] = 1;
+
+		while (!S.empty()) {
+			node w = S.popRet();
+			for (adjEntry adj : w->adjEntries) {
+				node x = adj->twinNode();
+				if (component[x] == -1) {
+					component[x] = nComponent;
+					compSizes[nComponent]++;
+					S.push(x);
+				}
+			}
+		}
+
+		++nComponent;
+	}
+
+	return nComponent;
 }
 
 }
