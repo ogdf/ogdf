@@ -131,7 +131,7 @@ void randomGraph(Graph& G, int n, int m) {
 	}
 }
 
-constexpr int getMaxNumberEdges(int n) { return n * (n - 1) / 2; }
+constexpr long getMaxNumberEdges(int n) { return (long)n * (n - 1) / 2; }
 
 constexpr int getEdgeIndex(int a, int b, int n, int max) {
 	return max - getMaxNumberEdges(n - a) + b - a - 1;
@@ -164,7 +164,7 @@ static bool randomSimpleGraphByMask(Graph& G, int n, int m, Array<bool>& preEdge
 		return false;
 	}
 
-	const int max = preEdges.size();
+	const long max = preEdges.size();
 	OGDF_ASSERT(max == getMaxNumberEdges(n));
 	OGDF_ASSERT(max == preEdges.high() + 1);
 
@@ -247,7 +247,7 @@ static bool randomSimpleGraphBySet(Graph& G, int n, int m,
 		return false;
 	}
 
-	const int max = getMaxNumberEdges(n);
+	const long max = getMaxNumberEdges(n);
 	if (m > max || m < (int)preEdges.size()) {
 		return false;
 	}
@@ -295,7 +295,7 @@ static bool randomSimpleGraphBySet(Graph& G, int n, int m,
 }
 
 bool randomSimpleGraph(Graph& G, int n, int m) {
-	const int max = getMaxNumberEdges(n);
+	const long max = getMaxNumberEdges(n);
 	// Set implementation showed to be only efficient for very sparse graphs, i.e. <0.5% of possible edges
 	if (m > 0.005 * max) {
 		Array<bool> preEdges(0, max - 1, false);
@@ -370,7 +370,7 @@ bool randomSimpleConnectedGraph(Graph& G, int n, int m) {
 	Graph tree;
 	randomTree(tree, n);
 
-	const int max = getMaxNumberEdges(n);
+	const long max = getMaxNumberEdges(n);
 	// Set implementation showed to be only efficient for very sparse graphs, i.e. <0.5% of possible edges
 	if (m > 0.005 * max) {
 		Array<bool> preEdges(0, max - 1, false);
