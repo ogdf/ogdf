@@ -73,6 +73,10 @@
 namespace ogdf {
 namespace Matching {
 
+/**
+ * Implementation of the Blossom-V algorithm by Kolmogorov (2009) for Minimum
+ * Weight Perfect Matching.
+ */
 template<typename TWeight>
 class MatchingBlossomV : public MatchingModule<TWeight> {
 	BlossomVHelper<TWeight> m_helper;

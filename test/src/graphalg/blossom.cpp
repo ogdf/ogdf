@@ -34,9 +34,8 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/Matching.h>
-#include <ogdf/graphalg/MatchingImplementation.h>
-#include <ogdf/graphalg/matching/MatchingBlossom.h>
-#include <ogdf/graphalg/matching/MatchingBlossomV.h>
+#include <ogdf/graphalg/MatchingBlossom.h>
+#include <ogdf/graphalg/MatchingBlossomV.h>
 
 #include <tuple>
 #include <unordered_set>
@@ -384,8 +383,4 @@ void runAllTests() {
 go_bandit([] {
 	describe("Blossom I", [&] { runAllTests<MatchingBlossom>(); });
 	describe("Blossom V", [&] { runAllTests<MatchingBlossomV>(); });
-	describe("Implementation Reference", [&] {
-		it("calculates the matching on an empty graph correctly",
-				[&] { test<MatchingImplementation>({}, 0); });
-	});
 });

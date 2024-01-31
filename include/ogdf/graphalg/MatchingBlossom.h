@@ -54,6 +54,12 @@
 namespace ogdf {
 namespace Matching {
 
+/**
+ * Implementation of the Blossom-I algorithm by Edmonds (1965) for Minimum
+ * Weight Perfect Matching.
+ * Use MatchingBlossomV for a more sophisticated and faster version of this
+ * algorithm.
+ */
 template<typename TWeight>
 class MatchingBlossom : public MatchingModule<TWeight> {
 	using Logger::lout;
