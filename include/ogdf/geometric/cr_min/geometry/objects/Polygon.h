@@ -176,7 +176,8 @@ inline unsigned int prev(const Polygon_t<kernel>& p, unsigned int i) {
 
 template<typename kernel>
 inline Polygon_t<kernel> reverse(const Polygon_t<kernel>& polygon) {
-	return std::move(Polygon_t<kernel>(polygon.container().rbegin(), polygon.container().rend()));
+	Polygon_t<kernel> revPolygon(polygon.container().rbegin(), polygon.container().rend());
+	return revPolygon;
 }
 
 template<typename kernel>
