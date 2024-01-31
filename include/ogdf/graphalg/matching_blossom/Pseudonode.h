@@ -32,15 +32,14 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/graphalg/matching/Cycle.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/Cycle.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <unordered_map>
 #include <vector>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 //! Helper class representing a pseudonode in the Blossom algorithm.
 class OGDF_EXPORT Pseudonode {
@@ -105,6 +104,5 @@ public:
 	void addReference(edge ref, edge selfLoop, Pseudonode* other);
 };
 
-}
 }
 }

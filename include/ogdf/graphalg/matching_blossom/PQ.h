@@ -33,14 +33,13 @@
 #pragma once
 
 #include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <limits>
 #include <unordered_map>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 //! A custom priority queue for the blossom algorithm, based on the PrioritizedMapQueue. It uses a
 //! std::unordered_map to store the handles, handles merge operations correctly, can iterate over its elements
@@ -123,6 +122,5 @@ public:
 	}
 };
 
-}
 }
 }

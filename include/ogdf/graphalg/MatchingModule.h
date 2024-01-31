@@ -38,15 +38,14 @@
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <tuple>
 #include <unordered_set>
 
 namespace ogdf {
-namespace Matching {
 
-using namespace Matching::Blossom;
+using namespace matching_blossom;
 
 template<typename TWeight>
 class MatchingModule : public Module, public Logger {
@@ -284,5 +283,4 @@ private:
 	};
 };
 
-}
 }

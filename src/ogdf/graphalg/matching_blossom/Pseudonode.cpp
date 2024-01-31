@@ -29,11 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/matching/Pseudonode.h>
+#include <ogdf/graphalg/matching_blossom/Pseudonode.h>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 Pseudonode::Pseudonode(node _graphNode, Cycle* _cycle) : graphNode(_graphNode), cycle(_cycle) { }
 
@@ -46,6 +45,5 @@ void Pseudonode::addReference(edge ref, edge selfLoop, Pseudonode* other) {
 	}
 }
 
-}
 }
 }

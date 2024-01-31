@@ -36,8 +36,7 @@
 #include <unordered_map>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 //! Helper function to get the maximum value for a given weight type.
 template<class TWeight>
@@ -128,6 +127,5 @@ using KeyIteratorContainer = BaseIteratorContainer<MapKeyIterator, Key, Value>;
 template<typename Key, typename Value>
 using ValueIteratorContainer = BaseIteratorContainer<MapValueIterator, Key, Value>;
 
-}
 }
 }

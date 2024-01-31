@@ -38,8 +38,7 @@
 #include <vector>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 class OGDF_EXPORT Cycle {
 private:
@@ -80,6 +79,5 @@ public:
 	bool contains(node v);
 };
 
-}
 }
 }

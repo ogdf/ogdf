@@ -33,10 +33,10 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/graphalg/matching/BlossomHelper.h>
-#include <ogdf/graphalg/matching/Cycle.h>
-#include <ogdf/graphalg/matching/Pseudonode.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/BlossomHelper.h>
+#include <ogdf/graphalg/matching_blossom/Cycle.h>
+#include <ogdf/graphalg/matching_blossom/Pseudonode.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <tuple>
 #include <unordered_map>
@@ -44,8 +44,7 @@
 #include <vector>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 template<class TWeight>
 class AlternatingTree {
@@ -409,6 +408,5 @@ public:
 	}
 };
 
-}
 }
 }

@@ -30,11 +30,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/matching/Cycle.h>
+#include <ogdf/graphalg/matching_blossom/Cycle.h>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 Cycle::Cycle(edge startEdge) { addEdge(startEdge); }
 
@@ -87,6 +86,5 @@ long Cycle::indexOf(node u) {
 
 bool Cycle::contains(node v) { return m_nodes.find(v) != m_nodes.end(); }
 
-}
 }
 }

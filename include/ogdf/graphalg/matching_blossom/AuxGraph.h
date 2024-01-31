@@ -36,19 +36,18 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/graphalg/matching/AlternatingTree.h>
-#include <ogdf/graphalg/matching/BlossomVHelper.h>
-#include <ogdf/graphalg/matching/Cycle.h>
-#include <ogdf/graphalg/matching/PQ.h>
-#include <ogdf/graphalg/matching/Pseudonode.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/AlternatingTree.h>
+#include <ogdf/graphalg/matching_blossom/BlossomVHelper.h>
+#include <ogdf/graphalg/matching_blossom/Cycle.h>
+#include <ogdf/graphalg/matching_blossom/PQ.h>
+#include <ogdf/graphalg/matching_blossom/Pseudonode.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <unordered_set>
 #include <vector>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 template<class TWeight>
 class BlossomVHelper;
@@ -394,6 +393,5 @@ public:
 	};
 };
 
-}
 }
 }

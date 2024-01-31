@@ -38,8 +38,8 @@
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/graphalg/matching/Pseudonode.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/Pseudonode.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <algorithm>
 #include <iostream>
@@ -48,8 +48,7 @@
 #include <unordered_set>
 
 namespace ogdf {
-namespace Matching {
-namespace Blossom {
+namespace matching_blossom {
 
 //! Helper class for the blossom matching algorithms.
 template<class TWeight>
@@ -395,6 +394,5 @@ public:
 	void addToMatching(edge e) { m_matching[e->source()] = m_matching[e->target()] = e; }
 };
 
-}
 }
 }

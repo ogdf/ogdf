@@ -37,11 +37,11 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/graphalg/MatchingModule.h>
-#include <ogdf/graphalg/matching/AlternatingTree.h>
-#include <ogdf/graphalg/matching/BlossomHelper.h>
-#include <ogdf/graphalg/matching/Cycle.h>
-#include <ogdf/graphalg/matching/Pseudonode.h>
-#include <ogdf/graphalg/matching/utils.h>
+#include <ogdf/graphalg/matching_blossom/AlternatingTree.h>
+#include <ogdf/graphalg/matching_blossom/BlossomHelper.h>
+#include <ogdf/graphalg/matching_blossom/Cycle.h>
+#include <ogdf/graphalg/matching_blossom/Pseudonode.h>
+#include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <algorithm>
 #include <iostream>
@@ -52,7 +52,6 @@
 #include <vector>
 
 namespace ogdf {
-namespace Matching {
 
 /**
  * Implementation of the Blossom-I algorithm by Edmonds (1965) for Minimum
@@ -456,5 +455,4 @@ private:
 	}
 };
 
-}
 }
