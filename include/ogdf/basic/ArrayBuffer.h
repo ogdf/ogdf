@@ -337,7 +337,11 @@ public:
 		if (num) {
 			A2.init(num);
 			OGDF_ASSERT(sizeof(E) <= size_t(std::numeric_limits<INDEX>::max() / num));
-			memcpy(A2.m_pStart, this->m_pStart, sizeof(E) * num);
+
+			memcpy(A2.m_pStart, this->m_pStart,
+					sizeof(E) <= size_t(std::numeric_limits<INDEX>::max() / num)
+							? sizeof(E) * num
+							: size_t(std::numeric_limits<INDEX>::max()));
 		} else {
 			A2.init(0);
 		}
