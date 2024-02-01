@@ -42,4 +42,4 @@ linear programming or unit testing.
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 1999–2023
+Copyright (C) 1999–2024

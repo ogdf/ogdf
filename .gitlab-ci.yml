@@ -76,10 +76,10 @@ gcc-9-debug:
     - docker
   stage: test-advanced
 
-gcc-10-debug:
+gcc-13-debug:
   except:
     - schedules
-  image: $CI_REGISTRY/gcc:10
+  image: $CI_REGISTRY/gcc:13
   script: util/test_build_and_run.sh static debug gcc gurobi -DOGDF_INCLUDE_GCAL=ON
   tags:
     - docker
@@ -102,10 +102,10 @@ gcc-9-release:
     - docker
   stage: test-advanced
 
-gcc-10-release:
+gcc-13-release:
   except:
     - schedules
-  image: $CI_REGISTRY/gcc:10
+  image: $CI_REGISTRY/gcc:13
   script: util/test_build_and_run.sh static release gcc gurobi -DOGDF_INCLUDE_CGAL=ON
   tags:
     - docker

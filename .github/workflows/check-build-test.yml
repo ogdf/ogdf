@@ -132,7 +132,7 @@ jobs:
     strategy:
       matrix:
         mode: [debug, release]
-        compiler: ['gcc:9', 'gcc:10', 'clang:15']
+        compiler: ['gcc:9', 'gcc:13', 'clang:15']
     runs-on: ubuntu-latest
     container: docker.io/ogdf/${{ matrix.compiler }}
     needs: [style, dirs, self-sufficiency, docs]

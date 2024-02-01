@@ -271,8 +271,11 @@ private:
 
 		// Calculate the MinimumWeightPerfectMatching on the new graph
 		std::unordered_set<edge> matchingCopy;
-		bool result = doCall(graphCopy, weightsCopy, matchingCopy);
-		OGDF_ASSERT(result == true);
+#ifdef OGDF_DEBUG
+		bool result =
+#endif
+				doCall(graphCopy, weightsCopy, matchingCopy);
+		OGDF_ASSERT(result);
 
 		// Convert the matching to the original graph
 		for (edge e : matchingCopy) {

@@ -137,7 +137,7 @@ public:
 		}
 		double integralPart;
 		if (std::modf(stretch, &integralPart) != 0.0) {
-			error = "The stretch is required to be an integer, not " + to_string(m_stretch);
+			error = "The stretch is required to be an integer, not " + to_string(stretch);
 			return false;
 		}
 		int intStretch = static_cast<int>(stretch);
