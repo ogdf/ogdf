@@ -323,8 +323,8 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 			List<edge> edgelist;
 			n1a->adjEdges(edgelist);
 
-			EdgeArray<SListPure<edge>> edgeArray(G1);
-			getParallelFreeUndirected(G1, edgeArray);
+			EdgeArray<SListPure<edge>> edgeArr(G1);
+			getParallelFreeUndirected(G1, edgeArr);
 
 
 			for (edge e1 : edgelist) {
@@ -332,8 +332,8 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 				node n2b = nodeMap[n1b];
 				edge e2 = G2.searchEdge(n2a, n2b);
 
-				EdgeArray<SListPure<edge>> edgeArray(G1);
-				getParallelFreeUndirected(G1, edgeArray);
+				EdgeArray<SListPure<edge>> edgeArr2(G1);
+				getParallelFreeUndirected(G1, edgeArr2);
 
 
 				if (e2 == nullptr) {
