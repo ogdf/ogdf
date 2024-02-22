@@ -31,11 +31,10 @@
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/graph_generators/operations.h>
 #include <ogdf/basic/internal/list_templates.h>
 #include <ogdf/basic/simple_graph_alg.h>
-
-#include <vector>
 
 namespace ogdf {
 
@@ -252,36 +251,43 @@ void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& no
 }
 
 void complement(Graph& G, bool directional, bool allow_self_loops) {
+	NodeSet<true> n1neighbors(G);
+	EdgeSet<true> newEdges(G);
+
 	for (node n1 : G.nodes) {
+		// deleting edges
+		safeForEach(n1->adjEntries, [&](adjEntry adj) {
+			node n2 = adj->twinNode();
+
+			if (directional && !adj->isSource()) {
+				return;
+			}
+			if (!directional && n1->index() > n2->index()) {
+				return;
+			}
+			if (newEdges.isMember(adj->theEdge())) {
+				return;
+			}
+			n1neighbors.insert(n2);
+			G.delEdge(adj->theEdge());
+		});
+
+		// adding edges
 		for (node n2 : G.nodes) {
-			if (n1->index() > n2->index()) {
+			if (!directional && n1->index() > n2->index()) {
 				continue;
 			}
 			if (!allow_self_loops && n1->index() == n2->index()) {
 				continue;
 			}
-
-			edge e = G.searchEdge(n1, n2, true);
-			edge er = G.searchEdge(n2, n1, true);
-
-			if (e) {
-				G.delEdge(e);
-			}
-			if (er) {
-				G.delEdge(er);
+			if (n1neighbors.isMember(n2)) {
+				continue;
 			}
 
-			if (directional) {
-				if (!e) {
-					G.newEdge(n1, n2);
-				}
-				if (!er && !allow_self_loops) {
-					G.newEdge(n2, n1);
-				}
-			} else if (!e && !er) {
-				G.newEdge(n1, n2);
-			}
+			edge newEdge = G.newEdge(n1, n2);
+			newEdges.insert(newEdge);
 		}
+		n1neighbors.clear();
 	}
 }
 
@@ -295,30 +301,57 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 		}
 	});
 
+	if (isParallelFree(G1)) { // no multi-edges
+		for (node n1a : G1.nodes) {
+			node n2a = nodeMap[n1a];
+			List<edge> edgelist;
+			n1a->adjEdges(edgelist);
 
-	for (node n1a : G1.nodes) {
-		node n2a = nodeMap[n1a];
-		List<edge> edgelist;
-		n1a->adjEdges(edgelist);
+			for (edge e1 : edgelist) {
+				node n1b = e1->opposite(n1a);
+				node n2b = nodeMap[n1b];
+				edge e2 = G2.searchEdge(n2a, n2b);
 
-		for (edge e1 : edgelist) {
-			node n1b = e1->opposite(n1a);
-			node n2b = nodeMap[n1b];
-			edge e2 = G2.searchEdge(n2a, n2b);
+				if (e2 == nullptr) {
+					G1.delEdge(e1);
+				}
+			}
+		}
+	} else {
+		for (node n1a : G1.nodes) {
+			node n2a = nodeMap[n1a];
+			List<edge> edgelist;
+			n1a->adjEdges(edgelist);
 
-			if (e2 == nullptr) {
-				G1.delEdge(e1);
+			EdgeArray<SListPure<edge>> edgeArray(G1);
+			getParallelFreeUndirected(G1, edgeArray);
+
+
+			for (edge e1 : edgelist) {
+				node n1b = e1->opposite(n1a);
+				node n2b = nodeMap[n1b];
+				edge e2 = G2.searchEdge(n2a, n2b);
+
+				EdgeArray<SListPure<edge>> edgeArray(G1);
+				getParallelFreeUndirected(G1, edgeArray);
+
+
+				if (e2 == nullptr) {
+					G1.delEdge(e1);
+				}
 			}
 		}
 	}
 }
 
 void join(Graph& G1, const Graph& G2, NodeArray<node>& nodeMap) {
+	OGDF_ASSERT(nodeMap.valid());
 	List<node> G1nodes {};
 	getAllNodes(G1, G1nodes);
 	int nodeCount = G1.numberOfNodes();
 
-	G1.insert(G2, nodeMap);
+	EdgeArray<edge> edgeMap(G2, nullptr);
+	G1.insert(G2, nodeMap, edgeMap);
 
 	for (node n2 : G1.nodes) {
 		if (n2->index() < nodeCount) {
