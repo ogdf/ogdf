@@ -30,6 +30,8 @@
  */
 
 #include <ogdf/decomposition/FourBlockTree.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/extended_graph_alg.h>
 
 using namespace ogdf;
 
@@ -679,6 +681,10 @@ FourBlockTree FourBlockTreeBuilder::call() {
 }
 
 FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
+    OGDF_ASSERT(g.numberOfNodes() * 3 == g.numberOfEdges() + 6 && "g must be triangulated");
+    OGDF_ASSERT(isSimpleUndirected(g));
+    OGDF_ASSERT(isPlanar(g));
+
     Graph copy;
     NodeArray<node> originalNodes(copy, nullptr);
 
