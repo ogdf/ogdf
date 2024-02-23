@@ -47,117 +47,117 @@ namespace ogdf {
  * Since each node contains its children, the root is the entire tree.
  */
 struct FourBlockTree {
-    /**
-     * The 4-connected component.
-     */
-    Graph g;
+	/**
+	 * The 4-connected component.
+	 */
+	Graph g;
 
-    /**
-     * The nodes in the original graph corresponding to the nodes in g.
-     *
-     * Since nodes may appear in multiple 4-connected components, these
-     * need not be unique across nodes of the 4-block tree.
-     */
-    NodeArray<node> originalNodes;
+	/**
+	 * The nodes in the original graph corresponding to the nodes in g.
+	 *
+	 * Since nodes may appear in multiple 4-connected components, these
+	 * need not be unique across nodes of the 4-block tree.
+	 */
+	NodeArray<node> originalNodes;
 
-    /**
-     * A half-edge in g such that the external face of g is to its right.
-     */
-    adjEntry externalFace;
+	/**
+	 * A half-edge in g such that the external face of g is to its right.
+	 */
+	adjEntry externalFace;
 
-    /**
-     * The parent node of this node in the 4-block tree.
-     *
-     * If this node is the root node, parent is nullptr.
-     */
-    FourBlockTree* parent;
+	/**
+	 * The parent node of this node in the 4-block tree.
+	 *
+	 * If this node is the root node, parent is nullptr.
+	 */
+	FourBlockTree* parent;
 
-    /**
-     * The half-edge in parent->g corresponding to externalFace.
-     *
-     * If this node is the root node, parentFace is nullptr.
-     */
-    adjEntry parentFace;
+	/**
+	 * The half-edge in parent->g corresponding to externalFace.
+	 *
+	 * If this node is the root node, parentFace is nullptr.
+	 */
+	adjEntry parentFace;
 
-    /**
-     * The child nodes of this nodes.
-     */
-    std::vector<std::unique_ptr<FourBlockTree>> children;
+	/**
+	 * The child nodes of this nodes.
+	 */
+	std::vector<std::unique_ptr<FourBlockTree>> children;
 
-    /**
-     * Construct a 4-block tree of the given graph.
-     *
-     * @param g The plane triangulated graph whose 4-block tree shall be constructed.
-     *          This graph will be used destructively.
-     *          Edge directions in g are not respected.
-     *          The order of edges at each node is used as the combinatorial
-     *          embedding.
-     * @param externalFace A half-edge in g such that the external face of g
-     *                     lies to its right.
-     */
-    static FourBlockTree construct(const Graph& g, adjEntry externalFace);
+	/**
+	 * Construct a 4-block tree of the given graph.
+	 *
+	 * @param g The plane triangulated graph whose 4-block tree shall be constructed.
+	 *          This graph will be used destructively.
+	 *          Edge directions in g are not respected.
+	 *          The order of edges at each node is used as the combinatorial
+	 *          embedding.
+	 * @param externalFace A half-edge in g such that the external face of g
+	 *                     lies to its right.
+	 */
+	static FourBlockTree construct(const Graph& g, adjEntry externalFace);
 
-    /**
-     * Perform a pre-order traversal of the 4-block tree.
-     *
-     * Each child is processed after its parent.
-     *
-     * @tparam _F The type of callback, something like
-     *            `void (*)(const FourBlockTree&)`.
-     * @param callback The function to be called for each node of the tree.
-     */
-    template<typename _F>
-    void preorder(_F callback) const {
-        struct stackEntry {
-            const FourBlockTree* node;
-            std::vector<std::unique_ptr<FourBlockTree>>::const_iterator nextChild;
-        };
+	/**
+	 * Perform a pre-order traversal of the 4-block tree.
+	 *
+	 * Each child is processed after its parent.
+	 *
+	 * @tparam _F The type of callback, something like
+	 *            `void (*)(const FourBlockTree&)`.
+	 * @param callback The function to be called for each node of the tree.
+	 */
+	template<typename _F>
+	void preorder(_F callback) const {
+		struct stackEntry {
+			const FourBlockTree* node;
+			std::vector<std::unique_ptr<FourBlockTree>>::const_iterator nextChild;
+		};
 
-        std::vector<stackEntry> stack;
-        stack.push_back({this, children.begin()});
-        while (!stack.empty()) {
-            auto& it = stack.back().nextChild;
-            if (it != stack.back().node->children.end()) {
-                const FourBlockTree* child = it->get();
-                ++it;
-                stack.push_back({child, child->children.begin()});
-                callback(*child);
-            } else {
-                stack.pop_back();
-            }
-        }
-    }
+		std::vector<stackEntry> stack;
+		stack.push_back({this, children.begin()});
+		while (!stack.empty()) {
+			auto& it = stack.back().nextChild;
+			if (it != stack.back().node->children.end()) {
+				const FourBlockTree* child = it->get();
+				++it;
+				stack.push_back({child, child->children.begin()});
+				callback(*child);
+			} else {
+				stack.pop_back();
+			}
+		}
+	}
 
-    /**
-     * Perform a post-order traversal of the 4-block tree.
-     *
-     * Each child is processed before its parent.
-     *
-     * @tparam _F The type of callback, something like
-     *            `void (*)(const FourBlockTree&)`.
-     * @param callback The function to be called for each node of the tree.
-     */
-    template<typename _F>
-    void postorder(_F callback) const {
-        struct stackEntry {
-            const FourBlockTree* node;
-            std::vector<std::unique_ptr<FourBlockTree>>::const_iterator nextChild;
-        };
+	/**
+	 * Perform a post-order traversal of the 4-block tree.
+	 *
+	 * Each child is processed before its parent.
+	 *
+	 * @tparam _F The type of callback, something like
+	 *            `void (*)(const FourBlockTree&)`.
+	 * @param callback The function to be called for each node of the tree.
+	 */
+	template<typename _F>
+	void postorder(_F callback) const {
+		struct stackEntry {
+			const FourBlockTree* node;
+			std::vector<std::unique_ptr<FourBlockTree>>::const_iterator nextChild;
+		};
 
-        std::vector<stackEntry> stack;
-        stack.push_back({this, children.begin()});
-        while (!stack.empty()) {
-            auto& it = stack.back().nextChild;
-            if (it != stack.back().node->children.end()) {
-                const FourBlockTree* child = it->get();
-                ++it;
-                stack.push_back({child, child->children.begin()});
-            } else {
-                callback(**it);
-                stack.pop_back();
-            }
-        }
-    }
+		std::vector<stackEntry> stack;
+		stack.push_back({this, children.begin()});
+		while (!stack.empty()) {
+			auto& it = stack.back().nextChild;
+			if (it != stack.back().node->children.end()) {
+				const FourBlockTree* child = it->get();
+				++it;
+				stack.push_back({child, child->children.begin()});
+			} else {
+				callback(**it);
+				stack.pop_back();
+			}
+		}
+	}
 };
 
 } // namespace ogdf
