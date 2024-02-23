@@ -58,8 +58,6 @@ std::vector<_T> countingSort(const _C& input, _L key) {
 
 /**
  * A class that constructs the 4-block tree of a given graph.
-
- * For details see https://doi.org/10.48550/arXiv.2308.16020
  */
 class FourBlockTreeBuilder {
 	using triangle_t = std::array<edge, 3>;

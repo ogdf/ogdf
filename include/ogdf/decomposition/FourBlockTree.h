@@ -1,6 +1,18 @@
 /** \file
  * \brief Declaration of FourBlockTree.
  *
+ * Based on the implementation and techiques of the following papers:
+ *
+ * Norishige Chiba, and Takao Nishizeki.
+ * Arboricity and subgraph listing algorithms.
+ * SIAM Journal on computing 14.1 (1985): 210-223.
+ * [doi:10.1137/0214017](https://doi.org/10.1137/0214017).
+ *
+ * Sabine Cornelsen, and Gregor Diatzko.
+ * Decomposing Triangulations into 4-Connected Components.
+ * arXiv [cs.DS], 2023.
+ * [doi:10.48550/arXiv.2308.16020](https://doi.org/10.48550/arXiv.2308.16020).
+ *
  * \author Gregor Diatzko
  *
  * \par License:
