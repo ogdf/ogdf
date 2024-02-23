@@ -1,4 +1,37 @@
+/** \file
+ * \brief Implementation of FourBlockTree using FourBlockTreeBuilder.
+ *
+ * \author Gregor Diatzko
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #include <ogdf/decomposition/FourBlockTree.h>
+
+using namespace ogdf;
 
 template<typename _C, typename _L, typename _T = typename _C::value_type>
 std::vector<_T> countingSort(const _C& input, _L key) {
@@ -21,7 +54,126 @@ std::vector<_T> countingSort(const _C& input, _L key) {
     return res;
 }
 
-void ogdf::FourBlockTreeBuilder::populateIndices() {
+/**
+ * A class that constructs the 4-block tree of a given graph.
+
+ * For details see https://doi.org/10.48550/arXiv.2308.16020
+ */
+class FourBlockTreeBuilder {
+    using triangle_t = std::array<edge, 3>;
+    using returnSide_t = unsigned char;
+    static constexpr returnSide_t LEFT = 0b10, RIGHT = 0b01; // when root is drawn at the top
+
+    Graph& m_g;
+    NodeArray<node>& m_originalNodes;
+
+    /**
+     * A half-edge in g such that the external face of g lies to its left.
+     */
+    adjEntry m_externalFace;
+
+    /**
+     * A node in the external face.
+     *
+     * This will be used as the root for DFS.
+     */
+    node m_root;
+
+    /**
+     * Index of every adjEntry in its adjencency list.
+     */
+    AdjEntryArray<size_t> m_indices;
+
+    /**
+     * Populate m_indices.
+     */
+    void populateIndices();
+
+    /**
+     * All separating triangles.
+     */
+    std::vector<triangle_t> m_sepTriangles;
+
+    /**
+     * Populate m_sepTriangles.
+     */
+    void populateSepTriangles();
+
+    /**
+     * The length of the root-v-path along tree edges for each node v.
+     */
+    NodeArray<size_t> m_depth;
+
+    /**
+     * The half-edge along which each node was found during the first DFS.
+     *
+     * m_parentEdge[v]->theNode() = v
+     */
+    NodeArray<adjEntry> m_parentEdge; // m_parentEdge[v]->theNode() = v
+
+    /**
+     * Whether each edge is a tree edge or a back edge.
+     */
+    EdgeArray<bool> m_isTreeEdge;
+
+    /**
+     * The lowpoint of each edge.
+     */
+    EdgeArray<node> m_lowpoint;
+
+    /**
+     * The return side of each edge.
+     */
+    EdgeArray<returnSide_t> m_returnSide;
+
+    /**
+     * The angular distance of each edge.
+     */
+    EdgeArray<size_t> m_angularDistance;
+
+    /**
+     * Run the first DFS.
+     *
+     * Populate m_depth, m_parentEdge, m_isTreeEdge, m_lowpoint, m_returnSide,
+     * m_angularDistance.
+     */
+    void firstDfs();
+
+    /**
+     * Order the elements of m_sepTriangles inside out.
+     */
+    void orderTriangles();
+
+    /**
+     * Split m_g along the elements of m_sepTriangles and build the resulting
+     * 4-block tree.
+     */
+    FourBlockTree buildTree();
+
+public:
+    /**
+     * Prepares all necessary data structures.
+     *
+     * @param g The plane triangulated graph whose 4-block tree shall be constructed.
+     *          This graph will be used destructively.
+     *          Edge directions in g are not respected.
+     *          The order of edges at each node is used as the combinatorial
+     *          embedding.
+     * @param originalNodes The nodes in the original graph corresponding
+     *                      to those in g. This will be used to populate
+     *                      FourBlockTree::originalNodes.
+     * @param externalFace A half-edge in g such that the external face of g
+     *                     lies to its right.
+     */
+    FourBlockTreeBuilder(Graph& g, NodeArray<node>& originalNodes, adjEntry externalFace);
+
+    /**
+     * Run the algorithm.
+     */
+    FourBlockTree call();
+};
+
+void FourBlockTreeBuilder::populateIndices() {
     for (const auto v : m_g.nodes) {
         size_t i = 0;
         for (const auto a : v->adjEntries) {
@@ -30,18 +182,18 @@ void ogdf::FourBlockTreeBuilder::populateIndices() {
     }
 }
 
-void ogdf::FourBlockTreeBuilder::populateSepTriangles() {
+void FourBlockTreeBuilder::populateSepTriangles() {
     /* find all triangles [Chiba, Nishizeki] */
 
-    /* sort vertices by degree using CountingSort */
+    /* sort nodes by degree using CountingSort */
     const auto byDescDegree =
-            countingSort(m_g.nodes, [&](ogdf::node v) { return m_g.numberOfNodes() - v->degree(); });
+            countingSort(m_g.nodes, [&](node v) { return m_g.numberOfNodes() - v->degree(); });
 
-    ogdf::NodeArray<bool> marked(m_g, false);
-    ogdf::NodeArray<bool> deleted(m_g, false);
-    ogdf::NodeArray<ogdf::adjEntry> a_vw(m_g, nullptr); // a_vw[w]->theEdge() = {v,w} for all w adj to v
+    NodeArray<bool> marked(m_g, false);
+    NodeArray<bool> deleted(m_g, false);
+    NodeArray<adjEntry> a_vw(m_g, nullptr); // a_vw[w]->theEdge() = {v,w} for all w adj to v
 
-    /* for all vertices ordered by non-ascending degree */
+    /* for all nodes ordered by non-ascending degree */
     for (const auto v : byDescDegree) {
         /* mark all neighbors of v */
         for (const auto a_vw_ : v->adjEntries) {
@@ -50,13 +202,13 @@ void ogdf::FourBlockTreeBuilder::populateSepTriangles() {
             a_vw[w] = a_vw_;
         }
 
-        for (const auto a_vu : v->adjEntries) // for each marked vertex u
+        for (const auto a_vu : v->adjEntries) // for each marked node u
         {
             const auto u = a_vu->twinNode();
             if (deleted[u]) {
                 continue;
             }
-            for (const auto a_uw : u->adjEntries) // for each vertex w adj to u
+            for (const auto a_uw : u->adjEntries) // for each node w adj to u
             {
                 const auto w = a_uw->twinNode();
                 if (deleted[w]) {
@@ -82,10 +234,10 @@ void ogdf::FourBlockTreeBuilder::populateSepTriangles() {
     }
 }
 
-void ogdf::FourBlockTreeBuilder::firstDfs() {
-    ogdf::NodeArray<bool> visited(m_g, false);
-    ogdf::EdgeArray<bool> traversed(m_g, false);
-    std::vector<ogdf::adjEntry> stack = {m_externalFace};
+void FourBlockTreeBuilder::firstDfs() {
+    NodeArray<bool> visited(m_g, false);
+    EdgeArray<bool> traversed(m_g, false);
+    std::vector<adjEntry> stack = {m_externalFace};
     visited[m_root] = traversed[m_externalFace->theEdge()] = true;
     m_parentEdge[m_root] = m_externalFace;
 
@@ -175,23 +327,23 @@ void ogdf::FourBlockTreeBuilder::firstDfs() {
     }
 }
 
-void ogdf::FourBlockTreeBuilder::orderTriangles() {
+void FourBlockTreeBuilder::orderTriangles() {
     /* sort edges e using Counting-/RadixSort on */
     /* 1. e->source() */
     /* 2. -m_depth[m_lowpoint[e]] */
     /* 3. m_angularDistance[e] */
     const auto byAngularDistance =
-            countingSort(m_g.edges, [&](ogdf::edge e) { return m_angularDistance[e]; });
+            countingSort(m_g.edges, [&](edge e) { return m_angularDistance[e]; });
     const auto byDepthLowpoint = countingSort(byAngularDistance,
-            [&](ogdf::edge e) { return m_g.numberOfNodes() - m_depth[m_lowpoint[e]]; });
-    ogdf::NodeArray<std::vector<ogdf::edge>> edge_order(m_g);
+            [&](edge e) { return m_g.numberOfNodes() - m_depth[m_lowpoint[e]]; });
+    NodeArray<std::vector<edge>> edge_order(m_g);
     for (const auto e : byDepthLowpoint) {
         edge_order[e->source()].push_back(e);
     }
 
     std::vector<unsigned char> untraversedEdges(m_sepTriangles.size(),
             3); // number of edges for each triangle that have not yet been traversed
-    ogdf::EdgeArray<std::vector<size_t>> triangleIndices(
+    EdgeArray<std::vector<size_t>> triangleIndices(
             m_g); // indices into untraversedEdges and m_sepTriangles
     for (size_t i = 0; i < m_sepTriangles.size(); ++i) {
         const auto& t = m_sepTriangles[i];
@@ -206,7 +358,7 @@ void ogdf::FourBlockTreeBuilder::orderTriangles() {
     std::vector<size_t> foundWithEdge(m_sepTriangles.size(), 0);
 
     /* second DFS */
-    std::vector<std::pair<ogdf::node, std::vector<ogdf::edge>::const_iterator>> stack = {
+    std::vector<std::pair<node, std::vector<edge>::const_iterator>> stack = {
             {m_root, edge_order[m_root].cbegin()}};
     size_t edge_id = 0;
     while (!stack.empty()) {
@@ -288,19 +440,19 @@ void ogdf::FourBlockTreeBuilder::orderTriangles() {
     m_sepTriangles = std::move(res);
 }
 
-ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
-    std::vector<std::unique_ptr<ogdf::FourBlockTree>> blocks;
+FourBlockTree FourBlockTreeBuilder::buildTree() {
+    std::vector<std::unique_ptr<FourBlockTree>> blocks;
 
     /* used to set FourBlockTree.parent */
-    ogdf::AdjEntryArray<ogdf::FourBlockTree*> parentInv(m_g, nullptr);
+    AdjEntryArray<FourBlockTree*> parentInv(m_g, nullptr);
 
     /* isInner[v] => v is part of an inner block that is about to be copied from m_g */
     /* initialized once to avoid linear cost for each block */
-    ogdf::NodeArray<bool> isInner(m_g, false);
+    NodeArray<bool> isInner(m_g, false);
 
     /* the ID the edge will have in b */
     /* initialized once to avoid linear cost for each block */
-    ogdf::EdgeArray<size_t> edgeIdsForB(m_g, 0);
+    EdgeArray<size_t> edgeIdsForB(m_g, 0);
 
     for (const auto& t : m_sepTriangles) {
         /* u,v,w in clockwise order around t */
@@ -310,7 +462,7 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
         const auto u = wu->commonNode(uv);
 
         /* create new block b */
-        blocks.push_back(std::make_unique<ogdf::FourBlockTree>());
+        blocks.push_back(std::make_unique<FourBlockTree>());
         auto& b = *blocks.back();
 
         /* split m_g at t */
@@ -320,18 +472,18 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
         const auto vw_ = m_g.newEdge(v_, w_);
         const auto wu_ = m_g.newEdge(w_, u_);
         const auto uv_ = m_g.newEdge(u_, v_);
-        m_vertexIds[u_] = m_vertexIds[u];
-        m_vertexIds[v_] = m_vertexIds[v];
-        m_vertexIds[w_] = m_vertexIds[w];
+        m_originalNodes[u_] = m_originalNodes[u];
+        m_originalNodes[v_] = m_originalNodes[v];
+        m_originalNodes[w_] = m_originalNodes[w];
 
         /* move edges incident to v */
         auto adj = vw->getAdj(v)->cyclicSucc();
         while (adj != uv->getAdj(v)) {
             const auto tmp = adj->cyclicSucc();
             if (adj->isSource()) {
-                m_g.moveSource(adj->theEdge(), uv_->adjTarget(), ogdf::Direction::before);
+                m_g.moveSource(adj->theEdge(), uv_->adjTarget(), Direction::before);
             } else {
-                m_g.moveTarget(adj->theEdge(), uv_->adjTarget(), ogdf::Direction::before);
+                m_g.moveTarget(adj->theEdge(), uv_->adjTarget(), Direction::before);
             }
             adj = tmp;
         }
@@ -341,9 +493,9 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
         while (adj != vw->getAdj(w)) {
             const auto tmp = adj->cyclicSucc();
             if (adj->isSource()) {
-                m_g.moveSource(adj->theEdge(), vw_->adjTarget(), ogdf::Direction::before);
+                m_g.moveSource(adj->theEdge(), vw_->adjTarget(), Direction::before);
             } else {
-                m_g.moveTarget(adj->theEdge(), vw_->adjTarget(), ogdf::Direction::before);
+                m_g.moveTarget(adj->theEdge(), vw_->adjTarget(), Direction::before);
             }
             adj = tmp;
         }
@@ -353,9 +505,9 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
         while (adj != wu->getAdj(u)) {
             const auto tmp = adj->cyclicSucc();
             if (adj->isSource()) {
-                m_g.moveSource(adj->theEdge(), wu_->adjTarget(), ogdf::Direction::before);
+                m_g.moveSource(adj->theEdge(), wu_->adjTarget(), Direction::before);
             } else {
-                m_g.moveTarget(adj->theEdge(), wu_->adjTarget(), ogdf::Direction::before);
+                m_g.moveTarget(adj->theEdge(), wu_->adjTarget(), Direction::before);
             }
             adj = tmp;
         }
@@ -369,13 +521,13 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
             c = &b;
         }
 
-        /* list all vertices to be copied to b */
-        std::vector<ogdf::node> innerVertices = {u_, v_, w_}; // vertices in inner block
+        /* list all nodes to be copied to b */
+        std::vector<node> innerNodes = {u_, v_, w_}; // nodes in inner block
         isInner[u_] = isInner[v_] = isInner[w_] = true;
         size_t b_m = 0; // number of edges in inner block
         size_t nextEdgeIdForB = 0;
-        for (size_t i = 0; i < innerVertices.size(); ++i) {
-            for (const auto a : innerVertices[i]->adjEntries) {
+        for (size_t i = 0; i < innerNodes.size(); ++i) {
+            for (const auto a : innerNodes[i]->adjEntries) {
                 /* count edges */
                 if (a->isSource()) {
                     ++b_m;
@@ -386,24 +538,24 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
                 const auto x = a->twinNode();
                 if (!isInner[x]) {
                     isInner[x] = true;
-                    innerVertices.push_back(x);
+                    innerNodes.push_back(x);
                 }
             }
         }
 
-        /* copy innerVertices with their edges to b */
-        b.vertexIds.init(b.g);
+        /* copy innerNodes with their edges to b */
+        b.originalNodes.init(b.g);
         b.parent = nullptr;
         b.parentFace = nullptr;
         const auto bDummy = b.g.newNode();
-        std::vector<ogdf::edge> bEdges;
+        std::vector<edge> bEdges;
         for (size_t i = 0; i < b_m; ++i) {
             bEdges.push_back(b.g.newEdge(bDummy, bDummy));
         }
-        for (const auto x : innerVertices) {
-            /* copy vertex */
+        for (const auto x : innerNodes) {
+            /* copy node */
             const auto b_v = b.g.newNode();
-            b.vertexIds[b_v] = m_vertexIds[x];
+            b.originalNodes[b_v] = m_originalNodes[x];
 
             for (const auto a : x->adjEntries) {
                 /* copy adjEntry */
@@ -424,22 +576,22 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
             }
 
             if (x == v_) {
-                b.externalFace = b_v->firstAdj();
+                b.externalFace = b_v->lastAdj();
             }
         }
         b.g.delNode(bDummy);
     }
 
     /* root of 4-block tree */
-    ogdf::FourBlockTree res;
+    FourBlockTree res;
     {
-        /* list all vertices to be copied to res */
-        std::vector<ogdf::node> innerVertices = {m_root}; // vertices in outermost block
+        /* list all nodes to be copied to res */
+        std::vector<node> innerNodes = {m_root}; // nodes in outermost block
         isInner[m_root] = true;
         size_t b_m = 0; // number of edges in outermost block
         size_t nextEdgeIdForB = 0;
-        for (size_t i = 0; i < innerVertices.size(); ++i) {
-            for (const auto a : innerVertices[i]->adjEntries) {
+        for (size_t i = 0; i < innerNodes.size(); ++i) {
+            for (const auto a : innerNodes[i]->adjEntries) {
                 /* count edges */
                 if (a->isSource()) {
                     ++b_m;
@@ -450,24 +602,24 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
                 const auto w = a->twinNode();
                 if (!isInner[w]) {
                     isInner[w] = true;
-                    innerVertices.push_back(w);
+                    innerNodes.push_back(w);
                 }
             }
         }
 
-        /* copy innerVertices with their edges to res */
-        res.vertexIds.init(res.g);
+        /* copy innerNodes with their edges to res */
+        res.originalNodes.init(res.g);
         res.parent = nullptr;
         res.parentFace = nullptr;
         const auto bDummy = res.g.newNode();
-        std::vector<ogdf::edge> bEdges;
+        std::vector<edge> bEdges;
         for (size_t i = 0; i < b_m; ++i) {
             bEdges.push_back(res.g.newEdge(bDummy, bDummy));
         }
-        for (const auto v : innerVertices) {
-            /* copy vertex */
+        for (const auto v : innerNodes) {
+            /* copy node */
             const auto b_v = res.g.newNode();
-            res.vertexIds[b_v] = m_vertexIds[v];
+            res.originalNodes[b_v] = m_originalNodes[v];
 
             for (const auto a : v->adjEntries) {
                 /* copy adjEntry */
@@ -480,7 +632,7 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
 
                 /* set res.externalFace */
                 if (a == m_externalFace) {
-                    res.externalFace = a->isSource() ? b_e->adjSource() : b_e->adjTarget();
+                    res.externalFace = a->isSource() ? b_e->adjTarget() : b_e->adjSource();
                 }
 
                 /* set c.parent and c.parentFace for children c of res */
@@ -504,11 +656,11 @@ ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::buildTree() {
     return res;
 }
 
-ogdf::FourBlockTreeBuilder::FourBlockTreeBuilder(ogdf::Graph& g, ogdf::NodeArray<size_t>& vertexIds,
-        ogdf::adjEntry externalFace)
+FourBlockTreeBuilder::FourBlockTreeBuilder(Graph& g, NodeArray<node>& originalNodes,
+        adjEntry externalFace)
     : m_g(g)
-    , m_vertexIds(vertexIds)
-    , m_externalFace(externalFace)
+    , m_originalNodes(originalNodes)
+    , m_externalFace(externalFace->twin())
     , m_root(externalFace->theNode())
     , m_indices(g, 0)
     , m_depth(g, 0)
@@ -518,10 +670,39 @@ ogdf::FourBlockTreeBuilder::FourBlockTreeBuilder(ogdf::Graph& g, ogdf::NodeArray
     , m_returnSide(g, 0)
     , m_angularDistance(g, 0) { }
 
-ogdf::FourBlockTree ogdf::FourBlockTreeBuilder::call() {
+FourBlockTree FourBlockTreeBuilder::call() {
     populateIndices();
     populateSepTriangles();
     firstDfs();
     orderTriangles();
     return buildTree();
+}
+
+FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
+    Graph copy;
+    NodeArray<node> originalNodes(copy, nullptr);
+
+    /* copy g into copy and populate originalNodes */
+    EdgeArray<edge> edgeCopies(g, nullptr);
+    const node dummySource = copy.newNode();
+    const node dummyTarget = copy.newNode();
+    for (const edge e : g.edges) {
+        edgeCopies[e] = copy.newEdge(dummySource, dummyTarget);
+    }
+    for (const node v : g.nodes) {
+        const node v_ = copy.newNode();
+        originalNodes[v_] = v;
+        for (const adjEntry a : v->adjEntries) {
+            if (a->isSource()) {
+                copy.moveSource(edgeCopies[a->theEdge()], v_);
+            } else {
+                copy.moveTarget(edgeCopies[a->theEdge()], v_);
+            }
+        }
+    }
+    copy.delNode(dummySource);
+    copy.delNode(dummyTarget);
+
+    FourBlockTreeBuilder builder(copy, originalNodes, externalFace);
+    return builder.call();
 }
