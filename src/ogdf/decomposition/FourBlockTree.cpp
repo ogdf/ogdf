@@ -68,7 +68,8 @@ class FourBlockTreeBuilder {
 	NodeArray<node>& m_originalNodes;
 
 	/**
-	 * A half-edge in g such that the external face of g lies to its left.
+	 * A half-edge in g such that the external face of g lies to its left and
+	 * m_externalFace == m_externalFace->theNode()->firstAdj().
 	 */
 	adjEntry m_externalFace;
 
@@ -163,7 +164,9 @@ public:
 	 *                      to those in g. This will be used to populate
 	 *                      FourBlockTree::originalNodes.
 	 * @param externalFace A half-edge in g such that the external face of g
-	 *                     lies to its right.
+	 *                     lies to its left.
+	 *
+	 * \pre externalFace == externalFace->theNode()->firstAdj()
 	 */
 	FourBlockTreeBuilder(Graph& g, NodeArray<node>& originalNodes, adjEntry externalFace);
 
@@ -262,7 +265,7 @@ void FourBlockTreeBuilder::firstDfs() {
 				}
 				stack.push_back(w->firstAdj());
 			} else if (!traversed[e]) {
-				/* e is tree edge */
+				/* e is back edge */
 				traversed[e] = true;
 				m_isTreeEdge[e] = false;
 				m_lowpoint[e] = w;
@@ -661,7 +664,7 @@ FourBlockTreeBuilder::FourBlockTreeBuilder(Graph& g, NodeArray<node>& originalNo
 		adjEntry externalFace)
 	: m_g(g)
 	, m_originalNodes(originalNodes)
-	, m_externalFace(externalFace->twin())
+	, m_externalFace(externalFace)
 	, m_root(externalFace->theNode())
 	, m_indices(g, 0)
 	, m_depth(g, 0)
@@ -684,10 +687,11 @@ FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
 	OGDF_ASSERT(isSimpleUndirected(g));
 	OGDF_ASSERT(isPlanar(g));
 
+	externalFace = externalFace->twin();
+
+	/* set up working copy of g and populate originalNodes */
 	Graph copy;
 	NodeArray<node> originalNodes(copy, nullptr);
-
-	/* copy g into copy and populate originalNodes */
 	EdgeArray<edge> edgeCopies(g, nullptr);
 	const node dummySource = copy.newNode();
 	const node dummyTarget = copy.newNode();
@@ -703,10 +707,25 @@ FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
 			} else {
 				copy.moveTarget(edgeCopies[a->theEdge()], v_);
 			}
+			if (a == externalFace) {
+				externalFace = a->isSource() ? edgeCopies[a->theEdge()]->adjSource()
+											 : edgeCopies[a->theEdge()]->adjTarget();
+			}
 		}
 	}
 	copy.delNode(dummySource);
 	copy.delNode(dummyTarget);
+
+	/* establish externalFace == externalFace->theNode()->firstAdj() */
+	const node root = externalFace->theNode();
+	while (externalFace != root->firstAdj()) {
+		const adjEntry adj = root->firstAdj();
+		if (adj->isSource()) {
+			copy.moveSource(adj->theEdge(), root->lastAdj(), Direction::after);
+		} else {
+			copy.moveTarget(adj->theEdge(), root->lastAdj(), Direction::after);
+		}
+	}
 
 	FourBlockTreeBuilder builder(copy, originalNodes, externalFace);
 	return builder.call();
