@@ -362,7 +362,8 @@ void FourBlockTreeBuilder::orderTriangles() {
 			{m_root, edge_order[m_root].cbegin()}};
 	size_t edge_id = 0;
 	while (!stack.empty()) {
-		auto& [v, it] = stack.back();
+		const auto v = stack.back().first;
+		auto& it = stack.back().second;
 		if (it == edge_order[v].cend()) {
 			stack.pop_back();
 		} else {
