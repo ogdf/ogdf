@@ -127,6 +127,7 @@ struct FourBlockTree {
 
 		std::vector<stackEntry> stack;
 		stack.push_back({this, children.begin()});
+		callback(*this);
 		while (!stack.empty()) {
 			auto& it = stack.back().nextChild;
 			if (it != stack.back().node->children.end()) {
@@ -165,7 +166,7 @@ struct FourBlockTree {
 				++it;
 				stack.push_back({child, child->children.begin()});
 			} else {
-				callback(**it);
+				callback(*stack.back().node);
 				stack.pop_back();
 			}
 		}
