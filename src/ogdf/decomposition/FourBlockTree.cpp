@@ -29,9 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/decomposition/FourBlockTree.h>
+
+#ifdef OGDF_DEBUG
+#	include <ogdf/basic/extended_graph_alg.h>
+#	include <ogdf/basic/simple_graph_alg.h>
+
+#	include <algorithm>
+#endif // OGDF_DEBUG
 
 using namespace ogdf;
 
@@ -683,6 +688,9 @@ FourBlockTree FourBlockTreeBuilder::call() {
 }
 
 FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
+	OGDF_ASSERT(externalFace != nullptr);
+	OGDF_ASSERT(std::any_of(g.nodes.begin(), g.nodes.end(),
+			[externalFace](node v) { return v == externalFace->theNode(); }));
 	OGDF_ASSERT(g.numberOfNodes() * 3 == g.numberOfEdges() + 6 && "g must be triangulated");
 	OGDF_ASSERT(isSimpleUndirected(g));
 	OGDF_ASSERT(isPlanar(g));
