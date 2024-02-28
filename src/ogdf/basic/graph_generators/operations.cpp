@@ -293,6 +293,7 @@ void complement(Graph& G, bool directional, bool allow_self_loops) {
 
 void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 	OGDF_ASSERT(nodeMap.valid());
+	NodeSet<true> n2aNeighbors(G2);
 
 	safeForEach(G1.nodes, [&](node n1) {
 		node n2 = nodeMap[n1];
@@ -307,15 +308,18 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 			List<edge> edgelist;
 			n1a->adjEdges(edgelist);
 
+			for (adjEntry n2aadj : n2a->adjEntries) {
+				n2aNeighbors.insert(n2aadj->twinNode());
+			}
 			for (edge e1 : edgelist) {
 				node n1b = e1->opposite(n1a);
 				node n2b = nodeMap[n1b];
-				edge e2 = G2.searchEdge(n2a, n2b);
 
-				if (e2 == nullptr) {
+				if (!n2aNeighbors.isMember(n2b)) {
 					G1.delEdge(e1);
 				}
 			}
+			n2aNeighbors.clear();
 		}
 	} else {
 		for (node n1a : G1.nodes) {
@@ -326,20 +330,22 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 			EdgeArray<SListPure<edge>> edgeArr(G1);
 			getParallelFreeUndirected(G1, edgeArr);
 
+			for (adjEntry n2aadj : n2a->adjEntries) {
+				n2aNeighbors.insert(n2aadj->twinNode());
+			}
 
 			for (edge e1 : edgelist) {
 				node n1b = e1->opposite(n1a);
 				node n2b = nodeMap[n1b];
-				edge e2 = G2.searchEdge(n2a, n2b);
 
 				EdgeArray<SListPure<edge>> edgeArr2(G1);
 				getParallelFreeUndirected(G1, edgeArr2);
 
-
-				if (e2 == nullptr) {
+				if (!n2aNeighbors.isMember(n2b)) {
 					G1.delEdge(e1);
 				}
 			}
+			n2aNeighbors.clear();
 		}
 	}
 }
