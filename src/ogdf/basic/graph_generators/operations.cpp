@@ -257,6 +257,9 @@ void complement(Graph& G, bool directional, bool allow_self_loops) {
 	for (node n1 : G.nodes) {
 		// deleting edges
 		safeForEach(n1->adjEntries, [&](adjEntry adj) {
+			if (n1->adjEntries.size() <= 0) {
+				return;
+			}
 			node n2 = adj->twinNode();
 
 			if (directional && !adj->isSource()) {
