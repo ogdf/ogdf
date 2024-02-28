@@ -34,6 +34,9 @@
 #include <ogdf/basic/graph_generators/operations.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
+#include <bandit/assertion_frameworks/snowhouse/assert.h>
+#include <bandit/assertion_frameworks/snowhouse/constraints/equalsconstraint.h>
+#include <bandit/grammar.h>
 #include <graphs.h>
 #include <testing.h>
 
@@ -215,6 +218,69 @@ go_bandit([] {
 						rootedProduct(G1, G2, product, nodeInProduct, G2.firstNode());
 					},
 					[](int n1, int m1, int n2, int m2) { return m1 + m2 * n1; });
+		});
+
+		describe("tests for creating graph complement", []() {
+			// Tests for basic functionality
+			Graph G;
+			node n1, n2;
+			before_each([&]() {
+				G.clear();
+				n1 = G.newNode();
+				n2 = G.newNode();
+			});
+			describe("tests in a simple graph", [&]() {
+				it("creates an edge where there was none", [&]() {
+					complement(G, false, false);
+					edge edge12 = G.searchEdge(n1, n2);
+					AssertThat(edge12, Is().Not().Null());
+				});
+				it("removes an edge where there was one", [&]() {
+					G.newEdge(n1, n2);
+					complement(G, false, false);
+					edge edge12 = G.searchEdge(n1, n2);
+					AssertThat(edge12, IsNull());
+				});
+			});
+			describe("tests in a directed graph", [&]() {
+				it("reverses an existing edge", [&]() {
+					G.newEdge(n1, n2);
+					complement(G, true, false);
+					edge edge12 = G.searchEdge(n1, n2, true);
+					edge edge21 = G.searchEdge(n2, n1, true);
+					AssertThat(edge12, IsNull());
+					AssertThat(edge21, Is().Not().Null());
+				});
+				it("creates two edges where there were none", [&]() {
+					complement(G, true, false);
+					edge edge12 = G.searchEdge(n1, n2, true);
+					edge edge21 = G.searchEdge(n2, n1, true);
+					AssertThat(edge12, Is().Not().Null());
+					AssertThat(edge21, Is().Not().Null());
+				});
+				it("removes both edges between two nodes", [&]() {
+					G.newEdge(n1, n2);
+					G.newEdge(n2, n1);
+					complement(G, true, false);
+					edge edge12 = G.searchEdge(n1, n2, true);
+					edge edge21 = G.searchEdge(n2, n1, true);
+					AssertThat(edge12, IsNull());
+					AssertThat(edge21, IsNull());
+				});
+			});
+			describe("tests in a graph with self loops", [&]() {
+				it("creates a self loop where there was none", [&]() {
+					complement(G, false, true);
+					edge edge11 = G.searchEdge(n1, n1);
+					AssertThat(edge11, Is().Not().Null());
+				});
+				it("removes a self loop where there was one", [&]() {
+					G.newEdge(n1, n1);
+					complement(G, false, true);
+					edge edge11 = G.searchEdge(n1, n1);
+					AssertThat(edge11, IsNull());
+				});
+			});
 		});
 	});
 });
