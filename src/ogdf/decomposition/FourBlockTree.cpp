@@ -689,8 +689,7 @@ FourBlockTree FourBlockTreeBuilder::call() {
 
 FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
 	OGDF_ASSERT(externalFace != nullptr);
-	OGDF_ASSERT(std::any_of(g.nodes.begin(), g.nodes.end(),
-			[externalFace](node v) { return v == externalFace->theNode(); }));
+	OGDF_ASSERT(externalFace->graphOf() == &g);
 	OGDF_ASSERT(g.numberOfNodes() * 3 == g.numberOfEdges() + 6 && "g must be triangulated");
 	OGDF_ASSERT(isSimpleUndirected(g));
 	OGDF_ASSERT(isPlanar(g));
