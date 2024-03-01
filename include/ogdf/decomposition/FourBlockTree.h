@@ -58,7 +58,7 @@ namespace ogdf {
  *
  * Since each node contains its children, the root is the entire tree.
  */
-struct FourBlockTree {
+struct OGDF_EXPORT FourBlockTree {
 	/**
 	 * The 4-connected component.
 	 */
