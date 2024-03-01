@@ -34,8 +34,6 @@
 #ifdef OGDF_DEBUG
 #	include <ogdf/basic/extended_graph_alg.h>
 #	include <ogdf/basic/simple_graph_alg.h>
-
-#	include <algorithm>
 #endif // OGDF_DEBUG
 
 using namespace ogdf;
