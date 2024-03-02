@@ -43,8 +43,6 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/NodeArray.h>
 

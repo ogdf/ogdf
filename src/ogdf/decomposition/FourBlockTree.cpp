@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/decomposition/FourBlockTree.h>
 
 #ifdef OGDF_DEBUG
