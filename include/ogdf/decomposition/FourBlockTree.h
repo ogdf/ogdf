@@ -140,6 +140,38 @@ struct OGDF_EXPORT FourBlockTree {
 	}
 
 	/**
+	 * Perform a pre-order traversal of the 4-block tree.
+	 *
+	 * Each child is processed after its parent.
+	 *
+	 * @tparam _F The type of callback, something like
+	 *            `void (*)(FourBlockTree&)`.
+	 * @param callback The function to be called for each node of the tree.
+	 */
+	template<typename _F>
+	void preorder(_F callback) {
+		struct stackEntry {
+			FourBlockTree* node;
+			std::vector<std::unique_ptr<FourBlockTree>>::iterator nextChild;
+		};
+
+		std::vector<stackEntry> stack;
+		stack.push_back({this, children.begin()});
+		callback(*this);
+		while (!stack.empty()) {
+			auto& it = stack.back().nextChild;
+			if (it != stack.back().node->children.end()) {
+				FourBlockTree* child = it->get();
+				++it;
+				stack.push_back({child, child->children.begin()});
+				callback(*child);
+			} else {
+				stack.pop_back();
+			}
+		}
+	}
+
+	/**
 	 * Perform a post-order traversal of the 4-block tree.
 	 *
 	 * Each child is processed before its parent.
@@ -161,6 +193,37 @@ struct OGDF_EXPORT FourBlockTree {
 			auto& it = stack.back().nextChild;
 			if (it != stack.back().node->children.end()) {
 				const FourBlockTree* child = it->get();
+				++it;
+				stack.push_back({child, child->children.begin()});
+			} else {
+				callback(*stack.back().node);
+				stack.pop_back();
+			}
+		}
+	}
+
+	/**
+	 * Perform a post-order traversal of the 4-block tree.
+	 *
+	 * Each child is processed before its parent.
+	 *
+	 * @tparam _F The type of callback, something like
+	 *            `void (*)(FourBlockTree&)`.
+	 * @param callback The function to be called for each node of the tree.
+	 */
+	template<typename _F>
+	void postorder(_F callback) {
+		struct stackEntry {
+			FourBlockTree* node;
+			std::vector<std::unique_ptr<FourBlockTree>>::iterator nextChild;
+		};
+
+		std::vector<stackEntry> stack;
+		stack.push_back({this, children.begin()});
+		while (!stack.empty()) {
+			auto& it = stack.back().nextChild;
+			if (it != stack.back().node->children.end()) {
+				FourBlockTree* child = it->get();
 				++it;
 				stack.push_back({child, child->children.begin()});
 			} else {
