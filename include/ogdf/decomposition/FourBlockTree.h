@@ -57,6 +57,17 @@ namespace ogdf {
  * Since each node contains its children, the root is the entire tree.
  */
 struct OGDF_EXPORT FourBlockTree {
+	FourBlockTree() = default;
+	FourBlockTree(const FourBlockTree&) = delete;
+	FourBlockTree(FourBlockTree&&) = default;
+	FourBlockTree& operator=(const FourBlockTree&) = delete;
+	FourBlockTree& operator=(FourBlockTree&&) = default;
+
+	~FourBlockTree() {
+		// free manually bottom-up to avoid stack overflow in case of deep tree
+		postorder([](FourBlockTree& treeNode) -> void { treeNode.children.clear(); });
+	}
+
 	/**
 	 * The 4-connected component.
 	 */
