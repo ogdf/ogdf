@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief A registry that allows labelling the nodes of a PC-tree.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -34,26 +34,20 @@
 #include <ogdf/basic/pctree/PCEnum.h>
 
 namespace pc_tree {
-class OGDF_EXPORT PCTreeForest;
-
-template<class Key>
-class PCTreeRegistry : public ogdf::RegistryBase<Key, PCTreeRegistry<Key>> {
+/**
+ * A registry that allows labelling the nodes of a PC-tree.
+ */
+class OGDF_EXPORT PCTreeRegistry : public ogdf::RegistryBase<PCNode*, PCTreeRegistry> {
 	PCTreeForest* m_pForest;
 
 public:
 	PCTreeRegistry(PCTreeForest* pcTreeForest) : m_pForest(pcTreeForest) { }
 
 	//! Returns the index of \p key.
-	static inline int keyToIndex(Key key) { return key->index(); }
+	static inline int keyToIndex(PCNode* key);
 
 	//! Returns whether \p key is associated with this registry.
-	bool isKeyAssociated(Key key) const {
-#ifdef OGDF_DEBUG
-		return key && key->getForest() == m_pForest;
-#else
-		return key;
-#endif
-	}
+	bool isKeyAssociated(PCNode* key) const;
 
 	//! Returns the maximum index of all keys managed by this registry.
 	int maxKeyIndex() const;

@@ -376,8 +376,6 @@ std::ostream& operator<<(std::ostream& os, const pc_tree::NodeLabel l) {
 	}
 }
 
-template class pc_tree::PCTreeRegistry<PCNode*>;
-
 bool PCTree::isValidOrder(const std::vector<PCNode*>& order) const {
 	OGDF_ASSERT(order.size() == leaves.size());
 	PCTreeNodeArray<PCNode*> leafMapping(*this);

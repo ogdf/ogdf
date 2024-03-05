@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief PCTreeForests contain multiple PCTrees that can be merged with each other.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -45,11 +45,13 @@ using UnionFindIndex = int;
 
 const int UNIONFINDINDEX_EMPTY = -1;
 
+/**
+ * Multiple PCTrees can be created within the same PCTreeForest, which allows merging the trees later one by making one
+ * a child of another. This is extensively used during planarity testing.
+ */
 class OGDF_EXPORT PCTreeForest {
 	friend class PCNode;
 	friend class PCTree;
-
-	template<class Key>
 	friend class PCTreeRegistry;
 
 private:
@@ -58,11 +60,10 @@ private:
 	ogdf::DisjointSets<> parents {1 << 8};
 	int nextNodeId = 0;
 	int timestamp = 0;
-	PCTreeRegistry<PCNode*> nodeArrayRegistry;
+	PCTreeRegistry nodeArrayRegistry;
 	bool autodelete;
 
 #ifdef OGDF_PCTREE_REUSE_NODES
-	// TODO: also reuse PCTrees?
 	PCNode* reusableNodes = nullptr;
 #endif
 
@@ -77,6 +78,6 @@ public:
 
 	void clear(void);
 
-	operator const PCTreeRegistry<PCNode*>&() const { return nodeArrayRegistry; }
+	operator const PCTreeRegistry&() const { return nodeArrayRegistry; }
 };
 }

@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief Predeclaration of various PC-tree related classes and enums.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -45,17 +45,16 @@ class OGDF_EXPORT PCTree;
 
 class OGDF_EXPORT PCTreeForest;
 
-template<class Key>
-class PCTreeRegistry;
+class OGDF_EXPORT PCTreeRegistry;
 
 class OGDF_EXPORT PCNode;
 
-#define OGDF_DECL_REG_ARRAY_TYPE(v, c) ogdf::RegisteredArray<PCTreeRegistry<PCNode*>, v, c>
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) ogdf::RegisteredArray<PCTreeRegistry, v, c>
 OGDF_DECL_REG_ARRAY(PCTreeNodeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
 template<bool SupportFastSizeQuery = true>
-using PCTreeNodeSet = ogdf::RegisteredSet<PCTreeRegistry<PCNode*>, SupportFastSizeQuery>;
+using PCTreeNodeSet = ogdf::RegisteredSet<PCTreeRegistry, SupportFastSizeQuery>;
 }
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream&, pc_tree::NodeLabel);
