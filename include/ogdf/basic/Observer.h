@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/internal/copy_move.h>
 
 #ifndef OGDF_MEMORY_POOL_NTS
 #	include <mutex>
@@ -52,10 +53,21 @@ template<typename TObserved, typename TObserver>
 class Observer {
 public:
 	//! Constructs instance of Observer class
-	Observer() { }
+	Observer() = default;
 
 	//! Destroys the instance, unregisters it from watched instance.
 	virtual ~Observer() { reregister(nullptr); }
+
+	/**
+	 * If you want to copy a subclass of Observer, call the default Observer() constructor and
+	 * optionally also call reregister if it makes sense.
+	 */
+	OGDF_NO_COPY(Observer)
+	/**
+	 * If you want to move a subclass of Observer, call the default Observer() constructor and
+	 * optionally also call reregister if it makes sense.
+	 */
+	OGDF_NO_MOVE(Observer)
 
 	//! Associates observer instance with instance \p obs.
 	void reregister(const TObserved* obs) {
@@ -82,7 +94,7 @@ private:
 
 /**
  * Base class for an observable object that can be tracked by multiple Observer objects.
- * Will be notify its observers when it is destructed and can be subclassed to provide further callbacks.
+ * Will be notified its observers when it is destructed and can be subclassed to provide further callbacks.
  * For compatibility with MSVC, the Observer subclass has to be defined before the Observable subclass.
  *
  * @tparam TObserved The subclass of Observable that will be observed.
@@ -93,16 +105,30 @@ class Observable {
 	friend Observer<TObserved, TObserver>;
 
 #ifndef OGDF_MEMORY_POOL_NTS
-	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
+	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared access to register/unregister methods.
 #endif
 	mutable ListPure<TObserver*> m_regObservers; //!< The registered observers.
 
 public:
+	Observable() = default;
+
 	virtual ~Observable() {
 		// clearObservers must be called by child class, calling it here would
 		// notify Observers with an already partially destructed Observable
 		OGDF_ASSERT(m_regObservers.empty());
 	}
+
+	/**
+	 * If you want to copy a subclass of Observable, call the default Observable() constructor.
+	 * Note that Observers can only observe one Observable and in this case will stay with the old one.
+	 */
+	OGDF_NO_COPY(Observable)
+	/**
+	 * If you want to move a subclass of Observable, call the default Observable() constructor.
+	 * If you want to also point all Observers to the new location of their Observable, call
+	 * register for each of them.
+	 */
+	OGDF_NO_MOVE(Observable)
 
 private:
 	//! Registers an observer.
