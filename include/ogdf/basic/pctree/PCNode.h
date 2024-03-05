@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief A node in a PC-tree that is either a P-node, C-node or leaf.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -45,6 +45,16 @@ namespace pc_tree {
 struct OGDF_EXPORT PCNodeChildrenIterable;
 struct OGDF_EXPORT PCNodeNeighborsIterable;
 
+/**
+ * A node in a PC-tree that is either a P-node, C-node or leaf.
+ * See https://doi.org/10.15475/cpatp.2024 Figure 8.3 for a visualization of the doubly-linked tree structure stored in each node and more details on the changes made and temporary information stored by PCTree::makeConsecutive().
+ * Important terminology:
+ * - child: direct descendant of this node in the tree
+ * - outer child: first or last child
+ * - sibling: other node with the same direct parent
+ * - adjacent sibling: predecessor or successor in parent's list of children
+ * - neighbors: all children and the parent
+ */
 class OGDF_EXPORT PCNode : public IntrusiveList<PCNode>::node {
 public:
 	friend class PCTree;
@@ -58,11 +68,14 @@ public:
 
 	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCNode*);
 
+	/**
+	 * Temporary information used during each step of the PCTree::makeConsecutive() update operation.
+	 */
 	struct TempInfo {
 		PCNode *predPartial = nullptr, *nextPartial = nullptr;
 		PCNode* tpPred = nullptr;
 		PCNode* tpPartialPred = nullptr;
-		int tpPartialHeight = 0;
+		size_t tpPartialHeight = 0;
 		PCNode* tpSucc = nullptr;
 		std::vector<PCNode*> fullNeighbors;
 		PCNode *ebEnd1 = nullptr, *fbEnd1 = nullptr, *fbEnd2 = nullptr, *ebEnd2 = nullptr;
@@ -103,8 +116,8 @@ public:
 	using LeafUserData = std::array<void*, sizeof(TempInfo) / sizeof(void*)>;
 
 private:
-	// used for serializing and debug output?
-	int id;
+	// index in registry
+	size_t id;
 
 	// global
 	PCTreeForest* forest;
@@ -120,14 +133,15 @@ private:
 	PCNode* child2 = nullptr;
 	size_t childCount = 0;
 	mutable NodeLabel label = NodeLabel::Unknown;
-	mutable int timestamp = 0;
+	mutable size_t timestamp = 0;
 
+	// leaves need no temp info, so they can easily store user data
 	union {
 		mutable TempInfo temp;
 		LeafUserData userData;
 	};
 
-	PCNode(PCTreeForest* p_forest, int p_id, PCNodeType p_nodeType)
+	PCNode(PCTreeForest* p_forest, size_t p_id, PCNodeType p_nodeType)
 		: IntrusiveList<PCNode>::node(), id(p_id), forest(p_forest), nodeType(p_nodeType) {
 		if (p_nodeType == PCNodeType::Leaf) {
 			new (&userData) LeafUserData;
@@ -145,29 +159,71 @@ private:
 	}
 
 public:
+	/**
+	 * @name Tree structure methods
+	 * These methods allow modifying the tree structure or embedding, e.g., when manually constructing a PC-tree.
+	 */
+	//! @{
+
+	/**
+	 * Append a (detached) child node to the begin or end of this nodes' children.
+	 */
 	void appendChild(PCNode* p_node, bool begin = false);
 
+	/**
+	 * Insert a (detached) child node directly between two adjacent children of this node.
+	 */
 	void insertBetween(PCNode* sib1, PCNode* sib2);
 
+	/**
+	 * Detach this node from its parent. Invalidates but does not change the PC-forest of the node, so don't forget to re-attach it somewhere else in a PC-tree of the same forest to make it valid again.
+	 */
 	void detach();
 
+	/**
+	 * Swaps this node inplace with a (detached) other one. Afterwards, this node will be detached.
+	 */
 	void replaceWith(PCNode* p_node);
 
+	/**
+	 * Merges this C-node into its C-node parent.
+	 */
 	void mergeIntoParent();
 
+	/**
+	 * Reverse the stored order of children.
+	 */
 	void flip() { std::swap(child1, child2); }
 
+private:
+	/**
+	 * Notify this node that one of its adjacent siblings changed.
+	 */
 	void replaceSibling(PCNode* oldS, PCNode* newS);
 
+	/**
+	 * Make this node an outer child of its parent. Only works for children of the root node.
+	 */
 	void rotateChildOutside(bool p_child1 = true);
 
-private:
+	/**
+	 * Notify this node that one of its outer children was replaced.
+	 */
 	void replaceOuterChild(PCNode* oldC, PCNode* newC);
 
+	/**
+	 * Notify this node that it has a new parent.
+	 */
 	void setParent(PCNode* parent);
 
+	/**
+	 * detach() without performing checks.
+	 */
 	void forceDetach();
 
+	/**
+	 * Overwrite the type of this node without updating any other data structures.
+	 */
 	void changeType(PCNodeType newType) {
 		if (nodeType == PCNodeType::Leaf && newType != PCNodeType::Leaf) {
 			userData.~array();
@@ -179,22 +235,63 @@ private:
 		nodeType = newType;
 	}
 
+	//! @}
+
 public:
+	/**
+	 * @name Iterator methods
+	 * These methods allow easily walking around the PC-tree.
+	 */
+	//! @{
+
+	/**
+	 * Given the left or right sibling \p pred, return the adjacent sibling on the other side.
+	 */
 	PCNode* getNextSibling(const PCNode* pred) const;
 
+	/**
+	 * Given one outer child, return the outer child on the other side.
+	 */
 	PCNode* getOtherOuterChild(const PCNode* child) const;
 
+	/**
+	 * Method to walk the cyclic order of all neighbors, i.e., all children plus the parent, where this node's parent is considered to be adjacent to this node's two outer children.
+	 * The returned node is the one of the two nodes adjacent to \p curr in this cyclic order that is not \p pred, or an arbitrary one of the two if \p pred is null.
+	 */
 	PCNode* getNextNeighbor(const PCNode* pred, const PCNode* curr) const;
 
+	/**
+	 * Iteration-convenience version of getNextNeighbor() that updates the variables \p pred to \p curr and \p curr to the value returned by getNextNeighbor(pred, curr).
+	 */
 	void proceedToNextNeighbor(PCNode*& pred, PCNode*& curr) const;
 
+	/**
+	 * @return the parent node of this node, or null if this node is the root or currently detached. If the parent is a C-node, this requires a look-up in the union-find data structure.
+	 */
 	PCNode* getParent() const;
 
+	/**
+	 * @return iterable for all children
+	 */
 	PCNodeChildrenIterable children();
 
+	/**
+	 * @return iterable for all children plus the parent, optionally selecting a starting node in this cyclic order
+	 */
 	PCNodeNeighborsIterable neighbors(PCNode* first = nullptr);
 
+	//! @}
+
 public:
+	/**
+	 * @name Structure check methods
+	 * These methods help with checking the current status of this node w.r.t. its surrounding tree structure.
+	 */
+	//! @{
+
+	/**
+	 * @return \c true if this node has no parent, i.e., it is the root of its PC-tree or needs to be attached to some node first before the tree can become valid again.
+	 */
 	bool isDetached() const {
 		if (parentCNodeId == UNIONFINDINDEX_EMPTY && parentPNode == nullptr) {
 			return true;
@@ -204,38 +301,68 @@ public:
 		}
 	}
 
+	/**
+	 * Perform multiple debug checks and return \c true if getForest == \p ofForest
+	 */
 	bool isValidNode(const PCTreeForest* ofForest = nullptr) const;
 
 	bool isLeaf() const { return nodeType == PCNodeType::Leaf; }
 
+	/**
+	 * @return \c true, if other->getParent() == this
+	 */
 	bool isParentOf(const PCNode* other) const {
 		OGDF_ASSERT(other != nullptr);
 		OGDF_ASSERT(forest == other->forest);
 		return other->getParent() == this;
 	}
 
+	/**
+	 * @return \c true, if this->getParent() == other->getParent()
+	 */
 	bool isSiblingOf(const PCNode* other) const {
 		OGDF_ASSERT(other != nullptr);
 		OGDF_ASSERT(forest == other->forest);
 		return this->getParent() == other->getParent();
 	}
 
+	/**
+	 * @return \c true, if this->getSibling1() == sibling or this->getSibling2() == sibling
+	 */
 	bool isSiblingAdjacent(const PCNode* sibling) const {
 		OGDF_ASSERT(isSiblingOf(sibling));
 		OGDF_ASSERT(this != sibling);
 		return sibling1 == sibling || sibling2 == sibling;
 	}
 
+	/**
+	 * @return \c true if neigh1 and neigh2 are children of this node and isSiblingAdjacent(neigh1, neigh2) is true,
+	 *   or if one of the passed nodes is the parent of this node and the other one is an outer child of this node
+	 */
 	bool areNeighborsAdjacent(const PCNode* neigh1, const PCNode* neigh2) const;
 
+	/**
+	 * @return \c true, if \p child is an outer child of this node, i.e., if this->getChild1() == child or this->getChild2() == child
+	 */
 	bool isChildOuter(const PCNode* child) const {
 		OGDF_ASSERT(isParentOf(child));
 		return child1 == child || child2 == child;
 	}
 
+	/**
+	 * @return \c true, if this node is an outer child of its parent, i.e., if this->getSibling1() == nullptr or this->getSibling2() == child
+	 */
 	bool isOuterChild() const { return sibling1 == nullptr || sibling2 == nullptr; }
 
+	//! @}
+
 public:
+	/**
+	 * @name makeConsecutive-related temporary information
+	 * These methods provide access to temporary information used during a PCTree::makeConsecutive() call.
+	 */
+	//! @{
+
 	const TempInfo& constTempInfo() const {
 		checkTimestamp();
 		OGDF_ASSERT(!isLeaf());
@@ -254,28 +381,33 @@ public:
 		label = l;
 	}
 
-	NodeLabel getLabelUnchecked() const {
+private:
+	// these methods are slightly faster if we already called checkTimestamp()
+	inline NodeLabel getLabelUnchecked() const {
 		OGDF_ASSERT(forest->timestamp == timestamp);
 		return label;
 	}
 
-	void setLabelUnchecked(NodeLabel l) {
+	inline void setLabelUnchecked(NodeLabel l) {
 		OGDF_ASSERT(forest->timestamp == timestamp);
 		label = l;
 	}
 
+public:
+	/**
+	 * @return the user data that can be stored in leaves
+	 */
 	LeafUserData& leafUserData() {
 		OGDF_ASSERT(isLeaf());
 		return userData;
 	}
 
+	/**
+	 * @return the user data that can be stored in leaves
+	 */
 	const LeafUserData& leafUserData() const {
 		OGDF_ASSERT(isLeaf());
 		return userData;
-	}
-
-	PCNode* getFullNeighInsertionPointConst(PCNode* nonFullNeigh) {
-		return getFullNeighInsertionPoint(nonFullNeigh);
 	}
 
 private:
@@ -309,12 +441,18 @@ private:
 		}
 	}
 
+	//! @}
+
 public:
-	int index() const { return id; }
+	/**
+	 * @name Getters
+	 */
+	//! @{
+	size_t index() const { return id; }
 
 	PCNodeType getNodeType() const { return nodeType; }
 
-	int getChildCount() const { return childCount; }
+	size_t getChildCount() const { return childCount; }
 
 	size_t getDegree() const { return isDetached() ? childCount : childCount + 1; }
 
@@ -322,6 +460,9 @@ public:
 
 	PCNode* getChild2() const { return child2; }
 
+	/**
+	 * Check whether this node has only one child and return it.
+	 */
 	PCNode* getOnlyChild() const {
 		OGDF_ASSERT(childCount == 1);
 		return child1;
@@ -333,8 +474,13 @@ public:
 
 	PCTreeForest* getForest() const { return forest; }
 
+	//! @}
+
 	OGDF_NEW_DELETE
 };
 
+/**
+ * Iteration-convenience version of PCNode::getNextSibling() that updates the variables \p pred to \p curr and \p curr to the value returned by PCNode::getNextSibling(pred, curr).
+ */
 OGDF_EXPORT void proceedToNextSibling(PCNode*& pred, PCNode*& curr);
 }
