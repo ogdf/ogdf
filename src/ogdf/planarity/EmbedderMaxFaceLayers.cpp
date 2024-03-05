@@ -42,9 +42,9 @@ void EmbedderMaxFaceLayers::embedBlock(const node& bT, const node& cT, ListItera
 		cH = pBCTree->cutVertex(cT, bT);
 	}
 
-	EdgeArray<int> edgeLength(blockG[bT], 1);
+	EdgeArray<int> edgeLength(*blockG[bT], 1);
 
-	internalEmbedBlock(blockG[bT], nodeLength[bT], edgeLength, nBlockEmbedding_to_nH[bT],
+	internalEmbedBlock(*blockG[bT], nodeLength[bT], edgeLength, nBlockEmbedding_to_nH[bT],
 			eBlockEmbedding_to_eH[bT], cH == nullptr ? nullptr : nH_to_nBlockEmbedding[bT][cH], cT,
 			after);
 }
