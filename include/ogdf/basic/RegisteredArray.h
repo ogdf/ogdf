@@ -671,6 +671,8 @@ protected:
 	}
 };
 
+class Graph;
+
 //! Dynamic arrays indexed with arbitrary keys.
 /**
  * Registered arrays provide an efficient, constant-time mapping from indexed keys of a \a Registry to elements of
@@ -779,6 +781,10 @@ class RegisteredArray
 			  RegisteredArrayWithoutDefault<Registry, Value>>::type {
 	using RA = typename std::conditional<WithDefault, RegisteredArrayWithDefault<Registry, Value>,
 			RegisteredArrayWithoutDefault<Registry, Value>>::type;
+
+	static_assert(!std::is_base_of_v<ogdf::Graph, Value>,
+			"XYZArray<Graph> is invalid, use XYZArrayP<Graph> or "
+			"XYZArray<unique_ptr<Graph>, false> instead.");
 
 	static inline const Registry* cast(const Base* base) {
 		if (base != nullptr) {

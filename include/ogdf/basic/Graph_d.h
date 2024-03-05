@@ -908,11 +908,29 @@ public:
 	 * This is in particular important when dealing with embedded graphs.
 	 *
 	 * @param G is the graph that will be copied.
+	 * @sa insert(...)
 	 */
 	Graph(const Graph& G);
 
 	//! Destructor.
 	virtual ~Graph();
+
+	//! Overwrites this graph to be a copy of \p G.
+	/**
+	 * The assignment operator assures that the adjacency lists of nodes in the
+	 * constructed graph are in the same order as the adjacency lists in \p G.
+	 * This is in particular important when dealing with embedded graphs.
+	 *
+	 * @param G is the graph to be copied.
+	 * @return this graph.
+	 * @sa insert(...)
+	 */
+	Graph& operator=(const Graph& G);
+
+	Graph(Graph&& G) = delete;
+	Graph& operator=(Graph&& G) = delete;
+
+	OGDF_MALLOC_NEW_DELETE
 
 	/**
 	 * @name Access methods
@@ -1614,24 +1632,6 @@ public:
 
 	void resetNodeIdCount(int maxId);
 
-
-	//! @}
-	/**
-	 * @name Operators
-	 */
-	//! @{
-	//! Assignment operator.
-	/**
-	 * The assignment operator assures that the adjacency lists of nodes in the
-	 * constructed graph are in the same order as the adjacency lists in \p G.
-	 * This is in particular important when dealing with embedded graphs.
-	 *
-	 * @param G is the graph to be copied.
-	 * @return this graph.
-	 */
-	Graph& operator=(const Graph& G);
-
-	OGDF_MALLOC_NEW_DELETE
 
 	//! @}
 	/**
