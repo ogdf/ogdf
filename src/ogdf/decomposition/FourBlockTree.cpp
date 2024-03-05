@@ -553,26 +553,26 @@ FourBlockTree FourBlockTreeBuilder::buildTree() {
 		}
 
 		/* copy innerNodes with their edges to b */
-		b.originalNodes.init(b.g);
+		b.originalNodes.init(*b.g);
 		b.parent = nullptr;
 		b.parentFace = nullptr;
-		const auto bDummy = b.g.newNode();
+		const auto bDummy = b.g->newNode();
 		std::vector<edge> bEdges;
 		for (size_t i = 0; i < b_m; ++i) {
-			bEdges.push_back(b.g.newEdge(bDummy, bDummy));
+			bEdges.push_back(b.g->newEdge(bDummy, bDummy));
 		}
 		for (const auto x : innerNodes) {
 			/* copy node */
-			const auto b_v = b.g.newNode();
+			const auto b_v = b.g->newNode();
 			b.originalNodes[b_v] = m_originalNodes[x];
 
 			for (const auto a : x->adjEntries) {
 				/* copy adjEntry */
 				const auto b_e = bEdges[edgeIdsForB[a]];
 				if (a->isSource()) {
-					b.g.moveSource(b_e, b_v);
+					b.g->moveSource(b_e, b_v);
 				} else {
-					b.g.moveTarget(b_e, b_v);
+					b.g->moveTarget(b_e, b_v);
 				}
 
 				/* set c.parent and c.parentFace for children c of b */
@@ -588,7 +588,7 @@ FourBlockTree FourBlockTreeBuilder::buildTree() {
 				b.externalFace = b_v->lastAdj();
 			}
 		}
-		b.g.delNode(bDummy);
+		b.g->delNode(bDummy);
 	}
 
 	/* root of 4-block tree */
@@ -617,26 +617,26 @@ FourBlockTree FourBlockTreeBuilder::buildTree() {
 		}
 
 		/* copy innerNodes with their edges to res */
-		res.originalNodes.init(res.g);
+		res.originalNodes.init(*res.g);
 		res.parent = nullptr;
 		res.parentFace = nullptr;
-		const auto bDummy = res.g.newNode();
+		const auto bDummy = res.g->newNode();
 		std::vector<edge> bEdges;
 		for (size_t i = 0; i < b_m; ++i) {
-			bEdges.push_back(res.g.newEdge(bDummy, bDummy));
+			bEdges.push_back(res.g->newEdge(bDummy, bDummy));
 		}
 		for (const auto v : innerNodes) {
 			/* copy node */
-			const auto b_v = res.g.newNode();
+			const auto b_v = res.g->newNode();
 			res.originalNodes[b_v] = m_originalNodes[v];
 
 			for (const auto a : v->adjEntries) {
 				/* copy adjEntry */
 				const auto b_e = bEdges[edgeIdsForB[a]];
 				if (a->isSource()) {
-					res.g.moveSource(b_e, b_v);
+					res.g->moveSource(b_e, b_v);
 				} else {
-					res.g.moveTarget(b_e, b_v);
+					res.g->moveTarget(b_e, b_v);
 				}
 
 				/* set res.externalFace */
@@ -653,7 +653,7 @@ FourBlockTree FourBlockTreeBuilder::buildTree() {
 				}
 			}
 		}
-		res.g.delNode(bDummy);
+		res.g->delNode(bDummy);
 	}
 
 	/* move inner blocks to their parents */

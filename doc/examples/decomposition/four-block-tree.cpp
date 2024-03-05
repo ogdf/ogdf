@@ -32,13 +32,13 @@ int main(void) {
 	}
 	int i = 0;
 	fbt.preorder([&](const FourBlockTree& treeNode) -> void {
-		GraphAttributes ga(treeNode.g,
+		GraphAttributes ga(*treeNode.g,
 				ogdf::GraphAttributes::nodeLabel | ogdf::GraphAttributes::nodeGraphics
 						| ogdf::GraphAttributes::nodeStyle | ogdf::GraphAttributes::edgeGraphics
 						| ogdf::GraphAttributes::edgeStyle);
 		ga.directed() = false;
 		layout.callFixEmbed(ga, treeNode.externalFace);
-		for (const node v : treeNode.g.nodes) {
+		for (const node v : treeNode.g->nodes) {
 			ga.label(v) = std::to_string(treeNode.originalNodes[v]->index());
 			ga.fillColor(v) = Color::Name::White;
 		}

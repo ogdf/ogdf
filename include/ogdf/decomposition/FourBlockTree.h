@@ -71,7 +71,7 @@ struct OGDF_EXPORT FourBlockTree {
 	/**
 	 * The 4-connected component.
 	 */
-	Graph g;
+	std::unique_ptr<Graph> g = std::make_unique<Graph>();
 
 	/**
 	 * The nodes in the original graph corresponding to the nodes in g.
