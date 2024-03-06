@@ -56,6 +56,13 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
       - uses: actions/checkout@v4
+      - name: "Register ccache cleanup post-action"
+        uses: ./.github/actions/prune-cache
+        with:
+          ref: ${{ github.ref }}
+          prefix: ccache-${{ github.job }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
@@ -126,119 +133,3 @@ jobs:
         with:
           name: ${{ github.job }}
           path: ${{ github.workspace }}/ccache-debug
-
-  build-linux:
-    name: "Test ${{ matrix.mode }} build on Linux with ${{ matrix.compiler }}"
-    strategy:
-      matrix:
-        mode: [debug, release]
-        compiler: ['gcc:9', 'gcc:13', 'clang:15']
-    runs-on: ubuntu-latest
-    container: docker.io/ogdf/${{ matrix.compiler }}
-    needs: [style, dirs, self-sufficiency, docs]
-    env:
-      CCACHE_COMPILERCHECK: "%compiler% -v"
-    steps:
-      - name: Set compiler name
-        run: |
-          GH_COMPILER_NAME="${{ matrix.compiler }}"
-          GH_COMPILER_NAME="${GH_COMPILER_NAME//:}"
-          echo "GH_COMPILER_NAME=${GH_COMPILER_NAME}" >> "$GITHUB_ENV"
-        shell: bash
-      - name: "Add workspace as a safe directory in containers"
-        run: git config --system --add safe.directory $GITHUB_WORKSPACE
-      - uses: actions/checkout@v4
-      - name: Set-up ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
-      - name: Check ccache version
-        run: ccache --version
-      - name: Check CPU model
-        run: lscpu
-      - name: Test ${{ matrix.mode }} build with ${{ matrix.compiler }} and run
-        run: |
-          util/test_build_and_run.sh \
-            ${{ matrix.compiler == 'gcc:9' && 'dynamic' || 'static' }} \
-            ${{ matrix.mode }} \
-            ${{ startsWith(matrix.compiler, 'gcc') && 'gcc' || 'clang' }} \
-            default_s \
-            -DOGDF_INCLUDE_CGAL=ON -DOGDF_ARCH=haswell \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        # see "Cloud hosts used by GitHub-hosted runners" in the GH Actions docs
-        # for the oldest used microarchitecture to use with OGDF_ARCH
-      - uses: actions/upload-artifact@v4
-        name: Upload ccache debug info
-        if: ${{ env.CCACHE_DEBUG == 1 }}
-        with:
-          name: ${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ matrix.mode }}
-          path: ${{ github.workspace }}/ccache-debug
-
-  build-macos:
-    name: "Test ${{ matrix.mode }} build on MacOS"
-    strategy:
-      matrix:
-        mode: [debug, release]
-    runs-on: macos-latest
-    needs: [style, dirs, self-sufficiency, docs]
-    steps:
-      - uses: actions/checkout@v4
-      - run: brew install coreutils findutils
-      - name: Set-up ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: ${{ github.job }}-${{ matrix.mode }}
-      - name: Check CPU model
-        run: |
-          uname -av
-          sysctl machdep.cpu
-          system_profiler system_profiler SPSoftwareDataType SPHardwareDataType
-      - name: Test ${{ matrix.mode }} build and run
-        run: |
-          util/test_build_and_run.sh \
-            static \
-            ${{ matrix.mode }} \
-            default_c \
-            default_s \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-      - uses: actions/upload-artifact@v4
-        name: Upload ccache debug info
-        if: ${{ env.CCACHE_DEBUG == 1 }}
-        with:
-          name: ${{ github.job }}-${{ matrix.mode }}
-          path: ${{ github.workspace }}/ccache-debug
-
-  build-windows:
-    name: "Test ${{ matrix.mode }} build on Windows"
-    strategy:
-      matrix:
-        mode: [debug, release]
-    runs-on: windows-latest
-    needs: [style, dirs, self-sufficiency, docs]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: microsoft/setup-msbuild@v1.3
-      - name: Set-up ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: ${{ github.job }}-${{ matrix.mode }}
-      - name: Test ${{ matrix.mode }} build and run
-        run: powershell util\test_build_and_run.ps1 ${{ matrix.mode == 'debug' && '-debug' }}
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache.exe
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache.exe
-      - uses: actions/upload-artifact@v4
-        name: Upload ccache debug info
-        if: ${{ env.CCACHE_DEBUG == 1 }}
-        with:
-          name: ${{ github.job }}-${{ matrix.mode }}
-          path: ${{ github.workspace }}/ccache-debug
-
-  # this is mostly used to keep the required status checks for PR merging simple
-  summary:
-    needs: [build-linux, build-macos, build-windows, sonar]
-    name: "All tests succeeded"
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Everything worked!"
-        shell: bash

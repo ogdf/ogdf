@@ -1,0 +1,16 @@
+name: 'prune-cache'
+description: 'Prune duplicate cache entries'
+inputs:
+  filter:
+    description: 'jq filter string for cache entries to consider'
+  ref:
+    description: 'ref filter for cache entries to consider'
+  prefix:
+    description: 'key prefix for cache entries to consider'
+  keep:
+    description: 'number of cache entries to keep'
+    default: 1
+runs:
+  using: 'node20'
+  main: 'main.js'
+  post: 'cleanup.js'
