@@ -12,10 +12,10 @@ try {
         const prefix = core.getInput('prefix');
         filter = `.ref == "${ref}" and (.key | startswith("${prefix}"))`;
     }
-    const ids = exec.getExecOutput("gh", [
+    const ids = (exec.getExecOutput("gh", [
         "cache", "list", "--sort", "created_at", "--json", "createdAt,id,key,ref", "--jq",
         `.[] | select(${filter}) | .id`
-    ]).stdout.trim().split();
+    ])).stdout.trim().split();
     console.log(`Cache contains ${ids.length} old entries`);
 } catch (error) {
     core.setFailed(error.message);
