@@ -9,6 +9,7 @@ endfunction()
 function(make_user_target TARGET)
   make_some_target(${TARGET} ${PROJECT_BINARY_DIR}/include)
   target_link_libraries(${TARGET} OGDF)
+  target_precompile_headers(${TARGET} REUSE_FROM OGDF)
 
   # link CGAL if enabled
   if(${OGDF_INCLUDE_CGAL})

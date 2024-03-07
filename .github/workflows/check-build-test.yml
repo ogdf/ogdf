@@ -7,6 +7,8 @@ on:
   release:
     types: [published]
 
+env:
+  CCACHE_SLOPPINESS: pch_defines,time_macros,include_file_mtime,include_file_ctime
 # # Debug setup:
 # env:
 #   OGDF_UTILS_PREQUEL: "set -x"
