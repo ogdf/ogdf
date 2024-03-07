@@ -47,6 +47,9 @@ public:
 	//constructor
 	EmbedderMinDepthPiTa() : m_useExtendedDepthDefinition(true), pm_blockCutfaceTree(nullptr) { }
 
+	/* needs to be deleted explicitly for MSVC<=16 and classes containing a NodeArrayP */
+	OGDF_NO_COPY(EmbedderMinDepthPiTa)
+
 	/**
 	 * \brief Computes an embedding of \p G.
 	 *

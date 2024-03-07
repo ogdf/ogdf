@@ -54,6 +54,11 @@ public:
 	 */
 	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
+	EmbedderMinDepth() = default;
+
+	/* needs to be deleted explicitly for MSVC<=16 and classes containing a NodeArrayP */
+	OGDF_NO_COPY(EmbedderMinDepth)
+
 private:
 	/**
 	 * \brief Computes recursively the block graph for every block.

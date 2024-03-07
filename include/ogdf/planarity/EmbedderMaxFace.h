@@ -53,6 +53,11 @@ public:
 	 */
 	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
+	EmbedderMaxFace() = default;
+
+	/* needs to be deleted explicitly for MSVC<=16 and classes containing a NodeArrayP */
+	OGDF_NO_COPY(EmbedderMaxFace)
+
 protected:
 	//! Calls \p fun for every ingoing edge (\a w,\p v).
 	void forEachIngoingNeighbor(node v, std::function<void(node)> fun) {
