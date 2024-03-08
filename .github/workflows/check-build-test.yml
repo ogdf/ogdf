@@ -219,7 +219,7 @@ jobs:
     needs: [style, dirs, self-sufficiency, docs]
     steps:
       - uses: actions/checkout@v4
-      - uses: microsoft/setup-msbuild@v1.3
+      - uses: microsoft/setup-msbuild@v2
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
