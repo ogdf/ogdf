@@ -612,6 +612,11 @@ class RegisteredArrayWithDefault : public RegisteredArrayWithoutDefault<Registry
 	using RA = RegisteredArrayWithoutDefault<Registry, Value>;
 	Value m_default;
 
+	static_assert(std::is_copy_constructible_v<Value>,
+			"This RegisteredArrayWithDefault<Value> instantiation (e.g. NodeArray<Graph>) is "
+			"invalid because Value is not copy-constructible! "
+			"Use NodeArrayP<Graph> or NodeArray<unique_ptr<Graph>, false> instead.");
+
 public:
 	//! Creates a new registered array associated with no registry and a default-constructed default value.
 	explicit RegisteredArrayWithDefault() : RA(), m_default() {};
@@ -670,8 +675,6 @@ protected:
 		}
 	}
 };
-
-class Graph;
 
 //! Dynamic arrays indexed with arbitrary keys.
 /**
@@ -781,10 +784,6 @@ class RegisteredArray
 			  RegisteredArrayWithoutDefault<Registry, Value>>::type {
 	using RA = typename std::conditional<WithDefault, RegisteredArrayWithDefault<Registry, Value>,
 			RegisteredArrayWithoutDefault<Registry, Value>>::type;
-
-	static_assert(!std::is_base_of_v<ogdf::Graph, Value>,
-			"XYZArray<Graph> is invalid, use XYZArrayP<Graph> or "
-			"XYZArray<unique_ptr<Graph>, false> instead.");
 
 	static inline const Registry* cast(const Base* base) {
 		if (base != nullptr) {
