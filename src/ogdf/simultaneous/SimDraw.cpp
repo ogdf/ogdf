@@ -134,25 +134,25 @@ int SimDraw::numberOfBasicGraphs() const {
 
 // returns Graph consisting of all edges and nodes from SubGraph i
 //
-const Graph SimDraw::getBasicGraph(int i) const {
+std::unique_ptr<GraphCopy> SimDraw::getBasicGraph(int i) const {
 	//get a copy of m_G
-	GraphCopy GC(m_G);
+	auto GC = std::make_unique<GraphCopy>(m_G);
 
 	//delete all edges that are not in SubGraph i
 	List<edge> LE;
-	GC.allEdges(LE);
+	GC->allEdges(LE);
 	for (edge e : LE) {
-		if (!(m_GA.inSubGraph(GC.original(e), i))) {
-			GC.delEdge(e);
+		if (!(m_GA.inSubGraph(GC->original(e), i))) {
+			GC->delEdge(e);
 		}
 	}
 
 	//delete all Nodes where degree = 0
 	List<node> LN;
-	GC.allNodes(LN);
+	GC->allNodes(LN);
 	for (node v : LN) {
 		if (v->degree() == 0) {
-			GC.delNode(v);
+			GC->delNode(v);
 		}
 	}
 

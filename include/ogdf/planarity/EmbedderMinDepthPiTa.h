@@ -47,6 +47,9 @@ public:
 	//constructor
 	EmbedderMinDepthPiTa() : m_useExtendedDepthDefinition(true), pm_blockCutfaceTree(nullptr) { }
 
+	/* needs to be deleted explicitly for MSVC<=16 and classes containing a NodeArrayP */
+	OGDF_NO_COPY(EmbedderMinDepthPiTa)
+
 	/**
 	 * \brief Computes an embedding of \p G.
 	 *
@@ -186,7 +189,7 @@ private:
 	NodeArray<node> npBCTree_to_nBCTree;
 
 	/** all blocks */
-	NodeArray<Graph> blockG;
+	NodeArrayP<Graph> blockG;
 
 	/** a mapping of nodes in the auxiliaryGraph of the BC-tree to blockG */
 	NodeArray<NodeArray<node>> nH_to_nBlockEmbedding;
@@ -288,7 +291,7 @@ private:
 	 * given a node nT (cutvertex or block), G_nT is the subgraph of G
 	 * associated with the subtree of the BC-tree T rooted at nT
 	 */
-	NodeArray<Graph> G_nT;
+	NodeArrayP<Graph> G_nT;
 
 	/** a mapping of nodes in G_nT to nodes in G */
 	NodeArray<NodeArray<node>> nG_nT_to_nPG;

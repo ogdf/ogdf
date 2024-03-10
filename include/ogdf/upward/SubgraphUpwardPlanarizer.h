@@ -100,12 +100,12 @@ protected:
 	int m_runs;
 
 private:
-	void constructComponentGraphs(BCTree& BC, NodeArray<GraphCopy>& biComps);
+	void constructComponentGraphs(BCTree& BC, NodeArrayP<GraphCopy>& biComps);
 
 	//! traversion the BTree and merge the component to a common graph
-	void dfsMerge(const GraphCopy& GC, BCTree& BC, NodeArray<GraphCopy>& biComps,
-			NodeArray<UpwardPlanRep>& uprs, UpwardPlanRep& UPR_res, node parent_BC, node current_BC,
-			NodeArray<bool>& nodesDone);
+	void dfsMerge(const GraphCopy& GC, BCTree& BC, NodeArrayP<GraphCopy>& biComps,
+			NodeArrayP<UpwardPlanRep>& uprs, UpwardPlanRep& UPR_res, node parent_BC,
+			node current_BC, NodeArray<bool>& nodesDone);
 
 
 	//! add UPR to UPR_res.

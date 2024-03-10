@@ -22,8 +22,14 @@ Otherwise, all elements will be [copied when the array grows](https://stackoverf
 ## ClusterSetSimple and ClusterSetPure
 `ClusterSetSimple` was removed in favor of `ClusterArray<bool>` and `ClusterSetPure` in favor of `ClusterSet<false>` (which does not keep track of its size).
 
+## Graph
+The move constructor and assignment operators of `Graph` are now deleted, which especially means that `NodeArray<Graph>` is no longer possible.
+(Previously it compiled, but randomly broke at runtime when adding new nodes.)
+Use `NodeArrayP<Graph>` instead to wrap the `Graph`s in `std::unique_ptr`s and make one pass over all entries to initialize the pointers.
+See the documentation of `NodeArrayP` for usage as member variable on MSVC<=16.
+
 ## GraphCopy
-`GraphCopy::createEmpty()` was deprecated in favor of `setOriginalEmbedding()`.
+`GraphCopy::createEmpty()` was deprecated in favor of `setOriginalGraph()`.
 The same holds for `createEmpty()` of `GraphCopySimple` and `EdgeWeightedGraph`.
 
 ## GraphObserver
@@ -32,6 +38,10 @@ The same holds for `createEmpty()` of `GraphCopySimple` and `EdgeWeightedGraph`.
 `ClusterGraphObserver`s are now notified of their `ClusterGraph` being cleared through `ClusterGraphObserver::clustersCleared()`.
 
 `HypergraphObserver::init()` was deprecated in favor of `reregister()`.
+
+`Observer`s and their `Observable`s now have deleted copy and move constructors and assignment operators.
+Subclasses can instead explicitly declare their copy and move behaviour using the default constructors of `Observer` / `Observable`,
+`Observer::getObservers()`, `Observer::clearObservers()` and `Observable::reregister()`.
 
 ## Graph::insert
 Multiple methods for inserting (parts of) a graph were merged into a single `Graph::insert` implementation.

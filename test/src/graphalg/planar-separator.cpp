@@ -48,10 +48,10 @@
  * @param n number of nodes of the graph
  * @return the graph
  */
-Graph getRandomPlanarGraph(int n) {
-	Graph graph;
+std::unique_ptr<Graph> getRandomPlanarGraph(int n) {
+	auto graph = std::make_unique<Graph>();
 	int edges = randomNumber(n, 3 * n - 6);
-	randomPlanarConnectedGraph(graph, n, edges);
+	randomPlanarConnectedGraph(*graph, n, edges);
 	return graph;
 }
 
@@ -265,8 +265,8 @@ static void describeRandomInstances(PlanarSeparatorModule& sep) {
 	for (int i = 0; i < numInstances; i++) {
 		it("works on a random planar graph number " + std::to_string(i), [&] {
 			setSeed(i);
-			Graph G = getRandomPlanarGraph(size);
-			testGraph(G, sep);
+			auto G = getRandomPlanarGraph(size);
+			testGraph(*G, sep);
 		});
 	}
 }

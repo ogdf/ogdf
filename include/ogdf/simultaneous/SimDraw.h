@@ -154,7 +154,7 @@ public:
 	void writeGML(const char* fileName) const;
 
 	//! returns graph consisting of all edges and nodes from SubGraph \p i
-	const Graph getBasicGraph(int i) const;
+	std::unique_ptr<GraphCopy> getBasicGraph(int i) const;
 	//! returns graphattributes associated with basic graph \p i
 	/**
 	 * Supported attributes are:

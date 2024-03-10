@@ -271,7 +271,7 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 	m_originalTerminals = &terminals;
 
 	m_upperBound = MAX_WEIGHT;
-	m_graph = Graph();
+	m_graph.clear();
 	m_mapping.init(m_graph);
 	m_terminals.reset(new NodeSet<>(m_graph));
 	int nodeCount = m_originalGraph->numberOfNodes();

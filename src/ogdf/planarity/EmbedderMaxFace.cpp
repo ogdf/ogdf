@@ -50,6 +50,9 @@ void EmbedderMaxFace::doCall(Graph& G, adjEntry& adjExternal) {
 
 	//compute block graphs and SPQR trees:
 	blockG.init(pBCTree->bcTree());
+	for (node n : pBCTree->bcTree().nodes) {
+		blockG[n] = std::make_unique<Graph>();
+	}
 	nBlockEmbedding_to_nH.init(pBCTree->bcTree());
 	eBlockEmbedding_to_eH.init(pBCTree->bcTree());
 	nH_to_nBlockEmbedding.init(pBCTree->bcTree());
@@ -127,13 +130,13 @@ void EmbedderMaxFace::computeBlockGraphs(const node& bT, const node& cH) {
 	if (m_cH == nullptr) {
 		m_cH = pBCTree->cutVertex(bT->firstAdj()->twinNode(), bT);
 	}
-	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockG[bT], m_cH,
+	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), *blockG[bT], m_cH,
 			nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT], nH_to_nBlockEmbedding[bT],
 			eH_to_eBlockEmbedding[bT]);
-	nodeLength[bT].init(blockG[bT], 0);
-	cstrLength[bT].init(blockG[bT], 0);
-	if (!blockG[bT].empty() && blockG[bT].numberOfNodes() != 1 && blockG[bT].numberOfEdges() > 2) {
-		spqrTrees[bT] = new StaticSPQRTree(blockG[bT]);
+	nodeLength[bT].init(*blockG[bT], 0);
+	cstrLength[bT].init(*blockG[bT], 0);
+	if (!blockG[bT]->empty() && blockG[bT]->numberOfNodes() != 1 && blockG[bT]->numberOfEdges() > 2) {
+		spqrTrees[bT] = new StaticSPQRTree(*blockG[bT]);
 	}
 }
 
@@ -141,8 +144,8 @@ int EmbedderMaxFace::constraintMaxFace(const node& bT, const node& cH) {
 	computeNodeLength(bT,
 			[&](node vH) -> int& { return nodeLength[bT][nH_to_nBlockEmbedding[bT][vH]]; });
 
-	EdgeArray<int> edgeLength(blockG[bT], 1);
-	int cstrLengthBc = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(blockG[bT],
+	EdgeArray<int> edgeLength(*blockG[bT], 1);
+	int cstrLengthBc = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(*blockG[bT],
 			nH_to_nBlockEmbedding[bT][cH], nodeLength[bT], edgeLength, spqrTrees[bT]);
 	cstrLength[bT][nH_to_nBlockEmbedding[bT][cH]] = cstrLengthBc;
 	return cstrLengthBc;
@@ -150,7 +153,7 @@ int EmbedderMaxFace::constraintMaxFace(const node& bT, const node& cH) {
 
 void EmbedderMaxFace::maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt) {
 	internalMaximumFaceRec(
-			bT, bT_opt, ell_opt, blockG[bT], nodeLength[bT], spqrTrees[bT],
+			bT, bT_opt, ell_opt, *blockG[bT], nodeLength[bT], spqrTrees[bT],
 			[&](node cH) -> node& { return nH_to_nBlockEmbedding[bT][cH]; },
 			[&](node v, node u) -> int& { return cstrLength[v][nH_to_nBlockEmbedding[v][u]]; },
 			[&](node v, node u) -> int& { return nodeLength[v][nH_to_nBlockEmbedding[v][u]]; });
@@ -169,8 +172,8 @@ void EmbedderMaxFace::embedBlock(const node& bT, const node& cT, ListIterator<ad
 		cH = pBCTree->cutVertex(cT, bT);
 	}
 
-	EdgeArray<int> edgeLength(blockG[bT], 1);
-	internalEmbedBlock(bT, cT, after, blockG[bT], nodeLength[bT], edgeLength,
+	EdgeArray<int> edgeLength(*blockG[bT], 1);
+	internalEmbedBlock(bT, cT, after, *blockG[bT], nodeLength[bT], edgeLength,
 			nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT],
 			cH == nullptr ? nullptr : nH_to_nBlockEmbedding[bT][cH]);
 }

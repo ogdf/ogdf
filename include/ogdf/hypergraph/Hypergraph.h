@@ -386,10 +386,12 @@ public:
 };
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) HypergraphRegisteredArray<HypernodeElement, v, c>
+//! Array for labeling the \ref hypernode "hypernodes" in a Hypergraph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(HypernodeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) HypergraphRegisteredArray<HyperedgeElement, v, c>
+//! Array for labeling the \ref hyperedge "hyperedges" in a Hypergraph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(HyperedgeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 

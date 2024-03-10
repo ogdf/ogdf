@@ -167,7 +167,7 @@ public:
 using CombinatorialEmbeddingRegistry =
 		RegistryBase<face, ConstCombinatorialEmbedding, internal::GraphIterator<face>>;
 
-//! RegisteredArray for faces of a combinatorial embedding.
+//! RegisteredArray for labeling the \ref face "faces" of a CombinatorialEmbedding.
 template<class Value, bool WithDefault>
 class FaceArrayBase : public RegisteredArray<ConstCombinatorialEmbedding, Value, WithDefault> {
 	using RA = RegisteredArray<ConstCombinatorialEmbedding, Value, WithDefault>;
