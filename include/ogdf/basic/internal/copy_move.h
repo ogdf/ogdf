@@ -71,20 +71,20 @@
  *
  * See https://stackoverflow.com/a/3279550 for more details on this idiom.
  */
-#define OGDF_COPY_MOVE_BY_SWAP(cls) \
+#define OGDF_COPY_MOVE_BY_SWAP(cls)                       \
 	/*! Assign this cls to be a copy of \p copy_by_value.
 	    Internally, this will use the copy constructor to create a temporary copy and then swap
 	    this object instance with the temporary copy using via a std::swap implementation.
 	    See https://stackoverflow.com/a/3279550 for more details on this idiom. */ \
-	cls& operator=(cls copy_by_value) { \
-		using std::swap;                \
-		swap(*this, copy_by_value);     \
-	}                                   \
-	OGDF_MOVE_CONSTR(cls) {             \
-		using std::swap;                \
-		swap(*this, move);              \
-	}                                   \
-	OGDF_MOVE_OP(cls) {                 \
-		using std::swap;                \
-		swap(*this, move);              \
+	cls& operator=(cls copy_by_value) {                   \
+		using std::swap;                                  \
+		swap(*this, copy_by_value);                       \
+	}                                                     \
+	OGDF_MOVE_CONSTR(cls) {                               \
+		using std::swap;                                  \
+		swap(*this, move);                                \
+	}                                                     \
+	OGDF_MOVE_OP(cls) {                                   \
+		using std::swap;                                  \
+		swap(*this, move);                                \
 	}

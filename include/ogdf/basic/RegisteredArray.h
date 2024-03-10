@@ -927,6 +927,6 @@ public:
 	/*! Shorthand for \ref NAME storing std::unique_ptr<Value>. \n
 	    You may need to be explicitly delete the copy constructor
 	    of classes containing a member of this type for MSVC<=16
-	    (e.g. using OGDF_NO_COPY(MyClass)). */                     \
+	    (e.g. using OGDF_NO_COPY(MyClass)). */ \
 	template<typename Value>                                       \
 	using NAME##P = NAME<std::unique_ptr<Value>, false>;
