@@ -666,6 +666,7 @@ public:
 };
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<NodeElement, v, c>
+//! RegisteredArray for labeling the \ref node "nodes" in a Graph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(NodeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
@@ -706,10 +707,12 @@ public:
 };
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) EdgeArrayBase<v, c>
+//! RegisteredArray for labeling the \ref edge "edges" in a Graph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(EdgeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<AdjElement, v, c, GraphAdjRegistry>
+//! RegisteredArray for labeling the \ref adjEntry "adjEntries" in a Graph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(AdjEntryArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
@@ -908,7 +911,7 @@ public:
 	 * This is in particular important when dealing with embedded graphs.
 	 *
 	 * @param copy is the graph that will be copied.
-	 * @sa insert(...)
+	 * @sa insert()
 	 */
 	OGDF_COPY_CONSTR(Graph);
 
@@ -920,7 +923,7 @@ public:
 	 *
 	 * @param copy is the graph to be copied.
 	 * @return this graph.
-	 * @sa insert(...)
+	 * @sa insert()
 	 */
 	OGDF_COPY_OP(Graph);
 

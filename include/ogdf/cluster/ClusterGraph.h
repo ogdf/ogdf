@@ -927,7 +927,7 @@ private:
 	void postOrder(cluster c, SListPure<cluster>& S) const;
 };
 
-//! RegisteredArray for clusters of a cluster graph.
+//! RegisteredArray for labeling the \ref cluster "clusters" of a ClusterGraph.
 template<class Value, bool WithDefault>
 class ClusterArrayBase : public RegisteredArray<ClusterGraph, Value, WithDefault> {
 	using RA = RegisteredArray<ClusterGraph, Value, WithDefault>;

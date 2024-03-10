@@ -919,8 +919,14 @@ public:
 };
 }
 
-#define OGDF_DECL_REG_ARRAY(NAME)                              \
-	template<typename Value, bool WithDefault = true>          \
-	using NAME = OGDF_DECL_REG_ARRAY_TYPE(Value, WithDefault); \
-	template<typename Value>                                   \
+/* The following macro will be expanded in the docs, see doc/ogdf-doxygen.cfg:EXPAND_AS_DEFINED */
+
+#define OGDF_DECL_REG_ARRAY(NAME)                                  \
+	template<typename Value, bool WithDefault = true>              \
+	using NAME = OGDF_DECL_REG_ARRAY_TYPE(Value, WithDefault);     \
+	/*! Shorthand for \ref NAME storing std::unique_ptr<Value>. \n
+	    You may need to be explicitly delete the copy constructor
+	    of classes containing a member of this type for MSVC<=16
+	    (e.g. using OGDF_NO_COPY(MyClass)). */                     \
+	template<typename Value>                                       \
 	using NAME##P = NAME<std::unique_ptr<Value>, false>;
