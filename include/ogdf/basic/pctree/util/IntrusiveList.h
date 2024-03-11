@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief An intrusive list for the leaves of a PCTree.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -28,6 +28,8 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+
+// TODO merge with GraphList
 
 #pragma once
 

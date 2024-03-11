@@ -437,16 +437,11 @@ void PCTree::destroyLeaf(PCNode* leaf) {
 	}
 }
 
-// identified `inserted`s root leaf with `base`s base_leaf
 void PCTree::insertTree(PCNode* at, PCTree* inserted) {
-	//    OGDF_ASSERT(a != nullptr && b != nullptr);
-	//    OGDF_ASSERT(a != b);
-	//    OGDF_ASSERT(a->forest == b->forest);
-	//    OGDF_ASSERT(a->externalForest && b->externalForest);
-	//    OGDF_ASSERT(a->getRootNode()->getNodeType() == PCNodeType::Leaf
-	//                && b->getRootNode()->getNodeType() == PCNodeType::Leaf);
 	OGDF_ASSERT(checkValid());
 	OGDF_ASSERT(inserted->checkValid());
+	OGDF_ASSERT(at->isValidNode(getForest()));
+	OGDF_ASSERT(inserted->getForest() == getForest());
 
 	observers.splice(observers.end(), inserted->observers);
 	leaves.splice(leaves.end(), inserted->leaves);

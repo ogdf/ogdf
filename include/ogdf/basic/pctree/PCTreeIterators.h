@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief Utils for PCTree::allNodes(), PCTree::innerNodes(), PCNode::children() and PCNode::neighbors().
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -114,6 +114,10 @@ struct OGDF_EXPORT PCNodeNeighborsIterable {
 	unsigned long count() const;
 };
 
+/**
+ * A DFS or BFS through a PCTree.
+ * @sa FilteringBFS
+ */
 template<bool dfs, bool reverse = false>
 class FilteringPCTreeWalk {
 	using container_type =
@@ -171,7 +175,6 @@ public:
 
 	//! Increment operator (postfix, returns previous value).
 	OGDF_DEPRECATED("Calling FilteringPCTreeWalk++ will copy the array of pending nodes")
-
 	FilteringPCTreeWalk operator++(int) {
 		FilteringPCTreeWalk before = *this;
 		next();
