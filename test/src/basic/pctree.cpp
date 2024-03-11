@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief Static tests for PCTrees
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -43,6 +43,22 @@ using namespace ogdf;
 using namespace pc_tree;
 using namespace snowhouse;
 using namespace bandit;
+
+std::string treeToString(const PCTree& tree) {
+	std::stringstream ss;
+	ss << tree;
+	return ss.str();
+}
+
+template<class Iterable>
+void checkOrder(std::vector<PCNode*>& nodes, Iterable iter, std::vector<int> ids) {
+	int index = 0;
+	for (PCNode* node : iter) {
+		AssertThat(node, Equals(nodes.at(ids.at(index))));
+		index++;
+	}
+	AssertThat(index, Equals(ids.size()));
+}
 
 bool makeConsecutive(PCTree& tree, std::initializer_list<int> listIndexes) {
 	std::vector<PCNode*> restriction;
@@ -186,9 +202,149 @@ void testPlanarity() {
 	testPlanarity(20, 40, 1705935965, 1);
 }
 
+bool applyRestrictions(PCTree& t, std::initializer_list<std::initializer_list<int>> restrictions) {
+	std::vector<PCNode*> leaves(t.getLeaves().begin(), t.getLeaves().end());
+	for (auto restriction : restrictions) {
+		std::vector<PCNode*> restrictionLeaves;
+		for (int i : restriction) {
+			restrictionLeaves.push_back(leaves.at(i));
+		}
+		if (!t.makeConsecutive(restrictionLeaves)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void testIntersection(int numLeaves, std::initializer_list<std::initializer_list<int>> restrictions1,
+		std::initializer_list<std::initializer_list<int>> restrictions2) {
+	PCTree t1(numLeaves);
+	PCTree t2(numLeaves);
+	PCTreeNodeArray<PCNode*> mapLeaves(t2);
+	auto it1 = t1.getLeaves().begin();
+	auto it2 = t2.getLeaves().begin();
+	for (int i = 0; i < numLeaves; i++) {
+		AssertThat(it1, !Equals(t1.getLeaves().end()));
+		AssertThat(it2, !Equals(t2.getLeaves().end()));
+		mapLeaves[*it2] = *it1;
+		++it1;
+		++it2;
+	}
+	AssertThat(it1, Equals(t1.getLeaves().end()));
+	AssertThat(it2, Equals(t2.getLeaves().end()));
+
+	AssertThat(applyRestrictions(t1, restrictions1), IsTrue());
+	AssertThat(applyRestrictions(t2, restrictions2), IsTrue());
+
+	PCTree check(numLeaves);
+	AssertThat(applyRestrictions(check, restrictions1), IsTrue());
+	bool possibleCheck = applyRestrictions(check, restrictions2);
+
+	bool possibleIntersection = t1.intersect(t2, mapLeaves);
+	AssertThat(possibleIntersection, Equals(possibleCheck));
+	if (possibleCheck) {
+		AssertThat(t1.uniqueID(uid_utils::leafToID), Equals(check.uniqueID(uid_utils::leafToID)));
+	}
+}
+
+
 go_bandit([]() {
 	describe("PCTree", []() {
-		it("applies restrictions correctly", []() {
+		it("allows creating a trivial instance", []() {
+			std::vector<PCNode*> leaves;
+			PCTree tree(5, &leaves);
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.isTrivial(), IsTrue());
+			AssertThat(tree.getLeafCount(), Equals(5));
+			AssertThat(tree.getPNodeCount(), Equals(1));
+			AssertThat(tree.getCNodeCount(), Equals(0));
+			AssertThat(std::equal(tree.getLeaves().begin(), tree.getLeaves().end(), leaves.begin(),
+							   leaves.end()),
+					IsTrue());
+			AssertThat(tree.possibleOrders<int>(), Equals(24));
+			AssertThat(treeToString(tree), Equals("0:(5, 4, 3, 2, 1)"));
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition), Equals("5:(4, 3, 2, 1, 0)"));
+			PCNode* root = tree.getRootNode();
+			AssertThat(root->getNodeType(), Equals(PCNodeType::PNode));
+			AssertThat(root->getChildCount(), Equals(5));
+
+			tree.makeConsecutive({leaves.at(1), leaves.at(2)});
+			AssertThat(treeToString(tree), Equals("0:(6:(3, 2), 5, 4, 1)"));
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition), Equals("6:(5:[2, 1], 4, 3, 0)"));
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.isTrivial(), IsFalse());
+		});
+
+		it("correctly handles the first case where JPPZanetti fails", []() {
+			std::vector<PCNode*> leaves;
+			PCTree tree(7, &leaves);
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition), Equals("7:(6, 5, 4, 3, 2, 1, 0)"));
+			tree.makeConsecutive({leaves.at(4), leaves.at(5)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("8:(7:[5, 4], 6, 3, 2, 1, 0)"));
+			tree.makeConsecutive({leaves.at(3), leaves.at(4), leaves.at(5)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("9:(8:[7:[5, 4], 3], 6, 2, 1, 0)"));
+			tree.makeConsecutive({leaves.at(0), leaves.at(1)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("10:(9:[8:[5, 4], 3], 7:[1, 0], 6, 2)"));
+			tree.makeConsecutive({leaves.at(1), leaves.at(2)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("10:[9:[8:[5, 4], 3], 7:[2, 1, 0], 6]"));
+			tree.makeConsecutive({leaves.at(2), leaves.at(3), leaves.at(4), leaves.at(5)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("9:[6, 8:[7:[5, 4], 3], 2, 1, 0]"));
+			tree.makeConsecutive({leaves.at(3), leaves.at(4), leaves.at(5), leaves.at(6)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("9:[6, 8:[7:[5, 4], 3], 2, 1, 0]"));
+			tree.makeConsecutive({leaves.at(3), leaves.at(4)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("8:[6, 7:[5, 4, 3], 2, 1, 0]"));
+			tree.makeConsecutive({leaves.at(2), leaves.at(3), leaves.at(4), leaves.at(5)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(tree.uniqueID(uid_utils::nodeToPosition),
+					Equals("8:[6, 7:[5, 4, 3], 2, 1, 0]"));
+		});
+
+		it("is iterated correctly", []() {
+			std::vector<PCNode*> leaves;
+			PCTree tree(7, &leaves);
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(treeToString(tree), Equals("0:(7, 6, 5, 4, 3, 2, 1)"));
+			tree.makeConsecutive({leaves.at(0), leaves.at(1), leaves.at(2), leaves.at(3)});
+			AssertThat(tree.checkValid(), IsTrue());
+			AssertThat(treeToString(tree), Equals("0:(8:(4, 3, 2, 1), 7, 6, 5)"));
+
+			FilteringPCTreeDFS walk = tree.allNodes();
+			std::vector<PCNode*> nodes {walk.begin(), walk.end()};
+			std::sort(nodes.begin(), nodes.end(),
+					[](PCNode* a, PCNode* b) { return a->index() < b->index(); });
+			AssertThat(nodes.size(), Equals(9));
+			AssertThat(nodes.front()->index(), Equals(0));
+			AssertThat(nodes.back()->index(), Equals(8));
+
+			checkOrder(nodes, tree.getLeaves(), {1, 2, 3, 4, 5, 6, 7});
+			checkOrder(nodes, tree.allNodes(), {0, 8, 4, 3, 2, 1, 7, 6, 5});
+			checkOrder(nodes, tree.innerNodes(), {0, 8});
+
+			FilteringPCTreeBFS bfs(tree, tree.getRootNode());
+			checkOrder(nodes, bfs, {0, 5, 6, 7, 8, 1, 2, 3, 4});
+
+			PCNode* node = tree.getRootNode()->getChild2();
+			AssertThat(node->index(), Equals(8));
+			checkOrder(nodes, node->children(), {1, 2, 3, 4});
+			checkOrder(nodes, node->neighbors(), {1, 2, 3, 4, 0});
+		});
+
+		it("applies small restrictions correctly", []() {
 			std::vector<PCNode*> added;
 			PCTree T(10, &added);
 			AssertThat(T.isTrivial(), IsTrue());
@@ -204,7 +360,7 @@ go_bandit([]() {
 			testGeneric(T);
 		});
 
-		it("applies restrictions correctly", []() {
+		it("applies bigger restrictions correctly", []() {
 			PCTree T(50);
 			AssertThat(
 					makeConsecutive(T,
@@ -288,8 +444,32 @@ go_bandit([]() {
 			}
 			AssertThat(it1, Equals(T.getLeaves().end()));
 			AssertThat(it2, Equals(T2.getLeaves().end()));
-			// AssertThat(T.intersect(T2, leafMap), IsTrue());
+			AssertThat(T.intersect(T2, leafMap), IsTrue());
 			testGeneric(T);
+		});
+
+		describe("intersection", []() {
+			it("correctly handles the trivial case", []() { testIntersection(10, {{0, 1, 2}}, {}); });
+			it("correctly handles another trivial case", []() {
+				testIntersection(10, {}, {{0, 1, 2}});
+			});
+			it("correctly handles a tree with only P-Nodes", []() {
+				testIntersection(10, {{3, 4, 5}}, {{0, 1, 2}, {6, 7, 8}});
+			});
+			it("correctly handles a simple intersection with a C-Node", []() {
+				testIntersection(10, {{2, 3, 4}}, {{0, 1, 2}, {5, 6, 7}, {7, 8, 9}});
+			});
+			it("correctly handles a single C-Node", []() {
+				testIntersection(5, {{1, 2, 3}}, {{0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 0}});
+			});
+			it("correctly handles a more complicated intersection", []() {
+				testIntersection(20, {{11, 12, 13, 14}, {0, 8}, {14, 9}},
+						{{0, 1}, {1, 2}, {2, 3}, {6, 7, 8, 9, 10}, {11, 12}, {12, 13}, {13, 14},
+								{15, 16}, {16, 17}, {17, 18}});
+			});
+			it("correctly handles an impossible intersection", []() {
+				testIntersection(10, {{0, 1}, {1, 2}, {2, 3}}, {{0, 2}});
+			});
 		});
 	});
 
