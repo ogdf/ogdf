@@ -113,6 +113,11 @@ echo $cmakecommand
 eval $cmakecommand || exit 1
 echo "::endgroup::"
 
+run_cmake() {
+  echo cmake $@
+  cmake $@ "$tmp"
+}
+
 compile () {
 	make -C $tmp -j "$cores" build-all | grep -v 'Building CXX object'
 }
@@ -121,17 +126,17 @@ compile () {
 echo "::group::($(date -Iseconds)) First compile with all custom macros set"
 echo "running make using $cores parallel jobs"
 ogdf_flags="$(cmake -LA "$tmp" | grep OGDF_EXTRA_CXX_FLAGS:STRING)"
-cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags $(./util/get_macro_defs.sh)" "$tmp"
+run_cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags $(./util/get_macro_defs.sh)"
 compile || exit 1
 echo "::endgroup::"
 
 echo "::group::($(date -Iseconds)) Now recompile without custom macros"
-cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags" "$tmp"
+run_cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags"
 compile || exit 1
 echo "::endgroup::"
 
 echo "::group::($(date -Iseconds)) Now recompile tests as separate tests"
-cmake "-DOGDF_WARNING_ERRORS=ON" -DOGDF_SEPARATE_TESTS=ON "$tmp"
+run_cmake "-DOGDF_WARNING_ERRORS=ON" -DOGDF_SEPARATE_TESTS=ON
 compile || exit 1
 echo "::endgroup::"
 

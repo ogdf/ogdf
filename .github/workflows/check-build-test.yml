@@ -1,11 +1,7 @@
 name: Check, Build and Test
 
 on:
-  push:
   pull_request:
-    branches: [master]
-  release:
-    types: [published]
 
 env:
   CCACHE_SLOPPINESS: pch_defines,time_macros,include_file_mtime,include_file_ctime
@@ -73,24 +69,18 @@ jobs:
           name: ${{ github.job }}
           path: ${{ github.workspace }}/ccache-debug
 
-  sonar:
+
+  static-analysis:
     name: "Static Analysis"
-    if: |
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
-    needs: [style, dirs, self-sufficiency, docs]
+    needs: [ style, dirs, self-sufficiency, docs ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # fetch full history for blame info
-      - name: Install sonar-scanner
-        uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
@@ -105,23 +95,22 @@ jobs:
           CTCACHE_DIR: .ctcache
           # CTCACHE_DUMP: ${{ env.CCACHE_DEBUG }} # defining the var is enough to enable
         run: |
-          util/sonar.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          util/test_static_analysis.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           find .ctcache -mtime +7 -delete
-          cat sonar/clang-tidy.txt | python3 -m clang_tidy_converter sq > sonar/clang-tidy.json
+          cat static-analysis/clang-tidy.txt | python3 -m clang_tidy_converter sq > static-analysis/clang-tidy.json
         shell: bash
       - name: Report unused files
-        run: cat sonar/unused-headers.txt
-      - name: Run sonar-scanner
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: sonar-scanner
-      - name: Store logs
+        run: cat static-analysis/unused-headers.txt
+      - name: Save PR number to file
+        run: |
+          echo ${{ github.event.number }} > static-analysis/PR_NUMBER.txt
+          cat static-analysis/PR_NUMBER.txt
+      - name: Store static analysis results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: sonar
-          path: sonar/
+          name: static-analysis
+          path: static-analysis/
       - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
@@ -129,15 +118,48 @@ jobs:
           name: ${{ github.job }}
           path: ${{ github.workspace }}/ccache-debug
 
+  coverage:
+    name: "Test Coverage"
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:15
+    needs: [ style, dirs, self-sufficiency, docs ]
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
+    steps:
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+      - name: Set-up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}
+      - name: Run analysis
+        run: |
+          util/test_coverage.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        shell: bash
+      - name: Store coverage data
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage/
+      - uses: actions/upload-artifact@v4
+        name: Upload ccache debug info
+        if: ${{ env.CCACHE_DEBUG == 1 }}
+        with:
+          name: ${{ github.job }}
+          path: ${{ github.workspace }}/ccache-debug
+
+
   build-linux:
     name: "Test ${{ matrix.mode }} build on Linux with ${{ matrix.compiler }}"
     strategy:
       matrix:
-        mode: [debug, release]
-        compiler: ['gcc:9', 'gcc:13', 'clang:15']
+        mode: [ debug, release ]
+        compiler: [ 'gcc:9', 'gcc:13', 'clang:15' ]
     runs-on: ubuntu-latest
     container: docker.io/ogdf/${{ matrix.compiler }}
-    needs: [style, dirs, self-sufficiency, docs]
+    needs: [ style, dirs, self-sufficiency, docs ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
@@ -165,8 +187,11 @@ jobs:
             ${{ matrix.mode }} \
             ${{ startsWith(matrix.compiler, 'gcc') && 'gcc' || 'clang' }} \
             default_s \
-            -DOGDF_INCLUDE_CGAL=ON -DOGDF_ARCH=haswell \
+            ${{ matrix.compiler != 'clang:15' && '-DOGDF_INCLUDE_CGAL=ON' }} \
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_ARCH=haswell \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        # extra flags used when collecting coverage are disabled here
+        # ---
         # see "Cloud hosts used by GitHub-hosted runners" in the GH Actions docs
         # for the oldest used microarchitecture to use with OGDF_ARCH
       - uses: actions/upload-artifact@v4
@@ -180,9 +205,9 @@ jobs:
     name: "Test ${{ matrix.mode }} build on MacOS"
     strategy:
       matrix:
-        mode: [debug, release]
+        mode: [ debug, release ]
     runs-on: macos-latest
-    needs: [style, dirs, self-sufficiency, docs]
+    needs: [ style, dirs, self-sufficiency, docs ]
     steps:
       - uses: actions/checkout@v4
       - run: brew install coreutils findutils
@@ -202,7 +227,9 @@ jobs:
             ${{ matrix.mode }} \
             default_c \
             default_s \
+            -DOGDF_INCLUDE_CGAL=ON -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_ARCH=ivybridge \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        # ivybridge is the oldest arch we encountered from SIGILL ccaching problems
       - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
@@ -214,9 +241,9 @@ jobs:
     name: "Test ${{ matrix.mode }} build on Windows"
     strategy:
       matrix:
-        mode: [debug, release]
+        mode: [ debug, release ]
     runs-on: windows-latest
-    needs: [style, dirs, self-sufficiency, docs]
+    needs: [ style, dirs, self-sufficiency, docs ]
     steps:
       - uses: actions/checkout@v4
       - uses: microsoft/setup-msbuild@v2
@@ -236,9 +263,10 @@ jobs:
           name: ${{ github.job }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
 
+
   # this is mostly used to keep the required status checks for PR merging simple
   summary:
-    needs: [build-linux, build-macos, build-windows, sonar]
+    needs: [ build-linux, build-macos, build-windows, static-analysis, coverage ]
     name: "All tests succeeded"
     runs-on: ubuntu-latest
     steps:
