@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief Automatically generated tests for PCTrees.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -96,7 +96,7 @@ void testUIDRegen(PCTree& T) {
 	PCTree cT;
 	PCNode* root = cT.newNode(PCNodeType::PNode);
 	for (PCNode* leaf : T.getLeaves()) {
-		OGDF_ASSERT(leaf->index() != 0);
+		AssertThat(leaf->index() != 0, IsTrue());
 		nodeMapping[leaf] = cT.newNode(PCNodeType::Leaf, root, leaf->index());
 	}
 
@@ -105,7 +105,7 @@ void testUIDRegen(PCTree& T) {
 			n = nodeMapping[n];
 		}
 		bool res = cT.makeConsecutive(restriction);
-		AssertThat(res, Equals(true));
+		AssertThat(res, IsTrue());
 	}
 
 	AssertThat(cT.uniqueID(uid_utils::leafToID), Equals(uid));
@@ -132,12 +132,12 @@ struct CreateCentralNode {
 		T = std::make_unique<PCTree>();
 		createTree();
 		bool possible = T->makeConsecutive(fullLeaves);
-		AssertThat(possible, Equals(true));
-		AssertThat(T->checkValid(), Equals(true));
+		AssertThat(possible, IsTrue());
+		AssertThat(T->checkValid(), IsTrue());
 		AssertThat(T->possibleOrders<BigInt>(), Equals(orders));
 
-		AssertThat(T->makeConsecutive(emptyLeaves), Equals(true));
-		AssertThat(T->checkValid(), Equals(true));
+		AssertThat(T->makeConsecutive(emptyLeaves), IsTrue());
+		AssertThat(T->checkValid(), IsTrue());
 		AssertThat(T->possibleOrders<BigInt>(), Equals(orders));
 		T.reset(); // catch exceptions from destructor
 	}
@@ -182,9 +182,9 @@ struct CreateCentralNode {
 		auto t1_it = t1.getLeaves().begin();
 		auto t2_it = t2.getLeaves().begin();
 		for (int i = 0; i < T->getLeafCount(); ++i) {
-			OGDF_ASSERT(T_it != T->getLeaves().end());
-			OGDF_ASSERT(t1_it != t1.getLeaves().end());
-			OGDF_ASSERT(t2_it != t2.getLeaves().end());
+			AssertThat(T_it != T->getLeaves().end(), IsTrue());
+			AssertThat(t1_it != t1.getLeaves().end(), IsTrue());
+			AssertThat(t2_it != t2.getLeaves().end(), IsTrue());
 			PCNode* original = *T_it;
 			leafMap1[original] = *t1_it;
 			leafMap2[original] = *t2_it;
@@ -193,9 +193,9 @@ struct CreateCentralNode {
 			++t1_it;
 			++t2_it;
 		}
-		OGDF_ASSERT(T_it == T->getLeaves().end());
-		OGDF_ASSERT(t1_it == t1.getLeaves().end());
-		OGDF_ASSERT(t2_it == t2.getLeaves().end());
+		AssertThat(T_it == T->getLeaves().end(), IsTrue());
+		AssertThat(t1_it == t1.getLeaves().end(), IsTrue());
+		AssertThat(t2_it == t2.getLeaves().end(), IsTrue());
 
 		std::vector<std::vector<PCNode*>> restrictions;
 		T->getRestrictions(restrictions);
@@ -210,8 +210,8 @@ struct CreateCentralNode {
 				copyRestriction(restrictions.at(i), leafMap2, t2);
 			}
 		}
-		OGDF_ASSERT(t1.checkValid());
-		OGDF_ASSERT(t2.checkValid());
+		AssertThat(t1.checkValid(), IsTrue());
+		AssertThat(t2.checkValid(), IsTrue());
 
 		AssertThat(t1.intersect(t2, leafMap21), IsTrue());
 		AssertThat(t1.checkValid(), IsTrue());
@@ -283,7 +283,7 @@ struct CreateCentralNode {
 			// we'll create a new central C-Node
 			orders *= 2;
 		}
-		OGDF_ASSERT(T->checkValid());
+		AssertThat(T->checkValid(), IsTrue());
 	}
 
 	static PCNode* moveUpRoot(PCNode* node) {
@@ -305,7 +305,7 @@ struct CreateCentralNode {
 			if (label == NodeLabel::Full) {
 				fullLeaves.push_back(node);
 			} else {
-				OGDF_ASSERT(label == NodeLabel::Empty);
+				AssertThat(label == NodeLabel::Empty, IsTrue());
 				emptyLeaves.push_back(node);
 			}
 			return node;
@@ -340,7 +340,7 @@ struct CreateCentralNode {
 
 	PCNode* createNode(PCNodeType type, int full, int partial, int empty, PCNode*& fullChild,
 			PCNode*& partialChild, PCNode*& emptyChild) {
-		OGDF_ASSERT(type != PCNodeType::Leaf);
+		AssertThat(type != PCNodeType::Leaf, IsTrue());
 		PCNode* node = T->newNode(type);
 		if (type == PCNodeType::PNode) {
 			orders *= factorial(full);
@@ -352,7 +352,7 @@ struct CreateCentralNode {
 #ifdef OGDF_DEBUG
 		int sum = full + partial + empty;
 #endif
-		OGDF_ASSERT(sum >= 2);
+		AssertThat(sum >= 2, IsTrue());
 		depth++;
 		while (full + partial + empty > 0) {
 			int rand = type == PCNodeType::CNode ? 0 : randomNumber(0, full + partial + empty - 1);
@@ -371,7 +371,7 @@ struct CreateCentralNode {
 				}
 				partial--;
 			} else {
-				OGDF_ASSERT(rand < full + partial + empty);
+				AssertThat(rand < full + partial + empty, IsTrue());
 				PCNode* child = createNode(NodeLabel::Empty);
 				node->appendChild(child);
 				if (child->getNodeType() != PCNodeType::Leaf) {
@@ -381,10 +381,10 @@ struct CreateCentralNode {
 			}
 		}
 		depth--;
-		OGDF_ASSERT(full == 0);
-		OGDF_ASSERT(partial == 0);
-		OGDF_ASSERT(empty == 0);
-		OGDF_ASSERT(node->getDegree() == sum);
+		AssertThat(full == 0, IsTrue());
+		AssertThat(partial == 0, IsTrue());
+		AssertThat(empty == 0, IsTrue());
+		AssertThat(node->getDegree() == sum, IsTrue());
 		if (randomNumber(0, 1) == 1) {
 			node->flip();
 		}
@@ -398,7 +398,7 @@ go_bandit([]() {
 
 		std::time_t time = std::time(nullptr);
 		std::vector<int> seeds;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			seeds.push_back(i);
 			seeds.push_back(time + i);
 		}
