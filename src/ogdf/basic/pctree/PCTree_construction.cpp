@@ -244,7 +244,7 @@ void PCTree::registerNode(PCNode* node) {
 	} else {
 		OGDF_ASSERT(node->nodeType == PCNodeType::CNode);
 		node->nodeListIndex = forest->parents.makeSet();
-		OGDF_ASSERT(forest->cNodes.size() == node->nodeListIndex);
+		OGDF_ASSERT(forest->cNodes.size() == node->nodeListIndex); // TODO fix signedness warnings
 		forest->cNodes.push_back(node);
 		cNodeCount++;
 	}

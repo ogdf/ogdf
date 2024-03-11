@@ -68,3 +68,17 @@ void PCTreeForest::clear() {
 	nextNodeId = 0;
 	timestamp = 0;
 }
+
+bool PCTreeRegistry::isKeyAssociated(PCNode* key) const {
+#ifdef OGDF_DEBUG
+	return key && key->getForest() == m_pForest;
+#else
+	return key;
+#endif
+}
+
+int PCTreeRegistry::calculateArraySize(int add) const {
+	return ogdf::calculateTableSize(m_pForest->nextNodeId + add);
+}
+
+int PCTreeRegistry::maxKeyIndex() const { return m_pForest->nextNodeId - 1; }
