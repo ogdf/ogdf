@@ -201,8 +201,8 @@ public:
 	}
 
 	/**
-	* Destroy a node.
-	* The node must be detached and may not be the root of this tree.
+	 * Destroy a node.
+	 * The node must be detached and may not be the root of this tree.
 	 */
 	void destroyNode(PCNode* const& node);
 
@@ -223,7 +223,8 @@ public:
 	 * @param assumeConsecutive Set to \c true if you already called makeConsecutive() on the leaves.
 	 * @return The entry of \p consecutiveLeaves into which all other leaves got merged.
 	 */
-	PCNode* mergeLeaves(const std::vector<PCNode*>& consecutiveLeaves, bool assumeConsecutive = false) {
+	PCNode* mergeLeaves(const std::vector<PCNode*>& consecutiveLeaves,
+			bool assumeConsecutive = false) {
 		return mergeLeaves(consecutiveLeaves.begin(), consecutiveLeaves.end(), assumeConsecutive);
 	}
 

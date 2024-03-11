@@ -247,7 +247,6 @@ void testIntersection(int numLeaves, std::initializer_list<std::initializer_list
 	}
 }
 
-
 go_bandit([]() {
 	describe("PCTree", []() {
 		it("allows creating a trivial instance", []() {
@@ -449,7 +448,9 @@ go_bandit([]() {
 		});
 
 		describe("intersection", []() {
-			it("correctly handles the trivial case", []() { testIntersection(10, {{0, 1, 2}}, {}); });
+			it("correctly handles the trivial case", []() {
+				testIntersection(10, {{0, 1, 2}}, {});
+			});
 			it("correctly handles another trivial case", []() {
 				testIntersection(10, {}, {{0, 1, 2}});
 			});
