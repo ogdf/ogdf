@@ -46,8 +46,9 @@ using UnionFindIndex = int;
 const int UNIONFINDINDEX_EMPTY = -1;
 
 /**
- * Multiple PCTrees can be created within the same PCTreeForest, which allows merging the trees later one by making one
+ * Multiple PCTrees can be created within the same PCTreeForest, which allows merging the trees later on by making one
  * a child of another. This is extensively used during planarity testing.
+ * @sa PCTree:insertTree()
  */
 class OGDF_EXPORT PCTreeForest {
 	friend class PCNode;
@@ -68,14 +69,19 @@ private:
 #endif
 
 public:
+	/**
+	 * @param p_autodelete whether the trees created by makeTree() should be deleted automatically
+	 *   on destruction of this forrest. Note that this does not affect PCTrees directly created by
+	 *   calling PCTree::PCTree(PCTreeForest*).
+	 */
 	PCTreeForest(bool p_autodelete = true) : nodeArrayRegistry(this), autodelete(p_autodelete) {};
 
 	virtual ~PCTreeForest();
 
+	//! Create a new tree that may be automatically deleted when this forest is deleted.
 	PCTree* makeTree(void);
 
-	bool merge(PCTree* a, PCTree* b);
-
+	//! Delete all trees created by makeTree().
 	void clear(void);
 
 	operator const PCTreeRegistry&() const { return nodeArrayRegistry; }

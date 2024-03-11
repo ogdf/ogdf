@@ -152,7 +152,7 @@ public:
 	};
 
 	/**
-	 * Convenience method generating a PCTree consisting of a single P-node with \p leafNum, which are all copied to the optional list \p added.
+	 * Convenience method generating a PCTree consisting of a single P-node with \p leafNum leaves, which are all copied to the optional list \p added.
 	 * Automatically creates and manages a forest if \p p_forest is null.
 	 */
 	explicit PCTree(int leafNum, std::vector<PCNode*>* added = nullptr,
@@ -281,7 +281,12 @@ public:
 	 */
 	PCNodeType changeNodeType(PCNode* node, PCNodeType newType);
 
-	// TODO
+	/**
+	 * Insert tree \p tree into this tree at node \p at.
+	 *
+	 * Both trees need to be part of the same forest. All observers of \p tree will be moved to this tree.
+	 * If \p at is a leaf, it will be replaced by \p tree, otherwise \p tree will be appended as child of \p at.
+	 */
 	void insertTree(PCNode* at, PCTree* tree);
 
 private:
@@ -296,6 +301,11 @@ public:
 	 * @name Restrictions
 	 */
 	//! @{
+	/**
+	 * @return \c true if calling makeConsecutive() with \p size leaves never requires changes to the tree.
+	 *   This is the case for \p size values 0, 1, getLeafCount() - 1, and getLeafCount().
+	 * @sa pc_tree::isTrivialRestriction()
+	 */
 	bool isTrivialRestriction(int size) const;
 
 	bool makeConsecutive(std::initializer_list<PCNode*> consecutiveLeaves) {
@@ -306,6 +316,13 @@ public:
 		return makeConsecutive(consecutiveLeaves.begin(), consecutiveLeaves.end());
 	}
 
+	/**
+	 * Make the leaves contained in the range denoted by iterators \p begin (inclusive) to
+	 * \p end (exclusive) consecutive in all represented orders.
+	 * This is equivalent to calling resetTempData() and markFull(It, It, std::vector<PCNode*>*) followd by makeFullNodesConsecutive().
+	 * @return \c true if the update was successful, \c false if the leaves cannot be made
+	 *    consecutive and the tree was left unchanged.
+	 */
 	template<typename It>
 	bool makeConsecutive(It begin, It end) {
 		FullLeafIter iter = [&begin, &end]() { return NextFullLeaf<It>(begin, end); };
@@ -338,6 +355,9 @@ public:
 		return makeFullNodesConsecutive();
 	}
 
+	/**
+	 * Reset all makeConsecutive()-related temporary information, especially which leaves are full (should be made consecutive).
+	 */
 	void resetTempData() {
 		forest->timestamp++;
 		firstPartial = lastPartial = nullptr;
@@ -350,7 +370,7 @@ public:
 
 	/**
 	 * Only marks leaves full, does not update partial/full info of parents.
-	 * Use markFull to also update parents.
+	 * Use markFull(It, It, std::vector<PCNode*>*) to also update parents for use with makeFullNodesConsecutive().
 	 */
 	template<typename It>
 	void markLeavesFull(It begin, It end) {
@@ -363,6 +383,11 @@ public:
 		}
 	}
 
+	/**
+	 * Marks the leaves contained in the range denoted by iterators \p begin (inclusive) to
+	 * \p end (exclusive) full, that is marked for being made consecutive in all represented orders.
+	 * Also propagates the markings to parents, which is required for makeFullNodesConsecutive().
+	 */
 	template<typename It>
 	void markFull(It begin, It end, std::vector<PCNode*>* fullNodeOrder = nullptr) {
 		// Attention: This method no longer uses a queue to defer processing of partial/full parents to after
@@ -379,9 +404,17 @@ public:
 		}
 	}
 
+	/**
+	 * Updates the tree to make all leaves marked as full consecutive in all represented orders.
+	 * Requires labels of parents to be correctly set by markFull(It, It, std::vector<PCNode*>*).
+	 * @return \c true if the update was successful, \c false if the leaves cannot be made
+	 *    consecutive and the tree was left unchanged.
+	 */
 	bool makeFullNodesConsecutive();
 
 private:
+	/* see the paper for more info on how the update works with the following methods */
+
 	PCNode* markFull(PCNode* full_node, std::vector<PCNode*>* fullNodeOrder = nullptr);
 
 	bool findTerminalPath();
@@ -419,6 +452,12 @@ public:
 	 * @name Intersect
 	 */
 	//! @{
+	/**
+	 * Intersect the restrictions represented by this tree with those represented by \p other,
+	 * given a bijection \p mapping from the leaves of \p other to this trees' leaves.
+	 * @return \c true if the intersection is non-empty and this now represented by this tree.
+	 *   Otherwise, the intersection is empty and the state of this tree is undefined.
+	 */
 	bool intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping);
 
 private:
@@ -440,8 +479,10 @@ public:
 	//! @{
 	operator const PCTreeRegistry&() const { return forest->nodeArrayRegistry; }
 
+	//! The PCTreeForest this PCTree belongs to, or nullptr.
 	[[nodiscard]] PCTreeForest* getForest() const { return forest; }
 
+	//! Whether this PCTree allows all orders (consists of a single P-node).
 	[[nodiscard]] bool isTrivial() const;
 
 	[[nodiscard]] const IntrusiveList<PCNode>& getLeaves() const { return leaves; }
@@ -454,14 +495,20 @@ public:
 
 	[[nodiscard]] PCNode* getRootNode() const { return rootNode; }
 
+	/**
+	 * @return the length of the terminal path in the last update operation
+	 */
 	int getTerminalPathLength() const { return terminalPathLength; }
 
+	//! An iterable through all nodes of this PCTree.
 	FilteringPCTreeDFS allNodes() const { return FilteringPCTreeDFS(*this, rootNode); }
 
+	//! An iterable through all inner (non-leaf) nodes of this PCTree.
 	FilteringPCTreeDFS innerNodes() const {
 		return FilteringPCTreeDFS(*this, rootNode, [](PCNode* node) { return !node->isLeaf(); });
 	}
 
+	//! Store the order of leaves currently represented by this tree in \p container.
 	template<typename Container>
 	void currentLeafOrder(Container& container) const {
 		for (PCNode* leaf : FilteringPCTreeDFS(*this, rootNode)) {
@@ -478,17 +525,25 @@ public:
 		return container;
 	}
 
+	//! Validity check for debugging assertions.
 	bool checkValid(bool allow_small_deg = true) const;
 
+	//! Check whether the order \p order is represented by this tree.
 	bool isValidOrder(const std::vector<PCNode*>& order) const;
 
+	//! Get a graphical representation of this tree as Graph.
 	void getTree(ogdf::Graph& tree, ogdf::GraphAttributes* g_a,
 			PCTreeNodeArray<ogdf::node>& pc_repr, ogdf::NodeArray<PCNode*>* g_repr = nullptr,
 			bool mark_full = false, bool show_sibs = false) const;
 
+	/**
+	 * Get a list of all cyclic restrictions used to generate this tree.
+	 * If a \p fixedLeaf was given, the restrictions will linear with none of them containing \p fixedLeaf.
+	 */
 	void getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 			PCNode* fixedLeaf = nullptr) const;
 
+	//! Calculate the number of cyclic orders represented by this tree.
 	template<typename R>
 	R possibleOrders() const {
 		R orders(1);
@@ -506,7 +561,12 @@ public:
 		return orders;
 	}
 
-	std::ostream& uniqueID(std::ostream&,
+	/**
+	 * Print a deterministic and unique representation of this PCTree to \p os.
+	 * Unique node IDs and a deterministic order of nodes' children is generated using \p printNode and \p compareNodes, respectively.
+	 * @sa pc_tree::uid_utils
+	 */
+	std::ostream& uniqueID(std::ostream& os,
 			const std::function<void(std::ostream& os, PCNode*, int)>& printNode = uid_utils::nodeToID,
 			const std::function<bool(PCNode*, PCNode*)>& compareNodes = uid_utils::compareNodesByID);
 
@@ -545,6 +605,7 @@ public:
 
 	using FullLeafIter = std::function<std::function<PCNode*()>()>;
 
+	//! Interface for Observers that can be notified of all changes made to the tree during an update.
 	struct Observer {
 		enum class Stage { Trivial, NoPartials, InvalidTP, SingletonTP, Done };
 

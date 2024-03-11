@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief An iterator-based BFD through a Graph.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+// TOOD move to a more central location, add DFS?
+
 #pragma once
 
 #include <ogdf/basic/Graph.h>
@@ -36,6 +38,11 @@
 
 using namespace ogdf;
 
+/**
+ * An iterator-based BFD through a Graph.
+ *
+ * Allows specifying filters to not visit or descend from certain nodes.
+ */
 class OGDF_EXPORT FilteringBFS {
 	Queue<node> m_pending;
 	NodeArray<bool> m_visited;
@@ -96,8 +103,7 @@ public:
 	}
 
 	//! Increment operator (postfix, returns previous value).
-	OGDF_DEPRECATED("Calling DelimitedBFS++ will copy the array of visited nodes")
-
+	OGDF_DEPRECATED("Calling FilteringBFS++ will copy the array of visited nodes")
 	FilteringBFS operator++(int) {
 		FilteringBFS before = *this;
 		next();
