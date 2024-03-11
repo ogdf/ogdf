@@ -104,6 +104,7 @@ public:
 
 	//! Increment operator (postfix, returns previous value).
 	OGDF_DEPRECATED("Calling FilteringBFS++ will copy the array of visited nodes")
+
 	FilteringBFS operator++(int) {
 		FilteringBFS before = *this;
 		next();

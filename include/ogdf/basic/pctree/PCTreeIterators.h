@@ -175,6 +175,7 @@ public:
 
 	//! Increment operator (postfix, returns previous value).
 	OGDF_DEPRECATED("Calling FilteringPCTreeWalk++ will copy the array of pending nodes")
+
 	FilteringPCTreeWalk operator++(int) {
 		FilteringPCTreeWalk before = *this;
 		next();
