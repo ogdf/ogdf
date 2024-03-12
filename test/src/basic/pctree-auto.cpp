@@ -96,7 +96,7 @@ void testUIDRegen(PCTree& T) {
 	PCTree cT;
 	PCNode* root = cT.newNode(PCNodeType::PNode);
 	for (PCNode* leaf : T.getLeaves()) {
-		AssertThat(leaf->index() != 0, IsTrue());
+		AssertThat(leaf->index(), !Equals(0));
 		nodeMapping[leaf] = cT.newNode(PCNodeType::Leaf, root, leaf->index());
 	}
 
@@ -182,9 +182,9 @@ struct CreateCentralNode {
 		auto t1_it = t1.getLeaves().begin();
 		auto t2_it = t2.getLeaves().begin();
 		for (int i = 0; i < T->getLeafCount(); ++i) {
-			AssertThat(T_it != T->getLeaves().end(), IsTrue());
-			AssertThat(t1_it != t1.getLeaves().end(), IsTrue());
-			AssertThat(t2_it != t2.getLeaves().end(), IsTrue());
+			AssertThat(T_it, !Equals(T->getLeaves().end()));
+			AssertThat(t1_it, !Equals(t1.getLeaves().end()));
+			AssertThat(t2_it, !Equals(t2.getLeaves().end()));
 			PCNode* original = *T_it;
 			leafMap1[original] = *t1_it;
 			leafMap2[original] = *t2_it;
@@ -193,9 +193,9 @@ struct CreateCentralNode {
 			++t1_it;
 			++t2_it;
 		}
-		AssertThat(T_it == T->getLeaves().end(), IsTrue());
-		AssertThat(t1_it == t1.getLeaves().end(), IsTrue());
-		AssertThat(t2_it == t2.getLeaves().end(), IsTrue());
+		AssertThat(T_it, Equals(T->getLeaves().end()));
+		AssertThat(t1_it, Equals(t1.getLeaves().end()));
+		AssertThat(t2_it, Equals(t2.getLeaves().end()));
 
 		std::vector<std::vector<PCNode*>> restrictions;
 		T->getRestrictions(restrictions);
@@ -305,7 +305,7 @@ struct CreateCentralNode {
 			if (label == NodeLabel::Full) {
 				fullLeaves.push_back(node);
 			} else {
-				AssertThat(label == NodeLabel::Empty, IsTrue());
+				AssertThat(label, Equals(NodeLabel::Empty));
 				emptyLeaves.push_back(node);
 			}
 			return node;
@@ -340,7 +340,7 @@ struct CreateCentralNode {
 
 	PCNode* createNode(PCNodeType type, int full, int partial, int empty, PCNode*& fullChild,
 			PCNode*& partialChild, PCNode*& emptyChild) {
-		AssertThat(type != PCNodeType::Leaf, IsTrue());
+		AssertThat(type, !Equals(PCNodeType::Leaf));
 		PCNode* node = T->newNode(type);
 		if (type == PCNodeType::PNode) {
 			orders *= factorial(full);
@@ -349,10 +349,8 @@ struct CreateCentralNode {
 		if (type == PCNodeType::CNode && partial == 0 && (full == 0 || empty == 0)) {
 			orders *= 2;
 		}
-#ifdef OGDF_DEBUG
 		int sum = full + partial + empty;
-#endif
-		AssertThat(sum >= 2, IsTrue());
+		AssertThat(sum, IsGreaterThanOrEqualTo(2));
 		depth++;
 		while (full + partial + empty > 0) {
 			int rand = type == PCNodeType::CNode ? 0 : randomNumber(0, full + partial + empty - 1);
@@ -371,7 +369,7 @@ struct CreateCentralNode {
 				}
 				partial--;
 			} else {
-				AssertThat(rand < full + partial + empty, IsTrue());
+				AssertThat(rand, IsLessThan(full + partial + empty));
 				PCNode* child = createNode(NodeLabel::Empty);
 				node->appendChild(child);
 				if (child->getNodeType() != PCNodeType::Leaf) {
@@ -381,10 +379,10 @@ struct CreateCentralNode {
 			}
 		}
 		depth--;
-		AssertThat(full == 0, IsTrue());
-		AssertThat(partial == 0, IsTrue());
-		AssertThat(empty == 0, IsTrue());
-		AssertThat(node->getDegree() == sum, IsTrue());
+		AssertThat(full, Equals(0));
+		AssertThat(partial, Equals(0));
+		AssertThat(empty, Equals(0));
+		AssertThat(node->getDegree(), Equals(sum));
 		if (randomNumber(0, 1) == 1) {
 			node->flip();
 		}
