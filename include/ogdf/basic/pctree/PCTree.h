@@ -229,7 +229,11 @@ public:
 	}
 
 	/**
-	 * @copydoc mergeLeaves(const std::vector<PCNode*>&, bool)
+	 * Merge multiple leaves into a single one and return it.
+	 *
+	 * @param begin, end Iterator range spanning the leaves that shall be merged.
+	 * @param assumeConsecutive Set to \c true if you already called makeConsecutive() on the leaves.
+	 * @return The entry of \p consecutiveLeaves into which all other leaves got merged.
 	 */
 	template<typename It>
 	PCNode* mergeLeaves(It begin, It end, bool assumeConsecutive = false) {
