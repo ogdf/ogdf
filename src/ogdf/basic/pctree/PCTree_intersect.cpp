@@ -35,14 +35,14 @@
 
 bool pc_tree::PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping) {
 	OGDF_HEAVY_ASSERT(checkValid() && other.checkValid());
-	OGDF_ASSERT(leaves.size() == other.leaves.size());
-	OGDF_ASSERT(mapping.registeredAt() == &other.forest->nodeArrayRegistry);
+	OGDF_ASSERT(m_leaves.size() == other.m_leaves.size());
+	OGDF_ASSERT(mapping.registeredAt() == &other.m_forest->m_nodeArrayRegistry);
 	if (other.isTrivial()) {
 		return true;
 	}
 
 #ifdef OGDF_DEBUG
-	size_t oldLeaves = leaves.size();
+	size_t oldLeaves = m_leaves.size();
 #endif
 	PCTreeNodeArray<std::vector<PCNode*>> blockNodes(*this);
 	PCTreeNodeArray<std::vector<PCNode*>> subtreeNodes(*this);
@@ -51,7 +51,7 @@ bool pc_tree::PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping
 	bool possible = other.findNodeRestrictions(*this, mapping, blockNodes, subtreeNodes,
 			leafPartner, isFront);
 	restoreSubtrees(blockNodes, subtreeNodes, leafPartner, isFront);
-	OGDF_ASSERT(oldLeaves == leaves.size());
+	OGDF_ASSERT(oldLeaves == m_leaves.size());
 
 	return possible;
 }
@@ -62,17 +62,18 @@ bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNo
 		PCTreeNodeArray<bool>& isFront) {
 	std::vector<PCNode*> fullNodeOrder;
 	resetTempData();
-	markFull(leaves.begin(), IntrusiveList<PCNode>::iterator(leaves.back()), &fullNodeOrder);
-	changeRoot(leaves.back() == rootNode ? leaves.back()->child1 : leaves.back()->getParent());
-	applyTo.changeRoot(mapping[leaves.back()] == applyTo.rootNode
-					? mapping[leaves.back()]->child1
-					: mapping[leaves.back()]->getParent());
+	markFull(m_leaves.begin(), IntrusiveList<PCNode>::iterator(m_leaves.back()), &fullNodeOrder);
+	changeRoot(
+			m_leaves.back() == m_rootNode ? m_leaves.back()->m_child1 : m_leaves.back()->getParent());
+	applyTo.changeRoot(mapping[m_leaves.back()] == applyTo.m_rootNode
+					? mapping[m_leaves.back()]->m_child1
+					: mapping[m_leaves.back()]->getParent());
 
 	for (PCNode* node : fullNodeOrder) {
 		auto nonLeafNeighborIt = std::find_if(node->neighbors().begin(), node->neighbors().end(),
 				[](PCNode* n) { return !n->isLeaf(); });
 
-		PCNode* startWith = nonLeafNeighborIt == node->neighbors().end() ? node->neighbors().first
+		PCNode* startWith = nonLeafNeighborIt == node->neighbors().end() ? node->neighbors().m_first
 																		 : *nonLeafNeighborIt;
 
 		std::vector<PCNode*> consecutiveOriginal;
@@ -114,9 +115,9 @@ bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNo
 			std::vector<PCNode*> nodeOrder;
 			applyTo.resetTempData();
 			applyTo.markFull(consecutiveOriginal.begin(), consecutiveOriginal.end(), &nodeOrder);
-			PCNode* partialNode = applyTo.firstPartial;
+			PCNode* partialNode = applyTo.m_firstPartial;
 			OGDF_ASSERT(partialNode);
-			OGDF_ASSERT(partialNode == applyTo.lastPartial);
+			OGDF_ASSERT(partialNode == applyTo.m_lastPartial);
 			auto& fullNeighbors = partialNode->tempInfo().fullNeighbors;
 			PCNode* ebEnd1 = nullptr;
 			auto fbEnd1It = std::find_if(fullNeighbors.begin(), fullNeighbors.end(), [&](PCNode* n) {
@@ -178,10 +179,10 @@ bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNo
 			}
 
 			for (PCNode* n : subtreeNodes[newLeaf]) {
-				int oldId = n->nodeListIndex;
+				int oldId = n->m_nodeListIndex;
 				applyTo.unregisterNode(n);
 				if (n->getNodeType() == PCNodeType::CNode) {
-					n->nodeListIndex = oldId;
+					n->m_nodeListIndex = oldId;
 				}
 			}
 
@@ -198,20 +199,20 @@ void pc_tree::PCTree::restoreSubtrees(PCTreeNodeArray<std::vector<PCNode*>>& blo
 		PCTreeNodeArray<bool>& isFront) {
 	PCTreeNodeArray<bool> visited(*this, false);
 	std::queue<PCNode*> queue;
-	queue.push(leaves.front()->getParent());
+	queue.push(m_leaves.front()->getParent());
 
 	while (!queue.empty()) {
 		PCNode* node = queue.front();
 		queue.pop();
 
-		PCNode* previous = node->neighbors().first;
+		PCNode* previous = node->neighbors().m_first;
 		PCNode* current = node->getNextNeighbor(nullptr, previous);
 		if (leafPartner[current] != nullptr && leafPartner[current] == previous) {
 			previous = node->getNextNeighbor(previous, current);
 		}
 		int degree = node->neighbors().count();
 		for (int i = 0; i < degree; i++) {
-			OGDF_ASSERT(current->isValidNode(forest));
+			OGDF_ASSERT(current->isValidNode(m_forest));
 
 			if (!blockNodes[current].empty()) {
 				// Replace the merged leaf (or two leaves) with the subtree it represents.
@@ -228,9 +229,9 @@ void pc_tree::PCTree::restoreSubtrees(PCTreeNodeArray<std::vector<PCNode*>>& blo
 
 				for (PCNode* n : subtreeNodes[current]) {
 					if (n->getNodeType() == PCNodeType::CNode) {
-						cNodeCount++;
-						OGDF_ASSERT(getForest()->cNodes.at(n->nodeListIndex) == nullptr);
-						getForest()->cNodes[n->nodeListIndex] = n;
+						m_cNodeCount++;
+						OGDF_ASSERT(getForest()->m_cNodes.at(n->m_nodeListIndex) == nullptr);
+						getForest()->m_cNodes[n->m_nodeListIndex] = n;
 					} else {
 						registerNode(n);
 					}

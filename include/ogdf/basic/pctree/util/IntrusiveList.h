@@ -41,13 +41,13 @@
 namespace pc_tree {
 template<class T>
 class IntrusiveList {
-	T* first = nullptr;
-	T* last = nullptr;
-	size_t count = 0;
+	T* m_first = nullptr;
+	T* m_last = nullptr;
+	size_t m_count = 0;
 
 public:
 	class iterator {
-		T* node;
+		T* m_node;
 
 	public:
 		// iterator traits
@@ -57,10 +57,10 @@ public:
 		using pointer = const T*;
 		using reference = T*;
 
-		explicit iterator(T* p_node) : node(p_node) { }
+		explicit iterator(T* p_node) : m_node(p_node) { }
 
 		iterator& operator++() {
-			node = node->next;
+			m_node = m_node->m_next;
 			return *this;
 		}
 
@@ -70,60 +70,60 @@ public:
 			return other;
 		}
 
-		bool operator==(iterator other) const { return node == other.node; }
+		bool operator==(iterator other) const { return m_node == other.m_node; }
 
-		bool operator!=(iterator other) const { return node != other.node; }
+		bool operator!=(iterator other) const { return m_node != other.m_node; }
 
-		T* operator*() const { return node; }
+		T* operator*() const { return m_node; }
 	};
 
 	class node {
 		friend class IntrusiveList;
 
 	private:
-		T* next;
-		T* prev;
+		T* m_next;
+		T* m_prev;
 	};
 
-	iterator begin() const { return iterator(first); }
+	iterator begin() const { return iterator(m_first); }
 
 	iterator end() const { return iterator(nullptr); }
 
 	void clear() {
-		first = nullptr;
-		last = nullptr;
-		count = 0;
+		m_first = nullptr;
+		m_last = nullptr;
+		m_count = 0;
 	}
 
-	[[nodiscard]] bool empty() const { return count == 0; }
+	[[nodiscard]] bool empty() const { return m_count == 0; }
 
-	[[nodiscard]] size_t size() const { return count; }
+	[[nodiscard]] size_t size() const { return m_count; }
 
 	T* front() const {
-		assert(first != nullptr);
-		return first;
+		assert(m_first != nullptr);
+		return m_first;
 	}
 
 	T* back() const {
-		assert(last != nullptr);
-		return last;
+		assert(m_last != nullptr);
+		return m_last;
 	}
 
 	void push_front(T* obj) {
 		assert(obj != nullptr);
 		check();
 
-		if (first == nullptr) {
-			obj->next = nullptr;
-			last = obj;
+		if (m_first == nullptr) {
+			obj->m_next = nullptr;
+			m_last = obj;
 		} else {
-			obj->next = first;
-			first->prev = obj;
+			obj->m_next = m_first;
+			m_first->m_prev = obj;
 		}
 
-		obj->prev = nullptr;
-		first = obj;
-		count++;
+		obj->m_prev = nullptr;
+		m_first = obj;
+		m_count++;
 		check();
 	}
 
@@ -131,17 +131,17 @@ public:
 		assert(obj != nullptr);
 		check();
 
-		if (last == nullptr) {
-			obj->prev = nullptr;
-			first = obj;
+		if (m_last == nullptr) {
+			obj->m_prev = nullptr;
+			m_first = obj;
 		} else {
-			obj->prev = last;
-			last->next = obj;
+			obj->m_prev = m_last;
+			m_last->m_next = obj;
 		}
 
-		obj->next = nullptr;
-		last = obj;
-		count++;
+		obj->m_next = nullptr;
+		m_last = obj;
+		m_count++;
 		check();
 	}
 
@@ -151,26 +151,26 @@ public:
 
 	void erase(T* obj) {
 		assert(obj != nullptr);
-		assert(count > 0);
+		assert(m_count > 0);
 		check();
 
-		if (obj == first) {
-			first = obj->next;
+		if (obj == m_first) {
+			m_first = obj->m_next;
 		}
 
-		if (obj == last) {
-			last = obj->prev;
+		if (obj == m_last) {
+			m_last = obj->m_prev;
 		}
 
-		if (obj->prev) {
-			obj->prev->next = obj->next;
+		if (obj->m_prev) {
+			obj->m_prev->m_next = obj->m_next;
 		}
 
-		if (obj->next) {
-			obj->next->prev = obj->prev;
+		if (obj->m_next) {
+			obj->m_next->m_prev = obj->m_prev;
 		}
 
-		count--;
+		m_count--;
 		check();
 	}
 
@@ -180,29 +180,29 @@ public:
 		other.check();
 
 		if (at == end()) {
-			if (last != nullptr) {
-				last->next = other.first;
-				other.first->prev = last;
-				last = other.last;
+			if (m_last != nullptr) {
+				m_last->m_next = other.m_first;
+				other.m_first->m_prev = m_last;
+				m_last = other.m_last;
 			} else {
-				first = other.first;
-				last = other.last;
+				m_first = other.m_first;
+				m_last = other.m_last;
 			}
 		} else if (at == begin()) {
-			if (first != nullptr) {
-				first->prev = other.last;
-				other.last->next = first;
-				first = other.first;
+			if (m_first != nullptr) {
+				m_first->m_prev = other.m_last;
+				other.m_last->m_next = m_first;
+				m_first = other.m_first;
 			} else {
-				first = other.first;
-				last = other.last;
+				m_first = other.m_first;
+				m_last = other.m_last;
 			}
 		}
 
-		count += other.count;
-		other.count = 0;
-		other.first = nullptr;
-		other.last = nullptr;
+		m_count += other.m_count;
+		other.m_count = 0;
+		other.m_first = nullptr;
+		other.m_last = nullptr;
 		check();
 		other.check();
 	}

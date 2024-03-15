@@ -197,50 +197,50 @@ void PCTree::LoggingObserver::makeConsecutiveDone(PCTree& tree, Stage stage, boo
 }
 
 bool PCTree::makeFullNodesConsecutive() {
-	if (firstPartial == nullptr) {
-		OGDF_ASSERT(lastPartial == nullptr);
-		OGDF_ASSERT(partialCount == 0);
-		for (auto obs : observers) {
+	if (m_firstPartial == nullptr) {
+		OGDF_ASSERT(m_lastPartial == nullptr);
+		OGDF_ASSERT(m_partialCount == 0);
+		for (auto obs : m_observers) {
 			obs->makeConsecutiveDone(*this, Observer::Stage::NoPartials, true);
 		}
 		return true;
 	}
-	OGDF_ASSERT(lastPartial != nullptr);
-	OGDF_ASSERT(partialCount > 0);
-	for (auto obs : observers) {
-		obs->labelsAssigned(*this, firstPartial, lastPartial, partialCount);
+	OGDF_ASSERT(m_lastPartial != nullptr);
+	OGDF_ASSERT(m_partialCount > 0);
+	for (auto obs : m_observers) {
+		obs->labelsAssigned(*this, m_firstPartial, m_lastPartial, m_partialCount);
 	}
 
 	PC_PROFILE_ENTER(1, "find_tp");
 	bool find_tp = findTerminalPath();
 	PC_PROFILE_EXIT(1, "find_tp");
 	if (!find_tp) {
-		for (auto obs : observers) {
+		for (auto obs : m_observers) {
 			obs->makeConsecutiveDone(*this, Observer::Stage::InvalidTP, false);
 		}
 		return false;
 	}
-	OGDF_ASSERT(apexCandidate != nullptr);
-	OGDF_ASSERT(apexCandidateIsFix == true);
-	for (auto obs : observers) {
-		obs->terminalPathFound(*this, apexCandidate, apexTPPred2, terminalPathLength);
+	OGDF_ASSERT(m_apexCandidate != nullptr);
+	OGDF_ASSERT(m_apexCandidateIsFix == true);
+	for (auto obs : m_observers) {
+		obs->terminalPathFound(*this, m_apexCandidate, m_apexTPPred2, m_terminalPathLength);
 	}
 
 	PC_PROFILE_ENTER(1, "update_tp");
-	if (terminalPathLength == 1) {
-		OGDF_ASSERT(apexCandidate->tempInfo().tpPred == nullptr);
+	if (m_terminalPathLength == 1) {
+		OGDF_ASSERT(m_apexCandidate->tempInfo().tpPred == nullptr);
 		updateSingletonTerminalPath();
 		PC_PROFILE_EXIT(1, "update_tp");
-		for (auto obs : observers) {
+		for (auto obs : m_observers) {
 			obs->makeConsecutiveDone(*this, Observer::Stage::SingletonTP, true);
 		}
 		return true;
 	}
-	OGDF_ASSERT(apexCandidate->tempInfo().tpPred != nullptr);
+	OGDF_ASSERT(m_apexCandidate->tempInfo().tpPred != nullptr);
 	PC_PROFILE_ENTER(2, "update_tp_central");
 	PCNode* central = createCentralNode();
 	PC_PROFILE_EXIT(2, "update_tp_central");
-	for (auto obs : observers) {
+	for (auto obs : m_observers) {
 		obs->centralCreated(*this, central);
 	}
 
@@ -249,16 +249,16 @@ bool PCTree::makeFullNodesConsecutive() {
 	int merged =
 #endif
 			updateTerminalPath(central, ctinfo.tpPred);
-	if (apexTPPred2 != nullptr) {
+	if (m_apexTPPred2 != nullptr) {
 #ifdef OGDF_DEBUG
 		merged +=
 #endif
-				updateTerminalPath(central, apexTPPred2);
+				updateTerminalPath(central, m_apexTPPred2);
 	}
-	OGDF_ASSERT(merged == terminalPathLength - 1);
+	OGDF_ASSERT(merged == m_terminalPathLength - 1);
 	PC_PROFILE_EXIT(1, "update_tp");
 
-	for (auto obs : observers) {
+	for (auto obs : m_observers) {
 		obs->makeConsecutiveDone(*this, Observer::Stage::Done, true);
 	}
 #ifdef OGDF_HEAVY_DEBUG
@@ -275,7 +275,7 @@ bool PCTree::makeFullNodesConsecutive() {
 	}
 	OGDF_ASSERT(order.front()->isFull());
 	OGDF_ASSERT(!order.back()->isFull());
-	OGDF_ASSERT(order.size() == leaves.size());
+	OGDF_ASSERT(order.size() == m_leaves.size());
 	while (order.front()->isFull()) {
 		order.pop_front();
 	}
@@ -286,36 +286,36 @@ bool PCTree::makeFullNodesConsecutive() {
 void PCTree::addPartialNode(PCNode* partial) {
 	OGDF_ASSERT(partial->tempInfo().predPartial == nullptr);
 	OGDF_ASSERT(partial->tempInfo().nextPartial == nullptr);
-	partial->tempInfo().predPartial = lastPartial;
-	if (firstPartial == nullptr) {
-		firstPartial = partial;
+	partial->tempInfo().predPartial = m_lastPartial;
+	if (m_firstPartial == nullptr) {
+		m_firstPartial = partial;
 	} else {
-		lastPartial->tempInfo().nextPartial = partial;
+		m_lastPartial->tempInfo().nextPartial = partial;
 	}
-	lastPartial = partial;
-	partialCount++;
+	m_lastPartial = partial;
+	m_partialCount++;
 }
 
 void PCTree::removePartialNode(PCNode* partial) {
 	PCNode::TempInfo& tinfo = partial->tempInfo();
-	OGDF_ASSERT((tinfo.predPartial == nullptr) == (firstPartial == partial));
+	OGDF_ASSERT((tinfo.predPartial == nullptr) == (m_firstPartial == partial));
 	if (tinfo.predPartial == nullptr) {
-		firstPartial = tinfo.nextPartial;
+		m_firstPartial = tinfo.nextPartial;
 	} else {
 		tinfo.predPartial->tempInfo().nextPartial = tinfo.nextPartial;
 	}
-	OGDF_ASSERT((tinfo.nextPartial == nullptr) == (lastPartial == partial));
+	OGDF_ASSERT((tinfo.nextPartial == nullptr) == (m_lastPartial == partial));
 	if (tinfo.nextPartial == nullptr) {
-		lastPartial = tinfo.predPartial;
+		m_lastPartial = tinfo.predPartial;
 	} else {
 		tinfo.nextPartial->tempInfo().predPartial = tinfo.predPartial;
 	}
 	tinfo.predPartial = tinfo.nextPartial = nullptr;
-	partialCount--;
+	m_partialCount--;
 }
 
 PCNode* PCTree::markFull(PCNode* full_node, std::vector<PCNode*>* fullNodeOrder) {
-	OGDF_HEAVY_ASSERT(full_node->isValidNode(forest));
+	OGDF_HEAVY_ASSERT(full_node->isValidNode(m_forest));
 	if (!full_node->isLeaf()) {
 		OGDF_ASSERT(full_node->tempInfo().fullNeighbors.size() == full_node->getDegree() - 1);
 		OGDF_ASSERT(full_node->getLabel() == NodeLabel::Partial);
@@ -328,7 +328,7 @@ PCNode* PCTree::markFull(PCNode* full_node, std::vector<PCNode*>* fullNodeOrder)
 		// if we are the root or our parent node got full before us, we need to find our one non-full neighbor
 		PC_PROFILE_ENTER(2, "label_process_neigh");
 		PCNode* pred = nullptr;
-		partial_neigh = full_node->child1;
+		partial_neigh = full_node->m_child1;
 		while (partial_neigh != nullptr && partial_neigh->isFull()) {
 			proceedToNextSibling(pred, partial_neigh);
 		}
@@ -390,8 +390,8 @@ bool PCTree::checkTPPartialCNode(PCNode* node) {
 			return false;
 		}
 	}
-	if (node == apexCandidate && apexTPPred2 != nullptr) {
-		if (apexTPPred2 != tinfo.ebEnd1 && apexTPPred2 != tinfo.ebEnd2) {
+	if (node == m_apexCandidate && m_apexTPPred2 != nullptr) {
+		if (m_apexTPPred2 != tinfo.ebEnd1 && m_apexTPPred2 != tinfo.ebEnd2) {
 			log << "C-node's TP second pred is not adjacent to its empty block, abort!" << std::endl;
 			return false;
 		}
@@ -400,11 +400,11 @@ bool PCTree::checkTPPartialCNode(PCNode* node) {
 }
 
 bool PCTree::findTerminalPath() {
-	while (firstPartial != nullptr) {
-		OGDF_ASSERT(lastPartial != nullptr);
-		OGDF_ASSERT(partialCount > 0);
+	while (m_firstPartial != nullptr) {
+		OGDF_ASSERT(m_lastPartial != nullptr);
+		OGDF_ASSERT(m_partialCount > 0);
 
-		PCNode* node = firstPartial;
+		PCNode* node = m_firstPartial;
 		removePartialNode(node);
 		PCNode* parent = node->getParent();
 		PCNode::TempInfo& tinfo = node->tempInfo();
@@ -413,9 +413,9 @@ bool PCTree::findTerminalPath() {
 		if (parent != nullptr) {
 			log << " (" << parent->getLabel() << ")";
 		}
-		log << ", current TP length is " << terminalPathLength << ": ";
+		log << ", current TP length is " << m_terminalPathLength << ": ";
 
-		if (node->nodeType == PCNodeType::CNode && node->getLabelUnchecked() == NodeLabel::Partial
+		if (node->m_nodeType == PCNodeType::CNode && node->getLabelUnchecked() == NodeLabel::Partial
 				&& !checkTPPartialCNode(node)) {
 			return false;
 		}
@@ -424,14 +424,14 @@ bool PCTree::findTerminalPath() {
 			tinfo.tpPartialHeight = 0;
 		}
 
-		OGDF_ASSERT((parent == nullptr) == (node == rootNode));
+		OGDF_ASSERT((parent == nullptr) == (node == m_rootNode));
 		if (tinfo.tpSucc != nullptr) {
 			// we never process a node twice, proceeding to the next entry if we detect this case
 			log << "dupe!" << std::endl;
 			continue;
 		}
 
-		if (firstPartial == nullptr && apexCandidate == nullptr) {
+		if (m_firstPartial == nullptr && m_apexCandidate == nullptr) {
 			// we can stop early if the queue size reached 1 right before we removed the current node,
 			// but we have not found an apex, marking the node the remaining arc points to as apex candidate
 			log << "early stop I-shaped!" << std::endl;
@@ -440,19 +440,19 @@ bool PCTree::findTerminalPath() {
 #endif
 					setApexCandidate(node, false);
 			OGDF_ASSERT(s);
-		} else if (firstPartial == nullptr && apexCandidate != nullptr && apexTPPred2 != nullptr
-				&& tinfo.tpPartialPred == apexCandidate->tempInfo().tpPartialPred) {
+		} else if (m_firstPartial == nullptr && m_apexCandidate != nullptr && m_apexTPPred2 != nullptr
+				&& tinfo.tpPartialPred == m_apexCandidate->tempInfo().tpPartialPred) {
 			log << "early stop A-shaped!" << std::endl;
-			OGDF_ASSERT(apexCandidate->tempInfo().tpPartialHeight <= tinfo.tpPartialHeight);
-			OGDF_ASSERT(apexCandidateIsFix);
+			OGDF_ASSERT(m_apexCandidate->tempInfo().tpPartialHeight <= tinfo.tpPartialHeight);
+			OGDF_ASSERT(m_apexCandidateIsFix);
 #ifdef OGDF_DEBUG
 			// setApexCandidate here should make no changes, but just re-do the checks from this branch and keep the old apex
-			PCNode* oldApex = apexCandidate;
+			PCNode* oldApex = m_apexCandidate;
 			bool s = setApexCandidate(node, false);
 			OGDF_ASSERT(s);
-			OGDF_ASSERT(apexCandidate == oldApex);
+			OGDF_ASSERT(m_apexCandidate == oldApex);
 #endif
-		} else if (node == rootNode || parent->getLabel() == NodeLabel::Full) {
+		} else if (node == m_rootNode || parent->getLabel() == NodeLabel::Full) {
 			// we can't ascend from the root node or if our parent is full
 			log << "can't ascend from root / node with full parent!" << std::endl;
 			if (!setApexCandidate(node, false)) {
@@ -460,7 +460,7 @@ bool PCTree::findTerminalPath() {
 			}
 		} else {
 			// check that we can ascend through a C-Node (P-Nodes always work)
-			if (node->nodeType == PCNodeType::CNode) {
+			if (node->m_nodeType == PCNodeType::CNode) {
 				if (node->getLabelUnchecked() == NodeLabel::Empty) {
 					if (!node->isChildOuter(tinfo.tpPred)) {
 						log << "can't ascend from empty C-Node where TP pred is not adjacent to parent!"
@@ -487,7 +487,7 @@ bool PCTree::findTerminalPath() {
 			}
 
 			// ascend to parent
-			terminalPathLength++;
+			m_terminalPathLength++;
 			tinfo.tpSucc = parent;
 			PCNode::TempInfo& parent_tinfo = parent->tempInfo();
 			if (parent_tinfo.tpPred == nullptr) {
@@ -509,26 +509,26 @@ bool PCTree::findTerminalPath() {
 				if (!setApexCandidate(parent, true)) {
 					return false;
 				}
-				if (apexTPPred2 != nullptr && apexTPPred2 != node) {
+				if (m_apexTPPred2 != nullptr && m_apexTPPred2 != node) {
 					log << "Conflicting apexTPPred2!" << std::endl;
 					return false;
 				}
-				apexTPPred2 = node;
-				if (parent->nodeType == PCNodeType::CNode
+				m_apexTPPred2 = node;
+				if (parent->m_nodeType == PCNodeType::CNode
 						&& parent->getLabelUnchecked() == NodeLabel::Empty) {
-					if (!parent->areNeighborsAdjacent(parent_tinfo.tpPred, apexTPPred2)) {
+					if (!parent->areNeighborsAdjacent(parent_tinfo.tpPred, m_apexTPPred2)) {
 						log << "Apex is empty C-Node, but partial predecessors aren't adjacent!"
 							<< std::endl;
 						return false;
 					} else {
 						parent_tinfo.ebEnd1 = parent_tinfo.fbEnd2 = parent_tinfo.tpPred;
-						parent_tinfo.ebEnd2 = parent_tinfo.fbEnd1 = apexTPPred2;
+						parent_tinfo.ebEnd2 = parent_tinfo.fbEnd1 = m_apexTPPred2;
 					}
 				}
 			}
 
 			// if the parent is a partial C-node, it might have been processed before we were added as its tpPred(2), so re-run the checks
-			if (parent->nodeType == PCNodeType::CNode
+			if (parent->m_nodeType == PCNodeType::CNode
 					&& parent->getLabelUnchecked() == NodeLabel::Partial) {
 				if (!checkTPPartialCNode(parent)) {
 					return false;
@@ -536,42 +536,42 @@ bool PCTree::findTerminalPath() {
 			}
 		}
 	}
-	OGDF_ASSERT(lastPartial == nullptr);
-	OGDF_ASSERT(partialCount == 0);
-	OGDF_ASSERT(apexCandidate != nullptr);
-	if (!apexCandidateIsFix) {
-		if (apexCandidate->getLabel() != NodeLabel::Partial) {
-			log << "Backtracking from " << apexCandidate << " to "
-				<< apexCandidate->tempInfo().tpPartialPred << ", TP length " << terminalPathLength
-				<< "-" << apexCandidate->tempInfo().tpPartialHeight << "=";
-			terminalPathLength -= apexCandidate->tempInfo().tpPartialHeight;
-			apexCandidate = apexCandidate->tempInfo().tpPartialPred;
-			log << terminalPathLength << std::endl;
-			OGDF_ASSERT(apexCandidate->tempInfo().tpPartialHeight
-					<= terminalPathLength); // make sure we didn't ascent too far
+	OGDF_ASSERT(m_lastPartial == nullptr);
+	OGDF_ASSERT(m_partialCount == 0);
+	OGDF_ASSERT(m_apexCandidate != nullptr);
+	if (!m_apexCandidateIsFix) {
+		if (m_apexCandidate->getLabel() != NodeLabel::Partial) {
+			log << "Backtracking from " << m_apexCandidate << " to "
+				<< m_apexCandidate->tempInfo().tpPartialPred << ", TP length " << m_terminalPathLength
+				<< "-" << m_apexCandidate->tempInfo().tpPartialHeight << "=";
+			m_terminalPathLength -= m_apexCandidate->tempInfo().tpPartialHeight;
+			m_apexCandidate = m_apexCandidate->tempInfo().tpPartialPred;
+			log << m_terminalPathLength << std::endl;
+			OGDF_ASSERT(m_apexCandidate->tempInfo().tpPartialHeight
+					<= m_terminalPathLength); // make sure we didn't ascent too far
 		}
-		apexCandidateIsFix = true;
+		m_apexCandidateIsFix = true;
 	}
-	if (apexCandidate->nodeType == PCNodeType::CNode
-			&& apexCandidate->getLabel() == NodeLabel::Empty) {
-		OGDF_ASSERT(apexCandidate->tempInfo().tpPred != nullptr);
-		OGDF_ASSERT(apexTPPred2 != nullptr);
+	if (m_apexCandidate->m_nodeType == PCNodeType::CNode
+			&& m_apexCandidate->getLabel() == NodeLabel::Empty) {
+		OGDF_ASSERT(m_apexCandidate->tempInfo().tpPred != nullptr);
+		OGDF_ASSERT(m_apexTPPred2 != nullptr);
 	}
-	apexCandidate->tempInfo().tpSucc = nullptr;
+	m_apexCandidate->tempInfo().tpSucc = nullptr;
 	return true;
 }
 
 PCNode* PCTree::createCentralNode() {
-	PCNode::TempInfo& atinfo = apexCandidate->tempInfo();
+	PCNode::TempInfo& atinfo = m_apexCandidate->tempInfo();
 	PCNode::TempInfo* ctinfo;
-	PCNode* parent = apexCandidate->getParent();
+	PCNode* parent = m_apexCandidate->getParent();
 	PCNode* central;
 	PCNode* tpStubApex1 = atinfo.tpPred;
-	PCNode* tpStubApex2 = apexTPPred2;
+	PCNode* tpStubApex2 = m_apexTPPred2;
 	OGDF_ASSERT(tpStubApex1 != nullptr);
-	OGDF_ASSERT(apexCandidate->getLabelUnchecked() != NodeLabel::Unknown || tpStubApex2 != nullptr);
+	OGDF_ASSERT(m_apexCandidate->getLabelUnchecked() != NodeLabel::Unknown || tpStubApex2 != nullptr);
 
-	if (apexCandidate->nodeType == PCNodeType::PNode) {
+	if (m_apexCandidate->m_nodeType == PCNodeType::PNode) {
 		// calculate the sizes of all sets
 		bool isParentFull = false;
 		if (parent != nullptr) {
@@ -583,9 +583,9 @@ PCNode* PCTree::createCentralNode() {
 		if (tpStubApex2 != nullptr) {
 			partialNeighbors = 2;
 		}
-		OGDF_ASSERT(apexCandidate->getDegree() >= fullNeighbors + partialNeighbors);
-		size_t emptyNeighbors = apexCandidate->getDegree() - fullNeighbors - partialNeighbors;
-		log << "Apex is " << apexCandidate->getLabel() << " " << apexCandidate
+		OGDF_ASSERT(m_apexCandidate->getDegree() >= fullNeighbors + partialNeighbors);
+		size_t emptyNeighbors = m_apexCandidate->getDegree() - fullNeighbors - partialNeighbors;
+		log << "Apex is " << m_apexCandidate->getLabel() << " " << m_apexCandidate
 			<< " with neighbors: full=" << fullNeighbors << ", partial=" << partialNeighbors
 			<< ", empty=" << emptyNeighbors << std::endl;
 		if (parent != nullptr) {
@@ -605,25 +605,25 @@ PCNode* PCTree::createCentralNode() {
 
 		// first step of assembly: tpStubApex1 == apexCandidate.tempInfo().tpPred
 		central->appendChild(tpStubApex1);
-		tpStubApex1->tempInfo().replaceNeighbor(apexCandidate, central);
+		tpStubApex1->tempInfo().replaceNeighbor(m_apexCandidate, central);
 
 		// second step of assembly: fullNode
 		PCNode* fullNode = nullptr;
 		if (fullNeighbors == 1 && isParentFull) {
-			apexCandidate->replaceWith(central);
-			for (auto obs : observers) {
-				obs->nodeReplaced(*this, apexCandidate, central);
+			m_apexCandidate->replaceWith(central);
+			for (auto obs : m_observers) {
+				obs->nodeReplaced(*this, m_apexCandidate, central);
 			}
 			fullNode = parent;
 			log << ", full parent is node " << parent->index();
 			OGDF_ASSERT(atinfo.fullNeighbors.front() == parent);
 		} else if (fullNeighbors > 0) {
-			fullNode = splitOffFullPNode(apexCandidate, isParentFull);
+			fullNode = splitOffFullPNode(m_apexCandidate, isParentFull);
 			if (isParentFull) {
-				OGDF_ASSERT(!apexCandidate->isDetached());
-				apexCandidate->replaceWith(fullNode);
-				for (auto obs : observers) {
-					obs->nodeReplaced(*this, apexCandidate, fullNode);
+				OGDF_ASSERT(!m_apexCandidate->isDetached());
+				m_apexCandidate->replaceWith(fullNode);
+				for (auto obs : m_observers) {
+					obs->nodeReplaced(*this, m_apexCandidate, fullNode);
 				}
 				fullNode->appendChild(central);
 			} else {
@@ -642,14 +642,14 @@ PCNode* PCTree::createCentralNode() {
 		// third step of assembly: tpStubApex2 == apexTPPred2
 		if (tpStubApex2 != nullptr) {
 			central->appendChild(tpStubApex2, isParentFull);
-			tpStubApex2->tempInfo().replaceNeighbor(apexCandidate, central);
+			tpStubApex2->tempInfo().replaceNeighbor(m_apexCandidate, central);
 		}
 
 		// fourth step of assembly: apexCandidate (the empty node)
 		PCNode* emptyNode = nullptr;
 		if (emptyNeighbors == 1) {
 			if (isParentFull || parent == nullptr) {
-				emptyNode = apexCandidate->child1;
+				emptyNode = m_apexCandidate->m_child1;
 				emptyNode->detach();
 				if (fullNode && tpStubApex2) {
 					emptyNode->insertBetween(tpStubApex2, tpStubApex1);
@@ -659,44 +659,44 @@ PCNode* PCTree::createCentralNode() {
 				log << ", empty neigh is " << emptyNode;
 			} else {
 				emptyNode = parent;
-				apexCandidate->replaceWith(central);
-				for (auto obs : observers) {
-					obs->nodeReplaced(*this, apexCandidate, central);
+				m_apexCandidate->replaceWith(central);
+				for (auto obs : m_observers) {
+					obs->nodeReplaced(*this, m_apexCandidate, central);
 				}
 				log << ", empty parent is node " << parent->index();
 			}
 		} else if (emptyNeighbors > 1) {
-			emptyNode = apexCandidate;
+			emptyNode = m_apexCandidate;
 			if (isParentFull) {
 				OGDF_ASSERT(fullNode);
 				if (tpStubApex2) {
-					apexCandidate->insertBetween(tpStubApex2, tpStubApex1);
+					m_apexCandidate->insertBetween(tpStubApex2, tpStubApex1);
 				} else {
-					central->appendChild(apexCandidate, true);
+					central->appendChild(m_apexCandidate, true);
 				}
 			} else {
-				apexCandidate->appendChild(central);
+				m_apexCandidate->appendChild(central);
 			}
-			log << ", empty node is " << apexCandidate;
-			OGDF_ASSERT(apexCandidate->getDegree() == emptyNeighbors + 1);
+			log << ", empty node is " << m_apexCandidate;
+			OGDF_ASSERT(m_apexCandidate->getDegree() == emptyNeighbors + 1);
 		}
 
-		for (auto obs : observers) {
-			obs->onApexMoved(*this, apexCandidate, central, parent);
+		for (auto obs : m_observers) {
+			obs->onApexMoved(*this, m_apexCandidate, central, parent);
 		}
 
 		if (emptyNeighbors <= 1) {
-			if (apexCandidate == rootNode) {
+			if (m_apexCandidate == m_rootNode) {
 				log << ", replaced root by central";
-				rootNode = central;
+				m_rootNode = central;
 			}
-			destroyNode(apexCandidate);
+			destroyNode(m_apexCandidate);
 		} else {
-			OGDF_ASSERT(apexCandidate->getDegree() > 2);
-			OGDF_ASSERT(apexCandidate->isDetached() == (rootNode == apexCandidate));
+			OGDF_ASSERT(m_apexCandidate->getDegree() > 2);
+			OGDF_ASSERT(m_apexCandidate->isDetached() == (m_rootNode == m_apexCandidate));
 		}
 		log << std::endl;
-		OGDF_ASSERT(central->isDetached() == (rootNode == central));
+		OGDF_ASSERT(central->isDetached() == (m_rootNode == central));
 
 		// assembly done, verify
 #ifdef OGDF_DEBUG
@@ -753,16 +753,16 @@ PCNode* PCTree::createCentralNode() {
 			ctinfo->ebEnd2 = ctinfo->fbEnd1 = tpStubApex2;
 		}
 	} else {
-		central = apexCandidate;
+		central = m_apexCandidate;
 		ctinfo = &atinfo;
-		if (apexCandidate->getLabelUnchecked() == NodeLabel::Partial) {
+		if (m_apexCandidate->getLabelUnchecked() == NodeLabel::Partial) {
 			if (atinfo.ebEnd2 == tpStubApex1) {
 				OGDF_ASSERT(atinfo.ebEnd1 == tpStubApex2 || tpStubApex2 == nullptr);
 				std::swap(atinfo.ebEnd1, atinfo.ebEnd2);
 				std::swap(atinfo.fbEnd1, atinfo.fbEnd2);
 			}
 		} else {
-			OGDF_ASSERT(apexCandidate->getLabelUnchecked() == NodeLabel::Empty);
+			OGDF_ASSERT(m_apexCandidate->getLabelUnchecked() == NodeLabel::Empty);
 			OGDF_ASSERT(tpStubApex2 != nullptr);
 			OGDF_ASSERT(central->areNeighborsAdjacent(tpStubApex1, tpStubApex2));
 			atinfo.ebEnd1 = tpStubApex1;
@@ -775,7 +775,7 @@ PCNode* PCTree::createCentralNode() {
 	OGDF_ASSERT(ctinfo->tpPred == tpStubApex1);
 	OGDF_ASSERT(ctinfo->ebEnd1 == tpStubApex1);
 	OGDF_ASSERT(central->getFullNeighInsertionPoint(tpStubApex1) == ctinfo->fbEnd1);
-	if (apexTPPred2 != nullptr) {
+	if (m_apexTPPred2 != nullptr) {
 		OGDF_ASSERT(ctinfo->ebEnd2 == tpStubApex2);
 		OGDF_ASSERT(central->getFullNeighInsertionPoint(tpStubApex2) == ctinfo->fbEnd2);
 	}
@@ -791,12 +791,12 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 		OGDF_ASSERT(tinfo.tpSucc != nullptr);
 		OGDF_ASSERT(tpNeigh->getLabelUnchecked() != NodeLabel::Full);
 		OGDF_ASSERT(tpNeigh->getLabelUnchecked() != NodeLabel::Unknown || tinfo.tpPred != nullptr);
-		for (auto obs : observers) {
+		for (auto obs : m_observers) {
 			obs->beforeMerge(*this, count, tpNeigh);
 		}
 		PCNode* nextTPNeigh = tinfo.tpPred;
 		PCNode* otherEndOfFullBlock;
-		if (tpNeigh->nodeType == PCNodeType::PNode) {
+		if (tpNeigh->m_nodeType == PCNodeType::PNode) {
 			PC_PROFILE_ENTER(2, "update_tp_pnode");
 			if (tpNeigh->getLabelUnchecked() == NodeLabel::Partial) {
 				PCNode* fullNode = splitOffFullPNode(tpNeigh, false);
@@ -812,23 +812,23 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 				tinfo.tpPred->insertBetween(fullNeigh, tpNeigh);
 			}
 
-			log << "\tThere are " << tpNeigh->childCount << " children left" << std::endl;
+			log << "\tThere are " << tpNeigh->m_childCount << " children left" << std::endl;
 
-			for (auto obs : observers) {
+			for (auto obs : m_observers) {
 				obs->whenPNodeMerged(*this, tpNeigh, tinfo.tpPred, otherEndOfFullBlock);
 			}
 
-			if (tpNeigh->childCount == 0) {
+			if (tpNeigh->m_childCount == 0) {
 				tpNeigh->detach();
-				for (auto obs : observers) {
+				for (auto obs : m_observers) {
 					obs->nodeDeleted(*this, tpNeigh);
 				}
 				destroyNode(std::as_const(tpNeigh));
-			} else if (tpNeigh->childCount == 1) {
-				PCNode* child = tpNeigh->child1;
+			} else if (tpNeigh->m_childCount == 1) {
+				PCNode* child = tpNeigh->m_child1;
 				child->detach();
 				tpNeigh->replaceWith(child);
-				for (auto obs : observers) {
+				for (auto obs : m_observers) {
 					obs->nodeReplaced(*this, tpNeigh, child);
 				}
 				destroyNode(std::as_const(tpNeigh));
@@ -851,31 +851,31 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 			};
 			print_tp_neigh(tpNeigh, 1);
 
-			OGDF_ASSERT(tpNeigh->nodeType == PCNodeType::CNode);
+			OGDF_ASSERT(tpNeigh->m_nodeType == PCNodeType::CNode);
 			PCNode* otherNeigh = central->getNextNeighbor(fullNeigh, tpNeigh);
 			bool tpNeighSiblingsFlipped = false;
-			if (tpNeigh->sibling1 == fullNeigh || tpNeigh->sibling2 == otherNeigh) {
+			if (tpNeigh->m_sibling1 == fullNeigh || tpNeigh->m_sibling2 == otherNeigh) {
 				tpNeighSiblingsFlipped = true;
-				std::swap(tpNeigh->sibling1, tpNeigh->sibling2);
+				std::swap(tpNeigh->m_sibling1, tpNeigh->m_sibling2);
 			}
-			OGDF_ASSERT(tpNeigh->sibling1 == otherNeigh
-					|| (tpNeigh->sibling1 == nullptr && central->getParent() == otherNeigh)
-					|| (tpNeigh->sibling1 == nullptr && central->getParent() == nullptr
+			OGDF_ASSERT(tpNeigh->m_sibling1 == otherNeigh
+					|| (tpNeigh->m_sibling1 == nullptr && central->getParent() == otherNeigh)
+					|| (tpNeigh->m_sibling1 == nullptr && central->getParent() == nullptr
 							&& central->getOtherOuterChild(tpNeigh) == otherNeigh));
-			OGDF_ASSERT(tpNeigh->sibling2 == fullNeigh
-					|| (tpNeigh->sibling2 == nullptr && central->getParent() == fullNeigh)
-					|| (tpNeigh->sibling2 == nullptr && central->getParent() == nullptr
+			OGDF_ASSERT(tpNeigh->m_sibling2 == fullNeigh
+					|| (tpNeigh->m_sibling2 == nullptr && central->getParent() == fullNeigh)
+					|| (tpNeigh->m_sibling2 == nullptr && central->getParent() == nullptr
 							&& central->getOtherOuterChild(tpNeigh) == fullNeigh));
 
 			print_tp_neigh(tpNeigh, 2);
 
-			if (tpNeigh->child1 == tinfo.fbEnd1 || tpNeigh->child1 == tinfo.fbEnd2) {
+			if (tpNeigh->m_child1 == tinfo.fbEnd1 || tpNeigh->m_child1 == tinfo.fbEnd2) {
 				tpNeigh->flip();
 			}
 #ifdef OGDF_DEBUG
-			PCNode* emptyOuterChild = tpNeigh->child1;
+			PCNode* emptyOuterChild = tpNeigh->m_child1;
 #endif
-			PCNode* fullOuterChild = tpNeigh->child2;
+			PCNode* fullOuterChild = tpNeigh->m_child2;
 
 			print_tp_neigh(tpNeigh, 3);
 
@@ -889,7 +889,7 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 
 			print_tp_neigh(tpNeigh, 4);
 
-			for (auto obs : observers) {
+			for (auto obs : m_observers) {
 				obs->whenCNodeMerged(*this, tpNeigh, tpNeighSiblingsFlipped, fullNeigh,
 						fullOuterChild);
 			}
@@ -924,7 +924,7 @@ int PCTree::updateTerminalPath(PCNode* central, PCNode* tpNeigh) {
 		auto mergedNode = tpNeigh;
 		tpNeigh = nextTPNeigh;
 		count++;
-		for (auto obs : observers) {
+		for (auto obs : m_observers) {
 			obs->afterMerge(*this, tpNeigh, mergedNode);
 		}
 	}
@@ -936,7 +936,7 @@ void PCTree::replaceTPNeigh(PCNode* central, PCNode* oldTPNeigh, PCNode* newTPNe
 	PCNode::TempInfo& cinfo = central->tempInfo();
 	OGDF_ASSERT(oldTPNeigh != nullptr);
 	OGDF_ASSERT(cinfo.tpPred == cinfo.ebEnd1);
-	OGDF_ASSERT(apexTPPred2 == nullptr || apexTPPred2 == cinfo.ebEnd2);
+	OGDF_ASSERT(m_apexTPPred2 == nullptr || m_apexTPPred2 == cinfo.ebEnd2);
 	if (oldTPNeigh == cinfo.tpPred) {
 		cinfo.tpPred = cinfo.ebEnd1 = newTPNeigh;
 		cinfo.fbEnd1 = newFullNeigh;
@@ -948,8 +948,8 @@ void PCTree::replaceTPNeigh(PCNode* central, PCNode* oldTPNeigh, PCNode* newTPNe
 			}
 		}
 	} else {
-		OGDF_ASSERT(oldTPNeigh == apexTPPred2);
-		apexTPPred2 = cinfo.ebEnd2 = newTPNeigh;
+		OGDF_ASSERT(oldTPNeigh == m_apexTPPred2);
+		m_apexTPPred2 = cinfo.ebEnd2 = newTPNeigh;
 		cinfo.fbEnd2 = newFullNeigh;
 		if (cinfo.fbEnd1 == oldTPNeigh) {
 			if (otherEndOfFullBlock != nullptr) {
@@ -959,7 +959,7 @@ void PCTree::replaceTPNeigh(PCNode* central, PCNode* oldTPNeigh, PCNode* newTPNe
 			}
 		}
 	}
-	OGDF_ASSERT(apexTPPred2 != oldTPNeigh);
+	OGDF_ASSERT(m_apexTPPred2 != oldTPNeigh);
 	OGDF_ASSERT(cinfo.ebEnd1 != oldTPNeigh);
 	OGDF_ASSERT(cinfo.ebEnd2 != oldTPNeigh);
 	OGDF_ASSERT(cinfo.fbEnd1 != oldTPNeigh);
@@ -968,7 +968,7 @@ void PCTree::replaceTPNeigh(PCNode* central, PCNode* oldTPNeigh, PCNode* newTPNe
 		OGDF_ASSERT(central->areNeighborsAdjacent(cinfo.ebEnd1, cinfo.fbEnd1));
 	}
 	if (cinfo.ebEnd2 != nullptr) {
-		OGDF_ASSERT(apexTPPred2 == nullptr || apexTPPred2 == cinfo.ebEnd2);
+		OGDF_ASSERT(m_apexTPPred2 == nullptr || m_apexTPPred2 == cinfo.ebEnd2);
 		OGDF_ASSERT(central->areNeighborsAdjacent(cinfo.ebEnd2, cinfo.fbEnd2));
 	}
 }
@@ -997,33 +997,33 @@ size_t PCTree::findEndOfFullBlock(PCNode* node, PCNode* pred, PCNode* curr, PCNo
 
 bool PCTree::setApexCandidate(PCNode* ac, bool fix) {
 	if (ac->tempInfo().tpSucc == nullptr) {
-		terminalPathLength++;
+		m_terminalPathLength++;
 	} else if (ac->tempInfo().tpSucc != ac) {
-		log << "  Note: already ascended from new " << (apexCandidateIsFix ? "" : "non-")
+		log << "  Note: already ascended from new " << (m_apexCandidateIsFix ? "" : "non-")
 			<< "fix apex (" << ac << ") to (" << ac->tempInfo().tpSucc << ")" << std::endl;
 	}
 	ac->tempInfo().tpSucc = ac; // mark ac as processed
-	if (apexCandidate == nullptr) {
-		apexCandidate = ac;
-		apexCandidateIsFix = fix;
+	if (m_apexCandidate == nullptr) {
+		m_apexCandidate = ac;
+		m_apexCandidateIsFix = fix;
 		return true;
-	} else if (apexCandidate == ac) {
-		if (!apexCandidateIsFix && fix) {
-			apexCandidateIsFix = true;
+	} else if (m_apexCandidate == ac) {
+		if (!m_apexCandidateIsFix && fix) {
+			m_apexCandidateIsFix = true;
 		}
 		return true;
 	} else {
 		// we reached a node from which we can't ascend (nonFix), but also found the actual apex
 		// (fix) check whether we ascended too far, i.e. the nonFix node is a parent of the fix apex
-		if ((!fix && apexCandidateIsFix) || (fix && !apexCandidateIsFix)) {
+		if ((!fix && m_apexCandidateIsFix) || (fix && !m_apexCandidateIsFix)) {
 			PCNode *fixAC, *nonFixAC;
-			if (!fix && apexCandidateIsFix) {
-				fixAC = apexCandidate;
+			if (!fix && m_apexCandidateIsFix) {
+				fixAC = m_apexCandidate;
 				nonFixAC = ac;
 			} else {
-				OGDF_ASSERT(fix && !apexCandidateIsFix);
+				OGDF_ASSERT(fix && !m_apexCandidateIsFix);
 				fixAC = ac;
-				nonFixAC = apexCandidate;
+				nonFixAC = m_apexCandidate;
 			}
 			PCNode::TempInfo& fixTI = fixAC->tempInfo();
 			PCNode::TempInfo& nonFixTI = nonFixAC->tempInfo();
@@ -1031,25 +1031,25 @@ bool PCTree::setApexCandidate(PCNode* ac, bool fix) {
 				if (fixAC->getLabelUnchecked() == NodeLabel::Partial) {
 					// if the fix apex is partial, it must be the tpPartialPred of the ascended-too-far empty/nonFix node
 					if (nonFixTI.tpPartialPred == fixAC) {
-						terminalPathLength -= nonFixTI.tpPartialHeight;
-						apexCandidate = fixAC;
-						apexCandidateIsFix = true;
+						m_terminalPathLength -= nonFixTI.tpPartialHeight;
+						m_apexCandidate = fixAC;
+						m_apexCandidateIsFix = true;
 						return true;
 					}
 				} else {
 					OGDF_ASSERT(fixAC->getLabelUnchecked() == NodeLabel::Empty);
 					// otherwise the fix apex is also empty, but they must have the same tpPartialPred
 					if (nonFixTI.tpPartialPred == fixTI.tpPartialPred) {
-						terminalPathLength -= (nonFixTI.tpPartialHeight - fixTI.tpPartialHeight);
-						apexCandidate = fixAC;
-						apexCandidateIsFix = true;
+						m_terminalPathLength -= (nonFixTI.tpPartialHeight - fixTI.tpPartialHeight);
+						m_apexCandidate = fixAC;
+						m_apexCandidateIsFix = true;
 						return true;
 					}
 				}
 			}
 		}
-		log << "Conflicting " << (apexCandidateIsFix ? "" : "non-") << "fix apex candidates ("
-			<< apexCandidate << ") and (" << ac << ")" << std::endl;
+		log << "Conflicting " << (m_apexCandidateIsFix ? "" : "non-") << "fix apex candidates ("
+			<< m_apexCandidate << ") and (" << ac << ")" << std::endl;
 		return false;
 	}
 }
@@ -1059,26 +1059,26 @@ bool PCTree::setApexCandidate(PCNode* ac, bool fix) {
 // updateTerminalPath utils
 
 void PCTree::updateSingletonTerminalPath() {
-	PCNode::TempInfo& atinfo = apexCandidate->tempInfo();
+	PCNode::TempInfo& atinfo = m_apexCandidate->tempInfo();
 	OGDF_ASSERT(atinfo.tpPred == nullptr);
-	OGDF_ASSERT(apexTPPred2 == nullptr);
+	OGDF_ASSERT(m_apexTPPred2 == nullptr);
 	int fullNeighbors = atinfo.fullNeighbors.size();
-	int emptyNeighbors = apexCandidate->getDegree() - fullNeighbors;
-	if (apexCandidate->nodeType == PCNodeType::PNode && fullNeighbors > 1 && emptyNeighbors > 1) {
+	int emptyNeighbors = m_apexCandidate->getDegree() - fullNeighbors;
+	if (m_apexCandidate->m_nodeType == PCNodeType::PNode && fullNeighbors > 1 && emptyNeighbors > 1) {
 		// parent is handled and degree is always greater than 1
-		PCNode* fullNode = splitOffFullPNode(apexCandidate, true);
-		PCNode* parent = apexCandidate->getParent();
+		PCNode* fullNode = splitOffFullPNode(m_apexCandidate, true);
+		PCNode* parent = m_apexCandidate->getParent();
 		if (parent != nullptr && parent->getLabel() == NodeLabel::Full) {
-			apexCandidate->replaceWith(fullNode);
-			for (auto obs : observers) {
-				obs->nodeReplaced(*this, apexCandidate, fullNode);
+			m_apexCandidate->replaceWith(fullNode);
+			for (auto obs : m_observers) {
+				obs->nodeReplaced(*this, m_apexCandidate, fullNode);
 			}
-			fullNode->appendChild(apexCandidate);
-			for (auto obs : observers) {
-				obs->onApexMoved(*this, apexCandidate, fullNode, parent);
+			fullNode->appendChild(m_apexCandidate);
+			for (auto obs : m_observers) {
+				obs->onApexMoved(*this, m_apexCandidate, fullNode, parent);
 			}
 		} else {
-			apexCandidate->appendChild(fullNode);
+			m_apexCandidate->appendChild(fullNode);
 		}
 	}
 }
@@ -1091,7 +1091,7 @@ PCNode* PCTree::splitOffFullPNode(PCNode* node, bool skip_parent) {
 		OGDF_ASSERT(fullNode != parent);
 		OGDF_ASSERT(node->isParentOf(fullNode));
 		fullNode->detach();
-		for (auto obs : observers) {
+		for (auto obs : m_observers) {
 			obs->fullNodeSplit(*this, fullNode);
 		}
 		return fullNode;
@@ -1116,7 +1116,7 @@ PCNode* PCTree::splitOffFullPNode(PCNode* node, bool skip_parent) {
 	} else {
 		OGDF_ASSERT(fullNode->getDegree() >= 2);
 	}
-	for (auto obs : observers) {
+	for (auto obs : m_observers) {
 		obs->fullNodeSplit(*this, fullNode);
 	}
 	return fullNode;

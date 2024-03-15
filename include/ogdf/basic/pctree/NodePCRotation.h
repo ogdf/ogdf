@@ -48,9 +48,9 @@ protected:
 	const Graph* m_G;
 	node m_n;
 
-	PCTreeNodeArray<edge> incidentEdgeForLeaf;
-	PCTreeNodeArray<node> graphNodeForInnerNode;
-	PCTreeNodeArray<List<edge>> bundleEdgesForLeaf;
+	PCTreeNodeArray<edge> m_incidentEdgeForLeaf;
+	PCTreeNodeArray<node> m_graphNodeForInnerNode;
+	PCTreeNodeArray<List<edge>> m_bundleEdgesForLeaf;
 
 	NodePCRotation() : m_G(nullptr), m_n(nullptr) { }
 
@@ -85,13 +85,13 @@ public:
 	 * @param n A leaf of this PCtree.
 	 * @return An edge incident to getNode() corresponding to \p n.
 	 */
-	edge getIncidentEdgeForLeaf(PCNode* n) const { return incidentEdgeForLeaf[n]; }
+	edge getIncidentEdgeForLeaf(PCNode* n) const { return m_incidentEdgeForLeaf[n]; }
 
 	/**
 	 * This is only needed so that PQPlanarity::propagatePQ can fix its mapping when propagating into an adjacent cut.
 	 * This method is thus considered internal.
 	 */
-	void setIncidentEdgeForLeaf(PCNode* n, edge e) { incidentEdgeForLeaf[n] = e; }
+	void setIncidentEdgeForLeaf(PCNode* n, edge e) { m_incidentEdgeForLeaf[n] = e; }
 
 	void generateInnerNodeForGraphNodeMapping(NodeArray<PCNode*>& mapping) const {
 		for (auto leaf : getLeaves()) {
@@ -104,7 +104,7 @@ public:
 	 * @param n A P-node of this PCtree.
 	 * @return A node of \p getGraph() corresponding to \p n.
 	 */
-	node getGraphNodeForInnerNode(PCNode* n) const { return graphNodeForInnerNode[n]; }
+	node getGraphNodeForInnerNode(PCNode* n) const { return m_graphNodeForInnerNode[n]; }
 
 	void generatePartnerEdgesForIncidentEdge(EdgeArray<const List<edge>*>& mapping) const {
 		for (auto leaf : getLeaves()) {
@@ -120,16 +120,16 @@ public:
 	 * @param l A leaf of this PC-tree.
 	 * @return A list of edges incident to getTrivialPartnerPole() corresponding to \p l.
 	 */
-	const List<edge>& getPartnerEdgesForLeaf(PCNode* l) const { return bundleEdgesForLeaf[l]; }
+	const List<edge>& getPartnerEdgesForLeaf(PCNode* l) const { return m_bundleEdgesForLeaf[l]; }
 
 	/**
 	 * @return the value passed to \c mapBundleEdges in the constructor
 	 */
 	bool knowsPartnerEdges() const {
-		if (bundleEdgesForLeaf.registeredAt() == nullptr) {
+		if (m_bundleEdgesForLeaf.registeredAt() == nullptr) {
 			return false;
 		} else {
-			return &bundleEdgesForLeaf.registeredAt()->getForest() == getForest();
+			return &m_bundleEdgesForLeaf.registeredAt()->getForest() == getForest();
 		}
 	}
 

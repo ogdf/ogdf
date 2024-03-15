@@ -39,7 +39,7 @@ using namespace ogdf;
 using namespace pc_tree;
 
 NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdges)
-	: m_G(&G), m_n(end), incidentEdgeForLeaf(*this, nullptr), graphNodeForInnerNode(*this, nullptr) {
+	: m_G(&G), m_n(end), m_incidentEdgeForLeaf(*this, nullptr), m_graphNodeForInnerNode(*this, nullptr) {
 	// Compute st-numbering for graph and order the nodes accordingly.
 	NodeArray<int> numbering(G);
 	int nodecount = computeSTNumbering(G, numbering, nullptr, end);
@@ -62,7 +62,7 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 	EdgeSet bundleEdges;
 	if (mapBundleEdges) {
 		bundleEdges.init(G);
-		bundleEdgesForLeaf.init(*this);
+		m_bundleEdgesForLeaf.init(*this);
 	}
 	PCNode* stEdgeLeaf = nullptr;
 	for (node n : order) {
@@ -72,7 +72,7 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 			if (mapBundleEdges && isTrivial()) {
 				// Map all incoming edges of the partner node to the st-edge, unless the partner node is the first node
 				if (!twinPoleCandidateInEdges.empty()) {
-					bundleEdgesForLeaf[stEdgeLeaf].swap(twinPoleCandidateInEdges);
+					m_bundleEdgesForLeaf[stEdgeLeaf].swap(twinPoleCandidateInEdges);
 				}
 			}
 
@@ -110,12 +110,12 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 				}
 
 				for (PCNode* v : consecutiveLeaves) {
-					for (edge e : bundleEdgesForLeaf[v]) {
+					for (edge e : m_bundleEdgesForLeaf[v]) {
 						bundleEdges.insert(e);
 					}
 
 					if (twinPoleCandidate) {
-						twinPoleCandidateInEdges.pushBack(incidentEdgeForLeaf[v]);
+						twinPoleCandidateInEdges.pushBack(m_incidentEdgeForLeaf[v]);
 					}
 				}
 			}
@@ -134,7 +134,7 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 		if (mergedLeaf == nullptr) {
 			throw GraphNotPlanarException();
 		}
-		graphNodeForInnerNode[mergedLeaf] = n;
+		m_graphNodeForInnerNode[mergedLeaf] = n;
 
 		if (outEdges.size() > 1) {
 			consecutiveLeaves.clear(); // re-use consecutiveLeaves
@@ -149,7 +149,7 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 					destroyNode(mergedLeaf);
 
 					mergedLeaf = parent;
-					graphNodeForInnerNode[mergedLeaf] = n;
+					m_graphNodeForInnerNode[mergedLeaf] = n;
 				}
 				changeNodeType(mergedLeaf, PCNodeType::PNode);
 			}
@@ -160,13 +160,13 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 				edge e = outEdges[i];
 				PCNode* newLeaf = addedLeaves[i];
 				leafRepresentation[e] = newLeaf;
-				incidentEdgeForLeaf[newLeaf] = e;
+				m_incidentEdgeForLeaf[newLeaf] = e;
 
 				if (mapBundleEdges) {
 					if (twinPoleCandidate) {
-						bundleEdgesForLeaf[newLeaf] = {e};
+						m_bundleEdgesForLeaf[newLeaf] = {e};
 					} else {
-						bundleEdgesForLeaf[newLeaf] = bundleEdges.elements();
+						m_bundleEdgesForLeaf[newLeaf] = bundleEdges.elements();
 					}
 				}
 			}
@@ -174,13 +174,13 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 			// If there is only one edge to a node with a higher number,
 			// declare the mergedLeaf as the leaf that represents it.
 			leafRepresentation[outEdges.front()] = mergedLeaf;
-			incidentEdgeForLeaf[mergedLeaf] = outEdges.front();
+			m_incidentEdgeForLeaf[mergedLeaf] = outEdges.front();
 
 			if (mapBundleEdges) {
 				if (twinPoleCandidate) {
-					bundleEdgesForLeaf[mergedLeaf] = {outEdges.front()};
+					m_bundleEdgesForLeaf[mergedLeaf] = {outEdges.front()};
 				} else {
-					bundleEdgesForLeaf[mergedLeaf] = bundleEdges.elements();
+					m_bundleEdgesForLeaf[mergedLeaf] = bundleEdges.elements();
 				}
 			}
 		}
@@ -197,7 +197,7 @@ node NodePCRotation::getTrivialPartnerPole() const {
 	if (!isTrivial()) {
 		return nullptr;
 	}
-	node partner = graphNodeForInnerNode[getRootNode()];
+	node partner = m_graphNodeForInnerNode[getRootNode()];
 	if (partner->degree() < 3) {
 		return nullptr;
 	} else {

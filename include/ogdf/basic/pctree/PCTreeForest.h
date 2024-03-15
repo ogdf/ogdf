@@ -56,25 +56,25 @@ class OGDF_EXPORT PCTreeForest {
 	friend class PCTreeRegistry;
 
 private:
-	std::vector<PCTree*> trees;
-	std::vector<PCNode*> cNodes;
-	ogdf::DisjointSets<> parents {1 << 8};
-	int nextNodeId = 0;
-	int timestamp = 0;
-	PCTreeRegistry nodeArrayRegistry;
-	bool autodelete;
+	std::vector<PCTree*> m_trees;
+	std::vector<PCNode*> m_cNodes;
+	ogdf::DisjointSets<> m_parents {1 << 8};
+	int m_nextNodeId = 0;
+	int m_timestamp = 0;
+	PCTreeRegistry m_nodeArrayRegistry;
+	bool m_autodelete;
 
 #ifdef OGDF_PCTREE_REUSE_NODES
-	PCNode* reusableNodes = nullptr;
+	PCNode* m_reusableNodes = nullptr;
 #endif
 
 public:
 	/**
-	 * @param p_autodelete whether the trees created by makeTree() should be deleted automatically
+	 * @param autodelete whether the trees created by makeTree() should be deleted automatically
 	 *   on destruction of this forrest. Note that this does not affect PCTrees directly created by
 	 *   calling PCTree::PCTree(PCTreeForest*).
 	 */
-	PCTreeForest(bool p_autodelete = true) : nodeArrayRegistry(this), autodelete(p_autodelete) {};
+	PCTreeForest(bool autodelete = true) : m_nodeArrayRegistry(this), m_autodelete(autodelete) {};
 
 	virtual ~PCTreeForest();
 
@@ -84,6 +84,6 @@ public:
 	//! Delete all trees created by makeTree().
 	void clear(void);
 
-	operator const PCTreeRegistry&() const { return nodeArrayRegistry; }
+	operator const PCTreeRegistry&() const { return m_nodeArrayRegistry; }
 };
 }

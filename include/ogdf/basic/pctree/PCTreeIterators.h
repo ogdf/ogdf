@@ -42,12 +42,12 @@ class OGDF_EXPORT PCNodeIterator {
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;
 
-	PCNode* node = nullptr;
-	PCNode* pred = nullptr;
-	PCNode* curr = nullptr;
+	PCNode* m_node = nullptr;
+	PCNode* m_pred = nullptr;
+	PCNode* m_curr = nullptr;
 
-	PCNodeIterator(PCNode* p_node, PCNode* p_pred, PCNode* p_curr)
-		: node(p_node), pred(p_pred), curr(p_curr) { }
+	PCNodeIterator(PCNode* node, PCNode* pred, PCNode* curr)
+		: m_node(node), m_pred(pred), m_curr(curr) { }
 
 public:
 	using iterator_category = std::forward_iterator_tag;
@@ -58,9 +58,9 @@ public:
 
 	PCNodeIterator() = default;
 
-	PCNode& operator->() const { return *curr; }
+	PCNode& operator->() const { return *m_curr; }
 
-	PCNode* operator*() const { return curr; }
+	PCNode* operator*() const { return m_curr; }
 
 	//! Increment operator (prefix, returns result).
 	PCNodeIterator& operator++();
@@ -69,20 +69,20 @@ public:
 	PCNodeIterator operator++(int);
 
 	bool operator==(const PCNodeIterator& rhs) const {
-		return node == rhs.node && pred == rhs.pred && curr == rhs.curr;
+		return m_node == rhs.m_node && m_pred == rhs.m_pred && m_curr == rhs.m_curr;
 	}
 
 	bool operator!=(const PCNodeIterator& rhs) const { return !(rhs == *this); }
 
-	PCNode* nodeOf() const { return node; }
+	PCNode* nodeOf() const { return m_node; }
 
 	bool isParent();
 };
 
 struct OGDF_EXPORT PCNodeChildrenIterable {
-	PCNode* const node;
+	PCNode* const m_node;
 
-	explicit PCNodeChildrenIterable(PCNode* p_node) : node(p_node) { }
+	explicit PCNodeChildrenIterable(PCNode* node) : m_node(node) { }
 
 	PCNodeIterator begin() const noexcept;
 
@@ -92,18 +92,18 @@ struct OGDF_EXPORT PCNodeChildrenIterable {
 };
 
 struct OGDF_EXPORT PCNodeNeighborsIterable {
-	PCNode* const node;
-	PCNode* const first;
+	PCNode* const m_node;
+	PCNode* const m_first;
 
-	explicit PCNodeNeighborsIterable(PCNode* p_node, PCNode* p_first = nullptr)
-		: node(p_node)
-		, first(p_first != nullptr
-						  ? p_first
-						  : (p_node->child1 != nullptr ? p_node->child1 : p_node->getParent())) {
-		if (this->first == nullptr) {
-			OGDF_ASSERT(this->node->getDegree() == 0);
+	explicit PCNodeNeighborsIterable(PCNode* node, PCNode* first = nullptr)
+		: m_node(node)
+		, m_first(first != nullptr
+						  ? first
+						  : (node->m_child1 != nullptr ? node->m_child1 : node->getParent())) {
+		if (this->m_first == nullptr) {
+			OGDF_ASSERT(this->m_node->getDegree() == 0);
 		} else {
-			OGDF_ASSERT(this->node->isParentOf(this->first) || this->first->isParentOf(this->node));
+			OGDF_ASSERT(this->m_node->isParentOf(this->m_first) || this->m_first->isParentOf(this->m_node));
 		}
 	}
 

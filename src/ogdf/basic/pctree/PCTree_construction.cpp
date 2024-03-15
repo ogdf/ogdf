@@ -40,8 +40,8 @@ using namespace pc_tree;
 PCTree::PCTree(int leafNum, std::vector<PCNode*>* added, PCTreeForest* p_forest)
 	: PCTree(p_forest) {
 	OGDF_ASSERT(leafNum > 2);
-	rootNode = newNode(PCNodeType::PNode);
-	insertLeaves(leafNum, rootNode, added);
+	m_rootNode = newNode(PCNodeType::PNode);
+	insertLeaves(leafNum, m_rootNode, added);
 }
 
 PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : PCTree(p_forest) {
@@ -59,9 +59,9 @@ PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : 
 		if (isdigit(nextChar) || nextChar == '-') {
 			ss >> nextIndex;
 			if (keep_ids) {
-				forest->nextNodeId = std::max(nextIndex + 1, forest->nextNodeId);
+				m_forest->m_nextNodeId = std::max(nextIndex + 1, m_forest->m_nextNodeId);
 			} else {
-				nextIndex = forest->nextNodeId++;
+				nextIndex = m_forest->m_nextNodeId++;
 			}
 			indexUsed = false;
 		} else {
@@ -106,7 +106,7 @@ PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : 
 				stack.push(created);
 				break;
 			case ']':
-				if (stack.empty() || stack.top()->nodeType != PCNodeType::CNode) {
+				if (stack.empty() || stack.top()->m_nodeType != PCNodeType::CNode) {
 					throw std::invalid_argument("Invalid PC-Tree");
 				}
 
@@ -116,7 +116,7 @@ PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : 
 				stack.pop();
 				break;
 			case ')':
-				if (stack.empty() || stack.top()->nodeType != PCNodeType::PNode) {
+				if (stack.empty() || stack.top()->m_nodeType != PCNodeType::PNode) {
 					throw std::invalid_argument("Invalid PC-Tree");
 				}
 
@@ -126,7 +126,7 @@ PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : 
 				stack.pop();
 				break;
 			case '}':
-				if (stack.empty() || stack.top()->nodeType != PCNodeType::Leaf) {
+				if (stack.empty() || stack.top()->m_nodeType != PCNodeType::Leaf) {
 					throw std::invalid_argument("Invalid PC-Tree");
 				}
 
@@ -163,17 +163,17 @@ PCTree::PCTree(const PCTree& other, PCTreeNodeArray<PCNode*>& nodeMapping, bool 
 		PCNode* parent = other_node->getParent();
 		int id = -1;
 		if (keep_ids) {
-			id = other_node->id;
-			forest->nextNodeId = std::max(id + 1, forest->nextNodeId);
+			id = other_node->m_id;
+			m_forest->m_nextNodeId = std::max(id + 1, m_forest->m_nextNodeId);
 		}
-		OGDF_ASSERT((parent == nullptr) == (other.rootNode == other_node));
+		OGDF_ASSERT((parent == nullptr) == (other.m_rootNode == other_node));
 		if (parent == nullptr) {
-			rootNode = nodeMapping[other_node] = newNode(other_node->getNodeType(), nullptr, id);
+			m_rootNode = nodeMapping[other_node] = newNode(other_node->getNodeType(), nullptr, id);
 		} else {
 			nodeMapping[other_node] = newNode(other_node->getNodeType(), nodeMapping[parent], id);
 		}
 	}
-	OGDF_ASSERT(nodeMapping[other.rootNode] == rootNode);
+	OGDF_ASSERT(nodeMapping[other.m_rootNode] == m_rootNode);
 	OGDF_ASSERT(other.getLeafCount() == getLeafCount());
 	OGDF_ASSERT(other.getPNodeCount() == getPNodeCount());
 	OGDF_ASSERT(other.getCNodeCount() == getCNodeCount());
@@ -182,123 +182,123 @@ PCTree::PCTree(const PCTree& other, PCTreeNodeArray<PCNode*>& nodeMapping, bool 
 PCTree::~PCTree() {
 	OGDF_ASSERT(checkValid());
 	// get rid of any degree <= 2 root, including a root leaf and possible degree 2 descendants
-	while (rootNode != nullptr && rootNode->childCount <= 2) {
-		PCNode* old_root = rootNode;
-		if (rootNode->childCount == 2) {
-			rootNode = old_root->getChild1();
-			rootNode->detach();
+	while (m_rootNode != nullptr && m_rootNode->m_childCount <= 2) {
+		PCNode* old_root = m_rootNode;
+		if (m_rootNode->m_childCount == 2) {
+			m_rootNode = old_root->getChild1();
+			m_rootNode->detach();
 			PCNode* child = old_root->getChild2();
 			child->detach();
-			rootNode->appendChild(child);
-		} else if (rootNode->childCount == 1) {
-			rootNode = old_root->getOnlyChild();
-			rootNode->detach();
+			m_rootNode->appendChild(child);
+		} else if (m_rootNode->m_childCount == 1) {
+			m_rootNode = old_root->getOnlyChild();
+			m_rootNode->detach();
 		} else {
-			rootNode = nullptr;
+			m_rootNode = nullptr;
 		}
 		destroyNode(old_root);
 	}
 	OGDF_ASSERT(checkValid());
 
-	while (!leaves.empty()) {
-		PCNode* node = leaves.back();
+	while (!m_leaves.empty()) {
+		PCNode* node = m_leaves.back();
 		PCNode* parent = node->getParent();
 		PCNodeType type = node->getNodeType();
-		bool is_root = node == rootNode;
+		bool is_root = node == m_rootNode;
 		OGDF_ASSERT((parent == nullptr) == is_root);
 		if (is_root) {
-			OGDF_ASSERT(leaves.size() == 1);
-			rootNode = nullptr;
+			OGDF_ASSERT(m_leaves.size() == 1);
+			m_rootNode = nullptr;
 		}
 		node->detach();
 		destroyNode(node);
 		if (type != PCNodeType::Leaf) {
-			leaves.pop_back(); // destroyNode(leaf) automatically removes it from the list
+			m_leaves.pop_back(); // destroyNode(leaf) automatically removes it from the list
 		}
-		if (parent != nullptr && parent->childCount == 0) {
-			leaves.push_back(parent);
+		if (parent != nullptr && parent->m_childCount == 0) {
+			m_leaves.push_back(parent);
 		}
 		if (is_root) {
-			OGDF_ASSERT(leaves.empty());
-			OGDF_ASSERT(rootNode == nullptr);
+			OGDF_ASSERT(m_leaves.empty());
+			OGDF_ASSERT(m_rootNode == nullptr);
 		} else {
-			OGDF_ASSERT(!leaves.empty());
-			OGDF_ASSERT(rootNode != nullptr);
+			OGDF_ASSERT(!m_leaves.empty());
+			OGDF_ASSERT(m_rootNode != nullptr);
 		}
 	}
 
-	if (!externalForest) {
-		delete forest;
+	if (!m_externalForest) {
+		delete m_forest;
 	}
 
-	OGDF_ASSERT(rootNode == nullptr);
-	OGDF_ASSERT(pNodeCount == 0);
-	OGDF_ASSERT(cNodeCount == 0);
+	OGDF_ASSERT(m_rootNode == nullptr);
+	OGDF_ASSERT(m_pNodeCount == 0);
+	OGDF_ASSERT(m_cNodeCount == 0);
 }
 
 void PCTree::registerNode(PCNode* node) {
-	if (node->nodeType == PCNodeType::Leaf) {
-		leaves.push_back(node);
-	} else if (node->nodeType == PCNodeType::PNode) {
-		pNodeCount++;
+	if (node->m_nodeType == PCNodeType::Leaf) {
+		m_leaves.push_back(node);
+	} else if (node->m_nodeType == PCNodeType::PNode) {
+		m_pNodeCount++;
 	} else {
-		OGDF_ASSERT(node->nodeType == PCNodeType::CNode);
-		node->nodeListIndex = forest->parents.makeSet();
-		OGDF_ASSERT(forest->cNodes.size() == node->nodeListIndex); // TODO fix signedness warnings
-		forest->cNodes.push_back(node);
-		cNodeCount++;
+		OGDF_ASSERT(node->m_nodeType == PCNodeType::CNode);
+		node->m_nodeListIndex = m_forest->m_parents.makeSet();
+		OGDF_ASSERT(m_forest->m_cNodes.size() == node->m_nodeListIndex); // TODO fix signedness warnings
+		m_forest->m_cNodes.push_back(node);
+		m_cNodeCount++;
 	}
 }
 
 void PCTree::unregisterNode(PCNode* node) {
-	if (node->nodeType == PCNodeType::Leaf) {
-		leaves.erase(node);
-	} else if (node->nodeType == PCNodeType::PNode) {
-		pNodeCount--;
+	if (node->m_nodeType == PCNodeType::Leaf) {
+		m_leaves.erase(node);
+	} else if (node->m_nodeType == PCNodeType::PNode) {
+		m_pNodeCount--;
 	} else {
-		OGDF_ASSERT(node->nodeType == PCNodeType::CNode);
-		OGDF_ASSERT(forest->cNodes.at(node->nodeListIndex) == node);
-		forest->cNodes[node->nodeListIndex] = nullptr;
-		cNodeCount--;
-		node->nodeListIndex = UNIONFINDINDEX_EMPTY;
+		OGDF_ASSERT(node->m_nodeType == PCNodeType::CNode);
+		OGDF_ASSERT(m_forest->m_cNodes.at(node->m_nodeListIndex) == node);
+		m_forest->m_cNodes[node->m_nodeListIndex] = nullptr;
+		m_cNodeCount--;
+		node->m_nodeListIndex = UNIONFINDINDEX_EMPTY;
 	}
 }
 
 PCNode* PCTree::newNode(PCNodeType type, PCNode* parent, int id) {
 	PCNode* node;
 #ifdef OGDF_PCTREE_REUSE_NODES
-	if (forest->reusableNodes) {
-		node = forest->reusableNodes;
-		forest->reusableNodes = forest->reusableNodes->parentPNode;
-		node->parentPNode = nullptr;
-		node->timestamp = 0;
+	if (m_forest->m_reusableNodes) {
+		node = m_forest->m_reusableNodes;
+		m_forest->m_reusableNodes = m_forest->m_reusableNodes->m_parentPNode;
+		node->m_parentPNode = nullptr;
+		node->m_timestamp = 0;
 		if (id >= 0) {
-			node->id = id;
-			forest->nextNodeId = std::max(forest->nextNodeId, id + 1);
+			node->m_id = id;
+			m_forest->m_nextNodeId = std::max(m_forest->m_nextNodeId, id + 1);
 		} // else we can't re-use the old ID after clear was called
 		else {
-			node->id = forest->nextNodeId++;
+			node->m_id = m_forest->m_nextNodeId++;
 		}
 		node->changeType(type);
 	} else
 #endif
 	{
 		if (id < 0) {
-			id = forest->nextNodeId++;
+			id = m_forest->m_nextNodeId++;
 		} else {
-			forest->nextNodeId = std::max(forest->nextNodeId, id + 1);
+			m_forest->m_nextNodeId = std::max(m_forest->m_nextNodeId, id + 1);
 		}
-		node = new PCNode(forest, id, type);
+		node = new PCNode(m_forest, id, type);
 	}
 	registerNode(node);
 	if (parent != nullptr) {
 		parent->appendChild(node);
-	} else if (rootNode == nullptr) {
-		rootNode = node;
+	} else if (m_rootNode == nullptr) {
+		m_rootNode = node;
 	}
-	forest->nodeArrayRegistry.keyAdded(node);
+	m_forest->m_nodeArrayRegistry.keyAdded(node);
 
-	for (auto obs : observers) {
+	for (auto obs : m_observers) {
 		obs->onNodeCreate(node);
 	}
 
@@ -306,29 +306,29 @@ PCNode* PCTree::newNode(PCNodeType type, PCNode* parent, int id) {
 }
 
 void PCTree::destroyNode(PCNode* const& node) {
-	OGDF_ASSERT(node->forest == forest);
+	OGDF_ASSERT(node->m_forest == m_forest);
 	OGDF_ASSERT(node->isDetached());
-	OGDF_ASSERT(node->childCount == 0);
-	OGDF_ASSERT(node->child1 == nullptr);
-	OGDF_ASSERT(node->child2 == nullptr);
-	OGDF_ASSERT(node != rootNode);
+	OGDF_ASSERT(node->m_childCount == 0);
+	OGDF_ASSERT(node->m_child1 == nullptr);
+	OGDF_ASSERT(node->m_child2 == nullptr);
+	OGDF_ASSERT(node != m_rootNode);
 	unregisterNode(node);
 #ifdef OGDF_PCTREE_REUSE_NODES
-	node->parentPNode = forest->reusableNodes;
-	forest->reusableNodes = node;
+	node->m_parentPNode = m_forest->m_reusableNodes;
+	m_forest->m_reusableNodes = node;
 #else
 	delete node;
 #endif
 }
 
 PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
-	PCNodeType oldType = node->nodeType;
+	PCNodeType oldType = node->m_nodeType;
 	if (oldType == newType) {
 		return oldType;
 	}
 
 #ifdef OGDF_DEBUG
-	UnionFindIndex oldIndex = node->nodeListIndex;
+	UnionFindIndex oldIndex = node->m_nodeListIndex;
 #endif
 	unregisterNode(node);
 	node->changeType(newType);
@@ -336,32 +336,32 @@ PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
 
 	if (oldType == PCNodeType::CNode || newType == PCNodeType::CNode) {
 		PCNode* pred = nullptr;
-		PCNode* curr = node->child1;
+		PCNode* curr = node->m_child1;
 #ifdef OGDF_DEBUG
 		size_t children = 0;
 #endif
 		while (curr != nullptr) {
 			if (oldType == PCNodeType::CNode) {
-				OGDF_ASSERT(curr->parentPNode == nullptr);
-				OGDF_ASSERT(forest->parents.find(curr->parentCNodeId) == oldIndex);
+				OGDF_ASSERT(curr->m_parentPNode == nullptr);
+				OGDF_ASSERT(m_forest->m_parents.find(curr->m_parentCNodeId) == oldIndex);
 			} else {
-				OGDF_ASSERT(curr->parentPNode == node);
-				OGDF_ASSERT(curr->parentCNodeId == UNIONFINDINDEX_EMPTY);
+				OGDF_ASSERT(curr->m_parentPNode == node);
+				OGDF_ASSERT(curr->m_parentCNodeId == UNIONFINDINDEX_EMPTY);
 			}
 			if (newType == PCNodeType::CNode) {
-				curr->parentPNode = nullptr;
-				curr->parentCNodeId = node->nodeListIndex;
+				curr->m_parentPNode = nullptr;
+				curr->m_parentCNodeId = node->m_nodeListIndex;
 			} else {
-				curr->parentPNode = node;
-				curr->parentCNodeId = UNIONFINDINDEX_EMPTY;
+				curr->m_parentPNode = node;
+				curr->m_parentCNodeId = UNIONFINDINDEX_EMPTY;
 			}
 #ifdef OGDF_DEBUG
 			children++;
 #endif
 			proceedToNextSibling(pred, curr);
 		}
-		OGDF_ASSERT(children == node->childCount);
-		OGDF_ASSERT(pred == node->child2);
+		OGDF_ASSERT(children == node->m_childCount);
+		OGDF_ASSERT(pred == node->m_child2);
 	}
 
 	return oldType;
@@ -369,7 +369,7 @@ PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
 
 void PCTree::insertLeaves(int count, PCNode* parent, std::vector<PCNode*>* added) {
 	OGDF_ASSERT(parent != nullptr);
-	OGDF_ASSERT(parent->forest == forest);
+	OGDF_ASSERT(parent->m_forest == m_forest);
 	if (added) {
 		added->reserve(added->size() + count);
 	}
@@ -383,7 +383,7 @@ void PCTree::insertLeaves(int count, PCNode* parent, std::vector<PCNode*>* added
 }
 
 void PCTree::replaceLeaf(int leafCount, PCNode* leaf, std::vector<PCNode*>* added) {
-	OGDF_ASSERT(leaf && leaf->forest == forest);
+	OGDF_ASSERT(leaf && leaf->m_forest == m_forest);
 	OGDF_ASSERT(leaf->isLeaf());
 	OGDF_ASSERT(leafCount > 1);
 	if (getLeafCount() <= 2) {
@@ -399,7 +399,7 @@ void PCTree::replaceLeaf(int leafCount, PCNode* leaf, std::vector<PCNode*>* adde
 
 void PCTree::destroyLeaf(PCNode* leaf) {
 	OGDF_ASSERT(leaf->getNodeType() == PCNodeType::Leaf);
-	OGDF_ASSERT(leaf != rootNode);
+	OGDF_ASSERT(leaf != m_rootNode);
 
 	PCNode* parent = leaf->getParent();
 	leaf->detach();
@@ -408,10 +408,10 @@ void PCTree::destroyLeaf(PCNode* leaf) {
 	/* assume the PC-tree is valid, so a childCount of 0 is impossible, since every inner node must
      * have at least 2 children (except for child of root node) */
 
-	if (parent->childCount == 1) {
-		if (rootNode->getNodeType() == PCNodeType::Leaf) {
+	if (parent->m_childCount == 1) {
+		if (m_rootNode->getNodeType() == PCNodeType::Leaf) {
 			if (parent->getChild1()->getNodeType() != PCNodeType::Leaf
-					|| rootNode->getChild1() != parent) {
+					|| m_rootNode->getChild1() != parent) {
 				PCNode* child = parent->getChild1();
 				child->detach();
 				parent->replaceWith(child);
@@ -419,17 +419,17 @@ void PCTree::destroyLeaf(PCNode* leaf) {
 			}
 		} else {
 			PCNode* child = parent->getChild1();
-			if (parent != rootNode) {
+			if (parent != m_rootNode) {
 				child->detach();
 				parent->replaceWith(child);
 				destroyNode(parent);
 			} else if (child->getNodeType() != PCNodeType::Leaf) {
-				PCNode* root = rootNode;
+				PCNode* root = m_rootNode;
 				root->detach();
-				root->childCount = 0;
-				root->child1 = root->child2 = nullptr;
-				child->parentCNodeId = UNIONFINDINDEX_EMPTY;
-				child->parentPNode = nullptr;
+				root->m_childCount = 0;
+				root->m_child1 = root->m_child2 = nullptr;
+				child->m_parentCNodeId = UNIONFINDINDEX_EMPTY;
+				child->m_parentPNode = nullptr;
 				setRoot(child);
 				destroyNode(root);
 			}
@@ -443,14 +443,14 @@ void PCTree::insertTree(PCNode* at, PCTree* inserted) {
 	OGDF_ASSERT(at->isValidNode(getForest()));
 	OGDF_ASSERT(inserted->getForest() == getForest());
 
-	observers.splice(observers.end(), inserted->observers);
-	leaves.splice(leaves.end(), inserted->leaves);
-	pNodeCount += inserted->pNodeCount;
-	cNodeCount += inserted->cNodeCount;
+	m_observers.splice(m_observers.end(), inserted->m_observers);
+	m_leaves.splice(m_leaves.end(), inserted->m_leaves);
+	m_pNodeCount += inserted->m_pNodeCount;
+	m_cNodeCount += inserted->m_cNodeCount;
 
-	PCNode* root = inserted->rootNode;
-	inserted->rootNode = nullptr;
-	inserted->pNodeCount = inserted->cNodeCount = 0;
+	PCNode* root = inserted->m_rootNode;
+	inserted->m_rootNode = nullptr;
+	inserted->m_pNodeCount = inserted->m_cNodeCount = 0;
 	delete inserted;
 	inserted = nullptr;
 
@@ -469,10 +469,10 @@ void PCTree::insertTree(PCNode* at, PCTree* inserted) {
 			at->detach();
 			if (parent->isDetached()) {
 				// use the inserted root as root
-				rootNode = root;
+				m_rootNode = root;
 				PCNode* child = parent->getOnlyChild();
 				child->detach();
-				rootNode->appendChild(child);
+				m_rootNode->appendChild(child);
 			} else {
 				// we can use the other leaf as root
 				parent->replaceWith(root);
