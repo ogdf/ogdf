@@ -117,44 +117,44 @@ public:
 
 private:
 	// index in registry
-	size_t id;
+	size_t m_id;
 
 	// global
-	PCTreeForest* forest;
+	PCTreeForest* m_forest;
 
 	// private
-	UnionFindIndex nodeListIndex = UNIONFINDINDEX_EMPTY;
-	PCNodeType nodeType;
-	PCNode* parentPNode = nullptr;
-	mutable UnionFindIndex parentCNodeId = UNIONFINDINDEX_EMPTY;
-	PCNode* sibling1 = nullptr;
-	PCNode* sibling2 = nullptr;
-	PCNode* child1 = nullptr;
-	PCNode* child2 = nullptr;
-	size_t childCount = 0;
-	mutable NodeLabel label = NodeLabel::Unknown;
-	mutable size_t timestamp = 0;
+	UnionFindIndex m_nodeListIndex = UNIONFINDINDEX_EMPTY;
+	PCNodeType m_nodeType;
+	PCNode* m_parentPNode = nullptr;
+	mutable UnionFindIndex m_parentCNodeId = UNIONFINDINDEX_EMPTY;
+	PCNode* m_sibling1 = nullptr;
+	PCNode* m_sibling2 = nullptr;
+	PCNode* m_child1 = nullptr;
+	PCNode* m_child2 = nullptr;
+	size_t m_childCount = 0;
+	mutable NodeLabel m_label = NodeLabel::Unknown;
+	mutable size_t m_timestamp = 0;
 
 	// leaves need no temp info, so they can easily store user data
 	union {
-		mutable TempInfo temp;
-		LeafUserData userData;
+		mutable TempInfo m_temp;
+		LeafUserData m_userData;
 	};
 
-	PCNode(PCTreeForest* p_forest, size_t p_id, PCNodeType p_nodeType)
-		: IntrusiveList<PCNode>::node(), id(p_id), forest(p_forest), nodeType(p_nodeType) {
-		if (p_nodeType == PCNodeType::Leaf) {
-			new (&userData) LeafUserData;
+	PCNode(PCTreeForest* forest, size_t id, PCNodeType nodeType)
+		: IntrusiveList<PCNode>::node(), m_id(id), m_forest(forest), m_nodeType(nodeType) {
+		if (nodeType == PCNodeType::Leaf) {
+			new (&m_userData) LeafUserData;
 		} else {
-			new (&temp) TempInfo;
+			new (&m_temp) TempInfo;
 		}
 	}
 
 	~PCNode() {
-		if (nodeType == PCNodeType::Leaf) {
-			userData.~array();
+		if (m_nodeType == PCNodeType::Leaf) {
+			m_userData.~array();
 		} else {
-			temp.~TempInfo();
+			m_temp.~TempInfo();
 		}
 	}
 
@@ -168,7 +168,7 @@ public:
 	/**
 	 * Append a (detached) child node to the begin or end of this nodes' children.
 	 */
-	void appendChild(PCNode* p_node, bool begin = false);
+	void appendChild(PCNode* node, bool begin = false);
 
 	/**
 	 * Insert a (detached) child node directly between two adjacent children of this node.
@@ -183,7 +183,7 @@ public:
 	/**
 	 * Swaps this node inplace with a (detached) other one. Afterwards, this node will be detached.
 	 */
-	void replaceWith(PCNode* p_node);
+	void replaceWith(PCNode* node);
 
 	/**
 	 * Merges this C-node into its C-node parent.
@@ -193,7 +193,7 @@ public:
 	/**
 	 * Reverse the stored order of children.
 	 */
-	void flip() { std::swap(child1, child2); }
+	void flip() { std::swap(m_child1, m_child2); }
 
 private:
 	/**
@@ -204,7 +204,7 @@ private:
 	/**
 	 * Make this node an outer child of its parent. Only works for children of the root node.
 	 */
-	void rotateChildOutside(bool p_child1 = true);
+	void rotateChildOutside(bool child1 = true);
 
 	/**
 	 * Notify this node that one of its outer children was replaced.
@@ -225,14 +225,14 @@ private:
 	 * Overwrite the type of this node without updating any other data structures.
 	 */
 	void changeType(PCNodeType newType) {
-		if (nodeType == PCNodeType::Leaf && newType != PCNodeType::Leaf) {
-			userData.~array();
-			new (&temp) TempInfo;
-		} else if (nodeType != PCNodeType::Leaf && newType == PCNodeType::Leaf) {
-			temp.~TempInfo();
-			new (&userData) LeafUserData;
+		if (m_nodeType == PCNodeType::Leaf && newType != PCNodeType::Leaf) {
+			m_userData.~array();
+			new (&m_temp) TempInfo;
+		} else if (m_nodeType != PCNodeType::Leaf && newType == PCNodeType::Leaf) {
+			m_temp.~TempInfo();
+			new (&m_userData) LeafUserData;
 		}
-		nodeType = newType;
+		m_nodeType = newType;
 	}
 
 	//! @}
@@ -293,10 +293,10 @@ public:
 	 * @return \c true if this node has no parent, i.e., it is the root of its PC-tree or needs to be attached to some node first before the tree can become valid again.
 	 */
 	bool isDetached() const {
-		if (parentCNodeId == UNIONFINDINDEX_EMPTY && parentPNode == nullptr) {
+		if (m_parentCNodeId == UNIONFINDINDEX_EMPTY && m_parentPNode == nullptr) {
 			return true;
 		} else {
-			OGDF_ASSERT(parentCNodeId == UNIONFINDINDEX_EMPTY || parentPNode == nullptr);
+			OGDF_ASSERT(m_parentCNodeId == UNIONFINDINDEX_EMPTY || m_parentPNode == nullptr);
 			return false;
 		}
 	}
@@ -306,14 +306,14 @@ public:
 	 */
 	bool isValidNode(const PCTreeForest* ofForest = nullptr) const;
 
-	bool isLeaf() const { return nodeType == PCNodeType::Leaf; }
+	bool isLeaf() const { return m_nodeType == PCNodeType::Leaf; }
 
 	/**
 	 * @return \c true, if other->getParent() == this
 	 */
 	bool isParentOf(const PCNode* other) const {
 		OGDF_ASSERT(other != nullptr);
-		OGDF_ASSERT(forest == other->forest);
+		OGDF_ASSERT(m_forest == other->m_forest);
 		return other->getParent() == this;
 	}
 
@@ -322,7 +322,7 @@ public:
 	 */
 	bool isSiblingOf(const PCNode* other) const {
 		OGDF_ASSERT(other != nullptr);
-		OGDF_ASSERT(forest == other->forest);
+		OGDF_ASSERT(m_forest == other->m_forest);
 		return this->getParent() == other->getParent();
 	}
 
@@ -332,7 +332,7 @@ public:
 	bool isSiblingAdjacent(const PCNode* sibling) const {
 		OGDF_ASSERT(isSiblingOf(sibling));
 		OGDF_ASSERT(this != sibling);
-		return sibling1 == sibling || sibling2 == sibling;
+		return m_sibling1 == sibling || m_sibling2 == sibling;
 	}
 
 	/**
@@ -346,13 +346,13 @@ public:
 	 */
 	bool isChildOuter(const PCNode* child) const {
 		OGDF_ASSERT(isParentOf(child));
-		return child1 == child || child2 == child;
+		return m_child1 == child || m_child2 == child;
 	}
 
 	/**
 	 * @return \c true, if this node is an outer child of its parent, i.e., if this->getSibling1() == nullptr or this->getSibling2() == child
 	 */
-	bool isOuterChild() const { return sibling1 == nullptr || sibling2 == nullptr; }
+	bool isOuterChild() const { return m_sibling1 == nullptr || m_sibling2 == nullptr; }
 
 	//! @}
 
@@ -366,31 +366,31 @@ public:
 	const TempInfo& constTempInfo() const {
 		checkTimestamp();
 		OGDF_ASSERT(!isLeaf());
-		return temp;
+		return m_temp;
 	}
 
 	bool isFull() const { return getLabel() == NodeLabel::Full; }
 
 	NodeLabel getLabel() const {
 		// this operation does not reset the temp info
-		return forest->timestamp == timestamp ? label : NodeLabel::Empty;
+		return m_forest->m_timestamp == m_timestamp ? m_label : NodeLabel::Empty;
 	}
 
 	void setLabel(NodeLabel l) {
 		checkTimestamp();
-		label = l;
+		m_label = l;
 	}
 
 private:
 	// these methods are slightly faster if we already called checkTimestamp()
 	inline NodeLabel getLabelUnchecked() const {
-		OGDF_ASSERT(forest->timestamp == timestamp);
-		return label;
+		OGDF_ASSERT(m_forest->m_timestamp == m_timestamp);
+		return m_label;
 	}
 
 	inline void setLabelUnchecked(NodeLabel l) {
-		OGDF_ASSERT(forest->timestamp == timestamp);
-		label = l;
+		OGDF_ASSERT(m_forest->m_timestamp == m_timestamp);
+		m_label = l;
 	}
 
 public:
@@ -399,7 +399,7 @@ public:
 	 */
 	LeafUserData& leafUserData() {
 		OGDF_ASSERT(isLeaf());
-		return userData;
+		return m_userData;
 	}
 
 	/**
@@ -407,7 +407,7 @@ public:
 	 */
 	const LeafUserData& leafUserData() const {
 		OGDF_ASSERT(isLeaf());
-		return userData;
+		return m_userData;
 	}
 
 private:
@@ -416,28 +416,28 @@ private:
 	TempInfo& tempInfo() {
 		checkTimestamp();
 		OGDF_ASSERT(!isLeaf());
-		return temp;
+		return m_temp;
 	}
 
 	size_t addFullNeighbor(PCNode* fullNeigh) {
 		checkTimestamp();
 		OGDF_ASSERT(!isLeaf());
 		OGDF_ASSERT(fullNeigh->isFull());
-		temp.fullNeighbors.push_back(fullNeigh);
-		return temp.fullNeighbors.size();
+		m_temp.fullNeighbors.push_back(fullNeigh);
+		return m_temp.fullNeighbors.size();
 	}
 
 	PCNode*& getFullNeighInsertionPoint(PCNode* nonFullNeigh) {
 		checkTimestamp();
 		OGDF_ASSERT(!isLeaf());
 		OGDF_ASSERT(nonFullNeigh != nullptr);
-		if (nonFullNeigh == temp.ebEnd1) {
-			OGDF_ASSERT(areNeighborsAdjacent(temp.ebEnd1, temp.fbEnd1));
-			return temp.fbEnd1;
+		if (nonFullNeigh == m_temp.ebEnd1) {
+			OGDF_ASSERT(areNeighborsAdjacent(m_temp.ebEnd1, m_temp.fbEnd1));
+			return m_temp.fbEnd1;
 		} else {
-			OGDF_ASSERT(nonFullNeigh == temp.ebEnd2);
-			OGDF_ASSERT(areNeighborsAdjacent(temp.ebEnd2, temp.fbEnd2));
-			return temp.fbEnd2;
+			OGDF_ASSERT(nonFullNeigh == m_temp.ebEnd2);
+			OGDF_ASSERT(areNeighborsAdjacent(m_temp.ebEnd2, m_temp.fbEnd2));
+			return m_temp.fbEnd2;
 		}
 	}
 
@@ -448,31 +448,31 @@ public:
 	 * @name Getters
 	 */
 	//! @{
-	size_t index() const { return id; }
+	size_t index() const { return m_id; }
 
-	PCNodeType getNodeType() const { return nodeType; }
+	PCNodeType getNodeType() const { return m_nodeType; }
 
-	size_t getChildCount() const { return childCount; }
+	size_t getChildCount() const { return m_childCount; }
 
-	size_t getDegree() const { return isDetached() ? childCount : childCount + 1; }
+	size_t getDegree() const { return isDetached() ? m_childCount : m_childCount + 1; }
 
-	PCNode* getChild1() const { return child1; }
+	PCNode* getChild1() const { return m_child1; }
 
-	PCNode* getChild2() const { return child2; }
+	PCNode* getChild2() const { return m_child2; }
 
 	/**
 	 * Check whether this node has only one child and return it.
 	 */
 	PCNode* getOnlyChild() const {
-		OGDF_ASSERT(childCount == 1);
-		return child1;
+		OGDF_ASSERT(m_childCount == 1);
+		return m_child1;
 	}
 
-	PCNode* getSibling1() const { return sibling1; }
+	PCNode* getSibling1() const { return m_sibling1; }
 
-	PCNode* getSibling2() const { return sibling2; }
+	PCNode* getSibling2() const { return m_sibling2; }
 
-	PCTreeForest* getForest() const { return forest; }
+	PCTreeForest* getForest() const { return m_forest; }
 
 	//! @}
 

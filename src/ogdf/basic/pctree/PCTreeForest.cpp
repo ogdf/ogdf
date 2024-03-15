@@ -37,9 +37,9 @@ using namespace pc_tree;
 PCTreeForest::~PCTreeForest() {
 	clear();
 #ifdef OGDF_PCTREE_REUSE_NODES
-	while (reusableNodes) {
-		PCNode* tmp = reusableNodes;
-		reusableNodes = reusableNodes->parentPNode;
+	while (m_reusableNodes) {
+		PCNode* tmp = m_reusableNodes;
+		m_reusableNodes = m_reusableNodes->m_parentPNode;
 		delete tmp;
 	}
 #endif
@@ -48,25 +48,25 @@ PCTreeForest::~PCTreeForest() {
 // forest auto deletes allocated trees when destructed
 PCTree* PCTreeForest::makeTree() {
 	PCTree* tree = new PCTree(this);
-	trees.push_back(tree);
+	m_trees.push_back(tree);
 
 	return tree;
 }
 
 void PCTreeForest::clear() {
-	if (autodelete) {
-		for (auto* k : trees) {
+	if (m_autodelete) {
+		for (auto* k : m_trees) {
 			delete k;
 		}
 	}
 
-	trees.clear();
-	trees.shrink_to_fit();
-	cNodes.clear();
-	cNodes.shrink_to_fit();
-	parents.init();
-	nextNodeId = 0;
-	timestamp = 0;
+	m_trees.clear();
+	m_trees.shrink_to_fit();
+	m_cNodes.clear();
+	m_cNodes.shrink_to_fit();
+	m_parents.init();
+	m_nextNodeId = 0;
+	m_timestamp = 0;
 }
 
 bool PCTreeRegistry::isKeyAssociated(PCNode* key) const {
@@ -78,7 +78,7 @@ bool PCTreeRegistry::isKeyAssociated(PCNode* key) const {
 }
 
 int PCTreeRegistry::calculateArraySize(int add) const {
-	return ogdf::calculateTableSize(m_pForest->nextNodeId + add);
+	return ogdf::calculateTableSize(m_pForest->m_nextNodeId + add);
 }
 
-int PCTreeRegistry::maxKeyIndex() const { return m_pForest->nextNodeId - 1; }
+int PCTreeRegistry::maxKeyIndex() const { return m_pForest->m_nextNodeId - 1; }
