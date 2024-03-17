@@ -244,7 +244,7 @@ void PCTree::registerNode(PCNode* node) {
 	} else {
 		OGDF_ASSERT(node->m_nodeType == PCNodeType::CNode);
 		node->m_nodeListIndex = m_forest->m_parents.makeSet();
-		OGDF_ASSERT(m_forest->m_cNodes.size() == node->m_nodeListIndex); // TODO fix signedness warnings
+		OGDF_ASSERT(m_forest->m_cNodes.size() == node->m_nodeListIndex);
 		m_forest->m_cNodes.push_back(node);
 		m_cNodeCount++;
 	}
@@ -343,7 +343,7 @@ PCNodeType PCTree::changeNodeType(PCNode* node, PCNodeType newType) {
 		while (curr != nullptr) {
 			if (oldType == PCNodeType::CNode) {
 				OGDF_ASSERT(curr->m_parentPNode == nullptr);
-				OGDF_ASSERT(m_forest->m_parents.find(curr->m_parentCNodeId) == oldIndex);
+				OGDF_ASSERT((size_t)m_forest->m_parents.find(curr->m_parentCNodeId) == oldIndex);
 			} else {
 				OGDF_ASSERT(curr->m_parentPNode == node);
 				OGDF_ASSERT(curr->m_parentCNodeId == UNIONFINDINDEX_EMPTY);

@@ -119,8 +119,8 @@ private:
 	PCNode* m_rootNode = nullptr;
 
 	// temp makeConsecutive variables
-	int m_partialCount = 0;
-	int m_terminalPathLength = 0;
+	size_t m_partialCount = 0;
+	size_t m_terminalPathLength = 0;
 	PCNode* m_firstPartial = nullptr;
 	PCNode* m_lastPartial = nullptr;
 	PCNode* m_apexCandidate = nullptr;
