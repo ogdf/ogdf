@@ -40,7 +40,7 @@
 
 #define OGDF_PCTREE_REUSE_NODES
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 using UnionFindIndex = size_t;
 
 const UnionFindIndex UNIONFINDINDEX_EMPTY = std::numeric_limits<UnionFindIndex>::max();

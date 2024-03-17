@@ -38,7 +38,7 @@
 #include <cassert>
 #include <iterator>
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 template<class T>
 class IntrusiveList {
 	T* m_first = nullptr;

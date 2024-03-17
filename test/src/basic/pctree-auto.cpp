@@ -41,32 +41,32 @@
 
 #include <bandit/bandit.h>
 
-using namespace pc_tree;
+using namespace ogdf;
+using namespace ogdf::pc_tree;
 using namespace snowhouse;
 using namespace bandit;
-using namespace ogdf;
 
-#define BigInt int
+#define BigInt size_t
 
 struct CentralNode {
-	NodeLabel parentLabel; // partial is interpreted as nullptr
-	int fullNeighbors; // 0, 1 or 2+
-	int partialNeighbors; // 0, 1, 2 or 3+ (invalid)
-	int emptyNeighbors; // 0, 1 or 2+
-	int seed;
+	NodeLabel m_parentLabel; // partial is interpreted as nullptr
+	int m_fullNeighbors; // 0, 1 or 2+
+	int m_partialNeighbors; // 0, 1, 2 or 3+ (invalid)
+	int m_emptyNeighbors; // 0, 1 or 2+
+	int m_seed;
 
 	CentralNode(NodeLabel parentLabel, int fullNeighbors, int partialNeighbors, int emptyNeighbors,
 			int seed)
-		: parentLabel(parentLabel)
-		, fullNeighbors(fullNeighbors)
-		, partialNeighbors(partialNeighbors)
-		, emptyNeighbors(emptyNeighbors)
-		, seed(seed) { }
+		: m_parentLabel(parentLabel)
+		, m_fullNeighbors(fullNeighbors)
+		, m_partialNeighbors(partialNeighbors)
+		, m_emptyNeighbors(emptyNeighbors)
+		, m_seed(seed) { }
 
 	friend std::ostream& operator<<(std::ostream& os, const CentralNode& aCase) {
-		os << "parentLabel: " << aCase.parentLabel << ", full: " << aCase.fullNeighbors
-		   << ", partial: " << aCase.partialNeighbors << ", empty: " << aCase.emptyNeighbors
-		   << ", seed: " << aCase.seed;
+		os << "parentLabel: " << aCase.m_parentLabel << ", full: " << aCase.m_fullNeighbors
+		   << ", partial: " << aCase.m_partialNeighbors << ", empty: " << aCase.m_emptyNeighbors
+		   << ", seed: " << aCase.m_seed;
 		return os;
 	}
 
@@ -119,7 +119,7 @@ struct CreateCentralNode {
 	BigInt orders = 1;
 	int depth = 0;
 
-	explicit CreateCentralNode(const CentralNode& central) : central(central) { }
+	explicit CreateCentralNode(const CentralNode& p_central) : central(p_central) { }
 
 	static void declareTestConsecutive(const CentralNode& central) {
 		it("restriction correctly handles CentralNode(" + central.toString() + ")", [central]() {
@@ -255,12 +255,13 @@ struct CreateCentralNode {
 	}
 
 	void createTree() {
-		setSeed(central.seed);
+		setSeed(central.m_seed);
 		PCNode *emptyNode = nullptr, *fullNode = nullptr, *partialNode = nullptr;
-		PCNode* apex = createNode(PCNodeType::PNode, central.fullNeighbors,
-				central.partialNeighbors, central.emptyNeighbors, fullNode, partialNode, emptyNode);
+		PCNode* apex =
+				createNode(PCNodeType::PNode, central.m_fullNeighbors, central.m_partialNeighbors,
+						central.m_emptyNeighbors, fullNode, partialNode, emptyNode);
 
-		if (central.parentLabel == NodeLabel::Full) {
+		if (central.m_parentLabel == NodeLabel::Full) {
 			if (fullNode != nullptr) {
 				fullNode->detach();
 				fullNode->appendChild(apex);
@@ -268,7 +269,7 @@ struct CreateCentralNode {
 			} else {
 				T->setRoot(apex);
 			}
-		} else if (central.parentLabel == NodeLabel::Empty) {
+		} else if (central.m_parentLabel == NodeLabel::Empty) {
 			if (emptyNode != nullptr) {
 				emptyNode->detach();
 				emptyNode->appendChild(apex);
@@ -279,7 +280,7 @@ struct CreateCentralNode {
 		} else {
 			T->setRoot(apex);
 		}
-		if (central.partialNeighbors != 0) {
+		if (central.m_partialNeighbors != 0) {
 			// we'll create a new central C-Node
 			orders *= 2;
 		}

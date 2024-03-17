@@ -64,7 +64,7 @@
 #	define PC_PROFILE_EXIT(level, msg)
 #endif
 
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
 
 #ifdef UFPC_DEBUG
 #	define log   \
@@ -74,8 +74,6 @@ using namespace pc_tree;
 #	include <ogdf/fileformats/GraphIO.h>
 #	include <ogdf/misclayout/CircularLayout.h>
 #	include <ogdf/tree/TreeLayout.h>
-
-using namespace ogdf;
 
 void dump(PCTree& T, const std::string& name) {
 	Graph G;
@@ -101,15 +99,15 @@ void dump(PCTree& T, const std::string& name) { }
 #endif
 
 
-bool pc_tree::isTrivialRestriction(int restSize, int leafCount) {
+bool ogdf::pc_tree::isTrivialRestriction(int restSize, int leafCount) {
 	return restSize <= 1 || restSize >= leafCount - 1;
 }
 
 bool PCTree::isTrivialRestriction(int size) const {
-	return pc_tree::isTrivialRestriction(size, getLeafCount());
+	return ogdf::pc_tree::isTrivialRestriction(size, getLeafCount());
 }
 
-int pc_tree::factorial(int n) { return (int)std::tgamma(n + 1); }
+int ogdf::pc_tree::factorial(int n) { return (int)std::tgamma(n + 1); }
 
 void PCTree::LoggingObserver::makeConsecutiveCalled(PCTree& tree, FullLeafIter consecutiveLeaves) {
 	log << "Tree " << tree << " with consecutive leaves [";

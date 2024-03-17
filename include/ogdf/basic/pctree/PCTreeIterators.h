@@ -37,7 +37,7 @@
 #include <deque>
 #include <utility>
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 class OGDF_EXPORT PCNodeIterator {
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;
@@ -103,7 +103,8 @@ struct OGDF_EXPORT PCNodeNeighborsIterable {
 		if (this->m_first == nullptr) {
 			OGDF_ASSERT(this->m_node->getDegree() == 0);
 		} else {
-			OGDF_ASSERT(this->m_node->isParentOf(this->m_first) || this->m_first->isParentOf(this->m_node));
+			OGDF_ASSERT(this->m_node->isParentOf(this->m_first)
+					|| this->m_first->isParentOf(this->m_node));
 		}
 	}
 

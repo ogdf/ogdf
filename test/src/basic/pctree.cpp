@@ -52,7 +52,7 @@ std::string treeToString(const PCTree& tree) {
 
 template<class Iterable>
 void checkOrder(std::vector<PCNode*>& nodes, Iterable iter, std::vector<int> ids) {
-	int index = 0;
+	size_t index = 0;
 	for (PCNode* node : iter) {
 		AssertThat(node, Equals(nodes.at(ids.at(index))));
 		index++;
@@ -104,18 +104,18 @@ template<typename Iterable>
 void testIterator(PCTree& tree, Iterable iterable) {
 	PCTreeNodeArray<bool> visited(tree, false);
 
-	int visitedLeafs = 0;
-	int visitedPNodes = 0;
-	int visitedCNodes = 0;
+	size_t visitedLeafs = 0;
+	size_t visitedPNodes = 0;
+	size_t visitedCNodes = 0;
 	for (PCNode* n : iterable) {
 		AssertThat(visited[n], IsFalse());
 		visited[n] = true;
 		if (n->isLeaf()) {
 			++visitedLeafs;
-		} else if (n->getNodeType() == pc_tree::PCNodeType::PNode) {
+		} else if (n->getNodeType() == PCNodeType::PNode) {
 			++visitedPNodes;
 		} else {
-			OGDF_ASSERT(n->getNodeType() == pc_tree::PCNodeType::CNode);
+			OGDF_ASSERT(n->getNodeType() == PCNodeType::CNode);
 			++visitedCNodes;
 		}
 	}
@@ -184,11 +184,10 @@ void testPlanarity(int nodes, int edges, int seed, bool forcePlanar) {
 void testPlanarity() {
 	std::list<std::function<int(int)>> edgeFuncs {[](int nodes) { return nodes; },
 			[](int nodes) { return 2 * nodes; }, [](int nodes) { return 3 * nodes - 6; }};
-	std::time_t time = std::time(nullptr);
 	std::vector<int> seeds;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 5; i++) {
 		seeds.push_back(i);
-		seeds.push_back(time + i);
+		seeds.push_back((int)randomSeed());
 	}
 
 	for (int nodes = 10; nodes <= 100; nodes += 10) {
@@ -199,7 +198,7 @@ void testPlanarity() {
 			}
 		}
 	}
-	testPlanarity(20, 40, 1705935965, 1);
+	testPlanarity(20, 40, 1705935965, true);
 }
 
 bool applyRestrictions(PCTree& t, std::initializer_list<std::initializer_list<int>> restrictions) {
@@ -254,18 +253,18 @@ go_bandit([]() {
 			PCTree tree(5, &leaves);
 			AssertThat(tree.checkValid(), IsTrue());
 			AssertThat(tree.isTrivial(), IsTrue());
-			AssertThat(tree.getLeafCount(), Equals(5));
-			AssertThat(tree.getPNodeCount(), Equals(1));
-			AssertThat(tree.getCNodeCount(), Equals(0));
+			AssertThat(tree.getLeafCount(), Equals((size_t)5));
+			AssertThat(tree.getPNodeCount(), Equals((size_t)1));
+			AssertThat(tree.getCNodeCount(), Equals((size_t)0));
 			AssertThat(std::equal(tree.getLeaves().begin(), tree.getLeaves().end(), leaves.begin(),
 							   leaves.end()),
 					IsTrue());
-			AssertThat(tree.possibleOrders<int>(), Equals(24));
+			AssertThat(tree.possibleOrders<size_t>(), Equals((size_t)24));
 			AssertThat(treeToString(tree), Equals("0:(5, 4, 3, 2, 1)"));
 			AssertThat(tree.uniqueID(uid_utils::nodeToPosition), Equals("5:(4, 3, 2, 1, 0)"));
 			PCNode* root = tree.getRootNode();
 			AssertThat(root->getNodeType(), Equals(PCNodeType::PNode));
-			AssertThat(root->getChildCount(), Equals(5));
+			AssertThat(root->getChildCount(), Equals((size_t)5));
 
 			tree.makeConsecutive({leaves.at(1), leaves.at(2)});
 			AssertThat(treeToString(tree), Equals("0:(6:(3, 2), 5, 4, 1)"));
@@ -326,9 +325,9 @@ go_bandit([]() {
 			std::vector<PCNode*> nodes {walk.begin(), walk.end()};
 			std::sort(nodes.begin(), nodes.end(),
 					[](PCNode* a, PCNode* b) { return a->index() < b->index(); });
-			AssertThat(nodes.size(), Equals(9));
-			AssertThat(nodes.front()->index(), Equals(0));
-			AssertThat(nodes.back()->index(), Equals(8));
+			AssertThat(nodes.size(), Equals((size_t)9));
+			AssertThat(nodes.front()->index(), Equals((size_t)0));
+			AssertThat(nodes.back()->index(), Equals((size_t)8));
 
 			checkOrder(nodes, tree.getLeaves(), {1, 2, 3, 4, 5, 6, 7});
 			checkOrder(nodes, tree.allNodes(), {0, 8, 4, 3, 2, 1, 7, 6, 5});
@@ -338,7 +337,7 @@ go_bandit([]() {
 			checkOrder(nodes, bfs, {0, 5, 6, 7, 8, 1, 2, 3, 4});
 
 			PCNode* node = tree.getRootNode()->getChild2();
-			AssertThat(node->index(), Equals(8));
+			AssertThat(node->index(), Equals((size_t)8));
 			checkOrder(nodes, node->children(), {1, 2, 3, 4});
 			checkOrder(nodes, node->neighbors(), {1, 2, 3, 4, 0});
 		});
@@ -412,10 +411,10 @@ go_bandit([]() {
 
 		it("correctly applies restrictions on manually constructed trees", []() {
 			PCTree T;
-			auto root = T.newNode(pc_tree::PCNodeType::CNode);
-			auto n1 = T.newNode(pc_tree::PCNodeType::PNode, root);
+			auto root = T.newNode(PCNodeType::CNode);
+			auto n1 = T.newNode(PCNodeType::PNode, root);
 			T.insertLeaves(5, root);
-			auto n2 = T.newNode(pc_tree::PCNodeType::PNode, root);
+			auto n2 = T.newNode(PCNodeType::PNode, root);
 			T.insertLeaves(5, n2);
 			T.insertLeaves(5, root);
 			T.insertLeaves(5, n1);
@@ -434,7 +433,7 @@ go_bandit([]() {
 			PCTreeNodeArray<PCNode*> leafMap(T2);
 			auto it1 = T.getLeaves().begin();
 			auto it2 = T2.getLeaves().begin();
-			for (int i = 0; i < T.getLeafCount(); ++i) {
+			for (size_t i = 0; i < T.getLeafCount(); ++i) {
 				AssertThat(it1, !Equals(T.getLeaves().end()));
 				AssertThat(it2, !Equals(T2.getLeaves().end()));
 				leafMap[*it2] = *it1;

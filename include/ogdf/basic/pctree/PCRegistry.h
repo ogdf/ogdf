@@ -33,7 +33,7 @@
 
 #include <ogdf/basic/pctree/PCEnum.h>
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 /**
  * A registry that allows labelling the nodes of a PC-tree.
  */

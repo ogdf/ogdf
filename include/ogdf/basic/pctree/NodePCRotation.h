@@ -34,9 +34,7 @@
 #include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/pctree/PCTree.h>
 
-namespace pc_tree {
-using namespace ogdf;
-
+namespace ogdf::pc_tree {
 /**
  * This class represents the embedding tree of a single node in a biconnected component.
  * The embedding tree is a PCTree with one leaf for each incident edge that describes all possible rotations of the

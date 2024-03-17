@@ -36,15 +36,15 @@
 #include <stack>
 #include <variant>
 
-using namespace pc_tree;
-using namespace ogdf;
+using namespace ogdf::pc_tree;
 
 bool PCTree::isTrivial() const {
 	if (m_leaves.empty()) {
 		OGDF_ASSERT(m_rootNode == nullptr);
 		return true;
 	}
-	return m_rootNode->getNodeType() == PCNodeType::PNode && m_rootNode->m_childCount == m_leaves.size();
+	return m_rootNode->getNodeType() == PCNodeType::PNode
+			&& m_rootNode->m_childCount == m_leaves.size();
 }
 
 void PCTree::getTree(Graph& tree, GraphAttributes* g_a, PCTreeNodeArray<ogdf::node>& pc_repr,
@@ -148,9 +148,11 @@ void PCTree::getTree(Graph& tree, GraphAttributes* g_a, PCTreeNodeArray<ogdf::no
 	}
 }
 
-std::ostream& operator<<(std::ostream& os, const PCTree& tree) { return os << &tree; }
+std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCTree& tree) {
+	return os << &tree;
+}
 
-std::ostream& operator<<(std::ostream& os, const PCTree* tree) {
+std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCTree* tree) {
 	std::stack<std::variant<PCNode*, std::string>> stack;
 	stack.push(tree->m_rootNode);
 	if (tree->m_rootNode == nullptr) {
@@ -200,33 +202,35 @@ std::ostream& operator<<(std::ostream& os, const PCTree* tree) {
 	return os;
 }
 
-void pc_tree::uid_utils::nodeToID(std::ostream& os, PCNode* n, int pos) {
+void ogdf::pc_tree::uid_utils::nodeToID(std::ostream& os, PCNode* n, int pos) {
 	os << n->index();
 	if (!n->isLeaf()) {
 		os << ":";
 	}
 }
 
-void pc_tree::uid_utils::nodeToPosition(std::ostream& os, PCNode* n, int pos) {
+void ogdf::pc_tree::uid_utils::nodeToPosition(std::ostream& os, PCNode* n, int pos) {
 	os << pos;
 	if (!n->isLeaf()) {
 		os << ":";
 	}
 }
 
-void pc_tree::uid_utils::leafToID(std::ostream& os, PCNode* n, int pos) {
+void ogdf::pc_tree::uid_utils::leafToID(std::ostream& os, PCNode* n, int pos) {
 	if (n->isLeaf()) {
 		os << n->index();
 	}
 }
 
-void pc_tree::uid_utils::leafToPosition(std::ostream& os, PCNode* n, int pos) {
+void ogdf::pc_tree::uid_utils::leafToPosition(std::ostream& os, PCNode* n, int pos) {
 	if (n->isLeaf()) {
 		os << pos;
 	}
 }
 
-bool pc_tree::uid_utils::compareNodesByID(PCNode* a, PCNode* b) { return a->index() < b->index(); }
+bool ogdf::pc_tree::uid_utils::compareNodesByID(PCNode* a, PCNode* b) {
+	return a->index() < b->index();
+}
 
 std::ostream& PCTree::uniqueID(std::ostream& os,
 		const std::function<void(std::ostream& os, PCNode*, int)>& printNode,
@@ -348,13 +352,13 @@ std::ostream& PCTree::uniqueID(std::ostream& os,
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const pc_tree::PCNodeType t) {
+std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCNodeType t) {
 	switch (t) {
-	case pc_tree::PCNodeType::Leaf:
+	case PCNodeType::Leaf:
 		return os << "Leaf";
-	case pc_tree::PCNodeType::PNode:
+	case PCNodeType::PNode:
 		return os << "PNode";
-	case pc_tree::PCNodeType::CNode:
+	case PCNodeType::CNode:
 		return os << "CNode";
 	default:
 		OGDF_ASSERT(false);
@@ -362,13 +366,13 @@ std::ostream& operator<<(std::ostream& os, const pc_tree::PCNodeType t) {
 	}
 }
 
-std::ostream& operator<<(std::ostream& os, const pc_tree::NodeLabel l) {
+std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::NodeLabel l) {
 	switch (l) {
-	case pc_tree::NodeLabel::Unknown:
+	case NodeLabel::Unknown:
 		return os << "Empty/Unknown";
-	case pc_tree::NodeLabel::Partial:
+	case NodeLabel::Partial:
 		return os << "Partial";
-	case pc_tree::NodeLabel::Full:
+	case NodeLabel::Full:
 		return os << "Full";
 	default:
 		OGDF_ASSERT(false);
@@ -672,7 +676,8 @@ void PCTree::getRestrictions(std::vector<std::vector<PCNode*>>& restrictions,
 			subtreeLeaves[node].splice(subtreeLeaves[node].end(), subtreeLeaves[pred]);
 		}
 
-		if (node->m_nodeType == PCNodeType::PNode && !isTrivialRestriction(subtreeLeaves[node].size())) {
+		if (node->m_nodeType == PCNodeType::PNode
+				&& !isTrivialRestriction(subtreeLeaves[node].size())) {
 			restrictions.emplace_back(subtreeLeaves[node].begin(), subtreeLeaves[node].end());
 		}
 

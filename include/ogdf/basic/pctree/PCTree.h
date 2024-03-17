@@ -45,7 +45,7 @@
 #include <sstream>
 #include <vector>
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 /**
  * @return \c true if calling PCTree::makeConsecutive() with \p restSize out of \p leafCount total leaves never requires changes to the tree.
  *   This is the case for \p restSize values 0, 1, \p leafCount - 1, and \p leafCount.
@@ -96,8 +96,8 @@ OGDF_EXPORT bool compareNodesByID(PCNode* a, PCNode* b);
  * \remark Simon D. Fink. 2024. Constrained Planarity Algorithms in Theory and Practice. Doctoral Thesis, University of Passau. https://doi.org/10.15475/cpatp.2024
  */
 class OGDF_EXPORT PCTree {
-	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCTree*);
-	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCNode*);
+	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCTree*);
+	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCNode*);
 
 	friend class PCNode;
 	friend class PCTreeRegistry;
@@ -309,7 +309,7 @@ public:
 	/**
 	 * @return \c true if calling makeConsecutive() with \p size leaves never requires changes to the tree.
 	 *   This is the case for \p size values 0, 1, getLeafCount() - 1, and getLeafCount().
-	 * @sa pc_tree::isTrivialRestriction()
+	 * @sa ogdf::pc_tree::isTrivialRestriction()
 	 */
 	bool isTrivialRestriction(int size) const;
 
@@ -569,7 +569,7 @@ public:
 	/**
 	 * Print a deterministic and unique representation of this PCTree to \p os.
 	 * Unique node IDs and a deterministic order of nodes' children is generated using \p printNode and \p compareNodes, respectively.
-	 * @sa pc_tree::uid_utils
+	 * @sa ogdf::pc_tree::uid_utils
 	 */
 	std::ostream& uniqueID(std::ostream& os,
 			const std::function<void(std::ostream& os, PCNode*, int)>& printNode = uid_utils::nodeToID,
