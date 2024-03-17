@@ -32,7 +32,7 @@
 #include <ogdf/basic/pctree/PCTree.h>
 #include <ogdf/basic/pctree/PCTreeForest.h>
 
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
 
 PCTreeForest::~PCTreeForest() {
 	clear();

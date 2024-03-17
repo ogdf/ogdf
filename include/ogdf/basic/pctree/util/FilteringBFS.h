@@ -36,7 +36,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Queue.h>
 
-using namespace ogdf;
+namespace ogdf {
 
 /**
  * An iterator-based BFD through a Graph.
@@ -139,3 +139,5 @@ public:
 
 	int pendingCount() const { return m_pending.size(); }
 };
+
+}

@@ -33,7 +33,9 @@
 
 #include <queue>
 
-bool pc_tree::PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping) {
+using namespace ogdf::pc_tree;
+
+bool PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping) {
 	OGDF_HEAVY_ASSERT(checkValid() && other.checkValid());
 	OGDF_ASSERT(m_leaves.size() == other.m_leaves.size());
 	OGDF_ASSERT(mapping.registeredAt() == &other.m_forest->m_nodeArrayRegistry);
@@ -56,15 +58,15 @@ bool pc_tree::PCTree::intersect(PCTree& other, PCTreeNodeArray<PCNode*>& mapping
 	return possible;
 }
 
-bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNode*>& mapping,
+bool PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNode*>& mapping,
 		PCTreeNodeArray<std::vector<PCNode*>>& blockNodes,
 		PCTreeNodeArray<std::vector<PCNode*>>& subtreeNodes, PCTreeNodeArray<PCNode*>& leafPartner,
 		PCTreeNodeArray<bool>& isFront) {
 	std::vector<PCNode*> fullNodeOrder;
 	resetTempData();
 	markFull(m_leaves.begin(), IntrusiveList<PCNode>::iterator(m_leaves.back()), &fullNodeOrder);
-	changeRoot(
-			m_leaves.back() == m_rootNode ? m_leaves.back()->m_child1 : m_leaves.back()->getParent());
+	changeRoot(m_leaves.back() == m_rootNode ? m_leaves.back()->m_child1
+											 : m_leaves.back()->getParent());
 	applyTo.changeRoot(mapping[m_leaves.back()] == applyTo.m_rootNode
 					? mapping[m_leaves.back()]->m_child1
 					: mapping[m_leaves.back()]->getParent());
@@ -194,7 +196,7 @@ bool pc_tree::PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNo
 	return true;
 }
 
-void pc_tree::PCTree::restoreSubtrees(PCTreeNodeArray<std::vector<PCNode*>>& blockNodes,
+void PCTree::restoreSubtrees(PCTreeNodeArray<std::vector<PCNode*>>& blockNodes,
 		PCTreeNodeArray<std::vector<PCNode*>>& subtreeNodes, PCTreeNodeArray<PCNode*>& leafPartner,
 		PCTreeNodeArray<bool>& isFront) {
 	PCTreeNodeArray<bool> visited(*this, false);

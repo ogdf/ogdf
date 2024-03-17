@@ -34,29 +34,29 @@
 #include <ogdf/basic/pctree/PCTreeForest.h>
 #include <ogdf/basic/pctree/PCTreeIterators.h>
 
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
 
-void PCNode::appendChild(PCNode* node, bool begin) {
-	OGDF_ASSERT(node != nullptr);
-	OGDF_ASSERT(m_forest == node->m_forest);
-	OGDF_ASSERT(this != node);
+void PCNode::appendChild(PCNode* child, bool begin) {
+	OGDF_ASSERT(child != nullptr);
+	OGDF_ASSERT(m_forest == child->m_forest);
+	OGDF_ASSERT(this != child);
 	OGDF_ASSERT(isValidNode());
-	OGDF_ASSERT(node->isValidNode(m_forest));
-	node->setParent(this);
+	OGDF_ASSERT(child->isValidNode(m_forest));
+	child->setParent(this);
 	m_childCount++;
 	if (m_child1 == nullptr) {
 		// new child of node without other children
 		OGDF_ASSERT(m_child2 == nullptr);
-		m_child1 = m_child2 = node;
+		m_child1 = m_child2 = child;
 	} else {
 		// append new child
 		PCNode*& outerChild = begin ? m_child1 : m_child2;
-		outerChild->replaceSibling(nullptr, node);
-		node->replaceSibling(nullptr, outerChild);
-		outerChild = node;
+		outerChild->replaceSibling(nullptr, child);
+		child->replaceSibling(nullptr, outerChild);
+		outerChild = child;
 	}
 	OGDF_ASSERT(isValidNode());
-	OGDF_ASSERT(node->isValidNode(m_forest));
+	OGDF_ASSERT(child->isValidNode(m_forest));
 }
 
 void PCNode::insertBetween(PCNode* sib1, PCNode* sib2) {
@@ -156,27 +156,27 @@ void PCNode::forceDetach() {
 	m_sibling1 = m_sibling2 = nullptr;
 }
 
-void PCNode::replaceWith(PCNode* node) {
-	OGDF_ASSERT(node != nullptr);
-	OGDF_ASSERT(node != this);
-	OGDF_ASSERT(m_forest == node->m_forest);
-	OGDF_ASSERT(node->isDetached());
-	OGDF_ASSERT(node->isValidNode(m_forest));
-	OGDF_ASSERT(this != node);
+void PCNode::replaceWith(PCNode* repl) {
+	OGDF_ASSERT(repl != nullptr);
+	OGDF_ASSERT(repl != this);
+	OGDF_ASSERT(m_forest == repl->m_forest);
+	OGDF_ASSERT(repl->isDetached());
+	OGDF_ASSERT(repl->isValidNode(m_forest));
+	OGDF_ASSERT(this != repl);
 	PCNode* parent = getParent();
 	OGDF_ASSERT(parent == nullptr || parent->isValidNode(m_forest));
-	node->m_parentCNodeId = m_parentCNodeId;
-	node->m_parentPNode = m_parentPNode;
-	node->m_sibling1 = m_sibling1;
-	node->m_sibling2 = m_sibling2;
-	if (node->m_sibling1 != nullptr) {
-		node->m_sibling1->replaceSibling(this, node);
+	repl->m_parentCNodeId = m_parentCNodeId;
+	repl->m_parentPNode = m_parentPNode;
+	repl->m_sibling1 = m_sibling1;
+	repl->m_sibling2 = m_sibling2;
+	if (repl->m_sibling1 != nullptr) {
+		repl->m_sibling1->replaceSibling(this, repl);
 	}
-	if (node->m_sibling2 != nullptr) {
-		node->m_sibling2->replaceSibling(this, node);
+	if (repl->m_sibling2 != nullptr) {
+		repl->m_sibling2->replaceSibling(this, repl);
 	}
 	while (parent != nullptr && parent->isChildOuter(this)) {
-		parent->replaceOuterChild(this, node);
+		parent->replaceOuterChild(this, repl);
 	}
 
 	m_parentCNodeId = UNIONFINDINDEX_EMPTY;
@@ -184,7 +184,7 @@ void PCNode::replaceWith(PCNode* node) {
 	m_sibling1 = m_sibling2 = nullptr;
 
 	OGDF_ASSERT(isValidNode());
-	OGDF_ASSERT(node->isValidNode());
+	OGDF_ASSERT(repl->isValidNode());
 	OGDF_ASSERT(parent == nullptr || parent->isValidNode(m_forest));
 }
 
@@ -249,7 +249,7 @@ void PCNode::replaceOuterChild(PCNode* oldC, PCNode* newC) {
 	}
 }
 
-void pc_tree::proceedToNextSibling(PCNode*& pred, PCNode*& curr) {
+void ogdf::pc_tree::proceedToNextSibling(PCNode*& pred, PCNode*& curr) {
 	pred = curr->getNextSibling(pred);
 	std::swap(pred, curr);
 }
@@ -512,22 +512,16 @@ void PCNode::checkTimestamp() const {
 	}
 }
 
-std::ostream& operator<<(std::ostream& os, const PCNode& node) { return os << &node; }
+std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCNode& node) {
+	return os << &node;
+}
 
-std::ostream& operator<<(std::ostream& os, const PCNode* node) {
+std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCNode* node) {
 	if (node == nullptr) {
 		return os << "null-Node";
 	}
-	//    if (node->timestamp == node->tree->timestamp)
-	//        os << node->temp.label << " ";
 	os << node->m_nodeType << " " << node->index();
 	os << " with " << node->m_childCount << " children";
-	//    if (node->childCount == 1)
-	//        os << " [" << node->child1->index() << "]";
-	//    else if (node->childCount == 2)
-	//        os << " [" << node->child1->index() << ", " << node->child2->index() << "]";
-	//    else if (node->childCount > 2)
-	//        os << " [" << node->child1->index() << ", ..., " << node->child2->index() << "]";
 	os << " [";
 	int c = 0;
 	for (PCNode *pred = nullptr, *curr = node->m_child1; curr != nullptr;
@@ -542,8 +536,6 @@ std::ostream& operator<<(std::ostream& os, const PCNode* node) {
 	PCNode* parent = node->getParent();
 	if (parent != nullptr) {
 		os << " and parent ";
-		//        if (parent->timestamp == parent->tree->timestamp)
-		//            os << parent->temp.label << " ";
 		os << parent->m_nodeType << " " << parent->index();
 	} else {
 		os << " and no parent";

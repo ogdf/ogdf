@@ -35,11 +35,13 @@
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/basic/pctree/util/FilteringBFS.h>
 
-using namespace ogdf;
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
 
 NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdges)
-	: m_G(&G), m_n(end), m_incidentEdgeForLeaf(*this, nullptr), m_graphNodeForInnerNode(*this, nullptr) {
+	: m_G(&G)
+	, m_n(end)
+	, m_incidentEdgeForLeaf(*this, nullptr)
+	, m_graphNodeForInnerNode(*this, nullptr) {
 	// Compute st-numbering for graph and order the nodes accordingly.
 	NodeArray<int> numbering(G);
 	int nodecount = computeSTNumbering(G, numbering, nullptr, end);
@@ -190,7 +192,7 @@ NodePCRotation::NodePCRotation(const Graph& G, node end, const bool mapBundleEdg
 	OGDF_ASSERT(false); // should either return from processing last node or throw non-planar
 }
 
-node NodePCRotation::getTrivialPartnerPole() const {
+ogdf::node NodePCRotation::getTrivialPartnerPole() const {
 	if (m_n->degree() < 3) {
 		return nullptr;
 	}
@@ -205,7 +207,7 @@ node NodePCRotation::getTrivialPartnerPole() const {
 	}
 }
 
-node NodePCRotation::getTrivialPartnerPole(const Graph& G, node pole) {
+ogdf::node NodePCRotation::getTrivialPartnerPole(const Graph& G, node pole) {
 	NodePCRotation pc(G, pole, false);
 	return pc.getTrivialPartnerPole();
 }
@@ -255,8 +257,8 @@ bool NodePCRotation::isEqual(const NodePCRotation& pc) const {
 	return true;
 }
 
-std::function<void(std::ostream& os, pc_tree::PCNode*, int)> NodePCRotation::uidPrinter() const {
-	return [&](std::ostream& os, pc_tree::PCNode* n, int i) -> void {
+std::function<void(std::ostream& os, PCNode*, int)> NodePCRotation::uidPrinter() const {
+	return [&](std::ostream& os, PCNode* n, int i) -> void {
 		if (n->isLeaf()) {
 			os << getIncidentEdgeForLeaf(n)->index();
 		} else if (getGraphNodeForInnerNode(n) != nullptr) {
@@ -267,8 +269,8 @@ std::function<void(std::ostream& os, pc_tree::PCNode*, int)> NodePCRotation::uid
 	};
 }
 
-std::function<bool(pc_tree::PCNode*, pc_tree::PCNode*)> NodePCRotation::uidComparer() const {
-	return [&](pc_tree::PCNode* a, pc_tree::PCNode* b) -> bool {
+std::function<bool(PCNode*, PCNode*)> NodePCRotation::uidComparer() const {
+	return [&](PCNode* a, PCNode* b) -> bool {
 		if (a->isLeaf() && b->isLeaf()) {
 			return getIncidentEdgeForLeaf(a)->index() < getIncidentEdgeForLeaf(b)->index();
 		} else if (a->isLeaf()) {

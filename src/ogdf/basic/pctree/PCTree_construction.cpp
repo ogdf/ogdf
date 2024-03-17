@@ -35,7 +35,7 @@
 #include <regex>
 #include <stack>
 
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
 
 PCTree::PCTree(int leafNum, std::vector<PCNode*>* added, PCTreeForest* forest) : PCTree(forest) {
 	OGDF_ASSERT(leafNum > 2);

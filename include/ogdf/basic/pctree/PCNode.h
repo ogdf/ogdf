@@ -41,7 +41,7 @@
 #include <list>
 #include <vector>
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 struct OGDF_EXPORT PCNodeChildrenIterable;
 struct OGDF_EXPORT PCNodeNeighborsIterable;
 
@@ -64,9 +64,9 @@ public:
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;
 
-	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCTree*);
+	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCTree*);
 
-	friend std::ostream&(::operator<<)(std::ostream&, const pc_tree::PCNode*);
+	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCNode*);
 
 	/**
 	 * Temporary information used during each step of the PCTree::makeConsecutive() update operation.
@@ -168,7 +168,7 @@ public:
 	/**
 	 * Append a (detached) child node to the begin or end of this nodes' children.
 	 */
-	void appendChild(PCNode* node, bool begin = false);
+	void appendChild(PCNode* child, bool begin = false);
 
 	/**
 	 * Insert a (detached) child node directly between two adjacent children of this node.
@@ -183,7 +183,7 @@ public:
 	/**
 	 * Swaps this node inplace with a (detached) other one. Afterwards, this node will be detached.
 	 */
-	void replaceWith(PCNode* node);
+	void replaceWith(PCNode* repl);
 
 	/**
 	 * Merges this C-node into its C-node parent.

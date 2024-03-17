@@ -36,7 +36,7 @@
 
 #include <ostream>
 
-namespace pc_tree {
+namespace ogdf::pc_tree {
 enum class OGDF_EXPORT NodeLabel { Unknown, Partial, Full, Empty = Unknown };
 
 enum class OGDF_EXPORT PCNodeType { PNode, CNode, Leaf };
@@ -55,16 +55,16 @@ OGDF_DECL_REG_ARRAY(PCTreeNodeArray)
 
 template<bool SupportFastSizeQuery = true>
 using PCTreeNodeSet = ogdf::RegisteredSet<PCTreeRegistry, SupportFastSizeQuery>;
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream&, ogdf::pc_tree::NodeLabel);
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream&, ogdf::pc_tree::PCNodeType);
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream&, const ogdf::pc_tree::PCTree*);
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream&, const ogdf::pc_tree::PCNode*);
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream&, const ogdf::pc_tree::PCTree&);
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream&, const ogdf::pc_tree::PCNode&);
 }
-
-OGDF_EXPORT std::ostream& operator<<(std::ostream&, pc_tree::NodeLabel);
-
-OGDF_EXPORT std::ostream& operator<<(std::ostream&, pc_tree::PCNodeType);
-
-OGDF_EXPORT std::ostream& operator<<(std::ostream&, const pc_tree::PCTree*);
-
-OGDF_EXPORT std::ostream& operator<<(std::ostream&, const pc_tree::PCNode*);
-
-OGDF_EXPORT std::ostream& operator<<(std::ostream&, const pc_tree::PCTree&);
-
-OGDF_EXPORT std::ostream& operator<<(std::ostream&, const pc_tree::PCNode&);
