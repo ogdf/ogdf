@@ -36,27 +36,27 @@
 
 using namespace pc_tree;
 
-void PCNode::appendChild(PCNode* p_node, bool begin) {
-	OGDF_ASSERT(p_node != nullptr);
-	OGDF_ASSERT(m_forest == p_node->m_forest);
-	OGDF_ASSERT(this != p_node);
+void PCNode::appendChild(PCNode* node, bool begin) {
+	OGDF_ASSERT(node != nullptr);
+	OGDF_ASSERT(m_forest == node->m_forest);
+	OGDF_ASSERT(this != node);
 	OGDF_ASSERT(isValidNode());
-	OGDF_ASSERT(p_node->isValidNode(m_forest));
-	p_node->setParent(this);
+	OGDF_ASSERT(node->isValidNode(m_forest));
+	node->setParent(this);
 	m_childCount++;
 	if (m_child1 == nullptr) {
 		// new child of node without other children
 		OGDF_ASSERT(m_child2 == nullptr);
-		m_child1 = m_child2 = p_node;
+		m_child1 = m_child2 = node;
 	} else {
 		// append new child
 		PCNode*& outerChild = begin ? m_child1 : m_child2;
-		outerChild->replaceSibling(nullptr, p_node);
-		p_node->replaceSibling(nullptr, outerChild);
-		outerChild = p_node;
+		outerChild->replaceSibling(nullptr, node);
+		node->replaceSibling(nullptr, outerChild);
+		outerChild = node;
 	}
 	OGDF_ASSERT(isValidNode());
-	OGDF_ASSERT(p_node->isValidNode(m_forest));
+	OGDF_ASSERT(node->isValidNode(m_forest));
 }
 
 void PCNode::insertBetween(PCNode* sib1, PCNode* sib2) {
@@ -156,27 +156,27 @@ void PCNode::forceDetach() {
 	m_sibling1 = m_sibling2 = nullptr;
 }
 
-void PCNode::replaceWith(PCNode* p_node) {
-	OGDF_ASSERT(p_node != nullptr);
-	OGDF_ASSERT(p_node != this);
-	OGDF_ASSERT(m_forest == p_node->m_forest);
-	OGDF_ASSERT(p_node->isDetached());
-	OGDF_ASSERT(p_node->isValidNode(m_forest));
-	OGDF_ASSERT(this != p_node);
+void PCNode::replaceWith(PCNode* node) {
+	OGDF_ASSERT(node != nullptr);
+	OGDF_ASSERT(node != this);
+	OGDF_ASSERT(m_forest == node->m_forest);
+	OGDF_ASSERT(node->isDetached());
+	OGDF_ASSERT(node->isValidNode(m_forest));
+	OGDF_ASSERT(this != node);
 	PCNode* parent = getParent();
 	OGDF_ASSERT(parent == nullptr || parent->isValidNode(m_forest));
-	p_node->m_parentCNodeId = m_parentCNodeId;
-	p_node->m_parentPNode = m_parentPNode;
-	p_node->m_sibling1 = m_sibling1;
-	p_node->m_sibling2 = m_sibling2;
-	if (p_node->m_sibling1 != nullptr) {
-		p_node->m_sibling1->replaceSibling(this, p_node);
+	node->m_parentCNodeId = m_parentCNodeId;
+	node->m_parentPNode = m_parentPNode;
+	node->m_sibling1 = m_sibling1;
+	node->m_sibling2 = m_sibling2;
+	if (node->m_sibling1 != nullptr) {
+		node->m_sibling1->replaceSibling(this, node);
 	}
-	if (p_node->m_sibling2 != nullptr) {
-		p_node->m_sibling2->replaceSibling(this, p_node);
+	if (node->m_sibling2 != nullptr) {
+		node->m_sibling2->replaceSibling(this, node);
 	}
 	while (parent != nullptr && parent->isChildOuter(this)) {
-		parent->replaceOuterChild(this, p_node);
+		parent->replaceOuterChild(this, node);
 	}
 
 	m_parentCNodeId = UNIONFINDINDEX_EMPTY;
@@ -184,38 +184,38 @@ void PCNode::replaceWith(PCNode* p_node) {
 	m_sibling1 = m_sibling2 = nullptr;
 
 	OGDF_ASSERT(isValidNode());
-	OGDF_ASSERT(p_node->isValidNode());
+	OGDF_ASSERT(node->isValidNode());
 	OGDF_ASSERT(parent == nullptr || parent->isValidNode(m_forest));
 }
 
 void PCNode::mergeIntoParent() {
 	OGDF_ASSERT(m_nodeType == PCNodeType::CNode);
 	OGDF_ASSERT(isValidNode());
-	PCNode* p_parent = getParent();
-	OGDF_ASSERT(p_parent->m_nodeType == PCNodeType::CNode);
-	OGDF_ASSERT(p_parent->isValidNode(m_forest));
+	PCNode* parent = getParent();
+	OGDF_ASSERT(parent->m_nodeType == PCNodeType::CNode);
+	OGDF_ASSERT(parent->isValidNode(m_forest));
 
-	UnionFindIndex pcid = m_forest->m_parents.link(m_nodeListIndex, p_parent->m_nodeListIndex);
+	UnionFindIndex pcid = m_forest->m_parents.link(m_nodeListIndex, parent->m_nodeListIndex);
 	if (pcid == this->m_nodeListIndex) {
 		std::swap(m_forest->m_cNodes[this->m_nodeListIndex],
-				m_forest->m_cNodes[p_parent->m_nodeListIndex]);
-		std::swap(this->m_nodeListIndex, p_parent->m_nodeListIndex);
+				m_forest->m_cNodes[parent->m_nodeListIndex]);
+		std::swap(this->m_nodeListIndex, parent->m_nodeListIndex);
 	} else {
-		OGDF_ASSERT(pcid == p_parent->m_nodeListIndex);
+		OGDF_ASSERT(pcid == parent->m_nodeListIndex);
 	}
-	p_parent->m_childCount += m_childCount - 1;
+	parent->m_childCount += m_childCount - 1;
 
 	if (m_sibling1 != nullptr) {
 		m_sibling1->replaceSibling(this, m_child1);
 		m_child1->replaceSibling(nullptr, m_sibling1);
 	} else {
-		p_parent->replaceOuterChild(this, m_child1);
+		parent->replaceOuterChild(this, m_child1);
 	}
 	if (m_sibling2 != nullptr) {
 		m_sibling2->replaceSibling(this, m_child2);
 		m_child2->replaceSibling(nullptr, m_sibling2);
 	} else {
-		p_parent->replaceOuterChild(this, m_child2);
+		parent->replaceOuterChild(this, m_child2);
 	}
 
 	m_child1 = m_child2 = nullptr;
@@ -224,7 +224,7 @@ void PCNode::mergeIntoParent() {
 	m_parentPNode = nullptr;
 	m_childCount = 0;
 
-	OGDF_ASSERT(p_parent->isValidNode(m_forest));
+	OGDF_ASSERT(parent->isValidNode(m_forest));
 }
 
 void PCNode::replaceSibling(PCNode* oldS, PCNode* newS) {
@@ -448,7 +448,7 @@ void PCNode::setParent(PCNode* parent) {
 }
 
 // only allowed on root children
-void PCNode::rotateChildOutside(bool p_child1) {
+void PCNode::rotateChildOutside(bool child1) {
 	PCNode* parent = getParent();
 	OGDF_ASSERT(parent != nullptr);
 
@@ -469,7 +469,7 @@ void PCNode::rotateChildOutside(bool p_child1) {
 		right->replaceSibling(nullptr, left);
 
 		// find any existing sibling of node to later promote to child1/2
-		if (p_child1) {
+		if (child1) {
 			parent->m_child1 = this;
 			parent->m_child2 = (getSibling1() != nullptr) ? getSibling1() : getSibling2();
 
@@ -484,17 +484,17 @@ void PCNode::rotateChildOutside(bool p_child1) {
 		// cut connection between node and one of its siblings and promote them to outer children
 		parent->m_child1->replaceSibling(parent->m_child2, nullptr);
 		parent->m_child2->replaceSibling(parent->m_child1, nullptr);
-	} else if (p_child1 && parent->m_child1 != this) {
+	} else if (child1 && parent->m_child1 != this) {
 		PCNode* otherChild = parent->m_child1;
 		parent->m_child1 = this;
 		parent->m_child2 = otherChild;
-	} else if (!p_child1 && parent->m_child2 != this) {
+	} else if (!child1 && parent->m_child2 != this) {
 		PCNode* otherChild = parent->m_child2;
 		parent->m_child2 = this;
 		parent->m_child1 = otherChild;
 	}
 
-	OGDF_ASSERT((p_child1 && parent->m_child1 == this) || (!p_child1 && parent->m_child2 == this));
+	OGDF_ASSERT((child1 && parent->m_child1 == this) || (!child1 && parent->m_child2 == this));
 	OGDF_ASSERT(parent->m_child1->isOuterChild());
 	OGDF_ASSERT(parent->m_child2->isOuterChild());
 	OGDF_ASSERT(isOuterChild());

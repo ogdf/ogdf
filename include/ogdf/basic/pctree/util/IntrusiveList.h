@@ -57,7 +57,7 @@ public:
 		using pointer = const T*;
 		using reference = T*;
 
-		explicit iterator(T* p_node) : m_node(p_node) { }
+		explicit iterator(T* node) : m_node(node) { }
 
 		iterator& operator++() {
 			m_node = m_node->m_next;

@@ -55,13 +55,13 @@ struct CentralNode {
 	int emptyNeighbors; // 0, 1 or 2+
 	int seed;
 
-	CentralNode(NodeLabel p_parentLabel, int p_fullNeighbors, int p_partialNeighbors,
-			int p_emptyNeighbors, int p_seed)
-		: parentLabel(p_parentLabel)
-		, fullNeighbors(p_fullNeighbors)
-		, partialNeighbors(p_partialNeighbors)
-		, emptyNeighbors(p_emptyNeighbors)
-		, seed(p_seed) { }
+	CentralNode(NodeLabel parentLabel, int fullNeighbors, int partialNeighbors, int emptyNeighbors,
+			int seed)
+		: parentLabel(parentLabel)
+		, fullNeighbors(fullNeighbors)
+		, partialNeighbors(partialNeighbors)
+		, emptyNeighbors(emptyNeighbors)
+		, seed(seed) { }
 
 	friend std::ostream& operator<<(std::ostream& os, const CentralNode& aCase) {
 		os << "parentLabel: " << aCase.parentLabel << ", full: " << aCase.fullNeighbors
@@ -119,11 +119,11 @@ struct CreateCentralNode {
 	BigInt orders = 1;
 	int depth = 0;
 
-	explicit CreateCentralNode(const CentralNode& p_central) : central(p_central) { }
+	explicit CreateCentralNode(const CentralNode& central) : central(central) { }
 
-	static void declareTestConsecutive(const CentralNode& p_central) {
-		it("restriction correctly handles CentralNode(" + p_central.toString() + ")", [p_central]() {
-			CreateCentralNode create(p_central);
+	static void declareTestConsecutive(const CentralNode& central) {
+		it("restriction correctly handles CentralNode(" + central.toString() + ")", [central]() {
+			CreateCentralNode create(central);
 			create.testConsecutive();
 		});
 	}

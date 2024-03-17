@@ -37,14 +37,13 @@
 
 using namespace pc_tree;
 
-PCTree::PCTree(int leafNum, std::vector<PCNode*>* added, PCTreeForest* p_forest)
-	: PCTree(p_forest) {
+PCTree::PCTree(int leafNum, std::vector<PCNode*>* added, PCTreeForest* forest) : PCTree(forest) {
 	OGDF_ASSERT(leafNum > 2);
 	m_rootNode = newNode(PCNodeType::PNode);
 	insertLeaves(leafNum, m_rootNode, added);
 }
 
-PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : PCTree(p_forest) {
+PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* forest) : PCTree(forest) {
 	std::string s = std::regex_replace(str, std::regex("\\s+"), ""); //remove whitespaces
 
 	std::stringstream ss(s);
@@ -156,8 +155,8 @@ PCTree::PCTree(const std::string& str, bool keep_ids, PCTreeForest* p_forest) : 
 }
 
 PCTree::PCTree(const PCTree& other, PCTreeNodeArray<PCNode*>& nodeMapping, bool keep_ids,
-		PCTreeForest* p_forest)
-	: PCTree(p_forest) {
+		PCTreeForest* forest)
+	: PCTree(forest) {
 	nodeMapping.init(other);
 	for (PCNode* other_node : other.allNodes()) {
 		PCNode* parent = other_node->getParent();
