@@ -81,12 +81,12 @@ void testUIDRegen(PCTree& T) {
 	std::string uid = T.uniqueID(uid_utils::leafToID);
 
 	std::vector<std::vector<PCNode*>> restrictions;
-	int rand = randomNumber(0, T.getLeafCount());
+	size_t rand = randomNumber(0, T.getLeafCount());
 	if (rand == T.getLeafCount()) {
 		T.getRestrictions(restrictions);
 	} else {
 		auto it = T.getLeaves().begin();
-		for (int i = 0; i < rand; i++) {
+		for (size_t i = 0; i < rand; i++) {
 			it++;
 		}
 		T.getRestrictions(restrictions, *it);
@@ -96,7 +96,7 @@ void testUIDRegen(PCTree& T) {
 	PCTree cT;
 	PCNode* root = cT.newNode(PCNodeType::PNode);
 	for (PCNode* leaf : T.getLeaves()) {
-		AssertThat(leaf->index(), !Equals(0));
+		AssertThat(leaf->index(), !Equals((size_t)0));
 		nodeMapping[leaf] = cT.newNode(PCNodeType::Leaf, root, leaf->index());
 	}
 
@@ -181,7 +181,7 @@ struct CreateCentralNode {
 		auto T_it = T->getLeaves().begin();
 		auto t1_it = t1.getLeaves().begin();
 		auto t2_it = t2.getLeaves().begin();
-		for (int i = 0; i < T->getLeafCount(); ++i) {
+		for (size_t i = 0; i < T->getLeafCount(); ++i) {
 			AssertThat(T_it, !Equals(T->getLeaves().end()));
 			AssertThat(t1_it, !Equals(t1.getLeaves().end()));
 			AssertThat(t2_it, !Equals(t2.getLeaves().end()));
@@ -203,7 +203,7 @@ struct CreateCentralNode {
 		auto rng = std::default_random_engine {rnd()};
 		std::shuffle(std::begin(restrictions), std::end(restrictions), rng);
 
-		for (int i = 0; i < restrictions.size(); ++i) {
+		for (size_t i = 0; i < restrictions.size(); ++i) {
 			if (i % 2 == 0) {
 				copyRestriction(restrictions.at(i), leafMap1, t1);
 			} else {
@@ -349,8 +349,8 @@ struct CreateCentralNode {
 		if (type == PCNodeType::CNode && partial == 0 && (full == 0 || empty == 0)) {
 			orders *= 2;
 		}
-		int sum = full + partial + empty;
-		AssertThat(sum, IsGreaterThanOrEqualTo(2));
+		size_t sum = full + partial + empty;
+		AssertThat(sum, IsGreaterThanOrEqualTo((size_t)2));
 		depth++;
 		while (full + partial + empty > 0) {
 			int rand = type == PCNodeType::CNode ? 0 : randomNumber(0, full + partial + empty - 1);

@@ -246,7 +246,7 @@ bool PCTree::makeFullNodesConsecutive() {
 
 	PCNode::TempInfo& ctinfo = central->tempInfo();
 #ifdef OGDF_DEBUG
-	int merged =
+	size_t merged =
 #endif
 			updateTerminalPath(central, ctinfo.tpPred);
 	if (m_apexTPPred2 != nullptr) {
@@ -542,8 +542,8 @@ bool PCTree::findTerminalPath() {
 	if (!m_apexCandidateIsFix) {
 		if (m_apexCandidate->getLabel() != NodeLabel::Partial) {
 			log << "Backtracking from " << m_apexCandidate << " to "
-				<< m_apexCandidate->tempInfo().tpPartialPred << ", TP length " << m_terminalPathLength
-				<< "-" << m_apexCandidate->tempInfo().tpPartialHeight << "=";
+				<< m_apexCandidate->tempInfo().tpPartialPred << ", TP length "
+				<< m_terminalPathLength << "-" << m_apexCandidate->tempInfo().tpPartialHeight << "=";
 			m_terminalPathLength -= m_apexCandidate->tempInfo().tpPartialHeight;
 			m_apexCandidate = m_apexCandidate->tempInfo().tpPartialPred;
 			log << m_terminalPathLength << std::endl;

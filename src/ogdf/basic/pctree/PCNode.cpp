@@ -197,7 +197,8 @@ void PCNode::mergeIntoParent() {
 
 	UnionFindIndex pcid = m_forest->m_parents.link(m_nodeListIndex, p_parent->m_nodeListIndex);
 	if (pcid == this->m_nodeListIndex) {
-		std::swap(m_forest->m_cNodes[this->m_nodeListIndex], m_forest->m_cNodes[p_parent->m_nodeListIndex]);
+		std::swap(m_forest->m_cNodes[this->m_nodeListIndex],
+				m_forest->m_cNodes[p_parent->m_nodeListIndex]);
 		std::swap(this->m_nodeListIndex, p_parent->m_nodeListIndex);
 	} else {
 		OGDF_ASSERT(pcid == p_parent->m_nodeListIndex);
@@ -406,7 +407,7 @@ bool PCNode::isValidNode(const PCTreeForest* ofForest) const {
 
 	if (m_nodeType == PCNodeType::CNode) {
 		OGDF_ASSERT(m_forest->m_cNodes.at(m_nodeListIndex) == this);
-		return m_forest->m_parents.find(m_nodeListIndex) == m_nodeListIndex;
+		return (size_t)m_forest->m_parents.find(m_nodeListIndex) == m_nodeListIndex;
 	} else if (m_nodeType == PCNodeType::Leaf) {
 		OGDF_ASSERT(getDegree() <= 1);
 		// OGDF_ASSERT(forest->leaves.at(nodeListIndex) == this);

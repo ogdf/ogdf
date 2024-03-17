@@ -41,9 +41,9 @@
 #define OGDF_PCTREE_REUSE_NODES
 
 namespace pc_tree {
-using UnionFindIndex = int;
+using UnionFindIndex = size_t;
 
-const int UNIONFINDINDEX_EMPTY = -1;
+const UnionFindIndex UNIONFINDINDEX_EMPTY = std::numeric_limits<UnionFindIndex>::max();
 
 /**
  * Multiple PCTrees can be created within the same PCTreeForest, which allows merging the trees later on by making one
@@ -60,7 +60,7 @@ private:
 	std::vector<PCNode*> m_cNodes;
 	ogdf::DisjointSets<> m_parents {1 << 8};
 	int m_nextNodeId = 0;
-	int m_timestamp = 0;
+	size_t m_timestamp = 0;
 	PCTreeRegistry m_nodeArrayRegistry;
 	bool m_autodelete;
 
