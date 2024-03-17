@@ -1,5 +1,5 @@
 /** \file
- * \brief // TODO DESCRIBE WHAT IS IMPLEMENTED
+ * \brief Implementation for ogdf::pc_tree::PCTreeForest
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

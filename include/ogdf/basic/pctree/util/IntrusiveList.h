@@ -29,8 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-// TODO merge with GraphList
-
 #pragma once
 
 #include <ogdf/basic/basic.h>
