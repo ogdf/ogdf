@@ -17,7 +17,7 @@ int main() {
 	OGDF_ASSERT(tree.getLeafCount() == 7);
 	OGDF_ASSERT(tree.getPNodeCount() == 1);
 	OGDF_ASSERT(tree.getCNodeCount() == 0);
-	OGDF_ASSERT(tree.possibleOrders<int>() == 720);
+	OGDF_ASSERT(tree.possibleOrders<int>() == factorial(6));
 	OGDF_ASSERT(tree.uniqueID(uid_utils::nodeToPosition) == "7:(6, 5, 4, 3, 2, 1, 0)");
 
 	// now we can force some leaves to be consecutive in all represented orders
