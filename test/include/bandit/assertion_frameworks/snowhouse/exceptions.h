@@ -99,12 +99,12 @@ namespace snowhouse
   catch (...) \
   { \
     SNOWHOUSE_TEMPVAR(wrong_exception) = true; \
-    if (auto eptr = std::current_exception()) { \
+    if (auto SNOWHOUSE_TEMPVAR(eptr) = std::current_exception()) { \
       try { \
-        std::rethrow_exception(eptr); \
-      } catch (const std::exception& e) { \
+        std::rethrow_exception(SNOWHOUSE_TEMPVAR(eptr)); \
+      } catch (const std::exception& SNOWHOUSE_TEMPVAR(e)) { \
         SNOWHOUSE_TEMPVAR(more_info) = true; \
-        SNOWHOUSE_TEMPVAR(info_string) = e.what(); \
+        SNOWHOUSE_TEMPVAR(info_string) = SNOWHOUSE_TEMPVAR(e).what(); \
       } catch (...) {} \
     } \
   } \
