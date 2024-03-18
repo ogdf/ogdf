@@ -87,16 +87,6 @@ target_link_libraries(OGDF PUBLIC COIN)
 group_files(ogdf_sources "ogdf")
 target_compile_features(OGDF PUBLIC cxx_range_for)
 
-# precompiled headers
-file(GLOB_RECURSE ogdf_basic_headers include/ogdf/basic/*.h)
-target_precompile_headers(OGDF PUBLIC ${ogdf_basic_headers}
-        ${PROJECT_BINARY_DIR}/include/ogdf/basic/internal/config_autogen.h)
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # see https://ccache.dev/manual/latest.html#_precompiled_headers
-  target_compile_options(OGDF PRIVATE
-          "$<$<COMPILE_LANGUAGE:CXX>:SHELL:-Xclang -fno-pch-timestamp>")
-endif()
-
 target_include_directories(OGDF PUBLIC # for the autogen header
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
