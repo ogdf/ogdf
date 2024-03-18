@@ -282,5 +282,45 @@ go_bandit([] {
 				});
 			});
 		});
+		describe("tests for joining two graphs", []() {
+			Graph G1, G2;
+			node n1a, n1b, n2a, n2b;
+			NodeArray<node> nodeMap;
+			before_each([&]() {
+				G1.clear();
+				n1a = G1.newNode();
+				n1b = G1.newNode();
+				G2.clear();
+				n2a = G2.newNode();
+				n2b = G2.newNode();
+				nodeMap = NodeArray<node>(G2);
+			});
+			it("joins two edgeless graphs without association", [&]() {
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(4));
+				AssertThat(G1.numberOfEdges(), Equals(4));
+			});
+			it("joins two edgeless graphs with associated nodes", [&]() {
+				nodeMap[n2a] = n1a;
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(3));
+				AssertThat(G1.numberOfEdges(), Equals(3));
+			});
+			it("joins two graphs without association", [&]() {
+				G1.newEdge(n1a, n1b);
+				G2.newEdge(n2a, n2b);
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(4));
+				AssertThat(G1.numberOfEdges(), Equals(6));
+			});
+			it("joins two graphs with associated nodes", [&]() {
+				G1.newEdge(n1a, n1b);
+				G2.newEdge(n2a, n2b);
+				nodeMap[n2a] = n1a;
+				join(G1, G2, nodeMap);
+				AssertThat(G1.numberOfNodes(), Equals(3));
+				AssertThat(G1.numberOfEdges(), Equals(3));
+			});
+		});
 	});
 });

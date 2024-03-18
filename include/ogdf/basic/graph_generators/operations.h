@@ -208,6 +208,7 @@ OGDF_EXPORT void intersection(Graph& G1, const Graph& G2, const NodeArray<node>&
 /**
  * Computes the joined graph of G1 and G2. The output will be assigned to G1.
  * \f$ (V = V_1 \cup V_2, E = E_1 \cup E_2 \cup V_1 \cross V_2) \f$
+ * This does not respect parallel edges and the output graph will be parallel free.
  *
  * @param G1 is the first graph, the joined graph will be assigned to G1.
  * @param G2 is the second graph.
