@@ -56,18 +56,15 @@ struct OGDF_EXPORT PCNodeNeighborsIterable;
  * - neighbors: all children and the parent
  */
 class OGDF_EXPORT PCNode : public IntrusiveList<PCNode>::node {
-public:
+	friend OGDF_EXPORT std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCTree*);
+	friend OGDF_EXPORT std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCNode*);
+
 	friend class PCTree;
-
 	friend class PCTreeForest;
-
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;
 
-	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCTree*);
-
-	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCNode*);
-
+public:
 	/**
 	 * Temporary information used during each step of the PCTree::makeConsecutive() update operation.
 	 */

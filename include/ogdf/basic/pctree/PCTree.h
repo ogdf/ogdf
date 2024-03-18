@@ -96,8 +96,8 @@ OGDF_EXPORT bool compareNodesByID(PCNode* a, PCNode* b);
  * \remark Simon D. Fink. 2024. Constrained Planarity Algorithms in Theory and Practice. Doctoral Thesis, University of Passau. https://doi.org/10.15475/cpatp.2024
  */
 class OGDF_EXPORT PCTree {
-	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCTree*);
-	friend std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCNode*);
+	friend OGDF_EXPORT std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCTree*);
+	friend OGDF_EXPORT std::ostream&(operator<<)(std::ostream&, const ogdf::pc_tree::PCNode*);
 
 	friend class PCNode;
 	friend class PCTreeRegistry;
