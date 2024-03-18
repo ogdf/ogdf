@@ -53,7 +53,9 @@ util/run_examples.sh
 util/perform_separate_tests.sh build-coverage
 echo "::group::($(date -Iseconds)) Collect coverage"
 llvm-profdata merge  -sparse build-coverage/profraw/*.profraw -o coverage/coverage.profdata
-llvm-cov show build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
+llvm-cov show --format=text build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
+# llvm-cov show --format=html build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.html
 llvm-cov export build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.json
+llvm-cov export --format=lcov build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.lcov
 llvm-cov report build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/report.txt
 echo "::endgroup::"

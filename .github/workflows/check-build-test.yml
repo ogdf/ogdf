@@ -3,8 +3,6 @@ name: Check, Build and Test
 on:
   pull_request:
 
-env:
-  CCACHE_SLOPPINESS: pch_defines,time_macros,include_file_mtime,include_file_ctime
 # # Debug setup:
 # env:
 #   OGDF_UTILS_PREQUEL: "set -x"
@@ -96,7 +94,7 @@ jobs:
           # CTCACHE_DUMP: ${{ env.CCACHE_DEBUG }} # defining the var is enough to enable
         run: |
           util/test_static_analysis.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-          find .ctcache -mtime +7 -delete
+          find .ctcache -mtime +7 -exec rm -rv \{} \;
           cat static-analysis/clang-tidy.txt | python3 -m clang_tidy_converter sq > static-analysis/clang-tidy.json
         shell: bash
       - name: Report unused files
@@ -119,7 +117,7 @@ jobs:
           path: ${{ github.workspace }}/ccache-debug
 
   coverage:
-    name: "Test Coverage"
+    name: "Analyze Test Coverage"
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
     needs: [ style, dirs, self-sufficiency, docs ]
@@ -187,10 +185,10 @@ jobs:
             ${{ matrix.mode }} \
             ${{ startsWith(matrix.compiler, 'gcc') && 'gcc' || 'clang' }} \
             default_s \
-            ${{ matrix.compiler != 'clang:15' && '-DOGDF_INCLUDE_CGAL=ON' }} \
+            ${{ matrix.compiler != 'clang:15' && '-DOGDF_INCLUDE_CGAL=ON -DOGDF_USE_ASSERT_EXCEPTIONS=ON' || '' }} \
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_ARCH=haswell \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        # extra flags used when collecting coverage are disabled here
+        # extra flags used when collecting coverage (on clang:15) are disabled here
         # ---
         # see "Cloud hosts used by GitHub-hosted runners" in the GH Actions docs
         # for the oldest used microarchitecture to use with OGDF_ARCH
@@ -227,7 +225,7 @@ jobs:
             ${{ matrix.mode }} \
             default_c \
             default_s \
-            -DOGDF_INCLUDE_CGAL=ON -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_ARCH=ivybridge \
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_ARCH=ivybridge \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         # ivybridge is the oldest arch we encountered from SIGILL ccaching problems
       - uses: actions/upload-artifact@v4

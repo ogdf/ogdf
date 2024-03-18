@@ -18,6 +18,6 @@ fi
 make_tmpdir $0
 
 util/compile_for_tests.sh $1 $2 $3 $4 . $tmp "${@:5}" || exit
-util/run_examples.sh &&
+util/run_examples.sh || exit
 util/perform_separate_tests.sh $tmp || exit
 echo "($(date -Iseconds)) Success"
