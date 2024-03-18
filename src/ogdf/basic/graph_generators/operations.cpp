@@ -305,71 +305,61 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 		}
 	});
 
-	if (isParallelFree(G1)) { // no multi-edges
-		for (node n1a : G1.nodes) {
-			node n2a = nodeMap[n1a];
-			List<edge> edgelist;
-			n1a->adjEdges(edgelist);
+	for (node n1a : G1.nodes) {
+		node n2a = nodeMap[n1a];
+		List<edge> edgelist;
+		n1a->adjEdges(edgelist);
 
-			for (adjEntry n2aadj : n2a->adjEntries) {
-				n2aNeighbors.insert(n2aadj->twinNode());
-			}
-			for (edge e1 : edgelist) {
-				node n1b = e1->opposite(n1a);
-				node n2b = nodeMap[n1b];
-
-				if (!n2aNeighbors.isMember(n2b)) {
-					G1.delEdge(e1);
-				}
-			}
-			n2aNeighbors.clear();
+		for (adjEntry n2aadj : n2a->adjEntries) {
+			n2aNeighbors.insert(n2aadj->twinNode());
 		}
-	} else {
-		for (node n1a : G1.nodes) {
-			node n2a = nodeMap[n1a];
-			List<edge> edgelist;
-			n1a->adjEdges(edgelist);
+		for (edge e1 : edgelist) {
+			node n1b = e1->opposite(n1a);
+			node n2b = nodeMap[n1b];
 
-			EdgeArray<SListPure<edge>> edgeArr(G1);
-			getParallelFreeUndirected(G1, edgeArr);
-
-			for (adjEntry n2aadj : n2a->adjEntries) {
-				n2aNeighbors.insert(n2aadj->twinNode());
+			if (!n2aNeighbors.isMember(n2b)) {
+				G1.delEdge(e1);
 			}
-
-			for (edge e1 : edgelist) {
-				node n1b = e1->opposite(n1a);
-				node n2b = nodeMap[n1b];
-
-				EdgeArray<SListPure<edge>> edgeArr2(G1);
-				getParallelFreeUndirected(G1, edgeArr2);
-
-				if (!n2aNeighbors.isMember(n2b)) {
-					G1.delEdge(e1);
-				}
-			}
-			n2aNeighbors.clear();
 		}
+		n2aNeighbors.clear();
 	}
 }
 
-void join(Graph& G1, const Graph& G2, NodeArray<node>& nodeMap) {
-	OGDF_ASSERT(nodeMap.valid());
+void join(Graph& G1, const Graph& G2, NodeArray<node>& mapping) {
+	OGDF_ASSERT(mapping.valid());
+
+	int nodeCount = G1.numberOfNodes();
 	List<node> G1nodes {};
 	getAllNodes(G1, G1nodes);
-	int nodeCount = G1.numberOfNodes();
 
+	NodeArray<node> nodeMap(G2, nullptr);
 	EdgeArray<edge> edgeMap(G2, nullptr);
 	G1.insert(G2, nodeMap, edgeMap);
 
-	for (node n2 : G1.nodes) {
-		if (n2->index() < nodeCount) {
-			// this is a node from original G1 graph
+	for (node n2 : G2.nodes) {
+		node n1_mapped = mapping[n2];
+		if (n1_mapped == nullptr) {
 			continue;
 		}
+
+		for (adjEntry adj : n2->adjEntries) {
+			G1.newEdge(n1_mapped, nodeMap[adj->twinNode()]);
+		}
+		node n1_created = nodeMap[n2];
+		nodeMap[n2] = n1_mapped;
+		G1.delNode(n1_created);
+	}
+
+	for (node n2 : G2.nodes) {
 		for (node n1 : G1nodes) {
-			G1.newEdge(n1, n2);
+			node n2_in_n1 = nodeMap[n2];
+			if (n1 != n2_in_n1) {
+				G1.newEdge(n1, n2_in_n1);
+			}
 		}
 	}
+
+	// respecting parallel edges and not accidentally creating some is requires a lot of checks.
+	makeParallelFreeUndirected(G1);
 }
 }
