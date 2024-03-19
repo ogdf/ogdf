@@ -328,7 +328,6 @@ void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
 void join(Graph& G1, const Graph& G2, NodeArray<node>& mapping) {
 	OGDF_ASSERT(mapping.valid());
 
-	int nodeCount = G1.numberOfNodes();
 	List<node> G1nodes {};
 	getAllNodes(G1, G1nodes);
 
