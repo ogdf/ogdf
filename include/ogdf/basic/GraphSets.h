@@ -90,6 +90,9 @@ public:
 	//! Creates a new edge set associated with \p graph.
 	explicit EdgeSet(const Graph& graph) : RS((const GraphEdgeRegistry&)graph) {};
 
+	//! Creates an empty edge set associated with no graph.
+	explicit EdgeSet() = default;
+
 	//! Returns a reference to the list of edges contained in this set.
 	const typename RS::list_type& edges() { return RS::elements(); }
 
