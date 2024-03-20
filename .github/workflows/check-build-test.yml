@@ -119,7 +119,7 @@ jobs:
   coverage:
     name: "Analyze Test Coverage"
     runs-on: ubuntu-latest
-    container: docker.io/ogdf/clang:15
+    container: docker.io/ncoder/clang:18
     needs: [ style, dirs, self-sufficiency, docs ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
