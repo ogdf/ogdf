@@ -1,0 +1,115 @@
+name: Sonarcloud Scan
+run-name: "${{ github.event.workflow_run.display_title }} [${{ github.event.workflow_run.event }} ${{ github.event.workflow_run.head_branch }}]"
+
+on:
+  workflow_run:
+    workflows: [ "Check, Build and Test" ]
+    types: [ completed ]
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:15
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: "Add link to trigger workflow to summary"
+        run: >
+          echo 'Trigger: [${{ github.event.workflow_run.display_title }}
+          [${{ github.event.workflow_run.event }}
+          ${{ github.event.workflow_run.head_branch }}]](
+          ${{ github.event.workflow_run.html_url }})' >> $GITHUB_STEP_SUMMARY
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: |
+          echo "{\"github\": $GITHUB_CONTEXT, \"steps\": $STEPS_CONTEXT, \"runner\": $RUNNER_CONTEXT, \"strategy\": $STRATEGY_CONTEXT}"
+          echo
+          env
+
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.event.workflow_run.repository.full_name }}
+
+      - name: Get PR Metadata
+        if: github.event.workflow_run.event == 'pull_request'
+        id: pr-info
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const pr_number = Number(fs.readFileSync('static-analysis/PR-NUMBER'));
+            core.setOutput("pr-number", pr_number);
+            const { data: pr_meta } = await github.rest.pulls.get({
+              owner: '${{ github.event.workflow_run.repository.owner.login }}',
+              repo: '${{ github.event.workflow_run.repository.name }}',
+              pull_number: pr_number,
+            });
+            console.log(pr_meta);
+            if ('${{ github.event.workflow_run.head_commit.id }}' != pr_meta.head.sha) {
+              core.setFailed('Triggering workflow commit sha does not match claimed PR head commit sha!');
+            }
+            core.setOutput("base-ref", pr_meta.base.ref);
+            return pr_meta;
+      - name: Dump GitHub context with PR Metadata
+        if: github.event.workflow_run.event == 'pull_request'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: |
+          echo "{\"github\": $GITHUB_CONTEXT, \"steps\": $STEPS_CONTEXT, \"runner\": $RUNNER_CONTEXT, \"strategy\": $STRATEGY_CONTEXT}"
+          echo
+          env
+      - name: Checkout PR base branch
+        if: github.event.workflow_run.event == 'pull_request'
+        run: |
+          git remote add upstream ${{ github.event.repository.clone_url }}
+          git fetch upstream
+          git checkout -B ${{ steps.pr-info.outputs.base-ref }} upstream/${{ steps.pr-info.outputs.base-ref }}
+          git checkout ${{ github.event.workflow_run.head_branch }}
+          git checkout upstream/${{ steps.pr-info.outputs.base-ref }} -- sonar-project.properties
+
+      - name: Install sonar-scanner
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
+        with:
+          cache-binaries: false
+
+      - name: SonarCloud PR Scan
+        if: github.event.workflow_run.event == 'pull_request'
+        run: >
+          sonar-scanner
+          -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+          -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.pr-number }}
+          -Dsonar.pullrequest.branch=${{ github.event.workflow_run.head_branch }}
+          -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }}
+          -Dproject.settings=sonar-project.properties
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: SonarCloud non-PR Scan
+        if: github.event.workflow_run.event != 'pull_request'
+        run: >
+          sonar-scanner
+          -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          -Dproject.settings=sonar-project.properties
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

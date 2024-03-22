@@ -1,0 +1,36 @@
+name: Prune Caches
+run-name: "${{ github.event.workflow_run.display_title }} [${{ github.event.workflow_run.event }} ${{ github.event.workflow_run.head_branch }}]"
+
+on:
+  workflow_run:
+    workflows: [ "Check, Build and Test" ]
+    types: [ completed ]
+
+jobs:
+  prune-caches:
+    name: "Prune Caches"
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Add link to trigger workflow to summary"
+        run: >
+          echo 'Trigger: [${{ github.event.workflow_run.display_title }}
+          [${{ github.event.workflow_run.event }}
+          ${{ github.event.workflow_run.head_branch }}]](
+          ${{ github.event.workflow_run.html_url }})' >> $GITHUB_STEP_SUMMARY
+      - run: .github/prune-caches.sh ccache-self-sufficiency
+      - run: .github/prune-caches.sh ccache-coverage
+      - run: .github/prune-caches.sh clang-tidy-cache
+      - run: .github/prune-caches.sh ccache-static-analysis
+      - run: .github/prune-caches.sh ccache-build-linux-gcc:9-debug
+      - run: .github/prune-caches.sh ccache-build-linux-gcc:9-release
+      - run: .github/prune-caches.sh ccache-build-linux-gcc:13-debug
+      - run: .github/prune-caches.sh ccache-build-linux-gcc:13-release
+      - run: .github/prune-caches.sh ccache-build-linux-clang:15-debug
+      - run: .github/prune-caches.sh ccache-build-linux-clang:15-release
+      - run: .github/prune-caches.sh ccache-build-macos-debug
+      - run: .github/prune-caches.sh ccache-build-macos-release
+      - run: .github/prune-caches.sh ccache-build-windows-debug
+      - run: .github/prune-caches.sh ccache-build-windows-release

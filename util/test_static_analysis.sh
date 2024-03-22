@@ -47,7 +47,7 @@ eval $opts
 make -j "$cores" build-all
 cp compile_commands.json ..
 cp compile_commands.json ../static-analysis
-cat CMakeFiles/OGDF.dir/compiler_depend.make \
+cat CMakeFiles/OGDF.dir/depend.make \
   | cut -d ":" -f 2 \
   | grep "include/ogdf" \
   | $OGDF_XARGS echo -n \
@@ -59,13 +59,17 @@ echo "::endgroup::"
 
 # Check for unused headers
 echo "$(cat static-analysis/used-headers.txt | wc -l) used header files"
+if [ ! -s static-analysis/used-headers.txt ]; then
+  echo "error: no used headers found"
+  exit 1
+fi
 diff static-analysis/used-headers.txt static-analysis/all-headers.txt | sed -ne 's/^> //p' > static-analysis/unused-headers.txt
 echo "$(cat static-analysis/unused-headers.txt | wc -l) unused header files"
 
 # Run clang-tidy
 echo "::group::($(date -Iseconds)) Run clang-tidy"
 if command -v clang-tidy-cache > /dev/null 2>&1; then
-  clang_tidy_command="clang-tidy-cache $(which clang-tidy)"
+  clang_tidy_command="$(which clang-tidy-cache) $(which clang-tidy)"
 else
   clang_tidy_command="$(which clang-tidy)"
 fi

@@ -2,15 +2,27 @@ name: Check, Build and Test
 
 on:
   pull_request:
+  push:
 
 # # Debug setup:
 # env:
 #   OGDF_UTILS_PREQUEL: "set -x"
 #   CCACHE_DEBUG: 1
 #   CCACHE_DEBUGDIR: ${{ github.workspace }}/ccache-debug
+#   VERBOSE: 1
 
 jobs:
+  # workflows skipped due to filters block PRs from being merged (their required jobs count as "pending")
+  # while jobs skipped due to conditions still count as success
+  precheck:
+    name: "Check whether to run the CI"
+    runs-on: ubuntu-latest
+    if: github.event.repository.full_name != 'ogdf/ogdf' || github.event_name != 'push' || github.event.ref == 'refs/heads/master'
+    steps:
+      - run: echo "Running CI pipeline!"
+
   style:
+    needs: [ precheck ]
     name: "Check code style"
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
@@ -30,6 +42,7 @@ jobs:
       - run: util/style/test_indent_comments.sh
 
   dirs:
+    needs: [ precheck ]
     name: "Check directory structure"
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +51,7 @@ jobs:
         run: util/test_directory_structure.sh
 
   docs:
+    needs: [ precheck ]
     name: "Check Doxygen"
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
@@ -46,6 +60,7 @@ jobs:
       - run: util/test_doxygen.sh
 
   self-sufficiency:
+    needs: [ precheck ]
     name: "Test self-sufficiency"
     runs-on: ubuntu-latest
     env:
@@ -58,6 +73,7 @@ jobs:
           key: ${{ github.job }}
       - name: Test self-sufficiency
         run: |
+          # the script calls gcc directly, so ensure that it find the ccache version instead
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           util/test_self-sufficiency.sh
       - uses: actions/upload-artifact@v4
@@ -76,6 +92,21 @@ jobs:
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: |
+          echo "{\"github\": $GITHUB_CONTEXT, \"steps\": $STEPS_CONTEXT, \"runner\": $RUNNER_CONTEXT, \"strategy\": $STRATEGY_CONTEXT}"
+          echo
+          env
+      - name: "Update clang-tidy-cache" # can be removed once we have a docker image that include https://github.com/matus-chochlik/ctcache/pull/42
+        run: |
+          wget https://raw.githubusercontent.com/matus-chochlik/ctcache/main/clang-tidy-cache
+          mv clang-tidy-cache /usr/bin/clang-tidy-cache
+          chmod +x /usr/bin/clang-tidy-cache
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
@@ -83,38 +114,66 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Set-up clang-tidy cache
-        uses: actions/cache@v4
+      - name: Restore clang-tidy cache
+        uses: actions/cache/restore@v4
         with:
-          path: .ctcache
-          key: clang-tidy-cache
+          path: ${{ github.workspace }}/.ctcache
+          key: clang-tidy-cache-${{ github.run_id }}.${{ github.run_attempt }}
+          restore-keys: clang-tidy-cache
       - name: Run analysis
         env:
-          CTCACHE_DIR: .ctcache
+          CTCACHE_LOCAL: 1
+          CTCACHE_DIR: ${{ github.workspace }}/.ctcache
+          CTCACHE_SAVE_OUTPUT: 1
+          CTCACHE_IGNORE_OUTPUT: 1
           # CTCACHE_DUMP: ${{ env.CCACHE_DEBUG }} # defining the var is enough to enable
+          # CTCACHE_DUMP_DIR: ${{ github.workspace }}/ctcache-debug
         run: |
+          clang-tidy-cache --zero-stats
           util/test_static_analysis.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-          find .ctcache -mtime +7 -exec rm -rv \{} \;
           cat static-analysis/clang-tidy.txt | python3 -m clang_tidy_converter sq > static-analysis/clang-tidy.json
+          clang-tidy-cache --show-stats
+          du -sh $CTCACHE_DIR
+          find .ctcache -mtime +7 -exec rm -rv \{} \;
+          du -sh $CTCACHE_DIR
         shell: bash
       - name: Report unused files
-        run: cat static-analysis/unused-headers.txt
-      - name: Save PR number to file
         run: |
-          echo ${{ github.event.number }} > static-analysis/PR_NUMBER.txt
-          cat static-analysis/PR_NUMBER.txt
+          cat static-analysis/unused-headers.txt
+      - name: Save PR number
+        if: github.event_name == 'pull_request'
+        run: |
+          echo ${{ github.event.number }} > static-analysis/PR-NUMBER
       - name: Store static analysis results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: static-analysis
           path: static-analysis/
+      - name: Clean binaries
+        run: |
+          cd build-static-analysis
+          make clean
+      - name: Store static analysis results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-static-analysis
+          path: build-static-analysis/
       - uses: actions/upload-artifact@v4
         name: Upload ccache debug info
-        if: ${{ env.CCACHE_DEBUG == 1 }}
+        if: ${{ env.CCACHE_DEBUG == 1 || env.CTCACHE_DUMP == 1 }}
         with:
           name: ${{ github.job }}
-          path: ${{ github.workspace }}/ccache-debug
+          path: |
+            ${{ github.workspace }}/ccache-debug
+            ${{ github.workspace }}/ctcache-debug
+      - name: Save clang-tidy cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: ${{ github.workspace }}/.ctcache
+          key: clang-tidy-cache-${{ github.run_id }}.${{ github.run_attempt }}
 
   coverage:
     name: "Analyze Test Coverage"
@@ -152,7 +211,7 @@ jobs:
   build-linux:
     name: "Test ${{ matrix.mode }} build on Linux with ${{ matrix.compiler }}"
     strategy:
-      matrix:
+      matrix: # when updating compilers, also update the prune-caches job
         mode: [ debug, release ]
         compiler: [ 'gcc:9', 'gcc:13', 'clang:15' ]
     runs-on: ubuntu-latest
@@ -269,4 +328,3 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Everything worked!"
-        shell: bash
