@@ -31,6 +31,11 @@ doxygen.stamp
 /doc/html
 /doc/xml
 
+# CI
+*.profraw
+*.profdata
+/coverage
+/static-analysis
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++,c,cmake,ninja,sonarqube,eclipse,visualstudio,xcode,windows,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,c,cmake,ninja,sonarqube,eclipse,visualstudio,xcode,windows,macos,linux
