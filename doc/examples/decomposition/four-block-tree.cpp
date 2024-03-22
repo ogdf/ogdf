@@ -14,7 +14,7 @@ int main(void) {
 	randomPlanarConnectedGraph(g, n, 3 * n - 6);
 	const adjEntry externalFace = g.firstNode()->firstAdj()->cyclicSucc();
 
-	const FourBlockTree fbt = FourBlockTree::construct(g, externalFace);
+	const auto fbt = FourBlockTree::construct(g, externalFace);
 
 	PlanarStraightLayout layout;
 	{
@@ -31,7 +31,7 @@ int main(void) {
 		GraphIO::write(ga, "output-g.svg", GraphIO::drawSVG);
 	}
 	int i = 0;
-	fbt.preorder([&](const FourBlockTree& treeNode) -> void {
+	fbt->preorder([&](const FourBlockTree& treeNode) -> void {
 		GraphAttributes ga(*treeNode.g,
 				ogdf::GraphAttributes::nodeLabel | ogdf::GraphAttributes::nodeGraphics
 						| ogdf::GraphAttributes::nodeStyle | ogdf::GraphAttributes::edgeGraphics

@@ -154,7 +154,7 @@ class FourBlockTreeBuilder {
 	 * Split m_g along the elements of m_sepTriangles and build the resulting
 	 * 4-block tree.
 	 */
-	FourBlockTree buildTree();
+	std::unique_ptr<FourBlockTree> buildTree();
 
 public:
 	/**
@@ -178,7 +178,7 @@ public:
 	/**
 	 * Run the algorithm.
 	 */
-	FourBlockTree call();
+	std::unique_ptr<FourBlockTree> call();
 };
 
 void FourBlockTreeBuilder::populateIndices() {
@@ -449,7 +449,7 @@ void FourBlockTreeBuilder::orderTriangles() {
 	m_sepTriangles = std::move(res);
 }
 
-FourBlockTree FourBlockTreeBuilder::buildTree() {
+std::unique_ptr<FourBlockTree> FourBlockTreeBuilder::buildTree() {
 	std::vector<std::unique_ptr<FourBlockTree>> blocks;
 
 	/* used to set FourBlockTree.parent */
@@ -592,8 +592,9 @@ FourBlockTree FourBlockTreeBuilder::buildTree() {
 	}
 
 	/* root of 4-block tree */
-	FourBlockTree res;
+	auto resP = std::make_unique<FourBlockTree>();
 	{
+		auto& res = *resP;
 		/* list all nodes to be copied to res */
 		std::vector<node> innerNodes = {m_root}; // nodes in outermost block
 		isInner[m_root] = true;
@@ -662,7 +663,7 @@ FourBlockTree FourBlockTreeBuilder::buildTree() {
 		p.children.push_back(std::move(b));
 	}
 
-	return res;
+	return resP;
 }
 
 FourBlockTreeBuilder::FourBlockTreeBuilder(Graph& g, NodeArray<node>& originalNodes,
@@ -679,7 +680,7 @@ FourBlockTreeBuilder::FourBlockTreeBuilder(Graph& g, NodeArray<node>& originalNo
 	, m_returnSide(g, 0)
 	, m_angularDistance(g, 0) { }
 
-FourBlockTree FourBlockTreeBuilder::call() {
+std::unique_ptr<FourBlockTree> FourBlockTreeBuilder::call() {
 	populateIndices();
 	populateSepTriangles();
 	firstDfs();
@@ -687,7 +688,7 @@ FourBlockTree FourBlockTreeBuilder::call() {
 	return buildTree();
 }
 
-FourBlockTree FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
+std::unique_ptr<FourBlockTree> FourBlockTree::construct(const Graph& g, adjEntry externalFace) {
 	OGDF_ASSERT(externalFace != nullptr);
 	OGDF_ASSERT(externalFace->graphOf() == &g);
 	OGDF_ASSERT(g.numberOfNodes() * 3 == g.numberOfEdges() + 6 && "g must be triangulated");

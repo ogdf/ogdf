@@ -59,9 +59,9 @@ namespace ogdf {
 struct OGDF_EXPORT FourBlockTree {
 	FourBlockTree() = default;
 	FourBlockTree(const FourBlockTree&) = delete;
-	FourBlockTree(FourBlockTree&&) = default;
+	FourBlockTree(FourBlockTree&&) = delete;
 	FourBlockTree& operator=(const FourBlockTree&) = delete;
-	FourBlockTree& operator=(FourBlockTree&&) = default;
+	FourBlockTree& operator=(FourBlockTree&&) = delete;
 
 	~FourBlockTree() {
 		// free manually bottom-up to avoid stack overflow in case of deep tree
@@ -116,7 +116,7 @@ struct OGDF_EXPORT FourBlockTree {
 	 * @param externalFace A half-edge in g such that the external face of g
 	 *                     lies to its right.
 	 */
-	static FourBlockTree construct(const Graph& g, adjEntry externalFace);
+	static std::unique_ptr<FourBlockTree> construct(const Graph& g, adjEntry externalFace);
 
 	/**
 	 * Perform a pre-order traversal of the 4-block tree.
