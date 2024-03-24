@@ -45,19 +45,16 @@ template<class T>
 struct is_iterator<T, std::void_t<typename std::iterator_traits<T>::iterator_category>>
 	: std::true_type { };
 
-OGDF_DISABLE_WARNING_PUSH
-OGDF_DISABLE_WARNING_UNUSED
-
 template<typename Iterator>
-typename std::enable_if<!is_iterator<Iterator>::value, size_t>::type guess_dist(Iterator begin,
-		Iterator end) {
+typename std::enable_if<!is_iterator<Iterator>::value, size_t>::type guess_dist(
+		[[maybe_unused]] Iterator begin, [[maybe_unused]] Iterator end) {
 	return 0;
 }
 
 template<typename Iterator>
 typename std::enable_if<is_iterator<Iterator>::value,
 		typename std::iterator_traits<Iterator>::difference_type>::type
-guess_dist(Iterator begin, Iterator end) {
+guess_dist([[maybe_unused]] Iterator begin, [[maybe_unused]] Iterator end) {
 	if constexpr (std::is_same<typename std::iterator_traits<Iterator>::iterator_category,
 						  std::random_access_iterator_tag>::value) {
 		return end - begin;
@@ -65,8 +62,6 @@ guess_dist(Iterator begin, Iterator end) {
 		return 0;
 	}
 }
-
-OGDF_DISABLE_WARNING_POP
 }
 
 template<OGDF_NODE_ITER NI, bool notifyObservers, bool copyIDs>
