@@ -277,7 +277,9 @@ void validateParentPointers(const FourBlockTree& fbt) {
 	fbt.preorder([](const FourBlockTree& n) -> void {
 		for (const auto& child : n.children) {
 			AssertThat(child->parent, Equals(&n));
+#ifdef OGDF_DEBUG
 			AssertThat(child->parentFace->graphOf(), Equals(n.g.get()));
+#endif
 		}
 	});
 }
@@ -287,10 +289,12 @@ void validateFourConnectedComponents(const FourBlockTree& fbt, const Graph* g) {
 		AssertThat(isSimpleUndirected(*n.g), Equals(true));
 		AssertThat(3 * n.g->numberOfNodes(), Equals(n.g->numberOfEdges() + 6));
 		AssertThat(n.g->representsCombEmbedding(), Equals(true));
+#ifdef OGDF_DEBUG
 		AssertThat(n.externalFace->graphOf(), Equals(n.g.get()));
 		for (const node v : n.g->nodes) {
 			AssertThat(n.originalNodes[v]->graphOf(), Equals(g));
 		}
+#endif
 	});
 }
 
