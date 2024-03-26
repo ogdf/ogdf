@@ -59,8 +59,9 @@ constexpr size_t N = 16;
  * their firstAdj() and their lastAdj().
  */
 template<typename RANDOM_ENGINE>
-void generateFourConnectedPlaneTriangulation(Graph& g, adjEntry& externalFace, int n,
+void generateFourConnectedPlaneTriangulation(Graph& g, adjEntry& externalFace, size_t n,
 		RANDOM_ENGINE& eng) {
+	n = std::max(n, size_t(6)); // there is no 4-connected planar graph with fewer than six nodes
 	const node south = g.newNode();
 	const node east = g.newNode();
 	const node west = g.newNode();
@@ -105,7 +106,7 @@ void generateFourConnectedPlaneTriangulation(Graph& g, adjEntry& externalFace, i
 			--n;
 		} else {
 			// we increase the number of nodes on the external face by
-			const size_t numNewNodes = double(n) * std::min(1.0, randomValue / 3);
+			const size_t numNewNodes = double(n - 1) * std::min(1.0, randomValue / 3);
 			// we pick a random spot on the external face where the singleton fits
 			node rightAdjacent = east;
 			for (size_t i = uniformDist(0, maxCoveredNodes + 1)(eng); i > 0; --i) {
@@ -150,21 +151,21 @@ struct FourBlockTreeStructure {
 
 template<typename RANDOM_ENGINE>
 void generatePlaneTriangulation(Graph& g, adjEntry& externalFace, FourBlockTreeStructure& ref,
-		int n, int d, RANDOM_ENGINE& eng) {
+		size_t n, size_t d, RANDOM_ENGINE& eng) {
 	n = std::max(n, d / 2 + 3); // so that there are enough faces for the number of children we want
 	g.clear();
 
 	std::vector<adjEntry> externalFaces;
-	externalFaces.reserve(1 << d);
+	externalFaces.reserve(size_t(1) << d);
 	std::vector<std::unordered_set<adjEntry>> originalFaces;
-	originalFaces.reserve(1 << d);
+	originalFaces.reserve(size_t(1) << d);
 	std::vector<FourBlockTreeStructure> nodes;
-	nodes.reserve(1 << d);
+	nodes.reserve(size_t(1) << d);
 
 	// generate 4-connected components
 	const node dummySrc = g.newNode();
 	const node dummyTgt = g.newNode();
-	for (int i = 0; i < 1 << d; ++i) {
+	for (size_t i = 0; i < size_t(1) << d; ++i) {
 		Graph tempGraph;
 		adjEntry tempExtFace;
 		generateFourConnectedPlaneTriangulation(tempGraph, tempExtFace, n, eng);
@@ -206,7 +207,7 @@ void generatePlaneTriangulation(Graph& g, adjEntry& externalFace, FourBlockTreeS
 
 	// assemble final graph
 	while (d-- > 0) {
-		for (int i = 0; i < 1 << d; ++i) {
+		for (size_t i = 0; i < size_t(1) << d; ++i) {
 			nodes[i].children.push_back(std::move(nodes.back()));
 
 			const auto it = originalFaces[i].begin();
@@ -297,7 +298,7 @@ go_bandit([]() {
 	describe("FourBlockTree", []() {
 		std::mt19937_64 eng(std::random_device {}());
 		it("works for 4-connected graphs", [&eng]() {
-			for (int n : {10, 32, 100, 320}) {
+			for (const size_t n : {10, 32, 100, 320}) {
 				for (size_t i = 0; i < N; ++i) {
 					Graph g;
 					adjEntry externalFace = nullptr;
@@ -309,13 +310,13 @@ go_bandit([]() {
 			}
 		});
 		it("works for graphs with separating triangles", [&eng]() {
-			std::uniform_int_distribution<int> nDist(6, 50);
-			for (int d : {1, 3, 5}) {
+			std::uniform_int_distribution<size_t> nDist(6, 50);
+			for (const size_t d : {1, 3, 5}) {
 				for (size_t i = 0; i < N; ++i) {
 					Graph g;
 					adjEntry externalFace = nullptr;
 					FourBlockTreeStructure ref;
-					const int n = nDist(eng);
+					const size_t n = nDist(eng);
 					generatePlaneTriangulation(g, externalFace, ref, n, d, eng);
 					auto fbt = FourBlockTree::construct(g, externalFace);
 					validateFourConnectedComponents(*fbt, &g);
