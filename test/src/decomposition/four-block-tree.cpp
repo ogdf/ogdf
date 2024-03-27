@@ -285,7 +285,7 @@ void validateParentPointers(const FourBlockTree& fbt) {
 }
 
 void validateFourConnectedComponents(const FourBlockTree& fbt, const Graph* g) {
-	fbt.preorder([g](const FourBlockTree& n) -> void {
+	fbt.preorder([=](const FourBlockTree& n) -> void {
 		AssertThat(isSimpleUndirected(*n.g), Equals(true));
 		AssertThat(3 * n.g->numberOfNodes(), Equals(n.g->numberOfEdges() + 6));
 		AssertThat(n.g->representsCombEmbedding(), Equals(true));
