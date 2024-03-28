@@ -31,7 +31,6 @@
  */
 
 #include <bits/std_abs.h>                         // for abs
-#include <math.h>                                 // for sqrt
 #include <ogdf/basic/ArrayBuffer.h>               // for ArrayBuffer
 #include <ogdf/basic/Graph.h>                     // for operator<<
 #include <ogdf/basic/GraphCopy.h>                 // for GraphCopy
@@ -47,6 +46,7 @@
 #include <ogdf/graphalg/PlanarSeparatorModule.h>  // for Cycle, BFSTreeClassical, DMDecomposer
 #include <stdlib.h>                               // for abs
 #include <algorithm>                              // for max, min, sort
+#include <cmath>                                  // for sqrt
 #include <iostream>                               // for basic_ostream, operator<<, char_traits
 #include <map>                                    // for map, operator==, _Rb_tree_iterator
 #include <set>                                    // for set

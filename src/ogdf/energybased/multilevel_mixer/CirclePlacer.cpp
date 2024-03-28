@@ -29,7 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <math.h>                                                // for atan2, cos, sin, sqrt
 #include <ogdf/basic/GraphList.h>                                // for GraphIteratorBase, Graph...
 #include <ogdf/basic/Graph_d.h>                                  // for Graph, node
 #include <ogdf/basic/Math.h>                                     // for pi
@@ -38,6 +37,7 @@
 #include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>  // for BarycenterPlacer
 #include <ogdf/energybased/multilevel_mixer/CirclePlacer.h>      // for CirclePlacer
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>   // for MultilevelGraph
+#include <cmath>                                                 // for atan2, cos, sin, sqrt
 #include <map>                                                   // for map
 
 namespace ogdf {

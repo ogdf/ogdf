@@ -29,13 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <math.h>                                               // for sqrt
 #include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
 #include <ogdf/basic/Graph_d.h>                                 // for RegisteredArrayWithoutDef...
 #include <ogdf/basic/List.h>                                    // for List, ListIteratorBase
 #include <ogdf/basic/basic.h>                                   // for OGDF_ASSERT, randomNumber
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph, NodeMerge
 #include <ogdf/energybased/multilevel_mixer/SolarMerger.h>      // for SolarMerger
+#include <cmath>                                                // for sqrt
 #include <map>                                                  // for map
 #include <utility>                                              // for pair
 #include <vector>                                               // for vector

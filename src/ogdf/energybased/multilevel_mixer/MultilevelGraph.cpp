@@ -29,7 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <math.h>                                               // for sqrt
 #include <ogdf/basic/GraphAttributes.h>                         // for GraphAttributes
 #include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
 #include <ogdf/basic/Graph_d.h>                                 // for Graph, RegisteredArrayWit...
@@ -40,7 +39,8 @@
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph, NodeMerge
 #include <ogdf/fileformats/GraphIO.h>                           // for GraphIO
 #include <algorithm>                                            // for find
-#include <fstream>                                              // for basic_ofstream, basic_ost...
+#include <cmath>                                                // for sqrt
+#include <fstream>                                              // for basic_ofstream, istream
 #include <map>                                                  // for map
 #include <string>                                               // for basic_string
 #include <vector>                                               // for vector
