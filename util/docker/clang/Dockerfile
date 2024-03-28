@@ -20,6 +20,7 @@ RUN apt-get update \
  && ln -sf /usr/bin/clang-cpp-$llvmver /usr/bin/clang-cpp \
  && ln -sf /usr/bin/clang-format-$llvmver /usr/bin/clang-format \
  && ln -sf /usr/bin/clang-tidy-$llvmver /usr/bin/clang-tidy \
+ && ln -sf /usr/bin/llvm-profdata-${llvmver} /usr/bin/llvm-profdata \
  && ln -sf /usr/bin/llvm-cov-$llvmver /usr/bin/llvm-cov
 
 # Bypass pip externally managed warning to install sonar output converter,
