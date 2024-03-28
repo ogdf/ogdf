@@ -30,8 +30,16 @@
  */
 
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/lpsolver/LPSolver.h>
+#include <CoinPackedVector.hpp>      // for CoinPackedVector
+#include <OsiSolverInterface.hpp>    // for OsiSolverInterface
+#include <OsiSolverParameters.hpp>   // for OsiDblParam
+#include <ogdf/basic/Array.h>        // for Array
+#include <ogdf/basic/Logger.h>       // for Logger
+#include <ogdf/basic/basic.h>        // for OGDF_ASSERT, OGDF_DEBUG, OGDF_HEAVY_ASSERT
+#include <ogdf/basic/exceptions.h>   // for AlgorithmFailureException, AlgorithmFailureCode, OGD...
+#include <ogdf/external/coin.h>      // for CoinManager
+#include <ogdf/lpsolver/LPSolver.h>  // for LPSolver
+#include <iostream>                  // for basic_ostream, char_traits, operator<<, basic_ostrea...
 
 namespace ogdf {
 

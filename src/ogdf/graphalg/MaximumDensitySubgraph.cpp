@@ -29,10 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/EpsilonTest.h>
-#include <ogdf/basic/Stopwatch.h>
-#include <ogdf/graphalg/MaximumDensitySubgraph.h>
-#include <ogdf/graphalg/MinSTCutMaxFlow.h>
+#include <ogdf/basic/EpsilonTest.h>                // for EpsilonTest
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/GraphSets.h>                  // for NodeSet
+#include <ogdf/basic/Graph_d.h>                    // for Graph, node, RegisteredArrayWithoutDef...
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase
+#include <ogdf/basic/Stopwatch.h>                  // for StopwatchCPU
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>   // for MaxFlowGoldbergTarjan
+#include <ogdf/graphalg/MaximumDensitySubgraph.h>  // for maximumDensitySubgraph
+#include <ogdf/graphalg/MinSTCutMaxFlow.h>         // for MinSTCutMaxFlow
+#include <stdint.h>                                // for int64_t
+#include <functional>                              // for function
 
 namespace ogdf {
 

@@ -29,9 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/EmbedderMaxFaceLayers.h>
-#include <ogdf/planarity/embedder/ConnectedSubgraph.h>
-#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
+#include <ogdf/basic/Graph_d.h>                    // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                       // for ListIterator
+#include <ogdf/decomposition/BCTree.h>             // for BCTree
+#include <ogdf/planarity/EmbedderMaxFaceLayers.h>  // for EmbedderMaxFaceLayers
 
 namespace ogdf {
 

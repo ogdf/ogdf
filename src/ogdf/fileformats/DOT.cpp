@@ -29,8 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/DOT.h>
-#include <ogdf/fileformats/Utils.h>
+#include <ogdf/basic/Graph_d.h>      // for Graph
+#include <ogdf/basic/basic.h>        // for OGDF_ASSERT
+#include <ogdf/basic/graphics.h>     // for Shape, EdgeArrow
+#include <ogdf/fileformats/DOT.h>    // for Attribute, toString, toArrow, toAttribute, toEdgeType
+#include <ogdf/fileformats/Utils.h>  // for toEnum
+#include <string>                    // for basic_string, string, operator<
 
 namespace ogdf {
 

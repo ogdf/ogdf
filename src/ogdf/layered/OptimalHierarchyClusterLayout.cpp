@@ -31,9 +31,21 @@
  */
 
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/layered/OptimalHierarchyClusterLayout.h>
-#include <ogdf/lpsolver/LPSolver.h>
+#include <math.h>                                        // for fabs
+#include <ogdf/basic/Array.h>                            // for Array
+#include <ogdf/basic/Array2D.h>                          // for Array2D
+#include <ogdf/basic/ArrayBuffer.h>                      // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/Graph_d.h>                          // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                             // for List, ListIteratorBase, ListCons...
+#include <ogdf/basic/basic.h>                            // for OGDF_DEBUG, OGDF_ASSERT
+#include <ogdf/basic/tuples.h>                           // for Tuple2
+#include <ogdf/cluster/ClusterGraph.h>                   // for cluster, ClusterGraph, forall_po...
+#include <ogdf/cluster/ClusterGraphCopyAttributes.h>     // for ClusterGraphCopyAttributes
+#include <ogdf/layered/ExtendedNestingGraph.h>           // for ExtendedNestingGraph, LHTreeNode
+#include <ogdf/layered/OptimalHierarchyClusterLayout.h>  // for OptimalHierarchyClusterLayout
+#include <ogdf/lpsolver/LPSolver.h>                      // for LPSolver
+#include <limits>                                        // for numeric_limits
 
 namespace ogdf {
 

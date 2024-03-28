@@ -29,10 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/clique/CliqueFinderSPQR.h>
-#include <ogdf/decomposition/StaticSPQRTree.h>
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for Graph, node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                    // for List, safeForEach, ListIteratorBase
+#include <ogdf/basic/Math.h>                    // for updateMax
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
+#include <ogdf/basic/comparer.h>                // for GenericComparer
+#include <ogdf/basic/simple_graph_alg.h>        // for isSimple, makeBiconnected
+#include <ogdf/clique/CliqueFinderModule.h>     // for CliqueFinderModule
+#include <ogdf/clique/CliqueFinderSPQR.h>       // for CliqueFinderSPQR
+#include <ogdf/decomposition/SPQRTree.h>        // for SPQRTree
+#include <ogdf/decomposition/Skeleton.h>        // for Skeleton
+#include <ogdf/decomposition/StaticSPQRTree.h>  // for StaticSPQRTree
+#include <functional>                           // for function
 
 namespace ogdf {
 

@@ -30,11 +30,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/decomposition/DynamicSPQRForest.h>
-#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
-#include <ogdf/planarity/embedding_inserter/VarEdgeInserterDynCore.h>
+#include <ogdf/basic/Array.h>                                          // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>                         // for ConstCombinatorial...
+#include <ogdf/basic/GraphCopy.h>                                      // for GraphCopy
+#include <ogdf/basic/GraphList.h>                                      // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                        // for RegisteredArrayWit...
+#include <ogdf/basic/List.h>                                           // for List, ListIterator...
+#include <ogdf/basic/Module.h>                                         // for Module
+#include <ogdf/basic/SList.h>                                          // for SList, SListPure
+#include <ogdf/basic/basic.h>                                          // for OGDF_ASSERT, OGDF_...
+#include <ogdf/basic/extended_graph_alg.h>                             // for planarEmbed
+#include <ogdf/decomposition/DynamicSPQRForest.h>                      // for DynamicSPQRForest
+#include <ogdf/planarity/PlanRepLight.h>                               // for PlanRepLight
+#include <ogdf/planarity/RemoveReinsertType.h>                         // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>         // for CrossingsBucket
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterDynCore.h>  // for VarEdgeInserterDyn...
 
 namespace ogdf {
 

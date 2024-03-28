@@ -29,7 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/GreedyInsertHeuristic.h>
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/Graph_d.h>                  // for RegisteredArrayWithoutDefault
+#include <ogdf/layered/CrossingsMatrix.h>        // for CrossingsMatrix
+#include <ogdf/layered/GreedyInsertHeuristic.h>  // for GreedyInsertHeuristic
+#include <ogdf/layered/Hierarchy.h>              // for Hierarchy
+#include <ogdf/layered/HierarchyLevels.h>        // for HierarchyLevels
+#include <ogdf/layered/Level.h>                  // for Level
 
 namespace ogdf {
 

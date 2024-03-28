@@ -29,11 +29,34 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/cluster/ClusterPlanarity.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/Graph.h>                    // for operator<<
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for RegisteredArrayWithoutDefault, NodePair
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListContainer
+#include <ogdf/basic/Logger.h>                   // for Logger
+#include <ogdf/basic/Stopwatch.h>                // for StopwatchCPU, StopwatchWallClock
+#include <ogdf/basic/basic.h>                    // for OGDF_DEBUG, OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>       // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>         // for makeParallelFreeUndirected, connectedCom...
+#include <ogdf/cluster/CconnectClusterPlanar.h>  // for CconnectClusterPlanar
+#include <ogdf/cluster/ClusterAnalysis.h>        // for ClusterAnalysis
+#include <ogdf/cluster/ClusterGraph.h>           // for ClusterGraph, cluster, ClusterArray
+#include <ogdf/cluster/ClusterPlanarity.h>       // for ClusterPlanarity, CPlanarityMaster
+#include <ogdf/lib/abacus/constraint.h>          // for Constraint
+#include <ogdf/lib/abacus/csense.h>              // for CSense
+#include <ogdf/lib/abacus/master.h>              // for Master
+#include <ogdf/lib/abacus/poolslot.h>            // for PoolSlot
+#include <ogdf/lib/abacus/standardpool.h>        // for StandardPool
+#include <exception>                             // for exception
+#include <fstream>                               // for basic_ostream, operator<<, basic_ostream...
+#include <iostream>                              // for cout, cerr
+#include <sstream>                               // for basic_istringstream
+#include <string>                                // for char_traits, basic_string, allocator
+#include <vector>                                // for vector
+
+namespace abacus { class Variable; }
 
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 #	include <ogdf/fileformats/GraphIO.h>

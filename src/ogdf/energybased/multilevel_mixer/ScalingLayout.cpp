@@ -30,9 +30,20 @@
  */
 
 
-#include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
+#include <math.h>                                                      // for sqrt
+#include <ogdf/basic/GraphList.h>                                      // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                        // for Graph, edge, node
+#include <ogdf/basic/LayoutModule.h>                                   // for LayoutModule
+#include <ogdf/basic/basic.h>                                          // for OGDF_DEBUG, max
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>  // for ModularMultilevelM...
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>         // for MultilevelGraph
+#include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>           // for ScalingLayout
+#include <algorithm>                                                   // for max
+#include <iostream>                                                    // for char_traits, basic...
+#include <memory>                                                      // for unique_ptr
 
 namespace ogdf {
+class GraphAttributes;
 
 ScalingLayout::ScalingLayout()
 	: m_minScaling(1.0)

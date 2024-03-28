@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
+#include <ogdf/basic/GraphList.h>                                // for GraphIteratorBase, Graph...
+#include <ogdf/basic/Graph_d.h>                                  // for adjEntry, node
+#include <ogdf/basic/basic.h>                                    // for randomDouble, OGDF_ASSERT
+#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>  // for BarycenterPlacer
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>   // for MultilevelGraph
 
 namespace ogdf {
 

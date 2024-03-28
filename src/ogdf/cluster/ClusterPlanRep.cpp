@@ -29,13 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/ClusterPlanRep.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-
-#include <iomanip>
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for RegisteredArrayWithoutDefault, AdjEntry...
+#include <ogdf/basic/HashArray.h>                 // for HashArray
+#include <ogdf/basic/Layout.h>                    // for Layout
+#include <ogdf/basic/List.h>                      // for List, safeForEach, ListIteratorBase
+#include <ogdf/basic/SList.h>                     // for SListIteratorBase, SList, SListIterator
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>                // for AlgorithmFailureException, OGDF_THROW
+#include <ogdf/cluster/ClusterGraph.h>            // for ClusterGraph, cluster
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/cluster/ClusterPlanRep.h>          // for ClusterPlanRep
+#include <ogdf/planarity/PlanRep.h>               // for PlanRep
+#include <fstream>                                // for operator<<, basic_ostream, char_traits
+#include <functional>                             // for function
+#include <iomanip>                                // for operator<<, setfill, setw, dec, hex
 
 namespace ogdf {
+class CombinatorialEmbedding;
+class OrthoRep;
 
 ClusterPlanRep::ClusterPlanRep(const ClusterGraphAttributes& acGraph, const ClusterGraph& clusterGraph)
 	: PlanRep(acGraph), m_pClusterGraph(&clusterGraph) {

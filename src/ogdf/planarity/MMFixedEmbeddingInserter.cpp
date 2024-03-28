@@ -29,10 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/planarity/MMFixedEmbeddingInserter.h>
-#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
-#include <ogdf/planarlayout/PlanarStraightLayout.h>
+#include <ogdf/basic/Array.h>                                   // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>                  // for CombinatorialEmbedding, face
+#include <ogdf/basic/FaceSet.h>                                 // for FaceSet
+#include <ogdf/basic/GraphAttributes.h>                         // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/GraphSets.h>                               // for NodeSet
+#include <ogdf/basic/Graph_d.h>                                 // for RegisteredArrayWithoutDef...
+#include <ogdf/basic/List.h>                                    // for List, ListIteratorBase
+#include <ogdf/basic/Module.h>                                  // for Module
+#include <ogdf/basic/SList.h>                                   // for SListPure, SListConstIter...
+#include <ogdf/basic/basic.h>                                   // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/graphics.h>                                // for Color
+#include <ogdf/basic/tuples.h>                                  // for Tuple2
+#include <ogdf/fileformats/GraphIO.h>                           // for GraphIO
+#include <ogdf/planarity/MMFixedEmbeddingInserter.h>            // for MMFixedEmbeddingInserter
+#include <ogdf/planarity/PlanRepExpansion.h>                    // for PlanRepExpansion
+#include <ogdf/planarity/RemoveReinsertType.h>                  // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>  // for CrossingsBucket
+#include <string>                                               // for allocator, basic_string
+#include <utility>                                              // for swap
 
 namespace ogdf {
 

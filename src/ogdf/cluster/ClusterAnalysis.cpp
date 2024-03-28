@@ -32,10 +32,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/DisjointSets.h>
-#include <ogdf/basic/Queue.h>
-#include <ogdf/cluster/ClusterAnalysis.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/Array.h>              // for Array
+#include <ogdf/basic/DisjointSets.h>       // for DisjointSets
+#include <ogdf/basic/Graph.h>              // for operator<<
+#include <ogdf/basic/GraphList.h>          // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>            // for node, Graph, edge, adjEntry, EdgeArray, NodeArray
+#include <ogdf/basic/HashArray.h>          // for HashArray
+#include <ogdf/basic/List.h>               // for List, ListIteratorBase, ListConstIterator, Lis...
+#include <ogdf/basic/Logger.h>             // for OGDF_DEBUG, Logger
+#include <ogdf/basic/Queue.h>              // for Queue
+#include <ogdf/basic/Skiplist.h>           // for Skiplist, SkiplistIterator
+#include <ogdf/basic/basic.h>              // for OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>         // for AlgorithmFailureException, AlgorithmFailureCode
+#include <ogdf/cluster/ClusterAnalysis.h>  // for ClusterAnalysis
+#include <ogdf/cluster/ClusterGraph.h>     // for RegisteredArrayWithoutDefault, cluster, Cluste...
+#include <iostream>                        // for operator<<, basic_ostream, char_traits, basic_...
+#include <limits>                          // for numeric_limits
 
 // Comment on use of ClusterArrays:
 // We would like to save some space by only reserving one slot

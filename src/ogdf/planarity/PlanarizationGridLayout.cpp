@@ -29,10 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/planarity/PlanarizationGridLayout.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarlayout/MixedModelLayout.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for edge, node, adjEntry, Graph
+#include <ogdf/basic/GridLayout.h>                      // for GridLayout
+#include <ogdf/basic/List.h>                            // for ListIteratorBase, List
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>              // for isPlanar
+#include <ogdf/basic/geometry.h>                        // for GenericPoint, IPoint, IPolyline
+#include <ogdf/packing/CCLayoutPackModule.h>            // for CCLayoutPackModule
+#include <ogdf/packing/TileToRowsCCPacker.h>            // for TileToRowsCCPacker
+#include <ogdf/planarity/CrossingMinimizationModule.h>  // for CrossingMinimizationModule
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/PlanarizationGridLayout.h>     // for PlanarizationGridLayout
+#include <ogdf/planarity/SubgraphPlanarizer.h>          // for SubgraphPlanarizer
+#include <ogdf/planarlayout/GridLayoutModule.h>         // for GridLayoutPlanRepModule
+#include <ogdf/planarlayout/MixedModelLayout.h>         // for MixedModelLayout
+#include <memory>                                       // for unique_ptr
 
 namespace ogdf {
 

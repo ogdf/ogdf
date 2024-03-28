@@ -30,7 +30,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/LayoutStandards.h>  // for LayoutStandards
+#include <ogdf/basic/graphics.h>         // for Color, Stroke, Fill, EdgeArrow, FillPattern, Shape
 
 namespace ogdf {
 

@@ -30,11 +30,20 @@
  */
 
 
-#include <ogdf/basic/FaceSet.h>
-#include <ogdf/basic/NodeSet.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/PlanRepExpansion.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding
+#include <ogdf/basic/FaceSet.h>                 // for FaceSet
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/GraphSets.h>               // for NodeSet
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, edge, node
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator, Lis...
+#include <ogdf/basic/SList.h>                   // for SList, SListIteratorBase, SListConstIterator
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, Direction, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>      // for planarEmbed
+#include <ogdf/basic/simple_graph_alg.h>        // for connectedComponents, isLoopFree
+#include <ogdf/basic/tuples.h>                  // for Tuple2
+#include <ogdf/planarity/PlanRepExpansion.h>    // for PlanRepExpansion
+#include <utility>                              // for swap
 
 namespace ogdf {
 

@@ -30,7 +30,13 @@
  */
 
 
-#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNodeNM.h>
+#include <ogdf/basic/Graph_d.h>                                         // for node
+#include <ogdf/basic/List.h>                                            // for List, ListIterato...
+#include <ogdf/basic/geometry.h>                                        // for operator<<, DPoint
+#include <ogdf/energybased/fmmm/new_multipole_method/ParticleInfo.h>    // for ParticleInfo, ope...
+#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNodeNM.h>  // for QuadTreeNodeNM
+#include <complex>                                                      // for complex, operator<<
+#include <istream>                                                      // for operator<<, basic...
 
 namespace ogdf {
 namespace energybased {

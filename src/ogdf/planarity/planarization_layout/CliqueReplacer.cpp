@@ -29,8 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/misclayout/CircularLayout.h>
-#include <ogdf/planarity/planarization_layout/CliqueReplacer.h>
+#include <math.h>                                                // for sqrt, cos, sin
+#include <ogdf/basic/GraphAttributes.h>                          // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                                // for GraphIteratorBase, Graph...
+#include <ogdf/basic/Graph_d.h>                                  // for node, RegisteredArrayWit...
+#include <ogdf/basic/List.h>                                     // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                                     // for degreesToRadians, pi
+#include <ogdf/basic/SList.h>                                    // for SListPure, SListIterator
+#include <ogdf/basic/basic.h>                                    // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/geometry.h>                                 // for DRect, GenericPoint
+#include <ogdf/basic/graphics.h>                                 // for Color
+#include <ogdf/misclayout/CircularLayout.h>                      // for CircularLayout
+#include <ogdf/planarity/planarization_layout/CliqueReplacer.h>  // for CliqueReplacer
 
 namespace ogdf {
 namespace planarization_layout {

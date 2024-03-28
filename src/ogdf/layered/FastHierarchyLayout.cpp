@@ -30,7 +30,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/FastHierarchyLayout.h>
+#include <ogdf/basic/ArrayBuffer.h>              // for ArrayBuffer
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for node, edge
+#include <ogdf/basic/LayoutStandards.h>          // for LayoutStandards
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/comparer.h>                 // for OGDF_DECLARE_COMPARER
+#include <ogdf/layered/CrossingMinInterfaces.h>  // for HierarchyLevelsBase, LevelBase
+#include <ogdf/layered/FastHierarchyLayout.h>    // for FastHierarchyLayout
+#include <ogdf/layered/Hierarchy.h>              // for Hierarchy
+#include <istream>                               // for operator<<, basic_istream::operator>>
 
 namespace ogdf {
 

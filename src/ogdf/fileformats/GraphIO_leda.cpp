@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Logger.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ctype.h>                     // for isspace
+#include <ogdf/basic/Array.h>          // for Array
+#include <ogdf/basic/GraphList.h>      // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>        // for Graph, RegisteredArrayWithoutDefault, node, NodeArray
+#include <ogdf/basic/Logger.h>         // for string
+#include <ogdf/fileformats/GraphIO.h>  // for GraphIO
+#include <sstream>                     // for operator<<, basic_ostream, basic_istream, basic_os...
+#include <string>                      // for char_traits, basic_string, stoi, string, getline
 
 using std::istringstream;
 

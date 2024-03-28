@@ -30,9 +30,15 @@
  */
 
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/basic/ArrayBuffer.h>       // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault, node, Graph, Reg...
+#include <ogdf/basic/List.h>              // for ListIteratorBase, List
+#include <ogdf/basic/SList.h>             // for SList, SListIterator, SListIteratorBase
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/simple_graph_alg.h>  // for connectedComponents, biconnectedComponents, isA...
+#include <ogdf/decomposition/BCTree.h>    // for BCTree
+#include <vector>                         // for vector
 
 namespace ogdf {
 

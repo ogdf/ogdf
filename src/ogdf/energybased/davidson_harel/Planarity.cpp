@@ -29,9 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/davidson_harel/Planarity.h>
+#include <ogdf/basic/Array.h>                                // for Array
+#include <ogdf/basic/Array2D.h>                              // for Array2D
+#include <ogdf/basic/GraphList.h>                            // for GraphIteratorBase, GraphObje...
+#include <ogdf/basic/Graph_d.h>                              // for edge, node, RegisteredArrayW...
+#include <ogdf/basic/List.h>                                 // for List, ListIteratorBase, List...
+#include <ogdf/basic/basic.h>                                // for max, min, OGDF_DEBUG
+#include <ogdf/basic/geometry.h>                             // for DPoint, DSegment, Intersecti...
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>  // for EnergyFunction
+#include <ogdf/energybased/davidson_harel/Planarity.h>       // for Planarity
+#include <algorithm>                                         // for max, min
+#include <iostream>                                          // for basic_ostream, operator<<
+#include <string>                                            // for char_traits, basic_string
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 Planarity::~Planarity() {

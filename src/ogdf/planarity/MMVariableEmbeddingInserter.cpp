@@ -29,12 +29,31 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/planarity/MMVariableEmbeddingInserter.h>
-#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
+#include <ogdf/basic/Array.h>                            // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>           // for ConstCombinatorialEmbedding, Fac...
+#include <ogdf/basic/Graph.h>                            // for operator<<
+#include <ogdf/basic/GraphAttributes.h>                  // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/GraphSets.h>                        // for NodeSet
+#include <ogdf/basic/Graph_d.h>                          // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                             // for List, ListIteratorBase, ListCons...
+#include <ogdf/basic/Module.h>                           // for Module
+#include <ogdf/basic/SList.h>                            // for SList, SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                            // for OGDF_ASSERT, OGDF_DEBUG, string
+#include <ogdf/basic/extended_graph_alg.h>               // for isPlanar, planarEmbed
+#include <ogdf/basic/simple_graph_alg.h>                 // for biconnectedComponents
+#include <ogdf/decomposition/SPQRTree.h>                 // for SPQRTree
+#include <ogdf/decomposition/Skeleton.h>                 // for Skeleton
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>     // for StaticPlanarSPQRTree
+#include <ogdf/decomposition/StaticSPQRTree.h>           // for StaticSPQRTree
+#include <ogdf/decomposition/StaticSkeleton.h>           // for StaticSkeleton
+#include <ogdf/fileformats/GraphIO.h>                    // for GraphIO
+#include <ogdf/planarity/MMVariableEmbeddingInserter.h>  // for MMVariableEmbeddingInserter
+#include <ogdf/planarity/PlanRepExpansion.h>             // for PlanRepExpansion
+#include <ogdf/planarity/RemoveReinsertType.h>           // for RemoveReinsertType
+#include <iostream>                                      // for basic_ostream, cout, operator<<
+#include <string>                                        // for allocator, basic_string, char_tr...
+#include <utility>                                       // for swap
 
 //#define OGDF_MMVEI_OUTPUT
 

@@ -30,11 +30,34 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/FMMMLayout.h>
-#include <ogdf/energybased/fmmm/MAARPacking.h>
-#include <ogdf/energybased/fmmm/Multilevel.h>
-#include <ogdf/energybased/fmmm/numexcept.h>
+#include <ogdf/basic/Array.h>                              // for Array
+#include <ogdf/basic/GraphAttributes.h>                    // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                          // for GraphIteratorBase, GraphObject...
+#include <ogdf/basic/Graph_d.h>                            // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/LayoutStandards.h>                    // for LayoutStandards
+#include <ogdf/basic/List.h>                               // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                               // for log4, pi_2
+#include <ogdf/basic/basic.h>                              // for max, randomNumber, setSeed
+#include <ogdf/basic/geometry.h>                           // for DPoint, GenericPoint, DSegment
+#include <ogdf/basic/simple_graph_alg.h>                   // for connectedComponents
+#include <ogdf/cluster/ClusterGraph.h>                     // for ClusterGraph
+#include <ogdf/cluster/ClusterGraphAttributes.h>           // for ClusterGraphAttributes
+#include <ogdf/energybased/FMMMLayout.h>                   // for FMMMLayout
+#include <ogdf/energybased/fmmm/EdgeAttributes.h>          // for EdgeAttributes
+#include <ogdf/energybased/fmmm/FMMMOptions.h>             // for FMMMOptions
+#include <ogdf/energybased/fmmm/FruchtermanReingold.h>     // for FruchtermanReingold
+#include <ogdf/energybased/fmmm/MAARPacking.h>             // for MAARPacking
+#include <ogdf/energybased/fmmm/Multilevel.h>              // for Multilevel
+#include <ogdf/energybased/fmmm/NewMultipoleMethod.h>      // for NewMultipoleMethod
+#include <ogdf/energybased/fmmm/NodeAttributes.h>          // for NodeAttributes
+#include <ogdf/energybased/fmmm/maar_packing/Rectangle.h>  // for Rectangle
+#include <ogdf/energybased/fmmm/multilevel/Edge.h>         // for Edge, EdgeMaxBucketFunc, EdgeM...
+#include <ogdf/energybased/fmmm/numexcept.h>               // for numexcept
+#include <time.h>                                          // for time
+#include <algorithm>                                       // for max, min
+#include <cmath>                                           // for floor, ceil, log2, cos, pow, sin
+#include <fstream>                                         // for basic_ostream, char_traits
+#include <iostream>                                        // for cout, cerr
 
 namespace ogdf {
 

@@ -30,15 +30,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GF2Solver.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/cluster/ClusterPlanarity.h>
-#include <ogdf/cluster/HananiTutteCPlanarity.h>
-
-#include <map>
-#include <unordered_map>
+#include <ogdf/basic/ArrayBuffer.h>              // for ArrayBuffer
+#include <ogdf/basic/GF2Solver.h>                // for GF2Solver
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for node, RegisteredArrayWithoutDefault, edge
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListContainer
+#include <ogdf/basic/SList.h>                    // for SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT, searchPos
+#include <ogdf/basic/extended_graph_alg.h>       // for isCConnected, isPlanar
+#include <ogdf/basic/simple_graph_alg.h>         // for isLoopFree, makeLoopFree, makeParallelFree
+#include <ogdf/cluster/CconnectClusterPlanar.h>  // for CconnectClusterPlanar
+#include <ogdf/cluster/ClusterGraph.h>           // for cluster, ClusterGraph, ClusterArray
+#include <ogdf/cluster/ClusterPlanarity.h>       // for ClusterPlanarity
+#include <ogdf/cluster/HananiTutteCPlanarity.h>  // for HananiTutteCPlanarity
+#include <ogdf/lib/abacus/master.h>              // for Master
+#include <stddef.h>                              // for size_t
+#include <stdint.h>                              // for uint32_t
+#include <chrono>                                // for duration, high_resolution_clock, duratio...
+#include <map>                                   // for map, operator!=, _Rb_tree_iterator, _Rb_...
+#include <string>                                // for basic_string
+#include <unordered_map>                         // for hash, unordered_map
+#include <utility>                               // for pair, swap, make_pair
 
 using std::map;
 using std::unordered_map;

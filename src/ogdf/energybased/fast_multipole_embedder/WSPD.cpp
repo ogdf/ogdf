@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
+#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>  // for NodeAdjInfo, EdgeAdjInfo
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>  // for OGDF_FREE_16, OGDF_MALLO...
+#include <ogdf/energybased/fast_multipole_embedder/WSPD.h>       // for WSPD
+#include <stdint.h>                                              // for uint32_t
+#include <functional>                                            // for function
 
 namespace ogdf {
 namespace fast_multipole_embedder {

@@ -33,9 +33,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/NodeRespecterLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <bits/std_abs.h>                          // for abs
+#include <ogdf/basic/Array.h>                      // for Array
+#include <ogdf/basic/ArrayBuffer.h>                // for ArrayBuffer
+#include <ogdf/basic/EpsilonTest.h>                // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>            // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                  // for GraphCopy
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/LayoutStandards.h>            // for LayoutStandards
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                       // for pi, updateMax, updateMin, pi_2
+#include <ogdf/basic/SList.h>                      // for SListPure, SListIterator, SListIterato...
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT, randomDouble, OGDF_DEBUG
+#include <ogdf/basic/geometry.h>                   // for OGDF_GEOM_ET, DRect, DPoint, DSegment
+#include <ogdf/basic/simple_graph_alg.h>           // for connectedComponents, getParallelFreeUn...
+#include <ogdf/energybased/NodeRespecterLayout.h>  // for NodeRespecterLayout
+#include <ogdf/packing/TileToRowsCCPacker.h>       // for TileToRowsCCPacker
+#include <cmath>                                   // for hypot, cos, sin
+#include <utility>                                 // for get, pair
 
 //#define OGDF_NODERESPECTERLAYOUT_DEBUG
 

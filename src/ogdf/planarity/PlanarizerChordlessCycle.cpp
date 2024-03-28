@@ -29,13 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/planarity/PlanarizerChordlessCycle.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/ArrayBuffer.h>                     // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>          // for CombinatorialEmbedding
+#include <ogdf/basic/DualGraph.h>                       // for DynamicDualGraph
+#include <ogdf/basic/GraphCopy.h>                       // for GraphCopy
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase, ListConst...
+#include <ogdf/basic/Module.h>                          // for Module
+#include <ogdf/basic/Queue.h>                           // for Queue
+#include <ogdf/basic/SList.h>                           // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>              // for planarEmbed, isPlanar
+#include <ogdf/planarity/CrossingMinimizationModule.h>  // for CrossingMinimizationModule
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/PlanarizerChordlessCycle.h>    // for PlanarizerChordlessCycle
+#include <ogdf/planarity/StarInserter.h>                // for StarInserter
+#include <stdint.h>                                     // for uint32_t
+#include <initializer_list>                             // for initializer_list
 #ifdef OGDF_DEBUG
-#	include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>                // for isSimpleUndirected
 #endif
-#include <set>
 
 namespace ogdf {
 

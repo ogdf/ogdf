@@ -29,14 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/Thread.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/spring_embedder/MasterBase.h>
-#include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>
-#include <ogdf/energybased/spring_embedder/WorkerBase.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <math.h>                                                 // for sqrt
+#include <ogdf/basic/Array.h>                                     // for Array
+#include <ogdf/basic/Array2D.h>                                   // for Array2D
+#include <ogdf/basic/Barrier.h>                                   // for Barrier
+#include <ogdf/basic/GraphAttributes.h>                           // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                                 // for GraphCopy
+#include <ogdf/basic/GraphList.h>                                 // for GraphIteratorBase, Grap...
+#include <ogdf/basic/Graph_d.h>                                   // for node, RegisteredArrayWi...
+#include <ogdf/basic/List.h>                                      // for ListPure
+#include <ogdf/basic/Math.h>                                      // for updateMax, updateMin
+#include <ogdf/basic/Thread.h>                                    // for Thread
+#include <ogdf/basic/basic.h>                                     // for OGDF_ASSERT, max, rando...
+#include <ogdf/basic/geometry.h>                                  // for DPoint, DRect, GenericP...
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>           // for SpringEmbedderGridVariant
+#include <ogdf/energybased/SpringForceModel.h>                    // for SpringForceModel
+#include <ogdf/energybased/spring_embedder/MasterBase.h>          // for MasterBase
+#include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>     // for SpringEmbedderGridVaria...
+#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>  // for SpringEmbedderBase
+#include <ogdf/energybased/spring_embedder/WorkerBase.h>          // for WorkerBase
+#include <algorithm>                                              // for max, min
+#include <limits>                                                 // for numeric_limits
+#include <random>                                                 // for uniform_real_distribution
+
+// IWYU pragma: no_forward_declare ogdf::SpringEmbedderGridVariant::Worker
 
 using ogdf::Math::updateMax;
 using ogdf::Math::updateMin;

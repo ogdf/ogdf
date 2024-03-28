@@ -30,7 +30,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/StressMinimization.h>
+#include <math.h>                                  // for sqrt
+#include <ogdf/basic/GraphAttributes.h>            // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for NodeArray, RegisteredArrayWithoutDefault
+#include <ogdf/basic/Logger.h>                     // for Logger
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>           // for isConnected
+#include <ogdf/energybased/PivotMDS.h>             // for PivotMDS, isinf
+#include <ogdf/energybased/StressMinimization.h>   // for StressMinimization
+#include <ogdf/graphalg/ShortestPathAlgorithms.h>  // for bfs_SPAP, dijkstra_SPAP
+#include <ogdf/packing/ComponentSplitterLayout.h>  // for ComponentSplitterLayout
+#include <limits>                                  // for numeric_limits
+#include <ostream>                                 // for basic_ostream, char_traits, operator<<
 
 namespace ogdf {
 

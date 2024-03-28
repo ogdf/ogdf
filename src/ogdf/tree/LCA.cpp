@@ -30,10 +30,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/tree/LCA.h>
+#include <ogdf/basic/Array.h>             // for Array
+#include <ogdf/basic/ArrayBuffer.h>       // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for node, RegisteredArrayWithoutDefault, Graph, adj...
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/tree/LCA.h>                // for LCA
+#include <cmath>                          // for ilogb
+#include <utility>                        // for pair, make_pair, swap
 
 #ifdef OGDF_DEBUG
-#	include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>  // for isArborescence, isSimple
 #endif
 
 namespace ogdf {

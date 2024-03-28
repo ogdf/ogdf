@@ -30,7 +30,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/matching_blossom/Cycle.h>
+#include <ogdf/basic/Graph_d.h>                    // for node, edge, EdgeElement
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT
+#include <ogdf/graphalg/matching_blossom/Cycle.h>  // for Cycle
+#include <stddef.h>                                // for size_t
+#include <tuple>                                   // for make_tuple, tuple
+#include <unordered_set>                           // for unordered_set, operator!=, _Node_itera...
+#include <vector>                                  // for vector
 
 namespace ogdf {
 namespace matching_blossom {

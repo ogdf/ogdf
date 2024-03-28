@@ -29,7 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/IndependentSetMerger.h>
+#include <math.h>                                                    // for pow
+#include <ogdf/basic/GraphList.h>                                    // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                      // for node, RegisteredArray
+#include <ogdf/basic/basic.h>                                        // for randomNumber, OGDF_A...
+#include <ogdf/energybased/multilevel_mixer/IndependentSetMerger.h>  // for IndependentSetMerger
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>       // for MultilevelGraph, Nod...
+#include <map>                                                       // for map
+#include <vector>                                                    // for vector
 
 namespace ogdf {
 

@@ -29,10 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
-#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/Graph_d.h>                                     // for EdgeArray, edge
+#include <ogdf/basic/Module.h>                                      // for Module
+#include <ogdf/planarity/VariableEmbeddingInserter.h>               // for VariableEmbeddingInse...
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>  // for VarEdgeInserterCore
+#include <stdint.h>                                                 // for uint32_t
 
 namespace ogdf {
+class EdgeInsertionModule;
+class PlanRepLight;
 
 // clone method
 EdgeInsertionModule* VariableEmbeddingInserter::clone() const {

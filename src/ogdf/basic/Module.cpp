@@ -29,7 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Module.h>
+#include <ogdf/basic/Module.h>  // for Module, operator<<
+#include <ostream>              // for operator<<, basic_ostream, ostream, basic_ios
 
 namespace ogdf {
 

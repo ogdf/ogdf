@@ -29,7 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/simultaneous/SimDrawColorizer.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for Graph, edge, node
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT
+#include <ogdf/basic/graphics.h>                 // for Color
+#include <ogdf/simultaneous/SimDraw.h>           // for SimDraw
+#include <ogdf/simultaneous/SimDrawColorizer.h>  // for SimDrawColorizer
+#include <iosfwd>                                // for std
 
 
 using namespace std;

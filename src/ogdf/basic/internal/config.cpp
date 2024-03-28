@@ -30,6 +30,8 @@
  */
 
 #include <ogdf/basic/internal/config.h>
+// IWYU pragma: no_include <built-in>  // for Configuration, string
+#include <string>    // for basic_string, string
 
 namespace ogdf {
 

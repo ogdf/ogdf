@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/SolarPlacer.h>
+#include <ogdf/basic/Graph_d.h>                                 // for node
+#include <ogdf/basic/basic.h>                                   // for randomDouble, OGDF_ASSERT
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph, NodeMerge
+#include <ogdf/energybased/multilevel_mixer/SolarPlacer.h>      // for SolarPlacer
+#include <utility>                                              // for pair
+#include <vector>                                               // for vector
 
 namespace ogdf {
 

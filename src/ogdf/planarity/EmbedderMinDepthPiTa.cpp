@@ -32,8 +32,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/EmbedderMinDepthPiTa.h>
-#include <ogdf/planarity/embedder/ConnectedSubgraph.h>
+#include <ogdf/basic/ArrayBuffer.h>                     // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>          // for CombinatorialEmbedding, face, Fac...
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                            // for List, ListIterator, ListIteratorBase
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>              // for planarEmbed
+#include <ogdf/decomposition/BCTree.h>                  // for BCTree
+#include <ogdf/planarity/EmbedderMinDepthPiTa.h>        // for EmbedderMinDepthPiTa
+#include <ogdf/planarity/embedder/ConnectedSubgraph.h>  // for ConnectedSubgraph
 
 namespace ogdf {
 

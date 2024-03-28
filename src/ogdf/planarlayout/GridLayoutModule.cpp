@@ -29,7 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/GridLayoutModule.h>
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for Graph, node, edge, adjEntry
+#include <ogdf/basic/GridLayout.h>               // for GridLayout
+#include <ogdf/basic/List.h>                     // for ListIteratorBase, List
+#include <ogdf/basic/Math.h>                     // for updateMax
+#include <ogdf/basic/geometry.h>                 // for IPoint, GenericPoint, IPolyline, DPoint
+#include <ogdf/planarity/PlanRep.h>              // for PlanRep
+#include <ogdf/planarlayout/GridLayoutModule.h>  // for GridLayoutPlanRepModule, PlanarGridLayou...
 
 namespace ogdf {
 

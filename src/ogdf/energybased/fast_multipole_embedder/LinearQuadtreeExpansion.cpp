@@ -29,9 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeExpansion.h>
-#include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
+#include <math.h>                                                              // for atan, log
+#include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>            // for ComplexDouble
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>                // for BinCoeff
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>           // for LinearQuad...
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeExpansion.h>  // for LinearQuad...
+#include <stdint.h>                                                            // for uint32_t
 
 using namespace ogdf::sse;
 

@@ -31,7 +31,17 @@
  */
 
 
-#include <ogdf/augmentation/PlanarAugmentationFix.h>
+#include <ogdf/augmentation/PlanarAugmentationFix.h>  // for PlanarAugmentationFix
+#include <ogdf/augmentation/planar/PALabel.h>         // for pa_label, PALabel
+#include <ogdf/basic/CombinatorialEmbedding.h>        // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphCopy.h>                     // for GraphCopy
+#include <ogdf/basic/GraphList.h>                     // for GraphIteratorBase, GraphObjectConta...
+#include <ogdf/basic/Graph_d.h>                       // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                          // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>                         // for SList, SListIteratorBase, SListIter...
+#include <ogdf/basic/basic.h>                         // for OGDF_ASSERT, Direction
+#include <ogdf/decomposition/BCTree.h>                // for BCTree
+#include <ogdf/decomposition/DynamicBCTree.h>         // for DynamicBCTree
 
 // for debug-outputs
 //#define OGDF_PLANAR_AUGMENTATION_FIX_DEBUG

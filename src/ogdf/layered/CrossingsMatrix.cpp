@@ -30,7 +30,18 @@
  */
 
 
-#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/Array2D.h>                  // for Array2D
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for node, RegisteredArrayWithoutDefault, edge
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT
+#include <ogdf/layered/CrossingMinInterfaces.h>  // for HierarchyLevelsBase
+#include <ogdf/layered/CrossingsMatrix.h>        // for CrossingsMatrix
+#include <ogdf/layered/Hierarchy.h>              // for Hierarchy
+#include <ogdf/layered/HierarchyLevels.h>        // for HierarchyLevels
+#include <ogdf/layered/Level.h>                  // for Level
+#include <stdint.h>                              // for uint32_t
 
 namespace ogdf {
 

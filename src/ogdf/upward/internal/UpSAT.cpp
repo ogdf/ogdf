@@ -31,7 +31,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/GraphCopy.h>         // for GraphCopy
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault, Graph, node, edge
+#include <ogdf/basic/List.h>              // for List, ListIteratorBase, ListIterator, ListConst...
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>  // for hasSingleSource
+#include <ogdf/external/Minisat.h>        // for Formula, Model, clause
 #include <ogdf/upward/internal/UpSAT.h>
+// IWYU pragma: no_include <built-in>                       // for UpSAT
+#include <vector>                         // for vector
 
 using namespace Minisat;
 

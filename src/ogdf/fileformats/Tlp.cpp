@@ -29,7 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/Tlp.h>
+#include <ogdf/fileformats/Tlp.h>  // for Attribute, toAttribute, toString
+#include <string>                  // for basic_string, operator==, string
 
 namespace ogdf {
 

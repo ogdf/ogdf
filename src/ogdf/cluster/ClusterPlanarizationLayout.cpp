@@ -31,12 +31,30 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/cluster/CPlanarSubClusteredGraph.h>
-#include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
-#include <ogdf/cluster/ClusterOrthoLayout.h>
-#include <ogdf/cluster/ClusterPlanarizationLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/basic/Array.h>                         // for Array
+#include <ogdf/basic/GraphAttributes.h>               // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                     // for GraphIteratorBase, GraphObjectConta...
+#include <ogdf/basic/Graph_d.h>                       // for RegisteredArrayWithoutDefault, edge
+#include <ogdf/basic/HashArray.h>                     // for HashArray
+#include <ogdf/basic/Layout.h>                        // for Layout
+#include <ogdf/basic/List.h>                          // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>                         // for OGDF_ASSERT, OGDF_DEBUG, max, min
+#include <ogdf/basic/exceptions.h>                    // for AlgorithmFailureException, OGDF_THROW
+#include <ogdf/basic/extended_graph_alg.h>            // for makeCConnected
+#include <ogdf/basic/geometry.h>                      // for DPoint, GenericPoint, DPolyline
+#include <ogdf/cluster/CPlanarSubClusteredGraph.h>    // for CPlanarSubClusteredGraph
+#include <ogdf/cluster/CconnectClusterPlanarEmbed.h>  // for CconnectClusterPlanarEmbed
+#include <ogdf/cluster/ClusterGraph.h>                // for ClusterGraph, cluster, ClusterArray
+#include <ogdf/cluster/ClusterGraphAttributes.h>      // for ClusterGraphAttributes
+#include <ogdf/cluster/ClusterOrthoLayout.h>          // for ClusterOrthoLayout
+#include <ogdf/cluster/ClusterPlanRep.h>              // for ClusterPlanRep
+#include <ogdf/cluster/ClusterPlanarizationLayout.h>  // for ClusterPlanarizationLayout
+#include <ogdf/cluster/LayoutClusterPlanRepModule.h>  // for LayoutClusterPlanRepModule
+#include <ogdf/packing/CCLayoutPackModule.h>          // for CCLayoutPackModule
+#include <ogdf/packing/TileToRowsCCPacker.h>          // for TileToRowsCCPacker
+#include <algorithm>                                  // for max, min
+#include <iostream>                                   // for char_traits, basic_ostream, basic_ios
+#include <memory>                                     // for unique_ptr
 
 namespace ogdf {
 

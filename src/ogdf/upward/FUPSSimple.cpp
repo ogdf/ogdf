@@ -29,10 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/FUPSSimple.h>
-#include <ogdf/upward/FaceSinkGraph.h>
-#include <ogdf/upward/UpwardPlanarity.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for edge, node, RegisteredArray, adjEntry
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Module.h>                  // for Module
+#include <ogdf/basic/SList.h>                   // for SList
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>        // for hasSingleSource, isAcyclic, isStGraph
+#include <ogdf/upward/FUPSSimple.h>             // for FUPSSimple
+#include <ogdf/upward/FaceSinkGraph.h>          // for FaceSinkGraph
+#include <ogdf/upward/UpwardPlanRep.h>          // for UpwardPlanRep
+#include <ogdf/upward/UpwardPlanarity.h>        // for UpwardPlanarity
 
 namespace ogdf {
 

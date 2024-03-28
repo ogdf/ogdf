@@ -29,8 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>
+#include <ogdf/basic/ArrayBuffer.h>                                        // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>                             // for CombinatorialE...
+#include <ogdf/basic/GraphAttributes.h>                                    // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                                          // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                            // for node, Register...
+#include <ogdf/basic/SList.h>                                              // for SListPure, SLi...
+#include <ogdf/basic/basic.h>                                              // for OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>                                         // for AlgorithmFailu...
+#include <ogdf/basic/extended_graph_alg.h>                                 // for planarEmbed
+#include <ogdf/basic/graphics.h>                                           // for Color
+#include <ogdf/basic/simple_graph_alg.h>                                   // for parallelFreeSort
+#include <ogdf/basic/tuples.h>                                             // for Tuple2
+#include <ogdf/fileformats/GraphIO.h>                                      // for GraphIO
+#include <ogdf/orthogonal/OrthoRep.h>                                      // for OrthoRep, Orth...
+#include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>  // for ConstraintEdge...
+#include <ogdf/planarity/PlanRep.h>                                        // for PlanRep
+// IWYU pragma: no_include <built-in>                                                        // for CommonCompacti...
+#include <fstream>                                                         // for basic_ofstream
+#include <string>                                                          // for basic_string
 
 namespace ogdf {
 

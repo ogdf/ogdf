@@ -29,8 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/energybased/PivotMDS.h>
+#include <ogdf/basic/Array.h>                      // for Array
+#include <ogdf/basic/GraphAttributes.h>            // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                  // for GraphCopy
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for node, Graph, RegisteredArrayWithoutDef...
+#include <ogdf/basic/Math.h>                       // for updateMin
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT, min
+#include <ogdf/basic/exceptions.h>                 // for AlgorithmFailureException, OGDF_THROW
+#include <ogdf/basic/simple_graph_alg.h>           // for isConnected, makeSimpleUndirected
+#include <ogdf/energybased/PivotMDS.h>             // for PivotMDS, isinf
+#include <ogdf/graphalg/ShortestPathAlgorithms.h>  // for bfs_SPSS, dijkstra_SPSS
+#include <stdlib.h>                                // for rand, srand, RAND_MAX
+#include <algorithm>                               // for min
+#include <cmath>                                   // for sqrt, isnan
+#include <limits>                                  // for numeric_limits
 
 namespace ogdf {
 

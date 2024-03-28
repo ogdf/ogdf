@@ -29,7 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>
+#include <ogdf/basic/Array.h>                                  // for Array
+#include <ogdf/basic/Array2D.h>                                // for Array2D
+#include <ogdf/basic/List.h>                                   // for ListPure, ListIteratorBase
+#include <ogdf/basic/geometry.h>                               // for DPoint, operator*, Generic...
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>        // for SpringEmbedderGridVariant
+#include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>  // for SpringEmbedderGridVariant:...
+#include <cmath>                                               // for log2, pow, log
+#include <functional>                                          // for function
 
 namespace ogdf {
 

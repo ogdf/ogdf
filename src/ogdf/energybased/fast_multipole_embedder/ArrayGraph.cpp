@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+#include <ogdf/basic/GraphAttributes.h>                           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                                 // for GraphIteratorBase, Grap...
+#include <ogdf/basic/Graph_d.h>                                   // for RegisteredArrayWithoutD...
+#include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>  // for ArrayGraph
+#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>   // for NodeAdjInfo, pushBackEdge
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>   // for OGDF_FREE_16, OGDF_MALL...
+#include <stdint.h>                                               // for uint32_t
+#include <functional>                                             // for function
 
 namespace ogdf {
 namespace fast_multipole_embedder {

@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/packing/CCLayoutPackModule.h>
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/basic.h>                 // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>              // for DPoint, IPoint
+#include <ogdf/packing/CCLayoutPackModule.h>  // for CCLayoutPackModule
 
 namespace ogdf {
 

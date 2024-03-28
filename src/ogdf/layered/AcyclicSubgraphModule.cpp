@@ -29,8 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/LayoutModule.h>
-#include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/basic/Graph_d.h>                  // for edge, Graph
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase
+#include <ogdf/layered/AcyclicSubgraphModule.h>  // for AcyclicSubgraphModule
 
 namespace ogdf {
 

@@ -30,9 +30,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/GraphCopy.h>           // for GraphCopy
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>             // for RegisteredArrayWithoutDefault, EdgeArray, Edg...
+#include <ogdf/basic/basic.h>               // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>  // for computeMinST
+#include <ogdf/basic/simple_graph_alg.h>    // for isConnected
+#include <ogdf/cluster/ClusterGraph.h>      // for ClusterGraph, ClusterArray, cluster
 #include <ogdf/cluster/internal/CPlanarSubClusteredST.h>
+// IWYU pragma: no_include <built-in>                         // for CPlanarSubClusteredST
 
 namespace ogdf {
 namespace cluster_planarity {

@@ -29,9 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/energybased/fmmm/FruchtermanReingold.h>
-#include <ogdf/energybased/fmmm/common.h>
+#include <math.h>                                       // for sqrt
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/Array2D.h>                         // for Array2D
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase
+#include <ogdf/basic/geometry.h>                        // for DPoint, GenericPoint, IPoint
+#include <ogdf/energybased/fmmm/FruchtermanReingold.h>  // for FruchtermanReingold
+#include <ogdf/energybased/fmmm/NodeAttributes.h>       // for NodeAttributes
+#include <ogdf/energybased/fmmm/common.h>               // for calculate_forces_inside_contained...
+#include <ogdf/energybased/fmmm/numexcept.h>            // for numexcept
 
 namespace ogdf {
 namespace energybased {

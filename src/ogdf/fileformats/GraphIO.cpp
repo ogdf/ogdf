@@ -30,22 +30,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Logger.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/fileformats/DLParser.h>
-#include <ogdf/fileformats/DotParser.h>
-#include <ogdf/fileformats/GdfParser.h>
-#include <ogdf/fileformats/GexfParser.h>
-#include <ogdf/fileformats/GmlParser.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/GraphMLParser.h>
-#include <ogdf/fileformats/SvgPrinter.h>
-#include <ogdf/fileformats/TikzWriter.h>
-#include <ogdf/fileformats/TlpParser.h>
-#include <ogdf/fileformats/TsplibXmlParser.h>
-
-#include <cctype>
-#include <unordered_map>
+#include <ogdf/basic/Array.h>                     // for Array
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for Graph, node, edge, NodeArray, EdgeArray
+#include <ogdf/basic/GridLayout.h>                // for GridLayout
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                    // for Logger, string, to_string
+#include <ogdf/basic/basic.h>                     // for equalIgnoreCase, OGDF_ASSERT, removeTra...
+#include <ogdf/basic/geometry.h>                  // for IPoint, IPolyline
+#include <ogdf/basic/graphics.h>                  // for Shape
+#include <ogdf/basic/simple_graph_alg.h>          // for makeParallelFree
+#include <ogdf/cluster/ClusterGraph.h>            // for RegisteredArrayWithoutDefault, Register...
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/DLParser.h>            // for DLParser
+#include <ogdf/fileformats/DotParser.h>           // for Parser
+#include <ogdf/fileformats/GdfParser.h>           // for Parser
+#include <ogdf/fileformats/GexfParser.h>          // for Parser
+#include <ogdf/fileformats/GmlParser.h>           // for Parser
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <ogdf/fileformats/GraphMLParser.h>       // for GraphMLParser
+#include <ogdf/fileformats/SvgPrinter.h>          // for SvgPrinter
+#include <ogdf/fileformats/TikzWriter.h>          // for TikzWriter
+#include <ogdf/fileformats/TlpParser.h>           // for Parser
+#include <ogdf/fileformats/TsplibXmlParser.h>     // for TsplibXmlParser
+#include <stdlib.h>                               // for atoi, size_t
+#include <algorithm>                              // for all_of
+#include <cctype>                                 // for isdigit
+#include <fstream>                                // for basic_ostream, operator<<, basic_istream
+#include <map>                                    // for map, operator==, _Rb_tree_const_iterator
+#include <sstream>                                // for basic_istringstream, basic_stringstream
+#include <string>                                 // for char_traits, basic_string, allocator
+#include <unordered_map>                          // for unordered_map, _Node_const_iterator
+#include <utility>                                // for pair, move
+#include <vector>                                 // for vector
 
 // we use these data structures from the stdlib
 using std::ifstream;

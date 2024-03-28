@@ -35,17 +35,42 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/internal/ChunkConnection.h>
+#include <ogdf/basic/ArrayBuffer.h>                          // for ArrayBuffer
+#include <ogdf/basic/Graph.h>                                // for operator<<
+#include <ogdf/basic/GraphCopy.h>                            // for GraphCopy
+#include <ogdf/basic/GraphList.h>                            // for GraphIteratorBase, GraphObje...
+#include <ogdf/basic/Graph_d.h>                              // for NodePair, node, Graph, edge
+#include <ogdf/basic/List.h>                                 // for List, ListIteratorBase, List...
+#include <ogdf/basic/Logger.h>                               // for Logger
+#include <ogdf/basic/SList.h>                                // for SList, SListIteratorBase
+#include <ogdf/basic/Stopwatch.h>                            // for StopwatchCPU
+#include <ogdf/basic/basic.h>                                // for OGDF_DEBUG, OGDF_ASSERT, min
+#include <ogdf/basic/simple_graph_alg.h>                     // for isConnected, connectedCompon...
+#include <ogdf/cluster/ClusterGraph.h>                       // for ClusterGraph, cluster
+#include <ogdf/cluster/internal/ChunkConnection.h>           // for ChunkConnection (ptr only)
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 #include <ogdf/cluster/internal/MaxCPlanarSub.h>
-#include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>
-//heuristics in case only max planar subgraph is computed
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
+#include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>  // for MaxPlanarEdgesConstraint (pt...
+#include <ogdf/lib/abacus/constraint.h>                      // for Constraint
+#include <ogdf/lib/abacus/cutbuffer.inc>                     // for CutBuffer::insert
+#include <ogdf/lib/abacus/master.h>                          // for Master
+#include <ogdf/lib/abacus/optsense.h>                        // for OptSense
+#include <ogdf/lib/abacus/poolslot.inc>                      // for PoolSlot::PoolSlot<BaseType,...
+#include <ogdf/lib/abacus/standardpool.h>                    // for StandardPool
+#include <ogdf/lib/abacus/standardpool.inc>                  // for StandardPool::StandardPool<B...
+#include <ogdf/planarity/BoyerMyrvold.h>                     // for BoyerMyrvold
+#include <ogdf/planarity/ExtractKuratowskis.h>               // for KuratowskiWrapper
+#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>      // for MaximalPlanarSubgraphSimple
+#include <ogdf/planarity/PlanarSubgraphFast.h>               // for PlanarSubgraphFast
+#include <stdlib.h>                                          // for rand
+#include <algorithm>                                         // for min
+// IWYU pragma: no_include <built-in>                                          // for MaxCPlanarMaster, EdgeVar
+#include <fstream>                                           // for basic_ostream, operator<<
+#include <iostream>                                          // for cerr
+#include <string>                                            // for char_traits, basic_string
+
+namespace abacus { class Sub; }
+namespace abacus { class Variable; }
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

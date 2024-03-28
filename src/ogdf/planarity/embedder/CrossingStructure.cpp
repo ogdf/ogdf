@@ -30,7 +30,14 @@
  */
 
 
-#include <ogdf/planarity/embedder/CrossingStructure.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/GraphCopy.h>                       // for GraphCopy
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for edge, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                            // for List, ListConstIterator, ListIter...
+#include <ogdf/basic/SList.h>                           // for SListPure, SListIteratorBase
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/embedder/CrossingStructure.h>  // for CrossingStructure
 
 namespace ogdf {
 namespace embedder {

@@ -30,9 +30,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
+#include <ogdf/basic/GraphAttributes.h>       // for GraphAttributes
+#include <ogdf/basic/GraphList.h>             // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>               // for RegisteredArrayWithoutDefault, node, NodeArray
+#include <ogdf/basic/List.h>                  // for List
+#include <ogdf/basic/Queue.h>                 // for Queue
+#include <ogdf/basic/simple_graph_alg.h>      // for isAcyclic
+#include <ogdf/layered/DfsAcyclicSubgraph.h>  // for DfsAcyclicSubgraph
 
 namespace ogdf {
 

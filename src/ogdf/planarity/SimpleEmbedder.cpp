@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face, FaceArray
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, adjEntry
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>      // for planarEmbed
+#include <ogdf/planarity/PlanRep.h>             // for PlanRep
+#include <ogdf/planarity/SimpleEmbedder.h>      // for SimpleEmbedder
 
 namespace ogdf {
 

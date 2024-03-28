@@ -29,10 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
-#include <ogdf/layered/LongestPathRanking.h>
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for RegisteredArrayWithoutDefault, node, Nod...
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/Math.h>                     // for updateMin
+#include <ogdf/basic/Queue.h>                    // for Queue
+#include <ogdf/basic/SList.h>                    // for SListPure, SListIteratorBase, SListConst...
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT, max
+#include <ogdf/basic/simple_graph_alg.h>         // for makeLoopFree, parallelFreeSortUndirected
+#include <ogdf/basic/tuples.h>                   // for Tuple2
+#include <ogdf/layered/AcyclicSubgraphModule.h>  // for AcyclicSubgraphModule
+#include <ogdf/layered/DfsAcyclicSubgraph.h>     // for DfsAcyclicSubgraph
+#include <ogdf/layered/LongestPathRanking.h>     // for LongestPathRanking
+#include <algorithm>                             // for max
+#include <memory>                                // for unique_ptr
 
 namespace ogdf {
 

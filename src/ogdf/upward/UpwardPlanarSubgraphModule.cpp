@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/upward/UpwardPlanarSubgraphModule.h>
+#include <ogdf/basic/GraphCopy.h>                    // for GraphCopy
+#include <ogdf/basic/Graph_d.h>                      // for edge
+#include <ogdf/basic/List.h>                         // for List, ListIteratorBase, ListConstIte...
+#include <ogdf/upward/UpwardPlanarSubgraphModule.h>  // for UpwardPlanarSubgraphModule
 
 namespace ogdf {
 

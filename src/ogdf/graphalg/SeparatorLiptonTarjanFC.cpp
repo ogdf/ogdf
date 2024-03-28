@@ -29,10 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/graphalg/SeparatorLiptonTarjanFC.h>
-
-#include <stdexcept>
+#include <ogdf/basic/GraphCopy.h>                   // for GraphCopy
+#include <ogdf/basic/GraphList.h>                   // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                     // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                        // for List, ListIteratorBase
+#include <ogdf/basic/Reverse.h>                     // for reverse, Reverse
+#include <ogdf/basic/SList.h>                       // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                       // for OGDF_ASSERT, Direction
+#include <ogdf/basic/extended_graph_alg.h>          // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>            // for isSimple, triangulate
+#include <ogdf/graphalg/PlanarSeparatorModule.h>    // for Cycle, ArrayBFSTree
+#include <ogdf/graphalg/SeparatorLiptonTarjanFC.h>  // for TriangulatingBFSTree, SeparatorLipton...
+#include <memory>                                   // for shared_ptr, __shared_ptr_access, make...
+#include <set>                                      // for set, operator==
+#include <string>                                   // for basic_string
 
 namespace ogdf {
 

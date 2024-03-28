@@ -31,9 +31,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/SvgPrinter.h>
-#include <ogdf/geometric/GeometricEdgeInsertion.h>
+#include <ogdf/basic/GraphAttributes.h>             // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                     // for EdgeElement, Graph, node
+#include <ogdf/basic/LayoutModule.h>                // for LayoutModule
+#include <ogdf/basic/List.h>                        // for List, ListIteratorBase
+#include <ogdf/geometric/GeometricEdgeInsertion.h>  // for GeometricEdgeInsertion
+#include <ogdf/geometric/VertexPositionModule.h>    // for VertexPositionModule
 
 namespace ogdf {
 

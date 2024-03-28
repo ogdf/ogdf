@@ -30,15 +30,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/geometric/GeometricVertexInsertion.h>
+#include <ogdf/basic/exceptions.h>                    // for LibraryNotSupportedException, Libra...
+#include <ogdf/geometric/GeometricVertexInsertion.h>  // for GeometricVertexInsertion
+
+namespace ogdf { class GraphAttributes; }
 
 #ifdef OGDF_INCLUDE_CGAL
 
-#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
-
-#	include <iostream>
-
 #	include <CGAL/Simple_cartesian.h>
+#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
+#	include <iostream>
 
 namespace ogdf {
 

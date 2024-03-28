@@ -31,9 +31,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/EmbedderMaxFace.h>
-#include <ogdf/planarity/embedder/ConnectedSubgraph.h>
-#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
+#include <ogdf/basic/GraphList.h>                                      // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                        // for RegisteredArrayWit...
+#include <ogdf/basic/List.h>                                           // for List, ListIterator
+#include <ogdf/decomposition/BCTree.h>                                 // for BCTree
+#include <ogdf/decomposition/StaticSPQRTree.h>                         // for StaticSPQRTree
+#include <ogdf/planarity/EmbedderMaxFace.h>                            // for EmbedderMaxFace
+#include <ogdf/planarity/embedder/ConnectedSubgraph.h>                 // for ConnectedSubgraph
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>  // for EmbedderMaxFaceBic...
+#include <functional>                                                  // for function
 
 namespace ogdf {
 

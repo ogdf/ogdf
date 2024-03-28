@@ -29,14 +29,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
-#include <ogdf/planarity/PlanarizerMixedInsertion.h>
-#include <ogdf/planarity/StarInserter.h>
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
-#include <ogdf/planarity/embedder/CrossingStructure.h>
-
-#include <set>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/ArrayBuffer.h>                     // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>          // for CombinatorialEmbedding
+#include <ogdf/basic/DualGraph.h>                       // for DynamicDualGraph
+#include <ogdf/basic/GraphCopy.h>                       // for GraphCopy
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for edge, node, RegisteredArray, Edge...
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Module.h>                          // for Module
+#include <ogdf/basic/SList.h>                           // for SListPure, SListIteratorBase
+#include <ogdf/basic/System.h>                          // for System
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, OGDF_DEBUG, randomNu...
+#include <ogdf/basic/extended_graph_alg.h>              // for planarEmbed, isPlanar
+#include <ogdf/basic/simple_graph_alg.h>                // for findCutVertices, isSimpleUndirected
+#include <ogdf/planarity/CrossingMinimizationModule.h>  // for CrossingMinimizationModule
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/PlanRepLight.h>                // for PlanRepLight
+#include <ogdf/planarity/PlanarSubgraphFast.h>          // for PlanarSubgraphFast
+#include <ogdf/planarity/PlanarSubgraphModule.h>        // for PlanarSubgraphModule
+#include <ogdf/planarity/PlanarizerMixedInsertion.h>    // for PlanarizerMixedInsertion
+#include <ogdf/planarity/RemoveReinsertType.h>          // for RemoveReinsertType
+#include <ogdf/planarity/StarInserter.h>                // for StarInserter
+#include <ogdf/planarity/VariableEmbeddingInserter.h>   // for VariableEmbeddingInserter
+#include <ogdf/planarity/embedder/CrossingStructure.h>  // for CrossingStructure
+#include <stdint.h>                                     // for int64_t, uint32_t
+#include <memory>                                       // for unique_ptr
+#include <set>                                          // for set, _Rb_tree_const_iterator
 
 namespace ogdf {
 

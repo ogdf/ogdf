@@ -30,9 +30,17 @@
  */
 
 
-#include <ogdf/decomposition/DynamicSPQRTree.h>
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>                      // for SList, SListIteratorBase
+#include <ogdf/decomposition/DynamicSPQRForest.h>  // for DynamicSPQRForest
+#include <ogdf/decomposition/DynamicSPQRTree.h>    // for DynamicSPQRTree
+#include <ogdf/decomposition/DynamicSkeleton.h>    // for DynamicSkeleton
+#include <ogdf/decomposition/Skeleton.h>           // for Skeleton
 
 namespace ogdf {
+class SPQRTree;
 
 DynamicSkeleton::DynamicSkeleton(const DynamicSPQRTree* T, node vB) : Skeleton(vB), m_owner(T) {
 	m_origNode.init(m_M, nullptr);

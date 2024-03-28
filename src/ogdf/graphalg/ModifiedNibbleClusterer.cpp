@@ -29,8 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/graphalg/ModifiedNibbleClusterer.h>
+#include <ogdf/basic/ArrayBuffer.h>                 // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>                   // for GraphCopy
+#include <ogdf/basic/GraphList.h>                   // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                     // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/HashArray.h>                   // for HashArray
+#include <ogdf/basic/List.h>                        // for List, ListIterator, ListIteratorBase
+#include <ogdf/basic/basic.h>                       // for OGDF_ASSERT, min, OGDF_DEBUG, max
+#include <ogdf/basic/comparer.h>                    // for Prioritized
+#include <ogdf/graphalg/ModifiedNibbleClusterer.h>  // for ModifiedNibbleClusterer
+#include <algorithm>                                // for min, max
+#include <iostream>                                 // for char_traits, basic_ostream, operator<<
+#include <limits>                                   // for numeric_limits
+#include <vector>                                   // for vector
 
 using namespace ogdf;
 

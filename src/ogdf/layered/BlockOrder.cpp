@@ -29,7 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/BlockOrder.h>
+#include <ogdf/basic/Array.h>         // for Array
+#include <ogdf/basic/GraphCopy.h>     // for GraphCopy
+#include <ogdf/basic/GraphList.h>     // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>       // for RegisteredArrayWithoutDefault, node, RegisteredArray
+#include <ogdf/basic/List.h>          // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>         // for max, min
+#include <ogdf/layered/BlockOrder.h>  // for BlockOrder, Block, ArrayLevel
+#include <ogdf/layered/Hierarchy.h>   // for Hierarchy
+#include <algorithm>                  // for max, min
+#include <limits>                     // for numeric_limits
 
 namespace ogdf {
 

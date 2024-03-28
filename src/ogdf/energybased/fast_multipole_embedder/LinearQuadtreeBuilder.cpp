@@ -29,8 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeBuilder.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>         // for LinearQuadtree
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeBuilder.h>  // for LinearQuadtr...
+#include <stdint.h>                                                          // for uint32_t
 
 namespace ogdf {
 namespace fast_multipole_embedder {

@@ -29,14 +29,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/hypergraph/Hypergraph.h>
-#include <ogdf/hypergraph/HypergraphLayout.h>
-#include <ogdf/orthogonal/OrthoLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/planarity/FixedEmbeddingInserter.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/GraphAttributes.h>                 // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                       // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for node, adjEntry, edge, NodePair
+#include <ogdf/basic/Layout.h>                          // for Layout
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                        // for GenericPoint, DPoint
+#include <ogdf/hypergraph/Hypergraph.h>                 // for Hypergraph, HypernodeElement, Reg...
+#include <ogdf/hypergraph/HypergraphAttributes.h>       // for HypergraphAttributesES, Hypergrap...
+#include <ogdf/hypergraph/HypergraphLayout.h>           // for HypergraphLayoutES
+#include <ogdf/orthogonal/OrthoLayout.h>                // for OrthoLayout
+#include <ogdf/packing/TileToRowsCCPacker.h>            // for TileToRowsCCPacker
+#include <ogdf/planarity/CrossingMinimizationModule.h>  // for CrossingMinimizationModule
+#include <ogdf/planarity/EmbedderModule.h>              // for EmbedderModule
+#include <ogdf/planarity/FixedEmbeddingInserter.h>      // for FixedEmbeddingInserter
+#include <ogdf/planarity/LayoutPlanRepModule.h>         // for LayoutPlanRepModule
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/PlanarSubgraphFast.h>          // for PlanarSubgraphFast
+#include <ogdf/planarity/SimpleEmbedder.h>              // for SimpleEmbedder
+#include <ogdf/planarity/SubgraphPlanarizer.h>          // for SubgraphPlanarizer
+#include <memory>                                       // for unique_ptr
 
 namespace ogdf {
 

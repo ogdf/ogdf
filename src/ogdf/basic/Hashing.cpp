@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/Hashing.h>  // for HashingBase, HashElementBase, DefHashFunc
+#include <ogdf/basic/basic.h>    // for string, OGDF_ASSERT
+#include <stdlib.h>              // for free, calloc, size_t
+#include <string>                // for basic_string, string
 
 namespace ogdf {
 

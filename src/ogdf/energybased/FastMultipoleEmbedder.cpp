@@ -29,9 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/FastMultipoleEmbedder.h>
-#include <ogdf/energybased/fast_multipole_embedder/FMEMultipoleKernel.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <math.h>                                                         // for sqrt
+#include <ogdf/basic/EpsilonTest.h>                                       // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>                                   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                                         // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                           // for RegisteredArray...
+#include <ogdf/basic/System.h>                                            // for System
+#include <ogdf/basic/basic.h>                                             // for randomDouble, min
+#include <ogdf/basic/geometry.h>                                          // for OGDF_GEOM_ET
+#include <ogdf/energybased/FastMultipoleEmbedder.h>                       // for FastMultipoleEm...
+#include <ogdf/energybased/fast_multipole_embedder/FMEMultipoleKernel.h>  // for FMEMultipoleKernel
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>           // for prevPowerOfTwo
+#include <ogdf/fileformats/GraphIO.h>                                     // for GraphIO
+#include <stdint.h>                                                       // for uint32_t
+#include <algorithm>                                                      // for min, max
+#include <string>                                                         // for basic_string
+#include <utility>                                                        // for swap
 
 namespace ogdf {
 

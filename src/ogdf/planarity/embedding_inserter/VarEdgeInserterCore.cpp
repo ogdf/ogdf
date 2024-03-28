@@ -30,12 +30,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
-#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
-#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>                      // for ConstCombinatorialEmb...
+#include <ogdf/basic/GraphCopy.h>                                   // for GraphCopy
+#include <ogdf/basic/GraphList.h>                                   // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                     // for RegisteredArrayWithou...
+#include <ogdf/basic/List.h>                                        // for List, ListIteratorBase
+#include <ogdf/basic/Module.h>                                      // for Module
+#include <ogdf/basic/Reverse.h>                                     // for reverse, Reverse
+#include <ogdf/basic/SList.h>                                       // for SList, SListPure, SLi...
+#include <ogdf/basic/basic.h>                                       // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>                          // for planarEmbed
+#include <ogdf/basic/simple_graph_alg.h>                            // for biconnectedComponents
+#include <ogdf/decomposition/SPQRTree.h>                            // for SPQRTree
+#include <ogdf/decomposition/Skeleton.h>                            // for Skeleton
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>                // for StaticPlanarSPQRTree
+#include <ogdf/decomposition/StaticSPQRTree.h>                      // for StaticSPQRTree
+#include <ogdf/decomposition/StaticSkeleton.h>                      // for StaticSkeleton
+#include <ogdf/planarity/PlanRepLight.h>                            // for PlanRepLight
+#include <ogdf/planarity/RemoveReinsertType.h>                      // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>      // for CrossingsBucket
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>  // for VarEdgeInserterCore
 
 namespace ogdf {
 

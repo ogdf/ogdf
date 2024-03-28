@@ -29,8 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/MMCBDoubleGrid.h>
-#include <ogdf/planarlayout/MMCBLocalStretch.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for edge, node, adjEntry
+#include <ogdf/basic/GridLayout.h>               // for GridLayout
+#include <ogdf/basic/List.h>                     // for ListIteratorBase, List
+#include <ogdf/basic/Math.h>                     // for updateMax, updateMin, sgn
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                 // for IPoint, IPolyline
+#include <ogdf/planarity/PlanRep.h>              // for PlanRep
+#include <ogdf/planarlayout/MMCBBase.h>          // for MMCBBase
+#include <ogdf/planarlayout/MMCBDoubleGrid.h>    // for MMCBDoubleGrid
+#include <ogdf/planarlayout/MMCBLocalStretch.h>  // for MMCBLocalStretch
+#include <functional>                            // for function
 
 namespace ogdf {
 

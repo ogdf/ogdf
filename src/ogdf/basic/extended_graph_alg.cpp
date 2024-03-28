@@ -30,9 +30,15 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>             // for NodeArray, node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                // for List, ListIteratorBase, ListContainer, safeFo...
+#include <ogdf/basic/SList.h>               // for SListPure
+#include <ogdf/basic/basic.h>               // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>  // for isPlanar, isCConnected, makeCConnected
+#include <ogdf/basic/simple_graph_alg.h>    // for makeConnected
+#include <ogdf/cluster/ClusterGraph.h>      // for ClusterGraph, cluster, ClusterArray
+#include <functional>                       // for function
 
 namespace ogdf {
 

@@ -30,8 +30,20 @@
  */
 
 
-#include <ogdf/misclayout/CircularLayout.h>
-#include <ogdf/uml/UMLGraph.h>
+#include <math.h>                            // for sqrt, cos, sin
+#include <ogdf/basic/GraphAttributes.h>      // for GraphAttributes
+#include <ogdf/basic/GraphList.h>            // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>              // for node, Graph, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                 // for List, ListIteratorBase, ListIterator, ListCo...
+#include <ogdf/basic/Math.h>                 // for degreesToRadians, pi
+#include <ogdf/basic/SList.h>                // for SListIteratorBase, SList, SListPure, SListCo...
+#include <ogdf/basic/basic.h>                // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/geometry.h>             // for DRect, GenericPoint, DPoint, DPolyline
+#include <ogdf/basic/graphics.h>             // for operator<<, Color, Stroke
+#include <ogdf/misclayout/CircularLayout.h>  // for CircularLayout
+#include <ogdf/uml/UMLGraph.h>               // for UMLGraph
+#include <fstream>                           // for operator<<, basic_ostream, basic_ostream::op...
+#include <string>                            // for char_traits, operator<<
 
 namespace ogdf {
 

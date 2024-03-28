@@ -29,8 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/DLParser.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/GraphAttributes.h>  // for GraphAttributes
+#include <ogdf/basic/GraphList.h>        // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>          // for node, Graph, edge
+#include <ogdf/basic/Logger.h>           // for Logger
+#include <ogdf/fileformats/DLParser.h>   // for DLParser
+#include <ogdf/fileformats/GraphIO.h>    // for GraphIO
+#include <stddef.h>                      // for size_t
+#include <map>                           // for map
+#include <sstream>                       // for basic_ostream, operator<<, basic_istream, endl
+#include <string>                        // for char_traits, basic_string, operator>>, operator==
+#include <vector>                        // for vector
 
 namespace ogdf {
 

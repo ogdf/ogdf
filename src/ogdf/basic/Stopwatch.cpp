@@ -29,9 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Stopwatch.h>
-#include <ogdf/basic/System.h>
-#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/Logger.h>      // for Logger
+#include <ogdf/basic/Stopwatch.h>   // for Stopwatch, StopwatchCPU, StopwatchWallClock, operator<<
+#include <ogdf/basic/System.h>      // for System
+#include <ogdf/basic/basic.h>       // for usedTime
+#include <ogdf/basic/exceptions.h>  // for AlgorithmFailureException, AlgorithmFailureCode, OGDF...
+#include <stdint.h>                 // for int64_t
+#include <ostream>                  // for operator<<, basic_ostream, char_traits, basic_ios
 
 namespace ogdf {
 

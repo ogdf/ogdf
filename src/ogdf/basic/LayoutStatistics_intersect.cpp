@@ -30,12 +30,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/LayoutStatistics.h>
-#include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/basic/SortedSequence.h>
-
-#include <memory>
-#include <unordered_map>
+#include <math.h>                         // for fabs
+#include <ogdf/basic/GraphAttributes.h>   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for node, edge, Graph, NodeArray, RegisteredArrayWi...
+#include <ogdf/basic/LayoutStatistics.h>  // for LayoutStatistics
+#include <ogdf/basic/List.h>              // for ListIteratorBase, List, ListConstIterator
+#include <ogdf/basic/PriorityQueue.h>     // for PrioritizedQueue
+#include <ogdf/basic/SortedSequence.h>    // for SortedSequenceIteratorBase, SortedSequence
+#include <ogdf/basic/basic.h>             // for max
+#include <ogdf/basic/comparer.h>          // for OGDF_AUGMENT_COMPARER
+#include <ogdf/basic/geometry.h>          // for GenericPoint, DPoint, DPolyline
+#include <stddef.h>                       // for size_t
+#include <stdint.h>                       // for uint64_t
+#include <algorithm>                      // for max
+#include <functional>                     // for less
+#include <limits>                         // for numeric_limits
+#include <memory>                         // for shared_ptr, __shared_ptr_access, operator==
+#include <mutex>                          // for mutex, lock_guard
+#include <unordered_map>                  // for hash, unordered_map
 
 using std::unordered_map;
 
@@ -302,8 +315,8 @@ struct DSegmentHash {
 };
 
 
-struct SeqItemY;
 struct SeqItemXY;
+struct SeqItemY;
 
 using XSequence = SortedSequence<DPointHandle, SeqItemY, EventCmp>;
 using YSequence = SortedSequence<DSegmentHandle, SeqItemXY, SweepCmp>;

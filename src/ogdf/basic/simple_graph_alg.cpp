@@ -30,10 +30,22 @@
  */
 
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face
+#include <ogdf/basic/EdgeArray.h>               // for BucketEdgeArray
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, RegisteredArrayWithoutDefault, Graph
+#include <ogdf/basic/List.h>                    // for List, ListPure, ListIteratorBase, ListIte...
+#include <ogdf/basic/Math.h>                    // for updateMin, updateMax
+#include <ogdf/basic/SList.h>                   // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG, Direction, OGDF_...
+#include <ogdf/basic/extended_graph_alg.h>      // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>        // for isSimple, isAcyclic, isRegular, numParall...
+#include <ogdf/basic/tuples.h>                  // for Tuple2
+#include <functional>                           // for function
+#include <limits>                               // for numeric_limits
 
 namespace ogdf {
 

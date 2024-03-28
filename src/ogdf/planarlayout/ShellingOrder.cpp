@@ -29,8 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/SList.h>
-#include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/ArrayBuffer.h>           // for ArrayBuffer
+#include <ogdf/basic/Graph_d.h>               // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/List.h>                  // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>                 // for SListPure
+#include <ogdf/planarlayout/ShellingOrder.h>  // for ShellingOrderSet, ShellingOrder
 
 namespace ogdf {
 

@@ -30,8 +30,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/Matching.h>
-#include <ogdf/graphalg/PlanarSeparatorModule.h>
+#include <bits/std_abs.h>                         // for abs
+#include <math.h>                                 // for sqrt
+#include <ogdf/basic/ArrayBuffer.h>               // for ArrayBuffer
+#include <ogdf/basic/Graph.h>                     // for operator<<
+#include <ogdf/basic/GraphCopy.h>                 // for GraphCopy
+#include <ogdf/basic/GraphList.h>                 // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                   // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase
+#include <ogdf/basic/Reverse.h>                   // for reverse, Reverse
+#include <ogdf/basic/SList.h>                     // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT, max, min, Direction
+#include <ogdf/basic/extended_graph_alg.h>        // for isPlanar, planarEmbedPlanarGraph
+#include <ogdf/basic/simple_graph_alg.h>          // for isConnected, isSimple
+#include <ogdf/graphalg/Matching.h>               // for findMaximumCardinalityMatching
+#include <ogdf/graphalg/PlanarSeparatorModule.h>  // for Cycle, BFSTreeClassical, DMDecomposer
+#include <stdlib.h>                               // for abs
+#include <algorithm>                              // for max, min, sort
+#include <iostream>                               // for basic_ostream, operator<<, char_traits
+#include <map>                                    // for map, operator==, _Rb_tree_iterator
+#include <set>                                    // for set
+#include <utility>                                // for pair, move, get, make_pair
+#include <vector>                                 // for vector
 
 namespace ogdf {
 

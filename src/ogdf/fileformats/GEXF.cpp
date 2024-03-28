@@ -29,8 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GEXF.h>
-#include <ogdf/fileformats/Utils.h>
+#include <ogdf/basic/graphics.h>     // for Shape, StrokeType
+#include <ogdf/fileformats/GEXF.h>   // for toGEXFStrokeType, toShape, toString, toStrokeType
+#include <ogdf/fileformats/Utils.h>  // for toEnum
+#include <string>                    // for basic_string, string, operator<
 
 namespace ogdf {
 

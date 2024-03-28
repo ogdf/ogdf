@@ -30,13 +30,35 @@
  */
 
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/tuples.h>
-#include <ogdf/planarity/FixedEmbeddingInserter.h>
-#include <ogdf/planarity/MultiEdgeApproxInserter.h>
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
+#include <ogdf/basic/Array.h>                          // for Array
+#include <ogdf/basic/ArrayBuffer.h>                    // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>         // for ConstCombinatorialEmbedding, FaceA...
+#include <ogdf/basic/GraphList.h>                      // for GraphIteratorBase, GraphObjectCont...
+#include <ogdf/basic/Graph_d.h>                        // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                           // for List, ListIteratorBase, ListConstI...
+#include <ogdf/basic/Math.h>                           // for updateMax
+#include <ogdf/basic/Module.h>                         // for Module
+#include <ogdf/basic/Queue.h>                          // for QueuePure
+#include <ogdf/basic/SList.h>                          // for SList, SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                          // for OGDF_ASSERT, min
+#include <ogdf/basic/extended_graph_alg.h>             // for planarEmbed
+#include <ogdf/basic/simple_graph_alg.h>               // for biconnectedComponents
+#include <ogdf/basic/tuples.h>                         // for Tuple2
+#include <ogdf/decomposition/SPQRTree.h>               // for SPQRTree
+#include <ogdf/decomposition/Skeleton.h>               // for Skeleton
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>   // for StaticPlanarSPQRTree
+#include <ogdf/decomposition/StaticSkeleton.h>         // for StaticSkeleton
+#include <ogdf/planarity/EdgeInsertionModule.h>        // for EdgeInsertionModule
+#include <ogdf/planarity/FixedEmbeddingInserter.h>     // for FixedEmbeddingInserter
+#include <ogdf/planarity/MultiEdgeApproxInserter.h>    // for MultiEdgeApproxInserter
+#include <ogdf/planarity/PlanRepLight.h>               // for PlanRepLight
+#include <ogdf/planarity/RemoveReinsertType.h>         // for RemoveReinsertType
+#include <ogdf/planarity/VariableEmbeddingInserter.h>  // for VariableEmbeddingInserter
+#include <stdint.h>                                    // for uint32_t
+#include <algorithm>                                   // for min
+#include <iostream>                                    // for basic_ostream, char_traits, operat...
+#include <limits>                                      // for numeric_limits
+#include <utility>                                     // for swap
 
 namespace ogdf {
 

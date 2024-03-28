@@ -29,9 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>
+#include <ogdf/augmentation/AugmentationModule.h>                 // for AugmentationModule
+#include <ogdf/basic/Array.h>                                     // for Array
+#include <ogdf/basic/Graph.h>                                     // for operator<<
+#include <ogdf/basic/GraphList.h>                                 // for GraphIteratorBase, Grap...
+#include <ogdf/basic/Graph_d.h>                                   // for RegisteredArrayWithoutD...
+#include <ogdf/basic/GridLayout.h>                                // for GridLayout
+#include <ogdf/basic/List.h>                                      // for ListIteratorBase, List
+#include <ogdf/basic/basic.h>                                     // for max, OGDF_ASSERT, min
+#include <ogdf/basic/geometry.h>                                  // for GenericPolyline, Generi...
+#include <ogdf/planarity/EmbedderModule.h>                        // for EmbedderModule
+#include <ogdf/planarity/PlanRep.h>                               // for PlanRep
+#include <ogdf/planarlayout/ShellingOrder.h>                      // for ShellingOrderSet
+#include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>        // for InOutPoint, IOPoints
+#include <ogdf/planarlayout/mixed_model_layout/MMOrder.h>         // for MMOrder
+#include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>  // for MixedModelBase
+#include <algorithm>                                              // for max, min
+#include <ostream>                                                // for basic_ostream, operator<<
 
 namespace ogdf {
+class ShellingOrderModule;
 
 bool MixedModelBase::hasLeft(int k) const {
 	const ShellingOrderSet& V = m_mmo[k];

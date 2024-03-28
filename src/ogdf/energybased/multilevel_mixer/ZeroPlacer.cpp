@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/ZeroPlacer.h>
+#include <ogdf/basic/Graph_d.h>                                 // for node
+#include <ogdf/basic/basic.h>                                   // for randomDouble
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph, NodeMerge
+#include <ogdf/energybased/multilevel_mixer/ZeroPlacer.h>       // for ZeroPlacer
+#include <vector>                                               // for vector
 
 namespace ogdf {
 

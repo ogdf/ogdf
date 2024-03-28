@@ -31,7 +31,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/LeftistOrdering.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/Graph_d.h>                 // for node, RegisteredArrayWithoutDefault, adjE...
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase
+#include <ogdf/planarlayout/LeftistOrdering.h>  // for LeftistOrdering
+#include <iostream>                             // for char_traits, basic_ostream, basic_ios
 
 using namespace ogdf;
 

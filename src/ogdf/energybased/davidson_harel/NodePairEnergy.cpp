@@ -30,7 +30,19 @@
  */
 
 
-#include <ogdf/energybased/davidson_harel/NodePairEnergy.h>
+#include <ogdf/basic/Array.h>                                // for Array
+#include <ogdf/basic/Array2D.h>                              // for Array2D
+#include <ogdf/basic/GraphAttributes.h>                      // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                            // for GraphIteratorBase, GraphObje...
+#include <ogdf/basic/Graph_d.h>                              // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                                 // for List, ListIteratorBase, List...
+#include <ogdf/basic/basic.h>                                // for OGDF_ASSERT, max, min, OGDF_...
+#include <ogdf/basic/geometry.h>                             // for DIntersectableRect, DPoint
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>  // for EnergyFunction
+#include <ogdf/energybased/davidson_harel/NodePairEnergy.h>  // for NodePairEnergy
+#include <algorithm>                                         // for max, min
+#include <iostream>                                          // for basic_ostream, operator<<
+#include <string>                                            // for char_traits, basic_string
 
 namespace ogdf {
 namespace davidson_harel {

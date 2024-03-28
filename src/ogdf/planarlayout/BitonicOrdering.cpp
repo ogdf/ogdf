@@ -32,7 +32,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/BitonicOrdering.h>
+#include <ogdf/basic/Array.h>                         // for Array
+#include <ogdf/basic/Graph.h>                         // for operator<<
+#include <ogdf/basic/GraphAttributes.h>               // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                     // for GraphIteratorBase, GraphObjectConta...
+#include <ogdf/basic/Graph_d.h>                       // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                          // for List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                        // for Logger, OGDF_DEBUG
+#include <ogdf/basic/basic.h>                         // for OGDF_ASSERT, max
+#include <ogdf/decomposition/SPQRTree.h>              // for SPQRTree
+#include <ogdf/decomposition/Skeleton.h>              // for Skeleton
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>  // for StaticPlanarSPQRTree
+#include <ogdf/planarlayout/BitonicOrdering.h>        // for BitonicOrdering
+#include <ogdf/planarlayout/LeftistOrdering.h>        // for LeftistOrdering
+#include <algorithm>                                  // for max
+#include <sstream>                                    // for basic_ostream, operator<<, basic_os...
+#include <string>                                     // for char_traits, allocator, basic_string
 
 using namespace ogdf;
 

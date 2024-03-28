@@ -29,9 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/TlpLexer.h>
+#include <ctype.h>                      // for isalnum, isspace
+#include <ogdf/basic/Logger.h>          // for Logger
+#include <ogdf/fileformats/GraphIO.h>   // for GraphIO
+#include <ogdf/fileformats/TlpLexer.h>  // for Token, Lexer, operator<<
+#include <stddef.h>                     // for size_t
+#include <istream>                      // for basic_ostream, operator<<, basic_ios, basic_istream
+#include <string>                       // for basic_string, char_traits, operator<<, getline
+#include <vector>                       // for vector
 
 namespace ogdf {
 

@@ -32,8 +32,21 @@
 
 //#define OGDF_CLIQUE_FINDER_HEURISTIC_DEBUG
 
-#include <ogdf/basic/geometry.h>
-#include <ogdf/clique/CliqueFinderHeuristic.h>
+#include <math.h>                               // for ceil
+#include <ogdf/basic/AdjacencyOracle.h>         // for AdjacencyOracle
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/EpsilonTest.h>             // for EpsilonTest
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, RegisteredArray, adjEntry, Register...
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG, max
+#include <ogdf/basic/comparer.h>                // for GenericComparer
+#include <ogdf/basic/geometry.h>                // for OGDF_GEOM_ET
+#include <ogdf/clique/CliqueFinderHeuristic.h>  // for CliqueFinderHeuristic
+#include <ogdf/clique/CliqueFinderModule.h>     // for CliqueFinderModule
+#include <algorithm>                            // for max
+#include <functional>                           // for function
 
 namespace ogdf {
 

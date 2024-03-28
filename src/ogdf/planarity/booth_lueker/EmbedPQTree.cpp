@@ -32,7 +32,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
+#include <ogdf/basic/ArrayBuffer.h>                      // for ArrayBuffer
+#include <ogdf/basic/Graph_d.h>                          // for edge, node
+#include <ogdf/basic/List.h>                             // for List, ListIteratorBase
+#include <ogdf/basic/PQTree.h>                           // for PQTree
+#include <ogdf/basic/SList.h>                            // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                            // for OGDF_ASSERT
+#include <ogdf/basic/pqtree/PQBasicKey.h>                // for PQBasicKey
+#include <ogdf/basic/pqtree/PQInternalNode.h>            // for PQInternalNode
+#include <ogdf/basic/pqtree/PQLeaf.h>                    // for PQLeaf
+#include <ogdf/basic/pqtree/PQLeafKey.h>                 // for PQLeafKey
+#include <ogdf/basic/pqtree/PQNode.h>                    // for PQNode
+#include <ogdf/basic/pqtree/PQNodeKey.h>                 // for PQNodeKey
+#include <ogdf/basic/pqtree/PQNodeRoot.h>                // for PQNodeRoot
+#include <ogdf/planarity/booth_lueker/EmbedIndicator.h>  // for EmbedIndicator
+#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>     // for EmbedPQTree
+#include <ogdf/planarity/booth_lueker/IndInfo.h>         // for IndInfo
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>   // for PlanarLeafKey
 
 namespace ogdf {
 namespace booth_lueker {

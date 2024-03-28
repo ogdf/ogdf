@@ -30,11 +30,16 @@
  */
 
 
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/Math.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, ConstCombinatoria...
+#include <ogdf/basic/GraphList.h>               // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, adjEntry
+#include <ogdf/basic/List.h>                    // for chooseIteratorFrom
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_HEAVY_DEBUG, OGDF_DEBUG
+#include <functional>                           // for function
+#include <ostream>                              // for basic_ostream, basic_ostream::operator<<
+#include <utility>                              // for swap
 #ifdef OGDF_DEBUG
-#	include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>        // for isConnected
 #endif
 
 

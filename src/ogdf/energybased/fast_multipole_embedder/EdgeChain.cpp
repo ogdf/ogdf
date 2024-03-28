@@ -29,7 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
+#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>  // for EdgeAdjInfo, NodeAdjInfo
+#include <stdint.h>                                              // for uint32_t
+#include <functional>                                            // for function
 
 namespace ogdf {
 namespace fast_multipole_embedder {

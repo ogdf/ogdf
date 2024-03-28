@@ -29,11 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/List.h>
-#include <ogdf/hypergraph/Hypergraph.h>
-#include <ogdf/hypergraph/HypergraphArray.h>
-#include <ogdf/hypergraph/HypergraphObserver.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/GraphList.h>                // for GraphList
+#include <ogdf/basic/HashArray.h>                // for HashArray
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListPure, ListIt...
+#include <ogdf/basic/basic.h>                    // for string, OGDF_ASSERT, randomNumber
+#include <ogdf/hypergraph/Hypergraph.h>          // for Hypergraph, hypernode, HypergraphRegistry
+#include <ogdf/hypergraph/HypergraphObserver.h>  // for HypergraphObserver
+#include <string.h>                              // for strncmp, strlen
+#include <fstream>                               // for basic_ostream, basic_istream::operator>>
+#include <string>                                // for basic_string, char_traits, string, opera...
 
 namespace ogdf {
 

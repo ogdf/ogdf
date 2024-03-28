@@ -30,7 +30,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/PlanarSubgraphBoyerMyrvold.h>
+#include <ogdf/basic/GraphCopy.h>                             // for GraphCopy
+#include <ogdf/basic/GraphList.h>                             // for GraphIteratorBase, GraphObj...
+#include <ogdf/basic/Graph_d.h>                               // for EdgeArray, edge, Graph, Reg...
+#include <ogdf/basic/List.h>                                  // for List
+#include <ogdf/basic/Module.h>                                // for Module
+#include <ogdf/basic/SList.h>                                 // for SListPure
+#include <ogdf/basic/basic.h>                                 // for OGDF_ASSERT
+#include <ogdf/planarity/BoothLueker.h>                       // for BoothLueker
+#include <ogdf/planarity/PlanarSubgraphBoyerMyrvold.h>        // for PlanarSubgraphBoyerMyrvold
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>  // for BoyerMyrvoldPlanar
+#include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>     // for KuratowskiStructure
+#include <random>                                             // for minstd_rand
 
 namespace ogdf {
 

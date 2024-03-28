@@ -29,15 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
-#include <ogdf/upward/UpwardPlanRep.h>
-
-
-//debug only
-#include <ogdf/upward/LayerBasedUPRLayout.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>             // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphCopy.h>                          // for GraphCopy
+#include <ogdf/basic/GraphList.h>                          // for GraphIteratorBase, GraphObject...
+#include <ogdf/basic/Graph_d.h>                            // for adjEntry, edge, EdgeArray, node
+#include <ogdf/basic/List.h>                               // for List, ListIteratorBase, ListIt...
+#include <ogdf/basic/Module.h>                             // for Module
+#include <ogdf/basic/PriorityQueue.h>                      // for PrioritizedMapQueue
+#include <ogdf/basic/Queue.h>                              // for Queue
+#include <ogdf/basic/SList.h>                              // for SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                              // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>                   // for isAcyclic, hasSingleSource
+#include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>  // for FixedEmbeddingUpwardEdgeInserter
+#include <ogdf/upward/UpwardPlanRep.h>                     // for UpwardPlanRep
+#include <limits>                                          // for numeric_limits
 
 namespace ogdf {
 

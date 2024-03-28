@@ -30,7 +30,13 @@
  */
 
 
-#include <ogdf/upward/FaceSinkGraph.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for ConstCombinatorialEmbedding, face, FaceArray
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, RegisteredArrayWithoutDefault, Regi...
+#include <ogdf/basic/List.h>                    // for List
+#include <ogdf/basic/SList.h>                   // for SListPure, SList, SListIteratorBase, SLis...
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
+#include <ogdf/upward/FaceSinkGraph.h>          // for FaceSinkGraph
 
 namespace ogdf {
 

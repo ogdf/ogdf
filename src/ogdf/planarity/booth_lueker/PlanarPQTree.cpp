@@ -32,9 +32,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
+#include <ogdf/basic/Graph_d.h>                         // for edge
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase
+#include <ogdf/basic/PQTree.h>                          // for PQTree
+#include <ogdf/basic/SList.h>                           // for SListPure, SListIteratorBase
+#include <ogdf/basic/pqtree/PQInternalNode.h>           // for PQInternalNode
+#include <ogdf/basic/pqtree/PQLeaf.h>                   // for PQLeaf
+#include <ogdf/basic/pqtree/PQNode.h>                   // for PQNode
+#include <ogdf/basic/pqtree/PQNodeRoot.h>               // for PQNodeRoot
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>  // for PlanarLeafKey
+#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>   // for PlanarPQTree
+
+namespace ogdf::booth_lueker { class IndInfo; }
 
 namespace ogdf {
+template <class T, class X, class Y> class PQLeafKey;
+
 namespace booth_lueker {
 
 // Replaces the pertinent subtree by a P-node with leaves as children

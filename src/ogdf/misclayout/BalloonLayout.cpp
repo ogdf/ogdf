@@ -38,9 +38,22 @@
 //For each angle assignment at a node p (parent), its own angle is
 //used as offset, so that the children are correctly oriented
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/misclayout/BalloonLayout.h>
+#include <math.h>                           // for cos, fmod, sin, sqrt
+#include <ogdf/basic/GraphAttributes.h>     // for GraphAttributes
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>             // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/List.h>                // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/Logger.h>              // for OGDF_DEBUG, Logger
+#include <ogdf/basic/Math.h>                // for pi
+#include <ogdf/basic/Queue.h>               // for Queue
+#include <ogdf/basic/SList.h>               // for SListPure
+#include <ogdf/basic/basic.h>               // for max, OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>          // for AlgorithmFailureException, AlgorithmFailureCode
+#include <ogdf/basic/graphics.h>            // for Color
+#include <ogdf/basic/simple_graph_alg.h>    // for isConnected
+#include <ogdf/misclayout/BalloonLayout.h>  // for BalloonLayout, operator<<
+#include <algorithm>                        // for max
+#include <ostream>                          // for basic_ostream, operator<<, char_traits, basic...
 
 namespace ogdf {
 

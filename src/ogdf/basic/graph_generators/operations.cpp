@@ -29,8 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/graph_generators/operations.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/graph_generators/operations.h>  // for NodeMap, cartesianProduct, coNormalP...
+#include <ogdf/basic/simple_graph_alg.h>             // for makeParallelFree, makeParallelFreeUn...
+#include <functional>                                // for function
 
 namespace ogdf {
 

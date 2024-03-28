@@ -30,11 +30,26 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/ArrayBuffer.h>           // for ArrayBuffer
+#include <ogdf/basic/GraphAttributes.h>       // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>             // for GraphCopy
+#include <ogdf/basic/GraphList.h>             // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>               // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/GridLayout.h>            // for GridLayout
+#include <ogdf/basic/Layout.h>                // for Layout
+#include <ogdf/basic/List.h>                  // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>                 // for SListIteratorBase, SList, SListPure, SListC...
+#include <ogdf/basic/basic.h>                 // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/tuples.h>                // for Tuple2
+#include <ogdf/orthogonal/OrthoRep.h>         // for OrthoRep, OrthoDir, BendString, OrthoBendType
+#include <ogdf/planarity/EdgeTypePatterns.h>  // for edgeType
+#include <ogdf/planarity/PlanRep.h>           // for PlanRep
+#include <fstream>                            // for operator<<, basic_ostream, basic_ostream::o...
+#include <string>                             // for char_traits, operator<<
+#include <utility>                            // for pair
 
 namespace ogdf {
+class CombinatorialEmbedding;
 
 PlanRep::PlanRep(const Graph& G)
 	: GraphCopy()

@@ -33,8 +33,21 @@
  */
 
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphCopy.h>
+#include <math.h>                        // for fabs
+#include <ogdf/basic/Array.h>            // for Array
+#include <ogdf/basic/GraphAttributes.h>  // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>        // for GraphCopy
+#include <ogdf/basic/GraphList.h>        // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>          // for Graph, RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/LayoutStandards.h>  // for LayoutStandards
+#include <ogdf/basic/List.h>             // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Math.h>             // for updateMax, updateMin
+#include <ogdf/basic/Reverse.h>          // for reverse, Reverse
+#include <ogdf/basic/basic.h>            // for OGDF_ASSERT, string
+#include <ogdf/basic/geometry.h>         // for DPoint, DSegment, DRect, GenericPoint, GenericPo...
+#include <ogdf/basic/graphics.h>         // for Color, Stroke, Fill, StrokeType (ptr only), Edge...
+#include <string>                        // for basic_string, operator!=, string
+#include <utility>                       // for swap
 
 namespace ogdf {
 

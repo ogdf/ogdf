@@ -39,8 +39,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Graph_d.h>          // for NodePair
+#include <ogdf/basic/List.h>             // for List, ListIteratorBase
 #include <ogdf/cluster/internal/MinimalClusterConnection.h>
+#include <ogdf/lib/abacus/constraint.h>  // for Constraint
+#include <ogdf/lib/abacus/csense.h>      // for CSense
+// IWYU pragma: no_include <built-in>                      // for MinimalClusterConnection, EdgeVar
+
+namespace abacus { class Master; }
+namespace abacus { class Variable; }
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

@@ -29,9 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/System.h>
-#include <ogdf/basic/exceptions.h>
-#include <ogdf/basic/memory.h>
+#include <ogdf/basic/System.h>      // for System, CPUFeatureMask, operator|=
+#include <ogdf/basic/basic.h>       // for OGDF_SYSTEM_UNIX, OGDF_HAS_MALLINFO2, string, to_string
+#include <ogdf/basic/exceptions.h>  // for AlgorithmFailureCode, Exception, AlgorithmFailureExce...
+#include <ogdf/basic/memory.h>      // for OGDF_ALLOCATOR
+#include <stddef.h>                 // for size_t
+#include <stdint.h>                 // for int64_t, uint32_t
+#include <fstream>                  // for basic_istream, basic_ifstream, basic_ios, ifstream
+#include <string>                   // for char_traits, allocator, basic_string, operator+, string
 
 // clang-format off
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
@@ -40,35 +45,34 @@
 #    undef NOMINMAX
 #    define NOMINMAX
 
-#    include <windows.h>
 #    include <psapi.h>
+#    include <windows.h>
 #    ifdef _MSC_VER
 #        pragma comment(lib, "psapi.lib")
 #    endif
 #endif
 
 #ifdef __APPLE__
-#    include <stdlib.h>
-#    include <malloc/malloc.h>
-#    include <sys/types.h>
-#    include <sys/sysctl.h>
-#    include <sys/utsname.h>
-#    include <mach/vm_statistics.h>
 #    include <mach/mach.h>
 #    include <mach/machine.h>
+#    include <mach/vm_statistics.h>
+#    include <malloc/malloc.h>
+#    include <stdlib.h>
+#    include <sys/sysctl.h>
+#    include <sys/types.h>
+#    include <sys/utsname.h>
 #elif defined(OGDF_SYSTEM_UNIX)
-#    include <malloc.h>
+#include <malloc.h>                 // for mallinfo2
 #endif
 
 #if defined(_MSC_VER)
 #    include <intrin.h>
 #elif defined(OGDF_SYSTEM_UNIX) || (defined(__MINGW32__) && !defined(__MINGW64__))
-#    include <unistd.h>
-#    include <fcntl.h>
-#    include <sys/time.h>
+#include <sys/time.h>               // for timeval, gettimeofday
+#include <unistd.h>                 // for sysconf, getpid, _SC_PAGESIZE, _SC_AVPHYS_PAGES, _SC_...
 #endif
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
-#    include <cpuid.h>
+#include <cpuid.h>                  // for __get_cpuid
 #endif
 // clang-format on
 

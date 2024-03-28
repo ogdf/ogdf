@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/basic/AdjacencyOracle.h>  // for AdjacencyOracle
+#include <ogdf/basic/GraphList.h>        // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>          // for RegisteredArrayWithoutDefault, node, Graph, adjE...
+#include <ogdf/basic/basic.h>            // for OGDF_ASSERT
+#include <utility>                       // for swap
+#include <vector>                        // for vector
 
 namespace ogdf {
 

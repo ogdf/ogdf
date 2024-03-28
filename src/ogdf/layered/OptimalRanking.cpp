@@ -30,11 +30,19 @@
  */
 
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/graphalg/MinCostFlowReinelt.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
-#include <ogdf/layered/OptimalRanking.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for EdgeArray, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>                    // for SListIteratorBase, SListPure, SListConst...
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/simple_graph_alg.h>         // for connectedComponents, isAcyclic, makeLoop...
+#include <ogdf/graphalg/MinCostFlowReinelt.h>    // for MinCostFlowReinelt
+#include <ogdf/layered/AcyclicSubgraphModule.h>  // for AcyclicSubgraphModule
+#include <ogdf/layered/DfsAcyclicSubgraph.h>     // for DfsAcyclicSubgraph
+#include <ogdf/layered/OptimalRanking.h>         // for OptimalRanking
+#include <memory>                                // for unique_ptr
 
 namespace ogdf {
 

@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/GraphAttributes.h>   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for Graph, RegisteredArrayWithoutDefault, NodeArray
+#include <ogdf/basic/simple_graph_alg.h>  // for isParallelFree
+#include <ogdf/fileformats/GraphIO.h>     // for GraphIO
+#include <ostream>                        // for basic_ostream, operator<<, basic_ostream::opera...
+#include <string>                         // for char_traits, operator<<
+#include <vector>                         // for vector
 
 namespace ogdf {
 

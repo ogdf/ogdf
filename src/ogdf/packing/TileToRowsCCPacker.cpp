@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/SList.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/Math.h>                  // for updateMax
+#include <ogdf/basic/SList.h>                 // for SListPure
+#include <ogdf/basic/basic.h>                 // for OGDF_ASSERT, OGDF_HEAVY_ASSERT
+#include <ogdf/basic/comparer.h>              // for GenericComparer
+#include <ogdf/basic/geometry.h>              // for DPoint, IPoint
+#include <ogdf/packing/TileToRowsCCPacker.h>  // for TileToRowsCCPacker
+#include <algorithm>                          // for max
 
 namespace ogdf {
 

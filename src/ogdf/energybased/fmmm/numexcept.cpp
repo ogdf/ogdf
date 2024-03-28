@@ -30,7 +30,11 @@
  */
 
 
-#include <ogdf/energybased/fmmm/numexcept.h>
+#include <ogdf/basic/basic.h>                 // for randomNumber, min
+#include <ogdf/basic/geometry.h>              // for DPoint, GenericPoint, operator*
+#include <ogdf/energybased/fmmm/numexcept.h>  // for numexcept
+#include <algorithm>                          // for min
+#include <iostream>                           // for basic_ostream, char_traits, operator<<, cout
 
 #define epsilon 0.1
 #define POS_SMALL_DOUBLE 1e-300

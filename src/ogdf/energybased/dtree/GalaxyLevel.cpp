@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/dtree/GalaxyLevel.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/Graph_d.h>                  // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>         // for isConnected
+#include <ogdf/energybased/dtree/GalaxyLevel.h>  // for GalaxyLevel
+#include <algorithm>                             // for sort
 
 using namespace ogdf;
 using namespace ogdf::energybased::dtree;

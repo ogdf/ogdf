@@ -33,8 +33,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Graph_d.h>      // for NodePair, node
+#include <ogdf/basic/List.h>         // for List, ListIteratorBase
 #include <ogdf/cluster/internal/CutConstraint.h>
+#include <ogdf/lib/abacus/csense.h>  // for CSense
+// IWYU pragma: no_include <built-in>                  // for CutConstraint, BaseConstraint
+
+namespace abacus { class Master; }
+namespace abacus { class Sub; }
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

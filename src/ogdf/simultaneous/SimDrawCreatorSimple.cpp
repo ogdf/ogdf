@@ -29,8 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/simultaneous/SimDrawCreatorSimple.h>
+#include <ogdf/basic/Array.h>                        // for Array
+#include <ogdf/basic/Array2D.h>                      // for Array2D
+#include <ogdf/basic/GraphAttributes.h>              // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                      // for Graph, node, edge
+#include <ogdf/basic/basic.h>                        // for OGDF_ASSERT
+#include <ogdf/simultaneous/SimDrawCreatorSimple.h>  // for SimDrawCreatorSimple
 
 namespace ogdf {
 

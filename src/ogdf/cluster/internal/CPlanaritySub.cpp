@@ -31,17 +31,42 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/basic/Array.h>                                   // for Array
+#include <ogdf/basic/ArrayBuffer.h>                             // for ArrayBuffer
+#include <ogdf/basic/Graph.h>                                   // for operator<<
+#include <ogdf/basic/GraphCopy.h>                               // for GraphCopy
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/Graph_d.h>                                 // for node, NodePair, Registere...
+#include <ogdf/basic/List.h>                                    // for List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                                  // for Logger, OGDF_DEBUG
+#include <ogdf/basic/Queue.h>                                   // for Queue
+#include <ogdf/basic/SList.h>                                   // for SListPure, SList, SListIt...
+#include <ogdf/basic/basic.h>                                   // for OGDF_ASSERT, randomDouble
+#include <ogdf/basic/exceptions.h>                              // for AlgorithmFailureException
+#include <ogdf/basic/extended_graph_alg.h>                      // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>                        // for isConnected, isSimpleUndi...
+#include <ogdf/cluster/ClusterGraph.h>                          // for ClusterGraph, cluster
 #include <ogdf/cluster/internal/CPlanaritySub.h>
-#include <ogdf/cluster/internal/ChunkConnection.h>
-#include <ogdf/cluster/internal/ClusterKuratowskiConstraint.h>
-#include <ogdf/cluster/internal/CutConstraint.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/graphalg/MinimumCutStoerWagner.h>
-
-#include <ogdf/lib/abacus/setbranchrule.h>
+#include <ogdf/cluster/internal/ChunkConnection.h>              // for ChunkConnection (ptr only)
+#include <ogdf/cluster/internal/ClusterKuratowskiConstraint.h>  // for ClusterKuratowskiConstrai...
+#include <ogdf/cluster/internal/CutConstraint.h>                // for CutConstraint (ptr only)
+#include <ogdf/graphalg/MinimumCutStoerWagner.h>                // for MinimumCutStoerWagner
+#include <ogdf/lib/abacus/branchrule.h>                         // for BranchRule
+#include <ogdf/lib/abacus/constraint.h>                         // for Constraint
+#include <ogdf/lib/abacus/csense.h>                             // for CSense
+#include <ogdf/lib/abacus/cutbuffer.h>                          // for CutBuffer
+#include <ogdf/lib/abacus/cutbuffer.inc>                        // for CutBuffer::insert
+#include <ogdf/lib/abacus/lpsub.h>                              // for LpSub
+#include <ogdf/lib/abacus/master.h>                             // for Master
+#include <ogdf/lib/abacus/poolslot.h>                           // for PoolSlot
+#include <ogdf/lib/abacus/setbranchrule.h>                      // for SetBranchRule
+#include <ogdf/lib/abacus/standardpool.h>                       // for StandardPool
+#include <ogdf/lib/abacus/sub.h>                                // for Sub
+#include <ogdf/lib/abacus/variable.h>                           // for Variable
+#include <ogdf/planarity/BoyerMyrvold.h>                        // for BoyerMyrvold
+#include <ogdf/planarity/ExtractKuratowskis.h>                  // for KuratowskiWrapper
+// IWYU pragma: no_include <built-in>                                             // for CPlanaritySub, CPlanarity...
+#include <iostream>                                             // for basic_ostream, operator<<
 
 //output intermediate results when new sons are generated
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT

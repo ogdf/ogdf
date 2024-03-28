@@ -33,11 +33,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/cluster/ClusterArray.h>
-#include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphObserver.h>
+#include <ogdf/basic/GraphList.h>       // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>         // for node, NodeArray, Graph, edge, NodeElement, EdgeArray
+#include <ogdf/basic/List.h>            // for ListContainer, List, ListIteratorBase, ListPure
+#include <ogdf/basic/Math.h>            // for nextPower2
+#include <ogdf/basic/Observer.h>        // for Observable
+#include <ogdf/basic/Reverse.h>         // for reverse, Reverse
+#include <ogdf/basic/SList.h>           // for SList, SListPure, SListIteratorBase, SListIterator
+#include <ogdf/basic/basic.h>           // for OGDF_ASSERT, OGDF_DEBUG, OGDF_HEAVY_DEBUG
+#include <ogdf/basic/exceptions.h>      // for AlgorithmFailureException, OGDF_THROW
+#include <ogdf/cluster/ClusterGraph.h>  // for ClusterGraph, cluster, RegisteredArrayWithoutDefault
+#include <functional>                   // for function
+#include <limits>                       // for numeric_limits
+#include <memory>                       // for unique_ptr
+#include <ostream>                      // for basic_ostream, basic_ostream::operator<<, operator<<
 
 namespace ogdf {
 

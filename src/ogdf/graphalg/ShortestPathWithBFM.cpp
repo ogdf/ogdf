@@ -35,7 +35,10 @@
 //
 //   implementation follows Cormen/Leiserson/Rivest
 
-#include <ogdf/graphalg/ShortestPathWithBFM.h>
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, Graph, Nod...
+#include <ogdf/graphalg/ShortestPathWithBFM.h>  // for ShortestPathWithBFM
+#include <limits>                               // for numeric_limits
 
 namespace ogdf {
 

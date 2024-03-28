@@ -29,11 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/graphalg/Dijkstra.h>
-#include <ogdf/planarity/StarInserter.h>
-
-#include <set>
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face, FaceArray
+#include <ogdf/basic/DualGraph.h>               // for DynamicDualGraph
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/SList.h>                   // for SList, SListIteratorBase, SListConstIterator
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_HEAVY_DEBUG
+#include <ogdf/graphalg/Dijkstra.h>             // for Dijkstra
+#include <ogdf/planarity/StarInserter.h>        // for StarInserter, EdgeOrderComparer, Predeces...
+#include <limits>                               // for numeric_limits
+#include <memory>                               // for unique_ptr
+#include <set>                                  // for set, _Rb_tree_const_iterator
+#include <unordered_map>                        // for unordered_map
+#include <utility>                              // for swap
 
 namespace ogdf {
 

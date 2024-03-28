@@ -31,7 +31,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for face, ConstCombinatorialEmbedding, FaceAd...
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, node, Edge...
+#include <ogdf/basic/List.h>                    // for List, ListIterator, ListIteratorBase
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
 #include <ogdf/upward/internal/UpwardPlanarityEmbeddedDigraph.h>
+// IWYU pragma: no_include <built-in>                             // for UpwardPlanarityEmbeddedDigraph
 
 namespace ogdf {
 

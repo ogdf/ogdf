@@ -30,12 +30,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/STNumbering.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/ArrayBuffer.h>                     // for ArrayBuffer
+#include <ogdf/basic/Graph.h>                           // for operator<<
+#include <ogdf/basic/GraphList.h>                       // for GraphObjectContainer, GraphIterat...
+#include <ogdf/basic/Graph_d.h>                         // for RegisteredArrayWithoutDefault, Graph
+#include <ogdf/basic/List.h>                            // for ListPure, List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                          // for Logger, OGDF_DEBUG, OGDF_HEAVY_DEBUG
+#include <ogdf/basic/PQTree.h>                          // for PQTree
+#include <ogdf/basic/Queue.h>                           // for Queue
+#include <ogdf/basic/Reverse.h>                         // for reverse, Reverse
+#include <ogdf/basic/SList.h>                           // for SListPure, SList, SListIteratorBase
+#include <ogdf/basic/STNumbering.h>                     // for computeSTNumbering, isSTNumbering
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, OGDF_HEAVY_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>              // for isCConnected, isPlanar
+#include <ogdf/basic/pqtree/PQBasicKey.h>               // for PQBasicKey
+#include <ogdf/basic/pqtree/PQLeaf.h>                   // for PQLeaf
+#include <ogdf/basic/pqtree/PQLeafKey.h>                // for PQLeafKey
+#include <ogdf/basic/pqtree/PQNode.h>                   // for PQNode
+#include <ogdf/basic/pqtree/PQNodeKey.h>                // for PQNodeKey
+#include <ogdf/basic/pqtree/PQNodeRoot.h>               // for PQNodeRoot
+#include <ogdf/basic/simple_graph_alg.h>                // for biconnectedComponents, getParalle...
+#include <ogdf/cluster/CconnectClusterPlanarEmbed.h>    // for CconnectClusterPlanarEmbed, Clust...
+#include <ogdf/cluster/ClusterGraph.h>                  // for ClusterGraph, cluster
+#include <ogdf/planarity/booth_lueker/IndInfo.h>        // for IndInfo
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>  // for PlanarLeafKey
+#include <functional>                                   // for function
+#include <ostream>                                      // for basic_ostream, char_traits, opera...
 
 namespace ogdf {
 

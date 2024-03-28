@@ -29,7 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/EdgeComparer.h>
+#include <ogdf/basic/EdgeComparer.h>     // for EdgeComparer
+#include <ogdf/basic/EpsilonTest.h>      // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>  // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>          // for node, edge, adjEntry
+#include <ogdf/basic/List.h>             // for ListIteratorBase, ListConstIterator
+#include <ogdf/basic/basic.h>            // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>         // for DPoint, GenericPoint, DPolyline, OGDF_GEOM_ET
+#include <ogdf/planarity/PlanRep.h>      // for PlanRep
 
 namespace ogdf {
 

@@ -30,7 +30,14 @@
  */
 
 
-#include <ogdf/labeling/ELabelPosSimple.h>
+#include <ogdf/basic/GraphAttributes.h>     // for GraphAttributes
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>             // for Graph, edge
+#include <ogdf/basic/List.h>                // for ListIteratorBase, ListConstIterator
+#include <ogdf/basic/exceptions.h>          // for AlgorithmFailureException, AlgorithmFailureCode
+#include <ogdf/basic/geometry.h>            // for DPoint, DSegment, GenericPoint, DPolyline
+#include <ogdf/labeling/ELabelInterface.h>  // for EdgeLabel, LabelType, ELabelInterface
+#include <ogdf/labeling/ELabelPosSimple.h>  // for ELabelPosSimple
 
 namespace ogdf {
 

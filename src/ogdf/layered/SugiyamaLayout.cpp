@@ -31,18 +31,55 @@
  */
 
 
-#include <ogdf/basic/Thread.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/layered/BarycenterHeuristic.h>
-#include <ogdf/layered/FastHierarchyLayout.h>
-#include <ogdf/layered/Hierarchy.h>
-#include <ogdf/layered/LongestPathRanking.h>
-#include <ogdf/layered/OptimalHierarchyClusterLayout.h>
-#include <ogdf/layered/SplitHeuristic.h>
-#include <ogdf/layered/SugiyamaLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/basic/Array.h>                            // for Array, operator<<
+#include <ogdf/basic/Graph.h>                            // for operator<<
+#include <ogdf/basic/GraphAttributes.h>                  // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                        // for GraphCopy
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/Graph_d.h>                          // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/LayoutStandards.h>                  // for LayoutStandards
+#include <ogdf/basic/List.h>                             // for List, ListIteratorBase, ListCons...
+#include <ogdf/basic/Math.h>                             // for updateMax
+#include <ogdf/basic/SList.h>                            // for SListPure, SListIteratorBase
+#include <ogdf/basic/System.h>                           // for System
+#include <ogdf/basic/Thread.h>                           // for Thread
+#include <ogdf/basic/basic.h>                            // for OGDF_ASSERT, randomSeed, min
+#include <ogdf/basic/geometry.h>                         // for DPoint, GenericPoint, DPolyline
+#include <ogdf/basic/simple_graph_alg.h>                 // for connectedComponents, makeLoopFree
+#include <ogdf/basic/tuples.h>                           // for Tuple2
+#include <ogdf/cluster/ClusterGraphAttributes.h>         // for ClusterGraphAttributes
+#include <ogdf/cluster/ClusterGraphCopyAttributes.h>     // for ClusterGraphCopyAttributes
+#include <ogdf/layered/BarycenterHeuristic.h>            // for BarycenterHeuristic
+#include <ogdf/layered/CrossingMinInterfaces.h>          // for HierarchyLevelsBase, LevelBase
+#include <ogdf/layered/ExtendedNestingGraph.h>           // for RCCrossings, ExtendedNestingGraph
+#include <ogdf/layered/FastHierarchyLayout.h>            // for FastHierarchyLayout
+#include <ogdf/layered/Hierarchy.h>                      // for Hierarchy
+#include <ogdf/layered/HierarchyClusterLayoutModule.h>   // for HierarchyClusterLayoutModule
+#include <ogdf/layered/HierarchyLayoutModule.h>          // for HierarchyLayoutModule
+#include <ogdf/layered/HierarchyLevels.h>                // for HierarchyLevels
+#include <ogdf/layered/LayerByLayerSweep.h>              // for LayerByLayerSweep
+#include <ogdf/layered/LayeredCrossMinModule.h>          // for LayeredCrossMinModule
+#include <ogdf/layered/Level.h>                          // for Level, WeightComparer
+#include <ogdf/layered/LongestPathRanking.h>             // for LongestPathRanking
+#include <ogdf/layered/OptimalHierarchyClusterLayout.h>  // for OptimalHierarchyClusterLayout
+#include <ogdf/layered/RankingModule.h>                  // for RankingModule
+#include <ogdf/layered/SplitHeuristic.h>                 // for SplitHeuristic
+#include <ogdf/layered/SugiyamaLayout.h>                 // for SugiyamaLayout
+#include <ogdf/packing/CCLayoutPackModule.h>             // for CCLayoutPackModule
+#include <ogdf/packing/TileToRowsCCPacker.h>             // for TileToRowsCCPacker
+#include <ogdf/simultaneous/TwoLayerCrossMinSimDraw.h>   // for TwoLayerCrossMinSimDraw
+#include <stdint.h>                                      // for uint32_t, int64_t
+#include <stdlib.h>                                      // for rand
+#include <algorithm>                                     // for min, stable_sort, max
+#include <atomic>                                        // for atomic, __atomic_base
+#include <iostream>                                      // for basic_ostream, operator<<, char_...
+#include <limits>                                        // for numeric_limits
+#include <memory>                                        // for unique_ptr
+#include <mutex>                                         // for mutex, lock_guard
+#include <random>                                        // for minstd_rand
+#include <utility>                                       // for swap
 
-#include <atomic>
+namespace ogdf { class ClusterGraph; }
 
 using std::atomic;
 using std::lock_guard;

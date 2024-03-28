@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/uml/UmlModelGraph.h>
+#include <ogdf/basic/GraphList.h>    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>      // for Graph, edge, node
+#include <ogdf/uml/UmlModelGraph.h>  // for UmlModelGraph, operator<<
+#include <ostream>                   // for basic_ostream, operator<<, endl, basic_ios, ostream
+#include <string>                    // for char_traits, operator<<
 
 namespace ogdf {
 

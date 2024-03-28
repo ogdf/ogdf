@@ -29,7 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fmmm/NodeAttributes.h>
+#include <ogdf/basic/Graph.h>                      // for operator<<
+#include <ogdf/basic/Graph_d.h>                    // for node
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                       // for pi
+#include <ogdf/basic/geometry.h>                   // for operator<<
+#include <ogdf/energybased/fmmm/NodeAttributes.h>  // for NodeAttributes, operator<<, operator>>
+#include <iostream>                                // for operator<<, basic_ostream, char_traits
 
 namespace ogdf {
 namespace energybased {

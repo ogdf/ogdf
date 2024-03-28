@@ -30,9 +30,22 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/fmmm/Multilevel.h>
-#include <ogdf/energybased/fmmm/Set.h>
+#include <math.h>                                   // for cos, sin
+#include <ogdf/basic/Array.h>                       // for Array
+#include <ogdf/basic/GraphList.h>                   // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                     // for RegisteredArrayWithoutDefault, GraphR...
+#include <ogdf/basic/List.h>                        // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Math.h>                        // for pi, updateMin
+#include <ogdf/basic/basic.h>                       // for randomNumber, OGDF_ASSERT, setSeed
+#include <ogdf/basic/geometry.h>                    // for DPoint, GenericPoint
+#include <ogdf/basic/simple_graph_alg.h>            // for makeSimpleUndirected
+#include <ogdf/energybased/fmmm/EdgeAttributes.h>   // for EdgeAttributes
+#include <ogdf/energybased/fmmm/FMMMOptions.h>      // for FMMMOptions
+#include <ogdf/energybased/fmmm/Multilevel.h>       // for Multilevel
+#include <ogdf/energybased/fmmm/NodeAttributes.h>   // for NodeAttributes
+#include <ogdf/energybased/fmmm/Set.h>              // for Set
+#include <ogdf/energybased/fmmm/multilevel/Edge.h>  // for Edge, EdgeMaxBucketFunc, EdgeMinBucke...
+#include <limits>                                   // for numeric_limits
 
 namespace ogdf {
 namespace energybased {

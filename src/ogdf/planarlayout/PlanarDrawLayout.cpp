@@ -30,12 +30,25 @@
  */
 
 
-#include <ogdf/augmentation/PlanarAugmentation.h>
-#include <ogdf/augmentation/PlanarAugmentationFix.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/planarlayout/BiconnectedShellingOrder.h>
-#include <ogdf/planarlayout/PlanarDrawLayout.h>
+#include <ogdf/augmentation/AugmentationModule.h>        // for AugmentationModule
+#include <ogdf/augmentation/PlanarAugmentation.h>        // for PlanarAugmentation
+#include <ogdf/augmentation/PlanarAugmentationFix.h>     // for PlanarAugmentationFix
+#include <ogdf/basic/ArrayBuffer.h>                      // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>                        // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/Graph_d.h>                          // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/GridLayout.h>                       // for GridLayout
+#include <ogdf/basic/basic.h>                            // for max, OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                         // for IPoint
+#include <ogdf/basic/simple_graph_alg.h>                 // for isSimple
+#include <ogdf/planarity/EmbedderModule.h>               // for EmbedderModule
+#include <ogdf/planarity/SimpleEmbedder.h>               // for SimpleEmbedder
+#include <ogdf/planarlayout/BiconnectedShellingOrder.h>  // for BiconnectedShellingOrder
+#include <ogdf/planarlayout/PlanarDrawLayout.h>          // for PlanarDrawLayout
+#include <ogdf/planarlayout/ShellingOrder.h>             // for ShellingOrderSet, ShellingOrder
+#include <ogdf/planarlayout/ShellingOrderModule.h>       // for ShellingOrderModule
+#include <algorithm>                                     // for max
+#include <memory>                                        // for unique_ptr
 
 namespace ogdf {
 

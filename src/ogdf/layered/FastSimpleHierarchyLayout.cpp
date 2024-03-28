@@ -31,7 +31,21 @@
  */
 
 
-#include <ogdf/layered/FastSimpleHierarchyLayout.h>
+#include <math.h>                                    // for floor
+#include <ogdf/basic/Array.h>                        // for Array
+#include <ogdf/basic/GraphAttributes.h>              // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                    // for GraphCopy
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for RegisteredArrayWithoutDefault, NodeA...
+#include <ogdf/basic/LayoutStandards.h>              // for LayoutStandards
+#include <ogdf/basic/Math.h>                         // for updateMax
+#include <ogdf/basic/basic.h>                        // for max, min
+#include <ogdf/basic/exceptions.h>                   // for AlgorithmFailureException
+#include <ogdf/layered/CrossingMinInterfaces.h>      // for HierarchyLevelsBase, LevelBase
+#include <ogdf/layered/FastSimpleHierarchyLayout.h>  // for FastSimpleHierarchyLayout
+#include <ogdf/layered/Hierarchy.h>                  // for Hierarchy
+#include <algorithm>                                 // for max, min
+#include <limits>                                    // for numeric_limits
 
 namespace ogdf {
 

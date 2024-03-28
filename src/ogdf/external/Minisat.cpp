@@ -30,8 +30,19 @@
  */
 
 
-#include <ogdf/basic/ArrayBuffer.h>
-#include <ogdf/external/Minisat.h>
+#include <__stdarg_va_arg.h>                    // for va_arg, va_end, va_start
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/Logger.h>                  // for Logger, OGDF_DEBUG
+#include <ogdf/external/Minisat.h>              // for Formula, Clause, Model, clause, string
+#include <ogdf/lib/minisat/core/Solver.h>       // for Solver
+#include <ogdf/lib/minisat/core/SolverTypes.h>  // for Lit, var, lbool, mkLit, Var, sign, CRef
+#include <ogdf/lib/minisat/mtl/Vec.h>           // for vec
+#include <stdarg.h>                             // for va_list
+#include <fstream>                              // for basic_ostream, operator<<, basic_istream
+#include <iostream>                             // for cout
+#include <sstream>                              // for basic_stringstream
+#include <string>                               // for char_traits, allocator, basic_string, ope...
+#include <vector>                               // for vector
 
 namespace Minisat {
 

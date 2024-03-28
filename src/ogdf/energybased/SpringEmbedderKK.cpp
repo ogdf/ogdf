@@ -29,8 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/SpringEmbedderKK.h>
+#include <float.h>                              // for DBL_MIN
+#include <math.h>                               // for sqrt, fabs
+#include <ogdf/basic/EpsilonTest.h>             // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, NodeArray
+#include <ogdf/basic/Math.h>                    // for updateMax, updateMin
+#include <ogdf/basic/SList.h>                   // for SListPure
+#include <ogdf/basic/basic.h>                   // for max, randomDouble, OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                // for OGDF_GEOM_ET
+#include <ogdf/basic/simple_graph_alg.h>        // for hasNonSelfLoopEdges, isConnected
+#include <ogdf/basic/tuples.h>                  // for Tuple2
+#include <ogdf/energybased/SpringEmbedderKK.h>  // for SpringEmbedderKK
+#include <algorithm>                            // for max
+#include <iostream>                             // for operator<<, basic_ios, basic_ostream, cerr
+#include <limits>                               // for numeric_limits
 
 namespace ogdf {
 const double SpringEmbedderKK::startVal = std::numeric_limits<double>::max() - 1.0;

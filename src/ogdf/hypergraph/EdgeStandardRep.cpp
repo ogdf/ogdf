@@ -29,8 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/hypergraph/EdgeStandardRep.h>
-#include <ogdf/hypergraph/Hypergraph.h>
+#include <ogdf/basic/Graph_d.h>                  // for Graph, node, edge, EdgeArray, NodeArray
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT
+#include <ogdf/hypergraph/EdgeStandardRep.h>     // for EdgeStandardRep, EdgeStandardType
+#include <ogdf/hypergraph/Hypergraph.h>          // for RegisteredArrayWithoutDefault, hyperedge
+#include <ogdf/hypergraph/HypergraphObserver.h>  // for HypergraphObserver
 
 namespace ogdf {
 

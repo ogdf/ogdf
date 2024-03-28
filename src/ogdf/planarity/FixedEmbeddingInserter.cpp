@@ -29,10 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/FixedEmbeddingInserter.h>
-#include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/Graph_d.h>                                     // for EdgeArray, edge
+#include <ogdf/basic/Module.h>                                      // for Module
+#include <ogdf/planarity/EdgeInsertionModule.h>                     // for EdgeInsertionModule
+#include <ogdf/planarity/FixedEmbeddingInserter.h>                  // for FixedEmbeddingInserter
+#include <ogdf/planarity/RemoveReinsertType.h>                      // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>  // for FixEdgeInserterCore
+#include <stdint.h>                                                 // for uint32_t
 
 namespace ogdf {
+class PlanRepLight;
 
 // constructor
 // sets default values for options

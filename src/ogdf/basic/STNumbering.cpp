@@ -30,9 +30,12 @@
  */
 
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/STNumbering.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/ArrayBuffer.h>  // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>      // for RegisteredArrayWithoutDefault, NodeArray, node, Regi...
+#include <ogdf/basic/STNumbering.h>  // for computeSTNumbering, isSTNumbering
+#include <ogdf/basic/basic.h>        // for OGDF_ASSERT
+#include <utility>                   // for pair, make_pair
 
 namespace ogdf {
 

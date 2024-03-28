@@ -29,9 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fmmm/Set.h>
-
-#include <functional>
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/basic.h>                      // for randomNumber, OGDF_ASSERT, setSeed
+#include <ogdf/energybased/fmmm/NodeAttributes.h>  // for NodeAttributes
+#include <ogdf/energybased/fmmm/Set.h>             // for Set
+#include <functional>                              // for greater, less
 
 namespace ogdf {
 namespace energybased {

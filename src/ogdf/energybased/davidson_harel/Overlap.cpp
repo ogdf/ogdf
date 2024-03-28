@@ -30,9 +30,17 @@
  */
 
 
-#include <ogdf/energybased/davidson_harel/Overlap.h>
+#include <ogdf/basic/Graph_d.h>                              // for node
+#include <ogdf/basic/basic.h>                                // for OGDF_ASSERT, min
+#include <ogdf/basic/geometry.h>                             // for DIntersectableRect, DPoint
+#include <ogdf/energybased/davidson_harel/NodePairEnergy.h>  // for NodePairEnergy
+#include <ogdf/energybased/davidson_harel/Overlap.h>         // for Overlap
+#include <algorithm>                                         // for min
+#include <string>                                            // for basic_string
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 Overlap::Overlap(GraphAttributes& AG) : NodePairEnergy("Overlap", AG) { }

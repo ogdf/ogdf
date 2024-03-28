@@ -29,7 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/ConvexHull.h>
+#include <math.h>                                               // for sqrt
+#include <ogdf/basic/EpsilonTest.h>                             // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>                         // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/Graph_d.h>                                 // for Graph, node
+#include <ogdf/basic/List.h>                                    // for ListIteratorBase
+#include <ogdf/basic/basic.h>                                   // for randomNumber, OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                                // for DPolygon, DPoint, Generic...
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph
+#include <ogdf/graphalg/ConvexHull.h>                           // for ConvexHull
+#include <algorithm>                                            // for sort, max
+#include <utility>                                              // for swap
+#include <vector>                                               // for vector
 
 namespace ogdf {
 

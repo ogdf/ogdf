@@ -29,15 +29,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/SpringEmbedderFRExact.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <emmintrin.h>                               // for __m128d, _mm_mul_pd, _mm_load_pd
+#include <math.h>                                    // for sqrt
+#include <ogdf/basic/Array.h>                        // for Array
+#include <ogdf/basic/GraphAttributes.h>              // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/LayoutStandards.h>              // for LayoutStandards
+#include <ogdf/basic/Math.h>                         // for updateMax, updateMin
+#include <ogdf/basic/SList.h>                        // for SList, SListIteratorBase
+#include <ogdf/basic/System.h>                       // for System, CPUFeature
+#include <ogdf/basic/basic.h>                        // for max, min, OGDF_SSE3_EXTENSIONS
+#include <ogdf/basic/geometry.h>                     // for DPoint, GenericPoint
+#include <ogdf/basic/simple_graph_alg.h>             // for connectedComponents
+#include <ogdf/energybased/SpringEmbedderFRExact.h>  // for SpringEmbedderFRExact
+#include <ogdf/packing/TileToRowsCCPacker.h>         // for TileToRowsCCPacker
+#include <pmmintrin.h>                               // for _mm_hadd_pd
 
 #ifdef _OPENMP
 #	include <omp.h>
 #endif
 
 #include <ogdf/basic/internal/intrinsics.h>
+#include <algorithm>                                 // for max, min
 
 namespace ogdf {
 

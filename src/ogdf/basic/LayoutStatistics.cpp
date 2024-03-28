@@ -30,7 +30,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/LayoutStatistics.h>
+#include <math.h>                         // for atan2, fabs
+#include <ogdf/basic/ArrayBuffer.h>       // for ArrayBuffer
+#include <ogdf/basic/GraphAttributes.h>   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for Graph, node, edge, RegisteredArrayWithoutDefault
+#include <ogdf/basic/LayoutStatistics.h>  // for LayoutStatistics
+#include <ogdf/basic/List.h>              // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/Math.h>              // for pi
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>          // for DPoint, DIntersectableRect, DRect, DPolyline
+#include <utility>                        // for move
 
 namespace ogdf {
 

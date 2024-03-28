@@ -29,9 +29,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/LayerBasedUPRLayout.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/ArrayBuffer.h>              // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>   // for CombinatorialEmbedding
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy, GraphCopySimple
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for node, RegisteredArrayWithoutDefault, edge
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Queue.h>                    // for Queue
+#include <ogdf/basic/Reverse.h>                  // for reverse, Reverse
+#include <ogdf/basic/SList.h>                    // for SListPure, SListConstIterator, SListIter...
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT, Direction, OGDF_DEBUG
+#include <ogdf/basic/comparer.h>                 // for GenericComparer
+#include <ogdf/basic/geometry.h>                 // for DPoint, DPolyline, GenericPoint
+#include <ogdf/basic/simple_graph_alg.h>         // for hasSingleSource, hasSingleSink, isAcyclic
+#include <ogdf/basic/tuples.h>                   // for Tuple2
+#include <ogdf/layered/Hierarchy.h>              // for Hierarchy
+#include <ogdf/layered/HierarchyLayoutModule.h>  // for HierarchyLayoutModule
+#include <ogdf/layered/HierarchyLevels.h>        // for HierarchyLevels
+#include <ogdf/layered/Level.h>                  // for Level
+#include <ogdf/layered/RankingModule.h>          // for RankingModule
+#include <ogdf/upward/LayerBasedUPRLayout.h>     // for OrderComparer, LayerBasedUPRLayout
+#include <ogdf/upward/UpwardPlanRep.h>           // for UpwardPlanRep
+#include <stdlib.h>                              // for abs
+#include <limits>                                // for numeric_limits
+#include <memory>                                // for unique_ptr
+#include <utility>                               // for swap
 
 namespace ogdf {
 

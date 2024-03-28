@@ -36,11 +36,31 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/planarity/PlanRepInc.h>
-#include <ogdf/planarity/SimpleIncNodeInserter.h>
-#include <ogdf/planarity/TopologyModule.h>
-#include <ogdf/uml/PlanarizationLayoutUML.h>
+#include <ogdf/basic/Array.h>                        // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>       // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for node, adjEntry, edge, NodeArray, Nod...
+#include <ogdf/basic/HashArray.h>                    // for HashArray
+#include <ogdf/basic/Layout.h>                       // for Layout
+#include <ogdf/basic/List.h>                         // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Queue.h>                        // for QueuePure
+#include <ogdf/basic/SList.h>                        // for SList, SListConstIterator, SListIter...
+#include <ogdf/basic/basic.h>                        // for OGDF_ASSERT, max, OGDF_DEBUG, min
+#include <ogdf/basic/comparer.h>                     // for GenericComparer
+#include <ogdf/basic/exceptions.h>                   // for AlgorithmFailureException
+#include <ogdf/basic/extended_graph_alg.h>           // for isPlanar, planarEmbed
+#include <ogdf/basic/geometry.h>                     // for DPoint, DPolyline, GenericPoint
+#include <ogdf/orthogonal/OrthoRep.h>                // for UMLOpt, operator&, operator~
+#include <ogdf/planarity/PlanRepInc.h>               // for PlanRepInc
+#include <ogdf/planarity/SimpleIncNodeInserter.h>    // for SimpleIncNodeInserter
+#include <ogdf/planarity/TopologyModule.h>           // for TopologyModule
+#include <ogdf/uml/LayoutPlanRepUMLModule.h>         // for LayoutPlanRepUMLModule
+#include <ogdf/uml/PlanRepUML.h>                     // for PlanRepUML
+#include <ogdf/uml/PlanarizationLayoutUML.h>         // for PlanarizationLayoutUML
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>  // for UMLCrossingMinimizationModule
+#include <ogdf/uml/UMLGraph.h>                       // for UMLGraph
+#include <algorithm>                                 // for max, min
+#include <memory>                                    // for unique_ptr
 
 namespace ogdf {
 

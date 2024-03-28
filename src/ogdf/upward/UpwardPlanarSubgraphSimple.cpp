@@ -31,10 +31,17 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/UpwardPlanarSubgraphSimple.h>
-#include <ogdf/upward/UpwardPlanarity.h>
+#include <ogdf/basic/GraphCopy.h>                    // for GraphCopy, GraphCopySimple
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for node, Graph, edge, RegisteredArrayWi...
+#include <ogdf/basic/List.h>                         // for List, ListIteratorBase, ListConstIte...
+#include <ogdf/basic/SList.h>                        // for SList, SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                        // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>           // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>             // for isAcyclic, hasSingleSource
+#include <ogdf/basic/tuples.h>                       // for Tuple2
+#include <ogdf/upward/UpwardPlanarSubgraphSimple.h>  // for UpwardPlanarSubgraphSimple
+#include <ogdf/upward/UpwardPlanarity.h>             // for UpwardPlanarity
 
 namespace ogdf {
 

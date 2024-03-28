@@ -30,12 +30,25 @@
  */
 
 
-#include <ogdf/augmentation/PlanarAugmentation.h>
-#include <ogdf/augmentation/PlanarAugmentationFix.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/planarlayout/BiconnectedShellingOrder.h>
-#include <ogdf/planarlayout/MixedModelLayout.h>
-#include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>
+#include <ogdf/augmentation/AugmentationModule.h>                   // for AugmentationModule
+#include <ogdf/augmentation/PlanarAugmentation.h>                   // for PlanarAugmentation
+#include <ogdf/augmentation/PlanarAugmentationFix.h>                // for PlanarAugmentationFix
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/Graph_d.h>                                     // for adjEntry
+#include <ogdf/basic/GridLayout.h>                                  // for GridLayout
+#include <ogdf/basic/basic.h>                                       // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                                    // for IPoint
+#include <ogdf/planarity/EmbedderModule.h>                          // for EmbedderModule
+#include <ogdf/planarity/PlanRep.h>                                 // for PlanRep
+#include <ogdf/planarity/SimpleEmbedder.h>                          // for SimpleEmbedder
+#include <ogdf/planarlayout/BiconnectedShellingOrder.h>             // for BiconnectedShellingOrder
+#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>  // for MMDummyCrossingsBeaut...
+#include <ogdf/planarlayout/MixedModelLayout.h>                     // for MixedModelLayout
+#include <ogdf/planarlayout/ShellingOrder.h>                        // for ShellingOrder
+#include <ogdf/planarlayout/ShellingOrderModule.h>                  // for ShellingOrderModule
+#include <ogdf/planarlayout/mixed_model_layout/MMOrder.h>           // for MMOrder
+#include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>    // for MixedModelBase
+#include <memory>                                                   // for unique_ptr
 
 namespace ogdf {
 

@@ -30,7 +30,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/memory.h>
+#include <ogdf/basic/basic.h>                         // for OGDF_DEBUG, OGDF_ASSERT, OGDF_LIKELY
+#include <ogdf/basic/memory/MallocMemoryAllocator.h>  // for MallocMemoryAllocator
+#include <ogdf/basic/memory/PoolMemoryAllocator.h>    // for PoolMemoryAllocator
+#include <stdint.h>                                   // for uint16_t
+#include <stdlib.h>                                   // for size_t, free, malloc
+#include <algorithm>                                  // for max, sort
+#include <mutex>                                      // for mutex
 
 namespace ogdf {
 

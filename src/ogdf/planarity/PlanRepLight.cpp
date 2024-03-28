@@ -30,7 +30,13 @@
  */
 
 
-#include <ogdf/planarity/PlanRepLight.h>
+#include <ogdf/basic/GraphCopy.h>         // for GraphCopy
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>              // for List
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/planarity/PlanRep.h>       // for PlanRep
+#include <ogdf/planarity/PlanRepLight.h>  // for PlanRepLight
+#include <utility>                        // for pair
 
 namespace ogdf {
 

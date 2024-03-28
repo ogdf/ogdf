@@ -32,7 +32,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/graphics.h>
+#include <ctype.h>                // for isdigit, isxdigit, tolower
+#include <ogdf/basic/Logger.h>    // for string
+#include <ogdf/basic/graphics.h>  // for Color, FillPattern, StrokeType, toString, EdgeArrow
+#include <stdint.h>               // for uint8_t
+#include <map>                    // for map
+#include <ostream>                // for operator<<, basic_ostream, ostream, basic_ios
+#include <string>                 // for basic_string, string, operator<<
 
 namespace ogdf {
 using namespace graphics;

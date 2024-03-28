@@ -29,8 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
-#include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
+#include <ogdf/basic/basic.h>                                         // for max
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>       // for OGDF_FREE_16, OGDF_...
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>  // for LinearQuadtree
+#include <ogdf/energybased/fast_multipole_embedder/WSPD.h>            // for WSPD
+#include <stdint.h>                                                   // for uint32_t, uint64_t
+#include <algorithm>                                                  // for max
 
 namespace ogdf {
 namespace fast_multipole_embedder {

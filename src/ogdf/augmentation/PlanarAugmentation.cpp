@@ -29,9 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/augmentation/PlanarAugmentation.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/augmentation/PlanarAugmentation.h>  // for PlanarAugmentation
+#include <ogdf/augmentation/planar/PALabel.h>      // for PALabel, pa_label
+#include <ogdf/basic/Array.h>                      // for Array
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>                      // for SList, SListIteratorBase, SListIterator
+#include <ogdf/basic/basic.h>                      // for Direction
+#include <ogdf/basic/extended_graph_alg.h>         // for planarEmbed
+#include <ogdf/basic/simple_graph_alg.h>           // for connectedComponents, isConnected
+#include <ogdf/decomposition/BCTree.h>             // for BCTree
+#include <ogdf/decomposition/DynamicBCTree.h>      // for DynamicBCTree
 
 // for debug-outputs
 //#define OGDF_PLANAR_AUGMENTATION_DEBUG

@@ -30,7 +30,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
+#include <ogdf/basic/GraphList.h>                                   // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                     // for node
+#include <ogdf/basic/GridLayout.h>                                  // for GridLayout
+#include <ogdf/basic/List.h>                                        // for List
+#include <ogdf/planarity/PlanRep.h>                                 // for PlanRep
+#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>  // for MixedModelCrossingsBe...
 
 namespace ogdf {
 

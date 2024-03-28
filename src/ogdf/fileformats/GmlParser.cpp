@@ -30,11 +30,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GmlParser.h>
-#include <ogdf/fileformats/Utils.h>
-
-#include <memory>
-#include <unordered_map>
+#include <ctype.h>                                // for isdigit, isspace, isalpha
+#include <ogdf/basic/Array.h>                     // for Array
+#include <ogdf/basic/EpsilonTest.h>               // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                   // for node, edge, Graph
+#include <ogdf/basic/Logger.h>                    // for string, Logger, to_string
+#include <ogdf/basic/Math.h>                      // for updateMax, updateMin
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>                // for InsufficientMemoryException, OGDF_THROW
+#include <ogdf/basic/geometry.h>                  // for DPoint, DPolyline, GenericPoint
+#include <ogdf/basic/graphics.h>                  // for Color, fromString, StrokeType (ptr only)
+#include <ogdf/cluster/ClusterGraph.h>            // for cluster, ClusterGraph
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/GML.h>                 // for Key, ObjectType, hash, toString, toArrow
+#include <ogdf/fileformats/GmlParser.h>           // for Parser, Object
+#include <stdlib.h>                               // for atof, atoi, size_t
+#include <string.h>                               // for strcpy, strlen
+#include <functional>                             // for function
+#include <istream>                                // for basic_ostream, operator<<, basic_istream
+#include <limits>                                 // for numeric_limits
+#include <string>                                 // for basic_string, char_traits, string, allo...
+#include <unordered_map>                          // for unordered_map, operator!=, _Node_iterator
+#include <utility>                                // for pair
 
 namespace ogdf {
 

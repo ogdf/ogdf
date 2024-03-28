@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/EmbedderMinDepthMaxFaceLayers.h>
-#include <ogdf/planarity/embedder/ConnectedSubgraph.h>
+#include <ogdf/basic/GraphList.h>                          // for GraphIteratorBase, GraphObject...
+#include <ogdf/basic/Graph_d.h>                            // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                               // for List, ListIterator, ListIterat...
+#include <ogdf/basic/SList.h>                              // for SList, SListIteratorBase
+#include <ogdf/decomposition/BCTree.h>                     // for BCTree
+#include <ogdf/planarity/EmbedderMinDepthMaxFaceLayers.h>  // for EmbedderMinDepthMaxFaceLayers
+#include <ogdf/planarity/embedder/ConnectedSubgraph.h>     // for ConnectedSubgraph
+#include <ogdf/planarity/embedder/MDMFLengthAttribute.h>   // for MDMFLengthAttribute
 
 namespace ogdf {
 

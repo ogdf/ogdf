@@ -29,10 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/memory.h>
-
-#include <random>
+#include <ctype.h>                                  // for toupper
+#include <ogdf/basic/System.h>                      // for System
+#include <ogdf/basic/basic.h>                       // for string, Initialization, OGDF_ASSERT
+#include <ogdf/basic/memory/PoolMemoryAllocator.h>  // for PoolMemoryAllocator
+#include <algorithm>                                // for equal
+#include <cstddef>                                  // for size_t
+#include <mutex>                                    // for mutex, lock_guard
+#include <random>                                   // for exponential_distribution, uniform_int...
+#include <string>                                   // for basic_string, string
 
 #ifdef OGDF_SYSTEM_WINDOWS
 #	define WIN32_EXTRA_LEAN
@@ -42,8 +47,8 @@
 #	include <windows.h>
 #endif
 #ifdef OGDF_SYSTEM_UNIX
-#	include <sys/times.h>
-#	include <unistd.h>
+#include <sys/times.h>                              // for tms, times
+#include <unistd.h>                                 // for sysconf, _SC_CLK_TCK
 #endif
 
 // When OGDF_DLL is not set, we use the static initializer object

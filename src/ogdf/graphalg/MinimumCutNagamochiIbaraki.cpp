@@ -29,7 +29,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/MinimumCutNagamochiIbaraki.h>
+#include <ogdf/basic/Graph.h>                          // for operator<<
+#include <ogdf/basic/GraphCopy.h>                      // for GraphCopy
+#include <ogdf/basic/GraphList.h>                      // for GraphIteratorBase, GraphObjectCont...
+#include <ogdf/basic/Graph_d.h>                        // for node, EdgeElement, edge, NodeElement
+#include <ogdf/basic/List.h>                           // for ListPure, ListIteratorBase, List
+#include <ogdf/basic/Logger.h>                         // for OGDF_DEBUG, Logger
+#include <ogdf/basic/Math.h>                           // for updateMax
+#include <ogdf/basic/basic.h>                          // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>               // for isConnected
+#include <ogdf/graphalg/MinimumCutNagamochiIbaraki.h>  // for MinimumCutNagamochiIbaraki, OGDF_M...
+#include <algorithm>                                   // for fill_n
+#include <limits>                                      // for numeric_limits
+#include <ostream>                                     // for basic_ostream, char_traits, operat...
+#include <queue>                                       // for priority_queue
+#include <unordered_map>                               // for unordered_map, _Node_iterator, _No...
+#include <unordered_set>                               // for unordered_set
+#include <utility>                                     // for pair, make_pair
+#include <vector>                                      // for vector
 
 namespace ogdf {
 

@@ -30,11 +30,20 @@
  */
 
 
-#include <ogdf/energybased/FastMultipoleEmbedder.h>
-#include <ogdf/energybased/SpringEmbedderGridVariant.h>
-#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
-#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
-#include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
+#include <math.h>                                                      // for log
+#include <ogdf/basic/GraphList.h>                                      // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                        // for Graph, node, edge
+#include <ogdf/basic/LayoutModule.h>                                   // for LayoutModule
+#include <ogdf/basic/basic.h>                                          // for randomDouble
+#include <ogdf/basic/exceptions.h>                                     // for AlgorithmFailureEx...
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>                // for SpringEmbedderGrid...
+#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>        // for BarycenterPlacer
+#include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>           // for InitialPlacer
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>  // for ModularMultilevelM...
+#include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>       // for MultilevelBuilder
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>         // for MultilevelGraph
+#include <ogdf/energybased/multilevel_mixer/SolarMerger.h>             // for SolarMerger
+#include <memory>                                                      // for unique_ptr
 
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
 #	include <sstream>
@@ -42,6 +51,7 @@
 
 
 namespace ogdf {
+class GraphAttributes;
 
 ModularMultilevelMixer::ModularMultilevelMixer() {
 	// options

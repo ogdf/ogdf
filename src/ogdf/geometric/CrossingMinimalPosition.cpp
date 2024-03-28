@@ -31,20 +31,23 @@
 
 #define OGDF_GEOMETRIC_INEXACT_NUMBER_TYPE true
 
-#include <ogdf/geometric/CrossingMinimalPosition.h>
+#include <ogdf/basic/Graph_d.h>                      // for node
+#include <ogdf/basic/exceptions.h>                   // for LibraryNotSupportedException, Librar...
+#include <ogdf/basic/geometry.h>                     // for DPoint
+#include <ogdf/geometric/CrossingMinimalPosition.h>  // for CrossingMinimalPosition
+
+namespace ogdf { class GraphAttributes; }
 
 #ifdef OGDF_INCLUDE_CGAL
 
+#	include <CGAL/Gmpq.h>
+#	include <CGAL/Simple_cartesian.h>
 #	include <ogdf/geometric/cr_min/geometry/objects/LineSegment.h>
 #	include <ogdf/geometric/cr_min/graph/GeometricDrawing.h>
 #	include <ogdf/geometric/cr_min/graph/OGDFGraphWrapper.h>
 #	include <ogdf/geometric/cr_min/graph/geometric_crossing_min/CrossingMinimalPositionRnd.h>
 #	include <ogdf/geometric/cr_min/tools/math.h>
-
 #	include <limits>
-
-#	include <CGAL/Gmpq.h>
-#	include <CGAL/Simple_cartesian.h>
 
 namespace ogdf {
 

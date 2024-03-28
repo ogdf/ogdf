@@ -29,11 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/FixedEmbeddingInserter.h>
-#include <ogdf/planarity/PlanarizerStarReinsertion.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>          // for CombinatorialEmbedding
+#include <ogdf/basic/DualGraph.h>                       // for DynamicDualGraph
+#include <ogdf/basic/GraphCopy.h>                       // for GraphCopy
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for EdgeArray, node, adjEntry
+#include <ogdf/basic/Module.h>                          // for Module
+#include <ogdf/basic/SList.h>                           // for SListPure, SListIteratorBase
+#include <ogdf/basic/System.h>                          // for System
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>              // for isPlanar, planarEmbed
+#include <ogdf/basic/simple_graph_alg.h>                // for isBiconnected, isSimpleUndirected
+#include <ogdf/planarity/CrossingMinimizationModule.h>  // for CrossingMinimizationModule
+#include <ogdf/planarity/FixedEmbeddingInserter.h>      // for FixedEmbeddingInserter
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/PlanarizerStarReinsertion.h>   // for PlanarizerStarReinsertion, Crossi...
+#include <ogdf/planarity/StarInserter.h>                // for StarInserter
+#include <ogdf/planarity/SubgraphPlanarizer.h>          // for SubgraphPlanarizer
+#include <ogdf/planarity/embedder/CrossingStructure.h>  // for CrossingStructure
+#include <stdint.h>                                     // for uint32_t, int64_t
+#include <stdlib.h>                                     // for rand
+#include <memory>                                       // for unique_ptr
+#include <random>                                       // for minstd_rand
 
 namespace ogdf {
 

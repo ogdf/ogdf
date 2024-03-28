@@ -29,9 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/davidson_harel/Repulsion.h>
+#include <ogdf/basic/Graph_d.h>                              // for node
+#include <ogdf/basic/basic.h>                                // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                             // for DIntersectableRect, DPoint
+#include <ogdf/energybased/davidson_harel/NodePairEnergy.h>  // for NodePairEnergy
+#include <ogdf/energybased/davidson_harel/Repulsion.h>       // for Repulsion
+#include <string>                                            // for basic_string
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 Repulsion::Repulsion(GraphAttributes& AG) : NodePairEnergy("Repulsion", AG) { }

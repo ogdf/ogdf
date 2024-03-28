@@ -30,9 +30,20 @@
  */
 
 
-#include <ogdf/decomposition/StaticSPQRTree.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase
+#include <ogdf/decomposition/Skeleton.h>        // for Skeleton
+#include <ogdf/decomposition/StaticSPQRTree.h>  // for StaticSPQRTree
+#include <ogdf/decomposition/StaticSkeleton.h>  // for StaticSkeleton
+#include <ogdf/graphalg/Triconnectivity.h>      // for Triconnectivity
+#include <utility>                              // for swap
 
 namespace ogdf {
+class SPQRTree;
 
 StaticSkeleton::StaticSkeleton(const StaticSPQRTree* T, node vT) : Skeleton(vT), m_owner(T) {
 	m_orig.init(m_M, nullptr);

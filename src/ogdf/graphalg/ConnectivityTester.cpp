@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
-#include <ogdf/graphalg/ConnectivityTester.h>
+#include <ogdf/basic/GraphCopy.h>              // for GraphCopy
+#include <ogdf/basic/Graph_d.h>                // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/List.h>                   // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                   // for updateMin
+#include <ogdf/basic/basic.h>                  // for OGDF_ASSERT
+#include <ogdf/graphalg/ConnectivityTester.h>  // for ConnectivityTester
+#include <ogdf/graphalg/MaxFlowModule.h>       // for MaxFlowModule
 
 namespace ogdf {
 

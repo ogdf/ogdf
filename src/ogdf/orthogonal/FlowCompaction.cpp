@@ -32,9 +32,25 @@
  */
 
 
-#include <ogdf/graphalg/MinCostFlowReinelt.h>
-#include <ogdf/orthogonal/CompactionConstraintGraph.h>
-#include <ogdf/orthogonal/FlowCompaction.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>          // for CombinatorialEmbedding, FaceArray
+#include <ogdf/basic/Graph.h>                           // for operator<<
+#include <ogdf/basic/GraphAttributes.h>                 // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/GridLayoutMapped.h>                // for GridLayoutMapped
+#include <ogdf/basic/List.h>                            // for ListIteratorBase
+#include <ogdf/basic/SList.h>                           // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, max, OGDF_DEBUG
+#include <ogdf/basic/geometry.h>                        // for DPoint, DPolyline
+#include <ogdf/graphalg/MinCostFlowReinelt.h>           // for MinCostFlowReinelt
+#include <ogdf/orthogonal/CompactionConstraintGraph.h>  // for CompactionConstraintGraph, Constr...
+#include <ogdf/orthogonal/FlowCompaction.h>             // for FlowCompaction
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>       // for MinimumEdgeDistances
+#include <ogdf/orthogonal/OrthoRep.h>                   // for OrthoRep, OrthoDir
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <algorithm>                                    // for max
+#include <fstream>                                      // for char_traits, basic_ostream, opera...
+#include <limits>                                       // for numeric_limits
 
 
 //#define OGDF_FLOW_COMPACTION_OUTPUT_RC

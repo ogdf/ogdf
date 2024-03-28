@@ -29,11 +29,36 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
-#include <ogdf/planarity/embedder/CrossingStructure.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for EdgeArray, edge, RegisteredArrayW...
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                          // for Logger, OGDF_DEBUG
+#include <ogdf/basic/Module.h>                          // for Module
+#include <ogdf/basic/SList.h>                           // for SListPure
+#include <ogdf/basic/System.h>                          // for System
+#include <ogdf/basic/Thread.h>                          // for Thread
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, max, min
+#include <ogdf/basic/extended_graph_alg.h>              // for isPlanar, planarEmbed
+#include <ogdf/planarity/CrossingMinimizationModule.h>  // for CrossingMinimizationModule
+#include <ogdf/planarity/EdgeInsertionModule.h>         // for EdgeInsertionModule
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
+#include <ogdf/planarity/PlanRepLight.h>                // for PlanRepLight
+#include <ogdf/planarity/PlanarSubgraphFast.h>          // for PlanarSubgraphFast
+#include <ogdf/planarity/PlanarSubgraphModule.h>        // for PlanarSubgraphModule
+#include <ogdf/planarity/RemoveReinsertType.h>          // for RemoveReinsertType
+#include <ogdf/planarity/SubgraphPlanarizer.h>          // for SubgraphPlanarizer
+#include <ogdf/planarity/VariableEmbeddingInserter.h>   // for VariableEmbeddingInserter
+#include <ogdf/planarity/embedder/CrossingStructure.h>  // for CrossingStructure
+#include <stdint.h>                                     // for uint32_t, int64_t
+#include <stdlib.h>                                     // for rand
+#include <algorithm>                                    // for max, min
+#include <atomic>                                       // for atomic, __atomic_base
+#include <limits>                                       // for numeric_limits
+#include <memory>                                       // for unique_ptr
+#include <mutex>                                        // for mutex, lock_guard
+#include <random>                                       // for minstd_rand
+#include <utility>                                      // for swap
 
 using std::atomic;
 using std::lock_guard;

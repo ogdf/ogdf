@@ -30,7 +30,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GF2Solver.h>
+#include <ogdf/basic/Array.h>      // for Array
+#include <ogdf/basic/GF2Solver.h>  // for GF2Solver
+#include <ogdf/basic/List.h>       // for List, ListIteratorBase, ListIterator
 
 namespace ogdf {
 

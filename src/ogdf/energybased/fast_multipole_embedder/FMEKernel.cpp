@@ -29,8 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>
-#include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
+#include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>  // for ComplexDouble
+#include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>      // for OGDF_FME_KERNEL_USE_OLD
+#include <stdint.h>                                                  // for uint32_t
 
 using namespace ogdf::sse;
 

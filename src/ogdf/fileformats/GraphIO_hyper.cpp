@@ -29,9 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/Logger.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/Array.h>          // for Array
+#include <ogdf/basic/GraphList.h>      // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>        // for Graph, node, edge
+#include <ogdf/basic/HashArray.h>      // for HashArray
+#include <ogdf/basic/List.h>           // for List
+#include <ogdf/basic/Logger.h>         // for string, Logger
+#include <ogdf/basic/basic.h>          // for prefixIgnoreCase
+#include <ogdf/fileformats/GraphIO.h>  // for GraphIO
+#include <istream>                     // for operator<<, basic_istream, basic_ostream, basic_is...
+#include <string>                      // for basic_string, char_traits, allocator, string, oper...
 
 namespace ogdf {
 

@@ -29,8 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Graph.h>
-#include <ogdf/graphalg/EdgeIndependentSpanningTrees.h>
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/Graph_d.h>                          // for RegisteredArrayWithoutDefault, edge
+#include <ogdf/basic/List.h>                             // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>                            // for OGDF_ASSERT
+#include <ogdf/graphalg/EdgeIndependentSpanningTrees.h>  // for EdgeIndependentSpanningTrees
+#include <algorithm>                                     // for next_permutation
+#include <functional>                                    // for function
+#include <utility>                                       // for pair, move, swap
+#include <vector>                                        // for vector
 
 namespace ogdf {
 

@@ -29,10 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/GraphML.h>
-
-#include <ogdf/lib/pugixml/pugixml.h>
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for Graph, edge, node
+#include <ogdf/basic/List.h>                      // for ListIteratorBase, ListContainer
+#include <ogdf/basic/Logger.h>                    // for string, to_string
+#include <ogdf/basic/geometry.h>                  // for DPoint
+#include <ogdf/basic/graphics.h>                  // for Color, EdgeArrow
+#include <ogdf/cluster/ClusterGraph.h>            // for ClusterGraph, cluster
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <ogdf/fileformats/GraphML.h>             // for toString, Attribute
+#include <ogdf/lib/pugixml/pugixml.h>             // for xml_node, xml_attribute, xml_document
+#include <stddef.h>                               // for size_t
+#include <stdint.h>                               // for uint32_t
+#include <algorithm>                              // for max
+#include <sstream>                                // for basic_ostream, basic_stringstream, oper...
+#include <string>                                 // for basic_string, allocator, char_traits
 
 namespace ogdf {
 

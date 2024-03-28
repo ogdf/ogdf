@@ -30,7 +30,18 @@
  */
 
 
-#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <math.h>                                 // for fabs
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/LayoutStandards.h>           // for LayoutStandards
+#include <ogdf/basic/List.h>                      // for ListIteratorBase, ListConstIterator
+#include <ogdf/basic/Math.h>                      // for updateMax, updateMin
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                  // for DRect
+#include <ogdf/basic/graphics.h>                  // for Fill, Stroke
+#include <ogdf/cluster/ClusterGraph.h>            // for ClusterGraph, cluster, ClusterElement (...
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
 
 namespace ogdf {
 

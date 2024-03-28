@@ -29,7 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/SeparatorLiptonTarjan.h>
+#include <ogdf/basic/GraphCopy.h>                 // for GraphCopy
+#include <ogdf/basic/GraphList.h>                 // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                   // for node, edge, Graph (ptr only)
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>        // for planarEmbedPlanarGraph
+#include <ogdf/basic/simple_graph_alg.h>          // for triangulate
+#include <ogdf/graphalg/PlanarSeparatorModule.h>  // for BFSTreeClassical, Cycle
+#include <ogdf/graphalg/SeparatorLiptonTarjan.h>  // for SeparatorLiptonTarjan
+#include <memory>                                 // for shared_ptr, __shared_ptr_access, make_s...
+#include <string>                                 // for basic_string
+#include <utility>                                // for swap
 
 namespace ogdf {
 

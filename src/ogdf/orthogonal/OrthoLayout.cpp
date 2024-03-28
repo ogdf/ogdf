@@ -30,10 +30,22 @@
  */
 
 
-#include <ogdf/orthogonal/EdgeRouter.h>
-#include <ogdf/orthogonal/FlowCompaction.h>
-#include <ogdf/orthogonal/OrthoLayout.h>
-#include <ogdf/orthogonal/OrthoShaper.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>     // for CombinatorialEmbedding
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for node, adjEntry
+#include <ogdf/basic/GridLayoutMapped.h>           // for GridLayoutMapped
+#include <ogdf/basic/Layout.h>                     // for Layout
+#include <ogdf/basic/LayoutStandards.h>            // for LayoutStandards
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>                 // for AlgorithmFailureException
+#include <ogdf/basic/geometry.h>                   // for DPoint
+#include <ogdf/orthogonal/EdgeRouter.h>            // for EdgeRouter, RoutingChannel
+#include <ogdf/orthogonal/FlowCompaction.h>        // for FlowCompaction
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>  // for MinimumEdgeDistances
+#include <ogdf/orthogonal/OrthoLayout.h>           // for OrthoLayout
+#include <ogdf/orthogonal/OrthoRep.h>              // for OrthoRep, OrthoDir
+#include <ogdf/orthogonal/OrthoShaper.h>           // for OrthoShaper
+#include <ogdf/planarity/PlanRep.h>                // for PlanRep
 
 namespace ogdf {
 

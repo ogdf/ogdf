@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/layered/GreedyCycleRemoval.h>
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/GraphList.h>             // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>               // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/List.h>                  // for ListPure, ListIteratorBase, List, ListIterator
+#include <ogdf/basic/SList.h>                 // for SListPure, SListIteratorBase
+#include <ogdf/layered/GreedyCycleRemoval.h>  // for GreedyCycleRemoval
+#include <stdlib.h>                           // for abs
 
 namespace ogdf {
 

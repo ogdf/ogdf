@@ -31,10 +31,24 @@
  */
 
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/Queue.h>
-#include <ogdf/cluster/CPlanarEdgeInserter.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, FaceArray, face
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, edge, node
+#include <ogdf/basic/HashArray.h>               // for HashArray
+#include <ogdf/basic/Layout.h>                  // for Layout
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator, Lis...
+#include <ogdf/basic/Queue.h>                   // for QueuePure
+#include <ogdf/basic/SList.h>                   // for SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, to_string
+#include <ogdf/basic/graphics.h>                // for Color, Shape
+#include <ogdf/cluster/CPlanarEdgeInserter.h>   // for CPlanarEdgeInserter
+#include <ogdf/cluster/ClusterGraph.h>          // for cluster, ClusterGraph
+#include <ogdf/cluster/ClusterPlanRep.h>        // for ClusterPlanRep
+#include <ogdf/fileformats/GraphIO.h>           // for GraphIO
+#include <fstream>                              // for basic_ofstream, basic_ios, basic_ostream
+#include <string>                               // for basic_string, to_string
 
 namespace ogdf {
 

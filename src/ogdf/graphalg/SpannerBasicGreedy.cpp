@@ -30,7 +30,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/SpannerBasicGreedy.h>
+#include <math.h>                              // for ceil
+#include <ogdf/basic/GraphCopy.h>              // for GraphCopySimple
+#include <ogdf/basic/Graph_d.h>                // for NodeArray, node, RegisteredArrayWithoutDef...
+#include <ogdf/graphalg/Dijkstra.h>            // for Dijkstra
+#include <ogdf/graphalg/SpannerBasicGreedy.h>  // for SpannerBasicGreedy
 
 namespace ogdf {
 

@@ -29,10 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/fileformats/TikzWriter.h>
-
-#include <iomanip>
+#include <math.h>                                 // for atan2, hypot, round
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                 // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                   // for node, Graph, edge
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase, ListContainer
+#include <ogdf/basic/Logger.h>                    // for Logger
+#include <ogdf/basic/Math.h>                      // for pi
+#include <ogdf/basic/Queue.h>                     // for Queue
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT, max
+#include <ogdf/basic/geometry.h>                  // for DPoint, GenericPoint, isPointCoveredByNode
+#include <ogdf/basic/graphics.h>                  // for Shape, Color, StrokeType, EdgeArrow
+#include <ogdf/cluster/ClusterGraph.h>            // for cluster, ClusterGraph
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <ogdf/fileformats/TikzWriter.h>          // for TikzWriter
+#include <stddef.h>                               // for size_t
+#include <algorithm>                              // for min, find, max
+#include <iomanip>                                // for operator<<, setprecision, fixed
+#include <limits>                                 // for numeric_limits
+#include <sstream>                                // for basic_ostream, operator<<, basic_string...
+#include <string>                                 // for basic_string, char_traits, allocator
+#include <vector>                                 // for vector
 
 namespace ogdf {
 

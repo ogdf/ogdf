@@ -30,8 +30,29 @@
  */
 
 
-#include <ogdf/energybased/fmmm/NewMultipoleMethod.h>
-#include <ogdf/energybased/fmmm/common.h>
+#include <ogdf/basic/Array.h>                                           // for Array
+#include <ogdf/basic/Array2D.h>                                         // for Array2D
+#include <ogdf/basic/GraphList.h>                                       // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                         // for NodeArray, Regist...
+#include <ogdf/basic/List.h>                                            // for List, ListIterato...
+#include <ogdf/basic/Math.h>                                            // for updateMax, updateMin
+#include <ogdf/basic/basic.h>                                           // for OGDF_ASSERT, rand...
+#include <ogdf/basic/geometry.h>                                        // for DPoint, GenericPoint
+#include <ogdf/energybased/fmmm/FMMMOptions.h>                          // for FMMMOptions
+#include <ogdf/energybased/fmmm/FruchtermanReingold.h>                  // for FruchtermanReingold
+#include <ogdf/energybased/fmmm/NewMultipoleMethod.h>                   // for NewMultipoleMethod
+#include <ogdf/energybased/fmmm/NodeAttributes.h>                       // for NodeAttributes
+#include <ogdf/energybased/fmmm/common.h>                               // for calculate_forces_...
+#include <ogdf/energybased/fmmm/new_multipole_method/ParticleInfo.h>    // for ParticleInfo, Par...
+#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNM.h>      // for QuadTreeNM
+#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNodeNM.h>  // for QuadTreeNodeNM
+#include <ogdf/energybased/fmmm/numexcept.h>                            // for numexcept
+#include <algorithm>                                                    // for max
+#include <cmath>                                                        // for floor, log2, ceil
+#include <complex>                                                      // for complex, operator*
+#include <functional>                                                   // for function, swap
+#include <iostream>                                                     // for basic_ostream
+#include <utility>                                                      // for swap
 
 #define MIN_BOX_LENGTH 1e-300
 

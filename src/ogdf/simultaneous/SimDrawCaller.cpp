@@ -30,11 +30,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/SugiyamaLayout.h>
-#include <ogdf/planarity/PlanarizationLayout.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
-#include <ogdf/simultaneous/SimDrawCaller.h>
+#include <ogdf/basic/GraphAttributes.h>                  // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/Graph_d.h>                          // for node, Graph, RegisteredArrayWith...
+#include <ogdf/basic/List.h>                             // for List, ListIteratorBase
+#include <ogdf/layered/SugiyamaLayout.h>                 // for SugiyamaLayout
+#include <ogdf/planarity/PlanRep.h>                      // for PlanRep
+#include <ogdf/planarity/PlanarizationLayout.h>          // for PlanarizationLayout
+#include <ogdf/planarity/RemoveReinsertType.h>           // for RemoveReinsertType
+#include <ogdf/planarity/SubgraphPlanarizer.h>           // for SubgraphPlanarizer
+#include <ogdf/planarity/VariableEmbeddingInserter.h>    // for VariableEmbeddingInserter
+#include <ogdf/simultaneous/SimDraw.h>                   // for SimDraw
+#include <ogdf/simultaneous/SimDrawCaller.h>             // for SimDrawCaller
+#include <ogdf/simultaneous/SimDrawManipulatorModule.h>  // for SimDrawManipulatorModule
+#include <stdint.h>                                      // for uint32_t
 
 namespace ogdf {
 

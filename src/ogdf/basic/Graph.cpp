@@ -29,12 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/Array.h>
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/fileformats/GmlParser.h>
+#include <ogdf/basic/Array.h>             // for Array
+#include <ogdf/basic/ArrayBuffer.h>       // for ArrayBuffer
+#include <ogdf/basic/Graph.h>             // for operator<<
+#include <ogdf/basic/GraphList.h>         // for GraphObjectContainer, GraphList
+#include <ogdf/basic/Graph_d.h>           // for Graph, node, adjEntry, edge, GraphAdjIterator
+#include <ogdf/basic/List.h>              // for ListIteratorBase, ListPure, chooseIteratorFrom
+#include <ogdf/basic/SList.h>             // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT, OGDF_HEAVY_DEBUG, Direction, OGDF_...
+#include <ogdf/basic/simple_graph_alg.h>  // for connectedComponents
+#include <functional>                     // for function
+#include <ostream>                        // for basic_ostream, operator<<, ostream, char_traits
+#include <utility>                        // for swap
 
 namespace ogdf {
 

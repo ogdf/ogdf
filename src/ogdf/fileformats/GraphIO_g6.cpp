@@ -30,8 +30,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/AdjacencyOracle.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/AdjacencyOracle.h>  // for AdjacencyOracle
+#include <ogdf/basic/Array.h>            // for Array
+#include <ogdf/basic/GraphList.h>        // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>          // for Graph, RegisteredArrayWithoutDefault, node, Node...
+#include <ogdf/basic/basic.h>            // for OGDF_ASSERT, OGDF_DEBUG, string
+#include <ogdf/fileformats/GraphIO.h>    // for GraphIO
+#include <cmath>                         // for log2
+#include <istream>                       // for operator<<, basic_ostream, basic_istream, ostream
+#include <string>                        // for char_traits, basic_string, string, operator<<
+#include <vector>                        // for vector, _Bit_iterator
 
 namespace ogdf {
 

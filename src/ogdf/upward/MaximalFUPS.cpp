@@ -31,8 +31,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Stopwatch.h>
-#include <ogdf/upward/MaximalFUPS.h>
+#include <ogdf/basic/GraphCopy.h>         // for GraphCopy
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for edge, Graph, NodeArray, RegisteredArrayWithoutD...
+#include <ogdf/basic/List.h>              // for List
+#include <ogdf/basic/Module.h>            // for Module
+#include <ogdf/basic/Stopwatch.h>         // for StopwatchWallClock
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>  // for hasSingleSource, isSimple
+#include <ogdf/upward/MaximalFUPS.h>      // for MaximalFUPS
+#include <ogdf/upward/UpwardPlanRep.h>    // for UpwardPlanRep
 #include <ogdf/upward/internal/UpSAT.h>
 
 namespace ogdf {

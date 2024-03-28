@@ -29,10 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/TutteLayout.h>
+#include <CoinPackedMatrix.hpp>                 // for CoinPackedMatrix
+#include <OsiSolverInterface.hpp>               // for OsiSolverInterface
+#include <math.h>                               // for sin, sqrt, cos
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, FaceAdjContainer
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, Graph, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                    // for pi
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>      // for isPlanar, planarEmbedPlanarGraph
+#include <ogdf/basic/geometry.h>                // for DRect, DPoint, GenericPoint
+#include <ogdf/basic/simple_graph_alg.h>        // for isTriconnected
+#include <ogdf/energybased/TutteLayout.h>       // for TutteLayout
+#include <ogdf/external/coin.h>                 // for CoinManager
 
 namespace ogdf {
 

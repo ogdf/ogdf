@@ -29,8 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/DOT.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/Graph.h>                     // for operator<<
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for edge, node, Graph, RegisteredArrayWitho...
+#include <ogdf/basic/List.h>                      // for ListIteratorBase, ListContainer
+#include <ogdf/basic/Logger.h>                    // for string
+#include <ogdf/basic/geometry.h>                  // for DPoint
+#include <ogdf/basic/graphics.h>                  // for operator<<, toString
+#include <ogdf/cluster/ClusterGraph.h>            // for ClusterGraph, cluster, ClusterArray
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/DOT.h>                 // for toString
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <stddef.h>                               // for size_t
+#include <stdint.h>                               // for uint32_t
+#include <sstream>                                // for basic_ostream, operator<<, basic_string...
+#include <string>                                 // for basic_string, char_traits, allocator
+#include <vector>                                 // for vector
 
 namespace ogdf {
 

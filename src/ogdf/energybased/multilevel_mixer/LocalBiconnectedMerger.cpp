@@ -29,7 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/LocalBiconnectedMerger.h>
+#include <math.h>                                                      // for log
+#include <ogdf/basic/GraphList.h>                                      // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                        // for node, RegisteredArray
+#include <ogdf/basic/HashArray.h>                                      // for HashArray
+#include <ogdf/basic/List.h>                                           // for List, ListIterator...
+#include <ogdf/basic/basic.h>                                          // for randomNumber, OGDF...
+#include <ogdf/energybased/multilevel_mixer/LocalBiconnectedMerger.h>  // for LocalBiconnectedMe...
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>         // for MultilevelGraph
+#include <algorithm>                                                   // for max, min
+#include <limits>                                                      // for numeric_limits
+#include <vector>                                                      // for vector
 
 namespace ogdf {
 

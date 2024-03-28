@@ -29,13 +29,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/ClusterSet.h>
-#include <ogdf/layered/ExtendedNestingGraph.h>
-#include <ogdf/layered/OptimalRanking.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/Array2D.h>                 // for Array2D
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/Graph.h>                   // for operator<<
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/Math.h>                    // for updateMax
+#include <ogdf/basic/Queue.h>                   // for Queue
+#include <ogdf/basic/SList.h>                   // for SListPure, SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/comparer.h>                // for OGDF_AUGMENT_STATICCOMPARER
+#include <ogdf/basic/simple_graph_alg.h>        // for isAcyclic, connectedComponents, topologic...
+#include <ogdf/cluster/ClusterGraph.h>          // for cluster, ClusterGraph, ClusterArray, oper...
+#include <ogdf/cluster/ClusterSet.h>            // for ClusterSet
+#include <ogdf/layered/ExtendedNestingGraph.h>  // for ExtendedNestingGraph, LHTreeNode, Cluster...
+#include <ogdf/layered/OptimalRanking.h>        // for OptimalRanking
+#include <limits>                               // for numeric_limits
+#include <ostream>                              // for basic_ostream, operator<<, char_traits
+#include <tuple>                                // for get, make_tuple, tuple
+#include <utility>                              // for swap
 
 using std::tuple;
 

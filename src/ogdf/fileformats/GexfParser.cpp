@@ -29,10 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GEXF.h>
-#include <ogdf/fileformats/GexfParser.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/GraphML.h>
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                   // for node, Graph, edge
+#include <ogdf/basic/LayoutStandards.h>           // for LayoutStandards
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                    // for Logger, string
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>                  // for DPoint, DPolyline
+#include <ogdf/basic/graphics.h>                  // for Color, fromString, FillPattern (ptr only)
+#include <ogdf/cluster/ClusterGraph.h>            // for ClusterGraph, cluster, ClusterElement
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/GEXF.h>                // for toShape, toStrokeType
+#include <ogdf/fileformats/GexfParser.h>          // for Parser
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <ogdf/fileformats/GraphML.h>             // for Attribute, toAttribute, toArrow, toEdge...
+#include <ogdf/lib/pugixml/pugixml.h>             // for xml_node, xml_attribute, xml_named_node...
+#include <stdint.h>                               // for uint8_t
+#include <functional>                             // for function
+#include <iterator>                               // for end
+#include <sstream>                                // for basic_ostream, operator<<, endl, basic_...
+#include <string>                                 // for basic_string, char_traits, operator==
+#include <unordered_map>                          // for unordered_map, operator==, _Node_const_...
+#include <utility>                                // for pair
 
 namespace ogdf {
 

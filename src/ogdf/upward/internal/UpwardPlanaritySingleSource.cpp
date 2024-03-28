@@ -35,10 +35,26 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/UpwardPlanarity.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>        // for face, CombinatorialEmbedding, Const...
+#include <ogdf/basic/Graph.h>                         // for operator<<
+#include <ogdf/basic/GraphList.h>                     // for GraphIteratorBase, GraphObjectConta...
+#include <ogdf/basic/Graph_d.h>                       // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/SList.h>                         // for SListPure, SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                         // for OGDF_ASSERT, OGDF_DEBUG, OGDF_HEAVY...
+#include <ogdf/basic/extended_graph_alg.h>            // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>              // for hasSingleSource, isAcyclic
+#include <ogdf/decomposition/PertinentGraph.h>        // for PertinentGraph
+#include <ogdf/decomposition/SPQRTree.h>              // for SPQRTree
+#include <ogdf/decomposition/Skeleton.h>              // for Skeleton
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>  // for StaticPlanarSPQRTree
+#include <ogdf/decomposition/StaticSkeleton.h>        // for StaticSkeleton
+#include <ogdf/upward/ExpansionGraph.h>               // for ExpansionGraph
+#include <ogdf/upward/FaceSinkGraph.h>                // for FaceSinkGraph
+#include <ogdf/upward/UpwardPlanarity.h>              // for UpwardPlanarity
 #include <ogdf/upward/internal/UpwardPlanaritySingleSource.h>
+// IWYU pragma: no_include <built-in>                                   // for UpwardPlanaritySingleSource
+#include <ostream>                                    // for basic_ostream, operator<<, char_traits
+#include <utility>                                    // for move
 
 namespace ogdf {
 

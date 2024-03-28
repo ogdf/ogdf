@@ -31,9 +31,20 @@
  */
 
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/tree/TreeLayout.h>
+#include <math.h>                         // for fabs, atan2
+#include <ogdf/basic/ArrayBuffer.h>       // for ArrayBuffer
+#include <ogdf/basic/GraphAttributes.h>   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault, node, adjEntry
+#include <ogdf/basic/List.h>              // for List, ListIteratorBase, ListIterator, ListConst...
+#include <ogdf/basic/Math.h>              // for pi
+#include <ogdf/basic/SList.h>             // for SListPure
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT
+#include <ogdf/basic/comparer.h>          // for GenericComparer
+#include <ogdf/basic/geometry.h>          // for Orientation, DPoint, DPolyline, GenericPoint
+#include <ogdf/basic/simple_graph_alg.h>  // for isAcyclicUndirected, isArborescenceForest
+#include <ogdf/tree/TreeLayout.h>         // for TreeLayout
+#include <utility>                        // for swap
 
 namespace ogdf {
 

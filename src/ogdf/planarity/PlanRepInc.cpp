@@ -29,15 +29,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <math.h>                               // for cos, sin, sqrt
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/Array2D.h>                 // for Array2D
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, Graph, RegisteredArrayWithoutDefault
+#include <ogdf/basic/Layout.h>                  // for Layout
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator, Lis...
+#include <ogdf/basic/Math.h>                    // for degreesToRadians
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/geometry.h>                // for DPoint, GenericPoint, DPolyline
+#include <ogdf/basic/graphics.h>                // for Color
 //Debug
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/simple_graph_alg.h>        // for isConnected, connectedComponents
+#include <ogdf/fileformats/GraphIO.h>           // for GraphIO
+#include <ogdf/uml/PlanRepUML.h>                // for PlanRepUML
+#include <ogdf/uml/UMLGraph.h>                  // for UMLGraph
 
 //zwei Moeglichkeiten: Elemente verstecken mit hide/activate
 //oder Elemente, die nicht akiv sind, loeschen
 
-#include <ogdf/planarity/PlanRepInc.h>
-#include <ogdf/planarity/TopologyModule.h>
+#include <ogdf/planarity/PlanRepInc.h>          // for PlanRepInc
+#include <ogdf/planarity/TopologyModule.h>      // for TopologyModule
+#include <iostream>                             // for operator<<, basic_ostream, basic_ostream:...
+#include <string>                               // for char_traits, basic_string
 
 namespace ogdf {
 

@@ -29,9 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/TlpParser.h>
-#include <ogdf/fileformats/Utils.h>
+#include <ctype.h>                       // for isdigit
+#include <ogdf/basic/GraphAttributes.h>  // for GraphAttributes
+#include <ogdf/basic/GraphList.h>        // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>          // for Graph, node, RegisteredArray, EdgeArray, NodeArray
+#include <ogdf/basic/Logger.h>           // for Logger, OGDF_DEBUG, to_string
+#include <ogdf/basic/graphics.h>         // for Color, fromString, FillPattern (ptr only), Shape...
+#include <ogdf/cluster/ClusterGraph.h>   // for ClusterGraph, cluster
+#include <ogdf/fileformats/GraphIO.h>    // for GraphIO
+#include <ogdf/fileformats/Tlp.h>        // for Attribute, toAttribute
+#include <ogdf/fileformats/TlpLexer.h>   // for Token, Lexer, operator<<
+#include <ogdf/fileformats/TlpParser.h>  // for Parser
+#include <ogdf/fileformats/Utils.h>      // for TokenIgnorer, operator>>
+#include <map>                           // for map
+#include <sstream>                       // for basic_ostream, basic_istream, operator<<, basic_...
+#include <string>                        // for char_traits, basic_string, operator+, operator==
+#include <vector>                        // for vector
 
 namespace ogdf {
 

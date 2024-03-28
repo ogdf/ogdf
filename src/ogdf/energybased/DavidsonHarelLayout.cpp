@@ -35,13 +35,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/DavidsonHarel.h>
-#include <ogdf/energybased/DavidsonHarelLayout.h>
-#include <ogdf/energybased/davidson_harel/Attraction.h>
-#include <ogdf/energybased/davidson_harel/Overlap.h>
-#include <ogdf/energybased/davidson_harel/Planarity.h>
-#include <ogdf/energybased/davidson_harel/PlanarityGrid.h>
-#include <ogdf/energybased/davidson_harel/Repulsion.h>
+#include <ogdf/basic/EpsilonTest.h>                      // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>                  // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                          // for Graph
+#include <ogdf/basic/basic.h>                            // for max
+#include <ogdf/basic/exceptions.h>                       // for AlgorithmFailureException, Algor...
+#include <ogdf/basic/geometry.h>                         // for OGDF_GEOM_ET
+#include <ogdf/energybased/DavidsonHarel.h>              // for DavidsonHarel
+#include <ogdf/energybased/DavidsonHarelLayout.h>        // for DavidsonHarelLayout
+#include <ogdf/energybased/davidson_harel/Attraction.h>  // for Attraction
+#include <ogdf/energybased/davidson_harel/Overlap.h>     // for Overlap
+#include <ogdf/energybased/davidson_harel/Planarity.h>   // for Planarity
+#include <ogdf/energybased/davidson_harel/Repulsion.h>   // for Repulsion
+#include <algorithm>                                     // for max
 
 #define DEFAULT_REPULSION_WEIGHT 1e6
 #define DEFAULT_ATTRACTION_WEIGHT 1e2

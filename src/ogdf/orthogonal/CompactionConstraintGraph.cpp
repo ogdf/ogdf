@@ -32,9 +32,13 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/orthogonal/CompactionConstraintGraph.h>
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/SList.h>                           // for SListPure
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT
+#include <ogdf/orthogonal/CompactionConstraintGraph.h>  // for CompactionConstraintGraphBase
+#include <ogdf/orthogonal/OrthoRep.h>                   // for OrthoRep, OrthoDir
+#include <ogdf/planarity/PlanRep.h>                     // for PlanRep
 
 namespace ogdf {
 

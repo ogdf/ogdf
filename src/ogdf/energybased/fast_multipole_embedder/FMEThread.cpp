@@ -29,10 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
+#include <ogdf/basic/Array.h>                                    // for Array
+#include <ogdf/basic/Barrier.h>                                  // for Barrier
+#include <ogdf/basic/System.h>                                   // for System
+#include <ogdf/basic/Thread.h>                                   // for Thread
+#include <ogdf/basic/basic.h>                                    // for OGDF_HAS_LINUX_CPU_MACROS
+#include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>  // for FMEThreadPool, FMEThread
+#include <stdint.h>                                              // for uint32_t
 
 #ifdef OGDF_HAS_LINUX_CPU_MACROS
-#	include <sched.h>
+#include <sched.h>                                               // for cpu_set_t, sched_setaffi...
 #endif
 
 namespace ogdf {

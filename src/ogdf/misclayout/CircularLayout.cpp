@@ -32,12 +32,28 @@
 
 //#define OGDF_CIRCULAR_LAYOUT_LOGGING
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/tuples.h>
-#include <ogdf/misclayout/CircularLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <float.h>                            // for DBL_EPSILON
+#include <math.h>                             // for sin, cos, tan, asin, sqrt, acos
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/EpsilonTest.h>           // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>       // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>             // for GraphCopy
+#include <ogdf/basic/GraphList.h>             // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>               // for node, RegisteredArrayWithoutDefault, NodeArray
+#include <ogdf/basic/List.h>                  // for List, ListIteratorBase, ListIterator, ListC...
+#include <ogdf/basic/Math.h>                  // for pi, updateMin, radiansToDegrees, updateMax
+#include <ogdf/basic/Queue.h>                 // for Queue
+#include <ogdf/basic/SList.h>                 // for SList, SListIteratorBase, SListPure, SListC...
+#include <ogdf/basic/basic.h>                 // for OGDF_ASSERT, max, BucketFunc
+#include <ogdf/basic/comparer.h>              // for GenericComparer
+#include <ogdf/basic/geometry.h>              // for DPoint, GenericPoint, OGDF_GEOM_ET
+#include <ogdf/basic/simple_graph_alg.h>      // for biconnectedComponents, connectedComponents
+#include <ogdf/basic/tuples.h>                // for Tuple2
+#include <ogdf/misclayout/CircularLayout.h>   // for CircularLayout
+#include <ogdf/packing/TileToRowsCCPacker.h>  // for TileToRowsCCPacker
+#include <algorithm>                          // for max
+#include <iostream>                           // for basic_ostream, operator<<, char_traits, bas...
+#include <utility>                            // for swap
 
 #ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
 #	include <ogdf/fileformats/GraphIO.h>

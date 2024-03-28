@@ -31,10 +31,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/STNumbering.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/Graph.h>                           // for operator<<
+#include <ogdf/basic/GraphList.h>                       // for GraphObjectContainer, GraphIterat...
+#include <ogdf/basic/Graph_d.h>                         // for Graph, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                            // for ListPure, List, ListIteratorBase
+#include <ogdf/basic/Logger.h>                          // for OGDF_HEAVY_DEBUG, Logger, OGDF_DEBUG
+#include <ogdf/basic/Queue.h>                           // for Queue
+#include <ogdf/basic/SList.h>                           // for SList, SListPure, SListIteratorBase
+#include <ogdf/basic/STNumbering.h>                     // for computeSTNumbering, isSTNumbering
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT, OGDF_HEAVY_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>              // for isCConnected, isPlanar
+#include <ogdf/basic/pqtree/PQLeaf.h>                   // for PQLeaf
+#include <ogdf/basic/pqtree/PQLeafKey.h>                // for PQLeafKey
+#include <ogdf/basic/pqtree/PQNode.h>                   // for PQNode
+#include <ogdf/basic/pqtree/PQNodeRoot.h>               // for PQNodeRoot
+#include <ogdf/basic/simple_graph_alg.h>                // for biconnectedComponents, getParalle...
+#include <ogdf/cluster/CconnectClusterPlanar.h>         // for CconnectClusterPlanar
+#include <ogdf/cluster/ClusterGraph.h>                  // for ClusterGraph, cluster
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>  // for PlanarLeafKey
+#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>   // for PlanarPQTree
+#include <functional>                                   // for function
+#include <ostream>                                      // for basic_ostream, char_traits, opera...
+
+namespace ogdf::booth_lueker { class IndInfo; }
 
 namespace ogdf {
 

@@ -29,9 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/DotParser.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/fileformats/Utils.h>
+#include <ogdf/basic/ArrayBuffer.h>               // for ArrayBuffer
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                   // for node, Graph, edge
+#include <ogdf/basic/HashArray.h>                 // for HashArray
+#include <ogdf/basic/Logger.h>                    // for Logger, string
+#include <ogdf/basic/geometry.h>                  // for DPoint, DPolyline
+#include <ogdf/basic/graphics.h>                  // for Color, fromString, StrokeType (ptr only)
+#include <ogdf/cluster/ClusterGraph.h>            // for ClusterGraph, cluster
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/DOT.h>                 // for Attribute, toAttribute, toArrow, toEdge...
+#include <ogdf/fileformats/DotLexer.h>            // for Token, Lexer
+#include <ogdf/fileformats/DotParser.h>           // for Ast, SubgraphData, Parser
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <ogdf/fileformats/Utils.h>               // for TokenIgnorer, operator>>
+#include <set>                                    // for set, _Rb_tree_const_iterator
+#include <sstream>                                // for basic_istream, basic_ostream, basic_ist...
+#include <string>                                 // for char_traits, basic_string, string, oper...
+#include <utility>                                // for move
+#include <vector>                                 // for vector
 
 namespace ogdf {
 

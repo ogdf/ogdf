@@ -37,12 +37,32 @@
  */
 
 
-#include <ogdf/basic/precondition.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/planarity/SimpleEmbedder.h>
-#include <ogdf/uml/OrthoLayoutUML.h>
-#include <ogdf/uml/PlanarizationLayoutUML.h>
-#include <ogdf/uml/SubgraphPlanarizerUML.h>
+#include <ogdf/basic/Array.h>                        // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>       // for CombinatorialEmbedding, face, FaceArray
+#include <ogdf/basic/GraphAttributes.h>              // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for Graph, edge, adjEntry, RegisteredArr...
+#include <ogdf/basic/Layout.h>                       // for Layout
+#include <ogdf/basic/List.h>                         // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>                        // for SListConstIterator, SListIteratorBase
+#include <ogdf/basic/basic.h>                        // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>           // for planarEmbed
+#include <ogdf/basic/geometry.h>                     // for GenericPoint, DPoint, DPolyline
+#include <ogdf/basic/precondition.h>                 // for dfsGenTree
+#include <ogdf/orthogonal/OrthoRep.h>                // for UMLOpt, operator&, operator~
+#include <ogdf/packing/CCLayoutPackModule.h>         // for CCLayoutPackModule
+#include <ogdf/packing/TileToRowsCCPacker.h>         // for TileToRowsCCPacker
+#include <ogdf/planarity/EmbedderModule.h>           // for EmbedderModule
+#include <ogdf/planarity/PlanRep.h>                  // for PlanRep
+#include <ogdf/planarity/SimpleEmbedder.h>           // for SimpleEmbedder
+#include <ogdf/uml/LayoutPlanRepUMLModule.h>         // for LayoutPlanRepUMLModule
+#include <ogdf/uml/OrthoLayoutUML.h>                 // for OrthoLayoutUML
+#include <ogdf/uml/PlanRepUML.h>                     // for PlanRepUML
+#include <ogdf/uml/PlanarizationLayoutUML.h>         // for PlanarizationLayoutUML
+#include <ogdf/uml/SubgraphPlanarizerUML.h>          // for SubgraphPlanarizerUML
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>  // for UMLCrossingMinimizationModule
+#include <ogdf/uml/UMLGraph.h>                       // for UMLGraph
+#include <memory>                                    // for unique_ptr
 
 namespace ogdf {
 

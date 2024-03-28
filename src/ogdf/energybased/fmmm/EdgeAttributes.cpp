@@ -29,7 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fmmm/EdgeAttributes.h>
+#include <ogdf/energybased/fmmm/EdgeAttributes.h>  // for EdgeAttributes, operator<<, operator>>
+#include <istream>                                 // for operator<<, basic_ostream, char_traits
 
 namespace ogdf {
 namespace energybased {

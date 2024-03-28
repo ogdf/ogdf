@@ -29,9 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/GreedySwitchHeuristic.h>
+#include <ogdf/layered/CrossingsMatrix.h>        // for CrossingsMatrix
+#include <ogdf/layered/GreedySwitchHeuristic.h>  // for GreedySwitchHeuristic
+#include <ogdf/layered/Level.h>                  // for Level
 
 namespace ogdf {
+class HierarchyLevels;
 
 void GreedySwitchHeuristic::init(const HierarchyLevels& levels) {
 	delete m_crossingMatrix;

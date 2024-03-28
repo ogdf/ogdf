@@ -31,8 +31,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/cluster/CPlanarSubClusteredGraph.h>
-#include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/basic/GraphList.h>                   // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                     // for EdgeArray, edge, Graph, EdgeElement
+#include <ogdf/basic/List.h>                        // for List, ListIteratorBase, ListIterator
+#include <ogdf/cluster/CPlanarSubClusteredGraph.h>  // for CPlanarSubClusteredGraph, CPlanarSubC...
+#include <ogdf/cluster/CconnectClusterPlanar.h>     // for CconnectClusterPlanar
+#include <ogdf/cluster/ClusterGraph.h>              // for RegisteredArrayWithoutDefault, Cluste...
 
 namespace ogdf {
 

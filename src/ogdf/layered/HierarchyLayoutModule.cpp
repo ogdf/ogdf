@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/layered/HierarchyLayoutModule.h>
+#include <math.h>                                // for fabs, tan
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for node, adjEntry, edge
+#include <ogdf/basic/geometry.h>                 // for DPoint, DSegment, IntersectionType, DLine
+#include <ogdf/layered/CrossingMinInterfaces.h>  // for LevelBase, HierarchyLevelsBase
+#include <ogdf/layered/Hierarchy.h>              // for Hierarchy
+#include <ogdf/layered/HierarchyLayoutModule.h>  // for HierarchyLayoutModule
 
 namespace ogdf {
 

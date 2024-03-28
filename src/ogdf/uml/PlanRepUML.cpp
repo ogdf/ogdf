@@ -30,8 +30,23 @@
  */
 
 
-#include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/uml/PlanRepUML.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for Graph, node, edge, RegisteredArrayWithout...
+#include <ogdf/basic/GridLayoutMapped.h>        // for GridLayoutMapped
+#include <ogdf/basic/Layout.h>                  // for Layout
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>                   // for SList, SListIteratorBase, SListPure, SLis...
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/tuples.h>                  // for Tuple2
+#include <ogdf/orthogonal/OrthoRep.h>           // for OrthoRep, OrthoDir, BendString, OrthoBend...
+#include <ogdf/planarity/PlanRep.h>             // for PlanRep
+#include <ogdf/uml/PlanRepUML.h>                // for PlanRepUML
+#include <ogdf/uml/UMLGraph.h>                  // for UMLGraph
+#include <fstream>                              // for operator<<, basic_ostream, basic_ostream:...
+#include <string>                               // for char_traits, operator<<
 
 namespace ogdf {
 

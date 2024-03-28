@@ -35,11 +35,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/ArrayBuffer.h>         // for ArrayBuffer
+#include <ogdf/basic/Graph.h>               // for operator<<
+#include <ogdf/basic/GraphCopy.h>           // for GraphCopy
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>             // for NodePair, node, Graph, RegisteredArrayWithout...
+#include <ogdf/basic/List.h>                // for List, ListIteratorBase, ListContainer
+#include <ogdf/basic/Logger.h>              // for Logger, OGDF_DEBUG, string
+#include <ogdf/basic/Stopwatch.h>           // for StopwatchCPU
+#include <ogdf/basic/extended_graph_alg.h>  // for makeCConnected
+#include <ogdf/basic/simple_graph_alg.h>    // for connectedComponents, isConnected
+#include <ogdf/cluster/ClusterGraph.h>      // for cluster, ClusterGraph, ClusterArray
 #include <ogdf/cluster/internal/CP_MasterBase.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/lib/abacus/constraint.h>     // for Constraint
+#include <ogdf/lib/abacus/master.h>         // for Master
+#include <ogdf/lib/abacus/optsense.h>       // for OptSense
+// IWYU pragma: no_include <built-in>                         // for CP_MasterBase, CPlanarEdgeVar
+#include <iostream>                         // for basic_ostream, operator<<, basic_ostream::ope...
+#include <string>                           // for char_traits, basic_string, string
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

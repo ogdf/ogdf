@@ -38,8 +38,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Array.h>        // for Array
+#include <ogdf/basic/ArrayBuffer.h>  // for ArrayBuffer
+#include <ogdf/basic/Graph_d.h>      // for node
 #include <ogdf/cluster/internal/ChunkConnection.h>
+#include <ogdf/lib/abacus/csense.h>  // for CSense
+// IWYU pragma: no_include <built-in>                  // for ChunkConnection, BaseConstraint
+
+namespace abacus { class Master; }
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

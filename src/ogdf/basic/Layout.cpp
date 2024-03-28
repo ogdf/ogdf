@@ -29,8 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Layout.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/GraphCopy.h>    // for GraphCopy
+#include <ogdf/basic/GraphList.h>    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>      // for RegisteredArrayWithoutDefault, edge, node, EdgeElement
+#include <ogdf/basic/Layout.h>       // for Layout
+#include <ogdf/basic/List.h>         // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>         // for updateMax, updateMin
+#include <ogdf/basic/basic.h>        // for OGDF_ASSERT
+#include <ogdf/basic/geometry.h>     // for DPoint, DPolyline, GenericPolyline
+#include <ogdf/planarity/PlanRep.h>  // for PlanRep
+#include <limits>                    // for numeric_limits
 
 namespace ogdf {
 

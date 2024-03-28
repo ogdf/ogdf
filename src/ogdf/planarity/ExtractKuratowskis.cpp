@@ -30,7 +30,17 @@
  */
 
 
-#include <ogdf/planarity/ExtractKuratowskis.h>
+#include <ogdf/basic/ArrayBuffer.h>                           // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>                             // for GraphIteratorBase, GraphObj...
+#include <ogdf/basic/Graph_d.h>                               // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/Logger.h>                                // for Logger, OGDF_DEBUG
+#include <ogdf/basic/SList.h>                                 // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                                 // for OGDF_ASSERT
+#include <ogdf/planarity/ExtractKuratowskis.h>                // for ExtractKuratowskis, Kuratow...
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>  // for operator>, BoyerMyrvoldPlanar
+#include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>     // for WInfo, KuratowskiStructure
+#include <initializer_list>                                   // for initializer_list
+#include <ostream>                                            // for operator<<, basic_ostream
 
 namespace ogdf {
 

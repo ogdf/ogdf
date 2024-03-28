@@ -30,7 +30,11 @@
  */
 
 
-#include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>
+#include <ogdf/basic/ArrayBuffer.h>                         // for ArrayBuffer
+#include <ogdf/basic/Graph_d.h>                             // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                                // for List, ListIteratorBase, ListC...
+#include <ogdf/planarity/PlanRep.h>                         // for PlanRep
+#include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>  // for InOutPoint, IOPoints
 
 namespace ogdf {
 

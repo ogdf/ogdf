@@ -29,7 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>
+#include <ogdf/basic/GraphList.h>                                       // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                         // for RegisteredArrayWi...
+#include <ogdf/basic/List.h>                                            // for List, ListIterato...
+#include <ogdf/basic/Math.h>                                            // for updateMax, updateMin
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>         // for RandomNodeSet
+#include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>  // for GalaxyMultilevelB...
+#include <algorithm>                                                    // for sort
 
 namespace ogdf {
 namespace fast_multipole_embedder {

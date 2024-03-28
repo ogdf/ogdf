@@ -29,9 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/davidson_harel/Attraction.h>
+#include <ogdf/basic/GraphList.h>                            // for GraphIteratorBase, GraphObje...
+#include <ogdf/basic/Graph_d.h>                              // for node, Graph
+#include <ogdf/basic/Logger.h>                               // for OGDF_DEBUG
+#include <ogdf/basic/geometry.h>                             // for DIntersectableRect, DPoint
+#include <ogdf/energybased/davidson_harel/Attraction.h>      // for Attraction
+#include <ogdf/energybased/davidson_harel/NodePairEnergy.h>  // for NodePairEnergy
+#include <iostream>                                          // for basic_ostream, basic_ios
+#include <string>                                            // for char_traits, basic_string
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 const double Attraction::MULTIPLIER = 2.0;

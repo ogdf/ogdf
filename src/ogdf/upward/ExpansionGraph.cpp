@@ -30,8 +30,13 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/ExpansionGraph.h>
+#include <ogdf/basic/Array.h>             // for Array
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault, edge, node, Regi...
+#include <ogdf/basic/SList.h>             // for SListPure, SListIteratorBase, SList, SListConst...
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>  // for biconnectedComponents
+#include <ogdf/upward/ExpansionGraph.h>   // for ExpansionGraph
 
 namespace ogdf {
 

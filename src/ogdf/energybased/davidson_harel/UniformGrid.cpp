@@ -29,7 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/davidson_harel/UniformGrid.h>
+#include <math.h>                                         // for floor, fabs, ceil
+#include <ogdf/basic/Array2D.h>                           // for Array2D
+#include <ogdf/basic/GraphAttributes.h>                   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                         // for GraphIteratorBase, GraphObjectC...
+#include <ogdf/basic/Graph_d.h>                           // for edge, node, Graph, RegisteredAr...
+#include <ogdf/basic/HashArray2D.h>                       // for HashArray2D
+#include <ogdf/basic/List.h>                              // for List, ListIteratorBase, ListIte...
+#include <ogdf/basic/SList.h>                             // for SList, SListIteratorBase, opera...
+#include <ogdf/basic/basic.h>                             // for max, OGDF_ASSERT, usedTime, OGD...
+#include <ogdf/basic/exceptions.h>                        // for AlgorithmFailureException, Algo...
+#include <ogdf/basic/geometry.h>                          // for IPoint, operator<<, DIntersecta...
+#include <ogdf/energybased/davidson_harel/UniformGrid.h>  // for UniformGrid, operator<<
+#include <stdlib.h>                                       // for abs
+#include <algorithm>                                      // for max, min
+#include <iostream>                                       // for basic_ostream, operator<<, cout
+#include <limits>                                         // for numeric_limits
+#include <utility>                                        // for swap
 
 namespace ogdf {
 namespace davidson_harel {

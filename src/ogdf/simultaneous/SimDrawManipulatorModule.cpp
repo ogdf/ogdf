@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/simultaneous/SimDrawManipulatorModule.h>
+#include <ogdf/basic/GraphAttributes.h>                  // for GraphAttributes
+#include <ogdf/basic/basic.h>                            // for OGDF_ASSERT
+#include <ogdf/simultaneous/SimDraw.h>                   // for SimDraw
+#include <ogdf/simultaneous/SimDrawManipulatorModule.h>  // for SimDrawManipulatorModule
 
 namespace ogdf {
 

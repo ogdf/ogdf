@@ -29,8 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/fmmm/MAARPacking.h>
-#include <ogdf/energybased/fmmm/numexcept.h>
+#include <ogdf/basic/Array.h>                                   // for Array
+#include <ogdf/basic/List.h>                                    // for List, ListIterator, ListI...
+#include <ogdf/basic/Math.h>                                    // for updateMax
+#include <ogdf/basic/basic.h>                                   // for max, OGDF_CASE_FALLTHROUGH
+#include <ogdf/basic/comparer.h>                                // for GenericComparer
+#include <ogdf/basic/geometry.h>                                // for DPoint
+#include <ogdf/energybased/fmmm/FMMMOptions.h>                  // for FMMMOptions
+#include <ogdf/energybased/fmmm/MAARPacking.h>                  // for MAARPacking
+#include <ogdf/energybased/fmmm/maar_packing/PackingRowInfo.h>  // for PackingRowInfo
+#include <ogdf/energybased/fmmm/maar_packing/Rectangle.h>       // for Rectangle
+#include <ogdf/energybased/fmmm/numexcept.h>                    // for numexcept
+#include <algorithm>                                            // for max
+#include <functional>                                           // for less
 
 namespace ogdf {
 namespace energybased {

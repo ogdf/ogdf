@@ -29,8 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/clique/CliqueFinderModule.h>
+#include <math.h>                            // for ceil
+#include <ogdf/basic/GraphAttributes.h>      // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>            // for GraphCopy
+#include <ogdf/basic/GraphList.h>            // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>              // for node, RegisteredArrayWithoutDefault, NodeArray
+#include <ogdf/basic/List.h>                 // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>                // for randomNumber, setSeed, to_string
+#include <ogdf/basic/comparer.h>             // for GenericComparer
+#include <ogdf/basic/graphics.h>             // for Color
+#include <ogdf/basic/simple_graph_alg.h>     // for makeSimpleUndirected
+#include <ogdf/clique/CliqueFinderModule.h>  // for CliqueFinderModule
+#include <string>                            // for basic_string, to_string
 
 namespace ogdf {
 

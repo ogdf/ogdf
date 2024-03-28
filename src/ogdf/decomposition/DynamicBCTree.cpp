@@ -30,7 +30,11 @@
  */
 
 
-#include <ogdf/decomposition/DynamicBCTree.h>
+#include <ogdf/basic/GraphList.h>              // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/SList.h>                  // for SList, SListIteratorBase, SListConstIterator
+#include <ogdf/basic/basic.h>                  // for OGDF_ASSERT
+#include <ogdf/decomposition/DynamicBCTree.h>  // for DynamicBCTree
 
 namespace ogdf {
 

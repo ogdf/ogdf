@@ -34,7 +34,22 @@
  */
 
 
-#include <ogdf/misclayout/BertaultLayout.h>
+#include <math.h>                               // for sqrt, cos, sin
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/Array2D.h>                 // for Array2D
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for ConstCombinatorialEmbedding, face, FaceAd...
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>               // for GraphCopy
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, Graph, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                    // for updateMin, pi
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, min
+#include <ogdf/misclayout/BertaultLayout.h>     // for BertaultLayout
+#include <ogdf/planarity/PlanRep.h>             // for PlanRep
+#include <stdlib.h>                             // for rand, srand
+#include <time.h>                               // for time
+#include <algorithm>                            // for min
 
 namespace ogdf {
 

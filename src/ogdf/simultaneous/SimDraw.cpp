@@ -29,8 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/simultaneous/SimDraw.h>
+#include <ogdf/basic/GraphAttributes.h>  // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>        // for GraphCopy
+#include <ogdf/basic/GraphList.h>        // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>          // for Graph, node, edge, adjEntry
+#include <ogdf/basic/List.h>             // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>            // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/graphics.h>         // for Color
+#include <ogdf/fileformats/GraphIO.h>    // for GraphIO
+#include <ogdf/simultaneous/SimDraw.h>   // for SimDraw
+#include <string>                        // for basic_string
 
 namespace ogdf {
 

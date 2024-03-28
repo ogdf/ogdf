@@ -30,8 +30,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/graphalg/Clusterer.h>
+#include <ogdf/basic/ArrayBuffer.h>         // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>           // for GraphCopy
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>             // for node, RegisteredArrayWithoutDefault, Register...
+#include <ogdf/basic/List.h>                // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>               // for SList
+#include <ogdf/basic/basic.h>               // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>    // for makeSimple
+#include <ogdf/cluster/ClusterGraph.h>      // for ClusterGraph, cluster
+#include <ogdf/graphalg/Clusterer.h>        // for Clusterer
+#include <ogdf/graphalg/ClustererModule.h>  // for SimpleCluster, ClustererModule
 
 namespace ogdf {
 

@@ -31,12 +31,17 @@
  */
 
 
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarlayout/TriconnectedShellingOrder.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>            // for face, ConstCombinatorialEmbedding
+#include <ogdf/basic/Graph.h>                             // for operator<<
+#include <ogdf/basic/GraphList.h>                         // for GraphIteratorBase, GraphObjectC...
+#include <ogdf/basic/Graph_d.h>                           // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                              // for List, ListIteratorBase, ListIte...
+#include <ogdf/basic/basic.h>                             // for OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>                // for isPlanar
+#include <ogdf/basic/simple_graph_alg.h>                  // for isLoopFree, isTriconnected
+#include <ogdf/planarlayout/ShellingOrder.h>              // for ShellingOrderSet
+#include <ogdf/planarlayout/TriconnectedShellingOrder.h>  // for TriconnectedShellingOrder
+#include <iostream>                                       // for basic_ostream, operator<<, char...
 
 // define for debugging
 //#define OGDF_TSO_OUTPUT

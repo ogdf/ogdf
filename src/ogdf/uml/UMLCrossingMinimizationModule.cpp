@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/uml/UMLCrossingMinimizationModule.h>
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for Graph, edge, adjEntry, node
+#include <ogdf/uml/PlanRepUML.h>                     // for PlanRepUML
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>  // for UMLCrossingMinimizationModule
 
 namespace ogdf {
 

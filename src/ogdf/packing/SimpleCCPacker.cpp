@@ -29,9 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/packing/SimpleCCPacker.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/GraphAttributes.h>       // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>               // for Graph, RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/LayoutModule.h>          // for LayoutModule
+#include <ogdf/basic/geometry.h>              // for GenericPoint, DPoint
+#include <ogdf/basic/simple_graph_alg.h>      // for connectedComponents
+#include <ogdf/packing/SimpleCCPacker.h>      // for SimpleCCPacker
+#include <ogdf/packing/TileToRowsCCPacker.h>  // for TileToRowsCCPacker
+#include <memory>                             // for unique_ptr
 
 using namespace ogdf;
 

@@ -32,9 +32,23 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/GEMLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <math.h>                             // for cos, sin
+#include <ogdf/basic/Array.h>                 // for Array
+#include <ogdf/basic/EpsilonTest.h>           // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>       // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>             // for GraphCopy
+#include <ogdf/basic/GraphList.h>             // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>               // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/LayoutStandards.h>       // for LayoutStandards
+#include <ogdf/basic/List.h>                  // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                  // for updateMax, updateMin, pi, pi_2
+#include <ogdf/basic/SList.h>                 // for SList
+#include <ogdf/basic/basic.h>                 // for randomSeed
+#include <ogdf/basic/geometry.h>              // for OGDF_GEOM_ET, DPoint, GenericPoint
+#include <ogdf/basic/simple_graph_alg.h>      // for connectedComponents
+#include <ogdf/energybased/GEMLayout.h>       // for GEMLayout
+#include <ogdf/packing/TileToRowsCCPacker.h>  // for TileToRowsCCPacker
+#include <random>                             // for uniform_int_distribution
 
 namespace ogdf {
 

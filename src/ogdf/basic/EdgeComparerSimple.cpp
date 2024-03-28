@@ -30,7 +30,12 @@
  */
 
 
-#include <ogdf/basic/EdgeComparerSimple.h>
+#include <math.h>                           // for sqrt
+#include <ogdf/basic/EdgeComparerSimple.h>  // for EdgeComparerSimple
+#include <ogdf/basic/GraphAttributes.h>     // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>             // for adjEntry
+#include <ogdf/basic/List.h>                // for ListIteratorBase, ListIterator
+#include <ogdf/basic/geometry.h>            // for DPoint, DPolyline
 
 namespace ogdf {
 

@@ -29,8 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>
+#include <ogdf/basic/Array.h>                                 // for Array
+#include <ogdf/basic/ArrayBuffer.h>                           // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>                             // for GraphIteratorBase, GraphObj...
+#include <ogdf/basic/Graph_d.h>                               // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                                  // for ListIteratorBase, ListPure
+#include <ogdf/basic/Math.h>                                  // for updateMax, updateMin
+#include <ogdf/basic/SList.h>                                 // for SListPure, SList, SListIter...
+#include <ogdf/basic/basic.h>                                 // for OGDF_ASSERT, randomDouble
+#include <ogdf/basic/comparer.h>                              // for GenericComparer
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>    // for BoyerMyrvoldInit
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>  // for BoyerMyrvoldPlanar, BoyerMy...
+#include <limits>                                             // for numeric_limits
 
 namespace ogdf {
 namespace boyer_myrvold {

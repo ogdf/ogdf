@@ -29,7 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/CrossingMinInterfaces.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/Graph_d.h>                  // for node
+#include <ogdf/layered/CrossingMinInterfaces.h>  // for HierarchyLevelsBase, LevelBase
 
 namespace ogdf {
 

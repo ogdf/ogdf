@@ -29,7 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarlayout/ShellingOrderModule.h>
+#include <ogdf/basic/Graph_d.h>                     // for Graph (ptr only), adjEntry
+#include <ogdf/basic/List.h>                        // for List
+#include <ogdf/planarlayout/ShellingOrder.h>        // for ShellingOrderSet, ShellingOrder
+#include <ogdf/planarlayout/ShellingOrderModule.h>  // for ShellingOrderModule
 
 namespace ogdf {
 

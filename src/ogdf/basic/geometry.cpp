@@ -31,8 +31,16 @@
  */
 
 
-#include <ogdf/basic/geometry.h>
-#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/EpsilonTest.h>  // for EpsilonTest
+#include <ogdf/basic/List.h>         // for ListIteratorBase, ListIterator, List, print, ListCon...
+#include <ogdf/basic/Math.h>         // for pi, updateMin
+#include <ogdf/basic/basic.h>        // for OGDF_ASSERT, max, min, OGDF_EXPORT
+#include <ogdf/basic/geometry.h>     // for DIntersectableRect, DPoint, DPolygon, GenericPoint
+#include <ogdf/basic/graphics.h>     // for Shape
+#include <algorithm>                 // for max, min
+#include <cmath>                     // for cos, sin, atan, atan2, fabs, pow, fmod, floor, sqrt
+#include <ostream>                   // for basic_ostream, operator<<, char_traits, ostream, bas...
+#include <utility>                   // for swap
 
 namespace ogdf {
 

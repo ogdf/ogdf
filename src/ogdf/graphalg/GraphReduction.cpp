@@ -30,7 +30,11 @@
  */
 
 
-#include <ogdf/graphalg/GraphReduction.h>
+#include <ogdf/basic/GraphList.h>          // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>            // for RegisteredArrayWithoutDefault, edge, node, Edg...
+#include <ogdf/basic/List.h>               // for List, ListIteratorBase, ListConstIterator, Lis...
+#include <ogdf/basic/Reverse.h>            // for reverse, Reverse
+#include <ogdf/graphalg/GraphReduction.h>  // for GraphReduction
 
 namespace ogdf {
 

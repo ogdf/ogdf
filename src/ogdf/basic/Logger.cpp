@@ -30,7 +30,8 @@
  */
 
 
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Logger.h>  // for Logger, OGDF_DEBUG
+#include <iostream>             // for basic_ostream, ostream, basic_ios, cout
 
 namespace ogdf {
 

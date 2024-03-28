@@ -30,16 +30,16 @@
  */
 
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/geometry.h>
-#include <ogdf/basic/graph_generators/deterministic.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/PlanarizationGridLayout.h>
-#include <ogdf/planarlayout/SchnyderLayout.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/Array2D.h>                         // for Array2D
+#include <ogdf/basic/Graph_d.h>                         // for Graph, node
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/basic.h>                           // for OGDF_ASSERT
+#include <ogdf/basic/graph_generators/deterministic.h>  // for circulantGraph, completeBipartite...
+#include <random>                                       // for minstd_rand, uniform_int_distribu...
+#include <utility>                                      // for pair, get
+#include <vector>                                       // for vector
+
 using std::minstd_rand;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;

@@ -30,10 +30,17 @@
  */
 
 
-#include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>
-#include <ogdf/uml/FixedEmbeddingInserterUML.h>
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/Graph_d.h>                                     // for EdgeArray, edge
+#include <ogdf/basic/Module.h>                                      // for Module
+#include <ogdf/planarity/RemoveReinsertType.h>                      // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>  // for FixEdgeInserterUMLCore
+#include <ogdf/uml/FixedEmbeddingInserterUML.h>                     // for FixedEmbeddingInserte...
+#include <ogdf/uml/UMLEdgeInsertionModule.h>                        // for UMLEdgeInsertionModule
+#include <stdint.h>                                                 // for uint32_t
 
 namespace ogdf {
+class PlanRepLight;
 
 // constructor
 // sets default values for options

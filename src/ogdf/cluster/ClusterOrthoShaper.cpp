@@ -31,8 +31,22 @@
  */
 
 
-#include <ogdf/cluster/ClusterOrthoShaper.h>
-#include <ogdf/graphalg/MinCostFlowReinelt.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, FaceAdjContainer
+#include <ogdf/basic/Graph.h>                   // for operator<<
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for adjEntry, edge, node, EdgeArray, Graph
+#include <ogdf/basic/Logger.h>                  // for Logger
+#include <ogdf/basic/SList.h>                   // for SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG, OGDF_HEAVY_DEBUG
+#include <ogdf/basic/exceptions.h>              // for AlgorithmFailureException, AlgorithmFailu...
+#include <ogdf/cluster/ClusterGraph.h>          // for RegisteredArrayWithoutDefault, Registered...
+#include <ogdf/cluster/ClusterOrthoShaper.h>    // for ClusterOrthoShaper
+#include <ogdf/cluster/ClusterPlanRep.h>        // for ClusterPlanRep
+#include <ogdf/graphalg/MinCostFlowReinelt.h>   // for MinCostFlowReinelt
+#include <ogdf/orthogonal/OrthoRep.h>           // for OrthoRep, BendString
+#include <algorithm>                            // for max
+#include <ostream>                              // for basic_ostream, operator<<, basic_ostream:...
+#include <string>                               // for char_traits, basic_string, operator<<
 
 namespace ogdf {
 

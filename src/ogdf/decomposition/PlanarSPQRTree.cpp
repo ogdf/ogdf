@@ -30,8 +30,16 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/decomposition/PlanarSPQRTree.h>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for adjEntry, node, Graph, edge, RegisteredAr...
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>                   // for SListPure, SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, randomNumber, OGDF_HEAVY_ASSERT
+#include <ogdf/basic/comparer.h>                // for TargetComparer
+#include <ogdf/basic/extended_graph_alg.h>      // for planarEmbed
+#include <ogdf/decomposition/PlanarSPQRTree.h>  // for PlanarSPQRTree
+#include <ogdf/decomposition/Skeleton.h>        // for Skeleton
 
 namespace ogdf {
 

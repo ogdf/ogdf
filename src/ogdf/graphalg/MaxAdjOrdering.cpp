@@ -29,7 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/MaxAdjOrdering.h>
+#include <ogdf/basic/AdjacencyOracle.h>    // for AdjacencyOracle
+#include <ogdf/basic/GraphAttributes.h>    // for GraphAttributes
+#include <ogdf/basic/GraphList.h>          // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>            // for node, RegisteredArrayWithoutDefault, edge, Graph
+#include <ogdf/basic/List.h>               // for ListPure, List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Logger.h>             // for Logger
+#include <ogdf/basic/basic.h>              // for OGDF_ASSERT
+#include <ogdf/basic/graphics.h>           // for Color, Shape, EdgeArrow
+#include <ogdf/graphalg/MaxAdjOrdering.h>  // for MaxAdjOrdering
+#include <ogdf/misclayout/LinearLayout.h>  // for LinearLayout
+#include <ostream>                         // for basic_ostream, operator<<, basic_ostream::oper...
+#include <string>                          // for char_traits, allocator, basic_string, to_string
 
 namespace ogdf {
 

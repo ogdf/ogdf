@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/misclayout/ProcrustesSubLayout.h>
+#include <math.h>                                 // for cos, sin, sqrt, atan2
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>                   // for Graph, node
+#include <ogdf/basic/LayoutModule.h>              // for LayoutModule
+#include <ogdf/misclayout/ProcrustesSubLayout.h>  // for ProcrustesPointSet, ProcrustesSubLayout
 
 namespace ogdf {
 

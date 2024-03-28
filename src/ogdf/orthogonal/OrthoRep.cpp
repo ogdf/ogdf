@@ -30,10 +30,18 @@
  */
 
 
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/planarity/PlanRep.h>
-
-#include <sstream>
+#include <ogdf/basic/Array.h>                   // for Array
+#include <ogdf/basic/ArrayBuffer.h>             // for ArrayBuffer
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, FaceAdjContainer
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for RegisteredArrayWithoutDefault, adjEntry
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, string, OGDF_DEBUG
+#include <ogdf/orthogonal/OrthoRep.h>           // for OrthoRep, BendString, OrthoDir
+#include <ogdf/planarity/PlanRep.h>             // for PlanRep
+#include <string.h>                             // for size_t, strlen
+#include <sstream>                              // for char_traits, basic_ostream, operator<<
+#include <string>                               // for basic_string, allocator, string
 
 namespace ogdf {
 

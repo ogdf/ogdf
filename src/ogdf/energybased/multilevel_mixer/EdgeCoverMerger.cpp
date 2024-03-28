@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/EdgeCoverMerger.h>
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/Graph_d.h>                                 // for RegisteredArray, edge, node
+#include <ogdf/basic/basic.h>                                   // for randomNumber, OGDF_ASSERT
+#include <ogdf/energybased/multilevel_mixer/EdgeCoverMerger.h>  // for EdgeCoverMerger
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph, NodeMerge
+#include <vector>                                               // for vector
 
 namespace ogdf {
 

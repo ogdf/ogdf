@@ -36,7 +36,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/DavidsonHarel.h>
+#include <math.h>                                            // for sqrt, cos, exp, floor, sin
+#include <ogdf/basic/GraphAttributes.h>                      // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                            // for GraphIteratorBase, GraphObje...
+#include <ogdf/basic/Graph_d.h>                              // for node, Graph, NodeElement
+#include <ogdf/basic/List.h>                                 // for List, ListIteratorBase, List...
+#include <ogdf/basic/Math.h>                                 // for updateMax, updateMin, pi
+#include <ogdf/basic/basic.h>                                // for OGDF_ASSERT, randomNumber
+#include <ogdf/basic/geometry.h>                             // for DPoint
+#include <ogdf/energybased/DavidsonHarel.h>                  // for DavidsonHarel
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>  // for EnergyFunction
+#include <stdlib.h>                                          // for rand, srand, RAND_MAX
+#include <time.h>                                            // for time
+#include <algorithm>                                         // for max
+#include <string>                                            // for string, basic_string
 
 //TODO: in addition to the layout size, node sizes should be used in
 //the initial radius computation in case of "all central" layouts with

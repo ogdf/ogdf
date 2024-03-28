@@ -30,11 +30,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for CombinatorialEmbedding, face
+#include <ogdf/basic/EdgeComparer.h>            // for EdgeComparer
+#include <ogdf/basic/EpsilonTest.h>             // for EpsilonTest
+#include <ogdf/basic/GraphAttributes.h>         // for GraphAttributes
+#include <ogdf/basic/GraphList.h>               // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                 // for node, adjEntry, RegisteredArrayWithoutDef...
+#include <ogdf/basic/Layout.h>                  // for Layout
+#include <ogdf/basic/List.h>                    // for List, ListIteratorBase, ListIterator, Lis...
+#include <ogdf/basic/Math.h>                    // for pi
+#include <ogdf/basic/SList.h>                   // for SListPure
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT, OGDF_DEBUG, Direction
+#include <ogdf/basic/comparer.h>                // for GenericComparer
+#include <ogdf/basic/exceptions.h>              // for AlgorithmFailureException, AlgorithmFailu...
 //debug
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/planarity/PlanRepInc.h>
-#include <ogdf/planarity/TopologyModule.h>
+#include <ogdf/basic/extended_graph_alg.h>      // for isPlanar, planarEmbed
+#include <ogdf/basic/geometry.h>                // for DPoint, DSegment, DPolyline, OGDF_GEOM_ET
+#include <ogdf/fileformats/GraphIO.h>           // for GraphIO
+#include <ogdf/planarity/PlanRep.h>             // for PlanRep
+#include <ogdf/planarity/PlanRepInc.h>          // for PlanRepInc
+#include <ogdf/planarity/TopologyModule.h>      // for EdgeLeg, TopologyModule, operator&
+#include <fstream>                              // for basic_ofstream, basic_ostream, operator<<
+#include <string>                               // for char_traits, basic_string
 
 namespace ogdf {
 

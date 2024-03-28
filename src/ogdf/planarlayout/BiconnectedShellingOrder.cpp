@@ -31,17 +31,26 @@
  */
 
 
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarlayout/BiconnectedShellingOrder.h>
+#include <ogdf/basic/Array.h>                            // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>           // for face, ConstCombinatorialEmbedding
+#include <ogdf/basic/Graph.h>                            // for operator<<
+#include <ogdf/basic/GraphList.h>                        // for GraphIteratorBase, GraphObjectCo...
+#include <ogdf/basic/Graph_d.h>                          // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/List.h>                             // for ListPure, List, ListIteratorBase
+#include <ogdf/basic/Reverse.h>                          // for reverse, Reverse
+#include <ogdf/basic/SList.h>                            // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                            // for OGDF_ASSERT, max, min
+#include <ogdf/basic/simple_graph_alg.h>                 // for isBiconnected
+#include <ogdf/planarlayout/BiconnectedShellingOrder.h>  // for BiconnectedShellingOrder
+#include <ogdf/planarlayout/ShellingOrder.h>             // for ShellingOrderSet
+#include <algorithm>                                     // for max, min
+#include <iostream>                                      // for basic_ostream, char_traits, oper...
 
 //#define OGDF_BSO_OUTPUT
 
 namespace ogdf {
 
+class ComputeBicOrder;
 // pair of node v and list itrator it
 struct PairFaceItem;
 

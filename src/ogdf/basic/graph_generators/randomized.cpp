@@ -29,18 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/geometry.h>
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/PlanarizationGridLayout.h>
-#include <ogdf/planarlayout/SchnyderLayout.h>
+#include <math.h>                                       // for log, exp, pow
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>          // for CombinatorialEmbedding, face, Fac...
+#include <ogdf/basic/GraphAttributes.h>                 // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for Graph, node, RegisteredArrayWitho...
+#include <ogdf/basic/List.h>                            // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Math.h>                            // for updateMax
+#include <ogdf/basic/SList.h>                           // for SList, SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                           // for randomSeed, OGDF_ASSERT, Direction
+#include <ogdf/basic/extended_graph_alg.h>              // for planarEmbedPlanarGraph
+#include <ogdf/basic/geometry.h>                        // for GenericPoint, IPoint
+#include <ogdf/basic/graph_generators/deterministic.h>  // for completeGraph, emptyGraph, regula...
+#include <ogdf/basic/graph_generators/randomized.h>     // for randomClusterGraph, randomPlanarT...
+#include <ogdf/basic/simple_graph_alg.h>                // for isAcyclic, makeSimple, parallelFr...
+#include <ogdf/cluster/ClusterGraph.h>                  // for ClusterGraph, cluster
+#include <ogdf/planarlayout/SchnyderLayout.h>           // for SchnyderLayout
+#include <algorithm>                                    // for min
+#include <functional>                                   // for function
+#include <random>                                       // for uniform_int_distribution, uniform...
+#include <unordered_set>                                // for unordered_set, operator==, _Node_...
+#include <utility>                                      // for pair, swap
+#include <vector>                                       // for vector
 
-#include <unordered_set>
 using std::minstd_rand;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;

@@ -31,9 +31,19 @@
  */
 
 
-#include <ogdf/basic/NodeSet.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/graphalg/Triconnectivity.h>
+#include <ogdf/basic/Array.h>               // for Array
+#include <ogdf/basic/ArrayBuffer.h>         // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>           // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>           // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/GraphSets.h>           // for NodeSet
+#include <ogdf/basic/Graph_d.h>             // for RegisteredArrayWithoutDefault, edge, Graph, node
+#include <ogdf/basic/List.h>                // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>               // for SListIteratorBase, SListPure, SListIterator
+#include <ogdf/basic/basic.h>               // for min, OGDF_ASSERT, max, OGDF_HEAVY_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>    // for isConnected, hasNonSelfLoopEdges, isBiconnected
+#include <ogdf/graphalg/Triconnectivity.h>  // for Triconnectivity
+#include <algorithm>                        // for min, max
+#include <iostream>                         // for basic_ostream, char_traits, operator<<, basic...
 
 //#define OGDF_TRICONNECTIVITY_OUTPUT
 

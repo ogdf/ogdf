@@ -35,13 +35,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Array.h>                       // for Array
+#include <ogdf/basic/ArrayBuffer.h>                 // for ArrayBuffer
+#include <ogdf/basic/Graph.h>                       // for operator<<
+#include <ogdf/basic/GraphCopy.h>                   // for GraphCopy
+#include <ogdf/basic/GraphList.h>                   // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                     // for node, Graph, RegisteredArrayWithoutDe...
+#include <ogdf/basic/List.h>                        // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Logger.h>                      // for Logger
+#include <ogdf/basic/Stopwatch.h>                   // for StopwatchCPU
+#include <ogdf/basic/basic.h>                       // for OGDF_DEBUG, OGDF_ASSERT
+#include <ogdf/basic/extended_graph_alg.h>          // for makeCConnected
+#include <ogdf/basic/simple_graph_alg.h>            // for connectedComponents, isConnected
+#include <ogdf/cluster/ClusterAnalysis.h>           // for ClusterAnalysis
+#include <ogdf/cluster/ClusterGraph.h>              // for cluster, ClusterGraph, ClusterArray
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
 #include <ogdf/cluster/internal/CPlanaritySub.h>
-#include <ogdf/cluster/internal/ChunkConnection.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/cluster/internal/ChunkConnection.h>  // for ChunkConnection (ptr only)
+#include <ogdf/lib/abacus/constraint.h>             // for Constraint
+#include <ogdf/lib/abacus/cutbuffer.inc>            // for CutBuffer::insert
+#include <ogdf/lib/abacus/poolslot.inc>             // for PoolSlot::PoolSlot<BaseType, CoType>
+#include <ogdf/lib/abacus/standardpool.h>           // for StandardPool
+#include <ogdf/lib/abacus/standardpool.inc>         // for StandardPool::StandardPool<BaseType, ...
+// IWYU pragma: no_include <built-in>                                 // for CPlanarityMaster, CPlanarEdgeVar, Chu...
+#include <iostream>                                 // for operator<<, basic_ostream, char_traits
+
+namespace abacus { class Sub; }
+namespace abacus { class Variable; }
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

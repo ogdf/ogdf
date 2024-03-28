@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/energybased/multilevel_mixer/RandomMerger.h>
+#include <ogdf/basic/Array.h>                                   // for Array
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/Graph_d.h>                                 // for node, Graph, adjEntry
+#include <ogdf/basic/basic.h>                                   // for randomNumber, OGDF_ASSERT
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph, NodeMerge
+#include <ogdf/energybased/multilevel_mixer/RandomMerger.h>     // for RandomMerger
 
 namespace ogdf {
 

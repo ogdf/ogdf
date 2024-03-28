@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/MedianHeuristic.h>
+#include <ogdf/basic/Array.h>              // for Array
+#include <ogdf/basic/Graph_d.h>            // for RegisteredArrayWithoutDefault, node
+#include <ogdf/layered/HierarchyLevels.h>  // for HierarchyLevels
+#include <ogdf/layered/Level.h>            // for Level
+#include <ogdf/layered/MedianHeuristic.h>  // for MedianHeuristic
 
 namespace ogdf {
 

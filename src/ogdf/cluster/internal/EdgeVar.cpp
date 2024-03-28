@@ -30,9 +30,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Graph_d.h>                      // for node, Graph
 #include <ogdf/cluster/internal/EdgeVar.h>
-#include <ogdf/cluster/internal/MaxCPlanarMaster.h>
+#include <ogdf/cluster/internal/MaxCPlanarMaster.h>  // for MaxCPlanarMaster (ptr only)
+#include <ogdf/lib/abacus/variable.h>                // for Variable
+#include <ogdf/lib/abacus/vartype.h>                 // for VarType
+// IWYU pragma: no_include <built-in>                                  // for EdgeVar, MaxCPlanarMaster
+
+namespace abacus { class Master; }
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

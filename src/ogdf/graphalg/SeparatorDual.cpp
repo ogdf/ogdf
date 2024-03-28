@@ -29,7 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/SeparatorDual.h>
+#include <ogdf/basic/GraphCopy.h>                                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                                // for GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                                  // for node, Graph (ptr only)
+#include <ogdf/basic/List.h>                                     // for List, ListIteratorBase
+#include <ogdf/basic/extended_graph_alg.h>                       // for planarEmbedPlanarGraph
+#include <ogdf/basic/simple_graph_alg.h>                         // for triangulate
+#include <ogdf/graphalg/PlanarSeparatorModule.h>                 // for BFSTreeClassical
+#include <ogdf/graphalg/SeparatorDual.h>                         // for SeparatorDual
+#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>  // for SeparatorDualHelper
+#include <memory>                                                // for shared_ptr, __shared_ptr...
+#include <string>                                                // for basic_string
 
 namespace ogdf {
 

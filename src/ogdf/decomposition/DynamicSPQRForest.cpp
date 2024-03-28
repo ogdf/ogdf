@@ -30,9 +30,17 @@
  */
 
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/decomposition/DynamicSPQRForest.h>
-#include <ogdf/graphalg/Triconnectivity.h>
+#include <ogdf/basic/Array.h>                      // for Array
+#include <ogdf/basic/GraphCopy.h>                  // for GraphCopySimple
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/SList.h>                      // for SList, SListIteratorBase, SListIterator
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT
+#include <ogdf/decomposition/DynamicBCTree.h>      // for DynamicBCTree
+#include <ogdf/decomposition/DynamicSPQRForest.h>  // for DynamicSPQRForest
+#include <ogdf/graphalg/Triconnectivity.h>         // for Triconnectivity
+#include <utility>                                 // for swap
 
 namespace ogdf {
 

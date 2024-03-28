@@ -29,8 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/VisibilityLayout.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>   // for CombinatorialEmbedding, face, FaceArray
+#include <ogdf/basic/GraphAttributes.h>          // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for RegisteredArrayWithoutDefault, node, Graph
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT, max
+#include <ogdf/basic/geometry.h>                 // for DPoint, DPolyline
+#include <ogdf/basic/simple_graph_alg.h>         // for topologicalNumbering, isConnected
+#include <ogdf/upward/UpwardPlanRep.h>           // for UpwardPlanRep
+#include <ogdf/upward/UpwardPlanarizerModule.h>  // for UpwardPlanarizerModule
+#include <ogdf/upward/VisibilityLayout.h>        // for VisibilityLayout
+#include <algorithm>                             // for max
+#include <memory>                                // for unique_ptr
 
 namespace ogdf {
 

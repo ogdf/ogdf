@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
-#include <ogdf/energybased/multilevel_mixer/RandomPlacer.h>
+#include <math.h>                                               // for sqrt, cos, sin
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/Graph_d.h>                                 // for Graph, node
+#include <ogdf/basic/Math.h>                                    // for pi
+#include <ogdf/basic/basic.h>                                   // for randomDouble
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph
+#include <ogdf/energybased/multilevel_mixer/RandomPlacer.h>     // for RandomPlacer
 
 namespace ogdf {
 

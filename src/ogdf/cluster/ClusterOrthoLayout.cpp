@@ -31,11 +31,24 @@
  */
 
 
-#include <ogdf/cluster/ClusterOrthoLayout.h>
-#include <ogdf/cluster/ClusterOrthoShaper.h>
-#include <ogdf/orthogonal/EdgeRouter.h>
-#include <ogdf/orthogonal/FlowCompaction.h>
-#include <ogdf/orthogonal/LongestPathCompaction.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>     // for CombinatorialEmbedding
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for node, edge, adjEntry, Graph
+#include <ogdf/basic/GridLayoutMapped.h>           // for GridLayoutMapped
+#include <ogdf/basic/Layout.h>                     // for Layout
+#include <ogdf/basic/List.h>                       // for List
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT, string
+#include <ogdf/basic/geometry.h>                   // for DPoint
+#include <ogdf/cluster/CPlanarEdgeInserter.h>      // for CPlanarEdgeInserter
+#include <ogdf/cluster/ClusterGraph.h>             // for ClusterGraph
+#include <ogdf/cluster/ClusterOrthoLayout.h>       // for ClusterOrthoLayout
+#include <ogdf/cluster/ClusterOrthoShaper.h>       // for ClusterOrthoShaper
+#include <ogdf/cluster/ClusterPlanRep.h>           // for ClusterPlanRep
+#include <ogdf/orthogonal/EdgeRouter.h>            // for EdgeRouter, RoutingChannel
+#include <ogdf/orthogonal/FlowCompaction.h>        // for FlowCompaction
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>  // for MinimumEdgeDistances
+#include <ogdf/orthogonal/OrthoRep.h>              // for OrthoRep, OrthoDir
+#include <string>                                  // for basic_string, string
 
 namespace ogdf {
 

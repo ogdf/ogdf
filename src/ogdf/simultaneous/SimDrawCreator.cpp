@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/simultaneous/SimDrawCreator.h>
+#include <ogdf/basic/GraphAttributes.h>              // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                      // for Graph, edge
+#include <ogdf/basic/basic.h>                        // for OGDF_ASSERT
+#include <ogdf/basic/graph_generators/randomized.h>  // for randomSimpleGraph
+#include <ogdf/simultaneous/SimDrawCreator.h>        // for SimDrawCreator
+#include <stdlib.h>                                  // for rand
 
 namespace ogdf {
 

@@ -37,8 +37,17 @@
 //Man kann noch spezialfaelle abfragen, zb braucht man nicht
 //viel zu machen, wenn der Grad im insertionface 1 ist
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/planarity/SimpleIncNodeInserter.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>     // for CombinatorialEmbedding, face, FaceArray
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/IncNodeInserter.h>            // for IncNodeInserter
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/Queue.h>                      // for QueuePure
+#include <ogdf/basic/SList.h>                      // for SList, SListIteratorBase, SListConstIt...
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT, max
+#include <ogdf/planarity/PlanRepInc.h>             // for PlanRepInc
+#include <ogdf/planarity/SimpleIncNodeInserter.h>  // for SimpleIncNodeInserter
+#include <algorithm>                               // for max
 
 namespace ogdf {
 

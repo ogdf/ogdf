@@ -32,7 +32,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/misclayout/LinearLayout.h>
+#include <bits/std_abs.h>                  // for abs
+#include <math.h>                          // for cos, sin, sqrt
+#include <ogdf/basic/GraphAttributes.h>    // for GraphAttributes
+#include <ogdf/basic/Graph_d.h>            // for node, EdgeElement, Graph, edge
+#include <ogdf/basic/List.h>               // for ListPure, ListIteratorBase
+#include <ogdf/basic/Math.h>               // for pi
+#include <ogdf/basic/geometry.h>           // for DPoint, DPolyline
+#include <ogdf/misclayout/LinearLayout.h>  // for LinearLayout
 
 namespace ogdf {
 

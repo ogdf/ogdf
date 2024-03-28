@@ -30,7 +30,13 @@
  */
 
 
-#include <ogdf/layered/SplitHeuristic.h>
+#include <ogdf/basic/Array.h>              // for Array
+#include <ogdf/basic/Graph_d.h>            // for node, EdgeArray
+#include <ogdf/layered/CrossingsMatrix.h>  // for CrossingsMatrix
+#include <ogdf/layered/HierarchyLevels.h>  // for HierarchyLevels
+#include <ogdf/layered/Level.h>            // for Level
+#include <ogdf/layered/SplitHeuristic.h>   // for SplitHeuristic
+#include <stdint.h>                        // for uint32_t
 
 namespace ogdf {
 

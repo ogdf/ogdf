@@ -32,15 +32,21 @@
  */
 
 
-#include <ogdf/basic/Array.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/STNumbering.h>
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/BoothLueker.h>
-#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
-#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
+#include <ogdf/basic/Array.h>                           // for Array
+#include <ogdf/basic/GraphList.h>                       // for GraphIteratorBase, GraphObjectCon...
+#include <ogdf/basic/Graph_d.h>                         // for RegisteredArrayWithoutDefault, Graph
+#include <ogdf/basic/List.h>                            // for ListPure, ListIteratorBase
+#include <ogdf/basic/Reverse.h>                         // for reverse, Reverse
+#include <ogdf/basic/SList.h>                           // for SListPure, SList, SListIteratorBase
+#include <ogdf/basic/STNumbering.h>                     // for computeSTNumbering, isSTNumbering
+#include <ogdf/basic/basic.h>                           // for OGDF_HEAVY_ASSERT, OGDF_HEAVY_DEBUG
+#include <ogdf/basic/simple_graph_alg.h>                // for biconnectedComponents, getParalle...
+#include <ogdf/planarity/BoothLueker.h>                 // for BoothLueker
+#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>    // for EmbedPQTree
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>  // for PlanarLeafKey
+#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>   // for PlanarPQTree
+
+namespace ogdf::booth_lueker { class IndInfo; }
 
 namespace ogdf {
 

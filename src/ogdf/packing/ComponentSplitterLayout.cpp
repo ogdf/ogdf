@@ -30,12 +30,25 @@
  */
 
 
-#include <ogdf/graphalg/ConvexHull.h>
-#include <ogdf/packing/ComponentSplitterLayout.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+#include <math.h>                                  // for atan2, cos, sin, sqrt
+#include <ogdf/basic/Array.h>                      // for Array
+#include <ogdf/basic/GraphAttributes.h>            // for GraphAttributes
 //used for splitting
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/GraphCopy.h>                  // for GraphCopy
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for node, NodeArray, edge, EdgeArray, Graph
+#include <ogdf/basic/LayoutModule.h>               // for LayoutModule
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase
+#include <ogdf/basic/Math.h>                       // for pi, updateMax
+#include <ogdf/basic/geometry.h>                   // for DPolygon, DPoint, GenericPoint, IPoint
+#include <ogdf/basic/simple_graph_alg.h>           // for connectedComponents
+#include <ogdf/graphalg/ConvexHull.h>              // for ConvexHull
+#include <ogdf/packing/CCLayoutPackModule.h>       // for CCLayoutPackModule
+#include <ogdf/packing/ComponentSplitterLayout.h>  // for ComponentSplitterLayout
+#include <ogdf/packing/TileToRowsCCPacker.h>       // for TileToRowsCCPacker
+#include <limits>                                  // for numeric_limits
+#include <memory>                                  // for unique_ptr
+#include <vector>                                  // for vector
 
 namespace ogdf {
 

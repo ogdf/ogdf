@@ -29,12 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/upward/UpwardPlanarity.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>  // for ConstCombinatorialEmbedding, face
+#include <ogdf/basic/Graph_d.h>                 // for Graph, node, adjEntry, edge, NodeArray
+#include <ogdf/basic/SList.h>                   // for SList, SListPure
+#include <ogdf/basic/basic.h>                   // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>        // for isAcyclic, hasSingleSource, isBiconnected
+#include <ogdf/planarity/BoyerMyrvold.h>        // for BoyerMyrvold
+#include <ogdf/upward/FaceSinkGraph.h>          // for FaceSinkGraph
+#include <ogdf/upward/UpwardPlanarity.h>        // for UpwardPlanarity
 #include <ogdf/upward/internal/UpSAT.h>
 #include <ogdf/upward/internal/UpwardPlanarityEmbeddedDigraph.h>
 #include <ogdf/upward/internal/UpwardPlanaritySingleSource.h>
 
 namespace ogdf {
+template <class E> class List;
 
 //
 // General digraphs

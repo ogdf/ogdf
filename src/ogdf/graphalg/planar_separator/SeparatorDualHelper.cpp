@@ -29,7 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>                   // for CombinatorialEmbedding
+#include <ogdf/basic/GraphCopy.h>                                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                                // for GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                                  // for adjEntry, RegisteredArray
+#include <ogdf/basic/List.h>                                     // for List
+#include <ogdf/basic/basic.h>                                    // for OGDF_ASSERT
+#include <ogdf/basic/exceptions.h>                               // for AlgorithmFailureException
+#include <ogdf/graphalg/PlanarSeparatorModule.h>                 // for BFSTree
+#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>  // for SeparatorDualHelper
+#include <memory>                                                // for __shared_ptr_access, sha...
+#include <utility>                                               // for pair, make_pair
 
 namespace ogdf {
 

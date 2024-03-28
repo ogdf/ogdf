@@ -29,9 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/upward/FaceSinkGraph.h>
-#include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>     // for CombinatorialEmbedding, face
+#include <ogdf/basic/GraphCopy.h>                  // for GraphCopy
+#include <ogdf/basic/GraphList.h>                  // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                    // for RegisteredArrayWithoutDefault, node, edge
+#include <ogdf/basic/List.h>                       // for List, ListIteratorBase
+#include <ogdf/basic/Module.h>                     // for Module
+#include <ogdf/basic/SList.h>                      // for SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                      // for OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>           // for isSimple, hasSingleSource, isAcyclic
+#include <ogdf/decomposition/BCTree.h>             // for BCTree
+#include <ogdf/layered/AcyclicSubgraphModule.h>    // for AcyclicSubgraphModule
+#include <ogdf/upward/FUPSModule.h>                // for FUPSModule
+#include <ogdf/upward/FaceSinkGraph.h>             // for FaceSinkGraph
+#include <ogdf/upward/SubgraphUpwardPlanarizer.h>  // for SubgraphUpwardPlanarizer
+#include <ogdf/upward/UpwardEdgeInserterModule.h>  // for UpwardEdgeInserterModule
+#include <ogdf/upward/UpwardPlanRep.h>             // for UpwardPlanRep
+#include <ogdf/upward/UpwardPlanarity.h>           // for UpwardPlanarity
+#include <limits>                                  // for numeric_limits
+#include <memory>                                  // for unique_ptr
 
 namespace ogdf {
 

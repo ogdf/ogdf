@@ -30,9 +30,17 @@
  */
 
 
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/graph_generators/deterministic.h>
-#include <ogdf/basic/graph_generators/randomHierarchy.h>
+#include <ogdf/basic/Array.h>                             // for Array
+#include <ogdf/basic/GraphList.h>                         // for GraphIteratorBase, GraphObjectC...
+#include <ogdf/basic/Graph_d.h>                           // for Graph, node
+#include <ogdf/basic/List.h>                              // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>                             // for SList, SListIteratorBase
+#include <ogdf/basic/basic.h>                             // for randomSeed
+#include <ogdf/basic/comparer.h>                          // for OGDF_DECLARE_COMPARER
+#include <ogdf/basic/graph_generators/deterministic.h>    // for emptyGraph
+#include <ogdf/basic/graph_generators/randomHierarchy.h>  // for randomHierarchy
+#include <ogdf/basic/memory.h>                            // for OGDF_NEW_DELETE
+#include <random>                                         // for uniform_int_distribution, unifo...
 
 using std::minstd_rand;
 using std::uniform_int_distribution;

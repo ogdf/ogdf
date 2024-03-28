@@ -30,7 +30,11 @@
  */
 
 
-#include <ogdf/graphalg/PageRank.h>
+#include <math.h>                    // for fabs
+#include <ogdf/basic/Graph_d.h>      // for RegisteredArrayWithoutDefault, Graph, NodeArray, node
+#include <ogdf/graphalg/PageRank.h>  // for BasicPageRank
+#include <algorithm>                 // for max, min
+#include <utility>                   // for swap
 
 namespace ogdf {
 

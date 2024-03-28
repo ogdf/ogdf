@@ -30,9 +30,18 @@
  */
 
 
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
-#include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>
+#include <ogdf/basic/Array.h>                                 // for Array
+#include <ogdf/basic/ArrayBuffer.h>                           // for ArrayBuffer
+#include <ogdf/basic/GraphList.h>                             // for GraphIteratorBase, GraphObj...
+#include <ogdf/basic/Graph_d.h>                               // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                                  // for ListPure, ListIteratorBase
+#include <ogdf/basic/SList.h>                                 // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                                 // for OGDF_ASSERT, Direction
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldInit.h>    // for BoyerMyrvoldInit
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>  // for BoyerMyrvoldPlanar, operator<=
+#include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>     // for FindKuratowskis, Kuratowski...
+#include <stdlib.h>                                           // for rand
+#include <initializer_list>                                   // for initializer_list
 
 namespace ogdf {
 

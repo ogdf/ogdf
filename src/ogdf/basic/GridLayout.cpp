@@ -30,8 +30,24 @@
  */
 
 
-#include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/basic/HashArray.h>
+#include <math.h>                         // for sqrt
+#include <ogdf/basic/Graph.h>             // for operator<<
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault, edge, Graph, node
+#include <ogdf/basic/GridLayout.h>        // for GridLayout
+#include <ogdf/basic/GridLayoutMapped.h>  // for GridLayoutMapped
+#include <ogdf/basic/HashArray.h>         // for HashArray
+#include <ogdf/basic/Layout.h>            // for Layout
+#include <ogdf/basic/List.h>              // for ListIteratorBase, ListIterator
+#include <ogdf/basic/Math.h>              // for updateMin, updateMax
+#include <ogdf/basic/basic.h>             // for OGDF_EXPORT, max
+#include <ogdf/basic/geometry.h>          // for IPoint, DefHashFunc, GenericPolyline, IPolyline
+#include <ogdf/orthogonal/OrthoRep.h>     // for OrthoRep
+#include <ogdf/planarity/PlanRep.h>       // for PlanRep
+#include <stdlib.h>                       // for abs
+#include <algorithm>                      // for max
+#include <iostream>                       // for basic_ostream, operator<<, char_traits, basic_ios
+#include <limits>                         // for numeric_limits
 
 namespace ogdf {
 

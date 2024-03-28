@@ -29,9 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/layered/CoffmanGrahamRanking.h>
-#include <ogdf/layered/DfsAcyclicSubgraph.h>
+#include <ogdf/basic/ArrayBuffer.h>              // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                  // for node, RegisteredArrayWithoutDefault, edge
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListReverseIterator
+#include <ogdf/basic/basic.h>                    // for min
+#include <ogdf/basic/tuples.h>                   // for Tuple2
+#include <ogdf/layered/AcyclicSubgraphModule.h>  // for AcyclicSubgraphModule
+#include <ogdf/layered/CoffmanGrahamRanking.h>   // for CoffmanGrahamRanking
+#include <ogdf/layered/DfsAcyclicSubgraph.h>     // for DfsAcyclicSubgraph
+#include <algorithm>                             // for min
+#include <memory>                                // for unique_ptr
 
 namespace ogdf {
 

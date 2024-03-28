@@ -29,16 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/geometric/VertexOrder.h>
-
-#include <queue>
+#include <ogdf/basic/Graph_d.h>          // for edge
+#include <ogdf/basic/exceptions.h>       // for LibraryNotSupportedException, LibraryNotSupporte...
+#include <ogdf/geometric/VertexOrder.h>  // for CrossingVertexOrder
 
 #ifdef OGDF_INCLUDE_CGAL
 
-#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
-
 #	include <CGAL/Gmpq.h>
 #	include <CGAL/Simple_cartesian.h>
+#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
 
 namespace ogdf {
 

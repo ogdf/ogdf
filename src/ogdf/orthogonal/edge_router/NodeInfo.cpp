@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/orthogonal/edge_router/NodeInfo.h>
+#include <ogdf/basic/Graph_d.h>                    // for AdjElement, NodeArray, RegisteredArray...
+#include <ogdf/basic/GridLayout.h>                 // for GridLayout
+#include <ogdf/orthogonal/OrthoRep.h>              // for OrthoDir, OrthoRep
+#include <ogdf/orthogonal/edge_router/NodeInfo.h>  // for NodeInfo, operator<<, RoutingChannel
+#include <array>                                   // for array
+#include <ostream>                                 // for char_traits, basic_ostream, operator<<
 
 namespace ogdf {
 namespace edge_router {

@@ -31,7 +31,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/basic.h>  // for get_stacktrace
+#include <iosfwd>              // for ostream
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACKTRACE
 #	include <ogdf/lib/backward/backward.hpp>
 #endif

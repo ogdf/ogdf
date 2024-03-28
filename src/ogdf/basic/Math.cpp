@@ -29,7 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Math.h>
+#include <ogdf/basic/Math.h>  // for binomial, binomial_d, gamma, harmonic
+#include <cmath>              // for log
 
 namespace ogdf {
 namespace Math {

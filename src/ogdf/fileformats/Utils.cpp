@@ -29,9 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/fileformats/Utils.h>
-
-#include <limits>
+#include <ogdf/fileformats/Utils.h>  // for TokenIgnorer, operator>>
+#include <istream>                   // for istream, basic_ios, basic_istream, streamsize
+#include <limits>                    // for numeric_limits
 
 namespace ogdf {
 

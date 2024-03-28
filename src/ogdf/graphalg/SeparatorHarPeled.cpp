@@ -29,7 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/graphalg/SeparatorHarPeled.h>
+#include <math.h>                                 // for ceil, floor, sqrt
+#include <ogdf/basic/Array.h>                     // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>    // for face, ConstCombinatorialEmbedding, Face...
+#include <ogdf/basic/GraphCopy.h>                 // for GraphCopy
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for node, RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>                     // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT, OGDF_DEBUG, min
+#include <ogdf/basic/simple_graph_alg.h>          // for isTree, triangulate
+#include <ogdf/graphalg/PlanarSeparatorModule.h>  // for Cycle
+#include <ogdf/graphalg/SeparatorHarPeled.h>      // for SeparatorHarPeled, BFSTreeHP, Ring
+#include <algorithm>                              // for min
+#include <memory>                                 // for shared_ptr, __shared_ptr_access, make_s...
+#include <string>                                 // for basic_string, string
 
 namespace ogdf {
 

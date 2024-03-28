@@ -29,9 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/PreprocessorLayout.h>
+#include <math.h>                                               // for sqrt
+#include <ogdf/basic/GraphList.h>                               // for GraphIteratorBase, GraphO...
+#include <ogdf/basic/Graph_d.h>                                 // for Graph, edge, adjEntry, node
+#include <ogdf/basic/LayoutModule.h>                            // for LayoutModule
+#include <ogdf/basic/PreprocessorLayout.h>                      // for PreprocessorLayout
+#include <ogdf/basic/basic.h>                                   // for randomDouble
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>  // for MultilevelGraph
+#include <memory>                                               // for unique_ptr
+#include <vector>                                               // for vector
 
 namespace ogdf {
+class GraphAttributes;
 
 PreprocessorLayout::PreprocessorLayout() : m_randomize(false) { }
 

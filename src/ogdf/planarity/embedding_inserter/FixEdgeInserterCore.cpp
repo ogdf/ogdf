@@ -30,9 +30,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
-#include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/CombinatorialEmbedding.h>                      // for CombinatorialEmbedding
+#include <ogdf/basic/FaceSet.h>                                     // for FaceSet
+#include <ogdf/basic/GraphList.h>                                   // for GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                                     // for RegisteredArrayWithou...
+#include <ogdf/basic/List.h>                                        // for List, ListIteratorBase
+#include <ogdf/basic/Module.h>                                      // for Module
+#include <ogdf/basic/Queue.h>                                       // for QueuePure
+#include <ogdf/basic/SList.h>                                       // for SListPure, SList, SLi...
+#include <ogdf/basic/basic.h>                                       // for OGDF_ASSERT, usedTime
+#include <ogdf/basic/exceptions.h>                                  // for InsufficientMemoryExc...
+#include <ogdf/basic/extended_graph_alg.h>                          // for planarEmbed
+#include <ogdf/planarity/PlanRepLight.h>                            // for PlanRepLight
+#include <ogdf/planarity/RemoveReinsertType.h>                      // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>      // for CrossingsBucket
+#include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>  // for FixEdgeInserterCore
 
 namespace ogdf {
 

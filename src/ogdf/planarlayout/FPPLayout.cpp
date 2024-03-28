@@ -29,9 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarlayout/FPPLayout.h>
+#include <ogdf/basic/Array.h>                    // for Array
+#include <ogdf/basic/GraphCopy.h>                // for GraphCopy
+#include <ogdf/basic/GraphList.h>                // for GraphObjectContainer, GraphIteratorBase
+#include <ogdf/basic/Graph_d.h>                  // for RegisteredArrayWithoutDefault, NodeArray
+#include <ogdf/basic/GridLayout.h>               // for GridLayout
+#include <ogdf/basic/List.h>                     // for List, ListIteratorBase, ListIterator
+#include <ogdf/basic/basic.h>                    // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/basic/extended_graph_alg.h>       // for planarEmbed
+#include <ogdf/basic/geometry.h>                 // for IPoint
+#include <ogdf/basic/simple_graph_alg.h>         // for isSimple, triangulate
+#include <ogdf/planarlayout/FPPLayout.h>         // for FPPLayout
+#include <ogdf/planarlayout/GridLayoutModule.h>  // for PlanarGridLayoutModule
 
 namespace ogdf {
 

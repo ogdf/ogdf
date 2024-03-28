@@ -29,10 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>
-#include <ogdf/uml/VariableEmbeddingInserterUML.h>
+#include <ogdf/basic/Array.h>                                       // for Array
+#include <ogdf/basic/Graph_d.h>                                     // for EdgeArray, edge
+#include <ogdf/basic/Module.h>                                      // for Module
+#include <ogdf/planarity/RemoveReinsertType.h>                      // for RemoveReinsertType
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>  // for VarEdgeInserterUMLCore
+#include <ogdf/uml/UMLEdgeInsertionModule.h>                        // for UMLEdgeInsertionModule
+#include <ogdf/uml/VariableEmbeddingInserterUML.h>                  // for VariableEmbeddingInse...
+#include <stdint.h>                                                 // for uint32_t
 
 namespace ogdf {
+class PlanRepLight;
 
 // constructor
 // sets default values for options

@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/MMCrossingMinimizationModule.h>
+#include <ogdf/basic/Array.h>                             // for Array
+#include <ogdf/basic/GraphList.h>                         // for GraphIteratorBase, GraphObjectC...
+#include <ogdf/basic/Graph_d.h>                           // for RegisteredArrayWithoutDefault
+#include <ogdf/basic/List.h>                              // for List, ListIteratorBase, ListCon...
+#include <ogdf/basic/Module.h>                            // for Module
+#include <ogdf/basic/simple_graph_alg.h>                  // for biconnectedComponents
+#include <ogdf/planarity/MMCrossingMinimizationModule.h>  // for MMCrossingMinimizationModule
+#include <ogdf/planarity/PlanRepExpansion.h>              // for PlanRepExpansion
 
 namespace ogdf {
 

@@ -29,11 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/fileformats/SvgPrinter.h>
-
-#include <algorithm>
-#include <cmath>
+#include <ogdf/basic/Graph.h>                     // for operator<<
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for node, AdjElement, adjEntry, edge, Graph
+#include <ogdf/basic/List.h>                      // for List, ListIteratorBase, ListConstIterator
+#include <ogdf/basic/Logger.h>                    // for to_string, Logger
+#include <ogdf/basic/Math.h>                      // for pi
+#include <ogdf/basic/Queue.h>                     // for Queue
+#include <ogdf/basic/basic.h>                     // for OGDF_ASSERT
+#include <ogdf/basic/comparer.h>                  // for GenericComparer
+#include <ogdf/basic/geometry.h>                  // for DPoint, GenericPoint, operator*, DRect
+#include <ogdf/basic/graphics.h>                  // for Shape, StrokeType, Color, EdgeArrow
+#include <ogdf/cluster/ClusterGraph.h>            // for cluster, ClusterGraph
+#include <ogdf/cluster/ClusterGraphAttributes.h>  // for ClusterGraphAttributes
+#include <ogdf/fileformats/GraphIO.h>             // for GraphIO
+#include <ogdf/fileformats/SvgPrinter.h>          // for SvgPrinter
+#include <ogdf/lib/pugixml/pugixml.h>             // for xml_node, xml_attribute, xml_document
+#include <algorithm>                              // for max, min
+#include <cmath>                                  // for sqrt, atan
+#include <list>                                   // for list, _List_const_iterator
+#include <sstream>                                // for basic_ostream, operator<<, basic_string...
+#include <string>                                 // for char_traits, basic_string, allocator
 
 
 using namespace ogdf;

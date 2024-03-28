@@ -31,9 +31,20 @@
  */
 
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/layered/OptimalHierarchyLayout.h>
-#include <ogdf/lpsolver/LPSolver.h>
+#include <math.h>                                 // for fabs
+#include <ogdf/basic/Array.h>                     // for Array
+#include <ogdf/basic/GraphAttributes.h>           // for GraphAttributes
+#include <ogdf/basic/GraphCopy.h>                 // for GraphCopy
+#include <ogdf/basic/GraphList.h>                 // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>                   // for RegisteredArrayWithoutDefault, node
+#include <ogdf/basic/LayoutStandards.h>           // for LayoutStandards
+#include <ogdf/basic/List.h>                      // for List
+#include <ogdf/basic/basic.h>                     // for OGDF_DEBUG, OGDF_ASSERT
+#include <ogdf/basic/simple_graph_alg.h>          // for isSimpleUndirected
+#include <ogdf/layered/CrossingMinInterfaces.h>   // for LevelBase, HierarchyLevelsBase
+#include <ogdf/layered/Hierarchy.h>               // for Hierarchy
+#include <ogdf/layered/OptimalHierarchyLayout.h>  // for OptimalHierarchyLayout
+#include <ogdf/lpsolver/LPSolver.h>               // for LPSolver
 
 namespace ogdf {
 

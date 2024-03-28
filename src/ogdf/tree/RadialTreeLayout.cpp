@@ -32,9 +32,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Queue.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/tree/RadialTreeLayout.h>
+#include <math.h>                         // for acos, cos, sin, sqrt
+#include <ogdf/basic/Array.h>             // for Array
+#include <ogdf/basic/GraphAttributes.h>   // for GraphAttributes
+#include <ogdf/basic/GraphList.h>         // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>           // for RegisteredArrayWithoutDefault, node, Graph, adj...
+#include <ogdf/basic/Math.h>              // for pi
+#include <ogdf/basic/Queue.h>             // for Queue
+#include <ogdf/basic/SList.h>             // for SListPure, SListIteratorBase
+#include <ogdf/basic/basic.h>             // for OGDF_ASSERT, max, min
+#include <ogdf/basic/simple_graph_alg.h>  // for isArborescence
+#include <ogdf/tree/RadialTreeLayout.h>   // for RadialTreeLayout
+#include <algorithm>                      // for max, min
 
 namespace ogdf {
 

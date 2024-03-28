@@ -30,7 +30,15 @@
  */
 
 
-#include <ogdf/energybased/davidson_harel/EnergyFunction.h>
+#include <ogdf/basic/Graph.h>                                // for operator<<
+#include <ogdf/basic/GraphAttributes.h>                      // for GraphAttributes
+#include <ogdf/basic/GraphList.h>                            // for GraphIteratorBase, GraphObje...
+#include <ogdf/basic/Graph_d.h>                              // for node, Graph, RegisteredArray...
+#include <ogdf/basic/basic.h>                                // for OGDF_ASSERT, OGDF_DEBUG, string
+#include <ogdf/basic/geometry.h>                             // for operator<<, DPoint
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>  // for EnergyFunction
+#include <iostream>                                          // for basic_ostream, operator<<, cout
+#include <string>                                            // for char_traits, operator<<, string
 
 namespace ogdf {
 namespace davidson_harel {

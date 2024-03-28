@@ -29,10 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/graphalg/Matching.h>
-
-#include <limits.h>
+#include <ogdf/basic/ArrayBuffer.h>  // for ArrayBuffer
+#include <ogdf/basic/GraphCopy.h>    // for GraphCopy
+#include <ogdf/basic/GraphList.h>    // for GraphIteratorBase, GraphObjectContainer
+#include <ogdf/basic/Graph_d.h>      // for node, RegisteredArrayWithoutDefault, NodeArray, Edge...
+#include <ogdf/basic/List.h>         // for List, ListIteratorBase
+#include <ogdf/basic/SList.h>        // for SListPure
+#include <ogdf/basic/basic.h>        // for OGDF_ASSERT, OGDF_DEBUG
+#include <ogdf/graphalg/Matching.h>  // for findMaximalMatching, findMaximumCardinalityMatching
+#include <array>                     // for array
+#include <limits>                    // for numeric_limits
 
 namespace ogdf {
 namespace Matching {
