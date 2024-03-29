@@ -32,7 +32,15 @@
 
 #pragma once
 
-#include <bandit/bandit.h>
+// IWYU pragma: always_keep
+
+#include <bandit/bandit.h> // IWYU pragma: export
+#include <bandit/grammar.h> // IWYU pragma: export
+#include <bandit/runner.h> // IWYU pragma: export
+
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/GraphAttributes.h>
 
 using namespace ogdf;
 using namespace snowhouse;

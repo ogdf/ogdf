@@ -36,9 +36,9 @@
 
 //#define OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 #define OGDF_GT_USE_MAX_ACTIVE_LABEL
-#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
+//#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 //#define OGDF_GT_GRH_STEPS	1	// gap relabel frequency: call gapRelabel() after OGDF_GT_GRH_STEPS relabel() operations (1 == off)
-#endif
+//#endif
 #define OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
 
 // world666 is much better without OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE

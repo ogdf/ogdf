@@ -38,14 +38,13 @@
 #include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/cluster/internal/ClusterKuratowskiConstraint.h>
 #include <ogdf/cluster/internal/CutConstraint.h>
-#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/MinimumCutStoerWagner.h>
 
-#include <ogdf/lib/abacus/setbranchrule.h>
+#include <ogdf/lib/abacus/setbranchrule.h> // IWYU pragma: keep
 
 //output intermediate results when new sons are generated
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
-#	include <ogdf/basic/GraphAttributes.h>
+#	include <ogdf/fileformats/GraphIO.h>
 #endif
 
 using namespace ogdf;

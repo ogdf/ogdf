@@ -55,10 +55,10 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT Hypergraph;
-class OGDF_EXPORT HypernodeElement;
-class OGDF_EXPORT HyperedgeElement;
-class OGDF_EXPORT AdjHypergraphElement;
+class OGDF_EXPORT Hypergraph; // IWYU pragma: keep
+class OGDF_EXPORT HypernodeElement; // IWYU pragma: keep
+class OGDF_EXPORT HyperedgeElement; // IWYU pragma: keep
+class OGDF_EXPORT AdjHypergraphElement; // IWYU pragma: keep
 
 //! The type of hypernodes.
 using hypernode = HypernodeElement*;

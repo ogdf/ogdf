@@ -30,15 +30,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/geometric/GeometricVertexInsertion.h>
+
+namespace ogdf {
+class GraphAttributes;
+}
 
 #ifdef OGDF_INCLUDE_CGAL
 
-#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
-
-#	include <iostream>
-
 #	include <CGAL/Simple_cartesian.h>
+#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
+#	include <ogdf/geometric/VertexPositionModule.h> // IWYU pragma: keep
+#	include <iostream>
 
 namespace ogdf {
 

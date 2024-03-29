@@ -28,11 +28,7 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include "array_helper.h"
-
-using namespace ogdf;
-using namespace snowhouse;
-using namespace bandit;
+#include "array_helper.h" // IWYU pragma: associated
 
 go_bandit([]() {
 	auto chooseNode = [](const Graph& graph) { return graph.chooseNode(); };

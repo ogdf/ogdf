@@ -34,8 +34,11 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
+// IWYU pragma: always_keep
 
+#include <ogdf/basic/basic.h> // IWYU pragma: keep
+
+// IWYU pragma: begin_exports
 #include <ogdf/lib/abacus/active.h>
 #include <ogdf/lib/abacus/branchrule.h>
 #include <ogdf/lib/abacus/conbranchrule.h>
@@ -45,3 +48,4 @@
 #include <ogdf/lib/abacus/row.h>
 #include <ogdf/lib/abacus/sub.h>
 #include <ogdf/lib/abacus/variable.h>
+// IWYU pragma: end_exports

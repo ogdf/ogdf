@@ -30,9 +30,6 @@
  */
 #include "array_helper.h"
 
-using namespace ogdf;
-using namespace bandit;
-
 go_bandit([]() {
 	auto chooseEdge = [](const Graph& graph) { return graph.chooseEdge(); };
 

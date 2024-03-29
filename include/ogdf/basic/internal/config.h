@@ -35,6 +35,7 @@
 #include <ogdf/basic/internal/version.h>
 
 #include <iostream>
+#include <sstream> // IWYU pragma: keep
 #include <string>
 
 #if defined(OGDF_DEBUG) && defined(NDEBUG)

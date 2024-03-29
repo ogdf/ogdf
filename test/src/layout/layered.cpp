@@ -29,10 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/BlockOrder.h>
+#include <ogdf/layered/BlockOrder.h> // IWYU pragma: keep
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/FastSimpleHierarchyLayout.h>
-#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/HierarchyLevels.h> // IWYU pragma: keep
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 
 #include "layout_helpers.h"

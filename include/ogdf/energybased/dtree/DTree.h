@@ -30,7 +30,7 @@
 
 #include <ogdf/energybased/dtree/utils.h>
 
-#include <algorithm>
+#include <algorithm> // IWYU pragma: keep
 
 namespace ogdf {
 namespace energybased {

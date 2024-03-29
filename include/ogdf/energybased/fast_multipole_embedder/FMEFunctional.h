@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/basic.h> // IWYU pragma: keep
+
+#include <stdint.h>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

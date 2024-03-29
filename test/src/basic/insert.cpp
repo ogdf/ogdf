@@ -41,9 +41,6 @@
 
 #include <testing.h>
 
-using namespace ogdf;
-using namespace bandit;
-
 void randomTriangulate(Graph& G) {
 	ogdf::makeConnected(G);
 	ogdf::planarEmbed(G);

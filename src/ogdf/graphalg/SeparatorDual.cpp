@@ -80,8 +80,8 @@ bool SeparatorDual::doSeparate(const Graph& G, List<node>& separator, List<node>
 	}
 
 	// start depth first search over dual graph
-	planar_separator::SeparatorDualHelper helper(graph, tree);
-	planar_separator::SeparatorDualHelper::CycleData cycle = helper.dfs();
+	planar_separators::SeparatorDualHelper helper(graph, tree);
+	planar_separators::SeparatorDualHelper::CycleData cycle = helper.dfs();
 
 	if (cycle.isInCycle(tree->getRoot())) {
 		cycle.cycle.removeFirst(tree->getRoot());

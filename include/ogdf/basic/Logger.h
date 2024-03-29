@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/basic.h>
 
 #include <algorithm>
 

@@ -42,7 +42,7 @@
 #include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>
 #include <ogdf/graphalg/MinimumCutStoerWagner.h>
 
-#include <ogdf/lib/abacus/setbranchrule.h>
+#include <ogdf/lib/abacus/setbranchrule.h> // IWYU pragma: keep
 
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 #	include <ogdf/fileformats/GraphIO.h>
