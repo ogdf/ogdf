@@ -30,8 +30,14 @@
  */
 
 #include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/memory.h>
+
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <string>
 
 // clang-format off
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
@@ -40,22 +46,25 @@
 #    undef NOMINMAX
 #    define NOMINMAX
 
-#    include <windows.h>
-#    include <psapi.h>
+	// windows.h needs to be included first
+#    include <windows.h> // IWYU pragma: keep
+
+	// and then comes psapi.h
+#    include <psapi.h> // IWYU pragma: keep
 #    ifdef _MSC_VER
 #        pragma comment(lib, "psapi.lib")
 #    endif
 #endif
 
 #ifdef __APPLE__
-#    include <stdlib.h>
-#    include <malloc/malloc.h>
-#    include <sys/types.h>
-#    include <sys/sysctl.h>
-#    include <sys/utsname.h>
-#    include <mach/vm_statistics.h>
 #    include <mach/mach.h>
 #    include <mach/machine.h>
+#    include <mach/vm_statistics.h>
+#    include <malloc/malloc.h>
+#    include <stdlib.h>
+#    include <sys/sysctl.h>
+#    include <sys/types.h>
+#    include <sys/utsname.h>
 #elif defined(OGDF_SYSTEM_UNIX)
 #    include <malloc.h>
 #endif
@@ -63,9 +72,8 @@
 #if defined(_MSC_VER)
 #    include <intrin.h>
 #elif defined(OGDF_SYSTEM_UNIX) || (defined(__MINGW32__) && !defined(__MINGW64__))
-#    include <unistd.h>
-#    include <fcntl.h>
 #    include <sys/time.h>
+#    include <unistd.h>
 #endif
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 #    include <cpuid.h>

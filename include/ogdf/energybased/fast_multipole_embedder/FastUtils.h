@@ -31,8 +31,16 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/System.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
 
+#include <iostream>
+#include <utility>
+
+#include <stddef.h>
+#include <stdint.h>
 #ifdef OGDF_SYSTEM_UNIX
 #	include <sys/time.h>
 #endif

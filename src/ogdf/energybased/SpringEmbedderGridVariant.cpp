@@ -29,14 +29,32 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Barrier.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/Thread.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>
+#include <ogdf/energybased/SpringForceModel.h>
 #include <ogdf/energybased/spring_embedder/MasterBase.h>
 #include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>
+#include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 #include <ogdf/energybased/spring_embedder/WorkerBase.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/packing/TileToRowsCCPacker.h>
+
+#include <algorithm>
+#include <limits>
+#include <random>
+
+#include <math.h>
+
+// IWYU pragma: no_forward_declare ogdf::SpringEmbedderGridVariant::Worker
 
 using ogdf::Math::updateMax;
 using ogdf::Math::updateMin;

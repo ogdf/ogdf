@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Array.h> // IWYU pragma: keep
 
 #include <cstring>
 

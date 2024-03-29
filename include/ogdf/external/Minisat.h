@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
+// IWYU pragma: always_keep
 
-#include <ogdf/lib/minisat/core/Solver.h>
-#include <ogdf/lib/minisat/core/SolverTypes.h>
+#include <ogdf/lib/minisat/core/Solver.h> // IWYU pragma: export
+#include <ogdf/lib/minisat/core/SolverTypes.h> // IWYU pragma: export
+
+// IWYU pragma: begin_keep
+#include <ogdf/basic/basic.h>
 
 #include <fstream>
 #include <iostream>
@@ -44,6 +47,8 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+
+// IWYU pragma: end_keep
 
 namespace Minisat {
 

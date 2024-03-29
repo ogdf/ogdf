@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutStatistics.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/StressMinimization.h>
+#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/geometric/CrossingMinimalPosition.h>
 #include <ogdf/geometric/GeometricEdgeInsertion.h>
 #include <ogdf/geometric/GeometricVertexInsertion.h>
@@ -38,12 +44,23 @@
 #include <ogdf/geometric/VertexOrder.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 
+#include <functional>
+#include <sstream>
+#include <string>
+
 #include <resources.h>
 
+#include <testing.h>
+
 #ifdef OGDF_INCLUDE_CGAL
-
+#	include <ogdf/energybased/StressMinimization.h>
+#	include <ogdf/geometric/CrossingMinimalPosition.h>
+#	include <ogdf/geometric/GeometricEdgeInsertion.h>
+#	include <ogdf/geometric/GeometricVertexInsertion.h>
+#	include <ogdf/geometric/VertexMovement.h>
+#	include <ogdf/geometric/VertexOrder.h>
+#	include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #	include <CGAL/Random.h>
-
 #endif
 
 enum method { EDGE_INSERTION = 1, VERTEX_INSERTION = 2, VERTEX_MOVEMENT = 3, NONE = 0 };

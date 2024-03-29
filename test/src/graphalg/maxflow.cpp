@@ -32,9 +32,9 @@
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
-#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
-#include <ogdf/graphalg/MaxFlowSTPlanarDigraph.h>
-#include <ogdf/graphalg/MaxFlowSTPlanarItaiShiloach.h>
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h> // IWYU pragma: keep
+#include <ogdf/graphalg/MaxFlowSTPlanarDigraph.h> // IWYU pragma: keep
+#include <ogdf/graphalg/MaxFlowSTPlanarItaiShiloach.h> // IWYU pragma: keep
 
 #include <resources.h>
 

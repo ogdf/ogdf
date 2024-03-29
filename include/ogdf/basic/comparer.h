@@ -36,6 +36,10 @@
 #include <functional>
 
 namespace ogdf {
+template<typename E>
+class StdComparer;
+template<typename ELEM, typename NUM, bool ascending = true>
+struct GenericComparer;
 
 //! Standard comparer (valid as a static comparer).
 /**
@@ -394,7 +398,7 @@ public:
  *
  * One must provide a function that maps each element to its value.
  */
-template<typename ELEM, typename NUM, bool ascending = true>
+template<typename ELEM, typename NUM, bool ascending>
 struct GenericComparer {
 	using OrderFunction = std::function<NUM(const ELEM&)>;
 

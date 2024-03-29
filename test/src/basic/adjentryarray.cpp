@@ -32,9 +32,6 @@
 
 #include "array_helper.h"
 
-using namespace ogdf;
-using namespace bandit;
-
 go_bandit([]() {
 	auto chooseAdjEntry = [](const Graph& graph) {
 		edge e = graph.chooseEdge();

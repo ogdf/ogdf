@@ -41,12 +41,21 @@
 #include <ogdf/graphalg/Dijkstra.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <iterator>
+#include <memory>
 #include <numeric>
 #include <queue>
 #include <set>
 #include <vector>
 
 #include <testing.h>
+
+// IWYU pragma: no_include <stack>
+// IWYU pragma: no_include <map>
 
 static std::vector<int> randomVector(size_t n) {
 	std::default_random_engine rng(n);

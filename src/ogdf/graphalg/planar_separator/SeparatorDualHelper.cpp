@@ -33,7 +33,7 @@
 
 namespace ogdf {
 
-namespace planar_separator {
+namespace planar_separators {
 
 SeparatorDualHelper::CycleData SeparatorDualHelper::dfs() {
 	embedding.init(*graph);

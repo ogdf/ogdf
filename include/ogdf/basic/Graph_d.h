@@ -48,15 +48,12 @@
 #endif
 
 namespace ogdf {
-
-
-class OGDF_EXPORT Graph;
-class OGDF_EXPORT NodeElement;
-class OGDF_EXPORT EdgeElement;
-class OGDF_EXPORT AdjElement;
-class OGDF_EXPORT FaceElement;
-class OGDF_EXPORT ClusterElement;
-
+class OGDF_EXPORT Graph; // IWYU pragma: keep
+class OGDF_EXPORT NodeElement; // IWYU pragma: keep
+class OGDF_EXPORT EdgeElement; // IWYU pragma: keep
+class OGDF_EXPORT AdjElement; // IWYU pragma: keep
+class OGDF_EXPORT FaceElement; // IWYU pragma: keep
+class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
 
 //! The type of nodes.
 //! @ingroup graphs
@@ -861,8 +858,8 @@ OGDF_EXPORT bool filter_any_node(node n); // { return true; }
 
 class OGDF_EXPORT Graph : public Observable<GraphObserver, Graph> {
 public:
-	class HiddenEdgeSet;
-	class CCsInfo;
+	class HiddenEdgeSet; // IWYU pragma: keep
+	class CCsInfo; // IWYU pragma: keep
 	friend class GraphObserver;
 
 private:

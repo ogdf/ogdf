@@ -31,8 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Logger.h> // IWYU pragma: keep
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/internal/config_autogen.h>
+
+#include <exception>
+#include <iostream> // IWYU pragma: keep
 
 namespace ogdf {
 

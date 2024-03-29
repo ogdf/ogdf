@@ -35,10 +35,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h> // IWYU pragma: keep
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class GraphAttributes;
 
 //! The radial tree layout algorithm.
 /**
