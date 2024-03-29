@@ -264,6 +264,33 @@ jobs:
           name: ${{ github.job }}
           path: ${{ github.workspace }}/ccache-debug
 
+  iwyu:
+    name: "Fix includes"
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/clang:18
+    needs: [style, dirs, self-sufficiency, docs]
+    steps:
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+      - name: Run analysis
+        run: |
+          mkdir -p .git/info
+          echo "src/ogdf/iwyu-dummy" >> .git/info/exclude
+          echo "iwyu-out.txt" >> .git/info/exclude
+          echo "iwyu-stats" >> .git/info/exclude
+          util/fix_includes.sh
+      - name: Report problems
+        shell: bash
+        run: |
+          util/test_includes.sh
+      - name: Store report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: iwyu-stats
+          path: iwyu-stats/
+
 
   build-linux:
     name: "Test ${{ matrix.mode }} build on Linux with ${{ matrix.compiler }}"
@@ -439,7 +466,7 @@ jobs:
 
   # this is mostly used to keep the required status checks for PR merging simple
   summary:
-    needs: [ build-linux, build-macos, build-windows, static-analysis, coverage ]
+    needs: [ build-linux, build-macos, build-windows, static-analysis, coverage, iwyu ]
     name: "All tests succeeded"
     runs-on: ubuntu-latest
     steps:
