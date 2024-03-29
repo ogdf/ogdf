@@ -101,6 +101,10 @@ IncludeCategories:
   - Regex:           '^<coin/.*\.hpp>'
     Priority:        2
     SortPriority:    1
+  - Regex:           '^"array_helper\.h"'
+    Priority:        6
+  - Regex:           '^<testing\.h>'
+    Priority:        6
   - Regex:           '^<.*\.h>'
     Priority:        4
     SortPriority:    0
