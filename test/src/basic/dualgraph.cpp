@@ -34,6 +34,7 @@
 #include <ogdf/basic/graph_generators.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 //! Tests consistency of a DynamicDualGraph \p dual and its corresponding primal

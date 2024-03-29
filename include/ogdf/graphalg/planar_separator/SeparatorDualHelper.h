@@ -38,7 +38,7 @@
 
 namespace ogdf {
 
-namespace planar_separator {
+namespace planar_separators {
 
 //! Helper class for SeparatorDual and SeparatorDualFC.
 /**

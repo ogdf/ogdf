@@ -33,6 +33,7 @@
 #include <ogdf/basic/graph_generators.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 /**

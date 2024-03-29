@@ -33,7 +33,7 @@
 
 #include <ogdf/basic/graph_generators.h>
 
-#include <testing.h>
+#include <testing.h> // IWYU pragma: keep
 
 template<typename Type>
 inline Type maybeWrap(int value);

@@ -32,6 +32,7 @@
 #include <ogdf/graphalg/EdgeIndependentSpanningTrees.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 go_bandit([] {

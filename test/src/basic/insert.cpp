@@ -38,10 +38,8 @@
 #include <set>
 
 #include <graphs.h>
-#include <testing.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <testing.h>
 
 void randomTriangulate(Graph& G) {
 	ogdf::makeConnected(G);

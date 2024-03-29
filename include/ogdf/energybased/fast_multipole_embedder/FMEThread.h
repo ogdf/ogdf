@@ -33,11 +33,14 @@
 
 #include <ogdf/basic/Barrier.h>
 #include <ogdf/basic/Thread.h>
-#include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class Barrier;
+
 namespace fast_multipole_embedder {
 
 class FMEThreadPool;

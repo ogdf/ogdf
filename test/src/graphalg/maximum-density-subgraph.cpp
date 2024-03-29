@@ -32,6 +32,7 @@
 #include <ogdf/graphalg/MaximumDensitySubgraph.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 void test(const std::string& description,

@@ -36,6 +36,7 @@
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/LayoutStatistics.h>
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/System.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #include <ogdf/planarity/PlanarSubgraphCactus.h>
 

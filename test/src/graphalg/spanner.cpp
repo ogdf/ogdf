@@ -37,6 +37,7 @@
 #include <ogdf/graphalg/SpannerKortsarzPeleg.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 

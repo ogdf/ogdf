@@ -33,6 +33,7 @@
 #include <ogdf/graphalg/MaxAdjOrdering.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 void testAllMAOs(const Graph& G) {

@@ -35,6 +35,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 /**

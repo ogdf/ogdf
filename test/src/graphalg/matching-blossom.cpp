@@ -43,6 +43,7 @@
 #include <vector>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 using namespace ogdf::Matching;
