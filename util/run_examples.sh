@@ -25,4 +25,7 @@ echo "::group::($(date -Iseconds)) Running examples"
 $OGDF_FIND doc/examples -name 'ex-*' |
  grep -v 'ex-multilevelmixer' |
  $OGDF_XARGS -I "{}" bash -c "runExample {}"
+ret=$?
 echo "::endgroup::"
+
+exit $ret

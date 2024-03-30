@@ -251,6 +251,12 @@ jobs:
         with:
           name: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
+      - name: Store failed test reports
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failed-tests-logs-${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+          path: "./failed-tests-logs"
 
   build-macos:
     name: "Test ${{ matrix.mode }} build on ${{ matrix.os }}"
@@ -288,6 +294,12 @@ jobs:
         with:
           name: build-${{ matrix.os }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
+      - name: Store failed test reports
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failed-tests-logs-build-${{ matrix.os }}-${{ matrix.mode }}
+          path: "./failed-tests-logs"
 
   build-windows:
     name: "Test ${{ matrix.mode }} build on Windows"

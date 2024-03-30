@@ -41,7 +41,9 @@ fi
 
 set -o pipefail
 
-trap "rm -rf $tmp/CMakeFiles $tmp/libOGDF.a $tmp/libCOIN.a" EXIT
+if [ -z "$OGDF_KEEP_TMP" ]; then
+	trap "rm -rf $tmp/CMakeFiles $tmp/libOGDF.a $tmp/libCOIN.a" EXIT
+fi
 
 #detect OS
 unamestr=`uname`
@@ -59,7 +61,7 @@ export CCACHE_BASEDIR="$tmp"
 export CCACHE_NOHASHDIR=1
 
 # CMake config according to the arguments
-cmakecommand="(cd "$tmp" && cmake -DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
+cmakecommand="-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
 cmakecommand+="-DOGDF_SEPARATE_TESTS=OFF -DOGDF_WARNING_ERRORS=ON "
 case "$libtype" in
 static)
@@ -106,38 +108,45 @@ if [ "$ilpsolvertype" = "gurobi" ]; then
   cmakecommand+="-DCOIN_SOLVER=GRB -DCOIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES=$GUROBI_HOME/include -DCOIN_EXTERNAL_SOLVER_LIBRARIES=$library "
 fi
 
-cmakecommand+="$sourcedir ${@:7})"
-
-echo "::group::($(date -Iseconds)) Initial run of cmake"
-echo $cmakecommand
-eval $cmakecommand || exit 1
-echo "::endgroup::"
+cmakecommand+="${@:7}"
 
 run_cmake() {
-  echo cmake $@
-  cmake "$@" "$tmp"
+	echo cmake $@
+	cmake "$@" -B "$tmp" -S "$sourcedir"
+	ret=$?
+	if [ $ret != 0 ]; then
+		echo "CMake failed with exit code $ret"
+		exit $ret
+	fi
 }
 
 compile () {
 	make -C $tmp -j "$cores" build-all | grep -v 'Building CXX object'
+	ret=$?
+	if [ $ret != 0 ]; then
+		echo "Make failed with exit code $ret"
+		exit $ret
+	fi
 }
+
+echo "::group::($(date -Iseconds)) Initial run of cmake"
+run_cmake "$cmakecommand"
+echo "::endgroup::"
 
 # build
 echo "::group::($(date -Iseconds)) First compile with all custom macros set"
 echo "running make using $cores parallel jobs"
 ogdf_flags="$(cmake -LA "$tmp" | grep OGDF_EXTRA_CXX_FLAGS:STRING)"
 run_cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags $(./util/get_macro_defs.sh)"
-compile || exit 1
+compile
 echo "::endgroup::"
 
 echo "::group::($(date -Iseconds)) Now recompile without custom macros"
 run_cmake "-DOGDF_WARNING_ERRORS=ON" "-D$ogdf_flags"
-compile || exit 1
+compile
 echo "::endgroup::"
 
 echo "::group::($(date -Iseconds)) Now recompile tests as separate tests"
 run_cmake "-DOGDF_WARNING_ERRORS=ON" "-DOGDF_SEPARATE_TESTS=ON"
-compile || exit 1
+compile
 echo "::endgroup::"
-
-exit $?
