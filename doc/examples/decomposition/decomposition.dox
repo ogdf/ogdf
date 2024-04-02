@@ -1,0 +1,34 @@
+/**
+ * \page ex-decomposition Graph Decomposition
+ *
+ * \section sec-ex-decomposition-1 Generate an acyclic random graph
+ * This example shows how to generate a random plane triangulation, decompose it
+ * into its 4-connected components, and draw each of them from the outside in.
+ *
+ * \include four-block-tree.cpp
+ *
+ * <h3>Step-by-step explanation</h3>
+ *
+ * -# The class FourBlockTree is declared in ogdf/decomposition/FourBlockTree.h
+ * -# We create a random plane graph. Because of its high number of edges, it
+ *    must be maximally planar, i.e., triangulated.
+ * -# We use the function FourBlockTree::construct to build its 4-block tree.
+ *    The 4-block tree is represented by its root, which has members
+ *    - g, the 4-connected component
+ *    - originalNodes, a map from nodes in g to the corresponding nodes in the
+ *      original graph
+ *    - externalFace, an adjEntry to the right of which the externalFace of the
+ *      4-connected component lies
+ *    - parent, a raw pointer to its parent node (or nullptr, if this is the
+ *      root)
+ *    - parentFace, the adjEntry in parent corresponding to externalFace (or
+ *      nullptr, if this is the root)
+ *    - children, a vector of unique_ptrs to the child nodes
+ * -# For our simple application of traversing the 4-block tree bottom-up, we
+ *    can use the method preorder, which calls its argument on each node of the
+ *    4-block tree in preorder. A similar method named postorder exists as well.
+ *    For each node of the 4-block tree, we draw it and save the drawing under a
+ *    unique filename. To this end we use PlanarStraightLayout. We use
+ *    originalNodes to assign multiple occurrences of the same node in the
+ *    4-block tree the same label.
+**/
