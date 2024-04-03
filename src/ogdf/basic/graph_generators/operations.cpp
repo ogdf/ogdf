@@ -254,7 +254,7 @@ void complement(Graph& G, bool directional, bool allow_self_loops) {
 	NodeSet<true> n1neighbors(G);
 	EdgeSet<true> newEdges(G);
 
-	for (node n1 : G.nodes) {
+	safeForEach(G.nodes, [&](node n1) {
 		// deleting edges
 		safeForEach(n1->adjEntries, [&](adjEntry adj) {
 			if (n1->adjEntries.size() <= 0) {
@@ -291,7 +291,7 @@ void complement(Graph& G, bool directional, bool allow_self_loops) {
 			newEdges.insert(newEdge);
 		}
 		n1neighbors.clear();
-	}
+	});
 }
 
 void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap) {
