@@ -23,10 +23,11 @@ Otherwise, all elements will be [copied when the array grows](https://stackoverf
 `ClusterSetSimple` was removed in favor of `ClusterArray<bool>` and `ClusterSetPure` in favor of `ClusterSet<false>` (which does not keep track of its size).
 
 ## Graph
-The move constructor and assignment operators of `Graph` are now deleted, which especially means that `NodeArray<Graph>` is no longer possible.
+The move constructor and assignment operators of `Graph` are now deleted, which especially means that `NodeArray<Graph>`, `EdgeArray<Graph>`, `FaceArray<Graph>`, etc. is no longer possible.
 (Previously it compiled, but randomly broke at runtime when adding new nodes.)
-Use `NodeArrayP<Graph>` instead to wrap the `Graph`s in `std::unique_ptr`s and make one pass over all entries to initialize the pointers.
+Use `NodeArrayP<Graph>`, `EdgeArrayP<Graph>`, `FaceArrayP<Graph>`, etc. instead to wrap the `Graph`s in `std::unique_ptr`s and then make one pass over all entries to initialize the pointers.
 See the documentation of `NodeArrayP` for usage as member variable on MSVC<=16.
+For this reason, `SimDraw::getBasicGraph` now returns a `std::unique_ptr<GraphCopy>` instead of copying a `Graph` object on return.
 
 ## GraphCopy
 `GraphCopy::createEmpty()` was deprecated in favor of `setOriginalGraph()`.

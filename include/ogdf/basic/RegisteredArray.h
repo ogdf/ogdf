@@ -615,7 +615,7 @@ class RegisteredArrayWithDefault : public RegisteredArrayWithoutDefault<Registry
 	static_assert(std::is_copy_constructible_v<Value>,
 			"This RegisteredArrayWithDefault<Value> instantiation (e.g. NodeArray<Graph>) is "
 			"invalid because Value is not copy-constructible! "
-			"Use NodeArrayP<Graph> or NodeArray<unique_ptr<Graph>, false> instead.");
+			"Use, e.g., NodeArrayP<Graph> or NodeArray<unique_ptr<Graph>, false> instead.");
 
 public:
 	//! Creates a new registered array associated with no registry and a default-constructed default value.
@@ -925,7 +925,7 @@ public:
 	template<typename Value, bool WithDefault = true>              \
 	using NAME = OGDF_DECL_REG_ARRAY_TYPE(Value, WithDefault);     \
 	/*! Shorthand for \ref NAME storing std::unique_ptr<Value>. \n
-	    You may need to be explicitly delete the copy constructor
+	    You may need to explicitly delete the copy constructor
 	    of classes containing a member of this type for MSVC<=16
 	    (e.g. using OGDF_NO_COPY(MyClass)). */ \
 	template<typename Value>                                       \

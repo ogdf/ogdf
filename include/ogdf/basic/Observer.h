@@ -94,7 +94,7 @@ private:
 
 /**
  * Base class for an observable object that can be tracked by multiple Observer objects.
- * Will be notified its observers when it is destructed and can be subclassed to provide further callbacks.
+ * Will notify its observers when it is destructed and can be subclassed to provide further callbacks.
  * For compatibility with MSVC, the Observer subclass has to be defined before the Observable subclass.
  *
  * @tparam TObserved The subclass of Observable that will be observed.
