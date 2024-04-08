@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/internal/copy_move.h>
 
 #include <cstring>
 
@@ -147,15 +148,36 @@ public:
 		init(maxNumberOfElements);
 	}
 
-	DisjointSets(const DisjointSets&) = delete;
-
-	DisjointSets& operator=(const DisjointSets&) = delete;
-
 	~DisjointSets() {
 		delete[] this->m_parents;
 		delete[] this->m_parameters;
 		delete[] this->m_siblings;
 	}
+
+	OGDF_COPY_CONSTR(DisjointSets) : DisjointSets(copy.m_maxNumberOfElements) {
+		m_numberOfSets = copy.m_numberOfSets;
+		m_numberOfElements = copy.m_numberOfElements;
+		if (copy.m_parents) {
+			std::copy_n(copy.m_parents, m_maxNumberOfElements, m_parents);
+		}
+		if (copy.m_parameters) {
+			std::copy_n(copy.m_parameters, m_maxNumberOfElements, m_parameters);
+		}
+		if (copy.m_siblings) {
+			std::copy_n(copy.m_siblings, m_maxNumberOfElements, m_siblings);
+		}
+	}
+
+	OGDF_SWAP_OP(DisjointSets) {
+		std::swap(first.m_numberOfSets, second.m_numberOfSets);
+		std::swap(first.m_numberOfElements, second.m_numberOfElements);
+		std::swap(first.m_maxNumberOfElements, second.m_maxNumberOfElements);
+		std::swap(first.m_parents, second.m_parents);
+		std::swap(first.m_parameters, second.m_parameters);
+		std::swap(first.m_siblings, second.m_siblings);
+	};
+
+	OGDF_COPY_MOVE_BY_SWAP(DisjointSets)
 
 	//! Resets the DisjointSets structure to be empty, also changing the expected number of elements.
 	void init(int maxNumberOfElements) {

@@ -150,6 +150,36 @@ static void registerTestSuite(const string typeName) {
 			AssertThat(disjointSets->getNumberOfSets(), Equals(42 - successfullUnionCounter));
 		});
 
+		it("supports copy and swap", [&]() {
+			DisjointSetsClass empty_copy(*disjointSets);
+
+			disjointSets->quickUnion(sets[1], sets[2]);
+			disjointSets->quickUnion(sets[2], sets[3]);
+			disjointSets->quickUnion(sets[3], sets[4]); // 1,2,3,4
+
+			disjointSets->quickUnion(sets[8], sets[9]);
+			disjointSets->quickUnion(sets[7], sets[8]);
+			disjointSets->quickUnion(sets[6], sets[7]); // 6,7,8,9
+
+			disjointSets->quickUnion(sets[10], sets[11]);
+			disjointSets->quickUnion(sets[12], sets[13]);
+			disjointSets->quickUnion(sets[10], sets[13]); // 10,11,12,13
+
+			DisjointSetsClass exact_copy(*disjointSets);
+
+			for (int i = 0; i < disjointSets->getNumberOfElements(); i++) {
+				AssertThat(empty_copy.find(sets[i]), Equals(sets[i]));
+				AssertThat(exact_copy.find(sets[i]), Equals(disjointSets->find(sets[i])));
+			}
+			swap(empty_copy, exact_copy);
+			for (int i = 0; i < disjointSets->getNumberOfElements(); i++) {
+				AssertThat(exact_copy.find(sets[i]), Equals(sets[i]));
+				AssertThat(empty_copy.find(sets[i]), Equals(disjointSets->find(sets[i])));
+			}
+			AssertThat(disjointSets->find(sets[0]), !Equals(disjointSets->find(sets[1])));
+			AssertThat(disjointSets->find(sets[1]), Equals(disjointSets->find(sets[2])));
+		});
+
 #ifdef OGDF_USE_ASSERT_EXCEPTIONS
 		it("throws an exception, if the user tries to link two non-maximal disjoint sets", [&]() {
 			disjointSets->link(sets[3], sets[4]);
