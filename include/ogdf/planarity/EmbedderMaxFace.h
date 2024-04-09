@@ -53,6 +53,11 @@ public:
 	 */
 	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
+	EmbedderMaxFace() = default;
+
+	/* needs to be deleted explicitly for MSVC<=16 and classes containing a NodeArrayP */
+	OGDF_NO_COPY(EmbedderMaxFace)
+
 protected:
 	//! Calls \p fun for every ingoing edge (\a w,\p v).
 	void forEachIngoingNeighbor(node v, std::function<void(node)> fun) {
@@ -288,7 +293,7 @@ protected:
 	virtual void embedBlock(const node& bT, const node& cT, ListIterator<adjEntry>& after);
 
 	/** all blocks */
-	NodeArray<Graph> blockG;
+	NodeArrayP<Graph> blockG;
 
 	/** a mapping of nodes in the auxiliaryGraph of the BC-tree to blockG */
 	NodeArray<NodeArray<node>> nH_to_nBlockEmbedding;

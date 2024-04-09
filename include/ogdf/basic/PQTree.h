@@ -608,7 +608,7 @@ protected:
 	 * and can only be accessed by inheritance.
 	 *
 	 * <b>This function does not check if \p parent is the parent node of
-	 * \p child</b>. This has to be guaranteed by the user. The reason for
+	 * \p child. </b> This has to be guaranteed by the user. The reason for
 	 * this riscfull approach lies in the details of the powerful data structure
 	 * PQ-tree. In order to reach linear runtime, the internal children
 	 * of a Q-node normally do not have valid parent pointers. So forcing
