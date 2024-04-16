@@ -30,7 +30,9 @@ jobs:
       - run: .github/prune-caches.sh ccache-build-linux-gcc:13-release
       - run: .github/prune-caches.sh ccache-build-linux-clang:15-debug
       - run: .github/prune-caches.sh ccache-build-linux-clang:15-release
-      - run: .github/prune-caches.sh ccache-build-macos-debug
-      - run: .github/prune-caches.sh ccache-build-macos-release
+      - run: .github/prune-caches.sh ccache-build-macos-13-debug
+      - run: .github/prune-caches.sh ccache-build-macos-13-release
+      - run: .github/prune-caches.sh ccache-build-macos-14-debug
+      - run: .github/prune-caches.sh ccache-build-macos-14-release
       - run: .github/prune-caches.sh ccache-build-windows-debug
       - run: .github/prune-caches.sh ccache-build-windows-release

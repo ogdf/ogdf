@@ -259,11 +259,12 @@ jobs:
           path: ${{ github.workspace }}/ccache-debug
 
   build-macos:
-    name: "Test ${{ matrix.mode }} build on MacOS"
+    name: "Test ${{ matrix.mode }} build on ${{ matrix.os }}"
     strategy:
-      matrix:
+      matrix: # when updating macos versions, also update the prune-caches job
         mode: [ debug, release ]
-    runs-on: macos-latest
+        os: [ macos-13 ] # latest/14 is with M1, while macos-13 is intel
+    runs-on: ${{ matrix.os }}
     needs: [ style, dirs, self-sufficiency, docs ]
     steps:
       - uses: actions/checkout@v4
@@ -271,7 +272,7 @@ jobs:
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.mode }}
+          key: build-${{ matrix.os }}-${{ matrix.mode }}
       - name: Check CPU model
         run: |
           uname -av
@@ -291,7 +292,7 @@ jobs:
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
-          name: ${{ github.job }}-${{ matrix.mode }}
+          name: build-${{ matrix.os }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
 
   build-windows:
