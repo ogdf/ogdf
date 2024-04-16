@@ -26,4 +26,4 @@ run_test test_no_enums.sh
 run_test test_no_typedefs.sh
 run_test test_number_newlines.sh
 run_test test_tabs.sh
-echo "All good!"
+echo "All checks completed!"

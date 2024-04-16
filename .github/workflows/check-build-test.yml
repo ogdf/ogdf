@@ -12,8 +12,10 @@ on:
 #   VERBOSE: 1
 
 jobs:
-  # workflows skipped due to filters block PRs from being merged (their required jobs count as "pending")
-  # while jobs skipped due to conditions still count as success
+  # We don't want to run the CI twice for PRs from branches within the repo, so for a push event we only run the CI if
+  # the push was to the master branch or to a fork of the repo, while running the CI for all (in- and cross-repo) PRs.
+  # Workflows skipped due to filters block PRs from being merged (their required jobs count as "pending"),
+  # while jobs skipped due to conditions still count as success, so we apply the filter here.
   precheck:
     name: "Check whether to run the CI"
     runs-on: ubuntu-latest
@@ -30,16 +32,21 @@ jobs:
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
-      - run: util/style/test_clang_format.sh
-      - run: util/style/test_eols.sh
-      - run: util/style/test_number_newlines.sh
-      - run: util/style/test_line_length.sh
-      - run: util/style/test_tabs.sh
-      - run: util/style/test_macros.sh
-      - run: util/style/test_license.sh
-      - run: util/style/test_no_typedefs.sh
-      - run: util/style/test_no_enums.sh
-      - run: util/style/test_indent_comments.sh
+      - name: Run style checks
+        run: util/style/test_all.sh
+      - name: Generate patch with style fixes upon failure
+        run: |
+          echo "Please download the artifact and apply style-fixes.patch to fix code style problems."
+          util/style/test_all.sh -f
+          git diff > style-fixes.patch
+          git status
+        if: failure()
+      - name: Store patch with style fixes
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: style-fixes
+          path: style-fixes.patch
 
   dirs:
     needs: [ precheck ]
@@ -73,7 +80,7 @@ jobs:
           key: ${{ github.job }}
       - name: Test self-sufficiency
         run: |
-          # the script calls gcc directly, so ensure that it find the ccache version instead
+          # the script calls gcc directly, so ensure that it finds the ccache version instead
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           util/test_self-sufficiency.sh
       - uses: actions/upload-artifact@v4
@@ -99,14 +106,7 @@ jobs:
           RUNNER_CONTEXT: ${{ toJson(runner) }}
           STRATEGY_CONTEXT: ${{ toJson(strategy) }}
         run: |
-          echo "{\"github\": $GITHUB_CONTEXT, \"steps\": $STEPS_CONTEXT, \"runner\": $RUNNER_CONTEXT, \"strategy\": $STRATEGY_CONTEXT}"
-          echo
           env
-      - name: "Update clang-tidy-cache" # can be removed once we have a docker image that include https://github.com/matus-chochlik/ctcache/pull/42
-        run: |
-          wget https://raw.githubusercontent.com/matus-chochlik/ctcache/main/clang-tidy-cache
-          mv clang-tidy-cache /usr/bin/clang-tidy-cache
-          chmod +x /usr/bin/clang-tidy-cache
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
@@ -178,7 +178,7 @@ jobs:
   coverage:
     name: "Analyze Test Coverage"
     runs-on: ubuntu-latest
-    container: docker.io/ncoder/clang:18
+    container: docker.io/ogdf/clang:18
     needs: [ style, dirs, self-sufficiency, docs ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
@@ -220,12 +220,6 @@ jobs:
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
-      - name: Set compiler name
-        run: |
-          GH_COMPILER_NAME="${{ matrix.compiler }}"
-          GH_COMPILER_NAME="${GH_COMPILER_NAME//:}"
-          echo "GH_COMPILER_NAME=${GH_COMPILER_NAME}" >> "$GITHUB_ENV"
-        shell: bash
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
@@ -255,7 +249,7 @@ jobs:
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
-          name: ${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ matrix.mode }}
+          name: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
 
   build-macos:

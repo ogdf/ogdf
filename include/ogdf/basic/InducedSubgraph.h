@@ -46,8 +46,7 @@ struct is_iterator<T, std::void_t<typename std::iterator_traits<T>::iterator_cat
 	: std::true_type { };
 
 template<typename Iterator>
-typename std::enable_if<!is_iterator<Iterator>::value, size_t>::type guess_dist(
-		[[maybe_unused]] Iterator begin, [[maybe_unused]] Iterator end) {
+typename std::enable_if<!is_iterator<Iterator>::value, size_t>::type guess_dist(Iterator, Iterator) {
 	return 0;
 }
 

@@ -57,7 +57,6 @@ sourcedir=`realpath $5`
 mkdir -p $tmp
 export CCACHE_BASEDIR="$tmp"
 export CCACHE_NOHASHDIR=1
-export CCACHE_SLOPPINESS="pch_defines,time_macros,include_file_mtime,include_file_ctime"
 
 # CMake config according to the arguments
 cmakecommand="(cd "$tmp" && cmake -DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "

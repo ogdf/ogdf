@@ -46,10 +46,11 @@ eval $opts
 make -j "$cores" build-all
 cp compile_commands.json ..
 cp compile_commands.json ../static-analysis
-cat CMakeFiles/OGDF.dir/depend.make \
-  | cut -d ":" -f 2 \
+# cat CMakeFiles/OGDF.dir/depend.make | cut -d ":" -f 2 | $OGDF_XARGS echo -n \ # older CMake versions
+find CMakeFiles/OGDF.dir/src -name '*.o.d' \
+  -exec cat \{} \; \
+  | tr " " "\n" \
   | grep "include/ogdf" \
-  | $OGDF_XARGS echo -n \
   | $OGDF_XARGS realpath --relative-to=".." -q \
   | check_filter | sort -u \
   > ../static-analysis/used-headers.txt
