@@ -220,6 +220,14 @@ jobs:
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
+      - name: Process compiler name
+        # artifact names may not contain colons and GHA has no string splitting function, so we do it in bash
+        run: |
+          S="${{ matrix.compiler }}"
+          A=(${S//:/ })
+          echo "GH_COMPILER_NAME=${A[0]}" >> "$GITHUB_ENV"
+          echo "GH_COMPILER_VER=${A[1]}" >> "$GITHUB_ENV"
+        shell: bash
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
@@ -241,7 +249,7 @@ jobs:
           util/test_build_and_run.sh \
             ${{ matrix.compiler == 'gcc:9' && 'dynamic' || 'static' }} \
             ${{ matrix.mode }} \
-            ${{ startsWith(matrix.compiler, 'gcc') && 'gcc' || 'clang' }} \
+            ${{ env.GH_COMPILER_NAME }} \
             default_s \
             ${{ matrix.compiler != 'clang:15' && '-DOGDF_INCLUDE_CGAL=ON -DOGDF_USE_ASSERT_EXCEPTIONS=ON' || '' }} \
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_ARCH=haswell \
@@ -254,13 +262,14 @@ jobs:
         name: Upload ccache debug info
         if: ${{ env.CCACHE_DEBUG == 1 }}
         with:
-          name: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+          # artifact names may not contain colons, so we need to be more careful with the compiler variable
+          name: ${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ env.GH_COMPILER_VER }}-${{ matrix.mode }}
           path: ${{ github.workspace }}/ccache-debug
       - name: Store failed test reports
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: failed-tests-logs-${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+          name: failed-tests-logs-${{ github.job }}-${{ env.GH_COMPILER_NAME }}-${{ env.GH_COMPILER_VER }}-${{ matrix.mode }}
           path: "./failed-tests-logs"
 
   build-macos:
