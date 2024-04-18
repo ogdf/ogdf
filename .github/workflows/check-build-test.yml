@@ -230,7 +230,12 @@ jobs:
       - name: Check ccache version
         run: ccache --version
       - name: Check CPU model
-        run: lscpu
+        run: |
+          lscpu
+          echo "Hard limits"
+          ulimit -Ha
+          echo "Soft limits"
+          ulimit -Sa
       - name: Test ${{ matrix.mode }} build with ${{ matrix.compiler }} and run
         run: |
           util/test_build_and_run.sh \
@@ -278,8 +283,13 @@ jobs:
           uname -av
           sysctl machdep.cpu
           system_profiler system_profiler SPSoftwareDataType SPHardwareDataType
+          echo "Hard limits"
+          ulimit -Ha
+          echo "Soft limits"
+          ulimit -Sa
       - name: Test ${{ matrix.mode }} build and run
         run: |
+          ulimit -Ss 16384 # increase stack limit for test-planarization
           util/test_build_and_run.sh \
             static \
             ${{ matrix.mode }} \
