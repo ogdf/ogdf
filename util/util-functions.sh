@@ -53,7 +53,9 @@ make_tmpdir () {
 		tmp=${tmp}_
 	done
 
-	trap "rm -rf $tmp" EXIT
+	if [ -z "$OGDF_KEEP_TMP" ]; then
+		trap "rm -rf $tmp" EXIT
+	fi
 	mkdir -p $tmp || exit 255
 }
 

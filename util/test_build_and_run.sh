@@ -17,7 +17,22 @@ fi
 
 make_tmpdir $0
 
-util/compile_for_tests.sh $1 $2 $3 $4 . $tmp "${@:5}" || exit
-util/run_examples.sh &&
-util/perform_separate_tests.sh $tmp || exit
+check_ret() {
+	msg="$1"
+	shift
+	echo "$msg via $@"
+	eval "$@"
+	ret=$?
+	if [ $ret != 0 ]; then
+		echo "$msg failed with exit code $ret"
+		exit $ret
+	fi
+}
+
+check_ret "Building" \
+	util/compile_for_tests.sh $1 $2 $3 $4 . $tmp "${@:5}"
+check_ret "Running examples" \
+	util/run_examples.sh
+check_ret "Running tests" \
+	util/perform_separate_tests.sh $tmp
 echo "($(date -Iseconds)) Success"

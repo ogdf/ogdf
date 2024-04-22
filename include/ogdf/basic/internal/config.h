@@ -150,6 +150,14 @@ using std::to_string;
 //! @ingroup macros
 #define OGDF_DISABLE_WARNING_THROW_TERMINATE
 
+//! Disable the warning that something is unused
+//! @ingroup macros
+#define OGDF_DISABLE_WARNING_UNUSED
+
+//! Disable deprecation warnings
+//! @ingroup macros
+#define OGDF_DISABLE_WARNING_DEPRECATED
+
 #if defined(_MSC_VER)
 #	undef OGDF_DISABLE_WARNING_PUSH
 #	undef OGDF_DISABLE_WARNING_POP
@@ -177,6 +185,10 @@ using std::to_string;
 #		undef OGDF_DISABLE_WARNING_THROW_TERMINATE
 #		define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING("-Wterminate")
 #	endif
+#	undef OGDF_DISABLE_WARNING_UNUSED
+#	define OGDF_DISABLE_WARNING_UNUSED OGDF_DISABLE_WARNING("-Wunused")
+#	undef OGDF_DISABLE_WARNING_DEPRECATED
+#	define OGDF_DISABLE_WARNING_DEPRECATED OGDF_DISABLE_WARNING("-Wdeprecated-declarations")
 #elif defined(_MSC_VER)
 #	undef OGDF_DISABLE_WARNING_THROW_TERMINATE
 #	define OGDF_DISABLE_WARNING_THROW_TERMINATE OGDF_DISABLE_WARNING(4297)

@@ -40,7 +40,7 @@ performTest() {
 		return 255
 	fi
 
-	logfile="$3/$$"
+	logfile="$3/logs/$1-$$"
 
 	if [ -n "$gtimeCmd" ]
 	then
@@ -89,7 +89,13 @@ then
 fi
 
 echo "::group::($(date -Iseconds)) Found $count tests. Starting execution..."
+mkdir "$tmp/logs"
 echo "$tests" | $OGDF_XARGS -P "$cores" -I "{}" bash -c "performTest {} $dir $tmp"
 ret=$?
 echo "::endgroup::"
+
+if [ $ret != 0 ]; then
+	mv "$tmp/logs" "./failed-tests-logs"
+fi
+
 exit $ret

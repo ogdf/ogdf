@@ -92,7 +92,10 @@ class AssertionFailed : public std::runtime_error {
 #	define OGDF_TRIVIALLY_COPYABLE std::is_trivially_copyable
 #endif
 
+OGDF_DISABLE_WARNING_PUSH
+OGDF_DISABLE_WARNING_DEPRECATED
 #include <algorithm>
+OGDF_DISABLE_WARNING_POP
 #include <cmath>
 #include <cstdint>
 #include <ctime>
