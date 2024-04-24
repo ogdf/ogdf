@@ -49,13 +49,14 @@
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
-#include <iterator>
-#include <map>
+#include <iterator> // IWYU pragma: keep
+#include <map> // IWYU pragma: keep
 #include <memory>
 #include <numeric>
 #include <queue>
 #include <random>
 #include <set>
+#include <stack> // IWYU pragma: keep
 #include <string>
 #include <utility>
 #include <vector>

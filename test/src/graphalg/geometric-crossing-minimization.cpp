@@ -32,14 +32,25 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/LayoutStatistics.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/energybased/StressMinimization.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/geometric/CrossingMinimalPosition.h>
+#include <ogdf/geometric/GeometricEdgeInsertion.h>
+#include <ogdf/geometric/GeometricVertexInsertion.h>
+#include <ogdf/geometric/VertexMovement.h>
+#include <ogdf/geometric/VertexOrder.h>
+#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 
+#include <algorithm>
 #include <functional>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <resources.h>
 
@@ -47,7 +58,8 @@
 
 #ifdef OGDF_INCLUDE_CGAL
 
-#	include <CGAL/Random.h>
+#	include <CGAL/Random.h> // IWYU pragma: keep
+// IWYU pragma: no_include <CGAL/Random_impl.h>
 
 #endif
 

@@ -29,27 +29,51 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#define OGDF_GEOMETRIC_INEXACT_NUMBER_TYPE true
-
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/exceptions.h>
-#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/geometric/CrossingMinimalPosition.h>
 
-namespace ogdf {
-class GraphAttributes;
-} // namespace ogdf
+#define OGDF_GEOMETRIC_INEXACT_NUMBER_TYPE true
+
 
 #ifdef OGDF_INCLUDE_CGAL
 
-#	include <CGAL/Gmpq.h>
+#	include <CGAL/Simple_cartesian.h> // IWYU pragma: keep
+#	include <CGAL/Cartesian/Vector_2.h>
+#	include <CGAL/Cartesian/predicates_on_directions_2.h>
+#	include <CGAL/Distance_2/Point_2_Point_2.h>
+#	include <CGAL/GMP/Gmpq_type.h>
+#	include <CGAL/Intersections_2/Ray_2_Segment_2.h>
+#	include <CGAL/Intersections_2/Segment_2_Segment_2.h>
+#	include <CGAL/Kernel/global_functions_2.h>
+#	include <CGAL/Point_2.h>
+#	include <CGAL/Segment_2.h>
 #	include <CGAL/Simple_cartesian.h>
+#	include <CGAL/determinant.h>
+#	include <CGAL/double.h>
+#	include <CGAL/enum.h>
+#	include <CGAL/number_utils.h>
+#	include <boost/operators.hpp>
+#	include <boost/variant/get.hpp>
+#	include <mpfr.h>
+#	include <ogdf/basic/Graph.h>
+#	include <ogdf/basic/geometry.h>
+#	include <ogdf/geometric/cr_min/datastructure/Iterators.h>
+#	include <ogdf/geometric/cr_min/geometry/algorithm/CollinearTriple.h>
 #	include <ogdf/geometric/cr_min/geometry/objects/LineSegment.h>
+#	include <ogdf/geometric/cr_min/geometry/objects/Point.h>
+#	include <ogdf/geometric/cr_min/geometry/objects/Rectangle.h>
+#	include <ogdf/geometric/cr_min/geometry/objects/Vector.h>
 #	include <ogdf/geometric/cr_min/graph/GeometricDrawing.h>
 #	include <ogdf/geometric/cr_min/graph/OGDFGraphWrapper.h>
 #	include <ogdf/geometric/cr_min/graph/geometric_crossing_min/CrossingMinimalPositionRnd.h>
-#	include <ogdf/geometric/cr_min/tools/math.h>
-#	include <limits>
+#	include <ogdf/geometric/cr_min/graph/ogdf_iterator.h>
+#	include <algorithm>
+#	include <iostream>
+#	include <map>
+#	include <random>
+#	include <utility>
+#	include <vector>
 
 namespace ogdf {
 

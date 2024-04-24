@@ -53,7 +53,8 @@
 #include <random>
 
 #ifdef OGDF_INCLUDE_CGAL
-#	include <CGAL/Gmpq.h>
+#	include <CGAL/Gmpq.h> // IWYU pragma: keep
+#	include <CGAL/GMP/Gmpq_type.h>
 #endif
 
 namespace ogdf {
