@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/LayoutClusterPlanRepModule.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 

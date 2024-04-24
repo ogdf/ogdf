@@ -45,11 +45,6 @@
 
 #include <ostream>
 
-namespace abacus {
-class Master;
-class Variable;
-} // namespace abacus
-
 namespace ogdf {
 template<class E>
 class SListPure;

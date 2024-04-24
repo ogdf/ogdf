@@ -33,6 +33,7 @@
 
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 template<class E>

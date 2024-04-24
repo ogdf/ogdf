@@ -34,6 +34,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 

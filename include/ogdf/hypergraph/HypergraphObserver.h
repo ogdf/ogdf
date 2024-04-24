@@ -40,6 +40,7 @@
 #pragma once
 
 #include <ogdf/basic/Observer.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/hypergraph/Hypergraph.h>
 
 namespace ogdf {

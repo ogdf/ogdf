@@ -37,12 +37,6 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/external/abacus.h>
 
-namespace abacus {
-class Master;
-class Sub;
-class Variable;
-} // namespace abacus
-
 namespace ogdf {
 namespace cluster_planarity {
 

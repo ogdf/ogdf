@@ -35,6 +35,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 #include <cstdint>
 

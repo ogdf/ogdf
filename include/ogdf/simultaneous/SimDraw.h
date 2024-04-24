@@ -34,6 +34,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/basic.h>
 
 #include <memory>
 #include <string>

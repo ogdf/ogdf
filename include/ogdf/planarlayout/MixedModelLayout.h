@@ -33,6 +33,7 @@
 
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>

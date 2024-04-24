@@ -35,10 +35,7 @@
 #include <ogdf/basic/graph_generators/randomized.h>
 
 #include <functional>
-#include <memory>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "array_helper.h"
 #include <testing.h>

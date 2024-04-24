@@ -41,6 +41,7 @@
 
 #include <testing.h>
 
+
 #ifdef OGDF_TEST_CLIQUE_PRINT_DRAWINGS
 #	include <ogdf/energybased/SpringEmbedderFRExact.h>
 #	include <regex>

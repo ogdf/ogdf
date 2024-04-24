@@ -67,11 +67,6 @@
 #include <iostream>
 #include <string>
 
-namespace abacus {
-class Sub;
-class Variable;
-} // namespace abacus
-
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;
 using namespace abacus;

@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 
 namespace ogdf {

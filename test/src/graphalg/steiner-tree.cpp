@@ -32,10 +32,8 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/randomized.h>
-#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/external/abacus.h>
 #include <ogdf/fileformats/GraphIO.h>
@@ -57,7 +55,6 @@
 #include <algorithm>
 #include <functional>
 #include <initializer_list>
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>

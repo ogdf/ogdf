@@ -36,6 +36,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 #include <ogdf/planarity/planar_subgraph_fast/MaxSequencePQTree.h>
 #include <ogdf/planarity/planar_subgraph_fast/whaInfo.h>

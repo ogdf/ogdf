@@ -37,6 +37,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanRepLight.h>
 
 #include <cstdint>

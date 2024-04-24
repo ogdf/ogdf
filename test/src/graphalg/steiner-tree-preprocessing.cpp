@@ -35,7 +35,6 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -47,7 +46,6 @@
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 #include <functional>
-#include <iomanip>
 #include <sstream>
 #include <string>
 #include <type_traits>

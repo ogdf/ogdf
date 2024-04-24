@@ -38,9 +38,9 @@
 
 #include <cstdlib>
 #include <initializer_list>
-#include <iterator>
 #include <random>
 #include <type_traits>
+#include <utility>
 
 namespace ogdf {
 

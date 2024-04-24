@@ -38,6 +38,7 @@
 #include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
 #include <ostream>
 

@@ -38,6 +38,7 @@
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
 #include <ogdf/upward/UpwardPlanarizerModule.h>
 

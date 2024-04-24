@@ -35,9 +35,6 @@
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 #include <ogdf/external/abacus.h>
 
-namespace abacus {
-class Master;
-} // namespace abacus
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;
