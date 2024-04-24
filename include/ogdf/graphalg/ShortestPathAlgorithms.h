@@ -31,10 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/graphalg/Dijkstra.h>
 

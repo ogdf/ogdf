@@ -31,10 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>
 
 namespace ogdf {
+class GraphAttributes;
+class HierarchyLevelsBase;
+template<class E>
+class List;
 
 /**
  * \brief Coordinate assignment phase for the Sugiyama algorithm by Buchheim et al.

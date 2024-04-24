@@ -29,10 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/fileformats/GEXF.h>
 #include <ogdf/fileformats/GexfParser.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GraphML.h>
+
+#include <ogdf/lib/pugixml/pugixml.h>
+
+#include <cstdint>
+#include <functional>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <utility>
 
 namespace ogdf {
 

@@ -37,15 +37,27 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EdgeTypePatterns.h>
 #include <ogdf/planarity/NodeTypePatterns.h>
 
+#include <iosfwd>
+
 namespace ogdf {
 
+class CombinatorialEmbedding;
+class GridLayout;
+class Layout;
 class OrthoRep;
+template<bool>
+class FaceSet;
+template<class E>
+class List;
 
 //! Planarized representations (of a connected component) of a graph.
 /**

@@ -38,16 +38,24 @@
 // recursion depth
 //#define OGDF_MINSTEINERTREE_SHORE_LOGGING
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
+#include <iostream>
+#include <limits>
 #include <memory>
+#include <sstream>
+#include <string>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 /**
  * @brief Implementation of Shore, Foulds and Gibbons exact branch and bound

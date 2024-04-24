@@ -29,10 +29,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/TikzWriter.h>
 
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
 #include <iomanip>
+#include <limits>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace ogdf {
 

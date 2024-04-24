@@ -32,15 +32,22 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/EpsilonTest.h>
-#include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/basic.h>
 
-#include <cfloat>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <ostream>
+#include <utility>
 
 namespace ogdf {
+enum class Shape;
+template<class K>
+class DefHashFunc;
 
 extern OGDF_EXPORT const EpsilonTest OGDF_GEOM_ET;
 

@@ -30,11 +30,35 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/energybased/FMMMLayout.h>
+#include <ogdf/energybased/fmmm/EdgeAttributes.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
+#include <ogdf/energybased/fmmm/FruchtermanReingold.h>
 #include <ogdf/energybased/fmmm/MAARPacking.h>
 #include <ogdf/energybased/fmmm/Multilevel.h>
+#include <ogdf/energybased/fmmm/NewMultipoleMethod.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
+#include <ogdf/energybased/fmmm/maar_packing/Rectangle.h>
+#include <ogdf/energybased/fmmm/multilevel/Edge.h>
 #include <ogdf/energybased/fmmm/numexcept.h>
+
+#include <algorithm>
+#include <cmath>
+#include <ctime>
+#include <fstream>
+#include <iostream>
 
 namespace ogdf {
 

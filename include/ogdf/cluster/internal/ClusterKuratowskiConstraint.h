@@ -37,13 +37,23 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
+#include <ogdf/external/abacus.h>
 
-#include <ogdf/lib/abacus/constraint.h>
+#include <ostream>
+
+namespace abacus {
+class Master;
+class Variable;
+} // namespace abacus
 
 namespace ogdf {
+template<class E>
+class SListPure;
+
 namespace cluster_planarity {
 
 class ClusterKuratowskiConstraint : public abacus::Constraint {

@@ -34,8 +34,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/cluster/ClusterGraph.h>
+
+#include <string>
 
 namespace ogdf {
 

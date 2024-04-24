@@ -33,9 +33,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/planarlayout/ShellingOrderModule.h>
 
 namespace ogdf {
+class ShellingOrderSet;
+template<class E>
+class List;
 
 //! Computation of a shelling order for a triconnected and
 //! simple (no multi-edges, no self-loops) planar graph

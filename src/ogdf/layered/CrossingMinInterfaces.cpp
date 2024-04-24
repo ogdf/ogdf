@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
 
 namespace ogdf {

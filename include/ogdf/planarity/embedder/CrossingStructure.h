@@ -31,9 +31,13 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRepLight.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
 
 namespace ogdf {
+class GraphCopy;
+class PlanRep;
+
 namespace embedder {
 
 class CrossingStructure {

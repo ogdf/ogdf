@@ -35,17 +35,12 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/Math.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/geometry.h>
-
-#include <cmath>
-
-#include <math.h>
 
 namespace ogdf {
+class GraphAttributes;
 
 /**
  * %Layout the graph with nodes next to each other with natural or custom

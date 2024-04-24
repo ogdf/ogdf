@@ -31,10 +31,16 @@
  */
 #pragma once
 
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/graphalg/SpannerModule.h>
 
+#include <string>
+
 namespace ogdf {
+class GraphCopySimple;
 
 /**
  * Multiplicative spanner by greedily adding edges.

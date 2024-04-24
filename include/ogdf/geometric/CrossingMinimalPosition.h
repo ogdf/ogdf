@@ -45,14 +45,18 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/geometric/VertexPositionModule.h>
+
+#include <random>
 
 #ifdef OGDF_INCLUDE_CGAL
 #	include <CGAL/Gmpq.h>
 #endif
 
 namespace ogdf {
+class GraphAttributes;
 
 /**
  * \brief Compute a crossing minimal position for a vertex

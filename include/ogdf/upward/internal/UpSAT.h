@@ -34,16 +34,14 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/external/Minisat.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
 
 #include <vector>
 
 namespace ogdf {
+class GraphCopy;
+template<class E>
+class List;
 
 class UpSAT {
 public:
@@ -53,6 +51,7 @@ public:
 
 private:
 	class Comp;
+
 	//FLAGS
 	bool feasibleOriginalEdges;
 	//copy of the input graph

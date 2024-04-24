@@ -29,12 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/GraphObserver.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/graph_generators.h>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include <resources.h>
+#include <testing.h>
 
 //! GraphObserver that counts how often its methods are called.
 class CountingGraphObserver : public GraphObserver {

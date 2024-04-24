@@ -34,7 +34,23 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/misclayout/BertaultLayout.h>
+#include <ogdf/planarity/PlanRep.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
 
 namespace ogdf {
 

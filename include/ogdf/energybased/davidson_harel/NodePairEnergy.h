@@ -35,9 +35,16 @@
 
 #include <ogdf/basic/AdjacencyOracle.h>
 #include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 
+#include <string>
+
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 class NodePairEnergy : public EnergyFunction {

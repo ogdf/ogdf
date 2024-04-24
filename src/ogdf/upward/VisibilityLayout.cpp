@@ -29,8 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
 #include <ogdf/upward/VisibilityLayout.h>
+
+#include <algorithm>
+#include <memory>
 
 namespace ogdf {
 

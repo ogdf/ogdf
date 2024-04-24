@@ -32,7 +32,9 @@
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
+
+#include <cstddef>
+#include <vector>
 
 namespace ogdf {
 namespace internal {

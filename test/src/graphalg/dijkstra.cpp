@@ -29,10 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/deterministic.h>
+#include <ogdf/basic/heap/PairingHeap.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
-#include <tuple>
+#include <functional>
+#include <limits>
+#include <string>
+#include <utility>
 
 #include <graphs.h>
 

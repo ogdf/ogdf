@@ -30,8 +30,14 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/external/coin.h>
 #include <ogdf/lpsolver/LPSolver.h>
+
+#include <iostream>
 
 namespace ogdf {
 

@@ -31,6 +31,8 @@
 
 #include <ogdf/basic/Module.h>
 
+#include <ostream>
+
 namespace ogdf {
 
 std::ostream& operator<<(std::ostream& os, const Module::ReturnType& r) {

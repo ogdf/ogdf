@@ -31,11 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
 
 namespace ogdf {
+template<class E>
+class List;
 
 /**
  * Static BC-trees.

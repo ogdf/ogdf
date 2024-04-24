@@ -32,10 +32,11 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory/MallocMemoryAllocator.h>
 #include <ogdf/basic/memory/PoolMemoryAllocator.h>
 
-#include <new>
+#include <cstddef>
 
 namespace ogdf {
 

@@ -29,10 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/Skiplist.h>
 #include <ogdf/basic/SortedSequence.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
+
+#include <cstdlib>
+#include <functional>
+#include <limits>
+#include <map>
+#include <string>
+#include <utility>
 
 #include <testing.h>
 

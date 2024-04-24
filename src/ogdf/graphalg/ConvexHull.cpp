@@ -29,7 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/graphalg/ConvexHull.h>
+
+#include <algorithm>
+#include <cmath>
+#include <utility>
+#include <vector>
 
 namespace ogdf {
 

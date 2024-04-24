@@ -31,9 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/basic.h>
+
+#include <algorithm>
+#include <functional>
+#include <ostream>
+#include <string>
 
 namespace ogdf {
+template<class E>
+class List;
 
 //! Enumerator for k-subsets of a given type.
 /**

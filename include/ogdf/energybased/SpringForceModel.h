@@ -31,8 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
-
 namespace ogdf {
 
 //! The force model used for computing forces on nodes.

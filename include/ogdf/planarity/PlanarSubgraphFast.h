@@ -31,14 +31,27 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/basic/STNumbering.h>
 #include <ogdf/basic/Thread.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pqtree/PQLeafKey.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 #include <ogdf/planarity/planar_subgraph_fast/PlanarSubgraphPQTree.h>
+#include <ogdf/planarity/planar_subgraph_fast/whaInfo.h>
 
+#include <algorithm>
 #include <atomic>
+#include <limits>
+#include <mutex>
+#include <utility>
 
 namespace ogdf {
 

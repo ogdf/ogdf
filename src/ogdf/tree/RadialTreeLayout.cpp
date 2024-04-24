@@ -32,9 +32,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/tree/RadialTreeLayout.h>
+
+#include <algorithm>
+#include <cmath>
 
 namespace ogdf {
 

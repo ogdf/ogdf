@@ -32,7 +32,10 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/GraphSets.h>
+
+#include <cstdint>
+#include <functional>
 
 namespace ogdf {
 

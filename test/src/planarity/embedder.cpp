@@ -29,6 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/planarity/EmbedderMaxFace.h>
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
@@ -39,7 +44,16 @@
 #include <ogdf/planarity/EmbedderOptimalFlexDraw.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 
+#include <exception>
+#include <functional>
+#include <initializer_list>
+#include <set>
+#include <sstream>
+#include <string>
+
 #include <graphs.h>
+
+#include <testing.h>
 
 #define TEST_EMBEDDER(NAME) describeEmbedder<NAME>(#NAME)
 

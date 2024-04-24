@@ -32,10 +32,13 @@
 #pragma once
 
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
 
 //! Splits and packs the components of a Graph.
 /**

@@ -35,13 +35,19 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/LayoutStandards.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/internal/graph_iterators.h>
+
+#include <cstdint>
+#include <string>
 
 namespace ogdf {
+template<class E>
+class List;
 
 //! Stores additional attributes of a graph (like layout information).
 /**

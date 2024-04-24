@@ -29,10 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/geometric/RandomVertexPosition.h>
 
 namespace ogdf {
-
+class GraphAttributes;
 
 DPoint RandomVertexPosition::call(GraphAttributes&, node) {
 	DPoint p;

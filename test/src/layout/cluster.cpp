@@ -29,11 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/cluster/ClusterOrthoLayout.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/ClusterPlanarizationLayout.h>
 
+#include <functional>
+#include <set>
+#include <string>
+
+#include <graphs.h>
+
 #include "layout_helpers.h"
+
+#include <testing.h>
 
 //! Looks like a regular LayoutModule but creates a ClusterGraph that is handed to
 //! a ClusterPlanarizationLayout instead.

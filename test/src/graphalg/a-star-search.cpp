@@ -29,12 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/AStarSearch.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
-#include <chrono>
+#include <functional>
 #include <iomanip>
+#include <iostream>
+#include <string>
 
 #include <testing.h>
 

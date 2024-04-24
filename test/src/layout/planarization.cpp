@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/PlanarizationGridLayout.h>
@@ -39,7 +40,15 @@
 #include <ogdf/planarlayout/MixedModelLayout.h>
 #include <ogdf/upward/UpwardPlanarizationLayout.h>
 
+#include <functional>
+#include <set>
+#include <string>
+
+#include <graphs.h>
+
 #include "layout_helpers.h"
+
+#include <testing.h>
 
 go_bandit([] {
 	describe("Planarization layouts", [] {

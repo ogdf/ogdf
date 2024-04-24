@@ -29,9 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/fileformats/GraphIO.h>
+
+#include <istream>
+#include <string>
 
 namespace ogdf {
 

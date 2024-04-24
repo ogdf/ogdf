@@ -33,13 +33,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/clique/CliqueFinderHeuristic.h>
 #include <ogdf/clique/CliqueFinderSPQR.h>
 #include <ogdf/orthogonal/OrthoLayout.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/planarity/LayoutPlanRepModule.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarity/PlanarizationLayout.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
+
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <memory>
 
 namespace ogdf {
 

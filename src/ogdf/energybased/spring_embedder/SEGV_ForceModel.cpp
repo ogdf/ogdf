@@ -29,7 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>
 #include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>
+
+#include <cmath>
+#include <functional>
 
 namespace ogdf {
 

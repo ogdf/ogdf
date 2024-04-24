@@ -33,9 +33,15 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/cluster/ClusterGraph.h>
+
+#include <iosfwd>
+#include <limits>
 
 namespace ogdf {
 

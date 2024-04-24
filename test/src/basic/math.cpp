@@ -29,10 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
 
-#include <typeinfo>
+#include <functional>
+#include <limits>
+#include <string>
+#include <type_traits>
 
 #include <testing.h>
 

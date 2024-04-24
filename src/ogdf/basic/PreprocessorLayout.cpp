@@ -29,9 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/PreprocessorLayout.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+
+#include <cmath>
+#include <memory>
+#include <vector>
 
 namespace ogdf {
+class GraphAttributes;
 
 PreprocessorLayout::PreprocessorLayout() : m_randomize(false) { }
 

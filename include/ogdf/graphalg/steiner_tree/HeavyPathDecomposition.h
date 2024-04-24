@@ -31,12 +31,19 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+#include <ogdf/basic/basic.h>
 
+#include <algorithm>
 #include <vector>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraphCopy;
+
 namespace steiner_tree {
 
 /**

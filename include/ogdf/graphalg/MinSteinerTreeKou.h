@@ -33,12 +33,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 /*!
  * \brief This class implements the Minimum Steiner Tree 2-approximation algorithm by Kou et al.

@@ -33,19 +33,17 @@
 
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/internal/config.h>
 #include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/memory.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
 #include <list>
 #include <memory> // IWYU pragma: keep
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-#include <stddef.h>
 
 #ifndef OGDF_MEMORY_POOL_NTS
 

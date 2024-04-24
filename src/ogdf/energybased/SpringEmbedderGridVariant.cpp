@@ -32,10 +32,10 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/Barrier.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/GraphList.h>
-#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/Thread.h>
@@ -49,10 +49,9 @@
 #include <ogdf/energybased/spring_embedder/WorkerBase.h>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <random>
-
-#include <math.h>
 
 // IWYU pragma: no_forward_declare ogdf::SpringEmbedderGridVariant::Worker
 

@@ -31,15 +31,21 @@
 
 #pragma once
 
-#include <ogdf/augmentation/AugmentationModule.h>
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/planarity/PlanRep.h>
-#include <ogdf/planarlayout/ShellingOrderModule.h>
 #include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>
 #include <ogdf/planarlayout/mixed_model_layout/MMOrder.h>
 
+#include <iosfwd>
+
 namespace ogdf {
+class AugmentationModule;
+class EmbedderModule;
+class GridLayout;
+class ShellingOrderModule;
 
 class MixedModelBase {
 public:

@@ -31,9 +31,15 @@
 
 #pragma once
 
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+
+#include <functional>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
+
 namespace steiner_tree {
 
 /**

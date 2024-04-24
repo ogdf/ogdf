@@ -35,9 +35,6 @@
 
 namespace ogdf {
 
-template<class T, class X, class Y>
-class PQNode;
-
 /**
  * The class template PQInternalKey is a derived class of class template
  * PQBasicKey. PQInternalKey is a concrete class.

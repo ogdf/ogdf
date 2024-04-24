@@ -33,6 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/Module.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {

@@ -32,12 +32,30 @@
 
 //#define OGDF_CIRCULAR_LAYOUT_LOGGING
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/tuples.h>
 #include <ogdf/misclayout/CircularLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+
+#include <algorithm>
+#include <cfloat>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <utility>
 
 #ifdef OGDF_CIRCULAR_LAYOUT_LOGGING
 #	include <ogdf/fileformats/GraphIO.h>

@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
 
 namespace ogdf {
+template<class E>
+class List;
 
 //! Representation of proper hierarchies used by Sugiyama-layout.
 /**

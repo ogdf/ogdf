@@ -32,12 +32,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/HashArray.h>
 #include <ogdf/cluster/LayoutClusterPlanRepModule.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class ClusterGraph;
+class ClusterGraphAttributes;
+class ClusterPlanRep;
+class Layout;
 
 //! The cluster planarization layout algorithm.
 /**

@@ -31,14 +31,26 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/internal/list_templates.h>
+#include <ogdf/basic/memory.h>
+
+#include <functional>
+#include <initializer_list>
+#include <ostream>
+#include <random>
+#include <type_traits>
+#include <utility>
 
 namespace ogdf {
 
-template<class E>
-class SListPure;
 template<class E, bool isConst>
 class SListIteratorBase;
+template<class E>
+class SListPure;
+
 template<class E>
 using SListConstIterator = SListIteratorBase<E, true>;
 template<class E>

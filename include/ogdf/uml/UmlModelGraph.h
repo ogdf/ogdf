@@ -32,8 +32,10 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
+
+#include <iosfwd>
+#include <string>
 
 namespace ogdf {
 

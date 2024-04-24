@@ -30,11 +30,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/fileformats/GML.h>
 #include <ogdf/fileformats/GmlParser.h>
-#include <ogdf/fileformats/Utils.h>
 
-#include <memory>
+#include <cctype>
+#include <cstdlib>
+#include <cstring>
+#include <functional>
+#include <istream>
+#include <limits>
+#include <string>
 #include <unordered_map>
+#include <utility>
 
 namespace ogdf {
 

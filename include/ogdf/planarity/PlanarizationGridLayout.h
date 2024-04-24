@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>
@@ -38,6 +40,8 @@
 #include <memory>
 
 namespace ogdf {
+class Graph;
+class GridLayout;
 
 /**
  * \brief The planarization grid layout algorithm.

@@ -31,9 +31,22 @@
  */
 
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/tuples.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphCopyAttributes.h>
+#include <ogdf/layered/ExtendedNestingGraph.h>
 #include <ogdf/layered/OptimalHierarchyClusterLayout.h>
 #include <ogdf/lpsolver/LPSolver.h>
+
+#include <cmath>
+#include <limits>
 
 namespace ogdf {
 

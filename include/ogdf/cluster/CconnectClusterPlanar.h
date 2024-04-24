@@ -32,11 +32,13 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
 
 namespace ogdf {
+template<class E>
+class ListPure;
 
 //! C-planarity test by Cohen, Feng and Eades.
 /**

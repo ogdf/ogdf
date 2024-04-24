@@ -31,16 +31,26 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/LayoutPlanRepModule.h>
 #include <ogdf/planarity/planarization_layout/CliqueReplacer.h>
 
+#include <algorithm>
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
+class Layout;
+class PlanRep;
+template<class E>
+class List;
 
 //! The planarization approach for drawing graphs.
 /**

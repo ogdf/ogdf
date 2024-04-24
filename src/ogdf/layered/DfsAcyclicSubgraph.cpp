@@ -30,6 +30,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>

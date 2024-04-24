@@ -36,6 +36,8 @@
 #include <ogdf/layered/SugiyamaLayout.h>
 
 namespace ogdf {
+class Hierarchy;
+class HierarchyLevelsBase;
 
 /**
  * \brief The global sifting heuristic for crossing minimization.

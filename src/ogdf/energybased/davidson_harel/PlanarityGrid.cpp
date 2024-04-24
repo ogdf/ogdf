@@ -34,9 +34,18 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 #include <ogdf/energybased/davidson_harel/PlanarityGrid.h>
+#include <ogdf/energybased/davidson_harel/UniformGrid.h>
+
+#include <iostream>
+#include <string>
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 PlanarityGrid::~PlanarityGrid() {

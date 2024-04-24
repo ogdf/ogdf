@@ -31,9 +31,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/davidson_harel/NodePairEnergy.h>
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 //! Energy function for attraction between two adjacent vertices.

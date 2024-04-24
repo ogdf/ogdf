@@ -29,8 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
 #include <ogdf/energybased/fmmm/MAARPacking.h>
+#include <ogdf/energybased/fmmm/maar_packing/PackingRowInfo.h>
+#include <ogdf/energybased/fmmm/maar_packing/Rectangle.h>
 #include <ogdf/energybased/fmmm/numexcept.h>
+
+#include <algorithm>
+#include <functional>
 
 namespace ogdf {
 namespace energybased {

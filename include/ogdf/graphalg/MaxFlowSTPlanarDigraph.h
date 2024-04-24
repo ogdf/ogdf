@@ -33,11 +33,18 @@
 
 #pragma once
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/graphalg/MaxFlowModule.h>
+
+#include <limits>
 
 namespace ogdf {
 

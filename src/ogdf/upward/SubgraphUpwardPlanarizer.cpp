@@ -29,9 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
+#include <ogdf/upward/FUPSModule.h>
 #include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+#include <ogdf/upward/UpwardEdgeInserterModule.h>
+#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/upward/UpwardPlanarity.h>
+
+#include <limits>
+#include <memory>
 
 namespace ogdf {
 

@@ -1,5 +1,8 @@
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <string>
 
 using namespace ogdf;
 

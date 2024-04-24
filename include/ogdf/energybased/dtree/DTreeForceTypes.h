@@ -28,8 +28,7 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
-
+#include <cmath>
 #include <type_traits>
 
 namespace ogdf {

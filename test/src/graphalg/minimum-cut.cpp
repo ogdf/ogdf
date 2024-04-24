@@ -29,11 +29,27 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/MinimumCutNagamochiIbaraki.h>
 #include <ogdf/graphalg/MinimumCutStoerWagner.h>
 
+#include <functional>
+#include <initializer_list>
+#include <limits>
+#include <string>
+#include <utility>
+
 #include <testing.h>
+
+namespace ogdf {
+template<typename T>
+class MinimumCutModule;
+} // namespace ogdf
 
 template<typename T>
 static void constructWeights(EdgeArray<T>& weights, std::initializer_list<T>&& consWeights) {

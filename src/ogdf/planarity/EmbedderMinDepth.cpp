@@ -31,11 +31,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/planarity/EmbedderMinDepth.h>
 #include <ogdf/planarity/embedder/ConnectedSubgraph.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 
 #include <limits>
+#include <memory>
 
 namespace ogdf {
 

@@ -29,6 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/uml/UMLCrossingMinimizationModule.h>
 
 namespace ogdf {

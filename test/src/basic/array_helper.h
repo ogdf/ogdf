@@ -31,9 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/List.h>
 
-#include <testing.h> // IWYU pragma: keep
+#include <testing.h>
+// IWYU pragma: keep
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
 template<typename Type>
 inline Type maybeWrap(int value);
