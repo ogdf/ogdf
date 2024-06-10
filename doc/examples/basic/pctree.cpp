@@ -1,8 +1,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/pctree/PCTree.h>
 #include <ogdf/fileformats/GraphIO.h>
-
-#include "ogdf/tree/RadialTreeLayout.h"
+#include <ogdf/tree/RadialTreeLayout.h>
 
 using namespace ogdf;
 using namespace pc_tree;
