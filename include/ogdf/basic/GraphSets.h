@@ -58,6 +58,9 @@ public:
 	//! Creates a new node set associated with \p graph.
 	explicit NodeSet(const Graph& graph) : RS((const GraphNodeRegistry&)graph) {};
 
+	//! Creates an empty node set associated with no graph.
+	explicit NodeSet() = default;
+
 	//! Returns a reference to the list of nodes contained in this set.
 	const typename RS::list_type& nodes() { return RS::elements(); }
 
@@ -124,6 +127,9 @@ public:
 
 	//! Creates a new adjEntry set associated with \p graph.
 	explicit AdjEntrySet(const Graph& graph) : RS((const GraphAdjRegistry&)graph) {};
+
+	//! Creates an empty adjEntry set associated with no graph.
+	explicit AdjEntrySet() = default;
 
 	//! Returns a reference to the list of adjEntries contained in this set.
 	const typename RS::list_type& adjEntries() { return RS::elements(); }
