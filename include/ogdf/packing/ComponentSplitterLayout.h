@@ -53,7 +53,8 @@ private:
 	//! Combines drawings of connected components to
 	//! a single drawing by rotating components and packing
 	//! the result (optimizes area of axis-parallel rectangle).
-	void reassembleDrawings(GraphAttributes& GA, const Array<List<node>>& nodesInCC);
+	void reassembleDrawings(GraphAttributes& GA, const Array<List<node>>& nodesInCC,
+			const Array<List<edge>>& edgesInCC);
 
 public:
 	ComponentSplitterLayout();
