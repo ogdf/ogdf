@@ -1,6 +1,6 @@
-#include "PQPlanarity.h"
-#include "utils//Logging.h"
-#include "utils/GraphUtils.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 class UndoConvertSmall : public PQPlanarity::UndoOperation {
 public:

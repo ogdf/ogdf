@@ -2,11 +2,10 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/decomposition/BCTree.h>
 
 #include <ostream>
-
-#include "Bijection.h"
 
 std::string to_string(const std::function<std::ostream&(std::ostream&)>& func);
 

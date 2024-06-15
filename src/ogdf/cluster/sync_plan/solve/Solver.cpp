@@ -1,9 +1,8 @@
 #include <ogdf/basic/extended_graph_alg.h>
-
-#include "PQPlanarity.h"
-#include "solve/BlockEmbedding.h"
-#include "utils/GraphUtils.h"
-#include "utils/TwoSAT.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
+#include <ogdf/cluster/sync_plan/solve/BlockEmbedding.h>
 
 #ifdef PQ_OPSTATS
 #	define STEP(op, meta)                                                                         \

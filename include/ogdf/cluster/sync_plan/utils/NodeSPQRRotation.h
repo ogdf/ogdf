@@ -1,13 +1,13 @@
 #pragma once
 
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/decomposition/DynamicSPQRForest.h>
 
-#include <NodePCRotation.h>
 
 using namespace ogdf;
 using namespace std;
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
 
 ostream& operator<<(ostream& os, DynamicSPQRForest::TNodeType t);
 

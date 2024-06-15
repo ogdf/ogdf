@@ -24,8 +24,7 @@ struct RandomClusterConfig {
 		   << " prob_no_further_node: " << config.prob_no_further_node << " ("
 		   << config.expected_nodes() << ")"
 		   << " prob_no_further_cluster: " << config.prob_no_further_cluster << " ("
-		   << 1.0 / config.prob_no_further_cluster << ")"
-		   << " max_clusters: " << config.max_clusters
+		   << 1.0 / config.prob_no_further_cluster << ")" << " max_clusters: " << config.max_clusters
 		   << " min_root_nodes: " << config.min_root_nodes << " timeout: " << config.timeout;
 		return os;
 	}

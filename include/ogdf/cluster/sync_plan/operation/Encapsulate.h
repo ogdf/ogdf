@@ -1,10 +1,9 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 #include <ostream>
-
-#include "utils/Bijection.h"
 
 using namespace ogdf;
 

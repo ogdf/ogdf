@@ -1,10 +1,10 @@
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
+
 #include <NodePCRotation.h>
 #include <PCNode.h>
 #include <PCTree.h>
-
-#include "PQPlanarity.h"
-#include "utils/GraphUtils.h"
-#include "utils/Logging.h"
 
 using namespace pc_tree;
 

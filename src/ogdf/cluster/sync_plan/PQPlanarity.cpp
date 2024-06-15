@@ -1,7 +1,6 @@
-#include "PQPlanarity.h"
-
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
 
 #include <stdexcept>
 
@@ -106,9 +105,8 @@ void PQPlanarity::printOPStatsStart(const Pipe* p, Operation op, const NodePCRot
 	} else {
 		stats_first_in_array = false;
 	}
-	stats_out << "{\"op\":\"" << op << "\""
-			  << ",\"rem_pipes\":" << matchings.getPipeCount() << ",\"deg\":" << p->degree()
-			  << ",\"u_cv\":" << components.isCutVertex(p->node1)
+	stats_out << "{\"op\":\"" << op << "\"" << ",\"rem_pipes\":" << matchings.getPipeCount()
+			  << ",\"deg\":" << p->degree() << ",\"u_cv\":" << components.isCutVertex(p->node1)
 			  << ",\"u_blocks\":" << components.biconnectedComponent(p->node1)->degree()
 			  << ",\"u_bicon_size\":" << components.bcSize(components.biconnectedComponent(p->node1))
 			  << ",\"u_bc_id\":" << components.biconnectedId(p->node1)

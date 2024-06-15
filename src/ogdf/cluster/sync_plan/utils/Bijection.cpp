@@ -1,6 +1,5 @@
-#include "utils/Bijection.h"
-
 #include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 PipeBijIterator getPipeBijection(node u, node v) {
 	OGDF_ASSERT(u->degree() == v->degree());

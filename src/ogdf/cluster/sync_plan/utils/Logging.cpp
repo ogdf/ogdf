@@ -1,4 +1,4 @@
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <sstream>
 

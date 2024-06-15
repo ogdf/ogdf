@@ -1,11 +1,10 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/basic/RegisteredMultiArray.h>
+#include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
-
-#include "PQPlanarityComponents.h"
-#include "utils/RegisteredMultiArray.h"
-#include "utils/TwoSAT.h"
 
 using namespace ogdf;
 

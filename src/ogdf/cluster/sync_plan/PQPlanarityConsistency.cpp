@@ -1,15 +1,13 @@
-#include "PQPlanarityConsistency.h"
-
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityOptions.h>
+#include <ogdf/cluster/sync_plan/PipeOrder.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 #include <json.hpp>
-
-#include "PQPlanarity.h"
-#include "PQPlanarityOptions.h"
-#include "PipeOrder.h"
-#include "utils/GraphUtils.h"
-#include "utils/Logging.h"
 
 bool PQPlanarityConsistency::doWriteOut = false;
 
@@ -277,10 +275,9 @@ void PQPlanarityConsistency::checkComponentRegeneration() {
 					pq.log.lout(Logger::Level::Alarm)
 							<< "From node " << pq.fmtPQNode(bc_ref[v1]) << " I learned the mapping "
 							<< "{{" << ref_bc.typeOfBNode(v1) << " #" << v1->index() << " °"
-							<< v1->degree() << " @" << ref_conn(v1) << "}}"
-							<< " => " << pq.components.fmtBCNode(bc_store[v1]) << ". "
-							<< "For node " << pq.fmtPQNode(g_n)
-							<< " I got the same key, but the value now is "
+							<< v1->degree() << " @" << ref_conn(v1) << "}}" << " => "
+							<< pq.components.fmtBCNode(bc_store[v1]) << ". " << "For node "
+							<< pq.fmtPQNode(g_n) << " I got the same key, but the value now is "
 							<< pq.components.fmtBCNode(v2) << "." << std::endl;
 					OGDF_ASSERT(false);
 				}

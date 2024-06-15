@@ -1,8 +1,7 @@
-#include "operation/Encapsulate.h"
-
-#include "PQPlanarity.h"
-#include "utils/GraphUtils.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 std::ostream& operator<<(std::ostream& os, const EncapsulatedBlock& block) {
 	os << "EncapsulatedBlock(bicon=" << block.bicon << ", bicon_rep=" << block.bicon_rep

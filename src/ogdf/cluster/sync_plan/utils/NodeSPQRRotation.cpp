@@ -1,7 +1,6 @@
-#include "utils/NodeSPQRRotation.h"
-
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/utils/NodeSPQRRotation.h>
 
 Logger NodeSPQRRotation::logger;
 

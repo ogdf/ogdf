@@ -1,8 +1,7 @@
 #pragma once
 
 #include <ogdf/basic/PriorityQueue.h>
-
-#include "PMatching.h"
+#include <ogdf/cluster/sync_plan/PMatching.h>
 
 // using PipeCmp = std::function<bool(const Pipe *, const Pipe *)>;
 

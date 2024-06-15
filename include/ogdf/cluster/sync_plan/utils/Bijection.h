@@ -1,8 +1,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-
-#include "Iterators.h"
+#include <ogdf/cluster/sync_plan/basic/Iterators.h>
 
 using namespace ogdf;
 
