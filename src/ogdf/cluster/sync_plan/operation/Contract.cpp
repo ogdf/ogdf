@@ -1,3 +1,33 @@
+/** \file
+ * \brief TODO Document
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -80,8 +110,8 @@ void findBipartiteEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 	do {
 		cean_log << "adding edge " << node_adj->theEdge()->index() << " (" << edge_types[node_adj]
 				 << ") leading to node " << node_adj->twinNode()->index() << " ("
-				 << node_types[node_adj->twinNode()] << ")" << " to out list at position "
-				 << out_edges.size() << std::endl;
+				 << node_types[node_adj->twinNode()] << ")"
+				 << " to out list at position " << out_edges.size() << std::endl;
 		edge_types[node_adj].discover();
 		out_edges.emplaceFront(node_adj, nullptr);
 
@@ -136,8 +166,9 @@ void findBiconnectedEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 			return;
 		} else if (edge_types[node_adj].selected) {
 			cean_log << "adj " << node_adj << ": edge " << node_adj->theEdge() << " and node "
-					 << node_adj->theNode() << " are selected, " << "adding to out list at position "
-					 << out_edges.size() << " and switching face" << std::endl;
+					 << node_adj->theNode() << " are selected, "
+					 << "adding to out list at position " << out_edges.size()
+					 << " and switching face" << std::endl;
 			edge_types[node_adj].discover();
 			out_edges.emplaceFront(getSelectedAdj(node_types, node_adj->theEdge()), nullptr);
 			node_adj = node_adj->twin();

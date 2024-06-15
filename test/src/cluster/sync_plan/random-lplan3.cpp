@@ -1,3 +1,33 @@
+/** \file
+ * \brief TODO Document
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/NodeSet.h>
@@ -200,7 +230,7 @@ void randomProperLevelPlaneGraph(Graph& G, vector<vector<node>>& emb, NodeArray<
 		}
 	};
 
-	while(edge_lengths.size() < M) {
+	while (edge_lengths.size() < M) {
 		edge_lengths.push_back(1);
 	}
 
@@ -383,7 +413,7 @@ int main(int argc, char* argv[]) {
 	NodeArray<int> lvl(G, -1);
 	vector<vector<node>> emb;
 	NodeArray<int> pos(G, -1);
-	vector<int> vec  {4, 3, 3, 2, 2, 2};
+	vector<int> vec {4, 3, 3, 2, 2, 2};
 	randomProperLevelPlaneGraph(G, emb, lvl, pos, 10, 20, 5, vec);
 
 	// draw svg

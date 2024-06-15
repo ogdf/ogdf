@@ -1,3 +1,33 @@
+/** \file
+ * \brief TODO Document
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/cluster/sync_plan/utils/NodeTricRotation.h>
@@ -181,12 +211,14 @@ NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n) : spqr(
 	OverlappingGraphCopy* skel =
 			GC_n->degree() > 2 ? spqr.getNonSSkel(GC_n) : spqr.skels[GC_n->firstAdj()->theEdge()];
 	node skel_n = skel->copy(GC_n);
-	logm << "Generating NodeSSPQRRotation for " << "G_n " << n->index() << " °" << n->degree()
-		 << ", " << "GC_n " << GC_n->index() << " °" << GC_n->degree() << ", " << "skel_n "
-		 << skel_n->index() << " °" << skel_n->degree() << endl;
+	logm << "Generating NodeSSPQRRotation for "
+		 << "G_n " << n->index() << " °" << n->degree() << ", "
+		 << "GC_n " << GC_n->index() << " °" << GC_n->degree() << ", "
+		 << "skel_n " << skel_n->index() << " °" << skel_n->degree() << endl;
 	logd << "First skel is " << skel << " (" << skel->numberOfNodes() << "n, "
-		 << skel->numberOfEdges() << "e) " << "of adj " << GC_n->firstAdj() << " ("
-		 << GC_n->firstAdj()->theEdge()->index() << ")" << endl;
+		 << skel->numberOfEdges() << "e) "
+		 << "of adj " << GC_n->firstAdj() << " (" << GC_n->firstAdj()->theEdge()->index() << ")"
+		 << endl;
 	Logger::Indent _(log);
 
 
@@ -230,10 +262,11 @@ PCNode* NodeSSPQRRotation::process(adjEntry skel_adj, OverlappingGraphCopy& skel
 	if (G_edge != nullptr) {
 		OGDF_ASSERT(twin == nullptr);
 		adjEntry G_adj = G_edge->getAdj(spqr.GC.original(GC_adj->theNode()));
-		logd << "Real edge " << "skel_adj " << skel_adj << " (" << skel_adj->theEdge()->index()
-			 << "), " << "GC_adj " << GC_adj << " (" << GC_adj->theEdge()->index() << "), "
-			 << "G_adj " << G_adj << " (" << G_adj->theEdge()->index() << ") " << "with "
-			 << spqr.par_replacement[GC_adj].size() << " parallels" << endl;
+		logd << "Real edge "
+			 << "skel_adj " << skel_adj << " (" << skel_adj->theEdge()->index() << "), "
+			 << "GC_adj " << GC_adj << " (" << GC_adj->theEdge()->index() << "), "
+			 << "G_adj " << G_adj << " (" << G_adj->theEdge()->index() << ") "
+			 << "with " << spqr.par_replacement[GC_adj].size() << " parallels" << endl;
 		OGDF_ASSERT(spqr.twins[GC_adj] == nullptr);
 		if (!spqr.par_replacement[GC_adj].empty()) {
 			if (!isPNode(skel) || skel.numberOfEdges() == 1) { // no P-node
@@ -261,10 +294,11 @@ PCNode* NodeSSPQRRotation::process(adjEntry skel_adj, OverlappingGraphCopy& skel
 		OGDF_ASSERT(twin != nullptr);
 		adjEntry twin_adj = getAdjInSkel(twin, GC_adj);
 
-		logd << (isSNode(*twin) ? "Inlining " : "") << "Virtual edge " << "skel_adj " << skel_adj
-			 << " (" << skel_adj->theEdge()->index() << "), " << "GC_adj " << GC_adj << " ("
-			 << GC_adj->theEdge()->index() << ") " << "corresponds to skel " << twin << " ("
-			 << twin->numberOfNodes() << "n, " << twin->numberOfEdges() << "e)" << endl;
+		logd << (isSNode(*twin) ? "Inlining " : "") << "Virtual edge "
+			 << "skel_adj " << skel_adj << " (" << skel_adj->theEdge()->index() << "), "
+			 << "GC_adj " << GC_adj << " (" << GC_adj->theEdge()->index() << ") "
+			 << "corresponds to skel " << twin << " (" << twin->numberOfNodes() << "n, "
+			 << twin->numberOfEdges() << "e)" << endl;
 		if (isSNode(*twin)) { // S-node
 			OGDF_ASSERT(twin_adj->theNode()->degree() == 2);
 			return process(twin_adj->cyclicSucc(), *twin, parent);

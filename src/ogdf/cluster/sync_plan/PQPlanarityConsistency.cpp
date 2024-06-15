@@ -1,3 +1,33 @@
+/** \file
+ * \brief TODO Document
+ *
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
@@ -275,9 +305,10 @@ void PQPlanarityConsistency::checkComponentRegeneration() {
 					pq.log.lout(Logger::Level::Alarm)
 							<< "From node " << pq.fmtPQNode(bc_ref[v1]) << " I learned the mapping "
 							<< "{{" << ref_bc.typeOfBNode(v1) << " #" << v1->index() << " °"
-							<< v1->degree() << " @" << ref_conn(v1) << "}}" << " => "
-							<< pq.components.fmtBCNode(bc_store[v1]) << ". " << "For node "
-							<< pq.fmtPQNode(g_n) << " I got the same key, but the value now is "
+							<< v1->degree() << " @" << ref_conn(v1) << "}}"
+							<< " => " << pq.components.fmtBCNode(bc_store[v1]) << ". "
+							<< "For node " << pq.fmtPQNode(g_n)
+							<< " I got the same key, but the value now is "
 							<< pq.components.fmtBCNode(v2) << "." << std::endl;
 					OGDF_ASSERT(false);
 				}
