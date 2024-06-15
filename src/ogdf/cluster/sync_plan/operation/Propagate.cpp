@@ -77,7 +77,7 @@ public:
 	}
 
 	void undo(PQPlanarity& pq) override {
-		PQ_PROFILE_START("undo-propagatePQ")
+		// SYNCPLAN_PROFILE_START("undo-propagatePQ")
 		OGDF_ASSERT(pct_u.size() == pct_v.size());
 		pq.log.lout(Logger::Level::High) << "UNDO PROPAGATE PQ degree " << degree << " with "
 										 << pct_u.size() << " tree nodes." << std::endl;
@@ -122,7 +122,7 @@ public:
 #ifdef OGDF_DEBUG
 		pq.verifyPipeBijection(u, v, bij);
 #endif
-		PQ_PROFILE_STOP("undo-propagatePQ")
+		// SYNCPLAN_PROFILE_STOP("undo-propagatePQ")
 	}
 
 	int collapseTree(PQPlanarity& pq, node root, int mark, NodeArray<int>& markers) const {
@@ -185,7 +185,7 @@ public:
 };
 
 PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePCRotation* pct_v) {
-	PQ_PROFILE_START("propagatePQ")
+	// SYNCPLAN_PROFILE_START("propagatePQ")
 	OGDF_ASSERT(matchings.isMatchedPVertex(u));
 	OGDF_ASSERT(!components.isCutVertex(u));
 	OGDF_ASSERT(!pct->isTrivial());
@@ -196,7 +196,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 	List<node> v_rays, make_wheels;
 	log.lout(Logger::Level::High)
 			<< "PROPAGATE PQ into " << (v_was_cut ? "cut" : "biconnected") << std::endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 	tp start = tpc::now();
 	printOPStatsStart(matchings.getPipe(u),
 			v_was_cut ? Operation::PROPAGATE_CUT : Operation::PROPAGATE_BICON, pct);
@@ -228,7 +228,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 		// TODO only if there are any P-node left -> otherwise convert small?
 		bool intersected;
 		tp v_pc_start = tpc::now();
-		PQ_PROFILE_START("propagatePQ-makePCv")
+		// SYNCPLAN_PROFILE_START("propagatePQ-makePCv")
 		unique_ptr<NodePCRotation> computed_pct_v;
 		if (pct_v == nullptr) {
 			BiconnectedIsolation iso(components, components.biconnectedComponent(v));
@@ -238,7 +238,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 
 		log.lout() << "Intersecting with " << (computed_pct_v ? "computed " : "provided ")
 				   << "PC-Tree of block vertex v: " << pct_v << std::endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		stats_out << "\"v_p_nodes\":" << pct_v->getPNodeCount()
 				  << ",\"v_c_nodes\":" << pct_v->getCNodeCount()
 				  << ",\"v_p_node_degs\":" << sumPNodeDegrees(*pct_v) << ",";
@@ -256,22 +256,22 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 		}
 
 		intersected = pct->intersect(*pct_v, mapping);
-		PQ_PROFILE_STOP("propagatePQ-makePCv")
-#ifdef PQ_OPSTATS
+		// SYNCPLAN_PROFILE_STOP("propagatePQ-makePCv")
+#ifdef SYNCPLAN_OPSTATS
 		v_pc_dur = dur_ns(tpc::now() - v_pc_start);
 		stats_out << "\"v_pc_time_ns\":" << v_pc_dur << ",";
 #endif
 
 		if (!intersected) {
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(false, dur_ns(tpc::now() - start));
 #endif
 			log.lout() << "Intersecting failed!" << std::endl;
-			PQ_PROFILE_STOP("propagatePQ")
+			// SYNCPLAN_PROFILE_STOP("propagatePQ")
 			return INVALID_INSTANCE; // TODO we need to proceed with the insertion if we want to find a kuratowksi
 		}
 		log.lout() << "Intersected PC-Tree: " << *pct << std::endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		stats_out << "\"i_p_nodes\":" << pct->getPNodeCount()
 				  << ",\"i_c_nodes\":" << pct->getCNodeCount()
 				  << ",\"i_p_node_degs\":" << sumPNodeDegrees(*pct) << ",";
@@ -414,9 +414,9 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 		}
 	}
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 	printOPStatsEnd(true, dur_ns(tpc::now() - start) - v_pc_dur);
 #endif
-	PQ_PROFILE_STOP("propagatePQ")
+	// SYNCPLAN_PROFILE_STOP("propagatePQ")
 	return SUCCESS;
 }

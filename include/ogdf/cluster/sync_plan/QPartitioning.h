@@ -31,11 +31,10 @@
 #pragma once
 
 #include <ogdf/basic/GraphObserver.h>
-#include <ogdf/cluster/sync_plan/utils/RegisteredArray.h>
 
 using namespace ogdf;
 
-#define NO_PARTITION (-1)
+static inline int NO_PARTITION = -1;
 
 class QPartitioning;
 

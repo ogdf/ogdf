@@ -107,14 +107,14 @@ void PQPlanarity::embed() {
 	// TODO don't generate undo operations if we are only testing?
 	OGDF_ASSERT(G->representsCombEmbedding());
 
-	PQ_PROFILE_START("embed")
+	// SYNCPLAN_PROFILE_START("embed")
 	int undo_cnt = undo_stack.size();
 	log.lout(Logger::Level::High) << undo_cnt << " Operations to undo" << std::endl;
 	UpdateGraphReg updater(G, &node_reg, &edge_reg);
 	OGDF_ASSERT(matchings.isReduced());
 	matchings.setPipeQueue(nullptr);
 	while (!undo_stack.empty()) {
-		PQ_PROFILE_START("embed-step")
+		// SYNCPLAN_PROFILE_START("embed-step")
 		UndoOperation* op = undo_stack.popBackRet();
 		log.lout(Logger::Level::High) << (undo_cnt - undo_stack.size())
 #ifdef OGDF_DEBUG
@@ -122,11 +122,11 @@ void PQPlanarity::embed() {
 #endif
 									  << ": " << *op << std::endl;
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		std::chrono::time_point<std::chrono::high_resolution_clock> start = tpc::now();
 #endif
 		op->undo(*this);
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		stats_out << (stats_first_in_array ? "" : ",") << "{\"op\":\"embed-" << op->name() << "\""
 				  << ",\"op_time_ns\":" << dur_ns(tpc::now() - start) << "}";
 		stats_first_in_array = false;
@@ -141,7 +141,7 @@ void PQPlanarity::embed() {
 #endif
 		delete op;
 		OGDF_ASSERT(G->representsCombEmbedding());
-		PQ_PROFILE_STOP("embed-step")
+		// SYNCPLAN_PROFILE_STOP("embed-step")
 	}
-	PQ_PROFILE_STOP("embed")
+	// SYNCPLAN_PROFILE_STOP("embed")
 }

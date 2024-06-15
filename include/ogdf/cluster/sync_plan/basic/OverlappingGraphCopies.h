@@ -76,11 +76,11 @@ public:
 	const Graph& original() const;
 
 	/**
-     * \brief Returns the node in the original graph corresponding to \p v.
-     * @param v is a node in the graph copy.
-     * \return the corresponding node in the original graph, or 0 if no
-     *         such node exists.
-     */
+	 * \brief Returns the node in the original graph corresponding to \p v.
+	 * @param v is a node in the graph copy.
+	 * \return the corresponding node in the original graph, or 0 if no
+	 *         such node exists.
+	 */
 	node original(node v) const {
 		node ov = m_vOrig[v];
 		OGDF_ASSERT(ov == nullptr || ov->graphOf() == &original());
@@ -88,11 +88,11 @@ public:
 	}
 
 	/**
-     * \brief Returns the edge in the original graph corresponding to \p e.
-     * @param e is an edge in the graph copy.
-     * \return the corresponding edge in the original graph, or 0 if no
-     *         such edge exists.
-     */
+	 * \brief Returns the edge in the original graph corresponding to \p e.
+	 * @param e is an edge in the graph copy.
+	 * \return the corresponding edge in the original graph, or 0 if no
+	 *         such edge exists.
+	 */
 	edge original(edge e) const {
 		edge oe = m_eOrig[e];
 		OGDF_ASSERT(oe == nullptr || oe->graphOf() == &original());
@@ -100,47 +100,47 @@ public:
 	}
 
 	/**
-    * Returns the adjacency entry in the original graph corresponding to \p adj.
-    *
-    * Note that this method does not pay attention to reversed edges.
-    * Given a source (target) adjacency entry, the source (target) adjacency entry of the
-    * original edge is returned.
-    *
-    * @param adj is an adjacency entry in the copy graph.
-    * \return the corresponding adjacency entry in the original graph.
-    */
+	 * Returns the adjacency entry in the original graph corresponding to \p adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	 * original edge is returned.
+	 *
+	 * @param adj is an adjacency entry in the copy graph.
+	 * \return the corresponding adjacency entry in the original graph.
+	 */
 	adjEntry original(adjEntry adj) const {
 		edge f = original(adj->theEdge());
 		return adj->isSource() ? f->adjSource() : f->adjTarget();
 	}
 
 	/**
-     * \brief Returns the node in the graph copy corresponding to \p v.
-     * @param v is a node in the original graph.
-     * \return the corresponding node in the graph copy,
-     * or \c nullptr if it doesn't exists.
-     */
+	 * \brief Returns the node in the graph copy corresponding to \p v.
+	 * @param v is a node in the original graph.
+	 * \return the corresponding node in the graph copy,
+	 * or \c nullptr if it doesn't exists.
+	 */
 	node copy(node v) const;
 
 	/**
-     * \brief Returns the edge in the graph copy corresponding to \p e.
-     * @param e is an edge in the original graph.
-     * \return the corresponding edge in the graph copy,
-     * or \c nullptr if it doesn't exists.
-     */
+	 * \brief Returns the edge in the graph copy corresponding to \p e.
+	 * @param e is an edge in the original graph.
+	 * \return the corresponding edge in the graph copy,
+	 * or \c nullptr if it doesn't exists.
+	 */
 	edge copy(edge e) const;
 
 	/**
-     * Returns the adjacency entry in the graph copy corresponding to \p adj.
-     *
-     * Note that this method does not pay attention to reversed edges.
-     * Given a source (target) adjacency entry, the source (target) adjacency entry of the
-     * copy edge is returned.
-     *
-     * @param adj is an adjacency entry in the original graph.
-     * \return the corresponding adjacency entry in the graph copy,
-     * or \c nullptr if it doesn't exists.
-     */
+	 * Returns the adjacency entry in the graph copy corresponding to \p adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	 * copy edge is returned.
+	 *
+	 * @param adj is an adjacency entry in the original graph.
+	 * \return the corresponding adjacency entry in the graph copy,
+	 * or \c nullptr if it doesn't exists.
+	 */
 	adjEntry copy(adjEntry adj) const {
 		edge f = copy(adj->theEdge());
 		if (f == nullptr) {
@@ -150,47 +150,47 @@ public:
 	}
 
 	/**
-     * \brief Returns true iff \p v has no corresponding node in the original graph.
-     * @param v is a node in the graph copy.
-     */
+	 * \brief Returns true iff \p v has no corresponding node in the original graph.
+	 * @param v is a node in the graph copy.
+	 */
 	bool isDummy(node v) const { return m_vOrig[v] == nullptr; }
 
 	/**
-     * \brief Returns true iff \p e has no corresponding edge in the original graph.
-     * @param e is an edge in the graph copy.
-     */
+	 * \brief Returns true iff \p e has no corresponding edge in the original graph.
+	 * @param e is an edge in the graph copy.
+	 */
 	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
 
 	/**
-     * \brief Creates a new node in the graph copy with original node \p vOrig.
-     * \warning You have to make sure that the original node makes sense, in
-     *   particular that \p vOrig is not the original node of another node in the copy.
-     */
+	 * \brief Creates a new node in the graph copy with original node \p vOrig.
+	 * \warning You have to make sure that the original node makes sense, in
+	 *   particular that \p vOrig is not the original node of another node in the copy.
+	 */
 	node newNode(node vOrig);
 
 	using Graph::newNode;
 
 	/**
-     * \brief Creates a new edge in the graph copy with original edge \p eOrig.
-     * \warning You have to make sure that the original edge makes sense, in
-     *   particular that \p eOrig is not the original edge of another edge in the copy.
-     */
+	 * \brief Creates a new edge in the graph copy with original edge \p eOrig.
+	 * \warning You have to make sure that the original edge makes sense, in
+	 *   particular that \p eOrig is not the original edge of another edge in the copy.
+	 */
 	edge newEdge(edge eOrig);
 
 	using Graph::newEdge;
 
 	/**
-     * \brief Removes edge \p e.
-     *
-     * \param e is an edge in the graph copy.
-     */
+	 * \brief Removes edge \p e.
+	 *
+	 * \param e is an edge in the graph copy.
+	 */
 	void delEdge(edge e) override;
 
 	/**
-     * \brief Removes node \p v.
-     *
-     * \param v is a node in the graph copy.
-     */
+	 * \brief Removes node \p v.
+	 *
+	 * \param v is a node in the graph copy.
+	 */
 	void delNode(node v) override;
 
 	void clear() override {

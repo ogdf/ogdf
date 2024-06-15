@@ -127,7 +127,7 @@ int sumPNodeDegrees(const pc_tree::PCTree& pct) {
 	return deg;
 }
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 
 void PQPlanarity::printOPStatsStart(const Pipe* p, Operation op, const NodePCRotation* pct) {
 	if (!stats_first_in_array) {

@@ -45,7 +45,7 @@ public:
 };
 
 void PQPlanarity::makeWheel(node centre, bool update_cuts) {
-	PQ_PROFILE_START("makeWheel")
+	// SYNCPLAN_PROFILE_START("makeWheel")
 	bool is_cut = update_cuts && components.isCutVertex(centre);
 	log.lout(Logger::Level::High) << "MAKE WHEEL centre " << fmtPQNode(centre) << " (update cut "
 								  << update_cuts << is_cut << ")" << std::endl;
@@ -113,11 +113,11 @@ void PQPlanarity::makeWheel(node centre, bool update_cuts) {
 	}
 
 	pushUndoOperation(new UndoMakeWheel(centre));
-	PQ_PROFILE_STOP("makeWheel")
+	// SYNCPLAN_PROFILE_STOP("makeWheel")
 }
 
 void PQPlanarity::contractWheel(node centre) {
-	PQ_PROFILE_START("contractWheel")
+	// SYNCPLAN_PROFILE_START("contractWheel")
 	OGDF_ASSERT(is_wheel[centre]);
 	log.lout(Logger::Level::High)
 			<< "CONTRACT WHEEL centre " << fmtPQNode(centre, false) << std::endl;
@@ -135,5 +135,5 @@ void PQPlanarity::contractWheel(node centre) {
 	}
 	is_wheel[centre] = false;
 	log.lout(Logger::Level::Medium) << printIncidentEdges(centre->adjEntries) << std::endl;
-	PQ_PROFILE_STOP("contractWheel")
+	// SYNCPLAN_PROFILE_STOP("contractWheel")
 }

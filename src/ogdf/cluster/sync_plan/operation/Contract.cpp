@@ -199,7 +199,7 @@ public:
 	}
 
 	void undo(PQPlanarity& pq) override {
-		PQ_PROFILE_START("undo-contract")
+		// SYNCPLAN_PROFILE_START("undo-contract")
 		pq.log.lout(Logger::Level::High)
 				<< "UNDO "
 				<< (biconnected ? "CONTRACT/JOIN BICONNECTED" : "ENCAPSULATE AND CONTRACT/JOIN STARS")
@@ -246,9 +246,9 @@ public:
 			pq.log.lout(Logger::Level::Medium)
 					<< "Collecting biconnected cut edges starting at edge #" << e->index() << " " << e
 					<< " adjacent to " << pq.fmtPQNode(start->theNode(), false) << "." << std::endl;
-			PQ_PROFILE_START("undo-contract-collect-bicon")
+			// SYNCPLAN_PROFILE_START("undo-contract-collect-bicon")
 			findBiconnectedEdgeCut(pq.log, node_types, edge_types, start->twin(), cut_edges);
-			PQ_PROFILE_STOP("undo-contract-collect-bicon")
+			// SYNCPLAN_PROFILE_STOP("undo-contract-collect-bicon")
 			pq.log.lout(Logger::Level::Medium)
 					<< "Collected " << cut_edges.size() << " cut edges." << std::endl;
 		} else {
@@ -264,9 +264,9 @@ public:
 						<< "Collecting bipartite cut edges starting at edge #" << e->index() << " "
 						<< e << " adjacent to " << pq.fmtPQNode(start->theNode(), false) << "."
 						<< std::endl;
-				PQ_PROFILE_START("undo-contract-collect-stars")
+				// SYNCPLAN_PROFILE_START("undo-contract-collect-stars")
 				findBipartiteEdgeCut(pq.log, node_types, edge_types, start, cut_edges);
-				PQ_PROFILE_STOP("undo-contract-collect-stars")
+				// SYNCPLAN_PROFILE_STOP("undo-contract-collect-stars")
 				pq.log.lout(Logger::Level::Medium)
 						<< "Collected " << cut_edges.size() << " cut edges." << std::endl;
 #ifndef OGDF_DEBUG
@@ -297,7 +297,7 @@ public:
 
 		pq.verifyPipeBijection(nodes.first, nodes.second, bij);
 #endif
-		PQ_PROFILE_STOP("undo-contract")
+		// SYNCPLAN_PROFILE_STOP("undo-contract")
 	}
 
 	ostream& print(ostream& os) const override {
@@ -326,7 +326,7 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 		return Result::NOT_APPLICABLE;
 	}
 
-	PQ_PROFILE_START("contract")
+	// SYNCPLAN_PROFILE_START("contract")
 	node u_bc = components.biconnectedComponent(u), v_bc = components.biconnectedComponent(v);
 	bool biconnected = !components.isCutComponent(u_bc);
 	log.lout(Logger::Level::High)
@@ -335,7 +335,7 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 	Logger::Indent _(&log);
 
 	if (biconnected) {
-		PQ_PROFILE_START("contract-bicon")
+		// SYNCPLAN_PROFILE_START("contract-bicon")
 		node new_repr = nullptr;
 		if (u_bc->degree() == 0 && v_bc->degree() == 0) {
 			new_repr = components.bcRepr(u_bc);
@@ -356,16 +356,16 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 				   << std::endl;
 		components.preJoin(u_bc, v_bc);
 		components.makeRepr(u_bc, new_repr);
-		PQ_PROFILE_STOP("contract-bicon")
+		// SYNCPLAN_PROFILE_STOP("contract-bicon")
 	} else {
-		PQ_PROFILE_START("contract-encapsulate")
+		// SYNCPLAN_PROFILE_START("contract-encapsulate")
 		log.lout() << "Encapsulating u and v." << std::endl;
 		Result result = encapsulate(u);
 		OGDF_ASSERT(result == Result::SUCCESS);
 		result = encapsulate(v);
 		OGDF_ASSERT(result == Result::SUCCESS);
 		log.lout() << "Encapsulation complete, continuing with contraction." << std::endl;
-		PQ_PROFILE_STOP("contract-encapsulate")
+		// SYNCPLAN_PROFILE_STOP("contract-encapsulate")
 	}
 
 	log.lout(Logger::Level::Medium) << "Current incident edge bijection:" << std::endl;
@@ -390,6 +390,6 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 	}
 
 	pushUndoOperationAndCheck(op);
-	PQ_PROFILE_STOP("contract")
+	// SYNCPLAN_PROFILE_STOP("contract")
 	return SUCCESS;
 }

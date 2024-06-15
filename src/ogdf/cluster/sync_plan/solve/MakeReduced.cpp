@@ -37,10 +37,10 @@
 
 PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 	try {
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		tp pc_start = tpc::now();
 #endif
-		PQ_PROFILE_START("checkPCTree")
+		// SYNCPLAN_PROFILE_START("checkPCTree")
 		BiconnectedIsolation iso(components, components.biconnectedComponent(u));
 		NodePCRotation pc(*G, u, true);
 		iso.restore(); // TODO Make function of components to get EmbeddingTree interface
@@ -50,8 +50,8 @@ PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 			log.lout() << "PC-Tree: " << pc << " (" << (pc.isTrivial() ? "" : "non-") << "trivial)*"
 					   << pc.possibleOrders() << "/" << round(tgamma(u->degree())) << endl;
 		}
-		PQ_PROFILE_STOP("checkPCTree")
-#ifdef PQ_OPSTATS
+		// SYNCPLAN_PROFILE_STOP("checkPCTree")
+#ifdef SYNCPLAN_OPSTATS
 		stats_pc_time = dur_ns(tpc::now() - pc_start);
 #endif
 		Result result;
@@ -70,7 +70,7 @@ PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 }
 
 bool PQPlanarity::makeReduced(int check_planarity_every) {
-	PQ_PROFILE_START("makeReduced")
+	// SYNCPLAN_PROFILE_START("makeReduced")
 	if (!indices_saved) {
 		undo_stack.pushBack(new ResetIndices(*this));
 	}
@@ -86,7 +86,7 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 					<< "Instance became non-planar during reduction!" << std::endl;
 			return false;
 		}
-		PQ_PROFILE_START("makeReduced-step")
+		// SYNCPLAN_PROFILE_START("makeReduced-step")
 		steps++;
 		const Pipe& pipe = matchings.getTopPipe();
 
@@ -114,12 +114,12 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 		if (pipe.degree() <= 3) {
 			Result result = convertSmall(pipe.node1);
 			OGDF_ASSERT(result == SUCCESS);
-			PQ_PROFILE_STOP("makeReduced-step")
+			// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 			continue;
 		}
 
 		if (canContract(&pipe)) {
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			tp contract_start = tpc::now();
 			printOPStatsStart(matchings.getPipe(pipe.node1),
 					components.isCutVertex(pipe.node1) ? Operation::ENCAPSULATE_CONTRACT
@@ -127,20 +127,20 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 #endif
 			Result contract_result = contract(pipe.node1);
 			OGDF_ASSERT(contract_result == SUCCESS);
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(true, dur_ns(tpc::now() - contract_start));
 #endif
-			PQ_PROFILE_STOP("makeReduced-step")
+			// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 			continue;
 		}
 
 		if (batch_spqr) {
 			Result batch_result = batchSPQR();
 			if (batch_result == INVALID_INSTANCE) {
-				PQ_PROFILE_STOP("makeReduced-step")
+				// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 				return false;
 			} else if (batch_result == SUCCESS) {
-				PQ_PROFILE_STOP("makeReduced-step")
+				// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 				continue;
 			}
 		}
@@ -154,7 +154,7 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 		}
 
 		Result tree_result = checkPCTree(block_vertex);
-		PQ_PROFILE_STOP("makeReduced-step")
+		// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 		if (tree_result == NOT_APPLICABLE) {
 			OGDF_ASSERT(matchings.getTopPipe().pipe_priority > top_prio);
 			continue;
@@ -165,6 +165,6 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 		}
 	}
 	OGDF_ASSERT(consistency.consistencyCheck());
-	PQ_PROFILE_STOP("makeReduced")
+	// SYNCPLAN_PROFILE_STOP("makeReduced")
 	return true;
 }
