@@ -54,7 +54,7 @@ UndoSimplify::UndoSimplify(const List<SimplifyMapping>& in_bij, node u2, node u,
 }
 
 void UndoSimplify::undo(PQPlanarity& pq) {
-	PQ_PROFILE_START("undo-simplify")
+	// SYNCPLAN_PROFILE_START("undo-simplify")
 	node u2 = pq.nodeFromIndex(u2_idx), u = pq.nodeFromIndex(u_idx), v = pq.nodeFromIndex(v_idx),
 		 v2 = nullptr;
 	pq.log.lout(Logger::Level::Minor) << "Current orders:" << std::endl
@@ -163,7 +163,7 @@ void UndoSimplify::undo(PQPlanarity& pq) {
 		pq.matchings.matchNodes(v, v2);
 	}
 	pq.matchings.matchNodes(u2, u);
-	PQ_PROFILE_STOP("undo-simplify")
+	// SYNCPLAN_PROFILE_STOP("undo-simplify")
 }
 
 class UndoSimplifyToroidal : public PQPlanarity::UndoOperation {
@@ -222,7 +222,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 			<< " u'=" << fmtPQNode(u2) << " < - > u=" << fmtPQNode(u) << " ==="
 			<< " v=" << fmtPQNode(v) << " < - > v'=" << fmtPQNode(v2) << std::endl;
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 	tp start = tpc::now();
 	printOPStatsStart(matchings.getPipe(u),
 			v2 == nullptr ? Operation::SIMPLIFY_TERMINAL
@@ -248,7 +248,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 			matchings.makePriority(v);
 			log.lout() << "Increased priority of pipe (v, v') from " << old_prio << " to "
 					   << matchings.getPipe(v)->pipe_priority << std::endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(false, 0);
 #endif
 			return NOT_APPLICABLE;
@@ -260,7 +260,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 			matchings.makePriority(v);
 			log.lout() << "Increased priority of pipe (v, v') from " << old_prio << " to "
 					   << matchings.getPipe(v)->pipe_priority << std::endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(false, 0);
 #endif
 			return NOT_APPLICABLE;
@@ -279,7 +279,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 	}
 #endif
 
-	PQ_PROFILE_START("simplify")
+	// SYNCPLAN_PROFILE_START("simplify")
 	List<SimplifyMapping> bij_list;
 	EdgeArray<SimplifyMapping*> bij_map;
 	if (v2 != nullptr) {
@@ -293,7 +293,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 	}
 	RegisteredEdgeSet visited(*G);
 
-	PQ_PROFILE_START("simplify-bondmap")
+	// SYNCPLAN_PROFILE_START("simplify-bondmap")
 	for (const PipeBijPair& pair : matchings.getIncidentEdgeBijection(u2)) {
 		SimplifyMapping* entry = &(*bij_list.emplaceBack(pair.first, pair.second));
 
@@ -319,7 +319,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 		}
 	}
 	OGDF_ASSERT(validateCollectedAdjs(v, u, bij_list, visited, components));
-	PQ_PROFILE_STOP("simplify-bondmap")
+	// SYNCPLAN_PROFILE_STOP("simplify-bondmap")
 
 	if (v2 == u) {
 		OGDF_ASSERT(u2 == v);
@@ -336,13 +336,13 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 		int cycleLength = cycles.front().size();
 		simplifyToroidalCycleLength = max(cycleLength, simplifyToroidalCycleLength);
 		log.lout(Logger::Level::Medium) << "\tToroidal cycle length: " << cycleLength << endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		stats_out << "\"cycle_len\":" << cycleLength << ",";
 #endif
 		for (auto& c : cycles) {
 			if (c.size() != cycleLength) {
-				PQ_PROFILE_STOP("simplify")
-#ifdef PQ_OPSTATS
+				// SYNCPLAN_PROFILE_STOP("simplify")
+#ifdef SYNCPLAN_OPSTATS
 				printOPStatsEnd(false, dur_ns(tpc::now() - start));
 #endif
 				return INVALID_INSTANCE;
@@ -353,7 +353,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 		formatNode(u);
 		formatNode(v);
 	} else if (v2 != nullptr) {
-		PQ_PROFILE_START("simplify-trans")
+		// SYNCPLAN_PROFILE_START("simplify-trans")
 		for (const PipeBijPair& pair : matchings.getIncidentEdgeBijection(v)) {
 			OGDF_ASSERT(bij_map[pair.first] != nullptr);
 			bij_map[pair.first]->v2_adj = pair.second;
@@ -372,7 +372,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 		formatNode(u2);
 		formatNode(v);
 		formatNode(v2);
-		PQ_PROFILE_STOP("simplify-trans")
+		// SYNCPLAN_PROFILE_STOP("simplify-trans")
 	} else {
 		matchings.removeMatching(u, u2);
 		formatNode(u);
@@ -384,9 +384,9 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 	} else {
 		pushUndoOperation(new UndoSimplifyToroidal(u, v));
 	}
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 	printOPStatsEnd(true, dur_ns(tpc::now() - start));
 #endif
-	PQ_PROFILE_STOP("simplify")
+	// SYNCPLAN_PROFILE_STOP("simplify")
 	return SUCCESS;
 }

@@ -59,7 +59,7 @@ void assertStarCentreAndRay(node centre, node ray);
 
 node getCentreOfStar(node g_n);
 
-enum OrderComp { SAME, REVERSED, DIFFERENT };
+enum class OrderComp { SAME, REVERSED, DIFFERENT };
 
 OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check = false);
 

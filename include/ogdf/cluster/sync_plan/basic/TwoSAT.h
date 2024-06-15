@@ -57,7 +57,7 @@ public:
 const twosat_var TwoSAT_Var_Undefined(-1);
 
 #else
-typedef int twosat_var;
+using twosat_var = int;
 const twosat_var TwoSAT_Var_Undefined = -1;
 #endif
 

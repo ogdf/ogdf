@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& os, const ogdf::BCTree::BNodeType& obj);
 
 std::ostream& operator<<(std::ostream& os, const ogdf::BCTree::GNodeType& obj);
 
-#define CONTAINER_PRINTER(NAME)                                                          \
+#define OGDF_CONTAINER_PRINTER(NAME)                                                     \
 	template<typename Container>                                                         \
 	struct NAME {                                                                        \
 		const Container& container;                                                      \
@@ -63,13 +63,13 @@ std::ostream& operator<<(std::ostream& os, const ogdf::BCTree::GNodeType& obj);
 		friend std::ostream& operator<<(std::ostream& os, const NAME<ContainerT>& inst); \
 	}
 
-CONTAINER_PRINTER(printIncidentEdges);
+OGDF_CONTAINER_PRINTER(printIncidentEdges);
 
-CONTAINER_PRINTER(printEdges);
+OGDF_CONTAINER_PRINTER(printEdges);
 
-CONTAINER_PRINTER(printBijection);
+OGDF_CONTAINER_PRINTER(printBijection);
 
-CONTAINER_PRINTER(printFrozenBijection);
+OGDF_CONTAINER_PRINTER(printFrozenBijection);
 
 template<typename Container>
 std::ostream& operator<<(std::ostream& os, const printIncidentEdges<Container>& inst) {

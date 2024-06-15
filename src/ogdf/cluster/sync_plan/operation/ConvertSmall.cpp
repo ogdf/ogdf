@@ -53,7 +53,7 @@ public:
 	}
 
 	void undo(PQPlanarity& pq) override {
-		PQ_PROFILE_START("undo-convertSmall")
+		// SYNCPLAN_PROFILE_START("undo-convertSmall")
 		node small = pq.nodeFromIndex(small_idx);
 		node twin = pq.nodeFromIndex(twin_idx);
 		if (small_first_adj_idx >= 0) {
@@ -72,7 +72,7 @@ public:
 #ifdef OGDF_DEBUG
 		pq.verifyPipeBijection(small, twin, bij);
 #endif
-		PQ_PROFILE_STOP("undo-convertSmall")
+		// SYNCPLAN_PROFILE_STOP("undo-convertSmall")
 	}
 
 	ostream& print(ostream& os) const override {
@@ -88,7 +88,7 @@ PQPlanarity::Result PQPlanarity::convertSmall(node small) {
 	if (small->degree() > 4 || partitions.isQVertex(small)) {
 		return NOT_APPLICABLE;
 	} else if (matchings.isMatchedPVertex(small)) {
-		PQ_PROFILE_START("convertSmall")
+		// SYNCPLAN_PROFILE_START("convertSmall")
 		log.lout(Logger::Level::High) << "CONVERT SMALL degree " << small->degree() << std::endl;
 		log.lout(Logger::Level::Minor) << matchings.printBijection(small) << std::endl;
 		node twin = matchings.removeMatching(small);
@@ -107,7 +107,7 @@ PQPlanarity::Result PQPlanarity::convertSmall(node small) {
 			}
 		}
 		formatNode(twin);
-		PQ_PROFILE_STOP("convertSmall")
+		// SYNCPLAN_PROFILE_STOP("convertSmall")
 	}
 	formatNode(small);
 	return SUCCESS;

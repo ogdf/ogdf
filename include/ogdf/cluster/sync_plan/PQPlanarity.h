@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
@@ -42,24 +43,18 @@
 #include <cstdint>
 #include <ostream>
 
-#include <NodePCRotation.h>
+// // Profiling with LIKWID
+// #ifdef LIKWID_PERFMON
+// 	include <likwid.h>
+// 	define SYNCPLAN_PROFILE_START(regionTag) likwid_markerStartRegion(regionTag);
+// 	define SYNCPLAN_PROFILE_STOP(regionTag) likwid_markerStopRegion(regionTag);
+// #else
+// 	define SYNCPLAN_PROFILE_START(regionTag)
+// 	define SYNCPLAN_PROFILE_STOP(regionTag)
+// #endif
 
-#ifdef LIKWID_PERFMON
-
-#	include <likwid.h>
-
-#	define PQ_PROFILE_START(regionTag) likwid_markerStartRegion(regionTag);
-#	define PQ_PROFILE_STOP(regionTag) likwid_markerStopRegion(regionTag);
-
-#else
-
-#	define PQ_PROFILE_START(regionTag)
-#	define PQ_PROFILE_STOP(regionTag)
-
-#endif
-
-#define PQ_OPSTATS
-
+// // Collection of JSON Operation Statistics
+// define SYNCPLAN_OPSTATS
 
 using tpc = std::chrono::high_resolution_clock;
 using tp = const std::chrono::time_point<std::chrono::high_resolution_clock>;
@@ -156,7 +151,7 @@ public:
 		ostream& print(ostream& os) const override;
 	};
 
-	enum Result { SUCCESS, NOT_APPLICABLE, INVALID_INSTANCE };
+	enum class Result { SUCCESS, NOT_APPLICABLE, INVALID_INSTANCE };
 
 	/// Members ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +161,7 @@ public:
 	QPartitioning partitions;
 	int simplifyToroidalCycleLength = 0;
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 	std::ofstream stats_out;
 	uint64_t stats_pc_time = 0;
 	bool stats_first_in_array = true;
@@ -193,45 +188,45 @@ private:
 
 public:
 	/**
-     * Usage:
-     *
-     * Graph G;
-     * // init your graph here
-     *
-     * PQPlanarity PQ(&G);
-     * // init pipes and partitions here:
-     * PQ.matchings.matchNodes(u, v);
-     * int p = PQ.partitions.makeQVertex(u1);
-     * PQ.partitions.makeQVertex(u2, p);
-     * PQ.partitions.makeQVertex(u3, p);
-     *
-     * // if you made any changes to edges in G after creating the PQPlanarity instance, call
-     * PQ.initComponents(); // to update the BC-tree if connectivity changed
-     * PQ.matchings.rebuildHeap(); // to sort the pipes if their degree changed
-     *
-     * if (PQ.makeReduced() && PQ.solveReduced()) {
-     *     PQ.embed();
-     *     OGDF_ASSERT(G.representsCombEmbedding());
-     * }
-     */
+	 * Usage:
+	 *
+	 * Graph G;
+	 * // init your graph here
+	 *
+	 * PQPlanarity PQ(&G);
+	 * // init pipes and partitions here:
+	 * PQ.matchings.matchNodes(u, v);
+	 * int p = PQ.partitions.makeQVertex(u1);
+	 * PQ.partitions.makeQVertex(u2, p);
+	 * PQ.partitions.makeQVertex(u3, p);
+	 *
+	 * // if you made any changes to edges in G after creating the PQPlanarity instance, call
+	 * PQ.initComponents(); // to update the BC-tree if connectivity changed
+	 * PQ.matchings.rebuildHeap(); // to sort the pipes if their degree changed
+	 *
+	 * if (PQ.makeReduced() && PQ.solveReduced()) {
+	 *     PQ.embed();
+	 *     OGDF_ASSERT(G.representsCombEmbedding());
+	 * }
+	 */
 	explicit PQPlanarity(Graph* g, GraphAttributes* ga = nullptr);
 
 	/**
-     * Usage:
-     *
-     * Graph G;
-     * ClusterGraph CG(G);
-     * // init your graph and clusters here
-     *
-     * PQPlanarity PQ(&G, &CG);
-     * // you shouldn't change G or CG after creating a PQPlanarity instance from them
-     *
-     * if (PQ.makeReduced() && PQ.solveReduced()) {
-     *     PQ.embed();
-     *     OGDF_ASSERT(G.representsCombEmbedding());
-     *     OGDF_ASSERT(isClusterPlanarEmbedding(CG));
-     * }
-     */
+	 * Usage:
+	 *
+	 * Graph G;
+	 * ClusterGraph CG(G);
+	 * // init your graph and clusters here
+	 *
+	 * PQPlanarity PQ(&G, &CG);
+	 * // you shouldn't change G or CG after creating a PQPlanarity instance from them
+	 *
+	 * if (PQ.makeReduced() && PQ.solveReduced()) {
+	 *     PQ.embed();
+	 *     OGDF_ASSERT(G.representsCombEmbedding());
+	 *     OGDF_ASSERT(isClusterPlanarEmbedding(CG));
+	 * }
+	 */
 	explicit PQPlanarity(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* ga = nullptr);
 
 	explicit PQPlanarity(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
@@ -303,7 +298,7 @@ public:
 
 	const PQPlanarityComponents& getComponents() const { return components; }
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 
 	void printOPStatsStart(const Pipe* p, Operation op, const NodePCRotation* pct = nullptr);
 

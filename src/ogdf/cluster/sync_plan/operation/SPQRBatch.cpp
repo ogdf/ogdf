@@ -75,7 +75,7 @@ struct EmbeddingTrees {
 		}
 		SimpleSPQRTree& spqr = *spqrtrees[bc];
 		if (spqr.GC.empty()) {
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			tp start = tpc::now();
 			if (!pq.stats_first_in_array) {
 				pq.stats_out << ",";
@@ -87,7 +87,7 @@ struct EmbeddingTrees {
 						 << ",\"bc_id\":" << bc->index()
 						 << ",\"cc_id\":" << components.bcConnectedId(bc) << ",";
 #endif
-			PQ_PROFILE_START("batchSPQR-makeSPQR")
+			// SYNCPLAN_PROFILE_START("batchSPQR-makeSPQR")
 			pq.log.lout() << "Creating SPQR information for " << components.fmtBCNode(bc) << endl;
 			FilteringBFS bfs = components.nodesInBiconnectedComponent(bc);
 			for (node n : bfs) {
@@ -102,13 +102,13 @@ struct EmbeddingTrees {
 			pq.log.lout() << "Copied " << spqr.GC.numberOfNodes() << " nodes and "
 						  << spqr.GC.numberOfEdges() << " edges" << endl;
 			OGDF_ASSERT(spqr.GC.numberOfNodes() == components.bcSize(bc));
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 			pq.stats_out << "\"nodes\":" << spqr.GC.numberOfNodes()
 						 << ",\"edges\":" << spqr.GC.numberOfEdges() << ","; // TODO SPQR stats?
 #endif
 			spqr.init();
-			PQ_PROFILE_STOP("batchSPQR-makeSPQR")
-#ifdef PQ_OPSTATS
+			// SYNCPLAN_PROFILE_STOP("batchSPQR-makeSPQR")
+#ifdef SYNCPLAN_OPSTATS
 			pq.stats_out << "\"op_time_ns\":" << dur_ns(tpc::now() - start) << "}";
 #endif
 		}
@@ -116,8 +116,8 @@ struct EmbeddingTrees {
 			return nullptr;
 		}
 
-		PQ_PROFILE_START("batchSPQR-makeTree")
-#ifdef PQ_OPSTATS
+		// SYNCPLAN_PROFILE_START("batchSPQR-makeTree")
+#ifdef SYNCPLAN_OPSTATS
 		tp start = tpc::now();
 #endif
 		pq.log.lout() << "Computing NodeSPQRRotation for vertex " << pq.fmtPQNode(n) << " in block "
@@ -138,10 +138,10 @@ struct EmbeddingTrees {
 		pc->mapPartnerEdges();
 		e_todelete.emplace_back(pc);
 		embtrees[n] = pc;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 		pq.stats_pc_time += dur_ns(tpc::now() - start);
 #endif
-		PQ_PROFILE_STOP("batchSPQR-makeTree")
+		// SYNCPLAN_PROFILE_STOP("batchSPQR-makeTree")
 #ifdef OGDF_HEAVY_DEBUG
 		{
 			BiconnectedIsolation iso(components, components.biconnectedComponent(n));
@@ -176,21 +176,21 @@ struct SimplePipe {
 	}
 };
 
-#ifdef PQ_OPSTATS
-#	define RETURN_INVALID                                  \
-		PQ_PROFILE_STOP("batchSPQR")                        \
+#ifdef SYNCPLAN_OPSTATS
+#	define RETURN_INVALID \
+		// SYNCPLAN_PROFILE_STOP("batchSPQR")                        \
 		printOPStatsEnd(false, dur_ns(tpc::now() - start)); \
 		return INVALID_INSTANCE;
 #else
-#	define RETURN_INVALID           \
-		PQ_PROFILE_STOP("batchSPQR") \
+#	define RETURN_INVALID \
+		// SYNCPLAN_PROFILE_STOP("batchSPQR") \
 		return INVALID_INSTANCE;
 #endif
 
 PQPlanarity::Result PQPlanarity::batchSPQR() {
-	PQ_PROFILE_START("batchSPQR")
+	// SYNCPLAN_PROFILE_START("batchSPQR")
 	log.lout(Logger::Level::High) << "BATCH SPQR" << endl;
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 	tp start = tpc::now();
 	if (!stats_first_in_array) {
 		stats_out << ",";
@@ -230,9 +230,9 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 				}
 			}
 
-			PQ_PROFILE_START("batchSPQR-simplify")
+			// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
 			Result r = simplify(p.block_vertex, pc);
-			PQ_PROFILE_STOP("batchSPQR-simplify")
+			// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
 			if (r == INVALID_INSTANCE) {
 				RETURN_INVALID
 			} else if (r == SUCCESS) {
@@ -241,13 +241,13 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 				OGDF_ASSERT(r == NOT_APPLICABLE);
 
 				if (p.both_block) {
-					PQ_PROFILE_START("batchSPQR-simplify")
+					// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
 					NodePCRotation* pc = embtrees.makeTree(p.other_vertex);
 					r = INVALID_INSTANCE;
 					if (pc != nullptr) {
 						r = simplify(p.other_vertex, pc);
 					}
-					PQ_PROFILE_STOP("batchSPQR-simplify")
+					// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
 					if (r == INVALID_INSTANCE) {
 						RETURN_INVALID
 					} else if (r == SUCCESS) {
@@ -274,7 +274,7 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 		}
 
 		Result r;
-		PQ_PROFILE_START("batchSPQR-propagatePQ")
+		// SYNCPLAN_PROFILE_START("batchSPQR-propagatePQ")
 		if (pc_v) {
 			if (pc->isTrivial()
 					|| (!intersect_trees && pc_v->possibleOrders() < pc->possibleOrders())) {
@@ -285,7 +285,7 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 		} else {
 			r = propagatePQ(p.block_vertex, pc);
 		}
-		PQ_PROFILE_STOP("batchSPQR-propagatePQ")
+		// SYNCPLAN_PROFILE_STOP("batchSPQR-propagatePQ")
 		if (r == INVALID_INSTANCE) {
 			RETURN_INVALID
 		} else if (r == SUCCESS) {
@@ -294,8 +294,8 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 	}
 
 	// OGDF_ASSERT(matchings.getPipeCount() < pipe_cnt); // TODO maintain total pipes degree
-	PQ_PROFILE_STOP("batchSPQR")
-#ifdef PQ_OPSTATS
+	// SYNCPLAN_PROFILE_STOP("batchSPQR")
+#ifdef SYNCPLAN_OPSTATS
 	stats_out << "],";
 	stats_first_in_array = false;
 	printOPStatsEnd(changed, dur_ns(tpc::now() - start));

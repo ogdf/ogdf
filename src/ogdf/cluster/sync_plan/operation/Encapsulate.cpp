@@ -50,7 +50,7 @@ public:
 	}
 
 	void undo(PQPlanarity& pq) override {
-		PQ_PROFILE_START("undo-encapsulate")
+		// SYNCPLAN_PROFILE_START("undo-encapsulate")
 		pq.log.lout(Logger::Level::High)
 				<< "UNDO ENCAPSULATE CUT for " << ray_pipes.size() << " blocks." << std::endl;
 		Logger::Indent _(&pq.log);
@@ -67,7 +67,7 @@ public:
 			join(*pq.G, u, v, bij);
 			pq.log.lout(Logger::Level::Medium) << printEdges(bij) << std::endl;
 		}
-		PQ_PROFILE_STOP("undo-encapsulate")
+		// SYNCPLAN_PROFILE_STOP("undo-encapsulate")
 	}
 
 	ostream& print(ostream& os) const override {
@@ -90,7 +90,7 @@ PQPlanarity::Result PQPlanarity::encapsulate(node g_cut) {
 	if (!components.isCutVertex(g_cut)) {
 		return Result::NOT_APPLICABLE;
 	}
-	PQ_PROFILE_START("encapsulate")
+	// SYNCPLAN_PROFILE_START("encapsulate")
 	node bc_cut = components.biconnectedComponent(g_cut);
 	int old_conn_count = components.connectedCount(), block_count = bc_cut->degree(),
 		degree = g_cut->degree();
@@ -168,6 +168,6 @@ PQPlanarity::Result PQPlanarity::encapsulate(node g_cut) {
 #endif
 
 	pushUndoOperationAndCheck(new UndoEncapsulate(block_list));
-	PQ_PROFILE_STOP("encapsulate")
+	// SYNCPLAN_PROFILE_STOP("encapsulate")
 	return Result::SUCCESS;
 }

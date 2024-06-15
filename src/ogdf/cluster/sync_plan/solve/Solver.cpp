@@ -34,7 +34,7 @@
 #include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
 #include <ogdf/cluster/sync_plan/solve/BlockEmbedding.h>
 
-#ifdef PQ_OPSTATS
+#ifdef SYNCPLAN_OPSTATS
 #	define STEP(op, meta)                                                                         \
 		stats_out << (stats_first_in_array ? "" : ",") << "{\"op\":\"solvedReduced-" << op << "\"" \
 				  << ",\"op_time_ns\":" << dur_ns(tpc::now() - start) meta << "}";                 \
@@ -45,8 +45,8 @@
 #endif
 
 bool PQPlanarity::solveReduced(bool fail_fast) {
-	PQ_PROFILE_START("solveReduced")
-#ifdef PQ_OPSTATS
+	// SYNCPLAN_PROFILE_START("solveReduced")
+#ifdef SYNCPLAN_OPSTATS
 	std::chrono::time_point<std::chrono::high_resolution_clock> start = tpc::now();
 #endif
 	OGDF_ASSERT(matchings.isReduced());
@@ -63,7 +63,7 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 	}
 	STEP("makeWheels", << ",\"wheels\":" << wheels);
 	if (fail_fast && !isPlanar(*G)) {
-		PQ_PROFILE_STOP("solvedReduced")
+		// SYNCPLAN_PROFILE_STOP("solvedReduced")
 		return false;
 	}
 	log.lout(Logger::Level::High) << "SOLVE REDUCED" << endl;
@@ -98,7 +98,7 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 			q_vertices++;
 			if (!blocks[components.biconnectedComponent(u)].addQVertex(u, Ge_to_subgraph, sat,
 						part_var)) {
-				PQ_PROFILE_STOP("solvedReduced")
+				// SYNCPLAN_PROFILE_STOP("solvedReduced")
 				return false;
 			}
 		}
@@ -107,7 +107,7 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 
 	log.lout(Logger::Level::High) << "Solving 2-SAT..." << endl;
 	if (!sat.solve()) {
-		PQ_PROFILE_STOP("solvedReduced")
+		// SYNCPLAN_PROFILE_STOP("solvedReduced")
 		return false;
 	}
 	STEP("solveSAT", );
@@ -120,7 +120,7 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 		if (block.spqr) {
 			for (node rigid : block.spqr->tree().nodes) {
 				if (!fail_fast && !isPlanar(block.spqr->skeleton(rigid).getGraph())) {
-					PQ_PROFILE_STOP("solvedReduced")
+					// SYNCPLAN_PROFILE_STOP("solvedReduced")
 					return false;
 				}
 				if (block.rigid_vars[rigid] != TwoSAT_Var_Undefined
@@ -168,7 +168,7 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 	OGDF_ASSERT(consistency.consistencyCheck());
 	OGDF_ASSERT(G->representsCombEmbedding());
 	STEP("applyEmbedding", );
-	PQ_PROFILE_STOP("solveReduced")
+	// SYNCPLAN_PROFILE_STOP("solveReduced")
 
 	return true;
 }
