@@ -1,10 +1,9 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
 
 #include <NodePCRotation.h>
-
-#include "PQPlanarity.h"
 
 using RegisteredEdgeSet = RegisteredElementSet<edge, Graph>;
 

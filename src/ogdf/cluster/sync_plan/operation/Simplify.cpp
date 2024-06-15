@@ -1,8 +1,7 @@
-#include "operation/Simplify.h"
-
-#include "PQPlanarity.h"
-#include "utils/GraphUtils.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/operation/Simplify.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 using namespace pc_tree;
 
@@ -190,8 +189,8 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 			<< "SIMPLIFY " << (v2 == nullptr ? "TERMINAL" : (v2 == u ? "TOROIDAL" : "TRANSITIVE"))
 			<< " (" << (components.isCutVertex(v) ? "v is cut, " : "")
 			<< (degree_mismatch ? "degree mismatch" : "degrees match") << ")"
-			<< " u'=" << fmtPQNode(u2) << " < - > u=" << fmtPQNode(u) << " ==="
-			<< " v=" << fmtPQNode(v) << " < - > v'=" << fmtPQNode(v2) << std::endl;
+			<< " u'=" << fmtPQNode(u2) << " < - > u=" << fmtPQNode(u)
+			<< " ===" << " v=" << fmtPQNode(v) << " < - > v'=" << fmtPQNode(v2) << std::endl;
 
 #ifdef PQ_OPSTATS
 	tp start = tpc::now();

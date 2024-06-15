@@ -1,10 +1,9 @@
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PipeOrder.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <NodePCRotation.h>
-
-#include "PQPlanarity.h"
-#include "PipeOrder.h"
-#include "utils/Logging.h"
 
 PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 	try {

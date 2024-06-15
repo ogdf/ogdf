@@ -1,9 +1,8 @@
 #include <ogdf/basic/Graph_d.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 
 #include <stdexcept>
-
-#include "PQPlanarity.h"
-#include "utils/GraphUtils.h"
 
 PQPlanarity::PQPlanarity(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 	: G(work)

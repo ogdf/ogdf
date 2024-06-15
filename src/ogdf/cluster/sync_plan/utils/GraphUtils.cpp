@@ -1,7 +1,6 @@
-#include "utils/GraphUtils.h"
-
-#include "utils/GraphIterators.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 FilteringBFSIterator begin(FilteringBFS& bfs) { return FilteringBFSIterator(&bfs); }
 

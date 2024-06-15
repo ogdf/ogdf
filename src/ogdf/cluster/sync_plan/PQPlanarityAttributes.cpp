@@ -1,20 +1,18 @@
 
-#include "PQPlanarityAttributes.h"
-
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#include <ogdf/cluster/sync_plan/utils/Clusters.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/SugiyamaLayout.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/planarlayout/FPPLayout.h>
 
 #include <memory>
-
-#include "PQPlanarity.h"
-#include "utils/Clusters.h"
-#include "utils/Logging.h"
 
 const std::array<Color, 63> colors = {Color("#00FF00"), Color("#0000FF"), Color("#FF0000"),
 		Color("#01FFFE"), Color("#FFA6FE"), Color("#FFDB66"), Color("#006401"), Color("#010067"),

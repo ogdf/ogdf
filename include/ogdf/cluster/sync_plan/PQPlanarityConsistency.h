@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PQPlanarityAttributes.h"
+#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
 
 class PQPlanarity;
 

@@ -1,12 +1,11 @@
 #pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 #include <json.hpp>
 #include <stdexcept>
-
-#include "PQPlanarity.h"
-#include "utils/Bijection.h"
 
 using namespace ogdf;
 

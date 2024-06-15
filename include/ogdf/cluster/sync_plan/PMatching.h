@@ -4,12 +4,11 @@
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/GraphObserver.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/cluster/sync_plan/basic/Iterators.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 #include <memory>
 #include <ostream>
-
-#include "utils/Bijection.h"
-#include "utils/Iterators.h"
 
 class PMatching;
 

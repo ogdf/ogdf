@@ -1,9 +1,8 @@
-#include "PQPlanarityOptions.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityOptions.h>
 
 #include <unordered_map>
-
-#include "PQPlanarity.h"
-#include "PQPlanarityAttributes.h"
 
 using json = nlohmann::json;
 

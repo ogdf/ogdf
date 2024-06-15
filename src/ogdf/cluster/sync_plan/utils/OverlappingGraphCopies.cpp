@@ -1,4 +1,4 @@
-#include "utils/OverlappingGraphCopies.h"
+#include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 
 const Graph& OverlappingGraphCopy::original() const { return *m_pOGC->G; }
 

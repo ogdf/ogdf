@@ -1,6 +1,5 @@
-#include "solve/BlockEmbedding.h"
-
-#include "utils/GraphUtils.h"
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/solve/BlockEmbedding.h>
 
 void BlockEmbedding::init(Graph& G, PQPlanarityComponents& components, node bc,
 		EdgeArray<edge>& Ge_to_subgraph, EdgeArray<BlockEmbedding*>& Ge_to_block) {

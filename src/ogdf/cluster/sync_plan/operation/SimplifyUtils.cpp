@@ -1,6 +1,6 @@
-#include <PCNode.h>
+#include <ogdf/cluster/sync_plan/operation/Simplify.h>
 
-#include "operation/Simplify.h"
+#include <PCNode.h>
 
 using pc_tree::PCNode;
 

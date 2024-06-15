@@ -3,17 +3,16 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
 
 #include <chrono>
 #include <cstdint>
 #include <ostream>
 
 #include <NodePCRotation.h>
-
-#include "PMatching.h"
-#include "PQPlanarityComponents.h"
-#include "PQPlanarityConsistency.h"
-#include "QPartitioning.h"
 
 #ifdef LIKWID_PERFMON
 

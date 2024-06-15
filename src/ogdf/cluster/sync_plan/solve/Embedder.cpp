@@ -1,5 +1,5 @@
-#include "PQPlanarity.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 class UpdateGraphReg : public GraphObserver {
 	NodeArray<node>* node_reg;

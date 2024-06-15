@@ -1,4 +1,4 @@
-#include "utils/Levels.h"
+#include <ogdf/cluster/sync_plan/utils/Levels.h>
 
 void writeLevelGraph(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& pos,
 		ostream& os) {

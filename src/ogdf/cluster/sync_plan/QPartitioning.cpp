@@ -1,6 +1,5 @@
-#include "QPartitioning.h"
-
 #include <ogdf/basic/Math.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
 
 using namespace ogdf;
 

@@ -9,14 +9,12 @@
 #include <variant>
 #include <vector>
 
-#include "Macros.h"
-
 using namespace std;
 
 template<typename Key2, typename Value, int array_max>
 struct RegisteredMultiArrayEntry {
 	using ValuePairType = pair<Key2, Value>;
-	using ValueArrayType = array<ValuePairType, array_max>; // TODO array, vector or linked list?
+	using ValueArrayType = array<ValuePairType, array_max>;
 	using ValueMapType = unordered_map<Key2, Value>;
 
 	uint8_t m_size = 0;
@@ -49,9 +47,9 @@ struct RegisteredMultiArrayEntry {
 		}
 	}
 
-	COPY_MOVE_BY_SWAP(RegisteredMultiArrayEntry)
+	OGDF_COPY_MOVE_BY_SWAP(RegisteredMultiArrayEntry)
 
-	SWAP_OP(RegisteredMultiArrayEntry) {
+	OGDF_SWAP_OP(RegisteredMultiArrayEntry) {
 		swap(first.m_size, second.m_size);
 		swap(first.m_value, second.m_value);
 	}

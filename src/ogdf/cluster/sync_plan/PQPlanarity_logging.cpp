@@ -1,5 +1,5 @@
-#include "PQPlanarity.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 std::ostream& operator<<(std::ostream& os, const PQPlanarity& pq) {
 	return os << "PQPlanarity Instance with " << pq.G->numberOfNodes() << " nodes, "

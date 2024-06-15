@@ -1,9 +1,7 @@
-#include "PQPlanarityComponents.h"
-
 #include <ogdf/basic/simple_graph_alg.h>
-
-#include "PQPlanarity.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 std::function<std::ostream&(std::ostream&)> PQPlanarityComponents::fmtBCNode(node bc) const {
 	OGDF_ASSERT(bc == nullptr || bc->graphOf() == &bcTree());

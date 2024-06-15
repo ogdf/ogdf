@@ -3,20 +3,24 @@
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/NodeArray.h>
-
-#include "Macros.h"
-#include "RegisteredMultiArray.h"
+#include <ogdf/cluster/sync_plan/basic/RegisteredMultiArray.h>
 
 using namespace ogdf;
 
+
+template<typename T>
+using NA = NodeArray<T, true>;
+template<typename T>
+using EA = EdgeArray<T, true>;
+
 template<typename Key2, typename Value>
-using NodeMultiArray = RegisteredMultiArray<node, Key2, Value, NodeArray>;
+using NodeMultiArray = RegisteredMultiArray<node, Key2, Value, NA>;
 template<typename Key2, typename Value>
-using EdgeMultiArray = RegisteredMultiArray<edge, Key2, Value, EdgeArray>;
+using EdgeMultiArray = RegisteredMultiArray<edge, Key2, Value, EA>;
 
 class OverlappingGraphCopies;
 
-class OverlappingGraphCopy : public Graph { // TODO common interface with GraphCopy and GraphCopySimple
+class OverlappingGraphCopy : public Graph { // TODO common interface with GraphCopyBase
 	friend class OverlappingGraphCopies;
 
 	OverlappingGraphCopies* m_pOGC; //!< The master instance.
@@ -29,24 +33,11 @@ public:
 	explicit OverlappingGraphCopy(OverlappingGraphCopies& mPOgc)
 		: m_pOGC(&mPOgc), m_vOrig(*this, nullptr), m_eOrig(*this, nullptr) { }
 
-	// OverlappingGraphCopy(const OverlappingGraphCopy &copy)
-	//         : Graph(), m_pOGC(copy.m_pOGC), m_vOrig(*this, nullptr), m_eOrig(*this, nullptr) {
-	//     OGDF_ASSERT(copy.empty()); // TODO
-	// }
-	//
-	// OverlappingGraphCopy &operator=(const OverlappingGraphCopy &copy) {
-	//     if (&copy != this) {
-	//         clear();
-	//         OGDF_ASSERT(copy.empty());
-	//         m_pOGC = copy.m_pOGC;
-	//     }
-	//     return *this;
-	// }
-	NO_COPY(OverlappingGraphCopy)
-
 	~OverlappingGraphCopy() override { unmap(); }
 
-	NO_MOVE(OverlappingGraphCopy)
+	OGDF_NO_MOVE(OverlappingGraphCopy)
+
+	OGDF_NO_COPY(OverlappingGraphCopy)
 
 	//! Returns a reference to the master instance.
 	const OverlappingGraphCopies& master() const { return *m_pOGC; }
@@ -194,7 +185,7 @@ class OverlappingGraphCopies {
 public:
 	explicit OverlappingGraphCopies(const Graph& G) : G(&G), node_copies(G), edge_copies(G) { }
 
-	NO_COPY(OverlappingGraphCopies)
+	OGDF_NO_COPY(OverlappingGraphCopies)
 
-	NO_MOVE(OverlappingGraphCopies)
+	OGDF_NO_MOVE(OverlappingGraphCopies)
 };

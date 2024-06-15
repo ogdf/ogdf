@@ -1,13 +1,10 @@
 #pragma once
 
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/graphalg/Triconnectivity.h>
-
-#include <NodePCRotation.h>
-
-#include "../utils/Macros.h"
-#include "../utils/OverlappingGraphCopies.h"
 
 using namespace ogdf;
 using namespace std;
@@ -43,9 +40,9 @@ struct SimpleSPQRTree {
 	vector<OverlappingGraphCopy*> skel_array;
 	bool planar = true;
 
-	NO_COPY(SimpleSPQRTree)
+	OGDF_NO_COPY(SimpleSPQRTree)
 
-	NO_MOVE(SimpleSPQRTree)
+	OGDF_NO_MOVE(SimpleSPQRTree)
 
 	SimpleSPQRTree(OverlappingGraphCopies& OGC_base) : GC(OGC_base), GC_skels(GC) {};
 
@@ -78,9 +75,9 @@ class NodeSSPQRRotation : public pc_tree::NodePCRotation {
 			List<edge>& out);
 
 public:
-	NO_COPY(NodeSSPQRRotation)
+	OGDF_NO_COPY(NodeSSPQRRotation)
 
-	NO_MOVE(NodeSSPQRRotation)
+	OGDF_NO_MOVE(NodeSSPQRRotation)
 
 	NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n);
 

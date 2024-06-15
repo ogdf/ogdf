@@ -1,6 +1,5 @@
-#include "PipeOrder.h"
-
-#include "PQPlanarity.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PipeOrder.h>
 
 bool PipeQueueByDegreePreferContract::comparePipes(const Pipe* x, const Pipe* y) const {
 	if (x->heap_data != y->heap_data) {

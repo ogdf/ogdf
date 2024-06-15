@@ -1,9 +1,8 @@
 #include <ogdf/basic/simple_graph_alg.h>
-
-#include "PQPlanarity.h"
-#include "utils/Clusters.h"
-#include "utils/GraphUtils.h"
-#include "utils/Logging.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Clusters.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 struct FrozenCluster {
 	int index = -1, parent = -1, parent_node = -1;

@@ -2,10 +2,9 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/NodeSet.h>
+#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/decomposition/BCTree.h>
-
-#include "operation/Encapsulate.h"
-#include "utils/GraphIterators.h"
 
 using namespace ogdf;
 

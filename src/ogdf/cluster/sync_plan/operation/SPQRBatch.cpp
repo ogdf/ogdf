@@ -1,8 +1,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
-
-#include "PQPlanarity.h"
-#include "utils/Logging.h"
-#include "utils/NodeTricRotation.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/utils/Logging.h>
+#include <ogdf/cluster/sync_plan/utils/NodeTricRotation.h>
 
 struct EmbeddingTrees {
 	PQPlanarity& pq;
@@ -53,8 +52,7 @@ struct EmbeddingTrees {
 			} else {
 				pq.stats_first_in_array = false;
 			}
-			pq.stats_out << "{\"op\":\"MAKE_SPQR\""
-						 << ",\"bicon_size\":" << components.bcSize(bc)
+			pq.stats_out << "{\"op\":\"MAKE_SPQR\"" << ",\"bicon_size\":" << components.bcSize(bc)
 						 << ",\"bc_id\":" << bc->index()
 						 << ",\"cc_id\":" << components.bcConnectedId(bc) << ",";
 #endif

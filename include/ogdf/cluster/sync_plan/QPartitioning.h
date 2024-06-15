@@ -1,8 +1,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphObserver.h>
-
-#include <utils/RegisteredArray.h>
+#include <ogdf/cluster/sync_plan/utils/RegisteredArray.h>
 
 using namespace ogdf;
 

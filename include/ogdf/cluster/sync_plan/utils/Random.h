@@ -6,9 +6,8 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
-
-#include "../PQPlanarity.h"
-#include "GraphIterators.h"
+#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 
 using namespace ogdf;
 using namespace std;
