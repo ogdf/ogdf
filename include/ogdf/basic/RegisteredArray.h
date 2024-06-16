@@ -407,7 +407,7 @@ public:
 	}
 };
 
-//! Registered arrays without default values.
+//! Registered arrays without default values or by-index access to values.
 /**
  * Registered arrays provide an efficient, constant-time mapping from indexed keys of a \a Registry to elements of
  * type \a Value. The storage automatically grows and shrinks when keys are added to or removed from the registry.
@@ -417,13 +417,13 @@ public:
  * class RegistryBase.
  * @tparam Value The type of the stored data.
  *
- * \sa RegistryBase, RegisteredArrayWithoutDefault, RegisteredArray
+ * \sa RegistryBase, RegisteredArrayWithoutDefaultWithIndexAccess, RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegisteredArray
  */
 template<class Registry, class Value>
-class RegisteredArrayWithoutDefault : protected RegisteredArrayBase<Registry> {
+class RegisteredArrayWithoutDefaultOrIndexAccess : protected RegisteredArrayBase<Registry> {
 protected:
 	using key_iterator = typename Registry::iterator_type;
-	using registered_array = RegisteredArrayWithoutDefault<Registry, Value>;
+	using registered_array = RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value>;
 	using registered_array_base = RegisteredArrayBase<Registry>;
 
 public:
@@ -442,10 +442,10 @@ protected:
 
 public:
 	//! Creates a new registered array associated with no registry.
-	RegisteredArrayWithoutDefault() = default;
+	RegisteredArrayWithoutDefaultOrIndexAccess() = default;
 
 	//! Creates a new registered array associated with \p registry.
-	explicit RegisteredArrayWithoutDefault(const Registry* registry) {
+	explicit RegisteredArrayWithoutDefaultOrIndexAccess(const Registry* registry) {
 		// during base class initialization, no part of the derived class exists, so this will always call our base init
 		// so base classes should call their own init themselves
 		registered_array::init(registry);
@@ -503,24 +503,6 @@ public:
 		return m_data.at(registeredAt()->keyToIndex(key));
 #else
 		return m_data[registeredAt()->keyToIndex(key)];
-#endif
-	}
-
-	//! Returns a const reference to the element with index \p idx.
-	value_const_ref_type operator[](int idx) const {
-#ifdef OGDF_DEBUG
-		return m_data.at(idx);
-#else
-		return m_data[idx];
-#endif
-	}
-
-	//! Returns a reference to the element with index \p idx.
-	value_ref_type operator[](int idx) {
-#ifdef OGDF_DEBUG
-		return m_data.at(idx);
-#else
-		return m_data[idx];
 #endif
 	}
 
@@ -594,6 +576,46 @@ protected:
 	}
 };
 
+//! RegisteredArrayWithoutDefaultOrIndexAccess that also allows accessing its values directly by their index.
+template<class Registry, class Value>
+class RegisteredArrayWithoutDefaultWithIndexAccess
+	: public RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value> {
+	using RA = RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value>;
+
+public:
+	RegisteredArrayWithoutDefaultWithIndexAccess() = default;
+
+	explicit RegisteredArrayWithoutDefaultWithIndexAccess(const Registry* registry)
+		: RA(registry) { }
+
+	using RA::operator[];
+
+	//! Returns a const reference to the element with index \p idx.
+	typename RA::value_const_ref_type operator[](int idx) const {
+#ifdef OGDF_DEBUG
+		return RA::m_data.at(idx);
+#else
+		return RA::m_data[idx];
+#endif
+	}
+
+	//! Returns a reference to the element with index \p idx.
+	typename RA::value_ref_type operator[](int idx) {
+#ifdef OGDF_DEBUG
+		return RA::m_data.at(idx);
+#else
+		return RA::m_data[idx];
+#endif
+	}
+};
+
+//! Registered arrays without default values that automatically allows by-index access to values if Registry::key_type is not already integral.
+template<class Registry, class Value>
+using RegisteredArrayWithoutDefault =
+		typename std::conditional_t<std::is_integral_v<typename Registry::key_type>,
+				RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value>,
+				RegisteredArrayWithoutDefaultWithIndexAccess<Registry, Value>>;
+
 //! Registered arrays with default values.
 /**
  * Extends the functionality of RegisteredArrayWithoutDefault by adding the possibility to set a specific default value
@@ -605,7 +627,7 @@ protected:
  * class RegistryBase.
  * @tparam Value The type of the stored data.
  *
- * \sa RegistryBase, RegisteredArrayWithoutDefault, RegisteredArray
+ * \sa RegistryBase, RegisteredArrayWithoutDefault, RegisteredArrayWithoutDefaultOrIndexAccess, RegisteredArray
  */
 template<class Registry, class Value>
 class RegisteredArrayWithDefault : public RegisteredArrayWithoutDefault<Registry, Value> {
@@ -774,9 +796,7 @@ protected:
  * R[key] = 42;
  * \endcode
  *
- * \extends RegisteredArrayWithDefault
- *
- * \sa RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegistryBase, NodeArray
+ * \sa RegisteredArrayWithoutDefaultOrIndexAccess, RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegistryBase, NodeArray
  */
 template<class Registry, class Value, bool WithDefault = true, class Base = Registry>
 class RegisteredArray

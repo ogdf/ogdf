@@ -116,15 +116,15 @@ public:
 #endif
 	}
 
-	ostream& print(ostream& os) const override { return os << "UndoInitCluster"; }
+	std::ostream& print(std::ostream& os) const override { return os << "UndoInitCluster"; }
 };
 
 PQPlanarity::PQPlanarity(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 	: G(g)
-	, GA(cga)
 	, matchings(G)
 	, partitions(G)
 	, components(G)
+	, GA(cga)
 	, is_wheel(*G, false)
 #ifdef OGDF_DEBUG
 	, consistency(*this)

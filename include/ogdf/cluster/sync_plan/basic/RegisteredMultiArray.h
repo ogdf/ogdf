@@ -39,7 +39,7 @@
 #include <variant>
 #include <vector>
 
-using namespace std;
+using namespace std; // TODO remove
 
 template<typename Key2, typename Value, int array_max>
 struct RegisteredMultiArrayEntry {

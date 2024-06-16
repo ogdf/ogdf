@@ -40,7 +40,7 @@ Logger SimpleSPQRTree::log;
 #define logm log.lout(Logger::Level::Medium)
 #define logd log.lout(Logger::Level::Minor)
 
-ostream& operator<<(ostream& os, Triconnectivity::CompType t) {
+std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType t) {
 	switch (t) {
 	case ogdf::Triconnectivity::CompType::triconnected:
 		return os << "R";
@@ -76,7 +76,7 @@ void SimpleSPQRTree::init() {
 		}
 	}
 	logm << "Removing parallels reduced edges from " << edgecnt << " to " << GC.numberOfEdges()
-		 << endl;
+		 << std::endl;
 	edgecnt = GC.numberOfEdges();
 
 	if (GC.numberOfNodes() == 2) {
@@ -103,7 +103,8 @@ void SimpleSPQRTree::init() {
 	skels.init(GC, nullptr);
 	twins.init(GC, nullptr);
 	skel_array.resize(tri.m_numComp, nullptr);
-	logm << "Got " << tri.m_numComp << " components, " << virtual_edges << " virtual edges" << endl;
+	logm << "Got " << tri.m_numComp << " components, " << virtual_edges << " virtual edges"
+		 << std::endl;
 	for (int i = 0; i < tri.m_numComp; ++i) {
 		Comp& comp = tri.m_component[i];
 		skel_array[i] = new OverlappingGraphCopy(GC_skels);
@@ -115,7 +116,7 @@ void SimpleSPQRTree::init() {
 				l << " " << e << " (" << e->index() << ")";
 			}
 		}
-		l << endl;
+		l << std::endl;
 		if (comp.m_edges.empty()) {
 			continue; // S- or P-node was merged with a neighbor during Triconnectivity construction
 		}
@@ -125,7 +126,7 @@ void SimpleSPQRTree::init() {
 				skels[e] = &skel;
 				real_edges++;
 			} else {
-				logd << "Edge " << e << " (" << e->index() << ") is virtual" << endl;
+				logd << "Edge " << e << " (" << e->index() << ") is virtual" << std::endl;
 				OGDF_ASSERT(GC.original(e) == nullptr); // only for virtual edges
 				OGDF_ASSERT(twins[e] == nullptr);
 				twins[e] = &skel;
@@ -202,8 +203,8 @@ OverlappingGraphCopy* SimpleSPQRTree::getTwinSkel_GC(OverlappingGraphCopy* skel,
 NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n) : spqr(spqr) {
 	m_G = &spqr.GC.original();
 	m_n = n;
-	incidentEdgeForLeaf.init(*this, nullptr);
-	graphNodeForInnerNode.init(*this, nullptr);
+	m_incidentEdgeForLeaf.init(*this, nullptr);
+	m_graphNodeForInnerNode.init(*this, nullptr);
 	OGDF_ASSERT(m_n->graphOf() == m_G);
 	OGDF_ASSERT(m_n->degree() >= 3);
 
@@ -214,11 +215,11 @@ NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n) : spqr(
 	logm << "Generating NodeSSPQRRotation for "
 		 << "G_n " << n->index() << " °" << n->degree() << ", "
 		 << "GC_n " << GC_n->index() << " °" << GC_n->degree() << ", "
-		 << "skel_n " << skel_n->index() << " °" << skel_n->degree() << endl;
+		 << "skel_n " << skel_n->index() << " °" << skel_n->degree() << std::endl;
 	logd << "First skel is " << skel << " (" << skel->numberOfNodes() << "n, "
 		 << skel->numberOfEdges() << "e) "
 		 << "of adj " << GC_n->firstAdj() << " (" << GC_n->firstAdj()->theEdge()->index() << ")"
-		 << endl;
+		 << std::endl;
 	Logger::Indent _(log);
 
 
@@ -233,7 +234,7 @@ NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n) : spqr(
 		if (n1->isLeaf()) {
 			swap(n1, n2);
 		}
-		logm << "Degree-2 S-Node Shortcut with Nodes " << n1 << " and " << n2 << "!" << endl;
+		logm << "Degree-2 S-Node Shortcut with Nodes " << n1 << " and " << n2 << "!" << std::endl;
 		OGDF_ASSERT(!n1->isLeaf()); // otherwise m_n would be deg 2
 		n1->appendChild(n2);
 		setRoot(n1);
@@ -241,7 +242,7 @@ NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n) : spqr(
 		PCNode* root;
 		if (isPNode(*skel)) {
 			root = newNode(PCNodeType::PNode);
-			graphNodeForInnerNode[root] =
+			m_graphNodeForInnerNode[root] =
 					spqr.GC.original(skel->original(skel_n->firstAdj()->twinNode()));
 		} else {
 			root = newNode(PCNodeType::CNode);
@@ -266,24 +267,24 @@ PCNode* NodeSSPQRRotation::process(adjEntry skel_adj, OverlappingGraphCopy& skel
 			 << "skel_adj " << skel_adj << " (" << skel_adj->theEdge()->index() << "), "
 			 << "GC_adj " << GC_adj << " (" << GC_adj->theEdge()->index() << "), "
 			 << "G_adj " << G_adj << " (" << G_adj->theEdge()->index() << ") "
-			 << "with " << spqr.par_replacement[GC_adj].size() << " parallels" << endl;
+			 << "with " << spqr.par_replacement[GC_adj].size() << " parallels" << std::endl;
 		OGDF_ASSERT(spqr.twins[GC_adj] == nullptr);
 		if (!spqr.par_replacement[GC_adj].empty()) {
 			if (!isPNode(skel) || skel.numberOfEdges() == 1) { // no P-node
-				logd << "\tCreating parent for parallels, as current skel is no P-node" << endl;
+				logd << "\tCreating parent for parallels, as current skel is no P-node" << std::endl;
 				parent = newNode(pc_tree::PCNodeType::PNode, parent);
-				graphNodeForInnerNode[parent] = spqr.GC.original(GC_adj->twinNode());
+				m_graphNodeForInnerNode[parent] = spqr.GC.original(GC_adj->twinNode());
 			}
 			auto& l = logd << "\tParallel edges:";
 			for (edge e : spqr.par_replacement[GC_adj]) {
 				l << " " << e << " (" << e->index() << ")";
 				OGDF_ASSERT(e->isIncident(m_n));
-				incidentEdgeForLeaf[newNode(pc_tree::PCNodeType::Leaf, parent)] = e;
+				m_incidentEdgeForLeaf[newNode(pc_tree::PCNodeType::Leaf, parent)] = e;
 			}
-			l << endl;
+			l << std::endl;
 		}
 		pc_tree::PCNode* l = newNode(pc_tree::PCNodeType::Leaf, parent);
-		incidentEdgeForLeaf[l] = G_adj->theEdge();
+		m_incidentEdgeForLeaf[l] = G_adj->theEdge();
 		if (parent == nullptr) {
 			return l;
 		} else {
@@ -298,7 +299,7 @@ PCNode* NodeSSPQRRotation::process(adjEntry skel_adj, OverlappingGraphCopy& skel
 			 << "skel_adj " << skel_adj << " (" << skel_adj->theEdge()->index() << "), "
 			 << "GC_adj " << GC_adj << " (" << GC_adj->theEdge()->index() << ") "
 			 << "corresponds to skel " << twin << " (" << twin->numberOfNodes() << "n, "
-			 << twin->numberOfEdges() << "e)" << endl;
+			 << twin->numberOfEdges() << "e)" << std::endl;
 		if (isSNode(*twin)) { // S-node
 			OGDF_ASSERT(twin_adj->theNode()->degree() == 2);
 			return process(twin_adj->cyclicSucc(), *twin, parent);
@@ -307,7 +308,7 @@ PCNode* NodeSSPQRRotation::process(adjEntry skel_adj, OverlappingGraphCopy& skel
 			PCNode* n;
 			if (isPNode(*twin)) {
 				n = newNode(PCNodeType::PNode, parent);
-				graphNodeForInnerNode[n] = spqr.GC.original(GC_adj->twinNode());
+				m_graphNodeForInnerNode[n] = spqr.GC.original(GC_adj->twinNode());
 			} else {
 				n = newNode(PCNodeType::CNode, parent);
 			}
@@ -326,7 +327,7 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 	if (!isTrivial() || knowsPartnerEdges()) {
 		return;
 	}
-	bundleEdgesForLeaf.init(*this);
+	m_bundleEdgesForLeaf.init(*this);
 
 	node partner = getTrivialPartnerPole();
 	node GC_n = spqr.GC.copy(m_n);
@@ -339,9 +340,11 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 		OGDF_ASSERT(isSNode(*skel) || skel->numberOfEdges() == 1);
 	}
 	node skel_n = skel->copy(GC_n);
-	int i = 0, deg = 0;
+	int deg = 0;
+	auto leaf_it = getLeaves().begin();
 	for (adjEntry adj : skel_n->adjEntries) {
-		PCNode* leaf = getLeaves()[i];
+		OGDF_ASSERT(leaf_it != getLeaves().end());
+		PCNode* leaf = *leaf_it;
 		edge GC_e = skel->original(adj->theEdge());
 		edge orig_e = spqr.GC.original(GC_e);
 		if (orig_e != nullptr) {
@@ -358,21 +361,22 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 						continue;
 					}
 					for (edge e : spqr.par_replacement[GC_e]) {
-						bundleEdgesForLeaf[leaf].pushBack(e);
+						m_bundleEdgesForLeaf[leaf].pushBack(e);
 					}
-					bundleEdgesForLeaf[leaf].pushBack(adj->theEdge());
+					m_bundleEdgesForLeaf[leaf].pushBack(adj->theEdge());
 				}
 				OGDF_ASSERT(getIncidentEdgeForLeaf(leaf) == orig_e);
 			} else {
 				for (edge e : spqr.par_replacement[GC_e]) {
 					OGDF_ASSERT(getIncidentEdgeForLeaf(leaf) == e);
-					bundleEdgesForLeaf[leaf].pushBack(e);
+					m_bundleEdgesForLeaf[leaf].pushBack(e);
 					deg++;
-					i++;
-					leaf = getLeaves()[i];
+					++leaf_it;
+					OGDF_ASSERT(leaf_it != getLeaves().end());
+					leaf = *leaf_it;
 				}
 				OGDF_ASSERT(getIncidentEdgeForLeaf(leaf) == orig_e);
-				bundleEdgesForLeaf[leaf].pushBack(orig_e);
+				m_bundleEdgesForLeaf[leaf].pushBack(orig_e);
 			}
 		} else {
 #ifdef OGDF_DEBUG
@@ -381,20 +385,21 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 				List<edge> out;
 				getIncidentRealEdgesInSubtree(adj, *skel, out);
 				OGDF_ASSERT(out.size() == 1);
-				OGDF_ASSERT(incidentEdgeForLeaf[leaf] == out.front());
+				OGDF_ASSERT(m_incidentEdgeForLeaf[leaf] == out.front());
 			}
 #endif
-			getIncidentRealEdgesInSubtree(adj->twin(), *skel, bundleEdgesForLeaf[leaf]);
+			getIncidentRealEdgesInSubtree(adj->twin(), *skel, m_bundleEdgesForLeaf[leaf]);
 		}
-		for (edge e : bundleEdgesForLeaf[leaf]) {
+		for (edge e : m_bundleEdgesForLeaf[leaf]) {
 			OGDF_ASSERT(e->graphOf() == m_G);
 			OGDF_ASSERT(e->isIncident(partner));
 		}
-		deg += bundleEdgesForLeaf[leaf].size();
-		i++;
+		deg += m_bundleEdgesForLeaf[leaf].size();
+		++leaf_it;
+		OGDF_ASSERT(leaf_it != getLeaves().end());
 	}
 #ifdef OGDF_DEBUG
-	OGDF_ASSERT(i == getLeafCount());
+	OGDF_ASSERT(leaf_it == getLeaves().end());
 	int exp_deg = 0; // get all edges of partner in this block
 	for (adjEntry adj : partner->adjEntries) {
 		edge GC_e = spqr.GC.copy(adj->theEdge());

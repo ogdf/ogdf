@@ -163,7 +163,7 @@ int PMatching::getPipeCount() const { return pipes_list.size(); }
 
 bool PMatching::isReduced() const { return pipes_list.empty(); }
 
-PipeBijIterator PMatching::getIncidentEdgeBijection(node u) const {
+PipeBijRange PMatching::getIncidentEdgeBijection(node u) const {
 	return getPipeBijection(u, getTwin(u));
 }
 

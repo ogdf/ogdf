@@ -36,10 +36,10 @@
 
 PQPlanarity::PQPlanarity(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 	: G(work)
-	, GA(nullptr)
 	, matchings(G)
 	, partitions(G)
 	, components(G)
+	, GA(nullptr)
 	, is_wheel(*G, false)
 #ifdef OGDF_DEBUG
 	, consistency(*this)
@@ -81,7 +81,7 @@ PQPlanarity::PQPlanarity(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edg
 			G->newEdge(G1shared[e->target()], G2shared[e->target()]);
 			break;
 		default:
-			throw runtime_error("illegal edge_type");
+			throw std::runtime_error("illegal edge_type");
 		}
 	}
 

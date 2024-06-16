@@ -30,12 +30,14 @@
  */
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/utils/Bijection.h>
+// enable if you have nlohmann json.hpp available
+#if 0
 
-#include <json.hpp>
-#include <stdexcept>
+#	include <ogdf/basic/GraphAttributes.h>
+#	include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#	include <ogdf/cluster/sync_plan/utils/Bijection.h>
+
+#	include <json.hpp>
 
 using namespace ogdf;
 
@@ -48,44 +50,6 @@ std::string string_format(const std::string& format, const Args... args) {
 	std::unique_ptr<char[]> buf(new char[size]);
 	snprintf(buf.get(), size, format.c_str(), args...);
 	return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
-}
-
-class invalid_option : public std::runtime_error {
-public:
-	explicit invalid_option(const string& message) : runtime_error(message) { }
-};
-
-template<typename... Args>
-node getNode(const Graph& G, const GraphAttributes& GA, const nlohmann::json& id,
-		const std::string& format, const Args... args) {
-	throw new runtime_error(
-			"not implemented"); // too inefficient to be usable, see PQPlanOptions::applyConfigJSON for a better approach
-	// node n = nullptr;
-	// if (id.is_number_integer()) {
-	//     n = G.chooseNode([&id](node n) -> bool { return n->index() == id; });
-	// } else if (id.is_string()) {
-	//     n = G.chooseNode([&GA, &id](node n) -> bool { return GA.label(n) == id; });
-	// }
-	// if (n == nullptr) {
-	//     throw invalid_option(string_format(format, id.dump().c_str(), args...));
-	// }
-	// return n;
-}
-
-template<typename... Args>
-edge getEdge(const Graph& G, const GraphAttributes& GA, const nlohmann::json& id,
-		const std::string& format, const Args... args) {
-	throw new runtime_error("not implemented");
-	// edge e = nullptr;
-	// if (id.is_number_integer()) {
-	//     e = G.chooseEdge([&id](edge e) -> bool { return e->index() == id; });
-	// } else if (id.is_string()) {
-	//     e = G.chooseEdge([&GA, &id](edge e) -> bool { return GA.label(e) == id; });
-	// }
-	// if (e == nullptr) {
-	//     throw invalid_option(string_format(format, id.dump().c_str(), args...));
-	// }
-	// return e;
 }
 
 class PQPlanOptions {
@@ -148,3 +112,5 @@ public:
 		j["embeddings"] = embeddings;
 	}
 };
+
+#endif

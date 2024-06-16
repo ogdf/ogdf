@@ -31,7 +31,7 @@
 #include <ogdf/cluster/sync_plan/utils/Levels.h>
 
 void writeLevelGraph(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& pos,
-		ostream& os) {
+		std::ostream& os) {
 	os << G.numberOfNodes() << " " << G.numberOfEdges() << " " << emb.size() << "\n";
 	for (int l = 0; l < emb.size(); ++l) {
 		os << emb[l].size() << " ";
@@ -87,7 +87,7 @@ void layout(const Graph& G, const NodeArray<int>& lvl, const NodeArray<int>& pos
 		GraphAttributes& GA) {
 	Hierarchy H {G, lvl};
 	HierarchyLevels HL {H};
-	GraphCopy& GC = (GraphCopy&)H;
+	const GraphCopy& GC = (const GraphCopy&)H;
 	NodeArray<int> HLpos {GC, -1};
 	for (node v : GC.nodes) {
 		HLpos[v] = pos[GC.original(v)];

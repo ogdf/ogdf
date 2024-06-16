@@ -126,7 +126,7 @@ void UndoSimplify::undo(PQPlanarity& pq) {
 	}
 	pq.G->sort(u, u_order);
 	if (u2 == v) {
-		OGDF_ASSERT(compareCyclicOrder(v, v_order) == SAME);
+		OGDF_ASSERT(compareCyclicOrder(v, v_order) == OrderComp::SAME);
 	} else {
 		if (v2 == nullptr && v->degree() != v_order.size()) {
 			// v was a cut vertex, which is only allowed in the terminal case
@@ -154,7 +154,7 @@ void UndoSimplify::undo(PQPlanarity& pq) {
 		for (adjEntry u2_adj : u2->adjEntries) {
 			v2_order.pushFront(bij_map[u2_adj]->v2_adj);
 		}
-		OGDF_ASSERT(compareCyclicOrder(v2, v2_order) == SAME);
+		OGDF_ASSERT(compareCyclicOrder(v2, v2_order) == OrderComp::SAME);
 	}
 #endif
 
@@ -196,7 +196,7 @@ public:
 #endif
 	}
 
-	ostream& print(ostream& os) const override {
+	std::ostream& print(std::ostream& os) const override {
 		return os << "UndoSimplifyToroidal(u_idx=" << u_idx << ", v_idx=" << v_idx
 				  << ", u_first_adj_idx=" << u_first_adj_idx
 				  << ", v_last_adj_idx=" << v_last_adj_idx << ")";
@@ -207,7 +207,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 	OGDF_ASSERT(matchings.isMatchedPVertex(u));
 	OGDF_ASSERT(!components.isCutVertex(u));
 	if (!pc->isTrivial()) {
-		return NOT_APPLICABLE;
+		return PQPlanarity::Result::NOT_APPLICABLE;
 	}
 	OGDF_ASSERT(pc->getNode() == u);
 	node v = pc->getTrivialPartnerPole();
@@ -251,7 +251,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 #ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(false, 0);
 #endif
-			return NOT_APPLICABLE;
+			return PQPlanarity::Result::NOT_APPLICABLE;
 		}
 		if (degree_mismatch) {
 			log.lout()
@@ -263,7 +263,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 #ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(false, 0);
 #endif
-			return NOT_APPLICABLE;
+			return PQPlanarity::Result::NOT_APPLICABLE;
 		}
 	}
 
@@ -291,7 +291,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 		leaf_for_u_inc_edge.init(*G, nullptr);
 		pc->generateLeafForIncidentEdgeMapping(leaf_for_u_inc_edge);
 	}
-	RegisteredEdgeSet visited(*G);
+	EdgeSet<> visited(*G);
 
 	// SYNCPLAN_PROFILE_START("simplify-bondmap")
 	for (const PipeBijPair& pair : matchings.getIncidentEdgeBijection(u2)) {
@@ -335,7 +335,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 		findCycles(*G, v, mapping, cycles, log.lout(Logger::Level::Minor) << "\t");
 		int cycleLength = cycles.front().size();
 		simplifyToroidalCycleLength = max(cycleLength, simplifyToroidalCycleLength);
-		log.lout(Logger::Level::Medium) << "\tToroidal cycle length: " << cycleLength << endl;
+		log.lout(Logger::Level::Medium) << "\tToroidal cycle length: " << cycleLength << std::endl;
 #ifdef SYNCPLAN_OPSTATS
 		stats_out << "\"cycle_len\":" << cycleLength << ",";
 #endif
@@ -345,7 +345,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 #ifdef SYNCPLAN_OPSTATS
 				printOPStatsEnd(false, dur_ns(tpc::now() - start));
 #endif
-				return INVALID_INSTANCE;
+				return PQPlanarity::Result::INVALID_INSTANCE;
 			}
 		}
 
@@ -388,5 +388,5 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 	printOPStatsEnd(true, dur_ns(tpc::now() - start));
 #endif
 	// SYNCPLAN_PROFILE_STOP("simplify")
-	return SUCCESS;
+	return PQPlanarity::Result::SUCCESS;
 }

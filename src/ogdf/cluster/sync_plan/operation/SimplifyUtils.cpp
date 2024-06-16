@@ -28,9 +28,8 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/cluster/sync_plan/operation/Simplify.h>
-
-#include <PCNode.h>
 
 using pc_tree::PCNode;
 
@@ -41,7 +40,7 @@ SimplifyMapping::SimplifyMapping(adjEntry u2Adj, adjEntry uAdj, adjEntry vAdj, a
 	}
 }
 
-ostream& operator<<(ostream& os, const SimplifyMapping& mapping) {
+std::ostream& operator<<(std::ostream& os, const SimplifyMapping& mapping) {
 	os << "u2_e" << (mapping.u2_adj == nullptr ? -1 : mapping.u2_adj->theEdge()->index()) << " = u_e"
 	   << (mapping.u_adj == nullptr ? -1 : mapping.u_adj->theEdge()->index()) << " = v_e{";
 	for (adjEntry adj : mapping.v_adj) {
@@ -57,12 +56,12 @@ FrozenSimplifyMapping::FrozenSimplifyMapping(int u2Adj, int uAdj, int vAdj, int 
 	}
 }
 
-ostream& operator<<(ostream& os, const FrozenSimplifyMapping& mapping) {
+std::ostream& operator<<(std::ostream& os, const FrozenSimplifyMapping& mapping) {
 	return os << "u2_e" << mapping.u2_adj << " = u_e" << mapping.u_adj << " = v_e{" << mapping.v_adj
 			  << "} = v2_e" << mapping.v2_adj;
 }
 
-ostream& UndoSimplify::print(ostream& os) const {
+std::ostream& UndoSimplify::print(std::ostream& os) const {
 	os << "UndoSimplify"
 	   << (v2_idx >= 0 ? (v2_idx == u2_idx ? "Toroidal" : "Transitive") : "Terminal")
 	   << "(u2=" << u2_idx << ", u=" << u_idx << ", v=" << v_idx << ", v2=" << v2_idx << ", bij=";
@@ -72,8 +71,8 @@ ostream& UndoSimplify::print(ostream& os) const {
 	return os << ")";
 }
 
-int findCycles(Graph& G, node u, const function<adjEntry(adjEntry)>& mapping,
-		List<List<adjEntry>>& cycles, ostream& log) {
+int findCycles(Graph& G, node u, const std::function<adjEntry(adjEntry)>& mapping,
+		List<List<adjEntry>>& cycles, std::ostream& log) {
 	AdjEntryArray<bool> checked(G, false);
 	int sum = 0;
 	log << "Cycles:";
@@ -110,7 +109,7 @@ int findCycles(Graph& G, node u, const function<adjEntry(adjEntry)>& mapping,
 	return sum;
 }
 
-adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visited,
+adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
 		List<adjEntry>& dfs_stack) {
 	while (!dfs_stack.empty()) {
 		OGDF_ASSERT(dfs_stack.back()->twinNode() != u_adj->theNode());
@@ -152,7 +151,7 @@ adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& vi
 	return nullptr;
 }
 
-adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visited,
+adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
 		List<adjEntry>& dfs_stack) {
 	dfs_stack.pushBack(u_adj);
 	visited.insert(u_adj->theEdge());
@@ -163,8 +162,7 @@ adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visit
 	return found;
 }
 
-int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visited,
-		List<adjEntry>& out) {
+int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited, List<adjEntry>& out) {
 	List<adjEntry> queue;
 	adjEntry found = startNodeDFS(G, u_adj, v, visited, queue);
 	out.pushBack(found->twin());
@@ -184,10 +182,10 @@ int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visit
 
 #ifdef OGDF_DEBUG
 
-bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v,
-		const RegisteredEdgeSet& visited, const List<adjEntry>& found) {
+bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, const EdgeSet<>& visited,
+		const List<adjEntry>& found) {
 	List<adjEntry> reference_list;
-	RegisteredEdgeSet reference_visited(G);
+	EdgeSet<> reference_visited(G);
 	exhaustiveNodeDFS(G, u_adj, v, reference_visited, reference_list);
 	OGDF_ASSERT(reference_list.size() == found.size());
 	for (adjEntry adj : found) {
@@ -223,8 +221,8 @@ void validatePartnerPCTree(const NodePCRotation* u_pc, const NodePCRotation* v_p
 	}
 }
 
-bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list,
-		RegisteredEdgeSet& visited, PQPlanarityComponents& components) {
+bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet<>& visited,
+		PQPlanarityComponents& components) {
 	int collected_v_adjs = 0;
 	for (auto& entry : bij_list) {
 		for (adjEntry adj : entry.v_adj) {

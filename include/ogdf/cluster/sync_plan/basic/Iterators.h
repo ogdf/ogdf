@@ -32,6 +32,25 @@
 
 #include <utility>
 
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
+
+template<typename IT>
+class Range {
+	IT m_begin;
+	IT m_end;
+
+public:
+	Range() { }
+
+	explicit Range(IT begin) : m_begin(begin) { }
+
+	Range(IT begin, IT end) : m_begin(begin), m_end(end) { }
+
+	IT begin() const { return m_begin; }
+
+	IT end() const { return m_end; }
+};
+
 template<typename IT1, typename IT2>
 class ZipIterator {
 	IT1 m_iter1;

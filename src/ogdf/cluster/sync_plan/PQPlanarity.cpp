@@ -38,10 +38,10 @@
 
 PQPlanarity::PQPlanarity(Graph* g, GraphAttributes* ga)
 	: G(g)
-	, GA(ga)
 	, matchings(G)
 	, partitions(G)
 	, components(G)
+	, GA(ga)
 	, is_wheel(*G, false)
 #ifdef OGDF_DEBUG
 	, consistency(*this)
@@ -94,7 +94,7 @@ PipeType PQPlanarity::getPipeType(const Pipe* p) {
 	}
 }
 
-ostream& operator<<(ostream& os, Operation op) {
+std::ostream& operator<<(std::ostream& os, Operation op) {
 	switch (op) {
 	case Operation::ENCAPSULATE_CONTRACT:
 		return os << "ENCAPSULATE_CONTRACT";
@@ -212,7 +212,7 @@ void PQPlanarity::VerifyPipeBijections::undo(PQPlanarity& pq) {
 	}
 }
 
-ostream& PQPlanarity::VerifyPipeBijections::print(ostream& os) const {
+std::ostream& PQPlanarity::VerifyPipeBijections::print(std::ostream& os) const {
 	return os << "VerifyPipeBijections";
 }
 
@@ -237,7 +237,7 @@ void PQPlanarity::ResetIndices::undo(PQPlanarity& pq) {
 	pq.indices_saved = false;
 }
 
-ostream& PQPlanarity::ResetIndices::print(ostream& os) const {
+std::ostream& PQPlanarity::ResetIndices::print(std::ostream& os) const {
 	return os << "ResetIndices(max_node " << max_node << ", max_edge " << max_edge
 			  << ", count_node " << count_node << ", count_edge " << count_edge << ")";
 }

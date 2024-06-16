@@ -33,6 +33,8 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Queue.h>
 
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
+
 using namespace ogdf;
 
 class FilteringBFS {

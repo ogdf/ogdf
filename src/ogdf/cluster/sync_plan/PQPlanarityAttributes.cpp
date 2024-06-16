@@ -92,7 +92,7 @@ void styleClusterBorder(const ClusterGraph& CG,
 		//        }
 		int i = 1, m = subdivisions[e].size() + 1;
 		double dx = (GA.x(tgt) - GA.x(src)) / m, dy = (GA.y(tgt) - GA.y(src)) / m;
-		for (pair<adjEntry, cluster> subdiv : subdivisions[e]) {
+		for (std::pair<adjEntry, cluster> subdiv : subdivisions[e]) {
 			node bn = subdiv.first->theNode();
 			OGDF_ASSERT(bn->degree() == 4);
 			edge be = subdiv.first->cyclicSucc()->theEdge();
@@ -172,12 +172,12 @@ void bendEdge(GraphAttributes& GA, edge e, double bend) {
 	GA.bends(e).pushBack(mid + ort * bend);
 }
 
-unique_ptr<pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG, GraphAttributes& GA,
-		adjEntry adjExternal) {
+std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG,
+		GraphAttributes& GA, adjEntry adjExternal) {
 	FPPLayout fpp;
 	fpp.separation(30);
 
-	unique_ptr<std::pair<GraphCopy, GraphAttributes>> pair(
+	std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> pair(
 			new std::pair<GraphCopy, GraphAttributes>());
 	GraphCopy& GC = pair->first;
 	GraphAttributes& GCA = pair->second;
@@ -188,7 +188,7 @@ unique_ptr<pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG, 
 	GA.transferToCopy(GCA);
 
 	EdgeArray<List<std::pair<adjEntry, cluster>>> subdivisions(CG.constGraph());
-	function<edge(edge)> translate = [&GC](edge e) -> edge { return GC.copy(e); };
+	std::function<edge(edge)> translate = [&GC](edge e) -> edge { return GC.copy(e); };
 	clusterBorderToEdges(CG, GC, &subdivisions, translate);
 	styleClusterBorder(CG, subdivisions, GCA, translate);
 	auto formatSplitEdge = [&GCA](edge e, edge e2) {
@@ -316,7 +316,7 @@ void PQPlanarityDrawer::cleanUp() {
 
 GraphAttributes& PQPlanarityDrawer::ensureGraphAttributes() {
 	if (PQ->GA == nullptr) {
-		own_GA = make_unique<GraphAttributes>(*(PQ->G), GraphAttributes::all);
+		own_GA = std::make_unique<GraphAttributes>(*(PQ->G), GraphAttributes::all);
 		PQ->GA = own_GA.get();
 	}
 	return *PQ->GA;

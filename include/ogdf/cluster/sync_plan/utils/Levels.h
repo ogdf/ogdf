@@ -37,11 +37,13 @@
 
 #include <vector>
 
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
+
 using namespace ogdf;
-using namespace std;
+using namespace std; // FIXME
 
 void writeLevelGraph(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& pos,
-		ostream& os);
+		std::ostream& os);
 
 void readLevelGraph(Graph& G, vector<vector<node>>& emb, NodeArray<int>& pos, istream& is);
 

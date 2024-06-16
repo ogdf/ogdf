@@ -88,7 +88,8 @@ struct EmbeddingTrees {
 						 << ",\"cc_id\":" << components.bcConnectedId(bc) << ",";
 #endif
 			// SYNCPLAN_PROFILE_START("batchSPQR-makeSPQR")
-			pq.log.lout() << "Creating SPQR information for " << components.fmtBCNode(bc) << endl;
+			pq.log.lout()
+					<< "Creating SPQR information for " << components.fmtBCNode(bc) << std::endl;
 			FilteringBFS bfs = components.nodesInBiconnectedComponent(bc);
 			for (node n : bfs) {
 				spqr.GC.newNode(n);
@@ -100,7 +101,7 @@ struct EmbeddingTrees {
 			}
 			OGDF_ASSERT(!bfs.valid());
 			pq.log.lout() << "Copied " << spqr.GC.numberOfNodes() << " nodes and "
-						  << spqr.GC.numberOfEdges() << " edges" << endl;
+						  << spqr.GC.numberOfEdges() << " edges" << std::endl;
 			OGDF_ASSERT(spqr.GC.numberOfNodes() == components.bcSize(bc));
 #ifdef SYNCPLAN_OPSTATS
 			pq.stats_out << "\"nodes\":" << spqr.GC.numberOfNodes()
@@ -121,18 +122,18 @@ struct EmbeddingTrees {
 		tp start = tpc::now();
 #endif
 		pq.log.lout() << "Computing NodeSPQRRotation for vertex " << pq.fmtPQNode(n) << " in block "
-					  << components.fmtBCOf(n) << endl;
+					  << components.fmtBCOf(n) << std::endl;
 		NodeSSPQRRotation* pc = new NodeSSPQRRotation(spqr, n);
 		pq.log.lout() << "PC-Tree with " << pc->getPNodeCount() << " P-nodes and "
-					  << pc->getCNodeCount() << " C-nodes" << endl;
+					  << pc->getCNodeCount() << " C-nodes" << std::endl;
 		if (pq.log.is_lout(ogdf::Logger::Level::Minor)) {
 			pq.log.lout() << "PC-Tree: " << *pc << " (" << (pc->isTrivial() ? "" : "non-")
-						  << "trivial)*" << pc->possibleOrders() << "/"
-						  << round(tgamma(pc->getNode()->degree())) << endl;
+						  << "trivial)*" << pc->possibleOrders<size_t>() << "/"
+						  << round(tgamma(pc->getNode()->degree())) << std::endl;
 			if (pc->isTrivial()) {
-				pq.log.lout()
-						<< "Partner vertex is " << pq.fmtPQNode(pc->getTrivialPartnerPole())
-						<< " in block " << components.fmtBCOf(pc->getTrivialPartnerPole()) << endl;
+				pq.log.lout() << "Partner vertex is " << pq.fmtPQNode(pc->getTrivialPartnerPole())
+							  << " in block " << components.fmtBCOf(pc->getTrivialPartnerPole())
+							  << std::endl;
 			}
 		}
 		pc->mapPartnerEdges();
@@ -149,10 +150,10 @@ struct EmbeddingTrees {
 			if (!pc->isEqual(pc2)) {
 				pq.log.lout(Logger::Level::Alarm)
 						<< "NodeSPQRRotation: " << pc->uniqueID(pc->uidPrinter(), pc->uidComparer())
-						<< endl;
+						<< std::endl;
 				pq.log.lout(Logger::Level::Alarm)
 						<< "NodePCRotation:   " << pc2.uniqueID(pc2.uidPrinter(), pc2.uidComparer())
-						<< endl;
+						<< std::endl;
 				OGDF_ASSERT(false);
 			}
 		}
@@ -177,19 +178,18 @@ struct SimplePipe {
 };
 
 #ifdef SYNCPLAN_OPSTATS
-#	define RETURN_INVALID \
-		// SYNCPLAN_PROFILE_STOP("batchSPQR")                        \
+#	define RETURN_INVALID                                  \
 		printOPStatsEnd(false, dur_ns(tpc::now() - start)); \
-		return INVALID_INSTANCE;
+		return PQPlanarity::Result::INVALID_INSTANCE;
+// SYNCPLAN_PROFILE_STOP("batchSPQR")
 #else
-#	define RETURN_INVALID \
-		// SYNCPLAN_PROFILE_STOP("batchSPQR") \
-		return INVALID_INSTANCE;
+#	define RETURN_INVALID return PQPlanarity::Result::INVALID_INSTANCE;
+// SYNCPLAN_PROFILE_STOP("batchSPQR")
 #endif
 
 PQPlanarity::Result PQPlanarity::batchSPQR() {
 	// SYNCPLAN_PROFILE_START("batchSPQR")
-	log.lout(Logger::Level::High) << "BATCH SPQR" << endl;
+	log.lout(Logger::Level::High) << "BATCH SPQR" << std::endl;
 #ifdef SYNCPLAN_OPSTATS
 	tp start = tpc::now();
 	if (!stats_first_in_array) {
@@ -233,24 +233,24 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 			// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
 			Result r = simplify(p.block_vertex, pc);
 			// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
-			if (r == INVALID_INSTANCE) {
+			if (r == PQPlanarity::Result::INVALID_INSTANCE) {
 				RETURN_INVALID
-			} else if (r == SUCCESS) {
+			} else if (r == PQPlanarity::Result::SUCCESS) {
 				changed = simplified = true;
 			} else {
-				OGDF_ASSERT(r == NOT_APPLICABLE);
+				OGDF_ASSERT(r == PQPlanarity::Result::NOT_APPLICABLE);
 
 				if (p.both_block) {
 					// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
 					NodePCRotation* pc = embtrees.makeTree(p.other_vertex);
-					r = INVALID_INSTANCE;
+					r = PQPlanarity::Result::INVALID_INSTANCE;
 					if (pc != nullptr) {
 						r = simplify(p.other_vertex, pc);
 					}
 					// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
-					if (r == INVALID_INSTANCE) {
+					if (r == PQPlanarity::Result::INVALID_INSTANCE) {
 						RETURN_INVALID
-					} else if (r == SUCCESS) {
+					} else if (r == PQPlanarity::Result::SUCCESS) {
 						changed = simplified = true;
 					}
 				}
@@ -277,7 +277,8 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 		// SYNCPLAN_PROFILE_START("batchSPQR-propagatePQ")
 		if (pc_v) {
 			if (pc->isTrivial()
-					|| (!intersect_trees && pc_v->possibleOrders() < pc->possibleOrders())) {
+					|| (!intersect_trees
+							&& pc_v->possibleOrders<size_t>() < pc->possibleOrders<size_t>())) {
 				r = propagatePQ(p.other_vertex, pc_v, pc);
 			} else {
 				r = propagatePQ(p.block_vertex, pc, pc_v);
@@ -286,9 +287,9 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 			r = propagatePQ(p.block_vertex, pc);
 		}
 		// SYNCPLAN_PROFILE_STOP("batchSPQR-propagatePQ")
-		if (r == INVALID_INSTANCE) {
+		if (r == PQPlanarity::Result::INVALID_INSTANCE) {
 			RETURN_INVALID
-		} else if (r == SUCCESS) {
+		} else if (r == PQPlanarity::Result::SUCCESS) {
 			changed = true;
 		}
 	}
@@ -300,5 +301,5 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 	stats_first_in_array = false;
 	printOPStatsEnd(changed, dur_ns(tpc::now() - start));
 #endif
-	return changed ? SUCCESS : NOT_APPLICABLE;
+	return changed ? PQPlanarity::Result::SUCCESS : PQPlanarity::Result::NOT_APPLICABLE;
 }

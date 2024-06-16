@@ -29,11 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/PipeOrder.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
-
-#include <NodePCRotation.h>
 
 PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 	try {
@@ -45,10 +44,11 @@ PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 		NodePCRotation pc(*G, u, true);
 		iso.restore(); // TODO Make function of components to get EmbeddingTree interface
 		log.lout() << "PC-Tree with " << pc.getPNodeCount() << " P-nodes and " << pc.getCNodeCount()
-				   << " C-nodes" << endl;
+				   << " C-nodes" << std::endl;
 		if (log.is_lout(ogdf::Logger::Level::Minor)) {
 			log.lout() << "PC-Tree: " << pc << " (" << (pc.isTrivial() ? "" : "non-") << "trivial)*"
-					   << pc.possibleOrders() << "/" << round(tgamma(u->degree())) << endl;
+					   << pc.possibleOrders<size_t>() << "/" << round(tgamma(u->degree()))
+					   << std::endl;
 		}
 		// SYNCPLAN_PROFILE_STOP("checkPCTree")
 #ifdef SYNCPLAN_OPSTATS
@@ -65,7 +65,7 @@ PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 		log.lout(Logger::Level::Alarm)
 				<< "Instance became non-planar during reduction, so creating a PC-Tree failed!"
 				<< std::endl;
-		return INVALID_INSTANCE;
+		return PQPlanarity::Result::INVALID_INSTANCE;
 	}
 }
 
@@ -76,7 +76,7 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 	}
 	if (!matchings.getPipeQueue()) {
 		log.lout(Logger::Level::Minor) << "Using default PipeQueueByDegree" << std::endl;
-		matchings.setPipeQueue(make_unique<PipeQueueByDegree>());
+		matchings.setPipeQueue(std::make_unique<PipeQueueByDegree>());
 	}
 	pushUndoOperationAndCheck(new VerifyPipeBijections(*this));
 	int steps = 0;
@@ -94,13 +94,14 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 		if (log.is_lout(Logger::Level::High)) {
 			log.lout(Logger::Level::High)
 					<< "Step " << steps << ": " << matchings.getPipeCount() << " pipes left"
-					<< (log.is_lout(Logger::Level::Medium) ? ":" : "") << endl;
-			log.lout(Logger::Level::Medium) << matchings.getPipes() << endl;
+					<< (log.is_lout(Logger::Level::Medium) ? ":" : "") << std::endl;
+			log.lout(Logger::Level::Medium) << matchings.getPipes() << std::endl;
 			log.lout(Logger::Level::High)
-					<< "Processing pipe matching " << fmtPQNode(pipe.node1) << endl
-					<< "                    with " << fmtPQNode(pipe.node2) << endl
-					<< "           of components " << components.fmtBCOf(pipe.node1) << endl
-					<< "                     and " << components.fmtBCOf(pipe.node2) << "." << endl;
+					<< "Processing pipe matching " << fmtPQNode(pipe.node1) << std::endl
+					<< "                    with " << fmtPQNode(pipe.node2) << std::endl
+					<< "           of components " << components.fmtBCOf(pipe.node1) << std::endl
+					<< "                     and " << components.fmtBCOf(pipe.node2) << "."
+					<< std::endl;
 			if (pipe.pipe_priority >= 0) {
 				log.lout(Logger::Level::High)
 						<< "Pipe has priority " << top_prio << ", priority pipe count is "
@@ -113,7 +114,7 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 
 		if (pipe.degree() <= 3) {
 			Result result = convertSmall(pipe.node1);
-			OGDF_ASSERT(result == SUCCESS);
+			OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
 			// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 			continue;
 		}
@@ -126,7 +127,7 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 													   : Operation::CONTRACT_BICON);
 #endif
 			Result contract_result = contract(pipe.node1);
-			OGDF_ASSERT(contract_result == SUCCESS);
+			OGDF_ASSERT(contract_result == PQPlanarity::Result::SUCCESS);
 #ifdef SYNCPLAN_OPSTATS
 			printOPStatsEnd(true, dur_ns(tpc::now() - contract_start));
 #endif
@@ -136,10 +137,10 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 
 		if (batch_spqr) {
 			Result batch_result = batchSPQR();
-			if (batch_result == INVALID_INSTANCE) {
+			if (batch_result == PQPlanarity::Result::INVALID_INSTANCE) {
 				// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 				return false;
-			} else if (batch_result == SUCCESS) {
+			} else if (batch_result == PQPlanarity::Result::SUCCESS) {
 				// SYNCPLAN_PROFILE_STOP("makeReduced-step")
 				continue;
 			}
@@ -155,12 +156,12 @@ bool PQPlanarity::makeReduced(int check_planarity_every) {
 
 		Result tree_result = checkPCTree(block_vertex);
 		// SYNCPLAN_PROFILE_STOP("makeReduced-step")
-		if (tree_result == NOT_APPLICABLE) {
+		if (tree_result == PQPlanarity::Result::NOT_APPLICABLE) {
 			OGDF_ASSERT(matchings.getTopPipe().pipe_priority > top_prio);
 			continue;
-		} else if (tree_result == SUCCESS) {
+		} else if (tree_result == PQPlanarity::Result::SUCCESS) {
 			continue;
-		} else if (tree_result == INVALID_INSTANCE) {
+		} else if (tree_result == PQPlanarity::Result::INVALID_INSTANCE) {
 			return false;
 		}
 	}

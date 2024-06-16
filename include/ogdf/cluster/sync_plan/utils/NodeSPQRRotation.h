@@ -34,12 +34,13 @@
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/decomposition/DynamicSPQRForest.h>
 
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
 using namespace ogdf;
-using namespace std;
+using namespace std; // TODO remove
 using namespace ogdf::pc_tree;
 
-ostream& operator<<(ostream& os, DynamicSPQRForest::TNodeType t);
+std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t);
 
 struct RigidEmbedding {
 	// mostly needed for the destructor clean-up, because NodeArray<unique_ptr> doesn't compile currently
@@ -87,8 +88,8 @@ public:
 		OGDF_ASSERT(spqr.spqrproper(n->firstAdj()->theEdge()) != nullptr);
 		m_G = &spqr.auxiliaryGraph();
 		m_n = n;
-		incidentEdgeForLeaf.init(*this, nullptr);
-		graphNodeForInnerNode.init(*this, nullptr);
+		m_incidentEdgeForLeaf.init(*this, nullptr);
+		m_graphNodeForInnerNode.init(*this, nullptr);
 		apex = findSPQRApex(n);
 		PCNode* root = makePCNode(apex, nullptr, nullptr);
 		// findSPQRApex(n, true); // clear arrays
@@ -111,18 +112,18 @@ public:
 		m_G = G;
 		m_n = nodes(m_n);
 		for (PCNode* n : FilteringPCTreeDFS(*this, getRootNode())) {
-			node& gn = graphNodeForInnerNode[n];
+			node& gn = m_graphNodeForInnerNode[n];
 			if (gn != nullptr) {
 				gn = nodes(gn);
 			}
 		}
 		for (PCNode* l : getLeaves()) {
-			edge& ie = incidentEdgeForLeaf[l];
+			edge& ie = m_incidentEdgeForLeaf[l];
 			if (ie != nullptr) {
 				ie = edges(ie);
 			}
 			if (knowsPartnerEdges()) {
-				for (edge& e : bundleEdgesForLeaf[l]) {
+				for (edge& e : m_bundleEdgesForLeaf[l]) {
 					e = edges(e);
 				}
 			}
