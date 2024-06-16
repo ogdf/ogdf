@@ -115,7 +115,7 @@ std::pair<edge, edge> PQPlanarityComponents::graphEdgeToBCEdge(node bc_src, node
 	OGDF_ASSERT(bc_src->graphOf() == &BC);
 	OGDF_ASSERT(bc_tgt->graphOf() == &BC);
 	if (bc_src->degree() > bc_tgt->degree()) {
-		const pair<edge, edge>& res = graphEdgeToBCEdge(bc_tgt, bc_src);
+		const std::pair<edge, edge>& res = graphEdgeToBCEdge(bc_tgt, bc_src);
 		if (res.second == nullptr) {
 			return res;
 		} else {
@@ -151,7 +151,7 @@ std::pair<edge, edge> PQPlanarityComponents::graphEdgeToBCEdge(node bc_src, node
 node PQPlanarityComponents::findCommonBiconComp(node bc_cut1, node bc_cut2) const {
 	OGDF_ASSERT(isCutComponent(bc_cut1));
 	OGDF_ASSERT(isCutComponent(bc_cut2));
-	const pair<edge, edge>& bcEdge = graphEdgeToBCEdge(bc_cut1, bc_cut2);
+	const std::pair<edge, edge>& bcEdge = graphEdgeToBCEdge(bc_cut1, bc_cut2);
 	OGDF_ASSERT(bcEdge.second != nullptr);
 	node common = bcEdge.first->commonNode(bcEdge.second);
 	OGDF_ASSERT(common != nullptr);
@@ -200,9 +200,10 @@ void PQPlanarityComponents::nodeInserted(node g_n, node bc_n) {
 void PQPlanarityComponents::insert(BCTree& tmp_bc) {
 	OGDF_ASSERT(&tmp_bc.originalGraph() == G);
 	NodeArray<node> bc_map(tmp_bc.bcTree(), nullptr);
+	EdgeArray<edge> dummy(tmp_bc.bcTree(), nullptr);
 	NodeArray<int> bc_conn(tmp_bc.bcTree(), -1);
 	int new_conn = connectedComponents(tmp_bc.bcTree(), bc_conn);
-	BC.insert(tmp_bc.bcTree(), bc_map);
+	BC.insert(tmp_bc.bcTree(), bc_map, dummy);
 	for (node h_node : tmp_bc.auxiliaryGraph().nodes) {
 		node g_node = tmp_bc.original(h_node);
 		node tmp_bc_node = tmp_bc.bcproper(g_node);
@@ -384,8 +385,8 @@ void PQPlanarityComponents::labelIsolatedNodes() {
 BiconnectedIsolation::BiconnectedIsolation(PQPlanarityComponents& comps, node bicon)
 	: m_comps(comps)
 	, m_bicon(bicon)
-	, m_adjEntries(comps.graph())
 	, m_to_restore(comps.graph())
+	, m_adjEntries(comps.graph())
 	, m_hiddenEdges(comps.graph()) {
 	OGDF_ASSERT(!comps.isCutComponent(bicon));
 	if (m_bicon->degree() == 0) {

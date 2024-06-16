@@ -42,7 +42,7 @@ struct FindType {
 
 	FindType() : selected(false), discovered(false), visited_src(false), visited_tgt(false) { }
 
-	friend ostream& operator<<(ostream& os, const FindType& type) {
+	friend std::ostream& operator<<(std::ostream& os, const FindType& type) {
 		os << (type.selected ? "S" : "-") << (type.discovered ? "D" : "-")
 		   << (type.visited_src ? "V" : "-") << (type.visited_tgt ? "T" : "-");
 		return os;
@@ -300,7 +300,7 @@ public:
 		// SYNCPLAN_PROFILE_STOP("undo-contract")
 	}
 
-	ostream& print(ostream& os) const override {
+	std::ostream& print(std::ostream& os) const override {
 		return os << "UndoContract(u=" << u_idx << ", v=" << v_idx
 				  << ", bij=" << printFrozenBijection(bij) << ", u_neighs=" << u_neigh_idcs
 				  << ", reverse_v_edges=" << reverse_v_edges << ")";
@@ -319,11 +319,11 @@ public:
 
 PQPlanarity::Result PQPlanarity::contract(node u) {
 	if (!matchings.isMatchedPVertex(u)) {
-		return Result::NOT_APPLICABLE;
+		return PQPlanarity::Result::NOT_APPLICABLE;
 	}
 	node v = matchings.getTwin(u);
 	if (!canContract(matchings.getPipe(u))) {
-		return Result::NOT_APPLICABLE;
+		return PQPlanarity::Result::NOT_APPLICABLE;
 	}
 
 	// SYNCPLAN_PROFILE_START("contract")
@@ -361,9 +361,9 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 		// SYNCPLAN_PROFILE_START("contract-encapsulate")
 		log.lout() << "Encapsulating u and v." << std::endl;
 		Result result = encapsulate(u);
-		OGDF_ASSERT(result == Result::SUCCESS);
+		OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
 		result = encapsulate(v);
-		OGDF_ASSERT(result == Result::SUCCESS);
+		OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
 		log.lout() << "Encapsulation complete, continuing with contraction." << std::endl;
 		// SYNCPLAN_PROFILE_STOP("contract-encapsulate")
 	}
@@ -391,5 +391,5 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 
 	pushUndoOperationAndCheck(op);
 	// SYNCPLAN_PROFILE_STOP("contract")
-	return SUCCESS;
+	return PQPlanarity::Result::SUCCESS;
 }

@@ -35,8 +35,9 @@
 
 using namespace ogdf;
 
-using PipeBijIterator = ZipIterator<adjEntry, internal::GraphObjectContainer<AdjElement>::iterator,
-		adjEntry, internal::GraphObjectContainer<AdjElement>::reverse_iterator>;
+using PipeBijIterator = ZipIterator<internal::GraphObjectContainer<AdjElement>::iterator,
+		internal::GraphObjectContainer<AdjElement>::reverse_iterator>;
+using PipeBijRange = Range<PipeBijIterator>;
 using PipeBijPair = std::pair<adjEntry, adjEntry>;
 using FrozenPipeBijPair = std::pair<int, int>;
 using PipeBij = List<PipeBijPair>; // TODO convert to vector?
@@ -46,7 +47,7 @@ OGDF_DECLARE_COMPARER(PipeBijCmp, PipeBijPair, int, x.first->theEdge()->index())
 
 OGDF_DECLARE_COMPARER(FrozenPipeBijCmp, FrozenPipeBijPair, int, x.first);
 
-PipeBijIterator getPipeBijection(node u, node v);
+PipeBijRange getPipeBijection(node u, node v);
 
 void getPipeBijection(node u, node v, PipeBij& out);
 

@@ -34,6 +34,9 @@
 
 #include <ostream>
 
+
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
+
 using namespace ogdf;
 
 struct RandomClusterConfig {

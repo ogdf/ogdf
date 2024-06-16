@@ -39,7 +39,7 @@ public:
 
 	void undo(PQPlanarity& pq) override { pq.contractWheel(pq.nodeFromIndex(centre_idx)); }
 
-	ostream& print(ostream& os) const override {
+	std::ostream& print(std::ostream& os) const override {
 		return os << "UndoMakeWheel(" << centre_idx << ")";
 	}
 };

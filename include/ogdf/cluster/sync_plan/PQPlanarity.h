@@ -82,7 +82,7 @@ enum class Operation {
 	BATCH_SPQR
 };
 
-ostream& operator<<(ostream& os, Operation op);
+std::ostream& operator<<(std::ostream& os, Operation op);
 
 class PQPlanarity {
 	friend class PQPlanarityConsistency;
@@ -137,7 +137,7 @@ public:
 
 		void undo(PQPlanarity& pq) override;
 
-		ostream& print(ostream& os) const override;
+		std::ostream& print(std::ostream& os) const override;
 	};
 
 	class ResetIndices : public UndoOperation {
@@ -148,7 +148,7 @@ public:
 
 		void undo(PQPlanarity& pq) override;
 
-		ostream& print(ostream& os) const override;
+		std::ostream& print(std::ostream& os) const override;
 	};
 
 	enum class Result { SUCCESS, NOT_APPLICABLE, INVALID_INSTANCE };

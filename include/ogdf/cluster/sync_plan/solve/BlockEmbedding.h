@@ -40,7 +40,10 @@ using namespace ogdf;
 
 struct BlockEmbedding;
 
-using GnMultiArray = RegisteredMultiArray<node, BlockEmbedding*, node, NodeArray>;
+template<typename V>
+using NA = NodeArray<V>;
+
+using GnMultiArray = RegisteredMultiArray<node, BlockEmbedding*, node, NA>;
 
 struct BlockEmbedding {
 	Graph subgraph;
@@ -51,7 +54,8 @@ struct BlockEmbedding {
 	GnMultiArray& Gn_to_subgraph;
 	EdgeArray<edge> subgraph_to_Ge;
 
-	explicit BlockEmbedding(GnMultiArray& gnToSubgraph) : Gn_to_subgraph(gnToSubgraph) { }
+	explicit BlockEmbedding(GnMultiArray& gnToSubgraph)
+		: rigid_vars(nullptr, TwoSAT_Var_Undefined), Gn_to_subgraph(gnToSubgraph) { }
 
 	virtual ~BlockEmbedding() { delete spqr; }
 

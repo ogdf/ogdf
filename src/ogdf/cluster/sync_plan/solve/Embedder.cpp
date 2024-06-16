@@ -134,7 +134,7 @@ void PQPlanarity::embed() {
 
 #ifdef OGDF_DEBUG
 		if (consistency.doWriteOut) {
-			stringstream ss;
+			std::stringstream ss;
 			ss << "undoOp" << op->consistency_nr;
 			consistency.writeOut(ss.str(), false, false);
 		}

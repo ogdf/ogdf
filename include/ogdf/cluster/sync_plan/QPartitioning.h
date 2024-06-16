@@ -30,6 +30,7 @@
  */
 #pragma once
 
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 #include <ogdf/basic/GraphObserver.h>
 
 using namespace ogdf;
@@ -38,10 +39,12 @@ static inline int NO_PARTITION = -1;
 
 class QPartitioning;
 
-template<class Value>
-using PartitionArray = RegisteredArray<QPartitioning, int, Value>;
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) RegisteredArray<QPartitioning, v, c>
+//! RegisteredArray for labeling the partitions in a QPartitioning with an arbitrary \p Value.
+OGDF_DECL_REG_ARRAY(PartitionArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
 
-class QPartitioning : protected GraphObserver, public RegistryBase<int, QPartitioning> {
+class QPartitioning : protected GraphObserver, public RegistryBase<int, QPartitioning, int> {
 private:
 	PartitionArray<List<node>> partitioned_nodes;
 	NodeArray<int> partitions;
@@ -50,7 +53,7 @@ private:
 	int partition_table_size = MIN_TABLE_SIZE;
 
 public:
-	explicit QPartitioning(const Graph* G) : partitions(*G, NO_PARTITION), GraphObserver(G) {
+	explicit QPartitioning(const Graph* G) : GraphObserver(G), partitions(*G, NO_PARTITION) {
 		partitioned_nodes.init(*this);
 	}
 
@@ -58,7 +61,7 @@ public:
 
 	int getPartitionOf(node n) const;
 
-	// XXX it is assumed that the graph structure ensures that only two rotations are possible, i.e. by calling makeWheel
+	//! it is assumed that the graph structure ensures that only two rotations are possible, i.e. by calling makeWheel
 	int makeQVertex(node n, int p = NO_PARTITION);
 
 	void releaseQVertex(node n);
@@ -69,13 +72,21 @@ public:
 
 	const List<node>& nodesInPartition(int partition) const { return partitioned_nodes[partition]; }
 
-	bool isKeyAssociated(int key) const override { return 0 <= key && key <= maxKeyIndex(); }
+	//! Returns the index of \p key.
+	static inline int keyToIndex(int key) { return key; }
 
-	int keyToIndex(int key) const override { return key; }
+	//! Returns whether \p key is associated with this registry.
+	bool isKeyAssociated(int key) const { return 0 <= key && key <= maxKeyIndex(); }
 
-	int keyArrayTableSize() const override { return partition_table_size; }
+	//! Returns the maximum index of all keys managed by this registry.
+	int maxKeyIndex() const { return partition_next_id - 1; }
 
-	int maxKeyIndex() const override { return partition_next_id - 1; }
+	//! Returns the array size currently requested by this registry.
+	int calculateArraySize(int add) const { return partition_table_size; }
+
+	int begin() const { return 0; }
+
+	int end() const { return partition_next_id; }
 
 protected:
 	void nodeDeleted(node v) override;
@@ -90,6 +101,5 @@ protected:
 		partitions.fill(NO_PARTITION);
 		partition_next_id = 1;
 		partition_table_size = MIN_TABLE_SIZE;
-		reinitArrays();
 	};
 };

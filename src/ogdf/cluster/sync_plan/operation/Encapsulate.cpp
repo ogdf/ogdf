@@ -70,7 +70,7 @@ public:
 		// SYNCPLAN_PROFILE_STOP("undo-encapsulate")
 	}
 
-	ostream& print(ostream& os) const override {
+	std::ostream& print(std::ostream& os) const override {
 		os << "UndoEncapsulate([";
 		bool first = true;
 		for (const auto& p : ray_pipes) {
@@ -88,7 +88,7 @@ public:
 PQPlanarity::Result PQPlanarity::encapsulate(node g_cut) {
 	// get some properties of the original cut vertex
 	if (!components.isCutVertex(g_cut)) {
-		return Result::NOT_APPLICABLE;
+		return PQPlanarity::Result::NOT_APPLICABLE;
 	}
 	// SYNCPLAN_PROFILE_START("encapsulate")
 	node bc_cut = components.biconnectedComponent(g_cut);
@@ -169,5 +169,5 @@ PQPlanarity::Result PQPlanarity::encapsulate(node g_cut) {
 
 	pushUndoOperationAndCheck(new UndoEncapsulate(block_list));
 	// SYNCPLAN_PROFILE_STOP("encapsulate")
-	return Result::SUCCESS;
+	return PQPlanarity::Result::SUCCESS;
 }

@@ -31,11 +31,8 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
-
-#include <NodePCRotation.h>
-
-using RegisteredEdgeSet = RegisteredElementSet<edge, Graph>;
 
 struct SimplifyMapping {
 	adjEntry u2_adj, u_adj, v2_adj;
@@ -44,7 +41,7 @@ struct SimplifyMapping {
 	explicit SimplifyMapping(adjEntry u2Adj = nullptr, adjEntry uAdj = nullptr,
 			adjEntry vAdj = nullptr, adjEntry v2Adj = nullptr);
 
-	friend ostream& operator<<(ostream& os, const SimplifyMapping& mapping);
+	friend std::ostream& operator<<(std::ostream& os, const SimplifyMapping& mapping);
 };
 
 struct FrozenSimplifyMapping {
@@ -53,7 +50,7 @@ struct FrozenSimplifyMapping {
 
 	explicit FrozenSimplifyMapping(int u2Adj = -1, int uAdj = -1, int vAdj = -1, int v2Adj = -1);
 
-	friend ostream& operator<<(ostream& os, const FrozenSimplifyMapping& mapping);
+	friend std::ostream& operator<<(std::ostream& os, const FrozenSimplifyMapping& mapping);
 };
 
 class UndoSimplify : public PQPlanarity::UndoOperation {
@@ -65,7 +62,7 @@ public:
 
 	void undo(PQPlanarity& pq) override;
 
-	ostream& print(ostream& os) const override;
+	std::ostream& print(std::ostream& os) const override;
 };
 
 /**
@@ -82,7 +79,7 @@ int findCycles(Graph& G, node u, const std::function<adjEntry(adjEntry)>& mappin
  * @param u_adj (for debugging purposes) an adjEntry at the bottom of the stack, whose node we should never visit
  * @return an adjEntry of \p v reachable from \p dfs_stack.back() via previously unvisited edges
  */
-adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visited,
+adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
 		List<adjEntry>& dfs_stack);
 
 /**
@@ -94,7 +91,7 @@ adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& vi
  * If you want to find a further alternative adjEntries that match this criterion, pop the last entry
  * off the stack and call continueNodeDFS (see also exhaustiveNodeDFS).
  */
-adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visited,
+adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
 		List<adjEntry>& dfs_stack);
 
 /**
@@ -103,16 +100,15 @@ adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visit
  * and the edge incident to v found in the end) are added to the set \p visited.
  * Calls startNodeDFS once and then repeatedly calls continueNodeDFS until no new adjEntry is found.
  */
-int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, RegisteredEdgeSet& visited,
-		List<adjEntry>& out);
+int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited, List<adjEntry>& out);
 
 #ifdef OGDF_DEBUG
 
 /**
  * Check that the method exhaustiveNodeDFS would return the same adjEntries as contained in \p found.
  */
-bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v,
-		const RegisteredEdgeSet& visited, const List<adjEntry>& found);
+bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, const EdgeSet<>& visited,
+		const List<adjEntry>& found);
 
 /**
  * For two poles u,v of an (SPQR-Tree) parallel, check that their embedding PCTrees correctly represent all parallel bundles between u and v.
@@ -123,7 +119,7 @@ void validatePartnerPCTree(const NodePCRotation* u_pc, const NodePCRotation* v_p
 /**
  * Check that /p bij_list contains all adjEntries of \p v which belong to a parallel bundle leading to \p u.
  */
-bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list,
-		RegisteredEdgeSet& visited, PQPlanarityComponents& components);
+bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet<>& visited,
+		PQPlanarityComponents& components);
 
 #endif

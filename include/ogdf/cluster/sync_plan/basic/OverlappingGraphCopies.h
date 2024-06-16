@@ -35,6 +35,8 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/cluster/sync_plan/basic/RegisteredMultiArray.h>
 
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
+
 using namespace ogdf;
 
 

@@ -110,10 +110,10 @@ public:
 	}
 
 	void clear() override {
-#ifdef OGDF_DEBUG
+#if 0
 		Pipe* top = nullptr;
 		while (!pipes_heap->empty()) {
-			// OGDF_ASSERT(checkOrder(top, pipes_heap->top()));
+			OGDF_ASSERT(checkOrder(top, pipes_heap->top()));
 			top = pipes_heap->top();
 			pipes_heap->pop();
 		}
@@ -220,15 +220,15 @@ public:
 	}
 
 	void clear() override {
-#ifdef OGDF_DEBUG
+#if 0
 		Pipe* top = nullptr;
 		while (!pipes_heap->empty()) {
-			// OGDF_ASSERT(checkOrder(top, pipes_heap->top()));
+			OGDF_ASSERT(checkOrder(top, pipes_heap->top()));
 			top = pipes_heap->top();
 			pipes_heap->pop();
 		}
 		while (!pipes_heap2->empty()) {
-			// OGDF_ASSERT(checkOrder(top, pipes_heap2->top()));
+			OGDF_ASSERT(checkOrder(top, pipes_heap2->top()));
 			top = pipes_heap2->top();
 			pipes_heap2->pop();
 		}

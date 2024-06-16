@@ -31,10 +31,10 @@
 #include <ogdf/basic/AdjEntryArray.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
-PipeBijIterator getPipeBijection(node u, node v) {
+PipeBijRange getPipeBijection(node u, node v) {
 	OGDF_ASSERT(u->degree() == v->degree());
-	return PipeBijIterator(u->adjEntries.begin(), u->adjEntries.end(), v->adjEntries.rbegin(),
-			v->adjEntries.rend());
+	return PipeBijRange {PipeBijIterator {u->adjEntries.begin(), v->adjEntries.rbegin()},
+			PipeBijIterator {u->adjEntries.end(), v->adjEntries.rend()}};
 }
 
 void getPipeBijection(node u, node v, PipeBij& out) {

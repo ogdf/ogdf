@@ -148,10 +148,10 @@ bool BlockEmbedding::addQVertex(node q, EdgeArray<edge>& Ge_to_subgraph, TwoSAT&
 		q_adjs_rigid_order.pushBack(subgraph_to_Ge[real_edge]->getAdj(q));
 	}
 	OrderComp comp = compareCyclicOrder(q, q_adjs_rigid_order, true);
-	if (comp == REVERSED) {
+	if (comp == OrderComp::REVERSED) {
 		sat.newClause(part_var, true, rigid_var, true);
 		sat.newClause(part_var, false, rigid_var, false);
-	} else if (comp == SAME) {
+	} else if (comp == OrderComp::SAME) {
 		sat.newClause(part_var, true, rigid_var, false);
 		sat.newClause(part_var, false, rigid_var, true);
 	} else {

@@ -40,7 +40,7 @@
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 
 using namespace ogdf;
-using namespace std;
+using namespace std; // TODO remove
 
 void randomPQPlanInstance(PQPlanarity& pq, int pipe_count, int min_deg = 3) {
 	for (int i = 0; i < pipe_count; ++i) {

@@ -28,11 +28,14 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityOptions.h>
 
-#include <unordered_map>
+#if 0
+
+#	include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#	include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#	include <ogdf/cluster/sync_plan/PQPlanarityOptions.h>
+
+#	include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -252,3 +255,5 @@ void PQPlanOptions::applyConfigJSON(Graph& G, GraphAttributes& GA, PQPlanarity& 
 		}
 	}
 }
+
+#endif

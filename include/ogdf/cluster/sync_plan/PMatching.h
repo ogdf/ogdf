@@ -91,7 +91,7 @@ private:
 	std::unique_ptr<PipeQueue> queue;
 
 public:
-	explicit PMatching(const Graph* G) : nodes(*G, nullptr), GraphObserver(G) { }
+	explicit PMatching(const Graph* G) : GraphObserver(G), nodes(*G, nullptr) { }
 
 	bool isMatchedPVertex(node n) const;
 
@@ -113,7 +113,7 @@ public:
 
 	bool isReduced() const;
 
-	PipeBijIterator getIncidentEdgeBijection(node u) const;
+	PipeBijRange getIncidentEdgeBijection(node u) const;
 
 	void getIncidentEdgeBijection(node u, PipeBij& out) const;
 

@@ -28,13 +28,12 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
-
-#include <NodePCRotation.h>
-#include <PCNode.h>
-#include <PCTree.h>
 
 using namespace pc_tree;
 
@@ -68,9 +67,9 @@ public:
 	UndoPropagate(node u, node v)
 		: u_idx(u->index())
 		, v_idx(v->index())
-		, degree(u->degree())
 		, u_first_adj_idx(u->adjEntries.head()->theEdge()->index())
-		, v_last_adj_idx(v->adjEntries.tail()->theEdge()->index()) {
+		, v_last_adj_idx(v->adjEntries.tail()->theEdge()->index())
+		, degree(u->degree()) {
 #ifdef OGDF_DEBUG
 		getFrozenPipeBijection(u, v, bij);
 #endif
@@ -178,7 +177,7 @@ public:
 		return count;
 	}
 
-	ostream& print(ostream& os) const override {
+	std::ostream& print(std::ostream& os) const override {
 		return os << "UndoPropagate(u=" << u_idx << ", v=" << v_idx << ", degree=" << degree
 				  << ", pct_u=" << pct_u << ", pct_v=" << pct_v << ")";
 	}
@@ -206,7 +205,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 
 	if (v_was_cut) {
 		Result result = encapsulate(v);
-		OGDF_ASSERT(result == SUCCESS);
+		OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
 		for (node n : FilteringBFS(*G, {v})) {
 			if (n != v) {
 				v_rays.pushBack(n);
@@ -227,12 +226,14 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 	} else if (intersect_trees) {
 		// TODO only if there are any P-node left -> otherwise convert small?
 		bool intersected;
+#ifdef SYNCPLAN_OPSTATS
 		tp v_pc_start = tpc::now();
+#endif
 		// SYNCPLAN_PROFILE_START("propagatePQ-makePCv")
-		unique_ptr<NodePCRotation> computed_pct_v;
+		std::unique_ptr<NodePCRotation> computed_pct_v;
 		if (pct_v == nullptr) {
 			BiconnectedIsolation iso(components, components.biconnectedComponent(v));
-			computed_pct_v = make_unique<NodePCRotation>(*G, v);
+			computed_pct_v = std::make_unique<NodePCRotation>(*G, v);
 			pct_v = computed_pct_v.get();
 		}
 
@@ -268,7 +269,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 #endif
 			log.lout() << "Intersecting failed!" << std::endl;
 			// SYNCPLAN_PROFILE_STOP("propagatePQ")
-			return INVALID_INSTANCE; // TODO we need to proceed with the insertion if we want to find a kuratowksi
+			return PQPlanarity::Result::INVALID_INSTANCE; // TODO we need to proceed with the insertion if we want to find a kuratowksi
 		}
 		log.lout() << "Intersected PC-Tree: " << *pct << std::endl;
 #ifdef SYNCPLAN_OPSTATS
@@ -291,10 +292,12 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 	}
 
 	NodeArray<node> pcg_to_u(pcg, nullptr);
-	G->insert(pcg, pcg_to_u);
+	EdgeArray<edge> dummy(pcg, nullptr);
+	G->insert(pcg, pcg_to_u, dummy);
 
 	NodeArray<node> pcg_to_v(pcg, nullptr);
-	G->insert(pcg, pcg_to_v);
+	dummy.fill(nullptr);
+	G->insert(pcg, pcg_to_v, dummy);
 
 	log.lout()
 			<< "Inserted two trees with " << pcg.numberOfNodes()
@@ -407,10 +410,10 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 		for (node ray : v_rays) {
 			// this contraction is always allowed, no matter what allow_contract_bb_pipe says
 			bool ac = true;
-			swap(ac, allow_contract_bb_pipe);
+			std::swap(ac, allow_contract_bb_pipe);
 			Result result = contract(ray);
-			swap(ac, allow_contract_bb_pipe);
-			OGDF_ASSERT(result == SUCCESS);
+			std::swap(ac, allow_contract_bb_pipe);
+			OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
 		}
 	}
 
@@ -418,5 +421,5 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 	printOPStatsEnd(true, dur_ns(tpc::now() - start) - v_pc_dur);
 #endif
 	// SYNCPLAN_PROFILE_STOP("propagatePQ")
-	return SUCCESS;
+	return PQPlanarity::Result::SUCCESS;
 }

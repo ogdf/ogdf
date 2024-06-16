@@ -35,13 +35,13 @@
 #include <ogdf/cluster/sync_plan/solve/BlockEmbedding.h>
 
 #ifdef SYNCPLAN_OPSTATS
-#	define STEP(op, meta)                                                                         \
+#	define SYNCPLAN_OPSTATS_STEP(op, meta)                                                        \
 		stats_out << (stats_first_in_array ? "" : ",") << "{\"op\":\"solvedReduced-" << op << "\"" \
 				  << ",\"op_time_ns\":" << dur_ns(tpc::now() - start) meta << "}";                 \
 		stats_first_in_array = false;                                                              \
 		start = tpc::now()
 #else
-#	define STEP(op, meta)
+#	define SYNCPLAN_OPSTATS_STEP(op, meta)
 #endif
 
 bool PQPlanarity::solveReduced(bool fail_fast) {
@@ -51,72 +51,89 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 #endif
 	OGDF_ASSERT(matchings.isReduced());
 	// ensure that all Q-node are surrounded by wheels // TODO makeWheel could also be replaced by a Q-vertex-aware embedding tree generator
+#ifdef SYNCPLAN_OPSTATS
 	int wheels = 0;
+#endif
 	for (int part = 0; part < partitions.partitionCount(); part++) {
 		for (node u : partitions.nodesInPartition(part)) {
 			if (!is_wheel[u]) {
 				// also replace for u->degree() == 3, otherwise multiple following assertions break
 				makeWheel(u);
+#ifdef SYNCPLAN_OPSTATS
 				wheels++;
+#endif
 			}
 		}
 	}
-	STEP("makeWheels", << ",\"wheels\":" << wheels);
+	SYNCPLAN_OPSTATS_STEP("makeWheels", << ",\"wheels\":" << wheels);
 	if (fail_fast && !isPlanar(*G)) {
 		// SYNCPLAN_PROFILE_STOP("solvedReduced")
 		return false;
 	}
-	log.lout(Logger::Level::High) << "SOLVE REDUCED" << endl;
+	log.lout(Logger::Level::High) << "SOLVE REDUCED" << std::endl;
 
 	// generate SPQR trees for all blocks
 	log.lout(Logger::Level::High) << "Generating SPQR Trees for up to "
-								  << components.bcTree().numberOfNodes() << " blocks" << endl;
+								  << components.bcTree().numberOfNodes() << " blocks" << std::endl;
 	GnMultiArray Gn_to_subgraph(*G);
-	NodeArray<BlockEmbedding> blocks(components.bcTree(), BlockEmbedding(Gn_to_subgraph));
+	NodeArrayP<BlockEmbedding> blocks(components.bcTree());
+	for (node n : components.bcTree().nodes) {
+		blocks[n] = std::make_unique<BlockEmbedding>(BlockEmbedding(Gn_to_subgraph));
+	}
 	EdgeArray<edge> Ge_to_subgraph(*G, nullptr);
 	EdgeArray<BlockEmbedding*> Ge_to_block(*G, nullptr);
+#ifdef SYNCPLAN_OPSTATS
 	int block_cnt = 0;
+#endif
 	for (node block : components.bcTree().nodes) {
 		if (!components.isCutComponent(block)) {
-			blocks[block].init(*G, components, block, Ge_to_subgraph, Ge_to_block);
+			blocks[block]->init(*G, components, block, Ge_to_subgraph, Ge_to_block);
+#ifdef SYNCPLAN_OPSTATS
 			block_cnt++;
+#endif
 		}
 	}
-	STEP("deriveSPQR", << ",\"blocks\":" << block_cnt);
+	SYNCPLAN_OPSTATS_STEP("deriveSPQR", << ",\"blocks\":" << block_cnt);
 
 	// generate 2-SAT instance
 	log.lout(Logger::Level::High) << "Generating 2-SAT instances for "
-								  << partitions.partitionCount() << " partitions" << endl;
+								  << partitions.partitionCount() << " partitions" << std::endl;
 	TwoSAT sat;
-	PartitionArray<twosat_var> variables(partitions);
+	PartitionArray<twosat_var> variables(partitions, TwoSAT_Var_Undefined);
+#ifdef SYNCPLAN_OPSTATS
 	int q_vertices = 0;
+#endif
 	for (int part = 0; part < partitions.partitionCount(); part++) {
 		twosat_var part_var = variables[part] = sat.newVariable();
 		for (node u : partitions.nodesInPartition(part)) {
 			OGDF_ASSERT(partitions.isQVertex(u));
 			OGDF_ASSERT(!components.isCutVertex(u));
+#ifdef SYNCPLAN_OPSTATS
 			q_vertices++;
-			if (!blocks[components.biconnectedComponent(u)].addQVertex(u, Ge_to_subgraph, sat,
+#endif
+			if (!blocks[components.biconnectedComponent(u)]->addQVertex(u, Ge_to_subgraph, sat,
 						part_var)) {
 				// SYNCPLAN_PROFILE_STOP("solvedReduced")
 				return false;
 			}
 		}
 	}
-	STEP("deriveSAT", << ",\"q_vertices\":" << q_vertices);
+	SYNCPLAN_OPSTATS_STEP("deriveSAT", << ",\"q_vertices\":" << q_vertices);
 
-	log.lout(Logger::Level::High) << "Solving 2-SAT..." << endl;
+	log.lout(Logger::Level::High) << "Solving 2-SAT..." << std::endl;
 	if (!sat.solve()) {
 		// SYNCPLAN_PROFILE_STOP("solvedReduced")
 		return false;
 	}
-	STEP("solveSAT", );
+	SYNCPLAN_OPSTATS_STEP("solveSAT", );
 
 	// embed rigids according to 2-SAT result
-	log.lout(Logger::Level::High) << "Embedding rigids according to 2-SAT solution" << endl;
+	log.lout(Logger::Level::High) << "Embedding rigids according to 2-SAT solution" << std::endl;
+#ifdef SYNCPLAN_OPSTATS
 	int rigids = 0;
+#endif
 	for (node bc : components.bcTree().nodes) {
-		BlockEmbedding& block = blocks[bc];
+		BlockEmbedding& block = *blocks[bc];
 		if (block.spqr) {
 			for (node rigid : block.spqr->tree().nodes) {
 				if (!fail_fast && !isPlanar(block.spqr->skeleton(rigid).getGraph())) {
@@ -127,7 +144,9 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 						&& !sat.getAssignment(block.rigid_vars[rigid])) {
 					block.spqr->reverse(rigid);
 				}
+#ifdef SYNCPLAN_OPSTATS
 				rigids++;
+#endif
 			}
 			block.spqr->embed(block.subgraph);
 		} else {
@@ -136,30 +155,30 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 		}
 		OGDF_ASSERT(block.subgraph.representsCombEmbedding());
 	}
-	STEP("embedSPQR", << ",\"rigids\":" << rigids);
+	SYNCPLAN_OPSTATS_STEP("embedSPQR", << ",\"rigids\":" << rigids);
 
 	// copy embedding back into G
-	log.lout(Logger::Level::High) << "Copying embedding back to graph" << endl;
+	log.lout(Logger::Level::High) << "Copying embedding back to graph" << std::endl;
 	for (node n : G->nodes) {
 		List<adjEntry> new_adj;
 		if (components.isCutVertex(n)) {
 			OGDF_ASSERT(!partitions.isQVertex(n));
 			for (adjEntry bc_adj : components.biconnectedComponent(n)->adjEntries) {
-				BlockEmbedding& block = blocks[bc_adj->twinNode()];
+				BlockEmbedding& block = *blocks[bc_adj->twinNode()];
 				for (adjEntry adj : block.Gn_to_subgraph(n, &block)->adjEntries) {
 					new_adj.pushBack(block.subgraph_to_Ge[adj->theEdge()]->getAdj(n));
 				}
 			}
 		} else {
-			BlockEmbedding& block = blocks[components.biconnectedComponent(n)];
+			BlockEmbedding& block = *blocks[components.biconnectedComponent(n)];
 			for (adjEntry adj : block.Gn_to_subgraph(n, &block)->adjEntries) {
 				new_adj.pushBack(block.subgraph_to_Ge[adj->theEdge()]->getAdj(n));
 			}
 			if (partitions.isQVertex(n)) {
 				if (sat.getAssignment(variables[partitions.getPartitionOf(n)])) {
-					OGDF_ASSERT(compareCyclicOrder(n, new_adj) == SAME);
+					OGDF_ASSERT(compareCyclicOrder(n, new_adj) == OrderComp::SAME);
 				} else {
-					OGDF_ASSERT(compareCyclicOrder(n, new_adj) == REVERSED);
+					OGDF_ASSERT(compareCyclicOrder(n, new_adj) == OrderComp::REVERSED);
 				}
 			}
 		}
@@ -167,7 +186,7 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 	}
 	OGDF_ASSERT(consistency.consistencyCheck());
 	OGDF_ASSERT(G->representsCombEmbedding());
-	STEP("applyEmbedding", );
+	SYNCPLAN_OPSTATS_STEP("applyEmbedding", );
 	// SYNCPLAN_PROFILE_STOP("solveReduced")
 
 	return true;

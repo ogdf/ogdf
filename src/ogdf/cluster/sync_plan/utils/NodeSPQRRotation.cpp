@@ -37,7 +37,7 @@ Logger NodeSPQRRotation::logger;
 #define logd logger.lout(Logger::Level::Minor)
 #define log logger.lout(Logger::Level::Medium)
 
-ostream& operator<<(ostream& os, DynamicSPQRForest::TNodeType t) {
+std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t) {
 	switch (t) {
 	case DynamicSPQRForest::TNodeType::RComp:
 		return os << "R";
@@ -68,7 +68,7 @@ RigidEmbedding::RigidEmbedding(Graph& G) : spqr(G, true), rigids(spqr.spqrTree()
 			continue;
 		}
 		GraphCopySimple* skel = rigids[n] = new GraphCopySimple();
-		skel->createEmpty(spqr.auxiliaryGraph());
+		skel->setOriginalGraph(spqr.auxiliaryGraph());
 		for (edge e : spqr.hEdgesSPQR(n)) {
 			if (skel->copy(e->source()) == nullptr) {
 				skel->newNode(e->source());
@@ -100,7 +100,7 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 			 << (is_real ? spqr.original(adj->theEdge())->index() : -1) << " v"
 			 << (is_virt ? spqr.twinEdge(adj->theEdge())->index() : -1) << " edge "
 			 << adj->theEdge()->index() << " in SPQR " << spqr.typeOfTNode(t) << "-node "
-			 << t->index() << endl;
+			 << t->index() << std::endl;
 		OGDF_ASSERT(is_virt != is_real);
 		if (is_virt) {
 			continue;
@@ -134,9 +134,9 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 		node next = todo.popFrontRet();
 		logd << spqr.typeOfTNode(next) << "-node " << next->index() << ", " << edges[next].size()
 			 << " real edges and " << children[next].size() << " (<= °" << next->degree()
-			 << ") children, pred is " << highest_with_edges[next]->index() << endl;
+			 << ") children, pred is " << highest_with_edges[next]->index() << std::endl;
 		if (todo.empty() && highest == nullptr) {
-			logd << "Queue size 1!" << endl;
+			logd << "Queue size 1!" << std::endl;
 			highest = next;
 			break;
 		}
@@ -144,14 +144,15 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 		node par = spqr.spqrParent(next);
 		if (par == nullptr) {
 			OGDF_ASSERT(highest == nullptr);
-			logd << "Parent is null, setting highest" << endl;
+			logd << "Parent is null, setting highest" << std::endl;
 			highest = next;
 			continue;
 		}
 
 		if (clear) {
 			logd << "Parent " << spqr.typeOfTNode(par) << "-node " << par->index() << " is "
-				 << (highest_with_edges[par] != nullptr ? "un" : "already ") << "processed" << endl;
+				 << (highest_with_edges[par] != nullptr ? "un" : "already ") << "processed"
+				 << std::endl;
 			edges[next].clear();
 			children[next].clear();
 			highest_with_edges[next] = nullptr;
@@ -160,7 +161,8 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 			}
 		} else {
 			logd << "Parent " << spqr.typeOfTNode(par) << "-node " << par->index() << " is "
-				 << (highest_with_edges[par] == nullptr ? "un" : "already ") << "processed" << endl;
+				 << (highest_with_edges[par] == nullptr ? "un" : "already ") << "processed"
+				 << std::endl;
 			children[par].pushBack(next);
 			if (highest_with_edges[par] == nullptr) {
 				highest_with_edges[par] = highest_with_edges[next];
@@ -180,8 +182,8 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 pc_tree::PCNode* NodeSPQRRotation::addLeaf(pc_tree::PCNode* n, adjEntry adj) {
 	OGDF_ASSERT(spqr.original(adj->theEdge()) != nullptr);
 	pc_tree::PCNode* l = newNode(pc_tree::PCNodeType::Leaf, n);
-	incidentEdgeForLeaf[l] = adj->theEdge();
-	logd << "Created leaf " << l << " for adj " << adj->index() << " " << adj << endl;
+	m_incidentEdgeForLeaf[l] = adj->theEdge();
+	logd << "Created leaf " << l << " for adj " << adj->index() << " " << adj << std::endl;
 	return l;
 }
 
@@ -191,12 +193,12 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 	log << spqr.typeOfTNode(t) << "-node " << t->index() << " containing "
 		<< spqr.hEdgesSPQR(t).size() << " edges. Target node has " << edges[t].size()
 		<< " real edges and " << children[t].size() << " (<= °" << t->degree() << ") children."
-		<< endl;
+		<< std::endl;
 	auto& l = logd << " ";
 	for (edge e : spqr.hEdgesSPQR(t)) {
 		l << " " << (spqr.twinEdge(e) == nullptr ? "r" : "v") << e->index() << " " << e;
 	}
-	l << endl;
+	l << std::endl;
 	Logger::Indent _(logger);
 
 	if (spqr.typeOfTNode(t) == DynamicSPQRForest::TNodeType::SComp) {
@@ -215,7 +217,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 				OGDF_ASSERT(ct != t_parent);
 				makePCNode(ct, t, n);
 			}
-			log << "Root S-node replaced by first child: " << n << endl;
+			log << "Root S-node replaced by first child: " << n << std::endl;
 			return n;
 		} else {
 			OGDF_ASSERT((edges[t].size() + children[t].size()) == 1);
@@ -226,20 +228,20 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 	} else {
 		OGDF_ASSERT(spqr.typeOfTNode(t) == DynamicSPQRForest::TNodeType::PComp);
 		n = newNode(pc_tree::PCNodeType::PNode, parent);
-		graphNodeForInnerNode[n] = spqr.hEdgesSPQR(t).front()->opposite(m_n);
-		OGDF_ASSERT(graphNodeForInnerNode[n]->degree() >= (edges[t].size() + children[t].size()));
+		m_graphNodeForInnerNode[n] = spqr.hEdgesSPQR(t).front()->opposite(m_n);
+		OGDF_ASSERT(m_graphNodeForInnerNode[n]->degree() >= (edges[t].size() + children[t].size()));
 	}
 	if (n == parent) {
-		log << "Using parent node " << n << endl;
+		log << "Using parent node " << n << std::endl;
 	} else {
-		log << "Created node " << n << endl;
+		log << "Created node " << n << std::endl;
 	}
-	node gn = graphNodeForInnerNode[n];
+	node gn = m_graphNodeForInnerNode[n];
 	if (gn != nullptr) {
 		node ggn = spqr.original(gn);
 		log << "H-Graph node for P-node is node " << gn->index() << " of degree " << gn->degree()
 			<< " actual G-Graph node will be " << ggn->index() << " of degree " << ggn->degree()
-			<< endl;
+			<< std::endl;
 	}
 
 	if (spqr.typeOfTNode(t) == DynamicSPQRForest::TNodeType::RComp) {
@@ -262,13 +264,13 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 			}
 		}
 
-		logd << "Children identified by tree were:" << endl;
+		logd << "Children identified by tree were:" << std::endl;
 		Logger::Indent _(logger);
 		for (adjEntry adj : edges[t]) {
-			logd << "Adj " << adj->index() << " " << adj << endl;
+			logd << "Adj " << adj->index() << " " << adj << std::endl;
 		}
 		for (node ct : children[t]) {
-			logd << "Child " << spqr.typeOfTNode(ct) << "-node " << ct->index() << endl;
+			logd << "Child " << spqr.typeOfTNode(ct) << "-node " << ct->index() << std::endl;
 		}
 		OGDF_ASSERT(alloc->degree() == n->getDegree());
 
@@ -283,7 +285,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 	}
 
 	if (n != parent) {
-		log << "Result: " << n << endl;
+		log << "Result: " << n << std::endl;
 		if (parent == nullptr) {
 			OGDF_ASSERT(n->getDegree() == (edges[t].size() + children[t].size()));
 		} else {
@@ -297,7 +299,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 	if (!isTrivial() || knowsPartnerEdges()) {
 		return;
 	}
-	bundleEdgesForLeaf.init(*this);
+	m_bundleEdgesForLeaf.init(*this);
 	EdgeArray<PCNode*> mapping(*getGraph());
 	generateLeafForIncidentEdgeMapping(mapping);
 	NodeArray<PCNode*> snodes(spqr.spqrTree(), nullptr); // TODO reuse mappings?
@@ -323,8 +325,8 @@ void NodeSPQRRotation::mapPartnerEdges() {
 		if (is_real) {
 			PCNode* l = mapping[e];
 			OGDF_ASSERT(l != nullptr);
-			OGDF_ASSERT(bundleEdgesForLeaf[l].empty());
-			bundleEdgesForLeaf[l].pushBack(e);
+			OGDF_ASSERT(m_bundleEdgesForLeaf[l].empty());
+			m_bundleEdgesForLeaf[l].pushBack(e);
 			reals++;
 			continue;
 		}
@@ -333,7 +335,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 		OGDF_ASSERT(edges[snode].size() == 1);
 		PCNode* l = mapping[edges[snode].front()];
 		OGDF_ASSERT(l != nullptr);
-		OGDF_ASSERT(bundleEdgesForLeaf[l].empty());
+		OGDF_ASSERT(m_bundleEdgesForLeaf[l].empty());
 		OGDF_ASSERT(snodes[snode] == nullptr);
 		snodes[snode] = l;
 	}
@@ -360,7 +362,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 		OGDF_ASSERT(tn != nullptr);
 		OGDF_ASSERT(spqr.typeOfTNode(tn) == DynamicSPQRForest::TNodeType::SComp);
 		OGDF_ASSERT(snodes[tn] != nullptr);
-		bundleEdgesForLeaf[snodes[tn]].pushBack(adj->theEdge());
+		m_bundleEdgesForLeaf[snodes[tn]].pushBack(adj->theEdge());
 		bundle++;
 	}
 	OGDF_ASSERT(reals == reals2);

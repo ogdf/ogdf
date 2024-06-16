@@ -37,9 +37,9 @@
 #include <ogdf/graphalg/Triconnectivity.h>
 
 using namespace ogdf;
-using namespace std;
+using namespace std; // TODO remove
 
-ostream& operator<<(ostream& os, Triconnectivity::CompType t);
+std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType t);
 
 namespace spqr_utils {
 inline bool isSNode(const Graph& skel) {

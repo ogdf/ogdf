@@ -148,7 +148,7 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check) {
 	} else if (*o_succ == n_it->cyclicPred()) {
 		reverse = true;
 	} else {
-		return DIFFERENT;
+		return OrderComp::DIFFERENT;
 	}
 
 #ifndef OGDF_DEBUG
@@ -166,7 +166,7 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check) {
 					OGDF_ASSERT(full_check);
 				}
 #endif
-				return DIFFERENT;
+				return OrderComp::DIFFERENT;
 			}
 			if (reverse) {
 				o_it = o.cyclicPred(o_it);
@@ -176,7 +176,7 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check) {
 		}
 	}
 
-	return reverse ? REVERSED : SAME;
+	return reverse ? OrderComp::REVERSED : OrderComp::SAME;
 }
 
 std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<int>* split_idcs,
@@ -200,7 +200,6 @@ void join(Graph& G, node u, node v, PipeBij& bij, List<bool>* reverse_v) {
 	OGDF_ASSERT(v->degree() == bij.size());
 	for (auto& pair : bij) {
 		adjEntry f = pair.first->twin();
-		adjEntry s = pair.second->twin();
 		bool rev = joinEdge(G, pair.first, pair.second, u, v);
 		if (reverse_v) {
 			reverse_v->pushBack(rev);

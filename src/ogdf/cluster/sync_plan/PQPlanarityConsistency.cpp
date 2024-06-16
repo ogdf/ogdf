@@ -37,8 +37,6 @@
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-#include <json.hpp>
-
 bool PQPlanarityConsistency::doWriteOut = false;
 
 void normalize(List<adjEntry>& adjs) {
@@ -55,28 +53,28 @@ void normalize(List<adjEntry>& adjs) {
 
 void PQPlanarityConsistency::writeOut(std::string name, bool format, bool components) {
 	if (name.empty()) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << "consistencyCheck" << checkCounter;
 		name = ss.str();
 	}
 	draw.layout(format, components);
 	if (pq.GA != nullptr) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".svg";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		GraphIO::drawSVG(*pq.GA, os, draw.getSvg());
 	}
 	if (components) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << "Tree.svg";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		GraphIO::drawSVG(draw.getBC_GA(), os, draw.getSvg());
 	}
 	draw.cleanUp();
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".gml";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		if (pq.GA != nullptr) {
 			GraphIO::writeGML(*pq.GA, os);
 		} else {
@@ -84,23 +82,25 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 		}
 	}
 	if (components) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << "Tree.gml";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		GraphIO::writeGML(draw.getBC_GA(), os);
 	}
+#if 0
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".json";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		nlohmann::json json;
 		PQPlanOptions::generateConfigJSON(pq, json);
 		os << json.dump(4) << std::endl;
 	}
+#endif
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".edges.txt";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		List<edge> edges;
 		pq.G->allEdges(edges);
 		TargetComparer<EdgeElement, EdgeElement> comp;
@@ -110,9 +110,9 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 		}
 	}
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".nodes.txt";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		List<node> nodes;
 		pq.G->allNodes(nodes);
 		TargetComparer<NodeElement, NodeElement> comp;
@@ -122,9 +122,9 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 		}
 	}
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".pipes.txt";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		List<node> pipe_nodes;
 		for (const Pipe& p : pq.matchings) {
 			pipe_nodes.pushBack((p.node1->index() > p.node2->index()) ? p.node2 : p.node1);
@@ -144,9 +144,9 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 		}
 	}
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << name << ".partitions.txt";
-		ofstream os(ss.str());
+		std::ofstream os(ss.str());
 		for (int i = 0; i < pq.partitions.partitionCount(); i++) {
 			if (pq.partitions.nodesInPartition(i).empty()) {
 				continue;
@@ -168,15 +168,15 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 				if (flip == -1) {
 					adjs.reverse();
 					adjs.pushFront(adjs.popBackRet());
-					OGDF_ASSERT(compareCyclicOrder(n, adjs) == REVERSED);
+					OGDF_ASSERT(compareCyclicOrder(n, adjs) == OrderComp::REVERSED);
 				} else {
-					OGDF_ASSERT(compareCyclicOrder(n, adjs) == SAME);
+					OGDF_ASSERT(compareCyclicOrder(n, adjs) == OrderComp::SAME);
 				}
 				os << "p" << i << " n" << n->index() << " " << printIncidentEdges(adjs) << std::endl;
 			}
 		}
 	}
-	pq.log.lout(Logger::Level::High) << ">>>>> Wrote " << name << "(Tree).gml/svg <<<<<" << endl;
+	pq.log.lout(Logger::Level::High) << ">>>>> Wrote " << name << "(Tree).gml/svg <<<<<" << std::endl;
 }
 
 bool PQPlanarityConsistency::consistencyCheck() {
@@ -217,7 +217,8 @@ bool PQPlanarityConsistency::consistencyCheck() {
 				OGDF_ASSERT(conn_id == pq.components.bcConnectedId(adj_bicon));
 				OGDF_ASSERT(pq.components.isCutComponent(bicon)
 						|| pq.components.isCutComponent(adj_bicon));
-				const pair<edge, edge>& bcEdge = pq.components.graphEdgeToBCEdge(bicon, adj_bicon);
+				const std::pair<edge, edge>& bcEdge =
+						pq.components.graphEdgeToBCEdge(bicon, adj_bicon);
 				if (pq.components.isCutComponent(bicon) && pq.components.isCutComponent(adj_bicon)) {
 					OGDF_ASSERT(bcEdge.second != nullptr);
 					node common = bcEdge.first->commonNode(bcEdge.second);
@@ -254,7 +255,7 @@ bool PQPlanarityConsistency::consistencyCheck() {
 		OGDF_ASSERT(pq.matchings.pipes_list.size() == pq.matchings.queue->size());
 		// pipeCmp = (SimplePipeQueue *) pq.matchings.queue.get();
 	}
-	const Pipe* biggest_pipe = nullptr;
+	// const Pipe* biggest_pipe = nullptr;
 	for (const auto& pipe : pq.matchings) {
 		OGDF_ASSERT(node_reg[pipe.node1] == pipe.node1);
 		OGDF_ASSERT(node_reg[pipe.node2] == pipe.node2);
