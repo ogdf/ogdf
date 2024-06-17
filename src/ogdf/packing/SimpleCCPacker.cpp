@@ -50,27 +50,31 @@ void SimpleCCPacker::computeBoundingBox(const GraphAttributes& graphAttributes, 
 	max_coord.m_y = min_coord.m_y = graphAttributes.y(graph.firstNode());
 
 	// iterate over all nodes and update the min max coords
-	for (node v = graph.firstNode(); v; v = v->succ()) {
+	for (node v : graph.nodes) {
 		// left border of the node
-		if ((graphAttributes.x(v) - graphAttributes.width(v) * 0.5) < min_coord.m_x) {
-			min_coord.m_x = (graphAttributes.x(v) - graphAttributes.width(v) * 0.5);
-		}
-
+		min_coord.m_x =
+				std::min(min_coord.m_x, graphAttributes.x(v) - graphAttributes.width(v) * 0.5);
 		// right border
-		if ((graphAttributes.x(v) + graphAttributes.width(v) * 0.5) > max_coord.m_x) {
-			max_coord.m_x = (graphAttributes.x(v) + graphAttributes.width(v) * 0.5);
-		}
-
+		max_coord.m_x =
+				std::max(max_coord.m_x, graphAttributes.x(v) + graphAttributes.width(v) * 0.5);
 		// bottom border
-		if ((graphAttributes.y(v) - graphAttributes.height(v) * 0.5) < min_coord.m_y) {
-			min_coord.m_y = (graphAttributes.y(v) - graphAttributes.height(v) * 0.5);
-		}
-
+		min_coord.m_y =
+				std::min(min_coord.m_y, graphAttributes.y(v) - graphAttributes.height(v) * 0.5);
 		// top border
-		if ((graphAttributes.y(v) + graphAttributes.height(v) * 0.5) > max_coord.m_y) {
-			max_coord.m_y = (graphAttributes.y(v) + graphAttributes.height(v) * 0.5);
+		max_coord.m_y =
+				std::max(max_coord.m_y, graphAttributes.y(v) + graphAttributes.height(v) * 0.5);
+	}
+
+	if (graphAttributes.has(GraphAttributes::edgeGraphics)) {
+		for (edge e : graph.edges) {
+			for (const DPoint& bend : graphAttributes.bends(e)) {
+				min_coord.m_x = std::min(min_coord.m_x, bend.m_x);
+				max_coord.m_x = std::max(max_coord.m_x, bend.m_x);
+				min_coord.m_y = std::min(min_coord.m_y, bend.m_y);
+				max_coord.m_y = std::max(max_coord.m_y, bend.m_y);
+			}
 		}
-	};
+	}
 }
 
 void SimpleCCPacker::call(GraphAttributes& graphAttributes) {
@@ -93,7 +97,9 @@ void SimpleCCPacker::call(GraphAttributes& graphAttributes) {
 	// take a short cut to avoid the copy
 	if (numCCs == 1) {
 		// call the sub layout
-		m_pSubLayoutModule->call(graphAttributes);
+		if (m_pSubLayoutModule) {
+			m_pSubLayoutModule->call(graphAttributes);
+		}
 
 		// and return without wasting any more time/mem
 		return;
@@ -101,6 +107,7 @@ void SimpleCCPacker::call(GraphAttributes& graphAttributes) {
 
 	// the corresponding node in the CC graph map
 	NodeArray<node> node2CCNode(graph, nullptr);
+	EdgeArray<edge> edge2CCEdge(graph, nullptr);
 
 	// array of all connected component graphs
 	Graph** ccGraph = new Graph*[numCCs];
@@ -121,7 +128,7 @@ void SimpleCCPacker::call(GraphAttributes& graphAttributes) {
 
 	// create for each node a representative in the
 	// corresponding cc graph
-	for (node v = graph.firstNode(); v; v = v->succ()) {
+	for (node v : graph.nodes) {
 		// the cc index of v
 		int i = ccIndex[v];
 
@@ -137,9 +144,13 @@ void SimpleCCPacker::call(GraphAttributes& graphAttributes) {
 
 	// create for each edge an edge in the corresponding
 	// cc graph (do we need a map here too? )
-	for (edge e = graph.firstEdge(); e; e = e->succ()) {
+	for (edge e : graph.edges) {
 		// create the edge
-		ccGraph[ccIndex[e->target()]]->newEdge(node2CCNode[e->source()], node2CCNode[e->target()]);
+		edge ce = edge2CCEdge[e] = ccGraph[ccIndex[e->target()]]->newEdge(node2CCNode[e->source()],
+				node2CCNode[e->target()]);
+		if (graphAttributes.has(GraphAttributes::edgeGraphics)) {
+			ccGraphAttributes[ccIndex[e->target()]]->bends(ce) = graphAttributes.bends(e);
+		}
 	}
 
 	// lower left corner of the current bounding box.
@@ -188,17 +199,32 @@ void SimpleCCPacker::call(GraphAttributes& graphAttributes) {
 
 	// now we move the nodes and update the original GraphAttributes instance
 	// in one passs
-	for (node v = graph.firstNode(); v; v = v->succ()) {
+	for (node v : graph.nodes) {
 		// the cc index of v
 		int i = ccIndex[v];
 		// get the corresponding node in the ccGraph
 		node cv = node2CCNode[v];
-		// Move the CC to the origin by using the old cc Offset and then to new packed position and put the result
-		// in the original GraphAttributes
+		// Move the CC to the origin by using the old cc Offset and then to new packed
+		// position and put the result in the original GraphAttributes
 		graphAttributes.x(v) = ccGraphAttributes[i]->x(cv) - boundingBoxOffset[i].m_x
 				+ boundingBoxOffsetPacker[i].m_x;
 		graphAttributes.y(v) = ccGraphAttributes[i]->y(cv) - boundingBoxOffset[i].m_y
 				+ boundingBoxOffsetPacker[i].m_y;
+	}
+
+	// same processing for edge bends
+	if (graphAttributes.has(GraphAttributes::edgeGraphics)) {
+		for (edge e : graph.edges) {
+			int i = ccIndex[e->target()];
+			edge ce = edge2CCEdge[e];
+			DPolyline bends;
+			for (const DPoint& bend : ccGraphAttributes[i]->bends(ce)) {
+				bends.pushBack(DPoint(
+						bend.m_x - boundingBoxOffset[i].m_x + boundingBoxOffsetPacker[i].m_x,
+						bend.m_y - boundingBoxOffset[i].m_y + boundingBoxOffsetPacker[i].m_y));
+			}
+			graphAttributes.bends(e) = bends;
+		}
 	}
 
 	// free all ccGraph related memory

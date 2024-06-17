@@ -101,7 +101,6 @@ go_bandit([] {
 			randomPlanarConnectedGraph(graph, 30, 84);
 			randomPlanarConnectedGraph(graph2, 30, 84);
 
-
 			// draw first graph using mixed model that generates bends to edges
 			MixedModelLayout mixedModelLayout;
 			mixedModelLayout.call(graphAttr);
@@ -112,6 +111,36 @@ go_bandit([] {
 			ComponentSplitterLayout compSplitterLayout;
 			compSplitterLayout.setLayoutModule(new MixedModelLayout);
 			compSplitterLayout.call(graphAttr2);
+			// edge bends should have been preserved atfer the drawing of connected components
+			AssertThat(edgesHaveBends(graph2, graphAttr2), Equals(true));
+		});
+	});
+	describe("SimpleCCPacker", [] {
+		it("should preserve edge bends of connected component drawings", [&]() {
+			Graph graph, graph2;
+			GraphAttributes graphAttr(graph), graphAttr2(graph2);
+
+			// generate two planar graphs
+			randomPlanarConnectedGraph(graph, 30, 84);
+			randomPlanarConnectedGraph(graph2, 30, 84);
+
+			// add a new connected component in second graph
+			node n1 = graph2.newNode();
+			node n2 = graph2.newNode();
+			node n3 = graph2.newNode();
+			graph2.newEdge(n1, n2);
+			graph2.newEdge(n2, n3);
+			graph2.newEdge(n3, n1);
+
+			// draw first graph using mixed model that generates bends to edges
+			MixedModelLayout mixedModelLayout;
+			mixedModelLayout.call(graphAttr);
+			// check bends have been set to some edges
+			AssertThat(edgesHaveBends(graph, graphAttr), Equals(true));
+
+			// draw second graph using mixed model but wrapped by SimpleCCPacker
+			SimpleCCPacker simpleCCPacker(new MixedModelLayout);
+			simpleCCPacker.call(graphAttr2);
 			// edge bends should have been preserved atfer the drawing of connected components
 			AssertThat(edgesHaveBends(graph2, graphAttr2), Equals(true));
 		});
