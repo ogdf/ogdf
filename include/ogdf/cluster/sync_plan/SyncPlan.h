@@ -36,8 +36,8 @@
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
@@ -71,6 +71,7 @@ class GraphAttributes;
 // // Collection of JSON Operation Statistics
 // define SYNCPLAN_OPSTATS
 
+
 using tpc = std::chrono::high_resolution_clock;
 using tp = const std::chrono::time_point<std::chrono::high_resolution_clock>;
 
@@ -99,14 +100,14 @@ enum class Operation {
 
 std::ostream& operator<<(std::ostream& os, Operation op);
 
-class PQPlanarity {
-	friend class PQPlanarityConsistency;
+class SyncPlan {
+	friend class SyncPlanConsistency;
 
-	friend class PQPlanarityDrawer;
+	friend class SyncPlanDrawer;
 
-	friend class PQPlanOptions;
+	friend class SyncPlanOptions;
 
-	friend std::ostream& operator<<(std::ostream& os, const PQPlanarity& pq);
+	friend std::ostream& operator<<(std::ostream& os, const SyncPlan& pq);
 
 	friend class UndoContract;
 
@@ -137,7 +138,7 @@ public:
 
 		virtual ~UndoOperation() = default;
 
-		virtual void undo(PQPlanarity& pq) = 0;
+		virtual void undo(SyncPlan& pq) = 0;
 
 		virtual std::ostream& print(std::ostream& os) const = 0;
 
@@ -148,9 +149,9 @@ public:
 		List<std::tuple<int, int, FrozenPipeBij>> pipes;
 
 	public:
-		explicit VerifyPipeBijections(PQPlanarity& pq);
+		explicit VerifyPipeBijections(SyncPlan& pq);
 
-		void undo(PQPlanarity& pq) override;
+		void undo(SyncPlan& pq) override;
 
 		std::ostream& print(std::ostream& os) const override;
 	};
@@ -159,9 +160,9 @@ public:
 		int max_node, max_edge, count_node, count_edge;
 
 	public:
-		explicit ResetIndices(PQPlanarity& pq);
+		explicit ResetIndices(SyncPlan& pq);
 
-		void undo(PQPlanarity& pq) override;
+		void undo(SyncPlan& pq) override;
 
 		std::ostream& print(std::ostream& os) const override;
 	};
@@ -184,7 +185,7 @@ public:
 
 private:
 	List<UndoOperation*> undo_stack;
-	PQPlanarityComponents components;
+	SyncPlanComponents components;
 	GraphAttributes* GA;
 	NodeArray<node> node_reg;
 	EdgeArray<edge> edge_reg;
@@ -196,7 +197,7 @@ private:
 	bool batch_spqr = true;
 
 #ifdef OGDF_DEBUG
-	PQPlanarityConsistency consistency;
+	SyncPlanConsistency consistency;
 #endif
 
 	/// Constructors //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,14 +209,14 @@ public:
 	 * Graph G;
 	 * // init your graph here
 	 *
-	 * PQPlanarity PQ(&G);
+	 * SyncPlan PQ(&G);
 	 * // init pipes and partitions here:
 	 * PQ.matchings.matchNodes(u, v);
 	 * int p = PQ.partitions.makeQVertex(u1);
 	 * PQ.partitions.makeQVertex(u2, p);
 	 * PQ.partitions.makeQVertex(u3, p);
 	 *
-	 * // if you made any changes to edges in G after creating the PQPlanarity instance, call
+	 * // if you made any changes to edges in G after creating the SyncPlan instance, call
 	 * PQ.initComponents(); // to update the BC-tree if connectivity changed
 	 * PQ.matchings.rebuildHeap(); // to sort the pipes if their degree changed
 	 *
@@ -224,7 +225,7 @@ public:
 	 *     OGDF_ASSERT(G.representsCombEmbedding());
 	 * }
 	 */
-	explicit PQPlanarity(Graph* g, GraphAttributes* ga = nullptr);
+	explicit SyncPlan(Graph* g, GraphAttributes* ga = nullptr);
 
 	/**
 	 * Usage:
@@ -233,8 +234,8 @@ public:
 	 * ClusterGraph CG(G);
 	 * // init your graph and clusters here
 	 *
-	 * PQPlanarity PQ(&G, &CG);
-	 * // you shouldn't change G or CG after creating a PQPlanarity instance from them
+	 * SyncPlan PQ(&G, &CG);
+	 * // you shouldn't change G or CG after creating a SyncPlan instance from them
 	 *
 	 * if (PQ.makeReduced() && PQ.solveReduced()) {
 	 *     PQ.embed();
@@ -242,11 +243,11 @@ public:
 	 *     OGDF_ASSERT(isClusterPlanarEmbedding(CG));
 	 * }
 	 */
-	explicit PQPlanarity(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* ga = nullptr);
+	explicit SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* ga = nullptr);
 
-	explicit PQPlanarity(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
+	explicit SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
 
-	virtual ~PQPlanarity() {
+	virtual ~SyncPlan() {
 		while (!undo_stack.empty()) {
 			delete undo_stack.popBackRet();
 		}
@@ -311,7 +312,7 @@ public:
 
 	int undoOperations() const { return undo_stack.size(); }
 
-	const PQPlanarityComponents& getComponents() const { return components; }
+	const SyncPlanComponents& getComponents() const { return components; }
 
 #ifdef SYNCPLAN_OPSTATS
 
@@ -340,6 +341,6 @@ public:
 	void setBatchSpqr(bool batchSpqr) { batch_spqr = batchSpqr; }
 };
 
-std::ostream& operator<<(std::ostream& os, const PQPlanarity& pq);
+std::ostream& operator<<(std::ostream& os, const SyncPlan& pq);
 
-std::ostream& operator<<(std::ostream& os, const PQPlanarity::UndoOperation& undo_op);
+std::ostream& operator<<(std::ostream& os, const SyncPlan::UndoOperation& undo_op);

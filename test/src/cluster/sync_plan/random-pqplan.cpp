@@ -60,7 +60,7 @@ void usage() {
 			<< "-a[int|double] first parameter\n"
 			<< "-b[int|double] second parameter\n"
 			<< "-m[int] method to use:\n"
-			<< "   1: PQPlan (int pipe_count, int min_deg = 3)\n"
+			<< "   1: SyncPlan (int pipe_count, int min_deg = 3)\n"
 			<< "   2: SEFE by shared graph(int edges1, int edges2)\n"
 			<< "   3: SEFE by union graph(double frac_shared, double frac_g1)\n\n"
 			<< "outfile can use the following templates that will be replaced based on infile and the given options:\n"
@@ -185,23 +185,23 @@ int main(int argc, char* argv[]) {
 	if (mode != 1 && !isConnected(G)) {
 		Logger::slout(Logger::Level::Alarm)
 				<< "Error: The given graph is not connected!" << std::endl;
-		return NOT_PQPLANAR;
+		return NOT_SYNC_PLAN;
 	}
 	if (!planarEmbed(G)) {
 		Logger::slout(Logger::Level::Alarm) << "Error: The given graph is not planar!" << std::endl;
-		return NOT_PQPLANAR;
+		return NOT_SYNC_PLAN;
 	}
 	makeSimpleUndirected(G);
 	Logger::slout(Logger::Level::Medium) << "Input " << G << "." << endl;
 
-	// 1: PQPlan (int pipe_count, int min_deg = 3)
+	// 1: SyncPlan (int pipe_count, int min_deg = 3)
 	// 2: SEFE by shared graph(int edges1, int edges2)
 	// 3: SEFE by union graph(double frac_shared, double frac_g1)
 	unique_ptr<Graph> work;
-	unique_ptr<PQPlanarity> pq;
+	unique_ptr<SyncPlan> pq;
 	EdgeArray<uint8_t> edge_types;
 	if (mode == 1) {
-		Logger::slout(Logger::Level::High) << "Calling randomPQPlanInstance(pipe_count=" << (int)a
+		Logger::slout(Logger::Level::High) << "Calling randomSyncPlanInstance(pipe_count=" << (int)a
 										   << ", min_deg=" << (int)b << ")" << std::endl;
 		if ((int)a <= 0 || (int)b <= 0) {
 			Logger::slout(Logger::Level::Alarm)
@@ -209,8 +209,8 @@ int main(int argc, char* argv[]) {
 			usage();
 			return ERROR_OPTIONS;
 		}
-		pq = make_unique<PQPlanarity>(&G);
-		randomPQPlanInstance(*pq, (int)a, (int)b);
+		pq = make_unique<SyncPlan>(&G);
+		randomSyncPlanInstance(*pq, (int)a, (int)b);
 	} else {
 		edge_types.init(G, 0);
 		if (mode == 2) {
@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
 			randomSEFEInstanceByUnionGraph(&G, edge_types, a, b);
 		}
 		work = make_unique<Graph>();
-		pq = make_unique<PQPlanarity>(&G, work.get(), edge_types);
+		pq = make_unique<SyncPlan>(&G, work.get(), edge_types);
 	}
 	int max_deg = 0, tot_deg = 0;
 	for (auto& p : pq->matchings.getPipes()) {
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
 			return ERROR_IO;
 		}
 		json config;
-		PQPlanOptions::generateConfigJSON<std::function<string(node)>, std::function<string(edge)>>(
+		SyncPlanOptions::generateConfigJSON<std::function<string(node)>, std::function<string(edge)>>(
 				*pq, config, [&GA](node n) -> string { return GA.label(n); },
 				[&GA](edge e) -> string { return GA.label(e); });
 		std::ofstream out(outfile + ".json");
@@ -279,7 +279,7 @@ int main(int argc, char* argv[]) {
 	if (!svgfile.empty()) {
 		Logger::slout(Logger::Level::High) << "Drawing to " << svgfile << std::endl;
 		if (mode == 1) {
-			PQPlanarityDrawer draw(pq.get());
+			SyncPlanDrawer draw(pq.get());
 			GraphAttributes& GA = draw.ensureGraphAttributes();
 			draw.layout();
 			if (!GraphIO::write(GA, svgfile)) {

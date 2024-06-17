@@ -32,12 +32,12 @@
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
 
 #include <cstdint>
 #include <stdexcept>
 
-PQPlanarity::PQPlanarity(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
+SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 	: G(work)
 	, matchings(G)
 	, partitions(G)

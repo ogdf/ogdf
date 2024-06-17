@@ -35,7 +35,7 @@
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -45,7 +45,7 @@
 #include <ostream>
 #include <utility>
 
-std::function<std::ostream&(std::ostream&)> PQPlanarityComponents::fmtBCNode(node bc) const {
+std::function<std::ostream&(std::ostream&)> SyncPlanComponents::fmtBCNode(node bc) const {
 	OGDF_ASSERT(bc == nullptr || bc->graphOf() == &bcTree());
 	return [bc, this](std::ostream& ss) -> std::ostream& {
 		if (bc != nullptr) {
@@ -64,7 +64,7 @@ std::function<std::ostream&(std::ostream&)> PQPlanarityComponents::fmtBCNode(nod
 	};
 }
 
-BCTree::GNodeType PQPlanarityComponents::nodeType(node n) const {
+BCTree::GNodeType SyncPlanComponents::nodeType(node n) const {
 	switch (bc_type[biconnectedComponent(n)]) {
 	default:
 		OGDF_ASSERT(false);
@@ -75,7 +75,7 @@ BCTree::GNodeType PQPlanarityComponents::nodeType(node n) const {
 	}
 }
 
-node PQPlanarityComponents::biconnectedComponent(node n) const {
+node SyncPlanComponents::biconnectedComponent(node n) const {
 	OGDF_ASSERT(n->graphOf() != &BC);
 	OGDF_ASSERT(n->graphOf() == G);
 	node bc = g_bc[n];
@@ -83,25 +83,25 @@ node PQPlanarityComponents::biconnectedComponent(node n) const {
 	return bc;
 }
 
-BCTree::BNodeType PQPlanarityComponents::bcNodeType(node n) const {
+BCTree::BNodeType SyncPlanComponents::bcNodeType(node n) const {
 	OGDF_ASSERT(n->graphOf() != G);
 	OGDF_ASSERT(n->graphOf() == &BC);
 	return bc_type[n];
 }
 
-int PQPlanarityComponents::bcSize(node n) const {
+int SyncPlanComponents::bcSize(node n) const {
 	OGDF_ASSERT(n->graphOf() != G);
 	OGDF_ASSERT(n->graphOf() == &BC);
 	return bc_size[n];
 }
 
-int PQPlanarityComponents::bcConnectedId(node n) const {
+int SyncPlanComponents::bcConnectedId(node n) const {
 	OGDF_ASSERT(n->graphOf() != G);
 	OGDF_ASSERT(n->graphOf() == &BC);
 	return bc_conn_id[n];
 }
 
-node PQPlanarityComponents::bcRepr(node bc) const {
+node SyncPlanComponents::bcRepr(node bc) const {
 	OGDF_ASSERT(bc->graphOf() != G);
 	OGDF_ASSERT(bc->graphOf() == &BC);
 	node n = bc_g[bc];
@@ -114,7 +114,7 @@ node PQPlanarityComponents::bcRepr(node bc) const {
 	return n;
 }
 
-node PQPlanarityComponents::findOtherRepr(node bc) const {
+node SyncPlanComponents::findOtherRepr(node bc) const {
 	for (adjEntry adj : bcRepr(bc)->adjEntries) {
 		if (biconnectedComponent(adj->twinNode()) == bc) {
 			return adj->twinNode();
@@ -123,7 +123,7 @@ node PQPlanarityComponents::findOtherRepr(node bc) const {
 	return nullptr;
 }
 
-std::pair<edge, edge> PQPlanarityComponents::graphEdgeToBCEdge(node bc_src, node bc_tgt) const {
+std::pair<edge, edge> SyncPlanComponents::graphEdgeToBCEdge(node bc_src, node bc_tgt) const {
 	OGDF_ASSERT(bc_src->graphOf() == &BC);
 	OGDF_ASSERT(bc_tgt->graphOf() == &BC);
 	if (bc_src->degree() > bc_tgt->degree()) {
@@ -160,7 +160,7 @@ std::pair<edge, edge> PQPlanarityComponents::graphEdgeToBCEdge(node bc_src, node
 	return std::make_pair(nullptr, nullptr);
 }
 
-node PQPlanarityComponents::findCommonBiconComp(node bc_cut1, node bc_cut2) const {
+node SyncPlanComponents::findCommonBiconComp(node bc_cut1, node bc_cut2) const {
 	OGDF_ASSERT(isCutComponent(bc_cut1));
 	OGDF_ASSERT(isCutComponent(bc_cut2));
 	const std::pair<edge, edge>& bcEdge = graphEdgeToBCEdge(bc_cut1, bc_cut2);
@@ -171,7 +171,7 @@ node PQPlanarityComponents::findCommonBiconComp(node bc_cut1, node bc_cut2) cons
 	return common;
 }
 
-void PQPlanarityComponents::biconReprNodes(node bicon, SList<node>& nodes) const {
+void SyncPlanComponents::biconReprNodes(node bicon, SList<node>& nodes) const {
 	node repr = bcRepr(bicon);
 	if (repr != nullptr) {
 		nodes.pushBack(repr);
@@ -185,7 +185,7 @@ void PQPlanarityComponents::biconReprNodes(node bicon, SList<node>& nodes) const
 	OGDF_ASSERT(!nodes.empty());
 }
 
-FilteringBFS PQPlanarityComponents::nodesInBiconnectedComponent(node bicon) const {
+FilteringBFS SyncPlanComponents::nodesInBiconnectedComponent(node bicon) const {
 	OGDF_ASSERT(bicon->graphOf() == &BC);
 	SList<node> nodes;
 	biconReprNodes(bicon, nodes);
@@ -193,14 +193,14 @@ FilteringBFS PQPlanarityComponents::nodesInBiconnectedComponent(node bicon) cons
 			[this, bicon](adjEntry adj) -> bool { return g_bc[adj->twinNode()] == bicon; });
 }
 
-void PQPlanarityComponents::makeRepr(node bc, node n) {
+void SyncPlanComponents::makeRepr(node bc, node n) {
 	OGDF_ASSERT(bc->graphOf() != G);
 	OGDF_ASSERT(bc->graphOf() == &BC);
 	bc_g[bc] = n;
 	OGDF_ASSERT(bcRepr(bc) == n);
 }
 
-void PQPlanarityComponents::nodeInserted(node g_n, node bc_n) {
+void SyncPlanComponents::nodeInserted(node g_n, node bc_n) {
 	OGDF_ASSERT(g_n->graphOf() != &BC);
 	OGDF_ASSERT(g_n->graphOf() == G);
 	OGDF_ASSERT(bc_n->graphOf() != G);
@@ -209,7 +209,7 @@ void PQPlanarityComponents::nodeInserted(node g_n, node bc_n) {
 	bc_size[bc_n]++;
 }
 
-void PQPlanarityComponents::insert(BCTree& tmp_bc) {
+void SyncPlanComponents::insert(BCTree& tmp_bc) {
 	OGDF_ASSERT(&tmp_bc.originalGraph() == G);
 	NodeArray<node> bc_map(tmp_bc.bcTree(), nullptr);
 	EdgeArray<edge> dummy(tmp_bc.bcTree(), nullptr);
@@ -241,7 +241,7 @@ void PQPlanarityComponents::insert(BCTree& tmp_bc) {
 	conn_next_id += new_conn;
 }
 
-void PQPlanarityComponents::cutReplacedByWheel(node centre,
+void SyncPlanComponents::cutReplacedByWheel(node centre,
 		const NodeArray<SList<adjEntry>>& block_neigh) {
 	// we need to merge all blocks that have at least 2 edges connecting them to the center vertex
 	node centre_bc = biconnectedComponent(centre);
@@ -296,7 +296,7 @@ void PQPlanarityComponents::cutReplacedByWheel(node centre,
 	bc_g[centre_bc] = centre_bc->degree() > 0 ? nullptr : centre;
 }
 
-void PQPlanarityComponents::relabelExplodedStar(node center1, node center2, List<node> remnants) {
+void SyncPlanComponents::relabelExplodedStar(node center1, node center2, List<node> remnants) {
 	List<adjEntry> todelete;
 
 	OGDF_ASSERT(center1->graphOf() == &BC);
@@ -328,7 +328,7 @@ void PQPlanarityComponents::relabelExplodedStar(node center1, node center2, List
 	insert(bc);
 }
 
-void PQPlanarityComponents::preJoin(node keep, node merge) {
+void SyncPlanComponents::preJoin(node keep, node merge) {
 	// TODO use union-find for relabeling?
 	int cc = bcConnectedId(keep);
 	OGDF_ASSERT(cc != bcConnectedId(merge));
@@ -347,7 +347,7 @@ void PQPlanarityComponents::preJoin(node keep, node merge) {
 	conn_count--;
 }
 
-void PQPlanarityComponents::postSplitOffEncapsulatedBlock(node cut, EncapsulatedBlock& block) {
+void SyncPlanComponents::postSplitOffEncapsulatedBlock(node cut, EncapsulatedBlock& block) {
 	node bc_cut = biconnectedComponent(cut);
 	int conn_id = bcConnectedId(bc_cut);
 	OGDF_ASSERT(isCutComponent(bc_cut));
@@ -375,7 +375,7 @@ void PQPlanarityComponents::postSplitOffEncapsulatedBlock(node cut, Encapsulated
 	BC.newEdge(bc_cut, star_bc);
 }
 
-void PQPlanarityComponents::labelIsolatedNodes() {
+void SyncPlanComponents::labelIsolatedNodes() {
 	for (node n : G->nodes) {
 		if (n->degree() == 0) {
 			if (g_bc[n] == nullptr) {
@@ -394,7 +394,7 @@ void PQPlanarityComponents::labelIsolatedNodes() {
 	}
 }
 
-BiconnectedIsolation::BiconnectedIsolation(PQPlanarityComponents& comps, node bicon)
+BiconnectedIsolation::BiconnectedIsolation(SyncPlanComponents& comps, node bicon)
 	: m_comps(comps)
 	, m_bicon(bicon)
 	, m_to_restore(comps.graph())

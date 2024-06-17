@@ -35,27 +35,27 @@
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <sstream>
 #include <string>
 
-class UndoMakeWheel : public PQPlanarity::UndoOperation {
+class UndoMakeWheel : public SyncPlan::UndoOperation {
 public:
 	int centre_idx;
 
 	UndoMakeWheel(node centre) : centre_idx(centre->index()) { }
 
-	void undo(PQPlanarity& pq) override { pq.contractWheel(pq.nodeFromIndex(centre_idx)); }
+	void undo(SyncPlan& pq) override { pq.contractWheel(pq.nodeFromIndex(centre_idx)); }
 
 	std::ostream& print(std::ostream& os) const override {
 		return os << "UndoMakeWheel(" << centre_idx << ")";
 	}
 };
 
-void PQPlanarity::makeWheel(node centre, bool update_cuts) {
+void SyncPlan::makeWheel(node centre, bool update_cuts) {
 	// SYNCPLAN_PROFILE_START("makeWheel")
 	bool is_cut = update_cuts && components.isCutVertex(centre);
 	log.lout(Logger::Level::High) << "MAKE WHEEL centre " << fmtPQNode(centre) << " (update cut "
@@ -128,7 +128,7 @@ void PQPlanarity::makeWheel(node centre, bool update_cuts) {
 	// SYNCPLAN_PROFILE_STOP("makeWheel")
 }
 
-void PQPlanarity::contractWheel(node centre) {
+void SyncPlan::contractWheel(node centre) {
 	// SYNCPLAN_PROFILE_START("contractWheel")
 	OGDF_ASSERT(is_wheel[centre]);
 	log.lout(Logger::Level::High)

@@ -41,7 +41,7 @@
 #include <json.hpp>
 #include <ostream>
 
-#include "PQPlanarity.h"
+#include "SyncPlan.h"
 #include "PipeOrder.h"
 #include "likwid_utils.h"
 #include "return.h"
@@ -60,10 +60,10 @@ void usage() {
 	Logger::slout(Logger::Level::Alarm)
 			<< "Usage: " << progname << " input\n\n"
 			<< "-l[0-5]  set log level\n"
-			<< "-m METHOD = {PQPlanarity, CConnected, HananiTutte, ILP}\n"
+			<< "-m METHOD = {SyncPlan, CConnected, HananiTutte, ILP}\n"
 			<< "-t HH:MM:SS  timeout for ILP\n\n"
 			<< "-f run Hanani Tutte without verifying\n\n"
-			<< "Options for PQPlanarity:\n"
+			<< "Options for SyncPlan:\n"
 			<< "-d  write out intermediate instances (only in debug builds)\n"
 			<< "-c  disallow contracting independent bicon-bicon pipes\n"
 			<< "-i  do not intersect trees when propagating bicon-bicon pipes\n"
@@ -77,7 +77,7 @@ void usage() {
 
 enum class Method {
 	Invalid,
-	PQPlanarity,
+	SyncPlan,
 	CConnected,
 	HananiTutte,
 	ILP,
@@ -86,14 +86,14 @@ enum class Method {
 NLOHMANN_JSON_SERIALIZE_ENUM(Method,
 		{
 				{Method::Invalid, "Invalid"},
-				{Method::PQPlanarity, "PQPlanarity"},
+				{Method::SyncPlan, "SyncPlan"},
 				{Method::CConnected, "CConnected"},
 				{Method::HananiTutte, "HananiTutte"},
 				{Method::ILP, "ILP"},
 		})
 
-json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, Graph& G,
-		const PQPlanConf& conf);
+json solveSyncPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, Graph& G,
+		const SyncPlanConf& conf);
 
 json solveCConnected(ClusterGraph& CG, Graph& G);
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 	Method method;
 	string timeout;
 	bool ht_fast = false;
-	PQPlanConf pqconf;
+	SyncPlanConf pqconf;
 
 	int opt;
 	while ((opt = getopt(argc, argv, "l:dm:t:fcirbasp")) != -1) {
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
 			break;
 #ifdef OGDF_DEBUG
 		case 'd':
-			PQPlanarityConsistency::doWriteOut = true;
+			SyncPlanConsistency::doWriteOut = true;
 			break;
 #endif
 		case 'm': {
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
 	case key:                     \
 		pqconf.var = !pqconf.var; \
 		break;
-			PQPlanConf_KEYS
+			SyncPlanConf_KEYS
 #undef TOGGLE
 					default : /* '?' */
 							  usage();
@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 	}
 	if (method == Method::Invalid) {
 		json methods = json::array(
-				{Method::PQPlanarity, Method::CConnected, Method::HananiTutte, Method::ILP});
+				{Method::SyncPlan, Method::CConnected, Method::HananiTutte, Method::ILP});
 		Logger::slout(Logger::Level::Alarm)
 				<< "Invalid Options: Please specify a method from " << methods << "!" << std::endl;
 		usage();
@@ -204,8 +204,8 @@ int main(int argc, char* argv[]) {
 
 	json result;
 	switch (method) {
-	case Method::PQPlanarity:
-		result = solvePQPlan(OGDF_DEBUG_PARAM(GA) CG, G, pqconf);
+	case Method::SyncPlan:
+		result = solveSyncPlan(OGDF_DEBUG_PARAM(GA) CG, G, pqconf);
 		break;
 	case Method::CConnected:
 		result = solveCConnected(CG, G);
@@ -243,12 +243,12 @@ std::string CconnectClusterPlanarErrorCode2Str(EC code, bool cplan) {
 	}
 }
 
-json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, Graph& G,
-		const PQPlanConf& conf) {
-	Logger::slout() << "PQPlanConf: " << conf << std::endl;
+json solveSyncPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, Graph& G,
+		const SyncPlanConf& conf) {
+	Logger::slout() << "SyncPlanConf: " << conf << std::endl;
 
 	json ret;
-	ret["method"] = Method::PQPlanarity;
+	ret["method"] = Method::SyncPlan;
 	ret["mode"] = ret["method"].get<string>() + conf.getID();
 	ret["config"] = conf;
 
@@ -257,25 +257,25 @@ json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, 
 	int64_t dur_init_stats, dur_reduced_stats;
 	tp start = tpc::now();
 #ifdef OGDF_DEBUG
-	PQPlanarity pq(&G, &CG, &GA);
+	SyncPlan pq(&G, &CG, &GA);
 #else
-	PQPlanarity pq(&G, &CG);
+	SyncPlan pq(&G, &CG);
 #endif
 	pq.matchings.setPipeQueue(conf.getOrder(&pq));
 	pq.setAllowContractBBPipe(conf.allow_contract);
 	pq.setIntersectTrees(conf.intersect_trees);
 	pq.setBatchSpqr(conf.batch_spqr);
-	pq.stats_out.open("pqplan_stats.json");
+	pq.stats_out.open("syncplan_stats.json");
 	if (!pq.stats_out.is_open() || !pq.stats_out.good()) {
 		Logger::slout(Logger::Level::Alarm)
-				<< "IO Warning: Could not open pqplan_stats.json for writing!" << std::endl;
+				<< "IO Warning: Could not open syncplan_stats.json for writing!" << std::endl;
 	} else {
 		pq.stats_out << "[";
 	}
 	{
 		tp t = tpc::now();
 		json s_init;
-		pqPlanStats(pq, s_init);
+		syncPlanStats(pq, s_init);
 		ret["init_stats"] = s_init;
 		dur_init_stats = dur_ns(tpc::now() - t);
 	}
@@ -286,7 +286,7 @@ json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, 
 	{
 		tp t = tpc::now();
 		json s_reduced;
-		pqPlanStats(pq, s_reduced);
+		syncPlanStats(pq, s_reduced);
 		ret["reduced_stats"] = s_reduced;
 		ret["undo_ops"] = pq.undoOperations();
 		dur_reduced_stats = dur_ns(tpc::now() - t);
@@ -294,7 +294,7 @@ json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, 
 	tp make_reduced = tpc::now();
 	ret["time_make_reduced_ns"] = dur_ns(make_reduced - init) - dur_reduced_stats;
 
-	exit_code = NOT_PQPLANAR;
+	exit_code = NOT_SYNC_PLAN;
 	if (reduced) {
 		ret["status"] = "preSolve";
 		std::cerr << ret << std::endl;
@@ -313,7 +313,7 @@ json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, 
 			ret["cg_comb_emb"] = isClusterPlanarEmbedding(CG);
 			tp check = tpc::now();
 
-			exit_code = PQPLANAR;
+			exit_code = SYNC_PLAN;
 			ret["result"] = true;
 			ret["status"] = "embeddedAndVerified";
 
@@ -330,12 +330,12 @@ json solvePQPlan(OGDF_DEBUG_PARAM(ClusterGraphAttributes& GA) ClusterGraph& CG, 
 	}
 	bool g_comb_emb = ret["g_comb_emb"] = G.representsCombEmbedding();
 	bool cg_comb_emb = ret["cg_comb_emb"] = isClusterPlanarEmbedding(CG);
-	if (exit_code == PQPLANAR && (!g_comb_emb || !cg_comb_emb)) {
+	if (exit_code == SYNC_PLAN && (!g_comb_emb || !cg_comb_emb)) {
 		exit_code = ERROR_COMB_EMB;
 	}
 	if (!pq.stats_out.is_open() || !pq.stats_out.good()) {
 		Logger::slout(Logger::Level::Alarm)
-				<< "IO Warning: Could not finish writing to pqplan_stats.json!" << std::endl;
+				<< "IO Warning: Could not finish writing to syncplan_stats.json!" << std::endl;
 	} else {
 		pq.stats_out << "]" << std::endl;
 	}
@@ -358,7 +358,7 @@ json solveCConnected(ClusterGraph& CG, Graph& G) {
 	CconnectClusterPlanar ccPlanarityTest;
 	bool cplan = ccPlanarityTest.call(CG);
 	tp t3 = tpc::now();
-	exit_code = cplan ? PQPLANAR : NOT_PQPLANAR;
+	exit_code = cplan ? SYNC_PLAN : NOT_SYNC_PLAN;
 	ret["result"] = cplan;
 	ret["status"] = CconnectClusterPlanarErrorCode2Str(ccPlanarityTest.errCode(), cplan);
 	ret["time_ns"] = dur_ns(t3 - t2);
@@ -374,7 +374,7 @@ json solveCConnected(ClusterGraph& CG, Graph& G) {
 
 	bool g_comb_emb = ret["g_comb_emb"] = G.representsCombEmbedding();
 	bool cg_comb_emb = ret["cg_comb_emb"] = isClusterPlanarEmbedding(CG);
-	if (exit_code == PQPLANAR && (!g_comb_emb || !cg_comb_emb)) {
+	if (exit_code == SYNC_PLAN && (!g_comb_emb || !cg_comb_emb)) {
 		exit_code = ERROR_COMB_EMB;
 	}
 
@@ -403,7 +403,7 @@ json solveHananiTutte(ClusterGraph& CG, Graph& G, bool fast) {
 		bool verify = fast || solver->verify(stats);
 		tp stop = tpc::now();
 		ret["verify_result"] = ret["result"] = verify;
-		exit_code = PQPLANAR;
+		exit_code = SYNC_PLAN;
 		if (fast) {
 			ret["status"] = "maybeCPlanar/notVerified";
 			ret["verify_result"] = false;
@@ -416,7 +416,7 @@ json solveHananiTutte(ClusterGraph& CG, Graph& G, bool fast) {
 		ret["time_verify_ns"] = dur_ns(stop - split);
 		ret["time_ns"] = dur_ns(stop - start);
 	} else {
-		exit_code = NOT_PQPLANAR;
+		exit_code = NOT_SYNC_PLAN;
 		ret["result"] = false;
 		ret["status"] = "nonCPlanarVerified";
 		ret["time_ns"] = dur_ns(split - start);
@@ -435,7 +435,7 @@ json solveHananiTutte(ClusterGraph& CG, Graph& G, bool fast) {
 
 	bool g_comb_emb = ret["g_comb_emb"] = G.representsCombEmbedding();
 	bool cg_comb_emb = ret["cg_comb_emb"] = isClusterPlanarEmbedding(CG);
-	if (exit_code == PQPLANAR && (!g_comb_emb || !cg_comb_emb)) {
+	if (exit_code == SYNC_PLAN && (!g_comb_emb || !cg_comb_emb)) {
 		// exit_code = ERROR_COMB_EMB; // FIXME Hanani Tutte does embed!
 	}
 
@@ -455,7 +455,7 @@ json solveILP(ClusterGraph& CG, Graph& G, string& timeout) {
 	ret["status_val"] = cPlanarity.getOptStatus();
 	if (cPlanarity.getOptStatus() == abacus::Master::Optimal) {
 		ret["status"] = result ? "Optimal-cplan" : "Optimal-not-cplan";
-		exit_code = result ? PQPLANAR : NOT_PQPLANAR;
+		exit_code = result ? SYNC_PLAN : NOT_SYNC_PLAN;
 	} else {
 		ret["status"] = string(abacus::Master::STATUS_[cPlanarity.getOptStatus()]);
 		exit_code = ERROR_ABACUS + cPlanarity.getOptStatus();
@@ -479,7 +479,7 @@ json solveILP(ClusterGraph& CG, Graph& G, string& timeout) {
 
 	bool g_comb_emb = ret["g_comb_emb"] = G.representsCombEmbedding();
 	bool cg_comb_emb = ret["cg_comb_emb"] = isClusterPlanarEmbedding(CG);
-	if (exit_code == PQPLANAR && (!g_comb_emb || !cg_comb_emb)) {
+	if (exit_code == SYNC_PLAN && (!g_comb_emb || !cg_comb_emb)) {
 		// exit_code = ERROR_COMB_EMB; // ILP does not embed // FIXME?
 	}
 

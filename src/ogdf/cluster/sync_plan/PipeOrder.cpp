@@ -29,7 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/PipeOrder.h>
 
 bool PipeQueueByDegreePreferContract::comparePipes(const Pipe* x, const Pipe* y) const {

@@ -37,10 +37,10 @@
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
@@ -54,7 +54,7 @@
 #include <string>
 #include <utility>
 
-bool PQPlanarityConsistency::doWriteOut = false;
+bool SyncPlanConsistency::doWriteOut = false;
 
 void normalize(List<adjEntry>& adjs) {
 	adjEntry min_adj = adjs.front();
@@ -68,7 +68,7 @@ void normalize(List<adjEntry>& adjs) {
 	}
 }
 
-void PQPlanarityConsistency::writeOut(std::string name, bool format, bool components) {
+void SyncPlanConsistency::writeOut(std::string name, bool format, bool components) {
 	if (name.empty()) {
 		std::stringstream ss;
 		ss << "consistencyCheck" << checkCounter;
@@ -110,7 +110,7 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 		ss << name << ".json";
 		std::ofstream os(ss.str());
 		nlohmann::json json;
-		PQPlanOptions::generateConfigJSON(pq, json);
+		SyncPlanOptions::generateConfigJSON(pq, json);
 		os << json.dump(4) << std::endl;
 	}
 #endif
@@ -196,7 +196,7 @@ void PQPlanarityConsistency::writeOut(std::string name, bool format, bool compon
 	pq.log.lout(Logger::Level::High) << ">>>>> Wrote " << name << "(Tree).gml/svg <<<<<" << std::endl;
 }
 
-bool PQPlanarityConsistency::consistencyCheck() {
+bool SyncPlanConsistency::consistencyCheck() {
 	if (doWriteOut) {
 		writeOut();
 	}
@@ -296,7 +296,7 @@ bool PQPlanarityConsistency::consistencyCheck() {
 	return true;
 }
 
-void PQPlanarityConsistency::checkComponentRegeneration() {
+void SyncPlanConsistency::checkComponentRegeneration() {
 	BCTree ref_bc(*pq.G, true);
 	NodeArray<int> ref_conn(ref_bc.bcTree(), 0);
 	int ref_conn_count = connectedComponents(ref_bc.bcTree(), ref_conn);

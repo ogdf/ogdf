@@ -31,25 +31,25 @@
 #pragma once
 
 #include <ogdf/basic/Reverse.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
 
 #include <string>
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
-class PQPlanarity;
+class SyncPlan;
 
 using namespace ogdf;
 
-class PQPlanarityConsistency {
-	PQPlanarity& pq;
-	PQPlanarityDrawer draw;
+class SyncPlanConsistency {
+	SyncPlan& pq;
+	SyncPlanDrawer draw;
 	int checkCounter = 0;
 
 public:
 	static bool doWriteOut;
 
-	explicit PQPlanarityConsistency(PQPlanarity& pq) : pq(pq), draw(&pq) {};
+	explicit SyncPlanConsistency(SyncPlan& pq) : pq(pq), draw(&pq) {};
 
 	bool consistencyCheck();
 

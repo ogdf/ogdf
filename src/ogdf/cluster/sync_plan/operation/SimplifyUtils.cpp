@@ -37,8 +37,8 @@
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/operation/Simplify.h>
 
 #include <functional>
@@ -236,7 +236,7 @@ void validatePartnerPCTree(const NodePCRotation* u_pc, const NodePCRotation* v_p
 }
 
 bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet<>& visited,
-		PQPlanarityComponents& components) {
+		SyncPlanComponents& components) {
 	int collected_v_adjs = 0;
 	for (auto& entry : bij_list) {
 		for (adjEntry adj : entry.v_adj) {

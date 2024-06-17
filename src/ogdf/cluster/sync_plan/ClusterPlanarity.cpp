@@ -37,7 +37,7 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Clusters.h>
@@ -53,7 +53,7 @@ struct FrozenCluster {
 	FrozenCluster(int index, int parent) : index(index), parent(parent) { }
 };
 
-class UndoInitCluster : public PQPlanarity::UndoOperation {
+class UndoInitCluster : public SyncPlan::UndoOperation {
 public:
 	ClusterGraph* cg;
 	List<FrozenCluster> clusters;
@@ -68,7 +68,7 @@ public:
 		}
 	}
 
-	void processCluster(PQPlanarity& pq, cluster c, int parent_node) {
+	void processCluster(SyncPlan& pq, cluster c, int parent_node) {
 		node n = pq.nodeFromIndex(parent_node);
 		node t = pq.matchings.getTwin(n);
 		pq.log.lout(Logger::Level::Medium)
@@ -90,7 +90,7 @@ public:
 		}
 	}
 
-	void undo(PQPlanarity& pq) override {
+	void undo(SyncPlan& pq) override {
 		OGDF_ASSERT(cg->numberOfClusters() == 1);
 		cg->rootCluster()->adjEntries.clear();
 		ClusterArray<cluster> cluster_index(*cg, nullptr);
@@ -131,7 +131,7 @@ public:
 	std::ostream& print(std::ostream& os) const override { return os << "UndoInitCluster"; }
 };
 
-PQPlanarity::PQPlanarity(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
+SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 	: G(g)
 	, matchings(G)
 	, partitions(G)

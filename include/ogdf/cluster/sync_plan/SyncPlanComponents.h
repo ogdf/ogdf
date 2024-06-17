@@ -51,12 +51,12 @@ struct EncapsulatedBlock;
 
 using namespace ogdf;
 
-class PQPlanarityComponents {
-	friend class PQPlanarity;
+class SyncPlanComponents {
+	friend class SyncPlan;
 
-	friend class PQPlanarityConsistency;
+	friend class SyncPlanConsistency;
 
-	friend class PQPlanarityDrawer;
+	friend class SyncPlanDrawer;
 
 private:
 	Graph* G;
@@ -73,7 +73,7 @@ private:
 	mutable NodeArray<std::pair<int, edge>> marker; // used by graphEdgeToBCEdge
 
 public:
-	explicit PQPlanarityComponents(Graph* g) : G(g), BC(), marker(BC, std::pair(0, nullptr)) {
+	explicit SyncPlanComponents(Graph* g) : G(g), BC(), marker(BC, std::pair(0, nullptr)) {
 		reset();
 	}
 
@@ -151,14 +151,14 @@ private:
 };
 
 class BiconnectedIsolation {
-	PQPlanarityComponents& m_comps;
+	SyncPlanComponents& m_comps;
 	node m_bicon;
 	NodeSet<true> m_to_restore;
 	NodeArray<SListPure<adjEntry>> m_adjEntries; // room for improvement: replace by contiguous vector + indices
 	Graph::HiddenEdgeSet m_hiddenEdges;
 
 public:
-	explicit BiconnectedIsolation(PQPlanarityComponents& comps, node bicon);
+	explicit BiconnectedIsolation(SyncPlanComponents& comps, node bicon);
 
 	~BiconnectedIsolation() { restore(); }
 

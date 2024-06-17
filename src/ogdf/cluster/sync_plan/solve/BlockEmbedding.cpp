@@ -32,7 +32,7 @@
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
@@ -41,7 +41,7 @@
 #include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 
-void BlockEmbedding::init(Graph& G, PQPlanarityComponents& components, node bc,
+void BlockEmbedding::init(Graph& G, SyncPlanComponents& components, node bc,
 		EdgeArray<edge>& Ge_to_subgraph, EdgeArray<BlockEmbedding*>& Ge_to_block) {
 	OGDF_ASSERT(!components.isCutComponent(bc));
 	subgraph_to_Ge.init(subgraph, nullptr);

@@ -38,7 +38,7 @@
 #include <memory>
 #include <ostream>
 
-#include "PQPlanarity.h"
+#include "SyncPlan.h"
 #include "return.h"
 #include "utils/Clusters.h"
 #include "utils/Preprocess.h"
@@ -61,7 +61,7 @@ void usage() {
 			<< std::endl;
 }
 
-bool stillMatches(const ClusterGraph& CG, const Graph& G, const PQPlanConf& conf) {
+bool stillMatches(const ClusterGraph& CG, const Graph& G, const SyncPlanConf& conf) {
 	if (G.numberOfNodes() < 5 || G.numberOfEdges() < 3 || CG.numberOfClusters() < 2) {
 		return false;
 	}
@@ -80,16 +80,16 @@ bool stillMatches(const ClusterGraph& CG, const Graph& G, const PQPlanConf& conf
 
 	Graph G2;
 	ClusterGraph CG2(CG, G2);
-	PQPlanarity pq(&G2, &CG2);
+	SyncPlan pq(&G2, &CG2);
 	pq.matchings.setPipeQueue(conf.getOrder(&pq));
 	pq.setAllowContractBBPipe(conf.allow_contract);
 	pq.setIntersectTrees(conf.intersect_trees);
 	pq.setBatchSpqr(conf.batch_spqr);
 
-	// pq.stats_out.open("pqplan_stats.json");
+	// pq.stats_out.open("syncplan_stats.json");
 	// if (!pq.stats_out.is_open() || !pq.stats_out.good()) {
 	// 	Logger::slout(Logger::Level::Alarm)
-	// 			<< "IO Warning: Could not open pqplan_stats.json for writing!" << std::endl;
+	// 			<< "IO Warning: Could not open syncplan_stats.json for writing!" << std::endl;
 	// } else {
 	// 	pq.stats_out << "[";
 	// }
@@ -105,14 +105,14 @@ bool stillMatches(const ClusterGraph& CG, const Graph& G, const PQPlanConf& conf
 
 	// if (!pq.stats_out.is_open() || !pq.stats_out.good()) {
 	// 	Logger::slout(Logger::Level::Alarm)
-	// 			<< "IO Warning: Could not finish writing to pqplan_stats.json!" << std::endl;
+	// 			<< "IO Warning: Could not finish writing to syncplan_stats.json!" << std::endl;
 	// } else {
 	// 	pq.stats_out << "]" << std::endl;
 	// }
 }
 
 template<typename C>
-bool tryGraph(C callback, unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G, const PQPlanConf& conf) {
+bool tryGraph(C callback, unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G, const SyncPlanConf& conf) {
 	ClusterArray<cluster> originalClusterTable(*CG);
 	NodeArray<node> originalNodeTable(*G);
 	unique_ptr<Graph> G2 = make_unique<Graph>();
@@ -132,7 +132,7 @@ bool tryGraph(C callback, unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G, co
 	}
 }
 
-bool tryReduce(unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G, const PQPlanConf& conf) {
+bool tryReduce(unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G, const SyncPlanConf& conf) {
 	for (cluster c : CG->clusters) {
 		if (c == CG->rootCluster()) {
 			continue;
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
 	CoinManager::CoinLog.localLogLevel(Logger::Level::Alarm);
 	progname = argv[0];
 	Logger::Level log_level = Logger::Level::Minor;
-	PQPlanConf pqconf;
+	SyncPlanConf pqconf;
 
 	int opt;
 	while ((opt = getopt(argc, argv, "l:dm:t:fcirbasp")) != -1) {
@@ -220,14 +220,14 @@ int main(int argc, char* argv[]) {
 			break;
 #ifdef OGDF_DEBUG
 		case 'd':
-			PQPlanarityConsistency::doWriteOut = true;
+			SyncPlanConsistency::doWriteOut = true;
 			break;
 #endif
 #define TOGGLE(key, var)          \
 	case key:                     \
 		pqconf.var = !pqconf.var; \
 		break;
-			PQPlanConf_KEYS
+			SyncPlanConf_KEYS
 #undef TOGGLE
 					default : /* '?' */
 							  usage();
@@ -266,7 +266,7 @@ int main(int argc, char* argv[]) {
 	// 	}
 	// }
 
-	Logger::slout() << "PQPlanConf: " << pqconf << std::endl;
+	Logger::slout() << "SyncPlanConf: " << pqconf << std::endl;
 	preprocessLog.localLogLevel(ogdf::Logger::Level::Alarm);
 	preprocessLog.localLogMode(ogdf::Logger::LogMode::Log);
 	if (!stillMatches(CG, G, pqconf)) {

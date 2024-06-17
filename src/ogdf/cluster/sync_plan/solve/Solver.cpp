@@ -35,9 +35,9 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
@@ -58,7 +58,7 @@
 #	define SYNCPLAN_OPSTATS_STEP(op, meta)
 #endif
 
-bool PQPlanarity::solveReduced(bool fail_fast) {
+bool SyncPlan::solveReduced(bool fail_fast) {
 	// SYNCPLAN_PROFILE_START("solveReduced")
 #ifdef SYNCPLAN_OPSTATS
 	std::chrono::time_point<std::chrono::high_resolution_clock> start = tpc::now();
