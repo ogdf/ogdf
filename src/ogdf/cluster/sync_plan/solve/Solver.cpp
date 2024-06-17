@@ -28,11 +28,25 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
 #include <ogdf/cluster/sync_plan/solve/BlockEmbedding.h>
+#include <ogdf/decomposition/Skeleton.h>
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+
+#include <memory>
+#include <ostream>
 
 #ifdef SYNCPLAN_OPSTATS
 #	define SYNCPLAN_OPSTATS_STEP(op, meta)                                                        \

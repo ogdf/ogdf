@@ -31,10 +31,23 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
-#include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/decomposition/BCTree.h>
+
+#include <functional>
+#include <iosfwd>
+#include <utility>
+
+namespace ogdf {
+template<class E>
+class List;
+template<class E>
+class SList;
+template<class E>
+class SListPure;
+} // namespace ogdf
+struct EncapsulatedBlock;
 
 using namespace ogdf;
 

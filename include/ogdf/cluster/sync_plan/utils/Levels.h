@@ -30,12 +30,16 @@
  */
 #pragma once
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/NodeSet.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/layered/FastHierarchyLayout.h>
-#include <ogdf/layered/SugiyamaLayout.h>
+#include <ogdf/basic/Logger.h>
 
+#include <iosfwd>
+#include <string>
 #include <vector>
+
+namespace ogdf {
+class ClusterGraph;
+class GraphAttributes;
+} // namespace ogdf
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 

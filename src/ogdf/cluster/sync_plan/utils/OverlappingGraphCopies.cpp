@@ -28,6 +28,9 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 
 const Graph& OverlappingGraphCopy::original() const { return *m_pOGC->G; }

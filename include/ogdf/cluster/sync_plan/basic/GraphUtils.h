@@ -31,8 +31,15 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/cluster/sync_plan/basic/Iterators.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
+
+#include <utility>
+
+namespace ogdf {
+template<class E>
+class List;
+} // namespace ogdf
 
 using namespace ogdf;
 

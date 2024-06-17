@@ -28,7 +28,24 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/utils/Levels.h>
+#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/layered/FastHierarchyLayout.h>
+#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/HierarchyLevels.h>
+
+#include <algorithm>
+#include <istream>
+#include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 void writeLevelGraph(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& pos,
 		std::ostream& os) {

@@ -30,10 +30,18 @@
  */
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/cluster/ClusterGraph.h>
 
+#include <functional>
 #include <ostream>
+#include <string>
+#include <utility>
 
+namespace ogdf {
+template<class E>
+class List;
+} // namespace ogdf
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 

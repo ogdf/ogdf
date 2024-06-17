@@ -30,18 +30,33 @@
  */
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/basic/pctree/NodePCRotation.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
-#include <chrono>
 #include <cstdint>
+#include <functional>
 #include <ostream>
+#include <string>
+#include <tuple>
+
+namespace ogdf::pc_tree {
+class NodePCRotation;
+class PCTree;
+} // namespace ogdf::pc_tree
+
+namespace ogdf {
+class ClusterGraph;
+class ClusterGraphAttributes;
+class GraphAttributes;
+} // namespace ogdf
 
 // // Profiling with LIKWID
 // #ifdef LIKWID_PERFMON

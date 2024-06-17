@@ -31,13 +31,16 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+
+#include <cstdint>
+#include <functional>
+#include <vector>
 
 using namespace ogdf;
 using namespace std; // TODO remove

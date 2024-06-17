@@ -30,8 +30,16 @@
  */
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
+
+#include <utility>
+#include <vector>
+
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
 using namespace ogdf;
 

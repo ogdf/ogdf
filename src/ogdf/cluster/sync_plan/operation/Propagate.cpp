@@ -28,12 +28,31 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/basic/pctree/PCNode.h>
-#include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
+#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
+
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
 
 using namespace pc_tree;
 

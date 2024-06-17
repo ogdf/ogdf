@@ -28,8 +28,19 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
+
+#include <sstream>
+#include <string>
 
 class UndoMakeWheel : public PQPlanarity::UndoOperation {
 public:

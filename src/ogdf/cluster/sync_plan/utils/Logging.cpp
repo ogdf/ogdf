@@ -28,9 +28,18 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
+#include <ogdf/decomposition/BCTree.h>
 
+#include <functional>
 #include <sstream>
+#include <string>
+#include <utility>
 
 using namespace ogdf;
 

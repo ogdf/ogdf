@@ -28,7 +28,10 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 PipeBijRange getPipeBijection(node u, node v) {

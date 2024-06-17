@@ -28,11 +28,24 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
 #include <ogdf/cluster/sync_plan/PipeOrder.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
+
+#include <cmath>
+#include <cstddef>
+#include <memory>
+#include <ostream>
 
 PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 	try {

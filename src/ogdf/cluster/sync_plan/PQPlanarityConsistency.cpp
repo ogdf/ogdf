@@ -28,14 +28,31 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityOptions.h>
-#include <ogdf/cluster/sync_plan/PipeOrder.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
+#include <ogdf/decomposition/BCTree.h>
 #include <ogdf/fileformats/GraphIO.h>
+
+#include <fstream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
 
 bool PQPlanarityConsistency::doWriteOut = false;
 

@@ -31,11 +31,18 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/decomposition/BCTree.h>
 
+#include <functional>
+#include <iterator>
 #include <ostream>
+#include <string>
+#include <utility>
+
+namespace ogdf {
+class ClusterGraph;
+} // namespace ogdf
 
 std::string to_string(const std::function<std::ostream&(std::ostream&)>& func);
 
