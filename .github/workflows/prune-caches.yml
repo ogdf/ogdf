@@ -20,19 +20,4 @@ jobs:
           [${{ github.event.workflow_run.event }}
           ${{ github.event.workflow_run.head_branch }}]](
           ${{ github.event.workflow_run.html_url }})' >> $GITHUB_STEP_SUMMARY
-      - run: .github/prune-caches.sh ccache-self-sufficiency
-      - run: .github/prune-caches.sh ccache-coverage
-      - run: .github/prune-caches.sh clang-tidy-cache
-      - run: .github/prune-caches.sh ccache-static-analysis
-      - run: .github/prune-caches.sh ccache-build-linux-gcc:9-debug
-      - run: .github/prune-caches.sh ccache-build-linux-gcc:9-release
-      - run: .github/prune-caches.sh ccache-build-linux-gcc:13-debug
-      - run: .github/prune-caches.sh ccache-build-linux-gcc:13-release
-      - run: .github/prune-caches.sh ccache-build-linux-clang:15-debug
-      - run: .github/prune-caches.sh ccache-build-linux-clang:15-release
-      - run: .github/prune-caches.sh ccache-build-macos-13-debug
-      - run: .github/prune-caches.sh ccache-build-macos-13-release
-      - run: .github/prune-caches.sh ccache-build-macos-14-debug
-      - run: .github/prune-caches.sh ccache-build-macos-14-release
-      - run: .github/prune-caches.sh ccache-build-windows-debug
-      - run: .github/prune-caches.sh ccache-build-windows-release
+      - run: .github/prune-all-caches.sh
