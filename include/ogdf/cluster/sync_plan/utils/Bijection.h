@@ -45,7 +45,7 @@ using PipeBijIterator = ZipIterator<internal::GraphObjectContainer<AdjElement>::
 using PipeBijRange = Range<PipeBijIterator>;
 using PipeBijPair = std::pair<adjEntry, adjEntry>;
 using FrozenPipeBijPair = std::pair<int, int>;
-using PipeBij = List<PipeBijPair>; // TODO convert to vector?
+using PipeBij = List<PipeBijPair>;
 using FrozenPipeBij = List<FrozenPipeBijPair>;
 
 OGDF_DECLARE_COMPARER(PipeBijCmp, PipeBijPair, int, x.first->theEdge()->index());

@@ -64,7 +64,8 @@ bool PQPlanarity::solveReduced(bool fail_fast) {
 	std::chrono::time_point<std::chrono::high_resolution_clock> start = tpc::now();
 #endif
 	OGDF_ASSERT(matchings.isReduced());
-	// ensure that all Q-node are surrounded by wheels // TODO makeWheel could also be replaced by a Q-vertex-aware embedding tree generator
+	// ensure that all Q-node are surrounded by wheels
+	// room for improvement: makeWheel could also be replaced by a Q-vertex-aware embedding tree generator
 #ifdef SYNCPLAN_OPSTATS
 	int wheels = 0;
 #endif

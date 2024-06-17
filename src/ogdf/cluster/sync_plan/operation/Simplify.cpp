@@ -117,8 +117,7 @@ void UndoSimplify::undo(PQPlanarity& pq) {
 			v_order.pushBack(entry->v_adj.front());
 		} else {
 			List<adjEntry> v_sub_order;
-			for (auto it = v->adjEntries.rbegin(); it != v->adjEntries.rend();
-					it++) { // FIXME can we directly start at the right adj?
+			for (auto it = v->adjEntries.rbegin(); it != v->adjEntries.rend(); it++) {
 				adjEntry adj = *it;
 				if (bij_map[adj] == entry) {
 					v_sub_order.pushFront(adj);
@@ -321,7 +320,7 @@ PQPlanarity::Result PQPlanarity::simplify(node u, const NodePCRotation* pc) {
 			const List<edge>& found = pc->getPartnerEdgesForLeaf(leaf_for_u_inc_edge[pair.second]);
 			for (edge e : found) {
 				OGDF_ASSERT(!visited.isMember(e));
-				visited.insert(e); // TODO only used in debug mode
+				visited.insert(e);
 				entry->v_adj.pushBack(e->getAdj(v));
 			}
 			OGDF_ASSERT(compareWithExhaustiveNodeDFS(*G, pair.second, v, visited, entry->v_adj));

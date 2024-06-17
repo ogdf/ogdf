@@ -317,7 +317,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 	m_bundleEdgesForLeaf.init(*this);
 	EdgeArray<PCNode*> mapping(*getGraph());
 	generateLeafForIncidentEdgeMapping(mapping);
-	NodeArray<PCNode*> snodes(spqr.spqrTree(), nullptr); // TODO reuse mappings?
+	NodeArray<PCNode*> snodes(spqr.spqrTree(), nullptr); // room for improvement: reuse mappings
 	node pole = getTrivialPartnerPole();
 	OGDF_ASSERT(pole != nullptr);
 	OGDF_ASSERT(pole->graphOf() == m_G);

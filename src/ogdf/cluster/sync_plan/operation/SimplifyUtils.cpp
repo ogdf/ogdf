@@ -230,7 +230,8 @@ void validatePartnerPCTree(const NodePCRotation* u_pc, const NodePCRotation* v_p
 		}
 	} else {
 		OGDF_ASSERT(u_pc->getNode()->degree() < v_pc->getNode()->degree());
-		// TODO more checks here
+		// room for improvement: we could validate the incident edge for leaf mapping here,
+		// but that is tedious and always worked alright up to now
 	}
 }
 

@@ -55,7 +55,7 @@ PQPlanarity::Result PQPlanarity::checkPCTree(node u) {
 		// SYNCPLAN_PROFILE_START("checkPCTree")
 		BiconnectedIsolation iso(components, components.biconnectedComponent(u));
 		NodePCRotation pc(*G, u, true);
-		iso.restore(); // TODO Make function of components to get EmbeddingTree interface
+		iso.restore(); // room for improvement: make function of components to get EmbeddingTree
 		log.lout() << "PC-Tree with " << pc.getPNodeCount() << " P-nodes and " << pc.getCNodeCount()
 				   << " C-nodes" << std::endl;
 		if (log.is_lout(ogdf::Logger::Level::Minor)) {

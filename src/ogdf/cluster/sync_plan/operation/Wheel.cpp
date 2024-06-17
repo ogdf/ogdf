@@ -120,7 +120,8 @@ void PQPlanarity::makeWheel(node centre, bool update_cuts) {
 	log.lout(Logger::Level::Medium) << printIncidentEdges(centre->adjEntries) << std::endl;
 
 	if (is_cut) {
-		components.cutReplacedByWheel(centre, block_neigh); // TODO use union-find to merge blocks faster
+		components.cutReplacedByWheel(centre,
+				block_neigh); // room for improvement: use union-find to merge blocks faster
 	}
 
 	pushUndoOperation(new UndoMakeWheel(centre));

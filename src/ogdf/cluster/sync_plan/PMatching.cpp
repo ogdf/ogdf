@@ -109,11 +109,11 @@ const Pipe& PMatching::getTopPipe() const {
 	return *(queue->getTop());
 }
 
-void PMatching::matchNodes(node f, node s) { // TODO don't match deg-1 nodes
+void PMatching::matchNodes(node f, node s) { // room for improvement: don't match deg-1 nodes
 	OGDF_ASSERT(!isMatchedPVertex(f));
 	OGDF_ASSERT(!isMatchedPVertex(s));
 	OGDF_ASSERT(f->degree() == s->degree());
-	// OGDF_ASSERT(f->degree() > 3); // TODO this is violated by the RemCut before and Contract Rays after Propagate
+	// OGDF_ASSERT(f->degree() > 3); // this is violated by the RemCut before and Contract Rays after Propagate
 	List<Pipe>::iterator it = pipes_list.emplaceBack(f, s);
 	(*it).list_entry = it;
 	if (queue) {

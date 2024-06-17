@@ -69,7 +69,7 @@ void QPartitioning::releaseQVertex(node n) {
 	OGDF_ASSERT(isQVertex(n));
 	int p = partitions[n];
 	partitions[n] = NO_PARTITION;
-	// FIXME the list is very short in our case, but do we really need to do this in our undo operations?
+	// room for improvement: the list is very short in our case, but do we really need to do this in our undo operations?
 	bool has_removed = partitioned_nodes[p].removeFirst(n);
 	OGDF_ASSERT(has_removed);
 	q_vertex_count--;

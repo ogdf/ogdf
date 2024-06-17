@@ -86,14 +86,31 @@ struct RegisteredMultiArrayEntry {
 		swap(first.m_value, second.m_value);
 	}
 
-	// TODO iterators
-	// TODO get or default
-
 	void unset(const Key2& key) {
 		if (!contains(key)) {
 			return;
 		}
-		get_or_raise(key) = Value(); // TODO actually remove
+		if (m_size <= 0) {
+			ValueMapType& map = getValueMap();
+			int cnt = map.erase(key);
+			OGDF_ASSERT(cnt == 1);
+		} else if (m_size == 1) {
+			delete (ValuePairType*)m_value;
+			m_value = nullptr;
+			m_size = 0;
+		} else {
+			ValueArrayType& array = getValueArray();
+			for (int i = 0; i < m_size; ++i) {
+				if (array[i].first == key) {
+					if (i != m_size - 1) {
+						using std::swap;
+						swap(array[i], array[m_size - 1]);
+					}
+					m_size--;
+					break;
+				}
+			}
+		}
 	}
 
 	Value& get_or_create(const Key2& key, const Value& def = Value()) {
