@@ -46,8 +46,8 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
-#include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
 #include <ogdf/cluster/sync_plan/utils/Clusters.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>

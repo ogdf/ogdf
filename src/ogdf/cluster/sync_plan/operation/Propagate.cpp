@@ -41,9 +41,9 @@
 #include <ogdf/basic/pctree/PCTreeIterators.h>
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>

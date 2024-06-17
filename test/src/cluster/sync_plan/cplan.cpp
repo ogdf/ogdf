@@ -36,8 +36,8 @@
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/planarlayout/FPPLayout.h>
 
-#include "SyncPlan.h"
 #include "PipeOrder.h"
+#include "SyncPlan.h"
 #include "return.h"
 #include "utils/Clusters.h"
 #include "utils/Logging.h"

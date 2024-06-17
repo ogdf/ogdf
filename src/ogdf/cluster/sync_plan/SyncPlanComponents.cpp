@@ -329,7 +329,7 @@ void SyncPlanComponents::relabelExplodedStar(node center1, node center2, List<no
 }
 
 void SyncPlanComponents::preJoin(node keep, node merge) {
-	// TODO use union-find for relabeling?
+	// room for improvement: use union-find for relabeling
 	int cc = bcConnectedId(keep);
 	OGDF_ASSERT(cc != bcConnectedId(merge));
 	for (node n : nodesInBiconnectedComponent(merge)) {

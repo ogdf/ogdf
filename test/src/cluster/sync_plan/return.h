@@ -38,9 +38,9 @@
 
 #include <getopt.h>
 
+#include "PipeOrder.h"
 #include "SyncPlan.h"
 #include "SyncPlanOptions.h"
-#include "PipeOrder.h"
 
 using nlohmann::json;
 
@@ -171,7 +171,7 @@ struct SyncPlanConf {
 	bool allow_contract = true, intersect_trees = true, random_order = false,
 		 contract_first = false, invert_degree = false, invert_contract = false, batch_spqr = false;
 
-#define SyncPlanConf_KEYS          \
+#define SyncPlanConf_KEYS        \
 	TOGGLE('c', allow_contract)  \
 	TOGGLE('i', intersect_trees) \
 	TOGGLE('r', random_order)    \
