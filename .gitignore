@@ -36,6 +36,7 @@ doxygen.stamp
 *.profdata
 /coverage
 /static-analysis
+/iwyu-stats
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++,c,cmake,ninja,sonarqube,eclipse,visualstudio,xcode,windows,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,c,cmake,ninja,sonarqube,eclipse,visualstudio,xcode,windows,macos,linux
