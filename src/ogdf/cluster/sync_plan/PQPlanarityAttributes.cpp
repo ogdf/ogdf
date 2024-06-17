@@ -29,12 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/PreprocessorLayout.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
 #include <ogdf/cluster/sync_plan/utils/Clusters.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
@@ -42,7 +55,13 @@
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/planarlayout/FPPLayout.h>
 
+#include <algorithm>
+#include <array>
+#include <functional>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
 
 const std::array<Color, 63> colors = {Color("#00FF00"), Color("#0000FF"), Color("#FF0000"),
 		Color("#01FFFE"), Color("#FFA6FE"), Color("#FFDB66"), Color("#006401"), Color("#010067"),

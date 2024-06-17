@@ -31,8 +31,24 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+
+#include <functional>
+#include <iosfwd>
+
+class PQPlanarityComponents;
+
+namespace ogdf::pc_tree {
+class NodePCRotation;
+} // namespace ogdf::pc_tree
+
+namespace ogdf {
+template<bool>
+class EdgeSet;
+} // namespace ogdf
 
 struct SimplifyMapping {
 	adjEntry u2_adj, u_adj, v2_adj;

@@ -28,11 +28,31 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
+#include <ogdf/decomposition/BCTree.h>
 
+#include <array>
+#include <cstdlib>
+#include <ostream>
 #include <stdexcept>
+#include <string>
+#include <tuple>
+#include <typeinfo>
 
 #include <cxxabi.h>
 

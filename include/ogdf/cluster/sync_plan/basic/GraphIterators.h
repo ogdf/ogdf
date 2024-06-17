@@ -31,7 +31,13 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/basic.h>
+
+#include <functional>
+#include <initializer_list>
+#include <iterator>
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 

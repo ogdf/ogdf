@@ -28,10 +28,27 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/cluster/sync_plan/utils/NodeTricRotation.h>
+
+#include <cmath>
+#include <cstddef>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 struct EmbeddingTrees {
 	PQPlanarity& pq;

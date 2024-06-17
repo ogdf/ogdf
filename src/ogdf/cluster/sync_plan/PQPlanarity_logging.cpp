@@ -28,8 +28,17 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/utils/Logging.h>
+#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
+
+#include <functional>
+#include <ostream>
+#include <string>
 
 std::ostream& operator<<(std::ostream& os, const PQPlanarity& pq) {
 	return os << "PQPlanarity Instance with " << pq.G->numberOfNodes() << " nodes, "

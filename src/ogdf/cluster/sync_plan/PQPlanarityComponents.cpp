@@ -28,10 +28,22 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
+#include <ogdf/decomposition/BCTree.h>
+
+#include <functional>
+#include <ostream>
+#include <utility>
 
 std::function<std::ostream&(std::ostream&)> PQPlanarityComponents::fmtBCNode(node bc) const {
 	OGDF_ASSERT(bc == nullptr || bc->graphOf() == &bcTree());

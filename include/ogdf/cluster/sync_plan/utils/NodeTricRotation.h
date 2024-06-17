@@ -30,11 +30,25 @@
  */
 #pragma once
 
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/basic/pctree/NodePCRotation.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/graphalg/Triconnectivity.h>
+
+#include <iosfwd>
+#include <vector>
+
+namespace ogdf::pc_tree {
+class PCNode;
+} // namespace ogdf::pc_tree
+
+namespace ogdf {
+class Logger;
+template<class E>
+class List;
+} // namespace ogdf
 
 using namespace ogdf;
 using namespace std; // TODO remove

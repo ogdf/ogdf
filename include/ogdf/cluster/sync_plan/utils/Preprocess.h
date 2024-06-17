@@ -30,8 +30,13 @@
  */
 #pragma once
 
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/cluster/ClusterGraph.h>
+
+namespace ogdf {
+class Logger;
+} // namespace ogdf
 
 extern ogdf::Logger preprocessLog;
 

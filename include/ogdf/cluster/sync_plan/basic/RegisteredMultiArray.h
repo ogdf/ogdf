@@ -32,12 +32,14 @@
 
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/copy_move.h>
 
-#include <memory>
+#include <cstddef>
+#include <cstdint>
+#include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
-#include <variant>
-#include <vector>
 
 using namespace std; // TODO remove
 

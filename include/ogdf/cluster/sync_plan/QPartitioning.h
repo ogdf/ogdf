@@ -30,14 +30,16 @@
  */
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-#include <ogdf/basic/GraphObserver.h>
 
 using namespace ogdf;
 
 static inline int NO_PARTITION = -1;
 
-class QPartitioning;
+class QPartitioning; // IWYU pragma: keep
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) RegisteredArray<QPartitioning, v, c>
 //! RegisteredArray for labeling the partitions in a QPartitioning with an arbitrary \p Value.

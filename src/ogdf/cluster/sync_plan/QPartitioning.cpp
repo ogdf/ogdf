@@ -28,8 +28,13 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
+
+#include <algorithm>
 
 using namespace ogdf;
 

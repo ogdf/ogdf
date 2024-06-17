@@ -30,9 +30,27 @@
  */
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/NodePCRotation.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
+#include <ogdf/decomposition/BCTree.h>
 #include <ogdf/decomposition/DynamicSPQRForest.h>
+
+#include <functional>
+#include <iosfwd>
+
+namespace ogdf {
+class Logger;
+template<class E>
+class SList;
+} // namespace ogdf
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 

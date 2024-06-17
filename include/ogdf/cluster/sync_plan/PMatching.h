@@ -30,17 +30,15 @@
  */
 #pragma once
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/GraphObserver.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/cluster/sync_plan/basic/Iterators.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
+#include <functional>
 #include <memory>
 #include <ostream>
-
-class PMatching;
+#include <utility>
 
 enum class PipeType { BlockBlock, BlockCut, CutCut };
 

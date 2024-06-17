@@ -30,6 +30,9 @@
  */
 #pragma once
 
+#include <functional>
+#include <iosfwd>
+#include <iterator>
 #include <utility>
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove

@@ -30,7 +30,12 @@
  */
 #pragma once
 
+#include <ogdf/basic/Reverse.h>
 #include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
+
+#include <string>
+
+#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
 class PQPlanarity;
 

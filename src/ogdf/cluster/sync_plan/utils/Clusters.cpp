@@ -28,11 +28,22 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+
+
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/utils/Clusters.h>
-#include <ogdf/fileformats/GraphIO.h>
+
+#include <functional>
+#include <ostream>
+#include <string>
+#include <utility>
 // #include <ogdf/planarlayout/FPPLayout.h>
 
 using namespace ogdf;
