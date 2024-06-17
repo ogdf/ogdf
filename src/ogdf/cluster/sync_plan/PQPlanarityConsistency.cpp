@@ -216,7 +216,7 @@ bool PQPlanarityConsistency::consistencyCheck() {
 	for (node n : pq.G->nodes) {
 		node_reg[n] = n;
 		OGDF_ASSERT(!(pq.matchings.isMatchedPVertex(n) && pq.partitions.isQVertex(n)));
-		//        OGDF_ASSERT(!(pq.partitions.isQVertex(n) && pq.components.isCutVertex(n))); //  && n->degree() > 3 // TODO reeanble
+		OGDF_ASSERT(!(pq.partitions.isQVertex(n) && pq.components.isCutVertex(n) && n->degree() > 3));
 		if (pq.partitions.isQVertex(n)) {
 			q_count++;
 		}
@@ -261,7 +261,7 @@ bool PQPlanarityConsistency::consistencyCheck() {
 		for (node u : pq.partitions.nodesInPartition(part)) {
 			OGDF_ASSERT(node_reg[u] == u);
 			OGDF_ASSERT(pq.partitions.getPartitionOf(u) == part);
-			//            OGDF_ASSERT(!pq.components.isCutVertex(u)); // TODO reeanble
+			OGDF_ASSERT(!pq.components.isCutVertex(u) || u->degree() <= 3);
 			q_count++;
 		}
 	}

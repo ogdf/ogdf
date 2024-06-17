@@ -51,7 +51,8 @@ using EdgeMultiArray = RegisteredMultiArray<edge, Key2, Value, EA>;
 
 class OverlappingGraphCopies;
 
-class OverlappingGraphCopy : public Graph { // TODO common interface with GraphCopyBase
+// room for improvement: common interface with GraphCopyBase, add auto-linking ::insert method
+class OverlappingGraphCopy : public Graph {
 	friend class OverlappingGraphCopies;
 
 	OverlappingGraphCopies* m_pOGC; //!< The master instance.

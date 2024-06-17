@@ -243,7 +243,6 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 			}
 		}
 	} else if (intersect_trees) {
-		// TODO only if there are any P-node left -> otherwise convert small?
 		bool intersected;
 #ifdef SYNCPLAN_OPSTATS
 		tp v_pc_start = tpc::now();
@@ -409,7 +408,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 		if (v_bc->degree() == 0 && components.bcRepr(v_bc) == v) {
 			components.makeRepr(v_bc, pcg_to_v[inner_pcg_node]);
 		}
-		components.bc_size[v_bc]--; // TODO move to components callback
+		components.bc_size[v_bc]--; // room for improvement: move to components callback function
 	}
 	components.bc_size[u_bc]--;
 

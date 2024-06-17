@@ -122,7 +122,7 @@ struct EmbeddingTrees {
 			OGDF_ASSERT(spqr.GC.numberOfNodes() == components.bcSize(bc));
 #ifdef SYNCPLAN_OPSTATS
 			pq.stats_out << "\"nodes\":" << spqr.GC.numberOfNodes()
-						 << ",\"edges\":" << spqr.GC.numberOfEdges() << ","; // TODO SPQR stats?
+						 << ",\"edges\":" << spqr.GC.numberOfEdges() << ",";
 #endif
 			spqr.init();
 			// SYNCPLAN_PROFILE_STOP("batchSPQR-makeSPQR")
@@ -218,7 +218,7 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 	Logger::Indent _(log);
 	SimpleSPQRTree::log = log; // copy settings
 	SimpleSPQRTree::log.indent();
-	EmbeddingTrees embtrees(*this); // TODO OPStats entry
+	EmbeddingTrees embtrees(*this);
 	bool changed = false, simplified = true;
 
 	vector<SimplePipe> pipes;
@@ -311,7 +311,8 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 		}
 	}
 
-	// OGDF_ASSERT(matchings.getPipeCount() < pipe_cnt); // TODO maintain total pipes degree
+	// OGDF_ASSERT(matchings.getPipeCount() < pipe_cnt); // number of pipes might actually have increased,
+	// // but their total degree decreased (a value which we unfortunately do not maintain)
 	// SYNCPLAN_PROFILE_STOP("batchSPQR")
 #ifdef SYNCPLAN_OPSTATS
 	stats_out << "],";

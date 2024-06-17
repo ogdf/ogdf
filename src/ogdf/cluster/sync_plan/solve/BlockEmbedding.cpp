@@ -46,8 +46,7 @@ void BlockEmbedding::init(Graph& G, PQPlanarityComponents& components, node bc,
 	OGDF_ASSERT(!components.isCutComponent(bc));
 	subgraph_to_Ge.init(subgraph, nullptr);
 
-	for (node w : components.nodesInBiconnectedComponent(
-				 bc)) { // TODO reuse the NodeArray<bool> visited from the BFS?
+	for (node w : components.nodesInBiconnectedComponent(bc)) {
 		OGDF_ASSERT(w != nullptr);
 		OGDF_ASSERT(w->graphOf() == &G);
 		node n = subgraph.newNode();

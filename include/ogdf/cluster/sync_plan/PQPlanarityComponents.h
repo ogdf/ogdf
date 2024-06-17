@@ -154,7 +154,7 @@ class BiconnectedIsolation {
 	PQPlanarityComponents& m_comps;
 	node m_bicon;
 	NodeSet<true> m_to_restore;
-	NodeArray<SListPure<adjEntry>> m_adjEntries; // TODO replace by contiguous vector + indices?
+	NodeArray<SListPure<adjEntry>> m_adjEntries; // room for improvement: replace by contiguous vector + indices
 	Graph::HiddenEdgeSet m_hiddenEdges;
 
 public:

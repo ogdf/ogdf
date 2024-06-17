@@ -61,7 +61,7 @@ using namespace ogdf::pc_tree;
 std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t);
 
 struct RigidEmbedding {
-	// mostly needed for the destructor clean-up, because NodeArray<unique_ptr> doesn't compile currently
+	// room for improvement: mostly needed for the destructor clean-up, because NodeArray<unique_ptr> didn't compile previously
 	const DynamicSPQRForest spqr;
 	NodeArray<GraphCopySimple*> rigids;
 
@@ -119,7 +119,7 @@ public:
 			OGDF_ASSERT(getLeafCount() <= o->degree());
 		}
 		OGDF_ASSERT(checkValid());
-		// TODO reuse highest, edges and children
+		// room for improvement: reuse highest, edges and children arrays
 	}
 
 	void mapPartnerEdges();

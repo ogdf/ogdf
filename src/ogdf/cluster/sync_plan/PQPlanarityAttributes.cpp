@@ -102,13 +102,6 @@ void styleClusterBorder(const ClusterGraph& CG,
 		}
 		node src = translate(e)->source();
 		node tgt = translate(e)->target();
-		// TODO can't we guarantee a consistent orientation?
-		//        if (G.searchEdge(subdivisions[e].front().first->theNode(), src)) {
-		//            OGDF_ASSERT(G.searchEdge(subdivisions[e].back().first->theNode(), tgt));
-		//        } else {
-		//            OGDF_ASSERT(G.searchEdge(subdivisions[e].front().first->theNode(), tgt));
-		//            OGDF_ASSERT(G.searchEdge(subdivisions[e].back().first->theNode(), src));
-		//        }
 		int i = 1, m = subdivisions[e].size() + 1;
 		double dx = (GA.x(tgt) - GA.x(src)) / m, dy = (GA.y(tgt) - GA.y(src)) / m;
 		for (std::pair<adjEntry, cluster> subdiv : subdivisions[e]) {
