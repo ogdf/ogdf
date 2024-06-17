@@ -41,8 +41,8 @@
 #include <json.hpp>
 #include <ostream>
 
-#include "SyncPlan.h"
 #include "PipeOrder.h"
+#include "SyncPlan.h"
 #include "likwid_utils.h"
 #include "return.h"
 #include "utils/Logging.h"

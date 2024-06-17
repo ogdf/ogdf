@@ -112,7 +112,8 @@ bool stillMatches(const ClusterGraph& CG, const Graph& G, const SyncPlanConf& co
 }
 
 template<typename C>
-bool tryGraph(C callback, unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G, const SyncPlanConf& conf) {
+bool tryGraph(C callback, unique_ptr<ClusterGraph>& CG, unique_ptr<Graph>& G,
+		const SyncPlanConf& conf) {
 	ClusterArray<cluster> originalClusterTable(*CG);
 	NodeArray<node> originalNodeTable(*G);
 	unique_ptr<Graph> G2 = make_unique<Graph>();

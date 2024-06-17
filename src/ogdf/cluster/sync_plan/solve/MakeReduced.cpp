@@ -36,10 +36,10 @@
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
+#include <ogdf/cluster/sync_plan/PipeOrder.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
-#include <ogdf/cluster/sync_plan/PipeOrder.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <cmath>

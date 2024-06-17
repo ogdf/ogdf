@@ -37,11 +37,11 @@
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
+#include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
-#include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
-#include <ogdf/cluster/sync_plan/QPartitioning.h>
+#include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>

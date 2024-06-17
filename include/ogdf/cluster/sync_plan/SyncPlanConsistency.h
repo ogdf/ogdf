@@ -31,7 +31,7 @@
 #pragma once
 
 #include <ogdf/basic/Reverse.h>
-#include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
+#include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
 
 #include <string>
 
