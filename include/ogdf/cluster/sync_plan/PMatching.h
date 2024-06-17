@@ -80,7 +80,7 @@ struct PipeQueue {
 };
 
 class PMatching : protected GraphObserver {
-	friend class PQPlanarityConsistency;
+	friend class SyncPlanConsistency;
 
 private:
 	int priority_pipes = 0;

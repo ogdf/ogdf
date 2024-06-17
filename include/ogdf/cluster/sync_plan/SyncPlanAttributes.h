@@ -70,14 +70,14 @@ void fixParallels(Graph& G, const std::function<void(edge, edge)>& cb);
 
 void bendEdge(GraphAttributes& GA, edge e, double bend);
 
-class PQPlanarity;
+class SyncPlan;
 
-class PQPlanarityDrawer {
+class SyncPlanDrawer {
 	std::unique_ptr<LayoutModule> planar_layout;
 	std::unique_ptr<LayoutModule> non_planar_layout;
 	GraphIO::SVGSettings svg;
 
-	PQPlanarity* PQ;
+	SyncPlan* PQ;
 	GraphAttributes BC_GA;
 	List<edge> g_edges;
 	List<edge> bc_edges;
@@ -86,9 +86,9 @@ class PQPlanarityDrawer {
 	std::unique_ptr<GraphAttributes> own_GA;
 
 public:
-	PQPlanarityDrawer(PQPlanarity* pq);
+	SyncPlanDrawer(SyncPlan* pq);
 
-	virtual ~PQPlanarityDrawer() { cleanUp(); }
+	virtual ~SyncPlanDrawer() { cleanUp(); }
 
 	GraphAttributes& ensureGraphAttributes();
 

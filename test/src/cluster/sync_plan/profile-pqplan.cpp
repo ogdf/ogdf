@@ -41,7 +41,7 @@
 #include <json.hpp>
 #include <ostream>
 
-#include "PQPlanarity.h"
+#include "SyncPlan.h"
 #include "PipeOrder.h"
 #include "likwid_utils.h"
 #include "return.h"
@@ -72,7 +72,7 @@ void usage() {
 			<< std::endl;
 }
 
-json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf);
+json solveSyncPlan(SyncPlan& pq, const SyncPlanConf& conf);
 
 int exit_code = ERROR_ASSERT;
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 	CoinManager::CoinLog.localLogLevel(Logger::Level::Alarm);
 	progname = argv[0];
 	Logger::Level log_level = Logger::Level::Minor;
-	PQPlanConf pqconf;
+	SyncPlanConf pqconf;
 
 	int opt;
 	while ((opt = getopt(argc, argv, "l:dcirbasp")) != -1) {
@@ -91,14 +91,14 @@ int main(int argc, char* argv[]) {
 			break;
 #ifdef OGDF_DEBUG
 		case 'd':
-			PQPlanarityConsistency::doWriteOut = true;
+			SyncPlanConsistency::doWriteOut = true;
 			break;
 #endif
 #define TOGGLE(key, var)          \
 	case key:                     \
 		pqconf.var = !pqconf.var; \
 		break;
-			PQPlanConf_KEYS
+			SyncPlanConf_KEYS
 #undef TOGGLE
 					default : /* '?' */
 							  usage();
@@ -137,9 +137,9 @@ int main(int argc, char* argv[]) {
 	}
 
 #ifdef OGDF_DEBUG
-	PQPlanarity pq(&G, &GA);
+	SyncPlan pq(&G, &GA);
 #else
-	PQPlanarity pq(&G);
+	SyncPlan pq(&G);
 #endif
 	try {
 		std::ifstream i(infile + ".json");
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 		}
 		json j;
 		i >> j;
-		PQPlanOptions::applyConfigJSON(G, GA, pq, j);
+		SyncPlanOptions::applyConfigJSON(G, GA, pq, j);
 	} catch (json::parse_error& e) {
 		Logger::slout(Logger::Level::Alarm) << "IO Error: Couldn't parse config json " << infile
 											<< ".json: " << e.what() << std::endl
@@ -160,17 +160,17 @@ int main(int argc, char* argv[]) {
 	}
 
 	Logger::slout() << pq << std::endl;
-	json result = solvePQPlan(pq, pqconf);
+	json result = solveSyncPlan(pq, pqconf);
 	std::cerr << result << std::endl;
 	return exit_code;
 }
 
-json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf) {
-	Logger::slout() << "PQPlanConf: " << conf << std::endl;
+json solveSyncPlan(SyncPlan& pq, const SyncPlanConf& conf) {
+	Logger::slout() << "SyncPlanConf: " << conf << std::endl;
 
 	json ret;
-	ret["method"] = "PQPlanarity";
-	ret["mode"] = "PQPlanarity" + conf.getID();
+	ret["method"] = "SyncPlan";
+	ret["mode"] = "SyncPlan" + conf.getID();
 	ret["config"] = conf;
 
 	likwid_prepare(ret);
@@ -181,17 +181,17 @@ json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf) {
 	pq.setAllowContractBBPipe(conf.allow_contract);
 	pq.setIntersectTrees(conf.intersect_trees);
 	pq.setBatchSpqr(conf.batch_spqr);
-	pq.stats_out.open("pqplan_stats.json");
+	pq.stats_out.open("syncplan_stats.json");
 	if (!pq.stats_out.is_open() || !pq.stats_out.good()) {
 		Logger::slout(Logger::Level::Alarm)
-				<< "IO Warning: Could not open pqplan_stats.json for writing!" << std::endl;
+				<< "IO Warning: Could not open syncplan_stats.json for writing!" << std::endl;
 	} else {
 		pq.stats_out << "[";
 	}
 	{
 		tp t = tpc::now();
 		json s_init;
-		pqPlanStats(pq, s_init);
+		syncPlanStats(pq, s_init);
 		ret["init_stats"] = s_init;
 		dur_init_stats = dur_ns(tpc::now() - t);
 	}
@@ -202,7 +202,7 @@ json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf) {
 	{
 		tp t = tpc::now();
 		json s_reduced;
-		pqPlanStats(pq, s_reduced);
+		syncPlanStats(pq, s_reduced);
 		ret["reduced_stats"] = s_reduced;
 		ret["undo_ops"] = pq.undoOperations();
 		dur_reduced_stats = dur_ns(tpc::now() - t);
@@ -210,7 +210,7 @@ json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf) {
 	tp make_reduced = tpc::now();
 	ret["time_make_reduced_ns"] = dur_ns(make_reduced - init) - dur_reduced_stats;
 
-	exit_code = NOT_PQPLANAR;
+	exit_code = NOT_SYNC_PLAN;
 	bool g_comb_emb = false;
 	if (reduced) {
 		ret["status"] = "preSolve";
@@ -229,7 +229,7 @@ json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf) {
 			g_comb_emb = ret["g_comb_emb"] = pq.G->representsCombEmbedding();
 			tp check = tpc::now();
 
-			exit_code = PQPLANAR;
+			exit_code = SYNC_PLAN;
 			ret["result"] = true;
 			ret["status"] = "embeddedAndVerified";
 
@@ -244,12 +244,12 @@ json solvePQPlan(PQPlanarity& pq, const PQPlanConf& conf) {
 		ret["status"] = "reductionFailed";
 		ret["time_ns"] = dur_ns(make_reduced - start) - dur_init_stats - dur_reduced_stats;
 	}
-	if (exit_code == PQPLANAR && !g_comb_emb) {
+	if (exit_code == SYNC_PLAN && !g_comb_emb) {
 		exit_code = ERROR_COMB_EMB;
 	}
 	if (!pq.stats_out.is_open() || !pq.stats_out.good()) {
 		Logger::slout(Logger::Level::Alarm)
-				<< "IO Warning: Could not finish writing to pqplan_stats.json!" << std::endl;
+				<< "IO Warning: Could not finish writing to syncplan_stats.json!" << std::endl;
 	} else {
 		pq.stats_out << "]" << std::endl;
 	}

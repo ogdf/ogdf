@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 					<< "IO Error: Couldn't read graph " << file << "!" << std::endl;
 			return read_ret;
 		}
-		PQPlanarity pq(&G);
+		SyncPlan pq(&G);
 		try {
 			std::ifstream i(file + ".json");
 			if (!i.good()) {
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 			}
 			json j;
 			i >> j;
-			PQPlanOptions::applyConfigJSON(G, GA, pq, j);
+			SyncPlanOptions::applyConfigJSON(G, GA, pq, j);
 		} catch (json::parse_error& e) {
 			Logger::slout(Logger::Level::Alarm) << "IO Error: Couldn't parse config json " << file
 												<< ".json: " << e.what() << std::endl

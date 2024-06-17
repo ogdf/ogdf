@@ -36,7 +36,7 @@
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/planarlayout/FPPLayout.h>
 
-#include "PQPlanarity.h"
+#include "SyncPlan.h"
 #include "PipeOrder.h"
 #include "return.h"
 #include "utils/Clusters.h"
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 			break;
 #ifdef OGDF_DEBUG
 		case 'd':
-			PQPlanarityConsistency::doWriteOut = true;
+			SyncPlanConsistency::doWriteOut = true;
 			break;
 #endif
 		case 'a':
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 #ifdef OGDF_DEBUG
 	bool was_planar = isPlanar(G);
 #endif
-	PQPlanarity pq(&G, &CG, &GA);
+	SyncPlan pq(&G, &CG, &GA);
 	pq.setAllowContractBBPipe(false);
 	pq.setIntersectTrees(false);
 	pq.setBatchSpqr(true);
@@ -212,5 +212,5 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	return solved ? PQPLANAR : NOT_PQPLANAR;
+	return solved ? SYNC_PLAN : NOT_SYNC_PLAN;
 }

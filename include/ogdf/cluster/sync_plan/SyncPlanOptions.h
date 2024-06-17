@@ -34,7 +34,7 @@
 #if 0
 
 #	include <ogdf/basic/GraphAttributes.h>
-#	include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#	include <ogdf/cluster/sync_plan/SyncPlan.h>
 #	include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 #	include <json.hpp>
@@ -52,7 +52,7 @@ std::string string_format(const std::string& format, const Args... args) {
 	return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
 
-class PQPlanOptions {
+class SyncPlanOptions {
 	struct EdgeOrder {
 		int node;
 		List<string> edges;
@@ -71,14 +71,14 @@ public:
 
 	void parseOptionEmbedding(char* optarg);
 
-	void apply(Graph& G, GraphAttributes& GA, PQPlanarity& pq);
+	void apply(Graph& G, GraphAttributes& GA, SyncPlan& pq);
 
-	static void applyConfigJSON(Graph& G, GraphAttributes& GA, PQPlanarity& pq, nlohmann::json& j);
+	static void applyConfigJSON(Graph& G, GraphAttributes& GA, SyncPlan& pq, nlohmann::json& j);
 
 	template<typename NodeLabeler = std::function<int(node)>,
 			typename EdgeLabeler = std::function<int(edge)>>
 	static void generateConfigJSON(
-			PQPlanarity& pq, nlohmann::json& j,
+			SyncPlan& pq, nlohmann::json& j,
 			const NodeLabeler& nl = [](node n) -> int { return n->index(); },
 			const EdgeLabeler& el = [](edge e) -> int { return e->index(); }) {
 		using nlohmann::json;

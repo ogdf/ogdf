@@ -34,8 +34,8 @@
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityConsistency.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
@@ -75,27 +75,27 @@ public:
 	void cleared() override { }
 };
 
-node PQPlanarity::nodeFromIndex(int idx) const {
+node SyncPlan::nodeFromIndex(int idx) const {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	return node_reg[idx];
 #pragma GCC diagnostic pop
 }
 
-edge PQPlanarity::edgeFromIndex(int idx) const {
+edge SyncPlan::edgeFromIndex(int idx) const {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	return edge_reg[idx];
 #pragma GCC diagnostic pop
 }
 
-void PQPlanarity::thawPipeBijection(node u, node v, const FrozenPipeBij& in, PipeBij& out) const {
+void SyncPlan::thawPipeBijection(node u, node v, const FrozenPipeBij& in, PipeBij& out) const {
 	for (const FrozenPipeBijPair& pair : in) {
 		out.emplaceBack(edgeFromIndex(pair.first)->getAdj(u), edgeFromIndex(pair.second)->getAdj(v));
 	}
 }
 
-bool PQPlanarity::verifyPipeBijection(node u, node v, const FrozenPipeBij& bij) const {
+bool SyncPlan::verifyPipeBijection(node u, node v, const FrozenPipeBij& bij) const {
 	PipeBij thawed_bij;
 	thawPipeBijection(u, v, bij, thawed_bij);
 
@@ -114,7 +114,7 @@ bool PQPlanarity::verifyPipeBijection(node u, node v, const FrozenPipeBij& bij) 
 	return !bijection_broke;
 }
 
-void PQPlanarity::embed() {
+void SyncPlan::embed() {
 	// TODO don't generate undo operations if we are only testing?
 	OGDF_ASSERT(G->representsCombEmbedding());
 

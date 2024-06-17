@@ -31,15 +31,15 @@
 
 #if 0
 
-#	include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#	include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
-#	include <ogdf/cluster/sync_plan/PQPlanarityOptions.h>
+#	include <ogdf/cluster/sync_plan/SyncPlan.h>
+#	include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
+#	include <ogdf/cluster/sync_plan/SyncPlanOptions.h>
 
 #	include <unordered_map>
 
 using json = nlohmann::json;
 
-void PQPlanOptions::parseOptionPipes(char* optarg) {
+void SyncPlanOptions::parseOptionPipes(char* optarg) {
 	try {
 		size_t delim;
 		int f = std::stoi(optarg, &delim);
@@ -58,7 +58,7 @@ void PQPlanOptions::parseOptionPipes(char* optarg) {
 	}
 }
 
-void PQPlanOptions::parseOptionPartitions(char* optarg) {
+void SyncPlanOptions::parseOptionPartitions(char* optarg) {
 	try {
 		size_t offset = 0, delim = 0;
 		auto list = partitions.emplaceBack();
@@ -79,7 +79,7 @@ void PQPlanOptions::parseOptionPartitions(char* optarg) {
 	}
 }
 
-void PQPlanOptions::parseOptionEmbedding(char* optarg) {
+void SyncPlanOptions::parseOptionEmbedding(char* optarg) {
 	try {
 		size_t delim;
 		auto order = orders.emplaceBack(std::stoi(optarg, &delim));
@@ -108,7 +108,7 @@ void PQPlanOptions::parseOptionEmbedding(char* optarg) {
 	}
 }
 
-void PQPlanOptions::apply(Graph& G, GraphAttributes& GA, PQPlanarity& pq) {
+void SyncPlanOptions::apply(Graph& G, GraphAttributes& GA, SyncPlan& pq) {
 	for (auto pipe : pipes) {
 		node first = getNode(G, GA, (json)pipe.first,
 				"Couldn't find first node %s in pipe (%d, %d)!", pipe.first, pipe.second);
@@ -152,7 +152,7 @@ void PQPlanOptions::apply(Graph& G, GraphAttributes& GA, PQPlanarity& pq) {
 	OGDF_ASSERT(pq.consistency.consistencyCheck());
 }
 
-void PQPlanOptions::applyConfigJSON(Graph& G, GraphAttributes& GA, PQPlanarity& pq, json& j) {
+void SyncPlanOptions::applyConfigJSON(Graph& G, GraphAttributes& GA, SyncPlan& pq, json& j) {
 	unordered_map<json, node> nodes;
 	unordered_map<json, edge> edges;
 	nodes.reserve(G.numberOfNodes() * 2);

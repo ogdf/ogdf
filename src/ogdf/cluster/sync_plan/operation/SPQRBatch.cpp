@@ -36,8 +36,8 @@
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -51,14 +51,14 @@
 #include <vector>
 
 struct EmbeddingTrees {
-	PQPlanarity& pq;
+	SyncPlan& pq;
 	OverlappingGraphCopies OGC_base;
 	NodeArray<NodeSSPQRRotation*> embtrees;
 	vector<NodeSSPQRRotation*> e_todelete;
 	NodeArray<SimpleSPQRTree*> spqrtrees;
 	vector<SimpleSPQRTree*> s_todelete;
 
-	explicit EmbeddingTrees(PQPlanarity& pq)
+	explicit EmbeddingTrees(SyncPlan& pq)
 		: pq(pq)
 		, OGC_base(*pq.G)
 		, embtrees(*pq.G, nullptr)
@@ -84,7 +84,7 @@ struct EmbeddingTrees {
 			return embtrees[n];
 		}
 
-		PQPlanarityComponents& components = pq.components;
+		SyncPlanComponents& components = pq.components;
 		node bc = components.biconnectedComponent(n);
 		if (spqrtrees[bc] == nullptr) {
 			spqrtrees[bc] = new SimpleSPQRTree(OGC_base);
@@ -183,7 +183,7 @@ struct SimplePipe {
 	node block_vertex, other_vertex;
 	bool both_block = false;
 
-	SimplePipe(const Pipe& p, const PQPlanarityComponents& components)
+	SimplePipe(const Pipe& p, const SyncPlanComponents& components)
 		: block_vertex(p.node1), other_vertex(p.node2) {
 		if (!components.isCutVertex(block_vertex)) {
 			both_block = !components.isCutVertex(other_vertex);
@@ -197,14 +197,14 @@ struct SimplePipe {
 #ifdef SYNCPLAN_OPSTATS
 #	define RETURN_INVALID                                  \
 		printOPStatsEnd(false, dur_ns(tpc::now() - start)); \
-		return PQPlanarity::Result::INVALID_INSTANCE;
+		return SyncPlan::Result::INVALID_INSTANCE;
 // SYNCPLAN_PROFILE_STOP("batchSPQR")
 #else
-#	define RETURN_INVALID return PQPlanarity::Result::INVALID_INSTANCE;
+#	define RETURN_INVALID return SyncPlan::Result::INVALID_INSTANCE;
 // SYNCPLAN_PROFILE_STOP("batchSPQR")
 #endif
 
-PQPlanarity::Result PQPlanarity::batchSPQR() {
+SyncPlan::Result SyncPlan::batchSPQR() {
 	// SYNCPLAN_PROFILE_START("batchSPQR")
 	log.lout(Logger::Level::High) << "BATCH SPQR" << std::endl;
 #ifdef SYNCPLAN_OPSTATS
@@ -250,24 +250,24 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 			// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
 			Result r = simplify(p.block_vertex, pc);
 			// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
-			if (r == PQPlanarity::Result::INVALID_INSTANCE) {
+			if (r == SyncPlan::Result::INVALID_INSTANCE) {
 				RETURN_INVALID
-			} else if (r == PQPlanarity::Result::SUCCESS) {
+			} else if (r == SyncPlan::Result::SUCCESS) {
 				changed = simplified = true;
 			} else {
-				OGDF_ASSERT(r == PQPlanarity::Result::NOT_APPLICABLE);
+				OGDF_ASSERT(r == SyncPlan::Result::NOT_APPLICABLE);
 
 				if (p.both_block) {
 					// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
 					NodePCRotation* pc = embtrees.makeTree(p.other_vertex);
-					r = PQPlanarity::Result::INVALID_INSTANCE;
+					r = SyncPlan::Result::INVALID_INSTANCE;
 					if (pc != nullptr) {
 						r = simplify(p.other_vertex, pc);
 					}
 					// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
-					if (r == PQPlanarity::Result::INVALID_INSTANCE) {
+					if (r == SyncPlan::Result::INVALID_INSTANCE) {
 						RETURN_INVALID
-					} else if (r == PQPlanarity::Result::SUCCESS) {
+					} else if (r == SyncPlan::Result::SUCCESS) {
 						changed = simplified = true;
 					}
 				}
@@ -304,9 +304,9 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 			r = propagatePQ(p.block_vertex, pc);
 		}
 		// SYNCPLAN_PROFILE_STOP("batchSPQR-propagatePQ")
-		if (r == PQPlanarity::Result::INVALID_INSTANCE) {
+		if (r == SyncPlan::Result::INVALID_INSTANCE) {
 			RETURN_INVALID
-		} else if (r == PQPlanarity::Result::SUCCESS) {
+		} else if (r == SyncPlan::Result::SUCCESS) {
 			changed = true;
 		}
 	}
@@ -319,5 +319,5 @@ PQPlanarity::Result PQPlanarity::batchSPQR() {
 	stats_first_in_array = false;
 	printOPStatsEnd(changed, dur_ns(tpc::now() - start));
 #endif
-	return changed ? PQPlanarity::Result::SUCCESS : PQPlanarity::Result::NOT_APPLICABLE;
+	return changed ? SyncPlan::Result::SUCCESS : SyncPlan::Result::NOT_APPLICABLE;
 }

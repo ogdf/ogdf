@@ -41,8 +41,8 @@
 #include <ogdf/basic/pctree/PCTreeIterators.h>
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
@@ -73,7 +73,7 @@ void smoothLeafToEdge(Graph* G, adjEntry former_adj, node leaf) {
 	}
 }
 
-class UndoPropagate : public PQPlanarity::UndoOperation {
+class UndoPropagate : public SyncPlan::UndoOperation {
 public:
 	List<int> pct_u, pct_v;
 	int u_idx, v_idx;
@@ -94,7 +94,7 @@ public:
 #endif
 	}
 
-	void undo(PQPlanarity& pq) override {
+	void undo(SyncPlan& pq) override {
 		// SYNCPLAN_PROFILE_START("undo-propagatePQ")
 		OGDF_ASSERT(pct_u.size() == pct_v.size());
 		pq.log.lout(Logger::Level::High) << "UNDO PROPAGATE PQ degree " << degree << " with "
@@ -143,7 +143,7 @@ public:
 		// SYNCPLAN_PROFILE_STOP("undo-propagatePQ")
 	}
 
-	int collapseTree(PQPlanarity& pq, node root, int mark, NodeArray<int>& markers) const {
+	int collapseTree(SyncPlan& pq, node root, int mark, NodeArray<int>& markers) const {
 		Logger::Indent _(&pq.log);
 		int count = 0;
 		adjEntry adj = root->adjEntries.head();
@@ -202,7 +202,7 @@ public:
 	}
 };
 
-PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePCRotation* pct_v) {
+SyncPlan::Result SyncPlan::propagatePQ(node u, NodePCRotation* pct, NodePCRotation* pct_v) {
 	// SYNCPLAN_PROFILE_START("propagatePQ")
 	OGDF_ASSERT(matchings.isMatchedPVertex(u));
 	OGDF_ASSERT(!components.isCutVertex(u));
@@ -224,7 +224,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 
 	if (v_was_cut) {
 		Result result = encapsulate(v);
-		OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
+		OGDF_ASSERT(result == SyncPlan::Result::SUCCESS);
 		for (node n : FilteringBFS(*G, {v})) {
 			if (n != v) {
 				v_rays.pushBack(n);
@@ -287,7 +287,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 #endif
 			log.lout() << "Intersecting failed!" << std::endl;
 			// SYNCPLAN_PROFILE_STOP("propagatePQ")
-			return PQPlanarity::Result::INVALID_INSTANCE; // TODO we need to proceed with the insertion if we want to find a kuratowksi
+			return SyncPlan::Result::INVALID_INSTANCE; // TODO we need to proceed with the insertion if we want to find a kuratowksi
 		}
 		log.lout() << "Intersected PC-Tree: " << *pct << std::endl;
 #ifdef SYNCPLAN_OPSTATS
@@ -431,7 +431,7 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 			std::swap(ac, allow_contract_bb_pipe);
 			Result result = contract(ray);
 			std::swap(ac, allow_contract_bb_pipe);
-			OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
+			OGDF_ASSERT(result == SyncPlan::Result::SUCCESS);
 		}
 	}
 
@@ -439,5 +439,5 @@ PQPlanarity::Result PQPlanarity::propagatePQ(node u, NodePCRotation* pct, NodePC
 	printOPStatsEnd(true, dur_ns(tpc::now() - start) - v_pc_dur);
 #endif
 	// SYNCPLAN_PROFILE_STOP("propagatePQ")
-	return PQPlanarity::Result::SUCCESS;
+	return SyncPlan::Result::SUCCESS;
 }

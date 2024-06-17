@@ -34,8 +34,8 @@
 
 #include <json.hpp>
 
-#include "PQPlanarity.h"
-#include "PQPlanarityOptions.h"
+#include "SyncPlan.h"
+#include "SyncPlanOptions.h"
 #include "return.h"
 #include "utils/Logging.h"
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	CoinManager::CoinLog.localLogMode(Logger::LogMode::Log);
 	CoinManager::CoinLog.localLogLevel(Logger::Level::Alarm);
 	progname = argv[0];
-	PQPlanOptions options;
+	SyncPlanOptions options;
 	char* conffile = nullptr;
 	char* outfile = nullptr;
 	Logger::Level log_level = Logger::Level::Minor;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 				break;
 #ifdef OGDF_DEBUG
 			case 'd':
-				PQPlanarityConsistency::doWriteOut = true;
+				SyncPlanConsistency::doWriteOut = true;
 				break;
 #endif
 			default: /* '?' */
@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
 			return read_ret;
 		}
 		Logger::slout(Logger::Level::High) << G << std::endl;
-		PQPlanarity pq(&G, &GA);
+		SyncPlan pq(&G, &GA);
 
 		Logger::slout(Logger::Level::High) << "Applying PQ-plan options." << std::endl;
 		options.apply(G, GA, pq);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
 				std::ifstream i(conffile);
 				json j;
 				i >> j;
-				PQPlanOptions::applyConfigJSON(G, GA, pq, j);
+				SyncPlanOptions::applyConfigJSON(G, GA, pq, j);
 			} catch (json::parse_error& e) {
 				Logger::slout(Logger::Level::Alarm)
 						<< "IO Error: Couldn't parse config json " << conffile << ": " << e.what()
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 			return ERROR_IO;
 		}
 
-		return solved ? PQPLANAR : NOT_PQPLANAR;
+		return solved ? SYNC_PLAN : NOT_SYNC_PLAN;
 	} catch (invalid_option& e) {
 		Logger::slout(Logger::Level::Alarm) << "Invalid Options: " << e.what() << std::endl;
 		return ERROR_OPTIONS;

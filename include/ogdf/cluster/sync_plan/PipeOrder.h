@@ -245,14 +245,14 @@ public:
 	}
 };
 
-class PQPlanarity;
+class SyncPlan;
 
 struct PipeQueueByDegreePreferContract
 	: public DoublePipeQueue<PipeQueueByDegreePreferContract, PipeQueueByDegreePreferContract> {
-	PQPlanarity* PQ;
+	SyncPlan* PQ;
 	bool invert_degree, invert_contract;
 
-	explicit PipeQueueByDegreePreferContract(PQPlanarity* pq, bool invertDegree = false,
+	explicit PipeQueueByDegreePreferContract(SyncPlan* pq, bool invertDegree = false,
 			bool invertContract = false)
 		: PQ(pq), invert_degree(invertDegree), invert_contract(invertContract) {
 		pipes_heap = std::make_unique<PipesHeap>(this);

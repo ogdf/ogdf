@@ -34,8 +34,8 @@
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -191,7 +191,7 @@ void findBiconnectedEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 	}
 }
 
-class UndoContract : public PQPlanarity::UndoOperation {
+class UndoContract : public SyncPlan::UndoOperation {
 public:
 	int u_idx, v_idx;
 	FrozenPipeBij bij;
@@ -208,7 +208,7 @@ public:
 		}
 	}
 
-	void undo(PQPlanarity& pq) override {
+	void undo(SyncPlan& pq) override {
 		// SYNCPLAN_PROFILE_START("undo-contract")
 		pq.log.lout(Logger::Level::High)
 				<< "UNDO "
@@ -327,13 +327,13 @@ public:
 	}
 };
 
-PQPlanarity::Result PQPlanarity::contract(node u) {
+SyncPlan::Result SyncPlan::contract(node u) {
 	if (!matchings.isMatchedPVertex(u)) {
-		return PQPlanarity::Result::NOT_APPLICABLE;
+		return SyncPlan::Result::NOT_APPLICABLE;
 	}
 	node v = matchings.getTwin(u);
 	if (!canContract(matchings.getPipe(u))) {
-		return PQPlanarity::Result::NOT_APPLICABLE;
+		return SyncPlan::Result::NOT_APPLICABLE;
 	}
 
 	// SYNCPLAN_PROFILE_START("contract")
@@ -371,9 +371,9 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 		// SYNCPLAN_PROFILE_START("contract-encapsulate")
 		log.lout() << "Encapsulating u and v." << std::endl;
 		Result result = encapsulate(u);
-		OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
+		OGDF_ASSERT(result == SyncPlan::Result::SUCCESS);
 		result = encapsulate(v);
-		OGDF_ASSERT(result == PQPlanarity::Result::SUCCESS);
+		OGDF_ASSERT(result == SyncPlan::Result::SUCCESS);
 		log.lout() << "Encapsulation complete, continuing with contraction." << std::endl;
 		// SYNCPLAN_PROFILE_STOP("contract-encapsulate")
 	}
@@ -401,5 +401,5 @@ PQPlanarity::Result PQPlanarity::contract(node u) {
 
 	pushUndoOperationAndCheck(op);
 	// SYNCPLAN_PROFILE_STOP("contract")
-	return PQPlanarity::Result::SUCCESS;
+	return SyncPlan::Result::SUCCESS;
 }

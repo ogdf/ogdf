@@ -32,26 +32,26 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
 
 #include <functional>
 #include <ostream>
 #include <string>
 
-std::ostream& operator<<(std::ostream& os, const PQPlanarity& pq) {
-	return os << "PQPlanarity Instance with " << pq.G->numberOfNodes() << " nodes, "
+std::ostream& operator<<(std::ostream& os, const SyncPlan& pq) {
+	return os << "SyncPlan Instance with " << pq.G->numberOfNodes() << " nodes, "
 			  << pq.G->numberOfEdges() << " edges, " << pq.matchings.getPipeCount() << " pipes, "
 			  << pq.partitions.qVertexCount() << " Q-Vertices in " << pq.partitions.partitionCount()
 			  << " partitions and " << pq.components.connectedCount() << " connected components";
 }
 
-std::ostream& operator<<(std::ostream& os, const PQPlanarity::UndoOperation& undo_op) {
+std::ostream& operator<<(std::ostream& os, const SyncPlan::UndoOperation& undo_op) {
 	return undo_op.print(os);
 }
 
-std::function<std::ostream&(std::ostream&)> PQPlanarity::fmtPQNode(node n, bool include_comp) const {
+std::function<std::ostream&(std::ostream&)> SyncPlan::fmtPQNode(node n, bool include_comp) const {
 	OGDF_ASSERT(n == nullptr || n->graphOf() == G);
 	return [n, include_comp, this](std::ostream& ss) -> std::ostream& {
 		if (n != nullptr) {

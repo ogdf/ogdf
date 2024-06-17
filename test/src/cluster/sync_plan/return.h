@@ -38,15 +38,15 @@
 
 #include <getopt.h>
 
-#include "PQPlanarity.h"
-#include "PQPlanarityOptions.h"
+#include "SyncPlan.h"
+#include "SyncPlanOptions.h"
 #include "PipeOrder.h"
 
 using nlohmann::json;
 
-static const int PQPLANAR = 0x00;
+static const int SYNC_PLAN = 0x00;
 static const int SUCCESS = 0x00;
-static const int NOT_PQPLANAR = 0x09;
+static const int NOT_SYNC_PLAN = 0x09;
 static const int FAILURE = 0x09;
 static const int ERROR_ABACUS = 0x20;
 static const int ERROR_OPTIONS = 0x40;
@@ -167,11 +167,11 @@ int writeCG(const string& outfile, const ClusterGraph& CG) {
 	return SUCCESS;
 }
 
-struct PQPlanConf {
+struct SyncPlanConf {
 	bool allow_contract = true, intersect_trees = true, random_order = false,
 		 contract_first = false, invert_degree = false, invert_contract = false, batch_spqr = false;
 
-#define PQPlanConf_KEYS          \
+#define SyncPlanConf_KEYS          \
 	TOGGLE('c', allow_contract)  \
 	TOGGLE('i', intersect_trees) \
 	TOGGLE('r', random_order)    \
@@ -180,7 +180,7 @@ struct PQPlanConf {
 	TOGGLE('s', invert_contract) \
 	TOGGLE('p', batch_spqr)
 
-	PipeQueue* getOrder(PQPlanarity* PQ) const {
+	PipeQueue* getOrder(SyncPlan* PQ) const {
 		if (random_order) {
 			return new PipeQueueRandom();
 		} else if (contract_first) {
@@ -190,7 +190,7 @@ struct PQPlanConf {
 		}
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const PQPlanConf& conf) {
+	friend std::ostream& operator<<(std::ostream& os, const SyncPlanConf& conf) {
 		os << "allow_contract: " << conf.allow_contract
 		   << " intersect_trees: " << conf.intersect_trees << " random_order: " << conf.random_order
 		   << " contract_first: " << conf.contract_first << " invert_degree: " << conf.invert_degree
@@ -199,23 +199,23 @@ struct PQPlanConf {
 	}
 
 	string getID() const {
-		const PQPlanConf def;
+		const SyncPlanConf def;
 		string ret;
 #define TOGGLE(key, var)  \
 	if (var != def.var) { \
 		ret += "-";       \
 		ret += key;       \
 	}
-		PQPlanConf_KEYS
+		SyncPlanConf_KEYS
 #undef TOGGLE
 				return ret;
 	}
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(PQPlanConf, allow_contract, intersect_trees, random_order,
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SyncPlanConf, allow_contract, intersect_trees, random_order,
 			contract_first, invert_degree, invert_contract, batch_spqr)
 };
 
-string typeOfPipe(const PQPlanarity& pq, const Pipe& p) {
+string typeOfPipe(const SyncPlan& pq, const Pipe& p) {
 	if (p.degree() <= 3) {
 		return "small";
 	} else if (pq.getComponents().isCutVertex(p.node1)) {
@@ -237,7 +237,7 @@ string typeOfPipe(const PQPlanarity& pq, const Pipe& p) {
 	}
 }
 
-void pqPlanStats(const PQPlanarity& pq, json& s) {
+void syncPlanStats(const SyncPlan& pq, json& s) {
 	s["nodes"] = pq.G->numberOfNodes();
 	s["edges"] = pq.G->numberOfEdges();
 	s["partitions"] = pq.partitions.partitionCount();

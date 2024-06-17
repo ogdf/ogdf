@@ -37,7 +37,7 @@
 
 #include <getopt.h>
 
-#include "PQPlanarityAttributes.h"
+#include "SyncPlanAttributes.h"
 #include "return.h"
 #include "utils/Clusters.h"
 #include "utils/Preprocess.h"
@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
 	Logger::slout(Logger::Level::High) << "Config is: " << config << std::endl;
 	if (!planarEmbed(G)) {
 		Logger::slout(Logger::Level::Alarm) << "Error: The given graph is not planar!" << std::endl;
-		return NOT_PQPLANAR;
+		return NOT_SYNC_PLAN;
 	}
 #ifdef OGDF_DEBUG
 	CG.consistencyCheck();
@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
 
 	Logger::slout(Logger::Level::High) << "Writing to " << outfile << std::endl;
 	int write_res = writeCG(outfile, CG);
-	if (write_res != PQPLANAR) {
+	if (write_res != SYNC_PLAN) {
 		return write_res;
 	}
 	if (ignore) {
@@ -281,9 +281,9 @@ int main(int argc, char* argv[]) {
 		if (!isClusterPlanarEmbedding(CG)) {
 			Logger::slout(Logger::Level::Alarm)
 					<< "Assertion Error: Generated embedding is not cluster planar!" << std::endl;
-			return NOT_PQPLANAR;
+			return NOT_SYNC_PLAN;
 		}
 	}
 
-	return PQPLANAR;
+	return SYNC_PLAN;
 }

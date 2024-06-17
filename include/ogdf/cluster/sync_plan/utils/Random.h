@@ -36,7 +36,7 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
 
 #include <cstdint>
 #include <functional>
@@ -45,7 +45,7 @@
 using namespace ogdf;
 using namespace std; // TODO remove
 
-void randomPQPlanInstance(PQPlanarity& pq, int pipe_count, int min_deg = 3) {
+void randomSyncPlanInstance(SyncPlan& pq, int pipe_count, int min_deg = 3) {
 	for (int i = 0; i < pipe_count; ++i) {
 		node u = pq.G->chooseNode(
 				[&](node n) { return !pq.matchings.isMatchedPVertex(n) && n->degree() >= min_deg; });

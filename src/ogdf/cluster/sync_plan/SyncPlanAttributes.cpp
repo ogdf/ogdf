@@ -45,9 +45,9 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
-#include <ogdf/cluster/sync_plan/PQPlanarity.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityAttributes.h>
-#include <ogdf/cluster/sync_plan/PQPlanarityComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanAttributes.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/utils/Clusters.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
@@ -224,7 +224,7 @@ std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterG
 	return pair;
 }
 
-PQPlanarityDrawer::PQPlanarityDrawer(PQPlanarity* pq) : PQ(pq) {
+SyncPlanDrawer::SyncPlanDrawer(SyncPlan* pq) : PQ(pq) {
 	auto* pre = new PreprocessorLayout();
 	planar_layout.reset(pre);
 	pre->setRandomizePositions(false);
@@ -248,7 +248,7 @@ PQPlanarityDrawer::PQPlanarityDrawer(PQPlanarity* pq) : PQ(pq) {
 	svg.curviness(0.3);
 }
 
-void PQPlanarityDrawer::layout(bool format, bool components) {
+void SyncPlanDrawer::layout(bool format, bool components) {
 	if (PQ->GA != nullptr) {
 		if (isPlanar(*PQ->G)) {
 			planar_layout->call(*PQ->GA);
@@ -312,7 +312,7 @@ void PQPlanarityDrawer::layout(bool format, bool components) {
 	}
 }
 
-void PQPlanarityDrawer::cleanUp() {
+void SyncPlanDrawer::cleanUp() {
 	for (edge e : g_edges) {
 		reuse_g_edge_idx.pushBack(e->index());
 		PQ->G->delEdge(e);
@@ -326,7 +326,7 @@ void PQPlanarityDrawer::cleanUp() {
 	BC_GA.init(0);
 }
 
-GraphAttributes& PQPlanarityDrawer::ensureGraphAttributes() {
+GraphAttributes& SyncPlanDrawer::ensureGraphAttributes() {
 	if (PQ->GA == nullptr) {
 		own_GA = std::make_unique<GraphAttributes>(*(PQ->G), GraphAttributes::all);
 		PQ->GA = own_GA.get();
