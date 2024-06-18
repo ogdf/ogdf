@@ -515,4 +515,6 @@ public:
 	//! @}
 };
 
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t);
+
 }
