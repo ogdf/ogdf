@@ -38,6 +38,8 @@ namespace ogdf {
 class Logger;
 } // namespace ogdf
 
+namespace ogdf::sync_plan::preprocess {
+
 extern ogdf::Logger preprocessLog;
 
 ogdf::SList<ogdf::node> findSmallNodes(const ogdf::ClusterGraph& C, const ogdf::Graph& G);
@@ -61,3 +63,5 @@ bool removeSmallClusters(ogdf::ClusterGraph& C, ogdf::Graph& G);
 bool preprocessClusterGraph(ogdf::ClusterGraph& C, ogdf::Graph& G);
 
 bool canPreprocessClusterGraph(const ogdf::ClusterGraph& C, const ogdf::Graph& G);
+
+}

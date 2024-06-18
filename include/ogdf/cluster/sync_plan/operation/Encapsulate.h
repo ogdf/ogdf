@@ -35,7 +35,7 @@
 
 #include <ostream>
 
-using namespace ogdf;
+namespace ogdf::sync_plan::internal {
 
 struct EncapsulatedBlock {
 	node bicon = nullptr;
@@ -48,4 +48,4 @@ struct EncapsulatedBlock {
 	friend std::ostream& operator<<(std::ostream& os, const EncapsulatedBlock& block);
 };
 
-std::ostream& operator<<(std::ostream& os, const EncapsulatedBlock& block);
+}

@@ -43,13 +43,13 @@ class GraphAttributes;
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
-using namespace ogdf;
-using namespace std; // FIXME
+namespace ogdf::sync_plan {
 
-void writeLevelGraph(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& pos,
-		std::ostream& os);
+void writeLevelGraph(const Graph& G, const std::vector<std::vector<node>>& emb,
+		const NodeArray<int>& pos, std::ostream& os);
 
-void readLevelGraph(Graph& G, vector<vector<node>>& emb, NodeArray<int>& pos, istream& is);
+void readLevelGraph(Graph& G, std::vector<std::vector<node>>& emb, NodeArray<int>& pos,
+		std::istream& is);
 
 void layout(const Graph& G, const NodeArray<int>& lvl, const NodeArray<int>& pos,
 		GraphAttributes& GA);
@@ -65,15 +65,18 @@ struct AdjCompLess {
 	bool operator()(adjEntry a, adjEntry b);
 };
 
-void embedPLE(Graph& G, const vector<vector<node>>& emb, NodeArray<int>& lvl, NodeArray<int>& pos);
+void embedPLE(Graph& G, const std::vector<std::vector<node>>& emb, NodeArray<int>& lvl,
+		NodeArray<int>& pos);
 
-void checkPLE(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& lvl,
+void checkPLE(const Graph& G, const std::vector<std::vector<node>>& emb, const NodeArray<int>& lvl,
 		const NodeArray<int>& pos);
 
-void randomProperMaximalLevelPlaneGraph(Graph& G, vector<vector<node>>& emb, int N, int K,
+void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>& emb, int N, int K,
 		bool radial);
 
 void pruneEdges(Graph& G, int max_edges, int min_deg);
 
-void reduceLevelToCluster(const Graph& LG, const vector<vector<node>>& emb, Graph& G,
+void reduceLevelToCluster(const Graph& LG, const std::vector<std::vector<node>>& emb, Graph& G,
 		ClusterGraph& CG);
+
+}

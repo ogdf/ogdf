@@ -37,6 +37,8 @@
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
+namespace ogdf {
+
 template<typename IT>
 class Range {
 	IT m_begin;
@@ -214,3 +216,4 @@ public:
 };
 
 // TODO add TransformingIterator
+}

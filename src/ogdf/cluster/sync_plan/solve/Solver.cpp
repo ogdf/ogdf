@@ -48,6 +48,10 @@
 #include <memory>
 #include <ostream>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+
 #ifdef SYNCPLAN_OPSTATS
 #	define SYNCPLAN_OPSTATS_STEP(op, meta)                                                        \
 		stats_out << (stats_first_in_array ? "" : ",") << "{\"op\":\"solvedReduced-" << op << "\"" \
@@ -205,4 +209,6 @@ bool SyncPlan::solveReduced(bool fail_fast) {
 	// SYNCPLAN_PROFILE_STOP("solveReduced")
 
 	return true;
+}
+
 }

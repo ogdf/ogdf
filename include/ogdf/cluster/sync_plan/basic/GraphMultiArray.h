@@ -31,42 +31,24 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/List.h>
 #include <ogdf/cluster/sync_plan/basic/RegisteredMultiArray.h>
-#include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
-#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 
-namespace ogdf::sync_plan {
-
-class SyncPlanComponents;
+namespace ogdf {
 
 namespace internal {
-struct BlockEmbedding;
-
-template<typename V>
-using NA = NodeArray<V>;
-
-using GnMultiArray = RegisteredMultiArray<node, BlockEmbedding*, node, NA>;
-
-struct BlockEmbedding {
-	Graph subgraph;
-	StaticPlanarSPQRTree* spqr = nullptr;
-	List<node> q_vertices;
-	NodeArray<twosat_var> rigid_vars;
-
-	GnMultiArray& Gn_to_subgraph;
-	EdgeArray<edge> subgraph_to_Ge;
-
-	explicit BlockEmbedding(GnMultiArray& gnToSubgraph)
-		: rigid_vars(nullptr, TwoSAT_Var_Undefined), Gn_to_subgraph(gnToSubgraph) { }
-
-	virtual ~BlockEmbedding() { delete spqr; }
-
-	void init(Graph& G, SyncPlanComponents& components, node bc, EdgeArray<edge>& Ge_to_subgraph,
-			EdgeArray<BlockEmbedding*>& Ge_to_block);
-
-	bool addQVertex(node q, EdgeArray<edge>& Ge_to_subgraph, TwoSAT& sat, twosat_var part_var);
-};
-
+template<typename T>
+using NA = NodeArray<T, true>;
+template<typename T>
+using EA = EdgeArray<T, true>;
+template<typename T>
+using AEA = AdjEntryArray<T, true>;
 }
+
+template<typename Key2, typename Value>
+using NodeMultiArray = RegisteredMultiArray<node, Key2, Value, internal::NA>;
+template<typename Key2, typename Value>
+using EdgeMultiArray = RegisteredMultiArray<edge, Key2, Value, internal::EA>;
+template<typename Key2, typename Value>
+using AdjEntryMultiArray = RegisteredMultiArray<adjEntry, Key2, Value, internal::AEA>;
+
 }

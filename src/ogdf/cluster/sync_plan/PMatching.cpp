@@ -40,7 +40,7 @@
 #include <memory>
 #include <ostream>
 
-using namespace ogdf;
+namespace ogdf::sync_plan {
 
 Pipe::Pipe(node node1, node node2)
 	: node1(node1)
@@ -208,6 +208,9 @@ std::function<std::ostream&(std::ostream&)> PMatching::printBijection(node u) co
 	node v = getTwin(u);
 	const auto bij = getIncidentEdgeBijection(u);
 	return [u, v, bij](std::ostream& ss) -> std::ostream& {
-		return ss << "u" << u->index() << " = v" << v->index() << ": " << ::printBijection(bij);
+		return ss << "u" << u->index() << " = v" << v->index() << ": "
+				  << sync_plan::printBijection(bij);
 	};
+}
+
 }

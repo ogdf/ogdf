@@ -35,10 +35,7 @@
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
-using namespace ogdf;
-
-static inline int NO_PARTITION = -1;
-
+namespace ogdf::sync_plan {
 class QPartitioning; // IWYU pragma: keep
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) RegisteredArray<QPartitioning, v, c>
@@ -55,6 +52,8 @@ private:
 	int partition_table_size = MIN_TABLE_SIZE;
 
 public:
+	static inline int NO_PARTITION = -1;
+
 	explicit QPartitioning(const Graph* G) : GraphObserver(G), partitions(*G, NO_PARTITION) {
 		partitioned_nodes.init(*this);
 	}
@@ -105,3 +104,4 @@ protected:
 		partition_table_size = MIN_TABLE_SIZE;
 	};
 };
+}

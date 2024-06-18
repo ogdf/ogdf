@@ -38,12 +38,15 @@
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
-#include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/decomposition/BCTree.h>
 
 #include <functional>
 #include <ostream>
 #include <utility>
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
 
 std::function<std::ostream&(std::ostream&)> SyncPlanComponents::fmtBCNode(node bc) const {
 	OGDF_ASSERT(bc == nullptr || bc->graphOf() == &bcTree());
@@ -470,4 +473,6 @@ void BiconnectedIsolation::restore(bool restore_embedding) {
 			m_comps.graph().sort(n, m_adjEntries[n]);
 		}
 	}
+}
+
 }

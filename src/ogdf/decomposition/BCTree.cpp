@@ -429,4 +429,26 @@ void BCTree::consistencyCheck() const {
 }
 #endif
 
+std::ostream& operator<<(std::ostream& os, const BCTree::BNodeType& obj) {
+	if (obj == BCTree::BNodeType::CComp) {
+		os << "cut";
+	} else if (obj == BCTree::BNodeType::BComp) {
+		os << "bicon";
+	} else {
+		os << "???";
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const BCTree::GNodeType& obj) {
+	if (obj == BCTree::GNodeType::CutVertex) {
+		os << "cut-vertex";
+	} else if (obj == BCTree::GNodeType::Normal) {
+		os << "block-vertex";
+	} else {
+		os << "???";
+	}
+	return os;
+}
+
 }

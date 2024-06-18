@@ -54,6 +54,11 @@
 #include <string>
 #include <utility>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
+
 bool SyncPlanConsistency::doWriteOut = false;
 
 void normalize(List<adjEntry>& adjs) {
@@ -368,4 +373,6 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 		}
 	}
 	OGDF_ASSERT(ref_conn_count + isolated_count == pq.components.connectedCount());
+}
+
 }

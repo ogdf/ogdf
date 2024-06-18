@@ -47,6 +47,12 @@
 #include <memory>
 #include <ostream>
 
+using namespace ogdf::pc_tree;
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
+
 SyncPlan::Result SyncPlan::checkPCTree(node u) {
 	try {
 #ifdef SYNCPLAN_OPSTATS
@@ -181,4 +187,6 @@ bool SyncPlan::makeReduced(int check_planarity_every) {
 	OGDF_ASSERT(consistency.consistencyCheck());
 	// SYNCPLAN_PROFILE_STOP("makeReduced")
 	return true;
+}
+
 }

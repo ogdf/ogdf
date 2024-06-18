@@ -47,8 +47,12 @@
 #include <utility>
 #include <vector>
 
+using namespace std;
+
+namespace ogdf::sync_plan {
+
 void writeLevelGraph(const Graph& G, const vector<vector<node>>& emb, const NodeArray<int>& pos,
-		std::ostream& os) {
+		ostream& os) {
 	os << G.numberOfNodes() << " " << G.numberOfEdges() << " " << emb.size() << "\n";
 	for (int l = 0; l < emb.size(); ++l) {
 		os << emb[l].size() << " ";
@@ -323,4 +327,6 @@ void reduceLevelToCluster(const Graph& LG, const vector<vector<node>>& emb, Grap
 	for (edge e : LG.edges) {
 		G.newEdge(map[e->source()].second, map[e->target()].first);
 	}
+}
+
 }

@@ -50,13 +50,19 @@
 #include <utility>
 #include <vector>
 
-struct EmbeddingTrees {
+using namespace ogdf::pc_tree;
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+
+class EmbeddingTrees {
+public:
 	SyncPlan& pq;
 	OverlappingGraphCopies OGC_base;
 	NodeArray<NodeSSPQRRotation*> embtrees;
-	vector<NodeSSPQRRotation*> e_todelete;
+	std::vector<NodeSSPQRRotation*> e_todelete;
 	NodeArray<SimpleSPQRTree*> spqrtrees;
-	vector<SimpleSPQRTree*> s_todelete;
+	std::vector<SimpleSPQRTree*> s_todelete;
 
 	explicit EmbeddingTrees(SyncPlan& pq)
 		: pq(pq)
@@ -83,6 +89,7 @@ struct EmbeddingTrees {
 		if (embtrees[n] != nullptr) {
 			return embtrees[n];
 		}
+		using internal::operator<<;
 
 		SyncPlanComponents& components = pq.components;
 		node bc = components.biconnectedComponent(n);
@@ -188,6 +195,7 @@ struct SimplePipe {
 		if (!components.isCutVertex(block_vertex)) {
 			both_block = !components.isCutVertex(other_vertex);
 		} else {
+			using std::swap;
 			swap(block_vertex, other_vertex);
 		}
 		OGDF_ASSERT(!components.isCutVertex(block_vertex));
@@ -221,7 +229,7 @@ SyncPlan::Result SyncPlan::batchSPQR() {
 	EmbeddingTrees embtrees(*this);
 	bool changed = false, simplified = true;
 
-	vector<SimplePipe> pipes;
+	std::vector<SimplePipe> pipes;
 	pipes.reserve(matchings.getPipeCount());
 	while (simplified) {
 		simplified = false;
@@ -320,4 +328,6 @@ SyncPlan::Result SyncPlan::batchSPQR() {
 	printOPStatsEnd(changed, dur_ns(tpc::now() - start));
 #endif
 	return changed ? SyncPlan::Result::SUCCESS : SyncPlan::Result::NOT_APPLICABLE;
+}
+
 }

@@ -39,8 +39,6 @@
 #include <functional>
 #include <iosfwd>
 
-class SyncPlanComponents;
-
 namespace ogdf::pc_tree {
 class NodePCRotation;
 } // namespace ogdf::pc_tree
@@ -49,6 +47,12 @@ namespace ogdf {
 template<bool>
 class EdgeSet;
 } // namespace ogdf
+
+namespace ogdf::sync_plan {
+
+class SyncPlanComponents;
+
+namespace internal {
 
 struct SimplifyMapping {
 	adjEntry u2_adj, u_adj, v2_adj;
@@ -139,3 +143,6 @@ bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, Edge
 		SyncPlanComponents& components);
 
 #endif
+
+}
+}

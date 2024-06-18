@@ -58,6 +58,8 @@ class ClusterGraphAttributes;
 class GraphAttributes;
 } // namespace ogdf
 
+using ogdf::pc_tree::NodePCRotation;
+
 // // Profiling with LIKWID
 // #ifdef LIKWID_PERFMON
 // 	include <likwid.h>
@@ -71,7 +73,9 @@ class GraphAttributes;
 // // Collection of JSON Operation Statistics
 // define SYNCPLAN_OPSTATS
 
+namespace ogdf::sync_plan {
 
+namespace internal {
 using tpc = std::chrono::high_resolution_clock;
 using tp = const std::chrono::time_point<std::chrono::high_resolution_clock>;
 
@@ -83,9 +87,10 @@ inline int64_t dur_ns(const tp::duration& d) {
 	return std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
 }
 
-using pc_tree::NodePCRotation;
+int sumPNodeDegrees(const ogdf::pc_tree::PCTree& pct);
 
-int sumPNodeDegrees(const pc_tree::PCTree& pct);
+class UndoSimplify;
+}
 
 enum class Operation {
 	ENCAPSULATE_CONTRACT,
@@ -119,7 +124,7 @@ class SyncPlan {
 
 	friend class UndoPropagate;
 
-	friend class UndoSimplify;
+	friend class internal::UndoSimplify;
 
 	friend class UndoSimplifyToroidal;
 
@@ -143,6 +148,8 @@ public:
 		virtual std::ostream& print(std::ostream& os) const = 0;
 
 		virtual std::string name() const;
+
+		friend std::ostream& operator<<(std::ostream& os, const SyncPlan::UndoOperation& undo_op);
 	};
 
 	class VerifyPipeBijections : public UndoOperation {
@@ -326,6 +333,8 @@ public:
 
 	bool canContract(const Pipe* p);
 
+	/// Config ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	bool isAllowContractBBPipe() const { return allow_contract_bb_pipe; }
 
 	void setAllowContractBBPipe(bool allowContractBbPipe) {
@@ -341,6 +350,4 @@ public:
 	void setBatchSpqr(bool batchSpqr) { batch_spqr = batchSpqr; }
 };
 
-std::ostream& operator<<(std::ostream& os, const SyncPlan& pq);
-
-std::ostream& operator<<(std::ostream& os, const SyncPlan::UndoOperation& undo_op);
+}

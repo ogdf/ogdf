@@ -42,6 +42,11 @@
 #include <sstream>
 #include <string>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
+
 class UndoMakeWheel : public SyncPlan::UndoOperation {
 public:
 	int centre_idx;
@@ -148,4 +153,6 @@ void SyncPlan::contractWheel(node centre) {
 	is_wheel[centre] = false;
 	log.lout(Logger::Level::Medium) << printIncidentEdges(centre->adjEntries) << std::endl;
 	// SYNCPLAN_PROFILE_STOP("contractWheel")
+}
+
 }

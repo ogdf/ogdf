@@ -37,7 +37,6 @@
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/graphalg/Triconnectivity.h>
 
-#include <iosfwd>
 #include <vector>
 
 namespace ogdf::pc_tree {
@@ -50,10 +49,7 @@ template<class E>
 class List;
 } // namespace ogdf
 
-using namespace ogdf;
-using namespace std; // TODO remove
-
-std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType t);
+namespace ogdf::sync_plan {
 
 namespace spqr_utils {
 inline bool isSNode(const Graph& skel) {
@@ -81,7 +77,7 @@ struct SimpleSPQRTree {
 	EdgeArray<SList<edge>> par_replacement;
 	EdgeArray<OverlappingGraphCopy*> skels;
 	EdgeArray<OverlappingGraphCopy*> twins;
-	vector<OverlappingGraphCopy*> skel_array;
+	std::vector<OverlappingGraphCopy*> skel_array;
 	bool planar = true;
 
 	OGDF_NO_COPY(SimpleSPQRTree)
@@ -127,3 +123,5 @@ public:
 
 	void mapPartnerEdges();
 };
+
+}

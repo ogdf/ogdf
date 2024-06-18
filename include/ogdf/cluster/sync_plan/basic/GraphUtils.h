@@ -32,16 +32,13 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/cluster/sync_plan/utils/Bijection.h>
-
-#include <utility>
 
 namespace ogdf {
 template<class E>
 class List;
 } // namespace ogdf
 
-using namespace ogdf;
+namespace ogdf {
 
 void moveEnd(Graph& G, edge e, node keep_end, node new_end);
 
@@ -57,11 +54,6 @@ bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v);
 
 bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v);
 
-std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<int>* split_idcs = nullptr,
-		const EdgeArray<bool>* split_reverse = nullptr, int src_idx = -1, int tgt_idx = -1);
-
-void join(Graph& G, node u, node v, PipeBij& bij, List<bool>* reverse_v = nullptr);
-
 void assertStarCentreAndRay(node centre, node ray);
 
 node getCentreOfStar(node g_n);
@@ -73,3 +65,5 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check = false)
 void moveAdjToFront(Graph& G, adjEntry f);
 
 void moveAdjToBack(Graph& G, adjEntry b);
+
+}

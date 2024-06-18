@@ -708,5 +708,17 @@ node DynamicSPQRForest::updateInsertedNode(edge eG, edge fG) {
 	return DynamicBCTree::updateInsertedNode(eG, fG);
 }
 
+std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t) {
+	switch (t) {
+	case DynamicSPQRForest::TNodeType::RComp:
+		return os << "R";
+	case DynamicSPQRForest::TNodeType::SComp:
+		return os << "S";
+	case DynamicSPQRForest::TNodeType::PComp:
+		return os << "P";
+	default:
+		return os << "?";
+	}
+}
 
 }

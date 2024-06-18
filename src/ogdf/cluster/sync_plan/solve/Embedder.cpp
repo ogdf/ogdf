@@ -35,12 +35,17 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/SyncPlanConsistency.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <sstream>
 #include <string>
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
 
 class UpdateGraphReg : public GraphObserver {
 	NodeArray<node>* node_reg;
@@ -155,4 +160,6 @@ void SyncPlan::embed() {
 		// SYNCPLAN_PROFILE_STOP("embed-step")
 	}
 	// SYNCPLAN_PROFILE_STOP("embed")
+}
+
 }

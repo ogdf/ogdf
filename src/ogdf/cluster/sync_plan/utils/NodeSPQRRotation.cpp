@@ -47,25 +47,17 @@
 
 #include <ostream>
 
+using namespace ogdf::pc_tree;
+
+namespace ogdf::sync_plan {
+
 Logger NodeSPQRRotation::logger;
 
 #define logd logger.lout(Logger::Level::Minor)
 #define log logger.lout(Logger::Level::Medium)
 
-std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t) {
-	switch (t) {
-	case DynamicSPQRForest::TNodeType::RComp:
-		return os << "R";
-	case DynamicSPQRForest::TNodeType::SComp:
-		return os << "S";
-	case DynamicSPQRForest::TNodeType::PComp:
-		return os << "P";
-	default:
-		return os << "?";
-	}
-}
-
-RigidEmbedding::RigidEmbedding(Graph& G) : spqr(G, true), rigids(spqr.spqrTree(), nullptr) {
+NodeSPQRRotation::RigidEmbedding::RigidEmbedding(Graph& G)
+	: spqr(G, true), rigids(spqr.spqrTree(), nullptr) {
 	for (node bc : spqr.bcTree().nodes) {
 		if (spqr.typeOfBNode(bc) != BCTree::BNodeType::BComp) {
 			continue;
@@ -386,4 +378,6 @@ void NodeSPQRRotation::mapPartnerEdges() {
 	} else {
 		OGDF_ASSERT(reals + bundle <= spqr.original(pole)->degree());
 	}
+}
+
 }
