@@ -36,6 +36,7 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/cluster/sync_plan/ClusterPlanarity.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
@@ -47,6 +48,22 @@
 #include <string>
 
 using namespace ogdf::sync_plan::internal;
+
+bool ogdf::SyncPlanClusterPlanarityModule::isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) {
+	sync_plan::SyncPlan SP(&G, &CG);
+	return SP.makeReduced() && SP.solveReduced();
+}
+
+bool ogdf::SyncPlanClusterPlanarityModule::clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG,
+		Graph& G) {
+	sync_plan::SyncPlan SP(&G, &CG);
+	if (SP.makeReduced() && SP.solveReduced()) {
+		SP.embed();
+		return true;
+	} else {
+		return false;
+	}
+}
 
 namespace ogdf::sync_plan {
 using internal::operator<<;

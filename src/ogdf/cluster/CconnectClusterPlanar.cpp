@@ -549,4 +549,20 @@ void CconnectClusterPlanar::prepareParallelEdges(Graph& G) {
 	}
 }
 
+bool CconnectClusterPlanarityModule::isClusterPlanar(const ClusterGraph& CG) {
+	CconnectClusterPlanar inst;
+	if (inst.call(CG)) {
+		return true;
+	} else if (inst.errCode() == CconnectClusterPlanar::ErrorCode::nonCPlanar
+			|| inst.errCode() == CconnectClusterPlanar::ErrorCode::nonPlanar) {
+		return false;
+	} else {
+		throw std::runtime_error("Not (cluster-)connected!");
+	}
+}
+
+bool CconnectClusterPlanarityModule::isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) {
+	return isClusterPlanar(CG);
+}
+
 }

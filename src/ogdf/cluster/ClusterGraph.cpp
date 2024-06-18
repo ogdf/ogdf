@@ -117,7 +117,7 @@ ClusterGraph& ClusterGraph::operator=(const ClusterGraph& C) {
 	return *this;
 }
 
-void ClusterGraph::constructClusterTree(const ClusterGraph& C, const Graph& G,
+void ClusterGraph::copyClusterTree(const ClusterGraph& C, const Graph& G,
 		ClusterArray<cluster>& originalClusterTable, std::function<node(node)> nodeMap) {
 	for (cluster c : C.clusters) {
 		if (c == C.m_rootCluster) {
@@ -157,7 +157,7 @@ void ClusterGraph::shallowCopy(const ClusterGraph& C) {
 	m_depthUpToDate = C.m_depthUpToDate;
 
 	ClusterArray<cluster> originalClusterTable(C);
-	constructClusterTree(C, G, originalClusterTable);
+	copyClusterTree(C, G, originalClusterTable);
 }
 
 // Initialize the graph
@@ -223,30 +223,13 @@ void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable,
 		EdgeArray<edge>& edgeCopy) {
-	G.clear();
-	resizeArrays(C.numberOfClusters() + 1);
-
-	const Graph& cG = C; // original graph
-	initGraph(G); //arrays have already to be initialized for newnode
-
 	m_updateDepth = C.m_updateDepth;
 	m_depthUpToDate = C.m_depthUpToDate;
-
-	NodeArray<node> orig(G);
-
-	for (node v : cG.nodes) {
-		node w = G.newNode();
-		orig[w] = v;
-		originalNodeTable[v] = w;
-	}
-
-	for (edge e : cG.edges) {
-		edge eNew = G.newEdge(originalNodeTable[e->adjSource()->theNode()],
-				originalNodeTable[e->adjTarget()->theNode()]);
-		edgeCopy[e] = eNew;
-	}
-
-	constructClusterTree(C, G, originalClusterTable, orig);
+	G.clear();
+	resizeArrays(C.numberOfClusters() + 1);
+	initGraph(G);
+	G.insert(C.constGraph(),originalNodeTable, edgeCopy);
+	copyClusterTree(C, G, originalClusterTable, originalNodeTable);
 }
 
 //We search for the lowest common cluster of a set of nodes.

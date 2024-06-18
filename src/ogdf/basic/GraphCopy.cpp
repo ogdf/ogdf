@@ -130,6 +130,28 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 	m_eIterator.init(this, nullptr);
 }
 
+void GraphCopySimple::copyEmbeddingToOriginal(Graph& orig) const {
+	OGDF_ASSERT(getOriginalGraph() == &orig);
+	std::vector<adjEntry> entries;
+	for (node v : orig.nodes) {
+		entries.clear();
+		entries.reserve(v->degree());
+		for (adjEntry adj : copy(v)->adjEntries) {
+			OGDF_ASSERT(adj->theNode() == copy(v));
+			edge e = original(adj->theEdge());
+			OGDF_ASSERT(e->graphOf() == &orig);
+			if (adj == adj->theEdge()->adjSource()) {
+				entries.push_back(e->adjSource());
+				OGDF_ASSERT(e->adjSource()->theNode() == v);
+			} else {
+				entries.push_back(e->adjTarget());
+				OGDF_ASSERT(e->adjTarget()->theNode() == v);
+			}
+		}
+		orig.sort(v, entries);
+	}
+}
+
 void GraphCopySimple::setOriginalEmbedding() {
 	std::vector<adjEntry> newAdjOrder;
 	for (node v : getOriginalGraph()->nodes) {

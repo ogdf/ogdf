@@ -332,6 +332,15 @@ public:
 
 	void setOriginalEmbedding() override;
 
+	/**
+	 * Copies the current embedding back to (a non-const version of) the original graph.
+	 *
+	 * Currently, this only works correctly if both graphs are still the same.
+	 *
+	 * @param orig identical to getOriginalGraph(), but not const
+	 */
+	void copyEmbeddingToOriginal(Graph& orig) const;
+
 protected:
 	void edgeInserted(void* userData, edge original, edge copy) override;
 };

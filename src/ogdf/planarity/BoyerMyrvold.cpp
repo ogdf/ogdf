@@ -254,23 +254,7 @@ bool BoyerMyrvold::planarEmbed(Graph& g, SList<KuratowskiWrapper>& output, int e
 
 	// copy adjacency lists, if planar
 	if (planar) {
-		SListPure<adjEntry> entries;
-		for (node v : g.nodes) {
-			entries.clear();
-			for (adjEntry adj : h.copy(v)->adjEntries) {
-				OGDF_ASSERT(adj->theNode() == h.copy(v));
-				edge e = h.original(adj->theEdge());
-				OGDF_ASSERT(e->graphOf() == &g);
-				if (adj == adj->theEdge()->adjSource()) {
-					entries.pushBack(e->adjSource());
-					OGDF_ASSERT(e->adjSource()->theNode() == v);
-				} else {
-					entries.pushBack(e->adjTarget());
-					OGDF_ASSERT(e->adjTarget()->theNode() == v);
-				}
-			}
-			g.sort(v, entries);
-		}
+		h.copyEmbeddingToOriginal(g);
 	}
 
 	return planar;
