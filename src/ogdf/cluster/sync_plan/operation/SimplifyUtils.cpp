@@ -44,7 +44,9 @@
 #include <functional>
 #include <ostream>
 
-using pc_tree::PCNode;
+using ogdf::pc_tree::PCNode;
+
+namespace ogdf::sync_plan::internal {
 
 SimplifyMapping::SimplifyMapping(adjEntry u2Adj, adjEntry uAdj, adjEntry vAdj, adjEntry v2Adj)
 	: u2_adj(u2Adj), u_adj(uAdj), v2_adj(v2Adj) {
@@ -274,3 +276,5 @@ bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, Edge
 }
 
 #endif // OGDF_DEBUG
+
+}

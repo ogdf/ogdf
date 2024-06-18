@@ -46,6 +46,11 @@
 #include <sstream>
 #include <string>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
+
 struct FrozenCluster {
 	int index = -1, parent = -1, parent_node = -1;
 	List<int> nodes;
@@ -232,4 +237,6 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 	initComponents();
 	matchings.rebuildHeap();
 	pushUndoOperationAndCheck(op);
+}
+
 }

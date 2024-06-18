@@ -42,6 +42,8 @@
 
 using namespace ogdf;
 
+namespace ogdf::sync_plan::preprocess {
+
 ogdf::Logger preprocessLog;
 
 bool preprocessClusterGraph(ClusterGraph& C, Graph& G) {
@@ -255,4 +257,6 @@ bool removeSmallClusters(ClusterGraph& C, Graph& G) {
 		C.delCluster(c);
 	}
 	return !toRemove.empty();
+}
+
 }

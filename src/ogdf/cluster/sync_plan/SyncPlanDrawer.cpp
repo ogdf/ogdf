@@ -63,6 +63,10 @@
 #include <string>
 #include <utility>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+
 const std::array<Color, 63> colors = {Color("#00FF00"), Color("#0000FF"), Color("#FF0000"),
 		Color("#01FFFE"), Color("#FFA6FE"), Color("#FFDB66"), Color("#006401"), Color("#010067"),
 		Color("#95003A"), Color("#007DB5"), Color("#FF00F6"), Color("#FFEEE8"), Color("#774D00"),
@@ -269,8 +273,8 @@ void SyncPlanDrawer::layout(bool format, bool components) {
 		BC_GA.init(PQ->components.bcTree(), GraphAttributes::all);
 		planar_layout->call(BC_GA);
 		for (node bc : PQ->components.bcTree().nodes) {
-			BC_GA.label(bc) = to_string(PQ->components.fmtBCNode(bc));
-			::formatNode(bc, &BC_GA, bc->index());
+			BC_GA.label(bc) = internal::to_string(PQ->components.fmtBCNode(bc));
+			formatNode(bc, &BC_GA, bc->index());
 			if (PQ->components.isCutComponent(bc)) {
 				BC_GA.shape(bc) = Shape::Ellipse;
 			} else {
@@ -332,4 +336,6 @@ GraphAttributes& SyncPlanDrawer::ensureGraphAttributes() {
 		PQ->GA = own_GA.get();
 	}
 	return *PQ->GA;
+}
+
 }

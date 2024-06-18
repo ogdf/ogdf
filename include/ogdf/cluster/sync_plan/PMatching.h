@@ -40,6 +40,7 @@
 #include <ostream>
 #include <utility>
 
+namespace ogdf::sync_plan {
 enum class PipeType { BlockBlock, BlockCut, CutCut };
 
 struct Pipe {
@@ -162,3 +163,4 @@ protected:
 		nodes.fill(nullptr);
 	};
 };
+}

@@ -34,15 +34,12 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
-#include <ogdf/cluster/sync_plan/utils/Bijection.h>
-#include <ogdf/cluster/sync_plan/utils/Logging.h>
 
-#include <iostream>
-#include <utility>
+namespace ogdf {
 
-FilteringBFSIterator begin(FilteringBFS& bfs) { return FilteringBFSIterator(&bfs); }
+FilteringBFSIterator FilteringBFS::begin() { return FilteringBFSIterator(this); }
 
-FilteringBFSIterator end(FilteringBFS& bfs) { return FilteringBFSIterator(nullptr); }
+FilteringBFSIterator FilteringBFS::end() { return FilteringBFSIterator(nullptr); }
 
 void moveEnd(Graph& G, edge e, node keep_end, node new_end) {
 	if (e->source() == keep_end) {
@@ -165,15 +162,16 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check) {
 	{
 		for (adjEntry n_it : n->adjEntries) {
 			if (*o_it != n_it) {
-#ifdef OGDF_DEBUG
-				std::cout << "node: " << printIncidentEdges(n->adjEntries) << std::endl;
-				std::cout << "list: " << printIncidentEdges(o) << std::endl;
-				if (!full_check) {
-					std::cout << "full_check == false, so broken/differing order wouldn't have been found in release mode"
-							  << std::endl;
-					OGDF_ASSERT(full_check);
-				}
-#endif
+				// #ifdef OGDF_DEBUG
+				// std::cout << "node: " << ogdf::sync_plan::printIncidentEdges(n->adjEntries) << std::endl;
+				// std::cout << "list: " << ogdf::sync_plan::printIncidentEdges(o) << std::endl;
+				// if (!full_check) {
+				// 	std::cerr << "Order differs in the middle, but full_check == false, so broken/differing order wouldn't have been found in release mode!"
+				// 			  << std::endl;
+				// 	OGDF_ASSERT(false);
+				// }
+				// #endif
+				OGDF_ASSERT(full_check);
 				return OrderComp::DIFFERENT;
 			}
 			if (reverse) {
@@ -185,40 +183,6 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check) {
 	}
 
 	return reverse ? OrderComp::REVERSED : OrderComp::SAME;
-}
-
-std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<int>* split_idcs,
-		const EdgeArray<bool>* split_reverse, int src_idx, int tgt_idx) {
-	node src = src_idx < 0 ? G.newNode() : G.newNode(src_idx);
-	node tgt = tgt_idx < 0 ? G.newNode() : G.newNode(tgt_idx);
-	for (auto& pair : bij) {
-		OGDF_ASSERT(pair.second == nullptr);
-		int split_idx = split_idcs == nullptr ? -1 : (*split_idcs)[pair.first];
-		pair.second = splitEdge(G, pair.first, src, tgt, split_idx);
-		if (split_reverse != nullptr && (*split_reverse)[pair.first]) {
-			G.reverseEdge(pair.second->theEdge());
-		}
-	}
-	G.reverseAdjEdges(tgt);
-	return std::pair<node, node>(src, tgt);
-}
-
-void join(Graph& G, node u, node v, PipeBij& bij, List<bool>* reverse_v) {
-	OGDF_ASSERT(u->degree() == bij.size());
-	OGDF_ASSERT(v->degree() == bij.size());
-	for (auto& pair : bij) {
-		adjEntry f = pair.first->twin();
-		bool rev = joinEdge(G, pair.first, pair.second, u, v);
-		if (reverse_v) {
-			reverse_v->pushBack(rev);
-		}
-		pair.first = f;
-		pair.second = nullptr;
-	}
-	OGDF_ASSERT(u->degree() == 0);
-	OGDF_ASSERT(v->degree() == 0);
-	G.delNode(u);
-	G.delNode(v);
 }
 
 void moveAdjToFront(Graph& G, adjEntry f) {
@@ -237,4 +201,6 @@ void moveAdjToBack(Graph& G, adjEntry b) {
 		adjs.pushBack(adjs.popFrontRet());
 	}
 	G.sort(b->theNode(), adjs);
+}
+
 }

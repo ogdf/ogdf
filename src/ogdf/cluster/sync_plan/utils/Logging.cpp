@@ -30,19 +30,25 @@
  */
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
-#include <ogdf/decomposition/BCTree.h>
 
 #include <functional>
 #include <sstream>
 #include <string>
 #include <utility>
 
-using namespace ogdf;
+#include "ogdf/cluster/sync_plan/utils/Clusters.h"
 
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+
+namespace internal {
 std::string to_string(const std::function<std::ostream&(std::ostream&)>& func) {
 	std::stringstream ss;
 	const std::ostream& ret = func(ss);
@@ -64,26 +70,29 @@ std::ostream& operator<<(std::ostream& os, const ClusterGraph& CG) {
 			  << " clusters";
 }
 
-std::ostream& operator<<(std::ostream& os, const BCTree::BNodeType& obj) {
-	if (obj == BCTree::BNodeType::CComp) {
-		os << "cut";
-	} else if (obj == BCTree::BNodeType::BComp) {
-		os << "bicon";
-	} else {
-		os << "???";
+std::ostream& printClusters(cluster c, std::ostream& s) {
+	s << c->nCount() << "[";
+	for (cluster child : c->children) {
+		printClusters(child, s);
 	}
-	return os;
+	return s << "]";
 }
 
-std::ostream& operator<<(std::ostream& os, const BCTree::GNodeType& obj) {
-	if (obj == BCTree::GNodeType::CutVertex) {
-		os << "cut-vertex";
-	} else if (obj == BCTree::GNodeType::Normal) {
-		os << "block-vertex";
-	} else {
-		os << "???";
+void printCG(const ClusterGraph& CG, const string& type) {
+	Logger::slout(Logger::Level::High)
+			<< type << "ClusterGraph with " << CG.constGraph().numberOfNodes() << " nodes, "
+			<< CG.constGraph().numberOfEdges() << " edges, " << CG.numberOfClusters()
+			<< " clusters with max depth " << CG.treeDepth() << ". "
+			<< (isClusterPlanarEmbedding(CG)
+							   ? "Cluster-"
+							   : (CG.constGraph().representsCombEmbedding() ? "" : "Non-"))
+			<< "Planar embedding." << std::endl;
+	if (CG.treeDepth() < 2) {
+		Logger::slout(Logger::Level::Alarm)
+				<< "Warning: " << type << "Graph contains no clusters!" << std::endl;
 	}
-	return os;
+	printClusters(CG.rootCluster(), Logger::slout()) << std::endl;
+}
 }
 
 template<>
@@ -104,4 +113,6 @@ std::ostream& operator<<(std::ostream& os, const printEdges<PipeBij>& inst) {
 		   << (adj->isSource() ? "->" : "<-") << "n" << adj->twinNode()->index() << "), ";
 	}
 	return os;
+}
+
 }

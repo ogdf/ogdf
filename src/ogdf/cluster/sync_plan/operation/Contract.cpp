@@ -36,13 +36,17 @@
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <ostream>
 #include <string>
 #include <utility>
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
 
 struct FindType {
 	bool selected : 1;
@@ -402,4 +406,6 @@ SyncPlan::Result SyncPlan::contract(node u) {
 	pushUndoOperationAndCheck(op);
 	// SYNCPLAN_PROFILE_STOP("contract")
 	return SyncPlan::Result::SUCCESS;
+}
+
 }

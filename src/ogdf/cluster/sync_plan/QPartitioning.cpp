@@ -36,7 +36,7 @@
 
 #include <algorithm>
 
-using namespace ogdf;
+namespace ogdf::sync_plan {
 
 bool QPartitioning::isQVertex(node n) const { return partitions[n] != NO_PARTITION; }
 
@@ -80,4 +80,6 @@ void QPartitioning::nodeDeleted(node v) {
 		partitioned_nodes[getPartitionOf(v)].removeFirst(v);
 		// partition might have turned empty, but we don't care
 	}
+}
+
 }

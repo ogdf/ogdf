@@ -33,6 +33,8 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 
+namespace ogdf {
+
 const Graph& OverlappingGraphCopy::original() const { return *m_pOGC->G; }
 
 node OverlappingGraphCopy::copy(node v) const {
@@ -105,4 +107,6 @@ void OverlappingGraphCopy::unmap() {
 			m_pOGC->node_copies.remove(original(n), this);
 		}
 	}
+}
+
 }

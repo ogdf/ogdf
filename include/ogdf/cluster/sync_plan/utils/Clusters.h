@@ -35,7 +35,6 @@
 
 #include <functional>
 #include <ostream>
-#include <string>
 #include <utility>
 
 namespace ogdf {
@@ -45,7 +44,7 @@ class List;
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
-using namespace ogdf;
+namespace ogdf::sync_plan {
 
 struct RandomClusterConfig {
 	int max_nodes_in_cluster = 0;
@@ -81,6 +80,4 @@ void clusterBorderToEdges(
 		EdgeArray<List<std::pair<adjEntry, cluster>>>* subdivisions = nullptr,
 		const std::function<edge(edge)>& translate = [](edge e) -> edge { return e; });
 
-std::ostream& printClusters(cluster c, std::ostream& s);
-
-void printCG(const ClusterGraph& CG, const std::string& type = "");
+}

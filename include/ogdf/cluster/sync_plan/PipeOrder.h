@@ -39,6 +39,7 @@
 #include <memory>
 #include <random>
 
+namespace ogdf::sync_plan {
 // using PipeCmp = std::function<bool(const Pipe *, const Pipe *)>;
 
 template<typename PipeCmp>
@@ -263,3 +264,4 @@ struct PipeQueueByDegreePreferContract
 
 	bool isQueue1(Pipe* p) const override;
 };
+}

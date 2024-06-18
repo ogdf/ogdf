@@ -33,9 +33,14 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 
 #include <cstdint>
 #include <stdexcept>
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
 
 SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 	: G(work)
@@ -98,4 +103,6 @@ SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_type
 	initComponents();
 	matchings.rebuildHeap();
 	// pushUndoOperationAndCheck(op);
+}
+
 }

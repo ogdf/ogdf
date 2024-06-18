@@ -42,6 +42,11 @@
 
 #include <ostream>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
+
 class UndoConvertSmall : public SyncPlan::UndoOperation {
 public:
 	int small_idx, twin_idx;
@@ -121,4 +126,6 @@ SyncPlan::Result SyncPlan::convertSmall(node small) {
 	}
 	formatNode(small);
 	return SyncPlan::Result::SUCCESS;
+}
+
 }

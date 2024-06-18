@@ -39,6 +39,9 @@
 
 using json = nlohmann::json;
 
+using namespace ogdf::sync_plan::internal;
+namespace ogdf::sync_plan {
+
 void SyncPlanOptions::parseOptionPipes(char* optarg) {
 	try {
 		size_t delim;
@@ -254,6 +257,8 @@ void SyncPlanOptions::applyConfigJSON(Graph& G, GraphAttributes& GA, SyncPlan& p
 			}
 		}
 	}
+}
+
 }
 
 #endif

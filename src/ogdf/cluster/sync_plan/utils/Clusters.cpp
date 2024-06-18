@@ -42,12 +42,13 @@
 
 #include <functional>
 #include <ostream>
-#include <string>
 #include <utility>
+
 // #include <ogdf/planarlayout/FPPLayout.h>
 
-using namespace ogdf;
 using namespace std;
+
+namespace ogdf::sync_plan {
 
 using tpc = chrono::high_resolution_clock;
 using tp = chrono::time_point<chrono::high_resolution_clock>;
@@ -387,26 +388,4 @@ void clusterBorderToEdges(const ClusterGraph& CG, Graph& G,
 	}
 }
 
-std::ostream& printClusters(cluster c, std::ostream& s) {
-	s << c->nCount() << "[";
-	for (cluster child : c->children) {
-		printClusters(child, s);
-	}
-	return s << "]";
-}
-
-void printCG(const ClusterGraph& CG, const string& type) {
-	Logger::slout(Logger::Level::High)
-			<< type << "ClusterGraph with " << CG.constGraph().numberOfNodes() << " nodes, "
-			<< CG.constGraph().numberOfEdges() << " edges, " << CG.numberOfClusters()
-			<< " clusters with max depth " << CG.treeDepth() << ". "
-			<< (isClusterPlanarEmbedding(CG)
-							   ? "Cluster-"
-							   : (CG.constGraph().representsCombEmbedding() ? "" : "Non-"))
-			<< "Planar embedding." << std::endl;
-	if (CG.treeDepth() < 2) {
-		Logger::slout(Logger::Level::Alarm)
-				<< "Warning: " << type << "Graph contains no clusters!" << std::endl;
-	}
-	printClusters(CG.rootCluster(), Logger::slout()) << std::endl;
 }

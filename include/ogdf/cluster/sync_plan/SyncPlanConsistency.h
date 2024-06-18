@@ -30,16 +30,14 @@
  */
 #pragma once
 
-#include <ogdf/basic/Reverse.h>
 #include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
 
 #include <string>
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
+namespace ogdf::sync_plan {
 class SyncPlan;
-
-using namespace ogdf;
 
 class SyncPlanConsistency {
 	SyncPlan& pq;
@@ -59,3 +57,4 @@ public:
 
 	int getCheckCounter() const { return checkCounter; }
 };
+}

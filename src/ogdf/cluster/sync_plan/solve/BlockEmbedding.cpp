@@ -41,6 +41,11 @@
 #include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+
 void BlockEmbedding::init(Graph& G, SyncPlanComponents& components, node bc,
 		EdgeArray<edge>& Ge_to_subgraph, EdgeArray<BlockEmbedding*>& Ge_to_block) {
 	OGDF_ASSERT(!components.isCutComponent(bc));
@@ -167,4 +172,6 @@ bool BlockEmbedding::addQVertex(node q, EdgeArray<edge>& Ge_to_subgraph, TwoSAT&
 		return false;
 	}
 	return true;
+}
+
 }

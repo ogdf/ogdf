@@ -57,6 +57,10 @@
 
 #include <cxxabi.h>
 
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+
 SyncPlan::SyncPlan(Graph* g, GraphAttributes* ga)
 	: G(g)
 	, matchings(G)
@@ -85,7 +89,7 @@ void SyncPlan::formatNode(node n) const {
 	if (GA == nullptr) {
 		return;
 	}
-	::formatNode(n, GA, components.biconnectedId(n));
+	ogdf::sync_plan::formatNode(n, GA, components.biconnectedId(n));
 	if (matchings.isMatchedPVertex(n)) {
 		GA->width(n) = 10;
 		GA->height(n) = 10;
@@ -308,4 +312,6 @@ std::string SyncPlan::UndoOperation::name() const {
 	free(ret);
 	OGDF_ASSERT(!str.empty());
 	return str;
+}
+
 }

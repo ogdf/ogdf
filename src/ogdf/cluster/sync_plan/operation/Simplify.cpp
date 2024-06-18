@@ -53,7 +53,11 @@ namespace ogdf::pc_tree {
 class PCNode;
 } // namespace ogdf::pc_tree
 
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
 
 UndoSimplify::UndoSimplify(const List<SimplifyMapping>& in_bij, node u2, node u, node v, node v2)
 	: u2_idx(u2->index())
@@ -408,4 +412,6 @@ SyncPlan::Result SyncPlan::simplify(node u, const NodePCRotation* pc) {
 #endif
 	// SYNCPLAN_PROFILE_STOP("simplify")
 	return SyncPlan::Result::SUCCESS;
+}
+
 }

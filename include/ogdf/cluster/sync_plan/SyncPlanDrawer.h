@@ -47,7 +47,10 @@ namespace ogdf {
 class Color;
 } // namespace ogdf
 
-using namespace ogdf;
+namespace ogdf::sync_plan {
+class SyncPlan;
+
+// TODO move to central location / internal namespace?
 
 extern const std::array<Color, 63> colors;
 
@@ -69,8 +72,6 @@ void fixLoops(Graph& G, const std::function<void(edge, edge)>& cb);
 void fixParallels(Graph& G, const std::function<void(edge, edge)>& cb);
 
 void bendEdge(GraphAttributes& GA, edge e, double bend);
-
-class SyncPlan;
 
 class SyncPlanDrawer {
 	std::unique_ptr<LayoutModule> planar_layout;
@@ -100,3 +101,4 @@ public:
 
 	void cleanUp();
 };
+}

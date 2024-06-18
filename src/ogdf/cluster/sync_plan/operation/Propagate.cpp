@@ -54,7 +54,11 @@
 #include <string>
 #include <utility>
 
-using namespace pc_tree;
+using namespace ogdf::pc_tree;
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
 
 void smoothLeafToEdge(Graph* G, adjEntry former_adj, node leaf) {
 	OGDF_ASSERT(leaf->outdeg() == 1);
@@ -440,4 +444,6 @@ SyncPlan::Result SyncPlan::propagatePQ(node u, NodePCRotation* pct, NodePCRotati
 #endif
 	// SYNCPLAN_PROFILE_STOP("propagatePQ")
 	return SyncPlan::Result::SUCCESS;
+}
+
 }

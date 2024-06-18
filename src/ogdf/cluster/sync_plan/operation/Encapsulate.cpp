@@ -38,7 +38,6 @@
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
-#include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -46,6 +45,11 @@
 #include <sstream>
 #include <string>
 #include <utility>
+
+using namespace ogdf::sync_plan::internal;
+
+namespace ogdf::sync_plan {
+using internal::operator<<;
 
 std::ostream& operator<<(std::ostream& os, const EncapsulatedBlock& block) {
 	os << "EncapsulatedBlock(bicon=" << block.bicon << ", bicon_rep=" << block.bicon_rep
@@ -184,4 +188,6 @@ SyncPlan::Result SyncPlan::encapsulate(node g_cut) {
 	pushUndoOperationAndCheck(new UndoEncapsulate(block_list));
 	// SYNCPLAN_PROFILE_STOP("encapsulate")
 	return SyncPlan::Result::SUCCESS;
+}
+
 }

@@ -44,7 +44,6 @@
 #include <ogdf/decomposition/DynamicSPQRForest.h>
 
 #include <functional>
-#include <iosfwd>
 
 namespace ogdf {
 class Logger;
@@ -54,27 +53,9 @@ class SList;
 
 #pragma GCC diagnostic ignored "-Wshadow" // TODO remove
 
-using namespace ogdf;
-using namespace std; // TODO remove
-using namespace ogdf::pc_tree;
+namespace ogdf::sync_plan {
 
-std::ostream& operator<<(std::ostream& os, DynamicSPQRForest::TNodeType t);
-
-struct RigidEmbedding {
-	// room for improvement: mostly needed for the destructor clean-up, because NodeArray<unique_ptr> didn't compile previously
-	const DynamicSPQRForest spqr;
-	NodeArray<GraphCopySimple*> rigids;
-
-	RigidEmbedding(Graph& G);
-
-	~RigidEmbedding() {
-		for (node n : spqr.spqrTree().nodes) {
-			delete rigids[n];
-		}
-	}
-};
-
-class NodeSPQRRotation : public NodePCRotation {
+class NodeSPQRRotation : public pc_tree::NodePCRotation {
 protected:
 	const DynamicSPQRForest& spqr;
 	node apex;
@@ -86,9 +67,23 @@ protected:
 
 	node findSPQRApex(node n, bool clear = false);
 
-	PCNode* addLeaf(PCNode* n, adjEntry adj);
+	pc_tree::PCNode* addLeaf(pc_tree::PCNode* n, adjEntry adj);
 
-	PCNode* makePCNode(node t, node t_parent, PCNode* parent);
+	pc_tree::PCNode* makePCNode(node t, node t_parent, pc_tree::PCNode* parent);
+
+	struct RigidEmbedding {
+		// room for improvement: mostly needed for the destructor clean-up, because NodeArray<unique_ptr> didn't compile previously
+		const DynamicSPQRForest spqr;
+		NodeArray<GraphCopySimple*> rigids;
+
+		RigidEmbedding(Graph& G);
+
+		~RigidEmbedding() {
+			for (node n : spqr.spqrTree().nodes) {
+				delete rigids[n];
+			}
+		}
+	};
 
 public:
 	static Logger logger;
@@ -109,7 +104,7 @@ public:
 		m_incidentEdgeForLeaf.init(*this, nullptr);
 		m_graphNodeForInnerNode.init(*this, nullptr);
 		apex = findSPQRApex(n);
-		PCNode* root = makePCNode(apex, nullptr, nullptr);
+		pc_tree::PCNode* root = makePCNode(apex, nullptr, nullptr);
 		// findSPQRApex(n, true); // clear arrays
 		OGDF_ASSERT(getRootNode() == root);
 		node o = spqr.original(n);
@@ -124,18 +119,18 @@ public:
 
 	void mapPartnerEdges();
 
-	void mapGraph(const Graph* G, const function<node(node)>& nodes,
-			const function<edge(edge)>& edges) {
+	void mapGraph(const Graph* G, const std::function<node(node)>& nodes,
+			const std::function<edge(edge)>& edges) {
 		OGDF_ASSERT(G != nullptr);
 		m_G = G;
 		m_n = nodes(m_n);
-		for (PCNode* n : FilteringPCTreeDFS(*this, getRootNode())) {
+		for (pc_tree::PCNode* n : pc_tree::FilteringPCTreeDFS(*this, getRootNode())) {
 			node& gn = m_graphNodeForInnerNode[n];
 			if (gn != nullptr) {
 				gn = nodes(gn);
 			}
 		}
-		for (PCNode* l : getLeaves()) {
+		for (pc_tree::PCNode* l : getLeaves()) {
 			edge& ie = m_incidentEdgeForLeaf[l];
 			if (ie != nullptr) {
 				ie = edges(ie);
@@ -148,3 +143,5 @@ public:
 		}
 	}
 };
+
+}

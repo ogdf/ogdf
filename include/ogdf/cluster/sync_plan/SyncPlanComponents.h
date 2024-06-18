@@ -47,9 +47,11 @@ class SList;
 template<class E>
 class SListPure;
 } // namespace ogdf
-struct EncapsulatedBlock;
 
-using namespace ogdf;
+namespace ogdf::sync_plan {
+namespace internal {
+struct EncapsulatedBlock;
+}
 
 class SyncPlanComponents {
 	friend class SyncPlan;
@@ -145,7 +147,7 @@ private:
 
 	void preJoin(node keep, node merge);
 
-	void postSplitOffEncapsulatedBlock(node cut, EncapsulatedBlock& block);
+	void postSplitOffEncapsulatedBlock(node cut, internal::EncapsulatedBlock& block);
 
 	void labelIsolatedNodes();
 };
@@ -164,3 +166,4 @@ public:
 
 	void restore(bool restore_embedding = true);
 };
+}

@@ -42,8 +42,7 @@
 #include <functional>
 #include <vector>
 
-using namespace ogdf;
-using namespace std; // TODO remove
+namespace ogdf::sync_plan {
 
 void randomSyncPlanInstance(SyncPlan& pq, int pipe_count, int min_deg = 3) {
 	for (int i = 0; i < pipe_count; ++i) {
@@ -62,7 +61,7 @@ void randomSyncPlanInstance(SyncPlan& pq, int pipe_count, int min_deg = 3) {
 	}
 }
 
-void addEdges(Graph* g, vector<edge>& added, int cnt) {
+void addEdges(Graph* g, std::vector<edge>& added, int cnt) {
 	CombinatorialEmbedding E(*g);
 	for (int i = 0; i < cnt; ++i) {
 		face f = E.chooseFace([](face f) { return f->size() > 3; });
@@ -100,7 +99,7 @@ void randomSEFEInstanceBySharedGraph(Graph* sefe, EdgeArray<uint8_t>& edge_types
 		edge_types[e] = 3;
 	}
 
-	vector<edge> added1;
+	std::vector<edge> added1;
 	addEdges(sefe, added1, edges1);
 	Graph::HiddenEdgeSet h1(*sefe);
 	for (edge e : added1) {
@@ -108,7 +107,7 @@ void randomSEFEInstanceBySharedGraph(Graph* sefe, EdgeArray<uint8_t>& edge_types
 		h1.hide(e);
 	}
 
-	vector<edge> added2;
+	std::vector<edge> added2;
 	addEdges(sefe, added2, edges2);
 	for (edge e : added2) {
 		edge_types[e] = 2;
@@ -130,4 +129,6 @@ void randomSEFEInstanceByUnionGraph(const Graph* sefe, EdgeArray<uint8_t>& edge_
 			edge_types[e] = 2;
 		}
 	}
+}
+
 }
