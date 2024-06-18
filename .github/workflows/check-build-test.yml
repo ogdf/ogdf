@@ -294,11 +294,12 @@ jobs:
           system_profiler system_profiler SPSoftwareDataType SPHardwareDataType
           echo "Hard limits"
           ulimit -Ha
+          echo
           echo "Soft limits"
           ulimit -Sa
       - name: Test ${{ matrix.mode }} build and run
         run: |
-          ulimit -Ss 16384 # increase stack limit for test-planarization
+          ulimit -Ss 65532 # increase stack limit for test-planarization
           util/test_build_and_run.sh \
             static \
             ${{ matrix.mode }} \
