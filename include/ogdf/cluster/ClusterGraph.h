@@ -529,6 +529,11 @@ public:
 	//inserted mainly for use in gmlparser.
 	void reInit(Graph& G) { reinitGraph(G); }
 
+	//! Constructs a cluster tree
+	void copyClusterTree(
+			const ClusterGraph& C, const Graph& G, ClusterArray<cluster>& originalClusterTable,
+			std::function<node(node)> nodeMap = [](node v) { return v; });
+
 	//! Collapses all nodes in the list \p nodes to the first node; multi-edges are removed.
 	template<class NODELIST>
 	void collapse(NODELIST& nodes, Graph& G) {
@@ -859,11 +864,6 @@ private:
 			clearClusterTree(child, attached);
 		}
 	}
-
-	//! Constructs a cluster tree
-	void constructClusterTree(
-			const ClusterGraph& C, const Graph& G, ClusterArray<cluster>& originalClusterTable,
-			std::function<node(node)> nodeMap = [](node v) { return v; });
 
 	//! Assigns node \p v to cluster \p C (\p v not yet assigned!).
 	void assignNode(node v, cluster C);

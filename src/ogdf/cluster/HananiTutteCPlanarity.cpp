@@ -34,7 +34,7 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/cluster/ClusterPlanarity.h>
+#include <ogdf/cluster/ILPClusterPlanarity.h>
 #include <ogdf/cluster/HananiTutteCPlanarity.h>
 
 #include <map>
@@ -1035,7 +1035,7 @@ HananiTutteCPlanarity::Verification HananiTutteCPlanarity::isCPlanar(const Clust
 	}
 
 	if (solver == Solver::ILP) {
-		ClusterPlanarity cPlanarity;
+		ILPClusterPlanarity cPlanarity;
 		cPlanarity.setTimeLimit("00:10:00");
 		bool icp = cPlanarity.isClusterPlanar(H);
 

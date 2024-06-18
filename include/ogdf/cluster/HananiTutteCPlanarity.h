@@ -41,7 +41,7 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class HananiTutteCPlanarity {
+class HananiTutteCPlanarity : public ClusterPlanarityModule {
 	class CLinearSystem;
 	class CGraph;
 
@@ -94,6 +94,21 @@ public:
 		stClusterCluster,
 		stCrossCluster
 	};
+
+	bool isClusterPlanar(const ClusterGraph& CG) override {
+		Verification res = isCPlanar(CG, true, false, Solver::HananiTutteVerify);
+		if (res == Verification::cPlanar || res == Verification::cPlanarVerified) {
+			return true;
+		} else if (res == Verification::nonCPlanarVerified) {
+			return false;
+		} else {
+			throw std::runtime_error("Could not solve instance!");
+		}
+	}
+
+	bool isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) override {
+		return isClusterPlanar(CG);
+	}
 
 	Verification isCPlanar(const ClusterGraph& C, bool doPreproc = true, bool forceSolver = false,
 			Solver solver = Solver::HananiTutte);

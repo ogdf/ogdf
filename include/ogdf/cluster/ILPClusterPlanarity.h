@@ -35,7 +35,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterPlanarModule.h>
+#include <ogdf/cluster/ClusterPlanarityModule.h>
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
 
 #include <ogdf/external/abacus.h>
@@ -46,7 +46,7 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class OGDF_EXPORT ClusterPlanarity : public ClusterPlanarModule {
+class OGDF_EXPORT ILPClusterPlanarity : public ClusterPlanarityModule {
 public:
 	using NodePairs = List<NodePair>;
 	using CP_MasterBase = cluster_planarity::CP_MasterBase;
@@ -57,7 +57,7 @@ public:
 	enum class solmeth { Fallback, New };
 
 	//! Construction
-	ClusterPlanarity()
+	ILPClusterPlanarity()
 		: m_heuristicLevel(1)
 		, m_heuristicRuns(1)
 		, m_heuristicOEdgeBound(0.4)
@@ -97,14 +97,20 @@ public:
 	}
 
 	//destruction
-	~ClusterPlanarity() { }
+	~ILPClusterPlanarity() { }
 
 	//! Computes a set of edges that augments the subgraph to be
 	//! completely connected and returns c-planarity status and edge set.
 	bool isClusterPlanar(const ClusterGraph& CG, NodePairs& addedEdges);
 
 	//! Returns c-planarity status of \p CG.
-	virtual bool isClusterPlanar(const ClusterGraph& CG) override;
+	bool isClusterPlanar(const ClusterGraph& CG) override;
+
+	bool isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) override {
+		return isClusterPlanar(CG);
+	}
+
+	bool clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) override;
 
 	//setter methods for the  module parameters
 	void setHeuristicLevel(int i) { m_heuristicLevel = i; }
@@ -188,11 +194,11 @@ public:
 
 protected:
 	// Performs a c-planarity test on CG.
-	virtual bool doTest(const ClusterGraph& CG) override;
+	bool doTest(const ClusterGraph& CG);
 
 	//as above, on success also returns the set of edges that were
 	//added to construct a completely connected planar graph.
-	virtual bool doTest(const ClusterGraph& G, NodePairs& addedEdges);
+	bool doTest(const ClusterGraph& G, NodePairs& addedEdges);
 
 	// Performs a c-planarity test using only a reduced set
 	// of allowed extension edges, returns c-planarity status

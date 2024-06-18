@@ -34,6 +34,7 @@
 #include <ogdf/basic/STNumbering.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/CconnectClusterPlanar.h>
 #include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -816,8 +817,7 @@ breakForLoop:
 		Logger::slout() << std::endl << "New Lists after Reversing " << std::endl;
 		for (i = 1; i <= (*numbering)[t]; i++) {
 			node v = (*tableNumber2Node)[i];
-			Logger::slout() << "v = " << v << " : "
-							<< " ";
+			Logger::slout() << "v = " << v << " : " << " ";
 			for (edge e : (*frontier)[v]) {
 				Logger::slout() << e << " ";
 			}
@@ -1833,6 +1833,22 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph& Ccopy, Graph&
 #ifdef OGDF_DEBUG
 	Ccopy.consistencyCheck();
 #endif
+}
+
+bool CconnectClusterPlanarityModule::clusterPlanarEmbed(ClusterGraph& CG, Graph& G) {
+	CconnectClusterPlanarEmbed inst;
+	if (inst.embed(CG, G)) {
+		return true;
+	} else if (inst.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCPlanar
+			|| inst.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonPlanar) {
+		return false;
+	} else {
+		throw std::runtime_error("Not (cluster-)connected!");
+	}
+}
+
+bool CconnectClusterPlanarityModule::clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) {
+	return clusterPlanarEmbed(CG, G);
 }
 
 }
