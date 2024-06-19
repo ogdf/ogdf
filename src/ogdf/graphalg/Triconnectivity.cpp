@@ -755,297 +755,352 @@ void Triconnectivity::DFS2() {
 	}
 }
 
+struct StackEntry {
+	const node v;
+	const int vnum;
+	int outv;
+
+	ListIterator<edge> it;
+	ListIterator<edge> itNext;
+	edge e;
+	node w;
+	int wnum;
+
+	bool after;
+
+	StackEntry(node p_v, int p_vnum, int p_outv, const ListIterator<edge>& p_it, edge p_e, node p_w,
+			int p_wnum, bool p_after = false)
+		: v(p_v)
+		, vnum(p_vnum)
+		, outv(p_outv)
+		, it(p_it)
+		, itNext()
+		, e(p_e)
+		, w(p_w)
+		, wnum(p_wnum)
+		, after(p_after) {
+		if (it.valid()) {
+			itNext = it.succ();
+		}
+	}
+};
+
 // recognition of split components
 void Triconnectivity::pathSearch(const node init_v) {
-	const int vnum = m_NEWNUM[init_v];
-	int outv = m_A[init_v].size();
-	ListIterator<edge> it, itNext;
-	for (it = m_A[init_v].begin(); it.valid(); it = itNext) {
-		itNext = it.succ();
-		const edge e = *it;
-		node w = e->target();
-		int wnum = m_NEWNUM[w];
+	std::vector<StackEntry> stack;
+	{
+		auto it = m_A[init_v].begin();
+		node w = (*it)->target();
+		stack.emplace_back(init_v, m_NEWNUM[init_v], m_A[init_v].size(), it, *it, w, m_NEWNUM[w]);
+	}
 
-		if (m_TYPE[e] == EdgeType::tree) {
-			if (m_START[e]) {
-				if (m_TSTACK_a[m_top] > m_LOWPT1[w]) {
+	while (!stack.empty()) {
+		StackEntry& se = stack.back();
+		if (!se.after && m_TYPE[se.e] == EdgeType::tree) {
+			if (m_START[se.e]) {
+				if (m_TSTACK_a[m_top] > m_LOWPT1[se.w]) {
 					int y = 0, b;
 					do {
 						y = max(y, m_TSTACK_h[m_top]);
 						b = m_TSTACK_b[m_top--];
-					} while (m_TSTACK_a[m_top] > m_LOWPT1[w]);
-					TSTACK_push(y, m_LOWPT1[w], b);
+					} while (m_TSTACK_a[m_top] > m_LOWPT1[se.w]);
+					TSTACK_push(y, m_LOWPT1[se.w], b);
 				} else {
-					TSTACK_push(wnum + m_ND[w] - 1, m_LOWPT1[w], vnum);
+					TSTACK_push(se.wnum + m_ND[se.w] - 1, m_LOWPT1[se.w], se.vnum);
 				}
 				TSTACK_pushEOS();
 			}
 
-			pathSearch(w);
-
-			m_ESTACK.push(m_TREE_ARC[w]); // add (v,w) to ESTACK (can differ from e!)
-
-			node x;
-
-			while (vnum != 1
-					&& ((m_TSTACK_a[m_top] == vnum)
-							|| (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum))) {
-				int a = m_TSTACK_a[m_top];
-				int b = m_TSTACK_b[m_top];
-
-				edge eVirt;
-
-				if (a == vnum && m_FATHER[m_NODEAT[b]] == m_NODEAT[a]) {
-					m_top--;
-				}
-
-				else {
-					edge e_ab = nullptr;
-
-					if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
-#ifdef OGDF_TRICONNECTIVITY_OUTPUT
-						std::cout << std::endl
-								  << "\nfound type-2 separation pair " << GCoriginal(v) << ", "
-								  << GCoriginal(m_A[w].front()->target());
-#endif
-
-						edge e1 = m_ESTACK.popRet();
-						edge e2 = m_ESTACK.popRet();
-						m_A[w].del(m_IN_ADJ[e2]);
-
-						x = e2->target();
-
-						eVirt = m_pG->newEdge(init_v, x);
-						m_DEGREE[x]--;
-						m_DEGREE[init_v]--;
-
-						OGDF_ASSERT(e2->source() == w);
-						CompStruct& C = newComp(CompType::polygon);
-						C << e1 << e2 << eVirt;
-
-						if (!m_ESTACK.empty()) {
-							e1 = m_ESTACK.top();
-							if (e1->source() == x && e1->target() == init_v) {
-								e_ab = m_ESTACK.popRet();
-								m_A[x].del(m_IN_ADJ[e_ab]);
-								delHigh(e_ab);
-							}
-						}
-
-					} else {
-#ifdef OGDF_TRICONNECTIVITY_OUTPUT
-						std::cout << "\nfound type-2 separation pair " << GCoriginal(m_NODEAT[a])
-								  << ", " << GCoriginal(m_NODEAT[b]);
-#endif
-
-						int h = m_TSTACK_h[m_top--];
-
-						CompStruct& C = newComp();
-						while (true) {
-							edge xy = m_ESTACK.top();
-							x = xy->source();
-							node xyTarget = xy->target();
-							if (!(a <= m_NEWNUM[x] && m_NEWNUM[x] <= h && a <= m_NEWNUM[xyTarget]
-										&& m_NEWNUM[xyTarget] <= h)) {
-								break;
-							}
-
-							if ((m_NEWNUM[x] == a && m_NEWNUM[xyTarget] == b)
-									|| (m_NEWNUM[xyTarget] == a && m_NEWNUM[x] == b)) {
-								e_ab = m_ESTACK.popRet();
-								m_A[e_ab->source()].del(m_IN_ADJ[e_ab]);
-								delHigh(e_ab);
-
-							} else {
-								edge eh = m_ESTACK.popRet();
-								if (it != m_IN_ADJ[eh]) {
-									m_A[eh->source()].del(m_IN_ADJ[eh]);
-									delHigh(eh);
-								}
-								C << eh;
-								m_DEGREE[x]--;
-								m_DEGREE[xyTarget]--;
-							}
-						}
-
-						eVirt = m_pG->newEdge(m_NODEAT[a], m_NODEAT[b]);
-						C.finishTricOrPoly(eVirt);
-						x = m_NODEAT[b];
-					}
-
-					if (e_ab != nullptr) {
-						CompStruct& C = newComp(CompType::bond);
-						C << e_ab << eVirt;
-
-						eVirt = m_pG->newEdge(init_v, x);
-						C << eVirt;
-
-						m_DEGREE[x]--;
-						m_DEGREE[init_v]--;
-					}
-
-					m_ESTACK.push(eVirt);
-					*it = eVirt;
-					m_IN_ADJ[eVirt] = it;
-
-					m_DEGREE[x]++;
-					m_DEGREE[init_v]++;
-					m_FATHER[x] = init_v;
-					m_TREE_ARC[x] = eVirt;
-					m_TYPE[eVirt] = EdgeType::tree;
-
-					w = x;
-					wnum = m_NEWNUM[w];
-				}
+			se.after = true;
+			{
+				auto it = m_A[se.w].begin();
+				node w = (*it)->target();
+				stack.emplace_back(se.w, m_NEWNUM[se.w], m_A[se.w].size(), it, *it, w, m_NEWNUM[w]);
 			}
-
-			if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[init_v] != m_start || outv >= 2)) {
-#ifdef OGDF_TRICONNECTIVITY_OUTPUT
-				std::cout << "\nfound type-1 separation pair " << GCoriginal(m_NODEAT[m_LOWPT1[w]])
-						  << ", " << GCoriginal(v);
-#endif
-
-				CompStruct& C = newComp();
-				int xx = 0, y = 0;
-				OGDF_ASSERT(!m_ESTACK.empty()); // otherwise undefined behavior since x is not initialized
-				while (!m_ESTACK.empty()) {
-					edge xy = m_ESTACK.top();
-					xx = m_NEWNUM[xy->source()];
-					y = m_NEWNUM[xy->target()];
-
-					if (!((wnum <= xx && xx < wnum + m_ND[w]) || (wnum <= y && y < wnum + m_ND[w]))) {
-						break;
-					}
-
-					C << m_ESTACK.popRet();
-					delHigh(xy);
-					m_DEGREE[m_NODEAT[xx]]--;
-					m_DEGREE[m_NODEAT[y]]--;
-				}
-
-				edge eVirt = m_pG->newEdge(init_v, m_NODEAT[m_LOWPT1[w]]);
-				C.finishTricOrPoly(eVirt);
-
-				if ((xx == vnum && y == m_LOWPT1[w]) || (y == vnum && xx == m_LOWPT1[w])) {
-					CompStruct& compBond = newComp(CompType::bond);
-					edge eh = m_ESTACK.popRet();
-					if (m_IN_ADJ[eh] != it) {
-						m_A[eh->source()].del(m_IN_ADJ[eh]);
-					}
-					compBond << eh << eVirt;
-					eVirt = m_pG->newEdge(init_v, m_NODEAT[m_LOWPT1[w]]);
-					compBond << eVirt;
-					m_IN_HIGH[eVirt] = m_IN_HIGH[eh];
-					m_DEGREE[init_v]--;
-					m_DEGREE[m_NODEAT[m_LOWPT1[w]]]--;
-				}
-
-				if (m_NODEAT[m_LOWPT1[w]] != m_FATHER[init_v]) {
-					m_ESTACK.push(eVirt);
-					*it = eVirt;
-					m_IN_ADJ[eVirt] = it;
-					if (!m_IN_HIGH[eVirt].valid() && high(m_NODEAT[m_LOWPT1[w]]) < vnum) {
-						m_IN_HIGH[eVirt] = m_HIGHPT[m_NODEAT[m_LOWPT1[w]]].pushFront(vnum);
-					}
-
-					m_DEGREE[init_v]++;
-					m_DEGREE[m_NODEAT[m_LOWPT1[w]]]++;
-
-				} else {
-					m_A[init_v].del(it);
-
-					CompStruct& compBond = newComp(CompType::bond);
-					compBond << eVirt;
-					eVirt = m_pG->newEdge(m_NODEAT[m_LOWPT1[w]], init_v);
-					compBond << eVirt;
-
-					edge eh = m_TREE_ARC[init_v];
-
-					compBond << m_TREE_ARC[init_v];
-
-					m_TREE_ARC[init_v] = eVirt;
-					m_TYPE[eVirt] = EdgeType::tree;
-
-					m_IN_ADJ[eVirt] = m_IN_ADJ[eh];
-					*m_IN_ADJ[eh] = eVirt;
-				}
-			}
-
-			if (m_START[e]) {
-				while (TSTACK_notEOS()) {
-					m_top--;
-				}
-				m_top--;
-			}
-
-			while (TSTACK_notEOS() && m_TSTACK_b[m_top] != vnum && high(init_v) > m_TSTACK_h[m_top]) {
-				m_top--;
-			}
-
-			outv--;
-
+			continue;
+		} else if (se.after) {
+			afterRecursivePathSearch(se.v, se.vnum, se.outv, se.it, se.e, se.w, se.wnum);
+			se.after = false;
 		} else {
-			OGDF_ASSERT(m_TYPE[e] == EdgeType::frond);
-			if (m_START[e]) {
-				if (m_TSTACK_a[m_top] > wnum) {
+			OGDF_ASSERT(m_TYPE[se.e] == EdgeType::frond);
+			if (m_START[se.e]) {
+				if (m_TSTACK_a[m_top] > se.wnum) {
 					int y = 0, b;
 					do {
 						y = max(y, m_TSTACK_h[m_top]);
 						b = m_TSTACK_b[m_top--];
-					} while (m_TSTACK_a[m_top] > wnum);
-					TSTACK_push(y, wnum, b);
+					} while (m_TSTACK_a[m_top] > se.wnum);
+					TSTACK_push(y, se.wnum, b);
 				} else {
-					TSTACK_push(vnum, wnum, vnum);
+					TSTACK_push(se.vnum, se.wnum, se.vnum);
 				}
 			}
 
-			m_ESTACK.push(e); // add (v,w) to ESTACK
+			m_ESTACK.push(se.e); // add (v,w) to ESTACK
+		}
+		se.it = se.itNext;
+		if (se.it.valid()) {
+			se.itNext = se.it.succ();
+			se.e = *se.it;
+			se.w = se.e->target();
+			se.wnum = m_NEWNUM[se.w];
+		} else {
+			stack.pop_back();
 		}
 	}
 }
 
-// simplified path search for triconnectivity test
-bool Triconnectivity::pathSearch(const node init_v, node& s1, node& s2) {
-	const int vnum = m_NEWNUM[init_v];
-	int outv = m_A[init_v].size();
-	ListIterator<edge> it, itNext;
-	for (it = m_A[init_v].begin(); it.valid(); it = itNext) {
-		itNext = it.succ();
-		const edge e = *it;
-		const node w = e->target();
-		const int wnum = m_NEWNUM[w];
+void Triconnectivity::afterRecursivePathSearch(const node v, const int vnum, int& outv,
+		const ListIterator<edge> it, const edge e, node w, int wnum) {
+	m_ESTACK.push(m_TREE_ARC[w]); // add (v,w) to ESTACK (can differ from e!)
 
-		if (m_TYPE[e] == EdgeType::tree) {
-			if (m_START[e]) {
-				if (m_TSTACK_a[m_top] > m_LOWPT1[w]) {
+	node x;
+
+	while (vnum != 1
+			&& ((m_TSTACK_a[m_top] == vnum)
+					|| (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum))) {
+		int a = m_TSTACK_a[m_top];
+		int b = m_TSTACK_b[m_top];
+
+		edge eVirt;
+
+		if (a == vnum && m_FATHER[m_NODEAT[b]] == m_NODEAT[a]) {
+			m_top--;
+		}
+
+		else {
+			edge e_ab = nullptr;
+
+			if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
+				std::cout << std::endl
+						  << "\nfound type-2 separation pair " << GCoriginal(v) << ", "
+						  << GCoriginal(m_A[w].front()->target());
+#endif
+
+				edge e1 = m_ESTACK.popRet();
+				edge e2 = m_ESTACK.popRet();
+				m_A[w].del(m_IN_ADJ[e2]);
+
+				x = e2->target();
+
+				eVirt = m_pG->newEdge(v, x);
+				m_DEGREE[x]--;
+				m_DEGREE[v]--;
+
+				OGDF_ASSERT(e2->source() == w);
+				CompStruct& C = newComp(CompType::polygon);
+				C << e1 << e2 << eVirt;
+
+				if (!m_ESTACK.empty()) {
+					e1 = m_ESTACK.top();
+					if (e1->source() == x && e1->target() == v) {
+						e_ab = m_ESTACK.popRet();
+						m_A[x].del(m_IN_ADJ[e_ab]);
+						delHigh(e_ab);
+					}
+				}
+
+			} else {
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
+				std::cout << "\nfound type-2 separation pair " << GCoriginal(m_NODEAT[a]) << ", "
+						  << GCoriginal(m_NODEAT[b]);
+#endif
+
+				int h = m_TSTACK_h[m_top--];
+
+				CompStruct& C = newComp();
+				while (true) {
+					edge xy = m_ESTACK.top();
+					x = xy->source();
+					node xyTarget = xy->target();
+					if (!(a <= m_NEWNUM[x] && m_NEWNUM[x] <= h && a <= m_NEWNUM[xyTarget]
+								&& m_NEWNUM[xyTarget] <= h)) {
+						break;
+					}
+
+					if ((m_NEWNUM[x] == a && m_NEWNUM[xyTarget] == b)
+							|| (m_NEWNUM[xyTarget] == a && m_NEWNUM[x] == b)) {
+						e_ab = m_ESTACK.popRet();
+						m_A[e_ab->source()].del(m_IN_ADJ[e_ab]);
+						delHigh(e_ab);
+
+					} else {
+						edge eh = m_ESTACK.popRet();
+						if (it != m_IN_ADJ[eh]) {
+							m_A[eh->source()].del(m_IN_ADJ[eh]);
+							delHigh(eh);
+						}
+						C << eh;
+						m_DEGREE[x]--;
+						m_DEGREE[xyTarget]--;
+					}
+				}
+
+				eVirt = m_pG->newEdge(m_NODEAT[a], m_NODEAT[b]);
+				C.finishTricOrPoly(eVirt);
+				x = m_NODEAT[b];
+			}
+
+			if (e_ab != nullptr) {
+				CompStruct& C = newComp(CompType::bond);
+				C << e_ab << eVirt;
+
+				eVirt = m_pG->newEdge(v, x);
+				C << eVirt;
+
+				m_DEGREE[x]--;
+				m_DEGREE[v]--;
+			}
+
+			m_ESTACK.push(eVirt);
+			*it = eVirt;
+			m_IN_ADJ[eVirt] = it;
+
+			m_DEGREE[x]++;
+			m_DEGREE[v]++;
+			m_FATHER[x] = v;
+			m_TREE_ARC[x] = eVirt;
+			m_TYPE[eVirt] = EdgeType::tree;
+
+			w = x;
+			wnum = m_NEWNUM[w];
+		}
+	}
+
+	if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[v] != m_start || outv >= 2)) {
+#ifdef OGDF_TRICONNECTIVITY_OUTPUT
+		std::cout << "\nfound type-1 separation pair " << GCoriginal(m_NODEAT[m_LOWPT1[w]]) << ", "
+				  << GCoriginal(v);
+#endif
+
+		CompStruct& C = newComp();
+		int xx = 0, y = 0;
+		OGDF_ASSERT(!m_ESTACK.empty()); // otherwise undefined behavior since x is not initialized
+		while (!m_ESTACK.empty()) {
+			edge xy = m_ESTACK.top();
+			xx = m_NEWNUM[xy->source()];
+			y = m_NEWNUM[xy->target()];
+
+			if (!((wnum <= xx && xx < wnum + m_ND[w]) || (wnum <= y && y < wnum + m_ND[w]))) {
+				break;
+			}
+
+			C << m_ESTACK.popRet();
+			delHigh(xy);
+			m_DEGREE[m_NODEAT[xx]]--;
+			m_DEGREE[m_NODEAT[y]]--;
+		}
+
+		edge eVirt = m_pG->newEdge(v, m_NODEAT[m_LOWPT1[w]]);
+		C.finishTricOrPoly(eVirt);
+
+		if ((xx == vnum && y == m_LOWPT1[w]) || (y == vnum && xx == m_LOWPT1[w])) {
+			CompStruct& compBond = newComp(CompType::bond);
+			edge eh = m_ESTACK.popRet();
+			if (m_IN_ADJ[eh] != it) {
+				m_A[eh->source()].del(m_IN_ADJ[eh]);
+			}
+			compBond << eh << eVirt;
+			eVirt = m_pG->newEdge(v, m_NODEAT[m_LOWPT1[w]]);
+			compBond << eVirt;
+			m_IN_HIGH[eVirt] = m_IN_HIGH[eh];
+			m_DEGREE[v]--;
+			m_DEGREE[m_NODEAT[m_LOWPT1[w]]]--;
+		}
+
+		if (m_NODEAT[m_LOWPT1[w]] != m_FATHER[v]) {
+			m_ESTACK.push(eVirt);
+			*it = eVirt;
+			m_IN_ADJ[eVirt] = it;
+			if (!m_IN_HIGH[eVirt].valid() && high(m_NODEAT[m_LOWPT1[w]]) < vnum) {
+				m_IN_HIGH[eVirt] = m_HIGHPT[m_NODEAT[m_LOWPT1[w]]].pushFront(vnum);
+			}
+
+			m_DEGREE[v]++;
+			m_DEGREE[m_NODEAT[m_LOWPT1[w]]]++;
+
+		} else {
+			m_A[v].del(it);
+
+			CompStruct& compBond = newComp(CompType::bond);
+			compBond << eVirt;
+			eVirt = m_pG->newEdge(m_NODEAT[m_LOWPT1[w]], v);
+			compBond << eVirt;
+
+			edge eh = m_TREE_ARC[v];
+
+			compBond << m_TREE_ARC[v];
+
+			m_TREE_ARC[v] = eVirt;
+			m_TYPE[eVirt] = EdgeType::tree;
+
+			m_IN_ADJ[eVirt] = m_IN_ADJ[eh];
+			*m_IN_ADJ[eh] = eVirt;
+		}
+	}
+
+	if (m_START[e]) {
+		while (TSTACK_notEOS()) {
+			m_top--;
+		}
+		m_top--;
+	}
+
+	while (TSTACK_notEOS() && m_TSTACK_b[m_top] != vnum && high(v) > m_TSTACK_h[m_top]) {
+		m_top--;
+	}
+
+	outv--;
+}
+
+// simplified path search for triconnectivity test
+bool Triconnectivity::pathSearch(node init_v, node& s1, node& s2) {
+	std::vector<StackEntry> stack;
+	{
+		auto it = m_A[init_v].begin();
+		node w = (*it)->target();
+		stack.emplace_back(init_v, m_NEWNUM[init_v], m_A[init_v].size(), it, *it, w, m_NEWNUM[w]);
+	}
+
+	while (!stack.empty()) {
+		StackEntry& se = stack.back();
+		if (!se.after && m_TYPE[se.e] == EdgeType::tree) {
+			if (m_START[se.e]) {
+				if (m_TSTACK_a[m_top] > m_LOWPT1[se.w]) {
 					int y = 0, b;
 					do {
 						y = max(y, m_TSTACK_h[m_top]);
 						b = m_TSTACK_b[m_top--];
-					} while (m_TSTACK_a[m_top] > m_LOWPT1[w]);
-					TSTACK_push(y, m_LOWPT1[w], b);
+					} while (m_TSTACK_a[m_top] > m_LOWPT1[se.w]);
+					TSTACK_push(y, m_LOWPT1[se.w], b);
 				} else {
-					TSTACK_push(wnum + m_ND[w] - 1, m_LOWPT1[w], vnum);
+					TSTACK_push(se.wnum + m_ND[se.w] - 1, m_LOWPT1[se.w], se.vnum);
 				}
 				TSTACK_pushEOS();
 			}
 
-			if (!pathSearch(w, s1, s2)) {
-				return false;
+			se.after = true;
+			{
+				auto it = m_A[se.w].begin();
+				node w = (*it)->target();
+				stack.emplace_back(se.w, m_NEWNUM[se.w], m_A[se.w].size(), it, *it, w, m_NEWNUM[w]);
 			}
-
-			while (vnum != 1
-					&& ((m_TSTACK_a[m_top] == vnum)
-							|| (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum))) {
+			continue;
+		} else if (se.after) {
+			while (se.vnum != 1
+					&& ((m_TSTACK_a[m_top] == se.vnum)
+							|| (m_DEGREE[se.w] == 2
+									&& m_NEWNUM[m_A[se.w].front()->target()] > se.wnum))) {
 				int a = m_TSTACK_a[m_top];
 				int b = m_TSTACK_b[m_top];
 
-				if (a == vnum && m_FATHER[m_NODEAT[b]] == m_NODEAT[a]) {
+				if (a == se.vnum && m_FATHER[m_NODEAT[b]] == m_NODEAT[a]) {
 					m_top--;
 
-				} else if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
-					s1 = init_v;
-					s2 = m_A[w].front()->target();
+				} else if (m_DEGREE[se.w] == 2 && m_NEWNUM[m_A[se.w].front()->target()] > se.wnum) {
+					s1 = se.v;
+					s2 = m_A[se.w].front()->target();
 					return false;
 
 				} else {
@@ -1055,39 +1110,49 @@ bool Triconnectivity::pathSearch(const node init_v, node& s1, node& s2) {
 				}
 			}
 
-			if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum
-					&& (m_FATHER[init_v] != m_start || outv >= 2)) {
-				s1 = m_NODEAT[m_LOWPT1[w]];
-				s2 = init_v;
+			if (m_LOWPT2[se.w] >= se.vnum && m_LOWPT1[se.w] < se.vnum
+					&& (m_FATHER[se.v] != m_start || se.outv >= 2)) {
+				s1 = m_NODEAT[m_LOWPT1[se.w]];
+				s2 = se.v;
 				return false;
 			}
 
-			if (m_START[e]) {
+			if (m_START[se.e]) {
 				while (TSTACK_notEOS()) {
 					m_top--;
 				}
 				m_top--;
 			}
 
-			while (TSTACK_notEOS() && m_TSTACK_b[m_top] != vnum && high(init_v) > m_TSTACK_h[m_top]) {
+			while (TSTACK_notEOS() && m_TSTACK_b[m_top] != se.vnum && high(se.v) > m_TSTACK_h[m_top]) {
 				m_top--;
 			}
 
-			outv--;
-
+			se.outv--;
+			se.after = false;
 		} else { // frond arc
-			if (m_START[e]) {
-				if (m_TSTACK_a[m_top] > wnum) {
+			if (m_START[se.e]) {
+				if (m_TSTACK_a[m_top] > se.wnum) {
 					int y = 0, b;
 					do {
 						y = max(y, m_TSTACK_h[m_top]);
 						b = m_TSTACK_b[m_top--];
-					} while (m_TSTACK_a[m_top] > wnum);
-					TSTACK_push(y, wnum, b);
+					} while (m_TSTACK_a[m_top] > se.wnum);
+					TSTACK_push(y, se.wnum, b);
 				} else {
-					TSTACK_push(vnum, wnum, vnum);
+					TSTACK_push(se.vnum, se.wnum, se.vnum);
 				}
 			}
+		}
+
+		se.it = se.itNext;
+		if (se.it.valid()) {
+			se.itNext = se.it.succ();
+			se.e = *se.it;
+			se.w = se.e->target();
+			se.wnum = m_NEWNUM[se.w];
+		} else {
+			stack.pop_back();
 		}
 	}
 

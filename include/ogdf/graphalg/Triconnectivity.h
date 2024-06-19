@@ -166,6 +166,8 @@ private:
 
 	//! finding of split components
 	void pathSearch(node v);
+	void afterRecursivePathSearch(const node v, const int vnum, int& outv,
+			const ListIterator<edge> it, const edge e, const node w, int wnum);
 	//! special version for triconnectivity test
 	bool pathSearch(node v, node& s1, node& s2);
 
