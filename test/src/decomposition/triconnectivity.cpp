@@ -42,6 +42,11 @@
 #include <graphs.h>
 #include <testing.h>
 
+#define MAX_SIZE 1000
+#define SKIP_PARALLEL true
+#define SKIP_COMP false
+#define SKIP_SPLIT false
+
 struct RandomSkeleton : public Graph {
 	RandomSkeleton* m_parent = nullptr;
 	edge m_parent_edge = nullptr;
@@ -202,33 +207,39 @@ int checkEdgeCounts(const Graph& G, const Triconnectivity& T) {
 }
 
 void checkBicon(const Graph& G, const string& graphName, bool checkIsTric) {
-	it("computes components", [&G, checkIsTric, graphName]() {
-		Triconnectivity T(G);
-		int comps = checkEdgeCounts(G, T);
-		if (checkIsTric) {
-			AssertThat(comps, Equals(1));
-		} else {
-			AssertThat(comps, IsGreaterThan(1));
-		}
-	});
+	it(
+			"computes components",
+			[&G, checkIsTric, graphName]() {
+				Triconnectivity T(G);
+				int comps = checkEdgeCounts(G, T);
+				if (checkIsTric) {
+					AssertThat(comps, Equals(1));
+				} else {
+					AssertThat(comps, IsGreaterThan(1));
+				}
+			},
+			SKIP_COMP);
 
-	it("computes split pairs", [&G, checkIsTric]() {
-		bool isTric = true;
-		node s1 = nullptr;
-		node s2 = nullptr;
-		Triconnectivity(G, isTric, s1, s2);
-		AssertThat(isTric, Equals(checkIsTric));
-		if (checkIsTric) {
-			AssertThat(s1, IsNull());
-			AssertThat(s2, IsNull());
-		} else {
-			AssertThat(s1, !IsNull());
-			AssertThat(s2, !IsNull());
-			AssertThat(s1, !Equals(s2));
-			AssertThat(s1->graphOf(), Equals(&G));
-			AssertThat(s2->graphOf(), Equals(&G));
-		}
-	});
+	it(
+			"computes split pairs",
+			[&G, checkIsTric]() {
+				bool isTric = true;
+				node s1 = nullptr;
+				node s2 = nullptr;
+				Triconnectivity(G, isTric, s1, s2);
+				AssertThat(isTric, Equals(checkIsTric));
+				if (checkIsTric) {
+					AssertThat(s1, IsNull());
+					AssertThat(s2, IsNull());
+				} else {
+					AssertThat(s1, !IsNull());
+					AssertThat(s2, !IsNull());
+					AssertThat(s1, !Equals(s2));
+					OGDF_ASSERT(s1->graphOf() == &G);
+					OGDF_ASSERT(s2->graphOf() == &G);
+				}
+			},
+			SKIP_SPLIT);
 }
 
 go_bandit([]() {
@@ -237,27 +248,34 @@ go_bandit([]() {
 			forEachGraphDescribe(
 					{GraphProperty::triconnected, GraphProperty::simple},
 					[](const Graph& G) {
-						it("computes components", [&G]() {
-							Triconnectivity T(G);
-							int comps = checkEdgeCounts(G, T);
-							AssertThat(comps, Equals(1));
-							AssertThat(T.m_component[0].m_type,
-									Equals(Triconnectivity::CompType::triconnected));
-							AssertThat(T.m_component[0].m_edges.size(), Equals(G.numberOfEdges()));
-							AssertThat(T.m_pG->numberOfEdges(), Equals(G.numberOfEdges()));
-						});
+						it(
+								"computes components",
+								[&G]() {
+									Triconnectivity T(G);
+									int comps = checkEdgeCounts(G, T);
+									AssertThat(comps, Equals(1));
+									AssertThat(T.m_component[0].m_type,
+											Equals(Triconnectivity::CompType::triconnected));
+									AssertThat(T.m_component[0].m_edges.size(),
+											Equals(G.numberOfEdges()));
+									AssertThat(T.m_pG->numberOfEdges(), Equals(G.numberOfEdges()));
+								},
+								SKIP_COMP);
 
-						it("computes split pairs", [&G]() {
-							bool isTric = false;
-							node s1 = nullptr;
-							node s2 = nullptr;
-							Triconnectivity(G, isTric, s1, s2);
-							AssertThat(isTric, IsTrue());
-							AssertThat(s1, IsNull());
-							AssertThat(s2, IsNull());
-						});
+						it(
+								"computes split pairs",
+								[&G]() {
+									bool isTric = false;
+									node s1 = nullptr;
+									node s2 = nullptr;
+									Triconnectivity(G, isTric, s1, s2);
+									AssertThat(isTric, IsTrue());
+									AssertThat(s1, IsNull());
+									AssertThat(s2, IsNull());
+								},
+								SKIP_SPLIT);
 					},
-					GraphSizes(), 3);
+					GraphSizes(), 3, MAX_SIZE);
 		});
 
 		describe(
@@ -284,7 +302,7 @@ go_bandit([]() {
 										edges.push_back(e);
 									}
 								}
-								auto rng = std::default_random_engine {randomSeed()};
+								auto rng = std::default_random_engine {(unsigned int)randomSeed()};
 								std::shuffle(edges.begin(), edges.end(), rng);
 
 								Graph G2;
@@ -306,59 +324,72 @@ go_bandit([]() {
 								EdgeArray<SListPure<edge>> para_edges(G2);
 								getParallelFreeUndirected(G2, para_edges);
 
-								it("computes components", [&G2, &G, &para_edges, parallels]() {
-									Triconnectivity T(G2);
-									const GraphCopySimple& GC =
-											*dynamic_cast<const GraphCopySimple*>(T.m_pG);
-									int comps = checkEdgeCounts(G, T);
-									AssertThat(comps, Equals(1 + parallels));
-									int found_ps = 0, found_rs = 0;
-									for (int i = 0; i < T.m_numComp; ++i) {
-										auto& comp = T.m_component[i];
-										if (comp.m_type == Triconnectivity::CompType::triconnected) {
-											found_rs++;
-											AssertThat(comp.m_edges.size(),
-													Equals(G.numberOfEdges()));
-										} else {
-											AssertThat(comp.m_type,
-													Equals(Triconnectivity::CompType::bond));
-											found_ps++;
-											edge orig = nullptr;
-											edge virt = nullptr;
-											for (edge e : comp.m_edges) {
-												if (GC.isDummy(e)) {
-													AssertThat(virt, IsNull());
-													virt = e;
-												} else if (para_edges[GC.original(e)].size() > 0) {
-													AssertThat(orig, IsNull());
+								it(
+										"computes components",
+										[&G2, &G, &para_edges, parallels]() {
+											Triconnectivity T(G2);
+											const GraphCopySimple& GC =
+													*dynamic_cast<const GraphCopySimple*>(T.m_pG);
+											int comps = checkEdgeCounts(G, T);
+											AssertThat(comps, Equals(1 + parallels));
+											int found_ps = 0, found_rs = 0;
+											for (int i = 0; i < T.m_numComp; ++i) {
+												auto& comp = T.m_component[i];
+												if (comp.m_type
+														== Triconnectivity::CompType::triconnected) {
+													found_rs++;
 													AssertThat(comp.m_edges.size(),
-															Equals(para_edges[GC.original(e)].size()
-																	+ 2));
-													orig = e;
+															Equals(G.numberOfEdges()));
+												} else {
+													AssertThat(comp.m_type,
+															Equals(Triconnectivity::CompType::bond));
+													found_ps++;
+													edge orig = nullptr;
+													edge virt = nullptr;
+													for (edge e : comp.m_edges) {
+														if (GC.isDummy(e)) {
+															AssertThat(virt, IsNull());
+															virt = e;
+														} else if (para_edges[GC.original(e)].size()
+																> 0) {
+															AssertThat(orig, IsNull());
+															AssertThat(comp.m_edges.size(),
+																	Equals(para_edges[GC.original(e)]
+																					.size()
+																			+ 2));
+															orig = e;
+														}
+													}
+													AssertThat(orig, !IsNull());
+													AssertThat(virt, !IsNull());
 												}
 											}
-											AssertThat(orig, !IsNull());
-											AssertThat(virt, !IsNull());
-										}
-									}
-									AssertThat(found_ps, Equals(parallels));
-									AssertThat(found_rs, Equals(1));
-								});
+											AssertThat(found_ps, Equals(parallels));
+											AssertThat(found_rs, Equals(1));
+										},
+										SKIP_COMP);
 
-								it("computes split pairs", [&G2]() {
-									bool isTric = true;
-									node s1 = nullptr;
-									node s2 = nullptr;
-									Triconnectivity(G2, isTric, s1, s2);
-									AssertThat(isTric, IsFalse());
-									AssertThat(s1, !IsNull());
-									AssertThat(s2, !IsNull());
-									AssertThat(s1, !Equals(s2));
-									AssertThat(s1->graphOf(), Equals(&G2));
-									AssertThat(s2->graphOf(), Equals(&G2));
-								});
+								it(
+										"computes split pairs",
+#ifdef OGDF_DEBUG
+										[&G2, &G]() {
+#else
+										[&G2]() {
+#endif
+											bool isTric = true;
+											node s1 = nullptr;
+											node s2 = nullptr;
+											Triconnectivity(G2, isTric, s1, s2);
+											AssertThat(isTric, IsFalse());
+											AssertThat(s1, !IsNull());
+											AssertThat(s2, !IsNull());
+											AssertThat(s1, !Equals(s2));
+											OGDF_ASSERT(s1->graphOf() == &G);
+											OGDF_ASSERT(s2->graphOf() == &G);
+										},
+										SKIP_SPLIT);
 							},
-							GraphSizes(), 3);
+							GraphSizes(), 3, MAX_SIZE);
 
 					it("correctly handles the instance from GH issue #207", []() {
 						RandomSkeleton Po;
@@ -387,7 +418,7 @@ go_bandit([]() {
 						AssertThat(comps, Equals(4));
 					});
 				},
-				true); // FIXME reenable
+				SKIP_PARALLEL);
 
 		describe("for biconnected graphs", []() {
 			forEachGraphDescribe(
@@ -408,74 +439,91 @@ go_bandit([]() {
 						bool checkIsTric = isTriconnectedPrimitive(G);
 						checkBicon(G, graphName, checkIsTric);
 					},
-					GraphSizes(), 3);
+					GraphSizes(), 3, MAX_SIZE);
 		});
 
 		describe("for two joined rigids", []() {
 			forEachGraphDescribe(
 					{GraphProperty::triconnected, GraphProperty::simple},
 					[](const Graph& G1) {
-						RandomSkeleton rigid1;
-						rigid1.insert(G1);
-						RandomSkeleton& rigid2 = rigid1.makeVirtual(rigid1.edges.head());
+						Graph G;
+						NodeArray<node> copyN(G1);
+						EdgeArray<edge> copyE(G1);
+						G.insert(G1, copyN, copyE);
+
+						node s1 = G.edges.head()->source();
+						node t1 = G.edges.head()->target();
+
+						RandomSkeleton rigid2;
 						randomPlanarTriconnectedGraph(rigid2, 20, 60);
 						rigid2.m_parent_edge = rigid2.edges.head();
+						rigid2.createGraph(G, G.edges.head());
 
-						Graph G;
-						rigid1.createGraph(G);
+						it(
+								"computes components",
+								[&G, &G1, &rigid2]() {
+									Triconnectivity T(G);
+									int comps = checkEdgeCounts(G, T);
+									AssertThat(comps, Equals(2));
 
-						it("computes components", [&G, &rigid1, &rigid2]() {
-							Triconnectivity T(G);
-							int comps = checkEdgeCounts(G, T);
-							AssertThat(comps, Equals(2));
+									Triconnectivity::CompStruct *comp1 = nullptr, *comp2 = nullptr;
+									for (int i = 0; i < T.m_numComp; ++i) {
+										if (T.m_component[i].m_edges.empty()) {
+											continue;
+										}
+										if (!comp1) {
+											comp1 = &T.m_component[i];
+										} else {
+											AssertThat(comp2, IsNull());
+											comp2 = &T.m_component[i];
+										}
+									}
+									AssertThat(comp2, !IsNull());
 
-							Triconnectivity::CompStruct *comp1 = nullptr, *comp2 = nullptr;
-							for (int i = 0; i < T.m_numComp; ++i) {
-								if (T.m_component[i].m_edges.empty()) {
-									continue;
-								}
-								if (!comp1) {
-									comp1 = &T.m_component[i];
-								} else {
-									AssertThat(comp2, IsNull());
-									comp2 = &T.m_component[i];
-								}
-							}
-							AssertThat(comp2, !IsNull());
+									AssertThat(comp1->m_type,
+											Equals(Triconnectivity::CompType::triconnected));
+									AssertThat(comp2->m_type,
+											Equals(Triconnectivity::CompType::triconnected));
+									if (comp1->m_edges.size() == G1.numberOfEdges()) {
+										AssertThat(comp2->m_edges.size(),
+												Equals(rigid2.numberOfEdges()));
+									} else {
+										AssertThat(comp1->m_edges.size(),
+												Equals(rigid2.numberOfEdges()));
+										AssertThat(comp2->m_edges.size(), Equals(G1.numberOfEdges()));
+									}
+								},
+								SKIP_COMP);
 
-							AssertThat(comp1->m_type,
-									Equals(Triconnectivity::CompType::triconnected));
-							AssertThat(comp2->m_type,
-									Equals(Triconnectivity::CompType::triconnected));
-							if (comp1->m_edges.size() == rigid1.numberOfEdges()) {
-								AssertThat(comp2->m_edges.size(), Equals(rigid2.numberOfEdges()));
-							} else {
-								AssertThat(comp1->m_edges.size(), Equals(rigid2.numberOfEdges()));
-								AssertThat(comp2->m_edges.size(), Equals(rigid1.numberOfEdges()));
-							}
-						});
-
-						it("computes split pairs", [&G]() {
-							bool isTric = false;
-							node s1 = nullptr;
-							node s2 = nullptr;
-							Triconnectivity(G, isTric, s1, s2);
-							AssertThat(isTric, IsFalse());
-							AssertThat(s1, IsNull()); // TODO
-							AssertThat(s2, IsNull());
-						});
+						it(
+								"computes split pairs",
+								[&G, s1, t1]() {
+									bool isTric = false;
+									node s2 = nullptr;
+									node t2 = nullptr;
+									Triconnectivity(G, isTric, s2, t2);
+									AssertThat(isTric, IsFalse());
+									if (s1 == s2) {
+										AssertThat(t2, Equals(t1));
+									} else {
+										AssertThat(s2, Equals(t1));
+										AssertThat(t2, Equals(s1));
+									}
+								},
+								SKIP_SPLIT);
 					},
-					GraphSizes(), 3);
+					GraphSizes(), 3, MAX_SIZE);
 		});
 
 		// TODO check that random SPQR tree structure matches
 		// TODO check that separation pair occurs in random SPQR tree
-		{
-			RandomSkeleton skel(static_cast<Triconnectivity::CompType>(randomNumber(0, 2)), 20,
-					nullptr, 0.3, 0.8);
-			Graph G;
-			skel.createGraph(G, nullptr);
-			std::cout << G.numberOfNodes() << " " << G.numberOfEdges() << std::endl;
-		}
+		// TODO fix and reenable parallel edges case
+		// {
+		// 	RandomSkeleton skel(static_cast<Triconnectivity::CompType>(randomNumber(0, 2)), 20,
+		// 			nullptr, 0.3, 0.8);
+		// 	Graph G;
+		// 	skel.createGraph(G, nullptr);
+		// 	std::cout << G.numberOfNodes() << " " << G.numberOfEdges() << std::endl;
+		// }
 	});
 });

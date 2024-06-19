@@ -223,6 +223,6 @@ private:
 	bool m_deleteGraph; //!< whether the Graph(Copy) was created by us and should thus be deleted in the destructor
 };
 
-std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType type);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType type);
 
 }
