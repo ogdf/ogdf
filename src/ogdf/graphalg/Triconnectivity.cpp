@@ -35,7 +35,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/Triconnectivity.h>
 
-//#define OGDF_TRICONNECTIVITY_OUTPUT
+// #define OGDF_TRICONNECTIVITY_OUTPUT
 
 
 namespace ogdf {
@@ -349,7 +349,7 @@ void Triconnectivity::splitMultiEdges() {
 }
 
 // Checks if computed triconnected components are correct.
-bool Triconnectivity::checkSepPair(edge eVirt) {
+bool Triconnectivity::checkSepPair(edge eVirt) const {
 	GraphCopySimple G(*m_pG);
 
 	G.delNode(G.copy(eVirt->source()));
@@ -358,7 +358,7 @@ bool Triconnectivity::checkSepPair(edge eVirt) {
 	return !isConnected(G);
 }
 
-bool Triconnectivity::checkComp() {
+bool Triconnectivity::checkComp() const {
 	bool ok = true;
 
 	if (!isLoopFree(*m_pG)) {
@@ -393,7 +393,7 @@ bool Triconnectivity::checkComp() {
 	NodeArray<node> map(*m_pG);
 
 	for (int i = 0; i < m_numComp; i++) {
-		CompStruct& C = m_component[i];
+		const CompStruct& C = m_component[i];
 		const List<edge>& L = C.m_edges;
 		if (L.size() == 0) {
 			continue;
@@ -1113,7 +1113,7 @@ bool isTriconnected(const Graph& G, node& s1, node& s2) {
 }
 
 // debugging stuff
-void Triconnectivity::printOs(edge e) {
+void Triconnectivity::printOs(edge e) const {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << " (" << GCoriginal(e->source()) << "," << GCoriginal(e->target()) << ","
 			  << e->index() << ")";
@@ -1123,20 +1123,37 @@ void Triconnectivity::printOs(edge e) {
 #endif
 }
 
-void Triconnectivity::printStacks() {
+void Triconnectivity::printStacks() const {
 #ifdef OGDF_TRICONNECTIVITY_OUTPUT
 	std::cout << "\n\nTSTACK:" << std::endl;
-
 	for (int i = m_top; i >= 0; i--) {
 		std::cout << "(" << m_TSTACK_h[i] << "," << m_TSTACK_a[i] << "," << m_TSTACK_b[i] << ")\n";
 	}
 
 	std::cout << "\nESTACK\n";
-	while (!m_ESTACK.empty()) {
-		printOs(m_ESTACK.popRet());
+	for (int i = m_ESTACK.size()-1; i >= 0; i--) {
+		printOs(m_ESTACK[i]);
 		std::cout << std::endl;
 	}
 #endif
+}
+
+std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType type) {
+	switch (type) {
+	case Triconnectivity::CompType::bond:
+		os << "bond";
+		break;
+	case Triconnectivity::CompType::polygon:
+		os << "polygon";
+		break;
+	case Triconnectivity::CompType::triconnected:
+		os << "triconnected";
+		break;
+	default:
+		os << "???";
+		break;
+	}
+	return os;
 }
 
 }
