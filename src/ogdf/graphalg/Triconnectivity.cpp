@@ -167,27 +167,7 @@ Triconnectivity::Triconnectivity(Graph* G)
 	printStacks();
 #endif
 
-	delete[] m_TSTACK_h;
-	delete[] m_TSTACK_a;
-	delete[] m_TSTACK_b;
-
-	// free resources
-	m_NUMBER.init();
-	m_LOWPT1.init();
-	m_LOWPT2.init();
-	m_FATHER.init();
-	m_ND.init();
-	m_TYPE.init();
-	m_A.init();
-	m_NEWNUM.init();
-	m_HIGHPT.init();
-	m_START.init();
-	m_DEGREE.init();
-	m_TREE_ARC.init();
-	m_IN_ADJ.init();
-	m_IN_HIGH.init();
-	m_NODEAT.init();
-	m_ESTACK.clear();
+	clearStructures();
 
 	assembleTriconnectedComponents();
 
@@ -222,6 +202,29 @@ Triconnectivity::Triconnectivity(Graph* G)
 		std::cout << "\n";
 	}
 #endif
+}
+
+void Triconnectivity::clearStructures() {
+	delete[] m_TSTACK_h;
+	delete[] m_TSTACK_a;
+	delete[] m_TSTACK_b;
+
+	// free resources
+	m_NUMBER.init();
+	m_LOWPT1.init();
+	m_LOWPT2.init();
+	m_FATHER.init();
+	m_ND.init();
+	m_TYPE.init();
+	m_A.init();
+	m_NEWNUM.init();
+	m_HIGHPT.init();
+	m_START.init();
+	m_DEGREE.init();
+	m_TREE_ARC.init();
+	m_IN_ADJ.init();
+	m_IN_HIGH.init();
+	m_NODEAT.init();
 }
 
 // Tests G for triconnectivity and returns a cut vertex in
@@ -301,26 +304,7 @@ Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s
 		s2 = GCoriginal(s2);
 	}
 
-	delete[] m_TSTACK_h;
-	delete[] m_TSTACK_a;
-	delete[] m_TSTACK_b;
-
-	// free resources
-	m_NUMBER.init();
-	m_LOWPT1.init();
-	m_LOWPT2.init();
-	m_FATHER.init();
-	m_ND.init();
-	m_TYPE.init();
-	m_A.init();
-	m_NEWNUM.init();
-	m_HIGHPT.init();
-	m_START.init();
-	m_DEGREE.init();
-	m_TREE_ARC.init();
-	m_IN_ADJ.init();
-	m_IN_HIGH.init();
-	m_NODEAT.init();
+	clearStructures();
 }
 
 // Splits bundles of multi-edges into bonds and creates

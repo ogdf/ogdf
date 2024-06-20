@@ -226,7 +226,7 @@ void checkBicon(const Graph& G, const string& graphName, bool checkIsTric) {
 				bool isTric = true;
 				node s1 = nullptr;
 				node s2 = nullptr;
-				Triconnectivity(G, isTric, s1, s2);
+				Triconnectivity _(G, isTric, s1, s2);
 				AssertThat(isTric, Equals(checkIsTric));
 				if (checkIsTric) {
 					AssertThat(s1, IsNull());
@@ -268,7 +268,7 @@ go_bandit([]() {
 									bool isTric = false;
 									node s1 = nullptr;
 									node s2 = nullptr;
-									Triconnectivity(G, isTric, s1, s2);
+									Triconnectivity _(G, isTric, s1, s2);
 									AssertThat(isTric, IsTrue());
 									AssertThat(s1, IsNull());
 									AssertThat(s2, IsNull());
@@ -379,7 +379,7 @@ go_bandit([]() {
 											bool isTric = true;
 											node s1 = nullptr;
 											node s2 = nullptr;
-											Triconnectivity(G2, isTric, s1, s2);
+											Triconnectivity _(G2, isTric, s1, s2);
 											AssertThat(isTric, IsFalse());
 											AssertThat(s1, !IsNull());
 											AssertThat(s2, !IsNull());
@@ -501,7 +501,7 @@ go_bandit([]() {
 									bool isTric = false;
 									node s2 = nullptr;
 									node t2 = nullptr;
-									Triconnectivity(G, isTric, s2, t2);
+									Triconnectivity _(G, isTric, s2, t2);
 									AssertThat(isTric, IsFalse());
 									if (s1 == s2) {
 										AssertThat(t2, Equals(t1));

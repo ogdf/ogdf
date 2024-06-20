@@ -119,6 +119,8 @@ public:
 private:
 	bool checkSepPair(edge eVirt) const;
 
+	void clearStructures();
+
 	//! splits bundles of multi-edges into bonds and creates
 	//! a new virtual edge in GC.
 	void splitMultiEdges();
