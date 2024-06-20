@@ -167,11 +167,17 @@ private:
 	void pathFinder(node v);
 
 	//! finding of split components
-	void pathSearch(node v);
-	void afterRecursivePathSearch(const node v, const int vnum, int& outv,
+	/**
+	 * If fail_fast is true, the search will be aborted after finding the first split pair,
+	 * which will be assigned to s1 and s2. Otherwise, s1 and s2 are unused.
+	 */
+	bool pathSearch(node init_v, bool fail_fast, node& s1, node& s2);
+	//! pathSearch() helper for the non-fail-fast version
+	void afterRecursivePathSearch(const node v, const int vnum, const int outv,
 			const ListIterator<edge> it, const edge e, const node w, int wnum);
-	//! special version for triconnectivity test
-	bool pathSearch(node v, node& s1, node& s2);
+	//! pathSearch() helper for the fail-fast version
+	bool afterRecursivePathSearch(const node v, const int vnum, const int outv, const edge e,
+			const node w, const int wnum, node& s1, node& s2);
 
 	//! merges split-components into triconnected components
 	void assembleTriconnectedComponents();

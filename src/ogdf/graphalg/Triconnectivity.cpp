@@ -90,7 +90,8 @@ Triconnectivity::Triconnectivity(Graph* G)
 
 	m_numCount = 0;
 	m_start = m_pG->firstNode();
-	DFS1(m_start, nullptr);
+	node dummy;
+	DFS1(m_start, nullptr, dummy);
 
 	for (edge e : m_pG->edges) {
 		bool up = (m_NUMBER[e->target()] - m_NUMBER[e->source()] > 0);
@@ -154,7 +155,7 @@ Triconnectivity::Triconnectivity(Graph* G)
 	m_TSTACK_b = new int[2 * m + 1];
 	m_TSTACK_a[m_top = 0] = -1; // start with EOS
 
-	pathSearch(m_start);
+	pathSearch(m_start, false, dummy, dummy);
 
 	// last split component
 	CompStruct& C = newComp();
@@ -298,7 +299,7 @@ Triconnectivity::Triconnectivity(const Graph& G, bool& isTric, node& s1, node& s
 	m_TSTACK_b = new int[m];
 	m_TSTACK_a[m_top = 0] = -1; // start with EOS
 
-	isTric = pathSearch(m_start, s1, s2);
+	isTric = pathSearch(m_start, true, s1, s2);
 	if (s1) {
 		s1 = GCoriginal(s1);
 		s2 = GCoriginal(s2);
@@ -555,57 +556,6 @@ void Triconnectivity::assembleTriconnectedComponents() {
 // The first dfs-search
 //  computes NUMBER[v], FATHER[v], LOWPT1[v], LOWPT2[v],
 //           ND[v], TYPE[e], DEGREE[v]
-void Triconnectivity::DFS1(node v, node u) {
-	m_NUMBER[v] = ++m_numCount;
-	m_FATHER[v] = u;
-	m_DEGREE[v] = v->degree();
-
-	m_LOWPT1[v] = m_LOWPT2[v] = m_NUMBER[v];
-	m_ND[v] = 1;
-
-	for (adjEntry adj : v->adjEntries) {
-		edge e = adj->theEdge();
-
-		if (m_TYPE[e] != EdgeType::unseen) {
-			continue;
-		}
-
-		node w = e->opposite(v);
-
-		if (m_NUMBER[w] == 0) {
-			m_TYPE[e] = EdgeType::tree;
-
-			m_TREE_ARC[w] = e;
-
-			DFS1(w, v);
-
-			if (m_LOWPT1[w] < m_LOWPT1[v]) {
-				m_LOWPT2[v] = min(m_LOWPT1[v], m_LOWPT2[w]);
-				m_LOWPT1[v] = m_LOWPT1[w];
-
-			} else if (m_LOWPT1[w] == m_LOWPT1[v]) {
-				m_LOWPT2[v] = min(m_LOWPT2[v], m_LOWPT2[w]);
-
-			} else {
-				m_LOWPT2[v] = min(m_LOWPT2[v], m_LOWPT1[w]);
-			}
-
-			m_ND[v] += m_ND[w];
-
-		} else {
-			m_TYPE[e] = EdgeType::frond;
-
-			if (m_NUMBER[w] < m_LOWPT1[v]) {
-				m_LOWPT2[v] = m_LOWPT1[v];
-				m_LOWPT1[v] = m_NUMBER[w];
-
-			} else if (m_NUMBER[w] > m_LOWPT1[v]) {
-				m_LOWPT2[v] = min(m_LOWPT2[v], m_NUMBER[w]);
-			}
-		}
-	}
-}
-
 void Triconnectivity::DFS1(node v, node u, node& s1) {
 	node firstSon = nullptr;
 
@@ -770,7 +720,7 @@ struct StackEntry {
 };
 
 // recognition of split components
-void Triconnectivity::pathSearch(const node init_v) {
+bool Triconnectivity::pathSearch(node init_v, bool fail_fast, node& s1, node& s2) {
 	std::vector<StackEntry> stack;
 	{
 		auto it = m_A[init_v].begin();
@@ -803,7 +753,14 @@ void Triconnectivity::pathSearch(const node init_v) {
 			}
 			continue;
 		} else if (se.after) {
-			afterRecursivePathSearch(se.v, se.vnum, se.outv, se.it, se.e, se.w, se.wnum);
+			if (fail_fast) {
+				if (!afterRecursivePathSearch(se.v, se.vnum, se.outv, se.e, se.w, se.wnum, s1, s2)) {
+					return false;
+				}
+			} else {
+				afterRecursivePathSearch(se.v, se.vnum, se.outv, se.it, se.e, se.w, se.wnum);
+			}
+			se.outv--;
 			se.after = false;
 		} else {
 			OGDF_ASSERT(m_TYPE[se.e] == EdgeType::frond);
@@ -822,6 +779,7 @@ void Triconnectivity::pathSearch(const node init_v) {
 
 			m_ESTACK.push(se.e); // add (v,w) to ESTACK
 		}
+
 		se.it = se.itNext;
 		if (se.it.valid()) {
 			se.itNext = se.it.succ();
@@ -832,9 +790,11 @@ void Triconnectivity::pathSearch(const node init_v) {
 			stack.pop_back();
 		}
 	}
+
+	return true;
 }
 
-void Triconnectivity::afterRecursivePathSearch(const node v, const int vnum, int& outv,
+void Triconnectivity::afterRecursivePathSearch(const node v, const int vnum, const int outv,
 		const ListIterator<edge> it, const edge e, node w, int wnum) {
 	m_ESTACK.push(m_TREE_ARC[w]); // add (v,w) to ESTACK (can differ from e!)
 
@@ -1034,110 +994,46 @@ void Triconnectivity::afterRecursivePathSearch(const node v, const int vnum, int
 	while (TSTACK_notEOS() && m_TSTACK_b[m_top] != vnum && high(v) > m_TSTACK_h[m_top]) {
 		m_top--;
 	}
-
-	outv--;
 }
 
-// simplified path search for triconnectivity test
-bool Triconnectivity::pathSearch(node init_v, node& s1, node& s2) {
-	std::vector<StackEntry> stack;
-	{
-		auto it = m_A[init_v].begin();
-		node w = (*it)->target();
-		stack.emplace_back(init_v, m_NEWNUM[init_v], m_A[init_v].size(), it, *it, w, m_NEWNUM[w]);
+bool Triconnectivity::afterRecursivePathSearch(const node v, const int vnum, const int outv,
+		const edge e, const node w, const int wnum, node& s1, node& s2) {
+	while (vnum != 1
+			&& ((m_TSTACK_a[m_top] == vnum)
+					|| (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum))) {
+		int a = m_TSTACK_a[m_top];
+		int b = m_TSTACK_b[m_top];
+
+		if (a == vnum && m_FATHER[m_NODEAT[b]] == m_NODEAT[a]) {
+			m_top--;
+
+		} else if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
+			s1 = v;
+			s2 = m_A[w].front()->target();
+			return false;
+
+		} else {
+			s1 = m_NODEAT[a];
+			s2 = m_NODEAT[b];
+			return false;
+		}
 	}
 
-	while (!stack.empty()) {
-		StackEntry& se = stack.back();
-		if (!se.after && m_TYPE[se.e] == EdgeType::tree) {
-			if (m_START[se.e]) {
-				if (m_TSTACK_a[m_top] > m_LOWPT1[se.w]) {
-					int y = 0, b;
-					do {
-						y = max(y, m_TSTACK_h[m_top]);
-						b = m_TSTACK_b[m_top--];
-					} while (m_TSTACK_a[m_top] > m_LOWPT1[se.w]);
-					TSTACK_push(y, m_LOWPT1[se.w], b);
-				} else {
-					TSTACK_push(se.wnum + m_ND[se.w] - 1, m_LOWPT1[se.w], se.vnum);
-				}
-				TSTACK_pushEOS();
-			}
+	if (m_LOWPT2[w] >= vnum && m_LOWPT1[w] < vnum && (m_FATHER[v] != m_start || outv >= 2)) {
+		s1 = m_NODEAT[m_LOWPT1[w]];
+		s2 = v;
+		return false;
+	}
 
-			se.after = true;
-			{
-				auto it = m_A[se.w].begin();
-				node w = (*it)->target();
-				stack.emplace_back(se.w, m_NEWNUM[se.w], m_A[se.w].size(), it, *it, w, m_NEWNUM[w]);
-			}
-			continue;
-		} else if (se.after) {
-			while (se.vnum != 1
-					&& ((m_TSTACK_a[m_top] == se.vnum)
-							|| (m_DEGREE[se.w] == 2
-									&& m_NEWNUM[m_A[se.w].front()->target()] > se.wnum))) {
-				int a = m_TSTACK_a[m_top];
-				int b = m_TSTACK_b[m_top];
-
-				if (a == se.vnum && m_FATHER[m_NODEAT[b]] == m_NODEAT[a]) {
-					m_top--;
-
-				} else if (m_DEGREE[se.w] == 2 && m_NEWNUM[m_A[se.w].front()->target()] > se.wnum) {
-					s1 = se.v;
-					s2 = m_A[se.w].front()->target();
-					return false;
-
-				} else {
-					s1 = m_NODEAT[a];
-					s2 = m_NODEAT[b];
-					return false;
-				}
-			}
-
-			if (m_LOWPT2[se.w] >= se.vnum && m_LOWPT1[se.w] < se.vnum
-					&& (m_FATHER[se.v] != m_start || se.outv >= 2)) {
-				s1 = m_NODEAT[m_LOWPT1[se.w]];
-				s2 = se.v;
-				return false;
-			}
-
-			if (m_START[se.e]) {
-				while (TSTACK_notEOS()) {
-					m_top--;
-				}
-				m_top--;
-			}
-
-			while (TSTACK_notEOS() && m_TSTACK_b[m_top] != se.vnum && high(se.v) > m_TSTACK_h[m_top]) {
-				m_top--;
-			}
-
-			se.outv--;
-			se.after = false;
-		} else { // frond arc
-			if (m_START[se.e]) {
-				if (m_TSTACK_a[m_top] > se.wnum) {
-					int y = 0, b;
-					do {
-						y = max(y, m_TSTACK_h[m_top]);
-						b = m_TSTACK_b[m_top--];
-					} while (m_TSTACK_a[m_top] > se.wnum);
-					TSTACK_push(y, se.wnum, b);
-				} else {
-					TSTACK_push(se.vnum, se.wnum, se.vnum);
-				}
-			}
+	if (m_START[e]) {
+		while (TSTACK_notEOS()) {
+			m_top--;
 		}
+		m_top--;
+	}
 
-		se.it = se.itNext;
-		if (se.it.valid()) {
-			se.itNext = se.it.succ();
-			se.e = *se.it;
-			se.w = se.e->target();
-			se.wnum = m_NEWNUM[se.w];
-		} else {
-			stack.pop_back();
-		}
+	while (TSTACK_notEOS() && m_TSTACK_b[m_top] != vnum && high(v) > m_TSTACK_h[m_top]) {
+		m_top--;
 	}
 
 	return true;
