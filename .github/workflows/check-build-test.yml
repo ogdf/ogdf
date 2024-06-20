@@ -242,6 +242,7 @@ jobs:
           lscpu
           echo "Hard limits"
           ulimit -Ha
+          echo
           echo "Soft limits"
           ulimit -Sa
       - name: Test ${{ matrix.mode }} build with ${{ matrix.compiler }} and run
@@ -299,7 +300,6 @@ jobs:
           ulimit -Sa
       - name: Test ${{ matrix.mode }} build and run
         run: |
-          ulimit -Ss 65532 # increase stack limit for test-planarization
           util/test_build_and_run.sh \
             static \
             ${{ matrix.mode }} \
