@@ -255,4 +255,26 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 	pushUndoOperationAndCheck(op);
 }
 
+void reduceLevelToCluster(const Graph& LG, const std::vector<std::vector<node>>& emb, Graph& G,
+		ClusterGraph& CG) {
+	NodeArray<std::pair<node, node>> map(LG);
+	cluster p = CG.rootCluster();
+	for (int l = emb.size() - 1; l >= 0; --l) {
+		cluster c = CG.newCluster(p);
+		for (int i = 0; i < emb[l].size(); ++i) {
+			node n = emb[l][i];
+			node u = G.newNode();
+			node v = G.newNode();
+			CG.reassignNode(u, c);
+			CG.reassignNode(v, p);
+			map[n] = {u, v};
+			G.newEdge(u, v);
+		}
+		p = c;
+	}
+	for (edge e : LG.edges) {
+		G.newEdge(map[e->source()].second, map[e->target()].first);
+	}
+}
+
 }

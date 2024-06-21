@@ -33,9 +33,19 @@
 #include <ogdf/cluster/ClusterPlanarityModule.h>
 
 namespace ogdf {
-class SyncPlanClusterPlanarityModule : public ClusterPlanarityModule {
+class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule {
 public:
 	bool isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) override;
 	bool clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) override;
 };
+
+//! Perform the reduction from level- to cluster planarity.
+/**
+ * @param LG the graph that should be tested for level planarity.
+ * @param emb the level assignment, containing a list of its contained nodes for each level.
+ * @param G will be assigned the graph resulting from the reduction.
+ * @param CG will be assigned the clustering resulting from the reduction.
+ */
+OGDF_EXPORT void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
+		const std::vector<std::vector<node>>& emb, Graph& G, ClusterGraph& CG);
 }
