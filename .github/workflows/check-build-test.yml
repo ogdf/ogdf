@@ -134,7 +134,8 @@ jobs:
           cat static-analysis/clang-tidy.txt | python3 -m clang_tidy_converter sq > static-analysis/clang-tidy.json
           clang-tidy-cache --show-stats
           du -sh $CTCACHE_DIR
-          find .ctcache -mtime +7 -exec rm -rv \{} \;
+          find .ctcache -mindepth 1 -type f -atime +7 -delete
+          find .ctcache -mindepth 1 -type d -empty -delete
           du -sh $CTCACHE_DIR
         shell: bash
       - name: Report unused files
