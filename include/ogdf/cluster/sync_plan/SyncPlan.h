@@ -251,7 +251,7 @@ public:
 	 */
 	explicit SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* ga = nullptr);
 
-	explicit SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
+	explicit SyncPlan(Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
 
 	virtual ~SyncPlan() {
 		while (!undo_stack.empty()) {
@@ -275,6 +275,7 @@ private:
 	bool verifyPipeBijection(node u, node v, const FrozenPipeBij& bij) const;
 
 	void pushUndoOperationAndCheck(UndoOperation* operation) {
+		// room for improvement: don't generate UndoOps if we are never going to embed
 #ifdef OGDF_DEBUG
 		operation->consistency_nr = consistency.getCheckCounter() - 1;
 #endif
