@@ -31,6 +31,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
@@ -42,7 +43,74 @@ using namespace ogdf::sync_plan::internal;
 
 namespace ogdf::sync_plan {
 
-SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
+struct UndoInitConSEFE : public SyncPlan::UndoOperation {
+	Graph& sefe;
+	Graph& work;
+	EdgeArray<uint8_t>& edge_types;
+
+	NodeArray<node> G1shared;
+	NodeArray<node> G2shared;
+	EdgeArray<adjEntry> Gedge;
+
+	UndoInitConSEFE(Graph& _sefe, Graph& _work, EdgeArray<uint8_t>& _edge_types)
+		: sefe(_sefe)
+		, work(_work)
+		, edge_types(_edge_types)
+		, G1shared(sefe)
+		, G2shared(sefe)
+		, Gedge(work) { }
+
+	void undo(SyncPlan& pq) override {
+		std::vector<adjEntry> rot;
+		for (node n : sefe.nodes) {
+			rot.reserve(n->degree());
+			adjEntry adj1_start = nullptr;
+			for (adjEntry a : G1shared[n]->adjEntries) {
+				if (edge_types[Gedge[a]] == 3) {
+					adj1_start = a;
+					break;
+				}
+			}
+			if (adj1_start != nullptr) {
+				adjEntry adj1 = adj1_start;
+				adjEntry adj2 = adj1->twin();
+				OGDF_ASSERT(adj2->theNode() == G2shared[n]);
+				do {
+					OGDF_ASSERT(Gedge[adj1] == Gedge[adj2]);
+					rot.push_back(Gedge[adj1]);
+
+					adj1 = adj1->cyclicSucc();
+					while (edge_types[adj1] != 3) {
+						OGDF_ASSERT(edge_types[adj1] == 1);
+						rot.push_back(Gedge[adj1]);
+						adj1 = adj1->cyclicSucc();
+					}
+
+					adj2 = adj2->cyclicPred();
+					while (edge_types[adj2] != 3) {
+						OGDF_ASSERT(edge_types[adj2] == 2);
+						rot.push_back(Gedge[adj2]);
+						adj2 = adj2->cyclicPred();
+					}
+				} while (adj1 != adj1_start);
+			} else {
+				for (adjEntry adj1 : G1shared[n]->adjEntries) {
+					OGDF_ASSERT(edge_types[adj1] == 1);
+					rot.push_back(Gedge[adj1]);
+				}
+				for (adjEntry adj2 : G2shared[n]->adjEntries) {
+					OGDF_ASSERT(edge_types[adj2] == 2);
+					rot.push_back(Gedge[adj2]);
+				}
+			}
+			sefe.sort(n, rot.begin(), rot.end());
+		}
+	}
+
+	std::ostream& print(std::ostream& os) const override { return os << "UndoInitConSEFE"; }
+};
+
+SyncPlan::SyncPlan(Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 	: G(work)
 	, matchings(G)
 	, partitions(G)
@@ -53,15 +121,28 @@ SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_type
 	, consistency(*this)
 #endif
 {
+	OGDF_ASSERT(sefe != nullptr);
+	OGDF_ASSERT(work != nullptr);
 	OGDF_ASSERT(work->empty());
 	OGDF_ASSERT(edge_types.graphOf() == sefe);
-	// TODO check that the shared graph is connected?
-	// auto *op = new UndoInitConSEFE(); // TODO implement undo op to mirror embedding back to sefe Graph
+#ifdef OGDF_DEBUG
+	{
+		GraphCopySimple GC;
+		GC.setOriginalGraph(*sefe);
+		NodeArray<node> nodeMap(sefe);
+		EdgeArray<edge> edgeMap(sefe);
+		GC.insert(
+				sefe->nodes.begin(), sefe->nodes.end(),
+				[&edge_types](edge e) { return edge_types[e] == 3; }, nodeMap, edgeMap);
+		OGDF_ASSERT(isConnected(GC));
+	}
+#endif
+	auto* op = new UndoInitConSEFE(*sefe, *work, edge_types);
 
 	NodeArray<node> G1excl(*sefe, nullptr);
 	NodeArray<node> G2excl(*sefe, nullptr);
-	NodeArray<node> G1shared(*sefe, nullptr);
-	NodeArray<node> G2shared(*sefe, nullptr);
+	NodeArray<node>& G1shared = op->G1shared;
+	NodeArray<node>& G2shared = op->G2shared;
 	for (node n : sefe->nodes) {
 		G1excl[n] = G->newNode();
 		G2excl[n] = G->newNode();
@@ -74,19 +155,19 @@ SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_type
 		switch (edge_types[e]) {
 		case 1:
 			G->newEdge(G1excl[e->source()], G1excl[e->target()]);
-			G->newEdge(G1shared[e->source()], G->newNode());
-			G->newEdge(G1shared[e->target()], G->newNode());
+			op->Gedge[G->newEdge(G1shared[e->source()], G->newNode())] = e->adjSource();
+			op->Gedge[G->newEdge(G1shared[e->target()], G->newNode())] = e->adjTarget();
 			break;
 		case 2:
 			G->newEdge(G2excl[e->source()], G2excl[e->target()]);
-			G->newEdge(G2shared[e->source()], G->newNode());
-			G->newEdge(G2shared[e->target()], G->newNode());
+			op->Gedge[G->newEdge(G2shared[e->source()], G->newNode())] = e->adjSource();
+			op->Gedge[G->newEdge(G2shared[e->target()], G->newNode())] = e->adjTarget();
 			break;
 		case 3:
 			G->newEdge(G1excl[e->source()], G1excl[e->target()]);
 			G->newEdge(G2excl[e->source()], G2excl[e->target()]);
-			G->newEdge(G1shared[e->source()], G2shared[e->source()]);
-			G->newEdge(G1shared[e->target()], G2shared[e->target()]);
+			op->Gedge[G->newEdge(G1shared[e->source()], G2shared[e->source()])] = e->adjSource();
+			op->Gedge[G->newEdge(G1shared[e->target()], G2shared[e->target()])] = e->adjTarget();
 			break;
 		default:
 			throw std::runtime_error("illegal edge_type");
@@ -102,7 +183,7 @@ SyncPlan::SyncPlan(const Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_type
 
 	initComponents();
 	matchings.rebuildHeap();
-	// pushUndoOperationAndCheck(op);
+	pushUndoOperationAndCheck(op);
 }
 
 }

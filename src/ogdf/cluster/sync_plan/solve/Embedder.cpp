@@ -120,7 +120,6 @@ bool SyncPlan::verifyPipeBijection(node u, node v, const FrozenPipeBij& bij) con
 }
 
 void SyncPlan::embed() {
-	// TODO don't generate undo operations if we are only testing?
 	OGDF_ASSERT(G->representsCombEmbedding());
 
 	// SYNCPLAN_PROFILE_START("embed")
