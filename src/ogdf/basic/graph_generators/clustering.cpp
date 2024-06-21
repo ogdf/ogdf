@@ -275,8 +275,8 @@ class Clusterer {
 	tp stop;
 
 public:
-	Clusterer(ClusterGraph& CG, const RandomClusterConfig& config)
-		: CG(CG), config(config), copy(CG.constGraph()), clusters(copy, nullptr), mark(copy, false) {
+	Clusterer(ClusterGraph& _CG, const RandomClusterConfig& _config)
+		: CG(_CG), config(_config), copy(CG.constGraph()), clusters(copy, nullptr), mark(copy, false) {
 		OGDF_ASSERT(CG.getGraph()->representsCombEmbedding());
 		OGDF_ASSERT(CG.numberOfClusters() == 1);
 		CG.adjAvailable(true);
@@ -326,7 +326,7 @@ public:
 
 	void makeClusters() {
 		while (shouldAddCluster()) {
-			node n = copy.chooseNode([](node n) -> bool { return n->degree() > 0; });
+			node n = copy.chooseNode([](node u) -> bool { return u->degree() > 0; });
 			if (!n) {
 				break;
 			}
@@ -515,16 +515,16 @@ void randomSyncPlanInstance(sync_plan::SyncPlan& pq, int pipe_count, int min_deg
 void addEdges(Graph* g, std::vector<edge>& added, int cnt) {
 	CombinatorialEmbedding E(*g);
 	for (int i = 0; i < cnt; ++i) {
-		face f = E.chooseFace([](face f) { return f->size() > 3; });
+		face f = E.chooseFace([](face ff) { return ff->size() > 3; });
 		if (f == nullptr) {
 			return;
 		}
 		adjEntry a = f->firstAdj();
-		for (int i = 0; i < randomNumber(0, f->size() - 1); ++i) {
+		for (int j = 0; j < randomNumber(0, f->size() - 1); ++j) {
 			a = a->faceCycleSucc();
 		}
 		adjEntry b = a;
-		for (int i = 0; i < randomNumber(2, f->size() - 2); ++i) {
+		for (int j = 0; j < randomNumber(2, f->size() - 2); ++j) {
 			b = b->faceCycleSucc();
 		}
 		OGDF_ASSERT(b != a);

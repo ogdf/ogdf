@@ -36,7 +36,7 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/decomposition/BCTree.h>
 

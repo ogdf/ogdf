@@ -45,7 +45,7 @@
 	template<typename Container>                                                         \
 	struct NAME {                                                                        \
 		const Container& container;                                                      \
-		explicit NAME(const Container& container) : container(container) { }             \
+		explicit NAME(const Container& _container) : container(_container) { }           \
 		template<typename ContainerT>                                                    \
 		friend std::ostream& operator<<(std::ostream& os, const NAME<ContainerT>& inst); \
 	}

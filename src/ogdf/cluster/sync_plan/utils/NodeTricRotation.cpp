@@ -207,7 +207,7 @@ OverlappingGraphCopy* SimpleSPQRTree::getTwinSkel_GC(OverlappingGraphCopy* skel,
 
 #define log spqr.log
 
-NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& spqr, node n) : spqr(spqr) {
+NodeSSPQRRotation::NodeSSPQRRotation(const SimpleSPQRTree& _spqr, node n) : spqr(_spqr) {
 	m_G = &spqr.GC.original();
 	m_n = n;
 	m_incidentEdgeForLeaf.init(*this, nullptr);
@@ -360,18 +360,18 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 				// very special case: we're in an S-node just due to the removal of parallel edges
 				// the incident edge of the S-node that does not have parallels actually corresponds to
 				// all edges of the partner pole that are not part of the parallel and in the current block
-				for (adjEntry adj : partner->adjEntries) {
-					if (adj->twinNode() == m_n) {
+				for (adjEntry padj : partner->adjEntries) {
+					if (padj->twinNode() == m_n) {
 						continue;
 					}
-					edge GC_e = spqr.GC.copy(adj->theEdge());
-					if (GC_e == nullptr) {
+					edge GC_pe = spqr.GC.copy(padj->theEdge());
+					if (GC_pe == nullptr) {
 						continue;
 					}
-					for (edge e : spqr.par_replacement[GC_e]) {
+					for (edge e : spqr.par_replacement[GC_pe]) {
 						m_bundleEdgesForLeaf[leaf].pushBack(e);
 					}
-					m_bundleEdgesForLeaf[leaf].pushBack(adj->theEdge());
+					m_bundleEdgesForLeaf[leaf].pushBack(padj->theEdge());
 				}
 				OGDF_ASSERT(getIncidentEdgeForLeaf(leaf) == orig_e);
 			} else {

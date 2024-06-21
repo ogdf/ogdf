@@ -51,8 +51,6 @@ template<class E>
 class SList;
 } // namespace ogdf
 
-#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-
 namespace ogdf::sync_plan {
 
 class NodeSPQRRotation : public pc_tree::NodePCRotation {
@@ -88,10 +86,10 @@ protected:
 public:
 	static Logger log;
 
-	explicit NodeSPQRRotation(const DynamicSPQRForest& spqr, node n,
-			const NodeArray<GraphCopySimple*>& rigids)
-		: spqr(spqr)
-		, rigids(rigids)
+	explicit NodeSPQRRotation(const DynamicSPQRForest& _spqr, node n,
+			const NodeArray<GraphCopySimple*>& _rigids)
+		: spqr(_spqr)
+		, rigids(_rigids)
 		, highest_with_edges(spqr.spqrTree(), nullptr)
 		, edges(spqr.spqrTree())
 		, children(spqr.spqrTree()) {
@@ -119,25 +117,25 @@ public:
 
 	void mapPartnerEdges();
 
-	void mapGraph(const Graph* G, const std::function<node(node)>& nodes,
-			const std::function<edge(edge)>& edges) {
+	void mapGraph(const Graph* G, const std::function<node(node)>& node_map,
+			const std::function<edge(edge)>& edge_map) {
 		OGDF_ASSERT(G != nullptr);
 		m_G = G;
-		m_n = nodes(m_n);
+		m_n = node_map(m_n);
 		for (pc_tree::PCNode* n : pc_tree::FilteringPCTreeDFS(*this, getRootNode())) {
 			node& gn = m_graphNodeForInnerNode[n];
 			if (gn != nullptr) {
-				gn = nodes(gn);
+				gn = node_map(gn);
 			}
 		}
 		for (pc_tree::PCNode* l : getLeaves()) {
 			edge& ie = m_incidentEdgeForLeaf[l];
 			if (ie != nullptr) {
-				ie = edges(ie);
+				ie = edge_map(ie);
 			}
 			if (knowsPartnerEdges()) {
 				for (edge& e : m_bundleEdgesForLeaf[l]) {
-					e = edges(e);
+					e = edge_map(e);
 				}
 			}
 		}

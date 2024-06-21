@@ -37,7 +37,7 @@
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/operation/Encapsulate.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -145,9 +145,9 @@ SyncPlan::Result SyncPlan::encapsulate(node g_cut) {
 #ifdef OGDF_DEBUG
 		PipeBij actual_edges;
 		matchings.getIncidentEdgeBijection(pair.first, actual_edges);
-		for (PipeBijPair& pair : actual_edges) {
-			pair.first = pair.first->twin();
-			pair.second = pair.second->twin();
+		for (PipeBijPair& act_pair : actual_edges) {
+			act_pair.first = act_pair.first->twin();
+			act_pair.second = act_pair.second->twin();
 		}
 		OGDF_ASSERT(block.bij == actual_edges);
 #endif

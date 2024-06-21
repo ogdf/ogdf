@@ -34,8 +34,6 @@
 
 #include <string>
 
-#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-
 namespace ogdf::sync_plan {
 class SyncPlan;
 
@@ -47,7 +45,7 @@ class SyncPlanConsistency {
 public:
 	static bool doWriteOut;
 
-	explicit SyncPlanConsistency(SyncPlan& pq) : pq(pq), draw(&pq) {};
+	explicit SyncPlanConsistency(SyncPlan& _pq) : pq(_pq), draw(&_pq) {};
 
 	bool consistencyCheck();
 

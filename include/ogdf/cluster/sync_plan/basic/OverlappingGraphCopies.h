@@ -35,8 +35,6 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/basic/GraphMultiArray.h>
 
-#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-
 namespace ogdf {
 
 class OverlappingGraphCopies;
@@ -200,12 +198,12 @@ public:
 class OverlappingGraphCopies {
 	friend class OverlappingGraphCopy;
 
-	const Graph* G;
-	mutable NodeMultiArray<const OverlappingGraphCopy*, node> node_copies;
-	mutable EdgeMultiArray<const OverlappingGraphCopy*, edge> edge_copies;
+	const Graph* m_G;
+	mutable NodeMultiArray<const OverlappingGraphCopy*, node> m_node_copies;
+	mutable EdgeMultiArray<const OverlappingGraphCopy*, edge> m_edge_copies;
 
 public:
-	explicit OverlappingGraphCopies(const Graph& G) : G(&G), node_copies(G), edge_copies(G) { }
+	explicit OverlappingGraphCopies(const Graph& G) : m_G(&G), m_node_copies(G), m_edge_copies(G) { }
 
 	OGDF_NO_COPY(OverlappingGraphCopies)
 
