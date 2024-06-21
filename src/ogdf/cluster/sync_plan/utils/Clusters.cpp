@@ -54,7 +54,7 @@ using tpc = chrono::high_resolution_clock;
 using tp = chrono::time_point<chrono::high_resolution_clock>;
 
 
-static Logger l;
+static Logger l; // FIXME cannot be configured
 
 class Clusterer {
 	ClusterGraph& CG;

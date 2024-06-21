@@ -51,10 +51,10 @@ using namespace ogdf::pc_tree;
 
 namespace ogdf::sync_plan {
 
-Logger NodeSPQRRotation::logger;
+Logger NodeSPQRRotation::log;
 
-#define logd logger.lout(Logger::Level::Minor)
-#define log logger.lout(Logger::Level::Medium)
+#define logm log.lout(Logger::Level::Medium)
+#define logd log.lout(Logger::Level::Minor)
 
 NodeSPQRRotation::RigidEmbedding::RigidEmbedding(Graph& G)
 	: spqr(G, true), rigids(spqr.spqrTree(), nullptr) {
@@ -197,7 +197,7 @@ pc_tree::PCNode* NodeSPQRRotation::addLeaf(pc_tree::PCNode* n, adjEntry adj) {
 pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PCNode* parent) {
 	OGDF_ASSERT(highest_with_edges[t] != nullptr); // check that arrays haven't been cleared yet
 	pc_tree::PCNode* n;
-	log << spqr.typeOfTNode(t) << "-node " << t->index() << " containing "
+	logm << spqr.typeOfTNode(t) << "-node " << t->index() << " containing "
 		<< spqr.hEdgesSPQR(t).size() << " edges. Target node has " << edges[t].size()
 		<< " real edges and " << children[t].size() << " (<= °" << t->degree() << ") children."
 		<< std::endl;
@@ -206,7 +206,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 		l << " " << (spqr.twinEdge(e) == nullptr ? "r" : "v") << e->index() << " " << e;
 	}
 	l << std::endl;
-	Logger::Indent _(logger);
+	Logger::Indent _(log);
 
 	if (spqr.typeOfTNode(t) == DynamicSPQRForest::TNodeType::SComp) {
 		if (parent == nullptr) {
@@ -224,7 +224,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 				OGDF_ASSERT(ct != t_parent);
 				makePCNode(ct, t, n);
 			}
-			log << "Root S-node replaced by first child: " << n << std::endl;
+			logm << "Root S-node replaced by first child: " << n << std::endl;
 			return n;
 		} else {
 			OGDF_ASSERT((edges[t].size() + children[t].size()) == 1);
@@ -239,14 +239,14 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 		OGDF_ASSERT(m_graphNodeForInnerNode[n]->degree() >= (edges[t].size() + children[t].size()));
 	}
 	if (n == parent) {
-		log << "Using parent node " << n << std::endl;
+		logm << "Using parent node " << n << std::endl;
 	} else {
-		log << "Created node " << n << std::endl;
+		logm << "Created node " << n << std::endl;
 	}
 	node gn = m_graphNodeForInnerNode[n];
 	if (gn != nullptr) {
 		node ggn = spqr.original(gn);
-		log << "H-Graph node for P-node is node " << gn->index() << " of degree " << gn->degree()
+		logm << "H-Graph node for P-node is node " << gn->index() << " of degree " << gn->degree()
 			<< " actual G-Graph node will be " << ggn->index() << " of degree " << ggn->degree()
 			<< std::endl;
 	}
@@ -272,7 +272,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 		}
 
 		logd << "Children identified by tree were:" << std::endl;
-		Logger::Indent _(logger);
+		Logger::Indent _(log);
 		for (adjEntry adj : edges[t]) {
 			logd << "Adj " << adj->index() << " " << adj << std::endl;
 		}
@@ -292,7 +292,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 	}
 
 	if (n != parent) {
-		log << "Result: " << n << std::endl;
+		logm << "Result: " << n << std::endl;
 		if (parent == nullptr) {
 			OGDF_ASSERT(n->getDegree() == (edges[t].size() + children[t].size()));
 		} else {

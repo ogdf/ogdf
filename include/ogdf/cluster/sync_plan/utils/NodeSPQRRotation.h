@@ -86,7 +86,7 @@ protected:
 	};
 
 public:
-	static Logger logger;
+	static Logger log;
 
 	explicit NodeSPQRRotation(const DynamicSPQRForest& spqr, node n,
 			const NodeArray<GraphCopySimple*>& rigids)
