@@ -41,8 +41,6 @@
 #include <string>
 #include <utility>
 
-#include "ogdf/cluster/sync_plan/utils/Clusters.h"
-
 
 using namespace ogdf::sync_plan::internal;
 

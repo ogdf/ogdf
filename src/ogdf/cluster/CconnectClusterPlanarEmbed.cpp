@@ -199,7 +199,7 @@ bool CconnectClusterPlanarEmbed::embed(ClusterGraph& C, Graph& G) {
 void CconnectClusterPlanarEmbed::copyEmbedding(ClusterGraph& Ccopy, Graph& Gcopy, ClusterGraph& C,
 		Graph& G) {
 	OGDF_ASSERT(Gcopy.representsCombEmbedding());
-	OGDF_ASSERT(Ccopy.representsCombEmbedding());
+	OGDF_ASSERT(Ccopy.representsConnectedCombEmbedding());
 
 	AdjEntryArray<adjEntry> adjTableCopy2Orig(Gcopy);
 	AdjEntryArray<adjEntry> adjTableOrig2Copy(G);

@@ -39,6 +39,8 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphObserver.h>
 
+#include "ogdf/basic/GraphCopy.h"
+
 namespace ogdf {
 
 using Math::nextPower2;
@@ -1106,7 +1108,6 @@ void ClusterGraph::consistencyCheck() const {
 }
 #endif
 
-
 bool ClusterGraph::representsCombEmbedding() const {
 	if (!m_adjAvailable) {
 		return false;
@@ -1114,8 +1115,21 @@ bool ClusterGraph::representsCombEmbedding() const {
 #ifdef OGDF_DEBUG
 	consistencyCheck();
 #endif
+	GraphCopySimple gcopy(constGraph());
+	gcopy.setOriginalEmbedding();
+	planarizeClusterBorderCrossings(*this, gcopy, nullptr,
+			[&gcopy](edge e) -> edge { return gcopy.copy(e); });
+	return gcopy.representsCombEmbedding();
+}
 
-	// FIXME this fails for disconnected graphs
+bool ClusterGraph::representsConnectedCombEmbedding() const {
+	if (!m_adjAvailable) {
+		return false;
+	}
+#ifdef OGDF_DEBUG
+	consistencyCheck();
+#endif
+
 	for (cluster c = firstPostOrderCluster(); c != m_rootCluster; c = c->pSucc()) {
 		for (auto it = c->adjEntries.begin(); it.valid(); it++) {
 			adjEntry adj = *it;
@@ -1163,6 +1177,47 @@ std::ostream& operator<<(std::ostream& os, cluster c) {
 		os << "nil";
 	}
 	return os;
+}
+
+void planarizeClusterBorderCrossings(const ClusterGraph& CG, Graph& G,
+		EdgeArray<List<std::pair<adjEntry, cluster>>>* subdivisions,
+		const std::function<edge(edge)>& translate) {
+	OGDF_ASSERT(CG.adjAvailable());
+	for (cluster c = CG.firstPostOrderCluster(); c != CG.rootCluster(); c = c->pSucc()) {
+		adjEntry prev_ray = nullptr, first_ray = nullptr;
+		for (adjEntry adj : c->adjEntries) {
+			bool reverse = adj->isSource();
+			edge the_edge = translate(adj->theEdge());
+			if (reverse) {
+				G.reverseEdge(the_edge);
+			}
+			edge new_edge = G.split(the_edge);
+			adjEntry spike_to_src =
+					the_edge->adjTarget(); // adjacency of the new node toward the source of the_edge
+			if (subdivisions != nullptr) {
+				if (reverse) {
+					(*subdivisions)[adj->theEdge()].emplaceBack(spike_to_src, c);
+				} else {
+					(*subdivisions)[adj->theEdge()].emplaceFront(spike_to_src, c);
+				}
+			}
+			if (reverse) {
+				G.reverseEdge(the_edge);
+				G.reverseEdge(new_edge);
+			}
+
+			if (prev_ray != nullptr) {
+				G.newEdge(prev_ray, spike_to_src->cyclicPred());
+			}
+			prev_ray = spike_to_src;
+			if (first_ray == nullptr) {
+				first_ray = spike_to_src;
+			}
+		}
+		if (first_ray != nullptr) {
+			G.newEdge(prev_ray, first_ray->cyclicPred());
+		}
+	}
 }
 
 }
