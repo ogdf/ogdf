@@ -246,8 +246,7 @@ public:
 	 *
 	 * if (PQ.makeReduced() && PQ.solveReduced()) {
 	 *     PQ.embed();
-	 *     OGDF_ASSERT(G.representsCombEmbedding());
-	 *     OGDF_ASSERT(isClusterPlanarEmbedding(CG));
+	 *     OGDF_ASSERT(CG.representsCombEmbedding());
 	 * }
 	 */
 	explicit SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* ga = nullptr);

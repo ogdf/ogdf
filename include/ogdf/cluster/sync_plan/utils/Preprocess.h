@@ -38,7 +38,9 @@ namespace ogdf {
 class Logger;
 } // namespace ogdf
 
-namespace ogdf::sync_plan::preprocess {
+namespace ogdf::sync_plan {
+
+namespace preprocess {
 
 extern ogdf::Logger preprocessLog;
 
@@ -58,6 +60,8 @@ bool unsplitDeg2Nodes(const ogdf::ClusterGraph& C, ogdf::Graph& G);
 bool disconnectedClustersToStars(ogdf::ClusterGraph& C, ogdf::Graph& G);
 
 bool removeSmallClusters(ogdf::ClusterGraph& C, ogdf::Graph& G);
+
+}
 
 //! Preprocessing from HananiTutteCPlanarity::preprocessing (Gutwenger, Mutzel, Schaefer: Practical Experience with Hanani-Tutte for Testing c-Planarity)
 bool preprocessClusterGraph(ogdf::ClusterGraph& C, ogdf::Graph& G);

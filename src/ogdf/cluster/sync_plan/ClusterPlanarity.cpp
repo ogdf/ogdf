@@ -144,8 +144,7 @@ public:
 		}
 		cg->constGraph().consistencyCheck();
 		cg->consistencyCheck();
-		// OGDF_ASSERT(cg->representsCombEmbedding());
-		OGDF_ASSERT(isClusterPlanarEmbedding(*cg));
+		OGDF_ASSERT(cg->representsCombEmbedding());
 #endif
 	}
 
