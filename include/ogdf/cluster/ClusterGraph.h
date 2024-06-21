@@ -717,15 +717,22 @@ public:
 
 	//! Checks the combinatorial cluster planar embedding.
 	/**
-	 * This only works when the underlying Graph represents a planar embedding,
-	 * so check constGraph().representsCombEmbedding() first.
-	 *
-	 * Note that the current implementation can only check connected graphs.
+	 * @return true if the current embedding (given by the adjacency lists of the clusters)
+	 *         together with the combinatorial embedding of the underlying constGraph()
+	 *         represents a cluster planar combinatorial embedding
+	 */
+	bool representsCombEmbedding() const;
+
+	//! Checks the combinatorial cluster planar embedding.
+	/**
+	 * This only works when the underlying Graph is connected and represents a planar embedding,
+	 * so check constGraph().representsCombEmbedding() first. Otherwise,
+	 * use the slower representsCombEmbedding().
 	 *
 	 * @return true if the current embedding (given by the adjacency lists of the clusters)
 	 *         represents a cluster planar combinatorial embedding
 	 */
-	bool representsCombEmbedding() const;
+	bool representsConnectedCombEmbedding() const;
 
 #ifdef OGDF_DEBUG
 	//! Asserts consistency of this cluster graph.
@@ -948,5 +955,22 @@ public:
 };
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream& os, cluster c);
+
+//! Turn cluster borders into cycles of edges and cluster-border-edge-crossings into vertices.
+/**
+ * This subdivides each edge once for each cluster border it crosses and then cyclically connects
+ * the subdivision vertices according to their order in adjEntries(), which usually corresponds
+ * to a cluster-planar embedding (in which case the resulting graph will also be planarly embedded).
+ * Graph /p G may be a copy of the constGraph() of this ClusterGraph, in which case the \p translate
+ * function should translate nodes of constGraph() into nodes of \p G.
+ * @param CG A cluster-planar embedded ClusterGraph.
+ * @param G (A copy of) The graph underlying \p CG, into which we insert the new edges. Must have a corresponding planar embedding.
+ * @param subdivisions If non-null, will be assigned information about the subdivisions that were created.
+ * @param translate A mapping from the nodes of constGraph() to those of \p G.
+ * @pre \p CG.adjAvailable() is true
+ */
+OGDF_EXPORT void planarizeClusterBorderCrossings(const ClusterGraph& CG, Graph& G,
+		EdgeArray<List<std::pair<adjEntry, cluster>>>* subdivisions,
+		const std::function<edge(edge)>& translate) ;
 
 }

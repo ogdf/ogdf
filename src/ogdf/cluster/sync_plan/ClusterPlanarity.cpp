@@ -41,7 +41,6 @@
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
-#include <ogdf/cluster/sync_plan/utils/Clusters.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
 #include <sstream>

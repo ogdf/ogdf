@@ -48,7 +48,6 @@
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
-#include <ogdf/cluster/sync_plan/utils/Clusters.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/SugiyamaLayout.h>
@@ -205,7 +204,7 @@ std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterG
 
 	EdgeArray<List<std::pair<adjEntry, cluster>>> subdivisions(CG.constGraph());
 	std::function<edge(edge)> translate = [&GC](edge e) -> edge { return GC.copy(e); };
-	clusterBorderToEdges(CG, GC, &subdivisions, translate);
+	planarizeClusterBorderCrossings(CG, GC, &subdivisions, translate);
 	styleClusterBorder(CG, subdivisions, GCA, translate);
 	auto formatSplitEdge = [&GCA](edge e, edge e2) {
 		GCA.width(e2->source()) = GCA.width(e2->target());
