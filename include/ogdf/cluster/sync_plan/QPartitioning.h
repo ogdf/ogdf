@@ -33,8 +33,6 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 
-#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-
 namespace ogdf::sync_plan {
 class QPartitioning; // IWYU pragma: keep
 

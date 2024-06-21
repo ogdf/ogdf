@@ -38,27 +38,25 @@
 #include <utility>
 #include <vector>
 
-#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-
 namespace ogdf {
 
 #ifdef OGDF_DEBUG
 
 class twosat_var {
-	int val;
+	int m_val;
 
 public:
 	OGDF_DEPRECATED("uninitialized value")
 
-	twosat_var() : val(0) { }
+	twosat_var() : m_val(0) { }
 
-	explicit twosat_var(int val) : val(val) { }
+	explicit twosat_var(int val) : m_val(val) { }
 
-	explicit operator int() { return val; }
+	explicit operator int() { return m_val; }
 
-	bool operator==(const twosat_var& rhs) const { return val == rhs.val; }
+	bool operator==(const twosat_var& rhs) const { return m_val == rhs.m_val; }
 
-	bool operator!=(const twosat_var& rhs) const { return val != rhs.val; }
+	bool operator!=(const twosat_var& rhs) const { return m_val != rhs.m_val; }
 };
 
 const twosat_var TwoSAT_Var_Undefined(-1);
@@ -69,8 +67,8 @@ const twosat_var TwoSAT_Var_Undefined = -1;
 #endif
 
 class TwoSAT : protected Graph {
-	std::vector<bool> assignment;
-	std::vector<node> node_map;
+	std::vector<bool> m_assignment;
+	std::vector<node> m_node_map;
 
 public:
 	TwoSAT() {};
@@ -79,11 +77,11 @@ public:
 		node pos = newNode(), neg = newNode();
 		OGDF_ASSERT(pos->index() % 2 == 0);
 		OGDF_ASSERT(pos->index() + 1 == neg->index());
-		assignment.push_back(false);
-		OGDF_ASSERT(node_map.size() == pos->index());
-		node_map.push_back(pos);
-		OGDF_ASSERT(node_map.size() == neg->index());
-		node_map.push_back(neg);
+		m_assignment.push_back(false);
+		OGDF_ASSERT(m_node_map.size() == pos->index());
+		m_node_map.push_back(pos);
+		OGDF_ASSERT(m_node_map.size() == neg->index());
+		m_node_map.push_back(neg);
 		return (twosat_var)(pos->index() / 2);
 	}
 
@@ -123,37 +121,37 @@ public:
 			if (components[pos] == components[neg]) {
 				return false;
 			}
-			assignment[pos->index() / 2] = (components[pos] > components[neg]);
+			m_assignment[pos->index() / 2] = (components[pos] > components[neg]);
 		}
 		return true;
 	}
 
-	bool getAssignment(twosat_var var) const { return assignment[(int)var]; }
+	bool getAssignment(twosat_var var) const { return m_assignment[(int)var]; }
 
 	void clear() override {
 		Graph::clear();
-		assignment.clear();
+		m_assignment.clear();
 	}
 
 	using const_iterator = typename std::vector<bool>::const_iterator;
 	using const_reverse_iterator = typename std::vector<bool>::const_reverse_iterator;
 
-	const_iterator begin() const { return assignment.begin(); }
+	const_iterator begin() const { return m_assignment.begin(); }
 
-	const_iterator end() const { return assignment.end(); }
+	const_iterator end() const { return m_assignment.end(); }
 
-	const_reverse_iterator rbegin() const { return assignment.rbegin(); }
+	const_reverse_iterator rbegin() const { return m_assignment.rbegin(); }
 
-	const_reverse_iterator rend() const { return assignment.rend(); }
+	const_reverse_iterator rend() const { return m_assignment.rend(); }
 
 protected:
 	std::pair<node, node> getNodes(twosat_var var, bool flip = false) const {
 		int idx = getNodeIndex(var, true);
-		node pos = node_map[idx];
+		node pos = m_node_map[idx];
 		OGDF_ASSERT(pos->index() == idx);
 		OGDF_ASSERT(pos->index() / 2 == (int)var);
 		OGDF_ASSERT(pos->index() % 2 == 0);
-		node neg = node_map[idx + 1];
+		node neg = m_node_map[idx + 1];
 		OGDF_ASSERT(neg->index() == idx + 1);
 		if (flip) {
 			return std::pair(neg, pos);
@@ -164,7 +162,7 @@ protected:
 
 	node getNode(twosat_var var, bool sign) const {
 		int idx = getNodeIndex(var, sign);
-		node n = node_map[idx];
+		node n = m_node_map[idx];
 		OGDF_ASSERT(n->index() == idx);
 		return n;
 	}

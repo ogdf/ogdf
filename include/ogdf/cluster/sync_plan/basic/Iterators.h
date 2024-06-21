@@ -35,8 +35,6 @@
 #include <iterator>
 #include <utility>
 
-#pragma GCC diagnostic ignored "-Wshadow" // TODO remove
-
 namespace ogdf {
 
 template<typename IT>

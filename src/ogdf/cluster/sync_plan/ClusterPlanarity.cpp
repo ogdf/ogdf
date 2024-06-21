@@ -71,7 +71,7 @@ struct FrozenCluster {
 	int index = -1, parent = -1, parent_node = -1;
 	List<int> nodes;
 
-	FrozenCluster(int index, int parent) : index(index), parent(parent) { }
+	FrozenCluster(int _index, int _parent) : index(_index), parent(_parent) { }
 };
 
 class UndoInitCluster : public SyncPlan::UndoOperation {
@@ -79,7 +79,7 @@ public:
 	ClusterGraph* cg;
 	List<FrozenCluster> clusters;
 
-	explicit UndoInitCluster(ClusterGraph* cg) : cg(cg) {
+	explicit UndoInitCluster(ClusterGraph* _cg) : cg(_cg) {
 		for (cluster c = cg->firstPostOrderCluster(); c != nullptr; c = c->pSucc()) {
 			auto it = clusters.emplaceFront(c->index(),
 					c->parent() != nullptr ? c->parent()->index() : -1);

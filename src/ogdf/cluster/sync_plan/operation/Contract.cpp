@@ -204,8 +204,8 @@ public:
 	bool biconnected;
 
 	UndoContract(node uIdx, node vIdx, const PipeBij& tBij, const List<node>& uNeighs,
-			bool biconnected)
-		: u_idx(uIdx->index()), v_idx(vIdx->index()), biconnected(biconnected) {
+			bool _biconnected)
+		: u_idx(uIdx->index()), v_idx(vIdx->index()), biconnected(_biconnected) {
 		freezePipeBijection(tBij, bij);
 		for (node u_neigh : uNeighs) {
 			u_neigh_idcs.pushBack(u_neigh->index());

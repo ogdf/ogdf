@@ -254,27 +254,27 @@ template<typename Key1, typename Key2, typename Value, template<typename...> cla
 class RegisteredMultiArray {
 	using EntryType = RegisteredMultiArrayEntry<Key2, Value, array_max>;
 
-	BaseArray<EntryType> array;
+	BaseArray<EntryType> m_array;
 
 public:
 	RegisteredMultiArray() = default;
 
 	template<class... T>
-	explicit RegisteredMultiArray(T&&... t) : array(std::forward<T>(t)...) {};
+	explicit RegisteredMultiArray(T&&... t) : m_array(std::forward<T>(t)...) {};
 
-	Value& operator()(const Key1& k1, const Key2& k2) { return array[k1].get_or_create(k2); }
+	Value& operator()(const Key1& k1, const Key2& k2) { return m_array[k1].get_or_create(k2); }
 
-	Value& get_or_create(const Key1& k1, const Key2& k2) { return array[k1].get_or_create(k2); }
+	Value& get_or_create(const Key1& k1, const Key2& k2) { return m_array[k1].get_or_create(k2); }
 
-	Value& get_or_raise(const Key1& k1, const Key2& k2) { return array[k1].get_or_raise(k2); }
+	Value& get_or_raise(const Key1& k1, const Key2& k2) { return m_array[k1].get_or_raise(k2); }
 
-	void remove(const Key1& k1, const Key2& k2) { return array[k1].unset(k2); }
+	void remove(const Key1& k1, const Key2& k2) { return m_array[k1].unset(k2); }
 
-	bool contains(const Key1& k1, const Key2& k2) { return array[k1].contains(k2); }
+	bool contains(const Key1& k1, const Key2& k2) { return m_array[k1].contains(k2); }
 
-	size_t count(const Key1& k1) { return array[k1].size(k1); }
+	size_t count(const Key1& k1) { return m_array[k1].size(k1); }
 
-	bool has(const Key1& k1) { return !array[k1].empty(k1); }
+	bool has(const Key1& k1) { return !m_array[k1].empty(k1); }
 };
 
 }

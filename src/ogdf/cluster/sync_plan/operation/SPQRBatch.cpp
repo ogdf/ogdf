@@ -38,7 +38,7 @@
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/cluster/sync_plan/basic/GraphIterators.h>
+#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/cluster/sync_plan/utils/NodeTricRotation.h>
@@ -64,13 +64,13 @@ public:
 	NodeArray<SimpleSPQRTree*> spqrtrees;
 	std::vector<SimpleSPQRTree*> s_todelete;
 
-	explicit EmbeddingTrees(SyncPlan& pq)
-		: pq(pq)
-		, OGC_base(*pq.G)
-		, embtrees(*pq.G, nullptr)
-		, spqrtrees(pq.getComponents().bcTree(), nullptr) {
-		e_todelete.reserve(pq.matchings.getPipeCount());
-		s_todelete.reserve(pq.components.bcTree().numberOfNodes());
+	explicit EmbeddingTrees(SyncPlan& _pq)
+		: pq(_pq)
+		, OGC_base(*_pq.G)
+		, embtrees(*_pq.G, nullptr)
+		, spqrtrees(_pq.getComponents().bcTree(), nullptr) {
+		e_todelete.reserve(_pq.matchings.getPipeCount());
+		s_todelete.reserve(_pq.components.bcTree().numberOfNodes());
 	}
 
 	~EmbeddingTrees() {
@@ -115,9 +115,9 @@ public:
 			pq.log.lout()
 					<< "Creating SPQR information for " << components.fmtBCNode(bc) << std::endl;
 			FilteringBFS bfs = components.nodesInBiconnectedComponent(bc);
-			for (node n : bfs) {
-				spqr.GC.newNode(n);
-				for (adjEntry adj : n->adjEntries) {
+			for (node u : bfs) {
+				spqr.GC.newNode(u);
+				for (adjEntry adj : u->adjEntries) {
 					if (bfs.hasVisited(adj->twinNode())) {
 						spqr.GC.newEdge(adj->theEdge());
 					}
@@ -267,10 +267,10 @@ SyncPlan::Result SyncPlan::batchSPQR() {
 
 				if (p.both_block) {
 					// SYNCPLAN_PROFILE_START("batchSPQR-simplify")
-					NodePCRotation* pc = embtrees.makeTree(p.other_vertex);
+					NodePCRotation* opc = embtrees.makeTree(p.other_vertex);
 					r = SyncPlan::Result::INVALID_INSTANCE;
-					if (pc != nullptr) {
-						r = simplify(p.other_vertex, pc);
+					if (opc != nullptr) {
+						r = simplify(p.other_vertex, opc);
 					}
 					// SYNCPLAN_PROFILE_STOP("batchSPQR-simplify")
 					if (r == SyncPlan::Result::INVALID_INSTANCE) {
