@@ -43,6 +43,7 @@
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
+#include <ogdf/cluster/sync_plan/basic/Drawing.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/decomposition/BCTree.h>
 
@@ -160,9 +161,8 @@ void SyncPlan::printOPStatsStart(const Pipe* p, Operation op, const NodePCRotati
 	} else {
 		stats_first_in_array = false;
 	}
-	stats_out << "{\"op\":\"" << op << "\""
-			  << ",\"rem_pipes\":" << matchings.getPipeCount() << ",\"deg\":" << p->degree()
-			  << ",\"u_cv\":" << components.isCutVertex(p->node1)
+	stats_out << "{\"op\":\"" << op << "\"" << ",\"rem_pipes\":" << matchings.getPipeCount()
+			  << ",\"deg\":" << p->degree() << ",\"u_cv\":" << components.isCutVertex(p->node1)
 			  << ",\"u_blocks\":" << components.biconnectedComponent(p->node1)->degree()
 			  << ",\"u_bicon_size\":" << components.bcSize(components.biconnectedComponent(p->node1))
 			  << ",\"u_bc_id\":" << components.biconnectedId(p->node1)

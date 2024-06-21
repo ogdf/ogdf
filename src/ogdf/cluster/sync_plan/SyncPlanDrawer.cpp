@@ -48,6 +48,7 @@
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 #include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
+#include <ogdf/cluster/sync_plan/basic/Drawing.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/SugiyamaLayout.h>
@@ -64,7 +65,7 @@
 
 using namespace ogdf::sync_plan::internal;
 
-namespace ogdf::sync_plan {
+namespace ogdf {
 
 const std::array<Color, 63> colors = {Color("#00FF00"), Color("#0000FF"), Color("#FF0000"),
 		Color("#01FFFE"), Color("#FFA6FE"), Color("#FFDB66"), Color("#006401"), Color("#010067"),
@@ -79,55 +80,6 @@ const std::array<Color, 63> colors = {Color("#00FF00"), Color("#0000FF"), Color(
 		Color("#620E00"), Color("#008F9C"), Color("#98FF52"), Color("#7544B1"), Color("#B500FF"),
 		Color("#00FF78"), Color("#FF6E41"), Color("#005F39"), Color("#6B6882"), Color("#5FAD4E"),
 		Color("#A75740"), Color("#A5FFD2"), Color("#FFB167"), Color("#009BFF"), Color("#E85EBE")};
-
-void formatNode(node n, GraphAttributes* ga, int group) {
-	ga->shape(n) = Shape::Ellipse;
-	ga->width(n) = 5;
-	ga->height(n) = 5;
-	ga->fillColor(n) = Color::Name::Lightgrey;
-	ga->strokeColor(n) = colors[group % colors.size()];
-	ga->strokeWidth(n) = 2;
-	if (ga->label(n).empty()) {
-		std::stringstream ss;
-		ss << n->index();
-		ga->label(n) = ss.str();
-	}
-}
-
-void styleClusterBorder(const ClusterGraph& CG,
-		const EdgeArray<List<std::pair<adjEntry, cluster>>>& subdivisions, GraphAttributes& GA,
-		const std::function<edge(edge)>& translate) {
-	OGDF_ASSERT(subdivisions.graphOf() == CG.getGraph());
-	ClusterArray<bool> seen(CG, false);
-	for (edge e : CG.constGraph().edges) {
-		if (subdivisions[e].empty()) {
-			continue;
-		}
-		node src = translate(e)->source();
-		node tgt = translate(e)->target();
-		int i = 1, m = subdivisions[e].size() + 1;
-		double dx = (GA.x(tgt) - GA.x(src)) / m, dy = (GA.y(tgt) - GA.y(src)) / m;
-		for (std::pair<adjEntry, cluster> subdiv : subdivisions[e]) {
-			node bn = subdiv.first->theNode();
-			OGDF_ASSERT(bn->degree() == 4);
-			edge be = subdiv.first->cyclicSucc()->theEdge();
-			cluster c = subdiv.second;
-			GA.x(bn) = GA.x(src) + dx * i;
-			GA.y(bn) = GA.y(src) + dy * i;
-			GA.width(bn) = 1;
-			GA.height(bn) = 1;
-			GA.strokeColor(be) = colors[c->index() % colors.size()];
-			GA.strokeWidth(be) = 2;
-			if (!seen[c]) {
-				std::stringstream ss;
-				ss << "cluster " << c->index();
-				GA.label(be) = ss.str();
-				seen[c] = true;
-			}
-			i++;
-		}
-	}
-}
 
 void spreadParallels(GraphAttributes& GA, double min_spread, double max_spread, double max_abs) {
 	max_abs /= 2;
@@ -185,6 +137,57 @@ void bendEdge(GraphAttributes& GA, edge e, double bend) {
 	DPoint ort = vec.orthogonal();
 	ort *= vec.norm() / ort.norm();
 	GA.bends(e).pushBack(mid + ort * bend);
+}
+
+namespace sync_plan {
+
+void formatNode(node n, GraphAttributes* ga, int group) {
+	ga->shape(n) = Shape::Ellipse;
+	ga->width(n) = 5;
+	ga->height(n) = 5;
+	ga->fillColor(n) = Color::Name::Lightgrey;
+	ga->strokeColor(n) = colors[group % colors.size()];
+	ga->strokeWidth(n) = 2;
+	if (ga->label(n).empty()) {
+		std::stringstream ss;
+		ss << n->index();
+		ga->label(n) = ss.str();
+	}
+}
+
+void styleClusterBorder(const ClusterGraph& CG,
+		const EdgeArray<List<std::pair<adjEntry, cluster>>>& subdivisions, GraphAttributes& GA,
+		const std::function<edge(edge)>& translate) {
+	OGDF_ASSERT(subdivisions.graphOf() == CG.getGraph());
+	ClusterArray<bool> seen(CG, false);
+	for (edge e : CG.constGraph().edges) {
+		if (subdivisions[e].empty()) {
+			continue;
+		}
+		node src = translate(e)->source();
+		node tgt = translate(e)->target();
+		int i = 1, m = subdivisions[e].size() + 1;
+		double dx = (GA.x(tgt) - GA.x(src)) / m, dy = (GA.y(tgt) - GA.y(src)) / m;
+		for (std::pair<adjEntry, cluster> subdiv : subdivisions[e]) {
+			node bn = subdiv.first->theNode();
+			OGDF_ASSERT(bn->degree() == 4);
+			edge be = subdiv.first->cyclicSucc()->theEdge();
+			cluster c = subdiv.second;
+			GA.x(bn) = GA.x(src) + dx * i;
+			GA.y(bn) = GA.y(src) + dy * i;
+			GA.width(bn) = 1;
+			GA.height(bn) = 1;
+			GA.strokeColor(be) = colors[c->index() % colors.size()];
+			GA.strokeWidth(be) = 2;
+			if (!seen[c]) {
+				std::stringstream ss;
+				ss << "cluster " << c->index();
+				GA.label(be) = ss.str();
+				seen[c] = true;
+			}
+			i++;
+		}
+	}
 }
 
 std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG,
@@ -260,7 +263,7 @@ void SyncPlanDrawer::layout(bool format, bool components) {
 					<< "Graph is non-planar, still trying to generate layout" << std::endl;
 			non_planar_layout->call(*PQ->GA);
 		}
-		spreadParallels(*PQ->GA);
+		ogdf::spreadParallels(*PQ->GA);
 		if (format) {
 			for (node n : PQ->G->nodes) {
 				PQ->formatNode(n);
@@ -337,4 +340,5 @@ GraphAttributes& SyncPlanDrawer::ensureGraphAttributes() {
 	return *PQ->GA;
 }
 
+}
 }
