@@ -28,6 +28,10 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+
+#include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/cluster/ClusterGraph.h>
+
 #include "array_helper.h"
 
 go_bandit([]() {
@@ -45,7 +49,7 @@ go_bandit([]() {
 	auto init = [&](ClusterGraph& C) {
 		randomSimpleConnectedGraph(G, 42, 168);
 		C.init(G);
-		randomClusterGraph(C, G, 42);
+		randomClustering(C, 42);
 	};
 
 	runBasicArrayTests<ClusterGraph, ClusterArray, cluster>( //
