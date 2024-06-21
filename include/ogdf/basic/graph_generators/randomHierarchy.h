@@ -52,6 +52,7 @@ namespace ogdf {
  * @param singleSource determines if the graph is a single-source graph.
  * @param longEdges determines if the graph has long edges (spanning 2 layers
  *        or more); otherwise the graph is proper.
+ * @sa randomProperMaximalLevelPlaneGraph() for a simpler alternative
  */
 OGDF_EXPORT void randomHierarchy(Graph& G, int n, int m, bool planar, bool singleSource,
 		bool longEdges);

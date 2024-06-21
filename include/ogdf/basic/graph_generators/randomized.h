@@ -387,6 +387,22 @@ OGDF_EXPORT void randomChungLuGraph(Graph& G, Array<int> expectedDegreeDistribut
  */
 OGDF_EXPORT void randomEdgesGraph(Graph& G, std::function<double(node, node)> probability);
 
+//! Generates a random proper, maximal (radial) level-plane graph.
+/**
+ * Use pruneEdges() to obtain a non-maximal (radial) level-plane graph.
+ *
+ * @param G is assigned the generated graph.
+ * @param emb will be assigned the level-planar embedding, i.e., for each level an order of its vertices
+ * @param N the number of nodes to generate.
+ * @param K the number of levels to generate.
+ * @param radial whether the graph/embedding should radial level-plane or just level-plane.
+ */
+OGDF_EXPORT void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>& emb, int N, int K,
+		bool radial);
+
+//! Removed random edges from /p G until it has less than /p max_edges edges, not removing edges from nodes with degree less than /p min_deg.
+OGDF_EXPORT void pruneEdges(Graph& G, int max_edges, int min_deg);
+
 //! @}
 
 //! @}

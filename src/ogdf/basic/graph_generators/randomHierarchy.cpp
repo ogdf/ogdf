@@ -1,7 +1,7 @@
 /** \file
  * \brief Implements graph generator for hierarchical graphs.
  *
- * \author Carsten Gutwenger, Christoph Buchheim
+ * \author Carsten Gutwenger, Christoph Buchheim, Simon D. Fink
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -35,8 +35,10 @@
 #include <ogdf/basic/graph_generators/randomHierarchy.h>
 
 using std::minstd_rand;
+using std::mt19937;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
+using std::vector;
 
 namespace ogdf {
 
@@ -202,5 +204,79 @@ void randomHierarchy(Graph& G, int numberOfNodes, int numberOfEdges, bool planar
 	}
 }
 
+void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>& emb, int N, int K,
+		bool radial) {
+	// checks
+	OGDF_ASSERT(N > 0);
+	OGDF_ASSERT(K > 0);
+
+	// init arrays
+	G.clear();
+	emb.clear();
+	emb.resize(K);
+
+	// create nodes, at least one on each level
+	for (int i = 0; i < K; ++i) {
+		emb[i].push_back(G.newNode());
+	}
+	for (int i = K; i < N; ++i) {
+		emb[randomNumber(0, K - 1)].push_back(G.newNode());
+	}
+
+	// create all edges on each level
+	for (int l = 0; l < K - 1; ++l) {
+		int lp = 0;
+		int up = 0;
+		bool wrap_forw = false;
+		bool wrap_back = false;
+		while (true) {
+			G.newEdge(emb[l][lp], emb[l + 1][up]);
+
+			wrap_forw = wrap_forw || (lp + 1 == emb[l].size() && up == 0);
+			wrap_back = wrap_back || (lp == 0 && up + 1 == emb[l + 1].size());
+
+			// select the next node either on the upper or the lower level
+			if (lp + 1 < emb[l].size() && up + 1 < emb[l + 1].size()) {
+				int r = randomNumber(0, 1);
+				lp += r;
+				up += 1 - r;
+			} else if (lp + 1 < emb[l].size()) {
+				lp++;
+			} else if (up + 1 < emb[l + 1].size()) {
+				up++;
+			} else {
+				break;
+			}
+		}
+
+		// add the wrap-around edge
+		if (radial) {
+			if (randomNumber(0, 1) == 1 || wrap_back) {
+				if (!wrap_forw) {
+					G.newEdge(emb[l].back(), emb[l + 1].front());
+				}
+			} else {
+				G.newEdge(emb[l].front(), emb[l + 1].back());
+			}
+		}
+	}
+}
+
+void pruneEdges(Graph& G, int max_edges, int min_deg) {
+	vector<edge> edges;
+	for (edge e : G.edges) {
+		edges.push_back(e);
+	}
+	mt19937 mt(randomSeed());
+	shuffle(edges.begin(), edges.end(), mt);
+	for (edge e : edges) {
+		if (e->source()->degree() > min_deg && e->target()->degree() > min_deg) {
+			G.delEdge(e);
+		}
+		if (G.numberOfEdges() <= max_edges) {
+			break;
+		}
+	}
+}
 
 }
