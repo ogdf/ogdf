@@ -44,9 +44,8 @@
 
 using namespace ogdf::sync_plan::internal;
 
-namespace ogdf::sync_plan {
+namespace ogdf::sync_plan::internal {
 
-namespace internal {
 std::string to_string(const std::function<std::ostream&(std::ostream&)>& func) {
 	std::stringstream ss;
 	const std::ostream& ret = func(ss);
@@ -66,7 +65,6 @@ std::ostream& operator<<(std::ostream& os, const ClusterGraph& CG) {
 	return os << "ClusterGraph with " << CG.constGraph().numberOfNodes() << " nodes, "
 			  << CG.constGraph().numberOfEdges() << " edges and " << CG.numberOfClusters()
 			  << " clusters";
-}
 }
 
 template<>
