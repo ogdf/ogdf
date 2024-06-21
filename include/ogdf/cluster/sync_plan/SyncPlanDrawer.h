@@ -43,16 +43,8 @@
 #include <memory>
 #include <utility>
 
-namespace ogdf {
-class Color;
-} // namespace ogdf
-
 namespace ogdf::sync_plan {
 class SyncPlan;
-
-// TODO move to central location / internal namespace?
-
-extern const std::array<Color, 63> colors;
 
 void formatNode(node n, GraphAttributes* ga, int group);
 
@@ -61,17 +53,8 @@ void styleClusterBorder(
 		GraphAttributes& GA,
 		const std::function<edge(edge)>& translate = [](edge e) -> edge { return e; });
 
-void spreadParallels(GraphAttributes& GA, double min_spread = 0.1, double max_spread = 0.6,
-		double max_abs = 100);
-
 std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG,
 		GraphAttributes& GA, adjEntry adjExternal = nullptr);
-
-void fixLoops(Graph& G, const std::function<void(edge, edge)>& cb);
-
-void fixParallels(Graph& G, const std::function<void(edge, edge)>& cb);
-
-void bendEdge(GraphAttributes& GA, edge e, double bend);
 
 class SyncPlanDrawer {
 	std::unique_ptr<LayoutModule> planar_layout;
