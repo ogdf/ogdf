@@ -50,8 +50,8 @@
 
 //! Explicitly provides default move construction and assignment for class \p cls.
 #define OGDF_DEFAULT_MOVE(cls) \
-	cls(cls&& move) = default; \
-	cls& operator=(cls&& move) = default;
+	cls(cls&& move) noexcept = default; \
+	cls& operator=(cls&& move) noexcept = default;
 
 //! Declares the copy constructor for class \p cls.
 #define OGDF_COPY_CONSTR(cls) cls(const cls& copy)

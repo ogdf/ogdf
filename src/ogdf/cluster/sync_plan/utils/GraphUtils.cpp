@@ -160,8 +160,8 @@ OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check) {
 	if (full_check)
 #endif
 	{
-		for (adjEntry n_it : n->adjEntries) {
-			if (*o_it != n_it) {
+		for (adjEntry a : n->adjEntries) {
+			if (*o_it != a) {
 				// #ifdef OGDF_DEBUG
 				// std::cout << "node: " << ogdf::sync_plan::printIncidentEdges(n->adjEntries) << std::endl;
 				// std::cout << "list: " << ogdf::sync_plan::printIncidentEdges(o) << std::endl;

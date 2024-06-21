@@ -98,17 +98,17 @@ public:
 	[[nodiscard]] size_t size() const { return m_count; }
 
 	T* front() const {
-		assert(m_first != nullptr);
+		OGDF_ASSERT(m_first != nullptr);
 		return m_first;
 	}
 
 	T* back() const {
-		assert(m_last != nullptr);
+		OGDF_ASSERT(m_last != nullptr);
 		return m_last;
 	}
 
 	void push_front(T* obj) {
-		assert(obj != nullptr);
+		OGDF_ASSERT(obj != nullptr);
 		check();
 
 		if (m_first == nullptr) {
@@ -126,7 +126,7 @@ public:
 	}
 
 	void push_back(T* obj) {
-		assert(obj != nullptr);
+		OGDF_ASSERT(obj != nullptr);
 		check();
 
 		if (m_last == nullptr) {
@@ -148,8 +148,8 @@ public:
 	void pop_back() { erase(back()); }
 
 	void erase(T* obj) {
-		assert(obj != nullptr);
-		assert(m_count > 0);
+		OGDF_ASSERT(obj != nullptr);
+		OGDF_ASSERT(m_count > 0);
 		check();
 
 		if (obj == m_first) {
@@ -173,7 +173,7 @@ public:
 	}
 
 	void splice(iterator at, IntrusiveList<T>& other) {
-		assert(at == begin() || at == end());
+		OGDF_ASSERT(at == begin() || at == end());
 		check();
 		other.check();
 
@@ -207,13 +207,12 @@ public:
 
 private:
 	void check() {
-#ifndef NDEBUG
+#ifdef OGDF_DEBUG
 		size_t counter = 0;
 		for ([[maybe_unused]] T* _ : *this) {
 			counter++;
 		}
-
-		assert(counter == counter);
+		OGDF_ASSERT(counter == m_count);
 #endif
 	}
 };
