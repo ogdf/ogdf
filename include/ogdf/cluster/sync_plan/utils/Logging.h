@@ -65,10 +65,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& pair) {
 std::ostream& operator<<(std::ostream& os, const ogdf::Graph& G);
 
 std::ostream& operator<<(std::ostream& os, const ogdf::ClusterGraph& CG);
-
-std::ostream& printClusters(cluster c, std::ostream& s);
-
-void printCG(const ClusterGraph& CG, const std::string& type = "");
 }
 
 OGDF_CONTAINER_PRINTER(printIncidentEdges);
