@@ -33,7 +33,9 @@
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/graph_generators/clustering.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 #include <algorithm>
@@ -328,7 +330,7 @@ static void describeWriteAndRead(std::set<GraphProperty> reqs, ClusterWriter wri
 				reqs,
 				[&](Graph& graph) {
 					ClusterGraph CG(graph);
-					randomClusterGraph(CG, graph, 7);
+					randomClustering(CG, 7);
 					testWriteAndRead(CG, writer, reader);
 				},
 				GraphSizes(), 10);
@@ -465,7 +467,7 @@ void describeIssueHandling(ClusterReader reader, ClusterWriter writer) {
 					Graph readGraph;
 					customGraph(readGraph, 2, {{0, 1}});
 					ClusterGraph readCG(readGraph);
-					randomClusterGraph(readCG, readGraph, 2);
+					randomClustering(readCG, 2);
 					std::istringstream read(write.str());
 					AssertThat(reader(readCG, readGraph, read), IsTrue());
 					AssertThat(readGraph.numberOfNodes(), Equals(10));
@@ -775,7 +777,7 @@ void describeClusterGAFormat(GraphIO::ClusterAttrReaderFunc readerGA,
 					ClusterGraph CG(graph);
 					ClusterGraphAttributes CGA(CG,
 							attr); // all attributes specified in the call activated
-					randomClusterGraph(CG, graph, 3);
+					randomClustering(CG, 3);
 					createClusterGraphAttributes(CGA);
 
 					std::ostringstream write;

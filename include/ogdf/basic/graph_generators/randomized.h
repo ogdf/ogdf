@@ -33,14 +33,11 @@
 
 #include <ogdf/basic/graph_generators/randomGeographicalThresholdGraph.h>
 #include <ogdf/basic/graph_generators/randomHierarchy.h>
-#include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
 
-/**
- * @addtogroup graph-generators
- * @{
- */
+//! @addtogroup graph-generators
+//! @{
 
 //! @name Randomized graph generators
 //! @{
@@ -255,46 +252,6 @@ OGDF_EXPORT void randomTree(Graph& G, int n);
  */
 OGDF_EXPORT void randomTree(Graph& G, int n, int maxDeg, int maxWidth);
 
-//! Assigns random clusters to a given graph \p G.
-/**
- * This function is called with a graph \p G and creates randomly clusters.
- * The resulting cluster graph is always c-connected and,
- * if G is planar, also c-planar.
- * @param G is the input graph.
- * @param C is a cluster graph for \p G.
- * @param cNum is the maximal number of Clusters introduced.
- * \pre \p G is connected and not empty and \a C is initialized with \a G.
- */
-OGDF_EXPORT void randomClusterPlanarGraph(ClusterGraph& C, Graph& G, int cNum);
-
-//! Assigns random clusters to a given graph \p G.
-/**
- * This function is called with a graph \p G and creates randomly clusters.
- * @param G is the input graph.
- * @param C is a cluster graph for \p G.
- * @param cNum is the maximal number of clusters introduced.
- * \pre \p G is connected and not empty and \p C is initialized with \p G.
- */
-OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, Graph& G, int cNum);
-
-//! Assigns a specified cluster structure to a given graph \p G, and assigns vertices to clusters.
-/**
- * This function is called with a graph \p G and the root of a second graph, resembling a tree,
- * that gives the cluster structure. Then, the vertices of G are randomly assigned to the clusters,
- * where we can guarantee that any leaf-cluster has (on average) <i>moreInLeaves</i>-times more vertices
- * than a non-leaf cluster. (E.g. if \p moreInLeaves = 5, any leaf will contain roughly 5 times more vertices than
- * an inner cluster)
- * @param C is a cluster graph for \p G, to be assigned the solution.
- * @param G is the input graph.
- * @param root is a node in some other graph (say \a T). \a T is a tree that we will consider rooted at \p root.
- *        \a T is the pattern for the cluster hierarchy.
- * @param moreInLeaves is a factor such that leaf-clusters have on average <i>moreInLeaves</i>-times more
- *        vertices than inner clusters
- * \pre \p G contains at least twice as many nodes as \a T has leaves.
- */
-OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, const Graph& G, const node root,
-		int moreInLeaves);
-
 //! Creates a random (simple) directed graph.
 /**
  * @param G is assigned the generated graph.
@@ -432,6 +389,6 @@ OGDF_EXPORT void randomEdgesGraph(Graph& G, std::function<double(node, node)> pr
 
 //! @}
 
-/** @} */
+//! @}
 
 }

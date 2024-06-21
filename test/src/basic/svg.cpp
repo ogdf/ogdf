@@ -30,6 +30,8 @@
  */
 
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 #include <ogdf/lib/pugixml/pugixml.h>
@@ -218,7 +220,7 @@ go_bandit([]() {
 
 			it("draws clusters", [&]() {
 				ClusterGraph clusterGraph(*graph);
-				randomClusterGraph(clusterGraph, *graph, 10);
+				randomClustering(clusterGraph, 10);
 				ClusterGraphAttributes attr(clusterGraph,
 						GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle);
 
