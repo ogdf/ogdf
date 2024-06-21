@@ -29,11 +29,17 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
+#include <ogdf/basic/basic.h>
+
 #pragma once
 
-#include <ogdf/cluster/ClusterGraph.h>
-
 namespace ogdf {
+
+class ClusterGraph;
+
+namespace sync_plan {
+class SyncPlan;
+}
 
 //! @addtogroup graph-generators
 //! @{
@@ -119,6 +125,35 @@ struct OGDF_EXPORT RandomClusterConfig {
  * @return false if the clustering ran into the configured timeout, true otherwise
  */
 OGDF_EXPORT bool randomPlanarClustering(ClusterGraph& CG, const RandomClusterConfig& config);
+
+//! Create a random SynchronizedPlanarity instance by introducing \p pipe_count pipes between vertices of degree at least \p min_deg.
+OGDF_EXPORT void randomSyncPlanInstance(sync_plan::SyncPlan& pq, int pipe_count, int min_deg = 3);
+
+//! Create a (simultaneously planar) 2-SEFE instance with a given shared graph.
+/**
+ * This works by randomly subdividing the faces of the embedded \p sefe, separately for the two
+ * exclusive graphs.
+ *
+ * @param sefe contains the shared graph and will be modified to also contain the exclusive edges.
+ * @param edge_types will be assigned 3 for all shared edges and 1 or 2 for edges in either of the exclusive graphs.
+ * @param edges1 the number of edges to create for the first exclusive graph.
+ * @param edges2 the number of edges to create for the second exclusive graph.
+ * @pre \p sefe must contain a connected, planarly embedded graph
+ */
+OGDF_EXPORT void randomSEFEInstanceBySharedGraph(Graph* sefe, EdgeArray<uint8_t>& edge_types,
+		int edges1, int edges2);
+
+//! Create a (simultaneously planar) 2-SEFE instance with a given union graph.
+/**
+ *This works by randomly assigning edges of the embedded \p sefe to either an exclusive or the shared graph.
+ *
+ * @param sefe contains the desired union graph.
+ * @param edge_types will be assigned 3 for all shared edges and 1 or 2 for edges in either of the exclusive graphs.
+ * @param frac_shared the (expected) fraction of edges to make shared (i.e. type 3).
+ * @param frac_g1 the (expected) fraction of edges to assign to exclusive graph 1.
+ */
+OGDF_EXPORT void randomSEFEInstanceByUnionGraph(const Graph* sefe, EdgeArray<uint8_t>& edge_types,
+		double frac_shared = 0.34, double frac_g1 = 0.33);
 
 //! @}
 //! @}
