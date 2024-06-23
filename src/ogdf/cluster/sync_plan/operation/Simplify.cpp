@@ -357,7 +357,7 @@ SyncPlan::Result SyncPlan::simplify(node u, const NodePCRotation* pc) {
 
 		findCycles(*G, v, mapping, cycles, log.lout(Logger::Level::Minor) << "\t");
 		int cycleLength = cycles.front().size();
-		simplifyToroidalCycleLength = max(cycleLength, simplifyToroidalCycleLength);
+		longestSimplifyToroidalCycle = max(cycleLength, longestSimplifyToroidalCycle);
 		log.lout(Logger::Level::Medium) << "\tToroidal cycle length: " << cycleLength << std::endl;
 #ifdef SYNCPLAN_OPSTATS
 		stats_out << "\"cycle_len\":" << cycleLength << ",";
