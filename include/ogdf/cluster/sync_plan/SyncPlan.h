@@ -182,7 +182,6 @@ public:
 	Graph* const G;
 	PMatching matchings;
 	QPartitioning partitions;
-	int simplifyToroidalCycleLength = 0;
 
 #ifdef SYNCPLAN_OPSTATS
 	std::ofstream stats_out;
@@ -202,6 +201,7 @@ private:
 	bool allow_contract_bb_pipe = true;
 	bool intersect_trees = true;
 	bool batch_spqr = true;
+	int longestSimplifyToroidalCycle = 0;
 
 #ifdef OGDF_DEBUG
 	SyncPlanConsistency consistency;
@@ -348,6 +348,8 @@ public:
 	bool isBatchSpqr() const { return batch_spqr; }
 
 	void setBatchSpqr(bool batchSpqr) { batch_spqr = batchSpqr; }
+
+	int getLongestSimplifyToroidalCycle() const { return longestSimplifyToroidalCycle; }
 };
 
 }
