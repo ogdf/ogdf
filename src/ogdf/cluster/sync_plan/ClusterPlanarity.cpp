@@ -254,8 +254,9 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 	pushUndoOperationAndCheck(op);
 }
 
-void reduceLevelToCluster(const Graph& LG, const std::vector<std::vector<node>>& emb, Graph& G,
-		ClusterGraph& CG) {
+void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
+		const std::vector<std::vector<node>>& emb, Graph& G, ClusterGraph& CG,
+		EdgeArray<node>& embMap) {
 	NodeArray<std::pair<node, node>> map(LG);
 	cluster p = CG.rootCluster();
 	for (int l = emb.size() - 1; l >= 0; --l) {
@@ -267,7 +268,7 @@ void reduceLevelToCluster(const Graph& LG, const std::vector<std::vector<node>>&
 			CG.reassignNode(u, c);
 			CG.reassignNode(v, p);
 			map[n] = {u, v};
-			G.newEdge(u, v);
+			embMap[G.newEdge(u, v)] = n;
 		}
 		p = c;
 	}

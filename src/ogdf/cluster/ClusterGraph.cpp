@@ -230,7 +230,7 @@ void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 	G.clear();
 	resizeArrays(C.numberOfClusters() + 1);
 	initGraph(G);
-	G.insert(C.constGraph(),originalNodeTable, edgeCopy);
+	G.insert(C.constGraph(), originalNodeTable, edgeCopy);
 	copyClusterTree(C, G, originalClusterTable, originalNodeTable);
 }
 
@@ -1168,6 +1168,13 @@ void ClusterGraph::registrationChanged(const ogdf::Graph* newG) {
 		c->nodes.clear();
 		c->adjEntries.clear();
 	}
+}
+
+cluster ClusterGraph::chooseCluster(std::function<bool(cluster)> includeCluster,
+		bool isFastTest) const {
+	return *chooseIteratorFrom<internal::GraphObjectContainer<ClusterElement>, cluster>(
+			const_cast<internal::GraphObjectContainer<ClusterElement>&>(clusters),
+			[&](const cluster& c) { return includeCluster(c); }, isFastTest);
 }
 
 std::ostream& operator<<(std::ostream& os, cluster c) {

@@ -45,7 +45,10 @@ public:
  * @param emb the level assignment, containing a list of its contained nodes for each level.
  * @param G will be assigned the graph resulting from the reduction.
  * @param CG will be assigned the clustering resulting from the reduction.
+ * @param embMap maps from some edges in \p G to the nodes of \p LG,
+ * 		  the order in which they cross the borders of \p CG will induce a cluster planar embedding
  */
 OGDF_EXPORT void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
-		const std::vector<std::vector<node>>& emb, Graph& G, ClusterGraph& CG);
+		const std::vector<std::vector<node>>& emb, Graph& G, ClusterGraph& CG,
+		EdgeArray<node>& embMap);
 }
