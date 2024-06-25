@@ -82,7 +82,7 @@ jobs:
           git checkout upstream/${{ steps.pr-info.outputs.base-ref }} -- sonar-project.properties
 
       - name: Install sonar-scanner
-        uses: SonarSource/sonarcloud-github-c-cpp@v2
+        uses: SonarSource/sonarcloud-github-c-cpp@v3
         with:
           cache-binaries: false
 
