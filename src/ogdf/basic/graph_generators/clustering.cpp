@@ -40,6 +40,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarlayout/SchnyderLayout.h>
 
@@ -493,6 +494,49 @@ bool randomPlanarClustering(ClusterGraph& CG, const RandomClusterConfig& config)
 	Clusterer c(CG, config);
 	c.makeClusters();
 	return !c.timedout();
+}
+
+void randomClusterPlanarGraph(Graph& G, ClusterGraph& CG, int clusters, int node_per_cluster,
+		int edges_per_cluster) {
+	OGDF_ASSERT(&CG.constGraph() == &G);
+	// connected is ok as cut vertices will turn into disconnected clusters
+	randomPlanarConnectedGraph(G, node_per_cluster, edges_per_cluster);
+
+	for (int i = 0; i < clusters; ++i) {
+		node n = G.chooseNode([](node x) { return x->degree() >= 4; });
+		if (!n) {
+			break;
+		}
+		cluster c = CG.newCluster(CG.clusterOf(n));
+
+		Graph H;
+		randomPlanarConnectedGraph(G, node_per_cluster, edges_per_cluster);
+		node u = H.chooseNode([n](node x) { return x->degree() == n->degree(); });
+		if (!u) {
+			u = H.chooseNode([n](node x) { return x->degree() >= n->degree(); });
+			if (u != nullptr) {
+				while (u->degree() > n->degree()) {
+					H.delEdge(u->adjEntries.head()->theEdge());
+				}
+			} else {
+				continue;
+			}
+		}
+		NodeArray<node> nodeMap(H, nullptr);
+		EdgeArray<edge> edgeMap(H, nullptr);
+		G.insert(H);
+
+		for (node x : H.nodes) {
+			CG.reassignNode(nodeMap[x], c);
+		}
+
+		node v = nodeMap[u];
+		OGDF_ASSERT(n->degree() == v->degree());
+		using namespace sync_plan;
+		PipeBij bij;
+		getPipeBijection(n, v, bij);
+		sync_plan::join(G, n, v, bij);
+	}
 }
 
 void randomSyncPlanInstance(sync_plan::SyncPlan& pq, int pipe_count, int min_deg) {

@@ -29,7 +29,7 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Graph_d.h>
 
 #pragma once
 
@@ -109,8 +109,7 @@ struct OGDF_EXPORT RandomClusterConfig {
 
 //! Creates a random c-planar clustering for a given planar graph \p G.
 /**
- * Creates a cluster-planar clustering for a given planar graph. The clusters are created by working
- * on a copy of \p G and making it connected as well as triangulated and then:
+ * The clusters are created by working on a copy of \p G and making it connected as well as triangulated and then:
  * 1. selecting a random node \p u and putting it into a new cluster
  * 2. selecting a random incident edge \p e such that its other endpoint \p v and \p u have at most
  *    two common neighbors (this ensures c-planarity)
@@ -125,6 +124,22 @@ struct OGDF_EXPORT RandomClusterConfig {
  * @return false if the clustering ran into the configured timeout, true otherwise
  */
 OGDF_EXPORT bool randomPlanarClustering(ClusterGraph& CG, const RandomClusterConfig& config);
+
+//! Create a random planar graph with a c-planar clustering.
+/**
+ * The graph is iteratively created by starting with a random planar connected graph and then,
+ * for each cluster, choosing an arbitrary vertex and replacing it with a cluster containing another
+ * new random planar graph. The replacement is done by identifying pairs of incident edges between
+ * the chosen vertex and another random vertex from the new graph. Thus, when a cut-vertex is joined
+ * in this way, the resulting graph will no longer be c-connected.
+ *
+ * @param G will be assigned the planar graph.
+ * @param CG will be assigned the c-planar clustering of \p G.
+ * @param clusters how many clusters to generate.
+ * @param node_per_cluster how many nodes each cluster should directly contain.
+ * @param edges_per_cluster how many edges to add between each clusters' nodes.
+ */
+OGDF_EXPORT void randomClusterPlanarGraph(Graph & G,ClusterGraph& CG, int clusters, int node_per_cluster, int edges_per_cluster);
 
 //! Create a random SynchronizedPlanarity instance by introducing \p pipe_count pipes between vertices of degree at least \p min_deg.
 OGDF_EXPORT void randomSyncPlanInstance(sync_plan::SyncPlan& pq, int pipe_count, int min_deg = 3);

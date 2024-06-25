@@ -579,6 +579,17 @@ public:
 	 */
 	//! @{
 
+	/**
+	 * Returns a random cluster.
+	 *
+	 * \c nullptr is returned if no feasible cluster exists.
+	 *
+	 * @see chooseIteratorFrom
+	 */
+	cluster chooseCluster(
+			std::function<bool(cluster)> includeCluster = [](cluster) { return true; },
+			bool isFastTest = true) const;
+
 	//! Turns automatic update of node depth values on or off.
 	void setUpdateDepth(bool b) const {
 		m_updateDepth = b;
@@ -971,6 +982,6 @@ OGDF_EXPORT std::ostream& operator<<(std::ostream& os, cluster c);
  */
 OGDF_EXPORT void planarizeClusterBorderCrossings(const ClusterGraph& CG, Graph& G,
 		EdgeArray<List<std::pair<adjEntry, cluster>>>* subdivisions,
-		const std::function<edge(edge)>& translate) ;
+		const std::function<edge(edge)>& translate);
 
 }
