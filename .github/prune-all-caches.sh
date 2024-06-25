@@ -21,9 +21,25 @@ KEYS=(
 
 cd $(dirname "$0")
 
+# use CLI args or default from env / working dir
+REPO="${3:-${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}}"
+
+function usage() {
+  gh api "/repos/$REPO/actions/cache/usage" | jq --raw-output \
+    '"Repo: " + (.full_name | tostring) +
+    "\nCache Count: " + (.active_caches_count | tostring) +
+    "\nCache Size: " + (.active_caches_size_in_bytes / 1024 / 1024 / 1024 * 100 | round | . / 100 | tostring) + "GB"'
+  echo
+}
+
+usage
+
 for ref in $(gh cache list --json ref --jq ".[].ref" | sort | uniq); do
   echo "Pruning ref $ref..."
   for key in ${KEYS[@]}; do
-    ./prune-caches.sh "$key" "$ref"
+    ./prune-caches.sh "$key" "$ref" "$REPO"
   done
+  echo
 done
+
+usage

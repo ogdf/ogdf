@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# use CLI args or default from env
+# use CLI args or default from env / working dir
 KEY="$1"
-REF="${2:-${WORKFLOW_REF:-${GITHUB_REF:-refs/heads/master}}}"
-REPO="${3:-${GITHUB_REPOSITORY:-ogdf/ogdf}}"
+REF="${2:-${WORKFLOW_REF:-${GITHUB_REF:-$(git symbolic-ref HEAD)}}}"
+REPO="${3:-${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}}"
 
 if [[ -z "$KEY" ]]; then
     echo "Need to specify a cache key as first arg!"
