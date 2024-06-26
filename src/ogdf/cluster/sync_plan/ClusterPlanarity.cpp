@@ -34,6 +34,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/sync_plan/ClusterPlanarity.h>
@@ -55,13 +56,48 @@ bool ogdf::SyncPlanClusterPlanarityModule::isClusterPlanarDestructive(ClusterGra
 
 bool ogdf::SyncPlanClusterPlanarityModule::clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG,
 		Graph& G) {
-	sync_plan::SyncPlan SP(&G, &CG);
+	sync_plan::SyncPlan SP(&G, &CG, m_augmentation);
 	if (SP.makeReduced() && SP.solveReduced()) {
 		SP.embed();
 		return true;
 	} else {
 		return false;
 	}
+}
+
+bool ogdf::SyncPlanClusterPlanarityModule::clusterPlanarEmbed(ogdf::ClusterGraph& CG, ogdf::Graph& G) {
+	OGDF_ASSERT(&CG.constGraph() == &G);
+	Graph Gcopy;
+	ClusterArray<cluster> copyC(CG, nullptr);
+	NodeArray<node> copyN(G, nullptr);
+	EdgeArray<edge> copyE(G, nullptr);
+	ClusterGraph CGcopy(CG, Gcopy, copyC, copyN, copyE);
+
+	EdgeArray<edge> origE(Gcopy, nullptr);
+	invertRegisteredArray(copyE, origE);
+
+	sync_plan::SyncPlan SP(&Gcopy, &CGcopy, m_augmentation);
+	if (SP.makeReduced() && SP.solveReduced()) {
+		SP.embed();
+	} else {
+		return false;
+	}
+
+	CG.adjAvailable(true);
+	copyEmbedding(Gcopy, G, [&origE](adjEntry adj) { return origE.mapEndpoint(adj); });
+	for (cluster c : CG.clusters) {
+		c->adjEntries.clear();
+		for (adjEntry adj : copyC[c]->adjEntries) {
+			c->adjEntries.pushBack(origE.mapEndpoint(adj));
+		}
+	}
+	if (m_augmentation) {
+		for (auto& pair : *m_augmentation) {
+			pair.first = origE.mapEndpoint(pair.first);
+			pair.second = origE.mapEndpoint(pair.second);
+		}
+	}
+	return true;
 }
 
 namespace ogdf::sync_plan {
@@ -78,8 +114,10 @@ class UndoInitCluster : public SyncPlan::UndoOperation {
 public:
 	ClusterGraph* cg;
 	List<FrozenCluster> clusters;
+	std::vector<std::pair<adjEntry, adjEntry>>* augmentation;
 
-	explicit UndoInitCluster(ClusterGraph* _cg) : cg(_cg) {
+	explicit UndoInitCluster(ClusterGraph* _cg, std::vector<std::pair<adjEntry, adjEntry>>* _aug)
+		: cg(_cg), augmentation(_aug) {
 		for (cluster c = cg->firstPostOrderCluster(); c != nullptr; c = c->pSucc()) {
 			auto it = clusters.emplaceFront(c->index(),
 					c->parent() != nullptr ? c->parent()->index() : -1);
@@ -89,7 +127,7 @@ public:
 		}
 	}
 
-	void processCluster(SyncPlan& pq, cluster c, int parent_node) {
+	void processCluster(SyncPlan& pq, cluster c, int parent_node, EdgeArray<int>& bicomps) {
 		node n = pq.nodeFromIndex(parent_node);
 		node t = pq.matchings.getTwin(n);
 		pq.log.lout(Logger::Level::Medium)
@@ -106,15 +144,31 @@ public:
 		join(*pq.G, t, n, bij);
 		pq.log.lout(Logger::Level::Minor) << printEdges(bij) << std::endl;
 
+		int bc_nr = augmentation != nullptr ? bicomps[bij.front().first] : -1;
+		adjEntry pred = nullptr;
 		for (const PipeBijPair& pair : bij) {
-			c->adjEntries.pushBack(pair.first->twin());
+			adjEntry curr = pair.first->twin();
+			c->adjEntries.pushBack(curr);
+			if (augmentation != nullptr && bicomps[pair.first] != bc_nr) {
+				augmentation->emplace_back(pred, curr);
+				bc_nr = bicomps[pair.first];
+			}
+			pred = curr;
 		}
 	}
 
 	void undo(SyncPlan& pq) override {
-		OGDF_ASSERT(cg->numberOfClusters() == 1);
+		// OGDF_ASSERT(cg->numberOfClusters() == 1);
+		EdgeArray<int> bicomps;
+		if (augmentation != nullptr) {
+			bicomps.init(cg->constGraph(), -1);
+			biconnectedComponents(cg->constGraph(), bicomps);
+		}
 		cg->rootCluster()->adjEntries.clear();
 		ClusterArray<cluster> cluster_index(*cg, nullptr);
+		for (cluster c : cg->clusters) {
+			cluster_index[c] = c;
+		}
 		for (FrozenCluster& fc : clusters) {
 			cluster c;
 			if (fc.index == cg->rootCluster()->index()) {
@@ -126,9 +180,10 @@ public:
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 				OGDF_ASSERT(cluster_index[fc.parent] != nullptr);
 				OGDF_ASSERT(cluster_index[fc.parent]->index() == fc.parent);
-				c = cg->newCluster(cluster_index[fc.parent], fc.index);
+				OGDF_ASSERT(cluster_index[fc.index]->index() == fc.index);
+				c = cluster_index[fc.index];
 #pragma GCC diagnostic pop
-				processCluster(pq, c, fc.parent_node);
+				processCluster(pq, c, fc.parent_node, bicomps);
 			}
 			cluster_index[c] = c;
 			for (int n : fc.nodes) {
@@ -151,7 +206,8 @@ public:
 	std::ostream& print(std::ostream& os) const override { return os << "UndoInitCluster"; }
 };
 
-SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
+SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg,
+		std::vector<std::pair<adjEntry, adjEntry>>* augmentation, ClusterGraphAttributes* cga)
 	: G(g)
 	, matchings(G)
 	, partitions(G)
@@ -165,7 +221,10 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 	OGDF_ASSERT(cg->getGraph() == g);
 	undo_stack.pushBack(new ResetIndices(*this));
 
-	auto* op = new UndoInitCluster(cg);
+	if (augmentation != nullptr) {
+		augmentation->clear();
+	}
+	auto* op = new UndoInitCluster(cg, augmentation);
 	log.lout() << "Processing " << cg->clusters.size() << " clusters (max id "
 			   << cg->maxClusterIndex() << ") from " << cg->firstPostOrderCluster()->index()
 			   << " up to, but excluding root " << cg->rootCluster()->index() << "." << std::endl;
@@ -246,7 +305,6 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* cga)
 		while (!c->nodes.empty()) {
 			cg->reassignNode(c->nodes.front(), cg->rootCluster());
 		}
-		cg->delCluster(c);
 	}
 
 	initComponents();

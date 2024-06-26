@@ -53,11 +53,7 @@ int QPartitioning::makeQVertex(node n, int p) {
 	if (p == NO_PARTITION) {
 		p = partition_next_id;
 		partition_next_id++;
-	}
-	int new_size = Math::nextPower2(MIN_TABLE_SIZE, partition_next_id);
-	if (new_size != partition_table_size) {
-		partition_table_size = new_size;
-		resizeArrays();
+		keyAdded(p);
 	}
 	partitioned_nodes[p].emplaceBack(n);
 	partitions[n] = p;

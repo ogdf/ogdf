@@ -504,15 +504,15 @@ void randomClusterPlanarGraph(Graph& G, ClusterGraph& CG, int clusters, int node
 
 	for (int i = 0; i < clusters; ++i) {
 		node n = G.chooseNode([](node x) { return x->degree() >= 4; });
-		if (!n) {
+		if (n == nullptr) {
 			break;
 		}
 		cluster c = CG.newCluster(CG.clusterOf(n));
 
 		Graph H;
-		randomPlanarConnectedGraph(G, node_per_cluster, edges_per_cluster);
+		randomPlanarConnectedGraph(H, node_per_cluster, edges_per_cluster);
 		node u = H.chooseNode([n](node x) { return x->degree() == n->degree(); });
-		if (!u) {
+		if (u == nullptr) {
 			u = H.chooseNode([n](node x) { return x->degree() >= n->degree(); });
 			if (u != nullptr) {
 				while (u->degree() > n->degree()) {
@@ -524,7 +524,7 @@ void randomClusterPlanarGraph(Graph& G, ClusterGraph& CG, int clusters, int node
 		}
 		NodeArray<node> nodeMap(H, nullptr);
 		EdgeArray<edge> edgeMap(H, nullptr);
-		G.insert(H);
+		G.insert(H, nodeMap, edgeMap);
 
 		for (node x : H.nodes) {
 			CG.reassignNode(nodeMap[x], c);

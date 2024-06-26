@@ -249,7 +249,9 @@ public:
 	 *     OGDF_ASSERT(CG.representsCombEmbedding());
 	 * }
 	 */
-	explicit SyncPlan(Graph* g, ClusterGraph* cg, ClusterGraphAttributes* ga = nullptr);
+	explicit SyncPlan(Graph* g, ClusterGraph* cg,
+			std::vector<std::pair<adjEntry, adjEntry>>* augmentation = nullptr,
+			ClusterGraphAttributes* ga = nullptr);
 
 	explicit SyncPlan(Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
 
