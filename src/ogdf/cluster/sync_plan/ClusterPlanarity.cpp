@@ -65,39 +65,19 @@ bool ogdf::SyncPlanClusterPlanarityModule::clusterPlanarEmbedClusterPlanarGraph(
 	}
 }
 
-bool ogdf::SyncPlanClusterPlanarityModule::clusterPlanarEmbed(ogdf::ClusterGraph& CG, ogdf::Graph& G) {
-	OGDF_ASSERT(&CG.constGraph() == &G);
-	Graph Gcopy;
-	ClusterArray<cluster> copyC(CG, nullptr);
-	NodeArray<node> copyN(G, nullptr);
-	EdgeArray<edge> copyE(G, nullptr);
-	ClusterGraph CGcopy(CG, Gcopy, copyC, copyN, copyE);
-
-	EdgeArray<edge> origE(Gcopy, nullptr);
-	invertRegisteredArray(copyE, origE);
-
-	sync_plan::SyncPlan SP(&Gcopy, &CGcopy, m_augmentation);
-	if (SP.makeReduced() && SP.solveReduced()) {
-		SP.embed();
-	} else {
-		return false;
-	}
-
-	CG.adjAvailable(true);
-	copyEmbedding(Gcopy, G, [&origE](adjEntry adj) { return origE.mapEndpoint(adj); });
-	for (cluster c : CG.clusters) {
-		c->adjEntries.clear();
-		for (adjEntry adj : copyC[c]->adjEntries) {
-			c->adjEntries.pushBack(origE.mapEndpoint(adj));
-		}
-	}
+void ogdf::SyncPlanClusterPlanarityModule::copyBackEmbedding(ogdf::ClusterGraph& CG, ogdf::Graph& G,
+		const ogdf::ClusterGraph& CGcopy, const ogdf::Graph& Gcopy,
+		const ogdf::ClusterArray<ogdf::cluster, true>& copyC,
+		const ogdf::NodeArray<ogdf::node, true>& copyN,
+		const ogdf::EdgeArray<ogdf::edge, true>& copyE,
+		const ogdf::EdgeArray<ogdf::edge, true>& origE) const {
+	ClusterPlanarityModule::copyBackEmbedding(CG, G, CGcopy, Gcopy, copyC, copyN, copyE, origE);
 	if (m_augmentation) {
 		for (auto& pair : *m_augmentation) {
 			pair.first = origE.mapEndpoint(pair.first);
 			pair.second = origE.mapEndpoint(pair.second);
 		}
 	}
-	return true;
 }
 
 namespace ogdf::sync_plan {
@@ -144,16 +124,18 @@ public:
 		join(*pq.G, t, n, bij);
 		pq.log.lout(Logger::Level::Minor) << printEdges(bij) << std::endl;
 
-		int bc_nr = augmentation != nullptr ? bicomps[bij.front().first] : -1;
-		adjEntry pred = nullptr;
-		for (const PipeBijPair& pair : bij) {
-			adjEntry curr = pair.first->twin();
-			c->adjEntries.pushBack(curr);
-			if (augmentation != nullptr && bicomps[pair.first] != bc_nr) {
-				augmentation->emplace_back(pred, curr);
-				bc_nr = bicomps[pair.first];
+		if (!bij.empty()) {
+			int bc_nr = augmentation != nullptr ? bicomps[bij.front().first] : -1;
+			adjEntry pred = nullptr;
+			for (const PipeBijPair& pair : bij) {
+				adjEntry curr = pair.first->twin();
+				c->adjEntries.pushBack(curr);
+				if (augmentation != nullptr && bicomps[pair.first] != bc_nr) {
+					augmentation->emplace_back(pred, curr);
+					bc_nr = bicomps[pair.first];
+				}
+				pred = curr;
 			}
-			pred = curr;
 		}
 	}
 
@@ -212,6 +194,10 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg,
 	, matchings(G)
 	, partitions(G)
 	, components(G)
+	, deletedEdges(*G)
+#ifdef OGDF_DEBUG
+	, deletedNodes(*G)
+#endif
 	, GA(cga)
 	, is_wheel(*G, false)
 #ifdef OGDF_DEBUG

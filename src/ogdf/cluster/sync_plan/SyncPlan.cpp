@@ -67,6 +67,10 @@ SyncPlan::SyncPlan(Graph* g, GraphAttributes* ga)
 	, matchings(G)
 	, partitions(G)
 	, components(G)
+	, deletedEdges(*G)
+#ifdef OGDF_DEBUG
+	, deletedNodes(*G)
+#endif
 	, GA(ga)
 	, is_wheel(*G, false)
 #ifdef OGDF_DEBUG

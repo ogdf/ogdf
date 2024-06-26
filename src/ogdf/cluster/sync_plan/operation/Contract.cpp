@@ -124,8 +124,8 @@ void findBipartiteEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 	do {
 		cean_log << "adding edge " << node_adj->theEdge()->index() << " (" << edge_types[node_adj]
 				 << ") leading to node " << node_adj->twinNode()->index() << " ("
-				 << node_types[node_adj->twinNode()] << ")"
-				 << " to out list at position " << out_edges.size() << std::endl;
+				 << node_types[node_adj->twinNode()] << ")" << " to out list at position "
+				 << out_edges.size() << std::endl;
 		edge_types[node_adj].discover();
 		out_edges.emplaceFront(node_adj, nullptr);
 
@@ -180,9 +180,8 @@ void findBiconnectedEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 			return;
 		} else if (edge_types[node_adj].selected) {
 			cean_log << "adj " << node_adj << ": edge " << node_adj->theEdge() << " and node "
-					 << node_adj->theNode() << " are selected, "
-					 << "adding to out list at position " << out_edges.size()
-					 << " and switching face" << std::endl;
+					 << node_adj->theNode() << " are selected, " << "adding to out list at position "
+					 << out_edges.size() << " and switching face" << std::endl;
 			edge_types[node_adj].discover();
 			out_edges.emplaceFront(getSelectedAdj(node_types, node_adj->theEdge()), nullptr);
 			node_adj = node_adj->twin();
@@ -222,7 +221,7 @@ public:
 		Logger::Indent _(&pq.log);
 
 		EdgeArray<FindType> edge_types(*pq.G);
-		EdgeArray<int> partner_edge_idx(*pq.G, -1);
+		EdgeArray<edge> partner_edge_idx(*pq.G, nullptr);
 		EdgeArray<bool> reverse_partner_edge(*pq.G, false);
 		auto reverse_v_it = reverse_v_edges.begin();
 		for (const FrozenPipeBijPair& pair : bij) {
@@ -231,7 +230,7 @@ public:
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 			OGDF_ASSERT(!edge_types[pair.first].selected);
 			edge_types[pair.first].selected = true;
-			partner_edge_idx[pair.first] = pair.second;
+			partner_edge_idx[pair.first] = pq.edgeFromIndex(pair.second);
 			reverse_partner_edge[pair.first] = *reverse_v_it;
 #pragma GCC diagnostic pop
 			++reverse_v_it;
@@ -293,8 +292,16 @@ public:
 		pq.log.lout(Logger::Level::Medium) << printEdges(cut_edges) << std::endl;
 		OGDF_ASSERT(cut_edges.size() == bij.size());
 
-		std::pair<node, node> nodes =
-				split(*pq.G, cut_edges, &partner_edge_idx, &reverse_partner_edge, u_idx, v_idx);
+		for (const FrozenPipeBijPair& pair : bij) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+			pq.deletedEdges.restore(partner_edge_idx[pair.first]);
+#pragma GCC diagnostic pop
+		}
+		std::pair<node, node> nodes = split(*pq.G, cut_edges, &partner_edge_idx,
+				&reverse_partner_edge, pq.nodeFromIndex(u_idx), pq.nodeFromIndex(v_idx));
+		OGDF_ASSERT(pq.deletedNodes.remove(nodes.first));
+		OGDF_ASSERT(pq.deletedNodes.remove(nodes.second));
 		pq.matchings.matchNodes(nodes.first, nodes.second);
 		pq.log.lout(Logger::Level::Medium) << pq.matchings.printBijection(nodes.first) << std::endl;
 		pq.log.lout(Logger::Level::Medium)
@@ -394,7 +401,14 @@ SyncPlan::Result SyncPlan::contract(node u) {
 
 	log.lout() << "Joining edges." << std::endl;
 	matchings.removeMatching(u);
-	join(*G, u, v, bij, &op->reverse_v_edges);
+	join(
+			*G, u, v, bij,
+			[&](node n) {
+#ifdef OGDF_DEBUG
+				deletedNodes.insert(n);
+#endif
+			},
+			[&](edge e) { deletedEdges.hide(e); }, &op->reverse_v_edges);
 	log.lout(Logger::Level::Medium) << printEdges(bij) << std::endl;
 
 	if (!biconnected) {

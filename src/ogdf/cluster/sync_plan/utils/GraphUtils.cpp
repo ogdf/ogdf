@@ -59,12 +59,16 @@ void moveEnd(Graph& G, adjEntry keep_adj, adjEntry new_adj, Direction dir) {
 }
 
 edge splitEdge(Graph& G, edge old_edge, node new_adj_to_source, node new_adj_to_target,
-		int new_edge_idx) {
+		edge new_edge) {
 	auto old_source = old_edge->source();
 	auto old_target = old_edge->target();
 
-	edge new_edge = new_edge_idx < 0 ? G.newEdge(new_adj_to_target, old_target)
-									 : G.newEdge(new_adj_to_target, old_target, new_edge_idx);
+	if (new_edge == nullptr) {
+		new_edge = G.newEdge(new_adj_to_target, old_target);
+	} else {
+		G.moveSource(new_edge, new_adj_to_target);
+		G.moveTarget(new_edge, old_target);
+	}
 	G.moveAdjAfter(new_edge->adjTarget(), old_edge->adjTarget());
 	G.moveTarget(old_edge, new_adj_to_source);
 
@@ -75,8 +79,7 @@ edge splitEdge(Graph& G, edge old_edge, node new_adj_to_source, node new_adj_to_
 	return new_edge;
 }
 
-adjEntry splitEdge(Graph& G, adjEntry adj, node new_adj_to_node, node new_adj_to_twin,
-		int new_edge_idx) {
+adjEntry splitEdge(Graph& G, adjEntry adj, node new_adj_to_node, node new_adj_to_twin, edge new_edge) {
 	bool reverse = !adj->isSource();
 	edge e = adj->theEdge();
 	node n = adj->theNode();
@@ -86,7 +89,7 @@ adjEntry splitEdge(Graph& G, adjEntry adj, node new_adj_to_node, node new_adj_to
 	}
 	// A ----------e---------> D
 	// A ---e--> B   C ---c--> D
-	edge c = splitEdge(G, e, new_adj_to_node, new_adj_to_twin, new_edge_idx);
+	edge c = splitEdge(G, e, new_adj_to_node, new_adj_to_twin, new_edge);
 	OGDF_ASSERT(e->source() == n);
 	OGDF_ASSERT(e->target() == new_adj_to_node);
 	OGDF_ASSERT(c->source() == new_adj_to_twin);
@@ -104,11 +107,21 @@ bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v) {
 }
 
 bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v) {
+	return joinEdge(G, u_adj, v_adj, u, v, [&G](edge e) { G.delEdge(e); });
+}
+
+bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v,
+		const std::function<void(edge)>& deleteEdge) {
+	return joinEdge(G, u_e->getAdj(u), v_e->getAdj(v), u, v, deleteEdge);
+}
+
+bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v,
+		const std::function<void(edge)>& deleteEdge) {
 	OGDF_ASSERT(u_adj->theNode() == u);
 	OGDF_ASSERT(v_adj->theNode() == v);
 	bool opposing = (u_adj->isSource() == v_adj->isSource());
 	moveEnd(G, u_adj->twin(), v_adj->twin());
-	G.delEdge(v_adj->theEdge());
+	deleteEdge(v_adj->theEdge());
 	return opposing;
 }
 

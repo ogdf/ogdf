@@ -45,14 +45,20 @@ void moveEnd(Graph& G, edge e, node keep_end, node new_end);
 void moveEnd(Graph& G, adjEntry keep_adj, adjEntry new_adj, Direction dir = Direction::after);
 
 edge splitEdge(Graph& G, edge old_edge, node new_adj_to_source, node new_adj_to_target,
-		int new_edge_idx = -1);
+		edge new_edge = nullptr);
 
 adjEntry splitEdge(Graph& G, adjEntry adj, node new_adj_to_node, node new_adj_to_twin,
-		int new_edge_idx = -1);
+		edge new_edge = nullptr);
 
 bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v);
 
 bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v);
+
+bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v,
+		const std::function<void(edge)>& deleteEdge);
+
+bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v,
+		const std::function<void(edge)>& deleteEdge);
 
 void assertStarCentreAndRay(node centre, node ray);
 

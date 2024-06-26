@@ -101,15 +101,19 @@ void freezePipeBijection(const PipeBij& in, FrozenPipeBij& out) {
 	}
 }
 
-std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<int>* split_idcs,
-		const EdgeArray<bool>* split_reverse, int src_idx, int tgt_idx) {
-	node src = src_idx < 0 ? G.newNode() : G.newNode(src_idx);
-	node tgt = tgt_idx < 0 ? G.newNode() : G.newNode(tgt_idx);
+std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<edge>* new_edges,
+		const EdgeArray<bool>* reverse_edges, node src, node tgt) {
+	if (src == nullptr) {
+		src = G.newNode();
+	}
+	if (tgt == nullptr) {
+		tgt = G.newNode();
+	}
 	for (auto& pair : bij) {
 		OGDF_ASSERT(pair.second == nullptr);
-		int split_idx = split_idcs == nullptr ? -1 : (*split_idcs)[pair.first];
-		pair.second = splitEdge(G, pair.first, src, tgt, split_idx);
-		if (split_reverse != nullptr && (*split_reverse)[pair.first]) {
+		edge new_edge = new_edges == nullptr ? nullptr : (*new_edges)[pair.first];
+		pair.second = splitEdge(G, pair.first, src, tgt, new_edge);
+		if (reverse_edges != nullptr && (*reverse_edges)[pair.first]) {
 			G.reverseEdge(pair.second->theEdge());
 		}
 	}
@@ -118,11 +122,16 @@ std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<int>* split_
 }
 
 void join(Graph& G, node u, node v, PipeBij& bij, List<bool>* reverse_v) {
+	join(G, u, v, bij, [&G](node n) { G.delNode(n); }, [&G](edge e) { G.delEdge(e); }, reverse_v);
+}
+
+void join(Graph& G, node u, node v, PipeBij& bij, const std::function<void(node)>& deleteNode,
+		const std::function<void(edge)>& deleteEdge, List<bool>* reverse_v) {
 	OGDF_ASSERT(u->degree() == bij.size());
 	OGDF_ASSERT(v->degree() == bij.size());
 	for (auto& pair : bij) {
 		adjEntry f = pair.first->twin();
-		bool rev = joinEdge(G, pair.first, pair.second, u, v);
+		bool rev = joinEdge(G, pair.first, pair.second, u, v, deleteEdge);
 		if (reverse_v) {
 			reverse_v->pushBack(rev);
 		}
@@ -131,8 +140,8 @@ void join(Graph& G, node u, node v, PipeBij& bij, List<bool>* reverse_v) {
 	}
 	OGDF_ASSERT(u->degree() == 0);
 	OGDF_ASSERT(v->degree() == 0);
-	G.delNode(u);
-	G.delNode(v);
+	deleteNode(u);
+	deleteNode(v);
 }
 
 }

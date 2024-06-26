@@ -117,7 +117,8 @@ public:
 		}
 #pragma GCC diagnostic pop
 
-		node u = pq.G->newNode(u_idx);
+		node u = pq.nodeFromIndex(u_idx);
+		OGDF_ASSERT(pq.deletedNodes.remove(u));
 		edge ue = pq.G->newEdge(u, pq.nodeFromIndex(pct_u.front()));
 		pq.log.lout() << "Collapsing tree at u into " << pq.fmtPQNode(u, false) << " via edge #"
 					  << ue->index() << " " << ue << "." << std::endl;
@@ -127,7 +128,8 @@ public:
 		OGDF_ASSERT(un == pct_u.size());
 		OGDF_ASSERT(u->degree() == degree);
 
-		node v = pq.G->newNode(v_idx);
+		node v = pq.nodeFromIndex(v_idx);
+		OGDF_ASSERT(pq.deletedNodes.remove(v));
 		edge ve = pq.G->newEdge(v, pq.nodeFromIndex(pct_v.front()));
 		pq.log.lout() << "Collapsing tree at v into " << pq.fmtPQNode(v, false) << " via edge #"
 					  << ve->index() << " " << ve << "." << std::endl;
@@ -419,8 +421,10 @@ SyncPlan::Result SyncPlan::propagatePQ(node u, NodePCRotation* pct, NodePCRotati
 
 	OGDF_ASSERT(u->degree() == 0);
 	OGDF_ASSERT(v->degree() == 0);
-	G->delNode(u);
-	G->delNode(v);
+#ifdef OGDF_DEBUG
+	deletedNodes.insert(u);
+	deletedNodes.insert(v);
+#endif
 	pushUndoOperationAndCheck(undo_op);
 
 	for (node w : make_wheels) {
