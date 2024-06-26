@@ -209,7 +209,6 @@ bool SyncPlanConsistency::consistencyCheck() {
 #ifdef OGDF_DEBUG
 	pq.G->consistencyCheck();
 	pq.components.bcTree().consistencyCheck();
-#endif
 
 	NodeArray<node> node_reg(*pq.G, nullptr);
 	NodeArray<node> bc_reg(pq.components.BC, nullptr);
@@ -219,6 +218,9 @@ bool SyncPlanConsistency::consistencyCheck() {
 
 	int q_count = 0, p_count = 0;
 	for (node n : pq.G->nodes) {
+		if (pq.deletedNodes.isMember(n)) {
+			continue;
+		}
 		node_reg[n] = n;
 		OGDF_ASSERT(!(pq.matchings.isMatchedPVertex(n) && pq.partitions.isQVertex(n)));
 		// OGDF_ASSERT(!(pq.partitions.isQVertex(n) && pq.components.isCutVertex(n) && n->degree() > 3));
@@ -264,6 +266,9 @@ bool SyncPlanConsistency::consistencyCheck() {
 	q_count = 0;
 	for (int part = 0; part < pq.partitions.partitionCount(); part++) {
 		for (node u : pq.partitions.nodesInPartition(part)) {
+			if (pq.deletedNodes.isMember(u)) {
+				continue;
+			}
 			OGDF_ASSERT(node_reg[u] == u);
 			OGDF_ASSERT(pq.partitions.getPartitionOf(u) == part);
 			// OGDF_ASSERT(!pq.components.isCutVertex(u) || u->degree() <= 3);
@@ -297,15 +302,16 @@ bool SyncPlanConsistency::consistencyCheck() {
 	// }
 
 	checkComponentRegeneration();
+#endif
 	checkCounter++;
 	return true;
 }
 
 void SyncPlanConsistency::checkComponentRegeneration() {
+#ifdef OGDF_DEBUG
 	BCTree ref_bc(*pq.G, true);
 	NodeArray<int> ref_conn(ref_bc.bcTree(), 0);
 	int ref_conn_count = connectedComponents(ref_bc.bcTree(), ref_conn);
-	int isolated_count = 0;
 	{
 		NodeArray<bool> bc_seen(ref_bc.bcTree(), false);
 		NodeArray<node> bc_store(ref_bc.bcTree(), nullptr);
@@ -313,12 +319,13 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 
 		for (node g_n : pq.G->nodes) {
 			if (g_n->degree() == 0) {
-				isolated_count++;
-				node bc = pq.components.biconnectedComponent(g_n);
-				OGDF_ASSERT(bc->degree() == 0);
-				OGDF_ASSERT(pq.components.bcRepr(bc) == g_n);
-				OGDF_ASSERT(pq.components.bc_size[bc] == 1);
-				OGDF_ASSERT(!pq.components.isCutComponent(bc));
+				if (!pq.deletedNodes.isMember(g_n)) {
+					node bc = pq.components.biconnectedComponent(g_n);
+					OGDF_ASSERT(bc->degree() == 0);
+					OGDF_ASSERT(pq.components.bcRepr(bc) == g_n);
+					OGDF_ASSERT(pq.components.bc_size[bc] == 1);
+					OGDF_ASSERT(!pq.components.isCutComponent(bc));
+				}
 				continue;
 			}
 			node v1 = ref_bc.bcproper(g_n);
@@ -342,7 +349,8 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 			}
 		}
 	}
-	OGDF_ASSERT(ref_bc.bcTree().numberOfNodes() == pq.components.bcTree().numberOfNodes());
+	OGDF_ASSERT(ref_bc.bcTree().numberOfNodes()
+			== pq.components.bcTree().numberOfNodes() + pq.deletedNodes.size());
 	{
 		Array<bool> conn_seen(0, ref_conn_count - 1, false);
 		Array<int> conn_store(0, ref_conn_count - 1, -1);
@@ -370,7 +378,8 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 			}
 		}
 	}
-	OGDF_ASSERT(ref_conn_count == pq.components.connectedCount());
+	OGDF_ASSERT(ref_conn_count == pq.components.connectedCount() + pq.deletedNodes.size());
+#endif
 }
 
 }

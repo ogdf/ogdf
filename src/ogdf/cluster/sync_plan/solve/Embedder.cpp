@@ -126,6 +126,9 @@ void SyncPlan::embed() {
 	int undo_cnt = undo_stack.size();
 	log.lout(Logger::Level::High) << undo_cnt << " Operations to undo" << std::endl;
 	UpdateGraphReg updater(G, &node_reg, &edge_reg);
+	for (edge e : deletedEdges) {
+		edge_reg[e] = e;
+	}
 	OGDF_ASSERT(matchings.isReduced());
 	matchings.setPipeQueue(nullptr);
 	while (!undo_stack.empty()) {

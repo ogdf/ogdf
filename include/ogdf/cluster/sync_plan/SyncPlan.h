@@ -192,6 +192,10 @@ public:
 private:
 	List<UndoOperation*> undo_stack;
 	SyncPlanComponents components;
+	Graph::HiddenEdgeSet deletedEdges;
+#ifdef OGDF_DEBUG
+	NodeSet<> deletedNodes;
+#endif
 	GraphAttributes* GA;
 	NodeArray<node> node_reg;
 	EdgeArray<edge> edge_reg;

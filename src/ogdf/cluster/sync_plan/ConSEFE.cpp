@@ -115,6 +115,10 @@ SyncPlan::SyncPlan(Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 	, matchings(G)
 	, partitions(G)
 	, components(G)
+	, deletedEdges(*G)
+#ifdef OGDF_DEBUG
+	, deletedNodes(*G)
+#endif
 	, GA(nullptr)
 	, is_wheel(*G, false)
 #ifdef OGDF_DEBUG

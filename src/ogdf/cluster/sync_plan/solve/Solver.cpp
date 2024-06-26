@@ -179,6 +179,10 @@ bool SyncPlan::solveReduced(bool fail_fast) {
 	// copy embedding back into G
 	log.lout(Logger::Level::High) << "Copying embedding back to graph" << std::endl;
 	for (node n : G->nodes) {
+		if (n->degree() < 2) {
+			continue;
+		}
+		OGDF_ASSERT(!deletedNodes.isMember(n));
 		List<adjEntry> new_adj;
 		if (components.isCutVertex(n)) {
 			OGDF_ASSERT(!partitions.isQVertex(n));

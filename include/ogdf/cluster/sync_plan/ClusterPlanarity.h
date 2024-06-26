@@ -42,7 +42,6 @@ class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule
 public:
 	bool isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) override;
 	bool clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) override;
-	bool clusterPlanarEmbed(ClusterGraph& CG, Graph& G)  override;;
 
 	//! When set to a non-null pointer, will contain the augmentation edges to make the graph c-connected c-plane after calling clusterPlanarEmbed().
 	void setStoredAugmentation(std::vector<std::pair<adjEntry, adjEntry>>* augmentation) {
@@ -52,6 +51,11 @@ public:
 	std::vector<std::pair<adjEntry, adjEntry>>* getStoredAugmentation() const {
 		return m_augmentation;
 	}
+
+protected:
+	void copyBackEmbedding(ClusterGraph& CG, Graph& G, const ClusterGraph& CGcopy, const Graph& Gcopy,
+			const ClusterArray<cluster, true>& copyC, const NodeArray<node, true>& copyN,
+			const EdgeArray<edge, true>& copyE, const EdgeArray<edge, true>& origE) const override;
 };
 
 //! Perform the reduction from level- to cluster planarity.

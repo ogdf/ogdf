@@ -65,9 +65,13 @@ void getFrozenPipeBijection(node u, node v, FrozenPipeBij& out);
 void freezePipeBijection(const PipeBij& in, FrozenPipeBij& out);
 
 std::pair<node, node> split(Graph& G, sync_plan::PipeBij& bij,
-		const EdgeArray<int>* split_idcs = nullptr, const EdgeArray<bool>* split_reverse = nullptr,
-		int src_idx = -1, int tgt_idx = -1);
+		const EdgeArray<edge>* new_edges = nullptr, const EdgeArray<bool>* reverse_edges = nullptr,
+		node src = nullptr, node tgt = nullptr);
 
 void join(Graph& G, node u, node v, sync_plan::PipeBij& bij, List<bool>* reverse_v = nullptr);
+
+void join(Graph& G, node u, node v, sync_plan::PipeBij& bij,
+		const std::function<void(node)>& deleteNode, const std::function<void(edge)>& deleteEdge,
+		List<bool>* reverse_v = nullptr);
 
 }
