@@ -173,7 +173,7 @@ public:
 private:
 	//! #m_it[\a v] contains the list iterator pointing to \a v if \a v is contained in this set,
 	//! or an invalid list iterator otherwise.
-	RegisteredArrayWithoutDefault<Registry, ListIterator<element_type>> m_it;
+	RegisteredArray<Registry, ListIterator<element_type>, false> m_it;
 
 	//! The list of elements contained in this set.
 	list_type m_elements;

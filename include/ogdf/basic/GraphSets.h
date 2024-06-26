@@ -49,14 +49,14 @@ namespace ogdf {
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
-class NodeSet : public RegisteredSet<GraphNodeRegistry, SupportFastSizeQuery> {
-	using RS = RegisteredSet<GraphNodeRegistry, SupportFastSizeQuery>;
+class NodeSet : public RegisteredSet<internal::GraphNodeRegistry, SupportFastSizeQuery> {
+	using RS = RegisteredSet<internal::GraphNodeRegistry, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Creates a new node set associated with \p graph.
-	explicit NodeSet(const Graph& graph) : RS((const GraphNodeRegistry&)graph) {};
+	explicit NodeSet(const Graph& graph) : RS((const internal::GraphNodeRegistry&)graph) {};
 
 	//! Creates an empty node set associated with no graph.
 	explicit NodeSet() = default;
@@ -84,14 +84,14 @@ public:
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
-class EdgeSet : public RegisteredSet<GraphEdgeRegistry, SupportFastSizeQuery> {
-	using RS = RegisteredSet<GraphEdgeRegistry, SupportFastSizeQuery>;
+class EdgeSet : public RegisteredSet<internal::GraphEdgeRegistry, SupportFastSizeQuery> {
+	using RS = RegisteredSet<internal::GraphEdgeRegistry, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Creates a new edge set associated with \p graph.
-	explicit EdgeSet(const Graph& graph) : RS((const GraphEdgeRegistry&)graph) {};
+	explicit EdgeSet(const Graph& graph) : RS((const internal::GraphEdgeRegistry&)graph) {};
 
 	//! Creates an empty edge set associated with no graph.
 	explicit EdgeSet() = default;
@@ -119,14 +119,14 @@ public:
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
-class AdjEntrySet : public RegisteredSet<GraphAdjRegistry, SupportFastSizeQuery> {
-	using RS = RegisteredSet<GraphAdjRegistry, SupportFastSizeQuery>;
+class AdjEntrySet : public RegisteredSet<internal::GraphAdjRegistry, SupportFastSizeQuery> {
+	using RS = RegisteredSet<internal::GraphAdjRegistry, SupportFastSizeQuery>;
 
 public:
 	using RS::RS;
 
 	//! Creates a new adjEntry set associated with \p graph.
-	explicit AdjEntrySet(const Graph& graph) : RS((const GraphAdjRegistry&)graph) {};
+	explicit AdjEntrySet(const Graph& graph) : RS((const internal::GraphAdjRegistry&)graph) {};
 
 	//! Creates an empty adjEntry set associated with no graph.
 	explicit AdjEntrySet() = default;
