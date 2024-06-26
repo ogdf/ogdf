@@ -59,23 +59,24 @@ public:
 
 	//! Returns true, if \p CG is cluster-planar, false otherwise. If true, \p CG contains a cluster-planar embedding.
 	virtual bool clusterPlanarEmbed(ClusterGraph& CG, Graph& G) {
-		GraphCopy Gcopy;
-		Gcopy.setOriginalGraph(G);
-
-		ClusterArray<cluster> origC;
-		NodeArray<node> origN;
-		EdgeArray<edge> origE;
-		ClusterGraph CGcopy(CG, Gcopy, origC, origN, origE);
+		OGDF_ASSERT(&CG.constGraph() == &G);
+		Graph Gcopy;
+		ClusterArray<cluster> copyC;
+		NodeArray<node> copyN;
+		EdgeArray<edge> copyE;
+		ClusterGraph CGcopy(CG, Gcopy, copyC, copyN, copyE);
 
 		if (!clusterPlanarEmbedClusterPlanarGraph(CGcopy, Gcopy)) {
 			return false;
 		}
+		EdgeArray<edge> origE(G, nullptr);
+		invertRegisteredArray(copyE, origE);
 		CG.adjAvailable(true);
-		Gcopy.setOriginalEmbedding();
-		for (cluster c : CGcopy.clusters) {
-			origC[c]->adjEntries.clear();
+		copyEmbedding(Gcopy, G, [&origE](adjEntry adj) { return origE.mapEndpoint(adj); });
+		for (cluster c : CG.clusters) {
+			copyC[c]->adjEntries.clear();
 			for (adjEntry adj : c->adjEntries) {
-				origC[c]->adjEntries.pushBack(Gcopy.original(adj));
+				copyC[c]->adjEntries.pushBack(copyE.mapEndpoint(adj));
 			}
 		}
 		return true;

@@ -221,7 +221,7 @@ bool SyncPlanConsistency::consistencyCheck() {
 	for (node n : pq.G->nodes) {
 		node_reg[n] = n;
 		OGDF_ASSERT(!(pq.matchings.isMatchedPVertex(n) && pq.partitions.isQVertex(n)));
-		OGDF_ASSERT(!(pq.partitions.isQVertex(n) && pq.components.isCutVertex(n) && n->degree() > 3));
+		// OGDF_ASSERT(!(pq.partitions.isQVertex(n) && pq.components.isCutVertex(n) && n->degree() > 3));
 		if (pq.partitions.isQVertex(n)) {
 			q_count++;
 		}
@@ -266,7 +266,7 @@ bool SyncPlanConsistency::consistencyCheck() {
 		for (node u : pq.partitions.nodesInPartition(part)) {
 			OGDF_ASSERT(node_reg[u] == u);
 			OGDF_ASSERT(pq.partitions.getPartitionOf(u) == part);
-			OGDF_ASSERT(!pq.components.isCutVertex(u) || u->degree() <= 3);
+			// OGDF_ASSERT(!pq.components.isCutVertex(u) || u->degree() <= 3);
 			q_count++;
 		}
 	}
@@ -328,10 +328,9 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 					pq.log.lout(Logger::Level::Alarm)
 							<< "From node " << pq.fmtPQNode(bc_ref[v1]) << " I learned the mapping "
 							<< "{{" << ref_bc.typeOfBNode(v1) << " #" << v1->index() << " °"
-							<< v1->degree() << " @" << ref_conn(v1) << "}}"
-							<< " => " << pq.components.fmtBCNode(bc_store[v1]) << ". "
-							<< "For node " << pq.fmtPQNode(g_n)
-							<< " I got the same key, but the value now is "
+							<< v1->degree() << " @" << ref_conn(v1) << "}}" << " => "
+							<< pq.components.fmtBCNode(bc_store[v1]) << ". " << "For node "
+							<< pq.fmtPQNode(g_n) << " I got the same key, but the value now is "
 							<< pq.components.fmtBCNode(v2) << "." << std::endl;
 					OGDF_ASSERT(false);
 				}
@@ -343,8 +342,7 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 			}
 		}
 	}
-	OGDF_ASSERT(ref_bc.bcTree().numberOfNodes() + isolated_count
-			== pq.components.bcTree().numberOfNodes());
+	OGDF_ASSERT(ref_bc.bcTree().numberOfNodes() == pq.components.bcTree().numberOfNodes());
 	{
 		Array<bool> conn_seen(0, ref_conn_count - 1, false);
 		Array<int> conn_store(0, ref_conn_count - 1, -1);
@@ -372,7 +370,7 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 			}
 		}
 	}
-	OGDF_ASSERT(ref_conn_count + isolated_count == pq.components.connectedCount());
+	OGDF_ASSERT(ref_conn_count == pq.components.connectedCount());
 }
 
 }

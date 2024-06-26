@@ -141,8 +141,8 @@ void ClusterGraph::copyClusterTree(const ClusterGraph& C, const Graph& G,
 		}
 	}
 
-	for (node v : G.nodes) {
-		reassignNode(v, originalClusterTable[C.clusterOf(nodeMap(v))]);
+	for (node v : C.constGraph().nodes) {
+		reassignNode(nodeMap(v), originalClusterTable[C.clusterOf(v)]);
 	}
 
 	copyLCA(C);
@@ -205,20 +205,15 @@ void ClusterGraph::reinitGraph(const Graph& G) {
 
 // Copy Function
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G) {
-	const Graph& cG = C; // original graph
-
 	ClusterArray<cluster> originalClusterTable(C);
-	NodeArray<node> originalNodeTable(cG);
-	EdgeArray<edge> edgeCopy(cG);
-
+	NodeArray<node> originalNodeTable(C.constGraph());
+	EdgeArray<edge> edgeCopy(C.constGraph());
 	deepCopy(C, G, originalClusterTable, originalNodeTable, edgeCopy);
 }
 
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable) {
-	const Graph& cG = C; // original graph
-
-	EdgeArray<edge> edgeCopy(cG);
+	EdgeArray<edge> edgeCopy(C.constGraph());
 	deepCopy(C, G, originalClusterTable, originalNodeTable, edgeCopy);
 }
 
@@ -231,6 +226,9 @@ void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 	resizeArrays(C.numberOfClusters() + 1);
 	initGraph(G);
 	G.insert(C.constGraph(), originalNodeTable, edgeCopy);
+	if (!originalClusterTable.registeredAt()) {
+		originalClusterTable.init(C, nullptr);
+	}
 	copyClusterTree(C, G, originalClusterTable, originalNodeTable);
 }
 

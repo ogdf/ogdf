@@ -39,12 +39,12 @@
 #include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/basic/pctree/PCRegistry.h>
 #include <ogdf/basic/pctree/PCTreeIterators.h>
+#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/QPartitioning.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
@@ -309,6 +309,7 @@ SyncPlan::Result SyncPlan::propagatePQ(node u, NodePCRotation* pct, NodePCRotati
 	NodeArray<PCNode*> pcg_to_pct(pcg, nullptr);
 	PCTreeNodeArray<ogdf::node> pct_to_pcg(*pct, nullptr);
 	pct->getTree(pcg, nullptr, pct_to_pcg);
+	pcg.reverseAllEdges();
 	for (PCNode* pctn : pct->allNodes()) {
 		pcg_to_pct[pct_to_pcg[pctn]] = pctn;
 	}
