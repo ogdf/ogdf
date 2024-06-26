@@ -792,4 +792,7 @@ protected:
 			edge eOrig1, edge eOrig2);
 };
 
+OGDF_EXPORT void copyEmbedding(const Graph& from, Graph& to,
+		std::function<adjEntry(adjEntry)> adjMapFromTo);
+
 }
