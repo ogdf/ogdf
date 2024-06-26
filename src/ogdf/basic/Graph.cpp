@@ -716,6 +716,7 @@ std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 }
 
 #ifndef DOXYGEN_IGNORE
+namespace internal {
 GraphNodeRegistry::iterator begin(const GraphNodeRegistry& reg) {
 	return reg.graphOf()->nodes.begin();
 }
@@ -734,6 +735,7 @@ GraphAdjRegistry::iterator begin(const GraphAdjRegistry& reg) {
 
 GraphAdjRegistry::iterator end(const GraphAdjRegistry& reg) {
 	return GraphAdjIterator(reg.graphOf());
+}
 }
 #endif
 
