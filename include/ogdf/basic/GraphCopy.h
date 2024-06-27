@@ -467,13 +467,13 @@ public:
 	 * \return the corresponding adjacency entry in the original graph or nullptr if it does not exist.
 	 */
 	adjEntry copy(adjEntry adj) const override {
-		edge e = adj->theEdge();
-		if (e == nullptr) {
+		auto& el = m_eCopy[adj->theEdge()];
+		if (el.empty()) {
 			return nullptr;
 		} else if (adj->isSource()) {
-			return m_eCopy[e].front()->adjSource();
+			return el.front()->adjSource();
 		} else {
-			return m_eCopy[e].back()->adjTarget();
+			return el.back()->adjTarget();
 		}
 	}
 

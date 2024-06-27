@@ -172,7 +172,11 @@ void GraphCopySimple::copyEmbeddingToOriginal(Graph& orig) const {
 		node v = original(adj->theNode());
 		edge e = original(adj->theEdge());
 		if (v != nullptr && e != nullptr && e->isIncident(v)) {
-			return e->getAdj(v);
+			if (e->isSelfLoop()) {
+				return adj->isSource() ? e->adjSource() : e->adjTarget();
+			} else {
+				return e->getAdj(v);
+			}
 		} else {
 			return nullptr;
 		}
@@ -184,7 +188,11 @@ void GraphCopySimple::setOriginalEmbedding() {
 		node v = copy(adj->theNode());
 		edge e = copy(adj->theEdge());
 		if (v != nullptr && e != nullptr && e->isIncident(v)) {
-			return e->getAdj(v);
+			if (e->isSelfLoop()) {
+				return adj->isSource() ? e->adjSource() : e->adjTarget();
+			} else {
+				return e->getAdj(v);
+			}
 		} else {
 			return nullptr;
 		}
@@ -192,7 +200,19 @@ void GraphCopySimple::setOriginalEmbedding() {
 }
 
 void GraphCopy::setOriginalEmbedding() {
-	copyEmbedding(original(), *this, [this](adjEntry adj) -> adjEntry { return copy(adj); });
+	copyEmbedding(original(), *this, [this](adjEntry adj) -> adjEntry {
+		node cnode = copy(adj->theNode());
+		adjEntry cadj = copy(adj);
+		if (cadj == nullptr || cadj->theNode() == cnode) {
+			return cadj;
+		}
+		cadj = copy(adj->twin());
+		if (cadj == nullptr || cadj->theNode() == cnode) {
+			return cadj;
+		} else {
+			return nullptr;
+		}
+	});
 }
 
 void* GraphCopyBase::preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,
