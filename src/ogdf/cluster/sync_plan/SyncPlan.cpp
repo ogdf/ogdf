@@ -94,6 +94,13 @@ void SyncPlan::formatNode(node n) const {
 	if (GA == nullptr) {
 		return;
 	}
+#ifdef OGDF_DEBUG
+	if (deletedNodes.isMember(n)) {
+		GA->width(n) = 0;
+		GA->height(n) = 0;
+		return;
+	}
+#endif
 	ogdf::sync_plan::formatNode(n, GA, components.biconnectedId(n));
 	if (matchings.isMatchedPVertex(n)) {
 		GA->width(n) = 10;

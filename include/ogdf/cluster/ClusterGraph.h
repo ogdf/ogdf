@@ -509,7 +509,7 @@ public:
 	 * @param parent is the parent of the new cluster.
 	 * \return the created cluster.
 	 */
-	cluster createCluster(SList<node>& nodes, const cluster parent = nullptr);
+	cluster createCluster(const SList<node>& nodes, const cluster parent = nullptr);
 
 	//! Deletes cluster \p c.
 	/**
@@ -812,11 +812,11 @@ protected:
 
 	//! Creates new cluster containing nodes in parameter list
 	//! with index \p clusterId.
-	cluster doCreateCluster(SList<node>& nodes, const cluster parent, int clusterId = -1);
+	cluster doCreateCluster(const SList<node>& nodes, const cluster parent, int clusterId = -1);
 
 	//! Creates new cluster containing nodes in parameter list and
 	//! stores resulting empty clusters in list, cluster has index \p clusterId.
-	cluster doCreateCluster(SList<node>& nodes, SList<cluster>& emptyCluster, const cluster parent,
+	cluster doCreateCluster(const SList<node>& nodes, SList<cluster>& emptyCluster, const cluster parent,
 			int clusterId = -1);
 
 	//! Clears all cluster data.
