@@ -65,6 +65,8 @@ std::ostream& operator<<(std::ostream& os, const ogdf::Graph& G);
 
 std::ostream& operator<<(std::ostream& os, const ogdf::ClusterGraph& CG);
 
+OGDF_CONTAINER_PRINTER(printContainer);
+
 OGDF_CONTAINER_PRINTER(printIncidentEdges);
 
 OGDF_CONTAINER_PRINTER(printEdges);
@@ -72,6 +74,16 @@ OGDF_CONTAINER_PRINTER(printEdges);
 OGDF_CONTAINER_PRINTER(printBijection);
 
 OGDF_CONTAINER_PRINTER(printFrozenBijection);
+
+template<typename Container>
+std::ostream& operator<<(std::ostream& os, const printContainer<Container>& inst) {
+	bool first = true;
+	for (const auto& entry : inst.container) {
+		os << (first ? "" : ", ") << entry;
+		first = false;
+	}
+	return os;
+}
 
 template<typename Container>
 std::ostream& operator<<(std::ostream& os, const printIncidentEdges<Container>& inst) {

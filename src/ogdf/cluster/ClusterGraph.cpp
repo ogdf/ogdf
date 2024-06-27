@@ -524,7 +524,7 @@ cluster ClusterGraph::createEmptyCluster(const cluster parent, int clusterId) {
 	return cnew;
 }
 
-cluster ClusterGraph::createCluster(SList<node>& nodes, const cluster parent) {
+cluster ClusterGraph::createCluster(const SList<node>& nodes, const cluster parent) {
 	cluster c;
 	if (m_allowEmptyClusters) {
 		c = doCreateCluster(nodes, parent);
@@ -544,7 +544,7 @@ cluster ClusterGraph::createCluster(SList<node>& nodes, const cluster parent) {
 	return c;
 }
 
-cluster ClusterGraph::doCreateCluster(SList<node>& nodes, const cluster parent, int clusterId) {
+cluster ClusterGraph::doCreateCluster(const SList<node>& nodes, const cluster parent, int clusterId) {
 	if (nodes.empty()) {
 		return nullptr;
 	}
@@ -569,7 +569,7 @@ cluster ClusterGraph::doCreateCluster(SList<node>& nodes, const cluster parent, 
 	return cnew;
 }
 
-cluster ClusterGraph::doCreateCluster(SList<node>& nodes, SList<cluster>& emptyCluster,
+cluster ClusterGraph::doCreateCluster(const SList<node>& nodes, SList<cluster>& emptyCluster,
 		const cluster parent, int clusterId) {
 	// Even if m_allowEmptyClusters is set we check if a cluster
 	// looses all of its nodes and has

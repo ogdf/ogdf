@@ -519,6 +519,7 @@ void randomClusterPlanarGraph(Graph& G, ClusterGraph& CG, int clusters, int node
 					H.delEdge(u->adjEntries.head()->theEdge());
 				}
 			} else {
+				CG.delCluster(c);
 				continue;
 			}
 		}

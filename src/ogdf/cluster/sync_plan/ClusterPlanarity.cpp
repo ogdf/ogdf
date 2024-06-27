@@ -34,6 +34,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
@@ -115,25 +116,61 @@ public:
 				<< " matched with " << pq.fmtPQNode(t, false) << " in the parent cluster "
 				<< c->parent() << std::endl;
 		Logger::Indent _(&pq.log);
-		pq.log.lout(Logger::Level::Minor) << c->nodes << std::endl;
 
-		PipeBij bij;
+		PipeBij bij; // first is parent cluster adj, second is adj in current cluster
 		pq.matchings.getIncidentEdgeBijection(t, bij);
 		pq.log.lout(Logger::Level::Minor) << printBijection(bij) << std::endl;
+
+		std::vector<int> to_augment;
+		if (augmentation != nullptr && !bij.empty()) {
+			auto& s = pq.log.lout(Logger::Level::Minor) << "Outer/Inner Block IDs: ";
+			int bc_nr1 = bicomps[bij.back().first];
+			int bc_nr2 = bicomps[bij.back().second];
+			int idx = 0;
+			for (const PipeBijPair& pair : bij) {
+				if (bicomps[pair.first] != bc_nr1) {
+					bc_nr1 = bicomps[pair.first];
+					// we are only augmenting the inside to be connected, the outside may be non-connected
+					// to_augment.emplace_back(idx, false);
+				}
+				if (bicomps[pair.second] != bc_nr2) {
+					bc_nr2 = bicomps[pair.second];
+					to_augment.emplace_back(idx);
+				}
+				s << bc_nr1 << "/" << bc_nr2 << " ";
+				idx++;
+			}
+			s << std::endl;
+			pq.log.lout(Logger::Level::Minor)
+					<< "Will insert " << to_augment.size() << "/" << bij.size()
+					<< " augmentation edges: [" << printContainer(to_augment) << "]" << std::endl;
+			// we found all component changes cyclically, we thus need to insert one fewer edge to make it connected
+			if (!to_augment.empty()) {
+				to_augment.pop_back();
+			}
+		}
+
 		pq.matchings.removeMatching(n, t);
 		join(*pq.G, t, n, bij);
 		pq.log.lout(Logger::Level::Minor) << printEdges(bij) << std::endl;
 
 		if (!bij.empty()) {
-			int bc_nr = augmentation != nullptr ? bicomps[bij.front().first] : -1;
-			adjEntry pred = nullptr;
+			// only the adj in the parent cluster survived the join, take its twin to get the (new) adj in this cluster
+			adjEntry pred = bij.back().first->twin();
+			int bij_idx = 0;
+			int vec_idx = 0;
 			for (const PipeBijPair& pair : bij) {
 				adjEntry curr = pair.first->twin();
+				// generate embedding
 				c->adjEntries.pushBack(curr);
-				if (augmentation != nullptr && bicomps[pair.first] != bc_nr) {
+
+				// also check whether we want to insert an augmentation edge here
+				if (vec_idx < to_augment.size() && to_augment[vec_idx] == bij_idx) {
+					OGDF_ASSERT(augmentation != nullptr);
 					augmentation->emplace_back(pred, curr);
-					bc_nr = bicomps[pair.first];
+					vec_idx++;
 				}
+				bij_idx++;
 				pred = curr;
 			}
 		}
@@ -156,6 +193,8 @@ public:
 			if (fc.index == cg->rootCluster()->index()) {
 				OGDF_ASSERT(fc.parent == -1);
 				c = cg->rootCluster();
+				pq.log.lout(Logger::Level::Medium)
+						<< "Processing root cluster " << fc.index << std::endl;
 			} else {
 				OGDF_ASSERT(fc.parent >= 0);
 #pragma GCC diagnostic push
@@ -167,6 +206,8 @@ public:
 #pragma GCC diagnostic pop
 				processCluster(pq, c, fc.parent_node, bicomps);
 			}
+			pq.log.lout(Logger::Level::Minor)
+					<< "\tNodes in cluster: [" << printContainer(fc.nodes) << "]" << std::endl;
 			cluster_index[c] = c;
 			for (int n : fc.nodes) {
 				cg->reassignNode(pq.nodeFromIndex(n), c);
@@ -321,4 +362,45 @@ void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
 	}
 }
 
+}
+
+void ogdf::insertAugmentationEdges(const ogdf::ClusterGraph& CG, ogdf::Graph& G,
+		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, ogdf::EdgeSet<>* added,
+		bool embedded, bool assert_minimal) {
+	if (embedded) {
+		OGDF_ASSERT(G.representsCombEmbedding());
+		OGDF_ASSERT(CG.adjAvailable());
+		OGDF_ASSERT(CG.representsCombEmbedding());
+	}
+	if (assert_minimal) {
+		OGDF_ASSERT(isCConnected(CG) == augmentation.empty());
+	}
+	for (auto& pair : augmentation) {
+		edge e = G.newEdge(pair.first, Direction::after, pair.second, Direction::before);
+		if (added != nullptr) {
+			added->insert(e);
+		}
+		if (embedded) {
+			cluster c1 = CG.clusterOf(pair.first->theNode());
+			cluster c2 = CG.clusterOf(pair.second->theNode());
+			if (c1 != c2) {
+				cluster p = CG.commonCluster(pair.first->theNode(), pair.second->theNode());
+				while (c1 != p) {
+					c1->adjEntries.insertAfter(e->adjSource(), c1->adjEntries.search(pair.first));
+					c1 = c1->parent();
+				}
+				while (c2 != p) {
+					c2->adjEntries.insertBefore(e->adjTarget(), c2->adjEntries.search(pair.second));
+					c2 = c2->parent();
+				}
+			}
+			OGDF_ASSERT(G.representsCombEmbedding());
+			OGDF_ASSERT(CG.representsCombEmbedding());
+		}
+		if (assert_minimal
+				&& (pair.first != augmentation.back().first
+						|| pair.second != augmentation.back().second)) { // not the last one
+			OGDF_ASSERT(!isCConnected(CG)); // augmentation edge set should be minimal
+		}
+	}
 }
