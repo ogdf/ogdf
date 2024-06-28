@@ -63,6 +63,7 @@ struct UndoInitConSEFE : public SyncPlan::UndoOperation {
 	void undo(SyncPlan& pq) override {
 		std::vector<adjEntry> rot;
 		for (node n : sefe.nodes) {
+			rot.clear();
 			rot.reserve(n->degree());
 			adjEntry adj1_start = nullptr;
 			for (adjEntry a : G1shared[n]->adjEntries) {
@@ -74,32 +75,38 @@ struct UndoInitConSEFE : public SyncPlan::UndoOperation {
 			if (adj1_start != nullptr) {
 				adjEntry adj1 = adj1_start;
 				adjEntry adj2 = adj1->twin();
-				OGDF_ASSERT(adj2->theNode() == G2shared[n]);
 				do {
+					OGDF_ASSERT(adj1->theNode() == G1shared[n]);
+					OGDF_ASSERT(adj2->theNode() == G2shared[n]);
 					OGDF_ASSERT(Gedge[adj1] == Gedge[adj2]);
 					rot.push_back(Gedge[adj1]);
 
 					adj1 = adj1->cyclicSucc();
-					while (edge_types[adj1] != 3) {
-						OGDF_ASSERT(edge_types[adj1] == 1);
+					while (edge_types[Gedge[adj1]] != 3 && adj1 != adj1_start) {
+						OGDF_ASSERT(adj1->theNode() == G1shared[n]);
+						OGDF_ASSERT(edge_types[Gedge[adj1]] == 1);
 						rot.push_back(Gedge[adj1]);
 						adj1 = adj1->cyclicSucc();
 					}
 
 					adj2 = adj2->cyclicPred();
-					while (edge_types[adj2] != 3) {
-						OGDF_ASSERT(edge_types[adj2] == 2);
+					while (edge_types[Gedge[adj2]] != 3) {
+						OGDF_ASSERT(adj2 != adj1_start->twin());
+						OGDF_ASSERT(adj2->theNode() == G2shared[n]);
+						OGDF_ASSERT(edge_types[Gedge[adj2]] == 2);
 						rot.push_back(Gedge[adj2]);
 						adj2 = adj2->cyclicPred();
 					}
 				} while (adj1 != adj1_start);
 			} else {
 				for (adjEntry adj1 : G1shared[n]->adjEntries) {
-					OGDF_ASSERT(edge_types[adj1] == 1);
+					OGDF_ASSERT(adj1->theNode() == G1shared[n]);
+					OGDF_ASSERT(edge_types[Gedge[adj1]] == 1);
 					rot.push_back(Gedge[adj1]);
 				}
 				for (adjEntry adj2 : G2shared[n]->adjEntries) {
-					OGDF_ASSERT(edge_types[adj2] == 2);
+					OGDF_ASSERT(adj2->theNode() == G2shared[n]);
+					OGDF_ASSERT(edge_types[Gedge[adj2]] == 2);
 					rot.push_back(Gedge[adj2]);
 				}
 			}

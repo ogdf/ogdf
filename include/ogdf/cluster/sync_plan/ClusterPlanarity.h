@@ -41,6 +41,7 @@ class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule
 	std::vector<std::pair<adjEntry, adjEntry>>* m_augmentation;
 
 public:
+	bool isClusterPlanar(const ClusterGraph& CG) override;
 	bool isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) override;
 	bool clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) override;
 

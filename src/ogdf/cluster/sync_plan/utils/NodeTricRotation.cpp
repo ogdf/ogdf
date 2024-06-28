@@ -404,7 +404,6 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 		}
 		deg += m_bundleEdgesForLeaf[leaf].size();
 		++leaf_it;
-		OGDF_ASSERT(leaf_it != getLeaves().end());
 	}
 #ifdef OGDF_DEBUG
 	OGDF_ASSERT(leaf_it == getLeaves().end());
