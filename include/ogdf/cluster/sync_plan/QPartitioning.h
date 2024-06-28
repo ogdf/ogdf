@@ -47,7 +47,6 @@ private:
 	NodeArray<int> partitions;
 	int q_vertex_count = 0;
 	int partition_next_id = 0;
-	int partition_table_size = MIN_TABLE_SIZE;
 
 public:
 	static inline int NO_PARTITION = -1;
@@ -81,7 +80,7 @@ public:
 	int maxKeyIndex() const { return partition_next_id - 1; }
 
 	//! Returns the array size currently requested by this registry.
-	int calculateArraySize(int add) const { return partition_table_size; }
+	int calculateArraySize(int add) const { return calculateTableSize(partition_next_id + add); }
 
 	int begin() const { return 0; }
 
@@ -97,9 +96,10 @@ protected:
 	void edgeAdded(edge e) override {};
 
 	void cleared() override {
+		partitioned_nodes.fillWithDefault();
 		partitions.fill(NO_PARTITION);
-		partition_next_id = 1;
-		partition_table_size = MIN_TABLE_SIZE;
+		q_vertex_count = 0;
+		partition_next_id = 0;
 	};
 };
 }

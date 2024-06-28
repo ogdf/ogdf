@@ -202,7 +202,7 @@ private:
 	NodeArray<bool> is_wheel;
 	Logger log;
 	bool indices_saved = false;
-	bool allow_contract_bb_pipe = true;
+	bool allow_contract_bb_pipe = false;
 	bool intersect_trees = true;
 	bool batch_spqr = true;
 	int longestSimplifyToroidalCycle = 0;

@@ -50,9 +50,21 @@
 
 using namespace ogdf::sync_plan::internal;
 
+bool ogdf::SyncPlanClusterPlanarityModule::isClusterPlanar(const ClusterGraph& CG) {
+	Graph Gcopy;
+	ClusterGraph CGcopy(CG, Gcopy);
+	sync_plan::SyncPlan SP(&Gcopy, &CGcopy);
+	return SP.makeReduced() && SP.solveReduced();
+}
+
 bool ogdf::SyncPlanClusterPlanarityModule::isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) {
 	sync_plan::SyncPlan SP(&G, &CG);
-	return SP.makeReduced() && SP.solveReduced();
+	if (SP.makeReduced() && SP.solveReduced()) {
+		SP.embed();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool ogdf::SyncPlanClusterPlanarityModule::clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG,
@@ -154,6 +166,7 @@ public:
 		join(*pq.G, t, n, bij);
 		pq.log.lout(Logger::Level::Minor) << printEdges(bij) << std::endl;
 
+		c->adjEntries.clear();
 		if (!bij.empty()) {
 			// only the adj in the parent cluster survived the join, take its twin to get the (new) adj in this cluster
 			adjEntry pred = bij.back().first->twin();
@@ -339,7 +352,9 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg,
 	pushUndoOperationAndCheck(op);
 }
 
-void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
+}
+
+void ogdf::reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
 		const std::vector<std::vector<node>>& emb, Graph& G, ClusterGraph& CG,
 		EdgeArray<node>& embMap) {
 	NodeArray<std::pair<node, node>> map(LG);
@@ -362,10 +377,8 @@ void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
 	}
 }
 
-}
-
-void ogdf::insertAugmentationEdges(const ogdf::ClusterGraph& CG, ogdf::Graph& G,
-		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, ogdf::EdgeSet<>* added,
+void ogdf::insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
+		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added,
 		bool embedded, bool assert_minimal) {
 	if (embedded) {
 		OGDF_ASSERT(G.representsCombEmbedding());
@@ -397,10 +410,10 @@ void ogdf::insertAugmentationEdges(const ogdf::ClusterGraph& CG, ogdf::Graph& G,
 			OGDF_ASSERT(G.representsCombEmbedding());
 			OGDF_ASSERT(CG.representsCombEmbedding());
 		}
-		if (assert_minimal
-				&& (pair.first != augmentation.back().first
-						|| pair.second != augmentation.back().second)) { // not the last one
-			OGDF_ASSERT(!isCConnected(CG)); // augmentation edge set should be minimal
+		if (assert_minimal) {
+			bool last = pair.first == augmentation.back().first
+					&& pair.second == augmentation.back().second;
+			OGDF_ASSERT(isCConnected(CG) == last); // augmentation edge set should be minimal
 		}
 	}
 }
