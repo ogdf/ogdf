@@ -145,6 +145,11 @@ SyncPlan::SyncPlan(Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types)
 		GC.insert(
 				sefe->nodes.begin(), sefe->nodes.end(),
 				[&edge_types](edge e) { return edge_types[e] == 3; }, nodeMap, edgeMap);
+		safeForEach(GC.nodes, [&GC](node n) {
+			if (n->degree() == 0) {
+				GC.delNode(n);
+			}
+		});
 		OGDF_ASSERT(isConnected(GC));
 	}
 #endif
