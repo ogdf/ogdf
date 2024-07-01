@@ -198,9 +198,9 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 	OGDF_ASSERT(highest_with_edges[t] != nullptr); // check that arrays haven't been cleared yet
 	pc_tree::PCNode* n;
 	logm << spqr.typeOfTNode(t) << "-node " << t->index() << " containing "
-		<< spqr.hEdgesSPQR(t).size() << " edges. Target node has " << edges[t].size()
-		<< " real edges and " << children[t].size() << " (<= °" << t->degree() << ") children."
-		<< std::endl;
+		 << spqr.hEdgesSPQR(t).size() << " edges. Target node has " << edges[t].size()
+		 << " real edges and " << children[t].size() << " (<= °" << t->degree() << ") children."
+		 << std::endl;
 	auto& l = logd << " ";
 	for (edge e : spqr.hEdgesSPQR(t)) {
 		l << " " << (spqr.twinEdge(e) == nullptr ? "r" : "v") << e->index() << " " << e;
@@ -247,8 +247,8 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 	if (gn != nullptr) {
 		node ggn = spqr.original(gn);
 		logm << "H-Graph node for P-node is node " << gn->index() << " of degree " << gn->degree()
-			<< " actual G-Graph node will be " << ggn->index() << " of degree " << ggn->degree()
-			<< std::endl;
+			 << " actual G-Graph node will be " << ggn->index() << " of degree " << ggn->degree()
+			 << std::endl;
 	}
 
 	if (spqr.typeOfTNode(t) == DynamicSPQRForest::TNodeType::RComp) {

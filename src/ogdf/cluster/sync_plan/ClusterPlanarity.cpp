@@ -31,6 +31,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
@@ -38,6 +39,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/cluster/ClusterPlanarityModule.h>
 #include <ogdf/cluster/sync_plan/ClusterPlanarity.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
@@ -45,8 +47,11 @@
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
+#include <set>
 #include <sstream>
 #include <string>
+#include <utility>
+#include <vector>
 
 using namespace ogdf::sync_plan::internal;
 

@@ -35,6 +35,8 @@
 #include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 
+#include <functional>
+
 namespace ogdf {
 
 FilteringBFSIterator FilteringBFS::begin() { return FilteringBFSIterator(this); }

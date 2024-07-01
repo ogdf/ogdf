@@ -34,8 +34,8 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/cluster/ILPClusterPlanarity.h>
 #include <ogdf/cluster/HananiTutteCPlanarity.h>
+#include <ogdf/cluster/ILPClusterPlanarity.h>
 
 #include <map>
 #include <unordered_map>

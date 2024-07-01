@@ -38,7 +38,6 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-#include <array>
 #include <functional>
 #include <memory>
 #include <utility>

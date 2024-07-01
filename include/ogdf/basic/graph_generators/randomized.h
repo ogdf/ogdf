@@ -31,8 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/graph_generators/randomGeographicalThresholdGraph.h>
 #include <ogdf/basic/graph_generators/randomHierarchy.h>
+#include <ogdf/basic/internal/config.h>
+
+#include <functional>
+#include <vector>
 
 namespace ogdf {
 
@@ -397,8 +403,8 @@ OGDF_EXPORT void randomEdgesGraph(Graph& G, std::function<double(node, node)> pr
  * @param K the number of levels to generate.
  * @param radial whether the graph/embedding should radial level-plane or just level-plane.
  */
-OGDF_EXPORT void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>& emb, int N, int K,
-		bool radial);
+OGDF_EXPORT void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>& emb,
+		int N, int K, bool radial);
 
 //! Removed random edges from /p G until it has less than /p max_edges edges, not removing edges from nodes with degree less than /p min_deg.
 OGDF_EXPORT void pruneEdges(Graph& G, int max_edges, int min_deg);

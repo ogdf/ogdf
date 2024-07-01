@@ -47,7 +47,7 @@ public:
 
 	explicit SyncPlanConsistency(SyncPlan& _pq) : pq(_pq), draw(&_pq) {};
 
-	bool consistencyCheck(bool force_check_components=false);
+	bool consistencyCheck(bool force_check_components = false);
 
 	void writeOut(std::string name = "", bool format = true, bool components = true);
 

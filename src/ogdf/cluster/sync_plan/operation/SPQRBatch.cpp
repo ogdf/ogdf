@@ -35,10 +35,10 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 #include <ogdf/cluster/sync_plan/utils/NodeTricRotation.h>

@@ -29,9 +29,13 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include <ogdf/basic/Graph_d.h>
-
 #pragma once
+
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/internal/config.h>
+
+#include <cstdint>
+#include <iosfwd>
 
 namespace ogdf {
 
@@ -139,7 +143,8 @@ OGDF_EXPORT bool randomPlanarClustering(ClusterGraph& CG, const RandomClusterCon
  * @param node_per_cluster how many nodes each cluster should directly contain.
  * @param edges_per_cluster how many edges to add between each clusters' nodes.
  */
-OGDF_EXPORT void randomClusterPlanarGraph(Graph & G,ClusterGraph& CG, int clusters, int node_per_cluster, int edges_per_cluster);
+OGDF_EXPORT void randomClusterPlanarGraph(Graph& G, ClusterGraph& CG, int clusters,
+		int node_per_cluster, int edges_per_cluster);
 
 //! Create a random SynchronizedPlanarity instance by introducing \p pipe_count pipes between vertices of degree at least \p min_deg.
 OGDF_EXPORT void randomSyncPlanInstance(sync_plan::SyncPlan& pq, int pipe_count, int min_deg = 3);
