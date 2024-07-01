@@ -79,7 +79,7 @@ public:
 			node v = pq.nodeFromIndex(pipe.second);
 			pq.log.lout() << "Joining pipe matching " << pq.fmtPQNode(u, false) << " with "
 						  << pq.fmtPQNode(v, false) << "." << std::endl;
-			Logger::Indent _(&pq.log);
+			Logger::Indent __(&pq.log);
 			pq.log.lout(Logger::Level::Medium) << pq.matchings.printBijection(u) << std::endl;
 			PipeBij bij;
 			pq.matchings.getIncidentEdgeBijection(u, bij);
@@ -134,7 +134,7 @@ SyncPlan::Result SyncPlan::encapsulate(node g_cut) {
 	for (EncapsulatedBlock& block : block_list) {
 		log.lout(Logger::Level::Medium)
 				<< "Encapsulating Block " << components.fmtBCNode(block.bicon) << std::endl;
-		Logger::Indent _(&log);
+		Logger::Indent __(&log);
 		log.lout(Logger::Level::Minor) << printBijection(block.bij) << std::endl;
 		std::pair<node, node> pair = split(*G, block.bij);
 		block.star_rep = pair.first;

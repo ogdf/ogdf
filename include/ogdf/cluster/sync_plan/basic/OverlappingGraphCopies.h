@@ -40,7 +40,7 @@ namespace ogdf {
 class OverlappingGraphCopies;
 
 // room for improvement: common interface with GraphCopyBase, add auto-linking ::insert method
-class OverlappingGraphCopy : public Graph {
+class OGDF_EXPORT OverlappingGraphCopy : public Graph {
 	friend class OverlappingGraphCopies;
 
 	OverlappingGraphCopies* m_pOGC; //!< The master instance.
@@ -195,7 +195,7 @@ public:
 	}
 };
 
-class OverlappingGraphCopies {
+class OGDF_EXPORT OverlappingGraphCopies {
 	friend class OverlappingGraphCopy;
 
 	const Graph* m_G;

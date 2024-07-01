@@ -53,7 +53,7 @@ class SList;
 
 namespace ogdf::sync_plan {
 
-class NodeSPQRRotation : public pc_tree::NodePCRotation {
+class OGDF_EXPORT NodeSPQRRotation : public pc_tree::NodePCRotation {
 protected:
 	const DynamicSPQRForest& spqr;
 	node apex;

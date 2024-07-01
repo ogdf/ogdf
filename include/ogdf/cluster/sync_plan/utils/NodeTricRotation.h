@@ -69,7 +69,7 @@ inline adjEntry getAdjInOrig(const OverlappingGraphCopy* skel, adjEntry skel_adj
 }
 }
 
-struct SimpleSPQRTree {
+struct OGDF_EXPORT SimpleSPQRTree {
 	using Comp = Triconnectivity::CompStruct;
 	static Logger log;
 	OverlappingGraphCopy GC;

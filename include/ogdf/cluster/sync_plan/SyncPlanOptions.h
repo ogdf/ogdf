@@ -54,7 +54,7 @@ std::string string_format(const std::string& format, const Args... args) {
 }
 }
 
-class SyncPlanOptions {
+class OGDF_EXPORT SyncPlanOptions {
 	struct EdgeOrder {
 		int node;
 		List<string> edges;

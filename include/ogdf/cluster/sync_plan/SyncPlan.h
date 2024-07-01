@@ -90,7 +90,7 @@ inline int64_t dur_ns(const tp::duration& d) {
 	return std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
 }
 
-int sumPNodeDegrees(const ogdf::pc_tree::PCTree& pct);
+OGDF_EXPORT int sumPNodeDegrees(const ogdf::pc_tree::PCTree& pct);
 
 class UndoSimplify;
 }
@@ -107,7 +107,7 @@ enum class Operation {
 	BATCH_SPQR
 };
 
-std::ostream& operator<<(std::ostream& os, Operation op);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, Operation op);
 
 //! A class for modelling and solving Synchronized Planarity instances.
 /**
@@ -120,7 +120,7 @@ std::ostream& operator<<(std::ostream& os, Operation op);
  * For more details, see also (open access):
  * \remark Simon D. Fink. 2024. Constrained Planarity Algorithms in Theory and Practice. Doctoral Thesis, University of Passau. https://doi.org/10.15475/cpatp.2024
  */
-class SyncPlan {
+class OGDF_EXPORT SyncPlan {
 	friend class SyncPlanConsistency;
 
 	friend class SyncPlanDrawer;

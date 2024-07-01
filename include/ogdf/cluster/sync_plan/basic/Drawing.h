@@ -39,15 +39,15 @@ namespace ogdf {
 class Color;
 class GraphAttributes;
 
-extern const std::array<Color, 63> colors;
+OGDF_EXPORT extern const std::array<Color, 63> colors;
 
-void spreadParallels(GraphAttributes& GA, double min_spread = 0.1, double max_spread = 0.6,
-		double max_abs = 100);
+OGDF_EXPORT void spreadParallels(GraphAttributes& GA, double min_spread = 0.1,
+		double max_spread = 0.6, double max_abs = 100);
 
-void fixLoops(Graph& G, const std::function<void(edge, edge)>& cb);
+OGDF_EXPORT void fixLoops(Graph& G, const std::function<void(edge, edge)>& cb);
 
-void fixParallels(Graph& G, const std::function<void(edge, edge)>& cb);
+OGDF_EXPORT void fixParallels(Graph& G, const std::function<void(edge, edge)>& cb);
 
-void bendEdge(GraphAttributes& GA, edge e, double bend);
+OGDF_EXPORT void bendEdge(GraphAttributes& GA, edge e, double bend);
 
 }

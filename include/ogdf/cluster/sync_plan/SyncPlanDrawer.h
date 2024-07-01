@@ -45,17 +45,17 @@
 namespace ogdf::sync_plan {
 class SyncPlan;
 
-void formatNode(node n, GraphAttributes* ga, int group);
+OGDF_EXPORT void formatNode(node n, GraphAttributes* ga, int group);
 
-void styleClusterBorder(
+OGDF_EXPORT void styleClusterBorder(
 		const ClusterGraph& CG, const EdgeArray<List<std::pair<adjEntry, cluster>>>& subdivisions,
 		GraphAttributes& GA,
 		const std::function<edge(edge)>& translate = [](edge e) -> edge { return e; });
 
-std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG,
-		GraphAttributes& GA, adjEntry adjExternal = nullptr);
+OGDF_EXPORT std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(
+		ClusterGraph& CG, GraphAttributes& GA, adjEntry adjExternal = nullptr);
 
-class SyncPlanDrawer {
+class OGDF_EXPORT SyncPlanDrawer {
 	std::unique_ptr<LayoutModule> planar_layout;
 	std::unique_ptr<LayoutModule> non_planar_layout;
 	GraphIO::SVGSettings svg;
