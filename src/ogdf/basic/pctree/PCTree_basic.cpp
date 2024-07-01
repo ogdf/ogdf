@@ -423,8 +423,19 @@ bool PCTree::isValidOrder(const std::vector<PCNode*>& order) const {
 	return true;
 }
 
+int ogdf::pc_tree::PCTREE_DEBUG_CHECK_FREQ = 10;
+int PCTREE_DEBUG_CHECK_CNT = 0;
+
 bool PCTree::checkValid(bool allow_small_deg) const {
 #ifdef OGDF_DEBUG
+	if (PCTREE_DEBUG_CHECK_FREQ == 0) {
+		return true;
+	}
+	++PCTREE_DEBUG_CHECK_CNT;
+	if (PCTREE_DEBUG_CHECK_CNT % PCTREE_DEBUG_CHECK_FREQ != 0) {
+		return true;
+	}
+
 	if (m_rootNode == nullptr) {
 		OGDF_ASSERT(m_leaves.size() == 0);
 		OGDF_ASSERT(m_pNodeCount == 0);
@@ -711,7 +722,7 @@ PCNode* PCTree::setRoot(PCNode* newRoot) {
 
 PCNode* PCTree::changeRoot(PCNode* newRoot) {
 	OGDF_ASSERT(newRoot != nullptr && newRoot->isValidNode(m_forest));
-	OGDF_ASSERT(checkValid());
+	OGDF_HEAVY_ASSERT(checkValid());
 	std::stack<PCNode*> path;
 	for (PCNode* node = newRoot; node != nullptr; node = node->getParent()) {
 		OGDF_ASSERT(node != nullptr);

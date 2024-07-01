@@ -189,7 +189,6 @@ bool PCTree::findNodeRestrictions(PCTree& applyTo, PCTreeNodeArray<PCNode*>& map
 			}
 
 			mapping[merged] = newLeaf;
-			OGDF_HEAVY_ASSERT(applyTo.checkValid());
 			OGDF_HEAVY_ASSERT(checkValid());
 		}
 	}

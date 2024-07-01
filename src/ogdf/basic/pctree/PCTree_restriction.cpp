@@ -194,6 +194,8 @@ void PCTree::LoggingObserver::makeConsecutiveDone(PCTree& tree, Stage stage, boo
 	log << ", restriction " << (success ? "successful" : "invalid") << ": " << tree << std::endl;
 }
 
+extern int PCTREE_DEBUG_CHECK_CNT;
+
 bool PCTree::makeFullNodesConsecutive() {
 	if (m_firstPartial == nullptr) {
 		OGDF_ASSERT(m_lastPartial == nullptr);
@@ -261,21 +263,26 @@ bool PCTree::makeFullNodesConsecutive() {
 	}
 #ifdef OGDF_HEAVY_DEBUG
 	OGDF_HEAVY_ASSERT(checkValid());
-	std::list<PCNode*> order;
-	currentLeafOrder(order);
-	while (!order.front()->isFull()) {
-		order.push_back(order.front());
-		order.pop_front();
-	}
-	while (order.back()->isFull()) {
-		order.push_front(order.back());
-		order.pop_back();
-	}
-	OGDF_ASSERT(order.front()->isFull());
-	OGDF_ASSERT(!order.back()->isFull());
-	OGDF_ASSERT(order.size() == m_leaves.size());
-	while (order.front()->isFull()) {
-		order.pop_front();
+	if (PCTREE_DEBUG_CHECK_FREQ != 0 && PCTREE_DEBUG_CHECK_CNT % PCTREE_DEBUG_CHECK_FREQ == 0) {
+		std::list<PCNode*> order;
+		currentLeafOrder(order);
+		while (!order.front()->isFull()) {
+			order.push_back(order.front());
+			order.pop_front();
+		}
+		while (order.back()->isFull()) {
+			order.push_front(order.back());
+			order.pop_back();
+		}
+		OGDF_ASSERT(order.front()->isFull());
+		OGDF_ASSERT(order.size() == m_leaves.size());
+		while (order.front()->isFull()) {
+			order.pop_front();
+		}
+		while (!order.empty()) {
+			OGDF_ASSERT(!order.front()->isFull());
+			order.pop_front();
+		}
 	}
 #endif
 	return true;

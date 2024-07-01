@@ -392,6 +392,9 @@ struct CreateCentralNode {
 };
 
 go_bandit([]() {
+#ifdef OGDF_DEBUG
+	PCTREE_DEBUG_CHECK_FREQ = 1;
+#endif
 	describe("PCTree", []() {
 		CreateCentralNode::declareTestRegenerate(CentralNode(NodeLabel::Empty, 4, 1, 2, 5));
 
