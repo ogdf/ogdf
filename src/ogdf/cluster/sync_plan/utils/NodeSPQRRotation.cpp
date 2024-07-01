@@ -272,7 +272,7 @@ pc_tree::PCNode* NodeSPQRRotation::makePCNode(node t, node t_parent, pc_tree::PC
 		}
 
 		logd << "Children identified by tree were:" << std::endl;
-		Logger::Indent _(log);
+		Logger::Indent __(log);
 		for (adjEntry adj : edges[t]) {
 			logd << "Adj " << adj->index() << " " << adj << std::endl;
 		}

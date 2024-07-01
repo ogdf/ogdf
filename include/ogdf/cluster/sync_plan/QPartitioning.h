@@ -41,7 +41,8 @@ class QPartitioning; // IWYU pragma: keep
 OGDF_DECL_REG_ARRAY(PartitionArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
-class QPartitioning : protected GraphObserver, public RegistryBase<int, QPartitioning, int> {
+class OGDF_EXPORT QPartitioning : protected GraphObserver,
+								  public RegistryBase<int, QPartitioning, int> {
 private:
 	PartitionArray<List<node>> partitioned_nodes;
 	NodeArray<int> partitions;

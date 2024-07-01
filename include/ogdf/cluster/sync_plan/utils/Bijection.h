@@ -53,25 +53,26 @@ OGDF_DECLARE_COMPARER(PipeBijCmp, PipeBijPair, int, x.first->theEdge()->index())
 
 OGDF_DECLARE_COMPARER(FrozenPipeBijCmp, FrozenPipeBijPair, int, x.first);
 
-PipeBijRange getPipeBijection(node u, node v);
+OGDF_EXPORT PipeBijRange getPipeBijection(node u, node v);
 
-void getPipeBijection(node u, node v, PipeBij& out);
+OGDF_EXPORT void getPipeBijection(node u, node v, PipeBij& out);
 
-void getPipeBijection(node u, node v, AdjEntryArray<adjEntry>& out);
+OGDF_EXPORT void getPipeBijection(node u, node v, AdjEntryArray<adjEntry>& out);
 
-void getPipeBijection(node u, node v, EdgeArray<edge>& out);
+OGDF_EXPORT void getPipeBijection(node u, node v, EdgeArray<edge>& out);
 
-void getFrozenPipeBijection(node u, node v, FrozenPipeBij& out);
+OGDF_EXPORT void getFrozenPipeBijection(node u, node v, FrozenPipeBij& out);
 
-void freezePipeBijection(const PipeBij& in, FrozenPipeBij& out);
+OGDF_EXPORT void freezePipeBijection(const PipeBij& in, FrozenPipeBij& out);
 
-std::pair<node, node> split(Graph& G, sync_plan::PipeBij& bij,
+OGDF_EXPORT std::pair<node, node> split(Graph& G, sync_plan::PipeBij& bij,
 		const EdgeArray<edge>* new_edges = nullptr, const EdgeArray<bool>* reverse_edges = nullptr,
 		node src = nullptr, node tgt = nullptr);
 
-void join(Graph& G, node u, node v, sync_plan::PipeBij& bij, List<bool>* reverse_v = nullptr);
+OGDF_EXPORT void join(Graph& G, node u, node v, sync_plan::PipeBij& bij,
+		List<bool>* reverse_v = nullptr);
 
-void join(Graph& G, node u, node v, sync_plan::PipeBij& bij,
+OGDF_EXPORT void join(Graph& G, node u, node v, sync_plan::PipeBij& bij,
 		const std::function<void(node)>& deleteNode, const std::function<void(edge)>& deleteEdge,
 		List<bool>* reverse_v = nullptr);
 

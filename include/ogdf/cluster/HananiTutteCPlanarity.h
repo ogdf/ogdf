@@ -42,7 +42,7 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class HananiTutteCPlanarity : public ClusterPlanarityModule {
+class OGDF_EXPORT HananiTutteCPlanarity : public ClusterPlanarityModule {
 	class CLinearSystem;
 	class CGraph;
 

@@ -54,18 +54,19 @@ class ClusterGraph;
 
 // all operators will only be found when `using sync_plan::internal`, so no namespace pollution
 namespace ogdf::sync_plan::internal {
-std::string to_string(const std::function<std::ostream&(std::ostream&)>& func);
+OGDF_EXPORT std::string to_string(const std::function<std::ostream&(std::ostream&)>& func);
 
-std::ostream& operator<<(std::ostream& os, const std::function<std::ostream&(std::ostream&)>& func);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os,
+		const std::function<std::ostream&(std::ostream&)>& func);
 
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& pair) {
 	return os << "(" << pair.first << ", " << pair.second << ")";
 }
 
-std::ostream& operator<<(std::ostream& os, const ogdf::Graph& G);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const ogdf::Graph& G);
 
-std::ostream& operator<<(std::ostream& os, const ogdf::ClusterGraph& CG);
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const ogdf::ClusterGraph& CG);
 
 OGDF_CONTAINER_PRINTER(printContainer);
 

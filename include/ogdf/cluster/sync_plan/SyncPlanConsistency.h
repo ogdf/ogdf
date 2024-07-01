@@ -37,7 +37,7 @@
 namespace ogdf::sync_plan {
 class SyncPlan;
 
-class SyncPlanConsistency {
+class OGDF_EXPORT SyncPlanConsistency {
 	SyncPlan& pq;
 	SyncPlanDrawer draw;
 	int checkCounter = 0;

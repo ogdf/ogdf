@@ -43,7 +43,7 @@
 namespace ogdf::sync_plan {
 enum class PipeType { BlockBlock, BlockCut, CutCut };
 
-struct Pipe {
+struct OGDF_EXPORT Pipe {
 	node node1, node2;
 	int pipe_priority = -1;
 	List<Pipe>::iterator list_entry;
@@ -62,7 +62,7 @@ struct Pipe {
 	friend std::ostream& operator<<(std::ostream& os, const Pipe& pipe);
 };
 
-struct PipeQueue {
+struct OGDF_EXPORT PipeQueue {
 	virtual ~PipeQueue() = default;
 
 	virtual bool empty() = 0;
@@ -80,7 +80,7 @@ struct PipeQueue {
 	virtual void clear() = 0;
 };
 
-class PMatching : protected GraphObserver {
+class OGDF_EXPORT PMatching : protected GraphObserver {
 	friend class SyncPlanConsistency;
 
 private:

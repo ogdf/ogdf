@@ -130,7 +130,7 @@ public:
 	}
 };
 
-struct PipeQueueByDegree : public SimplePipeQueue<PipeQueueByDegree> {
+struct OGDF_EXPORT PipeQueueByDegree : public SimplePipeQueue<PipeQueueByDegree> {
 	bool invert_degree;
 
 	explicit PipeQueueByDegree(bool invert = false) : invert_degree(invert) {
@@ -146,7 +146,7 @@ struct PipeQueueByDegree : public SimplePipeQueue<PipeQueueByDegree> {
 	}
 };
 
-struct PipeQueueRandom : public SimplePipeQueue<PipeQueueRandom> {
+struct OGDF_EXPORT PipeQueueRandom : public SimplePipeQueue<PipeQueueRandom> {
 	using engine = std::minstd_rand;
 	mutable engine gen;
 
@@ -248,7 +248,7 @@ public:
 
 class SyncPlan;
 
-struct PipeQueueByDegreePreferContract
+struct OGDF_EXPORT PipeQueueByDegreePreferContract
 	: public DoublePipeQueue<PipeQueueByDegreePreferContract, PipeQueueByDegreePreferContract> {
 	SyncPlan* PQ;
 	bool invert_degree, invert_contract;

@@ -42,7 +42,7 @@ namespace ogdf {
 
 #ifdef OGDF_DEBUG
 
-class twosat_var {
+class OGDF_EXPORT twosat_var {
 	int m_val;
 
 public:
@@ -66,7 +66,7 @@ using twosat_var = int;
 const twosat_var TwoSAT_Var_Undefined = -1;
 #endif
 
-class TwoSAT : protected Graph {
+class OGDF_EXPORT TwoSAT : protected Graph {
 	std::vector<bool> m_assignment;
 	std::vector<node> m_node_map;
 

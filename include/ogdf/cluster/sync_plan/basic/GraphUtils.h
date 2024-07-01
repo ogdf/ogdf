@@ -42,36 +42,37 @@ class List;
 
 namespace ogdf {
 
-void moveEnd(Graph& G, edge e, node keep_end, node new_end);
+OGDF_EXPORT void moveEnd(Graph& G, edge e, node keep_end, node new_end);
 
-void moveEnd(Graph& G, adjEntry keep_adj, adjEntry new_adj, Direction dir = Direction::after);
+OGDF_EXPORT void moveEnd(Graph& G, adjEntry keep_adj, adjEntry new_adj,
+		Direction dir = Direction::after);
 
-edge splitEdge(Graph& G, edge old_edge, node new_adj_to_source, node new_adj_to_target,
+OGDF_EXPORT edge splitEdge(Graph& G, edge old_edge, node new_adj_to_source, node new_adj_to_target,
 		edge new_edge = nullptr);
 
-adjEntry splitEdge(Graph& G, adjEntry adj, node new_adj_to_node, node new_adj_to_twin,
+OGDF_EXPORT adjEntry splitEdge(Graph& G, adjEntry adj, node new_adj_to_node, node new_adj_to_twin,
 		edge new_edge = nullptr);
 
-bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v);
+OGDF_EXPORT bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v);
 
-bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v);
+OGDF_EXPORT bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v);
 
-bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v,
+OGDF_EXPORT bool joinEdge(Graph& G, edge u_e, edge v_e, node u, node v,
 		const std::function<void(edge)>& deleteEdge);
 
-bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v,
+OGDF_EXPORT bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v,
 		const std::function<void(edge)>& deleteEdge);
 
-void assertStarCentreAndRay(node centre, node ray);
+OGDF_EXPORT void assertStarCentreAndRay(node centre, node ray);
 
-node getCentreOfStar(node g_n);
+OGDF_EXPORT node getCentreOfStar(node g_n);
 
 enum class OrderComp { SAME, REVERSED, DIFFERENT };
 
-OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check = false);
+OGDF_EXPORT OrderComp compareCyclicOrder(node n, List<adjEntry>& o, bool full_check = false);
 
-void moveAdjToFront(Graph& G, adjEntry f);
+OGDF_EXPORT void moveAdjToFront(Graph& G, adjEntry f);
 
-void moveAdjToBack(Graph& G, adjEntry b);
+OGDF_EXPORT void moveAdjToBack(Graph& G, adjEntry b);
 
 }

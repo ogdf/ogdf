@@ -325,7 +325,7 @@ SyncPlan::SyncPlan(Graph* g, ClusterGraph* cg,
 			if (n == cn) {
 				continue;
 			}
-			Logger::Indent _(&log);
+			Logger::Indent __(&log);
 
 			List<adjEntry> adjEntries;
 			for (adjEntry adj : n->adjEntries) {

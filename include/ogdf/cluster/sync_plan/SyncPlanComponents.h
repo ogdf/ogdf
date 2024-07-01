@@ -53,7 +53,7 @@ namespace internal {
 struct EncapsulatedBlock;
 }
 
-class SyncPlanComponents {
+class OGDF_EXPORT SyncPlanComponents {
 	friend class SyncPlan;
 
 	friend class SyncPlanConsistency;
@@ -152,7 +152,7 @@ private:
 	void labelIsolatedNodes();
 };
 
-class BiconnectedIsolation {
+class OGDF_EXPORT BiconnectedIsolation {
 	SyncPlanComponents& m_comps;
 	node m_bicon;
 	NodeSet<true> m_to_restore;
