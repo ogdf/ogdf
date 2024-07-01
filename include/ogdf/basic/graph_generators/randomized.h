@@ -34,7 +34,6 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/graph_generators/randomGeographicalThresholdGraph.h>
-#include <ogdf/basic/graph_generators/randomHierarchy.h>
 #include <ogdf/basic/internal/config.h>
 
 #include <functional>
@@ -405,6 +404,20 @@ OGDF_EXPORT void randomEdgesGraph(Graph& G, std::function<double(node, node)> pr
  */
 OGDF_EXPORT void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>& emb,
 		int N, int K, bool radial);
+
+//! Creates a random hierarchical graph.
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes.
+ * @param m is the number of edges.
+ * @param planar determines if the resulting graph is (level-)planar.
+ * @param singleSource determines if the graph is a single-source graph.
+ * @param longEdges determines if the graph has long edges (spanning 2 layers
+ *        or more); otherwise the graph is proper.
+ * @sa randomProperMaximalLevelPlaneGraph() for a simpler alternative
+ */
+OGDF_EXPORT void randomHierarchy(Graph& G, int n, int m, bool planar, bool singleSource,
+		bool longEdges);
 
 //! Removed random edges from /p G until it has less than /p max_edges edges, not removing edges from nodes with degree less than /p min_deg.
 OGDF_EXPORT void pruneEdges(Graph& G, int max_edges, int min_deg);
