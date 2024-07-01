@@ -37,6 +37,7 @@
 #include <ogdf/cluster/CPlanarSubgraphModule.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
+
 #include <ogdf/external/abacus.h>
 
 #include <chrono>

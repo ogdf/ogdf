@@ -36,14 +36,13 @@
 #include <ogdf/lib/minisat/core/Solver.h>
 #include <ogdf/lib/minisat/core/SolverTypes.h>
 
+#include <cstdarg>
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <stdarg.h>
-#include <stdio.h>
 
 namespace Minisat {
 

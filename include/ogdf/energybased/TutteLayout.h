@@ -31,11 +31,11 @@
 
 #pragma once
 
-#include <coin/CoinPackedMatrix.hpp>
-
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
+
 #include <ogdf/external/coin.h>
+#include <coin/CoinPackedMatrix.hpp>
 
 namespace ogdf {
 
