@@ -184,7 +184,7 @@ bool SyncPlan::makeReduced(int check_planarity_every) {
 			return false;
 		}
 	}
-	OGDF_ASSERT(consistency.consistencyCheck());
+	OGDF_ASSERT(consistency.consistencyCheck(true));
 	// SYNCPLAN_PROFILE_STOP("makeReduced")
 	return true;
 }

@@ -139,27 +139,31 @@ public:
 			int bc_nr1 = bicomps[bij.back().first];
 			int bc_nr2 = bicomps[bij.back().second];
 			int idx = 0;
+			std::set<int> seen {bc_nr1, bc_nr2};
 			for (const PipeBijPair& pair : bij) {
 				if (bicomps[pair.first] != bc_nr1) {
 					bc_nr1 = bicomps[pair.first];
 					// we are only augmenting the inside to be connected, the outside may be non-connected
+					// if (seen.count(bc_nr1) < 1) {
 					// to_augment.emplace_back(idx, false);
+					seen.insert(bc_nr1);
+					//}
 				}
 				if (bicomps[pair.second] != bc_nr2) {
 					bc_nr2 = bicomps[pair.second];
-					to_augment.emplace_back(idx);
+					if (seen.count(bc_nr2) < 1) {
+						to_augment.emplace_back(idx);
+						seen.insert(bc_nr2);
+					}
 				}
-				s << bc_nr1 << "/" << bc_nr2 << " ";
+				s << bc_nr1 << (seen.count(bc_nr1) > 0 ? "s" : "n") << "/" << bc_nr2
+				  << (seen.count(bc_nr2) > 0 ? "s" : "n") << " ";
 				idx++;
 			}
 			s << std::endl;
 			pq.log.lout(Logger::Level::Minor)
 					<< "Will insert " << to_augment.size() << "/" << bij.size()
 					<< " augmentation edges: [" << printContainer(to_augment) << "]" << std::endl;
-			// we found all component changes cyclically, we thus need to insert one fewer edge to make it connected
-			if (!to_augment.empty()) {
-				to_augment.pop_back();
-			}
 		}
 
 		pq.matchings.removeMatching(n, t);
@@ -179,7 +183,15 @@ public:
 
 				// also check whether we want to insert an augmentation edge here
 				if (vec_idx < to_augment.size() && to_augment[vec_idx] == bij_idx) {
+#ifdef OGDF_DEBUG
 					OGDF_ASSERT(augmentation != nullptr);
+					for (auto& apair : *augmentation) {
+						OGDF_ASSERT(!(apair.first->theNode() == pred->theNode()
+								&& apair.second->theNode() == curr->theNode()));
+						OGDF_ASSERT(!(apair.first->theNode() == curr->theNode()
+								&& apair.second->theNode() == pred->theNode()));
+					}
+#endif
 					augmentation->emplace_back(pred, curr);
 					vec_idx++;
 				}
@@ -378,8 +390,8 @@ void ogdf::reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
 }
 
 void ogdf::insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
-		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added,
-		bool embedded, bool assert_minimal) {
+		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added, bool embedded,
+		bool assert_minimal) {
 	if (embedded) {
 		OGDF_ASSERT(G.representsCombEmbedding());
 		OGDF_ASSERT(CG.adjAvailable());
@@ -388,7 +400,9 @@ void ogdf::insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
 	if (assert_minimal) {
 		OGDF_ASSERT(isCConnected(CG) == augmentation.empty());
 	}
-	for (auto& pair : augmentation) {
+	int i = 0;
+	for (auto it = augmentation.rbegin(); it != augmentation.rend(); ++it) {
+		auto& pair = *it;
 		edge e = G.newEdge(pair.first, Direction::after, pair.second, Direction::before);
 		if (added != nullptr) {
 			added->insert(e);
@@ -410,9 +424,9 @@ void ogdf::insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
 			OGDF_ASSERT(G.representsCombEmbedding());
 			OGDF_ASSERT(CG.representsCombEmbedding());
 		}
+		i++;
 		if (assert_minimal) {
-			bool last = pair.first == augmentation.back().first
-					&& pair.second == augmentation.back().second;
+			bool last = (i == augmentation.size());
 			OGDF_ASSERT(isCConnected(CG) == last); // augmentation edge set should be minimal
 		}
 	}

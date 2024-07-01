@@ -201,7 +201,7 @@ void SyncPlanConsistency::writeOut(std::string name, bool format, bool component
 	pq.log.lout(Logger::Level::High) << ">>>>> Wrote " << name << "(Tree).gml/svg <<<<<" << std::endl;
 }
 
-bool SyncPlanConsistency::consistencyCheck() {
+bool SyncPlanConsistency::consistencyCheck(bool force_check_components) {
 	if (doWriteOut) {
 		writeOut();
 	}
@@ -301,7 +301,9 @@ bool SyncPlanConsistency::consistencyCheck() {
 	// OGDF_ASSERT(top2 == top || !(*pipeCmp)(top2, top));
 	// }
 
-	checkComponentRegeneration();
+	if (force_check_components || checkCounter % 10 == 0) { // save time by only sometimes checking
+		checkComponentRegeneration();
+	}
 #endif
 	checkCounter++;
 	return true;

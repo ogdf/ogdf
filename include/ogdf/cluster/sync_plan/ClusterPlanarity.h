@@ -34,11 +34,8 @@
 #include <ogdf/cluster/ClusterPlanarityModule.h>
 
 namespace ogdf {
-/**
- * Warning: the destructive methods invalidate all node and edge objects even if the instance is c-planar
- */
 class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule {
-	std::vector<std::pair<adjEntry, adjEntry>>* m_augmentation;
+	std::vector<std::pair<adjEntry, adjEntry>>* m_augmentation = nullptr;
 
 public:
 	bool isClusterPlanar(const ClusterGraph& CG) override;
@@ -49,11 +46,11 @@ public:
 	/*
 	 * @sa insertAugmentationEdges()
 	 */
-	void setStoredAugmentation(std::vector<std::pair<adjEntry, adjEntry>>* augmentation) {
+	void setStoreAugmentation(std::vector<std::pair<adjEntry, adjEntry>>* augmentation) {
 		m_augmentation = augmentation;
 	}
 
-	std::vector<std::pair<adjEntry, adjEntry>>* getStoredAugmentation() const {
+	std::vector<std::pair<adjEntry, adjEntry>>* getStoreAugmentation() const {
 		return m_augmentation;
 	}
 

@@ -16,7 +16,7 @@ int main(void) {
 	// set up the sync plan test
 	SyncPlanClusterPlanarityModule sp;
 	std::vector<std::pair<adjEntry, adjEntry>> augmentation;
-	sp.setStoredAugmentation(&augmentation);
+	sp.setStoreAugmentation(&augmentation);
 
 	// run the test + embedder
 	if (!sp.clusterPlanarEmbed(CG, G)) {

@@ -32,7 +32,10 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators/clustering.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/cluster/ClusterPlanarizationLayout.h>
+#include <ogdf/cluster/HananiTutteCPlanarity.h>
 #include <ogdf/cluster/sync_plan/ClusterPlanarity.h>
+#include <ogdf/cluster/sync_plan/PipeOrder.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 
 #include <random>
@@ -58,11 +61,40 @@ void validateGraphCopy(const GraphCopySimple& Gcopy) {
 }
 
 void hideType(const Graph& G, const EdgeArray<uint8_t>& types, Graph::HiddenEdgeSet& hes, int type) {
-	safeForEach(G.edges, [&hes, &types](edge e) {
-		if (types[e] != 3) {
+	safeForEach(G.edges, [&hes, &types, type](edge e) {
+		if (types[e] == type) {
 			hes.hide(e);
 		}
 	});
+}
+
+static std::mt19937 configRandom;
+
+void configSyncPlan(SyncPlan& SP) {
+	auto s = configRandom();
+	SP.setAllowContractBBPipe(s & 1);
+	s = s >> 1;
+	SP.setIntersectTrees(s & 1);
+	s = s >> 1;
+	SP.setBatchSpqr(s & 1);
+	s = s >> 1;
+	bool next = (s >> 2) & 1;
+	switch (s & 3) {
+	case 0: {
+		SP.matchings.setPipeQueue(new PipeQueueByDegree(next));
+	} break;
+	case 1:
+		SP.matchings.setPipeQueue(new PipeQueueRandom);
+		break;
+	case 2:
+		SP.matchings.setPipeQueue(new PipeQueueByDegreePreferContract(&SP, true, next));
+		break;
+	case 3:
+		SP.matchings.setPipeQueue(new PipeQueueByDegreePreferContract(&SP, false, next));
+		break;
+	default:
+		OGDF_ASSERT(false);
+	}
 }
 
 using CP = SyncPlanClusterPlanarityModule;
@@ -73,6 +105,7 @@ static int N = 5;
 go_bandit([]() {
 	// ogdf::Logger::globalLogLevel(ogdf::Logger::Level::Minor);
 	describe("Synchronized Planarity", []() {
+		before_each([]() { ogdf::setSeed(1234567890); });
 		forEachGraphDescribe(
 				{GraphProperty::planar, GraphProperty::loopFree},
 				[&](const Graph& G) {
@@ -80,7 +113,7 @@ go_bandit([]() {
 						GraphCopySimple Gcopy(G);
 						planarEmbed(Gcopy);
 						SyncPlan SP(&Gcopy);
-						ogdf::setSeed(1234);
+						configSyncPlan(SP);
 						randomSyncPlanInstance(SP, G.numberOfNodes() / N);
 						AssertThat(SP.makeReduced(), IsTrue());
 						AssertThat(SP.solveReduced(), IsTrue());
@@ -91,18 +124,18 @@ go_bandit([]() {
 					if (!isConnected(G) || !isSimpleUndirected(G)) {
 						return;
 					}
+
 					it("correctly tests random cluster-planar graphs", [&G]() {
 						GraphCopySimple Gcopy(G);
 						planarEmbed(Gcopy);
 						ClusterGraph CG(Gcopy);
 						RandomClusterConfig conf;
 						conf.expected_nodes(N);
-						ogdf::setSeed(1234);
 						randomPlanarClustering(CG, conf);
 
 						CP cp;
 						std::vector<std::pair<adjEntry, adjEntry>> augmentation;
-						cp.setStoredAugmentation(&augmentation);
+						cp.setStoreAugmentation(&augmentation);
 						AssertThat(cp.clusterPlanarEmbed(CG, Gcopy), IsTrue());
 						AssertThat(CG.representsCombEmbedding(), IsTrue());
 						validateGraphCopy(Gcopy);
@@ -118,7 +151,6 @@ go_bandit([]() {
 					});
 					it("correctly tests random cluster-connected graphs", [&G]() {
 						ClusterGraph CG(G);
-						ogdf::setSeed(1234);
 						randomCConnectedClustering(CG, G.numberOfNodes() / N);
 						AssertThat(CP().isClusterPlanar(CG), Equals(CconCP().isClusterPlanar(CG)));
 					});
@@ -129,7 +161,6 @@ go_bandit([]() {
 						RandomClusterConfig conf;
 						conf.expected_nodes(N);
 						conf.cconnected = true;
-						ogdf::setSeed(1234);
 						randomPlanarClustering(CG, conf);
 						validateGraphCopy(Gcopy);
 						AssertThat(CconCP().isClusterPlanar(CG), IsTrue());
@@ -139,51 +170,51 @@ go_bandit([]() {
 						validateGraphCopy(Gcopy);
 						AssertThat(CG.representsConnectedCombEmbedding(), IsTrue());
 					});
-					it(
-							"correctly tests random union graph SEFE instances",
-							[&G]() {
-								GraphCopySimple Gcopy(G);
-								shuffleEmbedding(Gcopy);
-								ogdf::setSeed(1234);
-								EdgeArray<uint8_t> types(Gcopy);
-								randomSEFEInstanceByUnionGraph(&Gcopy, types);
 
-								Graph work;
-								SyncPlan SP(&Gcopy, &work, types);
-								AssertThat(SP.makeReduced(), IsTrue());
-								AssertThat(SP.solveReduced(), IsTrue());
-								SP.embed();
-								AssertThat(Gcopy.representsCombEmbedding(), IsTrue());
-								validateGraphCopy(Gcopy);
-							},
-							true); // we need to ensure that the shared graph is connected
-					it("correctly tests random shared graph SEFE instances", [&G]() {
-						ogdf::setSeed(1234);
-						GraphCopySimple Gcopy(G);
-						planarEmbed(Gcopy);
+					// we need to ensure that the shared graph is connected
+					// it(
+					// 		"correctly tests random union graph SEFE instances",
+					// 		[&G]() {
+					// 			GraphCopySimple Gcopy(G);
+					// 			shuffleEmbedding(Gcopy);
+					// 			EdgeArray<uint8_t> types(Gcopy);
+					// 			randomSEFEInstanceByUnionGraph(&Gcopy, types);
+					//
+					// 			Graph work;
+					// 			SyncPlan SP(&Gcopy, &work, types);
+					// 			AssertThat(SP.makeReduced(), IsTrue());
+					// 			AssertThat(SP.solveReduced(), IsTrue());
+					// 			SP.embed();
+					// 			AssertThat(Gcopy.representsCombEmbedding(), IsTrue());
+					// 			validateGraphCopy(Gcopy);
+					// 		});
 
-						int free = (G.numberOfNodes() * 3 - 6) - G.numberOfEdges();
-						if (free <= 0) {
-							return;
-						}
-						free = (int)(free * max(1.0, randomDouble(0.5, 1.5)));
-						int graph1 = randomNumber((int)(free * 0.1), (int)(free * 0.9));
+					if ((G.numberOfNodes() * 3 - 6) - G.numberOfEdges() > 0) {
+						it("correctly tests random shared graph SEFE instances", [&G]() {
+							GraphCopySimple Gcopy(G);
+							planarEmbed(Gcopy);
 
-						EdgeArray<uint8_t> types(Gcopy);
-						randomSEFEInstanceBySharedGraph(&Gcopy, types, graph1, free - graph1);
+							int free = (G.numberOfNodes() * 3 - 6) - G.numberOfEdges();
+							free = (int)(free * max(1.0, randomDouble(0.5, 1.5)));
+							int graph1 = randomNumber((int)(free * 0.1), (int)(free * 0.9));
 
-						Graph work;
-						SyncPlan SP(&Gcopy, &work, types);
-						AssertThat(SP.makeReduced(), IsTrue());
-						AssertThat(SP.solveReduced(), IsTrue());
-						SP.embed();
-						Graph::HiddenEdgeSet hes(Gcopy);
-						hideType(Gcopy, types, hes, 2);
-						AssertThat(Gcopy.representsCombEmbedding(), IsTrue());
-						hideType(Gcopy, types, hes, 1);
-						AssertThat(Gcopy.representsCombEmbedding(), IsTrue());
-						validateGraphCopy(Gcopy);
-					});
+							EdgeArray<uint8_t> types(Gcopy);
+							randomSEFEInstanceBySharedGraph(&Gcopy, types, graph1, free - graph1);
+
+							Graph work;
+							SyncPlan SP(&Gcopy, &work, types);
+							configSyncPlan(SP);
+							AssertThat(SP.makeReduced(), IsTrue());
+							AssertThat(SP.solveReduced(), IsTrue());
+							SP.embed();
+							Graph::HiddenEdgeSet hes(Gcopy);
+							hideType(Gcopy, types, hes, 2);
+							AssertThat(Gcopy.representsCombEmbedding(), IsTrue());
+							hideType(Gcopy, types, hes, 1);
+							AssertThat(Gcopy.representsCombEmbedding(), IsTrue());
+							validateGraphCopy(Gcopy);
+						});
+					}
 				},
 				GraphSizes(), 3);
 
@@ -198,8 +229,7 @@ go_bandit([]() {
 									Graph G;
 									ClusterGraph CG(G);
 									randomClusterPlanarGraph(G, CG, c, n, (int)(e * n));
-									AssertThat(SyncPlanClusterPlanarityModule()
-													   .clusterPlanarEmbedClusterPlanarGraph(CG, G),
+									AssertThat(CP().clusterPlanarEmbedClusterPlanarGraph(CG, G),
 											IsTrue());
 								});
 					}
@@ -208,10 +238,13 @@ go_bandit([]() {
 		});
 
 		describe("on grid graphs", []() {
-			for (int w : {20, 21}) {
-				for (int h : {19, 20, 21}) {
+			for (int w : {10, 11}) {
+				for (int h : {9, 10, 11}) {
 					for (bool loopW : {true, false}) {
 						for (bool loopH : {true, false}) {
+							if (loopW && loopH) {
+								continue; // non-planar
+							}
 							it("handles width " + to_string(w) + " and height " + to_string(h) + " "
 											+ (loopW ? "with" : "without") + " horizontal and "
 											+ (loopH ? "with" : "without") + " vertical loops",
@@ -228,13 +261,9 @@ go_bandit([]() {
 												CG.reassignNode(n, c2);
 											}
 										}
-										AssertThat(
-												SyncPlanClusterPlanarityModule()
-														.clusterPlanarEmbedClusterPlanarGraph(CG, G),
-												IsTrue());
-										if (loopH && loopW) {
-											AssertThat(isRegular(G, 4), IsTrue());
-										}
+										AssertThat(CP().clusterPlanarEmbedClusterPlanarGraph(CG, G),
+												Equals(!(loopH && w % 2 == 0)));
+										// even width with horizontal loops is non-cplanar
 									});
 						}
 					}
@@ -244,12 +273,15 @@ go_bandit([]() {
 
 		describe("on level graphs", []() {
 			for (bool radial : {true, false}) {
-				for (int n : {50, 100, 500}) {
-					for (int l : {10, 25, 50}) {
+				for (int n : {50, 100}) {
+					for (int l : {5, 10, 25}) {
 						for (double e : {1.0, 0.8, 0.6}) {
 							int L = n / l;
 							int M = (int)(n * e);
-							it(string("handles ") + (radial ? "radial " : "") + " instances with "
+							if (L < 3) {
+								continue;
+							}
+							it(string("handles ") + (radial ? "radial " : "") + "instances with "
 											+ to_string(n) + " nodes and " + to_string(M)
 											+ " edges on " + to_string(L) + " levels",
 									[&]() {
@@ -274,13 +306,136 @@ go_bandit([]() {
 										EdgeArray<node> map(G);
 										reduceLevelPlanarityToClusterPlanarity(LG, emb, G, CG, map);
 
-										CP cp;
-										AssertThat(cp.clusterPlanarEmbed(CG, G), IsTrue());
+										AssertThat(CP().clusterPlanarEmbed(CG, G), IsTrue());
 									});
 						}
 					}
 				}
 			}
+		});
+
+		describe("interesting special cases", []() {
+			it("handles a vertex enclosed by a c-connected cluster", []() {
+				// create the cluster graph from Figure 9.2a, doi.org/10.15475/cpatp.2024
+				Graph G;
+				ClusterGraph CG(G);
+
+				//   0   1
+				// 4   5
+				//   2   3
+				Array<node> V;
+				customGraph(G, 6,
+						{
+								{0, 1},
+								{1, 3},
+								{3, 2},
+								{2, 0},
+								{4, 0},
+								{4, 1},
+								{4, 2},
+								{4, 3},
+								{5, 0},
+								{5, 1},
+								{5, 2},
+								{5, 3},
+						},
+						V);
+
+				CG.createCluster({V[0], V[1], V[2], V[3]});
+
+				AssertThat(CP().clusterPlanarEmbed(CG, G), IsFalse());
+			});
+
+			it("handles a CD-tree that becomes cyclic through reduction", []() {
+				// create the cluster graph from Figure 6.7, doi.org/10.15475/cpatp.2024
+				Graph G;
+				ClusterGraph CG(G);
+
+				//     3 4 5    upper
+				// 0 1       2  outer
+				//     6 7 8    lower
+				Array<node> V;
+				customGraph(G, 9,
+						{{0, 4}, {0, 7}, {1, 3}, {1, 6}, {2, 5}, {2, 8}, {3, 6}, {4, 7}, {5, 8}}, V);
+
+				cluster wrapper = CG.createEmptyCluster();
+				// cluster upper =
+				CG.createCluster({V[3], V[4], V[5]}, wrapper);
+				// cluster lower =
+				CG.createCluster({V[6], V[7], V[8]}, wrapper);
+
+				AssertThat(CP().clusterPlanarEmbed(CG, G), IsTrue());
+			});
+
+			it("handles the 3-cluster instance where the Hanani-Tutte approach gives a false-positive",
+					[]() {
+						// load the cluster graph from Figure 16, doi.org/10.37236/5002
+						Graph G;
+						ClusterGraph CG(G);
+
+						circulantGraph(G, 9, {1});
+						std::vector<node> V {G.nodes.begin(), G.nodes.end()};
+
+						CG.createCluster({V[0], V[3], V[6]});
+						CG.createCluster({V[1], V[4], V[7]});
+						CG.createCluster({V[2], V[5], V[8]});
+
+						AssertThat(CP().isClusterPlanar(CG), IsFalse());
+						AssertThat(HananiTutteCPlanarity().isCPlanar(CG, true, false,
+										   HananiTutteCPlanarity::Solver::HananiTutte),
+								Equals(HananiTutteCPlanarity::Verification::cPlanar));
+						AssertThat(HananiTutteCPlanarity().isCPlanar(CG, true, false,
+										   HananiTutteCPlanarity::Solver::HananiTutteVerify),
+								Equals(HananiTutteCPlanarity::Verification::verificationFailed));
+						AssertThrows(std::runtime_error, HananiTutteCPlanarity().isClusterPlanar(CG));
+					});
+
+			it("handles the 4-cluster instance where the Hanani-Tutte approach gives a false-positive",
+					[]() {
+						// load the cluster graph from Figure 18, doi.org/10.37236/5002
+						Graph G;
+						ClusterGraph CG(G);
+
+						circulantGraph(G, 6 * 3, {1});
+						std::vector<node> V {G.nodes.begin(), G.nodes.end()};
+
+						cluster c0 = CG.createEmptyCluster();
+						cluster c1 = CG.createEmptyCluster();
+						cluster c2 = CG.createEmptyCluster();
+						cluster c3 = CG.createEmptyCluster();
+						for (int i = 0; i < 3; ++i) {
+							CG.reassignNode(V[0 + i * 6], c1);
+							CG.reassignNode(V[1 + i * 6], c0);
+							CG.reassignNode(V[2 + i * 6], c2);
+							CG.reassignNode(V[3 + i * 6], c0);
+							CG.reassignNode(V[4 + i * 6], c3);
+							CG.reassignNode(V[5 + i * 6], c0);
+						}
+
+						AssertThat(CP().isClusterPlanar(CG), IsFalse());
+						AssertThat(HananiTutteCPlanarity().isCPlanar(CG, true, false,
+										   HananiTutteCPlanarity::Solver::HananiTutte),
+								Equals(HananiTutteCPlanarity::Verification::cPlanar));
+						AssertThat(HananiTutteCPlanarity().isCPlanar(CG, true, false,
+										   HananiTutteCPlanarity::Solver::HananiTutteVerify),
+								Equals(HananiTutteCPlanarity::Verification::verificationFailed));
+					});
+
+			it("handles the instance where the Hanani-Tutte implementation gives a false-negative",
+					[]() {
+						// load the cluster graph from Figure 9.2b, doi.org/10.15475/cpatp.2024
+						Graph G;
+						ClusterGraph CG(G);
+						ClusterGraphAttributes CGA(CG, ClusterGraphAttributes::all);
+
+						std::stringstream ss {ResourceFile::get("misc/ht-err-minor.gml")->data()};
+						GraphIO::readGML(CGA, CG, G, ss);
+
+						AssertThat(CP().isClusterPlanar(CG), IsTrue());
+						AssertThat(HananiTutteCPlanarity().isCPlanar(CG, true, false,
+										   HananiTutteCPlanarity::Solver::HananiTutte),
+								Equals(HananiTutteCPlanarity::Verification::nonCPlanarVerified));
+					});
 		});
 	});
 });

@@ -222,10 +222,15 @@ bool SyncPlan::canContract(const Pipe* p) {
 }
 
 std::ostream& operator<<(std::ostream& os, const SyncPlan& pq) {
-	return os << "SyncPlan Instance with " << pq.G->numberOfNodes() << " nodes, "
-			  << pq.G->numberOfEdges() << " edges, " << pq.matchings.getPipeCount() << " pipes, "
-			  << pq.partitions.qVertexCount() << " Q-Vertices in " << pq.partitions.partitionCount()
-			  << " partitions and " << pq.components.connectedCount() << " connected components";
+	os << "SyncPlan Instance with " << pq.G->numberOfNodes() << " nodes, " << pq.G->numberOfEdges()
+	   << " edges, " << pq.matchings.getPipeCount() << " pipes";
+	PipeQueue* queue = pq.matchings.getPipeQueue();
+	if (queue) {
+		os << " (max degree " << queue->getTop()->degree() << ")";
+	}
+	return os << ", " << pq.partitions.qVertexCount() << " Q-Vertices in "
+			  << pq.partitions.partitionCount() << " partitions and "
+			  << pq.components.connectedCount() << " connected components";
 }
 
 std::ostream& operator<<(std::ostream& os, const SyncPlan::UndoOperation& undo_op) {

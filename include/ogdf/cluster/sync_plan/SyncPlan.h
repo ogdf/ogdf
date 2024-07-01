@@ -92,6 +92,7 @@ int sumPNodeDegrees(const ogdf::pc_tree::PCTree& pct);
 class UndoSimplify;
 }
 
+//! The reduction operations (and their distinct cases) implemented by SyncPlan
 enum class Operation {
 	ENCAPSULATE_CONTRACT,
 	CONTRACT_BICON,
@@ -105,6 +106,17 @@ enum class Operation {
 
 std::ostream& operator<<(std::ostream& os, Operation op);
 
+//! A class for modelling and solving Synchronized Planarity instances.
+/**
+ * This implements the algorithm described in the following paper:
+ * \remark Thomas Bläsius, Simon D. Fink, and Ignaz Rutter. 2023. Synchronized Planarity with Applications to Constrained Planarity Problems. ACM Trans. Algorithms 19, 4, Article 34 (October 2023), 23 pages. https://doi.org/10.1145/3607474
+ *
+ * An evaluation of this implementation can be found in the following paper:
+ * \remark Simon D. Fink and Ignaz Rutter. 2024. Constrained Planarity in Practice: Engineering the Synchronized Planarity Algorithm. 2024 Proceedings of the Symposium on Algorithm Engineering and Experiments (ALENEX) https://doi.org/10.1137/1.9781611977929.1
+ *
+ * For more details, see also (open access):
+ * \remark Simon D. Fink. 2024. Constrained Planarity Algorithms in Theory and Practice. Doctoral Thesis, University of Passau. https://doi.org/10.15475/cpatp.2024
+ */
 class SyncPlan {
 	friend class SyncPlanConsistency;
 
@@ -135,6 +147,7 @@ class SyncPlan {
 	/// Inner Classes /////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
+	//! The information needed for undoing the changes a specific operation made to the graph while maintaining its embedding.
 	class UndoOperation {
 	public:
 #ifdef OGDF_DEBUG
@@ -174,46 +187,67 @@ public:
 		std::ostream& print(std::ostream& os) const override;
 	};
 
+	//! The result of applying a single operation.
 	enum class Result { SUCCESS, NOT_APPLICABLE, INVALID_INSTANCE };
 
 	/// Members ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
+	//! The underlying graph
 	Graph* const G;
+	//! Collection of all matched P-nodes and their pipes
 	PMatching matchings;
+	//! Collection of all Q-nodes and their partitions
 	QPartitioning partitions;
 
 #ifdef SYNCPLAN_OPSTATS
+	//! The stream to which json statistics should be written
 	std::ofstream stats_out;
 	uint64_t stats_pc_time = 0;
 	bool stats_first_in_array = true;
 #endif
 
 private:
+	//! Stack of all operations that should be undone when embedding
 	List<UndoOperation*> undo_stack;
+	//! Data structure maintaining (bi)connected components information
 	SyncPlanComponents components;
+	//! Set of all edge objects deleted during the reduction, to be restored when undoing all operations.
 	Graph::HiddenEdgeSet deletedEdges;
 #ifdef OGDF_DEBUG
+	//! Set of all node objects deleted during the reduction. Will remain as isolated nodes within \p G.
 	NodeSet<> deletedNodes;
 #endif
+	//! If non-null, will be updated with debugging information from applied operations.
 	GraphAttributes* GA;
+	//! A mapping of node-index to node-object used while undoing operations.
 	NodeArray<node> node_reg;
+	//! A mapping of edge-index to edge-object used while undoing operations.
 	EdgeArray<edge> edge_reg;
+	//! Labels nodes whether they are already part of a (Q-node-replacement) wheel
 	NodeArray<bool> is_wheel;
+	//! The logger to use.
 	Logger log;
+	//! Whether the constructor already saved the maximum indices present in \p G before the reduction.
 	bool indices_saved = false;
+	//! Whether to allow contracting block-vertex to block-vertex pipes instead of propagating.
 	bool allow_contract_bb_pipe = false;
+	//! Whether to intersect trees on block-vertex to block-vertex pipes when propagating.
 	bool intersect_trees = true;
+	//! Whether to apply embedding-tree based operations in batch using SPQR-tree data
 	bool batch_spqr = true;
+	//! Keeps track of the longest cycle length encountered in simplify toroidal
 	int longestSimplifyToroidalCycle = 0;
 
 #ifdef OGDF_DEBUG
+	//! Consistency checking utils
 	SyncPlanConsistency consistency;
 #endif
 
 	/// Constructors //////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
+	//! Create a new Synchronized Planarity instance with a given underlying graph.
 	/**
 	 * Usage:
 	 *
@@ -235,6 +269,9 @@ public:
 	 *     PQ.embed();
 	 *     OGDF_ASSERT(G.representsCombEmbedding());
 	 * }
+	 *
+	 * @param g the underlying graph.
+	 * @param ga optionally GraphAttributes in which to store debugging information of applied operations.
 	 */
 	explicit SyncPlan(Graph* g, GraphAttributes* ga = nullptr);
 
