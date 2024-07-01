@@ -171,9 +171,9 @@ void findBiconnectedEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 	cean_log << "findBiconnectedEdgeCut(" << start_adj << ")" << std::endl;
 #ifdef OGDF_DEBUG
 	Logger::Indent _(&log);
+	int i = 0;
 #endif
 	adjEntry node_adj = start_adj;
-	int i = 0;
 	while (true) {
 		if (edge_types[node_adj].discovered) {
 			cean_log << "adj " << node_adj << ": reached discovered edge, done" << std::endl;
@@ -192,7 +192,7 @@ void findBiconnectedEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 			cean_log << "adj " << node_adj << std::endl;
 		}
 		node_adj = node_adj->faceCycleSucc();
-		i++;
+		OGDF_IF_DBG(i++);
 		OGDF_ASSERT(i < 2 * start_adj->graphOf()->numberOfEdges());
 	}
 }
@@ -384,9 +384,9 @@ SyncPlan::Result SyncPlan::contract(node u) {
 	} else {
 		// SYNCPLAN_PROFILE_START("contract-encapsulate")
 		log.lout() << "Encapsulating u and v." << std::endl;
-		Result result = encapsulate(u);
+		OGDF_IF_DBG(Result result =) encapsulate(u);
 		OGDF_ASSERT(result == SyncPlan::Result::SUCCESS);
-		result = encapsulate(v);
+		OGDF_IF_DBG(result =) encapsulate(v);
 		OGDF_ASSERT(result == SyncPlan::Result::SUCCESS);
 		log.lout() << "Encapsulation complete, continuing with contraction." << std::endl;
 		// SYNCPLAN_PROFILE_STOP("contract-encapsulate")

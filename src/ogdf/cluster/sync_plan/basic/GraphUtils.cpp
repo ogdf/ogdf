@@ -128,6 +128,7 @@ bool joinEdge(Graph& G, adjEntry u_adj, adjEntry v_adj, node u, node v,
 }
 
 void assertStarCentreAndRay(node centre, node ray) {
+#ifdef OGDF_DEBUG
 	bool ray_found = false;
 	for (auto adj : centre->adjEntries) {
 		OGDF_ASSERT(centre->degree() > adj->twinNode()->degree());
@@ -139,6 +140,7 @@ void assertStarCentreAndRay(node centre, node ray) {
 		}
 	}
 	OGDF_ASSERT(!ray || ray_found);
+#endif
 }
 
 node getCentreOfStar(node g_n) {

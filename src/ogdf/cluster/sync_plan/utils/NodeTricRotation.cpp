@@ -101,17 +101,19 @@ void SimpleSPQRTree::init() {
 	}
 
 	// compute Triconnectivity information, will add virtual edges to GC
+#ifdef OGDF_DEBUG
 	int virtual_edges = GC.numberOfEdges(), real_edges = 0;
+#endif
 	Triconnectivity tri(GC, true);
 	// OGDF_ASSERT(tri.checkComp());
-	virtual_edges = GC.numberOfEdges() - virtual_edges;
+	OGDF_IF_DBG(virtual_edges = GC.numberOfEdges() - virtual_edges);
 
 	// derive structural information: pairing of twin edges and embeddings of rigids
 	skels.init(GC, nullptr);
 	twins.init(GC, nullptr);
 	skel_array.resize(tri.m_numComp, nullptr);
-	logm << "Got " << tri.m_numComp << " components, " << virtual_edges << " virtual edges"
-		 << std::endl;
+	logm << "Got " << tri.m_numComp << " components"
+		 << OGDF_IF_DBG(", " << virtual_edges << " virtual edges" <<) std::endl;
 	for (int i = 0; i < tri.m_numComp; ++i) {
 		Comp& comp = tri.m_component[i];
 		skel_array[i] = new OverlappingGraphCopy(GC_skels);
@@ -131,14 +133,14 @@ void SimpleSPQRTree::init() {
 		for (edge e : comp.m_edges) {
 			if (skels[e] == nullptr) {
 				skels[e] = &skel;
-				real_edges++;
+				OGDF_IF_DBG(real_edges++);
 			} else {
 				logd << "Edge " << e << " (" << e->index() << ") is virtual" << std::endl;
 				OGDF_ASSERT(GC.original(e) == nullptr); // only for virtual edges
 				OGDF_ASSERT(twins[e] == nullptr);
 				twins[e] = &skel;
-				virtual_edges--;
-				real_edges--;
+				OGDF_IF_DBG(virtual_edges--);
+				OGDF_IF_DBG(real_edges--);
 			}
 
 			if (skel.copy(e->source()) == nullptr) {
@@ -348,7 +350,7 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 		OGDF_ASSERT(isSNode(*skel) || skel->numberOfEdges() == 1);
 	}
 	node skel_n = skel->copy(GC_n);
-	int deg = 0;
+	OGDF_IF_DBG(int deg = 0);
 	auto leaf_it = getLeaves().begin();
 	for (adjEntry adj : skel_n->adjEntries) {
 		OGDF_ASSERT(leaf_it != getLeaves().end());
@@ -378,7 +380,7 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 				for (edge e : spqr.par_replacement[GC_e]) {
 					OGDF_ASSERT(getIncidentEdgeForLeaf(leaf) == e);
 					m_bundleEdgesForLeaf[leaf].pushBack(e);
-					deg++;
+					OGDF_IF_DBG(deg++);
 					++leaf_it;
 					OGDF_ASSERT(leaf_it != getLeaves().end());
 					leaf = *leaf_it;
@@ -402,7 +404,7 @@ void NodeSSPQRRotation::mapPartnerEdges() {
 			OGDF_ASSERT(e->graphOf() == m_G);
 			OGDF_ASSERT(e->isIncident(partner));
 		}
-		deg += m_bundleEdgesForLeaf[leaf].size();
+		OGDF_IF_DBG(deg += m_bundleEdgesForLeaf[leaf].size());
 		++leaf_it;
 	}
 #ifdef OGDF_DEBUG
