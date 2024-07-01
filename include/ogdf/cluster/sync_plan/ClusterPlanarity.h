@@ -71,6 +71,8 @@ protected:
 
 //! Perform the reduction from level- to cluster planarity.
 /**
+ * See Section 6.4.4 of https://doi.org/10.15475/cpatp.2024
+ *
  * @param LG the graph that should be tested for level planarity.
  * @param emb the level assignment, containing a list of its contained nodes for each level.
  * @param G will be assigned the graph resulting from the reduction.
