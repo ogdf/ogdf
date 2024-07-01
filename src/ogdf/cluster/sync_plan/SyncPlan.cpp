@@ -48,8 +48,6 @@
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/decomposition/BCTree.h>
 
-#include <ogdf/lib/backward/backward.hpp>
-
 #include <array>
 #include <cstdlib>
 #include <functional>
@@ -320,9 +318,6 @@ std::ostream& SyncPlan::ResetIndices::print(std::ostream& os) const {
 			  << ", count_node " << count_node << ", count_edge " << count_edge << ")";
 }
 
-std::string SyncPlan::UndoOperation::name() const {
-	backward::details::demangler dm;
-	return dm.demangle(typeid(*this).name());
-}
+std::string SyncPlan::UndoOperation::name() const { return typeid(*this).name(); }
 
 }

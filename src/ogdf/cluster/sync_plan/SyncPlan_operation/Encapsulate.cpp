@@ -51,10 +51,12 @@ using namespace ogdf::sync_plan::internal;
 namespace ogdf::sync_plan {
 using internal::operator<<;
 
+namespace internal {
 std::ostream& operator<<(std::ostream& os, const EncapsulatedBlock& block) {
 	os << "EncapsulatedBlock(bicon=" << block.bicon << ", bicon_rep=" << block.bicon_rep
 	   << ", star_rep=" << block.star_rep << ", bij=" << printBijection(block.bij) << ")";
 	return os;
+}
 }
 
 class UndoEncapsulate : public SyncPlan::UndoOperation {

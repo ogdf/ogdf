@@ -97,7 +97,7 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 	// find subtree with edges incident to max_deg
 	SList<node> todo;
 
-	int reals = 0;
+	OGDF_IF_DBG(int reals = 0);
 	for (adjEntry adj : n->adjEntries) {
 		bool is_virt = spqr.twinEdge(adj->theEdge()) != nullptr;
 		bool is_real = spqr.original(adj->theEdge()) != nullptr;
@@ -112,7 +112,7 @@ node NodeSPQRRotation::findSPQRApex(node n, bool clear) {
 		if (is_virt) {
 			continue;
 		}
-		reals++;
+		OGDF_IF_DBG(reals++);
 
 		if (clear) {
 			if (highest_with_edges[t] != nullptr) {
@@ -324,7 +324,9 @@ void NodeSPQRRotation::mapPartnerEdges() {
 	OGDF_ASSERT(spqr.typeOfTNode(pnode) == DynamicSPQRForest::TNodeType::PComp);
 	OGDF_ASSERT(spqr.hEdgesSPQR(pnode).size() == getLeafCount());
 
+#ifdef OGDF_DEBUG
 	int reals = 0, reals2 = 0, bundle = 0;
+#endif
 	for (edge e : spqr.hEdgesSPQR(pnode)) {
 		bool is_virt = spqr.twinEdge(e) != nullptr;
 		bool is_real = spqr.original(e) != nullptr;
@@ -334,7 +336,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 			OGDF_ASSERT(l != nullptr);
 			OGDF_ASSERT(m_bundleEdgesForLeaf[l].empty());
 			m_bundleEdgesForLeaf[l].pushBack(e);
-			reals++;
+			OGDF_IF_DBG(reals++);
 			continue;
 		}
 		node snode = spqr.spqrNodeOf(spqr.twinEdge(e));
@@ -352,7 +354,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 			continue;
 		}
 		if (adj->twinNode() == m_n) {
-			reals2++;
+			OGDF_IF_DBG(reals2++);
 			continue;
 		}
 		// only process real edges that are not incident to first pole
@@ -370,7 +372,7 @@ void NodeSPQRRotation::mapPartnerEdges() {
 		OGDF_ASSERT(spqr.typeOfTNode(tn) == DynamicSPQRForest::TNodeType::SComp);
 		OGDF_ASSERT(snodes[tn] != nullptr);
 		m_bundleEdgesForLeaf[snodes[tn]].pushBack(adj->theEdge());
-		bundle++;
+		OGDF_IF_DBG(bundle++);
 	}
 	OGDF_ASSERT(reals == reals2);
 	if (spqr.typeOfGNode(spqr.original(pole)) == BCTree::GNodeType::Normal) {

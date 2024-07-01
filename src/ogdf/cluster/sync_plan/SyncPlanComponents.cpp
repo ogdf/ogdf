@@ -291,7 +291,7 @@ void SyncPlanComponents::cutReplacedByWheel(node centre,
 			}
 			OGDF_ASSERT(bc_edge->source() == centre_bc);
 			bc_size[bc_edge->source()] += bc_size[bc_edge->target()] - 1;
-			node contraced_node = BC.contract(bc_edge);
+			OGDF_IF_DBG(node contraced_node =) BC.contract(bc_edge);
 			OGDF_ASSERT(contraced_node == centre_bc);
 		}
 	}
