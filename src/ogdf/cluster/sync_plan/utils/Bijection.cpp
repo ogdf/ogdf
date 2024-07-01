@@ -123,7 +123,8 @@ std::pair<node, node> split(Graph& G, PipeBij& bij, const EdgeArray<edge>* new_e
 }
 
 void join(Graph& G, node u, node v, PipeBij& bij, List<bool>* reverse_v) {
-	join(G, u, v, bij, [&G](node n) { G.delNode(n); }, [&G](edge e) { G.delEdge(e); }, reverse_v);
+	join(
+			G, u, v, bij, [&G](node n) { G.delNode(n); }, [&G](edge e) { G.delEdge(e); }, reverse_v);
 }
 
 void join(Graph& G, node u, node v, PipeBij& bij, const std::function<void(node)>& deleteNode,

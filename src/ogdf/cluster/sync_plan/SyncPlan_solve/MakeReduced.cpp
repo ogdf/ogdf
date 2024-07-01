@@ -94,7 +94,8 @@ bool SyncPlan::makeReduced(int check_planarity_every) {
 		undo_stack.pushBack(new ResetIndices(*this));
 	}
 	if (!matchings.getPipeQueue()) {
-		log.lout(Logger::Level::Minor) << "Using default PipeQueueByDegreePreferContract" << std::endl;
+		log.lout(Logger::Level::Minor)
+				<< "Using default PipeQueueByDegreePreferContract" << std::endl;
 		matchings.setPipeQueue(std::make_unique<PipeQueueByDegreePreferContract>(this));
 	}
 	pushUndoOperationAndCheck(new VerifyPipeBijections(*this));

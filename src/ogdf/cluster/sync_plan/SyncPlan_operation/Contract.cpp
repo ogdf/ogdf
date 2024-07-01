@@ -126,8 +126,8 @@ void findBipartiteEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 	do {
 		cean_log << "adding edge " << node_adj->theEdge()->index() << " (" << edge_types[node_adj]
 				 << ") leading to node " << node_adj->twinNode()->index() << " ("
-				 << node_types[node_adj->twinNode()] << ")" << " to out list at position "
-				 << out_edges.size() << std::endl;
+				 << node_types[node_adj->twinNode()] << ")"
+				 << " to out list at position " << out_edges.size() << std::endl;
 		edge_types[node_adj].discover();
 		out_edges.emplaceFront(node_adj, nullptr);
 
@@ -182,8 +182,9 @@ void findBiconnectedEdgeCut(Logger& log, NodeArray<FindType>& node_types,
 			return;
 		} else if (edge_types[node_adj].selected) {
 			cean_log << "adj " << node_adj << ": edge " << node_adj->theEdge() << " and node "
-					 << node_adj->theNode() << " are selected, " << "adding to out list at position "
-					 << out_edges.size() << " and switching face" << std::endl;
+					 << node_adj->theNode() << " are selected, "
+					 << "adding to out list at position " << out_edges.size()
+					 << " and switching face" << std::endl;
 			edge_types[node_adj].discover();
 			out_edges.emplaceFront(getSelectedAdj(node_types, node_adj->theEdge()), nullptr);
 			node_adj = node_adj->twin();

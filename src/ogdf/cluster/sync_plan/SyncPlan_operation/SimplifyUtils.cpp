@@ -39,7 +39,7 @@
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
-#include <ogdf/cluster/sync_plan/operation/Simplify.h>
+#include <ogdf/cluster/sync_plan/SyncPlan_operation/Simplify.h>
 
 #include <functional>
 #include <ostream>

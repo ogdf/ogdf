@@ -33,6 +33,7 @@
 #pragma once
 
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterPlanarityModule.h>
 
 namespace ogdf {
 
