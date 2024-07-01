@@ -134,7 +134,8 @@ jobs:
           cat static-analysis/clang-tidy.txt | python3 -m clang_tidy_converter sq > static-analysis/clang-tidy.json
           clang-tidy-cache --show-stats
           du -sh $CTCACHE_DIR
-          find .ctcache -mtime +7 -exec rm -rv \{} \;
+          find .ctcache -mindepth 1 -type f -atime +7 -delete
+          find .ctcache -mindepth 1 -type d -empty -delete
           du -sh $CTCACHE_DIR
         shell: bash
       - name: Report unused files
@@ -211,7 +212,7 @@ jobs:
   build-linux:
     name: "Test ${{ matrix.mode }} build on Linux with ${{ matrix.compiler }}"
     strategy:
-      matrix: # when updating compilers, also update the prune-caches job
+      matrix: # when updating compilers, also update the prune-all-caches script
         mode: [ debug, release ]
         compiler: [ 'gcc:9', 'gcc:13', 'clang:15' ]
     runs-on: ubuntu-latest
@@ -242,6 +243,7 @@ jobs:
           lscpu
           echo "Hard limits"
           ulimit -Ha
+          echo
           echo "Soft limits"
           ulimit -Sa
       - name: Test ${{ matrix.mode }} build with ${{ matrix.compiler }} and run
@@ -275,7 +277,7 @@ jobs:
   build-macos:
     name: "Test ${{ matrix.mode }} build on ${{ matrix.os }}"
     strategy:
-      matrix: # when updating macos versions, also update the prune-caches job
+      matrix: # when updating macos versions, also update the prune-all-caches script
         mode: [ debug, release ]
         os: [ macos-13 ] # latest/14 is with M1, while macos-13 is intel
     runs-on: ${{ matrix.os }}
@@ -294,11 +296,11 @@ jobs:
           system_profiler system_profiler SPSoftwareDataType SPHardwareDataType
           echo "Hard limits"
           ulimit -Ha
+          echo
           echo "Soft limits"
           ulimit -Sa
       - name: Test ${{ matrix.mode }} build and run
         run: |
-          ulimit -Ss 16384 # increase stack limit for test-planarization
           util/test_build_and_run.sh \
             static \
             ${{ matrix.mode }} \

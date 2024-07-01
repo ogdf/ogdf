@@ -38,6 +38,8 @@
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/NodeArray.h>
 
+#include <ostream>
+
 namespace ogdf {
 
 //! realizes Hopcroft/Tarjan algorithm for finding the triconnected
@@ -102,16 +104,22 @@ public:
 	//! array of components
 	Array<CompStruct> m_component;
 	//! number of components
+	/**
+	 * Note that m_component may have size bigger than m_numComp, in which case all later components should be ignored.
+	 * Additionally, all components before m_numComp that have zero edges shall be ignored.
+	 */
 	int m_numComp;
 
 	/**
-	 * Checks if computed triconnected componets are correct.
+	 * Checks if computed triconnected components are correct.
 	 * \pre checkComp() assumes that the graph is simple
 	 */
-	bool checkComp();
+	bool checkComp() const;
 
 private:
-	bool checkSepPair(edge eVirt);
+	bool checkSepPair(edge eVirt) const;
+
+	void clearStructures();
 
 	//! splits bundles of multi-edges into bonds and creates
 	//! a new virtual edge in GC.
@@ -159,16 +167,24 @@ private:
 	void pathFinder(node v);
 
 	//! finding of split components
-	void pathSearch(node v);
-	//! special version for triconnectivity test
-	bool pathSearch(node v, node& s1, node& s2);
+	/**
+	 * If fail_fast is true, the search will be aborted after finding the first split pair,
+	 * which will be assigned to s1 and s2. Otherwise, s1 and s2 are unused.
+	 */
+	bool pathSearch(node init_v, bool fail_fast, node& s1, node& s2);
+	//! pathSearch() helper for the non-fail-fast version
+	void afterRecursivePathSearch(const node v, const int vnum, const int outv,
+			const ListIterator<edge> it, const edge e, const node w, int wnum);
+	//! pathSearch() helper for the fail-fast version
+	bool afterRecursivePathSearch(const node v, const int vnum, const int outv, const edge e,
+			const node w, const int wnum, node& s1, node& s2);
 
 	//! merges split-components into triconnected components
 	void assembleTriconnectedComponents();
 
 	//! debugging stuff
-	void printOs(edge e);
-	void printStacks();
+	void printOs(edge e) const;
+	void printStacks() const;
 
 	//! returns high(v) value
 	int high(node v) { return (m_HIGHPT[v].empty()) ? 0 : m_HIGHPT[v].front(); }
@@ -214,5 +230,7 @@ private:
 	bool m_newPath; //!< true iff we start a new path
 	bool m_deleteGraph; //!< whether the Graph(Copy) was created by us and should thus be deleted in the destructor
 };
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, Triconnectivity::CompType type);
 
 }

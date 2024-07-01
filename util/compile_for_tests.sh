@@ -61,13 +61,14 @@ export CCACHE_BASEDIR="$tmp"
 export CCACHE_NOHASHDIR=1
 
 # CMake config according to the arguments
-cmakecommand="-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
-cmakecommand+="-DOGDF_SEPARATE_TESTS=OFF -DOGDF_WARNING_ERRORS=ON "
+cmakeargs=()
+cmakeargs+=("-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE")
+cmakeargs+=("-DOGDF_SEPARATE_TESTS=OFF" "-DOGDF_WARNING_ERRORS=ON")
 case "$libtype" in
 static)
 	;;
 dynamic)
-	cmakecommand+="-DBUILD_SHARED_LIBS=1 "
+	cmakeargs+=("-DBUILD_SHARED_LIBS=1")
 	;;
 *)
 	usage
@@ -75,14 +76,14 @@ esac
 
 case "$buildtype" in
 release)
-	cmakecommand+="-DCMAKE_BUILD_TYPE=Release "
+	cmakeargs+=("-DCMAKE_BUILD_TYPE=Release")
 	;;
 debug)
-	cmakecommand+="-DCMAKE_CXX_FLAGS_DEBUG='-g -O1' "
-	cmakecommand+="-DCMAKE_BUILD_TYPE=Debug "
-	cmakecommand+="-DOGDF_DEBUG_MODE=HEAVY "
-	cmakecommand+="-DOGDF_LEAK_CHECK=ON "
-	cmakecommand+="-DOGDF_MEMORY_MANAGER=MALLOC_TS "
+	cmakeargs+=("-DCMAKE_CXX_FLAGS_DEBUG='-g -O1'")
+	cmakeargs+=("-DCMAKE_BUILD_TYPE=Debug")
+	cmakeargs+=("-DOGDF_DEBUG_MODE=HEAVY")
+	cmakeargs+=("-DOGDF_LEAK_CHECK=ON")
+	cmakeargs+=("-DOGDF_MEMORY_MANAGER=MALLOC_TS")
 	;;
 *)
 	usage
@@ -90,10 +91,10 @@ esac
 
 case "$compilertype" in
 gcc)
-	cmakecommand+="-DCMAKE_CXX_COMPILER='g++' "
+	cmakeargs+=("-DCMAKE_CXX_COMPILER='g++'")
 	;;
 clang)
-	cmakecommand+="-DCMAKE_CXX_COMPILER='clang++' "
+	cmakeargs+=("-DCMAKE_CXX_COMPILER='clang++'")
 	;;
 default_c|*)
 esac
@@ -105,10 +106,8 @@ if [ "$ilpsolvertype" = "gurobi" ]; then
     # For Mac and gurobi version >= 8, the library is not .so anymore but .dylib
     library=`$OGDF_FIND $GUROBI_HOME/lib/libgurobi*.dylib | head -n 1`
   fi
-  cmakecommand+="-DCOIN_SOLVER=GRB -DCOIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES=$GUROBI_HOME/include -DCOIN_EXTERNAL_SOLVER_LIBRARIES=$library "
+  cmakeargs+=("-DCOIN_SOLVER=GRB" "-DCOIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES='$GUROBI_HOME/include'" "-DCOIN_EXTERNAL_SOLVER_LIBRARIES='$library'")
 fi
-
-cmakecommand+="${@:7}"
 
 run_cmake() {
 	echo cmake $@
@@ -130,7 +129,7 @@ compile () {
 }
 
 echo "::group::($(date -Iseconds)) Initial run of cmake"
-run_cmake "$cmakecommand"
+run_cmake "${cmakeargs[@]}" "${@:7}"
 echo "::endgroup::"
 
 # build
