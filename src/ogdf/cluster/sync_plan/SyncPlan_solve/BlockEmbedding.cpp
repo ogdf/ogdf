@@ -34,9 +34,9 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
+#include <ogdf/cluster/sync_plan/SyncPlan_solve/BlockEmbedding.h>
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/basic/TwoSAT.h>
-#include <ogdf/cluster/sync_plan/solve/BlockEmbedding.h>
 #include <ogdf/decomposition/SPQRTree.h>
 #include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>

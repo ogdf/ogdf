@@ -527,7 +527,8 @@ void ILPClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& mas
 
 	delete[] cons;
 
-	os << "\nEND" << "\n";
+	os << "\nEND"
+	   << "\n";
 	os.close();
 
 #if 0
@@ -614,11 +615,13 @@ void ILPClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& mas
 		OGDF_ASSERT(kuraCon != nullptr);
 		std::cout << connCon->number() << " Constraints im MasterConnpool \n";
 		std::cout << kuraCon->number() << " Constraints im MasterKurapool \n";
-		std::cout << connCon->size() << " Größe ConnPool" << "\n";
+		std::cout << connCon->size() << " Größe ConnPool"
+				  << "\n";
 		outputCons(os, connCon, stdVar);
 		outputCons(os, kuraCon, stdVar);
 	}
-	os << "\nEND" << "\n";
+	os << "\nEND"
+	   << "\n";
 	os.close();
 	std::cout << "Cutting is set: " << master.cutting() << "\n";
 #if 0

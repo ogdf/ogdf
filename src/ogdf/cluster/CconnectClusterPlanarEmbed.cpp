@@ -817,7 +817,8 @@ breakForLoop:
 		Logger::slout() << std::endl << "New Lists after Reversing " << std::endl;
 		for (i = 1; i <= (*numbering)[t]; i++) {
 			node v = (*tableNumber2Node)[i];
-			Logger::slout() << "v = " << v << " : " << " ";
+			Logger::slout() << "v = " << v << " : "
+							<< " ";
 			for (edge e : (*frontier)[v]) {
 				Logger::slout() << e << " ";
 			}

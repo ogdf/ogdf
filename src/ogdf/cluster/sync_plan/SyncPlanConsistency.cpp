@@ -338,9 +338,10 @@ void SyncPlanConsistency::checkComponentRegeneration() {
 					pq.log.lout(Logger::Level::Alarm)
 							<< "From node " << pq.fmtPQNode(bc_ref[v1]) << " I learned the mapping "
 							<< "{{" << ref_bc.typeOfBNode(v1) << " #" << v1->index() << " °"
-							<< v1->degree() << " @" << ref_conn(v1) << "}}" << " => "
-							<< pq.components.fmtBCNode(bc_store[v1]) << ". " << "For node "
-							<< pq.fmtPQNode(g_n) << " I got the same key, but the value now is "
+							<< v1->degree() << " @" << ref_conn(v1) << "}}"
+							<< " => " << pq.components.fmtBCNode(bc_store[v1]) << ". "
+							<< "For node " << pq.fmtPQNode(g_n)
+							<< " I got the same key, but the value now is "
 							<< pq.components.fmtBCNode(v2) << "." << std::endl;
 					OGDF_ASSERT(false);
 				}

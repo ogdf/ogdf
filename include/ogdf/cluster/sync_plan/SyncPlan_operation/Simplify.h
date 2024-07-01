@@ -96,7 +96,11 @@ int findCycles(Graph& G, node u, const std::function<adjEntry(adjEntry)>& mappin
  * Continue a DFS from the last node of \p dfs_stack until an unvisited edge incident to \p v is found.
  * All edges visited on the way (also those that didn't lead to an edge incident to v
  * and the edge incident to v found in the end) are added to the set \p visited.
+ * @param G the graph
  * @param u_adj (for debugging purposes) an adjEntry at the bottom of the stack, whose node we should never visit
+ * @param v the node to find (an adjacent edge to)
+ * @param visited set of already used edges
+ * @param dfs_stack continuation points for the dfs
  * @return an adjEntry of \p v reachable from \p dfs_stack.back() via previously unvisited edges
  */
 adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
