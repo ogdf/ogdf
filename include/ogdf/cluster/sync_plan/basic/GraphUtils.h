@@ -33,6 +33,8 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/basic.h>
 
+#include <functional>
+
 namespace ogdf {
 template<class E>
 class List;

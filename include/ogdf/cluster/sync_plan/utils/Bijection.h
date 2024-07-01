@@ -36,6 +36,7 @@
 #include <ogdf/basic/comparer.h>
 #include <ogdf/cluster/sync_plan/basic/Iterators.h>
 
+#include <functional>
 #include <utility>
 
 namespace ogdf::sync_plan {

@@ -31,7 +31,6 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
 #include <functional>
@@ -40,6 +39,9 @@
 #include <string>
 #include <utility>
 
+namespace ogdf {
+class ClusterGraph;
+} // namespace ogdf
 
 #define OGDF_CONTAINER_PRINTER(NAME)                                                     \
 	template<typename Container>                                                         \

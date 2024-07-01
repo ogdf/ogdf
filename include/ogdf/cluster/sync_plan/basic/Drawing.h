@@ -31,12 +31,13 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 
 #include <array>
 #include <functional>
 
 namespace ogdf {
+class Color;
+class GraphAttributes;
 
 extern const std::array<Color, 63> colors;
 

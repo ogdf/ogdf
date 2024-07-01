@@ -30,6 +30,7 @@
  */
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
@@ -39,6 +40,7 @@
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/cluster/sync_plan/utils/Logging.h>
 
+#include <functional>
 #include <ostream>
 #include <string>
 #include <utility>

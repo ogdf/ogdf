@@ -32,6 +32,7 @@
 
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
@@ -46,6 +47,8 @@
 #include <ostream>
 #include <string>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace ogdf::pc_tree {
 class NodePCRotation;

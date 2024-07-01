@@ -816,8 +816,8 @@ protected:
 
 	//! Creates new cluster containing nodes in parameter list and
 	//! stores resulting empty clusters in list, cluster has index \p clusterId.
-	cluster doCreateCluster(const SList<node>& nodes, SList<cluster>& emptyCluster, const cluster parent,
-			int clusterId = -1);
+	cluster doCreateCluster(const SList<node>& nodes, SList<cluster>& emptyCluster,
+			const cluster parent, int clusterId = -1);
 
 	//! Clears all cluster data.
 	void doClear();

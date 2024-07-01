@@ -30,10 +30,18 @@
 */
 #pragma once
 
-#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterPlanarityModule.h>
 
+#include <utility>
+#include <vector>
+
 namespace ogdf {
+template<bool>
+class EdgeSet;
+
 class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule {
 	std::vector<std::pair<adjEntry, adjEntry>>* m_augmentation = nullptr;
 
@@ -84,6 +92,6 @@ OGDF_EXPORT void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
  */
 OGDF_EXPORT void insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
 		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added = nullptr,
-		bool embedded = true,bool assert_minimal = true);
+		bool embedded = true, bool assert_minimal = true);
 
 }

@@ -203,7 +203,8 @@ class OverlappingGraphCopies {
 	mutable EdgeMultiArray<const OverlappingGraphCopy*, edge> m_edge_copies;
 
 public:
-	explicit OverlappingGraphCopies(const Graph& G) : m_G(&G), m_node_copies(G), m_edge_copies(G) { }
+	explicit OverlappingGraphCopies(const Graph& G)
+		: m_G(&G), m_node_copies(G), m_edge_copies(G) { }
 
 	OGDF_NO_COPY(OverlappingGraphCopies)
 

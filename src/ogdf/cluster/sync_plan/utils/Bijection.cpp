@@ -35,6 +35,7 @@
 #include <ogdf/cluster/sync_plan/basic/GraphUtils.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
+#include <functional>
 #include <utility>
 
 namespace ogdf::sync_plan {
