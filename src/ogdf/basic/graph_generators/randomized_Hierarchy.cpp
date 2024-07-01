@@ -32,7 +32,7 @@
 
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/graph_generators/deterministic.h>
-#include <ogdf/basic/graph_generators/randomHierarchy.h>
+#include <ogdf/basic/graph_generators/randomized.h>
 
 using std::minstd_rand;
 using std::mt19937;
