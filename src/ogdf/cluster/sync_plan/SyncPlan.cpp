@@ -48,6 +48,8 @@
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 #include <ogdf/decomposition/BCTree.h>
 
+#include <ogdf/lib/backward/backward.hpp>
+
 #include <array>
 #include <cstdlib>
 #include <functional>
@@ -56,8 +58,6 @@
 #include <string>
 #include <tuple>
 #include <typeinfo>
-
-#include <cxxabi.h>
 
 using namespace ogdf::sync_plan::internal;
 
@@ -321,15 +321,8 @@ std::ostream& SyncPlan::ResetIndices::print(std::ostream& os) const {
 }
 
 std::string SyncPlan::UndoOperation::name() const {
-	int status = 0;
-	char* ret = abi::__cxa_demangle(typeid(*this).name(), nullptr, nullptr, &status);
-	if (status != 0) {
-		throw std::runtime_error("cxa_demangle error status code " + std::to_string(status));
-	}
-	std::string str {ret};
-	free(ret);
-	OGDF_ASSERT(!str.empty());
-	return str;
+	backward::details::demangler dm;
+	return dm.demangle(typeid(*this).name());
 }
 
 }

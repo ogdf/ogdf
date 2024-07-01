@@ -99,15 +99,17 @@ void dump(PCTree& T, const std::string& name) { }
 #endif
 
 
-bool ogdf::pc_tree::isTrivialRestriction(int restSize, int leafCount) {
+namespace ogdf::pc_tree {
+
+bool isTrivialRestriction(int restSize, int leafCount) {
 	return restSize <= 1 || restSize >= leafCount - 1;
 }
 
 bool PCTree::isTrivialRestriction(int size) const {
-	return ogdf::pc_tree::isTrivialRestriction(size, getLeafCount());
+	return ::isTrivialRestriction(size, getLeafCount());
 }
 
-int ogdf::pc_tree::factorial(int n) { return (int)std::tgamma(n + 1); }
+int factorial(int n) { return (int)std::tgamma(n + 1); }
 
 void PCTree::LoggingObserver::makeConsecutiveCalled(PCTree& tree, FullLeafIter consecutiveLeaves) {
 	log << "Tree " << tree << " with consecutive leaves [";
@@ -1125,4 +1127,6 @@ PCNode* PCTree::splitOffFullPNode(PCNode* node, bool skip_parent) {
 		obs->fullNodeSplit(*this, fullNode);
 	}
 	return fullNode;
+}
+
 }
