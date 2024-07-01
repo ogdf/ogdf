@@ -36,7 +36,7 @@
 #include <stack>
 #include <variant>
 
-using namespace ogdf::pc_tree;
+namespace ogdf::pc_tree {
 
 bool PCTree::isTrivial() const {
 	if (m_leaves.empty()) {
@@ -148,11 +148,9 @@ void PCTree::getTree(Graph& tree, GraphAttributes* g_a, PCTreeNodeArray<ogdf::no
 	}
 }
 
-std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCTree& tree) {
-	return os << &tree;
-}
+std::ostream& operator<<(std::ostream& os, const PCTree& tree) { return os << &tree; }
 
-std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCTree* tree) {
+std::ostream& operator<<(std::ostream& os, const PCTree* tree) {
 	std::stack<std::variant<PCNode*, std::string>> stack;
 	stack.push(tree->m_rootNode);
 	if (tree->m_rootNode == nullptr) {
@@ -202,35 +200,33 @@ std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::P
 	return os;
 }
 
-void ogdf::pc_tree::uid_utils::nodeToID(std::ostream& os, PCNode* n, int pos) {
+void uid_utils::nodeToID(std::ostream& os, PCNode* n, int pos) {
 	os << n->index();
 	if (!n->isLeaf()) {
 		os << ":";
 	}
 }
 
-void ogdf::pc_tree::uid_utils::nodeToPosition(std::ostream& os, PCNode* n, int pos) {
+void uid_utils::nodeToPosition(std::ostream& os, PCNode* n, int pos) {
 	os << pos;
 	if (!n->isLeaf()) {
 		os << ":";
 	}
 }
 
-void ogdf::pc_tree::uid_utils::leafToID(std::ostream& os, PCNode* n, int pos) {
+void uid_utils::leafToID(std::ostream& os, PCNode* n, int pos) {
 	if (n->isLeaf()) {
 		os << n->index();
 	}
 }
 
-void ogdf::pc_tree::uid_utils::leafToPosition(std::ostream& os, PCNode* n, int pos) {
+void uid_utils::leafToPosition(std::ostream& os, PCNode* n, int pos) {
 	if (n->isLeaf()) {
 		os << pos;
 	}
 }
 
-bool ogdf::pc_tree::uid_utils::compareNodesByID(PCNode* a, PCNode* b) {
-	return a->index() < b->index();
-}
+bool uid_utils::compareNodesByID(PCNode* a, PCNode* b) { return a->index() < b->index(); }
 
 std::ostream& PCTree::uniqueID(std::ostream& os,
 		const std::function<void(std::ostream& os, PCNode*, int)>& printNode,
@@ -352,7 +348,7 @@ std::ostream& PCTree::uniqueID(std::ostream& os,
 	return os;
 }
 
-std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::PCNodeType t) {
+std::ostream& operator<<(std::ostream& os, const PCNodeType t) {
 	switch (t) {
 	case PCNodeType::Leaf:
 		return os << "Leaf";
@@ -366,7 +362,7 @@ std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::P
 	}
 }
 
-std::ostream& ogdf::pc_tree::operator<<(std::ostream& os, const ogdf::pc_tree::NodeLabel l) {
+std::ostream& operator<<(std::ostream& os, const NodeLabel l) {
 	switch (l) {
 	case NodeLabel::Unknown:
 		return os << "Empty/Unknown";
@@ -423,8 +419,19 @@ bool PCTree::isValidOrder(const std::vector<PCNode*>& order) const {
 	return true;
 }
 
+int PCTREE_DEBUG_CHECK_FREQ = 10;
+int PCTREE_DEBUG_CHECK_CNT = 0;
+
 bool PCTree::checkValid(bool allow_small_deg) const {
 #ifdef OGDF_DEBUG
+	if (PCTREE_DEBUG_CHECK_FREQ == 0) {
+		return true;
+	}
+	++PCTREE_DEBUG_CHECK_CNT;
+	if (PCTREE_DEBUG_CHECK_CNT % PCTREE_DEBUG_CHECK_FREQ != 0) {
+		return true;
+	}
+
 	if (m_rootNode == nullptr) {
 		OGDF_ASSERT(m_leaves.size() == 0);
 		OGDF_ASSERT(m_pNodeCount == 0);
@@ -711,7 +718,7 @@ PCNode* PCTree::setRoot(PCNode* newRoot) {
 
 PCNode* PCTree::changeRoot(PCNode* newRoot) {
 	OGDF_ASSERT(newRoot != nullptr && newRoot->isValidNode(m_forest));
-	OGDF_ASSERT(checkValid());
+	OGDF_HEAVY_ASSERT(checkValid());
 	std::stack<PCNode*> path;
 	for (PCNode* node = newRoot; node != nullptr; node = node->getParent()) {
 		OGDF_ASSERT(node != nullptr);
@@ -741,4 +748,6 @@ PCNode* PCTree::changeRoot(PCNode* newRoot) {
 	OGDF_ASSERT(path.size() == 1);
 	OGDF_ASSERT(path.top() == newRoot);
 	return setRoot(newRoot);
+}
+
 }

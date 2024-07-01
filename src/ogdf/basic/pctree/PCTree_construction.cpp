@@ -437,8 +437,8 @@ void PCTree::destroyLeaf(PCNode* leaf) {
 }
 
 void PCTree::insertTree(PCNode* at, PCTree* inserted) {
-	OGDF_ASSERT(checkValid());
-	OGDF_ASSERT(inserted->checkValid());
+	OGDF_HEAVY_ASSERT(checkValid());
+	OGDF_HEAVY_ASSERT(inserted->checkValid());
 	OGDF_ASSERT(at->isValidNode(getForest()));
 	OGDF_ASSERT(inserted->getForest() == getForest());
 
