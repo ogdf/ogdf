@@ -49,7 +49,7 @@ namespace ogdf {
  * This is used for managing the second dimension of RegisteredMultiArray for a single value in the first dimension.
  */
 template<typename Key2, typename Value, int array_max>
-struct RegisteredMultiArrayEntry {
+struct UsuallySmallMap {
 	using ValuePairType = std::pair<Key2, Value>;
 	using ValueArrayType = std::array<ValuePairType, array_max>;
 	using ValueMapType = std::unordered_map<Key2, Value>;
@@ -58,9 +58,9 @@ struct RegisteredMultiArrayEntry {
 	void* m_value = nullptr;
 
 
-	RegisteredMultiArrayEntry() = default;
+	UsuallySmallMap() = default;
 
-	~RegisteredMultiArrayEntry() {
+	~UsuallySmallMap() {
 		if (m_value != nullptr) {
 			if (m_size <= 0) {
 				delete (ValueMapType*)m_value;
@@ -72,7 +72,7 @@ struct RegisteredMultiArrayEntry {
 		}
 	}
 
-	RegisteredMultiArrayEntry(const RegisteredMultiArrayEntry& copy) : m_size(copy.m_size) {
+	UsuallySmallMap(const UsuallySmallMap& copy) : m_size(copy.m_size) {
 		if (copy.m_value == nullptr) {
 			m_value = nullptr;
 		} else if (m_size <= 0) {
@@ -84,9 +84,9 @@ struct RegisteredMultiArrayEntry {
 		}
 	}
 
-	OGDF_COPY_MOVE_BY_SWAP(RegisteredMultiArrayEntry)
+	OGDF_COPY_MOVE_BY_SWAP(UsuallySmallMap)
 
-	OGDF_SWAP_OP(RegisteredMultiArrayEntry) {
+	OGDF_SWAP_OP(UsuallySmallMap) {
 		using std::swap;
 		swap(first.m_size, second.m_size);
 		swap(first.m_value, second.m_value);
@@ -235,6 +235,8 @@ struct RegisteredMultiArrayEntry {
 		}
 	}
 
+	bool usesMap() const { return m_size == 0 && m_value != nullptr; }
+
 	ValuePairType& getValueScalar() const {
 		OGDF_ASSERT(m_size == 1);
 		OGDF_ASSERT(m_value != nullptr);
@@ -265,11 +267,9 @@ template<typename Key1, typename Key2, typename Value, template<typename...> cla
  * If more than \p array_max values are stored for a first dimension value, we use a std::map to manage the second dimension for this value.
  */
 class RegisteredMultiArray {
-	using EntryType = RegisteredMultiArrayEntry<Key2, Value, array_max>;
-
-	BaseArray<EntryType> m_array;
-
 public:
+	using EntryType = UsuallySmallMap<Key2, Value, array_max>;
+
 	RegisteredMultiArray() = default;
 
 	template<class... T>
@@ -281,13 +281,24 @@ public:
 
 	Value& get_or_raise(const Key1& k1, const Key2& k2) { return m_array[k1].get_or_raise(k2); }
 
+	const Value& get_or_raise(const Key1& k1, const Key2& k2) const {
+		return m_array[k1].get_or_raise(k2);
+	}
+
+	EntryType& get_all(const Key1& k1) { return m_array[k1]; }
+
+	const EntryType& get_all(const Key1& k1) const { return m_array[k1]; }
+
 	void remove(const Key1& k1, const Key2& k2) { return m_array[k1].unset(k2); }
 
-	bool contains(const Key1& k1, const Key2& k2) { return m_array[k1].contains(k2); }
+	bool contains(const Key1& k1, const Key2& k2) const { return m_array[k1].contains(k2); }
 
-	size_t count(const Key1& k1) { return m_array[k1].size(k1); }
+	size_t count(const Key1& k1) const { return m_array[k1].size(k1); }
 
-	bool has(const Key1& k1) { return !m_array[k1].empty(k1); }
+	bool has(const Key1& k1) const { return !m_array[k1].empty(k1); }
+
+private:
+	BaseArray<EntryType> m_array;
 };
 
 }

@@ -111,7 +111,7 @@ void SyncPlan::formatNode(node n) const {
 	}
 }
 
-PipeType SyncPlan::getPipeType(const Pipe* p) {
+PipeType SyncPlan::getPipeType(const Pipe* p) const {
 	OGDF_ASSERT(p != nullptr);
 	if (components.isCutVertex(p->node1)) {
 		if (components.isCutVertex(p->node2)) {
@@ -201,7 +201,7 @@ void SyncPlan::printOPStatsEnd(bool success, int64_t time_ns) {
 
 #endif
 
-bool SyncPlan::canContract(const Pipe* p) {
+bool SyncPlan::canContract(const Pipe* p) const {
 	if (p == nullptr) {
 		return false;
 	}

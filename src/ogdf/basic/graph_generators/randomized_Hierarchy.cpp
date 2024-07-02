@@ -227,8 +227,8 @@ void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>
 	for (int l = 0; l < K - 1; ++l) {
 		int lp = 0;
 		int up = 0;
-		bool wrap_forw = false;
-		bool wrap_back = false;
+		bool wrap_forw = false; // whether there is an edge from emb[l].back() to emb[l+1].front()
+		bool wrap_back = false; // whether there is an edge from emb[l].front() to emb[l+1].back()
 		while (true) {
 			G.newEdge(emb[l][lp], emb[l + 1][up]);
 
@@ -251,11 +251,12 @@ void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::vector<node>>
 
 		// add the wrap-around edge
 		if (radial) {
-			if (randomNumber(0, 1) == 1 || wrap_back) {
+			if (wrap_back || (!wrap_forw && randomNumber(0, 1) == 1)) {
 				if (!wrap_forw) {
 					G.newEdge(emb[l].back(), emb[l + 1].front());
 				}
 			} else {
+				OGDF_ASSERT(!wrap_back);
 				G.newEdge(emb[l].front(), emb[l + 1].back());
 			}
 		}
