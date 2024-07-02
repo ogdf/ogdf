@@ -116,6 +116,7 @@ public:
 
 	Status status() const { return m_status; }
 
+	//! @sa ogdf::sync_plan::preprocessClusterGraph()
 	static void preprocessing(ClusterGraph& C, Graph& G);
 
 	int numNodesPreproc() const { return m_numNodesPreproc; }

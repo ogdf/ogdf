@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for working with the bijections between the edges incident to the two endpoints of a Pipe.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

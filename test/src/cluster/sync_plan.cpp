@@ -1,5 +1,5 @@
 /** \file
- * \brief Regression test for TODO
+ * \brief Regression test for SyncPlan
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

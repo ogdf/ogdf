@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Implementation of the SyncPlan::makeWheel and SyncPlan::contractWheel operations.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

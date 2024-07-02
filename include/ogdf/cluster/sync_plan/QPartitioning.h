@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Manages the partitioning of Q-nodes in an instance of SyncPlan.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -41,6 +41,7 @@ class QPartitioning; // IWYU pragma: keep
 OGDF_DECL_REG_ARRAY(PartitionArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
+//! Manages the partitioning of Q-nodes in an instance of SyncPlan.
 class OGDF_EXPORT QPartitioning : protected GraphObserver,
 								  public RegistryBase<int, QPartitioning, int> {
 private:
@@ -60,7 +61,8 @@ public:
 
 	int getPartitionOf(node n) const;
 
-	//! it is assumed that the graph structure ensures that only two rotations are possible, i.e. by calling makeWheel
+	//! Mark a node as Q-node.
+	//! @note it is assumed that the graph structure ensures that only two rotations are possible, i.e. by calling SyncPlan::makeWheel()
 	int makeQVertex(node n, int p = NO_PARTITION);
 
 	void releaseQVertex(node n);

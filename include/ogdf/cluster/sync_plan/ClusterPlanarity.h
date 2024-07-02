@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for reducing from Cluster Planarity to SyncPlan.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -43,6 +43,7 @@ namespace ogdf {
 template<bool>
 class EdgeSet;
 
+//! ClusterPlanarity testing in quadratic time using the \ref ogdf::sync_plan::SyncPlan "Synchronized Planarity" approach.
 class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule {
 	std::vector<std::pair<adjEntry, adjEntry>>* m_augmentation = nullptr;
 
@@ -52,8 +53,9 @@ public:
 	bool clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) override;
 
 	//! When set to a non-null pointer, will contain the augmentation edges to make the graph c-connected c-plane after calling clusterPlanarEmbed().
-	/*
+	/**
 	 * @sa insertAugmentationEdges()
+	 * @sa SyncPlan(Graph*, ClusterGraph*, std::vector<std::pair<adjEntry, adjEntry>>*, ClusterGraphAttributes*)
 	 */
 	void setStoreAugmentation(std::vector<std::pair<adjEntry, adjEntry>>* augmentation) {
 		m_augmentation = augmentation;
@@ -92,6 +94,7 @@ OGDF_EXPORT void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
  * @param added if non-null, will be assigned all newly added edges.
  * @param embedded whether CG represents a c-plane embedding that need to be maintained throughout the insertion.
  * @param assert_minimal whether we should assert that the set of augmentation edges is minimal for c-connectivity.
+ * @sa SyncPlan(Graph*, ClusterGraph*, std::vector<std::pair<adjEntry, adjEntry>>*, ClusterGraphAttributes*)
  */
 OGDF_EXPORT void insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
 		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added = nullptr,

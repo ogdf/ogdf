@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Derive embedding trees from Triconnectivity information.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -69,6 +69,7 @@ inline adjEntry getAdjInOrig(const OverlappingGraphCopy* skel, adjEntry skel_adj
 }
 }
 
+//! Wrapper class around Triconnectivity information.
 struct OGDF_EXPORT SimpleSPQRTree {
 	using Comp = Triconnectivity::CompStruct;
 	static Logger log;
@@ -105,6 +106,7 @@ struct OGDF_EXPORT SimpleSPQRTree {
 	OverlappingGraphCopy* getTwinSkel_GC(OverlappingGraphCopy* skel, edge GC_e) const;
 };
 
+//! Derive embedding trees from Triconnectivity information.
 class NodeSSPQRRotation : public pc_tree::NodePCRotation {
 	const SimpleSPQRTree& spqr;
 

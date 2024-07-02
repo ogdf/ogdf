@@ -1,5 +1,5 @@
 /** \file
- * \brief An intrusive list for the leaves of a PCTree.
+ * \brief An intrusive list for the leaves of a PCTree. TODO should be moved to a central location; merge with GraphList?
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

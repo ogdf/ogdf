@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Multiple GraphCopies that contain different, overlapping parts of the same original graph. TODO should be moved to a central location.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -40,6 +40,7 @@ namespace ogdf {
 class OverlappingGraphCopies;
 
 // room for improvement: common interface with GraphCopyBase, add auto-linking ::insert method
+//! Version of GraphCopySimple that may efficiently share some overlap with other instances of the same original Graph via its OverlappingGraphCopies manager.
 class OGDF_EXPORT OverlappingGraphCopy : public Graph {
 	friend class OverlappingGraphCopies;
 
@@ -195,6 +196,11 @@ public:
 	}
 };
 
+//! The manager class for multiple OverlappingGraphCopy instances of the same graph.
+/**
+ * This is similar to using multiple GraphCopySimple instances for a single graph, but is more efficient
+ * storage-wise and easily allows enumerating in which copies a node or edge occurs.
+ */
 class OGDF_EXPORT OverlappingGraphCopies {
 	friend class OverlappingGraphCopy;
 

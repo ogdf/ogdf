@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities by dumping a drawing of the current state of a SyncPlan instance.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -37,6 +37,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 
 #include <functional>
 #include <memory>
@@ -45,8 +46,10 @@
 namespace ogdf::sync_plan {
 class SyncPlan;
 
+//! Simple util for apply a default style to nodes, including a group-based coloring.
 OGDF_EXPORT void formatNode(node n, GraphAttributes* ga, int group);
 
+//! Properly style a cluster border inserted by planarizeClusterBorderCrossings()
 OGDF_EXPORT void styleClusterBorder(
 		const ClusterGraph& CG, const EdgeArray<List<std::pair<adjEntry, cluster>>>& subdivisions,
 		GraphAttributes& GA,
@@ -55,6 +58,7 @@ OGDF_EXPORT void styleClusterBorder(
 OGDF_EXPORT std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(
 		ClusterGraph& CG, GraphAttributes& GA, adjEntry adjExternal = nullptr);
 
+//! Utilities by dumping a drawing of the current state of a SyncPlan instance.
 class OGDF_EXPORT SyncPlanDrawer {
 	std::unique_ptr<LayoutModule> planar_layout;
 	std::unique_ptr<LayoutModule> non_planar_layout;

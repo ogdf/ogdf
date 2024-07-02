@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for the SyncPlan::encapsulate() operation.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -37,6 +37,7 @@
 
 namespace ogdf::sync_plan::internal {
 
+//! Information on a single block adjacent to a cut-vertex that is about to be encapsulated.
 struct EncapsulatedBlock {
 	node bicon = nullptr;
 	node bicon_rep = nullptr;

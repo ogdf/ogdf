@@ -1,5 +1,5 @@
 /** \file
- * \brief An iterator-based BFS through a Graph.
+ * \brief An iterator-based BFS through a Graph. TODO should be moved to a central location; add DFS?
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -28,8 +28,6 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-
-// TODO move to a more central location, add DFS?
 
 #pragma once
 

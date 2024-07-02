@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Internal class used to embed a biconnected component with Q-vertices.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -48,6 +48,7 @@ using NA = NodeArray<V>;
 
 using GnMultiArray = RegisteredMultiArray<node, BlockEmbedding*, node, NA>;
 
+//! Internal class used to embed a biconnected component with Q-vertices.
 struct BlockEmbedding {
 	Graph subgraph;
 	StaticPlanarSPQRTree* spqr = nullptr;

@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for the SyncPlan::simplify() operation.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
