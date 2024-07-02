@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief The main code for modelling and solving Synchronized Planarity instances.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -253,7 +253,7 @@ public:
 	//! Create a new Synchronized Planarity instance with a given underlying graph.
 	/**
 	 * Usage:
-	 *
+	 * \code
 	 * Graph G;
 	 * // init your graph here
 	 *
@@ -272,15 +272,17 @@ public:
 	 *     PQ.embed();
 	 *     OGDF_ASSERT(G.representsCombEmbedding());
 	 * }
+	 * \endcode
 	 *
 	 * @param g the underlying graph.
-	 * @param ga optionally GraphAttributes in which to store debugging information of applied operations.
+	 * @param ga optional GraphAttributes in which to store debugging information of applied operations.
 	 */
 	explicit SyncPlan(Graph* g, GraphAttributes* ga = nullptr);
 
+	//! Create a new Synchronized Planarity instance by applying the reduction from some ClusteredPlanarity instance.
 	/**
 	 * Usage:
-	 *
+	 * \code
 	 * Graph G;
 	 * ClusterGraph CG(G);
 	 * // init your graph and clusters here
@@ -292,11 +294,25 @@ public:
 	 *     PQ.embed();
 	 *     OGDF_ASSERT(CG.representsCombEmbedding());
 	 * }
+	 * \endcode
+	 *
+	 * @note After calling (the reduction used within) this constructor, the ClusterGraph and underlying Graph will be invalid until SyncPlan::embed() is called.
+	 * @param g the underlying graph.
+	 * @param cg the corresponding ClusterGraph.
+	 * @param augmentation if non-null, will be assigned the edges that need to be inserted to make the graph c-connected c-plane once SyncPlan::embed() was called.
+	 * @param ga optional GraphAttributes in which to store debugging information of applied operations.
+	 * @sa insertAugmentationEdges()
 	 */
 	explicit SyncPlan(Graph* g, ClusterGraph* cg,
 			std::vector<std::pair<adjEntry, adjEntry>>* augmentation = nullptr,
 			ClusterGraphAttributes* ga = nullptr);
 
+	//! Create a new SyncPlan instance using the reduction from a 2-SEFE instance with a connected shared graph.
+	/**
+	 * @param sefe the 2-SEFE instance that shall be embedded.
+	 * @param work an empty graph that is used for the reduction.
+	 * @param edge_types the types of edges in \p sefe, 1 or 2 for either of the exclusive graphs, 3 for shared.
+	 */
 	explicit SyncPlan(Graph* sefe, Graph* work, EdgeArray<uint8_t>& edge_types);
 
 	virtual ~SyncPlan() {
@@ -334,6 +350,8 @@ private:
 	/// Operations /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
+	//! @name Operations used by makeReduced() for removing pipes.
+	//! @{
 	void makeWheel(node centre, bool update_cuts = true);
 
 	void contractWheel(node centre);
@@ -348,23 +366,34 @@ public:
 
 	Result simplify(node u, const NodePCRotation* pc);
 
+	//! Computes an embedding tree and either applies propagatePQ() or simplify()
 	Result checkPCTree(node u);
 
 	Result batchSPQR();
+	//! @}
 
 public:
+	//! Recompute biconnected component information after the graph was changed externally.
 	void initComponents();
 
+	//! Apply operations (in the order defined by the current PipeQueue) until no pipes are left.
 	bool makeReduced(int check_planarity_every = 0);
 
+	//! Solve a reduced instance, creating a combinatorial embedding of the current graph that respects all Q-constraints.
 	bool solveReduced(bool fail_fast = false);
 
+	//! Undo all operations while maintaining the current embedding to obtain an embedding of the initial graph.
 	void embed();
 
 	/// Statistics ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	//! The number of operations that need undoing.
 	int undoOperations() const { return undo_stack.size(); }
 
+	//! Return the longest cycle length encountered in simplify toroidal.
+	int getLongestSimplifyToroidalCycle() const { return longestSimplifyToroidalCycle; }
+
+	//! The maintained (bi)connected components information.
 	const SyncPlanComponents& getComponents() const { return components; }
 
 #ifdef SYNCPLAN_OPSTATS
@@ -377,25 +406,33 @@ public:
 
 	PipeType getPipeType(const Pipe* p);
 
+	//! Check whether a Pipe can be removed by applying contract().
+	//! @sa setAllowContractBBPipe()
 	bool canContract(const Pipe* p);
 
 	/// Config ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	//! @name Configuration
+	//! @{
+
 	bool isAllowContractBBPipe() const { return allow_contract_bb_pipe; }
 
+	//! Configure whether block-block pipes can be contracted.
 	void setAllowContractBBPipe(bool allowContractBbPipe) {
 		allow_contract_bb_pipe = allowContractBbPipe;
 	}
 
 	bool isIntersectTrees() const { return intersect_trees; }
 
+	//! Configure whether the embedding trees of block-block pipes should be intersected before propagating.
 	void setIntersectTrees(bool intersectTrees) { intersect_trees = intersectTrees; }
 
 	bool isBatchSpqr() const { return batch_spqr; }
 
+	//! Configure whether embedding trees should be computed in batch by deriving them from an SPQR-tree.
 	void setBatchSpqr(bool batchSpqr) { batch_spqr = batchSpqr; }
 
-	int getLongestSimplifyToroidalCycle() const { return longestSimplifyToroidalCycle; }
+	//! @}
 };
 
 }

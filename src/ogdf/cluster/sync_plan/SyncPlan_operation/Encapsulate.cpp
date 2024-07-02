@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Implementation of the SyncPlan::encapsulate operation and its UndoOperation.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

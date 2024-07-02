@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for printing stuff to output streams.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -52,7 +52,7 @@ class ClusterGraph;
 		friend std::ostream& operator<<(std::ostream& os, const NAME<ContainerT>& inst); \
 	}
 
-// all operators will only be found when `using sync_plan::internal`, so no namespace pollution
+//! all operators will only be found when `using sync_plan::internal`, so no namespace pollution
 namespace ogdf::sync_plan::internal {
 OGDF_EXPORT std::string to_string(const std::function<std::ostream&(std::ostream&)>& func);
 

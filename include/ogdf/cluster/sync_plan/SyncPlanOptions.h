@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Class for (de)serializing a SyncPlan instance from/to JSON, enable if you have nlohmann json.hpp available.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -54,6 +54,7 @@ std::string string_format(const std::string& format, const Args... args) {
 }
 }
 
+//! Allows (de)serializing a SyncPlan instance from/to JSON.
 class OGDF_EXPORT SyncPlanOptions {
 	struct EdgeOrder {
 		int node;

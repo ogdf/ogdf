@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Implementation of the Connected 2-SEFE-related functionality of SyncPlan.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

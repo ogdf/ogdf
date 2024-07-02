@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief RegisteredMultiArray for the usual GraphArray classes. TODO should be moved to a central location.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *

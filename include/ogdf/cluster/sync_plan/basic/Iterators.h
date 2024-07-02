@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for wrapping Iterators as long as we have no std::ranges. TODO should be moved to a central location and discarded once we have C++20.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -37,6 +37,7 @@
 
 namespace ogdf {
 
+//! Simple before-C++20 version for std::ranges::ref_view
 template<typename IT>
 class Range {
 	IT m_begin;
@@ -54,6 +55,7 @@ public:
 	IT end() const { return m_end; }
 };
 
+//! Simple before-C++20 version for std::ranges::zip_view
 template<typename IT1, typename IT2>
 class ZipIterator {
 	IT1 m_iter1;

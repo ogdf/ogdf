@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Consistency checks for debugging the SyncPlan algorithm.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -37,6 +37,7 @@
 namespace ogdf::sync_plan {
 class SyncPlan;
 
+//! Consistency checks for debugging the SyncPlan algorithm.
 class OGDF_EXPORT SyncPlanConsistency {
 	SyncPlan& pq;
 	SyncPlanDrawer draw;

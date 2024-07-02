@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Utilities for creating nice drawings. TODO should be moved to a central location.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -39,15 +39,21 @@ namespace ogdf {
 class Color;
 class GraphAttributes;
 
+//! An array of 63 different colors to cycle through.
 OGDF_EXPORT extern const std::array<Color, 63> colors;
 
+//! A bends to parallel edges to make them distinguishable.
 OGDF_EXPORT void spreadParallels(GraphAttributes& GA, double min_spread = 0.1,
 		double max_spread = 0.6, double max_abs = 100);
 
+//! Safely call a function on all self-loops to, e.g., subdivide or remove them.
 OGDF_EXPORT void fixLoops(Graph& G, const std::function<void(edge, edge)>& cb);
 
+//! Safely call a function on all parallel edges to, e.g., subdivide or remove them.
 OGDF_EXPORT void fixParallels(Graph& G, const std::function<void(edge, edge)>& cb);
 
+//! Add a bendpoint to the middle of an edges that is shifted orthogonally by a certain fraction of the edge's length
+//! @sa spreadParallels()
 OGDF_EXPORT void bendEdge(GraphAttributes& GA, edge e, double bend);
 
 }

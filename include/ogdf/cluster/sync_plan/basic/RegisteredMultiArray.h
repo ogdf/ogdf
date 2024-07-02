@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Data structure for two-dimensional mappings that are sparse in the second dimension. TODO should be moved to a central location.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -43,6 +43,11 @@
 
 namespace ogdf {
 
+//! A wrapper around std::map that uses a constant-size array (or only a single value) plus linear search until the map grows to obig.
+/**
+ * Automatically grows from storing a single value, over using an std::array of at most \p array_max values, to using an unbounded std::map.
+ * This is used for managing the second dimension of RegisteredMultiArray for a single value in the first dimension.
+ */
 template<typename Key2, typename Value, int array_max>
 struct RegisteredMultiArrayEntry {
 	using ValuePairType = std::pair<Key2, Value>;
@@ -251,6 +256,14 @@ struct RegisteredMultiArrayEntry {
 
 template<typename Key1, typename Key2, typename Value, template<typename...> class BaseArray,
 		int array_max = 64>
+//! Data structure for two-dimensional mappings that are sparse in the second dimension.
+/**
+ * This is effectively a RegisteredArray that has two indexing dimensions, the first one uses a regular RegisteredArray,
+ * while the second uses UsuallySmallMap as compact representation.
+ * We assume that, for most values in the first dimension, there are only very few values in the second dimension.
+ * Thus, for most values we only keep the single value in the second dimension or a short std::array through which we can easily seek.
+ * If more than \p array_max values are stored for a first dimension value, we use a std::map to manage the second dimension for this value.
+ */
 class RegisteredMultiArray {
 	using EntryType = RegisteredMultiArrayEntry<Key2, Value, array_max>;
 

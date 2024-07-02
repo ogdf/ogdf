@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief A simple solver for 2-SAT instances.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -42,6 +42,7 @@ namespace ogdf {
 
 #ifdef OGDF_DEBUG
 
+//! In debug mode, twosat_var is a class instead of a simple int to prevent unintened use of the default 0-value instead of TwoSAT_Var_Undefined
 class OGDF_EXPORT twosat_var {
 	int m_val;
 
@@ -66,6 +67,7 @@ using twosat_var = int;
 const twosat_var TwoSAT_Var_Undefined = -1;
 #endif
 
+//! A simple solver for TwoSAT instances, representing the instance as implication graph and solving it via its strongly-connected components.
 class OGDF_EXPORT TwoSAT : protected Graph {
 	std::vector<bool> m_assignment;
 	std::vector<node> m_node_map;

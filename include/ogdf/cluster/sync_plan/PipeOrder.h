@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Different PipeQueue implementations with varying sorting functions.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -42,6 +42,7 @@
 namespace ogdf::sync_plan {
 // using PipeCmp = std::function<bool(const Pipe *, const Pipe *)>;
 
+//! A null-safe and priority aware comparator (wrapper) for \ref Pipe "pipes".
 template<typename PipeCmp>
 struct PipeCmpPtr {
 	const PipeCmp* cmp;
@@ -67,6 +68,7 @@ struct PipeCmpPtr {
 	}
 };
 
+//! PipeQueue CRTP base class for ordering \ref Pipe "pipes" by some simple comparator function.
 template<typename PipeCmp>
 class SimplePipeQueue : public PipeQueue {
 public:
@@ -130,9 +132,13 @@ public:
 	}
 };
 
+//! PipeQueue yielding pipes in order of descending or ascending degree.
 struct OGDF_EXPORT PipeQueueByDegree : public SimplePipeQueue<PipeQueueByDegree> {
 	bool invert_degree;
 
+	/**
+	 * @param invert if true, will order by ascending degree; if false (the default), will order by descending degree.
+	 */
 	explicit PipeQueueByDegree(bool invert = false) : invert_degree(invert) {
 		pipes_heap = std::make_unique<PipesHeap>(this);
 	};
@@ -146,6 +152,7 @@ struct OGDF_EXPORT PipeQueueByDegree : public SimplePipeQueue<PipeQueueByDegree>
 	}
 };
 
+//! PipeQueue yielding pipes in some random (but stable and deterministic) order.
 struct OGDF_EXPORT PipeQueueRandom : public SimplePipeQueue<PipeQueueRandom> {
 	using engine = std::minstd_rand;
 	mutable engine gen;
@@ -168,6 +175,7 @@ struct OGDF_EXPORT PipeQueueRandom : public SimplePipeQueue<PipeQueueRandom> {
 	}
 };
 
+//! Base class for PipeQueues providing a "priority lane" for some pipes and sorting with different functions in both lanes/queues.
 template<typename PipeCmp1, typename PipeCmp2>
 class DoublePipeQueue : public SimplePipeQueue<PipeCmp1> {
 public:
@@ -248,11 +256,17 @@ public:
 
 class SyncPlan;
 
+//! PipeQueue yielding contractable pipes first (or last), in order of descending (or ascending) degree.
 struct OGDF_EXPORT PipeQueueByDegreePreferContract
 	: public DoublePipeQueue<PipeQueueByDegreePreferContract, PipeQueueByDegreePreferContract> {
 	SyncPlan* PQ;
 	bool invert_degree, invert_contract;
 
+	/**
+	 * @param pq the SyncPlan instance we're working on.
+	 * @param invertDegree if true, will order by ascending degree; if false (the default), will order by descending degree.
+	 * @param invertContract if true, will yield non-contractable pipes first; if false (the default), will yield contractable pipes first.
+	 */
 	explicit PipeQueueByDegreePreferContract(SyncPlan* pq, bool invertDegree = false,
 			bool invertContract = false)
 		: PQ(pq), invert_degree(invertDegree), invert_contract(invertContract) {

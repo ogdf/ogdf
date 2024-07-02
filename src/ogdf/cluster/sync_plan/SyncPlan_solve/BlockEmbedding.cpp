@@ -1,5 +1,5 @@
 /** \file
- * \brief TODO Document
+ * \brief Implementation of the embedding of biconnected components via BlockEmbedding
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
