@@ -55,8 +55,9 @@ OGDF_EXPORT void styleClusterBorder(
 		GraphAttributes& GA,
 		const std::function<edge(edge)>& translate = [](edge e) -> edge { return e; });
 
-OGDF_EXPORT std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(
-		ClusterGraph& CG, GraphAttributes& GA, adjEntry adjExternal = nullptr);
+//! Draw a graph using a given planar layout by turning its cluster borders into edges via planarizeClusterBorderCrossings()
+OGDF_EXPORT std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG,
+		GraphAttributes& GA, PlanarGridLayoutModule& layout, adjEntry adjExternal = nullptr);
 
 //! Utilities by dumping a drawing of the current state of a SyncPlan instance.
 class OGDF_EXPORT SyncPlanDrawer {

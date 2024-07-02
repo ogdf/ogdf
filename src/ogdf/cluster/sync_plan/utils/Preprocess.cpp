@@ -38,11 +38,9 @@
 #include <ostream>
 #include <utility>
 
-using namespace ogdf;
+namespace ogdf::sync_plan {
 
-namespace ogdf::sync_plan::preprocess {
-
-ogdf::Logger preprocessLog;
+using namespace preprocess;
 
 bool preprocessClusterGraph(ClusterGraph& C, Graph& G) {
 	bool modified = false;
@@ -59,6 +57,9 @@ bool canPreprocessClusterGraph(const ClusterGraph& C, const Graph& G) {
 	return !findSmallNodes(C, G).empty() || !findDeg2Nodes(C, G).empty()
 			|| !findDisconnectedClusters(C, G).empty() || !findSmallClusters(C, G).empty();
 }
+
+namespace preprocess {
+ogdf::Logger preprocessLog;
 
 SList<node> findSmallNodes(const ClusterGraph& C, const Graph& G) {
 	SList<node> toRemove;
@@ -257,4 +258,5 @@ bool removeSmallClusters(ClusterGraph& C, Graph& G) {
 	return !toRemove.empty();
 }
 
+}
 }

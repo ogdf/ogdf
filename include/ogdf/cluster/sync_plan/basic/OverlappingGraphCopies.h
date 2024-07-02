@@ -203,10 +203,12 @@ public:
  */
 class OGDF_EXPORT OverlappingGraphCopies {
 	friend class OverlappingGraphCopy;
+	using NA = NodeMultiArray<const OverlappingGraphCopy*, node>;
+	using EA = EdgeMultiArray<const OverlappingGraphCopy*, edge>;
 
 	const Graph* m_G;
-	mutable NodeMultiArray<const OverlappingGraphCopy*, node> m_node_copies;
-	mutable EdgeMultiArray<const OverlappingGraphCopy*, edge> m_edge_copies;
+	NA m_node_copies;
+	EA m_edge_copies;
 
 public:
 	explicit OverlappingGraphCopies(const Graph& G)
@@ -215,6 +217,12 @@ public:
 	OGDF_NO_COPY(OverlappingGraphCopies)
 
 	OGDF_NO_MOVE(OverlappingGraphCopies)
+
+	const NA::EntryType& copies(node n) const { return m_node_copies.get_all(n); }
+
+	const EA::EntryType& copies(edge e) const { return m_edge_copies.get_all(e); }
+
+	const Graph* constGraph() const { return m_G; }
 };
 
 }

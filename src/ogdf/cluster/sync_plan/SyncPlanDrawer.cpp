@@ -189,10 +189,7 @@ void styleClusterBorder(const ClusterGraph& CG,
 }
 
 std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterGraph& CG,
-		GraphAttributes& GA, adjEntry adjExternal) {
-	FPPLayout fpp;
-	fpp.separation(30);
-
+		GraphAttributes& GA, PlanarGridLayoutModule& layout, adjEntry adjExternal) {
 	std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> pair(
 			new std::pair<GraphCopy, GraphAttributes>());
 	GraphCopy& GC = pair->first;
@@ -217,12 +214,12 @@ std::unique_ptr<std::pair<GraphCopy, GraphAttributes>> drawClusterGraph(ClusterG
 	fixParallels(GC, formatSplitEdge);
 	if (GC.representsCombEmbedding()) {
 		if (adjExternal) {
-			fpp.callFixEmbed(GCA, GC.copy(adjExternal));
+			layout.callFixEmbed(GCA, GC.copy(adjExternal));
 		} else {
-			fpp.callFixEmbed(GCA);
+			layout.callFixEmbed(GCA);
 		}
 	} else {
-		fpp.call(GCA);
+		layout.call(GCA);
 	}
 
 	return pair;
