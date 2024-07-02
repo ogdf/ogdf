@@ -32,8 +32,16 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+
+#include <array>
 
 namespace ogdf {
+template<class E, class INDEX>
+class ArrayBuffer;
+template<class E>
+class List;
 
 //! Simple algorithms for matchings
 namespace Matching {

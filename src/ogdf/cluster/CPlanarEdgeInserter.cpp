@@ -31,10 +31,25 @@
  */
 
 
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/cluster/CPlanarEdgeInserter.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/fileformats/GraphIO.h>
+
+#include <fstream>
+#include <string>
 
 namespace ogdf {
 

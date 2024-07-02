@@ -32,18 +32,19 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterGraph.h>
+#include <cstdint>
 
 namespace ogdf {
-
+class ClusterGraph;
+class Graph;
 
 //! C-planarity testing via Hanani-Tutte approach.
 /**
  * @ingroup ga-cplanarity
  */
 class HananiTutteCPlanarity {
-	class CLinearSystem;
 	class CGraph;
+	class CLinearSystem;
 
 public:
 	struct Stats {

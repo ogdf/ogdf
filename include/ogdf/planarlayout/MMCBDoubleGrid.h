@@ -32,10 +32,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarlayout/MMCBBase.h>
 
 namespace ogdf {
-
+class GridLayout;
+class PlanRep;
+template<class E>
+class List;
 
 /**
  * \brief Crossings beautifier using grid doubling.

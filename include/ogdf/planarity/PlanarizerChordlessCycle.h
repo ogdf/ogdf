@@ -31,10 +31,19 @@
 
 #pragma once
 
+#include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/StarInserter.h>
 
+#include <cstdint>
+
 namespace ogdf {
+class GraphCopy;
+class PlanRep;
+template<class E>
+class List;
 
 /**
  * @ingroup ga-crossmin

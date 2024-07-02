@@ -32,21 +32,26 @@
 
 #pragma once
 
-#include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/memory.h>
 
+#include <algorithm>
+#include <cstdlib>
+#include <initializer_list>
+#include <new>
+#include <ostream>
 #include <random>
 #include <type_traits>
 
 namespace ogdf {
 
+template<class E, bool isConst>
+class ArrayReverseIteratorBase;
 template<class E, class INDEX>
 class ArrayBuffer;
 
-template<class E, bool isConst>
-class ArrayReverseIteratorBase;
 template<class E>
 using ArrayConstIterator = const E*;
 template<class E>
@@ -981,8 +986,6 @@ std::ostream& operator<<(std::ostream& os, const ogdf::Array<E, INDEX>& a) {
 }
 
 }
-
-#include <ogdf/basic/ArrayBuffer.h>
 
 namespace ogdf {
 

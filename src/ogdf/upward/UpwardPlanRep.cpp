@@ -29,11 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/tuples.h>
 #include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/upward/UpwardPlanRep.h>
+
+#include <utility>
 
 namespace ogdf {
 

@@ -1,8 +1,12 @@
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators.h>
-#include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarity/PlanarSubgraphFast.h>
-#include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
+#include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/planarity/VariableEmbeddingInserter.h>
+#include <iostream>
+#include <string>
 
 using namespace ogdf;
 

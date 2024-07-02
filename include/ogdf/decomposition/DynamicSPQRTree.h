@@ -31,11 +31,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/decomposition/DynamicSkeleton.h>
 #include <ogdf/decomposition/SPQRTree.h>
 
 namespace ogdf {
+class PertinentGraph;
+class Skeleton;
+template<class E>
+class SList;
 
 /**
  * \brief Linear-time implementation of dynamic SPQR-trees.

@@ -28,15 +28,19 @@
 * $Id: master.cc,v 2.19 2009-05-13 14:17:37 baumann Exp $
 */
 
-#include <ogdf/lib/abacus/master.h>
-#include <ogdf/lib/abacus/sub.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/System.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
+
+#include <ogdf/lib/abacus/fixcand.h>
+#include <ogdf/lib/abacus/history.h>
 #include <ogdf/lib/abacus/lpsub.h>
 #include <ogdf/lib/abacus/lpvarstat.h>
-#include <ogdf/lib/abacus/history.h>
+#include <ogdf/lib/abacus/master.h>
 #include <ogdf/lib/abacus/opensub.h>
-#include <ogdf/lib/abacus/fixcand.h>
 #include <ogdf/lib/abacus/setbranchrule.h>
 #include <ogdf/lib/abacus/standardpool.h>
+#include <ogdf/lib/abacus/sub.h>
 
 namespace abacus {
 

@@ -29,9 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/EdgeIndependentSpanningTrees.h>
 
-#include <graphs.h>
+#include <functional>
+#include <string>
+
 #include <testing.h>
 
 go_bandit([] {

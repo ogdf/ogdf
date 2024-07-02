@@ -31,9 +31,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <algorithm>
+#include <cstring>
 #include <fstream>
-#include <functional>
 #include <iostream>
 #include <string>
 

@@ -29,18 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/PlanarizationGridLayout.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/planarlayout/SchnyderLayout.h>
 
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <random>
 #include <unordered_set>
+#include <utility>
+#include <vector>
+
 using std::minstd_rand;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;

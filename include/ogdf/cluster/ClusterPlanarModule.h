@@ -33,9 +33,11 @@
 #pragma once
 
 #include <ogdf/basic/Module.h>
-#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class ClusterGraph;
 
 class OGDF_EXPORT ClusterPlanarModule : public Module {
 public:

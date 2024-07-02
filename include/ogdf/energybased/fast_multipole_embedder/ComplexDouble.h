@@ -31,7 +31,8 @@
 
 #pragma once
 
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+
+#include <ogdf/basic/internal/intrinsics.h> // IWYU pragma: keep
 
 namespace ogdf {
 

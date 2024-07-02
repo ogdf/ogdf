@@ -32,9 +32,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 
+#include <string>
+
 namespace ogdf {
+class GraphAttributes;
 
 //! The Davidson-Harel approach for drawing graphs.
 class OGDF_EXPORT DavidsonHarel {

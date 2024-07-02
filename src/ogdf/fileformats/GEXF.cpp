@@ -29,8 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/graphics.h>
 #include <ogdf/fileformats/GEXF.h>
 #include <ogdf/fileformats/Utils.h>
+
+#include <string>
 
 namespace ogdf {
 

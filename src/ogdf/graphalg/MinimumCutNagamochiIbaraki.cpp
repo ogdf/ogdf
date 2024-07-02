@@ -29,7 +29,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinimumCutNagamochiIbaraki.h>
+
+#include <algorithm>
+#include <limits>
+#include <ostream>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 namespace ogdf {
 

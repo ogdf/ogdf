@@ -30,7 +30,12 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/graphalg/PageRank.h>
+
+#include <algorithm>
+#include <cmath>
+#include <utility>
 
 namespace ogdf {
 

@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/tuples.h>
 
 namespace ogdf {

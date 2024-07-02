@@ -31,14 +31,23 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/graphalg/PlanarSeparatorModule.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 
+#include <memory>
 #include <unordered_set>
+#include <utility>
+
+namespace ogdf::planar_separators {
+class BFSTree;
+} // namespace ogdf::planar_separators
 
 namespace ogdf {
+class GraphCopy;
 
-namespace planar_separator {
+namespace planar_separators {
 
 //! Helper class for SeparatorDual and SeparatorDualFC.
 /**

@@ -34,6 +34,8 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 
 namespace ogdf {

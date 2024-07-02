@@ -29,10 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/STNumbering.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
+
+#include <functional>
+#include <set>
+#include <string>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 /**

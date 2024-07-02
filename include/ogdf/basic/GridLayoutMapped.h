@@ -32,11 +32,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GridLayout.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class Layout;
+class OrthoRep;
+class PlanRep;
 
 /**
  * \brief Extends GridLayout by a grid mapping mechanism.

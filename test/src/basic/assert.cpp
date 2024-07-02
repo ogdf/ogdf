@@ -31,6 +31,11 @@
 
 #include <ogdf/basic/basic.h>
 
+#include <exception>
+#include <functional>
+#include <sstream>
+#include <string>
+
 #include <testing.h>
 
 static void assert_positive(int);

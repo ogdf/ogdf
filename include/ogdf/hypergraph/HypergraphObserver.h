@@ -39,8 +39,8 @@
 
 #pragma once
 
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/Observer.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/hypergraph/Hypergraph.h>
 
 namespace ogdf {

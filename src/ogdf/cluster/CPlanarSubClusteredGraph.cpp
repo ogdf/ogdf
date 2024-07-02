@@ -31,8 +31,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/cluster/CPlanarSubClusteredGraph.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
 

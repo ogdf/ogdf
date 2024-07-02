@@ -29,7 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 
 namespace ogdf {

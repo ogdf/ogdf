@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
+#include <istream>
 
 namespace ogdf {
 namespace energybased {

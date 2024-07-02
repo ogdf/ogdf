@@ -31,6 +31,9 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 
 namespace ogdf {

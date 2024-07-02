@@ -31,8 +31,22 @@
  */
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterOrthoShaper.h>
+#include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
+#include <ogdf/orthogonal/OrthoRep.h>
+
+#include <algorithm>
+#include <ostream>
+#include <string>
 
 namespace ogdf {
 

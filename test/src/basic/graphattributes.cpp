@@ -29,11 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/DualGraph.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/graphics.h>
 
-#include <resources.h>
+#include <cstdint>
+#include <exception>
+#include <functional>
+#include <initializer_list>
+#include <sstream>
+#include <string>
+#include <utility>
+
+#include <testing.h>
 
 using GA = GraphAttributes;
 

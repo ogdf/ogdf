@@ -31,17 +31,26 @@
 
 #pragma once
 
+#include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/graphalg/matching_blossom/BlossomHelper.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/matching_blossom/Cycle.h>
 #include <ogdf/graphalg/matching_blossom/Pseudonode.h>
 #include <ogdf/graphalg/matching_blossom/utils.h>
 
+#include <cstddef>
+#include <functional>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
+
+namespace ogdf::matching_blossom {
+template<class TWeight>
+class BlossomHelper;
+} // namespace ogdf::matching_blossom
 
 namespace ogdf {
 namespace matching_blossom {

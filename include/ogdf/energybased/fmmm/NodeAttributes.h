@@ -33,7 +33,10 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
+
+#include <iosfwd>
 
 namespace ogdf {
 namespace energybased {

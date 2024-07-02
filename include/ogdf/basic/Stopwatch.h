@@ -33,6 +33,9 @@
 
 #include <ogdf/basic/basic.h>
 
+#include <cstdint>
+#include <iosfwd>
+
 namespace ogdf {
 
 //! Realizes a stopwatch for measuring elapsed time.

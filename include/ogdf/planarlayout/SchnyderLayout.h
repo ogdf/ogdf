@@ -32,11 +32,16 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>
 
 namespace ogdf {
+class GraphCopy;
+class GridLayout;
+template<class E>
+class List;
 
 /**
  * The class SchnyderLayout represents the layout algorithm by

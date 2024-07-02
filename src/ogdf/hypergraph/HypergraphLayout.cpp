@@ -29,14 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/hypergraph/Hypergraph.h>
+#include <ogdf/hypergraph/HypergraphAttributes.h>
 #include <ogdf/hypergraph/HypergraphLayout.h>
 #include <ogdf/orthogonal/OrthoLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
+#include <ogdf/planarity/LayoutPlanRepModule.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
+
+#include <memory>
 
 namespace ogdf {
 

@@ -31,12 +31,19 @@
 
 #pragma once
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+
+#include <iosfwd>
+#include <string>
 
 namespace ogdf {
+class OrthoRep;
+class PlanRep;
+enum class OrthoDir;
+template<class E1, class E2>
+class Tuple2;
 
 //! Types of edges in the constraint graph
 enum class ConstraintEdgeType {

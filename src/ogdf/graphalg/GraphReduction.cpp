@@ -30,6 +30,10 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Reverse.h>
 #include <ogdf/graphalg/GraphReduction.h>
 
 namespace ogdf {

@@ -31,12 +31,15 @@
 
 #pragma once
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/tuples.h>
 
+#include <limits>
+
 namespace ogdf {
+class GraphAttributes;
 
 //! The spring-embedder layout algorithm by Kamada and Kawai.
 /**

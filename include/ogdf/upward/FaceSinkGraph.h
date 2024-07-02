@@ -32,12 +32,14 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
-
+template<class E>
+class List;
+template<class E>
+class SList;
 
 class OGDF_EXPORT FaceSinkGraph : public Graph {
 public:

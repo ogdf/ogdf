@@ -32,13 +32,29 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+
+#include <limits>
+
+namespace ogdf::steiner_tree {
+template<typename T>
+class Triple;
+} // namespace ogdf::steiner_tree
 
 //#define OGDF_COMMON_ALG_FIND_BEST_TAKAHASHI_ROOT
 
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
+
 namespace steiner_tree {
 
 /*!

@@ -28,15 +28,33 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/deterministic.h>
+#include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/graphalg/SpannerBasicGreedy.h>
 #include <ogdf/graphalg/SpannerBaswanaSen.h>
 #include <ogdf/graphalg/SpannerBerman.h>
 #include <ogdf/graphalg/SpannerBermanDisconnected.h>
 #include <ogdf/graphalg/SpannerElkinNeiman.h>
+#include <ogdf/graphalg/SpannerIteratedWrapper.h>
 #include <ogdf/graphalg/SpannerKortsarzPeleg.h>
+#include <ogdf/graphalg/SpannerModule.h>
+
+#include <functional>
+#include <initializer_list>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 

@@ -31,18 +31,26 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>
 #include <ogdf/layered/HierarchyClusterLayoutModule.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>
+#include <ogdf/layered/LayeredCrossMinModule.h>
 #include <ogdf/layered/RankingModule.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/simultaneous/TwoLayerCrossMinSimDraw.h>
 
+#include <cstdint>
 #include <memory>
 
 namespace ogdf {
+class ClusterGraphAttributes;
+class GraphAttributes;
+class Hierarchy;
+class HierarchyLevelsBase;
 
 /**
  * \brief Sugiyama's layout algorithm.

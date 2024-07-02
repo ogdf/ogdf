@@ -31,8 +31,19 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayoutMapped.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
 #include <ogdf/orthogonal/LongestPathCompaction.h>
+#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/planarity/PlanRep.h>
+
+#include <limits>
 
 namespace ogdf {
 

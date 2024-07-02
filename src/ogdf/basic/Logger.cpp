@@ -31,6 +31,9 @@
 
 
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+
+#include <iostream>
 
 namespace ogdf {
 

@@ -32,7 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/internal/copy_move.h>
 
 #ifndef OGDF_MEMORY_POOL_NTS

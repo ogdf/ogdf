@@ -31,16 +31,23 @@
 
 #pragma once
 
-#include <ogdf/basic/Layout.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/planarity/EdgeTypePatterns.h>
-#include <ogdf/planarity/NodeTypePatterns.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanRep.h>
-#include <ogdf/uml/UMLGraph.h>
+
+#include <iosfwd>
 
 namespace ogdf {
 
+class CombinatorialEmbedding;
+class GraphAttributes;
 class GridLayoutMapped;
+class Layout;
+class OrthoRep;
+class UMLGraph;
 
 //! Planarized representation (of a connected component)
 //! of a UMLGraph; allows special handling of hierarchies

@@ -31,11 +31,15 @@
 
 #pragma once
 
-#include <coin/CoinPackedVector.hpp> // not used here but always necessary when using COIN
+// IWYU pragma: always_keep
+
+#include <coin/OsiSolverInterface.hpp> // IWYU pragma: export
 
 #include <ogdf/basic/Logger.h>
 
 #include <ogdf/lib/abacus/osiinclude.h>
+// not used here but always necessary when using COIN
+#include <coin/CoinPackedVector.hpp> // IWYU pragma: export
 
 namespace ogdf {
 

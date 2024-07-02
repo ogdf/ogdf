@@ -30,11 +30,21 @@
  */
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/graph_generators/operations.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
+#include <algorithm>
+#include <functional>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <graphs.h>
+
 #include <testing.h>
 
 /**

@@ -31,11 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 
+class GraphCopy;
 class PlanRep;
 
 /**

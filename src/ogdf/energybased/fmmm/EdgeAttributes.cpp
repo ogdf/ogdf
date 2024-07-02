@@ -31,6 +31,8 @@
 
 #include <ogdf/energybased/fmmm/EdgeAttributes.h>
 
+#include <istream>
+
 namespace ogdf {
 namespace energybased {
 namespace fmmm {

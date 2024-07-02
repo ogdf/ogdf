@@ -31,19 +31,38 @@
 
 #pragma once
 
-#include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/LayoutStatistics.h>
-#include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
-#include <ogdf/planarity/PlanarSubgraphCactus.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/misclayout/BalloonLayout.h>
+#include <ogdf/misclayout/CircularLayout.h>
+#include <ogdf/misclayout/LinearLayout.h>
+#include <ogdf/packing/ComponentSplitterLayout.h>
+#include <ogdf/tree/RadialTreeLayout.h>
+#include <ogdf/tree/TreeLayout.h>
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <functional>
 #include <iomanip>
+#include <iostream>
+#include <limits>
 #include <random>
-#include <regex>
+#include <set>
+#include <string>
 
 #include <graphs.h>
+
+#include <testing.h>
 
 //#define OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 

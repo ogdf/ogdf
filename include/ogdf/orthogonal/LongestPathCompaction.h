@@ -32,14 +32,16 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/basic/tuples.h>
-#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
-#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
+class GridLayoutMapped;
+class OrthoRep;
+class PlanRep;
 template<class ATYPE>
 class CompactionConstraintGraph;
 

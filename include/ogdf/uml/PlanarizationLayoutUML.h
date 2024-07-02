@@ -31,17 +31,27 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/uml/LayoutPlanRepUMLModule.h>
 #include <ogdf/uml/UMLCrossingMinimizationModule.h>
+#include <ogdf/uml/UMLGraph.h>
 #include <ogdf/uml/UMLLayoutModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class PlanRep;
+class PlanRepUML;
 
 /**
  * \brief The planarization layout algorithm.

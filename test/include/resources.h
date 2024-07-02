@@ -38,7 +38,8 @@
 #include <unordered_map>
 #include <vector>
 #include <ogdf/fileformats/GraphIO.h>
-#include <testing.h>
+
+#include <testing.h> // IWYU pragma: keep
 
 namespace resources {
 

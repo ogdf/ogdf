@@ -29,8 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 #include <ogdf/graphalg/ModifiedNibbleClusterer.h>
+
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <vector>
 
 using namespace ogdf;
 

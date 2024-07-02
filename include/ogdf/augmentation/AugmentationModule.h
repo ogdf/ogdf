@@ -32,6 +32,9 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 

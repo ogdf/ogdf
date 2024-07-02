@@ -32,11 +32,12 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EmbedderModule.h>
-#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
+class PlanRep;
 
 //! Embedder that chooses a largest face as the external one.
 /**

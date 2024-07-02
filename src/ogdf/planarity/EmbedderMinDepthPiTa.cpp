@@ -32,8 +32,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/decomposition/BCTree.h>
 #include <ogdf/planarity/EmbedderMinDepthPiTa.h>
 #include <ogdf/planarity/embedder/ConnectedSubgraph.h>
+
+#include <memory>
 
 namespace ogdf {
 

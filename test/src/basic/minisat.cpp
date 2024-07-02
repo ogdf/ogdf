@@ -29,10 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Graph.h>
 #include <ogdf/external/Minisat.h>
 
+#include <functional>
+#include <sstream>
+#include <string>
+#include <vector>
+
 #include <resources.h>
+
+#include <testing.h>
 
 static void satisfiableTest() {
 	Minisat::Formula F;

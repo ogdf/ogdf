@@ -29,9 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/FourBlockTree.h>
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <exception>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #ifdef OGDF_DEBUG
 #	include <ogdf/basic/extended_graph_alg.h>

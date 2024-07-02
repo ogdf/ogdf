@@ -29,9 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/exceptions.h>
+
+#include <cstdint>
+#include <ostream>
 
 namespace ogdf {
 

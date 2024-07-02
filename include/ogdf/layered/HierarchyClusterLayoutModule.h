@@ -32,10 +32,13 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/cluster/ClusterGraphCopyAttributes.h>
 
 namespace ogdf {
-
+class ClusterGraphAttributes;
+class ExtendedNestingGraph;
 
 /**
  * \brief Interface of hierarchy layout algorithms for cluster graphs.

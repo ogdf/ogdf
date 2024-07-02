@@ -29,7 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 #include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>
+
+#include <algorithm>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

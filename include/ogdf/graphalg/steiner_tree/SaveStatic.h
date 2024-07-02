@@ -32,12 +32,21 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/steiner_tree/Save.h>
-#include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 #include <ogdf/tree/LCA.h>
 
+namespace ogdf::steiner_tree {
+template<typename T>
+class Triple;
+} // namespace ogdf::steiner_tree
+
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraphCopy;
+
 namespace steiner_tree {
 
 /*!

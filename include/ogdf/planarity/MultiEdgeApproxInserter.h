@@ -31,12 +31,20 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EdgeInsertionModule.h>
-#include <ogdf/planarity/RemoveReinsertType.h>
+#include <ogdf/planarity/PlanRepLight.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class StaticPlanarSPQRTree;
+enum class RemoveReinsertType;
 
 //! Multi edge inserter with approximation guarantee.
 /**
@@ -121,7 +129,6 @@ private:
 
 	//! Maintains a block in the graph
 	class Block;
-
 	//! Encodes an embedding preference
 	class EmbeddingPreference;
 

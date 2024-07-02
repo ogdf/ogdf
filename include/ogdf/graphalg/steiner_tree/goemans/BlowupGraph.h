@@ -31,14 +31,34 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
-#include <ogdf/graphalg/steiner_tree/goemans/CoreEdgeModule.h>
+#include <ogdf/basic/basic.h>
+
+#include <iostream>
+#include <utility>
+
+namespace ogdf::steiner_tree::goemans {
+template<typename T>
+class CoreEdgeModule;
+} // namespace ogdf::steiner_tree::goemans
+
+namespace ogdf::steiner_tree {
+template<typename T, typename ExtraDataType>
+class FullComponentWithExtraStore;
+} // namespace ogdf::steiner_tree
 
 //#define OGDF_STEINER_TREE_GOEMANS_BLOWUP_GRAPH_LOGGING
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
+
 namespace steiner_tree {
 namespace goemans {
 

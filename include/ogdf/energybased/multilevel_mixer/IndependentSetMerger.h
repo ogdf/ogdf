@@ -31,9 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 
+#include <vector>
+
 namespace ogdf {
+class MultilevelGraph;
 
 //! The independent set merger for multilevel layout.
 /**

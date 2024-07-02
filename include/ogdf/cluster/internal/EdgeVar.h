@@ -33,10 +33,10 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/external/abacus.h>
 
-#include <ogdf/lib/abacus/variable.h>
+#include <ostream>
 
 namespace ogdf {
 namespace cluster_planarity {

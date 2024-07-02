@@ -29,6 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>
 
 namespace ogdf {

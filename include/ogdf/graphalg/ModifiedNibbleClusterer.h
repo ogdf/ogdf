@@ -31,10 +31,13 @@
 
 #pragma once
 
+#include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/geometry.h>
 
+#include <cmath>
 #include <vector>
 
 namespace ogdf {

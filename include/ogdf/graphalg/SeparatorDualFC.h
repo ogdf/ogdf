@@ -31,13 +31,20 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/graphalg/PlanarSeparatorModule.h>
-#include <ogdf/graphalg/SeparatorDual.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/SeparatorLiptonTarjanFC.h>
-#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>
+
+#include <memory>
+#include <string>
+
+namespace ogdf::planar_separators {
+class ArrayBFSTree;
+} // namespace ogdf::planar_separators
 
 namespace ogdf {
+template<class E>
+class List;
 
 //! Computes planar separators by applying the Fundamental Cycle Lemma directly, without trying tree levels first.
 /**

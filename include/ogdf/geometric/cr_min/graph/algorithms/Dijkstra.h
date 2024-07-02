@@ -33,6 +33,8 @@
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/geometric/cr_min/datastructure/TimestampFlags.h>
 
+#include <vector>
+
 namespace ogdf {
 namespace internal {
 namespace gcm {

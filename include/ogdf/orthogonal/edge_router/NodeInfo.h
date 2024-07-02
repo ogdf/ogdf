@@ -36,16 +36,20 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/orthogonal/MinimumEdgeDistances.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
-#include <ogdf/planarity/PlanRep.h>
 
 #include <array>
+#include <cmath>
+#include <iostream>
 
 namespace ogdf {
+class GridLayout;
+
 namespace edge_router {
 
 class OGDF_EXPORT NodeInfo {

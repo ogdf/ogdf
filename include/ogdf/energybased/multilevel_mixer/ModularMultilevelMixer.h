@@ -32,13 +32,15 @@
 #pragma once
 
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
+class MultilevelGraph;
 
 //! Modular multilevel graph layout.
 /**

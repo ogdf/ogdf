@@ -30,9 +30,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+
 #include <iostream>
+#include <string>
 
 #include <resources.h>
+
+#include <testing.h>
 
 int main(int argc, char** argv) {
 	bool verbose = false;

@@ -32,11 +32,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Layout.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
-
+class PlanRep;
 
 //! Interface for planar layout algorithms (used in the planarization approach).
 /**

@@ -33,11 +33,13 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterPlanRep.h>
-#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
-
+class ClusterPlanRep;
+class CombinatorialEmbedding;
+class OrthoRep;
 
 //! Computes the orthogonal representation of a clustered graph.
 /**

@@ -30,6 +30,3 @@
  */
 
 #pragma once
-
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/RegisteredArray.h>

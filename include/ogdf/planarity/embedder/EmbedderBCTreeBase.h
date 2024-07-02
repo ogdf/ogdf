@@ -31,10 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/BCTree.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 #include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
+
+#include <type_traits>
 
 namespace ogdf {
 namespace embedder {

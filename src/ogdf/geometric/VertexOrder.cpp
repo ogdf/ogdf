@@ -29,16 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/geometric/VertexOrder.h>
-
-#include <queue>
 
 #ifdef OGDF_INCLUDE_CGAL
 
-#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
-
-#	include <CGAL/Gmpq.h>
+#	include <CGAL/Intersections_2/Segment_2_Segment_2.h>
 #	include <CGAL/Simple_cartesian.h>
+#	include <CGAL/enum.h>
+#	include <ogdf/basic/Graph.h>
+#	include <ogdf/basic/GraphAttributes.h>
+#	include <ogdf/geometric/cr_min/datastructure/Iterators.h>
+#	include <ogdf/geometric/cr_min/geometry/algorithm/CountCrossings.h>
+#	include <ogdf/geometric/cr_min/graph/GeometricDrawing.h>
+#	include <ogdf/geometric/cr_min/graph/OGDFGraphWrapper.h>
+#	include <ogdf/geometric/cr_min/graph/ogdf_iterator.h>
+#	include <algorithm>
+#	include <cmath>
+#	include <random>
+#	include <utility>
+#	include <vector>
 
 namespace ogdf {
 

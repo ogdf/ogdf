@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 
 namespace ogdf {
 

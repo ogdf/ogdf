@@ -29,9 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/TlpLexer.h>
+
+#include <cctype>
+#include <cstddef>
+#include <istream>
+#include <string>
+#include <vector>
 
 namespace ogdf {
 

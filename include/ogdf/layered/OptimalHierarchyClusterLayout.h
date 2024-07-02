@@ -32,11 +32,19 @@
 
 #pragma once
 
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/layered/HierarchyClusterLayoutModule.h>
 
 namespace ogdf {
-
+class ClusterGraphCopyAttributes;
+class ExtendedNestingGraph;
+class LHTreeNode;
+template<class E1, class E2>
+class Tuple2;
+template<class E>
+class List;
 
 //! The LP-based hierarchy cluster layout algorithm.
 /**

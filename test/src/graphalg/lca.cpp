@@ -29,13 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/tree/LCA.h>
 
-#include <sstream>
+#include <functional>
+#include <set>
+#include <string>
+#include <utility>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 static void trivial() {
