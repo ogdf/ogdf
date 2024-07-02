@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
 namespace ogdf {
@@ -130,57 +131,88 @@ void GraphCopy::setOriginalGraph(const Graph* G) {
 	m_eIterator.init(this, nullptr);
 }
 
-void GraphCopySimple::setOriginalEmbedding() {
-	std::vector<adjEntry> newAdjOrder;
-	for (node v : getOriginalGraph()->nodes) {
-		node u = copy(v);
-		if (u == nullptr) {
+void copyEmbedding(const Graph& from, Graph& to, std::function<adjEntry(adjEntry)> adjMapFromTo) {
+	AdjEntrySet order(to);
+	for (node fn : from.nodes) {
+		node tn = nullptr;
+		order.clear();
+
+		// add from original according to their order
+		for (adjEntry fadj : fn->adjEntries) {
+			adjEntry tadj = adjMapFromTo(fadj);
+			if (tadj == nullptr) {
+				continue;
+			}
+			if (tn == nullptr) {
+				tn = tadj->theNode();
+			} else {
+				OGDF_ASSERT(tadj->theNode() == tn);
+			}
+			order.insert(tadj);
+		}
+
+		// add remaining dummy edges to the end, also retaining their order
+		if (tn == nullptr) {
 			continue;
 		}
-		newAdjOrder.clear();
-		newAdjOrder.reserve(v->degree());
-		// add from original according to their order
-		for (adjEntry adj : v->adjEntries) {
-			edge e = copy(adj->theEdge());
-			if (e != nullptr && e->isIncident(u)) {
-				newAdjOrder.push_back(e->getAdj(u));
+		for (adjEntry tadj : tn->adjEntries) {
+			if (!order.isMember(tadj)) {
+				order.insert(tadj);
 			}
 		}
-		// add remaining dummy edges to the end, also retaining their order
-		for (adjEntry adj : u->adjEntries) {
-			if (isDummy(adj) || !copy(original(adj->theEdge()))->isIncident(u)) {
-				newAdjOrder.push_back(adj);
-			}
-		}
-		OGDF_ASSERT(newAdjOrder.size() == size_t(u->degree()));
-		sort(u, newAdjOrder);
+
+		OGDF_ASSERT(order.size() == size_t(tn->degree()));
+		to.sort(tn, order);
 	}
 }
 
+void GraphCopySimple::copyEmbeddingToOriginal(Graph& orig) const {
+	OGDF_ASSERT(getOriginalGraph() == &orig);
+	copyEmbedding(*this, orig, [this](adjEntry adj) -> adjEntry {
+		node v = original(adj->theNode());
+		edge e = original(adj->theEdge());
+		if (v != nullptr && e != nullptr && e->isIncident(v)) {
+			if (e->isSelfLoop()) {
+				return adj->isSource() ? e->adjSource() : e->adjTarget();
+			} else {
+				return e->getAdj(v);
+			}
+		} else {
+			return nullptr;
+		}
+	});
+}
+
+void GraphCopySimple::setOriginalEmbedding() {
+	copyEmbedding(original(), *this, [this](adjEntry adj) -> adjEntry {
+		node v = copy(adj->theNode());
+		edge e = copy(adj->theEdge());
+		if (v != nullptr && e != nullptr && e->isIncident(v)) {
+			if (e->isSelfLoop()) {
+				return adj->isSource() ? e->adjSource() : e->adjTarget();
+			} else {
+				return e->getAdj(v);
+			}
+		} else {
+			return nullptr;
+		}
+	});
+}
+
 void GraphCopy::setOriginalEmbedding() {
-	std::vector<adjEntry> newAdjOrder;
-	for (node v : getOriginalGraph()->nodes) {
-		node u = copy(v);
-		if (u == nullptr) {
-			continue;
+	copyEmbedding(original(), *this, [this](adjEntry adj) -> adjEntry {
+		node cnode = copy(adj->theNode());
+		adjEntry cadj = copy(adj);
+		if (cadj == nullptr || cadj->theNode() == cnode) {
+			return cadj;
 		}
-		newAdjOrder.clear();
-		newAdjOrder.reserve(v->degree());
-		// add from original according to their order
-		for (adjEntry adj : v->adjEntries) {
-			if (copy(adj) != nullptr) {
-				newAdjOrder.push_back(copy(adj));
-			}
+		cadj = copy(adj->twin());
+		if (cadj == nullptr || cadj->theNode() == cnode) {
+			return cadj;
+		} else {
+			return nullptr;
 		}
-		// add remaining dummy edges to the end, also retaining their order
-		for (adjEntry adj : u->adjEntries) {
-			if (isDummy(adj)) {
-				newAdjOrder.push_back(adj);
-			}
-		}
-		OGDF_ASSERT(newAdjOrder.size() == size_t(u->degree()));
-		sort(u, newAdjOrder);
-	}
+	});
 }
 
 void* GraphCopyBase::preInsert(bool copyEmbedding, bool copyIDs, bool notifyObservers,

@@ -29,18 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/graph_generators/deterministic.h>
+#include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarlayout/SchnyderLayout.h>
 
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <random>
 #include <unordered_set>
+#include <utility>
+#include <vector>
+
 using std::minstd_rand;
 using std::uniform_int_distribution;
 using std::uniform_real_distribution;
@@ -1033,145 +1045,6 @@ void randomPlanarCNBGraph(Graph& G, int n, int m, int b) {
 	}
 }
 
-static void constructCConnectedCluster(node v, ClusterGraph& C, minstd_rand& rng);
-static void constructCluster(node v, ClusterGraph& C);
-static void bfs(node v, SList<node>& newCluster, NodeArray<bool>& visited, ClusterGraph& C,
-		minstd_rand& rng);
-
-void randomClusterGraph(ClusterGraph& C, Graph& G, int cNum) {
-	int n = G.numberOfNodes();
-
-	int count = 0;
-	NodeArray<int> num(G);
-	Array<node> numNode(0, n - 1, nullptr);
-	for (node v : G.nodes) {
-		num[v] = count;
-		numNode[count] = v;
-		count++;
-	}
-
-	minstd_rand rng(randomSeed());
-	uniform_int_distribution<> dist(0, n - 1);
-
-	for (int i = 0; i < cNum; i++) {
-		constructCluster(numNode[dist(rng)], C);
-	}
-
-#ifdef OGDF_DEBUG
-	C.consistencyCheck();
-#endif
-}
-
-void randomClusterPlanarGraph(ClusterGraph& C, Graph& G, int cNum) {
-	int n = G.numberOfNodes();
-
-	int count = 0;
-	NodeArray<int> num(G);
-	Array<node> numNode(0, n - 1, nullptr);
-	for (node v : G.nodes) {
-		num[v] = count;
-		numNode[count] = v;
-		count++;
-	}
-
-	minstd_rand rng(randomSeed());
-	uniform_int_distribution<> dist(0, n - 1);
-
-	for (int i = 0; i < cNum; i++) {
-		constructCConnectedCluster(numNode[dist(rng)], C, rng);
-	}
-
-	// By construction, clusters might have just one child.
-	// remove these clusters
-	SListPure<cluster> store;
-	for (cluster c : C.clusters) {
-		if ((c->cCount() + c->nCount()) == 1) {
-			store.pushBack(c);
-		}
-	}
-	while (!store.empty()) {
-		cluster c = store.popFrontRet();
-		if (c != C.rootCluster()) {
-			C.delCluster(c);
-		}
-	}
-	if ((C.rootCluster()->cCount() == 1) && (C.rootCluster()->nCount() == 0)) {
-		cluster cl = *C.rootCluster()->cBegin();
-		C.delCluster(cl);
-	}
-
-#ifdef OGDF_DEBUG
-	C.consistencyCheck();
-#endif
-}
-
-static void constructCConnectedCluster(node v, ClusterGraph& C, minstd_rand& rng) {
-	SList<node> newCluster;
-	newCluster.pushBack(v);
-	NodeArray<bool> visited(C, false);
-	visited[v] = true;
-	bfs(v, newCluster, visited, C, rng);
-	if (newCluster.size() > 1) {
-		cluster cl = C.newCluster(C.clusterOf(v));
-		while (!newCluster.empty()) {
-			node w = newCluster.popFrontRet();
-			C.reassignNode(w, cl);
-		}
-	}
-}
-
-// Construct new (child) cluster by randomly choosing nodes in v's cluster
-static void constructCluster(node v, ClusterGraph& C) {
-	if (C.clusterOf(v)->nCount() < 2) {
-		return;
-	}
-
-	SList<node> newCluster;
-	newCluster.pushBack(v);
-
-	minstd_rand rng(randomSeed());
-	uniform_int_distribution<> dist(0, 99);
-
-	// store the cluster nodes for random selection
-	// we could just randomly select by running up the list
-	for (node u : C.clusterOf(v)->nodes) {
-		if (u != v && dist(rng) > 65) {
-			newCluster.pushBack(u);
-		}
-	}
-
-	cluster cl = C.newCluster(C.clusterOf(v));
-	while (!newCluster.empty()) {
-		node w = newCluster.popFrontRet();
-		C.reassignNode(w, cl);
-	}
-}
-
-// Insert nodes in v's cluster to new cluster with a certain probability
-static void bfs(node v, SList<node>& newCluster, NodeArray<bool>& visited, ClusterGraph& C,
-		minstd_rand& rng) {
-	uniform_int_distribution<> dist(0, 99);
-
-	SListPure<node> bfsL;
-	for (adjEntry adj : v->adjEntries) {
-		edge e = adj->theEdge();
-		node w = e->opposite(v);
-		int probability = dist(rng);
-		if (probability < 70 && !visited[w]) {
-			visited[w] = true;
-			if (C.clusterOf(v) == C.clusterOf(w)) {
-				newCluster.pushBack(w);
-				bfsL.pushBack(w);
-			}
-		} else {
-			visited[w] = true;
-		}
-	}
-	while (!bfsL.empty()) {
-		bfs(bfsL.popFrontRet(), newCluster, visited, C, rng);
-	}
-}
-
 void randomTree(Graph& G, int n) {
 	G.clear();
 	if (n > 0) {
@@ -1184,66 +1057,6 @@ void randomTree(Graph& G, int n) {
 			nodes[i] = G.newNode();
 			G.newEdge(on, nodes[i]);
 		}
-	}
-}
-
-void createClustersHelper(ClusterGraph& C, const node curr, const node pred, const cluster predC,
-		List<cluster>& internal, List<cluster>& leaves) {
-	cluster currC = predC ? C.createEmptyCluster(predC) : C.rootCluster();
-	if (curr->degree() == 1 && pred != nullptr) {
-		leaves.pushBack(currC);
-	} else {
-		for (adjEntry adj : curr->adjEntries) {
-			node next = adj->twinNode();
-			if (next == pred) {
-				continue;
-			}
-			createClustersHelper(C, next, curr, currC, internal, leaves);
-		}
-		internal.pushBack(currC);
-	}
-}
-
-void randomClusterGraph(ClusterGraph& C, const Graph& G, const node root, int moreInLeaves) {
-	C.init(G);
-
-	// Build cluster structure (and store which clusters are internal and which are leaves)
-	List<cluster> internal;
-	List<cluster> leaves;
-	createClustersHelper(C, root, nullptr, nullptr, internal, leaves);
-
-	// Assign nodes to clusters
-	List<node> nodes;
-	G.allNodes<List<node>>(nodes);
-
-	// Step 1: Ensure two node per leaf-cluster
-	nodes.permute();
-	for (cluster c : leaves) {
-		C.reassignNode(nodes.popFrontRet(), c);
-		C.reassignNode(nodes.popFrontRet(), c);
-	}
-
-	// Step 2: Distribute the other nodes
-	int n = G.numberOfNodes();
-	int numI = internal.size();
-	int numL = leaves.size();
-	double chanceForInternal = (numI * n / double(numL * moreInLeaves + numI)) / double(n - 2 * numL);
-	// a leaf-cluster should have (on average) moreInLeaves-times as many vertices as in internal-cluster.
-	// #verticesInInternalCluster = n / (numL*moreInLeaves + numI)
-	// #nodesToDistribute = n - 2*numL
-	// => chance that a node goes into an internal cluster = numI * #verticesInInternalCluster / (n-2*numL)
-
-	minstd_rand rng(randomSeed());
-	uniform_real_distribution<> dist_0_1(0.0, 1.0);
-
-	while (!nodes.empty()) {
-		cluster cl;
-		if (dist_0_1(rng) < chanceForInternal) {
-			cl = *internal.get(uniform_int_distribution<>(0, internal.size() - 1)(rng));
-		} else {
-			cl = *leaves.get(uniform_int_distribution<>(0, leaves.size() - 1)(rng));
-		}
-		C.reassignNode(nodes.popFrontRet(), cl);
 	}
 }
 

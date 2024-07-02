@@ -1,8 +1,7 @@
 /** \file
- * \brief Declaration of ClusterPlanarModule which implements a c-planarity
- *        test.
+ * \brief Consistency checks for debugging the SyncPlan algorithm.
  *
- * \author Karsten Klein
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -29,28 +28,32 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-
 #pragma once
 
-#include <ogdf/basic/Module.h>
-#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
 
-namespace ogdf {
+#include <string>
 
-class OGDF_EXPORT ClusterPlanarModule : public Module {
+namespace ogdf::sync_plan {
+class SyncPlan;
+
+//! Consistency checks for debugging the SyncPlan algorithm.
+class OGDF_EXPORT SyncPlanConsistency {
+	SyncPlan& pq;
+	SyncPlanDrawer draw;
+	int checkCounter = 0;
+
 public:
-	ClusterPlanarModule() { }
+	static bool doWriteOut;
 
-	virtual ~ClusterPlanarModule() { }
+	explicit SyncPlanConsistency(SyncPlan& _pq) : pq(_pq), draw(&_pq) {};
 
-	//! Returns true, if CG is c-planar, false otherwise.
-	virtual bool isClusterPlanar(const ClusterGraph& CG) { return doTest(CG); }
+	bool consistencyCheck(bool force_check_components = false);
 
-protected:
-	//! Performs a c-planarity test on CG.
-	virtual bool doTest(const ClusterGraph& CG) = 0;
+	void writeOut(std::string name = "", bool format = true, bool components = true);
 
-	OGDF_MALLOC_NEW_DELETE
+	void checkComponentRegeneration();
+
+	int getCheckCounter() const { return checkCounter; }
 };
-
 }

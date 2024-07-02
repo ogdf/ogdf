@@ -1,7 +1,5 @@
 /** \file
- * \brief Declaration of the Random Hierarchy graph generator.
- *
- * \author Carsten Gutwenger, Christoph Buchheim
+ * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -28,36 +26,36 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/cluster/sync_plan/PMatching.h>
+#include <ogdf/cluster/sync_plan/PipeOrder.h>
+#include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/cluster/sync_plan/SyncPlanComponents.h>
 
-#pragma once
+using namespace ogdf::sync_plan::internal;
 
-#include <ogdf/basic/Graph.h>
+namespace ogdf::sync_plan {
 
-namespace ogdf {
+bool PipeQueueByDegreePreferContract::comparePipes(const Pipe* x, const Pipe* y) const {
+	if (x->heap_data != y->heap_data) {
+		return x->heap_data < y->heap_data;
+	}
 
-/**
- * @addtogroup graph-generators
- * @{
- */
+	if (invert_degree) {
+		return x->degree() < y->degree();
+	} else {
+		return x->degree() > y->degree();
+	}
+}
 
-//! @name Randomized graph generators
-//! @{
-
-//! Creates a random hierarchical graph.
-/**
- * @param G is assigned the generated graph.
- * @param n is the number of nodes.
- * @param m is the number of edges.
- * @param planar determines if the resulting graph is (level-)planar.
- * @param singleSource determines if the graph is a single-source graph.
- * @param longEdges determines if the graph has long edges (spanning 2 layers
- *        or more); otherwise the graph is proper.
- */
-OGDF_EXPORT void randomHierarchy(Graph& G, int n, int m, bool planar, bool singleSource,
-		bool longEdges);
-
-//! @}
-
-/** @} */
+bool PipeQueueByDegreePreferContract::isQueue1(Pipe* p) const {
+	if (p->pipe_priority >= 0) {
+		return true;
+	}
+	bool ret = p->degree() <= 3 || PQ->canContract(p);
+	if (invert_contract) {
+		ret = !ret;
+	}
+	return ret;
+}
 
 }

@@ -43,8 +43,6 @@
 
 #include <cmath>
 
-#include <math.h>
-
 namespace ogdf {
 
 /**

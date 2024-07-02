@@ -34,6 +34,7 @@
 #include <ogdf/basic/STNumbering.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/CconnectClusterPlanar.h>
 #include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -198,7 +199,7 @@ bool CconnectClusterPlanarEmbed::embed(ClusterGraph& C, Graph& G) {
 void CconnectClusterPlanarEmbed::copyEmbedding(ClusterGraph& Ccopy, Graph& Gcopy, ClusterGraph& C,
 		Graph& G) {
 	OGDF_ASSERT(Gcopy.representsCombEmbedding());
-	OGDF_ASSERT(Ccopy.representsCombEmbedding());
+	OGDF_ASSERT(Ccopy.representsConnectedCombEmbedding());
 
 	AdjEntryArray<adjEntry> adjTableCopy2Orig(Gcopy);
 	AdjEntryArray<adjEntry> adjTableOrig2Copy(G);
@@ -1833,6 +1834,22 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph& Ccopy, Graph&
 #ifdef OGDF_DEBUG
 	Ccopy.consistencyCheck();
 #endif
+}
+
+bool CconnectClusterPlanarityModule::clusterPlanarEmbed(ClusterGraph& CG, Graph& G) {
+	CconnectClusterPlanarEmbed inst;
+	if (inst.embed(CG, G)) {
+		return true;
+	} else if (inst.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCPlanar
+			|| inst.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonPlanar) {
+		return false;
+	} else {
+		throw std::runtime_error("Not (cluster-)connected!");
+	}
+}
+
+bool CconnectClusterPlanarityModule::clusterPlanarEmbedClusterPlanarGraph(ClusterGraph& CG, Graph& G) {
+	return clusterPlanarEmbed(CG, G);
 }
 
 }

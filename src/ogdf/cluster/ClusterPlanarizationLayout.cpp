@@ -169,6 +169,9 @@ void ClusterPlanarizationLayout::call(Graph& G, ClusterGraphAttributes& acGraph,
 			//construct copy
 
 			workGraph = &GW;
+			resultCluster.init();
+			resultNode.init();
+			resultEdge.init();
 			workCG = new ClusterGraph(cGraph, GW, resultCluster, resultNode, resultEdge);
 
 			//reinit original arrays

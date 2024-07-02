@@ -213,8 +213,8 @@ ogdf::node NodePCRotation::getTrivialPartnerPole(const Graph& G, node pole) {
 }
 
 bool NodePCRotation::isEqual(const NodePCRotation& pc) const {
-	OGDF_ASSERT(checkValid());
-	OGDF_ASSERT(pc.checkValid());
+	OGDF_HEAVY_ASSERT(checkValid());
+	OGDF_HEAVY_ASSERT(pc.checkValid());
 	if (getGraph() != pc.getGraph()) {
 		return false;
 	}

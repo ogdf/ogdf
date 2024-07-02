@@ -40,7 +40,6 @@
 
 namespace ogdf {
 
-
 Triconnectivity::~Triconnectivity() {
 	if (m_deleteGraph) {
 		delete m_pG;

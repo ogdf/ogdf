@@ -43,8 +43,10 @@
 #endif
 
 namespace ogdf {
+namespace internal {
 template<typename Registry>
 class RegisteredArrayBase;
+}
 
 //! The default minimum table size for registered arrays.
 static constexpr int MIN_TABLE_SIZE = (1 << 4);
@@ -92,7 +94,7 @@ inline int calculateTableSize(int actualCount) {
 template<typename Key, typename Registry, typename Iterator = void>
 class RegistryBase {
 public:
-	using registered_array_type = RegisteredArrayBase<Registry>;
+	using registered_array_type = internal::RegisteredArrayBase<Registry>;
 	using key_type = Key;
 	using registry_type = Registry;
 	using iterator_type = Iterator;
@@ -234,6 +236,7 @@ public:
 	int getArraySize() const { return m_size; }
 };
 
+namespace internal {
 //! Abstract base class for registered arrays.
 /**
  * Defines the interface for event handling used by the registry.
@@ -327,6 +330,7 @@ public:
 	//! Returns a pointer to the associated registry.
 	const Registry* registeredAt() const { return m_pRegistry; }
 };
+}
 
 //! Iterator for registered arrays.
 /**
@@ -407,7 +411,8 @@ public:
 	}
 };
 
-//! Registered arrays without default values.
+namespace internal {
+//! Registered arrays without default values or by-index access to values.
 /**
  * Registered arrays provide an efficient, constant-time mapping from indexed keys of a \a Registry to elements of
  * type \a Value. The storage automatically grows and shrinks when keys are added to or removed from the registry.
@@ -417,13 +422,13 @@ public:
  * class RegistryBase.
  * @tparam Value The type of the stored data.
  *
- * \sa RegistryBase, RegisteredArrayWithoutDefault, RegisteredArray
+ * \sa RegistryBase, RegisteredArrayWithoutDefaultWithIndexAccess, RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegisteredArray
  */
 template<class Registry, class Value>
-class RegisteredArrayWithoutDefault : protected RegisteredArrayBase<Registry> {
+class RegisteredArrayWithoutDefaultOrIndexAccess : protected RegisteredArrayBase<Registry> {
 protected:
 	using key_iterator = typename Registry::iterator_type;
-	using registered_array = RegisteredArrayWithoutDefault<Registry, Value>;
+	using registered_array = RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value>;
 	using registered_array_base = RegisteredArrayBase<Registry>;
 
 public:
@@ -442,10 +447,10 @@ protected:
 
 public:
 	//! Creates a new registered array associated with no registry.
-	RegisteredArrayWithoutDefault() = default;
+	RegisteredArrayWithoutDefaultOrIndexAccess() = default;
 
 	//! Creates a new registered array associated with \p registry.
-	explicit RegisteredArrayWithoutDefault(const Registry* registry) {
+	explicit RegisteredArrayWithoutDefaultOrIndexAccess(const Registry* registry) {
 		// during base class initialization, no part of the derived class exists, so this will always call our base init
 		// so base classes should call their own init themselves
 		registered_array::init(registry);
@@ -503,24 +508,6 @@ public:
 		return m_data.at(registeredAt()->keyToIndex(key));
 #else
 		return m_data[registeredAt()->keyToIndex(key)];
-#endif
-	}
-
-	//! Returns a const reference to the element with index \p idx.
-	value_const_ref_type operator[](int idx) const {
-#ifdef OGDF_DEBUG
-		return m_data.at(idx);
-#else
-		return m_data[idx];
-#endif
-	}
-
-	//! Returns a reference to the element with index \p idx.
-	value_ref_type operator[](int idx) {
-#ifdef OGDF_DEBUG
-		return m_data.at(idx);
-#else
-		return m_data[idx];
 #endif
 	}
 
@@ -594,6 +581,46 @@ protected:
 	}
 };
 
+//! RegisteredArrayWithoutDefaultOrIndexAccess that also allows accessing its values directly by their index.
+template<class Registry, class Value>
+class RegisteredArrayWithoutDefaultWithIndexAccess
+	: public RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value> {
+	using RA = RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value>;
+
+public:
+	RegisteredArrayWithoutDefaultWithIndexAccess() = default;
+
+	explicit RegisteredArrayWithoutDefaultWithIndexAccess(const Registry* registry)
+		: RA(registry) { }
+
+	using RA::operator[];
+
+	//! Returns a const reference to the element with index \p idx.
+	typename RA::value_const_ref_type operator[](int idx) const {
+#ifdef OGDF_DEBUG
+		return RA::m_data.at(idx);
+#else
+		return RA::m_data[idx];
+#endif
+	}
+
+	//! Returns a reference to the element with index \p idx.
+	typename RA::value_ref_type operator[](int idx) {
+#ifdef OGDF_DEBUG
+		return RA::m_data.at(idx);
+#else
+		return RA::m_data[idx];
+#endif
+	}
+};
+
+//! Registered arrays without default values that automatically allows by-index access to values if Registry::key_type is not already integral.
+template<class Registry, class Value>
+using RegisteredArrayWithoutDefault =
+		typename std::conditional_t<std::is_integral_v<typename Registry::key_type>,
+				RegisteredArrayWithoutDefaultOrIndexAccess<Registry, Value>,
+				RegisteredArrayWithoutDefaultWithIndexAccess<Registry, Value>>;
+
 //! Registered arrays with default values.
 /**
  * Extends the functionality of RegisteredArrayWithoutDefault by adding the possibility to set a specific default value
@@ -605,7 +632,7 @@ protected:
  * class RegistryBase.
  * @tparam Value The type of the stored data.
  *
- * \sa RegistryBase, RegisteredArrayWithoutDefault, RegisteredArray
+ * \sa RegistryBase, RegisteredArrayWithoutDefault, RegisteredArrayWithoutDefaultOrIndexAccess, RegisteredArray
  */
 template<class Registry, class Value>
 class RegisteredArrayWithDefault : public RegisteredArrayWithoutDefault<Registry, Value> {
@@ -675,6 +702,7 @@ protected:
 		}
 	}
 };
+}
 
 //! Dynamic arrays indexed with arbitrary keys.
 /**
@@ -724,7 +752,7 @@ protected:
  * - **RegisteredArrayWithoutDefault**
  *
  * 	Provides the core functionality for accessing the values stored in the array. New entries are initialized using the
- * 	default constructor of type \a Value.
+ * 	default constructor of type \a Value. Additionally, there are variants providing by-index access if the Keys are not already ints.
  *
  * - **RegisteredArrayWithDefault**
  *
@@ -774,16 +802,15 @@ protected:
  * R[key] = 42;
  * \endcode
  *
- * \extends RegisteredArrayWithDefault
- *
- * \sa RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegistryBase, NodeArray
+ * \sa RegisteredArrayWithoutDefaultOrIndexAccess, RegisteredArrayWithoutDefault, RegisteredArrayWithDefault, RegistryBase, NodeArray
  */
 template<class Registry, class Value, bool WithDefault = true, class Base = Registry>
 class RegisteredArray
-	: public std::conditional<WithDefault, RegisteredArrayWithDefault<Registry, Value>,
-			  RegisteredArrayWithoutDefault<Registry, Value>>::type {
-	using RA = typename std::conditional<WithDefault, RegisteredArrayWithDefault<Registry, Value>,
-			RegisteredArrayWithoutDefault<Registry, Value>>::type;
+	: public std::conditional<WithDefault, internal::RegisteredArrayWithDefault<Registry, Value>,
+			  internal::RegisteredArrayWithoutDefault<Registry, Value>>::type {
+	using RA =
+			typename std::conditional<WithDefault, internal::RegisteredArrayWithDefault<Registry, Value>,
+					internal::RegisteredArrayWithoutDefault<Registry, Value>>::type;
 
 	static inline const Registry* cast(const Base* base) {
 		if (base != nullptr) {
@@ -917,6 +944,15 @@ public:
 		return const_iterator(end(RA::getRegistry()), this);
 	}
 };
+}
+
+template<typename RA1, typename RA2>
+//! Copy data from a ABCArray<XYZ> to an XYZArray<ABC>
+inline void invertRegisteredArray(const RA1& from, RA2& to) {
+	OGDF_ASSERT(from.registeredAt() != nullptr);
+	for (const auto& key : *from.registeredAt()) {
+		to[from[key]] = key;
+	}
 }
 
 /* The following macro will be expanded in the docs, see doc/ogdf-doxygen.cfg:EXPAND_AS_DEFINED */

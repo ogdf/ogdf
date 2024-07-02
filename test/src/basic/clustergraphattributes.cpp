@@ -32,6 +32,8 @@
 #include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/ClusterSet.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>
@@ -151,7 +153,7 @@ go_bandit([] {
 		std::unique_ptr<ClusterGraph> CG(new ClusterGraph(*G));
 		std::unique_ptr<ClusterGraphAttributes> CGAt(
 				new ClusterGraphAttributes(*CG, ClusterGraphAttributes::all));
-		randomClusterGraph(*CG, *G, 10);
+		randomClustering(*CG, 10);
 
 		std::unique_ptr<ClusterArray<int>> clusterArray(new ClusterArray<int>(*CG, 42));
 		std::unique_ptr<ClusterSet<>> clusterSet(new ClusterSet<>(*CG));

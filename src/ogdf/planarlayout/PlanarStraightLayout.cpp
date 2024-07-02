@@ -30,9 +30,9 @@
  */
 
 
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
 #include <ogdf/planarlayout/PlanarStraightLayout.h>
