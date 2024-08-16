@@ -106,8 +106,6 @@ concept OGDF_EDGE_LIST = requires(T l) {
 #	define OGDF_HAS_CONCEPTS
 #	define OGDF_CHECK_CONCEPT static_assert
 
-OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphConstIterator<node>>);
-OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphConstIterator<edge>>);
 OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphIterator<node>>);
 OGDF_CHECK_CONCEPT(OGDF_EDGE_ITER<internal::GraphIterator<edge>>);
 OGDF_CHECK_CONCEPT(OGDF_NODE_ITER<internal::GraphReverseIterator<node>>);
