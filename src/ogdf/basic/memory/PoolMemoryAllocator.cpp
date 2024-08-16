@@ -71,6 +71,8 @@ void PoolMemoryAllocator::cleanup() {
 	}
 }
 
+bool PoolMemoryAllocator::checkSize(size_t nBytes) { return nBytes < TABLE_SIZE; }
+
 void* PoolMemoryAllocator::allocate(size_t nBytes) {
 	MemElemPtr& pFreeBytes = s_tp[nBytes];
 	void* result;
