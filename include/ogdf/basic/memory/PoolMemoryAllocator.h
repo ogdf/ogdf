@@ -76,7 +76,7 @@ public:
 	static OGDF_EXPORT void cleanup();
 
 	//! Returns true iff #allocate can be invoked with \c nBytes
-	static OGDF_EXPORT bool checkSize(size_t nBytes) { return nBytes < TABLE_SIZE; }
+	static OGDF_EXPORT bool checkSize(size_t nBytes);
 
 	//! Allocates memory of size \c nBytes.
 	static OGDF_EXPORT void* allocate(size_t nBytes);
