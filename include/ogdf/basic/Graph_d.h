@@ -1127,7 +1127,7 @@ public:
 	 * @return the newly created edge.
 	 */
 	template<typename S, typename T>
-	edge newEdge(S src, Direction dirSrc, T tgt, Direction dirTgt, int index) {
+	edge newEdge(S src, Direction dirSrc, T tgt, Direction dirTgt, int index = -1) {
 		OGDF_ASSERT(src != nullptr);
 		OGDF_ASSERT(tgt != nullptr);
 		edge e = pureNewEdge(internal::adjToNode(src), internal::adjToNode(tgt), index);
@@ -1231,19 +1231,24 @@ public:
 		 */
 		void restore();
 
-		/**
-		 * Returns the number of edges contained in this set.
-		 */
+		//! Returns the number of edges contained in this set.
 		int size();
+
+		//! Checks whether this set is empty.
+		bool empty();
+
+		//! Return an iterator to the first hidden edge in this set.
+		internal::GraphList<EdgeElement>::iterator begin();
+
+		//! Return an iterator one past the last hidden edge in this set.
+		internal::GraphList<EdgeElement>::iterator end();
 
 	private:
 		internal::GraphList<EdgeElement> m_edges;
 		ListIterator<HiddenEdgeSet*> m_it;
 		Graph* m_graph;
 
-		// prevent copying
-		HiddenEdgeSet(const HiddenEdgeSet&);
-		HiddenEdgeSet& operator=(const HiddenEdgeSet&);
+		OGDF_NO_COPY(HiddenEdgeSet)
 	};
 
 	/**

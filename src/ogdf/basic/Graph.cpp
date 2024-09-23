@@ -700,6 +700,12 @@ void Graph::HiddenEdgeSet::restore() {
 
 int Graph::HiddenEdgeSet::size() { return m_edges.size(); }
 
+bool Graph::HiddenEdgeSet::empty() { return m_edges.empty(); }
+
+internal::GraphList<EdgeElement>::iterator Graph::HiddenEdgeSet::begin() { return m_edges.begin(); }
+
+internal::GraphList<EdgeElement>::iterator Graph::HiddenEdgeSet::end() { return m_edges.end(); }
+
 std::ostream& operator<<(std::ostream& os, const Graph::EdgeType& et) {
 	switch (et) {
 	case Graph::EdgeType::association:

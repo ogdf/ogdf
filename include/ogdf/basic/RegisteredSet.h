@@ -88,18 +88,21 @@ public:
 		}
 	}
 
-	//! Removes element \p v from this set.
+	//! Removes element \p v from this set and return \p true iff \p v was previously present.
 	/**
 	 * This operation has constant runtime.
-	 * If the element is not contained in this set, nothing happens.
+	 * If the element is not contained in this set, nothing happens and \p false is returned.
 	 *
 	 * \pre \p v is an element in the associated registry.
 	 */
-	void remove(element_type v) {
+	bool remove(element_type v) {
 		ListIterator<element_type>& itV = m_it[v];
 		if (itV.valid()) {
 			m_elements.del(itV);
 			itV = ListIterator<element_type>();
+			return true;
+		} else {
+			return false;
 		}
 	}
 

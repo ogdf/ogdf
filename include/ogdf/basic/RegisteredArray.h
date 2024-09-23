@@ -939,6 +939,15 @@ public:
 };
 }
 
+template<typename RA1, typename RA2>
+//! Copy data from a ABCArray<XYZ> to an XYZArray<ABC>
+inline void invertRegisteredArray(const RA1& from, RA2& to) {
+	OGDF_ASSERT(from.registeredAt() != nullptr);
+	for (const auto& key : *from.registeredAt()) {
+		to[from[key]] = key;
+	}
+}
+
 /* The following macro will be expanded in the docs, see doc/ogdf-doxygen.cfg:EXPAND_AS_DEFINED */
 
 #define OGDF_DECL_REG_ARRAY(NAME)                                  \
