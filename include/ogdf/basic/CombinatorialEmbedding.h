@@ -220,19 +220,15 @@ public:
 	//! The container containing all face objects.
 	internal::GraphObjectContainer<FaceElement> faces;
 
-	/** @{
-	 * \brief Creates a combinatorial embedding associated with no graph.
-	 */
+	//! Creates a combinatorial embedding associated with no graph.
 	ConstCombinatorialEmbedding();
 
+	//! Creates a combinatorial embedding of graph \p G.
 	/**
-	 * \brief Creates a combinatorial embedding of graph \p G.
-	 *
 	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
 	explicit ConstCombinatorialEmbedding(const Graph& G);
-
 
 	//! Copy constructor.
 	ConstCombinatorialEmbedding(const ConstCombinatorialEmbedding& C);
@@ -246,9 +242,8 @@ public:
 	//! Returns whether the embedding is associated with a graph.
 	bool valid() const { return m_cpGraph != nullptr; }
 
-	/** @} @{
-	 * \brief Returns the associated graph of the combinatorial embedding.
-	 *
+	//! Returns the associated graph of the combinatorial embedding.
+	/**
 	 * \pre The associated graph exists. See #valid().
 	 */
 	const Graph& getGraph() const {
@@ -259,9 +254,7 @@ public:
 	//! Returns associated graph
 	operator const Graph&() const { return getGraph(); }
 
-	/** @} @{
-	 * \brief Returns the first face in the list of all faces.
-	 */
+	//! Returns the first face in the list of all faces.
 	face firstFace() const { return faces.head(); }
 
 	//! Returns the last face in the list of all faces.
@@ -270,8 +263,8 @@ public:
 	//! Returns the number of faces.
 	int numberOfFaces() const { return faces.size(); }
 
-	/** @} @{
-	 * \brief Returns the face to the right of \p adj, i.e., the face containing \p adj.
+	//! Returns the face to the right of \p adj, i.e., the face containing \p adj.
+	/**
 	 * @param adj is an adjecency element in the associated graph.
 	 */
 	face rightFace(adjEntry adj) const { return m_rightFace[adj]; }
@@ -282,12 +275,10 @@ public:
 	 */
 	face leftFace(adjEntry adj) const { return m_rightFace[adj->twin()]; }
 
-	/** @} @{
-	 * \brief Returns the largest used face index.
-	 */
+	//! Returns the largest used face index.
 	int maxFaceIndex() const { return m_faceIdCount - 1; }
 
-	/** @} @{
+	/**
 	 * Returns a random face.
 	 * \c nullptr is returned if no feasible face exists.
 	 *
@@ -300,9 +291,7 @@ public:
 	//! Returns a face of maximal size.
 	face maximalFace() const;
 
-	/** @} @{
-	 * \brief Returns the external face.
-	 */
+	//! Returns the external face.
 	face externalFace() const { return m_externalFace; }
 
 	/**
@@ -318,9 +307,8 @@ public:
 		return m_rightFace[e->adjSource()] == m_rightFace[e->adjTarget()];
 	}
 
-	/** @} @{
-	 * \brief Initializes the embedding for graph \p G.
-	 *
+	//! Initializes the embedding for graph \p G.
+	/**
 	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
@@ -332,7 +320,6 @@ public:
 	void computeFaces();
 
 #ifdef OGDF_DEBUG
-	//! @} @{
 	//! Asserts that this embedding is consistent.
 	void consistencyCheck() const;
 #endif
@@ -388,8 +375,6 @@ public:
 	 * @return The adjacency entry to the right of a common face of v and w, incident to v.
 	 */
 	adjEntry findCommonFace(const node v, const node w, adjEntry& adjW, bool left = true) const;
-
-	/** @} */
 
 protected:
 	//! Create a new face.
