@@ -1,5 +1,5 @@
 /** \file
- * \brief An iterator-based BFD through a Graph.
+ * \brief An iterator-based BFS through a Graph.
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -29,7 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-// TOOD move to a more central location, add DFS?
+// TODO move to a more central location, add DFS?
 
 #pragma once
 
@@ -38,8 +38,10 @@
 
 namespace ogdf {
 
+class FilteringBFSIterator;
+
 /**
- * An iterator-based BFD through a Graph.
+ * An iterator-based BFS through a Graph.
  *
  * Allows specifying filters to not visit or descend from certain nodes.
  */
@@ -50,24 +52,20 @@ class OGDF_EXPORT FilteringBFS {
 	std::function<bool(node)> m_descend;
 
 public:
-	// iterator traits
-	using iterator_category = std::input_iterator_tag;
-	using value_type = node;
-	using difference_type = std::ptrdiff_t;
-	using pointer = node*;
-	using reference = node&;
-
 	template<typename T>
 	static bool return_true(T t) {
 		return true;
 	}
 
-	explicit FilteringBFS() { }
+	explicit FilteringBFS() = default;
+
+	OGDF_DEFAULT_COPY(FilteringBFS)
+	OGDF_DEFAULT_MOVE(FilteringBFS)
 
 	template<typename Container>
 	explicit FilteringBFS(const Graph& G, Container& nodes,
-			std::function<bool(adjEntry)> visit = return_true<adjEntry>,
-			std::function<bool(node)> descend_from = return_true<node>)
+			const std::function<bool(adjEntry)>& visit = return_true<adjEntry>,
+			const std::function<bool(node)>& descend_from = return_true<node>)
 		: m_pending(), m_visited(G, false), m_visit(visit), m_descend(descend_from) {
 		for (node n : nodes) {
 			m_pending.append(n);
@@ -75,8 +73,8 @@ public:
 	}
 
 	explicit FilteringBFS(const Graph& G, std::initializer_list<node> nodes,
-			std::function<bool(adjEntry)> visit = return_true<adjEntry>,
-			std::function<bool(node)> descend_from = return_true<node>)
+			const std::function<bool(adjEntry)>& visit = return_true<adjEntry>,
+			const std::function<bool(node)>& descend_from = return_true<node>)
 		: m_pending(nodes), m_visited(G, false), m_visit(visit), m_descend(descend_from) { }
 
 	bool operator==(const FilteringBFS& rhs) const {
@@ -87,29 +85,9 @@ public:
 		return m_pending.getList() != rhs.m_pending.getList();
 	}
 
-	FilteringBFS& begin() { return *this; }
+	FilteringBFSIterator begin();
 
-	FilteringBFS end() const { return FilteringBFS(); }
-
-	node operator*() {
-		OGDF_ASSERT(!m_pending.empty());
-		return m_pending.top();
-	}
-
-	//! Increment operator (prefix, returns result).
-	FilteringBFS& operator++() {
-		next();
-		return *this;
-	}
-
-	//! Increment operator (postfix, returns previous value).
-	OGDF_DEPRECATED("Calling FilteringBFS++ will copy the array of visited nodes")
-
-	FilteringBFS operator++(int) {
-		FilteringBFS before = *this;
-		next();
-		return before;
-	}
+	FilteringBFSIterator end();
 
 	void next() {
 		OGDF_ASSERT(!m_pending.empty());
@@ -129,15 +107,76 @@ public:
 		}
 	}
 
+	node current() {
+		OGDF_ASSERT(!m_pending.empty());
+		return m_pending.top();
+	}
+
 	operator bool() const { return valid(); }
 
 	bool valid() const { return !m_pending.empty(); }
 
-	void append(node n) { m_pending.append(n); }
+	void append(node n) {
+		m_visited[n] = false;
+		m_pending.append(n);
+	}
 
 	bool hasVisited(node n) const { return m_visited[n]; }
 
+	bool willVisitTarget(adjEntry adj) const { return m_visit(adj); }
+
+	bool willDescendFrom(node n) const { return m_descend(n); }
+
+	void setVisitFilter(const std::function<bool(adjEntry)>& mVisit) { m_visit = mVisit; }
+
+	void setDescendFilter(const std::function<bool(node)>& mDescend) { m_descend = mDescend; }
+
 	int pendingCount() const { return m_pending.size(); }
+};
+
+class FilteringBFSIterator {
+	FilteringBFS* m_bfs;
+
+public:
+	// iterator traits
+	using iterator_category = std::input_iterator_tag;
+	using value_type = node;
+	using difference_type = std::ptrdiff_t;
+	using pointer = node*;
+	using reference = node&;
+
+	explicit FilteringBFSIterator() : m_bfs(nullptr) { }
+
+	explicit FilteringBFSIterator(FilteringBFS* bfs) : m_bfs(bfs) { }
+
+	bool operator==(const FilteringBFSIterator& rhs) const {
+		if (m_bfs) {
+			if (rhs.m_bfs) {
+				return m_bfs == rhs.m_bfs;
+			} else {
+				return !m_bfs->valid();
+			}
+		} else {
+			if (rhs.m_bfs) {
+				return !rhs.m_bfs->valid();
+			} else {
+				return true;
+			}
+		}
+	}
+
+	bool operator!=(const FilteringBFSIterator& rhs) const { return !(*this == rhs); }
+
+	node operator*() {
+		OGDF_ASSERT(m_bfs != nullptr);
+		return m_bfs->current();
+	}
+
+	FilteringBFSIterator& operator++() {
+		OGDF_ASSERT(m_bfs != nullptr);
+		m_bfs->next();
+		return *this;
+	}
 };
 
 }
