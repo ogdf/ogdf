@@ -332,6 +332,15 @@ public:
 
 	void setOriginalEmbedding() override;
 
+	/**
+	 * Copies the current embedding back to (a non-const version of) the original graph.
+	 *
+	 * Currently, this only works correctly if both graphs are still the same.
+	 *
+	 * @param orig identical to getOriginalGraph(), but not const
+	 */
+	void copyEmbeddingToOriginal(Graph& orig) const;
+
 protected:
 	void edgeInserted(void* userData, edge original, edge copy) override;
 };
@@ -458,13 +467,13 @@ public:
 	 * \return the corresponding adjacency entry in the original graph or nullptr if it does not exist.
 	 */
 	adjEntry copy(adjEntry adj) const override {
-		edge e = adj->theEdge();
-		if (e == nullptr) {
+		auto& el = m_eCopy[adj->theEdge()];
+		if (el.empty()) {
 			return nullptr;
 		} else if (adj->isSource()) {
-			return m_eCopy[e].front()->adjSource();
+			return el.front()->adjSource();
 		} else {
-			return m_eCopy[e].back()->adjTarget();
+			return el.back()->adjTarget();
 		}
 	}
 
@@ -782,5 +791,8 @@ protected:
 	void setOriginalEdgeAlongCrossings(adjEntry adjCopy1, adjEntry adjCopy2, node vCopy,
 			edge eOrig1, edge eOrig2);
 };
+
+OGDF_EXPORT void copyEmbedding(const Graph& from, Graph& to,
+		std::function<adjEntry(adjEntry)> adjMapFromTo);
 
 }

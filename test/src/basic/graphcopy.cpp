@@ -424,8 +424,12 @@ void describeGraphCopySimple(int numberOfNodes) {
 
 	describe("original embedding", [&]() {
 		before_each([&]() {
+			randomPlanarCNBGraph(graph, numberOfNodes,
+					static_cast<int>(min(numberOfNodes * 2.5, numberOfNodes * 3.0 - 6)), 3);
 			randomPlanarBiconnectedGraph(graph, numberOfNodes,
-					static_cast<int>(min(numberOfNodes * 2.5, numberOfNodes * 3.0 - 6)));
+					static_cast<int>(min(numberOfNodes * 2.5, numberOfNodes * 3.0 - 6)), true);
+			node n = graph.chooseNode();
+			graph.newEdge(n, n);
 			graphCopy.reset(new GCType(graph));
 			planarEmbed(graph);
 			do {
@@ -461,8 +465,29 @@ void describeGraphCopySimple(int numberOfNodes) {
 
 		it("works on added edges", [&]() {
 			edge e = graphCopy->newEdge(graphCopy->chooseNode(), graphCopy->chooseNode());
+			node n = graphCopy->chooseNode();
+			graphCopy->newEdge(n, n);
+			// a self-loop won't break planarity as long as its endpoints are consecutive
 			graphCopy->setOriginalEmbedding();
 			graphCopy->delEdge(e);
+			AssertThat(graphCopy->genus(), Equals(graph.genus()));
+		});
+
+		it("works on removed nodes", [&]() {
+			graphCopy->delNode(graphCopy->chooseNode());
+			graphCopy->setOriginalEmbedding();
+			AssertThat(graphCopy->genus(), Equals(graph.genus()));
+		});
+
+		it("works on removed edges", [&]() {
+			graphCopy->delEdge(graphCopy->chooseEdge());
+			graphCopy->setOriginalEmbedding();
+			AssertThat(graphCopy->genus(), Equals(graph.genus()));
+		});
+
+		it("works on reversed edges", [&]() {
+			graphCopy->reverseEdge(graphCopy->chooseEdge());
+			graphCopy->setOriginalEmbedding();
 			AssertThat(graphCopy->genus(), Equals(graph.genus()));
 		});
 	});
