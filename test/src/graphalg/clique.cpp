@@ -41,6 +41,7 @@
 #endif
 
 #include <graphs.h>
+
 #include <testing.h>
 
 static void assertCliqueCorrectness(const Graph& G, const NodeArray<int>& cliqueNumber,

@@ -31,11 +31,10 @@
 
 #pragma once
 
-#include <coin/CoinPackedVector.hpp> // not used here but always necessary when using COIN
-
 #include <ogdf/basic/Logger.h>
 
 #include <ogdf/lib/abacus/osiinclude.h>
+#include <coin/CoinPackedVector.hpp> // not used here but always necessary when using COIN
 
 namespace ogdf {
 

@@ -37,6 +37,7 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterPlanarModule.h>
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
+
 #include <ogdf/external/abacus.h>
 
 namespace ogdf {

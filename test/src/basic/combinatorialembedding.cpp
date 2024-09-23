@@ -36,6 +36,7 @@
 #include <ogdf/basic/graph_generators.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 constexpr int NUMBER_OF_ITERATIONS = 17;

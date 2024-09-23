@@ -29,9 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/augmentation/PlanarAugmentation.h>
 
 // for debug-outputs
 //#define OGDF_PLANAR_AUGMENTATION_DEBUG

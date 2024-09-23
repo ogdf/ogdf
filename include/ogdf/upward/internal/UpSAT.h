@@ -38,8 +38,9 @@
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/external/Minisat.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
+
+#include <ogdf/external/Minisat.h>
 
 #include <vector>
 

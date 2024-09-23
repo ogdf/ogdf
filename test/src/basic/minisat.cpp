@@ -30,6 +30,7 @@
  */
 
 #include <ogdf/basic/Graph.h>
+
 #include <ogdf/external/Minisat.h>
 
 #include <resources.h>
