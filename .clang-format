@@ -84,32 +84,40 @@ PenaltyBreakString: 200
 PenaltyBreakComment: 500 # avoid line breaks in commented out code
 
 ## sorting includes and "using"s
+# The regexes are processed one after another, the first one to match wins. Includes are then sorted by ascending
+# SortPriority (which defaults to the Priority if not given); this value should be unique unless order doesn't matter.
+# Everytime a new Priority value is encountered, a blank line is inserted and thereby a new block is started.
+# Explicitly set Priority to a value (one) less than SortPriority to merge entries in at the end of the previous block.
 # note: <testing.h> must come after other <...>-includes!
 SortIncludes: true
 SortUsingDeclarations: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^<ogdf/lib/.*\.h>'
-    Priority:        2
-    SortPriority:    0
+  - Regex:           '^<ogdf/external/.*\.h(pp)?>'
+    Priority:        3
+    SortPriority:    3
+  - Regex:           '^<ogdf/lib/.*\.h(pp)?>'
+    Priority:        3
+    SortPriority:    4
+  - Regex:           '^<coin/.*\.h(pp)?>'
+    Priority:        3
+    SortPriority:    5
   - Regex:           '^<ogdf/basic/.*\.h>'
     Priority:        1
-    SortPriority:    0
+    SortPriority:    1
   - Regex:           '^<ogdf/.*\.h>'
     Priority:        1
-    SortPriority:    1
-  - Regex:           '^<coin/.*\.hpp>'
-    Priority:        2
-    SortPriority:    1
-  - Regex:           '^<.*\.h>'
-    Priority:        4
-    SortPriority:    0
+    SortPriority:    2
+  - Regex:           '^"array_helper\.h"'
+    Priority:        8
+  - Regex:           '^<testing\.h>'
+    Priority:        8
+  - Regex:           '^<.*\.h(pp)?>'
+    Priority:        7
   - Regex:           '^<.*>'
-    Priority:        3
-    SortPriority:    0
+    Priority:        6
   - Regex:           '.*'
-    Priority:        5
-    SortPriority:    0
+    Priority:        7
 IncludeIsMainRegex: '$'
 IncludeIsMainSourceRegex: ''
 
