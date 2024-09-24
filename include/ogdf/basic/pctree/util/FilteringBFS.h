@@ -1,5 +1,5 @@
 /** \file
- * \brief An iterator-based BFS through a Graph.
+ * \brief An iterator-based BFS through a Graph. TODO should be moved to a central location; add DFS?
  *
  * \author Simon D. Fink <ogdf@niko.fink.bayern>
  *
@@ -29,8 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-// TODO move to a more central location, add DFS?
-
 #pragma once
 
 #include <ogdf/basic/Graph.h>
@@ -45,6 +43,7 @@ class FilteringBFSIterator;
  *
  * Allows specifying filters to not visit or descend from certain nodes.
  */
+// see also FilteringPCTreeDFS/BFS
 class OGDF_EXPORT FilteringBFS {
 	Queue<node> m_pending;
 	NodeArray<bool> m_visited;
@@ -178,5 +177,9 @@ public:
 		return *this;
 	}
 };
+
+FilteringBFSIterator FilteringBFS::begin() { return FilteringBFSIterator(this); }
+
+FilteringBFSIterator FilteringBFS::end() { return FilteringBFSIterator(nullptr); }
 
 }
