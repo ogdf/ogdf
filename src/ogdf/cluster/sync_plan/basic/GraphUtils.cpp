@@ -37,10 +37,6 @@
 
 namespace ogdf {
 
-FilteringBFSIterator FilteringBFS::begin() { return FilteringBFSIterator(this); }
-
-FilteringBFSIterator FilteringBFS::end() { return FilteringBFSIterator(nullptr); }
-
 void moveEnd(Graph& G, edge e, node keep_end, node new_end) {
 	if (e->source() == keep_end) {
 		G.moveTarget(e, new_end);

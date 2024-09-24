@@ -178,8 +178,8 @@ public:
 	}
 };
 
-FilteringBFSIterator FilteringBFS::begin() { return FilteringBFSIterator(this); }
+inline FilteringBFSIterator FilteringBFS::begin() { return FilteringBFSIterator(this); }
 
-FilteringBFSIterator FilteringBFS::end() { return FilteringBFSIterator(nullptr); }
+inline FilteringBFSIterator FilteringBFS::end() { return FilteringBFSIterator(nullptr); }
 
 }
