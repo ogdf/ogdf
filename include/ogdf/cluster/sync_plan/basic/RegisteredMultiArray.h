@@ -43,7 +43,7 @@
 
 namespace ogdf {
 
-//! A wrapper around std::map that uses a constant-size array (or only a single value) plus linear search until the map grows to obig.
+//! A wrapper around std::map that uses a constant-size array (or only a single value) plus linear search until the map grows too big.
 /**
  * Automatically grows from storing a single value, over using an std::array of at most \p array_max values, to using an unbounded std::map.
  * This is used for managing the second dimension of RegisteredMultiArray for a single value in the first dimension.
@@ -271,6 +271,9 @@ public:
 	using EntryType = UsuallySmallMap<Key2, Value, array_max>;
 
 	RegisteredMultiArray() = default;
+
+	OGDF_DEFAULT_COPY(RegisteredMultiArray)
+	OGDF_DEFAULT_MOVE(RegisteredMultiArray)
 
 	template<class... T>
 	explicit RegisteredMultiArray(T&&... t) : m_array(std::forward<T>(t)...) {};
