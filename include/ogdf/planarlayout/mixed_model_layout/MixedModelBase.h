@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/basic/GridLayout.h>
+#include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarlayout/ShellingOrderModule.h>

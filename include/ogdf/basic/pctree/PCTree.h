@@ -54,6 +54,17 @@ OGDF_EXPORT bool isTrivialRestriction(int restSize, int leafCount);
 
 OGDF_EXPORT int factorial(int n);
 
+#ifdef OGDF_DEBUG
+/**
+ * Allows controlling the frequency of full-tree consistency checks in heavy debug mode.
+ * When set to a non-zero value n, only every n'th check will be performed.
+ * When set to 1, every check will be executed.
+ * When set to 0, entirely skips the checks.
+ * Defaults to n=10.
+ */
+OGDF_EXPORT extern int PCTREE_DEBUG_CHECK_FREQ;
+#endif
+
 /**
  * Functions that can be passed to PCTree::uniqueID()
  */

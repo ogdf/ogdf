@@ -577,6 +577,7 @@ public:
 	}
 };
 
+namespace internal {
 //! Registry for nodes, edges and adjEntries of a graph.
 /**
  * @tparam Key the type of registered key
@@ -585,7 +586,7 @@ public:
  * This is set to 2 for GraphAdjRegistry, such that only one adjEntry has to be
  * added and the twin adjEntry is registered automatically.
  */
-template<typename Key, typename Iterable = internal::GraphObjectContainer<Key>, int Factor = 1>
+template<typename Key, typename Iterable = GraphObjectContainer<Key>, int Factor = 1>
 class GraphRegistry
 	: public RegistryBase<Key*, GraphRegistry<Key, Iterable, Factor>, typename Iterable::iterator> {
 	Graph* m_pGraph;
@@ -663,14 +664,9 @@ public:
 	}
 };
 
-#define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<NodeElement, v, c>
-//! RegisteredArray for labeling the \ref node "nodes" in a Graph with an arbitrary \p Value.
-OGDF_DECL_REG_ARRAY(NodeArray)
-#undef OGDF_DECL_REG_ARRAY_TYPE
-
 //! RegisteredArray for edges of a graph.
 template<typename Value, bool WithDefault>
-class EdgeArrayBase : public GraphRegisteredArray<EdgeElement, Value, WithDefault> {
+class EdgeArrayBase1 : public GraphRegisteredArray<EdgeElement, Value, WithDefault> {
 	using GRA = GraphRegisteredArray<EdgeElement, Value, WithDefault>;
 
 public:
@@ -682,34 +678,68 @@ public:
 	//! Returns a const reference to the element associated with the edge corresponding to \p adj.
 	const Value& operator[](adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(GRA::getRegistry().isKeyAssociated(adj->theEdge()));
 		return GRA::operator[](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element associated with the edge corresponding to \p adj.
 	Value& operator[](adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(GRA::getRegistry().isKeyAssociated(adj->theEdge()));
 		return GRA::operator[](adj->index() >> 1);
 	}
 
 	//! Returns a const reference to the element associated with the edge corresponding to \p adj.
 	const Value& operator()(adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(GRA::getRegistry().isKeyAssociated(adj->theEdge()));
 		return GRA::operator[](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element associated with the edge corresponding to \p adj.
 	Value& operator()(adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(GRA::getRegistry().isKeyAssociated(adj->theEdge()));
 		return GRA::operator[](adj->index() >> 1);
 	}
 };
 
-#define OGDF_DECL_REG_ARRAY_TYPE(v, c) EdgeArrayBase<v, c>
+//! RegisteredArray for edges of a graph, specialized for EdgeArray<edge>.
+template<typename Value, bool WithDefault>
+class EdgeArrayBase2 : public EdgeArrayBase1<Value, WithDefault> {
+public:
+	using EdgeArrayBase1<Value, WithDefault>::EdgeArrayBase1;
+};
+
+template<bool WithDefault>
+class EdgeArrayBase2<edge, WithDefault> : public EdgeArrayBase1<edge, WithDefault> {
+	using EA = EdgeArrayBase1<edge, WithDefault>;
+
+public:
+	using EA::EA;
+
+	//! Map a source/target adjEntry to the source/target adjEntry of the corresponding edges.
+	adjEntry mapEndpoint(adjEntry adj) const {
+		OGDF_ASSERT(adj != nullptr);
+		OGDF_ASSERT(EA::getRegistry().isKeyAssociated(adj->theEdge()));
+		edge e = EA::operator[](adj->index() >> 1);
+		return adj->isSource() ? e->adjSource() : e->adjTarget();
+	}
+};
+}
+
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) internal::GraphRegisteredArray<NodeElement, v, c>
+//! RegisteredArray for labeling the \ref node "nodes" in a Graph with an arbitrary \p Value.
+OGDF_DECL_REG_ARRAY(NodeArray)
+#undef OGDF_DECL_REG_ARRAY_TYPE
+
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) internal::EdgeArrayBase2<v, c>
 //! RegisteredArray for labeling the \ref edge "edges" in a Graph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(EdgeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
-#define OGDF_DECL_REG_ARRAY_TYPE(v, c) GraphRegisteredArray<AdjElement, v, c, GraphAdjRegistry>
+#define OGDF_DECL_REG_ARRAY_TYPE(v, c) \
+	internal::GraphRegisteredArray<AdjElement, v, c, internal::GraphAdjRegistry>
 //! RegisteredArray for labeling the \ref adjEntry "adjEntries" in a Graph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(AdjEntryArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
@@ -839,9 +869,9 @@ private:
 	int m_nodeIdCount; //!< The Index that will be assigned to the next created node.
 	int m_edgeIdCount; //!< The Index that will be assigned to the next created edge.
 
-	GraphNodeRegistry m_regNodeArrays; //!< The registered node arrays.
-	GraphEdgeRegistry m_regEdgeArrays; //!< The registered edge arrays.
-	GraphAdjRegistry m_regAdjArrays; //!< The registered adjEntry arrays.
+	internal::GraphNodeRegistry m_regNodeArrays; //!< The registered node arrays.
+	internal::GraphEdgeRegistry m_regEdgeArrays; //!< The registered edge arrays.
+	internal::GraphAdjRegistry m_regAdjArrays; //!< The registered adjEntry arrays.
 
 	List<HiddenEdgeSet*> m_hiddenEdgeSets; //!< The list of hidden edges.
 
@@ -1127,7 +1157,7 @@ public:
 	 * @return the newly created edge.
 	 */
 	template<typename S, typename T>
-	edge newEdge(S src, Direction dirSrc, T tgt, Direction dirTgt, int index) {
+	edge newEdge(S src, Direction dirSrc, T tgt, Direction dirTgt, int index = -1) {
 		OGDF_ASSERT(src != nullptr);
 		OGDF_ASSERT(tgt != nullptr);
 		edge e = pureNewEdge(internal::adjToNode(src), internal::adjToNode(tgt), index);
@@ -1231,19 +1261,24 @@ public:
 		 */
 		void restore();
 
-		/**
-		 * Returns the number of edges contained in this set.
-		 */
+		//! Returns the number of edges contained in this set.
 		int size();
+
+		//! Checks whether this set is empty.
+		bool empty();
+
+		//! Return an iterator to the first hidden edge in this set.
+		internal::GraphList<EdgeElement>::iterator begin();
+
+		//! Return an iterator one past the last hidden edge in this set.
+		internal::GraphList<EdgeElement>::iterator end();
 
 	private:
 		internal::GraphList<EdgeElement> m_edges;
 		ListIterator<HiddenEdgeSet*> m_it;
 		Graph* m_graph;
 
-		// prevent copying
-		HiddenEdgeSet(const HiddenEdgeSet&);
-		HiddenEdgeSet& operator=(const HiddenEdgeSet&);
+		OGDF_NO_COPY(HiddenEdgeSet)
 	};
 
 	/**
@@ -1579,28 +1614,28 @@ public:
 	//! @{
 
 	//! Returns a reference to the registry of node arrays associated with this graph.
-	GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
+	internal::GraphNodeRegistry& nodeRegistry() { return m_regNodeArrays; }
 
 	//! Returns a const reference to the registry of node arrays associated with this graph.
-	const GraphNodeRegistry& nodeRegistry() const { return m_regNodeArrays; }
+	const internal::GraphNodeRegistry& nodeRegistry() const { return m_regNodeArrays; }
 
-	operator const GraphNodeRegistry&() const { return m_regNodeArrays; }
+	operator const internal::GraphNodeRegistry&() const { return m_regNodeArrays; }
 
 	//! Returns a reference to the registry of edge arrays associated with this graph.
-	GraphEdgeRegistry& edgeRegistry() { return m_regEdgeArrays; }
+	internal::GraphEdgeRegistry& edgeRegistry() { return m_regEdgeArrays; }
 
 	//! Returns a const reference to the registry of edge arrays associated with this graph.
-	const GraphEdgeRegistry& edgeRegistry() const { return m_regEdgeArrays; }
+	const internal::GraphEdgeRegistry& edgeRegistry() const { return m_regEdgeArrays; }
 
-	operator const GraphEdgeRegistry&() const { return m_regEdgeArrays; }
+	operator const internal::GraphEdgeRegistry&() const { return m_regEdgeArrays; }
 
 	//! Returns a reference to the registry of adjEntry arrays associated with this graph.
-	GraphAdjRegistry& adjEntryRegistry() { return m_regAdjArrays; }
+	internal::GraphAdjRegistry& adjEntryRegistry() { return m_regAdjArrays; }
 
 	//! Returns a const reference to the registry of adjEntry arrays associated with this graph.
-	const GraphAdjRegistry& adjEntryRegistry() const { return m_regAdjArrays; }
+	const internal::GraphAdjRegistry& adjEntryRegistry() const { return m_regAdjArrays; }
 
-	operator const GraphAdjRegistry&() const { return m_regAdjArrays; }
+	operator const internal::GraphAdjRegistry&() const { return m_regAdjArrays; }
 
 	//! Resets the edge id count to \p maxId.
 	/**

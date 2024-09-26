@@ -31,6 +31,7 @@
 
 
 #include <ogdf/basic/ArrayBuffer.h>
+
 #include <ogdf/external/Minisat.h>
 
 namespace Minisat {

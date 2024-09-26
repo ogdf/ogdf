@@ -37,8 +37,9 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/MaximumCPlanarSubgraph.h>
-#include <ogdf/external/abacus.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
+
+#include <ogdf/external/abacus.h>
 
 namespace ogdf {
 

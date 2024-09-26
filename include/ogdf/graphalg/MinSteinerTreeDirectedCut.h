@@ -43,11 +43,11 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/external/abacus.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
+#include <ogdf/external/abacus.h>
 #include <ogdf/lib/abacus/opensub.h>
 
 #include <memory>

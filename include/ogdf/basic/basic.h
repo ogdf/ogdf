@@ -82,6 +82,14 @@ class AssertionFailed : public std::runtime_error {
 #	endif
 #endif
 
+//! Single statement that will only be compiled if OGDF_DEBUG is defined.
+//! @ingroup macros
+#define OGDF_IF_DBG(x)
+#ifdef OGDF_DEBUG
+#	undef OGDF_IF_DBG
+#	define OGDF_IF_DBG(x) x
+#endif
+
 //! @}
 
 // g++ 4.8/4.9 does not have is_trivially_copyable,

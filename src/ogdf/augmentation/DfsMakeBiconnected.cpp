@@ -31,8 +31,8 @@
  */
 
 
-#include <ogdf/augmentation/DfsMakeBiconnected.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/augmentation/DfsMakeBiconnected.h>
 
 namespace ogdf {
 

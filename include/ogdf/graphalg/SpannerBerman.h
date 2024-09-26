@@ -33,8 +33,9 @@
 
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/external/coin.h>
 #include <ogdf/graphalg/SpannerModule.h>
+
+#include <ogdf/external/coin.h>
 
 #include <iomanip>
 

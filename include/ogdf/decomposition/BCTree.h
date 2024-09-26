@@ -665,4 +665,8 @@ private:
 	void initEdges();
 };
 
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const BCTree::BNodeType& obj);
+
+OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const BCTree::GNodeType& obj);
+
 }

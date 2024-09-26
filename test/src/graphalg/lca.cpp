@@ -36,6 +36,7 @@
 #include <sstream>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 static void trivial() {

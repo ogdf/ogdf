@@ -247,6 +247,9 @@ void testIntersection(int numLeaves, std::initializer_list<std::initializer_list
 }
 
 go_bandit([]() {
+#ifdef OGDF_DEBUG
+	PCTREE_DEBUG_CHECK_FREQ = 1;
+#endif
 	describe("PCTree", []() {
 		it("allows creating a trivial instance", []() {
 			std::vector<PCNode*> leaves;

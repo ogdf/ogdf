@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <coin/CoinPackedMatrix.hpp>
-
 #include <ogdf/basic/SubsetEnumerator.h>
-#include <ogdf/external/coin.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
+
+#include <ogdf/external/coin.h>
+#include <coin/CoinPackedMatrix.hpp>
 
 //#define OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
 //#define OGDF_STEINERTREE_LPRELAXATIONSER_OUTPUT_LP

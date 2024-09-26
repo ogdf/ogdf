@@ -32,6 +32,7 @@
 #include <ogdf/graphalg/Matching.h>
 
 #include <graphs.h>
+
 #include <testing.h>
 
 static std::vector<edge> getEdges(const Graph& graph, std::set<int>&& edgeIndices) {
