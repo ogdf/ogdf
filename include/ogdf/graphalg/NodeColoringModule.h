@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
@@ -211,20 +212,25 @@ protected:
 	/**
 	 * Checks if subgraph induced by the given nodes forms an independent set.
 	 *
-	 * @tparam LISTITERATOR The type of iterator for the node set
+	 * @tparam CONTAINER The type of container for the node set
 	 * @param graph The graph
 	 * @param nodes The subset of nodes
 	 * @return true, iff the subset is independent
 	 */
-	template<class LISTITERATOR>
-	bool checkIndependentSet(const Graph& graph, LISTITERATOR nodes) const {
-		Graph subGraph;
-		NodeArray<node> nodeTableOrig2New;
-		inducedSubGraph<LISTITERATOR>(graph, nodes, subGraph, nodeTableOrig2New);
-		if (subGraph.numberOfEdges() == 0) {
-			return true;
+	template<class CONTAINER>
+	bool checkIndependentSet(const Graph& graph, const CONTAINER& nodes) const {
+		NodeSet<false> nodeSet(graph);
+		for (node v : nodes) {
+			nodeSet.insert(v);
 		}
-		return false;
+		for (node v : nodes) {
+			for (adjEntry adj : v->adjEntries) {
+				if (nodeSet.isMember(adj->twinNode()) && adj->twinNode() != v) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -541,9 +547,10 @@ protected:
 		List<node> neighbors;
 		getNeighbors<ListIterator<node>>(graph, nodes.begin(), neighbors);
 		Graph subGraphNeighbors;
-		NodeArray<node> nodeTableOrig2NewNeighbors;
-		inducedSubGraph<ListIterator<node>>(graph, neighbors.begin(), subGraphNeighbors,
-				nodeTableOrig2NewNeighbors);
+		NodeArray<node> nodeTableOrig2NewNeighbors(graph, nullptr);
+		EdgeArray<edge> edgeTableOrig2NewNeighbors(graph, nullptr);
+		subGraphNeighbors.insert(neighbors, graph.edges, nodeTableOrig2NewNeighbors,
+				edgeTableOrig2NewNeighbors);
 		List<node> cliqueNeighbors;
 		List<node> independentSetNeighbors;
 		ramseyAlgorithm(subGraphNeighbors, cliqueNeighbors, independentSetNeighbors);
@@ -552,9 +559,10 @@ protected:
 		List<node> complementNeighbors;
 		getNeighborsComplement<ListIterator<node>>(graph, nodes.begin(), complementNeighbors);
 		Graph subGraphComplement;
-		NodeArray<node> nodeTableOrig2NewComplement;
-		inducedSubGraph<ListIterator<node>>(graph, complementNeighbors.begin(), subGraphComplement,
-				nodeTableOrig2NewComplement);
+		NodeArray<node> nodeTableOrig2NewComplement(graph, nullptr);
+		EdgeArray<edge> edgeTableOrig2NewComplement(graph, nullptr);
+		subGraphComplement.insert(complementNeighbors, graph.edges, nodeTableOrig2NewComplement,
+				edgeTableOrig2NewComplement);
 		List<node> cliqueComplement;
 		List<node> independentSetComplement;
 		ramseyAlgorithm(subGraphComplement, cliqueComplement, independentSetComplement);
@@ -623,7 +631,7 @@ protected:
 				independentSet = set;
 			}
 		}
-		OGDF_ASSERT(checkIndependentSet<ListIterator<node>>(graph, independentSet.begin()));
+		OGDF_ASSERT(checkIndependentSet(graph, independentSet));
 	}
 
 	/**

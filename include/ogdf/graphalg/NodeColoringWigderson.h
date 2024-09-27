@@ -345,9 +345,9 @@ private:
 			}
 			// Create subgraph
 			Graph subGraph;
-			NodeArray<node> nodeTableOrig2New;
-			inducedSubGraph<ListIterator<node>>(graphMain, neighbors.begin(), subGraph,
-					nodeTableOrig2New);
+			NodeArray<node> nodeTableOrig2New(graphMain, nullptr);
+			EdgeArray<edge> edgeTableOrig2New(graphMain, nullptr);
+			subGraph.insert(neighbors, graphMain.edges, nodeTableOrig2New, edgeTableOrig2New);
 			NodeArray<node> nodeTableNew2Orig;
 			reverseNodeTable(graphMain, subGraph, nodeTableOrig2New, nodeTableNew2Orig);
 			// Determine the original node degrees of the subgraph

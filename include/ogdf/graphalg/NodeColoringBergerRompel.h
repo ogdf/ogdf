@@ -206,7 +206,7 @@ private:
 						List<node> neighbors;
 						getNeighbors<ListIterator<node>>(gSubgraph, subset.begin(), neighbors);
 						auto numberNodesSubgraph = gSubgraph.numberOfNodes();
-						if (checkIndependentSet<ListIterator<node>>(gSubgraph, subset.begin())
+						if (checkIndependentSet(gSubgraph, subset)
 								&& neighbors.size()
 										<= (numberNodesSubgraph - numberNodesSubgraph / k)) {
 							// Color the nodes in the subset

@@ -130,7 +130,7 @@ private:
 		// Perform the recursive algorithm with the smallest possible parameter k
 		bool halldorssonResult = halldorssonRecursive(graph, independentSet, k, alpha);
 		OGDF_ASSERT(halldorssonResult);
-		OGDF_ASSERT(checkIndependentSet<ListIterator<node>>(graph, independentSet.begin()));
+		OGDF_ASSERT(checkIndependentSet(graph, independentSet));
 	}
 
 	/**
@@ -172,7 +172,7 @@ private:
 				auto subset = subsetIterator.currentSubset();
 
 				// Check if the subset is independent
-				if (checkIndependentSet<ListIterator<node>>(graphMain, subset.begin())) {
+				if (checkIndependentSet(graphMain, subset)) {
 					// Add the independent nodes to the result
 					for (node& w : subset) {
 						independentSet.emplaceBack(graphMain.original(w));
@@ -190,9 +190,10 @@ private:
 
 					// Determine the subgraph of the complement neighbors
 					Graph subGraph;
-					NodeArray<node> nodeTableOrig2New;
-					inducedSubGraph<ListIterator<node>>(graphMain, neighborsComplement.begin(),
-							subGraph, nodeTableOrig2New);
+					NodeArray<node> nodeTableOrig2New(graphMain, nullptr);
+					EdgeArray<edge> edgeTableOrig2New(graphMain, nullptr);
+					subGraph.insert(neighborsComplement, graphMain.edges, nodeTableOrig2New,
+							edgeTableOrig2New);
 					NodeArray<node> nodeTableNew2Orig;
 					reverseNodeTable(graphMain, subGraph, nodeTableOrig2New, nodeTableNew2Orig);
 
