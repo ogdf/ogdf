@@ -98,13 +98,12 @@ public:
 	 */
 	virtual bool checkColoring(const Graph& graph, const NodeArray<NodeColor>& colors) const {
 		OGDF_ASSERT(colors.graphOf() == &graph);
-		bool result = true;
 		for (edge e : graph.edges) {
-			if ((colors[e->source()] == colors[e->target()]) && (e->source() != e->target())) {
-				result = false;
+			if ((colors[e->source()] == colors[e->target()]) && !e->isSelfLoop()) {
+				return false;
 			}
 		}
-		return result;
+		return true;
 	}
 
 	/**
