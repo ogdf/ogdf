@@ -41,13 +41,14 @@ namespace ogdf {
  */
 class NodeColoringSimple : public NodeColoringModule {
 public:
-    virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors, NodeColor start = 0) override {
-        NodeColor numberColorsUsed = NodeColor(graph.numberOfNodes());
-        for (node v : graph.nodes) {
-            colors[v] = start++;
-        }
-        OGDF_ASSERT(checkColoring(graph, colors));
-        return numberColorsUsed;
-    }
+	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
+			NodeColor start = 0) override {
+		NodeColor numberColorsUsed = NodeColor(graph.numberOfNodes());
+		for (node v : graph.nodes) {
+			colors[v] = start++;
+		}
+		OGDF_ASSERT(checkColoring(graph, colors));
+		return numberColorsUsed;
+	}
 };
 }

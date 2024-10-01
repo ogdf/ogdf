@@ -43,46 +43,47 @@ namespace ogdf {
  */
 class NodeColoringBoppanaHalldorsson : public NodeColoringModule {
 public:
-    /**
-     * The constructor.
-     * Initializes the Ramsey-procedure with the smallest index procedure.
-     */
-    NodeColoringBoppanaHalldorsson() {
-        NodeColoringModule::m_ramseyProcedure = NodeColoringModule::RamseyProcedure::smallestDegree;
-    }
+	/**
+	 * The constructor.
+	 * Initializes the Ramsey-procedure with the smallest index procedure.
+	 */
+	NodeColoringBoppanaHalldorsson() {
+		NodeColoringModule::m_ramseyProcedure = NodeColoringModule::RamseyProcedure::smallestDegree;
+	}
 
-    /**
-     * Sets the Ramsey-procedure of findings nodes to a specific value.
-     * @param ramseyProcedure The given Ramsey-procedure.
-     */
-    void setRamseyProcedure(RamseyProcedure ramseyProcedure) {
-        NodeColoringModule::m_ramseyProcedure = ramseyProcedure;
-    }
+	/**
+	 * Sets the Ramsey-procedure of findings nodes to a specific value.
+	 * @param ramseyProcedure The given Ramsey-procedure.
+	 */
+	void setRamseyProcedure(RamseyProcedure ramseyProcedure) {
+		NodeColoringModule::m_ramseyProcedure = ramseyProcedure;
+	}
 
-    virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors, NodeColor start = 0) override {
-        NodeColor numberOfColorsUsed = 0;
-        // Copy the input graph
-        GraphCopy graphMain = GraphCopy(graph);
-        preprocessGraph(graphMain);
-        NodeArray<NodeColor> colorsMain(graphMain);
+	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
+			NodeColor start = 0) override {
+		NodeColor numberOfColorsUsed = 0;
+		// Copy the input graph
+		GraphCopy graphMain = GraphCopy(graph);
+		preprocessGraph(graphMain);
+		NodeArray<NodeColor> colorsMain(graphMain);
 
-        // Color each independent set until the graph is colored
-        while (!graphMain.empty()) {
-            List<node> ramseyClique;
-            List<node> ramseyIndependentSet;
-            ramseyAlgorithm(graphMain, ramseyClique, ramseyIndependentSet);
+		// Color each independent set until the graph is colored
+		while (!graphMain.empty()) {
+			List<node> ramseyClique;
+			List<node> ramseyIndependentSet;
+			ramseyAlgorithm(graphMain, ramseyClique, ramseyIndependentSet);
 
-            for (node& v : ramseyIndependentSet) {
-                colors[graphMain.original(v)] = start;
-                graphMain.delNode(v);
-            }
+			for (node& v : ramseyIndependentSet) {
+				colors[graphMain.original(v)] = start;
+				graphMain.delNode(v);
+			}
 
-            start++;
-            numberOfColorsUsed++;
-        }
+			start++;
+			numberOfColorsUsed++;
+		}
 
-        OGDF_ASSERT(checkColoring(graph, colors));
-        return numberOfColorsUsed;
-    }
+		OGDF_ASSERT(checkColoring(graph, colors));
+		return numberOfColorsUsed;
+	}
 };
 }
