@@ -66,7 +66,7 @@ public:
 
 		// Determine a list with decreasing degree nodes
 		nodes.clear();
-		for (int i = 0; i < nodesArray.size(); i++) {
+		for (i = 0; i < nodesArray.size(); i++) {
 			nodes.emplaceFront(nodesArray[i]);
 		}
 	}

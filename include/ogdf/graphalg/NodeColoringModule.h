@@ -273,9 +273,9 @@ protected:
 		buckets[numBuckets - 1] = Array<node>(size + graph.numberOfNodes() % size);
 		// Fill the buckets
 		unsigned int nodeIdx = 0;
-		for (auto node : graph.nodes) {
+		for (auto v : graph.nodes) {
 			unsigned int bucketIdx = min(numBuckets - 1, nodeIdx++ / size);
-			buckets[bucketIdx][num_elems[bucketIdx]++] = node;
+			buckets[bucketIdx][num_elems[bucketIdx]++] = v;
 		}
 	}
 
@@ -663,6 +663,7 @@ protected:
 				return k;
 			}
 		}
+		return end;
 	}
 
 	/**

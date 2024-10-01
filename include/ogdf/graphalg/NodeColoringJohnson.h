@@ -82,8 +82,8 @@ public:
 
 			// Store the degrees of the
 			NodeArray<int> degreesSubGraph(gSubgraph, 0);
-			for (auto node : gSubgraph.nodes) {
-				degreesSubGraph[node] = node->degree();
+			for (auto v : gSubgraph.nodes) {
+				degreesSubGraph[v] = v->degree();
 			}
 
 			// Color the next independent set
