@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
 
 namespace ogdf {
 
@@ -112,29 +113,7 @@ public:
 	 *
 	 * @param graph The graph to be preprocessed.
 	 */
-	virtual void preprocessGraph(Graph& graph) const {
-		// Remove self-loop edges
-		for (edge e : graph.edges) {
-			if (e->source() != nullptr && e->target() != nullptr && e->source() == e->target()) {
-				graph.delEdge(e);
-			}
-		}
-		// Remove redundant edges
-		for (node v : graph.nodes) {
-			NodeArray<bool> isMarked(graph, false);
-			List<edge> edgesToDelete;
-			for (adjEntry adj : v->adjEntries) {
-				node twinNode = adj->twinNode();
-				if (isMarked[twinNode]) {
-					edgesToDelete.emplaceBack(adj->theEdge());
-				}
-				isMarked[twinNode] = true;
-			}
-			for (edge e : edgesToDelete) {
-				graph.delEdge(e);
-			}
-		}
-	}
+	virtual void preprocessGraph(Graph& graph) const { makeSimpleUndirected(graph); }
 
 protected:
 	/// The RamseyProcedure to be used to select nodes.
