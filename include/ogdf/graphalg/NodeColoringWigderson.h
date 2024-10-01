@@ -129,6 +129,10 @@ public:
 
 	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
 			NodeColor start = 0) override {
+		if (graph.empty()) {
+			return 0;
+		}
+
 		// Copy the input graph
 		GraphCopy graphMain = GraphCopy(graph);
 		preprocessGraph(graphMain);
