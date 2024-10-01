@@ -142,10 +142,12 @@ public:
 				for (node v : nodes_to_delete) {
 					gSubgraph.delNode(v);
 				}
+
+				node minDegOrigNode = gSubgraph.original(minDegreeNode);
 				gSubgraph.delNode(minDegreeNode);
 
 				// Delete the already colored node from the graph
-				graphMain.delNode(graphMain.copy(gSubgraph.original(minDegreeNode)));
+				graphMain.delNode(graphMain.copy(minDegOrigNode));
 			}
 			// Increment the color the next independent set
 			numberColorsUsed++;

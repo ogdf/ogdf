@@ -214,17 +214,18 @@ private:
 								colors[gSubgraph.original(v)] = color;
 							}
 
-							// Delete nodes in the subgraph
 							List<node> nodesToDelete;
 							mergeNodeLists<ListIterator<node>>(gSubgraph, subset.begin(),
 									neighbors.begin(), nodesToDelete);
-							for (node v : nodesToDelete) {
-								gSubgraph.delNode(v);
-							}
 
 							// Delete the already colored nodes from the original graph
 							for (node v : subset) {
 								graphMain.delNode(graphMain.copy(gSubgraph.original(v)));
+							}
+
+							// Delete nodes in the subgraph
+							for (node v : nodesToDelete) {
+								gSubgraph.delNode(v);
 							}
 
 							finished = true;

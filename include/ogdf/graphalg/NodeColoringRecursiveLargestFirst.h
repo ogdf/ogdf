@@ -79,10 +79,12 @@ public:
 					}
 					gSubgraph.delNode(v);
 				}
+
+				node maxDegOrigNode = gSubgraph.original(maxDegreeNode);
 				gSubgraph.delNode(maxDegreeNode);
 
 				// Delete the already colored node from the graph
-				graphMain.delNode(graphMain.copy(gSubgraph.original(maxDegreeNode)));
+				graphMain.delNode(graphMain.copy(maxDegOrigNode));
 			}
 			// Increment the color the next independent set
 			numberColorsUsed++;
