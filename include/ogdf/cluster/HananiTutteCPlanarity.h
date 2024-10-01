@@ -33,6 +33,7 @@
 #pragma once
 
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterPlanarityModule.h>
 
 namespace ogdf {
 
@@ -41,7 +42,7 @@ namespace ogdf {
 /**
  * @ingroup ga-cplanarity
  */
-class HananiTutteCPlanarity {
+class OGDF_EXPORT HananiTutteCPlanarity : public ClusterPlanarityModule {
 	class CLinearSystem;
 	class CGraph;
 
@@ -95,11 +96,27 @@ public:
 		stCrossCluster
 	};
 
+	bool isClusterPlanar(const ClusterGraph& CG) override {
+		Verification res = isCPlanar(CG, true, false, Solver::HananiTutteVerify);
+		if (res == Verification::cPlanar || res == Verification::cPlanarVerified) {
+			return true;
+		} else if (res == Verification::nonCPlanarVerified) {
+			return false;
+		} else {
+			throw std::runtime_error("Could not solve instance!");
+		}
+	}
+
+	bool isClusterPlanarDestructive(ClusterGraph& CG, Graph& G) override {
+		return isClusterPlanar(CG);
+	}
+
 	Verification isCPlanar(const ClusterGraph& C, bool doPreproc = true, bool forceSolver = false,
 			Solver solver = Solver::HananiTutte);
 
 	Status status() const { return m_status; }
 
+	//! @sa ogdf::sync_plan::preprocessClusterGraph()
 	static void preprocessing(ClusterGraph& C, Graph& G);
 
 	int numNodesPreproc() const { return m_numNodesPreproc; }

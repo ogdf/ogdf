@@ -39,6 +39,8 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphObserver.h>
 
+#include "ogdf/basic/GraphCopy.h"
+
 namespace ogdf {
 
 using Math::nextPower2;
@@ -117,7 +119,7 @@ ClusterGraph& ClusterGraph::operator=(const ClusterGraph& C) {
 	return *this;
 }
 
-void ClusterGraph::constructClusterTree(const ClusterGraph& C, const Graph& G,
+void ClusterGraph::copyClusterTree(const ClusterGraph& C, const Graph& G,
 		ClusterArray<cluster>& originalClusterTable, std::function<node(node)> nodeMap) {
 	for (cluster c : C.clusters) {
 		if (c == C.m_rootCluster) {
@@ -139,8 +141,8 @@ void ClusterGraph::constructClusterTree(const ClusterGraph& C, const Graph& G,
 		}
 	}
 
-	for (node v : G.nodes) {
-		reassignNode(v, originalClusterTable[C.clusterOf(nodeMap(v))]);
+	for (node v : C.constGraph().nodes) {
+		reassignNode(nodeMap(v), originalClusterTable[C.clusterOf(v)]);
 	}
 
 	copyLCA(C);
@@ -157,7 +159,7 @@ void ClusterGraph::shallowCopy(const ClusterGraph& C) {
 	m_depthUpToDate = C.m_depthUpToDate;
 
 	ClusterArray<cluster> originalClusterTable(C);
-	constructClusterTree(C, G, originalClusterTable);
+	copyClusterTree(C, G, originalClusterTable);
 }
 
 // Initialize the graph
@@ -203,50 +205,31 @@ void ClusterGraph::reinitGraph(const Graph& G) {
 
 // Copy Function
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G) {
-	const Graph& cG = C; // original graph
-
 	ClusterArray<cluster> originalClusterTable(C);
-	NodeArray<node> originalNodeTable(cG);
-	EdgeArray<edge> edgeCopy(cG);
-
+	NodeArray<node> originalNodeTable(C.constGraph());
+	EdgeArray<edge> edgeCopy(C.constGraph());
 	deepCopy(C, G, originalClusterTable, originalNodeTable, edgeCopy);
 }
 
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable) {
-	const Graph& cG = C; // original graph
-
-	EdgeArray<edge> edgeCopy(cG);
+	EdgeArray<edge> edgeCopy(C.constGraph());
 	deepCopy(C, G, originalClusterTable, originalNodeTable, edgeCopy);
 }
 
 void ClusterGraph::deepCopy(const ClusterGraph& C, Graph& G,
 		ClusterArray<cluster>& originalClusterTable, NodeArray<node>& originalNodeTable,
 		EdgeArray<edge>& edgeCopy) {
-	G.clear();
-	resizeArrays(C.numberOfClusters() + 1);
-
-	const Graph& cG = C; // original graph
-	initGraph(G); //arrays have already to be initialized for newnode
-
 	m_updateDepth = C.m_updateDepth;
 	m_depthUpToDate = C.m_depthUpToDate;
-
-	NodeArray<node> orig(G);
-
-	for (node v : cG.nodes) {
-		node w = G.newNode();
-		orig[w] = v;
-		originalNodeTable[v] = w;
+	G.clear();
+	resizeArrays(C.numberOfClusters() + 1);
+	initGraph(G);
+	G.insert(C.constGraph(), originalNodeTable, edgeCopy);
+	if (!originalClusterTable.registeredAt()) {
+		originalClusterTable.init(C, nullptr);
 	}
-
-	for (edge e : cG.edges) {
-		edge eNew = G.newEdge(originalNodeTable[e->adjSource()->theNode()],
-				originalNodeTable[e->adjTarget()->theNode()]);
-		edgeCopy[e] = eNew;
-	}
-
-	constructClusterTree(C, G, originalClusterTable, orig);
+	copyClusterTree(C, G, originalClusterTable, originalNodeTable);
 }
 
 //We search for the lowest common cluster of a set of nodes.
@@ -541,7 +524,7 @@ cluster ClusterGraph::createEmptyCluster(const cluster parent, int clusterId) {
 	return cnew;
 }
 
-cluster ClusterGraph::createCluster(SList<node>& nodes, const cluster parent) {
+cluster ClusterGraph::createCluster(const SList<node>& nodes, const cluster parent) {
 	cluster c;
 	if (m_allowEmptyClusters) {
 		c = doCreateCluster(nodes, parent);
@@ -561,7 +544,7 @@ cluster ClusterGraph::createCluster(SList<node>& nodes, const cluster parent) {
 	return c;
 }
 
-cluster ClusterGraph::doCreateCluster(SList<node>& nodes, const cluster parent, int clusterId) {
+cluster ClusterGraph::doCreateCluster(const SList<node>& nodes, const cluster parent, int clusterId) {
 	if (nodes.empty()) {
 		return nullptr;
 	}
@@ -586,7 +569,7 @@ cluster ClusterGraph::doCreateCluster(SList<node>& nodes, const cluster parent, 
 	return cnew;
 }
 
-cluster ClusterGraph::doCreateCluster(SList<node>& nodes, SList<cluster>& emptyCluster,
+cluster ClusterGraph::doCreateCluster(const SList<node>& nodes, SList<cluster>& emptyCluster,
 		const cluster parent, int clusterId) {
 	// Even if m_allowEmptyClusters is set we check if a cluster
 	// looses all of its nodes and has
@@ -1123,7 +1106,6 @@ void ClusterGraph::consistencyCheck() const {
 }
 #endif
 
-
 bool ClusterGraph::representsCombEmbedding() const {
 	if (!m_adjAvailable) {
 		return false;
@@ -1131,8 +1113,21 @@ bool ClusterGraph::representsCombEmbedding() const {
 #ifdef OGDF_DEBUG
 	consistencyCheck();
 #endif
+	GraphCopySimple gcopy(constGraph());
+	gcopy.setOriginalEmbedding();
+	planarizeClusterBorderCrossings(*this, gcopy, nullptr,
+			[&gcopy](edge e) -> edge { return gcopy.copy(e); });
+	return gcopy.representsCombEmbedding();
+}
 
-	// FIXME this fails for disconnected graphs
+bool ClusterGraph::representsConnectedCombEmbedding() const {
+	if (!m_adjAvailable) {
+		return false;
+	}
+#ifdef OGDF_DEBUG
+	consistencyCheck();
+#endif
+
 	for (cluster c = firstPostOrderCluster(); c != m_rootCluster; c = c->pSucc()) {
 		for (auto it = c->adjEntries.begin(); it.valid(); it++) {
 			adjEntry adj = *it;
@@ -1173,6 +1168,13 @@ void ClusterGraph::registrationChanged(const ogdf::Graph* newG) {
 	}
 }
 
+cluster ClusterGraph::chooseCluster(std::function<bool(cluster)> includeCluster,
+		bool isFastTest) const {
+	return *chooseIteratorFrom<internal::GraphObjectContainer<ClusterElement>, cluster>(
+			const_cast<internal::GraphObjectContainer<ClusterElement>&>(clusters),
+			[&](const cluster& c) { return includeCluster(c); }, isFastTest);
+}
+
 std::ostream& operator<<(std::ostream& os, cluster c) {
 	if (c != nullptr) {
 		os << c->index();
@@ -1180,6 +1182,47 @@ std::ostream& operator<<(std::ostream& os, cluster c) {
 		os << "nil";
 	}
 	return os;
+}
+
+void planarizeClusterBorderCrossings(const ClusterGraph& CG, Graph& G,
+		EdgeArray<List<std::pair<adjEntry, cluster>>>* subdivisions,
+		const std::function<edge(edge)>& translate) {
+	OGDF_ASSERT(CG.adjAvailable());
+	for (cluster c = CG.firstPostOrderCluster(); c != CG.rootCluster(); c = c->pSucc()) {
+		adjEntry prev_ray = nullptr, first_ray = nullptr;
+		for (adjEntry adj : c->adjEntries) {
+			bool reverse = adj->isSource();
+			edge the_edge = translate(adj->theEdge());
+			if (reverse) {
+				G.reverseEdge(the_edge);
+			}
+			edge new_edge = G.split(the_edge);
+			adjEntry spike_to_src =
+					the_edge->adjTarget(); // adjacency of the new node toward the source of the_edge
+			if (subdivisions != nullptr) {
+				if (reverse) {
+					(*subdivisions)[adj->theEdge()].emplaceBack(spike_to_src, c);
+				} else {
+					(*subdivisions)[adj->theEdge()].emplaceFront(spike_to_src, c);
+				}
+			}
+			if (reverse) {
+				G.reverseEdge(the_edge);
+				G.reverseEdge(new_edge);
+			}
+
+			if (prev_ray != nullptr) {
+				G.newEdge(prev_ray, spike_to_src->cyclicPred());
+			}
+			prev_ray = spike_to_src;
+			if (first_ray == nullptr) {
+				first_ray = spike_to_src;
+			}
+		}
+		if (first_ray != nullptr) {
+			G.newEdge(prev_ray, first_ray->cyclicPred());
+		}
+	}
 }
 
 }

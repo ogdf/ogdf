@@ -1,5 +1,5 @@
 /** \file
- * \brief Implementation of class ClusterPlanarity.
+ * \brief Implementation of class ILPClusterPlanarity.
  *
  * \author Karsten Klein, Markus Chimani
  *
@@ -29,11 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/cluster/ClusterPlanarity.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterPlanarityModule.h>
+#include <ogdf/cluster/ILPClusterPlanarity.h>
 
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 #	include <ogdf/fileformats/GraphIO.h>
@@ -45,12 +48,12 @@ namespace ogdf {
 
 using namespace cluster_planarity;
 
-bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG) {
+bool ILPClusterPlanarity::isClusterPlanar(const ClusterGraph& CG) {
 	NodePairs addedEdges;
 	return isClusterPlanar(CG, addedEdges);
 }
 
-bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedEdges) {
+bool ILPClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedEdges) {
 	m_optStatus = Master::Optimal;
 	// We first check if there is more to do then just checking planarity on the
 	// input graph.
@@ -235,12 +238,12 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph& CG, NodePairs& addedE
 	return result;
 }
 
-bool ClusterPlanarity::doTest(const ClusterGraph& CG) {
+bool ILPClusterPlanarity::doTest(const ClusterGraph& CG) {
 	NodePairs addEdges;
 	return doTest(CG, addEdges);
 }
 
-bool ClusterPlanarity::doTest(const ClusterGraph& G, NodePairs& addedEdges) {
+bool ILPClusterPlanarity::doTest(const ClusterGraph& G, NodePairs& addedEdges) {
 #if 0
 	if (m_solmeth==sm_new) {
 		return doFastTest(G,addedEdges);
@@ -337,7 +340,7 @@ bool ClusterPlanarity::doTest(const ClusterGraph& G, NodePairs& addedEdges) {
 }
 
 //returns list of all clusters in subtree at c in bottom up order
-void ClusterPlanarity::getBottomUpClusterList(const cluster c, List<cluster>& theList) {
+void ILPClusterPlanarity::getBottomUpClusterList(const cluster c, List<cluster>& theList) {
 	for (cluster cc : c->children) {
 		getBottomUpClusterList(cc, theList);
 	}
@@ -345,7 +348,7 @@ void ClusterPlanarity::getBottomUpClusterList(const cluster c, List<cluster>& th
 }
 
 //outputs the set of feasible solutions
-void ClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& master,
+void ILPClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& master,
 		Master::STATUS& status) {
 	const ClusterGraph& CG = *(master.getClusterGraph());
 	const Graph& G = CG.constGraph();
@@ -694,7 +697,7 @@ void ClusterPlanarity::writeFeasible(const char* filename, CP_MasterBase& master
 #endif
 }
 
-void ClusterPlanarity::outputCons(std::ofstream& os, StandardPool<Constraint, Variable>* connCon,
+void ILPClusterPlanarity::outputCons(std::ofstream& os, StandardPool<Constraint, Variable>* connCon,
 		StandardPool<Variable, Constraint>* stdVar) {
 	int i;
 	for (i = 0; i < connCon->number(); i++) {
@@ -729,6 +732,27 @@ void ClusterPlanarity::outputCons(std::ofstream& os, StandardPool<Constraint, Va
 		os << mycon->rhs();
 		os << "\n";
 	}
+}
+
+bool ILPClusterPlanarity::clusterPlanarEmbedClusterPlanarGraph(ogdf::ClusterGraph& CG,
+		ogdf::Graph& G) {
+	NodePairs addedEdges;
+	if (!isClusterPlanar(CG, addedEdges)) {
+		return false;
+	}
+	std::vector<edge> edges;
+	edges.reserve(addedEdges.size());
+	for (auto np : addedEdges) {
+		edges.push_back(G.newEdge(np.source, np.target));
+	}
+	CconnectClusterPlanarityModule ccon;
+	if (!ccon.clusterPlanarEmbedClusterPlanarGraph(CG, G)) {
+		throw std::runtime_error("Augmentation edges are non-cplanar!");
+	}
+	for (edge e : edges) {
+		G.delEdge(e);
+	}
+	return true;
 }
 
 }

@@ -86,7 +86,7 @@ public:
 	edge getIncidentEdgeForLeaf(PCNode* n) const { return m_incidentEdgeForLeaf[n]; }
 
 	/**
-	 * This is only needed so that PQPlanarity::propagatePQ can fix its mapping when propagating into an adjacent cut.
+	 * This is only needed so that SyncPlan::propagatePQ can fix its mapping when propagating into an adjacent cut.
 	 * This method is thus considered internal.
 	 */
 	void setIncidentEdgeForLeaf(PCNode* n, edge e) { m_incidentEdgeForLeaf[n] = e; }
