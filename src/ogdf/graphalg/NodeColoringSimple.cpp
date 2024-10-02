@@ -1,6 +1,5 @@
 /** \file
- * \brief Applies the node coloring heuristic "Recursive Largest First"
- * specified by Leighton (1979).
+ * \brief Trivial node coloring which assigns every node a different color.
  *
  * \author Jan-Niklas Buckow
  *
@@ -30,28 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#pragma once
-
-#include <ogdf/graphalg/NodeColoringModule.h>
+#include <ogdf/graphalg/NodeColoringSimple.h>
 
 namespace ogdf {
 
-/**
- * A simple greedy node coloring heuristic in graphs. It colors one node
- * after another by preferring nodes with a large degree.
- */
-class OGDF_EXPORT NodeColoringRecursiveLargestFirst : public NodeColoringModule {
-public:
-	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
-			NodeColor start = 0) override;
+using NColor = NodeColoringModule::NodeColor;
 
-private:
-	/**
-	 * Searches a node candidate for the next coloring step
-	 * @param candidate The resulting node candidate
-	 * @param degreesUnavailable The degrees to the unavailable nodes
-	 * @param graph The graph of the nodes
-	 */
-	void getCandidate(node& candidate, NodeArray<int>& degreesUnavailable, Graph& graph);
-};
+NColor NodeColoringSimple::call(const Graph& graph, NodeArray<NColor>& colors, NColor start) {
+	NColor numberColorsUsed = NColor(graph.numberOfNodes());
+	for (node v : graph.nodes) {
+		colors[v] = start++;
+	}
+	OGDF_ASSERT(checkColoring(graph, colors));
+	return numberColorsUsed;
+}
+
 }

@@ -29,36 +29,38 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#pragma once
-
-#include <ogdf/graphalg/NodeColoringModule.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/graphalg/NodeColoringBoppanaHalldorsson.h>
 
 namespace ogdf {
 
-/**
- * Approximation algorithms for the node coloring problem in graphs.
- * This class implements the approximation given by Boppana&Halldorsson
- * which colors the graph by finding independent sets with the Ramsey-algorithm.
- */
-class OGDF_EXPORT NodeColoringBoppanaHalldorsson : public NodeColoringModule {
-public:
-	/**
-	 * The constructor.
-	 * Initializes the Ramsey-procedure with the smallest index procedure.
-	 */
-	NodeColoringBoppanaHalldorsson() {
-		NodeColoringModule::m_ramseyProcedure = NodeColoringModule::RamseyProcedure::smallestDegree;
+using NColor = NodeColoringModule::NodeColor;
+
+NColor NodeColoringBoppanaHalldorsson::call(const Graph& graph, NodeArray<NColor>& colors,
+		NColor start) {
+	NColor numberOfColorsUsed = 0;
+	// Copy the input graph
+	GraphCopy graphMain = GraphCopy(graph);
+	preprocessGraph(graphMain);
+	NodeArray<NColor> colorsMain(graphMain);
+
+	// Color each independent set until the graph is colored
+	while (!graphMain.empty()) {
+		List<node> ramseyClique;
+		List<node> ramseyIndependentSet;
+		ramseyAlgorithm(graphMain, ramseyClique, ramseyIndependentSet);
+
+		for (node& v : ramseyIndependentSet) {
+			colors[graphMain.original(v)] = start;
+			graphMain.delNode(v);
+		}
+
+		start++;
+		numberOfColorsUsed++;
 	}
 
-	/**
-	 * Sets the Ramsey-procedure of findings nodes to a specific value.
-	 * @param ramseyProcedure The given Ramsey-procedure.
-	 */
-	inline void setRamseyProcedure(RamseyProcedure ramseyProcedure) {
-		NodeColoringModule::m_ramseyProcedure = ramseyProcedure;
-	}
+	OGDF_ASSERT(checkColoring(graph, colors));
+	return numberOfColorsUsed;
+}
 
-	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
-			NodeColor start = 0) override;
-};
 }

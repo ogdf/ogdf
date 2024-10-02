@@ -39,16 +39,9 @@ namespace ogdf {
  * Approximation algorithms for the node coloring problem in graphs.
  * This is the trivial coloring which assigns every node a different color.
  */
-class NodeColoringSimple : public NodeColoringModule {
+class OGDF_EXPORT NodeColoringSimple : public NodeColoringModule {
 public:
 	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
-			NodeColor start = 0) override {
-		NodeColor numberColorsUsed = NodeColor(graph.numberOfNodes());
-		for (node v : graph.nodes) {
-			colors[v] = start++;
-		}
-		OGDF_ASSERT(checkColoring(graph, colors));
-		return numberColorsUsed;
-	}
+			NodeColor start = 0) override;
 };
 }

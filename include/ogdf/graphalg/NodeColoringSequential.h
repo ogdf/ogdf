@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/graphalg/NodeColoringModule.h>
 
 namespace ogdf {
@@ -41,7 +40,7 @@ namespace ogdf {
  * This class applies the sequential coloring algorithm which greedily
  * assigns to each node the first available color.
  */
-class NodeColoringSequential : public NodeColoringModule {
+class OGDF_EXPORT NodeColoringSequential : public NodeColoringModule {
 public:
 	virtual NodeColor call(const Graph& graph, NodeArray<NodeColor>& colors,
 			NodeColor start = 0) override {
@@ -52,24 +51,7 @@ public:
 	 * Sorts a list of nodes decreasingly by the degree.
 	 * @param nodes List of nodes to be sorted.
 	 */
-	virtual void sortByDegree(List<node>& nodes) {
-		// Store all nodes in an array
-		Array<node> nodesArray(nodes.size());
-		int i = 0;
-		for (node v : nodes) {
-			nodesArray[i++] = v;
-		}
-
-		// Sort the nodes increasing with the degree
-		NodeDegreeComparer comparer;
-		nodesArray.quicksort(comparer);
-
-		// Determine a list with decreasing degree nodes
-		nodes.clear();
-		for (i = 0; i < nodesArray.size(); i++) {
-			nodes.emplaceFront(nodesArray[i]);
-		}
-	}
+	virtual void sortByDegree(List<node>& nodes);
 
 	/**
 	 * Performs the sequential nodes coloring.
@@ -81,20 +63,7 @@ public:
 	 * @return The number of colors used
 	 */
 	virtual NodeColor colorByIndex(const Graph& graph, NodeArray<NodeColor>& colors,
-			NodeColor start = 0) {
-		// Store all nodes in an array
-		List<node> nodesList;
-		for (node v : graph.nodes) {
-			nodesList.emplaceBack(v);
-		}
-
-		// Perform the sequential coloring with the given permutation
-		auto numberColors = fromPermutation(graph, colors, nodesList, start);
-
-		// Check the resulting coloring
-		OGDF_ASSERT(checkColoring(graph, colors));
-		return numberColors;
-	}
+			NodeColor start = 0);
 
 	/**
 	 * Performs the sequential nodes coloring.
@@ -106,23 +75,7 @@ public:
 	 * @return The number of colors used
 	 */
 	virtual NodeColor colorByDegree(const Graph& graph, NodeArray<NodeColor>& colors,
-			NodeColor start = 0) {
-		// Store all nodes in a list
-		List<node> nodesList;
-		for (node v : graph.nodes) {
-			nodesList.emplaceBack(v);
-		}
-
-		// Sort the node list decreasingly by the degree
-		sortByDegree(nodesList);
-
-		// Perform the sequential coloring with the given permutation
-		auto numberColors = fromPermutation(graph, colors, nodesList, start);
-
-		// Check the resulting coloring
-		OGDF_ASSERT(checkColoring(graph, colors));
-		return numberColors;
-	}
+			NodeColor start = 0);
 
 	/**
 	 * Colors a graph with the sequential coloring algorithm from a given node permutation.
@@ -134,83 +87,7 @@ public:
 	 * @return The number of colors used
 	 */
 	virtual NodeColor fromPermutation(const Graph& graph, NodeArray<NodeColor>& colors,
-			List<node>& nodePermutation, NodeColor start = 0, bool lookForNeighbors = false) {
-		// Copy the graph
-		GraphCopy graphMain = GraphCopy(graph);
-		preprocessGraph(graphMain);
-
-		// Create a node table
-		NodeArray<node> nodeTableOrig2New(graph);
-		for (node vNew : graphMain.nodes) {
-			node vOrig = graphMain.original(vNew);
-			nodeTableOrig2New[vOrig] = vNew;
-		}
-
-		// Vector to store the neighbor colors
-		std::vector<NodeColor> neighborColors;
-		neighborColors.reserve(graphMain.numberOfNodes());
-
-		// Vector to store which of the neighbor colors are already used
-		std::vector<bool> isUsed;
-		isUsed.reserve(graphMain.numberOfNodes() + 1);
-
-		// Store the biggest color used
-		NodeColor biggestColor = NodeColor(0);
-
-		// Mark every node as uncolored
-		NodeArray<bool> isColored(graphMain, false);
-		if (lookForNeighbors) {
-			isColored = NodeArray<bool>(graphMain, true);
-			for (node vOrig : nodePermutation) {
-				isColored[nodeTableOrig2New[vOrig]] = false;
-			}
-		}
-
-		// Process the nodes in the given order
-		for (node vOrig : nodePermutation) {
-			OGDF_ASSERT(vOrig->graphOf() == &graph);
-			node vNew = nodeTableOrig2New[vOrig];
-
-			// Check if the node is already colored
-			if (isColored[vNew]) {
-				continue;
-			}
-
-			// Get the colors of the neighbors
-			neighborColors.clear();
-			for (adjEntry adj : vNew->adjEntries) {
-				node w = adj->twinNode();
-				if (isColored[w]) {
-					NodeColor neighborColor = colors[graphMain.original(w)] - start;
-					neighborColors.push_back(neighborColor);
-				}
-			}
-
-			// Find the smallest unused color index
-			isUsed.clear();
-			isUsed.resize(neighborColors.size() + 1, false);
-			for (NodeColor color = NodeColor(0); color < neighborColors.size(); color++) {
-				if (neighborColors[color] <= neighborColors.size()) {
-					isUsed[neighborColors[color]] = true;
-				}
-			}
-
-			unsigned int smallestColorIndex;
-			for (smallestColorIndex = NodeColor(0); smallestColorIndex < isUsed.size();
-					smallestColorIndex++) {
-				if (!isUsed[smallestColorIndex]) {
-					break;
-				}
-			}
-
-			// Assign an not conflicted color to the node
-			colors[graphMain.original(vNew)] = smallestColorIndex + start;
-			isColored[vNew] = true;
-			biggestColor = std::max(biggestColor, smallestColorIndex + 1);
-		}
-		OGDF_ASSERT(checkColoring(graph, colors));
-		return biggestColor;
-	}
+			List<node>& nodePermutation, NodeColor start = 0, bool lookForNeighbors = false);
 
 private:
 	/**
