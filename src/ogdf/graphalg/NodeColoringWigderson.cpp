@@ -173,6 +173,8 @@ bool NodeColoringWigderson::wigdersonRecursive(const Graph& graph, NodeArray<NCo
 			} else if (m_maxDegreeProcedure == MaxDegreeProcedure::minDegreeOriginal
 					|| m_maxDegreeProcedure == MaxDegreeProcedure::maxDegreeOriginal) {
 				extremalDegree = degreesOriginal[graphMain.original(maxDegreeNode)];
+			} else { // MaxDegreeProcedure::min/maxDegreeNeighbors
+				extremalDegree = getNeighborDegrees(maxDegreeNode);
 			}
 			for (node v : maxDegreeNodes) {
 				int degreeRecursiveGraph = graphMain.original(v)->degree();
