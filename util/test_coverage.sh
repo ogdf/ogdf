@@ -51,10 +51,11 @@ export LLVM_PROFILE_FILE="$(realpath build-coverage/profraw)/%p.profraw"
 util/run_examples.sh
 util/perform_separate_tests.sh build-coverage
 echo "::group::($(date -Iseconds)) Collect coverage"
+tests=$(printf -- "-object %s " build-coverage/test/bin/test-*)
 llvm-profdata merge  -sparse build-coverage/profraw/*.profraw -o coverage/coverage.profdata
-llvm-cov show --format=text build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
+llvm-cov show --format=text $tests -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
 # llvm-cov show --format=html build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.html
-llvm-cov export build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.json
-llvm-cov export --format=lcov build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.lcov
-llvm-cov report build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/report.txt
+llvm-cov export $tests -instr-profile=coverage/coverage.profdata > coverage/coverage.json
+llvm-cov export --format=lcov $tests -instr-profile=coverage/coverage.profdata > coverage/coverage.lcov
+llvm-cov report $tests -instr-profile=coverage/coverage.profdata > coverage/report.txt
 echo "::endgroup::"
