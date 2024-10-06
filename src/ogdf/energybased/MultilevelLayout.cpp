@@ -29,10 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/energybased/MultilevelLayout.h>
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
+#include <ogdf/packing/ComponentSplitterLayout.h>
 
 namespace ogdf {
+class GraphAttributes;
+class InitialPlacer;
+class LayoutModule;
+class MultilevelBuilder;
 
 //! Sets the single level layout
 void MultilevelLayout::setLayout(LayoutModule* L) { m_mixer->setLevelLayoutModule(L); }

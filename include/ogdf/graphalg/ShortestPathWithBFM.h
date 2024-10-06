@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/graphalg/ShortestPathModule.h>
 
 namespace ogdf {

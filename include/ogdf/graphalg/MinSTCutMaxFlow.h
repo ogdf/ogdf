@@ -31,12 +31,23 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinSTCutModule.h>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 
 namespace ogdf {
+template<typename T>
+class MaxFlowModule;
 
 /**
  * Min-st-cut algorithm, that calculates the cut via maxflow.

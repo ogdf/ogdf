@@ -32,16 +32,28 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 
-#include <sstream>
+#include <cctype>
+#include <cstdint>
+#include <fstream>
+#include <functional>
+#include <string>
+#include <type_traits>
 #include <unordered_map>
+#include <vector>
 
 namespace ogdf {
-
+class GridLayout;
+template<typename T>
+class EdgeWeightedGraph;
 
 //! Utility class providing graph I/O in various exchange formats.
 /**

@@ -35,10 +35,16 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
-#include <ogdf/energybased/davidson_harel/UniformGrid.h>
+
+namespace ogdf::davidson_harel {
+class UniformGrid;
+} // namespace ogdf::davidson_harel
 
 namespace ogdf {
+class GraphAttributes;
+
 namespace davidson_harel {
 
 class PlanarityGrid : public EnergyFunction {

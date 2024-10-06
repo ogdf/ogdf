@@ -31,13 +31,11 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
 #include <ogdf/decomposition/StaticSPQRTree.h>
 
 namespace ogdf {
-
-template<class A, class B>
-class Tuple2;
 
 //! SPQR-trees of planar graphs.
 /**

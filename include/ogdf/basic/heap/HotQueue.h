@@ -31,8 +31,10 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
-#include <functional>
+#include <cstddef>
+#include <iterator>
 #include <limits>
 #include <utility>
 #include <vector>
@@ -120,6 +122,7 @@ template<typename V, typename P, template<typename T, typename C> class H>
 class HotQueue {
 private:
 	struct HeapComparator;
+
 	using HeapHandle = typename H<std::pair<V, P>, HeapComparator>::Handle;
 
 	std::size_t m_size; //!< Number of total elements in the heap.

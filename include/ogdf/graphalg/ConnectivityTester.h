@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MaxFlowModule.h>
 

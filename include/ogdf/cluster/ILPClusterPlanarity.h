@@ -32,13 +32,24 @@
 
 #pragma once
 
-#include <ogdf/basic/Module.h>
-#include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Stopwatch.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterPlanarityModule.h>
+#include <ogdf/cluster/internal/CP_MasterBase.h>
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
 
 #include <ogdf/external/abacus.h>
+
+#include <cstdint>
+#include <iosfwd>
+#include <string>
+
+namespace abacus {
+template<class BaseType, class CoType>
+class StandardPool;
+} // namespace abacus
 
 namespace ogdf {
 

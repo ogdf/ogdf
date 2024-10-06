@@ -37,10 +37,31 @@
 #pragma once
 
 #include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Stopwatch.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
+
+#include <ogdf/external/abacus.h>
+
+#include <cstdint>
+#include <string>
+
+namespace abacus {
+class Constraint;
+class Sub;
+class Variable;
+template<class BaseType, class CoType>
+class StandardPool;
+} // namespace abacus
+
+namespace ogdf::cluster_planarity {
+class ChunkConnection;
+} // namespace ogdf::cluster_planarity
 
 namespace ogdf {
 namespace cluster_planarity {

@@ -32,10 +32,13 @@
 
 #pragma once
 
-#include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/basic/Graph.h>
 
 namespace ogdf {
-
+class ShellingOrder;
+class ShellingOrderSet;
+template<class E>
+class List;
 
 /**
  * \brief Base class for modules that compute a shelling order of a graph.

@@ -35,13 +35,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/ClusterAnalysis.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
 #include <ogdf/cluster/internal/CPlanaritySub.h>
 #include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/fileformats/GraphIO.h>
+
+#include <ogdf/external/abacus.h>
+
+#include <fstream>
+#include <iostream>
+#include <string>
+
+namespace abacus {
+class Sub;
+class Variable;
+} // namespace abacus
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

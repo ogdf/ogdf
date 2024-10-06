@@ -38,18 +38,19 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pqtree/PQNodeRoot.h>
 
 namespace ogdf {
 
 template<class T, class X, class Y>
-class PQTree;
+class PQInternalKey;
 template<class T, class X, class Y>
 class PQLeafKey;
 template<class T, class X, class Y>
 class PQNodeKey;
 template<class T, class X, class Y>
-class PQInternalKey;
+class PQTree;
 
 template<class T, class X, class Y>
 class PQNode : public PQNodeRoot {

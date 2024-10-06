@@ -31,8 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunctional.h>
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+
+#include <algorithm>
+#include <cstdint>
 
 #define OGDF_LQ_M2L_MIN_BOUND 8
 #define OGDF_LQ_WSPD_BRANCH_BOUND 16
@@ -41,7 +45,6 @@
 namespace ogdf {
 namespace fast_multipole_embedder {
 
-class LinearQuadtreeBuilder;
 class WSPD;
 
 class LinearQuadtree {

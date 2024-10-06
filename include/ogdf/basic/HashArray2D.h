@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/HashIterator2D.h>
+#include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/tuples.h>
 
 namespace ogdf {

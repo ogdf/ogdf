@@ -31,12 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/augmentation/planar/PALabel.h>
-#include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
+class CombinatorialEmbedding;
+class DynamicBCTree;
 
 /**
  * The algorithm for biconnectivity augmentation with fixed combinatorial embedding.

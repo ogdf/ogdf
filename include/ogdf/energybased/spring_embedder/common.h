@@ -31,8 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/geometry.h>
+
+#include <cmath>
 
 namespace ogdf {
 namespace spring_embedder {

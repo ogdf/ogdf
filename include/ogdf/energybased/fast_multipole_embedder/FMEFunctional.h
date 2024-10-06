@@ -33,7 +33,8 @@
 
 #include <ogdf/basic/basic.h> // IWYU pragma: keep
 
-#include <stdint.h>
+#include <algorithm>
+#include <cstdint>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

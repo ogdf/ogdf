@@ -32,13 +32,27 @@
 
 #pragma once
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/decomposition/SPQRTree.h>
+#include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/graphalg/MinSTCutBFS.h>
 #include <ogdf/graphalg/MinSTCutDijkstra.h>
 
+#include <utility>
+
 namespace ogdf {
+template<typename TCost>
+class MinSTCutModule;
 
 //! Non-planar core reduction.
 /**

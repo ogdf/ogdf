@@ -31,9 +31,10 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/heap/HeapBase.h>
 
-#include <functional>
+#include <cstddef>
 
 namespace ogdf {
 

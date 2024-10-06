@@ -32,7 +32,8 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/basic/pctree/PCRegistry.h>
@@ -40,10 +41,18 @@
 #include <ogdf/basic/pctree/PCTreeIterators.h>
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 
-#include <deque>
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <iterator>
 #include <list>
 #include <sstream>
+#include <string>
 #include <vector>
+
+namespace ogdf {
+class GraphAttributes;
+} // namespace ogdf
 
 namespace ogdf::pc_tree {
 /**

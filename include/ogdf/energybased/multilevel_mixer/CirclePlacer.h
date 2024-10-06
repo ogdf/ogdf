@@ -31,9 +31,11 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
 
 namespace ogdf {
+class MultilevelGraph;
 
 //! The circle placer for multilevel layout.
 /**

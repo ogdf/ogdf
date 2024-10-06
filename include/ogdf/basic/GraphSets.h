@@ -34,6 +34,10 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h> // IWYU pragma: keep
 #include <ogdf/basic/RegisteredSet.h>
+#include <ogdf/basic/basic.h>
+
+#include <iterator>
+#include <utility>
 
 namespace ogdf {
 

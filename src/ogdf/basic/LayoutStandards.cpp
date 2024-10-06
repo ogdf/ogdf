@@ -31,6 +31,7 @@
  */
 
 #include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/graphics.h>
 
 namespace ogdf {
 

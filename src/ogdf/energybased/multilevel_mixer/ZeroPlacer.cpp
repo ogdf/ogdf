@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/energybased/multilevel_mixer/ZeroPlacer.h>
+
+#include <vector>
 
 namespace ogdf {
 

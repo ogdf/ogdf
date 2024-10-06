@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
-
 namespace ogdf {
+class Graph;
 
 //! %Module for planarity testing and planar embeddings.
 /**

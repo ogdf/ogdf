@@ -32,9 +32,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Module.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
 
 namespace ogdf {
+template<class E>
+class List;
 
 //! Dummy implementation for maximum planar subgraph that returns an empty graph.
 /**

@@ -31,10 +31,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/upward/LayerBasedUPRLayout.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
+#include <ogdf/upward/UPRLayoutModule.h>
 #include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/upward/UpwardPlanarizerModule.h>
+
+#include <memory>
 
 namespace ogdf {
 

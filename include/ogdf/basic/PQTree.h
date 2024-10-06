@@ -38,12 +38,10 @@
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/internal/config_autogen.h>
-#include <ogdf/basic/pqtree/PQInternalKey.h>
 #include <ogdf/basic/pqtree/PQInternalNode.h>
 #include <ogdf/basic/pqtree/PQLeaf.h>
 #include <ogdf/basic/pqtree/PQLeafKey.h> // IWYU pragma: keep
 #include <ogdf/basic/pqtree/PQNode.h>
-#include <ogdf/basic/pqtree/PQNodeKey.h>
 #include <ogdf/basic/pqtree/PQNodeRoot.h>
 
 #include <fstream>

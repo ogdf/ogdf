@@ -30,11 +30,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/LayoutStatistics.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/basic/SortedSequence.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
 
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <limits>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 
 using std::unordered_map;
@@ -302,8 +316,8 @@ struct DSegmentHash {
 };
 
 
-struct SeqItemY;
 struct SeqItemXY;
+struct SeqItemY;
 
 using XSequence = SortedSequence<DPointHandle, SeqItemY, EventCmp>;
 using YSequence = SortedSequence<DSegmentHandle, SeqItemXY, SweepCmp>;

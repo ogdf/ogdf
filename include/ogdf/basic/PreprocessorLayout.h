@@ -31,11 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelLayoutModule.h>
 
 #include <memory>
+#include <vector>
 
 namespace ogdf {
+class Graph;
+class GraphAttributes;
+class MultilevelGraph;
 
 /** \brief The PreprocessorLayout removes multi-edges and self-loops.
  *

@@ -37,11 +37,14 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/planarlayout/GridLayoutModule.h>
 
 #include <functional>
 #include <memory>
 #include <utility>
+
+namespace ogdf {
+class PlanarGridLayoutModule;
+} // namespace ogdf
 
 namespace ogdf::sync_plan {
 class SyncPlan;

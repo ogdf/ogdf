@@ -35,19 +35,18 @@
 #define OGDF_MINCUTNI_PRTHR 100
 #define OGDF_MINCUTNI_CLUSTERSIZE 10
 
-#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MinimumCutModule.h>
 
-#include <queue>
-#include <unordered_map>
+#include <algorithm>
 #include <unordered_set>
+#include <vector>
 
 namespace ogdf {
 

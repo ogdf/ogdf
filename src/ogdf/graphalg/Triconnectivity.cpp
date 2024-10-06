@@ -31,9 +31,21 @@
  */
 
 
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/Triconnectivity.h>
+
+#include <algorithm>
+#include <iostream>
+#include <vector>
 
 // #define OGDF_TRICONNECTIVITY_OUTPUT
 

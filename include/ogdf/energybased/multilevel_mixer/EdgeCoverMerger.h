@@ -31,9 +31,11 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 
 namespace ogdf {
+class MultilevelGraph;
 
 //! The edge cover merger for multilevel layout.
 /**

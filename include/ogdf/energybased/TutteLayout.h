@@ -31,13 +31,19 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
 
 #include <ogdf/external/coin.h>
-#include <coin/CoinPackedMatrix.hpp>
+
+class CoinPackedMatrix;
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class List;
 
 //! Tutte's layout algorithm.
 /**

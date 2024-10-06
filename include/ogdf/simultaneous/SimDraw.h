@@ -31,8 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
+
+#include <memory>
+#include <string>
 
 namespace ogdf {
 

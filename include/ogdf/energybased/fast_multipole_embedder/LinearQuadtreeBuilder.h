@@ -34,6 +34,8 @@
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 #include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
 
+#include <cstdint>
+
 namespace ogdf {
 namespace fast_multipole_embedder {
 

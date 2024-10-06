@@ -31,9 +31,21 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/layered/CrossingMinInterfaces.h>
+#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/lpsolver/LPSolver.h>
+
+#include <cmath>
 
 namespace ogdf {
 

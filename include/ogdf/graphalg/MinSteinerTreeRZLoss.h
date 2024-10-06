@@ -32,16 +32,33 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SubsetEnumerator.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentDecisions.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorCaller.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagnerWithoutMatrix.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 #include <ogdf/graphalg/steiner_tree/SaveStatic.h>
+#include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 
+#include <algorithm>
 #include <memory>
 #include <set>
+#include <vector>
+
+namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
+} // namespace ogdf
 
 #define OGDF_STEINERTREE_RZLOSS_REDUCE_ON
 
@@ -63,6 +80,7 @@ class MinSteinerTreeRZLoss : public MinSteinerTreeModule<T> {
 	int m_restricted;
 
 	class Main;
+
 	std::unique_ptr<Main> m_alg;
 
 public:

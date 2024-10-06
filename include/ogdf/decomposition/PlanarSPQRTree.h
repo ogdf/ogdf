@@ -31,9 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/decomposition/SPQRTree.h>
 
 namespace ogdf {
+class Skeleton;
+template<class E>
+class SListPure;
 
 //! SPQR-trees of planar graphs.
 /**

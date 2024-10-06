@@ -29,6 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/planarlayout/ShellingOrder.h>
 #include <ogdf/planarlayout/ShellingOrderModule.h>
 
 namespace ogdf {

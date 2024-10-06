@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/NodeColoringJohnson.h>
 #include <ogdf/graphalg/NodeColoringModule.h>
 #include <ogdf/graphalg/NodeColoringSequential.h>

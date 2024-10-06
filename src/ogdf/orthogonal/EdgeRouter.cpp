@@ -33,7 +33,25 @@
 //TODO: handle multiedges in a way that forbids assignment of different sides
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayoutMapped.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/orthogonal/EdgeRouter.h>
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>
+#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/orthogonal/edge_router/NodeInfo.h>
+#include <ogdf/planarity/PlanRep.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <limits>
+#include <string>
 
 namespace ogdf {
 

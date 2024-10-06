@@ -31,13 +31,22 @@
 
 #pragma once
 
-#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/PCNode.h>
 
 #include <deque>
+#include <functional>
+#include <iosfwd>
+#include <iterator>
+#include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace ogdf::pc_tree {
+class PCTree;
+struct PCNodeChildrenIterable;
+struct PCNodeNeighborsIterable;
+
 class OGDF_EXPORT PCNodeIterator {
 	friend struct PCNodeChildrenIterable;
 	friend struct PCNodeNeighborsIterable;

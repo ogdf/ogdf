@@ -31,9 +31,12 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Graph.h>
 
 namespace ogdf {
+template<class E>
+class List;
+
 namespace steiner_tree {
 namespace goemans {
 

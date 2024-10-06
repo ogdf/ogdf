@@ -32,9 +32,13 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/basic.h>
 
+#include <cmath>
 #include <numeric>
+#include <type_traits>
+#include <utility>
 
 namespace ogdf {
 namespace Math {

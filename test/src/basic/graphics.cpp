@@ -32,6 +32,9 @@
 
 #include <ogdf/basic/graphics.h>
 
+#include <functional>
+#include <string>
+
 #include <testing.h>
 
 template<class T>

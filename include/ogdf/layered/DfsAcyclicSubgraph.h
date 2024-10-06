@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class List;
 
 //! DFS-based algorithm for computing a maximal acyclic subgraph.
 /**

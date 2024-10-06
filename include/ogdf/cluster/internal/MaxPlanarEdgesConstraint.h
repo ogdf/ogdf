@@ -38,12 +38,21 @@
 
 #pragma once
 
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
 
-#include <ogdf/lib/abacus/constraint.h>
+#include <ogdf/external/abacus.h>
+
+namespace abacus {
+class Master;
+class Variable;
+} // namespace abacus
 
 namespace ogdf {
+struct NodePair;
+
 namespace cluster_planarity {
 
 class MaxPlanarEdgesConstraint : public abacus::Constraint {

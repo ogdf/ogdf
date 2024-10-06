@@ -31,13 +31,15 @@
 
 #pragma once
 
-#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class Skeleton;
+class StaticPlanarSPQRTree;
 
 //! The algorithm computes a planar embedding with minimum cost.
 /**

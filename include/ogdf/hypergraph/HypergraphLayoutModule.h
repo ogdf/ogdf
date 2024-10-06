@@ -32,9 +32,11 @@
 
 #pragma once
 
-#include <ogdf/hypergraph/HypergraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class HypergraphAttributes;
 
 /**
  * \brief Interface of hypergraph layout algorithms.

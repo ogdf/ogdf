@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/basic/System.h>
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/memory.h>
 

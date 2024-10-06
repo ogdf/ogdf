@@ -31,9 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Graph.h>
 
 namespace ogdf {
+class GraphCopy;
 
 template<typename T>
 class EdgeWeightedGraph : public Graph {

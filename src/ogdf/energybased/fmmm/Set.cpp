@@ -29,6 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
 #include <ogdf/energybased/fmmm/Set.h>
 
 #include <functional>

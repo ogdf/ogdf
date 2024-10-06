@@ -30,7 +30,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/energybased/StressMinimization.h>
+#include <ogdf/graphalg/ShortestPathAlgorithms.h>
+#include <ogdf/packing/ComponentSplitterLayout.h>
+
+#include <cmath>
+#include <limits>
+#include <ostream>
 
 namespace ogdf {
 

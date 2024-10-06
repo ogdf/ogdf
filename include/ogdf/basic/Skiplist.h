@@ -31,8 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
+
+#include <cstdlib>
+#include <ctime>
 
 namespace ogdf {
 

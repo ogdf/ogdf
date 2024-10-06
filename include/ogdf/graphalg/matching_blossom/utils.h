@@ -31,8 +31,11 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 
+#include <cstddef>
+#include <limits>
 #include <unordered_map>
 
 namespace ogdf {

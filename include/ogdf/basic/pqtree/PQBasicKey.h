@@ -33,6 +33,8 @@
 
 #include <ogdf/basic/pqtree/PQBasicKeyRoot.h>
 
+#include <iosfwd>
+
 namespace ogdf {
 
 /**

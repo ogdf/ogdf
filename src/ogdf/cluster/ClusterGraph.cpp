@@ -33,11 +33,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/Observer.h>
+#include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphObserver.h>
+
+#include <functional>
+#include <limits>
+#include <memory>
+#include <ostream>
+#include <utility>
 
 #include "ogdf/basic/GraphCopy.h"
 

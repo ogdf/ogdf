@@ -29,7 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Barrier.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/Thread.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
+
+#include <cstdint>
 
 #ifdef OGDF_HAS_LINUX_CPU_MACROS
 #	include <sched.h>

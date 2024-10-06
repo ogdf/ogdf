@@ -29,12 +29,39 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/Thread.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
+#include <ogdf/planarity/PlanRepLight.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/planarity/embedder/CrossingStructure.h>
+#include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/uml/SubgraphPlanarizerUML.h>
+#include <ogdf/uml/UMLCrossingMinimizationModule.h>
+#include <ogdf/uml/UMLEdgeInsertionModule.h>
 #include <ogdf/uml/VariableEmbeddingInserterUML.h>
 
+#include <algorithm>
 #include <atomic>
+#include <cstdint>
+#include <cstdlib>
+#include <limits>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <utility>
+
+namespace ogdf {
+class PlanRep;
+} // namespace ogdf
 
 using std::atomic;
 using std::lock_guard;

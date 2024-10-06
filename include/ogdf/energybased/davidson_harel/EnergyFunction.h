@@ -35,7 +35,11 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/geometry.h>
+
+#include <string>
 
 namespace ogdf {
 namespace davidson_harel {

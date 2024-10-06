@@ -31,6 +31,11 @@
 
 #include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+
+#include <cstddef>
+#include <cstdint>
+
 
 using namespace ogdf::sse;
 

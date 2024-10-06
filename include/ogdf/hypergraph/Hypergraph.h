@@ -34,9 +34,18 @@
 #pragma once
 
 #include <ogdf/basic/GraphList.h>
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <iosfwd>
+#include <string>
+
+namespace ogdf {
+template<class E>
+class List;
+} // namespace ogdf
 
 //! Iteration over all adjacency list entries \p adj of a graph element \p ge.
 #define forall_adj_elements(adj, ge) for ((adj) = (v)->firstAdj(); (adj); (adj) = (adj)->succ())
@@ -55,10 +64,10 @@
 
 namespace ogdf {
 
+class OGDF_EXPORT AdjHypergraphElement; // IWYU pragma: keep
+class OGDF_EXPORT HyperedgeElement; // IWYU pragma: keep
 class OGDF_EXPORT Hypergraph; // IWYU pragma: keep
 class OGDF_EXPORT HypernodeElement; // IWYU pragma: keep
-class OGDF_EXPORT HyperedgeElement; // IWYU pragma: keep
-class OGDF_EXPORT AdjHypergraphElement; // IWYU pragma: keep
 
 //! The type of hypernodes.
 using hypernode = HypernodeElement*;

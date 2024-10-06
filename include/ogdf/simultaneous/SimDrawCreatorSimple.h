@@ -31,9 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/simultaneous/SimDrawCreator.h>
 
 namespace ogdf {
+class SimDraw;
+
 //! Offers predefined SimDraw creations.
 /**
  * This class offers some predefined SimDraw creations, such as

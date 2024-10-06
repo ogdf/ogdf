@@ -32,7 +32,17 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/copy_move.h>
+#include <ogdf/basic/internal/graph_iterators.h>
+
+#include <functional>
+#include <initializer_list>
+#include <iosfwd>
+#include <iterator>
 
 namespace ogdf {
 

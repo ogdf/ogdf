@@ -32,8 +32,16 @@
 #pragma once
 
 #include <ogdf/basic/Array.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/memory.h>
 
+#include <algorithm>
 #include <cstring>
+#include <limits>
+#include <ostream>
+#include <random>
+#include <type_traits>
 
 namespace ogdf {
 

@@ -29,10 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/basic/pctree/PCTree.h>
 #include <ogdf/basic/pctree/PCTreeForest.h>
 #include <ogdf/basic/pctree/PCTreeIterators.h>
+
+#include <cstddef>
+#include <ostream>
+#include <utility>
+#include <vector>
 
 using namespace ogdf::pc_tree;
 

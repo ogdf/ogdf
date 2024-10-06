@@ -34,13 +34,20 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/PQTree.h>
+#include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pqtree/PQNode.h>
+#include <ogdf/basic/pqtree/PQNodeKey.h>
+#include <ogdf/basic/pqtree/PQNodeRoot.h>
 #include <ogdf/planarity/planar_subgraph_fast/whaInfo.h>
 
-#include <string.h>
-
 namespace ogdf {
+template<class T, class X, class Y>
+class PQLeafKey;
 
 /**
  * The class template MaxSequencePQTree is designed to compute a maximal consecutive

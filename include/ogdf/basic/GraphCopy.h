@@ -32,12 +32,19 @@
 #pragma once
 
 #include <ogdf/basic/DualGraph.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
+#include <ogdf/basic/internal/graph_iterators.h>
+
+#include <functional>
 
 namespace ogdf {
 
+class CombinatorialEmbedding;
 template<bool>
 class FaceSet;
 

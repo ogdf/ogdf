@@ -29,17 +29,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
 #include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/misclayout/CircularLayout.h>
 #include <ogdf/tree/TreeLayout.h>
 
+#include <algorithm>
+#include <ctime>
+#include <functional>
+#include <iterator>
+#include <list>
 #include <memory>
-#include <ostream>
+#include <random>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include <bandit/bandit.h>
+#include <testing.h>
 
 using namespace ogdf;
 using namespace ogdf::pc_tree;

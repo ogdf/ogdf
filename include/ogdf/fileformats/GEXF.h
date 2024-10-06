@@ -31,9 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/graphics.h>
 
 #include <string>
 

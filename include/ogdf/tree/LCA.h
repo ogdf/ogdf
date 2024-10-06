@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 
 namespace ogdf {

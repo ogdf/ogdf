@@ -31,11 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/tuples.h>
-#include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+
+namespace ogdf::fast_multipole_embedder {
+class RandomNodeSet;
+} // namespace ogdf::fast_multipole_embedder
 
 namespace ogdf {
 namespace fast_multipole_embedder {

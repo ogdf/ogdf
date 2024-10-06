@@ -32,10 +32,8 @@
 
 #pragma once
 
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 
 namespace ogdf {
 

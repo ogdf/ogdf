@@ -29,7 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Math.h>
+#include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEFunctional.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEMultipoleKernel.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeBuilder.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeExpansion.h>
+
+#include <algorithm>
+#include <cstdint>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

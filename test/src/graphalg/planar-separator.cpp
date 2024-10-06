@@ -29,7 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators/deterministic.h>
+#include <ogdf/basic/graph_generators/randomized.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/graphalg/PlanarSeparatorModule.h>
 #include <ogdf/graphalg/SeparatorDual.h>
 #include <ogdf/graphalg/SeparatorDualFC.h>
 #include <ogdf/graphalg/SeparatorHarPeled.h>
@@ -37,7 +47,11 @@
 #include <ogdf/graphalg/SeparatorLiptonTarjanFC.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
-#include <iostream>
+#include <functional>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 #include <graphs.h>
 

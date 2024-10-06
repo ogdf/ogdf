@@ -31,6 +31,9 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/energybased/dtree/DTree.h>
 
+#include <algorithm>
+#include <utility>
+
 namespace ogdf {
 namespace energybased {
 namespace dtree {

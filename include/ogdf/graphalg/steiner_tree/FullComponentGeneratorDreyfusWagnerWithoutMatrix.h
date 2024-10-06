@@ -31,13 +31,23 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/SubsetEnumerator.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+
+#include <limits>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraphCopy;
+
 namespace steiner_tree {
 
 /**

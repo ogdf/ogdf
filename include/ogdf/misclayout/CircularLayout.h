@@ -31,11 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
 
 namespace ogdf {
 
+class GraphAttributes;
 struct ClusterStructure;
 
 //! The circular layout algorithm.

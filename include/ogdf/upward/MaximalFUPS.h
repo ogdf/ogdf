@@ -33,9 +33,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Module.h>
 #include <ogdf/upward/FUPSModule.h>
 
 namespace ogdf {
+class UpwardPlanRep;
+template<class E>
+class List;
 
 class MaximalFUPS : public FUPSModule {
 public:

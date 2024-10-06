@@ -32,8 +32,8 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
-#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
@@ -45,12 +45,13 @@
 #include <functional>
 #include <iosfwd>
 #include <memory>
+#include <utility>
 
 namespace ogdf {
 
+class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
 class OGDF_EXPORT ClusterGraph; // IWYU pragma: keep
 class OGDF_EXPORT ClusterGraphObserver; // IWYU pragma: keep
-class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
 
 using cluster = ClusterElement*; //!< The type of clusters.
 

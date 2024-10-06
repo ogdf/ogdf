@@ -34,7 +34,11 @@
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/basic.h>
 
+#include <cstdint>
+#include <iostream>
+#include <limits>
 #include <map>
+#include <string>
 #include <typeinfo>
 
 namespace ogdf {
