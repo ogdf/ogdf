@@ -35,17 +35,43 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 #include <ogdf/cluster/internal/MaxCPlanarSub.h>
 #include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>
 //heuristics in case only max planar subgraph is computed
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
+#include <ogdf/planarity/ExtractKuratowskis.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
+
+#include <ogdf/external/abacus.h>
+
+#include <algorithm>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
+
+namespace abacus {
+class Sub;
+class Variable;
+} // namespace abacus
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

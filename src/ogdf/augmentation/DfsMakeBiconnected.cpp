@@ -31,11 +31,13 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/augmentation/DfsMakeBiconnected.h>
 
 namespace ogdf {
-
+template<class E>
+class List;
 
 void DfsMakeBiconnected::doCall(Graph& G, List<edge>& L) { makeBiconnected(G, L); }
 

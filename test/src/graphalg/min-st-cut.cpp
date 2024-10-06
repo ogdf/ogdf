@@ -29,13 +29,29 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinSTCutBFS.h>
 #include <ogdf/graphalg/MinSTCutDijkstra.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 
+#include <functional>
+#include <set>
+#include <string>
+
 #include <graphs.h>
+
+#include <testing.h>
+
+namespace ogdf {
+template<typename TCost>
+class MinSTCutModule;
+} // namespace ogdf
 
 using std::string;
 

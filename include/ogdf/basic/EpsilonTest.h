@@ -32,8 +32,6 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
-
 #include <type_traits>
 
 namespace ogdf {

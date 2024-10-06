@@ -32,9 +32,11 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
 
 namespace ogdf {
+class GridLayout;
 
 /**
  * \brief common base class for MMCBDoubleGrid and MMCBLocalStretch.

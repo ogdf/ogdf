@@ -35,11 +35,14 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeComparer.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
+class GraphAttributes;
+class PlanRep;
 
 namespace topology_module {
 

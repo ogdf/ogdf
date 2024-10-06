@@ -30,11 +30,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/layered/SugiyamaLayout.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarity/PlanarizationLayout.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
+#include <ogdf/simultaneous/SimDraw.h>
 #include <ogdf/simultaneous/SimDrawCaller.h>
+#include <ogdf/simultaneous/SimDrawManipulatorModule.h>
+
+#include <cstdint>
 
 namespace ogdf {
 

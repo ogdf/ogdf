@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/RankingModule.h>
 

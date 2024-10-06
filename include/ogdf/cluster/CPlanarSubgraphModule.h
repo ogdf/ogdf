@@ -31,11 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
-#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class ClusterGraph;
+template<class E>
+class List;
 
 //! Interface of algorithms for the computation of c-planar subgraphs.
 class CPlanarSubgraphModule : public Module, public Timeouter {

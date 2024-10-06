@@ -34,7 +34,6 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/energybased/fmmm/FMMMOptions.h>
-#include <ogdf/energybased/fmmm/Set.h>
 #include <ogdf/energybased/fmmm/maar_packing/PackingRowInfo.h>
 #include <ogdf/energybased/fmmm/maar_packing/Rectangle.h>
 

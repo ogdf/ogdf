@@ -31,11 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/NodeColoringModule.h>
 #include <ogdf/graphalg/NodeColoringSequential.h>
 #include <ogdf/graphalg/NodeColoringSimple.h>
 
+#include <cmath>
+
 namespace ogdf {
+template<class E>
+class List;
 
 /**
  * Approximation algorithms for the node coloring problem in graphs.

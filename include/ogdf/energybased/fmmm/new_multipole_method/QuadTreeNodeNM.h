@@ -31,12 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/energybased/fmmm/new_multipole_method/ParticleInfo.h>
 
 #include <complex>
+#include <iosfwd>
+
+namespace ogdf::energybased::fmmm {
+class ParticleInfo;
+} // namespace ogdf::energybased::fmmm
 
 namespace ogdf {
 namespace energybased {

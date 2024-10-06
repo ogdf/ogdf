@@ -31,10 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
+class GraphAttributes;
+class PlanRep;
 
 /**
  * Compares adjacency entries based on the position of the nodes

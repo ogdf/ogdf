@@ -35,13 +35,33 @@
 #pragma once
 
 #include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/CPlanarityMaster.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
 
-#include <ogdf/lib/abacus/standardpool.h>
-#include <ogdf/lib/abacus/sub.h>
+#include <ogdf/external/abacus.h>
+
+#include <ostream>
+
+namespace abacus {
+class BranchRule;
+class Constraint;
+class Master;
+class Variable;
+} // namespace abacus
+
+namespace ogdf::cluster_planarity {
+struct edgeValue;
+} // namespace ogdf::cluster_planarity
 
 namespace ogdf {
+class GraphCopy;
+class KuratowskiWrapper;
+
 namespace cluster_planarity {
 
 class CPlanaritySub : public abacus::Sub {

@@ -1,10 +1,16 @@
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/orthogonal/OrthoLayout.h>
 #include <ogdf/planarity/EmbedderMinDepthMaxFaceLayers.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/PlanarizationLayout.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
+#include <iostream>
+#include <string>
 
 using namespace ogdf;
 

@@ -32,8 +32,11 @@
 
 #pragma once
 
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/exceptions.h>
+
+#include <cstdint>
+#include <cstdlib>
 
 namespace ogdf {
 

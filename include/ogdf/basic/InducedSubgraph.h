@@ -31,9 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphObserver.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
+#include <ogdf/basic/internal/graph_iterators.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include <type_traits>
+#include <utility>
 
 namespace ogdf {
 

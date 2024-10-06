@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <testing.h>
 // IWYU pragma: begin_keep
 #include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/basic/graph_generators/randomized.h>

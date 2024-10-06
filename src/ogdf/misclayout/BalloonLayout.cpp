@@ -38,9 +38,23 @@
 //For each angle assignment at a node p (parent), its own angle is
 //used as offset, so that the children are correctly oriented
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/misclayout/BalloonLayout.h>
+
+#include <algorithm>
+#include <cmath>
+#include <ostream>
 
 namespace ogdf {
 

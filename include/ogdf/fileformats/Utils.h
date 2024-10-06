@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
-
+#include <iosfwd>
 #include <map>
+#include <string>
 
 namespace ogdf {
 

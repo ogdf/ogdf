@@ -29,14 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/graphalg/ConnectivityTester.h>
-#include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
 
+#include <functional>
+#include <initializer_list>
+#include <set>
 #include <sstream>
+#include <string>
 
 #include <graphs.h>
+
+#include <testing.h>
 
 go_bandit([]() {
 	describe("ConnectivityTester", []() {

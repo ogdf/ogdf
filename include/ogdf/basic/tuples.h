@@ -33,7 +33,10 @@
 #pragma once
 
 #include <ogdf/basic/Hashing.h>
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <cstddef>
+#include <ostream>
 
 namespace ogdf {
 

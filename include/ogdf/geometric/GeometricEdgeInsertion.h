@@ -45,12 +45,15 @@
 
 #pragma once
 
-#include <ogdf/basic/Array.h>
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/geometric/VertexPositionModule.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class GraphAttributes;
+class VertexPositionModule;
+template<class E>
+class List;
 
 class OGDF_EXPORT GeometricEdgeInsertion : public LayoutModule {
 public:

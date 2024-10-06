@@ -29,17 +29,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/SubsetEnumerator.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/steiner_tree/Full2ComponentGenerator.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorEnumeration.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 
+#include <functional>
+#include <initializer_list>
+#include <memory>
 #include <set>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <testing.h>
+
+namespace ogdf::steiner_tree {
+template<typename T>
+class Full3ComponentGeneratorModule;
+} // namespace ogdf::steiner_tree
 
 using namespace std::placeholders;
 

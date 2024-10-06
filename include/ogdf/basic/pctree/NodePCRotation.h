@@ -31,8 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/RegisteredSet.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
 #include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
+
+#include <exception>
+#include <functional>
+#include <iosfwd>
 
 namespace ogdf::pc_tree {
 /**

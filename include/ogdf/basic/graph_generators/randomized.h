@@ -31,6 +31,9 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/clustering.h> // IWYU pragma: keep
 #include <ogdf/basic/graph_generators/randomGeographicalThresholdGraph.h> // IWYU pragma: keep
 #include <ogdf/cluster/ClusterGraph.h> // IWYU pragma: keep

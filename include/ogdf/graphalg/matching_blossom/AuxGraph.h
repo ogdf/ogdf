@@ -32,17 +32,14 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/matching_blossom/AlternatingTree.h>
-#include <ogdf/graphalg/matching_blossom/BlossomVHelper.h>
-#include <ogdf/graphalg/matching_blossom/Cycle.h>
 #include <ogdf/graphalg/matching_blossom/PQ.h>
-#include <ogdf/graphalg/matching_blossom/Pseudonode.h>
-#include <ogdf/graphalg/matching_blossom/utils.h>
 
+#include <array>
 #include <unordered_set>
 #include <vector>
 
@@ -50,9 +47,9 @@ namespace ogdf {
 namespace matching_blossom {
 
 template<class TWeight>
-class BlossomVHelper;
-template<class TWeight>
 class AuxEdge;
+template<class TWeight>
+class BlossomVHelper;
 
 template<class TWeight>
 class AuxNode {

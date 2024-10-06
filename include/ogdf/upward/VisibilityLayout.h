@@ -35,16 +35,17 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/UpwardPlanarizerModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
+class UpwardPlanRep;
 
 class OGDF_EXPORT VisibilityLayout : public LayoutModule {
 public:

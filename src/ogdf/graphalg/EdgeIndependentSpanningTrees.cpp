@@ -30,7 +30,15 @@
  */
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/EdgeIndependentSpanningTrees.h>
+
+#include <algorithm>
+#include <functional>
+#include <utility>
+#include <vector>
 
 namespace ogdf {
 

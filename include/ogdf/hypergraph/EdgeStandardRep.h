@@ -38,11 +38,9 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/hypergraph/Hypergraph.h>
-#include <ogdf/hypergraph/HypergraphArray.h>
 #include <ogdf/hypergraph/HypergraphObserver.h>
 
 namespace ogdf {

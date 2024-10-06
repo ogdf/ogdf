@@ -1,7 +1,12 @@
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/layered/MedianHeuristic.h>
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/SugiyamaLayout.h>
+#include <iostream>
+#include <string>
 
 using namespace ogdf;
 

@@ -34,6 +34,8 @@
 #include <ogdf/basic/basic.h>
 
 #include <algorithm>
+#include <ostream>
+#include <string>
 
 namespace ogdf {
 

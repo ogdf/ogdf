@@ -31,11 +31,17 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <algorithm>
 
 namespace ogdf {
+class GraphAttributes;
+class GraphCopy;
+template<class E>
+class List;
 
 //! Finds cliques.
 /**

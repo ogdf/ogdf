@@ -31,8 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
-
 #include <stdexcept>
 
 namespace ogdf {

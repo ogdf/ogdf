@@ -1,5 +1,11 @@
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/energybased/FMMMLayout.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <iostream>
+#include <string>
 
 using namespace ogdf;
 

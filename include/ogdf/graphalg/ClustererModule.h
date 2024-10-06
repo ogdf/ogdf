@@ -37,10 +37,14 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
+class ClusterGraph;
 
 //Helper classes to code a clustering, used as an interface to applications that
 //need to build the clustergraph structure themselves

@@ -33,12 +33,22 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/energybased/fmmm/EdgeAttributes.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
+#include <ogdf/energybased/fmmm/FruchtermanReingold.h>
 #include <ogdf/energybased/fmmm/NewMultipoleMethod.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
 #include <ogdf/energybased/fmmm/maar_packing/Rectangle.h>
 
+#include <algorithm>
+
 namespace ogdf {
+class ClusterGraphAttributes;
+class GraphAttributes;
+template<class E>
+class List;
 
 /**
  * \brief The fast multipole multilevel layout algorithm.

@@ -32,8 +32,11 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+template<class E>
+class List;
 
 /**
  * \brief Base class of algorithms for computing a maximal acyclic subgraph.

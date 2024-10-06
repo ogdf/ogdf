@@ -32,9 +32,7 @@
 #pragma once
 
 #include <array>
-#include <functional>
-#include <utility>
-#include <vector>
+#include <cstddef>
 
 namespace ogdf {
 

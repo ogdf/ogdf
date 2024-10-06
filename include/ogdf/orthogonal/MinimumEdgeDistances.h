@@ -33,10 +33,11 @@
 
 #pragma once
 
-#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
-
+enum class OrthoDir;
 
 //! Maintains input sizes for improvement compaction (deltas and epsilons)
 template<class ATYPE>

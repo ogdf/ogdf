@@ -32,16 +32,20 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/fileformats/GDF.h>
 
+#include <cstddef>
 #include <istream>
-#include <sstream>
 #include <string>
 #include <vector>
 
+namespace ogdf::gdf {
+enum class EdgeAttribute;
+enum class NodeAttribute;
+} // namespace ogdf::gdf
+
 namespace ogdf {
+class GraphAttributes;
 
 namespace gdf {
 

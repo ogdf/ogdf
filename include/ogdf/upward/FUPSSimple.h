@@ -31,10 +31,18 @@
 
 #pragma once
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/upward/FUPSModule.h>
 
 namespace ogdf {
-
+class GraphCopy;
+class UpwardPlanRep;
+template<class E>
+class List;
 
 class OGDF_EXPORT FUPSSimple : public FUPSModule {
 public:

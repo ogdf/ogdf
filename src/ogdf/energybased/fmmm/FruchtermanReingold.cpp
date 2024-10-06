@@ -29,9 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/fmmm/FruchtermanReingold.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
 #include <ogdf/energybased/fmmm/common.h>
+#include <ogdf/energybased/fmmm/numexcept.h>
+
+#include <cmath>
 
 namespace ogdf {
 namespace energybased {

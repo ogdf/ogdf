@@ -32,11 +32,13 @@
 
 #pragma once
 
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/planarlayout/ShellingOrder.h>
-#include <ogdf/planarlayout/ShellingOrderModule.h>
 
 namespace ogdf {
+class PlanRep;
+class ShellingOrderModule;
 
 class MMOrder {
 public:

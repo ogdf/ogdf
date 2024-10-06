@@ -17,18 +17,29 @@
 // easily assemble different layouts by using different coarsening
 // techniques (merger), placer and single level layouts.
 
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
 #include <ogdf/energybased/multilevel_mixer/EdgeCoverMerger.h>
 #include <ogdf/energybased/multilevel_mixer/LocalBiconnectedMerger.h>
 #include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
 #include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
 #include <ogdf/energybased/multilevel_mixer/SolarPlacer.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+#include <iostream>
+#include <string>
+
+namespace ogdf {
+class InitialPlacer;
+class MultilevelBuilder;
+}  // namespace ogdf
 
 using namespace ogdf;
 

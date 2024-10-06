@@ -31,6 +31,8 @@
 
 #include <ogdf/fileformats/Tlp.h>
 
+#include <string>
+
 namespace ogdf {
 
 namespace tlp {

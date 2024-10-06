@@ -34,16 +34,18 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/basic/Layout.h>
-#include <ogdf/orthogonal/MinimumEdgeDistances.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/edge_router/NodeInfo.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
 #include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
+class CombinatorialEmbedding;
+class GridLayoutMapped;
+template<class ATYPE>
+class MinimumEdgeDistances;
 
 /**
  * Places node boxes in replacement areas of orthogonal

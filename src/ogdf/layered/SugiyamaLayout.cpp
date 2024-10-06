@@ -31,18 +31,57 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/System.h>
 #include <ogdf/basic/Thread.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/tuples.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/cluster/ClusterGraphCopyAttributes.h>
 #include <ogdf/layered/BarycenterHeuristic.h>
+#include <ogdf/layered/CrossingMinInterfaces.h>
+#include <ogdf/layered/ExtendedNestingGraph.h>
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/HierarchyClusterLayoutModule.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
+#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/LayerByLayerSweep.h>
+#include <ogdf/layered/LayeredCrossMinModule.h>
+#include <ogdf/layered/Level.h>
 #include <ogdf/layered/LongestPathRanking.h>
 #include <ogdf/layered/OptimalHierarchyClusterLayout.h>
+#include <ogdf/layered/RankingModule.h>
 #include <ogdf/layered/SplitHeuristic.h>
 #include <ogdf/layered/SugiyamaLayout.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/simultaneous/TwoLayerCrossMinSimDraw.h>
 
+#include <algorithm>
 #include <atomic>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <utility>
+
+namespace ogdf {
+class ClusterGraph;
+} // namespace ogdf
 
 using std::atomic;
 using std::lock_guard;

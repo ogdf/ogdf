@@ -34,14 +34,17 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/memory.h>
 
+#include <cmath>
 #include <random>
 
 namespace ogdf {
+class GraphAttributes;
+class GraphCopy;
 
 //! The energy-based GEM layout algorithm.
 /**

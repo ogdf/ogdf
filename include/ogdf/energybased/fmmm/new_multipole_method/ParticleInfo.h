@@ -33,6 +33,9 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/comparer.h>
+
+#include <ostream>
 
 namespace ogdf {
 namespace energybased {

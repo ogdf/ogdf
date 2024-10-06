@@ -34,6 +34,8 @@
 
 #include <ogdf/basic/basic.h>
 
+#include <cstdint>
+#include <cstdlib>
 #if defined(OGDF_SYSTEM_OSX)
 #	include <stdlib.h>
 #elif defined(OGDF_SYSTEM_UNIX) || defined(__MINGW32__)

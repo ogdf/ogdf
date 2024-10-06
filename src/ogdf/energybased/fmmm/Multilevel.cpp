@@ -30,9 +30,23 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/energybased/fmmm/EdgeAttributes.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
 #include <ogdf/energybased/fmmm/Multilevel.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
 #include <ogdf/energybased/fmmm/Set.h>
+#include <ogdf/energybased/fmmm/multilevel/Edge.h>
+
+#include <cmath>
+#include <limits>
 
 namespace ogdf {
 namespace energybased {

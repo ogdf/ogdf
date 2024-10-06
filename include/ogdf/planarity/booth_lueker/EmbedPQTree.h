@@ -33,11 +33,23 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/PQTree.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/planarity/booth_lueker/EmbedIndicator.h>
-#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
+
+namespace ogdf::booth_lueker {
+class IndInfo;
+template<class X>
+class PlanarLeafKey;
+} // namespace ogdf::booth_lueker
 
 namespace ogdf {
+template<class E>
+class SListPure;
+template<class T, class X, class Y>
+class PQBasicKey;
+template<class T, class X, class Y>
+class PQLeafKey;
+template<class T, class X, class Y>
+class PQNode;
+
 namespace booth_lueker {
 
 class EmbedPQTree : public PQTree<edge, IndInfo*, bool> {

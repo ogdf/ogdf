@@ -30,7 +30,3 @@
  */
 
 #pragma once
-
-
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/RegisteredArray.h>

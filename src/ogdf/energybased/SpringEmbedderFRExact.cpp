@@ -29,15 +29,31 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/energybased/SpringEmbedderFRExact.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+
+#include <cmath>
+
 
 #ifdef _OPENMP
 #	include <omp.h>
 #endif
 
 #include <ogdf/basic/internal/intrinsics.h>
+
+#include <algorithm>
 
 namespace ogdf {
 

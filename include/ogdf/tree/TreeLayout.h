@@ -32,10 +32,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/SList.h>
 
 namespace ogdf {
+class GraphAttributes;
+enum class Orientation;
+template<class E>
+class SListPure;
 
 /**
  * \brief The tree layout algorithm.

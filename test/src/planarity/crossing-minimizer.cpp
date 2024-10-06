@@ -29,22 +29,33 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/FMMMLayout.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarity/PlanarizerChordlessCycle.h>
 #include <ogdf/planarity/PlanarizerMixedInsertion.h>
 #include <ogdf/planarity/PlanarizerStarReinsertion.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
 
-#include <set>
+#include <exception>
+#include <functional>
+#include <initializer_list>
+#include <sstream>
+#include <string>
 
-#include <resources.h>
+#include <testing.h>
 
 /**
  * Verifies that \p graph resembles a planarization of the original graph.

@@ -31,11 +31,13 @@
 
 #pragma once
 
-#include <ogdf/decomposition/StaticSPQRTree.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
-#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 
 namespace ogdf {
+class StaticSPQRTree;
 
 //! Embedder that minimizes block-nesting depth.
 /**

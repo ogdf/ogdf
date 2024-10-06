@@ -29,11 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/PCEnum.h>
 #include <ogdf/basic/pctree/PCNode.h>
 #include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
+#include <ogdf/basic/pctree/util/IntrusiveList.h>
 
-#include <iterator>
-#include <queue>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <iostream>
+#include <list>
+#include <string>
+#include <utility>
 #include <vector>
 
 #ifdef LIKWID_PERFMON

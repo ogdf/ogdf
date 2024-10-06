@@ -29,7 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/graphalg/PlanarSeparatorModule.h>
 #include <ogdf/graphalg/SeparatorDualFC.h>
+#include <ogdf/graphalg/SeparatorLiptonTarjanFC.h>
+#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>
+
+#include <memory>
+#include <string>
 
 namespace ogdf {
 

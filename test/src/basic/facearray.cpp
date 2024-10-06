@@ -29,8 +29,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/graph_generators/randomized.h>
+
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "array_helper.h"
+#include <testing.h>
 
 go_bandit([]() {
 	auto chooseFace = [](const CombinatorialEmbedding& C) { return C.chooseFace(); };

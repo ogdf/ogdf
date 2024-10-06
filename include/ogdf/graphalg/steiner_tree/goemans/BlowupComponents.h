@@ -31,7 +31,18 @@
 
 #pragma once
 
-#include <ogdf/graphalg/steiner_tree/goemans/BlowupGraph.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+
+#include <iostream>
+
+namespace ogdf::steiner_tree::goemans {
+template<typename T>
+class BlowupGraph;
+} // namespace ogdf::steiner_tree::goemans
 
 //#define OGDF_STEINER_TREE_GOEMANS_BLOWUP_COMPONENTS_LOGGING
 

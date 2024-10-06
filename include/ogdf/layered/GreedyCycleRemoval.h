@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 
 namespace ogdf {

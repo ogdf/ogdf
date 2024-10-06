@@ -33,10 +33,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/uml/LayoutPlanRepUMLModule.h>
 
 namespace ogdf {
+class Layout;
+class PlanRepUML;
 
 //! Represents planar orthogonal drawing algorithm for
 //! mixed-upward planar embedded graphs (UML-diagrams)

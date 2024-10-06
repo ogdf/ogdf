@@ -33,10 +33,16 @@
 
 #pragma once
 
-#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class Array2D;
+
 namespace davidson_harel {
 
 class Planarity : public EnergyFunction {

@@ -35,13 +35,24 @@
 
 #pragma once
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray2D.h>
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 
+#include <algorithm>
+#include <cmath>
+#include <iosfwd>
+#include <limits>
+
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class Array2D;
+template<class E>
+class SList;
+
 namespace davidson_harel {
 
 class UniformGrid {

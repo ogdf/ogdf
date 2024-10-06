@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/uml/UMLCrossingMinimizationModule.h>
@@ -40,6 +42,8 @@
 #include <random>
 
 namespace ogdf {
+class PlanRepLight;
+class PlanRepUML;
 
 //! The planarization approach for UML crossing minimization.
 /**

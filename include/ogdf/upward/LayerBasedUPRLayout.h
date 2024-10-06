@@ -31,18 +31,25 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>
-#include <ogdf/layered/HierarchyLevels.h>
-#include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/OptimalRanking.h>
 #include <ogdf/layered/RankingModule.h>
 #include <ogdf/upward/UPRLayoutModule.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
+class Hierarchy;
+class HierarchyLevels;
+class UpwardPlanRep;
+template<class E>
+class SListPure;
 
 class OrderComparer {
 public:

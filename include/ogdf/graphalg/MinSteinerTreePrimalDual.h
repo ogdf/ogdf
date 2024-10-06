@@ -34,14 +34,21 @@
 #pragma once
 
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
+#include <iostream>
 #include <limits>
 
 //#define OGDF_MINSTEINERTREE_PRIMAL_DUAL_LOGGING
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 /**
  * @brief Primal-Dual approximation algorithm for Steiner tree problems.

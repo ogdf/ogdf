@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/misclayout/ProcrustesSubLayout.h>
+
+#include <cmath>
 
 namespace ogdf {
 

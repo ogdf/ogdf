@@ -30,6 +30,10 @@
  */
 
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>
 
 namespace ogdf {

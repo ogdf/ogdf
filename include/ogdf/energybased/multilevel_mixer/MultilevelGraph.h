@@ -34,7 +34,9 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 
+#include <iosfwd>
 #include <map>
+#include <utility>
 #include <vector>
 
 namespace ogdf {

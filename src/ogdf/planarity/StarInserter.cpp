@@ -29,11 +29,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/planarity/StarInserter.h>
 
+#include <limits>
+#include <memory>
 #include <set>
+#include <unordered_map>
+#include <utility>
 
 namespace ogdf {
 

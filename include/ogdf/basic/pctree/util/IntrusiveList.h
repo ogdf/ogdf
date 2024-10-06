@@ -32,8 +32,9 @@
 #pragma once
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
 
-#include <cassert>
+#include <cstddef>
 #include <iterator>
 
 namespace ogdf::pc_tree {

@@ -31,10 +31,12 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 
 namespace ogdf {
+class GraphAttributes;
 
 /**
  * Compares incident edges of a node based on the position of

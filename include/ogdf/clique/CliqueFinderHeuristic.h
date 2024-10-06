@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/clique/CliqueFinderModule.h>
 
 namespace ogdf {
+class AdjacencyOracle;
+template<class E>
+class List;
 
 //! Finds cliques and dense subgraphs using a heuristic.
 /**

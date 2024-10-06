@@ -32,18 +32,21 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
-#include <ogdf/fileformats/Tlp.h>
 #include <ogdf/fileformats/TlpLexer.h>
 
 #include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
+#include <vector>
+
+namespace ogdf::tlp {
+enum class Attribute;
+} // namespace ogdf::tlp
 
 namespace ogdf {
+class GraphAttributes;
 
 namespace tlp {
 

@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EmbedderMaxFace.h>
 #include <ogdf/planarity/EmbedderMaxFaceLayers.h>
 #include <ogdf/planarity/EmbedderMinDepth.h>
@@ -45,7 +46,14 @@
 #include <ogdf/planarlayout/SchnyderLayout.h>
 #include <ogdf/planarlayout/TriconnectedShellingOrder.h>
 
+#include <functional>
+#include <set>
+#include <string>
+
 #include "layout_helpers.h"
+#include <graphs.h>
+
+#include <testing.h>
 
 template<typename Layout>
 static void describeForAllEmbedders(string name, Layout& layout,

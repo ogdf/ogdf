@@ -31,7 +31,12 @@
 
 #pragma once
 
-#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/List.h>
+
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include <testing.h>
 

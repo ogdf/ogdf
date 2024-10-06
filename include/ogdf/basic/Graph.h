@@ -31,10 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph_d.h> // IWYU pragma: export
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/basic.h>
 
 #include <iosfwd>
 

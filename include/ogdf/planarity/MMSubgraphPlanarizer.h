@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/planarity/MMCrossingMinimizationModule.h>
 #include <ogdf/planarity/MMEdgeInsertionModule.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
@@ -38,6 +39,7 @@
 #include <memory>
 
 namespace ogdf {
+class PlanRepExpansion;
 
 /**
  * \brief Planarization approach for minor-monotone crossing minimization.

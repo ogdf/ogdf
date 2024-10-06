@@ -1,7 +1,18 @@
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/pctree/PCNode.h>
+#include <ogdf/basic/pctree/PCRegistry.h>
 #include <ogdf/basic/pctree/PCTree.h>
+#include <ogdf/basic/pctree/PCTreeIterators.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/tree/RadialTreeLayout.h>
+#include <functional>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using namespace ogdf;
 using namespace pc_tree;

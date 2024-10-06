@@ -30,9 +30,13 @@
  */
 
 
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/STNumbering.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/basic.h>
+
+#include <utility>
 
 namespace ogdf {
 

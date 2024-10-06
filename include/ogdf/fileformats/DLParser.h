@@ -32,17 +32,16 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 
 #include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
 
 namespace ogdf {
-
+class GraphAttributes;
 
 class DLParser {
 private:

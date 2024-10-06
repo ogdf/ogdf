@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
+
+#include <functional>
+#include <string>
 
 #include <testing.h>
 

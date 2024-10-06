@@ -29,7 +29,11 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/layered/BarycenterHeuristic.h>
+#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/Level.h>
 
 namespace ogdf {
 

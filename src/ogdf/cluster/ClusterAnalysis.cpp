@@ -32,10 +32,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/Skiplist.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/cluster/ClusterAnalysis.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/cluster/ClusterGraph.h>
+
+#include <iostream>
+#include <limits>
 
 // Comment on use of ClusterArrays:
 // We would like to save some space by only reserving one slot

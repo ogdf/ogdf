@@ -32,12 +32,23 @@
 
 #pragma once
 
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/SpannerIteratedWrapper.h>
 #include <ogdf/graphalg/SpannerModule.h>
 
+#include <cmath>
+#include <limits>
+#include <string>
+
 namespace ogdf {
+class GraphCopySimple;
 
 /**
  * Randomized multiplicative spanner calculation by propagating random messages

@@ -38,10 +38,14 @@
 #include <ogdf/basic/pctree/util/IntrusiveList.h>
 
 #include <array>
-#include <list>
+#include <cstddef>
+#include <iosfwd>
+#include <new>
+#include <utility>
 #include <vector>
 
 namespace ogdf::pc_tree {
+class PCTree;
 struct OGDF_EXPORT PCNodeChildrenIterable;
 struct OGDF_EXPORT PCNodeNeighborsIterable;
 

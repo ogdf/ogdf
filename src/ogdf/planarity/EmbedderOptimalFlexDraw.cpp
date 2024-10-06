@@ -29,9 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/decomposition/PertinentGraph.h>
+#include <ogdf/decomposition/SPQRTree.h>
+#include <ogdf/decomposition/Skeleton.h>
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+#include <ogdf/graphalg/MinCostFlowModule.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 #include <ogdf/planarity/EmbedderOptimalFlexDraw.h>
+
+#include <cstdlib>
+#include <limits>
+#include <memory>
 
 namespace ogdf {
 

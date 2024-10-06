@@ -32,7 +32,13 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/exceptions.h>
+
+#include <cmath>
+#include <cstdlib>
+#include <new>
+#include <type_traits>
 
 namespace ogdf {
 

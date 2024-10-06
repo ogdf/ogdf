@@ -34,6 +34,7 @@
 // IWYU pragma: always_keep
 
 #include <ogdf/basic/basic.h> // IWYU pragma: keep
+#include <ogdf/basic/internal/config_autogen.h>
 
 #ifdef OGDF_SSE3_EXTENSIONS
 #	include OGDF_SSE3_EXTENSIONS // IWYU pragma: export

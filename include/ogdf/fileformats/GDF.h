@@ -31,8 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/graphics.h>
 
 #include <string>

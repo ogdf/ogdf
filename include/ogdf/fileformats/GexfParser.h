@@ -32,17 +32,17 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
 
 #include <ogdf/lib/pugixml/pugixml.h>
 
-#include <memory>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 
 namespace ogdf {
+class ClusterGraphAttributes;
+class GraphAttributes;
 
 namespace gexf {
 

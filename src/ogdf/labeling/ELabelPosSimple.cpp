@@ -30,6 +30,13 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/labeling/ELabelInterface.h>
 #include <ogdf/labeling/ELabelPosSimple.h>
 
 namespace ogdf {

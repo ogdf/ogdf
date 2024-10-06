@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterPlanRep.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/cluster/internal/CPlanarSubClusteredST.h>
 
 namespace ogdf {
+class ClusterGraph;
+template<class E>
+class List;
 
 //! Constructs a c-planar subclustered graph of the input based on a spanning tree.
 /**

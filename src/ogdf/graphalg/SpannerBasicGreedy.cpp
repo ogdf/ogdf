@@ -30,7 +30,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/graphalg/Dijkstra.h>
 #include <ogdf/graphalg/SpannerBasicGreedy.h>
+
+#include <cmath>
 
 namespace ogdf {
 

@@ -30,10 +30,21 @@
  */
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/DualGraph.h>
 #include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/GraphSets.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <utility>
 
 namespace ogdf {
 

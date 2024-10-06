@@ -30,7 +30,14 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/Level.h>
 #include <ogdf/layered/SplitHeuristic.h>
+
+#include <cstdint>
 
 namespace ogdf {
 

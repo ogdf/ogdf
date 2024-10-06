@@ -32,6 +32,3 @@
  */
 
 #pragma once
-
-#include <ogdf/basic/RegisteredArray.h>
-#include <ogdf/hypergraph/Hypergraph.h>

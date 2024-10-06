@@ -31,9 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
+#include <cstdint>
+
 namespace ogdf {
+class SimDraw;
+
 //! Creates variety of possible SimDraw creations
 /**
  * This class is used for creating simdraw instances.

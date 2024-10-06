@@ -32,9 +32,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 #include <iomanip>
+#include <iostream>
 
 namespace ogdf {
 

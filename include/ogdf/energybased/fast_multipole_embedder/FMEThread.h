@@ -31,8 +31,6 @@
 
 #pragma once
 
-#include <ogdf/basic/Barrier.h>
-#include <ogdf/basic/Thread.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 

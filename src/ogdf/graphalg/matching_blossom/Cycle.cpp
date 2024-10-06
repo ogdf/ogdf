@@ -30,7 +30,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/matching_blossom/Cycle.h>
+
+#include <cstddef>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
 namespace ogdf {
 namespace matching_blossom {

@@ -31,10 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 
 namespace ogdf {
+class MultilevelGraph;
 
 //! The local biconnected merger for multilevel layout.
 /**

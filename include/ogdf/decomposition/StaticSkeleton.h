@@ -31,11 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/decomposition/Skeleton.h>
 
 namespace ogdf {
 
 class OGDF_EXPORT StaticSPQRTree;
+class SPQRTree;
 
 //! %Skeleton graphs of nodes in a static SPQR-tree.
 /**

@@ -31,6 +31,7 @@
 
 #include <ogdf/fileformats/Utils.h>
 
+#include <istream>
 #include <limits>
 
 namespace ogdf {

@@ -33,10 +33,14 @@
 
 #pragma once
 
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/uml/PlanRepUML.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class CombinatorialEmbedding;
+class OrthoRep;
+class PlanRep;
+class PlanRepUML;
 
 class OGDF_EXPORT OrthoShaper {
 public:

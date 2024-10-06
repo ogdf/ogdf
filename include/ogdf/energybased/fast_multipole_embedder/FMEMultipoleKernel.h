@@ -33,6 +33,15 @@
 
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
+
+#include <cstdint>
+#include <list>
+
+namespace ogdf::fast_multipole_embedder {
+class ArrayGraph;
+class FMEThread;
+} // namespace ogdf::fast_multipole_embedder
 
 namespace ogdf {
 namespace fast_multipole_embedder {

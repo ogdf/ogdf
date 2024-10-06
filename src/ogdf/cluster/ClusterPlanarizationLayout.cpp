@@ -31,12 +31,31 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/cluster/CPlanarSubClusteredGraph.h>
 #include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/ClusterOrthoLayout.h>
+#include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/cluster/ClusterPlanarizationLayout.h>
+#include <ogdf/cluster/LayoutClusterPlanRepModule.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+
+#include <algorithm>
+#include <iostream>
+#include <memory>
 
 namespace ogdf {
 

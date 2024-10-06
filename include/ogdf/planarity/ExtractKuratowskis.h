@@ -32,10 +32,15 @@
 
 #pragma once
 
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>
 
+#include <iosfwd>
+
 namespace ogdf {
+class BoyerMyrvoldPlanar;
 
 //! Wrapper-class for Kuratowski Subdivisions containing the minortype and edgelist
 class OGDF_EXPORT KuratowskiWrapper {

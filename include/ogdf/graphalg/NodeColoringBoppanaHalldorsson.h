@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/graphalg/NodeColoringModule.h>
 
 namespace ogdf {

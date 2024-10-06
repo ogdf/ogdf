@@ -31,14 +31,26 @@
 
 //#define OGDF_TEST_CLIQUE_PRINT_DRAWINGS
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/clique/CliqueFinderHeuristic.h>
+#include <ogdf/clique/CliqueFinderModule.h>
 #include <ogdf/clique/CliqueFinderSPQR.h>
+
+#include <testing.h>
 
 #ifdef OGDF_TEST_CLIQUE_PRINT_DRAWINGS
 #	include <ogdf/energybased/SpringEmbedderFRExact.h>
-
 #	include <regex>
 #endif
+
+#include <algorithm>
+#include <functional>
+#include <initializer_list>
+#include <set>
+#include <string>
 
 #include <graphs.h>
 

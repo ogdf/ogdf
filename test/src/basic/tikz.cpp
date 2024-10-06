@@ -29,12 +29,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/fileformats/GraphIO.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <iterator>
 #include <regex>
+#include <sstream>
+#include <string>
 
 #include <testing.h>
 

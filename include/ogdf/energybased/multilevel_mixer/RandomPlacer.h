@@ -31,10 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
 
 namespace ogdf {
+class MultilevelGraph;
 
 //! The random placer for multilevel layout.
 /**

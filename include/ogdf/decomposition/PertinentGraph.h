@@ -35,8 +35,6 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT SPQRTree;
-
 //! Pertinent graphs of nodes in an SPQR-tree.
 /**
  * @ingroup dc-helper

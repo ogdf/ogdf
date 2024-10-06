@@ -30,13 +30,37 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/Module.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/tuples.h>
+#include <ogdf/decomposition/SPQRTree.h>
+#include <ogdf/decomposition/Skeleton.h>
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+#include <ogdf/decomposition/StaticSPQRTree.h>
+#include <ogdf/decomposition/StaticSkeleton.h>
+#include <ogdf/planarity/EdgeInsertionModule.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
+#include <ogdf/planarity/PlanRepLight.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
+
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
+#include <limits>
+#include <utility>
 
 namespace ogdf {
 

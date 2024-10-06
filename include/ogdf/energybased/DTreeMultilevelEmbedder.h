@@ -28,10 +28,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/energybased/dtree/DTreeEmbedder.h>
+#include <ogdf/energybased/dtree/DTreeForceTypes.h>
 #include <ogdf/energybased/dtree/GalaxyLevel.h>
+
+#include <algorithm>
 
 namespace ogdf {
 

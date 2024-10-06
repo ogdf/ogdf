@@ -29,10 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/System.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/memory.h>
+#include <ogdf/basic/memory/PoolMemoryAllocator.h>
 
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <mutex>
 #include <random>
+#include <string>
 
 #ifdef OGDF_SYSTEM_WINDOWS
 #	define WIN32_EXTRA_LEAN

@@ -31,9 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
 
+#include <map>
+#include <vector>
+
 namespace ogdf {
+class MultilevelGraph;
 
 //! The solar merger for multilevel layout.
 /**

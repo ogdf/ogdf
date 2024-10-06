@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
+class CrossingsMatrix;
+class HierarchyLevels;
+class Level;
 
 //! The sifting heuristic for 2-layer crossing minimization.
 /**

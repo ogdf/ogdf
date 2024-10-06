@@ -31,7 +31,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+
+#include <cmath>
+#include <functional>
+#include <random>
 
 namespace ogdf {
 

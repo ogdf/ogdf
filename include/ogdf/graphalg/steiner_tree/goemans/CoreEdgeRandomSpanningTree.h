@@ -31,9 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/DisjointSets.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/steiner_tree/goemans/CoreEdgeModule.h>
+
+#include <random>
 
 namespace ogdf {
 namespace steiner_tree {

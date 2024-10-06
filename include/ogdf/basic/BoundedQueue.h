@@ -31,7 +31,10 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/exceptions.h>
+
+#include <ostream>
 
 namespace ogdf {
 

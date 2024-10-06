@@ -37,13 +37,11 @@
 OGDF_DISABLE_WARNING_PUSH
 OGDF_DISABLE_WARNING_DEPRECATED
 #include <algorithm>
+
 OGDF_DISABLE_WARNING_POP
 
 #include <cmath>
-#include <cstdint>
-#include <ctime>
 #include <fstream>
-#include <limits>
 #include <string>
 
 //! @name Assertions (only active in debug builds)
@@ -64,9 +62,9 @@ OGDF_DISABLE_WARNING_POP
 #	undef OGDF_ASSERT
 #	ifndef OGDF_USE_ASSERT_EXCEPTIONS
 #		include <cassert>
+
 #		define OGDF_ASSERT(expr) assert(expr)
 #	else
-#		include <sstream>
 #		include <stdexcept>
 
 namespace ogdf {

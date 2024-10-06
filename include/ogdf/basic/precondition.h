@@ -35,7 +35,11 @@
 
 #pragma once
 
-#include <ogdf/orthogonal/EdgeRouter.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/graph_iterators.h>
 #include <ogdf/uml/UMLGraph.h>
 
 namespace ogdf {

@@ -38,8 +38,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/cluster/internal/ChunkConnection.h>
+
+#include <ogdf/external/abacus.h>
+
+namespace abacus {
+class Master;
+} // namespace abacus
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

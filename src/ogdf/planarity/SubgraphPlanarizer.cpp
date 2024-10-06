@@ -29,11 +29,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/Thread.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/EdgeInsertionModule.h>
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/planarity/PlanRepLight.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/embedder/CrossingStructure.h>
+
+#include <algorithm>
+#include <atomic>
+#include <cstdint>
+#include <cstdlib>
+#include <limits>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <utility>
 
 using std::atomic;
 using std::lock_guard;

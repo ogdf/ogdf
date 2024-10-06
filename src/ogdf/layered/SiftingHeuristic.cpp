@@ -29,9 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/layered/Level.h>
 #include <ogdf/layered/SiftingHeuristic.h>
 
 namespace ogdf {
+class HierarchyLevels;
 
 SiftingHeuristic::SiftingHeuristic()
 	: m_crossingMatrix(nullptr), m_strategy(Strategy::LeftToRight) { }

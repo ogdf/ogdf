@@ -30,7 +30,15 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/davidson_harel/EnergyFunction.h>
+
+#include <iostream>
+#include <string>
 
 namespace ogdf {
 namespace davidson_harel {

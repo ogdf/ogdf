@@ -32,7 +32,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MaxFlowModule.h>
+
+#include <algorithm>
 
 //#define OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 #define OGDF_GT_USE_MAX_ACTIVE_LABEL

@@ -31,9 +31,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorModule.h>
 
+#include <functional>
+#include <limits>
+
 namespace ogdf {
+template<class E>
+class List;
+template<typename T>
+class EdgeWeightedGraph;
+
 namespace steiner_tree {
 
 //! Full 3-component generation using enumeration

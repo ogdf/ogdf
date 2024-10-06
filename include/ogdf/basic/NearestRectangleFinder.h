@@ -32,17 +32,22 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 
+#include <ostream>
+
 namespace ogdf {
+template<class E>
+class List;
 
 //! Finds in a given set of rectangles for each point in a given
 //! set of points the nearest rectangle
 class OGDF_EXPORT NearestRectangleFinder {
 public:
-	struct RectRegion;
-	struct PairRectDist;
 	struct PairCoordId;
+	struct PairRectDist;
+	struct RectRegion;
 
 	explicit NearestRectangleFinder(double mad = 20, double td = 5) {
 		m_maxAllowedDistance = mad;

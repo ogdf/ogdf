@@ -32,10 +32,12 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>
 
 namespace ogdf {
-
+class GraphAttributes;
+class HierarchyLevelsBase;
 
 //! The LP-based hierarchy layout algorithm.
 /**

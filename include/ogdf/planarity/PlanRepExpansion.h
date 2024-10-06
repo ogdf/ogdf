@@ -32,14 +32,19 @@
 
 #pragma once
 
-#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/basic/tuples.h>
+
+#include <ostream>
 
 namespace ogdf {
+class CombinatorialEmbedding;
+template<class E1, class E2>
+class Tuple2;
 
 /**
  * \brief Planarized representations (of a connected component) of a graph.

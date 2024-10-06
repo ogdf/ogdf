@@ -39,11 +39,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/Skiplist.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 
+#include <algorithm>
+
 namespace ogdf {
+template<class X>
+class Skiplist;
 
 /***
  * @ingroup ga-cplanarity

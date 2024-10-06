@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/clique/CliqueFinderModule.h>
 
 namespace ogdf {

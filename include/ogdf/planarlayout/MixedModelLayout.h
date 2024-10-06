@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>
@@ -40,6 +42,8 @@
 #include <memory>
 
 namespace ogdf {
+class GridLayout;
+class PlanRep;
 
 /**
  * \brief Implementation of the Mixed-Model layout algorithm.

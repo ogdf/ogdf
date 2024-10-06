@@ -1,9 +1,12 @@
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators/randomized.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/decomposition/FourBlockTree.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/planarlayout/PlanarStraightLayout.h>
-
+#include <memory>
 #include <string>
 
 using namespace ogdf;

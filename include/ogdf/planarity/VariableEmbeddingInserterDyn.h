@@ -31,11 +31,15 @@
 
 #pragma once
 
-#include <ogdf/planarity/RemoveReinsertType.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 
-namespace ogdf {
+#include <cstdint>
 
+namespace ogdf {
+class EdgeInsertionModule;
+class PlanRepLight;
 
 //! Optimal edge insertion module.
 /**

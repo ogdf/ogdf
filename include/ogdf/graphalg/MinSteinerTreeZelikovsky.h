@@ -32,18 +32,33 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorEnumeration.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
+#include <ogdf/graphalg/steiner_tree/Save.h>
 #include <ogdf/graphalg/steiner_tree/SaveDynamic.h>
 #include <ogdf/graphalg/steiner_tree/SaveEnum.h>
 #include <ogdf/graphalg/steiner_tree/SaveStatic.h>
 #include <ogdf/graphalg/steiner_tree/Triple.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 
+#include <limits>
+
+namespace ogdf::steiner_tree {
+template<typename T>
+class Full3ComponentGeneratorModule;
+} // namespace ogdf::steiner_tree
+
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 /*!
  * \brief This class implements the 11/6-approximation algorithm by Zelikovsky

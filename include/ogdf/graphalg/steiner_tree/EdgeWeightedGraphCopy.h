@@ -31,10 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 template<typename T>
 class EdgeWeightedGraphCopy : public GraphCopy {

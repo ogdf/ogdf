@@ -31,13 +31,15 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/heap/PairingHeap.h>
 
+#include <cstddef>
 #include <functional>
-#include <utility>
+#include <initializer_list>
 
 namespace ogdf {
 

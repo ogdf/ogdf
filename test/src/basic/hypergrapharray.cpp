@@ -28,9 +28,17 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+#include <ogdf/basic/List.h>
 #include <ogdf/hypergraph/Hypergraph.h>
 
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "array_helper.h"
+#include <testing.h>
 
 go_bandit([]() {
 	auto chooseHypernode = [](const Hypergraph& H) { return H.randomHypernode(); };

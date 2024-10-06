@@ -31,10 +31,16 @@
 
 #pragma once
 
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
 
 namespace ogdf {
-
+class BoyerMyrvoldPlanar;
+enum class BoyerMyrvoldEdgeType;
+template<class E>
+class ListPure;
 
 /**
  * %List of externally active nodes strictly between x and y for minortypes \a B and \a E

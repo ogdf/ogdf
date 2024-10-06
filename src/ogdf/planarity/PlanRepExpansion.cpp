@@ -30,11 +30,21 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceSet.h>
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/tuples.h>
 #include <ogdf/planarity/PlanRepExpansion.h>
+
+#include <utility>
 
 namespace ogdf {
 

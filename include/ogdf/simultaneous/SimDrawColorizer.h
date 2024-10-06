@@ -31,9 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
 namespace ogdf {
+class SimDraw;
 
 //! Adds color to a graph
 /** SimDrawColorizer adds colors to the edges (and nodes) of a simdraw

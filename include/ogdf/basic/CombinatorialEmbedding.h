@@ -33,7 +33,16 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/internal/config_autogen.h>
+#include <ogdf/basic/internal/graph_iterators.h>
+#include <ogdf/basic/memory.h>
+
+#include <functional>
+#include <iosfwd>
 
 namespace ogdf {
 

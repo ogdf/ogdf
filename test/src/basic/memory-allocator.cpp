@@ -32,8 +32,9 @@
 #include <ogdf/basic/System.h>
 #include <ogdf/basic/memory.h>
 
-#include <cmath>
-#include <iostream>
+#include <cstddef>
+#include <functional>
+#include <string>
 
 #include <testing.h>
 
