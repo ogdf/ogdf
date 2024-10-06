@@ -32,6 +32,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/energybased/DTreeMultilevelEmbedder.h>
 #include <ogdf/energybased/DavidsonHarelLayout.h>

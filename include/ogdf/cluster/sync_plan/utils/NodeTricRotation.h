@@ -33,6 +33,7 @@
 #include <ogdf/basic/DisjointSets.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/NodePCRotation.h>
 #include <ogdf/cluster/sync_plan/basic/OverlappingGraphCopies.h>
 #include <ogdf/graphalg/Triconnectivity.h>

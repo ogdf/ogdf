@@ -53,6 +53,8 @@
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 #include <ogdf/cluster/internal/MaxCPlanarSub.h>
 #include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>
+
+#include <ogdf/external/abacus.h>
 //heuristics in case only max planar subgraph is computed
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
@@ -67,11 +69,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
-namespace abacus {
-class Sub;
-class Variable;
-} // namespace abacus
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

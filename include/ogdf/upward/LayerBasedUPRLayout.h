@@ -35,6 +35,7 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>
 #include <ogdf/layered/OptimalRanking.h>

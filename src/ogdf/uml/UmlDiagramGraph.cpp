@@ -31,6 +31,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/uml/UmlDiagramGraph.h>
 #include <ogdf/uml/UmlModelGraph.h>
 

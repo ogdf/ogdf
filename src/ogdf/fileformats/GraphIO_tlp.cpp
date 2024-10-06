@@ -34,6 +34,7 @@
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/LayoutStandards.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graphics.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>

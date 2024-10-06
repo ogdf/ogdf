@@ -38,6 +38,7 @@
 
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/uml/UMLGraph.h>
 

@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/HierarchyLevels.h>
 #include <ogdf/layered/LayerByLayerSweep.h>

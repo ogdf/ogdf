@@ -49,11 +49,6 @@
 
 #include <ogdf/external/abacus.h>
 
-namespace abacus {
-class Master;
-class Variable;
-} // namespace abacus
-
 namespace ogdf {
 struct NodePair;
 

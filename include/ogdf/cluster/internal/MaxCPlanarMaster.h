@@ -42,6 +42,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/Stopwatch.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
@@ -52,9 +53,6 @@
 #include <string>
 
 namespace abacus {
-class Constraint;
-class Sub;
-class Variable;
 template<class BaseType, class CoType>
 class StandardPool;
 } // namespace abacus

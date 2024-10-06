@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/simultaneous/TwoLayerCrossMinSimDraw.h>
 
 #include <cstdint>

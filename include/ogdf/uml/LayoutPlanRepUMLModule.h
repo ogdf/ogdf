@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Layout.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/memory.h>
 

@@ -47,13 +47,6 @@
 
 #include <ostream>
 
-namespace abacus {
-class BranchRule;
-class Constraint;
-class Master;
-class Variable;
-} // namespace abacus
-
 namespace ogdf::cluster_planarity {
 struct edgeValue;
 } // namespace ogdf::cluster_planarity

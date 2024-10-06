@@ -36,6 +36,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/edge_router/NodeInfo.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
