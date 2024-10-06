@@ -36,6 +36,7 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/ClusterPQContainer.h>
 #include <ogdf/planarity/booth_lueker/EmbedPQTree.h>

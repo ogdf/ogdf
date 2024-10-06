@@ -41,7 +41,6 @@
 #include <ogdf/basic/geometry.h>
 
 #include <cmath>
-#include <utility>
 
 namespace ogdf {
 

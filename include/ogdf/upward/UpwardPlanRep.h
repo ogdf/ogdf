@@ -37,6 +37,7 @@
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
 #include <iostream>
 

@@ -50,8 +50,6 @@
 #include <string>
 
 namespace abacus {
-class Constraint;
-class Variable;
 template<class BaseType, class CoType>
 class StandardPool;
 } // namespace abacus

@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/decomposition/DynamicSkeleton.h>
 #include <ogdf/decomposition/SPQRTree.h>

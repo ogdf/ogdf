@@ -36,7 +36,6 @@
 #include <ogdf/cluster/sync_plan/utils/Preprocess.h>
 
 #include <ostream>
-#include <utility>
 
 namespace ogdf::sync_plan {
 

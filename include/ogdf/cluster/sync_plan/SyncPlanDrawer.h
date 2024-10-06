@@ -35,6 +35,7 @@
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
 

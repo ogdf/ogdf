@@ -37,6 +37,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 
 #include <algorithm>
 #include <limits>

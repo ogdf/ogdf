@@ -37,6 +37,7 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/packing/CCLayoutPackModule.h>

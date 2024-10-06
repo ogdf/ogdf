@@ -41,10 +41,10 @@
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/internal/graph_iterators.h>
-#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 
 namespace ogdf {
+class ClusterGraph;
 template<class E>
 class List;
 

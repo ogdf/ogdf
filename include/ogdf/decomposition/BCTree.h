@@ -34,6 +34,7 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
 #include <iosfwd>
 

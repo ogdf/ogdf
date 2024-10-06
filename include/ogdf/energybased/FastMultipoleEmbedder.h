@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>

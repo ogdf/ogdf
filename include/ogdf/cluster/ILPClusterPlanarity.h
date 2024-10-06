@@ -35,6 +35,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Stopwatch.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterPlanarityModule.h>
 #include <ogdf/cluster/internal/CP_MasterBase.h>

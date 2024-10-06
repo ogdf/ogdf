@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/planarity/EmbedderModule.h>

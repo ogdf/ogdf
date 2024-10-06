@@ -34,6 +34,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 template<class E>

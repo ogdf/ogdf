@@ -41,6 +41,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/IncNodeInserter.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 class PlanRepInc;

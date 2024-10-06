@@ -34,6 +34,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/uml/UMLCrossingMinimizationModule.h>
 #include <ogdf/uml/UMLEdgeInsertionModule.h>

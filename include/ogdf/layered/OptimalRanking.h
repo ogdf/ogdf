@@ -33,6 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/RankingModule.h>
 

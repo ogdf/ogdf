@@ -35,6 +35,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>
 
 #include <iosfwd>

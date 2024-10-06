@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/tuples.h>
 
 #include <limits>

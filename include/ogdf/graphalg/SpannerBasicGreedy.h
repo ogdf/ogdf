@@ -35,6 +35,7 @@
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/SpannerModule.h>
 
 #include <string>

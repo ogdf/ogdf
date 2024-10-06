@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EmbedderModule.h>
 
 namespace ogdf {

@@ -32,6 +32,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 #include <cctype>

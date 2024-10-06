@@ -35,6 +35,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanRep.h>
 
 #include <iosfwd>

@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EmbedderMinDepthMaxFace.h>
 #include <ogdf/planarity/embedder/LayersBlockEmbedder.h>
 #include <ogdf/planarity/embedder/MDMFLengthAttribute.h>

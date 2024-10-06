@@ -53,7 +53,6 @@
 #include <ogdf/upward/internal/UpwardPlanaritySingleSource.h>
 
 #include <ostream>
-#include <utility>
 
 namespace ogdf {
 

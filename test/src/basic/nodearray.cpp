@@ -31,8 +31,6 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators.h>
 
-#include <utility>
-
 #include "array_helper.h" // IWYU pragma: associated
 #include <testing.h>
 

@@ -41,10 +41,6 @@
 
 #include <ogdf/external/abacus.h>
 
-namespace abacus {
-class Master;
-class Variable;
-} // namespace abacus
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

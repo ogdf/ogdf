@@ -34,6 +34,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>
 #include <ogdf/layered/HierarchyClusterLayoutModule.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>

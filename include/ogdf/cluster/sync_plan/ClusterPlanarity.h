@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphSets.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterPlanarityModule.h>
 

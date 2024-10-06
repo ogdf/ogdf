@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/MMCrossingMinimizationModule.h>
 #include <ogdf/planarity/MMEdgeInsertionModule.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>

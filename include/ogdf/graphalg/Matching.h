@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 
 #include <array>
 

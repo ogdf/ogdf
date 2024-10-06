@@ -37,10 +37,7 @@
 #include <ogdf/cluster/ClusterGraph.h>
 
 #include <functional>
-#include <memory>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "array_helper.h"
 #include <testing.h>

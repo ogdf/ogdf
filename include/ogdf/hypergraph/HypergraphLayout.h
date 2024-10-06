@@ -41,7 +41,7 @@
 
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/hypergraph/HypergraphLayoutModule.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>

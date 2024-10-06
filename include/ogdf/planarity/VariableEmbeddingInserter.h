@@ -34,6 +34,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 
 #include <cstdint>

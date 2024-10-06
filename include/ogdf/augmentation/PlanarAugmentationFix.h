@@ -34,6 +34,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/augmentation/planar/PALabel.h>
 

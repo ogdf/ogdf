@@ -36,6 +36,7 @@
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/graphics.h>

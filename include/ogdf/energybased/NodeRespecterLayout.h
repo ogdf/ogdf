@@ -39,6 +39,7 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graphics.h>
 #include <ogdf/basic/memory.h>
 

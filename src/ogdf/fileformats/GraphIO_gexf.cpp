@@ -35,6 +35,7 @@
 #include <ogdf/basic/LayoutStandards.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graphics.h>
 #include <ogdf/cluster/ClusterGraph.h>

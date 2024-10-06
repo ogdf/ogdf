@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/tuples.h> // IWYU pragma: keep
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/RankingModule.h>

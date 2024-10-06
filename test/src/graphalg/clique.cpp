@@ -54,8 +54,6 @@
 
 #include <graphs.h>
 
-#include <testing.h>
-
 static void assertCliqueCorrectness(const Graph& G, const NodeArray<int>& cliqueNumber,
 		const List<List<node>*>& cliqueList, int minSize, double density = 1.0) {
 	NodeArray<bool> used(G, false);

@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 class GraphAttributes;

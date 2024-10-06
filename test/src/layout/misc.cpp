@@ -46,6 +46,8 @@
 #include <ogdf/tree/TreeLayout.h>
 #include <ogdf/upward/DominanceLayout.h>
 #include <ogdf/upward/VisibilityLayout.h>
+
+#include <testing.h>
 // IWYU pragma: end_keep
 
 #include "layout_helpers.h" // IWYU pragma: associated

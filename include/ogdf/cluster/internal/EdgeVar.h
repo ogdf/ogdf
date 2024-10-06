@@ -39,10 +39,6 @@
 
 #include <ostream>
 
-namespace abacus {
-class Master;
-} // namespace abacus
-
 namespace ogdf {
 namespace cluster_planarity {
 
