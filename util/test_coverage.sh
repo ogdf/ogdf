@@ -31,7 +31,10 @@ opts+="-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
 
 ## coverage
 opts+="-DOGDF_SEPARATE_TESTS=ON "
+opts+="-DOGDF_ARCH=x86-64 "
 opts+="-DCMAKE_CXX_FLAGS='-fprofile-instr-generate -fcoverage-mapping -femit-all-decls -Wall -Wextra -fdiagnostics-show-option' "
+# llvm-cov show for multiple objects requires emit-all-decls, which is incompatible with SSE (thus the old arch)
+# https://github.com/llvm/llvm-project/issues/32849#issuecomment-2353071071
 
 ## cmd-line args
 opts+="$@"
@@ -53,7 +56,7 @@ util/perform_separate_tests.sh build-coverage
 echo "::group::($(date -Iseconds)) Collect coverage"
 tests=$(printf -- "-object %s " build-coverage/test/bin/test-*)
 lib="build-coverage/libOGDF.so"
-llvm-profdata merge  -sparse build-coverage/profraw/*.profraw -o coverage/coverage.profdata
+llvm-profdata merge -sparse build-coverage/profraw/*.profraw -o coverage/coverage.profdata
 llvm-cov show --format=text $lib $tests -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
 # llvm-cov show --format=html $lib $tests -instr-profile=coverage/coverage.profdata > coverage/coverage.html
 llvm-cov export $lib $tests -instr-profile=coverage/coverage.profdata > coverage/coverage.json
