@@ -143,11 +143,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Set-up HTTPS proxy for ccache
+      - name: Set-up HTTPS proxy for ccache in docker container
         run: |
-          apt-get update
-          apt-get install -y python3-pip
-          pip3 install mitmproxy || pip3 install mitmproxy --break-system-packages
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
       - uses: JarvusInnovations/background-action@v1
         name: Start HTTPS proxy for ccache
         with:
@@ -235,11 +234,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Set-up HTTPS proxy for ccache
+      - name: Set-up HTTPS proxy for ccache in docker container
         run: |
-          apt-get update
-          apt-get install -y python3-pip
-          pip3 install mitmproxy || pip3 install mitmproxy --break-system-packages
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
       - uses: JarvusInnovations/background-action@v1
         name: Start HTTPS proxy for ccache
         with:
@@ -280,8 +278,8 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
       - name: Process compiler name
-        # artifact names may not contain colons and GHA has no string splitting function, so we do it in bash
         run: |
+          # artifact names may not contain colons and GHA has no string splitting function, so we do it in bash
           S="${{ matrix.compiler }}"
           A=(${S//:/ })
           echo "GH_COMPILER_NAME=${A[0]}" >> "$GITHUB_ENV"
@@ -294,11 +292,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
-      - name: Set-up HTTPS proxy for ccache
+      - name: Set-up HTTPS proxy for ccache in docker container
         run: |
-          apt-get update
-          apt-get install -y python3-pip
-          pip3 install mitmproxy || pip3 install mitmproxy --break-system-packages
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
       - uses: JarvusInnovations/background-action@v1
         name: Start HTTPS proxy for ccache
         with:

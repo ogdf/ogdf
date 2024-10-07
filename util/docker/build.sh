@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-  echo "Invocation: ./build.sh <ci-registry> <tag of base image>"
+  echo "Invocation: ./build.sh <ci-registry> <tag of base image> <debian release name> [ld_lib_path]"
 }
 
 die() {
@@ -15,15 +15,21 @@ is_higher_version() {
 }
 
 [[ -n "$1" ]] || die "$(usage)"
-[[ -n "$2" ]] || die "$(usage)"
+registry="$1"
+shift
 
-base="$(echo "$2" | cut -d":" -f1)"
-version="$(echo "$2" | cut -d":" -f2)"
-
-if [[ "$2" =~ ^{gcc,clang}:[0-9][0-9\.]*$ ]]; then
+[[ -n "$1" ]] || die "$(usage)"
+if [[ "$1" =~ ^{gcc,clang}:[0-9][0-9\.]*$ ]]; then
   echo "Warning: Image not of the form ^{gcc,clang}:[0-9][0-9\.]*$"
   echo "and hence untested. Proceed with caution."
 fi
+base="$(echo "$1" | cut -d":" -f1)"
+version="$(echo "$1" | cut -d":" -f2)"
+shift
+
+[[ -n "$1" ]] || die "$(usage)"
+release="$1"
+shift
 
 if [ -z "$DOCKER_CMD" ]; then
   # Use podman if available
@@ -49,14 +55,6 @@ if [ -z "$DOCKER_PUSH_CMD" ]; then
   DOCKER_PUSH_CMD="$DOCKER_CMD push"
 fi
 
-# Build clang image first if needed.
-if [[ "$base" = "clang" ]]; then
-  simple_version="$(echo $version | cut -d"." -f1)"
-  $DOCKER_BUILD_CMD \
-    --build-arg "llvmver"="$simple_version" \
-    -t $2 clang/ || die "Failed to build original clang image."
-fi
-
 # Install CGAL only for GCC_VERSION >= 6.3 or CLANG_VERSION >= 10.0 (these are
 # the minimum supported versions for CGAL 5).
 cgal_install="false"
@@ -65,11 +63,21 @@ if { [[ "$base" = "gcc" ]]   && is_higher_version "$version" "6.3"; } || \
   cgal_install="true"
 fi
 
+if [[ "$base" = "clang" ]]; then
+  # build clang image (with given debian version) first, result will be cached
+  $DOCKER_BUILD_CMD \
+    --build-arg "llvmver"="$version" \
+    --build-arg "release"="$release" \
+    -t "$base:$version-$release" clang/ || die "Failed to build original clang image."
+fi
+
+
 # Build and push the image.
-image="$1"/"$2"
+image="$registry/$base:$version"
 $DOCKER_BUILD_CMD \
   --build-arg "compiler"="$base" \
-  --build-arg "version"="$version" \
+  --build-arg "version"="$version-$release" \
+  --build-arg "ld_lib_path"="$@" \
   --build-arg "CGAL_INSTALL"="$cgal_install" \
   -t "$image" . || die "Failed to build image."
 $DOCKER_PUSH_CMD "$image"
