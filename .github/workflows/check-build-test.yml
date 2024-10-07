@@ -7,6 +7,8 @@ on:
 # the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
 # which is very useful when using the same docker images as used for the build locally
 env:
+  # CCACHE_BASEDIR is set by build scripts
+  CCACHE_NOHASHDIR: 1 # also cache debug builds even if symbol location info may be wrong
   CCACHE_REMOTE_STORAGE_USER: ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}
   CCACHE_REMOTE_STORAGE_PASS: ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}
   CCACHE_REMOTE_STORAGE_HOST: ${{ secrets.CCACHE_REMOTE_STORAGE_HOST || 'u427124-sub1.your-storagebox.de' }}
@@ -15,7 +17,8 @@ env:
     ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}\
     @127.0.0.1:44443/\
     ${{ secrets.CCACHE_REMOTE_STORAGE_DIR }}"
-# CCACHE_SECONDARY_STORAGE is a backwards-compatible alias for CCACHE_REMOTE_STORAGE
+  # CCACHE_SECONDARY_STORAGE is a backwards-compatible alias for CCACHE_REMOTE_STORAGE
+
 
 # # Debug setup:
 # env:

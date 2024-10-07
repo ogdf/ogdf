@@ -57,8 +57,7 @@ tmp=`realpath $6`
 sourcedir=`realpath $5`
 
 mkdir -p $tmp
-export CCACHE_BASEDIR="$tmp"
-export CCACHE_NOHASHDIR=1
+export CCACHE_BASEDIR="$sourcedir"
 
 # CMake config according to the arguments
 cmakeargs=()
