@@ -4,6 +4,19 @@ on:
   pull_request:
   push:
 
+# the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
+# which is very useful when using the same docker images as used for the build locally
+env:
+  CCACHE_REMOTE_STORAGE_USER: ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}
+  CCACHE_REMOTE_STORAGE_PASS: ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}
+  CCACHE_REMOTE_STORAGE_HOST: ${{ secrets.CCACHE_REMOTE_STORAGE_HOST || 'u427124-sub1.your-storagebox.de' }}
+  CCACHE_SECONDARY_STORAGE: "http://\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}:\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}\
+    @127.0.0.1:44443/\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_DIR }}"
+# CCACHE_SECONDARY_STORAGE is a backwards-compatible alias for CCACHE_REMOTE_STORAGE
+
 # # Debug setup:
 # env:
 #   OGDF_UTILS_PREQUEL: "set -x"
@@ -74,10 +87,22 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
       - uses: actions/checkout@v4
+
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
+      - name: Set-up HTTPS proxy for ccache
+        run: pipx install mitmproxy
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
+
       - name: Test self-sufficiency
         run: |
           # the script calls gcc directly, so ensure that it finds the ccache version instead
@@ -110,16 +135,31 @@ jobs:
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
+
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
+      - name: Set-up HTTPS proxy for ccache
+        run: |
+          apt-get update
+          apt-get install -y python3-pip
+          pip3 install mitmproxy || pip3 install mitmproxy --break-system-packages
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
       - name: Restore clang-tidy cache
         uses: actions/cache/restore@v4
         with:
           path: ${{ github.workspace }}/.ctcache
           key: clang-tidy-cache-${{ github.run_id }}.${{ github.run_attempt }}
           restore-keys: clang-tidy-cache
+
       - name: Run analysis
         env:
           CTCACHE_LOCAL: 1
@@ -187,10 +227,25 @@ jobs:
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
+
       - name: Set-up ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
+      - name: Set-up HTTPS proxy for ccache
+        run: |
+          apt-get update
+          apt-get install -y python3-pip
+          pip3 install mitmproxy || pip3 install mitmproxy --break-system-packages
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
+
       - name: Run analysis
         run: |
           util/test_coverage.sh -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -236,6 +291,19 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
+      - name: Set-up HTTPS proxy for ccache
+        run: |
+          apt-get update
+          apt-get install -y python3-pip
+          pip3 install mitmproxy || pip3 install mitmproxy --break-system-packages
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
       - name: Check ccache version
         run: ccache --version
       - name: Check CPU model
@@ -289,6 +357,16 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: build-${{ matrix.os }}-${{ matrix.mode }}
+      - name: Set-up HTTPS proxy for ccache
+        run: pipx install mitmproxy
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
       - name: Check CPU model
         run: |
           uname -av
@@ -336,6 +414,16 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}-${{ matrix.mode }}
+      - name: Set-up HTTPS proxy for ccache
+        run: pipx install mitmproxy
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
       - name: Test ${{ matrix.mode }} build and run
         run: powershell util\test_build_and_run.ps1 ${{ matrix.mode == 'debug' && '-debug' }}
         env:
