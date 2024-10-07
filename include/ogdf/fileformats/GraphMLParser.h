@@ -31,15 +31,19 @@
 
 #pragma once
 
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 
 #include <ogdf/lib/pugixml/pugixml.h>
 
 #include <sstream>
+#include <string>
 #include <unordered_map>
 
 namespace ogdf {
+class ClusterGraphAttributes;
+class GraphAttributes;
 
 class GraphMLParser {
 private:

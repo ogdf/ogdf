@@ -31,10 +31,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/EdgeInsertionModule.h>
-#include <ogdf/planarity/RemoveReinsertType.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class PlanRepLight;
+enum class RemoveReinsertType;
 
 /**
  * Inserts edges optimally into an embedding.

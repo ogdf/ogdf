@@ -29,24 +29,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/comparer.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/heap/BinaryHeap.h>
 #include <ogdf/basic/heap/BinomialHeap.h>
 #include <ogdf/basic/heap/FibonacciHeap.h>
 #include <ogdf/basic/heap/HotQueue.h>
+#include <ogdf/basic/heap/PairingHeap.h>
 #include <ogdf/basic/heap/RMHeap.h>
 #include <ogdf/basic/heap/RadixHeap.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <iterator>
+#include <memory>
 #include <numeric>
 #include <queue>
+#include <random>
 #include <set>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include <testing.h>
+
+// IWYU pragma: no_include <stack>
+// IWYU pragma: no_include <map>
 
 static std::vector<int> randomVector(size_t n) {
 	std::default_random_engine rng(n);

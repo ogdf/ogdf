@@ -31,8 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/basic/GridLayoutMapped.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/uml/PlanRepUML.h>
 
 namespace ogdf {

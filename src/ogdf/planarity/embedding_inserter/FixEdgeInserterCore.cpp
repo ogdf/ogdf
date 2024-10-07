@@ -30,7 +30,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/planarity/PlanRepLight.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
 #include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
 #include <ogdf/planarity/embedding_inserter/FixEdgeInserterCore.h>
 

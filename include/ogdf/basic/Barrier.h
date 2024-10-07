@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
-
 #include <condition_variable>
+#include <cstdint>
 #include <mutex>
 
 namespace ogdf {

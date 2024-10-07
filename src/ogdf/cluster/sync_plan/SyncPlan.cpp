@@ -47,7 +47,6 @@
 #include <ogdf/decomposition/BCTree.h>
 
 #include <array>
-#include <cstdlib>
 #include <functional>
 #include <ostream>
 #include <stdexcept>

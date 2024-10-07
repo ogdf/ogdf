@@ -33,14 +33,15 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjEntryArray.h>
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
-#include <ogdf/planarlayout/LeftistOrdering.h>
-
-#include <sstream>
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class List;
 
 class BitonicOrdering {
 public:

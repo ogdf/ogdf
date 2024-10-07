@@ -33,7 +33,14 @@
 
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/heap/PairingHeap.h>
+
+#include <functional>
+#include <limits>
 
 namespace ogdf {
 

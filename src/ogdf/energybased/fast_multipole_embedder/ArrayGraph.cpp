@@ -29,8 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
+#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+
+#include <cstdint>
+#include <functional>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

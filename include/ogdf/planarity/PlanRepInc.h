@@ -37,13 +37,20 @@
 #pragma once
 
 #include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphObserver.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/uml/UMLGraph.h>
 
+#include <fstream>
+
 namespace ogdf {
+class CombinatorialEmbedding;
+class GraphAttributes;
+class GraphCopy;
+class Layout;
+template<class E>
+class List;
 
 /**
  * This class is only an adaption of PlanRep for the special incremental drawing case.

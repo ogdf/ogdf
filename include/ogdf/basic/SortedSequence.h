@@ -31,11 +31,16 @@
 
 #pragma once
 
-#include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/comparer.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/memory.h>
 
+#include <cstdlib>
+#include <initializer_list>
 #include <random>
+#include <type_traits>
+#include <utility>
 
 namespace ogdf {
 

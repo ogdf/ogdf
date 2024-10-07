@@ -34,6 +34,9 @@
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/basic.h>
+
+#include <functional>
 
 namespace ogdf {
 

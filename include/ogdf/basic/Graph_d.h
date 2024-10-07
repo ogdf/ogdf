@@ -34,29 +34,36 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/internal/config_autogen.h>
+#include <ogdf/basic/internal/copy_move.h>
 #include <ogdf/basic/internal/graph_iterators.h>
+#include <ogdf/basic/memory.h>
 
+#include <algorithm>
 #include <array>
-#include <memory>
-#include <mutex>
+#include <functional>
+#include <iterator>
+#include <ostream>
+#include <utility>
 
 #ifdef OGDF_DEBUG
 #	include <set>
 #endif
 
 namespace ogdf {
-
-
-class OGDF_EXPORT Graph;
-class OGDF_EXPORT NodeElement;
-class OGDF_EXPORT EdgeElement;
-class OGDF_EXPORT AdjElement;
-class OGDF_EXPORT FaceElement;
-class OGDF_EXPORT ClusterElement;
-
+class OGDF_EXPORT AdjElement; // IWYU pragma: keep
+class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
+class OGDF_EXPORT EdgeElement; // IWYU pragma: keep
+class OGDF_EXPORT FaceElement; // IWYU pragma: keep
+class OGDF_EXPORT Graph; // IWYU pragma: keep
+class OGDF_EXPORT NodeElement; // IWYU pragma: keep
 
 //! The type of nodes.
 //! @ingroup graphs
@@ -861,8 +868,9 @@ OGDF_EXPORT bool filter_any_node(node n); // { return true; }
 
 class OGDF_EXPORT Graph : public Observable<GraphObserver, Graph> {
 public:
-	class HiddenEdgeSet;
-	class CCsInfo;
+	class CCsInfo; // IWYU pragma: keep
+	class HiddenEdgeSet; // IWYU pragma: keep
+
 	friend class GraphObserver;
 
 private:

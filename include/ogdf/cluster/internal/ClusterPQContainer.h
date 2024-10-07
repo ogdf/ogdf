@@ -35,9 +35,13 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
+#include <ogdf/planarity/booth_lueker/IndInfo.h>
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 
 namespace ogdf {
 

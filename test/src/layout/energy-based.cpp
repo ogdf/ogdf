@@ -29,6 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/energybased/DTreeMultilevelEmbedder.h>
 #include <ogdf/energybased/DavidsonHarelLayout.h>
@@ -43,8 +47,16 @@
 #include <ogdf/energybased/SpringEmbedderKK.h>
 #include <ogdf/energybased/StressMinimization.h>
 #include <ogdf/energybased/TutteLayout.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
+
+#include <functional>
+#include <initializer_list>
+#include <string>
 
 #include "layout_helpers.h"
+#include <graphs.h>
+
+#include <testing.h>
 
 #define TEST_ENERGY_BASED_LAYOUT(NAME, EXTRA_ATTR, ...) \
 	describeEnergyBasedLayout<NAME>(#NAME, EXTRA_ATTR, {__VA_ARGS__})

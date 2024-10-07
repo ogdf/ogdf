@@ -29,12 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
+#include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/upward/UpwardPlanarity.h>
 #include <ogdf/upward/internal/UpSAT.h>
 #include <ogdf/upward/internal/UpwardPlanarityEmbeddedDigraph.h>
 #include <ogdf/upward/internal/UpwardPlanaritySingleSource.h>
 
 namespace ogdf {
+template<class E>
+class List;
 
 //
 // General digraphs

@@ -32,13 +32,21 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanRepLight.h>
-#include <ogdf/planarity/RemoveReinsertType.h>
+
+#include <cstdint>
 
 namespace ogdf {
-
+enum class RemoveReinsertType;
+template<class E>
+class List;
+template<class E>
+class SList;
 
 class OGDF_EXPORT VarEdgeInserterDynCore : public Timeouter {
 public:

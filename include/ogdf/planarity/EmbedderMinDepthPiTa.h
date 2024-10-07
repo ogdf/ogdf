@@ -31,10 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Observer.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/planarity/embedder/EmbedderBCTreeBase.h>
-#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphs.h>
 
 namespace ogdf {
+class BCTree;
 
 //! Embedder that minimizes block-nesting depth for given embedded blocks.
 /**

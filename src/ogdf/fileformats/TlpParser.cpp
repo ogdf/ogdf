@@ -29,9 +29,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/fileformats/Tlp.h>
+#include <ogdf/fileformats/TlpLexer.h>
 #include <ogdf/fileformats/TlpParser.h>
 #include <ogdf/fileformats/Utils.h>
+
+#include <cctype>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace ogdf {
 

@@ -32,15 +32,22 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceSet.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
-#include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanRepLight.h>
-#include <ogdf/planarity/RemoveReinsertType.h>
+
+#include <cstdint>
 
 namespace ogdf {
+enum class RemoveReinsertType;
+template<class E>
+class QueuePure;
 
 class OGDF_EXPORT FixEdgeInserterCore : public Timeouter {
 public:

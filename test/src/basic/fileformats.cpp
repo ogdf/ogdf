@@ -30,22 +30,39 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
-#include <regex>
+#include <cstdlib>
+#include <fstream>
+#include <functional>
+#include <limits>
+#include <set>
+#include <sstream>
 #include <string>
-#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include <graphs.h>
 #include <resources.h>
+
+#include <testing.h>
 
 using namespace std;
 using Reader = function<bool(Graph&, istream&)>;

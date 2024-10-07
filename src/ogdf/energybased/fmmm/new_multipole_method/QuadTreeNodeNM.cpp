@@ -30,7 +30,14 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/fmmm/new_multipole_method/ParticleInfo.h>
 #include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNodeNM.h>
+
+#include <complex>
+#include <istream>
 
 namespace ogdf {
 namespace energybased {

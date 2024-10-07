@@ -31,9 +31,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/augmentation/AugmentationModule.h>
 
 namespace ogdf {
+template<class E>
+class List;
 
 /**
  * \brief Implementation of a DFS-based algorithm for biconnectivity augmentation.

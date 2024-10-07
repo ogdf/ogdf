@@ -31,13 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/Level.h>
 
+#include <cstdint>
+#include <iosfwd>
+
 namespace ogdf {
+class Hierarchy;
 
 //! Representation of proper hierarchies used by Sugiyama-layout.
 /**

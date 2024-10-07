@@ -31,11 +31,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Thread.h>
 #include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <algorithm>
 
 namespace ogdf {
 

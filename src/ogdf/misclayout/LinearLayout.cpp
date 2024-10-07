@@ -32,7 +32,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/misclayout/LinearLayout.h>
+
+#include <cmath>
 
 namespace ogdf {
 

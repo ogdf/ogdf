@@ -32,10 +32,21 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MaximumDensitySubgraph.h>
 #include <ogdf/graphalg/SpannerModule.h>
+
+#include <algorithm>
+#include <cstdint>
+#include <string>
 
 namespace ogdf {
 

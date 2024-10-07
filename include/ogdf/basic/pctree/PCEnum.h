@@ -33,6 +33,7 @@
 
 #include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/RegisteredSet.h>
+#include <ogdf/basic/basic.h>
 
 #include <ostream>
 
@@ -41,13 +42,9 @@ enum class OGDF_EXPORT NodeLabel { Unknown, Partial, Full, Empty = Unknown };
 
 enum class OGDF_EXPORT PCNodeType { PNode, CNode, Leaf };
 
-class OGDF_EXPORT PCTree;
-
-class OGDF_EXPORT PCTreeForest;
-
-class OGDF_EXPORT PCTreeRegistry;
-
 class OGDF_EXPORT PCNode;
+class OGDF_EXPORT PCTree;
+class OGDF_EXPORT PCTreeRegistry;
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) ogdf::RegisteredArray<PCTreeRegistry, v, c>
 OGDF_DECL_REG_ARRAY(PCTreeNodeArray)

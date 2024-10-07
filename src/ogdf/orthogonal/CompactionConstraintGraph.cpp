@@ -32,9 +32,13 @@
  */
 
 
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
+#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 

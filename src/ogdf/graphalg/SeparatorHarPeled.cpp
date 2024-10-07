@@ -29,7 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/graphalg/PlanarSeparatorModule.h>
 #include <ogdf/graphalg/SeparatorHarPeled.h>
+
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <string>
 
 namespace ogdf {
 

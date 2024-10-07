@@ -31,12 +31,21 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/fileformats/GML.h>
 
+#include <iosfwd>
+#include <string>
+
 namespace ogdf {
+class ClusterGraphAttributes;
+class GraphAttributes;
 
 namespace gml {
 

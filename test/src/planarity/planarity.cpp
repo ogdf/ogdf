@@ -29,18 +29,44 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MaxFlowSTPlanarItaiShiloach.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
 #include <ogdf/planarity/BoothLueker.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/ExtractKuratowskis.h>
+#include <ogdf/planarity/KuratowskiSubdivision.h>
 #include <ogdf/planarity/NonPlanarCore.h>
-#include <ogdf/planarity/PlanarizationLayout.h>
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/planarity/PlanarityModule.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 
+#include <cstdlib>
+#include <functional>
+#include <initializer_list>
+#include <limits>
 #include <random>
+#include <set>
+#include <string>
+#include <vector>
 
 #include <graphs.h>
+#include <resources.h>
+
+#include <testing.h>
 
 using std::minstd_rand;
 using std::uniform_int_distribution;

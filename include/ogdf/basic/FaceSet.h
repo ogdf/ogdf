@@ -31,8 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/RegisteredSet.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 

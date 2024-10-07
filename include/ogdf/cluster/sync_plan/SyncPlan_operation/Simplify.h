@@ -32,7 +32,6 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 

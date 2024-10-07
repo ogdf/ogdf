@@ -32,14 +32,18 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
+#include <iostream>
 #include <random>
 
 namespace ogdf {
+template<class E, class INDEX>
+class ArrayBuffer;
 
 //! Type of edge
 enum class BoyerMyrvoldEdgeType {
@@ -51,8 +55,8 @@ enum class BoyerMyrvoldEdgeType {
 	BackDeleted = 5 //!< deleted backedge
 };
 
-class KuratowskiStructure;
 class FindKuratowskis;
+class KuratowskiStructure;
 
 namespace boyer_myrvold {
 class BoyerMyrvoldInit;

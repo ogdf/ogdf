@@ -30,6 +30,10 @@
  */
 
 #include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/basic.h>
+
+#include <cstdlib>
+#include <string>
 
 namespace ogdf {
 

@@ -31,18 +31,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/cluster/internal/ClusterKuratowskiConstraint.h>
 #include <ogdf/cluster/internal/CutConstraint.h>
 #include <ogdf/cluster/internal/MaxCPlanarSub.h>
 #include <ogdf/cluster/internal/MaxPlanarEdgesConstraint.h>
 #include <ogdf/graphalg/MinimumCutStoerWagner.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
+#include <ogdf/planarity/ExtractKuratowskis.h>
 
-#include <ogdf/lib/abacus/setbranchrule.h>
+#include <ogdf/external/abacus.h>
+#include <ogdf/lib/abacus/setbranchrule.h> // IWYU pragma: keep
+
+#include <cmath>
+#include <fstream>
+#include <functional>
+#include <iostream>
 
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
 #	include <ogdf/fileformats/GraphIO.h>

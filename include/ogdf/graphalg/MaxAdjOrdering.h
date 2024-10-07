@@ -31,15 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjacencyOracle.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/geometry.h>
-#include <ogdf/basic/graphics.h>
-#include <ogdf/misclayout/LinearLayout.h>
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class ListPure;
 
 /**
  * \brief Calculate one or all Maximum Adjacency Ordering(s) of a given simple undirected graph.

@@ -29,12 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/SteinerTreePreprocessing.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
+#include <ogdf/external/abacus.h>
+
+#include <functional>
 #include <sstream>
 #include <string>
+#include <type_traits>
+#include <utility>
 
 #include <testing.h>
 

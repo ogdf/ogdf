@@ -29,9 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/augmentation/AugmentationModule.h>
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/planarlayout/mixed_model_layout/IOPoints.h>
+#include <ogdf/planarlayout/mixed_model_layout/MMOrder.h>
 #include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>
 
+#include <algorithm>
+#include <ostream>
+
 namespace ogdf {
+class ShellingOrderModule;
 
 bool MixedModelBase::hasLeft(int k) const {
 	const ShellingOrderSet& V = m_mmo[k];

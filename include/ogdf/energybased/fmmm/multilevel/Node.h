@@ -34,6 +34,8 @@
 
 #include <ogdf/basic/Graph.h>
 
+#include <istream>
+
 namespace ogdf {
 namespace energybased {
 namespace fmmm {

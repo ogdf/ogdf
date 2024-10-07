@@ -29,6 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/graph_generators/randomized.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
 #include <ogdf/graphalg/MinSteinerTreeDirectedCut.h>
@@ -36,15 +42,36 @@
 #include <ogdf/graphalg/MinSteinerTreeGoemans139.h>
 #include <ogdf/graphalg/MinSteinerTreeKou.h>
 #include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/MinSteinerTreePrimalDual.h>
 #include <ogdf/graphalg/MinSteinerTreeRZLoss.h>
 #include <ogdf/graphalg/MinSteinerTreeShore.h>
+#include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 #include <ogdf/graphalg/MinSteinerTreeZelikovsky.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
+#include <ogdf/external/abacus.h>
+
+#include <algorithm>
+#include <functional>
+#include <initializer_list>
+#include <iostream>
+#include <memory>
+#include <sstream>
 #include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include <resources.h>
+
+#include <testing.h>
+
+namespace ogdf {
+template<typename T>
+class MaxFlowModule;
+} // namespace ogdf
 
 template<typename T>
 struct ModuleData {

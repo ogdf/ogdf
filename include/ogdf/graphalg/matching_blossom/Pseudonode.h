@@ -32,11 +32,16 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/graphalg/matching_blossom/Cycle.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/matching_blossom/utils.h>
 
 #include <unordered_map>
-#include <vector>
+#include <unordered_set>
+#include <utility>
+
+namespace ogdf::matching_blossom {
+class Cycle;
+} // namespace ogdf::matching_blossom
 
 namespace ogdf {
 namespace matching_blossom {

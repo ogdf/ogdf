@@ -32,12 +32,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/layered/Hierarchy.h>
-#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class HierarchyLevels;
+class Level;
 
 //! Implements crossings matrix which is used by some
 //! TwoLayerCrossingMinimization heuristics (e.g. split)

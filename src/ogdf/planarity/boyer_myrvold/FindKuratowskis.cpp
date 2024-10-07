@@ -30,7 +30,15 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/boyer_myrvold/FindKuratowskis.h>
 
 namespace ogdf {

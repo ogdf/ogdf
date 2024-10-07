@@ -31,17 +31,26 @@
  */
 
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Reverse.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
+#include <ogdf/planarlayout/ShellingOrder.h>
+
+#include <algorithm>
+#include <iostream>
 
 //#define OGDF_BSO_OUTPUT
 
 namespace ogdf {
 
+class ComputeBicOrder;
 // pair of node v and list itrator it
 struct PairFaceItem;
 

@@ -35,8 +35,6 @@ namespace ogdf {
 namespace energybased {
 namespace dtree {
 
-template<int Dim, typename ForceFunc, bool UseForcePrime>
-class DTreeWSPDCallback;
 
 template<int Dim>
 class DTreeForce {

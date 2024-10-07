@@ -32,10 +32,21 @@
 
 #pragma once
 
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/upward/UpwardPlanarSubgraphModule.h>
 
 namespace ogdf {
+class GraphCopy;
+class GraphCopySimple;
+template<class E1, class E2>
+class Tuple2;
+template<class E>
+class List;
+template<class E>
+class SList;
+template<class E>
+class SListPure;
 
 //! A maximal planar subgraph algorithm using planarity testing
 class OGDF_EXPORT UpwardPlanarSubgraphSimple : public UpwardPlanarSubgraphModule {

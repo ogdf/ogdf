@@ -31,10 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/Reverse.h>
 #include <ogdf/basic/basic.h>
 
-#include <functional>
+#include <iosfwd>
+#include <iterator>
+#include <type_traits>
 
 namespace ogdf {
 
@@ -42,6 +43,7 @@ namespace internal {
 
 template<class GraphObjectPtr, bool isReverse, bool isConst>
 class GraphIteratorBase;
+
 template<class GraphObjectPtr>
 using GraphIterator = GraphIteratorBase<GraphObjectPtr, false, false>;
 template<class GraphObjectPtr>
@@ -108,6 +110,7 @@ public:
 
 template<class ArrayType, bool isConst>
 class GraphArrayIteratorBase;
+
 template<class ArrayType>
 using GraphArrayIterator = GraphArrayIteratorBase<ArrayType, false>;
 template<class ArrayType>

@@ -32,13 +32,22 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/planarity/EdgeTypePatterns.h>
 #include <ogdf/planarity/PlanRep.h>
 
+#include <iosfwd>
+
 namespace ogdf {
+class ClusterGraphAttributes;
+class CombinatorialEmbedding;
+class Layout;
+class OrthoRep;
 
 //! Planarized representations for clustered graphs.
 /**

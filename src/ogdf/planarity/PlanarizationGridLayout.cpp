@@ -29,10 +29,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+#include <ogdf/planarity/CrossingMinimizationModule.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 #include <ogdf/planarlayout/MixedModelLayout.h>
+
+#include <memory>
 
 namespace ogdf {
 

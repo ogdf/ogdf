@@ -31,11 +31,19 @@
 
 #pragma once
 
-#include <ogdf/basic/AdjEntryArray.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/geometry.h>
+
+#include <algorithm>
+#include <iosfwd>
 
 namespace ogdf {
+template<class E>
+class List;
 
 class OGDF_EXPORT UMLGraph : public GraphAttributes {
 public:

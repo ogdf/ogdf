@@ -31,11 +31,22 @@
  */
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayoutMapped.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/orthogonal/EdgeRouter.h>
 #include <ogdf/orthogonal/FlowCompaction.h>
-#include <ogdf/orthogonal/LongestPathCompaction.h>
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>
+#include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/OrthoShaper.h>
 #include <ogdf/uml/OrthoLayoutUML.h>
+#include <ogdf/uml/PlanRepUML.h>
+
+#include <string>
 
 namespace ogdf {
 

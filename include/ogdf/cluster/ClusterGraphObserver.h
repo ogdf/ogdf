@@ -35,7 +35,3 @@
  */
 
 #pragma once
-
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/Observer.h>
-#include <ogdf/cluster/ClusterGraph.h>

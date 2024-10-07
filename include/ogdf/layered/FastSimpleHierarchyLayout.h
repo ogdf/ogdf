@@ -32,11 +32,14 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/layered/CrossingMinInterfaces.h>
 #include <ogdf/layered/HierarchyLayoutModule.h>
 
 namespace ogdf {
+class GraphAttributes;
+class GraphCopy;
 
 /**
  * \brief Coordinate assignment phase for the Sugiyama algorithm by Ulrik Brandes and Boris Köpf

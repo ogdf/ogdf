@@ -29,18 +29,44 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
-#include <ogdf/cluster/ClusterPlanarizationLayout.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/HananiTutteCPlanarity.h>
 #include <ogdf/cluster/sync_plan/ClusterPlanarity.h>
+#include <ogdf/cluster/sync_plan/PMatching.h>
 #include <ogdf/cluster/sync_plan/PipeOrder.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
+#include <ogdf/fileformats/GraphIO.h>
 
+#include <algorithm>
+#include <cstdint>
+#include <exception>
+#include <functional>
+#include <initializer_list>
 #include <random>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <graphs.h>
+#include <resources.h>
+
+#include <testing.h>
 
 using namespace ogdf::sync_plan;
 

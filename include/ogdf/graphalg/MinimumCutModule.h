@@ -31,9 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/Graph.h>
 
 namespace ogdf {
+template<class E, class INDEX>
+class ArrayBuffer;
 
 /**
  * Serves as an interface for various methods to compute minimum cuts with or

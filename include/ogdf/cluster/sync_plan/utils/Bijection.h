@@ -33,6 +33,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/comparer.h>
 #include <ogdf/cluster/sync_plan/basic/Iterators.h>
 

@@ -29,6 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/graphalg/NodeColoringBergerRompel.h>
 #include <ogdf/graphalg/NodeColoringBoppanaHalldorsson.h>
 #include <ogdf/graphalg/NodeColoringHalldorsson.h>
@@ -38,6 +41,11 @@
 #include <ogdf/graphalg/NodeColoringSequential.h>
 #include <ogdf/graphalg/NodeColoringSimple.h>
 #include <ogdf/graphalg/NodeColoringWigderson.h>
+
+#include <functional>
+#include <set>
+#include <string>
+#include <vector>
 
 #include <graphs.h>
 

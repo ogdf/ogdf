@@ -31,7 +31,10 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/upward/UpwardPlanRep.h>
 
 namespace ogdf {

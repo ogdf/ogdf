@@ -32,14 +32,18 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/RankingModule.h>
 
 #include <memory>
 
 namespace ogdf {
+template<class E1, class E2>
+class Tuple2;
+template<class E>
+class List;
 
 //! The coffman graham ranking algorithm.
 /**

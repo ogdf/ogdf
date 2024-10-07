@@ -32,10 +32,11 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
-
+class GraphAttributes;
 
 /**
  * \brief Interface of general layout algorithms.

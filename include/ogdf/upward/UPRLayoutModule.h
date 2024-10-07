@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
-
+class GraphAttributes;
+class UpwardPlanRep;
 
 /**
  * \brief Interface of hierarchy layout algorithms.

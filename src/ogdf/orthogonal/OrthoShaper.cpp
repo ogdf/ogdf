@@ -31,8 +31,22 @@
  */
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
+#include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/OrthoShaper.h>
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/uml/PlanRepUML.h>
+
+#include <algorithm>
+#include <ostream>
+#include <string>
 
 
 const int flowBound = 4; //cant have more than 4 bends in cage boundary, not > 360 degree

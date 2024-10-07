@@ -33,15 +33,15 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/LayoutModule.h>
 #include <ogdf/basic/PreprocessorLayout.h>
-#include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
-#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
-#include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
-#include <ogdf/packing/ComponentSplitterLayout.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class GraphAttributes;
+class InitialPlacer;
+class ModularMultilevelMixer;
+class MultilevelBuilder;
 
 //! The multilevel drawing framework.
 /**

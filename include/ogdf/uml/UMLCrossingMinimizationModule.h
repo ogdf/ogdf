@@ -31,11 +31,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
-#include <ogdf/uml/PlanRepUML.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class PlanRepUML;
 
 //! Base class for UML crossing minimization algorithms.
 class OGDF_EXPORT UMLCrossingMinimizationModule : public Module, public Timeouter {

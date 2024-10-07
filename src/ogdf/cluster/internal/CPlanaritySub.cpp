@@ -31,21 +31,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/cluster/CconnectClusterPlanar.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/CPlanaritySub.h>
 #include <ogdf/cluster/internal/ChunkConnection.h>
 #include <ogdf/cluster/internal/ClusterKuratowskiConstraint.h>
 #include <ogdf/cluster/internal/CutConstraint.h>
-#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/MinimumCutStoerWagner.h>
+#include <ogdf/planarity/BoyerMyrvold.h>
+#include <ogdf/planarity/ExtractKuratowskis.h>
 
-#include <ogdf/lib/abacus/setbranchrule.h>
+#include <ogdf/external/abacus.h>
+#include <ogdf/lib/abacus/setbranchrule.h> // IWYU pragma: keep
+
+#include <iostream>
+#include <string>
 
 //output intermediate results when new sons are generated
 #ifdef OGDF_CPLANAR_DEBUG_OUTPUT
-#	include <ogdf/basic/GraphAttributes.h>
+#	include <ogdf/fileformats/GraphIO.h>
 #endif
 
 using namespace ogdf;

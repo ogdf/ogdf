@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/util/FilteringBFS.h>
 #include <ogdf/decomposition/BCTree.h>
 

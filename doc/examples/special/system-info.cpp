@@ -1,5 +1,5 @@
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/System.h>
+#include <iostream>
 
 using namespace ogdf;
 

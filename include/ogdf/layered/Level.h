@@ -31,15 +31,21 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
+
+#include <iosfwd>
 
 namespace ogdf {
 
 class HierarchyLevels;
-class LayerBasedUPRLayout;
+template<class E1, class E2>
+class Tuple2;
+template<class E>
+class SListPure;
 
 template<class T = double>
 class WeightComparer {

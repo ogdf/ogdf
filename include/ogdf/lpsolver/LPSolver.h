@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/basic.h>
 
 #include <ogdf/external/coin.h>
 

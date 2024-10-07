@@ -29,11 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/graphalg/PlanarSeparatorModule.h>
 #include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>
+
+#include <memory>
+#include <utility>
 
 namespace ogdf {
 
-namespace planar_separator {
+namespace planar_separators {
 
 SeparatorDualHelper::CycleData SeparatorDualHelper::dfs() {
 	embedding.init(*graph);

@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/graphalg/matching_blossom/Cycle.h>
 #include <ogdf/graphalg/matching_blossom/Pseudonode.h>
 
 namespace ogdf {

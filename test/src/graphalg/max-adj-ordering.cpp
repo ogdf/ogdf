@@ -29,8 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MaxAdjOrdering.h>
+
+#include <functional>
+#include <set>
+#include <string>
 
 #include <graphs.h>
 

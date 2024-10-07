@@ -31,9 +31,18 @@
 
 #pragma once
 
-#include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
+
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace ogdf {
+class GraphAttributes;
 
 /**
  * \brief LaTeX+TikZ Writer

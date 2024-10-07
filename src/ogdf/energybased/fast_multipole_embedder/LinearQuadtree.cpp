@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/basic.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 #include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
 #include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
+
+#include <algorithm>
+#include <cstdint>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

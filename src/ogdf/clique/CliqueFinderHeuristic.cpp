@@ -32,8 +32,23 @@
 
 //#define OGDF_CLIQUE_FINDER_HEURISTIC_DEBUG
 
+#include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/clique/CliqueFinderHeuristic.h>
+#include <ogdf/clique/CliqueFinderModule.h>
+
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <iostream>
 
 namespace ogdf {
 

@@ -31,10 +31,19 @@
 
 #pragma once
 
-#include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/PlanarSeparatorModule.h>
 
+#include <cmath>
+#include <memory>
+#include <string>
+
 namespace ogdf {
+class GraphCopy;
 
 namespace planar_separators {
 

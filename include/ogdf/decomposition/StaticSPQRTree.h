@@ -31,11 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/SPQRTree.h>
+#include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/StaticSkeleton.h>
-#include <ogdf/graphalg/Triconnectivity.h>
 
 namespace ogdf {
+class PertinentGraph;
+class Triconnectivity;
 
 /**
  * \brief Linear-time implementation of static SPQR-trees.

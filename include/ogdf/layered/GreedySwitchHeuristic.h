@@ -31,10 +31,13 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/CrossingsMatrix.h>
 #include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
+class HierarchyLevels;
+class Level;
 
 //! The greedy-switch heuristic for 2-layer crossing minimization.
 /**

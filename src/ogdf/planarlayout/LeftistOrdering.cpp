@@ -31,7 +31,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/planarlayout/LeftistOrdering.h>
+
+#include <iostream>
 
 using namespace ogdf;
 

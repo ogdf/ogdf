@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/basic.h>
 
+#include <cstdint>
 #include <functional>
 
 namespace ogdf {

@@ -30,6 +30,3 @@
  */
 
 #pragma once
-
-#include <ogdf/basic/GraphSets.h>
-#include <ogdf/basic/NodeArray.h>
