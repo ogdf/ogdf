@@ -30,13 +30,7 @@ RUN apt-get update \
  && ln -sf /usr/bin/llvm-profdata-${llvmver} /usr/bin/llvm-profdata \
  && ln -sf /usr/bin/llvm-cov-$llvmver /usr/bin/llvm-cov
 
-# Bypass pip externally managed warning to install sonar output converter,
-# see https://stackoverflow.com/questions/75608323/
-RUN mkdir -p ~/.config/pip/ \
- && printf "[global]\nbreak-system-packages = true" > ~/.config/pip/pip.conf
-RUN pip install git+https://github.com/N-Coder/clang-tidy-converter.git
-
-# Install clang-tidy-cache
-RUN wget https://raw.githubusercontent.com/matus-chochlik/ctcache/main/clang-tidy-cache \
- && mv clang-tidy-cache /usr/bin/clang-tidy-cache \
- && chmod +x /usr/bin/clang-tidy-cache
+# Install clang-tidy cache and converter
+RUN pip install --break-system-packages \
+    git+https://github.com/matus-chochlik/ctcache.git \
+    git+https://github.com/N-Coder/clang-tidy-converter.git
