@@ -31,7 +31,7 @@ opts+="-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
 
 ## coverage
 opts+="-DOGDF_SEPARATE_TESTS=ON "
-opts+="-DCMAKE_CXX_FLAGS='-fprofile-instr-generate -fcoverage-mapping -Wall -Wextra -fdiagnostics-show-option' "
+opts+="-DCMAKE_CXX_FLAGS='-fprofile-instr-generate -fcoverage-mapping -femit-all-decls -Wall -Wextra -fdiagnostics-show-option' "
 
 ## cmd-line args
 opts+="$@"
