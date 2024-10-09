@@ -143,8 +143,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Set-up HTTPS proxy for ccache
-        run: pipx install mitmproxy
+      - name: Set-up HTTPS proxy for ccache in docker container
+        run: |
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
       - uses: JarvusInnovations/background-action@v1
         name: Start HTTPS proxy for ccache
         with:
@@ -232,8 +234,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Set-up HTTPS proxy for ccache
-        run: pipx install mitmproxy
+      - name: Set-up HTTPS proxy for ccache in docker container
+        run: |
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
       - uses: JarvusInnovations/background-action@v1
         name: Start HTTPS proxy for ccache
         with:
@@ -275,11 +279,11 @@ jobs:
     steps:
       - name: Process compiler name
         run: |
-          if [ "${{ matrix.compiler }}" = "gcc:9"]; then
+          if [ "${{ matrix.compiler }}" = "gcc:9" ]; then
             # on ggc:9-bookworm, apt and ccache need to be pointed to the newer system libstdc++ via LD_LIBRARY_PATH
             export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
-          elif [ "${{ matrix.compiler }}" = "gcc:13"]; then
+          elif [ "${{ matrix.compiler }}" = "gcc:13" ]; then
             # on ggc:13-bookworm, gcc actually brings the newer libraries, our images just contain the wrong LD_LIBRARY_PATH
             export LD_LIBRARY_PATH=""
             echo "LD_LIBRARY_PATH=" >> "$GITHUB_ENV"
@@ -297,8 +301,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}-${{ matrix.compiler }}-${{ matrix.mode }}
-      - name: Set-up HTTPS proxy for ccache
-        run: pipx install mitmproxy
+      - name: Set-up HTTPS proxy for ccache in docker container
+        run: |
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
       - uses: JarvusInnovations/background-action@v1
         name: Start HTTPS proxy for ccache
         with:
