@@ -279,15 +279,6 @@ jobs:
     steps:
       - name: Process compiler name
         run: |
-          if [ "${{ matrix.compiler }}" = "gcc:9" ]; then
-            # on ggc:9-bookworm, apt and ccache need to be pointed to the newer system libstdc++ via LD_LIBRARY_PATH
-            export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
-            echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
-          elif [ "${{ matrix.compiler }}" = "gcc:13" ]; then
-            # on ggc:13-bookworm, gcc actually brings the newer libraries, our images just contain the wrong LD_LIBRARY_PATH
-            export LD_LIBRARY_PATH=""
-            echo "LD_LIBRARY_PATH=" >> "$GITHUB_ENV"
-          fi
           # artifact names may not contain colons and GHA has no string splitting function, so we do it in bash
           S="${{ matrix.compiler }}"
           A=(${S//:/ })
