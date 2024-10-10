@@ -38,6 +38,8 @@ opts+="-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
 ## cmd-line args
 opts+="$@"
 
+export CCACHE_BASEDIR="$(pwd)"
+
 # Compile!
 echo "::group::($(date -Iseconds)) Compile"
 cd build-static-analysis
