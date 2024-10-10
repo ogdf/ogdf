@@ -2,6 +2,9 @@ ARG compiler=gcc
 ARG version=13
 FROM $compiler:$version
 
+ARG ld_lib_path=
+ENV LD_LIBRARY_PATH=${ld_lib_path}
+
 RUN apt-get -y update \
  && apt-get -y install graphviz unzip wget git time ccache cmake doxygen python3-pip python3-venv \
  && apt-get -y upgrade ca-certificates \

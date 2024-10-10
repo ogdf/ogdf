@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-  echo "Invocation: ./build.sh <ci-registry> <tag of base image> <debian release name> [optional docker build args]"
+  echo "Invocation: ./build.sh <ci-registry> <tag of base image> <debian release name> [ld_lib_path]"
 }
 
 die() {
@@ -77,6 +77,7 @@ image="$registry/$base:$version"
 $DOCKER_BUILD_CMD \
   --build-arg "compiler"="$base" \
   --build-arg "version"="$version-$release" \
+  --build-arg "ld_lib_path"="$@" \
   --build-arg "CGAL_INSTALL"="$cgal_install" \
-  -t "$image" "$@" . || die "Failed to build image."
+  -t "$image" . || die "Failed to build image."
 $DOCKER_PUSH_CMD "$image"
