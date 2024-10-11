@@ -1,0 +1,170 @@
+name: Package and Test Installers
+
+on:
+  pull_request:
+  push:
+
+# the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
+# which is very useful when using the same docker images as used for the build locally
+env:
+  # CCACHE_BASEDIR is set by build scripts
+  CCACHE_NOHASHDIR: 1 # also cache debug builds even if symbol location info may be wrong
+  CCACHE_REMOTE_STORAGE_USER: ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}
+  CCACHE_REMOTE_STORAGE_PASS: ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}
+  CCACHE_REMOTE_STORAGE_HOST: ${{ secrets.CCACHE_REMOTE_STORAGE_HOST || 'u427124-sub1.your-storagebox.de' }}
+  CCACHE_SECONDARY_STORAGE: "http://\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}:\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}\
+    @127.0.0.1:44443/\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_DIR }}"
+  # CCACHE_SECONDARY_STORAGE is a backwards-compatible alias for CCACHE_REMOTE_STORAGE
+
+
+# # Debug setup:
+# env:
+#   OGDF_UTILS_PREQUEL: "set -x"
+#   CCACHE_DEBUG: 1
+#   CCACHE_DEBUGDIR: ${{ github.workspace }}/ccache-debug
+#   VERBOSE: 1
+
+jobs:
+  # We don't want to run the CI twice for PRs from branches within the repo, so for a push event we only run the CI if
+  # the push was to the master branch or to a fork of the repo, while running the CI for all (in- and cross-repo) PRs.
+  # Workflows skipped due to filters block PRs from being merged (their required jobs count as "pending"),
+  # while jobs skipped due to conditions still count as success, so we apply the filter here.
+  precheck:
+    name: "Check whether to run the CI"
+    runs-on: ubuntu-latest
+    if: github.event.repository.full_name != 'ogdf/ogdf' || github.event_name != 'push' || github.event.ref == 'refs/heads/master'
+    steps:
+      - run: echo "Running CI pipeline!"
+
+  build-linux:
+    name: "Build on Linux"
+    runs-on: ubuntu-latest
+    container: docker.io/ogdf/gcc:13
+    needs: [ precheck ]
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
+    steps:
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+
+      - name: Set-up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}
+      - name: Set-up HTTPS proxy for ccache in docker container
+        run: |
+          pipx install mitmproxy
+          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
+      - uses: JarvusInnovations/background-action@v1
+        name: Start HTTPS proxy for ccache
+        with:
+          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+          wait-on: tcp:localhost:44443
+          tail: false
+          log-output-if: failure
+          wait-for: 10s
+
+      - name: Install build utils
+        run: apt-get update && apt-get -y install ninja-build libunwind-dev rpm
+      - name: Build and package
+        run: |
+          mkdir build-install && cd build-install
+          export CCACHE_BASEDIR="$(pwd)"
+          cmake .. \
+            -G "Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release" \
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS \
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW \
+            -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCPACK_GENERATOR="STGZ;TGZ;TZ;DEB;RPM"
+        
+          echo "::group::Debug build"
+          cmake --build . --config Debug
+          echo "::endgroup::"
+          echo "::group::Release build"
+          cmake --build . --config Release
+          echo "::endgroup::"
+        
+          echo
+          echo "Packaging..."
+          cmake --build . --target package
+
+      - name: Install for testing
+        run: |
+          cd build-install
+          mkdir -p ../packages/install-manifests
+          cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+          cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
+          cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+          cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
+          cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+      - name: Test installed build results
+        run: |
+          mkdir build-test && cd build-test
+          export CCACHE_BASEDIR="$(pwd)"
+          set -x
+          cmake ../doc/examples/special \
+            -G "Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+        
+          cmake --build . --config Debug
+          cmake --build . --config Release
+          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Release/check-build-mode
+          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Debug/check-build-mode
+
+      - name: Store packages
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: packages-linux
+          path: packages/
+      - uses: actions/upload-artifact@v4
+        name: Upload ccache debug info
+        if: ${{ env.CCACHE_DEBUG == 1 }}
+        with:
+          name: ${{ github.job }}
+          path: ${{ github.workspace }}/ccache-debug
+
+
+  test-ubuntu:
+    name: "Test build on Ubuntu"
+    runs-on: ubuntu-latest
+    needs: [ build-linux ]
+    steps:
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            doc/examples/special
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages-linux
+
+      - name: Install DEB and grab test sources
+        run: |
+          mv doc/examples/special/* .
+          rm -rf doc
+          ls *; echo
+          
+          apt-get install packages/OGDF-*-Linux.deb
+
+      - name: Test installed DEB
+        run: |          
+          mkdir build-test && cd build-test
+          export CCACHE_BASEDIR="$(pwd)"
+          set -x
+          cmake .. \
+            -G "Ninja Multi-Config" \
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          
+          cmake --build . --config Debug
+          cmake --build . --config Release
+          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Release/check-build-mode
+          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Debug/check-build-mode
