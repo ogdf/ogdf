@@ -22,6 +22,8 @@ then
 	headers=$(cd include ; find ogdf -name '*.h')
 fi
 
+export CCACHE_BASEDIR="$(pwd)"
+
 make_tmpdir $0
 (cd $tmp && cmake -LA -DCMAKE_BUILD_TYPE=Debug -DOGDF_WARNING_ERRORS=ON .. > cmakelog.txt) || exit 1
 

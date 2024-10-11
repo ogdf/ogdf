@@ -36,6 +36,8 @@ opts+="-DCMAKE_CXX_FLAGS='-fprofile-instr-generate -fcoverage-mapping -Wall -Wex
 ## cmd-line args
 opts+="$@"
 
+export CCACHE_BASEDIR="$(pwd)"
+
 # Compile!
 echo "::group::($(date -Iseconds)) Compile"
 cd build-coverage
