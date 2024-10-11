@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(OGDF-PROJECT CXX)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_DEBUG_POSTFIX "-debug")
 
 set(module_dir "${PROJECT_SOURCE_DIR}/cmake")
 list(INSERT CMAKE_MODULE_PATH 0 "${module_dir}" )
@@ -33,9 +34,24 @@ include(doc)
 
 add_custom_target(build-all DEPENDS OGDF tests examples)
 
-# create autogen header
-file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/ogdf/basic/internal")
-configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf/basic/internal/config_autogen.h")
+# create autogen header(s)
+function(create_autogen_header CURRENT_CONFIG)
+  set_debug_mode(${CURRENT_CONFIG})
+  if(CURRENT_CONFIG MATCHES Debug)
+    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-debug/ogdf/basic/internal/config_autogen.h")
+  else()
+    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-release/ogdf/basic/internal/config_autogen.h")
+  endif()
+endfunction()
+
+if(CMAKE_CONFIGURATION_TYPES)
+  foreach(entry IN LISTS CMAKE_CONFIGURATION_TYPES)
+    create_autogen_header(${entry})
+  endforeach()
+  set_debug_mode()
+else()
+  create_autogen_header(${CMAKE_BUILD_TYPE})
+endif()
 
 # target documentation
 message(STATUS "The default target builds OGDF (and dependencies like COIN).")
