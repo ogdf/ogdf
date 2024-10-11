@@ -1210,7 +1210,7 @@ void makeBimodal(Graph& G, List<edge>& newEdge) {
 
 // Forest and arborescence testing
 
-bool isArborescenceForest(const Graph& G, List<node>& roots) {
+bool isArborescenceForest(const Graph& G, List<node>& roots, bool outTree) {
 	roots.clear();
 	if (G.empty()) {
 		return true;
@@ -1220,12 +1220,13 @@ bool isArborescenceForest(const Graph& G, List<node>& roots) {
 		return false;
 	}
 
+	bool inTree = !outTree;
 	ArrayBuffer<node> stack;
 	int nodeCount = 0;
 
 	// Push every source node to roots and start a dfs from it.
 	for (node u : G.nodes) {
-		if (u->indeg() == 0) {
+		if ((outTree && u->indeg() == 0) || (inTree && u->outdeg() == 0)) {
 			roots.pushBack(u);
 			stack.push(u);
 
@@ -1237,9 +1238,9 @@ bool isArborescenceForest(const Graph& G, List<node>& roots) {
 				// Push all successors of v to the stack.
 				// If one of them has indegree > 1, return false.
 				for (adjEntry adj : v->adjEntries) {
-					if (adj->isSource()) {
+					if ((outTree && adj->isSource()) || (inTree && !adj->isSource())) {
 						node w = adj->twinNode();
-						if (w->indeg() > 1) {
+						if ((outTree && w->indeg() > 1) || (inTree && w->outdeg() > 1)) {
 							return false;
 						}
 						stack.push(w);
@@ -1253,10 +1254,10 @@ bool isArborescenceForest(const Graph& G, List<node>& roots) {
 	return nodeCount == G.numberOfNodes();
 }
 
-bool isArborescence(const Graph& G, node& root) {
+bool isArborescence(const Graph& G, node& root, bool outTree) {
 	List<node> roots;
 
-	if (isArborescenceForest(G, roots) && roots.size() == 1) {
+	if (isArborescenceForest(G, roots, outTree) && roots.size() == 1) {
 		root = roots.front();
 		return true;
 	}
