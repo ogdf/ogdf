@@ -24,13 +24,26 @@ else()
   unset(OGDF_LEAK_CHECK CACHE)
 endif()
 
-# set debug mode
+# sets debug mode if it was not explicitly set to NONE and we are in a Debug or Multiconfig build (or the passed config argument is Debug)
+function(set_debug_mode)
+  set(OGDF_DEBUG OFF PARENT_SCOPE)
+  if(OGDF_DEBUG_MODE STREQUAL NONE)
+    return()
+  elseif(ARGC GREATER 0)
+    if(ARGV0 MATCHES Debug)
+      set(OGDF_DEBUG ON PARENT_SCOPE)
+    endif()
+  else()
+    if(MULTICONFIG_BUILD OR CMAKE_BUILD_TYPE MATCHES Debug)
+      set(OGDF_DEBUG ON PARENT_SCOPE)
+    endif()
+  endif()
+endfunction()
+
 if(OGDF_DEBUG_MODE STREQUAL HEAVY)
   set(OGDF_HEAVY_DEBUG ON)
 endif()
-if(NOT OGDF_DEBUG_MODE STREQUAL NONE AND (MULTICONFIG_BUILD OR CMAKE_BUILD_TYPE MATCHES Debug))
-  set(OGDF_DEBUG ON)
-endif()
+set_debug_mode()
 
 # find available packages for stack traces
 if(OGDF_USE_ASSERT_EXCEPTIONS)
@@ -88,8 +101,8 @@ group_files(ogdf_sources "ogdf")
 target_compile_features(OGDF PUBLIC cxx_range_for)
 
 target_include_directories(OGDF PUBLIC # for the autogen header
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/ogdf-$<IF:$<CONFIG:Debug>,debug,release>>
+  $<INSTALL_INTERFACE:include/ogdf-$<IF:$<CONFIG:Debug>,debug,release>>)
 target_include_directories(OGDF PUBLIC # for the general include files
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
@@ -218,6 +231,25 @@ if(SHOW_STACKTRACE)
   endif()
 endif()
 
+# create autogen header(s)
+function(create_autogen_header CURRENT_CONFIG)
+  set_debug_mode(${CURRENT_CONFIG})
+  if(CURRENT_CONFIG MATCHES Debug)
+    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-debug/ogdf/basic/internal/config_autogen.h")
+  else()
+    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-release/ogdf/basic/internal/config_autogen.h")
+  endif()
+endfunction()
+
+if(CMAKE_CONFIGURATION_TYPES)
+  foreach(entry IN LISTS CMAKE_CONFIGURATION_TYPES)
+    create_autogen_header(${entry})
+  endforeach()
+  set_debug_mode()
+else()
+  create_autogen_header(${CMAKE_BUILD_TYPE})
+endif()
+
 # installation
 set(OGDF_INSTALL_LIBRARY_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}" CACHE PATH "Installation path of OGDF library")
 set(OGDF_INSTALL_BIN_DIR "bin" CACHE PATH "Installation path of OGDF runtime targets")
@@ -232,7 +264,7 @@ install(TARGETS OGDF
   RUNTIME DESTINATION "${OGDF_INSTALL_BIN_DIR}"
   INCLUDES DESTINATION "${COIN_INSTALL_INCLUDE_DIR}"
   PUBLIC_HEADER DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}")
-install(DIRECTORY "${PROJECT_BINARY_DIR}/include/ogdf" include/ogdf
+install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
   DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
   FILES_MATCHING
     PATTERN "*.h"
