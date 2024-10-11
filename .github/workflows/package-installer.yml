@@ -72,6 +72,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build-linux ]
     steps:
+      - name: Install debian build tools
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
       - uses: actions/checkout@v4
         with:
           sparse-checkout: .github/actions
@@ -96,15 +101,34 @@ jobs:
     container: ${{ matrix.system }}:latest
     needs: [ build-linux ]
     steps:
+      - name: Install debian build tools
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y ninja-build git cmake g++
+        if: ${{ matrix.system == 'debian' || matrix.system == 'ubuntu' }}
+      - name: Install fedora build tools
+        shell: bash
+        run: |
+          dnf install -y ninja-build git cmake gcc-c++
+        if: ${{ matrix.system == 'fedora' }}
+      - name: Install archlinux build tools
+        shell: bash
+        run: |
+          pacman -Sy --noconfirm ninja git cmake gcc
+        if: ${{ matrix.system == 'archlinux' }}
+
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
         with:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
+
       - name: Test
         uses: ./.github/actions/test-package
         with:
+          container: true
           system: ${{ matrix.system }}
           os: linux
           cmake_test_args: >
@@ -131,8 +155,9 @@ jobs:
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON
             -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-            -DCPACK_GENERATOR="DMG"
+            -DCPACK_GENERATOR="DragNDrop;productbuild"
           #  -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND
+          # TODO Bundle, brew?
           cmake_test_args: >
             -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
@@ -142,6 +167,9 @@ jobs:
     runs-on: macos-13
     needs: [ build-macos ]
     steps:
+      - name: Install macos build utils
+        shell: bash
+        run: brew install ninja
       - uses: actions/checkout@v4
         with:
           sparse-checkout: .github/actions
@@ -172,14 +200,13 @@ jobs:
             -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON
             -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache.exe -DCMAKE_CXX_COMPILER_LAUNCHER=ccache.exe
             -DCPACK_GENERATOR="NSIS;ZIP"
           cmake_test_args: >
-            -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
 
   test-windows:
-    name: "Test on MacOS"
+    name: "Test on Windows"
     runs-on: windows-latest
     needs: [ build-windows ]
     steps:
