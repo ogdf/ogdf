@@ -80,7 +80,7 @@ jobs:
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND \
             -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW \
             -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCPACK_GENERATOR="STGZ;TGZ;TZ;DEB;RPM"
+            -DCPACK_GENERATOR="TGZ;DEB;RPM"
         
           echo "::group::Debug build"
           cmake --build . --config Debug
@@ -135,8 +135,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build-linux ]
     steps:
-      - name: "Add workspace as a safe directory in containers"
-        run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
@@ -145,14 +143,18 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: packages-linux
-
-      - name: Install DEB and grab test sources
+          path: packages
+      - name: Relocate test sources
         run: |
           mv doc/examples/special/* .
           rm -rf doc
           ls *; echo
-          
-          apt-get install packages/OGDF-*-Linux.deb
+
+      - name: Install DEB
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          sudo apt-get install -y ./packages/OGDF-*-Linux.deb
 
       - name: Test installed DEB
         run: |          
