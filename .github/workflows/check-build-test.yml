@@ -1,8 +1,9 @@
 name: Check, Build and Test
 
 on:
-  pull_request:
   push:
+    branches:
+      - master
 
 # the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
 # which is very useful when using the same docker images as used for the build locally

@@ -1,7 +1,6 @@
 name: Package and Test Installers
 
 on:
-  pull_request:
   push:
 
 # the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
@@ -35,7 +34,7 @@ jobs:
   precheck:
     name: "Check whether to run the CI"
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name != 'ogdf/ogdf' || github.event_name != 'push' || github.event.ref == 'refs/heads/master'
+    # if: github.event.repository.full_name != 'ogdf/ogdf' || github.event_name != 'push' || github.event.ref == 'refs/heads/master'
     steps:
       - run: echo "Running CI pipeline!"
 
