@@ -49,123 +49,148 @@ jobs:
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
-
-      - name: Set-up ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+      - name: Build
+        uses: ./.github/actions/create-package
         with:
-          key: ${{ github.job }}
-      - name: Set-up HTTPS proxy for ccache in docker container
-        run: |
-          pipx install mitmproxy
-          echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
-      - uses: JarvusInnovations/background-action@v1
-        name: Start HTTPS proxy for ccache
-        with:
-          run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
-          wait-on: tcp:localhost:44443
-          tail: false
-          log-output-if: failure
-          wait-for: 10s
-
-      - name: Install build utils
-        run: apt-get update && apt-get -y install ninja-build libunwind-dev rpm
-      - name: Build and package
-        run: |
-          mkdir build-install && cd build-install
-          export CCACHE_BASEDIR="$(pwd)"
-          cmake .. \
-            -G "Ninja Multi-Config" \
-            -DCMAKE_CONFIGURATION_TYPES="Debug;Release" \
-            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS \
-            -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND \
-            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW \
-            -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCPACK_GENERATOR="TGZ;DEB;RPM"
-        
-          echo "::group::Debug build"
-          cmake --build . --config Debug
-          echo "::endgroup::"
-          echo "::group::Release build"
-          cmake --build . --config Release
-          echo "::endgroup::"
-        
-          echo
-          echo "Packaging..."
-          cmake --build . --target package
-
-      - name: Install for testing
-        run: |
-          cd build-install
-          mkdir -p ../packages/install-manifests
-          cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
-          cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
-          cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
-          cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
-          cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
-      - name: Test installed build results
-        run: |
-          mkdir build-test && cd build-test
-          export CCACHE_BASEDIR="$(pwd)"
-          set -x
-          cmake ../doc/examples/special \
-            -G "Ninja Multi-Config" \
+          system: debian
+          os: linux
+          cmake_args: >
+            -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-        
-          cmake --build . --config Debug
-          cmake --build . --config Release
-          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Release/check-build-mode
-          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Debug/check-build-mode
-
-      - name: Store packages
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: packages-linux
-          path: packages/
-      - uses: actions/upload-artifact@v4
-        name: Upload ccache debug info
-        if: ${{ env.CCACHE_DEBUG == 1 }}
-        with:
-          name: ${{ github.job }}
-          path: ${{ github.workspace }}/ccache-debug
-
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
+            -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCPACK_GENERATOR="STGZ;TGZ;DEB;RPM"
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
 
   test-ubuntu:
-    name: "Test build on Ubuntu"
+    name: "Test package on ubuntu runner"
     runs-on: ubuntu-latest
     needs: [ build-linux ]
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: |
-            doc/examples/special
+          sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
-      - uses: actions/download-artifact@v4
+      - name: Test
+        uses: ./.github/actions/test-package
         with:
-          name: packages-linux
-          path: packages
-      - name: Relocate test sources
-        run: |
-          mv doc/examples/special/* .
-          rm -rf doc
-          ls *; echo
-
-      - name: Install DEB
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-          sudo apt-get install -y ./packages/OGDF-*-Linux.deb
-
-      - name: Test installed DEB
-        run: |          
-          mkdir build-test && cd build-test
-          export CCACHE_BASEDIR="$(pwd)"
-          set -x
-          cmake .. \
-            -G "Ninja Multi-Config" \
+          system: ubuntu
+          os: linux
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-          
-          cmake --build . --config Debug
-          cmake --build . --config Release
-          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Release/check-build-mode
-          LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/" Debug/check-build-mode
+          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
+
+  test-containers:
+    name: "Test package on ${{ matrix.system }} container"
+    strategy:
+      fail-fast: false
+      matrix:
+        system: [ debian, ubuntu, fedora, archlinux ]
+    runs-on: ubuntu-latest
+    container: ${{ matrix.system }}:latest
+    needs: [ build-linux ]
+    steps:
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+      - name: Test
+        uses: ./.github/actions/test-package
+        with:
+          system: ${{ matrix.system }}
+          os: linux
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
+
+
+  build-macos:
+    name: "Build on MacOS"
+    runs-on: macos-13
+    needs: [ precheck ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/create-package
+        with:
+          system: macos
+          os: macos
+          cmake_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCPACK_GENERATOR="DMG"
+          #  -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+  test-macos:
+    name: "Test on MacOS"
+    runs-on: macos-13
+    needs: [ build-macos ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+      - name: Test
+        uses: ./.github/actions/test-package
+        with:
+          system: macos
+          os: macos
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+
+  build-windows:
+    name: "Build on Windows"
+    runs-on: windows-latest
+    needs: [ precheck ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/create-package
+        with:
+          system: windows
+          os: windows
+          cmake_args: >
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCPACK_GENERATOR="NSIS;ZIP"
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+  test-windows:
+    name: "Test on MacOS"
+    runs-on: windows-latest
+    needs: [ build-windows ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+      - name: Test
+        uses: ./.github/actions/test-package
+        with:
+          system: windows
+          os: windows
+          cmake_test_args: >
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"

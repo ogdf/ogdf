@@ -1,0 +1,98 @@
+name: 'Create Package'
+inputs:
+  system:
+    description: "string (ubuntu/debian/.../macos/windows)"
+  os:
+    description: "string (linux/macos/windows)"
+  cmake_args:
+    description: "string"
+  cmake_test_args:
+    description: "string"
+  test_launcher:
+    description: "string"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set-up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: package-${{ inputs.system }}
+    - name: Set-up HTTPS proxy for ccache on Unix
+      shell: bash
+      run: |
+        pipx install mitmproxy
+        echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
+      if: ${{ os != 'windows' }}
+    - name: Set-up HTTPS proxy for ccache on Windows
+      shell: pwsh
+      run: |
+        pipx install mitmproxy
+      if: ${{ os == 'windows' }}
+    - uses: JarvusInnovations/background-action@v1
+      name: Start HTTPS proxy for ccache
+      with:
+        run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+        wait-on: tcp:localhost:44443
+        tail: false
+        log-output-if: failure
+        wait-for: 10s
+
+    - name: Install debian build utils
+      shell: bash
+      run: apt-get update && apt-get -y install ninja-build libunwind-dev rpm
+      if: ${{ inputs.system == 'debian' || inputs.system == 'ubuntu' }}
+    - name: Install macos build utils
+      shell: bash
+      run: brew install ninja # libunwind libunwind-headers
+      if: ${{ inputs.system == 'macos' }}
+
+    - name: Build and package
+      shell: bash
+      run: |
+        mkdir build-install && cd build-install
+        export CCACHE_BASEDIR="$(pwd)"
+        cmake .. ${{ inputs.cmake_args }}
+
+        echo "::group::Debug build"
+        cmake --build . --config Debug
+        echo "::endgroup::"
+        echo "::group::Release build"
+        cmake --build . --config Release
+        echo "::endgroup::"
+      
+        echo
+        echo "Packaging..."
+        cmake --build . --target package
+
+    - name: Install for testing
+      shell: bash
+      run: |
+        cd build-install
+        mkdir -p ../packages/install-manifests
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
+        cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+    - name: Test installed build results
+      shell: bash
+      run: |
+        mkdir build-test && cd build-test
+        export CCACHE_BASEDIR="$(pwd)"
+        set -x
+        cmake ../doc/examples/special ${{ inputs.cmake_test_args }}
+
+        cmake --build . --config Debug
+        cmake --build . --config Release
+        ${{ inputs.test_launcher }} Release/check-build-mode
+        ${{ inputs.test_launcher }} Debug/check-build-mode
+
+    - name: Store packages
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: packages-${{ inputs.os }}
+        path: packages/
