@@ -239,3 +239,15 @@ install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everythin
 install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
 install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
 export(EXPORT OgdfTargets)
+
+# packaging
+include(InstallRequiredSystemLibraries)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_PACKAGE_CONTACT "ogdf@googlegroups.com")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libunwind")
+set(CPACK_RPM_PACKAGE_REQUIRES "libunwind")
+if(MULTICONFIG_BUILD)
+  set(CPACK_BUILD_CONFIG ${CMAKE_CONFIGURATION_TYPES})
+endif()
+set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
+include(CPack)
