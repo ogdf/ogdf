@@ -229,15 +229,17 @@ install(TARGETS OGDF
   ARCHIVE DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
   RUNTIME DESTINATION "${OGDF_INSTALL_BIN_DIR}"
   INCLUDES DESTINATION "${COIN_INSTALL_INCLUDE_DIR}"
-  PUBLIC_HEADER DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}")
+  PUBLIC_HEADER DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
+  COMPONENT targets)
 install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
   DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
-    PATTERN "*.inc")
-install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
-install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
+    PATTERN "*.inc"
+  COMPONENT headers)
+install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}" COMPONENT cmake)
+install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}" COMPONENT cmake)
 export(EXPORT OgdfTargets)
 
 # packaging
@@ -246,6 +248,10 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_CONTACT "ogdf@googlegroups.com")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libunwind8")
 set(CPACK_RPM_PACKAGE_REQUIRES "libunwind")
+set(CPACK_PRODUCTBUILD_IDENTIFIER "net.ogdf.pkg")
+cpack_add_component(targets)
+cpack_add_component(cmake)
+cpack_add_component(headers)
 if(MULTICONFIG_BUILD)
   set(CPACK_BUILD_CONFIG ${CMAKE_CONFIGURATION_TYPES})
 endif()
