@@ -67,6 +67,16 @@ runs:
         echo "Packaging..."
         cmake --build . --target package
 
+    - name: Install for testing
+      shell: bash
+      run: |
+        cd build-install
+        mkdir -p ../packages/install-manifests
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
+        cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
     - name: Check search paths
       shell: bash
       run: |
@@ -83,17 +93,6 @@ runs:
         ldconfig -v # 2>/dev/null | grep -v ^$'\t'
         echo "::endgroup::"
       if: ${{ inputs.os == 'linux' }}
-
-    - name: Install for testing
-      shell: bash
-      run: |
-        cd build-install
-        mkdir -p ../packages/install-manifests
-        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
-        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
-        cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
-        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
-        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
     - name: Test installed build results
       shell: bash
       run: |
@@ -105,6 +104,9 @@ runs:
         cmake --build . --config Debug
         cmake --build . --config Release
         ls -al *
+        
+        ${{ inputs.os != 'windows' && 'ldd Release/check-build-mode' || '' }}
+        ${{ inputs.os != 'windows' && 'ldd Debug/check-build-mode' || '' }}
         
         ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
         ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
