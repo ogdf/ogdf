@@ -233,11 +233,11 @@ install(TARGETS OGDF
   COMPONENT targets)
 install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
   DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
+  COMPONENT headers
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
-    PATTERN "*.inc"
-  COMPONENT headers)
+    PATTERN "*.inc")
 install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}" COMPONENT cmake)
 install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}" COMPONENT cmake)
 export(EXPORT OgdfTargets)
@@ -249,11 +249,11 @@ set(CPACK_PACKAGE_CONTACT "ogdf@googlegroups.com")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libunwind8")
 set(CPACK_RPM_PACKAGE_REQUIRES "libunwind")
 set(CPACK_PRODUCTBUILD_IDENTIFIER "net.ogdf.pkg")
-cpack_add_component(targets)
-cpack_add_component(cmake)
-cpack_add_component(headers)
 if(MULTICONFIG_BUILD)
   set(CPACK_BUILD_CONFIG ${CMAKE_CONFIGURATION_TYPES})
 endif()
 set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
 include(CPack)
+cpack_add_component(targets)
+cpack_add_component(cmake)
+cpack_add_component(headers)
