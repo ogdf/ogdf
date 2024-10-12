@@ -55,10 +55,10 @@ else()
 endif()
 
 # installation
-set(COIN_INSTALL_LIBRARY_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}" CACHE PATH "Installation path of COIN library")
+set(COIN_INSTALL_LIBRARY_DIR "lib/" CACHE PATH "Installation path of COIN library")
 set(COIN_INSTALL_BIN_DIR "bin" CACHE PATH "Installation path of COIN runtime targets")
 set(COIN_INSTALL_INCLUDE_DIR "include" CACHE PATH "Installation path of COIN header files (creates subdirectory)")
-set(COIN_INSTALL_CMAKE_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/OGDF/" CACHE PATH "Installation path of COIN files for CMake")
+set(COIN_INSTALL_CMAKE_DIR "lib/cmake/OGDF/" CACHE PATH "Installation path of COIN files for CMake")
 mark_as_advanced(COIN_INSTALL_LIBRARY_DIR COIN_INSTALL_BIN_DIR COIN_INSTALL_INCLUDE_DIR COIN_INSTALL_CMAKE_DIR)
 install(TARGETS COIN
   EXPORT CoinTargets

@@ -65,7 +65,7 @@ jobs:
           cmake_test_args: >
             -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
+#          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
 
   test-ubuntu:
     name: "Test package on ubuntu runner"
@@ -89,7 +89,7 @@ jobs:
           cmake_test_args: >
             -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
+#          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
 
   test-containers:
     name: "Test package on ${{ matrix.system }} container"
@@ -134,7 +134,7 @@ jobs:
           cmake_test_args: >
             -G "Ninja Multi-Config"
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
+#          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
 
 
   build-macos:

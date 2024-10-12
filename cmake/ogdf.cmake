@@ -217,10 +217,10 @@ if(SHOW_STACKTRACE)
 endif()
 
 # installation
-set(OGDF_INSTALL_LIBRARY_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}" CACHE PATH "Installation path of OGDF library")
+set(OGDF_INSTALL_LIBRARY_DIR "lib" CACHE PATH "Installation path of OGDF library")
 set(OGDF_INSTALL_BIN_DIR "bin" CACHE PATH "Installation path of OGDF runtime targets")
 set(OGDF_INSTALL_INCLUDE_DIR "include" CACHE PATH "Installation path of OGDF header files (creates subdirectory)")
-set(OGDF_INSTALL_CMAKE_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/OGDF/" CACHE PATH "Installation path of OGDF files for CMake")
+set(OGDF_INSTALL_CMAKE_DIR "lib/cmake/OGDF/" CACHE PATH "Installation path of OGDF files for CMake")
 mark_as_advanced(OGDF_INSTALL_LIBRARY_DIR OGDF_INSTALL_BIN_DIR OGDF_INSTALL_INCLUDE_DIR OGDF_INSTALL_CMAKE_DIR)
 configure_file(cmake/ogdf-config.cmake "${PROJECT_BINARY_DIR}/ogdf-config.cmake" @ONLY)
 install(TARGETS OGDF
