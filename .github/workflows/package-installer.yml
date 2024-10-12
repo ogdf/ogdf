@@ -200,10 +200,12 @@ jobs:
             -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON
             -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache.exe -DCMAKE_CXX_COMPILER_LAUNCHER=ccache.exe
             -DCPACK_GENERATOR="NSIS;ZIP"
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache.exe
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache.exe
 
   test-windows:
     name: "Test on Windows"
