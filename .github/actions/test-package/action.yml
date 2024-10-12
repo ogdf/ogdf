@@ -58,7 +58,7 @@ runs:
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
         set -x
-        cmake .. ${{ inputs.cmake_test_args }}
+        cmake .. --debug-find ${{ inputs.cmake_test_args }}
 
         cmake --build . --config Debug
         cmake --build . --config Release

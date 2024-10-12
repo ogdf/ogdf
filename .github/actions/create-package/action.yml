@@ -62,10 +62,27 @@ runs:
         echo "::group::Release build"
         cmake --build . --config Release
         echo "::endgroup::"
-      
+        
         echo
         echo "Packaging..."
         cmake --build . --target package
+
+    - name: Check search paths
+      shell: bash
+      run: |
+        # https://stackoverflow.com/q/9922949
+        echo "::group::ld"
+        ld --verbose | grep SEARCH_DIR | tr -s ' ;' \\012
+        echo "::endgroup::"
+        echo "::group::gcc"
+        gcc -print-search-dirs | sed '/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g;s/;  //g;s/:/\n  /g'
+        echo "::endgroup::"
+        echo "::group::ldconfig"
+        ldconfig -v
+        echo; echo
+        ldconfig -v # 2>/dev/null | grep -v ^$'\t'
+        echo "::endgroup::"
+      if: ${{ inputs.os == 'linux' }}
 
     - name: Install for testing
       shell: bash
@@ -83,7 +100,7 @@ runs:
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
         set -x
-        cmake ../doc/examples/special ${{ inputs.cmake_test_args }}
+        cmake ../doc/examples/special --debug-find ${{ inputs.cmake_test_args }}
 
         cmake --build . --config Debug
         cmake --build . --config Release
