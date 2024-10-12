@@ -51,6 +51,11 @@ runs:
       run: |
         ./packages/OGDF-*-Windows.exe
       if: ${{ inputs.system == 'windows' }}
+    - name: Install PKG (MacOS)
+      shell: bash
+      run: |
+        sudo installer -pkg ./packages/OGDF-*-Darwin.pkg -target /
+      if: ${{ inputs.system == 'macos' }}
 
     - name: Test installed build results
       shell: bash
