@@ -69,5 +69,5 @@ runs:
         cmake --build . --config Release
         ls -al *
         
-        ${{ inputs.test_launcher }} Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
-        ${{ inputs.test_launcher }} Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
+        ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
+        ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}

@@ -61,6 +61,7 @@ jobs:
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND
             -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
             -DOGDF_ARCH=haswell -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCPACK_PACKAGING_INSTALL_PREFIX="/usr/local"
             -DCPACK_GENERATOR="STGZ;TGZ;DEB;RPM"
           cmake_test_args: >
             -G "Ninja Multi-Config"
@@ -203,6 +204,7 @@ jobs:
             -DCPACK_GENERATOR="NSIS;ZIP"
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          test_launcher: "./"
         env:
           CMAKE_C_COMPILER_LAUNCHER: ccache.exe
           CMAKE_CXX_COMPILER_LAUNCHER: ccache.exe
@@ -223,3 +225,4 @@ jobs:
           os: windows
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          test_launcher: "./"
