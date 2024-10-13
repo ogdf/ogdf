@@ -238,11 +238,11 @@ configure_file(cmake/ogdf-config.cmake "${PROJECT_BINARY_DIR}/ogdf-config.cmake"
 install(TARGETS OGDF EXPORT OgdfTargets COMPONENT OGDF)
 install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  COMPONENT OGDF-headers
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
-    PATTERN "*.inc"
-  COMPONENT OGDF-headers)
+    PATTERN "*.inc")
 install(EXPORT OgdfTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
 install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
 

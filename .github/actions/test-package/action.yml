@@ -114,5 +114,3 @@ runs:
         
         ${{ inputs.test_launcher }}Release/check-build-mode
         ${{ inputs.test_launcher }}Debug/check-build-mode
-        
-        pacman -Sy --noconfirm libunwind

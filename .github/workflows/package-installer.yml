@@ -46,6 +46,11 @@ jobs:
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
+      - name: Install debian build utils
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y ninja-build libunwind-dev rpm
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
@@ -143,6 +148,9 @@ jobs:
     runs-on: macos-13
     needs: [ precheck ]
     steps:
+      - name: Install macos build utils
+        shell: bash
+        run: brew install ninja # TODO libunwind libunwind-headers?
       - uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/create-package

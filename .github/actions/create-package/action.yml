@@ -40,15 +40,6 @@ runs:
         log-output-if: failure
         wait-for: 10s
 
-    - name: Install debian build utils
-      shell: bash
-      run: apt-get update && apt-get -y install ninja-build libunwind-dev rpm
-      if: ${{ inputs.system == 'debian' || inputs.system == 'ubuntu' }}
-    - name: Install macos build utils
-      shell: bash
-      run: brew install ninja # libunwind libunwind-headers
-      if: ${{ inputs.system == 'macos' }}
-
     - name: Build and package
       shell: bash
       run: |
