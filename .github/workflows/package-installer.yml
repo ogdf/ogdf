@@ -234,3 +234,10 @@ jobs:
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
           test_launcher: "./"
+
+# Fedora: No OGDF configuration for CMake has been found.
+# ubuntu runner: ninja: error: '/usr/lib/x86_64-linux-gnu/libunwind.so', needed by 'Debug/check-build-mode', missing and no known rule to make it
+
+# Windows:
+  #  + Release/check-build-mode.exe
+  #Error: Process completed with exit code 127.

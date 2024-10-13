@@ -54,13 +54,14 @@ runs:
         cmake --build . --config Release
         echo "::endgroup::"
         
-        readelf -d Release/*.so || echo "f"
-        readelf -d Debug/*.so || echo "f"
+        readelf -d Release/*.so || echo "f" #debug
+        readelf -d Debug/*.so || echo "f" #debug
         
         echo
         echo "Packaging..."
         # cmake --build . --target package
-        cpack --verbose
+        mkdir -p ../packages/install-manifests
+        cpack --verbose | tee ../packages/install-manifests/cpack.log  #debug 
 
     - name: Install for testing
       shell: bash
@@ -72,7 +73,7 @@ runs:
         cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
         cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
         cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
-    - name: Check search paths
+    - name: Check search paths #debug
       shell: bash
       run: |
         # https://stackoverflow.com/q/9922949
@@ -88,6 +89,7 @@ runs:
         ldconfig -v 2>/dev/null | grep -v ^$'\t'
         echo "::endgroup::"
       if: ${{ inputs.os == 'linux' }}
+
     - name: Test installed build results
       shell: bash
       run: |
@@ -98,10 +100,10 @@ runs:
 
         cmake --build . --config Debug
         cmake --build . --config Release
-        ls -al *
+        ls -al * #debug
         
-        ${{ inputs.os == 'linux' && 'ldd Release/check-build-mode; readelf -d Release/check-build-mode | head' || '' }}
-        ${{ inputs.os == 'linux' && 'ldd Debug/check-build-mode; readelf -d Debug/check-build-mode | head' || '' }}
+        ${{ inputs.os == 'linux' && 'ldd Release/check-build-mode; readelf -d Release/check-build-mode' || '' }} #debug
+        ${{ inputs.os == 'linux' && 'ldd Debug/check-build-mode; readelf -d Debug/check-build-mode' || '' }} #debug
         
         ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
         ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
@@ -111,4 +113,6 @@ runs:
       if: always()
       with:
         name: packages-${{ inputs.os }}
-        path: packages/
+        path: |
+          packages/
+          build-install/_CPack_Packages/win64/NSIS/NSISOutput.log

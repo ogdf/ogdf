@@ -28,7 +28,7 @@ runs:
       run: |
         mv doc/examples/special/* .
         rm -rf doc
-        ls *; echo
+        ls *
 
     - name: Install DEB
       shell: bash
@@ -57,7 +57,7 @@ runs:
         sudo installer -pkg ./packages/OGDF-*-Darwin.pkg -target /
       if: ${{ inputs.system == 'macos' }}
 
-    - name: Check search paths
+    - name: Check search paths #debug
       shell: bash
       run: |
         # https://stackoverflow.com/q/9922949
@@ -68,11 +68,13 @@ runs:
         gcc -print-search-dirs | sed '/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g;s/;  //g;s/:/\n  /g'
         echo "::endgroup::"
         echo "::group::ldconfig"
-        ldconfig -v
-        echo; echo
-        ldconfig -v 2>/dev/null | grep -v ^$'\t'
+        ldconfig -v || echo "error $?"
+        echo "::endgroup::"
+        echo "::group::ldconfig2"
+        ldconfig -v 2>/dev/null | grep -v ^$'\t'  || echo "error $?"
         echo "::endgroup::"
       if: ${{ inputs.os == 'linux' }}
+
     - name: Test installed build results
       shell: bash
       if: ${{ inputs.system != 'archlinux' }}
@@ -86,8 +88,8 @@ runs:
         cmake --build . --config Release
         ls -al *
         
-        ${{ inputs.os == 'linux' && 'ldd Release/check-build-mode' || '' }}
-        ${{ inputs.os == 'linux' && 'ldd Debug/check-build-mode' || '' }}
+        ${{ inputs.os == 'linux' && 'ldd Release/check-build-mode; readelf -d Release/check-build-mode' || '' }} #debug
+        ${{ inputs.os == 'linux' && 'ldd Debug/check-build-mode; readelf -d Debug/check-build-mode' || '' }} #debug
         
         ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
         ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
@@ -109,8 +111,8 @@ runs:
         cmake --build . --config Release
         ls -al *
         
-        ldd Release/check-build-mode
-        ldd Debug/check-build-mode
+        ldd Release/check-build-mode; readelf -d Release/check-build-mode
+        ldd Debug/check-build-mode; readelf -d Debug/check-build-mode
         
         ${{ inputs.test_launcher }}Release/check-build-mode
         ${{ inputs.test_launcher }}Debug/check-build-mode
