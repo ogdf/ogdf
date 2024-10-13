@@ -19,7 +19,7 @@ else()
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
 endif()
 
-set(OGDF_INCLUDE_CGAL OFF CACHE BOOL "Indicates whether components that require CGAL ({src,include}/ogdf/geometric) should be built. Requires OpenMP")
+include(GNUInstallDirs)
 
 include(compiler-specifics)
 include(group-files)
@@ -33,25 +33,6 @@ include(examples)
 include(doc)
 
 add_custom_target(build-all DEPENDS OGDF tests examples)
-
-# create autogen header(s)
-function(create_autogen_header CURRENT_CONFIG)
-  set_debug_mode(${CURRENT_CONFIG})
-  if(CURRENT_CONFIG MATCHES Debug)
-    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-debug/ogdf/basic/internal/config_autogen.h")
-  else()
-    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-release/ogdf/basic/internal/config_autogen.h")
-  endif()
-endfunction()
-
-if(CMAKE_CONFIGURATION_TYPES)
-  foreach(entry IN LISTS CMAKE_CONFIGURATION_TYPES)
-    create_autogen_header(${entry})
-  endforeach()
-  set_debug_mode()
-else()
-  create_autogen_header(${CMAKE_BUILD_TYPE})
-endif()
 
 # target documentation
 message(STATUS "The default target builds OGDF (and dependencies like COIN).")
