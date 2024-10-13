@@ -99,7 +99,7 @@ add_library(OGDF "${ogdf_sources}")
 set_property(TARGET OGDF PROPERTY VERSION ${PROJECT_VERSION})
 target_link_libraries(OGDF PUBLIC COIN)
 group_files(ogdf_sources "ogdf")
-target_compile_features(OGDF PUBLIC cxx_range_for)
+target_compile_features(OGDF PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 
 target_include_directories(OGDF PUBLIC # for the autogen header
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/ogdf-$<IF:$<CONFIG:Debug>,debug,release>>
