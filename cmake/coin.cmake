@@ -58,7 +58,7 @@ endif()
 install(TARGETS COIN EXPORT CoinTargets COMPONENT COIN)
 install(DIRECTORY include/coin
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-  COMPONENT COIN-headers
+  COMPONENT COINheaders
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp")

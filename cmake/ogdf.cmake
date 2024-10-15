@@ -239,7 +239,7 @@ configure_file(cmake/ogdf-config.cmake "${PROJECT_BINARY_DIR}/ogdf-config.cmake"
 install(TARGETS OGDF EXPORT OgdfTargets COMPONENT OGDF)
 install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-  COMPONENT OGDF-headers
+  COMPONENT OGDFheaders
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -260,6 +260,6 @@ endif()
 set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
 include(CPack)
 cpack_add_component(COIN)
-cpack_add_component(COIN-headers)
+cpack_add_component(COINheaders)
 cpack_add_component(OGDF)
-cpack_add_component(OGDF-headers)
+cpack_add_component(OGDFheaders)
