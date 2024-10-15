@@ -113,6 +113,11 @@ runs:
       if: always()
       with:
         name: packages-${{ inputs.os }}
-        path: |
-          packages/
-          build-install/_CPack_Packages/win64/NSIS/NSISOutput.log
+        path: packages/
+
+    - name: Store build results for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-${{ inputs.os }}
+        path: build-install/
