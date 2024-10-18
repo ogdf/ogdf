@@ -120,4 +120,8 @@ runs:
       if: failure()
       with:
         name: build-${{ inputs.os }}
-        path: build-install/
+        path: |
+          build-install/
+          build-test/
+          !**/*.obj
+          !**/*.iobj
