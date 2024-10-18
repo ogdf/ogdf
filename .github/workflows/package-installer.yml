@@ -41,7 +41,7 @@ jobs:
   build-linux:
     name: "Build on Linux"
     runs-on: ubuntu-latest
-    container: docker.io/ogdf/gcc:13
+    container: docker.io/ogdf/gcc:9
     needs: [ precheck ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
