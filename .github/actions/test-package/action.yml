@@ -33,6 +33,7 @@ runs:
     - name: Install DEB
       shell: bash
       run: |
+        ${{ !inputs.container && 'sudo' || '' }} apt-get update
         ${{ !inputs.container && 'sudo' || '' }} apt-get install -y ./packages/OGDF-*-Linux.deb
       if: ${{ inputs.system == 'debian' || inputs.system == 'ubuntu' }}
     - name: Install RPM
@@ -44,12 +45,13 @@ runs:
       shell: bash
       run: |
         chmod +x ./packages/OGDF-*-Linux.sh
-        ./packages/OGDF-*-Linux.sh --skip-license
+        ./packages/OGDF-*-Linux.sh --skip-license --prefix=dir=/usr/local
       if: ${{ inputs.system == 'archlinux' }}
     - name: Install NSIS (Windows)
-      shell: pwsh
+      shell: bash
       run: |
-        ./packages/OGDF-*-Windows.exe
+        unzip ./packages/OGDF-*-Windows.zip -d ./packages/unzip 
+        mv ./packages/unzip/OGDF-PROJECT-*-win64 ./OGDF-ROOT
       if: ${{ inputs.system == 'windows' }}
     - name: Install PKG (MacOS)
       shell: bash
@@ -81,6 +83,7 @@ runs:
       run: |
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
+        export PATH="$(realpath ../OGDF-ROOT):$PATH" #windows
         set -x
         cmake .. --debug-find ${{ inputs.cmake_test_args }}
 
