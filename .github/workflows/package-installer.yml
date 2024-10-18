@@ -41,7 +41,7 @@ jobs:
   build-linux:
     name: "Build on Linux"
     runs-on: ubuntu-latest
-    container: docker.io/ogdf/gcc:9
+    container: debian:bullseye
     needs: [ precheck ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
@@ -50,7 +50,11 @@ jobs:
         shell: bash
         run: |
           apt-get update
-          apt-get install -y ninja-build libunwind-dev rpm
+          apt-get install -y git ccache cmake g++ python3-pip python3-venv ninja-build libunwind-dev rpm
+          mkdir -p ~/.config/pip/
+          printf "[global]\nbreak-system-packages = true" >> ~/.config/pip/pip.conf
+          pip3 install pipx
+          pipx ensurepath
       - name: "Add workspace as a safe directory in containers"
         run: git config --system --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
