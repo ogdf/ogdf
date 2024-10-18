@@ -236,7 +236,12 @@ install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everythin
     PATTERN "*.hpp"
     PATTERN "*.inc")
 install(EXPORT OgdfTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
-install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
+install(FILES
+        "${PROJECT_BINARY_DIR}/ogdf-config.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibbfd.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibdw.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibunwind.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
 
 # packaging
 include(InstallRequiredSystemLibraries)
