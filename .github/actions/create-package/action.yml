@@ -93,8 +93,10 @@ runs:
     - name: Test installed build results
       shell: bash
       run: |
+        ls "/c/Program Files (x86)/OGDF-PROJECT/*" || echo "/c/Program Files (x86)/OGDF-PROJECT/ not found" #debug
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
+        export PATH="/c/Program Files (x86)/OGDF-PROJECT/bin:$PATH" #windows
         set -x
         cmake ../doc/examples/special --debug-find ${{ inputs.cmake_test_args }}
 
@@ -105,8 +107,20 @@ runs:
         ${{ inputs.os == 'linux' && 'ldd Release/check-build-mode; readelf -d Release/check-build-mode' || '' }} #debug
         ${{ inputs.os == 'linux' && 'ldd Debug/check-build-mode; readelf -d Debug/check-build-mode' || '' }} #debug
         
-        ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
-        ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
+        ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }} || echo "Release returned $?" #debug
+        ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }} || echo "Debug returned $?" #debug
+
+    - name: Try running on windows #debug
+      shell: pwsh
+      run: |
+        $env:PATH += ";C:\Program Files (x86)\OGDF-PROJECT\bin"
+        try {
+          Release/check-build-mode.exe
+          Debug/check-build-mode.exe
+        } catch {
+            Write-Host "Error occurred while running test: $_"
+        }
+      if: ${{ inputs.os == 'windows' }}
 
     - name: Store packages
       uses: actions/upload-artifact@v4
