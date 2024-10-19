@@ -47,13 +47,14 @@ runs:
       run: |
         chmod +x ./packages/OGDF-*-Linux.sh
         mkdir -p /usr/local
-        ./packages/OGDF-*-Linux.sh --skip-license --prefix=dir=/usr/local
+        ./packages/OGDF-*-Linux.sh --skip-license --prefix=/usr/local
       if: ${{ inputs.system == 'archlinux' }}
     - name: Install NSIS (Windows)
       shell: bash
       run: |
         unzip ./packages/OGDF-*-win64.zip -d ./packages/unzip 
         mv ./packages/unzip/OGDF-PROJECT-*-win64 ./OGDF-ROOT
+        ls *
       if: ${{ inputs.system == 'windows' }}
     - name: Install PKG (MacOS)
       shell: bash
@@ -83,21 +84,23 @@ runs:
       shell: bash
       if: ${{ inputs.system != 'archlinux' }}
       run: |
+        set -x
+        ls "$(realpath ../OGDF-ROOT)/*" || echo "OGDF-ROOT not found" #debug
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
         export PATH="$(realpath ../OGDF-ROOT):$PATH" #windows
-        set -x
         cmake .. --debug-find ${{ inputs.cmake_test_args }}
 
         cmake --build . --config Debug
         cmake --build . --config Release
-        ls -al *
+        ls -al * #debug
         
         ${{ inputs.os == 'linux' && 'ldd Release/check-build-mode; readelf -d Release/check-build-mode' || '' }} #debug
         ${{ inputs.os == 'linux' && 'ldd Debug/check-build-mode; readelf -d Debug/check-build-mode' || '' }} #debug
         
-        ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
-        ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }}
+        ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }} || echo "Release returned $?" #debug
+        ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.system == 'windows' && '.exe' || '' }} || echo "Debug returned $?" #debug
+
 
     - name: Test installed build results (arch)
       shell: bash

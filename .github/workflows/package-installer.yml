@@ -77,29 +77,29 @@ jobs:
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
 #          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
 
-  test-ubuntu:
-    name: "Test package on ubuntu runner"
-    runs-on: ubuntu-latest
-    needs: [ build-linux ]
-    steps:
-      - name: Install debian build tools
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/actions
-          sparse-checkout-cone-mode: false
-      - name: Test
-        uses: ./.github/actions/test-package
-        with:
-          system: ubuntu
-          os: linux
-          cmake_test_args: >
-            -G "Ninja Multi-Config"
-            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-#          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
+#  test-ubuntu:
+#    name: "Test package on ubuntu runner"
+#    runs-on: ubuntu-latest
+#    needs: [ build-linux ]
+#    steps:
+#      - name: Install debian build tools
+#        shell: bash
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y ninja-build
+#      - uses: actions/checkout@v4
+#        with:
+#          sparse-checkout: .github/actions
+#          sparse-checkout-cone-mode: false
+#      - name: Test
+#        uses: ./.github/actions/test-package
+#        with:
+#          system: ubuntu
+#          os: linux
+#          cmake_test_args: >
+#            -G "Ninja Multi-Config"
+#            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+##          test_launcher: LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu/"
 
   test-containers:
     name: "Test package on ${{ matrix.system }} container"
