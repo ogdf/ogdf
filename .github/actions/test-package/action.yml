@@ -34,6 +34,7 @@ runs:
       shell: bash
       run: |
         ${{ !inputs.container && 'sudo' || '' }} apt-get update
+        ${{ !inputs.container && 'sudo apt-get install -y libunwind-dev' || '' }}
         ${{ !inputs.container && 'sudo' || '' }} apt-get install -y ./packages/OGDF-*-Linux.deb
       if: ${{ inputs.system == 'debian' || inputs.system == 'ubuntu' }}
     - name: Install RPM
@@ -45,12 +46,13 @@ runs:
       shell: bash
       run: |
         chmod +x ./packages/OGDF-*-Linux.sh
+        mkdir -p /usr/local
         ./packages/OGDF-*-Linux.sh --skip-license --prefix=dir=/usr/local
       if: ${{ inputs.system == 'archlinux' }}
     - name: Install NSIS (Windows)
       shell: bash
       run: |
-        unzip ./packages/OGDF-*-Windows.zip -d ./packages/unzip 
+        unzip ./packages/OGDF-*-win64.zip -d ./packages/unzip 
         mv ./packages/unzip/OGDF-PROJECT-*-win64 ./OGDF-ROOT
       if: ${{ inputs.system == 'windows' }}
     - name: Install PKG (MacOS)
