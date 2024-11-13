@@ -31,15 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/HashArray.h>
-#include <ogdf/fileformats/GraphIO.h>
-
 #include <ogdf/lib/pugixml/pugixml.h>
 
 #include <sstream>
-#include <unordered_map>
+#include <string>
 
 namespace ogdf {
+class Graph;
+class GraphAttributes;
 
 /**
  * Parses tsplib files in xml format.

@@ -32,6 +32,7 @@
 
 #include <ogdf/basic/basic.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <limits>
 #include <vector>

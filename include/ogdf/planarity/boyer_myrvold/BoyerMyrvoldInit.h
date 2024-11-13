@@ -32,13 +32,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
-#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 
-#include <limits>
 #include <random>
 
 namespace ogdf {
+class BoyerMyrvoldPlanar;
+enum class BoyerMyrvoldEdgeType;
+
 namespace boyer_myrvold {
 
 //! This class is used in the Boyer-Myrvold planarity test for preprocessing purposes.

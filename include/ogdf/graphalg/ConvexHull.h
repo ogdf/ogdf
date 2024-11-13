@@ -31,13 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 
 #include <vector>
 
 namespace ogdf {
+class GraphAttributes;
+class MultilevelGraph;
 
 //! Computes the convex hull of a set of points or a layout.
 /**

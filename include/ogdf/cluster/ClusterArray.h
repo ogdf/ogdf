@@ -30,6 +30,3 @@
  */
 
 #pragma once
-
-#include <ogdf/basic/RegisteredArray.h>
-#include <ogdf/cluster/ClusterGraph.h>

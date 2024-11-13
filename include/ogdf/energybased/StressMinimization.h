@@ -35,13 +35,12 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/energybased/PivotMDS.h>
-#include <ogdf/graphalg/ShortestPathAlgorithms.h>
-#include <ogdf/packing/ComponentSplitterLayout.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class GraphAttributes;
 
 //! Energy-based layout using stress minimization.
 /**

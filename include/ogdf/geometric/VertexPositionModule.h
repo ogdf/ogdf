@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 
 namespace ogdf {
+class GraphAttributes;
 
 /**
  * \brief Interface for computing a good / optimal vertex position

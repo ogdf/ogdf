@@ -31,12 +31,17 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/simultaneous/TwoLayerCrossMinSimDraw.h>
 
-namespace ogdf {
+#include <cstdint>
 
+namespace ogdf {
+class CrossingsMatrix;
+class HierarchyLevels;
+class Level;
 
 //! The split heuristic for 2-layer crossing minimization.
 /**

@@ -30,8 +30,21 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/misclayout/CircularLayout.h>
 #include <ogdf/uml/UMLGraph.h>
+
+#include <cmath>
+#include <fstream>
+#include <string>
 
 namespace ogdf {
 

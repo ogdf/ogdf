@@ -30,6 +30,14 @@
  */
 
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/basic.h>
+
+#include <algorithm>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <sstream>
+#include <string>
 
 #include <testing.h>
 

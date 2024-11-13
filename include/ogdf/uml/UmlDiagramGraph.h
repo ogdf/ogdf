@@ -37,10 +37,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/uml/UmlModelGraph.h>
+#include <ogdf/basic/basic.h>
+
+#include <iosfwd>
+#include <string>
 
 namespace ogdf {
+class UmlModelGraph;
 
 /** Contains the class UmlDiagramGraph which represents one
  *  particular diagram of the complete UML Model. Each diagram refers

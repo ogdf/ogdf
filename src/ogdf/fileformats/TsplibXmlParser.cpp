@@ -29,7 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/TsplibXmlParser.h>
+
+#include <ogdf/lib/pugixml/pugixml.h>
+
+#include <cmath>
+#include <iterator>
+#include <limits>
+#include <ostream>
+#include <string>
+#include <vector>
 
 namespace ogdf {
 

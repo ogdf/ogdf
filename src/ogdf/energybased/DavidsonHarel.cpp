@@ -36,7 +36,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/DavidsonHarel.h>
+#include <ogdf/energybased/davidson_harel/EnergyFunction.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <string>
 
 //TODO: in addition to the layout size, node sizes should be used in
 //the initial radius computation in case of "all central" layouts with

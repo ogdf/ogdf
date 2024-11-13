@@ -32,13 +32,21 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
+#include <ogdf/basic/SList.h>
 #include <ogdf/basic/Timeouter.h>
-#include <ogdf/decomposition/StaticSPQRTree.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/PlanRepLight.h>
-#include <ogdf/planarity/RemoveReinsertType.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class StaticSPQRTree;
+enum class RemoveReinsertType;
+template<class E>
+class List;
 
 class OGDF_EXPORT VarEdgeInserterCore : public Timeouter {
 public:

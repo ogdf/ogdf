@@ -29,11 +29,17 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/hypergraph/Hypergraph.h>
-#include <ogdf/hypergraph/HypergraphArray.h>
 #include <ogdf/hypergraph/HypergraphObserver.h>
+
+#include <cstring>
+#include <fstream>
+#include <string>
 
 namespace ogdf {
 

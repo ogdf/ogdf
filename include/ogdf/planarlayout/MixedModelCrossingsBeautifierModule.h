@@ -32,10 +32,15 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayout.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class GridLayout;
+class PlanRep;
+template<class E>
+class List;
 
 /**
  * \brief The base class for Mixed-Model crossings beautifier algorithms.

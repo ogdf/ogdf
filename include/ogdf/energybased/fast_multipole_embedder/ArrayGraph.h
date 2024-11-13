@@ -31,10 +31,16 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
 
+#include <cstdint>
+#include <functional>
+
 namespace ogdf {
+class GraphAttributes;
+
 namespace fast_multipole_embedder {
 
 class ArrayGraph {

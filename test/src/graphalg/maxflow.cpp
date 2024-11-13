@@ -29,14 +29,32 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/graphalg/MaxFlowEdmondsKarp.h>
-#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
-#include <ogdf/graphalg/MaxFlowSTPlanarDigraph.h>
-#include <ogdf/graphalg/MaxFlowSTPlanarItaiShiloach.h>
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h> // IWYU pragma: keep
+#include <ogdf/graphalg/MaxFlowSTPlanarDigraph.h> // IWYU pragma: keep
+#include <ogdf/graphalg/MaxFlowSTPlanarItaiShiloach.h> // IWYU pragma: keep
+
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include <resources.h>
+
+#include <testing.h>
 
 // if defined will print the first failed instance
 #define PRINT_FIRST_FAIL

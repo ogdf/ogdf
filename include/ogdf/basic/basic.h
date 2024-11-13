@@ -31,7 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/internal/config.h> // IWYU pragma: export
+#include <ogdf/basic/internal/config_autogen.h> // IWYU pragma: export
+
+OGDF_DISABLE_WARNING_PUSH
+OGDF_DISABLE_WARNING_DEPRECATED
+#include <algorithm>
+
+OGDF_DISABLE_WARNING_POP
+
+#include <cmath>
+#include <fstream>
+#include <string>
 
 //! @name Assertions (only active in debug builds)
 //! @{
@@ -51,9 +62,9 @@
 #	undef OGDF_ASSERT
 #	ifndef OGDF_USE_ASSERT_EXCEPTIONS
 #		include <cassert>
+
 #		define OGDF_ASSERT(expr) assert(expr)
 #	else
-#		include <sstream>
 #		include <stdexcept>
 
 namespace ogdf {
@@ -100,15 +111,6 @@ class AssertionFailed : public std::runtime_error {
 #	define OGDF_TRIVIALLY_COPYABLE std::is_trivially_copyable
 #endif
 
-OGDF_DISABLE_WARNING_PUSH
-OGDF_DISABLE_WARNING_DEPRECATED
-#include <algorithm>
-OGDF_DISABLE_WARNING_POP
-#include <cmath>
-#include <cstdint>
-#include <ctime>
-#include <fstream>
-#include <limits>
 
 //! The namespace for all OGDF objects.
 namespace ogdf {

@@ -31,12 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
+#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
 #include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 
-#include <list>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

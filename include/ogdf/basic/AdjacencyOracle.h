@@ -31,7 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+
+#include <vector>
 
 namespace ogdf {
 

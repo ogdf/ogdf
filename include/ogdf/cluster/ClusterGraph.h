@@ -33,18 +33,25 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphObserver.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Observer.h>
 #include <ogdf/basic/RegisteredArray.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/memory.h>
 
+#include <functional>
+#include <iosfwd>
 #include <memory>
+#include <utility>
 
 namespace ogdf {
 
-class OGDF_EXPORT ClusterGraph;
-class OGDF_EXPORT ClusterGraphObserver;
-class OGDF_EXPORT ClusterElement;
+class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
+class OGDF_EXPORT ClusterGraph; // IWYU pragma: keep
+class OGDF_EXPORT ClusterGraphObserver; // IWYU pragma: keep
 
 using cluster = ClusterElement*; //!< The type of clusters.
 
@@ -301,7 +308,7 @@ inline bool test_forall_adj_edges_of_cluster(adjEntry& adj, edge& e) {
 using ClusterGraphRegistry = RegistryBase<cluster, ClusterGraph, internal::GraphIterator<cluster>>;
 
 template<typename Value, bool WithDefault>
-class ClusterArrayBase;
+class ClusterArrayBase; // IWYU pragma: keep
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) ClusterArrayBase<v, c>
 OGDF_DECL_REG_ARRAY(ClusterArray)

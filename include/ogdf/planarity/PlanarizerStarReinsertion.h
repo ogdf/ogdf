@@ -31,13 +31,22 @@
 
 #pragma once
 
+#include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/StarInserter.h>
-#include <ogdf/planarity/embedder/CrossingStructure.h>
 
+#include <cstdint>
 #include <memory>
 
+namespace ogdf::embedder {
+class CrossingStructure;
+} // namespace ogdf::embedder
+
 namespace ogdf {
+class GraphCopy;
+class PlanRep;
 
 using embedder::CrossingStructure;
 

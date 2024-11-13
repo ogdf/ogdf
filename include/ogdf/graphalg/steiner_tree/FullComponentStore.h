@@ -31,10 +31,21 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
+
+#include <type_traits>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraphCopy;
+
 namespace steiner_tree {
 
 #define OGDF_FULLCOMPONENTSTORE_REMOVE_IN_GRAPH_REPRESENTATION_ALSO // unnecessary but may save memory

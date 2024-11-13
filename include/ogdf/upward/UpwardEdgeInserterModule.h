@@ -31,10 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
-#include <ogdf/upward/UpwardPlanRep.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class UpwardPlanRep;
+template<class E>
+class List;
 
 class OGDF_EXPORT UpwardEdgeInserterModule : public Module {
 public:

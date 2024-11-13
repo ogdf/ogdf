@@ -31,9 +31,13 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/PCEnum.h>
 
 namespace ogdf::pc_tree {
+class PCNode;
+class PCTreeForest;
+
 /**
  * A registry that allows labelling the nodes of a PC-tree.
  */

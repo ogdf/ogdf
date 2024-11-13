@@ -31,10 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
 
 #include <thread>
+#include <utility>
 
 namespace ogdf {
 

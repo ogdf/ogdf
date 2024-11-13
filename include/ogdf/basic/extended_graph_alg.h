@@ -31,12 +31,22 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/PriorityQueue.h>
-#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/internal/config_autogen.h>
+#include <ogdf/basic/internal/graph_iterators.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 
 namespace ogdf {
+class ClusterGraph;
+template<class E>
+class List;
 
 //! Computes the edges in a node-induced subgraph.
 /**

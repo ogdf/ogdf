@@ -30,9 +30,21 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
 
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <memory>
+
 namespace ogdf {
+class GraphAttributes;
 
 ScalingLayout::ScalingLayout()
 	: m_minScaling(1.0)

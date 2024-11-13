@@ -28,10 +28,15 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
-#include "array_helper.h"
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/graph_generators/randomized.h>
 
-using namespace ogdf;
-using namespace bandit;
+#include <functional>
+#include <string>
+
+#include "array_helper.h"
+#include <testing.h>
 
 go_bandit([]() {
 	auto chooseEdge = [](const Graph& graph) { return graph.chooseEdge(); };

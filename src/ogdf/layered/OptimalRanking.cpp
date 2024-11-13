@@ -30,11 +30,20 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
+#include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/layered/OptimalRanking.h>
+
+#include <memory>
 
 namespace ogdf {
 

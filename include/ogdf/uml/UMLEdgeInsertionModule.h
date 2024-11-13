@@ -31,12 +31,17 @@
 
 #pragma once
 
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
-#include <ogdf/planarity/PlanRepLight.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class PlanRepLight;
 
 //! Interface for UML edge insertion algorithms.
 /**

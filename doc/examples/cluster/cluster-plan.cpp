@@ -1,8 +1,16 @@
 #include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/graph_generators/clustering.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/ClusterPlanarizationLayout.h>
 #include <ogdf/cluster/sync_plan/ClusterPlanarity.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 using namespace ogdf;
 

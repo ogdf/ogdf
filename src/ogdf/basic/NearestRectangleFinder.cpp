@@ -29,7 +29,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/NearestRectangleFinder.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
+
+#include <limits>
+#include <ostream>
 
 namespace ogdf {
 

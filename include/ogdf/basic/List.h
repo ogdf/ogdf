@@ -31,19 +31,29 @@
 
 #pragma once
 
-#include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/internal/list_templates.h>
+#include <ogdf/basic/memory.h>
 
+#include <functional>
+#include <initializer_list>
+#include <iterator>
+#include <ostream>
 #include <random>
+#include <type_traits>
+#include <utility>
 
 namespace ogdf {
 
+template<class E, bool isConst, bool isReverse>
+class ListIteratorBase;
 template<class E>
 class List;
 template<class E>
 class ListPure;
-template<class E, bool isConst, bool isReverse>
-class ListIteratorBase;
+
 template<class E>
 using ListConstIterator = ListIteratorBase<E, true, false>;
 template<class E>

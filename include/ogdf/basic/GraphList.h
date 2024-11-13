@@ -32,19 +32,24 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/internal/graph_iterators.h>
+#include <ogdf/basic/memory.h>
+
+#include <iterator>
+#include <random>
+#include <utility>
 
 namespace ogdf {
 
-class Graph;
 class ClusterGraph;
-class ConstCombinatorialEmbedding;
 class CombinatorialEmbedding;
+class ConstCombinatorialEmbedding;
+class Graph;
 
 namespace internal {
 
-class OGDF_EXPORT GraphListBase;
 
 //! The base class for objects used by (hyper)graphs.
 /**

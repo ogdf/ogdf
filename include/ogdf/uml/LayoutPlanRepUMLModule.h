@@ -32,11 +32,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Layout.h>
-#include <ogdf/uml/PlanRepUML.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
-
+class PlanRep;
+class PlanRepUML;
 
 /**
  * \brief Interface for planar UML layout algorithms.

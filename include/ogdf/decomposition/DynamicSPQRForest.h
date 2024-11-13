@@ -31,10 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/DynamicBCTree.h>
 #include <ogdf/decomposition/SPQRTree.h>
 
+#include <iosfwd>
+
 namespace ogdf {
+template<class E>
+class SList;
 
 /**
  * Dynamic SPQR-forest.

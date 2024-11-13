@@ -31,10 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class Hierarchy;
 
 //! Representation of levels in hierarchies.
 /**

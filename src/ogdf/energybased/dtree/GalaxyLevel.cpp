@@ -29,8 +29,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/energybased/dtree/GalaxyLevel.h>
+
+#include <algorithm>
 
 using namespace ogdf;
 using namespace ogdf::energybased::dtree;

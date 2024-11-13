@@ -32,10 +32,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
-#include <ogdf/planarity/PlanRepExpansion.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class PlanRepExpansion;
+template<class E>
+class List;
 
 /**
  * \brief Interface for minor-monotone edge insertion algorithms.

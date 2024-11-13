@@ -30,7 +30,19 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/layered/CrossingMinInterfaces.h>
 #include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/Level.h>
+
+#include <cstdint>
 
 namespace ogdf {
 

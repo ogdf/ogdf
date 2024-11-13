@@ -32,15 +32,19 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarlayout/GridLayoutModule.h>
-#include <ogdf/planarlayout/ShellingOrder.h>
 #include <ogdf/planarlayout/ShellingOrderModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class GridLayout;
+class ShellingOrder;
 
 /**
  * \brief Implementation of the Planar-Draw layout algorithm.

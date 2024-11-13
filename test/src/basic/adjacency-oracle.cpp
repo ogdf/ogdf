@@ -30,8 +30,17 @@
  */
 
 #include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+
+#include <functional>
+#include <set>
+#include <string>
 
 #include <graphs.h>
+
+#include <testing.h>
 
 static void describeAdjacencyOracleWithDegreeThreshold(string title, int degreeThreshold) {
 	describe(title + " (degree threshold = " + std::to_string(degreeThreshold) + ")", [&] {

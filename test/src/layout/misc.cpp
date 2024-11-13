@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <testing.h>
+// IWYU pragma: begin_keep
 #include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/energybased/FMMMLayout.h>
@@ -45,7 +47,10 @@
 #include <ogdf/upward/DominanceLayout.h>
 #include <ogdf/upward/VisibilityLayout.h>
 
-#include "layout_helpers.h"
+#include <testing.h>
+// IWYU pragma: end_keep
+
+#include "layout_helpers.h" // IWYU pragma: associated
 
 static bool edgesHaveBends(const Graph& g, const GraphAttributes& ga) {
 	for (edge e : g.edges) {

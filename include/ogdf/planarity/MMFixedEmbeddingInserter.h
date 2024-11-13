@@ -32,14 +32,19 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/FaceSet.h>
-#include <ogdf/basic/NodeSet.h>
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/MMEdgeInsertionModule.h>
+#include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
 
 namespace ogdf {
+template<class E1, class E2>
+class Tuple2;
+template<class E>
+class List;
 
 //! Minor-monotone edge insertion with fixed embedding.
 /**

@@ -29,22 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/graphalg/Matching.h>
 #include <ogdf/graphalg/MatchingBlossom.h>
 #include <ogdf/graphalg/MatchingBlossomV.h>
 
+#include <algorithm>
+#include <functional>
+#include <string>
 #include <tuple>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
-#include <graphs.h>
-
 #include <testing.h>
+
+namespace ogdf {
+template<typename TWeight>
+class MatchingModule;
+} // namespace ogdf
 
 using namespace ogdf::Matching;
 

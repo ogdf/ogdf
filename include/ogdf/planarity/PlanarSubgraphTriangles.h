@@ -32,8 +32,17 @@
 #pragma once
 
 #include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarity/PlanarSubgraphModule.h>
+
+#include <functional>
 
 namespace ogdf {
 

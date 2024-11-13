@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graphics.h>
 
 namespace ogdf {

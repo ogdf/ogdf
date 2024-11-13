@@ -31,11 +31,11 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/MatchingModule.h>
 #include <ogdf/graphalg/matching_blossom/AlternatingTree.h>
 #include <ogdf/graphalg/matching_blossom/BlossomHelper.h>
@@ -43,10 +43,10 @@
 #include <ogdf/graphalg/matching_blossom/Pseudonode.h>
 #include <ogdf/graphalg/matching_blossom/utils.h>
 
-#include <algorithm>
+#include <cstddef>
 #include <iostream>
-#include <limits>
 #include <memory>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>

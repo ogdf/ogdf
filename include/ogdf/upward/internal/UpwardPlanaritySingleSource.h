@@ -34,14 +34,18 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/decomposition/SPQRTree.h>
-#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
-#include <ogdf/upward/ExpansionGraph.h>
-#include <ogdf/upward/FaceSinkGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class ExpansionGraph;
+class FaceSinkGraph;
+class SPQRTree;
+class StaticPlanarSPQRTree;
+template<class E>
+class SList;
+template<class E>
+class SListPure;
 
 //! Performs upward planarity testing and embedding for single-source digraphs.
 class OGDF_EXPORT UpwardPlanaritySingleSource {
@@ -63,11 +67,10 @@ private:
 		int m_outdegTgt;
 	};
 
-	// classes defined and used in UpwardPlanaritySingleSource.cpp
-	class OGDF_EXPORT SkeletonInfo;
-
 	//! Maintains constraints set during upward-planarity test on rooting of SPQR-tree
 	class ConstraintRooting;
+	// classes defined and used in UpwardPlanaritySingleSource.cpp
+	class OGDF_EXPORT SkeletonInfo;
 
 
 	// performs the actual test (and computation of sorted adjacency lists) for

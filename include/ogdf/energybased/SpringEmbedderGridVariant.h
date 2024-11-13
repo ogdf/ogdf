@@ -31,12 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/energybased/SpringForceModel.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/spring_embedder/SpringEmbedderBase.h>
 
 namespace ogdf {
+class GraphAttributes;
+class GraphCopy;
 
 //! The spring-embedder layout algorithm with force approximation using hte grid variant approach.
 /**
@@ -99,13 +101,12 @@ private:
 	};
 
 	class ForceModelBase;
+	class ForceModelEades;
 	class ForceModelFR;
 	class ForceModelFRModAttr;
 	class ForceModelFRModRep;
-	class ForceModelEades;
-	class ForceModelHachul;
 	class ForceModelGronemann;
-
+	class ForceModelHachul;
 	class Master;
 	class Worker;
 };

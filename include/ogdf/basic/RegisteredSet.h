@@ -33,6 +33,8 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/RegisteredArray.h>
 
+#include <type_traits>
+
 namespace ogdf {
 
 //! Constant-time set operations.

@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
 namespace ogdf {

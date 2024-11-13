@@ -29,15 +29,21 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
 #include <ogdf/upward/UpwardPlanRep.h>
 
-
-//debug only
-#include <ogdf/upward/LayerBasedUPRLayout.h>
+#include <limits>
 
 namespace ogdf {
 

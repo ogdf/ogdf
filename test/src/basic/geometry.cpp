@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/geometry.h>
+
+#include <functional>
+#include <string>
 
 #include <testing.h>
 

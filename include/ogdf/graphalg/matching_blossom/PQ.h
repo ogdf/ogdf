@@ -33,9 +33,11 @@
 #pragma once
 
 #include <ogdf/basic/PriorityQueue.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/heap/PairingHeap.h>
 #include <ogdf/graphalg/matching_blossom/utils.h>
 
-#include <limits>
+#include <functional>
 #include <unordered_map>
 
 namespace ogdf {

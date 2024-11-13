@@ -31,10 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentDecisions.h>
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
+
 namespace steiner_tree {
 
 template<typename T>

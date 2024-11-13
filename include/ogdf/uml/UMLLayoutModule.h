@@ -32,10 +32,11 @@
 
 #pragma once
 
-#include <ogdf/uml/UMLGraph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
-
+class UMLGraph;
 
 /**
  * \brief Interface of UML layout algorithms.

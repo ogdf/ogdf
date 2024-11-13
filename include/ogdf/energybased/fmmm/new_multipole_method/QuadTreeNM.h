@@ -33,7 +33,16 @@
 
 #include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNodeNM.h>
 
+#include <iostream>
+
+namespace ogdf::energybased::fmmm {
+class ParticleInfo;
+} // namespace ogdf::energybased::fmmm
+
 namespace ogdf {
+template<class E>
+class List;
+
 namespace energybased {
 namespace fmmm {
 

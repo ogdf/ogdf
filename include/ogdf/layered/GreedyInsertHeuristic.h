@@ -31,11 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/layered/CrossingsMatrix.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/LayerByLayerSweep.h>
 
 namespace ogdf {
+class CrossingsMatrix;
+class HierarchyLevels;
+class Level;
 
 //! The greedy-insert heuristic for 2-layer crossing minimization.
 /**

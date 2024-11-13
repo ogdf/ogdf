@@ -29,10 +29,22 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/NodeColoringBergerRompel.h>
+#include <ogdf/graphalg/NodeColoringJohnson.h>
+#include <ogdf/graphalg/NodeColoringModule.h>
+#include <ogdf/graphalg/NodeColoringSequential.h>
+#include <ogdf/graphalg/NodeColoringSimple.h>
+#include <ogdf/graphalg/NodeColoringWigderson.h>
+
+#include <algorithm>
+#include <cmath>
 
 namespace ogdf {
 

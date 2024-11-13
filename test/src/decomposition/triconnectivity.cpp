@@ -29,14 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/Graph_d.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/Triconnectivity.h>
 
 #include <algorithm>
-#include <array>
+#include <functional>
+#include <iterator>
+#include <memory>
 #include <random>
-#include <unordered_set>
+#include <set>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include <graphs.h>

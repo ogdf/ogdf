@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Thread.h>
 #include <ogdf/layered/BarycenterHeuristic.h>
 #include <ogdf/layered/CoffmanGrahamRanking.h>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
@@ -46,7 +47,15 @@
 #include <ogdf/layered/SplitHeuristic.h>
 #include <ogdf/layered/SugiyamaLayout.h>
 
+#include <algorithm>
+#include <functional>
+#include <set>
+#include <string>
+
 #include "layout_helpers.h"
+#include <graphs.h>
+
+#include <testing.h>
 
 #define DESCRIBE_SUGI_LAYOUT(TYPE, ...) describeSugi<TYPE>(#TYPE, __VA_ARGS__)
 #define DESCRIBE_SUGI_RANKING(TYPE, ...) describeSugiRanking<TYPE>(#TYPE, __VA_ARGS__)

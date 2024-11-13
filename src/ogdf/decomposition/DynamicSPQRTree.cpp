@@ -30,9 +30,17 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/decomposition/DynamicSPQRTree.h>
+#include <ogdf/decomposition/DynamicSkeleton.h>
+#include <ogdf/decomposition/Skeleton.h>
 
 namespace ogdf {
+class SPQRTree;
 
 DynamicSkeleton::DynamicSkeleton(const DynamicSPQRTree* T, node vB) : Skeleton(vB), m_owner(T) {
 	m_origNode.init(m_M, nullptr);

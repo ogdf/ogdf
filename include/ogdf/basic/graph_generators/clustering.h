@@ -32,7 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/basic.h>
 
 #include <cstdint>
 #include <iosfwd>

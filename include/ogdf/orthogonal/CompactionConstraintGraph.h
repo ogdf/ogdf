@@ -34,10 +34,24 @@
 
 #pragma once
 
+
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/tuples.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
+#include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
 #include <ogdf/planarity/PlanRep.h>
+
+#include <algorithm>
+#include <iostream>
+#include <string>
 
 namespace ogdf {
 

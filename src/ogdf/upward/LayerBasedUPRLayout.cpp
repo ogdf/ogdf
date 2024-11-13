@@ -29,9 +29,34 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/Reverse.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/tuples.h>
+#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/HierarchyLayoutModule.h>
+#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/Level.h>
+#include <ogdf/layered/RankingModule.h>
 #include <ogdf/upward/LayerBasedUPRLayout.h>
+#include <ogdf/upward/UpwardPlanRep.h>
+
+#include <cstdlib>
+#include <limits>
+#include <memory>
+#include <utility>
 
 namespace ogdf {
 

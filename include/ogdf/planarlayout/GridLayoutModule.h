@@ -31,11 +31,16 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
+class GraphAttributes;
+class GridLayout;
+class PlanRep;
 
 /**
  * \brief Base class for grid layout algorithms.

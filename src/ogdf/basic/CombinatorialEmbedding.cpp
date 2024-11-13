@@ -31,8 +31,13 @@
 
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/Math.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+
+#include <functional>
+#include <ostream>
+#include <utility>
 #ifdef OGDF_DEBUG
 #	include <ogdf/basic/simple_graph_alg.h>
 #endif

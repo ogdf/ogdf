@@ -31,17 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/tuples.h> // IWYU pragma: keep
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/RankingModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
+class GraphCopySimple;
 
 //! The longest-path ranking algorithm.
 /**

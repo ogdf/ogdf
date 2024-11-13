@@ -31,15 +31,16 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/graphalg/PlanarSeparatorModule.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/SeparatorLiptonTarjan.h>
-#include <ogdf/graphalg/SeparatorLiptonTarjanFC.h>
-#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>
 
-#include <unordered_set>
+#include <cmath>
+#include <string>
 
 namespace ogdf {
+template<class E>
+class List;
 
 //! Computes planar separators using the Dual of the graph.
 /**

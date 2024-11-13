@@ -35,10 +35,24 @@
  */
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/decomposition/PertinentGraph.h>
+#include <ogdf/decomposition/SPQRTree.h>
+#include <ogdf/decomposition/Skeleton.h>
+#include <ogdf/decomposition/StaticPlanarSPQRTree.h>
+#include <ogdf/decomposition/StaticSkeleton.h>
+#include <ogdf/upward/ExpansionGraph.h>
+#include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/upward/UpwardPlanarity.h>
 #include <ogdf/upward/internal/UpwardPlanaritySingleSource.h>
+
+#include <ostream>
 
 namespace ogdf {
 

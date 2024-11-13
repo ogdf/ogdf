@@ -33,12 +33,18 @@
 
 #pragma once
 
-#include <ogdf/basic/pqtree/PQInternalKey.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/pqtree/PQNode.h>
 #include <ogdf/basic/pqtree/PQNodeKey.h>
+#include <ogdf/basic/pqtree/PQNodeRoot.h>
 #include <ogdf/planarity/booth_lueker/IndInfo.h>
 
 namespace ogdf {
+template<class T, class X, class Y>
+class PQInternalKey;
+template<class T, class X, class Y>
+class PQLeafKey;
+
 namespace booth_lueker {
 
 class EmbedIndicator : public PQNode<edge, IndInfo*, bool> {

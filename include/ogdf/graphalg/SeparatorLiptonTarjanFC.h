@@ -31,11 +31,19 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/PlanarSeparatorModule.h>
 
-#include <set>
+#include <memory>
+#include <string>
 
 namespace ogdf {
+class GraphCopy;
+template<class E>
+class List;
+template<class E>
+class SListPure;
 
 namespace planar_separators {
 

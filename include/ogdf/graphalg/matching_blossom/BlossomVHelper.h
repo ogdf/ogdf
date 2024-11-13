@@ -31,9 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/graphalg/matching_blossom/AuxGraph.h>
 #include <ogdf/graphalg/matching_blossom/BlossomHelper.h>
 #include <ogdf/graphalg/matching_blossom/PQ.h>
 #include <ogdf/graphalg/matching_blossom/utils.h>

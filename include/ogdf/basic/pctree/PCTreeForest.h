@@ -32,11 +32,17 @@
 #pragma once
 
 #include <ogdf/basic/DisjointSets.h>
-#include <ogdf/basic/pctree/PCEnum.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/pctree/PCRegistry.h>
 
-#include <cstdint>
+#include <cstddef>
+#include <limits>
 #include <vector>
+
+namespace ogdf::pc_tree {
+class PCNode;
+class PCTree;
+} // namespace ogdf::pc_tree
 
 #define OGDF_PCTREE_REUSE_NODES
 

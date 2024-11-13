@@ -29,13 +29,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/Layout.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/cluster/ClusterPlanRep.h>
-#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/planarity/PlanRep.h>
 
+#include <fstream>
+#include <functional>
 #include <iomanip>
 
 namespace ogdf {
+class CombinatorialEmbedding;
+class OrthoRep;
 
 ClusterPlanRep::ClusterPlanRep(const ClusterGraphAttributes& acGraph, const ClusterGraph& clusterGraph)
 	: PlanRep(acGraph), m_pClusterGraph(&clusterGraph) {

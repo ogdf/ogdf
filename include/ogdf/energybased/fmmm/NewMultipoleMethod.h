@@ -31,17 +31,24 @@
 
 #pragma once
 
-#include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/fmmm/FMMMOptions.h>
 #include <ogdf/energybased/fmmm/FruchtermanReingold.h>
-#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNM.h>
 
-#include <complex>
+namespace ogdf::energybased::fmmm {
+class NodeAttributes;
+class ParticleInfo;
+class QuadTreeNM;
+class QuadTreeNodeNM;
+} // namespace ogdf::energybased::fmmm
 
 namespace ogdf {
+template<class E>
+class Array2D;
+
 namespace energybased {
 namespace fmmm {
 

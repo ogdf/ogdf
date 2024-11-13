@@ -33,16 +33,19 @@
 
 #pragma once
 
-#include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/orthogonal/MinimumEdgeDistances.h>
-#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/orthogonal/internal/RoutingChannel.h>
-#include <ogdf/planarity/PlanRep.h>
 
 namespace ogdf {
 
+class GridLayoutMapped;
+class OrthoRep;
+class PlanRep;
 template<class ATYPE>
 class CompactionConstraintGraph;
+template<class ATYPE>
+class MinimumEdgeDistances;
 
 //! represents compaction algorithm using min-cost flow in the dual of the constraint graph
 class OGDF_EXPORT FlowCompaction {

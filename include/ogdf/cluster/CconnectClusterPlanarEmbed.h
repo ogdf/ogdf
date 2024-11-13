@@ -33,11 +33,17 @@
 
 #pragma once
 
-#include <ogdf/cluster/ClusterArray.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/ClusterPQContainer.h>
 #include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
 
 namespace ogdf {
+template<class E>
+class ListPure;
 
 //! C-planarity test and embedding by Cohen, Feng and Eades.
 /**

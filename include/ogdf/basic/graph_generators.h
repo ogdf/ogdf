@@ -31,5 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/graph_generators/deterministic.h>
-#include <ogdf/basic/graph_generators/randomized.h>
+#include <ogdf/basic/graph_generators/clustering.h> // IWYU pragma: export
+#include <ogdf/basic/graph_generators/deterministic.h> // IWYU pragma: export
+#include <ogdf/basic/graph_generators/randomGeographicalThresholdGraph.h> // IWYU pragma: export
+#include <ogdf/basic/graph_generators/randomized.h> // IWYU pragma: export

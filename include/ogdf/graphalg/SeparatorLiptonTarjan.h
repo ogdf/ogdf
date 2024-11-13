@@ -31,9 +31,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/PlanarSeparatorModule.h>
 
+#include <cmath>
+#include <memory>
+#include <string>
+
 namespace ogdf {
+template<class E>
+class List;
 
 //! Computes planar separators according to Lipton and Tarjan 1979
 /**

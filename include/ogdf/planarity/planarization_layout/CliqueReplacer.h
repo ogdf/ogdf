@@ -31,10 +31,18 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+
+#include <algorithm>
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class List;
+
 namespace planarization_layout {
 
 class OGDF_EXPORT CliqueReplacer {

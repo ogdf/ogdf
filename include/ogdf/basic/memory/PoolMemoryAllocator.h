@@ -32,8 +32,11 @@
 
 #pragma once
 
-#include <ogdf/basic/System.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/config_autogen.h>
 
+#include <cstddef>
+#include <cstdint>
 #ifndef OGDF_MEMORY_POOL_NTS
 #	include <mutex>
 #endif
@@ -60,8 +63,8 @@ class PoolMemoryAllocator {
 
 	using MemElemPtr = MemElem*;
 
-	struct PoolElement;
 	struct BlockChain;
+	struct PoolElement;
 
 	static constexpr size_t MIN_BYTES = sizeof(MemElemPtr);
 	static constexpr size_t TABLE_SIZE = 256;

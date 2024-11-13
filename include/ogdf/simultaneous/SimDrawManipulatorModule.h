@@ -31,9 +31,13 @@
 
 #pragma once
 
-#include <ogdf/simultaneous/SimDraw.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class Graph;
+class GraphAttributes;
+class SimDraw;
+
 //! Interface for simdraw manipulators
 /**
  *  To avoid class SimDraw to become too large, several functions

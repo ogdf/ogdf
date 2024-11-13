@@ -35,7 +35,3 @@
  */
 
 #pragma once
-
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/List.h>

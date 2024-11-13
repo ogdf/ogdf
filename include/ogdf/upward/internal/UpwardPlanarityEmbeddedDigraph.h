@@ -34,12 +34,13 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/basic/List.h>
 
 namespace ogdf {
+template<class E, class INDEX>
+class ArrayBuffer;
+template<class E>
+class List;
 
 class UpwardPlanarityEmbeddedDigraph {
 public:

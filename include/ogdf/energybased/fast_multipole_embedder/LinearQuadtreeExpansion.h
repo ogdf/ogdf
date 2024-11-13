@@ -31,7 +31,13 @@
 
 #pragma once
 
-#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+
+#include <cstdint>
+
+namespace ogdf::fast_multipole_embedder {
+class LinearQuadtree;
+} // namespace ogdf::fast_multipole_embedder
 
 namespace ogdf {
 namespace fast_multipole_embedder {

@@ -29,9 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Module.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/planarity/MMEdgeInsertionModule.h>
 #include <ogdf/planarity/MMFixedEmbeddingInserter.h>
 #include <ogdf/planarity/MMSubgraphPlanarizer.h>
+#include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
+#include <ogdf/planarity/RemoveReinsertType.h>
+
+#include <memory>
 
 namespace ogdf {
 

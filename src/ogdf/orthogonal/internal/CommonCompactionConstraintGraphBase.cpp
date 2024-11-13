@@ -29,8 +29,25 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/graphics.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/basic/tuples.h>
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/orthogonal/internal/CommonCompactionConstraintGraphBase.h>
+#include <ogdf/planarity/PlanRep.h>
+
+#include <fstream>
+#include <string>
 
 namespace ogdf {
 

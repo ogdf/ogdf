@@ -29,7 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevel_mixer/LocalBiconnectedMerger.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <vector>
 
 namespace ogdf {
 

@@ -29,9 +29,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/augmentation/PlanarAugmentation.h>
+#include <ogdf/augmentation/planar/PALabel.h>
+#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/decomposition/DynamicBCTree.h>
+
+#include <iostream>
 
 // for debug-outputs
 //#define OGDF_PLANAR_AUGMENTATION_DEBUG

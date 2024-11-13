@@ -31,16 +31,36 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 #include <ogdf/graphalg/steiner_tree/goemans/BlowupComponents.h>
+#include <ogdf/graphalg/steiner_tree/goemans/BlowupGraph.h>
 #include <ogdf/graphalg/steiner_tree/goemans/CoreEdgeRandomSpanningTree.h>
 
+#include <iostream>
 #include <memory>
+#include <random>
+#include <utility>
+
+namespace ogdf::steiner_tree {
+template<typename T, typename ExtraDataType>
+class FullComponentWithExtraStore;
+} // namespace ogdf::steiner_tree
 
 //#define OGDF_STEINER_TREE_GOEMANS_APPROXIMATION_LOGGING
 
 namespace ogdf {
+template<class E>
+class List;
+template<typename T>
+class EdgeWeightedGraph;
+
 namespace steiner_tree {
 namespace goemans {
 

@@ -33,6 +33,8 @@
 
 #include <ogdf/basic/basic.h>
 
+#include <iosfwd>
+
 namespace ogdf {
 
 

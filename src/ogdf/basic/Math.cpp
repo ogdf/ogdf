@@ -31,6 +31,8 @@
 
 #include <ogdf/basic/Math.h>
 
+#include <cmath>
+
 namespace ogdf {
 namespace Math {
 

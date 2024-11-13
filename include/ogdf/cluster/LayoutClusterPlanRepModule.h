@@ -32,10 +32,16 @@
 
 #pragma once
 
-#include <ogdf/basic/Layout.h>
-#include <ogdf/cluster/ClusterPlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class ClusterPlanRep;
+class Layout;
+template<class E>
+class List;
 
 /**
  * \brief Interface for planar cluster layout algorithms.

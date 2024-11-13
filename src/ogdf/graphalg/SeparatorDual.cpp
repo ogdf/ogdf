@@ -29,7 +29,18 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/graphalg/PlanarSeparatorModule.h>
 #include <ogdf/graphalg/SeparatorDual.h>
+#include <ogdf/graphalg/planar_separator/SeparatorDualHelper.h>
+
+#include <memory>
+#include <string>
 
 namespace ogdf {
 
@@ -80,8 +91,8 @@ bool SeparatorDual::doSeparate(const Graph& G, List<node>& separator, List<node>
 	}
 
 	// start depth first search over dual graph
-	planar_separator::SeparatorDualHelper helper(graph, tree);
-	planar_separator::SeparatorDualHelper::CycleData cycle = helper.dfs();
+	planar_separators::SeparatorDualHelper helper(graph, tree);
+	planar_separators::SeparatorDualHelper::CycleData cycle = helper.dfs();
 
 	if (cycle.isInCycle(tree->getRoot())) {
 		cycle.cycle.removeFirst(tree->getRoot());

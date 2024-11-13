@@ -31,9 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/pqtree/PQInternalKey.h> // IWYU pragma: keep
 #include <ogdf/basic/pqtree/PQNode.h>
+#include <ogdf/basic/pqtree/PQNodeRoot.h>
 
 namespace ogdf {
+template<class T, class X, class Y>
+class PQLeafKey;
+template<class T, class X, class Y>
+class PQNodeKey;
 
 /**
  * The class template PQInternalNode is used to present

@@ -41,10 +41,13 @@
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
-
+template<class E>
+class List;
+template<class E>
+class SList;
 
 //! Upward planarity testing and embedding.
 /**

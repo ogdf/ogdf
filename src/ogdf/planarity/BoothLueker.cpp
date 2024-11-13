@@ -33,14 +33,22 @@
 
 
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Reverse.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/STNumbering.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarity/BoothLueker.h>
 #include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 #include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
+
+namespace ogdf::booth_lueker {
+class IndInfo;
+} // namespace ogdf::booth_lueker
 
 namespace ogdf {
 

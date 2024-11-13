@@ -34,11 +34,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/graphalg/ShortestPathAlgorithms.h>
+#include <ogdf/basic/basic.h>
+
+#include <algorithm>
+#include <limits>
 
 namespace ogdf {
+class GraphAttributes;
 
 template<typename T>
 inline bool isinf(T value) {

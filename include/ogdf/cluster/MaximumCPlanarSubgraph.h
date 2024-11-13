@@ -32,16 +32,25 @@
 
 #pragma once
 
-#include <ogdf/basic/Module.h>
-#include <ogdf/basic/Timeouter.h>
+
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Stopwatch.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/CPlanarSubgraphModule.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 
 #include <ogdf/external/abacus.h>
 
-#include <chrono>
+#include <cstdint>
 #include <sstream>
+#include <string>
+
+namespace abacus {
+template<class BaseType, class CoType>
+class StandardPool;
+} // namespace abacus
 
 namespace ogdf {
 

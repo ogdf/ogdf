@@ -28,8 +28,13 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/energybased/dtree/DTreeForce.h>
-#include <ogdf/energybased/dtree/GalaxyLevel.h>
+#include <ogdf/energybased/dtree/DTreeForceTypes.h>
+
+#include <cmath>
+#include <ostream>
 
 namespace ogdf {
 namespace energybased {

@@ -31,10 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class MultilevelGraph;
 
 //! Base class for placer modules.
 /**

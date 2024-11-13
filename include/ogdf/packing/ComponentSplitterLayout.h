@@ -31,16 +31,15 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/geometry.h>
-#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/packing/CCLayoutPackModule.h>
 
 #include <memory>
-#include <vector>
 
 namespace ogdf {
+class GraphAttributes;
 
 class OGDF_EXPORT ComponentSplitterLayout : public LayoutModule {
 private:

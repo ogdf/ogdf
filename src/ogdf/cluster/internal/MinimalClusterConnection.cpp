@@ -39,8 +39,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/cluster/internal/MinimalClusterConnection.h>
+
+#include <ogdf/external/abacus.h>
+
 
 using namespace ogdf;
 using namespace ogdf::cluster_planarity;

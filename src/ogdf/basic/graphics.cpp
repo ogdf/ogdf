@@ -32,7 +32,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graphics.h>
+
+#include <cctype>
+#include <cstdint>
+#include <map>
+#include <ostream>
+#include <string>
 
 namespace ogdf {
 using namespace graphics;

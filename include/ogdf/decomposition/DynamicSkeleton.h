@@ -31,11 +31,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/decomposition/Skeleton.h>
 
 namespace ogdf {
 
 class DynamicSPQRTree;
+class SPQRTree;
 
 //! %Skeleton graphs of nodes in a dynamic SPQR-tree.
 /**

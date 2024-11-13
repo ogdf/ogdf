@@ -31,8 +31,12 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/NodeSet.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
 namespace ogdf {

@@ -32,9 +32,15 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/basic/graphics.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
-#include <ogdf/hypergraph/HypergraphArray.h>
+#include <ogdf/hypergraph/Hypergraph.h>
+
+#include <string>
 
 namespace ogdf {
 

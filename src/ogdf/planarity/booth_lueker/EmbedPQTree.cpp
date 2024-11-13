@@ -32,7 +32,23 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/PQTree.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/pqtree/PQBasicKey.h>
+#include <ogdf/basic/pqtree/PQInternalNode.h>
+#include <ogdf/basic/pqtree/PQLeaf.h>
+#include <ogdf/basic/pqtree/PQLeafKey.h>
+#include <ogdf/basic/pqtree/PQNode.h>
+#include <ogdf/basic/pqtree/PQNodeKey.h>
+#include <ogdf/basic/pqtree/PQNodeRoot.h>
+#include <ogdf/planarity/booth_lueker/EmbedIndicator.h>
 #include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
+#include <ogdf/planarity/booth_lueker/IndInfo.h>
+#include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 
 namespace ogdf {
 namespace booth_lueker {

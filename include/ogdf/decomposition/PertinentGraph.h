@@ -32,10 +32,9 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
-
-class OGDF_EXPORT SPQRTree;
 
 //! Pertinent graphs of nodes in an SPQR-tree.
 /**

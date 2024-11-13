@@ -41,18 +41,31 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/EpsilonTest.h>
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Stopwatch.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 #include <ogdf/external/abacus.h>
-#include <ogdf/lib/abacus/opensub.h>
+#include <ogdf/lib/abacus/opensub.h> // IWYU pragma: keep
 
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
 #include <memory>
-// heuristics, approximation algorithms:
-#include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 
 // turn on/off logging for STP b&c algorithm
 //#define OGDF_STP_EXACT_LOGGING
@@ -90,13 +103,13 @@ protected:
 	MinSteinerTreeModule<double>* m_primalHeuristic;
 	int m_poolSizeInitFactor;
 
-	// Abacus LP classes
-	class Sub;
-	class EdgeConstraint;
 	class DegreeConstraint;
 	class DegreeEdgeConstraint;
 	class DirectedCutConstraint;
+	class EdgeConstraint;
 	class EdgeVariable;
+	// Abacus LP classes
+	class Sub;
 
 public:
 	class Master;

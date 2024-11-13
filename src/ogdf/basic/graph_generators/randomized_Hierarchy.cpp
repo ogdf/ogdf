@@ -30,9 +30,20 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 #include <ogdf/basic/graph_generators/deterministic.h>
 #include <ogdf/basic/graph_generators/randomized.h>
+#include <ogdf/basic/memory.h>
+
+#include <algorithm>
+#include <random>
+#include <vector>
 
 using std::minstd_rand;
 using std::mt19937;

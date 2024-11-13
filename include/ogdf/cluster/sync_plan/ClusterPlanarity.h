@@ -31,8 +31,8 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphSets.h>
-#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/GraphSets.h> // IWYU pragma: keep
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterPlanarityModule.h>
 
@@ -40,8 +40,6 @@
 #include <vector>
 
 namespace ogdf {
-template<bool>
-class EdgeSet;
 
 //! ClusterPlanarity testing in quadratic time using the \ref ogdf::sync_plan::SyncPlan "Synchronized Planarity" approach.
 class OGDF_EXPORT SyncPlanClusterPlanarityModule : public ClusterPlanarityModule {

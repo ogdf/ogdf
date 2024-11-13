@@ -31,13 +31,14 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
 
 namespace ogdf {
+class Hierarchy;
 
 //! The simple implementation of LevelBase interface.
 class ArrayLevel : public LevelBase {
@@ -57,9 +58,6 @@ public:
 
 	int high() const override { return m_nodes.high(); }
 };
-
-
-class BlockOrder;
 
 /**
  * \brief Class representing idea of Blocks used in GlobalSifting

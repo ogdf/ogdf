@@ -31,16 +31,20 @@
 
 #pragma once
 
-#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/energybased/fmmm/EdgeAttributes.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/fmmm/FMMMOptions.h>
-#include <ogdf/energybased/fmmm/NodeAttributes.h>
-#include <ogdf/energybased/fmmm/multilevel/Edge.h>
+
+namespace ogdf::energybased::fmmm {
+class EdgeAttributes;
+class NodeAttributes;
+} // namespace ogdf::energybased::fmmm
 
 namespace ogdf {
+template<class E>
+class List;
+
 namespace energybased {
 namespace fmmm {
 

@@ -33,6 +33,11 @@
 #pragma once
 
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/memory.h>
+
+#include <initializer_list>
+#include <iosfwd>
+#include <utility>
 
 namespace ogdf {
 

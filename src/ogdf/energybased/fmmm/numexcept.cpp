@@ -30,7 +30,12 @@
  */
 
 
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/fmmm/numexcept.h>
+
+#include <algorithm>
+#include <iostream>
 
 #define epsilon 0.1
 #define POS_SMALL_DOUBLE 1e-300

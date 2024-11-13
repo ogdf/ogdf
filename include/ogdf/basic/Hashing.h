@@ -37,9 +37,12 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/memory.h>
 
-namespace ogdf {
+#include <cmath>
+#include <cstddef>
+#include <limits>
+#include <string>
 
-class HashingBase;
+namespace ogdf {
 
 //! Base class for elements within a hash table.
 /**

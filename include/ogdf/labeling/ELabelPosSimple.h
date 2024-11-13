@@ -32,9 +32,12 @@
 
 #pragma once
 
-#include <ogdf/labeling/ELabelInterface.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class GraphAttributes;
+template<class coordType>
+class ELabelInterface;
 
 class OGDF_EXPORT ELabelPosSimple {
 public:

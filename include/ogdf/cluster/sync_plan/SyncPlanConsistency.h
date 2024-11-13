@@ -30,6 +30,7 @@
  */
 #pragma once
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/sync_plan/SyncPlanDrawer.h>
 
 #include <string>

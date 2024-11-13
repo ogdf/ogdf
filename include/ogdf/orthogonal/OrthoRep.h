@@ -31,14 +31,20 @@
 
 #pragma once
 
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/tuples.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <cstddef>
+#include <ostream>
+#include <string>
 
 namespace ogdf {
 
 class OGDF_EXPORT PlanRep;
-class OGDF_EXPORT PlanRepUML;
 
 
 // type for bends (convex or reflex)

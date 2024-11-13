@@ -29,17 +29,32 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarity/BoothLueker.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
 #include <ogdf/planarity/MaximumPlanarSubgraph.h>
 #include <ogdf/planarity/PlanarSubgraphBoyerMyrvold.h>
 #include <ogdf/planarity/PlanarSubgraphCactus.h>
+#include <ogdf/planarity/PlanarSubgraphEmpty.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
+#include <ogdf/planarity/PlanarSubgraphModule.h>
 #include <ogdf/planarity/PlanarSubgraphTree.h>
 #include <ogdf/planarity/PlanarSubgraphTriangles.h>
+#include <ogdf/planarity/PlanarityModule.h>
 
+#include <functional>
+#include <iostream>
 #include <random>
+#include <set>
+#include <string>
 
 #include <graphs.h>
+
+#include <testing.h>
 
 using std::minstd_rand;
 

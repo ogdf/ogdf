@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/internal/copy_move.h>
 
 #include <cstring>

@@ -41,14 +41,22 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/ArrayBuffer.h>
-#include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/Logger.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
 
-#include <ogdf/lib/abacus/constraint.h>
+#include <ostream>
+
+namespace abacus {
+class Master;
+class Variable;
+} // namespace abacus
 
 namespace ogdf {
+template<class E, class INDEX>
+class ArrayBuffer;
+
 namespace cluster_planarity {
 
 class ChunkConnection : public BaseConstraint {

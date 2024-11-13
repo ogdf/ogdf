@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/decomposition/DynamicSPQRTree.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
 

@@ -32,12 +32,16 @@
 
 #pragma once
 
-#include <ogdf/cluster/CPlanarEdgeInserter.h>
-#include <ogdf/cluster/ClusterPlanRep.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/LayoutClusterPlanRepModule.h>
-#include <ogdf/orthogonal/OrthoRep.h>
 
 namespace ogdf {
+class ClusterPlanRep;
+class Layout;
+enum class OrthoDir;
+template<class E>
+class List;
 
 //! Represents a planar orthogonal drawing algorithm for c-planar, c-connected clustered graphs.
 /**

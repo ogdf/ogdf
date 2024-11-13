@@ -34,6 +34,8 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/pqtree/PQLeafKey.h>
 
+#include <ostream>
+
 namespace ogdf {
 namespace booth_lueker {
 

@@ -34,17 +34,13 @@
 
 #pragma once
 
-#include <ogdf/basic/Graph_d.h>
-#include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 
-#include <ogdf/lib/abacus/constraint.h>
-#include <ogdf/lib/abacus/master.h>
+#include <ogdf/external/abacus.h>
 
 namespace ogdf {
 namespace cluster_planarity {
 
-class ChunkConnection;
 
 //! Struct for attaching the current lp-value to the corresponding edge.
 //! Used in the primal heuristic.

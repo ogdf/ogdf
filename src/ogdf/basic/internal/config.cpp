@@ -29,7 +29,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/basic.h>
+
+#include <string>
 
 namespace ogdf {
 

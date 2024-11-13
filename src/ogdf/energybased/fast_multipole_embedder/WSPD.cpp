@@ -29,7 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
 #include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
+
+#include <cstdint>
+#include <functional>
 
 namespace ogdf {
 namespace fast_multipole_embedder {

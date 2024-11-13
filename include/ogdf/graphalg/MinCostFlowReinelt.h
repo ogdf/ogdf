@@ -31,8 +31,16 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
 #include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <ogdf/graphalg/MinCostFlowModule.h>
+
+#include <cstdlib>
+#include <limits>
 
 namespace ogdf {
 

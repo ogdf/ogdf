@@ -29,6 +29,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/graphalg/NodeColoringModule.h>
 #include <ogdf/graphalg/NodeColoringSimple.h>
 
 namespace ogdf {

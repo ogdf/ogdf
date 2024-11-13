@@ -36,12 +36,18 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/PQTree.h>
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/planarity/booth_lueker/PlanarLeafKey.h>
 #include <ogdf/planarity/planar_subgraph_fast/MaxSequencePQTree.h>
+#include <ogdf/planarity/planar_subgraph_fast/whaInfo.h>
 
 namespace ogdf {
+template<class E>
+class SList;
+template<class E>
+class SListPure;
+template<class T, class X, class Y>
+class PQLeafKey;
 
 class OGDF_EXPORT PlanarSubgraphPQTree : public MaxSequencePQTree<edge, bool> {
 public:

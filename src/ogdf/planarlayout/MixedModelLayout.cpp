@@ -30,12 +30,26 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
+#include <ogdf/planarity/EmbedderModule.h>
+#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
+#include <ogdf/planarlayout/MixedModelCrossingsBeautifierModule.h>
 #include <ogdf/planarlayout/MixedModelLayout.h>
+#include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+#include <ogdf/planarlayout/mixed_model_layout/MMOrder.h>
 #include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>
+
+#include <memory>
 
 namespace ogdf {
 

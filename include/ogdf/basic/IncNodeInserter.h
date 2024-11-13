@@ -36,12 +36,12 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphObserver.h>
-#include <ogdf/planarity/PlanRepInc.h>
-#include <ogdf/uml/UMLGraph.h>
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
+class PlanRepInc;
 
 class OGDF_EXPORT IncNodeInserter {
 public:

@@ -1,4 +1,5 @@
 #include <ogdf/basic/basic.h>
+#include <iostream>
 
 int main() {
 #ifdef OGDF_DEBUG

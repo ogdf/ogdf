@@ -32,9 +32,14 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class GraphCopy;
+template<class E>
+class List;
 
 /**
  * \brief Interface for algorithms for computing an upward planar subgraph.

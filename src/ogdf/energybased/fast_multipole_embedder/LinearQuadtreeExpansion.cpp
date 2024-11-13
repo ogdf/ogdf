@@ -30,8 +30,12 @@
  */
 
 #include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+#include <ogdf/energybased/fast_multipole_embedder/LinearQuadtree.h>
 #include <ogdf/energybased/fast_multipole_embedder/LinearQuadtreeExpansion.h>
-#include <ogdf/energybased/fast_multipole_embedder/WSPD.h>
+
+#include <cmath>
+#include <cstdint>
 
 using namespace ogdf::sse;
 

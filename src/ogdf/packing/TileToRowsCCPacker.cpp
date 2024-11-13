@@ -29,8 +29,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
+
+#include <algorithm>
 
 namespace ogdf {
 

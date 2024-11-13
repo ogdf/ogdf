@@ -35,13 +35,20 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/DavidsonHarel.h>
 #include <ogdf/energybased/DavidsonHarelLayout.h>
 #include <ogdf/energybased/davidson_harel/Attraction.h>
 #include <ogdf/energybased/davidson_harel/Overlap.h>
 #include <ogdf/energybased/davidson_harel/Planarity.h>
-#include <ogdf/energybased/davidson_harel/PlanarityGrid.h>
 #include <ogdf/energybased/davidson_harel/Repulsion.h>
+
+#include <algorithm>
 
 #define DEFAULT_REPULSION_WEIGHT 1e6
 #define DEFAULT_ATTRACTION_WEIGHT 1e2

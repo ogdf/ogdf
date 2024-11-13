@@ -32,9 +32,26 @@
  */
 
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayoutMapped.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
 #include <ogdf/orthogonal/FlowCompaction.h>
+#include <ogdf/orthogonal/MinimumEdgeDistances.h>
+#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/planarity/PlanRep.h>
+
+#include <algorithm>
+#include <fstream>
+#include <limits>
+#include <string>
 
 
 //#define OGDF_FLOW_COMPACTION_OUTPUT_RC

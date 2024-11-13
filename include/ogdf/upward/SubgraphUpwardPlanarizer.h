@@ -31,19 +31,22 @@
 
 #pragma once
 
-#include <ogdf/decomposition/BCTree.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/layered/AcyclicSubgraphModule.h>
 #include <ogdf/layered/GreedyCycleRemoval.h>
 #include <ogdf/upward/FUPSModule.h>
 #include <ogdf/upward/FUPSSimple.h>
 #include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
 #include <ogdf/upward/UpwardEdgeInserterModule.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/UpwardPlanarizerModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class BCTree;
+class GraphCopy;
+class UpwardPlanRep;
 
 /**
  * Takes an acyclic connected non-upward-planar graph and planarizes it, i.e., we obtain an upward-planar graph

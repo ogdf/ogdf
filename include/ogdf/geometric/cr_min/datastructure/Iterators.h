@@ -31,7 +31,6 @@
 #pragma once
 
 #include <functional>
-#include <utility>
 
 namespace ogdf {
 namespace internal {

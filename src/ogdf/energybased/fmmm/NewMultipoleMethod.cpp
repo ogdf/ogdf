@@ -30,8 +30,30 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Array2D.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
+#include <ogdf/energybased/fmmm/FruchtermanReingold.h>
 #include <ogdf/energybased/fmmm/NewMultipoleMethod.h>
+#include <ogdf/energybased/fmmm/NodeAttributes.h>
 #include <ogdf/energybased/fmmm/common.h>
+#include <ogdf/energybased/fmmm/new_multipole_method/ParticleInfo.h>
+#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNM.h>
+#include <ogdf/energybased/fmmm/new_multipole_method/QuadTreeNodeNM.h>
+#include <ogdf/energybased/fmmm/numexcept.h>
+
+#include <algorithm>
+#include <cmath>
+#include <complex>
+#include <functional>
+#include <iostream>
+#include <utility>
 
 #define MIN_BOX_LENGTH 1e-300
 

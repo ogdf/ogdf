@@ -32,7 +32,14 @@
 
 #pragma once
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
+
+#include <iostream>
 
 namespace ogdf {
 

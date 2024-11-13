@@ -33,11 +33,17 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
 #include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>
 
+#include <cstdint>
+
 namespace ogdf {
+class GraphAttributes;
 
 //! The fast multipole embedder approach for force-directed layout.
 /**

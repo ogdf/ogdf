@@ -32,16 +32,31 @@
 
 #pragma once
 
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/SubsetEnumerator.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/graphalg/MinSteinerTreeModule.h>
+#include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/steiner_tree/Full2ComponentGenerator.h>
 #include <ogdf/graphalg/steiner_tree/Full3ComponentGeneratorVoronoi.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentDecisions.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorCaller.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagner.h>
 #include <ogdf/graphalg/steiner_tree/FullComponentGeneratorDreyfusWagnerWithoutMatrix.h>
+#include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 #include <ogdf/graphalg/steiner_tree/LPRelaxationSER.h>
 #include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 #include <ogdf/graphalg/steiner_tree/goemans/Approximation.h>
 
+#include <random>
+
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 /*!
  * \brief This class implements the (1.39+epsilon)-approximation algorithm

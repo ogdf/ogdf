@@ -31,10 +31,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
 #include <ogdf/energybased/spring_embedder/common.h>
 
+#include <functional>
+
 namespace ogdf {
+template<class E>
+class Array2D;
+template<class E>
+class ListPure;
 
 class SpringEmbedderGridVariant::ForceModelBase
 	: public spring_embedder::CommonForceModelBase<NodeInfo> {

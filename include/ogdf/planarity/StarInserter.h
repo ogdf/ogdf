@@ -31,14 +31,21 @@
 
 #pragma once
 
+#include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/DualGraph.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/comparer.h>
 
 #include <memory>
 #include <unordered_map>
 
 namespace ogdf {
+template<class E>
+class List;
+template<class E>
+class SList;
 
 using PredecessorMap = std::unordered_map<node, std::unique_ptr<NodeArray<edge>>>;
 

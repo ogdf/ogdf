@@ -31,7 +31,12 @@
 
 #pragma once
 
-#include <ogdf/graphalg/steiner_tree/Triple.h>
+#include <ogdf/basic/Graph.h>
+
+namespace ogdf::steiner_tree {
+template<typename T>
+class Triple;
+} // namespace ogdf::steiner_tree
 
 namespace ogdf {
 namespace steiner_tree {

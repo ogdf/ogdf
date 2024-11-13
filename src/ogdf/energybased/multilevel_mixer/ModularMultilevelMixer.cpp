@@ -30,11 +30,22 @@
  */
 
 
-#include <ogdf/energybased/FastMultipoleEmbedder.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
 #include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/InitialPlacer.h>
 #include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelBuilder.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
+
+#include <cmath>
+#include <memory>
+#include <string>
 
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
 #	include <sstream>
@@ -42,6 +53,7 @@
 
 
 namespace ogdf {
+class GraphAttributes;
 
 ModularMultilevelMixer::ModularMultilevelMixer() {
 	// options

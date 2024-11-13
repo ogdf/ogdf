@@ -29,8 +29,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/ConnectivityTester.h>
+#include <ogdf/graphalg/MaxFlowModule.h>
 
 namespace ogdf {
 

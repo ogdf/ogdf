@@ -31,11 +31,16 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/ForceLayoutModule.h>
 
+#include <cmath>
+
 namespace ogdf {
+class GraphAttributes;
 
 //! Fruchterman-Reingold algorithm with (exact) layout.
 class OGDF_EXPORT SpringEmbedderFRExact : public ForceLayoutModule {

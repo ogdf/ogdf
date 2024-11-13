@@ -34,6 +34,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 namespace booth_lueker {

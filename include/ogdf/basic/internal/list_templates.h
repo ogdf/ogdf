@@ -33,6 +33,8 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 
 #include <functional>
 

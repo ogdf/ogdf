@@ -30,12 +30,25 @@
  */
 
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GridLayout.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/augmentation/AugmentationModule.h>
 #include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
+#include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
 #include <ogdf/planarlayout/PlanarStraightLayout.h>
+#include <ogdf/planarlayout/ShellingOrder.h>
+#include <ogdf/planarlayout/ShellingOrderModule.h>
+
+#include <algorithm>
+#include <memory>
 
 namespace ogdf {
 

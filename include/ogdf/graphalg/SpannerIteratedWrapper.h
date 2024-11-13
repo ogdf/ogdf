@@ -30,11 +30,19 @@
  */
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/graphalg/SpannerModule.h>
 
+#include <algorithm>
+#include <cstdint>
+#include <limits>
 #include <memory>
+#include <string>
 
 namespace ogdf {
+class GraphAttributes;
 
 /**
  * A implementation-independed wrapper class to execute a spanner algorithm multiple times.

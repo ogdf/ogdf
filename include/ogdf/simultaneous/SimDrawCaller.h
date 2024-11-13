@@ -32,9 +32,14 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/simultaneous/SimDrawManipulatorModule.h>
 
+#include <cstdint>
+
 namespace ogdf {
+class SimDraw;
 
 //! Calls modified algorithms for simdraw instances
 /**

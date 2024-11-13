@@ -39,19 +39,24 @@
 
 #pragma once
 
-#include <ogdf/basic/exceptions.h>
-#include <ogdf/hypergraph/EdgeStandardRep.h>
-#include <ogdf/hypergraph/Hypergraph.h>
-#include <ogdf/hypergraph/HypergraphAttributes.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/hypergraph/HypergraphLayoutModule.h>
 #include <ogdf/planarity/CrossingMinimizationModule.h>
 #include <ogdf/planarity/EmbedderModule.h>
 #include <ogdf/planarity/LayoutPlanRepModule.h>
-#include <ogdf/planarity/PlanRep.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphCopySimple;
+class HypergraphAttributes;
+class HypergraphAttributesES;
+class PlanRep;
+template<class E>
+class List;
 
 class OGDF_EXPORT HypergraphLayoutES : public HypergraphLayoutModule {
 public:

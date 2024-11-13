@@ -30,12 +30,27 @@
  */
 
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/GraphAttributes.h>
+
+#include <cmath>
+//used for splitting
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/Math.h>
+#include <ogdf/basic/geometry.h>
 #include <ogdf/graphalg/ConvexHull.h>
+#include <ogdf/packing/CCLayoutPackModule.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-//used for splitting
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/simple_graph_alg.h>
+
+#include <cstddef>
+#include <limits>
+#include <memory>
+#include <vector>
 
 namespace ogdf {
 

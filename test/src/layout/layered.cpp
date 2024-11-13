@@ -29,13 +29,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/layered/BlockOrder.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/layered/BlockOrder.h> // IWYU pragma: keep
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/FastSimpleHierarchyLayout.h>
-#include <ogdf/layered/HierarchyLevels.h>
+#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/layered/HierarchyLevels.h> // IWYU pragma: keep
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 
+#include <cmath>
+#include <functional>
+#include <initializer_list>
+#include <set>
+#include <string>
+
 #include "layout_helpers.h"
+#include <graphs.h>
+
+#include <testing.h>
 
 #define TEST_HIERARCHY_LAYOUT(TYPE, SKIP, ...) \
 	describeHierarchyLayout<TYPE>(#TYPE, SKIP, {__VA_ARGS__})

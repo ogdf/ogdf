@@ -31,9 +31,10 @@
 
 #pragma once
 
-#include <ogdf/basic/pqtree/PQNodeRoot.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
+class PQNodeRoot;
 
 /**
  * The definitions for W, B, H and A

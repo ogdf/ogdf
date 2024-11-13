@@ -48,10 +48,17 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <iosfwd>
 
 namespace ogdf {
+class GraphAttributes;
+template<class E>
+class List;
 
 class OGDF_EXPORT BalloonLayout : public LayoutModule {
 public:

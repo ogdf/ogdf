@@ -30,7 +30,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/tree/LCA.h>
+
+#include <cmath>
+#include <utility>
 
 #ifdef OGDF_DEBUG
 #	include <ogdf/basic/simple_graph_alg.h>

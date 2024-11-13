@@ -52,6 +52,7 @@
 #include <ogdf/layered/SugiyamaLayout.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/planarlayout/FPPLayout.h>
+#include <ogdf/planarlayout/GridLayoutModule.h>
 
 #include <algorithm>
 #include <array>

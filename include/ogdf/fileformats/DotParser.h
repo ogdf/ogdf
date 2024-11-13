@@ -32,19 +32,18 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/cluster/ClusterGraphAttributes.h>
-#include <ogdf/fileformats/DOT.h>
 #include <ogdf/fileformats/DotLexer.h>
 
-#include <cstdio>
+#include <iosfwd>
 #include <set>
 #include <string>
 #include <vector>
 
 namespace ogdf {
+class ClusterGraphAttributes;
+class GraphAttributes;
 
 namespace dot {
 
@@ -111,22 +110,21 @@ struct SubgraphData;
  */
 class Ast {
 public:
-	struct Graph;
-	struct StmtList;
-	struct NodeStmt;
-	struct EdgeStmt;
-	struct AttrStmt;
-	struct AsgnStmt;
-	struct Subgraph;
-	struct NodeId;
-	struct EdgeRhs;
-	struct AttrList;
 	struct AList;
-	struct Port;
+	struct AsgnStmt;
+	struct AttrList;
+	struct AttrStmt;
 	struct CompassPt;
-
-	struct Stmt;
 	struct EdgeLhs;
+	struct EdgeRhs;
+	struct EdgeStmt;
+	struct Graph;
+	struct NodeId;
+	struct NodeStmt;
+	struct Port;
+	struct Stmt;
+	struct StmtList;
+	struct Subgraph;
 
 private:
 	using Tokens = std::vector<Token>;

@@ -31,10 +31,13 @@
 
 #pragma once
 
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
-
+template<class E>
+class List;
 
 /**
  * \brief The node set in a shelling order of a graph.

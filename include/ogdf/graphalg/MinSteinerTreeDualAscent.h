@@ -32,13 +32,25 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/HashArray.h>
+#include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/MinSteinerTreeModule.h>
 #include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
+
+#include <iostream>
+#include <limits>
 
 // enable this to print log
 //#define OGDF_DUAL_ASCENT_LOGGING
 
 namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
 
 /**
  * @brief Dual ascent heuristic for the minimum Steiner tree problem.

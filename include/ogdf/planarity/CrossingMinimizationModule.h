@@ -31,11 +31,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
+#include <cstdint>
 
 namespace ogdf {
+class PlanRep;
 
 //! Base class for crossing minimization algorithms.
 class OGDF_EXPORT CrossingMinimizationModule : public Module, public Timeouter {

@@ -31,12 +31,33 @@
 
 #pragma once
 
+#include <ogdf/basic/Array.h>
+#include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/DisjointSets.h>
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/SubsetEnumerator.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinSTCutMaxFlow.h>
-#include <ogdf/graphalg/steiner_tree/FullComponentStore.h>
 
 #include <ogdf/external/coin.h>
-#include <coin/CoinPackedMatrix.hpp>
+
+#include <cstdio>
+#include <iostream>
+#include <limits>
+
+namespace ogdf::steiner_tree {
+template<typename T, typename ExtraDataType>
+class FullComponentWithExtraStore;
+} // namespace ogdf::steiner_tree
+
+namespace ogdf {
+template<typename T>
+class EdgeWeightedGraph;
+} // namespace ogdf
 
 //#define OGDF_STEINERTREE_LPRELAXATIONSER_LOGGING
 //#define OGDF_STEINERTREE_LPRELAXATIONSER_OUTPUT_LP

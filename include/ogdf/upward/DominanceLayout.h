@@ -35,16 +35,19 @@
 
 #pragma once
 
-#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/LayoutModule.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
-#include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/upward/UpwardPlanarizerModule.h>
 
 #include <memory>
 
 namespace ogdf {
+class GraphAttributes;
+class UpwardPlanRep;
 
 class OGDF_EXPORT DominanceLayout : public LayoutModule {
 public:

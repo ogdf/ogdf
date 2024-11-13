@@ -34,12 +34,25 @@
 #pragma once
 
 #include <ogdf/basic/ArrayBuffer.h>
+#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/Stopwatch.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/internal/CPlanarEdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
 
-#include <ogdf/lib/abacus/master.h>
+#include <ogdf/external/abacus.h>
+
+#include <cstdint>
+#include <string>
+
+namespace abacus {
+template<class BaseType, class CoType>
+class StandardPool;
+} // namespace abacus
 
 namespace ogdf {
 namespace cluster_planarity {

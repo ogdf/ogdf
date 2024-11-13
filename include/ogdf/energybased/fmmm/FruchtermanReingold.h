@@ -32,10 +32,12 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/energybased/fmmm/EdgeAttributes.h>
-#include <ogdf/energybased/fmmm/NodeAttributes.h>
+
+namespace ogdf::energybased::fmmm {
+class NodeAttributes;
+} // namespace ogdf::energybased::fmmm
 
 namespace ogdf {
 namespace energybased {

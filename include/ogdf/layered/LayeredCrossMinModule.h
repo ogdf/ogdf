@@ -32,11 +32,13 @@
 
 #pragma once
 
-#include <ogdf/layered/CrossingMinInterfaces.h>
-#include <ogdf/layered/Hierarchy.h>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 
+class Hierarchy;
+class HierarchyLevelsBase;
 class SugiyamaLayout;
 
 /**

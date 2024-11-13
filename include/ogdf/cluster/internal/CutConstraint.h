@@ -36,10 +36,18 @@
 
 #pragma once
 
+#include <ogdf/basic/Graph.h>
+#include <ogdf/basic/List.h>
 #include <ogdf/cluster/internal/EdgeVar.h>
 #include <ogdf/cluster/internal/basics.h>
 
-#include <ogdf/lib/abacus/constraint.h>
+#include <ostream>
+
+namespace abacus {
+class Master;
+class Sub;
+class Variable;
+} // namespace abacus
 
 namespace ogdf {
 namespace cluster_planarity {

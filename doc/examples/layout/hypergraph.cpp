@@ -1,5 +1,9 @@
 #include <ogdf/fileformats/GraphIO.h>
+#include <ogdf/hypergraph/EdgeStandardRep.h>
+#include <ogdf/hypergraph/Hypergraph.h>
+#include <ogdf/hypergraph/HypergraphAttributes.h>
 #include <ogdf/hypergraph/HypergraphLayout.h>
+#include <string>
 
 using namespace ogdf;
 
