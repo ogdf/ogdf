@@ -20,6 +20,7 @@ else()
 endif()
 
 set(OGDF_INCLUDE_CGAL OFF CACHE BOOL "Indicates whether components that require CGAL ({src,include}/ogdf/geometric) should be built. Requires OpenMP")
+include(GNUInstallDirs)
 
 include(compiler-specifics)
 include(group-files)
