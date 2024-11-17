@@ -94,11 +94,11 @@ endif()
 # compilation
 file(GLOB_RECURSE ogdf_headers include/ogdf/*.h)
 file(GLOB_RECURSE ogdf_sources src/ogdf/*.cpp)
-set(ogdf_sources "${ogdf_sources};${ogdf_headers}")
 add_library(OGDF "${ogdf_sources}")
 set_property(TARGET OGDF PROPERTY VERSION ${PROJECT_VERSION})
 target_link_libraries(OGDF PUBLIC COIN)
 group_files(ogdf_sources "ogdf")
+group_files(ogdf_headers "ogdf")
 target_compile_features(OGDF PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 
 target_include_directories(OGDF PUBLIC # for the autogen header
@@ -252,25 +252,19 @@ else()
 endif()
 
 # installation
-set(OGDF_INSTALL_LIBRARY_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}" CACHE PATH "Installation path of OGDF library")
-set(OGDF_INSTALL_BIN_DIR "bin" CACHE PATH "Installation path of OGDF runtime targets")
-set(OGDF_INSTALL_INCLUDE_DIR "include" CACHE PATH "Installation path of OGDF header files (creates subdirectory)")
-set(OGDF_INSTALL_CMAKE_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/OGDF/" CACHE PATH "Installation path of OGDF files for CMake")
-mark_as_advanced(OGDF_INSTALL_LIBRARY_DIR OGDF_INSTALL_BIN_DIR OGDF_INSTALL_INCLUDE_DIR OGDF_INSTALL_CMAKE_DIR)
 configure_file(cmake/ogdf-config.cmake "${PROJECT_BINARY_DIR}/ogdf-config.cmake" @ONLY)
-install(TARGETS OGDF
-  EXPORT OgdfTargets
-  LIBRARY DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
-  ARCHIVE DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
-  RUNTIME DESTINATION "${OGDF_INSTALL_BIN_DIR}"
-  INCLUDES DESTINATION "${COIN_INSTALL_INCLUDE_DIR}"
-  PUBLIC_HEADER DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}")
+install(TARGETS OGDF EXPORT OgdfTargets COMPONENT OGDF)
 install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
-  DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  COMPONENT OGDFheaders
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "*.inc")
-install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
-install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
-export(EXPORT OgdfTargets)
+install(EXPORT OgdfTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
+install(FILES
+        "${PROJECT_BINARY_DIR}/ogdf-config.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibbfd.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibdw.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibunwind.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
