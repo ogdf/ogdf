@@ -1,0 +1,219 @@
+name: Package and Test Installers
+
+on:
+  push:
+#    branches: # TODO
+#      - master
+
+# the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
+# which is very useful when using the same docker images as used for the build locally
+env:
+  # CCACHE_BASEDIR is set by build scripts
+  CCACHE_NOHASHDIR: 1 # also cache debug builds even if symbol location info may be wrong
+  CCACHE_REMOTE_STORAGE_USER: ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}
+  CCACHE_REMOTE_STORAGE_PASS: ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}
+  CCACHE_REMOTE_STORAGE_HOST: ${{ secrets.CCACHE_REMOTE_STORAGE_HOST || 'u427124-sub1.your-storagebox.de' }}
+  CCACHE_SECONDARY_STORAGE: "http://\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_USER || 'u427124-sub1' }}:\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_PASS || 'Anw4Lc4ZUcUYVsZf' }}\
+    @127.0.0.1:44443/\
+    ${{ secrets.CCACHE_REMOTE_STORAGE_DIR }}"
+  # CCACHE_SECONDARY_STORAGE is a backwards-compatible alias for CCACHE_REMOTE_STORAGE
+
+
+# # Debug setup:
+# env:
+#   OGDF_UTILS_PREQUEL: "set -x"
+#   CCACHE_DEBUG: 1
+#   CCACHE_DEBUGDIR: ${{ github.workspace }}/ccache-debug
+#   VERBOSE: 1
+
+jobs:
+  # We don't want to run the CI twice for PRs from branches within the repo, so for a push event we only run the CI if #TODO
+  # the push was to the master branch or to a fork of the repo, while running the CI for all (in- and cross-repo) PRs.
+  # Workflows skipped due to filters block PRs from being merged (their required jobs count as "pending"),
+  # while jobs skipped due to conditions still count as success, so we apply the filter here.
+  precheck:
+    name: "Check whether to run the CI"
+    runs-on: ubuntu-latest
+    # if: github.event.repository.full_name != 'ogdf/ogdf' || github.event_name != 'push' || github.event.ref == 'refs/heads/master'
+    steps:
+      - run: echo "Running CI pipeline!"
+
+
+  build-linux:
+    name: "Build on Linux"
+    runs-on: ubuntu-latest
+    container: debian:bullseye # should have the oldest gcc/stdlib version we want to support
+    needs: [ precheck ]
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -v"
+    steps:
+      - name: Install debian build utils
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y git ccache cmake g++ python3-pip python3-venv ninja-build libunwind-dev rpm
+          mkdir -p ~/.config/pip/
+          printf "[global]\nbreak-system-packages = true" >> ~/.config/pip/pip.conf
+          pip3 install pipx
+          pipx ensurepath
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/create-package
+        with:
+          distro: debian
+          os: linux
+          cmake_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON -DOGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE=ON_LIBUNWIND
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
+            -DOGDF_ARCH="x86-64" -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCPACK_PACKAGING_INSTALL_PREFIX="/usr/local"
+            -DCPACK_GENERATOR="STGZ;TGZ;DEB;RPM"
+          # architectures:
+          # https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
+          # https://wiki.debian.org/ArchitectureSpecificsMemo
+          # https://fedoraproject.org/wiki/Architectures
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+  test-containers:
+    name: "Test package on ${{ matrix.distro }} container"
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ debian, ubuntu, fedora ] # archlinux
+    runs-on: ubuntu-latest
+    container: ${{ matrix.distro }}:latest
+    needs: [ build-linux ]
+    steps:
+      - name: Install debian build tools
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y ninja-build git cmake g++
+        if: ${{ matrix.distro == 'debian' || matrix.distro == 'ubuntu' }}
+      - name: Install fedora build tools
+        shell: bash
+        run: |
+          dnf install -y ninja-build git cmake gcc-c++
+        if: ${{ matrix.distro == 'fedora' }}
+      - name: Install archlinux build tools
+        shell: bash
+        run: |
+          pacman -Sy --noconfirm ninja git cmake gcc
+        if: ${{ matrix.distro == 'archlinux' }}
+
+      - name: "Add workspace as a safe directory in containers"
+        run: git config --system --add safe.directory $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+
+      - name: Test
+        uses: ./.github/actions/test-package
+        with:
+          container: true
+          distro: ${{ matrix.distro }}
+          os: linux
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+
+  build-macos:
+    name: "Build on MacOS"
+    runs-on: macos-13
+    needs: [ precheck ]
+    steps:
+      - name: Install macos build utils
+        shell: bash
+        run: brew install ninja
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/create-package
+        with:
+          distro: macos
+          os: macos
+          cmake_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCPACK_GENERATOR="DragNDrop;productbuild"
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+  test-macos:
+    name: "Test on MacOS"
+    runs-on: macos-13
+    needs: [ build-macos ]
+    steps:
+      - name: Install macos build utils
+        shell: bash
+        run: brew install ninja
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+      - name: Test
+        uses: ./.github/actions/test-package
+        with:
+          distro: macos
+          os: macos
+          cmake_test_args: >
+            -G "Ninja Multi-Config"
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+
+
+  build-windows:
+    name: "Build on Windows"
+    runs-on: windows-latest
+    needs: [ precheck ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/create-package
+        with:
+          distro: windows
+          os: windows
+          cmake_args: >
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+            -DBUILD_SHARED_LIBS=ON -DOGDF_MEMORY_MANAGER=POOL_NTS
+            -DOGDF_USE_ASSERT_EXCEPTIONS=ON
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE -DCMAKE_POLICY_DEFAULT_CMP0069=NEW
+            -DCPACK_GENERATOR="NSIS;ZIP"
+          cmake_test_args: >
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          test_launcher: "./"
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache.exe
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache.exe
+
+  test-windows:
+    name: "Test on Windows"
+    runs-on: windows-latest
+    needs: [ build-windows ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+      - name: Test
+        uses: ./.github/actions/test-package
+        with:
+          distro: windows
+          os: windows
+          cmake_test_args: >
+            -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+          test_launcher: "./"

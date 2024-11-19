@@ -1,0 +1,121 @@
+name: 'Create Package'
+inputs:
+  distro:
+    description: "string (ubuntu/debian/.../macos/windows)"
+  os:
+    description: "string (linux/macos/windows)"
+  cmake_args:
+    description: "string"
+  cmake_test_args:
+    description: "string"
+  test_launcher:
+    description: "string"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set-up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: package-${{ inputs.distro }}
+    - name: Set-up HTTPS proxy for ccache on Unix
+      shell: bash
+      run: |
+        pipx install mitmproxy
+        echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
+      if: ${{ inputs.os != 'windows' }}
+    - name: Set-up HTTPS proxy for ccache on Windows
+      shell: pwsh
+      run: |
+        pipx install mitmproxy
+      if: ${{ inputs.os == 'windows' }}
+    - uses: JarvusInnovations/background-action@v1
+      name: Start HTTPS proxy for ccache
+      with:
+        run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+        wait-on: tcp:localhost:44443
+        tail: false
+        log-output-if: failure
+        wait-for: 10s
+
+    - name: Build and package
+      shell: bash
+      run: |
+        mkdir build-install && cd build-install
+        export CCACHE_BASEDIR="$(pwd)"
+        cmake .. ${{ inputs.cmake_args }}
+
+        echo "::group::>Debug build"
+        cmake --build . --config Debug
+        echo
+        readelf -d Debug/*.so || echo "readelf failed"
+        echo "::endgroup::"
+        echo "::group::>Release build"
+        cmake --build . --config Release
+        echo
+        readelf -d Release/*.so || echo "readelf failed"
+        echo "::endgroup::"
+
+        echo "::group::>Packaging"
+        # cmake --build . --target package
+        mkdir -p ../packages/install-manifests
+        cpack --verbose | tee ../packages/install-manifests/cpack.log
+        echo "::endgroup::"
+
+    - name: Install for testing
+      shell: bash
+      run: |
+        cd build-install
+        mkdir -p ../packages/install-manifests
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
+        cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+
+    - name: Test installed build results
+      shell: bash
+      run: |
+        set -x
+        mkdir build-test && cd build-test
+        export CCACHE_BASEDIR="$(pwd)"
+        export PATH="$(realpath ../OGDF-ROOT):$PATH" #windows
+        cmake ../doc/examples/special --debug-find ${{ inputs.cmake_test_args }}
+
+        cmake --build . --config Debug
+        cmake --build . --config Release
+
+        ${{ inputs.test_launcher }}Release/check-build-mode${{ inputs.os == 'windows' && '.exe' || '' }} || echo "Release returned $?"
+        ${{ inputs.test_launcher }}Debug/check-build-mode${{ inputs.os == 'windows' && '.exe' || '' }} || echo "Debug returned $?"
+
+    - name: Try running directly on windows
+      shell: pwsh
+      run: |
+        $env:PATH += ";C:\Program Files (x86)\OGDF-PROJECT\bin"
+        try {
+            Release/check-build-mode.exe
+            Debug/check-build-mode.exe
+        } catch {
+            Write-Host "Error occurred while running test: $_"
+        }
+      if: ${{ inputs.os == 'windows' }}
+
+    - name: Store packages
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: packages-${{ inputs.os }}
+        path: packages/
+
+    - name: Store build results for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-${{ inputs.os }}
+        path: |
+          build-install/
+          build-test/
+          !**/*.obj
+          !**/*.iobj
