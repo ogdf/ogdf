@@ -37,6 +37,7 @@
 #include <ogdf/graphalg/AStarSearch.h>
 #include <ogdf/graphalg/Dijkstra.h>
 
+#include <chrono>
 #include <functional>
 #include <iomanip>
 #include <iostream>
