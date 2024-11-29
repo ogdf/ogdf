@@ -48,6 +48,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstddef>
 #include <initializer_list>
 #include <iostream>

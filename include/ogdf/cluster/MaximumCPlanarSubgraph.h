@@ -43,6 +43,7 @@
 
 #include <ogdf/external/abacus.h>
 
+#include <chrono>
 #include <cstdint>
 #include <sstream>
 #include <string>

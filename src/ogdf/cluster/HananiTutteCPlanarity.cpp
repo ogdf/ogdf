@@ -48,6 +48,7 @@
 
 #include <ogdf/external/abacus.h>
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <map>

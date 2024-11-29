@@ -46,6 +46,7 @@
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 #include <ogdf/cluster/sync_plan/utils/Bijection.h>
 
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <ostream>
