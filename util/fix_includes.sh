@@ -146,6 +146,7 @@ run_all_replacements () {
   replace_all   "#include <emmintrin.h>"    ""
   replace_all   "#include <pmmintrin.h>"    ""
   replace_all   "#include <xmmintrin.h>"    ""
+  replace_all   "#include <bits/chrono.h>"  "#include <chrono>"
   replace_all   "#include <bits/.*>"        ""
   replace_all   "#include <built-in>"       ""
 
