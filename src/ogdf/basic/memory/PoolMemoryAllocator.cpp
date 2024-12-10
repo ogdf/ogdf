@@ -307,4 +307,30 @@ void PoolMemoryAllocator::defragThread() {
 	}
 }
 
+void PoolMemoryAllocator::getGlobalFreeListSizes(std::vector<size_t>& sizes) {
+#ifdef OGDF_MEMORY_POOL_NTS
+	sizes.clear();
+#else
+	enterCS();
+	sizes.reserve(TABLE_SIZE);
+	sizes.assign(1, 0);
+	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
+		sizes.push_back(s_pool[sz].m_size);
+	}
+	leaveCS();
+#endif
+}
+
+void PoolMemoryAllocator::getThreadFreeListSizes(std::vector<size_t>& sizes) {
+	sizes.reserve(TABLE_SIZE);
+	sizes.assign(1, 0);
+	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
+		size_t size = 0;
+		for (auto p = s_tp[sz]; p != nullptr; p = p->m_next) {
+			size += sz;
+		}
+		sizes.push_back(size);
+	}
+}
+
 }

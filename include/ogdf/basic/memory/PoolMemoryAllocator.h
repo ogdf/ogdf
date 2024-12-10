@@ -37,6 +37,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 #ifndef OGDF_MEMORY_POOL_NTS
 #	include <mutex>
 #endif
@@ -124,6 +125,12 @@ public:
 	 * the pool like lists and graphs.
 	 */
 	static OGDF_EXPORT void defragThread();
+
+	//! Reports the number of pooled memory chunks in the global free lists for each possible size up to TABLE_SIZE.
+	static OGDF_EXPORT void getGlobalFreeListSizes(std::vector<size_t>& sizes);
+
+	//! Reports the number of pooled memory chunks in the thread's free lists for each possible size up to TABLE_SIZE.
+	static OGDF_EXPORT void getThreadFreeListSizes(std::vector<size_t>& sizes);
 
 private:
 	static inline void enterCS() {
