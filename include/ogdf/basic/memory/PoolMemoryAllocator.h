@@ -110,11 +110,20 @@ public:
 	/**
 	 * Defragments the global free lists.
 	 *
-	 * This methods sorts the global free lists, so that successive elements come after each
-	 * other. This can improve perfomance for data structure that allocate many elements from
+	 * This method sorts the global free lists, so that successive parts of memory come after each
+	 * other. This can improve performance for data structures that allocate many elements from
 	 * the pool like lists and graphs.
 	 */
-	static OGDF_EXPORT void defrag();
+	static OGDF_EXPORT void defragGlobal();
+
+	/**
+	 * Defragments the thread's free lists.
+	 *
+	 * This method sorts the thread's free lists, so that successive parts of memory come after each
+	 * other. This can improve performance for data structures that allocate many elements from
+	 * the pool like lists and graphs.
+	 */
+	static OGDF_EXPORT void defragThread();
 
 private:
 	static inline void enterCS() {
