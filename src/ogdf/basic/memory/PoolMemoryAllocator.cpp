@@ -247,7 +247,7 @@ size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
 size_t PoolMemoryAllocator::memoryInThreadFreeList() {
 	size_t bytesFree = 0;
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
-		MemElemPtr& p = s_tp[sz];
+		MemElemPtr p = s_tp[sz];
 		for (; p != nullptr; p = p->m_next) {
 			bytesFree += sz;
 		}
