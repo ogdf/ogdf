@@ -38,6 +38,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <mutex>
+#include <vector>
 
 namespace ogdf {
 
