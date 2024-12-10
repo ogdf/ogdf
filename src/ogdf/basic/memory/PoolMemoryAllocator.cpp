@@ -51,7 +51,6 @@ struct PoolMemoryAllocator::BlockChain {
 	BlockChain* m_next;
 };
 
-PoolMemoryAllocator::PoolElement PoolMemoryAllocator::s_pool[TABLE_SIZE];
 PoolMemoryAllocator::BlockChain* PoolMemoryAllocator::s_blocks;
 
 #ifdef OGDF_DEBUG
@@ -62,6 +61,7 @@ thread_local long long PoolMemoryAllocator::s_locallyAllocatedBytes = 0;
 #ifdef OGDF_MEMORY_POOL_NTS
 PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[TABLE_SIZE];
 #else
+PoolMemoryAllocator::PoolElement PoolMemoryAllocator::s_pool[TABLE_SIZE];
 std::mutex PoolMemoryAllocator::s_mutex;
 thread_local PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[TABLE_SIZE];
 #endif
@@ -149,13 +149,12 @@ void PoolMemoryAllocator::flushPool() {
 			leaveCS();
 		}
 	}
-#endif
-
-#ifdef OGDF_DEBUG
+#	ifdef OGDF_DEBUG
 	enterCS();
 	s_globallyAllocatedBytes += s_locallyAllocatedBytes;
 	leaveCS();
 	s_locallyAllocatedBytes = 0;
+#	endif
 #endif
 }
 
@@ -170,6 +169,8 @@ void* PoolMemoryAllocator::fillPool(MemElemPtr& pFreeBytes, uint16_t nBytes) {
 	enterCS();
 
 	PoolElement& pe = s_pool[nBytes];
+	// only take elements from global pool if it contains at least as many
+	// as we would get from a new block
 	if (pe.m_size >= nSlices) {
 		MemElemPtr p = pFreeBytes = pe.m_gp;
 		for (int i = 1; i < nSlices; ++i) {
@@ -226,20 +227,16 @@ size_t PoolMemoryAllocator::memoryAllocatedInBlocks() {
 	return nBlocks * BLOCK_SIZE;
 }
 
-size_t PoolMemoryAllocator::unguardedMemGlobalFreelist() {
+size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
 	size_t bytesFree = 0;
+#ifndef OGDF_MEMORY_POOL_NTS
+	enterCS();
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
 		const PoolElement& pe = s_pool[sz];
 		bytesFree += pe.m_size * sz;
 	}
-
-	return bytesFree;
-}
-
-size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
-	enterCS();
-	size_t bytesFree = unguardedMemGlobalFreelist();
 	leaveCS();
+#endif
 
 	return bytesFree;
 }
@@ -247,12 +244,10 @@ size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
 size_t PoolMemoryAllocator::memoryInThreadFreeList() {
 	size_t bytesFree = 0;
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
-		MemElemPtr p = s_tp[sz];
-		for (; p != nullptr; p = p->m_next) {
+		for (MemElemPtr p = s_tp[sz]; p != nullptr; p = p->m_next) {
 			bytesFree += sz;
 		}
 	}
-
 	return bytesFree;
 }
 
