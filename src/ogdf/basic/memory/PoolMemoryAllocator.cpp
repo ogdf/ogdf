@@ -323,7 +323,7 @@ void PoolMemoryAllocator::getThreadFreeListSizes(std::vector<size_t>& sizes) {
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
 		size_t size = 0;
 		for (auto p = s_tp[sz]; p != nullptr; p = p->m_next) {
-			size += sz;
+			size++;
 		}
 		sizes.push_back(size);
 	}
