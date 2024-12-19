@@ -74,3 +74,8 @@ void inducedSubGraph(const Graph &G, LISTITERATOR start, GraphCopySimple &subGra
 
 `GraphCopy::insert` (and `GraphCopySimple::insert`) will automatically update its mappings when inserting parts of the original Graph.
 This can be disabled by using `setLinkCopiesOnInsert`.
+
+## PoolMemoryAllocator
+
+`PoolMemoryAllocator::defrag()` was renamed to `defragGlobal()` and (more importantly) now has a companion method `defragThread()`
+that defragments the thread-local memory pool.
