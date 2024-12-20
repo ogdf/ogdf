@@ -38,6 +38,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <mutex>
+#include <vector>
 
 namespace ogdf {
 
@@ -51,7 +52,6 @@ struct PoolMemoryAllocator::BlockChain {
 	BlockChain* m_next;
 };
 
-PoolMemoryAllocator::PoolElement PoolMemoryAllocator::s_pool[TABLE_SIZE];
 PoolMemoryAllocator::BlockChain* PoolMemoryAllocator::s_blocks;
 
 #ifdef OGDF_DEBUG
@@ -62,6 +62,7 @@ thread_local long long PoolMemoryAllocator::s_locallyAllocatedBytes = 0;
 #ifdef OGDF_MEMORY_POOL_NTS
 PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[TABLE_SIZE];
 #else
+PoolMemoryAllocator::PoolElement PoolMemoryAllocator::s_pool[TABLE_SIZE];
 std::mutex PoolMemoryAllocator::s_mutex;
 thread_local PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[TABLE_SIZE];
 #endif
@@ -149,13 +150,12 @@ void PoolMemoryAllocator::flushPool() {
 			leaveCS();
 		}
 	}
-#endif
-
-#ifdef OGDF_DEBUG
+#	ifdef OGDF_DEBUG
 	enterCS();
 	s_globallyAllocatedBytes += s_locallyAllocatedBytes;
 	leaveCS();
 	s_locallyAllocatedBytes = 0;
+#	endif
 #endif
 }
 
@@ -170,6 +170,8 @@ void* PoolMemoryAllocator::fillPool(MemElemPtr& pFreeBytes, uint16_t nBytes) {
 	enterCS();
 
 	PoolElement& pe = s_pool[nBytes];
+	// only take elements from global pool if it contains at least as many
+	// as we would get from a new block
 	if (pe.m_size >= nSlices) {
 		MemElemPtr p = pFreeBytes = pe.m_gp;
 		for (int i = 1; i < nSlices; ++i) {
@@ -226,20 +228,16 @@ size_t PoolMemoryAllocator::memoryAllocatedInBlocks() {
 	return nBlocks * BLOCK_SIZE;
 }
 
-size_t PoolMemoryAllocator::unguardedMemGlobalFreelist() {
+size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
 	size_t bytesFree = 0;
+#ifndef OGDF_MEMORY_POOL_NTS
+	enterCS();
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
 		const PoolElement& pe = s_pool[sz];
 		bytesFree += pe.m_size * sz;
 	}
-
-	return bytesFree;
-}
-
-size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
-	enterCS();
-	size_t bytesFree = unguardedMemGlobalFreelist();
 	leaveCS();
+#endif
 
 	return bytesFree;
 }
@@ -247,48 +245,88 @@ size_t PoolMemoryAllocator::memoryInGlobalFreeList() {
 size_t PoolMemoryAllocator::memoryInThreadFreeList() {
 	size_t bytesFree = 0;
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
-		MemElemPtr& p = s_tp[sz];
-		for (; p != nullptr; p = p->m_next) {
+		for (MemElemPtr p = s_tp[sz]; p != nullptr; p = p->m_next) {
 			bytesFree += sz;
 		}
 	}
-
 	return bytesFree;
 }
 
-void PoolMemoryAllocator::defrag() {
+void PoolMemoryAllocator::defragGlobal() {
+#ifndef OGDF_MEMORY_POOL_NTS
 	enterCS();
 
-	int maxSize = 0;
+	std::vector<MemElemPtr> elems;
 	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
-		int size = s_pool[sz].m_size;
-		maxSize = max(maxSize, size);
-	}
-
-	if (maxSize > 1) {
-		MemElemPtr* a = new MemElemPtr[maxSize];
-
-		for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
-			PoolElement& pe = s_pool[sz];
-			int n = pe.m_size;
-			if (n > 1) {
-				int i = 0;
-				for (MemElemPtr p = pe.m_gp; p != nullptr; p = p->m_next) {
-					a[i++] = p;
-				}
-				OGDF_ASSERT(i == n);
-				std::sort(a, a + n);
-				pe.m_gp = a[0];
-				for (i = 0; i < n - 1; ++i) {
-					a[i]->m_next = a[i + 1];
-				}
-				a[n - 1]->m_next = nullptr;
-			}
+		PoolElement& pe = s_pool[sz];
+		elems.reserve(pe.m_size);
+		for (auto p = pe.m_gp; p != nullptr; p = p->m_next) {
+			elems.push_back(p);
 		}
-		delete[] a;
+		OGDF_ASSERT(elems.size() == pe.m_size);
+		if (elems.empty()) {
+			continue;
+		}
+		std::sort(elems.begin(), elems.end());
+
+		MemElemPtr pred = pe.m_gp = elems.front();
+		for (auto p : elems) {
+			pred->m_next = p;
+			pred = p;
+		}
+		elems.back()->m_next = nullptr;
+		elems.clear();
 	}
 
 	leaveCS();
+#endif
+}
+
+void PoolMemoryAllocator::defragThread() {
+	std::vector<MemElemPtr> elems;
+	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
+		for (auto p = s_tp[sz]; p != nullptr; p = p->m_next) {
+			elems.push_back(p);
+		}
+		if (elems.empty()) {
+			continue;
+		}
+		std::sort(elems.begin(), elems.end());
+
+		MemElemPtr pred = s_tp[sz] = elems.front();
+		for (auto p : elems) {
+			pred->m_next = p;
+			pred = p;
+		}
+		elems.back()->m_next = nullptr;
+		elems.clear();
+	}
+}
+
+void PoolMemoryAllocator::getGlobalFreeListSizes(std::vector<size_t>& sizes) {
+#ifdef OGDF_MEMORY_POOL_NTS
+	sizes.clear();
+#else
+	enterCS();
+	sizes.reserve(TABLE_SIZE);
+	sizes.assign(1, 0);
+	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
+		sizes.push_back(s_pool[sz].m_size);
+	}
+	leaveCS();
+#endif
+}
+
+void PoolMemoryAllocator::getThreadFreeListSizes(std::vector<size_t>& sizes) {
+	sizes.reserve(TABLE_SIZE);
+	sizes.assign(1, 0);
+	for (size_t sz = 1; sz < TABLE_SIZE; ++sz) {
+		size_t size = 0;
+		for (auto p = s_tp[sz]; p != nullptr; p = p->m_next) {
+			size++;
+		}
+		sizes.push_back(size);
+	}
 }
 
 }
