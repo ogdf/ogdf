@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <initializer_list>
 #include <set>
 #include <string>
 #include <utility>
@@ -227,107 +228,111 @@ go_bandit([] {
 					[](int n1, int m1, int n2, int m2) { return m1 + m2 * n1; });
 		});
 
-		describe("tests for creating graph complement", []() {
-			// Tests for basic functionality
-			Graph G;
-			node n1, n2;
-			before_each([&]() {
-				G.clear();
-				n1 = G.newNode();
-				n2 = G.newNode();
-			});
-			describe("tests in a simple graph", [&]() {
-				it("creates an edge where there was none", [&]() {
-					complement(G, false, false);
-					edge edge12 = G.searchEdge(n1, n2);
-					AssertThat(edge12, Is().Not().Null());
-				});
-				it("removes an edge where there was one", [&]() {
-					G.newEdge(n1, n2);
-					complement(G, false, false);
-					edge edge12 = G.searchEdge(n1, n2);
-					AssertThat(edge12, IsNull());
-				});
-			});
-			describe("tests in a directed graph", [&]() {
-				it("reverses an existing edge", [&]() {
-					G.newEdge(n1, n2);
-					complement(G, true, false);
-					edge edge12 = G.searchEdge(n1, n2, true);
-					edge edge21 = G.searchEdge(n2, n1, true);
-					AssertThat(edge12, IsNull());
-					AssertThat(edge21, Is().Not().Null());
-				});
-				it("creates two edges where there were none", [&]() {
-					complement(G, true, false);
-					edge edge12 = G.searchEdge(n1, n2, true);
-					edge edge21 = G.searchEdge(n2, n1, true);
-					AssertThat(edge12, Is().Not().Null());
-					AssertThat(edge21, Is().Not().Null());
-				});
-				it("removes both edges between two nodes", [&]() {
-					G.newEdge(n1, n2);
-					G.newEdge(n2, n1);
-					complement(G, true, false);
-					edge edge12 = G.searchEdge(n1, n2, true);
-					edge edge21 = G.searchEdge(n2, n1, true);
-					AssertThat(edge12, IsNull());
-					AssertThat(edge21, IsNull());
-				});
-			});
-			describe("tests in a graph with self loops", [&]() {
-				it("creates a self loop where there was none", [&]() {
-					complement(G, false, true);
-					edge edge11 = G.searchEdge(n1, n1);
-					AssertThat(edge11, Is().Not().Null());
-				});
-				it("removes a self loop where there was one", [&]() {
-					G.newEdge(n1, n1);
-					complement(G, false, true);
-					edge edge11 = G.searchEdge(n1, n1);
-					AssertThat(edge11, IsNull());
-				});
-			});
+		describe("graph complement", []() {
+			for (bool directed : {true, false}) {
+				for (bool allowSelfLoops : {true, false}) {
+					std::string dirStr = directed ? "" : "un";
+					std::string loopStr = allowSelfLoops ? "true" : "false";
+					describe("in " + dirStr + "directed graphs with allowSelfLoops = " + loopStr, [&]() {
+						forEachGraphItWorks(
+								{GraphProperty::simple}, // calculation of edge number depends on graphs being simple
+								[&](const Graph& G) {
+									// Get number of nodes and edges prior to operation.
+									int n = G.numberOfNodes();
+									int m = G.numberOfEdges();
+									long maxEdges = directed ? n * (n - 1) : (n * (n - 1)) / 2;
+									if (allowSelfLoops) {
+										maxEdges += n;
+									}
+
+									// Remember one edge, do operation.
+									Graph result = G;
+									node u = nullptr;
+									node v = nullptr;
+									if (m > 0) {
+										edge e = result.firstEdge();
+										u = e->source();
+										v = e->target();
+									}
+									complement(result, directed, allowSelfLoops);
+
+									// Test result of operation.
+									AssertThat(result.numberOfNodes(), Equals(n));
+									AssertThat(result.numberOfEdges(), Equals(maxEdges - m));
+									if (m > 0) {
+										AssertThat(result.searchEdge(u, v, directed), IsNull());
+									}
+								},
+								GraphSizes(5, 45, 20));
+					});
+				}
+			}
 		});
-		describe("tests for joining two graphs", []() {
-			Graph G1, G2;
-			node n1a, n1b, n2a, n2b;
-			NodeArray<node> nodeMap;
-			before_each([&]() {
-				G1.clear();
-				n1a = G1.newNode();
-				n1b = G1.newNode();
-				G2.clear();
-				n2a = G2.newNode();
-				n2b = G2.newNode();
-				nodeMap = NodeArray<node>(G2);
-			});
-			it("joins two edgeless graphs without association", [&]() {
-				join(G1, G2, nodeMap);
-				AssertThat(G1.numberOfNodes(), Equals(4));
-				AssertThat(G1.numberOfEdges(), Equals(4));
-			});
-			it("joins two edgeless graphs with associated nodes", [&]() {
-				nodeMap[n2a] = n1a;
-				join(G1, G2, nodeMap);
-				AssertThat(G1.numberOfNodes(), Equals(3));
-				AssertThat(G1.numberOfEdges(), Equals(3));
-			});
-			it("joins two graphs without association", [&]() {
-				G1.newEdge(n1a, n1b);
-				G2.newEdge(n2a, n2b);
-				join(G1, G2, nodeMap);
-				AssertThat(G1.numberOfNodes(), Equals(4));
-				AssertThat(G1.numberOfEdges(), Equals(6));
-			});
-			it("joins two graphs with associated nodes", [&]() {
-				G1.newEdge(n1a, n1b);
-				G2.newEdge(n2a, n2b);
-				nodeMap[n2a] = n1a;
-				join(G1, G2, nodeMap);
-				AssertThat(G1.numberOfNodes(), Equals(3));
-				AssertThat(G1.numberOfEdges(), Equals(3));
-			});
+
+		describe("graph intersection", []() {
+			for (bool directed : {true, false}) {
+				std::string dirStr = directed ? "" : "un";
+				describe("in " + dirStr + "directed graphs", [&]() {
+					forEachGraphItWorks(
+							{},
+							[&](const Graph& G1) {
+								// Get number of nodes and edges prior to operation.
+								Graph G2;
+								randomSimpleGraph(G2, 15, 20);
+								int n1 = G1.numberOfNodes();
+								int m1 = G1.numberOfEdges();
+								int n2 = G2.numberOfNodes();
+								int m2 = G2.numberOfEdges();
+								int nMin = min(n1, n2);
+								int mMin = min(m1, m2);
+								int identifiedNodes = randomNumber(0, nMin);
+
+								// Create nodeMap and do operation.
+								Graph result = G1;
+								NodeArray<node> nodeMap(result, nullptr);
+								node v1 = result.firstNode();
+								node v2 = G2.firstNode();
+								for (int i = 0; i < identifiedNodes; ++i) {
+									nodeMap[v1] = v2;
+									v1 = v1->succ();
+									v2 = v2->succ();
+								}
+								intersection(result, G2, nodeMap, directed);
+
+								// Test result of operation.
+								AssertThat(result.numberOfNodes(), Equals(identifiedNodes));
+								AssertThat(result.numberOfEdges(), IsLessThanOrEqualTo(mMin));
+							},
+							GraphSizes(5, 45, 20));
+				});
+			}
 		});
+
+		testBinaryOperation(
+				"graph join",
+				[](const Graph& G1, const Graph& G2, Graph& result) {
+					NodeArray<node> nodeMap(G2, nullptr);
+					EdgeArray<edge> edgeMap(G2, nullptr);
+					result = G1;
+					join(result, G2, nodeMap, edgeMap);
+
+					// Test nodeMap and edgeMap.
+					int nCount = 0;
+					int mCount = 0;
+					for (node v2 : G2.nodes) {
+						if (nodeMap[v2]) {
+							nCount++;
+						}
+					}
+					for (edge e2 : G2.edges) {
+						if (edgeMap[e2]) {
+							mCount++;
+						}
+					}
+					AssertThat(G2.numberOfNodes(), Equals(nCount));
+					AssertThat(G2.numberOfEdges(), Equals(mCount));
+				},
+				[](int n1, int n2) { return n1 + n2; },
+				[](int n1, int m1, int n2, int m2) { return m1 + m2 + n1 * n2; });
 	});
 });
