@@ -31,7 +31,11 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/graph_generators/operations.h>
+#include <ogdf/basic/internal/list_templates.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
 #include <functional>
@@ -250,4 +254,81 @@ void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& no
 	});
 }
 
+void complement(Graph& G, bool directed, bool allowSelfLoops) {
+	NodeSet<true> n1neighbors(G);
+	EdgeSet<true> newEdges(G);
+
+	for (node n1 : G.nodes) {
+		// Delete edges, remember neighbors.
+		safeForEach(n1->adjEntries, [&](adjEntry adj) {
+			node n2 = adj->twinNode();
+			edge e = adj->theEdge();
+			if (((directed || e->isSelfLoop()) && !adj->isSource())
+					|| (!directed && n1->index() > n2->index()) || newEdges.isMember(e)) {
+				return;
+			}
+
+			n1neighbors.insert(n2);
+			G.delEdge(adj->theEdge());
+		});
+
+		// Add edges.
+		for (node n2 : G.nodes) {
+			if ((!directed && n1->index() > n2->index())
+					|| (!allowSelfLoops && n1->index() == n2->index()) || n1neighbors.isMember(n2)) {
+				continue;
+			}
+
+			newEdges.insert(G.newEdge(n1, n2));
+		}
+		n1neighbors.clear();
+	}
+}
+
+void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap, bool directed) {
+	OGDF_ASSERT(nodeMap.valid());
+	NodeSet<true> n2aNeighbors(G2);
+
+	safeForEach(G1.nodes, [&](node n1) {
+		if (nodeMap[n1] == nullptr) {
+			G1.delNode(n1);
+		}
+	});
+
+	for (node n1a : G1.nodes) {
+		// For each node in G1: Remember corresponding neighbors in G2.
+		for (adjEntry adj : nodeMap[n1a]->adjEntries) {
+			if (!directed || adj->isSource()) {
+				n2aNeighbors.insert(adj->twinNode());
+			}
+		}
+
+		// Delete edge in G1 if it does not exist in G2.
+		safeForEach(n1a->adjEntries, [&](adjEntry adj) {
+			edge e1 = adj->theEdge();
+			if ((directed || e1->isSelfLoop()) && !adj->isSource()) {
+				return;
+			}
+			if (!n2aNeighbors.isMember(nodeMap[adj->twinNode()])) {
+				G1.delEdge(e1);
+			}
+		});
+		n2aNeighbors.clear();
+	}
+}
+
+void join(Graph& G1, const Graph& G2, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap) {
+	SListPure<node> G1nodes {};
+	getAllNodes(G1, G1nodes);
+
+	G1.insert(G2, nodeMap, edgeMap);
+
+	for (node n2 : G2.nodes) {
+		node n2_in_1 = nodeMap[n2];
+		for (node n1 : G1nodes) {
+			OGDF_ASSERT(n1 != n2_in_1);
+			G1.newEdge(n1, n2_in_1);
+		}
+	}
+}
 }

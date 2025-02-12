@@ -190,8 +190,43 @@ OGDF_EXPORT void modularProduct(const Graph& G1, const Graph& G2, Graph& product
 OGDF_EXPORT void rootedProduct(const Graph& G1, const Graph& G2, Graph& product,
 		NodeMap& nodeInProduct, node rootInG2);
 
+/**
+ * Computes the complement of \p G.
+ *
+ * @param G is the input graph and will be assigned the complement.
+ * @param directed Whether edge direction should be considered when computing the complement graph.
+ * @param allowSelfLoops Whether to allow self loops. If false and \p G contains self loops, these will not be removed.
+ */
+OGDF_EXPORT void complement(Graph& G, bool directed = false, bool allowSelfLoops = false);
+
+/**
+ * Computes the intersection of \p G1 and \p G2. The output will be assigned to \p G1.
+ *
+ * When a pair of vertices is connected by a different number of parallel edges
+ * in \p G1 and \p G2, the output will contain the number of parallel edges
+ * given by \p G1.
+ *
+ * @param G1 is the first graph and will be assigned the intersection.
+ * @param G2 is the second graph.
+ * @param nodeMap is a mapping of nodes in \p G1 to nodes in \p G2 (or nullptr).
+ * @param directed Whether edge direction should be considered when computing the graph intersection.
+ */
+OGDF_EXPORT void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap,
+		bool directed = false);
+
+/**
+ * Computes the graph join of \p G1 and \p G2. The output will be assigned to \p G1.
+ * \f$ (V = V_1 \cup V_2, E = E_1 \cup E_2 \cup V_1 \cross V_2) \f$
+ *
+ * @param G1 is the first graph, the joined graph will be assigned to G1.
+ * @param G2 is the second graph.
+ * @param nodeMap is assigned a mapping from nodes in \p G2 to new nodes in \p G1.
+ * @param edgeMap is assigned a mapping from edges in \p G2 to new edges in \p G1.
+ */
+OGDF_EXPORT void join(Graph& G1, const Graph& G2, NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+
+
 //! @}
 
 /** @} */
-
 }

@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <initializer_list>
 #include <set>
 #include <string>
 #include <utility>
@@ -226,5 +227,112 @@ go_bandit([] {
 					},
 					[](int n1, int m1, int n2, int m2) { return m1 + m2 * n1; });
 		});
+
+		describe("graph complement", []() {
+			for (bool directed : {true, false}) {
+				for (bool allowSelfLoops : {true, false}) {
+					std::string dirStr = directed ? "" : "un";
+					std::string loopStr = allowSelfLoops ? "true" : "false";
+					describe("in " + dirStr + "directed graphs with allowSelfLoops = " + loopStr, [&]() {
+						forEachGraphItWorks(
+								{GraphProperty::simple}, // calculation of edge number depends on graphs being simple
+								[&](const Graph& G) {
+									// Get number of nodes and edges prior to operation.
+									int n = G.numberOfNodes();
+									int m = G.numberOfEdges();
+									long maxEdges = directed ? n * (n - 1) : (n * (n - 1)) / 2;
+									if (allowSelfLoops) {
+										maxEdges += n;
+									}
+
+									// Remember one edge, do operation.
+									Graph result = G;
+									node u = nullptr;
+									node v = nullptr;
+									if (m > 0) {
+										edge e = result.firstEdge();
+										u = e->source();
+										v = e->target();
+									}
+									complement(result, directed, allowSelfLoops);
+
+									// Test result of operation.
+									AssertThat(result.numberOfNodes(), Equals(n));
+									AssertThat(result.numberOfEdges(), Equals(maxEdges - m));
+									if (m > 0) {
+										AssertThat(result.searchEdge(u, v, directed), IsNull());
+									}
+								},
+								GraphSizes(5, 45, 20));
+					});
+				}
+			}
+		});
+
+		describe("graph intersection", []() {
+			for (bool directed : {true, false}) {
+				std::string dirStr = directed ? "" : "un";
+				describe("in " + dirStr + "directed graphs", [&]() {
+					forEachGraphItWorks(
+							{},
+							[&](const Graph& G1) {
+								// Get number of nodes and edges prior to operation.
+								Graph G2;
+								randomSimpleGraph(G2, 15, 20);
+								int n1 = G1.numberOfNodes();
+								int m1 = G1.numberOfEdges();
+								int n2 = G2.numberOfNodes();
+								int m2 = G2.numberOfEdges();
+								int nMin = min(n1, n2);
+								int mMin = min(m1, m2);
+								int identifiedNodes = randomNumber(0, nMin);
+
+								// Create nodeMap and do operation.
+								Graph result = G1;
+								NodeArray<node> nodeMap(result, nullptr);
+								node v1 = result.firstNode();
+								node v2 = G2.firstNode();
+								for (int i = 0; i < identifiedNodes; ++i) {
+									nodeMap[v1] = v2;
+									v1 = v1->succ();
+									v2 = v2->succ();
+								}
+								intersection(result, G2, nodeMap, directed);
+
+								// Test result of operation.
+								AssertThat(result.numberOfNodes(), Equals(identifiedNodes));
+								AssertThat(result.numberOfEdges(), IsLessThanOrEqualTo(mMin));
+							},
+							GraphSizes(5, 45, 20));
+				});
+			}
+		});
+
+		testBinaryOperation(
+				"graph join",
+				[](const Graph& G1, const Graph& G2, Graph& result) {
+					NodeArray<node> nodeMap(G2, nullptr);
+					EdgeArray<edge> edgeMap(G2, nullptr);
+					result = G1;
+					join(result, G2, nodeMap, edgeMap);
+
+					// Test nodeMap and edgeMap.
+					int nCount = 0;
+					int mCount = 0;
+					for (node v2 : G2.nodes) {
+						if (nodeMap[v2]) {
+							nCount++;
+						}
+					}
+					for (edge e2 : G2.edges) {
+						if (edgeMap[e2]) {
+							mCount++;
+						}
+					}
+					AssertThat(G2.numberOfNodes(), Equals(nCount));
+					AssertThat(G2.numberOfEdges(), Equals(mCount));
+				},
+				[](int n1, int n2) { return n1 + n2; },
+				[](int n1, int m1, int n2, int m2) { return m1 + m2 + n1 * n2; });
 	});
 });
