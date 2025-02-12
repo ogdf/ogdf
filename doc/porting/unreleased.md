@@ -79,3 +79,12 @@ This can be disabled by using `setLinkCopiesOnInsert`.
 
 `PoolMemoryAllocator::defrag()` was renamed to `defragGlobal()` and (more importantly) now has a companion method `defragThread()`
 that defragments the thread-local memory pool.
+
+## Random Clusterings
+The following methods were moved to `graph_generators/clustering.h` and renamed to more accurately reflect their functionality.
+Note that `randomClusterPlanarGraph` did not actually generate cluster planar, but cluster-connected instances, and none of the methods used the `Graph` parameter.
+```
+randomClusterPlanarGraph(ClusterGraph& C, Graph& G, int cNum) -> randomCConnectedClustering(ClusterGraph& C, int cNum)
+randomClusterGraph(ClusterGraph& C, Graph& G, int cNum) -> randomClustering(ClusterGraph& C, int cNum)
+randomClusterGraph(ClusterGraph& C, const Graph& G, const node root, int moreInLeaves) -> randomClustering(ClusterGraph& C, const node root, int moreInLeaves)
+```

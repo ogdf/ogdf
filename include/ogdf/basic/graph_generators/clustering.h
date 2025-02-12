@@ -137,6 +137,11 @@ OGDF_EXPORT bool randomPlanarClustering(ClusterGraph& CG, const RandomClusterCon
  * the chosen vertex and another random vertex from the new graph. Thus, when a cut-vertex is joined
  * in this way, the resulting graph will no longer be c-connected.
  *
+ * Note that the given parameters are upper bounds that might not be always reached.
+ * Especially, replacing a vertex (which needs degree at least 4) with a cluster makes the parent
+ * cluster contain one vertex less, and no further clusters can be added if all vertices have degree
+ * 3 or less.
+ *
  * @param G will be assigned the planar graph.
  * @param CG will be assigned the c-planar clustering of \p G.
  * @param clusters how many clusters to generate.
