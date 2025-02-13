@@ -6,6 +6,26 @@
 OGDF now requires C++17 features.
 We no longer officially support compilers older than gcc 9, clang 9 or Visual Studio 2017 15.8 (MSVC 19.15).
 
+## include-what-you-use (iwyu)
+The OGDF now [uses](https://github.com/ogdf/ogdf/pull/239) [iwyu](https://include-what-you-use.org/)
+to make sure each source file explicitly lists all header files it uses, but no further unused headers.
+This especially means that certain headers that were previously transitively provided but not used by some other header
+now might need to be explicitly included in your code. We recommend also running iwyu on your code before (and also after) porting
+to get an explicit overview over which imports are used from where.
+
+Due to the `RegisteredArray` changes mentioned below, this also means that the following header files have been removed
+as all their functionality is now included in the corresponding `(Cluster/Hyper)Graph.h` file.
+```
+ogdf/basic/NodeArray.h
+ogdf/basic/AdjEntryArray.h
+ogdf/basic/FaceArray.h
+ogdf/basic/GraphObserver.h
+ogdf/cluster/ClusterArray.h
+ogdf/cluster/ClusterGraphObserver.h
+ogdf/hypergraph/HypergraphArray.h
+```
+The header `ogdf/basic/NodeSet.h` was replaced by `ogdf/basic/GraphSets.h`, now also providing Edge and AdjEntry sets.
+
 ## GraphIO
 
 ### SvgPrinter
@@ -79,3 +99,12 @@ This can be disabled by using `setLinkCopiesOnInsert`.
 
 `PoolMemoryAllocator::defrag()` was renamed to `defragGlobal()` and (more importantly) now has a companion method `defragThread()`
 that defragments the thread-local memory pool.
+
+## Random Clusterings
+The following methods were moved to `graph_generators/clustering.h` and renamed to more accurately reflect their functionality.
+Note that `randomClusterPlanarGraph` did not actually generate cluster planar, but cluster-connected instances, and none of the methods used the `Graph` parameter.
+```
+randomClusterPlanarGraph(ClusterGraph& C, Graph& G, int cNum) -> randomCConnectedClustering(ClusterGraph& C, int cNum)
+randomClusterGraph(ClusterGraph& C, Graph& G, int cNum) -> randomClustering(ClusterGraph& C, int cNum)
+randomClusterGraph(ClusterGraph& C, const Graph& G, const node root, int moreInLeaves) -> randomClustering(ClusterGraph& C, const node root, int moreInLeaves)
+```

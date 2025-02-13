@@ -421,7 +421,7 @@ OGDF_EXPORT void randomProperMaximalLevelPlaneGraph(Graph& G, std::vector<std::v
 OGDF_EXPORT void randomHierarchy(Graph& G, int n, int m, bool planar, bool singleSource,
 		bool longEdges);
 
-//! Removed random edges from /p G until it has less than /p max_edges edges, not removing edges from nodes with degree less than /p min_deg.
+//! Remove random edges from /p G until it has less than /p max_edges edges, not removing edges from nodes with degree less than /p min_deg.
 OGDF_EXPORT void pruneEdges(Graph& G, int max_edges, int min_deg);
 
 //! @}
