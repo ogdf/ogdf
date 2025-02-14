@@ -56,7 +56,7 @@ do
 	fi
 done
 
-echo "CALL = @$CXX -Werror -O0 -march=native -Iinclude -I../include -std=c++17 > /dev/null -c ../util/self-sufficiency.cpp" > $tmp/Makefile
+echo "CALL = @$CXX -Werror -O0 -march=native -Iinclude/ogdf-debug -I../include -std=c++17 > /dev/null -c ../util/self-sufficiency.cpp" > $tmp/Makefile
 echo -e "all:$target_names $targets" >> $tmp/Makefile
 make -j "$cores" -C $tmp
 exit $?

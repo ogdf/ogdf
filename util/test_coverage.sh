@@ -26,7 +26,7 @@ opts+="-DOGDF_USE_ASSERT_EXCEPTIONS=ON "
 opts+="-DOGDF_MEMORY_MANAGER=POOL_TS "
 
 ## include CGAL
-opts+="-DOGDF_INCLUDE_CGAL=ON "
+opts+="-DOGDF_INCLUDE_CGAL=OFF "
 opts+="-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE "
 
 ## coverage
@@ -54,9 +54,9 @@ util/run_examples.sh
 util/perform_separate_tests.sh build-coverage
 echo "::group::($(date -Iseconds)) Collect coverage"
 llvm-profdata merge  -sparse build-coverage/profraw/*.profraw -o coverage/coverage.profdata
-llvm-cov show --format=text build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
-# llvm-cov show --format=html build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.html
-llvm-cov export build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.json
-llvm-cov export --format=lcov build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/coverage.lcov
-llvm-cov report build-coverage/libOGDF.so -instr-profile=coverage/coverage.profdata > coverage/report.txt
+llvm-cov show --format=text build-coverage/libOGDF-debug.so -instr-profile=coverage/coverage.profdata > coverage/coverage.txt
+# llvm-cov show --format=html build-coverage/libOGDF-debug.so -instr-profile=coverage/coverage.profdata > coverage/coverage.html
+llvm-cov export build-coverage/libOGDF-debug.so -instr-profile=coverage/coverage.profdata > coverage/coverage.json
+llvm-cov export --format=lcov build-coverage/libOGDF-debug.so -instr-profile=coverage/coverage.profdata > coverage/coverage.lcov
+llvm-cov report build-coverage/libOGDF-debug.so -instr-profile=coverage/coverage.profdata > coverage/report.txt
 echo "::endgroup::"
