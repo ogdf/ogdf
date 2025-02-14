@@ -1175,6 +1175,7 @@ public:
 
 		m_regEdgeArrays.keyAdded(e);
 		m_regAdjArrays.keyAdded(e->adjSource());
+		m_regAdjArrays.keyAdded(e->adjTarget());
 		for (GraphObserver* obs : getObservers()) {
 			obs->edgeAdded(e);
 		}

@@ -52,7 +52,7 @@ class ClusterSet : public RegisteredSet<ClusterGraph, SupportFastSizeQuery> {
 	using RS = RegisteredSet<ClusterGraph, SupportFastSizeQuery>;
 
 public:
-	using RS::RS;
+	OGDF_REGSET_CONSTR(ClusterSet, RS)
 
 	//! Returns a reference to the list of clusters contained in \a S.
 	/**

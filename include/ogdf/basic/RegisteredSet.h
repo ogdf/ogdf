@@ -35,6 +35,21 @@
 
 #include <type_traits>
 
+#define OGDF_REGSET_CONSTR(ClassName, ParentName)                             \
+	/** Creates an empty set associated with no graph. */                     \
+	using ParentName::ParentName;                                             \
+	explicit ClassName() = default;                                           \
+	explicit ClassName(const ClassName<true>& other) : ParentName(other) { }  \
+	explicit ClassName(const ClassName<false>& other) : ParentName(other) { } \
+	ClassName& operator=(const ClassName<false>& other) {                     \
+		ParentName::assignFrom(other);                                        \
+		return *this;                                                         \
+	}                                                                         \
+	ClassName& operator=(const ClassName<true>& other) {                      \
+		ParentName::assignFrom(other);                                        \
+		return *this;                                                         \
+	}
+
 namespace ogdf {
 
 //! Constant-time set operations.
