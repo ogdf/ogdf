@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/basic/CombinatorialEmbedding.h>
+#include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
@@ -56,14 +57,23 @@ go_bandit([]() {
 		C.splitFace(a1, a2);
 		return C.lastFace();
 	};
+	auto deleteFace = [](CombinatorialEmbedding& C, face f) {
+		face o = C.joinFaces(f->firstAdj()->twin());
+		OGDF_ASSERT(o != f);
+	};
+	auto clearFaces = [](CombinatorialEmbedding& C) { C.clear(); };
 
-	Graph G;
-
+	std::list<Graph> graphs;
 	auto init = [&](CombinatorialEmbedding& C) {
-		randomPlanarConnectedGraph(G, 42, 168);
-		C.init(G);
+		graphs.emplace_back();
+		randomPlanarConnectedGraph(graphs.back(), 42, 168);
+		C.init(graphs.back());
 	};
 
 	runBasicArrayTests<CombinatorialEmbedding, FaceArray, face>( //
 			"FaceArray", init, chooseFace, allFaces, createFace);
+
+	graphs.clear();
+	runBasicSetTests<CombinatorialEmbedding, FaceSet, face>("FaceSet", init, chooseFace, allFaces,
+			createFace, deleteFace, clearFaces);
 });

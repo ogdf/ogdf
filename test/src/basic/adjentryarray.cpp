@@ -61,6 +61,10 @@ go_bandit([]() {
 		return randomNumber(0, 1) ? e->adjSource() : e->adjTarget();
 	};
 
+	auto deleteAdjEntry = [](Graph& graph, adjEntry adj) { graph.delEdge(adj->theEdge()); };
+
+	auto clearAdjEntries = [](Graph& graph) { graph.clear(); };
+
 	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
 
 	runBasicArrayTests<Graph, AdjEntryArray, adjEntry>( //
@@ -109,4 +113,8 @@ go_bandit([]() {
 			AssertThat(*P[e->adjTarget()], Equals(5));
 		});
 	});
+
+	runBasicSetTests<Graph, AdjEntrySet, adjEntry>("AdjEntrySet", init, chooseAdjEntry,
+			allAdjEntries, createAdjEntry, deleteAdjEntry, clearAdjEntries,
+			[](adjEntry a, adjEntry b) { return a->theEdge() == b->theEdge(); });
 });

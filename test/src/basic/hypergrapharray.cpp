@@ -37,6 +37,11 @@
 #include "array_helper.h"
 #include <testing.h>
 
+template<bool SFSQ>
+using HypernodeSet = RegisteredSet<HypergraphRegistry<HypernodeElement>, SFSQ>;
+template<bool SFSQ>
+using HyperedgeSet = RegisteredSet<HypergraphRegistry<HyperedgeElement>, SFSQ>;
+
 go_bandit([]() {
 	auto chooseHypernode = [](const Hypergraph& H) { return H.randomHypernode(); };
 
@@ -44,13 +49,16 @@ go_bandit([]() {
 
 	auto createHypernode = [](Hypergraph& H) { return H.newHypernode(); };
 
+	auto deleteHypernode = [](Hypergraph& H, hypernode n) { H.delHypernode(n); };
+	auto deleteHyperedge = [](Hypergraph& H, hyperedge e) { H.delHyperedge(e); };
+
 	auto chooseHyperedge = [](const Hypergraph& H) { return H.randomHyperedge(); };
 
 	auto allHyperedges = [](const Hypergraph& H, List<hyperedge>& list) { H.allHyperedges(list); };
 
 	auto createHyperedge = [](Hypergraph& H) {
 		List<hypernode> newNodes;
-		newNodes.pushBack(H.newHypernode());
+		newNodes.pushBack(H.randomHypernode());
 		newNodes.pushBack(H.newHypernode());
 		newNodes.pushBack(H.newHypernode());
 
@@ -59,14 +67,21 @@ go_bandit([]() {
 
 	auto init = [&](Hypergraph& H) {
 		H.clear();
+		H.newHypernode();
 		for (int i = 0; i < 42; ++i) {
 			createHyperedge(H);
 		}
 	};
+	auto clear = [&](Hypergraph& H) { H.clear(); };
 
 	runBasicArrayTests<Hypergraph, HypernodeArray, hypernode>( //
 			"HypernodeArray", init, chooseHypernode, allHypernodes, createHypernode);
 
 	runBasicArrayTests<Hypergraph, HyperedgeArray, hyperedge>( //
 			"HyperedgeArray", init, chooseHyperedge, allHyperedges, createHyperedge);
+
+	runBasicSetTests<Hypergraph, HypernodeSet, hypernode>("HypergraphRegistry<HypernodeElement>",
+			init, chooseHypernode, allHypernodes, createHypernode, deleteHypernode, clear);
+	runBasicSetTests<Hypergraph, HyperedgeSet, hyperedge>("HypergraphRegistry<HyperedgeElement>",
+			init, chooseHyperedge, allHyperedges, createHyperedge, deleteHyperedge, clear);
 });

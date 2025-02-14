@@ -41,6 +41,10 @@ go_bandit([]() {
 
 	auto createNode = [](Graph& graph) { return graph.newNode(); };
 
+	auto deleteNode = [](Graph& graph, node n) { return graph.delNode(n); };
+
+	auto clearNodes = [](Graph& graph) { graph.clear(); };
+
 	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
 
 	runBasicArrayTests<Graph, NodeArray, node>("NodeArray", init, chooseNode, allNodes, createNode);
@@ -62,4 +66,7 @@ go_bandit([]() {
 			AssertThat(arr[chooseNode(G)], Equals(p.get()));
 		});
 	});
+
+	runBasicSetTests<Graph, NodeSet, node>("NodeSet", init, chooseNode, allNodes, createNode,
+			deleteNode, clearNodes);
 });
