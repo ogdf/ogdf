@@ -144,51 +144,48 @@ hyperedge Hypergraph::newHyperedge(List<hypernode>& pHypernodes) {
 void Hypergraph::delHypernode(hypernode v) {
 	OGDF_ASSERT(v != nullptr);
 
+	safeForEach(v->m_adjHyperedges, [&](adjHypergraphEntry adj) {
+		hyperedge e = static_cast<hyperedge>(adj->element());
+
+		e->m_adjHypernodes.del(adj->twin());
+		v->m_adjHyperedges.del(adj);
+
+		e->m_cardinality--;
+		if (e->m_cardinality < 2) {
+			delHyperedge(e);
+		}
+
+		v->m_degree--;
+	});
+	OGDF_ASSERT(v->m_degree == 0);
+
+	m_regHypernodeArrays.keyRemoved(v);
 	for (HypergraphObserver* obs : getObservers()) {
 		obs->hypernodeDeleted(v);
 	}
 
 	--m_nHypernodes;
-
-	for (adjHypergraphEntry adj = v->m_adjHyperedges.head(); adj; adj = adj->succ()) {
-		hyperedge e = reinterpret_cast<hyperedge>(adj->twin()->element());
-
-		v->m_adjHyperedges.del(adj->twin());
-		e->m_adjHypernodes.del(adj);
-
-		if (--(e->m_cardinality) < 2) {
-			delHyperedge(e);
-		}
-
-		v->m_degree--;
-	}
-
-	OGDF_ASSERT(v->m_degree == 0);
-
-	m_regHypernodeArrays.keyRemoved(v);
 	m_hypernodes.del(v);
 }
 
 void Hypergraph::delHyperedge(hyperedge e) {
 	OGDF_ASSERT(e != nullptr);
 
+	m_regHyperedgeArrays.keyRemoved(e);
 	for (HypergraphObserver* obs : getObservers()) {
 		obs->hyperedgeDeleted(e);
 	}
 
-	--m_nHyperedges;
-
-	for (adjHypergraphEntry adj = e->m_adjHypernodes.head(); adj; adj = adj->succ()) {
-		static_cast<hypernode>(adj->element())->m_degree--;
-		static_cast<hypernode>(adj->element())->m_adjHyperedges.del(adj->twin());
-		static_cast<hyperedge>(adj->twin()->element())->m_adjHypernodes.del(adj);
-
+	safeForEach(e->m_adjHypernodes, [&](adjHypergraphEntry adj) {
+		hypernode n = static_cast<hypernode>(adj->element());
+		n->m_degree--;
+		n->m_adjHyperedges.del(adj->twin());
+		e->m_adjHypernodes.del(adj);
 		e->m_cardinality--;
-	}
-
+	});
 	OGDF_ASSERT(e->m_cardinality == 0);
 
-	m_regHyperedgeArrays.keyRemoved(e);
+	--m_nHyperedges;
 	m_hyperedges.del(e);
 }
 
@@ -305,6 +302,15 @@ bool Hypergraph::consistency() const {
 	}
 
 	return true;
+}
+
+std::ostream& operator<<(std::ostream& os, ogdf::adjHypergraphEntry v) {
+	if (v) {
+		os << "[" << v->index() << "]";
+	} else {
+		os << "nil";
+	}
+	return os;
 }
 
 std::ostream& operator<<(std::ostream& os, ogdf::hypernode v) {
