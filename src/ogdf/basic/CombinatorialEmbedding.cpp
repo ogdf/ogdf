@@ -37,7 +37,6 @@
 
 #include <functional>
 #include <ostream>
-#include <utility>
 #ifdef OGDF_DEBUG
 #	include <ogdf/basic/simple_graph_alg.h>
 #endif

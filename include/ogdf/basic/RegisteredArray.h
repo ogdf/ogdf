@@ -58,7 +58,7 @@ template<typename Registry>
 class RegisteredArrayBase;
 }
 template<typename Key, typename Registry, typename Iterator = void>
-class RegistryBase;
+class RegistryBase; // IWYU pragma: keep
 
 //! The default minimum table size for registered arrays.
 static constexpr int MIN_TABLE_SIZE = (1 << 4);

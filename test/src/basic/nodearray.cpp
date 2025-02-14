@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/graph_generators.h>
 
 #include "array_helper.h" // IWYU pragma: associated

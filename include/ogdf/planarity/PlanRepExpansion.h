@@ -33,9 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>
@@ -44,6 +42,8 @@
 
 namespace ogdf {
 class CombinatorialEmbedding;
+class FaceSet;
+class NodeSet;
 template<class E1, class E2>
 class Tuple2;
 

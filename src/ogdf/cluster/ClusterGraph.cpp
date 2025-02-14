@@ -37,7 +37,6 @@
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/basic/Observer.h>
 #include <ogdf/basic/Reverse.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>

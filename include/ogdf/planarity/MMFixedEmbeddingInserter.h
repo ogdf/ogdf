@@ -32,15 +32,15 @@
 #pragma once
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/planarity/MMEdgeInsertionModule.h>
 #include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
 
 namespace ogdf {
+class FaceSet;
+class NodeSet;
 template<class E1, class E2>
 class Tuple2;
 template<class E>

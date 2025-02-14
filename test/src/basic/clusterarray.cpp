@@ -32,6 +32,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/graph_generators/clustering.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/cluster/ClusterGraph.h>
@@ -39,6 +40,7 @@
 #include <functional>
 #include <list>
 #include <string>
+#include <vector>
 
 #include "ogdf/cluster/ClusterSet.h"
 

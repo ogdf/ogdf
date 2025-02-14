@@ -39,6 +39,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <string>
 
 namespace ogdf {

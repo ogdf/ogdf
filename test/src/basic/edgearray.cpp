@@ -30,6 +30,7 @@
  */
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 
 #include <functional>

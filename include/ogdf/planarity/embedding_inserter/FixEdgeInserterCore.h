@@ -34,7 +34,6 @@
 
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/SList.h>
@@ -45,6 +44,7 @@
 #include <cstdint>
 
 namespace ogdf {
+class FaceSet;
 enum class RemoveReinsertType;
 template<class E>
 class QueuePure;

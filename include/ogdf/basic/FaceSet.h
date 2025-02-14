@@ -34,6 +34,7 @@
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/copy_move.h>
 
 namespace ogdf {
 

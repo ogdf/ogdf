@@ -32,8 +32,8 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/RegisteredArray.h>
-
-#include <type_traits>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/copy_move.h>
 
 namespace ogdf {
 

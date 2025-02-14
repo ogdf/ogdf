@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/RegisteredSet.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {

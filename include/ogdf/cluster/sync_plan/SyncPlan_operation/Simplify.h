@@ -31,13 +31,16 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
 
 #include <functional>
 #include <iosfwd>
+
+namespace ogdf {
+class EdgeSet;
+} // namespace ogdf
 
 namespace ogdf::pc_tree {
 class NodePCRotation;

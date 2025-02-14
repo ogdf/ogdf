@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/hypergraph/Hypergraph.h>
 
 #include <functional>

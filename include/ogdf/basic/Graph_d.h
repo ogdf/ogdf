@@ -61,10 +61,10 @@ namespace ogdf {
 class OGDF_EXPORT AdjElement; // IWYU pragma: keep
 class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
 class OGDF_EXPORT EdgeElement; // IWYU pragma: keep
+class OGDF_EXPORT EdgeSet; // needed for Graph::insert
 class OGDF_EXPORT FaceElement; // IWYU pragma: keep
 class OGDF_EXPORT Graph; // IWYU pragma: keep
 class OGDF_EXPORT NodeElement; // IWYU pragma: keep
-class OGDF_EXPORT EdgeSet; // needed for Graph::insert
 
 //! The type of nodes.
 //! @ingroup graphs
