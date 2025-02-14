@@ -52,29 +52,36 @@ namespace ogdf {
  * \sa RegisteredArray, NodeSet
  */
 template<class Registry, bool SupportFastSizeQuery = true>
-class RegisteredSet {
+class RegisteredSet : private RegisteredObserver<Registry> {
+	using Obs = RegisteredObserver<Registry>;
+
 public:
+	using registry_type = Registry;
 	using element_type = typename Registry::key_type;
 	using list_type = typename std::conditional<SupportFastSizeQuery, List<element_type>,
 			ListPure<element_type>>::type;
 
 	//! Creates an empty set associated with registry \p R.
-	explicit RegisteredSet(const Registry& R) : m_it(&R) { }
+	explicit RegisteredSet(const Registry& R) : Obs(), m_it() {
+		// parent constructor does not call registrationChanged callback
+		// m_it.init called by registrationChanged callback from reregister
+		Obs::reregister(&R);
+	}
+
+	//! Creates an empty set associated with registry \p R.
+	explicit RegisteredSet(const Registry* R) : Obs(), m_it() { Obs::reregister(R); }
 
 	//! Creates an empty set associated with no registry.
-	explicit RegisteredSet() : m_it() { }
+	explicit RegisteredSet() : Obs(), m_it() { }
 
 	//! Reinitializes the set. Associates the set with no registry.
 	void init() {
-		m_it.init();
-		m_elements.clear();
+		// m_it.init and m_elements.clear called by registrationChanged callback
+		Obs::reregister(nullptr);
 	}
 
 	//! Reinitializes the set. Associates the set with registry \p R.
-	void init(const Registry& R) {
-		m_it.init(&R);
-		m_elements.clear();
-	}
+	void init(const Registry& R) { Obs::reregister(&R); }
 
 	//! Inserts element \p v into this set.
 	/**
@@ -144,7 +151,7 @@ public:
 	const list_type& elements() const { return m_elements; }
 
 	//! Returns the associated registry.
-	const Registry* registeredAt() const { return m_it.registeredAt(); }
+	const Registry* registeredAt() const { return Obs::getRegistry(); }
 
 	//! Returns the number of elements in this set.
 	/**
@@ -156,21 +163,41 @@ public:
 
 	typename list_type::const_iterator end() const { return m_elements.end(); }
 
+	//! Copy constructor with inverted SupportFastSizeQuery parameter.
+	explicit RegisteredSet(const RegisteredSet<Registry, !SupportFastSizeQuery>& other)
+		: RegisteredSet() {
+		assignFrom(other);
+	}
+
 	//! Copy constructor.
-	template<bool OtherSupportsFastSizeQuery>
-	explicit RegisteredSet(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
-		this = other;
+	/**
+	 * Cannot be templated on other's SupportFastSizeQuery as C++ doesn't find templated copy
+	 * constructors, see also ListIteratorBase.
+	 */
+	explicit RegisteredSet(const RegisteredSet<Registry, SupportFastSizeQuery>& other)
+		: RegisteredSet() {
+		assignFrom(other);
 	}
 
 	//! Assignment operator.
-	template<bool OtherSupportsFastSizeQuery>
-	RegisteredSet& operator=(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
-		m_elements.clear();
-		m_it.init(other.registeredAt());
-		for (element_type v : other.elements()) {
-			insert(v);
-		}
+	RegisteredSet& operator=(const RegisteredSet<Registry, SupportFastSizeQuery>& other) {
+		assignFrom(other);
+		return *this;
 	}
+
+	//! Assignment operator with inverted SupportFastSizeQuery parameter.
+	RegisteredSet& operator=(const RegisteredSet<Registry, !SupportFastSizeQuery>& other) {
+		assignFrom(other);
+		return *this;
+	}
+
+	template<typename BothRegistry, bool LHSSupportFastSizeQuery, bool RHSSupportFastSizeQuery>
+	friend bool operator==(const RegisteredSet<BothRegistry, LHSSupportFastSizeQuery>& lhs,
+			const RegisteredSet<BothRegistry, RHSSupportFastSizeQuery>& rhs);
+
+	template<typename BothRegistry, bool LHSSupportFastSizeQuery, bool RHSSupportFastSizeQuery>
+	friend bool operator!=(const RegisteredSet<BothRegistry, LHSSupportFastSizeQuery>& lhs,
+			const RegisteredSet<BothRegistry, RHSSupportFastSizeQuery>& rhs);
 
 private:
 	//! #m_it[\a v] contains the list iterator pointing to \a v if \a v is contained in this set,
@@ -179,6 +206,59 @@ private:
 
 	//! The list of elements contained in this set.
 	list_type m_elements;
+
+protected:
+	//! Templated assignment operator
+	template<bool OtherSupportsFastSizeQuery>
+	void assignFrom(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
+		Obs::reregister(other.registeredAt());
+		// m_it.init and m_elements.clear called by registrationChanged callback
+		for (element_type v : other.elements()) {
+			insert(v);
+		}
+	}
+
+	void keyRemoved(typename Registry::key_type v) override { remove(v); }
+
+	void keyAdded(typename Registry::key_type v) override { }
+
+	void keysSwapped(int index1, int index2) override {
+		OGDF_ASSERT(false); // RegisteredSets break on key swapping
+	}
+
+	void keysCopied(int toIndex, int fromIndex) override {
+		OGDF_ASSERT(false); // RegisteredSets break on key copying
+	}
+
+	void keysCleared() override { clear(); }
+
+	void registrationChanged(const Registry* old) override {
+		m_it.init(Obs::getRegistry());
+		m_elements.clear();
+	}
 };
+
+template<typename Registry, bool LHSSupportFastSizeQuery, bool RHSSupportFastSizeQuery>
+bool operator==(const RegisteredSet<Registry, LHSSupportFastSizeQuery>& lhs,
+		const RegisteredSet<Registry, RHSSupportFastSizeQuery>& rhs) {
+	if (lhs.registeredAt() != rhs.registeredAt()) {
+		return false;
+	}
+	if (lhs.size() != rhs.size()) {
+		return false;
+	}
+	for (const auto& elem : lhs.elements()) {
+		if (!rhs.isMember(elem)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename Registry, bool LHSSupportFastSizeQuery, bool RHSSupportFastSizeQuery>
+bool operator!=(const RegisteredSet<Registry, LHSSupportFastSizeQuery>& lhs,
+		const RegisteredSet<Registry, RHSSupportFastSizeQuery>& rhs) {
+	return !(lhs == rhs);
+}
 
 }
