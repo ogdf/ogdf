@@ -36,6 +36,7 @@
 #include <ogdf/basic/graph_generators/randomized.h>
 
 #include <functional>
+#include <list>
 #include <string>
 
 #include "array_helper.h"

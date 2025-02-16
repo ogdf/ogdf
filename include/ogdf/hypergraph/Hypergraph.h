@@ -141,7 +141,7 @@ public:
 
 	OGDF_NEW_DELETE;
 
-	friend std::ostream& operator<<(std::ostream& os, ogdf::adjHypergraphEntry v);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::adjHypergraphEntry v);
 };
 
 //! Class for the representation of hyperedges.
@@ -219,7 +219,7 @@ public:
 		return e->index() == m_index && e->hypergraph() == m_hypergraph;
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, ogdf::hyperedge v);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::hyperedge v);
 
 	OGDF_NEW_DELETE;
 };
@@ -325,7 +325,7 @@ public:
 
 	OGDF_NEW_DELETE;
 
-	friend std::ostream& operator<<(std::ostream& os, ogdf::hypernode v);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::hypernode v);
 };
 
 //! Registry for nodes and edges of a hypergraph.
@@ -581,9 +581,9 @@ public:
 
 	Hypergraph& operator=(const Hypergraph& H);
 
-	friend std::ostream& operator<<(std::ostream& os, ogdf::Hypergraph& H);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::Hypergraph& H);
 
-	friend std::istream& operator>>(std::istream& is, ogdf::Hypergraph& H);
+	friend OGDF_EXPORT std::istream& operator>>(std::istream& is, ogdf::Hypergraph& H);
 
 	OGDF_MALLOC_NEW_DELETE;
 

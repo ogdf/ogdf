@@ -726,7 +726,7 @@ void ClusterGraph::clear() {
 	//no child clusters, so we can restart at 1
 	m_clusterIdCount = 1;
 	keysCleared();
-	keyAdded(0);
+	keyAdded(m_rootCluster);
 }
 
 // Removes the Clustering of a Tree and frees the allocated memory

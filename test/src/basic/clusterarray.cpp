@@ -37,6 +37,7 @@
 #include <ogdf/cluster/ClusterGraph.h>
 
 #include <functional>
+#include <list>
 #include <string>
 
 #include "ogdf/cluster/ClusterSet.h"
