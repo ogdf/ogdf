@@ -37,7 +37,6 @@
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
-#include <ogdf/basic/Observer.h>
 #include <ogdf/basic/Reverse.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>
@@ -84,7 +83,7 @@ ClusterGraph::ClusterGraph(const Graph& G) { initGraph(G); }
 
 ClusterGraph::ClusterGraph(const ClusterGraph& C)
 	// need to explicitly call default parent class constructors in our copy constructor
-	: GraphObserver(), Observable(), ClusterGraphRegistry() {
+	: GraphObserver(), Obs(), ClusterGraphRegistry() {
 	shallowCopy(C);
 }
 
@@ -102,7 +101,7 @@ ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G,
 ClusterGraph::ClusterGraph(const ClusterGraph& C, Graph& G) { deepCopy(C, G); }
 
 ClusterGraph::~ClusterGraph() {
-	clearObservers();
+	Obs::clearObservers();
 	// this is only necessary because GraphObjectContainer simply deallocs its memory without calling destructors
 	while (!clusters.empty()) {
 		clusters.del(clusters.head());
@@ -494,7 +493,7 @@ cluster ClusterGraph::newCluster(int id) {
 #endif
 	clusters.pushBack(c);
 	keyAdded(c);
-	for (ClusterGraphObserver* obs : getObservers()) {
+	for (ClusterGraphObserver* obs : Obs::getObservers()) {
 		obs->clusterAdded(c);
 	}
 
@@ -513,7 +512,7 @@ cluster ClusterGraph::newCluster() {
 #endif
 	clusters.pushBack(c);
 	keyAdded(c);
-	for (ClusterGraphObserver* obs : getObservers()) {
+	for (ClusterGraphObserver* obs : Obs::getObservers()) {
 		obs->clusterAdded(c);
 	}
 
@@ -636,7 +635,7 @@ void ClusterGraph::delCluster(cluster c) {
 	OGDF_ASSERT(c != m_rootCluster);
 
 	// notify observers
-	for (ClusterGraphObserver* obs : getObservers()) {
+	for (ClusterGraphObserver* obs : Obs::getObservers()) {
 		obs->clusterDeleted(c);
 	}
 	keyRemoved(c);
@@ -689,7 +688,7 @@ void ClusterGraph::pullUpSubTree(cluster c) {
 	}
 }
 
-void ClusterGraph::doClear() {
+void ClusterGraph::doClear() { // TODO merge with clear
 	//split condition
 	m_lcaSearch.reset();
 	m_vAncestor.reset();
@@ -698,12 +697,35 @@ void ClusterGraph::doClear() {
 		clearClusterTree(m_rootCluster);
 		clusters.del(m_rootCluster);
 	}
-	for (ClusterGraphObserver* obs : getObservers()) {
+	for (ClusterGraphObserver* obs : Obs::getObservers()) {
 		obs->clustersCleared();
 	}
-	keysCleared();
 	//no clusters, so we can restart at 0
 	m_clusterIdCount = 0;
+	keysCleared();
+}
+
+//don't delete root cluster
+void ClusterGraph::clear() {
+	m_lcaSearch.reset();
+	m_vAncestor.reset();
+	m_wAncestor.reset();
+	if (numberOfClusters() != 0) {
+		//clear the cluster structure under root cluster
+		clearClusterTree(m_rootCluster);
+		//now delete all rootcluster entries
+		while (!m_rootCluster->nodes.empty()) {
+			node v = m_rootCluster->nodes.popFrontRet();
+			m_nodeMap[v] = nullptr;
+		}
+	}
+	for (ClusterGraphObserver* obs : Obs::getObservers()) {
+		obs->clustersCleared();
+	}
+	//no child clusters, so we can restart at 1
+	m_clusterIdCount = 1;
+	keysCleared();
+	keyAdded(m_rootCluster);
 }
 
 // Removes the Clustering of a Tree and frees the allocated memory
@@ -715,7 +737,7 @@ void ClusterGraph::clearClusterTree(cluster c) {
 	recurseClearClusterTreeOnChildren(c, attached);
 
 	if (parent != nullptr) {
-		for (ClusterGraphObserver* obs : getObservers()) {
+		for (ClusterGraphObserver* obs : Obs::getObservers()) {
 			obs->clusterDeleted(c);
 		}
 		keyRemoved(c);
@@ -736,31 +758,13 @@ void ClusterGraph::clearClusterTree(cluster c) {
 }
 
 void ClusterGraph::clearClusterTree(cluster c, List<node>& attached) {
-	for (ClusterGraphObserver* obs : getObservers()) {
+	for (ClusterGraphObserver* obs : Obs::getObservers()) {
 		obs->clusterDeleted(c);
 	}
 	keyRemoved(c);
 	attached.conc(c->nodes);
 	recurseClearClusterTreeOnChildren(c, attached);
 	clusters.del(c);
-}
-
-//don't delete root cluster
-void ClusterGraph::clear() {
-	m_lcaSearch.reset();
-	m_vAncestor.reset();
-	m_wAncestor.reset();
-	if (numberOfClusters() != 0) {
-		//clear the cluster structure under root cluster
-		clearClusterTree(m_rootCluster);
-		//now delete all rootcluster entries
-		while (!m_rootCluster->nodes.empty()) {
-			node v = m_rootCluster->nodes.popFrontRet();
-			m_nodeMap[v] = nullptr;
-		}
-	}
-	//no child clusters, so we can restart at 1
-	m_clusterIdCount = 1;
 }
 
 int ClusterGraph::treeDepth() const {

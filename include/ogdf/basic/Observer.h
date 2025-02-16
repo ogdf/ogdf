@@ -52,11 +52,28 @@ namespace ogdf {
 template<typename TObserved, typename TObserver>
 class Observer {
 public:
-	//! Constructs instance of Observer class
+	//! Constructs unregistered instance of Observer class
+	/**
+	 * Note that calling reregister in the constructor of some intermediate class will trigger
+	 * registrationChanged while child classes are not yet fully constructed.
+	 */
 	Observer() = default;
 
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes")
+
+	explicit Observer(const TObserved* R) { reregister(R); }
+
 	//! Destroys the instance, unregisters it from watched instance.
-	virtual ~Observer() { reregister(nullptr); }
+	/**
+	 * Callback registrationChanged will not be made from destructor as all subclasses are already
+	 * partially destroyed at that point.
+	 */
+	virtual ~Observer() {
+		if (m_pObserved) {
+			m_pObserved->unregisterObserver(m_itObsList);
+			m_pObserved = nullptr;
+		}
+	}
 
 	/**
 	 * If you want to copy a subclass of Observer, call the default Observer() constructor and
@@ -103,6 +120,8 @@ private:
 template<typename TObserver, typename TObserved>
 class Observable {
 	friend Observer<TObserved, TObserver>;
+	friend TObserved;
+	friend TObserver;
 
 #ifndef OGDF_MEMORY_POOL_NTS
 	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared access to register/unregister methods.
@@ -112,11 +131,12 @@ class Observable {
 public:
 	Observable() = default;
 
-	virtual ~Observable() {
-		// clearObservers must be called by child class, calling it here would
-		// notify Observers with an already partially destructed Observable
-		OGDF_ASSERT(m_regObservers.empty());
-	}
+	/**
+	 * Note that all Observers must already be removed once the destructor of this base class is
+	 * invoked (e.g. through clearObservers in a child class destructor), as calling it here would
+	 * notify Observers with already partially destructed child classes.
+	 */
+	virtual ~Observable() { OGDF_ASSERT(m_regObservers.empty()); }
 
 	/**
 	 * If you want to copy a subclass of Observable, call the default Observable() constructor.
@@ -130,9 +150,19 @@ public:
 	 */
 	OGDF_NO_MOVE(Observable)
 
-private:
+protected:
 	//! Registers an observer.
 	/**
+	 * You should never directly call this method as it is called by the Observer() constructor and
+	 * Observer::reregister() methods automatically.
+	 * If you have a class that inherits from multiple Observables, you may need to reexport this method:
+	 * \code
+	 * friend Observer<ObservableA, ObserverA>;
+	 * friend Observer<ObservableB, ObserverB>;
+	 * using ParentObservableA::(un)registerObserver; using ParentObservableB::(un)registerObserver;
+	 * \endcode
+	 * See https://stackoverflow.com/a/1313162 and ClusterGraph for an example.
+	 *
 	 * @param obs is a pointer to the observer that shall be registered
 	 * @return an iterator pointing to the entry for the registered observer in the list of registered
 	 *         observers. This iterator is required for unregistering the observer again.
@@ -147,6 +177,16 @@ private:
 
 	//! Unregisters an observer.
 	/**
+	 * You should never directly call this method as it is called by the ~Observer() destructor and
+	 * Observer::reregister() methods automatically.
+	 * If you have a class that inherits from multiple Observables, you may need to reexport this method:
+	 * \code
+	 * friend Observer<ObservableA, ObserverA>;
+	 * friend Observer<ObservableB, ObserverB>;
+	 * using ParentObservableA::(un)registerObserver; using ParentObservableB::(un)registerObserver;
+	 * \endcode
+	 * See https://stackoverflow.com/a/1313162 and ClusterGraph for an example.
+	 *
 	 * @param it is an iterator pointing to the entry in the list of registered observers for the
 	 *           observer to be unregistered.
 	 */
@@ -157,7 +197,6 @@ private:
 		m_regObservers.del(it);
 	}
 
-protected:
 	const ListPure<TObserver*>& getObservers() const { return m_regObservers; }
 
 	void clearObservers() {

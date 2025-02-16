@@ -45,7 +45,7 @@ namespace ogdf {
  * Provides efficient operations for testing membership,
  * iteration, insertion and deletion of elements, as well as clearing the set.
  *
- * \tparam SupportFastSizeQuery Whether this set supports querying it's #size in
+ * \tparam SupportFastSizeQuery Whether this set supports querying its #size in
  * constant instead of linear time (in the size).
  *
  * \sa NodeSet
@@ -55,7 +55,7 @@ class FaceSet : public RegisteredSet<ConstCombinatorialEmbedding, SupportFastSiz
 	using RS = RegisteredSet<ConstCombinatorialEmbedding, SupportFastSizeQuery>;
 
 public:
-	using RS::RS;
+	OGDF_REGSET_CONSTR(FaceSet, RS)
 
 	//! Returns a reference to the list of faces contained in this set.
 	const typename RS::list_type& faces() const { return RS::elements(); }

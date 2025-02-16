@@ -30,10 +30,13 @@
  */
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 
 #include <functional>
 #include <string>
+
+#include "ogdf/basic/GraphSets.h"
 
 #include "array_helper.h"
 #include <testing.h>
@@ -47,7 +50,13 @@ go_bandit([]() {
 		return graph.newEdge(graph.chooseNode(), graph.chooseNode());
 	};
 
+	auto deleteEdge = [](Graph& graph, edge e) { return graph.delEdge(e); };
+
+	auto clearEdges = [](Graph& graph) { return graph.clear(); };
+
 	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
 
 	runBasicArrayTests<Graph, EdgeArray, edge>("EdgeArray", init, chooseEdge, allEdges, createEdge);
+	runBasicSetTests<Graph, EdgeSet, edge>("EdgeSet", init, chooseEdge, allEdges, createEdge,
+			deleteEdge, clearEdges);
 });

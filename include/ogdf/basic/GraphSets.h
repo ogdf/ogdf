@@ -50,7 +50,7 @@ namespace ogdf {
  * Provides efficient operations for testing membership,
  * iteration, insertion, and deletion of elements, as well as clearing the set.
  *
- * \tparam SupportFastSizeQuery Whether this set supports querying it's #size in
+ * \tparam SupportFastSizeQuery Whether this set supports querying its #size in
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
@@ -58,13 +58,10 @@ class NodeSet : public RegisteredSet<internal::GraphNodeRegistry, SupportFastSiz
 	using RS = RegisteredSet<internal::GraphNodeRegistry, SupportFastSizeQuery>;
 
 public:
-	using RS::RS;
-
 	//! Creates a new node set associated with \p graph.
-	explicit NodeSet(const Graph& graph) : RS((const internal::GraphNodeRegistry&)graph) {};
+	explicit NodeSet(const Graph& graph) : RS((const internal::GraphNodeRegistry&)graph) { }
 
-	//! Creates an empty node set associated with no graph.
-	explicit NodeSet() = default;
+	OGDF_REGSET_CONSTR(NodeSet, RS)
 
 	//! Returns a reference to the list of nodes contained in this set.
 	const typename RS::list_type& nodes() { return RS::elements(); }
@@ -85,7 +82,11 @@ public:
  * Provides efficient operations for testing membership,
  * iteration, insertion, and deletion of elements, as well as clearing the set.
  *
- * \tparam SupportFastSizeQuery Whether this set supports querying it's #size in
+ * Note that an EdgeSet is not notified if an edge is hidden using HiddenEdgeSet. Thus, hidden
+ * edges will stay part of EdgeSets even if they are (temporarily) no longer accessible as entry in
+ * the edge list of their corresponding Graph.
+ *
+ * \tparam SupportFastSizeQuery Whether this set supports querying its #size in
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
@@ -93,13 +94,10 @@ class EdgeSet : public RegisteredSet<internal::GraphEdgeRegistry, SupportFastSiz
 	using RS = RegisteredSet<internal::GraphEdgeRegistry, SupportFastSizeQuery>;
 
 public:
-	using RS::RS;
-
 	//! Creates a new edge set associated with \p graph.
-	explicit EdgeSet(const Graph& graph) : RS((const internal::GraphEdgeRegistry&)graph) {};
+	explicit EdgeSet(const Graph& graph) : RS((const internal::GraphEdgeRegistry&)graph) { }
 
-	//! Creates an empty edge set associated with no graph.
-	explicit EdgeSet() = default;
+	OGDF_REGSET_CONSTR(EdgeSet, RS)
 
 	//! Returns a reference to the list of edges contained in this set.
 	const typename RS::list_type& edges() { return RS::elements(); }
@@ -120,7 +118,7 @@ public:
  * Provides efficient operations for testing membership,
  * iteration, insertion, and deletion of elements, as well as clearing the set.
  *
- * \tparam SupportFastSizeQuery Whether this set supports querying it's #size in
+ * \tparam SupportFastSizeQuery Whether this set supports querying its #size in
  * constant instead of linear time (in the size).
  */
 template<bool SupportFastSizeQuery = true>
@@ -128,13 +126,10 @@ class AdjEntrySet : public RegisteredSet<internal::GraphAdjRegistry, SupportFast
 	using RS = RegisteredSet<internal::GraphAdjRegistry, SupportFastSizeQuery>;
 
 public:
-	using RS::RS;
-
 	//! Creates a new adjEntry set associated with \p graph.
-	explicit AdjEntrySet(const Graph& graph) : RS((const internal::GraphAdjRegistry&)graph) {};
+	explicit AdjEntrySet(const Graph& graph) : RS((const internal::GraphAdjRegistry&)graph) { }
 
-	//! Creates an empty adjEntry set associated with no graph.
-	explicit AdjEntrySet() = default;
+	OGDF_REGSET_CONSTR(AdjEntrySet, RS)
 
 	//! Returns a reference to the list of adjEntries contained in this set.
 	const typename RS::list_type& adjEntries() { return RS::elements(); }

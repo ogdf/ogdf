@@ -344,10 +344,12 @@ public:
  * clustering of the nodes in a graph, providing additional functionality.
  */
 class OGDF_EXPORT ClusterGraph
-	: public GraphObserver, // to get updates when graph nodes/edges added/removed
+	: private GraphObserver, // to get updates when graph nodes/edges added/removed
 	  public Observable<ClusterGraphObserver, ClusterGraph>, // to publish updates when clusters added/removed
 	  public ClusterGraphRegistry // for ClusterArrays
 {
+	using Obs = Observable<ClusterGraphObserver, ClusterGraph>;
+
 	int m_clusterIdCount = 0; //!< The index assigned to the next created cluster.
 
 	mutable cluster m_postOrderStart = nullptr; //!< The first cluster in postorder.
@@ -435,6 +437,8 @@ public:
 	 * @name Access methods
 	 */
 	//! @{
+
+	using GraphObserver::getGraph;
 
 	//! Returns the root cluster.
 	cluster rootCluster() const { return m_rootCluster; }
@@ -866,6 +870,14 @@ protected:
 	}
 
 	void registrationChanged(const Graph* newG) override;
+
+	// need to re-export both to allow parameter-type-based overload in the same namespace
+	friend Observer<ClusterGraph, ClusterGraphObserver>;
+	friend Observer<ClusterGraph, RegisteredObserver<ClusterGraph>>;
+	using ClusterGraphRegistry::registerObserver;
+	using ClusterGraphRegistry::unregisterObserver;
+	using Obs::registerObserver;
+	using Obs::unregisterObserver;
 
 	//! @}
 

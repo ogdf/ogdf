@@ -561,9 +561,16 @@ public:
 	/**
 	 * \brief Removes edge \p e and joins the two faces adjacent to \p e.
 	 * @param e is an edge in the associated graph.
-	 * \return the resulting (joined) face.
+	 * \return the resulting (joined) face, which will be based on the larger one of the two faces separated by \p e
 	 */
 	face joinFaces(edge e);
+
+	/**
+	 * \brief Removes edge \p e corresponding to \p adj and joins the two faces adjacent to \p e.
+	 * @param adj is an adjEntry in the associated graph.
+	 * \return the resulting (joined) face, which will be the one to the right of \p adj
+	 */
+	face joinFaces(adjEntry adj);
 
 	//! Reverses edges \p e and updates embedding.
 	void reverseEdge(edge e);
