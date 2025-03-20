@@ -37,10 +37,8 @@
 #include "array_helper.h"
 #include <testing.h>
 
-template<bool SFSQ>
-using HypernodeSet = RegisteredSet<HypergraphRegistry<HypernodeElement>, SFSQ>;
-template<bool SFSQ>
-using HyperedgeSet = RegisteredSet<HypergraphRegistry<HyperedgeElement>, SFSQ>;
+using HypernodeSet = RegisteredSet<HypergraphRegistry<HypernodeElement>>;
+using HyperedgeSet = RegisteredSet<HypergraphRegistry<HyperedgeElement>>;
 
 go_bandit([]() {
 	auto chooseHypernode = [](const Hypergraph& H) { return H.randomHypernode(); };

@@ -50,8 +50,7 @@ class OGDF_EXPORT PCTreeRegistry;
 OGDF_DECL_REG_ARRAY(PCTreeNodeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
-template<bool SupportFastSizeQuery = true>
-using PCTreeNodeSet = ogdf::RegisteredSet<PCTreeRegistry, SupportFastSizeQuery>;
+using PCTreeNodeSet = ogdf::RegisteredSet<PCTreeRegistry>;
 
 OGDF_EXPORT std::ostream& operator<<(std::ostream&, ogdf::pc_tree::NodeLabel);
 

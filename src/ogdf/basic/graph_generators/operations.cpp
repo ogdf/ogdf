@@ -255,8 +255,8 @@ void rootedProduct(const Graph& G1, const Graph& G2, Graph& product, NodeMap& no
 }
 
 void complement(Graph& G, bool directed, bool allowSelfLoops) {
-	NodeSet<true> n1neighbors(G);
-	EdgeSet<true> newEdges(G);
+	NodeSet n1neighbors(G);
+	EdgeSet newEdges(G);
 
 	for (node n1 : G.nodes) {
 		// Delete edges, remember neighbors.
@@ -287,7 +287,7 @@ void complement(Graph& G, bool directed, bool allowSelfLoops) {
 
 void intersection(Graph& G1, const Graph& G2, const NodeArray<node>& nodeMap, bool directed) {
 	OGDF_ASSERT(nodeMap.valid());
-	NodeSet<true> n2aNeighbors(G2);
+	NodeSet n2aNeighbors(G2);
 
 	safeForEach(G1.nodes, [&](node n1) {
 		if (nodeMap[n1] == nullptr) {

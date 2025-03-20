@@ -166,7 +166,7 @@ go_bandit([]() {
 						AssertThat(CG.representsCombEmbedding(), IsTrue());
 						validateGraphCopy(Gcopy);
 
-						EdgeSet<> added(Gcopy);
+						EdgeSet added(Gcopy);
 						insertAugmentationEdges(CG, Gcopy, augmentation, &added, true, true);
 
 						Graph::HiddenEdgeSet hes(Gcopy);

@@ -892,7 +892,7 @@ void describeSetTemplatedCopyAndEquals(const std::string& description,
  * @param clearAllKeys a function to delete all keys in the base
  * @param equals a function to check whether two objects are equal wrt. being deleted together
  */
-template<class BaseType, template<bool> class SetType, typename KeyType>
+template<class BaseType, class SetType, typename KeyType>
 void runBasicSetTests(
 		const std::string& setType, std::function<void(BaseType&)> initBase,
 		std::function<KeyType(const BaseType&)> chooseKey,
@@ -901,23 +901,11 @@ void runBasicSetTests(
 		std::function<void(BaseType&, KeyType)> deleteKey,
 		std::function<void(BaseType&)> clearAllKeys,
 		std::function<bool(KeyType, KeyType)> equals = [](KeyType a, KeyType b) { return a == b; }) {
-	describeSet<BaseType, SetType<true>, KeyType>(setType + "<true>", initBase, chooseKey,
-			getAllKeys, createKey, deleteKey, clearAllKeys, equals);
-	describeSet<BaseType, SetType<false>, KeyType>(setType + "<false>", initBase, chooseKey,
-			getAllKeys, createKey, deleteKey, clearAllKeys, equals);
+	describeSet<BaseType, SetType, KeyType>(setType, initBase, chooseKey, getAllKeys, createKey,
+			deleteKey, clearAllKeys, equals);
 
-	describeSetTemplatedCopyAndEquals<BaseType, SetType<true>, SetType<true>, KeyType>(
-			setType + "<true> and " + setType + "<true>", initBase, chooseKey, getAllKeys,
-			createKey, deleteKey, clearAllKeys, equals);
-	describeSetTemplatedCopyAndEquals<BaseType, SetType<true>, SetType<false>, KeyType>(
-			setType + "<true> and " + setType + "<false>", initBase, chooseKey, getAllKeys,
-			createKey, deleteKey, clearAllKeys, equals);
-	describeSetTemplatedCopyAndEquals<BaseType, SetType<false>, SetType<true>, KeyType>(
-			setType + "<false> and " + setType + "<true>", initBase, chooseKey, getAllKeys,
-			createKey, deleteKey, clearAllKeys, equals);
-	describeSetTemplatedCopyAndEquals<BaseType, SetType<false>, SetType<false>, KeyType>(
-			setType + "<false> and " + setType + "<false>", initBase, chooseKey, getAllKeys,
-			createKey, deleteKey, clearAllKeys, equals);
+	describeSetTemplatedCopyAndEquals<BaseType, SetType, SetType, KeyType>(setType + " and " + setType,
+			initBase, chooseKey, getAllKeys, createKey, deleteKey, clearAllKeys, equals);
 
 	// FIXME is cleared() called before or after the changes?
 }

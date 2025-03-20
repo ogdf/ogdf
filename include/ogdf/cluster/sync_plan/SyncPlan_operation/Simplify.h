@@ -31,6 +31,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/cluster/sync_plan/SyncPlan.h>
@@ -41,11 +42,6 @@
 namespace ogdf::pc_tree {
 class NodePCRotation;
 } // namespace ogdf::pc_tree
-
-namespace ogdf {
-template<bool>
-class EdgeSet;
-} // namespace ogdf
 
 namespace ogdf::sync_plan {
 
@@ -102,7 +98,7 @@ int findCycles(Graph& G, node u, const std::function<adjEntry(adjEntry)>& mappin
  * @param dfs_stack continuation points for the dfs
  * @return an adjEntry of \p v reachable from \p dfs_stack.back() via previously unvisited edges
  */
-adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
+adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet& visited,
 		List<adjEntry>& dfs_stack);
 
 /**
@@ -114,8 +110,7 @@ adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
  * If you want to find a further alternative adjEntries that match this criterion, pop the last entry
  * off the stack and call continueNodeDFS (see also exhaustiveNodeDFS).
  */
-adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
-		List<adjEntry>& dfs_stack);
+adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet& visited, List<adjEntry>& dfs_stack);
 
 /**
  * Use a DFS to find all edges incident to \p v reachable from \p u_adj without crossing the node u and add them to \p out.
@@ -123,14 +118,14 @@ adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
  * and the edge incident to v found in the end) are added to the set \p visited.
  * Calls startNodeDFS once and then repeatedly calls continueNodeDFS until no new adjEntry is found.
  */
-int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited, List<adjEntry>& out);
+int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet& visited, List<adjEntry>& out);
 
 #ifdef OGDF_DEBUG
 
 /**
  * Check that the method exhaustiveNodeDFS would return the same adjEntries as contained in \p found.
  */
-bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, const EdgeSet<>& visited,
+bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, const EdgeSet& visited,
 		const List<adjEntry>& found);
 
 /**
@@ -142,7 +137,7 @@ void validatePartnerPCTree(const NodePCRotation* u_pc, const NodePCRotation* v_p
 /**
  * Check that /p bij_list contains all adjEntries of \p v which belong to a parallel bundle leading to \p u.
  */
-bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet<>& visited,
+bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet& visited,
 		SyncPlanComponents& components);
 
 #endif

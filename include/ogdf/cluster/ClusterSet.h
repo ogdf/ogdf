@@ -43,22 +43,17 @@ namespace ogdf {
  * A cluster set maintains a subset \a S of the clusters contained in an associated
  * clustered graph. This kind of cluster set provides efficient operations for testing
  * membership, insertion and deletion of elements, and clearing the set.
- *
- * @tparam SupportFastSizeQuery Whether this set supports querying its #size in
- * constant instead of linear time (in the size).
  */
-template<bool SupportFastSizeQuery = true>
-class ClusterSet : public RegisteredSet<ClusterGraph, SupportFastSizeQuery> {
-	using RS = RegisteredSet<ClusterGraph, SupportFastSizeQuery>;
-
+class OGDF_EXPORT ClusterSet : public RegisteredSet<ClusterGraph> {
 public:
-	OGDF_REGSET_CONSTR(ClusterSet, RS)
+	using RegisteredSet::RegisteredSet;
+	OGDF_DEFAULT_COPY(ClusterSet);
 
 	//! Returns a reference to the list of clusters contained in \a S.
 	/**
 	 * This list can be used for iterating over all clusters in \a S.
 	 */
-	const typename RS::list_type& clusters() const { return RS::elements(); }
+	const list_type& clusters() const { return elements(); }
 };
 
 }

@@ -219,7 +219,7 @@ private:
 	 * @param nsParent is the parent node split.
 	 * @param PG is the planarized expansion.
 	 */
-	void collectAnchorNodes(node v, NodeSet<>& nodes, const PlanRepExpansion::NodeSplit* nsParent,
+	void collectAnchorNodes(node v, NodeSet& nodes, const PlanRepExpansion::NodeSplit* nsParent,
 			const PlanRepExpansion& PG) const;
 
 	/**
@@ -229,7 +229,7 @@ private:
 	 * @param nodes ia assigned the set of anchor nodes.
 	 * @param PG is the planarized expansion.
 	 */
-	void anchorNodes(node vOrig, NodeSet<>& nodes, const PlanRepExpansion& PG) const;
+	void anchorNodes(node vOrig, NodeSet& nodes, const PlanRepExpansion& PG) const;
 
 	/**
 	 * \brief Finds the set of anchor nodes of \p src and \p tgt.
@@ -240,7 +240,7 @@ private:
 	 * @param targets ia assigned the set of anchor nodes of \p tgt's original node.
 	 * @param PG is the planarized expansion.
 	 */
-	void findSourcesAndTargets(node src, node tgt, NodeSet<>& sources, NodeSet<>& targets,
+	void findSourcesAndTargets(node src, node tgt, NodeSet& sources, NodeSet& targets,
 			const PlanRepExpansion& PG) const;
 
 	/**
@@ -249,7 +249,7 @@ private:
 	 * @param sources is a set of anchor nodes.
 	 * @param targets is a set of anchor nodes.
 	 */
-	node commonDummy(NodeSet<>& sources, NodeSet<>& targets);
+	node commonDummy(NodeSet& sources, NodeSet& targets);
 
 	//! Performs several consistency checks on the seach network.
 	bool checkDualGraph(PlanRepExpansion& PG, const CombinatorialEmbedding& E) const;
@@ -308,9 +308,9 @@ private:
 	node m_vT; //!< Represents the end node for the path search.
 	int m_maxCost; //!< The maximal cost of an edge in the search network + 1.
 
-	FaceSet<false>* m_delFaces;
-	FaceSet<false>* m_newFaces;
-	NodeSet<false>* m_mergedNodes;
+	FaceSet* m_delFaces;
+	FaceSet* m_newFaces;
+	NodeSet* m_mergedNodes;
 };
 
 }

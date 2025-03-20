@@ -96,8 +96,8 @@ protected:
 	EdgeArray<adjEntry> m_primalAdj; //!< Adjacency entry in primal graph corresponding to edge in dual.
 	FaceArray<node> m_nodeOf; //!< The node in dual corresponding to face in primal.
 
-	FaceSet<false>* m_delFaces;
-	FaceSet<false>* m_newFaces;
+	FaceSet* m_delFaces;
+	FaceSet* m_newFaces;
 
 	node m_vS; //!< The node in extended dual representing s.
 	node m_vT; //!< The node in extended dual representing t.

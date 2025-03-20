@@ -40,7 +40,9 @@ If the stored elements have a non-trivial move-constructor, it should be marked 
 Otherwise, all elements will be [copied when the array grows](https://stackoverflow.com/a/28627764).
 
 ## ClusterSetSimple and ClusterSetPure
-`ClusterSetSimple` was removed in favor of `ClusterArray<bool>` and `ClusterSetPure` in favor of `ClusterSet<false>` (which does not keep track of its size).
+`ClusterSetSimple` was removed in favor of `ClusterArray<bool>`.
+`ClusterSetPure` was removed in favor of `ClusterSet`, which does keep track of its size at a negligible overhead
+(these sets do not support merging by splicing as simple double-linked lists do anyways).
 
 ## Graph
 The move constructor and assignment operators of `Graph` are now deleted, which especially means that `NodeArray<Graph>`, `EdgeArray<Graph>`, `FaceArray<Graph>`, etc. is no longer possible.

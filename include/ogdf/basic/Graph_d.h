@@ -64,6 +64,7 @@ class OGDF_EXPORT EdgeElement; // IWYU pragma: keep
 class OGDF_EXPORT FaceElement; // IWYU pragma: keep
 class OGDF_EXPORT Graph; // IWYU pragma: keep
 class OGDF_EXPORT NodeElement; // IWYU pragma: keep
+class OGDF_EXPORT EdgeSet; // needed for Graph::insert
 
 //! The type of nodes.
 //! @ingroup graphs
@@ -750,9 +751,6 @@ OGDF_DECL_REG_ARRAY(EdgeArray)
 //! RegisteredArray for labeling the \ref adjEntry "adjEntries" in a Graph with an arbitrary \p Value.
 OGDF_DECL_REG_ARRAY(AdjEntryArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
-
-template<bool>
-class EdgeSet;
 
 //! Abstract Base class for graph observers.
 /**
@@ -1758,21 +1756,11 @@ public:
 	 * Inserts a copy of a given subgraph into this graph.
 	 *
 	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
-	 * together with an EdgeSet<true> used for filtering edges.
+	 * together with an EdgeSet used for filtering edges.
 	 */
 	template<OGDF_NODE_LIST NL>
-	std::pair<int, int> insert(const NL& nodeList, const EdgeSet<true>& edgeSet,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
-
-	/**
-	 * Inserts a copy of a given subgraph into this graph.
-	 *
-	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
-	 * together with an EdgeSet<false> used for filtering edges.
-	 */
-	template<OGDF_NODE_LIST NL>
-	std::pair<int, int> insert(const NL& nodeList, const EdgeSet<false>& edgeSet,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+	std::pair<int, int> insert(const NL& nodeList, const EdgeSet& edgeSet, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap);
 
 	/**
 	 * Inserts a copy of a given subgraph into this graph.

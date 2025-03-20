@@ -658,7 +658,7 @@ go_bandit([]() {
 				});
 
 				it("removes a path", [&]() {
-					FaceSet<false> newFaces(combEmb);
+					FaceSet newFaces(combEmb);
 					graphCopy->removeEdgePathEmbedded(combEmb, tw, newFaces);
 					AssertThat(graphCopy->chain(tw).size(), Equals(0));
 					edge newOldEdge = graphCopy->copy(tw);

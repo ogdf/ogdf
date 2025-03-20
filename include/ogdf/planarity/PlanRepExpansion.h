@@ -275,7 +275,7 @@ public:
 	 * \pre Not both \p eOrig and \p ns may be 0.
 	 */
 	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, nodeSplit ns,
-			FaceSet<false>& newFaces, NodeSet<false>& mergedNodes, node& oldSrc, node& oldTgt);
+			FaceSet& newFaces, NodeSet& mergedNodes, node& oldSrc, node& oldTgt);
 
 	/**
 	 * \brief Removes the insertion path of \p eOrig or \p ns.

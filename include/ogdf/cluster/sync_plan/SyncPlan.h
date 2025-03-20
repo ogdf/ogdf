@@ -220,7 +220,7 @@ private:
 	Graph::HiddenEdgeSet deletedEdges;
 #ifdef OGDF_DEBUG
 	//! Set of all node objects deleted during the reduction. Will remain as isolated nodes within \p G.
-	NodeSet<> deletedNodes;
+	NodeSet deletedNodes;
 #endif
 	//! If non-null, will be updated with debugging information from applied operations.
 	GraphAttributes* GA;

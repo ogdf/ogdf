@@ -385,7 +385,7 @@ bool Triconnectivity::checkComp() const {
 		}
 	}
 
-	NodeSet<> S(*m_pG);
+	NodeSet S(*m_pG);
 	NodeArray<node> map(*m_pG);
 
 	for (int i = 0; i < m_numComp; i++) {
