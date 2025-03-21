@@ -73,7 +73,7 @@ inline int calculateTableSize(int actualCount) {
 
 //! Abstract Base class for registry observers.
 template<typename Registry>
-class OGDF_EXPORT RegisteredObserver : public Observer<Registry, RegisteredObserver<Registry>> {
+class RegisteredObserver : public Observer<Registry, RegisteredObserver<Registry>> {
 	using Obs = Observer<Registry, RegisteredObserver<Registry>>;
 
 public:

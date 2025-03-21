@@ -66,7 +66,7 @@ class GraphAttributes;
  * \pre Requires CGAL! See README.md in this folder.
  */
 template<typename FT>
-class OGDF_EXPORT CrossingMinimalPosition : public VertexPositionModule {
+class CrossingMinimalPosition : public VertexPositionModule {
 public: // ~Initialize vertex position module
 	CrossingMinimalPosition() { }
 
