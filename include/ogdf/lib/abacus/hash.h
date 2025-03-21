@@ -31,6 +31,7 @@
 
 #include <ogdf/lib/abacus/abacusroot.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class AbacusGlobal;
@@ -338,3 +339,4 @@ public:
 }
 
 #include <ogdf/lib/abacus/hash.inc>
+#pragma GCC visibility pop

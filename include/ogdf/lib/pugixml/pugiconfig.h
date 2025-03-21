@@ -15,6 +15,8 @@
 
 #include <ogdf/basic/internal/config.h>
 
+#define PUGIXML_API OGDF_EXPORT
+
 // Uncomment this to enable wchar_t mode
 // #define PUGIXML_WCHAR_MODE
 

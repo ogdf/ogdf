@@ -26,6 +26,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 // Some sorting algorithms for vec's
 
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -95,3 +96,4 @@ template <class T> void sort(vec<T>& v) {
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop
