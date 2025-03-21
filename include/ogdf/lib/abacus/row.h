@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/sparvec.h>
 #include <ogdf/lib/abacus/csense.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -182,3 +183,4 @@ protected:
 
 
 }
+#pragma GCC visibility pop

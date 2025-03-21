@@ -35,6 +35,7 @@
 #include <ogdf/lib/abacus/vartype.h>
 #include <ogdf/lib/abacus/constraint.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -277,3 +278,4 @@ inline bool Variable::valid(const Sub *sub) const
 
 
 }
+#pragma GCC visibility pop

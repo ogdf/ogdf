@@ -37,6 +37,7 @@
 
 #include <ogdf/basic/comparer.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -212,3 +213,4 @@ void CutBuffer<BaseType, CoType>::extract(
 }
 
 }
+#pragma GCC visibility pop

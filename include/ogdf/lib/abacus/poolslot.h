@@ -34,6 +34,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/lib/abacus/variable.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class Sub;
@@ -179,3 +180,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/poolslot.inc>
+#pragma GCC visibility pop

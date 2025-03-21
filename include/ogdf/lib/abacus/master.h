@@ -38,6 +38,7 @@
 
 class OsiSolverInterface;
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -1534,3 +1535,4 @@ inline double Master::upperBound() const
 }
 
 }
+#pragma GCC visibility pop

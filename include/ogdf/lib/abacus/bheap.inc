@@ -28,6 +28,7 @@
 
 #pragma once
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -246,3 +247,4 @@ void AbaBHeap<Type, Key>::heapify(int i)
 }
 
 }
+#pragma GCC visibility pop

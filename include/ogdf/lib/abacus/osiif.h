@@ -39,6 +39,7 @@
 #include <coin/CoinWarmStartBasis.hpp>
 #include <coin/CoinBuild.hpp>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class LpMasterOsi;
@@ -550,3 +551,4 @@ private:
 };
 
 }
+#pragma GCC visibility pop

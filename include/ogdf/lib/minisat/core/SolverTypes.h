@@ -28,6 +28,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <ogdf/lib/minisat/mtl/Map.h>
 #include <ogdf/lib/minisat/mtl/Alloc.h>
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -425,3 +426,4 @@ inline void Clause::strengthen(Lit p)
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

@@ -27,6 +27,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <ogdf/lib/minisat/core/SolverTypes.h>
 
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -412,3 +413,4 @@ inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r){ ve
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

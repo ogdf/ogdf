@@ -34,6 +34,7 @@
 #include <ogdf/lib/abacus/lpsolution.h>
 #include <ogdf/lib/abacus/nonduplpool.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -200,3 +201,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/separator.inc>
+#pragma GCC visibility pop

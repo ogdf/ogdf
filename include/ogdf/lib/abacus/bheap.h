@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/abacusroot.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template<class Type, class Key>
@@ -194,3 +195,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/bheap.inc>
+#pragma GCC visibility pop
