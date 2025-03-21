@@ -94,11 +94,36 @@ using std::to_string;
 //! @{
 
 /**
- * Specifies that a function or class is exported by the OGDF DLL.
- * It is set according to the definition of OGDF_INSTALL (OGDF is build as DLL) and OGDF_DLL (OGDF is used as DLL).
- * If none of these are defined (OGDF is build or used as static library), the define expands to nothing.
+ * Specifies that a function or class is exported by the OGDF dynamic library (shared object / DLL),
+ * and can thus be used by other code that links against the OGDF.
+ * See the [gcc guide on visibility](https://gcc.gnu.org/wiki/Visibility) for more details.
+ * Rough guidelines for usage within the OGDF:
+ * - use it for all non-template classes defined in a header
+ * - don't use it for any class members (especially member functions)
+ * - don't use it for class pre-declarations (used instead of imports or needed for "cyclic" definitions)
+ * - use it for all non-template functions (not members, i.e. outside of classes) defined in a header
+ * - don't use it for template classes or template functions, except for those that you explicitly instantiate
+ *   (see CrossingMinimalPosition<CGAL::Gmpq> in the corresponding cpp file for a somewhat contrived corner-case)
+ * - use it for non-member functions declared as friend if you don't declare them somewhere else, e.g.
+ *   `class OGDF_EXPORT MyClass { [...] friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const MyClass& H); }`
+ *
+ * For Windows DLL builds, this expands to \c dllexport during library build, and to \c dllimport when
+ * a header is used by another library.
+ * For shared object builds, this expands to \c __attribute__((visibility("default"))).
+ * For static builds, this expands to nothing.
+ *
+ * @sa OGDF_LOCAL
  */
 #define OGDF_EXPORT
+
+/**
+ * Specifies that a function or class is not exported by the OGDF dynamic library (shared object / DLL).
+ * Note that this means it *cannot* be used by code that dynamically links against the OGDF, which is
+ * the *default* configuration.
+ *
+ * @sa OGDF_EXPORT
+ */
+#define OGDF_LOCAL
 
 #ifdef OGDF_SYSTEM_WINDOWS
 #	ifdef OGDF_DLL
@@ -109,6 +134,11 @@ using std::to_string;
 #			define OGDF_EXPORT __declspec(dllimport)
 #		endif
 #	endif
+#else
+#	undef OGDF_EXPORT
+#	undef OGDF_LOCAL
+#	define OGDF_EXPORT __attribute__((visibility("default")))
+#	define OGDF_LOCAL __attribute__((visibility("hidden")))
 #endif
 
 //! @}
