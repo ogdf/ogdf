@@ -94,11 +94,29 @@ using std::to_string;
 //! @{
 
 /**
- * Specifies that a function or class is exported by the OGDF DLL.
- * It is set according to the definition of OGDF_INSTALL (OGDF is build as DLL) and OGDF_DLL (OGDF is used as DLL).
- * If none of these are defined (OGDF is build or used as static library), the define expands to nothing.
+ * Specifies that a function or class is exported by the OGDF dynamic library (shared object / DLL).
+ * This needs to be set on all non-templated classes or functions that shall be externally visible.
+ * It should not be set on static or templated classes or functions.
+ * It is also not needed for member functions if their containing class is already OGDF_EXPORT
+ * (individual members of an exported class can be hidden with OGDF_LOCAL).
+ *
+ * See here for more details on its implementation: https://gcc.gnu.org/wiki/Visibility
+ * For Windows DLL builds, this expands to dllexport during library build, and to dllimport when
+ * a header is used by another library.
+ * For shared object builds, this expands to \c __attribute__((visibility("default"))).
+ * For static builds, this expands to nothing.
+ *
+ * @sa OGDF_LOCAL
  */
 #define OGDF_EXPORT
+
+/**
+ * Specifies that a function or class is not exported by the OGDF dynamic library (shared object / DLL).
+ * Note that this is the default configuration.
+ *
+ * @sa OGDF_EXPORT
+ */
+#define OGDF_LOCAL
 
 #ifdef OGDF_SYSTEM_WINDOWS
 #	ifdef OGDF_DLL
@@ -109,6 +127,11 @@ using std::to_string;
 #			define OGDF_EXPORT __declspec(dllimport)
 #		endif
 #	endif
+#else
+#	undef OGDF_EXPORT
+#	undef OGDF_LOCAL
+#	define OGDF_EXPORT __attribute__((visibility("default")))
+#	define OGDF_LOCAL __attribute__((visibility("hidden")))
 #endif
 
 //! @}
