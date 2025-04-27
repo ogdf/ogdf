@@ -59,7 +59,8 @@ public:
 	 */
 	Observer() = default;
 
-	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes")
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
 
 	explicit Observer(const TObserved* R) { reregister(R); }
 

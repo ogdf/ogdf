@@ -219,7 +219,7 @@ public:
 		return e->index() == m_index && e->hypergraph() == m_hypergraph;
 	}
 
-	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::hyperedge v);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::hyperedge e);
 
 	OGDF_NEW_DELETE;
 };

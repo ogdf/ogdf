@@ -777,10 +777,9 @@ public:
 	//! Constructs instance of GraphObserver class
 	GraphObserver() = default;
 
-	/**
-	 *\brief Constructs instance of GraphObserver class
-	 * \param G is the graph to be watched
-	 */
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
+
 	explicit GraphObserver(const Graph* G) { reregister(G); }
 
 	//! Called by watched graph just before a node is deleted.

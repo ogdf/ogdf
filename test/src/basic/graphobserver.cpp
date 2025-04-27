@@ -54,7 +54,9 @@ public:
 	int m_reregistered = 0;
 	const Graph* m_graph;
 
-	explicit CountingGraphObserver(const Graph* G) : GraphObserver(G), m_graph(G) { }
+	explicit CountingGraphObserver(const Graph* G) : GraphObserver(), m_graph(nullptr) {
+		reregister(G);
+	}
 
 	void nodeDeleted(node v) override {
 		consistencyCheck();
@@ -288,13 +290,14 @@ go_bandit([]() {
 			std::unique_ptr<Graph> G1 {new Graph()};
 			LoggingGraphObserver GO(G1.get());
 			AssertThat(GO.getGraph(), Equals(G1.get()));
+			AssertThat(GO.m_reregistered, Equals(1));
 			AssertThat(GO.m_graph, Equals(G1.get()));
 			G1->newNode();
 			AssertThat(GO.m_nodesAdded, Equals(1));
 			G1.reset();
 			AssertThat(GO.getGraph(), Equals(nullptr));
 			AssertThat(GO.m_graph, Equals(nullptr));
-			AssertThat(GO.m_reregistered, Equals(1));
+			AssertThat(GO.m_reregistered, Equals(2));
 			AssertThat(GO.m_cleared, Equals(0));
 			AssertThat(GO.m_nodesAdded, Equals(1));
 			AssertThat(GO.m_edgesAdded, Equals(0));
@@ -306,13 +309,13 @@ go_bandit([]() {
 				GO.reregister(&G2);
 				AssertThat(GO.getGraph(), Equals(&G2));
 				AssertThat(GO.m_graph, Equals(&G2));
-				AssertThat(GO.m_reregistered, Equals(2));
+				AssertThat(GO.m_reregistered, Equals(3));
 				G2.newNode();
 				AssertThat(GO.m_nodesAdded, Equals(2));
 			}
 			AssertThat(GO.getGraph(), Equals(nullptr));
 			AssertThat(GO.m_graph, Equals(nullptr));
-			AssertThat(GO.m_reregistered, Equals(3));
+			AssertThat(GO.m_reregistered, Equals(4));
 			AssertThat(GO.m_cleared, Equals(0));
 			AssertThat(GO.m_nodesAdded, Equals(2));
 			AssertThat(GO.m_edgesAdded, Equals(0));

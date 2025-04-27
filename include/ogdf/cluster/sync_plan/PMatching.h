@@ -93,7 +93,7 @@ private:
 	std::unique_ptr<PipeQueue> queue;
 
 public:
-	explicit PMatching(const Graph* G) : GraphObserver(G), nodes(*G, nullptr) { }
+	explicit PMatching(const Graph* G) : GraphObserver(), nodes(*G, nullptr) { reregister(G); }
 
 	bool isMatchedPVertex(node n) const;
 

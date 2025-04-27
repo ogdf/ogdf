@@ -768,23 +768,13 @@ void describeSet(const std::string& setType, std::function<void(BaseType&)> init
 			AssertThat(S.size(), Equals(0));
 			AssertThat(S.registeredAt(), IsNull());
 		});
-	});
-}
 
-template<class BaseType, typename SetTypeA, typename SetTypeB, typename KeyType>
-void describeSetTemplatedCopyAndEquals(const std::string& description,
-		std::function<void(BaseType&)> initBase, std::function<KeyType(const BaseType&)> chooseKey,
-		std::function<void(const BaseType&, List<KeyType>&)> getAllKeys,
-		std::function<KeyType(BaseType&)> createKey,
-		std::function<void(BaseType&, KeyType)> deleteKey,
-		std::function<void(BaseType&)> clearAllKeys, std::function<bool(KeyType, KeyType)> equals) {
-	describe(description, [&]() {
 		it("allows equality comparisons", [&]() {
 			std::unique_ptr<BaseType> G = std::make_unique<BaseType>();
 			initBase(*G);
 
-			SetTypeA SA(*G);
-			SetTypeB SB;
+			SetType SA(*G);
+			SetType SB;
 			AssertThat(SA, !Equals(SB));
 			SB.init(*G);
 			AssertThat(SA, Equals(SB));
@@ -833,10 +823,10 @@ void describeSetTemplatedCopyAndEquals(const std::string& description,
 				b = chooseKey(*G);
 			}
 
-			SetTypeA SA(*G);
+			SetType SA(*G);
 			SA.insert(a);
 			SA.insert(b);
-			SetTypeB SB(SA);
+			SetType SB(SA);
 			AssertThat(SB.isMember(a), IsTrue());
 			AssertThat(SB.isMember(b), IsTrue());
 			AssertThat(SB.size(), Equals(2));
@@ -863,7 +853,7 @@ void describeSetTemplatedCopyAndEquals(const std::string& description,
 			AssertThat(SA, Equals(SB));
 			AssertThat(SB, Equals(SA));
 
-			SB = SetTypeB(*G);
+			SB = SetType(*G);
 			AssertThat(SA.isMember(a), IsTrue());
 			AssertThat(SA.isMember(b), IsTrue());
 			AssertThat(SA.size(), Equals(2));
@@ -903,9 +893,5 @@ void runBasicSetTests(
 		std::function<bool(KeyType, KeyType)> equals = [](KeyType a, KeyType b) { return a == b; }) {
 	describeSet<BaseType, SetType, KeyType>(setType, initBase, chooseKey, getAllKeys, createKey,
 			deleteKey, clearAllKeys, equals);
-
-	describeSetTemplatedCopyAndEquals<BaseType, SetType, SetType, KeyType>(setType + " and " + setType,
-			initBase, chooseKey, getAllKeys, createKey, deleteKey, clearAllKeys, equals);
-
 	// FIXME is cleared() called before or after the changes?
 }

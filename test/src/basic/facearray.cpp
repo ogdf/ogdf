@@ -40,7 +40,6 @@
 #include <functional>
 #include <list>
 #include <string>
-#include <vector>
 
 #include "array_helper.h"
 #include <testing.h>

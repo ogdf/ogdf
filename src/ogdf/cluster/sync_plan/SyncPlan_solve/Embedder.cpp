@@ -52,7 +52,8 @@ class UpdateGraphReg : public GraphObserver {
 
 public:
 	UpdateGraphReg(const Graph* g, NodeArray<node>* nodeReg, EdgeArray<edge>* edgeReg)
-		: GraphObserver(g), node_reg(nodeReg), edge_reg(edgeReg) {
+		: GraphObserver(), node_reg(nodeReg), edge_reg(edgeReg) {
+		reregister(g);
 		nodeReg->init(*g, nullptr);
 		edgeReg->init(*g, nullptr);
 		for (node n : g->nodes) {

@@ -327,6 +327,9 @@ class OGDF_EXPORT ClusterGraphObserver : public Observer<ClusterGraph, ClusterGr
 public:
 	ClusterGraphObserver() = default;
 
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
+
 	explicit ClusterGraphObserver(const ClusterGraph* CG) { reregister(CG); }
 
 	virtual void clusterDeleted(cluster v) = 0;

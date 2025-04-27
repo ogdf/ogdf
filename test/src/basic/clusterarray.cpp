@@ -36,13 +36,11 @@
 #include <ogdf/basic/graph_generators/clustering.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterSet.h>
 
 #include <functional>
 #include <list>
 #include <string>
-#include <vector>
-
-#include "ogdf/cluster/ClusterSet.h"
 
 #include "array_helper.h"
 #include <testing.h>
