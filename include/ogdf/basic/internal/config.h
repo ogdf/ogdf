@@ -102,19 +102,71 @@ using std::to_string;
  * - don't use it for any class members (especially member functions)
  * - don't use it for class pre-declarations (used instead of imports or needed for "cyclic" definitions)
  * - use it for all non-template functions (not members, i.e. outside of classes) defined in a header
- * - don't use it for template classes or template functions, except for those that you explicitly instantiate
- *   (see CrossingMinimalPosition<CGAL::Gmpq> in the corresponding cpp file for a somewhat contrived corner-case)
+ * - don't use it for template classes or template functions, except when you explicitly instantiate them
+ *   (see OGDF_EXPORT_TEMPL_INST and OGDF_EXPORT_TEMPL_DECL for explicit template instantiations)
  * - use it for non-member functions declared as friend if you don't declare them somewhere else, e.g.
  *   `class OGDF_EXPORT MyClass { [...] friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, const MyClass& H); }`
  *
  * For Windows DLL builds, this expands to \c dllexport during library build, and to \c dllimport when
  * a header is used by another library.
- * For shared object builds, this expands to \c __attribute__((visibility("default"))).
+ * For shared object builds, this expands to `__attribute__((visibility("default")))`.
  * For static builds, this expands to nothing.
  *
  * @sa OGDF_LOCAL
  */
 #define OGDF_EXPORT
+
+/**
+ * If you declare a template in a header file, but only provide a definition for its implementation
+ * in a cpp file, you need to also explicitly instantiate this template in the cpp file for all
+ * its anticipated uses. Templates generally do not need to be marked OGDF_EXPORT to be visible
+ * to users of the OGDF, but their explicit instantiations need to be marked such.
+ * As this works slightly different on Windows and UNIX, this macro replaces OGDF_EXPORT (only) for
+ * template instantiations.
+ *
+ * In the header file (usually where you declare the template), you will also need to declare its
+ * explicit instantiations, but also mark them `extern` to not cause their direct instantiation.
+ * For these declarations, use OGDF_EXPORT_TEMPL_DECL.
+ * In the cpp file where you actually instantiate the template, use OGDF_EXPORT_TEMPL_INST.
+ * See `CrossingMinimalPosition<CGAL::Gmpq>` in the corresponding header and cpp file or the code
+ * below for an example.
+ *
+ * Example header file:
+ * ```c++
+ * template<typename T>
+ * class MyTemplate {
+ *     void call(T data);
+ * };
+ *
+ * extern template class OGDF_EXPORT_TEMPL_DECL MyTemplate<double>;
+ * ```
+ * Example cpp implementation file:
+ * ```c++
+ * template<typename T>
+ * void MyTemplate<T>::call(T data) {
+ *     // complicated implementation
+ * }
+ *
+ * template class OGDF_EXPORT_TEMPL_INST MyTemplate<double>;
+ * ```
+ *
+ * On most systems, OGDF_EXPORT_TEMPL_DECL expands to OGDF_EXPORT and OGDF_EXPORT_TEMPL_INST expands
+ * to nothing, as e.g. for gcc the *first* declaration needs to have the export attribute.
+ * Only when building a DLL on Windows, the two definitions are switched as MSVC needs to have the
+ * export attribute on the actual instantiation.
+ *
+ * @sa OGDF_EXPORT
+ * @sa OGDF_EXPORT_TEMPL_INST
+ */
+#define OGDF_EXPORT_TEMPL_DECL OGDF_EXPORT
+
+/**
+ * See OGDF_EXPORT_TEMPL_DECL for documentation.
+ *
+ * @sa OGDF_EXPORT
+ * @sa OGDF_EXPORT_TEMPL_DECL
+ */
+#define OGDF_EXPORT_TEMPL_INST
 
 /**
  * Specifies that a function or class is not exported by the OGDF dynamic library (shared object / DLL).
@@ -130,6 +182,10 @@ using std::to_string;
 #		undef OGDF_EXPORT
 #		ifdef OGDF_INSTALL
 #			define OGDF_EXPORT __declspec(dllexport)
+#			undef OGDF_EXPORT_TEMPL_DECL
+#			undef OGDF_EXPORT_TEMPL_INST
+#			define OGDF_EXPORT_TEMPL_DECL
+#			define OGDF_EXPORT_TEMPL_INST OGDF_EXPORT
 #		else
 #			define OGDF_EXPORT __declspec(dllimport)
 #		endif
