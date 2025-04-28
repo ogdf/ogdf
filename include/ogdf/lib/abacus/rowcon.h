@@ -33,6 +33,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/lib/abacus/numvar.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -160,3 +161,4 @@ protected:
 };
 
 }
+#pragma GCC visibility pop

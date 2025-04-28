@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/pool.h>
 #include <ogdf/lib/abacus/convar.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template<class BaseType, class CoType>
@@ -79,3 +80,4 @@ void PoolSlot<BaseType, CoType>::insert(BaseType *convar)
 }
 
 }
+#pragma GCC visibility pop

@@ -28,6 +28,7 @@
 
 #pragma once
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -413,3 +414,4 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 }
 
 }
+#pragma GCC visibility pop

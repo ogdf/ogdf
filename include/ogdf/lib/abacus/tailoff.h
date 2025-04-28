@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/ring.h>
 #include <ogdf/lib/abacus/master.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -162,3 +163,4 @@ protected:
 };
 
 }
+#pragma GCC visibility pop

@@ -104,8 +104,11 @@ DPoint CrossingMinimalPosition<FT>::call(GraphAttributes& GA, node v) {
 	return p;
 }
 
+// the double version is already instantiated and exported through its child classes in the header
+// so we can't (and fortunately don't need to) apply OGDF_EXPORT here
 template class CrossingMinimalPosition<double>;
-template class CrossingMinimalPosition<CGAL::Gmpq>;
+// this class this needs to be (and can get) OGDF_EXPORT'ed
+template class OGDF_EXPORT CrossingMinimalPosition<CGAL::Gmpq>;
 
 }
 #else

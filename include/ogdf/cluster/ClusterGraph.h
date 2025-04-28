@@ -49,9 +49,9 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
-class OGDF_EXPORT ClusterGraph; // IWYU pragma: keep
-class OGDF_EXPORT ClusterGraphObserver; // IWYU pragma: keep
+class ClusterElement; // IWYU pragma: keep
+class ClusterGraph; // IWYU pragma: keep
+class ClusterGraphObserver; // IWYU pragma: keep
 
 using cluster = ClusterElement*; //!< The type of clusters.
 

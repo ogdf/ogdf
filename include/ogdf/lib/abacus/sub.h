@@ -36,6 +36,7 @@
 #include <ogdf/basic/Stopwatch.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class LpSub;
@@ -1809,6 +1810,7 @@ private:
 };
 
 }
+#pragma GCC visibility pop
 
 // NOW declaration of sub is complete. its definitions below need full declarations of the below types...
 
@@ -1818,6 +1820,7 @@ private:
 #include <ogdf/lib/abacus/cutbuffer.h>
 #include <ogdf/lib/abacus/lpsub.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 inline int Sub::addBranchingConstraint(PoolSlot<Constraint, Variable> *slot)
@@ -1919,3 +1922,4 @@ inline void Sub::uBound(int i, double u)
 }
 
 }
+#pragma GCC visibility pop

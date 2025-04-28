@@ -36,6 +36,7 @@
 #include <ogdf/lib/abacus/lpsub.h>
 #include <ogdf/lib/abacus/osiif.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -71,3 +72,4 @@ private:
 };
 
 }
+#pragma GCC visibility pop

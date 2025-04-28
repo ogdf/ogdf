@@ -38,6 +38,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/lib/abacus/variable.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 //! Implements the branching by adding a constraint to the set of active constraints.
@@ -116,3 +117,4 @@ private:
 };
 
 }
+#pragma GCC visibility pop

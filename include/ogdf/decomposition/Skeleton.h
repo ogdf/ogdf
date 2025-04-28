@@ -37,7 +37,7 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT SPQRTree;
+class SPQRTree;
 
 //! %Skeleton graphs of nodes in an SPQR-tree.
 /**

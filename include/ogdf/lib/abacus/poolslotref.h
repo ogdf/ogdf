@@ -34,6 +34,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/lib/abacus/variable.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template<class BaseType, class CoType>
@@ -171,3 +172,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/poolslotref.inc>
+#pragma GCC visibility pop

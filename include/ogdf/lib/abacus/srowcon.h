@@ -31,6 +31,7 @@
 
 #include <ogdf/lib/abacus/rowcon.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 //! Constraints using row with static variable set.
@@ -144,3 +145,4 @@ public:
 };
 
 }
+#pragma GCC visibility pop

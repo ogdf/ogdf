@@ -34,6 +34,7 @@
 #include <ogdf/lib/abacus/branchrule.h>
 #include <ogdf/lib/abacus/sub.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 //! Implements a branching rule for modifying the lower and the upper bound of a variable.
@@ -136,3 +137,4 @@ inline std::ostream &operator<<(std::ostream &out, const BoundBranchRule &rhs)
 }
 
 }
+#pragma GCC visibility pop

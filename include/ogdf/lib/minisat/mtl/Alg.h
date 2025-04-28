@@ -22,6 +22,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include <ogdf/lib/minisat/mtl/Vec.h>
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -81,3 +82,4 @@ static inline void append(const vec<T>& from, vec<T>& to){ copy(from, to, true);
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

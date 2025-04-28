@@ -35,6 +35,7 @@
 #include <ogdf/lib/abacus/branchrule.h>
 #include <ogdf/lib/abacus/fsvarstat.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -124,3 +125,4 @@ private:
 };
 
 }
+#pragma GCC visibility pop

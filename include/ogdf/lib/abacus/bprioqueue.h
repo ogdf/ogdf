@@ -32,6 +32,7 @@
 
 #include <ogdf/lib/abacus/bheap.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 //! Bounded priority queues.
@@ -125,3 +126,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/bprioqueue.inc>
+#pragma GCC visibility pop

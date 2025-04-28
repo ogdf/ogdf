@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/abacusroot.h>
 #include <ogdf/lib/abacus/hash.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -423,3 +424,4 @@ private:
 };
 
 }
+#pragma GCC visibility pop

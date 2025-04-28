@@ -28,6 +28,7 @@
 
 #pragma once
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -219,3 +220,4 @@ void AbaRing<Type>::realloc(int newSize)
 }
 
 }
+#pragma GCC visibility pop
