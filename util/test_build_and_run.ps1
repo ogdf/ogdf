@@ -43,7 +43,7 @@ Get-ChildItem "test\bin\$dir" -Filter *.exe | Foreach-Object {
 	Start-Job -Name "$id $name" -Init ([ScriptBlock]::Create("Set-Location $pwd")) -Scrip $ScriptBlock -ArgumentList $_ | select State, Name
 }
 
-Get-ChildItem "doc\examples" -Recurse -Filter ex-*.exe -Exclude ex-multilevelmixer.exe | Foreach-Object {
+Get-ChildItem "doc\examples" -Recurse -Filter ex-*.exe -Exclude ex-multilevelmixer*.exe | Foreach-Object {
 	$ScriptBlock = {
 		param($filename)
 		& "$filename"

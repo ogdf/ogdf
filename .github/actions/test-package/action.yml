@@ -49,13 +49,19 @@ runs:
         mkdir -p /usr/local
         ./packages/OGDF-*-Linux.sh --skip-license --prefix=/usr/local
       if: ${{ inputs.distro == 'archlinux' }}
-    - name: Install NSIS (Windows)
+    - name: Install ZIP (Windows)
       shell: bash
       run: |
         unzip ./packages/OGDF-*-win64.zip -d ./packages/unzip
         mv ./packages/unzip/OGDF-PROJECT-*-win64 ./OGDF-ROOT
         ls *
       if: ${{ inputs.distro == 'windows' }}
+#    - name: Install NSIS (Windows)
+#      shell: bash
+#      run: |
+#        ./packages/OGDF-*-win64.exe /S /D=$(realpath ./OGDF-ROOT)
+#        ls *
+#      if: ${{ inputs.distro == 'windows' }}
     - name: Install PKG (MacOS)
       shell: bash
       run: |
@@ -68,7 +74,8 @@ runs:
         set -x
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
-        export PATH="$(realpath ../OGDF-ROOT):$PATH" #windows
+        export PATH="$(realpath ../OGDF-ROOT/bin):$PATH" #windows
+        echo "$PATH"
         cmake .. --debug-find ${{ inputs.cmake_test_args }}
 
         cmake --build . --config Debug
@@ -80,10 +87,13 @@ runs:
     - name: Try running directly on windows
       shell: pwsh
       run: |
-        $env:PATH += ";C:\Program Files (x86)\OGDF-PROJECT\bin"
+        $env:PATH += ";${{ github.workspace }}\OGDF-ROOT\bin"
+        echo $env:PATH
         try {
             Release/check-build-mode.exe
+            echo "Release returned $LastExitCode"
             Debug/check-build-mode.exe
+            echo "Debug returned $LastExitCode"
         } catch {
             Write-Host "Error occurred while running test: $_"
         }
