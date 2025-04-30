@@ -74,6 +74,7 @@ runs:
         cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
         cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
         cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows
 
     - name: Test installed build results
       shell: bash
@@ -81,7 +82,8 @@ runs:
         set -x
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
-        export PATH="$(realpath ../OGDF-ROOT):$PATH" #windows
+        export PATH="C:/Program Files (x86)/OGDF-PROJECT/bin:$PATH" #windows
+        echo "$PATH"
         cmake ../doc/examples/special --debug-find ${{ inputs.cmake_test_args }}
 
         cmake --build . --config Debug
@@ -94,9 +96,12 @@ runs:
       shell: pwsh
       run: |
         $env:PATH += ";C:\Program Files (x86)\OGDF-PROJECT\bin"
+        echo $env:PATH
         try {
             Release/check-build-mode.exe
+            echo "Release returned $LastExitCode"
             Debug/check-build-mode.exe
+            echo "Debug returned $LastExitCode"
         } catch {
             Write-Host "Error occurred while running test: $_"
         }
