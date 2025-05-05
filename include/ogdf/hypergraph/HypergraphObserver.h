@@ -52,6 +52,9 @@ public:
 	HypergraphObserver() = default;
 
 	//! Constructor assigning \p pH hypergraph to the observer.
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
+
 	explicit HypergraphObserver(const Hypergraph* pH) { reregister(pH); }
 
 	//! Associates an observer instance with hypergraph \p pH

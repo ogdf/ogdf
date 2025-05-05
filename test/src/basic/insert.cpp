@@ -404,15 +404,13 @@ go_bandit([]() {
 
 	describe("inserting some nodes and some edges (triangulation)", [&]() {
 		GraphCopySimple origCon(orig);
-		NodeSet<true> origN(origCon);
-		EdgeSet<true> origE(origCon);
-		EdgeSet<false> origEnS(origCon);
+		NodeSet origN(origCon);
+		EdgeSet origE(origCon);
 		for (node n : origCon.nodes) {
 			origN.insert(n);
 		}
 		for (edge e : origCon.edges) {
 			origE.insert(e);
-			origEnS.insert(e);
 		}
 		{
 			Graph H;
@@ -440,8 +438,7 @@ go_bandit([]() {
 					testFiltered<false, false, false>(origCon, origN, origE));
 		});
 
-		describe("with an EdgeSet<true> as filter", testFiltered(origCon, origN, origE));
-		describe("with an EdgeSet<false> as filter", testFiltered(origCon, origN, origEnS));
+		describe("with an EdgeSet as filter", testFiltered(origCon, origN, origE));
 
 		describe("with other insert variants", [&]() {
 			before_each(reset(origCon));
@@ -451,30 +448,17 @@ go_bandit([]() {
 				checkSameGraph(origN, origE, origN, origE);
 			});
 
-			it("works via insert(nodeList, EdgeSet<true>)", [&] {
+			it("works via insert(nodeList, EdgeSet)", [&] {
 				res = ILG->insert(origN.elements(), origE, nodeMap, edgeMap);
 				AssertThat(ILG->m_edgeFilter, IsTrue());
 			});
-			it("works via insert(nodeList, EdgeSet<false>)", [&] {
-				res = ILG->insert(origN.elements(), origEnS, nodeMap, edgeMap);
-				AssertThat(ILG->m_edgeFilter, IsTrue());
-			});
-			it("works via insert(nodeList, EdgeSet<true>.elements List)", [&] {
+			it("works via insert(nodeList, EdgeSet.elements List)", [&] {
 				res = ILG->insert(origN.elements(), origE.elements(), nodeMap, edgeMap);
 				AssertThat(ILG->m_edgeFilter, IsFalse());
 			});
-			it("works via insert(nodeList, EdgeSet<false>.elements List)", [&] {
-				res = ILG->insert(origN.elements(), origEnS.elements(), nodeMap, edgeMap);
-				AssertThat(ILG->m_edgeFilter, IsFalse());
-			});
-			it("works via insert(nodeBegin, nodesEnd, EdgeSet<true>.begin + end)", [&] {
+			it("works via insert(nodeBegin, nodesEnd, EdgeSet.begin + end)", [&] {
 				res = ILG->insert(origN.begin(), origN.end(), origE.begin(), origE.end(), nodeMap,
 						edgeMap);
-				AssertThat(ILG->m_edgeFilter, IsFalse());
-			});
-			it("works via insert(nodeBegin, nodesEnd, EdgeSet<false>.begin + end)", [&] {
-				res = ILG->insert(origN.begin(), origN.end(), origEnS.begin(), origEnS.end(),
-						nodeMap, edgeMap);
 				AssertThat(ILG->m_edgeFilter, IsFalse());
 			});
 		});

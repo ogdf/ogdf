@@ -33,9 +33,7 @@
 #pragma once
 
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/basic.h>
@@ -44,6 +42,8 @@
 
 namespace ogdf {
 class CombinatorialEmbedding;
+class FaceSet;
+class NodeSet;
 template<class E1, class E2>
 class Tuple2;
 
@@ -275,7 +275,7 @@ public:
 	 * \pre Not both \p eOrig and \p ns may be 0.
 	 */
 	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, nodeSplit ns,
-			FaceSet<false>& newFaces, NodeSet<false>& mergedNodes, node& oldSrc, node& oldTgt);
+			FaceSet& newFaces, NodeSet& mergedNodes, node& oldSrc, node& oldTgt);
 
 	/**
 	 * \brief Removes the insertion path of \p eOrig or \p ns.

@@ -32,11 +32,14 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/graph_generators/clustering.h>
 #include <ogdf/basic/graph_generators/randomized.h>
 #include <ogdf/cluster/ClusterGraph.h>
+#include <ogdf/cluster/ClusterSet.h>
 
 #include <functional>
+#include <list>
 #include <string>
 
 #include "array_helper.h"
@@ -46,20 +49,30 @@ go_bandit([]() {
 	auto allClusters = [](const ClusterGraph& C, List<cluster>& list) { C.allClusters(list); };
 
 	auto chooseCluster = [](const ClusterGraph& C) {
-		return *chooseIteratorFrom<internal::GraphObjectContainer<ClusterElement>, cluster>(
-				const_cast<internal::GraphObjectContainer<ClusterElement>&>(C.clusters));
+		while (true) {
+			cluster c = *chooseIteratorFrom<internal::GraphObjectContainer<ClusterElement>, cluster>(
+					const_cast<internal::GraphObjectContainer<ClusterElement>&>(C.clusters));
+			if (c != C.rootCluster()) {
+				return c;
+			}
+		}
 	};
-
 	auto createCluster = [](ClusterGraph& C) { return C.createEmptyCluster(); };
+	auto deleteCluster = [](ClusterGraph& C, cluster c) { return C.delCluster(c); };
+	auto clearClusters = [](ClusterGraph& C) { return C.clear(); };
 
-	Graph G;
-
+	std::list<Graph> graphs;
 	auto init = [&](ClusterGraph& C) {
-		randomSimpleConnectedGraph(G, 42, 168);
-		C.init(G);
+		graphs.emplace_back();
+		randomSimpleConnectedGraph(graphs.back(), 42, 168);
+		C.init(graphs.back());
 		randomClustering(C, 42);
 	};
 
 	runBasicArrayTests<ClusterGraph, ClusterArray, cluster>( //
 			"ClusterArray", init, chooseCluster, allClusters, createCluster);
+
+	graphs.clear();
+	runBasicSetTests<ClusterGraph, ClusterSet, cluster>("ClusterSet", init, chooseCluster,
+			allClusters, createCluster, deleteCluster, clearClusters);
 });

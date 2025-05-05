@@ -45,7 +45,7 @@
 
 namespace ogdf {
 
-bool maximumDensitySubgraph(Graph& G, NodeSet<true>& subgraphNodes,
+bool maximumDensitySubgraph(Graph& G, NodeSet& subgraphNodes,
 		std::function<node(node)> resultNodeMap, int64_t timelimit) {
 	StopwatchCPU watch;
 	watch.start();

@@ -152,17 +152,17 @@ go_bandit([] {
 		std::unique_ptr<NodeArray<int>> nodeArray(new NodeArray<int>(*G, 42));
 		std::unique_ptr<EdgeArray<int>> edgeArray(new EdgeArray<int>(*G, 42));
 		std::unique_ptr<AdjEntryArray<int>> adjEntryArray(new AdjEntryArray<int>(*G, 42));
-		std::unique_ptr<NodeSet<>> nodeSet(new NodeSet<>(*G));
+		std::unique_ptr<NodeSet> nodeSet(new NodeSet(*G));
 		nodeSet->insert(G->nodes.head());
-		std::unique_ptr<EdgeSet<>> edgeSet(new EdgeSet<>(*G));
+		std::unique_ptr<EdgeSet> edgeSet(new EdgeSet(*G));
 		edgeSet->insert(G->edges.head());
-		std::unique_ptr<AdjEntrySet<>> adjEntrySet(new AdjEntrySet<>(*G));
+		std::unique_ptr<AdjEntrySet> adjEntrySet(new AdjEntrySet(*G));
 		adjEntrySet->insert(G->edges.head()->adjSource());
 
 		std::unique_ptr<CombinatorialEmbedding> CE(new CombinatorialEmbedding(*G));
 		std::unique_ptr<ConstCombinatorialEmbedding> CCE(new ConstCombinatorialEmbedding(*G));
 		std::unique_ptr<FaceArray<int>> faceArray(new FaceArray<int>(*CCE, 42));
-		std::unique_ptr<FaceSet<>> faceSet(new FaceSet<>(*CE));
+		std::unique_ptr<FaceSet> faceSet(new FaceSet(*CE));
 		faceSet->insert(CE->faces.head());
 
 		std::unique_ptr<ClusterGraph> CG(new ClusterGraph(*G));
@@ -171,7 +171,7 @@ go_bandit([] {
 		randomClustering(*CG, 10);
 
 		std::unique_ptr<ClusterArray<int>> clusterArray(new ClusterArray<int>(*CG, 42));
-		std::unique_ptr<ClusterSet<>> clusterSet(new ClusterSet<>(*CG));
+		std::unique_ptr<ClusterSet> clusterSet(new ClusterSet(*CG));
 		clusterSet->insert(CG->clusters.head());
 
 		G.reset(nullptr);

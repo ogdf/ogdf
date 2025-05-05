@@ -124,7 +124,7 @@ int findCycles(Graph& G, node u, const std::function<adjEntry(adjEntry)>& mappin
 	return sum;
 }
 
-adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
+adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet& visited,
 		List<adjEntry>& dfs_stack) {
 	while (!dfs_stack.empty()) {
 		OGDF_ASSERT(dfs_stack.back()->twinNode() != u_adj->theNode());
@@ -166,8 +166,7 @@ adjEntry continueNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
 	return nullptr;
 }
 
-adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
-		List<adjEntry>& dfs_stack) {
+adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet& visited, List<adjEntry>& dfs_stack) {
 	dfs_stack.pushBack(u_adj);
 	visited.insert(u_adj->theEdge());
 	adjEntry found = continueNodeDFS(G, u_adj, v, visited, dfs_stack);
@@ -177,7 +176,7 @@ adjEntry startNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited,
 	return found;
 }
 
-int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited, List<adjEntry>& out) {
+int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet& visited, List<adjEntry>& out) {
 	List<adjEntry> queue;
 	adjEntry found = startNodeDFS(G, u_adj, v, visited, queue);
 	out.pushBack(found->twin());
@@ -197,10 +196,10 @@ int exhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, EdgeSet<>& visited, List
 
 #ifdef OGDF_DEBUG
 
-bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, const EdgeSet<>& visited,
+bool compareWithExhaustiveNodeDFS(Graph& G, adjEntry u_adj, node v, const EdgeSet& visited,
 		const List<adjEntry>& found) {
 	List<adjEntry> reference_list;
-	EdgeSet<> reference_visited(G);
+	EdgeSet reference_visited(G);
 	exhaustiveNodeDFS(G, u_adj, v, reference_visited, reference_list);
 	OGDF_ASSERT(reference_list.size() == found.size());
 	for (adjEntry adj : found) {
@@ -237,7 +236,7 @@ void validatePartnerPCTree(const NodePCRotation* u_pc, const NodePCRotation* v_p
 	}
 }
 
-bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet<>& visited,
+bool validateCollectedAdjs(node v, node u, List<SimplifyMapping>& bij_list, EdgeSet& visited,
 		SyncPlanComponents& components) {
 	int collected_v_adjs = 0;
 	for (auto& entry : bij_list) {

@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/Observer.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/internal/config_autogen.h>
 #include <ogdf/basic/memory.h>
@@ -56,6 +57,8 @@ namespace internal {
 template<typename Registry>
 class RegisteredArrayBase;
 }
+template<typename Key, typename Registry, typename Iterator = void>
+class RegistryBase; // IWYU pragma: keep
 
 //! The default minimum table size for registered arrays.
 static constexpr int MIN_TABLE_SIZE = (1 << 4);
@@ -67,6 +70,38 @@ static constexpr int MIN_TABLE_SIZE = (1 << 4);
 inline int calculateTableSize(int actualCount) {
 	return Math::nextPower2(MIN_TABLE_SIZE, actualCount);
 }
+
+//! Abstract Base class for registry observers.
+template<typename Registry>
+class RegisteredObserver : public Observer<Registry, RegisteredObserver<Registry>> {
+	using Obs = Observer<Registry, RegisteredObserver<Registry>>;
+
+public:
+	//! Constructs instance of RegisteredObserver class
+	RegisteredObserver() = default;
+
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
+
+	explicit RegisteredObserver(const Registry* R) { Obs::reregister(R); }
+
+	//! Called by watched registry just before a key is deleted.
+	virtual void keyRemoved(typename Registry::key_type v) = 0;
+
+	//! Called by watched registry after a key has been added.
+	virtual void keyAdded(typename Registry::key_type v) = 0;
+
+	//! Called when an entry is swapped between \p index1 and \p index2 in all registered arrays.
+	virtual void keysSwapped(int index1, int index2) = 0;
+
+	//! Called when an entry is copied from \p fromIndex to \p toIndex in all registered arrays.
+	virtual void keysCopied(int toIndex, int fromIndex) = 0;
+
+	//! Called by watched registry when its clear function is called, just before things are removed.
+	virtual void keysCleared() = 0;
+
+	const Registry* getRegistry() const { return Obs::getObserved(); }
+};
 
 //! Abstract base class for registries.
 /**
@@ -100,8 +135,8 @@ inline int calculateTableSize(int actualCount) {
  *
  * \sa RegisteredArray
  */
-template<typename Key, typename Registry, typename Iterator = void>
-class RegistryBase {
+template<typename Key, typename Registry, typename Iterator> // default Iterator=void defined above
+class RegistryBase : public Observable<RegisteredObserver<Registry>, Registry> {
 public:
 	using registered_array_type = internal::RegisteredArrayBase<Registry>;
 	using key_type = Key;
@@ -112,6 +147,8 @@ public:
 	using registration_iterator_type = typename registration_list_type::iterator;
 
 private:
+	using Obs = Observable<RegisteredObserver<Registry>, Registry>;
+
 	mutable registration_list_type m_registeredArrays;
 	bool m_autoShrink = false;
 	int m_size = 0;
@@ -125,15 +162,10 @@ protected:
 
 public:
 	//! Destructor. Unregisters all associated arrays.
-	virtual ~RegistryBase() noexcept { unregisterArrays(); }
-
-	RegistryBase(const RegistryBase& copy) = delete;
-
-	RegistryBase(RegistryBase&& move) noexcept = delete;
-
-	RegistryBase& operator=(const RegistryBase& other) = delete;
-
-	RegistryBase& operator=(RegistryBase&& other) noexcept = delete;
+	virtual ~RegistryBase() noexcept {
+		Obs::clearObservers();
+		unregisterArrays();
+	}
 
 	//! Registers a new array with this registry.
 	/**
@@ -172,6 +204,9 @@ public:
 		if (static_cast<Registry*>(this)->keyToIndex(key) >= m_size) {
 			resizeArrays();
 		}
+		for (auto& ob : getObservers()) {
+			ob->keyAdded(key);
+		}
 	}
 
 	//! Records the deletion of a key and resizes all registered arrays if auto shrink is enabled.
@@ -179,10 +214,18 @@ public:
 		if (m_autoShrink) {
 			resizeArrays();
 		}
+		for (auto& ob : getObservers()) {
+			ob->keyRemoved(key);
+		}
 	}
 
 	//! Records that all keys have been cleared. If auto shrink is enabled, all arrays are cleared and resized to 0.
-	void keysCleared() { resizeArrays(0); }
+	void keysCleared() {
+		resizeArrays(0);
+		for (auto& ob : getObservers()) {
+			ob->keysCleared();
+		}
+	}
 
 	//! Resizes all arrays to the size requested by calculateArraySize(). Only shrinks the arrays if auto shrink is
 	//! enabled
@@ -212,12 +255,18 @@ public:
 		for (registered_array_type* ab : m_registeredArrays) {
 			ab->swapEntries(index1, index2);
 		}
+		for (auto& ob : getObservers()) {
+			ob->keysSwapped(index1, index2);
+		}
 	}
 
 	//! Copies the entry from \p fromIndex to \p toIndex in all registered arrays.
 	void copyArrayEntries(int toIndex, int fromIndex) {
 		for (registered_array_type* ab : m_registeredArrays) {
 			ab->copyEntry(toIndex, fromIndex);
+		}
+		for (auto& ob : getObservers()) {
+			ob->keysCopied(fromIndex, toIndex);
 		}
 	}
 
@@ -243,6 +292,8 @@ public:
 
 	//! Returns the current size of all registered arrays.
 	int getArraySize() const { return m_size; }
+
+	using Obs::getObservers;
 };
 
 namespace internal {
@@ -581,7 +632,8 @@ protected:
 	}
 
 	void swapEntries(int index1, int index2) override {
-		std::swap(m_data.at(index1), m_data.at(index2));
+		using std::swap;
+		swap(m_data.at(index1), m_data.at(index2));
 	}
 
 	//! This operation is not supported for registered arrays without default.

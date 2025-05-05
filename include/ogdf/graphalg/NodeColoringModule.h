@@ -214,7 +214,7 @@ protected:
 	 */
 	template<class CONTAINER>
 	bool checkIndependentSet(const Graph& graph, const CONTAINER& nodes) const {
-		NodeSet<false> nodeSet(graph);
+		NodeSet nodeSet(graph);
 		for (node v : nodes) {
 			nodeSet.insert(v);
 		}

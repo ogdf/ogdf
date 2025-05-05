@@ -351,7 +351,7 @@ void GraphCopy::setEdge(edge eOrig, edge eCopy) {
 void GraphCopy::insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E,
 		const SList<adjEntry>& crossedEdges) {
 	if (m_eCopy[eOrig].size() != 0) {
-		FaceSet<false> fsp(E);
+		FaceSet fsp(E);
 		removeEdgePathEmbedded(E, eOrig, fsp);
 	}
 	m_eCopy[eOrig].clear();
@@ -529,8 +529,7 @@ edge GraphCopy::insertCrossing(edge& crossingEdge, edge crossedEdge, bool rightT
 	return e;
 }
 
-void GraphCopy::removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig,
-		FaceSet<false>& newFaces) {
+void GraphCopy::removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet& newFaces) {
 	const List<edge>& path = m_eCopy[eOrig];
 #ifdef OGDF_DEBUG
 	ListConstIterator<edge> testIt = path.begin();

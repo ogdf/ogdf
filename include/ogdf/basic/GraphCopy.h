@@ -45,7 +45,6 @@
 namespace ogdf {
 
 class CombinatorialEmbedding;
-template<bool>
 class FaceSet;
 
 class OGDF_EXPORT GraphCopyBase : public Graph {
@@ -715,7 +714,7 @@ public:
 	 * @param newFaces is assigned the set of new faces resulting from joining faces
 	 *        when removing edges.
 	 */
-	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet<false>& newFaces);
+	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet& newFaces);
 
 	void removeEdgePathEmbedded(CombinatorialEmbedding& E, DynamicDualGraph& dual, edge eOrig);
 

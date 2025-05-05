@@ -37,7 +37,6 @@
 
 #include <functional>
 #include <ostream>
-#include <utility>
 #ifdef OGDF_DEBUG
 #	include <ogdf/basic/simple_graph_alg.h>
 #endif
@@ -102,7 +101,6 @@ void ConstCombinatorialEmbedding::init() {
 	m_faceIdCount = 0;
 	m_rightFace.init();
 	faces.clear();
-
 	keysCleared();
 }
 
@@ -319,8 +317,18 @@ face CombinatorialEmbedding::joinFaces(edge e) {
 
 	// we will reuse the largest face and delete the other one
 	if (f2->m_size > f1->m_size) {
-		std::swap(f1, f2);
+		return joinFaces(e->adjTarget());
+	} else {
+		return joinFaces(e->adjSource());
 	}
+}
+
+face CombinatorialEmbedding::joinFaces(adjEntry adj) {
+	OGDF_ASSERT(adj->graphOf() == m_pGraph);
+
+	// get the two faces adjacent to e
+	face f1 = m_rightFace[adj];
+	face f2 = m_rightFace[adj->twin()];
 
 	// the size of the joined face is the sum of the sizes of the two faces
 	// f1 and f2 minus the two adjacency entries of e
@@ -329,22 +337,22 @@ face CombinatorialEmbedding::joinFaces(edge e) {
 	// If the stored (first) adjacency entry of f1 belongs to e, we must set
 	// it to the next entry in the face, because we will remove it by deleting
 	// edge e
-	if (f1->entries.m_adjFirst->theEdge() == e) {
+	if (f1->entries.m_adjFirst->theEdge() == adj->theEdge()) {
 		f1->entries.m_adjFirst = f1->entries.m_adjFirst->faceCycleSucc();
 	}
 
 	if (f1 == f2) {
 		// If e is a bridge, both of its adjEntries belong to f1 (== f2).
 		// We might have to change the adjEntry again.
-		if (f1->entries.m_adjFirst->theEdge() == e) {
+		if (f1->entries.m_adjFirst->theEdge() == adj->theEdge()) {
 			f1->entries.m_adjFirst = f1->entries.m_adjFirst->faceCycleSucc();
 		}
 	} else {
 		// each adjacency entry in f2 belongs now to f1
-		adjEntry adj1 = f2->firstAdj(), adj = adj1;
+		adjEntry adj1 = f2->firstAdj(), a = adj1;
 		do {
-			m_rightFace[adj] = f1;
-		} while ((adj = adj->faceCycleSucc()) != adj1);
+			m_rightFace[a] = f1;
+		} while ((a = a->faceCycleSucc()) != adj1);
 
 		keyRemoved(f2);
 		faces.del(f2);
@@ -353,7 +361,7 @@ face CombinatorialEmbedding::joinFaces(edge e) {
 	// Delete e, but prevent dynamic binding of virtual method Graph::delEdge().
 	// This is for the case that m_pGraph is actually a pointer to a subclass of
 	// Graph, e.g. a GraphCopy. Call Graph::delEdge(), not GraphCopy::delEdge().
-	m_pGraph->Graph::delEdge(e);
+	m_pGraph->Graph::delEdge(adj->theEdge());
 
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();
@@ -430,10 +438,9 @@ void CombinatorialEmbedding::clear() {
 	m_pGraph->clear();
 
 	faces.clear();
-
 	m_faceIdCount = 0;
-	keysCleared();
 	m_externalFace = nullptr;
+	keysCleared();
 
 #ifdef OGDF_HEAVY_DEBUG
 	consistencyCheck();

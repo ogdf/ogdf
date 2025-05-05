@@ -121,7 +121,7 @@ private:
 		while (true) {
 			node maxNode = nullptr;
 			double maxDensity = 0.0;
-			NodeSet<true> maxDenseSubset(m_GA->constGraph());
+			NodeSet maxDenseSubset(m_GA->constGraph());
 			List<edge> maxE_U; // holds the edges of the maximum dense subgraph
 
 			for (node v : m_G.nodes) {
@@ -140,7 +140,7 @@ private:
 				}
 
 				// Calculate dense subgraph and find all edges E_U of this subgraph
-				NodeSet<true> denseSubset(m_G);
+				NodeSet denseSubset(m_G);
 				int64_t timelimit = -1;
 				if (isTimelimitEnabled()) {
 					timelimit = max(static_cast<int64_t>(0), getTimeLeft());

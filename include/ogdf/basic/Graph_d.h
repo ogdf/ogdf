@@ -61,6 +61,7 @@ namespace ogdf {
 class OGDF_EXPORT AdjElement; // IWYU pragma: keep
 class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
 class OGDF_EXPORT EdgeElement; // IWYU pragma: keep
+class OGDF_EXPORT EdgeSet; // needed for Graph::insert
 class OGDF_EXPORT FaceElement; // IWYU pragma: keep
 class OGDF_EXPORT Graph; // IWYU pragma: keep
 class OGDF_EXPORT NodeElement; // IWYU pragma: keep
@@ -751,9 +752,6 @@ OGDF_DECL_REG_ARRAY(EdgeArray)
 OGDF_DECL_REG_ARRAY(AdjEntryArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
-template<bool>
-class EdgeSet;
-
 //! Abstract Base class for graph observers.
 /**
  * @ingroup graphs
@@ -779,10 +777,9 @@ public:
 	//! Constructs instance of GraphObserver class
 	GraphObserver() = default;
 
-	/**
-	 *\brief Constructs instance of GraphObserver class
-	 * \param G is the graph to be watched
-	 */
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
+
 	explicit GraphObserver(const Graph* G) { reregister(G); }
 
 	//! Called by watched graph just before a node is deleted.
@@ -1175,6 +1172,7 @@ public:
 
 		m_regEdgeArrays.keyAdded(e);
 		m_regAdjArrays.keyAdded(e->adjSource());
+		m_regAdjArrays.keyAdded(e->adjTarget());
 		for (GraphObserver* obs : getObservers()) {
 			obs->edgeAdded(e);
 		}
@@ -1757,21 +1755,11 @@ public:
 	 * Inserts a copy of a given subgraph into this graph.
 	 *
 	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
-	 * together with an EdgeSet<true> used for filtering edges.
+	 * together with an EdgeSet used for filtering edges.
 	 */
 	template<OGDF_NODE_LIST NL>
-	std::pair<int, int> insert(const NL& nodeList, const EdgeSet<true>& edgeSet,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
-
-	/**
-	 * Inserts a copy of a given subgraph into this graph.
-	 *
-	 * See the other insert() variants for details, this method is a short-cut for a container of nodes
-	 * together with an EdgeSet<false> used for filtering edges.
-	 */
-	template<OGDF_NODE_LIST NL>
-	std::pair<int, int> insert(const NL& nodeList, const EdgeSet<false>& edgeSet,
-			NodeArray<node>& nodeMap, EdgeArray<edge>& edgeMap);
+	std::pair<int, int> insert(const NL& nodeList, const EdgeSet& edgeSet, NodeArray<node>& nodeMap,
+			EdgeArray<edge>& edgeMap);
 
 	/**
 	 * Inserts a copy of a given subgraph into this graph.

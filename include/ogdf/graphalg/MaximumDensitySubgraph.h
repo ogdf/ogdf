@@ -32,13 +32,13 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphSets.h>
 #include <ogdf/basic/basic.h>
 
 #include <cstdint>
 #include <functional>
 
 namespace ogdf {
+class NodeSet;
 
 /**
  * \brief Calculates the maximum density subgraph of \p G
@@ -65,7 +65,7 @@ namespace ogdf {
  * \p resultNodeMap can be used if \p subgraphNodes does not belong to \p G.
  * This helps when passing in a GraphCopy or GraphCopySimple:
  * \code
- * NodeSet<true> subgraphNodes(G);
+ * NodeSet subgraphNodes(G);
  * GraphCopySimple GC(G);
  * maximumDensitySubgraph(GC, subgraphNodes, [&](node n){ return GC.original(n);});
  * \endcode
@@ -81,7 +81,7 @@ namespace ogdf {
  * @returns true, if the algorithm was successful and did not run into a timeout.
  */
 OGDF_EXPORT bool maximumDensitySubgraph(
-		Graph& G, NodeSet<true>& subgraphNodes,
+		Graph& G, NodeSet& subgraphNodes,
 		std::function<node(node)> resultNodeMap = [](node v) { return v; }, int64_t timelimit = -1);
 
 }

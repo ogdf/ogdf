@@ -39,8 +39,14 @@ When their height is equal to their width, `Shape::Triangle` and `Shape::InvTria
 If the stored elements have a non-trivial move-constructor, it should be marked `noexcept`.
 Otherwise, all elements will be [copied when the array grows](https://stackoverflow.com/a/28627764).
 
-## ClusterSetSimple and ClusterSetPure
-`ClusterSetSimple` was removed in favor of `ClusterArray<bool>` and `ClusterSetPure` in favor of `ClusterSet<false>` (which does not keep track of its size).
+## NodeSet, FaceSet, and ClusterSet(Simple|Pure)
+The template classes `NodeSet<bool SupportFastSizeQuery = true>` and `FaceSet<bool>` were converted to non-templated classes
+using their default `SupportFastSizeQuery = true` versions, which now always keeps track of its size at a negligible overhead
+(these sets do not support merging by splicing as simple double-linked lists do anyways).
+Similarly, `ClusterSetPure` was removed in favor of `ClusterSet`.
+`ClusterSetSimple` was removed in favor of `ClusterArray<bool>`.
+All these `RegisteredSet`s now automatically remove members (nodes, faces, clusters,...) from their lists when they are deleted
+from the corresponding registries (Graphs, CombEmbeddings, ClusterGraphs,...).
 
 ## Graph
 The move constructor and assignment operators of `Graph` are now deleted, which especially means that `NodeArray<Graph>`, `EdgeArray<Graph>`, `FaceArray<Graph>`, etc. is no longer possible.
@@ -53,7 +59,7 @@ For this reason, `SimDraw::getBasicGraph` now returns a `std::unique_ptr<GraphCo
 `GraphCopy::createEmpty()` was deprecated in favor of `setOriginalGraph()`.
 The same holds for `createEmpty()` of `GraphCopySimple` and `EdgeWeightedGraph`.
 
-## GraphObserver
+## (Hyper/Cluster)GraphObserver
 `GraphObserver`s are now notified when their `Graph` is destructed through `GraphObserver::registrationChanged()`.
 
 `ClusterGraphObserver`s are now notified of their `ClusterGraph` being cleared through `ClusterGraphObserver::clustersCleared()`.
@@ -63,6 +69,10 @@ The same holds for `createEmpty()` of `GraphCopySimple` and `EdgeWeightedGraph`.
 `Observer`s and their `Observable`s now have deleted copy and move constructors and assignment operators.
 Subclasses can instead explicitly declare their copy and move behaviour using the default constructors of `Observer` / `Observable`,
 `Observer::getObservers()`, `Observer::clearObservers()` and `Observable::reregister()`.
+
+Additionally, the `Observer(Observable*)` constructor (e.g. `GraphObserver(Graph*)`) is now deprecated as it would
+trigger a `registrationChanged` callback before the construction of your subclass is done.
+Instead, use the default `Observer()` constructor and explicitly call `reregister(...)` in the constructor of your subclass.
 
 ## Graph::insert
 Multiple methods for inserting (parts of) a graph were merged into a single `Graph::insert` implementation.

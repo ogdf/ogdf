@@ -65,7 +65,7 @@ enum class UsedLabels {
 // the basic single label defining class
 // holds info about all labels for one edge
 template<class coordType>
-class OGDF_EXPORT EdgeLabel {
+class EdgeLabel {
 public:
 	static const int numberUsedLabels = static_cast<int>(UsedLabels::lAll);
 

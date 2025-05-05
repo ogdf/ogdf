@@ -46,7 +46,7 @@ namespace embedder {
 
 //! Common base for embedder algorithms based on BC trees.
 template<bool EnableLayers, bool IsEmbedderMinDepth = false>
-class OGDF_EXPORT EmbedderBCTreeBase : public EmbedderModule {
+class EmbedderBCTreeBase : public EmbedderModule {
 	using BicompEmbedder = typename std::conditional<EnableLayers,
 			EmbedderMaxFaceBiconnectedGraphsLayers<int>, EmbedderMaxFaceBiconnectedGraphs<int>>::type;
 

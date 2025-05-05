@@ -221,6 +221,7 @@ edge Graph::split(edge e) {
 
 	m_regEdgeArrays.keyAdded(e2); // note: registry observers won't see copied entry
 	m_regAdjArrays.keyAdded(e2->adjSource());
+	m_regAdjArrays.keyAdded(e2->adjTarget());
 
 	// copy array entries from the original adjEntries to the new ones
 	m_regAdjArrays.copyArrayEntries(eadjTgt->m_id, uadjTgt->m_id);
@@ -259,6 +260,7 @@ void Graph::unsplit(edge eIn, edge eOut) {
 
 	// notify all registered observers while everything is still valid
 	m_regAdjArrays.keyRemoved(eOut->adjSource());
+	m_regAdjArrays.keyRemoved(eOut->adjTarget());
 	m_regEdgeArrays.keyRemoved(eOut);
 	for (GraphObserver* obs : getObservers()) {
 		obs->edgeDeleted(eOut);
@@ -314,6 +316,7 @@ void Graph::delEdge(edge e) {
 	OGDF_ASSERT(e->graphOf() == this);
 
 	m_regAdjArrays.keyRemoved(e->adjSource());
+	m_regAdjArrays.keyRemoved(e->adjTarget());
 	m_regEdgeArrays.keyRemoved(e);
 	for (GraphObserver* obs : getObservers()) {
 		obs->edgeDeleted(e);

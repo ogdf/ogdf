@@ -314,7 +314,7 @@ SyncPlan::Result SyncPlan::simplify(node u, const NodePCRotation* pc) {
 		leaf_for_u_inc_edge.init(*G, nullptr);
 		pc->generateLeafForIncidentEdgeMapping(leaf_for_u_inc_edge);
 	}
-	EdgeSet<> visited(*G);
+	EdgeSet visited(*G);
 
 	// SYNCPLAN_PROFILE_START("simplify-bondmap")
 	for (const PipeBijPair& pair : matchings.getIncidentEdgeBijection(u2)) {
