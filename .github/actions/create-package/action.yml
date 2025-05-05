@@ -1,0 +1,179 @@
+name: 'Create Package'
+inputs:
+  distro:
+    description: "string (ubuntu/debian/.../macos/windows)"
+  os:
+    description: "string (linux/macos/windows)"
+  cmake_args:
+    description: "string"
+  cmake_test_args:
+    description: "string"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set-up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: package-${{ inputs.distro }}
+    - name: Set-up HTTPS proxy for ccache on Unix
+      shell: bash
+      run: |
+        pipx install mitmproxy
+        echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
+      if: ${{ inputs.os != 'windows' }}
+    - name: Set-up HTTPS proxy for ccache on Windows
+      shell: pwsh
+      run: |
+        pipx install mitmproxy
+      if: ${{ inputs.os == 'windows' }}
+    - uses: JarvusInnovations/background-action@v1
+      name: Start HTTPS proxy for ccache
+      with:
+        run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+        wait-on: tcp:localhost:44443
+        tail: false
+        log-output-if: failure
+        wait-for: 10s
+
+    - name: Build and package
+      shell: bash
+      run: |
+        mkdir build-install && cd build-install
+        export CCACHE_BASEDIR="$(pwd)"
+        cmake .. ${{ inputs.cmake_args }}
+
+        echo "::group::>Debug build"
+        cmake --build . --config Debug
+        echo
+        readelf -d Debug/*.so || echo "readelf failed"
+        echo "::endgroup::"
+        echo "::group::>Release build"
+        cmake --build . --config Release
+        echo
+        readelf -d Release/*.so || echo "readelf failed"
+        echo "::endgroup::"
+
+        echo "::group::>Packaging"
+        # cmake --build . --target package
+        mkdir -p ../packages/install-manifests
+        cpack --verbose | tee ../packages/install-manifests/cpack.log
+        echo "::endgroup::"
+
+    - name: Install for testing
+      shell: bash
+      run: |
+        cd build-install
+        mkdir -p ../packages/install-manifests
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
+        cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
+        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows
+
+    # the following two steps are the same for test- and create-package, only that create has sources in 'doc/examples/special'
+    # and that the Windows install path is "C:/Program Files (x86)/OGDF-PROJECT" for cmake-install and "./OGDF-ROOT" for zip-based
+    - name: Test installed build results
+      shell: bash
+      run: |
+        set -x
+        mkdir build-test && cd build-test
+        export CCACHE_BASEDIR="$(pwd)"
+        export PATH="C:/Program Files (x86)/OGDF-PROJECT/bin:$PATH" #windows
+        echo "$PATH"
+        cmake ../doc/examples/special --debug-find ${{ inputs.cmake_test_args }}
+
+        cmake --build . --config Debug
+        cmake --build . --config Release
+
+        has_error=0
+        run_executable() {
+            local path="$1"
+
+            if [[ ! -x "$path" ]]; then
+                echo "ERROR: File not found/executable: $path"
+                has_error=1
+                return
+            fi
+
+            echo
+            echo "--- Running: $path ---"
+            exit_code=0
+            "$path" || exit_code=$?
+            echo "$path exited with code $exit_code"
+
+            if [[ $exit_code -ne 0 ]]; then
+                has_error=1
+            fi
+        }
+
+        run_executable "Release/check-build-mode${{ inputs.os == 'windows' && '.exe' || '' }}"
+        run_executable "Debug/check-build-mode${{ inputs.os == 'windows' && '.exe' || '' }}"
+
+        # TODO reenable
+        # if [[ $has_error -ne 0 ]]; then
+        #     exit 1
+        # else
+        #     exit 0
+        # fi
+
+    - name: Try running directly on windows
+      shell: pwsh
+      run: |
+        $env:PATH += ";C:\Program Files (x86)\OGDF-PROJECT\bin"
+        echo $env:PATH
+
+        $script:hasError = $false
+
+        function Run-Executable {
+            param (
+                [string]$path
+            )
+
+            Write-Host "--- Running: $path ---"
+            try {
+                $output = & $path 2>&1
+                $exitCode = $LASTEXITCODE
+                Write-Host $output
+                Write-Host "$path exited with code $exitCode"
+
+                if ($exitCode -ne 0) {
+                    $script:hasError = $true
+                }
+            } catch {
+                Write-Host "ERROR: Exception when running '$path': $_"
+                $script:hasError = $true
+            }
+        }
+
+        cd build-test
+        Run-Executable "Release/check-build-mode.exe"
+        Run-Executable "Debug/check-build-mode.exe"
+
+        if ($script:hasError) {
+            exit 1
+        } else {
+            exit 0
+        }
+      if: ${{ inputs.os == 'windows' }}
+
+    - name: Store packages
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: packages-${{ inputs.os }}
+        path: packages/
+
+    - name: Store build results for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-${{ inputs.os }}
+        path: |
+          build-install/
+          build-test/
+          !**/*.obj
+          !**/*.iobj

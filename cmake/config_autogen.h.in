@@ -1,8 +1,6 @@
 #define OGDF_MEMORY_@OGDF_MEMORY_MANAGER@
 
-#if @MULTICONFIG_BUILD@ == 0 || !defined(NDEBUG)
-	#cmakedefine OGDF_DEBUG
-#endif
+#cmakedefine OGDF_DEBUG
 
 #ifdef OGDF_DEBUG
 	#cmakedefine OGDF_HEAVY_DEBUG
