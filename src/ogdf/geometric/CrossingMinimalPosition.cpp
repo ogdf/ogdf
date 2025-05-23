@@ -104,8 +104,8 @@ DPoint CrossingMinimalPosition<FT>::call(GraphAttributes& GA, node v) {
 	return p;
 }
 
-template class CrossingMinimalPosition<double>;
-template class CrossingMinimalPosition<CGAL::Gmpq>;
+template class OGDF_EXPORT_TEMPL_INST CrossingMinimalPosition<double>;
+template class OGDF_EXPORT_TEMPL_INST CrossingMinimalPosition<CGAL::Gmpq>;
 
 }
 #else

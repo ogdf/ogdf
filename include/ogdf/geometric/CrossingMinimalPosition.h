@@ -119,9 +119,13 @@ protected:
 	std::mt19937_64 rnd;
 };
 
+// the actual instantiation happens in CrossingMinimalPosition.cpp (thus the 'extern'),
+// here we just need to mark the instantiated class as EXPORTed
+extern template class OGDF_EXPORT_TEMPL_DECL CrossingMinimalPosition<double>;
 using CrossingMinimalPositionFast = CrossingMinimalPosition<double>;
 
 #ifdef OGDF_INCLUDE_CGAL
+extern template class OGDF_EXPORT_TEMPL_DECL CrossingMinimalPosition<CGAL::Gmpq>;
 using CrossingMinimalPositionPrecise = CrossingMinimalPosition<CGAL::Gmpq>;
 #endif
 

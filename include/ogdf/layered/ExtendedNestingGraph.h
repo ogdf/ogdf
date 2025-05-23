@@ -272,7 +272,7 @@ private:
 	LHTreeNode* m_root;
 };
 
-class OGDF_EXPORT ExtendedNestingGraph;
+class ExtendedNestingGraph;
 
 class OGDF_EXPORT ClusterGraphCopy : public ClusterGraph {
 public:

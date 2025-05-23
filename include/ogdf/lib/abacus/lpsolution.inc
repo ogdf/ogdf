@@ -33,6 +33,7 @@
 #include <ogdf/lib/abacus/active.h>
 #include <ogdf/lib/abacus/sub.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -149,3 +150,4 @@ int LpSolution<BaseType, CoType>::idLp() const
 }
 
 }
+#pragma GCC visibility pop

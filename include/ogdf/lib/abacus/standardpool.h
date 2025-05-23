@@ -32,6 +32,7 @@
 #include <ogdf/basic/SList.h>
 #include <ogdf/lib/abacus/pool.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -212,3 +213,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/standardpool.inc>
+#pragma GCC visibility pop

@@ -31,6 +31,7 @@
 
 #include <ogdf/lib/abacus/abacusroot.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -141,3 +142,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/lpsolution.inc>
+#pragma GCC visibility pop

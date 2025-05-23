@@ -26,6 +26,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <ogdf/lib/minisat/mtl/IntTypes.h>
 #include <ogdf/lib/minisat/mtl/XAlloc.h>
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -129,3 +130,4 @@ void vec<T>::clear(bool dealloc) {
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

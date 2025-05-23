@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/lp.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class InfeasCon;
@@ -360,9 +361,11 @@ private:
 };
 
 }
+#pragma GCC visibility pop
 
 #include <ogdf/lib/abacus/sub.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 inline LpSub::LpSub (Master *master, const Sub *sub)
@@ -375,3 +378,4 @@ inline LpSub::LpSub (Master *master, const Sub *sub)
 { }
 
 }
+#pragma GCC visibility pop

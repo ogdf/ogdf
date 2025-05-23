@@ -35,6 +35,7 @@
 #include <ogdf/lib/abacus/convar.h>
 #include <ogdf/lib/abacus/poolslot.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template <class BaseType, class CoType>
@@ -136,3 +137,4 @@ void Active<BaseType, CoType>::realloc(int newSize)
 }
 
 }
+#pragma GCC visibility pop

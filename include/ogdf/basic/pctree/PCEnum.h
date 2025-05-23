@@ -38,13 +38,13 @@
 #include <ostream>
 
 namespace ogdf::pc_tree {
-enum class OGDF_EXPORT NodeLabel { Unknown, Partial, Full, Empty = Unknown };
+enum class NodeLabel { Unknown, Partial, Full, Empty = Unknown };
 
-enum class OGDF_EXPORT PCNodeType { PNode, CNode, Leaf };
+enum class PCNodeType { PNode, CNode, Leaf };
 
-class OGDF_EXPORT PCNode;
-class OGDF_EXPORT PCTree;
-class OGDF_EXPORT PCTreeRegistry;
+class PCNode;
+class PCTree;
+class PCTreeRegistry;
 
 #define OGDF_DECL_REG_ARRAY_TYPE(v, c) ogdf::RegisteredArray<PCTreeRegistry, v, c>
 OGDF_DECL_REG_ARRAY(PCTreeNodeArray)
