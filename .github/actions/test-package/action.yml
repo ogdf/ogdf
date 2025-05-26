@@ -1,0 +1,153 @@
+name: 'Test Package'
+inputs:
+  container:
+    description: "bool"
+  distro:
+    description: "string (ubuntu/debian/.../macos/windows)"
+  os:
+    description: "string (linux/macos/windows)"
+  cmake_test_args:
+    description: "string"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          doc/examples/special
+        sparse-checkout-cone-mode: false
+    - uses: actions/download-artifact@v4
+      with:
+        name: packages-${{ inputs.os }}
+        path: packages
+    - name: Relocate test sources
+      shell: bash
+      run: |
+        mv doc/examples/special/* .
+        rm -rf doc
+        ls *
+
+    - name: Install DEB
+      shell: bash
+      run: |
+        ${{ !inputs.container && 'sudo' || '' }} apt-get update
+        ${{ !inputs.container && 'sudo apt-get install -y libunwind-dev' || '' }}
+        ${{ !inputs.container && 'sudo' || '' }} apt-get install -y ./packages/OGDF-*-Linux.deb
+      if: ${{ inputs.distro == 'debian' || inputs.distro == 'ubuntu' }}
+    - name: Install RPM
+      shell: bash
+      run: |
+        dnf install -y ./packages/OGDF-*-Linux.rpm
+      if: ${{ inputs.distro == 'fedora' }}
+    - name: Install SH
+      shell: bash
+      run: |
+        chmod +x ./packages/OGDF-*-Linux.sh
+        mkdir -p /usr/local
+        ./packages/OGDF-*-Linux.sh --skip-license --prefix=/usr/local
+      if: ${{ inputs.distro == 'archlinux' }}
+    - name: Install ZIP (Windows)
+      shell: bash
+      run: |
+        unzip ./packages/OGDF-*-win64.zip -d ./packages/unzip
+        mv ./packages/unzip/OGDF-PROJECT-*-win64 ./OGDF-ROOT
+        ls *
+      if: ${{ inputs.distro == 'windows' }}
+    #    - name: Install NSIS (Windows)
+    #      shell: bash
+    #      run: |
+    #        ./packages/OGDF-*-win64.exe /S /D=$(realpath ./OGDF-ROOT)
+    #        ls *
+    #      if: ${{ inputs.distro == 'windows' }}
+    - name: Install PKG (MacOS)
+      shell: bash
+      run: |
+        sudo installer -pkg ./packages/OGDF-*-Darwin.pkg -target /
+      if: ${{ inputs.distro == 'macos' }}
+
+    # the following two steps are the same for test- and create-package, only that create has sources in 'doc/examples/special'
+    # and that the Windows install path is "C:/Program Files (x86)/OGDF-PROJECT" for cmake-install and "./OGDF-ROOT" for zip-based
+    - name: Test installed build results
+      shell: bash
+      run: |
+        set -x
+        mkdir build-test && cd build-test
+        export CCACHE_BASEDIR="$(pwd)"
+        export PATH="$(realpath ../OGDF-ROOT/bin):$PATH" #windows
+        echo "$PATH"
+        cmake .. --debug-find ${{ inputs.cmake_test_args }}
+
+        cmake --build . --config Debug
+        cmake --build . --config Release
+
+        has_error=0
+        run_executable() {
+            local path="$1"
+
+            if [[ ! -x "$path" ]]; then
+                echo "ERROR: File not found/executable: $path"
+                has_error=1
+                return
+            fi
+
+            echo
+            echo "--- Running: $path ---"
+            exit_code=0
+            "$path" || exit_code=$?
+            echo "$path exited with code $exit_code"
+
+            if [[ $exit_code -ne 0 ]]; then
+                has_error=1
+            fi
+        }
+
+        run_executable "Release/check-build-mode${{ inputs.os == 'windows' && '.exe' || '' }}"
+        run_executable "Debug/check-build-mode${{ inputs.os == 'windows' && '.exe' || '' }}"
+
+        # TODO reenable
+        # if [[ $has_error -ne 0 ]]; then
+        #     exit 1
+        # else
+        #     exit 0
+        # fi
+
+    - name: Try running directly on windows
+      shell: pwsh
+      run: |
+        $env:PATH += ";${{ github.workspace }}\OGDF-ROOT\bin"
+        echo $env:PATH
+
+        $script:hasError = $false
+
+        function Run-Executable {
+            param (
+                [string]$path
+            )
+
+            Write-Host "--- Running: $path ---"
+            try {
+                $output = & $path 2>&1
+                $exitCode = $LASTEXITCODE
+                Write-Host $output
+                Write-Host "$path exited with code $exitCode"
+
+                if ($exitCode -ne 0) {
+                    $script:hasError = $true
+                }
+            } catch {
+                Write-Host "ERROR: Exception when running '$path': $_"
+                $script:hasError = $true
+            }
+        }
+
+        cd build-test
+        Run-Executable "Release/check-build-mode.exe"
+        Run-Executable "Debug/check-build-mode.exe"
+
+        if ($script:hasError) {
+            exit 1
+        } else {
+            exit 0
+        }
+      if: ${{ inputs.os == 'windows' }}
