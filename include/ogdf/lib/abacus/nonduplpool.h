@@ -39,6 +39,7 @@
 #include <ogdf/lib/abacus/sub.h>
 #include <ogdf/lib/abacus/bheap.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 //! Standard pools without constraint duplication.
@@ -182,3 +183,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/nonduplpool.inc>
+#pragma GCC visibility pop

@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/lib/abacus/variable.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -88,3 +89,4 @@ bool Separator<BaseType, CoType>::find(BaseType *cv)
 }
 
 }
+#pragma GCC visibility pop

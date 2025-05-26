@@ -26,6 +26,12 @@ ogdf/hypergraph/HypergraphArray.h
 ```
 The header `ogdf/basic/NodeSet.h` was replaced by `ogdf/basic/GraphSets.h`, now also providing Edge and AdjEntry sets.
 
+## Symbol Visibilities
+To align the behaviour of the Windows and UNIX versions, unix shared library builds now only make classes and functions
+marked `OGDF_EXPORT` publicly visible (as is needed for Windows DLLs anyways). If a non-templated class or top-level
+function you previously used (probably on Linux or MacOS) now became hidden,
+please check the documentation of `OGDF_EXPORT` and then open a PR to make it visible.
+
 ## GraphIO
 
 ### SvgPrinter

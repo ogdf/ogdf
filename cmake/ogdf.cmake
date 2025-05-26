@@ -129,9 +129,12 @@ set(tinydir_headers "test/include/tinydir.h")
 set(lib_sources "${lib_sources};${lib_headers};${bandit_headers};${tinydir_headers}")
 set_source_files_properties(${lib_sources} PROPERTIES COMPILE_FLAGS " ${warnings_not_as_errors_flag} ")
 
-# set OGDF_INSTALL for shared libraries
+# set OGDF_INSTALL and default visibility to hidden for shared libraries
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(OGDF PRIVATE OGDF_INSTALL)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(OGDF PRIVATE "-fvisibility=hidden" "-fvisibility-inlines-hidden")
+  endif()
 endif()
 
 # autogen header variables for debug mode

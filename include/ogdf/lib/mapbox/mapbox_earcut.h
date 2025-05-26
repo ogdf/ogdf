@@ -24,6 +24,7 @@
 #include <memory>
 #include <vector>
 
+#pragma GCC visibility push(default)
 namespace mapbox {
 
 namespace util {
@@ -789,3 +790,4 @@ std::vector<N> earcut(const Polygon& poly) {
 	return std::move(earcut.indices);
 }
 }
+#pragma GCC visibility pop

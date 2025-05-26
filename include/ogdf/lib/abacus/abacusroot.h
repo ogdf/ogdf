@@ -45,6 +45,7 @@
 #define ABACUS_VERSION 301
 #define ABACUS_VERSION_STRING "3.0.1/OGDF"
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 using ogdf::AlgorithmFailureException;
@@ -103,3 +104,4 @@ public:
 };
 
 }
+#pragma GCC visibility pop

@@ -30,6 +30,7 @@
 
 #include <ogdf/lib/abacus/nonduplpool.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -120,3 +121,4 @@ void NonDuplPool<BaseType, CoType>::hardDeleteConVar(
 }
 
 }
+#pragma GCC visibility pop

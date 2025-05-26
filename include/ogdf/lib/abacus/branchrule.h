@@ -32,6 +32,7 @@
 
 #include <ogdf/lib/abacus/abacusroot.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class Master;
@@ -134,3 +135,4 @@ protected:
 };
 
 }
+#pragma GCC visibility pop

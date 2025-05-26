@@ -24,6 +24,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <ogdf/lib/minisat/core/Solver.h>
 
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -198,3 +199,4 @@ inline lbool SimpSolver::solveLimited (const vec<Lit>& assumps, bool do_simp, bo
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

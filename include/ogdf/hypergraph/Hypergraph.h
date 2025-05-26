@@ -64,10 +64,10 @@ class List;
 
 namespace ogdf {
 
-class OGDF_EXPORT AdjHypergraphElement; // IWYU pragma: keep
-class OGDF_EXPORT HyperedgeElement; // IWYU pragma: keep
-class OGDF_EXPORT Hypergraph; // IWYU pragma: keep
-class OGDF_EXPORT HypernodeElement; // IWYU pragma: keep
+class AdjHypergraphElement; // IWYU pragma: keep
+class HyperedgeElement; // IWYU pragma: keep
+class Hypergraph; // IWYU pragma: keep
+class HypernodeElement; // IWYU pragma: keep
 
 //! The type of hypernodes.
 using hypernode = HypernodeElement*;
@@ -408,7 +408,7 @@ OGDF_DECL_REG_ARRAY(HypernodeArray)
 OGDF_DECL_REG_ARRAY(HyperedgeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
-class OGDF_EXPORT HypergraphObserver;
+class HypergraphObserver;
 
 class OGDF_EXPORT Hypergraph : public Observable<HypergraphObserver, Hypergraph> {
 	//! The registered hypernode arrays

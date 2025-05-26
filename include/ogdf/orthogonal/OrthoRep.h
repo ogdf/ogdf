@@ -44,7 +44,7 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT PlanRep;
+class PlanRep;
 
 
 // type for bends (convex or reflex)

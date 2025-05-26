@@ -35,6 +35,7 @@
 #include <ogdf/basic/Stopwatch.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class Master;
@@ -1029,3 +1030,4 @@ inline SlackStat::STATUS LP::slackStat(int i)
 #endif
 
 }
+#pragma GCC visibility pop

@@ -28,6 +28,7 @@
 
 #pragma once
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -109,3 +110,4 @@ void AbaPrioQueue<Type, Key>::realloc(int newSize)
 }
 
 }
+#pragma GCC visibility pop

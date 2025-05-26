@@ -35,6 +35,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -115,9 +116,11 @@ private:
 };
 
 }
+#pragma GCC visibility pop
 
 #include <ogdf/lib/abacus/colvar.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 inline double NumCon::coeff(const Variable *v) const
@@ -127,3 +130,4 @@ inline double NumCon::coeff(const Variable *v) const
 }
 
 }
+#pragma GCC visibility pop

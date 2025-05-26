@@ -46,8 +46,8 @@
 
 namespace ogdf::pc_tree {
 class PCTree;
-struct OGDF_EXPORT PCNodeChildrenIterable;
-struct OGDF_EXPORT PCNodeNeighborsIterable;
+struct PCNodeChildrenIterable;
+struct PCNodeNeighborsIterable;
 
 /**
  * A node in a PC-tree that is either a P-node, C-node or leaf.
