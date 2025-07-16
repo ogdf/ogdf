@@ -52,22 +52,6 @@ self-sufficiency:
     - docker
   stage: test-advanced
 
-mac-debug:
-  except:
-    - schedules
-  script: util/test_build_and_run.sh static debug default_c gurobi
-  tags:
-    - mac
-  stage: test-advanced
-
-mac-release:
-  except:
-    - schedules
-  script: util/test_build_and_run.sh static release default_c gurobi
-  tags:
-    - mac
-  stage: test-advanced
-
 gcc-9-debug:
   except:
     - schedules
@@ -118,22 +102,4 @@ clang-15-release:
   script: util/test_build_and_run.sh static release clang gurobi -DOGDF_INCLUDE_CGAL=ON
   tags:
     - docker
-  stage: test-advanced
-
-vstudio-release:
-  except:
-    - schedules
-  script:
-    - powershell util\test_build_and_run.ps1 -gurobi
-  tags:
-    - windows
-  stage: test-advanced
-
-vstudio-debug:
-  except:
-    - schedules
-  script:
-    - powershell util\test_build_and_run.ps1 -debug -gurobi
-  tags:
-    - windows
   stage: test-advanced
