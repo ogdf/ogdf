@@ -31,7 +31,7 @@
 
 #include <ogdf/energybased/fast_multipole_embedder/ComplexDouble.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEKernel.h>
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h> // IWYU pragma: keep
 
 #include <cstddef>
 #include <cstdint>

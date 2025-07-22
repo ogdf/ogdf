@@ -33,6 +33,7 @@
 
 
 #include <ogdf/basic/internal/intrinsics.h> // IWYU pragma: keep
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h> // IWYU pragma: keep
 
 namespace ogdf {
 

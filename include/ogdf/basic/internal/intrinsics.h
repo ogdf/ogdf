@@ -38,8 +38,4 @@
 
 #ifdef OGDF_SSE3_EXTENSIONS
 #	include OGDF_SSE3_EXTENSIONS // IWYU pragma: export
-#else
-// custom flags sometimes set by CI for testing but now surely not available
-#	undef OGDF_FME_KERNEL_USE_SSE
-#	undef OGDF_FME_KERNEL_USE_SSE_DIRECT
 #endif
