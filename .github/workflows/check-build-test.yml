@@ -407,7 +407,7 @@ jobs:
       - name: Test ${{ matrix.mode }} build and run
         run: |
           util/test_build_and_run.sh \
-            static \
+            ${{ matrix.compiler == 'macos-14' && 'static' || 'dynamic' }} \
             ${{ matrix.mode }} \
             default_c \
             default_s \

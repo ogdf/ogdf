@@ -115,7 +115,9 @@ function (add_ogdf_extra_flags TARGET_NAME)
       if(BUILD_SHARED_LIBS)
         list(APPEND leak_flag_list "-shared-libsan")
       else()
-        list(APPEND leak_flag_list "-static-libsan")
+        # list(APPEND leak_flag_list "-static-libsan") # not available
+        message(WARNING "ASAN requested via OGDF_LEAK_CHECK=ON, but static ASAN is not supported on macOS arm64. ASAN flags will be skipped.")
+        set(leak_flag_list "")
       endif()
     endif()
 
