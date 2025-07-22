@@ -109,12 +109,23 @@ function (add_ogdf_extra_flags TARGET_NAME)
   endif()
   if(OGDF_LEAK_CHECK)
     set(leak_flag_list "-fsanitize=address" "-fno-omit-frame-pointer")
+
+    # apple silicon needs explicit linking with the right asan library
+    if(APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+      if(BUILD_SHARED_LIBS)
+        list(APPEND leak_flag_list "-shared-libsan")
+      else()
+        list(APPEND leak_flag_list "-static-libsan")
+      endif()
+    endif()
+
     string(REPLACE ";" " " leak_flags "${leak_flag_list}")
     set(extra_flags "${extra_flags} ${leak_flags}")
     set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY LINK_FLAGS " ${leak_flags} ")
     # If OGDF is compiled with ASAN, compile COIN with ASAN as well.
     # This avoids container-overflow false positives.
     target_compile_options(COIN PRIVATE ${leak_flag_list})
+    target_link_options(COIN PRIVATE ${leak_flag_list})
   endif()
   set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY COMPILE_FLAGS " ${extra_flags} ")
 endfunction()
