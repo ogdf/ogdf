@@ -60,6 +60,13 @@ namespace fast_multipole_embedder {
 // use SSE for direct interaction (this is slower than the normal direct computation)
 //#define OGDF_FME_KERNEL_USE_SSE_DIRECT
 
+#ifndef OGDF_SSE3_EXTENSIONS
+// if we have no SSE3 these flags cannot be used (but they are sometime set nonethelless by CI for testing)
+#	undef OGDF_FME_KERNEL_USE_SSE
+#	undef OGDF_FME_KERNEL_USE_SSE_DIRECT
+#endif
+
+
 inline void OGDF_FME_Print_Config() {
 #ifdef OGDF_FME_KERNEL_USE_SSE
 	std::cout << "OGDF_FME_KERNEL_USE_SSE" << std::endl;

@@ -36,7 +36,7 @@
 #include <ogdf/energybased/fast_multipole_embedder/ArrayGraph.h>
 #include <ogdf/energybased/fast_multipole_embedder/EdgeChain.h>
 #include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
-#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h>
+#include <ogdf/energybased/fast_multipole_embedder/FastUtils.h> // IWYU pragma: keep
 
 #include <algorithm>
 #include <cmath>

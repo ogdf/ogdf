@@ -72,7 +72,7 @@ namespace ogdf {
  * A trivial exception for failed assertions.
  * Only available if the macro OGDF_USE_ASSERT_EXCEPTIONS is defined.
  */
-class AssertionFailed : public std::runtime_error {
+class OGDF_EXPORT AssertionFailed : public std::runtime_error {
 	using std::runtime_error::runtime_error;
 };
 }
