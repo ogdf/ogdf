@@ -927,6 +927,9 @@ inline bool isTree(const Graph& G) {
 /**
  * @ingroup ga-tree
  *
+ * An arborescence is a digraph that has a unique node with indegree 0 (the root)
+ * such that, for any other vertex v, there is exactly one directed walk from r to v.
+ *
  * @param G is the input graph.
  * @param roots is assigned the list of root nodes of the arborescences in the forest.
  * If false is returned, \p roots is undefined.
@@ -937,6 +940,9 @@ OGDF_EXPORT bool isArborescenceForest(const Graph& G, List<node>& roots);
 //! Returns true iff \p G is a forest consisting only of arborescences.
 /**
  * @ingroup ga-tree
+ *
+ * An arborescence is a digraph that has a unique node with indegree 0 (the root)
+ * such that, for any other vertex v, there is exactly one directed walk from r to v.
  *
  * @param G is the input graph.
  * @return true if \p G represents an arborescence forest, false otherwise.
@@ -966,6 +972,9 @@ inline bool isForest(const Graph& G) { return isArborescenceForest(G); }
 /**
  * @ingroup ga-tree
  *
+ * An arborescence is a digraph that has a unique node with indegree 0 (the root)
+ * such that, for any other vertex v, there is exactly one directed walk from r to v.
+ *
  * @param G    is the input graph.
  * @param root is assigned the root node (if true is returned).
  * @return true if \p G represents an arborescence, false otherwise.
@@ -975,6 +984,9 @@ OGDF_EXPORT bool isArborescence(const Graph& G, node& root);
 //! Returns true iff \p G represents an arborescence.
 /**
  * @ingroup ga-tree
+ *
+ * An arborescence is a digraph that has a unique node with indegree 0 (the root)
+ * such that, for any other vertex v, there is exactly one directed walk from r to v.
  *
  * @param G  is the input graph.
  * @return true if \p G represents an arborescence, false otherwise.
