@@ -195,7 +195,6 @@ jobs:
             -DCPACK_GENERATOR="NSIS;ZIP"
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-          test_launcher: "./"
         env:
           CMAKE_C_COMPILER_LAUNCHER: ccache.exe
           CMAKE_CXX_COMPILER_LAUNCHER: ccache.exe
@@ -216,4 +215,3 @@ jobs:
           os: windows
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
-          test_launcher: "./"
