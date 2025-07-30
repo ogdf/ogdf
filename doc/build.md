@@ -197,22 +197,35 @@ As far as we know, this feature only works on Linux.
 ## System-wide Installation
 
 System-wide installation of OGDF is supported through the standard mechanisms
-provided by CMake. This support, however, is not thoroughly tested and may
-change in the future.
-
-Current limitations are that Debug and Release installations are not supported
-at the same time. We also do not provide version information at the moment.
+provided by CMake and via prebuilt packages.
+This support, however, is not thoroughly tested and may change in the future.
 
 ## Building User Code
 
-When you want to build user code that uses OGDF, you have to take care of the correct
-include paths.
-You should use `<OGDF build directory>/include` and `<OGDF source directory>/include`
-as include paths, and your OGDF build directory as library path. In case of an in-source
-build, the build and source directories coincide.
-It is not supported to have in-source and out-of-source builds at the same time. In case
-you want to remove an in-source build entirely, do not forget to remove the file
-`include/ogdf/basic/internal/config_autogen.h`.
+Since OGDF uses CMake, it is recommended and the most convenient for you to use CMake, too.
+The file `examples/special/CMakeLists.txt` contains a small working configuration to start with,
+but you can also use the following to adapt your own configuration:
+```cmake
+find_package(OGDF REQUIRED)
+
+add_executable(my-exe main.cpp)
+target_link_libraries(my-exe OGDF)
+```
+
+If you haven't installed the OGDF globally, you can pass `-DOGDF_DIR=<OGDF build directory>`
+to specify the path yo your OGDF build when invoking cmake on your configuration.
+Note that you may need to specify different `OGDF_DIR`s for the release and debug
+configurations of your own code.
+
+
+### Manual Linking
+
+When you want to build user code that uses OGDF without CMake,
+you have to take care of the correct include paths yourself.
+You should use `<OGDF build directory>/include-{release,debug}` and `<OGDF source directory>/include`
+as include paths, and your OGDF build directory as library path.
+In case of an in-source build, the build and source directories coincide.
+It is not supported to have in-source and out-of-source builds at the same time.
 
 If you are running into linking errors, undefined behavior or crashes at runtime,
 a typical mistake is that OGDF and user code is compiled in different modes (like
@@ -224,14 +237,8 @@ On Unix systems, typical compilation and linkage of user code would look like th
 
 ```sh
 # compile source files
-c++ -Ibuild_path/include -Isource_path/include -o file1.o -c file1.cpp
-c++ -Ibuild_path/include -Isource_path/include -o file2.o -c file2.cpp
+c++ -Ibuild_path/include-release -Isource_path/include -o file1.o -c file1.cpp
+c++ -Ibuild_path/include-release -Isource_path/include -o file2.o -c file2.cpp
 # link source files
 c++ -o output_binary -Lbuild_path file1.o file2.o -lOGDF -lCOIN
 ```
-
-### Example CMake configuration
-
-Since OGDF uses CMake, it is convenient for you to use CMake, too.
-The file `examples/special/CMakeLists.txt` contains a basic configuration
-to start with.
