@@ -1,9 +1,7 @@
 name: 'Test Installed Package'
 inputs:
-  bin_path:
-    description: "absolute path to binary install directory for windows"
   exc_special_path:
-    description: "absolute path to doc/examples/special"
+    description: "path to doc/examples/special"
   cmake_test_args:
     description: "string"
 
@@ -13,18 +11,35 @@ runs:
     - name: Test installed build results
       shell: bash
       run: |
-        set -x
         mkdir build-test && cd build-test
         export CCACHE_BASEDIR="$(pwd)"
-        export PATH="${{ inputs.bin_path }}:$PATH" #windows
-        echo "$PATH"
-        cmake ${{ inputs.exc_special_path }} --debug-find ${{ inputs.cmake_test_args }}
 
+        mkdir debug-info
+        { ld --verbose || echo "failed $?"; } > debug-info/ld.txt
+        { gcc -print-search-dirs || echo "failed $?"; } > debug-info/gcc.txt
+        { ldconfig -v || echo "failed $?"; } > debug-info/ldconfig.txt
+        { readelf -d /usr/local/lib/*.so || echo "failed $?"; } > debug-info/readelf.txt
+        echo "::group::>Environment"
+        env
+        echo "::endgroup::"
+        echo "::group::>CMake"
+        cmake ${{ inputs.exc_special_path }} --debug-find ${{ inputs.cmake_test_args }}
+        echo "::endgroup::"
+
+        echo "::group::>Debug build"
         cmake --build . --config Debug
+        echo
+        readelf -d Debug/check-build-mode || echo "readelf failed"
+        echo "::endgroup::"
+        echo "::group::>Release build"
         cmake --build . --config Release
+        echo
+        readelf -d Release/check-build-mode || echo "readelf failed"
+        echo "::endgroup::"
 
         has_error=0
         run_executable() {
+            sync
             local path="$1"
 
             if [[ ! -x "$path" ]]; then
@@ -42,6 +57,7 @@ runs:
             if [[ $exit_code -ne 0 ]]; then
                 has_error=1
             fi
+            sync
         }
 
         run_executable "Release/check-build-mode${{ runner.os == 'Windows' && '.exe' || '' }}"
@@ -56,9 +72,7 @@ runs:
     - name: Try running directly on windows
       shell: pwsh
       run: |
-        $env:PATH += ";${{ inputs.bin_path }}"
         echo $env:PATH
-        
         $script:hasError = $false
         
         function Run-Executable {

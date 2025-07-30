@@ -69,6 +69,15 @@ runs:
     - name: Test Installed Package
       uses: ./.github/actions/test-installed-package
       with:
-        bin_path: "${{ github.workspace }}/OGDF-ROOT/bin"
-        exc_special_path: "${{ github.workspace }}"
+        exc_special_path: ".."
         cmake_test_args: "${{ inputs.cmake_test_args }}"
+
+    - name: Store build results for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: test-${{ inputs.os }}
+        path: |
+          build-test/
+          !**/*.obj
+          !**/*.iobj

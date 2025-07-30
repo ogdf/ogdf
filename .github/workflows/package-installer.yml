@@ -182,6 +182,9 @@ jobs:
     needs: [ precheck ]
     steps:
       - uses: actions/checkout@v4
+      - name: Update library search path for cmake-install-based installation
+        run: echo "C:\\Program Files (x86)\\OGDF-PROJECT\\bin" >> "$GITHUB_PATH"
+        shell: bash
       - name: Build
         uses: ./.github/actions/create-package
         with:
@@ -208,6 +211,9 @@ jobs:
         with:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
+      - name: Update library search path for unzip+move-based installation
+        run: echo "${{ github.workspace }}\\OGDF-ROOT\\bin" >> "$GITHUB_PATH"
+        shell: bash
       - name: Test
         uses: ./.github/actions/test-package
         with:
@@ -215,3 +221,5 @@ jobs:
           os: windows
           cmake_test_args: >
             -DCMAKE_CONFIGURATION_TYPES="Debug;Release"
+            -DOGDF_DIR="${{ github.workspace }}\\OGDF-ROOT\\share\\ogdf"
+        # OGDF_DIR for current unzip+move-based installation

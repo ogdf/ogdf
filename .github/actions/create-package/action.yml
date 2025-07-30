@@ -31,12 +31,12 @@ runs:
         echo "::group::>Debug build"
         cmake --build . --config Debug
         echo
-        readelf -d Debug/*.so || echo "readelf failed"
+        readelf -d Debug/*.so* || echo "readelf failed"
         echo "::endgroup::"
         echo "::group::>Release build"
         cmake --build . --config Release
         echo
-        readelf -d Release/*.so || echo "readelf failed"
+        readelf -d Release/*.so* || echo "readelf failed"
         echo "::endgroup::"
 
         echo "::group::>Packaging"
@@ -55,13 +55,13 @@ runs:
         cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
         cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
         cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
-        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows
+        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows and to "/usr/local/lib/" on linux
+        { readelf -d /usr/local/lib/*.so* || echo "failed $?"; } > ../packages/install-manifests/readelf.txt
 
     - name: Test Installed Package
       uses: ./.github/actions/test-installed-package
       with:
-        bin_path: "C:/Program Files (x86)/OGDF-PROJECT/bin"
-        exc_special_path: "${{ github.workspace }}/doc/examples/special"
+        exc_special_path: "../doc/examples/special"
         cmake_test_args: "${{ inputs.cmake_test_args }}"
 
     - name: Store packages
