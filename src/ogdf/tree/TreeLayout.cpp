@@ -240,10 +240,6 @@ void TreeLayout::setRoot(GraphAttributes& AG, Graph& tree, SListPure<edge>& reve
 					if (x->indeg() == 0) {
 						root = x;
 					}
-				} else if (m_selectRoot == RootSelectionType::Sink) {
-					if (x->outdeg() == 0) {
-						root = x;
-					}
 				} else { // selectByCoordinate
 					root = x;
 				}
