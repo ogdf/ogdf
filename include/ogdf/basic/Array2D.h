@@ -207,9 +207,11 @@ private:
 	void copy(const Array2D<E>& array2);
 };
 
+}
+
 //! Constructs the array with index set [\p a, ..., \p b]*[\p c, ..., \p d].
 template<class E>
-void Array2D<E>::construct(int a, int b, int c, int d) {
+void ogdf::Array2D<E>::construct(int a, int b, int c, int d) {
 	m_a = a;
 	m_b = b;
 	m_c = c;
@@ -235,7 +237,7 @@ void Array2D<E>::construct(int a, int b, int c, int d) {
 
 //! Initializes the array with default constructor of \a E.
 template<class E>
-void Array2D<E>::initialize() {
+void ogdf::Array2D<E>::initialize() {
 	E* pDest = m_pStart;
 	try {
 		for (; pDest < m_pStop; pDest++) {
@@ -252,7 +254,7 @@ void Array2D<E>::initialize() {
 
 //! Initializes the array with \p x.
 template<class E>
-void Array2D<E>::initialize(const E& x) {
+void ogdf::Array2D<E>::initialize(const E& x) {
 	E* pDest = m_pStart;
 	try {
 		for (; pDest < m_pStop; pDest++) {
@@ -269,7 +271,7 @@ void Array2D<E>::initialize(const E& x) {
 
 //! Call destructor of all elements.
 template<class E>
-void Array2D<E>::deconstruct() {
+void ogdf::Array2D<E>::deconstruct() {
 	if (!std::is_trivially_destructible<E>::value) {
 		for (E* pDest = m_pStart; pDest < m_pStop; pDest++) {
 			pDest->~E();
@@ -280,7 +282,7 @@ void Array2D<E>::deconstruct() {
 
 //! Copy \p array2.
 template<class E>
-void Array2D<E>::copy(const Array2D<E>& array2) {
+void ogdf::Array2D<E>::copy(const ogdf::Array2D<E>& array2) {
 	construct(array2.m_a, array2.m_b, array2.m_c, array2.m_d);
 
 	if (m_pStart != 0) {
@@ -294,7 +296,7 @@ void Array2D<E>::copy(const Array2D<E>& array2) {
 
 //! Computes the determinant via row expansion.
 template<class E>
-float Array2D<E>::det() const {
+float ogdf::Array2D<E>::det() const {
 	// matrix must be quadratic
 	OGDF_ASSERT(size1() == size2());
 
@@ -321,7 +323,7 @@ float Array2D<E>::det() const {
 
 		// Expanding along the first row (Laplace's Formula)
 	default:
-		Array2D<E> remMatrix(0, n - 2, 0, n - 2); // the remaining matrix
+		ogdf::Array2D<E> remMatrix(0, n - 2, 0, n - 2); // the remaining matrix
 		for (column = c; column <= d; column++) {
 			int rem_i = 0;
 			int rem_j = 0;
@@ -343,6 +345,4 @@ float Array2D<E>::det() const {
 	}
 
 	return determinant;
-}
-
 }

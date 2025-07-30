@@ -805,9 +805,11 @@ private:
 	OGDF_NEW_DELETE
 };
 
+}
+
 // enlarges storage for array and moves old entries
 template<class E, class INDEX>
-void Array<E, INDEX>::expandArray(INDEX add) {
+void ogdf::Array<E, INDEX>::expandArray(INDEX add) {
 	INDEX sOld = size(), sNew = sOld + add;
 
 	// expand allocated memory block
@@ -827,7 +829,7 @@ void Array<E, INDEX>::expandArray(INDEX add) {
 
 // enlarges array by add elements and sets new elements to x
 template<class E, class INDEX>
-void Array<E, INDEX>::grow(INDEX add, const E& x) {
+void ogdf::Array<E, INDEX>::grow(INDEX add, const E& x) {
 	if (add == 0) {
 		return;
 	}
@@ -843,7 +845,7 @@ void Array<E, INDEX>::grow(INDEX add, const E& x) {
 
 // enlarges array by add elements (initialized with default constructor)
 template<class E, class INDEX>
-void Array<E, INDEX>::grow(INDEX add) {
+void ogdf::Array<E, INDEX>::grow(INDEX add) {
 	if (add == 0) {
 		return;
 	}
@@ -858,7 +860,7 @@ void Array<E, INDEX>::grow(INDEX add) {
 }
 
 template<class E, class INDEX>
-void Array<E, INDEX>::construct(INDEX a, INDEX b) {
+void ogdf::Array<E, INDEX>::construct(INDEX a, INDEX b) {
 	m_low = a;
 	m_high = b;
 	INDEX s = b - a + 1;
@@ -878,7 +880,7 @@ void Array<E, INDEX>::construct(INDEX a, INDEX b) {
 }
 
 template<class E, class INDEX>
-void Array<E, INDEX>::initialize() {
+void ogdf::Array<E, INDEX>::initialize() {
 	E* pDest = m_pStart;
 	try {
 		for (; pDest < m_pStop; pDest++) {
@@ -894,7 +896,7 @@ void Array<E, INDEX>::initialize() {
 }
 
 template<class E, class INDEX>
-void Array<E, INDEX>::initialize(const E& x) {
+void ogdf::Array<E, INDEX>::initialize(const E& x) {
 	E* pDest = m_pStart;
 	try {
 		for (; pDest < m_pStop; pDest++) {
@@ -910,7 +912,7 @@ void Array<E, INDEX>::initialize(const E& x) {
 }
 
 template<class E, class INDEX>
-void Array<E, INDEX>::initialize(std::initializer_list<E> initList) {
+void ogdf::Array<E, INDEX>::initialize(std::initializer_list<E> initList) {
 	E* pDest = m_pStart;
 	try {
 		for (const E& x : initList) {
@@ -926,7 +928,7 @@ void Array<E, INDEX>::initialize(std::initializer_list<E> initList) {
 }
 
 template<class E, class INDEX>
-void Array<E, INDEX>::deconstruct() {
+void ogdf::Array<E, INDEX>::deconstruct() {
 	if (!std::is_trivially_destructible<E>::value) {
 		for (E* pDest = m_pStart; pDest < m_pStop; pDest++) {
 			pDest->~E();
@@ -936,7 +938,7 @@ void Array<E, INDEX>::deconstruct() {
 }
 
 template<class E, class INDEX>
-void Array<E, INDEX>::copy(const Array<E, INDEX>& array2) {
+void ogdf::Array<E, INDEX>::copy(const ogdf::Array<E, INDEX>& array2) {
 	construct(array2.m_low, array2.m_high);
 
 	if (m_pStart != nullptr) {
@@ -953,7 +955,7 @@ void Array<E, INDEX>::copy(const Array<E, INDEX>& array2) {
 // permutes array a from a[l] to a[r] randomly
 template<class E, class INDEX>
 template<class RNG>
-void Array<E, INDEX>::permute(INDEX l, INDEX r, RNG& rng) {
+void ogdf::Array<E, INDEX>::permute(INDEX l, INDEX r, RNG& rng) {
 	OGDF_ASSERT(low() <= l);
 	OGDF_ASSERT(l <= high());
 	OGDF_ASSERT(low() <= r);
@@ -966,6 +968,8 @@ void Array<E, INDEX>::permute(INDEX l, INDEX r, RNG& rng) {
 		std::swap(*pI++, *(pStart + dist(rng)));
 	}
 }
+
+namespace ogdf {
 
 //! Prints array \p a to output stream \p os using delimiter \p delim.
 template<class E, class INDEX>
@@ -987,11 +991,10 @@ std::ostream& operator<<(std::ostream& os, const ogdf::Array<E, INDEX>& a) {
 
 }
 
-namespace ogdf {
 
 //! shift all items up to the last element of \p ind to the left
 template<class E, class INDEX>
-void Array<E, INDEX>::leftShift(ArrayBuffer<INDEX, INDEX>& ind) {
+void ogdf::Array<E, INDEX>::leftShift(ogdf::ArrayBuffer<INDEX, INDEX>& ind) {
 	const INDEX nInd = ind.size();
 	if (nInd == 0) {
 		return;
@@ -1018,9 +1021,7 @@ void Array<E, INDEX>::leftShift(ArrayBuffer<INDEX, INDEX>& ind) {
 }
 
 template<class E, class INDEX>
-Array<E, INDEX>::Array(const ArrayBuffer<E, INDEX>& A) {
+ogdf::Array<E, INDEX>::Array(const ogdf::ArrayBuffer<E, INDEX>& A) {
 	construct(0, -1);
 	A.compactCopy(*this);
-}
-
 }
