@@ -240,10 +240,6 @@ void TreeLayout::setRoot(GraphAttributes& AG, Graph& tree, SListPure<edge>& reve
 					if (x->indeg() == 0) {
 						root = x;
 					}
-				} else if (m_selectRoot == RootSelectionType::Sink) {
-					if (x->outdeg() == 0) {
-						root = x;
-					}
 				} else { // selectByCoordinate
 					root = x;
 				}
@@ -385,7 +381,13 @@ void TreeLayout::call(GraphAttributes& AG) {
 		return;
 	}
 
-	OGDF_ASSERT(isArborescenceForest(tree));
+#ifdef OGDF_DEBUG
+	if (m_selectRoot == RootSelectionType::Source) {
+		OGDF_ASSERT(isArborescenceForest(tree));
+	} else {
+		OGDF_ASSERT(isAcyclicUndirected(tree));
+	}
+#endif
 	OGDF_ASSERT(m_siblingDistance > 0);
 	OGDF_ASSERT(m_subtreeDistance > 0);
 	OGDF_ASSERT(m_levelDistance > 0);
