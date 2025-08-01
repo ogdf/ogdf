@@ -50,12 +50,12 @@ runs:
       run: |
         cd build-install
         mkdir -p ../packages/install-manifests
-        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
-        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-debug.txt
-        cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
-        cp install_manifest.txt                             ../packages/install-manifests/install_manifest-release.txt
-        cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
-        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows and to "/usr/local/lib/" on linux
+        ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+        cp install_manifest.txt ../packages/install-manifests/install_manifest-debug.txt
+        ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+        cp install_manifest.txt ../packages/install-manifests/install_manifest-release.txt
+        ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows and to "/usr/local/lib/" on unix
         { readelf -d /usr/local/lib/*.so* || echo "failed $?"; } > ../packages/install-manifests/readelf.txt
 
     - name: Test Installed Package

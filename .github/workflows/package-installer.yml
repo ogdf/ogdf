@@ -130,7 +130,7 @@ jobs:
 
   build-macos:
     name: "Build on MacOS"
-    runs-on: macos-13
+    runs-on: macos-14
     needs: [ precheck ]
     steps:
       - name: Install macos build utils
@@ -156,7 +156,7 @@ jobs:
 
   test-macos:
     name: "Test on MacOS"
-    runs-on: macos-13
+    runs-on: macos-14
     needs: [ build-macos ]
     steps:
       - name: Install macos build utils
