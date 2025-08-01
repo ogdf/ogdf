@@ -17,6 +17,7 @@ runs:
         mkdir debug-info
         { ld --verbose || echo "failed $?"; } > debug-info/ld.txt
         { gcc -print-search-dirs || echo "failed $?"; } > debug-info/gcc.txt
+        # it seems that the libraries will only be found if we call ldconfig beforehand...
         { ldconfig -v || echo "failed $?"; } > debug-info/ldconfig.txt
         { readelf -d /usr/local/lib/*.so || echo "failed $?"; } > debug-info/readelf.txt
         echo "::group::>Environment"
@@ -74,19 +75,19 @@ runs:
       run: |
         echo $env:PATH
         $script:hasError = $false
-        
+
         function Run-Executable {
             param (
                 [string]$path
             )
-        
+
             Write-Host "--- Running: $path ---"
             try {
                 $output = & $path 2>&1
                 $exitCode = $LASTEXITCODE
                 Write-Host $output
                 Write-Host "$path exited with code $exitCode"
-        
+
                 if ($exitCode -ne 0) {
                     $script:hasError = $true
                 }
@@ -95,11 +96,11 @@ runs:
                 $script:hasError = $true
             }
         }
-        
+
         cd build-test
         Run-Executable "Release/check-build-mode.exe"
         Run-Executable "Debug/check-build-mode.exe"
-        
+
         if ($script:hasError) {
             exit 1
         } else {
