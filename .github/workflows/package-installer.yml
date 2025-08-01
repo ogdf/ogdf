@@ -2,8 +2,8 @@ name: Package and Test Installers
 
 on:
   push:
-#    branches: # TODO
-#      - master
+    branches:
+      - master
 
 # the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
 # which is very useful when using the same docker images as used for the build locally
@@ -29,23 +29,10 @@ env:
 #   VERBOSE: 1
 
 jobs:
-  # We don't want to run the CI twice for PRs from branches within the repo, so for a push event we only run the CI if #TODO
-  # the push was to the master branch or to a fork of the repo, while running the CI for all (in- and cross-repo) PRs.
-  # Workflows skipped due to filters block PRs from being merged (their required jobs count as "pending"),
-  # while jobs skipped due to conditions still count as success, so we apply the filter here.
-  precheck:
-    name: "Check whether to run the CI"
-    runs-on: ubuntu-latest
-    # if: github.event.repository.full_name != 'ogdf/ogdf' || github.event_name != 'push' || github.event.ref == 'refs/heads/master'
-    steps:
-      - run: echo "Running CI pipeline!"
-
-
   build-linux:
     name: "Build on Linux"
     runs-on: ubuntu-latest
     container: debian:bullseye # should have the oldest gcc/stdlib version we want to support
-    needs: [ precheck ]
     env:
       CCACHE_COMPILERCHECK: "%compiler% -v"
     steps:
@@ -131,7 +118,6 @@ jobs:
   build-macos:
     name: "Build on MacOS"
     runs-on: macos-14
-    needs: [ precheck ]
     steps:
       - name: Install macos build utils
         shell: bash
@@ -179,7 +165,6 @@ jobs:
   build-windows:
     name: "Build on Windows"
     runs-on: windows-latest
-    needs: [ precheck ]
     steps:
       - uses: actions/checkout@v4
       - name: Update library search path for cmake-install-based installation
