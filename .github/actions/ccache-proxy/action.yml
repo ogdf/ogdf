@@ -1,0 +1,24 @@
+name: 'Set-up ccache HTTP proxy'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set-up HTTPS proxy for ccache on Unix
+      shell: bash
+      run: |
+        pipx install mitmproxy
+        echo "PATH=$PATH:$HOME/.local/bin" >> "$GITHUB_ENV"
+      if: ${{ runner.os != 'Windows' }}
+    - name: Set-up HTTPS proxy for ccache on Windows
+      shell: pwsh
+      run: |
+        pipx install mitmproxy
+      if: ${{ runner.os == 'Windows' }}
+    - uses: JarvusInnovations/background-action@v1
+      name: Start HTTPS proxy for ccache
+      with:
+        run: mitmdump --mode reverse:https://${CCACHE_REMOTE_STORAGE_HOST}@44443
+        wait-on: tcp:localhost:44443
+        tail: false
+        log-output-if: failure
+        wait-for: 10s

@@ -95,31 +95,28 @@ jobs:
           echo
           ls -al *
 
-      - name: Install sonar-scanner
-        uses: SonarSource/sonarcloud-github-c-cpp@v3
-        with:
-          cache-binaries: false
-
       - name: SonarCloud PR Scan
         if: github.event.workflow_run.event == 'pull_request'
-        run: >
-          sonar-scanner
-          -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
-          -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.pr-number }}
-          -Dsonar.pullrequest.branch=${{ github.event.workflow_run.head_branch }}
-          -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }}
-          -Dproject.settings=sonar-project.properties
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.pr-number }}
+            -Dsonar.pullrequest.branch=${{ github.event.workflow_run.head_branch }}
+            -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }}
+            -Dproject.settings=sonar-project.properties
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SonarCloud non-PR Scan
         if: github.event.workflow_run.event != 'pull_request'
-        run: >
-          sonar-scanner
-          -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          -Dproject.settings=sonar-project.properties
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            -Dproject.settings=sonar-project.properties
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

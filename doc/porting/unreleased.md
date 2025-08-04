@@ -6,6 +6,15 @@
 OGDF now requires C++17 features.
 We no longer officially support compilers older than gcc 9, clang 9 or Visual Studio 2017 15.8 (MSVC 19.15).
 
+## Build Process
+The file `ogdf/basic/internal/config_autogen.h` has moved from `${PROJECT_BINARY_DIR}/include/`
+to `${PROJECT_BINARY_DIR}/include/ogdf-{release,debug}/` (depending on the build type).
+If you manually specify include paths for the OGDF make sure to update them accordingly such that
+the file can be included as before using `#include <ogdf/basic/internal/config_autogen.h>`.
+CMake users should not notice any changes.
+
+Binaries built in debug mode now have the suffix "-debug".
+
 ## include-what-you-use (iwyu)
 The OGDF now [uses](https://github.com/ogdf/ogdf/pull/239) [iwyu](https://include-what-you-use.org/)
 to make sure each source file explicitly lists all header files it uses, but no further unused headers.
