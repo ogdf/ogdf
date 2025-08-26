@@ -222,7 +222,7 @@ configurations of your own code.
 
 When you want to build user code that uses OGDF without CMake,
 you have to take care of the correct include paths yourself.
-You should use `<OGDF build directory>/include-{release,debug}` and `<OGDF source directory>/include`
+You should use `<OGDF build directory>/include/ogdf-{release,debug}` and `<OGDF source directory>/include`
 as include paths, and your OGDF build directory as library path.
 In case of an in-source build, the build and source directories coincide.
 It is not supported to have in-source and out-of-source builds at the same time.
@@ -237,8 +237,8 @@ On Unix systems, typical compilation and linkage of user code would look like th
 
 ```sh
 # compile source files
-c++ -Ibuild_path/include-release -Isource_path/include -o file1.o -c file1.cpp
-c++ -Ibuild_path/include-release -Isource_path/include -o file2.o -c file2.cpp
+c++ -Ibuild_path/include/ogdf-release -Isource_path/include -o file1.o -c file1.cpp
+c++ -Ibuild_path/include/ogdf-release -Isource_path/include -o file2.o -c file2.cpp
 # link source files
 c++ -o output_binary -Lbuild_path file1.o file2.o -lOGDF -lCOIN
 ```
