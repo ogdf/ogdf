@@ -1,0 +1,83 @@
+name: 'Test Package'
+inputs:
+  container:
+    description: "bool"
+  distro:
+    description: "string (ubuntu/debian/.../macos/windows)"
+  os:
+    description: "string (linux/macos/windows)"
+  cmake_test_args:
+    description: "string"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          doc/examples/special
+        sparse-checkout-cone-mode: false
+    - uses: actions/download-artifact@v4
+      with:
+        name: packages-${{ inputs.os }}
+        path: packages
+    - name: Relocate test sources
+      shell: bash
+      run: |
+        mv doc/examples/special/* .
+        rm -rf doc
+        ls *
+
+    - name: Install DEB
+      shell: bash
+      run: |
+        ${{ !inputs.container && 'sudo' || '' }} apt-get update
+        ${{ !inputs.container && 'sudo apt-get install -y libunwind-dev' || '' }}
+        ${{ !inputs.container && 'sudo' || '' }} apt-get install -y ./packages/OGDF-*-Linux.deb
+      if: ${{ inputs.distro == 'debian' || inputs.distro == 'ubuntu' }}
+    - name: Install RPM
+      shell: bash
+      run: |
+        dnf install -y ./packages/OGDF-*-Linux.rpm
+      if: ${{ inputs.distro == 'fedora' }}
+    - name: Install SH
+      shell: bash
+      run: |
+        chmod +x ./packages/OGDF-*-Linux.sh
+        mkdir -p /usr/local
+        ./packages/OGDF-*-Linux.sh --skip-license --prefix=/usr/local
+      if: ${{ inputs.distro == 'archlinux' }}
+    - name: Install ZIP (Windows)
+      shell: bash
+      run: |
+        unzip ./packages/OGDF-*-win64.zip -d ./packages/unzip
+        mv ./packages/unzip/OGDF-PROJECT-*-win64 ./OGDF-ROOT
+        ls *
+      if: ${{ inputs.distro == 'windows' }}
+    #    - name: Install NSIS (Windows)
+    #      shell: bash
+    #      run: |
+    #        ./packages/OGDF-*-win64.exe /S /D=$(realpath ./OGDF-ROOT)
+    #        ls *
+    #      if: ${{ inputs.distro == 'windows' }}
+    - name: Install PKG (MacOS)
+      shell: bash
+      run: |
+        sudo installer -pkg ./packages/OGDF-*-Darwin.pkg -target /
+      if: ${{ inputs.distro == 'macos' }}
+
+    - name: Test Installed Package
+      uses: ./.github/actions/test-installed-package
+      with:
+        exc_special_path: ".."
+        cmake_test_args: "${{ inputs.cmake_test_args }}"
+
+    - name: Store build results for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: test-${{ inputs.os }}
+        path: |
+          build-test/
+          !**/*.obj
+          !**/*.iobj

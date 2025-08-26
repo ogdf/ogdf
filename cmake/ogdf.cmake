@@ -24,13 +24,38 @@ else()
   unset(OGDF_LEAK_CHECK CACHE)
 endif()
 
-# set debug mode
+set(extra_flags_desc "Extra compiler flags for compiling OGDF, tests, and examples")
+set(OGDF_EXTRA_CXX_FLAGS "${available_default_warning_flags}" CACHE
+        STRING "${extra_flags_desc}.")
+set(OGDF_EXTRA_CXX_FLAGS_DEBUG "${available_default_warning_flags_debug}" CACHE
+        STRING "${extra_flags_desc} applied only when compiling in debug mode.")
+set(OGDF_EXTRA_CXX_FLAGS_RELEASE "${available_default_warning_flags_release}" CACHE
+        STRING "${extra_flags_desc} applied only when not compiling in debug mode.")
+mark_as_advanced(OGDF_EXTRA_CXX_FLAGS)
+mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_DEBUG)
+mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_RELEASE)
+
+# sets debug mode if it was not explicitly set to NONE and we are in a Debug or Multiconfig build (or the passed config argument is Debug)
+function(set_debug_mode)
+  set(OGDF_DEBUG OFF PARENT_SCOPE)
+  if(OGDF_DEBUG_MODE STREQUAL NONE)
+    return()
+  elseif(ARGC GREATER 0)
+    if(ARGV0 MATCHES Debug)
+      set(OGDF_DEBUG ON PARENT_SCOPE)
+    endif()
+  else()
+    if(MULTICONFIG_BUILD OR CMAKE_BUILD_TYPE MATCHES Debug)
+      set(OGDF_DEBUG ON PARENT_SCOPE)
+    endif()
+  endif()
+endfunction()
+
 if(OGDF_DEBUG_MODE STREQUAL HEAVY)
   set(OGDF_HEAVY_DEBUG ON)
 endif()
-if(NOT OGDF_DEBUG_MODE STREQUAL NONE AND (MULTICONFIG_BUILD OR CMAKE_BUILD_TYPE MATCHES Debug))
-  set(OGDF_DEBUG ON)
-endif()
+set_debug_mode()
+
 
 # find available packages for stack traces
 if(OGDF_USE_ASSERT_EXCEPTIONS)
@@ -49,22 +74,12 @@ if(OGDF_USE_ASSERT_EXCEPTIONS)
 endif()
 
 # find CGAL if enabled
+option(OGDF_INCLUDE_CGAL "Indicates whether components that require CGAL ({src,include}/ogdf/geometric) should be built. Requires OpenMP" OFF)
 if (OGDF_INCLUDE_CGAL)
   find_package(CGAL REQUIRED COMPONENTS Core)
   find_package(OpenMP REQUIRED)
   set(extra_flags "${extra_flags} ${OpenMP_CXX_FLAGS}")
 endif()
-
-set(extra_flags_desc "Extra compiler flags for compiling OGDF, tests, and examples")
-set(OGDF_EXTRA_CXX_FLAGS "${available_default_warning_flags}" CACHE
-    STRING "${extra_flags_desc}.")
-set(OGDF_EXTRA_CXX_FLAGS_DEBUG "${available_default_warning_flags_debug}" CACHE
-    STRING "${extra_flags_desc} applied only when compiling in debug mode.")
-set(OGDF_EXTRA_CXX_FLAGS_RELEASE "${available_default_warning_flags_release}" CACHE
-    STRING "${extra_flags_desc} applied only when not compiling in debug mode.")
-mark_as_advanced(OGDF_EXTRA_CXX_FLAGS)
-mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_DEBUG)
-mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_RELEASE)
 
 # static analysis using clang-tidy
 option(OGDF_ENABLE_CLANG_TIDY "Enable static analysis using clang-tidy" OFF)
@@ -81,21 +96,19 @@ endif()
 # compilation
 file(GLOB_RECURSE ogdf_headers include/ogdf/*.h)
 file(GLOB_RECURSE ogdf_sources src/ogdf/*.cpp)
-set(ogdf_sources "${ogdf_sources};${ogdf_headers}")
 add_library(OGDF "${ogdf_sources}")
+set_property(TARGET OGDF PROPERTY VERSION ${PROJECT_VERSION})
 target_link_libraries(OGDF PUBLIC COIN)
 group_files(ogdf_sources "ogdf")
-target_compile_features(OGDF PUBLIC cxx_range_for)
+group_files(ogdf_headers "ogdf")
+target_compile_features(OGDF PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 
 target_include_directories(OGDF PUBLIC # for the autogen header
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/ogdf-$<IF:$<CONFIG:Debug>,debug,release>>
+  $<INSTALL_INTERFACE:include/ogdf-$<IF:$<CONFIG:Debug>,debug,release>>)
 target_include_directories(OGDF PUBLIC # for the general include files
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-if(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES)
-  target_include_directories(OGDF SYSTEM PUBLIC ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
-endif()
 
 function (add_ogdf_extra_flags TARGET_NAME)
   set(extra_flags ${OGDF_EXTRA_CXX_FLAGS})
@@ -201,43 +214,64 @@ if(CMAKE_COMPILER_IS_GNUCXX OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND 
 endif()
 
 # add stack trace settings
-if(BACKWARD_HAS_DW)
-  target_include_directories(OGDF SYSTEM PUBLIC ${LIBDW_INCLUDE_DIR})
-elseif(BACKWARD_HAS_BFD)
-  target_include_directories(OGDF SYSTEM PUBLIC ${LIBBFD_INCLUDE_DIR} ${LIBDL_INCLUDE_DIR})
-elseif(BACKWARD_HAS_UNWIND)
-  target_include_directories(OGDF SYSTEM PUBLIC ${LIBUNWIND_INCLUDE_DIR})
+if(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE STREQUAL "ON_LIBDW")
+  target_link_libraries(OGDF PUBLIC Libdw)
+elseif(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE STREQUAL "ON_LIBBFD")
+  target_link_libraries(OGDF PUBLIC Libbfd)
+elseif(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE STREQUAL "ON_LIBUNWIND")
+  target_link_libraries(OGDF PUBLIC Libunwind)
 endif()
-if(SHOW_STACKTRACE)
-  if(BACKWARD_HAS_DW)
-    target_link_libraries(OGDF PUBLIC ${LIBDW_LIBRARY})
-  elseif(BACKWARD_HAS_BFD)
-    target_link_libraries(OGDF PUBLIC ${LIBBFD_LIBRARY} ${LIBDL_LIBRARY})
-  elseif(BACKWARD_HAS_UNWIND)
-    target_link_libraries(OGDF PUBLIC ${LIBUNWIND_LIBRARY})
+
+# create autogen header(s)
+function(create_autogen_header CURRENT_CONFIG)
+  set_debug_mode(${CURRENT_CONFIG})
+  if(CURRENT_CONFIG MATCHES Debug)
+    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-debug/ogdf/basic/internal/config_autogen.h")
+  else()
+    configure_file("${module_dir}/config_autogen.h.in" "${PROJECT_BINARY_DIR}/include/ogdf-release/ogdf/basic/internal/config_autogen.h")
   endif()
+endfunction()
+
+if(CMAKE_CONFIGURATION_TYPES)
+  foreach(entry IN LISTS CMAKE_CONFIGURATION_TYPES)
+    create_autogen_header(${entry})
+  endforeach()
+  set_debug_mode()
+else()
+  create_autogen_header(${CMAKE_BUILD_TYPE})
 endif()
 
 # installation
-set(OGDF_INSTALL_LIBRARY_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}" CACHE PATH "Installation path of OGDF library")
-set(OGDF_INSTALL_BIN_DIR "bin" CACHE PATH "Installation path of OGDF runtime targets")
-set(OGDF_INSTALL_INCLUDE_DIR "include" CACHE PATH "Installation path of OGDF header files (creates subdirectory)")
-set(OGDF_INSTALL_CMAKE_DIR "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/OGDF/" CACHE PATH "Installation path of OGDF files for CMake")
-mark_as_advanced(OGDF_INSTALL_LIBRARY_DIR OGDF_INSTALL_BIN_DIR OGDF_INSTALL_INCLUDE_DIR OGDF_INSTALL_CMAKE_DIR)
 configure_file(cmake/ogdf-config.cmake "${PROJECT_BINARY_DIR}/ogdf-config.cmake" @ONLY)
-install(TARGETS OGDF
-  EXPORT OgdfTargets
-  LIBRARY DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
-  ARCHIVE DESTINATION "${OGDF_INSTALL_LIBRARY_DIR}"
-  RUNTIME DESTINATION "${OGDF_INSTALL_BIN_DIR}"
-  INCLUDES DESTINATION "${COIN_INSTALL_INCLUDE_DIR}"
-  PUBLIC_HEADER DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}")
-install(DIRECTORY "${PROJECT_BINARY_DIR}/include/ogdf" include/ogdf
-  DESTINATION "${OGDF_INSTALL_INCLUDE_DIR}"
+install(TARGETS OGDF EXPORT OgdfTargets COMPONENT OGDF)
+install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" include/ogdf # copy everything *inside* the former dir and the latter dir itself
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  COMPONENT OGDFheaders
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "*.inc")
-install(EXPORT OgdfTargets DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
-install(FILES "${PROJECT_BINARY_DIR}/ogdf-config.cmake" DESTINATION "${OGDF_INSTALL_CMAKE_DIR}")
-export(EXPORT OgdfTargets)
+install(EXPORT OgdfTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
+install(FILES
+        "${PROJECT_BINARY_DIR}/ogdf-config.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibbfd.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibdw.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibunwind.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
+
+# packaging
+include(InstallRequiredSystemLibraries)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_PACKAGE_CONTACT "ogdf@googlegroups.com")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libunwind-dev")
+set(CPACK_RPM_PACKAGE_REQUIRES "libunwind-devel")
+set(CPACK_PRODUCTBUILD_IDENTIFIER "net.ogdf.pkg")
+if(MULTICONFIG_BUILD)
+  set(CPACK_BUILD_CONFIG ${CMAKE_CONFIGURATION_TYPES})
+endif()
+set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/packages")
+include(CPack)
+cpack_add_component(COIN)
+cpack_add_component(COINheaders)
+cpack_add_component(OGDF)
+cpack_add_component(OGDFheaders)

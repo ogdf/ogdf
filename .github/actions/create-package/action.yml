@@ -1,0 +1,83 @@
+name: 'Create Package'
+inputs:
+  distro:
+    description: "string (ubuntu/debian/.../macos/windows)"
+  os:
+    description: "string (linux/macos/windows)"
+  cmake_args:
+    description: "string"
+  cmake_test_args:
+    description: "string"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set-up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: package-${{ inputs.distro }}
+    - name: Set-up ccache HTTP proxy
+      uses: ./.github/actions/ccache-proxy
+
+    - name: Build and package
+      shell: bash
+      run: |
+        mkdir build-install && cd build-install
+        export CCACHE_BASEDIR="$(pwd)"
+        cmake .. ${{ inputs.cmake_args }}
+
+        echo "::group::>Debug build"
+        cmake --build . --config Debug
+        echo
+        readelf -d Debug/*.so* || echo "readelf failed"
+        echo "::endgroup::"
+        echo "::group::>Release build"
+        cmake --build . --config Release
+        echo
+        readelf -d Release/*.so* || echo "readelf failed"
+        echo "::endgroup::"
+
+        echo "::group::>Packaging"
+        # cmake --build . --target package
+        mkdir -p ../packages/install-manifests
+        cpack --verbose | tee ../packages/install-manifests/cpack.log
+        echo "::endgroup::"
+
+    - name: Install for testing
+      shell: bash
+      run: |
+        cd build-install
+        mkdir -p ../packages/install-manifests
+        ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
+        cp install_manifest.txt ../packages/install-manifests/install_manifest-debug.txt
+        ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Release --target install > ../packages/install-manifests/install-release.log
+        cp install_manifest.txt ../packages/install-manifests/install_manifest-release.txt
+        ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug2.log
+        # this installs to "C:/Program Files (x86)/OGDF-PROJECT" on windows and to "/usr/local/lib/" on unix
+        { readelf -d /usr/local/lib/*.so* || echo "failed $?"; } > ../packages/install-manifests/readelf.txt
+
+    - name: Test Installed Package
+      uses: ./.github/actions/test-installed-package
+      with:
+        exc_special_path: "../doc/examples/special"
+        cmake_test_args: "${{ inputs.cmake_test_args }}"
+
+    - name: Store packages
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: packages-${{ inputs.os }}
+        path: packages/
+
+    - name: Store build results for debugging
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-${{ inputs.os }}
+        path: |
+          build-install/
+          build-test/
+          !**/*.obj
+          !**/*.iobj
