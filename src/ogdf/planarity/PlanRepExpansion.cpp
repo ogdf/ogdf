@@ -331,7 +331,7 @@ void PlanRepExpansion::insertEdgePathEmbedded(edge eOrig, nodeSplit ns, Combinat
 }
 
 void PlanRepExpansion::removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, nodeSplit ns,
-		FaceSet<false>& newFaces, NodeSet<false>& mergedNodes, node& oldSrc, node& oldTgt) {
+		FaceSet& newFaces, NodeSet& mergedNodes, node& oldSrc, node& oldTgt) {
 	OGDF_ASSERT((eOrig != nullptr && ns == nullptr) || (eOrig == nullptr && ns != nullptr));
 
 	const List<edge>& path = (eOrig) ? m_eCopy[eOrig] : ns->m_path;

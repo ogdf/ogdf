@@ -32,6 +32,7 @@
 #include <ogdf/lib/abacus/abacusroot.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template <class Type>
@@ -167,3 +168,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/ring.inc>
+#pragma GCC visibility pop

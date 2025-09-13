@@ -54,7 +54,6 @@ class CombinatorialEmbedding;
 class GridLayout;
 class Layout;
 class OrthoRep;
-template<bool>
 class FaceSet;
 template<class E>
 class List;
@@ -626,7 +625,7 @@ public:
 	/**
 	 * \pre \p eOrig s an edge in the original graph.
 	 */
-	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet<false>& newFaces) {
+	void removeEdgePathEmbedded(CombinatorialEmbedding& E, edge eOrig, FaceSet& newFaces) {
 		GraphCopy::removeEdgePathEmbedded(E, eOrig, newFaces);
 	}
 

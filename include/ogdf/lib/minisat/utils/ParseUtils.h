@@ -25,6 +25,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 //#include <ogdf/lib/minisat/win/zlib.h>
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -121,3 +122,4 @@ static bool eagerMatch(B& in, const char* str) {
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

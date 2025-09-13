@@ -34,6 +34,7 @@
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/copy_move.h>
 
 namespace ogdf {
 
@@ -45,25 +46,20 @@ namespace ogdf {
  * Provides efficient operations for testing membership,
  * iteration, insertion and deletion of elements, as well as clearing the set.
  *
- * \tparam SupportFastSizeQuery Whether this set supports querying it's #size in
- * constant instead of linear time (in the size).
- *
  * \sa NodeSet
  */
-template<bool SupportFastSizeQuery = true>
-class FaceSet : public RegisteredSet<ConstCombinatorialEmbedding, SupportFastSizeQuery> {
-	using RS = RegisteredSet<ConstCombinatorialEmbedding, SupportFastSizeQuery>;
-
+class OGDF_EXPORT FaceSet : public RegisteredSet<ConstCombinatorialEmbedding> {
 public:
-	using RS::RS;
+	using RegisteredSet::RegisteredSet;
+	OGDF_DEFAULT_COPY(FaceSet);
 
 	//! Returns a reference to the list of faces contained in this set.
-	const typename RS::list_type& faces() const { return RS::elements(); }
+	const list_type& faces() const { return elements(); }
 
 	//! Returns the associated combinatorial embedding
 	const ConstCombinatorialEmbedding& embeddingOf() const {
-		OGDF_ASSERT(RS::registeredAt());
-		return *RS::registeredAt();
+		OGDF_ASSERT(RegisteredSet::registeredAt());
+		return *registeredAt();
 	}
 };
 

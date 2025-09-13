@@ -100,12 +100,12 @@ Module::ReturnType FixEdgeInserterCore::call(const Array<edge>& origEdges, bool 
 	// m_delFaces and m_newFaces are used by removeEdge()
 	// if we can't allocate memory for them, we throw an exception
 	if (rrPost != RemoveReinsertType::None) {
-		m_delFaces = new FaceSet<false>(E);
+		m_delFaces = new FaceSet(E);
 		if (m_delFaces == nullptr) {
 			OGDF_THROW(InsufficientMemoryException);
 		}
 
-		m_newFaces = new FaceSet<false>(E);
+		m_newFaces = new FaceSet(E);
 		if (m_newFaces == nullptr) {
 			delete m_delFaces;
 			OGDF_THROW(InsufficientMemoryException);

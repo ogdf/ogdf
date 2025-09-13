@@ -31,6 +31,7 @@
 
 #include <ogdf/lib/abacus/sparvec.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 //! Representation of variables in column format.
@@ -149,3 +150,4 @@ private:
 };
 
 }
+#pragma GCC visibility pop

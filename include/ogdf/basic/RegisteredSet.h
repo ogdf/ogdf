@@ -32,8 +32,8 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/RegisteredArray.h>
-
-#include <type_traits>
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/internal/copy_move.h>
 
 namespace ogdf {
 
@@ -46,35 +46,60 @@ namespace ogdf {
  *
  * @tparam Registry The class which manages the registered keys. Must provide the functions defined in
  * class RegistryBase.
- * @tparam SupportFastSizeQuery Whether this set supports querying its #size in
- * constant instead of linear time (in the size).
  *
  * \sa RegisteredArray, NodeSet
  */
-template<class Registry, bool SupportFastSizeQuery = true>
-class RegisteredSet {
+template<class Registry>
+class RegisteredSet : private RegisteredObserver<Registry> {
+	using Obs = RegisteredObserver<Registry>;
+
 public:
+	using registry_type = Registry;
 	using element_type = typename Registry::key_type;
-	using list_type = typename std::conditional<SupportFastSizeQuery, List<element_type>,
-			ListPure<element_type>>::type;
+	using list_type = List<element_type>;
 
 	//! Creates an empty set associated with registry \p R.
-	explicit RegisteredSet(const Registry& R) : m_it(&R) { }
+	explicit RegisteredSet(const Registry& R) : Obs(), m_it() {
+		// parent constructor does not call registrationChanged callback
+		// m_it.init called by registrationChanged callback from reregister
+		Obs::reregister(&R);
+	}
+
+	//! Creates an empty set associated with registry \p R.
+	explicit RegisteredSet(const Registry* R) : Obs(), m_it() { Obs::reregister(R); }
 
 	//! Creates an empty set associated with no registry.
-	explicit RegisteredSet() : m_it() { }
+	explicit RegisteredSet() : Obs(), m_it() { }
+
+	OGDF_COPY_CONSTR(RegisteredSet) : Obs(), m_it() { *this = copy; }
+
+	OGDF_COPY_OP(RegisteredSet) {
+		Obs::reregister(copy.registeredAt());
+		// m_it.init and m_elements.clear called by registrationChanged callback
+		for (element_type v : copy.elements()) {
+			insert(v);
+		}
+		return *this;
+	}
+
+	OGDF_MOVE_CONSTR(RegisteredSet) { *this = std::move(move); }
+
+	OGDF_MOVE_OP(RegisteredSet) {
+		Obs::reregister(move.registeredAt());
+		m_it = std::move(move.m_it);
+		m_elements = std::move(move.m_elements);
+		move.init();
+		return *this;
+	}
 
 	//! Reinitializes the set. Associates the set with no registry.
 	void init() {
-		m_it.init();
-		m_elements.clear();
+		// m_it.init and m_elements.clear called by registrationChanged callback
+		Obs::reregister(nullptr);
 	}
 
 	//! Reinitializes the set. Associates the set with registry \p R.
-	void init(const Registry& R) {
-		m_it.init(&R);
-		m_elements.clear();
-	}
+	void init(const Registry& R) { Obs::reregister(&R); }
 
 	//! Inserts element \p v into this set.
 	/**
@@ -137,6 +162,9 @@ public:
 	 */
 	bool isMember(element_type v) const { return m_it[v].valid(); }
 
+	//! Returns the same as isMember()
+	bool contains(element_type v) const { return m_it[v].valid(); }
+
 	//! Returns the same as isMember() to use an RegisteredSet instance as filter function.
 	bool operator()(element_type v) const { return isMember(v); }
 
@@ -144,11 +172,11 @@ public:
 	const list_type& elements() const { return m_elements; }
 
 	//! Returns the associated registry.
-	const Registry* registeredAt() const { return m_it.registeredAt(); }
+	const Registry* registeredAt() const { return Obs::getRegistry(); }
 
 	//! Returns the number of elements in this set.
 	/**
-	 * This operation has either linear or constant runtime, depending on \a SupportFastSizeQuery.
+	 * This operation has constant runtime.
 	 */
 	int size() const { return m_elements.size(); }
 
@@ -156,20 +184,23 @@ public:
 
 	typename list_type::const_iterator end() const { return m_elements.end(); }
 
-	//! Copy constructor.
-	template<bool OtherSupportsFastSizeQuery>
-	explicit RegisteredSet(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
-		this = other;
+	friend bool operator==(const RegisteredSet& lhs, const RegisteredSet& rhs) {
+		if (lhs.registeredAt() != rhs.registeredAt()) {
+			return false;
+		}
+		if (lhs.size() != rhs.size()) {
+			return false;
+		}
+		for (const auto& elem : lhs.elements()) {
+			if (!rhs.isMember(elem)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
-	//! Assignment operator.
-	template<bool OtherSupportsFastSizeQuery>
-	RegisteredSet& operator=(const RegisteredSet<Registry, OtherSupportsFastSizeQuery>& other) {
-		m_elements.clear();
-		m_it.init(other.registeredAt());
-		for (element_type v : other.elements()) {
-			insert(v);
-		}
+	friend bool operator!=(const RegisteredSet& lhs, const RegisteredSet& rhs) {
+		return !(lhs == rhs);
 	}
 
 private:
@@ -179,6 +210,26 @@ private:
 
 	//! The list of elements contained in this set.
 	list_type m_elements;
+
+protected:
+	void keyRemoved(typename Registry::key_type v) override { remove(v); }
+
+	void keyAdded(typename Registry::key_type v) override { }
+
+	void keysSwapped(int index1, int index2) override {
+		OGDF_ASSERT(false); // RegisteredSets break on key swapping
+	}
+
+	void keysCopied(int toIndex, int fromIndex) override {
+		OGDF_ASSERT(false); // RegisteredSets break on key copying
+	}
+
+	void keysCleared() override { clear(); }
+
+	void registrationChanged(const Registry* old) override {
+		m_it.init(Obs::getRegistry());
+		m_elements.clear();
+	}
 };
 
 }

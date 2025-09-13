@@ -32,7 +32,7 @@ int main(void) {
 	}
 
 	// add the computed augmentation edges
-	EdgeSet<> added(G);
+	EdgeSet added(G);
 	insertAugmentationEdges(CG, G, augmentation, &added);
 
 	// the augmentation edges make the instance c-connected c-plane, fixing the embedding for ClusterPlanarizationLayout

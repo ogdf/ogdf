@@ -29,6 +29,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphSets.h>
+#include <ogdf/basic/RegisteredSet.h>
 #include <ogdf/basic/graph_generators.h>
 
 #include "array_helper.h" // IWYU pragma: associated
@@ -40,6 +42,10 @@ go_bandit([]() {
 	auto allNodes = [](const Graph& graph, List<node>& list) { graph.allNodes(list); };
 
 	auto createNode = [](Graph& graph) { return graph.newNode(); };
+
+	auto deleteNode = [](Graph& graph, node n) { return graph.delNode(n); };
+
+	auto clearNodes = [](Graph& graph) { graph.clear(); };
 
 	auto init = [](Graph& graph) { randomGraph(graph, 42, 168); };
 
@@ -62,4 +68,7 @@ go_bandit([]() {
 			AssertThat(arr[chooseNode(G)], Equals(p.get()));
 		});
 	});
+
+	runBasicSetTests<Graph, NodeSet, node>("NodeSet", init, chooseNode, allNodes, createNode,
+			deleteNode, clearNodes);
 });

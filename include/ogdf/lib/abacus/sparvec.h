@@ -31,6 +31,7 @@
 
 #include <ogdf/lib/abacus/global.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -284,3 +285,4 @@ protected:
 };
 
 }
+#pragma GCC visibility pop

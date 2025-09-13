@@ -15,8 +15,13 @@ KEYS=(
   "ccache-build-macos-13-release"
   "ccache-build-macos-14-debug"
   "ccache-build-macos-14-release"
+  "ccache-build-macos-15-debug"
+  "ccache-build-macos-15-release"
   "ccache-build-windows-debug"
   "ccache-build-windows-release"
+  "ccache-package-debian"
+  "ccache-package-macos"
+  "ccache-package-windows"
 )
 
 cd $(dirname "$0")

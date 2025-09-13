@@ -145,6 +145,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			if (notifyObservers) {
 				m_regEdgeArrays.keyAdded(e);
 				m_regAdjArrays.keyAdded(e->adjSource());
+				m_regAdjArrays.keyAdded(e->adjTarget());
 				edgeInserted(cbData, eG, e);
 				for (GraphObserver* obs : getObservers()) {
 					obs->edgeAdded(e);
@@ -195,6 +196,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 			OGDF_ASSERT(e != nullptr);
 			m_regEdgeArrays.keyAdded(e);
 			m_regAdjArrays.keyAdded(e->adjSource());
+			m_regAdjArrays.keyAdded(e->adjTarget());
 			edgeInserted(cbData, eG, e);
 			for (GraphObserver* obs : getObservers()) {
 				obs->edgeAdded(e);
@@ -287,6 +289,7 @@ std::pair<int, int> Graph::insert(const NI& nodesBegin, const NI& nodesEnd, cons
 				}
 				m_regEdgeArrays.keyAdded(e);
 				m_regAdjArrays.keyAdded(e->adjSource());
+				m_regAdjArrays.keyAdded(e->adjTarget());
 				edgeInserted(cbData, eG, e);
 				for (GraphObserver* obs : getObservers()) {
 					obs->edgeAdded(e);

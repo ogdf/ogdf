@@ -70,7 +70,7 @@ private:
 	//! Maintains constraints set during upward-planarity test on rooting of SPQR-tree
 	class ConstraintRooting;
 	// classes defined and used in UpwardPlanaritySingleSource.cpp
-	class OGDF_EXPORT SkeletonInfo;
+	class SkeletonInfo;
 
 
 	// performs the actual test (and computation of sorted adjacency lists) for

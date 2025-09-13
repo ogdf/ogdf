@@ -64,10 +64,10 @@ class List;
 
 namespace ogdf {
 
-class OGDF_EXPORT AdjHypergraphElement; // IWYU pragma: keep
-class OGDF_EXPORT HyperedgeElement; // IWYU pragma: keep
-class OGDF_EXPORT Hypergraph; // IWYU pragma: keep
-class OGDF_EXPORT HypernodeElement; // IWYU pragma: keep
+class AdjHypergraphElement; // IWYU pragma: keep
+class HyperedgeElement; // IWYU pragma: keep
+class Hypergraph; // IWYU pragma: keep
+class HypernodeElement; // IWYU pragma: keep
 
 //! The type of hypernodes.
 using hypernode = HypernodeElement*;
@@ -140,6 +140,8 @@ public:
 	adjHypergraphEntry cyclicPred() const;
 
 	OGDF_NEW_DELETE;
+
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::adjHypergraphEntry v);
 };
 
 //! Class for the representation of hyperedges.
@@ -217,7 +219,7 @@ public:
 		return e->index() == m_index && e->hypergraph() == m_hypergraph;
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, ogdf::hyperedge e);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::hyperedge e);
 
 	OGDF_NEW_DELETE;
 };
@@ -322,6 +324,8 @@ public:
 	}
 
 	OGDF_NEW_DELETE;
+
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::hypernode v);
 };
 
 //! Registry for nodes and edges of a hypergraph.
@@ -404,7 +408,7 @@ OGDF_DECL_REG_ARRAY(HypernodeArray)
 OGDF_DECL_REG_ARRAY(HyperedgeArray)
 #undef OGDF_DECL_REG_ARRAY_TYPE
 
-class OGDF_EXPORT HypergraphObserver;
+class HypergraphObserver;
 
 class OGDF_EXPORT Hypergraph : public Observable<HypergraphObserver, Hypergraph> {
 	//! The registered hypernode arrays
@@ -577,9 +581,9 @@ public:
 
 	Hypergraph& operator=(const Hypergraph& H);
 
-	friend std::ostream& operator<<(std::ostream& os, ogdf::Hypergraph& H);
+	friend OGDF_EXPORT std::ostream& operator<<(std::ostream& os, ogdf::Hypergraph& H);
 
-	friend std::istream& operator>>(std::istream& is, ogdf::Hypergraph& H);
+	friend OGDF_EXPORT std::istream& operator>>(std::istream& is, ogdf::Hypergraph& H);
 
 	OGDF_MALLOC_NEW_DELETE;
 

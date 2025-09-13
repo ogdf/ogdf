@@ -58,7 +58,7 @@ using DynamicDualGraph = DualGraphBase<false>;
  * @ingroup graphs
  */
 template<bool isConst>
-class OGDF_EXPORT DualGraphBase : public CombinatorialEmbedding {
+class DualGraphBase : public CombinatorialEmbedding {
 public:
 	using Embedding = typename std::conditional<isConst, const ConstCombinatorialEmbedding,
 			CombinatorialEmbedding>::type;

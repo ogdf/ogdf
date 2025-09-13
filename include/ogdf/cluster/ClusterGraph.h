@@ -49,9 +49,9 @@
 
 namespace ogdf {
 
-class OGDF_EXPORT ClusterElement; // IWYU pragma: keep
-class OGDF_EXPORT ClusterGraph; // IWYU pragma: keep
-class OGDF_EXPORT ClusterGraphObserver; // IWYU pragma: keep
+class ClusterElement; // IWYU pragma: keep
+class ClusterGraph; // IWYU pragma: keep
+class ClusterGraphObserver; // IWYU pragma: keep
 
 using cluster = ClusterElement*; //!< The type of clusters.
 
@@ -327,6 +327,9 @@ class OGDF_EXPORT ClusterGraphObserver : public Observer<ClusterGraph, ClusterGr
 public:
 	ClusterGraphObserver() = default;
 
+	OGDF_DEPRECATED("calls registrationChanged with only partially-constructed child classes, "
+					"see copy constructor of Observer for fix")
+
 	explicit ClusterGraphObserver(const ClusterGraph* CG) { reregister(CG); }
 
 	virtual void clusterDeleted(cluster v) = 0;
@@ -344,10 +347,12 @@ public:
  * clustering of the nodes in a graph, providing additional functionality.
  */
 class OGDF_EXPORT ClusterGraph
-	: public GraphObserver, // to get updates when graph nodes/edges added/removed
+	: private GraphObserver, // to get updates when graph nodes/edges added/removed
 	  public Observable<ClusterGraphObserver, ClusterGraph>, // to publish updates when clusters added/removed
 	  public ClusterGraphRegistry // for ClusterArrays
 {
+	using Obs = Observable<ClusterGraphObserver, ClusterGraph>;
+
 	int m_clusterIdCount = 0; //!< The index assigned to the next created cluster.
 
 	mutable cluster m_postOrderStart = nullptr; //!< The first cluster in postorder.
@@ -435,6 +440,8 @@ public:
 	 * @name Access methods
 	 */
 	//! @{
+
+	using GraphObserver::getGraph;
 
 	//! Returns the root cluster.
 	cluster rootCluster() const { return m_rootCluster; }
@@ -866,6 +873,14 @@ protected:
 	}
 
 	void registrationChanged(const Graph* newG) override;
+
+	// need to re-export both to allow parameter-type-based overload in the same namespace
+	friend Observer<ClusterGraph, ClusterGraphObserver>;
+	friend Observer<ClusterGraph, RegisteredObserver<ClusterGraph>>;
+	using ClusterGraphRegistry::registerObserver;
+	using ClusterGraphRegistry::unregisterObserver;
+	using Obs::registerObserver;
+	using Obs::unregisterObserver;
 
 	//! @}
 

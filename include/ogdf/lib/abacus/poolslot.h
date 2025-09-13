@@ -34,6 +34,7 @@
 #include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/lib/abacus/variable.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class Sub;
@@ -74,7 +75,7 @@ template<class BaseType, class CoType> class CutBuffer;
  * of the optimization process, except that it can be guaranteed that
  * there is no reference to this slot from any other place of the program.
  */
-template<class BaseType, class CoType> class OGDF_EXPORT PoolSlot : public AbacusRoot {
+template<class BaseType, class CoType> class PoolSlot : public AbacusRoot {
 
 	friend class PoolSlotRef<BaseType,CoType>;
 	friend class Pool<BaseType,CoType>;
@@ -179,3 +180,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/poolslot.inc>
+#pragma GCC visibility pop

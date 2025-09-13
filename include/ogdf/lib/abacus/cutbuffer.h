@@ -31,6 +31,7 @@
 
 #include <ogdf/lib/abacus/master.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template<class BaseType, class CoType> class PoolSlot;
@@ -186,3 +187,4 @@ private:
 }
 
 #include <ogdf/lib/abacus/cutbuffer.inc>
+#pragma GCC visibility pop

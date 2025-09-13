@@ -395,7 +395,7 @@ void ogdf::reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
 }
 
 void ogdf::insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
-		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added, bool embedded,
+		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet* added, bool embedded,
 		bool assert_minimal) {
 	if (embedded) {
 		OGDF_ASSERT(G.representsCombEmbedding());

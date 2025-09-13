@@ -41,7 +41,8 @@ namespace ogdf {
 EdgeStandardRep::EdgeStandardRep() : m_type(EdgeStandardType::star), m_hypergraph(nullptr) { }
 
 EdgeStandardRep::EdgeStandardRep(const Hypergraph& pH, EdgeStandardType pType = EdgeStandardType::star)
-	: HypergraphObserver(&pH) {
+	: HypergraphObserver() {
+	reregister(&pH);
 	m_type = pType;
 	m_hypergraph = &pH;
 

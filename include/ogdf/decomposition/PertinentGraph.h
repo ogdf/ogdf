@@ -56,7 +56,7 @@ namespace ogdf {
  * of the skeletons of \a T.
  */
 class OGDF_EXPORT PertinentGraph {
-	friend class OGDF_EXPORT SPQRTree;
+	friend class SPQRTree;
 
 public:
 	// constructor

@@ -36,6 +36,7 @@
 #include <ogdf/lib/abacus/conclass.h>
 
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class Row;
@@ -279,10 +280,12 @@ private:
 };
 
 }
+#pragma GCC visibility pop
 
 #include <ogdf/lib/abacus/sub.h>
 #include <ogdf/lib/abacus/master.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 inline Constraint::Constraint (
@@ -313,3 +316,4 @@ inline bool Constraint::valid(Sub *sub) const {
 }
 
 }
+#pragma GCC visibility pop

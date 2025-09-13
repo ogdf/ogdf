@@ -36,6 +36,7 @@
 #include <ogdf/lib/abacus/sub.h>
 #include <ogdf/lib/abacus/bheap.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 template<class BaseType, class CoType>
@@ -235,3 +236,4 @@ int StandardPool<BaseType, CoType>::separate(
 }
 
 }
+#pragma GCC visibility pop

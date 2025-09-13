@@ -95,7 +95,7 @@ OGDF_EXPORT void reduceLevelPlanarityToClusterPlanarity(const Graph& LG,
  * @sa SyncPlan::SyncPlan(Graph*, ClusterGraph*, std::vector<std::pair<adjEntry, adjEntry>>*, ClusterGraphAttributes*)
  */
 OGDF_EXPORT void insertAugmentationEdges(const ClusterGraph& CG, Graph& G,
-		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet<>* added = nullptr,
+		std::vector<std::pair<adjEntry, adjEntry>>& augmentation, EdgeSet* added = nullptr,
 		bool embedded = true, bool assert_minimal = true);
 
 }

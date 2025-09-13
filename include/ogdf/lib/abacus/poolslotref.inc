@@ -30,6 +30,7 @@
 
 #include <ogdf/lib/abacus/poolslotref.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 
@@ -68,3 +69,4 @@ void PoolSlotRef<BaseType, CoType>::slot(PoolSlot<BaseType, CoType> *s)
 }
 
 }
+#pragma GCC visibility pop

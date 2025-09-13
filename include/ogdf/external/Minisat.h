@@ -50,6 +50,8 @@
 
 // IWYU pragma: end_keep
 
+#pragma GCC visibility push(default)
+
 namespace Minisat {
 
 using std::endl;
@@ -330,3 +332,5 @@ public:
 };
 
 }
+
+#pragma GCC visibility pop

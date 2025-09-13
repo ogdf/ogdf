@@ -326,6 +326,7 @@ void PCTree::destroyNode(PCNode* const& node) {
 	OGDF_ASSERT(node->m_child1 == nullptr);
 	OGDF_ASSERT(node->m_child2 == nullptr);
 	OGDF_ASSERT(node != m_rootNode);
+	m_forest->m_nodeArrayRegistry.keyRemoved(node);
 	unregisterNode(node);
 #ifdef OGDF_PCTREE_REUSE_NODES
 	node->m_parentPNode = m_forest->m_reusableNodes;

@@ -99,7 +99,7 @@ private:
 	const List<node>* m_originalTerminals;
 
 	Graph m_graph;
-	std::unique_ptr<NodeSet<>> m_terminals;
+	std::unique_ptr<NodeSet> m_terminals;
 	EdgeArray<edge> m_mapping;
 	T m_upperBound;
 	Array2D<edge> m_edges;
@@ -281,7 +281,7 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T>& G,
 	m_upperBound = MAX_WEIGHT;
 	m_graph.clear();
 	m_mapping.init(m_graph);
-	m_terminals.reset(new NodeSet<>(m_graph));
+	m_terminals.reset(new NodeSet(m_graph));
 	int nodeCount = m_originalGraph->numberOfNodes();
 	m_edges = Array2D<edge>(0, nodeCount, 0, nodeCount, nullptr);
 

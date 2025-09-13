@@ -54,8 +54,9 @@ private:
 public:
 	static inline int NO_PARTITION = -1;
 
-	explicit QPartitioning(const Graph* G) : GraphObserver(G), partitions(*G, NO_PARTITION) {
+	explicit QPartitioning(const Graph* G) : GraphObserver(), partitions(*G, NO_PARTITION) {
 		partitioned_nodes.init(*this);
+		reregister(G);
 	}
 
 	bool isQVertex(node n) const;

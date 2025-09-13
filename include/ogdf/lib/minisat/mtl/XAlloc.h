@@ -22,6 +22,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <errno.h>
 #include <stdlib.h>
 
+#pragma GCC visibility push(default)
 namespace Minisat {
 namespace Internal {
 
@@ -41,3 +42,4 @@ static inline void* xrealloc(void *ptr, size_t size)
 //=================================================================================================
 } // namespace Internal
 } // namespace Minisat
+#pragma GCC visibility pop

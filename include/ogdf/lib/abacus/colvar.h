@@ -37,6 +37,7 @@
 #include <ogdf/lib/abacus/column.h>
 #include <ogdf/lib/abacus/bheap.h>
 
+#pragma GCC visibility push(default)
 namespace abacus {
 
 class SparVec;
@@ -180,3 +181,4 @@ inline std::ostream &operator<<(std::ostream &out, const ColVar &rhs)
 }
 
 }
+#pragma GCC visibility pop

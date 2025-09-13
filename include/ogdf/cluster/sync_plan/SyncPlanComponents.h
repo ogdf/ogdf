@@ -158,7 +158,7 @@ private:
 class OGDF_EXPORT BiconnectedIsolation {
 	SyncPlanComponents& m_comps;
 	node m_bicon;
-	NodeSet<true> m_to_restore;
+	NodeSet m_to_restore;
 	NodeArray<SListPure<adjEntry>> m_adjEntries; // room for improvement: replace by contiguous vector + indices
 	Graph::HiddenEdgeSet m_hiddenEdges;
 

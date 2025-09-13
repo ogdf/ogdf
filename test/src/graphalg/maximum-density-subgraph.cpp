@@ -45,15 +45,14 @@
 
 #include <testing.h>
 
-void test(const std::string& description,
-		std::function<void(Graph& G, NodeSet<true>& expected)> setup) {
+void test(const std::string& description, std::function<void(Graph& G, NodeSet& expected)> setup) {
 	Graph G;
-	NodeSet<true> expected(G);
+	NodeSet expected(G);
 	setup(G, expected);
 
 	it(description, [&] {
 		GraphCopySimple GC(G);
-		NodeSet<true> subgraphNodes(G);
+		NodeSet subgraphNodes(G);
 		bool success =
 				maximumDensitySubgraph(GC, subgraphNodes, [&](node n) { return GC.original(n); });
 		AssertThat(success, IsTrue());
@@ -66,7 +65,7 @@ void test(const std::string& description,
 }
 
 void testContainsAll(const std::string& description, std::function<void(Graph& G)> setup) {
-	test(description, [&](Graph& G, NodeSet<true>& expected) {
+	test(description, [&](Graph& G, NodeSet& expected) {
 		setup(G);
 		for (node n : G.nodes) {
 			expected.insert(n);
@@ -81,7 +80,7 @@ go_bandit([] {
 					{GraphProperty::simple},
 					[&](const Graph& G) {
 						GraphCopySimple GC(G);
-						NodeSet<true> subgraphNodes(G);
+						NodeSet subgraphNodes(G);
 						bool success = maximumDensitySubgraph(GC, subgraphNodes,
 								[&](node n) { return GC.original(n); });
 						AssertThat(success, IsTrue());
@@ -94,10 +93,10 @@ go_bandit([] {
 		});
 
 		describe("Small/special cases", [] {
-			test("works for a single node", [](Graph& G, NodeSet<true>& expected) { G.newNode(); });
+			test("works for a single node", [](Graph& G, NodeSet& expected) { G.newNode(); });
 			test("works for nodes without edges",
-					[](Graph& G, NodeSet<true>& expected) { emptyGraph(G, 3); });
-			test("works for a single edge", [](Graph& G, NodeSet<true>& expected) {
+					[](Graph& G, NodeSet& expected) { emptyGraph(G, 3); });
+			test("works for a single edge", [](Graph& G, NodeSet& expected) {
 				customGraph(G, 2, {{0, 1}});
 				expected.insert(G.firstNode());
 				expected.insert(G.lastNode());
@@ -107,7 +106,7 @@ go_bandit([] {
 			testContainsAll("contains all nodes of a wheel graph",
 					[](Graph& G) { wheelGraph(G, 10); });
 			testContainsAll("contains all nodes of a cube graph", [](Graph& G) { cubeGraph(G, 6); });
-			test("finds the K5", [](Graph& G, NodeSet<true>& expected) {
+			test("finds the K5", [](Graph& G, NodeSet& expected) {
 				completeGraph(G, 5);
 				List<node> K5nodes;
 				G.allNodes(K5nodes);
@@ -120,7 +119,7 @@ go_bandit([] {
 			it("timeouts", [] {
 				Graph G;
 				completeGraph(G, 5);
-				NodeSet<true> subgraphNodes(G);
+				NodeSet subgraphNodes(G);
 				bool success = maximumDensitySubgraph(
 						G, subgraphNodes, [&](node n) { return n; }, 0);
 				AssertThat(success, IsFalse());
