@@ -173,7 +173,7 @@ public:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
 	 */
-	static double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes& ga);
+	static double percentageCrossingVsMaxCrossings(const GraphAttributes& ga);
 
 	//! Computes the number of node overlaps for each node in the layout \p ga.
 	/**
@@ -235,7 +235,7 @@ public:
 	 * handles size allocation, so no need to preallocate specific vector size.
 	 *
 	 */
-	static void LayoutStatistics::distancesBetweenAllNodes(const Graph& mainGraph,
+	static void distancesBetweenAllNodes(const Graph& mainGraph,
 			const GraphAttributes& ga,
 			ArrayBuffer<std::pair<std::pair<node, node>, double>>& allDistances,
 			bool edgesTwice = false);
@@ -277,7 +277,7 @@ public:
 	 * Returns a double that gives the Node Ratio as output, which is: smallest_distance_between_2_nodes / biggest_distance_between_2_nodes
 	 *
 	 */
-	static double LayoutStatistics::nodeResolution(Graph& mainGraph, const GraphAttributes& ga);
+	static double nodeResolution(Graph& mainGraph, const GraphAttributes& ga);
 
 
 	//! Computes Angular Resolution (AR) \p H of the nodes in the graph given, in \p ga.
@@ -291,7 +291,7 @@ public:
 	 * Returns 0.0 if there are no nodes with degree greater than 2, or if the graph has less than 3 nodes.
 	 *
 	 */
-	static double LayoutStatistics::angularResolution(const Graph& mainGraph,
+	static double angularResolution(const Graph& mainGraph,
 			const GraphAttributes& ga);
 
 
@@ -306,7 +306,7 @@ public:
 	 * Returns 0.0 if the graph has less than 2 nodes, or either height or width of the bounding box are equal or smaller than 0.
 	 *
 	 */
-	static double LayoutStatistics::aspectRatio(const Graph& mainGraph, const GraphAttributes& ga);
+	static double aspectRatio(const Graph& mainGraph, const GraphAttributes& ga);
 
 	//! Computes Node Uniformity (NU) \p H of the graph \p g.
 	/**
@@ -324,7 +324,7 @@ public:
 	 * Returns 0.0 if the graph has less than 2 nodes, or number of grid cells is 0 (e.g. gridWidth or/and gridHeight is 0).
 	 *
 	 */
-	static double LayoutStatistics::nodeUniformity(const Graph& mainGraph,
+	static double nodeUniformity(const Graph& mainGraph,
 			const GraphAttributes& ga, size_t gridWidth = 10, size_t gridHeight = 10);
 
 	//! Computes Edge Orthogonality (EO) \p H of the graph \p g.
@@ -337,7 +337,7 @@ public:
 	 *
 	 * Returns mean Edge Orthogonality of all edges
 	 */
-	static double LayoutStatistics::edgeOrthogonality(const Graph& mainGraph,
+	static double edgeOrthogonality(const Graph& mainGraph,
 			const GraphAttributes& ga);
 
 	//! Computes center of mass, where most nodes are.
@@ -351,7 +351,7 @@ public:
 	 * Returns double pair containing center of mass coordinates.
 	 * Returns a pair with (0.0, 0.0) if graph is empty.
 	 */
-	static std::pair<double, double> LayoutStatistics::centerOfMass(const Graph& mainGraph,
+	static std::pair<double, double> centerOfMass(const Graph& mainGraph,
 			const GraphAttributes& ga);
 
 
@@ -367,7 +367,7 @@ public:
 	 * Returns euclidean distance double of two closest nodes.
 	 * Returns -1.0 if graph is empty.
 	 */
-	static double LayoutStatistics::closestPairOfPoints(const Graph& mainGraph,
+	static double closestPairOfPoints(const Graph& mainGraph,
 			const GraphAttributes& ga);
 
 	//! Computes horizontal node balance.
@@ -383,7 +383,7 @@ public:
 	 * Returns balance double value.
 	 * Returns -1.0 if graph is empty.
 	 */
-	static double LayoutStatistics::horizontalVerticalBalance(const Graph& mainGraph,
+	static double horizontalVerticalBalance(const Graph& mainGraph,
 			const GraphAttributes& ga, const bool vertical = false);
 
 	//! Retrieves min and max, x- and y-coordinates.
@@ -402,7 +402,7 @@ public:
 	 * Returns a pair of pairs where each double is -1.0 when graph is empty.
 	 */
 	static std::pair<std::pair<double, double>, std::pair<double, double>>
-	LayoutStatistics::borderCoordinates(const Graph& mainGraph, const GraphAttributes& ga);
+	borderCoordinates(const Graph& mainGraph, const GraphAttributes& ga);
 
 	//! Calculating percentage of nodes with integer coordinates.
 	/**
@@ -417,7 +417,7 @@ public:
 	 * Returns percentage of nodes with integer coordinates (or within epsilon range).
 	 * Returns -1.0 when graph is empty.
 	 */
-	static double LayoutStatistics::nodeOrthogonality(const Graph& mainGraph,
+	static double nodeOrthogonality(const Graph& mainGraph,
 			const GraphAttributes& ga, const double epsilon = 1e-9);
 
 	//! Calculates mean edge direction (vector) angle.
@@ -432,7 +432,7 @@ public:
 	 * Returns degree of mean edge direction angle (as double).
 	 * Returns -1.0 when graph is empty.
 	 */
-	double LayoutStatistics::averageFlow(const Graph& mainGraph, const GraphAttributes& ga);
+	double averageFlow(const Graph& mainGraph, const GraphAttributes& ga);
 
 	//! Calculates percentage of edges that point upwards.
 	/**
@@ -448,7 +448,7 @@ public:
 	 * Returns percentage of edges pointing upwards.
 	 * Returns -1.0 when graph is empty, or undirected.
 	 */
-	double LayoutStatistics::upwardsFlow(const Graph& mainGraph, const GraphAttributes& ga);
+	double upwardsFlow(const Graph& mainGraph, const GraphAttributes& ga);
 
 
 	//! Calculates the variance of node distances from the center of mass.
@@ -463,6 +463,6 @@ public:
 	 * Returns concentration nodes in graph.
 	 * Returns -1.0 when graph is empty.
 	 */
-	double LayoutStatistics::concentration(const Graph& mainGraph, const GraphAttributes& ga);
+	double concentration(const Graph& mainGraph, const GraphAttributes& ga);
 };
 }
