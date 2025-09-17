@@ -48,13 +48,13 @@ class OGDF_EXPORT LayoutStatistics {
 public:
 	//! Computes graph height, in coordinate length metric.
 	/**
-	 * 
+	 *
 	 * The graph height is defined as the difference between the
 	 * maximum and minimum y-coordinates of the nodes in the layout.
-	 * 
+	 *
 	 * Returns graph height double value.
 	 * Returns 0 if graph has one or less nodes.
-	 * 
+	 *
 	 * \param G                 Input graph.
 	 * \param ga                Input layout.
 	 * \return                  The graph height.
@@ -63,13 +63,13 @@ public:
 
 	//! Computes graph width, in coordinate length metric.
 	/**
-	 * 
+	 *
 	 * The graph width is defined as the difference between the
 	 * maximum and minimum x-coordinates of the nodes in the layout.
-	 * 
+	 *
 	 * Returns graph width double value.
 	 * Returns 0 if graph has one or less nodes.
-	 * 
+	 *
 	 * \param G                 Input graph.
 	 * \param ga                Input layout.
 	 * \return                  The graph width.
@@ -78,14 +78,14 @@ public:
 
 	//! Computes graph area, in coordinate length metric.
 	/**
-	 * 
+	 *
 	 * Uses graphHeight() and graphWidth() as helper functions,
 	 * to compute area of graph.
 	 * In effect graphArea() = graphHeight() * graphWidth().
-	 * 
+	 *
 	 * Returns graph area double value
 	 * Returns 0 if graph has one or less nodes.
-	 * 
+	 *
 	 * \param G                 Input graph.
 	 * \param ga                Input layout.
 	 * \return                  The graph width.
@@ -171,7 +171,7 @@ public:
 	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
-	 * 
+	 *
 	 */
 	static double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes& ga);
 
@@ -218,9 +218,9 @@ public:
  	 * Edge length deviation def.: The deviation of the actual edge length from the average edge length of the graph.
 	 * Returns an array of edge deviations (of doubles) of all edges of the graph.
 	 * Also generates a private variable with an edge length deviation average.
-	 * 
+	 *
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Returns an array of deviation values, of each edge (deviation of avg edge length) in the Graph
 	*/
 	static ArrayBuffer<double> edgeLengthDeviation(const GraphAttributes& ga);
@@ -233,7 +233,7 @@ public:
 	 * Per default, each edge is added uniquely -> ( \a u, \a v ) or ( \a v , \a u ),
 	 * else (bidirectional = true) both edges ( \a u, \a v ) and ( \a v , \a u ) are added.
 	 * handles size allocation, so no need to preallocate specific vector size.
-	 * 
+	 *
 	*/
 	static void LayoutStatistics::distancesBetweenAllNodes(const Graph& mainGraph,
 			const GraphAttributes& ga,
@@ -246,11 +246,11 @@ public:
 	 * Returns an array of neighbourhood preservations in percentile (of doubles from \p 0.0 for lowest preservation, to \p 1.0 for highest preservation) of all nodes of the graph.
 	 * Neighborhood preservation def.: How many nodes in the graph are connected to the actually closest nodes (least coordinative distance.
 	 * Also generates a private variable with an overall graph neighbourhood preservation average (also from \p 0.0 to \p 1.0 ).
-	 * 
+	 *
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Returns an array of preservation values, of each node in Graph \p mainGraph
-	 * 
+	 *
 	*/
 	static ArrayBuffer<double> neighbourhoodPreservation(const Graph& mainGraph,
 			const GraphAttributes& ga);
@@ -259,9 +259,9 @@ public:
 	/**
 	 * Gabriel Ratio def.: 	The ratio of the distance between two nodes and the distance to the closest node to the edge between the two nodes,
 	 * 						that is only allowed to contain the two nodes itself, not any other ones.
-	 * 
+	 *
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Returns an array of Gabriel Ratios (of doubles) of all nodes of the graph
 	 * Also generates a private variable with an overall graph Gabriel Ratio average
 	 */
@@ -273,9 +273,9 @@ public:
 	 * 						the smallest distance between two nodes and the
 	 * 						largest distance between two nodes.
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Returns a double that gives the Node Ratio as output, which is: smallest_distance_between_2_nodes / biggest_distance_between_2_nodes
-	 * 
+	 *
 	 */
 	static double LayoutStatistics::nodeResolution(Graph& mainGraph, const GraphAttributes& ga);
 
@@ -286,10 +286,10 @@ public:
 	 * "After calculating the angular deviation of each edge from the ideal angle
 	 * (based on degree), the AR metric calculates the mean over all nodes
 	 * (excluding degree-1 nodes)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Returns a double of the angular resolution of the graph
 	 * Returns 0.0 if there are no nodes with degree greater than 2, or if the graph has less than 3 nodes.
-	 * 
+	 *
 	 */
 	static double LayoutStatistics::angularResolution(const Graph& mainGraph,
 			const GraphAttributes& ga);
@@ -301,10 +301,10 @@ public:
 	 * "The Aspect Ratio is the ratio of the height of
 	 * the drawing’s bounding box to its width (or vice versa,
 	 * depending on which is greater)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
-	 * Returns aspect ration double 
+	 *
+	 * Returns aspect ration double
 	 * Returns 0.0 if the graph has less than 2 nodes, or either height or width of the bounding box are equal or smaller than 0.
-	 * 
+	 *
 	 */
 	static double LayoutStatistics::aspectRatio(const Graph& mainGraph, const GraphAttributes& ga);
 
@@ -316,13 +316,13 @@ public:
 	 * box, by splitting it into grid cells based on the number of nodes
 	 * in the graph, counting the number of nodes in each cell, and
 	 * comparing them with an ideal distribution." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Can also receive grid width and height as params, defaults to 10x10 grid.
-	 * 
+	 *
 	 * Returns node uniformity metric between 1.0 and 0.0, where 1.0 is a perfect uniformity
 	 * and 0.0 is the worst uniformity.
 	 * Returns 0.0 if the graph has less than 2 nodes, or number of grid cells is 0 (e.g. gridWidth or/and gridHeight is 0).
-	 * 
+	 *
 	 */
 	static double LayoutStatistics::nodeUniformity(const Graph& mainGraph,
 			const GraphAttributes& ga, size_t gridWidth = 10, size_t gridHeight = 10);
@@ -334,7 +334,7 @@ public:
 	 * "The Edge Orthogonality metric takes the mean of the angular deviation
 	 * of all edges from the horizontal or vertical axis (whichever is
 	 * closest)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 * 
+	 *
 	 * Returns mean Edge Orthogonality of all edges
 	 */
 	static double LayoutStatistics::edgeOrthogonality(const Graph& mainGraph,
@@ -344,10 +344,10 @@ public:
 	/**
 	 * def. Center Of Mass:
 	 * Calculates mean position of all nodes.
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
-	 * 
+	 *
 	 * Returns double pair containing center of mass coordinates.
 	 * Returns a pair with (0.0, 0.0) if graph is empty.
 	 */
@@ -360,7 +360,7 @@ public:
 	 * def. Closest pair of points:
 	 * Finds the two nodes in the graph, that have the smallest euclidean distance to each other,
 	 * and calculates their distance.
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
@@ -375,11 +375,11 @@ public:
 	 * def. Horizontal/Vertical node balance:
 	 * Split nodes into two groups, left and right (or above or below) of the center,
 	 * and divide it by total number of nodes.
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
-	 * 
+	 *
 	 * Returns balance double value.
 	 * Returns -1.0 if graph is empty.
 	 */
@@ -388,15 +388,15 @@ public:
 
 	//! Retrieves min and max, x- and y-coordinates.
 	/**
-	 * 
+	 *
 	 * def. Border coordinates:
 	 * Finds the min and max x- and y-coordinates of all nodes in the graph,
 	 * and returns them as pairs. They make up the bounding box of the graph.
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
-	 * 
+	 *
 	 * Returns a pair of pairs, where the first pair contains minX & maxX coordinates,
 	 * and the other pair contains minY & maxY coordinates.
 	 * Returns a pair of pairs where each double is -1.0 when graph is empty.
@@ -406,11 +406,11 @@ public:
 
 	//! Calculating percentage of nodes with integer coordinates.
 	/**
-	 * 
+	 *
 	 * For each node, checks if its x- and y-coordinates are integers,
 	 * and counts how many of them are.
 	 * Can also receives epsilon value for tolerance of closeness to integer (default is 1e-9).
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
@@ -422,10 +422,10 @@ public:
 
 	//! Calculates mean edge direction (vector) angle.
 	/**
-	 * 
+	 *
 	 * For each edge, calculates angle of its directional vector,
 	 * and returns the mean angle of all edges.
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
@@ -436,12 +436,12 @@ public:
 
 	//! Calculates percentage of edges that point upwards.
 	/**
-	 * 
+	 *
 	 * For each edge, checks if its directional vector has a positive y-value,
 	 * meaning that its direction points upwards.
-	 * 
+	 *
 	 * Can also receives epsilon value for tolerance of closeness to integer (default is 1e-9).
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
@@ -453,10 +453,10 @@ public:
 
 	//! Calculates the variance of node distances from the center of mass.
 	/**
-	 * 
+	 *
 	 * For each node, compute distance to center of mass,
 	 * then calculate variance in all these distances.
-	 * 
+	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
