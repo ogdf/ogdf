@@ -235,8 +235,7 @@ public:
 	 * handles size allocation, so no need to preallocate specific vector size.
 	 *
 	 */
-	static void distancesBetweenAllNodes(const Graph& mainGraph,
-			const GraphAttributes& ga,
+	static void distancesBetweenAllNodes(const Graph& mainGraph, const GraphAttributes& ga,
 			ArrayBuffer<std::pair<std::pair<node, node>, double>>& allDistances,
 			bool edgesTwice = false);
 
@@ -291,8 +290,7 @@ public:
 	 * Returns 0.0 if there are no nodes with degree greater than 2, or if the graph has less than 3 nodes.
 	 *
 	 */
-	static double angularResolution(const Graph& mainGraph,
-			const GraphAttributes& ga);
+	static double angularResolution(const Graph& mainGraph, const GraphAttributes& ga);
 
 
 	//! Computes Aspect Ratio (Asp) \p H of the layout/graph \p g.
@@ -324,8 +322,8 @@ public:
 	 * Returns 0.0 if the graph has less than 2 nodes, or number of grid cells is 0 (e.g. gridWidth or/and gridHeight is 0).
 	 *
 	 */
-	static double nodeUniformity(const Graph& mainGraph,
-			const GraphAttributes& ga, size_t gridWidth = 10, size_t gridHeight = 10);
+	static double nodeUniformity(const Graph& mainGraph, const GraphAttributes& ga,
+			size_t gridWidth = 10, size_t gridHeight = 10);
 
 	//! Computes Edge Orthogonality (EO) \p H of the graph \p g.
 	/**
@@ -337,8 +335,7 @@ public:
 	 *
 	 * Returns mean Edge Orthogonality of all edges
 	 */
-	static double edgeOrthogonality(const Graph& mainGraph,
-			const GraphAttributes& ga);
+	static double edgeOrthogonality(const Graph& mainGraph, const GraphAttributes& ga);
 
 	//! Computes center of mass, where most nodes are.
 	/**
@@ -351,8 +348,7 @@ public:
 	 * Returns double pair containing center of mass coordinates.
 	 * Returns a pair with (0.0, 0.0) if graph is empty.
 	 */
-	static std::pair<double, double> centerOfMass(const Graph& mainGraph,
-			const GraphAttributes& ga);
+	static std::pair<double, double> centerOfMass(const Graph& mainGraph, const GraphAttributes& ga);
 
 
 	//! Computes Closest pair of points.
@@ -367,8 +363,7 @@ public:
 	 * Returns euclidean distance double of two closest nodes.
 	 * Returns -1.0 if graph is empty.
 	 */
-	static double closestPairOfPoints(const Graph& mainGraph,
-			const GraphAttributes& ga);
+	static double closestPairOfPoints(const Graph& mainGraph, const GraphAttributes& ga);
 
 	//! Computes horizontal node balance.
 	/**
@@ -383,8 +378,8 @@ public:
 	 * Returns balance double value.
 	 * Returns -1.0 if graph is empty.
 	 */
-	static double horizontalVerticalBalance(const Graph& mainGraph,
-			const GraphAttributes& ga, const bool vertical = false);
+	static double horizontalVerticalBalance(const Graph& mainGraph, const GraphAttributes& ga,
+			const bool vertical = false);
 
 	//! Retrieves min and max, x- and y-coordinates.
 	/**
@@ -401,8 +396,8 @@ public:
 	 * and the other pair contains minY & maxY coordinates.
 	 * Returns a pair of pairs where each double is -1.0 when graph is empty.
 	 */
-	static std::pair<std::pair<double, double>, std::pair<double, double>>
-	borderCoordinates(const Graph& mainGraph, const GraphAttributes& ga);
+	static std::pair<std::pair<double, double>, std::pair<double, double>> borderCoordinates(
+			const Graph& mainGraph, const GraphAttributes& ga);
 
 	//! Calculating percentage of nodes with integer coordinates.
 	/**
@@ -417,8 +412,8 @@ public:
 	 * Returns percentage of nodes with integer coordinates (or within epsilon range).
 	 * Returns -1.0 when graph is empty.
 	 */
-	static double nodeOrthogonality(const Graph& mainGraph,
-			const GraphAttributes& ga, const double epsilon = 1e-9);
+	static double nodeOrthogonality(const Graph& mainGraph, const GraphAttributes& ga,
+			const double epsilon = 1e-9);
 
 	//! Calculates mean edge direction (vector) angle.
 	/**
