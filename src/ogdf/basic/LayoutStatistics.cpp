@@ -842,9 +842,7 @@ std::pair<double, double> LayoutStatistics::centerOfMass(const Graph& mainGraph,
 double LayoutStatistics::closestPairOfPoints(const Graph& mainGraph, const GraphAttributes& ga) {
 	size_t n = mainGraph.numberOfNodes();
 	if (n < 2) {
-		{
-			return -1.0;
-		}
+		return -1.0;
 	}
 
 	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
