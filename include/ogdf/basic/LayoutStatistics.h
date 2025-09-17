@@ -215,14 +215,14 @@ public:
 
 	//! Computes the edge length deviation \p H of the edges in the graph given, in \p ga.
 	/**
- 	 * Edge length deviation def.: The deviation of the actual edge length from the average edge length of the graph.
+	 * Edge length deviation def.: The deviation of the actual edge length from the average edge length of the graph.
 	 * Returns an array of edge deviations (of doubles) of all edges of the graph.
 	 * Also generates a private variable with an edge length deviation average.
 	 *
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
 	 *
 	 * Returns an array of deviation values, of each edge (deviation of avg edge length) in the Graph
-	*/
+	 */
 	static ArrayBuffer<double> edgeLengthDeviation(const GraphAttributes& ga);
 
 
@@ -234,7 +234,7 @@ public:
 	 * else (bidirectional = true) both edges ( \a u, \a v ) and ( \a v , \a u ) are added.
 	 * handles size allocation, so no need to preallocate specific vector size.
 	 *
-	*/
+	 */
 	static void LayoutStatistics::distancesBetweenAllNodes(const Graph& mainGraph,
 			const GraphAttributes& ga,
 			ArrayBuffer<std::pair<std::pair<node, node>, double>>& allDistances,
@@ -251,7 +251,7 @@ public:
 	 *
 	 * Returns an array of preservation values, of each node in Graph \p mainGraph
 	 *
-	*/
+	 */
 	static ArrayBuffer<double> neighbourhoodPreservation(const Graph& mainGraph,
 			const GraphAttributes& ga);
 
