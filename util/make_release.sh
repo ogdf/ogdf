@@ -9,7 +9,6 @@
 TARGET_DIR=../releases
 TMP_DIR="$TARGET_DIR"/tmp
 TMP_FILE="tmp-$$"
-GITHUB_DOC_DIR=../ogdf.github.io
 
 README=README.md
 DOC_HEADER=doc/ogdf-header.html
@@ -22,7 +21,6 @@ UNREL_PORTING_GUIDE="$PORTING_DIR"/unreleased.md
 VERSION_H=include/ogdf/basic/internal/version.h
 CMAKELISTS=CMakeLists.txt
 
-GITHUB_DOC_REPO="https://github.com/ogdf/ogdf.github.io.git"
 GITHUB_REPO="https://github.com/ogdf/ogdf.git"
 GITHUB_URL="git@github.com:ogdf/ogdf.git"
 
@@ -168,7 +166,6 @@ The following files and directories are needed for the script to work:
  * Directory to save release in:  "$TARGET_DIR" [`test_say "GOOD: exists" "GOOD: will be created" -d "$TARGET_DIR"`]
  * Temporary directory name:      "$TMP_DIR" [`test_say "BAD: it exists already" "GOOD: will be created" -d "$TMP_DIR"`]
  * Temporary file name:           "$TMP_FILE" [`test_say "BAD: it exists already" "GOOD: will be created" -f "$TMP_FILE"`]
- * GitHub pages repo directory:   "$GITHUB_DOC_DIR" [`test_say "GOOD: exists" "GOOD: will be created" -d "$GITHUB_DOC_DIR"`]
 
 The following files and directories will be adapted:
  * README file:                   "$README" [`test_say_file "$README"`]
@@ -182,9 +179,8 @@ The following files and directories will be adapted:
  * Version header:                "$VERSION_H" [`test_say_file "$VERSION_H"`]
  * CMakeLists.txt with version:   "$CMAKELISTS" [`test_say_file "$CMAKELISTS"`]
 
-Please also make sure that you have write access to the following repos:
- * $GITHUB_REPO
- * $GITHUB_DOC_REPO
+Please also make sure that you have write access to the following repo:
+  $GITHUB_REPO
 
 This script will not push or upload anything automatically but you should
 be able to do that.
@@ -343,61 +339,25 @@ git tag
 git tag $TAGNAME || die "git tag failed."
 bump_version "$VERSION_NUMBER+dev" "$RELEASE_NAME"
 
-cat <<EOF
-That was easy!
-We created a tag with an updates version and tagged it with $TAGNAME.
-
-The next step will update the GitHub doc repository (only locally, so don't be
-afraid). Ready?
-EOF
-yessir
-
-ORIG_REPO="$(pwd)"
-TMP_FILE="$(realpath "$TMP_FILE")"
-
+### Create archive with OGDF source code
 mkdir -p "$TARGET_DIR" || die "creating target directory (to save release in) failed"
 TARGET_DIR="$(realpath "$TARGET_DIR")"
-GITHUB_DOC_DIR="$(realpath "$GITHUB_DOC_DIR")"
 SRCZIP="$TARGET_DIR/ogdf.v${VERSION_NUMBER}.zip"
-DOCTAR="$TARGET_DIR/ogdf-doc.v${VERSION_NUMBER}.tgz"
-
 git archive --prefix=OGDF/ -9 -o "$SRCZIP" $TAGNAME || die "git archive failed"
 
-shopt -s dotglob
-
-##### Update doc repo
-check_or_init_repo "$GITHUB_DOC_DIR" "$GITHUB_DOC_REPO"
-echo "== Generating documentation in $TMP_DIR" &&
-  mkdir -p "$TMP_DIR" &&
-  cd "$TMP_DIR" &&
-  TMP_DIR=`pwd` &&
-  unzip -q "$SRCZIP" || die "Unzipping $SRCZIP in temporary directory $TMP_DIR failed"
-cd OGDF || die "Changing directory to OGDF directory failed"
-cmake . || die "cmake in OGDF directory failed"
-make doc || die "make doc failed"
-cd doc &&
-  mv html/ ogdf &&
-  tar cfz "$DOCTAR" ogdf || die "Making tarball of OGDF doc failed"
-
-rm -f "$TMP_FILE" &&
-  echo "== Making a new commit in the doc repository" &&
-  cd "$GITHUB_DOC_DIR" &&
-  git rm --quiet -r doc/ogdf &&
-  cd doc &&
-  tar xfz $DOCTAR &&
-  cd .. &&
-  git add doc/ogdf &&
-  git commit -q -m "Update Doxygen doc for release $VERSION_NUMBER ($RELEASE_NAME)" || die "Making commit failed"
-
-separator
 cat <<EOF
 Finished!
+
+We created a tag with an updated version and tagged it with $TAGNAME.
+The branch $LATEST_RELEASE_BRANCH was updated to $TAGNAME, and
+an archive with the OGDF source code was created here:
+  $SRCZIP
+The version in the branch $RELEASE_BRANCH was further updated to a post-release development version.
 
 To publish the release, do the following steps:
 
  1. Push to the Github repository and create a new pull request
      * git push -fu $GITHUB_URL $RELEASE_BRANCH
-     * git push $GITHUB_URL $TAGNAME
      * Create new pull reqest for $RELEASE_BRANCH: "Release $VERSION_NUMBER ($RELEASE_NAME)"
 
  WAIT UNTIL PIPELINE IS GREEN! If it is red, fix stuff and repeat the process.
@@ -414,8 +374,8 @@ To publish the release, do the following steps:
      * Update http://ogdf.net/team if necessary
 
  3. Release on Github
-     * Merge the pull request (do not rebase it! otherwise the pushed tag is lost and you have to recreate it)
-     * Check and push $GITHUB_DOC_DIR
+     * Merge the pull request (do not rebase it! otherwise the tag is lost and you have to recreate it)
+     * git push $GITHUB_URL $TAGNAME
      * Draft a new release on https://github.com/ogdf/ogdf (mimic the other releases)
 
  4. Additional things to consider
