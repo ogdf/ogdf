@@ -26,6 +26,7 @@ GITHUB_URL="git@github.com:ogdf/ogdf.git"
 
 MAIN_BRANCH="master"
 RELEASE_BRANCH="new-release"
+LATEST_RELEASE_BRANCH="latest-release"
 
 usage () {
   echo
@@ -345,6 +346,9 @@ TARGET_DIR="$(realpath "$TARGET_DIR")"
 SRCZIP="$TARGET_DIR/ogdf.v${VERSION_NUMBER}.zip"
 git archive --prefix=OGDF/ -9 -o "$SRCZIP" $TAGNAME || die "git archive failed"
 
+### Set latest release branch to new release
+git branch -f $LATEST_RELEASE_BRANCH $TAGNAME
+
 cat <<EOF
 Finished!
 
@@ -376,6 +380,7 @@ To publish the release, do the following steps:
  3. Release on Github
      * Merge the pull request (do not rebase it! otherwise the tag is lost and you have to recreate it)
      * git push $GITHUB_URL $TAGNAME
+     * git push $GITHUB_URL $LATEST_RELEASE_BRANCH
      * Draft a new release on https://github.com/ogdf/ogdf (mimic the other releases)
 
  4. Additional things to consider
