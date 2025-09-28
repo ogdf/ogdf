@@ -54,12 +54,8 @@ public:
 	 *
 	 * Returns graph height double value.
 	 * Returns 0 if graph has one or less nodes.
-	 *
-	 * \param G                 Input graph.
-	 * \param ga                Input layout.
-	 * \return                  The graph height.
 	 */
-	static inline double graphHeight(const Graph& G, const GraphAttributes& ga);
+	static inline double graphHeight(const GraphAttributes& ga);
 
 	//! Computes graph width, in coordinate length metric.
 	/**
@@ -69,12 +65,8 @@ public:
 	 *
 	 * Returns graph width double value.
 	 * Returns 0 if graph has one or less nodes.
-	 *
-	 * \param G                 Input graph.
-	 * \param ga                Input layout.
-	 * \return                  The graph width.
 	 */
-	static inline double graphWidth(const Graph& G, const GraphAttributes& ga);
+	static inline double graphWidth(const GraphAttributes& ga);
 
 	//! Computes graph area, in coordinate length metric.
 	/**
@@ -85,12 +77,20 @@ public:
 	 *
 	 * Returns graph area double value
 	 * Returns 0 if graph has one or less nodes.
-	 *
-	 * \param G                 Input graph.
-	 * \param ga                Input layout.
-	 * \return                  The graph width.
 	 */
-	static inline double graphArea(const Graph& G, const GraphAttributes& ga);
+	static inline double graphArea(const GraphAttributes& ga);
+
+	//! Computes Aspect Ratio (Asp) \p H of the layout/graph \p g.
+	/**
+	 * def. Aspect Ratio (Asp):
+	 * "The Aspect Ratio is the ratio of the height of
+	 * the drawing’s bounding box to its width (or vice versa,
+	 * depending on which is greater)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns aspect ration double
+	 * Returns 0.0 if the graph has less than 2 nodes, or either height or width of the bounding box are equal or smaller than 0.
+	 */
+	static double aspectRatio(const GraphAttributes& ga);
 
 	//! Computes the edge length for each edge in the layout \p ga.
 	/**
@@ -171,7 +171,6 @@ public:
 	 *
 	 * Source:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
-	 *
 	 */
 	static double percentageCrossingVsMaxCrossings(const GraphAttributes& ga);
 
@@ -233,9 +232,8 @@ public:
 	 * Per default, each edge is added uniquely -> ( \a u, \a v ) or ( \a v , \a u ),
 	 * else (bidirectional = true) both edges ( \a u, \a v ) and ( \a v , \a u ) are added.
 	 * handles size allocation, so no need to preallocate specific vector size.
-	 *
 	 */
-	static void distancesBetweenAllNodes(const Graph& mainGraph, const GraphAttributes& ga,
+	static void distancesBetweenAllNodes(const GraphAttributes& ga,
 			ArrayBuffer<std::pair<std::pair<node, node>, double>>& allDistances,
 			bool edgesTwice = false);
 
@@ -249,10 +247,8 @@ public:
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
 	 *
 	 * Returns an array of preservation values, of each node in Graph \p mainGraph
-	 *
 	 */
-	static ArrayBuffer<double> neighbourhoodPreservation(const Graph& mainGraph,
-			const GraphAttributes& ga);
+	static ArrayBuffer<double> neighbourhoodPreservation(const GraphAttributes& ga);
 
 	//! Computes Gabriel Ratio \p H of the edges in the graph given, in \p ga and also returns new set of edges that fulfill Gabriel criteria.
 	/**
@@ -274,9 +270,8 @@ public:
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
 	 *
 	 * Returns a double that gives the Node Ratio as output, which is: smallest_distance_between_2_nodes / biggest_distance_between_2_nodes
-	 *
 	 */
-	static double nodeResolution(Graph& mainGraph, const GraphAttributes& ga);
+	static double nodeResolution(const GraphAttributes& ga);
 
 
 	//! Computes Angular Resolution (AR) \p H of the nodes in the graph given, in \p ga.
@@ -288,23 +283,8 @@ public:
 	 *
 	 * Returns a double of the angular resolution of the graph
 	 * Returns 0.0 if there are no nodes with degree greater than 2, or if the graph has less than 3 nodes.
-	 *
 	 */
-	static double angularResolution(const Graph& mainGraph, const GraphAttributes& ga);
-
-
-	//! Computes Aspect Ratio (Asp) \p H of the layout/graph \p g.
-	/**
-	 * def. Aspect Ratio (Asp):
-	 * "The Aspect Ratio is the ratio of the height of
-	 * the drawing’s bounding box to its width (or vice versa,
-	 * depending on which is greater)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
-	 *
-	 * Returns aspect ration double
-	 * Returns 0.0 if the graph has less than 2 nodes, or either height or width of the bounding box are equal or smaller than 0.
-	 *
-	 */
-	static double aspectRatio(const Graph& mainGraph, const GraphAttributes& ga);
+	static double angularResolution(const GraphAttributes& ga);
 
 	//! Computes Node Uniformity (NU) \p H of the graph \p g.
 	/**
@@ -320,10 +300,9 @@ public:
 	 * Returns node uniformity metric between 1.0 and 0.0, where 1.0 is a perfect uniformity
 	 * and 0.0 is the worst uniformity.
 	 * Returns 0.0 if the graph has less than 2 nodes, or number of grid cells is 0 (e.g. gridWidth or/and gridHeight is 0).
-	 *
 	 */
-	static double nodeUniformity(const Graph& mainGraph, const GraphAttributes& ga,
-			size_t gridWidth = 10, size_t gridHeight = 10);
+	static double nodeUniformity(const GraphAttributes& ga, size_t gridWidth = 10,
+			size_t gridHeight = 10);
 
 	//! Computes Edge Orthogonality (EO) \p H of the graph \p g.
 	/**
@@ -335,7 +314,7 @@ public:
 	 *
 	 * Returns mean Edge Orthogonality of all edges
 	 */
-	static double edgeOrthogonality(const Graph& mainGraph, const GraphAttributes& ga);
+	static double edgeOrthogonality(const GraphAttributes& ga);
 
 	//! Computes center of mass, where most nodes are.
 	/**
@@ -348,7 +327,7 @@ public:
 	 * Returns double pair containing center of mass coordinates.
 	 * Returns a pair with (0.0, 0.0) if graph is empty.
 	 */
-	static std::pair<double, double> centerOfMass(const Graph& mainGraph, const GraphAttributes& ga);
+	static std::pair<double, double> centerOfMass(const GraphAttributes& ga);
 
 
 	//! Computes Closest pair of points.
@@ -363,7 +342,7 @@ public:
 	 * Returns euclidean distance double of two closest nodes.
 	 * Returns -1.0 if graph is empty.
 	 */
-	static double closestPairOfPoints(const Graph& mainGraph, const GraphAttributes& ga);
+	static double closestPairOfPoints(const GraphAttributes& ga);
 
 	//! Computes horizontal node balance.
 	/**
@@ -378,10 +357,9 @@ public:
 	 * Returns balance double value.
 	 * Returns -1.0 if graph is empty.
 	 */
-	static double horizontalVerticalBalance(const Graph& mainGraph, const GraphAttributes& ga,
-			const bool vertical = false);
+	static double horizontalVerticalBalance(const GraphAttributes& ga, const bool vertical = false);
 
-	//! Retrieves min and max, x- and y-coordinates.
+	//! Retrieves min and max, x- and y-coordinates of graph.
 	/**
 	 *
 	 * def. Border coordinates:
@@ -397,7 +375,7 @@ public:
 	 * Returns a pair of pairs where each double is -1.0 when graph is empty.
 	 */
 	static std::pair<std::pair<double, double>, std::pair<double, double>> borderCoordinates(
-			const Graph& mainGraph, const GraphAttributes& ga);
+			const GraphAttributes& ga);
 
 	//! Calculating percentage of nodes with integer coordinates.
 	/**
@@ -412,8 +390,7 @@ public:
 	 * Returns percentage of nodes with integer coordinates (or within epsilon range).
 	 * Returns -1.0 when graph is empty.
 	 */
-	static double nodeOrthogonality(const Graph& mainGraph, const GraphAttributes& ga,
-			const double epsilon = 1e-9);
+	static double nodeOrthogonality(const GraphAttributes& ga, const double epsilon = 1e-9);
 
 	//! Calculates mean edge direction (vector) angle.
 	/**
@@ -427,7 +404,7 @@ public:
 	 * Returns degree of mean edge direction angle (as double).
 	 * Returns -1.0 when graph is empty.
 	 */
-	double averageFlow(const Graph& mainGraph, const GraphAttributes& ga);
+	double averageFlow(const GraphAttributes& ga);
 
 	//! Calculates percentage of edges that point upwards.
 	/**
@@ -443,7 +420,7 @@ public:
 	 * Returns percentage of edges pointing upwards.
 	 * Returns -1.0 when graph is empty, or undirected.
 	 */
-	double upwardsFlow(const Graph& mainGraph, const GraphAttributes& ga);
+	double upwardsFlow(const GraphAttributes& ga);
 
 
 	//! Calculates the variance of node distances from the center of mass.
@@ -458,6 +435,6 @@ public:
 	 * Returns concentration nodes in graph.
 	 * Returns -1.0 when graph is empty.
 	 */
-	double concentration(const Graph& mainGraph, const GraphAttributes& ga);
+	double concentration(const GraphAttributes& ga);
 };
 }
