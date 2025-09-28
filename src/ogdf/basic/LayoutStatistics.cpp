@@ -495,7 +495,9 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 	return nodePreservations;
 }
 
-ArrayBuffer<double> LayoutStatistics::gabrielRatio(Graph& mainGraph, const GraphAttributes& ga) {
+ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
+		Graph& gabrielGraphReference) {
+	const Graph& mainGraph = ga.constGraph();
 	// array for per-node Gabriel ratios
 	ArrayBuffer<double> nodeGabrielRatios;
 
@@ -571,7 +573,7 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(Graph& mainGraph, const Graph
 	}
 	graphGabrielRatio /= numOfNodes; // final division for Gabriel Ratio of graph
 
-	mainGraph = gabrielGraph; // setting mainGraph to output graph (gabrielGraph)
+	gabrielGraphReference = gabrielGraph; // setting mainGraph to output graph (gabrielGraph)
 
 	// returning array of Gabriel Ratios for each node
 	return nodeGabrielRatios;
