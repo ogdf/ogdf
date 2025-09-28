@@ -258,9 +258,9 @@ public:
 	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
 	 *
 	 * Returns an array of Gabriel Ratios (of doubles) of all nodes of the graph
-	 * Also generates a private variable with an overall graph Gabriel Ratio average
+	 * Also also assigns the reference graph (gabrielGraphReference) to the output gabriel graph
 	 */
-	static ArrayBuffer<double> gabrielRatio(Graph& mainGraph, const GraphAttributes& ga);
+	static ArrayBuffer<double> gabrielRatio(const GraphAttributes& ga, Graph& gabrielGraphReference);
 
 	//! Computes Node Ratio \p H of the nodes in the graph given, in \p ga.
 	/**
