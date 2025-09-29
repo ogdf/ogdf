@@ -97,7 +97,7 @@ jobs:
 
       - name: SonarCloud PR Scan
         if: github.event.workflow_run.event == 'pull_request'
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           args: >
             -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -112,7 +112,7 @@ jobs:
 
       - name: SonarCloud non-PR Scan
         if: github.event.workflow_run.event != 'pull_request'
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           args: >
             -Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
