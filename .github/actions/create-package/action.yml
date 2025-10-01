@@ -45,9 +45,16 @@ runs:
         cpack --verbose | tee ../packages/install-manifests/cpack.log
         echo "::endgroup::"
 
+    - name: Test Installed Package
+      uses: ./.github/actions/test-installed-package
+      with:
+        exc_special_path: "../doc/examples/special"
+        cmake_test_args: "-DOGDF_DIR=\"$RUNNER_WORKSPACE/build-install\" ${{ inputs.cmake_test_args }}"
+
     - name: Install for testing
       shell: bash
       run: |
+        mv build-test build-uninstalled-test
         cd build-install
         mkdir -p ../packages/install-manifests
         ${{ inputs.os == 'macos' && 'sudo' || '' }} cmake --build . --config Debug --target install >   ../packages/install-manifests/install-debug.log
@@ -79,5 +86,6 @@ runs:
         path: |
           build-install/
           build-test/
+          build-uninstalled-test/
           !**/*.obj
           !**/*.iobj

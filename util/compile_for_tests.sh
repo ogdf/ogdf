@@ -60,6 +60,7 @@ mkdir -p $tmp
 export CCACHE_BASEDIR="$sourcedir"
 
 # CMake config according to the arguments
+cmaketestargs=()
 cmakeargs=()
 cmakeargs+=("-DCGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE=TRUE")
 cmakeargs+=("-DOGDF_SEPARATE_TESTS=OFF" "-DOGDF_WARNING_ERRORS=ON")
@@ -68,6 +69,7 @@ static)
 	;;
 dynamic)
 	cmakeargs+=("-DBUILD_SHARED_LIBS=1")
+	cmaketestargs+=("-DBUILD_SHARED_LIBS=1")
 	;;
 *)
 	usage
@@ -76,10 +78,12 @@ esac
 case "$buildtype" in
 release)
 	cmakeargs+=("-DCMAKE_BUILD_TYPE=Release")
+	cmaketestargs+=("-DCMAKE_BUILD_TYPE=Release")
 	;;
 debug)
 	cmakeargs+=("-DCMAKE_CXX_FLAGS_DEBUG='-g -O1'")
 	cmakeargs+=("-DCMAKE_BUILD_TYPE=Debug")
+	cmaketestargs+=("-DCMAKE_BUILD_TYPE=Debug")
 	cmakeargs+=("-DOGDF_DEBUG_MODE=HEAVY")
 	cmakeargs+=("-DOGDF_LEAK_CHECK=ON")
 	cmakeargs+=("-DOGDF_MEMORY_MANAGER=MALLOC_TS")
@@ -91,9 +95,11 @@ esac
 case "$compilertype" in
 gcc)
 	cmakeargs+=("-DCMAKE_CXX_COMPILER='g++'")
+	cmaketestargs+=("-DCMAKE_CXX_COMPILER='g++'")
 	;;
 clang)
 	cmakeargs+=("-DCMAKE_CXX_COMPILER='clang++'")
+	cmaketestargs+=("-DCMAKE_CXX_COMPILER='clang++'")
 	;;
 default_c|*)
 esac
@@ -119,7 +125,7 @@ run_cmake() {
 }
 
 compile () {
-	make -C $tmp -j "$cores" build-all | grep -v 'Building CXX object'
+	cmake --build $tmp --parallel "$cores" | grep -v 'Building CXX object'
 	ret=$?
 	if [ $ret != 0 ]; then
 		echo "Make failed with exit code $ret"
@@ -147,4 +153,21 @@ echo "::endgroup::"
 echo "::group::($(date -Iseconds)) Now recompile tests as separate tests"
 run_cmake "-DOGDF_WARNING_ERRORS=ON" "-DOGDF_SEPARATE_TESTS=ON"
 compile
+echo "::endgroup::"
+
+echo "::group::($(date -Iseconds)) Now compile simple dependent project"
+old_tmp="$tmp"
+old_sourcedir="$sourcedir"
+tmp="$old_tmp/build-doc-examples-special"
+sourcedir="$old_sourcedir/doc/examples/special"
+run_cmake "${cmaketestargs[@]}" "-DOGDF_DIR=$old_tmp"
+compile
+"$tmp/check-build-mode"
+ret=$?
+if [ $ret != 0 ]; then
+  echo "check-build-mode failed with exit code $ret"
+  exit $ret
+fi
+tmp="$old_tmp"
+sourcedir="$old_sourcedir"
 echo "::endgroup::"

@@ -2,8 +2,8 @@ name: Package and Test Installers
 
 on:
   push:
-    branches:
-      - master
+#    branches: # FIXME NOSHIP
+#      - master
 
 # the defaults here are for a read-only http account, allowing anyone to read the ccache results from CI
 # which is very useful when using the same docker images as used for the build locally
@@ -167,6 +167,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
       - name: Update library search path for cmake-install-based installation
         run: echo "C:\\Program Files (x86)\\OGDF-PROJECT\\bin" >> "$GITHUB_PATH"
         shell: bash
@@ -196,6 +197,7 @@ jobs:
         with:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
+      - uses: microsoft/setup-msbuild@v2
       - name: Update library search path for unzip+move-based installation
         run: echo "${{ github.workspace }}\\OGDF-ROOT\\bin" >> "$GITHUB_PATH"
         shell: bash
