@@ -58,8 +58,8 @@ inline double graphHeight(const GraphAttributes& ga) {
 	if (G.numberOfNodes() <= 1) {
 		return 0.0; // height is 0, for one or less nodes
 	}
-	DRect maxVals = ga.GraphAttributes::boundingBox();
-	return maxVals.height();
+	DRect boundingBoxVals = ga.GraphAttributes::boundingBox();
+	return boundingBoxVals.height();
 }
 
 inline double graphWidth(const GraphAttributes& ga) {
@@ -67,18 +67,11 @@ inline double graphWidth(const GraphAttributes& ga) {
 	if (G.numberOfNodes() <= 1) {
 		return 0.0; // width is 0, for one or less nodes
 	}
-
-	auto maxVals = borderCoordinates(ga);
-	const double minX = maxVals.first.first; // min. x coordinate
-	const double maxX = maxVals.first.second; // max. x coordinate
-
-	return maxX - minX;
+	DRect boundingBoxVals = ga.GraphAttributes::boundingBox();
+	return boundingBoxVals.width();
 }
 
-inline double graphArea(const GraphAttributes& ga) {
-	const Graph& G = ga.constGraph();
-	return graphHeight(ga) * graphWidth(ga);
-}
+inline double graphArea(const GraphAttributes& ga) { return graphHeight(ga) * graphWidth(ga); }
 
 ArrayBuffer<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, bool considerSelfLoops) {
 	ArrayBuffer<double> values;
@@ -275,7 +268,6 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& 
 		}
 		values.push(nCrossingsE);
 	}
-
 	return values;
 }
 
@@ -302,7 +294,6 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 	// Explanation: The number of all edges which are not adjacent to the edge, and thus able to cross
 	// each edge, can get crossed by all the m other edges
 	for (const edge& e : G.edges) {
-		size_t adjacencySize = 0; // Size of adjacency list for each node
 		const size_t degreeU = (e->source())->degree(); // degree of node u
 		const size_t degreeV = (e->target())->degree(); // degree of node v
 
@@ -386,11 +377,11 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 	const size_t reqSize = (bidirectional ? n * n : (n * (n - 1)) / 2);
 
 	// Correct memory handling, to avoid back and forth memory allocation if array is too small
-	if (bidirectional && allDistances.size() < reqSize) {
+	if (bidirectional && static_cast<size_t>(allDistances.size()) < reqSize) {
 		ArrayBuffer<std::pair<std::pair<node, node>, double>> tmp(reqSize);
 		allDistances = std::move(tmp); // transfer reserved memory (size n * n)
 		tmp.clear(); // clear temp ArrayBuffer
-	} else if (!bidirectional && allDistances.size() < reqSize) {
+	} else if (!bidirectional && static_cast<size_t>(allDistances.size()) < reqSize) {
 		ArrayBuffer<std::pair<std::pair<node, node>, double>> tmp(reqSize);
 		allDistances = std::move(tmp); // transfer reserved memory (size n * (n - 1) / 2)
 		tmp.clear(); // clear temp ArrayBuffer
@@ -441,19 +432,19 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 	distancesBetweenAllNodes(ga, allDistances, true);
 
 	size_t i = 0;
-	auto start = allDistances.begin();
-	auto end = allDistances.begin() + numOfNodes;
+	auto startIt = allDistances.begin();
+	auto endIt = allDistances.begin() + numOfNodes;
 
 	// for each node, sorting all by distance
 	for (; i < numOfNodes; ++i) {
 		// sorting all distances ascendingly for current node within spectrum
-		std::sort(start, end,
+		std::sort(startIt, endIt,
 				[](const std::pair<std::pair<node, node>, double>& a,
 						const std::pair<std::pair<node, node>, double>& b) {
 					return a.second < b.second;
 				});
-		start = end;
-		end += numOfNodes;
+		startIt = endIt;
+		endIt += numOfNodes;
 	}
 
 	node currentNode; // current node
@@ -522,11 +513,11 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	bool isGabrielEdge = true; // Gabriel edge true by default
 
 	// for each edge, calculate Gabriel edge
-	for (const auto& [edge, distance] : allDistances) {
+	for (const auto& [edgeNodes, distance] : allDistances) {
 		isGabrielEdge = true; // set to true for each loop
 
-		node u = edge.first; // first node of edge
-		node v = edge.second; // second node of edge
+		node u = edgeNodes.first; // first node of edge
+		node v = edgeNodes.second; // second node of edge
 
 		// incrementing incident edges for both nodes (u, v)
 		incidentCount[u->index()] += 1.0;
@@ -696,8 +687,8 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 	return width / height; // aspect ratio
 }
 
-double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWidth = 10,
-		size_t gridHeight = 10) {
+double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWidth,
+		size_t gridHeight) {
 	const Graph& mainGraph = ga.constGraph();
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
@@ -956,11 +947,9 @@ double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const doub
 			// if x + y is not an integer, node is not orthogonal
 			nodeOrthogonalityCount++; // increment orthogonal node count
 		}
-
-
-		return (static_cast<double>(nodeOrthogonalityCount) / n)
-				* 100.0; // return node orthogonality percentage
 	}
+	return (static_cast<double>(nodeOrthogonalityCount) / n)
+			* 100.0; // return node orthogonality percentage
 }
 
 double LayoutStatistics::averageFlow(const GraphAttributes& ga) {
@@ -1042,4 +1031,5 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 
 	// returning variance center of mass
 	return sumSqrdDiff / static_cast<double>(n);
+}
 }
