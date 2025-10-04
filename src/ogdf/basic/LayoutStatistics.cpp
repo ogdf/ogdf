@@ -30,7 +30,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -288,7 +287,6 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 	}
 	sumOfCrossings /= 2; // Each crossing is counted twice, so we divide by 2
 
-
 	size_t sumMaxCrossings = 0;
 	// Calculate maximum crossings for all edges (non-incident edges)
 	// Explanation: The number of all edges which are not adjacent to the edge, and thus able to cross
@@ -306,7 +304,7 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 		// sum up all max crossings
 		sumMaxCrossings += maxCrossing;
 	}
-	if (sumMaxCrossings == 0) { //  if no crossings possible
+	if (sumMaxCrossings == 0) { // if no crossings possible
 		return 0.0;
 	}
 	return (static_cast<double>(sumOfCrossings) / static_cast<double>(sumMaxCrossings))
@@ -345,9 +343,8 @@ ArrayBuffer<double> LayoutStatistics::edgeLengthDeviation(const GraphAttributes&
 		edgeSum += len;
 	}
 
-	// if edgesNum (amount of edges) > 0, then edgeSum / edgeCount, else avgEdgeLen =  0.0
+	// if edgesNum (amount of edges) > 0, then edgeSum / edgeCount, else avgEdgeLen = 0.0
 	double avgEdgeLen = (edgesNum > 0) ? (edgeSum / edgesNum) : 0.0;
-
 
 	ArrayBuffer<double> edgeLenDev; // array of deviation values, of each edge
 	double edgeLenDevVal = 0.0; // for one edge deviation value, the lower the better
@@ -463,7 +460,6 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 			continue;
 		}
 
-
 		size_t start = i * numOfNodes; // current start index within allDistances array
 
 		// for |deg(currentNode)|, calculate preservation value for current node
@@ -527,7 +523,6 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		double midPointX = (ga.x(u) + ga.x(v)) / 2.0;
 		double midPointY = (ga.y(u) + ga.y(v)) / 2.0;
 		double radius = distance / 2.0;
-
 
 		for (const node& n : mainGraph.nodes) {
 			if (n == v || n == u) { // skip same nodes
@@ -683,7 +678,6 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 		return 0.0;
 	}
 
-
 	return width / height; // aspect ratio
 }
 
@@ -702,7 +696,6 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 	const double maxX = maxVals.first.second; // max. x coordinate
 	const double minY = maxVals.second.first; // min. y coordinate
 	const double maxY = maxVals.second.second; // max. y coordinate
-
 
 	// width and height of the bounding box
 	// adding 1 for minimum cell size, in case minX == maxX or minY == maxY (e.g. points could be on the same line)
@@ -774,7 +767,6 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 			gridCount * (numOfNodes - idealUniformity); // every cell has nodes off by all nodes
 	totalUniformityDeviation /= static_cast<double>(gridCount);
 	double nodeUniformityRatio = 1.0 - (totalUniformityDeviation / worstUniformityDeviation);
-
 
 	return nodeUniformityRatio; // return node uniformity ratio
 }
@@ -851,7 +843,7 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 	distancesBetweenAllNodes(ga, allDistances);
 	double smallestDist = std::numeric_limits<double>::max(); // for smallest distance
 
-	// Extracting smallest distance from allDistances, e.g. smallest  distance between two nodes
+	// Extracting smallest distance from allDistances, e.g. smallest distance between two nodes
 	for (const auto& pair : allDistances) {
 		if (smallestDist > pair.second) {
 			smallestDist = pair.second; // update smallest distance
@@ -902,7 +894,6 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 		max = borderCoords.second.second; // max y-coordinate
 	}
 
-
 	const double center = (min + max) / 2.0; // center x-coordinate
 	double leftTopCount = 0.0; // sum of coordinates of nodes on the left side
 	double rightBottomCount = 0.0; // sum of x-coordinates of nodes on the right side
@@ -941,7 +932,6 @@ double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const doub
 	for (const node& u : mainGraph.nodes) {
 		x = ga.x(u);
 		y = ga.y(u);
-
 
 		if (std::fabs(std::fmod(x + y, 1.0)) < epsilon) {
 			// if x + y is not an integer, node is not orthogonal
