@@ -44,8 +44,10 @@
 
 #	include <iomanip>
 #	include <limits>
+#	include <variant> // IWYU pragma: keep
 
 #	include <CGAL/Segment_2.h>
+#	include <boost/variant.hpp> // IWYU pragma: keep
 
 namespace ogdf {
 namespace internal {
@@ -228,6 +230,16 @@ inline Point_t<kernel> get_common_endpoint(const LineSegment_t<kernel>& l1,
 	}
 }
 
+template<class T, class Variant>
+auto get_if(Variant* v) -> decltype(std::get_if<T>(v)) {
+	return std::get_if<T>(v);
+}
+
+template<class T, class Variant>
+auto get_if(Variant* v) -> decltype(boost::get<T>(v)) {
+	return boost::get<T>(v);
+}
+
 template<typename kernel>
 inline Point_t<kernel> intersect(const LineSegment_t<kernel>& l1, const LineSegment_t<kernel>& l2) {
 	OGDF_ASSERT(!l1.is_degenerate());
@@ -240,11 +252,10 @@ inline Point_t<kernel> intersect(const LineSegment_t<kernel>& l1, const LineSegm
 	}
 
 	Point_t<kernel> intersection;
-	if (boost::get<LineSegment_t<kernel>>(&*result)) {
-		auto s = boost::get<LineSegment_t<kernel>>(&*result);
+	if (auto s = get_if<LineSegment_t<kernel>>(&*result)) {
 		intersection = s->source();
-	} else if (boost::get<Point_t<kernel>>(&*result)) {
-		intersection = *boost::get<Point_t<kernel>>(&*result);
+	} else if (auto p = get_if<Point_t<kernel>>(&*result)) {
+		intersection = *p;
 	}
 	//TODO
 	//OGDF_ASSERT(is_on<true>(l1, intersection));
@@ -263,11 +274,10 @@ inline Point_t<kernel> intersect(const LineSegment_t<kernel>& l1, const Line_t<k
 	}
 
 	Point_t<kernel> intersection;
-	if (boost::get<LineSegment_t<kernel>>(&*result)) {
-		auto s = boost::get<LineSegment_t<kernel>>(&*result);
+	if (auto s = get_if<LineSegment_t<kernel>>(&*result)) {
 		intersection = s->source();
-	} else {
-		intersection = *boost::get<Point_t<kernel>>(&*result);
+	} else if (auto p = get_if<Point_t<kernel>>(&*result)) {
+		intersection = *p;
 	}
 	OGDF_ASSERT(is_on<true>(l1, intersection));
 	OGDF_ASSERT(l2.has_on(intersection));
@@ -292,11 +302,10 @@ inline Point_t<kernel> intersect(const LineSegment_t<kernel>& l1, const Ray_t<ke
 
 
 	Point_t<kernel> intersection;
-	if (boost::get<LineSegment_t<kernel>>(&*result)) {
-		auto s = boost::get<LineSegment_t<kernel>>(&*result);
+	if (auto s = get_if<LineSegment_t<kernel>>(&*result)) {
 		intersection = s->source();
-	} else {
-		intersection = *boost::get<Point_t<kernel>>(&*result);
+	} else if (auto p = get_if<Point_t<kernel>>(&*result)) {
+		intersection = *p;
 	}
 	OGDF_ASSERT(OGDF_GEOMETRIC_INEXACT_NUMBER_TYPE || is_on<true>(l1, intersection));
 	OGDF_ASSERT(OGDF_GEOMETRIC_INEXACT_NUMBER_TYPE || r.has_on(intersection));

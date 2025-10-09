@@ -17,10 +17,10 @@ RUN apt-get -y update \
 ARG CGAL_INSTALL=false
 RUN [ "$CGAL_INSTALL" = "false" ] || { \
   apt-get -y install libgmp-dev libmpfr-dev libboost-thread-dev && \
-  wget -q -O CGAL.zip https://github.com/CGAL/cgal/releases/download/v5.5.2/CGAL-5.5.2-library.zip && \
+  wget -q -O CGAL.zip https://github.com/CGAL/cgal/releases/download/v$CGAL_INSTALL/CGAL-$CGAL_INSTALL-library.zip && \
   unzip -q CGAL.zip && \
   rm CGAL.zip && \
-  mkdir CGAL-5.5.2/build && \
-  cd CGAL-5.5.2/build && \
+  mkdir CGAL-$CGAL_INSTALL/build && \
+  cd CGAL-$CGAL_INSTALL/build && \
   cmake -DCMAKE_BUILD_TYPE=Release .. && \
   make --silent install ;}
