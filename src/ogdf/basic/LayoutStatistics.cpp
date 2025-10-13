@@ -41,6 +41,7 @@
 #include <ogdf/basic/geometry.h>
 
 #include <algorithm>
+#define _USE_MATH_DEFINES // for M_PI
 #include <cmath>
 #include <vector>
 
