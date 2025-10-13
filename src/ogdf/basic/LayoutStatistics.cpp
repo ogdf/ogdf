@@ -755,7 +755,7 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 			// as it is considered uniform enough
 			if (deviationCheck == 0 || deviationCheck == 1) {
 				continue;
-			} else { //
+			} else {
 				totalUniformityDeviation += deviationCheck;
 			}
 		}
@@ -765,11 +765,10 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 			gridCount * (numOfNodes - idealUniformity); // every cell has nodes off by all nodes
 	totalUniformityDeviation /= static_cast<double>(gridCount);
 
-	if (worstUniformityDeviation <= 0.0)
-	{
+	if (worstUniformityDeviation <= 0.0) {
 		return 0.0;
 	}
-	
+
 	double nodeUniformityRatio = 1.0 - (totalUniformityDeviation / worstUniformityDeviation);
 
 	return nodeUniformityRatio; // return node uniformity ratio
