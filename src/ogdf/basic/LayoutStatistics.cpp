@@ -347,7 +347,7 @@ ArrayBuffer<double> LayoutStatistics::edgeLengthDeviation(const GraphAttributes&
 	double avgEdgeLen = (edgesNum > 0) ? (edgeSum / edgesNum) : 0.0;
 
 	ArrayBuffer<double> edgeLenDev; // array of deviation values, of each edge
-	double edgeLenDevVal = 0.0; // for one edge deviation value, the lower the better
+	// Uncomment 1. | double edgeLenDevVal = 0.0; // for one edge deviation value, the lower the better
 
 	// For all edges, subtract all deltas of edge lengths to avg.
 	for (const double& len : edgeLengths) {
@@ -355,10 +355,10 @@ ArrayBuffer<double> LayoutStatistics::edgeLengthDeviation(const GraphAttributes&
 		delta = std::fabs(len - avgEdgeLen);
 		// adding delta to array of edge length deviations
 		edgeLenDev.push(delta);
-		edgeLenDevVal += (delta);
+		// Uncomment 1. | edgeLenDevVal += (delta);
 	}
 
-	edgeLenDevVal /= edgesNum; // calculating average edge length deviation
+	// Uncomment 1. | edgeLenDevVal /= edgesNum; // calculating average edge length deviation
 	return edgeLenDev;
 }
 
@@ -416,7 +416,7 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
 	double nodePreservationValue = 0.0; // preservation value for each node, higher = better
-	double graphPreservationValue = 0.0; // preservation value for whole graph, higher = better
+	// Uncomment 2. | double graphPreservationValue = 0.0; // preservation value for whole graph, higher = better
 	double preservationValue = 0.0;
 	ArrayBuffer<double> nodePreservations; // array of preservation values, of each node/vertex
 
@@ -473,12 +473,12 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 		}
 		preservationValue = nodePreservationValue / currentNodeDeg;
 		nodePreservations.push(preservationValue);
-		graphPreservationValue += preservationValue;
+		// Uncomment 2. | graphPreservationValue += preservationValue;
 		++i;
 	}
 
 	// final graph preservation value calculation
-	graphPreservationValue /= numOfNodes;
+	// Uncomment 2. | graphPreservationValue /= numOfNodes;
 	return nodePreservations;
 }
 
@@ -553,11 +553,11 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	}
 
 	// calculating Gabriel ratio for whole graph
-	double graphGabrielRatio = 0.0;
+	// Uncomment 3. | double graphGabrielRatio = 0.0;
 	for (size_t i = 0; i < numOfNodes; ++i) {
-		graphGabrielRatio += nodeGabrielRatios[i];
+		// Uncomment 3. | graphGabrielRatio += nodeGabrielRatios[i];
 	}
-	graphGabrielRatio /= numOfNodes; // final division for Gabriel Ratio of graph
+	// Uncomment 3. | graphGabrielRatio /= numOfNodes; // final division for Gabriel Ratio of graph
 
 	gabrielGraphReference = gabrielGraph; // setting mainGraph to output graph (gabrielGraph)
 
@@ -745,7 +745,6 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 
 	double totalUniformityDeviation = 0.0; // uniformity value
 	size_t deviationCheck = 0;
-	size_t devCount = 0; // count of deviations
 
 	for (const size_t& cellCount : nodeCount) {
 		// if cell has nodes, calculate deviation
@@ -758,7 +757,6 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 				continue;
 			} else { //
 				totalUniformityDeviation += deviationCheck;
-				devCount++;
 			}
 		}
 	}
@@ -766,6 +764,12 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 	double worstUniformityDeviation =
 			gridCount * (numOfNodes - idealUniformity); // every cell has nodes off by all nodes
 	totalUniformityDeviation /= static_cast<double>(gridCount);
+
+	if (worstUniformityDeviation <= 0.0)
+	{
+		return 0.0;
+	}
+	
 	double nodeUniformityRatio = 1.0 - (totalUniformityDeviation / worstUniformityDeviation);
 
 	return nodeUniformityRatio; // return node uniformity ratio
