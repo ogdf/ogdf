@@ -336,7 +336,7 @@ jobs:
     strategy:
       matrix: # when updating macos versions, also update the prune-all-caches script
         mode: [ debug, release ]
-        os: [ macos-13, macos-14, macos-15 ] # >=14 is with M1, while macos-13 is intel
+        os: [ macos-14, macos-15 ] # >=14 is with M1
     runs-on: ${{ matrix.os }}
     needs: [ style, dirs, self-sufficiency, docs ]
     steps:
@@ -366,7 +366,6 @@ jobs:
             default_c \
             default_s \
             -DOGDF_USE_ASSERT_EXCEPTIONS=ON \
-            ${{ matrix.compiler == 'macos-13' && '-DOGDF_ARCH=ivybridge' || '' }} \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         # ivybridge is the oldest intel arch we encountered from SIGILL ccaching problems
       - uses: actions/upload-artifact@v4

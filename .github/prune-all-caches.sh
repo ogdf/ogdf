@@ -11,8 +11,6 @@ KEYS=(
   "ccache-build-linux-gcc:13-release"
   "ccache-build-linux-clang:15-debug"
   "ccache-build-linux-clang:15-release"
-  "ccache-build-macos-13-debug"
-  "ccache-build-macos-13-release"
   "ccache-build-macos-14-debug"
   "ccache-build-macos-14-release"
   "ccache-build-macos-15-debug"
