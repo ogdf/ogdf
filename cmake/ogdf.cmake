@@ -252,6 +252,9 @@ install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibdw.cmake"
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibunwind.cmake"
         DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibbfd.cmake" DESTINATION "${PROJECT_BINARY_DIR}")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibdw.cmake" DESTINATION "${PROJECT_BINARY_DIR}")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindLibunwind.cmake" DESTINATION "${PROJECT_BINARY_DIR}")
 # ...of the actual cmake targets included by the ogdf-config.cmake
 install(TARGETS OGDF EXPORT OgdfTargets COMPONENT OGDF) # add the OGDF target to the export set "OgdfTargets"
 install(EXPORT OgdfTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf) # write all targets in this export set to OgdfTargets.cmake
