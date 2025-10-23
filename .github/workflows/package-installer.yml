@@ -164,7 +164,7 @@ jobs:
 
   build-windows:
     name: "Build on Windows"
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
       - name: Update library search path for cmake-install-based installation
@@ -189,7 +189,7 @@ jobs:
 
   test-windows:
     name: "Test on Windows"
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs: [ build-windows ]
     steps:
       - uses: actions/checkout@v4

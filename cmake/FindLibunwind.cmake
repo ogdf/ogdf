@@ -1,4 +1,4 @@
-find_path(LIBUNWIND_INCLUDE_DIR libunwind.h)
+find_path(LIBUNWIND_INCLUDE_DIR libunwind.h PATH_SUFFIXES libunwind)
 find_library(LIBUNWIND_LIBRARY unwind)
 
 include(FindPackageHandleStandardArgs)
