@@ -136,11 +136,11 @@ fi
 # intial check: on a local branch that is up-to-date with the newest main branch
 # in particular, this release script should be in its newest state
 git fetch --quiet $GITHUB_URL $MAIN_BRANCH || die "git fetch failed."
-test "$(git rev-parse --abbrev-ref FETCH_HEAD)" = "$(git rev-parse --abbrev-ref HEAD)" ||
+test "$(git rev-parse FETCH_HEAD)" = "$(git rev-parse HEAD)" ||
   die "Please run this from a branch that is up-to-date with $MAIN_BRANCH from $GITHUB_URL."
 
 # create and move to release branch if necessary
-if ! "$(git rev-parse --abbrev-ref HEAD)" = "$RELEASE_BRANCH"
+if ! test "$(git rev-parse --abbrev-ref HEAD)" = "$RELEASE_BRANCH"
 then
   git checkout FETCH_HEAD
   git switch -c $RELEASE_BRANCH || die "Creating and switching to branch $RELEASE_BRANCH failed."
