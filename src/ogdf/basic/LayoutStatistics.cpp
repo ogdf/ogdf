@@ -33,12 +33,10 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphList.h>
 #include <ogdf/basic/LayoutStatistics.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/basic.h>
-#include <ogdf/basic/geometry.h>
 
 #include <algorithm>
 #include <cmath>
