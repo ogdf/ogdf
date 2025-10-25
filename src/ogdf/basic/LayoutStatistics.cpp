@@ -41,11 +41,11 @@
 #include <ogdf/basic/geometry.h>
 
 #include <algorithm>
-#define _USE_MATH_DEFINES // for M_PI
 #include <cmath>
-#include <vector>
-
-#include <math.h>
+#include <cstddef>
+#include <iterator>
+#include <limits>
+#include <utility>
 
 namespace ogdf {
 
@@ -621,7 +621,7 @@ double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
 			node v = adj->twinNode(); // v becomes a neighbor of u
 			double x = ga.x(u) - ga.x(v); // x coordinate difference
 			double y = ga.y(u) - ga.y(v); // y coordinate difference
-			angles.pushBack((atan2(y, x) * 180 / M_PI)); // convert to degrees
+			angles.pushBack(Math::radiansToDegrees(atan2(y, x))); // convert to degrees
 		}
 
 		// Sort angles in ascending order
@@ -751,7 +751,8 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		// if cell has nodes, calculate deviation
 		if (cellCount > 0) {
 			// calculate deviation from ideal uniformity
-			deviationCheck = fabs(cellCount - idealUniformity);
+			deviationCheck = cellCount > idealUniformity ? cellCount - idealUniformity
+														 : idealUniformity - cellCount;
 			// if deviation is 0 or 1, skip it
 			// as it is considered uniform enough
 			if (deviationCheck == 0 || deviationCheck == 1) {
@@ -793,7 +794,8 @@ double LayoutStatistics::edgeOrthogonality(const GraphAttributes& ga) {
 		double y = ga.y(e->source()) - ga.y(e->target()); // y coordinate difference
 
 		// calculate angle relative to x-axis
-		angleTemp = atan2(y, x) * 180 / M_PI; // convert radians to degrees
+		angleTemp = Math::radiansToDegrees(atan2(y, x)); // convert radians to degrees
+
 
 		// applying mod 90 to get the angle in the range [0, 90)
 		angleTemp = fmod(angleTemp, 90.0);
@@ -961,7 +963,7 @@ double LayoutStatistics::averageFlow(const GraphAttributes& ga) {
 		// calculate edge angle
 		double x = ga.x(source) - ga.x(target); // x coordinate difference
 		double y = ga.y(source) - ga.y(target); // y coordinate difference
-		totalAngle += atan2(y, x) * 180 / M_PI; // convert to degrees
+		totalAngle += Math::radiansToDegrees(atan2(y, x)); // convert to degrees
 	}
 	return totalAngle /= m; // return average flow
 }
