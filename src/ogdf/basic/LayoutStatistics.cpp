@@ -797,7 +797,6 @@ double LayoutStatistics::edgeOrthogonality(const GraphAttributes& ga) {
 		// calculate angle relative to x-axis
 		angleTemp = Math::radiansToDegrees(atan2(y, x)); // convert radians to degrees
 
-
 		// applying mod 90 to get the angle in the range [0, 90)
 		angleTemp = fmod(angleTemp, 90.0);
 
