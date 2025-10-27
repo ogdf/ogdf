@@ -329,8 +329,9 @@ bump_version() {
   new_version="$1"
   shift
   release_name="$1"
+  new_cmake_version="$(echo "$new_version" | sed 's/-dev/.01/')"
   sed -i 's/v\.[^<]*</v. '"$new_version ($release_name)"'</' "$DOC_HEADER"
-  sed -i 's/\(project(.*VERSION \)".*")/\1"'"$new_version"'")/' "$CMAKELISTS"
+  sed -i 's/\(project(.*VERSION \)".*")/\1"'"$new_cmake_version"'")/' "$CMAKELISTS"
   sed -i 's/\(.*OGDF_VERSION \)".*"/\1"'"$new_version"'"/' "$VERSION_H"
   ask_to_commit "Bump to version $new_version"
 }
@@ -338,7 +339,7 @@ bump_version() {
 bump_version "$VERSION_NUMBER" "$RELEASE_NAME"
 git tag
 git tag $TAGNAME || die "git tag failed."
-bump_version "$VERSION_NUMBER+dev" "$RELEASE_NAME"
+bump_version "$VERSION_NUMBER-dev" "$RELEASE_NAME"
 
 ### Create archive with OGDF source code
 mkdir -p "$TARGET_DIR" || die "creating target directory (to save release in) failed"
