@@ -8,7 +8,8 @@ change their code after an OGDF update.
 The following files describe compatibility-breaking changes
 for this and former OGDF versions:
 
-  * [from Elderberry to the current unreleased version](porting/unreleased.md)
+  * [from Foxglove to the current unreleased version](porting/unreleased.md)
+  * [from Elderberry to Foxglove](porting/foxglove.md)
   * [from Dogwood to Elderberry](porting/elderberry.md)
   * [from Catalpa to Dogwood](porting/dogwood.md)
   * [from Baobab to Catalpa](porting/catalpa.md)
