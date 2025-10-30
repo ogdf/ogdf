@@ -11,7 +11,9 @@ jobs:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
     container: docker.io/ogdf/clang:15
-    if: github.event.workflow_run.conclusion == 'success'
+    # Only run if the repository of the event is the main ogdf repository.
+    # Otherwise we do not have SONAR_TOKEN, and the SonarCloud Scan wil always fail.
+    if: github.event.repository.full_name == 'ogdf/ogdf' && github.event.workflow_run.conclusion == 'success'
     steps:
       - name: "Add link to trigger workflow to summary"
         run: >

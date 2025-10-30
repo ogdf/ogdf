@@ -15,6 +15,22 @@ CMake users should not notice any changes.
 
 Binaries built in debug mode now have the suffix "-debug".
 
+## Installation
+The following CMake variables specifying install directories for OGDF and COIN were removed:
+```
+OGDF_INSTALL_LIBRARY_DIR
+OGDF_INSTALL_INCLUDE_DIR
+OGDF_INSTALL_CMAKE_DIR
+OGDF_INSTALL_BINARY_DIR
+COIN_INSTALL_LIBRARY_DIR
+COIN_INSTALL_INCLUDE_DIR
+COIN_INSTALL_CMAKE_DIR
+COIN_INSTALL_BINARY_DIR
+```
+Instead, we now use the defaults provided by [GNUInstallDirs](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html),
+which can be changed by setting the standard variables `CMAKE_INSTALL_LIBDIR` etc.
+In particular, `LIBDIR` may now point to `lib64` instead of `lib`.
+
 ## include-what-you-use (iwyu)
 The OGDF now [uses](https://github.com/ogdf/ogdf/pull/239) [iwyu](https://include-what-you-use.org/)
 to make sure each source file explicitly lists all header files it uses, but no further unused headers.
