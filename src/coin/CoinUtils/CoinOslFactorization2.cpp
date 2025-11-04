@@ -501,8 +501,8 @@ static int c_ekkbtj4p_dense(const int nrow,const double * COIN_RESTRICT dluval,
     dv2=densew[0];
     for (k=0;k<nincol;k++) {
 #ifdef DEBUG
-      int kk=dlu1-dluval;
-      int jj = (densew+(nincol-k+1))-dwork1;
+      intptr_t kk=dlu1-dluval;
+      intptr_t jj = (densew+(nincol-k+1))-dwork1;
       int ll=hrowi[k+kk];
       if (ll!=jj) abort();
 #endif
