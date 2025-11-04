@@ -499,7 +499,7 @@ public:
 				handled = m_handleInt(obj->intValue);
 			}
 			if (!handled && !m_handleDouble && obj->valueType == ObjectType::DoubleValue) {
-				handled = m_handleInt(obj->doubleValue);
+				handled = m_handleInt(static_cast<int>(obj->doubleValue));
 				if (handled) {
 					Logger::slout(Logger::Level::Minor)
 							<< "Expected integer attribute for " << toString(obj->key)
@@ -536,7 +536,7 @@ public:
 					saved = true;
 				}
 				if (!saved && !m_saveDouble && obj->valueType == ObjectType::DoubleValue) {
-					m_saveInt(obj->doubleValue);
+					m_saveInt(static_cast<int>(obj->doubleValue));
 					Logger::slout(Logger::Level::Minor)
 							<< "Expected integer attribute for " << toString(obj->key)
 							<< ", found float. Read may have lost precision!";
