@@ -214,15 +214,28 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 	printLayoutStatistics("edgeLengthDeviation", LayoutStatistics::edgeLengthDeviation(GA));
 	printLayoutStatistics("neighbourhoodPreservation",
 			LayoutStatistics::neighbourhoodPreservation(GA));
-	Graph graph;
-	printLayoutStatistics("gabrielRatio", LayoutStatistics::gabrielRatio(GA, graph));
+	Graph gabrielOut;
+	printLayoutStatistics("gabrielRatio", LayoutStatistics::gabrielRatio(GA, gabrielOut));
 	printLayoutStatistics("nodeResolution", LayoutStatistics::nodeResolution(GA));
 	printLayoutStatistics("angularResolution", LayoutStatistics::angularResolution(GA));
 	printLayoutStatistics("aspectRatio", LayoutStatistics::aspectRatio(GA));
 	printLayoutStatistics("nodeUniformity", LayoutStatistics::nodeUniformity(GA));
 	printLayoutStatistics("edgeOrthogonality", LayoutStatistics::edgeOrthogonality(GA));
-	printLayoutStatistics("centerOfMass", LayoutStatistics::centerOfMass(GA));
-	printLayoutStatistics("closestPairOfPoints", LayoutStatistics::closestPairOfPoints(GA));
+
+	// centerOfMass returns a pair<double,double> -> print directly
+	{
+		auto c = LayoutStatistics::centerOfMass(GA);
+		const std::string indent = "        ";
+		std::cout << indent << "centerOfMass: (" << c.first << ", " << c.second << ")\n";
+	}
+
+	// closestPairOfPoints returns a scalar -> wrap into container for printLayoutStatistics
+	{
+		ArrayBuffer<double> tmp;
+		tmp.push(LayoutStatistics::closestPairOfPoints(GA));
+		printLayoutStatistics("closestPairOfPoints", tmp);
+	}
+
 	printLayoutStatistics("borderCoordinates", LayoutStatistics::borderCoordinates(GA));
 	printLayoutStatistics("horizontalVerticalBalance",
 			LayoutStatistics::horizontalVerticalBalance(GA));
@@ -230,8 +243,13 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 	LayoutStatistics stats;
 	printLayoutStatistics("averageFlow", stats.averageFlow(GA));
 	printLayoutStatistics("upwardsFlow", stats.upwardsFlow(GA));
-	printLayoutStatistics("concentration", stats.concentration(GA));
-	printLayoutStatistics("nodeOrthogonality", LayoutStatistics::nodeOrthogonality(GA));
+
+	// concentration returns a scalar -> wrap it to use printLayoutStatistics
+	{
+		ArrayBuffer<double> tmp;
+		tmp.push(stats.concentration(GA));
+		printLayoutStatistics("concentration", tmp);
+	}
 
 	// Assert that we do not have any needless bendpoints
 	for (edge e : G.edges) {
