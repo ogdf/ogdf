@@ -59,6 +59,7 @@
 #include <random>
 #include <set>
 #include <string>
+#include <type_traits>
 
 #include <graphs.h>
 
@@ -85,7 +86,7 @@ int drawingCounter = 0;
  * @param angularResolution determines whether the angular resolution is
  * calculated instead of the mean.
  */
-template<typename Container>
+template<typename Container, typename = std::enable_if_t<!std::is_arithmetic<Container>::value>>
 inline void printLayoutStatistics(const std::string& measure, const Container& values,
 		bool angularResolution = false) {
 	const int infoLength = 39;
@@ -106,6 +107,25 @@ inline void printLayoutStatistics(const std::string& measure, const Container& v
 		AssertThat(result, IsLessThan(std::numeric_limits<int>::max() / 2));
 		AssertThat(result, IsGreaterThan(std::numeric_limits<int>::lowest() / 2));
 	}
+}
+
+// Overload for arithmetic scalars (wrap into an ArrayBuffer<double>)
+template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+inline void printLayoutStatistics(const std::string& measure, T value,
+		bool angularResolution = false) {
+	ArrayBuffer<double> tmp;
+	tmp.push(static_cast<double>(value));
+	printLayoutStatistics(measure, tmp, angularResolution);
+}
+
+// Overload for a bounding-box pair: ((minX,maxX),(minY,maxY))
+inline void printLayoutStatistics(const std::string& measure,
+		const std::pair<std::pair<double, double>, std::pair<double, double>>& box,
+		bool /*angularResolution*/ = false) {
+	const std::string indent = "        ";
+	std::cout << indent << measure << ": ";
+	std::cout << "x=[" << box.first.first << "," << box.first.second << "] "
+			  << "y=[" << box.second.first << "," << box.second.second << "]\n";
 }
 
 inline void getRandomLayout(GraphAttributes& GA) {
@@ -211,38 +231,38 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 			LayoutStatistics::numberOfNodeCrossings(GA));
 	printLayoutStatistics("average node overlaps per node",
 			LayoutStatistics::numberOfNodeOverlaps(GA));
-	printLayoutStatistics("edgeLengthDeviation", LayoutStatistics::edgeLengthDeviation(GA));
-	printLayoutStatistics("neighbourhoodPreservation",
+	printLayoutStatistics("edge length deviation", LayoutStatistics::edgeLengthDeviation(GA));
+	printLayoutStatistics("neighbourhood preservation ratio",
 			LayoutStatistics::neighbourhoodPreservation(GA));
 	Graph gabrielOut;
-	printLayoutStatistics("gabrielRatio", LayoutStatistics::gabrielRatio(GA, gabrielOut));
-	printLayoutStatistics("nodeResolution", LayoutStatistics::nodeResolution(GA));
-	printLayoutStatistics("angularResolution", LayoutStatistics::angularResolution(GA));
-	printLayoutStatistics("aspectRatio", LayoutStatistics::aspectRatio(GA));
-	printLayoutStatistics("nodeUniformity", LayoutStatistics::nodeUniformity(GA));
-	printLayoutStatistics("edgeOrthogonality", LayoutStatistics::edgeOrthogonality(GA));
+	printLayoutStatistics("calculates gabriel ratio", LayoutStatistics::gabrielRatio(GA, gabrielOut));
+	printLayoutStatistics("node resolution", LayoutStatistics::nodeResolution(GA));
+	printLayoutStatistics("angular resolution", LayoutStatistics::angularResolution(GA));
+	printLayoutStatistics("aspect ratio", LayoutStatistics::aspectRatio(GA));
+	printLayoutStatistics("node uniformity", LayoutStatistics::nodeUniformity(GA));
+	printLayoutStatistics("edge orthogonality", LayoutStatistics::edgeOrthogonality(GA));
 
 	// centerOfMass returns a pair<double,double> -> print directly
 	{
 		auto c = LayoutStatistics::centerOfMass(GA);
 		const std::string indent = "        ";
-		std::cout << indent << "centerOfMass: (" << c.first << ", " << c.second << ")\n";
+		std::cout << indent << "center of mass: (" << c.first << ", " << c.second << ")\n";
 	}
 
 	// closestPairOfPoints returns a scalar -> wrap into container for printLayoutStatistics
 	{
 		ArrayBuffer<double> tmp;
 		tmp.push(LayoutStatistics::closestPairOfPoints(GA));
-		printLayoutStatistics("closestPairOfPoints", tmp);
+		printLayoutStatistics("closest pair of points", tmp);
 	}
 
-	printLayoutStatistics("borderCoordinates", LayoutStatistics::borderCoordinates(GA));
-	printLayoutStatistics("horizontalVerticalBalance",
+	printLayoutStatistics("border coordinates", LayoutStatistics::borderCoordinates(GA));
+	printLayoutStatistics("horizontal vertical balance",
 			LayoutStatistics::horizontalVerticalBalance(GA));
-	printLayoutStatistics("nodeOrthogonality", LayoutStatistics::nodeOrthogonality(GA));
+	printLayoutStatistics("node orthogonality", LayoutStatistics::nodeOrthogonality(GA));
 	LayoutStatistics stats;
-	printLayoutStatistics("averageFlow", stats.averageFlow(GA));
-	printLayoutStatistics("upwardsFlow", stats.upwardsFlow(GA));
+	printLayoutStatistics("average flow", stats.averageFlow(GA));
+	printLayoutStatistics("upwards flow", stats.upwardsFlow(GA));
 
 	// concentration returns a scalar -> wrap it to use printLayoutStatistics
 	{
@@ -272,8 +292,8 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 				  << "crossing number: " << std::setw(22) << crossingNumber << std::endl;
 
 		// When our layout algorithms produce nodes that are very close together, the crossing test fails
-		// due to inprecision. Limit checking it to instances where this does not happen. This limit value
-		// is selected arbritarily and should be adjusted if it can be shown to be too narrow or wide.
+		// due to imprecision. Limit checking it to instances where this does not happen. This limit value
+		// is selected arbitrarily and should be adjusted if it can be shown to be too narrow or wide.
 		double minimumAngleThreshold = 1e-12;
 		auto angles = LayoutStatistics::angles(GA);
 		if (instanceIsPlanar && (angles.empty() || Math::minValue(angles) > minimumAngleThreshold)) {
