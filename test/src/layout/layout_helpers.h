@@ -211,6 +211,27 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 			LayoutStatistics::numberOfNodeCrossings(GA));
 	printLayoutStatistics("average node overlaps per node",
 			LayoutStatistics::numberOfNodeOverlaps(GA));
+	printLayoutStatistics("edgeLengthDeviation", LayoutStatistics::edgeLengthDeviation(GA));
+	printLayoutStatistics("neighbourhoodPreservation",
+			LayoutStatistics::neighbourhoodPreservation(GA));
+	Graph graph;
+	printLayoutStatistics("gabrielRatio", LayoutStatistics::gabrielRatio(GA, graph));
+	printLayoutStatistics("nodeResolution", LayoutStatistics::nodeResolution(GA));
+	printLayoutStatistics("angularResolution", LayoutStatistics::angularResolution(GA));
+	printLayoutStatistics("aspectRatio", LayoutStatistics::aspectRatio(GA));
+	printLayoutStatistics("nodeUniformity", LayoutStatistics::nodeUniformity(GA));
+	printLayoutStatistics("edgeOrthogonality", LayoutStatistics::edgeOrthogonality(GA));
+	printLayoutStatistics("centerOfMass", LayoutStatistics::centerOfMass(GA));
+	printLayoutStatistics("closestPairOfPoints", LayoutStatistics::closestPairOfPoints(GA));
+	printLayoutStatistics("borderCoordinates", LayoutStatistics::borderCoordinates(GA));
+	printLayoutStatistics("horizontalVerticalBalance",
+			LayoutStatistics::horizontalVerticalBalance(GA));
+	printLayoutStatistics("nodeOrthogonality", LayoutStatistics::nodeOrthogonality(GA));
+	LayoutStatistics stats;
+	printLayoutStatistics("averageFlow", stats.averageFlow(GA));
+	printLayoutStatistics("upwardsFlow", stats.upwardsFlow(GA));
+	printLayoutStatistics("concentration", stats.concentration(GA));
+	printLayoutStatistics("nodeOrthogonality", LayoutStatistics::nodeOrthogonality(GA));
 
 	// Assert that we do not have any needless bendpoints
 	for (edge e : G.edges) {
