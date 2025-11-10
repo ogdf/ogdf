@@ -73,7 +73,7 @@ public:
 	}
 };
 
-OGDF_DECLARE_COMPARER(cmpWithKey, withKey, int, x.key);
+OGDF_DECLARE_COMPARER(cmpWithKey, withKey, double, x.key);
 
 /**
  * \brief Class kList extends the class List by functions needed in the FastHierarchLayout algorithm.

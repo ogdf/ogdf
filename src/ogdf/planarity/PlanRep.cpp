@@ -334,7 +334,7 @@ void PlanRep::insertEdgePathEmbedded(edge eOrig, CombinatorialEmbedding& E,
 	Graph::EdgeType type =
 			m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::EdgeType::association;
 
-	long et = m_oriEdgeTypes[eOrig];
+	ogdf::edgeType et = m_oriEdgeTypes[eOrig];
 
 	for (edge e : chain(eOrig)) {
 		m_eType[e] = type;
@@ -354,7 +354,7 @@ void PlanRep::insertEdgePath(edge eOrig, const SList<adjEntry>& crossedEdges) {
 			m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::EdgeType::association;
 
 	//new types
-	long et = m_oriEdgeTypes[eOrig];
+	ogdf::edgeType et = m_oriEdgeTypes[eOrig];
 
 	for (edge e : chain(eOrig)) {
 		m_eType[e] = type;
