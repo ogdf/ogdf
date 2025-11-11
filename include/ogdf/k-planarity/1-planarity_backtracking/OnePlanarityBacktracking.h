@@ -114,7 +114,6 @@ private:
 	};
 
 	std::list<DFSThread> m_threads;
-	std::vector<std::unique_ptr<PartialSolutionFilter>> m_filters;
 
 	int m_maxThreads;
 	int m_maxExtractedKuratowskis;
@@ -132,7 +131,7 @@ public:
 	 */
 	explicit OnePlanarityBacktracking(int maxThreads = 1000, int maxKuratowskis = 1000);
 
-	~OnePlanarityBacktracking();
+	virtual ~OnePlanarityBacktracking();
 
 	OnePlanarityBacktracking(const OnePlanarityBacktracking&) = delete;
 
@@ -193,14 +192,17 @@ public:
 	//! Returns the number of search tree nodes that were processed in the previous run.
 	int processedNodes() const { return m_processedNodes; }
 
+protected:
+	std::vector<std::unique_ptr<PartialSolutionFilter>> m_filters;
+
 private:
 	//! Runs the backtracking on \p G and writes the solution to \p out.
 	Module::ReturnType test(OneplanMode mode, const Graph& G, OnePlanarization* out = nullptr);
 
 	//! Determines whether a partial solution is a solution, non-realizable, or the search must continue.
-	virtual NodeStatus verifyNode(EdgePairPartition* epp);
+	NodeStatus verifyNode(EdgePairPartition* epp);
 
 	//! Creates a new DFS-thread for \p epp if there is space, otherwise pushes it to \p t.
-	virtual void push(DFSThread* t, EdgePairPartition* epp);
+	void push(DFSThread* t, EdgePairPartition* epp);
 };
 }
