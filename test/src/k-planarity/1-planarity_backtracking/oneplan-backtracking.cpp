@@ -137,5 +137,12 @@ go_bandit([]() {
 			testGraph(G, OneplanMode::NIC, false);
 			testGraph(G, OneplanMode::IC, false);
 		});
+
+		for_each_graph_it("works with fewer threads", {"north/g.10.27.gml"}, [&](Graph& G) {
+			OnePlanarityBacktracking solver(1);
+			AssertThat(solver.testOnePlanarity(G), Equals(Module::ReturnType::Feasible));
+			AssertThat(solver.testNICPlanarity(G), Equals(Module::ReturnType::NoFeasibleSolution));
+			AssertThat(solver.testICPlanarity(G), Equals(Module::ReturnType::NoFeasibleSolution));
+		});
 	});
 });
