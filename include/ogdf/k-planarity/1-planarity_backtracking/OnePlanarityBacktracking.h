@@ -51,8 +51,13 @@ class PartialSolutionFilter;
 
 //! A backtracking implementation for the 1-Planarity problem.
 /**
- * This solver finds edge pairs to branch over using Kuratowski-Subdivisions of the graph and uses
- * filters to reject non-realizable partial solutions early to shrink the search space.
+ * Implements the best configuration of the backtracking procedure for 1-Planarity evaluated in:
+ * \remark Simon D. Fink, Miriam Münch, Matthias Pfretzschner and Ignaz Rutter. Heuristics for Exact
+ * 1-Planarity Testing. To appear in the Proc. of the 33rd International Symposium on Graph Drawing
+ * and Network Visualization, GD 2025, LIPIcs, Volume 357, 2025.
+ *
+ * This solver finds edge pairs to branch over by extracting multiple Kuratowski-Subdivisions of the
+ * graph and uses filters to reject non-realizable partial solutions early to shrink the search space.
  * Moreover, it explores the search space using multiple depth-first searches running alternatingly
  * to increase the likelihood of finding solutions with few crossings early.
  */
@@ -189,7 +194,7 @@ public:
 	int processedNodes() const { return m_processedNodes; }
 
 private:
-	//! Runs he backtracking on \p G and writes the solution to \p out.
+	//! Runs the backtracking on \p G and writes the solution to \p out.
 	Module::ReturnType test(OneplanMode mode, const Graph& G, OnePlanarization* out = nullptr);
 
 	//! Determines whether a partial solution is a solution, non-realizable, or the search must continue.
