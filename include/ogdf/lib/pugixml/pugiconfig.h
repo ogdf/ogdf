@@ -14,6 +14,8 @@
 #ifndef HEADER_PUGICONFIG_HPP
 #define HEADER_PUGICONFIG_HPP
 
+#include <ogdf/basic/internal/config.h>
+
 // Uncomment this to enable wchar_t mode
 // #define PUGIXML_WCHAR_MODE
 
@@ -27,13 +29,14 @@
 // #define PUGIXML_NO_STL
 
 // Uncomment this to disable exceptions
-// #define PUGIXML_NO_EXCEPTIONS
+#define PUGIXML_NO_EXCEPTIONS
 
 // Set this to control attributes for public classes/functions, i.e.:
 // #define PUGIXML_API __declspec(dllexport) // to export all public symbols from DLL
 // #define PUGIXML_CLASS __declspec(dllimport) // to import all classes from DLL
 // #define PUGIXML_FUNCTION __fastcall // to set calling conventions to all public functions to fastcall
 // In absence of PUGIXML_CLASS/PUGIXML_FUNCTION definitions PUGIXML_API is used instead
+#define PUGIXML_API OGDF_EXPORT
 
 // Tune these constants to adjust memory-related behavior
 // #define PUGIXML_MEMORY_PAGE_SIZE 32768
@@ -47,7 +50,7 @@
 // #define PUGIXML_HEADER_ONLY
 
 // Uncomment this to enable long long support (usually enabled automatically)
-// #define PUGIXML_HAS_LONG_LONG
+#define PUGIXML_HAS_LONG_LONG
 
 // Uncomment this to enable support for std::string_view (usually enabled automatically)
 // #define PUGIXML_HAS_STRING_VIEW

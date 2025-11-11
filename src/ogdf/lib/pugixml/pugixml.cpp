@@ -12,7 +12,7 @@
 #ifndef SOURCE_PUGIXML_CPP
 #define SOURCE_PUGIXML_CPP
 
-#include "pugixml.hpp"
+#include <ogdf/lib/pugixml/pugixml.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12688,6 +12688,8 @@ PUGI_IMPL_NS_END
 
 namespace pugi
 {
+//! @cond
+// doxygen will complain if this isnt hidden from doc
 #ifndef PUGIXML_NO_EXCEPTIONS
 	PUGI_IMPL_FN xpath_exception::xpath_exception(const xpath_parse_result& result_): _result(result_)
 	{
@@ -12704,6 +12706,7 @@ namespace pugi
 		return _result;
 	}
 #endif
+//! @endcond
 
 	PUGI_IMPL_FN xpath_node::xpath_node()
 	{
