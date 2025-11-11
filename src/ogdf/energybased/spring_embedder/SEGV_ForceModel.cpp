@@ -32,6 +32,7 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/List.h>
+#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
 #include <ogdf/energybased/spring_embedder/SEGV_ForceModel.h>
@@ -120,7 +121,7 @@ DPoint SpringEmbedderGridVariant::ForceModelFRModRep::computeDisplacement(int j,
 
 // Eades
 DPoint SpringEmbedderGridVariant::ForceModelEades::computeDisplacement(int j, double boxLength) const {
-#if __cplusplus >= 202002L
+#if OGDF_CPLUSPLUS >= 202002L
 	return computeMixedForcesDisplacement(
 			j, boxLength,
 			[=, this](double d, const DPoint& dist) {
@@ -142,7 +143,7 @@ DPoint SpringEmbedderGridVariant::ForceModelEades::computeDisplacement(int j, do
 // Hachul (new method)
 DPoint SpringEmbedderGridVariant::ForceModelHachul::computeDisplacement(int j,
 		double boxLength) const {
-#if __cplusplus >= 202002L
+#if OGDF_CPLUSPLUS >= 202002L
 	return computeMixedForcesDisplacement(
 			j, boxLength,
 			[=, this](double d, const DPoint& dist) {
@@ -164,7 +165,7 @@ DPoint SpringEmbedderGridVariant::ForceModelHachul::computeDisplacement(int j,
 // Gronemann
 DPoint SpringEmbedderGridVariant::ForceModelGronemann::computeDisplacement(int j,
 		double boxLength) const {
-#if __cplusplus >= 202002L
+#if OGDF_CPLUSPLUS >= 202002L
 	return computeMixedForcesDisplacement(
 			j, boxLength,
 			[=, this](double d, const DPoint& dist) {
