@@ -698,7 +698,6 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		return 0.0;
 	}
 
-
 	// if graph has less than 2 nodes, node uniformity is trivial
 	if (numOfNodes < 2) {
 		return 0.0;
