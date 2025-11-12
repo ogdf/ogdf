@@ -499,7 +499,7 @@ public:
 				handled = m_handleInt(obj->intValue);
 			}
 			if (!handled && !m_handleDouble && obj->valueType == ObjectType::DoubleValue) {
-				handled = m_handleInt(obj->doubleValue);
+				handled = m_handleInt(static_cast<int>(obj->doubleValue));
 				if (handled) {
 					Logger::slout(Logger::Level::Minor)
 							<< "Expected integer attribute for " << toString(obj->key)
@@ -536,7 +536,7 @@ public:
 					saved = true;
 				}
 				if (!saved && !m_saveDouble && obj->valueType == ObjectType::DoubleValue) {
-					m_saveInt(obj->doubleValue);
+					m_saveInt(static_cast<int>(obj->doubleValue));
 					Logger::slout(Logger::Level::Minor)
 							<< "Expected integer attribute for " << toString(obj->key)
 							<< ", found float. Read may have lost precision!";
@@ -777,7 +777,7 @@ bool Parser::read(Graph& G, GraphAttributes& GA) {
 		GA.strokeColor(v) = s;
 	});
 	ngh.attribute(Key::LineWidth).storeDouble(GraphAttributes::nodeStyle, [&](const double& d) {
-		GA.strokeWidth(v) = d;
+		GA.strokeWidth(v) = static_cast<float>(d);
 	});
 	ngh.attribute(Key::Type).storeString(GraphAttributes::nodeGraphics,
 			[&](const string& s) { GA.shape(v) = fromString<Shape>(s); });
@@ -884,7 +884,7 @@ bool Parser::read(Graph& G, GraphAttributes& GA) {
 		GA.strokeType(e) = fromString<StrokeType>(s);
 	});
 	egh.attribute(Key::LineWidth).storeDouble(GraphAttributes::edgeStyle, [&](const double& d) {
-		GA.strokeWidth(e) = d;
+		GA.strokeWidth(e) = static_cast<float>(d);
 	});
 	eh.attribute(Key::Generalization).storeInt(GraphAttributes::edgeType, [&](const int& i) {
 		GA.type(e) = Graph::EdgeType(i);
@@ -993,7 +993,7 @@ bool Parser::recursiveClusterRead(Object* clusterObject, ClusterGraph& CG, clust
 		ACG->strokeColor(c) = s;
 	});
 	gh.attribute(Key::LineWidth).storeDouble(ClusterGraphAttributes::clusterStyle, [&](const double& d) {
-		ACG->strokeWidth(c) = d;
+		ACG->strokeWidth(c) = static_cast<float>(d);
 	});
 	gh.attribute(Key::Stipple).storeString(ClusterGraphAttributes::clusterStyle, [&](const string& s) {
 		ACG->strokeType(c) = fromString<StrokeType>(s);

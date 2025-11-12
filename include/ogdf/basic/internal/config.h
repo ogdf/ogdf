@@ -62,22 +62,19 @@ using std::to_string;
 #	define OGDF_SYSTEM_OSX
 #endif
 
-// C++11 standard
-
-#if __cplusplus < 201103
+// C++17 standard
+#if __cplusplus < 201703
 
 #	if defined(_MSC_VER)
-#		if _MSC_VER < 1700
-#			error "Compiling OGDF requires Visual C++ 11 (Visual Studio 2012) or higher!"
+#		if _MSC_VER < 1915
+#			error "Compiling OGDF requires C++17 (Visual Studio 2017 15.8) or higher!"
 #		endif
 
 #	elif defined(__GNUC__)
-#		ifndef __GXX_EXPERIMENTAL_CXX0X__
-#			error "No C++11 support activated for g++ (compile with -std=c++0x or -std=c++11)!"
-#		endif
+#		error "Compiling OGDF requires C++17 (compile with -std=c++17)!"
 
 #	else
-#		error "Compiling OGDF requires a C++11 compliant compiler!"
+#		error "Compiling OGDF requires a C++17 compliant compiler!"
 #	endif
 
 #endif

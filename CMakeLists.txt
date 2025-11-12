@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10...4.0)
-project(OGDF-PROJECT LANGUAGES CXX VERSION "2023.09")
+# Since CMake does not support semantic versioning postfixes like "-dev",
+# we use "xxxx.yy.01" to signify a dev version.
+project(OGDF-PROJECT LANGUAGES CXX VERSION "2025.10.01")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX "-debug")
 
