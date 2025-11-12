@@ -376,14 +376,9 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 	const size_t reqSize = (bidirectional ? n * n : (n * (n - 1)) / 2);
 
 	// Correct memory handling, to avoid back and forth memory allocation if array is too small
-	if (bidirectional && static_cast<size_t>(allDistances.size()) < reqSize) {
-		ArrayBuffer<std::pair<std::pair<node, node>, double>> tmp(reqSize);
-		allDistances = std::move(tmp); // transfer reserved memory (size n * n)
-		tmp.clear(); // clear temp ArrayBuffer
-	} else if (!bidirectional && static_cast<size_t>(allDistances.size()) < reqSize) {
-		ArrayBuffer<std::pair<std::pair<node, node>, double>> tmp(reqSize);
-		allDistances = std::move(tmp); // transfer reserved memory (size n * (n - 1) / 2)
-		tmp.clear(); // clear temp ArrayBuffer
+	if (static_cast<size_t>(allDistances.size()) < reqSize) {
+		allDistances.clear(); // clear old memory
+		allDistances.setCapacity(reqSize); // reserve memory
 	}
 
 	double dx = 0.0; // x distance between two nodes
@@ -616,7 +611,6 @@ double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
 		return 0.0;
 	}
 
-	double perfectAngle = 0.0; // optimal angle var
 	double totalAngleDev = 0.0; // total angle deviation for all nodes
 	size_t nodesCount = 0; // count for nodes with degree greater than 1
 
@@ -642,7 +636,7 @@ double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
 		angles.pushBack(angles.front() + 2 * Math::pi); // for wrapping around to first angle at the end
 
 		// Ideal angle calculation
-		perfectAngle = 2 * Math::pi / degree; // optimal angle in degrees
+		double perfectAngle = 2 * Math::pi / static_cast<double>(degree); // optimal angle in degrees
 		double nodeDev = 0.0;
 
 		// Calculate the angle deviation for current node
@@ -654,12 +648,13 @@ double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
 			nodeDev += std::fabs(deviationGap - perfectAngle); // add absolute deviation to nodeDev
 		}
 
-		totalAngleDev += nodeDev / degree; // average angle deviation for current node
+		totalAngleDev +=
+				nodeDev / static_cast<double>(degree); // average angle deviation for current node
 		++nodesCount; // increment count for nodes with degree greater than 1
 	}
 
 	// Return mean angle deviation ratio (or 0.0 if no nodes with degree greater than 1)
-	return (nodesCount > 0) ? (totalAngleDev / nodesCount) : 0.0;
+	return (nodesCount > 0) ? (totalAngleDev / static_cast<double>(nodesCount)) : 0.0;
 }
 
 double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
@@ -699,6 +694,11 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 	const Graph& mainGraph = ga.constGraph();
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
+	if (gridWidth == 0 || gridHeight == 0) {
+		return 0.0;
+	}
+
+
 	// if graph has less than 2 nodes, node uniformity is trivial
 	if (numOfNodes < 2) {
 		return 0.0;
@@ -721,8 +721,8 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		return 0.0;
 	}
 	// size of each cell in the grid
-	double cellWidth = width / gridWidth; // width of each cell
-	double cellHeight = height / gridHeight; // height of each cell
+	double cellWidth = width / static_cast<double>(gridWidth); // width of each cell
+	double cellHeight = height / static_cast<double>(gridHeight); // height of each cell
 
 	size_t gridCount = gridWidth * gridHeight; // total number of cells in the grid
 

@@ -130,6 +130,7 @@ inline void printLayoutStatistics(const std::string& measure,
 
 inline void getRandomLayout(GraphAttributes& GA) {
 	const Graph& G = GA.constGraph();
+	Graph gabrielOut; // output graph for gabriel ratio
 	double max_x = 2.0 * sqrt(G.numberOfNodes());
 	double max_y = max_x;
 
@@ -234,7 +235,6 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 	printLayoutStatistics("edge length deviation", LayoutStatistics::edgeLengthDeviation(GA));
 	printLayoutStatistics("neighbourhood preservation ratio",
 			LayoutStatistics::neighbourhoodPreservation(GA));
-	Graph gabrielOut; // output graph for gabriel ratio
 	printLayoutStatistics("calculates gabriel ratio", LayoutStatistics::gabrielRatio(GA, gabrielOut));
 	printLayoutStatistics("node resolution", LayoutStatistics::nodeResolution(GA));
 	printLayoutStatistics("angular resolution", LayoutStatistics::angularResolution(GA));
