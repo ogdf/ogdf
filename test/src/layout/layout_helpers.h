@@ -234,7 +234,7 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 	printLayoutStatistics("edge length deviation", LayoutStatistics::edgeLengthDeviation(GA));
 	printLayoutStatistics("neighbourhood preservation ratio",
 			LayoutStatistics::neighbourhoodPreservation(GA));
-	Graph gabrielOut;
+	Graph gabrielOut; // output graph for gabriel ratio
 	printLayoutStatistics("calculates gabriel ratio", LayoutStatistics::gabrielRatio(GA, gabrielOut));
 	printLayoutStatistics("node resolution", LayoutStatistics::nodeResolution(GA));
 	printLayoutStatistics("angular resolution", LayoutStatistics::angularResolution(GA));

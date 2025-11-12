@@ -132,7 +132,7 @@ ArrayBuffer<double> LayoutStatistics::angles(const GraphAttributes& ga, bool con
 				ey = dpl.front().m_y;
 			}
 
-			angles.pushBack(atan2(ex - vx, ey - vy));
+			angles.pushBack(atan2(ey - vy, ex - vx));
 		}
 
 		if (angles.size() < 2) {
@@ -171,10 +171,10 @@ ArrayBuffer<double> LayoutStatistics::angles(const GraphAttributes& ga, bool con
 				double bx = (*it).m_x, by = (*it).m_y;
 
 				const DPoint& p1 = *it.pred();
-				double psi1 = atan2(p1.m_x - bx, p1.m_y - by);
+				double psi1 = atan2(p1.m_y - by, p1.m_x - bx);
 
 				const DPoint& p2 = *it.succ();
-				double psi2 = atan2(p2.m_x - bx, p2.m_y - by);
+				double psi2 = atan2(p2.m_y - by, p2.m_x - bx);
 
 				double alpha = fabs(psi1 - psi2);
 				if (alpha > Math::pi) {
@@ -399,6 +399,8 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 		for (auto it_j = (bidirectional ? mainGraph.nodes.begin() : std::next(it_i));
 				it_j != mainGraph.nodes.end(); ++it_j) {
 			if (bidirectional && u == *it_j) {
+				// include self-pair with distance 0.0 for bidirectional graphs
+				allDistances.push(std::make_pair(std::make_pair(u, u), 0.0));
 				continue; // skip same nodes
 			}
 
@@ -424,6 +426,13 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 
 	size_t currentNodeDeg = 0; // current node degree
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+
+	if (numOfNodes < 2) {
+		if (numOfNodes == 1) {
+			nodePreservations.push(0.0);
+		}
+		return nodePreservations;
+	}
 
 	// Init array, where each entry is a pair that contains the edge as pair of nodes, and the distance between the node pair
 	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
@@ -503,8 +512,10 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 
 	// creating new graph for Gabriel edges & adding all nodes
 	Graph gabrielGraph;
-	for (node n : mainGraph.nodes) {
-		gabrielGraph.newNode(n->index());
+	// create map from original nodes to new gabrielGraph nodes
+	NodeArray<node> nodeMap(mainGraph, nullptr);
+	for (const node& n : mainGraph.nodes) {
+		nodeMap[n] = gabrielGraph.newNode();
 	}
 
 	bool isGabrielEdge = true; // Gabriel edge true by default
@@ -540,7 +551,8 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		}
 
 		if (isGabrielEdge) {
-			gabrielGraph.newEdge(u, v); // adding Gabriel edge to output graph
+			// creating edge using nodes in the gabriel graph (mapped), faster
+			gabrielGraph.newEdge(nodeMap[u], nodeMap[v]); // this asserts that nodes are != nullptr
 			// incrementing Gabriel count for both nodes (u, v)
 			gabrielCount[u] += 1.0;
 			gabrielCount[v] += 1.0;
@@ -815,8 +827,8 @@ std::pair<double, double> LayoutStatistics::centerOfMass(const GraphAttributes& 
 	size_t n = mainGraph.numberOfNodes();
 	if (n < 2) {
 		if (n == 1) {
-			return std::make_pair(ga.x(*mainGraph.nodes.begin()),
-					ga.x(*mainGraph.nodes.begin())); // return only node as coordinate
+			const node singleNode = *mainGraph.nodes.begin();
+			return std::make_pair(ga.x(singleNode), ga.y(singleNode)); // return only node as coordinate
 		} else { // no nodes, no center of mass
 			return std::make_pair(0.0, 0.0); // return (0.0, 0.0) as center of mass
 		}
@@ -916,6 +928,11 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 			rightBottomCount += maxVal; // add to right side sum
 		}
 	}
+	// If both sides have zero sum (all on center)
+	if (leftTopCount == 0.0 && rightBottomCount == 0.0) {
+		return 0.0;
+	}
+
 	// Calculate and return balance ratio
 	if (leftTopCount > rightBottomCount) {
 		return rightBottomCount /= leftTopCount;
