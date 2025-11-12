@@ -492,9 +492,8 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
-	ArrayBuffer<double> gabrielCount(numOfNodes, 0.0); // array for counting Gabriel edges for each node
-	ArrayBuffer<double> incidentCount(numOfNodes,
-			0.0); // array for counting incident edges for each node
+	NodeArray<double> gabrielCount(mainGraph, 0.0); // array for counting Gabriel edges for each node
+	NodeArray<double> incidentCount(mainGraph, 0.0); // array for counting incident edges for each node
 
 	// all nodes distances array, ((u, v), distance)
 	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
@@ -518,8 +517,8 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		node v = edgeNodes.second; // second node of edge
 
 		// incrementing incident edges for both nodes (u, v)
-		incidentCount[u->index()] += 1.0;
-		incidentCount[v->index()] += 1.0;
+		incidentCount[u] += 1.0;
+		incidentCount[v] += 1.0;
 
 		// calculating midpoints (between the two nodes) both of x and y, and the radius range of the distance
 		double midPointX = (ga.x(u) + ga.x(v)) / 2.0;
@@ -543,14 +542,14 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		if (isGabrielEdge) {
 			gabrielGraph.newEdge(u, v); // adding Gabriel edge to output graph
 			// incrementing Gabriel count for both nodes (u, v)
-			gabrielCount[u->index()] += 1.0;
-			gabrielCount[v->index()] += 1.0;
+			gabrielCount[u] += 1.0;
+			gabrielCount[v] += 1.0;
 		}
 	}
 
 	// calculating Gabriel ratio for each node
-	for (size_t i = 0; i < numOfNodes; ++i) {
-		double ratio = (incidentCount[i] > 0) ? (gabrielCount[i] / incidentCount[i]) : 0.0;
+	for (const node& n : mainGraph.nodes) {
+		double ratio = (incidentCount[n] > 0) ? (gabrielCount[n] / incidentCount[n]) : 0.0;
 		nodeGabrielRatios.push(ratio);
 	}
 
