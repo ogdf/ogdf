@@ -502,7 +502,8 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	ArrayBuffer<size_t> incidentCount(numOfNodes, 0); // array for counting incident edges for each node
 
 	// all nodes distances array, ((u, v), distance)
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
+	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(
+			numOfNodes * (numOfNodes - 1) / 2);
 
 	// Calculating distances between all nodes, edges are added uniquely, allDistances size: n*(n-1)/2
 	distancesBetweenAllNodes(ga, allDistances);
@@ -510,9 +511,9 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	// creating new graph for Gabriel edges & adding all nodes
 	Graph gabrielGraph;
 	// create map from original nodes to new gabrielGraph nodes
-	// ArrayBuffer<size_t> nodeMap(numOfNodes, 0);
+	ArrayBuffer<node> nodeMap(numOfNodes);
 	for (const node& n : mainGraph.nodes) {
-		gabrielGraphReference.newNode(n->index());
+		nodeMap[n->index()] = gabrielGraph.newNode(); // assigns node to next free indexs
 	}
 
 	bool isGabrielEdge = true; // Gabriel edge true by default
@@ -548,7 +549,7 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		}
 
 		if (isGabrielEdge) {
-			gabrielGraph.newEdge(u, v);
+			gabrielGraph.newEdge(nodeMap[u->index()], nodeMap[v->index()]);
 			// incrementing Gabriel count for both nodes (u, v)
 			gabrielCount[u->index()] += 1;
 			gabrielCount[v->index()] += 1;
@@ -558,7 +559,8 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	// calculating Gabriel ratio for each node
 	for (const node& n : mainGraph.nodes) {
 		double ratio = (incidentCount[n->index()] > 0)
-				? (gabrielCount[n->index()] / incidentCount[n->index()])
+				? (static_cast<double>(gabrielCount[n->index()])
+						  / static_cast<double>(incidentCount[n->index()]))
 				: 0.0;
 		nodeGabrielRatios.push(ratio);
 	}
@@ -570,7 +572,7 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	}
 	graphGabrielRatio /= numOfNodes; // final division for Gabriel Ratio of graph
 	*/
-	// gabrielGraphReference = gabrielGraph; // setting mainGraph to output graph (gabrielGraph)
+	gabrielGraphReference = gabrielGraph; // setting mainGraph to output graph (gabrielGraph)
 
 	// returning array of Gabriel Ratios for each node
 	return nodeGabrielRatios;
