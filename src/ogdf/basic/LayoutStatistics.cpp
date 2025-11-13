@@ -925,9 +925,9 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 		// Counting nodes on each side.
 		// Excluding nodes exactly on the center line, as they don't contribute to balance
 		if (maxVal < center) {
-			leftTopCount += maxVal; // add to left side sum
+			leftTopCount += std::fabs(center - maxVal); // add to left side sum
 		} else if (maxVal > center) {
-			rightBottomCount += maxVal; // add to right side sum
+			rightBottomCount += std::fabs(maxVal - center); // add to right side sum
 		}
 	}
 	// If both sides have zero sum (all on center)
@@ -936,11 +936,18 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 	}
 
 	// Calculate and return balance ratio
-	if (leftTopCount > rightBottomCount) {
-		return rightBottomCount /= leftTopCount;
-	} else {
-		return leftTopCount /= rightBottomCount;
+	const double totalLeft = leftTopCount;
+	const double totalRight = rightBottomCount;
+
+	const double maxSide = std::max(totalLeft, totalRight);
+	const double minSide = std::min(totalLeft, totalRight);
+
+	// If all on center, as latter case differs slightly
+	if (maxSide == 0.0) {
+		return 0.0;
 	}
+
+	return maxSide / minSide;
 }
 
 double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const double epsilon) {
