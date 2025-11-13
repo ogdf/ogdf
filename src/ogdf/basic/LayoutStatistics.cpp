@@ -558,9 +558,9 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 
 	// calculating Gabriel ratio for each node
 	for (const node& n : mainGraph.nodes) {
-		double ratio = (incidentCount[n->index()] > 0)
-				? (static_cast<double>(gabrielCount[n->index()])
-						  / static_cast<double>(incidentCount[n->index()]))
+		const size_t nId = n->index();
+		double ratio = (incidentCount[nId] > 0)
+				? (static_cast<double>(gabrielCount[nId]) / static_cast<double>(incidentCount[nId]))
 				: 0.0;
 		nodeGabrielRatios.push(ratio);
 	}
