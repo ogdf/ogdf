@@ -373,7 +373,7 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 	}
 
 	// Sizes: bidirectional {(u_i,v_i),(v_i,u_i)} = n * n, unique {(u_i,v_i)} = n * (n - 1) / 2
-	const size_t reqSize = (bidirectional ? n * n : (n * (n - 1)) / 2);
+	const size_t reqSize = bidirectional ? n * n : (n * (n - 1)) / 2;
 
 	// Correct memory handling, to avoid back and forth memory allocation if array is too small
 	if (static_cast<size_t>(allDistances.size()) < reqSize) {
@@ -430,7 +430,8 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 	}
 
 	// Init array, where each entry is a pair that contains the edge as pair of nodes, and the distance between the node pair
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
+	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(numOfNodes * numOfNodes);
+
 	// calculating distances between all nodes, edges are added twice {(u, v), (v, u)}
 	distancesBetweenAllNodes(ga, allDistances, true);
 
@@ -587,7 +588,9 @@ double LayoutStatistics::nodeResolution(const GraphAttributes& ga) {
 	if (numOfNodes < 3) {
 		return 0.0;
 	}
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
+	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(
+			numOfNodes * (numOfNodes - 1) / 2);
+
 	distancesBetweenAllNodes(ga, allDistances); // each edge once, allDistances size: n*(n-1)/2
 
 	double minDist = std::numeric_limits<double>::max(); // for min. distance between two nodes
@@ -860,7 +863,8 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 		return -1.0;
 	}
 
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances;
+	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(n * (n - 1) / 2);
+
 	distancesBetweenAllNodes(ga, allDistances);
 	double smallestDist = std::numeric_limits<double>::max(); // for smallest distance
 
