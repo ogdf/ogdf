@@ -189,6 +189,7 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 	}
 
 	Graph gabrielOut = Graph();
+	EdgeArray<double> edgeArrayDouble(G);
 
 #ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 	double sumWidths = 0;
@@ -233,44 +234,39 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 			LayoutStatistics::numberOfNodeCrossings(GA));
 	printLayoutStatistics("average node overlaps per node",
 			LayoutStatistics::numberOfNodeOverlaps(GA));
-	printLayoutStatistics("edge length deviation", LayoutStatistics::edgeLengthDeviation(GA));
-	printLayoutStatistics("neighbourhood preservation ratio",
+	printLayoutStatistics("edge length deviation: ",
+			LayoutStatistics::edgeLengthDeviation(GA, edgeArrayDouble));
+	printLayoutStatistics("neighbourhood preservation ratio: ",
 			LayoutStatistics::neighbourhoodPreservation(GA));
-	printLayoutStatistics("calculates gabriel ratio", LayoutStatistics::gabrielRatio(GA, gabrielOut));
-	printLayoutStatistics("node resolution", LayoutStatistics::nodeResolution(GA));
-	printLayoutStatistics("angular resolution", LayoutStatistics::angularResolution(GA));
-	printLayoutStatistics("aspect ratio", LayoutStatistics::aspectRatio(GA));
-	printLayoutStatistics("node uniformity", LayoutStatistics::nodeUniformity(GA));
-	printLayoutStatistics("edge orthogonality", LayoutStatistics::edgeOrthogonality(GA));
+	printLayoutStatistics("calculates gabriel ratio: ",
+			LayoutStatistics::gabrielRatio(GA, gabrielOut));
+	printLayoutStatistics("node resolution: ", LayoutStatistics::nodeResolution(GA));
+	printLayoutStatistics("angular resolution: ", LayoutStatistics::angularResolution(GA));
+	printLayoutStatistics("aspect ratio: ", LayoutStatistics::aspectRatio(GA));
+	printLayoutStatistics("node uniformity: ", LayoutStatistics::nodeUniformity(GA));
+	printLayoutStatistics("edge orthogonality: ", LayoutStatistics::edgeOrthogonality(GA));
 
 	// centerOfMass returns a pair<double,double> -> print directly
 	{
-		auto c = LayoutStatistics::centerOfMass(GA);
+		DPoint massCenter = LayoutStatistics::centerOfMass(GA);
 		const std::string indent = "        ";
-		std::cout << indent << "center of mass: (" << c.first << ", " << c.second << ")\n";
+		std::cout << indent << "center of mass: (" << massCenter.m_x << ", " << massCenter.m_y
+				  << ")\n";
 	}
 
 	// closestPairOfPoints returns a scalar -> wrap into container for printLayoutStatistics
 	{
 		ArrayBuffer<double> tmp;
 		tmp.push(LayoutStatistics::closestPairOfPoints(GA));
-		printLayoutStatistics("closest pair of points", tmp);
+		printLayoutStatistics("closest pair of points: ", tmp);
 	}
 
-	printLayoutStatistics("border coordinates", LayoutStatistics::borderCoordinates(GA));
-	printLayoutStatistics("horizontal vertical balance",
+	printLayoutStatistics("horizontal vertical balance: ",
 			LayoutStatistics::horizontalVerticalBalance(GA));
-	printLayoutStatistics("node orthogonality", LayoutStatistics::nodeOrthogonality(GA));
-	LayoutStatistics stats;
-	printLayoutStatistics("average flow", stats.averageFlow(GA));
-	printLayoutStatistics("upwards flow", stats.upwardsFlow(GA));
-
-	// concentration returns a scalar -> wrap it to use printLayoutStatistics
-	{
-		ArrayBuffer<double> tmp;
-		tmp.push(stats.concentration(GA));
-		printLayoutStatistics("concentration", tmp);
-	}
+	printLayoutStatistics("node orthogonality: ", LayoutStatistics::nodeOrthogonality(GA));
+	printLayoutStatistics("average flow: ", LayoutStatistics::averageFlow(GA));
+	printLayoutStatistics("upwards flow: ", LayoutStatistics::upwardsFlow(GA));
+	printLayoutStatistics("concentration", LayoutStatistics::concentration(GA));
 
 	// Assert that we do not have any needless bendpoints
 	for (edge e : G.edges) {

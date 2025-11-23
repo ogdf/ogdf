@@ -54,28 +54,13 @@ namespace ogdf {
 std::pair<std::pair<double, double>, std::pair<double, double>> borderCoordinates(
 		const GraphAttributes& ga);
 
-inline double graphHeight(const GraphAttributes& ga) {
-	const Graph& G = ga.constGraph();
-	if (G.numberOfNodes() <= 1) {
-		return 0.0; // height is 0, for one or less nodes
-	}
-	DRect boundingBoxVals = ga.GraphAttributes::boundingBox();
-	return boundingBoxVals.height();
+double graphArea(const GraphAttributes& ga) {
+	const DRect bBox = ga.GraphAttributes::boundingBox();
+	return bBox.height() * bBox.width();
 }
 
-inline double graphWidth(const GraphAttributes& ga) {
-	const Graph& G = ga.constGraph();
-	if (G.numberOfNodes() <= 1) {
-		return 0.0; // width is 0, for one or less nodes
-	}
-	DRect boundingBoxVals = ga.GraphAttributes::boundingBox();
-	return boundingBoxVals.width();
-}
-
-inline double graphArea(const GraphAttributes& ga) { return graphHeight(ga) * graphWidth(ga); }
-
-ArrayBuffer<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, bool considerSelfLoops) {
-	ArrayBuffer<double> values;
+EdgeArray<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, bool considerSelfLoops) {
+	EdgeArray<double> values(ga.constGraph(), 0.0);
 	for (const edge& e : ga.constGraph().edges) {
 		if (!considerSelfLoops && e->isSelfLoop()) {
 			continue;
@@ -94,17 +79,17 @@ ArrayBuffer<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, boo
 			len = pv.distance(pw);
 		}
 
-		values.push(len);
+		values[e] = len;
 	}
 
 	return values;
 }
 
-ArrayBuffer<int> LayoutStatistics::numberOfBends(const GraphAttributes& ga, bool considerSelfLoops) {
-	ArrayBuffer<int> values;
+EdgeArray<int> LayoutStatistics::numberOfBends(const GraphAttributes& ga, bool considerSelfLoops) {
+	EdgeArray<int> values(ga.constGraph(), -1);
 	for (const edge& e : ga.constGraph().edges) {
 		if (considerSelfLoops || !e->isSelfLoop()) {
-			values.push(ga.bends(e).size());
+			values[e] = ga.bends(e).size();
 		}
 	}
 
@@ -313,8 +298,8 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 			* 100.0; // Return percentage
 }
 
-ArrayBuffer<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga) {
-	ArrayBuffer<int> values;
+NodeArray<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga) {
+	NodeArray<int> values(ga.constGraph());
 	const Graph& G = ga.constGraph();
 
 	// Get bounding rectangle of every node.
@@ -329,39 +314,41 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& g
 				nOverlapsV++;
 			}
 		}
-		values.push(nOverlapsV);
+		values[v] = nOverlapsV;
 	}
 
 	return values;
 }
 
-ArrayBuffer<double> LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga) {
-	ArrayBuffer<double> edgeLengths = LayoutStatistics::edgeLengths(ga, true);
+double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArray<double>& out) {
+	out.init(ga.constGraph()); // init out to label the correct graph
+	out = LayoutStatistics::edgeLengths(ga, true);
 	double edgeSum = 0.0;
 	double delta = 0.0;
-	size_t edgesNum = edgeLengths.size();
+	size_t edgesNum = ga.constGraph().numberOfEdges();
 
-	for (const double& len : edgeLengths) {
+	for (const double& len : out) {
 		edgeSum += len;
 	}
 
 	// if edgesNum (amount of edges) > 0, then edgeSum / edgeCount, else avgEdgeLen = 0.0
 	double avgEdgeLen = (edgesNum > 0) ? (edgeSum / edgesNum) : 0.0;
 
-	ArrayBuffer<double> edgeLenDev; // array of deviation values, of each edge
-	// Uncomment 1. | double edgeLenDevVal = 0.0; // for one edge deviation value, the lower the better
+	EdgeArray<double> edgeLenDev(ga.constGraph()); // array of deviation values, of each edge
+	double edgeLenDevVal = 0.0; // for one edge deviation value, the lower the better
 
 	// For all edges, subtract all deltas of edge lengths to avg.
-	for (const double& len : edgeLengths) {
+	for (const edge& e : ga.constGraph().edges) {
+		const double len = out[e];
 		// calculating delta for each edge using std::fabs, for floating numbers
 		delta = std::fabs(len - avgEdgeLen);
 		// adding delta to array of edge length deviations
-		edgeLenDev.push(delta);
-		// Uncomment 1. | edgeLenDevVal += (delta);
+		edgeLenDev[e] = delta;
+		edgeLenDevVal += (delta);
 	}
 
-	// Uncomment 1. | edgeLenDevVal /= edgesNum; // calculating average edge length deviation
-	return edgeLenDev;
+	// calculating average edge length deviation
+	return (edgesNum > 0) ? (edgeLenDevVal /= edgesNum) : 0.0;
 }
 
 void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
@@ -373,7 +360,8 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 	}
 
 	// Sizes: bidirectional {(u_i,v_i),(v_i,u_i)} = n * n, unique {(u_i,v_i)} = n * (n - 1) / 2
-	const size_t reqSize = bidirectional ? n * n : (n * (n - 1)) / 2;
+	const size_t reqSize =
+			bidirectional ? n * n : (n * (n - 1)) * 0.5; // * 0.5 instead of /2 for efficiency
 
 	// Correct memory handling, to avoid back and forth memory allocation if array is too small
 	if (static_cast<size_t>(allDistances.size()) < reqSize) {
@@ -412,19 +400,20 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 	}
 }
 
-ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttributes& ga) {
+NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
 	double nodePreservationValue = 0.0; // preservation value for each node, higher = better
 	// Uncomment 2. | double graphPreservationValue = 0.0; // preservation value for whole graph, higher = better
 	double preservationValue = 0.0;
-	ArrayBuffer<double> nodePreservations; // array of preservation values, of each node/vertex
+	NodeArray<double> nodePreservations(mainGraph,
+			0.0); // array of preservation values, of each node/vertex
 
 	size_t currentNodeDeg = 0; // current node degree
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	if (numOfNodes < 2) {
 		if (numOfNodes == 1) {
-			nodePreservations.push(0.0);
+			nodePreservations[mainGraph.nodes.head()] = 1.0;
 		}
 		return nodePreservations;
 	}
@@ -463,7 +452,7 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 		currentNodeDeg = currentNode->degree(); // set current node degree
 
 		if (currentNodeDeg == 0) {
-			nodePreservations.push(0.0); // if has no neighbors, skip and add 0.0
+			// if has no neighbors, skip and leave value at 0.0
 			continue;
 		}
 
@@ -479,7 +468,7 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 			}
 		}
 		preservationValue = nodePreservationValue / currentNodeDeg;
-		nodePreservations.push(preservationValue);
+		nodePreservations[currentNode] = preservationValue;
 		// Uncomment 2. | graphPreservationValue += preservationValue;
 		++i;
 	}
@@ -489,7 +478,7 @@ ArrayBuffer<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttri
 	return nodePreservations;
 }
 
-ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
+NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		Graph& gabrielGraphReference) {
 	const Graph& mainGraph = ga.constGraph();
 	gabrielGraphReference.clear();
@@ -497,24 +486,21 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// array for per-node Gabriel ratios
-	ArrayBuffer<double> nodeGabrielRatios;
-
-	ArrayBuffer<size_t> gabrielCount(numOfNodes, 0); // array for counting Gabriel edges for each node
-	ArrayBuffer<size_t> incidentCount(numOfNodes, 0); // array for counting incident edges for each node
+	NodeArray<double> nodeGabrielRatios(mainGraph);
+	NodeArray<size_t> gabrielCount(mainGraph, 0); // array for counting Gabriel edges for each node
 
 	// all nodes distances array, ((u, v), distance)
 	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(
-			numOfNodes * (numOfNodes - 1) / 2);
+			numOfNodes * (numOfNodes - 1) * 0.5); // * 0.5 instead of /2 for efficiency
 
 	// Calculating distances between all nodes, edges are added uniquely, allDistances size: n*(n-1)/2
 	distancesBetweenAllNodes(ga, allDistances);
 
-	// creating new graph for Gabriel edges & adding all nodes
-	Graph gabrielGraph;
+
 	// create map from original nodes to new gabrielGraph nodes
-	ArrayBuffer<node> nodeMap(numOfNodes);
+	NodeArray<node> nodeMap(mainGraph);
 	for (const node& n : mainGraph.nodes) {
-		nodeMap[n->index()] = gabrielGraph.newNode(); // assigns node to next free indexs
+		nodeMap[n] = gabrielGraphReference.newNode(); // assigns node to node map
 	}
 
 	bool isGabrielEdge = true; // Gabriel edge true by default
@@ -526,44 +512,60 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		node u = edgeNodes.first; // first node of edge
 		node v = edgeNodes.second; // second node of edge
 
-		// incrementing incident edges for both nodes (u, v)
-		incidentCount[u->index()] += 1;
-		incidentCount[v->index()] += 1;
+		bool isAdjacent = false;
+		// check if u and v are adjacent
+		for (auto nodeU : u->adjEntries) {
+			if (nodeU->twinNode() == v) {
+				isAdjacent = true;
+				break;
+			}
+		}
+		if (!isAdjacent) {
+			continue;
+		}
 
 		// calculating midpoints (between the two nodes) both of x and y, and the radius range of the distance
-		double midPointX = (ga.x(u) + ga.x(v)) / 2.0;
-		double midPointY = (ga.y(u) + ga.y(v)) / 2.0;
-		double radius = distance / 2.0;
+		double midPointX = (ga.x(u) + ga.x(v)) * 0.5;
+		double midPointY = (ga.y(u) + ga.y(v)) * 0.5;
+
+		// instead of sqrt (hypot for distToMidPoint), we square both sides (distToMidpoint^2 < radius^2) to avoid sqrt
+		// which turns radius = distance / 2 into: radius^2 = (distance^2) / 4; * 0.25 for efficiency
+		double radiusSquared = (distance * distance) * 0.25;
 
 		for (const node& n : mainGraph.nodes) {
 			if (n == v || n == u) { // skip same nodes
 				continue;
 			}
 			// calculating distance to midpoint
-			double distToMidPoint = std::hypot(ga.x(n) - midPointX, ga.y(n) - midPointY);
+			double dx = ga.x(n) - midPointX;
+			double dy = ga.y(n) - midPointY;
+			// avoiding sqrt by squaring both sides (radius and distToMidPoint)
+			double distToMidPointSquared = dx * dx + dy * dy; // dx^2 + dy^2
 
 			// if distance to midpoint is less than radius => not a Gabriel edge
-			if (distToMidPoint < radius) {
+			if (distToMidPointSquared < radiusSquared) {
 				isGabrielEdge = false;
 				break;
 			}
 		}
 
 		if (isGabrielEdge) {
-			gabrielGraph.newEdge(nodeMap[u->index()], nodeMap[v->index()]);
+			gabrielGraphReference.newEdge(nodeMap[u], nodeMap[v]);
 			// incrementing Gabriel count for both nodes (u, v)
-			gabrielCount[u->index()] += 1;
-			gabrielCount[v->index()] += 1;
+			gabrielCount[u] += 1;
+			gabrielCount[v] += 1;
 		}
 	}
 
 	// calculating Gabriel ratio for each node
 	for (const node& n : mainGraph.nodes) {
-		const size_t nId = n->index();
-		double ratio = (incidentCount[nId] > 0)
-				? (static_cast<double>(gabrielCount[nId]) / static_cast<double>(incidentCount[nId]))
-				: 0.0;
-		nodeGabrielRatios.push(ratio);
+		int incident = (n->degree());
+		if (incident) {
+			nodeGabrielRatios[n] =
+					static_cast<double>(gabrielCount[n]) / static_cast<double>(incident);
+		} else {
+			nodeGabrielRatios[n] = 0.0;
+		}
 	}
 
 	// calculating Gabriel ratio for whole graph
@@ -573,7 +575,6 @@ ArrayBuffer<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	}
 	graphGabrielRatio /= numOfNodes; // final division for Gabriel Ratio of graph
 	*/
-	gabrielGraphReference = gabrielGraph; // setting mainGraph to output graph (gabrielGraph)
 
 	// returning array of Gabriel Ratios for each node
 	return nodeGabrielRatios;
@@ -588,8 +589,9 @@ double LayoutStatistics::nodeResolution(const GraphAttributes& ga) {
 	if (numOfNodes < 3) {
 		return 0.0;
 	}
+	// Unique edges (n * (n - 1)) / 2
 	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(
-			numOfNodes * (numOfNodes - 1) / 2);
+			numOfNodes * (numOfNodes - 1) * 0.5);
 
 	distancesBetweenAllNodes(ga, allDistances); // each edge once, allDistances size: n*(n-1)/2
 
@@ -829,15 +831,16 @@ double LayoutStatistics::edgeOrthogonality(const GraphAttributes& ga) {
 	return meanEdgeOrthogonality /= static_cast<double>(numOfEdges);
 }
 
-std::pair<double, double> LayoutStatistics::centerOfMass(const GraphAttributes& ga) {
+DPoint LayoutStatistics::centerOfMass(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
 	size_t n = mainGraph.numberOfNodes();
+
 	if (n < 2) {
 		if (n == 1) {
 			const node singleNode = *mainGraph.nodes.begin();
-			return std::make_pair(ga.x(singleNode), ga.y(singleNode)); // return only node as coordinate
+			return DPoint(ga.x(singleNode), ga.y(singleNode)); // return only node as coordinate
 		} else { // no nodes, no center of mass
-			return std::make_pair(0.0, 0.0); // return (0.0, 0.0) as center of mass
+			return DPoint(0.0, 0.0); // return (0.0, 0.0) as center of mass
 		}
 	}
 
@@ -852,7 +855,8 @@ std::pair<double, double> LayoutStatistics::centerOfMass(const GraphAttributes& 
 	sumX /= n; // average x coordinate
 	sumY /= n; // average y coordinate
 
-	return std::make_pair(sumX, sumY); // return center of mass node
+
+	return DPoint(sumX, sumY); // return center of mass node
 }
 
 double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
@@ -863,7 +867,7 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 		return -1.0;
 	}
 
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(n * (n - 1) / 2);
+	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(n * (n - 1) * 0.5);
 
 	distancesBetweenAllNodes(ga, allDistances);
 	double smallestDist = std::numeric_limits<double>::max(); // for smallest distance
@@ -876,24 +880,6 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 	}
 
 	return smallestDist; // return smallest distance
-}
-
-std::pair<std::pair<double, double>, std::pair<double, double>> LayoutStatistics::borderCoordinates(
-		const GraphAttributes& ga) {
-	const Graph& mainGraph = ga.constGraph();
-	if (mainGraph.numberOfNodes() == 0) {
-		return std::make_pair(std::make_pair(-1.0, -1.0),
-				std::make_pair(-1.0, -1.0)); // no nodes, no border coordinates
-	}
-
-	// Get min and max coordinates via DRect
-	DRect borderCoords = ga.GraphAttributes::boundingBox();
-	double minX = borderCoords.p1().m_x;
-	double maxX = borderCoords.p2().m_x;
-	double minY = borderCoords.p1().m_y;
-	double maxY = borderCoords.p2().m_y;
-
-	return std::make_pair(std::make_pair(minX, maxX), std::make_pair(minY, maxY));
 }
 
 double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, const bool vertical) {
@@ -919,7 +905,7 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 		max = borderCoords.second.second; // max y-coordinate
 	}
 
-	const double center = (min + max) / 2.0; // center x-coordinate
+	const double center = (min + max) * 0.5; // center x-coordinate
 	double leftTopCount = 0.0; // sum of coordinates of nodes on the left side
 	double rightBottomCount = 0.0; // sum of x-coordinates of nodes on the right side
 
@@ -1028,9 +1014,9 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 		return 0.0; // Single node has zero variance
 	}
 
-	const std::pair<double, double> center = centerOfMass(ga);
-	const double centerX = center.first; // x coordinate of center of mass
-	const double centerY = center.second; // y coordinate of center of mass
+	const DPoint center = centerOfMass(ga);
+	const double centerX = center.m_x; // x coordinate of center of mass
+	const double centerY = center.m_y; // y coordinate of center of mass
 	double sumOfDistancesToCenter = 0.0;
 	std::vector<double> distances;
 	distances.reserve(n); // size n

@@ -49,39 +49,16 @@ class GraphAttributes;
  */
 class OGDF_EXPORT LayoutStatistics {
 public:
-	//! Computes graph height, in coordinate length metric.
-	/**
-	 *
-	 * The graph height is defined as the difference between the
-	 * maximum and minimum y-coordinates of the nodes in the layout.
-	 *
-	 * Returns graph height double value.
-	 * Returns 0 if graph has one or less nodes.
-	 */
-	static inline double graphHeight(const GraphAttributes& ga);
-
-	//! Computes graph width, in coordinate length metric.
-	/**
-	 *
-	 * The graph width is defined as the difference between the
-	 * maximum and minimum x-coordinates of the nodes in the layout.
-	 *
-	 * Returns graph width double value.
-	 * Returns 0 if graph has one or less nodes.
-	 */
-	static inline double graphWidth(const GraphAttributes& ga);
-
 	//! Computes graph area, in coordinate length metric.
 	/**
 	 *
-	 * Uses graphHeight() and graphWidth() as helper functions,
-	 * to compute area of graph.
-	 * In effect graphArea() = graphHeight() * graphWidth().
+	 * Uses GraphAttributes::boundingBox() as helper function,
+	 * to get height and width of graph, to compute its area.
 	 *
 	 * Returns graph area double value
 	 * Returns 0 if graph has one or less nodes.
 	 */
-	static inline double graphArea(const GraphAttributes& ga);
+	static double graphArea(const GraphAttributes& ga);
 
 	//! Computes Aspect Ratio (Asp) \p H of the layout/graph \p g.
 	/**
@@ -101,7 +78,7 @@ public:
 	 * \param considerSelfLoops Determines whether the lengths of self-loops are considered.
 	 * \return                  The edge length for each edge.
 	 */
-	static ArrayBuffer<double> edgeLengths(const GraphAttributes& ga, bool considerSelfLoops = false);
+	static EdgeArray<double> edgeLengths(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 
 	//! Computes the number of bends (i.e. bend-points) for each edge in the layout \p ga.
@@ -110,7 +87,7 @@ public:
 	 * \param considerSelfLoops Determines whether the bends of self-loops are considered.
 	 * \return                  The number of bends for each edge.
 	 */
-	static ArrayBuffer<int> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
+	static EdgeArray<int> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 
 	//! Computes the angle for each pair of adjacent edge segments of the layout \p ga.
@@ -188,7 +165,7 @@ public:
 	 * \param ga Input layout.
 	 * \return   The number of node overlaps for each node.
 	 */
-	static ArrayBuffer<int> numberOfNodeOverlaps(const GraphAttributes& ga);
+	static NodeArray<int> numberOfNodeOverlaps(const GraphAttributes& ga);
 
 
 	//! Computes the intersection graph \p H of the line segments in the layout given by \p ga.
@@ -225,7 +202,7 @@ public:
 	 *
 	 * Returns an array of deviation values, of each edge (deviation of avg edge length) in the Graph
 	 */
-	static ArrayBuffer<double> edgeLengthDeviation(const GraphAttributes& ga);
+	static double edgeLengthDeviation(const GraphAttributes& ga, EdgeArray<double>& out);
 
 
 	//! Computes the distances between each pair of nodes in the graph given, in \p ga.
@@ -251,7 +228,7 @@ public:
 	 *
 	 * Returns an array of preservation values, of each node in Graph \p mainGraph
 	 */
-	static ArrayBuffer<double> neighbourhoodPreservation(const GraphAttributes& ga);
+	static NodeArray<double> neighbourhoodPreservation(const GraphAttributes& ga);
 
 	//! Computes Gabriel Ratio \p H of the edges in the graph given, in \p ga and also returns new set of edges that fulfill Gabriel criteria.
 	/**
@@ -263,7 +240,7 @@ public:
 	 * Returns an array of Gabriel Ratios (of doubles) of all nodes of the graph
 	 * Also also assigns the reference graph (gabrielGraphReference) to the output gabriel graph
 	 */
-	static ArrayBuffer<double> gabrielRatio(const GraphAttributes& ga, Graph& gabrielGraphReference);
+	static NodeArray<double> gabrielRatio(const GraphAttributes& ga, Graph& gabrielGraphReference);
 
 	//! Computes Node Ratio \p H of the nodes in the graph given, in \p ga.
 	/**
@@ -329,8 +306,11 @@ public:
 	 *
 	 * Returns double pair containing center of mass coordinates.
 	 * Returns a pair with (0.0, 0.0) if graph is empty.
+	 * 
+	 * \warning Unfortunately, this, rather simple, implementation has a runtime complexity of O(n^3),
+	 * which might weight heavily on larger graphs. By implementing a median KD-tree, the runtime can be improved to O(n log n).
 	 */
-	static std::pair<double, double> centerOfMass(const GraphAttributes& ga);
+	static DPoint centerOfMass(const GraphAttributes& ga);
 
 
 	//! Computes Closest pair of points.
@@ -362,24 +342,6 @@ public:
 	 */
 	static double horizontalVerticalBalance(const GraphAttributes& ga, const bool vertical = false);
 
-	//! Retrieves min and max, x- and y-coordinates of graph.
-	/**
-	 *
-	 * def. Border coordinates:
-	 * Finds the min and max x- and y-coordinates of all nodes in the graph,
-	 * and returns them as pairs. They make up the bounding box of the graph.
-	 *
-	 * Source:
-	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
-	 *
-	 *
-	 * Returns a pair of pairs, where the first pair contains minX & maxX coordinates,
-	 * and the other pair contains minY & maxY coordinates.
-	 * Returns a pair of pairs where each double is -1.0 when graph is empty.
-	 */
-	static std::pair<std::pair<double, double>, std::pair<double, double>> borderCoordinates(
-			const GraphAttributes& ga);
-
 	//! Calculating percentage of nodes with integer coordinates.
 	/**
 	 *
@@ -407,7 +369,7 @@ public:
 	 * Returns degree of mean edge direction angle (as double).
 	 * Returns -1.0 when graph is empty.
 	 */
-	double averageFlow(const GraphAttributes& ga);
+	static double averageFlow(const GraphAttributes& ga);
 
 	//! Calculates percentage of edges that point upwards.
 	/**
@@ -423,7 +385,7 @@ public:
 	 * Returns percentage of edges pointing upwards.
 	 * Returns -1.0 when graph is empty, or undirected.
 	 */
-	double upwardsFlow(const GraphAttributes& ga);
+	static double upwardsFlow(const GraphAttributes& ga);
 
 
 	//! Calculates the variance of node distances from the center of mass.
@@ -438,6 +400,6 @@ public:
 	 * Returns concentration nodes in graph.
 	 * Returns -1.0 when graph is empty.
 	 */
-	double concentration(const GraphAttributes& ga);
+	static double concentration(const GraphAttributes& ga);
 };
 }
