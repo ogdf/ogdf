@@ -128,6 +128,44 @@ inline void printLayoutStatistics(const std::string& measure,
 			  << "y=[" << box.second.first << "," << box.second.second << "]\n";
 }
 
+// Overload NodeArray<T>
+template<typename T>
+inline void printLayoutStatistics(const std::string& measure, const ogdf::NodeArray<T>& nodeArray,
+		bool angularResolution = false) {
+	const std::string indent = "        ";
+
+	// Check if NodeArray is empty
+	if (nodeArray.graphOf() == nullptr || nodeArray.graphOf()->numberOfNodes() == 0) {
+		std::cout << indent << measure << ": N/A" << std::endl;
+		return;
+	}
+
+	ArrayBuffer<double> buffer;
+	for (auto node : nodeArray.graphOf()->nodes) {
+		buffer.push(static_cast<double>(nodeArray[node]));
+	}
+	printLayoutStatistics(measure, buffer, angularResolution);
+}
+
+// Overload EdgeArray<T>
+template<typename T>
+inline void printLayoutStatistics(const std::string& measure, const ogdf::EdgeArray<T>& edgeArray,
+		bool angularResolution = false) {
+	const std::string indent = "        ";
+
+	// Check if EdgeArray is empty
+	if (edgeArray.graphOf() == nullptr || edgeArray.graphOf()->numberOfEdges() == 0) {
+		std::cout << indent << measure << ": N/A" << std::endl;
+		return;
+	}
+
+	ArrayBuffer<double> buffer;
+	for (auto edge : edgeArray.graphOf()->edges) {
+		buffer.push(static_cast<double>(edgeArray[edge]));
+	}
+	printLayoutStatistics(measure, buffer, angularResolution);
+}
+
 inline void getRandomLayout(GraphAttributes& GA) {
 	const Graph& G = GA.constGraph();
 	double max_x = 2.0 * sqrt(G.numberOfNodes());

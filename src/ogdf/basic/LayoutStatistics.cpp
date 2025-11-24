@@ -50,10 +50,6 @@
 
 namespace ogdf {
 
-// Forward declaration for borderCoordinates() function
-std::pair<std::pair<double, double>, std::pair<double, double>> borderCoordinates(
-		const GraphAttributes& ga);
-
 double graphArea(const GraphAttributes& ga) {
 	const DRect bBox = ga.GraphAttributes::boundingBox();
 	return bBox.height() * bBox.width();
@@ -356,6 +352,8 @@ void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
 	const Graph& mainGraph = ga.constGraph();
 	const size_t n = mainGraph.numberOfNodes(); // for efficiency
 	if (n < 2) {
+		allDistances.push(
+				std::make_pair(std::make_pair(mainGraph.nodes.head(), mainGraph.nodes.head()), 0.0));
 		return; // No pairs possible
 	}
 
@@ -680,15 +678,11 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 		return 0.0; // aspect ratio is 0.0 for no node
 	}
 
-	auto maxVals = borderCoordinates(ga);
-	const double minX = maxVals.first.first; // min. x coordinate
-	const double maxX = maxVals.first.second; // max. x coordinate
-	const double minY = maxVals.second.first; // min. y coordinate
-	const double maxY = maxVals.second.second; // max. y coordinate
+	auto bBox = ga.GraphAttributes::boundingBox();
 
 	// width and height of the bounding box
-	const double width = maxX - minX; // width of bounding box
-	const double height = maxY - minY; // height of bounding box
+	const double width = bBox.width(); // width of bounding box
+	const double height = bBox.height(); // height of bounding box
 
 	// if width or height is <=0,
 	// return 0.0 to avoid division by zero and negative values
@@ -713,16 +707,15 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		return 0.0;
 	}
 
-	auto maxVals = borderCoordinates(ga);
-	const double minX = maxVals.first.first; // min. x coordinate
-	const double maxX = maxVals.first.second; // max. x coordinate
-	const double minY = maxVals.second.first; // min. y coordinate
-	const double maxY = maxVals.second.second; // max. y coordinate
+	auto bBox = ga.GraphAttributes::boundingBox();
+	// Get min x- and y-coordinates via DRect
+	double minX = bBox.p1().m_x;
+	double minY = bBox.p1().m_y;
 
 	// width and height of the bounding box
 	// adding 1 for minimum cell size, in case minX == maxX or minY == maxY (e.g. points could be on the same line)
-	double width = maxX - minX + 1; // width of bounding box
-	double height = maxY - minY + 1; // height of bounding box
+	double width = bBox.width() + 1.0; // width of bounding box
+	double height = bBox.height() + 1.0; // height of bounding box
 
 	// if width or height is <=0,
 	// return 0.0 to avoid division by zero and negative values
@@ -746,6 +739,7 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 	for (const node& n : mainGraph.nodes) {
 		double ux = ga.x(n);
 		double uy = ga.y(n);
+
 		// calculate cell index for each node, and round down
 		size_t cellX = static_cast<size_t>((ux - minX) / cellWidth);
 		size_t cellY = static_cast<size_t>((uy - minY) / cellHeight);
@@ -896,13 +890,14 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 	// Initialize min and max variables
 	double min = 0.0, max = 0.0;
 
-	auto borderCoords = borderCoordinates(ga);
+	const DRect bBox = ga.GraphAttributes::boundingBox();
+
 	if (!vertical) { // horizontal balance
-		min = borderCoords.first.first; // min x-coordinate
-		max = borderCoords.first.second; // max x-coordinate
+		min = bBox.p1().m_x; // min x-coordinate
+		max = bBox.p2().m_x; // max x-coordinate
 	} else { // vertical balance
-		min = borderCoords.second.first; // min y-coordinate
-		max = borderCoords.second.second; // max y-coordinate
+		min = bBox.p1().m_y; // min y-coordinate
+		max = bBox.p2().m_y; // max y-coordinate
 	}
 
 	const double center = (min + max) * 0.5; // center x-coordinate
