@@ -324,7 +324,7 @@ public:
 	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
 	 *
 	 *
-	 * Returns balance double value.
+	 * Returns balance double value, where 0 is perfectly balanced and 1 is maximally unbalanced.
 	 * Returns -1.0 if graph is empty.
 	 */
 	static double horizontalVerticalBalance(const GraphAttributes& ga, const bool vertical = false);

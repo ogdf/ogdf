@@ -879,18 +879,16 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 	}
 
 	// Calculate and return balance ratio
-	const double totalLeft = leftTopCount;
-	const double totalRight = rightBottomCount;
-
-	const double maxSide = std::max(totalLeft, totalRight);
-	const double minSide = std::min(totalLeft, totalRight);
+	const double maxSide = std::max(leftTopCount, rightBottomCount);
+	const double minSide = std::min(leftTopCount, rightBottomCount);
 
 	// If all on center, as latter case differs slightly
-	if (maxSide == 0.0) {
+	if (maxSide + minSide == 0.0) {
 		return 0.0;
 	}
 
-	return maxSide / minSide;
+	// 0 = perfectly balanced, 1 = maximally unbalanced
+	return (maxSide - minSide) / (maxSide + minSide);
 }
 
 double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const double epsilon) {
