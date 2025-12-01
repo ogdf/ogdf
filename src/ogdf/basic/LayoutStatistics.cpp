@@ -317,34 +317,41 @@ NodeArray<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga)
 }
 
 double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArray<double>& out) {
-	out.init(ga.constGraph()); // init out to label the correct graph
-	out = LayoutStatistics::edgeLengths(ga, true);
-	double edgeSum = 0.0;
-	double delta = 0.0;
-	size_t edgesNum = ga.constGraph().numberOfEdges();
+	const Graph& mainGraph = ga.constGraph();
+	const size_t m = mainGraph.numberOfEdges();
+	if (m < 2) {
+		out.init(mainGraph, 0.0);
+		return 0.0; // no deviation with less than two edges
+	}
 
-	for (const double& len : out) {
+	out.init(mainGraph); // init out to label the correct graph
+	EdgeArray<double> lengths = LayoutStatistics::edgeLengths(ga, true);
+	double edgeSum = 0.0;
+
+	double delta = 0.0;
+
+	for (edge e : mainGraph.edges) {
+		const double len = lengths[e];
+		out[e] = len;
 		edgeSum += len;
 	}
 
 	// if edgesNum (amount of edges) > 0, then edgeSum / edgeCount, else avgEdgeLen = 0.0
-	double avgEdgeLen = (edgesNum > 0) ? (edgeSum / edgesNum) : 0.0;
+	double avgEdgeLen = edgeSum / static_cast<double>(m);
 
-	EdgeArray<double> edgeLenDev(ga.constGraph()); // array of deviation values, of each edge
 	double edgeLenDevVal = 0.0; // for one edge deviation value, the lower the better
 
 	// For all edges, subtract all deltas of edge lengths to avg.
 	for (const edge& e : ga.constGraph().edges) {
-		const double len = out[e];
 		// calculating delta for each edge using std::fabs, for floating numbers
-		delta = std::fabs(len - avgEdgeLen);
-		// adding delta to array of edge length deviations
-		edgeLenDev[e] = delta;
+		delta = std::fabs(out[e] - avgEdgeLen);
+		// adding delta to edge length deviation sum
 		edgeLenDevVal += (delta);
+		out[e] = delta;
 	}
 
 	// calculating average edge length deviation
-	return (edgesNum > 0) ? (edgeLenDevVal /= edgesNum) : 0.0;
+	return edgeLenDevVal /= static_cast<double>(m);
 }
 
 NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttributes& ga) {
@@ -425,10 +432,16 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	const Graph& mainGraph = ga.constGraph();
 	gabrielGraphReference.clear();
 
+	NodeArray<double> nodeGabrielRatios(mainGraph, 0.0);
+
+	if (mainGraph.numberOfNodes() < 3) {
+		return nodeGabrielRatios;
+	}
+
+
 	// size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// array for per-node Gabriel ratios
-	NodeArray<double> nodeGabrielRatios(mainGraph, 0.0);
 	NodeArray<size_t> gabrielCount(mainGraph, 0); // count Gabriel-edges for each node
 	NodeArray<size_t> degreeCount(mainGraph, 0); // count degree of each node
 
