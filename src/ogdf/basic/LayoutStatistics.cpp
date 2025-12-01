@@ -638,15 +638,16 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 		return 0.0; // aspect ratio is 0.0 for no node
 	}
 
-	auto bBox = ga.GraphAttributes::boundingBox();
+	const DRect bBox = ga.GraphAttributes::boundingBox();
 
 	// width and height of the bounding box
 	const double width = bBox.width(); // width of bounding box
 	const double height = bBox.height(); // height of bounding box
 
+	const double epsilon = std::numeric_limits<double>::epsilon() * 1e3;
 	// if width or height is <=0,
-	// return 0.0 to avoid division by zero and negative values
-	if (width <= 0.0 || height <= 0.0) {
+	// return 0.0 to avoid division by zero, negative values, or extremely small values
+	if (width <= epsilon || height <= epsilon) {
 		return 0.0;
 	}
 
