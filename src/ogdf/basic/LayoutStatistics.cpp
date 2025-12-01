@@ -408,15 +408,24 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 	// for each node, calculate preservation value
 	for (node u : mainGraph.nodes) {
 		nodeDegree = u->degree(); // set current node degree
+		const auto& rowU = distM[u];
 
-		if (nodeDegree == 0) {
+		if (nodeDegree == 0 || rowU.size() < 2) {
 			// if has no neighbors, skip and leave value at 0.0
 			continue;
 		}
+
+		// limiting max degree if input graph has self-loops or multi-edges
+		const size_t maxDegree = std::min(nodeDegree, rowU.size() - 1);
+		if (maxDegree == 0) {
+			continue;
+		}
+
+
 		nodePreservationValue = 0.0; // reseting value for each node/round
 
 		// for |deg(currentNode)|, calculate preservation value for current node
-		for (size_t i = 1; i <= nodeDegree; ++i) {
+		for (size_t i = 1; i <= maxDegree; ++i) {
 			const node& neighbor = distM[u][i].second; // closest neighbor node to current node n
 
 			// checking if neighbor is connected in graph
@@ -425,7 +434,7 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 				continue;
 			}
 		}
-		nodePreservations[u] = nodePreservationValue / static_cast<double>(nodeDegree);
+		nodePreservations[u] = nodePreservationValue / static_cast<double>(maxDegree);
 		// Uncomment 1. | graphPreservationValue += nodePreservationValue / static_cast<double>(nodeDegree);
 	}
 
