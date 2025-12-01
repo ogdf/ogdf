@@ -216,9 +216,6 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 		AssertThat(GA.shape(v), Equals(shapeBefore[v]));
 	}
 
-	Graph gabrielOut = Graph();
-	EdgeArray<double> edgeArrayDouble(G);
-
 #ifdef OGDF_LAYOUT_HELPERS_PRINT_DRAWINGS
 	double sumWidths = 0;
 	double sumHeights = 0;
@@ -262,10 +259,12 @@ inline int64_t callLayout(const string& name, const Graph& G, LayoutModule& L, l
 			LayoutStatistics::numberOfNodeCrossings(GA));
 	printLayoutStatistics("average node overlaps per node",
 			LayoutStatistics::numberOfNodeOverlaps(GA));
+	EdgeArray<double> edgeArrayDouble(G, 0.0);
 	printLayoutStatistics("edge length deviation: ",
 			LayoutStatistics::edgeLengthDeviation(GA, edgeArrayDouble));
 	printLayoutStatistics("neighbourhood preservation ratio: ",
 			LayoutStatistics::neighbourhoodPreservation(GA));
+	Graph gabrielOut = Graph();
 	printLayoutStatistics("calculates gabriel ratio: ",
 			LayoutStatistics::gabrielRatio(GA, gabrielOut));
 	printLayoutStatistics("node resolution: ", LayoutStatistics::nodeResolution(GA));

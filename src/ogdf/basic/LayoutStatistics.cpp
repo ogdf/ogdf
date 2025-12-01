@@ -325,7 +325,14 @@ double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArra
 	}
 
 	out.init(mainGraph); // init out to label the correct graph
-	EdgeArray<double> lengths = LayoutStatistics::edgeLengths(ga, true);
+	EdgeArray<double> lengths(mainGraph, true);
+	for (const edge& e : mainGraph.edges) {
+		node u = e->source();
+		node v = e->target();
+		double length = hypot(ga.x(u) - ga.x(v), ga.y(u) - ga.y(v));
+		lengths[e] = (length > 0.0) ? length : 0.0;
+	}
+
 	double edgeSum = 0.0;
 
 	double delta = 0.0;
