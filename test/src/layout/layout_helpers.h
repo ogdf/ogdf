@@ -118,16 +118,6 @@ inline void printLayoutStatistics(const std::string& measure, T value,
 	printLayoutStatistics(measure, tmp, angularResolution);
 }
 
-// Overload for a bounding-box pair: ((minX,maxX),(minY,maxY))
-inline void printLayoutStatistics(const std::string& measure,
-		const std::pair<std::pair<double, double>, std::pair<double, double>>& box,
-		bool /*angularResolution*/ = false) {
-	const std::string indent = "        ";
-	std::cout << indent << measure << ": ";
-	std::cout << "x=[" << box.first.first << "," << box.first.second << "] "
-			  << "y=[" << box.second.first << "," << box.second.second << "]\n";
-}
-
 // Overload NodeArray<T>
 template<typename T>
 inline void printLayoutStatistics(const std::string& measure, const ogdf::NodeArray<T>& nodeArray,

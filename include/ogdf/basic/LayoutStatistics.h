@@ -204,19 +204,6 @@ public:
 	 */
 	static double edgeLengthDeviation(const GraphAttributes& ga, EdgeArray<double>& out);
 
-
-	//! Computes the distances between each pair of nodes in the graph given, in \p ga.
-	/**
-	 * Returns an array of distances, a pair where the first entry is the node pair, and the second entry is the distance between them as doubles.
-	 * Nodes are added in the order they are in the graph container "mainGraph.nodes".
-	 * Per default, each edge is added uniquely -> ( \a u, \a v ) or ( \a v , \a u ),
-	 * else (bidirectional = true) both edges ( \a u, \a v ) and ( \a v , \a u ) are added.
-	 * handles size allocation, so no need to preallocate specific vector size.
-	 */
-	static void distancesBetweenAllNodes(const GraphAttributes& ga,
-			ArrayBuffer<std::pair<std::pair<node, node>, double>>& allDistances,
-			bool edgesTwice = false);
-
 	//! Computes neighborhood preservation \p H of the edges in the graph given, in \p ga.
 	/**
 	 * Neighborhood preservation def.: How many nodes in the graph are connected to the actually closest (least coordinative distance) nodes.

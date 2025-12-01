@@ -347,132 +347,76 @@ double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArra
 	return (edgesNum > 0) ? (edgeLenDevVal /= edgesNum) : 0.0;
 }
 
-void LayoutStatistics::distancesBetweenAllNodes(const GraphAttributes& ga,
-		ArrayBuffer<std::pair<std::pair<node, node>, double>>& allDistances, bool bidirectional) {
-	const Graph& mainGraph = ga.constGraph();
-	const size_t n = mainGraph.numberOfNodes(); // for efficiency
-	if (n < 2) {
-		allDistances.push(
-				std::make_pair(std::make_pair(mainGraph.nodes.head(), mainGraph.nodes.head()), 0.0));
-		return; // No pairs possible
-	}
-
-	// Sizes: bidirectional {(u_i,v_i),(v_i,u_i)} = n * n, unique {(u_i,v_i)} = n * (n - 1) / 2
-	const size_t reqSize =
-			bidirectional ? n * n : (n * (n - 1)) * 0.5; // * 0.5 instead of /2 for efficiency
-
-	// Correct memory handling, to avoid back and forth memory allocation if array is too small
-	if (static_cast<size_t>(allDistances.size()) < reqSize) {
-		allDistances.clear(); // clear old memory
-		allDistances.setCapacity(reqSize); // reserve memory
-	}
-
-	double dx = 0.0; // x distance between two nodes
-	double dy = 0.0; // y distance between two nodes
-	double distance = 0.0; // distance between two nodes
-
-	// for each node, calculate distance to all other nodes
-	for (auto it_i = mainGraph.nodes.begin(); it_i != mainGraph.nodes.end(); ++it_i) {
-		const node& u = *it_i;
-
-		/* start from 0 for visiting each edge twice from each direction if edgesTwice is true
-		 else start from i + 1 for only visiting each edge only once */
-		for (auto it_j = (bidirectional ? mainGraph.nodes.begin() : std::next(it_i));
-				it_j != mainGraph.nodes.end(); ++it_j) {
-			if (bidirectional && u == *it_j) {
-				// include self-pair with distance 0.0 for bidirectional graphs
-				allDistances.push(std::make_pair(std::make_pair(u, u), 0.0));
-				continue; // skip same nodes
-			}
-
-			const node& v = *it_j; // second node
-
-			// calculating euclidean distance between two nodes
-			dx = ga.x(u) - ga.x(v);
-			dy = ga.y(u) - ga.y(v);
-			// using hypot for safety { hypot(arg1^2, arg2^2) }
-			distance = std::hypot(dx, dy); // distance calculation
-
-			allDistances.push(std::make_pair(std::make_pair(u, v), distance));
-		}
-	}
-}
-
 NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	double nodePreservationValue = 0.0; // preservation value for each node, higher = better
-	// Uncomment 2. | double graphPreservationValue = 0.0; // preservation value for whole graph, higher = better
-	double preservationValue = 0.0;
-	NodeArray<double> nodePreservations(mainGraph,
-			0.0); // array of preservation values, of each node/vertex
+	size_t n = mainGraph.numberOfNodes(); // for efficiency
 
-	size_t currentNodeDeg = 0; // current node degree
-	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+	// array of preservation values, of each node/vertex
+	NodeArray<double> nodePreservations(mainGraph, 0.0);
 
-	if (numOfNodes < 2) {
-		if (numOfNodes == 1) {
-			nodePreservations[mainGraph.nodes.head()] = 1.0;
+	if (n < 2) {
+		if (n == 1) {
+			nodePreservations[mainGraph.firstNode()] = 1.0;
 		}
 		return nodePreservations;
 	}
 
-	// Init array, where each entry is a pair that contains the edge as pair of nodes, and the distance between the node pair
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(numOfNodes * numOfNodes);
+	double nodePreservationValue = 0.0; // preservation value for each node, higher = better
+	// Uncomment 1. | double graphPreservationValue = 0.0; // preservation value for whole graph, higher = better
 
-	// calculating distances between all nodes, edges are added twice {(u, v), (v, u)}
-	distancesBetweenAllNodes(ga, allDistances, true);
 
-	size_t i = 0;
-	auto startIt = allDistances.begin();
-	auto endIt = allDistances.begin() + numOfNodes;
+	// Distance NodeArray-Matrix n x n: vector of (distance(u, v), v)
+	NodeArray<std::vector<std::pair<double, node>>> distM(mainGraph);
 
-	// for each node, sorting all by distance
-	for (; i < numOfNodes; ++i) {
-		// sorting all distances ascendingly for current node within spectrum
-		std::sort(startIt, endIt,
-				[](const std::pair<std::pair<node, node>, double>& a,
-						const std::pair<std::pair<node, node>, double>& b) {
-					return a.second < b.second;
+	// calculating distances between all nodes {(u, v), (v, u)}
+	for (const node u : mainGraph.nodes) {
+		auto& rowU = distM[u];
+		rowU.reserve(n);
+
+		for (const node v : mainGraph.nodes) {
+			if (u == v) {
+				distM[u].emplace_back(0.0, v);
+				continue;
+			}
+			const double dist = std::hypot(ga.x(u) - ga.x(v), ga.y(u) - ga.y(v));
+			distM[u].emplace_back(dist, v);
+		}
+
+		// sorting all distances for each node within the distance NodeArray-Matrix
+		std::sort(rowU.begin(), rowU.end(),
+				[](const std::pair<double, node>& a, const std::pair<double, node>& b) {
+					return a.first < b.first;
 				});
-		startIt = endIt;
-		endIt += numOfNodes;
 	}
 
-	node currentNode; // current node
-	node neighbor; // neighbor node
-	i = 0; // counter for current node index
+	size_t nodeDegree = 0; // current node degree
 
 	// for each node, calculate preservation value
-	for (auto it_i = mainGraph.nodes.begin(); it_i != mainGraph.nodes.end(); ++it_i) {
-		nodePreservationValue = 0.0; // reseting value for each node/round
+	for (node u : mainGraph.nodes) {
+		nodeDegree = u->degree(); // set current node degree
 
-		currentNode = *it_i; //current node
-		currentNodeDeg = currentNode->degree(); // set current node degree
-
-		if (currentNodeDeg == 0) {
+		if (nodeDegree == 0) {
 			// if has no neighbors, skip and leave value at 0.0
 			continue;
 		}
-
-		size_t start = i * numOfNodes; // current start index within allDistances array
+		nodePreservationValue = 0.0; // reseting value for each node/round
 
 		// for |deg(currentNode)|, calculate preservation value for current node
-		for (size_t j = 0; j < currentNodeDeg; ++j) {
-			neighbor = allDistances[start + j].first.second; // neighbor of current node
+		for (size_t i = 1; i <= nodeDegree; ++i) {
+			const node& neighbor = distM[u][i].second; // closest neighbor node to current node n
 
-			if (mainGraph.searchEdge(currentNode, neighbor) != nullptr) {
+			// checking if neighbor is connected in graph
+			if (mainGraph.searchEdge(u, neighbor) != nullptr) {
 				nodePreservationValue += 1;
 				continue;
 			}
 		}
-		preservationValue = nodePreservationValue / currentNodeDeg;
-		nodePreservations[currentNode] = preservationValue;
-		// Uncomment 2. | graphPreservationValue += preservationValue;
-		++i;
+		nodePreservations[u] = nodePreservationValue / static_cast<double>(nodeDegree);
+		// Uncomment 1. | graphPreservationValue += nodePreservationValue / static_cast<double>(nodeDegree);
 	}
 
 	// final graph preservation value calculation
-	// Uncomment 2. | graphPreservationValue /= numOfNodes;
+	// Uncomment 1. | graphPreservationValue /= n;
 	return nodePreservations;
 }
 
@@ -481,64 +425,49 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	const Graph& mainGraph = ga.constGraph();
 	gabrielGraphReference.clear();
 
-	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+	// size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// array for per-node Gabriel ratios
-	NodeArray<double> nodeGabrielRatios(mainGraph);
-	NodeArray<size_t> gabrielCount(mainGraph, 0); // array for counting Gabriel edges for each node
-
-	// all nodes distances array, ((u, v), distance)
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(
-			numOfNodes * (numOfNodes - 1) * 0.5); // * 0.5 instead of /2 for efficiency
-
-	// Calculating distances between all nodes, edges are added uniquely, allDistances size: n*(n-1)/2
-	distancesBetweenAllNodes(ga, allDistances);
-
+	NodeArray<double> nodeGabrielRatios(mainGraph, 0.0);
+	NodeArray<size_t> gabrielCount(mainGraph, 0); // count Gabriel-edges for each node
+	NodeArray<size_t> degreeCount(mainGraph, 0); // count degree of each node
 
 	// create map from original nodes to new gabrielGraph nodes
-	NodeArray<node> nodeMap(mainGraph);
+	NodeArray<node> nodeMap(mainGraph, nullptr);
 	for (const node& n : mainGraph.nodes) {
 		nodeMap[n] = gabrielGraphReference.newNode(); // assigns node to node map
 	}
 
-	bool isGabrielEdge = true; // Gabriel edge true by default
-
 	// for each edge, calculate Gabriel edge
-	for (const auto& [edgeNodes, distance] : allDistances) {
-		isGabrielEdge = true; // set to true for each loop
+	for (edge e : mainGraph.edges) {
+		node u = e->source(); // first node of edge
+		node v = e->target(); // second node of edge
 
-		node u = edgeNodes.first; // first node of edge
-		node v = edgeNodes.second; // second node of edge
-
-		bool isAdjacent = false;
-		// check if u and v are adjacent
-		for (auto nodeU : u->adjEntries) {
-			if (nodeU->twinNode() == v) {
-				isAdjacent = true;
-				break;
-			}
-		}
-		if (!isAdjacent) {
-			continue;
-		}
+		degreeCount[u]++;
+		degreeCount[v]++;
 
 		// calculating midpoints (between the two nodes) both of x and y, and the radius range of the distance
 		double midPointX = (ga.x(u) + ga.x(v)) * 0.5;
 		double midPointY = (ga.y(u) + ga.y(v)) * 0.5;
 
+		double dx = ga.x(u) - ga.x(v);
+		double dy = ga.y(u) - ga.y(v);
+
 		// instead of sqrt (hypot for distToMidPoint), we square both sides (distToMidpoint^2 < radius^2) to avoid sqrt
 		// which turns radius = distance / 2 into: radius^2 = (distance^2) / 4; * 0.25 for efficiency
-		double radiusSquared = (distance * distance) * 0.25;
+		double radiusSquared = (dx * dx + dy * dy) * 0.25;
 
-		for (const node& n : mainGraph.nodes) {
-			if (n == v || n == u) { // skip same nodes
+
+		bool isGabrielEdge = true;
+		for (const node& w : mainGraph.nodes) {
+			if (w == v || w == u) { // skip same nodes
 				continue;
 			}
 			// calculating distance to midpoint
-			double dx = ga.x(n) - midPointX;
-			double dy = ga.y(n) - midPointY;
+			double dx2 = ga.x(w) - midPointX;
+			double dy2 = ga.y(w) - midPointY;
 			// avoiding sqrt by squaring both sides (radius and distToMidPoint)
-			double distToMidPointSquared = dx * dx + dy * dy; // dx^2 + dy^2
+			double distToMidPointSquared = dx2 * dx2 + dy2 * dy2; // dx^2 + dy^2
 
 			// if distance to midpoint is less than radius => not a Gabriel edge
 			if (distToMidPointSquared < radiusSquared) {
@@ -550,8 +479,8 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		if (isGabrielEdge) {
 			gabrielGraphReference.newEdge(nodeMap[u], nodeMap[v]);
 			// incrementing Gabriel count for both nodes (u, v)
-			gabrielCount[u] += 1;
-			gabrielCount[v] += 1;
+			gabrielCount[u]++;
+			gabrielCount[v]++;
 		}
 	}
 
@@ -587,28 +516,30 @@ double LayoutStatistics::nodeResolution(const GraphAttributes& ga) {
 	if (numOfNodes < 3) {
 		return 0.0;
 	}
-	// Unique edges (n * (n - 1)) / 2
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(
-			numOfNodes * (numOfNodes - 1) * 0.5);
-
-	distancesBetweenAllNodes(ga, allDistances); // each edge once, allDistances size: n*(n-1)/2
 
 	double minDist = std::numeric_limits<double>::max(); // for min. distance between two nodes
 	double maxDist = 0.0; // for max distance between two nodes
 
-	for (const auto& pairDist : allDistances) // for each edge/node-pair
-	{
-		const double& dist = pairDist.second; // distance between nodes
-		if (dist < minDist) {
-			minDist = dist; // update min. distance
-		}
-		if (dist > maxDist) {
-			maxDist = dist; // update max. distance
+	// for (auto u : mainGraph.nodes) {
+	// 	for (auto v : mainGraph.nodes) {
+	for (node u : mainGraph.nodes) {
+		for (node v = u->succ(); v; v = v->succ()) {
+			if (u == v) {
+				continue; // skip same nodes
+			}
+
+			const double dist = std::hypot(ga.x(u) - ga.x(v), ga.y(u) - ga.y(v));
+			if (dist < minDist) {
+				minDist = dist; // update min. distance
+			}
+			if (dist > maxDist) {
+				maxDist = dist; // update max. distance
+			}
 		}
 	}
 
 	// prevents division by zero, else calculates and returns Node Resolution (NR)
-	return minDist > 0.0 ? (minDist / maxDist) : 0.0;
+	return maxDist > 0.0 ? (minDist / maxDist) : 0.0;
 }
 
 double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
@@ -804,9 +735,13 @@ double LayoutStatistics::edgeOrthogonality(const GraphAttributes& ga) {
 	double angleTemp = 0.0;
 
 	for (const edge& e : mainGraph.edges) {
+		// store source and target nodes of edge
+		const node u = e->source();
+		const node v = e->target();
+
 		// Calculate angles for each edge to the x-axis
-		double x = ga.x(e->source()) - ga.x(e->target()); // x coordinate difference
-		double y = ga.y(e->source()) - ga.y(e->target()); // y coordinate difference
+		double x = ga.x(u) - ga.x(v); // x coordinate difference
+		double y = ga.y(u) - ga.y(v); // y coordinate difference
 
 		// calculate angle relative to x-axis
 		angleTemp = Math::radiansToDegrees(atan2(y, x)); // convert radians to degrees
@@ -855,21 +790,22 @@ DPoint LayoutStatistics::centerOfMass(const GraphAttributes& ga) {
 
 double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t n = mainGraph.numberOfNodes();
 
-	if (n < 2) {
+	if (mainGraph.numberOfNodes() < 2) {
 		return -1.0;
 	}
 
-	ArrayBuffer<std::pair<std::pair<node, node>, double>> allDistances(n * (n - 1) * 0.5);
-
-	distancesBetweenAllNodes(ga, allDistances);
 	double smallestDist = std::numeric_limits<double>::max(); // for smallest distance
+	double distance = 0.0;
 
-	// Extracting smallest distance from allDistances, e.g. smallest distance between two nodes
-	for (const auto& pair : allDistances) {
-		if (smallestDist > pair.second) {
-			smallestDist = pair.second; // update smallest distance
+	// calculating smallest distance from between two nodes of graph
+	for (node u : mainGraph.nodes) {
+		for (node v = u->succ(); v; v = v->succ()) {
+			// calculating euclidean distance between two nodes
+			distance = std::hypot(ga.x(u) - ga.x(v), ga.y(u) - ga.y(v));
+			if (distance < smallestDist) {
+				smallestDist = distance; // update smallest distance
+			}
 		}
 	}
 
