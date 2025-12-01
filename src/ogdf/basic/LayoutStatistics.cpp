@@ -654,8 +654,7 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 	return width / height; // aspect ratio
 }
 
-double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, int gridWidth,
-		int gridHeight) {
+double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, int gridWidth, int gridHeight) {
 	const Graph& mainGraph = ga.constGraph();
 	int numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
