@@ -255,14 +255,14 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& 
 
 double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes& ga) {
 	const Graph& G = ga.constGraph();
-	size_t m = G.numberOfEdges();
+	int m = G.numberOfEdges();
 	if (m < 2) { // No crossings possible
 		return 0.0; // Avoid division by zero
 	}
 	// Get crossings for each edge, contains number of crossings for each edge twice
 	ArrayBuffer<int> crossings = LayoutStatistics::numberOfCrossings(ga);
 	// ArrayBuffer<int> maxCrossings; // Initialize
-	size_t sumOfCrossings = 0;
+	int sumOfCrossings = 0;
 
 	// Calculate sum of actual crossings for all edges
 	for (const int& val : crossings) {
@@ -270,19 +270,19 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 	}
 	sumOfCrossings /= 2; // Each crossing is counted twice, so we divide by 2
 
-	size_t sumMaxCrossings = 0;
+	int sumMaxCrossings = 0;
 	// Calculate maximum crossings for all edges (non-incident edges)
 	// Explanation: The number of all edges which are not adjacent to the edge, and thus able to cross
 	// each edge, can get crossed by all the m other edges
 	for (const edge& e : G.edges) {
-		const size_t degreeU = (e->source())->degree(); // degree of node u
-		const size_t degreeV = (e->target())->degree(); // degree of node v
+		const int degreeU = (e->source())->degree(); // degree of node u
+		const int degreeV = (e->target())->degree(); // degree of node v
 
 		// Number of edges incident to u and v
-		size_t incident = (degreeU + degreeV > 2) ? (degreeU + degreeV - 1) : 0;
+		int incident = (degreeU + degreeV > 2) ? (degreeU + degreeV - 1) : 0;
 
 		// Max number of possible crossings to edge e
-		size_t maxCrossing = (m > incident) ? (m - incident) : 0;
+		int maxCrossing = (m > incident) ? (m - incident) : 0;
 
 		// sum up all max crossings
 		sumMaxCrossings += maxCrossing;
@@ -318,7 +318,7 @@ NodeArray<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga)
 
 double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArray<double>& out) {
 	const Graph& mainGraph = ga.constGraph();
-	const size_t m = mainGraph.numberOfEdges();
+	const int m = mainGraph.numberOfEdges();
 	if (m < 2) {
 		out.init(mainGraph, 0.0);
 		return 0.0; // no deviation with less than two edges
@@ -363,7 +363,7 @@ double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArra
 
 NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t n = mainGraph.numberOfNodes(); // for efficiency
+	int n = mainGraph.numberOfNodes(); // for efficiency
 
 	// array of preservation values, of each node/vertex
 	NodeArray<double> nodePreservations(mainGraph, 0.0);
@@ -403,7 +403,7 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 				});
 	}
 
-	size_t nodeDegree = 0; // current node degree
+	int nodeDegree = 0; // current node degree
 
 	// for each node, calculate preservation value
 	for (node u : mainGraph.nodes) {
@@ -416,7 +416,7 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 		}
 
 		// limiting max degree if input graph has self-loops or multi-edges
-		const size_t maxDegree = std::min(nodeDegree, rowU.size() - 1);
+		const int maxDegree = std::min(static_cast<size_t>(nodeDegree), rowU.size() - 1);
 		if (maxDegree == 0) {
 			continue;
 		}
@@ -425,7 +425,7 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 		nodePreservationValue = 0.0; // reseting value for each node/round
 
 		// for |deg(currentNode)|, calculate preservation value for current node
-		for (size_t i = 1; i <= maxDegree; ++i) {
+		for (int i = 1; i <= maxDegree; ++i) {
 			const node& neighbor = distM[u][i].second; // closest neighbor node to current node n
 
 			// checking if neighbor is connected in graph
@@ -455,11 +455,11 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 	}
 
 
-	// size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+	// int numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// array for per-node Gabriel ratios
-	NodeArray<size_t> gabrielCount(mainGraph, 0); // count Gabriel-edges for each node
-	NodeArray<size_t> degreeCount(mainGraph, 0); // count degree of each node
+	NodeArray<int> gabrielCount(mainGraph, 0); // count Gabriel-edges for each node
+	NodeArray<int> degreeCount(mainGraph, 0); // count degree of each node
 
 	// create map from original nodes to new gabrielGraph nodes
 	NodeArray<node> nodeMap(mainGraph, nullptr);
@@ -526,7 +526,7 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 
 	// calculating Gabriel ratio for whole graph
 	/* Uncomment 3. | double graphGabrielRatio = 0.0;
-	for (size_t i = 0; i < numOfNodes; ++i) {
+	for (int i = 0; i < numOfNodes; ++i) {
 		graphGabrielRatio += nodeGabrielRatios[i];
 	}
 	graphGabrielRatio /= numOfNodes; // final division for Gabriel Ratio of graph
@@ -538,7 +538,7 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 
 double LayoutStatistics::nodeResolution(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+	int numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// if graph has less than 3 nodes, no sensible resolution exists as the longest and shortest distance
 	// between nodes would be the same
@@ -580,11 +580,11 @@ double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
 	}
 
 	double totalAngleDev = 0.0; // total angle deviation for all nodes
-	size_t nodesCount = 0; // count for nodes with degree greater than 1
+	int nodesCount = 0; // count for nodes with degree greater than 1
 
 	// Iterate through each node in graph, and calculate angle deviations for each
 	for (const node& u : mainGraph.nodes) {
-		const size_t degree = u->degree(); // degree of the source node
+		const int degree = u->degree(); // degree of the source node
 		if (degree < 2) {
 			continue; // skip nodes with degree less than 2
 		}
@@ -627,7 +627,7 @@ double LayoutStatistics::angularResolution(const GraphAttributes& ga) {
 
 double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+	int numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// if graph has less than 2 nodes, aspect ratio is trivial
 	if (numOfNodes < 2) {
@@ -654,10 +654,10 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 	return width / height; // aspect ratio
 }
 
-double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWidth,
-		size_t gridHeight) {
+double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, int gridWidth,
+		int gridHeight) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
+	int numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	if (gridWidth == 0 || gridHeight == 0) {
 		return 0.0;
@@ -687,14 +687,14 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 	double cellWidth = width / static_cast<double>(gridWidth); // width of each cell
 	double cellHeight = height / static_cast<double>(gridHeight); // height of each cell
 
-	size_t gridCount = gridWidth * gridHeight; // total number of cells in the grid
+	int gridCount = gridWidth * gridHeight; // total number of cells in the grid
 
 	if (gridCount == 0) // if gridCount = 0, return 0.0
 	{
 		return 0.0;
 	}
 
-	std::vector<size_t> nodeCount(gridCount, 0); // array for counting nodes in each cell
+	std::vector<int> nodeCount(gridCount, 0); // array for counting nodes in each cell
 
 	// Iterate through each node, and count nodes in each cell
 	for (const node& n : mainGraph.nodes) {
@@ -702,8 +702,8 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		double uy = ga.y(n);
 
 		// calculate cell index for each node, and round down
-		size_t cellX = static_cast<size_t>((ux - minX) / cellWidth);
-		size_t cellY = static_cast<size_t>((uy - minY) / cellHeight);
+		int cellX = static_cast<int>((ux - minX) / cellWidth);
+		int cellY = static_cast<int>((uy - minY) / cellHeight);
 
 		// Clamp cell indices to valid range, in case some node is exactly on border
 		if (cellX >= gridWidth) {
@@ -718,12 +718,12 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 	}
 
 	// calculate ideal uniformity
-	size_t idealUniformity = ceil(static_cast<double>(numOfNodes) / static_cast<double>(gridCount));
+	int idealUniformity = ceil(static_cast<double>(numOfNodes) / static_cast<double>(gridCount));
 
 	double totalUniformityDeviation = 0.0; // uniformity value
-	size_t deviationCheck = 0;
+	int deviationCheck = 0;
 
-	for (const size_t& cellCount : nodeCount) {
+	for (const int& cellCount : nodeCount) {
 		// if cell has nodes, calculate deviation
 		if (cellCount > 0) {
 			// calculate deviation from ideal uniformity
@@ -754,7 +754,7 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 
 double LayoutStatistics::edgeOrthogonality(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t numOfEdges = mainGraph.numberOfEdges(); // for efficiency
+	int numOfEdges = mainGraph.numberOfEdges(); // for efficiency
 
 	// if no edge exists, return 0.0
 	if (numOfEdges < 1) {
@@ -792,7 +792,7 @@ double LayoutStatistics::edgeOrthogonality(const GraphAttributes& ga) {
 
 DPoint LayoutStatistics::centerOfMass(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t n = mainGraph.numberOfNodes();
+	int n = mainGraph.numberOfNodes();
 
 	if (n < 2) {
 		if (n == 1) {
@@ -844,7 +844,7 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 
 double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, const bool vertical) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t n = mainGraph.numberOfNodes();
+	int n = mainGraph.numberOfNodes();
 
 	if (n == 0) {
 		return -1.0; // no nodes, no horizontal balance
@@ -903,12 +903,12 @@ double LayoutStatistics::horizontalVerticalBalance(const GraphAttributes& ga, co
 
 double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const double epsilon) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t n = mainGraph.numberOfNodes();
+	int n = mainGraph.numberOfNodes();
 
 	if (n == 0) {
 		return -1.0; // no nodes, no orthogonality
 	}
-	size_t nodeOrthogonalityCount = 0; // count of orthogonal nodes
+	int nodeOrthogonalityCount = 0; // count of orthogonal nodes
 
 	double x = 0.0, y = 0.0; // coordinates of first node
 	for (const node& u : mainGraph.nodes) {
@@ -926,7 +926,7 @@ double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const doub
 
 double LayoutStatistics::averageFlow(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t m = mainGraph.numberOfEdges(); // for efficiency
+	int m = mainGraph.numberOfEdges(); // for efficiency
 
 	if (m == 0 || !ga.directed()) {
 		return -1.0; // if graph has no edge, or isn't directed, return -1.0
@@ -946,12 +946,12 @@ double LayoutStatistics::averageFlow(const GraphAttributes& ga) {
 
 double LayoutStatistics::upwardsFlow(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t m = mainGraph.numberOfEdges(); // for efficiency
+	int m = mainGraph.numberOfEdges(); // for efficiency
 
 	if (m == 0 || !ga.directed()) {
 		return -1.0; // if graph has no edge, or isn't directed, return -1.0
 	}
-	size_t upwardsFlowCount = 0;
+	int upwardsFlowCount = 0;
 	for (const edge& e : mainGraph.edges) {
 		// If y-coordinate of source node is smaller than of target node,
 		// it points upwards
@@ -964,7 +964,7 @@ double LayoutStatistics::upwardsFlow(const GraphAttributes& ga) {
 
 double LayoutStatistics::concentration(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
-	size_t n = mainGraph.numberOfNodes(); // for efficiency
+	int n = mainGraph.numberOfNodes(); // for efficiency
 
 	if (n == 0) { // No concentration possible
 		return -1.0;

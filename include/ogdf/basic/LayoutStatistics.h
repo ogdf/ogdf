@@ -268,8 +268,8 @@ public:
 	 * and 0.0 is the worst uniformity.
 	 * Returns 0.0 if the graph has less than 2 nodes, or number of grid cells is 0 (e.g. gridWidth or/and gridHeight is 0).
 	 */
-	static double nodeUniformity(const GraphAttributes& ga, size_t gridWidth = 10,
-			size_t gridHeight = 10);
+	static double nodeUniformity(const GraphAttributes& ga, int gridWidth = 10,
+			int gridHeight = 10);
 
 	//! Computes Edge Orthogonality (EO) \p H of the graph \p g.
 	/**
