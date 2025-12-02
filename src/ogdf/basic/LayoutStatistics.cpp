@@ -828,43 +828,80 @@ DPoint LayoutStatistics::centerOfMass(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
 	size_t n = mainGraph.numberOfNodes();
 
-	if (n < 2) {
-		if (n == 1) {
-			const node singleNode = *mainGraph.nodes.begin();
-			return DPoint(ga.x(singleNode), ga.y(singleNode)); // return only node as coordinate
-		} else { // no nodes, no center of mass
-			return DPoint(0.0, 0.0); // return (0.0, 0.0) as center of mass
+	if (n == 0) { // no nodes, no center
+		return DPoint(0.0, 0.0); // return (0.0, 0.0) as center of mass
+	}
+	if (n == 1) {
+		const node singleNode = mainGraph.firstNode();
+		const double x = ga.x(singleNode);
+		const double y = ga.y(singleNode);
+		if (!std::isfinite(x) || !std::isfinite(y)) {
+			std::cout << "LayoutStatistics::centerOfMass: single node has non-finite cords.\n";
+			return DPoint(0.0, 0.0);
 		}
+
+		return DPoint(x, y); // return only node as coordinate
 	}
 
 	double sumX = 0.0; // sum of x coordinates
 	double sumY = 0.0; // sum of y coordinates
+	size_t invalidCordsCount = 0;
 
 	// Summing up x and y coordinates of all nodes
 	for (const node& u : mainGraph.nodes) {
-		sumX += ga.x(u);
-		sumY += ga.y(u);
+		const double x = ga.x(u);
+		const double y = ga.y(u);
+
+		if (!std::isfinite(x) || !std::isfinite(y)) {
+			std::cout << "LayoutStatistics::centerOfMass: non-finite cords node found.\n";
+			invalidCordsCount++;
+			continue;
+		}
+
+		sumX += x;
+		sumY += y;
 	}
+	if (invalidCordsCount == 0) {
+		return DPoint(-1.0, -1.0);
+	}
+
+	n -= invalidCordsCount;
+
 	sumX /= n; // average x coordinate
 	sumY /= n; // average y coordinate
-
 
 	return DPoint(sumX, sumY); // return center of mass node
 }
 
 double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 	const Graph& mainGraph = ga.constGraph();
+	std::vector<node> validNodes;
 
-	if (mainGraph.numberOfNodes() < 2) {
+	for (const node& u : mainGraph.nodes) {
+		if (std::isfinite(ga.x(u)) && std::isfinite(ga.y(u))) {
+			validNodes.push_back(u);
+		}
+	}
+	size_t validNodeCount = validNodes.size();
+	if (validNodeCount < mainGraph.numberOfNodes()) {
+		std::cout << "LayoutStatistics::closestPairOfPoints: Ignoring "
+				  << (mainGraph.numberOfNodes() - validNodeCount)
+				  << " nodes with non-finite coordinates.\n";
+	}
+
+	if (validNodeCount < 2) {
 		return -1.0;
 	}
 
-	double smallestDist = std::numeric_limits<double>::max(); // for smallest distance
+
+	double smallestDist = std::numeric_limits<double>::infinity(); // for smallest distance
 	double distance = 0.0;
 
 	// calculating smallest distance from between two nodes of graph
-	for (node u : mainGraph.nodes) {
-		for (node v = u->succ(); v; v = v->succ()) {
+	for (size_t i = 0; i < validNodeCount; ++i) {
+		const node u = validNodes[i];
+		for (size_t j = i + 1; j < validNodeCount; ++j) {
+			const node v = validNodes[j];
 			// calculating euclidean distance between two nodes
 			distance = std::hypot(ga.x(u) - ga.x(v), ga.y(u) - ga.y(v));
 			if (distance < smallestDist) {
@@ -872,7 +909,6 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 			}
 		}
 	}
-
 	return smallestDist; // return smallest distance
 }
 

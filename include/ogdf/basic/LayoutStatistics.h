@@ -293,6 +293,7 @@ public:
 	 *
 	 * Returns double pair containing center of mass coordinates.
 	 * Returns a pair with (0.0, 0.0) if graph is empty.
+	 * Returns a pair with (-1.0, -1.0) if graph has no nodes with valid (finite) coordinates.
 	 *
 	 * \warning Unfortunately, this, rather simple, implementation has a runtime complexity of O(n^3),
 	 * which might weight heavily on larger graphs. By implementing a median KD-tree, the runtime can be improved to O(n log n).
