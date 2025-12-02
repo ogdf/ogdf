@@ -1047,7 +1047,7 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 	const DPoint center = centerOfMass(ga);
 	const double centerX = center.m_x; // x coordinate of center of mass
 	const double centerY = center.m_y; // y coordinate of center of mass
-	double sumOfDistancesToCenter = 0.0;
+	// double sumOfDistancesToCenter = 0.0;
 	std::vector<double> distances;
 	distances.reserve(n); // size n
 
@@ -1058,12 +1058,24 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 		const double dy = ga.y(u) - centerY;
 		const double dist = std::hypot(dx, dy); // hypot = sqrt(dx^2 + dy^2)
 
-		distances.push_back(dist); // adding dist to vector
-		sumOfDistancesToCenter += dist; // add distance to sum
+		// adding valid distances to vector
+		if (std::isfinite(dist)) {
+			distances.push_back(dist);
+		}
+		// sumOfDistancesToCenter += dist; // add distance to sum
+	}
+
+	const size_t valid = distances.size();
+	if (valid < 2) {
+		return 0.0;
+	}
+	double sum = 0.0;
+	for (double dist : distances) {
+		sum += dist;
 	}
 
 	// mean dist to center of mass of all nodes
-	const double meanDist = sumOfDistancesToCenter / static_cast<double>(n);
+	const double meanDist = sum / static_cast<double>(valid);
 
 	// Calculating variance of distances to center of mass
 	double sumSqrdDiff = 0.0; // sum of squared differences from mean dist
@@ -1073,6 +1085,6 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 	}
 
 	// returning variance center of mass
-	return sumSqrdDiff / static_cast<double>(n);
+	return sumSqrdDiff / static_cast<double>(valid);
 }
 }
