@@ -51,12 +51,20 @@
 namespace ogdf {
 
 double graphArea(const GraphAttributes& ga) {
+	if (ga.constGraph().numberOfNodes() < 2) {
+		return 0.0;
+	}
+
 	const DRect bBox = ga.GraphAttributes::boundingBox();
 	return bBox.height() * bBox.width();
 }
 
 EdgeArray<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, bool considerSelfLoops) {
 	EdgeArray<double> values(ga.constGraph(), 0.0);
+	if (ga.constGraph().numberOfEdges() < 1) {
+		return values;
+	}
+
 	for (const edge& e : ga.constGraph().edges) {
 		if (!considerSelfLoops && e->isSelfLoop()) {
 			continue;
@@ -74,16 +82,21 @@ EdgeArray<double> LayoutStatistics::edgeLengths(const GraphAttributes& ga, bool 
 		} else {
 			len = pv.distance(pw);
 		}
-
 		values[e] = len;
 	}
 
 	return values;
 }
 
-EdgeArray<int> LayoutStatistics::numberOfBends(const GraphAttributes& ga, bool considerSelfLoops) {
-	EdgeArray<int> values(ga.constGraph(), -1);
-	for (const edge& e : ga.constGraph().edges) {
+EdgeArray<size_t> LayoutStatistics::numberOfBends(const GraphAttributes& ga, bool considerSelfLoops) {
+	const Graph& G = ga.constGraph();
+	EdgeArray<size_t> values(G, 0);
+
+	if (G.numberOfEdges() == 0) {
+		return values;
+	}
+
+	for (const edge& e : G.edges) {
 		if (considerSelfLoops || !e->isSelfLoop()) {
 			values[e] = ga.bends(e).size();
 		}
@@ -171,10 +184,9 @@ ArrayBuffer<double> LayoutStatistics::angles(const GraphAttributes& ga, bool con
 	return values;
 }
 
-ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes& ga) {
-	ArrayBuffer<int> values;
+EdgeArray<size_t> LayoutStatistics::numberOfCrossings(const GraphAttributes& ga) {
 	const Graph& G = ga.constGraph();
-	EdgeArray<int> crossings(G, 0);
+	EdgeArray<size_t> crossings(G, 0);
 
 	Graph H;
 	NodeArray<DPoint> points;
@@ -191,29 +203,30 @@ ArrayBuffer<int> LayoutStatistics::numberOfCrossings(const GraphAttributes& ga) 
 		if (k >= 2) {
 			// For every original edge involved in the crossing:
 			for (const adjEntry& adj : v->adjEntries) {
-				if (adj->isSource()) {
-					edge e = adj->theEdge();
-					edge eOrig = origEdge[e];
+				if (!adj->isSource()) {
+					continue;
+				}
+				edge e = adj->theEdge();
+				edge eOrig = origEdge[e];
 
-					// Ignore original edges incident to vOrig.
-					if (eOrig->source() != e->source() || eOrig->target() != e->target()) {
-						crossings[eOrig] += (k - 1);
-					}
+				// Ignore original edges incident to vOrig.
+				if (eOrig->source() != vOrig && eOrig->target() != vOrig) {
+					crossings[eOrig] += (k - 1);
 				}
 			}
 		}
 	}
-
-	for (const edge& e : G.edges) {
-		values.push(crossings[e]);
-	}
-
-	return values;
+	return crossings;
 }
 
-ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& ga) {
-	ArrayBuffer<int> values;
+EdgeArray<size_t> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& ga) {
 	const Graph& G = ga.constGraph();
+	if (G.numberOfEdges() == 0) {
+		EdgeArray<size_t> values(G, 0);
+		return values;
+	}
+
+	EdgeArray<size_t> values(G, 0);
 	DPoint inter;
 
 	// Get bounding rectangle of every node.
@@ -248,7 +261,7 @@ ArrayBuffer<int> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& 
 			vPoint = wPoint;
 			i++;
 		}
-		values.push(nCrossingsE);
+		values[e] = nCrossingsE;
 	}
 	return values;
 }
@@ -260,15 +273,14 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 		return 0.0; // Avoid division by zero
 	}
 	// Get crossings for each edge, contains number of crossings for each edge twice
-	ArrayBuffer<int> crossings = LayoutStatistics::numberOfCrossings(ga);
+	EdgeArray<size_t> crossings = LayoutStatistics::numberOfCrossings(ga);
 	// ArrayBuffer<int> maxCrossings; // Initialize
 	size_t sumOfCrossings = 0;
 
 	// Calculate sum of actual crossings for all edges
-	for (const int& val : crossings) {
-		sumOfCrossings += val;
+	for (auto e : G.edges) {
+		sumOfCrossings += crossings[e];
 	}
-	sumOfCrossings /= 2; // Each crossing is counted twice, so we divide by 2
 
 	size_t sumMaxCrossings = 0;
 	// Calculate maximum crossings for all edges (non-incident edges)
@@ -290,13 +302,13 @@ double LayoutStatistics::percentageCrossingVsMaxCrossings(const GraphAttributes&
 	if (sumMaxCrossings == 0) { // if no crossings possible
 		return 0.0;
 	}
-	return (static_cast<double>(sumOfCrossings) / static_cast<double>(sumMaxCrossings))
-			* 100.0; // Return percentage
+	double ratio = static_cast<double>(sumOfCrossings) / static_cast<double>(sumMaxCrossings);
+	return ratio * 100.0; // Return percentage
 }
 
-NodeArray<int> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga) {
-	NodeArray<int> values(ga.constGraph());
+NodeArray<size_t> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& ga) {
 	const Graph& G = ga.constGraph();
+	NodeArray<size_t> values(G, 0);
 
 	// Get bounding rectangle of every node.
 	NodeArray<DIntersectableRect> nodeRects(G);
@@ -324,7 +336,7 @@ double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArra
 		return 0.0; // no deviation with less than two edges
 	}
 
-	out.init(mainGraph); // init out to label the correct graph
+	out.init(mainGraph, 0.0); // init out to label the correct graph
 	EdgeArray<double> lengths(mainGraph, true);
 	for (const edge& e : mainGraph.edges) {
 		node u = e->source();
@@ -685,16 +697,17 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 
 	// if width or height is <=0,
 	// return 0.0 to avoid division by zero and negative values
-	if (width <= 0.0 || height <= 0.0) {
+	if (!std::isfinite(width) || !std::isfinite(height) || width <= 0.0 || height <= 0.0) {
 		return 0.0;
 	}
+
 	// size of each cell in the grid
 	double cellWidth = width / static_cast<double>(gridWidth); // width of each cell
 	double cellHeight = height / static_cast<double>(gridHeight); // height of each cell
 
 	size_t gridCount = gridWidth * gridHeight; // total number of cells in the grid
 
-	if (gridCount == 0) // if gridCount = 0, return 0.0
+	if (gridCount == 0 || !std::isfinite(gridCount)) // if gridCount = 0, return 0.0
 	{
 		return 0.0;
 	}
@@ -719,7 +732,15 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		}
 
 		// increment node count for grid-cell
-		nodeCount[cellX + cellY * gridWidth]++; // cellY * gridWidth because cells are stored in row-major order
+		size_t cellIndex = cellX + cellY * gridWidth;
+		if (!std::isfinite(cellIndex) || cellIndex < 0) {
+			continue;
+		}
+		if (cellIndex >= nodeCount.size()) {
+			continue;
+		}
+
+		nodeCount[cellIndex]++; // cellY * gridWidth because cells are stored in row-major order
 	}
 
 	// calculate ideal uniformity
@@ -744,8 +765,16 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		}
 	}
 
-	double worstUniformityDeviation =
-			gridCount * (numOfNodes - idealUniformity); // every cell has nodes off by all nodes
+	// every cell has nodes off by all nodes
+	double worstUniformityDeviation = 0.0;
+	long long diffWorst = numOfNodes - idealUniformity;
+	if (diffWorst > 0) {
+		worstUniformityDeviation = static_cast<double>(gridCount) * static_cast<double>(diffWorst);
+	} else {
+		return 0.0;
+	}
+
+
 	totalUniformityDeviation /= static_cast<double>(gridCount);
 
 	if (worstUniformityDeviation <= 0.0) {

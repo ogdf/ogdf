@@ -1,7 +1,7 @@
 /** \file
  * \brief Test helpers for layout algorithms
  *
- * \author Tilo Wiedera
+ * \author Tilo Wiedera, Sharif Wurz
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

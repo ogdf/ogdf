@@ -87,7 +87,7 @@ public:
 	 * \param considerSelfLoops Determines whether the bends of self-loops are considered.
 	 * \return                  The number of bends for each edge.
 	 */
-	static EdgeArray<int> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
+	static EdgeArray<size_t> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 
 	//! Computes the angle for each pair of adjacent edge segments of the layout \p ga.
@@ -116,7 +116,7 @@ public:
 	 *           Otherwise, a straight-line drawing is assumed.
 	 * \return   The number of crossings for each edge.
 	 */
-	static ArrayBuffer<int> numberOfCrossings(const GraphAttributes& ga);
+	static EdgeArray<size_t> numberOfCrossings(const GraphAttributes& ga);
 
 
 	//! Computes the number of crossings through a non-incident node for each
@@ -132,7 +132,7 @@ public:
 	 *           Otherwise, a straight-line drawing is assumed.
 	 * \return   The number of node crossings for each edge.
 	 */
-	static ArrayBuffer<int> numberOfNodeCrossings(const GraphAttributes& ga);
+	static EdgeArray<size_t> numberOfNodeCrossings(const GraphAttributes& ga);
 
 
 	//! Computes the percentage of crossings for each edge in the layout \p ga
@@ -165,7 +165,7 @@ public:
 	 * \param ga Input layout.
 	 * \return   The number of node overlaps for each node.
 	 */
-	static NodeArray<int> numberOfNodeOverlaps(const GraphAttributes& ga);
+	static NodeArray<size_t> numberOfNodeOverlaps(const GraphAttributes& ga);
 
 
 	//! Computes the intersection graph \p H of the line segments in the layout given by \p ga.
