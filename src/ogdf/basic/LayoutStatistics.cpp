@@ -211,7 +211,7 @@ EdgeArray<size_t> LayoutStatistics::numberOfCrossings(const GraphAttributes& ga)
 
 				// Ignore original edges incident to vOrig.
 				if (eOrig->source() != vOrig && eOrig->target() != vOrig) {
-					crossings[eOrig] += (k - 1);
+					crossings[eOrig] += static_cast<size_t>(k - 1);
 				}
 			}
 		}
@@ -235,7 +235,7 @@ EdgeArray<size_t> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes&
 
 	// For all edges, get the target point of each of their edge segments.
 	for (const edge& e : G.edges) {
-		int nCrossingsE = 0;
+		size_t nCrossingsE = 0;
 		node src = e->source();
 		node tgt = e->target();
 		DPoint vPoint = ga.point(src);
@@ -316,7 +316,7 @@ NodeArray<size_t> LayoutStatistics::numberOfNodeOverlaps(const GraphAttributes& 
 
 	// For all pairs of nodes, test whether they overlap.
 	for (const node& v : G.nodes) {
-		int nOverlapsV = 0;
+		size_t nOverlapsV = 0;
 		for (const node& w : G.nodes) {
 			if (v != w && nodeRects[v].intersects(nodeRects[w])) {
 				nOverlapsV++;
@@ -337,7 +337,7 @@ double LayoutStatistics::edgeLengthDeviation(const GraphAttributes& ga, EdgeArra
 	}
 
 	out.init(mainGraph, 0.0); // init out to label the correct graph
-	EdgeArray<double> lengths(mainGraph, true);
+	EdgeArray<double> lengths(mainGraph, 0.0);
 	for (const edge& e : mainGraph.edges) {
 		node u = e->source();
 		node v = e->target();
@@ -867,8 +867,8 @@ DPoint LayoutStatistics::centerOfMass(const GraphAttributes& ga) {
 
 	n -= invalidCordsCount;
 
-	sumX /= n; // average x coordinate
-	sumY /= n; // average y coordinate
+	sumX /= static_cast<double>(n); // average x coordinate
+	sumY /= static_cast<double>(n); // average y coordinate
 
 	return DPoint(sumX, sumY); // return center of mass node
 }
@@ -990,7 +990,7 @@ double LayoutStatistics::nodeOrthogonality(const GraphAttributes& ga, const doub
 			nodeOrthogonalityCount++; // increment orthogonal node count
 		}
 	}
-	return (static_cast<double>(nodeOrthogonalityCount) / n)
+	return (static_cast<double>(nodeOrthogonalityCount) / static_cast<double>(n))
 			* 100.0; // return node orthogonality percentage
 }
 
@@ -1007,11 +1007,11 @@ double LayoutStatistics::averageFlow(const GraphAttributes& ga) {
 		node target = e->target(); // target node of edge
 
 		// calculate edge angle
-		double x = ga.x(source) - ga.x(target); // x coordinate difference
-		double y = ga.y(source) - ga.y(target); // y coordinate difference
+		double x = ga.x(target) - ga.x(source); // x coordinate difference
+		double y = ga.y(target) - ga.y(source); // y coordinate difference
 		totalAngle += Math::radiansToDegrees(atan2(y, x)); // convert to degrees
 	}
-	return totalAngle /= m; // return average flow
+	return totalAngle /= static_cast<double>(m); // return average flow
 }
 
 double LayoutStatistics::upwardsFlow(const GraphAttributes& ga) {
@@ -1029,7 +1029,8 @@ double LayoutStatistics::upwardsFlow(const GraphAttributes& ga) {
 			upwardsFlowCount++;
 		}
 	}
-	return (static_cast<double>(upwardsFlowCount) / m) * 100.0; // return upwards flow percentage
+	return (static_cast<double>(upwardsFlowCount) / static_cast<double>(m))
+			* 100.0; // return upwards flow percentage
 }
 
 double LayoutStatistics::concentration(const GraphAttributes& ga) {
