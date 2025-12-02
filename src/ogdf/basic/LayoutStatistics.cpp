@@ -733,7 +733,7 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 
 		// increment node count for grid-cell
 		size_t cellIndex = cellX + cellY * gridWidth;
-		if (!std::isfinite(cellIndex) || cellIndex < 0) {
+		if (!std::isfinite(cellIndex)) {
 			continue;
 		}
 		if (cellIndex >= nodeCount.size()) {
@@ -883,9 +883,9 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 		}
 	}
 	size_t validNodeCount = validNodes.size();
-	if (validNodeCount < mainGraph.numberOfNodes()) {
-		std::cout << "LayoutStatistics::closestPairOfPoints: Ignoring "
-				  << (mainGraph.numberOfNodes() - validNodeCount)
+	size_t n = static_cast<size_t>(mainGraph.numberOfNodes());
+	if (validNodeCount < n) {
+		std::cout << "LayoutStatistics::closestPairOfPoints: Ignoring " << (n - validNodeCount)
 				  << " nodes with non-finite coordinates.\n";
 	}
 
