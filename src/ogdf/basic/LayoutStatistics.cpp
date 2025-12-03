@@ -390,7 +390,6 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 	double nodePreservationValue = 0.0; // preservation value for each node, higher = better
 	// Uncomment 1. | double graphPreservationValue = 0.0; // preservation value for whole graph, higher = better
 
-
 	// Distance NodeArray-Matrix n x n: vector of (distance(u, v), v)
 	NodeArray<std::vector<std::pair<double, node>>> distM(mainGraph);
 
@@ -433,7 +432,6 @@ NodeArray<double> LayoutStatistics::neighbourhoodPreservation(const GraphAttribu
 			continue;
 		}
 
-
 		nodePreservationValue = 0.0; // reseting value for each node/round
 
 		// for |deg(currentNode)|, calculate preservation value for current node
@@ -466,9 +464,6 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		return nodeGabrielRatios;
 	}
 
-
-	// size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
-
 	// array for per-node Gabriel ratios
 	NodeArray<size_t> gabrielCount(mainGraph, 0); // count Gabriel-edges for each node
 	NodeArray<size_t> degreeCount(mainGraph, 0); // count degree of each node
@@ -497,7 +492,6 @@ NodeArray<double> LayoutStatistics::gabrielRatio(const GraphAttributes& ga,
 		// instead of sqrt (hypot for distToMidPoint), we square both sides (distToMidpoint^2 < radius^2) to avoid sqrt
 		// which turns radius = distance / 2 into: radius^2 = (distance^2) / 4; * 0.25 for efficiency
 		double radiusSquared = (dx * dx + dy * dy) * 0.25;
-
 
 		bool isGabrielEdge = true;
 		for (const node& w : mainGraph.nodes) {
@@ -774,7 +768,6 @@ double LayoutStatistics::nodeUniformity(const GraphAttributes& ga, size_t gridWi
 		return 0.0;
 	}
 
-
 	totalUniformityDeviation /= static_cast<double>(gridCount);
 
 	if (worstUniformityDeviation <= 0.0) {
@@ -892,7 +885,6 @@ double LayoutStatistics::closestPairOfPoints(const GraphAttributes& ga) {
 	if (validNodeCount < 2) {
 		return -1.0;
 	}
-
 
 	double smallestDist = std::numeric_limits<double>::infinity(); // for smallest distance
 	double distance = 0.0;
@@ -1047,7 +1039,7 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 	const DPoint center = centerOfMass(ga);
 	const double centerX = center.m_x; // x coordinate of center of mass
 	const double centerY = center.m_y; // y coordinate of center of mass
-	// double sumOfDistancesToCenter = 0.0;
+
 	std::vector<double> distances;
 	distances.reserve(n); // size n
 
@@ -1062,7 +1054,6 @@ double LayoutStatistics::concentration(const GraphAttributes& ga) {
 		if (std::isfinite(dist)) {
 			distances.push_back(dist);
 		}
-		// sumOfDistancesToCenter += dist; // add distance to sum
 	}
 
 	const size_t valid = distances.size();

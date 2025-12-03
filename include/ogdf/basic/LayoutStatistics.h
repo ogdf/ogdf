@@ -80,7 +80,6 @@ public:
 	 */
 	static EdgeArray<double> edgeLengths(const GraphAttributes& ga, bool considerSelfLoops = false);
 
-
 	//! Computes the number of bends (i.e. bend-points) for each edge in the layout \p ga.
 	/**
 	 * \param ga                Input layout.
@@ -88,7 +87,6 @@ public:
 	 * \return                  The number of bends for each edge.
 	 */
 	static EdgeArray<size_t> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
-
 
 	//! Computes the angle for each pair of adjacent edge segments of the layout \p ga.
 	/**
@@ -99,7 +97,6 @@ public:
 	 * \return              The angle for each two adjacent edge segments.
 	 */
 	static ArrayBuffer<double> angles(const GraphAttributes& ga, bool considerBends = true);
-
 
 	//! Computes the number of edge crossings for each edge in the layout \p ga.
 	/**
@@ -118,7 +115,6 @@ public:
 	 */
 	static EdgeArray<size_t> numberOfCrossings(const GraphAttributes& ga);
 
-
 	//! Computes the number of crossings through a non-incident node for each
 	//! edge in the layout \p ga.
 	/**
@@ -133,7 +129,6 @@ public:
 	 * \return   The number of node crossings for each edge.
 	 */
 	static EdgeArray<size_t> numberOfNodeCrossings(const GraphAttributes& ga);
-
 
 	//! Computes the percentage of crossings for each edge in the layout \p ga
 	//! compared to the maximum number of crossings.
@@ -167,7 +162,6 @@ public:
 	 */
 	static NodeArray<size_t> numberOfNodeOverlaps(const GraphAttributes& ga);
 
-
 	//! Computes the intersection graph \p H of the line segments in the layout given by \p ga.
 	/**
 	 * The nodes of the intersection graph are all endpoints of segments in \p ga plus all intersection points.
@@ -190,7 +184,6 @@ public:
 	 */
 	static void intersectionGraph(const GraphAttributes& ga, Graph& H, NodeArray<DPoint>& points,
 			NodeArray<node>& origNode, EdgeArray<edge>& origEdge);
-
 
 	//! Computes the edge length deviation \p H of the edges in the graph given, in \p ga.
 	/**
@@ -300,7 +293,6 @@ public:
 	 */
 	static DPoint centerOfMass(const GraphAttributes& ga);
 
-
 	//! Computes Closest pair of points.
 	/**
 	 * def. Closest pair of points:
@@ -374,7 +366,6 @@ public:
 	 * Returns -1.0 when graph is empty, or undirected.
 	 */
 	static double upwardsFlow(const GraphAttributes& ga);
-
 
 	//! Calculates the variance of node distances from the center of mass.
 	/**
