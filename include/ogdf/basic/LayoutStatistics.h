@@ -38,7 +38,6 @@
 #include <ogdf/basic/geometry.h>
 
 #include <cstddef>
-#include <utility>
 
 namespace ogdf {
 class GraphAttributes;
