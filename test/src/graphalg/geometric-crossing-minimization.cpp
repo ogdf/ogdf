@@ -29,7 +29,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/LayoutStatistics.h>
