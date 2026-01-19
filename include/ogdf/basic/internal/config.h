@@ -62,13 +62,17 @@ using std::to_string;
 #	define OGDF_SYSTEM_OSX
 #endif
 
+#ifdef _MSVC_LANG
+#	define OGDF_CPLUSPLUS _MSVC_LANG
+#else
+#	define OGDF_CPLUSPLUS __cplusplus
+#endif
+
 // C++17 standard
-#if __cplusplus < 201703
+#if OGDF_CPLUSPLUS < 201703L
 
 #	if defined(_MSC_VER)
-#		if _MSC_VER < 1915
-#			error "Compiling OGDF requires C++17 (Visual Studio 2017 15.8) or higher!"
-#		endif
+#		error "Compiling OGDF requires C++17 (Visual Studio 2017 15.8) or higher!"
 
 #	elif defined(__GNUC__)
 #		error "Compiling OGDF requires C++17 (compile with -std=c++17)!"
@@ -81,7 +85,7 @@ using std::to_string;
 
 #ifdef __has_cpp_attribute
 #	define OGDF_HAS_CPP_ATTRIBUTE(x) \
-		(__has_cpp_attribute(x) && __cplusplus >= __has_cpp_attribute(x))
+		(__has_cpp_attribute(x) && OGDF_CPLUSPLUS >= __has_cpp_attribute(x))
 #else
 #	define OGDF_HAS_CPP_ATTRIBUTE(x) 0
 #endif
