@@ -51,7 +51,7 @@
 namespace ogdf {
 
 double graphArea(const GraphAttributes& ga) {
-	if (ga.constGraph().numberOfNodes() < 2) {
+	if (ga.constGraph().numberOfNodes() < 1) {
 		return 0.0;
 	}
 
@@ -221,13 +221,10 @@ EdgeArray<size_t> LayoutStatistics::numberOfCrossings(const GraphAttributes& ga)
 
 EdgeArray<size_t> LayoutStatistics::numberOfNodeCrossings(const GraphAttributes& ga) {
 	const Graph& G = ga.constGraph();
-	if (G.numberOfEdges() == 0) {
-		EdgeArray<size_t> values(G, 0);
+	EdgeArray<size_t> values(G, 0);
+	if (G.numberOfEdges() < 1) {
 		return values;
 	}
-
-	EdgeArray<size_t> values(G, 0);
-	DPoint inter;
 
 	// Get bounding rectangle of every node.
 	NodeArray<DRect> nodeRects(G);
@@ -636,11 +633,7 @@ double LayoutStatistics::aspectRatio(const GraphAttributes& ga) {
 	size_t numOfNodes = mainGraph.numberOfNodes(); // for efficiency
 
 	// if graph has less than 2 nodes, aspect ratio is trivial
-	if (numOfNodes < 2) {
-		if (numOfNodes == 1) {
-			return 1.0; // aspect ratio is 1.0 for single node
-		}
-
+	if (numOfNodes < 1) {
 		return 0.0; // aspect ratio is 0.0 for no node
 	}
 

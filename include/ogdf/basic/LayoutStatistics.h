@@ -48,7 +48,7 @@ class GraphAttributes;
  */
 class OGDF_EXPORT LayoutStatistics {
 public:
-	//! Computes graph area, in coordinate length metric.
+	//! Computes graph area (respecting node sizes), in coordinate length metric.
 	/**
 	 *
 	 * Uses GraphAttributes::boundingBox() as helper function,
@@ -66,8 +66,8 @@ public:
 	 * the drawing’s bounding box to its width (or vice versa,
 	 * depending on which is greater)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
 	 *
-	 * Returns aspect ration double
-	 * Returns 0.0 if the graph has less than 2 nodes, or either height or width of the bounding box are equal or smaller than 0.
+	 * Returns aspect ratio double (regarding node positions and sizes)
+	 * Returns 0.0 if the graph has no nodes, or height or width of the bounding box are 0.
 	 */
 	static double aspectRatio(const GraphAttributes& ga);
 
@@ -231,7 +231,6 @@ public:
 	 * Returns a double that gives the Node Ratio as output, which is: smallest_distance_between_2_nodes / biggest_distance_between_2_nodes
 	 */
 	static double nodeResolution(const GraphAttributes& ga);
-
 
 	//! Computes Angular Resolution (AR) \p H of the nodes in the graph given, in \p ga.
 	/**

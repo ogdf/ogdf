@@ -1080,7 +1080,7 @@ public:
 	 */
 	void transferToCopy(GraphAttributes& copyAttr) const;
 
-	//! Returns the bounding box of the graph.
+	//! Returns the bounding box of the graph, also respects node sizes.
 	/**
 	 * \pre #nodeGraphics and #edgeGraphics is enabled
 	 */
