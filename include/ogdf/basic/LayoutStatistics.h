@@ -2,7 +2,7 @@
  * \brief Declares class LayoutStatistics which provides various
  *        functions for computing statistical measures of a layout.
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Sharif Wurz
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -37,6 +37,8 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 
+#include <cstddef>
+
 namespace ogdf {
 class GraphAttributes;
 
@@ -46,14 +48,36 @@ class GraphAttributes;
  */
 class OGDF_EXPORT LayoutStatistics {
 public:
+	//! Computes graph area (respecting node sizes), in coordinate length metric.
+	/**
+	 *
+	 * Uses GraphAttributes::boundingBox() as helper function,
+	 * to get height and width of graph, to compute its area.
+	 *
+	 * Returns graph area double value
+	 * Returns 0 if graph has one or less nodes.
+	 */
+	static double graphArea(const GraphAttributes& ga);
+
+	//! Computes Aspect Ratio (Asp) \p H of the layout/graph \p g.
+	/**
+	 * def. Aspect Ratio (Asp):
+	 * "The Aspect Ratio is the ratio of the height of
+	 * the drawing’s bounding box to its width (or vice versa,
+	 * depending on which is greater)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns aspect ratio double (regarding node positions and sizes)
+	 * Returns 0.0 if the graph has no nodes, or height or width of the bounding box are 0.
+	 */
+	static double aspectRatio(const GraphAttributes& ga);
+
 	//! Computes the edge length for each edge in the layout \p ga.
 	/**
 	 * \param ga                Input layout.
 	 * \param considerSelfLoops Determines whether the lengths of self-loops are considered.
 	 * \return                  The edge length for each edge.
 	 */
-	static ArrayBuffer<double> edgeLengths(const GraphAttributes& ga, bool considerSelfLoops = false);
-
+	static EdgeArray<double> edgeLengths(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 	//! Computes the number of bends (i.e. bend-points) for each edge in the layout \p ga.
 	/**
@@ -61,8 +85,7 @@ public:
 	 * \param considerSelfLoops Determines whether the bends of self-loops are considered.
 	 * \return                  The number of bends for each edge.
 	 */
-	static ArrayBuffer<int> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
-
+	static EdgeArray<size_t> numberOfBends(const GraphAttributes& ga, bool considerSelfLoops = false);
 
 	//! Computes the angle for each pair of adjacent edge segments of the layout \p ga.
 	/**
@@ -73,7 +96,6 @@ public:
 	 * \return              The angle for each two adjacent edge segments.
 	 */
 	static ArrayBuffer<double> angles(const GraphAttributes& ga, bool considerBends = true);
-
 
 	//! Computes the number of edge crossings for each edge in the layout \p ga.
 	/**
@@ -90,8 +112,7 @@ public:
 	 *           Otherwise, a straight-line drawing is assumed.
 	 * \return   The number of crossings for each edge.
 	 */
-	static ArrayBuffer<int> numberOfCrossings(const GraphAttributes& ga);
-
+	static EdgeArray<size_t> numberOfCrossings(const GraphAttributes& ga);
 
 	//! Computes the number of crossings through a non-incident node for each
 	//! edge in the layout \p ga.
@@ -106,8 +127,26 @@ public:
 	 *           Otherwise, a straight-line drawing is assumed.
 	 * \return   The number of node crossings for each edge.
 	 */
-	static ArrayBuffer<int> numberOfNodeCrossings(const GraphAttributes& ga);
+	static EdgeArray<size_t> numberOfNodeCrossings(const GraphAttributes& ga);
 
+	//! Computes the percentage of crossings for each edge in the layout \p ga
+	//! compared to the maximum number of crossings.
+	/**
+	 * The maximum number of crossings is defined as the number of crossings
+	 * that would occur if all edges were straight lines and crossed at most once.
+	 * This is computed by the numberOfCrossings() function.
+	 *
+	 * \warning sum of all returned values is twice the number of crossings
+	 * as each crossing involves two edges (the edge itself and the crossing edge),
+	 * therefore we divide the sum by two to get the correct amount.
+	 *
+	 *
+	 * \return The percentage, of crossings for each edge compared to the maximum amount of crossings.
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 */
+	static double percentageCrossingVsMaxCrossings(const GraphAttributes& ga);
 
 	//! Computes the number of node overlaps for each node in the layout \p ga.
 	/**
@@ -120,13 +159,12 @@ public:
 	 * \param ga Input layout.
 	 * \return   The number of node overlaps for each node.
 	 */
-	static ArrayBuffer<int> numberOfNodeOverlaps(const GraphAttributes& ga);
-
+	static NodeArray<size_t> numberOfNodeOverlaps(const GraphAttributes& ga);
 
 	//! Computes the intersection graph \p H of the line segments in the layout given by \p ga.
 	/**
 	 * The nodes of the intersection graph are all endpoints of segments in \p ga plus all intersection points.
-	 * The edges corrsepond to edges in the input layout: If an edge connecting points \a v and \a w in \p H corresponds
+	 * The edges correspond to edges in the input layout: If an edge connecting points \a v and \a w in \p H corresponds
 	 * to an edge \a e in the input graph, then \a e contains a line segment \a s such that both \a v and \a w are
 	 * endpoints or intersection points of \a s.
 	 *
@@ -145,6 +183,200 @@ public:
 	 */
 	static void intersectionGraph(const GraphAttributes& ga, Graph& H, NodeArray<DPoint>& points,
 			NodeArray<node>& origNode, EdgeArray<edge>& origEdge);
-};
 
+	//! Computes the edge length deviation \p H of the edges in the graph given, in \p ga.
+	/**
+	 * Edge length deviation def.: The deviation of the actual edge length from the average edge length of the graph.
+	 * Returns an array of edge deviations (of doubles) of all edges of the graph.
+	 * Also generates a private variable with an edge length deviation average.
+	 *
+	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns an array of deviation values, of each edge (deviation of avg edge length) in the Graph
+	 */
+	static double edgeLengthDeviation(const GraphAttributes& ga, EdgeArray<double>& out);
+
+	//! Computes neighborhood preservation \p H of the edges in the graph given, in \p ga.
+	/**
+	 * Neighborhood preservation def.: How many nodes in the graph are connected to the actually closest (least coordinative distance) nodes.
+	 * Returns an array of neighbourhood preservations in percentile (of doubles from \p 0.0 for lowest preservation, to \p 1.0 for highest preservation) of all nodes of the graph.
+	 * Neighborhood preservation def.: How many nodes in the graph are connected to the actually closest nodes (least coordinative distance.
+	 * Also generates a private variable with an overall graph neighbourhood preservation average (also from \p 0.0 to \p 1.0 ).
+	 *
+	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns an array of preservation values, of each node in Graph \p mainGraph
+	 */
+	static NodeArray<double> neighbourhoodPreservation(const GraphAttributes& ga);
+
+	//! Computes Gabriel Ratio \p H of the edges in the graph given, in \p ga and also returns new set of edges that fulfill Gabriel criteria.
+	/**
+	 * Gabriel Ratio def.: 	The ratio of the distance between two nodes and the distance to the closest node to the edge between the two nodes,
+	 * 						that is only allowed to contain the two nodes itself, not any other ones.
+	 *
+	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns an array of Gabriel Ratios (of doubles) of all nodes of the graph
+	 * Also also assigns the reference graph (gabrielGraphReference) to the output gabriel graph
+	 */
+	static NodeArray<double> gabrielRatio(const GraphAttributes& ga, Graph& gabrielGraphReference);
+
+	//! Computes Node Ratio \p H of the nodes in the graph given, in \p ga.
+	/**
+	 * Node Ratio def.: 	Node Resolution (NR) metric is the ratio between
+	 * 						the smallest distance between two nodes and the
+	 * 						largest distance between two nodes.
+	 * Source: https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns a double that gives the Node Ratio as output, which is: smallest_distance_between_2_nodes / biggest_distance_between_2_nodes
+	 */
+	static double nodeResolution(const GraphAttributes& ga);
+
+	//! Computes Angular Resolution (AR) \p H of the nodes in the graph given, in \p ga.
+	/**
+	 * def. Angular Resolution (AR):
+	 * "After calculating the angular deviation of each edge from the ideal angle
+	 * (based on degree), the AR metric calculates the mean over all nodes
+	 * (excluding degree-1 nodes)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns a double of the angular resolution of the graph
+	 * Returns 0.0 if there are no nodes with degree greater than 2, or if the graph has less than 3 nodes.
+	 */
+	static double angularResolution(const GraphAttributes& ga);
+
+	//! Computes Node Uniformity (NU) \p H of the graph \p g.
+	/**
+	 * def. Node Uniformity (NU):
+	 * Calculates how well the node distribution is in the bounding box of the graph.
+	 * "The Node Uniformity metric measures the distribution of nodes in the bounding
+	 * box, by splitting it into grid cells based on the number of nodes
+	 * in the graph, counting the number of nodes in each cell, and
+	 * comparing them with an ideal distribution." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Can also receive grid width and height as params, defaults to 10x10 grid.
+	 *
+	 * Returns node uniformity metric between 1.0 and 0.0, where 1.0 is a perfect uniformity
+	 * and 0.0 is the worst uniformity.
+	 * Returns 0.0 if the graph has less than 2 nodes, or number of grid cells is 0 (e.g. gridWidth or/and gridHeight is 0).
+	 */
+	static double nodeUniformity(const GraphAttributes& ga, size_t gridWidth = 10,
+			size_t gridHeight = 10);
+
+	//! Computes Edge Orthogonality (EO) \p H of the graph \p g.
+	/**
+	 * def. Edge Orthogonality (EO):
+	 * Calculates mean of edge orthogonality deviation.
+	 * "The Edge Orthogonality metric takes the mean of the angular deviation
+	 * of all edges from the horizontal or vertical axis (whichever is
+	 * closest)." - https://www2.cs.arizona.edu/people/kobourov/gd-metrics2024.pdf
+	 *
+	 * Returns mean Edge Orthogonality of all edges
+	 */
+	static double edgeOrthogonality(const GraphAttributes& ga);
+
+	//! Computes center of mass, where most nodes are.
+	/**
+	 * def. Center Of Mass:
+	 * Calculates mean position of all nodes.
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 * Returns double pair containing center of mass coordinates.
+	 * Returns a pair with (0.0, 0.0) if graph is empty.
+	 * Returns a pair with (-1.0, -1.0) if graph has no nodes with valid (finite) coordinates.
+	 *
+	 * \warning Unfortunately, this, rather simple, implementation has a runtime complexity of O(n^3),
+	 * which might weight heavily on larger graphs. By implementing a median KD-tree, the runtime can be improved to O(n log n).
+	 */
+	static DPoint centerOfMass(const GraphAttributes& ga);
+
+	//! Computes Closest pair of points.
+	/**
+	 * def. Closest pair of points:
+	 * Finds the two nodes in the graph, that have the smallest euclidean distance to each other,
+	 * and calculates their distance.
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 * Returns euclidean distance double of two closest nodes.
+	 * Returns -1.0 if graph is empty.
+	 */
+	static double closestPairOfPoints(const GraphAttributes& ga);
+
+	//! Computes horizontal node balance.
+	/**
+	 * def. Horizontal/Vertical node balance:
+	 * Split nodes into two groups, left and right (or above or below) of the center,
+	 * and divide it by total number of nodes.
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 *
+	 * Returns balance double value, where 0 is perfectly balanced and 1 is maximally unbalanced.
+	 * Returns -1.0 if graph is empty.
+	 */
+	static double horizontalVerticalBalance(const GraphAttributes& ga, const bool vertical = false);
+
+	//! Calculating percentage of nodes with integer coordinates.
+	/**
+	 *
+	 * For each node, checks if its x- and y-coordinates are integers,
+	 * and counts how many of them are.
+	 * Can also receives epsilon value for tolerance of closeness to integer (default is 1e-9).
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 * Returns percentage of nodes with integer coordinates (or within epsilon range).
+	 * Returns -1.0 when graph is empty.
+	 */
+	static double nodeOrthogonality(const GraphAttributes& ga, const double epsilon = 1e-9);
+
+	//! Calculates mean edge direction (vector) angle.
+	/**
+	 *
+	 * For each edge, calculates angle of its directional vector,
+	 * and returns the mean angle of all edges.
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 * Returns degree of mean edge direction angle (as double).
+	 * Returns -1.0 when graph is empty.
+	 */
+	static double averageFlow(const GraphAttributes& ga);
+
+	//! Calculates percentage of edges that point upwards.
+	/**
+	 *
+	 * For each edge, checks if its directional vector has a positive y-value,
+	 * meaning that its direction points upwards.
+	 *
+	 * Can also receives epsilon value for tolerance of closeness to integer (default is 1e-9).
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 * Returns percentage of edges pointing upwards.
+	 * Returns -1.0 when graph is empty, or undirected.
+	 */
+	static double upwardsFlow(const GraphAttributes& ga);
+
+	//! Calculates the variance of node distances from the center of mass.
+	/**
+	 *
+	 * For each node, compute distance to center of mass,
+	 * then calculate variance in all these distances.
+	 *
+	 * Source:
+	 * https://drops.dagstuhl.de/storage/00lipics/lipics-vol320-gd2024/LIPIcs.GD.2024.45/LIPIcs.GD.2024.45.pdf
+	 *
+	 * Returns concentration nodes in graph.
+	 * Returns -1.0 when graph is empty.
+	 */
+	static double concentration(const GraphAttributes& ga);
+};
 }

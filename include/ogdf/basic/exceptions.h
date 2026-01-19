@@ -163,7 +163,7 @@ enum class LibraryNotSupportedCode {
 /**
  * @ingroup exceptions
  */
-class OGDF_EXPORT Exception : std::exception {
+class OGDF_EXPORT Exception : public std::exception {
 private:
 	const char* m_file; //!< Source file where exception occurred.
 	int m_line; //!< Line number where exception occurred.

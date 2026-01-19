@@ -51,10 +51,11 @@ struct TileToRowsCCPacker::RowInfo {
 };
 
 template<class POINT>
-class DecrIndexComparer : public GenericComparer<int, int> {
+class DecrIndexComparer : public GenericComparer<int, typename POINT::numberType> {
 public:
 	explicit DecrIndexComparer(const Array<POINT>& box)
-		: GenericComparer([&](int i) { return -box[i].m_y; }) { }
+		: GenericComparer<int, typename POINT::numberType>([&](const int& i) { return -box[i].m_y; }) {
+	}
 };
 
 void TileToRowsCCPacker::call(Array<DPoint>& box, Array<DPoint>& offset, double pageRatio) {

@@ -546,8 +546,8 @@ The `.clang-format` file allows easy checking and implementation of the
 coding style.
 
 C++ code should comply to C++11.
-Please use `__cplusplus` guards if you want to use language features of
-a certain C++ version.
+Please use `OGDF_CPLUSPLUS` guards (portable way to access `__cplusplus`)
+if you want to use language features of a certain C++ version.
 
 ## Responsibilities
 

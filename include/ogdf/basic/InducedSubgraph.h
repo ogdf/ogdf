@@ -75,7 +75,7 @@ guess_dist([[maybe_unused]] Iterator begin, [[maybe_unused]] Iterator end) {
 template<OGDF_NODE_ITER NI, bool notifyObservers, bool copyIDs>
 void Graph::insertNodes(const NI& nodesBegin, const NI& nodesEnd, NodeArray<node, true>& nodeMap,
 		int& newNodes, void* cbData) {
-	int guessedNodes = internal::guess_dist(nodesBegin, nodesEnd);
+	int guessedNodes = static_cast<int>(internal::guess_dist(nodesBegin, nodesEnd));
 	if (guessedNodes > 0 && notifyObservers) {
 		m_regNodeArrays.reserveSpace(guessedNodes);
 	}

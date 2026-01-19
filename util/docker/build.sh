@@ -55,13 +55,16 @@ if [ -z "$DOCKER_PUSH_CMD" ]; then
   DOCKER_PUSH_CMD="$DOCKER_CMD push"
 fi
 
-# Install CGAL only for GCC_VERSION >= 6.3 or CLANG_VERSION >= 10.0 (these are
-# the minimum supported versions for CGAL 5).
+# Install CGAL 5/6 only for sufficiently recent compiler versions
 cgal_install="false"
-if { [[ "$base" = "gcc" ]]   && is_higher_version "$version" "6.3"; } || \
+if { [[ "$base" = "gcc" ]]   && is_higher_version "$version" "11.4"; } || \
+   { [[ "$base" = "clang" ]] && is_higher_version "$version" "15.0.7"; } ; then
+  cgal_install="6.0.2"
+elif { [[ "$base" = "gcc" ]]   && is_higher_version "$version" "6.3"; } || \
    { [[ "$base" = "clang" ]] && is_higher_version "$version" "10"; } ; then
-  cgal_install="true"
+  cgal_install="5.6.3"
 fi
+echo "Will install CGAL: $cgal_install"
 
 if [[ "$base" = "clang" ]]; then
   # build clang image (with given debian version) first, result will be cached

@@ -54,12 +54,14 @@ else()
   set(COIN_SOLVER_IS_EXTERNAL 1)
 endif()
 
-# installation
-install(TARGETS COIN EXPORT CoinTargets COMPONENT COIN)
+# installation of the COIN cmake targets included by the ogdf-config.cmake
+install(TARGETS COIN EXPORT CoinTargets COMPONENT COIN) # add the OGDF target to the export set "CoinTargets"
+install(EXPORT CoinTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf) # write all targets in this export set to CoinTargets.cmake
+export(EXPORT CoinTargets FILE "${PROJECT_BINARY_DIR}/CoinTargets.cmake") # and also put that file in the build-tree, not only the install-tree
+# ...and of the static headers
 install(DIRECTORY include/coin
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   COMPONENT COINheaders
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp")
-install(EXPORT CoinTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/ogdf)
