@@ -5,6 +5,7 @@ project(OGDF-PROJECT LANGUAGES CXX VERSION "2025.10.01")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX "-debug")
 
+option(OGDF_EXTERNAL_COIN "Do not use the COIN version packaged with the OGDF, but one provided by the system" OFF)
 option(OGDF_LIBRARY_TARGETS_ONLY "Generate only the library targets (COIN and OGDF)" OFF)
 option(OGDF_DISABLE_HELP_MESSAGE "Disable the CMake Configure help message generated for OGDF" OFF)
 
@@ -28,7 +29,14 @@ include(GNUInstallDirs)
 
 include(compiler-specifics)
 include(group-files)
-include(coin)
+if(OGDF_EXTERNAL_COIN)
+  find_package(COIN REQUIRED)
+  set(COIN_SOLVER "CLP" CACHE STRING "Linear program solver to be used by COIN.")
+  set_property(CACHE COIN_SOLVER PROPERTY STRINGS CLP CPX GRB)
+  set(COIN_SOLVER_IS_EXTERNAL 0)
+else()
+  include(coin)
+endif()
 include(ogdf)
 
 if(NOT OGDF_LIBRARY_TARGETS_ONLY)

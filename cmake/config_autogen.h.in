@@ -32,3 +32,6 @@
 #cmakedefine OGDF_HAS_LINUX_CPU_MACROS
 #cmakedefine OGDF_HAS_MALLINFO2
 #cmakedefine OGDF_INCLUDE_CGAL
+#cmakedefine OGDF_EXTERNAL_COIN
+#cmakedefine OGDF_EXTERNAL_PUGIXML
+#cmakedefine OGDF_EXTERNAL_BACKWARD

@@ -16,6 +16,10 @@
 
 #include <ogdf/basic/internal/config.h>
 
+#ifdef OGDF_EXTERNAL_PUGIXML
+#	error "Included internal PugiXML header while building with OGDF_EXTERNAL_PUGIXML"
+#endif
+
 // Uncomment this to enable wchar_t mode
 // #define PUGIXML_WCHAR_MODE
 
