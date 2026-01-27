@@ -32,7 +32,6 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Logger.h>
-#include <ogdf/basic/basic.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/graphics.h>
 #include <ogdf/cluster/ClusterGraph.h>
