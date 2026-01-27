@@ -11,6 +11,8 @@
  * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
  */
 
+#include <ogdf/basic/internal/config.h> // IWYU pragma: keep
+
 #ifdef OGDF_EXTERNAL_PUGIXML
 #include <pugixml.hpp>
 #elif !defined(HEADER_PUGIXML_HPP)

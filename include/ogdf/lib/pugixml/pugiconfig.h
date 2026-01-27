@@ -14,7 +14,7 @@
 #ifndef HEADER_PUGICONFIG_HPP
 #define HEADER_PUGICONFIG_HPP
 
-#include <ogdf/basic/internal/config.h>
+#include <ogdf/basic/internal/config.h> // IWYU pragma: keep
 
 #ifdef OGDF_EXTERNAL_PUGIXML
 #	error "Included internal PugiXML header while building with OGDF_EXTERNAL_PUGIXML"
