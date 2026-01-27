@@ -52,7 +52,11 @@ endif()
 
 # target documentation
 if(NOT OGDF_DISABLE_HELP_MESSAGE)
-  message(STATUS "The default target builds OGDF (and dependencies like COIN).")
+  if(OGDF_EXTERNAL_COIN)
+    message(STATUS "The default target builds OGDF.")
+  else()
+    message(STATUS "The default target builds OGDF (and dependencies like COIN).")
+  endif()
   if(DOXYGEN_FOUND AND DOC_INSTALL)
     message(STATUS "Because DOC_INSTALL is set, it also generates the OGDF documentation (in-source).")
   endif()
