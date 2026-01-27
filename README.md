@@ -1,7 +1,9 @@
 # OGDF
 
+[![GitHub Release](https://img.shields.io/github/v/release/ogdf/ogdf?display_name=release)](https://github.com/ogdf/ogdf/releases)
 [![Conan Center](https://img.shields.io/conan/v/ogdf)](https://conan.io/center/recipes/ogdf)
 [![vcpkg](https://img.shields.io/vcpkg/v/ogdf)](https://vcpkg.roundtrip.dev/ports/ogdf)
+[![PyPI - Version](https://img.shields.io/pypi/v/ogdf-wheel)](https://pypi.org/project/ogdf-wheel/)
 
 OGDF stands both for **O**pen **G**raph **D**rawing **F**ramework (the original name)
 and **O**pen **G**raph algorithms and **D**ata structures **F**ramework.

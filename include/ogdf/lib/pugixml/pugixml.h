@@ -11,6 +11,13 @@
  * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
  */
 
+#include <ogdf/basic/internal/config.h> // IWYU pragma: keep
+
+#ifdef OGDF_EXTERNAL_PUGIXML
+#include <pugixml.hpp>
+#elif !defined(HEADER_PUGIXML_HPP)
+#define HEADER_PUGIXML_HPP
+
 // Define version macro; evaluates to major * 1000 + minor * 10 + patch so that it's safe to use in less-than comparisons
 // Note: pugixml used major * 100 + minor * 10 + patch format up until 1.9 (which had version identifier 190); starting from pugixml 1.10, the minor version number is two digits
 #ifndef PUGIXML_VERSION
@@ -19,9 +26,6 @@
 
 // Include user configuration file (this can define various configuration macros)
 #include "pugiconfig.h"
-
-#ifndef HEADER_PUGIXML_HPP
-#define HEADER_PUGIXML_HPP
 
 // Include stddef.h for size_t and ptrdiff_t
 #include <stddef.h>

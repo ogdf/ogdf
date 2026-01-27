@@ -21,7 +21,11 @@
  * SOFTWARE.
  */
 
-#ifndef H_6B9572DA_A64B_49E6_B234_051480991C89
+#include <ogdf/basic/internal/config.h> // IWYU pragma: keep
+
+#ifdef OGDF_EXTERNAL_BACKWARD
+#include <backward.hpp>
+#elif !defined(H_6B9572DA_A64B_49E6_B234_051480991C89)
 #define H_6B9572DA_A64B_49E6_B234_051480991C89
 
 #ifndef __cplusplus
