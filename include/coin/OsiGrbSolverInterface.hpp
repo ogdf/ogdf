@@ -17,6 +17,7 @@
 
 #include <string>
 #include "OsiSolverInterface.hpp"
+#include "CoinPackedMatrix.hpp"
 
 typedef struct _GRBmodel GRBmodel;
 typedef struct _GRBenv GRBenv;
