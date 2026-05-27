@@ -40,7 +40,7 @@ if(MSVC)
 endif()
 
 # use specified or native arch (ie, activate things like SSE)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm" AND NOT EMSCRIPTEN)
   set(OGDF_ARCH "native" CACHE STRING "Target CPU (micro)architecture passed to the compiler via `-march`.")
   mark_as_advanced(OGDF_ARCH)
 
