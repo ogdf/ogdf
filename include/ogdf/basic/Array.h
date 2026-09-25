@@ -810,6 +810,17 @@ template<class E, class INDEX>
 void Array<E, INDEX>::expandArray(INDEX add) {
 	INDEX sOld = size(), sNew = sOld + add;
 
+	// Shrinking to no elements releases the block. realloc(p, 0) and malloc(0) may return
+	// nullptr (the MSVC runtime and glibc free the block and return nullptr for realloc), which
+	// the helpers would report as an allocation failure while m_pStart still points at the freed
+	// block, so that the destructor frees it a second time.
+	if (sNew == 0) {
+		deconstruct();
+		m_pStart = m_vpStart = m_pStop = nullptr;
+		m_high += add;
+		return;
+	}
+
 	// expand allocated memory block
 	if (m_pStart != nullptr) {
 		expandArrayHelper(sOld, sNew);
