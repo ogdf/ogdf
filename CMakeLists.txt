@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10...4.0)
 # we use "xxxx.yy.01" to signify a dev version.
 project(OGDF-PROJECT LANGUAGES CXX VERSION "2025.10.01")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_DEBUG_POSTFIX "-debug")
+set(CMAKE_DEBUG_POSTFIX "-debug" CACHE STRING "Filename postfix for debug builds.")
 
 option(OGDF_EXTERNAL_COIN "Do not use the COIN version packaged with the OGDF, but one provided by the system" OFF)
 option(OGDF_LIBRARY_TARGETS_ONLY "Generate only the library targets (COIN and OGDF)" OFF)
